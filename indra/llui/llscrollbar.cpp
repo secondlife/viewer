@@ -1,0 +1,618 @@
+/** 
+ * @file llscrollbar.cpp
+ * @brief Scrollbar UI widget
+ *
+ * Copyright (c) 2001-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
+#include "linden_common.h"
+
+#include "llscrollbar.h"
+
+#include "llmath.h"
+#include "lltimer.h"
+#include "v3color.h"
+
+#include "llbutton.h"
+#include "llcriticaldamp.h"
+#include "llkeyboard.h"
+#include "llui.h"
+//#include "llviewerimagelist.h"
+#include "llfocusmgr.h"
+#include "llwindow.h"
+#include "llglheaders.h"
+#include "llcontrol.h"
+
+LLScrollbar::LLScrollbar(
+		const LLString& name, LLRect rect,
+		LLScrollbar::ORIENTATION orientation,
+		S32 doc_size, S32 doc_pos, S32 page_size,
+		void (*change_callback)( S32 new_pos, LLScrollbar* self, void* userdata ),
+		void* callback_user_data,
+		S32 step_size)
+:		LLUICtrl( name, rect, TRUE, NULL, NULL ),
+
+		mChangeCallback( change_callback ),
+		mCallbackUserData( callback_user_data ),
+		mOrientation( orientation ),
+		mDocSize( doc_size ),
+		mDocPos( doc_pos ),
+		mPageSize( page_size ),
+		mStepSize( step_size ),
+		mDocChanged(FALSE),
+		mDragStartX( 0 ),
+		mDragStartY( 0 ),
+		mHoverGlowStrength(0.15f),
+		mCurGlowStrength(0.f),
+		mTrackColor( LLUI::sColorsGroup->getColor("ScrollbarTrackColor") ),
+		mThumbColor ( LLUI::sColorsGroup->getColor("ScrollbarThumbColor") ),
+		mHighlightColor ( LLUI::sColorsGroup->getColor("DefaultHighlightLight") ),
+		mShadowColor ( LLUI::sColorsGroup->getColor("DefaultShadowLight") ),
+		mOnScrollEndCallback( NULL ),
+		mOnScrollEndData( NULL )
+{
+	//llassert( 0 <= mDocSize );
+	//llassert( 0 <= mDocPos && mDocPos <= mDocSize );
+	
+	setTabStop(FALSE);
+	updateThumbRect();
+	
+	// Page up and page down buttons
+	LLRect line_up_rect;
+	LLString line_up_img;
+	LLString line_up_selected_img;
+	LLString line_down_img;
+	LLString line_down_selected_img;
+
+	LLRect line_down_rect;
+
+	if( LLScrollbar::VERTICAL == mOrientation )
+	{
+		line_up_rect.setLeftTopAndSize( 0, mRect.getHeight(), SCROLLBAR_SIZE, SCROLLBAR_SIZE );
+		line_up_img="UIImgBtnScrollUpOutUUID";
+		line_up_selected_img="UIImgBtnScrollUpInUUID";
+
+		line_down_rect.setOriginAndSize( 0, 0, SCROLLBAR_SIZE, SCROLLBAR_SIZE );
+		line_down_img="UIImgBtnScrollDownOutUUID";
+		line_down_selected_img="UIImgBtnScrollDownInUUID";
+	}
+	else
+	{
+		// Horizontal
+		line_up_rect.setOriginAndSize( 0, 0, SCROLLBAR_SIZE, SCROLLBAR_SIZE );
+		line_up_img="UIImgBtnScrollLeftOutUUID";
+		line_up_selected_img="UIImgBtnScrollLeftInUUID";
+
+		line_down_rect.setOriginAndSize( mRect.getWidth() - SCROLLBAR_SIZE, 0, SCROLLBAR_SIZE, SCROLLBAR_SIZE );
+		line_down_img="UIImgBtnScrollRightOutUUID";
+		line_down_selected_img="UIImgBtnScrollRightInUUID";
+	}
+
+	LLButton* line_up_btn = new LLButton(
+		"Line Up", line_up_rect,
+		line_up_img, line_up_selected_img, "",
+		&LLScrollbar::onLineUpBtnPressed, this, LLFontGL::sSansSerif );
+	if( LLScrollbar::VERTICAL == mOrientation )
+	{
+		line_up_btn->setFollowsRight();
+		line_up_btn->setFollowsTop();
+	}
+	else
+	{
+		// horizontal
+		line_up_btn->setFollowsLeft();
+		line_up_btn->setFollowsBottom();
+	}
+	line_up_btn->setHeldDownCallback( &LLScrollbar::onLineUpBtnPressed );
+	line_up_btn->setTabStop(FALSE);
+	addChild(line_up_btn);
+
+	LLButton* line_down_btn = new LLButton(
+		"Line Down", line_down_rect,
+		line_down_img, line_down_selected_img, "",
+		&LLScrollbar::onLineDownBtnPressed, this, LLFontGL::sSansSerif );
+	line_down_btn->setFollowsRight();
+	line_down_btn->setFollowsBottom();
+	line_down_btn->setHeldDownCallback( &LLScrollbar::onLineDownBtnPressed );
+	line_down_btn->setTabStop(FALSE);
+	addChild(line_down_btn);
+}
+
+
+LLScrollbar::~LLScrollbar()
+{
+	// Children buttons killed by parent class
+}
+
+void LLScrollbar::setDocParams( S32 size, S32 pos )
+{
+	mDocSize = size;
+	mDocPos = llclamp( pos, 0, getDocPosMax() );
+	mDocChanged = TRUE;
+
+	updateThumbRect();
+}
+
+void LLScrollbar::setDocPos(S32 pos)
+{
+	mDocPos = llclamp( pos, 0, getDocPosMax() );
+	mDocChanged = TRUE;
+
+	updateThumbRect();
+}
+
+void LLScrollbar::setDocSize(S32 size)
+{
+	mDocSize = size;
+	mDocPos = llclamp( mDocPos, 0, getDocPosMax() );
+	mDocChanged = TRUE;
+
+	updateThumbRect();
+}
+
+void LLScrollbar::setPageSize( S32 page_size )
+{
+	mPageSize = page_size;
+	mDocPos = llclamp( mDocPos, 0, getDocPosMax() );
+	mDocChanged = TRUE;
+
+	updateThumbRect();
+}
+
+void LLScrollbar::updateThumbRect()
+{
+//	llassert( 0 <= mDocSize );
+//	llassert( 0 <= mDocPos && mDocPos <= getDocPosMax() );
+	
+	const S32 THUMB_MIN_LENGTH = 16;
+
+	S32 window_length = (mOrientation == LLScrollbar::HORIZONTAL) ? mRect.getWidth() : mRect.getHeight();
+	S32 thumb_bg_length = window_length - 2 * SCROLLBAR_SIZE;
+	S32 visible_lines = llmin( mDocSize, mPageSize );
+	S32 thumb_length = mDocSize ? llmax( visible_lines * thumb_bg_length / mDocSize, THUMB_MIN_LENGTH ) : thumb_bg_length;
+
+	S32 variable_lines = mDocSize - visible_lines;
+
+	if( mOrientation == LLScrollbar::VERTICAL )
+	{ 
+		S32 thumb_start_max = thumb_bg_length + SCROLLBAR_SIZE;
+		S32 thumb_start_min = SCROLLBAR_SIZE + THUMB_MIN_LENGTH;
+		S32 thumb_start = variable_lines ? llclamp( thumb_start_max - (mDocPos * (thumb_bg_length - thumb_length)) / variable_lines, thumb_start_min, thumb_start_max ) : thumb_start_max;
+
+		mThumbRect.mLeft =  0;
+		mThumbRect.mTop = thumb_start;
+		mThumbRect.mRight = SCROLLBAR_SIZE;
+		mThumbRect.mBottom = thumb_start - thumb_length;
+	}
+	else
+	{
+		// Horizontal
+		S32 thumb_start_max = thumb_bg_length + SCROLLBAR_SIZE - thumb_length;
+		S32 thumb_start_min = SCROLLBAR_SIZE;
+		S32 thumb_start = variable_lines ? llclamp( thumb_start_min + (mDocPos * (thumb_bg_length - thumb_length)) / variable_lines, thumb_start_min, thumb_start_max ) : thumb_start_min;
+	
+		mThumbRect.mLeft = thumb_start;
+		mThumbRect.mTop = SCROLLBAR_SIZE;
+		mThumbRect.mRight = thumb_start + thumb_length;
+		mThumbRect.mBottom = 0;
+	}
+	
+	if (mOnScrollEndCallback && mOnScrollEndData && (mDocPos == getDocPosMax()))
+	{
+		mOnScrollEndCallback(mOnScrollEndData);
+	}
+}
+
+BOOL LLScrollbar::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	// Check children first
+	BOOL handled_by_child = LLView::childrenHandleMouseDown(x, y, mask) != NULL;
+	if( !handled_by_child )
+	{
+		if( mThumbRect.pointInRect(x,y) )
+		{
+			// Start dragging the thumb
+			// No handler needed for focus lost since this clas has no state that depends on it.
+			gFocusMgr.setMouseCapture( this, NULL );  
+			mDragStartX = x;
+			mDragStartY = y;
+			mOrigRect.mTop = mThumbRect.mTop;
+			mOrigRect.mBottom = mThumbRect.mBottom;
+			mOrigRect.mLeft = mThumbRect.mLeft;
+			mOrigRect.mRight = mThumbRect.mRight;
+			mLastDelta = 0;
+		}
+		else
+		{
+			if( 
+				( (LLScrollbar::VERTICAL == mOrientation) && (mThumbRect.mTop < y) ) ||
+				( (LLScrollbar::HORIZONTAL == mOrientation) && (x < mThumbRect.mLeft) )
+			)
+			{
+				// Page up
+				pageUp(0);
+			}
+			else
+			if(
+				( (LLScrollbar::VERTICAL == mOrientation) && (y < mThumbRect.mBottom) ) ||
+				( (LLScrollbar::HORIZONTAL == mOrientation) && (mThumbRect.mRight < x) )
+			)
+			{
+				// Page down
+				pageDown(0);
+			}
+		}
+	}
+
+	return TRUE;
+}
+
+
+BOOL LLScrollbar::handleHover(S32 x, S32 y, MASK mask)
+{
+	// Note: we don't bother sending the event to the children (the arrow buttons)
+	// because they'll capture the mouse whenever they need hover events.
+	
+	BOOL handled = FALSE;
+	if( gFocusMgr.getMouseCapture() == this )
+	{
+		S32 height = mRect.getHeight();
+		S32 width = mRect.getWidth();
+
+		if( VERTICAL == mOrientation )
+		{
+//			S32 old_pos = mThumbRect.mTop;
+
+			S32 delta_pixels = y - mDragStartY;
+			if( mOrigRect.mBottom + delta_pixels < SCROLLBAR_SIZE )
+			{
+				delta_pixels = SCROLLBAR_SIZE - mOrigRect.mBottom - 1;
+			}
+			else
+			if( mOrigRect.mTop + delta_pixels > height - SCROLLBAR_SIZE )
+			{
+				delta_pixels = height - SCROLLBAR_SIZE - mOrigRect.mTop + 1;
+			}
+
+			mThumbRect.mTop = mOrigRect.mTop + delta_pixels;
+			mThumbRect.mBottom = mOrigRect.mBottom + delta_pixels;
+
+			S32 thumb_length = mThumbRect.getHeight();
+			S32 thumb_track_length = height - 2 * SCROLLBAR_SIZE;
+
+
+			if( delta_pixels != mLastDelta || mDocChanged)
+			{	
+				// Note: delta_pixels increases as you go up.  mDocPos increases down (line 0 is at the top of the page).
+				S32 usable_track_length = thumb_track_length - thumb_length;
+				if( 0 < usable_track_length )
+				{
+					S32 variable_lines = getDocPosMax();
+					S32 pos = mThumbRect.mTop;
+					F32 ratio = F32(pos - SCROLLBAR_SIZE - thumb_length) / usable_track_length;	
+	
+					S32 new_pos = llclamp( S32(variable_lines - ratio * variable_lines + 0.5f), 0, variable_lines );
+					// Note: we do not call updateThumbRect() here.  Instead we let the thumb and the document go slightly
+					// out of sync (less than a line's worth) to make the thumb feel responsive.
+					changeLine( new_pos - mDocPos, FALSE );
+				}
+			}
+
+			mLastDelta = delta_pixels;
+		
+		}
+		else
+		{
+			// Horizontal
+//			S32 old_pos = mThumbRect.mLeft;
+
+			S32 delta_pixels = x - mDragStartX;
+
+			if( mOrigRect.mLeft + delta_pixels < SCROLLBAR_SIZE )
+			{
+				delta_pixels = SCROLLBAR_SIZE - mOrigRect.mLeft - 1;
+			}
+			else
+			if( mOrigRect.mRight + delta_pixels > width - SCROLLBAR_SIZE )
+			{
+				delta_pixels = width - SCROLLBAR_SIZE - mOrigRect.mRight + 1;
+			}
+
+			mThumbRect.mLeft = mOrigRect.mLeft + delta_pixels;
+			mThumbRect.mRight = mOrigRect.mRight + delta_pixels;
+			
+			S32 thumb_length = mThumbRect.getWidth();
+			S32 thumb_track_length = width - 2 * SCROLLBAR_SIZE;
+
+			if( delta_pixels != mLastDelta || mDocChanged)
+			{	
+				// Note: delta_pixels increases as you go up.  mDocPos increases down (line 0 is at the top of the page).
+				S32 usable_track_length = thumb_track_length - thumb_length;
+				if( 0 < usable_track_length )
+				{
+					S32 variable_lines = getDocPosMax();
+					S32 pos = mThumbRect.mLeft;
+					F32 ratio = F32(pos - SCROLLBAR_SIZE) / usable_track_length;	
+	
+					S32 new_pos = llclamp( S32(ratio * variable_lines + 0.5f), 0, variable_lines);
+	
+					// Note: we do not call updateThumbRect() here.  Instead we let the thumb and the document go slightly
+					// out of sync (less than a line's worth) to make the thumb feel responsive.
+					changeLine( new_pos - mDocPos, FALSE );
+				}
+			}
+
+			mLastDelta = delta_pixels;
+		}
+
+		getWindow()->setCursor(UI_CURSOR_ARROW);
+		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (active)" << llendl;		
+		handled = TRUE;
+	}
+	else
+	{
+		handled = childrenHandleMouseUp( x, y, mask ) != NULL;
+	}
+
+	// Opaque
+	if( !handled )
+	{
+		getWindow()->setCursor(UI_CURSOR_ARROW);
+		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (inactive)"  << llendl;		
+		handled = TRUE;
+	}
+
+	mDocChanged = FALSE;
+	return handled;
+}
+
+
+BOOL LLScrollbar::handleScrollWheel(S32 x, S32 y, S32 clicks)
+{
+	BOOL handled = FALSE;
+	if( getVisible() && mRect.localPointInRect( x, y ) )
+	{
+		if( getEnabled() )
+		{
+			changeLine( clicks * mStepSize, TRUE );
+		}
+		handled = TRUE;
+	}
+
+	return handled;
+}
+
+BOOL LLScrollbar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+									EDragAndDropType cargo_type, void *carge_data, EAcceptance *accept, LLString &tooltip_msg)
+{
+	if (!drop)
+	{
+		//TODO: refactor this
+		S32 variable_lines = getDocPosMax();
+		S32 pos = (VERTICAL == mOrientation) ? y : x;
+		S32 thumb_length = (VERTICAL == mOrientation) ? mThumbRect.getHeight() : mThumbRect.getWidth();
+		S32 thumb_track_length = (VERTICAL == mOrientation) ? (mRect.getHeight() - 2 * SCROLLBAR_SIZE) : (mRect.getWidth() - 2 * SCROLLBAR_SIZE);
+		S32 usable_track_length = thumb_track_length - thumb_length;
+		F32 ratio = (VERTICAL == mOrientation) ? F32(pos - SCROLLBAR_SIZE - thumb_length) / usable_track_length
+			: F32(pos - SCROLLBAR_SIZE) / usable_track_length;	
+		S32 new_pos = (VERTICAL == mOrientation) ? llclamp( S32(variable_lines - ratio * variable_lines + 0.5f), 0, variable_lines )
+			: llclamp( S32(ratio * variable_lines + 0.5f), 0, variable_lines );
+		changeLine( new_pos - mDocPos, TRUE );
+	}
+	return TRUE;
+}
+
+BOOL LLScrollbar::handleMouseUp(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = FALSE;
+	if( gFocusMgr.getMouseCapture() == this )
+	{
+		gFocusMgr.setMouseCapture( NULL, NULL );
+		handled = TRUE;
+	}
+	else
+	{
+		// Opaque, so don't just check children
+		handled = LLView::handleMouseUp( x, y, mask );
+	}
+
+	return handled;
+}
+
+void LLScrollbar::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	LLView::reshape( width, height, called_from_parent );
+	updateThumbRect();
+}
+
+
+void LLScrollbar::draw()
+{
+	if( getVisible() )
+	{
+		S32 local_mouse_x;
+		S32 local_mouse_y;
+		LLCoordWindow cursor_pos_window;
+		getWindow()->getCursorPosition(&cursor_pos_window);
+		LLCoordGL cursor_pos_gl;
+		getWindow()->convertCoords(cursor_pos_window, &cursor_pos_gl);
+
+		screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &local_mouse_x, &local_mouse_y);
+		BOOL other_captor = gFocusMgr.getMouseCapture() && gFocusMgr.getMouseCapture() != this;
+		BOOL hovered = mEnabled && !other_captor && (gFocusMgr.getMouseCapture() == this || mThumbRect.pointInRect(local_mouse_x, local_mouse_y));
+		if (hovered)
+		{
+			mCurGlowStrength = lerp(mCurGlowStrength, mHoverGlowStrength, LLCriticalDamp::getInterpolant(0.05f));
+		}
+		else
+		{
+			mCurGlowStrength = lerp(mCurGlowStrength, 0.f, LLCriticalDamp::getInterpolant(0.05f));
+		}
+
+
+		// Draw background and thumb.
+		LLUUID rounded_rect_image_id;
+		rounded_rect_image_id.set(LLUI::sAssetsGroup->getString("rounded_square.tga"));
+		LLImageGL* rounded_rect_imagep = LLUI::sImageProvider->getUIImageByID(rounded_rect_image_id);
+
+		if (!rounded_rect_imagep)
+		{
+			gl_rect_2d(mOrientation == HORIZONTAL ? SCROLLBAR_SIZE : 0, 
+			mOrientation == VERTICAL ? mRect.getHeight() - 2 * SCROLLBAR_SIZE : mRect.getHeight(),
+			mOrientation == HORIZONTAL ? mRect.getWidth() - 2 * SCROLLBAR_SIZE : mRect.getWidth(), 
+			mOrientation == VERTICAL ? SCROLLBAR_SIZE : 0, mTrackColor, TRUE);
+
+			gl_rect_2d(mThumbRect, mThumbColor, TRUE);
+
+		}
+		else
+		{
+			// Background
+			gl_draw_scaled_image_with_border(mOrientation == HORIZONTAL ? SCROLLBAR_SIZE : 0, 
+				mOrientation == VERTICAL ? SCROLLBAR_SIZE : 0,
+				16,
+				16,
+				mOrientation == HORIZONTAL ? mRect.getWidth() - 2 * SCROLLBAR_SIZE : mRect.getWidth(), 
+				mOrientation == VERTICAL ? mRect.getHeight() - 2 * SCROLLBAR_SIZE : mRect.getHeight(),
+				rounded_rect_imagep, 
+				mTrackColor,
+				TRUE);
+
+			// Thumb
+			LLRect outline_rect = mThumbRect;
+			outline_rect.stretch(2);
+
+			if (gFocusMgr.getKeyboardFocus() == this)
+			{
+				gl_draw_scaled_image_with_border(outline_rect.mLeft, outline_rect.mBottom, 16, 16, outline_rect.getWidth(), outline_rect.getHeight(), 
+							rounded_rect_imagep, gFocusMgr.getFocusColor() );
+			}
+
+			gl_draw_scaled_image_with_border(mThumbRect.mLeft, mThumbRect.mBottom, 16, 16, mThumbRect.getWidth(), mThumbRect.getHeight(), 
+							rounded_rect_imagep, mThumbColor );
+			if (mCurGlowStrength > 0.01f)
+			{
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+				gl_draw_scaled_image_with_border(mThumbRect.mLeft, mThumbRect.mBottom, 16, 16, mThumbRect.getWidth(), mThumbRect.getHeight(), 
+							rounded_rect_imagep, LLColor4(1.f, 1.f, 1.f, mCurGlowStrength), TRUE);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			}
+		}
+
+		BOOL was_scrolled_to_bottom = (getDocPos() == getDocPosMax());
+		if (mOnScrollEndCallback && was_scrolled_to_bottom)
+		{
+			mOnScrollEndCallback(mOnScrollEndData);
+		}
+		// Draw children
+		LLView::draw();
+	}
+}
+
+void LLScrollbar::changeLine( S32 delta, BOOL update_thumb )
+{
+	S32 new_pos = llclamp( mDocPos + delta, 0, getDocPosMax() );
+	if( new_pos != mDocPos )
+	{
+		mDocPos = new_pos;
+	}
+
+	if( mChangeCallback )
+	{
+		mChangeCallback( mDocPos, this, mCallbackUserData );
+	}
+
+	if( update_thumb )
+	{
+		updateThumbRect();
+	}
+}
+
+void LLScrollbar::setValue(const LLSD& value) 
+{ 
+	setDocPos((S32) value.asInteger());
+}
+
+EWidgetType LLScrollbar::getWidgetType() const
+{
+	return WIDGET_TYPE_SCROLLBAR;
+}
+
+LLString LLScrollbar::getWidgetTag() const
+{
+	return LL_SCROLLBAR_TAG;
+}
+
+BOOL LLScrollbar::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+{
+	BOOL handled = FALSE;
+
+	if( getVisible() && mEnabled && !called_from_parent )
+	{
+		switch( key )
+		{
+		case KEY_HOME:
+			changeLine( -mDocPos, TRUE );
+			handled = TRUE;
+			break;
+		
+		case KEY_END:
+			changeLine( getDocPosMax() - mDocPos, TRUE );
+			handled = TRUE;
+			break;
+		
+		case KEY_DOWN:
+			changeLine( mStepSize, TRUE );
+			handled = TRUE;
+			break;
+		
+		case KEY_UP:
+			changeLine( - mStepSize, TRUE );
+			handled = TRUE;
+			break;
+
+		case KEY_PAGE_DOWN:
+			pageDown(1);
+			break;
+
+		case KEY_PAGE_UP:
+			pageUp(1);
+			break;
+		}
+	}
+
+	return handled;
+}
+
+void LLScrollbar::pageUp(S32 overlap)
+{
+	if (mDocSize > mPageSize)
+	{
+		changeLine( -(mPageSize - overlap), TRUE );
+	}
+}
+
+void LLScrollbar::pageDown(S32 overlap)
+{
+	if (mDocSize > mPageSize)
+	{
+		changeLine( mPageSize - overlap, TRUE );
+	}
+}
+
+// static
+void LLScrollbar::onLineUpBtnPressed( void* userdata )
+{
+	LLScrollbar* self = (LLScrollbar*) userdata;
+
+	self->changeLine( - self->mStepSize, TRUE );
+}
+
+// static
+void LLScrollbar::onLineDownBtnPressed( void* userdata )
+{
+	LLScrollbar* self = (LLScrollbar*) userdata;
+	self->changeLine( self->mStepSize, TRUE );
+}
+

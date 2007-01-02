@@ -1,0 +1,88 @@
+/** 
+ * @file lltoolmorph.h
+ * @brief A tool to select object faces.
+ *
+ * Copyright (c) 2001-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
+#ifndef LL_LLTOOLMORPH_H
+#define LL_LLTOOLMORPH_H
+
+#include "lltool.h"
+#include "m4math.h"
+#include "v2math.h"
+#include "linked_lists.h"
+#include "lldynamictexture.h"
+#include "llundo.h"
+#include "lltextbox.h"
+#include "llstrider.h"
+#include "llviewervisualparam.h"
+#include "llframetimer.h"
+#include "llviewerimage.h"
+
+class LLViewerJointMesh;
+class LLPolyMesh;
+class LLViewerObject;
+
+//-----------------------------------------------------------------------------
+// LLVisualParamHint
+//-----------------------------------------------------------------------------
+class LLVisualParamHint
+:	public LLDynamicTexture
+{
+public:
+	LLVisualParamHint(
+		S32 pos_x, S32 pos_y,
+		S32 width, S32 height, 
+		LLViewerJointMesh *mesh, 
+		LLViewerVisualParam *param,
+		F32 param_weight);
+	virtual ~LLVisualParamHint();
+
+	BOOL					needsRender();
+	void					preRender(BOOL clear_depth);
+	BOOL					render();
+	void					requestUpdate( S32 delay_frames ) {mNeedsUpdate = TRUE; mDelayFrames = delay_frames; }
+	void					setUpdateDelayFrames( S32 delay_frames ) { mDelayFrames = delay_frames; }
+	void					draw();
+	
+	LLViewerVisualParam*	getVisualParam() { return mVisualParam; }
+	F32						getVisualParamWeight() { return mVisualParamWeight; }
+	BOOL					getVisible() { return mIsVisible; }
+
+	void					setAllowsUpdates( BOOL b ) { mAllowsUpdates = b; }
+
+	const LLRect&			getRect()	{ return mRect; }
+
+	// Requests updates for all instances (excluding two possible exceptions)  Grungy but efficient.
+	static void				requestHintUpdates( LLVisualParamHint* exception1 = NULL, LLVisualParamHint* exception2 = NULL );
+
+protected:
+	BOOL					mNeedsUpdate;		// does this texture need to be re-rendered?
+	BOOL					mIsVisible;			// is this distortion hint visible?
+	LLViewerJointMesh*		mJointMesh;			// mesh that this distortion applies to
+	LLViewerVisualParam*	mVisualParam;		// visual param applied by this hint
+	F32						mVisualParamWeight;		// weight for this visual parameter
+	BOOL					mAllowsUpdates;		// updates are blocked unless this is true
+	S32						mDelayFrames;		// updates are blocked for this many frames
+	LLRect					mRect;
+	F32						mLastParamWeight;
+
+	LLPointer<LLViewerImage> mBackgroundp;
+	
+	static LLLinkedList<LLVisualParamHint> sInstances;
+};
+
+// this class resets avatar data at the end of an update cycle
+class LLVisualParamReset : public LLDynamicTexture
+{
+public:
+	LLVisualParamReset();
+	/*virtual */ BOOL render();
+
+	static BOOL sDirty;
+};
+
+#endif
+

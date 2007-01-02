@@ -1,0 +1,991 @@
+/** 
+ * @file llhudtext.cpp
+ * @brief LLHUDText class implementation
+ *
+ * Copyright (c) 2002-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
+#include "llviewerprecompiledheaders.h"
+
+#include "llhudtext.h"
+
+#include "llagent.h"
+#include "llviewercontrol.h"
+#include "llchatbar.h"
+#include "llcriticaldamp.h"
+#include "lldrawable.h"
+#include "llfontgl.h"
+#include "llglheaders.h"
+#include "llhudrender.h"
+#include "llimagegl.h"
+#include "llui.h"
+#include "llviewercamera.h"
+#include "llviewerimagelist.h"
+#include "llviewerobject.h"
+#include "llvovolume.h"
+#include "llviewerwindow.h"
+#include "viewer.h"
+#include "llstatusbar.h"
+#include "llmenugl.h"
+#include "pipeline.h"
+#include <boost/tokenizer.hpp>
+
+
+const F32 SPRING_STRENGTH = 0.7f;
+const F32 RESTORATION_SPRING_TIME_CONSTANT = 0.1f;
+const F32 HORIZONTAL_PADDING = 15.f;
+const F32 VERTICAL_PADDING = 12.f;
+const F32 BUFFER_SIZE = 2.f;
+const F32 MIN_EDGE_OVERLAP = 3.f;
+F32 HUD_TEXT_MAX_WIDTH = 190.f;
+const F32 HUD_TEXT_MAX_WIDTH_NO_BUBBLE = 1000.f;
+const F32 RESIZE_TIME = 0.f;
+const S32 NUM_OVERLAP_ITERATIONS = 10;
+const F32 NEIGHBOR_FORCE_FRACTION = 1.f;
+const F32 POSITION_DAMPING_TC = 0.2f;
+const F32 MAX_STABLE_CAMERA_VELOCITY = 0.1f;
+const F32 LOD_0_SCREEN_COVERAGE = 0.15f;
+const F32 LOD_1_SCREEN_COVERAGE = 0.30f;
+const F32 LOD_2_SCREEN_COVERAGE = 0.40f;
+
+std::set<LLPointer<LLHUDText> > LLHUDText::sTextObjects;
+std::vector<LLPointer<LLHUDText> > LLHUDText::sVisibleTextObjects;
+std::vector<LLPointer<LLHUDText> > LLHUDText::sVisibleHUDTextObjects;
+
+bool lltextobject_further_away::operator()(const LLPointer<LLHUDText>& lhs, const LLPointer<LLHUDText>& rhs) const
+{
+	return (lhs->getDistance() > rhs->getDistance()) ? true : false;
+}
+
+
+LLHUDText::LLHUDText(const U8 type) :
+			LLHUDObject(type),
+			mUseBubble(FALSE),
+			mUsePixelSize(TRUE),
+			mVisibleOffScreen(FALSE),
+			mWidth(0.f),
+			mHeight(0.f),
+			mFontp(LLFontGL::sSansSerifSmall),
+			mBoldFontp(LLFontGL::sSansSerifBold),
+			mMass(1.f),
+			mMaxLines(10),
+			mOffsetY(0),
+			mTextAlignment(ALIGN_TEXT_CENTER),
+			mVertAlignment(ALIGN_VERT_CENTER),
+			mLOD(0)
+{
+	mColor = LLColor4(1.f, 1.f, 1.f, 1.f);
+	mDoFade = TRUE;
+	mFadeDistance = 8.f;
+	mFadeRange = 4.f;
+	mZCompare = TRUE;
+	mDropShadow = TRUE;
+	mOffscreen = FALSE;
+	mRadius = 0.1f;
+	LLPointer<LLHUDText> ptr(this);
+	sTextObjects.insert(ptr);
+	//LLDebugVarMessageBox::show("max width", &HUD_TEXT_MAX_WIDTH, 500.f, 1.f);
+}
+
+LLHUDText::~LLHUDText()
+{
+}
+
+
+void LLHUDText::render()
+{
+	if (!mOnHUDAttachment)
+	{
+		LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
+		renderText(FALSE);
+	}
+}
+
+void LLHUDText::renderForSelect()
+{
+	if (!mOnHUDAttachment)
+	{
+		LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
+		renderText(TRUE);
+	}
+}
+
+void LLHUDText::renderText(BOOL for_select)
+{
+	if (!mVisible)
+	{
+		return;
+	}
+
+	// don't pick text that isn't bound to a viewerobject or isn't in a bubble
+	if (for_select && 
+		(!mSourceObject || mSourceObject->mDrawable.isNull() || !mUseBubble))
+	{
+		return;
+	}
+	
+	LLGLState gls_tex(GL_TEXTURE_2D, for_select ? FALSE : TRUE);
+	LLGLState gls_blend(GL_BLEND, for_select ? FALSE : TRUE);
+	LLGLState gls_alpha(GL_ALPHA_TEST, for_select ? FALSE : TRUE);
+	
+	LLColor4 shadow_color(0.f, 0.f, 0.f, 1.f);
+	F32 alpha_factor = 1.f;
+	LLColor4 text_color = mColor;
+	if (mDoFade)
+	{
+		if (mLastDistance > mFadeDistance)
+		{
+			alpha_factor = llmax(0.f, 1.f - (mLastDistance - mFadeDistance)/mFadeRange);
+			text_color.mV[3] = text_color.mV[3]*alpha_factor;
+		}
+	}
+	if (text_color.mV[3] < 0.01f)
+	{
+		return;
+	}
+	shadow_color.mV[3] = text_color.mV[3];
+
+	mOffsetY = lltrunc(mHeight * ((mVertAlignment == ALIGN_VERT_CENTER) ? 0.5f : 1.f));
+
+	//FIXME: cache this image
+	LLUUID image_id;
+	image_id.set(gViewerArt.getString("rounded_square.tga"));
+	LLViewerImage* imagep = gImageList.getImage(image_id, MIPMAP_FALSE, TRUE);
+
+	//FIXME: make this a per-text setting
+	LLColor4 bg_color = gSavedSettings.getColor4("BackgroundChatColor");
+	bg_color.setAlpha(gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
+
+	const S32 border_height = 16;
+	const S32 border_width = 16;
+
+	//FIXME move this into helper function
+	F32 border_scale = 1.f;
+
+	if (border_height * 2 > mHeight)
+	{
+		border_scale = (F32)mHeight / ((F32)border_height * 2.f);
+	}
+	if (border_width * 2 > mWidth)
+	{
+		border_scale = llmin(border_scale, (F32)mWidth / ((F32)border_width * 2.f));
+	}
+
+	// scale screen size of borders down
+	//RN: for now, text on hud objects is never occluded
+
+	LLVector3 x_pixel_vec;
+	LLVector3 y_pixel_vec;
+	
+	if (mOnHUDAttachment)
+	{
+		x_pixel_vec = LLVector3::y_axis / (F32)gViewerWindow->getWindowWidth();
+		y_pixel_vec = LLVector3::z_axis / (F32)gViewerWindow->getWindowHeight();
+	}
+	else
+	{
+		gCamera->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
+	}
+
+	LLVector2 border_scale_vec((F32)border_width / (F32)imagep->getWidth(), (F32)border_height / (F32)imagep->getHeight());
+	LLVector3 width_vec = mWidth * x_pixel_vec;
+	LLVector3 height_vec = mHeight * y_pixel_vec;
+	LLVector3 scaled_border_width = (F32)llfloor(border_scale * (F32)border_width) * x_pixel_vec;
+	LLVector3 scaled_border_height = (F32)llfloor(border_scale * (F32)border_height) * y_pixel_vec;
+
+	mRadius = (width_vec + height_vec).magVec() * 0.5f;
+
+	LLCoordGL screen_pos;
+	gCamera->projectPosAgentToScreen(mPositionAgent, screen_pos, FALSE);
+
+	LLVector2 screen_offset;
+	if (!mUseBubble)
+	{
+		screen_offset = mPositionOffset;
+	}
+	else
+	{
+		screen_offset = updateScreenPos(mPositionOffset);
+	}
+
+	LLVector3 render_position = mPositionAgent  
+			+ (x_pixel_vec * screen_offset.mV[VX])
+			+ (y_pixel_vec * screen_offset.mV[VY]);
+
+	//if (mOnHUD)
+	//{
+	//	render_position.mV[VY] -= fmodf(render_position.mV[VY], 1.f / (F32)gViewerWindow->getWindowWidth());
+	//	render_position.mV[VZ] -= fmodf(render_position.mV[VZ], 1.f / (F32)gViewerWindow->getWindowHeight());
+	//}
+	//else
+	//{
+	//	render_position = gCamera->roundToPixel(render_position);
+	//}
+
+	if (mUseBubble)
+	{
+		LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
+		LLUI::pushMatrix();
+		{
+			LLVector3 bg_pos = render_position
+				+ (F32)mOffsetY * y_pixel_vec
+				- (width_vec / 2.f)
+				- (height_vec);
+			LLUI::translate(bg_pos.mV[VX], bg_pos.mV[VY], bg_pos.mV[VZ]);
+
+			if (for_select)
+			{
+				LLGLSNoTexture no_texture_state;
+				S32 name = mSourceObject->mGLName;
+				LLColor4U coloru((U8)(name >> 16), (U8)(name >> 8), (U8)name);
+				glColor4ubv(coloru.mV);
+				gl_segmented_rect_3d_tex(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, height_vec);
+				LLUI::popMatrix();
+				return;
+			}
+			else
+			{
+				LLViewerImage::bindTexture(imagep);
+				
+				glColor4fv(bg_color.mV);
+				gl_segmented_rect_3d_tex(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, height_vec);
+		
+				if ( mLabelSegments.size())
+				{
+					LLUI::pushMatrix();
+					{
+						glColor4f(text_color.mV[VX], text_color.mV[VY], text_color.mV[VZ], gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
+						LLVector3 label_height = (mFontp->getLineHeight() * mLabelSegments.size() + (VERTICAL_PADDING / 3.f)) * y_pixel_vec;
+						LLVector3 label_offset = height_vec - label_height;
+						LLUI::translate(label_offset.mV[VX], label_offset.mV[VY], label_offset.mV[VZ]);
+						gl_segmented_rect_3d_tex_top(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, label_height);
+					}
+					LLUI::popMatrix();
+				}
+			}
+
+			BOOL outside_width = llabs(mPositionOffset.mV[VX]) > mWidth * 0.5f;
+			BOOL outside_height = llabs(mPositionOffset.mV[VY] + (mVertAlignment == ALIGN_VERT_TOP ? mHeight * 0.5f : 0.f)) > mHeight * (mVertAlignment == ALIGN_VERT_TOP ? mHeight * 0.75f : 0.5f);
+
+			// draw line segments pointing to parent object
+			if (!mOffscreen && (outside_width || outside_height))
+			{
+				LLUI::pushMatrix();
+				{
+					glColor4fv(bg_color.mV);
+					LLVector3 target_pos = -1.f * (mPositionOffset.mV[VX] * x_pixel_vec + mPositionOffset.mV[VY] * y_pixel_vec);
+					target_pos += (width_vec / 2.f);
+					target_pos += mVertAlignment == ALIGN_VERT_CENTER ? (height_vec * 0.5f) : LLVector3::zero;
+					target_pos -= 3.f * x_pixel_vec;
+					target_pos -= 6.f * y_pixel_vec;
+					LLUI::translate(target_pos.mV[VX], target_pos.mV[VY], target_pos.mV[VZ]);
+					gl_segmented_rect_3d_tex(border_scale_vec, 3.f * x_pixel_vec, 3.f * y_pixel_vec, 6.f * x_pixel_vec, 6.f * y_pixel_vec);	
+				}
+				LLUI::popMatrix();
+
+				
+				LLGLDisable gls_texture_2d(GL_TEXTURE_2D);
+				LLGLDepthTest gls_depth(mZCompare ? GL_TRUE : GL_FALSE, GL_FALSE);
+				
+				LLVector3 box_center_offset;
+				box_center_offset = (width_vec * 0.5f) + (height_vec * 0.5f);
+				LLUI::translate(box_center_offset.mV[VX], box_center_offset.mV[VY], box_center_offset.mV[VZ]);
+				glColor4fv(bg_color.mV);
+				LLUI::setLineWidth(2.0);
+				glBegin(GL_LINES);
+				{
+					if (outside_width)
+					{
+						LLVector3 vert;
+						// draw line in x then y
+						if (mPositionOffset.mV[VX] < 0.f)
+						{
+							// start at right edge
+							vert = width_vec * 0.5f;
+							glVertex3fv(vert.mV);
+						}
+						else
+						{
+							// start at left edge
+							vert = width_vec * -0.5f;
+							glVertex3fv(vert.mV);
+						}
+						vert = -mPositionOffset.mV[VX] * x_pixel_vec;
+						glVertex3fv(vert.mV);
+						glVertex3fv(vert.mV);
+						vert -= mPositionOffset.mV[VY] * y_pixel_vec;
+						vert -= ((mVertAlignment == ALIGN_VERT_TOP) ? (height_vec * 0.5f) : LLVector3::zero);
+						glVertex3fv(vert.mV);
+					}
+					else
+					{
+						LLVector3 vert;
+						// draw line in y then x
+						if (mPositionOffset.mV[VY] < 0.f)
+						{
+							// start at top edge
+							vert = (height_vec * 0.5f) - (mPositionOffset.mV[VX] * x_pixel_vec);
+							glVertex3fv(vert.mV);
+						}
+						else
+						{
+							// start at bottom edge
+							vert = (height_vec * -0.5f)  - (mPositionOffset.mV[VX] * x_pixel_vec);
+							glVertex3fv(vert.mV);
+						}
+						vert = -mPositionOffset.mV[VY] * y_pixel_vec - mPositionOffset.mV[VX] * x_pixel_vec;
+						vert -= ((mVertAlignment == ALIGN_VERT_TOP) ? (height_vec * 0.5f) : LLVector3::zero);
+						glVertex3fv(vert.mV);
+					}
+				}
+				glEnd();
+				LLUI::setLineWidth(1.0);
+
+			}
+		}
+		LLUI::popMatrix();
+	}
+
+	F32 y_offset = (F32)mOffsetY;
+		
+	// Render label
+	{
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+		for(std::vector<LLHUDTextSegment>::iterator segment_iter = mLabelSegments.begin();
+			segment_iter != mLabelSegments.end(); ++segment_iter )
+		{
+			const LLFontGL* fontp = (segment_iter->mStyle == LLFontGL::BOLD) ? mBoldFontp : mFontp;
+			y_offset -= fontp->getLineHeight();
+
+			F32 x_offset;
+			if (mTextAlignment == ALIGN_TEXT_CENTER)
+			{
+				x_offset = -0.5f*segment_iter->getWidth(fontp);
+			}
+			else // ALIGN_LEFT
+			{
+				x_offset = -0.5f * mWidth + (HORIZONTAL_PADDING / 2.f);
+			}
+
+			LLColor4 label_color(0.f, 0.f, 0.f, 1.f);
+			label_color.mV[VALPHA] = alpha_factor;
+			hud_render_text(segment_iter->getText(), render_position, *fontp, segment_iter->mStyle, x_offset, y_offset, label_color, mOnHUDAttachment);
+		}
+	}
+
+	// Render text
+	{
+		// -1 mMaxLines means unlimited lines.
+		S32 start_segment;
+		S32 max_lines = getMaxLines();
+
+		if (max_lines < 0) 
+		{
+			start_segment = 0;
+		}
+		else 
+		{
+			start_segment = llmax((S32)0, (S32)mTextSegments.size() - max_lines);
+		}
+
+		for (std::vector<LLHUDTextSegment>::iterator segment_iter = mTextSegments.begin() + start_segment;
+			 segment_iter != mTextSegments.end(); ++segment_iter )
+		{
+			const LLFontGL* fontp = (segment_iter->mStyle == LLFontGL::BOLD) ? mBoldFontp : mFontp;
+			y_offset -= fontp->getLineHeight();
+
+			U8 style = segment_iter->mStyle;
+			if (mDropShadow)
+			{
+				style |= LLFontGL::DROP_SHADOW;
+			}
+	
+			F32 x_offset;
+			if (mTextAlignment== ALIGN_TEXT_CENTER)
+			{
+				x_offset = -0.5f*segment_iter->getWidth(fontp);
+			}
+			else // ALIGN_LEFT
+			{
+				x_offset = -0.5f * mWidth + (HORIZONTAL_PADDING / 2.f);
+			}
+
+			text_color = segment_iter->mColor;
+			text_color.mV[VALPHA] *= alpha_factor;
+
+			hud_render_text(segment_iter->getText(), render_position, *fontp, style, x_offset, y_offset, text_color, mOnHUDAttachment);
+		}
+	}
+}
+
+void LLHUDText::setStringUTF8(const std::string &wtext)
+{
+	setString(utf8str_to_wstring(wtext));
+}
+
+void LLHUDText::setString(const LLWString &wtext)
+{
+	mTextSegments.clear();
+	addLine(wtext, mColor);
+}
+
+void LLHUDText::clearString()
+{
+	mTextSegments.clear();
+}
+
+
+void LLHUDText::addLine(const std::string &str, const LLColor4& color, const LLFontGL::StyleFlags style)
+{
+	addLine(utf8str_to_wstring(str), color, style);
+}
+
+
+void LLHUDText::addLine(const LLWString &wstr, const LLColor4& color, const LLFontGL::StyleFlags style)
+{
+	if (gNoRender)
+	{
+		return;
+	}
+	if (!wstr.empty())
+	{
+		LLWString wline(wstr);
+		typedef boost::tokenizer<boost::char_separator<llwchar>, LLWString::const_iterator, LLWString > tokenizer;
+		LLWString seps(utf8str_to_wstring("\r\n"));
+		boost::char_separator<llwchar> sep(seps.c_str());
+
+		tokenizer tokens(wline, sep);
+		tokenizer::iterator iter = tokens.begin();
+
+		while (iter != tokens.end())
+		{
+			U32 line_length = 0;
+			do	
+			{
+				S32 segment_length = mFontp->maxDrawableChars(iter->substr(line_length).c_str(), mUseBubble ? HUD_TEXT_MAX_WIDTH : HUD_TEXT_MAX_WIDTH_NO_BUBBLE, wline.length(), TRUE);
+				mTextSegments.push_back(LLHUDTextSegment(iter->substr(line_length, segment_length), style, color));
+				line_length += segment_length;
+			}
+			while (line_length != iter->size());
+			++iter;
+		}
+	}
+}
+
+void LLHUDText::setLabel(const std::string &label)
+{
+	setLabel(utf8str_to_wstring(label));
+}
+
+void LLHUDText::setLabel(const LLWString &wlabel)
+{
+	mLabelSegments.clear();
+
+	if (!wlabel.empty())
+	{
+		LLWString wstr(wlabel);
+		LLWString seps(utf8str_to_wstring("\r\n"));
+		LLWString empty;
+
+		typedef boost::tokenizer<boost::char_separator<llwchar>, LLWString::const_iterator, LLWString > tokenizer;
+		boost::char_separator<llwchar> sep(seps.c_str(), empty.c_str(), boost::keep_empty_tokens);
+
+		tokenizer tokens(wstr, sep);
+		tokenizer::iterator iter = tokens.begin();
+
+		while (iter != tokens.end())
+		{
+			U32 line_length = 0;
+			do	
+			{
+				S32 segment_length = mFontp->maxDrawableChars(iter->substr(line_length).c_str(), mUseBubble ? HUD_TEXT_MAX_WIDTH : HUD_TEXT_MAX_WIDTH_NO_BUBBLE, wstr.length(), TRUE);
+				mLabelSegments.push_back(LLHUDTextSegment(iter->substr(line_length, segment_length), LLFontGL::NORMAL, mColor));
+				line_length += segment_length;
+			}
+			while (line_length != iter->size());
+			++iter;
+		}
+	}
+}
+
+void LLHUDText::setDropShadow(const BOOL do_shadow)
+{
+	mDropShadow = do_shadow;
+}
+
+void LLHUDText::setZCompare(const BOOL zcompare)
+{
+	mZCompare = zcompare;
+}
+
+void LLHUDText::setFont(const LLFontGL* font)
+{
+	mFontp = font;
+}
+
+
+void LLHUDText::setColor(const LLColor4 &color)
+{
+	mColor = color;
+	for (std::vector<LLHUDTextSegment>::iterator segment_iter = mTextSegments.begin();
+		 segment_iter != mTextSegments.end(); ++segment_iter )
+	{
+		segment_iter->mColor = color;
+	}
+}
+
+
+void LLHUDText::setUsePixelSize(const BOOL use_pixel_size)
+{
+	mUsePixelSize = use_pixel_size;
+}
+
+void LLHUDText::setDoFade(const BOOL do_fade)
+{
+	mDoFade = do_fade;
+}
+
+void LLHUDText::updateVisibility()
+{
+	if (mSourceObject)
+	{
+		mSourceObject->updateText();
+	}
+	
+	mPositionAgent = gAgent.getPosAgentFromGlobal(mPositionGlobal);
+
+	if (!mSourceObject)
+	{
+		//llwarns << "LLHUDText::updateScreenPos -- mSourceObject is NULL!" << llendl;
+		mVisible = TRUE;
+		if (mOnHUDAttachment)
+		{
+			sVisibleHUDTextObjects.push_back(LLPointer<LLHUDText> (this));
+		}
+		else
+		{
+			sVisibleTextObjects.push_back(LLPointer<LLHUDText> (this));
+		}
+		return;
+	}
+
+	// Not visible if parent object is dead
+	if (mSourceObject->isDead())
+	{
+		mVisible = FALSE;
+		return;
+	}
+
+	// for now, all text on hud objects is visible
+	if (mOnHUDAttachment)
+	{
+		mVisible = TRUE;
+		sVisibleHUDTextObjects.push_back(LLPointer<LLHUDText> (this));
+		mLastDistance = mPositionAgent.mV[VX];
+		return;
+	}
+
+	// push text towards camera by radius of object, but not past camera
+	LLVector3 vec_from_camera = mPositionAgent - gCamera->getOrigin();
+	LLVector3 dir_from_camera = vec_from_camera;
+	dir_from_camera.normVec();
+
+	if (dir_from_camera * gCamera->getAtAxis() <= 0.f)
+	{
+		mPositionAgent -= projected_vec(vec_from_camera, gCamera->getAtAxis()) * 1.f;
+		mPositionAgent += gCamera->getAtAxis() * (gCamera->getNear() + 0.1f);
+	}
+	else if (vec_from_camera * gCamera->getAtAxis() <= gCamera->getNear() + 0.1f + mSourceObject->getVObjRadius())
+	{
+		mPositionAgent = gCamera->getOrigin() + vec_from_camera * ((gCamera->getNear() + 0.1f) / (vec_from_camera * gCamera->getAtAxis()));
+	}
+	else
+	{
+		mPositionAgent -= dir_from_camera * mSourceObject->getVObjRadius();
+	}
+
+	mLastDistance = (mPositionAgent - gCamera->getOrigin()).magVec();
+
+	if (mLOD >= 3 || !mTextSegments.size() || (mDoFade && (mLastDistance > mFadeDistance + mFadeRange)))
+	{
+		mVisible = FALSE;
+		return;
+	}
+
+	LLVector3 x_pixel_vec;
+	LLVector3 y_pixel_vec;
+
+	gCamera->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
+
+	LLVector3 render_position = mPositionAgent + 			
+			(x_pixel_vec * mPositionOffset.mV[VX]) +
+			(y_pixel_vec * mPositionOffset.mV[VY]);
+
+	mOffscreen = FALSE;
+	if (!gCamera->sphereInFrustum(render_position, mRadius))
+	{
+		if (!mVisibleOffScreen)
+		{
+			mVisible = FALSE;
+			return;
+		}
+		else
+		{
+			mOffscreen = TRUE;
+		}
+	}
+
+	mVisible = TRUE;
+	sVisibleTextObjects.push_back(LLPointer<LLHUDText> (this));
+}
+
+LLVector2 LLHUDText::updateScreenPos(LLVector2 &offset)
+{
+	LLCoordGL screen_pos;
+	LLVector2 screen_pos_vec;
+	LLVector3 x_pixel_vec;
+	LLVector3 y_pixel_vec;
+	gCamera->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
+	LLVector3 world_pos = mPositionAgent + (offset.mV[VX] * x_pixel_vec) + (offset.mV[VY] * y_pixel_vec);
+	if (!gCamera->projectPosAgentToScreen(world_pos, screen_pos, FALSE) && mVisibleOffScreen)
+	{
+		// bubble off-screen, so find a spot for it along screen edge
+		LLVector2 window_center(gViewerWindow->getWindowDisplayWidth() * 0.5f, gViewerWindow->getWindowDisplayHeight() * 0.5f);
+		LLVector2 delta_from_center(screen_pos.mX - window_center.mV[VX], 
+									screen_pos.mY - window_center.mV[VY]);
+		delta_from_center.normVec();
+
+		F32 camera_aspect = gCamera->getAspect();
+		F32 delta_aspect = llabs(delta_from_center.mV[VX] / delta_from_center.mV[VY]);
+		if (camera_aspect / llmax(delta_aspect, 0.001f) > 1.f)
+		{
+			// camera has wider aspect ratio than offset vector, so clamp to height
+			delta_from_center *= llabs(window_center.mV[VY] / delta_from_center.mV[VY]);
+		}
+		else
+		{
+			// camera has narrower aspect ratio than offset vector, so clamp to width
+			delta_from_center *= llabs(window_center.mV[VX] / delta_from_center.mV[VX]);
+		}
+
+		screen_pos_vec = window_center + delta_from_center;
+	}
+	else
+	{
+		screen_pos_vec.setVec((F32)screen_pos.mX, (F32)screen_pos.mY);
+	}
+	S32 bottom = STATUS_BAR_HEIGHT;
+	if (gChatBar->getVisible())
+	{
+		bottom += CHAT_BAR_HEIGHT;
+	}
+
+	LLVector2 screen_center;
+	screen_center.mV[VX] = llclamp((F32)screen_pos_vec.mV[VX], mWidth * 0.5f, (F32)gViewerWindow->getWindowDisplayWidth() - mWidth * 0.5f);
+
+	if(mVertAlignment == ALIGN_VERT_TOP)
+	{
+		screen_center.mV[VY] = llclamp((F32)screen_pos_vec.mV[VY], 
+			(F32)bottom, 
+			(F32)gViewerWindow->getWindowDisplayHeight() - mHeight - (F32)MENU_BAR_HEIGHT);
+		mSoftScreenRect.setLeftTopAndSize(screen_center.mV[VX] - (mWidth + BUFFER_SIZE) * 0.5f, 
+			screen_center.mV[VY] + (mHeight + BUFFER_SIZE), mWidth + BUFFER_SIZE, mHeight + BUFFER_SIZE);
+	}
+	else
+	{
+		screen_center.mV[VY] = llclamp((F32)screen_pos_vec.mV[VY], 
+			(F32)bottom + mHeight * 0.5f, 
+			(F32)gViewerWindow->getWindowDisplayHeight() - mHeight * 0.5f - (F32)MENU_BAR_HEIGHT);
+		mSoftScreenRect.setCenterAndSize(screen_center.mV[VX], screen_center.mV[VY], mWidth + BUFFER_SIZE, mHeight + BUFFER_SIZE);
+	}
+
+	return offset + (screen_center - LLVector2((F32)screen_pos.mX, (F32)screen_pos.mY));
+}
+
+void LLHUDText::updateSize()
+{
+	F32 width = 0.f;
+
+	S32 max_lines = getMaxLines();
+	S32 lines = (max_lines < 0) ? (S32)mTextSegments.size() : llmin((S32)mTextSegments.size(), max_lines);
+
+	F32 height = (F32)mFontp->getLineHeight() * (lines + mLabelSegments.size());
+
+	S32 start_segment;
+	if (max_lines < 0) start_segment = 0;
+	else start_segment = llmax((S32)0, (S32)mTextSegments.size() - max_lines);
+
+	std::vector<LLHUDTextSegment>::iterator iter = mTextSegments.begin() + start_segment;
+	while (iter != mTextSegments.end())
+	{
+		width = llmax(width, llmin(iter->getWidth(mFontp), HUD_TEXT_MAX_WIDTH));
+		++iter;
+	}
+
+	iter = mLabelSegments.begin();
+	while (iter != mLabelSegments.end())
+	{
+		width = llmax(width, llmin(iter->getWidth(mFontp), HUD_TEXT_MAX_WIDTH));
+		++iter;
+	}
+	
+	if (width == 0.f)
+	{
+		return;
+	}
+
+	width += HORIZONTAL_PADDING;
+	height += VERTICAL_PADDING;
+
+	if (!mResizeTimer.getStarted() && (width != mWidth || height != mHeight))
+	{
+		mResizeTimer.start();
+	}
+
+	// *NOTE: removed logic which did a divide by zero.
+	F32 u = 1.f;//llclamp(mResizeTimer.getElapsedTimeF32() / RESIZE_TIME, 0.f, 1.f);
+	if (u == 1.f)
+	{
+		mResizeTimer.stop();
+	}
+
+	mWidth = llmax(width, lerp(mWidth, (F32)width, u));
+	mHeight = llmax(height, lerp(mHeight, (F32)height, u));
+}
+
+void LLHUDText::updateAll()
+{
+	// iterate over all text objects, calculate their restoration forces,
+	// and add them to the visible set if they are on screen and close enough
+	sVisibleTextObjects.clear();
+	sVisibleHUDTextObjects.clear();
+	
+	TextObjectIterator text_it;
+	for (text_it = sTextObjects.begin(); text_it != sTextObjects.end(); ++text_it)
+	{
+		LLHUDText* textp = (*text_it);
+		textp->mTargetPositionOffset.clearVec();
+		textp->updateSize();
+		textp->updateVisibility();
+	}
+	
+	// sort back to front for rendering purposes
+	std::sort(sVisibleTextObjects.begin(), sVisibleTextObjects.end(), lltextobject_further_away());
+	std::sort(sVisibleHUDTextObjects.begin(), sVisibleHUDTextObjects.end(), lltextobject_further_away());
+
+	// iterate from front to back, and set LOD based on current screen coverage
+	F32 screen_area = (F32)(gViewerWindow->getWindowWidth() * gViewerWindow->getWindowHeight());
+	F32 current_screen_area = 0.f;
+	std::vector<LLPointer<LLHUDText> >::reverse_iterator r_it;
+	for (r_it = sVisibleTextObjects.rbegin(); r_it != sVisibleTextObjects.rend(); ++r_it)
+	{
+		LLHUDText* textp = (*r_it);
+		if (textp->mUseBubble)
+		{
+			if (current_screen_area / screen_area > LOD_2_SCREEN_COVERAGE)
+			{
+				textp->setLOD(3);
+			}
+			else if (current_screen_area / screen_area > LOD_1_SCREEN_COVERAGE)
+			{
+				textp->setLOD(2);
+			}
+			else if (current_screen_area / screen_area > LOD_0_SCREEN_COVERAGE)
+			{
+				textp->setLOD(1);
+			}
+			else
+			{
+				textp->setLOD(0);
+			}
+			textp->updateSize();
+			// find on-screen position and initialize collision rectangle
+			textp->mTargetPositionOffset = textp->updateScreenPos(LLVector2::zero);
+			current_screen_area += (F32)(textp->mSoftScreenRect.getWidth() * textp->mSoftScreenRect.getHeight());
+		}
+	}
+
+	LLStat* camera_vel_stat = gCamera->getVelocityStat();
+	F32 camera_vel = camera_vel_stat->getCurrent();
+	if (camera_vel > MAX_STABLE_CAMERA_VELOCITY)
+	{
+		return;
+	}
+
+	VisibleTextObjectIterator src_it;
+
+	for (S32 i = 0; i < NUM_OVERLAP_ITERATIONS; i++)
+	{
+		for (src_it = sVisibleTextObjects.begin(); src_it != sVisibleTextObjects.end(); ++src_it)
+		{
+			LLHUDText* src_textp = (*src_it);
+
+			if (!src_textp->mUseBubble)
+			{
+				continue;
+			}
+			VisibleTextObjectIterator dst_it = src_it;
+			++dst_it;
+			for (; dst_it != sVisibleTextObjects.end(); ++dst_it)
+			{
+				LLHUDText* dst_textp = (*dst_it);
+
+				if (!dst_textp->mUseBubble)
+				{
+					continue;
+				}
+				if (src_textp->mSoftScreenRect.rectInRect(&dst_textp->mSoftScreenRect))
+				{
+					LLRectf intersect_rect = src_textp->mSoftScreenRect & dst_textp->mSoftScreenRect;
+					intersect_rect.stretch(-BUFFER_SIZE * 0.5f);
+					
+					F32 src_center_x = src_textp->mSoftScreenRect.getCenterX();
+					F32 src_center_y = src_textp->mSoftScreenRect.getCenterY();
+					F32 dst_center_x = dst_textp->mSoftScreenRect.getCenterX();
+					F32 dst_center_y = dst_textp->mSoftScreenRect.getCenterY();
+					F32 intersect_center_x = intersect_rect.getCenterX();
+					F32 intersect_center_y = intersect_rect.getCenterY();
+					LLVector2 force = lerp(LLVector2(dst_center_x - intersect_center_x, dst_center_y - intersect_center_y), 
+										LLVector2(intersect_center_x - src_center_x, intersect_center_y - src_center_y),
+										0.5f);
+					force.setVec(dst_center_x - src_center_x, dst_center_y - src_center_y);
+					force.normVec();
+
+					LLVector2 src_force = -1.f * force;
+					LLVector2 dst_force = force;
+
+					LLVector2 force_strength;
+					F32 src_mult = dst_textp->mMass / (dst_textp->mMass + src_textp->mMass); 
+					F32 dst_mult = 1.f - src_mult;
+					F32 src_aspect_ratio = src_textp->mSoftScreenRect.getWidth() / src_textp->mSoftScreenRect.getHeight();
+					F32 dst_aspect_ratio = dst_textp->mSoftScreenRect.getWidth() / dst_textp->mSoftScreenRect.getHeight();
+					src_force.mV[VY] *= src_aspect_ratio;
+					src_force.normVec();
+					dst_force.mV[VY] *= dst_aspect_ratio;
+					dst_force.normVec();
+
+					src_force.mV[VX] *= llmin(intersect_rect.getWidth() * src_mult, intersect_rect.getHeight() * SPRING_STRENGTH);
+					src_force.mV[VY] *= llmin(intersect_rect.getHeight() * src_mult, intersect_rect.getWidth() * SPRING_STRENGTH);
+					dst_force.mV[VX] *=  llmin(intersect_rect.getWidth() * dst_mult, intersect_rect.getHeight() * SPRING_STRENGTH);
+					dst_force.mV[VY] *=  llmin(intersect_rect.getHeight() * dst_mult, intersect_rect.getWidth() * SPRING_STRENGTH);
+					
+					src_textp->mTargetPositionOffset += src_force;
+					dst_textp->mTargetPositionOffset += dst_force;
+					src_textp->mTargetPositionOffset = src_textp->updateScreenPos(src_textp->mTargetPositionOffset);
+					dst_textp->mTargetPositionOffset = dst_textp->updateScreenPos(dst_textp->mTargetPositionOffset);
+				}
+			}
+		}
+	}
+
+	VisibleTextObjectIterator this_object_it;
+	for (this_object_it = sVisibleTextObjects.begin(); this_object_it != sVisibleTextObjects.end(); ++this_object_it)
+	{
+		if (!(*this_object_it)->mUseBubble)
+		{
+			continue;
+		}
+		(*this_object_it)->mPositionOffset = lerp((*this_object_it)->mPositionOffset, (*this_object_it)->mTargetPositionOffset, LLCriticalDamp::getInterpolant(POSITION_DAMPING_TC));
+	}
+}
+
+void LLHUDText::setLOD(S32 lod)
+{
+	mLOD = lod;
+	//RN: uncomment this to visualize LOD levels
+	//char label[255];
+	//sprintf(label, "%d", lod);
+	//setLabel(label);
+}
+
+S32 LLHUDText::getMaxLines()
+{
+	switch(mLOD)
+	{
+	case 0:
+		return mMaxLines;
+	case 1:
+		return mMaxLines > 0 ? mMaxLines / 2 : 5;
+	case 2:
+		return mMaxLines > 0 ? mMaxLines / 3 : 2;
+	default:
+		// label only
+		return 0;
+	}
+}
+
+void LLHUDText::markDead()
+{
+	sTextObjects.erase(LLPointer<LLHUDText>(this));
+	LLHUDObject::markDead();
+}
+
+void LLHUDText::renderAllHUD()
+{
+	LLGLEnable color_mat(GL_COLOR_MATERIAL);
+	LLGLDepthTest depth(GL_FALSE, GL_FALSE);
+	
+	VisibleTextObjectIterator text_it;
+
+	for (text_it = sVisibleHUDTextObjects.begin(); text_it != sVisibleHUDTextObjects.end(); ++text_it)
+	{
+		(*text_it)->renderText(FALSE);
+	}
+}
+
+//static 
+void LLHUDText::addPickable(std::set<LLViewerObject*> &pick_list)
+{
+	//this might put an object on the pick list a second time, overriding it's mGLName, which is ok
+	//FIXME: we should probably cull against pick frustum
+	VisibleTextObjectIterator text_it;
+	for (text_it = sVisibleTextObjects.begin(); text_it != sVisibleTextObjects.end(); ++text_it)
+	{
+		if (!(*text_it)->mUseBubble)
+		{
+			continue;
+		}
+		pick_list.insert((*text_it)->mSourceObject);
+	}
+}
+
+//static
+// called when UI scale changes, to flush font width caches
+void LLHUDText::reshape()
+{
+	TextObjectIterator text_it;
+	for (text_it = sTextObjects.begin(); text_it != sTextObjects.end(); ++text_it)
+	{
+		LLHUDText* textp = (*text_it);
+		std::vector<LLHUDTextSegment>::iterator segment_iter; 
+		for (segment_iter = textp->mTextSegments.begin();
+			 segment_iter != textp->mTextSegments.end(); ++segment_iter )
+		{
+			segment_iter->clearFontWidthMap();
+		}
+		for(segment_iter = textp->mLabelSegments.begin();
+			segment_iter != textp->mLabelSegments.end(); ++segment_iter )
+		{
+			segment_iter->clearFontWidthMap();
+		}		
+	}
+}
+
+//============================================================================
+
+F32 LLHUDText::LLHUDTextSegment::getWidth(const LLFontGL* font)
+{
+	std::map<const LLFontGL*, F32>::iterator iter = mFontWidthMap.find(font);
+	if (iter != mFontWidthMap.end())
+	{
+		return iter->second;
+	}
+	else
+	{
+		F32 width = font->getWidthF32(mText.c_str());
+		mFontWidthMap[font] = width;
+		return width;
+	}
+}

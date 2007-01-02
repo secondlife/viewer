@@ -1,0 +1,298 @@
+/** 
+ * @file llimage.h
+ * @brief Object for managing images and their textures.
+ *
+ * Copyright (c) 2000-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
+#ifndef LL_LLIMAGE_H
+#define LL_LLIMAGE_H
+
+#include "stdtypes.h"
+#include "lluuid.h"
+#include "llstring.h"
+#include "llmemory.h"
+#include "llworkerthread.h"
+
+const S32 MIN_IMAGE_MIP =  2; // 4x4, only used for expand/contract power of 2
+const S32 MAX_IMAGE_MIP = 11; // 2048x2048
+const S32 MAX_DISCARD_LEVEL = 5;
+
+const S32 MIN_IMAGE_SIZE = (1<<MIN_IMAGE_MIP); // 4, only used for expand/contract power of 2
+const S32 MAX_IMAGE_SIZE = (1<<MAX_IMAGE_MIP); // 2048
+const S32 MIN_IMAGE_AREA = MIN_IMAGE_SIZE * MIN_IMAGE_SIZE;
+const S32 MAX_IMAGE_AREA = MAX_IMAGE_SIZE * MAX_IMAGE_SIZE;
+const S32 MAX_IMAGE_COMPONENTS = 8;
+const S32 MAX_IMAGE_DATA_SIZE = MAX_IMAGE_AREA * MAX_IMAGE_COMPONENTS;
+
+// Note!  These CANNOT be changed without invalidating the viewer VFS files, I think?
+const S32 FIRST_PACKET_SIZE = 600;
+const S32 MAX_IMG_PACKET_SIZE = 1000;
+
+// Base classes for images.
+// There are two major parts for the image:
+// The compressed representation, and the decompressed representation.
+
+class LLImageFormatted;
+class LLImageRaw;
+class LLColor4U;
+
+enum
+{
+	IMG_CODEC_INVALID  = 0,
+	IMG_CODEC_RGB  = 1,
+	IMG_CODEC_J2C  = 2,
+	IMG_CODEC_BMP  = 3,
+	IMG_CODEC_TGA  = 4,
+	IMG_CODEC_JPEG = 5,
+	IMG_CODEC_DXT  = 6,
+	IMG_CODEC_EOF  = 7
+};
+
+//============================================================================
+
+class LLImageBase : public LLThreadSafeRefCount
+{
+protected:
+	virtual ~LLImageBase();
+	
+public:
+	LLImageBase();
+
+	enum
+	{
+		TYPE_NORMAL = 0,
+		TYPE_AVATAR_BAKE = 1,
+	};
+
+	virtual void deleteData();
+	virtual U8* allocateData(S32 size = -1);
+	virtual U8* reallocateData(S32 size = -1);
+
+	virtual void dump();
+	virtual void sanityCheck();
+
+	U16 getWidth() const		{ return mWidth; }
+	U16 getHeight() const		{ return mHeight; }
+	S8	getComponents() const	{ return mComponents; }
+	S32 getDataSize() const		{ return mDataSize; }
+
+	const U8 *getData() const	{ return mData; } // read only
+	U8 *getData()				{ return mData; }
+	
+	void setSize(S32 width, S32 height, S32 ncomponents);
+	U8* allocateDataSize(S32 width, S32 height, S32 ncomponents, S32 size = -1); // setSize() + allocateData()
+
+protected:
+	// special accessor to allow direct setting of mData and mDataSize by LLImageFormatted
+	void setDataAndSize(U8 *data, S32 size) { mData = data; mDataSize = size; };
+	
+public:
+	static const LLString& getLastError() {return sLastErrorMessage;};
+	static void resetLastError() {sLastErrorMessage = LLString("No Error"); };
+	static BOOL setLastError(const LLString& message, const LLString& filename = ""); // returns FALSE
+
+	static void generateMip(const U8 *indata, U8* mipdata, int width, int height, S32 nchannels);
+	
+	// Function for calculating the download priority for textes
+	// <= 0 priority means that there's no need for more data.
+	static F32 calc_download_priority(F32 virtual_size, F32 visible_area, S32 bytes_sent);
+
+	static void setSizeOverride(BOOL enabled) { sSizeOverride = enabled; }
+
+private:
+	U8 *mData;
+	S32 mDataSize;
+
+	U16 mWidth;
+	U16 mHeight;
+
+	S8 mComponents;
+
+public:
+	S16 mMemType; // debug
+	
+	static LLString sLastErrorMessage;
+
+	static BOOL sSizeOverride;
+};
+
+// Raw representation of an image (used for textures, and other uncompressed formats
+class LLImageRaw : public LLImageBase
+{
+protected:
+	/*virtual*/ ~LLImageRaw();
+	
+public:
+	LLImageRaw();
+	LLImageRaw(U16 width, U16 height, S8 components);
+	LLImageRaw(U8 *data, U16 width, U16 height, S8 components);
+	// Construct using createFromFile (used by tools)
+	LLImageRaw(const LLString& filename, bool j2c_lowest_mip_only = false);
+
+	/*virtual*/ void deleteData();
+	/*virtual*/ U8* allocateData(S32 size = -1);
+	/*virtual*/ U8* reallocateData(S32 size);
+	
+	BOOL copyData(U8 *data, U16 width, U16 height, S8 components);
+
+	BOOL resize(U16 width, U16 height, S8 components);
+
+	U8 * getSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height) const;
+	BOOL setSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height,
+					 const U8 *data, U32 stride = 0, BOOL reverse_y = FALSE);
+
+	void clear(U8 r=0, U8 g=0, U8 b=0, U8 a=255);
+
+	void verticalFlip();
+
+	void expandToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE, BOOL scale_image = TRUE);
+	void contractToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE, BOOL scale_image = TRUE);
+	void biasedScaleToPowerOfTwo(S32 max_dim = MAX_IMAGE_SIZE);
+	void scale( S32 new_width, S32 new_height, BOOL scale_image = TRUE );
+
+	// Fill the buffer with a constant color
+	void fill( const LLColor4U& color );
+
+	// Copy operations
+	
+	// Src and dst can be any size.  Src and dst can each have 3 or 4 components.
+	void copy( LLImageRaw* src );
+
+	// Src and dst are same size.  Src and dst have same number of components.
+	void copyUnscaled( LLImageRaw* src );
+	
+	// Src and dst are same size.  Src has 4 components.  Dst has 3 components.
+	void copyUnscaled4onto3( LLImageRaw* src );
+
+	// Src and dst are same size.  Src has 3 components.  Dst has 4 components.
+	void copyUnscaled3onto4( LLImageRaw* src );
+
+	// Src and dst can be any size.  Src and dst have same number of components.
+	void copyScaled( LLImageRaw* src );
+
+	// Src and dst can be any size.  Src has 3 components.  Dst has 4 components.
+	void copyScaled3onto4( LLImageRaw* src );
+
+	// Src and dst can be any size.  Src has 4 components.  Dst has 3 components.
+	void copyScaled4onto3( LLImageRaw* src );
+
+
+	// Composite operations
+
+	// Src and dst can be any size.  Src and dst can each have 3 or 4 components.
+	void composite( LLImageRaw* src );
+
+	// Src and dst can be any size.  Src has 4 components.  Dst has 3 components.
+	void compositeScaled4onto3( LLImageRaw* src );
+
+	// Src and dst are same size.  Src has 4 components.  Dst has 3 components.
+	void compositeUnscaled4onto3( LLImageRaw* src );
+
+protected:
+	// Create an image from a local file (generally used in tools)
+	bool createFromFile(const LLString& filename, bool j2c_lowest_mip_only = false);
+
+	void copyLineScaled( U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len, S32 in_pixel_step, S32 out_pixel_step );
+	void compositeRowScaled4onto3( U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len );
+
+	U8	fastFractionalMult(U8 a,U8 b);
+
+public:
+	static S32 sGlobalRawMemory;
+	static S32 sRawImageCount;
+};
+
+// Compressed representation of image.
+// Subclass from this class for the different representations (J2C, bmp)
+class LLImageFormatted : public LLImageBase, public LLWorkerClass
+{
+public:
+	static void initClass(bool threaded = true, bool run_always = true);
+	static void cleanupClass();
+	static LLImageFormatted* createFromExtension(const LLString& instring);	
+
+protected:
+	/*virtual*/ ~LLImageFormatted();
+	
+public:
+	LLImageFormatted(S8 codec);
+
+	// LLImageBase
+public:
+	/*virtual*/ void deleteData();
+	/*virtual*/ U8* allocateData(S32 size = -1);
+	/*virtual*/ U8* reallocateData(S32 size);
+	
+	/*virtual*/ void dump();
+	/*virtual*/ void sanityCheck();
+
+	// LLWorkerThread
+public:
+	// called from WORKER THREAD, returns TRUE if done
+	/*virtual*/ bool doWork(S32 param);
+private:
+	// called from MAIN THREAD
+	/*virtual*/ void startWork(S32 param); // called from addWork()
+	/*virtual*/ void endWork(S32 param, bool aborted); // called from doWork()
+
+	// New methods
+public:
+	// calcHeaderSize() returns the maximum size of header;
+	//   0 indicates we don't know have a header and have to lead the entire file
+	virtual S32 calcHeaderSize() { return 0; };
+	// readHeader() reads size bytes into mData, and sets width/height/ncomponents
+	virtual void readHeader(U8* data, S32 size);
+	// calcDataSize() returns how many bytes to read to load discard_level (including header)
+	virtual S32 calcDataSize(S32 discard_level);
+	// calcDiscardLevelBytes() returns the smallest valid discard level based on the number of input bytes
+	virtual S32 calcDiscardLevelBytes(S32 bytes);
+	// getRawDiscardLevel()by default returns mDiscardLevel, but may be overridden (LLImageJ2C)
+	virtual S8  getRawDiscardLevel() { return mDiscardLevel; }
+	
+	BOOL load(const LLString& filename);
+	BOOL save(const LLString& filename);
+// 	BOOL save(LLVFS *vfs, const LLUUID &uuid, const LLAssetType::EType type);
+//    Depricated to remove VFS dependency (see .cpp for replacement):
+
+	virtual BOOL updateData() = 0; // pure virtual
+	BOOL copyData(U8 *data, S32 size); // calls updateData()
+ 	BOOL setData(U8 *data, S32 size); // calls updateData()
+	BOOL appendData(U8 *data, S32 size); // use if some data (e.g header) is already loaded, calls updateData()
+
+	// Loads first 4 channels.
+	virtual BOOL decode(LLImageRaw* raw_image, F32 decode_time=0.0) = 0;  
+	// Subclasses that can handle more than 4 channels should override this function.
+	virtual BOOL decode(LLImageRaw* raw_image, F32 decode_time, S32 first_channel, S32 max_channel);
+
+	// Decode methods to return a pointer to raw data for purposes of passing to
+	// opengl or such. This class tracks the decoded data and keeps it alive until
+	// destroyed or releaseDecodedData() is called.
+	virtual BOOL requestDecodedData(LLPointer<LLImageRaw>& raw, S32 discard = -1, F32 decode_time=0.0);
+	virtual BOOL requestDecodedAuxData(LLPointer<LLImageRaw>& raw, S32 channel, 
+									   S32 discard = -1, F32 decode_time=0.0);
+	virtual void releaseDecodedData();
+
+	virtual BOOL encode(const LLImageRaw* raw_image, F32 encode_time=0.0) = 0;
+
+	S8 getCodec() const;
+	BOOL isDecoding() const { return mDecoding ? TRUE : FALSE; }
+	BOOL isDecoded()  const { return mDecoded ? TRUE : FALSE; }
+	void setDiscardLevel(S8 discard_level) { mDiscardLevel = discard_level; }
+	S8 getDiscardLevel() const { return mDiscardLevel; }
+
+protected:
+	S8 mCodec;
+	S8 mDecoding;
+	S8 mDecoded;
+	S8 mDiscardLevel;
+
+	LLPointer<LLImageRaw> mDecodedImage;
+	
+public:
+	static S32 sGlobalFormattedMemory;
+	static LLWorkerThread* sWorkerThread;
+};
+
+#endif

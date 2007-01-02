@@ -1,0 +1,285 @@
+/** 
+ * @file llmail.cpp
+ * @brief smtp helper functions.
+ *
+ * Copyright (c) 2001-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
+#include "linden_common.h"
+
+#include <string>
+#include <sstream>
+#include <boost/regex.hpp>
+
+#include "llmail.h"
+
+#include "apr-1/apr_pools.h"
+#include "apr-1/apr_network_io.h"
+
+#include "llapr.h"
+#include "llerror.h"
+#include "llhost.h"
+#include "net.h"
+
+//
+// constants
+//
+const size_t LL_MAX_KNOWN_GOOD_MAIL_SIZE = 4096;
+
+static bool gMailEnabled = true;
+static apr_pool_t* gMailPool;
+static apr_sockaddr_t* gSockAddr;
+static apr_socket_t* gMailSocket;
+
+// According to RFC2822
+static const boost::regex valid_subject_chars("[\\x1-\\x9\\xb\\xc\\xe-\\x7f]+");
+bool connect_smtp();
+void disconnect_smtp();
+ 
+//#if LL_WINDOWS
+//SOCKADDR_IN gMailDstAddr, gMailSrcAddr, gMailLclAddr;
+//#else
+//struct sockaddr_in gMailDstAddr, gMailSrcAddr, gMailLclAddr;
+//#endif
+
+// Define this for a super-spammy mail mode.
+//#define LL_LOG_ENTIRE_MAIL_MESSAGE_ON_SEND 1
+
+bool connect_smtp()
+{
+	// Prepare an soket to talk smtp
+	apr_status_t status;
+	status = apr_socket_create(
+		&gMailSocket,
+		gSockAddr->sa.sin.sin_family,
+		SOCK_STREAM,
+		APR_PROTO_TCP,
+		gMailPool);
+	if(ll_apr_warn_status(status)) return false;
+	status = apr_socket_connect(gMailSocket, gSockAddr);
+	if(ll_apr_warn_status(status))
+	{
+		status = apr_socket_close(gMailSocket);
+		ll_apr_warn_status(status);
+		return false;
+	}
+	return true;
+}
+
+void disconnect_smtp()
+{
+	if(gMailSocket)
+	{
+		apr_status_t status = apr_socket_close(gMailSocket);
+		ll_apr_warn_status(status);
+		gMailSocket = NULL;
+	}
+}
+
+// Returns TRUE on success.
+// message should NOT be SMTP escaped.
+BOOL send_mail(const char* from_name, const char* from_address,
+			   const char* to_name, const char* to_address,
+			   const char* subject, const char* message)
+{
+	std::string header = build_smtp_transaction(
+		from_name,
+		from_address,
+		to_name,
+		to_address,
+		subject);
+	if(header.empty())
+	{
+		return FALSE;
+	}
+
+	std::string message_str;
+	if(message)
+	{
+		message_str = message;
+	}
+	bool rv = send_mail(header, message_str, to_address, from_address);
+	if(rv) return TRUE;
+	return FALSE;
+}
+
+void init_mail(const std::string& hostname, apr_pool_t* pool)
+{
+	gMailSocket = NULL;
+	if(hostname.empty() || !pool)
+	{
+		gMailPool = NULL;
+		gSockAddr = NULL;
+	}
+	else
+	{
+		gMailPool = pool;
+
+		// collect all the information into a socaddr sturcture. the
+		// documentation is a bit unclear, but I either have to
+		// specify APR_UNSPEC or not specify any flags. I am not sure
+		// which option is better.
+		apr_status_t status = apr_sockaddr_info_get(
+			&gSockAddr,
+			hostname.c_str(),
+			APR_UNSPEC,
+			25,
+			APR_IPV4_ADDR_OK,
+			gMailPool);
+		ll_apr_warn_status(status);
+	}
+}
+
+void enable_mail(bool mail_enabled)
+{
+	gMailEnabled = mail_enabled;
+}
+
+std::string build_smtp_transaction(
+	const char* from_name,
+	const char* from_address,
+	const char* to_name,
+	const char* to_address,
+	const char* subject)
+{
+	if(!from_address || !to_address)
+	{
+		llinfos << "send_mail build_smtp_transaction reject: missing to and/or"
+			<< " from address." << llendl;
+		return std::string();
+	}
+	if(! boost::regex_match(subject, valid_subject_chars))
+	{
+		llinfos << "send_mail build_smtp_transaction reject: bad subject header: "
+			<< "to=<" << to_address
+			<< ">, from=<" << from_address << ">"
+			<< llendl;
+		return std::string();
+	}
+	std::ostringstream from_fmt;
+	if(from_name && from_name[0])
+	{
+		// "My Name" <myaddress@example.com>
+		from_fmt << "\"" << from_name << "\" <" << from_address << ">";
+	}
+	else
+	{
+		// <myaddress@example.com>
+		from_fmt << "<" << from_address << ">";
+	}
+	std::ostringstream to_fmt;
+	if(to_name && to_name[0])
+	{
+		to_fmt << "\"" << to_name << "\" <" << to_address << ">";
+	}
+	else
+	{
+		to_fmt << "<" << to_address << ">";
+	}
+	std::ostringstream header;
+	header
+		<< "HELO lindenlab.com\r\n"
+		<< "MAIL FROM:<" << from_address << ">\r\n"
+		<< "RCPT TO:<" << to_address << ">\r\n"
+		<< "DATA\r\n"
+		<< "From: " << from_fmt.str() << "\r\n"
+		<< "To: " << to_fmt.str() << "\r\n"
+		<< "Subject: " << subject << "\r\n"
+		<< "\r\n";
+	return header.str();
+}
+
+bool send_mail(
+	const std::string& header,
+	const std::string& message,
+	const char* from_address,
+	const char* to_address)
+{
+	if(!from_address || !to_address)
+	{
+		llinfos << "send_mail reject: missing to and/or from address."
+			<< llendl;
+		return false;
+	}
+
+	// *FIX: this translation doesn't deal with a single period on a
+	// line by itself.
+	std::ostringstream rfc2822_msg;
+	for(U32 i = 0; i < message.size(); ++i)
+	{
+		switch(message[i])
+		{
+		case '\0':
+			break;
+		case '\n':
+			// *NOTE: this is kinda busted if we're fed \r\n
+			rfc2822_msg << "\r\n";
+			break;
+		default:
+			rfc2822_msg << message[i];
+			break;
+		}
+	}
+
+	if(!gMailEnabled)
+	{
+		llinfos << "send_mail reject: mail system is disabled: to=<"
+			<< to_address << ">, from=<" << from_address
+			<< ">" << llendl;
+		// Any future interface to SMTP should return this as an
+		// error.  --mark
+		return true;
+	}
+	if(!gSockAddr)
+	{
+		llwarns << "send_mail reject: mail system not initialized: to=<"
+			<< to_address << ">, from=<" << from_address
+			<< ">" << llendl;
+		return false;
+	}
+
+	if(!connect_smtp())
+	{
+		llwarns << "send_mail reject: SMTP connect failure: to=<"
+			<< to_address << ">, from=<" << from_address
+			<< ">" << llendl;
+		return false;
+	}
+
+	std::ostringstream smtp_fmt;
+	smtp_fmt << header << rfc2822_msg.str() << "\r\n" << ".\r\n" << "QUIT\r\n";
+	std::string smtp_transaction = smtp_fmt.str();
+	size_t original_size = smtp_transaction.size();
+	apr_size_t send_size = original_size;
+	apr_status_t status = apr_socket_send(
+		gMailSocket,
+		smtp_transaction.c_str(),
+		(apr_size_t*)&send_size);
+	disconnect_smtp();
+	if(ll_apr_warn_status(status))
+	{
+		llwarns << "send_mail socket failure: unable to write "
+			<< "to=<" << to_address
+			<< ">, from=<" << from_address << ">"
+			<< ", bytes=" << original_size
+			<< ", sent=" << send_size << llendl;
+		return false;
+	}
+	if(send_size >= LL_MAX_KNOWN_GOOD_MAIL_SIZE)
+	{
+		llwarns << "send_mail message has been shown to fail in testing "
+			<< "when sending messages larger than " << LL_MAX_KNOWN_GOOD_MAIL_SIZE
+			<< " bytes. The next log about success is potentially a lie." << llendl;
+	}
+	llinfos << "send_mail success: "
+		<< "to=<" << to_address
+		<< ">, from=<" << from_address << ">"
+		<< ", bytes=" << original_size
+		<< ", sent=" << send_size << llendl;
+
+#if LL_LOG_ENTIRE_MAIL_MESSAGE_ON_SEND
+	llinfos << rfc2822_msg.str() << llendl;
+#endif
+	return true;
+}

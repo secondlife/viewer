@@ -1,0 +1,207 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+#include "resource.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_WIN_CRASH_LOGGER    ICON                    "ll_icon.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDC_WIN_CRASH_LOGGER MENU 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "E&xit",                       IDM_EXIT
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About ...",                  IDM_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PROGRESS DIALOG  100, 100, 186, 33
+STYLE DS_SETFONT | DS_SETFOREGROUND | WS_CAPTION | WS_SYSMENU
+CAPTION "%s Crash Logger"
+CLASS "WIN_CRASH_LOGGER"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Static",IDC_LOG,7,7,172,8
+END
+
+IDD_REPORT DIALOGEX 100, 100, 297, 125
+STYLE DS_SETFONT | DS_SETFOREGROUND | WS_CAPTION | WS_SYSMENU
+CAPTION "%s Crash Logger"
+CLASS "WIN_CRASH_LOGGER"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "Send",IDOK,198,104,45,15,WS_GROUP
+    PUSHBUTTON      "Don't Send",IDCANCEL,247,104,45,15,WS_GROUP
+    LTEXT           "%s appears to have crashed.",IDC_STATIC_HEADER,4,4,288,
+                    14
+    LTEXT           "This crash reporter collects information about your computer's hardware, operating system, and some %s logs, which are used for debugging purposes only.",
+                    IDC_STATIC_WHATINFO,4,23,288,19,NOT WS_GROUP
+    CONTROL         "Remember this choice",IDC_CHECK_AUTO,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,4,106,89,13
+    LTEXT           "Sending crash reports is the best way to help us improve the quality of %s.",
+                    IDC_STATIC_MOTIVATION,4,38,288,8
+    LTEXT           "If you continue to experience this problem, please try one of the following:",
+                    IDC_STATIC,4,57,251,8
+    LTEXT           "- Contact support by email at support@lindenlab.com",
+                    IDC_STATIC,4,67,179,8
+    LTEXT           "- If you can log-in, please contact Live Help by using menu Help > Live Help.",
+                    IDC_STATIC,4,87,249,8
+    LTEXT           "- Search the Second Life Knowledge Base at http://secondlife.com/knowledgebase/",
+                    IDC_STATIC,4,77,281,8,SS_NOTIFY
+END
+
+IDD_PREVREPORTBOX DIALOG  100, 100, 232, 213
+STYLE DS_SETFONT | DS_SETFOREGROUND | WS_CAPTION | WS_SYSMENU
+CAPTION "%s Crash Logger"
+CLASS "WIN_CRASH_LOGGER"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,131,193,45,15,WS_GROUP
+    EDITTEXT        IDC_EDIT1,4,102,223,89,ES_MULTILINE | ES_WANTRETURN | 
+                    WS_VSCROLL
+    PUSHBUTTON      "Cancel",IDCANCEL,181,193,45,15,WS_GROUP
+    LTEXT           "%s appears to have crashed or frozen the last time it ran.",
+                    IDC_STATIC,4,4,214,8
+    LTEXT           "This crash reporter collects information about your computer's",
+                    IDC_STATIC,4,17,201,8
+    LTEXT           "hardware configuration, operating system, and some %s",
+                    IDC_STATIC,4,25,212,8
+    LTEXT           "logs, all of which are used for debugging purposes only.",
+                    IDC_STATIC,4,33,210,8
+    LTEXT           "In the space below, please briefly describe what you were doing",
+                    IDC_STATIC,3,48,208,8
+    LTEXT           "or trying to do just prior to the crash.",IDC_STATIC,3,
+                    56,204,8
+    LTEXT           "If you don't wish to send Linden Lab a crash report, press Cancel.",
+                    IDC_STATIC,3,90,214,8
+    LTEXT           "This report is NOT read by customer support.  If you have billing or",
+                    IDC_STATIC,3,68,208,8
+    LTEXT           "other questions, please go to: www.secondlife.com/support",
+                    IDC_STATIC,3,76,206,8
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+2 TEXTINCLUDE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""resource.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_PROGRESS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 26
+    END
+
+    IDD_REPORT, DIALOG
+    BEGIN
+        RIGHTMARGIN, 292
+        VERTGUIDE, 4
+        BOTTOMMARGIN, 119
+        HORZGUIDE, 4
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_APP_TITLE           "win_crash_logger"
+    IDS_HELLO               "Hello World!"
+    IDC_WIN_CRASH_LOGGER    "WIN_CRASH_LOGGER"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

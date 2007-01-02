@@ -1,0 +1,763 @@
+/** 
+ * @file llcachename.cpp
+ * @brief A hierarchical cache of first and last names queried based on UUID.
+ *
+ * Copyright (c) 2002-$CurrentYear$, Linden Research, Inc.
+ * $License$ 
+ */
+
+#include "linden_common.h"
+
+#include "llcachename.h"
+
+// system includes
+#include <string.h>		// strcpy
+#include <time.h>
+#include <algorithm>
+#include <functional>
+#include <map>
+
+// linden library includes
+#include "message.h"
+#include "llrand.h"
+#include "lldbstrings.h"
+#include "llframetimer.h"
+#include "llhost.h"
+#include "lluuid.h"
+
+// Constants
+const char* CN_WAITING = "(waiting)";
+const char* CN_NOBODY = "(nobody)";
+const char* CN_NONE = "(none)";
+const char* CN_HIPPOS = "(hippos)";
+const F32 HIPPO_PROBABILITY = 0.01f;
+
+// File version number
+const S32 CN_FILE_VERSION = 2;
+
+// Globals
+LLCacheName* gCacheName = NULL;
+
+/// ---------------------------------------------------------------------------
+/// class LLCacheNameEntry
+/// ---------------------------------------------------------------------------
+
+namespace {
+	class LLCacheNameEntry
+	{
+	public:
+		LLCacheNameEntry();
+
+	public:
+		bool mIsGroup;
+		U32 mCreateTime;	// unix time_t
+		char mFirstName[DB_FIRST_NAME_BUF_SIZE]; /*Flawfinder: ignore*/
+		char mLastName[DB_LAST_NAME_BUF_SIZE]; /*Flawfinder: ignore*/
+		char mGroupName[DB_GROUP_NAME_BUF_SIZE]; /*Flawfinder: ignore*/
+	};
+
+	LLCacheNameEntry::LLCacheNameEntry()
+	{
+		mFirstName[0] = '\0';
+		mLastName[0]  = '\0';
+		mGroupName[0] = '\0';
+	}
+
+
+	class PendingReply
+	{
+	public:
+		LLUUID				mID;
+		LLCacheNameCallback mCallback;
+		LLHost				mHost;
+		void*				mData;
+		PendingReply(const LLUUID& id, LLCacheNameCallback callback, void* data = NULL)
+			: mID(id), mCallback(callback), mData(data)
+		{ }
+
+		PendingReply(const LLUUID& id, const LLHost& host)
+			: mID(id), mCallback(0), mHost(host)
+		{ }
+
+		void done()			{ mID.setNull(); }
+		bool isDone() const	{ return mID.isNull() != FALSE; }
+	};
+
+	class ReplySender
+	{
+	public:
+		ReplySender(LLMessageSystem* msg);
+		~ReplySender();
+
+		void send(const LLUUID& id,
+			const LLCacheNameEntry& entry, const LLHost& host);
+
+	private:
+		void flush();
+
+		LLMessageSystem*	mMsg;
+		bool				mPending;
+		bool				mCurrIsGroup;
+		LLHost				mCurrHost;
+	};
+
+	ReplySender::ReplySender(LLMessageSystem* msg)
+		: mMsg(msg), mPending(false)
+	{ }
+
+	ReplySender::~ReplySender()
+	{
+		flush();
+	}
+
+	void ReplySender::send(const LLUUID& id,
+		const LLCacheNameEntry& entry, const LLHost& host)
+	{
+		if (mPending)
+		{
+			if (mCurrIsGroup != entry.mIsGroup
+			||  mCurrHost != host)
+			{
+				flush();
+			}
+		}
+
+		if (!mPending)
+		{
+			mPending = true;
+			mCurrIsGroup = entry.mIsGroup;
+			mCurrHost = host;
+
+			if(mCurrIsGroup)
+				mMsg->newMessageFast(_PREHASH_UUIDGroupNameReply);
+			else
+				mMsg->newMessageFast(_PREHASH_UUIDNameReply);
+		}
+
+		mMsg->nextBlockFast(_PREHASH_UUIDNameBlock);
+		mMsg->addUUIDFast(_PREHASH_ID, id);
+		if(mCurrIsGroup)
+		{
+			mMsg->addStringFast(_PREHASH_GroupName, entry.mGroupName);
+		}
+		else
+		{
+			mMsg->addStringFast(_PREHASH_FirstName,	entry.mFirstName);
+			mMsg->addStringFast(_PREHASH_LastName, entry.mLastName);
+		}
+
+		if(mMsg->isSendFullFast(_PREHASH_UUIDNameBlock))
+		{
+			flush();
+		}
+	}
+
+	void ReplySender::flush()
+	{
+		if (mPending)
+		{
+			mMsg->sendReliable(mCurrHost);
+			mPending = false;
+		}
+	}
+
+
+	typedef std::vector<LLUUID>					AskQueue;
+	typedef std::vector<PendingReply>			ReplyQueue;
+	typedef std::map<LLUUID, LLCacheNameEntry*> Cache;
+	typedef std::vector<LLCacheNameCallback>	Observers;
+};
+
+class LLCacheName::Impl
+{
+public:
+	LLMessageSystem*	mMsg;
+	LLHost				mUpstreamHost;
+
+	Cache				mCache;
+		// the map of UUIDs to names
+
+	AskQueue			mAskNameQueue;
+	AskQueue			mAskGroupQueue;
+		// UUIDs to ask our upstream host about
+
+	ReplyQueue			mReplyQueue;
+		// requests awaiting replies from us
+
+	Observers			mObservers;
+
+	LLFrameTimer		mProcessTimer;
+
+	Impl(LLMessageSystem* msg);
+	~Impl();
+
+	void processPendingAsks();
+	void processPendingReplies();
+	void sendRequest(const char* msg_name, const AskQueue& queue);
+
+	// Message system callbacks.
+	void processUUIDRequest(LLMessageSystem* msg, bool isGroup);
+	void processUUIDReply(LLMessageSystem* msg, bool isGroup);
+
+	static void handleUUIDNameRequest(LLMessageSystem* msg, void** userdata);
+	static void handleUUIDNameReply(LLMessageSystem* msg, void** userdata);
+	static void handleUUIDGroupNameRequest(LLMessageSystem* msg, void** userdata);
+	static void handleUUIDGroupNameReply(LLMessageSystem* msg, void** userdata);
+
+	void notifyObservers(const LLUUID& id, const char* first, const char* last, BOOL group);
+};
+
+
+/// --------------------------------------------------------------------------
+/// class LLCacheName
+/// ---------------------------------------------------------------------------
+
+LLCacheName::LLCacheName(LLMessageSystem* msg)
+	: impl(* new Impl(msg))
+	{ }
+
+LLCacheName::LLCacheName(LLMessageSystem* msg, const LLHost& upstream_host)
+	: impl(* new Impl(msg))
+{
+	setUpstream(upstream_host);
+}
+
+LLCacheName::~LLCacheName()
+{
+	delete &impl;
+}
+
+LLCacheName::Impl::Impl(LLMessageSystem* msg)
+	: mMsg(msg), mUpstreamHost(LLHost::invalid)
+{
+	mMsg->setHandlerFuncFast(
+		_PREHASH_UUIDNameRequest, handleUUIDNameRequest, (void**)this);
+	mMsg->setHandlerFuncFast(
+		_PREHASH_UUIDNameReply, handleUUIDNameReply, (void**)this);
+	mMsg->setHandlerFuncFast(
+		_PREHASH_UUIDGroupNameRequest, handleUUIDGroupNameRequest, (void**)this);
+	mMsg->setHandlerFuncFast(
+		_PREHASH_UUIDGroupNameReply, handleUUIDGroupNameReply, (void**)this);
+}
+
+
+LLCacheName::Impl::~Impl()
+{
+	for_each(mCache.begin(), mCache.end(), DeletePairedPointer());
+}
+
+
+void LLCacheName::setUpstream(const LLHost& upstream_host)
+{
+	impl.mUpstreamHost = upstream_host;
+}
+
+void LLCacheName::addObserver(LLCacheNameCallback callback)
+{
+	impl.mObservers.push_back(callback);
+}
+
+
+void LLCacheName::importFile(FILE* fp)
+{
+	S32 count = 0;
+
+	const S32 BUFFER_SIZE = 1024;
+	char buffer[BUFFER_SIZE];	/*Flawfinder: ignore*/
+
+	char id_string[MAX_STRING]; /*Flawfinder: ignore*/
+	char firstname[MAX_STRING]; /*Flawfinder: ignore*/
+	char lastname[MAX_STRING]; /*Flawfinder: ignore*/
+	U32 create_time;
+
+	// This is OK if the first line is actually a name.  We just don't load it.
+	char* valid = fgets(buffer, BUFFER_SIZE, fp);
+	if (!valid) return;
+
+	char version_string[BUFFER_SIZE]; /*Flawfinder: ignore*/
+	S32 version = 0;
+	S32 match = sscanf(buffer, "%s %d", version_string, &version); // XXXTBD
+	if (   match != 2
+		|| strcmp(version_string, "version")
+		|| version != CN_FILE_VERSION)
+	{
+		llwarns << "Ignoring old cache name file format" << llendl;
+		return;
+	}
+
+	// We'll expire entries more than a week old
+	U32 now = (U32)time(NULL);
+	const U32 SECS_PER_DAY = 60 * 60 * 24;
+	U32 delete_before_time = now - (7 * SECS_PER_DAY);
+
+	while(!feof(fp))
+	{
+		valid = fgets(buffer, BUFFER_SIZE, fp);
+		if (!valid) break;
+
+		match = sscanf(buffer, "%s %u %s %s",   // XXXTBD
+					   id_string, 
+					   &create_time,
+					   firstname, 
+					   lastname);
+		if (4 != match) continue;
+
+		LLUUID id(id_string);
+		if (id.isNull()) continue;
+
+		// undo trivial XOR
+		S32 i;
+		for (i = 0; i < UUID_BYTES; i++)
+		{
+			id.mData[i] ^= 0x33;
+		}
+
+		// Don't load entries that are more than a week old
+		if (create_time < delete_before_time) continue;
+
+		LLCacheNameEntry* entry = new LLCacheNameEntry();
+		entry->mIsGroup = false;
+		entry->mCreateTime = create_time;
+		LLString::copy(entry->mFirstName, firstname, DB_FIRST_NAME_BUF_SIZE);
+		LLString::copy(entry->mLastName, lastname, DB_LAST_NAME_BUF_SIZE);
+		impl.mCache[id] = entry;
+
+		count++;
+	}
+
+	llinfos << "LLCacheName loaded " << count << " names" << llendl;
+}
+
+
+void LLCacheName::exportFile(FILE* fp)
+{
+	fprintf(fp, "version\t%d\n", CN_FILE_VERSION);
+
+	for (Cache::iterator iter = impl.mCache.begin(),
+			 end = impl.mCache.end();
+		 iter != end; iter++)
+	{
+		LLCacheNameEntry* entry = iter->second;
+		// Only write entries for which we have valid data.
+		// HACK: Only write agent names.  This makes the reader easier.
+		if (   entry->mFirstName[0]
+			&& entry->mLastName[0])
+		{
+			LLUUID id = iter->first;
+
+			// Trivial XOR encoding
+			S32 i;
+			for (i = 0; i < UUID_BYTES; i++)
+			{
+				id.mData[i] ^= 0x33;
+			}
+
+			char id_string[UUID_STR_SIZE]; /*Flawfinder:ignore*/
+			id.toString(id_string);
+
+			// ...not a group name
+			fprintf(fp, "%s\t%u\t%s\t%s\n", 
+					id_string, 
+					entry->mCreateTime,
+					entry->mFirstName, 
+					entry->mLastName);
+		}
+	}
+}
+
+
+BOOL LLCacheName::getName(const LLUUID& id, char* first, char* last)
+{
+	if(id.isNull())
+	{
+		// The function signature needs to change to pass in the
+		// length of first and last.
+		strcpy(first, CN_NOBODY);
+		last[0] = '\0';
+		return FALSE;
+	}
+
+	LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache, id );
+	if (entry)
+	{
+		// The function signature needs to change to pass in the
+		// length of first and last.
+		strcpy(first, entry->mFirstName);
+		strcpy(last,  entry->mLastName);
+		return TRUE;
+	}
+	else
+	{
+		//The function signature needs to change to pass in the
+		//length of first and last.
+		strcpy(first,(frand(1.0f) < HIPPO_PROBABILITY)
+						? CN_HIPPOS 
+						: CN_WAITING);
+		strcpy(last, "");
+
+		impl.mAskNameQueue.push_back(id);
+		return FALSE;
+	}
+
+}
+
+
+
+BOOL LLCacheName::getGroupName(const LLUUID& id, char* group)
+{
+	if(id.isNull())
+	{
+		// The function signature needs to change to pass in the
+		// length of first and last.
+		strcpy(group, CN_NONE);
+		return FALSE;
+	}
+
+	LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache,id);
+	if (entry && !entry->mGroupName[0])
+	{
+		// COUNTER-HACK to combat James' HACK in exportFile()...
+		// this group name was loaded from a name cache that did not
+		// bother to save the group name ==> we must ask for it
+		lldebugs << "LLCacheName queuing HACK group request: " << id << llendl;
+		entry = NULL;
+	}
+
+	if (entry)
+	{
+		// The function signature needs to change to pass in the length
+		// of group.
+		strcpy(group, entry->mGroupName);
+		return TRUE;
+	}
+	else 
+	{
+		// The function signature needs to change to pass in the length
+		// of first and last.
+		strcpy(group, CN_WAITING);
+
+		impl.mAskGroupQueue.push_back(id);
+		return FALSE;
+	}
+}
+
+// TODO: Make the cache name callback take a SINGLE std::string,
+// not a separate first and last name.
+void LLCacheName::get(const LLUUID& id, BOOL is_group, LLCacheNameCallback callback, void* user_data)
+{
+	if(id.isNull())
+	{
+		callback(id, CN_NOBODY, "", is_group, user_data);
+	}
+
+	LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache, id );
+	if (entry)
+	{
+		if (!entry->mIsGroup)
+		{
+			callback(id, entry->mFirstName, entry->mLastName, entry->mIsGroup, user_data);
+		}
+		else
+		{
+			callback(id, entry->mGroupName, "", entry->mIsGroup, user_data);
+		}
+	}
+	else
+	{
+		if (!is_group)
+		{
+			impl.mAskNameQueue.push_back(id);
+		}
+		else
+		{
+			impl.mAskGroupQueue.push_back(id);
+		}
+		impl.mReplyQueue.push_back(PendingReply(id, callback, user_data));
+	}
+}
+
+void LLCacheName::processPending()
+{
+	const F32 SECS_BETWEEN_PROCESS = 0.1f;
+	if(!impl.mProcessTimer.checkExpirationAndReset(SECS_BETWEEN_PROCESS))
+	{
+		return;
+	}
+
+	if(!impl.mUpstreamHost.isOk())
+	{
+		lldebugs << "LLCacheName::processPending() - bad upstream host."
+				 << llendl;
+		return;
+	}
+
+	impl.processPendingAsks();
+	impl.processPendingReplies();
+}
+
+void LLCacheName::deleteEntriesOlderThan(S32 secs)
+{
+	U32 now = (U32)time(NULL);
+	U32 expire_time = now - secs;
+	for(Cache::iterator iter = impl.mCache.begin(); iter != impl.mCache.end(); )
+	{
+		Cache::iterator curiter = iter++;
+		LLCacheNameEntry* entry = curiter->second;
+		if (entry->mCreateTime < expire_time)
+		{
+			delete entry;
+			impl.mCache.erase(curiter);
+		}
+	}
+}
+
+
+void LLCacheName::dump()
+{
+	for (Cache::iterator iter = impl.mCache.begin(),
+			 end = impl.mCache.end();
+		 iter != end; iter++)
+	{
+		LLCacheNameEntry* entry = iter->second;
+		if (entry->mIsGroup)
+		{
+			llinfos
+				<< iter->first << " = (group) "
+				<< entry->mGroupName
+				<< " @ " << entry->mCreateTime
+				<< llendl;
+		}
+		else
+		{
+			llinfos
+				<< iter->first << " = "
+				<< entry->mFirstName << " " << entry->mLastName
+				<< " @ " << entry->mCreateTime
+				<< llendl;
+		}
+	}
+}
+
+void LLCacheName::Impl::processPendingAsks()
+{
+	sendRequest(_PREHASH_UUIDNameRequest, mAskNameQueue);
+	sendRequest(_PREHASH_UUIDGroupNameRequest, mAskGroupQueue);
+	mAskNameQueue.clear();
+	mAskGroupQueue.clear();
+}
+
+void LLCacheName::Impl::processPendingReplies()
+{
+	ReplyQueue::iterator it = mReplyQueue.begin();
+	ReplyQueue::iterator end = mReplyQueue.end();
+	
+	// First call all the callbacks, because they might send messages.
+	for(; it != end; ++it)
+	{
+		LLCacheNameEntry* entry = get_ptr_in_map(mCache, it->mID);
+		if(!entry) continue;
+
+		if (it->mCallback)
+		{
+			if (!entry->mIsGroup)
+			{
+				(it->mCallback)(it->mID,
+					entry->mFirstName, entry->mLastName,
+					FALSE, it->mData);
+			}
+			else {
+				(it->mCallback)(it->mID,
+					entry->mGroupName, "",
+					TRUE, it->mData);
+			}
+		}
+	}
+
+	// Forward on all replies, if needed.
+	ReplySender sender(mMsg);
+	for (it = mReplyQueue.begin(); it != end; ++it)
+	{
+		LLCacheNameEntry* entry = get_ptr_in_map(mCache, it->mID);
+		if(!entry) continue;
+
+		if (it->mHost.isOk())
+		{
+			sender.send(it->mID, *entry, it->mHost);
+		}
+
+		it->done();
+	}
+
+	mReplyQueue.erase(
+		remove_if(mReplyQueue.begin(), mReplyQueue.end(),
+			std::mem_fun_ref(&PendingReply::isDone)),
+		mReplyQueue.end());
+}
+
+
+void LLCacheName::Impl::sendRequest(
+	const char* msg_name,
+	const AskQueue& queue)
+{
+	if(queue.empty())
+	{
+		return;		
+	}
+
+	bool start_new_message = true;
+	AskQueue::const_iterator it = queue.begin();
+	AskQueue::const_iterator end = queue.end();
+	for(; it != end; ++it)
+	{
+		if(start_new_message)
+		{
+			start_new_message = false;
+			mMsg->newMessageFast(msg_name);
+		}
+		mMsg->nextBlockFast(_PREHASH_UUIDNameBlock);
+		mMsg->addUUIDFast(_PREHASH_ID, (*it));
+
+		if(mMsg->isSendFullFast(_PREHASH_UUIDNameBlock))
+		{
+			start_new_message = true;
+			mMsg->sendReliable(mUpstreamHost);
+		}
+	}
+	if(!start_new_message)
+	{
+		mMsg->sendReliable(mUpstreamHost);
+	}
+}
+
+void LLCacheName::Impl::notifyObservers(const LLUUID& id,
+	const char* first, const char* last, BOOL is_group)
+{
+	for (Observers::const_iterator i = mObservers.begin(),
+								   end = mObservers.end();
+		i != end;
+		++i)
+	{
+		(**i)(id, first, last, is_group, NULL);
+	}
+}
+
+
+void LLCacheName::Impl::processUUIDRequest(LLMessageSystem* msg, bool isGroup)
+{
+	// You should only get this message if the cache is at the simulator
+	// level, hence having an upstream provider.
+	if (!mUpstreamHost.isOk())
+	{
+		llwarns << "LLCacheName - got UUID name/group request, but no upstream provider!" << llendl;
+		return;
+	}
+
+	LLHost fromHost = msg->getSender();
+	ReplySender sender(msg);
+
+	S32 count = msg->getNumberOfBlocksFast(_PREHASH_UUIDNameBlock);
+	for(S32 i = 0; i < count; ++i)
+	{
+		LLUUID id;
+		msg->getUUIDFast(_PREHASH_UUIDNameBlock, _PREHASH_ID, id, i);
+		LLCacheNameEntry* entry = get_ptr_in_map(mCache, id);
+		if(entry)
+		{
+			if (isGroup != entry->mIsGroup)
+			{
+				llwarns << "LLCacheName - Asked for "
+						<< (isGroup ? "group" : "user") << " name, "
+						<< "but found "
+						<< (entry->mIsGroup ? "group" : "user")
+						<< ": " << id << llendl;
+			}
+			else
+			{
+				// ...it's in the cache, so send it as the reply
+				sender.send(id, *entry, fromHost);
+			}
+		}
+		else
+		{
+			if (isGroup)
+			{
+				mAskGroupQueue.push_back(id);
+			}
+			else
+			{
+				mAskNameQueue.push_back(id);
+			}
+			
+			mReplyQueue.push_back(PendingReply(id, fromHost));
+		}
+	}
+}
+
+
+
+void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
+{
+	S32 count = msg->getNumberOfBlocksFast(_PREHASH_UUIDNameBlock);
+	for(S32 i = 0; i < count; ++i)
+	{
+		LLUUID id;
+		msg->getUUIDFast(_PREHASH_UUIDNameBlock, _PREHASH_ID, id, i);
+		LLCacheNameEntry* entry = get_ptr_in_map(mCache, id);
+		if (!entry)
+		{
+			entry = new LLCacheNameEntry;
+			mCache[id] = entry;
+		}
+
+		entry->mIsGroup = isGroup;
+		entry->mCreateTime = (U32)time(NULL);
+		if (!isGroup)
+		{
+			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_FirstName, DB_FIRST_NAME_BUF_SIZE, entry->mFirstName, i);
+			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_LastName,  DB_LAST_NAME_BUF_SIZE, entry->mLastName, i);
+		}
+		else
+		{
+			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_GroupName, DB_GROUP_NAME_BUF_SIZE, entry->mGroupName, i);
+		}
+
+		if (!isGroup)
+		{
+			notifyObservers(id,
+							entry->mFirstName, entry->mLastName,
+							FALSE);
+		}
+		else
+		{
+			notifyObservers(id, entry->mGroupName, "", TRUE);
+		}
+	}
+}
+
+
+
+// static call back functions
+
+void LLCacheName::Impl::handleUUIDNameReply(LLMessageSystem* msg, void** userData)
+{
+	((LLCacheName::Impl*)userData)->processUUIDReply(msg, false);
+}
+
+void LLCacheName::Impl::handleUUIDNameRequest(LLMessageSystem* msg, void** userData)
+{
+	((LLCacheName::Impl*)userData)->processUUIDRequest(msg, false);
+}
+
+void LLCacheName::Impl::handleUUIDGroupNameRequest(LLMessageSystem* msg, void** userData)
+{
+	((LLCacheName::Impl*)userData)->processUUIDRequest(msg, true);
+}
+
+void LLCacheName::Impl::handleUUIDGroupNameReply(LLMessageSystem* msg, void** userData)
+{
+	((LLCacheName::Impl*)userData)->processUUIDReply(msg, true);
+}
+
+
+
+

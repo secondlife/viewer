@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<grass_defs>
+  <grass
+    name="Grass 0"
+	species_id="0"
+ 	texture_name="grass_texture_2.tga"
+	blade_size_x="1.35"
+	blade_size_y="1.35"
+     />
+  <grass
+    name="Grass 1"
+	species_id="1"
+ 	texture_name="grass_texture_1.tga"
+	blade_size_x="1.0"
+	blade_size_y="0.66"
+     />
+  <grass
+    name="Grass 2"
+	species_id="2"
+ 	texture_name="grass_texture_2.tga"
+	blade_size_x="1.8"
+	blade_size_y="1.8"
+     />
+  <grass
+    name="Grass 3"
+	species_id="3"
+ 	texture_name="grass_texture_3.tga"
+	blade_size_x="1.0"
+	blade_size_y="1.0"
+     />
+  <grass
+    name="Grass 4"
+	species_id="4"
+ 	texture_name="grass_texture_4.tga"
+	blade_size_x="2.25"
+	blade_size_y="2.25"
+     />
+  <grass
+    name="undergrowth_1"
+	species_id="5"
+ 	texture_id="8f458549-173b-23ff-d4ff-bfaa5ea2371b"
+	blade_size_x="2.0"
+	blade_size_y="2.0"
+     />
+
+
+</grass_defs>
