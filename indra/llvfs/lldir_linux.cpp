@@ -68,7 +68,9 @@ LLDir_Linux::LLDir_Linux()
 
 	char path [32];
 
-       // !!! FIXME: /proc/%d/exe doesn't work on FreeBSD.
+	// *NOTE: /proc/%d/exe doesn't work on FreeBSD. But that's ok,
+	// because this is the linux implementation.
+
 	sprintf (path, "/proc/%d/exe", (int) getpid ());
 	int rc = readlink (path, tmp_str, sizeof (tmp_str)-1);
 	if ( (rc != -1) && (rc <= ((int) sizeof (tmp_str)-1)) )
@@ -89,7 +91,7 @@ LLDir_Linux::LLDir_Linux()
 		}
 	}
 
-	// !!! FIXME: don't use /tmp, use $HOME/.secondlife/tmp or something.
+	// *TODO: don't use /tmp, use $HOME/.secondlife/tmp or something.
 	mTempDir = "/tmp";
 }
 

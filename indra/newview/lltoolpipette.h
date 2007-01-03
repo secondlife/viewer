@@ -7,6 +7,9 @@
  */
 
 // A tool to pick texture entry infro from objects in world (color/texture)
+// This tool assumes it is transient in the codebase and must be used
+// accordingly. We should probably restructure the way tools are
+// managed so that this is handled automatically.
 
 #ifndef LL_LLTOOLPIPETTE_H
 #define LL_LLTOOLPIPETTE_H

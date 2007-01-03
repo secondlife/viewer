@@ -454,9 +454,9 @@ BOOL LLMessageSystem::mTimeDecodes = FALSE;
 // static, 50ms per message decode
 F32  LLMessageSystem::mTimeDecodesSpamThreshold = 0.05f;
 
-// FIXME: This needs to be moved into a seperate file so that it never gets
+// *NOTE: This needs to be moved into a seperate file so that it never gets
 // included in the viewer.  30 Sep 2002 mark
-// NOTE: I don't think it's important that the messgage system tracks
+// *NOTE: I don't think it's important that the messgage system tracks
 // this since it must get set externally. 2004.08.25 Phoenix.
 static std::string g_shared_secret;
 std::string get_shared_secret();
@@ -4506,7 +4506,7 @@ void process_deny_trusted_circuit(LLMessageSystem *msg, void **)
 	// times out, and allows us to re-establish it, but does
 	// mean that if our shared_secret or clock is wrong, we'll
 	// spin.
-	// FIXME: probably should keep a count of number of resends
+	// *TODO: probably should keep a count of number of resends
 	// per circuit, and stop resending after a while.
 	llinfos << "Got DenyTrustedCircuit. Sending CreateTrustedCircuit to "
 			<< msg->getSender() << llendl;

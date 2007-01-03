@@ -216,7 +216,9 @@ BOOL LLMenuItemGL::addToAcceleratorList(std::list <LLKeyBinding*> *listp)
 			accelerator = *list_it;
 			if ((accelerator->mKey == mAcceleratorKey) && (accelerator->mMask == mAcceleratorMask))
 			{
-			//FIXME: get calling code to throw up warning or route warning messages back to app-provided output
+
+			// *NOTE: get calling code to throw up warning or route
+			// warning messages back to app-provided output
 			//	LLString warning;
 			//	warning.append("Duplicate key binding <");
 			//	appendAcceleratorString( warning );
@@ -1542,7 +1544,7 @@ void LLMenuItemBranchDownGL::doIt( void )
 			}
 			mBranch->translate( delta_x, 0 );
 
-			//FIXME: get menuholder lookup working more generically
+			// *TODO: get menuholder lookup working more generically
 			// hide existing menus
 			if (!mBranch->getTornOff())
 			{
@@ -2183,7 +2185,7 @@ void LLMenuGL::arrange( void )
 	{
 		U32 max_width = (getParent() != NULL) ? getParent()->getRect().getWidth() : U32_MAX;
 		U32 max_height = (getParent() != NULL) ? getParent()->getRect().getHeight() : U32_MAX;
-		//FIXME: create the item first and then ask for its dimensions?
+		// *FIX: create the item first and then ask for its dimensions?
 		S32 spillover_item_width = PLAIN_PAD_PIXELS + LLFontGL::sSansSerif->getWidth( "More" );
 		S32 spillover_item_height = llround(LLFontGL::sSansSerif->getLineHeight()) + MENU_ITEM_PADDING;
 
@@ -3407,7 +3409,7 @@ BOOL LLPieMenu::handleMouseUp( S32 x, S32 y, MASK mask )
 		mFirstMouseDown = FALSE;
 	}
 	
-	//FIXME: is this necessary?
+	// *FIX: is this necessary?
 	if (!mShrinkBorderTimer.getStarted())
 	{
 		mShrinkBorderTimer.start();
@@ -3766,7 +3768,7 @@ void LLPieMenu::show(S32 x, S32 y, BOOL mouse_down)
 		LLUI::setCursorPositionLocal(getParent(), center.mX, center.mY);
 	}
 
-	// FIXME: what happens when mouse buttons reversed?
+	// *FIX: what happens when mouse buttons reversed?
 	mRightMouseDown = mouse_down;
 	mFirstMouseDown = mouse_down;
 	mUseInfiniteRadius = TRUE;

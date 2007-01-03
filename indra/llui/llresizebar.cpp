@@ -110,7 +110,7 @@ BOOL LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
 	// We only handle the click if the click both started and ended within us
 	if( gFocusMgr.getMouseCapture() == this )
 	{
-		//FIXME: this, of course, is fragile
+		// *NOTE: this, of course, is fragile
 		LLView* floater_view = getParent()->getParent();
 		S32 floater_view_x;
 		S32 floater_view_y;

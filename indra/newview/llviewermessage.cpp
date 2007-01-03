@@ -2483,7 +2483,8 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 
 	llinfos << "process_agent_movement_complete()" << llendl;
 
-	// *FIX: check timestamp.
+	// *TODO: check timestamp to make sure the movement compleation
+	// makes sense.
 	LLVector3 agent_pos;
 	msg->getVector3Fast(_PREHASH_Data, _PREHASH_Position, agent_pos);
 	LLVector3 look_at;
@@ -2876,7 +2877,8 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 
 
 
-// TODO: FIX this dependency
+// *TODO: Remove this dependency, or figure out a better way to handle
+// this hack.
 extern U32 gObjectBits;
 
 void process_object_update(LLMessageSystem *mesgsys, void **user_data)

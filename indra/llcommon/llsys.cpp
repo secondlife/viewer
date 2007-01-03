@@ -344,7 +344,7 @@ void LLCPUInfo::stream(std::ostream& s) const
 		s << "Unable to collect processor info";
 	}
 #else
-	// *FIX: This works on linux. What will it do on other systems?
+	// *NOTE: This works on linux. What will it do on other systems?
 	FILE* cpuinfo = LLFile::fopen(CPUINFO_FILE, "r");		/* Flawfinder: ignore */
 	if(cpuinfo)
 	{
@@ -430,7 +430,7 @@ void LLMemoryInfo::stream(std::ostream& s) const
 	}
 	
 #else
-	// *FIX: This works on linux. What will it do on other systems?
+	// *NOTE: This works on linux. What will it do on other systems?
 	FILE* meminfo = LLFile::fopen(MEMINFO_FILE,"r");		/* Flawfinder: ignore */
 	if(meminfo)
 	{

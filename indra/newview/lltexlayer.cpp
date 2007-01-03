@@ -507,7 +507,7 @@ void LLTexLayerSetBuffer::onTextureUploadComplete(const LLUUID& uuid, void* user
 				else
 				{
 					llinfos << "Baked upload failed. Reason: " << result << llendl;
-					//FIXME: retry upload after n seconds, asset server could be busy
+					// *FIX: retry upload after n seconds, asset server could be busy
 				}
 			}
 			else
@@ -1196,8 +1196,9 @@ BOOL LLTexLayer::setInfo(LLTexLayerInfo* info)
 		LLTexLayerInfo::morph_name_list_t::iterator iter;
 		for (iter = mInfo->mMorphNameList.begin(); iter != mInfo->mMorphNameList.end(); iter++)
 		{
-			// FIXME: we assume that the referenced visual param is a morph target, 
-			// need a better way of actually looking this up
+			// *FIX: we assume that the referenced visual param is a
+			// morph target, need a better way of actually looking
+			// this up.
 			LLPolyMorphTarget *morph_param;
 			LLString *name = &(iter->first);
 			morph_param = (LLPolyMorphTarget *)(getTexLayerSet()->getAvatar()->getVisualParam(name->c_str()));
@@ -2800,7 +2801,8 @@ void LLGradientPaletteList::initPalette(F32 domain)
 		S32 ramp_end = 255;
 		F32 ramp_factor = (ramp_end == ramp_start) ? 0.f : (255.f / ((F32)ramp_end - (F32)ramp_start));
 
-		//FIXME: move conditionals outside of loop, since this really is just a sequential process
+		// *TODO: move conditionals outside of loop, since this really
+		// is just a sequential process.
 		for (S32 i = 0; i < 512; i++)
 		{
 			palette[(i * 4) + 1] = 0;

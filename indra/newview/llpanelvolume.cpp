@@ -122,7 +122,7 @@ void LLPanelVolume::getState( )
 	if(!objectp)
 	{
 		objectp = gSelectMgr->getFirstObject();
-		//FIXME: shouldn't we just keep the child?
+		// *FIX: shouldn't we just keep the child?
 		if (objectp)
 		{
 			LLViewerObject* parentp = objectp->getSubParent();

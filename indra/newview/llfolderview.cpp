@@ -20,7 +20,7 @@
 #include "llinventory.h"
 
 #include "llcallbacklist.h"
-#include "llinventoryclipboard.h" // *FIX: remove this!!!!
+#include "llinventoryclipboard.h" // *TODO: remove this once hack below gone.
 #include "llinventoryview.h"// hacked in for the bonus context menu items.
 #include "llkeyboard.h"
 #include "lllineeditor.h"
@@ -39,7 +39,9 @@
 #include "llvoavatar.h"
 #include "llfloaterproperties.h"
 
-//RN: HACK
+// RN: HACK
+// We need these because some of the code below relies on things like
+// gAgent root folder. Remove them once the abstraction leak is fixed.
 #include "llagent.h"
 #include "viewer.h"
 
@@ -400,10 +402,11 @@ void LLFolderViewItem::dirtyFilter()
 	}
 }
 
-// *FIX: This can be optimized a lot by simply recording that it is selected in
-// the appropriate places, and assuming that set selection means 'deselect' for a
-// leaf item. Do this optimization after multiple selection is implemented to
-// make sure it all plays nice together.
+// *TODO: This can be optimized a lot by simply recording that it is
+// selected in the appropriate places, and assuming that set selection
+// means 'deselect' for a leaf item. Do this optimization after
+// multiple selection is implemented to make sure it all plays nice
+// together.
 BOOL LLFolderViewItem::setSelection(LLFolderViewItem* selection, BOOL open,
 									BOOL take_keyboard_focus)
 {
@@ -634,7 +637,8 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 			{
 				LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_WORLD;
 
-				//FIXME: push this into listener and remove dependency on llagent
+				// *TODO: push this into listener and remove
+				// dependency on llagent
 				if(mListener && gInventory.isObjectDescendentOf(mListener->getUUID(), gAgent.getInventoryRootID()))
 				{
 					src = LLToolDragAndDrop::SOURCE_AGENT;
@@ -3452,7 +3456,7 @@ BOOL LLFolderView::canCopy()
 // copy selected item
 void LLFolderView::copy()
 {
-	// *FIX: total hack to clear the inventory clipboard
+	// *NOTE: total hack to clear the inventory clipboard
 	LLInventoryClipboard::instance().reset();
 	S32 count = mSelectedItems.size();
 	if(getVisible() && mEnabled && (count > 0))
@@ -3493,7 +3497,7 @@ BOOL LLFolderView::canPaste()
 		selected_items_t::iterator item_it;
 		for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
 		{
-			//FIXME: only check folders and parent folders of items
+			// *TODO: only check folders and parent folders of items
 			LLFolderViewItem* item = (*item_it);
 			LLFolderViewEventListener* listener = item->getListener();
 			if(!listener || !listener->isClipboardPasteable())
@@ -4614,7 +4618,7 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 {
 	if (mFilterOps.mHoursAgo != hours)
 	{
-		//FIXME: need to cache last filter time, in case filter goes stale
+		// *NOTE: need to cache last filter time, in case filter goes stale
 		BOOL less_restrictive = (mFilterOps.mMinDate == 0 && mFilterOps.mMaxDate == U32_MAX && hours > mFilterOps.mHoursAgo);
 		BOOL more_restrictive = (mFilterOps.mMinDate == 0 && mFilterOps.mMaxDate == U32_MAX && hours <= mFilterOps.mHoursAgo);
 		mFilterOps.mHoursAgo = hours;

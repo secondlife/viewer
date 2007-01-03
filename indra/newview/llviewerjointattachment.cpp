@@ -337,7 +337,7 @@ void LLViewerJointAttachment::clampObjectPosition()
 {
 	if (mAttachedObject)
 	{
-		//FIXME: object can drift when hitting maximum radius
+		// *NOTE: object can drift when hitting maximum radius
 		LLVector3 attachmentPos = mAttachedObject->getPosition();
 		F32 dist = attachmentPos.normVec();
 		dist = llmin(dist, MAX_ATTACHMENT_DIST);

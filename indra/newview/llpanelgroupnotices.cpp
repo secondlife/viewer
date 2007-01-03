@@ -125,7 +125,7 @@ BOOL LLGroupDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 			if(gInventory.getItem(inv_item->getUUID())
 				&& LLToolDragAndDrop::isInventoryGroupGiveAcceptable(inv_item))
 			{
-				//FIXME: get multiple object transfers working
+				// *TODO: get multiple object transfers working
 				*accept = ACCEPT_YES_COPY_SINGLE;
 				if(drop)
 				{

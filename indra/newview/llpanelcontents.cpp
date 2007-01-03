@@ -141,9 +141,6 @@ void LLPanelContents::onClickNewScript(void *userdata)
 	}
 	if(object)
 	{
-		// *HACK: In order to resolve SL-22177, we need to create the
-		// script first, and then you have to click it in inventory to
-		// edit it. Bring this back when the functionality is secure.
 		LLPermissions perm;
 		perm.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
 		perm.initMasks(
@@ -168,6 +165,13 @@ void LLPanelContents::onClickNewScript(void *userdata)
 				LLViewerInventoryItem::II_FLAGS_NONE,
 				time_corrected());
 		object->saveScript(new_item, TRUE, true);
+
+		// *NOTE: In order to resolve SL-22177, we needed to create
+		// the script first, and then you have to click it in
+		// inventory to edit it.
+		// *TODO: The script creation should round-trip back to the
+		// viewer so the viewer can auto-open the script and start
+		// editing ASAP.
 #if 0
 		S32 left, top;
 		gFloaterView->getNewFloaterPosition(&left, &top);

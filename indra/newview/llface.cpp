@@ -622,7 +622,7 @@ void LLFace::renderForSelect() const
 		S32 name = mVObjp->mGLName;
 
 		LLColor4U color((U8)(name >> 16), (U8)(name >> 8), (U8)name);
-#if 0 // FIXME: Postponing this fix until we have texcoord pick info...
+#if 0 // *FIX: Postponing this fix until we have texcoord pick info...
 		if (mTEOffset != -1)
 		{
 			color.mV[VALPHA] = (U8)(getTextureEntry()->getColor().mV[VALPHA] * 255.f);

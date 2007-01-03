@@ -1543,7 +1543,7 @@ LLRect LLView::getRequiredRect()
 
 const LLRect LLView::getScreenRect() const
 {
-	//FIXME: check for one-off error
+	// *FIX: check for one-off error
 	LLRect screen_rect;
 	localPointToScreen(0, 0, &screen_rect.mLeft, &screen_rect.mBottom);
 	localPointToScreen(mRect.getWidth(), mRect.getHeight(), &screen_rect.mRight, &screen_rect.mTop);

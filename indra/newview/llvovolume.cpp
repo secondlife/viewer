@@ -1768,9 +1768,9 @@ BOOL LLVOVolume::isAttachment() const
 
 BOOL LLVOVolume::isHUDAttachment() const
 {
-	//HACK assume hud attachment points are in defined range
-	// since this range is constant for backwards compatibility reasons
-	// this is probably a reasonable assumption to make
+	// *NOTE: we assume hud attachment points are in defined range
+	// since this range is constant for backwards compatibility
+	// reasons this is probably a reasonable assumption to make
 	S32 attachment_id = ATTACHMENT_ID_FROM_STATE(mState);
 	return ( attachment_id >= 31 && attachment_id <= 38 );
 }

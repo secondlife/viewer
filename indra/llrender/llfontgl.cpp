@@ -842,7 +842,7 @@ S32 LLFontGL::render(const LLWString &wstr,
 		glEnd();
 	}
 
-	//FIXME: get this working in all alignment cases, etc.
+	// *FIX: get this working in all alignment cases, etc.
 	if (draw_ellipses)
 	{
 		// recursively render ellipses at end of string

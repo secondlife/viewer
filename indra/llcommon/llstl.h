@@ -97,10 +97,11 @@ struct DeletePairedPointerArray
 
 
 // Alternate version of the above so that has a more cumbersome
-// syntax, but it can be used with compositional functors.  *FIX: The
-// functor retuns a bool because msdev bombs during the composition if
-// you return void. Once we upgrade to a newer compiler, the second
-// unary_function template parameter can be set to void.
+// syntax, but it can be used with compositional functors.
+// NOTE: The functor retuns a bool because msdev bombs during the
+// composition if you return void. Once we upgrade to a newer
+// compiler, the second unary_function template parameter can be set
+// to void.
 //
 // Here's a snippit showing how you use this object:
 //

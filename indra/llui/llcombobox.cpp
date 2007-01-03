@@ -202,8 +202,9 @@ void LLComboBox::setEnabled(BOOL enabled)
 	mButton->setEnabled(enabled);
 }
 
-//FIXME: these are all hacks to support the fact that the combobox has mouse capture
-// so we can hide the list when we don't handle the mouse up event
+// *HACK: these are all hacks to support the fact that the combobox
+// has mouse capture so we can hide the list when we don't handle the
+// mouse up event
 BOOL LLComboBox::handleHover(S32 x, S32 y, MASK mask)
 {
 	if (mList->getVisible())

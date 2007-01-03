@@ -1096,7 +1096,7 @@ void LLBVHLoader::optimize()
 			KeyVector::iterator ki = joint->mKeys.begin();
 			if (joint->mKeys.size() == 1)
 			{
-				//FIXME: use single frame to move pelvis
+				// *FIX: use single frame to move pelvis
 				// if only one keyframe force output for this joint
 				rot_changed = TRUE;
 			}

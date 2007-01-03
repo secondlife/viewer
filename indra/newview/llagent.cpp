@@ -2519,7 +2519,7 @@ void LLAgent::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 		}
 		else
 		{
-			//FIXME: rotate mframeagent by sit object's rotation?
+			// *FIX: rotate mframeagent by sit object's rotation?
 			LLQuaternion look_rotation = mAvatarObject->mIsSitting ? mAvatarObject->getRenderRotation() : mFrameAgent.getQuaternion(); // use camera's current rotation
 			LLVector3 look_offset = LLVector3(2.f, 0.f, 0.f) * look_rotation * av_inv_rot;
 			setLookAt(LOOKAT_TARGET_IDLE, mAvatarObject, look_offset);
@@ -2705,7 +2705,7 @@ U8 LLAgent::getRenderState()
 		return 0;
 	}
 
-	// FIXME: don't do stuff in a getter!  This is infinite loop city!
+	// *FIX: don't do stuff in a getter!  This is infinite loop city!
 	if ((mTypingTimer.getElapsedTimeF32() > TYPING_TIMEOUT_SECS) 
 		&& (mRenderState & AGENT_STATE_TYPING))
 	{
@@ -3076,7 +3076,7 @@ void LLAgent::updateCamera()
 			// where it is updated. All three of its attributes are updated: (1) position, 
 			// (2) focus, and (3) upvector. They can then be queried elsewhere in llAgent.
 			//--------------------------------------------------------------------------------
-			//FIXME: use combined rotation of frameagent and sit object
+			// *TODO: use combined rotation of frameagent and sit object
 			LLQuaternion avatarRotationForFollowCam = mAvatarObject->mIsSitting ? mAvatarObject->getRenderRotation() : mFrameAgent.getQuaternion();
 
 			LLFollowCamParams* current_cam = LLFollowCamMgr::getActiveFollowCamParams();
@@ -3452,7 +3452,7 @@ LLVector3d LLAgent::calcFocusPositionTargetGlobal()
 			}
 			LLVector3 focus_agent = mFocusObject->getRenderPosition() + mFocusObjectOffset;
 			mFocusTargetGlobal.setVec(getPosGlobalFromAgent(focus_agent));
-			//FIXME: get camera pointat behavior working
+			// *FIX: get camera pointat behavior working
 			//if (mTrackFocusObject)
 			//{
 			//	mCameraFocusOffset = gAgent.getPosGlobalFromAgent(gCamera->getOrigin()) - mFocusTargetGlobal;
@@ -7119,7 +7119,7 @@ void LLAgent::queryWearableCache()
 		{
 			hash ^= BAKED_TEXTURE_HASH[baked_texture_index];
 			num_queries++;
-			//FIXME: make sure at least one request gets packed
+			// *NOTE: make sure at least one request gets packed
 
 			//llinfos << "Requesting texture for hash " << hash << " in baked texture slot " << baked_texture_index << llendl;
 			gMessageSystem->nextBlockFast(_PREHASH_WearableData);

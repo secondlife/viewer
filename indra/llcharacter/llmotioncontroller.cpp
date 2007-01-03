@@ -111,7 +111,7 @@ LLMotion *LLMotionRegistry::createMotion( const LLUUID &id )
 
 	if ( motion_entry.getID().isNull() )
 	{
-		//FIXME - RN: need to replace with a better default scheme
+		// *FIX: need to replace with a better default scheme. RN
 		motion = LLKeyframeMotion::create(id);
 	}
 	else
@@ -394,7 +394,7 @@ BOOL LLMotionController::stopMotionLocally(const LLUUID &id, BOOL stop_immediate
 	if (isMotionActive(motion) && !motion->isStopped())
 	{
 		// when using timesteps, set stop time to last frame's time, otherwise grab current timer value
-		// FIXME: should investigate this inconsistency...hints of obscure bugs
+		// *FIX: should investigate this inconsistency...hints of obscure bugs
 
 		F32 stop_time = (mTimeStep != 0.f || mPaused) ? (mTime) : mTimeOffset + (mTimer.getElapsedTimeF32() * mTimeFactor);
 		motion->setStopTime(stop_time);

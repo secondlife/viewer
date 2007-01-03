@@ -612,7 +612,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 	}
 
 	// Clamp to arrow direction
-	//FIXME: does this apply anymore?
+	// *FIX: does this apply anymore?
 	if (!axis_exists)
 	{
 		axis_magnitude = relative_move.normVec();

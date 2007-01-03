@@ -887,7 +887,7 @@ void LLFloater::setFocus( BOOL b )
 			last_focus->isInEnabledChain() &&
 			last_focus->isInVisibleChain())
 		{
-			// FIXME: should handle case where focus doesn't stick
+			// *FIX: should handle case where focus doesn't stick
 			last_focus->setFocus(TRUE);
 		}
 	}
@@ -1716,7 +1716,7 @@ void LLFloaterView::restoreAll()
 		floaterp->setMinimized(FALSE);
 	}
 
-	//FIXME: make sure dependents are restored
+	// *FIX: make sure dependents are restored
 
 	// children then deleted by default view constructor
 }
@@ -1861,7 +1861,8 @@ BOOL LLFloaterView::getCycleMode()
 
 void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 {
-	//FIXME: make this respect floater's mAutoFocus value, instead of using parameter
+	// *TODO: make this respect floater's mAutoFocus value, instead of
+	// using parameter
 	if (child->getHost())
  	{
 		// this floater is hosted elsewhere and hence not one of our children, abort
@@ -2690,7 +2691,7 @@ void LLMultiFloater::tabClose()
 
 void LLMultiFloater::setVisible(BOOL visible)
 {
-	//FIXME: shouldn't have to do this, fix adding to minimized multifloater
+	// *FIX: shouldn't have to do this, fix adding to minimized multifloater
 	LLFloater::setVisible(visible);
 	
 	if (mTabContainer)

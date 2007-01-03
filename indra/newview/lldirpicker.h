@@ -56,10 +56,6 @@ private:
 	
 	void buildDirname( void );
 
-#if LL_WINDOWS
-//FIXME
-#endif
-
 #if LL_DARWIN
 	NavDialogCreationOptions mNavOptions;
 	static pascal void doNavCallbackEvent(NavEventCallbackMessage callBackSelector,

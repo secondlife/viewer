@@ -86,7 +86,7 @@ LLManipRotate::LLManipRotate( LLToolComposite* composite )
 
 void LLManipRotate::handleSelect()
 {
-	//FIXME: put this in mouseDown?
+	// *FIX: put this in mouseDown?
 	gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
 	gFloaterTools->setStatusText("Drag colored bands to rotate object");
 }
@@ -1292,7 +1292,7 @@ LLVector3 LLManipRotate::getConstraintAxis()
 		LLSelectNode* first_node = gSelectMgr->getFirstMoveableNode(TRUE);
 		if (first_node)
 		{
-			//FIXME: get agent local attachment grid working
+			// *FIX: get agent local attachment grid working
 			// Put rotation into frame of first selected root object
 			axis = axis * grid_rotation;
 		}

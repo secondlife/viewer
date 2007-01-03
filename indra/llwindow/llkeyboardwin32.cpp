@@ -225,8 +225,9 @@ void LLKeyboardWin32::scanKeyboard()
 		// On Windows, verify key down state. JC
 		if (mKeyLevel[key])
 		{
-			// FIXME:  I KNOW there must be a better way of interrogating the key state than this, using async
-			// key state can cause ALL kinds of bugs - Doug
+			// *TODO: I KNOW there must be a better way of
+			// interrogating the key state than this, using async key
+			// state can cause ALL kinds of bugs - Doug
 			if (key < KEY_BUTTON0)
 			{
 				// ...under windows make sure the key actually still is down.

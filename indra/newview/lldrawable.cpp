@@ -668,7 +668,8 @@ void LLDrawable::updateTexture()
 		return;
 	}
 	
-	//FIXME: this updates textures on all faces in this drawable, not just the viewer object we care about
+	// *FIX: this updates textures on all faces in this drawable, not
+	// just the viewer object we care about
 	if (mVObjp->getNumTEs())
 	{
 		// For each face in this drawable, change the drawpool if necessary.
@@ -768,9 +769,9 @@ void LLDrawable::shiftPos(const LLVector3 &shift_vector)
 	mXform.setScale(1,1,1);
 	mXform.updateMatrix();
 
-	if (isStatic() || //DP FIXME: don't know why this is happening, but
-					//some terrain patches are becoming active
-					//(earth quake, maybe?)
+	if (isStatic() || // *FIX: don't know why this is happening, but
+					// some terrain patches are becoming active
+					// (earth quake, maybe?) DP
 		getRenderType() == LLPipeline::RENDER_TYPE_TERRAIN)
 	{
 		LLStrider<LLVector3>  verticesp;

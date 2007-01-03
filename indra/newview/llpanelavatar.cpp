@@ -44,7 +44,7 @@
 #include "lltooldraganddrop.h"
 #include "lluiconstants.h"
 #include "llvoavatar.h"
-#include "llviewermenu.h"		// FIXME: for is_agent_friend()
+#include "llviewermenu.h"		// *FIX: for is_agent_friend()
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewborder.h"
@@ -184,7 +184,7 @@ BOOL LLDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 			if(gInventory.getItem(inv_item->getUUID())
 				&& LLToolDragAndDrop::isInventoryGiveAcceptable(inv_item))
 			{
-				//FIXME: get multiple object transfers working
+				// *TODO: get multiple object transfers working
 				*accept = ACCEPT_YES_COPY_SINGLE;
 				if(drop)
 				{
@@ -206,7 +206,7 @@ BOOL LLDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 			LLViewerInventoryCategory* inv_cat = (LLViewerInventoryCategory*)cargo_data;
 			if( gInventory.getCategory( inv_cat->getUUID() ) )
 			{
-				//FIXME: get multiple object transfers working
+				// *TODO: get multiple object transfers working
 				*accept = ACCEPT_YES_COPY_SINGLE;
 				if(drop)
 				{

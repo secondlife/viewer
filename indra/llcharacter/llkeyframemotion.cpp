@@ -922,7 +922,8 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 			target_jointp = mCharacter->findCollisionVolume(shared_data->mTargetConstraintVolume);
 			if (target_jointp)
 			{
-				// FIXME: do proper normal calculation for stretched spheres (inverse transpose)
+				// *FIX: do proper normal calculation for stretched
+				// spheres (inverse transpose)
 				norm = target_pos - target_jointp->getWorldPosition();
 			}
 
@@ -1613,7 +1614,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 		}
 	}
 
-	// FIXME: support cleanup of old keyframe data
+	// *FIX: support cleanup of old keyframe data
 	LLKeyframeDataCache::addKeyframeData(getID(),  mJointMotionList);
 	mAssetStatus = ASSET_LOADED;
 

@@ -2432,8 +2432,7 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		return TRUE;
 	}
 
-	// HACK!!!!
-	// this is necessary for the floating name text above your head
+	// *NOTE: this is necessary for the floating name text above your head.
 	if (mDrawable.notNull())
 	{
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
@@ -2829,7 +2828,7 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 					}
 					else if (chat_fade_amt < 3.f)
 					{
-						//FIXME: only remove lines down to minimum number
+						// *NOTE: only remove lines down to minimum number
 						mNameText->addLine(utf8str_to_wstring(chat_iter->mText), old_chat, style);
 					}
 				}

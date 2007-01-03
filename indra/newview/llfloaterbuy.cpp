@@ -270,8 +270,9 @@ void LLFloaterBuy::onClickBuy(void*)
 	LLUUID category_id;
 	category_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_OBJECT);
 
-	// FIXME: doesn't work for multiple object buy, which UI does not currently support
-	// sale info is used for verification only, if it doesn't match region info then sale is canceled
+	// *NOTE: doesn't work for multiple object buy, which UI does not
+	// currently support sale info is used for verification only, if
+	// it doesn't match region info then sale is canceled.
 	gSelectMgr->sendBuy(gAgent.getID(), category_id, sInstance->mSaleInfo );
 
 	sInstance->close();

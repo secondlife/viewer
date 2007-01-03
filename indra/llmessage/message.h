@@ -42,10 +42,6 @@ const U32 MESSAGE_NUMBER_OF_HASH_BUCKETS = 8192;
 
 const S32 MESSAGE_MAX_PER_FRAME = 400;
 
-// FIXME: This needs to be moved to a server-side only header.
-// 30 Sep 2002 mark
-//extern char *MESSAGE_SHARED_SECRET;
-
 class LLMessageStringTable
 {
 public:
@@ -118,7 +114,9 @@ const F32 LL_MINIMUM_RELIABLE_TIMEOUT_SECONDS = 1.f;
 const F32 LL_MINIMUM_SEMIRELIABLE_TIMEOUT_SECONDS = 1.f;
 const F32 LL_PING_BASED_TIMEOUT_DUMMY = 0.0f;
 
-// FIXME:  These factors shouldn't include the msec to sec conversion implicitly
+// *NOTE: Maybe these factors shouldn't include the msec to sec conversion
+// implicitly.
+// However, all units should be MKS.
 const F32 LL_SEMIRELIABLE_TIMEOUT_FACTOR	= 5.f / 1000.f;		// factor * averaged ping
 const F32 LL_RELIABLE_TIMEOUT_FACTOR		= 5.f / 1000.f;      // factor * averaged ping
 const F32 LL_FILE_XFER_TIMEOUT_FACTOR		= 5.f / 1000.f;      // factor * averaged ping

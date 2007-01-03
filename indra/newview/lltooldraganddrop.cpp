@@ -1555,7 +1555,7 @@ void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
 	hit_obj->updateInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
 	if (gFloaterTools->getVisible())
 	{
-		//FIXME: only show this if panel not expanded?
+		// *FIX: only show this if panel not expanded?
 		gFloaterTools->showPanel(LLFloaterTools::PANEL_CONTENTS);
 	}
 
@@ -2663,7 +2663,8 @@ EAcceptance LLToolDragAndDrop::dad3dGiveInventoryObject(
 		{
 			giveInventory(obj->getID(), item );
 		}
-		//FIXME: deal with all the issues surrounding multi-object inventory transfers
+		// *TODO: deal with all the issues surrounding multi-object
+		// inventory transfers.
 		return ACCEPT_YES_SINGLE;
 	}
 	return ACCEPT_NO;
@@ -2688,7 +2689,8 @@ EAcceptance LLToolDragAndDrop::dad3dGiveInventory(
 	{
 		giveInventory(obj->getID(), item);
 	}
-	//FIXME: deal with all the issues surrounding multi-object inventory transfers
+	// *TODO: deal with all the issues surrounding multi-object
+	// inventory transfers.
 	return ACCEPT_YES_SINGLE;
 }
 
@@ -2704,7 +2706,8 @@ EAcceptance LLToolDragAndDrop::dad3dGiveInventoryCategory(
 		if(!cat) return ACCEPT_NO;
 		giveInventoryCategory(obj->getID(), cat);
 	}
-	//FIXME: deal with all the issues surrounding multi-object inventory transfers
+	// *TODO: deal with all the issues surrounding multi-object
+	// inventory transfers.
 	return ACCEPT_YES_SINGLE;
 }
 

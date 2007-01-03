@@ -1007,10 +1007,10 @@ void LLDrawPoolTerrain::renderOwnership()
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	
-	// HACK: Because the region is 256 meters wide, but has 257 pixels, the 
-	// texture coordinates for pixel 256x256 is not 1,1.  This makes the
-	// ownership map not line up with the selection.  Fix this with a texture
-	// matrix multiply.
+	// *NOTE: Because the region is 256 meters wide, but has 257 pixels, the 
+	// texture coordinates for pixel 256x256 is not 1,1. This makes the
+	// ownership map not line up with the selection. We address this with
+	// a texture matrix multiply.
 	glMatrixMode(GL_TEXTURE);
 	glPushMatrix();
 

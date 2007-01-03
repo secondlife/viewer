@@ -83,7 +83,7 @@ BOOL LLVFile::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
 	// We can't do a read while there are pending async writes
 	waitForLock(VFSLOCK_APPEND);
 	
-	// FIXME
+	// *FIX: (???)
 	if (async)
 	{
 		mHandle = sVFSThread->read(mVFS, mFileID, mFileType, buffer, mPosition, bytes, threadPri());
@@ -186,7 +186,7 @@ BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 	}
 	BOOL success = TRUE;
 	
-	// FIXME: allow async writes? potential problem wit mPosition...
+	// *FIX: allow async writes? potential problem wit mPosition...
 	if (mMode == APPEND) // all appends are async (but WRITEs are not)
 	{	
 		U8* writebuf = new U8[bytes];

@@ -330,8 +330,10 @@ void LLFloaterBuyLandUI::updateAgentInfo()
 {
 	mAgentCommittedTier = gStatusBar->getSquareMetersCommitted();
 	mAgentCashBalance = gStatusBar->getBalance();
+
+	// *TODO: This is an approximation, we should send this value down
+	// to the viewer. See SL-10728 for details.
 	mAgentHasNeverOwnedLand = mAgentCommittedTier == 0;
-		// FIXME: this is an approximation, see SL-10728
 }
 
 void LLFloaterBuyLandUI::updateParcelInfo()
@@ -493,7 +495,7 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 			return;
 		}
 		
-		// FIXME: There should be a check based on the database value
+		// *TODO: There should be a check based on the database value
 		// indra.user.ever_owned_land, only that value never makes it
 		// to the viewer, see SL-10728
 	}

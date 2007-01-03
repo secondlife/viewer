@@ -656,7 +656,7 @@ BOOL idle_startup()
 		}
 
 		// create necessary directories
-		// FIXME: these mkdir's should error check
+		// *FIX: these mkdir's should error check
 		gDirUtilp->setLindenUserDir(firstname.c_str(), lastname.c_str());
 
 

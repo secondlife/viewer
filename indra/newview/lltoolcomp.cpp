@@ -176,7 +176,7 @@ void LLToolCompTranslate::pickCallback(S32 x, S32 y, MASK mask)
 			gToolTranslate->setCurrentTool( gToolTranslate->mSelectRect );
 			gToolTranslate->mSelectRect->handleMouseDown( x, y, mask );
 
-			//FIXME: add toggle to trigger old click-drag functionality
+			// *TODO: add toggle to trigger old click-drag functionality
 			// gToolTranslate->mManip->handleMouseDownOnPart( XY_part, x, y, mask);
 		}
 	}
@@ -377,8 +377,8 @@ BOOL LLToolCompCreate::handleMouseDown(S32 x, S32 y, MASK mask)
 
 void LLToolCompCreate::pickCallback(S32 x, S32 y, MASK mask)
 {
-	// HACK: Mask off shift and control, so you can't multi-select
-	// multiple objects with the create tool.
+	// *NOTE: We mask off shift and control, so you cannot
+	// multi-select multiple objects with the create tool.
 	mask = (mask & ~MASK_SHIFT);
 	mask = (mask & ~MASK_CONTROL);
 
@@ -547,8 +547,8 @@ LLToolCompGun::~LLToolCompGun()
 
 BOOL LLToolCompGun::handleHover(S32 x, S32 y, MASK mask)
 {
-	// HACK to make mouselook kick in again after item selected
-	// from context menu
+	// *NOTE: This hack is here to make mouselook kick in again after
+	// item selected from context menu.
 	if ( mCur == mNull && !gPopupMenuView->getVisible() )
 	{
 		gSelectMgr->deselectAll();

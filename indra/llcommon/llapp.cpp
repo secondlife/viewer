@@ -364,7 +364,8 @@ LONG WINAPI default_windows_exception_handler(struct _EXCEPTION_POINTERS *except
 	//
 	// Generate a minidump if we can.
 	//
-	// FIXME: This needs to be ported over form the viewer-specific LLWinDebug class
+	// TODO: This needs to be ported over form the viewer-specific
+	// LLWinDebug class
 
 	//
 	// At this point, we always want to exit the app.  There's no graceful
@@ -510,10 +511,13 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
 		{
 			llinfos << "Signal handler - Got SIGCHLD from " << info->si_pid << llendl;
 		}
-		// Check result code for all child procs for which we've registered callbacks
-		// THIS WILL NOT WORK IF SIGCHLD IS SENT w/o killing the child (Go, launcher!)
-		// FIXME: Now that we're using SIGACTION, we can actually implement the launcher behavior to determine
-		// who sent the SIGCHLD even if it doesn't result in child termination
+
+		// Check result code for all child procs for which we've
+		// registered callbacks THIS WILL NOT WORK IF SIGCHLD IS SENT
+		// w/o killing the child (Go, launcher!)
+		// TODO: Now that we're using SIGACTION, we can actually
+		// implement the launcher behavior to determine who sent the
+		// SIGCHLD even if it doesn't result in child termination
 		if (LLApp::sChildMap.count(info->si_pid))
 		{
 			LLApp::sChildMap[info->si_pid].mGotSigChild = TRUE;

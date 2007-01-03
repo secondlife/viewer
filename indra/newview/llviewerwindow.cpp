@@ -688,7 +688,8 @@ BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK
 		}
 	}
 
-	//FIXME: this should be rolled into the composite tool logic, not hardcoded at the top level
+	// *HACK: this should be rolled into the composite tool logic, not
+	// hardcoded at the top level.
 	if (gToolPie && (CAMERA_MODE_CUSTOMIZE_AVATAR != gAgent.getCameraMode()) )
 	{
 		// If the current tool didn't process the click, we should show
@@ -921,9 +922,10 @@ BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 		gAgent.clearAFK();
 	}
 
-	// HACK: We want to interpret KEY_RETURN later when it arrives as a Unicode char,
-	// not as a keydown.  Otherwise when client frame rate is really low, hitting
-	// return sends your chat text before it's all entered/processed.
+	// *NOTE: We want to interpret KEY_RETURN later when it arrives as
+	// a Unicode char, not as a keydown.  Otherwise when client frame
+	// rate is really low, hitting return sends your chat text before
+	// it's all entered/processed.
 	if (key == KEY_RETURN && mask == MASK_NONE)
 	{
 		return FALSE;
@@ -1583,7 +1585,6 @@ void LLViewerWindow::initWorldUI()
 	gFloaterTools->setVisible(FALSE);
 
 	// Status bar
-	//FIXME change this back
 	S32 menu_bar_height = gMenuBarView->getRect().getHeight();
 	LLRect root_rect = gViewerWindow->getRootView()->getRect();
 	LLRect status_rect(0, root_rect.getHeight(), root_rect.getWidth(), root_rect.getHeight() - menu_bar_height);
@@ -2023,7 +2024,9 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		{
 			return TRUE;
 		}
-		//FIXME: get this to play well with mouselook and hidden cursor modes, etc.
+
+		// *TODO: get this to play well with mouselook and hidden
+		// cursor modes, etc, and re-enable.
 		//if (gFocusMgr.getMouseCapture())
 		//{
 		//	gFocusMgr.setMouseCapture(NULL, NULL);
@@ -2091,7 +2094,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	}
 
 	// Topmost view gets a chance before the hierarchy
-	//FIXME: get rid of this?
+	// *FIX: get rid of this?
 	LLView* top_view = gFocusMgr.getTopView();
 	if (top_view)
 	{
@@ -2420,7 +2423,7 @@ BOOL LLViewerWindow::handlePerFrameHover()
 		}
 	}
 
-	//FIXME: sometimes tools handle the mouse as a captor, so this
+	// *NOTE: sometimes tools handle the mouse as a captor, so this
 	// logic is a little confusing
 	LLTool *tool = NULL;
 	if (gToolMgr && gHoverView)
@@ -2586,7 +2589,8 @@ BOOL LLViewerWindow::handlePerFrameHover()
 			if (!gToolBar->getVisible()
 				&& !gChatBar->getVisible())
 			{
-				// FIXME: this is highly depenent on the XML describing the position of the buttons
+				// *NOTE: this is highly depenent on the XML
+				// describing the position of the buttons
 				overlay_rect.translate(0, 0);
 			}
 

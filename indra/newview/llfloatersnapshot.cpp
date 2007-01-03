@@ -442,7 +442,7 @@ void LLSnapshotLivePreview::draw()
 				glColor4fv(image_color.mV);
 				LLViewerImage::bindTexture(mViewerImage[old_image_index]);
 				// calculate UV scale
-				//FIXME get this to work with old image
+				// *FIX get this to work with old image
 				BOOL rescale = !mImageScaled[old_image_index] && mViewerImage[mCurImageIndex].notNull();
 				F32 uv_width = rescale ? llmin((F32)mWidth[old_image_index] / (F32)mViewerImage[mCurImageIndex]->getWidth(), 1.f) : 1.f;
 				F32 uv_height = rescale ? llmin((F32)mHeight[old_image_index] / (F32)mViewerImage[mCurImageIndex]->getHeight(), 1.f) : 1.f;
@@ -540,7 +540,7 @@ void LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 
 			if (previewp->getSnapshotType() == SNAPSHOT_POSTCARD)
 			{
-				//FIXME: just resize and reuse existing jpeg?
+				// *FIX: just resize and reuse existing jpeg?
 				previewp->mJPEGImage = NULL; // deletes image
 				previewp->mJPEGImage = new LLImageJPEG();
 				previewp->mJPEGImage->setEncodeQuality(llclamp(previewp->mSnapshotQuality, 0, 100));

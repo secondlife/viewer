@@ -148,19 +148,19 @@ void LLHUDText::renderText(BOOL for_select)
 
 	mOffsetY = lltrunc(mHeight * ((mVertAlignment == ALIGN_VERT_CENTER) ? 0.5f : 1.f));
 
-	//FIXME: cache this image
+	// *TODO: cache this image
 	LLUUID image_id;
 	image_id.set(gViewerArt.getString("rounded_square.tga"));
 	LLViewerImage* imagep = gImageList.getImage(image_id, MIPMAP_FALSE, TRUE);
 
-	//FIXME: make this a per-text setting
+	// *TODO: make this a per-text setting
 	LLColor4 bg_color = gSavedSettings.getColor4("BackgroundChatColor");
 	bg_color.setAlpha(gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
 
 	const S32 border_height = 16;
 	const S32 border_width = 16;
 
-	//FIXME move this into helper function
+	// *TODO move this into helper function
 	F32 border_scale = 1.f;
 
 	if (border_height * 2 > mHeight)
@@ -939,7 +939,7 @@ void LLHUDText::renderAllHUD()
 void LLHUDText::addPickable(std::set<LLViewerObject*> &pick_list)
 {
 	//this might put an object on the pick list a second time, overriding it's mGLName, which is ok
-	//FIXME: we should probably cull against pick frustum
+	// *FIX: we should probably cull against pick frustum
 	VisibleTextObjectIterator text_it;
 	for (text_it = sVisibleTextObjects.begin(); text_it != sVisibleTextObjects.end(); ++text_it)
 	{

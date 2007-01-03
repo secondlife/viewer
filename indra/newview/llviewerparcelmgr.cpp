@@ -2268,7 +2268,7 @@ bool LLViewerParcelMgr::canAgentBuyParcel(LLParcel* parcel, bool forGroup) const
 		= parcel->getReservedForNewbie()
 			? (!forGroup && gStatusBar->getSquareMetersCommitted() == 0)
 			: true;
-		//FIXME: should be based on never_owned_land, see SL-10728
+		// *TODO: should be based on never_owned_land, see SL-10728
 		
 	bool isAuthorized
 		= (authorizeBuyer.isNull() || (gAgent.getID() == authorizeBuyer));
@@ -2537,7 +2537,7 @@ BOOL LLViewerParcelMgr::isParcelModifiableByAgent(const LLParcel* parcelp, U64 g
 	BOOL rv = FALSE;
 	if (parcelp)
 	{
-		// *FIX: This should only work for leased parcels, but group owned
+		// *NOTE: This should only work for leased parcels, but group owned
 		// parcels cannot be OS_LEASED yet. Phoenix 2003-12-15.
 		rv = isParcelOwnedByAgent(parcelp, group_proxy_power);
 

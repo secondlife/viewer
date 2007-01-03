@@ -58,7 +58,7 @@ BOOL LLFloaterScriptDebug::postBuild()
 
 	if (mTabContainer)
 	{
-		// FIXME: apparantly fails for tab containers?
+		// *FIX: apparantly fails for tab containers?
 // 		mTabContainer->requires("all_scripts", WIDGET_TYPE_FLOATER);
 // 		mTabContainer->checkRequirements();
 		return TRUE;

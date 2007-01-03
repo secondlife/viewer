@@ -693,7 +693,8 @@ void LLTransferSourceChannel::updateTransfers()
 
 	if (cdp->isBlocked())
 	{
-		// FIXME We need to make sure that the throttle bits available gets reset.
+		// *NOTE: We need to make sure that the throttle bits
+		// available gets reset.
 
 		// We DON'T want to send any packets if they're blocked, they'll just end up
 		// piling up on the other end.

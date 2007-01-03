@@ -246,7 +246,7 @@ void LLSelectMgr::selectObjectOnly(LLViewerObject* object, S32 face)
 
 	// Stop the object from moving (this anticipates changes on the
 	// simulator in LLTask::userSelect)
-	//FIXME: shouldn't zero out these either
+	// *FIX: shouldn't zero out these either
 	object->setVelocity(LLVector3::zero);
 	object->setAcceleration(LLVector3::zero);
 	//object->setAngularVelocity(LLVector3::zero);
@@ -928,7 +928,7 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 {
 	LLSelectNode* grid_node = mGridObjects.getFirstNode();
 	LLViewerObject* grid_object = mGridObjects.getFirstObject();
-	//FIXME: get to work with multiple grid objects
+	// *TODO: get to work with multiple grid objects
 	if (grid_node && grid_node->getObject()->isDead())
 	{
 		mGridObjects.removeNode(grid_node);
@@ -960,7 +960,8 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 				LLVector3 local_min_extents(F32_MAX, F32_MAX, F32_MAX);
 				LLVector3 local_max_extents(F32_MIN, F32_MIN, F32_MIN);
 
-				//FIXME: silhouette flag is insufficient as it gets cleared by view update
+				// *FIX: silhouette flag is insufficient as it gets
+				// cleared by view update.
 				if (!mGridValid || 
 					grid_object->isChanged(LLXform::SILHOUETTE)
 					|| (grid_object->getParent() && grid_object->getParent()->isChanged(LLXform::SILHOUETTE)))
@@ -1116,7 +1117,7 @@ void LLSelectMgr::remove(LLDynamicArray<LLViewerObject*>& objects)
 void LLSelectMgr::remove(LLViewerObject *objectp, S32 te, BOOL undoable)
 {
 	// check if object already in list
-	// FIXME: can we just check isSelected()?
+	// *FIX: can we just check isSelected()?
 	LLSelectNode *nodep = findSelectNode(objectp);
 
 	if (!nodep)
@@ -1371,7 +1372,7 @@ void LLSelectMgr::cleanup()
 //-----------------------------------------------------------------------------
 // selectionSetImage()
 //-----------------------------------------------------------------------------
-//FIXME: re-arch texture applying out of lltooldraganddrop
+// *TODO: re-arch texture applying out of lltooldraganddrop
 void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 {
 	// First for (no copy) textures and multiple object selection
@@ -1398,7 +1399,7 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 			LLToolDragAndDrop::dropTextureOneFace(objectp,te,item,LLToolDragAndDrop::SOURCE_AGENT,LLUUID::null);
 			
 			// HACK! HACK! ARG!
-			// FIXME: Replace mSelectedObjects with a REAL container class!
+			// *TODO: Replace mSelectedObjects with a REAL container class!
 			LLViewerObject* tmp_object;
 			S32 tmp_te;
 			mSelectedObjects.getCurrentTE(&tmp_object,&tmp_te);
@@ -3649,9 +3650,10 @@ struct LLBuyData
 	LLSaleInfo mSaleInfo;
 };
 
-// FIXME: doesn't work for multiple object buy, which UI does not currently support
-// sale info is used for verification only, if it doesn't match region info then sale is canceled
-// Need to get sale info -as displayed in the UI- for every item.
+// *NOTE: does not work for multiple object buy, which UI does not
+// currently support sale info is used for verification only, if it
+// doesn't match region info then sale is canceled Need to get sale
+// info -as displayed in the UI- for every item.
 void LLSelectMgr::sendBuy(const LLUUID& buyer_id, const LLUUID& category_id, const LLSaleInfo sale_info)
 {
 	LLBuyData buy;

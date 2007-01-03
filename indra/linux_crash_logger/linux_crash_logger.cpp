@@ -174,7 +174,7 @@ int main(int argc, char **argv)
 		sleep(5);
 	}
 
-	// FIXME: do some dialog stuff here?
+	// *FIX: do some dialog stuff here?
 	if (CRASH_BEHAVIOR_ALWAYS_SEND == crash_behavior)
 	{
 		gSendReport = TRUE;
@@ -219,7 +219,8 @@ int main(int argc, char **argv)
 	db_filep = new LLFileEncoder("DB", db_file_name.c_str());
 
 	// Get the filename of the SecondLife.log file
-	//FIXME tofu - get right MAX_PATH
+	// *TODO tofu - get right MAX_PATH.
+	// *FIX: What's up with this? This #define just can't be safe.
 #define MAX_PATH PATH_MAX
 	char tmp_sl_name[MAX_PATH];
 	tmp_sl_name[0] = '\0';

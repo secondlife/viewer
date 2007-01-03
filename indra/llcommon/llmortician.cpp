@@ -32,7 +32,7 @@ void LLMortician::die()
 	// It is valid to call die() more than once on something that hasn't died yet
 	if (sDestroyImmediate)
 	{
-		//HACK: we need to do this to ensure destruction order on shutdown
+		// *NOTE: This is a hack to ensure destruction order on shutdown.
 		mIsDead = TRUE;
 		delete this;
 		return;

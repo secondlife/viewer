@@ -2000,7 +2000,7 @@ BOOL LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 			// 
 			// There is a problem here if dt is negative. . .
 
-			//FIXME: should also wrap linear accel/velocity in check
+			// *TODO: should also wrap linear accel/velocity in check
 			// to see if object is selected, instead of explicitly
 			// zeroing it out	
 			LLVector3 accel = getAcceleration();
@@ -3133,7 +3133,8 @@ void LLViewerObject::setPositionGlobal(const LLVector3d &pos_global, BOOL damped
 			
 			delta_pos = delta_pos * invRotation;
 
-			//FIXME: is this right?  Shouldn't we be calling the LLViewerObject version of setPosition?
+			// *FIX: is this right?  Shouldn't we be calling the
+			// LLViewerObject version of setPosition?
 			LLVector3 old_pos = mDrawable->mXform.getParent()->getPosition();
 			mDrawable->mXform.getParent()->setPosition(old_pos + delta_pos);
 			setChanged(TRANSLATED | SILHOUETTE);
@@ -3900,7 +3901,7 @@ void LLViewerObject::setIcon(LLViewerImage* icon_image)
 		mIcon = (LLHUDIcon *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_ICON);
 		mIcon->setSourceObject(this);
 		mIcon->setImage(icon_image);
-		//FIXME: make this user configurable
+		// *TODO: make this user configurable
 		mIcon->setScale(0.03f);
 	}
 	else
@@ -4573,7 +4574,7 @@ LLViewerObject::LLInventoryCallbackInfo::~LLInventoryCallbackInfo()
 
 void LLViewerObject::updateVolume(const LLVolumeParams& volume_params)
 {
-	if (setVolume(volume_params, 1)) // FIXME: magic number, ack!
+	if (setVolume(volume_params, 1)) // *FIX: magic number, ack!
 	{
 		// Transmit the update to the simulator
 		sendShapeUpdate();

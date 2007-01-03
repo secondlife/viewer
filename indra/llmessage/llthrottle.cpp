@@ -472,7 +472,7 @@ BOOL LLThrottleGroup::dynamicAdjust()
 				// JC - Actually, need to let mCurrentBPS go less than nominal, otherwise
 				// you aren't allowing bandwidth to actually be moved from one channel
 				// to another.  
-				// FIXME: If clamping high end, would be good to re-
+				// *TODO: If clamping high end, would be good to re-
 				// allocate to other channels in the above code.
 				const F32 MAX_BPS = 4 * mNominalBPS[i];
 				if (mCurrentBPS[i] > MAX_BPS)

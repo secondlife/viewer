@@ -194,7 +194,7 @@ LLWindowSDL::LLWindowSDL(char *title, S32 x, S32 y, S32 width,
 	mOriginalAspectRatio = 1024.0 / 768.0;  // !!! FIXME //(double)CGDisplayPixelsWide(mDisplay) / (double)CGDisplayPixelsHigh(mDisplay);
 
 	if (!title)
-		title = "SDL Window";  // !!! FIXME
+		title = "SDL Window";  // *FIX: (???)
 
 	// Stash the window title
 	mWindowTitle = new char[strlen(title) + 1];
@@ -239,7 +239,7 @@ static SDL_Surface *Load_BMP_Resource(const char *basename)
 BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, BOOL fullscreen, BOOL disable_vsync)
 {
 	//bool			glneedsinit = false;
-//    const char *gllibname = null;  // !!! fixme
+//    const char *gllibname = null;
 
 	llinfos << "createContext, fullscreen=" << fullscreen <<
 	    " size=" << width << "x" << height << llendl;
@@ -250,7 +250,6 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 	
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
-	    // !!! fixme: stderr?
 		llinfos << "sdl_init() failed! " << SDL_GetError() << llendl;
 		setupFailure("window creation error", "error", OSMB_OK);
 	    return false;
@@ -306,7 +305,7 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, (bits <= 16) ? 16 : 24);
         SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, (bits <= 16) ? 1 : 8);
 
-        // !!! FIXME: try to toggle vsync here?
+        // *FIX: try to toggle vsync here?
 
 	mFullscreen = fullscreen;
 	was_fullscreen = fullscreen;
@@ -437,7 +436,7 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 	}
 	// If VRAM is not detected, that is handled later
 
-#if 0  // !!! FIXME: all video cards suck under Linux.  :)
+#if 0  // *FIX: all video cards suck under Linux.  :)
 	// Since we just created the context, it needs to be set up.
 	glNeedsInit = TRUE;
 	if(glNeedsInit)
@@ -510,7 +509,7 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 		return FALSE;
 	}
 
-#if 0  // !!! FIXME: we're going to brave it for now...
+#if 0  // *FIX: we're going to brave it for now...
 	if (alphaBits < 8)
 	{
 		close();
@@ -579,7 +578,7 @@ void LLWindowSDL::destroyContext()
 	llinfos << "shutdownGL begins" << llendl;
 	gGLManager.shutdownGL();
 	llinfos << "SDL_QuitSS/VID begins" << llendl;
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);  // !!! !!! FIXME: this might be risky...
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);  // *FIX: this might be risky...
 	//unload_all_glsyms();
 
 	mWindow = NULL;
@@ -603,22 +602,22 @@ LLWindowSDL::~LLWindowSDL()
 
 void LLWindowSDL::show()
 {
-    // !!! FIXME: What to do with SDL?
+    // *FIX: What to do with SDL?
 }
 
 void LLWindowSDL::hide()
 {
-    // !!! FIXME: What to do with SDL?
+    // *FIX: What to do with SDL?
 }
 
 void LLWindowSDL::minimize()
 {
-    // !!! FIXME: What to do with SDL?
+    // *FIX: What to do with SDL?
 }
 
 void LLWindowSDL::restore()
 {
-    // !!! FIXME: What to do with SDL?
+    // *FIX: What to do with SDL?
 }
 
 
@@ -648,7 +647,8 @@ BOOL LLWindowSDL::getVisible()
 {
 	BOOL result = FALSE;
 
-    // !!! FIXME: This isn't really right...
+    // *FIX: This isn't really right...
+	// Then what is?
 	if (mWindow)
 	{
 		result = TRUE;
@@ -693,7 +693,7 @@ BOOL LLWindowSDL::getFullscreen()
 
 BOOL LLWindowSDL::getPosition(LLCoordScreen *position)
 {
-    // !!! FIXME: can anything be done with this?
+    // *FIX: can anything be done with this?
 	position->mX = 0;
 	position->mY = 0;
     return TRUE;
@@ -729,7 +729,7 @@ BOOL LLWindowSDL::setPosition(const LLCoordScreen position)
 {
 	if(mWindow)
 	{
-        // !!! FIXME...
+        // *FIX: (???)
 		//MacMoveWindow(mWindow, position.mX, position.mY, false);
 	}
 
@@ -740,7 +740,7 @@ BOOL LLWindowSDL::setSize(const LLCoordScreen size)
 {
 	if(mWindow)
 	{
-        // !!! FIXME...
+        // *FIX: (???)
 		//SizeWindow(mWindow, size.mX, size.mY, true);
 	}
 
@@ -949,10 +949,10 @@ void LLWindowSDL::afterDialog()
 	llinfos << "LLWindowSDL::afterDialog()" << llendl;
 	if (old_fullscreen && !was_fullscreen)
 	{
-		// NOT YET WORKING (see below)
+		// *FIX: NOT YET WORKING (see below)
 		//switchContext(TRUE, old_size, TRUE);
 	}
-	// !!! FIXME - we need to restore the GL context using
+	// *FIX: we need to restore the GL context using
 	// LLViewerWindow::restoreGL() - but how??
 }
 
@@ -1853,15 +1853,15 @@ void LLWindowSDL::gatherInput()
 			    mCallbacks->handlePaint(this, 0, 0, mWindow->w, mWindow->h);
                 break;
 
-            case SDL_VIDEORESIZE:  // !!! FIXME: handle this?
+            case SDL_VIDEORESIZE:  // *FIX: handle this?
 		llinfos << "Handling a resize event: " << event.resize.w <<
 			"x" << event.resize.h << llendl;
 
-		// !!! FIXME: I'm not sure this is necessary!
+		// *FIX: I'm not sure this is necessary!
 		mWindow = SDL_SetVideoMode(event.resize.w, event.resize.h, 32, mSDLFlags);
 		if (!mWindow)
 		{
-			// FIXME: More informative dialog?
+			// *FIX: More informative dialog?
 			llinfos << "Could not recreate context after resize! Quitting..." << llendl;
 			if(mCallbacks->handleCloseRequest(this))
     			{
@@ -2463,7 +2463,7 @@ void spawn_web_browser(const char* escaped_url)
 
 void shell_open( const char* file_path )
 {
-    // !!! FIXME:
+    // *FIX: (???)
     fprintf(stderr, "shell_open: %s\n", file_path);
 }
 
@@ -2480,7 +2480,7 @@ void *LLWindowSDL::getPlatformWindow()
 
 void LLWindowSDL::bringToFront()
 {
-	// !!! FIXME:
+    // *FIX: (???)
     fprintf(stderr, "bringToFront\n");
 }
 

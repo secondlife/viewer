@@ -628,8 +628,6 @@ BOOL LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 				startSelection();
 			}
 			gFocusMgr.setMouseCapture( this, &LLTextEditor::onMouseCaptureLost );
-			//FIXME:
-			//gViewerWindow->requestFastFrame(this);
 		}
 
 		handled = TRUE;
@@ -667,8 +665,6 @@ BOOL LLViewerTextEditor::handleHover(S32 x, S32 y, MASK mask)
 				{
 					mLastSelectionX = x;
 					mLastSelectionY = y;
-					//FIXME:
-					//gViewerWindow->requestFastFrame(this);
 				}
 
 				if( y > mTextRect.mTop )

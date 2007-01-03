@@ -971,8 +971,8 @@ void LLTextureCtrl::setEnabled( BOOL enabled )
 	else
 	{
 		setToolTip( "" );
-		//FIXME: would be better to keep floater open
-		// and show disabled state
+		// *TODO: would be better to keep floater open and show
+		// disabled state.
 		closeFloater();
 	}
 

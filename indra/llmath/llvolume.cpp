@@ -2930,7 +2930,7 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 				if (fFacing[j] == (AWAY | TOWARDS)) 
 				{ //this is a degenerate triangle
 					//take neighbor facing (degenerate faces get facing of one of their neighbors)
-					// FIXME IF NEEDED:  this does not deal with neighboring degenerate faces
+					// *FIX IF NEEDED:  this does not deal with neighboring degenerate faces
 					for (S32 k = 0; k < 3; k++) 
 					{
 						S32 index = face.mEdge[j*3+k];

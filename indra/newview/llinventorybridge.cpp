@@ -183,7 +183,7 @@ BOOL LLInvFVBridge::isItemMovable()
 	return TRUE;
 }
 
-//FIXME: make sure this does the right thing
+// *TODO: make sure this does the right thing
 void LLInvFVBridge::showProperties()
 {
 	LLShowProps::showProperties(mUUID);
@@ -420,7 +420,7 @@ void LLInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	hideContextEntries(menu, items, disabled_items);
 }
 
-//FIXME: remove this
+// *TODO: remove this
 BOOL LLInvFVBridge::startDrag(EDragAndDropType* type, LLUUID* id)
 {
 	BOOL rv = FALSE;
@@ -3366,7 +3366,7 @@ void LLLSLTextBridge::openItem()
 // |        LLWearableBridge                         |
 // +=================================================+
 
-// HACK to get from avatar inventory to avatar
+// *NOTE: hack to get from avatar inventory to avatar
 void wear_inventory_item_on_avatar( LLInventoryItem* item )
 {
 	if(item)
@@ -3663,7 +3663,7 @@ void wear_inventory_category(LLInventoryCategory* category, bool copy, bool appe
 	}
 }
 
-// HACK to get from avatar inventory to avatar
+// *NOTE: hack to get from avatar inventory to avatar
 void wear_inventory_category_on_avatar( LLInventoryCategory* category, BOOL append )
 {
 	// Avoid unintentionally overwriting old wearables.  We have to do
@@ -4161,7 +4161,8 @@ void LLWearableBridge::openItem()
 		}
 		else if(item)
 		{
-			// *FIX: Could in theory fetch and then do the operation above.
+			// *TODO: We should fetch the item details, and then do
+			// the operation above.
 			gViewerWindow->alertXml("CannotWearInfoNotComplete");
 		}
 	}

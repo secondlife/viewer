@@ -1896,7 +1896,6 @@ LLVector3 LLManipScale::cornerToUnitVector( S32 part ) const
 LLVector3 LLManipScale::edgeToUnitVector( S32 part ) const
 {
 	llassert( (LL_EDGE_MIN <= part) && (part <= LL_EDGE_MAX) );
-	//FIXME
 	part -= LL_EDGE_MIN;
 	S32 rotation = part >> 2;				// Edge between which faces: 0 => XY, 1 => YZ, 2 => ZX
 	LLVector3 v;

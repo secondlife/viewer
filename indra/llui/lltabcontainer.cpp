@@ -846,7 +846,7 @@ void LLTabContainer::addTabPanel(LLPanel* child,
 
 	if (placeholder)
 	{
-		//FIXME: wont work for horizontal tabs
+		// *FIX: wont work for horizontal tabs
 		btn_rect.translate(0, -LLBUTTON_V_PAD-2);
 		LLString box_label = trimmed_label;
 		LLTextBox* text = new LLTextBox(box_label, btn_rect, box_label, font);

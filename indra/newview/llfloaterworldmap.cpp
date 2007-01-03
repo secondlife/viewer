@@ -527,7 +527,8 @@ void LLFloaterWorldMap::trackAvatar( const LLUUID& avatar_id, const LLString& na
 	if(iface->setCurrentByID(avatar_id) || gAgent.isGodlike())
 	{
 		// *HACK: Adjust Z values automatically for liaisons & gods so
-		// we swoop down when they click on the map.
+		// they swoop down when they click on the map. Requested
+		// convenience.
 		if(gAgent.isGodlike())
 		{
 			childSetValue("spin z", LLSD(200.f));
@@ -671,8 +672,9 @@ void LLFloaterWorldMap::updateLocation()
 		
 		if (status == LLTracker::TRACKING_AVATAR)
 		{
-			// *HACK: Adjust Z values automatically for liaisons & gods so
-			// we swoop down when they click on the map.
+			// *HACK: Adjust Z values automatically for liaisons &
+			// gods so they swoop down when they click on the
+			// map. Requested convenience.
 			if(gAgent.isGodlike())
 			{
 				pos_global[2] = 200;

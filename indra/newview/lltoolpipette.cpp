@@ -57,7 +57,7 @@ BOOL LLToolPipette::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	mSuccess = TRUE;
 	gSelectMgr->unhighlightAll();
-	//FIXME: this assumes the pipette tool is a transient tool
+	// *NOTE: This assumes the pipette tool is a transient tool.
 	gToolMgr->clearTransientTool();
 	setMouseCapture(FALSE);
 	return TRUE;

@@ -466,7 +466,9 @@ void LLHUDEffectLookAt::calcTargetPosition()
 			}
 			else if (looking_at_self && gAgent.cameraCustomizeAvatar())
 			{
-				//FIXME: have animation overrides for lookat behavior and then we don't need to do this
+				// *NOTE: We have to do this because animation
+				// overrides do not set lookat behavior.
+				// *TODO: animation overrides for lookat behavior.
 				objRot = avatarp->mPelvisp->getWorldRotation();
 			}
 			else

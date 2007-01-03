@@ -20,7 +20,7 @@
 #include "llinventoryview.h"
 #include "llpermissionsflags.h"
 #include "lluploaddialog.h"
-#include "llviewermenu.h"	// FIXME -- for upload_new_resource()
+#include "llviewermenu.h"	// for upload_new_resource()
 #include "llviewerwindow.h"
 #include "viewer.h"
 
@@ -165,9 +165,9 @@ void LLNewAgentInventoryResponder::result(const LLSD& result)
 		// remove the "Uploading..." message
 		LLUploadDialog::modalUploadFinished();
 		
-		// *FIX: This is a pretty big hack. What this does is check the
-		// file picker if there are any more pending uploads. If so,
-		// upload that file.
+		// *NOTE: This is a pretty big hack. What this does is check
+		// the file picker if there are any more pending uploads. If
+		// so, upload that file.
 		const char* next_file = LLFilePicker::instance().getNextFile();
 		if(next_file)
 		{

@@ -115,8 +115,6 @@ void LLHUDEffectPointAt::packData(LLMessageSystem *mesgsys)
 	mLastSendTime = mTimer.getElapsedTimeF32();
 }
 
-//FIXME: avatar selection does a weird double take
-
 //-----------------------------------------------------------------------------
 // unpackData()
 //-----------------------------------------------------------------------------

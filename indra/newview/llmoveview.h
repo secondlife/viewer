@@ -35,7 +35,7 @@ public:
 	static void toggle(void*);
 	static BOOL visible(void*);
 	
-	// HACK for agent-driven button highlighting
+	// This function is used for agent-driven button highlighting
 	static LLFloaterMove* getInstance()				{ return sInstance; }
 
 protected:

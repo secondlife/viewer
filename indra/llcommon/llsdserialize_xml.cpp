@@ -368,11 +368,12 @@ LLSD LLSDXMLParser::Impl::parse(std::istream& input)
 		}
 	}
 	
-	// FIXME: This code is buggy - if the stream was empty or not good, there
-	// is not buffer to parse, both the call to XML_ParseBuffer and the buffer
-	// manipulations are illegal
-	// futhermore, it isn't clear that the expat buffer semantics are preserved
-	
+	// *FIX.: This code is buggy - if the stream was empty or not
+	// good, there is not buffer to parse, both the call to
+	// XML_ParseBuffer and the buffer manipulations are illegal
+	// futhermore, it isn't clear that the expat buffer semantics are
+	// preserved
+
 	status = XML_ParseBuffer(mParser, 0, true);
 	if (status == XML_STATUS_ERROR && !mGracefullStop)
 	{

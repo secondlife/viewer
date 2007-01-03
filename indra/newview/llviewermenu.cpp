@@ -1603,7 +1603,9 @@ class LLObjectTouch : public view_listener_t
 		msg->addVector3Fast(_PREHASH_GrabOffset, LLVector3::zero );
 		msg->sendMessage( object->getRegion()->getHost());
 
-		// HACK: Hope the packets arrive safely and in order.
+		// *NOTE: Hope the packets arrive safely and in order or else
+		// there will be some problems.
+		// *TODO: Just fix this bad assumption.
 		msg->newMessageFast(_PREHASH_ObjectDeGrab);
 		msg->nextBlockFast(_PREHASH_AgentData);
 		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
@@ -1627,7 +1629,7 @@ class LLObjectEnableTouch : public view_listener_t
 		bool new_value = obj && obj->flagHandleTouch();
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 
-		// HACK Update label
+		// Update label based on the node touch name if available.
 		LLSelectNode* node = gSelectMgr->getFirstRootNode();
 		if (node && node->mValid && !node->mTouchName.empty())
 		{
@@ -3535,9 +3537,8 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 		if(!object || !node->mValid) continue;
 		if(object->getRegion() != region)
 		{
-			// *FIX: This doesn't work at all if the some of the
-			// objects are in regions besides the first object
-			// selected. We should really support this.
+			// Derez doesn't work at all if the some of the objects
+			// are in regions besides the first object selected.
 
 			// ...crosses region boundaries
 			error = "AcquireErrorObjectSpan";
@@ -4307,7 +4308,7 @@ class LLToolsEnableBuyOrTake : public view_listener_t
 		bool new_value = is_buy ? enable_buy(NULL) : enable_take();
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 
-		// HACK: Update label
+		// Update label
 		LLString label;
 		LLString buy_text;
 		LLString take_text;
@@ -4497,7 +4498,7 @@ class LLToolsSaveToObjectInventory : public view_listener_t
 			LLSelectNode* node = gSelectMgr->getFirstRootNode();
 			if(node && (node->mValid) && (!node->mFromTaskID.isNull()))
 			{
-				// *FIX: check to see if the fromtaskid object exists.
+				// *TODO: check to see if the fromtaskid object exists.
 				derez_objects(DRD_SAVE_INTO_TASK_INVENTORY, node->mFromTaskID);
 			}
 		}
@@ -4861,7 +4862,7 @@ class LLViewEnableLastChatter : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		//FIXME: add check that last chatter is in range
+		// *TODO: add check that last chatter is in range
 		bool new_value = (gAgent.cameraThirdPerson() && gAgent.getLastChatter().notNull());
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
@@ -5862,7 +5863,7 @@ void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result) // St
 	LLUploadDialog::modalUploadFinished();
 	delete data;
 
-	// *FIX: This is a pretty big hack. What this does is check the
+	// *NOTE: This is a pretty big hack. What this does is check the
 	// file picker if there are any more pending uploads. If so,
 	// upload that file.
 	const char* next_file = LLFilePicker::instance().getNextFile();
@@ -6231,7 +6232,7 @@ class LLObjectEnableSitOrStand : public view_listener_t
 		}
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 
-		// HACK: Update label
+		// Update label
 		LLString label;
 		LLString sit_text;
 		LLString stand_text;
@@ -7751,8 +7752,7 @@ BOOL enable_save_into_task_inventory(void*)
 		LLSelectNode* node = gSelectMgr->getFirstRootNode();
 		if(node && (node->mValid) && (!node->mFromTaskID.isNull()))
 		{
-			// *FIX: check to see if the fromtaskid object exists.
-
+			// *TODO: check to see if the fromtaskid object exists.
 			LLViewerObject* obj = node->getObject();
 			if( obj && !obj->isAttachment() )
 			{

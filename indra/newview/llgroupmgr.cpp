@@ -1386,7 +1386,7 @@ void LLGroupMgr::sendGroupRoleMembersRequest(const LLUUID& group_id)
 		if (!group_datap->isMemberDataComplete()
 			|| !group_datap->isRoleDataComplete())
 		{
-			// TODO: KLW FIXME: Should we start a member or role data request?
+			// *TODO: KLW FIXME: Should we start a member or role data request?
 			llinfos << " Pending: " << (group_datap->mPendingRoleMemberRequest ? "Y" : "N")
 				<< " MemberDataComplete: " << (group_datap->mMemberDataComplete ? "Y" : "N")
 				<< " RoleDataComplete: " << (group_datap->mRoleDataComplete ? "Y" : "N") << llendl;

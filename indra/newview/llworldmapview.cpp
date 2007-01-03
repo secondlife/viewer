@@ -1494,7 +1494,10 @@ void LLWorldMapView::drawTrackingArrow(const LLRect& rect, S32 x, S32 y,
 		y_clamped = llclamp( y_clamped, 0.f, (F32)(rect.getHeight() - arrow_size) );
 	}
 
-	//FIXME: deal with non-square window properly
+	// *FIX: deal with non-square window properly.
+	// I do not understand what this comment means -- is it actually
+	// broken or is it correctly dealing with non-square
+	// windows. Phoenix 2007-01-03.
 	S32 half_arrow_size = (S32) (0.5f * arrow_size);
 
 	F32 angle = atan2( y + half_arrow_size - y_center, x + half_arrow_size - x_center);

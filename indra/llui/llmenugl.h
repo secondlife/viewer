@@ -714,7 +714,7 @@ protected:
 };
 
 
-//FIXME: this is currently working, so finish implementation
+// *TODO: this is currently working, so finish implementation
 class LLEditMenuHandlerMgr
 {
 public:

@@ -598,9 +598,10 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, LLString& msg, LLRect* sticky_rect_s
 			region->getHost().getString(buffer, MAX_STRING);
 			msg.append(buffer);
 #endif
-			// FIXME: put in XML so it can be translated
+			// *TODO: put this under the control of XUI so it can be
+			// translated.
 			msg.append("\n(Double-click to open Map)");
-						
+
 			S32 SLOP = 4;
 			localPointToScreen( 
 				x - SLOP, y - SLOP, 

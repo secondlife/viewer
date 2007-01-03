@@ -46,7 +46,10 @@ const F32 fsigma	= (6+3*sigma)/(6.f-7.f*sigma);
 const F64 Ndens		= 2.55e25;
 const F64 Ndens2	= Ndens*Ndens;
 
-// !!! FIXME: This #define should be in llcommon somewhere...
+// !!! *FIX: This #define should be in llcommon somewhere...
+// We should not be #defining anything with leading underscores and
+// much less double leading underscores since that is always vendor
+// specific. Change this to something like LL_FORCE_INLINE.
 #ifdef __GNUC__
 #define __forceinline inline __attribute__((always_inline))
 #endif

@@ -416,7 +416,7 @@ protected:
 class LLKeyframeDataCache
 {
 public:
-	//FIXME: implement this as an actual singleton member of LLKeyframeMotion
+	// *FIX: implement this as an actual singleton member of LLKeyframeMotion
 	LLKeyframeDataCache(){};
 	~LLKeyframeDataCache();
 

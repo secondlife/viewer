@@ -435,9 +435,11 @@ public:
 	void sendOwner(const LLUUID& owner_id, const LLUUID& group_id, BOOL override = FALSE);
 	void sendGroup(const LLUUID& group_id);
 
-	// Category ID is the UUID of the folder you want to contain the purchase
-	// FIXME: sale_info check doesn't work for multiple object buy, which UI does not currently support
-	// sale info is used for verification only, if it doesn't match region info then sale is canceled
+	// Category ID is the UUID of the folder you want to contain the purchase.
+	// *NOTE: sale_info check doesn't work for multiple object buy,
+	// which UI does not currently support sale info is used for
+	// verification only, if it doesn't match region info then sale is
+	// canceled
 	void sendBuy(const LLUUID& buyer_id, const LLUUID& category_id, const LLSaleInfo sale_info);
 	void sendAttach(U8 attachment_point);
 	void sendDetach();
@@ -570,7 +572,7 @@ public:
 	void setTransient(BOOL transient) { mTransient = transient; }
 	BOOL isTransient() { return mTransient; }
 	LLViewerObject *getObject();
-	//FIXME: invalidate stored textures and colors when # faces change
+	// *NOTE: invalidate stored textures and colors when # faces change
 	void saveColors();
 	void saveTextures(const std::vector<LLUUID>& textures);
 	void saveTextureScaleRatios();

@@ -758,7 +758,7 @@ size_t LLHTTPAssetStorage::nullOutputCallback(void *data, size_t size, size_t nm
 // this is a very limited function for use by the simstate loader and other one-offs
 S32 LLHTTPAssetStorage::getURLToFile(const LLUUID& uuid, LLAssetType::EType asset_type, const LLString &url, const char *filename, progress_callback callback, void *userdata)
 {
-	// FIXME: There is no guarantee that the uuid and the asset_type match
+	// *NOTE: There is no guarantee that the uuid and the asset_type match
 	// - not that it matters. - Doug
 	lldebugs << "LLHTTPAssetStorage::getURLToFile() - " << url << llendl;
 

@@ -438,7 +438,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 		display_update_camera();
 		stop_glerror();
 		
-		//FIXME: merge these two methods
+		// *TODO: merge these two methods
 		gHUDManager->updateEffects();
 		LLHUDObject::updateAll();
 		stop_glerror();

@@ -906,7 +906,7 @@ void llDrawElementsBatchBlend(const U32 vert_offset, const U32 vert_count, LLFac
 		o_texcoords0= (LLVector2*)(gAGPVertices + AVATAR_OFFSET_TEX0);		o_texcoords0.setStride(AVATAR_VERTEX_BYTES);
 		o_texcoords1= (LLVector2*)(gAGPVertices + AVATAR_OFFSET_TEX1);		o_texcoords1.setStride(AVATAR_VERTEX_BYTES);
 
-#if !LL_LINUX // !!! FIXME
+#if !LL_LINUX // !!! *TODO: do the linux implementation
 		if (gGLManager.mSoftwareBlendSSE)
 		{
 			// do SSE blend without binormals or extra texcoords

@@ -921,7 +921,7 @@ BOOL LLImageGL::setDiscardLevel(S32 discard_level)
 	}
 	else
 	{
-#ifndef LL_LINUX // FIXME: This should not be skipped for the linux client.
+#ifndef LL_LINUX // *FIX: This should not be skipped for the linux client.
 		llerrs << "LLImageGL::setDiscardLevel() called on image without mipmaps" << llendl;
 #endif
 		return FALSE;

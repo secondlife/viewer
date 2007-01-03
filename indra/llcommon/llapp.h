@@ -224,8 +224,9 @@ private:
 
 	static void runErrorHandler();
 
-	// FIXME: On Windows, we need a routine to reset the structured exception handler when some evil driver has taken it over for their own purposes
-
+	// *NOTE: On Windows, we need a routine to reset the structured
+	// exception handler when some evil driver has taken it over for
+	// their own purposes
 	typedef int(*signal_handler_func)(int signum);
 	static LLAppErrorHandler sErrorHandler;
 
