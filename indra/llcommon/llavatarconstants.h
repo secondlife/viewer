@@ -21,3 +21,4 @@ const char* const BLACKLIST_PROFILE_WEB_URL = "http://secondlife.com/app/webdisa
 const S32 MAX_AVATAR_PICKS = 10;
 
 #endif
+
