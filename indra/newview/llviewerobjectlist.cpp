@@ -10,7 +10,6 @@
 
 #include "llviewerobjectlist.h"
 
-#include "gpw.h"
 #include "message.h"
 #include "timing.h"
 #include "llfasttimer.h"
