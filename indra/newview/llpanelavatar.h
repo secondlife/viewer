@@ -176,6 +176,8 @@ public:
 	void apply();
 	void enableControls(BOOL own_avatar);
 
+	BOOL titleIsValid();
+
 	// Delete all the classified sub-panels from the tab container
 	void deleteClassifiedPanels();
 

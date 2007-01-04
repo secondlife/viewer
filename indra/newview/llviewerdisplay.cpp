@@ -183,7 +183,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 		static F32 last_update_time = 0.f;
 		if ((gFrameTimeSeconds - last_update_time) > 1.f)
 		{
-			InvalidateRect(llwindow_get_hwnd(gViewerWindow->getWindow()), NULL, FALSE);
+			InvalidateRect((HWND)gViewerWindow->getPlatformWindow(), NULL, FALSE);
 			last_update_time = gFrameTimeSeconds;
 		}
 #elif LL_DARWIN

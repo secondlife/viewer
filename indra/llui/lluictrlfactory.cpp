@@ -385,6 +385,7 @@ LLMenuGL *LLUICtrlFactory::buildMenu(const LLString &filename, LLView* parentp)
 {
 	// TomY TODO: Break this function into buildMenu and buildMenuBar
 	LLXMLNodePtr root;
+	LLMenuGL*    menu;
 
 	if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
 	{
@@ -398,12 +399,23 @@ LLMenuGL *LLUICtrlFactory::buildMenu(const LLString &filename, LLView* parentp)
 		return NULL;
 	}
 
+	
+
 	if (root->hasName("menu"))
 	{
-		return (LLMenuGL*)LLMenuGL::fromXML(root, parentp, this);
+		menu = (LLMenuGL*)LLMenuGL::fromXML(root, parentp, this);
+	}
+	else
+	{
+		menu = (LLMenuGL*)LLMenuBarGL::fromXML(root, parentp, this);
+	}
+	
+	if (LLUI::sShowXUINames)
+	{
+		menu->mToolTipMsg = filename;
 	}
 
-	return (LLMenuGL*)LLMenuBarGL::fromXML(root, parentp, this);
+    return menu;
 }
 
 //-----------------------------------------------------------------------------
@@ -432,6 +444,12 @@ LLPieMenu *LLUICtrlFactory::buildPieMenu(const LLString &filename, LLView* paren
 	LLPieMenu *menu = new LLPieMenu(name);
 	parentp->addChild(menu);
 	menu->initXML(root, parentp, this);
+
+	if (LLUI::sShowXUINames)
+	{
+		menu->mToolTipMsg = filename;
+	}
+
 	return menu;
 }
 

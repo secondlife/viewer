@@ -51,13 +51,6 @@ BOOL	LLPanelFace::postBuild()
 	LLTextureCtrl*	mTextureCtrl;
 	LLColorSwatchCtrl*	mColorSwatch;
 
-	#if LL_MOZILLA_ENABLED
-	LLTextBox*		mLabelMediaType;
-	LLComboBox*		mComboMediaType;
-	LLTextBox*		mLabelMediaURL;
-	LLLineEditor*	mLineMediaURL;
-	#endif
-
 	LLTextBox*		mLabelTexGen;
 	LLComboBox*		mComboTexGen;
 
@@ -111,36 +104,6 @@ BOOL	LLPanelFace::postBuild()
 		mColorSwatch->setCanApplyImmediately(TRUE);
 	}
 
-#if LL_MOZILLA_ENABLED
-	mLabelMediaType = LLUICtrlFactory::getTextBoxByName(this,"web_label");
-	if(mLabelMediaType)
-		mLabelMediaType->setFollows(FOLLOWS_LEFT|FOLLOWS_TOP);
-
-	mComboMediaType = LLUICtrlFactory::getComboBoxByName(this,"web_type_combo");
-	if(mComboMediaType)
-	{
-		mComboMediaType->setCommitCallback(onCommitMediaInfo);
-		mComboMediaType->setFollows(FOLLOWS_LEFT|FOLLOWS_TOP);
-		mComboMediaType->setCallbackUserData( this );
-		mComboMediaType->add("None");
-		mComboMediaType->add("Web page");
-	}
-	
-	mLabelMediaURL = LLUICtrlFactory::getTextBoxByName(this,"url_label");
-	if(mLabelMediaURL)
-	{
-		mLabelMediaURL->setFollows(FOLLOWS_LEFT|FOLLOWS_TOP);
-	}
-
-	mLineMediaURL = LLUICtrlFactory::getLineEditorByName(this,"url_line");
-	if(mLineMediaURL)
-	{
-		mLineMediaURL->setCommitCallback(onCommitMediaInfo);
-		mLineMediaURL->setFollows(FOLLOWS_LEFT|FOLLOWS_TOP);
-		mLineMediaURL->setCommitOnFocusLost(TRUE);
-		mLineMediaURL->setCallbackUserData( this );
-	}
-#endif
 	mLabelColorTransp = LLUICtrlFactory::getTextBoxByName(this,"color trans");
 	if(mLabelColorTransp)
 	{
@@ -249,19 +212,6 @@ void LLPanelFace::sendFullbright()
 	U8 fullbright = mCheckFullbright->get() ? TEM_FULLBRIGHT_MASK : 0;
 	gSelectMgr->selectionSetFullbright( fullbright );
 }
-
-#if LL_MOZILLA_ENABLED
-void LLPanelFace::sendMediaInfo()
-{
-	if (mComboMediaType)
-	{
-		U8 media_type = (U8) mComboMediaType->getCurrentIndex();
-		std::string media_url = mLineMediaURL->getText();
-
-		gSelectMgr->selectionSetMediaTypeAndURL( media_type, media_url );
-	}
-}
-#endif
 
 void LLPanelFace::sendColor()
 {
@@ -397,48 +347,6 @@ void LLPanelFace::getState()
 				//mBtnAutoFix->setEnabled ( editable );
 			}
 		childSetEnabled("button apply",editable);
-		//mBtnApply->setEnabled( editable );
-
-		#if LL_MOZILLA_ENABLED
-		if (gSavedSettings.getBOOL("UseWebPagesOnPrims"))
-		{
-			// Web page selection
-			mLabelMediaType->setEnabled(editable);
-			mLabelMediaType->setToolTip("Experimental");
-
-			// JAMESDEBUG - use viewerobject mMedia->mMediaType when transmission is wired in
-			U8 media_type = LLViewerObject::MEDIA_TYPE_NONE;
-			bool same = gSelectMgr->selectionGetMediaType( &media_type );
-			mComboMediaType->setTentative( !same );
-			mComboMediaType->setEnabled( editable );
-			mComboMediaType->setCurrentByIndex( (S32)media_type );
-			mComboMediaType->setToolTip("Experimental");
-
-			mLabelMediaURL->setEnabled(editable);
-			mLabelMediaURL->setToolTip("Experimental");
-
-			const std::string& media_url = objectp->getMediaURL();
-			mLineMediaURL->setEnabled( editable );
-			mLineMediaURL->setText( media_url );
-			mLineMediaURL->setToolTip("Experimental");
-		}
-		else
-		{
-			mLabelMediaType->setEnabled(FALSE);
-			mLabelMediaType->setToolTip("Disabled because 'Show web pages on objects' preference is disabled");
-
-			mComboMediaType->setEnabled( FALSE );
-			mComboMediaType->setCurrentByIndex( LLViewerObject::MEDIA_TYPE_NONE );
-			mComboMediaType->setToolTip("Disabled because 'Show web pages on objects' preference is disabled");
-
-			mLabelMediaURL->setEnabled(FALSE);
-			mLabelMediaURL->setToolTip("Disabled because 'Show web pages on objects' preference is disabled");
-
-			mLineMediaURL->setEnabled( FALSE );
-			mLineMediaURL->setText( "" );
-			mLineMediaURL->setToolTip("Disabled because 'Show web pages on objects' preference is disabled");
-		}
-		#endif
 
 		// Texture
 		LLUUID id;
@@ -894,15 +802,6 @@ void LLPanelFace::onCommitTextureInfo( LLUICtrl* ctrl, void* userdata )
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	self->sendTextureInfo();
 }
-
-#if LL_MOZILLA_ENABLED
-// static
-void LLPanelFace::onCommitMediaInfo(LLUICtrl* ctrl, void* data)
-{
-	LLPanelFace* self = (LLPanelFace*) data;
-	self->sendMediaInfo();
-}
-#endif
 
 // Commit the number of repeats per meter
 // static

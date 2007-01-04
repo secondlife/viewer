@@ -11,9 +11,9 @@
 #include "llstartup.h"
 
 #if LL_WINDOWS
-#include <process.h>		// _spawnl()
+#	include <process.h>		// _spawnl()
 #else
-#include <sys/stat.h>		// mkdir()
+#	include <sys/stat.h>		// mkdir()
 #endif
 
 #include "audioengine.h"
@@ -108,7 +108,6 @@
 #include "llviewerdisplay.h"
 #include "llviewergesture.h"
 #include "llviewerimagelist.h"
-#include "llviewermedialist.h"
 #include "llviewermenu.h"
 #include "llviewermessage.h"
 #include "llviewernetwork.h"
@@ -497,7 +496,7 @@ BOOL idle_startup()
 #if LL_WINDOWS
 				// FMOD on Windows needs the window handle to stop playing audio
 				// when window is minimized. JC
-				void* window_handle = (void*)llwindow_get_hwnd(gViewerWindow->getWindow());
+				void* window_handle = (HWND)gViewerWindow->getPlatformWindow();
 #else
 				void* window_handle = NULL;
 #endif
@@ -1853,46 +1852,6 @@ BOOL idle_startup()
 			gQuickTimeInitialized = true;
 		}
 		#endif
-
-		// Get list of URLs approved for usage
-		// CP: removed since they're not useful without Mozilla enabled
-		#if LL_MOZILLA_ENABLED
-		LLUrlWhiteList::getInstance()->load();
-		#endif
-
-		// initialize mozilla if we're using web page on a prim or not using an external browser for floater
-		BOOL use_web_pages_on_prims = gSavedSettings.getBOOL("UseWebPagesOnPrims");
-		BOOL use_external_browser = gSavedSettings.getBOOL("UseExternalBrowser");
-
-use_external_browser = false;
-
-		if (use_web_pages_on_prims || !use_external_browser)
-		{
-			//llinfos << "Initializing web browser...." << llendl;
-			//set_startup_status(0.48f, "Initializing web browser...", gAgent.mMOTD.c_str());
-			//display_startup();
-			// initialize mozilla
-			LLString mozilla_path = gDirUtilp->getExecutableDir();
-			mozilla_path.append( gDirUtilp->getDirDelimiter() );
-#if LL_DEBUG
-			mozilla_path.append( "mozilla_debug" );
-#else
-			mozilla_path.append( "mozilla" );
-#endif
-
-#if LL_MOZILLA_ENABLED
-			if (!gMozillaInitialized)
-			{
-				void* platform_window = gViewerWindow->getPlatformWindow();
-				mozilla_init_embedding(platform_window, mozilla_path);
-			}
-#endif
-
-			if (use_web_pages_on_prims)
-			{
-				gMediaList = new LLViewerMediaList(2);
-			}
-		}
 
 		gStartupState++;
 		return do_normal_idle;

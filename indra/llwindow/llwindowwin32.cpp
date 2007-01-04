@@ -10,6 +10,8 @@
 
 #if LL_WINDOWS && !LL_MESA_HEADLESS
 
+#include "llwindowwin32.h"
+
 #include <commdlg.h>
 #include <WinUser.h>
 #include <mapi.h>
@@ -20,7 +22,7 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 
-#include "llwindowwin32.h"
+
 #include "llkeyboardwin32.h"
 #include "llerror.h"
 #include "llgl.h"
@@ -3022,19 +3024,6 @@ LRESULT CALLBACK LLSplashScreenWin32::windowProc(HWND h_wnd, UINT u_msg,
 //
 // Helper Funcs
 //
-
-HWND llwindow_get_hwnd(LLWindow *window)
-{
-	//assumes we are dealing with a Win32 window
-	return ((LLWindowWin32*)window)->mWindowHandle;
-}
-
-
-void llwindow_install_wndproc(LLWindow *window, WNDPROC wnd_proc)
-{
-	//assumes we are dealing with a Win32 window
-	((LLWindowWin32*)window)->mWndProc = wnd_proc;
-}
 
 S32 OSMessageBoxWin32(const char* text, const char* caption, U32 type)
 {

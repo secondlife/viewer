@@ -8,15 +8,21 @@
 
 #include "linden_common.h"
 
+#include "llsys.h"
+
 #include <iostream>
 #include <zlib/zlib.h>
 #include "processor.h"
 
-#if LL_DARWIN
-#include <sys/sysctl.h>
-#include <sys/utsname.h>
+#if LL_WINDOWS
+#	define WIN32_LEAN_AND_MEAN
+#	include <winsock2.h>
+#	include <windows.h>
+#elif LL_DARWIN
+#	include <sys/sysctl.h>
+#	include <sys/utsname.h>
 #elif LL_LINUX
-#include <sys/utsname.h>
+#	include <sys/utsname.h>
 const char MEMINFO_FILE[] = "/proc/meminfo";
 const char CPUINFO_FILE[] = "/proc/cpuinfo";
 #endif

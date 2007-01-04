@@ -1866,15 +1866,8 @@ void prepare_video(const LLParcel *parcel)
 void start_video(const LLParcel *parcel)
 {
 	prepare_video(parcel);
-	bool web_url = (parcel->getParcelFlag(PF_URL_WEB_PAGE) || parcel->getParcelFlag(PF_URL_RAW_HTML));
 	std::string path( "" );
-	#if LL_MOZILLA_ENABLED
-	if (web_url)
-	{
-		path = get_mozilla_path();
-	}
-	#endif
-	LLMediaEngine::getInstance ()->convertImageAndLoadUrl ( true, web_url, path);
+	LLMediaEngine::getInstance ()->convertImageAndLoadUrl ( true, false, path);
 }
 
 void stop_video()

@@ -49,7 +49,6 @@
 #include "llviewercamera.h"
 #include "llviewerimagelist.h"
 #include "llviewerinventory.h"
-#include "llviewermedialist.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparceloverlay.h"
 #include "llviewerpartsource.h"
@@ -3266,16 +3265,8 @@ void LLViewerObject::setMediaType(U8 media_type)
 	else if (mMedia->mMediaType != media_type)
 	{
 		mMedia->mMediaType = media_type;
-		if (gMediaList)
-		{
-			// we're using web pages on prims
-			gMediaList->updatedMediaURL(this);
-		}
-		if (mDrawable.notNull())
-		{
-			// move this object's faces into LLDrawPoolMedia
-			gPipeline.markTextured(mDrawable);
-		}
+
+		// TODO: update materials with new image
 	}
 }
 
@@ -3300,30 +3291,15 @@ void LLViewerObject::setMediaURL(const LLString& media_url)
 		mMedia = new LLViewerObjectMedia;
 		mMedia->mMediaURL = media_url;
 		mMedia->mPassedWhitelist = FALSE;
-		if (gMediaList)
-		{
-			gMediaList->addedMediaURL(this);
-		}
-		if (mDrawable.notNull())
-		{
-			// move this object's faces into LLDrawPoolMedia
-			gPipeline.markTextured(mDrawable);
-		}
+
+		// TODO: update materials with new image
 	}
 	else if (mMedia->mMediaURL != media_url)
 	{
 		mMedia->mMediaURL = media_url;
 		mMedia->mPassedWhitelist = FALSE;
-		if (gMediaList)
-		{
-			// we're using web pages on prims
-			gMediaList->updatedMediaURL(this);
-		}
-		if (mDrawable.notNull())
-		{
-			// move this object's faces into LLDrawPoolMedia
-			gPipeline.markTextured(mDrawable);
-		}
+
+		// TODO: update materials with new image
 	}
 }
 
@@ -4137,6 +4113,12 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 		}
 	}
 
+	if ( mAudioSourcep )
+	{
+		gAudiop->cleanupAudioSource(mAudioSourcep);
+		mAudioSourcep = NULL;
+	}
+
 	getAudioSource(owner_id);
 
 	if (mAudioSourcep)
@@ -4153,8 +4135,6 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 
 LLAudioSource *LLViewerObject::getAudioSource(const LLUUID& owner_id)
 {
-	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	
 	if (!mAudioSourcep)
 	{
 		// Arbitrary low gain for a sound that's not playing.

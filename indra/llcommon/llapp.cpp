@@ -499,6 +499,7 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
 	switch (signum)
 	{
 	case SIGALRM:
+	case SIGPIPE:
 	case SIGUSR2:
 		// We don't care about these signals, ignore them
 		if (LLApp::sLogInSignal)
@@ -548,7 +549,6 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
 		
 		// Change the signal that we reraise to SIGABRT, so we generate a core dump.
 		signum = SIGABRT;
-	case SIGPIPE:
 	case SIGBUS:
 	case SIGSEGV:
 	case SIGQUIT:

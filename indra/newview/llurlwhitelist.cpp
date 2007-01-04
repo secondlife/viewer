@@ -200,22 +200,4 @@ bool LLUrlWhiteList::getNext ( LLString& valueOut )
 bool LLUrlWhiteList::containsMatch ( const LLString& patternIn )
 {
 	return false;
-
-	// CP: removed since they're not useful without Mozilla enabled
-	#if LL_MOZILLA_ENABLED
-	LLString pattern = url_cleanup(patternIn);
-	
-	if (pattern.empty()) return false;	
-	
-	LLStringListIter iter = std::find ( mUrlList.begin (), mUrlList.end (), pattern );
-
-	if ( iter != mUrlList.end () )
-	{
-		return true;
-	}
-	else
-	{	
-		return false;
-	};
-	#endif
 }

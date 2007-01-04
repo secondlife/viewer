@@ -224,6 +224,24 @@ BOOL LLPanelClassified::postBuild()
     return TRUE;
 }
 
+BOOL LLPanelClassified::titleIsValid()
+{
+	// Disallow leading spaces, punctuation, etc. that screw up
+	// sort order.
+	const LLString& name = mNameEditor->getText();
+	if (name.empty())
+	{
+		gViewerWindow->alertXml("BlankClassifiedName");
+		return FALSE;
+	}
+	if (!isalnum(name[0]))
+	{
+		gViewerWindow->alertXml("ClassifiedMustBeAlphanumeric");
+		return FALSE;
+	}
+
+	return TRUE;
+}
 
 void LLPanelClassified::apply()
 {
@@ -602,17 +620,10 @@ void LLPanelClassified::onClickUpdate(void* data)
 
 	// Disallow leading spaces, punctuation, etc. that screw up
 	// sort order.
-	const LLString& name = self->mNameEditor->getText();
-	if (name.empty())
+	if ( ! self->titleIsValid() )
 	{
-		gViewerWindow->alertXml("BlankClassifiedName");
 		return;
-	}
-	if (!isalnum(name[0]))
-	{
-		gViewerWindow->alertXml("ClassifiedMustBeAlphanumeric");
-		return;
-	}
+	};
 
 	// if already paid for, just do the update
 	if (self->mPaidFor)

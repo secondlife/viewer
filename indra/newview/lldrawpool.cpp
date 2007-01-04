@@ -20,7 +20,6 @@
 #include "lldrawpoolbump.h"
 #include "lldrawpoolclouds.h"
 #include "lldrawpoolground.h"
-#include "lldrawpoolmedia.h"
 #include "lldrawpoolsimple.h"
 #include "lldrawpoolsky.h"
 #include "lldrawpoolstars.h"
@@ -92,9 +91,6 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerImage *tex0)
 		break;
 	case POOL_BUMP:
 		poolp = new LLDrawPoolBump(tex0);
-		break;
-	case POOL_MEDIA:
-		poolp = new LLDrawPoolMedia(tex0);
 		break;
 	case POOL_HUD:
 		poolp = new LLDrawPoolHUD();

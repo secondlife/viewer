@@ -8,15 +8,19 @@
 
 #include "linden_common.h"
 
+#include "lltimer.h"
+
+#include "u64.h"
 
 #if LL_WINDOWS
-#include <time.h>
-
+#	define WIN32_LEAN_AND_MEAN
+#	include <winsock2.h>
+#	include <windows.h>
+#	include <time.h>
 #elif LL_LINUX
-#include <time.h>
-#include <sys/time.h>
-#include <sched.h>
-
+#	include <time.h>
+#	include <sys/time.h>
+#	include <sched.h>
 #elif LL_DARWIN
 #	include <time.h>
 #	include <sys/time.h>
@@ -24,9 +28,6 @@
 #	error "architecture not supported"
 #endif
 
-
-#include "lltimer.h"
-#include "u64.h"
 
 //
 // Locally used constants

@@ -23,6 +23,7 @@
 
 #include "llerror.h"
 #include "llkeyboard.h"
+#include "linked_lists.h"
 
 //static instance for default callbacks
 LLWindowCallbacks	LLWindow::sDefaultCallbacks;
@@ -305,7 +306,8 @@ void LLSplashScreen::hide()
 // LLWindowManager
 //
 
-LLLinkedList<LLWindow> LLWindowManager::sWindowList;
+// TODO: replace with std::set
+static LLLinkedList<LLWindow> sWindowList;
 
 LLWindow* LLWindowManager::createWindow(
 	char *title,

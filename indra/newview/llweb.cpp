@@ -19,18 +19,7 @@
 // static
 void LLWeb::loadURL(std::string url)
 {
-#if LL_MOZILLA_ENABLED
-	if (gSavedSettings.getBOOL("UseExternalBrowser"))
-	{
-		loadURLExternal(url);
-	}
-	else
-	{
-		LLFloaterHTML::show((void*)url.c_str());
-	}
-#else
 	loadURLExternal(url);
-#endif
 }
 
 

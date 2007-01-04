@@ -8,15 +8,20 @@
  * $License$
  */
 
-#if LL_LINUX
-#include <netinet/in.h>
-#endif
-#if LL_DARWIN
-#include <arpa/inet.h>
+#include "linden_common.h"
+
+#include "llsdutil.h"
+
+#if LL_WINDOWS
+#	define WIN32_LEAN_AND_MEAN
+#	include <winsock2.h>	// for htonl
+#elif LL_LINUX
+#	include <netinet/in.h>
+#elif LL_DARWIN
+#	include <arpa/inet.h>
 #endif
 
-#include "linden_common.h"
-#include "llsdutil.h"
+
 
 // vector3
 LLSD ll_sd_from_vector3(const LLVector3& vec)

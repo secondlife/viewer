@@ -811,6 +811,35 @@ BOOL LLView::handleHover(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
+LLString LLView::getShowNamesToolTip()
+{
+	LLView* view = getParent();
+	LLString name;
+	LLString tool_tip = mName;
+
+	while (view)
+	{
+		name = view->getName();
+
+		if (name == "root") break;
+
+		if (view->getToolTip().find(".xml") != LLString::npos)
+		{
+			tool_tip = view->getToolTip() + "/" +  tool_tip;
+			break;
+		}
+		else
+		{
+			tool_tip = view->getName() + "/" +  tool_tip;
+		}
+
+		view = view->getParent();
+	}
+
+	return "/" + tool_tip;
+}
+
+
 BOOL LLView::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen)
 {
 	BOOL handled = FALSE;
@@ -834,7 +863,7 @@ BOOL LLView::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_scre
 		if (LLUI::sShowXUINames && (mToolTipMsg.find(".xml", 0) == LLString::npos) && 
 			(mName.find("Drag", 0) == LLString::npos))
 		{
-			tool_tip = mName;
+			tool_tip = getShowNamesToolTip();
 		}
 		else
 		{

@@ -1023,7 +1023,7 @@ BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
 #if LL_WINDOWS
 	if (gNoRender)
 	{
-		HWND window_handle = llwindow_get_hwnd(window);
+		HWND window_handle = (HWND)window->getPlatformWindow();
 		PAINTSTRUCT ps; 
 		HDC hdc; 
  

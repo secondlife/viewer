@@ -8,6 +8,13 @@
 
 #include "linden_common.h"
 
+// APR on Windows needs full windows headers
+#ifdef LL_WINDOWS
+#	undef WIN32_LEAN_AND_MEAN
+#	include <winsock2.h>
+#	include <windows.h>
+#endif
+
 #include <string>
 #include <sstream>
 #include <boost/regex.hpp>

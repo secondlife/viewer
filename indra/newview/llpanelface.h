@@ -49,9 +49,6 @@ protected:
 	void			sendTexGen();				// applies and sends bump map
 	void			sendShiny();			// applies and sends shininess
 	void			sendFullbright();		// applies and sends full bright
-	#if LL_MOZILLA_ENABLED
-	void			sendMediaInfo();		// web page settings and URL
-	#endif
 
 	// this function is to return TRUE if the dra should succeed.
 	static BOOL onDragTexture(LLUICtrl* ctrl, LLInventoryItem* item, void* ud);
@@ -68,9 +65,6 @@ protected:
 	static void		onCommitTexGen(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitShiny(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitFullbright(		LLUICtrl* ctrl, void* userdata);
-	#if LL_MOZILLA_ENABLED
-	static void		onCommitMediaInfo(		LLUICtrl* ctrl, void* data);
-	#endif
 
 	static void		onClickApply(void*);
 	static void		onClickAutoFix(void*);
@@ -85,52 +79,6 @@ protected:
 	static F32		valueTexGen(LLViewerObject* object, S32 face);
 	static F32		valueShiny(LLViewerObject* object, S32 face);
 	static F32		valueFullbright(LLViewerObject* object, S32 face);
-
-protected:
-	//LLTextureCtrl*	mTextureCtrl;
-	//LLColorSwatchCtrl*	mColorSwatch;
-
-	//#if LL_MOZILLA_ENABLED
-	//LLTextBox*		mLabelMediaType;
-	//LLComboBox*		mComboMediaType;
-	//LLTextBox*		mLabelMediaURL;
-	//LLLineEditor*	mLineMediaURL;
-	//#endif
-
-	//LLTextBox		*mLabelTexScale;
-	//LLSpinCtrl		*mCtrlTexScaleS;
-	//LLSpinCtrl		*mCtrlTexScaleT;
-
-	//LLCheckBoxCtrl	*mCheckFlipScaleS;
-	//LLCheckBoxCtrl	*mCheckFlipScaleT;
-
-	//LLTextBox		*mLabelTexOffset;
-	//LLSpinCtrl		*mCtrlTexOffsetS;
-	//LLSpinCtrl		*mCtrlTexOffsetT;
-
-	//LLTextBox		*mLabelTexRotation;
-	//LLSpinCtrl		*mCtrlTexRotation;
-
-	//LLTextBox*		mLabelTexGen;
-	//LLComboBox*		mComboTexGen;
-
-	//LLTextBox*		mLabelShininess;
-	//LLComboBox*		mComboShininess;
-
-	//LLTextBox*		mLabelBumpiness;
-	//LLComboBox*		mComboBumpiness;
-
-	//LLCheckBoxCtrl	*mCheckFullbright;
-	//
-	//LLTextBox*		mLabelColorTransp;
-	//LLSpinCtrl*		mCtrlColorTransp;		// transparency = 1 - alpha
-
-	//LLTextBox*		mLabelRepeatsPerMeter;
-	//LLSpinCtrl*		mCtrlRepeatsPerMeter;
-	//LLButton*		mBtnApply;
-
-	//LLTextBox*		mLabelTexAutoFix;
-	//LLButton*		mBtnAutoFix;
 };
 
 #endif

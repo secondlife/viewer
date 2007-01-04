@@ -9,9 +9,11 @@
 // win_crash_logger.cpp : Defines the entry point for the application.
 //
 
+// Must be first include, precompiled headers.
+#include "stdafx.h"
+
 #include "linden_common.h"
 #include "llcontrol.h"
-#include "stdafx.h"
 #include "resource.h"
 
 #include <stdio.h>

@@ -352,6 +352,8 @@ public:
 	// then display mToolTipMsg if no child handled it.
 	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect);
 
+	LLString getShowNamesToolTip();
+
 	virtual void	draw();
 
 	void			drawDebugRect();

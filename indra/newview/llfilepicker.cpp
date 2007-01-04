@@ -130,7 +130,7 @@ BOOL LLFilePicker::getOpenFile(ELoadFilter filter)
 	// don't provide default file selection
 	mFilesW[0] = '\0';
 
-	mOFN.hwndOwner = llwindow_get_hwnd(gViewerWindow->getWindow());
+	mOFN.hwndOwner = (HWND)gViewerWindow->getPlatformWindow();
 	mOFN.lpstrFile = mFilesW;
 	mOFN.nMaxFile = SINGLE_FILENAME_BUFFER_SIZE;
 	mOFN.Flags = OFN_HIDEREADONLY | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR ;
@@ -167,7 +167,7 @@ BOOL LLFilePicker::getMultipleOpenFiles(ELoadFilter filter)
 	// don't provide default file selection
 	mFilesW[0] = '\0';
 
-	mOFN.hwndOwner = llwindow_get_hwnd(gViewerWindow->getWindow());
+	mOFN.hwndOwner = (HWND)gViewerWindow->getPlatformWindow();
 	mOFN.lpstrFile = mFilesW;
 	mOFN.nFilterIndex = 1;
 	mOFN.nMaxFile = FILENAME_BUFFER_SIZE;
@@ -238,7 +238,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 	{
 		mFilesW[0] = '\0';
 	}
-	mOFN.hwndOwner = llwindow_get_hwnd(gViewerWindow->getWindow());
+	mOFN.hwndOwner = (HWND)gViewerWindow->getPlatformWindow();
 
 	switch( filter )
 	{

@@ -26,10 +26,17 @@
 
 #include "linden_common.h"
 
+#include "processor.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <memory.h>
-#include "processor.h"
+
+#if LL_WINDOWS
+#	define WIN32_LEAN_AND_MEAN
+#	include <winsock2.h>
+#	include <windows.h>
+#endif
 
 #if !LL_DARWIN
 

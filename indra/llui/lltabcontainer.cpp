@@ -1048,7 +1048,7 @@ BOOL LLTabContainer::selectTab(S32 which)
 // 			tuple->mTabPanel->setFocus(is_selected); // not clear that we want to do this here.
 			tuple->mButton->setToggleState( is_selected );
 			// RN: this limits tab-stops to active button only, which would require arrow keys to switch tabs
-			tuple->mButton->setTabStop( is_selected && mTabList.size() > 1 );
+			tuple->mButton->setTabStop( is_selected );
 			
 			if( is_selected && mMaxScrollPos > 0)
 			{
@@ -1466,4 +1466,3 @@ BOOL LLTabContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,	BOOL drop,	EDrag
 
 	return LLView::handleDragAndDrop(x,	y, mask, drop, type, cargo_data,  accept, tooltip);
 }
-

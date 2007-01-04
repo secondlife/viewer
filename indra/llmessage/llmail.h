@@ -9,7 +9,7 @@
 #ifndef LL_LLMAIL_H
 #define LL_LLMAIL_H
 
-#include "apr-1/apr_pools.h"
+typedef struct apr_pool_t apr_pool_t;
 
 // if hostname is NULL, then the host is resolved as 'mail'
 void init_mail(const std::string& hostname, apr_pool_t* pool);

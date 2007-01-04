@@ -12,7 +12,6 @@
 #include <sys/stat.h>
 
 #include "llrect.h"
-#include "linked_lists.h"
 #include "llcoord.h"
 #include "llstring.h"
 
@@ -272,9 +271,6 @@ const S32 OSBTN_CANCEL = 3;
 
 class LLWindowManager
 {
-private:
-	static LLLinkedList<LLWindow> sWindowList;
-
 public:
 	static LLWindow* createWindow(
 		char *title,
@@ -315,14 +311,5 @@ void spawn_web_browser(const char* escaped_url);
 void shell_open(const char* file_path);
 
 void simpleEscapeString ( std::string& stringIn  );
-
-
-#if LL_WINDOWS
-	// return Win32 specific window handle
-	HWND llwindow_get_hwnd(LLWindow *window);
-
-	// backdoor for special case handling of Win32 messages
-	void llwindow_install_wndproc(LLWindow *window, WNDPROC wnd_proc);
-#endif
 
 #endif // _LL_window_h_

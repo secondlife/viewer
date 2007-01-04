@@ -27,17 +27,6 @@
 #include <string>
 #include "llfile.h"
 
-#if LL_WINDOWS
-// Limit Windows API to small and manageable set.
-// If you get undefined symbols, find the appropriate
-// Windows header file and include that in your .cpp file.
-// Please don't take this out -- it helps with library
-// compile times. JC
-#define WIN32_LEAN_AND_MEAN
-#include <winsock2.h>
-#include <windows.h>
-#endif	//	LL_WINDOWS
-
 #include "stdtypes.h"
 #include "lldefs.h"
 #include "llerror.h"
@@ -50,4 +39,4 @@
 #pragma warning (3 : 4702) // we like level 3, not 4
 #endif	//	LL_WINDOWS
 
-#endif	//	not LL_LINDEN_COMMON_H
+#endif

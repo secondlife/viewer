@@ -15,10 +15,18 @@
 // in viewer.
 // It is used to precompile headers for improved build speed.
 
-// Reference headers your program requires here:
 #include "linden_common.h"
 
-// The rest of the common system headers go here:
+// We may want to take the windows.h include out, but it used to be in 
+// linden_common.h, and hence in all the libraries.  This is better. JC
+#if LL_WINDOWS
+	// Limit Windows API to small and manageable set.
+	// If you get undefined symbols, find the appropriate
+	// Windows header file and include that in your .cpp file.
+	#define WIN32_LEAN_AND_MEAN
+	#include <winsock2.h>
+	#include <windows.h>
+#endif
 
 // Work around stupid Microsoft STL warning
 #ifdef LL_WINDOWS

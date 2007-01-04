@@ -113,7 +113,7 @@ void LLFontGL::init()
 		mImageGLp = new LLImageGL(FALSE);
 		//RN: use nearest mipmap filtering to obviate the need to do pixel-accurate positioning
 		mImageGLp->bind();
-		mImageGLp->setMipFilterNearest(TRUE,TRUE);
+		mImageGLp->setMipFilterNearest(TRUE, TRUE);
 	}
 	if (mRawImageGLp.isNull())
 	{

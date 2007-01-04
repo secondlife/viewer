@@ -747,7 +747,7 @@ BOOL LLComboBox::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_
 
 	if (LLUI::sShowXUINames)
 	{
-		tool_tip = mName;
+		tool_tip = getShowNamesToolTip();
 	}
 	else
 	{

@@ -35,7 +35,6 @@
 #include "lldrawable.h"
 #include "lldrawpoolavatar.h"
 #include "lldrawpoolalpha.h"
-#include "lldrawpoolmedia.h"
 #include "lldrawpoolbump.h"
 #include "lldriverparam.h"
 #include "lleditingmotion.h"

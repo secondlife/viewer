@@ -8,18 +8,20 @@
 
 #include "linden_common.h"
 
-
-#if !LL_WINDOWS
-#include <netdb.h>
-#include <netinet/in.h>	// ntonl()
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#endif
-
 #include "llhost.h"
 
 #include "llerror.h"
+
+#if LL_WINDOWS
+	#define WIN32_LEAN_AND_MEAN
+	#include <winsock2.h>
+#else
+	#include <netdb.h>
+	#include <netinet/in.h>	// ntonl()
+	#include <sys/types.h>
+	#include <sys/socket.h>
+	#include <arpa/inet.h>
+#endif
 
 LLHost LLHost::invalid(INVALID_PORT,INVALID_HOST_IP_ADDRESS);
 

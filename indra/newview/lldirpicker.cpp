@@ -56,7 +56,7 @@ BOOL LLDirPicker::getDir(LLString* filename)
    memset(&bi, 0, sizeof(bi));
 
    bi.ulFlags   = BIF_USENEWUI;
-   bi.hwndOwner = llwindow_get_hwnd(gViewerWindow->getWindow());;
+   bi.hwndOwner = (HWND)gViewerWindow->getPlatformWindow();
    bi.lpszTitle = NULL;
 
    ::OleInitialize(NULL);

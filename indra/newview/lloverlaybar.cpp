@@ -534,16 +534,8 @@ void LLOverlayBar::onPlayButtonPressed( const LLMediaRemoteCtrlObserver::EventTy
 		LLParcel* parcel = gParcelMgr->getAgentParcel();
 		if (parcel)
 		{
-			bool web_url = (parcel->getParcelFlag(PF_URL_WEB_PAGE) || parcel->getParcelFlag(PF_URL_RAW_HTML));
 			LLString path( "" );
-			#if LL_MOZILLA_ENABLED
-			LLString mozilla_subdir;
-			if (web_url)
-			{
-				path = get_mozilla_path();
-			}
-			#endif
-			LLMediaEngine::getInstance ()->convertImageAndLoadUrl( true, web_url, path );
+			LLMediaEngine::getInstance ()->convertImageAndLoadUrl( true, false, path );
 			mMediaRemote->setTransportState ( LLMediaRemoteCtrl::Play, TRUE );
 		}
 	};

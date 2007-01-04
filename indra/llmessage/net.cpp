@@ -14,13 +14,17 @@
 #include <stdexcept>
 #include <stdio.h>
 
-#if !LL_WINDOWS					//  Windows Versions 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <fcntl.h>
-#include <errno.h>
+#if LL_WINDOWS
+	#define WIN32_LEAN_AND_MEAN
+	#include <winsock2.h>
+	#include <windows.h>
+#else
+	#include <sys/types.h>
+	#include <sys/socket.h>
+	#include <netinet/in.h>
+	#include <arpa/inet.h>
+	#include <fcntl.h>
+	#include <errno.h>
 #endif
 
 // linden library includes

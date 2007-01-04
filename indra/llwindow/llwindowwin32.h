@@ -9,6 +9,11 @@
 #ifndef LL_LLWINDOWWIN32_H
 #define LL_LLWINDOWWIN32_H
 
+// Limit Windows API to small and manageable set.
+#define WIN32_LEAN_AND_MEAN
+#include <winsock2.h>
+#include <windows.h>
+
 #include "llwindow.h"
 
 // Hack for async host by name
@@ -152,8 +157,6 @@ protected:
 	BOOL		mMousePositionModified;
 	BOOL		mInputProcessingPaused;
 
-	friend HWND llwindow_get_hwnd(LLWindow *window); 
-	friend void llwindow_install_wndproc(LLWindow *window, WNDPROC wnd_proc);
 	friend class LLWindowManager;
 };
 

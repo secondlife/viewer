@@ -11,9 +11,10 @@
 
 #include "linden_common.h"
 
-#include "llglheaders.h"
+#include "llgldbg.h"
 
 #include "llgl.h"
+#include "llglheaders.h"
 
 
 //------------------------------------------------------------------------

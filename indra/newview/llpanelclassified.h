@@ -55,6 +55,9 @@ public:
 	static void setClickThrough(const LLUUID& classified_id,
 								S32 teleport, S32 map, S32 profile);
 
+	// check that the title is valid (E.G. starts with a number or letter)
+	BOOL titleIsValid();
+
 	// Schedules the panel to request data
 	// from the server next time it is drawn.
 	void markForServerRequest();

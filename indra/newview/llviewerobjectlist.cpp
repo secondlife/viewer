@@ -44,7 +44,6 @@
 #include "lldatapacker.h"
 #include <zlib/zlib.h>
 #include "object_flags.h"
-#include "llviewermedialist.h"
 
 extern BOOL gVelocityInterpolate;
 extern BOOL gPingInterpolate;
@@ -178,11 +177,13 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 										   U32 i, 
 										   const EObjectUpdateType update_type, 
 										   LLDataPacker* dpp, 
-										   BOOL justCreated)
+										   BOOL just_created)
 {
 	LLMessageSystem* msg = gMessageSystem;
 
-	U32 pum_flags = objectp->processUpdateMessage(msg, user_data, i, update_type, dpp);
+	// ignore returned flags
+	objectp->processUpdateMessage(msg, user_data, i, update_type, dpp);
+
 	if (objectp->isDead())
 	{
 		// The update failed
@@ -196,7 +197,7 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 	// Update the image levels of textures for this object.
 	objectp->updateTextures(gAgent);
 
-	if (justCreated) 
+	if (just_created) 
 	{
 		gPipeline.addObject(objectp);
 	}
@@ -207,7 +208,7 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 	findOrphans(objectp, msg->getSenderIP(), msg->getSenderPort());
 
 	// If we're just wandering around, don't create new objects selected.
-	if (justCreated 
+	if (just_created 
 		&& update_type != OUT_TERSE_IMPROVED 
 		&& objectp->mCreateSelected)
 	{
@@ -222,37 +223,6 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 		objectp->mCreateSelected = false;
 		gViewerWindow->getWindow()->decBusyCount();
 		gViewerWindow->getWindow()->setCursor( UI_CURSOR_ARROW );
-	}
-
-	if (gMediaList)
-	{
-		// we're using web pages on prims
-		if (pum_flags & LLViewerObject::MEDIA_URL_ADDED)
-		{
-			//llwarns << "WEBONPRIM media url added " << objectp->getMediaURL() << llendl;
-			gMediaList->addedMediaURL(objectp);
-		}
-
-		if (pum_flags & LLViewerObject::MEDIA_URL_UPDATED)
-		{
-			//llwarns << "WEBONPRIM media url updated " << objectp->getMediaURL() << llendl;
-			gMediaList->updatedMediaURL(objectp);
-		}
-
-		if (pum_flags & LLViewerObject::MEDIA_URL_REMOVED)
-		{
-			//llwarns << "WEBONPRIM media url removed " << objectp->getMediaURL() << llendl;
-			gMediaList->removedMediaURL(objectp);
-		}
-
-		// Make sure we get moved in or out of LLDrawPoolMedia, as needed
-		if (pum_flags & (LLViewerObject::MEDIA_URL_ADDED | LLViewerObject::MEDIA_URL_REMOVED | LLViewerObject::MEDIA_URL_UPDATED))
-		{
-			if (objectp->mDrawable.notNull())
-			{
-				gPipeline.markTextured(objectp->mDrawable);
-			}
-		}
 	}
 }
 

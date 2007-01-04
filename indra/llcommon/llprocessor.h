@@ -11,15 +11,14 @@
 ///////////////////////////////////////////
 
 
-#ifndef PROCESSOR_H
-#define PROCESSOR_H
+#ifndef LLPROCESSOR_H
+#define LLPROCESSOR_H
 
 // Options:
 ///////////
 #if LL_WINDOWS
 #define PROCESSOR_FREQUENCY_MEASURE_AVAILABLE
 #endif
-// Includes <windows.h> --> code gets os-dependend (Win32)
 
 
 typedef struct ProcessorExtensions
