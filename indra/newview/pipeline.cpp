@@ -1528,12 +1528,14 @@ LLDrawPool* LLPipeline::getPoolFromTE(const LLTextureEntry* te, LLViewerImage* i
 	{
 		alpha = alpha || (imagep->getComponents() == 4) || (imagep->getComponents() == 2);
 	}
-
+#if 0 // Not currently used
 	if (te->getMediaFlags() == LLTextureEntry::MF_WEB_PAGE)
 	{
 		return gPipeline.getPool(LLDrawPool::POOL_MEDIA, imagep);
 	}
-	else if (alpha)
+	else
+#endif
+	if (alpha)
 	{
 		return gPipeline.getPool(LLDrawPool::POOL_ALPHA);
 	}
