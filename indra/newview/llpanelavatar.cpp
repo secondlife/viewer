@@ -52,7 +52,6 @@
 #include "llinventorymodel.h"
 #include "viewer.h"				// for gUserServer
 #include "roles_constants.h"
-#include "llwebbrowserctrl.h"
 
 #define	kArraySize( _kArray ) ( sizeof( (_kArray) ) / sizeof( _kArray[0] ) )
 
@@ -449,7 +448,7 @@ BOOL LLPanelAvatarWeb::postBuild(void)
 	mWebBrowser->setOpenInExternalBrowser( false );
 
 	// observe browser events
-	LLMozLib::getInstance()->addObserver( mWebBrowser->getEmbeddedBrowserWindowId(), this );
+	mWebBrowser->addObserver( this );
 #endif // LL_LIBXUL_ENABLED
 
 	return TRUE;
@@ -508,7 +507,10 @@ LLPanelAvatarWeb::~LLPanelAvatarWeb()
 {
 #if LL_LIBXUL_ENABLED
 	// stop observing browser events
-	LLMozLib::getInstance()->remObserver( mWebBrowser->getEmbeddedBrowserWindowId(), this );
+	if  ( mWebBrowser )
+	{
+		mWebBrowser->remObserver( this );
+	};
 #endif
 }
 

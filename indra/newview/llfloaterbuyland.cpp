@@ -241,6 +241,17 @@ void LLFloaterBuyLand::updateEstateOwnerName(const std::string& name)
 }
 
 // static
+BOOL LLFloaterBuyLand::isOpen()
+{
+	LLFloaterBuyLandUI* floater = LLFloaterBuyLandUI::soleInstance(FALSE);
+	if (floater)
+	{
+		return floater->getVisible();
+	}
+	return FALSE;
+}
+
+// static
 LLFloaterBuyLandUI* LLFloaterBuyLandUI::sInstance = NULL;
 
 // static
@@ -717,10 +728,11 @@ void LLFloaterBuyLandUI::runWebSitePrep(const std::string& password)
 	mParcelBuyInfo = gParcelMgr->setupParcelBuy(gAgent.getID(), gAgent.getSessionID(),
 						gAgent.getGroupID(), mIsForGroup, mIsClaim, remove_contribution);
 
-	if (!mSiteMembershipUpgrade
-	&& !mSiteLandUseUpgrade
-	&& mCurrency.getAmount() == 0
-	&& mSiteConfirm != "password")
+	if (mParcelBuyInfo
+		&& !mSiteMembershipUpgrade
+		&& !mSiteLandUseUpgrade
+		&& mCurrency.getAmount() == 0
+		&& mSiteConfirm != "password")
 	{
 		sendBuyLand();
 		return;
@@ -779,10 +791,12 @@ void LLFloaterBuyLandUI::finishWebSitePrep()
 
 void LLFloaterBuyLandUI::sendBuyLand()
 {
-	gParcelMgr->sendParcelBuy(mParcelBuyInfo);
-	gParcelMgr->deleteParcelBuy(mParcelBuyInfo);
-	
-	mBought = true;
+	if (mParcelBuyInfo)
+	{
+		gParcelMgr->sendParcelBuy(mParcelBuyInfo);
+		gParcelMgr->deleteParcelBuy(mParcelBuyInfo);
+		mBought = true;
+	}
 }
 
 void LLFloaterBuyLandUI::updateNames()

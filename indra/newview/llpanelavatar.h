@@ -13,7 +13,7 @@
 #include "v3dmath.h"
 #include "lluuid.h"
 #include "linked_lists.h"
-#include "llmozlib.h"
+#include "llwebbrowserctrl.h"
 
 class LLButton;
 class LLCheckBoxCtrl;
@@ -89,7 +89,7 @@ protected:
 class LLPanelAvatarWeb : 
 	public LLPanel
 #if LL_LIBXUL_ENABLED
-	, public LLEmbeddedBrowserWindowObserver
+	, public LLWebBrowserCtrlObserver
 #endif
 {
 public:

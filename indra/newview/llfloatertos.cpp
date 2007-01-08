@@ -25,7 +25,6 @@
 #include "llui.h"
 #include "llhttpclient.h"
 #include "llradiogroup.h"
-#include "llwebbrowserctrl.h"
 
 // static 
 LLFloaterTOS* LLFloaterTOS::sInstance = NULL;
@@ -133,12 +132,11 @@ BOOL LLFloaterTOS::postBuild()
 	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(this, "tos_html");
 	if ( web_browser )
 	{
-		// save the window id for this web browser widget
-		mWebBrowserWindowId = web_browser->getEmbeddedBrowserWindowId();
-
 		// start to observe it so we see navigate complete events
-		if ( mWebBrowserWindowId )
-			LLMozLib::getInstance()->addObserver( mWebBrowserWindowId, this );		
+		if ( web_browser )
+		{
+			web_browser->addObserver( this );		
+		};
 
 		gResponsePtr = LLIamHere::build( this );
 		LLHTTPClient::get( childGetValue( "real_url" ).asString(), gResponsePtr );
@@ -198,8 +196,11 @@ LLFloaterTOS::~LLFloaterTOS()
 {
 #if LL_LIBXUL_ENABLED
 	// stop obsaerving events
-	if ( mWebBrowserWindowId )
-		LLMozLib::getInstance()->addObserver( mWebBrowserWindowId, this );		
+	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(this, "tos_html");
+	if ( web_browser )
+	{
+		web_browser->addObserver( this );		
+	};
 #endif // LL_LIBXUL_ENABLED
 
 	// tell the responder we're not here anymore

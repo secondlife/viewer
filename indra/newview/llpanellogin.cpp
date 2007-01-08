@@ -9,6 +9,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llpanellogin.h"
+#include "llpanelgeneral.h"
 
 #include "indra_constants.h"		// for key and mask constants
 #include "llfontgl.h"
@@ -34,7 +35,6 @@
 #include "llviewermenu.h"			// for handle_preferences()
 #include "llviewernetwork.h"
 #include "llviewerwindow.h"			// to link into child list
-#include "llmozlib.h"
 #include "llnotify.h"
 #include "viewer.h"					// for gHideLinks
 #include "llvieweruictrlfactory.h"
@@ -170,6 +170,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		{
 			combo->setCurrentByIndex( 0 );
 		}
+
+		combo->setCommitCallback( &LLPanelGeneral::set_start_location );
 	}
 	
 	// Specific servers added later.
@@ -228,9 +230,9 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		// make links open in external browser
 		web_browser->setOpenInExternalBrowser( true );
 
-		// force the size to be correct (XML doesn't seem to be sufficient to do this)
+		// force the size to be correct (XML doesn't seem to be sufficient to do this) (with some padding so the other login screen doesn't show through)
 		LLRect htmlRect = mRect;
-		htmlRect.setCenterAndSize( mRect.getCenterX(), mRect.getCenterY() + 40, mRect.getWidth(), mRect.getHeight() - 80 );
+		htmlRect.setCenterAndSize( mRect.getCenterX() - 2, mRect.getCenterY() + 40, mRect.getWidth() + 6, mRect.getHeight() - 78 );
 		web_browser->setRect( htmlRect );
 		web_browser->reshape( htmlRect.getWidth(), htmlRect.getHeight(), TRUE );
 		reshape( mRect.getWidth(), mRect.getHeight(), 1 );

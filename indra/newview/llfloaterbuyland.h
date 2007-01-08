@@ -23,6 +23,7 @@ public:
 	static void updateEstateName(const std::string& name);
 	static void updateLastModified(const std::string& text);
 	static void updateEstateOwnerName(const std::string& name);
+	static BOOL isOpen();
 };
 
 #endif

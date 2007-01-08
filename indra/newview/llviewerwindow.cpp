@@ -69,6 +69,7 @@
 #include "llfilepicker.h"
 #include "llfloater.h"
 #include "llfloaterbuildoptions.h"
+#include "llfloaterbuyland.h"
 #include "llfloaterchat.h"
 #include "llfloatercustomize.h"
 #include "llfloatereditui.h" // HACK JAMESDEBUG for ui editor
@@ -2661,7 +2662,10 @@ BOOL LLViewerWindow::handlePerFrameHover()
 	}
 
 	// sync land selection with edit and about land dialogs
-	if (gParcelMgr && !LLFloaterLand::floaterVisible() && (!gFloaterTools || !gFloaterTools->getVisible()))
+	if (gParcelMgr
+		&& !LLFloaterLand::floaterVisible()
+		&& !LLFloaterBuyLand::isOpen()
+		&& (!gFloaterTools || !gFloaterTools->getVisible()))
 	{
 		gParcelMgr->deselectLand();
 	}

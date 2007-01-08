@@ -1949,7 +1949,7 @@ void LLViewerParcelMgr::processParcelAccessListReply(LLMessageSystem *msg, void 
 	if (parcel_id != parcel->getLocalID())
 	{
 		llwarns << "processParcelAccessListReply for parcel " << parcel_id
-			<< " which isn't the selected parcel" << llendl;
+			<< " which isn't the selected parcel " << parcel->getLocalID()<< llendl;
 		return;
 	}
 

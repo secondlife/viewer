@@ -11,7 +11,7 @@
 
 #include "llmodaldialog.h"
 #include "llassetstorage.h"
-#include "llmozlib.h"
+#include "llwebbrowserctrl.h"
 
 class LLButton;
 class LLRadioGroup;
@@ -21,7 +21,7 @@ class LLUUID;
 
 class LLFloaterTOS : 
 	public LLModalDialog,
-	public LLEmbeddedBrowserWindowObserver
+	public LLWebBrowserCtrlObserver
 {
 public:
 	virtual ~LLFloaterTOS();

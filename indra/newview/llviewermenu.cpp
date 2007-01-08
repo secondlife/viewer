@@ -6479,7 +6479,14 @@ class LLShowFloater : public view_listener_t
 		{
 			if (gParcelMgr->selectionEmpty())
 			{
-				gParcelMgr->selectParcelAt(gAgent.getPositionGlobal());
+				if (gLastHitPosGlobal.isExactlyZero())
+				{
+					gParcelMgr->selectParcelAt(gAgent.getPositionGlobal());
+				}
+				else
+				{
+					gParcelMgr->selectParcelAt( gLastHitPosGlobal );
+				}
 			}
 
 			LLFloaterLand::show();
@@ -6488,7 +6495,14 @@ class LLShowFloater : public view_listener_t
 		{
 			if (gParcelMgr->selectionEmpty())
 			{
-				gParcelMgr->selectParcelAt(gAgent.getPositionGlobal());
+				if (gLastHitPosGlobal.isExactlyZero())
+				{
+					gParcelMgr->selectParcelAt(gAgent.getPositionGlobal());
+				}
+				else
+				{
+					gParcelMgr->selectParcelAt( gLastHitPosGlobal );
+				}
 			}
 			
 			gParcelMgr->startBuyLand();

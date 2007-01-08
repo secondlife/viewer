@@ -55,7 +55,7 @@ static LLString sOfflineMessage;
 //
 
 // returns true if a should appear before b
-BOOL group_dictionary_sort( LLGroupData* a, LLGroupData* b )
+static BOOL group_dictionary_sort( LLGroupData* a, LLGroupData* b )
 {
 	return (LLString::compareDict( a->mName, b->mName ) < 0);
 }
@@ -63,7 +63,7 @@ BOOL group_dictionary_sort( LLGroupData* a, LLGroupData* b )
 
 // the other_participant_id is either an agent_id, a group_id, or an inventory
 // folder item_id (collection of calling cards)
-LLUUID compute_session_id(EInstantMessage dialog, const LLUUID& other_participant_id)
+static LLUUID compute_session_id(EInstantMessage dialog, const LLUUID& other_participant_id)
 {
 	LLUUID session_id;
 	if (IM_SESSION_GROUP_START == dialog)
@@ -95,6 +95,7 @@ LLUUID compute_session_id(EInstantMessage dialog, const LLUUID& other_participan
 
 LLFloaterIM::LLFloaterIM() 
 {
+	gUICtrlFactory->buildFloater(this, "floater_im.xml");
 }
 
 BOOL LLFloaterIM::postBuild()
@@ -266,7 +267,6 @@ LLIMView::LLIMView(const std::string& name, const LLRect& rect) :
 	LLAvatarTracker::instance().addObserver(mFriendObserver);
 
 	mTalkFloater = new LLFloaterIM();
-	gUICtrlFactory->buildFloater(mTalkFloater, "floater_im.xml");
 
 	// New IM Panel
 	mNewIMFloater = new LLFloaterNewIM();
