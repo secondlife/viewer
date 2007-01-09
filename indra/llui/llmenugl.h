@@ -129,13 +129,16 @@ public:
 	virtual void updateBranchParent( LLView* parentp ){};
 	
 	// doIt() - do the primary funcationality of the menu item.
-	virtual void doIt( void ) = 0;
+	virtual void doIt( void );
 
 	// set the hover status (called by it's menu)
 	virtual void setHighlight( BOOL highlight );
 
-	// determine if this object is active
+	// determine if this represents an active sub-menu
 	virtual BOOL isActive( void ) const;
+
+	// determine if this represents an open sub-menu
+	virtual BOOL isOpen( void ) const;
 
 	virtual void setEnabledSubMenus(BOOL enable){};
 
@@ -143,6 +146,8 @@ public:
 	virtual BOOL handleKeyHere( KEY key, MASK mask, BOOL called_from_parent );
 	virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask );
 	virtual void draw( void );
+
+	BOOL getHover() { return mGotHover; }
 
 	BOOL getDrawTextDisabled() const { return mDrawTextDisabled; }
 
@@ -398,9 +403,9 @@ public:
 
 	// LLView Functionality
 	virtual BOOL handleKey( KEY key, MASK mask, BOOL called_from_parent );
-	virtual BOOL handleKeyHere( KEY key, MASK mask, BOOL called_from_parent );
+	//virtual BOOL handleKeyHere( KEY key, MASK mask, BOOL called_from_parent );
+	virtual BOOL handleUnicodeCharHere( llwchar uni_char, BOOL called_from_parent );
 	virtual BOOL handleHover( S32 x, S32 y, MASK mask );
-	virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask );
 	virtual void draw( void );
 	virtual void drawBackground(LLMenuItemGL* itemp, LLColor4& color);
 	virtual void setVisible(BOOL visible);
@@ -409,7 +414,7 @@ public:
 
 	LLMenuGL* getChildMenuByName(const LLString& name, BOOL recurse) const;
 	
-	BOOL clearHoverItem(BOOL include_active = TRUE);
+	BOOL clearHoverItem();
 
 	// return the name label
 	const LLString& getLabel( void ) const { return mLabel.getString(); }
@@ -445,7 +450,11 @@ public:
 	// sets the left,bottom corner of menu, useful for popups
 	void setLeftAndBottom(S32 left, S32 bottom);
 
-	virtual void handleJumpKey(KEY key);
+	virtual BOOL handleJumpKey(KEY key);
+
+	virtual BOOL jumpKeysActive();
+
+	virtual BOOL isOpen();
 
 	// Shape this menu to fit the current state of the children, and
 	// adjust the child rects to fit. This is called automatically
@@ -491,8 +500,10 @@ public:
 	KEY getJumpKey() { return mJumpKey; }
 	void setJumpKey(KEY key) { mJumpKey = key; }
 
-	static void onFocusLost(LLView* old_focus);
+	static void setKeyboardMode(BOOL mode) { sKeyboardMode = mode; }
+	static BOOL getKeyboardMode() { return sKeyboardMode; }
 
+	static void onFocusLost(LLView* old_focus);
 	static LLView *sDefaultMenuContainer;
 	
 protected:
@@ -501,6 +512,7 @@ protected:
 
 protected:
 	static LLColor4 sDefaultBackgroundColor;
+	static BOOL		sKeyboardMode;
 
 	LLColor4		mBackgroundColor;
 	BOOL			mBgVisible;
@@ -602,7 +614,8 @@ private:
 class LLMenuBarGL : public LLMenuGL
 {
 protected:
-	std::list <LLKeyBinding*> mAccelerators;
+	std::list <LLKeyBinding*>	mAccelerators;
+	BOOL						mAltKeyTrigger;
 
 public:
 	LLMenuBarGL( const LLString& name );
@@ -613,10 +626,15 @@ public:
 	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_MENU_BAR; }
 	virtual LLString getWidgetTag() const { return LL_MENU_BAR_GL_TAG; }
 
+	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
+	virtual BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL handleJumpKey(KEY key);
+
 	// rearrange the child rects so they fit the shape of the menu
 	// bar.
-	virtual void handleJumpKey(KEY key);
 	virtual void arrange( void );
+	virtual void draw();
+	virtual BOOL jumpKeysActive();
 
 	// add a vertical separator to this menu
 	virtual BOOL appendSeparator( const LLString &separator_name = "separator" );
@@ -629,6 +647,12 @@ public:
 
 	// Returns x position of rightmost child, usually Help menu
 	S32 getRightmostMenuEdge();
+
+	void resetMenuTrigger() { mAltKeyTrigger = FALSE; }
+
+protected:
+	void checkMenuTrigger();
+
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -679,6 +703,9 @@ public:
 	virtual void draw(void);
 	virtual void onFocusReceived();
 	virtual void onFocusLost();
+	virtual BOOL handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);
+	virtual BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
+	virtual void translate(S32 x, S32 y);
 
 protected:
 	LLTearOffMenu(LLMenuGL* menup);

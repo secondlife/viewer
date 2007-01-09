@@ -405,5 +405,14 @@ inline BOOL are_parallel(const LLVector3d &a, const LLVector3d &b, const F64 eps
 		return TRUE;
 	}
 	return FALSE;
+
 }
+
+inline LLVector3d projected_vec(const LLVector3d &a, const LLVector3d &b)
+{
+	LLVector3d project_axis = b;
+	project_axis.normVec();
+	return project_axis * (a * project_axis);
+}
+
 #endif // LL_V3DMATH_H

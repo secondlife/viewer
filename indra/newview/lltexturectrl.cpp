@@ -67,8 +67,8 @@ static const S32 FOOTER_HEIGHT = 100;
 static const S32 BORDER_PAD = HPAD;
 static const S32 TEXTURE_INVENTORY_PADDING = 30;
 static const F32 CONTEXT_CONE_IN_ALPHA = 0.0f;
-static const F32 CONTEXT_CONE_OUT_ALPHA = 0.35f;
-
+static const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
+static const F32 CONTEXT_FADE_TIME = 0.08f;
 
 //static const char CURRENT_IMAGE_NAME[] = "Current Texture";
 //static const char WHITE_IMAGE_NAME[] = "Blank Texture";
@@ -437,11 +437,11 @@ void LLFloaterTexturePicker::draw()
 
 	if (gFocusMgr.childHasMouseCapture(mDragHandle))
 	{
-		mContextConeOpacity = lerp(mContextConeOpacity, 1.f, LLCriticalDamp::getInterpolant(0.1f));
+		mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLCriticalDamp::getInterpolant(CONTEXT_FADE_TIME));
 	}
 	else
 	{
-		mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLCriticalDamp::getInterpolant(0.2f));
+		mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLCriticalDamp::getInterpolant(CONTEXT_FADE_TIME));
 	}
 
 	updateImageStats();

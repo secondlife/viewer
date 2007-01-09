@@ -2137,7 +2137,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	}
 
 	// don't pass keys on to world when something in ui has focus
-	return gFocusMgr.childHasKeyboardFocus(mRootView);
+	return gFocusMgr.childHasKeyboardFocus(mRootView) || (gMenuBarView && gMenuBarView->getHighlightedItem());
 }
 
 
@@ -2152,6 +2152,12 @@ BOOL LLViewerWindow::handleUnicodeChar(llwchar uni_char, MASK mask)
 		|| (uni_char == 3 && mask == MASK_NONE))
 	{
 		return gViewerKeyboard.handleKey(KEY_RETURN, mask, gKeyboard->getKeyRepeated(KEY_RETURN));
+	}
+
+	// let menus handle navigation (jump) keys
+	if (gMenuBarView && gMenuBarView->handleUnicodeChar(uni_char, TRUE))
+	{
+		return TRUE;
 	}
 
 	// Traverses up the hierarchy
@@ -2665,7 +2671,8 @@ BOOL LLViewerWindow::handlePerFrameHover()
 	if (gParcelMgr
 		&& !LLFloaterLand::floaterVisible()
 		&& !LLFloaterBuyLand::isOpen()
-		&& (!gFloaterTools || !gFloaterTools->getVisible()))
+		&& (!gFloaterTools || !gFloaterTools->getVisible())
+		&& !gToolMgr)
 	{
 		gParcelMgr->deselectLand();
 	}
@@ -3499,8 +3506,21 @@ BOOL LLViewerWindow::mousePointOnPlaneGlobal(LLVector3d& point, const S32 x, con
 	mouse_direction_global_d.setVec(mouseDirectionGlobal(x,y));
 	LLVector3d	plane_normal_global_d;
 	plane_normal_global_d.setVec(plane_normal_global);
-	F64	mouse_look_at_scale = (plane_normal_global_d * (plane_point_global - gAgent.getCameraPositionGlobal()))
-								/ (plane_normal_global_d * mouse_direction_global_d);
+	F64 plane_mouse_dot = (plane_normal_global_d * mouse_direction_global_d);
+	LLVector3d plane_origin_camera_rel = plane_point_global - gAgent.getCameraPositionGlobal();
+	F64	mouse_look_at_scale = (plane_normal_global_d * plane_origin_camera_rel)
+								/ plane_mouse_dot;
+	if (llabs(plane_mouse_dot) < 0.00001)
+	{
+		// if mouse is parallel to plane, return closest point on line through plane origin
+		// that is parallel to camera plane by scaling mouse direction vector
+		// by distance to plane origin, modulated by deviation of mouse direction from plane origin
+		LLVector3d plane_origin_dir = plane_origin_camera_rel;
+		plane_origin_dir.normVec();
+		
+		mouse_look_at_scale = plane_origin_camera_rel.magVec() / (plane_origin_dir * mouse_direction_global_d);
+	}
+
 	point = gAgent.getCameraPositionGlobal() + mouse_look_at_scale * mouse_direction_global_d;
 
 	return mouse_look_at_scale > 0.0;

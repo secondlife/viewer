@@ -157,6 +157,16 @@ void LLPreview::onCommit()
 	LLViewerInventoryItem* item = getItem();
 	if(item)
 	{
+		if (!item->isComplete())
+		{
+			// We are attempting to save an item that was never loaded
+			llwarns << "LLPreview::onCommit() called with mIsComplete == FALSE"
+					<< " Type: " << item->getType()
+					<< " ID: " << item->getUUID()
+					<< llendl;
+			return;
+		}
+		
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 		BOOL has_sale_info = FALSE;
 		LLSaleInfo sale_info;

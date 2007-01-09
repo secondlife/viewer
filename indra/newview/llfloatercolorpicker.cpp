@@ -42,7 +42,8 @@
 #include "lldraghandle.h"
 
 const F32 CONTEXT_CONE_IN_ALPHA = 0.0f;
-const F32 CONTEXT_CONE_OUT_ALPHA = 0.35f;
+const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
+const F32 CONTEXT_FADE_TIME = 0.08f;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -607,11 +608,11 @@ void LLFloaterColorPicker::draw()
 
 	if (gFocusMgr.childHasMouseCapture(mDragHandle))
 	{
-		mContextConeOpacity = lerp(mContextConeOpacity, 1.f, LLCriticalDamp::getInterpolant(0.1f));
+		mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLCriticalDamp::getInterpolant(CONTEXT_FADE_TIME));
 	}
 	else
 	{
-		mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLCriticalDamp::getInterpolant(0.2f));
+		mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLCriticalDamp::getInterpolant(CONTEXT_FADE_TIME));
 	}
 
 	mPipetteBtn->setEnabled(gToolMgr != NULL);

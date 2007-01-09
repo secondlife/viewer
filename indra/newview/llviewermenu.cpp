@@ -8263,6 +8263,8 @@ BOOL LLViewerMenuHolderGL::hideMenus()
 			gParcelMgr->deselectLand();	
 		}
 	}
+	gMenuBarView->clearHoverItem();
+	gMenuBarView->resetMenuTrigger();
 	return handled;
 }
 

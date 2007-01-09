@@ -90,7 +90,9 @@ LLColor4 LLMenuItemGL::sDisabledColor( 0.5f, 0.5f, 0.5f, 1.0f );
 LLColor4 LLMenuItemGL::sHighlightBackground( 0.0f, 0.0f, 0.7f, 1.0f );
 LLColor4 LLMenuItemGL::sHighlightForeground( 1.0f, 1.0f, 1.0f, 1.0f );
 BOOL LLMenuItemGL::sDropShadowText = TRUE;
+
 LLColor4 LLMenuGL::sDefaultBackgroundColor( 0.25f, 0.25f, 0.25f, 0.75f );
+BOOL LLMenuGL::sKeyboardMode = FALSE;
 
 LLViewHandle LLMenuHolderGL::sItemLastSelectedHandle;
 LLFrameTimer LLMenuHolderGL::sItemActivationTimer;
@@ -379,41 +381,65 @@ void LLMenuItemGL::buildDrawLabel( void )
 	mDrawAccelLabel = st;
 }
 
+void LLMenuItemGL::doIt( void )
+{
+	// close all open menus by default
+	// if parent menu is actually visible (and we are not triggering menu item via accelerator)
+	if (!getMenu()->getTornOff() && getMenu()->getVisible())
+	{
+		((LLMenuHolderGL*)getMenu()->getParent())->hideMenus();
+	}
+}
+
 // set the hover status (called by it's menu)
  void LLMenuItemGL::setHighlight( BOOL highlight )
 {
+	if (highlight)
+	{
+		getMenu()->clearHoverItem();
+	}
 	mHighlight = highlight;
 }
 
-// determine if this object is active
+// determine if this object represents an active sub-menu
 BOOL LLMenuItemGL::isActive( void ) const
+{
+	return FALSE;
+}
+
+// determine if this object represents an open sub-menu
+BOOL LLMenuItemGL::isOpen( void ) const
 {
 	return FALSE;
 }
 
 BOOL LLMenuItemGL::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 {
-	if (mHighlight && 
-		getMenu()->getVisible() &&
-		(!getMenu()->getTornOff() || ((LLFloater*)getMenu()->getParent())->hasFocus()))
+	if (getHighlight() && 
+		getMenu()->isOpen())
 	{
 		if (key == KEY_UP)
 		{
+			// switch to keyboard navigation mode
+			LLMenuGL::setKeyboardMode(TRUE);
+
 			getMenu()->highlightPrevItem(this);
 			return TRUE;
 		}
 		else if (key == KEY_DOWN)
 		{
+			// switch to keyboard navigation mode
+			LLMenuGL::setKeyboardMode(TRUE);
+
 			getMenu()->highlightNextItem(this);
 			return TRUE;
 		}
 		else if (key == KEY_RETURN && mask == MASK_NONE)
 		{
+			// switch to keyboard navigation mode
+			LLMenuGL::setKeyboardMode(TRUE);
+
 			doIt();
-			if (!getMenu()->getTornOff())
-			{
-				((LLMenuHolderGL*)getMenu()->getParent())->hideMenus();
-			}
 			return TRUE;
 		}
 	}
@@ -427,8 +453,11 @@ BOOL LLMenuItemGL::handleMouseUp( S32 x, S32 y, MASK )
 	//	<< llendl;
 	if (mEnabled)
 	{
+		// switch to mouse navigation mode
+		LLMenuGL::setKeyboardMode(FALSE);
+
 		doIt();
-		mHighlight = FALSE;
+		setHighlight(FALSE);
 		make_ui_sound("UISndClickRelease");
 		return TRUE;
 	}
@@ -444,7 +473,8 @@ void LLMenuItemGL::draw( void )
 	// that until the functionality is finalized.
 
 	// HACK: Brief items don't highlight.  Pie menu takes care of it.  JC
-	if( mHighlight && !mBriefItem)
+	// let disabled items be highlighted, just don't draw them as such
+	if( getEnabled() && getHighlight() && !mBriefItem)
 	{
 		glColor4fv( sHighlightBackground.mV );
 		gl_rect_2d( 0, mRect.getHeight(), mRect.getWidth(), 0 );
@@ -458,7 +488,7 @@ void LLMenuItemGL::draw( void )
 		font_style |= LLFontGL::DROP_SHADOW;
 	}
 
-	if ( mHighlight )
+	if ( getEnabled() && getHighlight() )
 	{
 		color = sHighlightForeground;
 	}
@@ -498,11 +528,8 @@ void LLMenuItemGL::draw( void )
 		}
 	}
 
-	// underline navigation key
-	BOOL draw_jump_key = gKeyboard->currentMask(FALSE) == MASK_ALT && 
-								(!getMenu()->getHighlightedItem() || !getMenu()->getHighlightedItem()->isActive()) &&
-								(!getMenu()->getTornOff());
-	if (draw_jump_key)
+	// underline "jump" key
+	if (getMenu()->jumpKeysActive())
 	{
 		LLString upper_case_label = mLabel.getString();
 		LLString::toUpper(upper_case_label);
@@ -666,8 +693,6 @@ void LLMenuItemTearOffGL::doIt()
 			getMenu()->highlightNextItem(this);
 		}
 
-		// grab menu holder before this menu is parented to a floater
-		LLMenuHolderGL* menu_holder = ((LLMenuHolderGL*)getMenu()->getParent());
 		getMenu()->arrange();
 
 		LLFloater* parent_floater = LLFloater::getFloaterByHandle(mParentHandle);
@@ -677,22 +702,17 @@ void LLMenuItemTearOffGL::doIt()
 			parent_floater->addDependentFloater(tear_off_menu, FALSE);
 		}
 
-		// hide menus
-		// only do it if the menu is open, not being triggered via accelerator
-		if (getMenu()->getVisible())
-		{
-			menu_holder->hideMenus();
-		}
-
 		// give focus to torn off menu because it will have been taken away
 		// when parent menu closes
 		tear_off_menu->setFocus(TRUE);
 	}
+	LLMenuItemGL::doIt();
 }
 
 void LLMenuItemTearOffGL::draw()
 {
-	if( mHighlight && !mBriefItem)
+	// disabled items can be highlighted, but shouldn't render as such
+	if( getEnabled() && getHighlight() && !mBriefItem)
 	{
 		glColor4fv( sHighlightBackground.mV );
 		gl_rect_2d( 0, mRect.getHeight(), mRect.getWidth(), 0 );
@@ -910,6 +930,7 @@ void LLMenuItemCallGL::doIt( void )
 	}
 	LLPointer<LLEvent> fired_event = new LLEvent(this);
 	fireEvent(fired_event, "on_click");
+	LLMenuItemGL::doIt();
 }
 
 EWidgetType LLMenuItemCallGL::getWidgetType() const 
@@ -1118,6 +1139,7 @@ void LLMenuItemToggleGL::doIt( void )
 	//llinfos << "LLMenuItemToggleGL::doIt " << mLabel.c_str() << llendl;
 	*mToggle = !(*mToggle);
 	buildDrawLabel();
+	LLMenuItemGL::doIt();
 }
 
 
@@ -1159,6 +1181,7 @@ public:
 	virtual void doIt( void );
 
 	virtual BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);
 
 	// set the hover status (called by it's menu) and if the object is
 	// active. This is used for behavior transfer.
@@ -1166,7 +1189,9 @@ public:
 
 	virtual BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
 
-	virtual BOOL isActive() const	{ return !mBranch->getTornOff() && mBranch->getVisible(); }
+	virtual BOOL isActive() const;
+
+	virtual BOOL isOpen() const;
 
 	LLMenuGL *getBranch() const { return mBranch; }
 
@@ -1178,6 +1203,8 @@ public:
 	virtual void draw();
 
 	virtual void setEnabledSubMenus(BOOL enabled);
+
+	virtual void openMenu();
 };
 
 LLMenuItemBranchGL::LLMenuItemBranchGL( const LLString& name, const LLString& label, LLMenuGL* branch,
@@ -1215,6 +1242,9 @@ BOOL LLMenuItemBranchGL::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	if (mEnabled)
 	{
+		// switch to mouse navigation mode
+		LLMenuGL::setKeyboardMode(FALSE);
+
 		doIt();
 		make_ui_sound("UISndClickRelease");
 	}
@@ -1269,6 +1299,176 @@ void LLMenuItemBranchGL::buildDrawLabel( void )
 // doIt() - do the primary functionality of the menu item.
 void LLMenuItemBranchGL::doIt( void )
 {
+	openMenu();
+
+	// keyboard navigation automatically propagates highlight to sub-menu
+	// to facilitate fast menu control via jump keys
+	if (LLMenuGL::getKeyboardMode() && !mBranch->getHighlightedItem())
+	{
+		mBranch->highlightNextItem(NULL);
+	}
+}
+
+BOOL LLMenuItemBranchGL::handleKey(KEY key, MASK mask, BOOL called_from_parent)
+{
+	BOOL handled = FALSE;
+	if (called_from_parent)
+	{
+		handled = mBranch->handleKey(key, mask, called_from_parent);
+	}
+
+	if (!handled)
+	{
+		handled = LLMenuItemGL::handleKey(key, mask, called_from_parent);
+	}
+
+	return handled;
+}
+
+BOOL LLMenuItemBranchGL::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
+{
+	BOOL handled = FALSE;
+	if (called_from_parent)
+	{
+		handled = mBranch->handleUnicodeChar(uni_char, TRUE);
+	}
+
+	if (!handled)
+	{
+		handled = LLMenuItemGL::handleUnicodeChar(uni_char, called_from_parent);
+	}
+
+	return handled;
+}
+
+
+// set the hover status (called by it's menu)
+void LLMenuItemBranchGL::setHighlight( BOOL highlight )
+{
+	if (highlight == getHighlight()) return;
+
+	// make sure only yourself is highlighted
+	if (highlight)
+	{
+		getMenu()->clearHoverItem();
+	}
+
+	BOOL auto_open = mEnabled && (!mBranch->getVisible() || mBranch->getTornOff());
+	// torn off menus don't open sub menus on hover unless they have focus
+	if (getMenu()->getTornOff() && !((LLFloater*)getMenu()->getParent())->hasFocus())
+	{
+		auto_open = FALSE;
+	}
+	// don't auto open torn off sub-menus (need to explicitly active menu item to give them focus)
+	if (mBranch->getTornOff())
+	{
+		auto_open = FALSE;
+	}
+
+	mHighlight = highlight;
+	if( highlight )
+	{
+		if(auto_open)
+		{
+			openMenu();
+		}
+	}
+	else
+	{
+		if (mBranch->getTornOff())
+		{
+			((LLFloater*)mBranch->getParent())->setFocus(FALSE);
+			mBranch->clearHoverItem();
+		}
+		else
+		{
+			mBranch->setVisible( FALSE );
+		}
+	}
+}
+
+void LLMenuItemBranchGL::setEnabledSubMenus(BOOL enabled)
+{
+	mBranch->setEnabledSubMenus(enabled);
+}
+
+void LLMenuItemBranchGL::draw()
+{
+	LLMenuItemGL::draw();
+	if (mBranch->getVisible() && !mBranch->getTornOff())
+	{
+		setHighlight(TRUE);
+	}
+}
+
+// determine if this object is active
+// which, for branching menus, means the branch is open and has "focus"
+BOOL LLMenuItemBranchGL::isActive( void ) const
+{
+	return isOpen() && mBranch->getHighlightedItem();
+}
+
+BOOL LLMenuItemBranchGL::isOpen( void ) const
+{
+	return mBranch->isOpen();
+}
+
+void LLMenuItemBranchGL::updateBranchParent(LLView* parentp)
+{
+	if (mBranch->getParent() == NULL)
+	{
+		// make the branch menu a sibling of my parent menu
+		mBranch->updateParent(parentp);
+	}
+}
+
+void LLMenuItemBranchGL::onVisibilityChange( BOOL curVisibilityIn )
+{
+	if (curVisibilityIn == FALSE && mBranch->getVisible() && !mBranch->getTornOff())
+	{
+		mBranch->setVisible(FALSE);
+	}
+}
+
+BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
+{
+	if (getMenu()->getVisible() && mBranch->getVisible() && key == KEY_LEFT)
+	{
+		// switch to keyboard navigation mode
+		LLMenuGL::setKeyboardMode(TRUE);
+
+		BOOL handled = mBranch->clearHoverItem();
+		if (mBranch->getTornOff())
+		{
+			((LLFloater*)mBranch->getParent())->setFocus(FALSE);
+		}
+		if (handled && getMenu()->getTornOff())
+		{
+			((LLFloater*)getMenu()->getParent())->setFocus(TRUE);
+		}
+		return handled;
+	}
+
+	if (getEnabled() &&
+		getHighlight() && 
+		getMenu()->isOpen() && 
+		key == KEY_RIGHT && !mBranch->getHighlightedItem())
+	{
+		// switch to keyboard navigation mode
+		LLMenuGL::setKeyboardMode(TRUE);
+
+		LLMenuItemGL* itemp = mBranch->highlightNextItem(NULL);
+		if (itemp)
+		{
+			return TRUE;
+		}
+	}
+
+	return LLMenuItemGL::handleKeyHere(key, mask, called_from_parent);
+}
+
+void LLMenuItemBranchGL::openMenu()
+{
 	if (mBranch->getTornOff())
 	{
 		gFloaterView->bringToFront((LLFloater*)mBranch->getParent());
@@ -1315,118 +1515,6 @@ void LLMenuItemBranchGL::doIt( void )
 	}
 }
 
-BOOL LLMenuItemBranchGL::handleKey(KEY key, MASK mask, BOOL called_from_parent)
-{
-	BOOL handled = FALSE;
-	if (called_from_parent)
-	{
-		handled = mBranch->handleKey(key, mask, called_from_parent);
-	}
-
-	if (!handled)
-	{
-		handled = LLMenuItemGL::handleKey(key, mask, called_from_parent);
-	}
-
-	return handled;
-}
-
-// set the hover status (called by it's menu)
-void LLMenuItemBranchGL::setHighlight( BOOL highlight )
-{
-	BOOL auto_open = mEnabled && (!mBranch->getVisible() || mBranch->getTornOff());
-	// torn off menus don't open sub menus on hover unless they have focus
-	if (getMenu()->getTornOff() && !((LLFloater*)getMenu()->getParent())->hasFocus())
-	{
-		auto_open = FALSE;
-	}
-	// don't auto open torn off sub-menus (need to explicitly active menu item to give them focus)
-	if (mBranch->getTornOff())
-	{
-		auto_open = FALSE;
-	}
-
-	mHighlight = highlight;
-	if( highlight )
-	{
-		if(auto_open)
-		{
-			doIt();
-		}
-	}
-	else
-	{
-		if (mBranch->getTornOff())
-		{
-			((LLFloater*)mBranch->getParent())->setFocus(FALSE);
-			mBranch->clearHoverItem();
-		}
-		else
-		{
-			mBranch->setVisible( FALSE );
-		}
-	}
-}
-
-void LLMenuItemBranchGL::setEnabledSubMenus(BOOL enabled)
-{
-	mBranch->setEnabledSubMenus(enabled);
-}
-
-void LLMenuItemBranchGL::draw()
-{
-	LLMenuItemGL::draw();
-	if (mBranch->getVisible() && !mBranch->getTornOff())
-	{
-		mHighlight = TRUE;
-	}
-}
-
-void LLMenuItemBranchGL::updateBranchParent(LLView* parentp)
-{
-	if (mBranch->getParent() == NULL)
-	{
-		// make the branch menu a sibling of my parent menu
-		mBranch->updateParent(parentp);
-	}
-}
-
-void LLMenuItemBranchGL::onVisibilityChange( BOOL curVisibilityIn )
-{
-	if (curVisibilityIn == FALSE && mBranch->getVisible() && !mBranch->getTornOff())
-	{
-		mBranch->setVisible(FALSE);
-	}
-}
-
-BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
-{
-	if (getMenu()->getVisible() && mBranch->getVisible() && key == KEY_LEFT)
-	{
-		BOOL handled = mBranch->clearHoverItem();
-		if (handled && getMenu()->getTornOff())
-		{
-			((LLFloater*)getMenu()->getParent())->setFocus(TRUE);
-		}
-		return handled;
-	}
-
-	if (mHighlight && 
-		getMenu()->getVisible() &&
-		// ignore keystrokes on background torn-off menus
-		(!getMenu()->getTornOff() || ((LLFloater*)getMenu()->getParent())->hasFocus()) &&
-		key == KEY_RIGHT && !mBranch->getHighlightedItem())
-	{
-		LLMenuItemGL* itemp = mBranch->highlightNextItem(NULL);
-		if (itemp)
-		{
-			return TRUE;
-		}
-	}
-
-	return LLMenuItemGL::handleKeyHere(key, mask, called_from_parent);
-}
-
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLMenuItemBranchDownGL
@@ -1456,14 +1544,13 @@ public:
 	// called to rebuild the draw label
 	virtual void buildDrawLabel( void );
 
-	// doIt() - do the primary funcationality of the menu item.
-	virtual void doIt( void );
+	// handles opening, positioning, and arranging the menu branch associated with this item
+	virtual void openMenu( void );
 
 	// set the hover status (called by it's menu) and if the object is
 	// active. This is used for behavior transfer.
 	virtual void setHighlight( BOOL highlight );
 
-	// determine if this object is active
 	virtual BOOL isActive( void ) const;
 
 	// LLView functionality
@@ -1502,8 +1589,7 @@ void LLMenuItemBranchDownGL::buildDrawLabel( void )
 	mDrawAccelLabel = st;
 }
 
-// doIt() - do the primary funcationality of the menu item.
-void LLMenuItemBranchDownGL::doIt( void )
+void LLMenuItemBranchDownGL::openMenu( void )
 {
 	if( mBranch->getVisible() && !mBranch->getTornOff() )
 	{
@@ -1544,21 +1630,23 @@ void LLMenuItemBranchDownGL::doIt( void )
 			}
 			mBranch->translate( delta_x, 0 );
 
-			// *TODO: get menuholder lookup working more generically
-			// hide existing menus
-			if (!mBranch->getTornOff())
-			{
-				((LLMenuHolderGL*)mBranch->getParent())->hideMenus();
-			}
-
+			setHighlight(TRUE);
 			mBranch->setVisible( TRUE );
 		}
+
+
 	}
 }
 
 // set the hover status (called by it's menu)
 void LLMenuItemBranchDownGL::setHighlight( BOOL highlight )
 {
+	if (highlight == getHighlight()) return;
+
+	if (highlight)
+	{
+		getMenu()->clearHoverItem();
+	}
 	mHighlight = highlight;
 	if( !highlight)
 	{
@@ -1574,22 +1662,18 @@ void LLMenuItemBranchDownGL::setHighlight( BOOL highlight )
 	}
 }
 
-// determine if this object is active
-// which, for branching menus, means the branch is open and has "focus"
-BOOL LLMenuItemBranchDownGL::isActive( void ) const
+BOOL LLMenuItemBranchDownGL::isActive() const
 {
-	if (mBranch->getTornOff())
-	{
-		return ((LLFloater*)mBranch->getParent())->hasFocus();
-	}
-	else
-	{
-		return mBranch->getVisible();
-	}
+	// for top level menus, being open is sufficient to be considered 
+	// active, because clicking on them with the mouse will open
+	// them, without moving keyboard focus to them
+	return isOpen();
 }
 
 BOOL LLMenuItemBranchDownGL::handleMouseDown( S32 x, S32 y, MASK mask )
 {
+	// switch to mouse control mode
+	LLMenuGL::setKeyboardMode(FALSE);
 	doIt();
 	make_ui_sound("UISndClick");
 	return TRUE;
@@ -1611,12 +1695,17 @@ BOOL LLMenuItemBranchDownGL::handleAcceleratorKey(KEY key, MASK mask)
 
 BOOL LLMenuItemBranchDownGL::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 {
-	if (mHighlight && getMenu()->getVisible() && mBranch->getVisible())
+	BOOL menu_open = mBranch->getVisible();
+	if (getHighlight() && getMenu()->getVisible())
 	{
 		if (key == KEY_LEFT)
 		{
+			// switch to keyboard navigation mode
+			LLMenuGL::setKeyboardMode(TRUE);
+
 			LLMenuItemGL* itemp = getMenu()->highlightPrevItem(this);
-			if (itemp)
+			// open new menu only if previous menu was open
+			if (itemp && itemp->getEnabled() && menu_open)
 			{
 				itemp->doIt();
 			}
@@ -1625,8 +1714,12 @@ BOOL LLMenuItemBranchDownGL::handleKeyHere(KEY key, MASK mask, BOOL called_from_
 		}
 		else if (key == KEY_RIGHT)
 		{
+			// switch to keyboard navigation mode
+			LLMenuGL::setKeyboardMode(TRUE);
+
 			LLMenuItemGL* itemp = getMenu()->highlightNextItem(this);
-			if (itemp)
+			// open new menu only if previous menu was open
+			if (itemp && itemp->getEnabled() && menu_open)
 			{
 				itemp->doIt();
 			}
@@ -1635,18 +1728,24 @@ BOOL LLMenuItemBranchDownGL::handleKeyHere(KEY key, MASK mask, BOOL called_from_
 		}
 		else if (key == KEY_DOWN)
 		{
-			if (!mBranch->getTornOff())
+			// switch to keyboard navigation mode
+			LLMenuGL::setKeyboardMode(TRUE);
+
+			if (getEnabled() && !isActive())
 			{
-				mBranch->setVisible(TRUE);
+				doIt();
 			}
 			mBranch->highlightNextItem(NULL);
 			return TRUE;
 		}
 		else if (key == KEY_UP)
 		{
-			if (!mBranch->getTornOff())
+			// switch to keyboard navigation mode
+			LLMenuGL::setKeyboardMode(TRUE);
+
+			if (getEnabled() && !isActive())
 			{
-				mBranch->setVisible(TRUE);
+				doIt();
 			}
 			mBranch->highlightPrevItem(NULL);
 			return TRUE;
@@ -1658,7 +1757,13 @@ BOOL LLMenuItemBranchDownGL::handleKeyHere(KEY key, MASK mask, BOOL called_from_
 
 void LLMenuItemBranchDownGL::draw( void )
 {
-	if( mHighlight )
+	//FIXME: try removing this
+	if (mBranch->getVisible() && !mBranch->getTornOff())
+	{
+		setHighlight(TRUE);
+	}
+
+	if( getHighlight() )
 	{
 		glColor4fv( sHighlightBackground.mV );
 		gl_rect_2d( 0, mRect.getHeight(), mRect.getWidth(), 0 );
@@ -1671,7 +1776,7 @@ void LLMenuItemBranchDownGL::draw( void )
 	}
 
 	LLColor4 color;
-	if (mHighlight)
+	if (getHighlight())
 	{
 		color = sHighlightForeground;
 	}
@@ -1685,18 +1790,10 @@ void LLMenuItemBranchDownGL::draw( void )
 	}
 	mFont->render( mLabel.getWString(), 0, (F32)mRect.getWidth() / 2.f, (F32)LABEL_BOTTOM_PAD_PIXELS, color,
 				   LLFontGL::HCENTER, LLFontGL::BOTTOM, font_style );
-	// if branching menu is closed clear out highlight
-	if (mHighlight && ((!mBranch->getVisible() /*|| mBranch->getTornOff()*/) && !mGotHover))
-	{
-		setHighlight(FALSE);
-	}
+
 
 	// underline navigation key
-	BOOL draw_jump_key = gKeyboard->currentMask(FALSE) == MASK_ALT && 
-								(!getMenu()->getHighlightedItem() || !getMenu()->getHighlightedItem()->isActive()) &&
-								(!getMenu()->getTornOff()); // torn off menus don't use jump keys, too complicated
-
-	if (draw_jump_key)
+	if (getMenu()->jumpKeysActive())
 	{
 		LLString upper_case_label = mLabel.getString();
 		LLString::toUpper(upper_case_label);
@@ -2078,7 +2175,8 @@ void LLMenuGL::parseChildXML(LLXMLNodePtr child, LLView *parent, LLUICtrlFactory
 				}
 				item = new_item;
 				item->setLabel(item_label);
-				item->setJumpKey(jump_key);
+				if (jump_key != KEY_NONE)
+					item->setJumpKey(jump_key);
 			}
 
 			if (item != NULL)
@@ -2089,6 +2187,50 @@ void LLMenuGL::parseChildXML(LLXMLNodePtr child, LLView *parent, LLUICtrlFactory
 	}
 }
 
+// are we the childmost active menu and hence our jump keys should be enabled?
+// or are we a free-standing torn-off menu (which uses jump keys too)
+BOOL LLMenuGL::jumpKeysActive()
+{
+	LLMenuItemGL* highlighted_item = getHighlightedItem();
+	BOOL active = getVisible() && getEnabled();
+	if (getTornOff())
+	{
+		// activation of jump keys on torn off menus controlled by keyboard focus
+		active = active && ((LLFloater*)getParent())->hasFocus();
+
+	}
+	else
+	{
+		// Are we the terminal active menu?
+		// Yes, if parent menu item deems us to be active (just being visible is sufficient for top-level menus)
+		// and we don't have a highlighted menu item pointing to an active sub-menu
+		active = active && (!getParentMenuItem() || getParentMenuItem()->isActive()) // I have a parent that is active...
+		                && (!highlighted_item || !highlighted_item->isActive()); //... but no child that is active
+	}
+	return active;
+}
+
+BOOL LLMenuGL::isOpen()
+{
+	if (getTornOff())
+	{
+		LLMenuItemGL* itemp = getHighlightedItem();
+		// if we have an open sub-menu, then we are considered part of 
+		// the open menu chain even if we don't have focus
+		if (itemp && itemp->isOpen())
+		{
+			return TRUE;
+		}
+		// otherwise we are only active if we have keyboard focus
+		return ((LLFloater*)getParent())->hasFocus();
+	}
+	else
+	{
+		// normally, menus are hidden as soon as the user focuses
+		// on another menu, so just use the visibility criterion
+		return getVisible();
+	}
+}
 // static
 LLView* LLMenuGL::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
@@ -2456,21 +2598,27 @@ void LLMenuGL::setLeftAndBottom(S32 left, S32 bottom)
 	arrange();
 }
 
-void LLMenuGL::handleJumpKey(KEY key)
+BOOL LLMenuGL::handleJumpKey(KEY key)
 {
+	// must perform case-insensitive comparison, so just switch to uppercase input key
+	key = toupper(key);
 	navigation_key_map_t::iterator found_it = mJumpKeys.find(key);
 	if(found_it != mJumpKeys.end() && found_it->second->getEnabled())
 	{
-		clearHoverItem();
+		// switch to keyboard navigation mode
+		LLMenuGL::setKeyboardMode(TRUE);
+
+		// force highlight to close old menus and any open sub-menus
+
+		//clearHoverItem();
 		// force highlight to close old menus and open and sub-menus
 		found_it->second->setHighlight(TRUE);
 		found_it->second->doIt();
-		if (!found_it->second->isActive() && !getTornOff())
-		{
-			// parent is a menu holder, because this is not a menu bar
-			((LLMenuHolderGL*)getParent())->hideMenus();
-		}
+
 	}
+	// if we are navigating the menus, we need to eat the keystroke
+	// so rest of UI doesn't handle it
+	return TRUE;
 }
 
 
@@ -2723,10 +2871,6 @@ LLMenuItemGL* LLMenuGL::highlightPrevItem(LLMenuItemGL* cur_item, BOOL skip_disa
 		// skip separators and disabled items
 		if ((*prev_item_iter)->getEnabled() && (*prev_item_iter)->getName() != SEPARATOR_NAME)
 		{
-			if (cur_item)
-			{
-				cur_item->setHighlight(FALSE);
-			}
 			(*prev_item_iter)->setHighlight(TRUE);
 			return (*prev_item_iter);
 		}
@@ -2821,17 +2965,11 @@ BOOL LLMenuGL::handleAcceleratorKey(KEY key, MASK mask)
 	return FALSE;
 }
 
-BOOL LLMenuGL::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
+BOOL LLMenuGL::handleUnicodeCharHere( llwchar uni_char, BOOL called_from_parent )
 {
-	if (key < KEY_SPECIAL && getVisible() && getEnabled() && mask == MASK_ALT)
+	if (jumpKeysActive())
 	{
-		if (getTornOff())
-		{
-			// torn off menus do not handle jump keys (for now, the interaction is complex)
-			return FALSE;
-		}
-		handleJumpKey(key);
-		return TRUE;
+		return handleJumpKey((KEY)uni_char);
 	}
 	return FALSE;
 }
@@ -2839,8 +2977,9 @@ BOOL LLMenuGL::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 BOOL LLMenuGL::handleHover( S32 x, S32 y, MASK mask )
 {
 	// leave submenu in place if slope of mouse < MAX_MOUSE_SLOPE_SUB_MENU
-	S32 mouse_delta_x = x - mLastMouseX;
-	S32 mouse_delta_y = y - mLastMouseY;
+	BOOL no_mouse_data = mLastMouseX == 0 && mLastMouseY == 0;
+	S32 mouse_delta_x = no_mouse_data ? 0 : x - mLastMouseX;
+	S32 mouse_delta_y = no_mouse_data ? 0 : y - mLastMouseY;
 	LLVector2 mouse_dir((F32)mouse_delta_x, (F32)mouse_delta_y);
 	mouse_dir.normVec();
 	LLVector2 mouse_avg_dir((F32)mMouseVelX, (F32)mMouseVelY);
@@ -2852,8 +2991,7 @@ BOOL LLMenuGL::handleHover( S32 x, S32 y, MASK mask )
 	mLastMouseY = y;
 
 	// don't change menu focus unless mouse is moving or alt key is not held down
-	if ((gKeyboard->currentMask(FALSE) != MASK_ALT || 
-			llabs(mMouseVelX) > 0 || 
+	if ((llabs(mMouseVelX) > 0 || 
 			llabs(mMouseVelY) > 0) &&
 		(!mHasSelection ||
 		//(mouse_delta_x == 0 && mouse_delta_y == 0) ||
@@ -2883,7 +3021,9 @@ BOOL LLMenuGL::handleHover( S32 x, S32 y, MASK mask )
 			//RN: always call handleHover to track mGotHover status
 			// but only set highlight when mouse is moving
 			if( viewp->getVisible() && 
-				viewp->getEnabled() &&
+				//RN: allow disabled items to be highlighted to preserve "active" menus when
+				// moving mouse through them
+				//viewp->getEnabled() && 
 				viewp->pointInView(local_x, local_y) && 
 				viewp->handleHover(local_x, local_y, mask))
 			{
@@ -2891,25 +3031,13 @@ BOOL LLMenuGL::handleHover( S32 x, S32 y, MASK mask )
 				if (mouse_delta_x != 0 || mouse_delta_y != 0)
 				{
 					((LLMenuItemGL*)viewp)->setHighlight(TRUE);
+					LLMenuGL::setKeyboardMode(FALSE);
 				}
 				mHasSelection = TRUE;
 			}
 		}
 	}
 	getWindow()->setCursor(UI_CURSOR_ARROW);
-	return TRUE;
-}
-
-BOOL LLMenuGL::handleMouseUp( S32 x, S32 y, MASK mask )
-{
-	if( LLView::childrenHandleMouseUp( x, y, mask ) )
-	{
-		if (!getTornOff())
-		{
-			((LLMenuHolderGL*)getParent())->hideMenus();
-		}
-	}
-
 	return TRUE;
 }
 
@@ -2946,6 +3074,10 @@ void LLMenuGL::setVisible(BOOL visible)
 		{
 			mFadeTimer.start();
 			clearHoverItem();
+			// reset last known mouse coordinates so
+			// we don't spoof a mouse move next time we're opened
+			mLastMouseX = 0;
+			mLastMouseY = 0;
 		}
 		else
 		{
@@ -2977,12 +3109,12 @@ LLMenuGL* LLMenuGL::getChildMenuByName(const LLString& name, BOOL recurse) const
 	return NULL;
 }
 
-BOOL LLMenuGL::clearHoverItem(BOOL include_active)
+BOOL LLMenuGL::clearHoverItem()
 {
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 	{
 		LLMenuItemGL* itemp = (LLMenuItemGL*)*child_it;
-		if (itemp->getHighlight() && (include_active || !itemp->isActive()))
+		if (itemp->getHighlight())
 		{
 			itemp->setHighlight(FALSE);
 			return TRUE;
@@ -3243,10 +3375,8 @@ BOOL LLPieMenu::handleHover( S32 x, S32 y, MASK mask )
 
 		if (item != mHoverItem)
 		{
-			BOOL active = FALSE;
 			if (mHoverItem)
 			{
-				active = mHoverItem->isActive();
 				mHoverItem->setHighlight( FALSE );
 			}
 			mHoverItem = item;
@@ -3824,6 +3954,7 @@ LLMenuBarGL::LLMenuBarGL( const LLString& name ) : LLMenuGL ( name, name )
 	mHorizontalLayout = TRUE;
 	setCanTearOff(FALSE);
 	mKeepFixedSize = TRUE;
+	mAltKeyTrigger = FALSE;
 }
 
 // Default destructor
@@ -3934,15 +4065,112 @@ LLView* LLMenuBarGL::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory 
 	return menubar;
 }
 
-void LLMenuBarGL::handleJumpKey(KEY key)
+BOOL LLMenuBarGL::handleAcceleratorKey(KEY key, MASK mask)
 {
+	if (getHighlightedItem() && mask == MASK_NONE)
+	{
+		// unmodified key accelerators are ignored when navigating menu
+		// (but are used as jump keys so will still work when appropriate menu is up)
+		return FALSE;
+	}
+	BOOL result = LLMenuGL::handleAcceleratorKey(key, mask);
+	if (result && mask & MASK_ALT)
+	{
+		// ALT key used to trigger hotkey, don't use as shortcut to open menu
+		mAltKeyTrigger = FALSE;
+	}
+
+	if(!result && (key == KEY_F10 && mask == MASK_CONTROL) && !gKeyboard->getKeyRepeated(key))
+	{
+		if (getHighlightedItem())
+		{
+			clearHoverItem();
+		}
+		else
+		{
+			highlightNextItem(NULL);
+			LLMenuGL::setKeyboardMode(TRUE);
+		}
+		return TRUE;
+	}
+
+	return result;
+}
+
+BOOL LLMenuBarGL::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+{
+	if(key == KEY_ALT)
+	{
+		mAltKeyTrigger = TRUE;
+	}
+	// before processing any other key, check to see if ALT key has triggered menu access
+	checkMenuTrigger();
+
+	return LLMenuGL::handleKeyHere(key, mask, called_from_parent);
+}
+
+BOOL LLMenuBarGL::handleJumpKey(KEY key)
+{
+	// perform case-insensitive comparison
+	key = toupper(key);
 	navigation_key_map_t::iterator found_it = mJumpKeys.find(key);
 	if(found_it != mJumpKeys.end() && found_it->second->getEnabled())
 	{
-		clearHoverItem();
+		// switch to keyboard navigation mode
+		LLMenuGL::setKeyboardMode(TRUE);
+
 		found_it->second->setHighlight(TRUE);
 		found_it->second->doIt();
 	}
+	return TRUE;
+}
+
+void LLMenuBarGL::draw()
+{
+	LLMenuItemGL* itemp = getHighlightedItem();
+	// If we are in mouse-control mode and the mouse cursor is not hovering over
+	// the current highlighted menu item and it isn't open, then remove the highlight.
+	// This is done via a polling mechanism here, as we don't receive notifications when
+	// the mouse cursor moves off of us
+	if (itemp && !itemp->isOpen() && !itemp->getHover() && !LLMenuGL::getKeyboardMode())
+	{
+		clearHoverItem();
+	}
+
+	checkMenuTrigger();
+
+	LLMenuGL::draw();
+}
+
+void LLMenuBarGL::checkMenuTrigger()
+{
+	// has the ALT key been pressed and subsequently released?
+	if (mAltKeyTrigger && !gKeyboard->getKeyDown(KEY_ALT))
+	{
+		// if alt key was released quickly, treat it as a menu access key
+		// otherwise it was probably an Alt-zoom or similar action
+		if (gKeyboard->getKeyElapsedTime(KEY_ALT) <= LLUI::sConfigGroup->getF32("MenuAccessKeyTime") ||
+			gKeyboard->getKeyElapsedFrameCount(KEY_ALT) < 2)
+		{
+			if (getHighlightedItem())
+			{
+				clearHoverItem();
+			}
+			else
+			{
+				highlightNextItem(NULL);
+				LLMenuGL::setKeyboardMode(TRUE);
+			}
+		}
+		mAltKeyTrigger = FALSE;
+	}
+}
+
+BOOL LLMenuBarGL::jumpKeysActive()
+{
+	// require item to be highlighted to activate key triggers
+	// as menu bars are always visible
+	return getHighlightedItem() && LLMenuGL::jumpKeysActive();
 }
 
 // rearrange the child rects so they fit the shape of the menu bar.
@@ -4013,8 +4241,9 @@ BOOL LLMenuBarGL::handleHover( S32 x, S32 y, MASK mask )
 	BOOL handled = FALSE;
 	LLView* active_menu = NULL;
 
-	S32 mouse_delta_x = x - mLastMouseX;
-	S32 mouse_delta_y = y - mLastMouseY;
+	BOOL no_mouse_data = mLastMouseX == 0 && mLastMouseY == 0;
+	S32 mouse_delta_x = no_mouse_data ? 0 : x - mLastMouseX;
+	S32 mouse_delta_y = no_mouse_data ? 0 : y - mLastMouseY;
 	mMouseVelX = (mMouseVelX / 2) + (mouse_delta_x / 2);
 	mMouseVelY = (mMouseVelY / 2) + (mouse_delta_y / 2);
 	mLastMouseX = x;
@@ -4022,13 +4251,13 @@ BOOL LLMenuBarGL::handleHover( S32 x, S32 y, MASK mask )
 
 	// if nothing currently selected or mouse has moved since last call, pick menu item via mouse
 	// otherwise let keyboard control it
-	if (!getHighlightedItem() || llabs(mMouseVelX) > 0 || llabs(mMouseVelY) > 0)
+	if (!getHighlightedItem() || !LLMenuGL::getKeyboardMode() || llabs(mMouseVelX) > 0 || llabs(mMouseVelY) > 0)
 	{
 		// find current active menu
 		for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 		{
 			LLView* viewp = *child_it;
-			if (((LLMenuItemGL*)viewp)->isActive())
+			if (((LLMenuItemGL*)viewp)->isOpen())
 			{
 				active_menu = viewp;
 			}
@@ -4050,6 +4279,7 @@ BOOL LLMenuBarGL::handleHover( S32 x, S32 y, MASK mask )
 				if (active_menu && active_menu != viewp)
 				{
 					((LLMenuItemGL*)viewp)->doIt();
+					LLMenuGL::setKeyboardMode(FALSE);
 				}
 			}
 		}
@@ -4249,23 +4479,6 @@ LLTearOffMenu::~LLTearOffMenu()
 
 void LLTearOffMenu::draw()
 {
-	if (hasFocus())
-	{
-		LLMenuItemGL* parent_menu_item = mMenu->getParentMenuItem();
-		while(parent_menu_item)
-		{
-			if (parent_menu_item->getMenu()->getVisible())
-			{
-				parent_menu_item->setHighlight(TRUE);
-				parent_menu_item = parent_menu_item->getMenu()->getParentMenuItem();
-			}
-			else
-			{
-				break;
-			}
-		}
-	}
-
 	mMenu->setBackgroundVisible(mBgOpaque);
 	mMenu->arrange();
 
@@ -4290,12 +4503,62 @@ void LLTearOffMenu::onFocusReceived()
 	{
 		mMenu->highlightNextItem(NULL);
 	}
+
+	// parent menu items get highlights so navigation logic keeps working
+	LLMenuItemGL* parent_menu_item = mMenu->getParentMenuItem();
+	while(parent_menu_item)
+	{
+		if (parent_menu_item->getMenu()->getVisible())
+		{
+			parent_menu_item->setHighlight(TRUE);
+			parent_menu_item = parent_menu_item->getMenu()->getParentMenuItem();
+		}
+		else
+		{
+			break;
+		}
+	}
 }
 
 void LLTearOffMenu::onFocusLost()
 {
 	// remove highlight from parent item and our own menu
 	mMenu->clearHoverItem();
+}
+
+BOOL LLTearOffMenu::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
+{
+	// pass keystrokes down to menu
+	return mMenu->handleUnicodeChar(uni_char, TRUE);
+}
+
+BOOL LLTearOffMenu::handleKey(KEY key, MASK mask, BOOL called_from_parent)
+{
+	if (!mMenu->getHighlightedItem())
+	{
+		if (key == KEY_UP)
+		{
+			mMenu->highlightPrevItem(NULL);		
+			return TRUE;
+		}
+		else if (key == KEY_DOWN)
+		{
+			mMenu->highlightNextItem(NULL);
+			return TRUE;
+		}
+	}
+	// pass keystrokes down to menu
+	return mMenu->handleKey(key, mask, TRUE);
+}
+
+void LLTearOffMenu::translate(S32 x, S32 y)
+{
+	if (x != 0 && y != 0)
+	{
+		// hide open sub-menus by clearing current hover item
+		mMenu->clearHoverItem();
+	}
+	LLFloater::translate(x, y);
 }
 
 //static

@@ -58,8 +58,8 @@ public:
 	void			resetKeys();
 
 
-	F32				getCurKeyElapsedTime()	{ return getKeyElapsedTime( mCurScanKey ); }
-	F32				getCurKeyElapsedFrameCount()	{ return (F32)getKeyElapsedFrameCount( mCurScanKey ); }
+	F32				getCurKeyElapsedTime()	{ return getKeyDown(mCurScanKey) ? getKeyElapsedTime( mCurScanKey ) : 0.f; }
+	F32				getCurKeyElapsedFrameCount()	{ return getKeyDown(mCurScanKey) ? (F32)getKeyElapsedFrameCount( mCurScanKey ) : 0.f; }
 	BOOL			getKeyDown(const KEY key) { return mKeyLevel[key]; }
 	BOOL			getKeyRepeated(const KEY key) { return mKeyRepeated[key]; }
 
@@ -92,9 +92,10 @@ public:
 	void setNumpadDistinct(e_numpad_distinct val) { mNumpadDistinct = val; }
 
 	void setCallbacks(LLWindowCallbacks *cbs) { mCallbacks = cbs; }
-protected:
 	F32				getKeyElapsedTime( KEY key );  // Returns time in seconds since key was pressed.
 	S32				getKeyElapsedFrameCount( KEY key );  // Returns time in frames since key was pressed.
+
+protected:
 	void 			addKeyName(KEY key, const LLString& name);
 
 protected:

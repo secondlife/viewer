@@ -72,6 +72,7 @@ public:
 		ed->mSelectionStart = mSelectionStart;
 		ed->mSelectionEnd = mSelectionEnd;
 		ed->mText = mText;
+		ed->mPrevText = mText;
 	}
 
 	LLString getText()   { return mText; }
@@ -110,6 +111,7 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 		mBorderLeft(0),
 		mBorderRight(0),
 		mCommitOnFocusLost( TRUE ),
+		mRevertOnEsc( TRUE ),
 		mKeystrokeCallback( keystroke_callback ),
 		mFocusLostCallback( focus_lost_callback ),
 		mIsSelecting( FALSE ),
@@ -151,7 +153,7 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 	mScrollTimer.reset();
 
 	setText(default_text);
-
+	
 	setCursor(mText.length());
 
 	// Scalable UI somehow made these rectangles off-by-one.
@@ -195,7 +197,7 @@ void LLLineEditor::onFocusLost()
 		mFocusLostCallback( this, mCallbackUserData );
 	}
 	
-	if( mCommitOnFocusLost ) 
+	if( mCommitOnFocusLost && mText.getString() != mPrevText) 
 	{
 		onCommit();
 	}
@@ -281,6 +283,7 @@ void LLLineEditor::setText(const LLString &new_text)
 		deselect();
 	}
 	setCursor(llmin((S32)mText.length(), getCursor()));
+	mPrevText = mText;
 }
 
 
@@ -1064,6 +1067,14 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 		}
 		break;
 
+	case KEY_ESCAPE:
+	    if (mRevertOnEsc && mText.getString() != mPrevText)
+		{
+			setText(mPrevText);
+			// Note, don't set handled, still want to loose focus (won't commit becase text is now unchanged)
+		}
+		break;
+		
 	default:
 		break;
 	}

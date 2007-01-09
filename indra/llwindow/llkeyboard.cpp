@@ -205,6 +205,8 @@ BOOL LLKeyboard::handleTranslatedKeyDown(KEY translated_key, U32 translated_mask
 	{
 		mKeyLevel[translated_key] = TRUE;
 		mKeyLevelTimer[translated_key].reset();
+		mKeyLevelFrameCount[translated_key] = 0;
+		mKeyRepeated[translated_key] = FALSE;
 	}
 	else
 	{
@@ -226,7 +228,6 @@ BOOL LLKeyboard::handleTranslatedKeyUp(KEY translated_key, U32 translated_mask)
 	if( mKeyLevel[translated_key] )
 	{
 		mKeyLevel[translated_key] = FALSE;
-		mKeyLevelFrameCount[translated_key] = 0;
 		
 		// Only generate key up events if the key is thought to
 		// be down.  This allows you to call resetKeys() in the
@@ -234,7 +235,6 @@ BOOL LLKeyboard::handleTranslatedKeyUp(KEY translated_key, U32 translated_mask)
 		// messages in the same frame.  This was causing the
 		// sequence W<return> in chat to move agents forward. JC
 		mKeyUp[translated_key] = TRUE;
-		mKeyRepeated[translated_key] = FALSE;
 		handled = mCallbacks->handleTranslatedKeyUp(translated_key, translated_mask);
 	}
 	
@@ -260,27 +260,13 @@ void LLKeyboard::toggleInsertMode()
 // Returns time in seconds since key was pressed.
 F32 LLKeyboard::getKeyElapsedTime(KEY key)
 {
-	if( mKeyLevel[key] )
-	{
-		return mKeyLevelTimer[key].getElapsedTimeF32();
-	}
-	else
-	{
-		return 0.f;
-	}
+	return mKeyLevelTimer[key].getElapsedTimeF32();
 }
 
 // Returns time in frames since key was pressed.
 S32 LLKeyboard::getKeyElapsedFrameCount(KEY key)
 {
-	if( mKeyLevel[key] )
-	{
-		return mKeyLevelFrameCount[key];
-	}
-	else
-	{
-		return 0;
-	}
+	return mKeyLevelFrameCount[key];
 }
 
 // static

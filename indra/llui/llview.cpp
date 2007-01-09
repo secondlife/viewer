@@ -894,7 +894,6 @@ BOOL LLView::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_scre
 	return handled;
 }
 
-
 BOOL LLView::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 {
 	BOOL handled = FALSE;
@@ -908,17 +907,14 @@ BOOL LLView::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 		}
 	}
 
-	if( !handled )
+	// JC: Must pass to disabled views, since they could have
+	// keyboard focus, which requires the escape key to exit.
+	if (!handled && getVisible())
 	{
-		// JC: Must pass to disabled views, since they could have
-		// keyboard focus, which requires the escape key to exit.
-		if (getVisible())
+		handled = handleKeyHere( key, mask, called_from_parent );
+		if (handled && LLView::sDebugKeys)
 		{
-			handled = handleKeyHere( key, mask, called_from_parent );
-			if (handled && LLView::sDebugKeys)
-			{
-				llinfos << "Key handled by " << getName() << llendl;
-			}
+			llinfos << "Key handled by " << getName() << llendl;
 		}
 	}
 
@@ -945,25 +941,20 @@ BOOL LLView::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 	return FALSE;
 }
 
-
 BOOL LLView::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
 {
 	BOOL handled = FALSE;
 
-	/*
 	if( called_from_parent )
 	{
 		// Downward traversal
 		if (getVisible() && mEnabled)
 		{
-			handled = childrenHandleKey( key, mask ) != NULL;
+			handled = childrenHandleUnicodeChar( uni_char ) != NULL;
 		}
 	}
-	*/
 
-	// JC: Must pass to disabled views, since they could have
-	// keyboard focus, which requires the escape key to exit.
-	if (getVisible())
+	if (!handled && getVisible())
 	{
 		handled = handleUnicodeCharHere(uni_char, called_from_parent);
 		if (handled && LLView::sDebugKeys)
@@ -1215,6 +1206,30 @@ LLView* LLView::childrenHandleKey(KEY key, MASK mask)
 	return handled_view;
 }
 
+// Called during downward traversal
+LLView* LLView::childrenHandleUnicodeChar(llwchar uni_char)
+{
+	LLView* handled_view = NULL;
+
+	if ( getVisible() && mEnabled )
+	{
+		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
+		{
+			LLView* viewp = *child_it;
+			if (viewp->handleUnicodeChar(uni_char, TRUE))
+			{
+				if (LLView::sDebugKeys)
+				{
+					llinfos << "Unicode character handled by " << viewp->getName() << llendl;
+				}
+				handled_view = viewp;
+				break;
+			}
+		}
+	}
+
+	return handled_view;
+}
 
 LLView* LLView::childrenHandleMouseDown(S32 x, S32 y, MASK mask)
 {

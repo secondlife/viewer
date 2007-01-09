@@ -2340,19 +2340,25 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account, boo
 				open_notecard(
 					lastitem->getUUID(),
 					LLString("Note: ") + lastitem->getName(),
-					show_keep_discard);
+					show_keep_discard,
+					LLUUID::null, 
+					FALSE);
 				break;
 			case LLAssetType::AT_LANDMARK:
 				open_landmark(
 					lastitem->getUUID(),
 					LLString("  ") + lastitem->getName(),
-					show_keep_discard);
+					show_keep_discard,
+					LLUUID::null,
+					FALSE);
 				break;
 			case LLAssetType::AT_TEXTURE:
 				open_texture(
 					lastitem->getUUID(),
 					LLString("Texture: ") + lastitem->getName(),
-					show_keep_discard);
+					show_keep_discard,
+					LLUUID::null, 
+					FALSE);
 				break;
 			default:
 				break;

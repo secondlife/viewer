@@ -95,6 +95,7 @@ LLChatBar::LLChatBar(const std::string& name, const LLRect& rect)
 		mInputEditor->setFocusLostCallback(&onInputEditorFocusLost);
 		mInputEditor->setFocusReceivedCallback( &onInputEditorGainFocus );
 		mInputEditor->setCommitOnFocusLost( FALSE );
+		mInputEditor->setRevertOnEsc( FALSE );
 		mInputEditor->setIgnoreTab(TRUE);
 		mInputEditor->setPassDelete(TRUE);
 	}

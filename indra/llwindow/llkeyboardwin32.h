@@ -31,7 +31,7 @@ public:
 
 protected:
 	MASK	updateModifiers();
-	void	setModifierKeyLevel( KEY key, BOOL new_state );
+	//void	setModifierKeyLevel( KEY key, BOOL new_state );
 private:
 	std::map<U16, KEY> mTranslateNumpadMap;
 	std::map<KEY, U16> mInvTranslateNumpadMap;

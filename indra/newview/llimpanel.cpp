@@ -110,6 +110,7 @@ BOOL LLFloaterIMPanel::postBuild()
 		mInputEditor->setKeystrokeCallback( onInputEditorKeystroke );
 		mInputEditor->setCallbackUserData(this);
 		mInputEditor->setCommitOnFocusLost( FALSE );
+		mInputEditor->setRevertOnEsc( FALSE );
 
 		LLButton* profile_btn = LLUICtrlFactory::getButtonByName(this, "profile_btn");
 		profile_btn->setClickedCallback(&LLFloaterIMPanel::onClickProfile, this);

@@ -146,29 +146,32 @@ void LLKeyboardWin32::resetMaskKeys()
 }
 
 
-void LLKeyboardWin32::setModifierKeyLevel( KEY key, BOOL new_state )
-{
-	if( mKeyLevel[key] != new_state )
-	{
-		mKeyLevelFrameCount[key] = 0;
-
-		if( new_state )
-		{
-			mKeyLevelTimer[key].reset();
-		}
-		mKeyLevel[key] = new_state;
-	}
-}
+//void LLKeyboardWin32::setModifierKeyLevel( KEY key, BOOL new_state )
+//{
+//	if( mKeyLevel[key] != new_state )
+//	{
+//		mKeyLevelFrameCount[key] = 0;
+//
+//		if( new_state )
+//		{
+//			mKeyLevelTimer[key].reset();
+//		}
+//		mKeyLevel[key] = new_state;
+//	}
+//}
 
 
 MASK LLKeyboardWin32::updateModifiers()
 {
+	//RN: this seems redundant, as we should have already received the appropriate
+	// messages for the modifier keys
+
 	// Scan the modifier keys as of the last Windows key message
 	// (keydown encoded in high order bit of short)
-	setModifierKeyLevel( KEY_SHIFT, GetKeyState(VK_SHIFT) & 0x8000 );
-	setModifierKeyLevel( KEY_CONTROL, GetKeyState(VK_CONTROL) & 0x8000 );
-	setModifierKeyLevel( KEY_ALT, GetKeyState(VK_MENU) & 0x8000 );
-	setModifierKeyLevel( KEY_CAPSLOCK, GetKeyState(VK_CAPITAL) & 0x0001); // Low order bit carries the toggle state.
+	//setModifierKeyLevel( KEY_SHIFT, GetKeyState(VK_SHIFT) & 0x8000 );
+	//setModifierKeyLevel( KEY_CONTROL, GetKeyState(VK_CONTROL) & 0x8000 );
+	//setModifierKeyLevel( KEY_ALT, GetKeyState(VK_MENU) & 0x8000 );
+	//setModifierKeyLevel( KEY_CAPSLOCK, GetKeyState(VK_CAPITAL) & 0x0001); // Low order bit carries the toggle state.
 	// Get mask for keyboard events
 	MASK mask = currentMask(FALSE);
 	return mask;

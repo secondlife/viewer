@@ -88,7 +88,9 @@ void LLManip::getManipNormal(LLViewerObject* object, EManipPart manip, LLVector3
 		LLVector3 arrow_axis;
 		getManipAxis(object, manip, arrow_axis);
 
-		LLVector3 cross = arrow_axis % gCamera->getAtAxis();
+		LLVector3 origin_dir = grid_origin - gCamera->getOrigin();
+		origin_dir.normVec();
+		LLVector3 cross = arrow_axis % origin_dir;
 		normal = cross % arrow_axis;
 		normal.normVec();
 	}

@@ -127,9 +127,10 @@ public:
 	void			setSelection(S32 start, S32 end);
 	
 	void			setCommitOnFocusLost( BOOL b )	{ mCommitOnFocusLost = b; }
+	void			setRevertOnEsc( BOOL b )		{ mRevertOnEsc = b; }
 
 	void setCursorColor(const LLColor4& c)			{ mCursorColor = c; }
-	const LLColor4& getCursorColor() const		{ return mCursorColor; }
+	const LLColor4& getCursorColor() const			{ return mCursorColor; }
 
 	void setFgColor( const LLColor4& c )			{ mFgColor = c; }
 	void setReadOnlyFgColor( const LLColor4& c )	{ mReadOnlyFgColor = c; }
@@ -202,6 +203,7 @@ protected:
 
 protected:
 	LLUIString		mText;					// The string being edited.
+	LLString		mPrevText;				// Saved string for 'ESC' revert
 	LLUIString		mLabel;					// text label that is visible when no user text provided
 
 	LLViewBorder* mBorder;
@@ -217,6 +219,7 @@ protected:
 	S32			mBorderRight;
 
 	BOOL		mCommitOnFocusLost;
+	BOOL		mRevertOnEsc;
 
 	void		(*mKeystrokeCallback)( LLLineEditor* caller, void* userdata );
 	void		(*mFocusLostCallback)( LLLineEditor* caller, void* userdata );

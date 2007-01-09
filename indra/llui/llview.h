@@ -448,6 +448,7 @@ protected:
 	virtual BOOL	handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent);
 
 	LLView*	childrenHandleKey(KEY key, MASK mask);
+	LLView* childrenHandleUnicodeChar(llwchar uni_char);
 	LLView*	childrenHandleDragAndDrop(S32 x, S32 y, MASK mask,
 											  BOOL drop,
 											  EDragAndDropType type,

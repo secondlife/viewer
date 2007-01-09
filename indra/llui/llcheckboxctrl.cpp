@@ -274,8 +274,6 @@ LLView* LLCheckBoxCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFacto
 	LLString label("");
 	node->getAttributeString("label", label);
 
-	BOOL initial_value = FALSE;
-	
 	LLFontGL* font = LLView::selectFont(node);
 
 	BOOL radio_style = FALSE;
@@ -297,8 +295,11 @@ LLView* LLCheckBoxCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFacto
 		font,
 		callback,
 		NULL,
-		initial_value,
+		FALSE,
 		radio_style); // if true, draw radio button style icons
+
+	BOOL initial_value = checkbox->getValue().asBoolean();
+	node->getAttributeBOOL("initial_value", initial_value);
 
 	LLColor4 color;
 	color = LLUI::sColorsGroup->getColor( "LabelTextColor" );
@@ -308,6 +309,8 @@ LLView* LLCheckBoxCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFacto
 	color = LLUI::sColorsGroup->getColor( "LabelDisabledColor" );
 	LLUICtrlFactory::getAttributeColor(node,"text_disabled_color", color);
 	checkbox->setDisabledColor(color);
+
+	checkbox->setValue(initial_value);
 
 	checkbox->initFromXML(node, parent);
 
