@@ -31,7 +31,7 @@ extern LLAudioEngine *gAudiop;
 
 LLAudioDecodeMgr *gAudioDecodeMgrp = NULL;
 
-const S32 wav_header_size = 44;
+static const S32 WAV_HEADER_SIZE = 44;
 
 class LLVorbisDecodeState
 {
@@ -356,7 +356,7 @@ BOOL LLVorbisDecodeState::initDecode()
 	size_guess *= 2;
 	size_guess += 2048;
 	mWAVBuffer.reserve(size_guess);
-	mWAVBuffer.resize(wav_header_size);
+	mWAVBuffer.resize(WAV_HEADER_SIZE);
 
 	{
 		// write the .wav format header
@@ -506,7 +506,7 @@ BOOL LLVorbisDecodeState::finishDecode()
 		ov_clear(&mVF);
   
 		// write "data" chunk length, in little-endian format
-		S32 data_length = mWAVBuffer.size() - wav_header_size;
+		S32 data_length = mWAVBuffer.size() - WAV_HEADER_SIZE;
 		mWAVBuffer[40] = (data_length) & 0x000000FF;
 		mWAVBuffer[41] = (data_length >> 8) & 0x000000FF;
 		mWAVBuffer[42] = (data_length >> 16) & 0x000000FF;
@@ -529,9 +529,9 @@ BOOL LLVorbisDecodeState::finishDecode()
 			char pcmout[4096];		/*Flawfinder: ignore*/ 	
 
 			fade_length = llmin((S32)128,(S32)(data_length-36)/8);			
-			if (sizeof(mWAVBuffer) >= (wav_header_size + 2* fade_length))
+			if((S32)mWAVBuffer.size() >= (WAV_HEADER_SIZE + 2* fade_length))
 			{
-				memcpy(pcmout, &mWAVBuffer[wav_header_size], (2 * fade_length));	/*Flawfinder: ignore*/
+				memcpy(pcmout, &mWAVBuffer[WAV_HEADER_SIZE], (2 * fade_length));	/*Flawfinder: ignore*/
 			}
 			llendianswizzle(&pcmout, 2, fade_length);
 	
@@ -543,12 +543,12 @@ BOOL LLVorbisDecodeState::finishDecode()
 			}
 
 			llendianswizzle(&pcmout, 2, fade_length);			
-			if ((wav_header_size+(2 * fade_length)) < sizeof(mWAVBuffer))
+			if((WAV_HEADER_SIZE+(2 * fade_length)) < (S32)mWAVBuffer.size())
 			{
-				memcpy(&mWAVBuffer[wav_header_size], pcmout, (2 * fade_length));	/*Flawfinder: ignore*/
+				memcpy(&mWAVBuffer[WAV_HEADER_SIZE], pcmout, (2 * fade_length));	/*Flawfinder: ignore*/
 		    }
 			S32 near_end = mWAVBuffer.size() - (2 * fade_length);
-			if (sizeof(mWAVBuffer) >= ( near_end + 2* fade_length))
+			if ((S32)mWAVBuffer.size() >= ( near_end + 2* fade_length))
 			{
 				memcpy(pcmout, &mWAVBuffer[near_end], (2 * fade_length));	/*Flawfinder: ignore*/
 		    }
@@ -562,7 +562,7 @@ BOOL LLVorbisDecodeState::finishDecode()
 			}
 	
 			llendianswizzle(&pcmout, 2, fade_length);			
-			if (near_end + (2 * fade_length) < sizeof(mWAVBuffer))
+			if (near_end + (2 * fade_length) < (S32)mWAVBuffer.size())
 			{
 				memcpy(&mWAVBuffer[near_end], pcmout, (2 * fade_length));/*Flawfinder: ignore*/
 			}
