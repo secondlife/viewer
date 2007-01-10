@@ -12,6 +12,8 @@
 #include "lluictrl.h"
 #include "v4color.h"
 
+class LLUICtrlFactory;
+
 class LLSlider : public LLUICtrl
 {
 public:

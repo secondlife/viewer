@@ -25,6 +25,7 @@ class LLScrollbar;
 class LLViewBorder;
 class LLKeywordToken;
 class LLTextCmd;
+class LLUICtrlFactory;
 
 //
 // Constants

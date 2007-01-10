@@ -29,6 +29,7 @@
 
 class LLScrollbar;
 class LLViewBorder;
+class LLUICtrlFactory;
 
 
 class LLScrollableContainerView : public LLUICtrl

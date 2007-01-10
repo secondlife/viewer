@@ -102,19 +102,19 @@
 #include "u64.h"
 
 // Library includes from llimage
-#include "kdc_flow_control.h"
-#include "kde_flow_control.h"
-#include "kdu_image.h"
-#include "kdu_image_local.h"
-#include "llblockdata.h"
-#include "llblockdecoder.h"
-#include "llblockencoder.h"
+//#include "kdc_flow_control.h"
+//#include "kde_flow_control.h"
+//#include "kdu_image.h"
+//#include "kdu_image_local.h"
+//#include "llblockdata.h"
+//#include "llblockdecoder.h"
+//#include "llblockencoder.h"
 #include "llimage.h"
 #include "llimagebmp.h"
 #include "llimagej2c.h"
 #include "llimagejpeg.h"
 #include "llimagetga.h"
-#include "llkdumem.h"
+//#include "llkdumem.h"
 #include "llmapimagetype.h"
 
 // Library includes from llmath project

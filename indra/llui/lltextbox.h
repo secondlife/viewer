@@ -15,6 +15,8 @@
 #include "llfontgl.h"
 #include "lluistring.h"
 
+class LLUICtrlFactory;
+
 
 class LLTextBox
 :	public LLUICtrl

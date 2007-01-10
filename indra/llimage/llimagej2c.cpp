@@ -4,38 +4,172 @@
  * Copyright (c) 2001-$CurrentYear$, Linden Research, Inc.
  * $License$
  */
-
 #include "linden_common.h"
 
-#ifndef LL_USE_KDU
-#define LL_USE_KDU 1
-#endif // LL_USE_KDU
+#include <apr-1/apr_pools.h>
+#include <apr-1/apr_dso.h>
 
+#include "lldir.h"
 #include "llimagej2c.h"
 #include "llmemory.h"
-#if LL_USE_KDU
-#include "llimagej2ckdu.h"
+
+typedef LLImageJ2CImpl* (*CreateLLImageJ2CFunction)();
+typedef void (*DestroyLLImageJ2CFunction)(LLImageJ2CImpl*);
+
+//some "private static" variables so we only attempt to load
+//dynamic libaries once
+CreateLLImageJ2CFunction j2cimpl_create_func;
+DestroyLLImageJ2CFunction j2cimpl_destroy_func;
+apr_pool_t *j2cimpl_dso_memory_pool;
+apr_dso_handle_t *j2cimpl_dso_handle;
+
+//Declare the prototype for theses functions here, their functionality
+//will be implemented in other files which define a derived LLImageJ2CImpl
+//but only ONE static library which has the implementation for this
+//function should ever be included
+LLImageJ2CImpl* fallbackCreateLLImageJ2CImpl();
+void fallbackDestroyLLImageJ2CImpl(LLImageJ2CImpl* impl);
+
+//static
+//Loads the required "create" and "destroy" functions needed
+void LLImageJ2C::openDSO()
+{
+	//attempt to load a DSO and get some functions from it
+	std::string dso_name;
+	std::string dso_path;
+
+	bool all_functions_loaded = false;
+	apr_status_t rv;
+
+#if LL_WINDOWS
+	dso_name = "llkdu.dll";
+#elif LL_DARWIN
+	dso_name = "libllkdu.dylib";
+#else
+	dso_name = "libllkdu.so";
 #endif
 
-#include "llimagej2coj.h"
+	dso_path = gDirUtilp->findFile(dso_name,
+								   gDirUtilp->getAppRODataDir(),
+								   gDirUtilp->getExecutableDir());
 
+	j2cimpl_dso_handle      = NULL;
+	j2cimpl_dso_memory_pool = NULL;
+
+	//attempt to load the shared library
+	apr_pool_create(&j2cimpl_dso_memory_pool, NULL);
+	rv = apr_dso_load(&j2cimpl_dso_handle,
+					  dso_path.c_str(),
+					  j2cimpl_dso_memory_pool);
+
+	//now, check for success
+	if ( rv == APR_SUCCESS )
+	{
+		//found the dynamic library
+		//now we want to load the functions we're interested in
+		CreateLLImageJ2CFunction  create_func = NULL;
+		DestroyLLImageJ2CFunction dest_func = NULL;
+
+		rv = apr_dso_sym((apr_dso_handle_sym_t*)&create_func,
+						 j2cimpl_dso_handle,
+						 "createLLImageJ2CKDU");
+		if ( rv == APR_SUCCESS )
+		{
+			//we've loaded the create function ok
+			//we need to delete via the DSO too
+			//so lets check for a destruction function
+			rv = apr_dso_sym((apr_dso_handle_sym_t*)&dest_func,
+							 j2cimpl_dso_handle,
+							 "destroyLLImageJ2CKDU");
+			if ( rv == APR_SUCCESS )
+			{
+				//k, everything is loaded alright
+				j2cimpl_create_func  = create_func;
+				j2cimpl_destroy_func = dest_func;
+				all_functions_loaded = true;
+			}
+		}
+	}
+
+	if ( !all_functions_loaded )
+	{
+		//something went wrong with the DSO or function loading..
+		//fall back onto our satefy impl creation function
+
+#if 0
+		// precious verbose debugging, sadly we can't use our
+		// 'llinfos' stream etc. this early in the initialisation seq.
+		char errbuf[256];
+		fprintf(stderr, "failed to load syms from DSO %s (%s)\n",
+			dso_name.c_str(), dso_path.c_str());
+		apr_strerror(rv, errbuf, sizeof(errbuf));
+		fprintf(stderr, "error: %d, %s\n", rv, errbuf);
+		apr_dso_error(j2cimpl_dso_handle, errbuf, sizeof(errbuf));
+		fprintf(stderr, "dso-error: %d, %s\n", rv, errbuf);
+#endif
+
+		if ( j2cimpl_dso_handle )
+		{
+			apr_dso_unload(j2cimpl_dso_handle);
+			j2cimpl_dso_handle = NULL;
+		}
+
+		if ( j2cimpl_dso_memory_pool )
+		{
+			apr_pool_destroy(j2cimpl_dso_memory_pool);
+			j2cimpl_dso_memory_pool = NULL;
+		}
+	}
+}
+
+//static
+void LLImageJ2C::closeDSO()
+{
+	if ( j2cimpl_dso_handle ) apr_dso_unload(j2cimpl_dso_handle);
+	if (j2cimpl_dso_memory_pool) apr_pool_destroy(j2cimpl_dso_memory_pool);
+}
 
 LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 							mMaxBytes(0),
 							mRawDiscardLevel(-1),
 							mRate(0.0f)
 {
-#if LL_USE_KDU
-	mImpl = new LLImageJ2CKDU();
-#else
-	mImpl = new LLImageJ2COJ();
-#endif
+	//We assume here that if we wanted to destory via
+	//a dynamic library that the approriate open calls were made
+	//before any calls to this constructor.
+
+	//Therefore, a NULL creation function pointer here means
+	//we either did not want to create using functions from the dynamic
+	//library or there were issues loading it, either way
+	//use our fall back
+	if ( !j2cimpl_create_func )
+	{
+		j2cimpl_create_func = fallbackCreateLLImageJ2CImpl;
+	}
+
+	mImpl = j2cimpl_create_func();
 }
 
 // virtual
 LLImageJ2C::~LLImageJ2C()
 {
-	delete mImpl;
+	//We assume here that if we wanted to destory via
+	//a dynamic library that the approriate open calls were made
+	//before any calls to this destructor.
+
+	//Therefore, a NULL creation function pointer here means
+	//we either did not want to destroy using functions from the dynamic
+	//library or there were issues loading it, either way
+	//use our fall back
+	if ( !j2cimpl_destroy_func )
+	{
+		j2cimpl_destroy_func = fallbackDestroyLLImageJ2CImpl;
+	}
+
+	if ( mImpl )
+	{
+		j2cimpl_destroy_func(mImpl);
+	}
 }
 
 // virtual

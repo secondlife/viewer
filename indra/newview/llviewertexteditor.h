@@ -12,6 +12,7 @@
 #include "lltexteditor.h"
 
 class LLInventoryItem;
+class LLEmbeddedItems;
 
 
 //

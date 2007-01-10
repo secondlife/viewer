@@ -13,7 +13,6 @@
 #include "llassettype.h"
 
 class LLImageJ2CImpl;
-
 class LLImageJ2C : public LLImageFormatted
 {
 protected:
@@ -46,6 +45,9 @@ public:
 
 	static S32 calcHeaderSizeJ2C();
 	static S32 calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 rate = 0.f);
+
+	static void openDSO();
+	static void closeDSO();
 	
 protected:
 	friend class LLImageJ2CImpl;
@@ -63,8 +65,9 @@ protected:
 // Derive from this class to implement JPEG2000 decoding
 class LLImageJ2CImpl
 {
-protected:
+public:
 	virtual ~LLImageJ2CImpl();
+protected:
 	virtual BOOL getMetadata(LLImageJ2C &base) = 0;
 	virtual BOOL decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count) = 0;
 	virtual BOOL encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text, F32 encode_time=0.0) = 0;

@@ -16,6 +16,7 @@
 #include "llimagegl.h"
 
 class LLTextBox;
+class LLUICtrlFactory;
 
 //
 // Classes

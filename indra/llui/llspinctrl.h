@@ -31,6 +31,7 @@ class LLFontGL;
 class LLButton;
 class LLTextBox;
 class LLLineEditor;
+class LLUICtrlFactory;
 
 
 class LLSpinCtrl

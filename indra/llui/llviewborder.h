@@ -18,6 +18,7 @@
 #include "llxmlnode.h"
 
 class LLUUID;
+class LLUICtrlFactory;
 
 
 class LLViewBorder : public LLView

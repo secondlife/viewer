@@ -33,6 +33,9 @@ extern S32	BTN_HEIGHT;
 // All button widths should be rounded up to this size
 extern S32	BTN_GRID;
 
+
+class LLUICtrlFactory;
+
 //
 // Classes
 //
