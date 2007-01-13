@@ -190,19 +190,26 @@ void LLXfer::sendPacket(S32 packet_num)
 	if (packet_num)
 	{ 
 		num_copy = llmin(fdata_size, (S32)sizeof(fdata_buf));
-		num_copy = llmin(num_copy, (S32)(sizeof(mBuffer) - desired_read_position));
+		num_copy = llmin(num_copy, (S32)(mBufferLength - desired_read_position));
 		if (num_copy > 0)
 		{
 			memcpy(fdata_buf,&mBuffer[desired_read_position],num_copy);
 		}
 	}
-	else  // if we're the first packet, encode size as an additional S32 at start of data
-	{	 
+	else  
+	{
+		// if we're the first packet, encode size as an additional S32
+		// at start of data.
 		num_copy = llmin(fdata_size, (S32)(sizeof(fdata_buf)-sizeof(S32)));
-		num_copy = llmin(num_copy, (S32)(sizeof(mBuffer) - desired_read_position));
+		num_copy = llmin(
+			num_copy,
+			(S32)(mBufferLength - desired_read_position));
 		if (num_copy > 0)
 		{
-			memcpy(fdata_buf+sizeof(S32),&mBuffer[desired_read_position],fdata_size);
+			memcpy(
+				fdata_buf + sizeof(S32),
+				&mBuffer[desired_read_position],
+				num_copy);
 		}
 		fdata_size += sizeof(S32);
 		htonmemcpy(fdata_buf,&mXferSize, MVT_S32, sizeof(S32));
