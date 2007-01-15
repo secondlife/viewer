@@ -47,4 +47,8 @@ U32 ll_U32_from_sd(const LLSD& sd);
 LLSD ll_sd_from_U64(const U64);
 U64 ll_U64_from_sd(const LLSD& sd);
 
+// IP Address
+LLSD ll_sd_from_ipaddr(const U32);
+U32 ll_ipaddr_from_sd(const LLSD& sd);
+
 #endif // LL_LLSDUTIL_H

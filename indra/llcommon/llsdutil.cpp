@@ -180,3 +180,26 @@ U64 ll_U64_from_sd(const LLSD& sd)
 
 	return ((U64)high) << 32 | low;
 }
+
+// IP Address (stored in net order in a U32, so don't need swizzling)
+LLSD ll_sd_from_ipaddr(const U32 val)
+{
+	std::vector<U8> v;
+
+	v.resize(4);
+	memcpy(&(v[0]), &val, 4);		/* Flawfinder: ignore */
+
+	return LLSD(v);
+}
+
+U32 ll_ipaddr_from_sd(const LLSD& sd)
+{
+	U32 ret;
+	std::vector<U8> v = sd.asBinary();
+	if (v.size() < 4)
+	{
+		return 0;
+	}
+	memcpy(&ret, &(v[0]), 4);		/* Flawfinder: ignore */
+	return ret;
+}
