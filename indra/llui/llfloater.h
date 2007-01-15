@@ -288,8 +288,8 @@ public:
 	void			getMinimizePosition( S32 *left, S32 *bottom);
 	void			restoreAll();		// un-minimize all floaters
 	typedef std::set<LLView*> skip_list_t;
-	void LLFloaterView::pushVisibleAll(BOOL visible, const skip_list_t& skip_list = skip_list_t());
-	void LLFloaterView::popVisibleAll(const skip_list_t& skip_list = skip_list_t());
+	void pushVisibleAll(BOOL visible, const skip_list_t& skip_list = skip_list_t());
+	void popVisibleAll(const skip_list_t& skip_list = skip_list_t());
 
 	void			setCycleMode(BOOL mode);
 	BOOL			getCycleMode();

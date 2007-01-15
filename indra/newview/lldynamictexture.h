@@ -60,7 +60,7 @@ protected:
 	LLCoordGL mOrigin;
 
 	LLCamera mCamera;
-	static LLLinkedList<LLDynamicTexture> LLDynamicTexture::sInstances[ LLDynamicTexture::ORDER_COUNT ];
+	static LLLinkedList<LLDynamicTexture> sInstances[ LLDynamicTexture::ORDER_COUNT ];
 	static S32 sNumRenders;
 };
 

@@ -410,7 +410,7 @@ public:
 	virtual void drawBackground(LLMenuItemGL* itemp, LLColor4& color);
 	virtual void setVisible(BOOL visible);
 
-	virtual BOOL LLMenuGL::handleAcceleratorKey(KEY key, MASK mask);
+	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 
 	LLMenuGL* getChildMenuByName(const LLString& name, BOOL recurse) const;
 	

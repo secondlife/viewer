@@ -112,8 +112,8 @@ private:
 	LLPtrSkipMap<S32, F32*>	mVisualParamMap;	// maps visual param id to weight
 	LLPtrSkipMap<S32, LLUUID*>	mTEMap;				// maps TE to Image ID
 
-	static const char* LLWearable::sTypeName[ WT_COUNT ];
-	static const char* LLWearable::sTypeLabel[ WT_COUNT ];
+	static const char* sTypeName[ WT_COUNT ];
+	static const char* sTypeLabel[ WT_COUNT ];
 };
 
 #endif  // LL_LLWEARABLE_H

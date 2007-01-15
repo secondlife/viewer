@@ -6828,7 +6828,6 @@ void near_attach_object(BOOL success, void *user_data)
 	}
 	
 	gSelectMgr->sendAttach(attachment_id);
-	gSelectMgr->deselectTransient();
 }
 
 class LLObjectAttachToAvatar : public view_listener_t
@@ -6866,6 +6865,7 @@ void confirm_replace_attachment(S32 option, void* user_data)
 {
 	if (option == 0/*YES*/)
 	{
+		gSelectMgr->convertTransient();
 		LLViewerObject* selectedObject = gSelectMgr->getFirstRootObject();
 		if (selectedObject)
 		{

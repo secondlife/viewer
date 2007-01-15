@@ -132,6 +132,11 @@ BOOL LLChatBar::postBuild()
 	childSetAction("Say", onClickSay, this);
 	childSetAction("Shout", onClickShout, this);
 	childSetCommitCallback("Gesture", onCommitGesture, this);
+	LLButton * sayp = static_cast<LLButton*>(getChildByName("Say"));
+	if(sayp)
+	{
+		setDefaultBtn(sayp);
+	}
 
 	return TRUE;
 }
@@ -271,8 +276,8 @@ void LLChatBar::refresh()
 		gAgent.stopTyping();
 	}
 
-	childSetEnabled("Say", mInputEditor->getText().size());
-	childSetEnabled("Shout", mInputEditor->getText().size());
+	childSetEnabled("Say", mInputEditor->getText().size() > 0);
+	childSetEnabled("Shout", mInputEditor->getText().size() > 0);
 
 }
 

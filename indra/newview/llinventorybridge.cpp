@@ -676,6 +676,7 @@ void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, 
 		LLInventoryObject* obj = model->getObject(mUUID);
 		if(!obj) return;
 		obj->removeFromServer();
+		LLPreview::hide(mUUID);
 		model->deleteObject(mUUID);
 		model->notifyObservers();
 	}

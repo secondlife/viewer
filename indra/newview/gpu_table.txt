@@ -75,6 +75,7 @@ NVIDIA GeForce 7300				.*NVIDIA.*GeForce 73.*					3
 NVIDIA GeForce 7600				.*NVIDIA.*GeForce 76.*					3
 NVIDIA GeForce 7800				.*NVIDIA.*GeForce 78.*					3
 NVIDIA GeForce 7900				.*NVIDIA.*GeForce 79.*					3
+NVIDIA GeForce 8800				.*NVIDIA.*GeForce 88.*					3
 NVIDIA GeForce FX 5100			.*NVIDIA.*GeForce FX 51.*				1
 NVIDIA GeForce FX 5200			.*NVIDIA.*GeForce FX 52.*				1
 NVIDIA GeForce FX 5500			.*NVIDIA.*GeForce FX 55.*				1

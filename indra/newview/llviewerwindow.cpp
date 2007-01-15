@@ -899,6 +899,12 @@ void LLViewerWindow::handleFocusLost(LLWindow *window)
 	}
 	gFocusMgr.setMouseCapture( NULL, NULL );
 
+	if (gMenuBarView)
+	{
+		// stop ALT-key access to menu
+		gMenuBarView->resetMenuTrigger();
+	}
+
 	// restore mouse cursor
 	gViewerWindow->showCursor();
 	gViewerWindow->getWindow()->setMouseClipping(FALSE);
@@ -2671,8 +2677,7 @@ BOOL LLViewerWindow::handlePerFrameHover()
 	if (gParcelMgr
 		&& !LLFloaterLand::floaterVisible()
 		&& !LLFloaterBuyLand::isOpen()
-		&& (!gFloaterTools || !gFloaterTools->getVisible())
-		&& !gToolMgr)
+		&& (!gFloaterTools || !gFloaterTools->getVisible()))
 	{
 		gParcelMgr->deselectLand();
 	}

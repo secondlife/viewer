@@ -3899,6 +3899,7 @@ void LLSelectMgr::sendAttach(U8 attachment_point)
 		return;
 	}
 
+	BOOL build_mode = gToolMgr->inEdit();
 	// Special case: Attach to default location for this object.
 	if (0 == attachment_point)
 	{
@@ -3908,6 +3909,10 @@ void LLSelectMgr::sendAttach(U8 attachment_point)
 			packObjectIDAndRotation, 
 			&attachment_point, 
 			SEND_ONLY_ROOTS );
+		if (!build_mode)
+		{
+			deselectAll();
+		}
 	}
 	else
 	{
@@ -3945,6 +3950,10 @@ void LLSelectMgr::sendAttach(U8 attachment_point)
 				packObjectIDAndRotation,
 				&attachment_point,
 				SEND_ONLY_ROOTS );
+			if (!build_mode)
+			{
+				deselectAll();
+			}
 		}
 	}
 }

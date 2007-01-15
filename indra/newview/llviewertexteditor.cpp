@@ -386,7 +386,7 @@ void LLEmbeddedItems::markSaved()
 class LLTextCmdInsertEmbeddedItem : public LLTextCmd
 {
 public:
-	LLTextCmdInsertEmbeddedItem::LLTextCmdInsertEmbeddedItem( S32 pos, LLInventoryItem* item )
+	LLTextCmdInsertEmbeddedItem( S32 pos, LLInventoryItem* item )
 		: LLTextCmd(pos, FALSE), 
 		  mExtCharValue(0)
 	{

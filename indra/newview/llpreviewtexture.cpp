@@ -157,9 +157,12 @@ void LLPreviewTexture::init()
 	{
 		LLInventoryItem* item = getItem();
 		
-		childSetCommitCallback("desc", LLPreview::onText, this);
-		childSetText("desc", item->getDescription());
-		childSetPrevalidate("desc", &LLLineEditor::prevalidatePrintableNotPipe);
+		if (item)
+		{
+			childSetCommitCallback("desc", LLPreview::onText, this);
+			childSetText("desc", item->getDescription());
+			childSetPrevalidate("desc", &LLLineEditor::prevalidatePrintableNotPipe);
+		}
 	}
 }
 

@@ -286,12 +286,7 @@ void LLPreview::hide(const LLUUID& item_uuid)
 	if(found_it != LLPreview::sInstances.end())
 	{
 		LLPreview* instance = found_it->second;
-		if( instance->getParent() )
-		{
-			instance->getParent()->removeChild( instance );
-		}
-
-		delete instance;
+		instance->close();
 	}
 }
 

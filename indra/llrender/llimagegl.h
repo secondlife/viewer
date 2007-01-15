@@ -150,7 +150,7 @@ protected:
 
 	// STATICS
 public:	
-	static std::set<LLImageGL*> LLImageGL::sImageList;
+	static std::set<LLImageGL*> sImageList;
 	static S32 sCount;
 	
 	static F32 sLastFrameTime;

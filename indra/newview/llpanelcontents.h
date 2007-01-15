@@ -21,7 +21,7 @@ class LLSpinCtrl;
 class LLPanelContents : public LLPanel
 {
 public:
-	virtual	BOOL LLPanelContents::postBuild();
+	virtual	BOOL postBuild();
 	LLPanelContents(const std::string& name);
 	virtual ~LLPanelContents();
 

@@ -75,7 +75,7 @@ public:
 
 	virtual void	onHeldDown();
 
-	static LLView* LLJoystickAgentTurn::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
+	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
 };
 
@@ -96,7 +96,7 @@ public:
 	virtual void	onHeldDown();
 	virtual void	onMouseUp();
 
-	static LLView* LLJoystickAgentSlide::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
+	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 };
 
 

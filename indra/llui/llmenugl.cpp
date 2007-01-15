@@ -528,8 +528,8 @@ void LLMenuItemGL::draw( void )
 		}
 	}
 
-	// underline "jump" key
-	if (getMenu()->jumpKeysActive())
+	// underline "jump" key only when keyboard navigation has been initiated
+	if (getMenu()->jumpKeysActive() && LLMenuGL::getKeyboardMode())
 	{
 		LLString upper_case_label = mLabel.getString();
 		LLString::toUpper(upper_case_label);
@@ -1792,8 +1792,8 @@ void LLMenuItemBranchDownGL::draw( void )
 				   LLFontGL::HCENTER, LLFontGL::BOTTOM, font_style );
 
 
-	// underline navigation key
-	if (getMenu()->jumpKeysActive())
+	// underline navigation key only when keyboard navigation has been initiated
+	if (getMenu()->jumpKeysActive() && LLMenuGL::getKeyboardMode())
 	{
 		LLString upper_case_label = mLabel.getString();
 		LLString::toUpper(upper_case_label);
@@ -4281,6 +4281,7 @@ BOOL LLMenuBarGL::handleHover( S32 x, S32 y, MASK mask )
 					((LLMenuItemGL*)viewp)->doIt();
 					LLMenuGL::setKeyboardMode(FALSE);
 				}
+				LLMenuGL::setKeyboardMode(FALSE);
 			}
 		}
 

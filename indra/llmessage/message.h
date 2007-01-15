@@ -731,7 +731,7 @@ private:
 	static F32 mTimeDecodesSpamThreshold;  // If mTimeDecodes is on, all this many seconds for each msg decode before spamming
 	static BOOL mTimeDecodes;  // Measure time for all message decodes if TRUE;
 
-	void LLMessageSystem::init(); // ctor shared initialisation.
+	void init(); // ctor shared initialisation.
 };
 
 

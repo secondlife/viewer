@@ -3242,18 +3242,20 @@ void LLFolderView::removeSelectedItems( void )
 			{
 				new_selection = item_to_delete->getPreviousOpenNode(FALSE);
 			}
-			if (new_selection)
-			{
-				setSelectionFromRoot(new_selection, new_selection->isOpen(), gViewerWindow->childHasKeyboardFocus(this));
-			}
-			else
-			{
-				setSelectionFromRoot(NULL, gViewerWindow->childHasKeyboardFocus(this));
-			}
-
 			if(parent)
 			{
-				parent->removeItem(item_to_delete);
+				if (parent->removeItem(item_to_delete))
+				{
+					// change selection on successful delete
+					if (new_selection)
+					{
+						setSelectionFromRoot(new_selection, new_selection->isOpen(), gViewerWindow->childHasKeyboardFocus(this));
+					}
+					else
+					{
+						setSelectionFromRoot(NULL, gViewerWindow->childHasKeyboardFocus(this));
+					}
+				}
 			}
 			arrangeAll();
 		}
