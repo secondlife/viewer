@@ -164,15 +164,15 @@ BOOL	LLFloaterTools::postBuild()
 
 	LLRect rect;
 	mBtnFocus = LLUICtrlFactory::getButtonByName(this,"button focus");//btn;
-	childSetAction("button focus",select_tool, (void*)gToolCamera);
+	childSetAction("button focus",LLFloaterTools::setEditTool, (void*)gToolCamera);
 	mBtnMove = LLUICtrlFactory::getButtonByName(this,"button move");
-	childSetAction("button move",select_tool, (void*)gToolGrab);
+	childSetAction("button move",LLFloaterTools::setEditTool, (void*)gToolGrab);
 	mBtnEdit = LLUICtrlFactory::getButtonByName(this,"button edit");
-	childSetAction("button edit",select_tool, (void*)gToolTranslate);
+	childSetAction("button edit",LLFloaterTools::setEditTool, (void*)gToolTranslate);
 	mBtnCreate = LLUICtrlFactory::getButtonByName(this,"button create");
-	childSetAction("button create",select_tool, (void*)gToolCreate);
+	childSetAction("button create",LLFloaterTools::setEditTool, (void*)gToolCreate);
 	mBtnLand = LLUICtrlFactory::getButtonByName(this, "button land" );
-	childSetAction("button land",select_tool, (void*)gToolParcel);
+	childSetAction("button land",LLFloaterTools::setEditTool, (void*)gToolParcel);
 	mTextStatus = LLUICtrlFactory::getTextBoxByName(this,"text status");
 	mRadioZoom = LLUICtrlFactory::getCheckBoxByName(this,"radio zoom");
 	mSliderZoom = LLViewerUICtrlFactory::getVolumeSliderByName(this,"slider zoom");
@@ -364,7 +364,8 @@ LLFloaterTools::LLFloaterTools()
 	mPanelLandInfo(NULL),
 
 	mTabLand(NULL),
-	mDirty(TRUE)
+	mDirty(TRUE),
+	mLastTool(gToolNull)
 {
 	mAutoFocus = FALSE;
 	LLCallbackMap::map_t factory_map;
@@ -391,7 +392,6 @@ LLFloaterTools::~LLFloaterTools()
 	showMore(FALSE);
 	// children automatically deleted
 }
-
 
 void LLFloaterTools::setStatusText(const LLString& text)
 {
@@ -852,7 +852,7 @@ void click_popup_dozer_mode(LLUICtrl *, void *user)
 {
 	S32 show_owners = gSavedSettings.getBOOL("ShowParcelOwners");
 	S32 mode = (S32)(intptr_t) user;
-	select_tool( gToolLand );
+	gFloaterTools->setEditTool( gToolLand );
 	gSavedSettings.setS32("RadioLandBrushAction", mode);
 	gSavedSettings.setBOOL("ShowParcelOwners", show_owners);
 }
@@ -877,7 +877,7 @@ void click_apply_to_selection(void* user)
 void commit_select_tool(LLUICtrl *ctrl, void *data)
 {
 	S32 show_owners = gSavedSettings.getBOOL("ShowParcelOwners");
-	select_tool(data);
+	gFloaterTools->setEditTool(data);
 	gSavedSettings.setBOOL("ShowParcelOwners", show_owners);
 }
 
@@ -928,4 +928,23 @@ void LLFloaterTools::onClickGridOptions(void* data)
 	LLFloaterBuildOptions::show(NULL);
 	// RN: this makes grid options dependent on build tools window
 	//floaterp->addDependentFloater(LLFloaterBuildOptions::getInstance(), FALSE);
+}
+
+void LLFloaterTools::saveLastTool()
+{
+	mLastTool = gToolMgr->getCurrentTool( MASK_NONE );
+}
+
+void LLFloaterTools::setEditTool(void* tool_pointer)
+{
+	select_tool(tool_pointer);
+	if(gFloaterTools && tool_pointer != gToolNull)
+	{
+		gFloaterTools->saveLastTool();
+	}
+}
+
+void LLFloaterTools::onFocusReceived()
+{
+	select_tool(mLastTool);
 }

@@ -160,6 +160,12 @@ void LLToolMgr::initTools()
 	gMouselookToolset->addTool( gToolGun );
 
 	//
+	// Inspect tool
+	//
+	gToolInspect = new LLToolCompInspect();
+	gBasicToolset->addTool( gToolInspect );
+
+	//
 	// Face edit tool
 	//
 //	gToolMorph = new LLToolMorph();
@@ -323,6 +329,12 @@ LLTool* LLToolMgr::getCurrentTool(MASK override_mask)
 		return mCurrentTool;
 	}
 	else if (mCurrentTool == gToolGrab)
+	{
+		// ...can't switch out of grab
+		mOverrideTool = NULL;
+		return mCurrentTool;
+	}
+	else if (mCurrentTool == gToolInspect)
 	{
 		// ...can't switch out of grab
 		mOverrideTool = NULL;

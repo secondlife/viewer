@@ -74,6 +74,7 @@
 #include "llfloatercustomize.h"
 #include "llfloatereditui.h" // HACK JAMESDEBUG for ui editor
 #include "llfloaterland.h"
+#include "llfloaterinspect.h"
 #include "llfloatermap.h"
 #include "llfloatermute.h"
 #include "llfloaternamedesc.h"
@@ -2513,10 +2514,10 @@ BOOL LLViewerWindow::handlePerFrameHover()
 		}
 	}		
 
-	if (tool != gToolNull && tool != gToolDragAndDrop && !gSavedSettings.getBOOL("FreezeTime"))
+	if (tool != gToolNull  && tool != gToolInspect && tool != gToolCamera && tool != gToolDragAndDrop && !gSavedSettings.getBOOL("FreezeTime"))
 	{ 
 		LLMouseHandler *captor = gFocusMgr.getMouseCapture();
-		// With the null tool or drag and drop tool, don't muck
+		// With the null, inspect, or drag and drop tool, don't muck
 		// with visibility.
 
 		if (gFloaterTools->isMinimized() ||
@@ -2525,11 +2526,11 @@ BOOL LLViewerWindow::handlePerFrameHover()
 			&& !mSuppressToolbox					// not override in third person
 			&& gCurrentToolset != gFaceEditToolset	// not special mode
 			&& gCurrentToolset != gMouselookToolset
-			&& (!captor || captor->isView()))		// not dragging
-			)			
+			&& (!captor || captor->isView())) // not dragging
+			)
 		{
 			// Force floater tools to be visible (unless minimized)
-			if (!gFloaterTools->isMinimized() && !gFloaterTools->getVisible())
+			if (!gFloaterTools->getVisible())
 			{
 				gFloaterTools->open();
 			}
@@ -2675,6 +2676,7 @@ BOOL LLViewerWindow::handlePerFrameHover()
 
 	// sync land selection with edit and about land dialogs
 	if (gParcelMgr
+		&& !gMenuHolder->hasVisibleMenu()
 		&& !LLFloaterLand::floaterVisible()
 		&& !LLFloaterBuyLand::isOpen()
 		&& (!gFloaterTools || !gFloaterTools->getVisible()))

@@ -2535,23 +2535,24 @@ void LLInventoryModel::processSaveAssetIntoInventory(LLMessageSystem* msg,
 
 	LLUUID item_id;
 	msg->getUUIDFast(_PREHASH_InventoryData, _PREHASH_ItemID, item_id);
-	LLUUID new_asset_id;
-	msg->getUUIDFast(_PREHASH_InventoryData, _PREHASH_NewAssetID, new_asset_id);
 
-	lldebugs << "LLInventoryModel::processSaveAssetIntoInventory itemID=" << item_id << llendl;
-
+	// The viewer ignores the asset id because this message is only
+	// used for attachments/objects, so the asset id is not used in
+	// the viewer anyway.
+	lldebugs << "LLInventoryModel::processSaveAssetIntoInventory itemID="
+		<< item_id << llendl;
 	LLViewerInventoryItem* item = gInventory.getItem( item_id );
 	if( item )
 	{
-		item->setAssetUUID(new_asset_id);
 		LLCategoryUpdate up(item->getParentUUID(), 0);
 		gInventory.accountForUpdate(up);
-		gInventory.addChangedMask( LLInventoryObserver::INTERNAL, item_id );
+		gInventory.addChangedMask( LLInventoryObserver::INTERNAL, item_id);
 		gInventory.notifyObservers();
 	}
 	else
 	{
-		llinfos << "LLInventoryModel::processSaveAssetIntoInventory item not found: " << item_id << llendl;
+		llinfos << "LLInventoryModel::processSaveAssetIntoInventory item"
+			" not found: " << item_id << llendl;
 	}
 	if(gViewerWindow)
 	{

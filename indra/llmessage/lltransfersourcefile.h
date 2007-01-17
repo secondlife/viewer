@@ -48,6 +48,7 @@ protected:
 									  BOOL &delete_returned);
 	/*virtual*/ void completionCallback(const LLTSCode status);
 
+	virtual void packParams(LLDataPacker& dp) const;
 	/*virtual*/ BOOL unpackParams(LLDataPacker &dp);
 
 protected:

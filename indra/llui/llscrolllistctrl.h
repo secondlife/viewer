@@ -14,6 +14,7 @@
 
 #include "lluictrl.h"
 #include "llctrlselectioninterface.h"
+#include "lldarray.h"
 #include "llfontgl.h"
 #include "llui.h"
 #include "llstring.h"
@@ -298,6 +299,7 @@ public:
 	void			highlightNthItem( S32 index );
 	void			setDoubleClickCallback( void (*cb)(void*) ) { mOnDoubleClickCallback = cb; }
 	void			setMaxiumumSelectCallback( void (*cb)(void*) ) { mOnMaximumSelectCallback = cb; }
+	void			setSortChangedCallback( void (*cb)(void*) ) { mOnSortChangedCallback = cb; }
 
 	void			swapWithNext(S32 index);
 	void			swapWithPrevious(S32 index);
@@ -436,6 +438,11 @@ public:
 	void setNumDynamicColumns(int num) { mNumDynamicWidthColumns = num; }
 	void setTotalStaticColumnWidth(int width) { mTotalStaticColumnWidth = width; }
 
+	std::string     getSortColumnName();
+	BOOL			getSortAscending() { return mSortAscending; }
+
+	S32		selectMultiple( LLDynamicArray<LLUUID> ids );
+
 protected:
 	void			selectPrevItem(BOOL extend_selection);
 	void			selectNextItem(BOOL extend_selection);
@@ -494,6 +501,7 @@ protected:
 	S32				mBorderThickness;
 	void			(*mOnDoubleClickCallback)(void* userdata);
 	void			(*mOnMaximumSelectCallback)(void* userdata );
+	void			(*mOnSortChangedCallback)(void* userdata);
 
 	S32				mHighlightedItem;
 	LLViewBorder*	mBorder;
@@ -507,8 +515,8 @@ protected:
 	S32				mNumDynamicWidthColumns;
 	S32				mTotalStaticColumnWidth;
 
-	static U32      sSortColumn;
-	static BOOL     sSortAscending;
+	U32      mSortColumn;
+	BOOL     mSortAscending;
 
 	std::map<LLString, LLScrollListColumn> mColumns;
 	std::vector<LLScrollListColumn*> mColumnsIndexed;

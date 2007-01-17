@@ -14,8 +14,10 @@
 
 
 
-LLTransferTargetFile::LLTransferTargetFile(const LLUUID &uuid) :
-	LLTransferTarget(LLTTT_FILE, uuid),
+LLTransferTargetFile::LLTransferTargetFile(
+	const LLUUID& uuid,
+	LLTransferSourceType src_type) :
+	LLTransferTarget(LLTTT_FILE, uuid, src_type),
 	mFP(NULL)
 {
 }
@@ -28,6 +30,13 @@ LLTransferTargetFile::~LLTransferTargetFile()
 		fclose(mFP);
 		mFP = NULL;
 	}
+}
+
+// virtual
+bool LLTransferTargetFile::unpackParams(LLDataPacker& dp)
+{
+	// we can safely ignore this call
+	return true;
 }
 
 void LLTransferTargetFile::applyParams(const LLTransferTargetParams &params)

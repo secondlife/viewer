@@ -4451,7 +4451,13 @@ void process_create_trusted_circuit(LLMessageSystem *msg, void **)
 	}
 
 	char their_digest[MD5HEX_STR_SIZE];
-	msg->getBinaryDataFast(_PREHASH_DataBlock, _PREHASH_Digest, their_digest, 32);
+	S32 size = msg->getSizeFast(_PREHASH_DataBlock, _PREHASH_Digest);
+	if(size != MD5HEX_STR_BYTES)
+	{
+		// ignore requests which pack the wrong amount of data.
+		return;
+	}
+	msg->getBinaryDataFast(_PREHASH_DataBlock, _PREHASH_Digest, their_digest, MD5HEX_STR_BYTES);
 	their_digest[MD5HEX_STR_SIZE - 1] = '\0';
 	if(msg->isMatchingDigestForWindowAndUUIDs(their_digest, TRUST_TIME_WINDOW, local_id, remote_id))
 	{

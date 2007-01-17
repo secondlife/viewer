@@ -23,6 +23,7 @@ enum EUserServerDomain
 	USERSERVER_SHAKTI,
 	USERSERVER_SOMA,
 	USERSERVER_GANGA,
+	USERSERVER_UMA,
 	USERSERVER_LOCAL,
 	USERSERVER_OTHER, // IP address set via -user or other command line option
 	USERSERVER_COUNT

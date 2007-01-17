@@ -281,6 +281,7 @@ bool LLVFSThread::Request::processIO()
 		LLUUID* new_idp = (LLUUID*)mBuffer;
 		LLAssetType::EType new_type = (LLAssetType::EType)mBytes;
 		mVFS->renameFile(mFileID, mFileType, *new_idp, new_type);
+		mFileID = *new_idp;
 		complete = true;
 		//llinfos << llformat("LLVFSThread::WRITE '%s': %d bytes arg:%d",getFilename(),mBytesRead) << llendl;
 	}

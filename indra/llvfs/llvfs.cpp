@@ -915,7 +915,11 @@ void LLVFS::renameFile(const LLUUID &file_id, const LLAssetType::EType file_type
 
 			for (S32 i = 0; i < (S32)VFSLOCK_COUNT; i++)
 			{
-				src_block->mLocks[(EVFSLock)i] = dest_block->mLocks[(EVFSLock)i];
+				if(dest_block->mLocks[i])
+				{
+					llerrs << "Renaming VFS block to a locked file." << llendl;
+				}
+				dest_block->mLocks[i] = src_block->mLocks[i];
 			}
 			
 			mFileBlocks.erase(new_spec);

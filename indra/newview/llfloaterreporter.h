@@ -62,6 +62,8 @@ public:
 					  EReportType = UNKNOWN_REPORT);
 	/*virtual*/ ~LLFloaterReporter();
 
+	virtual void draw();
+
 	// Enables all buttons
 	static void showFromMenu(EReportType report_type);
 
@@ -81,6 +83,9 @@ public:
 	static LLFloaterReporter* createNewAbuseReporter();
 	static LLFloaterReporter* createNewBugReporter();
 
+	// static
+	static void processRegionInfo(LLMessageSystem* msg);
+	
 	void setPickedObjectProperties(const char *object_name, const char *owner_name);
 	void uploadScreenshot();
 
@@ -96,6 +101,7 @@ private:
 	EReportType		mReportType;
 	LLUUID 			mObjectID;
 	LLUUID			mScreenID;
+	LLUUID			mAbuserID;
 	BOOL			mDeselectOnClose;
 	BOOL 			mPicking;
 	LLVector3		mPosition;

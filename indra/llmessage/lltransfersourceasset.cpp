@@ -35,16 +35,9 @@ void LLTransferSourceAsset::initTransfer()
 		// *HACK: asset transfers will only be coming from the viewer
 		// to the simulator. This is subset of assets we allow to be
 		// simply pulled straight from the asset system.
-		// *FIX: Make this list smaller.
 		LLUUID* tidp;
-		switch(mParams.getAssetType())
+		if(is_asset_fetch_by_id_allowed(mParams.getAssetType()))
 		{
-		case LLAssetType::AT_SOUND:
-		case LLAssetType::AT_LANDMARK:
-		case LLAssetType::AT_CLOTHING:
-		case LLAssetType::AT_BODYPART:
-		case LLAssetType::AT_GESTURE:
-		case LLAssetType::AT_ANIMATION:
 			tidp = new LLUUID(getID());
 			gAssetStorage->getAssetData(
 				mParams.getAssetID(),
@@ -52,20 +45,20 @@ void LLTransferSourceAsset::initTransfer()
 				LLTransferSourceAsset::responderCallback,
 				tidp,
 				FALSE);
-			break;
-		default:
-		llwarns << "Attempted to request blocked asset "
-			<< mParams.getAssetID() << ":"
-			<< LLAssetType::lookupHumanReadable(mParams.getAssetType())
-			<< llendl;
+		}
+		else
+		{
+			llwarns << "Attempted to request blocked asset "
+				<< mParams.getAssetID() << ":"
+				<< LLAssetType::lookupHumanReadable(mParams.getAssetType())
+				<< llendl;
 			sendTransferStatus(LLTS_ERROR);
-			break;
 		}
 	}
 	else
 	{
-		llwarns << "Attempted to request asset "
-			<< mParams.getAssetID() << ":" << LLAssetType::lookupHumanReadable(mParams.getAssetType())
+		llwarns << "Attempted to request asset " << mParams.getAssetID()
+			<< ":" << LLAssetType::lookupHumanReadable(mParams.getAssetType())
 			<< " without an asset system!" << llendl;
 		sendTransferStatus(LLTS_ERROR);
 	}
@@ -147,10 +140,15 @@ void LLTransferSourceAsset::completionCallback(const LLTSCode status)
 	// we've got it open.
 }
 
+void LLTransferSourceAsset::packParams(LLDataPacker& dp) const
+{
+	//llinfos << "LLTransferSourceAsset::packParams" << llendl;
+	mParams.packParams(dp);
+}
+
 BOOL LLTransferSourceAsset::unpackParams(LLDataPacker &dp)
 {
 	//llinfos << "LLTransferSourceAsset::unpackParams" << llendl;
-
 	return mParams.unpackParams(dp);
 }
 
@@ -233,3 +231,47 @@ BOOL LLTransferSourceParamsAsset::unpackParams(LLDataPacker &dp)
 	return TRUE;
 }
 
+/**
+ * Helper functions
+ */
+bool is_asset_fetch_by_id_allowed(LLAssetType::EType type)
+{
+	// *FIX: Make this list smaller.
+	bool rv = false;
+	switch(type)
+	{
+	case LLAssetType::AT_SOUND:
+	case LLAssetType::AT_LANDMARK:
+	case LLAssetType::AT_CLOTHING:
+	case LLAssetType::AT_BODYPART:
+	case LLAssetType::AT_ANIMATION:
+	case LLAssetType::AT_GESTURE:
+		rv = true;
+		break;
+	default:
+		break;
+	}
+	return rv;
+}
+
+bool is_asset_id_knowable(LLAssetType::EType type)
+{
+	// *FIX: Make this list smaller.
+	bool rv = false;
+	switch(type)
+	{
+	case LLAssetType::AT_TEXTURE:
+	case LLAssetType::AT_SOUND:
+	case LLAssetType::AT_LANDMARK:
+	case LLAssetType::AT_CLOTHING:
+	case LLAssetType::AT_NOTECARD:
+	case LLAssetType::AT_BODYPART:
+	case LLAssetType::AT_ANIMATION:
+	case LLAssetType::AT_GESTURE:
+		rv = true;
+		break;
+	default:
+		break;
+	}
+	return rv;
+}

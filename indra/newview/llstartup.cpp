@@ -796,6 +796,7 @@ BOOL idle_startup()
 		case USERSERVER_DURGA:
 		case USERSERVER_SOMA:
 		case USERSERVER_GANGA:
+		case USERSERVER_UMA:
 		{
 				const char* host_name = gUserServerDomainName[gUserServerChoice].mName;
 				sprintf(gUserServerName,"%s", host_name);
@@ -2547,6 +2548,7 @@ void login_show()
 	LLPanelLogin::addServer( gUserServerDomainName[USERSERVER_DURGA].mLabel,	USERSERVER_DURGA );
 	LLPanelLogin::addServer( gUserServerDomainName[USERSERVER_SHAKTI].mLabel,	USERSERVER_SHAKTI );
 	LLPanelLogin::addServer( gUserServerDomainName[USERSERVER_GANGA].mLabel,	USERSERVER_GANGA );
+	LLPanelLogin::addServer( gUserServerDomainName[USERSERVER_UMA].mLabel,	USERSERVER_UMA );
 	LLPanelLogin::addServer( gUserServerDomainName[USERSERVER_SOMA].mLabel,	USERSERVER_SOMA );
 }
 

@@ -465,15 +465,29 @@ void LLAssetStorage::_queueDataRequest(const LLUUID& uuid, LLAssetType::EType at
 }
 
 
-void LLAssetStorage::downloadCompleteCallback(S32 result, void *user_data)
+void LLAssetStorage::downloadCompleteCallback(
+	S32 result,
+	const LLUUID& file_id,
+	LLAssetType::EType file_type,
+	void* user_data)
 {
-	LLAssetRequest* req = (LLAssetRequest *)user_data;
+	lldebugs << "LLAssetStorage::downloadCompleteCallback() for " << file_id
+		 << "," << LLAssetType::lookup(file_type) << llendl;
+	LLAssetRequest* req = (LLAssetRequest*)user_data;
+	if(!req)
+	{
+		llwarns << "LLAssetStorage::downloadCompleteCallback called without"
+			"a valid request." << llendl;
+		return;
+	}
 	if (!gAssetStorage)
 	{
 		llwarns << "LLAssetStorage::downloadCompleteCallback called without any asset system, aborting!" << llendl;
 		return;
 	}
 
+	req->setUUID(file_id);
+	req->setType(file_type);
 	if (LL_ERR_NOERR == result)
 	{
 		// we might have gotten a zero-size file
@@ -601,15 +615,28 @@ void LLAssetStorage::getEstateAsset(const LLHost &object_sim, const LLUUID &agen
 	}
 }
 
-void LLAssetStorage::downloadEstateAssetCompleteCallback(S32 result, void *user_data)
+void LLAssetStorage::downloadEstateAssetCompleteCallback(
+	S32 result,
+	const LLUUID& file_id,
+	LLAssetType::EType file_type,
+	void* user_data)
 {
-	LLEstateAssetRequest *req = (LLEstateAssetRequest *)user_data;
+	LLEstateAssetRequest *req = (LLEstateAssetRequest*)user_data;
+	if(!req)
+	{
+		llwarns << "LLAssetStorage::downloadEstateAssetCompleteCallback called"
+			" without a valid request." << llendl;
+		return;
+	}
 	if (!gAssetStorage)
 	{
-		llwarns << "LLAssetStorage::downloadCompleteCallback called without any asset system, aborting!" << llendl;
+		llwarns << "LLAssetStorage::downloadEstateAssetCompleteCallback called"
+			" without any asset system, aborting!" << llendl;
 		return;
 	}
 
+	req->setUUID(file_id);
+	req->setType(file_type);
 	if (LL_ERR_NOERR == result)
 	{
 		// we might have gotten a zero-size file
@@ -636,29 +663,36 @@ void LLAssetStorage::getInvItemAsset(const LLHost &object_sim, const LLUUID &age
 	//
 	// Probably will get rid of this early out?
 	//
-	if (asset_id.isNull())
-	{
-		// Special case early out for NULL uuid
-		if (callback)
-		{
-			callback(mVFS, asset_id, atype, user_data, LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE);
-		}
-		return;
-	}
+	//if (asset_id.isNull())
+	//{
+	//	// Special case early out for NULL uuid
+	//	if (callback)
+	//	{
+	//		callback(mVFS, asset_id, atype, user_data, LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE);
+	//	}
+	//	return;
+	//}
 
-	BOOL exists = mVFS->getExists(asset_id, atype);
-	LLVFile file(mVFS, asset_id, atype);
-	U32 size = exists ? file.getSize() : 0;
+	bool exists = false; 
+	U32 size = 0;
 
-	if (size < 1)
+	if(asset_id.notNull())
 	{
-		if (exists)
+		exists = mVFS->getExists(asset_id, atype);
+		LLVFile file(mVFS, asset_id, atype);
+		size = exists ? file.getSize() : 0;
+		if(exists && size < 1)
 		{
 			llwarns << "Asset vfile " << asset_id << ":" << atype << " found with bad size " << file.getSize() << ", removing" << llendl;
 			file.remove();
 		}
 
-		// See whether we should talk to the object's originating sim, or the upstream provider.
+	}
+
+	if (size < 1)
+	{
+		// See whether we should talk to the object's originating sim,
+		// or the upstream provider.
 		LLHost source_host;
 		if (object_sim.isOk())
 		{
@@ -688,7 +722,9 @@ void LLAssetStorage::getInvItemAsset(const LLHost &object_sim, const LLUUID &age
 			tpvf.setAsset(asset_id, atype);
 			tpvf.setCallback(downloadInvItemCompleteCallback, req);
 
-			llinfos << "Starting transfer for " << asset_id << llendl;
+			llinfos << "Starting transfer for inventory asset "
+				<< item_id << " owned by " << owner_id << "," << task_id
+				<< llendl;
 			LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(source_host, LLTCT_ASSET);
 			ttcp->requestTransfer(spi, tpvf, 100.f + (is_priority ? 1.f : 0.f));
 		}
@@ -715,15 +751,27 @@ void LLAssetStorage::getInvItemAsset(const LLHost &object_sim, const LLUUID &age
 }
 
 
-void LLAssetStorage::downloadInvItemCompleteCallback(S32 result, void *user_data)
+void LLAssetStorage::downloadInvItemCompleteCallback(
+	S32 result,
+	const LLUUID& file_id,
+	LLAssetType::EType file_type,
+	void* user_data)
 {
-	LLInvItemRequest *req = (LLInvItemRequest *)user_data;
+	LLInvItemRequest *req = (LLInvItemRequest*)user_data;
+	if(!req)
+	{
+		llwarns << "LLAssetStorage::downloadEstateAssetCompleteCallback called"
+			" without a valid request." << llendl;
+		return;
+	}
 	if (!gAssetStorage)
 	{
 		llwarns << "LLAssetStorage::downloadCompleteCallback called without any asset system, aborting!" << llendl;
 		return;
 	}
 
+	req->setUUID(file_id);
+	req->setType(file_type);
 	if (LL_ERR_NOERR == result)
 	{
 		// we might have gotten a zero-size file

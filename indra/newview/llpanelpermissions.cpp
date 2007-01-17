@@ -137,11 +137,11 @@ void LLPanelPermissions::refresh()
 		root_selected = FALSE;
 	}
 
-	BOOL attachment_selected = gSelectMgr->selectionIsAttachment();
-
+	//BOOL attachment_selected = gSelectMgr->selectionIsAttachment();
+	//attachment_selected = false;
 	LLViewerObject* objectp = NULL;
 	if(nodep) objectp = nodep->getObject();
-	if(!nodep || !objectp || attachment_selected)
+	if(!nodep || !objectp)// || attachment_selected)
 	{
 		// ...nothing selected
 		childSetEnabled("perm_modify",false);

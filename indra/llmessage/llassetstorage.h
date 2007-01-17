@@ -68,6 +68,10 @@ public:
 	
 	LLUUID getUUID() const					{ return mUUID; }
 	LLAssetType::EType getType() const		{ return mType; }
+
+	void setUUID(const LLUUID& id) { mUUID = id; }
+	void setType(LLAssetType::EType type) { mType = type; }
+
 protected:
 	LLUUID	mUUID;
 	LLAssetType::EType mType;
@@ -97,6 +101,10 @@ public:
 
 	LLUUID getUUID() const					{ return mUUID; }
 	LLAssetType::EType getType() const		{ return mType; }
+
+	void setUUID(const LLUUID& id) { mUUID = id; }
+	void setType(LLAssetType::EType type) { mType = type; }
+
 protected:
 	LLUUID	mUUID;
 	LLAssetType::EType mType;
@@ -122,6 +130,10 @@ public:
 
 	LLUUID getUUID() const					{ return mUUID; }
 	LLAssetType::EType getAType() const		{ return mAType; }
+
+	void setUUID(const LLUUID& id) { mUUID = id; }
+	void setType(LLAssetType::EType type) { mAType = type; }
+
 protected:
 	LLUUID	mUUID;
 	LLAssetType::EType mAType;
@@ -237,9 +249,21 @@ public:
 	LLSD getPendingUploadTypes() const;
 
 	// download process callbacks
-	static void downloadCompleteCallback(const S32 result, void *user_data);
-	static void downloadEstateAssetCompleteCallback(const S32 result, void *user_data);
-	static void downloadInvItemCompleteCallback(const S32 result, void *user_data);
+	static void downloadCompleteCallback(
+		S32 result,
+		const LLUUID& file_id,
+		LLAssetType::EType file_type,
+		void* user_data);
+	static void downloadEstateAssetCompleteCallback(
+		S32 result,
+		const LLUUID& file_id,
+		LLAssetType::EType file_type,
+		void* user_data);
+	static void downloadInvItemCompleteCallback(
+		S32 result,
+		const LLUUID& file_id,
+		LLAssetType::EType file_type,
+		void* user_data);
 
 	// upload process callbacks
 	static void uploadCompleteCallback(const LLUUID&, void *user_data, S32 result);

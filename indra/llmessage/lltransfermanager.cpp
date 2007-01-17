@@ -206,30 +206,43 @@ void LLTransferManager::processTransferRequest(LLMessageSystem *msgp, void **)
 		return;
 	}
 
-
-	//llinfos << transfer_id << ":" << source_type << ":" << channel_type << ":" << priority << llendl;
-	LLTransferSource *tsp = LLTransferSource::createSource(source_type, transfer_id, priority);
-	if (!tsp)
+	S32 size = msgp->getSize("TransferInfo", "Params");
+	if(size > MAX_PARAMS_SIZE)
 	{
-		llwarns << "LLTransferManager::processTransferRequest couldn't create transfer source!" << llendl;
+		llwarns << "LLTransferManager::processTransferRequest params too big."
+			<< llendl;
 		return;
 	}
-	tscp->addTransferSource(tsp);
 
+	//llinfos << transfer_id << ":" << source_type << ":" << channel_type << ":" << priority << llendl;
+	LLTransferSource* tsp = LLTransferSource::createSource(
+		source_type,
+		transfer_id,
+		priority);
+	if(!tsp)
+	{
+		llwarns << "LLTransferManager::processTransferRequest couldn't create"
+			<< " transfer source!" << llendl;
+		return;
+	}
 	U8 tmp[MAX_PARAMS_SIZE];
-	S32 size = msgp->getSize("TransferInfo", "Params");
-	gMessageSystem->getBinaryData("TransferInfo", "Params", tmp, size);
+	msgp->getBinaryData("TransferInfo", "Params", tmp, size);
 
 	LLDataPackerBinaryBuffer dpb(tmp, MAX_PARAMS_SIZE);
 	BOOL unpack_ok = tsp->unpackParams(dpb);
 	if (!unpack_ok)
 	{
-		llwarns << "Got bad parameters for a transfer request!" << llendl;
+		// This should only happen if the data is corrupt or
+		// incorrectly packed.
+		// *NOTE: We may want to call abortTransfer().
+		llwarns << "LLTransferManager::processTransferRequest: bad parameters."
+			<< llendl;
+		delete tsp;
+		return;
 	}
 
+	tscp->addTransferSource(tsp);
 	tsp->initTransfer();
-	// Don't use the status code from initTransfer for anything right now, was used before but the logic
-	// changed.
 }
 
 
@@ -275,6 +288,31 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
 		// Clean up the transfer.
 		ttcp->deleteTransfer(ttp);
 		return;
+	}
+
+	// unpack the params
+	S32 params_size = msgp->getSize("TransferInfo", "Params");
+	if(params_size > MAX_PARAMS_SIZE)
+	{
+		llwarns << "LLTransferManager::processTransferInfo params too big."
+			<< llendl;
+		return;
+	}
+	else if(params_size > 0)
+	{
+		U8 tmp[MAX_PARAMS_SIZE];
+		msgp->getBinaryData("TransferInfo", "Params", tmp, params_size);
+		LLDataPackerBinaryBuffer dpb(tmp, MAX_PARAMS_SIZE);
+		if (!ttp->unpackParams(dpb))
+		{
+			// This should only happen if the data is corrupt or
+			// incorrectly packed.
+			llwarns << "LLTransferManager::processTransferRequest: bad params."
+				<< llendl;
+			ttp->abortTransfer();
+			ttcp->deleteTransfer(ttp);
+			return;
+		}
 	}
 
 	llinfos << "Receiving " << transfer_id << ", size " << size << " bytes" << llendl;
@@ -373,9 +411,9 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
 	LLTransferTarget *ttp = ttcp->findTransferTarget(transfer_id);
 	if (!ttp)
 	{
-		llwarns << "Didn't find matching transfer for " << transfer_id << ", aborting!" << llendl;
-		llwarns << "Packet ID: " << packet_id << llendl;
-		llwarns << "Should notify source of this!" << llendl;
+		llwarns << "Didn't find matching transfer for " << transfer_id
+			<< " processing packet " << packet_id
+			<< " from " << msgp->getSender() << llendl;
 		return;
 	}
 
@@ -407,11 +445,29 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
 
 	if ((!ttp->gotInfo()) || (ttp->getNextPacketID() != packet_id))
 	{
-
-		llwarns << "Out of order packet in transfer " << transfer_id << ", got " << packet_id << " expecting " << ttp->getNextPacketID() << llendl;
-
 		// Put this on a list of packets to be delivered later.
-		ttp->addDelayedPacket(packet_id, status, tmp_data, size);
+		if(!ttp->addDelayedPacket(packet_id, status, tmp_data, size))
+		{
+			// Whoops - failed to add a delayed packet for some reason.
+			llwarns << "Too many delayed packets processing transfer "
+				<< transfer_id << " from " << msgp->getSender() << llendl;
+			ttp->abortTransfer();
+			ttcp->deleteTransfer(ttp);
+			return;
+		}
+		const S32 LL_TRANSFER_WARN_GAP = 10;
+		if(!ttp->gotInfo())
+		{
+			llwarns << "Got data packet before information in transfer "
+				<< transfer_id << " from " << msgp->getSender()
+				<< ", got " << packet_id << llendl;
+		}
+		else if((packet_id - ttp->getNextPacketID()) > LL_TRANSFER_WARN_GAP)
+		{
+			llwarns << "Out of order packet in transfer " << transfer_id
+				<< " from " << msgp->getSender() << ", got " << packet_id
+				<< " expecting " << ttp->getNextPacketID() << llendl;
+		}
 		return;
 	}
 
@@ -862,13 +918,17 @@ LLTransferTargetChannel::~LLTransferTargetChannel()
 }
 
 
-void LLTransferTargetChannel::requestTransfer(const LLTransferSourceParams &source_params,
-											  const LLTransferTargetParams &target_params,
-											  const F32 priority)
+void LLTransferTargetChannel::requestTransfer(
+	const LLTransferSourceParams& source_params,
+	const LLTransferTargetParams& target_params,
+	const F32 priority)
 {
 	LLUUID id;
 	id.generate();
-	LLTransferTarget *ttp = LLTransferTarget::createTarget(target_params.getType(), id);
+	LLTransferTarget* ttp = LLTransferTarget::createTarget(
+		target_params.getType(),
+		id,
+		source_params.getType());
 	if (!ttp)
 	{
 		llwarns << "LLTransferManager::requestTransfer aborting due to target creation failure!" << llendl;
@@ -988,6 +1048,11 @@ void LLTransferSource::sendTransferStatus(LLTSCode status)
 	gMessageSystem->addS32("ChannelType", mChannelp->getChannelType());
 	gMessageSystem->addS32("Status", status);
 	gMessageSystem->addS32("Size", mSize);
+	U8 tmp[MAX_PARAMS_SIZE];
+	LLDataPackerBinaryBuffer dp(tmp, MAX_PARAMS_SIZE);
+	packParams(dp);
+	S32 len = dp.getCurrentSize();
+	gMessageSystem->addBinaryData("Params", tmp, len);
 	gMessageSystem->sendReliable(mChannelp->getHost());
 
 	// Abort if there was as asset system issue.
@@ -1105,9 +1170,13 @@ LLTransferPacket::~LLTransferPacket()
 // LLTransferTarget implementation
 //
 
-LLTransferTarget::LLTransferTarget(LLTransferTargetType type, const LLUUID &id) :
+LLTransferTarget::LLTransferTarget(
+	LLTransferTargetType type,
+	const LLUUID& transfer_id,
+	LLTransferSourceType source_type) : 
 	mType(type),
-	mID(id),
+	mSourceType(source_type),
+	mID(transfer_id),
 	mGotInfo(FALSE),
 	mSize(0),
 	mLastPacketID(-1)
@@ -1143,27 +1212,48 @@ void LLTransferTarget::abortTransfer()
 	completionCallback(LLTS_ABORT);
 }
 
-void LLTransferTarget::addDelayedPacket(const S32 packet_id, const LLTSCode status, U8 *datap, const S32 size)
+bool LLTransferTarget::addDelayedPacket(
+	const S32 packet_id,
+	const LLTSCode status,
+	U8* datap,
+	const S32 size)
 {
-	LLTransferPacket *tpp = new LLTransferPacket(packet_id, status, datap, size);
+	const transfer_packet_map::size_type LL_MAX_DELAYED_PACKETS = 100;
+	if(mDelayedPacketMap.size() > LL_MAX_DELAYED_PACKETS)
+	{
+		// too many delayed packets
+		return false;
+	}
+
+	LLTransferPacket* tpp = new LLTransferPacket(
+		packet_id,
+		status,
+		datap,
+		size);
+
 #ifdef _DEBUG
 	if (mDelayedPacketMap.find(packet_id) != mDelayedPacketMap.end())
 	{
 		llerrs << "Packet ALREADY in delayed packet map!" << llendl;
 	}
 #endif
+
 	mDelayedPacketMap[packet_id] = tpp;
+	return true;
 }
 
 
-LLTransferTarget *LLTransferTarget::createTarget(const LLTransferTargetType type, const LLUUID &id)
+LLTransferTarget* LLTransferTarget::createTarget(
+	LLTransferTargetType type,
+	const LLUUID& id,
+	LLTransferSourceType source_type)
 {
 	switch (type)
 	{
 	case LLTTT_FILE:
-		return new LLTransferTargetFile(id);
+		return new LLTransferTargetFile(id, source_type);
 	case LLTTT_VFILE:
-		return new LLTransferTargetVFile(id);
+		return new LLTransferTargetVFile(id, source_type);
 	default:
 		llwarns << "Unknown transfer target type: " << type << llendl;
 		return NULL;
@@ -1200,6 +1290,7 @@ void LLTransferSourceParamsInvItem::setAsset(const LLUUID &asset_id, const LLAss
 
 void LLTransferSourceParamsInvItem::packParams(LLDataPacker &dp) const
 {
+	lldebugs << "LLTransferSourceParamsInvItem::packParams()" << llendl;
 	dp.packUUID(mAgentID, "AgentID");
 	dp.packUUID(mSessionID, "SessionID");
 	dp.packUUID(mOwnerID, "OwnerID");
@@ -1252,6 +1343,9 @@ void LLTransferSourceParamsEstate::setAsset(const LLUUID &asset_id, const LLAsse
 void LLTransferSourceParamsEstate::packParams(LLDataPacker &dp) const
 {
 	dp.packUUID(mAgentID, "AgentID");
+	// *NOTE: We do not want to pass the session id from the server to
+	// the client, but I am not sure if anyone expects this value to
+	// be set on the client.
 	dp.packUUID(mSessionID, "SessionID");
 	dp.packS32(mEstateAssetType, "EstateAssetType");
 }

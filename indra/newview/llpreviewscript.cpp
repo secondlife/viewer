@@ -847,7 +847,7 @@ void LLPreviewLSL::loadAsset()
 		// do the more generic search.
 		getItem();
 	}
-	if(item && !(item->getAssetUUID().isNull()))
+	if(item)
 	{
 		BOOL is_copyable = gAgent.allowOperation(PERM_COPY, 
 								item->getPermissions(), GP_OBJECT_MANIPULATE);
@@ -1153,6 +1153,8 @@ void LLPreviewLSL::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* user_d
 void LLPreviewLSL::onLoadComplete( LLVFS *vfs, const LLUUID& asset_uuid, LLAssetType::EType type,
 								   void* user_data, S32 status)
 {
+	lldebugs << "LLPreviewLSL::onLoadComplete: got uuid " << asset_uuid
+		 << llendl;
 	LLUUID* item_uuid = (LLUUID*)user_data;
 	LLPreviewLSL* preview = LLPreviewLSL::getInstance(*item_uuid);
 	if( preview )
@@ -1357,7 +1359,7 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 				mScriptEd->mEditor->makePristine();
 				mScriptEd->mEditor->setEnabled(FALSE);
 			}
-			else if(mItem.notNull() && mItem->getAssetUUID().notNull())
+			else if(mItem.notNull())
 			{
 				// request the text from the object
 				LLUUID* user_data = new LLUUID(mItemID ^ mObjectID);
@@ -1435,6 +1437,8 @@ void LLLiveLSLEditor::onLoadComplete(LLVFS *vfs, const LLUUID& asset_id,
 									 LLAssetType::EType type,
 									 void* user_data, S32 status)
 {
+	lldebugs << "LLLiveLSLEditor::onLoadComplete: got uuid " << asset_id
+		 << llendl;
 	LLLiveLSLEditor* instance = NULL;
 	LLUUID* xored_id = (LLUUID*)user_data;
 

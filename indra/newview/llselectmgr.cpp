@@ -30,6 +30,7 @@
 #include "llagent.h"
 #include "llviewerwindow.h"
 #include "lldrawable.h"
+#include "llfloaterinspect.h"
 #include "llfloaterproperties.h"
 #include "llfloaterrate.h"
 #include "llfloaterreporter.h"
@@ -97,6 +98,7 @@ F32	LLSelectMgr::sHighlightUAnim = 0.f;
 F32	LLSelectMgr::sHighlightVAnim = 0.f;
 LLColor4 LLSelectMgr::sSilhouetteParentColor;
 LLColor4 LLSelectMgr::sSilhouetteChildColor;
+LLColor4 LLSelectMgr::sHighlightInspectColor;
 LLColor4 LLSelectMgr::sHighlightParentColor;
 LLColor4 LLSelectMgr::sHighlightChildColor;
 LLColor4 LLSelectMgr::sContextSilhouetteColor;
@@ -145,6 +147,7 @@ LLSelectMgr::LLSelectMgr()
 	sSilhouetteChildColor = gColors.getColor("SilhouetteChildColor");
 	sHighlightParentColor = gColors.getColor("HighlightParentColor");
 	sHighlightChildColor = gColors.getColor("HighlightChildColor");
+	sHighlightInspectColor = gColors.getColor("HighlightInspectColor");
 	sContextSilhouetteColor = gColors.getColor("ContextSilhouetteColor")*0.5f;
 
 	sRenderLightRadius = gSavedSettings.getBOOL("RenderLightRadius");
@@ -2810,7 +2813,7 @@ BOOL LLSelectMgr::selectGetOwner(LLUUID& id, LLString& name)
 	if(!node->mValid) return FALSE;
 	LLViewerObject* obj = node->getObject();
 	if(!obj) return FALSE;
-	if(!(obj->isRoot() || obj->isJointChild())) return FALSE;
+	if(!(obj->isRootEdit() || obj->isRoot() || obj->isJointChild())) return FALSE;
 
 	BOOL group_owner = FALSE;
 	id.setNull();
@@ -4660,6 +4663,7 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 		LLUUID owner_id;
 		LLUUID group_id;
 		LLUUID last_owner_id;
+		U64 creation_date;
 		LLUUID extra_id;
 		U32 base_mask, owner_mask, group_mask, everyone_mask, next_owner_mask;
 		LLSaleInfo sale_info;
@@ -4671,6 +4675,7 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 		msg->getUUIDFast(_PREHASH_ObjectData, _PREHASH_CreatorID, creator_id, i);
 		msg->getUUIDFast(_PREHASH_ObjectData, _PREHASH_OwnerID, owner_id, i);
 		msg->getUUIDFast(_PREHASH_ObjectData, _PREHASH_GroupID, group_id, i);
+		msg->getU64Fast(_PREHASH_ObjectData, _PREHASH_CreationDate, creation_date, i);
 		msg->getU32Fast(_PREHASH_ObjectData, _PREHASH_BaseMask, base_mask, i);
 		msg->getU32Fast(_PREHASH_ObjectData, _PREHASH_OwnerMask, owner_mask, i);
 		msg->getU32Fast(_PREHASH_ObjectData, _PREHASH_GroupMask, group_mask, i);
@@ -4789,6 +4794,7 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 			node->mPermissions->init(creator_id, owner_id,
 									 last_owner_id, group_id);
 			node->mPermissions->initMasks(base_mask, owner_mask, everyone_mask, group_mask, next_owner_mask);
+			node->mCreationDate = creation_date;
 			node->mItemID = item_id;
 			node->mFolderID = folder_id;
 			node->mFromTaskID = from_task_id;
@@ -5013,22 +5019,8 @@ void LLSelectMgr::updateSilhouettes()
 						}
 					}
 				}
-
-				//if (!gFloaterTools || !gFloaterTools->getVisible())
-				//{
-				//	node->renderOneSilhouette(sContextSilhouetteColor);
-				//}
-				//else if (objectp->isRootEdit())
-				//{
-				//	node->renderOneSilhouette(sSilhouetteParentColor);
-				//}
-				//else
-				//{
-				//	node->renderOneSilhouette(sSilhouetteChildColor);
-				//}
 			}
 		}
-		//mSilhouetteImagep->unbindTexture(0, GL_TEXTURE_2D);
 	}
 
 	if (mRectSelectedObjects.size() > 0)
@@ -5245,6 +5237,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 	if (mSelectedObjects.getNumNodes())
 	{
 		glPushAttrib(GL_FOG_BIT);
+		LLUUID inspect_item_id = LLFloaterInspect::getSelectedUUID();
 		for (S32 pass = 0; pass < 2; pass++)
 		{
 			for (node = mSelectedObjects.getFirstNode(); node; node = mSelectedObjects.getNextNode() )
@@ -5254,7 +5247,11 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 				{
 					continue;
 				}
-				if (node->isTransient())
+				if(objectp->getID() == inspect_item_id)
+				{
+					node->renderOneSilhouette(sHighlightInspectColor);
+				}
+				else if (node->isTransient())
 				{
 					BOOL oldHidden = LLSelectMgr::sRenderHiddenSelections;
 					LLSelectMgr::sRenderHiddenSelections = FALSE;
@@ -5850,6 +5847,7 @@ void dialog_refresh_all()
 	}
 
 	LLFloaterProperties::dirtyAll();
+	LLFloaterInspect::dirty();
 }
 
 S32 get_family_count(LLViewerObject *parent)

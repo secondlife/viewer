@@ -14,6 +14,7 @@
 
 class LLButton;
 class LLTextBox;
+class LLTool;
 class LLCheckBoxCtrl;
 class LLTabContainer;
 class LLPanelPermissions;
@@ -69,9 +70,12 @@ public:
 	void showPanel(EInfoPanel panel);
 
 	void setStatusText(const LLString& text);
-
+	virtual void onFocusReceived();
+	static void setEditTool(void* data);
+	void saveLastTool();
 private:
 	static void setObjectType( void* data );
+	
 	void refresh();
 
 	static void onClickGridOptions(void* data);
@@ -152,7 +156,8 @@ public:
 	LLPanelLandInfo			*mPanelLandInfo;
 
 	LLTabContainer*			mTabLand;
-
+	LLTool*					mLastTool;
+	
 private:
 	BOOL					mDirty;
 	S32						mSmallHeight;

@@ -966,6 +966,7 @@ void LLPanelGridTools::flushMapVisibilityCachesConfirm(S32 option, void* data)
 	msg->nextBlockFast(_PREHASH_AgentData);
 	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null); //not used
 	msg->nextBlock("MethodData");
 	msg->addString("Method", "refreshmapvisibility");
 	msg->addUUID("Invoice", LLUUID::null);
@@ -1358,6 +1359,7 @@ void LLPanelRequestTools::sendRequest(const char *request,
 	msg->nextBlockFast(_PREHASH_AgentData);
 	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null); //not used
 	msg->nextBlock("MethodData");
 	msg->addString("Method", request);
 	msg->addUUID("Invoice", LLUUID::null);

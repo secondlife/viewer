@@ -657,17 +657,13 @@ sim -> dataserver
 		{   OwnerID			LLUUID  }
 		{   LastOwnerID		LLUUID  }
 		{   CreatorID		LLUUID  }
-		{	SimName			Variable	1	}
+		{	RegionID		LLUUID	}
+		{   AbuserID		LLUUID  }
+		{	AbuseRegionName	Variable	1	}
+		{	AbuseRegionID	LLUUID	}
 		{   Summary			Variable	1   }
 		{   Details 		Variable	2   }
 		{	VersionString	Variable	1	}
-	}
-	{
-		MeanCollision		Variable
-		{	Perp			LLUUID	}
-		{	Time			U32		}
-		{	Mag				F32		}
-		{	Type			U8		}
 	}
 }
 
@@ -1044,6 +1040,7 @@ sim -> dataserver
 		{	QueryText		Variable	1	}
 		{	QueryFlags		U32				}
 		{	Category		U32				}
+		{	QueryStart	S32					}
 	}
 }
 
@@ -1063,6 +1060,7 @@ sim -> dataserver
 		{	Category		U32				}
 		{	EstateID		U32				}
 		{	Godlike			BOOL			}
+		{	QueryStart	S32					}
 	}
 }
 
@@ -1294,9 +1292,10 @@ sim -> dataserver
 		QueryData			Single
 		{	QueryID			LLUUID	}
 		{	QueryFlags		U32		}
-		{	ForSale			BOOL	}
-		{	Auction			BOOL	}
-		{	ReservedNewbie	BOOL	}
+		{	SearchType		U32		}
+		{	Price			S32		}
+		{	Area			S32		}
+		{	QueryStart		S32		}
 	}
 }
 
@@ -1312,9 +1311,10 @@ sim -> dataserver
 		QueryData			Single
 		{	QueryID			LLUUID	}
 		{	QueryFlags		U32		}
-		{	ForSale			BOOL	}
-		{	Auction			BOOL	}
-		{	ReservedNewbie	BOOL	}
+		{	SearchType		U32		}
+		{	Price			S32		}
+		{	Area			S32		}
+		{	QueryStart		S32		}
 		{	EstateID		U32		}
 		{	Godlike			BOOL	}
 	}
@@ -3144,115 +3144,6 @@ sim -> dataserver
 	}
 }
 
-
-// Grant agents the ability to modify your stuff. This message is sent
-// to the simulator, and then passed along to the dataserver for
-// persistance. The dataserver will push live updates through
-// AddModifyAbility messages to the simulator.
-// viewer -> simulator -> dataserver
-//{
-//	GrantModification Low NotTrusted Unencoded
-//	{
-//		AgentData			Single
-//		{	AgentID			LLUUID	}
-//		{	SessionID		LLUUID	}
-//		{	GranterName		Variable	1	}
-//	}
-//	{
-//		EmpoweredBlock		Variable
-//		{	EmpoweredID		LLUUID	}
-//	}
-//}
-// Revoke the ability to modify your stuff. This message is sent to
-// the simulator, and then passed along to the dataserver for
-// persistance. The dataserver will push live updates through
-// RemoveModifyAbility messages to the simulator.
-// viewer -> simulator -> dataserver
-//{
-//	RevokeModification Low NotTrusted Unencoded
-//	{
-//		AgentData			Single
-//		{	AgentID			LLUUID	}
-//		{	SessionID		LLUUID	}
-//		{	GranterName		Variable	1	}
-//	}
-//	{
-//		RevokedBlock		Variable
-//		{	RevokedID		LLUUID	}
-//	}
-//}
-
-// This message is sent from viewer->simulator->dataserver, which responds with
-// the complete list of all granted agents in the GrantedProxies message.
-//{
-//	RequestGrantedProxies Low NotTrusted Unencoded
-//	{
-//		AgentData			Single
-//		{	AgentID			LLUUID	}
-//		{	SessionID		LLUUID	}
-//	}
-//}
-
-// response to the message above
-//{
-//	GrantedProxies Low Trusted Unencoded
-//	{
-//		AgentData			Single
-//		{	AgentID			LLUUID	}
-//	}
-//	{
-//		EmpoweredBlock			Variable
-//		{	EmpoweredID		LLUUID	}
-//	}
-//	{
-//		GranterBlock			Variable
-//		{	GranterID		LLUUID	}
-//	}
-//}
-
-// This message is sent from the dataserver to the simulator to let
-// AgentID know that they can modify GranterID's stuff. This message is
-// percolated out to child cameras and the viewer. This message is
-// in response to GrantModification messages, request, or login.
-// ROUTED dataserver -> simulator -> spaceserver -> simulator
-// reliable
-//{
-//	AddModifyAbility Low Trusted Zerocoded
-//	{
-//		TargetBlock			Single
-//		{	TargetIP		IPADDR	}	// U32 encoded IP
-//		{	TargetPort		IPPORT	}
-//	}
-//	{
-//		AgentBlock			Single
-//		{	AgentID			LLUUID	}
-//	}
-//	{
-//		GranterBlock		Variable
-//		{	GranterID		LLUUID	}
-//	}
-//}
-
-// This message is sent from the dataserver to the simulator to let
-// AgentID know that they can no longer modify GranterID's stuff. This
-// message is percolated out to child cameras and the viewer. This
-// message is in response to RevokeModification messages.
-// ROUTED dataserver -> simulator -> spaceserver -> simulator
-// reliable
-//{
-//	RemoveModifyAbility Low Trusted Unencoded
-//	{
-//		TargetBlock			Single
-//		{	TargetIP		IPADDR	}	// U32 encoded IP
-//		{	TargetPort		IPPORT	}
-//	}
-//	{
-//		AgentBlock			Single
-//		{	AgentID			LLUUID	}
-//		{	RevokerID		LLUUID	}
-//	}
-//}
-
 // end viewer to simulator section
 
 {
@@ -3343,16 +3234,12 @@ sim -> dataserver
 		{   CheckFlags		U8	} // checkboxflags
 		{   ScreenshotID	LLUUID  }
 		{   ObjectID		LLUUID  }
+		{   AbuserID		LLUUID  }
+		{	AbuseRegionName	Variable	1	}
+		{	AbuseRegionID	LLUUID	}
 		{   Summary			Variable	1   }
 		{   Details 		Variable	2   }
 		{	VersionString	Variable	1	}
-	}
-	{
-		MeanCollision		Variable
-		{	Perp			LLUUID	}
-		{	Time			U32		}
-		{	Mag				F32		}
-		{	Type			U8		}
 	}
 }
 
@@ -3952,6 +3839,7 @@ sim -> dataserver
 		{	TargetType		S32	}
 		{	Status			S32	}
 		{	Size			S32	}
+		{	Params			Variable	2	}
 	}
 }
 
@@ -4153,6 +4041,7 @@ sim -> dataserver
 		{	CreatorID		LLUUID	}
 		{	OwnerID			LLUUID	}
 		{	GroupID			LLUUID	}
+		{	CreationDate	U64	}
 		{	BaseMask		U32	}
 		{	OwnerMask		U32	}
 		{	GroupMask		U32	}
@@ -6230,7 +6119,6 @@ sim -> dataserver
 	{
 		InventoryData		Variable
 		{	ItemID			LLUUID	}  // null if list is actually empty (but has one entry 'cause it can't have none)
-		{	NewAssetID		LLUUID	}
 	}
 }
 
@@ -6361,6 +6249,7 @@ sim -> dataserver
 		AgentData 		Single
 		{   AgentID     LLUUID  }
 		{	SessionID	LLUUID		}
+		{	TransactionID	LLUUID	}
 	}
 	{
 		MethodData 	Single
@@ -6381,6 +6270,7 @@ sim -> dataserver
 		AgentData 		Single
 		{   AgentID     LLUUID  	}
 		{	SessionID	LLUUID		}
+		{	TransactionID	LLUUID	}
 	}
 	{
 		MethodData 	Single
@@ -6402,6 +6292,7 @@ sim -> dataserver
 		AgentData 		Single
 		{   AgentID     LLUUID  	}
 		{	SessionID	LLUUID		}
+		{	TransactionID	LLUUID	}
 	}
 	{
 		MethodData 	Single
@@ -6637,8 +6528,10 @@ sim -> dataserver
 //
 // Sim outgoing only (to dataserver, to viewer)
 // NOT viewer to sim, sim should not have handler, ever
+// This message is currently only uses objects, so the viewer ignores
+// the asset id.
 {
-	SaveAssetIntoInventory Low NotTrusted Unencoded
+	SaveAssetIntoInventory Low Trusted Unencoded
 	{
 		AgentData		Single
 		{	AgentID			LLUUID	}
@@ -9586,22 +9479,6 @@ sim -> dataserver
 		ParcelData	Variable
 		{	RegionHandle	U64	}
 		{	ParcelID		LLUUID	}
-	}
-}
-
-
-// viewer -> sim 
-// initiate upload. primarily used for uploading raw files.
-{
-	InitiateUpload	Low		NotTrusted Unencoded
-	{
-		AgentData	Single
-		{	AgentID		LLUUID	}
-	}
-	{
-		FileData	Single
-		{	BaseFilename	Variable	1	}	// string
-		{	SourceFilename	Variable	1	}	// string
 	}
 }
 

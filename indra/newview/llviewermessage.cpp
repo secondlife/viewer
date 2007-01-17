@@ -206,8 +206,9 @@ void process_logout_reply(LLMessageSystem* msg, void**)
 		llwarns << "Bogus Logout Reply" << llendl;
 	}
 
+	LLInventoryModel::update_map_t parents;
 	S32 count = msg->getNumberOfBlocksFast( _PREHASH_InventoryData );
-	for( S32 i = 0; i < count; i++ )
+	for(S32 i = 0; i < count; ++i)
 	{
 		LLUUID item_id;
 		msg->getUUIDFast(_PREHASH_InventoryData, _PREHASH_ItemID, item_id, i);
@@ -218,36 +219,25 @@ void process_logout_reply(LLMessageSystem* msg, void**)
 			break;
 		}
 
-
-		// Update our the asset ids of the inventory items we're currently wearing.
-		LLUUID new_asset_id;
-		msg->getUUIDFast(_PREHASH_InventoryData, _PREHASH_NewAssetID, new_asset_id, i);
-
+		// We do not need to track the asset ids, just account for an
+		// updated inventory version.
 		llinfos << "process_logout_reply itemID=" << item_id << llendl;
 		LLInventoryItem* item = gInventory.getItem( item_id );
 		if( item )
 		{
-			item->setAssetUUID(new_asset_id);
-
-			gInventory.addChangedMask( LLInventoryObserver::INTERNAL, item_id );
-			gInventory.notifyObservers();
+			parents[item->getParentUUID()] = 0;
+			gInventory.addChangedMask(LLInventoryObserver::INTERNAL, item_id);
 		}
 		else
 		{
 			llinfos << "process_logout_reply item not found: " << item_id << llendl;
 		}
 	}
-
-	/*
-	gLogoutTimer.reset();
-	gLogoutMaxTime = LOGOUT_REPLY_TIME;
-	gViewerWindow->setProgressString("Logging out...");
-
-	if (gNoRender)
+	if(!parents.empty())
 	{
-		// Hack so drones can quit with new logout process
-		*/
-	
+		gInventory.accountForUpdate(parents);
+		gInventory.notifyObservers();
+	}
 	app_force_quit(NULL);
 }
 
@@ -4950,6 +4940,7 @@ void send_generic_message(const char* method,
 	msg->nextBlockFast(_PREHASH_AgentData);
 	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null); //not used
 	msg->nextBlock("MethodData");
 	msg->addString("Method", method);
 	msg->addUUID("Invoice", invoice);

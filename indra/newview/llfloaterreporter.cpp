@@ -35,6 +35,7 @@
 #include "llscrolllistctrl.h"
 #include "llimview.h"
 #include "lltextbox.h"
+#include "lldispatcher.h"
 #include "llviewertexteditor.h"
 #include "llviewerobject.h"
 #include "llviewerregion.h"
@@ -51,6 +52,7 @@
 #include "llviewermenu.h"		// for LLResourceData
 #include "llviewerwindow.h"
 #include "llviewerimagelist.h"
+#include "llworldmap.h"
 #include "llfilepicker.h"
 #include "llfloateravatarpicker.h"
 #include "lldir.h"
@@ -70,6 +72,13 @@ const U32 INCLUDE_SCREENSHOT  = 0x01 << 0;
 // there can only be one instance of each reporter type
 LLMap< EReportType, LLFloaterReporter* > gReporterInstances;
 
+// keeps track of where email is going to - global to avoid a pile
+// of static/non-static access outside my control
+namespace {
+	static BOOL gEmailToEstateOwner = FALSE;
+	static BOOL gDialogVisible = FALSE;
+}
+
 //-----------------------------------------------------------------------------
 // Member functions
 //-----------------------------------------------------------------------------
@@ -81,8 +90,9 @@ LLFloaterReporter::LLFloaterReporter(
 	:	
 	LLFloater(name, rect, title),
 	mReportType(report_type),
-	mObjectID( ),
+	mObjectID(),
 	mScreenID(),
+	mAbuserID(),
 	mDeselectOnClose( FALSE ),
 	mPicking( FALSE), 
 	mPosition(),
@@ -101,7 +111,9 @@ LLFloaterReporter::LLFloaterReporter(
 	if (regionp)
 	{
 		childSetText("sim_field", regionp->getName() );
+		childSetText("abuse_location_edit", regionp->getName() );
 	}
+
 	LLButton* pick_btn = LLUICtrlFactory::getButtonByName(this, "pick_btn");
 	if (pick_btn)
 	{
@@ -113,6 +125,7 @@ LLFloaterReporter::LLFloaterReporter(
 
 	if (report_type != BUG_REPORT)
 	{
+		// abuser name is selected from a list
 		LLLineEditor* le = (LLLineEditor*)getCtrlByNameAndType("abuser_name_edit", WIDGET_TYPE_LINE_EDITOR);
 		le->setEnabled( FALSE );
 	}
@@ -146,8 +159,40 @@ LLFloaterReporter::LLFloaterReporter(
 	childSetFocus("summary_edit");
 
 	mDefaultSummary = childGetText("details_edit");
+
+	gDialogVisible = TRUE;
+
+	// only request details for abuse reports (not BUG reports)
+	if (report_type != BUG_REPORT)
+	{
+		// send a message and ask for information about this region - 
+		// result comes back in processRegionInfo(..)
+		LLMessageSystem* msg = gMessageSystem;
+		msg->newMessage("RequestRegionInfo");
+		msg->nextBlock("AgentData");
+		msg->addUUID("AgentID", gAgent.getID());
+		msg->addUUID("SessionID", gAgent.getSessionID());
+		gAgent.sendReliableMessage();
+	};
 }
 
+// static
+void LLFloaterReporter::processRegionInfo(LLMessageSystem* msg)
+{
+	U32 region_flags;
+	msg->getU32("RegionInfo", "RegionFlags", region_flags);
+	gEmailToEstateOwner = ( region_flags & REGION_FLAGS_ABUSE_EMAIL_TO_ESTATE_OWNER );
+
+	if ( gDialogVisible )
+	{
+		if ( gEmailToEstateOwner )
+		{
+			gViewerWindow->alertXml("HelpReportAbuseEmailEO");
+		}
+		else
+			gViewerWindow->alertXml("HelpReportAbuseEmailLL");
+	};
+}
 
 // virtual
 LLFloaterReporter::~LLFloaterReporter()
@@ -170,8 +215,28 @@ LLFloaterReporter::~LLFloaterReporter()
 	{
 		gSelectMgr->deselectTransient();
 	}
+
+	gDialogVisible = FALSE;
 }
 
+// virtual
+void LLFloaterReporter::draw()
+{
+	// this is set by a static callback sometime after the dialog is created.
+	// Only disable screenshot for abuse reports to estate owners - bug reports always
+	// allow screenshots to be taken.
+	if ( gEmailToEstateOwner && ( mReportType != BUG_REPORT ) )
+	{
+		childSetValue("screen_check", FALSE );
+		childSetEnabled("screen_check", FALSE );
+	}
+	else
+	{
+		childSetEnabled("screen_check", TRUE );
+	}
+
+	LLFloater::draw();
+}
 
 void LLFloaterReporter::enableControls(BOOL enable)
 {
@@ -189,7 +254,6 @@ void LLFloaterReporter::enableControls(BOOL enable)
 	childSetEnabled("send_btn",		enable);
 	childSetEnabled("cancel_btn",	enable);
 }
-
 
 void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 {
@@ -274,6 +338,7 @@ void LLFloaterReporter::onClickSelectAbuser(void *userdata)
 	gFloaterView->getParentFloater(self)->addDependentFloater(LLFloaterAvatarPicker::show(callbackAvatarID, userdata, FALSE, TRUE ));
 }
 
+// static
 void LLFloaterReporter::callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* data)
 {
 	LLFloaterReporter* self = (LLFloaterReporter*) data;
@@ -284,6 +349,8 @@ void LLFloaterReporter::callbackAvatarID(const std::vector<std::string>& names, 
 	if ( self->mReportType != BUG_REPORT )
 	{
 		self->childSetText("abuser_name_edit", names[0] );
+
+		self->mAbuserID = ids[0];
 
 		self->refresh();
 	};
@@ -400,7 +467,7 @@ void LLFloaterReporter::showFromMenu(EReportType report_type)
 		}
 		else
 		{
-			gViewerWindow->alertXml("HelpReportAbuse");
+			// popup for abuse reports is triggered elsewhere
 		}
 
 		// grab the user's name
@@ -550,10 +617,31 @@ void LLFloaterReporter::sendReport()
 	msg->addU8(_PREHASH_Category, category);
 	msg->addVector3Fast(_PREHASH_Position, 	mPosition);
 	msg->addU8Fast(_PREHASH_CheckFlags, 	(U8) check_flags);
-	LLSD screenshot_id = childGetValue("screenshot");
+
+	// only send a screenshot ID if we're asked too and the email is 
+	// going to LL - Estate Owners cannot see the screenshot asset
+	LLSD screenshot_id = LLUUID::null;
+	if (childGetValue("screen_check"))
+	{
+		if ( mReportType != BUG_REPORT )
+		{
+			if ( gEmailToEstateOwner == FALSE )
+			{
+				screenshot_id = childGetValue("screenshot");
+			}
+		}
+		else
+		{
+			screenshot_id = childGetValue("screenshot");
+		};
+	};
 	msg->addUUIDFast(_PREHASH_ScreenshotID, screenshot_id);
 	msg->addUUIDFast(_PREHASH_ObjectID, 	mObjectID);
-	
+
+	msg->addUUID("AbuserID", mAbuserID );
+	msg->addString("AbuseRegionName", "");
+	msg->addUUID("AbuseRegionID", LLUUID::null);
+
 	std::ostringstream summary;
 	if (!gInProductionGrid)
 	{
@@ -622,7 +710,7 @@ void LLFloaterReporter::sendReport()
 	if ( mReportType != BUG_REPORT )
 	{
 		details << "Abuser name: " << childGetText("abuser_name_edit") << " \n";
-		details << " Abuser location: " << childGetText("abuse_location_edit") << " \n";
+		details << "Abuser location: " << childGetText("abuse_location_edit") << " \n";
 	};
 
 	details << childGetValue("details_edit").asString();
@@ -640,16 +728,6 @@ void LLFloaterReporter::sendReport()
 			gGLManager.mDriverVersionVendorString.c_str());
 	msg->addString("VersionString", version_string);
 
-	std::list<LLMeanCollisionData*>::iterator it;
-	for (it = mMCDList.begin(); it != mMCDList.end(); ++it)
-	{
-		LLMeanCollisionData *mcd = *it;
-		msg->nextBlockFast(_PREHASH_MeanCollision);
-		msg->addUUIDFast(_PREHASH_Perp, mcd->mPerp);
-		msg->addU32Fast(_PREHASH_Time, mcd->mTime);
-		msg->addF32Fast(_PREHASH_Mag, mcd->mMag);
-		msg->addU8Fast(_PREHASH_Type, mcd->mType);
-	}
 	msg->sendReliable(regionp->getHost());
 
 	close();

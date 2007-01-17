@@ -9,8 +9,9 @@
 #include "linden_common.h"
 
 #include "lltransfertargetvfile.h"
-#include "llerror.h"
 
+#include "lldatapacker.h"
+#include "llerror.h"
 #include "llvfile.h"
 
 //static
@@ -27,7 +28,11 @@ void LLTransferTargetVFile::updateQueue(bool shutdown)
 		LLVFSThread::status_t s = LLVFile::getVFSThread()->getRequestStatus(params->mHandle);
 		if (s == LLVFSThread::STATUS_COMPLETE || s == LLVFSThread::STATUS_EXPIRED)
 		{
-			params->mCompleteCallback(params->mErrCode, params->mUserDatap);
+			params->mCompleteCallback(
+				params->mErrCode,
+				params->getAssetID(),
+				params->getAssetType(),
+				params->mUserDatap);
 			delete params;
 			iter = sCallbackQueue.erase(curiter);
 		}
@@ -50,7 +55,9 @@ LLTransferTargetParamsVFile::LLTransferTargetParamsVFile() :
 {
 }
 
-void LLTransferTargetParamsVFile::setAsset(const LLUUID &asset_id, const LLAssetType::EType asset_type)
+void LLTransferTargetParamsVFile::setAsset(
+	const LLUUID& asset_id,
+	LLAssetType::EType asset_type)
 {
 	mAssetID = asset_id;
 	mAssetType = asset_type;
@@ -62,9 +69,35 @@ void LLTransferTargetParamsVFile::setCallback(LLTTVFCompleteCallback cb, void *u
 	mUserDatap = user_data;
 }
 
+bool LLTransferTargetParamsVFile::unpackParams(LLDataPacker& dp)
+{
+	// if the source provided a new key, assign that to the asset id.
+	if(dp.hasNext())
+	{
+		LLUUID dummy_id;
+		dp.unpackUUID(dummy_id, "AgentID");
+		dp.unpackUUID(dummy_id, "SessionID");
+		dp.unpackUUID(dummy_id, "OwnerID");
+		dp.unpackUUID(dummy_id, "TaskID");
+		dp.unpackUUID(dummy_id, "ItemID");
+		dp.unpackUUID(mAssetID, "AssetID");
+		S32 dummy_type;
+		dp.unpackS32(dummy_type, "AssetType");
+	}
 
-LLTransferTargetVFile::LLTransferTargetVFile(const LLUUID &uuid) :
-	LLTransferTarget(LLTTT_VFILE, uuid),
+	// if we never got an asset id, this will always fail.
+	if(mAssetID.isNull())
+	{
+		return false;
+	}
+	return true;
+}
+
+
+LLTransferTargetVFile::LLTransferTargetVFile(
+	const LLUUID& uuid,
+	LLTransferSourceType src_type) :
+	LLTransferTarget(LLTTT_VFILE, uuid, src_type),
 	mNeedsCreate(TRUE)
 {
 	mTempID.generate();
@@ -75,6 +108,16 @@ LLTransferTargetVFile::~LLTransferTargetVFile()
 {
 }
 
+
+// virtual
+bool LLTransferTargetVFile::unpackParams(LLDataPacker& dp)
+{
+	if(LLTST_SIM_INV_ITEM == mSourceType)
+	{
+		return mParams.unpackParams(dp);
+	}
+	return true;
+}
 
 void LLTransferTargetVFile::applyParams(const LLTransferTargetParams &params)
 {
@@ -132,13 +175,17 @@ void LLTransferTargetVFile::completionCallback(const LLTSCode status)
 	  case LLTS_DONE:
 		if (!mNeedsCreate)
 		{
-			handle = LLVFile::getVFSThread()->rename(gAssetStorage->mVFS,
-													 mTempID, mParams.getAssetType(),
-													 mParams.getAssetID(), mParams.getAssetType(),
-													 LLVFSThread::AUTO_DELETE);
+			handle = LLVFile::getVFSThread()->rename(
+				gAssetStorage->mVFS,
+				mTempID, mParams.getAssetType(),
+				mParams.getAssetID(), mParams.getAssetType(),
+				LLVFSThread::AUTO_DELETE);
 		}
 		err_code = LL_ERR_NOERR;
-		// 		llinfos << "Successful vfile transfer for " << mParams.getAssetID() << llendl;
+		lldebugs << "LLTransferTargetVFile::completionCallback for "
+			 << mParams.getAssetID() << ","
+			 << LLAssetType::lookup(mParams.getAssetType())
+			 << " with temp id " << mTempID << llendl;
 		break;
 	  case LLTS_ERROR:
 	  case LLTS_ABORT:
@@ -181,7 +228,11 @@ void LLTransferTargetVFile::completionCallback(const LLTSCode status)
 		}
 		else
 		{
-			mParams.mCompleteCallback(err_code, mParams.mUserDatap);
+			mParams.mCompleteCallback(
+				err_code,
+				mParams.getAssetID(),
+				mParams.getAssetType(),
+				mParams.mUserDatap);
 		}
 	}
 }

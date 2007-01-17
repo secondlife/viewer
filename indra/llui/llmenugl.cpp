@@ -385,7 +385,12 @@ void LLMenuItemGL::doIt( void )
 {
 	// close all open menus by default
 	// if parent menu is actually visible (and we are not triggering menu item via accelerator)
-	if (!getMenu()->getTornOff() && getMenu()->getVisible())
+	// HACK: do not call hidemenus() from a pie menu item, as most pie menu operations
+	// assume that the thing you clicked on stays selected (parcel and/or object) after the
+	// pie menu is gone --RN
+	if (getMenu()->getWidgetType() != WIDGET_TYPE_PIE_MENU 
+		&& !getMenu()->getTornOff() 
+		&& getMenu()->getVisible())
 	{
 		((LLMenuHolderGL*)getMenu()->getParent())->hideMenus();
 	}
@@ -4103,6 +4108,11 @@ BOOL LLMenuBarGL::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 	{
 		mAltKeyTrigger = TRUE;
 	}
+	else // if any key other than ALT hit, clear out waiting for Alt key mode
+	{
+		mAltKeyTrigger = FALSE;
+	}
+
 	// before processing any other key, check to see if ALT key has triggered menu access
 	checkMenuTrigger();
 

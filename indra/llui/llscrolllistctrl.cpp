@@ -32,16 +32,13 @@
 
 const S32 LIST_BORDER_PAD = 2;		// white space inside the border and to the left of the scrollbar
 
-U32 LLScrollListCtrl::sSortColumn = 1;
-BOOL LLScrollListCtrl::sSortAscending = TRUE; 
-
 // local structures & classes.
 struct SortScrollListItem
 {
 	SortScrollListItem(const S32 sort_col, BOOL sort_ascending)
 	{
 		mSortCol = sort_col;
-		sSortAscending = sort_ascending;
+		mSortAscending = sort_ascending;
 	}
 
 	bool operator()(const LLScrollListItem* i1, const LLScrollListItem* i2)
@@ -53,7 +50,7 @@ struct SortScrollListItem
 		cell2 = i2->getColumn(mSortCol);
 		
 		S32 order = 1;
-		if (!sSortAscending)
+		if (!mSortAscending)
 		{
 			order = -1;
 		}
@@ -70,7 +67,7 @@ struct SortScrollListItem
 
 protected:
 	S32 mSortCol;
-	S32 sSortAscending;
+	S32 mSortAscending;
 };
 
 
@@ -362,16 +359,20 @@ LLScrollListCtrl::LLScrollListCtrl(const LLString& name, const LLRect& rect,
 	mFgUnselectedColor( LLUI::sColorsGroup->getColor("ScrollUnselectedColor") ),
 	mFgDisabledColor( LLUI::sColorsGroup->getColor("ScrollDisabledColor") ),
 	mHighlightedColor( LLUI::sColorsGroup->getColor("ScrollHighlightedColor") ),
+	mHighlightedItem(-1),
 	mBorderThickness( 2 ),
 	mOnDoubleClickCallback( NULL ),
 	mOnMaximumSelectCallback( NULL ),
-	mHighlightedItem(-1),
+	mOnSortChangedCallback( NULL ),
+	mDrewSelected(FALSE),
 	mBorder(NULL),
-	mDefaultColumn("SIMPLE"),
 	mSearchColumn(0),
+	mDefaultColumn("SIMPLE"),
+
 	mNumDynamicWidthColumns(0),
 	mTotalStaticColumnWidth(0),
-	mDrewSelected(FALSE)
+	mSortColumn(0),
+	mSortAscending(TRUE)
 {
 	mItemListRect.setOriginAndSize(
 		mBorderThickness + LIST_BORDER_PAD,
@@ -585,10 +586,10 @@ BOOL LLScrollListCtrl::addItem( LLScrollListItem* item, EAddPosition pos )
 			break;
 	
 		case ADD_SORTED:
-			LLScrollListCtrl::sSortColumn = 0;
-			LLScrollListCtrl::sSortAscending = TRUE;
+			mSortColumn = 0;
+			mSortAscending = TRUE;
 			mItemList.push_back(item);
-			std::sort(mItemList.begin(), mItemList.end(), SortScrollListItem(sSortColumn, sSortAscending));
+			std::sort(mItemList.begin(), mItemList.end(), SortScrollListItem(mSortColumn, mSortAscending));
 			break;
 	
 		case ADD_BOTTOM:
@@ -861,6 +862,33 @@ void LLScrollListCtrl::highlightNthItem(S32 target_index)
 	{
 		mHighlightedItem = target_index;
 	}
+}
+
+S32	LLScrollListCtrl::selectMultiple( LLDynamicArray<LLUUID> ids )
+{
+	item_list::iterator iter;
+	S32 count = 0;
+	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
+	{
+		LLScrollListItem* item = *iter;
+		LLDynamicArray<LLUUID>::iterator iditr;
+		for(iditr = ids.begin(); iditr != ids.end(); ++iditr)
+		{
+			if (item->getEnabled() && (item->getUUID() == (*iditr)))
+			{
+				selectItem(item,FALSE);
+				++count;
+				break;
+			}
+		}
+		if(ids.end() != iditr) ids.erase(iditr);
+	}
+
+	if (mCommitOnSelectionChange)
+	{
+		commitIfChanged();
+	}
+	return count;
 }
 
 S32 LLScrollListCtrl::getItemIndex( LLScrollListItem* target_item )
@@ -1933,13 +1961,19 @@ void LLScrollListCtrl::onScrollChange( S32 new_pos, LLScrollbar* scrollbar, void
 // First column is column 0
 void  LLScrollListCtrl::sortByColumn(U32 column, BOOL ascending)
 {
-	LLScrollListCtrl::sSortColumn = column;
-	LLScrollListCtrl::sSortAscending = ascending;
-	std::sort(mItemList.begin(), mItemList.end(), SortScrollListItem(sSortColumn, sSortAscending));
+	mSortColumn = column;
+	mSortAscending = ascending;
+	std::sort(mItemList.begin(), mItemList.end(), SortScrollListItem(mSortColumn, mSortAscending));
 }
 
 void LLScrollListCtrl::sortByColumn(LLString name, BOOL ascending)
 {
+	if (name.empty())
+	{
+		sortByColumn(mSortColumn, mSortAscending);
+		return;
+	}
+
 	std::map<LLString, LLScrollListColumn>::iterator itor = mColumns.find(name);
 	if (itor != mColumns.end())
 	{
@@ -2437,26 +2471,41 @@ void LLScrollListCtrl::onClickColumn(void *userdata)
 	LLScrollListColumn *info = (LLScrollListColumn*)userdata;
 	if (!info) return;
 
+	LLScrollListCtrl *parent = info->mParentCtrl;
+	if (!parent) return;
+
 	U32 column_index = info->mIndex;
 
-	LLScrollListColumn* column = info->mParentCtrl->mColumnsIndexed[info->mIndex];
+	LLScrollListColumn* column = parent->mColumnsIndexed[info->mIndex];
 	if (column->mSortingColumn != column->mName)
 	{
-		if (info->mParentCtrl->mColumns.find(column->mSortingColumn) != info->mParentCtrl->mColumns.end())
+		if (parent->mColumns.find(column->mSortingColumn) != parent->mColumns.end())
 		{
-			LLScrollListColumn& info_redir = info->mParentCtrl->mColumns[column->mSortingColumn];
+			LLScrollListColumn& info_redir = parent->mColumns[column->mSortingColumn];
 			column_index = info_redir.mIndex;
 		}
 	}
 
-	// TomY TODO: shouldn't these be non-static members?
 	bool ascending = true;
-	if (column_index == LLScrollListCtrl::sSortColumn)
+	if (column_index == parent->mSortColumn)
 	{
-		ascending = !LLScrollListCtrl::sSortAscending;
+		ascending = !parent->mSortAscending;
 	}
 
-	info->mParentCtrl->sortByColumn(column_index, ascending);
+	parent->sortByColumn(column_index, ascending);
+
+	if (parent->mOnSortChangedCallback)
+	{
+		parent->mOnSortChangedCallback(parent->getCallbackUserData());
+	}
+}
+
+std::string LLScrollListCtrl::getSortColumnName()
+{
+	LLScrollListColumn* column = mColumnsIndexed[mSortColumn];
+
+	if (column) return column->mName;
+	else return "";
 }
 
 void LLScrollListCtrl::clearColumns()

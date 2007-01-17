@@ -257,7 +257,7 @@ void LLIMInfo::unpackMessageBlock(LLMessageSystem* msg)
 		msg->getSizeFast(
 			_PREHASH_MessageBlock,
 			_PREHASH_BinaryBucket));
-	if(binary_bucket_size)
+	if(binary_bucket_size > 0)
 	{
 		std::vector<U8> bucket;
 		bucket.resize(binary_bucket_size);

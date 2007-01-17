@@ -448,6 +448,7 @@ void LLPanelRegionInfo::sendEstateOwnerMessage(
 	msg->nextBlockFast(_PREHASH_AgentData);
 	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null); //not used
 	msg->nextBlock("MethodData");
 	msg->addString("Method", request);
 	msg->addUUID("Invoice", invoice);
@@ -1788,6 +1789,7 @@ void LLPanelEstateInfo::sendEstateAccessDelta(U32 flags, const LLUUID& agent_or_
 	msg->nextBlockFast(_PREHASH_AgentData);
 	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null); //not used
 
 	msg->nextBlock("MethodData");
 	msg->addString("Method", "estateaccessdelta");
@@ -2045,6 +2047,7 @@ void LLPanelEstateInfo::commitEstateInfo()
 	msg->nextBlockFast(_PREHASH_AgentData);
 	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null); //not used
 
 	msg->nextBlock("MethodData");
 	msg->addString("Method", "estatechangeinfo");
@@ -2082,7 +2085,7 @@ void LLPanelEstateInfo::setEstateFlags(U32 flags)
 	childSetValue("deny_anonymous", LLSD(flags & REGION_FLAGS_DENY_ANONYMOUS ? TRUE : FALSE) );
 	childSetValue("deny_identified", LLSD(flags & REGION_FLAGS_DENY_IDENTIFIED ? TRUE : FALSE) );
 	childSetValue("deny_transacted", LLSD(flags & REGION_FLAGS_DENY_TRANSACTED ? TRUE : FALSE) );
-
+	childSetVisible("abuse_email_text", flags & REGION_FLAGS_ABUSE_EMAIL_TO_ESTATE_OWNER);
 }
 
 U32 LLPanelEstateInfo::computeEstateFlags()
@@ -2604,6 +2607,7 @@ void LLPanelEstateCovenant::sendChangeCovenantID(const LLUUID &asset_id)
 		msg->nextBlockFast(_PREHASH_AgentData);
 		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+		msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null); //not used
 
 		msg->nextBlock("MethodData");
 		msg->addString("Method", "estatechangecovenantid");

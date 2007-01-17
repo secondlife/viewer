@@ -680,9 +680,9 @@ public:
 	virtual BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
 
 	static void setActivatedItem(LLMenuItemGL* item);
-protected:
 	BOOL hasVisibleMenu();
 
+protected:
 	static LLViewHandle sItemLastSelectedHandle;
 	static LLFrameTimer sItemActivationTimer;
 

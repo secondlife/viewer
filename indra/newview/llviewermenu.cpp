@@ -84,6 +84,7 @@
 #include "llfloaterhtmlhelp.h"
 #include "llfloaterhtmlfind.h"
 #include "llfloaterimport.h"
+#include "llfloaterinspect.h"
 #include "llfloaterland.h"
 #include "llfloaterlandholdings.h"
 #include "llfloatermap.h"
@@ -920,31 +921,6 @@ void init_client_menu(LLMenuGL* menu)
 	menu->createJumpKeys();
 }
 
-void handle_upload_data(void*)
-{
-	LLFilePicker& picker = LLFilePicker::instance();
-	if(!picker.getOpenFile())
-	{
-		llwarns << "No file" << llendl;
-		return;
-	}
- 	const char* filename = picker.getFirstFile();
-	S32 index = strlen(filename);
-	char delim = gDirUtilp->getDirDelimiter()[0];
-	while(index && filename[index--] != delim);
-	index += 2;
-	const char* basename = &filename[index];
-
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessage("InitiateUpload");
-	msg->nextBlock("AgentData");
-	msg->addUUID("AgentID", gAgent.getID());
-	msg->nextBlock("FileData");
-	msg->addString("BaseFilename", basename);
-	msg->addString("SourceFilename", filename);
-	gAgent.sendReliableMessage();
-}
-
 void init_debug_world_menu(LLMenuGL* menu)
 {
 	menu->append(new LLMenuItemCheckGL("Mouse Moves Sun", 
@@ -1414,14 +1390,6 @@ void init_server_menu(LLMenuGL* menu)
 
 	menu->appendSeparator();
 
-	menu->append(new LLMenuItemCallGL("Upload Data File...", 
-									  &handle_upload_data,
-									  &enable_god_customer_service,
-									  NULL));
-
-
-	menu->appendSeparator();
-
 	menu->append(new LLMenuItemCallGL("Save Region State", 
 		&LLPanelRegionTools::onSaveState, &enable_god_customer_service, NULL));
 
@@ -1801,10 +1769,20 @@ class LLObjectEdit : public view_listener_t
 		gFloaterTools->open();
 	
 		gCurrentToolset = gBasicToolset;
-		gCurrentToolset->selectTool( gToolTranslate );
+		gFloaterTools->setEditTool( gToolTranslate );
 
 		// Could be first use
 		LLFirstUse::useBuild();
+		return true;
+	}
+};
+
+class LLObjectInspect : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		gSelectMgr->convertTransient();
+		LLFloaterInspect::show();
 		return true;
 	}
 };
@@ -2454,12 +2432,14 @@ void handle_buy_object(LLSaleInfo sale_info)
 		return;
 	}
 
+	gSelectMgr->convertTransient();
 	LLFloaterBuy::show(sale_info);
 }
 
 
 void handle_buy_contents(LLSaleInfo sale_info)
 {
+	gSelectMgr->convertTransient();
 	LLFloaterBuyContents::show(sale_info);
 }
 
@@ -2575,7 +2555,7 @@ void set_god_level(U8 god_level)
 		gParcelMgr->notifyObservers();
 
 		// Some classifieds change visibility on god mode
-		LLFloaterDirectory::requestClassified();
+		LLFloaterDirectory::requestClassifieds();
 
 		// God mode changes sim visibility
 		gWorldMap->reset();
@@ -3409,6 +3389,7 @@ void handle_claim_public_land(void*)
 	msg->nextBlock("AgentData");
 	msg->addUUID("AgentID", gAgent.getID());
 	msg->addUUID("SessionID", gAgent.getSessionID());
+	msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null); //not used
 	msg->nextBlock("MethodData");
 	msg->addString("Method", "claimpublicland");
 	msg->addUUID("Invoice", LLUUID::null);
@@ -8771,6 +8752,7 @@ void initialize_menu_actions()
 	(new LLObjectMute())->registerListener(gMenuHolder, "Object.Mute");
 	(new LLObjectBuy())->registerListener(gMenuHolder, "Object.Buy");
 	(new LLObjectEdit())->registerListener(gMenuHolder, "Object.Edit");
+	(new LLObjectInspect())->registerListener(gMenuHolder, "Object.Inspect");
 
 	(new LLObjectEnableOpen())->registerListener(gMenuHolder, "Object.EnableOpen");
 	(new LLObjectEnableTouch())->registerListener(gMenuHolder, "Object.EnableTouch");

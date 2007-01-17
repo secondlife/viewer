@@ -117,10 +117,15 @@ void LLTransferSourceFile::completionCallback(const LLTSCode status)
 	}
 }
 
+void LLTransferSourceFile::packParams(LLDataPacker& dp) const
+{
+	//llinfos << "LLTransferSourceFile::packParams" << llendl;
+	mParams.packParams(dp);
+}
+
 BOOL LLTransferSourceFile::unpackParams(LLDataPacker &dp)
 {
 	//llinfos << "LLTransferSourceFile::unpackParams" << llendl;
-
 	return mParams.unpackParams(dp);
 }
 

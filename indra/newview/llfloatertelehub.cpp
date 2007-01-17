@@ -211,6 +211,7 @@ void LLFloaterTelehub::onClickRemoveSpawnPoint(void* data)
 	{
 		msg->newMessage("EstateOwnerMessage");
 	}
+	msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null); //not used
 	msg->nextBlock("AgentData");
 	msg->addUUID("AgentID", gAgent.getID());
 	msg->addUUID("SessionID", gAgent.getSessionID());

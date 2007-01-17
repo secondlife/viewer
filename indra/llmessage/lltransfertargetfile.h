@@ -33,7 +33,7 @@ protected:
 class LLTransferTargetFile : public LLTransferTarget
 {
 public:
-	LLTransferTargetFile(const LLUUID &uuid);
+	LLTransferTargetFile(const LLUUID& uuid, LLTransferSourceType src_type);
 	virtual ~LLTransferTargetFile();
 
 	static void requestTransfer(LLTransferTargetChannel *channelp,
@@ -41,6 +41,7 @@ public:
 								const LLTransferSourceParams &source_params,
 								LLTTFCompleteCallback callback);
 protected:
+	virtual bool unpackParams(LLDataPacker& dp);
 	/*virtual*/ void applyParams(const LLTransferTargetParams &params);
 	/*virtual*/ LLTSCode dataCallback(const S32 packet_id, U8 *in_datap, const S32 in_size);
 	/*virtual*/ void completionCallback(const LLTSCode status);

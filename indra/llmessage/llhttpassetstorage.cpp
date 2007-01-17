@@ -670,7 +670,11 @@ void LLHTTPAssetStorage::checkForTimeouts()
 
 				// call the static callback for transfer completion
 				// this will cleanup all requests for this asset, including ours
-				downloadCompleteCallback(xfer_result, (void *)req);
+				downloadCompleteCallback(
+					xfer_result,
+					req->getUUID(),
+					req->getType(),
+					(void *)req);
 				// Pending download flag will get cleared when the request is deleted
 			}
 			else

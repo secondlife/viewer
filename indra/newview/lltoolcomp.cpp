@@ -39,6 +39,7 @@ const S32 BUTTON_WIDTH_BIG = 48;
 const S32 HPAD = 4;
 
 // Globals
+LLToolCompInspect   *gToolInspect = NULL;
 LLToolCompTranslate	*gToolTranslate = NULL;
 LLToolCompScale		*gToolStretch = NULL;
 LLToolCompRotate	*gToolRotate = NULL;
@@ -46,6 +47,7 @@ LLToolCompCreate	*gToolCreate = NULL;
 LLToolCompGun		*gToolGun = NULL;
 
 extern LLControlGroup gSavedSettings;
+
 
 //-----------------------------------------------------------------------
 // LLToolComposite
@@ -106,6 +108,64 @@ void LLToolComposite::handleSelect()
 	mCur = mDefault; 
 	mCur->handleSelect(); 
 	mSelected = TRUE; 
+}
+
+//----------------------------------------------------------------------------
+// LLToolCompInspect
+//----------------------------------------------------------------------------
+
+LLToolCompInspect::LLToolCompInspect()
+: LLToolComposite("Inspect")
+{
+	mSelectRect		= new LLToolSelectRect(this);
+	mDefault = mSelectRect;
+}
+
+
+LLToolCompInspect::~LLToolCompInspect()
+{
+	delete mSelectRect;
+	mSelectRect = NULL;
+}
+
+BOOL LLToolCompInspect::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	mMouseDown = TRUE;
+	gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, pickCallback);
+	return TRUE;
+}
+
+void LLToolCompInspect::pickCallback(S32 x, S32 y, MASK mask)
+{
+	LLViewerObject* hit_obj = gViewerWindow->lastObjectHit();
+
+	if (!gToolInspect->mMouseDown)
+	{
+		// fast click on object, but mouse is already up...just do select
+		gToolInspect->mSelectRect->handleObjectSelection(hit_obj, mask, !gSavedSettings.getBOOL("SelectLinkedSet"), FALSE);
+		return;
+	}
+
+	if( hit_obj )
+	{
+		if (gSelectMgr->getObjectCount())
+		{
+			gEditMenuHandler = gSelectMgr;
+		}
+		gToolInspect->setCurrentTool( gToolInspect->mSelectRect );
+		gToolInspect->mSelectRect->handleMouseDown( x, y, mask );
+
+	}
+	else
+	{
+		gToolInspect->setCurrentTool( gToolInspect->mSelectRect );
+		gToolInspect->mSelectRect->handleMouseDown( x, y, mask);
+	}
+}
+
+BOOL LLToolCompInspect::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	return TRUE;
 }
 
 //----------------------------------------------------------------------------
@@ -202,12 +262,9 @@ BOOL LLToolCompTranslate::handleDoubleClick(S32 x, S32 y, MASK mask)
 		gFloaterTools->showPanel(LLFloaterTools::PANEL_CONTENTS);
 		return TRUE;
 	}
-	else
-	{
-		// Nothing selected means the first mouse click was probably
-		// bad, so try again.
-		return FALSE;
-	}
+	// Nothing selected means the first mouse click was probably
+	// bad, so try again.
+	return FALSE;
 }
 
 

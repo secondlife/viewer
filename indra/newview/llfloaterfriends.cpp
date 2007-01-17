@@ -142,7 +142,7 @@ void LLFloaterFriends::updateFriends(U32 changed_mask)
 	{
 		refreshNames();
 	}
-	else if(LLFriendObserver::POWERS)
+	else if(changed_mask & LLFriendObserver::POWERS)
 	{
 		--mNumRightsChanged;
 		if(mNumRightsChanged > 0)
@@ -255,10 +255,6 @@ void LLFloaterFriends::addFriend(const std::string& name, const LLUUID& agent_id
 	mFriendsList->addElement(element, ADD_BOTTOM);
 }
 
-void LLFloaterFriends::reloadNames()
-{
-}
-
 void LLFloaterFriends::refreshRightsChangeList(U8 state)
 {
 	LLDynamicArray<LLUUID> friends = getSelectedIDs();
@@ -293,7 +289,7 @@ void LLFloaterFriends::refreshRightsChangeList(U8 state)
 			childSetEnabled("offer_teleport_btn", false);
 		}
 		can_change_visibility = true;
-		can_change_modify = true;
+		can_change_modify = true;		
 	}
 	else if (state == 2)
 	{
@@ -363,13 +359,15 @@ void LLFloaterFriends::refreshRightsChangeList(U8 state)
 
 void LLFloaterFriends::refreshNames()
 {
-	S32 pos = mFriendsList->getScrollPos();
+	LLDynamicArray<LLUUID> selected_ids = getSelectedIDs();	
+	S32 pos = mFriendsList->getScrollPos();	
 	mFriendsList->operateOnAll(LLCtrlListInterface::OP_DELETE);
 	
 	LLCollectAllBuddies collect;
 	LLAvatarTracker::instance().applyFunctor(collect);
 	LLCollectAllBuddies::buddy_map_t::const_iterator it = collect.mOnline.begin();
 	LLCollectAllBuddies::buddy_map_t::const_iterator end = collect.mOnline.end();
+	
 	for ( ; it != end; ++it)
 	{
 		const std::string& name = it->first;
@@ -384,6 +382,7 @@ void LLFloaterFriends::refreshNames()
 		const LLUUID& agent_id = it->second;
 		addFriend(name, agent_id);
 	}
+	mFriendsList->selectMultiple(selected_ids);
 	mFriendsList->setScrollPos(pos);
 }
 
@@ -396,8 +395,22 @@ void LLFloaterFriends::refreshUI()
 	if(num_selected > 0)
 	{
 		single_selected = TRUE;
-		if(num_selected > 1) multiple_selected = TRUE;		
+		if(num_selected > 1)
+		{
+			childSetText("friend_name_label", "Multiple friends...");
+			multiple_selected = TRUE;		
+		}
+		else
+		{			
+			childSetText("friend_name_label", mFriendsList->getFirstSelected()->getColumn(LIST_FRIEND_NAME)->getText() + "...");
+		}
 	}
+	else
+	{
+		childSetText("friend_name_label", "");
+	}
+
+
 	//Options that can only be performed with one friend selected
 	childSetEnabled("profile_btn", single_selected && !multiple_selected);
 	childSetEnabled("pay_btn", single_selected && !multiple_selected);

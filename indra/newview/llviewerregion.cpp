@@ -27,6 +27,7 @@
 #include "lldir.h"
 #include "lleventpoll.h"
 #include "llfloatergodtools.h"
+#include "llfloaterreporter.h"
 #include "llfloaterregioninfo.h"
 #include "llhttpnode.h"
 #include "llnetmap.h"
@@ -547,6 +548,7 @@ void LLViewerRegion::processRegionInfo(LLMessageSystem* msg, void**)
 	// send it to 'observers'
 	LLFloaterGodTools::processRegionInfo(msg);
 	LLFloaterRegionInfo::processRegionInfo(msg);
+	LLFloaterReporter::processRegionInfo(msg);
 }
 
 

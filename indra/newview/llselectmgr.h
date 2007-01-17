@@ -166,6 +166,7 @@ public:
 	static LLColor4				sSilhouetteChildColor;
 	static LLColor4				sHighlightParentColor;
 	static LLColor4				sHighlightChildColor;
+	static LLColor4				sHighlightInspectColor;
 	static LLColor4				sContextSilhouetteColor;
 public:
 	LLSelectMgr();
@@ -605,6 +606,7 @@ public:
 	LLUUID			mFromTaskID;
 	LLString		mTouchName;
 	LLString		mSitName;
+	U64				mCreationDate;
 	std::vector<LLColor4>	mSavedColors;
 	std::vector<LLUUID>		mSavedTextures;
 	std::vector<LLVector3>  mTextureScaleRatios;

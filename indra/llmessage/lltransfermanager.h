@@ -288,7 +288,8 @@ protected:
 	// The completionCallback is GUARANTEED to be called before the destructor.
 	virtual void			completionCallback(const LLTSCode status) = 0;
 
-	virtual BOOL			unpackParams(LLDataPacker &dp) = 0;
+	virtual void packParams(LLDataPacker& dp) const = 0;
+	virtual BOOL unpackParams(LLDataPacker& dp) = 0;
 
 	virtual S32				getNextPacketID()						{ return mLastPacketID + 1; }
 	virtual void			setLastPacketID(const S32 packet_id)	{ mLastPacketID = packet_id; }
@@ -353,22 +354,32 @@ protected:
 class LLTransferTarget
 {
 public:
-	LLTransferTarget(LLTransferTargetType target_type, const LLUUID &transfer_id);
+	LLTransferTarget(
+		LLTransferTargetType target_type,
+		const LLUUID& transfer_id,
+		LLTransferSourceType source_type);
 	virtual ~LLTransferTarget();
-
 
 	// Accessors
 	LLUUID					getID() const			{ return mID; }
 	LLTransferTargetType	getType() const			{ return mType; }
 	LLTransferTargetChannel *getChannel() const		{ return mChannelp; }
+	LLTransferSourceType getSourceType() const { return mSourceType; }
 
+	// Static functionality
+	static LLTransferTarget* createTarget(
+		LLTransferTargetType target_type,
+		const LLUUID& request_id,
+		LLTransferSourceType source_type);
+
+	// friends
 	friend class LLTransferManager;
 	friend class LLTransferTargetChannel;
 
-	static LLTransferTarget *createTarget(const LLTransferTargetType type,
-										  const LLUUID &request_id);
 protected:
-	virtual void			applyParams(const LLTransferTargetParams &params) = 0;
+	// Implementation
+	virtual bool unpackParams(LLDataPacker& dp) = 0;
+	virtual void applyParams(const LLTransferTargetParams &params) = 0;
 	virtual LLTSCode		dataCallback(const S32 packet_id, U8 *in_datap, const S32 in_size) = 0;
 
 	// The completionCallback is GUARANTEED to be called before the destructor, so all handling
@@ -383,13 +394,18 @@ protected:
 	void					setGotInfo(const BOOL got_info)			{ mGotInfo = got_info; }
 	BOOL					gotInfo() const							{ return mGotInfo; }
 
-	void addDelayedPacket(const S32 packet_id, const LLTSCode status, U8 *datap, const S32 size);
+	bool addDelayedPacket(
+		const S32 packet_id,
+		const LLTSCode status,
+		U8* datap,
+		const S32 size);
 
 protected:
 	typedef std::map<S32, LLTransferPacket *> transfer_packet_map;
 	typedef std::map<S32, LLTransferPacket *>::iterator tpm_iter;
 
 	LLTransferTargetType	mType;
+	LLTransferSourceType mSourceType;
 	LLUUID					mID;
 	LLTransferTargetChannel *mChannelp;
 	BOOL					mGotInfo;
