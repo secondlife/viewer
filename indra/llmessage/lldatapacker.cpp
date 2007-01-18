@@ -165,14 +165,15 @@ BOOL LLDataPackerBinaryBuffer::packString(const char *value, const char *name)
 }
 
 
-BOOL LLDataPackerBinaryBuffer::unpackString(char *value, const char *name)
+BOOL LLDataPackerBinaryBuffer::unpackString(std::string& value, const char *name)
 {
 	BOOL success = TRUE;
 	S32 length = (S32)strlen((char *)mCurBufferp) + 1; /*Flawfinder: ignore*/
 
 	success &= verifyLength(length, name);
 
-	htonmemcpy(value, mCurBufferp, MVT_VARIABLE, length);
+	value = std::string((char*)mCurBufferp); // We already assume NULL termination calling strlen()
+	
 	mCurBufferp += length;
 	return success;
 }
@@ -584,16 +585,16 @@ BOOL LLDataPackerAsciiBuffer::packString(const char *value, const char *name)
 	return success;
 }
 
-BOOL LLDataPackerAsciiBuffer::unpackString(char *value, const char *name)
+BOOL LLDataPackerAsciiBuffer::unpackString(std::string& value, const char *name)
 {
 	BOOL success = TRUE;
 	char valuestr[DP_BUFSIZE]; /*Flawfinder: ignore*/
-	if (!getValueStr(name, valuestr, DP_BUFSIZE))
+	BOOL res = getValueStr(name, valuestr, DP_BUFSIZE); // NULL terminated
+	if (!res) // 
 	{
 		return FALSE;
 	}
-	// XXXCHECK: Can result in buffer overrun. Need to pass in size for "value"
-	strcpy(value, valuestr);		/*Flawfinder: ignore*/
+	value = valuestr;
 	return success;
 }
 
@@ -1312,7 +1313,7 @@ BOOL LLDataPackerAsciiFile::packString(const char *value, const char *name)
 	return success;
 }
 
-BOOL LLDataPackerAsciiFile::unpackString(char *value, const char *name)
+BOOL LLDataPackerAsciiFile::unpackString(std::string& value, const char *name)
 {
 	BOOL success = TRUE;
 	char valuestr[DP_BUFSIZE];	/* Flawfinder: ignore */
@@ -1320,7 +1321,7 @@ BOOL LLDataPackerAsciiFile::unpackString(char *value, const char *name)
 	{
 		return FALSE;
 	}
-	strncpy(value, valuestr,DP_BUFSIZE);
+	value = valuestr;
 	return success;
 }
 

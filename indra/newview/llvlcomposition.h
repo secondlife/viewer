@@ -56,6 +56,7 @@ protected:
 	BOOL mTexturesLoaded;
 
 	LLPointer<LLViewerImage> mDetailTextures[CORNER_COUNT];
+	LLPointer<LLImageRaw> mRawImages[CORNER_COUNT];
 
 	F32 mStartHeight[CORNER_COUNT];
 	F32 mHeightRange[CORNER_COUNT];

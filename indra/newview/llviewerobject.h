@@ -118,7 +118,7 @@ public:
 	static void initVOClasses();
 	static void cleanupVOClasses();
 
-	void			addNVPair(const char* data);
+	void			addNVPair(const std::string& data);
 	BOOL			removeNVPair(const char *name);
 	LLNameValue		*getNVPair(const char *name) const;			// null if no name value pair by that name
 
@@ -519,7 +519,7 @@ protected:
 	void unpackParticleSource(LLDataPacker &dp, const LLUUID& owner_id);
 
 private:
-	void setNameValueList(char* list);		// clears nv pairs and then individually adds \n separated NV pairs from \0 terminated string
+	void setNameValueList(const std::string& list);		// clears nv pairs and then individually adds \n separated NV pairs from \0 terminated string
 	void deleteTEImages(); // correctly deletes list of images
 	
 protected:

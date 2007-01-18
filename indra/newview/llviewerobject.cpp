@@ -420,38 +420,25 @@ void LLViewerObject::cleanupVOClasses()
 
 // Replaces all name value pairs with data from \n delimited list
 // Does not update server
-void LLViewerObject::setNameValueList(char* name_value_list)
+void LLViewerObject::setNameValueList(const std::string& name_value_list)
 {
 	// Clear out the old
 	for_each(mNameValuePairs.begin(), mNameValuePairs.end(), DeletePairedPointer()) ;
 	mNameValuePairs.clear();
-	
+
 	// Bring in the new
-	char* token_start = name_value_list;
-	char* scan = name_value_list;
-
-	if (*scan == '\0') return;
-
-	BOOL done = FALSE;
-	while (!done)
+	std::string::size_type length = name_value_list.length();
+	std::string::size_type start = 0;
+	while (start < length)
 	{
-		while ( (*scan != '\0') && (*scan != '\n') )
+		std::string::size_type end = name_value_list.find_first_of("\n", start);
+		if (end == std::string::npos) end = length;
+		if (end > start)
 		{
-			scan++;
+			std::string tok = name_value_list.substr(start, end - start);
+			addNVPair(tok.c_str());
 		}
-
-		if (*scan == '\n')
-		{
-			*scan = '\0';
-			addNVPair(token_start);
-			scan++;
-			token_start = scan;
-		}
-		else
-		{
-			addNVPair(token_start);
-			done = TRUE;
-		}
+		start = end+1;
 	}
 }
 
@@ -1367,7 +1354,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 				if (value & 0x4)
 				{
-					char temp_string[256];	// not MAX_STRING, must hold 255 chars + \0
+					std::string temp_string;
 					dp->unpackString(temp_string, "Text");
 					LLColor4U coloru;
 					dp->unpackBinaryDataFixed(coloru.mV, 4, "Color");
@@ -1385,12 +1372,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 				if (value & 0x200)
 				{
-					char media_url[MAX_STRING+1];
+					std::string media_url;
 					dp->unpackString(media_url, "MediaURL");
-					//if (media_url[0])
-					//{
-					//	llinfos << "WEBONPRIM media_url " << media_url << llendl;
-					//}
 					if (!mMedia)
 					{
 						retval |= MEDIA_URL_ADDED;
@@ -1461,10 +1444,10 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 				if (value & 0x100)
 				{
-					char name_value_list[2048];
+					std::string name_value_list;
 					dp->unpackString(name_value_list, "NV");
 
-					setNameValueList(name_value_list);
+					setNameValueList(name_value_list.c_str());
 				}
 
 				mTotalCRC = crc;
@@ -2811,10 +2794,10 @@ void LLViewerObject::decreaseArrowLength()
 }
 
 // Culled from newsim LLTask::addNVPair
-void LLViewerObject::addNVPair(const char* data)
+void LLViewerObject::addNVPair(const std::string& data)
 {
 	// cout << "LLViewerObject::addNVPair() with ---" << data << "---" << endl;
-	LLNameValue *nv = new LLNameValue(data);
+	LLNameValue *nv = new LLNameValue(data.c_str());
 
 //	char splat[MAX_STRING];
 //	temp->printNameValue(splat);

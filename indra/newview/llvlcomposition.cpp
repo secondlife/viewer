@@ -93,6 +93,7 @@ void LLVLComposition::setDetailTextureID(S32 corner, const LLUUID& id)
 		return;
 	}
 	mDetailTextures[corner] = gImageList.getImage(id);
+	mRawImages[corner] = NULL;
 }
 
 BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
@@ -248,34 +249,37 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 	//
 
 	// These have already been validated by generateComposition.
-	LLPointer<LLImageRaw> st_raw[4];
 	U8* st_data[4];
 
 	for (S32 i = 0; i < 4; i++)
 	{
-		// Read back a raw image for this discard level, if it exists
-		st_raw[i] = new LLImageRaw;
-		S32 min_dim = llmin(mDetailTextures[i]->getWidth(0), mDetailTextures[i]->getHeight(0));
-		S32 ddiscard = 0;
-		while (min_dim > BASE_SIZE && ddiscard < MAX_DISCARD_LEVEL)
+		if (mRawImages[i].isNull())
 		{
-			ddiscard++;
-			min_dim /= 2;
+			// Read back a raw image for this discard level, if it exists
+			mRawImages[i] = new LLImageRaw;
+			S32 min_dim = llmin(mDetailTextures[i]->getWidth(0), mDetailTextures[i]->getHeight(0));
+			S32 ddiscard = 0;
+			while (min_dim > BASE_SIZE && ddiscard < MAX_DISCARD_LEVEL)
+			{
+				ddiscard++;
+				min_dim /= 2;
+			}
+			if (!mDetailTextures[i]->readBackRaw(ddiscard, mRawImages[i]))
+			{
+				llwarns << "Unable to read raw data for terrain detail texture: " << mDetailTextures[i]->getID() << llendl;
+				mRawImages[i] = NULL;
+				return FALSE;
+			}
+			if (mDetailTextures[i]->getWidth(ddiscard) != BASE_SIZE ||
+				mDetailTextures[i]->getHeight(ddiscard) != BASE_SIZE ||
+				mDetailTextures[i]->getComponents() != 3)
+			{
+				LLPointer<LLImageRaw> newraw = new LLImageRaw(BASE_SIZE, BASE_SIZE, 3);
+				newraw->composite(mRawImages[i]);
+				mRawImages[i] = newraw; // deletes old
+			}
 		}
-		if (!mDetailTextures[i]->readBackRaw(ddiscard, st_raw[i]))
-		{
-			llwarns << "Unable to read raw data for terrain detail texture: " << mDetailTextures[i]->getID() << llendl;
-			return FALSE;
-		}
-		if (mDetailTextures[i]->getWidth(ddiscard) != BASE_SIZE ||
-			mDetailTextures[i]->getHeight(ddiscard) != BASE_SIZE ||
-			mDetailTextures[i]->getComponents() != 3)
-		{
-			LLPointer<LLImageRaw> newraw = new LLImageRaw(BASE_SIZE, BASE_SIZE, 3);
-			newraw->composite(st_raw[i]);
-			st_raw[i] = newraw; // deletes old
-		}
-		st_data[i] = st_raw[i]->getData();
+		st_data[i] = mRawImages[i]->getData();
 	}
 
 	///////////////////////////////////////

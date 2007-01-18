@@ -136,12 +136,10 @@ BOOL LLMultiGesture::deserialize(LLDataPacker& dp)
 	dp.unpackU8(mKey, "key");
 	dp.unpackU32(mMask, "mask");
 
-	char buffer[256];		/* Flawfinder: ignore */
-	dp.unpackString(buffer, "trigger");
-	mTrigger = buffer;
+	
+	dp.unpackString(mTrigger, "trigger");
 
-	dp.unpackString(buffer, "replace");
-	mReplaceText = buffer;
+	dp.unpackString(mReplaceText, "replace");
 
 	S32 count;
 	dp.unpackS32(count, "step_count");
@@ -256,9 +254,7 @@ BOOL LLGestureStepAnimation::serialize(LLDataPacker& dp) const
 
 BOOL LLGestureStepAnimation::deserialize(LLDataPacker& dp)
 {
-	char buffer[256];		/* Flawfinder: ignore */
-	dp.unpackString(buffer, "anim_name");
-	mAnimName = buffer;
+	dp.unpackString(mAnimName, "anim_name");
 
 	// Apparently an earlier version of the gesture code added \r to the end
 	// of the animation names.  Get rid of it.  JC
@@ -333,9 +329,7 @@ BOOL LLGestureStepSound::serialize(LLDataPacker& dp) const
 
 BOOL LLGestureStepSound::deserialize(LLDataPacker& dp)
 {
-	char buffer[256];		/* Flawfinder: ignore */
-	dp.unpackString(buffer, "sound_name");
-	mSoundName = buffer;
+	dp.unpackString(mSoundName, "sound_name");
 
 	dp.unpackUUID(mSoundAssetID, "asset_id");
 	dp.unpackU32(mFlags, "flags");
@@ -391,9 +385,7 @@ BOOL LLGestureStepChat::serialize(LLDataPacker& dp) const
 
 BOOL LLGestureStepChat::deserialize(LLDataPacker& dp)
 {
-	char buffer[256];		/* Flawfinder: ignore */
-	dp.unpackString(buffer, "chat_text");
-	mChatText = buffer;
+	dp.unpackString(mChatText, "chat_text");
 
 	dp.unpackU32(mFlags, "flags");
 	return TRUE;

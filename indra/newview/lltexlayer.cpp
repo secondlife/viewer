@@ -468,7 +468,7 @@ void LLTexLayerSetBuffer::readBackAndUpload(U8* baked_bump_data)
 // static
 void LLTexLayerSetBuffer::onTextureUploadComplete(const LLUUID& uuid, void* userdata, S32 result) // StoreAssetData callback (not fixed)
 {
-	LLBakedUploadData* baked_upload_data = (LLBakedUploadData*)(U32)userdata;
+	LLBakedUploadData* baked_upload_data = (LLBakedUploadData*)userdata;
 
 	LLVOAvatar* avatar = gAgent.getAvatarObject();
 

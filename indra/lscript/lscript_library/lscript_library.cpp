@@ -448,7 +448,7 @@ LLScriptLibraryFunction::~LLScriptLibraryFunction()
 
 void LLScriptLibrary::addFunction(LLScriptLibraryFunction *func)
 {
-	LLScriptLibraryFunction **temp = (LLScriptLibraryFunction **)new U32[mNextNumber + 1];
+	LLScriptLibraryFunction **temp = new LLScriptLibraryFunction*[mNextNumber + 1];
 	if (mNextNumber)
 	{
 		memcpy(temp, mFunctions, sizeof(LLScriptLibraryFunction *)*mNextNumber);

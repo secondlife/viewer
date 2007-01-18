@@ -227,7 +227,7 @@ inline LLScriptLibData *lsa_bubble_sort(LLScriptLibData *src, S32 stride, S32 as
 		return retval;
 	}
 
-	LLScriptLibData **sortarray = (LLScriptLibData **)new U32[number];
+	LLScriptLibData **sortarray = new LLScriptLibData*[number];
 
 	LLScriptLibData *temp = src->mListp;
 	while (temp)
@@ -292,7 +292,7 @@ inline LLScriptLibData *lsa_randomize(LLScriptLibData *src, S32 stride)
 		return retval;
 	}
 
-	LLScriptLibData **sortarray = (LLScriptLibData **)new U32[number];
+	LLScriptLibData **sortarray = new LLScriptLibData*[number];
 
 	LLScriptLibData *temp = src->mListp;
 	S32 i = 0;

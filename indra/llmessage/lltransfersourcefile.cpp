@@ -144,9 +144,7 @@ void LLTransferSourceParamsFile::packParams(LLDataPacker &dp) const
 
 BOOL LLTransferSourceParamsFile::unpackParams(LLDataPacker &dp)
 {
-	char tmp_str[512];		/* Flawfinder: ignore */
-	dp.unpackString(tmp_str, "Filename");
-	mFilename = tmp_str;
+	dp.unpackString(mFilename, "Filename");
 	U8 delete_flag;
 	dp.unpackU8(delete_flag, "Delete");
 	mDeleteOnCompletion = delete_flag;

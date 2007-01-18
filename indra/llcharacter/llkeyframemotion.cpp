@@ -1169,14 +1169,11 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 	//-------------------------------------------------------------------------
 	// get emote (optional)
 	//-------------------------------------------------------------------------
-	char read_string[128];
-	if (!dp.unpackString(read_string, "emote_name"))
+	if (!dp.unpackString(mEmoteName, "emote_name"))
 	{
 		llwarns << "can't read optional_emote_animation" << llendl;
 		return FALSE;
 	}
-	
-	mEmoteName.assign( read_string );
 
 	//-------------------------------------------------------------------------
 	// get loop
@@ -1262,7 +1259,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 	S32 k;
 	for(U32 i=0; i<mJointMotionList->mNumJointMotions; ++i)
 	{
-		if (!dp.unpackString(read_string, "joint_name"))
+		std::string joint_name;
+		if (!dp.unpackString(joint_name, "joint_name"))
 		{
 			llwarns << "can't read joint name" << llendl;
 			return FALSE;
@@ -1271,18 +1269,18 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 		//---------------------------------------------------------------------
 		// find the corresponding joint
 		//---------------------------------------------------------------------
-		LLJoint *joint = mCharacter->getJoint( read_string );
+		LLJoint *joint = mCharacter->getJoint( joint_name );
 		if (joint)
 		{
-//			llinfos << "  joint: " << read_string << llendl;
+//			llinfos << "  joint: " << joint_name << llendl;
 		}
 		else
 		{
-			llwarns << "joint not found: " << read_string << llendl;
+			llwarns << "joint not found: " << joint_name << llendl;
 			//return FALSE;
 		}
 
-		mJointMotionList->mJointMotionArray[i].mJointName = read_string;
+		mJointMotionList->mJointMotionArray[i].mJointName = joint_name;
 		mJointStates[i].setJoint( joint );
 		mJointStates[i].setUsage( 0 );
 
@@ -1509,13 +1507,16 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			}
 			constraintp->mConstraintType = (EConstraintType)byte;
 
-			if (!dp.unpackBinaryDataFixed((unsigned char*)read_string, 16, "source_volume"))
+			const S32 BIN_DATA_LENGTH = 16;
+			U8 bin_data[BIN_DATA_LENGTH];
+			if (!dp.unpackBinaryDataFixed(bin_data, BIN_DATA_LENGTH, "source_volume"))
 			{
 				llwarns << "can't read source volume name" << llendl;
 				return FALSE;
 			}
-			
-			str.assign(read_string);
+
+			bin_data[BIN_DATA_LENGTH-1] = 0; // Ensure null termination
+			str = (char*)bin_data;
 			constraintp->mSourceConstraintVolume = mCharacter->getCollisionVolumeID(str);
 
 			if (!dp.unpackVector3(constraintp->mSourceConstraintOffset, "source_offset"))
@@ -1524,13 +1525,14 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				return FALSE;
 			}
 
-			if (!dp.unpackBinaryDataFixed((unsigned char*)read_string, 16, "target_volume"))
+			if (!dp.unpackBinaryDataFixed(bin_data, BIN_DATA_LENGTH, "target_volume"))
 			{
 				llwarns << "can't read target volume name" << llendl;
 				return FALSE;
 			}
 
-			str.assign(read_string);
+			bin_data[BIN_DATA_LENGTH-1] = 0; // Ensure null termination
+			str = (char*)bin_data;
 			if (str == "GROUND")
 			{
 				// constrain to ground
@@ -1589,16 +1591,21 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			constraintp->mJointStateIndices = new S32[constraintp->mChainLength + 1];
 			
 			LLJoint* joint = mCharacter->findCollisionVolume(constraintp->mSourceConstraintVolume);
+			// get joint to which this collision volume is attached
 			if (!joint)
 			{
 				return FALSE;
 			}
-
-			// get joint to which this collision volume is attached
-			joint = joint->getParent();
-
 			for (S32 i = 0; i < constraintp->mChainLength + 1; i++)
 			{
+				LLJoint* parent = joint->getParent();
+				if (!parent)
+				{
+					llwarns << "Joint with no parent: " << joint->getName()
+							<< " Emote: " << mEmoteName << llendl;
+					return FALSE;
+				}
+				joint = parent;
 				constraintp->mJointStateIndices[i] = -1;
 				for (U32 j = 0; j < mJointMotionList->mNumJointMotions; j++)
 				{
@@ -1608,7 +1615,6 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 						break;
 					}
 				}
-				joint = joint->getParent();
 			}
 
 		}

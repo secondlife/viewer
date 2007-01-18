@@ -1203,7 +1203,7 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	menu->append(item);
 	
 	
-	item = new LLMenuItemCheckGL("Animate Textures", menu_toggle_control, NULL, menu_check_control, (void*)"AnimateTextures", 'A', MASK_CONTROL|MASK_ALT);
+	item = new LLMenuItemCheckGL("Animate Textures", menu_toggle_control, NULL, menu_check_control, (void*)"AnimateTextures");
 	menu->append(item);
 	
 	item = new LLMenuItemCheckGL("Disable Textures", menu_toggle_variable, NULL, menu_check_variable, (void*)&LLViewerImage::sDontLoadVolumeTextures);
@@ -5006,7 +5006,7 @@ const char* upload_pick(void* data)
 	LLFilePicker::ELoadFilter type;
 	if(data)
 	{
-		type = (LLFilePicker::ELoadFilter)((S32)data);
+		type = (LLFilePicker::ELoadFilter)((intptr_t)data);
 	}
 	else
 	{
@@ -5911,7 +5911,7 @@ void handle_export_selected( void * )
 
 BOOL menu_check_build_tool( void* user_data )
 {
-	S32 index = (S32) user_data;
+	S32 index = (intptr_t) user_data;
 	return gCurrentToolset->isToolSelected( index );
 }
 
@@ -6204,7 +6204,7 @@ class LLObjectEnableSitOrStand : public view_listener_t
 	{
 		bool new_value = false;
 		LLViewerObject* dest_object = NULL;
-		if(dest_object = gObjectList.findObject(gLastHitObjectID))
+		if((dest_object = gObjectList.findObject(gLastHitObjectID)))
 		{
 			if(dest_object->getPCode() == LL_PCODE_VOLUME)
 			{
@@ -8056,7 +8056,7 @@ void handle_debug_avatar_textures(void*)
 
 void handle_grab_texture(void* data)
 {
-	LLVOAvatar::ETextureIndex index = (LLVOAvatar::ETextureIndex) ((U32) data);
+	LLVOAvatar::ETextureIndex index = (LLVOAvatar::ETextureIndex)((intptr_t)data);
 	LLVOAvatar* avatar = gAgent.getAvatarObject();
 	if ( avatar )
 	{
@@ -8147,7 +8147,7 @@ void handle_grab_texture(void* data)
 
 BOOL enable_grab_texture(void* data)
 {
-	LLVOAvatar::ETextureIndex index = (LLVOAvatar::ETextureIndex) ((U32) data);
+	LLVOAvatar::ETextureIndex index = (LLVOAvatar::ETextureIndex)((intptr_t)data);
 	LLVOAvatar* avatar = gAgent.getAvatarObject();
 	if ( avatar )
 	{
@@ -8246,6 +8246,7 @@ BOOL LLViewerMenuHolderGL::hideMenus()
 	}
 	gMenuBarView->clearHoverItem();
 	gMenuBarView->resetMenuTrigger();
+
 	return handled;
 }
 
