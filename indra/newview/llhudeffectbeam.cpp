@@ -350,9 +350,9 @@ void LLHUDEffectBeam::setupParticle(const S32 i)
 	// Generate a random offset for the target point.
 	const F32 SCALE = 0.5f;
 	F32 x, y, z;
-	x = frand(SCALE) - 0.5f*SCALE;
-	y = frand(SCALE) - 0.5f*SCALE;
-	z = frand(SCALE) - 0.5f*SCALE;
+	x = ll_frand(SCALE) - 0.5f*SCALE;
+	y = ll_frand(SCALE) - 0.5f*SCALE;
+	z = ll_frand(SCALE) - 0.5f*SCALE;
 
 	LLVector3d target_pos_global(mTargetPos);
 	target_pos_global += LLVector3d(x, y, z);

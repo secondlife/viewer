@@ -1100,3 +1100,62 @@ S32 lsa_postadd_lists(U8 *buffer, S32 offset1, LLScriptLibData *data, S32 heapsi
 	return lsa_heap_add_data(buffer, list1, heapsize, TRUE);
 }
 
+
+LLScriptLibData* lsa_randomize(LLScriptLibData* src, S32 stride)
+{
+	S32 number = src->getListLength();
+	if (number <= 0)
+	{
+		return NULL;
+	}
+	if (stride <= 0)
+	{
+		stride = 1;
+	}
+	if(number % stride)
+	{
+		LLScriptLibData* retval = src->mListp;
+		src->mListp = NULL;
+		return retval;
+	}
+	S32 buckets = number / stride;
+
+	// Copy everything into a special vector for sorting;
+	std::vector<LLScriptLibData*> sort_array;
+	sort_array.reserve(number);
+	LLScriptLibData* temp = src->mListp;
+	while(temp)
+	{
+		sort_array.push_back(temp);
+		temp = temp->mListp;
+	}
+
+	// We cannot simply call random_shuffle or similar algorithm since
+	// we need to obey the stride. So, we iterate over what we have
+	// and swap each with a random other segment.
+	S32 index = 0;
+	S32 ii = 0;
+	for(; ii < number; ii += stride)
+	{
+		index = ll_rand(buckets) * stride;
+		for(S32 jj = 0; jj < stride; ++jj)
+		{
+			std::swap(sort_array[ii + jj], sort_array[index + jj]);
+		}
+	}
+
+	// copy the pointers back out
+	ii = 1;
+	temp = sort_array[0];
+	while (ii < number)
+	{
+		temp->mListp = sort_array[ii++];
+		temp = temp->mListp;
+	}
+	temp->mListp = NULL;
+
+	src->mListp = NULL;
+
+	LLScriptLibData* ret_value = sort_array[0];
+	return ret_value;
+}

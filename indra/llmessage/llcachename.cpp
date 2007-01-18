@@ -390,7 +390,7 @@ BOOL LLCacheName::getName(const LLUUID& id, char* first, char* last)
 	{
 		//The function signature needs to change to pass in the
 		//length of first and last.
-		strcpy(first,(frand(1.0f) < HIPPO_PROBABILITY)
+		strcpy(first,(ll_frand() < HIPPO_PROBABILITY)
 						? CN_HIPPOS 
 						: CN_WAITING);
 		strcpy(last, "");

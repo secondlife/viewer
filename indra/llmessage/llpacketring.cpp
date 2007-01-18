@@ -147,7 +147,7 @@ S32 LLPacketRing::receivePacket (S32 socket, char *datap)
 				mActualBitsIn += packetp->getSize() * 8;
 
 				// Fake packet loss
-				if (mDropPercentage && (frand(100.f) < mDropPercentage))
+				if (mDropPercentage && (ll_frand(100.f) < mDropPercentage))
 				{
 					mPacketsToDrop++;
 				}
@@ -202,7 +202,7 @@ S32 LLPacketRing::receivePacket (S32 socket, char *datap)
 
 		if (packet_size)  // did we actually get a packet?
 		{
-			if (mDropPercentage && (frand(100.f) < mDropPercentage))
+			if (mDropPercentage && (ll_frand(100.f) < mDropPercentage))
 			{
 				mPacketsToDrop++;
 			}

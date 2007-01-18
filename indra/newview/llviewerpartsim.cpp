@@ -399,7 +399,7 @@ BOOL LLViewerPartSim::shouldAddPart()
 		F32 frac = (F32)sParticleCount/(F32)sMaxParticleCount;
 		frac -= 0.75;
 		frac *= 3.f;
-		if (frand(1.f) < frac)
+		if (ll_frand() < frac)
 		{
 			// Skip...
 			return FALSE;
@@ -530,9 +530,9 @@ void LLViewerPartSim::updateSimulation()
 	// pain.
 	S32 i;
 	S32 count = mViewerPartSources.count();
-	S32 start = (S32)frand((F32)count);
+	S32 start = (S32)ll_frand((F32)count);
 	S32 dir = 1;
-	if (frand(1.0) > 0.5f)
+	if (ll_frand() > 0.5f)
 	{
 		dir = -1;
 	}

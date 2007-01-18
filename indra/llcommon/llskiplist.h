@@ -223,7 +223,7 @@ inline BOOL LLSkipList<DATA_TYPE, BINARY_DEPTH>::addData(const DATA_TYPE& data)
 	S32 newlevel;
 	for (newlevel = 1; newlevel <= mLevel && newlevel < BINARY_DEPTH; newlevel++)
 	{
-		if (frand(1.f) < 0.5f)
+		if (ll_frand() < 0.5f)
 			break;
 	}
 

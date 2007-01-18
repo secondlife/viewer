@@ -266,8 +266,8 @@ BOOL LLDir_Win32::getNextFileInDir(const llutf16string &dirname, const std::stri
 // automatically wrap if we've hit the end
 void LLDir_Win32::getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
 {
-	U32 num_files;
-	U32 which_file;
+	S32 num_files;
+	S32 which_file;
 	HANDLE random_search_h;
 
 	fname = "";
@@ -284,7 +284,7 @@ void LLDir_Win32::getRandomFileInDir(const std::string &dirname, const std::stri
 		return;
 	}
 
-	which_file = gLindenLabRandomNumber.llrand() % num_files; 
+	which_file = ll_rand(num_files);
 
 //	llinfos << "Random select mp3 #" << which_file << llendl;
 

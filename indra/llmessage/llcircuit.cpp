@@ -86,12 +86,12 @@ LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id)
 	// Need to guarantee that this time is up to date, we may be creating a circuit even though we haven't been
 	//  running a message system loop.
 	F64 mt_sec = LLMessageSystem::getMessageTimeSeconds(TRUE);
-	F32 distribution_offset = frand(1.0f);
+	F32 distribution_offset = ll_frand();
 	
 	mPingTime = mt_sec;
 	mLastPingSendTime = mt_sec + PING_INTERVAL * distribution_offset;
 	mLastPingReceivedTime = mt_sec;
-	mNextPingSendTime = mLastPingSendTime + 0.95*PING_INTERVAL + frand(0.1f*PING_INTERVAL);
+	mNextPingSendTime = mLastPingSendTime + 0.95*PING_INTERVAL + ll_frand(0.1f*PING_INTERVAL);
 	mPeriodTime = mt_sec;
 
 	mTimeoutCallback = NULL;
@@ -785,7 +785,7 @@ void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
 			if (cdp->updateWatchDogTimers(msgsys))
             {
 				// Randomize our pings a bit by doing some up to 5% early or late
-				F64 dt = 0.95f*PING_INTERVAL + frand(0.1f*PING_INTERVAL);
+				F64 dt = 0.95f*PING_INTERVAL + ll_frand(0.1f*PING_INTERVAL);
 
 				// Remove it, and reinsert it with the new next ping time.
 				// Always remove before changing the sorting key.

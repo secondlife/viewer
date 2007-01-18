@@ -268,7 +268,7 @@ BOOL LLDir_Mac::getNextFileInDir(const std::string &dirname, const std::string &
 // get a random file in the directory
 void LLDir_Mac::getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
 {
-	U32 which_file;
+	S32 which_file;
 	glob_t g;
 	fname = "";
 	
@@ -281,7 +281,7 @@ void LLDir_Mac::getRandomFileInDir(const std::string &dirname, const std::string
 		if(g.gl_pathc > 0)
 		{
 			
-			which_file = gLindenLabRandomNumber.llrand() % g.gl_pathc; 
+			which_file = ll_rand(g.gl_pathc);
 	
 //			llinfos << "getRandomFileInDir: returning number " << which_file << ", path is " << g.gl_pathv[which_file] << llendl;
 			// The API wants just the filename, not the full path.

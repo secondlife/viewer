@@ -2363,7 +2363,7 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	static const F32 UPDATE_TIME = .5f;
  	if (mUpdateLODTimer.hasExpired())
 	{
- 		mUpdateLODTimer.setTimerExpirySec(UPDATE_TIME * (.75f + frand(0.5f)));
+ 		mUpdateLODTimer.setTimerExpirySec(UPDATE_TIME * (.75f + ll_frand(0.5f)));
 		updateJointLODs();
 	}
 	

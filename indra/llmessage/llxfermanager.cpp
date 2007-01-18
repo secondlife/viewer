@@ -1089,7 +1089,7 @@ void process_request_xfer(LLMessageSystem *mesgsys, void **user_data)
 void continue_file_receive(LLMessageSystem *mesgsys, void **user_data)
 {
 #if LL_TEST_XFER_REXMIT
-	if (frand(1.f) > 0.05f)
+	if (ll_frand() > 0.05f)
 	{
 #endif
 		gXferManager->processReceiveData(mesgsys,user_data);

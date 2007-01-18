@@ -174,9 +174,9 @@ void LLCloudGroup::updatePuffCount()
 		for (i = current_puff_count; i < target_puff_count; i++)
 		{
 			puff_pos_global = mVOCloudsp->getPositionGlobal();
-			F32 x = frand(256.f/CLOUD_GROUPS_PER_EDGE) - 128.f/CLOUD_GROUPS_PER_EDGE;
-			F32 y = frand(256.f/CLOUD_GROUPS_PER_EDGE) - 128.f/CLOUD_GROUPS_PER_EDGE;
-			F32 z = frand(CLOUD_HEIGHT_RANGE) - 0.5f*CLOUD_HEIGHT_RANGE;
+			F32 x = ll_frand(256.f/CLOUD_GROUPS_PER_EDGE) - 128.f/CLOUD_GROUPS_PER_EDGE;
+			F32 y = ll_frand(256.f/CLOUD_GROUPS_PER_EDGE) - 128.f/CLOUD_GROUPS_PER_EDGE;
+			F32 z = ll_frand(CLOUD_HEIGHT_RANGE) - 0.5f*CLOUD_HEIGHT_RANGE;
 			puff_pos_global += LLVector3d(x, y, z);
 			mCloudPuffs[i].mPositionGlobal = puff_pos_global;
 			mCloudPuffs[i].mAlpha = 0.01f;

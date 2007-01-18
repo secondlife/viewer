@@ -645,20 +645,18 @@ void LLVOSky::restoreGL()
 
 void LLVOSky::updateHaze()
 {
-	time_t timer;
-	time(&timer);
-	static LLRand WeatherRandomNumber(gmtime(&timer)->tm_mday);
+	static LLRandLagFib607 weather_generator(LLUUID::getRandomSeed());
 	if (gSavedSettings.getBOOL("FixedWeather"))
 	{
-		WeatherRandomNumber.seed(8008135);
+		weather_generator.seed(8008135);
 	}
 
 	const F32 fo_upper_bound = 5;
 	const F32 sca_upper_bound = 6;
-	const F32 fo = 1 + WeatherRandomNumber.llfrand(fo_upper_bound - 1);
+	const F32 fo = 1 + (F32)weather_generator() *(fo_upper_bound - 1);
 	const static F32 upper = 0.5f / gFastLn.ln(fo_upper_bound);
 	mHaze.setFalloff(fo);
-	mHaze.setG(WeatherRandomNumber.llfrand(0.0f + upper * gFastLn.ln(fo)));
+	mHaze.setG((F32)weather_generator() * (0.0f + upper * gFastLn.ln(fo)));
 	LLColor3 sca;
 	const F32 cd = mCloudDensity * 3;
 	F32 min_r = cd - 1;
@@ -672,7 +670,7 @@ void LLVOSky::updateHaze()
 		max_r = sca_upper_bound;
 	}
 
-	sca.mV[0] = min_r + WeatherRandomNumber.llfrand(max_r - min_r);//frand(6);
+	sca.mV[0] = min_r + (F32)weather_generator() * (max_r - min_r);
 
 	min_r = sca.mV[0] - 0.1f;
 	if (min_r < 0)
@@ -685,7 +683,7 @@ void LLVOSky::updateHaze()
 		max_r = sca_upper_bound;
 	}
 
-	sca.mV[1] = min_r + WeatherRandomNumber.llfrand(max_r - min_r);
+	sca.mV[1] = min_r + (F32)weather_generator() * (max_r - min_r);
 
 	min_r = sca.mV[1];
 	if (min_r < 0)
@@ -698,7 +696,7 @@ void LLVOSky::updateHaze()
 		max_r = sca_upper_bound;
 	}
 
-	sca.mV[2] = min_r + WeatherRandomNumber.llfrand(max_r - min_r);
+	sca.mV[2] = min_r + (F32)weather_generator() * (max_r - min_r);
 
 	sca = AIR_SCA_AVG * sca;
 

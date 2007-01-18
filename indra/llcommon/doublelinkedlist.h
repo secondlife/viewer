@@ -1343,7 +1343,7 @@ void LLDoubleLinkedList<DATA_TYPE>::scramble()
 	DATA_TYPE *datap = getFirstData();
 	while(datap)
 	{
-		random_number = gLindenLabRandomNumber.llrand() % 5;
+		random_number = ll_rand(5);
 
 		if (0 == random_number)
 		{

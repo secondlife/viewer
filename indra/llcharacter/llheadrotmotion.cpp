@@ -332,31 +332,31 @@ BOOL LLEyeMotion::onUpdate(F32 time, U8* joint_mask)
 	//calculate jitter
 	if (mEyeJitterTimer.getElapsedTimeF32() > mEyeJitterTime)
 	{
-		mEyeJitterTime = EYE_JITTER_MIN_TIME + frand(EYE_JITTER_MAX_TIME - EYE_JITTER_MIN_TIME);
-		mEyeJitterYaw = (frand(2.f) - 1.f) * EYE_JITTER_MAX_YAW;
-		mEyeJitterPitch = (frand(2.f) - 1.f) * EYE_JITTER_MAX_PITCH;
+		mEyeJitterTime = EYE_JITTER_MIN_TIME + ll_frand(EYE_JITTER_MAX_TIME - EYE_JITTER_MIN_TIME);
+		mEyeJitterYaw = (ll_frand(2.f) - 1.f) * EYE_JITTER_MAX_YAW;
+		mEyeJitterPitch = (ll_frand(2.f) - 1.f) * EYE_JITTER_MAX_PITCH;
 		// make sure lookaway time count gets updated, because we're resetting the timer
 		mEyeLookAwayTime -= llmax(0.f, mEyeJitterTimer.getElapsedTimeF32());
 		mEyeJitterTimer.reset();
 	} 
 	else if (mEyeJitterTimer.getElapsedTimeF32() > mEyeLookAwayTime)
 	{
-		if (frand(1.f) > 0.1f)
+		if (ll_frand() > 0.1f)
 		{
 			// blink while moving eyes some percentage of the time
 			mEyeBlinkTime = mEyeBlinkTimer.getElapsedTimeF32();
 		}
 		if (mEyeLookAwayYaw == 0.f && mEyeLookAwayPitch == 0.f)
 		{
-			mEyeLookAwayYaw = (frand(2.f) - 1.f) * EYE_LOOK_AWAY_MAX_YAW;
-			mEyeLookAwayPitch = (frand(2.f) - 1.f) * EYE_LOOK_AWAY_MAX_PITCH;
-			mEyeLookAwayTime = EYE_LOOK_BACK_MIN_TIME + frand(EYE_LOOK_BACK_MAX_TIME - EYE_LOOK_BACK_MIN_TIME);
+			mEyeLookAwayYaw = (ll_frand(2.f) - 1.f) * EYE_LOOK_AWAY_MAX_YAW;
+			mEyeLookAwayPitch = (ll_frand(2.f) - 1.f) * EYE_LOOK_AWAY_MAX_PITCH;
+			mEyeLookAwayTime = EYE_LOOK_BACK_MIN_TIME + ll_frand(EYE_LOOK_BACK_MAX_TIME - EYE_LOOK_BACK_MIN_TIME);
 		}
 		else
 		{
 			mEyeLookAwayYaw = 0.f;
 			mEyeLookAwayPitch = 0.f;
-			mEyeLookAwayTime = EYE_LOOK_AWAY_MIN_TIME + frand(EYE_LOOK_AWAY_MAX_TIME - EYE_LOOK_AWAY_MIN_TIME);
+			mEyeLookAwayTime = EYE_LOOK_AWAY_MIN_TIME + ll_frand(EYE_LOOK_AWAY_MAX_TIME - EYE_LOOK_AWAY_MIN_TIME);
 		}
 	}
 
@@ -395,7 +395,7 @@ BOOL LLEyeMotion::onUpdate(F32 time, U8* joint_mask)
 			if (rightEyeBlinkMorph == 0.f)
 			{
 				mEyesClosed = FALSE;
-				mEyeBlinkTime = EYE_BLINK_MIN_TIME + frand(EYE_BLINK_MAX_TIME - EYE_BLINK_MIN_TIME);
+				mEyeBlinkTime = EYE_BLINK_MIN_TIME + ll_frand(EYE_BLINK_MAX_TIME - EYE_BLINK_MIN_TIME);
 				mEyeBlinkTimer.reset();
 			}
 		}

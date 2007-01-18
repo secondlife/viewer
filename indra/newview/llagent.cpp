@@ -2096,11 +2096,11 @@ void LLAgent::updateWanderTarget()
 	F32 rand_x;
 	F32 rand_y;
 
-	if (mWanderTimer.checkExpirationAndReset(frand(MAX_WANDER_TIME)))
+	if (mWanderTimer.checkExpirationAndReset(ll_frand(MAX_WANDER_TIME)))
 	{
 		// Pick a random spot to wander towards
 		num_regions = gWorldPointer->mActiveRegionList.getLength();
-		S32 region_num = llround(frand(1.f) * num_regions);
+		S32 region_num = llround(ll_frand() * num_regions);
 		rand_region = gWorldPointer->mActiveRegionList.getFirstData();
 		S32 i = 0;
 		while (i < region_num)
@@ -2108,8 +2108,8 @@ void LLAgent::updateWanderTarget()
 			rand_region = gWorldPointer->mActiveRegionList.getNextData();
 			i++;
 		}
-		rand_x = frand(rand_region->getWidth());
-		rand_y = frand(rand_region->getWidth());
+		rand_x = ll_frand(rand_region->getWidth());
+		rand_y = ll_frand(rand_region->getWidth());
 		
 		stopAutoPilot();
 		startAutoPilotGlobal(rand_region->getPosGlobalFromRegion(LLVector3(rand_x, rand_y, 0.f)));
@@ -5668,7 +5668,7 @@ void LLAgent::fidget()
 			// pick a random fidget anim here
 			S32 oldFidget = mCurrentFidget;
 
-			mCurrentFidget = gLindenLabRandomNumber.llrand(NUM_AGENT_STAND_ANIMS);
+			mCurrentFidget = ll_rand(NUM_AGENT_STAND_ANIMS);
 
 			if (mCurrentFidget != oldFidget)
 			{
@@ -5700,7 +5700,7 @@ void LLAgent::fidget()
 			}
 
 			// calculate next fidget time
-			mNextFidgetTime = curTime + gLindenLabRandomNumber.llfrand(MAX_FIDGET_TIME - MIN_FIDGET_TIME) + MIN_FIDGET_TIME;
+			mNextFidgetTime = curTime + ll_frand(MAX_FIDGET_TIME - MIN_FIDGET_TIME) + MIN_FIDGET_TIME;
 		}
 	}
 }

@@ -34,7 +34,7 @@ LLVOPartGroup::LLVOPartGroup(const LLUUID &id, const LLPCode pcode, LLViewerRegi
 	setNumTEs(1);
 	setTETexture(0, LLUUID::null);
 	mbCanSelect = FALSE;			// users can't select particle systems
-	mDebugColor = LLColor4(frand(1.f), frand(1.f), frand(1.f), 1.f);
+	mDebugColor = LLColor4(ll_frand(), ll_frand(), ll_frand(), 1.f);
 }
 
 

@@ -324,7 +324,7 @@ inline DATA_T &LLPtrSkipMap<INDEX_T, DATA_T, BINARY_DEPTH>::addData(const INDEX_
 	S32 newlevel;
 	for (newlevel = 1; newlevel <= mLevel && newlevel < BINARY_DEPTH; newlevel++)
 	{
-		if (frand(1.f) < 0.5f)
+		if (ll_frand() < 0.5f)
 		{
 			break;
 		}
@@ -392,7 +392,7 @@ inline DATA_T &LLPtrSkipMap<INDEX_T, DATA_T, BINARY_DEPTH>::addData(const INDEX_
 	S32 newlevel;
 	for (newlevel = 1; newlevel <= mLevel && newlevel < BINARY_DEPTH; newlevel++)
 	{
-		if (frand(1.f) < 0.5f)
+		if (ll_frand() < 0.5f)
 			break;
 	}
 
@@ -470,7 +470,7 @@ inline DATA_T &LLPtrSkipMap<INDEX_T, DATA_T, BINARY_DEPTH>::getData(const INDEX_
 	S32 newlevel;
 	for (newlevel = 1; newlevel <= mLevel && newlevel < BINARY_DEPTH; newlevel++)
 	{
-		if (frand(1.f) < 0.5f)
+		if (ll_frand() < 0.5f)
 			break;
 	}
 

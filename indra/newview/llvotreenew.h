@@ -59,7 +59,7 @@ public:
 	// return +- negPos
 	static S32 llrand_signed(S32 negPos)
 	{
-		return (gLindenLabRandomNumber.llrand((U32)negPos * 2) - negPos);
+		return (ll_rand((U32)negPos * 2) - negPos);
 	};
 
 	static S32 llrand_signed(S32 negPos, U32 index)
@@ -75,7 +75,7 @@ public:
 	// return +- negPos
 	static F32 llfrand_signed(F32 negPos)
 	{
-		return (gLindenLabRandomNumber.llfrand(negPos * 2.0f) - negPos);
+		return (ll_frand(negPos * 2.0f) - negPos);
 	};
 
 	static F32 llfrand_signed(F32 negPos, U32 index)
@@ -91,7 +91,7 @@ public:
 	// return between 0-pos
 	static F32 llfrand_unsigned(F32 pos)
 	{
-		return gLindenLabRandomNumber.llfrand(pos);
+		return ll_frand(pos);
 	};
 
 	static void cleanupTextures() {};	// not needed anymore

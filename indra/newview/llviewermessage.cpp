@@ -1980,7 +1980,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			&& chatter != gAgent.getAvatarObject())
 		{
 			gAgent.heardChat(chat);
-			if (gLindenLabRandomNumber.llrand(2) == 0) 
+			if (ll_rand(2) == 0) 
 			{
 				gAgent.setLookAt(LOOKAT_TARGET_AUTO_LISTEN, chatter, LLVector3::zero);
 			}			

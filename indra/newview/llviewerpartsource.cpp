@@ -194,9 +194,9 @@ void LLViewerPartSourceScript::update(const F32 dt)
 				F32 mvs;
 				do
 				{
-					part_dir_vector.mV[VX] = frand(2.f) - 1.f;
-					part_dir_vector.mV[VY] = frand(2.f) - 1.f;
-					part_dir_vector.mV[VZ] = frand(2.f) - 1.f;
+					part_dir_vector.mV[VX] = ll_frand(2.f) - 1.f;
+					part_dir_vector.mV[VY] = ll_frand(2.f) - 1.f;
+					part_dir_vector.mV[VZ] = ll_frand(2.f) - 1.f;
 					mvs = part_dir_vector.magVecSquared();
 				}
 				while ((mvs > 1.f) || (mvs < 0.01f));
@@ -204,7 +204,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
 				part_dir_vector.normVec();
 				part.mPosAgent += mPartSysData.mBurstRadius*part_dir_vector;
 				part.mVelocity = part_dir_vector;
-				F32 speed = mPartSysData.mBurstSpeedMin + frand(mPartSysData.mBurstSpeedMax - mPartSysData.mBurstSpeedMin);
+				F32 speed = mPartSysData.mBurstSpeedMin + ll_frand(mPartSysData.mBurstSpeedMax - mPartSysData.mBurstSpeedMin);
 				part.mVelocity *= speed;
 			}
 			else if (mPartSysData.mPattern & LLPartSysData::LL_PART_SRC_PATTERN_ANGLE
@@ -223,10 +223,10 @@ void LLViewerPartSourceScript::update(const F32 dt)
 				F32 outerAngle = mPartSysData.mOuterAngle;
 
 				// generate a random angle within the given space...
-				F32 angle = innerAngle + frand(outerAngle - innerAngle);
+				F32 angle = innerAngle + ll_frand(outerAngle - innerAngle);
 
 				// split which side it will go on randomly...
-				if (frand(1.0) < 0.5) 
+				if (ll_frand() < 0.5) 
 				{
 					angle = -angle;
 				}
@@ -237,7 +237,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
 				// If this is a cone pattern, rotate again to create the cone.
 				if (mPartSysData.mPattern & LLPartSysData::LL_PART_SRC_PATTERN_ANGLE_CONE)
 				{
-					part_dir_vector.rotVec(frand(4*F_PI), 0.0, 0.0, 1.0);
+					part_dir_vector.rotVec(ll_frand(4*F_PI), 0.0, 0.0, 1.0);
 				}
 					
 				// Only apply this rotation if using the deprecated angles. 
@@ -257,7 +257,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
 
 				part.mVelocity = part_dir_vector;
 
-				F32 speed = mPartSysData.mBurstSpeedMin + frand(mPartSysData.mBurstSpeedMax - mPartSysData.mBurstSpeedMin);
+				F32 speed = mPartSysData.mBurstSpeedMin + ll_frand(mPartSysData.mBurstSpeedMax - mPartSysData.mBurstSpeedMin);
 				part.mVelocity *= speed;
 			}
 			else
@@ -440,7 +440,7 @@ void LLViewerPartSourceSpiral::update(const F32 dt)
 		part.mLastUpdateTime = 0.f;
 		part.mScale.mV[0] = 0.25f;
 		part.mScale.mV[1] = 0.25f;
-		part.mParameter = frand(F_TWO_PI);
+		part.mParameter = ll_frand(F_TWO_PI);
 
 		gWorldPointer->mPartSim.addPart(part);
 	}
@@ -701,7 +701,7 @@ void LLViewerPartSourceChat::update(const F32 dt)
 		part.mLastUpdateTime = 0.f;
 		part.mScale.mV[0] = 0.25f;
 		part.mScale.mV[1] = 0.25f;
-		part.mParameter = frand(F_TWO_PI);
+		part.mParameter = ll_frand(F_TWO_PI);
 
 		gWorldPointer->mPartSim.addPart(part);
 	}

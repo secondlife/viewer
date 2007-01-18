@@ -210,26 +210,26 @@ void LLVOGrass::initClass()
 	{
 		if (1)   //(i%2 == 0)			Uncomment for X blading
 		{
-			F32 u = sqrt(-2.0f * log(frand(1.0)));
-			F32 v = 2.0f * F_PI * frand(1.0);
+			F32 u = sqrt(-2.0f * log(ll_frand()));
+			F32 v = 2.0f * F_PI * ll_frand();
 			
 			x = u * sin(v) * GRASS_DISTRIBUTION_SD;
 			y = u * cos(v) * GRASS_DISTRIBUTION_SD;
 
-			rot = frand(F_PI);
+			rot = ll_frand(F_PI);
 		}
 		else
 		{
-			rot += (F_PI*0.4f + frand(0.2f*F_PI));
+			rot += (F_PI*0.4f + ll_frand(0.2f*F_PI));
 		}
 
 		exp_x[i] = x;
 		exp_y[i] = y;
 		rot_x[i] = sin(rot);
 		rot_y[i] = cos(rot);
-		dz_x[i] = frand(GRASS_BLADE_BASE * 0.25f);
-		dz_y[i] = frand(GRASS_BLADE_BASE * 0.25f);
-		w_mod[i] = 0.5f + frand(1.f);						//  Degree to which blade is moved by wind
+		dz_x[i] = ll_frand(GRASS_BLADE_BASE * 0.25f);
+		dz_y[i] = ll_frand(GRASS_BLADE_BASE * 0.25f);
+		w_mod[i] = 0.5f + ll_frand();						//  Degree to which blade is moved by wind
 
 	}
 }

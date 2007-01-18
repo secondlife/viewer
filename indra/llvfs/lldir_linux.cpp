@@ -10,7 +10,7 @@
 
 #include "lldir_linux.h"
 #include "llerror.h"
-#include "llrand.h"		// for gLindenLabRandomNumber
+#include "llrand.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -267,8 +267,8 @@ BOOL LLDir_Linux::getNextFileInDir(const std::string &dirname, const std::string
 // automatically wrap if we've hit the end
 void LLDir_Linux::getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
 {
-	U32 num_files;
-	U32 which_file;
+	S32 num_files;
+	S32 which_file;
 	DIR *dirp;
 	dirent *entryp = NULL;
 
@@ -280,7 +280,7 @@ void LLDir_Linux::getRandomFileInDir(const std::string &dirname, const std::stri
 		return;
 	}
 
-	which_file = gLindenLabRandomNumber.llrand() % num_files; 
+	which_file = ll_rand(num_files);
 
 //	llinfos << "Random select file #" << which_file << llendl;
 
