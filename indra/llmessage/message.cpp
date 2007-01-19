@@ -3232,10 +3232,16 @@ void LLMessageSystem::logMsgFromInvalidCircuit( const LLHost& host, BOOL recv_re
 
 void LLMessageSystem::logTrustedMsgFromUntrustedCircuit( const LLHost& host )
 {
-	llwarns << "Recieved trusted message on untrusted circuit. "
-	   	<< "Will reply with deny. "
-		<< "Message: " << mCurrentRMessageTemplate->mName
-		<< " Host: " << host << llendl;
+	// RequestTrustedCircuit is how we establish trust, so don't spam
+	// if it's received on a trusted circuit. JC
+	if (strcmp(mCurrentRMessageTemplate->mName, "RequestTrustedCircuit"))
+	{
+		llwarns << "Received trusted message on untrusted circuit. "
+	   		<< "Will reply with deny. "
+			<< "Message: " << mCurrentRMessageTemplate->mName
+			<< " Host: " << host << llendl;
+	}
+
 	if (mNumMessageCounts >= MAX_MESSAGE_COUNT_NUM)
 	{
 		llwarns << "got more than " << MAX_MESSAGE_COUNT_NUM
