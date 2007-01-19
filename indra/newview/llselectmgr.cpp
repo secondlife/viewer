@@ -2118,6 +2118,7 @@ void LLSelectMgr::packGodlikeHead(void* user_data)
 	msg->nextBlockFast(_PREHASH_AgentData);
 	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->addUUID("TransactionID", LLUUID::null);
 	godlike_request_t* data = (godlike_request_t*)user_data;
 	msg->nextBlock("MethodData");
 	msg->addString("Method", data->first.c_str());
