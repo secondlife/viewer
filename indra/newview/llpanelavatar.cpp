@@ -829,14 +829,17 @@ void LLPanelAvatarClassified::enableControls(BOOL self)
 BOOL LLPanelAvatarClassified::titleIsValid()
 {
 	LLTabContainerCommon* tabs = LLViewerUICtrlFactory::getTabContainerByName(this, "classified tab");
-	for (S32 i = 0; i < tabs->getTabCount(); i++)
+	if ( tabs )
 	{
-		LLPanelClassified* panel = (LLPanelClassified*)tabs->getPanelByIndex(i);
-		if ( ! panel->titleIsValid() )
+		LLPanelClassified* panel = (LLPanelClassified*)tabs->getCurrentPanel();
+		if ( panel )
 		{
-			return FALSE;
-		}
-	}
+			if ( ! panel->titleIsValid() )
+			{
+				return FALSE;
+			};
+		};
+	};
 
 	return TRUE;
 }
@@ -1640,7 +1643,8 @@ void LLPanelAvatar::onClickOK(void *userdata)
 	{
 		self->sendAvatarPropertiesUpdate();
 
-		if ( self->mPanelClassified->titleIsValid() )
+		LLTabContainerCommon* tabs = LLUICtrlFactory::getTabContainerByName(self,"tab");
+		if ( tabs->getCurrentPanel() != self->mPanelClassified )
 		{
 			self->mPanelClassified->apply();
 
@@ -1648,6 +1652,19 @@ void LLPanelAvatar::onClickOK(void *userdata)
 			if (infop)
 			{
 				infop->close();
+			}
+		}
+		else
+		{
+			if ( self->mPanelClassified->titleIsValid() )
+			{
+				self->mPanelClassified->apply();
+
+				LLFloaterAvatarInfo *infop = LLFloaterAvatarInfo::getInstance(self->mAvatarID);
+				if (infop)
+				{
+					infop->close();
+				}
 			}
 		}
 	}
