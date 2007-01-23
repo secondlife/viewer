@@ -185,8 +185,12 @@ void LLVolumeImplFlexible::setAttributesOfAllSections()
 		end_rot = F_PI * params.getTwist();
 	}
 
+	if (!mVO->mDrawable)
+	{
+		return;
+	}
+	
 	S32 num_sections = 1 << mSimulateRes;
-
 
 	LLVector3 scale = mVO->mDrawable->getScale();
 									

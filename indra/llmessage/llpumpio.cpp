@@ -316,6 +316,7 @@ bool LLPumpIO::copyCurrentLinkInfo(links_t& links) const
 void LLPumpIO::pump()
 {
 	LLMemType m1(LLMemType::MTYPE_IO_PUMP);
+	LLFastTimer t1(LLFastTimer::FTM_PUMP);
 	//llinfos << "LLPumpIO::pump()" << llendl;
 
 	// Run any pending runners.

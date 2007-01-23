@@ -364,8 +364,7 @@ LLFloaterTools::LLFloaterTools()
 	mPanelLandInfo(NULL),
 
 	mTabLand(NULL),
-	mDirty(TRUE),
-	mLastTool(gToolNull)
+	mDirty(TRUE)
 {
 	mAutoFocus = FALSE;
 	LLCallbackMap::map_t factory_map;
@@ -930,21 +929,13 @@ void LLFloaterTools::onClickGridOptions(void* data)
 	//floaterp->addDependentFloater(LLFloaterBuildOptions::getInstance(), FALSE);
 }
 
-void LLFloaterTools::saveLastTool()
-{
-	mLastTool = gToolMgr->getCurrentTool( MASK_NONE );
-}
-
 void LLFloaterTools::setEditTool(void* tool_pointer)
 {
 	select_tool(tool_pointer);
-	if(gFloaterTools && tool_pointer != gToolNull)
-	{
-		gFloaterTools->saveLastTool();
-	}
 }
 
 void LLFloaterTools::onFocusReceived()
 {
-	select_tool(mLastTool);
+	gCurrentToolset = gBasicToolset;
+	gCurrentToolset->selectTool(gCurrentToolset->getSelectedTool());
 }

@@ -2484,7 +2484,7 @@ void LLViewerParcelMgr::buyPass()
 //Tells whether we are allowed to buy a pass or not
 BOOL LLViewerParcelMgr::isCollisionBanned()	
 { 
-	if ((mCollisionBanned == BA_ALLOWED) || (mCollisionBanned == BA_NOT_ON_LIST))
+	if ((mCollisionBanned == BA_ALLOWED) || (mCollisionBanned == BA_NOT_ON_LIST) || (mCollisionBanned == BA_NOT_IN_GROUP))
 		return FALSE;
 	else 
 		return TRUE;

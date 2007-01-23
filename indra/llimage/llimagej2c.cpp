@@ -224,7 +224,7 @@ BOOL LLImageJ2C::decode(LLImageRaw *raw_imagep, F32 decode_time, S32 first_chann
 	// Update the raw discard level
 	updateRawDiscardLevel();
 
-	return mImpl->decodeImpl(*this, *raw_imagep, decode_time, 0, 4);
+	return mImpl->decodeImpl(*this, *raw_imagep, decode_time, first_channel, max_channel_count);
 }
 
 

@@ -53,8 +53,7 @@ extern LLControlGroup gCrashSettings;
 extern LLString gLastRunVersion;
 extern LLString gCurrentVersion;
 
-extern char gSettingsFileName[LL_MAX_PATH];
-extern char gPerAccountSettingsFileName[LL_MAX_PATH];
-extern const char *DEFAULT_SETTINGS_FILE;
+extern LLString gSettingsFileName;
+extern LLString gPerAccountSettingsFileName;
 
 #endif // LL_LLVIEWERCONTROL_H

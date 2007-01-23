@@ -666,7 +666,7 @@ BOOL idle_startup()
 		gSavedSettings.loadFromFile(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT,"overrides.xml"));
 
 		// handle the per account settings setup
-		strcpy(gPerAccountSettingsFileName, gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, DEFAULT_SETTINGS_FILE).c_str());
+		gPerAccountSettingsFileName = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, DEFAULT_SETTINGS_FILE);
 
 		// per account settings.  Set defaults here if not found.  If we get a bunch of these, eventually move to a function.
 		gSavedPerAccountSettings.loadFromFile(gPerAccountSettingsFileName);

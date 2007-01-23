@@ -52,19 +52,21 @@ static LLColor4 green9(0.6f, 1.0f, 0.6f, 1.0f);
 // red (5) magenta (4)
 static struct ft_display_info ft_display_table[] =
 {
-	{ LLFastTimer::FTM_FRAME,				"Frame",			&LLColor4::white, 0 },
-	{ LLFastTimer::FTM_MESSAGES,			" Messages",		&LLColor4::grey1, 0 },
-	{ LLFastTimer::FTM_SLEEP,				" Sleep",			&LLColor4::grey2, 0 },
-	{ LLFastTimer::FTM_IDLE,				" Idle",			&blue0, 0 },
-	{ LLFastTimer::FTM_INVENTORY,			"  Inventory Update",			&LLColor4::purple6, 1 },
-	{ LLFastTimer::FTM_AUTO_SELECT,			"   Open and Select",		&LLColor4::red, 0 },
+	{ LLFastTimer::FTM_FRAME,				"Frame",				&LLColor4::white, 0 },
+	{ LLFastTimer::FTM_MESSAGES,			" Messages",			&LLColor4::grey1, 0 },
+	{ LLFastTimer::FTM_SLEEP,				" Sleep",				&LLColor4::grey2, 0 },
+	{ LLFastTimer::FTM_IDLE,				" Idle",				&blue0, 0 },
+	{ LLFastTimer::FTM_PUMP,				"  Pump",				&LLColor4::magenta2, 1 },
+	{ LLFastTimer::FTM_CURL,				"   Curl",				&LLColor4::magenta3, 0 },
+	{ LLFastTimer::FTM_INVENTORY,			"  Inventory Update",	&LLColor4::purple6, 1 },
+	{ LLFastTimer::FTM_AUTO_SELECT,			"   Open and Select",	&LLColor4::red, 0 },
 	{ LLFastTimer::FTM_FILTER,				"   Filter",			&LLColor4::red2, 0 },
 	{ LLFastTimer::FTM_ARRANGE,				"   Arrange",			&LLColor4::red3, 0 },
 	{ LLFastTimer::FTM_REFRESH,				"   Refresh",			&LLColor4::red4, 0 },
 	{ LLFastTimer::FTM_SORT,				"   Sort",				&LLColor4::red5, 0 },
-	{ LLFastTimer::FTM_RESET_DRAWORDER,		"  ResetDrawOrder",	&LLColor4::pink1, 0 },
-	{ LLFastTimer::FTM_WORLD_UPDATE,		"  World Update",	&LLColor4::blue1, 1 },
-	{ LLFastTimer::FTM_UPDATE_MOVE,			"   Move Objects",	&LLColor4::pink2, 0 },
+	{ LLFastTimer::FTM_RESET_DRAWORDER,		"  ResetDrawOrder",		&LLColor4::pink1, 0 },
+	{ LLFastTimer::FTM_WORLD_UPDATE,		"  World Update",		&LLColor4::blue1, 1 },
+	{ LLFastTimer::FTM_UPDATE_MOVE,			"   Move Objects",		&LLColor4::pink2, 0 },
 	{ LLFastTimer::FTM_OCTREE_BALANCE,		"    Octree Balance",	&LLColor4::red3, 0 },
 	{ LLFastTimer::FTM_CULL,				"   Object Cull",	&LLColor4::blue2, 0 },
 	{ LLFastTimer::FTM_CULL_REBOUND,		"    Rebound",		&LLColor4::blue3, 0 },
@@ -262,6 +264,13 @@ BOOL LLFastTimerView::handleMouseDown(S32 x, S32 y, MASK mask)
 			}
 		}
 	}
+	else if (mask & MASK_ALT)
+	{
+		if (mask & MASK_SHIFT)
+			mSubtractHidden = !mSubtractHidden;
+		else
+			mDisplayCalls = !mDisplayCalls;
+	}
 	else if (mask & MASK_SHIFT)
 	{
 		if (++mDisplayMode > 3)
@@ -282,8 +291,8 @@ BOOL LLFastTimerView::handleMouseDown(S32 x, S32 y, MASK mask)
 			mScrollIndex = 0;
 		}
 	}
-	// RN: for now, pass all mouse events through
-	return FALSE;
+	// SJB: Don't pass mouse clicks through the display
+	return TRUE;
 }
 
 BOOL LLFastTimerView::handleMouseUp(S32 x, S32 y, MASK mask)
@@ -336,33 +345,6 @@ BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 		mScrollIndex = llclamp(mScrollIndex - clicks, 
 								0, llmin(LLFastTimer::sLastFrameIndex, (S32)LLFastTimer::FTM_HISTORY_NUM-MAX_VISIBLE_HISTORY));
 		return TRUE;
-	}
-	return FALSE;
-}
-
-BOOL LLFastTimerView::handleKey(KEY key, MASK mask, BOOL called_from_parent)
-{
-	// Otherwise space key gets eaten from the rest of the UI. JC
-	if (getVisible())
-	{
-		switch (key)
-		{
-		  case '=':
-			mDisplayCalls = !mDisplayCalls;
-			return TRUE;
-		  case '-':
-			mSubtractHidden = !mSubtractHidden;
-			return TRUE;
-		  case ' ':
-			// pause/unpause
-			LLFastTimer::sPauseHistory = !LLFastTimer::sPauseHistory;
-			// reset scroll to bottom when unpausing
-			if (!LLFastTimer::sPauseHistory)
-			{
-				mScrollIndex = 0;
-			}
-			return TRUE;
-		}
 	}
 	return FALSE;
 }
@@ -461,7 +443,7 @@ void LLFastTimerView::draw()
 		LLFontGL::sMonospace->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
 		y -= (texth + 2);
 
-		LLFontGL::sMonospace->renderUTF8("[Right-click to log selected] [= to toggle counts] [- to subtract hidden]",
+		LLFontGL::sMonospace->renderUTF8("[Right-Click log selected] [ALT-Click toggle counts] [ALT-SHIFT-Click sub hidden]",
 										 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
 		y -= (texth + 2);
 	}
@@ -547,7 +529,7 @@ void LLFastTimerView::draw()
 		}
 		else
 		{
-			U64 ticks = disabled >= 1 ? ticks_sum[0][i] : LLFastTimer::sCountAverage[tidx];
+			U64 ticks = ticks_sum[0][i];
 			ms = (F32)((F64)ticks * iclock_freq);
 			calls = (S32)LLFastTimer::sCallAverage[tidx];
 		}

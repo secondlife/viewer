@@ -28,7 +28,11 @@ public:
 		FTM_IDLE,
 		FTM_SLEEP,
 
-		// common simulate components
+		// common messaging components
+		FTM_PUMP,
+		FTM_CURL,
+		
+		// common simulation components
 		FTM_UPDATE_ANIMATION,
 		FTM_UPDATE_TERRAIN,
 		FTM_UPDATE_PRIMITIVES,

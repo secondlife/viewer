@@ -79,7 +79,7 @@ public:
 	// in statTypeToText in llviewerstats.cpp
 	enum EStatType
 	{
-		ST_MOUSELOOK_SECONDS = 0,
+		ST_VERSION = 0,
 		ST_AVATAR_EDIT_SECONDS = 1,
 		ST_TOOLBOX_SECONDS = 2,
 		ST_CHAT_COUNT = 3,
@@ -89,8 +89,8 @@ public:
 		ST_CREATE_COUNT = 7,
 		ST_REZ_COUNT = 8,
 		ST_FPS_10_SECONDS = 9,
-		ST_FPS_5_SECONDS = 10,
-		ST_FPS_2_SECONDS = 11,
+		ST_FPS_2_SECONDS = 10,
+		ST_MOUSELOOK_SECONDS = 11,
 		ST_FLY_COUNT = 12,
 		ST_TELEPORT_COUNT = 13,
 		ST_OBJECT_DELETE_COUNT = 14,

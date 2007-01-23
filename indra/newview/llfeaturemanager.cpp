@@ -281,12 +281,7 @@ BOOL LLFeatureManager::loadFeatureTables()
 	return TRUE;
 }
 
-S32 LLFeatureManager::getGPUClass()
-{
-	return mGPUClass;
-}
-
-S32 LLFeatureManager::loadGPUClass()
+void LLFeatureManager::loadGPUClass()
 {
 	std::string data_path = gDirUtilp->getAppRODataDir();
 
@@ -294,6 +289,10 @@ S32 LLFeatureManager::loadGPUClass()
 
 	data_path += GPU_TABLE_FILENAME;
 
+	// defaults
+	mGPUClass = 0;
+	mGPUString = gGLManager.getRawGLString();
+	
 	llifstream file;
 		
 	file.open(data_path.c_str()); 
@@ -301,7 +300,7 @@ S32 LLFeatureManager::loadGPUClass()
 	if (!file)
 	{
 		llwarns << "Unable to open GPU table: " << data_path << "!" << llendl;
-		return 0;
+		return;
 	}
 
 	std::string renderer = gGLManager.getRawGLString();
@@ -360,14 +359,14 @@ S32 LLFeatureManager::loadGPUClass()
 		{
 			file.close();
 			llinfos << "GPU is " << label << llendl;
-			return (S32) strtol(cls, NULL, 10);	
+			mGPUString = label;
+			mGPUClass = (S32) strtol(cls, NULL, 10);	
 		}
 	}
 	file.close();
 	//flp->dump();
 
 	llwarns << "Couldn't match GPU to a class: " << gGLManager.getRawGLString() << llendl;
-	return 0;
 }
 
 void LLFeatureManager::cleanupFeatureTables()
@@ -400,7 +399,7 @@ void LLFeatureManager::initCPUFeatureMasks()
 
 void LLFeatureManager::initGraphicsFeatureMasks()
 {
-	mGPUClass = loadGPUClass();
+	loadGPUClass();
 	
 	if (mGPUClass >= 0 && mGPUClass < 4)
 	{

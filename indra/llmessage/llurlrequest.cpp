@@ -251,6 +251,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 		S32 queue;
 		do
 		{
+			LLFastTimer t2(LLFastTimer::FTM_CURL);
 			code = curl_multi_perform(mDetail->mCurlMulti, &queue);			
 		}while((CURLM_CALL_MULTI_PERFORM == code) && (queue > 0) && count--);
 		CURLMsg* curl_msg;

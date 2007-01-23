@@ -38,8 +38,8 @@ LLControlGroup gCrashSettings;	// saved at end of session
 LLString gLastRunVersion;
 LLString gCurrentVersion;
 
-char gSettingsFileName[LL_MAX_PATH];
-char gPerAccountSettingsFileName[LL_MAX_PATH] = "";
+LLString gSettingsFileName;
+LLString gPerAccountSettingsFileName;
 
 LLFloaterSettingsDebug::LLFloaterSettingsDebug() : LLFloater("Configuration Editor")
 {

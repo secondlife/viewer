@@ -247,7 +247,6 @@ void LLKeyboardWin32::scanKeyboard()
 				{
 					//llinfos << "Key up event missed, resetting" << llendl;
 					mKeyLevel[key] = FALSE;
-					mKeyLevelFrameCount[key] = 0;
 				}
 			}
 		}

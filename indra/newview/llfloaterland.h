@@ -130,6 +130,7 @@ public:
 	static void onSalePriceChange(LLUICtrl *ctrl, void * userdata);
 
 	static void cbBuyPass(S32 option, void*);
+	static BOOL buyPassDialogVisible();
 
 	static void onClickSellLand(void* data);
 	static void onClickStopSellLand(void* data);
@@ -196,6 +197,8 @@ protected:
 
 	LLButton*		mBtnBuyPass;
 	LLButton* mBtnStartAuction;
+
+	static LLViewHandle sBuyPassDialogHandle;
 };
 
 class LLPanelLandObjects

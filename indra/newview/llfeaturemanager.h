@@ -65,9 +65,10 @@ public:
 	void maskCurrentList(const char *name); // Mask the current feature list with the named list
 
 	BOOL loadFeatureTables();
-	S32	getGPUClass();
-	S32	loadGPUClass();
 
+	S32	getGPUClass() 					{ return mGPUClass; }
+	std::string& getGPUString() 		{ return mGPUString; }
+	
 	void cleanupFeatureTables();
 
 	S32 getVersion() const				{ return mTableVersion; }
@@ -83,7 +84,9 @@ public:
 	BOOL initPCIFeatureMasks();
 
 	void applyRecommendedFeatures();
+
 protected:
+	void loadGPUClass();
 	void initBaseMask();
 
 	std::map<LLString, LLFeatureList *> mMaskList;
@@ -91,6 +94,7 @@ protected:
 	S32			mTableVersion;
 	BOOL		mSafe;					// Reinitialize everything to the "safe" mask
 	S32			mGPUClass;
+	std::string	mGPUString;
 };
 
 extern LLFeatureManager *gFeatureManagerp;

@@ -95,6 +95,7 @@ LLFloaterLand* LLFloaterLand::sInstance = NULL;
 LLParcelSelectionObserver* LLFloaterLand::sObserver = NULL;
 S32 LLFloaterLand::sLastTab = 0;
 BOOL LLFloaterLand::sRequestReplyOnUpdate = TRUE;
+LLViewHandle LLPanelLandGeneral::sBuyPassDialogHandle;
 
 // Local classes
 class LLParcelSelectionObserver : public LLParcelObserver
@@ -943,7 +944,7 @@ void LLPanelLandGeneral::onClickBuyPass(void* deselect_when_done)
 	args["[PARCEL_NAME]"] = parcel_name;
 	args["[TIME]"] = time;
 	
-	gViewerWindow->alertXml("LandBuyPass", args, cbBuyPass, deselect_when_done);
+	sBuyPassDialogHandle = gViewerWindow->alertXml("LandBuyPass", args, cbBuyPass, deselect_when_done)->getHandle();
 }
 
 // static
@@ -980,6 +981,11 @@ void LLPanelLandGeneral::cbBuyPass(S32 option, void* data)
 	}
 }
 
+//static 
+BOOL LLPanelLandGeneral::buyPassDialogVisible()
+{
+	return LLFloater::getFloaterByHandle(sBuyPassDialogHandle) != NULL;
+}
 
 // static
 void LLPanelLandGeneral::onCommitAny(LLUICtrl *ctrl, void *userdata)

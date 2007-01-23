@@ -349,6 +349,12 @@ BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask
 		llinfos << "ViewerWindow left mouse down at " << x << "," << y << llendl;
 	}
 
+	if (gMenuBarView)
+	{
+		// stop ALT-key access to menu
+		gMenuBarView->resetMenuTrigger();
+	}
+
 	mLeftMouseDown = TRUE;
 
 	// Make sure we get a coresponding mouseup event, even if the mouse leaves the window
@@ -615,6 +621,12 @@ BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK
 	if (gDebugClicks)
 	{
 		llinfos << "ViewerWindow right mouse down at " << x << "," << y << llendl;
+	}
+
+	if (gMenuBarView)
+	{
+		// stop ALT-key access to menu
+		gMenuBarView->resetMenuTrigger();
 	}
 
 	mRightMouseDown = TRUE;
@@ -2514,7 +2526,7 @@ BOOL LLViewerWindow::handlePerFrameHover()
 		}
 	}		
 
-	if (tool != gToolNull  && tool != gToolInspect && tool != gToolCamera && tool != gToolDragAndDrop && !gSavedSettings.getBOOL("FreezeTime"))
+	if (tool != gToolNull  && tool != gToolInspect && tool != gToolDragAndDrop && !gSavedSettings.getBOOL("FreezeTime"))
 	{ 
 		LLMouseHandler *captor = gFocusMgr.getMouseCapture();
 		// With the null, inspect, or drag and drop tool, don't muck
@@ -2679,6 +2691,7 @@ BOOL LLViewerWindow::handlePerFrameHover()
 		&& !gMenuHolder->hasVisibleMenu()
 		&& !LLFloaterLand::floaterVisible()
 		&& !LLFloaterBuyLand::isOpen()
+		&& !LLPanelLandGeneral::buyPassDialogVisible()
 		&& (!gFloaterTools || !gFloaterTools->getVisible()))
 	{
 		gParcelMgr->deselectLand();

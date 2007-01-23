@@ -38,8 +38,8 @@ public:
 
 const StatAttributes STAT_INFO[LLViewerStats::ST_COUNT] =
 {
-	// ST_MOUSELOOK_SECONDS
-	StatAttributes("Seconds in Mouselook", FALSE, TRUE),
+	// ST_VERSION
+	StatAttributes("Version", TRUE, FALSE),
 	// ST_AVATAR_EDIT_SECONDS
 	StatAttributes("Seconds in Edit Appearence", FALSE, TRUE),
 	// ST_TOOLBOX_SECONDS
@@ -58,10 +58,10 @@ const StatAttributes STAT_INFO[LLViewerStats::ST_COUNT] =
 	StatAttributes("Object rez count", FALSE, FALSE),
 	// ST_FPS_10_SECONDS
 	StatAttributes("Seconds below 10 FPS", FALSE, TRUE),
-	// ST_FPS_5_SECONDS
-	StatAttributes("Seconds below 5 FPS", FALSE, TRUE),
 	// ST_FPS_2_SECONDS
 	StatAttributes("Seconds below 2 FPS", FALSE, TRUE),
+	// ST_MOUSELOOK_SECONDS
+	StatAttributes("Seconds in Mouselook", FALSE, TRUE),
 	// ST_FLY_COUNT
 	StatAttributes("Fly count", FALSE, FALSE),
 	// ST_TELEPORT_COUNT
@@ -228,10 +228,6 @@ void LLViewerStats::updateFrameStats(const F64 time_diff)
 	if (time_diff >= 0.5)
 	{
 		incStat(LLViewerStats::ST_FPS_2_SECONDS, time_diff);
-	}
-	if (time_diff >= 0.2)
-	{
-		incStat(LLViewerStats::ST_FPS_5_SECONDS, time_diff);
 	}
 	if (time_diff >= 0.125)
 	{
