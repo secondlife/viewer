@@ -94,9 +94,10 @@ void LLStandardBumpmap::restoreGL()
 
 	while( !feof(file) && (LLStandardBumpmap::sStandardBumpmapCount < (U32)TEM_BUMPMAP_COUNT) )
 	{
+		// *NOTE: This buffer size is hard coded into scanf() below.
 		char label[2048] = "";
 		char bump_file[2048] = "";
-		fields_read = fscanf( file, "\n%s %s", label, bump_file);
+		fields_read = fscanf( file, "\n%2047s %2047s", label, bump_file);
 		if( EOF == fields_read )
 		{
 			break;

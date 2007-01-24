@@ -246,6 +246,9 @@ BOOL LLWearable::exportFile( FILE* file )
 
 BOOL LLWearable::importFile( FILE* file )
 {
+	// *NOTE: changing the type or size of this buffer will require
+	// changes in the fscanf() code below. You would be better off
+	// rewriting this to use streams and not require an open FILE.
 	char text_buffer[2048];
 	S32 fields_read = 0;
 
@@ -276,7 +279,7 @@ BOOL LLWearable::importFile( FILE* file )
 	else
 	{
 		ungetc( next_char, file );
-		fields_read = fscanf( file, "%[^\n]", text_buffer );
+		fields_read = fscanf( file, "%2047[^\n]", text_buffer );
 		if( (1 != fields_read) || (fgetc( file ) != '\n') )
 		{
 			llwarns << "Bad Wearable asset: early end of file" << llendl;
@@ -296,7 +299,7 @@ BOOL LLWearable::importFile( FILE* file )
 	else
 	{
 		ungetc( next_char, file );
-		fields_read = fscanf( file, "%[^\n]", text_buffer );
+		fields_read = fscanf( file, "%2047[^\n]", text_buffer );
 		if( (1 != fields_read) || (fgetc( file ) != '\n') )
 		{
 			llwarns << "Bad Wearable asset: early end of file" << llendl;
@@ -403,7 +406,7 @@ BOOL LLWearable::importFile( FILE* file )
 	for( i = 0; i < num_textures; i++ )
 	{
 		S32 te = 0;
-		fields_read = fscanf( file, "%d %s\n", &te, text_buffer);
+		fields_read = fscanf( file, "%d %2047s\n", &te, text_buffer);
 		if( fields_read != 2 )
 		{
 			llwarns << "Bad Wearable asset: bad texture, #" << i << llendl;

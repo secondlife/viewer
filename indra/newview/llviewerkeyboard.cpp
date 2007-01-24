@@ -685,6 +685,7 @@ S32 LLViewerKeyboard::loadBindings(const char *filename)
 	FILE *fp;
 	const S32 BUFFER_SIZE = 2048;
 	char buffer[BUFFER_SIZE];
+	// *NOTE: This buffer size is hard coded into scanf() below.
 	char mode_string[MAX_STRING];
 	char key_string[MAX_STRING];
 	char mask_string[MAX_STRING];
@@ -714,7 +715,7 @@ S32 LLViewerKeyboard::loadBindings(const char *filename)
 		if (buffer[0] == '#' || buffer[0] == '\n') continue;
 
 		// grab the binding strings
-		tokens_read = sscanf(buffer, "%s %s %s %s", mode_string, key_string, mask_string, function_string);
+		tokens_read = sscanf(buffer, "%254s %254s %254s %254s", mode_string, key_string, mask_string, function_string);
 
 		if (tokens_read == EOF)
 		{

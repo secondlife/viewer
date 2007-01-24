@@ -1947,11 +1947,12 @@ bool LLInventoryModel::loadFromFile(
 		llinfos << "unable to load inventory from: " << filename << llendl;
 		return false;
 	}
+	// *NOTE: This buffer size is hard coded into scanf() below.
 	char buffer[MAX_STRING];
 	char keyword[MAX_STRING];
 	while(!feof(file) && fgets(buffer, MAX_STRING, file)) 
 	{
-		sscanf(buffer, " %s", keyword);
+		sscanf(buffer, " %254s", keyword);
 		if(0 == strcmp("inv_category", keyword))
 		{
 			LLPointer<LLViewerInventoryCategory> inv_cat = new LLViewerInventoryCategory(LLUUID::null);

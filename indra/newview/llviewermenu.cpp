@@ -3946,6 +3946,7 @@ void force_import_geometry(void*)
 		 child = root->getNextNamedChild())
 	{
 		// get object data
+		// *NOTE: This buffer size is hard coded into scanf() below.
 		char name[255];			// Shape
 		char description[255];	// Description
 		U32	 material;			// Material
@@ -3978,9 +3979,9 @@ void force_import_geometry(void*)
 		child->getAttributeString("PCode", &attribute);
 		pcode = atoi(attribute.c_str());
 		child->getAttributeString("Shape", &attribute);
-		sscanf(attribute.c_str(), "%s", name);
+		sscanf(attribute.c_str(), "%254s", name);
 		child->getAttributeString("Description", &attribute);
-		sscanf(attribute.c_str(), "%s", description);
+		sscanf(attribute.c_str(), "%254s", description);
 		child->getAttributeString("Material", &attribute);
 		material = atoi(attribute.c_str());
 		child->getAttributeString("Scale", &attribute);
@@ -4060,6 +4061,7 @@ void force_import_geometry(void*)
 			// read the faces
 			U32 facenumber;
 			LLColor4 color;
+			// *NOTE: This buffer size is hard coded into scanf() below.
 			char texture[UUID_STR_LENGTH];
 			LLUUID texid;
 			texid.toString(texture);
@@ -4070,7 +4072,7 @@ void force_import_geometry(void*)
 			face->getAttributeString("FaceColor", &attribute);
 			sscanf(attribute, "%d %f %f %f %f", &facenumber, &color.mV[VX], &color.mV[VY], &color.mV[VZ], &color.mV[VW]);
 			face->getAttributeString("Face", &attribute);
-			sscanf(attribute, "%d %f %f %f %f %f %d %s", &facenumber, &sx, &sy, &ox, &oy, &rot, &bump, texture);
+			sscanf(attribute, "%d %f %f %f %f %f %d %36s", &facenumber, &sx, &sy, &ox, &oy, &rot, &bump, texture);
 			texid.set(texture);
 			te.setColor(color);
 			te.setBumpShinyFullbright(bump);
@@ -5487,7 +5489,8 @@ void upload_new_resource(const LLString& src_filename, std::string name,
                  if (fscanf(in, "LindenResource\nversion %d\n", &version))	 	
                  {	 	
                          if (2 == version)	 	
-                         {	 	
+                         {
+								// *NOTE: This buffer size is hard coded into scanf() below.
                                  char label[MAX_STRING];	 	
                                  char value[MAX_STRING];	 	
                                  S32  tokens_read;	 	
@@ -5495,7 +5498,7 @@ void upload_new_resource(const LLString& src_filename, std::string name,
                                  {	 	
                                          label[0] = '\0';	 	
                                          value[0] = '\0';	 	
-                                         tokens_read = sscanf(buf, "%s %s\n", label, value);	 	
+                                         tokens_read = sscanf(buf, "%254s %254s\n", label, value);	 	
 
                                          llinfos << "got: " << label << " = " << value	 	
                                                          << llendl;	 	

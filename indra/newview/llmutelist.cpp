@@ -344,6 +344,8 @@ BOOL LLMuteList::loadFromFile(const LLString& filename)
 		return FALSE;
 	}
 
+	// *NOTE: Changing the size of these buffers will require changes
+	// in the scanf below.
 	char id_buffer[MAX_STRING];
 	char name_buffer[MAX_STRING];
 	char buffer[MAX_STRING];
@@ -353,7 +355,7 @@ BOOL LLMuteList::loadFromFile(const LLString& filename)
 		id_buffer[0] = '\0';
 		name_buffer[0] = '\0';
 		S32 type = 0;
-		sscanf(buffer, " %d %s %[^|]", &type, id_buffer, name_buffer);
+		sscanf(buffer, " %d %254s %254[^|]", &type, id_buffer, name_buffer);
 		LLUUID id = LLUUID(id_buffer);
 		LLMute mute(id, name_buffer, (LLMute::EType)type);
 		if (mute.mID.isNull()

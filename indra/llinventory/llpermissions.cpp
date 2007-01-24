@@ -492,6 +492,8 @@ BOOL LLPermissions::importFile(FILE *fp)
 	init(LLUUID::null, LLUUID::null, LLUUID::null, LLUUID::null);
 	const S32 BUFSIZE = 16384;
 
+	// *NOTE: Changing the buffer size will require changing the scanf
+	// calls below.
 	char	buffer[BUFSIZE];
 	char	keyword[256];
 	char	valuestr[256];
@@ -504,7 +506,7 @@ BOOL LLPermissions::importFile(FILE *fp)
 	while (!feof(fp))
 	{
 		fgets(buffer, BUFSIZE, fp);
-		sscanf(buffer, " %s %s", keyword, valuestr);
+		sscanf(buffer, " %255s %255s", keyword, valuestr);
 		if (!keyword)
 		{
 			continue;
@@ -552,22 +554,22 @@ BOOL LLPermissions::importFile(FILE *fp)
 		}
 		else if (!strcmp("creator_id", keyword))
 		{
-			sscanf(valuestr, "%s", uuid_str);
+			sscanf(valuestr, "%255s", uuid_str);
 			mCreator.set(uuid_str);
 		}
 		else if (!strcmp("owner_id", keyword))
 		{
-			sscanf(valuestr, "%s", uuid_str);
+			sscanf(valuestr, "%255s", uuid_str);
 			mOwner.set(uuid_str);
 		}
 		else if (!strcmp("last_owner_id", keyword))
 		{
-			sscanf(valuestr, "%s", uuid_str);
+			sscanf(valuestr, "%255s", uuid_str);
 			mLastOwner.set(uuid_str);
 		}
 		else if (!strcmp("group_id", keyword))
 		{
-			sscanf(valuestr, "%s", uuid_str);
+			sscanf(valuestr, "%255s", uuid_str);
 			mGroup.set(uuid_str);
 		}
 		else if (!strcmp("group_owned", keyword))
@@ -625,6 +627,8 @@ BOOL LLPermissions::importLegacyStream(std::istream& input_stream)
 	init(LLUUID::null, LLUUID::null, LLUUID::null, LLUUID::null);
 	const S32 BUFSIZE = 16384;
 
+	// *NOTE: Changing the buffer size will require changing the scanf
+	// calls below.
 	char	buffer[BUFSIZE];
 	char	keyword[256];
 	char	valuestr[256];
@@ -637,7 +641,7 @@ BOOL LLPermissions::importLegacyStream(std::istream& input_stream)
 	while (input_stream.good())
 	{
 		input_stream.getline(buffer, BUFSIZE);
-		sscanf(buffer, " %s %s", keyword, valuestr);
+		sscanf(buffer, " %255s %255s", keyword, valuestr);
 		if (!keyword)
 		{
 			continue;
@@ -685,22 +689,22 @@ BOOL LLPermissions::importLegacyStream(std::istream& input_stream)
 		}
 		else if (!strcmp("creator_id", keyword))
 		{
-			sscanf(valuestr, "%s", uuid_str);
+			sscanf(valuestr, "%255s", uuid_str);
 			mCreator.set(uuid_str);
 		}
 		else if (!strcmp("owner_id", keyword))
 		{
-			sscanf(valuestr, "%s", uuid_str);
+			sscanf(valuestr, "%255s", uuid_str);
 			mOwner.set(uuid_str);
 		}
 		else if (!strcmp("last_owner_id", keyword))
 		{
-			sscanf(valuestr, "%s", uuid_str);
+			sscanf(valuestr, "%255s", uuid_str);
 			mLastOwner.set(uuid_str);
 		}
 		else if (!strcmp("group_id", keyword))
 		{
-			sscanf(valuestr, "%s", uuid_str);
+			sscanf(valuestr, "%255s", uuid_str);
 			mGroup.set(uuid_str);
 		}
 		else if (!strcmp("group_owned", keyword))

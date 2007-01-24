@@ -477,6 +477,7 @@ void send_crash_report()
 	db_filep = new LLFileEncoder("DB", db_file_name.c_str());
 
 	// Get the filename of the SecondLife.log file
+	// *NOTE: This buffer size is hard coded into scanf() below.
 	char tmp_sl_name[256];
 	tmp_sl_name[0] = '\0';
 
@@ -487,7 +488,10 @@ void send_crash_report()
 	// Look for it in the debug_info.log file
 	if (db_filep->isValid())
 	{
-		sscanf((const char *)db_filep->mBuf, "SL Log: %[^\r\n]", tmp_sl_name);
+		sscanf(
+			(const char*)db_filep->mBuf,
+			"SL Log: %255[^\r\n]",
+			tmp_sl_name);
 	}
 	else
 	{

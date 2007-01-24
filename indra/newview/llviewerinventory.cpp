@@ -430,6 +430,7 @@ bool LLViewerInventoryCategory::fetchDescendents()
 
 bool LLViewerInventoryCategory::importFileLocal(FILE* fp)
 {
+	// *NOTE: This buffer size is hard coded into scanf() below.
 	char buffer[MAX_STRING];
 	char keyword[MAX_STRING];
 	char valuestr[MAX_STRING];
@@ -439,7 +440,7 @@ bool LLViewerInventoryCategory::importFileLocal(FILE* fp)
 	while(!feof(fp))
 	{
 		fgets(buffer, MAX_STRING, fp);
-		sscanf(buffer, " %s %s", keyword, valuestr);
+		sscanf(buffer, " %254s %254s", keyword, valuestr);
 		if(!keyword)
 		{
 			continue;
@@ -472,7 +473,7 @@ bool LLViewerInventoryCategory::importFileLocal(FILE* fp)
 		{
 			//strcpy(valuestr, buffer + strlen(keyword) + 3);
 			// *NOTE: Not ANSI C, but widely supported.
-			sscanf(buffer, " %s %[^|]", keyword, valuestr);
+			sscanf(buffer, " %254s %254[^|]", keyword, valuestr);
 			mName.assign(valuestr);
 			LLString::replaceNonstandardASCII(mName, ' ');
 			LLString::replaceChar(mName, '|', ' ');

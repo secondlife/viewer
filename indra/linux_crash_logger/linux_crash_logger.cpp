@@ -219,10 +219,8 @@ int main(int argc, char **argv)
 	db_filep = new LLFileEncoder("DB", db_file_name.c_str());
 
 	// Get the filename of the SecondLife.log file
-	// *TODO tofu - get right MAX_PATH.
-	// *FIX: What's up with this? This #define just can't be safe.
-#define MAX_PATH PATH_MAX
-	char tmp_sl_name[MAX_PATH];
+	// *NOTE: These buffer sizes are hardcoded into a scanf() below.
+	char tmp_sl_name[LL_MAX_PATH];
 	tmp_sl_name[0] = '\0';
 	char tmp_space[256];
 	tmp_space[0] = '\0';
@@ -232,7 +230,7 @@ int main(int argc, char **argv)
 	{
 		// This was originally scanning for "SL Log: %[^\r\n]", which happily skipped to the next line
 		// on debug logs (which don't have anything after "SL Log:" and tried to open a nonsensical filename.
-		sscanf(db_filep->mBuf.c_str(), "SL Log:%[ ]%[^\r\n]", tmp_space, tmp_sl_name);
+		sscanf(db_filep->mBuf.c_str(), "SL Log:%255[ ]%1023[^\r\n]", tmp_space, tmp_sl_name);
 	}
 	else
 	{

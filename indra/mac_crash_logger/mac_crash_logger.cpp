@@ -311,9 +311,13 @@ int main(int argc, char **argv)
 	db_filep = new LLFileEncoder("DB", db_file_name.c_str());
 
 	// Get the filename of the SecondLife.log file
-	char tmp_sl_name[MAX_PATH];
+
+	// *NOTE: changing the size of either of these buffers will
+	// require changing the sscanf() format string to correctly
+	// account for it.
+	char tmp_sl_name[LL_MAX_PATH];
 	tmp_sl_name[0] = '\0';
-	char tmp_space[256];
+	char tmp_space[MAX_STRING];
 	tmp_space[0] = '\0';
 
 	// Look for it in the debug_info.log file
@@ -321,7 +325,11 @@ int main(int argc, char **argv)
 	{
 		// This was originally scanning for "SL Log: %[^\r\n]", which happily skipped to the next line
 		// on debug logs (which don't have anything after "SL Log:" and tried to open a nonsensical filename.
-		sscanf(db_filep->mBuf.c_str(), "SL Log:%[ ]%[^\r\n]", tmp_space, tmp_sl_name);
+		sscanf(
+			db_filep->mBuf.c_str(),
+			"SL Log:%254[ ]%1023[^\r\n]",
+			tmp_space,
+			tmp_sl_name);
 	}
 	else
 	{

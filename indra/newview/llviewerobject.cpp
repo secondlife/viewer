@@ -2377,6 +2377,7 @@ void LLViewerObject::loadTaskInvFile(const char* filename)
 	if(ifs.good())
 	{
 		char buffer[MAX_STRING];
+		// *NOTE: This buffer size is hard coded into scanf() below.
 		char keyword[MAX_STRING];
 		if(mInventory)
 		{
@@ -2389,7 +2390,7 @@ void LLViewerObject::loadTaskInvFile(const char* filename)
 		while(ifs.good())
 		{
 			ifs.getline(buffer, MAX_STRING);
-			sscanf(buffer, " %s", keyword);
+			sscanf(buffer, " %254s", keyword);
 			if(0 == strcmp("inv_item", keyword))
 			{
 				LLPointer<LLInventoryObject> inv = new LLViewerInventoryItem;

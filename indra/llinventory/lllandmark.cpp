@@ -119,10 +119,12 @@ LLLandmark* LLLandmark::constructFromString(const char *buffer)
 	}
 	else if(version == 2)
 	{
+		// *NOTE: Changing the buffer size will require changing the
+		// scanf call below.
 		char region_id_str[MAX_STRING];
 		LLVector3 pos;
 		cur += chars_read;
-		count = sscanf(cur, "region_id %s\n%n", region_id_str, &chars_read);
+		count = sscanf(cur, "region_id %254s\n%n", region_id_str, &chars_read);
 		if(count != 1) goto error;
 		cur += chars_read;
 		count = sscanf(cur, "local_pos %f %f %f\n%n", pos.mV+VX, pos.mV+VY, pos.mV+VZ, &chars_read);

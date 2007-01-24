@@ -301,6 +301,8 @@ void LLInventoryObject::setType(LLAssetType::EType type)
 // virtual
 BOOL LLInventoryObject::importLegacyStream(std::istream& input_stream)
 {
+	// *NOTE: Changing the buffer size will require changing the scanf
+	// calls below.
 	char buffer[MAX_STRING];
 	char keyword[MAX_STRING];
 	char valuestr[MAX_STRING];
@@ -339,7 +341,7 @@ BOOL LLInventoryObject::importLegacyStream(std::istream& input_stream)
 		{
 			//strcpy(valuestr, buffer + strlen(keyword) + 3);
 			// *NOTE: Not ANSI C, but widely supported.
-			sscanf(buffer, " %254s %[^|]", keyword, valuestr);
+			sscanf(buffer, " %254s %254[^|]", keyword, valuestr);
 			mName.assign(valuestr);
 			LLString::replaceNonstandardASCII(mName, ' ');
 			LLString::replaceChar(mName, '|', ' ');
@@ -662,6 +664,8 @@ BOOL LLInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32
 // virtual
 BOOL LLInventoryItem::importFile(FILE* fp)
 {
+	// *NOTE: Changing the buffer size will require changing the scanf
+	// calls below.
 	char buffer[MAX_STRING];
 	char keyword[MAX_STRING];
 	char valuestr[MAX_STRING];
@@ -750,7 +754,7 @@ BOOL LLInventoryItem::importFile(FILE* fp)
 		{
 			//strcpy(valuestr, buffer + strlen(keyword) + 3);
 			// *NOTE: Not ANSI C, but widely supported.
-			sscanf(buffer, " %254s%[\t]%[^|]", keyword, junk, valuestr);
+			sscanf(buffer, " %254s%254[\t]%254[^|]", keyword, junk, valuestr);
 
 			// IW: sscanf chokes and puts | in valuestr if there's no name
 			if (valuestr[0] == '|')
@@ -766,7 +770,7 @@ BOOL LLInventoryItem::importFile(FILE* fp)
 		{
 			//strcpy(valuestr, buffer + strlen(keyword) + 3);
 			// *NOTE: Not ANSI C, but widely supported.
-			sscanf(buffer, " %s%[\t]%[^|]", keyword, junk, valuestr);
+			sscanf(buffer, " %254s%254[\t]%254[^|]", keyword, junk, valuestr);
 
 			if (valuestr[0] == '|')
 			{
@@ -856,6 +860,8 @@ BOOL LLInventoryItem::exportFile(FILE* fp, BOOL include_asset_key) const
 // virtual
 BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
 {
+	// *NOTE: Changing the buffer size will require changing the scanf
+	// calls below.
 	char buffer[MAX_STRING];
 	char keyword[MAX_STRING];
 	char valuestr[MAX_STRING];
@@ -870,7 +876,7 @@ BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
 	while(success && input_stream.good())
 	{
 		input_stream.getline(buffer, MAX_STRING);
-		sscanf(buffer, " %s %s", keyword, valuestr);
+		sscanf(buffer, " %254s %254s", keyword, valuestr);
 		if(!keyword)
 		{
 			continue;
@@ -944,7 +950,7 @@ BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
 		{
 			//strcpy(valuestr, buffer + strlen(keyword) + 3);
 			// *NOTE: Not ANSI C, but widely supported.
-			sscanf(buffer, " %s%[\t]%[^|]", keyword, junk, valuestr);
+			sscanf(buffer, " %254s%254[\t]%254[^|]", keyword, junk, valuestr);
 
 			// IW: sscanf chokes and puts | in valuestr if there's no name
 			if (valuestr[0] == '|')
@@ -960,7 +966,7 @@ BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
 		{
 			//strcpy(valuestr, buffer + strlen(keyword) + 3);
 			// *NOTE: Not ANSI C, but widely supported.
-			sscanf(buffer, " %s%[\t]%[^|]", keyword, junk, valuestr);
+			sscanf(buffer, " %254s%254[\t]%254[^|]", keyword, junk, valuestr);
 
 			if (valuestr[0] == '|')
 			{
@@ -1503,6 +1509,8 @@ void LLInventoryCategory::unpackMessage(LLMessageSystem* msg,
 // virtual
 BOOL LLInventoryCategory::importFile(FILE* fp)
 {
+	// *NOTE: Changing the buffer size will require changing the scanf
+	// calls below.
 	char buffer[MAX_STRING];
 	char keyword[MAX_STRING];
 	char valuestr[MAX_STRING];
@@ -1512,7 +1520,7 @@ BOOL LLInventoryCategory::importFile(FILE* fp)
 	while(!feof(fp))
 	{
 		fgets(buffer, MAX_STRING, fp);
-		sscanf(buffer, " %s %s", keyword, valuestr);
+		sscanf(buffer, " %254s %254s", keyword, valuestr);
 		if(!keyword)
 		{
 			continue;
@@ -1545,7 +1553,7 @@ BOOL LLInventoryCategory::importFile(FILE* fp)
 		{
 			//strcpy(valuestr, buffer + strlen(keyword) + 3);
 			// *NOTE: Not ANSI C, but widely supported.
-			sscanf(buffer, " %s %[^|]", keyword, valuestr);
+			sscanf(buffer, " %254s %254[^|]", keyword, valuestr);
 			mName.assign(valuestr);
 			LLString::replaceNonstandardASCII(mName, ' ');
 			LLString::replaceChar(mName, '|', ' ');
@@ -1578,6 +1586,8 @@ BOOL LLInventoryCategory::exportFile(FILE* fp, BOOL) const
 // virtual
 BOOL LLInventoryCategory::importLegacyStream(std::istream& input_stream)
 {
+	// *NOTE: Changing the buffer size will require changing the scanf
+	// calls below.
 	char buffer[MAX_STRING];
 	char keyword[MAX_STRING];
 	char valuestr[MAX_STRING];
@@ -1587,7 +1597,7 @@ BOOL LLInventoryCategory::importLegacyStream(std::istream& input_stream)
 	while(input_stream.good())
 	{
 		input_stream.getline(buffer, MAX_STRING);
-		sscanf(buffer, " %s %s", keyword, valuestr);
+		sscanf(buffer, " %254s %254s", keyword, valuestr);
 		if(!keyword)
 		{
 			continue;
@@ -1620,7 +1630,7 @@ BOOL LLInventoryCategory::importLegacyStream(std::istream& input_stream)
 		{
 			//strcpy(valuestr, buffer + strlen(keyword) + 3);
 			// *NOTE: Not ANSI C, but widely supported.
-			sscanf(buffer, " %s %[^|]", keyword, valuestr);
+			sscanf(buffer, " %254s %254[^|]", keyword, valuestr);
 			mName.assign(valuestr);
 			LLString::replaceNonstandardASCII(mName, ' ');
 			LLString::replaceChar(mName, '|', ' ');

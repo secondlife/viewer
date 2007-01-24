@@ -113,11 +113,22 @@ const U32 RIGHT_SIDE 	= 4;
 const U32 TOP_SIDE 		= 5;
 const U32 BOTTOM_SIDE 	= 6;
 
+
+//
+// *NOTE: These values may be used as hard-coded numbers in scanf() variants.
+//
+// --------------
+// DO NOT CHANGE.
+// --------------
+//
 const U32	LL_MAX_PATH		= 1024;		// buffer size of maximum path + filename string length
 
 // For strings we send in messages
 const U32	STD_STRING_BUF_SIZE	= 255;	// Buffer size
 const U32	STD_STRING_STR_LEN	= 254;	// Length of the string (not including \0)
+
+// *NOTE: This value is used as hard-coded numbers in scanf() variants.
+// DO NOT CHANGE.
 const U32	MAX_STRING			= STD_STRING_BUF_SIZE;	// Buffer size
 
 const U32	MAXADDRSTR		= 17;		// 123.567.901.345 = 15 chars + \0 + 1 for good luck

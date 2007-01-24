@@ -139,6 +139,8 @@ BOOL LLSaleInfo::importFile(FILE* fp, BOOL& has_perm_mask, U32& perm_mask)
 {
 	has_perm_mask = FALSE;
 
+	// *NOTE: Changing the buffer size will require changing the scanf
+	// calls below.
 	char buffer[MAX_STRING];
 	char keyword[MAX_STRING];
 	char valuestr[MAX_STRING];
@@ -149,7 +151,7 @@ BOOL LLSaleInfo::importFile(FILE* fp, BOOL& has_perm_mask, U32& perm_mask)
 	while(success && (!feof(fp)))
 	{
 		fgets(buffer, MAX_STRING, fp);
-		sscanf(buffer, " %s %s", keyword, valuestr);
+		sscanf(buffer, " %254s %254s", keyword, valuestr);
 		if(!keyword)
 		{
 			continue;
@@ -190,6 +192,8 @@ BOOL LLSaleInfo::importLegacyStream(std::istream& input_stream, BOOL& has_perm_m
 {
 	has_perm_mask = FALSE;
 
+	// *NOTE: Changing the buffer size will require changing the scanf
+	// calls below.
 	char buffer[MAX_STRING];
 	char keyword[MAX_STRING];
 	char valuestr[MAX_STRING];
@@ -200,7 +204,7 @@ BOOL LLSaleInfo::importLegacyStream(std::istream& input_stream, BOOL& has_perm_m
 	while(success && input_stream.good())
 	{
 		input_stream.getline(buffer, MAX_STRING);
-		sscanf(buffer, " %s %s", keyword, valuestr);
+		sscanf(buffer, " %254s %254s", keyword, valuestr);
 		if(!keyword)
 		{
 			continue;
