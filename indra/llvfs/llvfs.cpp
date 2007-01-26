@@ -1938,6 +1938,60 @@ void LLVFS::dumpStatistics()
 }
 
 // Debug Only!
+LLString get_extension(LLAssetType::EType type)
+{
+	LLString extension;
+	switch(type)
+	{
+	  case LLAssetType::AT_TEXTURE:
+		extension = ".jp2"; // ".j2c"; // IrfanView recognizes .jp2 -sjb
+		break;
+	  case LLAssetType::AT_SOUND:
+		extension = ".ogg";
+		break;
+	  case LLAssetType::AT_SOUND_WAV:
+		extension = ".wav";
+		break;
+	  case LLAssetType::AT_TEXTURE_TGA:
+		extension = ".tga";
+		break;
+	  case LLAssetType::AT_IMAGE_JPEG:
+		extension = ".jpeg";
+		break;
+	  case LLAssetType::AT_ANIMATION:
+		extension = ".lla";
+		break;
+	  default:
+		extension = ".data";
+		break;
+	}
+	return extension;
+}
+
+void LLVFS::listFiles()
+{
+	lockData();
+	
+	for (fileblock_map::iterator it = mFileBlocks.begin(); it != mFileBlocks.end(); ++it)
+	{
+		LLVFSFileSpecifier file_spec = it->first;
+		LLVFSFileBlock *file_block = it->second;
+		S32 length = file_block->mLength;
+		S32 size = file_block->mSize;
+		if (length != BLOCK_LENGTH_INVALID && size > 0)
+		{
+			LLUUID id = file_spec.mFileID;
+			LLString extension = get_extension(file_spec.mFileType);
+			llinfos << " File: " << id
+					<< " Type: " << LLAssetType::getDesc(file_spec.mFileType)
+					<< " Size: " << size
+					<< llendl;
+		}
+	}
+	
+	unlockData();
+}
+
 #include "llapr.h"
 void LLVFS::dumpFiles()
 {
@@ -1959,16 +2013,8 @@ void LLVFS::dumpFiles()
 			getData(id, type, buffer, 0, size);
 			lockData();
 			
-			LLString extention = ".data";
-			switch(type)
-			{
-			  case LLAssetType::AT_TEXTURE:
-				extention = ".jp2"; // ".j2c"; // IrfanView recognizes .jp2 -sjb
-				break;
-			  default:
-				break;
-			}
-			LLString filename = id.getString() + extention;
+			LLString extension = get_extension(type);
+			LLString filename = id.getString() + extension;
 			llinfos << " Writing " << filename << llendl;
 			apr_file_t* file = ll_apr_file_open(filename, LL_APR_WB);
 			ll_apr_file_write(file, buffer, size);

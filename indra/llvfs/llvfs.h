@@ -96,6 +96,7 @@ public:
 	void dumpMap();
 	void dumpLockCounts();
 	void dumpStatistics();
+	void listFiles();
 	void dumpFiles();
 
 protected:
