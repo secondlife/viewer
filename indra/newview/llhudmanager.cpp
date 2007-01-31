@@ -176,9 +176,13 @@ void LLHUDManager::sendEffects()
 		}
 		if (hep->getNeedsSendToSim() && hep->getOriginatedHere())
 		{
-			gMessageSystem->newMessageFast(_PREHASH_ViewerEffect);
-			gMessageSystem->nextBlockFast(_PREHASH_Effect);
-			hep->packData(gMessageSystem);
+			LLMessageSystem* msg = gMessageSystem;
+			msg->newMessageFast(_PREHASH_ViewerEffect);
+			msg->nextBlockFast(_PREHASH_AgentData);
+			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+			msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+			msg->nextBlockFast(_PREHASH_Effect);
+			hep->packData(msg);
 			hep->setNeedsSendToSim(FALSE);
 			gAgent.sendMessage();
 		}

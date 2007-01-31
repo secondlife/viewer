@@ -145,6 +145,7 @@ LLFloaterProperties::LLFloaterProperties(const std::string& name, const LLRect& 
 	childSetPrevalidate("LabelItemName",&LLLineEditor::prevalidatePrintableNotPipe);
 	childSetCommitCallback("LabelItemName",onCommitName,this);
 	childSetPrevalidate("LabelItemDesc",&LLLineEditor::prevalidatePrintableNotPipe);
+	childSetCommitCallback("LabelItemDesc", onCommitDescription, this);
 	// Creator information
 	childSetAction("BtnCreator",onClickCreator,this);
 	// owner information

@@ -9,6 +9,8 @@
 #ifndef LL_LLASSETTYPE
 #define LL_LLASSETTYPE
 
+#include <string>
+
 #include "stdenums.h" 	// for EDragAndDropType
 
 class LLAssetType
@@ -131,10 +133,10 @@ public:
 	// Generate a good default description. You may want to add a verb
 	// or agent name after this depending on your application.
 	static void generateDescriptionFor(LLAssetType::EType type,
-									   LLString& desc);
+									   std::string& desc);
 
-	static EType getType(const LLString& sin);
-	static LLString getDesc(EType type);
+	static EType getType(const std::string& sin);
+	static std::string getDesc(EType type);
 	
 private:
 	// don't instantiate or derive one of these objects

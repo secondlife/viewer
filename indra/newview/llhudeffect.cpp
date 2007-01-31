@@ -38,6 +38,7 @@ LLHUDEffect::~LLHUDEffect()
 void LLHUDEffect::packData(LLMessageSystem *mesgsys)
 {
 	mesgsys->addUUIDFast(_PREHASH_ID, mID);
+	mesgsys->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 	mesgsys->addU8Fast(_PREHASH_Type, mType);
 	mesgsys->addF32Fast(_PREHASH_Duration, mDuration);
 	mesgsys->addBinaryData(_PREHASH_Color, mColor.mV, 4);

@@ -400,8 +400,11 @@ BOOL LLPanelAvatarSecondLife::postBuild(void)
 	childSetVisible("allow_publish",LLPanelAvatar::sAllowFirstLife);
 	childSetVisible("?",LLPanelAvatar::sAllowFirstLife);
 
-	childSetVisible("online_unknown",TRUE);
 	childSetVisible("online_yes",FALSE);
+
+	// These are cruft but may still exist in some xml files
+	// TODO: remove the following 2 lines once translators grab these changes
+	childSetVisible("online_unknown",FALSE);
 	childSetVisible("online_no",FALSE);
 
 	childSetAction("Show on Map", LLPanelAvatar::onClickTrack, mPanelAvatar);
@@ -1279,6 +1282,19 @@ void LLPanelAvatar::setAvatar(LLViewerObject *avatarp)
 	setAvatarID(avatarp->getID(), name, ONLINE_STATUS_YES);
 }
 
+void LLPanelAvatar::setOnlineStatus(EOnlineStatus online_status)
+{
+	// Online status NO could be because they are hidden
+	// If they are a friend, we may know the truth!
+	if ((ONLINE_STATUS_YES != online_status)
+		&& mIsFriend
+		&& (LLAvatarTracker::instance().isBuddyOnline( mAvatarID )))
+	{
+		online_status = ONLINE_STATUS_YES;
+	}
+
+	mPanelSecondLife->childSetVisible("online_yes", (online_status == ONLINE_STATUS_YES));
+}
 
 void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id, const LLString &name,
 								EOnlineStatus online_status)
@@ -1295,50 +1311,8 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id, const LLString &name,
 	// Determine if we have their calling card.
 	mIsFriend = is_agent_friend(mAvatarID); 
 
-	if (ONLINE_STATUS_UNKNOWN == online_status)
-	{
-		// Determine if we know that they are online.  If we can see them,
-		// we know they're online.  Likewise, if we have a calling card,
-		// we know.  Otherwise we don't.
-		LLViewerObject* object = gObjectList.findObject( mAvatarID );
-		if (object && !object->isDead())
-		{
-			online_status = ONLINE_STATUS_YES;
-		}
-		else if (mIsFriend)
-		{
-			if (LLAvatarTracker::instance().isBuddyOnline( mAvatarID ))
-			{
-				online_status = ONLINE_STATUS_YES;
-			}
-			else
-			{
-				online_status = ONLINE_STATUS_NO;
-			}
-		}
-		else
-		{
-			// Don't actually know if they are online.
-		}
-	}
-
-	mPanelSecondLife->childSetVisible("online_unknown",FALSE);
-	mPanelSecondLife->childSetVisible("online_yes",FALSE);
-	mPanelSecondLife->childSetVisible("online_no",FALSE);
-
-	switch(online_status)
-	{
-	  case ONLINE_STATUS_YES:
-		mPanelSecondLife->childSetVisible("online_yes",TRUE);
-		break;
-	  case ONLINE_STATUS_NO:
-		mPanelSecondLife->childSetVisible("online_no",TRUE);
-		break;
-	  case ONLINE_STATUS_UNKNOWN:
-	  default:
-		mPanelSecondLife->childSetVisible("online_unknown",TRUE);
-		break;
-	}
+	// setOnlineStatus uses mIsFriend
+	setOnlineStatus(online_status);
 	
 	BOOL own_avatar = (mAvatarID == gAgent.getID() );
 
@@ -1736,7 +1710,10 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 	//BOOL	mature = FALSE;
 	BOOL	identified = FALSE;
 	BOOL	transacted = FALSE;
+	BOOL	online = FALSE;
 	char	profile_url[DB_USER_PROFILE_URL_BUF_SIZE];
+
+	U32		flags = 0x0;
 
 	//llinfos << "properties packet size " << msg->getReceiveSize() << llendl;
 
@@ -1757,7 +1734,6 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 		{
 			self->childSetEnabled("Rate...",TRUE);
 		}
-		lldebugs << "!!!!!!!!!!!!!!!!!!!!!!Enabling drop target" << llendl;
 		self->childSetEnabled("drop target",TRUE);
 
 		self->mHaveProperties = TRUE;
@@ -1769,9 +1745,17 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 		msg->getStringFast(_PREHASH_PropertiesData, _PREHASH_AboutText,	DB_USER_ABOUT_BUF_SIZE,		about_text );
 		msg->getStringFast(_PREHASH_PropertiesData, _PREHASH_FLAboutText,	DB_USER_FL_ABOUT_BUF_SIZE,		fl_about_text );
 		msg->getStringFast(_PREHASH_PropertiesData, _PREHASH_BornOn, DB_BORN_BUF_SIZE, born_on);
-		msg->getBOOLFast(_PREHASH_PropertiesData, _PREHASH_Identified,  identified);
-		msg->getBOOLFast(_PREHASH_PropertiesData, _PREHASH_Transacted,  transacted);
 		msg->getString("PropertiesData","ProfileURL", DB_USER_PROFILE_URL_BUF_SIZE, profile_url);
+		msg->getU32Fast(_PREHASH_PropertiesData, _PREHASH_Flags, flags);
+		
+		identified = (flags & AVATAR_IDENTIFIED);
+		transacted = (flags & AVATAR_TRANSACTED);
+		allow_publish = (flags & AVATAR_ALLOW_PUBLISH);
+		online = (flags & AVATAR_ONLINE);
+		
+		EOnlineStatus online_status = (online) ? ONLINE_STATUS_YES : ONLINE_STATUS_NO;
+
+		self->setOnlineStatus(online_status);
 
 		self->mPanelWeb->setWebURL(std::string(profile_url));
 		U8 caption_index = 0;
@@ -1849,7 +1833,6 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 			{
 				image_ctrl->setImageAssetID(fl_image_id);
 			}
-			msg->getBOOL("PropertiesData", "AllowPublish", allow_publish);
 
 			self->mPanelSecondLife->childSetValue("allow_publish", allow_publish);
 

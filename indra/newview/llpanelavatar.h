@@ -36,7 +36,6 @@ class LLWebBrowserCtrl;
 
 enum EOnlineStatus
 {
-	ONLINE_STATUS_UNKNOWN = -1,
 	ONLINE_STATUS_NO      = 0,
 	ONLINE_STATUS_YES     = 1
 };
@@ -242,6 +241,8 @@ public:
 	// button enablement.
 	// Pass one of the ONLINE_STATUS_foo constants above.
 	void setAvatarID(const LLUUID &avatar_id, const LLString &name, EOnlineStatus online_status);
+
+	void setOnlineStatus(EOnlineStatus online_status);
 
 	const LLUUID& getAvatarID() const { return mAvatarID; }
 

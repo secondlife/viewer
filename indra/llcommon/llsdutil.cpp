@@ -203,3 +203,14 @@ U32 ll_ipaddr_from_sd(const LLSD& sd)
 	memcpy(&ret, &(v[0]), 4);		/* Flawfinder: ignore */
 	return ret;
 }
+
+// Converts an LLSD binary to an LLSD string
+LLSD ll_string_from_binary(const LLSD& sd)
+{
+	std::vector<U8> value = sd.asBinary();
+	char* c_str = new char[value.size() + 1];
+	memcpy(c_str, &value[0], value.size());
+	c_str[value.size()] = '\0';
+
+	return c_str;
+}

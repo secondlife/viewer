@@ -7,8 +7,10 @@
  */
 
 #include "linden_common.h"
-#include "llassetstorage.h"
+
 #include "llhttpclient.h"
+
+#include "llassetstorage.h"
 #include "lliopipe.h"
 #include "llurlrequest.h"
 #include "llbufferstream.h"
@@ -230,6 +232,11 @@ void LLHTTPClient::put(const std::string& url, const LLSD& body, ResponderPtr re
 void LLHTTPClient::post(const std::string& url, const LLSD& body, ResponderPtr responder)
 {
 	request(url, LLURLRequest::HTTP_POST, new LLSDInjector(body), responder);
+}
+
+void LLHTTPClient::del(const std::string& url, ResponderPtr responder)
+{
+	request(url, LLURLRequest::HTTP_DELETE, NULL, responder);
 }
 
 #if 1

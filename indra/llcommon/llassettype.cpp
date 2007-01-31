@@ -8,9 +8,11 @@
 
 #include "linden_common.h"
 
+#include "llassettype.h"
+
 #include <time.h>
 
-#include "llassettype.h"
+#include "llstring.h"
 #include "lltimer.h"
 
 // I added lookups for exact text of asset type enums in addition to the ones below, so shoot me. -Steve
@@ -49,9 +51,9 @@ asset_info_t asset_types[] =
 	{ LLAssetType::AT_NONE, "NONE" },
 };
 
-LLAssetType::EType LLAssetType::getType(const LLString& sin)
+LLAssetType::EType LLAssetType::getType(const std::string& sin)
 {
-	LLString s = sin;
+	std::string s = sin;
 	LLString::toUpper(s);
 	for (S32 idx = 0; ;idx++)
 	{
@@ -64,17 +66,17 @@ LLAssetType::EType LLAssetType::getType(const LLString& sin)
 	return LLAssetType::AT_NONE;
 }
 
-LLString LLAssetType::getDesc(LLAssetType::EType type)
+std::string LLAssetType::getDesc(LLAssetType::EType type)
 {
 	for (S32 idx = 0; ;idx++)
 	{
 		asset_info_t* info = asset_types + idx;
 		if (type == info->type)
-			return LLString(info->desc);
+			return info->desc;
 		if (info->type == LLAssetType::AT_NONE)
 			break;
 	}
-	return LLString("BAD TYPE");
+	return "BAD TYPE";
 }
 
 //============================================================================
@@ -206,7 +208,7 @@ EDragAndDropType LLAssetType::lookupDragAndDropType( EType asset )
 
 // static. Generate a good default description
 void LLAssetType::generateDescriptionFor(LLAssetType::EType type,
-										 LLString& desc)
+										 std::string& desc)
 {
 	const S32 BUF_SIZE = 30;
 	char time_str[BUF_SIZE];	/* Flawfinder: ignore */

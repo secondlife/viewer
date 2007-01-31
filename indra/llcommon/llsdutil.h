@@ -51,4 +51,7 @@ U64 ll_U64_from_sd(const LLSD& sd);
 LLSD ll_sd_from_ipaddr(const U32);
 U32 ll_ipaddr_from_sd(const LLSD& sd);
 
+// Binary to string
+LLSD ll_string_from_binary(const LLSD& sd);
+
 #endif // LL_LLSDUTIL_H

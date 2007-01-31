@@ -562,21 +562,21 @@ void init_menus()
 	// flash when an item is triggered (the flash occurs in the holder)
 	gViewerWindow->getRootView()->addChild(gMenuHolder);
 
-		gMenuHolder->childSetLabelArg("Upload Image", "[COST]", "10");
-		gMenuHolder->childSetLabelArg("Upload Sound", "[COST]", "10");
-		gMenuHolder->childSetLabelArg("Upload Animation", "[COST]", "10");
-		gMenuHolder->childSetLabelArg("Bulk Upload", "[COST]", "10");
+	gMenuHolder->childSetLabelArg("Upload Image", "[COST]", "10");
+	gMenuHolder->childSetLabelArg("Upload Sound", "[COST]", "10");
+	gMenuHolder->childSetLabelArg("Upload Animation", "[COST]", "10");
+	gMenuHolder->childSetLabelArg("Bulk Upload", "[COST]", "10");
 
-		gAFKMenu = (LLMenuItemCallGL*)gMenuBarView->getChildByName("Set Away", TRUE);
-		gBusyMenu = (LLMenuItemCallGL*)gMenuBarView->getChildByName("Set Busy", TRUE);
-		gAttachSubMenu = gMenuBarView->getChildMenuByName("Attach Object", TRUE);
-		gDetachSubMenu = gMenuBarView->getChildMenuByName("Detach Object", TRUE);
+	gAFKMenu = (LLMenuItemCallGL*)gMenuBarView->getChildByName("Set Away", TRUE);
+	gBusyMenu = (LLMenuItemCallGL*)gMenuBarView->getChildByName("Set Busy", TRUE);
+	gAttachSubMenu = gMenuBarView->getChildMenuByName("Attach Object", TRUE);
+	gDetachSubMenu = gMenuBarView->getChildMenuByName("Detach Object", TRUE);
 
-		if (gAgent.mAccess < SIM_ACCESS_MATURE)
-		{
-			gMenuBarView->getChildByName("Menu Underpants", TRUE)->setVisible(FALSE);
-			gMenuBarView->getChildByName("Menu Undershirt", TRUE)->setVisible(FALSE);
-		}
+	if (gAgent.mAccess < SIM_ACCESS_MATURE)
+	{
+		gMenuBarView->getChildByName("Menu Underpants", TRUE)->setVisible(FALSE);
+		gMenuBarView->getChildByName("Menu Undershirt", TRUE)->setVisible(FALSE);
+	}
 
 	// TomY TODO convert these two
 	LLMenuGL*menu;
@@ -607,23 +607,23 @@ void init_menus()
 	///
 	gPieSelf = gUICtrlFactory->buildPieMenu("menu_pie_self.xml", gMenuHolder);
 
-		// TomY TODO: what shall we do about these?
-		gDetachScreenPieMenu = (LLPieMenu*)gMenuHolder->getChildByName("Object Detach HUD", true);
-		gDetachPieMenu = (LLPieMenu*)gMenuHolder->getChildByName("Object Detach", true);
+	// TomY TODO: what shall we do about these?
+	gDetachScreenPieMenu = (LLPieMenu*)gMenuHolder->getChildByName("Object Detach HUD", true);
+	gDetachPieMenu = (LLPieMenu*)gMenuHolder->getChildByName("Object Detach", true);
 
-		if (gAgent.mAccess < SIM_ACCESS_MATURE)
-		{
-			gMenuHolder->getChildByName("Self Underpants", TRUE)->setVisible(FALSE);
-			gMenuHolder->getChildByName("Self Undershirt", TRUE)->setVisible(FALSE);
-		}
+	if (gAgent.mAccess < SIM_ACCESS_MATURE)
+	{
+		gMenuHolder->getChildByName("Self Underpants", TRUE)->setVisible(FALSE);
+		gMenuHolder->getChildByName("Self Undershirt", TRUE)->setVisible(FALSE);
+	}
 
 	gPieAvatar = gUICtrlFactory->buildPieMenu("menu_pie_avatar.xml", gMenuHolder);
 
 	gPieObject = gUICtrlFactory->buildPieMenu("menu_pie_object.xml", gMenuHolder);
 
-		gAttachScreenPieMenu = (LLPieMenu*)gMenuHolder->getChildByName("Object Attach HUD", true);
-		gAttachPieMenu = (LLPieMenu*)gMenuHolder->getChildByName("Object Attach", true);
-		gPieRate = (LLPieMenu*)gMenuHolder->getChildByName("Rate Menu", true);
+	gAttachScreenPieMenu = (LLPieMenu*)gMenuHolder->getChildByName("Object Attach HUD", true);
+	gAttachPieMenu = (LLPieMenu*)gMenuHolder->getChildByName("Object Attach", true);
+	gPieRate = (LLPieMenu*)gMenuHolder->getChildByName("Rate Menu", true);
 
 	gPieAttachment = gUICtrlFactory->buildPieMenu("menu_pie_attachment.xml", gMenuHolder);
 

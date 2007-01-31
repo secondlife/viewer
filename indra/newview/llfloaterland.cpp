@@ -999,8 +999,8 @@ void LLPanelLandGeneral::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	}
 
 	// Extract data from UI
-	std::string name		= panelp->mEditName->getText();
-	std::string desc		= panelp->mEditDesc->getText();
+	std::string name = panelp->mEditName->getText();
+	std::string desc = panelp->mEditDesc->getText();
 
 	// Valid data from UI
 
@@ -1104,7 +1104,7 @@ BOOL LLPanelLandObjects::postBuild()
 
 	mCleanOtherObjectsTime = LLUICtrlFactory::getLineEditorByName(this, "clean other time");
 	mCleanOtherObjectsTime->setFocusLostCallback(onLostFocus);	
-	childSetPrevalidate("clean other time", LLLineEditor::prevalidatePrintableNotPipe);
+	childSetPrevalidate("clean other time", LLLineEditor::prevalidateNonNegativeS32);
 	childSetUserData("clean other time", this);
 	
 	mOwnerListText = LLUICtrlFactory::getTextBoxByName(this, "Object Owners:");

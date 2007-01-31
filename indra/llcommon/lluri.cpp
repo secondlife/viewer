@@ -9,8 +9,12 @@
  */
 
 #include "linden_common.h"
+
+#include "llapp.h"
 #include "lluri.h"
 #include "llsd.h"
+
+#include "../llmath/lluuid.h"
 
 // uric = reserved | unreserved | escaped
 // reserved = ";" | "/" | "?" | ":" | "@" | "&" | "=" | "+" | "$" | ","
@@ -353,9 +357,21 @@ LLURI LLURI::buildHTTP(const std::string& host_port,
 					   const LLSD& path)
 {
 	LLURI result;
-	result.mScheme = "HTTP";
+	
 	// TODO: deal with '/' '?' '#' in host_port
-	result.mEscapedAuthority = "//" + escape(host_port);
+	S32 index = host_port.find("://");
+	if (index != host_port.npos)
+	{
+		// The scheme is part of the host_port
+		result.mScheme = "";
+		result.mEscapedAuthority = escape(host_port);
+	}
+	else
+	{
+		result.mScheme = "HTTP";
+		result.mEscapedAuthority = "//" + escape(host_port);
+	}
+
 	if (path.isArray())
 	{
 		// break out and escape each path component
@@ -395,6 +411,70 @@ LLURI LLURI::buildHTTP(const std::string& host_port,
 		}
 	}
 	return result;
+}
+
+// static
+LLURI LLURI::buildAgentPresenceURI(const LLUUID& agent_id, LLApp* app)
+{
+	std::string host = "localhost:12040";
+
+	if (app)
+	{
+		host = app->getOption("backbone-host-port").asString();
+	}
+
+	LLSD path = LLSD::emptyArray();
+	path.append("agent");
+	path.append(agent_id);
+	path.append("presence");
+
+	return buildHTTP(host, path);
+}
+
+// static
+LLURI LLURI::buildBulkAgentPresenceURI(LLApp* app)
+{
+	std::string host = "localhost:12040";
+
+	if (app)
+	{
+		host = app->getOption("backbone-host-port").asString();
+	}
+
+	LLSD path = LLSD::emptyArray();
+	path.append("agent");
+	path.append("presence");
+
+	return buildHTTP(host, path);
+}
+
+// static
+LLURI LLURI::buildAgentSessionURI(const LLUUID& agent_id, LLApp* app)
+{
+	std::string host = "localhost:12040";
+
+	if (app)
+	{
+		host = app->getOption("backbone-host-port").asString();
+	}
+
+	LLSD path = LLSD::emptyArray();
+	path.append("agent");
+	path.append(agent_id);
+	path.append("session");
+
+	return buildHTTP(host, path);
+}
+
+// static
+LLURI LLURI::buildAgentLoginInfoURI(const LLUUID& agent_id, const std::string& dataserver)
+{
+	LLSD path = LLSD::emptyArray();
+	path.append("agent");
+	path.append(agent_id);
+	path.append("logininfo");
+
+	return buildHTTP(dataserver, path);
 }
 
 std::string LLURI::asString() const

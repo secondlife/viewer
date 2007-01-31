@@ -4260,10 +4260,7 @@ sim -> dataserver
 		{	BornOn			Variable 1	}	// string
 		{	ProfileURL		Variable 1	}	// string
 		{	CharterMember	Variable 1	}	// special - usually U8
-		{	AllowPublish	BOOL		}	// whether profile is externally visible or not
-		{	MaturePublish	BOOL		}	// profile is "mature"
-		{	Identified		BOOL		}	// whether avatar has provided payment info
-		{	Transacted		BOOL		}	// whether avatar has actively used payment info
+		{	Flags			U32			}
 	}
 }
 
@@ -9196,11 +9193,20 @@ sim -> dataserver
 
 // ViewerEffect
 // Viewer side effect that's sent from one viewer, and broadcast to other agents nearby
+// viewer-->sim (single effect created by viewer)
+// sim-->viewer (multiple effects that can be seen by viewer)
+// the AgentData block used for authentication for viewer-->sim messages
 {
 	ViewerEffect Medium NotTrusted Zerocoded
 	{
+		AgentData		Single
+		{	AgentID		LLUUID	}
+		{	SessionID	LLUUID	}
+	}
+	{
 		Effect Variable
-		{	ID			LLUUID	} // UUID of the effect
+		{	ID			LLUUID	} // unique UUID of the effect
+		{	AgentID		LLUUID	} // yes, pack AgentID again (note this block is variable)
 		{	Type		U8	} // Type of the effect
 		{	Duration	F32	} // F32 time (seconds)
 		{	Color		Fixed		4	} // Color4U

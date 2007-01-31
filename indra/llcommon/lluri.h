@@ -14,6 +14,8 @@
 #include <string>
 
 class LLSD;
+class LLUUID;
+class LLApp;
 
 /** 
  *
@@ -61,6 +63,11 @@ public:
 	static std::string escape(const std::string& str);
 	static std::string unescape(const std::string& str);
 
+	// Functions for building specific URIs for web services
+	static LLURI buildAgentPresenceURI(const LLUUID& agent_id, LLApp* app);
+	static LLURI buildBulkAgentPresenceURI(LLApp* app);
+	static LLURI buildAgentSessionURI(const LLUUID& agent_id, LLApp* app);
+	static LLURI buildAgentLoginInfoURI(const LLUUID& agent_id, const std::string& dataserver);
 private:
 	std::string mScheme;
 	std::string mEscapedOpaque;
