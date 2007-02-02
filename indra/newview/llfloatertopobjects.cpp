@@ -141,8 +141,8 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		LLUUID task_id;
 		F32 location_x, location_y, location_z;
 		F32 score;
-		char name_buf[MAX_STRING];
-		char owner_buf[MAX_STRING];
+		char name_buf[MAX_STRING];		/* Flawfinder: ignore */
+		char owner_buf[MAX_STRING];		/* Flawfinder: ignore */
 
 		msg->getU32Fast(_PREHASH_ReportData, _PREHASH_TaskLocalID, task_local_id, block);
 		msg->getUUIDFast(_PREHASH_ReportData, _PREHASH_TaskID, task_id, block);

@@ -82,7 +82,7 @@ struct char_traits<U16>
 	
 	static char_type* 
 		copy(char_type* __s1, const char_type* __s2, size_t __n)
-	{  return static_cast<char_type*>(memcpy(__s1, __s2, __n * sizeof(char_type))); }
+	{  return static_cast<char_type*>(memcpy(__s1, __s2, __n * sizeof(char_type))); }	/* Flawfinder: ignore */
 	
 	static char_type* 
 		assign(char_type* __s, size_t __n, char_type __a)

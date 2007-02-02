@@ -293,7 +293,7 @@ void LLFloaterWorldMap::show(void*, BOOL center_on_target)
 	BOOL was_visible = gFloaterWorldMap->getVisible();
 
 	gFloaterWorldMap->mIsClosing = FALSE;
-	gFloaterWorldMap->open();
+	gFloaterWorldMap->open();		/* Flawfinder: ignore */
 
 	LLWorldMapView* map_panel;
 	map_panel = (LLWorldMapView*)gFloaterWorldMap->mTabs->getCurrentPanel();

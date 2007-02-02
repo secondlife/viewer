@@ -62,14 +62,14 @@ public:
 
 public:	
 	
-	char        mURI[LL_MAX_PATH];
-	char        mAuthority[LL_MAX_PATH];
-	char        mPath[LL_MAX_PATH];
-	char        mFilename[LL_MAX_PATH];
-	char        mExtension[LL_MAX_PATH];
-	char        mTag[LL_MAX_PATH];
+	char        mURI[LL_MAX_PATH];		/* Flawfinder: ignore */
+	char        mAuthority[LL_MAX_PATH];		/* Flawfinder: ignore */
+	char        mPath[LL_MAX_PATH];		/* Flawfinder: ignore */
+	char        mFilename[LL_MAX_PATH];		/* Flawfinder: ignore */
+	char        mExtension[LL_MAX_PATH];		/* Flawfinder: ignore */
+	char        mTag[LL_MAX_PATH];		/* Flawfinder: ignore */
 
-	static char sReturnString[LL_MAX_PATH];
+	static char sReturnString[LL_MAX_PATH];		/* Flawfinder: ignore */
 };
 
 #endif  // LL_LLURL_H

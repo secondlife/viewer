@@ -134,8 +134,8 @@ BOOL check_for_card(const char* RENDERER, const char* bad_card)
 {
 	if (!strncasecmp(RENDERER, bad_card, strlen(bad_card)))
 	{
-		char buffer[1024];
-		sprintf(buffer,
+		char buffer[1024];	/* Flawfinder: ignore */
+		snprintf(buffer, sizeof(buffer),	/* Flawfinder: ignore */
 			"Your video card appears to be a %s, which Second Life does not support.\n"
 			"\n"
 			"Second Life requires a video card with 32 Mb of memory or more, as well as\n"
@@ -197,9 +197,14 @@ LLWindowSDL::LLWindowSDL(char *title, S32 x, S32 y, S32 width,
 		title = "SDL Window";  // *FIX: (???)
 
 	// Stash the window title
-	mWindowTitle = new char[strlen(title) + 1];
-	strcpy(mWindowTitle, title);
+	mWindowTitle = new char[strlen(title) + 1]; /* Flawfinder: ignore */
+	if(mWindowTitle == NULL)
+	{
+		llerrs << "Memory allocation failure" << llendl;
+		return;
+	}
 
+	strcpy(mWindowTitle, title); /* Flawfinder: ignore */
 	// Create the GL context and set it up for windowed or fullscreen, as appropriate.
 	if(createContext(x, y, width, height, 32, fullscreen, disable_vsync))
 	{
@@ -223,10 +228,10 @@ LLWindowSDL::LLWindowSDL(char *title, S32 x, S32 y, S32 width,
 static SDL_Surface *Load_BMP_Resource(const char *basename)
 {
 	const int PATH_BUFFER_SIZE=1000;
-	char path_buffer[PATH_BUFFER_SIZE];
+	char path_buffer[PATH_BUFFER_SIZE];	/* Flawfinder: ignore */
 	
 	// Figure out where our BMP is living on the disk
-	snprintf(path_buffer, PATH_BUFFER_SIZE-1, "%s%sres-sdl%s%s",
+	snprintf(path_buffer, PATH_BUFFER_SIZE-1, "%s%sres-sdl%s%s",	/* Flawfinder: ignore */
 		 gDirUtilp->getAppRODataDir().c_str(),
 		 gDirUtilp->getDirDelimiter().c_str(),
 		 gDirUtilp->getDirDelimiter().c_str(),
@@ -396,8 +401,8 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 			mFullscreenBits    = -1;
 			mFullscreenRefresh = -1;
 
-			char error[256];
-			sprintf(error, "Unable to run fullscreen at %d x %d.\nRunning in window.", width, height);
+			char error[256];	/* Flawfinder: ignore */
+			snprintf(error, sizeof(error), "Unable to run fullscreen at %d x %d.\nRunning in window.", width, height);	/* Flawfinder: ignore */
 			OSMessageBox(error, "Error", OSMB_OK);
 		}
 	}
@@ -1060,9 +1065,9 @@ x11clipboard_type convert_format(int type)
 	{
 		/* completely arbitrary clipboard types... we don't actually use
 		these right now, and support is skeletal. */
-		char format[sizeof(FORMAT_PREFIX)+8+1];
+		char format[sizeof(FORMAT_PREFIX)+8+1];	/* Flawfinder: ignore */
 
-		sprintf(format, "%s%08lx", FORMAT_PREFIX, (unsigned long)type);
+		snprintf(format, sizeof(format), "%s%08lx", FORMAT_PREFIX, (unsigned long)type);	/* Flawfinder: ignore */
 		return XInternAtom(SDL_Display, format, False);
 	}
     }
@@ -1080,14 +1085,18 @@ convert_data(int type, char *dst, const char *src, int srclen)
 	{
 	case SDLCLIPTYPE('T', 'E', 'X', 'T'):
 	case SDLCLIPTYPE('U', 'T', 'F', '8'):
+		if (src == NULL)
+		{
+			break;
+		}
 		if ( srclen == 0 )
-			srclen = strlen(src);
+			srclen = strlen(src);	/* Flawfinder: ignore */
 		
 		dstlen = srclen + 1;
 		
 		if ( dst ) // assume caller made it big enough by asking us
 		{
-			memcpy(dst, src, srclen);
+			memcpy(dst, src, srclen);	/* Flawfinder: ignore */
 			dst[srclen] = '\0';
 		}
 		break;
@@ -1112,14 +1121,18 @@ convert_x11clipboard(int type, char *dst, const char *src, int srclen)
 	{
 	case SDLCLIPTYPE('U', 'T', 'F', '8'):
 	case SDLCLIPTYPE('T', 'E', 'X', 'T'):
+		if (src == NULL)
+		{
+			break;
+		}
 		if ( srclen == 0 )
-			srclen = strlen(src);
+			srclen = strlen(src);	/* Flawfinder: ignore */
 		
 		dstlen = srclen + 1;
 		
 		if ( dst ) // assume caller made it big enough by asking us
 		{
-			memcpy(dst, src, srclen);
+			memcpy(dst, src, srclen);	/* Flawfinder: ignore */
 			dst[srclen] = '\0';
 		}
 		break;
@@ -1451,7 +1464,11 @@ BOOL LLWindowSDL::copyTextToClipboard(const LLWString &s)
 {
 	std::string utf8text = wstring_to_utf8str(s);
 	const char* cstr = utf8text.c_str();
-	int cstrlen = strlen(cstr);
+	if (cstr == NULL)
+	{
+		return FALSE;
+	}
+	int cstrlen = strlen(cstr);	/* Flawfinder: ignore */
 	int i;
 	for (i=0; i<cstrlen; ++i)
 	{
@@ -2442,7 +2459,7 @@ void spawn_web_browser(const char* escaped_url)
 		close(1);
 		close(2);
 		// end ourself by running the command
-		execv(cmd.c_str(), argv);
+		execv(cmd.c_str(), argv);	/* Flawfinder: ignore */
 		// if execv returns at all, there was a problem.
 		llwarns << "execv failure when trying to start " << cmd << llendl;
 		_exit(1); // _exit because we don't want atexit() clean-up!

@@ -22,7 +22,7 @@ LLXmlParser::LLXmlParser()
 	mParser( NULL ),
 	mDepth( 0 )
 {
-	strcpy( mAuxErrorString, "no error" );
+	strcpy( mAuxErrorString, "no error" );		/* Flawfinder: ignore */
 
 	// Override the document's declared encoding.
 	mParser = XML_ParserCreate(NULL);
@@ -54,10 +54,10 @@ BOOL LLXmlParser::parseFile(const std::string &path)
 	
 	BOOL success = TRUE;
 
-	FILE *file = LLFile::fopen(path.c_str(), "rb");
+	FILE* file = LLFile::fopen(path.c_str(), "rb");		/* Flawfinder: ignore */
 	if( !file )
 	{
-		sprintf( mAuxErrorString, "Couldn't open file %s", path.c_str());
+		snprintf( mAuxErrorString, sizeof(mAuxErrorString), "Couldn't open file %s", path.c_str());		/* Flawfinder: ignore */
 		success = FALSE;
 	}
 	else
@@ -71,7 +71,7 @@ BOOL LLXmlParser::parseFile(const std::string &path)
 		void* buffer = XML_GetBuffer(mParser, buffer_size);
 		if( !buffer ) 
 		{
-			sprintf( mAuxErrorString, "Unable to allocate XML buffer while reading file %s", path.c_str() );
+			snprintf( mAuxErrorString, sizeof(mAuxErrorString), "Unable to allocate XML buffer while reading file %s", path.c_str() );		/* Flawfinder: ignore */
 			success = FALSE;
 			goto exit_label;
 		}
@@ -79,14 +79,14 @@ BOOL LLXmlParser::parseFile(const std::string &path)
 		bytes_read = (S32)fread(buffer, 1, buffer_size, file);
 		if( bytes_read <= 0 )
 		{
-			sprintf( mAuxErrorString, "Error while reading file  %s", path.c_str() );
+			snprintf( mAuxErrorString, sizeof(mAuxErrorString), "Error while reading file  %s", path.c_str() );		/* Flawfinder: ignore */
 			success = FALSE;
 			goto exit_label;
 		}
 		
 		if( !XML_ParseBuffer(mParser, bytes_read, TRUE ) )
 		{
-			sprintf( mAuxErrorString, "Error while parsing file  %s", path.c_str() );
+			snprintf( mAuxErrorString, sizeof(mAuxErrorString), "Error while parsing file  %s", path.c_str() );		/* Flawfinder: ignore */
 			success = FALSE;
 		}
 

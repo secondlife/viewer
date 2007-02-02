@@ -82,7 +82,7 @@ void LLViewerAssetStorage::storeAssetData(
 			// Read the data from the VFS if it'll fit in this packet.
 			if (asset_size + 100 < MTUBYTES)
 			{
-				BOOL res = vfile.read(buffer, asset_size);
+				BOOL res = vfile.read(buffer, asset_size);		/* Flawfinder: ignore */
 				S32 bytes_read = res ? vfile.getLastBytesRead() : 0;
 				
 				if( bytes_read == asset_size )
@@ -143,6 +143,11 @@ void LLViewerAssetStorage::storeAssetData(
 	bool temp_file,
 	bool is_priority)
 {
+	if(!filename)
+	{
+		llerrs << "No filename specified" << llendl;
+	}
+	
 	LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
 	llinfos << "LLViewerAssetStorage::storeAssetData (legacy)" << asset_id << ":" << LLAssetType::lookup(asset_type) << llendl;
 
@@ -153,7 +158,7 @@ void LLViewerAssetStorage::storeAssetData(
 	legacy->mUpCallback = callback;
 	legacy->mUserData = user_data;
 
-	FILE *fp = LLFile::fopen(filename, "rb");
+	FILE* fp = LLFile::fopen(filename, "rb");		/* Flawfinder: ignore */
 	if (fp)
 	{
 		LLVFile file(mVFS, asset_id, asset_type, LLVFile::WRITE);

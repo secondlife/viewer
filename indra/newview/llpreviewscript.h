@@ -117,7 +117,7 @@ public:
 	LLPreviewLSL(const std::string& name, const LLRect& rect, const std::string& title,
 				 const LLUUID& item_uuid );
 
-	/*virtual*/ void open();
+	/*virtual*/ void open();		/*Flawfinder: ignore*/
 
 protected:
 	virtual BOOL canClose();

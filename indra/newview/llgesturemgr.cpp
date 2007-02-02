@@ -856,7 +856,13 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 		S32 size = file.getSize();
 
 		char* buffer = new char[size+1];
-		file.read((U8*)buffer, size);
+		if (buffer == NULL)
+		{
+			llerrs << "Memory Allocation Failed" << llendl;
+			return;
+		}
+
+		file.read((U8*)buffer, size);		/* Flawfinder: ignore */
 		// ensure there's a trailing NULL so strlen will work.
 		buffer[size] = '\0';
 

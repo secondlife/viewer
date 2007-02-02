@@ -40,7 +40,7 @@ user_callback_map_t gUserCallbackMap;
 
 LLStringTable	gNVNameTable(16384);
 
-char NameValueTypeStrings[NVT_EOF][NAME_VALUE_TYPE_STRING_LENGTH] =
+char NameValueTypeStrings[NVT_EOF][NAME_VALUE_TYPE_STRING_LENGTH] = /*Flawfinder: Ignore*/
 {
 	"NULL",
 	"STRING",
@@ -51,17 +51,17 @@ char NameValueTypeStrings[NVT_EOF][NAME_VALUE_TYPE_STRING_LENGTH] =
 	"CAMERA", // Deprecated, but leaving in case removing completely would cause problems
 	"ASSET",
 	"U64"
-};		/*Flawfinder: Ignore*/
+};		
 
-char NameValueClassStrings[NVC_EOF][NAME_VALUE_CLASS_STRING_LENGTH] =
+char NameValueClassStrings[NVC_EOF][NAME_VALUE_CLASS_STRING_LENGTH] = /*Flawfinder: Ignore*/
 {
 	"NULL",
 	"R",			// read only
 	"RW",			// read write
 	"CB"			// callback
-};		/*Flawfinder: Ignore*/
+};		
 
-char NameValueSendtoStrings[NVS_EOF][NAME_VALUE_SENDTO_STRING_LENGTH] =
+char NameValueSendtoStrings[NVS_EOF][NAME_VALUE_SENDTO_STRING_LENGTH] = /*Flawfinder: Ignore*/
 {
 	"NULL",
 	"S",	// "Sim", formerly SIM
@@ -393,11 +393,11 @@ LLNameValue::LLNameValue(const char *name, const char *type, const char *nvclass
 LLNameValue::LLNameValue(const char *data)
 {
 	baseInit();
-	static char name[NV_BUFFER_LEN];
-	static char type[NV_BUFFER_LEN];
-	static char nvclass[NV_BUFFER_LEN];
-	static char nvsendto[NV_BUFFER_LEN];
-	static char nvdata[NV_BUFFER_LEN];
+	static char name[NV_BUFFER_LEN];	/*Flawfinder: ignore*/
+	static char type[NV_BUFFER_LEN];	/*Flawfinder: ignore*/
+	static char nvclass[NV_BUFFER_LEN];	/*Flawfinder: ignore*/
+	static char nvsendto[NV_BUFFER_LEN];	/*Flawfinder: ignore*/
+	static char nvdata[NV_BUFFER_LEN];	/*Flawfinder: ignore*/
 
 	S32 i;
 
@@ -421,7 +421,7 @@ LLNameValue::LLNameValue(const char *data)
 	}
 
 	// read in the name
-	sscanf((data + character_count), "%2047s", name);
+	sscanf((data + character_count), "%2047s", name);	/*Flawfinder: ignore*/
 
 	// bump past it and add null terminator
 	length = (S32)strlen(name);			/* Flawfinder: ignore */
@@ -445,7 +445,7 @@ LLNameValue::LLNameValue(const char *data)
 	}
 
 	// read in the type
-	sscanf((data + character_count), "%2047s", type);
+	sscanf((data + character_count), "%2047s", type);	/*Flawfinder: ignore*/
 
 	// bump past it and add null terminator
 	length = (S32)strlen(type);		/* Flawfinder: ignore */
@@ -481,7 +481,7 @@ LLNameValue::LLNameValue(const char *data)
 	{
 		// yes we do!
 		// read in the class
-		sscanf((data + character_count), "%2047s", nvclass);
+		sscanf((data + character_count), "%2047s", nvclass);	/*Flawfinder: ignore*/
 
 		// bump past it and add null terminator
 		length = (S32)strlen(nvclass);		/* Flawfinder: ignore */
@@ -523,7 +523,7 @@ LLNameValue::LLNameValue(const char *data)
 	if (i != NVS_EOF)
 	{
 		// found a sendto argument
-		sscanf((data + character_count), "%2047s", nvsendto);
+		sscanf((data + character_count), "%2047s", nvsendto);	/*Flawfinder: ignore*/
 
 		// add null terminator
 		length = (S32)strlen(nvsendto);		/* Flawfinder: ignore */

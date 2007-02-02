@@ -50,14 +50,14 @@ void LLFloaterBuildOptions::show(void*)
 {
 	if (sInstance)
 	{
-		sInstance->open();
+		sInstance->open();	/*Flawfinder: ignore*/
 	}
 	else
 	{
 		LLFloaterBuildOptions* floater = new LLFloaterBuildOptions();
 
 		gUICtrlFactory->buildFloater(floater, "floater_build_options.xml");
-		floater->open();
+		floater->open();	/*Flawfinder: ignore*/
 	}
 }
 

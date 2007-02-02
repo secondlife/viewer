@@ -64,7 +64,7 @@ public:
 		}
 		std::string getFilename()
 		{
-			char tbuf[40];
+			char tbuf[40];	/* Flawfinder: ignore */
 			mFileID.toString(tbuf);
 			return std::string(tbuf);
 		}
@@ -97,7 +97,7 @@ public:
 	~LLVFSThread();	
 
 	// Return a Request handle
-	handle_t read(LLVFS* vfs, const LLUUID &file_id, const LLAssetType::EType file_type,
+	handle_t read(LLVFS* vfs, const LLUUID &file_id, const LLAssetType::EType file_type,	/* Flawfinder: ignore */
 				  U8* buffer, S32 offset, S32 numbytes, U32 pri=PRIORITY_NORMAL, U32 flags = 0);
 	handle_t write(LLVFS* vfs, const LLUUID &file_id, const LLAssetType::EType file_type,
 				   U8* buffer, S32 offset, S32 numbytes, U32 flags);

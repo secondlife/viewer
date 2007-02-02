@@ -243,8 +243,8 @@ S32 LLAvatarTracker::addBuddyList(const LLAvatarTracker::buddy_map_t& buds)
 	using namespace std;
 
 	U32 new_buddy_count = 0;	
-	char first[DB_FIRST_NAME_BUF_SIZE];
-	char last[DB_LAST_NAME_BUF_SIZE];
+	char first[DB_FIRST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
+	char last[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 	LLUUID agent_id;
 	for(buddy_map_t::const_iterator itr = buds.begin(); itr != buds.end(); ++itr)
 	{
@@ -541,8 +541,8 @@ void LLAvatarTracker::processChange(LLMessageSystem* msg)
 			{
 				if((mBuddyInfo[agent_id]->getRightsGrantedFrom() ^  new_rights) & LLRelationship::GRANT_MODIFY_OBJECTS)
 				{
-					char first[DB_FIRST_NAME_BUF_SIZE];
-					char last[DB_LAST_NAME_BUF_SIZE];
+					char first[DB_FIRST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
+					char last[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 					LLStringBase<char>::format_map_t args;
 					if(gCacheName->getName(agent_id, first, last))
 					{
@@ -598,8 +598,8 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 				setBuddyOnline(agent_id,online);
 				if(chat_notify)
 				{
-					char first[DB_FIRST_NAME_BUF_SIZE];
-					char last[DB_LAST_NAME_BUF_SIZE];
+					char first[DB_FIRST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
+					char last[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 					if(gCacheName->getName(agent_id, first, last))
 					{
 						notify = TRUE;

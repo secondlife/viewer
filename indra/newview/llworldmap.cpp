@@ -487,8 +487,8 @@ void LLWorldMap::processMapBlockReply(LLMessageSystem* msg, void**)
 	{
 		U16 x_regions;
 		U16 y_regions;
-		char name[MAX_STRING];
-		U8 access;
+		char name[MAX_STRING];		/* Flawfinder: ignore */
+		U8 access;		/* Flawfinder: ignore */
 		U32 region_flags;
 		U8 water_height;
 		U8 agents;
@@ -496,7 +496,7 @@ void LLWorldMap::processMapBlockReply(LLMessageSystem* msg, void**)
 		msg->getU16Fast(_PREHASH_Data, _PREHASH_X, x_regions, block);
 		msg->getU16Fast(_PREHASH_Data, _PREHASH_Y, y_regions, block);
 		msg->getStringFast(_PREHASH_Data, _PREHASH_Name, MAX_STRING, name, block);
-		msg->getU8Fast(_PREHASH_Data, _PREHASH_Access, access, block);
+		msg->getU8Fast(_PREHASH_Data, _PREHASH_Access, access, block);		/* Flawfinder: ignore */
 		msg->getU32Fast(_PREHASH_Data, _PREHASH_RegionFlags, region_flags, block);
 		msg->getU8Fast(_PREHASH_Data, _PREHASH_WaterHeight, water_height, block);
 		msg->getU8Fast(_PREHASH_Data, _PREHASH_Agents, agents, block);
@@ -545,7 +545,7 @@ void LLWorldMap::processMapBlockReply(LLMessageSystem* msg, void**)
 
 			siminfo->mHandle = handle;
 			siminfo->mName.assign( name );
-			siminfo->mAccess = access;
+			siminfo->mAccess = access;		/* Flawfinder: ignore */
 			siminfo->mRegionFlags = region_flags;
 			siminfo->mWaterHeight = (F32) water_height;
 			siminfo->mMapImageID[agent_flags] = image_id;
@@ -602,7 +602,7 @@ void LLWorldMap::processMapItemReply(LLMessageSystem* msg, void**)
 	for (S32 block=0; block<num_blocks; ++block)
 	{
 		U32 X, Y;
-		char name[MAX_STRING];
+		char name[MAX_STRING];		/* Flawfinder: ignore */
 		S32 extra, extra2;
 		LLUUID uuid;
 		msg->getU32Fast(_PREHASH_Data, _PREHASH_X, X, block);
@@ -652,7 +652,7 @@ void LLWorldMap::processMapItemReply(LLMessageSystem* msg, void**)
 			case MAP_ITEM_PG_EVENT: // events
 			case MAP_ITEM_MATURE_EVENT:
 			{
-				char buffer[32];
+				char buffer[32];		/* Flawfinder: ignore */
 				struct tm* timep;
 				// Convert to Pacific, based on server's opinion of whether
 				// it's daylight savings time there.
@@ -661,7 +661,7 @@ void LLWorldMap::processMapItemReply(LLMessageSystem* msg, void**)
 				S32 display_hour = timep->tm_hour % 12;
 				if (display_hour == 0) display_hour = 12;
 
-				sprintf(buffer, "%d:%02d %s",
+				snprintf(buffer, sizeof(buffer), "%d:%02d %s",		/* Flawfinder: ignore */
 					display_hour,
 					timep->tm_min,
 					(timep->tm_hour < 12 ? "AM" : "PM") );

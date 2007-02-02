@@ -113,23 +113,23 @@ LLOSInfo::LLOSInfo() :
 			char tmp[MAX_STRING];		/* Flawfinder: ignore */
 			if(osvi.dwMajorVersion <= 4)
 			{
-				snprintf(
+				snprintf(	/* Flawfinder: ignore */
 					tmp,
 					sizeof(tmp),
 					"version %d.%d %s (Build %d)",
 					osvi.dwMajorVersion,
 					osvi.dwMinorVersion,
 					csdversion.c_str(),
-					(osvi.dwBuildNumber & 0xffff));	/* Flawfinder: ignore */
+					(osvi.dwBuildNumber & 0xffff));
 			}
 			else
 			{
-				snprintf(
+				snprintf( /* Flawfinder: ignore */
 					tmp,
 					sizeof(tmp),
 					"%s (Build %d)",
 					csdversion.c_str(),
-					(osvi.dwBuildNumber & 0xffff));	 /*Flawfinder: ignore*/
+					(osvi.dwBuildNumber & 0xffff));	 
 			}
 			mOSString += tmp;
 		}
@@ -231,7 +231,7 @@ U32 LLOSInfo::getProcessVirtualSizeKB()
 #if LL_WINDOWS
 #endif
 #if LL_LINUX
-	FILE *status_filep = LLFile::fopen("/proc/self/status", "r");
+	FILE* status_filep = LLFile::fopen("/proc/self/status", "r");	/* Flawfinder: ignore */
 	S32 numRead = 0;		
 	char buff[STATUS_SIZE];		/* Flawfinder: ignore */
 	bzero(buff, STATUS_SIZE);
@@ -257,7 +257,7 @@ U32 LLOSInfo::getProcessResidentSizeKB()
 #if LL_WINDOWS
 #endif
 #if LL_LINUX
-	FILE *status_filep = LLFile::fopen("/proc/self/status", "r");
+	FILE* status_filep = LLFile::fopen("/proc/self/status", "r");	/* Flawfinder: ignore */
 	if (status_filep != NULL)
 	{
 		S32 numRead = 0;

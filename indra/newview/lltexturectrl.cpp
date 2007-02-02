@@ -1020,7 +1020,7 @@ void LLTextureCtrl::showPicker(BOOL take_focus)
 	// Show the dialog
 	if( floaterp )
 	{
-		floaterp->open( );
+		floaterp->open( );		/* Flawfinder: ignore */
 	}
 	else
 	{
@@ -1041,7 +1041,7 @@ void LLTextureCtrl::showPicker(BOOL take_focus)
 		mFloaterHandle = floaterp->getHandle();
 
 		gFloaterView->getParentFloater(this)->addDependentFloater(floaterp);
-		floaterp->open();
+		floaterp->open();		/* Flawfinder: ignore */
 	}
 
 	if (take_focus)

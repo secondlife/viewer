@@ -53,7 +53,7 @@ void LLFloaterLandHoldings::show(void*)
 					  "");
 
 	// TODO: request updated money balance?
-	floater->open();
+	floater->open();		/* Flawfinder: ignore */
 }
 
 
@@ -158,14 +158,14 @@ void LLFloaterLandHoldings::processPlacesReply(LLMessageSystem* msg, void**)
 	}
 
 	LLUUID	owner_id;
-	char	name[MAX_STRING];
-	char	desc[MAX_STRING];
+	char	name[MAX_STRING];		/* Flawfinder: ignore */
+	char	desc[MAX_STRING];		/* Flawfinder: ignore */
 	S32		actual_area;
 	S32		billable_area;
 	U8		flags;
 	F32		global_x;
 	F32		global_y;
-	char	sim_name[MAX_STRING];
+	char	sim_name[MAX_STRING];		/* Flawfinder: ignore */
 
 	S32 i;
 	S32 count = msg->getNumberOfBlocks("QueryData");
@@ -187,21 +187,21 @@ void LLFloaterLandHoldings::processPlacesReply(LLMessageSystem* msg, void**)
 		S32 region_x = llround(global_x) % REGION_WIDTH_UNITS;
 		S32 region_y = llround(global_y) % REGION_WIDTH_UNITS;
 
-		char location[MAX_STRING];
-		sprintf(location, "%s (%d, %d)", sim_name, region_x, region_y);
+		char location[MAX_STRING];		/* Flawfinder: ignore */
+		snprintf(location, MAX_STRING, "%s (%d, %d)", sim_name, region_x, region_y);		/* Flawfinder: ignore */
 
-		char area[MAX_STRING];
+		char area[MAX_STRING];		/* Flawfinder: ignore */
 		if(billable_area == actual_area)
 		{
-			sprintf(area, "%d", billable_area);
+			snprintf(area, MAX_STRING, "%d", billable_area);		/* Flawfinder: ignore */
 		}
 		else
 		{
-			sprintf(area, "%d / %d", billable_area, actual_area);
+			snprintf(area, MAX_STRING, "%d / %d", billable_area, actual_area);		/* Flawfinder: ignore */
 		}
 
-		char hidden[MAX_STRING];
-		sprintf(hidden, "%f %f", global_x, global_y);
+		char hidden[MAX_STRING];		/* Flawfinder: ignore */
+		snprintf(hidden, MAX_STRING, "%f %f", global_x, global_y);		/* Flawfinder: ignore */
 
 		LLSD element;
 		element["columns"][0]["column"] = "name";
@@ -292,14 +292,14 @@ void LLFloaterLandHoldings::refreshAggregates()
 	S32 current_area = gStatusBar->getSquareMetersCommitted();
 	S32 available_area = gStatusBar->getSquareMetersLeft();
 
-	char buffer[MAX_STRING];
+	char buffer[MAX_STRING];		/* Flawfinder: ignore */
 
-	sprintf(buffer, "%d sq. meters", allowed_area);
+	snprintf(buffer, MAX_STRING, "%d sq. meters", allowed_area);		/* Flawfinder: ignore */
 	childSetValue("allowed_text", LLSD(buffer));
 
-	sprintf(buffer, "%d sq. meters", current_area);
+	snprintf(buffer, MAX_STRING, "%d sq. meters", current_area);		/* Flawfinder: ignore */
 	childSetValue("current_text", LLSD(buffer));
 
-	sprintf(buffer, "%d sq. meters", available_area);
+	snprintf(buffer, MAX_STRING, "%d sq. meters", available_area);		/* Flawfinder: ignore */
 	childSetValue("available_text", LLSD(buffer));
 }

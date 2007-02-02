@@ -166,7 +166,7 @@ void LLFloaterLand::show()
 		gParcelMgr->addObserver( sObserver );
 	}
 
-	sInstance->open();
+	sInstance->open();	/*Flawfinder: ignore*/
 
 	// Done automatically when the selected parcel's properties arrive
 	// (and hence we have the local id).
@@ -588,8 +588,8 @@ void LLPanelLandGeneral::refresh()
 			}
 			else if(parcel->getAuctionID())
 			{
-				char auction_str[MAX_STRING];
-				sprintf(auction_str, "Auction ID: %u", parcel->getAuctionID());
+				char auction_str[MAX_STRING];		/*Flawfinder: ignore*/
+				snprintf(auction_str, sizeof(auction_str), "Auction ID: %u", parcel->getAuctionID());	/*Flawfinder: ignore*/
 				mTextSalePending->setText(auction_str);
 				mTextSalePending->setEnabled(TRUE);
 			}
@@ -626,7 +626,7 @@ void LLPanelLandGeneral::refresh()
 
 			// Display claim date
 			time_t claim_date = parcel->getClaimDate();
-			char time_buf[TIME_STR_LENGTH];
+			char time_buf[TIME_STR_LENGTH];		/*Flawfinder: ignore*/
 			mTextClaimDate->setText(formatted_time(claim_date, time_buf));
 			mTextClaimDate->setEnabled(is_leased);
 
@@ -716,7 +716,7 @@ void LLPanelLandGeneral::refresh()
 			gParcelMgr->canAgentBuyParcel(parcel, true));
 
 		// show pricing information
-		char price[64];	
+		char price[64];		/*Flawfinder: ignore*/
 		const char* label = NULL;
 		S32 area;
 		S32 claim_price;
@@ -729,13 +729,13 @@ void LLPanelLandGeneral::refresh()
 								   &dwell);
 
 		// Area
-		sprintf(price, "%d sq. m.", area);
+		snprintf(price, sizeof(price), "%d sq. m.", area);		/*Flawfinder: ignore*/
 		label = AREA;
 		
 		mTextPriceLabel->setText(label);
 		mTextPrice->setText(price);
 		
-		sprintf(price, "%.0f", dwell);
+		snprintf(price, sizeof(price), "%.0f", dwell); 		/*Flawfinder: ignore*/
 		mTextDwell->setText(price);
 
 		if(region_owner)
@@ -768,24 +768,24 @@ void LLPanelLandGeneral::refreshNames()
 		return;
 	}
 
-	char buffer[MAX_STRING];
+	char buffer[MAX_STRING];		/*Flawfinder: ignore*/
 	if (parcel->getIsGroupOwned())
 	{
 		buffer[0] = '\0';
-		strcat(buffer, "(Group Owned)");
+		strcat(buffer, "(Group Owned)");	/*Flawfinder: ignore*/
 	}
 	else
 	{
 		// Figure out the owner's name
-		char owner_first[MAX_STRING];
-		char owner_last[MAX_STRING];
+		char owner_first[MAX_STRING];	/*Flawfinder: ignore*/
+		char owner_last[MAX_STRING];	/*Flawfinder: ignore*/
 		gCacheName->getName(parcel->getOwnerID(), owner_first, owner_last);
-		sprintf(buffer, "%s %s", owner_first, owner_last);
+		snprintf(buffer, sizeof(buffer), "%s %s", owner_first, owner_last); 	/*Flawfinder: ignore*/
 	}
 
 	if(LLParcel::OS_LEASE_PENDING == parcel->getOwnershipStatus())
 	{
-		strcat(buffer, " (Sale Pending)");
+		strcat(buffer, " (Sale Pending)");	/*Flawfinder: ignore*/
 	}
 	mTextOwner->setText(buffer);
 
@@ -803,8 +803,8 @@ void LLPanelLandGeneral::refreshNames()
 	if(auth_buyer_id.notNull())
 	{
 		LLString name;
-		char firstname[MAX_STRING];
-		char lastname[MAX_STRING];
+		char firstname[MAX_STRING];		/*Flawfinder: ignore*/
+		char lastname[MAX_STRING];		/*Flawfinder: ignore*/
 		gCacheName->getName(auth_buyer_id, firstname, lastname);
 		name.assign(firstname);
 		name.append(" ");
@@ -935,9 +935,9 @@ void LLPanelLandGeneral::onClickBuyPass(void* deselect_when_done)
 	const char* parcel_name = parcel->getName();
 	F32 pass_hours = parcel->getPassHours();
 
-	char cost[256], time[256];
-	sprintf(cost, "%d", pass_price);
-	sprintf(time, "%.2f", pass_hours);
+	char cost[256], time[256];		/*Flawfinder: ignore*/
+	snprintf(cost, sizeof(cost), "%d", pass_price);	/*Flawfinder: ignore*/
+	snprintf(time, sizeof(time), "%.2f", pass_hours);		/*Flawfinder: ignore*/
 
 	LLStringBase<char>::format_map_t args;
 	args["[COST]"] = cost;
@@ -1239,7 +1239,7 @@ void LLPanelLandObjects::refresh()
 	}
 	else
 	{
-		char count[MAX_STRING];
+		char count[MAX_STRING];		/*Flawfinder: ignore*/
 		S32 sw_max;
 		S32 sw_total;
 		S32 max;
@@ -1266,7 +1266,7 @@ void LLPanelLandObjects::refresh()
 
 		if (parcel_object_bonus != 1.0f)
 		{
-			sprintf(count, "Region Object Bonus Factor: %.2f", 
+			snprintf(count, sizeof(count), "Region Object Bonus Factor: %.2f", 		/*Flawfinder: ignore*/
 					parcel_object_bonus);
 			mParcelObjectBonus->setText(count);
 		}
@@ -1277,35 +1277,35 @@ void LLPanelLandObjects::refresh()
 
 		if (sw_total > sw_max)
 		{
-			sprintf(count, "%d out of %d (%d will be deleted)", 
+			snprintf(count, sizeof(count), "%d out of %d (%d will be deleted)", 		/*Flawfinder: ignore*/
 					sw_total, sw_max, sw_total - sw_max);
 		}
 		else
 		{
-			sprintf(count, "%d out of %d (%d available)", 
+			snprintf(count, sizeof(count), "%d out of %d (%d available)",  			/*Flawfinder: ignore*/
 					sw_total, sw_max, sw_max - sw_total);
 		}
 		mSWTotalObjects->setText(count);
 
-		sprintf(count, "%d", max);
+		snprintf(count, sizeof(count),  "%d", max);		/*Flawfinder: ignore*/
 		mObjectContribution->setText(count);
 
-		sprintf(count, "%d", total);
+		snprintf(count, sizeof(count), "%d", total);		/*Flawfinder: ignore*/
 		mTotalObjects->setText(count);
 
-		sprintf(count, "%d", owned);
+		snprintf(count, sizeof(count), "%d", owned);	/*Flawfinder: ignore*/
 		mOwnerObjects->setText(count);
 
-		sprintf(count, "%d", group);
+		snprintf(count, sizeof(count), "%d", group);		/*Flawfinder: ignore*/
 		mGroupObjects->setText(count);
 
-		sprintf(count, "%d", other);
+		snprintf(count, sizeof(count), "%d", other);		/*Flawfinder: ignore*/
 		mOtherObjects->setText(count);
 
-		sprintf(count, "%d", selected);
+		snprintf(count, sizeof(count), "%d", selected);	/*Flawfinder: ignore*/
 		mSelectedObjects->setText(count);
 
-		sprintf(count, "%d", mOtherTime);
+		snprintf(count, sizeof(count), "%d", mOtherTime);			/*Flawfinder: ignore*/
 		mCleanOtherObjectsTime->setText(count);
 
 		BOOL can_return_owned = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_RETURN_GROUP_OWNED);
@@ -1419,8 +1419,8 @@ void LLPanelLandObjects::callbackReturnOwnerObjects(S32 option, void* userdata)
 			}
 			else
 			{
-				char first[DB_FIRST_NAME_BUF_SIZE];
-				char last[DB_LAST_NAME_BUF_SIZE];
+				char first[DB_FIRST_NAME_BUF_SIZE];	/*Flawfinder: ignore*/
+				char last[DB_LAST_NAME_BUF_SIZE];	/*Flawfinder: ignore*/
 				gCacheName->getName(owner_id, first, last);
 				args["[FIRST]"] = first;
 				args["[LAST]"] = last;
@@ -1444,7 +1444,7 @@ void LLPanelLandObjects::callbackReturnGroupObjects(S32 option, void* userdata)
 	{
 		if (parcel)
 		{
-			char group_name[MAX_STRING];
+			char group_name[MAX_STRING];		/*Flawfinder: ignore*/
 			gCacheName->getGroupName(parcel->getGroupID(), group_name);
 			LLString::format_map_t args;
 			args["[GROUPNAME]"] = group_name;
@@ -1595,7 +1595,7 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 	BOOL	is_group_owned;
 	S32		object_count;
 	BOOL	is_online;
-	char object_count_str[MAX_STRING];
+	char object_count_str[MAX_STRING];	/*Flawfinder: ignore*/
 	//BOOL b_need_refresh = FALSE;
 
 	// If we were waiting for the first reply, clear the "Searching..." text.
@@ -1636,7 +1636,7 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 		// Placeholder for name.
 		row->addColumn("", FONT, self->mColWidth[2]);
 
-		sprintf(object_count_str, "%d", object_count);
+		snprintf(object_count_str, sizeof(object_count_str), "%d", object_count); 	/*Flawfinder: ignore*/
 		row->addColumn(object_count_str, FONT, self->mColWidth[3]);
 
 		if (is_group_owned)
@@ -1791,8 +1791,8 @@ void LLPanelLandObjects::onClickReturnOwnerObjects(void* userdata)
 	}
 	else
 	{
-		char first[DB_FIRST_NAME_BUF_SIZE];
-		char last[DB_LAST_NAME_BUF_SIZE];
+		char first[DB_FIRST_NAME_BUF_SIZE];	/*Flawfinder: ignore*/
+		char last[DB_LAST_NAME_BUF_SIZE];	/*Flawfinder: ignore*/
 		gCacheName->getName(owner_id, first, last);
 		std::string name = first;
 		name += " ";
@@ -1818,7 +1818,7 @@ void LLPanelLandObjects::onClickReturnGroupObjects(void* userdata)
 
 	send_parcel_select_objects(parcel->getLocalID(), RT_GROUP);
 
-	char group_name[MAX_STRING];
+	char group_name[MAX_STRING];	/*Flawfinder: ignore*/
 	gCacheName->getGroupName(parcel->getGroupID(), group_name);
 	
 	LLStringBase<char>::format_map_t args;
@@ -1850,7 +1850,7 @@ void LLPanelLandObjects::onClickReturnOtherObjects(void* userdata)
 	
 	if (parcel->getIsGroupOwned())
 	{
-		char group_name[MAX_STRING];
+		char group_name[MAX_STRING];	/*Flawfinder: ignore*/
 		gCacheName->getGroupName(parcel->getGroupID(), group_name);
 		args["[NAME]"] = group_name;
 
@@ -1866,8 +1866,8 @@ void LLPanelLandObjects::onClickReturnOtherObjects(void* userdata)
 		}
 		else
 		{
-			char first[DB_FIRST_NAME_BUF_SIZE];
-			char last[DB_LAST_NAME_BUF_SIZE];
+			char first[DB_FIRST_NAME_BUF_SIZE];	/*Flawfinder: ignore*/
+			char last[DB_LAST_NAME_BUF_SIZE];	/*Flawfinder: ignore*/
 			gCacheName->getName(owner_id, first, last);
 			std::string name;
 			name += first;
@@ -2189,8 +2189,8 @@ void LLPanelLandOptions::refresh()
 		}
 		else
 		{
-			char buffer[256];
-			sprintf(buffer, "Landing Point: %d, %d, %d",
+			char buffer[256];	/*Flawfinder: ignore*/
+			snprintf(buffer, sizeof(buffer), "Landing Point: %d, %d, %d",	/*Flawfinder: ignore*/
 					llround(pos.mV[VX]),
 					llround(pos.mV[VY]),
 					llround(pos.mV[VZ]));
@@ -2565,22 +2565,22 @@ void LLPanelLandAccess::refresh()
 
 	if (parcel)
 	{
-		char label[256];
+		char label[256];	/*Flawfinder: ignore*/
 
 		// Display options
 		BOOL use_group = parcel->getParcelFlag(PF_USE_ACCESS_GROUP);
 		mCheckGroup->set( use_group );
 
-		char group_name[MAX_STRING];
+		char group_name[MAX_STRING];	/*Flawfinder: ignore*/
 		gCacheName->getGroupName(parcel->getGroupID(), group_name);
-		sprintf(label, "Group: %s", group_name);
+		snprintf(label, sizeof(label), "Group: %s", group_name);	/*Flawfinder: ignore*/
 		mCheckGroup->setLabel( label );
 
 		S32 count = parcel->mAccessList.size();
 
 		BOOL use_list = parcel->getParcelFlag(PF_USE_ACCESS_LIST);
 		mCheckAccess->set( use_list );
-		sprintf(label, "Avatars: (%d listed, %d max)",
+		snprintf(label, sizeof(label), "Avatars: (%d listed, %d max)",	/*Flawfinder: ignore*/
 				count, PARCEL_MAX_ACCESS_LIST);
 		mCheckAccess->setLabel( label );
 
@@ -2599,8 +2599,8 @@ void LLPanelLandAccess::refresh()
 				suffix.assign(" (");
 				if (seconds >= 120)
 				{
-					char buf[30];
-					sprintf(buf, "%d minutes", (seconds/60));
+					char buf[30];	/*Flawfinder: ignore*/
+					snprintf(buf, sizeof(buf), "%d minutes", (seconds/60));	/*Flawfinder: ignore*/
 					suffix.append(buf);
 				}
 				else if (seconds >= 60)
@@ -2609,8 +2609,8 @@ void LLPanelLandAccess::refresh()
 				}
 				else
 				{
-					char buf[30];
-					sprintf(buf, "%d seconds", seconds);
+					char buf[30];		/*Flawfinder: ignore*/
+					snprintf(buf, sizeof(buf), "%d seconds", seconds);	/*Flawfinder: ignore*/
 					suffix.append(buf);
 				}
 				suffix.append(" remaining)");
@@ -2668,14 +2668,14 @@ void LLPanelLandAccess::refresh()
 void LLPanelLandAccess::refreshNames()
 {
 	LLParcel* parcel = gParcelMgr->getSelectedParcel();
-	char group_name[DB_GROUP_NAME_BUF_SIZE];
+	char group_name[DB_GROUP_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 	group_name[0] = '\0';
 	if(parcel)
 	{
 		gCacheName->getGroupName(parcel->getGroupID(), group_name);
 	}
-	char label[MAX_STRING];
-	snprintf(label, MAX_STRING, "Group: %s", group_name);
+	char label[MAX_STRING];		/*Flawfinder: ignore*/
+	snprintf(label, sizeof(label), "Group: %s", group_name);	/*Flawfinder: ignore*/
 	mCheckGroup->setLabel(label);
 }
 
@@ -2841,7 +2841,7 @@ void LLPanelLandBan::refresh()
 
 	if (parcel)
 	{
-		char label[256];
+		char label[256];	/*Flawfinder: ignore*/
 
 		// Display options
 
@@ -2850,7 +2850,7 @@ void LLPanelLandBan::refresh()
 		BOOL use_ban = parcel->getParcelFlag(PF_USE_BAN_LIST);
 		mCheck->set( use_ban );
 
-		sprintf(label, "Ban these avatars: (%d listed, %d max)",
+		snprintf(label, sizeof(label), "Ban these avatars: (%d listed, %d max)",	/*Flawfinder: ignore*/
 				count, PARCEL_MAX_ACCESS_LIST);
 		mCheck->setLabel( label );
 
@@ -2868,8 +2868,8 @@ void LLPanelLandBan::refresh()
 				suffix.assign(" (");
 				if (seconds >= 120)
 				{
-					char buf[30];
-					sprintf(buf, "%d minutes", (seconds/60));
+					char buf[30];		/*Flawfinder: ignore*/
+					snprintf(buf, sizeof(buf), "%d minutes", (seconds/60));	/*Flawfinder: ignore*/
 					suffix.append(buf);
 				}
 				else if (seconds >= 60)
@@ -2878,8 +2878,8 @@ void LLPanelLandBan::refresh()
 				}
 				else
 				{
-					char buf[30];
-					sprintf(buf, "%d seconds", seconds);
+					char buf[30];	/*Flawfinder: ignore*/
+					snprintf(buf, sizeof(buf), "%d seconds", seconds);	/*Flawfinder: ignore*/
 					suffix.append(buf);
 				}
 				suffix.append(" remaining)");

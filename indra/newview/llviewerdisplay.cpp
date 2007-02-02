@@ -762,11 +762,12 @@ void render_disconnected_background()
 	{
 		llinfos << "Loading last bitmap..." << llendl;
 
-		char temp_str[MAX_PATH];
-		strcpy(temp_str, gDirUtilp->getLindenUserDir().c_str());
-		strcat(temp_str, gDirUtilp->getDirDelimiter().c_str());
+		char temp_str[MAX_PATH];		/* Flawfinder: ignore */
+		strncpy(temp_str, gDirUtilp->getLindenUserDir().c_str(), MAX_PATH -1);		/* Flawfinder: ignore */
+		temp_str[MAX_PATH -1] = '\0';
+		strncat(temp_str, gDirUtilp->getDirDelimiter().c_str(), MAX_PATH - strlen(temp_str) -1);		/* Flawfinder: ignore */
 
-		strcat(temp_str, SCREEN_LAST_FILENAME);
+		strcat(temp_str, SCREEN_LAST_FILENAME);		/* Flawfinder: ignore */
 
 		LLPointer<LLImageBMP> image_bmp = new LLImageBMP;
 		if( !image_bmp->load(temp_str) )

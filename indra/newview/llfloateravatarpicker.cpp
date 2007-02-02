@@ -42,13 +42,13 @@ LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(callback_t callback,
 		sInstance->mCallbackUserdata = userdata;
 		sInstance->mCloseOnSelect = FALSE;
 
-		sInstance->open();
+		sInstance->open();	/* Flawfinder: ignore */
 		sInstance->center();
 		sInstance->setAllowMultiple(allow_multiple);
 	}
 	else
 	{
-		sInstance->open();
+		sInstance->open();	/*Flawfinder: ignore*/
 		sInstance->mCallback = callback;
 		sInstance->mCallbackUserdata = userdata;
 		sInstance->setAllowMultiple(allow_multiple);
@@ -266,8 +266,8 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 	LLUUID	agent_id;
 	LLUUID	query_id;
 	LLUUID	avatar_id;
-	char	first_name[DB_FIRST_NAME_BUF_SIZE];
-	char	last_name[DB_LAST_NAME_BUF_SIZE];
+	char	first_name[DB_FIRST_NAME_BUF_SIZE]; /*Flawfinder: ignore*/
+	char	last_name[DB_LAST_NAME_BUF_SIZE]; /*Flawfinder: ignore*/
 
 	msg->getUUID("AgentData", "AgentID", agent_id);
 	msg->getUUID("AgentData", "QueryID", query_id);

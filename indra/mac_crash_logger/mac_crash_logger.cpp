@@ -81,7 +81,7 @@ OSStatus dialogHandler(EventHandlerCallRef handler, EventRef event, void *userda
 			{
 				case kHICommandOK:
 				{
-					char buffer[65535];
+					char buffer[65535];		/* Flawfinder: ignore */
 					Size size = sizeof(buffer) - 1;
 					ControlRef textField = NULL;
 					ControlID id;
@@ -315,9 +315,9 @@ int main(int argc, char **argv)
 	// *NOTE: changing the size of either of these buffers will
 	// require changing the sscanf() format string to correctly
 	// account for it.
-	char tmp_sl_name[LL_MAX_PATH];
+	char tmp_sl_name[LL_MAX_PATH];	/* Flawfinder: ignore */
 	tmp_sl_name[0] = '\0';
-	char tmp_space[MAX_STRING];
+	char tmp_space[MAX_STRING];		/* Flawfinder: ignore */
 	tmp_space[0] = '\0';
 
 	// Look for it in the debug_info.log file
@@ -376,7 +376,7 @@ int main(int argc, char **argv)
 	// MBW -- This needs to go find "~/Library/Logs/CrashReporter/Second Life.crash.log" on 10.3
 	// or "~/Library/Logs/Second Life.crash.log" on 10.2.
 	{
-		char path[MAX_PATH];
+		char path[MAX_PATH];		/* Flawfinder: ignore */
 		FSRef folder;
 		
 		if(FSFindFolder(kUserDomain, kLogsFolderType, false, &folder) == noErr)
@@ -577,7 +577,7 @@ LLFileEncoder::LLFileEncoder(const char *form_name, const char *filename, bool i
 	}
 
 	S32 buf_size = stat_data.st_size;
-	FILE *fp = fopen(mFilename.c_str(), "rb");
+	FILE* fp = fopen(mFilename.c_str(), "rb");		/* Flawfinder: ignore */
 	U8 *buf = new U8[buf_size + 1];
 	fread(buf, 1, buf_size, fp);
 	fclose(fp);
@@ -598,7 +598,7 @@ LLFileEncoder::LLFileEncoder(const char *form_name, const char *filename, bool i
 		while(temp != NULL)
 		{
 			// Skip past the marker we just found
-			cur = temp + strlen(sep);
+			cur = temp + strlen(sep);		/* Flawfinder: ignore */
 			
 			// and try to find another
 			temp = strstr(cur, sep);
@@ -638,11 +638,15 @@ LLString LLFileEncoder::encodeURL(const S32 max_length)
 	S32 buf_size = mBuf.size();
 	S32 url_buf_size = 3*mBuf.size() + 1;
 	char *url_buf = new char[url_buf_size];
-
+	if (url_buf == NULL)
+	{
+		llerrs << "Memory Allocation Failed" << llendl;
+		return result;
+	}
 	S32 cur_pos = 0;
 	for (; i < buf_size; i++)
 	{
-		sprintf(url_buf + cur_pos, "%%%02x", mBuf[i]);
+		sprintf(url_buf + cur_pos, "%%%02x", mBuf[i]);		/* Flawfinder: ignore */
 		cur_pos += 3;
 	}
 	url_buf[i*3] = 0;
@@ -661,12 +665,17 @@ LLString encode_string(const char *formname, const LLString &str)
 	S32 buf_size = str.size();
 	S32 url_buf_size = 3*str.size() + 1;
 	char *url_buf = new char[url_buf_size];
+	if (url_buf == NULL)
+	{
+		llerrs << "Memory Allocation Failed" << llendl;
+	    return result;
+	}
 
 	S32 cur_pos = 0;
 	S32 i;
 	for (i = 0; i < buf_size; i++)
 	{
-		sprintf(url_buf + cur_pos, "%%%02x", str[i]);
+		sprintf(url_buf + cur_pos, "%%%02x", str[i]);		/* Flawfinder: ignore */
 		cur_pos += 3;
 	}
 	url_buf[i*3] = 0;

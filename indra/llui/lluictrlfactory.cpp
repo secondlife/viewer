@@ -278,7 +278,7 @@ bool LLUICtrlFactory::getLayeredXMLNode(const LLString &filename, LLXMLNodePtr& 
 // buildFloater()
 //-----------------------------------------------------------------------------
 void LLUICtrlFactory::buildFloater(LLFloater* floaterp, const LLString &filename, 
-									const LLCallbackMap::map_t* factory_map, BOOL open)
+									const LLCallbackMap::map_t* factory_map, BOOL open) /* Flawfinder: ignore */
 {
 	LLXMLNodePtr root;
 
@@ -299,7 +299,7 @@ void LLUICtrlFactory::buildFloater(LLFloater* floaterp, const LLString &filename
 		mFactoryStack.push_front(factory_map);
 	}
 
-	floaterp->initFloaterXML(root, NULL, this, open);
+	floaterp->initFloaterXML(root, NULL, this, open);	/* Flawfinder: ignore */
 
 	if (LLUI::sShowXUINames)
 	{

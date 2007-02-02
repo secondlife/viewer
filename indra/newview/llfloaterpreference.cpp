@@ -264,7 +264,7 @@ void LLFloaterPreference::show(void*)
 		sInstance->center();
 	}
 
-	sInstance->open();
+	sInstance->open();		/* Flawfinder: ignore */
 
 	if(!gAgent.getID().isNull())
 	{

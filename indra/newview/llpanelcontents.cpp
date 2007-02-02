@@ -184,7 +184,7 @@ void LLPanelContents::onClickNewScript(void *userdata)
 									   "Script: New Script",
 									   object->mID,
 									   LLUUID::null);
-		editor->open();
+		editor->open();	/*Flawfinder: ignore*/
 
 		// keep onscreen
 		gFloaterView->adjustToFitScreen(editor, FALSE);

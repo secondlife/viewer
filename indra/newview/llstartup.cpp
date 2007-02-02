@@ -372,7 +372,7 @@ BOOL idle_startup()
 		std::string message_template_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"message_template.msg");
 
 		FILE* found_template = NULL;
-		found_template = LLFile::fopen(message_template_path.c_str(), "r");
+		found_template = LLFile::fopen(message_template_path.c_str(), "r");		/* Flawfinder: ignore */
 		if (found_template)
 		{
 			fclose(found_template);
@@ -537,7 +537,7 @@ BOOL idle_startup()
 				lastname = gCmdLineLastName;
 
 				LLMD5 pass((unsigned char*)gCmdLinePassword.c_str());
-				char md5pass[33];
+				char md5pass[33];		/* Flawfinder: ignore */
 				pass.hex_digest(md5pass);
 				password = md5pass;
 
@@ -709,7 +709,7 @@ BOOL idle_startup()
 			if (gUserServerChoice == USERSERVER_OTHER)
 			{
 				gUserServer.setHostByName( server_label.c_str() );
-				snprintf(gUserServerName, MAX_STRING, "%s", server_label.c_str());
+				snprintf(gUserServerName, MAX_STRING, "%s", server_label.c_str());		/* Flawfinder: ignore */
 			}
 		}
 
@@ -799,7 +799,7 @@ BOOL idle_startup()
 		case USERSERVER_UMA:
 		{
 				const char* host_name = gUserServerDomainName[gUserServerChoice].mName;
-				sprintf(gUserServerName,"%s", host_name);
+				snprintf(gUserServerName, MAX_STRING, "%s", host_name);		/* Flawfinder: ignore */
 				llinfos << "Resolving " <<
 					gUserServerDomainName[gUserServerChoice].mLabel <<
 					" userserver domain name " << host_name << llendl;
@@ -873,7 +873,7 @@ BOOL idle_startup()
 		}
 
 		write_debug("Userserver: ");
-		char tmp_str[256];
+		char tmp_str[256];		/* Flawfinder: ignore */
 		gUserServer.getIPString(tmp_str, 256);
 		write_debug(tmp_str);
 		write_debug("\n");
@@ -1109,7 +1109,7 @@ BOOL idle_startup()
 			start << "home";
 		}
 
-		char hashed_mac_string[MD5HEX_STR_SIZE];
+		char hashed_mac_string[MD5HEX_STR_SIZE];		/* Flawfinder: ignore */
 		LLMD5 hashed_mac;
 		hashed_mac.update( gMACAddress, MAC_ADDRESS_BYTES );
 		hashed_mac.finalize();
@@ -1423,7 +1423,7 @@ BOOL idle_startup()
 			const char* look_at_str = gUserAuthp->getResponse("look_at");
 			if (look_at_str)
 			{
-				LLMemoryStream mstr((U8*)look_at_str, strlen(look_at_str));
+				LLMemoryStream mstr((U8*)look_at_str, strlen(look_at_str));		/* Flawfinder: ignore */
 				LLSD sd = LLSDNotationParser::parse(mstr);
 				agent_start_look_at = ll_vector3_from_sd(sd);
 			}
@@ -1445,7 +1445,7 @@ BOOL idle_startup()
 			const char* home_location = gUserAuthp->getResponse("home");
 			if(home_location)
 			{
-				LLMemoryStream mstr((U8*)home_location, strlen(home_location));
+				LLMemoryStream mstr((U8*)home_location, strlen(home_location));		/* Flawfinder: ignore */
 				LLSD sd = LLSDNotationParser::parse(mstr);
 				S32 region_x = sd["region_handle"][0].asInteger();
 				S32 region_y = sd["region_handle"][1].asInteger();
@@ -2609,7 +2609,7 @@ LLString load_password_from_disk()
 
 	std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
 													   "password.dat");
-	FILE* fp = LLFile::fopen(filepath.c_str(), "rb");
+	FILE* fp = LLFile::fopen(filepath.c_str(), "rb");		/* Flawfinder: ignore */
 	if (!fp)
 	{
 		return hashed_password;
@@ -2656,7 +2656,7 @@ void save_password_to_disk(const char* hashed_password)
 	}
 	else
 	{
-		FILE* fp = LLFile::fopen(filepath.c_str(), "wb");
+		FILE* fp = LLFile::fopen(filepath.c_str(), "wb");		/* Flawfinder: ignore */
 		if (!fp)
 		{
 			return;
@@ -2870,7 +2870,7 @@ void update_dialog_callback(S32 option, void *userdata)
 	}
 
 #if LL_WINDOWS
-	char ip[MAX_STRING];
+	char ip[MAX_STRING];		/* Flawfinder: ignore */
 
 	update_exe_path = gDirUtilp->getTempFilename();
 	if (update_exe_path.empty())
@@ -2915,7 +2915,7 @@ void update_dialog_callback(S32 option, void *userdata)
 		// Figure out the program name.
 		const char* data_dir = gDirUtilp->getAppRODataDir().c_str();
 		// Roll back from the end, stopping at the first '\'
-		const char* program_name = data_dir + strlen(data_dir);
+		const char* program_name = data_dir + strlen(data_dir);		/* Flawfinder: ignore */
 		while ( (data_dir != --program_name) &&
 				*(program_name) != '\\');
 		
@@ -2962,7 +2962,7 @@ void update_dialog_callback(S32 option, void *userdata)
  	remove_marker_file(); // In case updater fails
 	
 	// Run the auto-updater.
-	system(update_exe_path.c_str());
+	system(update_exe_path.c_str());		/* Flawfinder: ignore */
 	
 #elif LL_LINUX
 	OSMessageBox("Automatic updating is not yet implemented for Linux.\n"

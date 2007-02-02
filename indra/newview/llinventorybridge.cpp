@@ -690,7 +690,7 @@ void LLItemBridge::performAction(LLFolderView* folder, LLInventoryModel* model, 
 		LLInventoryItem* item = model->getItem(mUUID);
 		if(!item) return;
 		LLUUID asset_id = item->getAssetUUID();
-		char buffer[UUID_STR_LENGTH];
+		char buffer[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
 		asset_id.toString(buffer);
 
 		gViewerWindow->mWindow->copyTextToClipboard(utf8str_to_wstring(buffer));
@@ -809,8 +809,8 @@ LLString LLItemBridge::getLabelSuffix() const
 			const char* sxfer;
 			if(xfer) sxfer = EMPTY;
 			else sxfer = NO_XFER;
-			char buffer[MAX_STRING];
-			snprintf(
+			char buffer[MAX_STRING];		/*Flawfinder: ignore*/
+			snprintf(					/*Flawfinder: ignore*/
 				buffer,
 				MAX_STRING,
 				"%s%s%s",

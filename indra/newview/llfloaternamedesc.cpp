@@ -64,7 +64,7 @@ BOOL LLFloaterNameDesc::postBuild()
 	char* end_p = strrchr(asset_name_str, '.');		 // strip extension if exists
 	if( !end_p )
 	{
-		end_p = asset_name_str + strlen( asset_name_str );
+		end_p = asset_name_str + strlen( asset_name_str );		/* Flawfinder: ignore */
 	}
 	else
 	if( !stricmp( end_p, ".wav") )

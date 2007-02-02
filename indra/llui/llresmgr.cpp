@@ -302,8 +302,8 @@ void LLResMgr::getMonetaryString( LLString& output, S32 input ) const
 	}
 	S32 group_count = cur_group;
 
-	char reversed_output[20] = "";
-	char forward_output[20] = "";
+	char reversed_output[20] = "";	/* Flawfinder: ignore */
+	char forward_output[20] = "";	/* Flawfinder: ignore */
 	S32 output_pos = 0;
 	
 	cur_group = 0;

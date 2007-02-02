@@ -542,7 +542,7 @@ bool LLXMLNode::parseFile(
 	LLXMLNode* defaults_tree)
 {
 	// Read file
-	FILE* fp = LLFile::fopen(filename.c_str(), "rb");
+	FILE* fp = LLFile::fopen(filename.c_str(), "rb");		/* Flawfinder: ignore */
 	if (fp == NULL)
 	{
 		node = new LLXMLNode();
@@ -1846,12 +1846,12 @@ U32 LLXMLNode::getUUIDValue(U32 expected_length, LLUUID *array)
 		LLUUID uuid_value;
 		value_string = skipWhitespace(value_string);
 
-		if (strlen(value_string) < (UUID_STR_LENGTH-1))
+		if (strlen(value_string) < (UUID_STR_LENGTH-1))		/* Flawfinder: ignore */
 		{
 			break;
 		}
-		char uuid_string[UUID_STR_LENGTH];
-		memcpy(uuid_string, value_string, (UUID_STR_LENGTH-1));
+		char uuid_string[UUID_STR_LENGTH];		/* Flawfinder: ignore */
+		memcpy(uuid_string, value_string, (UUID_STR_LENGTH-1));		/* Flawfinder: ignore */
 		uuid_string[(UUID_STR_LENGTH-1)] = 0;
 
 		if (!LLUUID::parseUUID(uuid_string, &uuid_value))
@@ -2136,18 +2136,18 @@ void LLXMLNode::setFloatValue(U32 length, const F32 *array, Encoding encoding, U
 	LLString new_value;
 	if (encoding == ENCODING_DEFAULT || encoding == ENCODING_DECIMAL)
 	{
-		char format_string[10];
+		char format_string[10];		/* Flawfinder: ignore */
 		if (precision > 0)
 		{
 			if (precision > 25)
 			{
 				precision = 25;
 			}
-			sprintf(format_string, "%%.%dg", precision);
+			snprintf(format_string, sizeof(format_string), "%%.%dg", precision);		/* Flawfinder: ignore */
 		}
 		else
 		{
-			sprintf(format_string, "%%g");
+			snprintf(format_string, sizeof(format_string), "%%g");		/* Flawfinder: ignore */
 		}
 
 		for (U32 pos=0; pos<length; ++pos)
@@ -2187,18 +2187,18 @@ void LLXMLNode::setDoubleValue(U32 length, const F64 *array, Encoding encoding, 
 	LLString new_value;
 	if (encoding == ENCODING_DEFAULT || encoding == ENCODING_DECIMAL)
 	{
-		char format_string[10];
+		char format_string[10];		/* Flawfinder: ignore */
 		if (precision > 0)
 		{
 			if (precision > 25)
 			{
 				precision = 25;
 			}
-			sprintf(format_string, "%%.%dg", precision);
+			snprintf(format_string, sizeof(format_string), "%%.%dg", precision);		/* Flawfinder: ignore */
 		}
 		else
 		{
-			sprintf(format_string, "%%g");
+			snprintf(format_string, sizeof(format_string), "%%g");		/* Flawfinder: ignore */
 		}
 		for (U32 pos=0; pos<length; ++pos)
 		{
@@ -2472,7 +2472,7 @@ LLXMLNode *get_rand_node(LLXMLNode *node)
 void LLXMLNode::createUnitTest(S32 max_num_children)
 {
 	// Random ID
-	char rand_id[20];
+	char rand_id[20];		/* Flawfinder: ignore */
 	U32 rand_id_len = get_rand(10)+5;
 	U32 pos = 0;
 	for (; pos<rand_id_len; ++pos)
@@ -2501,7 +2501,7 @@ void LLXMLNode::createUnitTest(S32 max_num_children)
 	for (U32 child_num=0; child_num<num_children; ++child_num)
 	{
 		// Random Name
-		char child_name[20];
+		char child_name[20];		/* Flawfinder: ignore */
 		U32 child_name_len = get_rand(10)+5;
 		pos = 0;
 		for (; pos<child_name_len; ++pos)
@@ -2513,7 +2513,7 @@ void LLXMLNode::createUnitTest(S32 max_num_children)
 		LLXMLNode *new_child = createChild(child_name, FALSE);
 
 		// Random ID
-		char child_id[20];
+		char child_id[20];		/* Flawfinder: ignore */
 		U32 child_id_len = get_rand(10)+5;
 		pos = 0;
 		for (; pos<child_id_len; ++pos)
@@ -2634,7 +2634,7 @@ void LLXMLNode::createUnitTest(S32 max_num_children)
 				{
 					random_node_array[value] = get_rand_node(root);
 					const char *node_name = random_node_array[value]->mName->mString;
-					for (U32 pos=0; pos<strlen(node_name); ++pos)
+					for (U32 pos=0; pos<strlen(node_name); ++pos)		/* Flawfinder: ignore */
 					{
 						U32 hash_contrib = U32(node_name[pos]) << ((pos % 4) * 8);
 						noderef_checksum ^= hash_contrib;
@@ -2806,7 +2806,7 @@ BOOL LLXMLNode::performUnitTest(LLString &error_buffer)
 				for (U32 pos=0; pos<node->mLength; ++pos)
 				{
 					const char *node_name = node_array[pos]->mName->mString;
-					for (U32 pos2=0; pos2<strlen(node_name); ++pos2)
+					for (U32 pos2=0; pos2<strlen(node_name); ++pos2)		/* Flawfinder: ignore */
 					{
 						U32 hash_contrib = U32(node_name[pos2]) << ((pos2 % 4) * 8);
 						noderef_checksum ^= hash_contrib;

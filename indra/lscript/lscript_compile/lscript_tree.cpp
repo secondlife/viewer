@@ -251,7 +251,7 @@ void LLScriptConstantString::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 		break;
 	case LSCP_EMIT_ASSEMBLY:
 		fprintf(fp, "PUSHARGS \"%s\"\n", mValue);
-		fprintf(fp, "STACKTOS %lu\n", strlen(mValue) + 1);
+		fprintf(fp, "STACKTOS %lu\n", strlen(mValue) + 1);	/*Flawfinder: ignore*/
 		break;
 	case LSCP_TYPE:
 		type = mType;
@@ -271,7 +271,7 @@ void LLScriptConstantString::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 	case LSCP_TO_STACK:
 		{
 			chunk->addByte(LSCRIPTOpCodes[LOPC_PUSHARGS]);
-			chunk->addBytes(mValue, (S32)strlen(mValue) + 1);
+			chunk->addBytes(mValue, (S32)strlen(mValue) + 1);	 	/*Flawfinder: ignore*/
 			type = mType;
 		}
 		break;
@@ -291,7 +291,7 @@ void LLScriptConstantString::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 
 S32 LLScriptConstantString::getSize()
 {
-	return (S32)strlen(mValue) + 1;
+	return (S32)strlen(mValue) + 1;		/*Flawfinder: ignore*/
 }
 
 
@@ -1142,7 +1142,7 @@ void LLScriptGlobalVariable::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 			// it also includes the name of the variable as well as the type
 			// plus 4 bytes of offset from it's apparent address to the actual data
 #ifdef LSL_INCLUDE_DEBUG_INFO
-			count += strlen(mIdentifier->mName) + 1 + 1 + 4;
+			count += strlen(mIdentifier->mName) + 1 + 1 + 4;	/*Flawfinder: ignore*/
 #else
 			count += 1 + 1 + 4;
 #endif
@@ -1165,7 +1165,7 @@ void LLScriptGlobalVariable::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 			chunk->addBytes(&vtype, 1);
 			// null terminated name
 #ifdef LSL_INCLUDE_DEBUG_INFO
-			chunk->addBytes(mIdentifier->mName, strlen(mIdentifier->mName) + 1);
+			chunk->addBytes(mIdentifier->mName, strlen(mIdentifier->mName) + 1);	/*Flawfinder: ignore*/
 #else
 			chunk->addBytes(1);
 #endif
@@ -1296,7 +1296,7 @@ void LLScriptStateEntryEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "state_entry";
-			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(name, strlen(name) + 1);		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -1332,7 +1332,7 @@ void LLScriptStateExitEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "state_exit";
-			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(name, strlen(name) + 1);		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -1390,8 +1390,8 @@ void LLScriptTouchStartEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "touch_start";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1);		/*Flawfinder: ignore*/
+			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -1448,8 +1448,8 @@ void LLScriptTouchEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompile
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "touch";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1);		/*Flawfinder: ignore*/
+			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -1506,8 +1506,8 @@ void LLScriptTouchEndEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "touch_end";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1);		/*Flawfinder: ignore*/
+			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -1564,8 +1564,8 @@ void LLScriptCollisionStartEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRI
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "collision_start";
-			chunk->addBytes(name, (S32)strlen(name) + 1);
-			chunk->addBytes(mCount->mName, (S32)strlen(mCount->mName) + 1);
+			chunk->addBytes(name, (S32)strlen(name) + 1);		/*Flawfinder: ignore*/
+			chunk->addBytes(mCount->mName, (S32)strlen(mCount->mName) + 1);		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -1622,8 +1622,8 @@ void LLScriptCollisionEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "collision";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1);		/*Flawfinder: ignore*/
+			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -1680,8 +1680,8 @@ void LLScriptCollisionEndEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPT
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "collision_end";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1);		/*Flawfinder: ignore*/
+			chunk->addBytes(mCount->mName, strlen(mCount->mName) + 1);		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -1737,8 +1737,8 @@ void LLScriptLandCollisionStartEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, L
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "land_collision_start";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mPosition->mName, strlen(mPosition->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1);		/*Flawfinder: ignore*/
+			chunk->addBytes(mPosition->mName, strlen(mPosition->mName) + 1);		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -1796,8 +1796,8 @@ void LLScriptLandCollisionEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIP
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "land_collision";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mPosition->mName, strlen(mPosition->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mPosition->mName, strlen(mPosition->mName) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -1853,9 +1853,9 @@ void LLScriptLandCollisionEndEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSC
 	case LSCP_EMIT_BYTE_CODE:
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
-			char name[] = "land_collision_end";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mPosition->mName, strlen(mPosition->mName) + 1);
+			char name[] = "land_collision_end";	/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mPosition->mName, strlen(mPosition->mName) + 1);	/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -1912,8 +1912,8 @@ void LLScriptInventoryEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "changed";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mChange->mName, strlen(mChange->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mChange->mName, strlen(mChange->mName) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -1969,8 +1969,8 @@ void LLScriptAttachEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompil
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "attach";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mAttach->mName, strlen(mAttach->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mAttach->mName, strlen(mAttach->mName) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -2039,9 +2039,9 @@ void LLScriptDataserverEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "dataserver";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mID->mName, strlen(mID->mName) + 1);
-			chunk->addBytes(mData->mName, strlen(mData->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mID->mName, strlen(mID->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mData->mName, strlen(mData->mName) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -2077,7 +2077,7 @@ void LLScriptTimerEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompile
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "timer";
-			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -2108,7 +2108,7 @@ void LLScriptMovingStartEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTC
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "moving_start";
-			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -2139,7 +2139,7 @@ void LLScriptMovingEndEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "moving_end";
-			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -2193,8 +2193,8 @@ void LLScriptRTPEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePa
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "chat";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mRTPermissions->mName, strlen(mRTPermissions->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mRTPermissions->mName, strlen(mRTPermissions->mName) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -2289,11 +2289,11 @@ void LLScriptChatEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompileP
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "chat";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mChannel->mName, strlen(mChannel->mName) + 1);
-			chunk->addBytes(mName->mName, strlen(mName->mName) + 1);
-			chunk->addBytes(mID->mName, strlen(mID->mName) + 1);
-			chunk->addBytes(mMessage->mName, strlen(mMessage->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mChannel->mName, strlen(mChannel->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mName->mName, strlen(mName->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mID->mName, strlen(mID->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mMessage->mName, strlen(mMessage->mName) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -2352,8 +2352,8 @@ void LLScriptSensorEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompil
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "sensor";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mNumber->mName, strlen(mNumber->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mNumber->mName, strlen(mNumber->mName) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -2409,8 +2409,8 @@ void LLScriptObjectRezEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "sensor";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mID->mName, strlen(mID->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mID->mName, strlen(mID->mName) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -2492,10 +2492,10 @@ void LLScriptControlEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "control";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mName->mName, strlen(mName->mName) + 1);
-			chunk->addBytes(mLevels->mName, strlen(mLevels->mName) + 1);
-			chunk->addBytes(mEdges->mName, strlen(mEdges->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mName->mName, strlen(mName->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mLevels->mName, strlen(mLevels->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mEdges->mName, strlen(mEdges->mName) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -2592,11 +2592,11 @@ void LLScriptLinkMessageEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTC
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "link_message";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mSender->mName, strlen(mSender->mName) + 1);
-			chunk->addBytes(mNum->mName, strlen(mNum->mName) + 1);
-			chunk->addBytes(mStr->mName, strlen(mStr->mName) + 1);
-			chunk->addBytes(mID->mName, strlen(mID->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mSender->mName, strlen(mSender->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mNum->mName, strlen(mNum->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mStr->mName, strlen(mStr->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mID->mName, strlen(mID->mName) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -2720,13 +2720,13 @@ void LLScriptRemoteEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompil
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "remote_event";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mType->mName, strlen(mType->mName) + 1);
-			chunk->addBytes(mChannel->mName, strlen(mChannel->mName) + 1);
-			chunk->addBytes(mMessageID->mName, strlen(mMessageID->mName) + 1);
-			chunk->addBytes(mSender->mName, strlen(mSender->mName) + 1);
-			chunk->addBytes(mIntVal->mName, strlen(mIntVal->mName) + 1);
-			chunk->addBytes(mStrVal->mName, strlen(mStrVal->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mType->mName, strlen(mType->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mChannel->mName, strlen(mChannel->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mMessageID->mName, strlen(mMessageID->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mSender->mName, strlen(mSender->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mIntVal->mName, strlen(mIntVal->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mStrVal->mName, strlen(mStrVal->mName) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -2835,11 +2835,11 @@ void LLScriptHTTPResponseEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPT
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "http_response";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mRequestId->mName, strlen(mRequestId->mName) + 1);
-			chunk->addBytes(mStatus->mName, strlen(mStatus->mName) + 1);
-			chunk->addBytes(mMetadata->mName, strlen(mMetadata->mName) + 1);
-			chunk->addBytes(mBody->mName, strlen(mBody->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mRequestId->mName, strlen(mRequestId->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mStatus->mName, strlen(mStatus->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mMetadata->mName, strlen(mMetadata->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mBody->mName, strlen(mBody->mName) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -2913,9 +2913,9 @@ void LLScriptMoneyEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompile
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "money";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mName->mName, strlen(mName->mName) + 1);
-			chunk->addBytes(mAmount->mName, strlen(mAmount->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mName->mName, strlen(mName->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mAmount->mName, strlen(mAmount->mName) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -3024,12 +3024,12 @@ void LLScriptEmailEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompile
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "email";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mTime->mName, strlen(mTime->mName) + 1);
-			chunk->addBytes(mAddress->mName, strlen(mAddress->mName) + 1);
-			chunk->addBytes(mSubject->mName, strlen(mSubject->mName) + 1);
-			chunk->addBytes(mBody->mName, strlen(mBody->mName) + 1);
-			chunk->addBytes(mNumber->mName, strlen(mNumber->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mTime->mName, strlen(mTime->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mAddress->mName, strlen(mAddress->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mSubject->mName, strlen(mSubject->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mBody->mName, strlen(mBody->mName) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mNumber->mName, strlen(mNumber->mName) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -3089,8 +3089,8 @@ void LLScriptRezEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePa
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "rez";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mStartParam->mName, strlen(mStartParam->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
+			chunk->addBytes(mStartParam->mName, strlen(mStartParam->mName) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -3125,7 +3125,7 @@ void LLScriptNoSensorEvent::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTComp
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "no_sensor";
-			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 		/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -3204,11 +3204,11 @@ void LLScriptAtTarget::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePa
 	case LSCP_EMIT_BYTE_CODE:
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
-			char name[] = "at_target";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mTargetNumber->mName, strlen(mTargetNumber->mName) + 1);
-			chunk->addBytes(mTargetPosition->mName, strlen(mTargetPosition->mName) + 1);
-			chunk->addBytes(mOurPosition->mName, strlen(mOurPosition->mName) + 1);
+			char name[] = "at_target";	/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1);	/*Flawfinder: ignore*/
+			chunk->addBytes(mTargetNumber->mName, strlen(mTargetNumber->mName) + 1); 	/*Flawfinder: ignore*/
+			chunk->addBytes(mTargetPosition->mName, strlen(mTargetPosition->mName) + 1); 	/*Flawfinder: ignore*/
+			chunk->addBytes(mOurPosition->mName, strlen(mOurPosition->mName) + 1);		 	/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -3246,8 +3246,8 @@ void LLScriptNotAtTarget::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompil
 	case LSCP_EMIT_BYTE_CODE:
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
-			char name[] = "not_at_target";
-			chunk->addBytes(name, strlen(name) + 1);
+			char name[] = "not_at_target";	/*Flawfinder: ignore*/
+			chunk->addBytes(name, strlen(name) + 1); 	/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -3327,10 +3327,10 @@ void LLScriptAtRotTarget::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompil
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "at_rot_target";
-			chunk->addBytes(name, strlen(name) + 1);
-			chunk->addBytes(mTargetNumber->mName, strlen(mTargetNumber->mName) + 1);
-			chunk->addBytes(mTargetRotation->mName, strlen(mTargetRotation->mName) + 1);
-			chunk->addBytes(mOurRotation->mName, strlen(mOurRotation->mName) + 1);
+			chunk->addBytes(name, strlen(name) + 1); 	/*Flawfinder: ignore*/
+			chunk->addBytes(mTargetNumber->mName, strlen(mTargetNumber->mName) + 1); 	/*Flawfinder: ignore*/
+			chunk->addBytes(mTargetRotation->mName, strlen(mTargetRotation->mName) + 1); 	/*Flawfinder: ignore*/
+			chunk->addBytes(mOurRotation->mName, strlen(mOurRotation->mName) + 1); 	/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -3369,7 +3369,7 @@ void LLScriptNotAtRotTarget::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 		{
 #ifdef LSL_INCLUDE_DEBUG_INFO
 			char name[] = "not_at_rot_target";
-			chunk->addBytes(name, strlen(name) + 1);
+			chunk->addBytes(name, strlen(name) + 1);	 	/*Flawfinder: ignore*/
 #endif
 		}
 		break;
@@ -7124,7 +7124,7 @@ void LLScriptFunctionCall::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 					gErrorToText.writeError(fp, this, LSERROR_FUNCTION_TYPE_ERROR);
 				}
 			}
-			else if (argcount != strlen(mIdentifier->mScopeEntry->mFunctionArgs.mString))
+			else if (argcount != strlen(mIdentifier->mScopeEntry->mFunctionArgs.mString))	 	/*Flawfinder: ignore*/
 			{
 				gErrorToText.writeError(fp, this, LSERROR_FUNCTION_TYPE_ERROR);
 			}
@@ -7440,7 +7440,7 @@ void add_exit_pops(LLScriptByteCodeChunk *chunk, LLScriptScopeEntry *entry)
 
 	if (entry->mLocals.mString)
 	{
-		number = (S32)strlen(entry->mLocals.mString);
+		number = (S32)strlen(entry->mLocals.mString); 	/*Flawfinder: ignore*/
 		for (i = number - 1; i >= 0; i--)
 		{
 			switch(entry->mLocals.getType(i))
@@ -7473,7 +7473,7 @@ void add_exit_pops(LLScriptByteCodeChunk *chunk, LLScriptScopeEntry *entry)
 
 	if (entry->mFunctionArgs.mString)
 	{
-		number = (S32)strlen(entry->mFunctionArgs.mString);
+		number = (S32)strlen(entry->mFunctionArgs.mString); 	/*Flawfinder: ignore*/
 		for (i = number - 1; i >= 0; i--)
 		{
 			switch(entry->mFunctionArgs.getType(i))
@@ -7512,7 +7512,7 @@ void print_exit_pops(FILE *fp, LLScriptScopeEntry *entry)
 
 	if (entry->mLocals.mString)
 	{
-		number = (S32)strlen(entry->mLocals.mString);
+		number = (S32)strlen(entry->mLocals.mString); 	/*Flawfinder: ignore*/
 		for (i = number - 1; i >= 0; i--)
 		{
 			fprintf(fp, "%s", LSCRIPTTypePop[entry->mLocals.getType(i)]);
@@ -7521,7 +7521,7 @@ void print_exit_pops(FILE *fp, LLScriptScopeEntry *entry)
 
 	if (entry->mFunctionArgs.mString)
 	{
-		number = (S32)strlen(entry->mFunctionArgs.mString);
+		number = (S32)strlen(entry->mFunctionArgs.mString); 	/*Flawfinder: ignore*/
 		for (i = number - 1; i >= 0; i--)
 		{
 			fprintf(fp, "%s", LSCRIPTTypePop[entry->mFunctionArgs.getType(i)]);
@@ -7966,8 +7966,8 @@ void LLScriptIf::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pas
 		break;
 	case LSCP_EMIT_BYTE_CODE:
 		{
-			char jumpname[32];
-			sprintf(jumpname, "##Temp Jump %d##", gTempJumpCount++);
+			char jumpname[32];	 	/*Flawfinder: ignore*/
+			snprintf(jumpname, sizeof(jumpname),"##Temp Jump %d##", gTempJumpCount++); 	/*Flawfinder: ignore*/
 
 			mExpression->recurse(fp, tabs, tabsize, LSCP_TO_STACK, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			chunk->addByte(LSCRIPTOpCodes[LOPC_JUMPNIF]);
@@ -8047,10 +8047,10 @@ void LLScriptIfElse::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass
 		break;
 	case LSCP_EMIT_BYTE_CODE:
 		{
-			char jumpname1[32];
-			sprintf(jumpname1, "##Temp Jump %d##", gTempJumpCount++);
-			char jumpname2[32];
-			sprintf(jumpname2, "##Temp Jump %d##", gTempJumpCount++);
+			char jumpname1[32]; 				/*Flawfinder: ignore*/
+			snprintf(jumpname1, sizeof(jumpname1), "##Temp Jump %d##", gTempJumpCount++); 	/*Flawfinder: ignore*/
+			char jumpname2[32];			 	/*Flawfinder: ignore*/
+			snprintf(jumpname2, sizeof(jumpname2), "##Temp Jump %d##", gTempJumpCount++);	 /*Flawfinder: ignore*/
 
 			mExpression->recurse(fp, tabs, tabsize, LSCP_TO_STACK, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
 			chunk->addByte(LSCRIPTOpCodes[LOPC_JUMPNIF]);
@@ -8150,10 +8150,10 @@ void LLScriptFor::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass pa
 		break;
 	case LSCP_EMIT_BYTE_CODE:
 		{
-			char jumpname1[32];
-			sprintf(jumpname1, "##Temp Jump %d##", gTempJumpCount++);
-			char jumpname2[32];
-			sprintf(jumpname2, "##Temp Jump %d##", gTempJumpCount++);
+			char jumpname1[32];		 	/*Flawfinder: ignore*/
+			snprintf(jumpname1, sizeof(jumpname1), "##Temp Jump %d##", gTempJumpCount++); 	/*Flawfinder: ignore*/
+			char jumpname2[32];			 	/*Flawfinder: ignore*/
+			snprintf(jumpname2, sizeof(jumpname2), "##Temp Jump %d##", gTempJumpCount++);	 	/*Flawfinder: ignore*/
 
 			if(mSequence)
 				mSequence->recurse(fp, tabs, tabsize, LSCP_TO_STACK, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -8247,8 +8247,8 @@ void LLScriptDoWhile::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePas
 		break;
 	case LSCP_EMIT_BYTE_CODE:
 		{
-			char jumpname1[32];
-			sprintf(jumpname1, "##Temp Jump %d##", gTempJumpCount++);
+			char jumpname1[32];	 	/*Flawfinder: ignore*/
+			snprintf(jumpname1, sizeof(jumpname1), "##Temp Jump %d##", gTempJumpCount++);	 	/*Flawfinder: ignore*/
 
 			chunk->addLabel(jumpname1);
 			mStatement->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -8321,10 +8321,10 @@ void LLScriptWhile::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass 
 		break;
 	case LSCP_EMIT_BYTE_CODE:
 		{
-			char jumpname1[32];
-			sprintf(jumpname1, "##Temp Jump %d##", gTempJumpCount++);
-			char jumpname2[32];
-			sprintf(jumpname2, "##Temp Jump %d##", gTempJumpCount++);
+			char jumpname1[32]; 	/*Flawfinder: ignore*/
+			snprintf(jumpname1, sizeof(jumpname1), "##Temp Jump %d##", gTempJumpCount++); 	/*Flawfinder: ignore*/
+			char jumpname2[32]; 	/*Flawfinder: ignore*/
+			snprintf(jumpname2, sizeof(jumpname2), "##Temp Jump %d##", gTempJumpCount++); 	/*Flawfinder: ignore*/
 
 			chunk->addLabel(jumpname1);
 			mExpression->recurse(fp, tabs, tabsize, LSCP_TO_STACK, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -8999,7 +8999,7 @@ void LLScriptEventHandler::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 		fprintf(fp, ".method public hidebysig instance default void ");
 
 		// Mangle event handler name by prefixing it with state name. Allows state changing by finding handlers prefixed with new state name.
-		fprintf(fp, entry->mIdentifier);
+		fprintf(fp, entry->mIdentifier);	 	/*Flawfinder: ignore*/
 
 		// Handler name and arguments.
 		mEventp->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, entry, entrycount, NULL);
@@ -9135,7 +9135,7 @@ void LLScriptFunctionDec::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompil
 			chunk->addBytes(&typereturn, 1);
 			// name
 #ifdef LSL_INCLUDE_DEBUG_INFO
-			chunk->addBytes(mIdentifier->mName, strlen(mIdentifier->mName) + 1);
+			chunk->addBytes(mIdentifier->mName, strlen(mIdentifier->mName) + 1);	 	/*Flawfinder: ignore*/
 #else
 			chunk->addBytes(1);
 #endif
@@ -9372,7 +9372,7 @@ void LLScriptGlobalFunctions::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCo
 
 			// null terminated function name
 #ifdef LSL_INCLUDE_DEBUG_INFO
-			chunk->addBytes(mIdentifier->mName, strlen(mIdentifier->mName) + 1);
+			chunk->addBytes(mIdentifier->mName, strlen(mIdentifier->mName) + 1);	 	/*Flawfinder: ignore*/
 #else
 			chunk->addBytes(1);
 #endif
@@ -9623,7 +9623,7 @@ void LLScriptState::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass 
 
 			// null terminated state name
 #ifdef LSL_INCLUDE_DEBUG_INFO
-			chunk->addBytes(mIdentifier->mName, strlen(mIdentifier->mName) + 1);
+			chunk->addBytes(mIdentifier->mName, strlen(mIdentifier->mName) + 1);	 	/*Flawfinder: ignore*/
 #else
 			chunk->addBytes(1);
 #endif
@@ -9678,8 +9678,8 @@ LLScriptScript::LLScriptScript(LLScritpGlobalStorage *globals,
 	mStates(states), mGlobalScope(NULL), mGlobals(NULL), mGlobalFunctions(NULL), mGodLike(FALSE)
 {
 	const char DEFAULT_BYTECODE_FILENAME[] = "lscript.lso";
-	strcpy(mBytecodeDest, DEFAULT_BYTECODE_FILENAME);
-
+	strncpy(mBytecodeDest, DEFAULT_BYTECODE_FILENAME, sizeof(mBytecodeDest) -1); 	/*Flawfinder: ignore*/
+	mBytecodeDest[MAX_STRING-1] = '\0';
 	LLScriptGlobalVariable	*tvar;
 	LLScriptGlobalFunctions	*tfunc;
 	LLScritpGlobalStorage *temp;
@@ -9725,7 +9725,7 @@ LLScriptScript::LLScriptScript(LLScritpGlobalStorage *globals,
 
 void LLScriptScript::setBytecodeDest(const char* dst_filename)
 {
-	strncpy(mBytecodeDest, dst_filename, MAX_STRING);
+	strncpy(mBytecodeDest, dst_filename, MAX_STRING); 	/*Flawfinder: ignore*/
 	mBytecodeDest[MAX_STRING-1] = '\0';
 }
 
@@ -9734,7 +9734,7 @@ void print_cil_globals(FILE* fp, LLScriptGlobalVariable* global)
 	fprintf(fp, ".field private ");
 	print_cil_type(fp, global->mType->mType);
 	fprintf(fp, " ");
-	fprintf(fp, global->mIdentifier->mName);
+	fprintf(fp, global->mIdentifier->mName);		/*Flawfinder: ignore*/
 	fprintf(fp, "\n");
 	if(NULL != global->mNextp)
 	{
@@ -9913,7 +9913,7 @@ void LLScriptScript::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass
 
 			// now, put it all together and spit it out
 			// we need 
-			FILE *bcfp = LLFile::fopen(mBytecodeDest, "wb");
+			FILE* bcfp = LLFile::fopen(mBytecodeDest, "wb");		/*Flawfinder: ignore*/
 			
 			code->build(fp, bcfp);
 			fclose(bcfp);

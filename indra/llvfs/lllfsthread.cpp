@@ -58,7 +58,7 @@ LLLFSThread::~LLLFSThread()
 
 //----------------------------------------------------------------------------
 
-LLLFSThread::handle_t LLLFSThread::read(const LLString& filename,
+LLLFSThread::handle_t LLLFSThread::read(const LLString& filename,	/* Flawfinder: ignore */ 
 										U8* buffer, S32 offset, S32 numbytes, U32 priority, U32 flags)
 {
 	handle_t handle = generateHandle();

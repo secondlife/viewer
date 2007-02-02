@@ -72,8 +72,8 @@ private:
 	void			(*mCallback)(S32 option, void *userdata);
 	void*			mCallbackData;
 
-	char            mIncomingPassword[DB_USER_PASSWORD_BUF_SIZE];
-	char            mMungedPassword[MD5HEX_STR_SIZE];
+	char mIncomingPassword[DB_USER_PASSWORD_BUF_SIZE];		/*Flawfinder: ignore*/
+	char mMungedPassword[MD5HEX_STR_SIZE];		/*Flawfinder: ignore*/
 
 	static LLPanelLogin* sInstance;
 	static BOOL		sCapslockDidNotification;

@@ -20,7 +20,7 @@
 void (*binary_operations[LST_EOF][LST_EOF])(U8 *buffer, LSCRIPTOpCodesEnum opcode);
 void (*unary_operations[LST_EOF])(U8 *buffer, LSCRIPTOpCodesEnum opcode);
 
-char *LSCRIPTRunTimeFaultStrings[LSRF_EOF] =
+char* LSCRIPTRunTimeFaultStrings[LSRF_EOF] =		/*Flawfinder: ignore*/
 {
 	"invalid",				//	LSRF_INVALID,
 	"Math Error",			//	LSRF_MATH,
@@ -2643,7 +2643,7 @@ BOOL run_jumpif(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 				S32 size = toffset - string;
 				char *sdata = new char[size];
 				bytestream2char(sdata, buffer, string);
-				if (strlen(sdata))
+				if (strlen(sdata))		/*Flawfinder: ignore*/
 				{
 					offset += arg;
 				}
@@ -2669,7 +2669,7 @@ BOOL run_jumpif(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 				S32 size = toffset - string;
 				char *sdata = new char[size];
 				bytestream2char(sdata, buffer, string);
-				if (strlen(sdata))
+				if (strlen(sdata))		/*Flawfinder: ignore*/
 				{
 					LLUUID id;
 					id.set(sdata);
@@ -2758,7 +2758,7 @@ BOOL run_jumpnif(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 				S32 size = toffset - string;
 				char *sdata = new char[size];
 				bytestream2char(sdata, buffer, string);
-				if (!strlen(sdata))
+				if (!strlen(sdata))		/*Flawfinder: ignore*/
 				{
 					offset += arg;
 				}
@@ -2784,7 +2784,7 @@ BOOL run_jumpnif(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 				S32 size = toffset - string;
 				char *sdata = new char[size];
 				bytestream2char(sdata, buffer, string);
-				if (strlen(sdata))
+				if (strlen(sdata))		/*Flawfinder: ignore*/
 				{
 					LLUUID id;
 					id.set(sdata);
@@ -2935,7 +2935,7 @@ S32 axtoi(char *hexStg)
 
 BOOL run_cast(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 {
-	char caststr[1024];
+	char caststr[1024];		/*Flawfinder: ignore*/
 	if (b_print)
 		printf("[0x%X]\tCAST ", offset);
 	offset++;
@@ -2968,7 +2968,7 @@ BOOL run_cast(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 			case LST_STRING:
 				{
 					S32 address, source = lscript_pop_int(buffer);
-					sprintf(caststr, "%d", source);
+					snprintf(caststr, sizeof(caststr), "%d", source);		/*Flawfinder: ignore*/
 					address = lsa_heap_add_data(buffer, new LLScriptLibData(caststr), get_max_heap_size(buffer), TRUE);
 					lscript_push(buffer, address);
 				}
@@ -3005,7 +3005,7 @@ BOOL run_cast(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 				{
 					S32 address;
 					F32 source = lscript_pop_float(buffer);
-					sprintf(caststr, "%f", source);
+					snprintf(caststr, sizeof(caststr), "%f", source);		/*Flawfinder: ignore*/
 					address = lsa_heap_add_data(buffer, new LLScriptLibData(caststr), get_max_heap_size(buffer), TRUE);
 					lscript_push(buffer, address);
 				}
@@ -3214,7 +3214,7 @@ BOOL run_cast(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 					S32 address;
 					LLVector3 source;
 					lscript_pop_vector(buffer, source);
-					sprintf(caststr, "<%5.5f, %5.5f, %5.5f>", source.mV[VX], source.mV[VY], source.mV[VZ]);
+					snprintf(caststr, sizeof(caststr), "<%5.5f, %5.5f, %5.5f>", source.mV[VX], source.mV[VY], source.mV[VZ]);		/*Flawfinder: ignore*/
 					address = lsa_heap_add_data(buffer, new LLScriptLibData(caststr), get_max_heap_size(buffer), TRUE);
 					lscript_push(buffer, address);
 				}
@@ -3247,7 +3247,7 @@ BOOL run_cast(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 					S32 address;
 					LLQuaternion source;
 					lscript_pop_quaternion(buffer, source);
-					sprintf(caststr, "<%5.5f, %5.5f, %5.5f, %5.5f>", source.mQ[VX], source.mQ[VY], source.mQ[VZ], source.mQ[VS]);
+					snprintf(caststr, sizeof(caststr), "<%5.5f, %5.5f, %5.5f, %5.5f>", source.mQ[VX], source.mQ[VY], source.mQ[VZ], source.mQ[VS]);		/*Flawfinder: ignore*/
 					address = lsa_heap_add_data(buffer, new LLScriptLibData(caststr), get_max_heap_size(buffer), TRUE);
 					lscript_push(buffer, address);
 				}
@@ -3571,22 +3571,29 @@ void lscript_run(char *filename, BOOL b_debug)
 	char *error;
 	BOOL b_state;
 	LLScriptExecute *execute = NULL;
-	FILE *file = LLFile::fopen(filename, "r");
+	if (filename == NULL)
+	{
+		llerrs << "filename is empty" << llendl;
+		// Just reporting error is likely not enough. Need
+		// to check how to abort or error out gracefully
+		// from this function. XXXTBD
+	}
+	FILE* file = LLFile::fopen(filename, "r");  /* Flawfinder: ignore */
 	if (file)
 	{
 		execute = new LLScriptExecute(file);
 		fclose(file);
 	}
-	file = LLFile::fopen(filename, "r");
+	file = LLFile::fopen(filename, "r");  /* Flawfinder: ignore */
 	if (file)
 	{
-		FILE *fp = LLFile::fopen("lscript.parse", "w");
+		FILE* fp = LLFile::fopen("lscript.parse", "w");		/*Flawfinder: ignore*/
 		LLScriptLSOParse	*parse = new LLScriptLSOParse(file);
 		parse->printData(fp);
 		fclose(file);
 		fclose(fp);
 	}
-	file = LLFile::fopen(filename, "r");
+	file = LLFile::fopen(filename, "r");	/*Flawfinder: ignore*/
 	if (file && execute)
 	{
 		timer.reset();
@@ -3795,7 +3802,7 @@ BOOL run_calllib(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 
 	if (gScriptLibrary.mFunctions[arg]->mArgs)
 	{
-		number = (S32)strlen(gScriptLibrary.mFunctions[arg]->mArgs);
+		number = (S32)strlen(gScriptLibrary.mFunctions[arg]->mArgs);		/*Flawfinder: ignore*/
 		arguments = new LLScriptLibData[number];
 	}
 	else
@@ -3866,7 +3873,7 @@ BOOL run_calllib_two_byte(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &i
 
 	if (gScriptLibrary.mFunctions[arg]->mArgs)
 	{
-		number = (S32)strlen(gScriptLibrary.mFunctions[arg]->mArgs);
+		number = (S32)strlen(gScriptLibrary.mFunctions[arg]->mArgs);		/*Flawfinder: ignore*/
 		arguments = new LLScriptLibData[number];
 	}
 	else

@@ -32,7 +32,7 @@ static std::string getCurrentUserHome(char* fallback)
 	else
 	{
 		llinfos << "Couldn't detect home directory from passwd - trying $HOME" << llendl;
-		const char *const home_env = getenv("HOME");
+		const char *const home_env = getenv("HOME");	/* Flawfinder: ignore */ 
 		if (home_env)
 		{
 			result_cstr = (char*) home_env;
@@ -54,7 +54,7 @@ LLDir_Linux::LLDir_Linux()
 	mCurrentDirCount = -1;
 	mDirp = NULL;
 
-	char tmp_str[LL_MAX_PATH];
+	char tmp_str[LL_MAX_PATH];	/* Flawfinder: ignore */ 
 	getcwd(tmp_str, LL_MAX_PATH);
 
 	mExecutableFilename = "";
@@ -66,13 +66,13 @@ LLDir_Linux::LLDir_Linux()
 	mOSUserAppDir = "";
 	mLindenUserDir = tmp_str;
 
-	char path [32];
+	char path [32];	/* Flawfinder: ignore */ 
 
 	// *NOTE: /proc/%d/exe doesn't work on FreeBSD. But that's ok,
 	// because this is the linux implementation.
 
-	sprintf (path, "/proc/%d/exe", (int) getpid ());
-	int rc = readlink (path, tmp_str, sizeof (tmp_str)-1);
+	snprintf (path, sizeof(path), "/proc/%d/exe", (int) getpid ()); /* Flawfinder: ignore */
+	int rc = readlink (path, tmp_str, sizeof (tmp_str)-1);	/* Flawfinder: ignore */ 
 	if ( (rc != -1) && (rc <= ((int) sizeof (tmp_str)-1)) )
 	{
 		tmp_str[rc] = '\0'; //readlink() doesn't 0-terminate the buffer
@@ -109,7 +109,7 @@ void LLDir_Linux::initAppDirs(const std::string &app_name)
 	LLString upper_app_name(app_name);
 	LLString::toUpper(upper_app_name);
 
-	char* app_home_env = getenv((upper_app_name + "_USER_DIR").c_str());
+	char* app_home_env = getenv((upper_app_name + "_USER_DIR").c_str());	/* Flawfinder: ignore */ 
 	if (app_home_env)
 	{
 		// user has specified own userappdir i.e. $SECONDLIFE_USER_DIR
@@ -307,7 +307,7 @@ void LLDir_Linux::getRandomFileInDir(const std::string &dirname, const std::stri
 
 std::string LLDir_Linux::getCurPath()
 {
-	char tmp_str[LL_MAX_PATH];
+	char tmp_str[LL_MAX_PATH];	/* Flawfinder: ignore */ 
 	getcwd(tmp_str, LL_MAX_PATH);
 	return tmp_str;
 }

@@ -116,7 +116,7 @@ S32 LLXfer::receiveData (char *datap, S32 data_size)
 	{
 		if (datap != NULL)
 		{
-			memcpy(&mBuffer[mBufferLength],datap,data_size);
+			memcpy(&mBuffer[mBufferLength],datap,data_size);	/*Flawfinder: ignore*/
 			mBufferLength += data_size;
 		}
 		else
@@ -193,7 +193,7 @@ void LLXfer::sendPacket(S32 packet_num)
 		num_copy = llmin(num_copy, (S32)(mBufferLength - desired_read_position));
 		if (num_copy > 0)
 		{
-			memcpy(fdata_buf,&mBuffer[desired_read_position],num_copy);
+			memcpy(fdata_buf,&mBuffer[desired_read_position],num_copy);	/*Flawfinder: ignore*/
 		}
 	}
 	else  
@@ -206,7 +206,7 @@ void LLXfer::sendPacket(S32 packet_num)
 			(S32)(mBufferLength - desired_read_position));
 		if (num_copy > 0)
 		{
-			memcpy(
+			memcpy(	/*Flawfinder: ignore*/
 				fdata_buf + sizeof(S32),
 				&mBuffer[desired_read_position],
 				num_copy);

@@ -801,8 +801,8 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 	if (group_datap->mMemberCount > 0)
 	{
 		S32 contribution = 0;
-		char online_status[DB_DATETIME_BUF_SIZE];
-		char title[DB_GROUP_TITLE_BUF_SIZE];
+		char online_status[DB_DATETIME_BUF_SIZE];		/* Flawfinder: ignore */
+		char title[DB_GROUP_TITLE_BUF_SIZE];		/* Flawfinder: ignore */
 		U64 agent_powers = 0;
 		BOOL is_owner = FALSE;
 
@@ -873,13 +873,13 @@ void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 	}
 
 	LLUUID group_id;
-	char	name[DB_GROUP_NAME_BUF_SIZE];
-	char	charter[DB_GROUP_CHARTER_BUF_SIZE];
+	char	name[DB_GROUP_NAME_BUF_SIZE];		/* Flawfinder: ignore */
+	char	charter[DB_GROUP_CHARTER_BUF_SIZE];		/* Flawfinder: ignore */
 	BOOL	show_in_list = FALSE;
 	LLUUID	founder_id;
 	U64		powers_mask = GP_NO_POWERS;
 	S32		money = 0;
-	char	member_title[DB_GROUP_TITLE_BUF_SIZE];
+	char	member_title[DB_GROUP_TITLE_BUF_SIZE];		/* Flawfinder: ignore */
 	LLUUID	insignia_id;
 	LLUUID	owner_role;
 	U32		membership_fee = 0;
@@ -955,9 +955,9 @@ void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 
 	msg->getS32(_PREHASH_GroupData, "RoleCount", group_data->mRoleCount );
 
-	char	name[DB_GROUP_NAME_BUF_SIZE];
-	char	title[DB_GROUP_TITLE_BUF_SIZE];
-	char	desc[DB_GROUP_CHARTER_BUF_SIZE];
+	char	name[DB_GROUP_NAME_BUF_SIZE];		/* Flawfinder: ignore */
+	char	title[DB_GROUP_TITLE_BUF_SIZE];		/* Flawfinder: ignore */
+	char	desc[DB_GROUP_CHARTER_BUF_SIZE];		/* Flawfinder: ignore */
 	U64		powers = 0;
 	U32		member_count = 0;
 	LLUUID role_id;
@@ -1133,7 +1133,7 @@ void LLGroupMgr::processGroupTitlesReply(LLMessageSystem* msg, void** data)
 		return;
 	}
 
-	char title_buf[DB_GROUP_TITLE_BUF_SIZE];
+	char title_buf[DB_GROUP_TITLE_BUF_SIZE];		/* Flawfinder: ignore */
 
 	LLGroupTitle title;
 
@@ -1222,7 +1222,7 @@ void LLGroupMgr::processCreateGroupReply(LLMessageSystem* msg, void ** data)
 {
 	LLUUID group_id;
 	BOOL success;
-	char message[MAX_STRING];
+	char message[MAX_STRING];		/* Flawfinder: ignore */
 
 	msg->getUUIDFast(_PREHASH_ReplyData, _PREHASH_GroupID, group_id );
 

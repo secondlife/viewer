@@ -2129,16 +2129,16 @@ void LLViewerParcelMgr::sendParcelAccessListUpdate(U32 which)
 
 void LLViewerParcelMgr::deedLandToGroup()
 {
-	char group_name[MAX_STRING];
+	char group_name[MAX_STRING];		/* Flawfinder: ignore */
 	gCacheName->getGroupName(mParcel->getGroupID(), group_name);
 	LLString::format_map_t args;
 	args["[AREA]"] = llformat("%d", mParcel->getArea());
 	args["[GROUP_NAME]"] = group_name;
 	if(mParcel->getContributeWithDeed())
 	{
-		char first_name[DB_FIRST_NAME_BUF_SIZE];
+		char first_name[DB_FIRST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
 		first_name[0] = '\0';
-		char last_name[DB_FIRST_NAME_BUF_SIZE];
+		char last_name[DB_FIRST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
 		last_name[0] = '\0';		
 		gCacheName->getName(mParcel->getOwnerID(), first_name, last_name);
 		args["[FIRST_NAME]"] = first_name;

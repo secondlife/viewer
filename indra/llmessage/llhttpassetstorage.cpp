@@ -99,7 +99,7 @@ LLHTTPAssetRequest::LLHTTPAssetRequest(LLHTTPAssetStorage *asp, const LLUUID &uu
 	mURLBuffer = new char[strlen(url) + 1]; /*Flawfinder: ignore*/
 	if (mURLBuffer)
 	{
-	    strcpy(mURLBuffer, url);
+	    strcpy(mURLBuffer, url);	/*Flawfinder: ignore*/
 	}
 }
 

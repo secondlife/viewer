@@ -19,7 +19,7 @@ class LLMaterialInfo
 {
 public:
 	U8		    mMCode;
-	char		mName[LLMATERIAL_INFO_NAME_LENGTH];
+	char		mName[LLMATERIAL_INFO_NAME_LENGTH];	/* Flawfinder: ignore */
 	LLUUID		mDefaultTextureID;
 	LLUUID		mShatterSoundID;
 	F32         mDensity;           // kg/m^3

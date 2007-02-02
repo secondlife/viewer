@@ -26,7 +26,7 @@ typedef enum e_lscript_identifier_type
 	LIT_EOF
 } LSCRIPTIdentifierType;
 
-const char LSCRIPTFunctionTypeStrings[LST_EOF] =
+const char LSCRIPTFunctionTypeStrings[LST_EOF] =	 	/*Flawfinder: ignore*/
 {
 	'0',
 	'i',
@@ -39,7 +39,7 @@ const char LSCRIPTFunctionTypeStrings[LST_EOF] =
 	'0'
 };
 
-const char * const LSCRIPTListDescription[LST_EOF] =
+const char * const LSCRIPTListDescription[LST_EOF] =	/*Flawfinder: ignore*/
 {
    "PUSHARGB 0",
    "PUSHARGB 1",
@@ -52,7 +52,7 @@ const char * const LSCRIPTListDescription[LST_EOF] =
    "PUSHARGB 0"
 };
 
-const char * const LSCRIPTTypePush[LST_EOF] = 
+const char * const LSCRIPTTypePush[LST_EOF] = 	/*Flawfinder: ignore*/
 {
 	"INVALID",
 	"PUSHE",
@@ -65,7 +65,7 @@ const char * const LSCRIPTTypePush[LST_EOF] =
 	"undefined"
 };
 
-const char * const LSCRIPTTypeReturn[LST_EOF] = 
+const char * const LSCRIPTTypeReturn[LST_EOF] = 	/*Flawfinder: ignore*/
 {
 	"INVALID",
 	"LOADP -12",
@@ -78,7 +78,7 @@ const char * const LSCRIPTTypeReturn[LST_EOF] =
 	"undefined"
 };
 
-const char * const LSCRIPTTypePop[LST_EOF] = 
+const char * const LSCRIPTTypePop[LST_EOF] = 	/*Flawfinder: ignore*/
 {
 	"INVALID",
 	"POP",
@@ -91,7 +91,7 @@ const char * const LSCRIPTTypePop[LST_EOF] =
 	"undefined"
 };
 
-const char * const LSCRIPTTypeDuplicate[LST_EOF] = 
+const char * const LSCRIPTTypeDuplicate[LST_EOF] = 	 	/*Flawfinder: ignore*/
 {
 	"INVALID",
 	"DUP",
@@ -104,7 +104,7 @@ const char * const LSCRIPTTypeDuplicate[LST_EOF] =
 	"undefined"
 };
 
-const char * const LSCRIPTTypeLocalStore[LST_EOF] = 
+const char * const LSCRIPTTypeLocalStore[LST_EOF] = 	/*Flawfinder: ignore*/
 {
 	"INVALID",
 	"STORE ",
@@ -117,7 +117,7 @@ const char * const LSCRIPTTypeLocalStore[LST_EOF] =
 	"undefined"
 };
 
-const char * const LSCRIPTTypeLocalDeclaration[LST_EOF] = 
+const char * const LSCRIPTTypeLocalDeclaration[LST_EOF] = 	 	/*Flawfinder: ignore*/
 {
 	"INVALID",
 	"STOREP ",
@@ -130,7 +130,7 @@ const char * const LSCRIPTTypeLocalDeclaration[LST_EOF] =
 	"undefined"
 };
 
-const char * const LSCRIPTTypeGlobalStore[LST_EOF] = 
+const char * const LSCRIPTTypeGlobalStore[LST_EOF] = 	/*Flawfinder: ignore*/
 {
 	"INVALID",
 	"STOREG ",
@@ -143,7 +143,7 @@ const char * const LSCRIPTTypeGlobalStore[LST_EOF] =
 	"undefined"
 };
 
-const char * const LSCRIPTTypeLocalPush[LST_EOF] = 
+const char * const LSCRIPTTypeLocalPush[LST_EOF] = 	 	/*Flawfinder: ignore*/
 {
 	"INVALID",
 	"PUSH ",
@@ -156,7 +156,7 @@ const char * const LSCRIPTTypeLocalPush[LST_EOF] =
 	"undefined"
 };
 
-const char * const LSCRIPTTypeLocalPush1[LST_EOF] = 
+const char * const LSCRIPTTypeLocalPush1[LST_EOF] = 	 	/*Flawfinder: ignore*/
 {
 	"INVALID",
 	"PUSHARGI 1",
@@ -169,7 +169,7 @@ const char * const LSCRIPTTypeLocalPush1[LST_EOF] =
 	"undefined"
 };
 
-const char * const LSCRIPTTypeGlobalPush[LST_EOF] = 
+const char * const LSCRIPTTypeGlobalPush[LST_EOF] = 	/*Flawfinder: ignore*/
 {
 	"INVALID",
 	"PUSHG ",
@@ -194,7 +194,7 @@ public:
 	{
 		if (!mString)
 			return LST_NULL;
-		S32 length = (S32)strlen(mString);
+		S32 length = (S32)strlen(mString);	 	/*Flawfinder: ignore*/
 		if (count >= length)
 		{
 			return LST_NULL;
@@ -225,9 +225,9 @@ public:
 		S32 count = 0;
 		if (mString)
 		{
-			count = (S32)strlen(mString);
+			count = (S32)strlen(mString);	 	/*Flawfinder: ignore*/
 			char *temp = new char[count + 2];
-			memcpy(temp, mString, count);
+			memcpy(temp, mString, count);	 	/*Flawfinder: ignore*/
 			delete [] mString;
 			mString = temp;
 			mString[count + 1] = 0;
@@ -243,7 +243,7 @@ public:
 	S32 getNumber()
 	{
 		if (mString)
-			return (S32)strlen(mString);
+			return (S32)strlen(mString);	 	/*Flawfinder: ignore*/
 		else
 			return 0;
 	}

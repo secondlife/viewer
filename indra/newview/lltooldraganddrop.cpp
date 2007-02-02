@@ -1643,7 +1643,7 @@ void LLToolDragAndDrop::commitGiveInventoryItem(const LLUUID& to_agent,
 	const S32 BUCKET_SIZE = sizeof(U8) + UUID_BYTES;
 	U8 bucket[BUCKET_SIZE];
 	bucket[0] = (U8)item->getType();
-	memcpy(&bucket[1], &(item->getUUID().mData), UUID_BYTES);
+	memcpy(&bucket[1], &(item->getUUID().mData), UUID_BYTES);		/* Flawfinder: ignore */
 	pack_instant_message(
 		gMessageSystem,
 		gAgent.getID(),
@@ -1823,26 +1823,26 @@ void LLToolDragAndDrop::commitGiveInventoryCategory(const LLUUID& to_agent,
 		U8* bucket = new U8[bucket_size];
 		U8* pos = bucket;
 		U8 type = (U8)cat->getType();
-		memcpy(pos, &type, sizeof(U8));
+		memcpy(pos, &type, sizeof(U8));		/* Flawfinder: ignore */
 		pos += sizeof(U8);
-		memcpy(pos, &(cat->getUUID()), UUID_BYTES);
+		memcpy(pos, &(cat->getUUID()), UUID_BYTES);		/* Flawfinder: ignore */
 		pos += UUID_BYTES;
 		S32 i;
 		count = cats.count();
 		for(i = 0; i < count; ++i)
 		{
-			memcpy(pos, &type, sizeof(U8));
+			memcpy(pos, &type, sizeof(U8));		/* Flawfinder: ignore */
 			pos += sizeof(U8);
-			memcpy(pos, &(cats.get(i)->getUUID()), UUID_BYTES);
+			memcpy(pos, &(cats.get(i)->getUUID()), UUID_BYTES);		/* Flawfinder: ignore */
 			pos += UUID_BYTES;
 		}
 		count = items.count();
 		for(i = 0; i < count; ++i)
 		{
 			type = (U8)items.get(i)->getType();
-			memcpy(pos, &type, sizeof(U8));
+			memcpy(pos, &type, sizeof(U8));		/* Flawfinder: ignore */
 			pos += sizeof(U8);
-			memcpy(pos, &(items.get(i)->getUUID()), UUID_BYTES);
+			memcpy(pos, &(items.get(i)->getUUID()), UUID_BYTES);		/* Flawfinder: ignore */
 			pos += UUID_BYTES;
 		}
 		pack_instant_message(

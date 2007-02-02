@@ -110,7 +110,7 @@ void LLFloaterSettingsDebug::show(void*)
 		gUICtrlFactory->buildFloater(sInstance, "floater_settings_debug.xml");
 	}
 
-	sInstance->open();
+	sInstance->open();		/* Flawfinder: ignore */
 }
 
 //static 

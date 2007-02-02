@@ -83,7 +83,7 @@ void LLFloaterAuction::show()
 		sInstance->setFocus(TRUE);
 	}
 	sInstance->initialize();
-	sInstance->open();
+	sInstance->open();	/*Flawfinder: ignore*/
 }
 
 void LLFloaterAuction::initialize()

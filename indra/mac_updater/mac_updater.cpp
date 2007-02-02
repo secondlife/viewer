@@ -48,7 +48,7 @@ Boolean gCancelled = false;
 
 char *gUserServer;
 char *gProductName;
-char gUpdateURL[2048];
+char gUpdateURL[2048];		/* Flawfinder: ignore */
 
 void *updatethreadproc(void*);
 
@@ -362,7 +362,7 @@ int main(int argc, char **argv)
 	llinfos << "Starting " << gProductName << " Updater" << llendl;
 
 	// Build the URL to download the update
-	snprintf(gUpdateURL, sizeof(gUpdateURL), "http://secondlife.com/update-macos.php?userserver=%s", gUserServer);
+	snprintf(gUpdateURL, sizeof(gUpdateURL), "http://secondlife.com/update-macos.php?userserver=%s", gUserServer);		/* Flawfinder: ignore */
 	
 	// Real UI...
 	OSStatus err;
@@ -370,8 +370,8 @@ int main(int argc, char **argv)
 	
 	err = CreateNibReference(CFSTR("AutoUpdater"), &nib);
 
-	char windowTitle[MAX_PATH];
-	snprintf(windowTitle, sizeof(windowTitle), "%s Updater", gProductName);
+	char windowTitle[MAX_PATH];		/* Flawfinder: ignore */
+	snprintf(windowTitle, sizeof(windowTitle), "%s Updater", gProductName);		/* Flawfinder: ignore */
 	CFStringRef windowTitleRef = NULL;
 	windowTitleRef = CFStringCreateWithCString(NULL, windowTitle, kCFStringEncodingUTF8);
 	
@@ -488,7 +488,7 @@ bool isDirWritable(FSRef &dir)
 	// This is kinda lame, but will pretty much always give the right answer.
 	
 	OSStatus err = noErr;
-	char temp[PATH_MAX];
+	char temp[PATH_MAX];		/* Flawfinder: ignore */
 
 	err = FSRefMakePath(&dir, (UInt8*)temp, sizeof(temp));
 
@@ -538,15 +538,15 @@ static void utf8str_to_HFSUniStr255(HFSUniStr255 *dest, const char* src)
 		// Truncate to avoid stack smaching or other badness.
 		dest->length = 255;
 	}
-	memcpy(dest->unicode, utf16str.data(), sizeof(UniChar)* dest->length);
+	memcpy(dest->unicode, utf16str.data(), sizeof(UniChar)* dest->length);		/* Flawfinder: ignore */
 }
 
 int restoreObject(const char* aside, const char* target, const char* path, const char* object)
 {
-	char source[PATH_MAX];
-	char dest[PATH_MAX];
-	snprintf(source, sizeof(source), "%s/%s/%s", aside, path, object);
-	snprintf(dest, sizeof(dest), "%s/%s", target, path);
+	char source[PATH_MAX];		/* Flawfinder: ignore */
+	char dest[PATH_MAX];		/* Flawfinder: ignore */
+	snprintf(source, sizeof(source), "%s/%s/%s", aside, path, object);		/* Flawfinder: ignore */
+	snprintf(dest, sizeof(dest), "%s/%s", target, path);		/* Flawfinder: ignore */
 	FSRef sourceRef;
 	FSRef destRef;
 	OSStatus err;
@@ -578,28 +578,28 @@ int restoreObject(const char* aside, const char* target, const char* path, const
 // Replace any mention of "Second Life" with the product name.
 void filterFile(const char* filename)
 {
-	char temp[PATH_MAX];
+	char temp[PATH_MAX];		/* Flawfinder: ignore */
 	// First copy the target's version, so we can run it through sed.
-	snprintf(temp, sizeof(temp), "cp '%s' '%s.tmp'", filename, filename);
-	system(temp);
+	snprintf(temp, sizeof(temp), "cp '%s' '%s.tmp'", filename, filename);		/* Flawfinder: ignore */
+	system(temp);		/* Flawfinder: ignore */
 
 	// Now run it through sed.
-	snprintf(temp, sizeof(temp), 
+	snprintf(temp, sizeof(temp), 		/* Flawfinder: ignore */
 			"sed 's/Second Life/%s/g' '%s.tmp' > '%s'", gProductName, filename, filename);
-	system(temp);
+	system(temp);		/* Flawfinder: ignore */
 }
 
 void *updatethreadproc(void*)
 {
-	char tempDir[PATH_MAX] = "";
+	char tempDir[PATH_MAX] = "";		/* Flawfinder: ignore */
 	FSRef tempDirRef;
-	char temp[PATH_MAX];
+	char temp[PATH_MAX];	/* Flawfinder: ignore */
 	// *NOTE: This buffer length is used in a scanf() below.
-	char deviceNode[1024] = "";
+	char deviceNode[1024] = "";	/* Flawfinder: ignore */
 	FILE *downloadFile = NULL;
 	OSStatus err;
 	ProcessSerialNumber psn;
-	char target[PATH_MAX];
+	char target[PATH_MAX];		/* Flawfinder: ignore */
 	FSRef targetRef;
 	FSRef targetParentRef;
 	FSVolumeRefNum targetVol;
@@ -740,7 +740,7 @@ void *updatethreadproc(void*)
 					throw 0;
 				}
 				
-				snprintf(target, sizeof(target), "/Applications/%s.app", gProductName);
+				snprintf(target, sizeof(target), "/Applications/%s.app", gProductName);		/* Flawfinder: ignore */
 
 				memset(&targetRef, 0, sizeof(targetRef));
 				err = FSPathMakeRef((UInt8*)target, &targetRef, NULL);
@@ -825,7 +825,7 @@ void *updatethreadproc(void*)
 			throw 0;
 		}
 		
-		strcpy(tempDir, temp);
+		strcpy(tempDir, temp);		/* Flawfinder: ignore */
 		
 		llinfos << "tempDir is " << tempDir << llendl;
 
@@ -836,9 +836,9 @@ void *updatethreadproc(void*)
 				
 		chdir(tempDir);
 		
-		snprintf(temp, sizeof(temp), "SecondLife.dmg");
+		snprintf(temp, sizeof(temp), "SecondLife.dmg");		/* Flawfinder: ignore */
 		
-		downloadFile = fopen(temp, "wb");
+		downloadFile = fopen(temp, "wb");		/* Flawfinder: ignore */
 		if(downloadFile == NULL)
 		{
 			throw 0;
@@ -883,7 +883,7 @@ void *updatethreadproc(void*)
 		// NOTE: we could add -private at the end of this command line to keep the image from showing up in the Finder,
 		//		but if our cleanup fails, this makes it much harder for the user to unmount the image.
 		LLString mountOutput;
-		FILE *mounter = popen("hdiutil attach SecondLife.dmg -mountpoint mnt", "r");
+		FILE* mounter = popen("hdiutil attach SecondLife.dmg -mountpoint mnt", "r");		/* Flawfinder: ignore */
 		
 		if(mounter == NULL)
 		{
@@ -918,8 +918,8 @@ void *updatethreadproc(void*)
 			
 			if(sub != NULL)
 			{
-				sub += strlen(prefix);
-				sscanf(sub, "%1023s", deviceNode);
+				sub += strlen(prefix);	/* Flawfinder: ignore */
+				sscanf(sub, "%1023s", deviceNode);	/* Flawfinder: ignore */
 			}
 		}
 		
@@ -934,7 +934,7 @@ void *updatethreadproc(void*)
 		
 		// Get an FSRef to the new application on the disk image
 		FSRef sourceRef;
-		snprintf(temp, sizeof(temp), "%s/mnt/Second Life.app", tempDir);
+		snprintf(temp, sizeof(temp), "%s/mnt/Second Life.app", tempDir);		/* Flawfinder: ignore */
 
 		llinfos << "Source application is: " << temp << llendl;
 
@@ -943,7 +943,7 @@ void *updatethreadproc(void*)
 			throw 0;
 		
 		FSRef asideRef;
-		char aside[MAX_PATH];
+		char aside[MAX_PATH];		/* Flawfinder: ignore */
 		
 		// this will hold the name of the destination target
 		HFSUniStr255 appNameUniStr;
@@ -966,8 +966,8 @@ void *updatethreadproc(void*)
 		else
 		{
 			// Construct the name of the target based on the product name
-			char appName[MAX_PATH];
-			snprintf(appName, sizeof(appName), "%s.app", gProductName);
+			char appName[MAX_PATH];		/* Flawfinder: ignore */
+			snprintf(appName, sizeof(appName), "%s.app", gProductName);		/* Flawfinder: ignore */
 			utf8str_to_HFSUniStr255( &appNameUniStr, appName );
 		}
 		
@@ -1015,8 +1015,8 @@ void *updatethreadproc(void*)
 	
 			llinfos << "Clearing cache..." << llendl;
 			
-			char mask[LL_MAX_PATH];
-			sprintf(mask, "%s*.*", gDirUtilp->getDirDelimiter().c_str());
+			char mask[LL_MAX_PATH];		/* Flawfinder: ignore */
+			snprintf(mask, LL_MAX_PATH, "%s*.*", gDirUtilp->getDirDelimiter().c_str());		/* Flawfinder: ignore */
 			gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""),mask);
 			
 			llinfos << "Clear complete." << llendl;
@@ -1048,8 +1048,8 @@ void *updatethreadproc(void*)
 	{
 		llinfos << "Detaching disk image." << llendl;
 
-		snprintf(temp, sizeof(temp), "hdiutil detach '%s'", deviceNode);
-		system(temp);
+		snprintf(temp, sizeof(temp), "hdiutil detach '%s'", deviceNode);		/* Flawfinder: ignore */
+		system(temp);		/* Flawfinder: ignore */
 	}
 
 	sendProgress(2, 3);
@@ -1073,13 +1073,13 @@ void *updatethreadproc(void*)
 	{
 		llinfos << "Touching application bundle." << llendl;
 
-		snprintf(temp, sizeof(temp), "touch '%s'", target);
-		system(temp);
+		snprintf(temp, sizeof(temp), "touch '%s'", target);		/* Flawfinder: ignore */
+		system(temp);		/* Flawfinder: ignore */
 
 		llinfos << "Launching updated application." << llendl;
 
-		snprintf(temp, sizeof(temp), "open '%s'", target);
-		system(temp);
+		snprintf(temp, sizeof(temp), "open '%s'", target);		/* Flawfinder: ignore */
+		system(temp);		/* Flawfinder: ignore */
 	}
 
 	sendDone();

@@ -47,7 +47,7 @@ void LLFloaterScriptDebug::show(const LLUUID& object_id)
 	LLFloater* floaterp = addOutputWindow(object_id);
 	if (sInstance)
 	{
-		sInstance->open();
+		sInstance->open();		/* Flawfinder: ignore */
 		sInstance->showFloater(floaterp);
 	}
 }
@@ -206,7 +206,7 @@ LLFloaterScriptDebugOutput* LLFloaterScriptDebugOutput::show(const LLUUID& objec
 	{
 		floaterp = new LLFloaterScriptDebugOutput(object_id);
 		sInstanceMap[object_id] = floaterp;
-		floaterp->open();
+		floaterp->open();		/* Flawfinder: ignore*/
 	}
 	else
 	{

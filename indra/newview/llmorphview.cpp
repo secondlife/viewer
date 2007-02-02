@@ -124,7 +124,7 @@ void LLMorphView::setVisible(BOOL visible)
 			llassert( !gFloaterCustomize );
 			gFloaterCustomize = new LLFloaterCustomize();
 			gFloaterCustomize->fetchInventory();
-			gFloaterCustomize->open();
+			gFloaterCustomize->open();	/*Flawfinder: ignore*/
 
 			// Must do this _after_ gFloaterView is initialized.
 			gFloaterCustomize->switchToDefaultSubpart();

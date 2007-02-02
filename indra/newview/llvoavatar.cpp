@@ -829,7 +829,7 @@ LLVOAvatar::LLVOAvatar(
 	mSpeed = 0.f;
 	setAnimationData("Speed", &mSpeed);
 
-	strcpy(mAvatarDefinition, AVATAR_DEFAULT_CHAR);
+	strcpy(mAvatarDefinition, AVATAR_DEFAULT_CHAR);		/* Flawfinder: ignore */
 
 	if (id == gAgentID)
 	{
@@ -1453,9 +1453,9 @@ void LLVOAvatar::initClass()
 { 
 	LLVOAvatar::sMaxOtherAvatarsToComposite = gSavedSettings.getS32("AvatarCompositeLimit");
 
-	char xmlFile[MAX_PATH];
+	char xmlFile[MAX_PATH];		/* Flawfinder: ignore */
 
-	sprintf(xmlFile, "%s_lad.xml", gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,AVATAR_DEFAULT_CHAR).c_str());
+	snprintf(xmlFile, MAX_PATH, "%s_lad.xml", gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,AVATAR_DEFAULT_CHAR).c_str());		/* Flawfinder: ignore */
 	BOOL success = sXMLTree.parseFile( xmlFile, FALSE );
 	if (!success)
 	{
@@ -2718,53 +2718,55 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 				(is_away != mNameAway || is_busy != mNameBusy || is_muted != mNameMute)
 				|| is_appearance != mNameAppearance)
 			{
-				char line[MAX_STRING];
+				char line[MAX_STRING];		/* Flawfinder: ignore */
 				if (title && title->getString() && title->getString()[0] != '\0')
 				{
-					strcpy(line, title->getString() );
-					strcat(line, "\n");
-					strcat(line, firstname->getString() );
+					strncpy(line, title->getString(), MAX_STRING -1 );		/* Flawfinder: ignore */
+					line[MAX_STRING -1] = '\0';
+					strcat(line, "\n");		/* Flawfinder: ignore */
+					strncat(line, firstname->getString(), MAX_STRING - strlen(line) -1 );		/* Flawfinder: ignore */
 				}
 				else
 				{
-					strcpy(line, firstname->getString() );
+					strncpy(line, firstname->getString(), MAX_STRING -1 );		/* Flawfinder: ignore */
+					line[MAX_STRING -1] = '\0';
 				}
 
-				strcat(line, " ");
-				strcat(line, lastname->getString());
+				strcat(line, " ");		/* Flawfinder: ignore */
+				strncat(line, lastname->getString(), MAX_STRING - strlen(line) -1);		/* Flawfinder: ignore */
 				BOOL need_comma = FALSE;
 
 				if (is_away || is_muted || is_busy)
 				{
-					strcat(line, " (");
+					strcat(line, " (");		/* Flawfinder: ignore */
 					if (is_away)
 					{
-						strcat(line, "Away");
+						strcat(line, "Away");		/* Flawfinder: ignore */
 						need_comma = TRUE;
 					}
 					if (is_busy)
 					{
 						if (need_comma)
 						{
-							strcat(line, ", ");
+							strcat(line, ", ");		/* Flawfinder: ignore */
 						}
-						strcat(line, "Busy");
+						strcat(line, "Busy");		/* Flawfinder: ignore */
 						need_comma = TRUE;
 					}
 					if (is_muted)
 					{
 						if (need_comma)
 						{
-							strcat(line, ", ");
+							strcat(line, ", ");		/* Flawfinder: ignore */
 						}
-						strcat(line, "Muted");
+						strcat(line, "Muted");		/* Flawfinder: ignore */
 						need_comma = TRUE;
 					}
-					strcat(line,")");
+					strcat(line,")");		/* Flawfinder: ignore */
 				}
 				if (is_appearance)
 				{
-					strcat(line, "\n(Editing Appearance)");
+					strcat(line, "\n(Editing Appearance)");		/* Flawfinder: ignore */
 				}
 				mNameAway = is_away;
 				mNameBusy = is_busy;
@@ -2786,7 +2788,7 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 					mNameText->setLabel(mNameString);
 				}
 			
-				char line[MAX_STRING];
+				char line[MAX_STRING];		/* Flawfinder: ignore */
 				line[0] = '\0';
 				std::deque<LLChat>::iterator chat_iter = mChats.begin();
 				mNameText->clearString();
@@ -2986,14 +2988,14 @@ void LLVOAvatar::updateCharacter(LLAgent &agent)
 			{
 				if (motionp->getMinPixelArea() < getPixelArea())
 				{
-					char output[256];
+					char output[256];		/* Flawfinder: ignore */
 					if (motionp->getName().empty())
 					{
-						sprintf(output, "%s - %d", motionp->getID().getString().c_str(), (U32)motionp->getPriority());
+						snprintf(output, sizeof(output), "%s - %d", motionp->getID().getString().c_str(), (U32)motionp->getPriority());		/* Flawfinder: ignore */
 					}
 					else
 					{
-						sprintf(output, "%s - %d", motionp->getName().c_str(), (U32)motionp->getPriority());
+						snprintf(output, sizeof(output), "%s - %d", motionp->getName().c_str(), (U32)motionp->getPriority());		/* Flawfinder: ignore */
 					}
 					addDebugText(output);
 				}
@@ -8332,7 +8334,7 @@ void LLVOAvatar::dumpArchetypeXML( void* )
 				LLViewerImage* te_image = avatar->getTEImage( te );
 				if( te_image )
 				{
-					char uuid_str[UUID_STR_LENGTH];
+					char uuid_str[UUID_STR_LENGTH];		/* Flawfinder: ignore */
 					te_image->getID().toString( uuid_str );
 					apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str);
 				}
@@ -9080,7 +9082,7 @@ BOOL LLVOAvatarInfo::parseXmlDriverNodes(LLXmlTreeNode* root)
 
 void LLVOAvatar::writeCAL3D(std::string& path, std::string& file_base)
 {
-	char filename[MAX_PATH];
+	char filename[MAX_PATH];		/* Flawfinder: ignore */
 
 	// reset animated morphs
 	setVisualParamWeight("Blink_Left", 0.f);
@@ -9100,7 +9102,7 @@ void LLVOAvatar::writeCAL3D(std::string& path, std::string& file_base)
 	setVisualParamWeight("Hands_Spread_R", 0.f);
 	updateVisualParams();
 
-	sprintf(filename, "%s\\%s_skeleton.xsf", path.c_str(), file_base.c_str());
+	snprintf(filename, MAX_PATH, "%s\\%s_skeleton.xsf", path.c_str(), file_base.c_str());		/* Flawfinder: ignore */
 	apr_file_t* fp = ll_apr_file_open(filename, LL_APR_W);
 	if (!fp)
 	{
@@ -9112,7 +9114,7 @@ void LLVOAvatar::writeCAL3D(std::string& path, std::string& file_base)
 	apr_file_printf(fp, "</SKELETON>\n");
 	apr_file_close(fp);
 
-	sprintf(filename, "%s\\%s_mesh_body.xmf", path.c_str(), file_base.c_str());
+	snprintf(filename, MAX_PATH, "%s\\%s_mesh_body.xmf", path.c_str(), file_base.c_str());		/* Flawfinder: ignore */
 	//gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,"avatar.cal").c_str()
 	fp = ll_apr_file_open(filename, LL_APR_W);
 	if (!fp)
@@ -9143,7 +9145,7 @@ void LLVOAvatar::writeCAL3D(std::string& path, std::string& file_base)
 
 	for (S32 i = 0; i < (has_skirt ? BAKED_TEXTURE_COUNT : BAKED_TEXTURE_COUNT - 1); i++)
 	{
-		sprintf(filename, "%s\\%s_material_tex_%d.tga", path.c_str(), file_base.c_str(), i);
+		snprintf(filename, MAX_PATH, "%s\\%s_material_tex_%d.tga", path.c_str(), file_base.c_str(), i);		/* Flawfinder: ignore */
 
 		LLViewerImage* viewer_imagep = mTEImages[sBakedTextureIndices[i]];
 		if (!viewer_imagep->getHasGLTexture())
@@ -9158,7 +9160,7 @@ void LLVOAvatar::writeCAL3D(std::string& path, std::string& file_base)
 	}
 
 	// output image for hair
-	sprintf(filename, "%s\\%s_material_tex_5.tga", path.c_str(), file_base.c_str());
+	snprintf(filename, MAX_PATH, "%s\\%s_material_tex_5.tga", path.c_str(), file_base.c_str());		/* Flawfinder: ignore */
 	LLViewerImage* viewer_imagep = mTEImages[TEX_HAIR];
 	if (!viewer_imagep->getHasGLTexture())
 	{
@@ -9173,7 +9175,7 @@ void LLVOAvatar::writeCAL3D(std::string& path, std::string& file_base)
 	}
 
 	// save out attachments
-	sprintf(filename, "%s\\%s_mesh_attachments.xmf", path.c_str(), file_base.c_str());
+	snprintf(filename, MAX_PATH, "%s\\%s_mesh_attachments.xmf", path.c_str(), file_base.c_str());		/* Flawfinder: ignore */
 	fp = ll_apr_file_open(filename, LL_APR_W);
 	if (!fp)
 	{
@@ -9235,7 +9237,7 @@ void LLVOAvatar::writeCAL3D(std::string& path, std::string& file_base)
 		getSex() == SEX_MALE ? (LLKeyframeMotion*)findMotion(ANIM_AGENT_WALK) : (LLKeyframeMotion*)findMotion(ANIM_AGENT_FEMALE_WALK);
 	if (FALSE)//(walk_motion)
 	{
-		sprintf(filename, "%s\\%s_anim.xaf", path.c_str(), file_base.c_str());
+		snprintf(filename, MAX_PATH, "%s\\%s_anim.xaf", path.c_str(), file_base.c_str());		/* Flawfinder: ignore */
 		apr_file_t* fp = ll_apr_file_open(filename, LL_APR_W);
 		if (!fp)
 		{
@@ -9249,7 +9251,7 @@ void LLVOAvatar::writeCAL3D(std::string& path, std::string& file_base)
 	}
 
 	// finally, write out .cfg file
-	sprintf(filename, "%s\\%s_avatar.cfg", path.c_str(), file_base.c_str());
+	snprintf(filename, MAX_PATH, "%s\\%s_avatar.cfg", path.c_str(), file_base.c_str());		/* Flawfinder: ignore */
 	fp = ll_apr_file_open(filename, LL_APR_W);
 	if (!fp)
 	{
@@ -9270,7 +9272,7 @@ void LLVOAvatar::writeCAL3D(std::string& path, std::string& file_base)
 
 	for(S32 i = 0; i < 6; i++)
 	{
-		sprintf(filename, "%s\\%s_material_%d.xrf", path.c_str(), file_base.c_str(), i);
+		snprintf(filename, MAX_PATH, "%s\\%s_material_%d.xrf", path.c_str(), file_base.c_str(), i);		/* Flawfinder: ignore */
 		apr_file_t* fp = ll_apr_file_open(filename, LL_APR_W);
 		if (!fp)
 		{
@@ -9297,7 +9299,7 @@ void LLVOAvatar::writeCAL3D(std::string& path, std::string& file_base)
 	{
 		LLMaterialExportInfo* export_info = material_it->second;
 
-		sprintf(filename, "%s\\%s_material_%d.xrf", path.c_str(), file_base.c_str(), export_info->mMaterialIndex);
+		snprintf(filename, MAX_PATH, "%s\\%s_material_%d.xrf", path.c_str(), file_base.c_str(), export_info->mMaterialIndex);		/* Flawfinder: ignore */
 		apr_file_t* fp = ll_apr_file_open(filename, LL_APR_W);
 		if (!fp)
 		{

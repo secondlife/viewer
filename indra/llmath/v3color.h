@@ -147,7 +147,7 @@ inline LLColor3::LLColor3(const F32 *vec)
 
 inline LLColor3::LLColor3(char* color_string) // takes a string of format "RRGGBB" where RR is hex 00..FF 
 {
-	if (strlen(color_string) <  6)
+	if (strlen(color_string) <  6)		/* Flawfinder: ignore */
 	{
 		mV[0] = 0.f;
 		mV[1] = 0.f;
@@ -155,8 +155,8 @@ inline LLColor3::LLColor3(char* color_string) // takes a string of format "RRGGB
 		return;
 	}
 
-	static char tempstr[7];
-	strncpy(tempstr,color_string,6);
+	static char tempstr[7];		/* Flawfinder: ignore */
+	strncpy(tempstr,color_string,6);		/* Flawfinder: ignore */
 	tempstr[6] = '\0';
 	mV[VZ] = (F32)strtol(&tempstr[4],NULL,16)/255.f;
 	tempstr[4] = '\0';

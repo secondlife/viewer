@@ -102,25 +102,25 @@ void LLCamera::setFar(F32 far_plane)
 
 size_t LLCamera::writeFrustumToBuffer(char *buffer) const
 {
-	memcpy(buffer, &mView, sizeof(F32));
+	memcpy(buffer, &mView, sizeof(F32));		/* Flawfinder: ignore */		
 	buffer += sizeof(F32);
-	memcpy(buffer, &mAspect, sizeof(F32));
+	memcpy(buffer, &mAspect, sizeof(F32));		/* Flawfinder: ignore */
 	buffer += sizeof(F32);
-	memcpy(buffer, &mNearPlane, sizeof(F32));
+	memcpy(buffer, &mNearPlane, sizeof(F32));	/* Flawfinder: ignore */
 	buffer += sizeof(F32);
-	memcpy(buffer, &mFarPlane, sizeof(F32));
+	memcpy(buffer, &mFarPlane, sizeof(F32));		/* Flawfinder: ignore */
 	return 4*sizeof(F32);
 }
 
 size_t LLCamera::readFrustumFromBuffer(const char *buffer)
 {
-	memcpy(&mView, buffer, sizeof(F32));
+	memcpy(&mView, buffer, sizeof(F32));		/* Flawfinder: ignore */
 	buffer += sizeof(F32);
-	memcpy(&mAspect, buffer, sizeof(F32));
+	memcpy(&mAspect, buffer, sizeof(F32));		/* Flawfinder: ignore */
 	buffer += sizeof(F32);
-	memcpy(&mNearPlane, buffer, sizeof(F32));
+	memcpy(&mNearPlane, buffer, sizeof(F32));	/* Flawfinder: ignore */
 	buffer += sizeof(F32);
-	memcpy(&mFarPlane, buffer, sizeof(F32));
+	memcpy(&mFarPlane, buffer, sizeof(F32));		/* Flawfinder: ignore */
 	return 4*sizeof(F32);
 }
 

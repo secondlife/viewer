@@ -70,7 +70,7 @@ void LLStandardBumpmap::restoreGL()
 	gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount++] = LLStandardBumpmap("Darkness");	// BE_DARKNESS
 
 	std::string file_name = gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "std_bump.ini" );
-	FILE* file = LLFile::fopen( file_name.c_str(), "rt" );
+	FILE* file = LLFile::fopen( file_name.c_str(), "rt" );	 /*Flawfinder: ignore*/
 	if( !file )
 	{
 		llwarns << "Could not open std_bump <" << file_name << ">" << llendl;
@@ -95,9 +95,10 @@ void LLStandardBumpmap::restoreGL()
 	while( !feof(file) && (LLStandardBumpmap::sStandardBumpmapCount < (U32)TEM_BUMPMAP_COUNT) )
 	{
 		// *NOTE: This buffer size is hard coded into scanf() below.
-		char label[2048] = "";
-		char bump_file[2048] = "";
-		fields_read = fscanf( file, "\n%2047s %2047s", label, bump_file);
+		char label[2048] = "";	/* Flawfinder: ignore */
+		char bump_file[2048] = "";	/* Flawfinder: ignore */
+		fields_read = fscanf(	/* Flawfinder: ignore */
+			file, "\n%2047s %2047s", label, bump_file);
 		if( EOF == fields_read )
 		{
 			break;

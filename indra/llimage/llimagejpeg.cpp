@@ -335,7 +335,12 @@ boolean LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )
   // Double the buffer size;
   S32 new_buffer_size = self->mOutputBufferSize * 2;
   U8* new_buffer = new U8[ new_buffer_size ];
-  memcpy( new_buffer, self->mOutputBuffer, self->mOutputBufferSize );
+  if (!new_buffer)
+  {
+  	llerrs << "Out of memory in LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )" << llendl;
+  	return FALSE;
+  }
+  memcpy( new_buffer, self->mOutputBuffer, self->mOutputBufferSize );	/* Flawfinder: ignore */
   delete[] self->mOutputBuffer;
   self->mOutputBuffer = new_buffer;
 
@@ -359,7 +364,7 @@ void LLImageJPEG::encodeTermDestination( j_compress_ptr cinfo )
 	S32 file_bytes = (S32)(self->mOutputBufferSize - cinfo->dest->free_in_buffer);
 	self->allocateData(file_bytes);
 
-	memcpy( self->getData(), self->mOutputBuffer, file_bytes );
+	memcpy( self->getData(), self->mOutputBuffer, file_bytes );	/* Flawfinder: ignore */
 }
 
 // static 
@@ -416,7 +421,7 @@ void LLImageJPEG::errorEmitMessage( j_common_ptr cinfo, int msg_level )
 void LLImageJPEG::errorOutputMessage( j_common_ptr cinfo )
 {
 	// Create the message
-	char buffer[JMSG_LENGTH_MAX];
+	char buffer[JMSG_LENGTH_MAX];	/* Flawfinder: ignore */
 	(*cinfo->err->format_message) (cinfo, buffer);
 
 	((LLImageJPEG*) cinfo->client_data)->setLastError( buffer );

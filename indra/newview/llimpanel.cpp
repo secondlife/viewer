@@ -244,7 +244,7 @@ BOOL LLFloaterIMPanel::addParticipants(const LLDynamicArray<LLUUID>& ids)
 			U8* pos = bucket;
 			for(S32 i = 0; i < count; ++i)
 			{
-				memcpy(pos, &(ids.get(i)), UUID_BYTES);
+				memcpy(pos, &(ids.get(i)), UUID_BYTES);		/* Flawfinder: ignore */
 				pos += UUID_BYTES;
 			}
 			msg->addBinaryDataFast(_PREHASH_BinaryBucket, bucket, bucket_size);
@@ -666,8 +666,9 @@ void LLFloaterIMPanel::sendMsg()
 			gAgent.buildFullname(history_echo);
 
 			// Look for IRC-style emotes here.
-			char tmpstr[5];
-			strcpy(tmpstr,utf8_text.substr(0,4).c_str());
+			char tmpstr[5];		/* Flawfinder: ignore */
+			strncpy(tmpstr,utf8_text.substr(0,4).c_str(), sizeof(tmpstr) -1);		/* Flawfinder: ignore */
+			tmpstr[sizeof(tmpstr) -1] = '\0';
 			if (!strncmp(tmpstr, "/me ", 4) || !strncmp(tmpstr, "/me'", 4))
 			{
 				utf8_text.replace(0,3,"");

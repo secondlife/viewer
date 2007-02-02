@@ -47,16 +47,16 @@ std::string get_string(IDxDiagContainer *containerp, WCHAR *wszPropName)
 		switch( var.vt )
 		{
 			case VT_UI4:
-				swprintf( wszPropValue, L"%d", var.ulVal );
+				swprintf( wszPropValue, L"%d", var.ulVal );	/* Flawfinder: ignore */
 				break;
 			case VT_I4:
-				swprintf( wszPropValue, L"%d", var.lVal );
+				swprintf( wszPropValue, L"%d", var.lVal );	/* Flawfinder: ignore */
 				break;
 			case VT_BOOL:
-				wcscpy( wszPropValue, (var.boolVal) ? L"true" : L"false" );
+				wcscpy( wszPropValue, (var.boolVal) ? L"true" : L"false" );	/* Flawfinder: ignore */
 				break;
 			case VT_BSTR:
-				wcsncpy( wszPropValue, var.bstrVal, 255 );
+				wcsncpy( wszPropValue, var.bstrVal, 255 );	/* Flawfinder: ignore */
 				wszPropValue[255] = 0;
 				break;
 		}

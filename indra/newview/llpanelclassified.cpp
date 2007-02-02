@@ -422,10 +422,10 @@ void LLPanelClassified::processClassifiedInfoReply(LLMessageSystem *msg, void **
     LLUUID parcel_id;
     msg->getUUIDFast(_PREHASH_Data, _PREHASH_ParcelID, parcel_id);
 
-	char name[DB_PARCEL_NAME_SIZE];
+	char name[DB_PARCEL_NAME_SIZE];		/*Flawfinder: ignore*/
 	msg->getStringFast(_PREHASH_Data, _PREHASH_Name, DB_PARCEL_NAME_SIZE, name);
 
-	char desc[DB_PICK_DESC_SIZE];
+	char desc[DB_PICK_DESC_SIZE];		/*Flawfinder: ignore*/
 	msg->getStringFast(_PREHASH_Data, _PREHASH_Desc, DB_PICK_DESC_SIZE, desc);
 
 	LLUUID snapshot_id;
@@ -433,7 +433,7 @@ void LLPanelClassified::processClassifiedInfoReply(LLMessageSystem *msg, void **
 
     // "Location text" is actually the original
     // name that owner gave the parcel, and the location.
-	char buffer[256];
+	char buffer[256];		/*Flawfinder: ignore*/
     LLString location_text;
 
     msg->getStringFast(_PREHASH_Data, _PREHASH_ParcelName, 256, buffer);
@@ -447,7 +447,7 @@ void LLPanelClassified::processClassifiedInfoReply(LLMessageSystem *msg, void **
 		location_text.assign("");
 	}
 
-	char sim_name[256];
+	char sim_name[256];		/*Flawfinder: ignore*/
 	msg->getStringFast(_PREHASH_Data, _PREHASH_SimName, 256, sim_name);
 
 	LLVector3d pos_global;
@@ -457,7 +457,7 @@ void LLPanelClassified::processClassifiedInfoReply(LLMessageSystem *msg, void **
     S32 region_y = llround((F32)pos_global.mdV[VY]) % REGION_WIDTH_UNITS;
 	S32 region_z = llround((F32)pos_global.mdV[VZ]);
    
-    sprintf(buffer, "%s (%d, %d, %d)", sim_name, region_x, region_y, region_z);
+    snprintf(buffer, sizeof(buffer), "%s (%d, %d, %d)", sim_name, region_x, region_y, region_z);		/*Flawfinder: ignore*/
     location_text.append(buffer);
 
 	U8 flags;

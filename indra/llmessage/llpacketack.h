@@ -111,7 +111,7 @@ public:
 			mBuffer = new U8[buf_len];
 			if (mBuffer != NULL)
 			{
-				memcpy(mBuffer,buf_ptr,buf_len);
+				memcpy(mBuffer,buf_ptr,buf_len);	/*Flawfinder: ignore*/
 				mBufferLength = buf_len;
 			}
 			

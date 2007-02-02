@@ -75,7 +75,7 @@ void LLFloaterBuyContents::show(const LLSaleInfo& sale_info)
 		sInstance = new LLFloaterBuyContents();
 	}
 
-	sInstance->open();
+	sInstance->open(); /*Flawfinder: ignore*/
 	sInstance->setFocus(TRUE);
 
 	// Always center the dialog.  User can change the size,
@@ -100,7 +100,7 @@ void LLFloaterBuyContents::show(const LLSaleInfo& sale_info)
 	if (!node) return;
 	if(node->mPermissions->isGroupOwned())
 	{
-		char group_name[MAX_STRING];
+		char group_name[MAX_STRING];	/*Flawfinder: ignore*/
 		gCacheName->getGroupName(owner_id, group_name);
 		owner_name.assign(group_name);
 	}

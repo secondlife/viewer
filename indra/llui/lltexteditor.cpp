@@ -3763,7 +3763,7 @@ BOOL LLTextEditor::importBuffer(const LLString& buffer )
 	//			<text without \0> (text may contain ext_char_values)
 	//		}\n
 
-	char tbuf[MAX_STRING];
+	char tbuf[MAX_STRING];	/* Flawfinder: ignore */
 	
 	S32 version = 0;
 	instream.getline(tbuf, MAX_STRING);
@@ -3803,11 +3803,16 @@ BOOL LLTextEditor::importBuffer(const LLString& buffer )
 	BOOL success = TRUE;
 
 	char* text = new char[ text_len + 1];
+	if (text == NULL)
+	{
+		llerrs << "Memory allocation failure." << llendl;			
+		return FALSE;
+	}
 	instream.get(text, text_len + 1, '\0');
 	text[text_len] = '\0';
-	if( text_len != (S32)strlen(text) )
+	if( text_len != (S32)strlen(text) )/* Flawfinder: ignore */
 	{
-		llwarns << llformat("Invalid text length: %d != %d ",strlen(text),text_len) << llendl;
+		llwarns << llformat("Invalid text length: %d != %d ",strlen(text),text_len) << llendl;/* Flawfinder: ignore */
 		success = FALSE;
 	}
 

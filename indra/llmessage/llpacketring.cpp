@@ -113,7 +113,7 @@ S32 LLPacketRing::receiveFromRing (S32 socket, char *datap)
 	packet_size = packetp->getSize();
 	if (packetp->getData() != NULL)
 	{
-		memcpy(datap, packetp->getData(), packet_size);
+		memcpy(datap, packetp->getData(), packet_size);	/*Flawfinder: ignore*/
 	}
 	// need to set sender IP/port!!
 	mLastSender = packetp->getHost();

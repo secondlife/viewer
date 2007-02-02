@@ -433,11 +433,17 @@ LLScriptLibraryFunction::LLScriptLibraryFunction(F32 eu, F32 st, void (*exec_fun
 	mDesc = new char[512];
 	if (mSleepTime)
 	{
-		sprintf(mDesc,"%s\nSleeps script for %.1f seconds.",desc,mSleepTime);
+		snprintf(	/* Flawfinder: ignore */
+			mDesc,
+			512,
+			"%s\nSleeps script for %.1f seconds.",
+			desc,
+			mSleepTime);
 	}
 	else
 	{
-		strcpy(mDesc,desc);
+		strncpy(mDesc, desc, 512);	/* Flawfinder: ignore */
+		mDesc[511] = '\0'; // just in case.
 	}
 }
 
@@ -451,7 +457,10 @@ void LLScriptLibrary::addFunction(LLScriptLibraryFunction *func)
 	LLScriptLibraryFunction **temp = new LLScriptLibraryFunction*[mNextNumber + 1];
 	if (mNextNumber)
 	{
-		memcpy(temp, mFunctions, sizeof(LLScriptLibraryFunction *)*mNextNumber);
+		memcpy(	/* Flawfinder: ignore */
+			temp,
+			mFunctions,
+			sizeof(LLScriptLibraryFunction*)*mNextNumber);
 		delete [] mFunctions;
 	}
 	mFunctions = temp;
@@ -473,7 +482,7 @@ void LLScriptLibrary::assignExec(char *name, void (*exec_func)(LLScriptLibData *
 
 void LLScriptLibData::print(std::ostream &s, BOOL b_prepend_comma)
 {
-	char tmp[1024];
+	char tmp[1024];	/*Flawfinder: ignore*/
 	if (b_prepend_comma)
 	{
 	        s << ", ";
@@ -484,7 +493,7 @@ void LLScriptLibData::print(std::ostream &s, BOOL b_prepend_comma)
 	     s << mInteger;
 	     break;
 	case LST_FLOATINGPOINT:
-	     snprintf(tmp, 1024, "%f", mFP);
+	     snprintf(tmp, 1024, "%f", mFP);	/*Flawfinder: ignore*/
 	     s << tmp;
 	     break;
 	case LST_KEY:
@@ -494,12 +503,12 @@ void LLScriptLibData::print(std::ostream &s, BOOL b_prepend_comma)
 	     s << mString;
 	     break;
 	case LST_VECTOR:
-	     snprintf(tmp, 1024, "<%f, %f, %f>", mVec.mV[VX], 
+	     snprintf(tmp, 1024, "<%f, %f, %f>", mVec.mV[VX], /* Flawfinder: ignore */
 		      mVec.mV[VY], mVec.mV[VZ]);
 	     s << tmp;
 	     break;
 	case LST_QUATERNION:
-	     snprintf(tmp, 1024, "<%f, %f, %f, %f>", mQuat.mQ[VX], mQuat.mQ[VY], 
+	     snprintf(tmp, 1024, "<%f, %f, %f, %f>", mQuat.mQ[VX], mQuat.mQ[VY], /* Flawfinder: ignore */
 		      mQuat.mQ[VZ], mQuat.mQ[VS]);
 	     s << tmp;
 	     break;
@@ -517,7 +526,7 @@ void LLScriptLibData::print_separator(std::ostream& ostr, BOOL b_prepend_sep, ch
 	//print(ostr, FALSE);
 	{
 		BOOL b_prepend_comma = FALSE;
-		char tmp[1024];
+		char tmp[1024];	/* Flawfinder: ignore */
 		if (b_prepend_comma)
 		{
 		        ostr << ", ";
@@ -528,7 +537,7 @@ void LLScriptLibData::print_separator(std::ostream& ostr, BOOL b_prepend_sep, ch
 		     ostr << mInteger;
 		     break;
 		case LST_FLOATINGPOINT:
-		     snprintf(tmp, 1024, "%f", mFP);
+		     snprintf(tmp, 1024, "%f", mFP);	/* Flawfinder: ignore */
 		     ostr << tmp;
 		     break;
 		case LST_KEY:
@@ -538,12 +547,12 @@ void LLScriptLibData::print_separator(std::ostream& ostr, BOOL b_prepend_sep, ch
 		     ostr << mString;
 		     break;
 		case LST_VECTOR:
-		     snprintf(tmp, 1024, "<%f, %f, %f>", mVec.mV[VX], 
+		     snprintf(tmp, 1024, "<%f, %f, %f>", mVec.mV[VX], /* Flawfinder: ignore */
 			      mVec.mV[VY], mVec.mV[VZ]);
 		     ostr << tmp;
 		     break;
 		case LST_QUATERNION:
-		     snprintf(tmp, 1024, "<%f, %f, %f, %f>", mQuat.mQ[VX], mQuat.mQ[VY], 
+		     snprintf(tmp, 1024, "<%f, %f, %f, %f>", mQuat.mQ[VX], mQuat.mQ[VY], /* Flawfinder: ignore */
 			      mQuat.mQ[VZ], mQuat.mQ[VS]);
 		     ostr << tmp;
 		     break;

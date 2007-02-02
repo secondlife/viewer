@@ -242,7 +242,12 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 	//-------------------------------------------------------------------------
 	// Open the file
 	//-------------------------------------------------------------------------
-	FILE *fp = LLFile::fopen(fileName, "rb");
+	if(!fileName)
+	{
+		llerrs << "Filename is Empty!" << llendl;
+		return FALSE;
+	}
+	FILE* fp = LLFile::fopen(fileName, "rb");			/*Flawfinder: ignore*/
 	if (!fp)
 	{
 		llerrs << "can't open: " << fileName << llendl;
@@ -252,14 +257,14 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 	//-------------------------------------------------------------------------
 	// Read a chunk
 	//-------------------------------------------------------------------------
-	char header[128];
+	char header[128];		/*Flawfinder: ignore*/
 	fread(header, sizeof(char), 128, fp);
 
 	//-------------------------------------------------------------------------
 	// Check for proper binary header
 	//-------------------------------------------------------------------------
 	BOOL status = FALSE;
-	if ( strncmp(header, HEADER_BINARY, strlen(HEADER_BINARY)) == 0 )
+	if ( strncmp(header, HEADER_BINARY, strlen(HEADER_BINARY)) == 0 )	/*Flawfinder: ignore*/
 	{
 		lldebugs << "Loading " << fileName << llendl;
 
@@ -522,7 +527,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 			//----------------------------------------------------------------
 			for (i=0; i < numSkinJoints; i++)
 			{
-				char jointName[64];
+				char jointName[64];		/*Flawfinder: ignore*/
 				numRead = fread(jointName, sizeof(jointName), 1, fp);
 				if (numRead != 1)
 				{
@@ -536,7 +541,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 			//-------------------------------------------------------------------------
 			// look for morph section
 			//-------------------------------------------------------------------------
-			char morphName[64];
+			char morphName[64];		/*Flawfinder: ignore*/
 			while(fread(&morphName, sizeof(char), 64, fp) == 64)
 			{
 				if (!strcmp(morphName, "End Morphs"))
@@ -720,8 +725,8 @@ LLPolyMesh *LLPolyMesh::getMesh(const LLString &name, LLPolyMesh* reference_mesh
 	//-------------------------------------------------------------------------
 	// if not found, create a new one, add it to the list
 	//-------------------------------------------------------------------------
-	char full_path[LL_MAX_PATH];
-	sprintf(full_path, "%s", (gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,name.c_str())).c_str());
+	char full_path[LL_MAX_PATH];		/*Flawfinder: ignore*/
+	snprintf(full_path, LL_MAX_PATH, "%s", (gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,name.c_str())).c_str());		/*Flawfinder: ignore*/
 
 	LLPolyMeshSharedData *mesh_data = new LLPolyMeshSharedData();
 	if (reference_mesh)
@@ -780,7 +785,7 @@ void LLPolyMesh::dumpDiagInfo()
 	U32 total_faces = 0;
 	U32 total_kb = 0;
 
-	char buf[1024];
+	char buf[1024];		/*Flawfinder: ignore*/
 
 	llinfos << "-----------------------------------------------------" << llendl;
 	llinfos << "       Global PolyMesh Table (DEBUG only)" << llendl;
@@ -799,7 +804,7 @@ void LLPolyMesh::dumpDiagInfo()
 		S32 num_faces = mesh.mNumFaces;
 		U32 num_kb = mesh.getNumKB();
 
-		sprintf(buf, "%8d %8d %8d %s", num_verts, num_faces, num_kb, mesh_name_p->c_str());
+		snprintf(buf, sizeof(buf), "%8d %8d %8d %s", num_verts, num_faces, num_kb, mesh_name_p->c_str());		/*Flawfinder: ignore*/
 		llinfos << buf << llendl;
 
 		total_verts += num_verts;
@@ -808,7 +813,7 @@ void LLPolyMesh::dumpDiagInfo()
 	}
 
 	llinfos << "-----------------------------------------------------" << llendl;
-	sprintf(buf, "%8d %8d %8d TOTAL", total_verts, total_faces, total_kb );
+	snprintf(buf, sizeof(buf), "%8d %8d %8d TOTAL", total_verts, total_faces, total_kb );		/*Flawfinder: ignore*/
 	llinfos << buf << llendl;
 	llinfos << "-----------------------------------------------------" << llendl;
 }
@@ -887,12 +892,12 @@ void LLPolyMesh::initializeForMorph()
 	if (!mSharedData)
 		return;
 
-	memcpy(mCoords, mSharedData->mBaseCoords, sizeof(LLVector3) * mSharedData->mNumVertices);
-	memcpy(mNormals, mSharedData->mBaseNormals, sizeof(LLVector3) * mSharedData->mNumVertices);
-	memcpy(mScaledNormals, mSharedData->mBaseNormals, sizeof(LLVector3) * mSharedData->mNumVertices);
-	memcpy(mBinormals, mSharedData->mBaseBinormals, sizeof(LLVector3) * mSharedData->mNumVertices);
-	memcpy(mScaledBinormals, mSharedData->mBaseBinormals, sizeof(LLVector3) * mSharedData->mNumVertices);
-	memcpy(mTexCoords, mSharedData->mTexCoords, sizeof(LLVector2) * mSharedData->mNumVertices);
+	memcpy(mCoords, mSharedData->mBaseCoords, sizeof(LLVector3) * mSharedData->mNumVertices);	/*Flawfinder: ignore*/
+	memcpy(mNormals, mSharedData->mBaseNormals, sizeof(LLVector3) * mSharedData->mNumVertices);	/*Flawfinder: ignore*/
+	memcpy(mScaledNormals, mSharedData->mBaseNormals, sizeof(LLVector3) * mSharedData->mNumVertices);	/*Flawfinder: ignore*/
+	memcpy(mBinormals, mSharedData->mBaseBinormals, sizeof(LLVector3) * mSharedData->mNumVertices);	/*Flawfinder: ignore*/
+	memcpy(mScaledBinormals, mSharedData->mBaseBinormals, sizeof(LLVector3) * mSharedData->mNumVertices);		/*Flawfinder: ignore*/
+	memcpy(mTexCoords, mSharedData->mTexCoords, sizeof(LLVector2) * mSharedData->mNumVertices);		/*Flawfinder: ignore*/
 	memset(mClothingWeights, 0, sizeof(LLVector4) * mSharedData->mNumVertices);
 }
 

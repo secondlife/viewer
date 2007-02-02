@@ -189,12 +189,12 @@ BOOL LLFeatureManager::loadFeatureTables()
 	data_path += FEATURE_TABLE_FILENAME;
 
 
-	char	name[MAX_STRING+1];
+	char	name[MAX_STRING+1];	 /*Flawfinder: ignore*/
 
 	llifstream file;
 	U32		version;
 	
-	file.open(data_path.c_str()); 
+	file.open(data_path.c_str()); 	 /*Flawfinder: ignore*/
 
 	if (!file)
 	{
@@ -216,12 +216,12 @@ BOOL LLFeatureManager::loadFeatureTables()
 	LLFeatureList *flp = NULL;
 	while (!file.eof())
 	{
-		char buffer[MAX_STRING];
+		char buffer[MAX_STRING];		 /*Flawfinder: ignore*/
 		name[0] = 0;
 
 		file >> name;
 		
-		if (strlen(name) >= 2 && 
+		if (strlen(name) >= 2 && 	 /*Flawfinder: ignore*/
 			name[0] == '/' && 
 			name[1] == '/')
 		{
@@ -230,7 +230,7 @@ BOOL LLFeatureManager::loadFeatureTables()
 			continue;
 		}
 
-		if (strlen(name) == 0)
+		if (strlen(name) == 0)		 /*Flawfinder: ignore*/
 		{
 			// This is a blank line
 			file.getline(buffer, MAX_STRING);
@@ -295,7 +295,7 @@ void LLFeatureManager::loadGPUClass()
 	
 	llifstream file;
 		
-	file.open(data_path.c_str()); 
+	file.open(data_path.c_str()); 		 /*Flawfinder: ignore*/
 
 	if (!file)
 	{
@@ -311,12 +311,12 @@ void LLFeatureManager::loadGPUClass()
 	
 	while (!file.eof())
 	{
-		char buffer[MAX_STRING];
+		char buffer[MAX_STRING];		 /*Flawfinder: ignore*/
 		buffer[0] = 0;
 
 		file.getline(buffer, MAX_STRING);
 		
-		if (strlen(buffer) >= 2 && 
+		if (strlen(buffer) >= 2 && 	 /*Flawfinder: ignore*/
 			buffer[0] == '/' && 
 			buffer[1] == '/')
 		{
@@ -324,7 +324,7 @@ void LLFeatureManager::loadGPUClass()
 			continue;
 		}
 
-		if (strlen(buffer) == 0)
+		if (strlen(buffer) == 0)	 /*Flawfinder: ignore*/
 		{
 			// This is a blank line
 			continue;
@@ -341,7 +341,7 @@ void LLFeatureManager::loadGPUClass()
 			continue;
 		}
 	
-		for (U32 i = 0; i < strlen(expr); i++)
+		for (U32 i = 0; i < strlen(expr); i++)	 /*Flawfinder: ignore*/
 		{
 			expr[i] = tolower(expr[i]);
 		}

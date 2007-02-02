@@ -222,8 +222,8 @@ void LLFloaterTelehub::onClickRemoveSpawnPoint(void* data)
 	msg->nextBlock("ParamList");
 	msg->addString("Parameter", "spawnpoint remove");
 
-	char buffer[MAX_STRING];
-	sprintf(buffer, "%d", spawn_index);
+	char buffer[MAX_STRING];		/* Flawfinder: ignore */
+	snprintf(buffer, MAX_STRING, "%d", spawn_index);		/* Flawfinder: ignore */
 	msg->nextBlock("ParamList");
 	msg->addString("Parameter", buffer);
 
@@ -241,7 +241,7 @@ void LLFloaterTelehub::processTelehubInfo(LLMessageSystem* msg, void**)
 
 void LLFloaterTelehub::unpackTelehubInfo(LLMessageSystem* msg)
 {
-	char buffer[MAX_STRING];
+	char buffer[MAX_STRING];		/* Flawfinder: ignore */
 
 	msg->getUUID("TelehubBlock", "ObjectID", mTelehubObjectID);
 	msg->getString("TelehubBlock", "ObjectName", MAX_STRING, buffer);

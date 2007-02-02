@@ -34,9 +34,9 @@ LLScriptHeapEntry::~LLScriptHeapEntry()
 
 void LLScriptHeapEntry::addString(char *string)
 {
-	S32 size = strlen(string) + 1;
+	S32 size = strlen(string) + 1;	 	/*Flawfinder: ignore*/
 	S32 offset = 0;
-	memcpy(mData, string, size);
+	memcpy(mData, string, size);	 	/*Flawfinder: ignore*/
 	mNext += size;
 	integer2bytestream(mEntry, offset, mNext);
 	mRefCount++;

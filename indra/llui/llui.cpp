@@ -1478,7 +1478,7 @@ void load_tr(const LLString& lang)
 	LLString filename = gDirUtilp->getExpandedFilename(LL_PATH_SKINS, inname.c_str());
 
 	llifstream file;
-	file.open(filename.c_str(), std::ios_base::binary);
+	file.open(filename.c_str(), std::ios_base::binary);	/* Flawfinder: ignore */
 	if (!file)
 	{
 		llinfos << "No translation dictionary for: " << filename << llendl;
@@ -1491,7 +1491,7 @@ void load_tr(const LLString& lang)
 	gUntranslated.clear();
 
 	const S32 MAX_LINE_LEN = 1024;
-	char buffer[MAX_LINE_LEN];
+	char buffer[MAX_LINE_LEN];	/* Flawfinder: ignore */
 	while (!file.eof())
 	{
 		file.getline(buffer, MAX_LINE_LEN);
@@ -1531,7 +1531,7 @@ void cleanup_tr()
 		LLString outname = "untranslated_" + gLanguage + ".txt";
 		LLString outfilename = gDirUtilp->getExpandedFilename(LL_PATH_SKINS, outname.c_str());
 		llofstream outfile;
-		outfile.open(outfilename.c_str());
+		outfile.open(outfilename.c_str());	/* Flawfinder: ignore */
 		if (!outfile)
 		{
 			return;

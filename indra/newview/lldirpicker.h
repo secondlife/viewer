@@ -64,7 +64,7 @@ private:
 	
 #endif
 
-	char mDirs[DIRNAME_BUFFER_SIZE];
+	char mDirs[DIRNAME_BUFFER_SIZE]; /*Flawfinder: ignore*/
 	LLString* mFileName;
 	LLString  mDir;
 	BOOL mLocked;

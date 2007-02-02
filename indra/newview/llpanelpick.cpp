@@ -270,10 +270,10 @@ void LLPanelPick::processPickInfoReply(LLMessageSystem *msg, void **)
     LLUUID parcel_id;
     msg->getUUID("Data", "ParcelID", parcel_id);
 
-	char name[DB_PARCEL_NAME_SIZE];
+	char name[DB_PARCEL_NAME_SIZE];		/*Flawfinder: ignore*/
 	msg->getString("Data", "Name", DB_PARCEL_NAME_SIZE, name);
 
-	char desc[DB_PICK_DESC_SIZE];
+	char desc[DB_PICK_DESC_SIZE];		/*Flawfinder: ignore*/
 	msg->getString("Data", "Desc", DB_PICK_DESC_SIZE, desc);
 
 	LLUUID snapshot_id;
@@ -281,7 +281,7 @@ void LLPanelPick::processPickInfoReply(LLMessageSystem *msg, void **)
 
     // "Location text" is actually the owner name, the original
     // name that owner gave the parcel, and the location.
-	char buffer[256];
+	char buffer[256];		/*Flawfinder: ignore*/
     LLString location_text;
 
     msg->getString("Data", "User", 256, buffer);
@@ -295,7 +295,7 @@ void LLPanelPick::processPickInfoReply(LLMessageSystem *msg, void **)
 		location_text.append(", ");
 	}
 
-	char sim_name[256];
+	char sim_name[256];		/*Flawfinder: ignore*/
 	msg->getString("Data", "SimName", 256, sim_name);
 
 	LLVector3d pos_global;
@@ -305,7 +305,7 @@ void LLPanelPick::processPickInfoReply(LLMessageSystem *msg, void **)
     S32 region_y = llround((F32)pos_global.mdV[VY]) % REGION_WIDTH_UNITS;
 	S32 region_z = llround((F32)pos_global.mdV[VZ]);
    
-    sprintf(buffer, "%s (%d, %d, %d)", sim_name, region_x, region_y, region_z);
+    snprintf(buffer, sizeof(buffer), "%s (%d, %d, %d)", sim_name, region_x, region_y, region_z);		/*Flawfinder: ignore*/
     location_text.append(buffer);
 
 	S32 sort_order;
@@ -340,7 +340,7 @@ void LLPanelPick::processPickInfoReply(LLMessageSystem *msg, void **)
         self->mLocationEditor->setText(location_text);
         self->mEnabledCheck->set(enabled);
 
-		sprintf(buffer, "%d", sort_order);
+		snprintf(buffer, sizeof(buffer), "%d", sort_order);		/*Flawfinder: ignore*/
 		self->mSortOrderEditor->setText(buffer);
     }
 }

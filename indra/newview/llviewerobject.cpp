@@ -933,7 +933,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 						mText->setOnHUDAttachment(isHUDAttachment());
 					}
 
-					char temp_string[256];	// not MAX_STRING, must hold 255 chars + \0
+					char temp_string[256];			/* Flawfinder: ignore */		// not MAX_STRING, must hold 255 chars + \0
 					mesgsys->getStringFast(_PREHASH_ObjectData, _PREHASH_Text, 256, temp_string, block_num );
 					
 					LLColor4U coloru;
@@ -956,7 +956,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					mText = NULL;
 				}
 
-				char media_url[MAX_STRING+1];
+				char media_url[MAX_STRING+1];		/* Flawfinder: ignore */
 				mesgsys->getStringFast(_PREHASH_ObjectData, _PREHASH_MediaURL, MAX_STRING+1, media_url, block_num);
 				//if (media_url[0])
 				//{
@@ -2029,7 +2029,7 @@ BOOL LLViewerObject::setData(const U8 *datap, const U32 data_size)
 		{
 			return FALSE;
 		}
-		memcpy(mData, datap, data_size);
+		memcpy(mData, datap, data_size);		/* Flawfinder: ignore */
 	}
 	return TRUE;
 }
@@ -2281,7 +2281,7 @@ void LLViewerObject::requestInventory()
 struct LLFilenameAndTask
 {
 	LLUUID mTaskID;
-	char mFilename[MAX_STRING];  // Just the filename, not the path
+	char mFilename[MAX_STRING];  		/* Flawfinder: ignore */		// Just the filename, not the path
 #ifdef _DEBUG
 	static S32 sCount;
 	LLFilenameAndTask()
@@ -2376,9 +2376,9 @@ void LLViewerObject::loadTaskInvFile(const char* filename)
 	llifstream ifs(filename_and_local_path.c_str());
 	if(ifs.good())
 	{
-		char buffer[MAX_STRING];
+		char buffer[MAX_STRING];	/* Flawfinder: ignore */
 		// *NOTE: This buffer size is hard coded into scanf() below.
-		char keyword[MAX_STRING];
+		char keyword[MAX_STRING];	/* Flawfinder: ignore */
 		if(mInventory)
 		{
 			mInventory->clear(); // will deref and delete it
@@ -2390,7 +2390,7 @@ void LLViewerObject::loadTaskInvFile(const char* filename)
 		while(ifs.good())
 		{
 			ifs.getline(buffer, MAX_STRING);
-			sscanf(buffer, " %254s", keyword);
+			sscanf(buffer, " %254s", keyword);	/* Flawfinder: ignore */
 			if(0 == strcmp("inv_item", keyword))
 			{
 				LLPointer<LLInventoryObject> inv = new LLViewerInventoryItem;

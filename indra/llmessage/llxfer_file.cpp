@@ -394,8 +394,8 @@ U32 LLXfer_File::getXferTypeTag()
 S32 copy_file(const char* from, const char* to)
 {
 	S32 rv = 0;
-	FILE* in = LLFile::fopen(from, "rb");
-	FILE* out = LLFile::fopen(to, "wb");
+	FILE* in = LLFile::fopen(from, "rb");	/*Flawfinder: ignore*/
+	FILE* out = LLFile::fopen(to, "wb");	/*Flawfinder: ignore*/
 	if(in && out)
 	{
 		S32 read = 0;

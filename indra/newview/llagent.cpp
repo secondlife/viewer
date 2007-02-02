@@ -768,7 +768,7 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 		// char host_name[MAX_STRING];
 		// regionp->getHost().getHostName(host_name, MAX_STRING);
 
-		char ip[MAX_STRING];
+		char ip[MAX_STRING];		/*Flawfinder: ignore*/
 		regionp->getHost().getString(ip, MAX_STRING);
 		llinfos << "Moving agent into region: " << regionp->getName()
 				<< " located at " << ip << llendl;
@@ -5165,7 +5165,7 @@ void LLAgent::processAgentGroupDataUpdate(LLMessageSystem *msg, void **)
 	LLGroupData group;
 	S32 index = -1;
 	bool need_floater_update = false;
-	char group_name[DB_GROUP_NAME_BUF_SIZE];
+	char group_name[DB_GROUP_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 	for(S32 i = 0; i < count; ++i)
 	{
 		msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_GroupID, group.mID, i);

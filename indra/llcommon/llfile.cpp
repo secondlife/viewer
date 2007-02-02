@@ -165,9 +165,9 @@ void llifstream::close()
 	}
 }
 
-void llifstream::open(const char *_Filename,
+void llifstream::open(const char* _Filename,	/* Flawfinder: ignore */
 	ios_base::openmode _Mode,
-	int _Prot)	/* Flawfinder: ignore */
+	int _Prot)
 {	// open a C stream with specified mode
 	
 	FILE* filep = LLFile::_Fiopen(_Filename,_Mode | ios_base::in, _Prot);
@@ -211,9 +211,9 @@ bool llofstream::is_open() const
 	return false;
 }
 
-void llofstream::open(const char *_Filename,
+void llofstream::open(const char* _Filename,	/* Flawfinder: ignore */
 	ios_base::openmode _Mode,
-	int _Prot)	/* Flawfinder: ignore */
+	int _Prot)	
 {	// open a C stream with specified mode
 
 	FILE* filep = LLFile::_Fiopen(_Filename,_Mode | ios_base::out, _Prot);

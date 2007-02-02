@@ -136,7 +136,7 @@ public:
 	std::string	mStatusMessage;
 	std::string	mStatusURI;
 	
-	char				mCurlErrorBuffer[CURL_ERROR_SIZE];
+	char				mCurlErrorBuffer[CURL_ERROR_SIZE];		/* Flawfinder: ignore */
 
 	std::string			mURI;
 	char*				mRequestText;

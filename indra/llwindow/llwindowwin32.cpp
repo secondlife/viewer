@@ -77,10 +77,14 @@ void show_window_creation_error(const char* title)
 
 BOOL check_for_card(const char* RENDERER, const char* bad_card)
 {
-	if (!strnicmp(RENDERER, bad_card, strlen(bad_card)))
+	if(bad_card == NULL)
 	{
-		char buffer[1024];
-		sprintf(buffer,
+		return FALSE;
+	}
+	if (!strnicmp(RENDERER, bad_card, strlen(bad_card)))	/* Flawfinder: ignore */
+	{
+		char buffer[1024];	/* Flawfinder: ignore */
+		snprintf(buffer, sizeof(buffer), /* Flawfinder: ignore */
 			"Your video card appears to be a %s, which Second Life does not support.\n"
 			"\n"
 			"Second Life requires a video card with 32 Mb of memory or more, as well as\n"
@@ -329,8 +333,8 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 			mFullscreenBits    = -1;
 			mFullscreenRefresh = -1;
 
-			char error[256];
-			sprintf(error, "Unable to run fullscreen at %d x %d.\nRunning in window.", width, height);
+			char error[256];	/* Flawfinder: ignore */
+			snprintf(error, sizeof(error), "Unable to run fullscreen at %d x %d.\nRunning in window.", width, height);	/* Flawfinder: ignore */
 			OSMessageBox(error, "Error", OSMB_OK);
 		}
 	}
@@ -2450,7 +2454,7 @@ BOOL LLWindowWin32::copyTextToClipboard(const LLWString& wstr)
 			WCHAR* copy_utf16 = (WCHAR*) GlobalLock(hglobal_copy_utf16);
 			if (copy_utf16)
 			{
-				memcpy(copy_utf16, out_utf16.c_str(), size_utf16);
+				memcpy(copy_utf16, out_utf16.c_str(), size_utf16);	/* Flawfinder: ignore */
 				GlobalUnlock(hglobal_copy_utf16);
 
 				if (SetClipboardData(CF_UNICODETEXT, hglobal_copy_utf16))
@@ -2474,7 +2478,7 @@ BOOL LLWindowWin32::copyTextToClipboard(const LLWString& wstr)
 			char* copy = (char*) GlobalLock(hglobal_copy);
 			if( copy )
 			{
-				memcpy(copy, out_s.c_str(), size);
+				memcpy(copy, out_s.c_str(), size);	/* Flawfinder: ignore */
 				GlobalUnlock(hglobal_copy);
 
 				if (SetClipboardData(CF_TEXT, hglobal_copy))
@@ -2575,7 +2579,7 @@ BOOL LLWindowWin32::sendEmail(const char* address, const char* subject, const ch
 	}
 	else
 	{
-		HINSTANCE hMAPIInst = LoadLibrary(L"MAPI32.DLL");
+		HINSTANCE hMAPIInst = LoadLibrary(L"MAPI32.DLL");	/* Flawfinder: ignore */
 		if(!hMAPIInst)
 		{
 			result =  LL_EMAIL_MAPILOAD_FAILED;
@@ -3093,7 +3097,7 @@ void spawn_web_browser(const char* escaped_url )
 	S32 i;
 	for (i = 0; i < gURLProtocolWhitelistCount; i++)
 	{
-		S32 len = strlen(gURLProtocolWhitelist[i]);
+		S32 len = strlen(gURLProtocolWhitelist[i]);	/* Flawfinder: ignore */
 		if (!strncmp(escaped_url, gURLProtocolWhitelist[i], len)
 			&& escaped_url[len] == ':')
 		{
@@ -3112,8 +3116,8 @@ void spawn_web_browser(const char* escaped_url )
 
 	// Figure out the user's default web browser
 	// HKEY_CLASSES_ROOT\http\shell\open\command
-	char reg_path_str[256];
-	sprintf(reg_path_str, "%s\\shell\\open\\command", gURLProtocolWhitelistHandler[i]);
+	char reg_path_str[256];	/* Flawfinder: ignore */
+	snprintf(reg_path_str, sizeof(reg_path_str), "%s\\shell\\open\\command", gURLProtocolWhitelistHandler[i]);	/* Flawfinder: ignore */
 	WCHAR reg_path_wstr[256];
 	mbstowcs(reg_path_wstr, reg_path_str, 1024);
 
@@ -3164,7 +3168,7 @@ void spawn_web_browser(const char* escaped_url )
 	// MS docs say to cast to int and compare to 32.
 	HWND our_window = NULL;
 	LPCWSTR directory_wstr = NULL;
-	int retval = (int) ShellExecute(our_window, 
+	int retval = (int) ShellExecute(our_window, 	/* Flawfinder: ignore */
 									L"open", 
 									browser_exec_utf16.c_str(), 
 									url_utf16.c_str(), 
@@ -3188,7 +3192,7 @@ void shell_open( const char* file_path )
 	mbstowcs(wstr, file_path, 1024);
 
 	HWND our_window = NULL;
-	int retval = (int) ShellExecute(our_window, L"open", wstr, NULL, NULL, SW_SHOWNORMAL);
+	int retval = (int) ShellExecute(our_window, L"open", wstr, NULL, NULL, SW_SHOWNORMAL);	/* Flawfinder: ignore */
 	if (retval > 32)
 	{
 		llinfos << "ShellExecute success with " << retval << llendl;

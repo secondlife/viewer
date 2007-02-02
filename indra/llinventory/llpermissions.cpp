@@ -487,18 +487,18 @@ void LLPermissions::unpackMessage(LLMessageSystem* msg, const char* block, S32 b
 // File support
 //
 
-BOOL LLPermissions::importFile(FILE *fp)
+BOOL LLPermissions::importFile(FILE* fp)
 {
 	init(LLUUID::null, LLUUID::null, LLUUID::null, LLUUID::null);
 	const S32 BUFSIZE = 16384;
 
 	// *NOTE: Changing the buffer size will require changing the scanf
 	// calls below.
-	char	buffer[BUFSIZE];
-	char	keyword[256];
-	char	valuestr[256];
-	char	uuid_str[256];
-	U32		mask;
+	char buffer[BUFSIZE];	/* Flawfinder: ignore */
+	char keyword[256];	/* Flawfinder: ignore */
+	char valuestr[256];	/* Flawfinder: ignore */
+	char uuid_str[256];	/* Flawfinder: ignore */
+	U32 mask;
 
 	keyword[0]  = '\0';
 	valuestr[0] = '\0';
@@ -506,7 +506,10 @@ BOOL LLPermissions::importFile(FILE *fp)
 	while (!feof(fp))
 	{
 		fgets(buffer, BUFSIZE, fp);
-		sscanf(buffer, " %255s %255s", keyword, valuestr);
+		sscanf( /* Flawfinder: ignore */
+			buffer,
+			" %255s %255s",
+			keyword, valuestr);
 		if (!keyword)
 		{
 			continue;
@@ -554,22 +557,22 @@ BOOL LLPermissions::importFile(FILE *fp)
 		}
 		else if (!strcmp("creator_id", keyword))
 		{
-			sscanf(valuestr, "%255s", uuid_str);
+			sscanf(valuestr, "%255s", uuid_str); /* Flawfinder: ignore */
 			mCreator.set(uuid_str);
 		}
 		else if (!strcmp("owner_id", keyword))
 		{
-			sscanf(valuestr, "%255s", uuid_str);
+			sscanf(valuestr, "%255s", uuid_str); /* Flawfinder: ignore */
 			mOwner.set(uuid_str);
 		}
 		else if (!strcmp("last_owner_id", keyword))
 		{
-			sscanf(valuestr, "%255s", uuid_str);
+			sscanf(valuestr, "%255s", uuid_str); /* Flawfinder: ignore */
 			mLastOwner.set(uuid_str);
 		}
 		else if (!strcmp("group_id", keyword))
 		{
-			sscanf(valuestr, "%255s", uuid_str);
+			sscanf(valuestr, "%255s", uuid_str); /* Flawfinder: ignore */
 			mGroup.set(uuid_str);
 		}
 		else if (!strcmp("group_owned", keyword))
@@ -588,9 +591,9 @@ BOOL LLPermissions::importFile(FILE *fp)
 }
 
 
-BOOL LLPermissions::exportFile(FILE *fp) const
+BOOL LLPermissions::exportFile(FILE* fp) const
 {
-	char uuid_str[256];
+	char uuid_str[256];	/* Flawfinder: ignore */
 
 	fprintf(fp, "\tpermissions 0\n");
 	fprintf(fp, "\t{\n");
@@ -629,11 +632,11 @@ BOOL LLPermissions::importLegacyStream(std::istream& input_stream)
 
 	// *NOTE: Changing the buffer size will require changing the scanf
 	// calls below.
-	char	buffer[BUFSIZE];
-	char	keyword[256];
-	char	valuestr[256];
-	char	uuid_str[256];
-	U32		mask;
+	char buffer[BUFSIZE];	/* Flawfinder: ignore */
+	char keyword[256];	/* Flawfinder: ignore */
+	char valuestr[256];	/* Flawfinder: ignore */
+	char uuid_str[256];	/* Flawfinder: ignore */
+	U32 mask;
 
 	keyword[0]  = '\0';
 	valuestr[0] = '\0';
@@ -641,7 +644,10 @@ BOOL LLPermissions::importLegacyStream(std::istream& input_stream)
 	while (input_stream.good())
 	{
 		input_stream.getline(buffer, BUFSIZE);
-		sscanf(buffer, " %255s %255s", keyword, valuestr);
+		sscanf( /* Flawfinder: ignore */
+			buffer,
+			" %255s %255s",
+			keyword, valuestr);
 		if (!keyword)
 		{
 			continue;
@@ -689,22 +695,22 @@ BOOL LLPermissions::importLegacyStream(std::istream& input_stream)
 		}
 		else if (!strcmp("creator_id", keyword))
 		{
-			sscanf(valuestr, "%255s", uuid_str);
+			sscanf(valuestr, "%255s", uuid_str);	/* Flawfinder: ignore */
 			mCreator.set(uuid_str);
 		}
 		else if (!strcmp("owner_id", keyword))
 		{
-			sscanf(valuestr, "%255s", uuid_str);
+			sscanf(valuestr, "%255s", uuid_str);	/* Flawfinder: ignore */
 			mOwner.set(uuid_str);
 		}
 		else if (!strcmp("last_owner_id", keyword))
 		{
-			sscanf(valuestr, "%255s", uuid_str);
+			sscanf(valuestr, "%255s", uuid_str);	/* Flawfinder: ignore */
 			mLastOwner.set(uuid_str);
 		}
 		else if (!strcmp("group_id", keyword))
 		{
-			sscanf(valuestr, "%255s", uuid_str);
+			sscanf(valuestr, "%255s", uuid_str);	/* Flawfinder: ignore */
 			mGroup.set(uuid_str);
 		}
 		else if (!strcmp("group_owned", keyword))
@@ -725,21 +731,21 @@ BOOL LLPermissions::importLegacyStream(std::istream& input_stream)
 
 BOOL LLPermissions::exportLegacyStream(std::ostream& output_stream) const
 {
-	char uuid_str[256];
+	char uuid_str[256];	/* Flawfinder: ignore */
 
 	output_stream <<  "\tpermissions 0\n";
 	output_stream <<  "\t{\n";
 
-	char buffer[256];
-	sprintf(buffer, "\t\tbase_mask\t%08x\n",		mMaskBase);
+	char buffer[256];	/* Flawfinder: ignore */
+	snprintf(buffer, sizeof(buffer), "\t\tbase_mask\t%08x\n",		mMaskBase);	/* Flawfinder: ignore */
 	output_stream << buffer;
-	sprintf(buffer, "\t\towner_mask\t%08x\n",		mMaskOwner);
+	snprintf(buffer, sizeof(buffer), "\t\towner_mask\t%08x\n",		mMaskOwner);	/* Flawfinder: ignore */
 	output_stream << buffer;
-	sprintf(buffer, "\t\tgroup_mask\t%08x\n",		mMaskGroup);
+	snprintf(buffer, sizeof(buffer), "\t\tgroup_mask\t%08x\n",		mMaskGroup);	/* Flawfinder: ignore */
 	output_stream << buffer;
-	sprintf(buffer, "\t\teveryone_mask\t%08x\n",	mMaskEveryone);
+	snprintf(buffer, sizeof(buffer), "\t\teveryone_mask\t%08x\n",	mMaskEveryone);	/* Flawfinder: ignore */
 	output_stream << buffer;
-	sprintf(buffer, "\t\tnext_owner_mask\t%08x\n",	mMaskNextOwner);
+	snprintf(buffer, sizeof(buffer), "\t\tnext_owner_mask\t%08x\n",	mMaskNextOwner);	/* Flawfinder: ignore */
 	output_stream << buffer;
 
 	mCreator.toString(uuid_str);

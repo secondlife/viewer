@@ -785,7 +785,7 @@ S32 LLSDBinaryParser::parse(std::istream& istr, LLSD& data) const
 		// the size, and read it.
 		// *FIX: Should we set a maximum size?
 		U32 size_nbo = 0;
-		istr.read((char*)&size_nbo, sizeof(U32));
+		istr.read((char*)&size_nbo, sizeof(U32));	/*Flawfinder: ignore*/
 		S32 size = (S32)ntohl(size_nbo);
 		std::vector<U8> value;
 		if(size)
@@ -925,7 +925,7 @@ void LLSDFormatter::realFormat(const std::string& format)
 void LLSDFormatter::formatReal(LLSD::Real real, std::ostream& ostr) const
 {
 	char buffer[MAX_STRING];		/* Flawfinder: ignore */
-	snprintf(buffer, MAX_STRING, mRealFormat.c_str(), real);
+	snprintf(buffer, MAX_STRING, mRealFormat.c_str(), real);	/* Flawfinder: ignore */
 	ostr << buffer;
 }
 

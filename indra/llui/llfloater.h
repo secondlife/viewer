@@ -103,7 +103,7 @@ public:
 	virtual EWidgetType getWidgetType() const;
 	virtual LLString getWidgetTag() const;
 
-	virtual void	open();
+	virtual void	open();	/* Flawfinder: ignore */
 
 	// If allowed, close the floater cleanly, releasing focus.
 	// app_quitting is passed to onClose() below.
@@ -342,7 +342,7 @@ public:
 						BOOL minimizable, BOOL close_btn);
 
 	virtual BOOL postBuild();
-	/*virtual*/ void open();
+	/*virtual*/ void open();	/* Flawfinder: ignore */
 	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void draw();
 	/*virtual*/ void setVisible(BOOL visible);

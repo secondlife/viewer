@@ -144,7 +144,7 @@ LLDebugVarMessageBox* LLDebugVarMessageBox::show(const std::string& title, EDebu
 		sInstances[title_string] = box;
 		gFloaterView->addChild(box);
 		box->reshape(200,150);
-		box->open();
+		box->open();		 /*Flawfinder: ignore*/
 		box->mTitle = title_string;
 	}
 
@@ -187,18 +187,18 @@ void LLDebugVarMessageBox::onClose(bool app_quitting)
 
 void LLDebugVarMessageBox::draw()
 {
-	char text[128];
+	char text[128];	 /*Flawfinder: ignore*/
 	switch(mVarType)
 	{
 	case VAR_TYPE_F32:
-		sprintf(text, "%.3f", *((F32*)mVarData));
+		snprintf(text, sizeof(text), "%.3f", *((F32*)mVarData));		 /*Flawfinder: ignore*/
 		break;
 	case VAR_TYPE_S32:
-		sprintf(text, "%d", *((S32*)mVarData));
+		snprintf(text, sizeof(text), "%d", *((S32*)mVarData)); 		 /*Flawfinder: ignore*/
 		break;
 	case VAR_TYPE_VEC3:
 		LLVector3* vec_p = (LLVector3*)mVarData;
-		sprintf(text, "%.3f %.3f %.3f", vec_p->mV[VX], vec_p->mV[VY], vec_p->mV[VZ]);
+		snprintf(text, sizeof(text), "%.3f %.3f %.3f", vec_p->mV[VX], vec_p->mV[VY], vec_p->mV[VZ]);	 /*Flawfinder: ignore*/
 		break;
 	}
 	mText->setText(text);

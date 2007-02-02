@@ -94,12 +94,12 @@ void LLFloaterFriends::show(void*)
 {
 	if(sInstance)
 	{
-		sInstance->open();
+		sInstance->open();	/*Flawfinder: ignore*/
 	}
 	else
 	{
 		LLFloaterFriends* self = new LLFloaterFriends;
-		self->open();
+		self->open(); /*Flawfinder: ignore*/
 	}
 }
 
@@ -486,12 +486,12 @@ void LLFloaterFriends::onClickIM(void* user_data)
 		{
 			LLUUID agent_id = ids[0];
 			const LLRelationship* info = LLAvatarTracker::instance().getBuddyInfo(agent_id);
-			char first[DB_FIRST_NAME_BUF_SIZE];
-			char last[DB_LAST_NAME_BUF_SIZE];
+			char first[DB_FIRST_NAME_BUF_SIZE];	/* Flawfinder: ignore */
+			char last[DB_LAST_NAME_BUF_SIZE];	/* Flawfinder: ignore */
 			if(info && gCacheName->getName(agent_id, first, last))
 			{
-				char buffer[MAX_STRING];
-				snprintf(buffer, MAX_STRING, "%s %s", first, last);
+				char buffer[MAX_STRING];	/* Flawfinder: ignore */
+				snprintf(buffer, MAX_STRING, "%s %s", first, last);	/* Flawfinder: ignore */
 				gIMView->setFloaterOpen(TRUE);
 				gIMView->addSession(
 					buffer,
@@ -579,8 +579,8 @@ void LLFloaterFriends::onClickRemove(void* user_data)
 		if(ids.size() == 1)
 		{
 			LLUUID agent_id = ids[0];
-			char first[DB_FIRST_NAME_BUF_SIZE];
-			char last[DB_LAST_NAME_BUF_SIZE];
+			char first[DB_FIRST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
+			char last[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 			if(gCacheName->getName(agent_id, first, last))
 			{
 				args["[FIRST_NAME]"] = first;
@@ -652,8 +652,8 @@ void LLFloaterFriends::onClickModifyStatus(LLUICtrl* ctrl, void* user_data)
 		if(ids.size() == 1)
 		{
 			LLUUID agent_id = ids[0];
-			char first[DB_FIRST_NAME_BUF_SIZE];
-			char last[DB_LAST_NAME_BUF_SIZE];
+			char first[DB_FIRST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
+			char last[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 			if(gCacheName->getName(agent_id, first, last))
 			{
 				args["[FIRST_NAME]"] = first;

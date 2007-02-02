@@ -51,7 +51,7 @@ typedef enum e_lscript_registers
 	LREG_EOF
 } LSCRIPTRegisters;
 
-const S32 gLSCRIPTRegisterAddresses[LREG_EOF] =
+const S32 gLSCRIPTRegisterAddresses[LREG_EOF] =	/* Flawfinder: ignore */
 {
 	0,			// LREG_INVALID
 	4,			// LREG_IP
@@ -449,7 +449,7 @@ const U8 LSCRIPTTypeHi4Bits[LST_EOF] =
 	LST_LIST << 4,
 };
 
-const char * const LSCRIPTTypeNames[LST_EOF] =
+const char * const LSCRIPTTypeNames[LST_EOF] = 	/*Flawfinder: ignore*/
 {
 	"VOID",
 	"integer",
@@ -492,7 +492,7 @@ typedef enum e_lscript_runtime_faults
 	LSRF_EOF
 } LSCRIPTRunTimeFaults;
 
-extern char *LSCRIPTRunTimeFaultStrings[LSRF_EOF];
+extern char* LSCRIPTRunTimeFaultStrings[LSRF_EOF]; 	/*Flawfinder: ignore*/
 
 const S32 LSCRIPTRunTimeFaultBits[LSRF_EOF] =
 {

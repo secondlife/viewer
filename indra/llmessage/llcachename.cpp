@@ -278,7 +278,10 @@ void LLCacheName::importFile(FILE* fp)
 	// *NOTE: This buffer size is hardcoded into sscanf() below
 	char version_string[BUFFER_SIZE]; /*Flawfinder: ignore*/
 	S32 version = 0;
-	S32 match = sscanf(buffer, "%1023s %d", version_string, &version);
+	S32 match = sscanf(	/* Flawfinder: ignore */
+		buffer,
+		"%1023s %d",
+		version_string, &version);
 	if (   match != 2
 		|| strcmp(version_string, "version")
 		|| version != CN_FILE_VERSION)
@@ -297,7 +300,7 @@ void LLCacheName::importFile(FILE* fp)
 		valid = fgets(buffer, BUFFER_SIZE, fp);
 		if (!valid) break;
 
-		match = sscanf(
+		match = sscanf(	/* Flawfinder: ignore */
 			buffer,
 			"%254s %u %254s %254s",
 			id_string, 
@@ -376,7 +379,7 @@ BOOL LLCacheName::getName(const LLUUID& id, char* first, char* last)
 	{
 		// The function signature needs to change to pass in the
 		// length of first and last.
-		strcpy(first, CN_NOBODY);
+		strcpy(first, CN_NOBODY);	/*Flawfinder: ignore*/
 		last[0] = '\0';
 		return FALSE;
 	}
@@ -386,8 +389,8 @@ BOOL LLCacheName::getName(const LLUUID& id, char* first, char* last)
 	{
 		// The function signature needs to change to pass in the
 		// length of first and last.
-		strcpy(first, entry->mFirstName);
-		strcpy(last,  entry->mLastName);
+		strcpy(first, entry->mFirstName);	/*Flawfinder: ignore*/
+		strcpy(last,  entry->mLastName);	/*Flawfinder: ignore*/
 		return TRUE;
 	}
 	else
@@ -397,7 +400,7 @@ BOOL LLCacheName::getName(const LLUUID& id, char* first, char* last)
 		strcpy(first,(ll_frand() < HIPPO_PROBABILITY)
 						? CN_HIPPOS 
 						: CN_WAITING);
-		strcpy(last, "");
+		strcpy(last, "");	/*Flawfinder: ignore*/
 
 		impl.mAskNameQueue.push_back(id);
 		return FALSE;
@@ -413,7 +416,7 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, char* group)
 	{
 		// The function signature needs to change to pass in the
 		// length of first and last.
-		strcpy(group, CN_NONE);
+		strcpy(group, CN_NONE);	/*Flawfinder: ignore*/
 		return FALSE;
 	}
 
@@ -431,14 +434,14 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, char* group)
 	{
 		// The function signature needs to change to pass in the length
 		// of group.
-		strcpy(group, entry->mGroupName);
+		strcpy(group, entry->mGroupName);	/*Flawfinder: ignore*/
 		return TRUE;
 	}
 	else 
 	{
 		// The function signature needs to change to pass in the length
 		// of first and last.
-		strcpy(group, CN_WAITING);
+		strcpy(group, CN_WAITING);	/*Flawfinder: ignore*/
 
 		impl.mAskGroupQueue.push_back(id);
 		return FALSE;

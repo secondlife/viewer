@@ -260,7 +260,7 @@ BOOL LLImageDXT::decode(LLImageRaw* raw_image, F32 time)
 	}
 
 	raw_image->resize(width, height, ncomponents);
-	memcpy(raw_image->getData(), data, image_size);
+	memcpy(raw_image->getData(), data, image_size);	/* Flawfinder: ignore */
 
 	return TRUE;
 }
@@ -354,7 +354,7 @@ BOOL LLImageDXT::encode(const LLImageRaw* raw_image, F32 time, bool explicit_mip
 		S32 bytes = formatBytes(format, w, h);
 		if (mip==0)
 		{
-			memcpy(mipdata, raw_image->getData(), bytes);
+			memcpy(mipdata, raw_image->getData(), bytes);	/* Flawfinder: ignore */
 		}
 		else if (explicit_mips)
 		{
@@ -406,15 +406,20 @@ bool LLImageDXT::convertToDXR()
 	S32 total_bytes = getDataSize();
 	U8* olddata = getData();
 	U8* newdata = new U8[total_bytes];
+	if (!newdata)
+	{
+		llerrs << "Out of memory in LLImageDXT::convertToDXR()" << llendl;
+		return false;
+	}
 	llassert(total_bytes > 0);
 	memset(newdata, 0, total_bytes);
-	memcpy(newdata, olddata, mHeaderSize);
+	memcpy(newdata, olddata, mHeaderSize);	/* Flawfinder: ignore */
 	for (S32 mip=0; mip<nmips; mip++)
 	{
 		S32 bytes = formatBytes(mFileFormat, width, height);
 		S32 newoffset = getMipOffset(mip);
 		S32 oldoffset = mHeaderSize + (total_bytes - newoffset - bytes);
-		memcpy(newdata + newoffset, olddata + oldoffset, bytes);
+		memcpy(newdata + newoffset, olddata + oldoffset, bytes);	/* Flawfinder: ignore */
 		width >>= 1;
 		height >>= 1;
 	}
@@ -468,7 +473,7 @@ void LLImageDXT::extractMip(const U8 *indata, U8* mipdata, int width, int height
 	for (int h=0;h<mip_height;++h)
 	{
 		int start_offset = initial_offset + line_width * h + line_offset;
-		memcpy(mipdata + mip_line_width*h, indata + start_offset, mip_line_width);
+		memcpy(mipdata + mip_line_width*h, indata + start_offset, mip_line_width);	/* Flawfinder: ignore */
 	}
 }
 

@@ -74,7 +74,7 @@ LLFloaterGroups* LLFloaterGroups::show(const LLUUID& id, EGroupDialog type)
 		else
 		{
 			// Move the existing view to the front
-			instance->open();
+			instance->open();	/* Flawfinder: ignore */
 		}
 	}
 
@@ -100,7 +100,7 @@ LLFloaterGroups* LLFloaterGroups::show(const LLUUID& id, EGroupDialog type)
 				break;
 			}
 			instance->center();
-			instance->open();
+			instance->open();	/*Flawfinder: ignore*/
 		}
 	}
 	return instance;

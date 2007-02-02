@@ -97,7 +97,7 @@ void LLFloaterOpenObject::show()
 		sInstance->center();
 	}
 
-	sInstance->open();
+	sInstance->open();		/* Flawfinder: ignore */
 	sInstance->setFocus(TRUE);
 }
 

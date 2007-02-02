@@ -47,9 +47,10 @@ void LLURL::init(const char * url)
 	mExtension[0] = '\0';
 	mTag[0] = '\0';
 	
-	char url_copy[MAX_STRING];
+	char url_copy[MAX_STRING];		/* Flawfinder: ignore */
 
-	strcpy (url_copy,url);
+	strncpy (url_copy,url, MAX_STRING -1);		/* Flawfinder: ignore */
+	url_copy[MAX_STRING -1] = '\0';
 
 	char *parse;
 	char *leftover_url = url_copy;
@@ -58,7 +59,8 @@ void LLURL::init(const char * url)
 	// copy and lop off tag
 	if ((parse = strchr(url_copy,'#')))
 	{
-		strcpy(mTag,parse+1);
+		strncpy(mTag,parse+1, LL_MAX_PATH -1);		/* Flawfinder: ignore */
+		mTag[LL_MAX_PATH -1] = '\0';
 		*parse = '\0';
 	}
 
@@ -66,7 +68,8 @@ void LLURL::init(const char * url)
 	if ((parse = strchr(url_copy,':')))
 	{
 		*parse = '\0';
-		strcpy(mURI,leftover_url);
+		strncpy(mURI,leftover_url, LL_MAX_PATH -1);		/* Flawfinder: ignore */
+		mURI[LL_MAX_PATH -1] = '\0';
 		leftover_url = parse + 1;
 	}
 
@@ -76,14 +79,15 @@ void LLURL::init(const char * url)
 		leftover_url += 2; // skip the "//"
 
 		span = strcspn(leftover_url, "/"); 
-		strncat(mAuthority,leftover_url,span);
+		strncat(mAuthority,leftover_url,span);		/* Flawfinder: ignore */
 		leftover_url += span;
 	}
 	
 	if ((parse = strrchr(leftover_url,'.')))
 	{
 		// copy and lop off extension
-		strcpy(mExtension,parse+1);
+		strncpy(mExtension,parse+1, LL_MAX_PATH -1);		/* Flawfinder: ignore */
+		mExtension[LL_MAX_PATH -1] = '\0';
 		*parse = '\0';
 	}
 
@@ -97,11 +101,13 @@ void LLURL::init(const char * url)
 	}
 
 	// copy and lop off filename
-	strcpy(mFilename,parse);
+	strncpy(mFilename,parse, LL_MAX_PATH -1);/* Flawfinder: ignore */
+	mFilename[LL_MAX_PATH -1] = '\0';
 	*parse = '\0';
 
 	// what's left should be the path
-	strcpy(mPath,leftover_url);
+	strncpy(mPath,leftover_url, LL_MAX_PATH -1);		/* Flawfinder: ignore */
+	mPath[LL_MAX_PATH -1] = '\0';
 
 //	llinfos << url << "  decomposed into: " << llendl;
 //	llinfos << "  URI : <" << mURI << ">" << llendl;
@@ -150,42 +156,43 @@ bool LLURL::operator!=(const LLURL& rhs) const
 
 const char * LLURL::getFQURL() const
 {
-	char        fqurl[LL_MAX_PATH];
+	char        fqurl[LL_MAX_PATH];		/* Flawfinder: ignore */
 
 	fqurl[0] = '\0';
 
 	if (mURI[0])
 	{
-		strcat(fqurl,mURI);
-		strcat(fqurl,":");
+		strncat(fqurl,mURI, LL_MAX_PATH - strlen(fqurl) -1);		/* Flawfinder: ignore */
+		strcat(fqurl,":");		/* Flawfinder: ignore */
 		if (mAuthority[0])
 		{
-			strcat(fqurl,"//");
+			strcat(fqurl,"//");		/* Flawfinder: ignore */
 		}
 	}
 
 	if (mAuthority[0])
 	{
-		strcat(fqurl,mAuthority);
+		strncat(fqurl,mAuthority, LL_MAX_PATH - strlen(fqurl) -1);		/* Flawfinder: ignore */
 	}
 
-	strcat(fqurl,mPath);
+	strncat(fqurl,mPath, LL_MAX_PATH - strlen(fqurl) -1);		/* Flawfinder: ignore */
 
-	strcat(fqurl,mFilename);
+	strncat(fqurl,mFilename, LL_MAX_PATH - strlen(fqurl) -1);		/* Flawfinder: ignore */
 	
 	if (mExtension[0])
 	{
-		strcat(fqurl,".");
-		strcat(fqurl,mExtension);
+		strcat(fqurl,".");		/* Flawfinder: ignore */
+		strncat(fqurl,mExtension, LL_MAX_PATH - strlen(fqurl) -1);		/* Flawfinder: ignore */
 	}
 
 	if (mTag[0])
 	{
-		strcat(fqurl,"#");
-		strcat(fqurl,mTag);
+		strcat(fqurl,"#");		/* Flawfinder: ignore */
+		strncat(fqurl,mTag, LL_MAX_PATH - strlen(fqurl) -1);		/* Flawfinder: ignore */
 	}
 
-	strcpy(LLURL::sReturnString,fqurl);
+	strncpy(LLURL::sReturnString,fqurl, LL_MAX_PATH -1);		/* Flawfinder: ignore */
+	LLURL::sReturnString[LL_MAX_PATH -1] = '\0';
 
 	return(LLURL::sReturnString);
 }
@@ -193,16 +200,18 @@ const char * LLURL::getFQURL() const
 
 const char* LLURL::updateRelativePath(const LLURL &url)
 {
-	char new_path[LL_MAX_PATH];
-	char tmp_path[LL_MAX_PATH];
+	char new_path[LL_MAX_PATH];		/* Flawfinder: ignore */
+	char tmp_path[LL_MAX_PATH];		/* Flawfinder: ignore */
 
 	char *parse;
 
 	if (mPath[0] != '/')
 	{
 		//start with existing path
-		strcpy (new_path,url.mPath);
-		strcpy (tmp_path,mPath);
+		strncpy (new_path,url.mPath, LL_MAX_PATH -1);		/* Flawfinder: ignore */
+		new_path[LL_MAX_PATH -1] = '\0';
+		strncpy (tmp_path,mPath, LL_MAX_PATH -1);		/* Flawfinder: ignore */
+		tmp_path[LL_MAX_PATH -1] = '\0';
 
 		parse = strtok(tmp_path,"/");
 		while (parse)
@@ -227,28 +236,30 @@ const char* LLURL::updateRelativePath(const LLURL &url)
 				}
 				else
 				{
-					strcat(new_path,"../");
+					strcat(new_path,"../");		/* Flawfinder: ignore */
 				}
 
 			}
 			else 
 			{
-				strcat(new_path,parse);
-				strcat(new_path,"/");
+				strncat(new_path,parse, LL_MAX_PATH - strlen(new_path) -1 );		/* Flawfinder: ignore */
+				strcat(new_path,"/");		/* Flawfinder: ignore */
 			}
 			parse = strtok(NULL,"/");
 		}
-		strcpy(mPath,new_path);
+		strncpy(mPath,new_path, LL_MAX_PATH -1);		/* Flawfinder: ignore */
+		mPath[LL_MAX_PATH -1] = '\0';
 	}
 	return mPath;
 }
 
 const char * LLURL::getFullPath()
 {
-	strcpy(LLURL::sReturnString,mPath);
-	strcat(LLURL::sReturnString,mFilename);
-	strcat(LLURL::sReturnString,".");
-	strcat(LLURL::sReturnString,mExtension);
+	strncpy(LLURL::sReturnString,mPath, LL_MAX_PATH -1);		/* Flawfinder: ignore */
+	LLURL::sReturnString[LL_MAX_PATH -1] = '\0';
+	strncat(LLURL::sReturnString,mFilename, LL_MAX_PATH - strlen(LLURL::sReturnString) -1);		/* Flawfinder: ignore */
+	strcat(LLURL::sReturnString,".");		/* Flawfinder: ignore */
+	strncat(LLURL::sReturnString,mExtension, LL_MAX_PATH - strlen(LLURL::sReturnString) -1);		/* Flawfinder: ignore */
 	return(sReturnString);
 }
 

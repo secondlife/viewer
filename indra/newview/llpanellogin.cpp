@@ -499,14 +499,15 @@ void LLPanelLogin::setFields(const std::string& firstname, const std::string& la
 		// nice row of asterixes.
 		const char* filler = "123456789!123456";
 		sInstance->childSetText("password_edit", filler);
-		strcpy(sInstance->mIncomingPassword, filler);
-		strcpy(sInstance->mMungedPassword, password.c_str());
+		strcpy(sInstance->mIncomingPassword, filler); 		/*Flawfinder: ignore*/
+		strcpy(sInstance->mMungedPassword, password.c_str());	/*Flawfinder: ignore*/
 	}
 	else
 	{
 		// this is a normal text password
 		sInstance->childSetText("password_edit", password);
-		strcpy(sInstance->mIncomingPassword, password.c_str());
+		strncpy(sInstance->mIncomingPassword, password.c_str(), sizeof(sInstance->mIncomingPassword) -1);    /*Flawfinder: ignore*/
+                sInstance->mIncomingPassword[sizeof(sInstance->mIncomingPassword) -1] = '\0';
 		LLMD5 pass((unsigned char *)password.c_str());
 		pass.hex_digest(sInstance->mMungedPassword);
 	}

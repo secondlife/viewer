@@ -110,7 +110,7 @@ public:
 	}
 
 	#ifdef LL_LITTLE_ENDIAN
-	inline void swizzleCopy(void *dst, void *src, int size) { memcpy(dst, src, size); }
+	inline void swizzleCopy(void *dst, void *src, int size) { memcpy(dst, src, size); /* Flawfinder: ignore */}
 
 	#else
 	
@@ -137,7 +137,7 @@ public:
 		else
 		{
 			// Perhaps this should assert...
-			memcpy(dst, src, size);
+			memcpy(dst, src, size);	/* Flawfinder: ignore */
 		}
 	}
 	
@@ -151,7 +151,7 @@ public:
 		buffer +=4;
 		swizzleCopy(buffer, &mAccessTime, 4);
 		buffer +=4;
-		memcpy(buffer, &mFileID.mData, 16);
+		memcpy(buffer, &mFileID.mData, 16); /* Flawfinder: ignore */	
 		buffer += 16;
 		S16 temp_type = mFileType;
 		swizzleCopy(buffer, &temp_type, 2);
@@ -220,10 +220,15 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 	}
 	mValid = VFSVALID_OK;
 	mReadOnly = read_only;
-	mIndexFilename = new char[strlen(index_filename) + 1];
-	mDataFilename = new char[strlen(data_filename) + 1];
-	strcpy(mIndexFilename, index_filename);
-	strcpy(mDataFilename, data_filename);
+	mIndexFilename = new char[strlen(index_filename) + 1];	/* Flawfinder: ignore */
+	mDataFilename = new char[strlen(data_filename) + 1];	/* Flawfinder: ignore */
+	if (mIndexFilename == NULL || mDataFilename  == NULL)
+	{
+		llerrs << "Memory Allocation Failure" << llendl;
+		return;
+	}
+	strcpy(mIndexFilename, index_filename);	/* Flawfinder: ignore */
+	strcpy(mDataFilename, data_filename);	/* Flawfinder: ignore */
     
 	const char *file_mode = mReadOnly ? "rb" : "r+b";
     
@@ -247,13 +252,23 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 		{
 			llwarns << "Can't open VFS data file " << mDataFilename << " attempting to use alternate" << llendl;
     
-			char *temp_index = new char[strlen(mIndexFilename) + 10];
-			char *temp_data = new char[strlen(mDataFilename) + 10];
+			char *temp_index = new char[strlen(mIndexFilename) + 10];	/* Flawfinder: ignore */
+			if (!temp_index)
+			{
+				llerrs << "Out of the memory in LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL read_only, const U32 presize, const BOOL remove_after_crash)" << llendl;
+				return;
+			}
+			char *temp_data = new char[strlen(mDataFilename) + 10];	/* Flawfinder: ignore */
+			if (!temp_data)
+			{
+				llerrs << "Out of the memory in LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL read_only, const U32 presize, const BOOL remove_after_crash)" << llendl;
+				return;
+			}
 
 			for (U32 count = 0; count < 256; count++)
 			{
-				sprintf(temp_index, "%s.%u", mIndexFilename, count);
-				sprintf(temp_data, "%s.%u", mDataFilename, count);
+				sprintf(temp_index, "%s.%u", mIndexFilename, count);	/* Flawfinder: ignore */
+				sprintf(temp_data, "%s.%u", mDataFilename, count);	/* Flawfinder: ignore */
     
 				// try just opening, then creating, each alternate
 				if ((mDataFP = openAndLock(temp_data, "r+b", FALSE)))
@@ -294,8 +309,13 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 	if (!mReadOnly && mRemoveAfterCrash)
 	{
 		llstat marker_info;
-		char* marker = new char[strlen(mDataFilename) + strlen(".open") + 1];
-		sprintf(marker, "%s.open", mDataFilename);
+		char* marker = new char[strlen(mDataFilename) + strlen(".open") + 1];	/* Flawfinder: ignore */
+		if (!marker )
+		{
+			llerrs << "Out of memory in LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL read_only, const U32 presize, const BOOL remove_after_crash)" << llendl;
+			return;
+		}
+		sprintf(marker, "%s.open", mDataFilename);	/* Flawfinder: ignore */
 		if (!LLFile::stat(marker, &marker_info))
 		{
 			// marker exists, kill the lock and the VFS files
@@ -523,8 +543,13 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 	if (!mReadOnly && mRemoveAfterCrash)
 	{
 		char* marker = new char[strlen(mDataFilename) + strlen(".open") + 1];
-		sprintf(marker, "%s.open", mDataFilename);
-		FILE* marker_fp = LLFile::fopen(marker, "w");
+		if (!marker)
+		{
+			llerrs << "Out of memory in LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL read_only, const U32 presize, const BOOL remove_after_crash)" << llendl;
+			return;
+		}
+		sprintf(marker, "%s.open", mDataFilename);	/* Flawfinder: ignore */
+		FILE* marker_fp = LLFile::fopen(marker, "w");	/* Flawfinder: ignore */
 		if (marker_fp)
 		{
 			fclose(marker_fp);
@@ -567,7 +592,12 @@ LLVFS::~LLVFS()
 	if (!mReadOnly && mRemoveAfterCrash)
 	{
 		char* marker_file = new char[strlen(mDataFilename) + strlen(".open") + 1];
-		sprintf(marker_file, "%s.open", mDataFilename);
+		if (marker_file == NULL)
+		{
+			llerrs << "Memory Allocation Failure" << llendl;
+			return;
+		}
+		sprintf(marker_file, "%s.open", mDataFilename);	/* Flawfinder: ignore */
 		LLFile::remove(marker_file);
 		delete [] marker_file;
 		marker_file = NULL;
@@ -2045,7 +2075,7 @@ FILE *LLVFS::openAndLock(const char *filename, const char *mode, BOOL read_lock)
 	// first test the lock in a non-destructive way
 	if (strstr(mode, "w"))
 	{
-		fp = LLFile::fopen(filename, "rb");
+		fp = LLFile::fopen(filename, "rb");	/* Flawfinder: ignore */
 		if (fp)
 		{
 			fd = fileno(fp);
@@ -2060,7 +2090,7 @@ FILE *LLVFS::openAndLock(const char *filename, const char *mode, BOOL read_lock)
 	}
 
 	// now actually open the file for use
-	fp = LLFile::fopen(filename, mode);
+	fp = LLFile::fopen(filename, mode);	/* Flawfinder: ignore */
 	if (fp)
 	{
 		fd = fileno(fp);

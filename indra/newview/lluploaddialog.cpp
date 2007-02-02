@@ -83,8 +83,13 @@ void LLUploadDialog::setMessage( const std::string& msg)
 	char* temp_msg = new char[size];
 	
 	//strcpy(temp_msg,"Uploading...\n\n");
-	strcpy( temp_msg, msg.c_str());
+	if (temp_msg == NULL)
+	{
+		llerrs << "Memory Allocation Failed" << llendl;
+		return;
+	}
 	
+	strcpy( temp_msg, msg.c_str());		/* Flawfinder: ignore */
 	char* token = strtok( temp_msg, "\n" );
 	while( token )
 	{

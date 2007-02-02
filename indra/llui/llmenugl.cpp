@@ -4579,7 +4579,7 @@ LLTearOffMenu* LLTearOffMenu::create(LLMenuGL* menup)
 	LLTearOffMenu* tearoffp = new LLTearOffMenu(menup);
 	// keep onscreen
 	gFloaterView->adjustToFitScreen(tearoffp, FALSE);
-	tearoffp->open();
+	tearoffp->open();	/* Flawfinder: ignore */
 	return tearoffp;
 }
 

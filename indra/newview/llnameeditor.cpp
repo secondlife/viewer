@@ -67,9 +67,9 @@ void LLNameEditor::setNameID(const LLUUID& name_id, BOOL is_group)
 {
 	mNameID = name_id;
 
-	char first[DB_FIRST_NAME_BUF_SIZE];
-	char last[DB_LAST_NAME_BUF_SIZE];
-	char group_name[DB_GROUP_NAME_BUF_SIZE];
+	char first[DB_FIRST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
+	char last[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
+	char group_name[DB_GROUP_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 	LLString name;
 
 	if (!is_group)

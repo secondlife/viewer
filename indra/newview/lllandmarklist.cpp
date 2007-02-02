@@ -65,7 +65,7 @@ void LLLandmarkList::processGetAssetReply(
 		S32 file_length = file.getSize();
 
 		char* buffer = new char[ file_length + 1 ];
-		file.read( (U8*)buffer, file_length);
+		file.read( (U8*)buffer, file_length);		/*Flawfinder: ignore*/
 		buffer[ file_length ] = 0;
 
 		LLLandmark* landmark = LLLandmark::constructFromString(buffer);

@@ -193,7 +193,7 @@ void LLFloaterMap::toggle(void*)
 		}
 		else
 		{
-			gFloaterMap->open();
+			gFloaterMap->open();		/* Flawfinder: ignore */
 		}
 	}
 }

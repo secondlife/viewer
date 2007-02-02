@@ -70,8 +70,8 @@ BOOL check_for_card(const char* RENDERER, const char* bad_card)
 {
 	if (!strnicmp(RENDERER, bad_card, strlen(bad_card)))
 	{
-		char buffer[1024];
-		sprintf(buffer,
+		char buffer[1024];/* Flawfinder: ignore */
+		snprintf(buffer, sizeof(buffer), /* Flawfinder: ignore */
 			"Your video card appears to be a %s, which Second Life does not support.\n"
 			"\n"
 			"Second Life requires a video card with 32 Mb of memory or more, as well as\n"
@@ -227,8 +227,8 @@ LLWindowMacOSX::LLWindowMacOSX(char *title, char *name, S32 x, S32 y, S32 width,
 	mOriginalAspectRatio = (double)CGDisplayPixelsWide(mDisplay) / (double)CGDisplayPixelsHigh(mDisplay);
 
 	// Stash the window title
-	strcpy((char*)mWindowTitle + 1, title);
-	mWindowTitle[0] = strlen(title);
+	strcpy((char*)mWindowTitle + 1, title); /* Flawfinder: ignore */
+	mWindowTitle[0] = strlen(title);	/* Flawfinder: ignore */
 
 	mEventHandlerUPP = NewEventHandlerUPP(staticEventHandler);
 	mGlobalHandlerRef = NULL;
@@ -405,8 +405,8 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 			mFullscreenBits    = -1;
 			mFullscreenRefresh = -1;
 
-			char error[256];
-			sprintf(error, "Unable to run fullscreen at %d x %d.\nRunning in window.", width, height);
+			char error[256];	/* Flawfinder: ignore */
+			snprintf(error, sizeof(error), "Unable to run fullscreen at %d x %d.\nRunning in window.", width, height);	/* Flawfinder: ignore */
 			OSMessageBox(error, "Error", OSMB_OK);
 		}
 	}
@@ -2719,7 +2719,7 @@ void spawn_web_browser(const char* escaped_url)
 	S32 i;
 	for (i = 0; i < gURLProtocolWhitelistCount; i++)
 	{
-		S32 len = strlen(gURLProtocolWhitelist[i]);
+		S32 len = strlen(gURLProtocolWhitelist[i]);	/* Flawfinder: ignore */
 		if (!strncmp(escaped_url, gURLProtocolWhitelist[i], len)
 			&& escaped_url[len] == ':')
 		{

@@ -61,7 +61,7 @@
 
 // Deal with the differeneces on Windows
 #if defined(LL_WINDOWS)
-#define snprintf _snprintf
+#define snprintf _snprintf	/*Flawfinder: ignore*/
 #endif	//	LL_WINDOWS
 
 // Static linking with apr on windows needs to be declared.

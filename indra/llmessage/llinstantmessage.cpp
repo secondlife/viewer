@@ -207,8 +207,8 @@ void pack_instant_message_block(
 	S32 bytes_left = MTUBYTES;
 	if(message)
 	{
-		char buffer[MTUBYTES];
-		bytes_left -= snprintf(buffer, MTUBYTES, "%s", message);
+		char buffer[MTUBYTES];	/*Flawfinder: ignore*/
+		bytes_left -= snprintf(buffer, MTUBYTES, "%s", message);	/*Flawfinder: ignore*/
 		bytes_left = llmax(0, bytes_left);
 		msg->addStringFast(_PREHASH_Message, buffer);
 	}
@@ -244,11 +244,11 @@ void LLIMInfo::unpackMessageBlock(LLMessageSystem* msg)
 	mIMType = (EInstantMessage) dialog;
 	msg->getUUIDFast(_PREHASH_MessageBlock, _PREHASH_ID, mID);
 	msg->getU32Fast(_PREHASH_MessageBlock, _PREHASH_Timestamp, mTimeStamp);
-	char name[DB_FULL_NAME_BUF_SIZE];
+	char name[DB_FULL_NAME_BUF_SIZE];	/*Flawfinder: ignore*/
 	msg->getStringFast(_PREHASH_MessageBlock, _PREHASH_FromAgentName, DB_FULL_NAME_BUF_SIZE, name);
 	mName.assign(name);
 
-	char message[DB_IM_MSG_BUF_SIZE];
+	char message[DB_IM_MSG_BUF_SIZE];	/*Flawfinder: ignore*/
 	msg->getStringFast(_PREHASH_MessageBlock, _PREHASH_Message, DB_IM_MSG_BUF_SIZE, message);
 	mMessage.assign(message);
 

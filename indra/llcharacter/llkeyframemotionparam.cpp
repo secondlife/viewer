@@ -329,9 +329,9 @@ BOOL LLKeyframeMotionParam::loadMotions()
 	// Load data into a buffer to be parsed.
 	//-------------------------------------------------------------------------
 	char path[LL_MAX_PATH];		/* Flawfinder: ignore */
-	snprintf( path, sizeof(path), "%s_%s.llp",
+	snprintf( path,sizeof(path), "%s_%s.llp",	/* Flawfinder: ignore */
 		gDirUtilp->getExpandedFilename(LL_PATH_MOTIONS,mCharacter->getAnimationPrefix()).c_str(),
-		getName().c_str() );	/* Flawfinder: ignore */
+		getName().c_str() );	
 
 	//-------------------------------------------------------------------------
 	// open the file
@@ -406,7 +406,7 @@ BOOL LLKeyframeMotionParam::loadMotions()
 	// get priority
 	//-------------------------------------------------------------------------
 	BOOL isFirstMotion = TRUE;
-	num = sscanf(p, "%79s %79s %f", strA, strB, &floatA);
+	num = sscanf(p, "%79s %79s %f", strA, strB, &floatA);	/* Flawfinder: ignore */
 
 	while(1)
 	{
@@ -432,7 +432,7 @@ BOOL LLKeyframeMotionParam::loadMotions()
 		}
 			
 		p++;
-		num = sscanf(p, "%79s %79s %f", strA, strB, &floatA);
+		num = sscanf(p, "%79s %79s %f", strA, strB, &floatA);	/* Flawfinder: ignore */
 	}
 
 	delete [] text;

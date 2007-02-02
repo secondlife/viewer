@@ -30,8 +30,8 @@ LLPolyMorphData::LLPolyMorphData(char *morph_name)
 {
 	llassert (morph_name);
 
-	mName = new char[strlen(morph_name) + 1];
-	strcpy(mName, morph_name);
+	mName = new char[strlen(morph_name) + 1];	/*Flawfinder: ignore*/
+	strcpy(mName, morph_name);	/*Flawfinder: ignore*/
 
 	mNumIndices = 0;
 	mCurrentIndex = 0;

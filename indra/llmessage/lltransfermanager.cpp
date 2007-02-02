@@ -346,7 +346,7 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
 			{
 				if ((packetp->mDatap != NULL) && (size<(S32)sizeof(tmp_data)))
 				{
-					memcpy(tmp_data, packetp->mDatap, size);
+					memcpy(tmp_data, packetp->mDatap, size);	/*Flawfinder: ignore*/
 				}
 			}
 			status = packetp->mStatus;
@@ -519,7 +519,7 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
 			{
 				if ((packetp->mDatap != NULL) && (size<(S32)sizeof(tmp_data)))
 				{
-					memcpy(tmp_data, packetp->mDatap, size);
+					memcpy(tmp_data, packetp->mDatap, size);	/*Flawfinder: ignore*/
 				}
 			}
 			status = packetp->mStatus;
@@ -1157,7 +1157,7 @@ LLTransferPacket::LLTransferPacket(const S32 packet_id, const LLTSCode status, c
 	mDatap = new U8[size];
 	if (mDatap != NULL)
 	{
-		memcpy(mDatap, datap, size);
+		memcpy(mDatap, datap, size);	/*Flawfinder: ignore*/
 	}
 }
 

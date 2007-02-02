@@ -1766,7 +1766,7 @@ class LLObjectEdit : public view_listener_t
 			}
 		}
 
-		gFloaterTools->open();
+		gFloaterTools->open();		/* Flawfinder: ignore */
 	
 		gCurrentToolset = gBasicToolset;
 		gFloaterTools->setEditTool( gToolTranslate );
@@ -2317,18 +2317,18 @@ void handle_leave_group(void *)
 void append_aggregate(LLString& string, const LLAggregatePermissions& ag_perm, PermissionBit bit, const char* txt)
 {
 	LLAggregatePermissions::EValue val = ag_perm.getValue(bit);
-	char buffer[MAX_STRING];
+	char buffer[MAX_STRING];		/* Flawfinder: ignore */
 	buffer[0] = '\0';
 	switch(val)
 	{
 	case LLAggregatePermissions::AP_NONE:
-		sprintf(buffer, "* %s None\n", txt);
+		snprintf(buffer, MAX_STRING, "* %s None\n", txt);		/* Flawfinder: ignore */
 		break;
 	case LLAggregatePermissions::AP_SOME:
-		sprintf(buffer, "* %s Some\n", txt);
+		snprintf(buffer, MAX_STRING, "* %s Some\n", txt);		/* Flawfinder: ignore */
 		break;
 	case LLAggregatePermissions::AP_ALL:
-		sprintf(buffer, "* %s All\n", txt);
+		snprintf(buffer, MAX_STRING, "* %s All\n", txt);		/* Flawfinder: ignore */
 		break;
 	case LLAggregatePermissions::AP_EMPTY:
 	default:
@@ -3393,17 +3393,17 @@ void handle_claim_public_land(void*)
 	msg->nextBlock("MethodData");
 	msg->addString("Method", "claimpublicland");
 	msg->addUUID("Invoice", LLUUID::null);
-	char buffer[32];
-	sprintf(buffer, "%f", west_south.mV[VX]);
+	char buffer[32];		/* Flawfinder: ignore */
+	snprintf(buffer, sizeof(buffer), "%f", west_south.mV[VX]);		/* Flawfinder: ignore */
 	msg->nextBlock("ParamList");
 	msg->addString("Parameter", buffer);
-	sprintf(buffer, "%f", west_south.mV[VY]);
+	snprintf(buffer, sizeof(buffer), "%f", west_south.mV[VY]);		/* Flawfinder: ignore */
 	msg->nextBlock("ParamList");
 	msg->addString("Parameter", buffer);
-	sprintf(buffer, "%f", east_north.mV[VX]);
+	snprintf(buffer, sizeof(buffer), "%f", east_north.mV[VX]);		/* Flawfinder: ignore */
 	msg->nextBlock("ParamList");
 	msg->addString("Parameter", buffer);
-	sprintf(buffer, "%f", east_north.mV[VY]);
+	snprintf(buffer, sizeof(buffer), "%f", east_north.mV[VY]);		/* Flawfinder: ignore */
 	msg->nextBlock("ParamList");
 	msg->addString("Parameter", buffer);
 	gAgent.sendReliableMessage();
@@ -3812,8 +3812,9 @@ void force_export_copy(void*)
 	}
 
 	// Copy the directory + file name
-	char filepath[LL_MAX_PATH];
-	strcpy(filepath, picker.getFirstFile());
+	char filepath[LL_MAX_PATH];		/* Flawfinder: ignore */
+	strncpy(filepath, picker.getFirstFile(), LL_MAX_PATH -1);		/* Flawfinder: ignore */
+	filepath[LL_MAX_PATH -1] = '\0';
 
 	apr_file_t* fp = ll_apr_file_open(filepath, LL_APR_W);
 
@@ -3857,7 +3858,7 @@ void force_export_copy(void*)
 			LLColor4 color = te->getColor();
 			apr_file_printf(fp, "\t<Face\n\t\tFaceColor='%d %5f %5f %5f %5f'\n", face, color.mV[VX], color.mV[VY], color.mV[VZ], color.mV[VW]);
 			
-			char texture[UUID_STR_LENGTH];
+			char texture[UUID_STR_LENGTH];		/* Flawfinder: ignore */
 			LLUUID texid = te->getID();
 			texid.toString(texture);
 			F32 sx, sy, ox, oy;
@@ -3923,8 +3924,9 @@ void force_import_geometry(void*)
 		return;
 	}
 
-	char directory[LL_MAX_PATH];
-	strcpy(directory, picker.getFirstFile());
+	char directory[LL_MAX_PATH];		/* Flawfinder: ignore */
+	strncpy(directory, picker.getFirstFile(), LL_MAX_PATH -1);		/* Flawfinder: ignore */
+	directory[LL_MAX_PATH -1] = '\0';
 
 	llinfos << "Loading LSG file " << directory << llendl;
 	LLXmlTree *xmlparser = new LLXmlTree();
@@ -3947,8 +3949,8 @@ void force_import_geometry(void*)
 	{
 		// get object data
 		// *NOTE: This buffer size is hard coded into scanf() below.
-		char name[255];			// Shape
-		char description[255];	// Description
+		char name[255];		/* Flawfinder: ignore */			// Shape
+		char description[255];		/* Flawfinder: ignore */		// Description
 		U32	 material;			// Material
 		F32  sx, sy, sz;		// Scale
 		LLVector3 scale;
@@ -3979,9 +3981,11 @@ void force_import_geometry(void*)
 		child->getAttributeString("PCode", &attribute);
 		pcode = atoi(attribute.c_str());
 		child->getAttributeString("Shape", &attribute);
-		sscanf(attribute.c_str(), "%254s", name);
+		sscanf(	/* Flawfinder: ignore */
+			attribute.c_str(), "%254s", name);
 		child->getAttributeString("Description", &attribute);
-		sscanf(attribute.c_str(), "%254s", description);
+		sscanf(	/* Flawfinder: ignore */
+			attribute.c_str(), "%254s", description);
 		child->getAttributeString("Material", &attribute);
 		material = atoi(attribute.c_str());
 		child->getAttributeString("Scale", &attribute);
@@ -4984,7 +4988,7 @@ void toggle_map( void* user_data )
 	}
 	else
 	{
-		gFloaterMap->open();
+		gFloaterMap->open();		/* Flawfinder: ignore */	
 	}
 }
 
@@ -5063,8 +5067,8 @@ const char* upload_pick(void* data)
 		{
 			const char* cur_token = token_iter->c_str();
 
-			if (0 == strnicmp(cur_token, ext, strlen(cur_token)) ||
-				0 == strnicmp(cur_token, "*.*", strlen(cur_token))) 
+			if (0 == strnicmp(cur_token, ext, strlen(cur_token)) ||		/* Flawfinder: ignore */
+				0 == strnicmp(cur_token, "*.*", strlen(cur_token))) 		/* Flawfinder: ignore */
 			{
 				//valid extension
 				//or the acceptable extension is any
@@ -5091,7 +5095,7 @@ const char* upload_pick(void* data)
 	if (type == LLFilePicker::FFLOAD_WAV)
 	{
 		// pre-qualify wavs to make sure the format is acceptable
-		char error_msg[MAX_STRING];
+		char error_msg[MAX_STRING];		/* Flawfinder: ignore */	
 		if (check_for_invalid_wav_formats(filename,error_msg))
 		{
 			llinfos << error_msg << ": " << filename << llendl;
@@ -5194,7 +5198,7 @@ class LLFileUploadBulk : public view_listener_t
 			char* end_p = strrchr(asset_name_str, '.');		 // strip extension if exists
 			if( !end_p )
 			{
-				end_p = asset_name_str + strlen( asset_name_str );
+				end_p = asset_name_str + strlen( asset_name_str );		/* Flawfinder: ignore */
 			}
 				
 			S32 len = llmin( (S32) (DB_INV_ITEM_NAME_STR_LEN), (S32) (end_p - asset_name_str) );
@@ -5375,7 +5379,7 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 
 	LLString ext = src_filename.substr(src_filename.find_last_of('.'));
 	LLAssetType::EType asset_type = LLAssetType::AT_NONE;
-	char error_message[MAX_STRING];
+	char error_message[MAX_STRING];		/* Flawfinder: ignore */	
 	error_message[0] = '\0';
 	LLString temp_str;
 
@@ -5389,7 +5393,8 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 		LLString short_name = filename.substr(offset);
 		
 		// No extension
-		sprintf(error_message,
+		snprintf(error_message,		/* Flawfinder: ignore */	
+				MAX_STRING,
 				"No file extension for the file: '%s'\nPlease make sure the file has a correct file extension",
 				short_name.c_str());
 		args["[FILE]"] = short_name;
@@ -5403,7 +5408,7 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 												 filename,
 												 IMG_CODEC_BMP ))
 		{
-			sprintf(error_message, "Problem with file %s:\n\n%s\n",
+			snprintf(error_message, MAX_STRING, "Problem with file %s:\n\n%s\n",		/* Flawfinder: ignore */
 					src_filename.c_str(), LLImageBase::getLastError().c_str());
 			args["[FILE]"] = src_filename;
 			args["[ERROR]"] = LLImageBase::getLastError();
@@ -5418,7 +5423,7 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 												 filename,
 												 IMG_CODEC_TGA ))
 		{
-			sprintf(error_message, "Problem with file %s:\n\n%s\n",
+			snprintf(error_message, MAX_STRING, "Problem with file %s:\n\n%s\n",		/* Flawfinder: ignore */
 					src_filename.c_str(), LLImageBase::getLastError().c_str());
 			args["[FILE]"] = src_filename;
 			args["[ERROR]"] = LLImageBase::getLastError();
@@ -5433,7 +5438,7 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 												 filename,
 												 IMG_CODEC_JPEG ))
 		{
-			sprintf(error_message, "Problem with file %s:\n\n%s\n",
+			snprintf(error_message, MAX_STRING, "Problem with file %s:\n\n%s\n",		/* Flawfinder: ignore */
 					src_filename.c_str(), LLImageBase::getLastError().c_str());
 			args["[FILE]"] = src_filename;
 			args["[ERROR]"] = LLImageBase::getLastError();
@@ -5461,13 +5466,13 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 			switch(encode_result)
 			{
 				case LLVORBISENC_DEST_OPEN_ERR:
-                    sprintf(error_message, "Couldn't open temporary compressed sound file for writing: %s\n", filename.c_str());
+                    snprintf(error_message, MAX_STRING, "Couldn't open temporary compressed sound file for writing: %s\n", filename.c_str());		/* Flawfinder: ignore */
 					args["[FILE]"] = filename;
 					upload_error(error_message, "CannotOpenTemporarySoundFile", filename, args);
 					break;
 
 				default:	
-				  sprintf(error_message, "Unknown vorbis encode failure on: %s\n", src_filename.c_str());
+				  snprintf(error_message, MAX_STRING, "Unknown vorbis encode failure on: %s\n", src_filename.c_str());		/* Flawfinder: ignore */
 					args["[FILE]"] = src_filename;
 					upload_error(error_message, "UnknownVorbisEncodeFailure", filename, args);
 					break;	
@@ -5479,26 +5484,29 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 	{	 	
 		// This is a generic .lin resource file	 	
          asset_type = LLAssetType::AT_OBJECT;	 	
-         FILE *in = LLFile::fopen(src_filename.c_str(), "rb");	 	
+         FILE* in = LLFile::fopen(src_filename.c_str(), "rb");		/* Flawfinder: ignore */	 	
          if (in)	 	
          {	 	
                  // read in the file header	 	
-                 char buf[16384];	 	
-                 S32 read;	 	
+                 char buf[16384];		/* Flawfinder: ignore */ 	
+                 S32 read;		/* Flawfinder: ignore */	 	
                  S32  version;	 	
                  if (fscanf(in, "LindenResource\nversion %d\n", &version))	 	
                  {	 	
                          if (2 == version)	 	
                          {
 								// *NOTE: This buffer size is hard coded into scanf() below.
-                                 char label[MAX_STRING];	 	
-                                 char value[MAX_STRING];	 	
+                                 char label[MAX_STRING];		/* Flawfinder: ignore */	 	
+                                 char value[MAX_STRING];		/* Flawfinder: ignore */	 	
                                  S32  tokens_read;	 	
                                  while (fgets(buf, 1024, in))	 	
                                  {	 	
                                          label[0] = '\0';	 	
                                          value[0] = '\0';	 	
-                                         tokens_read = sscanf(buf, "%254s %254s\n", label, value);	 	
+                                         tokens_read = sscanf(	/* Flawfinder: ignore */
+											 buf,
+											 "%254s %254s\n",
+											 label, value);	 	
 
                                          llinfos << "got: " << label << " = " << value	 	
                                                          << llendl;	 	
@@ -5506,7 +5514,7 @@ void upload_new_resource(const LLString& src_filename, std::string name,
                                          if (EOF == tokens_read)	 	
                                          {	 	
                                                  fclose(in);	 	
-                                                 sprintf(error_message, "corrupt resource file: %s", src_filename.c_str());
+                                                 snprintf(error_message, MAX_STRING, "corrupt resource file: %s", src_filename.c_str());		/* Flawfinder: ignore */
 												 args["[FILE]"] = src_filename;
 												 upload_error(error_message, "CorruptResourceFile", filename, args);
                                                  return;
@@ -5534,7 +5542,7 @@ void upload_new_resource(const LLString& src_filename, std::string name,
                          else	 	
                          {	 	
                                  fclose(in);	 	
-                                 sprintf(error_message, "unknown linden resource file version in file: %s", src_filename.c_str());	 	
+                                 snprintf(error_message, MAX_STRING, "unknown linden resource file version in file: %s", src_filename.c_str());		/* Flawfinder: ignore */	 	
 								 args["[FILE]"] = src_filename;
 								 upload_error(error_message, "UnknownResourceFileVersion", filename, args);
                                  return;
@@ -5553,24 +5561,24 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 
                          // read in and throw out most of the header except for the type	 	
                          fread(buf, header_size, 1, in);	 	
-                         memcpy(&type_num, buf + 16, sizeof(S16));	 	
+                         memcpy(&type_num, buf + 16, sizeof(S16));		/* Flawfinder: ignore */	 	
                          asset_type = (LLAssetType::EType)type_num;	 	
                  }	 	
 
                  // copy the file's data segment into another file for uploading	 	
-                 FILE *out = LLFile::fopen(filename.c_str(), "wb");	 	
+                 FILE* out = LLFile::fopen(filename.c_str(), "wb");		/* Flawfinder: ignore */	
                  if (out)	 	
                  {	 	
-                         while((read = fread(buf, 1, 16384, in)))	 	
+                         while((read = fread(buf, 1, 16384, in)))		/* Flawfinder: ignore */	 	
                          {	 	
-                                 fwrite(buf, 1, read, out);	 	
+                                 fwrite(buf, 1, read, out);		/* Flawfinder: ignore */			 	
                          }	 	
                          fclose(out);	 	
                  }	 	
                  else	 	
                  {	 	
                          fclose(in);	 	
-                         sprintf(error_message, "Unable to create output file: %s", filename.c_str());	 	
+                         snprintf(error_message, MAX_STRING, "Unable to create output file: %s", filename.c_str());		/* Flawfinder: ignore */	 	
 						 args["[FILE]"] = filename;
 						 upload_error(error_message, "UnableToCreateOutputFile", filename, args);
                          return;
@@ -5585,14 +5593,14 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 	}
 	else if (LLString::compareInsensitive(ext.c_str(),".bvh") == 0)
 	{
-		sprintf(error_message, "We do not currently support bulk upload of animation files\n");
+		snprintf(error_message, MAX_STRING, "We do not currently support bulk upload of animation files\n");		/* Flawfinder: ignore */
 		upload_error(error_message, "DoNotSupportBulkAnimationUpload", filename, args);
 		return;
 	}
 	else
 	{
 		// Unknown extension
-		sprintf(error_message, "Unknown file extension %s\nExpected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh", ext.c_str());
+		snprintf(error_message, MAX_STRING, "Unknown file extension %s\nExpected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh", ext.c_str());		/* Flawfinder: ignore */
 		error = TRUE;;
 	}
 
@@ -5621,7 +5629,7 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 		}
 		else
 		{
-			sprintf(error_message, "Unable to access output file: %s", filename.c_str());
+			snprintf(error_message, MAX_STRING, "Unable to access output file: %s", filename.c_str());		/* Flawfinder: ignore */
 			error = TRUE;
 		}
 	}
@@ -5865,7 +5873,7 @@ void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result) // St
 		char* end_p = strrchr(asset_name_str, '.');		 // strip extension if exists
 		if( !end_p )
 		{
-			end_p = asset_name_str + strlen( asset_name_str );
+			end_p = asset_name_str + strlen( asset_name_str );		/* Flawfinder: ignore */
 		}
 			
 		S32 len = llmin( (S32) (DB_INV_ITEM_NAME_STR_LEN), (S32) (end_p - asset_name_str) );
@@ -6605,7 +6613,15 @@ class LLPromptShowURL : public view_listener_t
 			LLString alert = param.substr(0, offset);
 			LLString url = param.substr(offset+1);
 			char *url_copy = new char[url.size()+1];
-			strcpy(url_copy, url.c_str());
+			if (url_copy != NULL)
+			{
+				strcpy(url_copy, url.c_str());		/* Flawfinder: ignore */
+			}
+			else
+			{
+				llerrs << "Memory Allocation Failed" << llendl;
+				return false;
+			}
 			gViewerWindow->alertXml(alert, callback_show_url, url_copy);
 		}
 		else
@@ -6637,7 +6653,15 @@ class LLPromptShowFile : public view_listener_t
 			LLString alert = param.substr(0, offset);
 			LLString file = param.substr(offset+1);
 			char *file_copy = new char[file.size()+1];
-			strcpy(file_copy, file.c_str());
+			if (file_copy != NULL)
+			{
+				strcpy(file_copy, file.c_str());		/* Flawfinder: ignore */
+			}
+			else
+			{
+				llerrs << "Memory Allocation Failed" << llendl;
+				return false;
+			}
 			gViewerWindow->alertXml(alert, callback_show_file, file_copy);
 		}
 		else
@@ -8194,10 +8218,10 @@ LLVOAvatar* find_avatar_from_object( const LLUUID& object_id )
 
 void handle_disconnect_viewer(void *)
 {
-	char message[2048];
+	char message[2048];		/* Flawfinder: ignore */
 	message[0] = '\0';
 
-	sprintf(message, "Testing viewer disconnect");
+	snprintf(message, sizeof(message), "Testing viewer disconnect");		/* Flawfinder: ignore */
 
 	do_disconnect(message);
 }

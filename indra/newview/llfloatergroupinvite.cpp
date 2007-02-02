@@ -113,6 +113,6 @@ void LLFloaterGroupInvite::showForGroup(const LLUUID& group_id)
 	}
 	
 	fgi->center();
-	fgi->open();
+	fgi->open();	/*Flawfinder: ignore*/
 	fgi->mImpl->mInvitePanelp->update();
 }

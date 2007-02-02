@@ -156,8 +156,8 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 	//--------------------------------------------------------------------
 	char path[LL_MAX_PATH];		/* Flawfinder: ignore */
 
-	snprintf( path, sizeof(path), "%s",
-		gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,fileName).c_str());	/* Flawfinder: ignore */
+	snprintf( path, sizeof(path), "%s",/* Flawfinder: ignore */
+		gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,fileName).c_str());	
 
 
 	apr_file_t *fp = ll_apr_file_open(path, LL_APR_R);
@@ -190,7 +190,7 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 		// check the 1st token on the line to determine if it's empty or a comment
 		//----------------------------------------------------------------
 		char token[128]; /* Flawfinder: ignore */
-		if ( sscanf(mLine, " %127s", token) != 1 )
+		if ( sscanf(mLine, " %127s", token) != 1 )	/* Flawfinder: ignore */
 			continue;
 
 		if (token[0] == '#')
@@ -225,7 +225,7 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 		if (loadingGlobals && LLString::compareInsensitive(token, "emote")==0)
 		{
 			char emote_str[1024];	/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %1023s", emote_str) != 1 )
+			if ( sscanf(mLine, " %*s = %1023s", emote_str) != 1 )	/* Flawfinder: ignore */
 				return ST_NO_XLT_EMOTE;
 
 			mEmoteName.assign( emote_str );
@@ -263,7 +263,7 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 			{
 				mLoop = TRUE;
 			}
-			else if ( sscanf(mLine, " %*s = %127s", trueFalse) == 1 )	
+			else if ( sscanf(mLine, " %*s = %127s", trueFalse) == 1 )	/* Flawfinder: ignore */	
 			{
 				mLoop = (LLString::compareInsensitive(trueFalse, "true")==0);
 			}
@@ -285,7 +285,7 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 		{
 			F32 duration;
 			char type[128];	/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %f %127s", &duration, type) != 2 )
+			if ( sscanf(mLine, " %*s = %f %127s", &duration, type) != 2 )	/* Flawfinder: ignore */
 				return ST_NO_XLT_EASEIN;
 
 			mEaseIn = duration;
@@ -298,8 +298,8 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 		if (loadingGlobals && LLString::compareInsensitive(token, "easeout")==0)
 		{
 			F32 duration;
-			char type[128];
-			if ( sscanf(mLine, " %*s = %f %127s", &duration, type) != 2 )
+			char type[128];		/* Flawfinder: ignore */
+			if ( sscanf(mLine, " %*s = %f %127s", &duration, type) != 2 )	/* Flawfinder: ignore */
 				return ST_NO_XLT_EASEOUT;
 
 			mEaseOut = duration;
@@ -324,7 +324,7 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 			Constraint constraint;
 
 			// try reading optional target direction
-			if(sscanf(
+			if(sscanf( /* Flawfinder: ignore */
 				mLine,
 				" %*s = %d %f %f %f %f %15s %f %f %f %15s %f %f %f %f %f %f", 
 				&constraint.mChainLength,
@@ -344,7 +344,7 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 				&constraint.mTargetDir.mV[VY],
 				&constraint.mTargetDir.mV[VZ]) != 16)
 			{
-				if(sscanf(
+				if(sscanf( /* Flawfinder: ignore */
 					mLine,
 					" %*s = %d %f %f %f %f %15s %f %f %f %15s %f %f %f", 
 					&constraint.mChainLength,
@@ -384,7 +384,7 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 			Constraint constraint;
 
 			// try reading optional target direction
-			if(sscanf(
+			if(sscanf( /* Flawfinder: ignore */
 				mLine,
 				" %*s = %d %f %f %f %f %15s %f %f %f %15s %f %f %f %f %f %f", 
 				&constraint.mChainLength,
@@ -404,7 +404,7 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 				&constraint.mTargetDir.mV[VY],
 				&constraint.mTargetDir.mV[VZ]) != 16)
 			{
-				if(sscanf(
+				if(sscanf( /* Flawfinder: ignore */
 					mLine,
 					" %*s = %d %f %f %f %f %15s %f %f %f %15s %f %f %f", 
 					&constraint.mChainLength,
@@ -452,7 +452,7 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 		if ( LLString::compareInsensitive(token, "ignore")==0 )
 		{
 			char trueFalse[128];	/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %127s", trueFalse) != 1 )
+			if ( sscanf(mLine, " %*s = %127s", trueFalse) != 1 )	/* Flawfinder: ignore */
 				return ST_NO_XLT_IGNORE;
 
 			trans->mIgnore = (LLString::compareInsensitive(trueFalse, "true")==0);
@@ -470,7 +470,7 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 			{
 				trans->mRelativePosition.setVec( x, y, z );
 			}
-			else if ( sscanf(mLine, " %*s = %127s", relpos) == 1 )
+			else if ( sscanf(mLine, " %*s = %127s", relpos) == 1 )	/* Flawfinder: ignore */
 			{
 				if ( LLString::compareInsensitive(relpos, "firstkey")==0 )
 				{
@@ -496,7 +496,7 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 		{
 			//F32 x, y, z;
 			char relpos[128];	/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %127s", relpos) == 1 )
+			if ( sscanf(mLine, " %*s = %127s", relpos) == 1 )	/* Flawfinder: ignore */
 			{
 				if ( LLString::compareInsensitive(relpos, "firstkey")==0 )
 				{
@@ -521,7 +521,7 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 		if ( LLString::compareInsensitive(token, "outname")==0 )
 		{
 			char outName[128];	/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %127s", outName) != 1 )
+			if ( sscanf(mLine, " %*s = %127s", outName) != 1 )	/* Flawfinder: ignore */
 				return ST_NO_XLT_OUTNAME;
 
 			trans->mOutName = outName;
@@ -566,7 +566,7 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 		if ( LLString::compareInsensitive(token, "mergeparent")==0 )
 		{
 			char mergeParentName[128];	/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %127s", mergeParentName) != 1 )
+			if ( sscanf(mLine, " %*s = %127s", mergeParentName) != 1 )	/* Flawfinder: ignore */
 				return ST_NO_XLT_MERGEPARENT;
 
 			trans->mMergeParentName = mergeParentName;
@@ -579,7 +579,7 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 		if ( LLString::compareInsensitive(token, "mergechild")==0 )
 		{
 			char mergeChildName[128];	/* Flawfinder: ignore */
-			if ( sscanf(mLine, " %*s = %127s", mergeChildName) != 1 )
+			if ( sscanf(mLine, " %*s = %127s", mergeChildName) != 1 )	/* Flawfinder: ignore */
 				return ST_NO_XLT_MERGECHILD;
 
 			trans->mMergeChildName = mergeChildName;
@@ -705,7 +705,7 @@ LLBVHLoader::Status LLBVHLoader::loadBVHFile(const char *buffer, char* error_tex
 		// get the joint name
 		//----------------------------------------------------------------
 		char jointName[80];	/* Flawfinder: ignore */
-		if ( sscanf(line.c_str(), "%*s %79s", jointName) != 1 )
+		if ( sscanf(line.c_str(), "%*s %79s", jointName) != 1 )	/* Flawfinder: ignore */
 		{
 			strncpy(error_text, line.c_str(), 127);	/* Flawfinder: ignore */
 			return ST_NO_NAME;

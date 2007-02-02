@@ -1061,19 +1061,19 @@ BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
 		gAgent.getName(name_str);
 
 		S32 len;
-		char temp_str[255];
-		sprintf(temp_str, "%s FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",
+		char temp_str[255];		/* Flawfinder: ignore */
+		snprintf(temp_str, sizeof(temp_str), "%s FPS %3.1f Phy FPS %2.1f Time Dil %1.3f",		/* Flawfinder: ignore */
 				name_str.c_str(),
 				gViewerStats->mFPSStat.getMeanPerSec(),
 				gViewerStats->mSimPhysicsFPS.getPrev(0),
 				gViewerStats->mSimTimeDilation.getPrev(0));
-		len = strlen(temp_str);
+		len = strlen(temp_str);		/* Flawfinder: ignore */
 		TextOutA(hdc, 0, 0, temp_str, len); 
 
 
 		LLVector3d pos_global = gAgent.getPositionGlobal();
-		sprintf(temp_str, "Avatar pos %6.1lf %6.1lf %6.1lf", pos_global.mdV[0], pos_global.mdV[1], pos_global.mdV[2]);
-		len = strlen(temp_str);
+		snprintf(temp_str, sizeof(temp_str), "Avatar pos %6.1lf %6.1lf %6.1lf", pos_global.mdV[0], pos_global.mdV[1], pos_global.mdV[2]);		/* Flawfinder: ignore */
+		len = strlen(temp_str);		/* Flawfinder: ignore */
 		TextOutA(hdc, 0, 25, temp_str, len); 
 
 		TextOutA(hdc, 0, 50, "Set \"DisableRendering FALSE\" in settings.ini file to reenable", 61);
@@ -1154,8 +1154,8 @@ LLViewerWindow::LLViewerWindow(
 	mRenderFullFrame(FALSE)
 {
 	// Default to application directory.
-	strcpy(LLViewerWindow::sSnapshotBaseName, "Snapshot");
-	strcpy(LLViewerWindow::sMovieBaseName, "SLmovie");
+	strcpy(LLViewerWindow::sSnapshotBaseName, "Snapshot");	/* Flawfinder: ignore */
+	strcpy(LLViewerWindow::sMovieBaseName, "SLmovie");	/* Flawfinder: ignore */
 	LLViewerWindow::sSnapshotDir[0] = '\0';
 
 	mFastFrameTimer.stop();
@@ -1857,7 +1857,7 @@ void LLViewerWindow::draw()
 	if (gSavedSettings.getBOOL("DisplayTimecode"))
 	{
 		// draw timecode block
-		char text[256];
+		char text[256];		/* Flawfinder: ignore */
 
 		glLoadIdentity();
 
@@ -2544,7 +2544,7 @@ BOOL LLViewerWindow::handlePerFrameHover()
 			// Force floater tools to be visible (unless minimized)
 			if (!gFloaterTools->getVisible())
 			{
-				gFloaterTools->open();
+				gFloaterTools->open();		/* Flawfinder: ignore */
 			}
 			// Update the location of the blue box tool popup
 			LLCoordGL select_center_screen;
@@ -3662,7 +3662,7 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageRaw *raw)
 	}
 	
 	// Get a directory if this is the first time.
-	if (strlen(sSnapshotDir) == 0)
+	if (strlen(sSnapshotDir) == 0)		/* Flawfinder: ignore */
 	{
 		LLString proposed_name( sSnapshotBaseName );
 		proposed_name.append( ".bmp" );
@@ -3676,11 +3676,12 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageRaw *raw)
 		}
 
 		// Copy the directory + file name
-		char directory[LL_MAX_PATH];
-		strcpy(directory, picker.getFirstFile());
+		char directory[LL_MAX_PATH];		/* Flawfinder: ignore */
+		strncpy(directory, picker.getFirstFile(), LL_MAX_PATH -1);		/* Flawfinder: ignore */
+		directory[LL_MAX_PATH -1] = '\0';
 
 		// Smash the file extension
-		S32 length = strlen(directory);
+		S32 length = strlen(directory);		/* Flawfinder: ignore */
 		S32 index = length;
 
 		// Back up over ".bmp"
@@ -3705,12 +3706,14 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageRaw *raw)
 		{
 			if (index + 1 <= length)
 			{
-				strcpy(LLViewerWindow::sSnapshotBaseName, directory + index + 1);
+				strncpy(LLViewerWindow::sSnapshotBaseName, directory + index + 1, LL_MAX_PATH -1);		/* Flawfinder: ignore */
+				LLViewerWindow::sSnapshotBaseName[LL_MAX_PATH -1] = '\0';
 			}
 
 			index++;
 			directory[index] = '\0';
-			strcpy(LLViewerWindow::sSnapshotDir, directory);
+			strncpy(LLViewerWindow::sSnapshotDir, directory, LL_MAX_PATH -1);		/* Flawfinder: ignore */
+			LLViewerWindow::sSnapshotDir[LL_MAX_PATH -1] = '\0';
 		}
 	}
 
@@ -3721,8 +3724,8 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageRaw *raw)
 
 	do
 	{
-		char extension[100];
-		sprintf( extension, "_%.3d.bmp", i );
+		char extension[100];		/* Flawfinder: ignore */
+		snprintf( extension, sizeof(extension), "_%.3d.bmp", i );		/* Flawfinder: ignore */
 		filepath = sSnapshotDir;
 		filepath += sSnapshotBaseName;
 		filepath += extension;
@@ -3754,7 +3757,7 @@ void LLViewerWindow::saveMovieNumbered(void*)
 	if (!gbCapturing)
 	{
 		// Get a directory if this is the first time.
-		if (strlen(sSnapshotDir) == 0)
+		if (strlen(sSnapshotDir) == 0)		/* Flawfinder: ignore */
 		{
 			LLString proposed_name( sMovieBaseName );
 #if LL_DARWIN
@@ -3772,11 +3775,12 @@ void LLViewerWindow::saveMovieNumbered(void*)
 			}
 
 			// Copy the directory + file name
-			char directory[LL_MAX_PATH];
-			strcpy(directory, picker.getFirstFile());
+			char directory[LL_MAX_PATH];		/* Flawfinder: ignore */
+			strncpy(directory, picker.getFirstFile(), LL_MAX_PATH -1);		/* Flawfinder: ignore */
+			directory[LL_MAX_PATH -1] = '\0';
 
 			// Smash the file extension
-			S32 length = strlen(directory);
+			S32 length = strlen(directory);		/* Flawfinder: ignore */
 			S32 index = length;
 
 			// Back up over ".bmp"
@@ -3801,12 +3805,14 @@ void LLViewerWindow::saveMovieNumbered(void*)
 			{
 				if (index + 1 <= length)
 				{
-					strcpy(LLViewerWindow::sMovieBaseName, directory + index + 1);
+					strncpy(LLViewerWindow::sMovieBaseName, directory + index + 1, LL_MAX_PATH -1);		/* Flawfinder: ignore */
+					LLViewerWindow::sMovieBaseName[LL_MAX_PATH -1] = '\0';
 				}
 
 				index++;
 				directory[index] = '\0';
-				strcpy(LLViewerWindow::sSnapshotDir, directory);
+				strncpy(LLViewerWindow::sSnapshotDir, directory, LL_MAX_PATH -1);		/* Flawfinder: ignore */
+				LLViewerWindow::sSnapshotDir[LL_MAX_PATH -1] = '\0';
 			}
 		}
 
@@ -3817,11 +3823,11 @@ void LLViewerWindow::saveMovieNumbered(void*)
 
 		do
 		{
-			char extension[100];
+			char extension[100];		/* Flawfinder: ignore */
 #if LL_DARWIN
-			sprintf( extension, "_%.3d.mov", i );
+			snprintf( extension, sizeof(extension), "_%.3d.mov", i );		/* Flawfinder: ignore */
 #else
-			sprintf( extension, "_%.3d.avi", i );
+			snprintf( extension, sizeof(extension), "_%.3d.avi", i );		/* Flawfinder: ignore */
 #endif
 			filepath.assign( sSnapshotDir );
 			filepath.append( sMovieBaseName );

@@ -150,8 +150,8 @@ private:
 	U32 mNextFileIndex;
 #endif
 
-	char mFiles[FILENAME_BUFFER_SIZE];
-	char mFilename[LL_MAX_PATH];
+	char mFiles[FILENAME_BUFFER_SIZE];	/*Flawfinder: ignore*/
+	char mFilename[LL_MAX_PATH];	/*Flawfinder: ignore*/
 	char* mCurrentFile;
 	BOOL mLocked;
 	BOOL mMultiFile;

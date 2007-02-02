@@ -537,8 +537,8 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 		//gCylinder.render(1000);
 	glPopMatrix();
 
-	char text[1024];
-	sprintf(text, "%.0f m", to_vec.magVec());
+	char text[1024];		/* Flawfinder: ignore */
+	snprintf(text, sizeof(text), "%.0f m", to_vec.magVec());		/* Flawfinder: ignore */
 
 	LLWString wstr;
 	wstr += utf8str_to_wstring(label);

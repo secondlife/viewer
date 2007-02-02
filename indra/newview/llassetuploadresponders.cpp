@@ -183,7 +183,7 @@ void LLNewAgentInventoryResponder::result(const LLSD& result)
 			char* end_p = strrchr(asset_name_str, '.');		 // strip extension if exists
 			if( !end_p )
 			{
-				end_p = asset_name_str + strlen( asset_name_str );
+				end_p = asset_name_str + strlen( asset_name_str );			/*Flawfinder: ignore*/
 			}
 				
 			S32 len = llmin( (S32) (DB_INV_ITEM_NAME_STR_LEN), (S32) (end_p - asset_name_str) );

@@ -261,8 +261,8 @@ void LLPanelAvatarSecondLife::updatePartnerName()
 {
 	if (mPartnerID.notNull())
 	{
-		char first[128];
-		char last[128];
+		char first[128];		/*Flawfinder: ignore*/
+		char last[128];		/*Flawfinder: ignore*/
 		BOOL found = gCacheName->getName(mPartnerID, first, last);
 		if (found)
 		{
@@ -873,7 +873,7 @@ void LLPanelAvatarClassified::processAvatarClassifiedReply(LLMessageSystem* msg,
 	S32 block = 0;
 	S32 block_count = 0;
 	LLUUID classified_id;
-	char classified_name[DB_PICK_NAME_SIZE];
+	char classified_name[DB_PICK_NAME_SIZE];		/*Flawfinder: ignore*/
 	LLPanelClassified* panel_classified = NULL;
 
 	LLTabContainerCommon* tabs = LLViewerUICtrlFactory::getTabContainerByName(this,"classified tab");
@@ -1059,7 +1059,7 @@ void LLPanelAvatarPicks::processAvatarPicksReply(LLMessageSystem* msg, void**)
 	S32 block = 0;
 	S32 block_count = 0;
 	LLUUID pick_id;
-	char pick_name[DB_PICK_NAME_SIZE];
+	char pick_name[DB_PICK_NAME_SIZE];		/*Flawfinder: ignore*/
 	LLPanelPick* panel_pick = NULL;
 
 	LLTabContainerCommon* tabs =  LLUICtrlFactory::getTabContainerByName(this,"picks tab");
@@ -1702,16 +1702,16 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 	LLUUID	image_id;
 	LLUUID	fl_image_id;
 	LLUUID	partner_id;
-	char	about_text[DB_USER_ABOUT_BUF_SIZE];
-	char	fl_about_text[DB_USER_FL_ABOUT_BUF_SIZE];
-	char	born_on[DB_BORN_BUF_SIZE];
+	char	about_text[DB_USER_ABOUT_BUF_SIZE];		/*Flawfinder: ignore*/
+	char	fl_about_text[DB_USER_FL_ABOUT_BUF_SIZE];		/*Flawfinder: ignore*/
+	char	born_on[DB_BORN_BUF_SIZE];		/*Flawfinder: ignore*/
 	S32		charter_member_size = 0;
 	BOOL	allow_publish = FALSE;
 	//BOOL	mature = FALSE;
 	BOOL	identified = FALSE;
 	BOOL	transacted = FALSE;
 	BOOL	online = FALSE;
-	char	profile_url[DB_USER_PROFILE_URL_BUF_SIZE];
+	char	profile_url[DB_USER_PROFILE_URL_BUF_SIZE];		/*Flawfinder: ignore*/
 
 	U32		flags = 0x0;
 
@@ -1767,7 +1767,7 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 		}
 		else if(1 < charter_member_size)
 		{
-			char caption[MAX_STRING];
+			char caption[MAX_STRING];		/*Flawfinder: ignore*/
 			msg->getString("PropertiesData", "CharterMember", MAX_STRING, caption);
 			caption_text = caption;
 		}
@@ -1849,10 +1849,10 @@ void LLPanelAvatar::processAvatarInterestsReply(LLMessageSystem *msg, void**)
 	LLUUID	avatar_id;	// target of this panel
 
 	U32		want_to_mask;
-	char	want_to_text[DB_USER_WANT_TO_BUF_SIZE];
+	char	want_to_text[DB_USER_WANT_TO_BUF_SIZE];		/*Flawfinder: ignore*/
 	U32		skills_mask;
-	char	skills_text[DB_USER_SKILLS_BUF_SIZE];
-	char	languages_text[DB_USER_SKILLS_BUF_SIZE];
+	char	skills_text[DB_USER_SKILLS_BUF_SIZE];		/*Flawfinder: ignore*/
+	char	languages_text[DB_USER_SKILLS_BUF_SIZE];		/*Flawfinder: ignore*/
 
 	//llinfos << "properties packet size " << msg->getReceiveSize() << llendl;
 
@@ -1884,9 +1884,9 @@ void LLPanelAvatar::processAvatarGroupsReply(LLMessageSystem *msg, void**)
 	LLUUID	agent_id;	// your id
 	LLUUID	avatar_id;	// target of this panel
 	U64		group_powers;
-	char	group_title[DB_GROUP_TITLE_BUF_SIZE];
+	char	group_title[DB_GROUP_TITLE_BUF_SIZE];		/*Flawfinder: ignore*/
 	LLUUID	group_id;
-	char	group_name[DB_GROUP_NAME_BUF_SIZE];
+	char	group_name[DB_GROUP_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 	LLUUID	group_insignia_id;
 	const LLFontGL* FONT = LLFontGL::sSansSerifSmall;
 
@@ -2098,10 +2098,10 @@ void LLPanelAvatar::processAvatarStatisticsReply(LLMessageSystem *msg, void**)
 		S32 items = msg->getNumberOfBlocksFast(_PREHASH_StatisticsData);
 		for (S32 i = 0; i < items; i++)
 		{
-			char name[MAX_STRING];
+			char name[MAX_STRING];		/*Flawfinder: ignore*/
 			S32 positive;
 			S32 negative;
-			char value_string[MAX_STRING];
+			char value_string[MAX_STRING];		/*Flawfinder: ignore*/
 
 			msg->getStringFast(	_PREHASH_StatisticsData, 
 								_PREHASH_Name, MAX_STRING, name, i);
@@ -2115,7 +2115,7 @@ void LLPanelAvatar::processAvatarStatisticsReply(LLMessageSystem *msg, void**)
 			item = new LLScrollListItem();
 			item->addColumn( name, font, TEXT_WIDTH );
 
-			sprintf( value_string, "+%d", positive);
+			snprintf( value_string, sizeof(value_string),  "+%d", positive);		/*Flawfinder: ignore*/
 			item->addColumn( value_string, font, 50 );
 
 			item->addColumn("", font);	// extra column to force striped appearance
@@ -2144,7 +2144,7 @@ void LLPanelAvatar::processAvatarNotesReply(LLMessageSystem *msg, void**)
 			continue;
 		}
 
-		char text[DB_USER_NOTE_SIZE];
+		char text[DB_USER_NOTE_SIZE];		/*Flawfinder: ignore*/
 		msg->getString("Data", "Notes", DB_USER_NOTE_SIZE, text);
 		self->childSetValue("notes edit", text);
 	}

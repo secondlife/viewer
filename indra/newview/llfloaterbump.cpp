@@ -77,7 +77,7 @@ void LLFloaterBump::show(void *contents)
 		}
 	}
 	
-	sInstance->open();
+	sInstance->open();	/*Flawfinder: ignore*/
 }
 
 void LLFloaterBump::add(LLScrollListCtrl* list, LLMeanCollisionData* mcd)

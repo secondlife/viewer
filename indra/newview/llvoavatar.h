@@ -524,7 +524,7 @@ public:
 	//--------------------------------------------------------------------
 	// avatar definition name
 	//--------------------------------------------------------------------
-	char mAvatarDefinition[64];
+	char mAvatarDefinition[64];		/* Flawfinder: ignore */
 
 	//--------------------------------------------------------------------
 	// skeleton for skinned avatar

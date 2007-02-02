@@ -364,8 +364,8 @@ void LLPanelPermissions::refresh()
 	}
 	else
 	{
-		char buffer[MAX_STRING];
-		sprintf(buffer, "%d Objects, ", obj_count);
+		char buffer[MAX_STRING];		/*Flawfinder: ignore*/
+		snprintf(buffer, MAX_STRING, "%d Objects, ", obj_count);		/*Flawfinder: ignore*/
 		object_info_string.assign(buffer);
 	}
 	if (1 == prim_count)
@@ -374,8 +374,8 @@ void LLPanelPermissions::refresh()
 	}
 	else
 	{
-		char buffer[MAX_STRING];
-		sprintf(buffer, "%d Primitives", prim_count);
+		char buffer[MAX_STRING];		/*Flawfinder: ignore*/
+		snprintf(buffer, MAX_STRING, "%d Primitives", prim_count);		/*Flawfinder: ignore*/
 		object_info_string.append(buffer);
 	}
 	childSetText("prim info",object_info_string);
@@ -477,36 +477,36 @@ void LLPanelPermissions::refresh()
 	
 	if( gSavedSettings.getBOOL("DebugPermissions") )
 	{
-		char perm_string[10];
+		char perm_string[10];		/*Flawfinder: ignore*/
 		if (valid_base_perms)
 		{
 
-			strcpy(perm_string, "B: ");
+			strcpy(perm_string, "B: ");	/*Flawfinder: ignore*/
 			mask_to_string(base_mask_on, perm_string+3);
 			childSetText("B:",perm_string);
 			childSetVisible("B:",true);
 			
-			strcpy(perm_string, "O: ");
+			strcpy(perm_string, "O: ");	/*Flawfinder: ignore*/
 			mask_to_string(owner_mask_on, perm_string+3);
 			childSetText("O:",perm_string);
 			childSetVisible("O:",true);
 			
-			strcpy(perm_string, "G: ");
+			strcpy(perm_string, "G: ");	/*Flawfinder: ignore*/
 			mask_to_string(group_mask_on, perm_string+3);
 			childSetText("G:",perm_string);
 			childSetVisible("G:",true);
 			
-			strcpy(perm_string, "E: ");
+			strcpy(perm_string, "E: ");	/*Flawfinder: ignore*/
 			mask_to_string(everyone_mask_on, perm_string+3);
 			childSetText("E:",perm_string);
 			childSetVisible("E:",true);
 			
-			strcpy(perm_string, "N: ");
+			strcpy(perm_string, "N: ");	/*Flawfinder: ignore*/
 			mask_to_string(next_owner_mask_on, perm_string+3);
 			childSetText("N:",perm_string);
 			childSetVisible("N:",true);
 		}
-		strcpy(perm_string, "F: ");
+		strcpy(perm_string, "F: ");	/*Flawfinder: ignore*/
 		U32 flag_mask = 0x0;
 		if (objectp->permMove())
 			flag_mask |= PERM_MOVE;

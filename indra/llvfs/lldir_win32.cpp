@@ -45,9 +45,9 @@ LLDir_Win32::LLDir_Win32()
 
 	if (GetTempPath(MAX_PATH, w_str))
 	{
-		if (wcslen(w_str))
+		if (wcslen(w_str))	/* Flawfinder: ignore */ 
 		{
-			w_str[wcslen(w_str)-1] = '\0'; // remove trailing slash
+			w_str[wcslen(w_str)-1] = '\0'; /* Flawfinder: ignore */ // remove trailing slash
 		}
 		mTempDir = utf16str_to_utf8str(llutf16string(w_str));
 	}
@@ -342,7 +342,7 @@ DWORD GetDllVersion(LPCTSTR lpszDllName)
     HINSTANCE hinstDll;
     DWORD dwVersion = 0;
 
-    hinstDll = LoadLibrary(lpszDllName);
+    hinstDll = LoadLibrary(lpszDllName);	/* Flawfinder: ignore */ 
 	
     if(hinstDll)
     {

@@ -26,7 +26,7 @@ class LLMultiPreview : public LLMultiFloater
 public:
 	LLMultiPreview(const LLRect& rect);
 
-	/*virtual*/void open();
+	/*virtual*/void open();		/*Flawfinder: ignore*/
 	/*virtual*/void tabOpen(LLFloater* opened_floater, bool from_click);
 };
 
@@ -60,7 +60,7 @@ public:
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
-	virtual void open();
+	virtual void open();		/*Flawfinder: ignore*/
 	virtual bool saveItem(LLPointer<LLInventoryItem>* itemptr);
  
 	void setAuxItem( const LLInventoryItem* item )

@@ -253,7 +253,7 @@ LLPreview* LLPreview::show( const LLUUID& item_uuid, BOOL take_focus )
 			// needs to be rehosted
 			LLFloater::getFloaterHost()->addFloater(instance, TRUE);
 		}
-		instance->open();
+		instance->open();  /*Flawfinder: ignore*/
 		if (take_focus)
 		{
 			instance->setFocus(TRUE);
@@ -363,14 +363,14 @@ BOOL LLPreview::handleHover(S32 x, S32 y, MASK mask)
 	return LLFloater::handleHover(x,y,mask);
 }
 
-void LLPreview::open()
+void LLPreview::open()	/*Flawfinder: ignore*/
 {
 	LLMultiFloater* hostp = getHost();
 	if (!sHostp && !hostp && getAssetStatus() == PREVIEW_ASSET_UNLOADED)
 	{
 		loadAsset();
 	}
-	LLFloater::open();
+	LLFloater::open();		/*Flawfinder: ignore*/
 }
 
 // virtual
@@ -474,9 +474,9 @@ LLMultiPreview::LLMultiPreview(const LLRect& rect) : LLMultiFloater("Preview", r
 {
 }
 
-void LLMultiPreview::open()
+void LLMultiPreview::open()		/*Flawfinder: ignore*/
 {
-	LLMultiFloater::open();
+	LLMultiFloater::open();		/*Flawfinder: ignore*/
 	LLPreview* frontmost_preview = (LLPreview*)mTabContainer->getCurrentPanel();
 	if (frontmost_preview && frontmost_preview->getAssetStatus() == LLPreview::PREVIEW_ASSET_UNLOADED)
 	{

@@ -212,13 +212,13 @@ void LLVOTree::initClass()
 		
 		BOOL have_all_trees = TRUE;
 		LLString err;
-		char buffer[10];
+		char buffer[10];		/* Flawfinder: ignore */
 
 		for (S32 i=0;i<sMaxTreeSpecies;++i)
 		{
 			if (!sSpeciesTable.count(i))
 			{
-				snprintf(buffer,10," %d",i);
+				snprintf(buffer,10," %d",i);		/* Flawfinder: ignore */
 				err.append(buffer);
 				have_all_trees = FALSE;
 			}

@@ -1097,18 +1097,18 @@ S32 LLFace::backup()
 		// Don't change the order of these unles you change the corresponding getGeometry calls that read out of
 		// backup memory, and also the other of the backup/restore pair!
 		//
-		memcpy(backup, (mDrawPoolp->mMemory.getMem() + mGeomIndex * stride), mGeomCount * stride);
+		memcpy(backup, (mDrawPoolp->mMemory.getMem() + mGeomIndex * stride), mGeomCount * stride);	 /*Flawfinder: ignore*/
 		backup += mGeomCount * stride / 4;
 
 		if (mDrawPoolp->mDataMaskNIL & LLDrawPool::DATA_CLOTHING_WEIGHTS_MASK)
 		{
-			memcpy(backup, &mDrawPoolp->getClothingWeight(mGeomIndex), mGeomCount * sizeof(LLVector4));
+			memcpy(backup, &mDrawPoolp->getClothingWeight(mGeomIndex), mGeomCount * sizeof(LLVector4)); /*Flawfinder: ignore*/
 			backup += mGeomCount*4;
 		}
 
 		if (mDrawPoolp->mDataMaskNIL & LLDrawPool::DATA_VERTEX_WEIGHTS_MASK)
 		{
-			memcpy(backup, &mDrawPoolp->getVertexWeight(mGeomIndex), mGeomCount * sizeof(F32));
+			memcpy(backup, &mDrawPoolp->getVertexWeight(mGeomIndex), mGeomCount * sizeof(F32));	 /*Flawfinder: ignore*/
 			backup += mGeomCount;
 		}
 

@@ -1413,7 +1413,7 @@ void LLFloaterSnapshot::show(void*)
 		sInstance->impl.updateLayout(sInstance);
 	}
 	
-	sInstance->open();
+	sInstance->open();		/* Flawfinder: ignore */
 	sInstance->focusFirstItem(FALSE);
 	gSnapshotFloaterView->setEnabled(TRUE);
 	gSnapshotFloaterView->adjustToFitScreen(sInstance, FALSE);

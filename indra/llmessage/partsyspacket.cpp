@@ -1246,7 +1246,7 @@ BOOL LLPartSysCompressedPacket::fromUnsignedBytes(U8 *in, U32 bytesUsed)
 {
 	if ((in != NULL) && (bytesUsed <= sizeof(mData)))
 	{
-		memcpy(mData, in, bytesUsed);
+		memcpy(mData, in, bytesUsed);	/* Flawfinder: ignore */
 		mNumBytes = bytesUsed;
 		return TRUE;
 	}

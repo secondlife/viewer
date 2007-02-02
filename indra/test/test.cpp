@@ -194,7 +194,7 @@ int main(int argc, char **argv)
 		if(APR_STATUS_IS_EOF(apr_err)) break;
 		if(apr_err)
 		{
-			char buf[255];
+			char buf[255];		/* Flawfinder: ignore */
 			std::cerr << "Error parsing options: "
 					  << apr_strerror(apr_err, buf, 255) << std::endl;
 			return 1;

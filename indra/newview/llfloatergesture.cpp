@@ -114,7 +114,7 @@ void LLFloaterGesture::show()
 {
 	if (sInstance)
 	{
-		sInstance->open();
+		sInstance->open();		/*Flawfinder: ignore*/
 		return;
 	}
 
@@ -139,7 +139,7 @@ void LLFloaterGesture::show()
 
 	// Update button labels
 	onCommitList(NULL, self);
-	self->open();
+	self->open();	/*Flawfinder: ignore*/
 }
 
 // static

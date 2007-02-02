@@ -58,7 +58,7 @@ namespace tut
 	void buffer_object::test<2>()
 	{
 		const char HELLO_WORLD[] = "hello world";
-		const S32 str_len = strlen(HELLO_WORLD);
+		const S32 str_len = strlen(HELLO_WORLD);		/* Flawfinder: ignore */
 		LLChannelDescriptors ch = mBuffer.nextChannel();
 		mBuffer.append(ch.in(), (U8*)HELLO_WORLD, str_len);
 		mBuffer.append(ch.in(), (U8*)HELLO_WORLD, str_len);
@@ -80,7 +80,7 @@ namespace tut
 		LLChannelDescriptors ch = mBuffer.nextChannel();
 		mBuffer.append(ch.in(), (U8*)ONE, 3);
 		mBuffer.append(ch.in(), (U8*)TWO, 3);
-		char buffer[255];
+		char buffer[255];	/* Flawfinder: ignore */
 		S32 len = 6;
 		mBuffer.readAfter(ch.in(), NULL, (U8*)buffer, len);
 		ensure_equals(len, 6);
@@ -99,7 +99,7 @@ namespace tut
 		LLChannelDescriptors ch = mBuffer.nextChannel();
 		mBuffer.append(ch.in(), (U8*)TWO, 3);
 		mBuffer.prepend(ch.in(), (U8*)ONE, 3);
-		char buffer[255];
+		char buffer[255];	/* Flawfinder: ignore */
 		S32 len = 6;
 		mBuffer.readAfter(ch.in(), NULL, (U8*)buffer, len);
 		ensure_equals(len, 6);
@@ -117,7 +117,7 @@ namespace tut
 		LLChannelDescriptors ch = mBuffer.nextChannel();
 		mBuffer.append(ch.in(), (U8*)TWO, 3);
 		mBuffer.prepend(ch.in(), (U8*)ONE, 3);
-		char buffer[255];
+		char buffer[255];	/* Flawfinder: ignore */
 		S32 len = 5;
 		LLBufferArray::segment_iterator_t it = mBuffer.beginSegment();
 		U8* addr = (*it).data();
@@ -144,7 +144,7 @@ namespace tut
 		header << "ContentLength: " << count << "\r\n\r\n";
 		std::string head(header.str());
 		mBuffer.prepend(ch.out(), (U8*)head.c_str(), head.length());
-		char buffer[1024];
+		char buffer[1024];	/* Flawfinder: ignore */
 		S32 len = response.size() + head.length();
 		ensure_equals("same length", len, (S32)expected.str().length());
 		mBuffer.readAfter(ch.out(), NULL, (U8*)buffer, len);
@@ -209,11 +209,11 @@ namespace tut
 		delete[] temp;
 	}
 
-/*
+#if 0
 	template<> template<>
 	void buffer_object::test<9>()
 	{
-		char buffer[1024];
+		char buffer[1024];	/* Flawfinder: ignore */
 		S32 size = sprintf(buffer,
 						"%d|%d|%s|%s|%s|%s|%s|%x|%x|%x|%x|%x|%s|%s|%d|%d|%x",
 						7,
@@ -244,7 +244,7 @@ namespace tut
 		ensure_equals("Buffer sizes",size,(S32)post_size);
 		ensure("Buffer content",!strcmp(buffer,post_buffer));
 	}
-*/
+#endif
 
 	/*
 	template<> template<>
@@ -268,7 +268,7 @@ namespace tut
 	void bas_object::test<1>()
 	{
 		const char HELLO_WORLD[] = "hello world";
-		const S32 str_len = strlen(HELLO_WORLD);
+		const S32 str_len = strlen(HELLO_WORLD);		/* Flawfinder: ignore */
 		LLChannelDescriptors ch = mBuffer.nextChannel();
 		LLBufferStream str(ch, &mBuffer);
 		mBuffer.append(ch.in(), (U8*)HELLO_WORLD, str_len);
@@ -406,7 +406,7 @@ namespace tut
 		ostr << ") ";
 		bstr.flush();
 		const S32 BUF_LEN = 512;
-		char buf[BUF_LEN];
+		char buf[BUF_LEN];		/* Flawfinder: ignore */
 		S32 actual_len = BUF_LEN;
 		(void) mBuffer.readAfter(ch.out(), NULL, (U8*)buf, actual_len);
 		buf[actual_len] = '\0';
@@ -460,7 +460,7 @@ namespace tut
 				++total_size;
 			}
 			need_comma = true;
-			srand(69 + i);
+			srand(69 + i);	/* Flawfinder: ignore */
 			S32 size = rand() % 1000 + 1000;
 			std::generate_n(
 				std::back_insert_iterator<buf_t>(source),
@@ -526,7 +526,7 @@ namespace tut
 			need_comma = true;
 			ostr << "'" << i << "':";
 			total_size += 7;
-			srand(69 + i);
+			srand(69 + i);		/* Flawfinder: ignore */
 			S32 size = rand() % 1000 + 1000;
 			std::generate_n(
 				std::back_insert_iterator<buf_t>(source),
@@ -582,7 +582,7 @@ namespace tut
 										"'circuit_code': i124,'group_id': '8615c885-9cf0-bf0a-6e40-0c11462aa652','limited_to_estate': i1,'look_at': [ i0, i0, i0],"
 										"'agent_id': '0e346d8b-4433-4d66-a6b0-fd37083abc4c','first_name': 'Kelly','start': 'url'}]}";
 		LLChannelDescriptors ch = mBuffer.nextChannel();
-		mBuffer.append(ch.out(), (U8*)LOGIN_STREAM, strlen(LOGIN_STREAM));
+		mBuffer.append(ch.out(), (U8*)LOGIN_STREAM, strlen(LOGIN_STREAM));		/* Flawfinder: ignore */
 		ch = mBuffer.nextChannel();
 		LLBufferStream istr(ch, &mBuffer);
 		LLSD data;
@@ -1100,7 +1100,7 @@ namespace tut
 		stream << "{'task_id':ucc706f2d-0b68-68f8-11a4-f1043ff35ca0}\n{\n\tname\tObject|\n\tpermissions 0\n}";
 		std::vector<U8> expected_binary;
 		expected_binary.resize(stream.str().size());
-		memcpy(&expected_binary[0], stream.str().c_str(), stream.str().size());
+		memcpy(&expected_binary[0], stream.str().c_str(), stream.str().size());		/* Flawfinder: ignore */
 		stream.str("");
 		stream << "[{'uri':'" << uri << "'}, {'version':i1}, "
 				  << "{'agent_id':'3c115e51-04f4-523c-9fa6-98aff1034730', 'session_id':'2c585cec-038c-40b0-b42e-a25ebab4d132', 'circuit_code':i1075, 'start':'region', 'limited_to_estate':i1 'first_name':'Phoenix', 'last_name':'Linden', 'group_title':'', 'group_id':u00000000-0000-0000-0000-000000000000, 'position':[r70.9247,r254.378,r38.7304], 'look_at':[r-0.043753,r-0.999042,r0], 'granters':[ua2e76fcd-9360-4f6d-a924-000000000003], 'texture_data':['5e481e8a-58a6-fc34-6e61-c7a36095c07f', 'c39675f5-ca90-a304-bb31-42cdb803a132', '5c989edf-88d1-b2ac-b00b-5ed4bab8e368', '6522e74d-1660-4e7f-b601-6f48c1659a77', '7ca39b4c-bd19-4699-aff7-f93fd03d3e7b', '41c58177-5eb6-5aeb-029d-bc4093f3c130', '97b75473-8b93-9b25-2a11-035b9ae93195', '1c2d8d9b-90eb-89d4-dea8-c1ed83990614', '69ec543f-e27b-c07c-9094-a8be6300f274', 'c9f8b80f-c629-4633-04ee-c566ce9fea4b', '989cddba-7ab6-01ed-67aa-74accd2a2a65', '45e319b2-6a8c-fa5c-895b-1a7149b88aef', '5748decc-f629-461c-9a36-a35a221fe21f', 'c228d1cf-4b5d-4ba8-84f4-899a0796aa97', 'c228d1cf-4b5d-4ba8-84f4-899a0796aa97', '685fbe10-ab40-f065-0aec-726cc6dfd7a1', '406f98fd-9c89-1d52-5f39-e67d508c5ee5', '685fbe10-ab40-f065-0aec-726cc6dfd7a1', 'c228d1cf-4b5d-4ba8-84f4-899a0796aa97', 'c228d1cf-4b5d-4ba8-84f4-899a0796aa97'], "
@@ -1194,7 +1194,7 @@ namespace tut
 		tmp_str << "{'task_id':ucc706f2d-0b68-68f8-11a4-f1043ff35ca0}\n{\n\tname\tObject|\n\tpermissions 0\n}";
 		std::vector<U8> expected_binary;
 		expected_binary.resize(tmp_str.str().size());
-		memcpy(
+		memcpy(		/* Flawfinder: ignore */
 			&expected_binary[0],
 			tmp_str.str().c_str(),
 			tmp_str.str().size());

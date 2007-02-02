@@ -54,10 +54,10 @@ BOOL LLKeywords::loadFromFile( const LLString& filename )
 	// File header
 
 	const S32 BUFFER_SIZE = 1024;
-	char	buffer[BUFFER_SIZE];
+	char	buffer[BUFFER_SIZE];	/* Flawfinder: ignore */
 
 	llifstream file;
-	file.open(filename.c_str());
+	file.open(filename.c_str());	/* Flawfinder: ignore */
 	if( file.fail() )
 	{
 		llinfos << "LLKeywords::loadFromFile()  Unable to open file: " << filename << llendl;
@@ -95,34 +95,34 @@ BOOL LLKeywords::loadFromFile( const LLString& filename )
 	while (!file.eof())
 	{
 		file.getline( buffer, BUFFER_SIZE );
-		if( !strncmp( buffer, SOL_COMMENT, strlen(SOL_COMMENT) ) )
+		if( !strncmp( buffer, SOL_COMMENT, strlen(SOL_COMMENT) ) )	/* Flawfinder: ignore */
 		{
 			continue;
 		}
 		else
-		if( !strncmp( buffer, SOL_WORD, strlen(SOL_WORD) ) )
+		if( !strncmp( buffer, SOL_WORD, strlen(SOL_WORD) ) )	/* Flawfinder: ignore */
 		{
-			cur_color = readColor( buffer + strlen(SOL_WORD) );
+			cur_color = readColor( buffer + strlen(SOL_WORD) );	/* Flawfinder: ignore */
 			cur_type = LLKeywordToken::WORD;
 			continue;
 		}
 		else
-		if( !strncmp( buffer, SOL_LINE, strlen(SOL_LINE) ) )
+		if( !strncmp( buffer, SOL_LINE, strlen(SOL_LINE) ) )	/* Flawfinder: ignore */
 		{
-			cur_color = readColor( buffer + strlen(SOL_LINE) );
+			cur_color = readColor( buffer + strlen(SOL_LINE) );	/* Flawfinder: ignore */
 			cur_type = LLKeywordToken::LINE;
 			continue;
 		}
 		else
-		if( !strncmp( buffer, SOL_TWO_SIDED_DELIMITER, strlen(SOL_TWO_SIDED_DELIMITER) ) )
+		if( !strncmp( buffer, SOL_TWO_SIDED_DELIMITER, strlen(SOL_TWO_SIDED_DELIMITER) ) )	/* Flawfinder: ignore */
 		{
-			cur_color = readColor( buffer + strlen(SOL_TWO_SIDED_DELIMITER) );
+			cur_color = readColor( buffer + strlen(SOL_TWO_SIDED_DELIMITER) );	/* Flawfinder: ignore */
 			cur_type = LLKeywordToken::TWO_SIDED_DELIMITER;
 			continue;
 		}
-		if( !strncmp( buffer, SOL_ONE_SIDED_DELIMITER, strlen(SOL_ONE_SIDED_DELIMITER) ) )
+		if( !strncmp( buffer, SOL_ONE_SIDED_DELIMITER, strlen(SOL_ONE_SIDED_DELIMITER) ) )	/* Flawfinder: ignore */
 		{
-			cur_color = readColor( buffer + strlen(SOL_ONE_SIDED_DELIMITER) );
+			cur_color = readColor( buffer + strlen(SOL_ONE_SIDED_DELIMITER) );	/* Flawfinder: ignore */
 			cur_type = LLKeywordToken::ONE_SIDED_DELIMITER;
 			continue;
 		}
@@ -201,7 +201,7 @@ LLColor3 LLKeywords::readColor( const LLString& s )
 	F32 r, g, b;
 	r = g = b = 0.0f;
 	S32 read = sscanf(s.c_str(), "%f, %f, %f]", &r, &g, &b );
-	if( read != 3 )
+	if( read != 3 )	/* Flawfinder: ignore */
 	{
 		llinfos << " poorly formed color in keyword file" << llendl;
 	}

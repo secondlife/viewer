@@ -89,7 +89,7 @@ public:
 	~LLLFSThread();	
 
 	// Return a Request handle
-	handle_t read(const LLString& filename,
+	handle_t read(const LLString& filename,	/* Flawfinder: ignore */ 
 				  U8* buffer, S32 offset, S32 numbytes, U32 pri=PRIORITY_NORMAL, U32 flags = 0);
 	handle_t write(const LLString& filename,
 				   U8* buffer, S32 offset, S32 numbytes, U32 flags = 0);

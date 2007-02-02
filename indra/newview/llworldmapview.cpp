@@ -621,7 +621,7 @@ void LLWorldMapView::draw()
 		// Draw the region name in the lower left corner
 		LLFontGL* font = LLFontGL::sSansSerifSmall;
 
-		char mesg[MAX_STRING];
+		char mesg[MAX_STRING];		/* Flawfinder: ignore */
 		if (gMapScale < sThresholdA)
 		{
 			mesg[0] = '\0';
@@ -639,11 +639,11 @@ void LLWorldMapView::draw()
 			//			LLViewerRegion::accessToShortString(info->mAccess) );
 			if (info->mAccess == SIM_ACCESS_DOWN)
 			{
-				sprintf(mesg, "%s (Offline)", info->mName.c_str());
+				snprintf(mesg, MAX_STRING, "%s (Offline)", info->mName.c_str());		/* Flawfinder: ignore */
 			}
 			else
 			{
-				sprintf(mesg, "%s", info->mName.c_str());
+				snprintf(mesg, MAX_STRING, "%s", info->mName.c_str());		/* Flawfinder: ignore */
 			}
 		}
 
@@ -1893,7 +1893,7 @@ BOOL LLWorldMapView::handleDoubleClick( S32 x, S32 y, MASK mask )
 			{
 				gFloaterWorldMap->close();
 				// This is an ungainly hack
-				char uuid_str[38];
+				char uuid_str[38];		/* Flawfinder: ignore */
 				S32 event_id;
 				id.toString(uuid_str);
 				sscanf(&uuid_str[28], "%X", &event_id);

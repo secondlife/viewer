@@ -1131,11 +1131,11 @@ void LLInventoryModel::cache(
 		items,
 		INCLUDE_TRASH,
 		can_cache);
-	char agent_id_str[UUID_STR_LENGTH];
-	char inventory_filename[LL_MAX_PATH];
+	char agent_id_str[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
+	char inventory_filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
 	agent_id.toString(agent_id_str);
 	std::string path(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, agent_id_str));
-	snprintf(
+	snprintf(		/*Flawfinder: ignore*/
 		inventory_filename,
 		LL_MAX_PATH,
 		CACHE_FORMAT_STRING,
@@ -1420,11 +1420,11 @@ bool LLInventoryModel::loadSkeleton(
 	{
 		cat_array_t categories;
 		item_array_t items;
-		char owner_id_str[UUID_STR_LENGTH];
+		char owner_id_str[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
 		owner_id.toString(owner_id_str);
 		std::string path(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, owner_id_str));
-		char inventory_filename[LL_MAX_PATH];
-		snprintf(
+		char inventory_filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
+		snprintf(		/*Flawfinder: ignore*/
 			inventory_filename,
 			LL_MAX_PATH,
 			CACHE_FORMAT_STRING,
@@ -1432,7 +1432,7 @@ bool LLInventoryModel::loadSkeleton(
 		const S32 NO_VERSION = LLViewerInventoryCategory::VERSION_UNKNOWN;
 		std::string gzip_filename(inventory_filename);
 		gzip_filename.append(".gz");
-		FILE* fp = LLFile::fopen(gzip_filename.c_str(), "rb");
+		FILE* fp = LLFile::fopen(gzip_filename.c_str(), "rb");		/*Flawfinder: ignore*/
 		bool remove_inventory_file = false;
 		if(fp)
 		{
@@ -1940,19 +1940,24 @@ bool LLInventoryModel::loadFromFile(
 	LLInventoryModel::cat_array_t& categories,
 	LLInventoryModel::item_array_t& items)
 {
+	if(!filename)
+	{
+		llerrs << "Filename is Null!" << llendl;
+		return false;
+	}
 	llinfos << "LLInventoryModel::loadFromFile(" << filename << ")" << llendl;
-	FILE* file = LLFile::fopen(filename, "rb");
+	FILE* file = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
 	if(!file)
 	{
 		llinfos << "unable to load inventory from: " << filename << llendl;
 		return false;
 	}
 	// *NOTE: This buffer size is hard coded into scanf() below.
-	char buffer[MAX_STRING];
-	char keyword[MAX_STRING];
+	char buffer[MAX_STRING];		/*Flawfinder: ignore*/
+	char keyword[MAX_STRING];		/*Flawfinder: ignore*/
 	while(!feof(file) && fgets(buffer, MAX_STRING, file)) 
 	{
-		sscanf(buffer, " %254s", keyword);
+		sscanf(buffer, " %254s", keyword);	/* Flawfinder: ignore */
 		if(0 == strcmp("inv_category", keyword))
 		{
 			LLPointer<LLViewerInventoryCategory> inv_cat = new LLViewerInventoryCategory(LLUUID::null);
@@ -2008,8 +2013,13 @@ bool LLInventoryModel::saveToFile(
 	const cat_array_t& categories,
 	const item_array_t& items)
 {
+	if(!filename)
+	{
+		llerrs << "Filename is Null!" << llendl;
+		return false;
+	}
 	llinfos << "LLInventoryModel::saveToFile(" << filename << ")" << llendl;
-	FILE* file = LLFile::fopen(filename, "wb");
+	FILE* file = LLFile::fopen(filename, "wb");		/*Flawfinder: ignore*/
 	if(!file)
 	{
 		llwarns << "unable to save inventory to: " << filename << llendl;
@@ -2795,7 +2805,7 @@ void LLInventoryModel::processMoveInventoryItem(LLMessageSystem* msg, void**)
 
 	LLUUID item_id;
 	LLUUID folder_id;
-	char new_name[MAX_STRING];
+	char new_name[MAX_STRING];		/*Flawfinder: ignore*/
 	bool anything_changed = false;
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
 	for(S32 i = 0; i < count; ++i)
@@ -2818,7 +2828,7 @@ void LLInventoryModel::processMoveInventoryItem(LLMessageSystem* msg, void**)
 			gInventory.accountForUpdate(update);
 
 			new_item->setParent(folder_id);
-			if(strlen(new_name) > 0)
+			if(strlen(new_name) > 0)		/*Flawfinder: ignore*/
 			{
 				new_item->rename(new_name);
 			}

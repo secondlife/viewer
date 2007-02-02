@@ -136,7 +136,7 @@ public:
 	LLScriptEdCore* getEditorCore() { return mEditorCore; }
 	static LLFloaterScriptSearch* getInstance() { return sInstance; }
 
-	void open();
+	void open();		/*Flawfinder: ignore*/
 
 private:
 
@@ -189,7 +189,7 @@ void LLFloaterScriptSearch::show(LLScriptEdCore* editor_core)
 		new LLFloaterScriptSearch("Script Search",LLRect(left,top,left + SCRIPT_SEARCH_WIDTH,top - SCRIPT_SEARCH_HEIGHT),editor_core);
 	}
 
-	sInstance->open();
+	sInstance->open();		/*Flawfinder: ignore*/
 }
 
 LLFloaterScriptSearch::~LLFloaterScriptSearch()
@@ -236,9 +236,9 @@ void LLFloaterScriptSearch::handleBtnReplaceAll()
 	mEditorCore->mEditor->replaceTextAll(childGetText("search_text"), childGetText("replace_text"), caseChk->get());
 }
 
-void LLFloaterScriptSearch::open()
+void LLFloaterScriptSearch::open()		/*Flawfinder: ignore*/
 {
-	LLFloater::open();
+	LLFloater::open();		/*Flawfinder: ignore*/
 	childSetFocus("search_text", TRUE); 
 }
 /// ---------------------------------------------------------------------------
@@ -409,8 +409,8 @@ void LLScriptEdCore::draw()
 		S32 line = 0;
 		S32 column = 0;
 		mEditor->getCurrentLineAndColumn( &line, &column, FALSE );  // don't include wordwrap
-		char cursor_pos[STD_STRING_BUF_SIZE];
-		sprintf( cursor_pos, "Line %d, Column %d", line, column );
+		char cursor_pos[STD_STRING_BUF_SIZE];		/*Flawfinder: ignore*/
+		snprintf( cursor_pos, STD_STRING_BUF_SIZE, "Line %d, Column %d", line, column );		/*Flawfinder: ignore*/
 		childSetText("line_col", cursor_pos);
 	}
 	else
@@ -894,9 +894,9 @@ BOOL LLPreviewLSL::canClose()
 }
 
 //override the llpreview open which attempts to load asset, load after xml ui made
-void LLPreviewLSL::open()
+void LLPreviewLSL::open()		/*Flawfinder: ignore*/
 {
-	LLFloater::open();
+	LLFloater::open();		/*Flawfinder: ignore*/
 }
 
 // static
@@ -933,11 +933,11 @@ void LLPreviewLSL::saveIfNeeded()
 		LLAssetID uuid;
 		tid.generate();
 		uuid = tid.makeAssetID(gAgent.getSecureSessionID());
-		char uuid_string[UUID_STR_LENGTH];
+		char uuid_string[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
 		uuid.toString(uuid_string);
-		char filename[LL_MAX_PATH];
-		sprintf(filename, "%s.lsl", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());
-		FILE* fp = LLFile::fopen(filename, "wb");
+		char filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
+		snprintf(filename, LL_MAX_PATH, "%s.lsl", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());		/*Flawfinder: ignore*/
+		FILE* fp = LLFile::fopen(filename, "wb");		/*Flawfinder: ignore*/
 		if(!fp)
 		{
 			llwarns << "Unable to write to " << filename << llendl;
@@ -979,10 +979,10 @@ void LLPreviewLSL::saveIfNeeded()
 			gAssetStorage->storeAssetData(tid, LLAssetType::AT_LSL_TEXT, &LLPreviewLSL::onSaveComplete, info);
 		}
 
-		char dst_filename[LL_MAX_PATH];
-		sprintf(dst_filename, "%s.lso", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());
-		char err_filename[LL_MAX_PATH];
-		sprintf(err_filename, "%s.out", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());
+		char dst_filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
+		snprintf(dst_filename, LL_MAX_PATH, "%s.lso", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());		/*Flawfinder: ignore*/
+		char err_filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
+		snprintf(err_filename, LL_MAX_PATH, "%s.out", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());		/*Flawfinder: ignore*/
 		LLScrollListItem* item = NULL;
 		const LLFontGL* err_font = gResMgr->getRes(LLFONT_OCRA);
 		if(!lscript_compile(filename, dst_filename, err_filename, gAgent.isGodlike()))
@@ -993,9 +993,9 @@ void LLPreviewLSL::saveIfNeeded()
 			//system(command);
 
 			// load the error file into the error scrolllist
-			if(NULL != (fp = LLFile::fopen(err_filename, "r")))
+			if(NULL != (fp = LLFile::fopen(err_filename, "r")))		/*Flawfinder: ignore*/
 			{
-				char buffer[MAX_STRING];
+				char buffer[MAX_STRING];		/*Flawfinder: ignore*/
 				LLString line;
 				while(!feof(fp)) 
 				{
@@ -1028,7 +1028,7 @@ void LLPreviewLSL::saveIfNeeded()
 			if(gAssetStorage)
 			{
 				// move the compiled file into the vfs for transport
-				FILE* fp = LLFile::fopen(dst_filename, "rb");
+				FILE* fp = LLFile::fopen(dst_filename, "rb");			/*Flawfinder: ignore*/
 				LLVFile file(gVFS, uuid, LLAssetType::AT_LSL_BYTECODE, LLVFile::APPEND);
 
 				fseek(fp, 0, SEEK_END);
@@ -1165,7 +1165,7 @@ void LLPreviewLSL::onLoadComplete( LLVFS *vfs, const LLUUID& asset_uuid, LLAsset
 			S32 file_length = file.getSize();
 
 			char* buffer = new char[file_length+1];
-			file.read((U8*)buffer, file_length);
+			file.read((U8*)buffer, file_length);		/*Flawfinder: ignore*/
 
 			// put a EOS at the end
 			buffer[file_length] = 0;
@@ -1477,7 +1477,11 @@ void LLLiveLSLEditor::onLoadComplete(LLVFS *vfs, const LLUUID& asset_id,
 
 void LLLiveLSLEditor::loadScriptText(const char* filename)
 {
-	FILE* file = LLFile::fopen(filename, "rb");
+	if(!filename)
+	{
+		llerrs << "Filename is Empty!" << llendl;
+	}
+	FILE* file = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
 	if(file)
 	{
 		// read in the whole file
@@ -1503,7 +1507,7 @@ void LLLiveLSLEditor::loadScriptText(LLVFS *vfs, const LLUUID &uuid, LLAssetType
 	LLVFile file(vfs, uuid, type);
 	S32 file_length = file.getSize();
 	char *buffer = new char[file_length + 1];
-	file.read((U8*)buffer, file_length);
+	file.read((U8*)buffer, file_length);		/*Flawfinder: ignore*/
 
 	if (file.getLastBytesRead() != file_length ||
 		file_length <= 0)
@@ -1668,11 +1672,11 @@ void LLLiveLSLEditor::saveIfNeeded()
 	mItem->setTransactionID(tid);
 
 	// write out the data, and store it in the asset database
-	char uuid_string[UUID_STR_LENGTH];
+	char uuid_string[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
 	uuid.toString(uuid_string);
-	char filename[LL_MAX_PATH];
-	sprintf(filename, "%s.lsl", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());
-	FILE* fp = LLFile::fopen(filename, "wb");
+	char filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
+	snprintf(filename, LL_MAX_PATH, "%s.lsl", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());		/*Flawfinder: ignore*/
+	FILE* fp = LLFile::fopen(filename, "wb");		/*Flawfinder: ignore*/
 	if(!fp)
 	{
 		llwarns << "Unable to write to " << filename << llendl;
@@ -1716,7 +1720,7 @@ void LLLiveLSLEditor::saveIfNeeded()
 	while((!fp) && --tries)
 	{
 		ms_sleep(17);
-		fp = LLFile::fopen(filename, "r");
+		fp = LLFile::fopen(filename, "r");		/*Flawfinder: ignore*/
 		if(!fp)
 		{
 			llwarns << "Trying to open the source file " << filename
@@ -1730,19 +1734,19 @@ void LLLiveLSLEditor::saveIfNeeded()
 	fp = NULL;
 #endif
 
-	char dst_filename[LL_MAX_PATH];
-	sprintf(dst_filename, "%s.lso", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());
-	char err_filename[LL_MAX_PATH];
-	sprintf(err_filename, "%s.out", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());
+	char dst_filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
+	snprintf(dst_filename, LL_MAX_PATH, "%s.lso", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());		/*Flawfinder: ignore*/
+	char err_filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
+	snprintf(err_filename, LL_MAX_PATH, "%s.out", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());		/*Flawfinder: ignore*/
 	LLScrollListItem* item = NULL;
 	const LLFontGL* err_font = gResMgr->getRes(LLFONT_OCRA);
 	if(!lscript_compile(filename, dst_filename, err_filename, gAgent.isGodlike()))
 	{
 		// load the error file into the error scrolllist
 		llinfos << "Compile failed!" << llendl;
-		if(NULL != (fp = LLFile::fopen(err_filename, "r")))
+		if(NULL != (fp = LLFile::fopen(err_filename, "r")))		/*Flawfinder: ignore*/
 		{
-			char buffer[MAX_STRING];
+			char buffer[MAX_STRING];		/*Flawfinder: ignore*/
 			LLString line;
 			while(!feof(fp)) 
 			{
@@ -1784,7 +1788,7 @@ void LLLiveLSLEditor::saveIfNeeded()
 					<< mItem->getAssetUUID() << llendl;
 
 			// move the compiled file into the vfs for transport
-			FILE* fp = LLFile::fopen(dst_filename, "rb");
+			FILE* fp = LLFile::fopen(dst_filename, "rb");		/*Flawfinder: ignore*/
 			LLVFile file(gVFS, uuid, LLAssetType::AT_LSL_BYTECODE, LLVFile::APPEND);
 
 			fseek(fp, 0, SEEK_END);
@@ -1897,12 +1901,12 @@ void LLLiveLSLEditor::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* use
 		args["[REASON]"] = std::string(LLAssetStorage::getErrorString(status));
 		gViewerWindow->alertXml("CompileQueueSaveBytecode", args);
 	}
-	char uuid_string[UUID_STR_LENGTH];
+	char uuid_string[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
 	data->mItem->getAssetUUID().toString(uuid_string);
-	char dst_filename[LL_MAX_PATH];
-	sprintf(dst_filename, "%s.lso", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());
+	char dst_filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
+	snprintf(dst_filename, LL_MAX_PATH, "%s.lso", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());		/*Flawfinder: ignore*/
 	LLFile::remove(dst_filename);
-	sprintf(dst_filename, "%s.lsl", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());
+	snprintf(dst_filename, LL_MAX_PATH, "%s.lsl", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());		/*Flawfinder: ignore*/
 	LLFile::remove(dst_filename);
 	delete data;
 }
@@ -1936,7 +1940,7 @@ LLLiveLSLEditor* LLLiveLSLEditor::show(const LLUUID& script_id, const LLUUID& ob
 	{
 		// Move the existing view to the front
 		instance = LLLiveLSLEditor::sInstances[xored_id];
-		instance->open();
+		instance->open();		/*Flawfinder: ignore*/
 	}
 	return instance;
 }

@@ -123,7 +123,10 @@ BOOL LLImageBMP::updateData()
 	LLBMPHeader header;
 	llassert( sizeof( header ) == BITMAP_HEADER_SIZE );
 
-	memcpy((void *)&header, mdata + FILE_HEADER_SIZE, BITMAP_HEADER_SIZE);
+	memcpy(	/* Flawfinder: ignore */
+		(void*)&header,
+		mdata + FILE_HEADER_SIZE,
+		BITMAP_HEADER_SIZE);
 
 	// convert BMP header from little endian (no-op on little endian builds)
 	llendianswizzleone(header.mSize);
@@ -257,7 +260,7 @@ BOOL LLImageBMP::updateData()
 
 		
 		extension_size = 4 * 3;
-		memcpy( mBitfieldMask, mdata + FILE_HEADER_SIZE + BITMAP_HEADER_SIZE, extension_size);
+		memcpy( mBitfieldMask, mdata + FILE_HEADER_SIZE + BITMAP_HEADER_SIZE, extension_size);	/* Flawfinder: ignore */
 	}
 	else
 	if( windows_95_version )
@@ -266,11 +269,11 @@ BOOL LLImageBMP::updateData()
 		extension_size = sizeof( win_95_extension );
 
 		llassert( sizeof( win_95_extension ) + BITMAP_HEADER_SIZE == 108 );
-		memcpy( &win_95_extension, mdata + FILE_HEADER_SIZE + BITMAP_HEADER_SIZE, sizeof( win_95_extension ) );
+		memcpy( &win_95_extension, mdata + FILE_HEADER_SIZE + BITMAP_HEADER_SIZE, sizeof( win_95_extension ) );	/* Flawfinder: ignore */
 
 		if( 3 == header.mCompression )
 		{
-			memcpy( mBitfieldMask, mdata + FILE_HEADER_SIZE + BITMAP_HEADER_SIZE, 4 * 4);
+			memcpy( mBitfieldMask, mdata + FILE_HEADER_SIZE + BITMAP_HEADER_SIZE, 4 * 4);	/* Flawfinder: ignore */
 		}
 
 		// Color correction ignored for now
@@ -298,7 +301,12 @@ BOOL LLImageBMP::updateData()
 	if( 0 != mColorPaletteColors )
 	{
 		mColorPalette = new U8[color_palette_size];
-		memcpy( mColorPalette, mdata + FILE_HEADER_SIZE + BITMAP_HEADER_SIZE + extension_size, color_palette_size );
+		if (!mColorPalette)
+		{
+			llerrs << "Out of memory in LLImageBMP::updateData()" << llendl;
+			return FALSE;
+		}
+		memcpy( mColorPalette, mdata + FILE_HEADER_SIZE + BITMAP_HEADER_SIZE + extension_size, color_palette_size );	/* Flawfinder: ignore */
 	}
 
 	return TRUE;
@@ -568,7 +576,7 @@ BOOL LLImageBMP::encode(const LLImageRaw* raw_image, F32 encode_time)
 	U32 cur_pos = 0;
 	memcpy(mdata, magic, 14);
 	cur_pos += 14;
-	memcpy(mdata+cur_pos, &header, 40);
+	memcpy(mdata+cur_pos, &header, 40);	/* Flawfinder: ignore */
 	cur_pos += 40;
 	if (getComponents() == 1)
 	{

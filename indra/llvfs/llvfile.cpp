@@ -116,7 +116,7 @@ U8* LLVFile::readFile(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type, S
 	else
 	{
 		data = new U8[file_size];
-		file.read(data, file_size);
+		file.read(data, file_size);	/* Flawfinder: ignore */ 
 		
 		if (file.getLastBytesRead() != (S32)file_size)
 		{

@@ -998,7 +998,7 @@ BOOL LLParcel::importAccessEntry(std::istream& input_stream, LLAccessEntry* entr
 BOOL LLParcel::exportStream(std::ostream& output_stream)
 {
 	S32 setting;
-	char id_string[MAX_STRING];
+	char id_string[MAX_STRING];	/* Flawfinder: ignore */
 
 	std::ios::fmtflags old_flags = output_stream.flags();
 	output_stream.setf(std::ios::showpoint);
@@ -1229,7 +1229,7 @@ void LLParcel::packMessage(LLMessageSystem* msg)
 
 void LLParcel::unpackMessage(LLMessageSystem* msg)
 {
-	char buffer[256];
+	char buffer[256];	/* Flawfinder: ignore */
 
 	msg->getU32Fast(	_PREHASH_ParcelData,_PREHASH_ParcelFlags, mParcelFlags );
 	msg->getS32Fast(	_PREHASH_ParcelData,_PREHASH_SalePrice, mSalePrice );

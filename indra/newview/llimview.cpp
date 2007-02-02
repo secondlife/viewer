@@ -539,7 +539,7 @@ void LLIMView::setFloaterOpen(BOOL set_open)
 	//RN "visible" and "open" are considered synonomous for now
 	if (set_open)
 	{
-		mTalkFloater->open();
+		mTalkFloater->open();		/*Flawfinder: ignore*/
 	}
 	else
 	{
@@ -682,8 +682,8 @@ void LLIMView::noteOfflineUsers(LLFloaterIMPanel* floater,
 		for(S32 i = 0; i < count; ++i)
 		{
 			info = at.getBuddyInfo(ids.get(i));
-			char first[DB_FIRST_NAME_BUF_SIZE];
-			char last[DB_LAST_NAME_BUF_SIZE];
+			char first[DB_FIRST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
+			char last[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 			if(info && !info->isOnline()
 			   && gCacheName->getName(ids.get(i), first, last))
 			{

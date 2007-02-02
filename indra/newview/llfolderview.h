@@ -298,7 +298,7 @@ protected:
 	// the specified selected item appropriately for display and use
 	// in the UI. If open is TRUE, then folders are opened up along
 	// the way to the selection.
-	void setSelectionFromRoot(LLFolderViewItem* selection, BOOL open,
+	void setSelectionFromRoot(LLFolderViewItem* selection, BOOL open,		/* Flawfinder: ignore */
 		BOOL take_keyboard_focus = TRUE);
 
 	// helper function to change the selection from the root.
@@ -347,7 +347,7 @@ public:
 	// ignore. Returns TRUE if this object was affected. If open is
 	// TRUE, then folders are opened up along the way to the
 	// selection.
-	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL open,
+	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL open,		/* Flawfinder: ignore */
 		BOOL take_keyboard_focus);
 
 	// This method is used to toggle the selection of an item. If
@@ -414,7 +414,7 @@ public:
 	void rename(const LLString& new_name);
 
 	// open
-	virtual void open( void );
+	virtual void open( void );		/* Flawfinder: ignore */
 	virtual void preview(void);
 
 	// Show children (unfortunate that this is called "open")
@@ -539,7 +539,7 @@ public:
 	// Passes selection information on to children and record
 	// selection information if necessary. Returns TRUE if this object
 	// (or a child) was affected.
-	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL open,
+	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL open,		/* Flawfinder: ignore */
 		BOOL take_keyboard_focus);
 
 	// This method is used to change the selection of an item. If
@@ -593,7 +593,7 @@ public:
 	virtual void toggleOpen();
 
 	// Force a folder open or closed
-	virtual void setOpen(BOOL open = TRUE);
+	virtual void setOpen(BOOL open = TRUE);		/* Flawfinder: ignore */
 
 	// Called when a child is refreshed.
 	virtual void requestArrange();
@@ -602,7 +602,7 @@ public:
 	// method was written because the list iterators destroy the state
 	// of other iterations, thus, we can't arrange while iterating
 	// through the children (such as when setting which is selected.
-	virtual void setOpenArrangeRecursively(BOOL open, ERecurseType recurse = RECURSE_NO);
+	virtual void setOpenArrangeRecursively(BOOL open, ERecurseType recurse = RECURSE_NO);		/* Flawfinder: ignore */
 
 	// Get the current state of the folder.
 	virtual BOOL isOpen() { return mIsOpen; }
@@ -618,7 +618,7 @@ public:
 	void applyFunctorRecursively(LLFolderViewFunctor& functor);
 	virtual void applyListenerFunctorRecursively(LLFolderViewListenerFunctor& functor);
 
-	virtual void open( void );
+	virtual void open( void );		/* Flawfinder: ignore */
 	virtual BOOL addItem(LLFolderViewItem* item); 
 	virtual BOOL addFolder( LLFolderViewFolder* folder);
 
@@ -686,7 +686,7 @@ public:
 	void openFolder(const LLString& foldername);
 
 	virtual void toggleOpen() {};
-	virtual void setOpenArrangeRecursively(BOOL open, ERecurseType recurse);
+	virtual void setOpenArrangeRecursively(BOOL open, ERecurseType recurse);		/* Flawfinder: ignore */
 	virtual BOOL addFolder( LLFolderViewFolder* folder);
 
 	// Finds width and height of this object and it's children.  Also
@@ -703,7 +703,7 @@ public:
 	virtual LLFolderViewItem* getCurSelectedItem( void );
 
 	// Record the selected item and pass it down the hierachy.
-	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL open,
+	virtual BOOL setSelection(LLFolderViewItem* selection, BOOL open,		/* Flawfinder: ignore */
 		BOOL take_keyboard_focus);
 
 	// This method is used to toggle the selection of an item. Walks

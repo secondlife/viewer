@@ -162,7 +162,7 @@ char* build_notice_date(const time_t& the_time, char* buffer)
 	tm* lt = localtime(&t);
 	//for some reason, the month is off by 1.  See other uses of
 	//"local" time in the code...
-	sprintf(buffer,"%i/%i/%i", lt->tm_mon + 1, lt->tm_mday, lt->tm_year + 1900);
+	snprintf(buffer, sizeof(buffer), "%i/%i/%i", lt->tm_mon + 1, lt->tm_mday, lt->tm_year + 1900);		/*Flawfinder: ignore*/
 
 	return buffer;
 }
@@ -428,8 +428,8 @@ void LLPanelGroupNotices::processGroupNoticesListReply(LLMessageSystem* msg, voi
 void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 {
 	LLUUID id;
-	char subj[MAX_STRING];
-	char name[MAX_STRING];
+	char subj[MAX_STRING];		/*Flawfinder: ignore*/
+	char name[MAX_STRING];		/*Flawfinder: ignore*/
 	U32 timestamp;
 	BOOL has_attachment;
 	U8 asset_type;
@@ -473,12 +473,12 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		row["columns"][2]["column"] = "from";
 		row["columns"][2]["value"] = name;
 
-		char buffer[30];
+		char buffer[30];		/*Flawfinder: ignore*/
 		build_notice_date(t, buffer);
 		row["columns"][3]["column"] = "date";
 		row["columns"][3]["value"] = buffer;
 
-		snprintf(buffer, 30, "%u", timestamp);
+		snprintf(buffer, 30, "%u", timestamp);		/*Flawfinder: ignore*/
 		row["columns"][4]["column"] = "sort";
 		row["columns"][4]["value"] = buffer;
 

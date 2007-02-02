@@ -295,7 +295,7 @@ void export_complete()
 		gExporterRequestID.setNull();
 		gExportDirectory = "";
 
-		FILE *fXML = LLFile::fopen(gExportedFile.c_str(), "rb");
+		FILE* fXML = LLFile::fopen(gExportedFile.c_str(), "rb");		/* Flawfinder: ignore */
 		fseek(fXML, 0, SEEK_END);
 		U32 length = ftell(fXML);
 		fseek(fXML, 0, SEEK_SET);
@@ -311,8 +311,8 @@ void export_complete()
 
 			if (pos_check && pos_uuid)
 			{
-				char image_uuid_str[UUID_STR_SIZE];
-				memcpy(image_uuid_str, pos_uuid+2, UUID_STR_SIZE-1);
+				char image_uuid_str[UUID_STR_SIZE];		/* Flawfinder: ignore */
+				memcpy(image_uuid_str, pos_uuid+2, UUID_STR_SIZE-1);		/* Flawfinder: ignore */
 				image_uuid_str[UUID_STR_SIZE-1] = 0;
 
 				LLUUID image_uuid(image_uuid_str);
@@ -323,12 +323,15 @@ void export_complete()
 				if (itor != gImageChecksums.end())
 				{
 					llinfos << "Replacing with checksum: " << itor->second << llendl;
-					memcpy(&pos_check[10], itor->second.c_str(), 32);
+					if (itor->second.c_str() != NULL)
+					{
+						memcpy(&pos_check[10], itor->second.c_str(), 32);		/* Flawfinder: ignore */
+					}
 				}
 			}
 		}
 
-		FILE *fXMLOut = LLFile::fopen(gExportedFile.c_str(), "wb");
+		FILE* fXMLOut = LLFile::fopen(gExportedFile.c_str(), "wb");		/* Flawfinder: ignore */
 		fwrite(buffer, 1, length, fXMLOut);
 		fclose(fXMLOut);
 
@@ -381,7 +384,7 @@ void exported_j2c_complete(const LLTSCode status, void *user_data)
 	}
 	else
 	{
-		FILE *fIn = LLFile::fopen(filename.c_str(), "rb");
+		FILE* fIn = LLFile::fopen(filename.c_str(), "rb");		/* Flawfinder: ignore */
 		if (fIn) 
 		{
 			LLPointer<LLImageJ2C> ImageUtility = new LLImageJ2C;
@@ -406,22 +409,22 @@ void exported_j2c_complete(const LLTSCode status, void *user_data)
 			S32 data_size = TargaUtility->getDataSize();
 
 			char *file_path = new char[filename.size()+1];
-			strcpy(file_path, filename.c_str());
+			strcpy(file_path, filename.c_str());		/* Flawfinder: ignore */
 			char *end = strrchr(file_path, gDirUtilp->getDirDelimiter()[0]);
 			end[0] = 0;
 			LLString output_file = llformat("%s/image-%03d.tga", file_path, image_num);//filename;
 			delete file_path;
 			//S32 name_len = output_file.length();
 			//strcpy(&output_file[name_len-3], "tga");
-			FILE *fOut = LLFile::fopen(output_file.c_str(), "wb");
-			char md5_hash_string[33];
-			strcpy(md5_hash_string, "00000000000000000000000000000000");
+			FILE* fOut = LLFile::fopen(output_file.c_str(), "wb");		/* Flawfinder: ignore */
+			char md5_hash_string[33];		/* Flawfinder: ignore */
+			strcpy(md5_hash_string, "00000000000000000000000000000000");		/* Flawfinder: ignore */
 			if (fOut)
 			{
 				fwrite(data, 1, data_size, fOut);
 				fseek(fOut, 0, SEEK_SET);
 				fclose(fOut);
-				fOut = LLFile::fopen(output_file.c_str(), "rb");
+				fOut = LLFile::fopen(output_file.c_str(), "rb");		/* Flawfinder: ignore */
 				LLMD5 my_md5_hash(fOut);
 				my_md5_hash.hex_digest(md5_hash_string);
 			}
@@ -782,7 +785,7 @@ void inventory_offer_callback(S32 option, void* user_data)
 	{
 		if (info->mFromGroup)
 		{
-			char group_name[MAX_STRING];
+			char group_name[MAX_STRING];		/* Flawfinder: ignore */
 			if (gCacheName->getGroupName(info->mFromID, group_name))
 			{
 				from_string = LLString("An object named ") + info->mFromName + " owned by the group '" + group_name + "'";
@@ -794,8 +797,8 @@ void inventory_offer_callback(S32 option, void* user_data)
 		}
 		else
 		{
-			char first_name[MAX_STRING];
-			char last_name[MAX_STRING];
+			char first_name[MAX_STRING];		/* Flawfinder: ignore */
+			char last_name[MAX_STRING];		/* Flawfinder: ignore */
 			if (gCacheName->getName(info->mFromID, first_name, last_name))
 			{
 				from_string = LLString("An object named ") + info->mFromName + " owned by " + first_name + " " + last_name;
@@ -981,8 +984,8 @@ void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
 		  // Name cache callbacks don't store userdata, so can't save
 		  // off the LLOfferInfo.  Argh.  JC
 		  BOOL name_found = FALSE;
-		  char first_name[MAX_STRING];
-		  char last_name[MAX_STRING];
+		  char first_name[MAX_STRING];		/* Flawfinder: ignore */
+		  char last_name[MAX_STRING];		/* Flawfinder: ignore */
 		  if (info->mFromGroup)
 		  {
 			  if (gCacheName->getGroupName(info->mFromID, first_name))
@@ -1114,12 +1117,12 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	U8 d = 0;
 	LLUUID session_id;
 	U32 t;
-	char name[DB_FULL_NAME_BUF_SIZE];
-	char message[DB_IM_MSG_BUF_SIZE];
+	char name[DB_FULL_NAME_BUF_SIZE];		/* Flawfinder: ignore */
+	char message[DB_IM_MSG_BUF_SIZE];		/* Flawfinder: ignore */
 	U32 parent_estate_id = 0;
 	LLUUID region_id;
 	LLVector3 position;
-	char buffer[DB_IM_MSG_BUF_SIZE * 2];
+	char buffer[DB_IM_MSG_BUF_SIZE * 2];		/* Flawfinder: ignore */
 	U8 binary_bucket[MTUBYTES];
 	S32 binary_bucket_size;
 	LLChat chat;
@@ -1158,13 +1161,13 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		is_owned_by_me = source->permYouOwner();
 	}
 
-	char separator_string[3]=": ";
+	char separator_string[3]=": ";		/* Flawfinder: ignore */
 	int message_offset=0;
 
 		//Handle IRC styled /me messages.
 	if (!strncmp(message, "/me ", 4) || !strncmp(message, "/me'", 4))
 	{
-		strcpy(separator_string,"");
+		strcpy(separator_string,"");		/* Flawfinder: ignore */
 		message_offset=3;
 	}
 
@@ -1218,7 +1221,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			// now store incoming IM in chat history
 
-			sprintf(buffer, "%s%s%s", name, separator_string, (message+message_offset));
+			snprintf(buffer, sizeof(buffer), "%s%s%s", name, separator_string, (message+message_offset));		/* Flawfinder: ignore */
 	
 			if(from_id == gAgentID)
 			{
@@ -1239,14 +1242,14 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				position);
 
 			// pretend this is chat generated by self, so it does not show up on screen
-			sprintf(buffer, "IM: %s%s%s", name, separator_string, (message+message_offset));
+			snprintf(buffer, sizeof(buffer), "IM: %s%s%s", name, separator_string, (message+message_offset));		/* Flawfinder: ignore */
 			chat.mText = buffer;
 			LLFloaterChat::addChat( chat, TRUE, TRUE );
 		}
 		else if (from_id.isNull())
 		{
 			// Messages from "Second Life" don't go to IM history
-			sprintf(buffer, "%s: %s", name, message);
+			snprintf(buffer, sizeof(buffer), "%s: %s", name, message);		/* Flawfinder: ignore */
 			chat.mText = buffer;
 			LLFloaterChat::addChat(chat, FALSE, FALSE);
 		}
@@ -1260,7 +1263,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// Treat like a system message and put in chat history.
 			// Claim to be from a local agent so it doesn't go into
 			// console.
-			sprintf(buffer, "%s%s%s", name, separator_string, (message+message_offset));
+			snprintf(buffer, sizeof(buffer), "%s%s%s", name, separator_string, (message+message_offset));		/* Flawfinder: ignore */
 			chat.mText = buffer;
 			BOOL local_agent = TRUE;
 			LLFloaterChat::addChat(chat, FALSE, local_agent);
@@ -1268,15 +1271,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		else
 		{
 			// standard message, not from system
-			char saved[MAX_STRING];
+			char saved[MAX_STRING];		/* Flawfinder: ignore */
 			saved[0] = '\0';
 			if(offline == IM_OFFLINE)
 			{
-				char time_buf[TIME_STR_LENGTH];
-				sprintf(saved, "(Saved %s) ",
+				char time_buf[TIME_STR_LENGTH];		/* Flawfinder: ignore */
+				snprintf(saved, MAX_STRING, "(Saved %s) ",		/* Flawfinder: ignore */
 						formatted_time(timestamp, time_buf));
 			}
-			sprintf(buffer, "%s%s%s%s", name, separator_string, saved,(message+message_offset));
+			snprintf(buffer, sizeof(buffer), "%s%s%s%s", name, separator_string, saved,(message+message_offset));		/* Flawfinder: ignore */
 			if(from_id == gAgentID)
 			{
 				from_id = LLUUID::null;
@@ -1295,7 +1298,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 					parent_estate_id,
 					region_id,
 					position);
-				sprintf(buffer, "IM: %s%s%s%s", name, separator_string, saved, (message+message_offset));
+				snprintf(buffer, sizeof(buffer), "IM: %s%s%s%s", name, separator_string, saved, (message+message_offset));		/* Flawfinder: ignore */
 
 				chat.mText = buffer;
 				BOOL local_agent = FALSE;
@@ -1559,16 +1562,17 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			
 			// standard message, not from system
-			char saved[MAX_STRING];
+			char saved[MAX_STRING];		/* Flawfinder: ignore */
 			saved[0] = '\0';
 			if(offline == IM_OFFLINE)
 			{
-				char time_buf[TIME_STR_LENGTH];
-				sprintf(saved,
+				char time_buf[TIME_STR_LENGTH];		/* Flawfinder: ignore */
+				snprintf(saved,		/* Flawfinder: ignore */
+						MAX_STRING, 
 						"(Saved %s) ", 
 						formatted_time(timestamp, time_buf));
 			}
-			sprintf(buffer, "%s%s%s%s", name, separator_string, saved, (message+message_offset));
+			snprintf(buffer, sizeof(buffer), "%s%s%s%s", name, separator_string, saved, (message+message_offset));		/* Flawfinder: ignore */
 			BOOL is_this_agent = FALSE;
 			if(from_id == gAgentID)
 			{
@@ -1586,7 +1590,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				region_id,
 				position);
 				
-			sprintf(buffer, "IM: %s%s%s%s", name, separator_string, saved, (message+message_offset));
+			snprintf(buffer, sizeof(buffer), "IM: %s%s%s%s", name, separator_string, saved, (message+message_offset));		/* Flawfinder: ignore */
 			chat.mText = buffer;
 			LLFloaterChat::addChat(chat, TRUE, is_this_agent);
 		}
@@ -1597,7 +1601,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		{
 			return;
 		}
-		sprintf(buffer, "%s%s%s", name, separator_string, (message+message_offset));
+		snprintf(buffer, sizeof(buffer), "%s%s%s", name, separator_string, (message+message_offset));		/* Flawfinder: ignore */
 		// Note: lie to LLFloaterChat::addChat(), pretending that this is NOT an IM, because
 		// IMs from objcts don't open IM sessions.
 		chat.mText = buffer;
@@ -1669,7 +1673,14 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	case IM_GOTO_URL:
 		{
 			char* url = new char[binary_bucket_size];
-			strcpy(url, (char*)binary_bucket);
+			if (url == NULL)
+			{
+				llerrs << "Memory Allocation failed" << llendl;
+				return;
+			}
+
+			strncpy(url, (char*)binary_bucket, binary_bucket_size-1);		/* Flawfinder: ignore */
+			url[binary_bucket_size-1] = '\0';
 			args["[MESSAGE]"] = message;
 			args["[URL]"] = url;
 			LLNotifyBox::showXml("GotoURL", args,
@@ -1912,8 +1923,8 @@ void process_decline_callingcard(LLMessageSystem* msg, void**)
 void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 {
 	LLChat		chat;
-	char		mesg[DB_CHAT_MSG_BUF_SIZE];
-	char		from_name[DB_FULL_NAME_BUF_SIZE];
+	char		mesg[DB_CHAT_MSG_BUF_SIZE];		/* Flawfinder: ignore */
+	char		from_name[DB_FULL_NAME_BUF_SIZE];		/* Flawfinder: ignore */
 	U8			source_temp;
 	U8			type_temp;
 	U8			audible_temp;
@@ -2264,7 +2275,7 @@ void process_teleport_progress(LLMessageSystem* msg, void**)
 	{
 		gViewerWindow->setProgressCancelButtonVisible(TRUE, "Cancel");
 	}
-	char buffer[MAX_STRING];
+	char buffer[MAX_STRING];		/* Flawfinder: ignore */
 	msg->getString("Info", "Message", MAX_STRING, buffer);
 	lldebugs << "teleport progress: " << buffer << llendl;
 	gAgent.setTeleportMessage(buffer);
@@ -2354,7 +2365,7 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 	msg->getU32Fast(_PREHASH_Info, _PREHASH_TeleportFlags, teleport_flags);
 	
 	
-	char seedCap[STD_STRING_BUF_SIZE];
+	char seedCap[STD_STRING_BUF_SIZE];		/* Flawfinder: ignore */
 	msg->getStringFast(_PREHASH_Info, _PREHASH_SeedCapability,
 		STD_STRING_BUF_SIZE, seedCap);
 
@@ -2638,7 +2649,7 @@ void process_crossed_region(LLMessageSystem* msg, void**)
 	U64 region_handle;
 	msg->getU64Fast(_PREHASH_RegionData, _PREHASH_RegionHandle, region_handle);
 	
-	char seedCap[STD_STRING_BUF_SIZE];
+	char seedCap[STD_STRING_BUF_SIZE];		/* Flawfinder: ignore */
 	msg->getStringFast(_PREHASH_RegionData, _PREHASH_SeedCapability, STD_STRING_BUF_SIZE, seedCap);
 
 	send_complete_agent_movement(sim_host);
@@ -3639,7 +3650,7 @@ void process_set_follow_cam_properties(LLMessageSystem *mesgsys, void **user_dat
 // Culled from newsim lltask.cpp
 void process_name_value(LLMessageSystem *mesgsys, void **user_data)
 {
-	char	temp_str[NAME_VALUE_BUF_SIZE];
+	char	temp_str[NAME_VALUE_BUF_SIZE];		/* Flawfinder: ignore */
 	LLUUID	id;
 	S32		i, num_blocks;
 
@@ -3665,7 +3676,7 @@ void process_name_value(LLMessageSystem *mesgsys, void **user_data)
 
 void process_remove_name_value(LLMessageSystem *mesgsys, void **user_data)
 {
-	char	temp_str[NAME_VALUE_BUF_SIZE];
+	char	temp_str[NAME_VALUE_BUF_SIZE];		/* Flawfinder: ignore */
 	LLUUID	id;
 	S32		i, num_blocks;
 
@@ -3691,7 +3702,7 @@ void process_remove_name_value(LLMessageSystem *mesgsys, void **user_data)
 
 void process_kick_user(LLMessageSystem *msg, void** /*user_data*/)
 {
-	char message[2048];
+	char message[2048];		/* Flawfinder: ignore */
 	message[0] = '\0';
 
 	msg->getStringFast(_PREHASH_UserInfo, _PREHASH_Reason, 2048, message);
@@ -3759,7 +3770,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 	S32 balance = 0;
 	S32 credit = 0;
 	S32 committed = 0;
-	char desc[STD_STRING_BUF_SIZE] = "";
+	char desc[STD_STRING_BUF_SIZE] = "";		/* Flawfinder: ignore */
 
 	msg->getS32("MoneyData", "MoneyBalance", balance);
 	msg->getS32("MoneyData", "SquareMetersCredit", credit);
@@ -3820,7 +3831,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 
 void process_agent_alert_message(LLMessageSystem* msgsystem, void** user_data)
 {
-	char buffer[MAX_STRING];
+	char buffer[MAX_STRING];		/* Flawfinder: ignore */
 	msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, MAX_STRING, buffer);
 	BOOL modal = FALSE;
 	msgsystem->getBOOL("AlertData", "Modal", modal);
@@ -3829,7 +3840,7 @@ void process_agent_alert_message(LLMessageSystem* msgsystem, void** user_data)
 
 void process_alert_message(LLMessageSystem *msgsystem, void **user_data)
 {
-	char buffer[MAX_STRING];
+	char buffer[MAX_STRING];		/* Flawfinder: ignore */
 	msgsystem->getStringFast(_PREHASH_AlertData, _PREHASH_Message, MAX_STRING, buffer);
 	BOOL modal = FALSE;
 	process_alert_core(buffer, modal);
@@ -3849,10 +3860,11 @@ void process_alert_core(const char* buffer, BOOL modal)
 	else if( !strcmp( buffer, "Home position set." ) )
 	{
 		// save the home location image to disk
-		char temp_str[LL_MAX_PATH];
-		strcpy(temp_str, gDirUtilp->getLindenUserDir().c_str());
-		strcat(temp_str, "/");
-		strcat(temp_str,SCREEN_HOME_FILENAME);
+		char temp_str[LL_MAX_PATH];		/* Flawfinder: ignore */
+		strncpy(temp_str, gDirUtilp->getLindenUserDir().c_str(), LL_MAX_PATH -1);		/* Flawfinder: ignore */
+		temp_str[LL_MAX_PATH -1] = '\0';
+		strcat(temp_str, "/");		/* Flawfinder: ignore */	
+		strcat(temp_str,SCREEN_HOME_FILENAME);		/* Flawfinder: ignore */
 		gViewerWindow->saveSnapshot(temp_str, gViewerWindow->getWindowWidth(), gViewerWindow->getWindowHeight(), FALSE, FALSE);
 	}
 
@@ -3930,8 +3942,10 @@ void mean_name_callback(const LLUUID &id, const char *first, const char *last, B
 	{
 		if (mcd->mPerp == id)
 		{
-			strcpy(mcd->mFirstName, first);
-			strcpy(mcd->mLastName, last);
+			strncpy(mcd->mFirstName, first, DB_FIRST_NAME_BUF_SIZE -1);		/* Flawfinder: ignore */
+			mcd->mFirstName[DB_FIRST_NAME_BUF_SIZE -1] = '\0';
+			strncpy(mcd->mLastName, last, DB_LAST_NAME_BUF_SIZE -1);		/* Flawfinder: ignore */
+			mcd->mLastName[DB_LAST_NAME_BUF_SIZE -1] = '\0';
 		}
 	}
 }
@@ -4082,8 +4096,8 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 	LLUUID taskid;
 	LLUUID itemid;
 	S32		questions;
-	char object_name[255];
-	char owner_name[DB_FULL_NAME_BUF_SIZE];
+	char object_name[255];		/* Flawfinder: ignore */
+	char owner_name[DB_FULL_NAME_BUF_SIZE];		/* Flawfinder: ignore */
 
 	msg->getUUIDFast(_PREHASH_Data, _PREHASH_TaskID, taskid );
 	msg->getUUIDFast(_PREHASH_Data, _PREHASH_ItemID, itemid );
@@ -4243,7 +4257,7 @@ char* formatted_time(const time_t& the_time, char* buffer)
 
 void process_teleport_failed(LLMessageSystem *msg, void**)
 {
-	char reason[STD_STRING_BUF_SIZE];
+	char reason[STD_STRING_BUF_SIZE];		/* Flawfinder: ignore */
 	msg->getStringFast(_PREHASH_Info, _PREHASH_Reason, STD_STRING_BUF_SIZE, reason);
 
 	LLStringBase<char>::format_map_t args;
@@ -4517,10 +4531,10 @@ void process_user_info_reply(LLMessageSystem* msg, void**)
 	
 	BOOL im_via_email;
 	msg->getBOOLFast(_PREHASH_UserData, _PREHASH_IMViaEMail, im_via_email);
-	char email[DB_USER_EMAIL_ADDR_BUF_SIZE];
+	char email[DB_USER_EMAIL_ADDR_BUF_SIZE];		/* Flawfinder: ignore */
 	msg->getStringFast(_PREHASH_UserData, _PREHASH_EMail, DB_USER_EMAIL_ADDR_BUF_SIZE,
 					   email);
-	char dir_visibility[MAX_STRING];
+	char dir_visibility[MAX_STRING];			/* Flawfinder: ignore */	
 	msg->getString(
 		"UserData", "DirectoryVisibility", MAX_STRING, dir_visibility);
 
@@ -4577,11 +4591,11 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	ScriptDialogInfo* info = new ScriptDialogInfo;
 
 	const S32 messageLength = SCRIPT_DIALOG_MAX_MESSAGE_SIZE + sizeof(SCRIPT_DIALOG_HEADER);
-	char message[messageLength]; // Account for size of "Script Dialog:\n"
+	char message[messageLength]; 		/* Flawfinder: ignore */		// Account for size of "Script Dialog:\n"
 
-	char first_name[DB_FIRST_NAME_BUF_SIZE];
-	char last_name[DB_GROUP_NAME_BUF_SIZE];
-	char title[DB_INV_ITEM_NAME_BUF_SIZE];
+	char first_name[DB_FIRST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
+	char last_name[DB_GROUP_NAME_BUF_SIZE];		/* Flawfinder: ignore */
+	char title[DB_INV_ITEM_NAME_BUF_SIZE];		/* Flawfinder: ignore */
 	info->mSender = msg->getSender();
 
 	msg->getUUID("Data", "ObjectID", info->mObjectID);
@@ -4603,7 +4617,7 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 
 	for (i = 0; i < button_count; i++)
 	{
-		char tdesc[SCRIPT_DIALOG_BUTTON_STR_SIZE+1];
+		char tdesc[SCRIPT_DIALOG_BUTTON_STR_SIZE+1];		/* Flawfinder: ignore */
 		msg->getString("Buttons", "ButtonLabel", SCRIPT_DIALOG_BUTTON_STR_SIZE + 1,  tdesc, i);
 		info->mButtons.push_back(LLString(tdesc));
 	}
@@ -4611,7 +4625,7 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	LLStringBase<char>::format_map_t args;
 	args["[TITLE]"] = title;
 	args["[MESSAGE]"] = message;
-	if (strlen(first_name) > 0)
+	if (strlen(first_name) > 0)		/* Flawfinder: ignore */
 	{
 		args["[FIRST]"] = first_name;
 		args["[LAST]"] = last_name;
@@ -4637,9 +4651,9 @@ struct LoadUrlInfo
 	LLUUID mObjectID;
 	LLUUID mOwnerID;
 	BOOL mOwnerIsGroup;
-	char mObjectName[256];
-	char mMessage[256];
-	char mUrl[256];
+	char mObjectName[256];		/* Flawfinder: ignore */
+	char mMessage[256];		/* Flawfinder: ignore */
+	char mUrl[256];		/* Flawfinder: ignore */
 };
 
 std::vector<LoadUrlInfo*> gLoadUrlList;
@@ -4751,8 +4765,8 @@ void process_initiate_download(LLMessageSystem* msg, void**)
 		return;
 	}
 
-	char sim_filename[MAX_PATH];
-	char viewer_filename[MAX_PATH];
+	char sim_filename[MAX_PATH];		/* Flawfinder: ignore */
+	char viewer_filename[MAX_PATH];		/* Flawfinder: ignore */
 	msg->getString("FileData", "SimFilename", MAX_PATH, sim_filename);
 	msg->getString("FileData", "ViewerFilename", MAX_PATH, viewer_filename);
 
@@ -4768,8 +4782,8 @@ void process_initiate_download(LLMessageSystem* msg, void**)
 
 void process_script_teleport_request(LLMessageSystem* msg, void**)
 {
-	char object_name[256];
-	char sim_name[256];
+	char object_name[256];	/* Flawfinder: ignore */		
+	char sim_name[256];		/* Flawfinder: ignore */
 	LLVector3 pos;
 	LLVector3 look_at;
 
@@ -4785,7 +4799,7 @@ void process_script_teleport_request(LLMessageSystem* msg, void**)
 void process_covenant_reply(LLMessageSystem* msg, void**)
 {
 	LLUUID covenant_id, estate_owner_id;
-	char estate_name[MAX_STRING];
+	char estate_name[MAX_STRING];		/* Flawfinder: ignore */
 	U32 covenant_timestamp;
 	msg->getUUID("Data", "CovenantID", covenant_id);
 	msg->getU32("Data", "CovenantTimestamp", covenant_timestamp);
@@ -4797,10 +4811,10 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLFloaterBuyLand::updateEstateName(estate_name);
 
 	// standard message, not from system
-	char last_modified[MAX_STRING];
+	char last_modified[MAX_STRING];		/* Flawfinder: ignore */
 	last_modified[0] = '\0';
-	char time_buf[TIME_STR_LENGTH];
-	sprintf(last_modified, "Last Modified %s",
+	char time_buf[TIME_STR_LENGTH];		/* Flawfinder: ignore */
+	snprintf(last_modified, MAX_STRING, "Last Modified %s",		/* Flawfinder: ignore */
 	formatted_time((time_t)covenant_timestamp, time_buf));
 
 	LLPanelEstateCovenant::updateLastModified(last_modified);
@@ -4879,7 +4893,13 @@ void onCovenantLoadComplete(LLVFS *vfs,
 		S32 file_length = file.getSize();
 		
 		char* buffer = new char[file_length+1];
-		file.read((U8*)buffer, file_length);
+		if (buffer == NULL)
+		{
+			llerrs << "Memory Allocation failed" << llendl;
+			return;
+		}
+
+		file.read((U8*)buffer, file_length);		/* Flawfinder: ignore */
 		
 		// put a EOS at the end
 		buffer[file_length] = 0;
@@ -4990,7 +5010,7 @@ void process_feature_disabled_message(LLMessageSystem* msg, void**)
 	// Handle Blacklisted feature simulator response...
 	LLUUID	agentID;
 	LLUUID	transactionID;
-	char	messageText[MAX_STRING];
+	char	messageText[MAX_STRING];		/* Flawfinder: ignore */
 	msg->getStringFast(_PREHASH_FailureInfo,_PREHASH_ErrorMessage,MAX_STRING,&messageText[0],0);
 	msg->getUUIDFast(_PREHASH_FailureInfo,_PREHASH_AgentID,agentID);
 	msg->getUUIDFast(_PREHASH_FailureInfo,_PREHASH_TransactionID,transactionID);

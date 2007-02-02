@@ -184,7 +184,7 @@ OSStatus	LLDirPicker::doNavChooseDialog()
 		AEKeyword	theAEKeyword;
 		DescType	typeCode;
 		Size		actualSize = 0;
-		char		path[LL_MAX_PATH];
+		char		path[LL_MAX_PATH];		 /*Flawfinder: ignore*/
 		
 		memset(&fsRef, 0, sizeof(fsRef));
 		error = AEGetNthPtr(&navReply.selection, 1, typeFSRef, &theAEKeyword, &typeCode, &fsRef, sizeof(fsRef), &actualSize);

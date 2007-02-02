@@ -441,26 +441,26 @@ void LLCoordFrame::getRotMatrixToParent(LLMatrix4& mat) const
 
 size_t LLCoordFrame::writeOrientation(char *buffer) const
 {
-	memcpy(buffer, mOrigin.mV, 3*sizeof(F32)); 
+	memcpy(buffer, mOrigin.mV, 3*sizeof(F32)); /*Flawfinder: ignore */
 	buffer += 3*sizeof(F32);
-	memcpy(buffer, mXAxis.mV, 3*sizeof(F32)); 
+	memcpy(buffer, mXAxis.mV, 3*sizeof(F32)); /*Flawfinder: ignore */
 	buffer += 3*sizeof(F32);
-	memcpy(buffer, mYAxis.mV, 3*sizeof(F32));
+	memcpy(buffer, mYAxis.mV, 3*sizeof(F32));/*Flawfinder: ignore */
 	buffer += 3*sizeof(F32);
-	memcpy(buffer, mZAxis.mV, 3*sizeof(F32));
+	memcpy(buffer, mZAxis.mV, 3*sizeof(F32));	/*Flawfinder: ignore */
 	return 12*sizeof(F32);
 }
 
 
 size_t LLCoordFrame::readOrientation(const char *buffer)
 {
-	memcpy(mOrigin.mV, buffer, 3*sizeof(F32));
+	memcpy(mOrigin.mV, buffer, 3*sizeof(F32));	/*Flawfinder: ignore */
 	buffer += 3*sizeof(F32);
-	memcpy(mXAxis.mV, buffer, 3*sizeof(F32));
+	memcpy(mXAxis.mV, buffer, 3*sizeof(F32));	/*Flawfinder: ignore */
 	buffer += 3*sizeof(F32);
-	memcpy(mYAxis.mV, buffer, 3*sizeof(F32));
+	memcpy(mYAxis.mV, buffer, 3*sizeof(F32));	/*Flawfinder: ignore */
 	buffer += 3*sizeof(F32);
-	memcpy(mZAxis.mV, buffer, 3*sizeof(F32));
+	memcpy(mZAxis.mV, buffer, 3*sizeof(F32));	/*Flawfinder: ignore */
 
 	if( !isFinite() )
 	{

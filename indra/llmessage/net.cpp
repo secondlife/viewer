@@ -124,7 +124,7 @@ char *u32_to_ip_string(U32 ip, char *ip_string)
 	if (result != NULL)
 	{
 		//the function signature needs to change to pass in the lengfth of first and last.
-		strcpy(ip_string, result);
+		strcpy(ip_string, result);	/*Flawfinder: ignore*/
 		return ip_string;
 	}
 	else

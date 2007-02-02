@@ -79,7 +79,7 @@ LLFloaterAbout::LLFloaterAbout()
 				gAgent.getRegion()->getName().c_str());
 		support.append(region_text);
 
-		char buffer[MAX_STRING];
+		char buffer[MAX_STRING];		/*Flawfinder: ignore*/
 		gAgent.getRegion()->getHost().getHostName(buffer, MAX_STRING);
 		support.append(buffer);
 		support.append(" (");
@@ -135,7 +135,7 @@ LLFloaterAbout::LLFloaterAbout()
 
 	// MD5 digest of executable
 	support.append("Viewer Digest: ");
-	char viewer_digest_string[UUID_STR_LENGTH];
+	char viewer_digest_string[UUID_STR_LENGTH]; /*Flawfinder: ignore*/
 	gViewerDigest.toString( viewer_digest_string );
 	support.append(viewer_digest_string);
 
@@ -163,5 +163,5 @@ void LLFloaterAbout::show(void*)
 		sInstance = new LLFloaterAbout();
 	}
 
-	sInstance->open();
+	sInstance->open();	 /*Flawfinder: ignore*/
 }

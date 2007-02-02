@@ -163,10 +163,10 @@ public:
 			size += 4;
 			break;
 		case LST_KEY:
-			size += (S32)strlen(mKey) + 1;
+			size += (S32)strlen(mKey) + 1;	/*Flawfinder: ignore*/
 			break;
 		case LST_STRING:
-			size += (S32)strlen(mString) + 1;
+			size += (S32)strlen(mString) + 1;	/*Flawfinder: ignore*/
 			break;
 		case LST_LIST:
 			break;
@@ -222,19 +222,29 @@ public:
 	{
 		if (data.mKey)
 		{
-			mKey = new char[strlen(data.mKey) + 1];
-			strcpy(mKey, data.mKey);
+			mKey = new char[strlen(data.mKey) + 1];	/* Flawfinder: ignore */
+			if (mKey == NULL)
+			{
+				llerrs << "Memory Allocation Failed" << llendl;
+				return;
+			}
+			strcpy(mKey, data.mKey);	/* Flawfinder: ignore */
 		}
 		if (data.mString)
 		{
-			mString = new char[strlen(data.mString) + 1];
-			strcpy(mString, data.mString);
+			mString = new char[strlen(data.mString) + 1];	/* Flawfinder: ignore */
+			if (mString == NULL)
+			{
+				llerrs << "Memory Allocation Failed" << llendl;
+				return;
+			}
+			strcpy(mString, data.mString);	/* Flawfinder: ignore */
 		}
 	}
 
 	LLScriptLibData(U8 *src, S32 &offset) : mListp(NULL)
 	{
-		static char temp[TOP_OF_MEMORY];
+		static char temp[TOP_OF_MEMORY];	/* Flawfinder: ignore */
 		mType = (LSCRIPTType)bytestream2integer(src, offset);
 		switch(mType)
 		{
@@ -247,15 +257,25 @@ public:
 		case LST_KEY:
 			{
 				bytestream2char(temp, src, offset);
-				mKey = new char[strlen(temp) + 1];
-				strcpy(mKey, temp);
+				mKey = new char[strlen(temp) + 1];	/* Flawfinder: ignore */
+				if (mKey == NULL)
+				{
+					llerrs << "Memory Allocation Failed" << llendl;
+					return;
+				}
+				strcpy(mKey, temp);	/* Flawfinder: ignore */
 			}
 			break;
 		case LST_STRING:
 			{
 				bytestream2char(temp, src, offset);
-				mString = new char[strlen(temp) + 1];
-				strcpy(mString, temp);
+				mString = new char[strlen(temp) + 1];	/* Flawfinder: ignore */
+				if (mString == NULL)
+				{
+					llerrs << "Memory Allocation Failed" << llendl;
+					return;
+				}
+				strcpy(mString, temp);	/* Flawfinder: ignore */
 			}
 			break;
 		case LST_LIST:
@@ -273,7 +293,7 @@ public:
 
 	void set(U8 *src, S32 &offset)
 	{
-		static char temp[TOP_OF_MEMORY];
+		static char temp[TOP_OF_MEMORY];	/* Flawfinder: ignore */
 		mType = (LSCRIPTType)bytestream2integer(src, offset);
 		switch(mType)
 		{
@@ -286,15 +306,25 @@ public:
 		case LST_KEY:
 			{
 				bytestream2char(temp, src, offset);
-				mKey = new char[strlen(temp) + 1];
-				strcpy(mKey, temp);
+				mKey = new char[strlen(temp) + 1];	/* Flawfinder: ignore */
+				if (mKey == NULL)
+				{
+					llerrs << "Memory Allocation Failed" << llendl;
+					return;
+				}
+				strcpy(mKey, temp);	/* Flawfinder: ignore */
 			}
 			break;
 		case LST_STRING:
 			{
 				bytestream2char(temp, src, offset);
-				mString = new char[strlen(temp) + 1];
-				strcpy(mString, temp);
+				mString = new char[strlen(temp) + 1];	/* Flawfinder: ignore */
+				if (mString == NULL)
+				{
+					llerrs << "Memory Allocation Failed" << llendl;
+					return;
+				}
+				strcpy(mString, temp);	/* Flawfinder: ignore */
 			}
 			break;
 		case LST_LIST:
@@ -316,8 +346,13 @@ public:
 	void setFromCSV(char *src)
 	{
 		mType = LST_STRING;
-		mString = new char[strlen(src) + 1];
-		strcpy(mString, src);
+		mString = new char[strlen(src) + 1];	/* Flawfinder: ignore */
+		if (mString == NULL)
+		{
+			llerrs << "Memory Allocation Failed" << llendl;
+			return;
+		}
+		strcpy(mString, src);	/* Flawfinder: ignore */
 	}
 
 	LLScriptLibData(S32 integer) : mType(LST_INTEGER), mInteger(integer), mFP(0.f), mKey(NULL), mString(NULL), mVec(), mQuat(), mListp(NULL)
@@ -343,8 +378,13 @@ public:
 		}
 		else
 		{
-			mString = new char[strlen(string) + 1];
-			strcpy(mString, string);
+			mString = new char[strlen(string) + 1];	/* Flawfinder: ignore */
+			if (mString == NULL)
+			{
+				llerrs << "Memory Allocation Failed" << llendl;
+				return;
+			}
+			strcpy(mString, string);	/* Flawfinder: ignore */
 		}
 	}
 
@@ -357,8 +397,13 @@ public:
 		}
 		else
 		{
-			mString = new char[strlen(string) + 1];
-			strcpy(mString, string);
+			mString = new char[strlen(string) + 1];	/* Flawfinder: ignore */
+			if (mString == NULL)
+			{
+				llerrs << "Memory Allocation Failed" << llendl;
+				return;
+			}
+			strcpy(mString, string);	/* Flawfinder: ignore */
 		}
 	}
 

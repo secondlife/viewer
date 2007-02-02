@@ -318,7 +318,7 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 			S32 file_length = file.getSize();
 
 			char* buffer = new char[file_length+1];
-			file.read((U8*)buffer, file_length);
+			file.read((U8*)buffer, file_length);		/*Flawfinder: ignore*/
 
 			// put a EOS at the end
 			buffer[file_length] = 0;
@@ -532,10 +532,10 @@ void LLPreviewNotecard::onSaveComplete(const LLUUID& asset_uuid, void* user_data
 		gViewerWindow->alertXml("SaveNotecardFailReason",args);
 	}
 
-	char uuid_string[UUID_STR_LENGTH];
+	char uuid_string[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
 	asset_uuid.toString(uuid_string);
-	char filename[LL_MAX_PATH];
-	sprintf(filename, "%s.tmp", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());
+	char filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
+	snprintf(filename, LL_MAX_PATH, "%s.tmp", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());		/*Flawfinder: ignore*/
 	LLFile::remove(filename);
 	delete info;
 }

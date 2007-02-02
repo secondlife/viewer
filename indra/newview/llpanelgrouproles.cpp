@@ -1677,8 +1677,8 @@ void LLPanelGroupMembersSubTab::updateMembers()
 		
 	LLGroupMgrGroupData::member_iter end = gdatap->mMembers.end();
 
-	char first[DB_FIRST_NAME_BUF_SIZE];
-	char last[DB_LAST_NAME_BUF_SIZE];
+	char first[DB_FIRST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
+	char last[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 	S32 i = 0;
 	for( ; mMemberProgress != end && i<UPDATE_MEMBERS_PER_FRAME; 
 			++mMemberProgress, ++i)

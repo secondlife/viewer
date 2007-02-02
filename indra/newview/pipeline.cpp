@@ -598,7 +598,7 @@ GLhandleARB LLPipeline::loadShader(const LLString& filename, S32 cls, GLenum typ
 		fname << gpu_class << "/" << filename;
 		
 		llinfos << "Looking in " << fname.str().c_str() << llendl;
-		file = fopen(fname.str().c_str(), "r");
+		file = fopen(fname.str().c_str(), "r");		/* Flawfinder: ignore */
 		if (file)
 		{
 			break; // done
@@ -5166,7 +5166,7 @@ void LLGLSLShader::mapUniform(GLint index, const char** uniform_names, S32 count
 	GLenum type;
 	GLsizei length;
 	GLint size;
-	char name[1024];
+	char name[1024];		/* Flawfinder: ignore */
 	name[0] = 0;
 
 	glGetActiveUniformARB(mProgramObject, index, 1024, &length, &size, &type, name);
@@ -5174,7 +5174,7 @@ void LLGLSLShader::mapUniform(GLint index, const char** uniform_names, S32 count
 	//find the index of this uniform
 	for (S32 i = 0; i < (S32) LLPipeline::sReservedUniformCount; i++)
 	{
-		if (mUniform[i] == -1 && !strncmp(LLPipeline::sReservedUniforms[i],name, strlen(LLPipeline::sReservedUniforms[i])))
+		if (mUniform[i] == -1 && !strncmp(LLPipeline::sReservedUniforms[i],name, strlen(LLPipeline::sReservedUniforms[i])))		/* Flawfinder: ignore */
 		{
 			//found it
 			S32 location = glGetUniformLocationARB(mProgramObject, name);
@@ -5188,7 +5188,7 @@ void LLGLSLShader::mapUniform(GLint index, const char** uniform_names, S32 count
 	for (S32 i = 0; i < count; i++)
 	{
 		if (mUniform[i+LLPipeline::sReservedUniformCount] == -1 && 
-			!strncmp(uniform_names[i],name, strlen(uniform_names[i])))
+			!strncmp(uniform_names[i],name, strlen(uniform_names[i])))		/* Flawfinder: ignore */
 		{
 			//found it
 			S32 location = glGetUniformLocationARB(mProgramObject, name);

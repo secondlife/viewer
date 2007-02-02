@@ -116,7 +116,7 @@ void LLFloaterChat::onClose(bool app_quitting)
 // public
 void LLFloaterChat::show()
 {
-	open();
+	open();		/*Flawfinder: ignore*/
 }
 
 void add_timestamped_line(LLViewerTextEditor* edit, const LLString& line, const LLColor4& color)

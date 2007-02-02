@@ -143,7 +143,7 @@ public:
 	static U8 stringToAccess(const char* access_str);
 
 	// Returns "M", "PG", etc.
-	static const char* accessToShortString(U8 access);
+	static const char* accessToShortString(U8 access);		/* Flawfinder: ignore */
 
 	// helper function which just makes sure all interested parties
 	// can process the message.

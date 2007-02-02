@@ -180,7 +180,7 @@ inline std::string llerror_file_line(const char* file, S32 line)
 #endif
 
 // handy compile-time assert - enforce those template parameters! 
-#define cassert(expn) typedef char __C_ASSERT__[(expn)?1:-1]
+#define cassert(expn) typedef char __C_ASSERT__[(expn)?1:-1]	/* Flawfinder: ignore */
  
 // Makes the app go down in flames, but on purpose!
 void _llcrash_and_loop();

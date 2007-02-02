@@ -585,7 +585,7 @@ bool CProcessor::AnalyzeIntelProcessor()
 			mov sig3, edx
 		}
 		// Then we convert the data to a readable string
-		snprintf(
+		snprintf(	/* Flawfinder: ignore */
 			CPUInfo.strProcessorSerial,
 			sizeof(CPUInfo.strProcessorSerial),
 			"%04lX-%04lX-%04lX-%04lX-%04lX-%04lX",
@@ -593,15 +593,15 @@ bool CProcessor::AnalyzeIntelProcessor()
 			sig1 & 0xFFFF,
 			sig3 >> 16,
 			sig3 & 0xFFFF,
-			sig2 >> 16, sig2 & 0xFFFF);	/* Flawfinder: ignore */
+			sig2 >> 16, sig2 & 0xFFFF);
 	}
 	else
 	{
 		// If there's no serial number support we just put "No serial number"
-		snprintf(
+		snprintf( /* Flawfinder: ignore */
 			CPUInfo.strProcessorSerial,
 			sizeof(CPUInfo.strProcessorSerial),
-			"No Processor Serial Number");	/* Flawfinder: ignore */
+			"No Processor Serial Number");	
 	}
 
 	// Now we get the standard processor extensions
@@ -835,7 +835,7 @@ bool CProcessor::AnalyzeAMDProcessor()
 					break;
 				case 0xD:		// Model = 0xD:  K6-2+ / K6-III+
 					strcpy(CPUInfo.strModel, "AMD K6-2+ or K6-III+ (0.18 micron)");		/* Flawfinder: ignore */
-					strncat(strCPUName, "AMD K6-2+ or K6-III+ (0.18 micron)", sizeof(strCPUName) - strlen(strCPUName) -1);
+					strncat(strCPUName, "AMD K6-2+ or K6-III+ (0.18 micron)", sizeof(strCPUName) - strlen(strCPUName) -1);	/* Flawfinder: ignore */
 					break;
 				default:		// ...
 					strcpy(CPUInfo.strModel, "Unknown AMD K5 or K6 model");		/* Flawfinder: ignore */

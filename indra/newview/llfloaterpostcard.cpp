@@ -138,7 +138,7 @@ LLFloaterPostcard* LLFloaterPostcard::showFromSnapshot(LLImageJPEG *jpeg, LLImag
 	gFloaterView->getNewFloaterPosition(&left, &top);
 	instance->setOrigin(left, top - instance->getRect().getHeight());
 	
-	instance->open();
+	instance->open();		/*Flawfinder: ignore*/
 
 	return instance;
 }

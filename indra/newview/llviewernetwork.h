@@ -45,9 +45,9 @@ extern F32 gInBandwidth;
 extern F32 gOutBandwidth;
 extern EUserServerDomain gUserServerChoice;
 extern LLUserServerData gUserServerDomainName[];
-extern char gUserServerName[MAX_STRING];
+extern char gUserServerName[MAX_STRING];		/* Flawfinder: ignore */
 
 const S32 MAC_ADDRESS_BYTES = 6;
-extern unsigned char gMACAddress[MAC_ADDRESS_BYTES];
+extern unsigned char gMACAddress[MAC_ADDRESS_BYTES];		/* Flawfinder: ignore */
 
 #endif

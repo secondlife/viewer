@@ -103,7 +103,7 @@ void LLScriptLSOParse::printGlobals(FILE *fp)
 	F32				fpvalue;
 	LLVector3		vvalue;
 	LLQuaternion	qvalue;
-	char			name[256];
+	char			name[256];		/*Flawfinder: ignore*/
 	U8				type;
 
 	S32 global_v_offset = get_register(mRawData, LREG_GVR);
@@ -171,7 +171,7 @@ void LLScriptLSOParse::printGlobalFunctions(FILE *fp)
 	S32				i, offset;
 //	LLVector3		vvalue;		unused
 //	LLQuaternion	qvalue;		unused
-	char			name[256];
+	char			name[256];		/*Flawfinder: ignore*/
 	U8				type;
 
 	offset = get_register(mRawData, LREG_GFR);
@@ -261,7 +261,7 @@ void LLScriptLSOParse::printStates(FILE *fp)
 	U32 			j, k;
 //	LLVector3		vvalue;		unused
 //	LLQuaternion	qvalue;		unused
-	char			name[256];
+	char			name[256];		/*Flawfinder: ignore*/
 
 	S32 state_offset = get_register(mRawData, LREG_SR);
 
@@ -1177,7 +1177,7 @@ void print_pushargf(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 
 void print_pushargs(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 {
-	char arg[1024];
+	char arg[1024];		/*Flawfinder: ignore*/
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tPUSHARGS ", offset++);
 	bytestream2char(arg, buffer, offset);

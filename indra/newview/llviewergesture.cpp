@@ -137,18 +137,18 @@ void LLViewerGestureList::saveToServer()
 	//U64 xfer_id = gXferManager->registerXfer(buffer, end - buffer);
 	// write to a file because mem<->mem xfer isn't implemented
 	LLUUID random_uuid;
-	char filename[LL_MAX_PATH];
+	char filename[LL_MAX_PATH];		/* Flawfinder: ignore */
 	random_uuid.generate();
 	random_uuid.toString(filename);
-	strcat(filename,".tmp");
+	strcat(filename,".tmp");		/* Flawfinder: ignore */
 
-	char filename_and_path[LL_MAX_PATH];
-	sprintf(filename_and_path, "%s%s%s", 
+	char filename_and_path[LL_MAX_PATH];		/* Flawfinder: ignore */
+	snprintf(filename_and_path, LL_MAX_PATH, "%s%s%s", 		/* Flawfinder: ignore */
 		gDirUtilp->getTempDir().c_str(), 
 		gDirUtilp->getDirDelimiter().c_str(),
 		filename);
 
-	FILE *fp = LLFile::fopen(filename_and_path, "wb");
+	FILE* fp = LLFile::fopen(filename_and_path, "wb");		/* Flawfinder: ignore */
 
 	if (fp)
 	{
@@ -251,7 +251,7 @@ void LLViewerGestureList::xferCallback(void *data, S32 size, void** /*user_data*
 // static
 void LLViewerGestureList::processGestureUpdate(LLMessageSystem *msg, void** /*user_data*/)
 {
-	char remote_filename[MAX_STRING];
+	char remote_filename[MAX_STRING];		/* Flawfinder: ignore */
 	msg->getStringFast(_PREHASH_AgentBlock, _PREHASH_Filename, MAX_STRING, remote_filename);
 
 

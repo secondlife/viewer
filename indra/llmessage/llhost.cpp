@@ -68,7 +68,7 @@ void LLHost::getIPString(char* buffer, S32 length) const
 
 std::string LLHost::getIPandPort() const
 {
-	char buffer[MAXADDRSTR + 1 + 5];
+	char buffer[MAXADDRSTR + 1 + 5];	/*Flawfinder: ignore*/
 	getString(buffer, sizeof(buffer));
 	return buffer;
 }

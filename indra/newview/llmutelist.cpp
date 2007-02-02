@@ -337,7 +337,13 @@ std::vector<LLMute> LLMuteList::getMutes() const
 //-----------------------------------------------------------------------------
 BOOL LLMuteList::loadFromFile(const LLString& filename)
 {
-	FILE* fp = LLFile::fopen(filename.c_str(), "rb");
+	if(!filename.size())
+	{
+		llwarns << "Mute List Filename is Empty!" << llendl;
+		return FALSE;
+	}
+
+	FILE* fp = LLFile::fopen(filename.c_str(), "rb");		/*Flawfinder: ignore*/
 	if (!fp)
 	{
 		llwarns << "Couldn't open mute list " << filename << llendl;
@@ -346,16 +352,17 @@ BOOL LLMuteList::loadFromFile(const LLString& filename)
 
 	// *NOTE: Changing the size of these buffers will require changes
 	// in the scanf below.
-	char id_buffer[MAX_STRING];
-	char name_buffer[MAX_STRING];
-	char buffer[MAX_STRING];
+	char id_buffer[MAX_STRING];		/*Flawfinder: ignore*/
+	char name_buffer[MAX_STRING];		/*Flawfinder: ignore*/
+	char buffer[MAX_STRING];		/*Flawfinder: ignore*/
 	while (!feof(fp) 
 		   && fgets(buffer, MAX_STRING, fp))
 	{
 		id_buffer[0] = '\0';
 		name_buffer[0] = '\0';
 		S32 type = 0;
-		sscanf(buffer, " %d %254s %254[^|]", &type, id_buffer, name_buffer);
+		sscanf(	/* Flawfinder: ignore */
+			buffer, " %d %254s %254[^|]", &type, id_buffer, name_buffer);
 		LLUUID id = LLUUID(id_buffer);
 		LLMute mute(id, name_buffer, (LLMute::EType)type);
 		if (mute.mID.isNull()
@@ -379,14 +386,20 @@ BOOL LLMuteList::loadFromFile(const LLString& filename)
 //-----------------------------------------------------------------------------
 BOOL LLMuteList::saveToFile(const LLString& filename)
 {
-	FILE* fp = LLFile::fopen(filename.c_str(), "wb");
+	if(!filename.size())
+	{
+		llwarns << "Mute List Filename is Empty!" << llendl;
+		return FALSE;
+	}
+
+	FILE* fp = LLFile::fopen(filename.c_str(), "wb");		/*Flawfinder: ignore*/
 	if (!fp)
 	{
 		llwarns << "Couldn't open mute list " << filename << llendl;
 		return FALSE;
 	}
 	// legacy mutes have null uuid
-	char id_string[UUID_STR_LENGTH];
+	char id_string[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
 	LLUUID::null.toString(id_string);
 	for (string_set_t::iterator it = mLegacyMutes.begin();
 		 it != mLegacyMutes.end();
@@ -427,10 +440,10 @@ BOOL LLMuteList::isMuted(const LLUUID& id, const LLString& name) const
 //-----------------------------------------------------------------------------
 void LLMuteList::requestFromServer(const LLUUID& agent_id)
 {
-	char agent_id_string[UUID_STR_LENGTH];
-	char filename[LL_MAX_PATH];
+	char agent_id_string[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
+	char filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
 	agent_id.toString(agent_id_string);
-	sprintf(filename, "%s.cached_mute", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,agent_id_string).c_str());
+	snprintf(filename, sizeof(filename), "%s.cached_mute", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,agent_id_string).c_str());		/*Flawfinder: ignore*/
 	LLCRC crc;
 	crc.update(filename);
 
@@ -453,10 +466,10 @@ void LLMuteList::cache(const LLUUID& agent_id)
 	// Write to disk even if empty.
 	if(mIsLoaded)
 	{
-		char agent_id_string[UUID_STR_LENGTH];
-		char filename[LL_MAX_PATH];
+		char agent_id_string[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
+		char filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
 		agent_id.toString(agent_id_string);
-		sprintf(filename, "%s.cached_mute", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,agent_id_string).c_str());
+		snprintf(filename, sizeof(filename), "%s.cached_mute", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,agent_id_string).c_str());		/*Flawfinder: ignore*/
 		saveToFile(filename);
 	}
 }
@@ -476,7 +489,7 @@ void LLMuteList::processMuteListUpdate(LLMessageSystem* msg, void**)
 		llwarns << "Got an mute list update for the wrong agent." << llendl;
 		return;
 	}
-	char filename[MAX_STRING];
+	char filename[MAX_STRING];		/*Flawfinder: ignore*/
 	filename[0] = '\0';
 	msg->getStringFast(_PREHASH_MuteData, _PREHASH_Filename, MAX_STRING, filename);
 	
@@ -496,10 +509,10 @@ void LLMuteList::processUseCachedMuteList(LLMessageSystem* msg, void**)
 	llinfos << "LLMuteList::processUseCachedMuteList()" << llendl;
 	if (!gMuteListp) return;
 
-	char agent_id_string[UUID_STR_LENGTH];
+	char agent_id_string[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
 	gAgent.getID().toString(agent_id_string);
-	char filename[LL_MAX_PATH];
-	sprintf(filename, "%s.cached_mute", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,agent_id_string).c_str());
+	char filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
+	snprintf(filename, sizeof(filename), "%s.cached_mute", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,agent_id_string).c_str());		/*Flawfinder: ignore*/
 	gMuteListp->loadFromFile(filename);
 }
 

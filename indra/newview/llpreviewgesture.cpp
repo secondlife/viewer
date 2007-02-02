@@ -93,7 +93,7 @@ LLPreviewGesture* LLPreviewGesture::show(const std::string& title, const LLUUID&
 	LLPreviewGesture* previewp = (LLPreviewGesture*)LLPreview::find(item_id);
 	if (previewp)
 	{
-		previewp->open();
+		previewp->open();   /*Flawfinder: ignore*/
 		if (take_focus)
 		{
 			previewp->setFocus(TRUE);
@@ -771,8 +771,8 @@ void LLPreviewGesture::refresh()
 				mWaitTimeCheck->setVisible(TRUE);
 				mWaitTimeCheck->set(wait_step->mFlags & WAIT_FLAG_TIME);
 				mWaitTimeEditor->setVisible(TRUE);
-				char buffer[16];
-				sprintf(buffer, "%.1f", (double)wait_step->mWaitSeconds);
+				char buffer[16];		/*Flawfinder: ignore*/
+				snprintf(buffer, sizeof(buffer),  "%.1f", (double)wait_step->mWaitSeconds);		/*Flawfinder: ignore*/
 				mWaitTimeEditor->setText(buffer);
 				break;
 			}
@@ -876,7 +876,7 @@ void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
 			S32 size = file.getSize();
 
 			char* buffer = new char[size+1];
-			file.read((U8*)buffer, size);
+			file.read((U8*)buffer, size);		/*Flawfinder: ignore*/
 			buffer[size] = '\0';
 
 			LLMultiGesture* gesture = new LLMultiGesture();

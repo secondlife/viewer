@@ -197,7 +197,7 @@ void LLFloaterBuyLand::buyLand(
 	LLFloaterBuyLandUI* ui = LLFloaterBuyLandUI::soleInstance(true);
 	ui->setForGroup(is_for_group);
 	ui->setParcel(region, parcel);
-	ui->open();
+	ui->open();	/*Flawfinder: ignore*/
 }
 
 // static
@@ -813,15 +813,15 @@ void LLFloaterBuyLandUI::updateNames()
 	}
 	else if (mParcel->getIsGroupOwned())
 	{
-		char groupName[DB_LAST_NAME_BUF_SIZE];
+		char groupName[DB_LAST_NAME_BUF_SIZE];	/*Flawfinder: ignore*/
 		
 		gCacheName->getGroupName(mParcel->getGroupID(), &groupName[0]);
 		mParcelSellerName = groupName;
 	}
 	else
 	{
-		char firstName[DB_LAST_NAME_BUF_SIZE];
-		char lastName[DB_LAST_NAME_BUF_SIZE];
+		char firstName[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
+		char lastName[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 		
 		gCacheName->getName(mParcel->getOwnerID(), firstName, lastName);
 		mParcelSellerName = llformat("%s %s", firstName, lastName);

@@ -145,7 +145,7 @@ BOOL LLFilePicker::getOpenFile(ELoadFilter filter)
 	if (success)
 	{
 		LLString tstr = utf16str_to_utf8str(llutf16string(mFilesW));
-		memcpy(mFiles, tstr.c_str(), tstr.size()+1);
+		memcpy(mFiles, tstr.c_str(), tstr.size()+1); /*Flawfinder: ignore*/
 		mCurrentFile = mFiles;
 	}
 	send_agent_resume();
@@ -185,12 +185,12 @@ BOOL LLFilePicker::getMultipleOpenFiles(ELoadFilter filter)
 		// The getopenfilename api doesn't tell us if we got more than
 		// one file, so we have to test manually by checking string
 		// lengths.
-		if( wcslen(mOFN.lpstrFile) > mOFN.nFileOffset )
+		if( wcslen(mOFN.lpstrFile) > mOFN.nFileOffset )	/*Flawfinder: ignore*/
 		{
 			mMultiFile = FALSE;
 			mCurrentFile = mFiles;
 			LLString tstr = utf16str_to_utf8str(llutf16string(mFilesW));
-			memcpy(mFiles, tstr.c_str(), tstr.size()+1);
+			memcpy(mFiles, tstr.c_str(), tstr.size()+1); /*Flawfinder: ignore*/
 		}
 		else
 		{
@@ -233,7 +233,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 	if (filename)
 	{
 		llutf16string tstring = utf8str_to_utf16str(filename);
-		wcsncpy(mFilesW, tstring.c_str(), FILENAME_BUFFER_SIZE);	}
+		wcsncpy(mFilesW, tstring.c_str(), FILENAME_BUFFER_SIZE);	}	/*Flawfinder: ignore*/
 	else
 	{
 		mFilesW[0] = '\0';
@@ -253,7 +253,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 	case FFSAVE_WAV:
 		if (!filename)
 		{
-			wcsncpy( mFilesW,L"untitled.wav", FILENAME_BUFFER_SIZE);
+			wcsncpy( mFilesW,L"untitled.wav", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
 		mOFN.lpstrDefExt = L"wav";
 			L"WAV Sounds (*.wav)\0*.wav\0" \
@@ -262,7 +262,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 	case FFSAVE_TGA:
 		if (!filename)
 		{
-			wcsncpy( mFilesW,L"untitled.tga", FILENAME_BUFFER_SIZE);
+			wcsncpy( mFilesW,L"untitled.tga", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
 		mOFN.lpstrDefExt = L"tga";
 		mOFN.lpstrFilter =
@@ -272,7 +272,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 	case FFSAVE_BMP:
 		if (!filename)
 		{
-			wcsncpy( mFilesW,L"untitled.bmp", FILENAME_BUFFER_SIZE);
+			wcsncpy( mFilesW,L"untitled.bmp", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
 		mOFN.lpstrDefExt = L"bmp";
 		mOFN.lpstrFilter =
@@ -282,7 +282,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 	case FFSAVE_AVI:
 		if (!filename)
 		{
-			wcsncpy( mFilesW,L"untitled.avi", FILENAME_BUFFER_SIZE);
+			wcsncpy( mFilesW,L"untitled.avi", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
 		mOFN.lpstrDefExt = L"avi";
 		mOFN.lpstrFilter =
@@ -292,7 +292,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 	case FFSAVE_ANIM:
 		if (!filename)
 		{
-			wcsncpy( mFilesW,L"untitled.xaf", FILENAME_BUFFER_SIZE);
+			wcsncpy( mFilesW,L"untitled.xaf", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
 		mOFN.lpstrDefExt = L"xaf";
 		mOFN.lpstrFilter =
@@ -303,7 +303,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 	case FFSAVE_GEOMETRY:
 		if (!filename)
 		{
-			wcsncpy( mFilesW,L"untitled.slg", FILENAME_BUFFER_SIZE);
+			wcsncpy( mFilesW,L"untitled.slg", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
 		mOFN.lpstrDefExt = L"slg";
 		mOFN.lpstrFilter =
@@ -314,7 +314,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 	case FFSAVE_XML:
 		if (!filename)
 		{
-			wcsncpy( mFilesW,L"untitled.xml", FILENAME_BUFFER_SIZE);
+			wcsncpy( mFilesW,L"untitled.xml", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
 
 		mOFN.lpstrDefExt = L"xml";
@@ -325,7 +325,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 	case FFSAVE_COLLADA:
 		if (!filename)
 		{
-			wcsncpy( mFilesW,L"untitled.collada", FILENAME_BUFFER_SIZE);
+			wcsncpy( mFilesW,L"untitled.collada", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
 		mOFN.lpstrDefExt = L"collada";
 		mOFN.lpstrFilter =
@@ -335,7 +335,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 	case FFSAVE_RAW:
 		if (!filename)
 		{
-			wcsncpy( mFilesW,L"untitled.raw", FILENAME_BUFFER_SIZE);
+			wcsncpy( mFilesW,L"untitled.raw", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
 		mOFN.lpstrDefExt = L"raw";
 		mOFN.lpstrFilter =	RAW_FILTER \
@@ -357,7 +357,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 		if (success)
 		{
 			LLString tstr = utf16str_to_utf8str(llutf16string(mFilesW));
-			memcpy(mFiles, tstr.c_str(), tstr.size()+1);
+			memcpy(mFiles, tstr.c_str(), tstr.size()+1);  /*Flawfinder: ignore*/
 			mCurrentFile = mFiles;
 		}
 		gKeyboard->resetKeys();
@@ -383,7 +383,7 @@ const char* LLFilePicker::getNextFile()
 {
 	if(mMultiFile)
 	{
-		mCurrentFile += strlen(mCurrentFile) + 1;
+		mCurrentFile += strlen(mCurrentFile) + 1;	/*Flawfinder: ignore*/
 		if( '\0' != mCurrentFile[0] )
 		{
 			buildFilename();
@@ -416,11 +416,11 @@ void LLFilePicker::reset()
 
 void LLFilePicker::buildFilename( void )
 {
-	strncpy( mFilename, mFiles, LL_MAX_PATH );
-	S32 len = strlen( mFilename );
+	strncpy( mFilename, mFiles, LL_MAX_PATH );	/*Flawfinder: ignore*/
+	S32 len = strlen( mFilename );	/*Flawfinder: ignore*/
 
-	strcat(mFilename,gDirUtilp->getDirDelimiter().c_str());
-	len += strlen(gDirUtilp->getDirDelimiter().c_str());
+	strncat(mFilename,gDirUtilp->getDirDelimiter().c_str(), sizeof(mFilename)-len+1);		/*Flawfinder: ignore*/
+	len += strlen(gDirUtilp->getDirDelimiter().c_str());	/*Flawfinder: ignore*/
 
 //	mFilename[len++] = '\\';
 	LLString::copy( mFilename + len, mCurrentFile, LL_MAX_PATH - len );
@@ -582,7 +582,7 @@ OSStatus	LLFilePicker::doNavChooseDialog(ELoadFilter filter)
 			AEKeyword	theAEKeyword;
 			DescType	typeCode;
 			Size		actualSize = 0;
-			char		path[MAX_PATH];
+			char		path[MAX_PATH];	/*Flawfinder: ignore*/
 			
 			memset(&fsRef, 0, sizeof(fsRef));
 			error = AEGetNthPtr(&navReply.selection, index, typeFSRef, &theAEKeyword, &typeCode, &fsRef, sizeof(fsRef), &actualSize);
@@ -731,8 +731,8 @@ OSStatus	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const char* filename)
 			
 			if (error == noErr)
 			{
-				char	path[PATH_MAX];
-				char	newFileName[SINGLE_FILENAME_BUFFER_SIZE];
+				char	path[PATH_MAX];		/*Flawfinder: ignore*/
+				char	newFileName[SINGLE_FILENAME_BUFFER_SIZE];	/*Flawfinder: ignore*/
 				
 				error = FSRefMakePath(&fsRef, (UInt8*)path, PATH_MAX);
 				if (error == noErr)
@@ -817,7 +817,7 @@ void LLFilePicker::getFilePath(SInt32 index)
 {
 	mFiles[0] = 0;
 	if (mFileVector.size())
-		strcpy(mFiles, mFileVector[index].c_str());
+		strncpy(mFiles, mFileVector[index].c_str(), sizeof(mFiles));	/*Flawfinder: ignore*/ 	
 }
 
 void LLFilePicker::getFileName(SInt32 index)
@@ -827,7 +827,7 @@ void LLFilePicker::getFileName(SInt32 index)
 	{
 		char	*start = strrchr(mFileVector[index].c_str(), '/');
 		if (start && ((start + 1 - mFileVector[index].c_str()) < (mFileVector[index].size())))
-			strcpy(mFilename, start + 1);
+			strncpy(mFilename, start + 1, sizeof(mFilename));		/*Flawfinder: ignore*/
 	}
 }
 

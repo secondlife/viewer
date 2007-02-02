@@ -320,10 +320,10 @@ protected:
 
 	LLString		mOverlayTitle;		// Used for special titles such as "Second Life - Special E3 2003 Beta"
 
-	static char		sSnapshotBaseName[LL_MAX_PATH];
-	static char		sSnapshotDir[LL_MAX_PATH];
+	static char		sSnapshotBaseName[LL_MAX_PATH];		/* Flawfinder: ignore */
+	static char		sSnapshotDir[LL_MAX_PATH];		/* Flawfinder: ignore */
 
-	static char		sMovieBaseName[LL_MAX_PATH];
+	static char		sMovieBaseName[LL_MAX_PATH];		/* Flawfinder: ignore */
 
 	BOOL			mIgnoreActivate;
 	LLFrameTimer	mFastFrameTimer;

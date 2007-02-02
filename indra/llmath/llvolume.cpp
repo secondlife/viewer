@@ -705,11 +705,11 @@ BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split)
 BOOL LLProfileParams::importFile(FILE *fp)
 {
 	const S32 BUFSIZE = 16384;
-	char buffer[BUFSIZE];
+	char buffer[BUFSIZE];	/* Flawfinder: ignore */
 	// *NOTE: changing the size or type of these buffers will require
 	// changing the sscanf below.
-	char keyword[256];
-	char valuestr[256];
+	char keyword[256];	/* Flawfinder: ignore */
+	char valuestr[256];	/* Flawfinder: ignore */
 	keyword[0] = 0;
 	valuestr[0] = 0;
 	F32 tempF32;
@@ -718,7 +718,10 @@ BOOL LLProfileParams::importFile(FILE *fp)
 	while (!feof(fp))
 	{
 		fgets(buffer, BUFSIZE, fp);
-		sscanf(buffer, " %255s %255s", keyword, valuestr);
+		sscanf(	/* Flawfinder: ignore */
+			buffer,
+			" %255s %255s",
+			keyword, valuestr);
 		if (!keyword)
 		{
 			continue;
@@ -777,11 +780,11 @@ BOOL LLProfileParams::exportFile(FILE *fp) const
 BOOL LLProfileParams::importLegacyStream(std::istream& input_stream)
 {
 	const S32 BUFSIZE = 16384;
-	char buffer[BUFSIZE];
+	char buffer[BUFSIZE];	/* Flawfinder: ignore */
 	// *NOTE: changing the size or type of these buffers will require
 	// changing the sscanf below.
-	char keyword[256];
-	char valuestr[256];
+	char keyword[256];	/* Flawfinder: ignore */
+	char valuestr[256];	/* Flawfinder: ignore */
 	keyword[0] = 0;
 	valuestr[0] = 0;
 	F32 tempF32;
@@ -790,7 +793,11 @@ BOOL LLProfileParams::importLegacyStream(std::istream& input_stream)
 	while (input_stream.good())
 	{
 		input_stream.getline(buffer, BUFSIZE);
-		sscanf(buffer, " %255s %255s", keyword, valuestr);
+		sscanf(	/* Flawfinder: ignore */
+			buffer,
+			" %255s %255s",
+			keyword,
+			valuestr);
 		if (!keyword)
 		{
 			continue;
@@ -1199,11 +1206,11 @@ BOOL LLDynamicPath::generate(F32 detail, S32 split)
 BOOL LLPathParams::importFile(FILE *fp)
 {
 	const S32 BUFSIZE = 16384;
-	char buffer[BUFSIZE];
+	char buffer[BUFSIZE];	/* Flawfinder: ignore */
 	// *NOTE: changing the size or type of these buffers will require
 	// changing the sscanf below.
-	char keyword[256];
-	char valuestr[256];
+	char keyword[256];	/* Flawfinder: ignore */
+	char valuestr[256];	/* Flawfinder: ignore */
 	keyword[0] = 0;
 	valuestr[0] = 0;
 
@@ -1214,7 +1221,10 @@ BOOL LLPathParams::importFile(FILE *fp)
 	while (!feof(fp))
 	{
 		fgets(buffer, BUFSIZE, fp);
-		sscanf(buffer, " %255s %255s", keyword, valuestr);
+		sscanf(	/* Flawfinder: ignore */
+			buffer,
+			" %255s %255s",
+			keyword, valuestr);
 		if (!keyword)
 		{
 			continue;
@@ -1340,11 +1350,11 @@ BOOL LLPathParams::exportFile(FILE *fp) const
 BOOL LLPathParams::importLegacyStream(std::istream& input_stream)
 {
 	const S32 BUFSIZE = 16384;
-	char buffer[BUFSIZE];
+	char buffer[BUFSIZE];	/* Flawfinder: ignore */
 	// *NOTE: changing the size or type of these buffers will require
 	// changing the sscanf below.
-	char keyword[256];
-	char valuestr[256];
+	char keyword[256];	/* Flawfinder: ignore */
+	char valuestr[256];	/* Flawfinder: ignore */
 	keyword[0] = 0;
 	valuestr[0] = 0;
 
@@ -1355,7 +1365,10 @@ BOOL LLPathParams::importLegacyStream(std::istream& input_stream)
 	while (input_stream.good())
 	{
 		input_stream.getline(buffer, BUFSIZE);
-		sscanf(buffer, " %255s %255s", keyword, valuestr);
+		sscanf(	/* Flawfinder: ignore */
+			buffer,
+			" %255s %255s",
+			keyword, valuestr);
 		if (!keyword)
 		{
 			continue;
@@ -2166,7 +2179,7 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 	size_s_out = getProfile().getTotalOut();
 	size_t = getPath().mPath.size();
 
-	if (open)
+	if (open)		/* Flawfinder: ignore */
 	{
 		if (hollow)
 		{
@@ -2788,7 +2801,7 @@ noindices:
 		return NULL;
 	}
 	num_indices = count;
-	memcpy(indices, index, count * sizeof(S32));
+	memcpy(indices, index, count * sizeof(S32));		/* Flawfinder: ignore */
 	return indices;
 }
 
@@ -3291,7 +3304,7 @@ BOOL LLVolume::cleanupTriangleData( const S32 num_input_vertices,
 
 	*output_triangles = new S32[cur_tri*3];
 	num_output_triangles = cur_tri;
-	memcpy(*output_triangles, sorted_tris, 3*cur_tri*sizeof(S32));
+	memcpy(*output_triangles, sorted_tris, 3*cur_tri*sizeof(S32));		/* Flawfinder: ignore */
 
 	/*
 	llinfos << "Out vertices: " << num_output_vertices << llendl;
@@ -3328,16 +3341,16 @@ BOOL LLVolumeParams::importFile(FILE *fp)
 {
 	//llinfos << "importing volume" << llendl;
 	const S32 BUFSIZE = 16384;
-	char buffer[BUFSIZE];
+	char buffer[BUFSIZE];	/* Flawfinder: ignore */
 	// *NOTE: changing the size or type of this buffer will require
 	// changing the sscanf below.
-	char keyword[256];
+	char keyword[256];	/* Flawfinder: ignore */
 	keyword[0] = 0;
 
 	while (!feof(fp))
 	{
 		fgets(buffer, BUFSIZE, fp);
-		sscanf(buffer, " %255s", keyword);
+		sscanf(buffer, " %255s", keyword);	/* Flawfinder: ignore */
 		if (!keyword)
 		{
 			continue;
@@ -3384,8 +3397,8 @@ BOOL LLVolumeParams::importLegacyStream(std::istream& input_stream)
 	const S32 BUFSIZE = 16384;
 	// *NOTE: changing the size or type of this buffer will require
 	// changing the sscanf below.
-	char buffer[BUFSIZE];
-	char keyword[256];
+	char buffer[BUFSIZE];		/* Flawfinder: ignore */
+	char keyword[256];		/* Flawfinder: ignore */
 	keyword[0] = 0;
 
 	while (input_stream.good())

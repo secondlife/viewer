@@ -335,7 +335,7 @@ S32 LLDir_Mac::deleteFilesInDir(const std::string &dirname, const std::string &m
 
 std::string LLDir_Mac::getCurPath()
 {
-	char tmp_str[LL_MAX_PATH];
+	char tmp_str[LL_MAX_PATH];	/* Flawfinder: ignore */ 
 	getcwd(tmp_str, LL_MAX_PATH);
 	return tmp_str;
 }

@@ -498,7 +498,7 @@ LLView*	LLFloater::getRootMostFastFrameView()
 	return LLView::getRootMostFastFrameView();
 }
 
-void LLFloater::open()
+void LLFloater::open()	/* Flawfinder: ignore */
 {
 	//RN: for now, we don't allow rehosting from one multifloater to another
 	// just need to fix the bugs
@@ -1188,7 +1188,7 @@ void LLFloater::onClickTearOff(void *userdata)
 
 		new_rect.setLeftTopAndSize(host_floater->getRect().mLeft + 5, host_floater->getRect().mTop - LLFLOATER_HEADER_SIZE - 5, self->mRect.getWidth(), self->mRect.getHeight());
 
-		self->open();
+		self->open();	/* Flawfinder: ignore */
 		self->setRect(new_rect);
 		gFloaterView->adjustToFitScreen(self, FALSE);
 		self->setCanDrag(TRUE);		
@@ -2424,11 +2424,11 @@ void LLMultiFloater::init(const LLString& title, BOOL resizable,
 	addChild(mTabContainer);*/
 }
 
-void LLMultiFloater::open()
+void LLMultiFloater::open()	/* Flawfinder: ignore */
 {
 	if (mTabContainer->getTabCount() > 0)
 	{
-		LLFloater::open();
+		LLFloater::open();	/* Flawfinder: ignore */
 	}
 	else
 	{
@@ -2853,7 +2853,7 @@ LLView* LLFloater::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *f
 	return floaterp;
 }
 
-void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory, BOOL open)
+void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory, BOOL open)	/* Flawfinder: ignore */
 {
 	LLString name(getName());
 	LLString title(getTitle());
@@ -2927,8 +2927,8 @@ void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactor
 	}
 
 	applyRectControl();
-	if (open)
+	if (open)	/* Flawfinder: ignore */
 	{
-		this->open();
+		this->open();	/* Flawfinder: ignore */
 	}
 }

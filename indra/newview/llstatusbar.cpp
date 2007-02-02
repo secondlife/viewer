@@ -465,8 +465,8 @@ void LLStatusBar::setBalance(S32 balance)
 
 void LLStatusBar::setHealth(S32 health)
 {
-	char buffer[MAX_STRING];
-	sprintf(buffer, "%d%%", health);
+	char buffer[MAX_STRING];		/* Flawfinder: ignore */
+	snprintf(buffer, MAX_STRING, "%d%%", health);		/* Flawfinder: ignore */
 	//llinfos << "Setting health to: " << buffer << llendl;
 	mTextHealth->setText(buffer);
 

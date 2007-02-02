@@ -78,7 +78,7 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 		sInstance = new LLFloaterBuy();
 	}
 	
-	sInstance->open();
+	sInstance->open(); /*Flawfinder: ignore*/
 	sInstance->setFocus(TRUE);
 	sInstance->mSaleInfo = sale_info;
 

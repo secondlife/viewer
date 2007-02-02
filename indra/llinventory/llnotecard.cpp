@@ -170,7 +170,7 @@ bool LLNotecard::importStream(std::istream& str)
 		return FALSE;
 	}
 
-	char line_buf[STD_STRING_BUF_SIZE];
+	char line_buf[STD_STRING_BUF_SIZE];	/* Flawfinder: ignore */
 	str.getline(line_buf, STD_STRING_BUF_SIZE);
 	if(str.fail())
 	{

@@ -580,7 +580,7 @@ U32 LLControlGroup::loadFromFileLegacy(const LLString& filename, BOOL require_de
 	llifstream file;
 	S32 version;
 	
-	file.open(filename.c_str()); 
+	file.open(filename.c_str());		/*Flawfinder: ignore*/ 
 
 	if (!file)
 	{
@@ -610,7 +610,7 @@ U32 LLControlGroup::loadFromFileLegacy(const LLString& filename, BOOL require_de
 		if (name.substr(0,2) == "//")
 		{
 			// This is a comment.
-			char buffer[MAX_STRING];
+			char buffer[MAX_STRING];		/*Flawfinder: ignore*/
 			file.getline(buffer, MAX_STRING);
 			continue;
 		}
@@ -624,7 +624,7 @@ U32 LLControlGroup::loadFromFileLegacy(const LLString& filename, BOOL require_de
 			if (!name.empty())
 			{
 				//read in to end of line
-				char buffer[MAX_STRING];
+				char buffer[MAX_STRING];		/*Flawfinder: ignore*/
 				file.getline(buffer, MAX_STRING);
 				llwarns << "LLControlGroup::loadFromFile() : Trying to set \"" << name << "\", setting doesn't exist." << llendl;
 			}
@@ -690,7 +690,7 @@ U32 LLControlGroup::loadFromFileLegacy(const LLString& filename, BOOL require_de
 			break;
 		case TYPE_BOOLEAN:
 			{
-				char boolstring[256];
+				char boolstring[256];		/*Flawfinder: ignore*/
 				BOOL valid = FALSE;
 				BOOL initial = FALSE;
 
@@ -1048,7 +1048,7 @@ U32 LLControlGroup::saveToFile(const LLString& filename, BOOL nondefault_only)
 	}
 
 	llofstream file;
-	file.open(filename.c_str());
+	file.open(filename.c_str());		/*Flawfinder: ignore*/
 
 	if (!file.is_open())
 	{

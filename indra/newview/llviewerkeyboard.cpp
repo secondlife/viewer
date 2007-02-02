@@ -684,12 +684,12 @@ S32 LLViewerKeyboard::loadBindings(const char *filename)
 {
 	FILE *fp;
 	const S32 BUFFER_SIZE = 2048;
-	char buffer[BUFFER_SIZE];
+	char buffer[BUFFER_SIZE];	/* Flawfinder: ignore */
 	// *NOTE: This buffer size is hard coded into scanf() below.
-	char mode_string[MAX_STRING];
-	char key_string[MAX_STRING];
-	char mask_string[MAX_STRING];
-	char function_string[MAX_STRING];
+	char mode_string[MAX_STRING];	/* Flawfinder: ignore */
+	char key_string[MAX_STRING];	/* Flawfinder: ignore */
+	char mask_string[MAX_STRING];	/* Flawfinder: ignore */
+	char function_string[MAX_STRING];	/* Flawfinder: ignore */
 	S32 mode = MODE_THIRD_PERSON;
 	KEY key = 0;
 	MASK mask = 0;
@@ -697,10 +697,15 @@ S32 LLViewerKeyboard::loadBindings(const char *filename)
 	S32 binding_count = 0;
 	S32 line_count = 0;
 
-	fp = LLFile::fopen(filename, "r");
+	fp = LLFile::fopen(filename, "r");	/* Flawfinder: ignore */
 
 	if (!fp)
 	{
+		if(!filename)
+		{
+			llerrs << " No filename specified" << llendl;
+			return 0;
+		}
 		return 0;
 	}
 
@@ -715,7 +720,13 @@ S32 LLViewerKeyboard::loadBindings(const char *filename)
 		if (buffer[0] == '#' || buffer[0] == '\n') continue;
 
 		// grab the binding strings
-		tokens_read = sscanf(buffer, "%254s %254s %254s %254s", mode_string, key_string, mask_string, function_string);
+		tokens_read = sscanf(	/* Flawfinder: ignore */
+			buffer,
+			"%254s %254s %254s %254s",
+			mode_string,
+			key_string,
+			mask_string,
+			function_string);
 
 		if (tokens_read == EOF)
 		{

@@ -14,6 +14,7 @@
 #include <wininet.h>
 
 #include <stdio.h>
+#include "llpreprocessor.h"
 #include "llfile.h"
 
 #define BUFSIZE 8192
@@ -62,7 +63,7 @@ int WINAPI get_url_into_file(WCHAR *uri, char *path, int *cancelled)
 	*cancelled = FALSE;
 
 	HINTERNET hinet, hdownload;
-	char data[BUFSIZE];
+	char data[BUFSIZE];		/* Flawfinder: ignore */
 	unsigned long bytes_read;
 
 #if _DEBUG
@@ -70,7 +71,7 @@ int WINAPI get_url_into_file(WCHAR *uri, char *path, int *cancelled)
 	fflush(logfile);
 #endif	
 
-	FILE *fp = fopen(path, "wb");
+	FILE* fp = fopen(path, "wb");		/* Flawfinder: ignore */
 
 	if (!fp)
 	{
@@ -301,7 +302,7 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nSho
 
 	const int MAX_ARGS = 100;
 	int argc = 0;
-	char *argv[MAX_ARGS];
+	char* argv[MAX_ARGS];		/* Flawfinder: ignore */
 
 #if _DEBUG
 	logfile = _wfopen(TEXT("updater.log"),TEXT("wt"));
@@ -327,7 +328,7 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nSho
 	{
 		argv[argc++] = token;
 		/* Get next token: */
-		if (*(token + strlen(token) + 1) == '\"')
+		if (*(token + strlen(token) + 1) == '\"')		/* Flawfinder: ignore */
 		{
 			token = strtok( NULL, "\"");
 		}
@@ -360,7 +361,7 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nSho
 	if (gProductName)
 	{
 		mbstowcs(window_title, gProductName, 2048);
-		wcscat(window_title, L" Updater");
+		wcscat(window_title, L" Updater");		/* Flawfinder: ignore */
 	}
 	else
 	{
@@ -369,7 +370,7 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nSho
 	
 	WNDCLASSEX wndclassex = { 0 };
 	DEVMODE dev_mode = { 0 };
-	char update_exec_path[MAX_PATH];
+	char update_exec_path[MAX_PATH];		/* Flawfinder: ignore */
 	char *ptr;
 	WCHAR update_uri[4096];
 
@@ -438,10 +439,10 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nSho
 	*(ptr + 2) = 'x';
 	*(ptr + 3) = 'e';
 	*(ptr + 4) = 0;
-	wcscpy(update_uri, UPDATE_URIBASE);
+	wcscpy(update_uri, UPDATE_URIBASE);		/* Flawfinder: ignore */
 	WCHAR wcmdline[2048];
 	mbstowcs(wcmdline, gUserServer, 2048);
-	wcscat(update_uri, wcmdline);
+	wcscat(update_uri, wcmdline);		/* Flawfinder: ignore */
 
 	int success;
 	int cancelled;
@@ -484,18 +485,18 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nSho
 	}
 
 	// Construct some parameters.
-	char params[2048];
+	char params[2048];		/* Flawfinder: ignore */
 	if (gIsSilent && gProgramName)
 	{
-		sprintf(params, "/S /P=\"%s\"", gProgramName);
+		snprintf(params, sizeof(params), "/S /P=\"%s\"", gProgramName);		/* Flawfinder: ignore */
 	}
 	else if (gProgramName)
 	{
-		sprintf(params, "/P=\"%s\"", gProgramName);
+		snprintf(params, sizeof(params), "/P=\"%s\"", gProgramName);		/* Flawfinder: ignore */
 	}
 	else if (gIsSilent)
 	{
-		sprintf(params, "/S");
+		sprintf(params, "/S");		/* Flawfinder: ignore */
 	}
 	else
 	{

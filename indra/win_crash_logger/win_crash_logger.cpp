@@ -50,8 +50,8 @@ void write_debug(std::string& str);
 
 // Global Variables:
 HINSTANCE hInst= NULL;					// current instance
-TCHAR szTitle[MAX_LOADSTRING];			// The title bar text
-TCHAR szWindowClass[MAX_LOADSTRING];	// The title bar text
+TCHAR szTitle[MAX_LOADSTRING];				/* Flawfinder: ignore */		// The title bar text
+TCHAR szWindowClass[MAX_LOADSTRING];		/* Flawfinder: ignore */		// The title bar text
 
 LLString gUserText;			// User's description of the problem
 time_t gStartTime = 0;
@@ -72,10 +72,10 @@ WCHAR gProductName[512];
 // Include product name in the window caption.
 void ProcessCaption(HWND hWnd)
 {
-	TCHAR templateText[1024];
-	TCHAR finalText[2048];
+	TCHAR templateText[1024];		/* Flawfinder: ignore */
+	TCHAR finalText[2048];		/* Flawfinder: ignore */
 	GetWindowText(hWnd, templateText, sizeof(templateText));
-	swprintf(finalText, templateText, gProductName);
+	swprintf(finalText, templateText, gProductName);		/* Flawfinder: ignore */
 	SetWindowText(hWnd, finalText);
 }
 
@@ -83,10 +83,10 @@ void ProcessCaption(HWND hWnd)
 // Include product name in the diaog item text.
 void ProcessDlgItemText(HWND hWnd, int nIDDlgItem)
 {
-	TCHAR templateText[1024];
-	TCHAR finalText[2048];
+	TCHAR templateText[1024];		/* Flawfinder: ignore */
+	TCHAR finalText[2048];		/* Flawfinder: ignore */
 	GetDlgItemText(hWnd, nIDDlgItem, templateText, sizeof(templateText));
-	swprintf(finalText, templateText, gProductName);
+	swprintf(finalText, templateText, gProductName);		/* Flawfinder: ignore */
 	SetDlgItemText(hWnd, nIDDlgItem, finalText);
 }
 
@@ -100,7 +100,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	gDirUtilp->initAppDirs("SecondLife");
 	
 	// Default to the product name "Second Life" (this is overridden by the -name argument)
-	swprintf(gProductName, L"Second Life");
+	swprintf(gProductName, L"Second Life");		/* Flawfinder: ignore */
 
 	gCrashSettings.declareS32(CRASH_BEHAVIOR_SETTING, CRASH_BEHAVIOR_ASK, "Controls behavior when viewer crashes "
 		"(0 = ask before sending crash report, 1 = always send crash report, 2 = never send crash report)");
@@ -119,7 +119,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
 	const S32	MAX_ARGS = 100;
 	int argc = 0;
-	char *argv[MAX_ARGS];
+	char *argv[MAX_ARGS];		/* Flawfinder: ignore */
 
 	char *token = NULL;
 	if( cmd_line_including_exe_name[0] == '\"' )
@@ -139,7 +139,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	{
 		argv[argc++] = token;
 		/* Get next token: */
-		if (*(token + strlen(token) + 1) == '\"')
+		if (*(token + strlen(token) + 1) == '\"')		/* Flawfinder: ignore */
 		{
 			token = strtok( NULL, "\"");
 		}
@@ -250,11 +250,11 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 		WCHAR header[2048];
 		if (gCrashInPreviousExec)
 		{
-			swprintf(header, L"%s appears to have crashed or frozen the last time it ran.", gProductName);
+			swprintf(header, L"%s appears to have crashed or frozen the last time it ran.", gProductName);		/* Flawfinder: ignore */
 		}
 		else
 		{
-			swprintf(header, L"%s appears to have crashed.", gProductName);
+			swprintf(header, L"%s appears to have crashed.", gProductName);		/* Flawfinder: ignore */
 		}
 		SetDlgItemText(gHwndReport, IDC_STATIC_HEADER, header);
 		ShowWindow(gHwndReport, SW_SHOW );
@@ -478,7 +478,7 @@ void send_crash_report()
 
 	// Get the filename of the SecondLife.log file
 	// *NOTE: This buffer size is hard coded into scanf() below.
-	char tmp_sl_name[256];
+	char tmp_sl_name[256];		/* Flawfinder: ignore */
 	tmp_sl_name[0] = '\0';
 
 	update_messages();
@@ -682,7 +682,7 @@ void send_crash_report()
 	// Post data to web server
 	const S32 BUFSIZE = 65536;
 	HINTERNET hinet, hsession, hrequest;
-	char data[BUFSIZE];
+	char data[BUFSIZE];		/* Flawfinder: ignore */
 	unsigned long bytes_read;
 
 	llinfos << "Connecting to crash report server" << llendl;
@@ -790,7 +790,7 @@ LLFileEncoder::LLFileEncoder(const char *form_name, const char *filename)
 	while (count < 5)
 	{
 		buf_size = stat_data.st_size;
-		fp = LLFile::fopen(mFilename.c_str(), "rb");
+		fp = LLFile::fopen(mFilename.c_str(), "rb");		/* Flawfinder: ignore */
 		if (!fp)
 		{
 			llwarns << "Can't open file " << mFilename << ", wait for a second" << llendl;
@@ -878,14 +878,14 @@ void write_debug(const char *str)
 	{
 		std::string debug_filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"debug_info.log");
 		llinfos << "Opening debug file " << debug_filename << llendl;
-		gDebugFile = LLFile::fopen(debug_filename.c_str(), "a+");
+		gDebugFile = LLFile::fopen(debug_filename.c_str(), "a+");		/* Flawfinder: ignore */
         if (!gDebugFile)
         {
             fprintf(stderr, "Couldn't open %s: debug log to stderr instead.\n", debug_filename.c_str());
             gDebugFile = stderr;
         }
 	}
-	fprintf(gDebugFile, str);
+	fprintf(gDebugFile, str);		/* Flawfinder: ignore */
 	fflush(gDebugFile);
 }
 

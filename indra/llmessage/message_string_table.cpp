@@ -57,7 +57,7 @@ char* LLMessageStringTable::getString(const char *str)
 		}
 	}
 	// not found, so add!
-	strncpy(mString[hash_value], str, MESSAGE_MAX_STRINGS_LENGTH);
+	strncpy(mString[hash_value], str, MESSAGE_MAX_STRINGS_LENGTH);	/* Flawfinder: ignore */
 	mString[hash_value][MESSAGE_MAX_STRINGS_LENGTH - 1] = 0;
 	mEmpty[hash_value] = FALSE;
 	mUsed++;

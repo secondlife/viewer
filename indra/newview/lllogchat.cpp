@@ -24,7 +24,13 @@ LLString LLLogChat::makeLogFileName(LLString filename)
 //static
 void LLLogChat::saveHistory(LLString filename, LLString line)
 {
-	FILE *fp = LLFile::fopen(LLLogChat::makeLogFileName(filename).c_str(), "a"); 
+	if(!filename.size())
+	{
+		llinfos << "Filename is Empty!" << llendl;
+		return;
+	}
+
+	FILE* fp = LLFile::fopen(LLLogChat::makeLogFileName(filename).c_str(), "a"); 		/*Flawfinder: ignore*/
 	if (!fp)
 	{
 		llinfos << "Couldn't open chat history log!" << llendl;
@@ -39,14 +45,19 @@ void LLLogChat::saveHistory(LLString filename, LLString line)
 
 void LLLogChat::loadHistory(LLString filename , void (*callback)(LLString,void*), void* userdata)
 {
-	FILE *fptr = LLFile::fopen(makeLogFileName(filename).c_str(), "r");
+	if(!filename.size())
+	{
+		llerrs << "Filename is Empty!" << llendl;
+	}
+
+	FILE* fptr = LLFile::fopen(makeLogFileName(filename).c_str(), "r");		/*Flawfinder: ignore*/
 	if (!fptr)
 	{
 		return;			//No previous conversation with this name.
 	}
 	else
 	{
-		char buffer[LOG_RECALL_SIZE];
+		char buffer[LOG_RECALL_SIZE];		/*Flawfinder: ignore*/
 		char *bptr;
 		S32 len;
 		bool firstline=TRUE;
@@ -63,7 +74,7 @@ void LLLogChat::loadHistory(LLString filename , void (*callback)(LLString,void*)
 
 		while ( fgets(buffer, LOG_RECALL_SIZE, fptr)  && !feof(fptr) ) 
 		{
-			len = strlen(buffer) - 1;
+			len = strlen(buffer) - 1;		/*Flawfinder: ignore*/
 			for ( bptr = (buffer + len); (*bptr == '\n' || *bptr == '\r') && bptr>buffer; bptr--)	*bptr='\0';
 			
 			if (!firstline)

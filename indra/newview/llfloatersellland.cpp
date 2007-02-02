@@ -78,7 +78,7 @@ void LLFloaterSellLand::sellLand(
 	LLFloaterSellLandUI* ui = LLFloaterSellLandUI::soleInstance(true);
 	if (ui->setParcel(region, parcel))
 	{
-		ui->open();
+		ui->open();		/* Flawfinder: ignore */
 	}
 }
 
@@ -186,8 +186,8 @@ void LLFloaterSellLandUI::updateParcelInfo()
 	if(mSellToBuyer)
 	{
 		LLString name;
-		char firstname[MAX_STRING];
-		char lastname[MAX_STRING];
+		char firstname[MAX_STRING];		/* Flawfinder: ignore */
+		char lastname[MAX_STRING];		/* Flawfinder: ignore */
 		gCacheName->getName(mAuthorizedBuyer, firstname, lastname);
 		name.assign(firstname);
 		name.append(" ");

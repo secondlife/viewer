@@ -58,8 +58,8 @@ LLIOPipe::EStatus LLPipeStringExtractor::process_impl(
 	std::ostringstream ostr;
 	while (istr.good())
 	{
-		char buf[1024];
-		istr.read(buf, sizeof(buf));
+		char buf[1024];		/* Flawfinder: ignore */
+		istr.read(buf, sizeof(buf));	/* Flawfinder: ignore */
 		ostr.write(buf, istr.gcount());
 	}
 	mString = ostr.str();

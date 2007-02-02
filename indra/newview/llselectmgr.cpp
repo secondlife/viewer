@@ -2139,8 +2139,8 @@ void LLSelectMgr::packGodlikeHead(void* user_data)
 // static
 void LLSelectMgr::packObjectIDAsParam(LLSelectNode* node, void *)
 {
-	char buf [MAX_STRING];
-	sprintf(buf, "%u", node->getObject()->getLocalID());
+	char buf [MAX_STRING];		/* Flawfinder: ignore */
+	snprintf(buf, MAX_STRING, "%u", node->getObject()->getLocalID());		/* Flawfinder: ignore */
 	gMessageSystem->nextBlock("ParamList");
 	gMessageSystem->addString("Parameter", buf);
 }
@@ -2786,8 +2786,8 @@ BOOL LLSelectMgr::selectGetCreator(LLUUID& id, LLString& name)
 
 	if (identical)
 	{
-		char firstname[DB_FIRST_NAME_BUF_SIZE];
-		char lastname[DB_LAST_NAME_BUF_SIZE];
+		char firstname[DB_FIRST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
+		char lastname[DB_LAST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
 		gCacheName->getName(id, firstname, lastname);
 		name.assign( firstname );
 		name.append( " " );
@@ -2849,8 +2849,8 @@ BOOL LLSelectMgr::selectGetOwner(LLUUID& id, LLString& name)
 		}
 		else if(!public_owner)
 		{
-			char firstname[DB_FIRST_NAME_BUF_SIZE];
-			char lastname[DB_LAST_NAME_BUF_SIZE];
+			char firstname[DB_FIRST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
+			char lastname[DB_LAST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
 			gCacheName->getName(id, firstname, lastname);
 			name.assign( firstname );
 			name.append( " " );
@@ -2908,8 +2908,8 @@ BOOL LLSelectMgr::selectGetLastOwner(LLUUID& id, LLString& name)
 	{
 		if(!public_owner)
 		{
-			char firstname[DB_FIRST_NAME_BUF_SIZE];
-			char lastname[DB_LAST_NAME_BUF_SIZE];
+			char firstname[DB_FIRST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
+			char lastname[DB_LAST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
 			gCacheName->getName(id, firstname, lastname);
 			name.assign( firstname );
 			name.append( " " );
@@ -4701,14 +4701,14 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 
 		msg->getUUIDFast(_PREHASH_ObjectData, _PREHASH_LastOwnerID, last_owner_id, i);
 
-		char name[DB_INV_ITEM_NAME_BUF_SIZE];
+		char name[DB_INV_ITEM_NAME_BUF_SIZE];		/* Flawfinder: ignore */
 		msg->getStringFast(_PREHASH_ObjectData, _PREHASH_Name, DB_INV_ITEM_NAME_BUF_SIZE, name, i);
-		char desc[DB_INV_ITEM_DESC_BUF_SIZE];
+		char desc[DB_INV_ITEM_DESC_BUF_SIZE];		/* Flawfinder: ignore */
 		msg->getStringFast(_PREHASH_ObjectData, _PREHASH_Description, DB_INV_ITEM_DESC_BUF_SIZE, desc, i);
 
-		char touch_name[DB_INV_ITEM_NAME_BUF_SIZE];
+		char touch_name[DB_INV_ITEM_NAME_BUF_SIZE];		/* Flawfinder: ignore */
 		msg->getStringFast(_PREHASH_ObjectData, _PREHASH_TouchName, DB_INV_ITEM_NAME_BUF_SIZE, touch_name, i);
-		char sit_name[DB_INV_ITEM_DESC_BUF_SIZE];
+		char sit_name[DB_INV_ITEM_DESC_BUF_SIZE];		/* Flawfinder: ignore */
 		msg->getStringFast(_PREHASH_ObjectData, _PREHASH_SitName, DB_INV_ITEM_DESC_BUF_SIZE, sit_name, i);
 
 		//unpack TE IDs
@@ -4722,7 +4722,7 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 			for (S32 buf_offset = 0; buf_offset < size; buf_offset += UUID_BYTES)
 			{
 				LLUUID id;
-				memcpy(id.mData, packed_buffer + buf_offset, UUID_BYTES);
+				memcpy(id.mData, packed_buffer + buf_offset, UUID_BYTES);		/* Flawfinder: ignore */
 				texture_ids.push_back(id);
 			}
 		}
@@ -4855,10 +4855,10 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
 	msg->getUUIDFast(_PREHASH_ObjectData, _PREHASH_LastOwnerID, last_owner_id );
 
 	// unpack name & desc
-	char name[DB_INV_ITEM_NAME_BUF_SIZE];
+	char name[DB_INV_ITEM_NAME_BUF_SIZE];		/* Flawfinder: ignore */
 	msg->getStringFast(_PREHASH_ObjectData, _PREHASH_Name, DB_INV_ITEM_NAME_BUF_SIZE, name);
 
-	char desc[DB_INV_ITEM_DESC_BUF_SIZE];
+	char desc[DB_INV_ITEM_DESC_BUF_SIZE];		/* Flawfinder: ignore */
 	msg->getStringFast(_PREHASH_ObjectData, _PREHASH_Description, DB_INV_ITEM_DESC_BUF_SIZE, desc);
 
 	// the reporter widget askes the server for info about picked objects
@@ -4868,8 +4868,8 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
 		LLFloaterReporter *reporterp = LLFloaterReporter::getReporter(report_type);
 		if (reporterp)
 		{
-			char first_name[DB_FIRST_NAME_BUF_SIZE];
-			char last_name[DB_LAST_NAME_BUF_SIZE];
+			char first_name[DB_FIRST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
+			char last_name[DB_LAST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
 			gCacheName->getName(owner_id, first_name, last_name);
 			LLString fullname(first_name);
 			fullname.append(" ");

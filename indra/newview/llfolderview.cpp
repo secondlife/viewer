@@ -308,10 +308,10 @@ void LLFolderViewItem::arrangeFromRoot()
 // UI. If open is TRUE, then folders are opened up along the way to
 // the selection.
 void LLFolderViewItem::setSelectionFromRoot(LLFolderViewItem* selection,
-											BOOL open,
+											BOOL open,					/* Flawfinder: ignore */
 											BOOL take_keyboard_focus)
 {
-	getRoot()->setSelection(selection, open, take_keyboard_focus);
+	getRoot()->setSelection(selection, open, take_keyboard_focus);		/* Flawfinder: ignore */
 }
 
 // helper function to change the selection from the root.
@@ -515,7 +515,7 @@ void LLFolderViewItem::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 }
 
-void LLFolderViewItem::open( void )
+void LLFolderViewItem::open( void )		/* Flawfinder: ignore */
 {
 	if( mListener )
 	{
@@ -1346,7 +1346,7 @@ BOOL LLFolderViewFolder::hasFilteredDescendants()
 
 // Passes selection information on to children and record selection
 // information if necessary.
-BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL open,
+BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL open,		/* Flawfinder: ignore */
 									  BOOL take_keyboard_focus)
 {
 	BOOL rv = FALSE;
@@ -1370,7 +1370,7 @@ BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL open,
 		 iter != mFolders.end();)
 	{
 		folders_t::iterator fit = iter++;
-		if((*fit)->setSelection(selection, open, take_keyboard_focus))
+		if((*fit)->setSelection(selection, open, take_keyboard_focus))		/* Flawfinder: ignore */
 		{
 			rv = TRUE;
 			child_selected = TRUE;
@@ -1381,14 +1381,14 @@ BOOL LLFolderViewFolder::setSelection(LLFolderViewItem* selection, BOOL open,
 		 iter != mItems.end();)
 	{
 		items_t::iterator iit = iter++;
-		if((*iit)->setSelection(selection, open, take_keyboard_focus))
+		if((*iit)->setSelection(selection, open, take_keyboard_focus))		/* Flawfinder: ignore */
 		{
 			rv = TRUE;
 			child_selected = TRUE;
 			mNumDescendantsSelected++;
 		}
 	}
-	if(open && child_selected)
+	if(open && child_selected)		/* Flawfinder: ignore */
 	{
 		setOpenArrangeRecursively(TRUE);
 	}
@@ -1945,16 +1945,16 @@ void LLFolderViewFolder::toggleOpen()
 }
 
 // Force a folder open or closed
-void LLFolderViewFolder::setOpen(BOOL open)
+void LLFolderViewFolder::setOpen(BOOL open)		/* Flawfinder: ignore */
 {
-	setOpenArrangeRecursively(open);
+	setOpenArrangeRecursively(open);		/* Flawfinder: ignore */
 }
 
-void LLFolderViewFolder::setOpenArrangeRecursively(BOOL open, ERecurseType recurse)
+void LLFolderViewFolder::setOpenArrangeRecursively(BOOL open, ERecurseType recurse)		/* Flawfinder: ignore */
 {
 	BOOL was_open = mIsOpen;
-	mIsOpen = open;
-	if(!was_open && open)
+	mIsOpen = open;		/* Flawfinder: ignore */
+	if(!was_open && open)		/* Flawfinder: ignore */
 	{
 		if(mListener)
 		{
@@ -1967,12 +1967,12 @@ void LLFolderViewFolder::setOpenArrangeRecursively(BOOL open, ERecurseType recur
 			 iter != mFolders.end();)
 		{
 			folders_t::iterator fit = iter++;
-			(*fit)->setOpenArrangeRecursively(open, RECURSE_DOWN);
+			(*fit)->setOpenArrangeRecursively(open, RECURSE_DOWN);		/* Flawfinder: ignore */
 		}
 	}
 	if (mParentFolder && (recurse == RECURSE_UP || recurse == RECURSE_UP_DOWN))
 	{
-		mParentFolder->setOpenArrangeRecursively(open, RECURSE_UP);
+		mParentFolder->setOpenArrangeRecursively(open, RECURSE_UP);		/* Flawfinder: ignore */
 	}
 	
 	if (was_open != mIsOpen)
@@ -2005,7 +2005,7 @@ BOOL LLFolderViewFolder::handleDragAndDropFromChild(MASK mask,
 	return TRUE;
 }
 
-void LLFolderViewFolder::open( void )
+void LLFolderViewFolder::open( void )		/* Flawfinder: ignore */
 {
 	toggleOpen();
 }
@@ -2694,10 +2694,10 @@ void LLFolderView::openFolder(const LLString& foldername)
 	}
 }
 
-void LLFolderView::setOpenArrangeRecursively(BOOL open, ERecurseType recurse)
+void LLFolderView::setOpenArrangeRecursively(BOOL open, ERecurseType recurse)		/* Flawfinder: ignore */
 {
 	// call base class to do proper recursion
-	LLFolderViewFolder::setOpenArrangeRecursively(open, recurse);
+	LLFolderViewFolder::setOpenArrangeRecursively(open, recurse);		/* Flawfinder: ignore */
 	// make sure root folder is always open
 	mIsOpen = TRUE;
 }
@@ -2873,7 +2873,7 @@ LLFolderViewItem* LLFolderView::getCurSelectedItem( void )
 
 
 // Record the selected item and pass it down the hierachy.
-BOOL LLFolderView::setSelection(LLFolderViewItem* selection, BOOL open,
+BOOL LLFolderView::setSelection(LLFolderViewItem* selection, BOOL open,		/* Flawfinder: ignore */
 								BOOL take_keyboard_focus)
 {
 	if( selection == this )
@@ -2895,8 +2895,8 @@ BOOL LLFolderView::setSelection(LLFolderViewItem* selection, BOOL open,
 		addToSelectionList(selection);
 	}
 
-	BOOL rv = LLFolderViewFolder::setSelection(selection, open, take_keyboard_focus);
-	if(open)
+	BOOL rv = LLFolderViewFolder::setSelection(selection, open, take_keyboard_focus);		/* Flawfinder: ignore */
+	if(open)		/* Flawfinder: ignore */
 	{
 		selection->getParentFolder()->requestArrange();
 	}
@@ -3312,7 +3312,7 @@ void LLFolderView::openSelectedItems( void )
 	{
 		if (mSelectedItems.size() == 1)
 		{
-			mSelectedItems.front()->open();
+			mSelectedItems.front()->open();		/* Flawfinder: ignore */
 		}
 		else
 		{
@@ -3326,11 +3326,11 @@ void LLFolderView::openSelectedItems( void )
 			selected_items_t::iterator item_it;
 			for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
 			{
-				(*item_it)->open();
+				(*item_it)->open();		/* Flawfinder: ignore */
 			}
 
 			LLFloater::setFloaterHost(NULL);
-			multi_previewp->open();
+			multi_previewp->open();		/* Flawfinder: ignore */
 		}
 	}
 }
@@ -3361,7 +3361,7 @@ void LLFolderView::propertiesSelectedItems( void )
 			}
 
 			LLFloater::setFloaterHost(NULL);
-			multi_propertiesp->open();
+			multi_propertiesp->open();		/* Flawfinder: ignore */
 		}
 	}
 }

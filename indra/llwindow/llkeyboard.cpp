@@ -311,7 +311,7 @@ LLString LLKeyboard::stringFromKey(KEY key)
 	LLString res = get_if_there(sKeysToNames, key, LLString::null);
 	if (res.empty())
 	{
-		char buffer[2];
+		char buffer[2];		/* Flawfinder: ignore */
 		buffer[0] = key;
 		buffer[1] = '\0';
 		res = LLString(buffer);

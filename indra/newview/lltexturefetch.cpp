@@ -530,7 +530,7 @@ bool LLTextureFetchWorker::startVFSLoad(LLVFS* vfs, LLAssetType::EType asset_typ
 	{
 		mBufferSize = vfs->getSize(mID, asset_type);
 		mBuffer = new U8[mBufferSize];
-		mFileHandle = LLVFSThread::sLocal->read(vfs, mID, asset_type, mBuffer, 0, mBufferSize);
+		mFileHandle = LLVFSThread::sLocal->read(vfs, mID, asset_type, mBuffer, 0, mBufferSize);		/* Flawfinder: ignore */
 		if (mFileHandle == LLVFSThread::nullHandle())
 		{
 			llwarns << "loadLocalImage() - vfs read failed in static VFS: " << mID << llendl;
@@ -612,8 +612,11 @@ bool LLTextureFetchWorker::processSimulatorPackets()
 			S32 offset = 0;
 			for (S32 i = 0; i<=mLastPacket; i++)
 			{
-				memcpy(mBuffer + offset, mPackets[i]->mData, mPackets[i]->mSize);
-				offset += mPackets[i]->mSize;
+				if (mPackets[i]->mData != NULL)
+				{
+					memcpy(mBuffer + offset, mPackets[i]->mData, mPackets[i]->mSize); /* Flawfinder: ignore */
+					offset += mPackets[i]->mSize;
+				}
 			}
 			res = true;
 		}

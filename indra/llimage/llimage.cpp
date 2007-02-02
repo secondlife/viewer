@@ -148,7 +148,7 @@ U8* LLImageBase::reallocateData(S32 size)
 	if (mData)
 	{
 		S32 bytes = llmin(mDataSize, size);
-		memcpy(new_datap, mData, bytes);
+		memcpy(new_datap, mData, bytes);	/* Flawfinder: ignore */
 		delete[] mData;
 	}
 	mData = new_datap;
@@ -245,7 +245,11 @@ BOOL LLImageRaw::copyData(U8 *data, U16 width, U16 height, S8 components)
 	{
 		return FALSE;
 	}
-	memcpy(getData(), data, width*height*components);
+	if (getData() == NULL || data == NULL)
+	{
+		return FALSE;
+	}
+	memcpy(getData(), data, width*height*components);	/* Flawfinder: ignore */
 	return TRUE;
 }
 
@@ -269,11 +273,16 @@ U8 * LLImageRaw::getSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height) const
 	U8 *data = new U8[width*height*getComponents()];
 
 	// Should do some simple bounds checking
+	if (!data)
+	{
+		llerrs << "Out of memory in LLImageRaw::getSubImage" << llendl;
+		return NULL;
+	}
 
 	U32 i;
 	for (i = y_pos; i < y_pos+height; i++)
 	{
-		memcpy(data + i*width*getComponents(),
+		memcpy(data + i*width*getComponents(),		/* Flawfinder: ignore */
 				getData() + ((y_pos + i)*getWidth() + x_pos)*getComponents(), getComponents()*width);
 	}
 	return data;
@@ -309,7 +318,7 @@ BOOL LLImageRaw::setSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height,
 			{
 				from_offset = i*width*getComponents();
 			}
-			memcpy(getData() + to_offset*getComponents(),
+			memcpy(getData() + to_offset*getComponents(),		/* Flawfinder: ignore */
 					data + from_offset, getComponents()*width);
 		}
 	}
@@ -326,7 +335,7 @@ BOOL LLImageRaw::setSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height,
 			{
 				from_offset = (height - 1 - i)*width*getComponents();
 			}
-			memcpy(getData() + to_offset*getComponents(),
+			memcpy(getData() + to_offset*getComponents(),		/* Flawfinder: ignore */
 					data + from_offset, getComponents()*width);
 		}
 	}
@@ -373,14 +382,19 @@ void LLImageRaw::verticalFlip()
 	LLMemType mt1((LLMemType::EMemType)mMemType);
 	S32 row_bytes = getWidth() * getComponents();
 	U8* line_buffer = new U8[row_bytes];
+	if (!line_buffer )
+	{
+		llerrs << "Out of memory in LLImageRaw::verticalFlip()" << llendl;
+		return;
+	}
 	S32 mid_row = getHeight() / 2;
 	for( S32 row = 0; row < mid_row; row++ )
 	{
 		U8* row_a_data = getData() + row * row_bytes;
 		U8* row_b_data = getData() + (getHeight() - 1 - row) * row_bytes;
-		memcpy( line_buffer, row_a_data,  row_bytes );
-		memcpy( row_a_data,  row_b_data,  row_bytes );
-		memcpy( row_b_data,  line_buffer, row_bytes );
+		memcpy( line_buffer, row_a_data,  row_bytes );	/* Flawfinder: ignore */
+		memcpy( row_a_data,  row_b_data,  row_bytes );	/* Flawfinder: ignore */
+		memcpy( row_b_data,  line_buffer, row_bytes );	/* Flawfinder: ignore */
 	}
 	delete[] line_buffer;
 }
@@ -672,7 +686,7 @@ void LLImageRaw::copyUnscaled(LLImageRaw* src)
 	llassert( src->getComponents() == dst->getComponents() );
 	llassert( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
 
-	memcpy( dst->getData(), src->getData(), getWidth() * getHeight() * getComponents() );
+	memcpy( dst->getData(), src->getData(), getWidth() * getHeight() * getComponents() );	/* Flawfinder: ignore */
 }
 
 
@@ -756,7 +770,7 @@ void LLImageRaw::copyScaled( LLImageRaw* src )
 
 	if( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) )
 	{
-		memcpy( dst->getData(), src->getData(), getWidth() * getHeight() * getComponents() );
+		memcpy( dst->getData(), src->getData(), getWidth() * getHeight() * getComponents() );	/* Flawfinder: ignore */
 		return;
 	}
 
@@ -822,7 +836,12 @@ void LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 		// copy	out	existing image data
 		S32	temp_data_size = old_width * old_height	* getComponents();
 		U8*	temp_buffer	= new U8[ temp_data_size ];
-		memcpy(temp_buffer,	getData(), temp_data_size);
+		if (!temp_buffer)
+		{
+			llerrs << "Out of memory in LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )" << llendl;
+			return;
+		}
+		memcpy(temp_buffer,	getData(), temp_data_size);	/* Flawfinder: ignore */
 
 		// allocate	new	image data,	will delete	old	data
 		U8*	new_buffer = allocateDataSize(new_width, new_height, getComponents());
@@ -831,7 +850,7 @@ void LLImageRaw::scale( S32 new_width, S32 new_height, BOOL scale_image_data )
 		{
 			if (row	< old_height)
 			{
-				memcpy(new_buffer +	(new_width * row * getComponents()), temp_buffer + (old_width *	row	* getComponents()),	getComponents()	* llmin(old_width, new_width));
+				memcpy(new_buffer +	(new_width * row * getComponents()), temp_buffer + (old_width *	row	* getComponents()),	getComponents()	* llmin(old_width, new_width));	/* Flawfinder: ignore */
 				if (old_width <	new_width)
 				{
 					// pad out rest	of row with	black
@@ -1185,7 +1204,7 @@ bool LLImageRaw::createFromFile(const LLString &filename, bool j2c_lowest_mip_on
 	llassert(image.notNull());
 
 	U8 *buffer = image->allocateData(length);
-	ifs.read ((char*)buffer, length);
+	ifs.read ((char*)buffer, length);	/* Flawfinder: ignore */
 	ifs.close();
 	
 	image->updateData();
@@ -1534,7 +1553,7 @@ BOOL LLImageFormatted::copyData(U8 *data, S32 size)
 	{
 		deleteData();
 		allocateData(size);
-		memcpy(getData(), data, size);
+		memcpy(getData(), data, size);	/* Flawfinder: ignore */
 	}
 	updateData(); // virtual
 	
@@ -1548,15 +1567,20 @@ BOOL LLImageFormatted::appendData(U8 *data, S32 size)
 	U8* old_data = getData();
 	S32 new_size = old_size + size;
 	U8* new_data = new U8[new_size];
+	if (!new_data)
+	{
+		llerrs << "Out of memory in LLImageFormatted::appendData(U8 *data, S32 size)" << llendl;
+		return FALSE;
+	}
 	// resize the image
 	setDataAndSize(new_data, new_size);
 	// copy the old data and delete it
-	memcpy(new_data, old_data, old_size);
+	memcpy(new_data, old_data, old_size);	/* Flawfinder: ignore */
 	delete old_data;
 	// if we have new data, copy it and call updateData()
 	if (data)
 	{
-		memcpy(new_data + old_size, data, size);
+		memcpy(new_data + old_size, data, size);	/* Flawfinder: ignore */
 		updateData(); // virtual
 	}
 	return TRUE;

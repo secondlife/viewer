@@ -107,7 +107,7 @@ LLFloaterProperties* LLFloaterProperties::show(const LLUUID& item_id,
 		}
 
 		instance->refresh();
-		instance->open();
+		instance->open();		/* Flawfinder: ignore */
 	}
 	return instance;
 }
@@ -279,7 +279,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 
 	childSetEnabled("LabelItemNameTitle",TRUE);
 	childSetEnabled("LabelItemName",is_modifiable);
-	const char EMPTY_STRING[1] = "";
+	const char EMPTY_STRING[1] = "";		/* Flawfinder: ignore */
 	const char* txt = EMPTY_STRING;
 	if(!item->getName().empty())
 	{
@@ -299,8 +299,8 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	//////////////////
 	// CREATOR NAME //
 	//////////////////
-	char first_name[DB_FIRST_NAME_BUF_SIZE];
-	char last_name[DB_LAST_NAME_BUF_SIZE];
+	char first_name[DB_FIRST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
+	char last_name[DB_LAST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
 	if(!gCacheName) return;
 	if(!gAgent.getRegion()) return;
 
@@ -332,7 +332,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 		LLString name;
 		if (perm.isGroupOwned())
 		{
-			char group_name[DB_GROUP_NAME_BUF_SIZE];
+			char group_name[DB_GROUP_NAME_BUF_SIZE];		/* Flawfinder: ignore */
 			gCacheName->getGroupName(perm.getGroup(), group_name);
 			name.assign(group_name);
 		}
@@ -413,29 +413,29 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 			overwrite_group		= flags & LLInventoryItem::II_FLAGS_OBJECT_PERM_OVERWRITE_GROUP;
 		}
 		
-		char perm_string[11];
+		char perm_string[11];		/* Flawfinder: ignore */
 
-		sprintf(perm_string, "B: ");
+		snprintf(perm_string, sizeof(perm_string), "B: ");		/* Flawfinder: ignore */
 		mask_to_string(base_mask, perm_string+3);
 		childSetText("BaseMaskDebug",perm_string);
 		childSetVisible("BaseMaskDebug",TRUE);
 		
-		sprintf(perm_string, "O: ");
+		snprintf(perm_string, sizeof(perm_string), "O: ");		/* Flawfinder: ignore */
 		mask_to_string(owner_mask, perm_string+3);
 		childSetText("OwnerMaskDebug",perm_string);
 		childSetVisible("OwnerMaskDebug",TRUE);
 		
-		sprintf(perm_string, "G%s: ", overwrite_group ? "*" : "");
+		snprintf(perm_string, sizeof(perm_string), "G%s: ", overwrite_group ? "*" : "");		/* Flawfinder: ignore */
 		mask_to_string(group_mask, perm_string + (overwrite_group ? 4 : 3));
 		childSetText("GroupMaskDebug",perm_string);
 		childSetVisible("GroupMaskDebug",TRUE);
 		
-		sprintf(perm_string, "E%s: ", overwrite_everyone ? "*" : "");
+		snprintf(perm_string, sizeof(perm_string), "E%s: ", overwrite_everyone ? "*" : "");		/* Flawfinder: ignore */
 		mask_to_string(everyone_mask, perm_string + (overwrite_everyone ? 4 : 3));
 		childSetText("EveryoneMaskDebug",perm_string);
 		childSetVisible("EveryoneMaskDebug",TRUE);
 		
-		sprintf(perm_string, "N%s: ", slam_perm ? "*" : "");
+		snprintf(perm_string, sizeof(perm_string), "N%s: ", slam_perm ? "*" : "");		/* Flawfinder: ignore */
 		mask_to_string(next_owner_mask, perm_string + (slam_perm ? 4 : 3));
 		childSetText("NextMaskDebug",perm_string);
 		childSetVisible("NextMaskDebug",TRUE);
@@ -548,8 +548,8 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	if (is_for_sale)
 	{
 		radioSaleType->setSelectedIndex((S32)sale_info.getSaleType() - 1);
-		char numerical_price[MAX_STRING];
-		sprintf(numerical_price, "%d", sale_info.getSalePrice());
+		char numerical_price[MAX_STRING];		/* Flawfinder: ignore */
+		snprintf(numerical_price, MAX_STRING, "%d", sale_info.getSalePrice());		/* Flawfinder: ignore */
 		childSetText("EditPrice",numerical_price);
 	}
 	else

@@ -120,20 +120,20 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 	LLUUID	agent_id;
 	LLUUID	parcel_id;
 	LLUUID	owner_id;
-	char	name[MAX_STRING];
-	char	desc[MAX_STRING];
+	char	name[MAX_STRING];		/*Flawfinder: ignore*/
+	char	desc[MAX_STRING];		/*Flawfinder: ignore*/
 	S32		actual_area;
 	S32		billable_area;
 	U8		flags;
 	F32		global_x;
 	F32		global_y;
 	F32		global_z;
-	char	sim_name[MAX_STRING];
+	char	sim_name[MAX_STRING];		/*Flawfinder: ignore*/
 	LLUUID	snapshot_id;
 	F32		dwell;
 	S32		sale_price;
 	S32		auction_id;
-	char	buffer[256];
+	char	buffer[256];		/*Flawfinder: ignore*/
 
 	msg->getUUID("AgentData", "AgentID", agent_id );
 	msg->getUUID("Data", "ParcelID", parcel_id);
@@ -174,16 +174,16 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 		self->mDescEditor->setText(desc);
 
 		LLString info;
-		sprintf(buffer, "Traffic: %.0f, Area: %d sq. m.", dwell, actual_area);
+		snprintf(buffer, sizeof(buffer), "Traffic: %.0f, Area: %d sq. m.", dwell, actual_area);		/*Flawfinder: ignore*/
 		info.append(buffer);
 		if (flags & DFQ_FOR_SALE)
 		{
-			sprintf(buffer, ", For Sale for L$%d", sale_price);
+			snprintf(buffer, sizeof(buffer), ", For Sale for L$%d", sale_price);		/*Flawfinder: ignore*/
 			info.append(buffer);
 		}
 		if (auction_id != 0)
 		{
-			sprintf(buffer, ", Auction ID %010d", auction_id);
+			snprintf(buffer, sizeof(buffer), ", Auction ID %010d", auction_id);		/*Flawfinder: ignore*/
 			info.append(buffer);
 		}
 		self->mInfoEditor->setText(info);
@@ -199,7 +199,7 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 			rating = LLViewerRegion::accessToString(SIM_ACCESS_MATURE);
 		}
 
-		sprintf(buffer, "%s %d, %d, %d (%s)", 
+		snprintf(buffer, sizeof(buffer), "%s %d, %d, %d (%s)", 		/*Flawfinder: ignore*/
 			sim_name, region_x, region_y, region_z, rating);
 		self->mLocationEditor->setText(buffer);
 
@@ -261,8 +261,8 @@ void LLPanelPlace::callbackAuctionWebPage(S32 option, void* data)
 
 	if (0 == option)
 	{
-		char url[256];
-		sprintf(url, "%s%010d", AUCTION_URL, self->mAuctionID);
+		char url[256];		/*Flawfinder: ignore*/
+		snprintf(url, sizeof(url), "%s%010d", AUCTION_URL, self->mAuctionID);		/*Flawfinder: ignore*/
 
 		llinfos << "Loading auction page " << url << llendl;
 

@@ -88,9 +88,9 @@ public:
 		return _Filebuffer;
 	}
 	bool is_open() const;
-	void open(const char *_Filename,
+	void open(const char* _Filename,	/* Flawfinder: ignore */
 		ios_base::openmode _Mode = ios_base::in,
-		int _Prot = (int)ios_base::_Openprot);	/* Flawfinder: ignore */
+		int _Prot = (int)ios_base::_Openprot);	
 	void close();
 
 private:

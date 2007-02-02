@@ -440,7 +440,7 @@ void LLFloaterReporter::showFromMenu(EReportType report_type)
 	{
 		// ...bring that window to front
 		LLFloaterReporter *f = gReporterInstances.getData(report_type);
-		f->open();
+		f->open();		/* Flawfinder: ignore */
 	}
 	else
 	{
@@ -496,7 +496,7 @@ void LLFloaterReporter::showFromObject(const LLUUID& object_id)
 	// Need to deselect on close
 	f->mDeselectOnClose = TRUE;
 
-	f->open();
+	f->open();		/* Flawfinder: ignore */
 }
 
 
@@ -716,8 +716,9 @@ void LLFloaterReporter::sendReport()
 	details << childGetValue("details_edit").asString();
 	msg->addStringFast(_PREHASH_Details, details.str() );
 
-	char version_string[MAX_STRING];
-	sprintf(version_string,
+	char version_string[MAX_STRING];		/* Flawfinder: ignore */
+	snprintf(version_string,						/* Flawfinder: ignore */
+			MAX_STRING,
 			"%d.%d.%d %s %s %s %s",
 			LL_VERSION_MAJOR,
 			LL_VERSION_MINOR,

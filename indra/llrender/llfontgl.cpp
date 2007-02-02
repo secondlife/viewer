@@ -136,7 +136,7 @@ LLString LLFontGL::getFontPathSystem()
 	// Try to figure out where the system's font files are stored.
 	char *system_root = NULL;
 #if LL_WINDOWS
-	system_root = getenv("SystemRoot");
+	system_root = getenv("SystemRoot");	/* Flawfinder: ignore */
 	if (!system_root)
 	{
 		llwarns << "SystemRoot not found, attempting to load fonts from default path." << llendl;

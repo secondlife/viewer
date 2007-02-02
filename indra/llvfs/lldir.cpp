@@ -323,7 +323,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string &file
 std::string LLDir::getTempFilename() const
 {
 	LLUUID random_uuid;
-	char uuid_str[64];
+	char uuid_str[64];	/* Flawfinder: ignore */ 
 
 	random_uuid.generate();
 	random_uuid.toString(uuid_str);
