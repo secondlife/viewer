@@ -1294,6 +1294,24 @@ void LLPanelAvatar::setOnlineStatus(EOnlineStatus online_status)
 	}
 
 	mPanelSecondLife->childSetVisible("online_yes", (online_status == ONLINE_STATUS_YES));
+
+	childSetVisible("Offer Teleport...",TRUE);
+	BOOL in_prelude = gAgent.inPrelude();
+	if(gAgent.isGodlike())
+	{
+		childSetEnabled("Offer Teleport...", TRUE);
+		childSetToolTip("Offer Teleport...", childGetValue("TeleportGod").asString());
+	}
+	else if (in_prelude)
+	{
+		childSetEnabled("Offer Teleport...",FALSE);
+		childSetToolTip("Offer Teleport...",childGetValue("TeleportPrelude").asString());
+	}
+	else
+	{
+		childSetEnabled("Offer Teleport...", (online_status == ONLINE_STATUS_YES));
+		childSetToolTip("Offer Teleport...", childGetValue("TeleportNormal").asString());
+	}
 }
 
 void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id, const LLString &name,
@@ -1404,25 +1422,6 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id, const LLString &name,
 			childSetVisible("Mute",TRUE);
 			childSetEnabled("Mute",FALSE);
 
-			childSetVisible("Offer Teleport...",TRUE);
-			BOOL in_prelude = gAgent.inPrelude();
-			if(gAgent.isGodlike())
-			{
-				childSetEnabled("Offer Teleport...", TRUE);
-				childSetToolTip("Offer Teleport...", childGetValue("TeleportGod").asString());
-			}
-			else if (in_prelude)
-			{
-				childSetEnabled("Offer Teleport...",FALSE);
-				childSetToolTip("Offer Teleport...",childGetValue("TeleportPrelude").asString());
-			}
-			else
-			{
-				// Even if user might be offline, allow a teleport offer.
-				BOOL maybe_online = (online_status != ONLINE_STATUS_NO);
-				childSetEnabled("Offer Teleport...", maybe_online);
-				childSetToolTip("Offer Teleport...", childGetValue("TeleportNormal").asString());
-			}
 			childSetVisible("drop target",TRUE);
 			childSetEnabled("drop target",FALSE);
 
