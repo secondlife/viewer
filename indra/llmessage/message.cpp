@@ -1801,14 +1801,27 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 		else
 		{
 			LLHost host;
-			LLCircuitData *cdp;
+			LLCircuitData* cdp;
 			
 			// note if packet acks are appended.
 			if(buffer[0] & LL_ACK_FLAG)
 			{
 				acks += buffer[--mReceiveSize];
 				true_rcv_size = mReceiveSize;
-				mReceiveSize -= acks * sizeof(TPACKETID);
+				if(mReceiveSize >= ((S32)(acks * sizeof(TPACKETID) + LL_MINIMUM_VALID_PACKET_SIZE)))
+				{
+					mReceiveSize -= acks * sizeof(TPACKETID);
+				}
+				else
+				{
+					// mal-formed packet. ignore it and continue with
+					// the next one
+					llwarns << "Malformed packet received. Packet size "
+						<< mReceiveSize << " with invalid no. of acks " << acks
+						<< llendl;
+					valid_packet = FALSE;
+					continue;
+				}
 			}
 
 			// process the message as normal
@@ -3329,7 +3342,7 @@ BOOL LLMessageSystem::decodeData(const U8* buffer, const LLHost& sender )
 
 	// create base working data set
 	mCurrentRMessageData = new LLMsgData(mCurrentRMessageTemplate->mName);
-
+	
 	// loop through the template building the data structure as we go
 	for (LLMessageTemplate::message_block_map_t::iterator iter = mCurrentRMessageTemplate->mMemberBlocks.begin();
 		 iter != mCurrentRMessageTemplate->mMemberBlocks.end(); iter++)

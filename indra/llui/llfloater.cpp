@@ -2193,7 +2193,7 @@ LLFloater *LLFloaterView::getFrontmost()
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 	{
 		LLView* viewp = *child_it;
-		if ( viewp->getVisible() )
+		if ( viewp->getVisible() && !viewp->isDead())
 		{
 			return (LLFloater *)viewp;
 		}
