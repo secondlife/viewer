@@ -198,6 +198,20 @@ void LLFloaterSettingsDebug::onCommitSettings(LLUICtrl* ctrl, void* user_data)
 	}
 }
 
+// static
+void LLFloaterSettingsDebug::onClickDefault(void* user_data)
+{
+	LLFloaterSettingsDebug* floaterp = (LLFloaterSettingsDebug*)user_data;
+	LLComboBox* settings_combo = (LLComboBox*)floaterp->getChildByName("settings_combo");
+	LLControlBase* controlp = (LLControlBase*)settings_combo->getCurrentUserdata();
+
+	if (controlp)
+	{
+		controlp->resetToDefault();
+		floaterp->updateControl(controlp);
+	}
+}
+
 // we've switched controls, or doing per-frame update, so update spinners, etc.
 void LLFloaterSettingsDebug::updateControl(LLControlBase* controlp)
 {
@@ -421,6 +435,8 @@ void LLFloaterSettingsDebug::updateControl(LLControlBase* controlp)
 			if (!spinner4->hasFocus())
 			{
 				spinner4->setPrecision(3);
+				spinner4->setMinValue(0.0);
+				spinner4->setMaxValue(1.f);
 				spinner4->setValue(clr.mV[VALPHA]);
 			}
 			break;

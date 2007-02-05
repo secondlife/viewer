@@ -653,7 +653,6 @@ void render_bbox(const LLVector3 &min, const LLVector3 &max);
 extern LLPipeline gPipeline;
 extern BOOL gRenderForSelect;
 extern F32 gPickAlphaThreshold;
-extern F32 gPickAlphaTargetThreshold;
 extern BOOL gUsePickAlpha;
 
 #endif

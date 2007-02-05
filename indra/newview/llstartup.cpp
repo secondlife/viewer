@@ -377,9 +377,17 @@ BOOL idle_startup()
 		{
 			fclose(found_template);
 
+			U32 port = gAgent.mViewerPort;
+
+			if ((NET_USE_OS_ASSIGNED_PORT == port) &&   // if nothing specified on command line (-port)
+			    (gSavedSettings.getBOOL("ConnectionPortEnabled")))
+			  {
+			    port = gSavedSettings.getU32("ConnectionPort");
+			  }
+
 			if(!start_messaging_system(
 				   message_template_path,
-				   gAgent.mViewerPort,
+				   port,
 				   LL_VERSION_MAJOR,
 				   LL_VERSION_MINOR,
 				   LL_VERSION_PATCH,

@@ -1461,6 +1461,9 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 		// since it's coming from the library or trash, we want to not
 		// 'take' it back to the same place.
 		item->setParent(LLUUID::null);
+		// *TODO this code isn't working - the parent (FolderID) is still
+		// set when the object is "taken".  so code on the "take" side is
+		// checking for trash and library as well (llviewermenu.cpp)
 	}
 	if (mSource == SOURCE_NOTECARD)
 	{

@@ -147,7 +147,7 @@ protected:
 
 
 // Used to view and edit an LSL that is attached to an object.
-class LLLiveLSLEditor : public LLFloater
+class LLLiveLSLEditor : public LLPreview
 {
 public: 
 	LLLiveLSLEditor(const std::string& name, const LLRect& rect,
@@ -166,7 +166,8 @@ protected:
 	virtual void draw();
 	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
-	void loadAsset(BOOL is_new = FALSE);
+	virtual void loadAsset();
+	void loadAsset(BOOL is_new);
 	void saveIfNeeded();
 
 	static void onLoad(void* userdata);

@@ -1615,6 +1615,9 @@ void LLViewerWindow::initWorldUI()
 	gStatusBar->translate(0, root_rect.getHeight() - gStatusBar->getRect().getHeight());
 
 	gViewerWindow->getRootView()->addChild(gStatusBar);
+
+	// menu holder appears on top to get first pass at all mouse events
+	gViewerWindow->getRootView()->sendChildToFront(gMenuHolder);
 }
 
 
@@ -2944,8 +2947,6 @@ void LLViewerWindow::hitObjectOrLandGlobalAsync(S32 x, S32 y_from_bot, MASK mask
 	S32 scaled_x = llround((F32)x * mDisplayScale.mV[VX]);
 	S32 scaled_y = llround((F32)y_from_bot * mDisplayScale.mV[VY]);
 
-	F32 delta_time = gAlphaFadeTimer.getElapsedTimeAndResetF32();
-
 	BOOL in_build_mode = gFloaterTools && gFloaterTools->getVisible();
 	if (in_build_mode || LLDrawPoolAlpha::sShowDebugAlpha)
 	{
@@ -2954,17 +2955,6 @@ void LLViewerWindow::hitObjectOrLandGlobalAsync(S32 x, S32 y_from_bot, MASK mask
 		pick_transparent = TRUE;
 	}
 	gPickTransparent = pick_transparent;
-
-	if (gPickTransparent)
-	{
-		gPickAlphaTargetThreshold = 0.f;
-		gPickAlphaThreshold = llmax(gPickAlphaTargetThreshold, gPickAlphaThreshold - (delta_time * 0.7f));
-	}
-	else
-	{
-		gPickAlphaTargetThreshold = 1.f;
-		gPickAlphaThreshold = llmin(gPickAlphaTargetThreshold, gPickAlphaThreshold + (delta_time * 0.7f));
-	}
 
 	gUseGLPick = FALSE;
 	mPickCallback = callback;
@@ -4014,7 +4004,6 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 				setupViewport();
 				BOOL first_time_through = (subimage_x + subimage_y == 0);
 				gPickTransparent = FALSE;
-				gPickAlphaThreshold = 0.1f;
 				gObjectList.renderObjectsForSelect(*gCamera, FALSE, !first_time_through);
 			}
 			else
@@ -4368,8 +4357,6 @@ void LLViewerWindow::stopGL(BOOL save_state)
 		LLDynamicTexture::destroyGL();
 		stop_glerror();
 
-		if(gParcelMgr) gParcelMgr->destroyGL();
-
 		gPipeline.destroyGL();
 		
 		gCone.cleanupGL();
@@ -4405,7 +4392,6 @@ void LLViewerWindow::restoreGL(const LLString& progress_message)
 		gPipeline.setUseAGP(gSavedSettings.getBOOL("RenderUseAGP"));
 		LLDynamicTexture::restoreGL();
 		LLVOAvatar::restoreGL();
-		if (gParcelMgr) gParcelMgr->restoreGL();
 
 		if (gFloaterCustomize && gFloaterCustomize->getVisible())
 		{

@@ -129,6 +129,7 @@ public:
 	LLViewerMenuHolderGL() : LLMenuHolderGL() {};
 
 	virtual BOOL hideMenus();
+	virtual const LLRect getMenuRect() const;
 	//virtual BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
 };
 

@@ -69,6 +69,8 @@ public:
 	static void onClickFriends(			void *userdata);
 	static void onDoubleClickGroup(void* userdata);
 	static void onClickPublishHelp(void *userdata);
+	static void onClickPartnerHelp(void *userdata);
+	static void onClickPartnerHelpLoadURL(S32 option, void* userdata);
 
 	// Clear out the controls anticipating new network data.
 	void clearControls();

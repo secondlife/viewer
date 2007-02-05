@@ -38,7 +38,7 @@ public:
 	virtual const LLString&	getTextLower() const { return LLString::null; }
 	virtual const BOOL		getVisible() const { return TRUE; }
 	virtual void			setWidth(S32 width) = 0;
-	virtual void			highlightText(S32 num_chars) {}
+	virtual void			highlightText(S32 offset, S32 num_chars) {}
 
 	virtual BOOL	handleClick() { return FALSE; }
 	virtual	void	setEnabled(BOOL enable) { }
@@ -57,7 +57,7 @@ public:
 	virtual S32		getHeight() const			{ return llround(mFont->getLineHeight()); }
 	virtual const LLString&		getText() const		{ return mText.getString(); }
 	virtual const BOOL			getVisible() const  { return mVisible; }
-	virtual void	highlightText(S32 num_chars) {mHighlightChars = num_chars;}
+	virtual void	highlightText(S32 offset, S32 num_chars) {mHighlightOffset = offset; mHighlightCount = num_chars;}
 	void			setText(const LLString& text);
 
 private:
@@ -68,7 +68,8 @@ private:
 	S32				mWidth;
 	S32				mEllipsisWidth;	// in pixels, of "..."
 	BOOL			mVisible;
-	S32				mHighlightChars;
+	S32				mHighlightCount;
+	S32				mHighlightOffset;
 
 	LLPointer<LLImageGL> mRoundedRectImage;
 };

@@ -22,6 +22,7 @@
 #include "llview.h"
 
 class LLMenuItemGL;
+class LLMenuHolderGL;
 
 extern S32 MENU_BAR_HEIGHT;
 extern S32 MENU_BAR_WIDTH;
@@ -144,6 +145,7 @@ public:
 
 	// LLView Functionality
 	virtual BOOL handleKeyHere( KEY key, MASK mask, BOOL called_from_parent );
+	virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask );
 	virtual void draw( void );
 
@@ -504,7 +506,8 @@ public:
 	static BOOL getKeyboardMode() { return sKeyboardMode; }
 
 	static void onFocusLost(LLView* old_focus);
-	static LLView *sDefaultMenuContainer;
+
+	static LLMenuHolderGL* sMenuContainer;
 	
 protected:
 	void createSpilloverBranch();
@@ -679,8 +682,10 @@ public:
 	virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	virtual BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
 
+	virtual const LLRect getMenuRect() const;
+	virtual BOOL hasVisibleMenu() const;
+
 	static void setActivatedItem(LLMenuItemGL* item);
-	BOOL hasVisibleMenu();
 
 protected:
 	static LLViewHandle sItemLastSelectedHandle;

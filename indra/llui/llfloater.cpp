@@ -506,7 +506,8 @@ void LLFloater::open()	/* Flawfinder: ignore */
 	if (sHostp != NULL && hostp == NULL)
 	{
 		// needs a host
-		sHostp->addFloater(this, TRUE);
+		// only select tabs if window they are hosted in is visible
+		sHostp->addFloater(this, sHostp->getVisible());
 	}
 	else if (hostp != NULL)
 	{
@@ -2578,8 +2579,6 @@ void LLMultiFloater::addFloater(LLFloater* floaterp, BOOL select_added_floater, 
 	if ( select_added_floater )
 	{
 		mTabContainer->selectLastTab();
-		// explicitly call tabopen to load preview assets, etc.
-		tabOpen((LLFloater*)mTabContainer->getCurrentPanel(), true);
 	}
 
 	floaterp->setHost(this);
@@ -2701,6 +2700,13 @@ void LLMultiFloater::setVisible(BOOL visible)
 		if (cur_floaterp)
 		{
 			cur_floaterp->setVisible(visible);
+		}
+
+		// if no tab selected, and we're being shown,
+		// select last tab to be added
+		if (visible && !cur_floaterp)
+		{
+			mTabContainer->selectLastTab();
 		}
 	}
 }

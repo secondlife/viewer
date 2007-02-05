@@ -44,6 +44,7 @@
 
 // newview includes
 #include "llagent.h"
+
 #include "llagentpilot.h"
 #include "llbox.h"
 #include "llcallingcard.h"
@@ -546,10 +547,10 @@ void init_menus()
 	// Main menu bar
 	//
 	gMenuHolder = new LLViewerMenuHolderGL();
-	gMenuHolder->setRect(LLRect(0, top - MENU_BAR_HEIGHT, width, STATUS_BAR_HEIGHT));
+	gMenuHolder->setRect(LLRect(0, top, width, 0));
 	gMenuHolder->setFollowsAll();
 
-	LLMenuGL::sDefaultMenuContainer = gMenuHolder;
+	LLMenuGL::sMenuContainer = gMenuHolder;
 
 	// Initialize actions
 	initialize_menu_actions();
@@ -583,12 +584,12 @@ void init_menus()
 	menu = new LLMenuGL(CLIENT_MENU_NAME);
 	init_client_menu(menu);
 	gMenuBarView->appendMenu( menu );
-	menu->updateParent(gMenuHolder);
+	menu->updateParent(LLMenuGL::sMenuContainer);
 
 	menu = new LLMenuGL(SERVER_MENU_NAME);
 	init_server_menu(menu);
 	gMenuBarView->appendMenu( menu );
-	menu->updateParent(gMenuHolder);
+	menu->updateParent(LLMenuGL::sMenuContainer);
 
 	gMenuBarView->createJumpKeys();
 
@@ -4145,7 +4146,7 @@ void handle_take()
 	if(category_id.notNull())
 	{
 		// there is an unambiguous destination. See if this agent has
-		// such a location and it is not in the trash.
+		// such a location and it is not in the trash or library
 		if(!gInventory.getCategory(category_id))
 		{
 			// nope, set to NULL.
@@ -4153,12 +4154,20 @@ void handle_take()
 		}
 		if(category_id.notNull())
 		{
+		        // check trash
 			LLUUID trash;
 			trash = gInventory.findCategoryUUIDForType(LLAssetType::AT_TRASH);
 			if(category_id == trash || gInventory.isObjectDescendentOf(category_id, trash))
 			{
 				category_id.setNull();
 			}
+
+			// check library
+			if(gInventory.isObjectDescendentOf(category_id, gInventoryLibraryRoot))
+			{
+				category_id.setNull();
+			}
+
 		}
 	}
 	if(category_id.isNull())
@@ -8275,6 +8284,11 @@ BOOL LLViewerMenuHolderGL::hideMenus()
 	gMenuBarView->resetMenuTrigger();
 
 	return handled;
+}
+
+const LLRect LLViewerMenuHolderGL::getMenuRect() const
+{
+	return LLRect(0, mRect.getHeight() - MENU_BAR_HEIGHT, mRect.getWidth(), STATUS_BAR_HEIGHT);
 }
 
 void handle_save_to_xml(void*)

@@ -48,6 +48,7 @@ protected:
 	BOOL			mHasRange;
 	BOOL			mPersist;
 	BOOL            mIsDefault;
+
 	static	std::set<LLControlBase*>	mChangedControls;
 	static	std::list<S32>				mFreeIDs;//These lists are used to store the ID's of registered event listeners.
 	static	std::list<S32>				mUsedIDs;
@@ -152,7 +153,10 @@ public:
 		}
 	}
 
-	/*virtual*/ void resetToDefault() { mCurrent = mDefault; mIsDefault = TRUE;}
+	/*virtual*/ void resetToDefault() 
+	{ 
+		setValue(mDefault);
+	}
 
 	virtual	~LLControl()
 	{

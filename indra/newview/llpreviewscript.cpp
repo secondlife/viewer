@@ -1268,7 +1268,7 @@ LLLiveLSLEditor::LLLiveLSLEditor(const std::string& name,
 								 const std::string& title,
 								 const LLUUID& object_id,
 								 const LLUUID& item_id) :
-	LLFloater(name, rect, title, TRUE, SCRIPT_MIN_WIDTH, SCRIPT_MIN_HEIGHT),
+	LLPreview(name, rect, title, item_id, object_id, TRUE, SCRIPT_MIN_WIDTH, SCRIPT_MIN_HEIGHT),
 	mObjectID(object_id),
 	mItemID(item_id),
 	mScriptEd(NULL),
@@ -1327,6 +1327,11 @@ LLLiveLSLEditor::~LLLiveLSLEditor()
 	LLLiveLSLEditor::sInstances.removeData(mItemID ^ mObjectID);
 }
 
+// this is called via LLPreview::loadAsset() virtual method
+void LLLiveLSLEditor::loadAsset()
+{
+	loadAsset(FALSE);
+}
 
 void LLLiveLSLEditor::loadAsset(BOOL is_new)
 {
@@ -1358,6 +1363,7 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 				mScriptEd->mEditor->setText("You are not allowed to view this script.");
 				mScriptEd->mEditor->makePristine();
 				mScriptEd->mEditor->setEnabled(FALSE);
+				mAssetStatus = PREVIEW_ASSET_LOADED;
 			}
 			else if(mItem.notNull())
 			{
@@ -1381,11 +1387,13 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 				msg->addUUIDFast(_PREHASH_ItemID, mItemID);
 				msg->sendReliable(object->getRegion()->getHost());
 				mAskedForRunningInfo = TRUE;
+				mAssetStatus = PREVIEW_ASSET_LOADING;
 			}
 			else
 			{
 				mScriptEd->mEditor->setText("");
 				mScriptEd->mEditor->makePristine();
+				mAssetStatus = PREVIEW_ASSET_LOADED;
 			}
 
 			if(item
@@ -1429,6 +1437,7 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 									LLSaleInfo::DEFAULT,
 									LLInventoryItem::II_FLAGS_NONE,
 									time_corrected());
+		mAssetStatus = PREVIEW_ASSET_LOADED;
 	}
 }
 
@@ -1448,6 +1457,7 @@ void LLLiveLSLEditor::onLoadComplete(LLVFS *vfs, const LLUUID& asset_id,
 		{
 			instance = LLLiveLSLEditor::sInstances[*xored_id];
 			instance->loadScriptText(vfs, asset_id, type);
+			instance->mAssetStatus = PREVIEW_ASSET_LOADED;
 		}
 		else
 		{
@@ -1469,6 +1479,7 @@ void LLLiveLSLEditor::onLoadComplete(LLVFS *vfs, const LLUUID& asset_id,
 			{
 				LLNotifyBox::showXml("UnableToLoadScript");
 			}
+			instance->mAssetStatus = PREVIEW_ASSET_ERROR;
 		}
 	}
 

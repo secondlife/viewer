@@ -359,6 +359,20 @@ void LLPanelAvatarSecondLife::onClickPublishHelp(void *)
 	gViewerWindow->alertXml("ClickPublishHelpAvatar");
 }
 
+// static
+void LLPanelAvatarSecondLife::onClickPartnerHelp(void *)
+{
+    gViewerWindow->alertXml("ClickPartnerHelpAvatar", onClickPartnerHelpLoadURL, (void*) NULL);
+}
+
+// static 
+void LLPanelAvatarSecondLife::onClickPartnerHelpLoadURL(S32 option, void* userdata)
+{
+  if (option == 0)
+    LLWeb::loadURL("http://secondlife.com/partner");
+}
+
+
 //-----------------------------------------------------------------------------
 // LLPanelAvatarFirstLife()
 //-----------------------------------------------------------------------------
@@ -388,6 +402,7 @@ BOOL LLPanelAvatarSecondLife::postBuild(void)
 {
 	childSetEnabled("born", FALSE);
 	childSetEnabled("partner_edit", FALSE);
+	childSetAction("partner_help",onClickPartnerHelp,this);
 	
 	childSetAction("?",onClickPublishHelp,this);
 	BOOL own_avatar = (mPanelAvatar->getAvatarID() == gAgent.getID() );

@@ -27,6 +27,7 @@ public:
 	static void show(void*);
 	static void onSettingSelect(LLUICtrl* ctrl, void* user_data);
 	static void onCommitSettings(LLUICtrl* ctrl, void* user_data);
+	static void onClickDefault(void* user_data);
 
 protected:
 	static LLFloaterSettingsDebug* sInstance;

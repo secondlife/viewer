@@ -1961,20 +1961,6 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 						<< " key " << S32(w_param) 
 						<< llendl;
 				}
-				// lower 15 bits hold key repeat count
-				S32 key_repeat_count = l_param & 0x7fff;
-				if (key_repeat_count > 1)
-				{
-					KEY translated_key;
-					gKeyboard->translateKey(w_param, &translated_key);
-					if (!gKeyboard->getKeyDown(translated_key))
-					{
-						//RN: hack for handling key repeats when we no longer recognize the key as being down
-						//This is necessary because we sometimes ignore the message queue and use getAsyncKeyState
-						// to clear key level flags before we've processed all key repeat messages
-						return 0;
-					}
-				}
 				if(gKeyboard->handleKeyDown(w_param, mask) && eat_keystroke)
 				{
 					return 0;

@@ -772,7 +772,7 @@ BOOL LLNetMap::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	if (menu)
 	{
 		menu->buildDrawLabels();
-		menu->updateParent(gMenuHolder);
+		menu->updateParent(LLMenuGL::sMenuContainer);
 		LLMenuGL::showPopup(this, menu, x, y);
 	}
 	return TRUE;

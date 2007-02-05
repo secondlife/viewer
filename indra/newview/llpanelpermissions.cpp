@@ -710,6 +710,11 @@ void LLPanelPermissions::refresh()
 	{
 		RadioSaleType->setSelectedIndex((S32)sale_type - 1);
 	}
+	else
+	{
+		// default option is sell copy, determined to be safest
+		RadioSaleType->setSelectedIndex((S32)LLSaleInfo::FS_COPY - 1);
+	}
 
 	if (is_for_sale)
 	{

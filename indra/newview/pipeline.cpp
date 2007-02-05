@@ -107,8 +107,7 @@ S32		gTrivialAccepts = 0;
 BOOL	gRenderForSelect = FALSE;
 
 BOOL	gUsePickAlpha = TRUE;
-F32		gPickAlphaThreshold = 0.f;
-F32		gPickAlphaTargetThreshold = 0.f;
+F32		gPickAlphaThreshold = 0.2f;
 
 //glsl parameter tables
 const char* LLPipeline::sReservedAttribs[] =

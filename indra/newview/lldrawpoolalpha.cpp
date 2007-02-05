@@ -443,7 +443,14 @@ void LLDrawPoolAlpha::renderForSelect()
 	LLGLSObjectSelectAlpha gls_alpha;
 
 	glBlendFunc(GL_ONE, GL_ZERO);
-	glAlphaFunc(gPickTransparent ? GL_GEQUAL : GL_GREATER, 0.f);
+	if (gPickTransparent)
+	{
+		glAlphaFunc(GL_GEQUAL, 0.f);
+	}
+	else
+	{
+		glAlphaFunc(GL_GEQUAL, gPickAlphaThreshold);
+	}
 
 	bindGLVertexPointer();
 	bindGLTexCoordPointer();
@@ -464,27 +471,10 @@ void LLDrawPoolAlpha::renderForSelect()
 	LLDynamicArray<LLFace*>* distance_bins;
 	distance_bins = mDistanceBins;
 
-	S32 j;
-	S32 num_bins_no_alpha_test = (gPickAlphaThreshold != 0.f) ? 
-		(NUM_ALPHA_BINS - llmax(2, (S32)(ALPHA_FALLOFF_START_DISTANCE * mInvBinSize))) : 
-		NUM_ALPHA_BINS;
-
 	S32 i;
-	for (i = 0; i < num_bins_no_alpha_test; i++)
-	{
-		S32 distance_bin_size = distance_bins[i].count();
-		for (j = 0; j < distance_bin_size; j++)
-		{
-			const LLFace &face = *distance_bins[i][j];
-			if (face.getDrawable() && !face.getDrawable()->isDead() && (face.getViewerObject()->mGLName))
-			{
-				face.bindTexture();
-				face.renderForSelect();
-			}
-		}
-	}
+	S32 j;
 
-	for (i = num_bins_no_alpha_test; i < NUM_ALPHA_BINS; i++)
+	for (i = 0; i < NUM_ALPHA_BINS; i++)
 	{
 		S32 distance_bin_size = distance_bins[i].count();
 		if (distance_bin_size)
@@ -492,8 +482,6 @@ void LLDrawPoolAlpha::renderForSelect()
 			for (j = 0; j < distance_bin_size; j++)
 			{
 				const LLFace &face = *distance_bins[i][j];
-
-				glAlphaFunc(GL_GEQUAL, face.mAlphaFade * gPickAlphaTargetThreshold);
 
 				if (face.getDrawable() && !face.getDrawable()->isDead() && (face.getViewerObject()->mGLName))
 				{

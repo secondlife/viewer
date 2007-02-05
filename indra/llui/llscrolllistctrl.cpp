@@ -143,7 +143,8 @@ LLScrollListText::LLScrollListText( const LLString& text, const LLFontGL* font, 
 	mFontStyle( font_style ),
 	mWidth( width ),
 	mVisible( visible ),
-	mHighlightChars( 0 )
+	mHighlightCount( 0 ),
+	mHighlightOffset( 0 )
 {
 	if (use_color)
 	{
@@ -197,13 +198,14 @@ void LLScrollListText::drawToWidth(S32 width, const LLColor4& color, const LLCol
 		display_color = &color;
 	}
 
-	if (mHighlightChars > 0)
+	if (mHighlightCount > 0)
 	{
 		mRoundedRectImage->bind();
 		glColor4fv(highlight_color.mV);
-		gl_segmented_rect_2d_tex(-2, 
+		S32 left = mFont->getWidth(mText.getString(), 0, mHighlightOffset);
+		gl_segmented_rect_2d_tex(left - 2, 
 				llround(mFont->getLineHeight()) + 1, 
-				mFont->getWidth(mText.getString(), 0, mHighlightChars) + 1, 
+				left + mFont->getWidth(mText.getString(), mHighlightOffset, mHighlightCount) + 1, 
 				1, 
 				mRoundedRectImage->getWidth(), 
 				mRoundedRectImage->getHeight(), 
@@ -1141,11 +1143,17 @@ BOOL LLScrollListCtrl::selectSimpleItemByPrefix(const LLWString& target, BOOL ca
 			{
 				LLWString::toLower(item_label);
 			}
+			// remove extraneous whitespace from searchable label
+			LLWString trimmed_label = item_label;
+			LLWString::trim(trimmed_label);
 			
-			BOOL select = item->getEnabled() && !item_label.compare(0, target_len, target_trimmed);
+			BOOL select = item->getEnabled() && trimmed_label.compare(0, target_trimmed.size(), target_trimmed) == 0;
 
 			if (select)
 			{
+				// find offset of matching text (might have leading whitespace)
+				S32 offset = item_label.find(target_trimmed);
+				cellp->highlightText(offset, target_trimmed.size());
 				selectItem(item);
 				found = TRUE;
 				break;
@@ -1447,6 +1455,9 @@ BOOL LLScrollListCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = LLView::childrenHandleMouseDown(x, y, mask) != NULL;
 
+	// set keyboard focus first, in case click action wants to move focus elsewhere
+	setFocus(TRUE);
+
 	if( !handled && mCanSelect)
 	{
 		LLScrollListItem* hit_item = hitItem(x, y);
@@ -1538,8 +1549,6 @@ BOOL LLScrollListCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 			mLastSelected = NULL;
 		}
 	}
-
-	gFocusMgr.setKeyboardFocus(this, NULL);
 
 	return TRUE;
 }
@@ -1739,7 +1748,7 @@ BOOL LLScrollListCtrl::handleKeyHere(KEY key,MASK mask, BOOL called_from_parent 
 						LLScrollListCell* cellp = getFirstSelected()->getColumn(mSearchColumn);
 						if (cellp)
 						{
-							cellp->highlightText(0);
+							cellp->highlightText(0, 0);
 						}
 					}
 				}
@@ -1747,13 +1756,6 @@ BOOL LLScrollListCtrl::handleKeyHere(KEY key,MASK mask, BOOL called_from_parent 
 				{
 					// update search string only on successful match
 					mSearchTimer.reset();
-
-					// highlight current search on matching item
-					LLScrollListCell* cellp = getFirstSelected()->getColumn(mSearchColumn);
-					if (cellp)
-					{
-						cellp->highlightText(mSearchString.size());
-					}
 
 					if (mCommitOnKeyboardMovement
 						&& !mCommitOnSelectionChange) 
@@ -1793,13 +1795,6 @@ BOOL LLScrollListCtrl::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_
 		// update search string only on successful match
 		mSearchString += uni_char;
 		mSearchTimer.reset();
-
-		// highlight current search on matching item
-		LLScrollListCell* cellp = getFirstSelected()->getColumn(mSearchColumn);
-		if (cellp)
-		{
-			cellp->highlightText(mSearchString.size());
-		}
 
 		if (mCommitOnKeyboardMovement
 			&& !mCommitOnSelectionChange) 
@@ -1843,7 +1838,7 @@ BOOL LLScrollListCtrl::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_
 				if (item->getEnabled() && LLStringOps::toLower(item_label[0]) == uni_char)
 				{
 					selectItem(item);
-					cellp->highlightText(1);
+					cellp->highlightText(0, 1);
 					mSearchTimer.reset();
 
 					if (mCommitOnKeyboardMovement
@@ -1906,7 +1901,7 @@ void LLScrollListCtrl::selectItem(LLScrollListItem* itemp, BOOL select_single_it
 			LLScrollListCell* cellp = mLastSelected->getColumn(mSearchColumn);
 			if (cellp)
 			{
-				cellp->highlightText(0);
+				cellp->highlightText(0, 0);
 			}
 		}
 		if (select_single_item)
@@ -1934,7 +1929,7 @@ void LLScrollListCtrl::deselectItem(LLScrollListItem* itemp)
 		LLScrollListCell* cellp = itemp->getColumn(mSearchColumn);
 		if (cellp)
 		{
-			cellp->highlightText(0);
+			cellp->highlightText(0, 0);
 		}
 		mSelectionChanged = TRUE;
 	}

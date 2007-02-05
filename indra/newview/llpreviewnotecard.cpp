@@ -91,8 +91,12 @@ LLPreviewNotecard::LLPreviewNotecard(const std::string& name,
 		}
 	}	
 
-	reshape(curRect.getWidth(), curRect.getHeight(), TRUE);
-	setRect(curRect);
+	// only assert shape if not hosted in a multifloater
+	if (!getHost())
+	{
+		reshape(curRect.getWidth(), curRect.getHeight(), TRUE);
+		setRect(curRect);
+	}
 			
 	childSetVisible("lock", FALSE);	
 	

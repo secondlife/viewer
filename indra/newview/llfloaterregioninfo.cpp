@@ -305,11 +305,19 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	panel->childSetValue("restrict_pushobject", (region_flags & REGION_FLAGS_RESTRICT_PUSHOBJECT) ? TRUE : FALSE );
 	panel->childSetValue("allow_land_resell_check", (region_flags & REGION_FLAGS_BLOCK_LAND_RESELL) ? FALSE : TRUE );
 	panel->childSetValue("allow_parcel_changes_check", (region_flags & REGION_FLAGS_ALLOW_PARCEL_CHANGES) ? TRUE : FALSE );
-
 	panel->childSetValue("agent_limit_spin", LLSD((F32)agent_limit) );
 	panel->childSetValue("object_bonus_spin", LLSD(object_bonus_factor) );
-
 	panel->childSetValue("access_combo", LLSD(LLViewerRegion::accessToString(sim_access)) );
+
+
+	// detect teen grid for maturity
+	LLViewerRegion* region = gAgent.getRegion();
+
+	U32 parent_estate_id;
+	msg->getU32("RegionInfo", "ParentEstateID", parent_estate_id);
+	BOOL teen_grid = (parent_estate_id == 5);  // *TODO add field to estate table and test that
+	panel->childSetEnabled("access_combo", gAgent.isGodlike() || (region && region->canManageEstate() && !teen_grid));
+	
 
 	// DEBUG PANEL
 	panel = LLUICtrlFactory::getPanelByName(tab, "Debug");
@@ -330,7 +338,6 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	panel->childSetValue("terrain_lower_spin", LLSD(terrain_lower_limit));
 	panel->childSetValue("use_estate_sun_check", LLSD(use_estate_sun));
 
-	LLViewerRegion* region = gAgent.getRegion();
 	BOOL allow_modify = gAgent.isGodlike() || (region && region->canManageEstate());
 	panel->childSetValue("fixed_sun_check", LLSD((BOOL)(region_flags & REGION_FLAGS_SUN_FIXED)));
 	panel->childSetEnabled("fixed_sun_check", allow_modify && !use_estate_sun);
@@ -506,7 +513,8 @@ bool LLPanelRegionGeneralInfo::refreshFromRegion(LLViewerRegion* region)
 	setCtrlsEnabled(allow_modify);
 	childDisable("apply_btn");
 	childSetEnabled("access_text", allow_modify);
-	childSetEnabled("access_combo", allow_modify);
+	// childSetEnabled("access_combo", allow_modify);
+	// now set in processRegionInfo for teen grid detection
 	childSetEnabled("kick_btn", allow_modify);
 	childSetEnabled("kick_all_btn", allow_modify);
 	childSetEnabled("im_btn", allow_modify);

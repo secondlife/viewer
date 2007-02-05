@@ -1254,7 +1254,7 @@ void LLVFS::eraseBlockLength(LLVFSBlock *block)
 	}
 	if (iter == end)
 	{
-		llerrs << "eraseBlock could not find block" << llendl;
+		llwarns << "eraseBlock could not find block" << llendl;
 	}
 }
 

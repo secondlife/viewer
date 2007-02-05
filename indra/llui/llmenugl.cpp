@@ -43,7 +43,7 @@
 #include <boost/tokenizer.hpp>
 
 // static
-LLView *LLMenuGL::sDefaultMenuContainer = NULL;
+LLMenuHolderGL *LLMenuGL::sMenuContainer = NULL;
 
 S32 MENU_BAR_HEIGHT = 0;
 S32 MENU_BAR_WIDTH = 0;
@@ -392,7 +392,7 @@ void LLMenuItemGL::doIt( void )
 		&& !getMenu()->getTornOff() 
 		&& getMenu()->getVisible())
 	{
-		((LLMenuHolderGL*)getMenu()->getParent())->hideMenus();
+		LLMenuGL::sMenuContainer->hideMenus();
 	}
 }
 
@@ -454,16 +454,26 @@ BOOL LLMenuItemGL::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 
 BOOL LLMenuItemGL::handleMouseUp( S32 x, S32 y, MASK )
 {
-	//llinfos << mLabel.c_str() << " handleMouseUp " << x << "," << y
-	//	<< llendl;
 	if (mEnabled)
 	{
 		// switch to mouse navigation mode
 		LLMenuGL::setKeyboardMode(FALSE);
 
 		doIt();
-		setHighlight(FALSE);
 		make_ui_sound("UISndClickRelease");
+		return TRUE;
+	}
+	return FALSE;
+}
+
+BOOL LLMenuItemGL::handleMouseDown( S32 x, S32 y, MASK )
+{
+	if (mEnabled)
+	{
+		// switch to mouse navigation mode
+		LLMenuGL::setKeyboardMode(FALSE);
+
+		setHighlight(TRUE);
 		return TRUE;
 	}
 	else
@@ -1483,6 +1493,9 @@ void LLMenuItemBranchGL::openMenu()
 	}
 	else if( !mBranch->getVisible() )
 	{
+		// get valid rectangle for menus
+		const LLRect menu_region_rect = LLMenuGL::sMenuContainer->getMenuRect();
+
 		mBranch->arrange();
 
 		LLRect rect = mBranch->getRect();
@@ -1505,13 +1518,13 @@ void LLMenuItemBranchGL::openMenu()
 		mBranch->localPointToOtherView( 0, 0, &x, &y, mBranch->getParent() ); 
 		S32 delta_x = 0;
 		S32 delta_y = 0;
-		if( y < 0 )
+		if( y < menu_region_rect.mBottom )
 		{
-			delta_y = -y;
+			delta_y = menu_region_rect.mBottom - y;
 		}
 
-		S32 window_width = mBranch->getParent()->getRect().getWidth();
-		if( x > window_width - rect.getWidth() )
+		S32 menu_region_width = menu_region_rect.getWidth();
+		if( x - menu_region_rect.mLeft > menu_region_width - rect.getWidth() )
 		{
 			// move sub-menu over to left side
 			delta_x = llmax(-x, (-1 * (rect.getWidth() + mRect.getWidth())));
@@ -1942,9 +1955,9 @@ void LLMenuGL::parseChildXML(LLXMLNodePtr child, LLView *parent, LLUICtrlFactory
 		// SUBMENU
 		LLMenuGL *submenu = (LLMenuGL*)LLMenuGL::fromXML(child, parent, factory);
 		appendMenu(submenu);
-		if (LLMenuGL::sDefaultMenuContainer != NULL)
+		if (LLMenuGL::sMenuContainer != NULL)
 		{
-			submenu->updateParent(LLMenuGL::sDefaultMenuContainer);
+			submenu->updateParent(LLMenuGL::sMenuContainer);
 		}
 		else
 		{
@@ -2331,8 +2344,10 @@ void LLMenuGL::arrange( void )
 
 	if( mItems.size() ) 
 	{
-		U32 max_width = (getParent() != NULL) ? getParent()->getRect().getWidth() : U32_MAX;
-		U32 max_height = (getParent() != NULL) ? getParent()->getRect().getHeight() : U32_MAX;
+		const LLRect menu_region_rect = LLMenuGL::sMenuContainer ? LLMenuGL::sMenuContainer->getMenuRect() : LLRect(0, S32_MAX, S32_MAX, 0);
+
+		U32 max_width = menu_region_rect.getWidth();
+		U32 max_height = menu_region_rect.getHeight();
 		// *FIX: create the item first and then ask for its dimensions?
 		S32 spillover_item_width = PLAIN_PAD_PIXELS + LLFontGL::sSansSerif->getWidth( "More" );
 		S32 spillover_item_height = llround(LLFontGL::sSansSerif->getLineHeight()) + MENU_ITEM_PADDING;
@@ -2453,7 +2468,7 @@ void LLMenuGL::createSpilloverBranch()
 		// technically, you can't tear off spillover menus, but we're passing the handle
 		// along just to be safe
 		mSpilloverMenu = new LLMenuGL("More", "More", mParentFloaterHandle);
-		mSpilloverMenu->updateParent(getParent());
+		mSpilloverMenu->updateParent(LLMenuGL::sMenuContainer);
 		// Inherit colors
 		mSpilloverMenu->setBackgroundColor( mBackgroundColor );
 		mSpilloverMenu->setCanTearOff(FALSE);
@@ -3138,6 +3153,8 @@ void hide_top_view( LLView* view )
 // static
 void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 {
+	const LLRect menu_region_rect = LLMenuGL::sMenuContainer->getMenuRect();
+
 	const S32 HPAD = 2;
 	LLRect rect = menu->getRect();
 	//LLView* cur_view = spawning_view;
@@ -3158,13 +3175,15 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 	//									&left, &bottom ); 
 	S32 delta_x = 0;
 	S32 delta_y = 0;
-	if( bottom < 0 )
+	if( bottom < menu_region_rect.mBottom )
 	{
-		delta_y = -bottom;
+		// At this point, we need to move the context menu to the
+		// other side of the mouse.
+		//delta_y = menu_region_rect.mBottom - bottom;
+		delta_y = (rect.getHeight() + 2 * HPAD);
 	}
 
-	S32 parent_width = menu->getParent()->getRect().getWidth();
-	if( left > parent_width - rect.getWidth() )
+	if( left > menu_region_rect.mRight - rect.getWidth() )
 	{
 		// At this point, we need to move the context menu to the
 		// other side of the mouse.
@@ -3536,7 +3555,7 @@ BOOL LLPieMenu::handleMouseUp( S32 x, S32 y, MASK mask )
 	if (!handled && !mUseInfiniteRadius)
 	{
 		// call hidemenus to make sure transient selections get cleared
-		((LLMenuHolderGL*)getParent())->hideMenus();
+		sMenuContainer->hideMenus();
 	}
 
 	if (mFirstMouseDown)
@@ -3847,10 +3866,9 @@ void LLPieMenu::show(S32 x, S32 y, BOOL mouse_down)
 	S32 width = mRect.getWidth();
 	S32 height = mRect.getHeight();
 
-	LLView* parent_view = getParent();
-	S32 menu_region_width = parent_view->getRect().getWidth();
-	S32 menu_region_height = parent_view->getRect().getHeight();
+	const LLRect menu_region_rect = LLMenuGL::sMenuContainer->getMenuRect();
 
+	LLView* parent_view = getParent();
 	BOOL moved = FALSE;
 
 	S32 local_x, local_y;
@@ -3860,36 +3878,36 @@ void LLPieMenu::show(S32 x, S32 y, BOOL mouse_down)
 	arrange();
 
 	// Adjust the pie rectangle to keep it on screen
-	if (mRect.mLeft < 0) 
+	if (mRect.mLeft < menu_region_rect.mLeft) 
 	{
-		//mShiftHoriz = 0 - mRect.mLeft;
+		//mShiftHoriz = menu_region_rect.mLeft - mRect.mLeft;
 		//mRect.translate( mShiftHoriz, 0 );
-		mRect.translate( 0 - mRect.mLeft, 0 );
+		mRect.translate( menu_region_rect.mLeft - mRect.mLeft, 0 );
 		moved = TRUE;
 	}
 
-	if (mRect.mRight > menu_region_width) 
+	if (mRect.mRight > menu_region_rect.mRight) 
 	{
-		//mShiftHoriz = menu_region_width - mRect.mRight;
+		//mShiftHoriz = menu_region_rect.mRight - mRect.mRight;
 		//mRect.translate( mShiftHoriz, 0);
-		mRect.translate( menu_region_width - mRect.mRight, 0 );
+		mRect.translate( menu_region_rect.mRight - mRect.mRight, 0 );
 		moved = TRUE;
 	}
 
-	if (mRect.mBottom < 0)
+	if (mRect.mBottom < menu_region_rect.mBottom)
 	{
-		//mShiftVert = -mRect.mBottom;
+		//mShiftVert = menu_region_rect.mBottom - mRect.mBottom;
 		//mRect.translate( 0, mShiftVert );
-		mRect.translate( 0, 0 - mRect.mBottom );
+		mRect.translate( 0, menu_region_rect.mBottom - mRect.mBottom );
 		moved = TRUE;
 	}
 
 
-	if (mRect.mTop > menu_region_height)
+	if (mRect.mTop > menu_region_rect.mTop)
 	{
-		//mShiftVert = menu_region_height - mRect.mTop;
+		//mShiftVert = menu_region_rect.mTop - mRect.mTop;
 		//mRect.translate( 0, mShiftVert );
-		mRect.translate( 0, menu_region_height - mRect.mTop );
+		mRect.translate( 0, menu_region_rect.mTop - mRect.mTop );
 		moved = TRUE;
 	}
 
@@ -4048,9 +4066,9 @@ LLView* LLMenuBarGL::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory 
 				menu->setCanTearOff(TRUE, parent_handle);
 			}
 			menubar->appendMenu(menu);
-			if (LLMenuGL::sDefaultMenuContainer != NULL)
+			if (LLMenuGL::sMenuContainer != NULL)
 			{
-				menu->updateParent(LLMenuGL::sDefaultMenuContainer);
+				menu->updateParent(LLMenuGL::sMenuContainer);
 			}
 			else
 			{
@@ -4411,7 +4429,7 @@ void LLMenuHolderGL::reshape(S32 width, S32 height, BOOL called_from_parent)
 	LLView::reshape(width, height, called_from_parent);
 }
 
-BOOL LLMenuHolderGL::hasVisibleMenu()
+BOOL LLMenuHolderGL::hasVisibleMenu() const
 {
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 	{
@@ -4422,6 +4440,11 @@ BOOL LLMenuHolderGL::hasVisibleMenu()
 		}
 	}
 	return FALSE;
+}
+
+const LLRect LLMenuHolderGL::getMenuRect() const
+{
+	return getLocalRect();
 }
 
 BOOL LLMenuHolderGL::hideMenus()
