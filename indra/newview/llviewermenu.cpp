@@ -430,8 +430,6 @@ void handle_dump_image_list(void*);
 void handle_fullscreen_debug(void*);
 void handle_crash(void*);
 void handle_dump_followcam(void*);
-void handle_viewer_enable_circuit_log(void*);
-void handle_viewer_disable_circuit_log(void*);
 void handle_viewer_enable_message_log(void*);
 void handle_viewer_disable_message_log(void*);
 void handle_send_postcard(void*);
@@ -818,10 +816,6 @@ void init_client_menu(LLMenuGL* menu)
 		LLMenuGL* sub = NULL;
 		sub = new LLMenuGL("Network");
 
-		sub->append(new LLMenuItemCallGL("Enable Circuit Log",  
-			&handle_viewer_enable_circuit_log,  NULL));
-		sub->append(new LLMenuItemCallGL("Disable Circuit Log", 
-			&handle_viewer_disable_circuit_log, NULL));
 		sub->append(new LLMenuItemCallGL("Enable Message Log",  
 			&handle_viewer_enable_message_log,  NULL));
 		sub->append(new LLMenuItemCallGL("Disable Message Log", 
@@ -1306,11 +1300,6 @@ void init_server_menu(LLMenuGL* menu)
 		sub_menu->append(new LLMenuItemCallGL("Normal Logging", 
 			&handle_normal_llinfo_log, &enable_god_customer_service));
 
-		sub_menu->appendSeparator();
-		sub_menu->append(new LLMenuItemCallGL("Enable Circuit Log",  
-			&handle_sim_enable_circuit_log,  &enable_god_customer_service));
-		sub_menu->append(new LLMenuItemCallGL("Disable Circuit Log", 
-			&handle_sim_disable_circuit_log, &enable_god_customer_service));
 		sub_menu->appendSeparator();
 		sub_menu->append(new LLMenuItemCallGL("Enable Message Log",  
 			&handle_sim_enable_message_log,  &enable_god_customer_service));
@@ -6373,24 +6362,6 @@ class LLWorldForceSun : public view_listener_t
 void handle_dump_followcam(void*)
 {
 	LLFollowCamMgr::dump();
-}
-
-void handle_viewer_enable_circuit_log(void*)
-{
-	llinfos << "Showing circuit information every " << gMessageSystem->mCircuitPrintFreq << " seconds" << llendl;
-	gErrorStream.setLevel( LLErrorStream::DEBUG );
-	gErrorStream.setDebugFlag( LLERR_CIRCUIT_INFO );
-	// and dump stuff out immediately
-	gMessageSystem->dumpCircuitInfo();
-}
-
-void handle_viewer_disable_circuit_log(void*)
-{
-	llinfos << "Hiding circuit information" << llendl;
-#if !LL_DEBUG
-	gErrorStream.setLevel( LLErrorStream::INFO );
-#endif
-	gErrorStream.clearDebugFlag( LLERR_CIRCUIT_INFO );
 }
 
 void handle_viewer_enable_message_log(void*)

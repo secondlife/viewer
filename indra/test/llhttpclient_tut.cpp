@@ -16,6 +16,7 @@
 #include "lltut.h"
 
 #include "llhttpclient.h"
+#include "llformat.h"
 #include "llpipeutil.h"
 #include "llpumpio.h"
 

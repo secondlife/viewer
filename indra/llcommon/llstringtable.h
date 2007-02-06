@@ -10,6 +10,8 @@
 #ifndef LL_STRING_TABLE_H
 #define LL_STRING_TABLE_H
 
+#include "lldefs.h"
+#include "llformat.h"
 #include "llstl.h"
 #include <list>
 #include <set>

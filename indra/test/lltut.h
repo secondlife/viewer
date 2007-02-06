@@ -68,7 +68,13 @@ namespace tut
 	void ensure_starts_with(const std::string& msg,
 		const std::string& actual, const std::string& expectedStart);
 
+	void ensure_ends_with(const std::string& msg,
+		const std::string& actual, const std::string& expectedEnd);
+
 	void ensure_contains(const std::string& msg,
+		const std::string& actual, const std::string& expectedSubString);
+
+	void ensure_does_not_contain(const std::string& msg,
 		const std::string& actual, const std::string& expectedSubString);
 }
 

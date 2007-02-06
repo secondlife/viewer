@@ -1,0 +1,98 @@
+/** 
+ * @file llerrorlegacy.h
+ * @date   January 2007
+ * @brief old things from the older error system
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
+#ifndef LL_LLERRORLEGACY_H
+#define LL_LLERRORLEGACY_H
+
+
+
+/*
+	LEGACY -- DO NOT USE THIS STUFF ANYMORE
+*/
+
+// Specific error codes
+const int LL_ERR_NOERR = 0;
+const int LL_ERR_ASSET_REQUEST_FAILED = -1;
+//const int LL_ERR_ASSET_REQUEST_INVALID = -2;
+const int LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE = -3;
+const int LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE = -4;
+const int LL_ERR_INSUFFICIENT_PERMISSIONS = -5;
+const int LL_ERR_EOF = -39;
+const int LL_ERR_CANNOT_OPEN_FILE = -42;
+const int LL_ERR_FILE_NOT_FOUND = -43;
+const int LL_ERR_FILE_EMPTY     = -44;
+const int LL_ERR_TCP_TIMEOUT    = -23016;
+const int LL_ERR_CIRCUIT_GONE   = -23017;
+
+
+
+// Define one of these for different error levels in release...
+// #define RELEASE_SHOW_DEBUG // Define this if you want your release builds to show lldebug output.
+#define RELEASE_SHOW_INFO // Define this if you want your release builds to show llinfo output
+#define RELEASE_SHOW_WARN // Define this if you want your release builds to show llwarn output.
+
+
+//////////////////////////////////////////
+//
+//  Implementation - ignore
+//
+//
+#ifdef _DEBUG
+#define SHOW_DEBUG
+#define SHOW_WARN
+#define SHOW_INFO
+#define SHOW_ASSERT
+#else // _DEBUG
+
+#ifdef RELEASE_SHOW_DEBUG
+#define SHOW_DEBUG
+#endif
+
+#ifdef RELEASE_SHOW_WARN
+#define SHOW_WARN
+#endif
+
+#ifdef RELEASE_SHOW_INFO
+#define SHOW_INFO
+#endif
+
+#ifdef RELEASE_SHOW_ASSERT
+#define SHOW_ASSERT
+#endif
+
+#endif // _DEBUG
+
+
+
+#define lldebugst(type)			lldebugs
+#define llendflush				llendl
+
+
+#define llerror(msg, num)		llerrs << "Error # " << num << ": " << msg << llendl;
+
+#define llwarning(msg, num)		llwarns << "Warning # " << num << ": " << msg << llendl;
+
+#ifdef SHOW_ASSERT
+#define llassert(func)			if (!(func)) llerrs << "ASSERT (" << #func << ")" << llendl;
+#else
+#define llassert(func)
+#endif
+#define llassert_always(func)	if (!(func)) llerrs << "ASSERT (" << #func << ")" << llendl;
+
+#ifdef SHOW_ASSERT
+#define llverify(func)			if (!(func)) llerrs << "ASSERT (" << #func << ")" << llendl;
+#else
+#define llverify(func)			(func); // get rid of warning C4189
+#endif
+
+// handy compile-time assert - enforce those template parameters! 
+#define cassert(expn) typedef char __C_ASSERT__[(expn)?1:-1]   /* Flawfinder: ignore */
+	//XXX: used in two places in llcommon/llskipmap.h
+
+#endif // LL_LLERRORLEGACY_H

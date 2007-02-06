@@ -4402,33 +4402,6 @@ void process_secured_template_checksum_request(LLMessageSystem* msg, void**)
 	send_template_reply(msg, token);
 }
 
-void process_log_control(LLMessageSystem* msg, void**)
-{
-	U8 level;
-	U32 mask;
-	BOOL time;
-	BOOL location;
-	BOOL remote_infos;
-
-	msg->getU8Fast(_PREHASH_Options, _PREHASH_Level, level);
-	msg->getU32Fast(_PREHASH_Options, _PREHASH_Mask, mask);
-	msg->getBOOLFast(_PREHASH_Options, _PREHASH_Time, time);
-	msg->getBOOLFast(_PREHASH_Options, _PREHASH_Location, location);
-	msg->getBOOLFast(_PREHASH_Options, _PREHASH_RemoteInfos, remote_infos);
-
-	gErrorStream.setLevel(LLErrorStream::ELevel(level));
-	gErrorStream.setDebugMask(mask);
-	gErrorStream.setTime(time);
-	gErrorStream.setPrintLocation(location);
-	gErrorStream.setElevatedRemote(remote_infos);
-
-	llinfos << "Logging set to level " << gErrorStream.getLevel() 
-		<< " mask " << std::hex << gErrorStream.getDebugMask() << std::dec
-		<< " time " << gErrorStream.getTime()
-		<< " loc " << gErrorStream.getPrintLocation()
-		<< llendl;
-}
-
 void process_log_messages(LLMessageSystem* msg, void**)
 {
 	U8 log_message;
@@ -4749,7 +4722,6 @@ BOOL start_messaging_system(
 	gMessageSystem->setHandlerFuncFast(_PREHASH_PacketAck,             process_packet_ack,	    NULL);
 	gMessageSystem->setHandlerFuncFast(_PREHASH_TemplateChecksumRequest,  process_template_checksum_request,	NULL);
 	gMessageSystem->setHandlerFuncFast(_PREHASH_SecuredTemplateChecksumRequest,  process_secured_template_checksum_request,	NULL);
-	gMessageSystem->setHandlerFuncFast(_PREHASH_LogControl,			process_log_control,	NULL);
 	gMessageSystem->setHandlerFuncFast(_PREHASH_LogMessages,			process_log_messages,	NULL);
 	gMessageSystem->setHandlerFuncFast(_PREHASH_CreateTrustedCircuit,
 				       process_create_trusted_circuit,

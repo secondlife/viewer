@@ -12,6 +12,7 @@
 #include <stdlib.h>
 
 #include "llbufferstream.h"
+#include "lldefs.h"
 #include "llframetimer.h"
 #include "llpumpio.h"
 #include "llrand.h"

@@ -28,6 +28,7 @@
 #include "llcrypto.h"
 #include "lldir.h"
 #include "lleconomy.h"
+#include "llerrorcontrol.h"
 #include "llfiltersd2xmlrpc.h"
 #include "llfocusmgr.h"
 #include "imageids.h"
@@ -421,7 +422,6 @@ BOOL idle_startup()
 								  invalid_message_callback,
 								  NULL);
 
-			gErrorStream.setUTCTimestamp(gLogUTC);
 			if (gSavedSettings.getBOOL("LogMessages") || gLogMessages)
 			{
 				llinfos << "Message logging activated!" << llendl;
@@ -1679,7 +1679,7 @@ BOOL idle_startup()
 			// Move the progress view in front of the UI
 			gViewerWindow->moveProgressViewToFront();
 
-			gErrorStream.setFixedBuffer(gDebugView->mDebugConsolep);
+			LLError::logToFixedBuffer(gDebugView->mDebugConsolep);
 			// set initial visibility of debug console
 			gDebugView->mDebugConsolep->setVisible(gSavedSettings.getBOOL("ShowDebugConsole"));
 			gDebugView->mStatViewp->setVisible(gSavedSettings.getBOOL("ShowDebugStats"));

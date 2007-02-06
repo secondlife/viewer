@@ -178,6 +178,7 @@ void llifstream::open(const char* _Filename,	/* Flawfinder: ignore */
 	}
 	llassert(_Filebuffer == NULL);
 	_Filebuffer = new _Myfb(filep);
+	_ShouldClose = true;
 	_Myios::init(_Filebuffer);
 }
 
@@ -189,13 +190,17 @@ bool llifstream::is_open() const
 }
 llifstream::~llifstream()
 {	
+	if (_ShouldClose)
+	{
+		close();
+	}
 	delete _Filebuffer;
 }
 
 llifstream::llifstream(const char *_Filename,
 	ios_base::openmode _Mode,
 	int _Prot)
-	: std::basic_istream< char , std::char_traits< char > >(NULL,true),_Filebuffer(NULL)
+	: std::basic_istream< char , std::char_traits< char > >(NULL,true),_Filebuffer(NULL),_ShouldClose(false)
 
 {	// construct with named file and specified mode
 	open(_Filename, _Mode | ios_base::in, _Prot);	/* Flawfinder: ignore */

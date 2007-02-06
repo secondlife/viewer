@@ -187,6 +187,8 @@ class LLMessagePollInfo;
 
 class LLMessageSystem
 {
+	LOG_CLASS(LLMessageSystem);
+	
 public:
 	U8										mSendBuffer[MAX_BUFFER_SIZE];
 	// Encoded send buffer needs to be slightly larger since the zero
@@ -757,7 +759,6 @@ BOOL start_messaging_system(
 void end_messaging_system();
 
 void null_message_callback(LLMessageSystem *msg, void **data);
-void process_log_control(LLMessageSystem* msg, void**);
 
 //
 // Inlines

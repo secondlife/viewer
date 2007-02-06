@@ -63,8 +63,6 @@
 #include "lldqueueptr.h"
 #include "llendianswizzle.h"
 #include "llerror.h"
-#include "llerrorbuffer.h"
-#include "llerrorstream.h"
 #include "llfasttimer.h"
 #include "llfixedbuffer.h"
 #include "llframetimer.h"

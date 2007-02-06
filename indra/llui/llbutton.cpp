@@ -584,7 +584,7 @@ void LLButton::draw()
 		else
 		{
 			// no image
-			llalerts << "No image for button " << mName << llendl;
+			llwarns << "No image for button " << mName << llendl;
 			// draw it in pink so we can find it
 			gl_rect_2d(0, mRect.getHeight(), mRect.getWidth(), 0, LLColor4::pink1, FALSE);
 		}

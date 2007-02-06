@@ -8,24 +8,56 @@
 #include "linden_common.h"
 
 #include "lllivefile.h"
+#include "llframetimer.h"
+#include "lltimer.h"
 
+class LLLiveFile::Impl
+{
+public:
+	Impl(const std::string &filename, const F32 refresh_period);
+	~Impl();
+	
+	bool check();
+	
+	
+	bool mForceCheck;
+	F32 mRefreshPeriod;
+	LLFrameTimer mRefreshTimer;
 
-LLLiveFile::LLLiveFile(const std::string &filename, const F32 refresh_period) :
-mForceCheck(true),
-mRefreshPeriod(refresh_period),
-mFilename(filename),
-mLastModTime(0),
-mLastExists(false)
+	std::string mFilename;
+	time_t mLastModTime;
+	bool mLastExists;
+	
+	LLEventTimer* mEventTimer;
+};
+
+LLLiveFile::Impl::Impl(const std::string &filename, const F32 refresh_period)
+	: mForceCheck(true),
+	mRefreshPeriod(refresh_period),
+	mFilename(filename),
+	mLastModTime(0),
+	mLastExists(false),
+	mEventTimer(NULL)
 {
 }
 
+LLLiveFile::Impl::~Impl()
+{
+	delete mEventTimer;
+}
+
+LLLiveFile::LLLiveFile(const std::string &filename, const F32 refresh_period)
+	: impl(* new Impl(filename, refresh_period))
+{
+}
 
 LLLiveFile::~LLLiveFile()
 {
+	delete &impl;
 }
 
 
-bool LLLiveFile::checkAndReload()
+bool LLLiveFile::Impl::check()
 {
 	if (!mForceCheck && mRefreshTimer.getElapsedTimeF32() < mRefreshPeriod)
 	{
@@ -46,9 +78,8 @@ bool LLLiveFile::checkAndReload()
 		// broken somehow.  Clear flags and return.
 		if (mLastExists)
 		{
-			loadFile(); // Load the file, even though it's missing to allow it to clear state.
 			mLastExists = false;
-			return true;
+			return true;	// no longer existing is a change!
 		}
 		return false;
 	}
@@ -68,7 +99,44 @@ bool LLLiveFile::checkAndReload()
 	mLastExists = true;
 	mLastModTime = stat_data.st_mtime;
 	
-	loadFile();
 	return true;
+}
+
+bool LLLiveFile::checkAndReload()
+{
+	bool changed = impl.check();
+	if (changed)
+	{
+		loadFile();
+	}
+	return changed;
+}
+
+std::string LLLiveFile::filename() const
+{
+	return impl.mFilename;
+}
+
+namespace
+{
+	class LiveFileEventTimer : public LLEventTimer
+	{
+	public:
+		LiveFileEventTimer(LLLiveFile& f, F32 refresh)
+			: LLEventTimer(refresh), mLiveFile(f)
+			{ }
+			
+		void tick()
+			{ mLiveFile.checkAndReload(); }
+	
+	private:
+		LLLiveFile& mLiveFile;
+	};
+	
+}
+
+void LLLiveFile::addToEventTimer()
+{
+	impl.mEventTimer = new LiveFileEventTimer(*this, impl.mRefreshPeriod);
 }
 

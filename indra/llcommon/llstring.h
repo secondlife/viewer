@@ -11,6 +11,7 @@
 
 #include "stdtypes.h"
 #include "llerror.h"
+#include "llfile.h"
 #include <algorithm>
 #include <map>
 #include <stdio.h>

@@ -10,6 +10,7 @@
 
 #include <math.h>
 #include "../llmath/llmath.h"
+#include "llformat.h"
 
 namespace {
 	class ImplMap;

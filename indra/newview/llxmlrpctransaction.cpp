@@ -324,9 +324,9 @@ bool LLXMLRPCTransaction::Impl::process()
 			if (curl_msg->data.result != CURLE_OK)
 			{
 				setCurlStatus(curl_msg->data.result);
-				llalerts << "LLXMLRPCTransaction CURL error "
+				llwarns << "LLXMLRPCTransaction CURL error "
 					<< mCurlCode << ": " << mCurlErrorBuffer << llendl;
-				llalerts << "LLXMLRPCTransaction request URI: "
+				llwarns << "LLXMLRPCTransaction request URI: "
 					<< mURI << llendl;
 					
 				return true;
@@ -360,11 +360,11 @@ bool LLXMLRPCTransaction::Impl::process()
 			{
 				setStatus(LLXMLRPCTransaction::StatusXMLRPCError);
 				
-				llalerts << "LLXMLRPCTransaction XMLRPC "
+				llwarns << "LLXMLRPCTransaction XMLRPC "
 					<< (hasError ? "error " : "fault ")
 					<< faultCode << ": "
 					<< faultString << llendl;
-				llalerts << "LLXMLRPCTransaction request URI: "
+				llwarns << "LLXMLRPCTransaction request URI: "
 					<< mURI << llendl;
 			}
 			
