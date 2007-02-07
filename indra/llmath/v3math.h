@@ -12,13 +12,17 @@
 #include "llerror.h"
 #include "llmath.h"
 
-#include "llsd.h"
+#ifndef NO_RTTI
+// LLSD includes LLString which is incompatible with some other
+// stuff (Havok) that requires -fno-rtti
+#	include "llsd.h"
+#endif
 class LLVector4;
 class LLMatrix3;
 class LLVector3d;
 class LLQuaternion;
 
-//  Llvector3 = |x y z w|
+//  LLvector3 = |x y z w|
 
 static const U32 LENGTHOFVECTOR3 = 3;
 
@@ -41,6 +45,9 @@ class LLVector3
 		inline explicit LLVector3(const F32 *vec);				// Initializes LLVector3 to (vec[0]. vec[1], vec[2])
 		explicit LLVector3(const LLVector3d &vec);				// Initializes LLVector3 to (vec[0]. vec[1], vec[2])
 		explicit LLVector3(const LLVector4 &vec);				// Initializes LLVector4 to (vec[0]. vec[1], vec[2])
+#ifndef NO_RTTI
+// LLSD includes LLString which is incompatible with some other
+// stuff (Havok) that requires -fno-rtti
 		LLVector3(const LLSD& sd)
 		{
 			setValue(sd);
@@ -67,6 +74,7 @@ class LLVector3
 			setValue(sd);
 			return *this;
 		}
+#endif
 
 		inline BOOL isFinite() const;									// checks to see if all values of LLVector3 are finite
 		BOOL		clamp(F32 min, F32 max);		// Clamps all values to (min,max), returns TRUE if data changed

@@ -10,6 +10,7 @@
 #include "llpipeutil.h"
 
 #include <stdlib.h>
+#include <sstream>
 
 #include "llbufferstream.h"
 #include "lldefs.h"

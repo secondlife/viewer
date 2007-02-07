@@ -9,6 +9,7 @@
 #ifndef LL_INDRA_CONSTANTS_H
 #define LL_INDRA_CONSTANTS_H
 
+#include "stdtypes.h"
 #include "lluuid.h"
 
 // Viewer object cache version, change if object update

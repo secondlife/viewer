@@ -8,6 +8,7 @@
 
 #include "llsd.h"
 
+#include <sstream>
 #include <math.h>
 #include "../llmath/llmath.h"
 #include "llformat.h"

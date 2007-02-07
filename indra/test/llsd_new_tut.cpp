@@ -12,6 +12,7 @@
 #include "lltut.h"
 
 #include "llsd.h"
+#include "llstring.h"
 
 namespace tut
 {
