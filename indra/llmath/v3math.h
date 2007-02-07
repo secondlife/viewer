@@ -12,11 +12,7 @@
 #include "llerror.h"
 #include "llmath.h"
 
-#ifndef NO_RTTI
-// LLSD includes LLString which is incompatible with some other
-// stuff (Havok) that requires -fno-rtti
-#	include "llsd.h"
-#endif
+#include "llsd.h"
 class LLVector4;
 class LLMatrix3;
 class LLVector3d;
@@ -45,36 +41,13 @@ class LLVector3
 		inline explicit LLVector3(const F32 *vec);				// Initializes LLVector3 to (vec[0]. vec[1], vec[2])
 		explicit LLVector3(const LLVector3d &vec);				// Initializes LLVector3 to (vec[0]. vec[1], vec[2])
 		explicit LLVector3(const LLVector4 &vec);				// Initializes LLVector4 to (vec[0]. vec[1], vec[2])
-#ifndef NO_RTTI
-// LLSD includes LLString which is incompatible with some other
-// stuff (Havok) that requires -fno-rtti
-		LLVector3(const LLSD& sd)
-		{
-			setValue(sd);
-		}
+		LLVector3(const LLSD& sd);
 
-		LLSD getValue() const
-		{
-			LLSD ret;
-			ret[0] = mV[0];
-			ret[1] = mV[1];
-			ret[2] = mV[2];
-			return ret;
-		}
+		LLSD getValue() const;
 
-		void setValue(const LLSD& sd)
-		{
-			mV[0] = (F32) sd[0].asReal();
-			mV[1] = (F32) sd[1].asReal();
-			mV[2] = (F32) sd[2].asReal();
-		}
+		void setValue(const LLSD& sd);
 
-		const LLVector3& operator=(const LLSD& sd)
-		{
-			setValue(sd);
-			return *this;
-		}
-#endif
+		const LLVector3& operator=(const LLSD& sd);
 
 		inline BOOL isFinite() const;									// checks to see if all values of LLVector3 are finite
 		BOOL		clamp(F32 min, F32 max);		// Clamps all values to (min,max), returns TRUE if data changed

@@ -179,6 +179,33 @@ LLVector3::LLVector3(const LLVector4 &vec)
 	mV[VZ] = (F32)vec.mV[VZ];
 }
 
+LLVector3::LLVector3(const LLSD& sd)
+{
+	setValue(sd);
+}
+
+LLSD LLVector3::getValue() const
+{
+	LLSD ret;
+	ret[0] = mV[0];
+	ret[1] = mV[1];
+	ret[2] = mV[2];
+	return ret;
+}
+
+void LLVector3::setValue(const LLSD& sd)
+{
+	mV[0] = (F32) sd[0].asReal();
+	mV[1] = (F32) sd[1].asReal();
+	mV[2] = (F32) sd[2].asReal();
+}
+
+const LLVector3& LLVector3::operator=(const LLSD& sd)
+{
+	setValue(sd);
+	return *this;
+}
+
 const LLVector3& operator*=(LLVector3 &a, const LLQuaternion &rot)
 {
     const F32 rw = - rot.mQ[VX] * a.mV[VX] - rot.mQ[VY] * a.mV[VY] - rot.mQ[VZ] * a.mV[VZ];
