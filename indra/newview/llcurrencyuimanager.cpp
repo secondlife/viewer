@@ -125,10 +125,10 @@ void LLCurrencyUIManager::Impl::updateCurrencyInfo()
 	}
 	
 	LLXMLRPCValue keywordArgs = LLXMLRPCValue::createStruct();
-	keywordArgs.appendString("agentId",
-		gAgent.getID().getString());
-	keywordArgs.appendString("secureSessionId",
-		gAgent.getSecureSessionID().getString());
+	keywordArgs.appendString("agentId", gAgent.getID().asString());
+	keywordArgs.appendString(
+		"secureSessionId",
+		gAgent.getSecureSessionID().asString());
 	keywordArgs.appendInt("currencyBuy", mUserCurrencyBuy);
 	
 	LLXMLRPCValue params = LLXMLRPCValue::createArray();
@@ -172,10 +172,10 @@ void LLCurrencyUIManager::Impl::startCurrencyBuy(const std::string& password)
 	mCurrencyChanged = false;
 	
 	LLXMLRPCValue keywordArgs = LLXMLRPCValue::createStruct();
-	keywordArgs.appendString("agentId",
-		gAgent.getID().getString());
-	keywordArgs.appendString("secureSessionId",
-		gAgent.getSecureSessionID().getString());
+	keywordArgs.appendString("agentId", gAgent.getID().asString());
+	keywordArgs.appendString(
+		"secureSessionId",
+		gAgent.getSecureSessionID().asString());
 	keywordArgs.appendInt("currencyBuy", mUserCurrencyBuy);
 	keywordArgs.appendInt("estimatedCost", mSiteCurrencyEstimatedCost);
 	keywordArgs.appendString("confirm", mSiteConfirm);

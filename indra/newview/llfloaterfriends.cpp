@@ -518,8 +518,7 @@ void LLFloaterFriends::requestFriendship(const LLUUID& target_id, const LLString
 {
 	// HACK: folder id stored as "message"
 	LLUUID calling_card_folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CALLINGCARD);
-	std::string message = calling_card_folder_id.getString();
-
+	std::string message = calling_card_folder_id.asString();
 	send_improved_im(target_id,
 					 target_name.c_str(),
 					 message.c_str(),

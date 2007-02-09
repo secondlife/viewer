@@ -100,7 +100,7 @@ void LLScriptLibrary::init()
 	addFunction(new LLScriptLibraryFunction(10.f, 0.2f, dummy_func, "llSetTexture", NULL, "si", "llSetTexture(string texture, integer face)\nsets the texture of face"));
 	addFunction(new LLScriptLibraryFunction(10.f, 0.2f, dummy_func, "llScaleTexture", NULL, "ffi", "llScaleTexture(float scales, float scalet, integer face)\nsets the texture s, t scales for the chosen face"));
 	addFunction(new LLScriptLibraryFunction(10.f, 0.2f, dummy_func, "llOffsetTexture", NULL, "ffi", "llOffsetTexture(float offsets, float offsett, integer face)\nsets the texture s, t offsets for the chosen face"));
-	addFunction(new LLScriptLibraryFunction(10.f, 0.2f, dummy_func, "llRotateTexture", NULL, "fi", "llOffsetTexture(float rotation, integer face)\nsets the texture rotation for the chosen face"));
+	addFunction(new LLScriptLibraryFunction(10.f, 0.2f, dummy_func, "llRotateTexture", NULL, "fi", "llRotateTexture(float rotation, integer face)\nsets the texture rotation for the chosen face"));
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetTexture", "s", "i", "string llGetTexture(integer face)\ngets the texture of face (if it's a texture in the object inventory, otherwise the key in a string)"));
 	addFunction(new LLScriptLibraryFunction(10.f, 0.2f, dummy_func, "llSetPos", NULL, "v", "llSetPos(vector pos)\nsets the position (if the script isn't physical)"));
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetPos", "v", NULL, "vector llGetPos()\ngets the position (if the script isn't physical)"));

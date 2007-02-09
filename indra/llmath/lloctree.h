@@ -170,17 +170,10 @@ public:
 
 	static void pushCenter(LLVector3d &center, LLVector3d &size, T* data)
 	{
-		LLVector3 pos(data->getPositionGroup());
-		F64 p[] =
-		{
-			(F64) pos.mV[0],
-			(F64) pos.mV[1],
-			(F64) pos.mV[2]
-		};
-			
+		LLVector3d pos(data->getPositionGroup());
 		for (U32 i = 0; i < 3; i++)
 		{
-			if (p[i] > center.mdV[i])
+			if (pos.mdV[i] > center.mdV[i])
 			{
 				center.mdV[i] += size.mdV[i];
 			}

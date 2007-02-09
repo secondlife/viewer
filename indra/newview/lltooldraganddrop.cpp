@@ -582,6 +582,7 @@ LLToolDragAndDrop::LLToolDragAndDrop()
 	 LLTool("draganddrop", NULL),
 	 mDragStartX(0),
 	 mDragStartY(0),
+	 mSource(SOURCE_AGENT),
 	 mCursor(UI_CURSOR_NO),
 	 mLastAccept(ACCEPT_NO),
 	 mDrop(FALSE),

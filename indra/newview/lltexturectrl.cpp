@@ -319,7 +319,8 @@ void LLFloaterTexturePicker::updateImageStats()
 		}
 		if (gAgent.isGodlike())
 		{
-			LLString tstring = "Pick: " + mTexturep->getID().getString();
+			LLString tstring = "Pick: ";
+			tstring.append(mTexturep->getID().asString());
 			setTitle(tstring);
 		}
 	}

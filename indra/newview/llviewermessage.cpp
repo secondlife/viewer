@@ -1621,7 +1621,17 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		}
 		break;
 	case IM_BUSY_AUTO_RESPONSE:
-		gIMView->addMessage(session_id, from_id, name, message);
+		// fix for JIRA issue VWR-20 submitted 13-JAN-2007 - Paul Churchill
+		if (is_muted)
+		{
+			lldebugs << "Ignoring busy response from " << from_id << llendl;
+			return;
+		}
+		else
+		{
+			// original code resumes
+			gIMView->addMessage(session_id, from_id, name, message);
+		}
 		break;
 		
 	case IM_LURE_USER:
@@ -1722,7 +1732,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			LLAvatarTracker::formFriendship(from_id);
 			
 			std::vector<std::string> strings;
-			strings.push_back( from_id.getString() );
+			strings.push_back(from_id.asString());
 			send_generic_message("requestonlinenotification", strings);
 			
 			args["[NAME]"] = name;

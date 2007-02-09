@@ -176,6 +176,7 @@ llutf16string utf8str_to_utf16str ( const LLString& utf8str )
 LLWString utf16str_to_wstring(const llutf16string &utf16str, S32 len)
 {
 	LLWString wout;
+	if((len <= 0) || utf16str.empty()) return wout;
 
 	S32 i = 0;
 	// craziness to make gcc happy (llutf16string.c_str() is tweaked on linux):

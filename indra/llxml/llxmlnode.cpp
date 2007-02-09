@@ -2275,7 +2275,7 @@ void LLXMLNode::setUUIDValue(U32 length, const LLUUID *array)
 	LLString new_value;
 	for (U32 pos=0; pos<length; ++pos)
 	{
-		new_value.append(array[pos].getString());
+		new_value.append(array[pos].asString());
 		if (pos < length-1) new_value.append(" ");
 	}
 
@@ -2877,7 +2877,7 @@ BOOL LLXMLNode::performUnitTest(LLString &error_buffer)
 		}
 		if (node_uuid_checksum != uuid_checksum)
 		{
-			error_buffer.append(llformat("ERROR Node %s: UUID checksum mismatch: read %s / calc %s.\n", mName->mString, node_uuid_checksum.getString().c_str(), uuid_checksum.getString().c_str()));
+			error_buffer.append(llformat("ERROR Node %s: UUID checksum mismatch: read %s / calc %s.\n", mName->mString, node_uuid_checksum.asString().c_str(), uuid_checksum.asString().c_str()));
 			return FALSE;
 		}
 	}

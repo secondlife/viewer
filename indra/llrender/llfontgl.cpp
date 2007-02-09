@@ -1311,7 +1311,7 @@ LLString LLFontGL::nameFromFont(const LLFontGL* fontp)
 {
 	if (fontp == sSansSerifHuge)
 	{
-		return LLString("SansSerifHude");
+		return LLString("SansSerifHuge");
 	}
 	else if (fontp == sSansSerifSmall)
 	{

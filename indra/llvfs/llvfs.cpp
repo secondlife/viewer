@@ -44,12 +44,11 @@ public:
 		mLength = size;
 	}
     
-	static BOOL insertFirstLL(LLVFSBlock *first, LLVFSBlock *second)
+	static bool locationSortPredicate(
+		const LLVFSBlock* lhs,
+		const LLVFSBlock* rhs)
 	{
-		return first->mLocation != second->mLocation
-			? first->mLocation < second->mLocation
-			: first->mLength < second->mLength;
-
+		return lhs->mLocation < rhs->mLocation;
 	}
 
 public:
@@ -362,9 +361,8 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
     
 		U8 *tmp_ptr = buffer;
     
-		LLLinkedList<LLVFSBlock> files_by_loc;
-   		files_by_loc.setInsertBefore(LLVFSBlock::insertFirstLL);
-
+		std::vector<LLVFSFileBlock*> files_by_loc;
+		
 		while (tmp_ptr < buffer + fbuf.st_size)
 		{
 			LLVFSFileBlock *block = new LLVFSFileBlock();
@@ -384,7 +382,7 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 				block->mFileType < LLAssetType::AT_COUNT)
 			{
 				mFileBlocks.insert(fileblock_map::value_type(*block, block));
-				files_by_loc.addDataSorted(block);
+				files_by_loc.push_back(block);
 			}
 			else
 			if (block->mLength && block->mSize > 0)
@@ -420,22 +418,40 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 			tmp_ptr += block->SERIAL_SIZE;
 		}
 		delete[] buffer;
-    
-		// discover all the free blocks
-		LLVFSFileBlock *last_file_block = (LLVFSFileBlock*)files_by_loc.getFirstData();
-    
-		if (last_file_block)
+
+		std::sort(
+			files_by_loc.begin(),
+			files_by_loc.end(),
+			LLVFSFileBlock::locationSortPredicate);
+
+		// There are 3 cases that have to be considered.
+		// 1. No blocks
+		// 2. One block.
+		// 3. Two or more blocks.
+		if (!files_by_loc.empty())
 		{
-			// check for empty space at the beginning
+			// cur walks through the list.
+			std::vector<LLVFSFileBlock*>::iterator cur = files_by_loc.begin();
+			std::vector<LLVFSFileBlock*>::iterator end = files_by_loc.end();
+			LLVFSFileBlock* last_file_block = *cur;
+			
+			// Check to see if there is an empty space before the first file.
 			if (last_file_block->mLocation > 0)
 			{
-				LLVFSBlock *block = new LLVFSBlock(0, last_file_block->mLocation);
-				addFreeBlock(block);
+				// If so, create a free block.
+				addFreeBlock(new LLVFSBlock(0, last_file_block->mLocation));
 			}
-    
-			LLVFSFileBlock *cur_file_block;
-			while ((cur_file_block = (LLVFSFileBlock*)files_by_loc.getNextData()))
+
+			// Walk through the 2nd+ block.  If there is a free space
+			// between cur_file_block and last_file_block, add it to
+			// the free space collection.  This block will not need to
+			// run in the case there is only one entry in the VFS.
+			++cur;
+			while( cur != end )
 			{
+				LLVFSFileBlock* cur_file_block = *cur;
+
+				// Dupe check on the block
 				if (cur_file_block->mLocation == last_file_block->mLocation
 					&& cur_file_block->mLength == last_file_block->mLength)
 				{
@@ -452,21 +468,29 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 					if (cur_file_block->mLength > 0)
 					{
 						// convert to hole
-						LLVFSBlock* block = new LLVFSBlock(cur_file_block->mLocation,
-														   cur_file_block->mLength);
-						addFreeBlock(block);
+						addFreeBlock(
+							new LLVFSBlock(
+								cur_file_block->mLocation,
+								cur_file_block->mLength));
 					}
 					lockData();						// needed for sync()
 					sync(cur_file_block, TRUE);		// remove first on disk
 					sync(last_file_block, TRUE);	// remove last on disk
 					unlockData();					// needed for sync()
 					last_file_block = cur_file_block;
+					++cur;
 					continue;
 				}
 
-				U32 loc = last_file_block->mLocation + last_file_block->mLength;
+				// Figure out where the last block ended.
+				U32 loc = last_file_block->mLocation+last_file_block->mLength;
+
+				// Figure out how much space there is between where
+				// the last block ended and this block begins.
 				S32 length = cur_file_block->mLocation - loc;
     
+				// Check for more errors...  Seeing if the current
+				// entry and the last entry make sense together.
 				if (length < 0 || loc < 0 || loc > data_size)
 				{
 					// Invalid VFS
@@ -488,27 +512,25 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 					return;
 				}
 
+				// we don't want to add empty blocks to the list...
 				if (length > 0)
 				{
-					LLVFSBlock *block = new LLVFSBlock(loc, length);
-					addFreeBlock(block);
+					addFreeBlock(new LLVFSBlock(loc, length));
 				}
-    
 				last_file_block = cur_file_block;
+				++cur;
 			}
     
 			// also note any empty space at the end
 			U32 loc = last_file_block->mLocation + last_file_block->mLength;
 			if (loc < data_size)
 			{
-				LLVFSBlock *block = new LLVFSBlock(loc, data_size - loc);
-				addFreeBlock(block);
+				addFreeBlock(new LLVFSBlock(loc, data_size - loc));
 			}
 		}
-		else
+		else // There where no blocks in the file.
 		{
-			LLVFSBlock *first_block = new LLVFSBlock(0, data_size);
-			addFreeBlock(first_block);
+			addFreeBlock(new LLVFSBlock(0, data_size));
 		}
 	}
 	else
@@ -1241,6 +1263,7 @@ void LLVFS::eraseBlockLength(LLVFSBlock *block)
 	S32 length = block->mLength;
 	blocks_length_map_t::iterator iter = mFreeBlocksByLength.lower_bound(length);
 	blocks_length_map_t::iterator end = mFreeBlocksByLength.end();
+	bool found_block = false;
 	while(iter != end)
 	{
 		LLVFSBlock *tblock = iter->second;
@@ -1248,11 +1271,12 @@ void LLVFS::eraseBlockLength(LLVFSBlock *block)
 		if (tblock == block)
 		{
 			mFreeBlocksByLength.erase(iter);
+			found_block = true;
 			break;
 		}
 		++iter;
 	}
-	if (iter == end)
+	if(!found_block)
 	{
 		llwarns << "eraseBlock could not find block" << llendl;
 	}
@@ -2044,7 +2068,7 @@ void LLVFS::dumpFiles()
 			lockData();
 			
 			LLString extension = get_extension(type);
-			LLString filename = id.getString() + extension;
+			LLString filename = id.asString() + extension;
 			llinfos << " Writing " << filename << llendl;
 			apr_file_t* file = ll_apr_file_open(filename, LL_APR_WB);
 			ll_apr_file_write(file, buffer, size);

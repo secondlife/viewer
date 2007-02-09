@@ -406,7 +406,18 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 	mParcelBillableArea =
 		llround(mRegion->getBillableFactor() * mParcelActualArea);
 
-	mParcelSupportedObjects = mParcel->getMaxPrimCapacity();
+ 	mParcelSupportedObjects = llround(
+		mParcel->getMaxPrimCapacity() * mParcel->getParcelPrimBonus()); 
+ 	// Can't have more than region max tasks, regardless of parcel 
+ 	// object bonus factor. 
+ 	LLViewerRegion* region = gParcelMgr->getSelectionRegion(); 
+ 	if(region) 
+ 	{ 
+		S32 max_tasks_per_region = (S32)region->getMaxTasks(); 
+		mParcelSupportedObjects = llmin(
+			mParcelSupportedObjects, max_tasks_per_region); 
+ 	} 
+
 	mParcelSoldWithObjects = mParcel->getSellWithObjects();
 	
 	LLVector3 center = mParcel->getCenterpoint();
@@ -665,9 +676,10 @@ void LLFloaterBuyLandUI::updateWebSiteInfo()
 #endif
 	
 	LLXMLRPCValue keywordArgs = LLXMLRPCValue::createStruct();
-	keywordArgs.appendString("agentId", gAgent.getID().getString());
-	keywordArgs.appendString("secureSessionId",
-		gAgent.getSecureSessionID().getString());
+	keywordArgs.appendString("agentId", gAgent.getID().asString());
+	keywordArgs.appendString(
+		"secureSessionId",
+		gAgent.getSecureSessionID().asString());
 	keywordArgs.appendInt("billableArea", mPreflightAskBillableArea);
 	keywordArgs.appendInt("currencyBuy", mPreflightAskCurrencyBuy);
 	
@@ -752,9 +764,10 @@ void LLFloaterBuyLandUI::runWebSitePrep(const std::string& password)
 	}
 	
 	LLXMLRPCValue keywordArgs = LLXMLRPCValue::createStruct();
-	keywordArgs.appendString("agentId", gAgent.getID().getString());
-	keywordArgs.appendString("secureSessionId",
-		gAgent.getSecureSessionID().getString());
+	keywordArgs.appendString("agentId", gAgent.getID().asString());
+	keywordArgs.appendString(
+		"secureSessionId",
+		gAgent.getSecureSessionID().asString());
 	keywordArgs.appendString("levelId", newLevel);
 	keywordArgs.appendInt("billableArea",
 		mIsForGroup ? 0 : mParcelBillableArea);

@@ -765,8 +765,6 @@ void LLFloater::setMinimized(BOOL minimize)
 
 	if (minimize)
 	{
-		mMinimized = TRUE;
-
 		mPreviousRect = mRect;
 
 		reshape( MINIMIZED_WIDTH, LLFLOATER_HEADER_SIZE, TRUE);
@@ -811,6 +809,8 @@ void LLFloater::setMinimized(BOOL minimize)
 			}
 			++dependent_it;
 		}
+
+		mMinimized = TRUE;
 
 		// Lose keyboard focus when minimized
 		releaseFocus();
@@ -2000,23 +2000,52 @@ void LLFloaterView::focusFrontFloater()
 
 void LLFloaterView::getMinimizePosition(S32 *left, S32 *bottom)
 {
-	// count the number of minimized children
-	S32 count = 0;
-	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
+	S32 col = 0;
+	LLRect snap_rect_local = getSnapRect();
+	snap_rect_local.translate(-mRect.mLeft, -mRect.mBottom);
+	for(S32 row = snap_rect_local.mBottom;
+		row < snap_rect_local.getHeight() - LLFLOATER_HEADER_SIZE;
+		row += LLFLOATER_HEADER_SIZE ) //loop rows
 	{
-		LLView* viewp = *child_it;
-		LLFloater *floater = (LLFloater *)viewp;
-		if (floater->isMinimized())
+		for(col = snap_rect_local.mLeft;
+			col < snap_rect_local.getWidth() - MINIMIZED_WIDTH;
+			col += MINIMIZED_WIDTH)
 		{
-			count++;
-		}
+			bool foundGap = TRUE;
+			for(child_list_const_iter_t child_it = getChildList()->begin();
+				child_it != getChildList()->end();
+				++child_it) //loop floaters
+			{
+				// Examine minimized children.
+				LLFloater* floater = (LLFloater*)((LLView*)*child_it);
+				if(floater->isMinimized()) 
+				{
+					LLRect r = floater->getRect();
+					if((r.mBottom < (row + LLFLOATER_HEADER_SIZE))
+					   && (r.mBottom > (row - LLFLOATER_HEADER_SIZE))
+					   && (r.mLeft < (col + MINIMIZED_WIDTH))
+					   && (r.mLeft > (col - MINIMIZED_WIDTH)))
+					{
+						// needs the check for off grid. can't drag,
+						// but window resize makes them off
+						foundGap = FALSE;
+						break;
+					}
+				}
+			} //done floaters
+			if(foundGap)
+			{
+				*left = col;
+				*bottom = row;
+				return; //done
+			}
+		} //done this col
 	}
 
-	// space over for that many and up if necessary
-	S32 tiles_per_row = mRect.getWidth() / MINIMIZED_WIDTH;
-
-	*left = (count % tiles_per_row) * MINIMIZED_WIDTH;
-	*bottom = (count / tiles_per_row) * LLFLOATER_HEADER_SIZE;
+	// crude - stack'em all at 0,0 when screen is full of minimized
+	// floaters.
+	*left = snap_rect_local.mLeft;
+	*bottom = snap_rect_local.mBottom;
 }
 
 

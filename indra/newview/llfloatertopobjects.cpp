@@ -231,7 +231,7 @@ void LLFloaterTopObjects::updateSelectionInfo()
 	LLUUID object_id = list->getCurrentID();
 	if (object_id.isNull()) return;
 
-	LLString object_id_string = object_id.getString();
+	std::string object_id_string = object_id.asString();
 
 	childSetValue("id_editor", LLSD(object_id_string));
 	childSetValue("object_name_editor", list->getFirstSelected()->getColumn(1)->getText());

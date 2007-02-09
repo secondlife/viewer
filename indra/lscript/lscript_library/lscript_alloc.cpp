@@ -982,58 +982,9 @@ S32 lsa_cmp_lists(U8 *buffer, S32 offset1, S32 offset2)
 
 	S32 length1 = list1->getListLength();
 	S32 length2 = list2->getListLength();
-
-	if (length1 != length2)
-	{
-		return length1 - length2;
-	}
-
-	LLScriptLibData *runner1 = list1;
-	LLScriptLibData *runner2 = list2;
-
-	S32 count = 0;
-
-	while (runner1)
-	{
-		if (runner1->mType != runner2->mType)
-			return count;
-
-		switch(runner1->mType)
-		{
-		case LST_INTEGER:
-			if (runner1->mInteger != runner2->mInteger)
-				return count;
-			break;
-		case LST_FLOATINGPOINT:
-			if (runner1->mFP != runner2->mFP)
-				return count;
-			break;
-		case LST_KEY:
-			if (strcmp(runner1->mKey, runner2->mKey))
-				return count;
-			break;
-		case LST_STRING:
-			if (strcmp(runner1->mString, runner2->mString))
-				return count;
-			break;
-		case LST_VECTOR:
-			if (runner1->mVec != runner2->mVec)
-				return count;
-		case LST_QUATERNION:
-			if (runner1->mQuat != runner2->mQuat)
-				return count;
-			break;
-		default:
-			break;
-		}
-
-		runner1 = runner1->mListp;
-		runner2 = runner2->mListp;
-	}
-
 	delete list1;
 	delete list2;
-	return 0;
+	return length1 - length2;
 }
 
 

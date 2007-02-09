@@ -1,0 +1,21 @@
+Linden Lab would like to acknowledge source code contributions from the
+following residents.   The Second Life resident name is given below,
+along with the issue identifier corresponding to the patches we've
+received from them.  To see more about these contributions, visit
+http://jira.secondlife.com/ , and enter the issue identifier.
+
+Alissa Sabre - VWR-81, VWR-86
+blino Nakamura - VWR-17
+Drewan Keats - VWR-28
+Dylan Haskell - VWR-72
+Eddy Stryker - VWR-15, VWR-23
+Joghert LeSabre - VWR-64
+Kage Pixel - VWR-11
+Kunnis Basiat - VWR-82
+Paul Churchill - VWR-20
+Paula Innis - VWR-30
+Peekay Semyorka - VWR-7, VWR-19, VWR-49
+SpacedOut Frye - VWR-57
+Strife Onizuka - VWR-74, VWR-85, SVC-9
+Zipherius Turas - VWR-76, VWR-77
+

@@ -6343,13 +6343,17 @@ void LLSelectNodeList::addNodeAtEnd(LLSelectNode *nodep)
 
 void LLSelectNodeList::removeNode(LLSelectNode *nodep)
 {
-	std::list<LLSelectNode*>::iterator iter;
-	for (iter = begin(); iter != end(); ++iter)
+	std::list<LLSelectNode*>::iterator iter = begin();
+	while(iter != end())
 	{
 		if ((*iter) == nodep)
 		{
 			mSelectNodeMap.erase(nodep->getObject());
-			erase(iter++);
+			iter = erase(iter);
+		}
+		else
+		{
+			++iter;
 		}
 	}
 }

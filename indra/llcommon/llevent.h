@@ -109,6 +109,7 @@ public:
 
 	// Adds a listener to this dispatcher, with a given user data
 	// that will be passed to the listener when an event is fired.
+	// Duplicate pointers are removed on addtion.
 	void addListener(LLEventListener *listener, LLSD filter, const LLSD& userdata);
 
 	// Removes a listener from this dispatcher

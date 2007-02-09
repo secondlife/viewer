@@ -503,7 +503,7 @@ void LLPanelGroupNotices::onSelectNotice(LLUICtrl* ctrl, void* data)
 	msg->addUUID("GroupNoticeID",item->getUUID());
 	gAgent.sendReliableMessage();
 
-	lldebugs << "Item " << item->getUUID().getString().c_str() << " selected." << llendl;
+	lldebugs << "Item " << item->getUUID() << " selected." << llendl;
 }
 
 void LLPanelGroupNotices::showNotice(const char* subject,

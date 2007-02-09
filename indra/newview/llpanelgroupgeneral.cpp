@@ -433,7 +433,7 @@ bool LLPanelGroupGeneral::apply(LLString& mesg)
 	if (!gdatap)
 	{
 		mesg = "No group data found for group ";
-		mesg.append(mGroupID.getString());
+		mesg.append(mGroupID.asString());
 		return false;
 	}
 

@@ -5536,13 +5536,21 @@ void LLMessageSystem::getUUID(const char *block, const char *var, LLUUID &u, S32
 	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), u.mData, sizeof(u.mData), blocknum);
 }
 
-bool LLMessageSystem::generateDigestForNumberAndUUIDs(char* digest, const U32 number, const LLUUID &id1, const LLUUID &id2) const
+bool LLMessageSystem::generateDigestForNumberAndUUIDs(
+	char* digest,
+	const U32 number,
+	const LLUUID& id1,
+	const LLUUID& id2) const
 {
+	// *NOTE: This method is needlessly inefficient. Instead of
+	// calling LLUUID::asString, it should just call
+	// LLUUID::toString().
+
 	const char *colon = ":";
 	char tbuf[16];	/* Flawfinder: ignore */ 
 	LLMD5 d;
-	LLString id1string = id1.getString();
-	LLString id2string = id2.getString();
+	std::string id1string = id1.asString();
+	std::string id2string = id2.asString();
 	std::string shared_secret = get_shared_secret();
 	unsigned char * secret = (unsigned char*)shared_secret.c_str();
 	unsigned char * id1str = (unsigned char*)id1string.c_str();

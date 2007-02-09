@@ -91,7 +91,7 @@ static void update_texture_ctrl(LLVOAvatar* avatarp,
 	else
 	{
 		ctrl->setImageAssetID(id);
-		ctrl->setToolTip(id.getString());
+		ctrl->setToolTip(id.asString());
 	}
 }
 
@@ -156,7 +156,7 @@ void LLFloaterAvatarTextures::refresh()
 	}
 	else
 	{
-		setTitle(mTitle + ": INVALID AVATAR (" + mID.getString() + ")");
+		setTitle(mTitle + ": INVALID AVATAR (" + mID.asString() + ")");
 	}
 #endif
 }

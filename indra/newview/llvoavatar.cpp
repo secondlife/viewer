@@ -2988,14 +2988,24 @@ void LLVOAvatar::updateCharacter(LLAgent &agent)
 			{
 				if (motionp->getMinPixelArea() < getPixelArea())
 				{
-					char output[256];		/* Flawfinder: ignore */
+					char output[MAX_STRING];	/* Flawfinder: ignore */
 					if (motionp->getName().empty())
 					{
-						snprintf(output, sizeof(output), "%s - %d", motionp->getID().getString().c_str(), (U32)motionp->getPriority());		/* Flawfinder: ignore */
+						snprintf( /* Flawfinder: ignore */
+							output,
+							MAX_STRING,
+							"%s - %d",
+							motionp->getID().asString().c_str(),
+							(U32)motionp->getPriority());
 					}
 					else
 					{
-						snprintf(output, sizeof(output), "%s - %d", motionp->getName().c_str(), (U32)motionp->getPriority());		/* Flawfinder: ignore */
+						snprintf(	/* Flawfinder: ignore */
+							output,
+							MAX_STRING,
+							"%s - %d",
+							motionp->getName().c_str(),
+							(U32)motionp->getPriority());
 					}
 					addDebugText(output);
 				}
@@ -3948,9 +3958,10 @@ void LLVOAvatar::updateTextures(LLAgent &agent)
 				&& imagep->getID() != IMG_DEFAULT_AVATAR
 				&& !imagep->getTargetHost().isOk())
 			{
-				llwarns << "LLVOAvatar::updateTextures No host for texture " << imagep->getID() 
-						<< " for avatar " << (mIsSelf ? "<myself>" : getID().getString()) 
-						<< " on host " << getRegion()->getHost() << llendl;
+				llwarns << "LLVOAvatar::updateTextures No host for texture "
+					<< imagep->getID() << " for avatar "
+					<< (mIsSelf ? "<myself>" : getID().asString().c_str()) 
+					<< " on host " << getRegion()->getHost() << llendl;
 			}
 			
 			switch( i )

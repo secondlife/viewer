@@ -785,7 +785,7 @@ void LLPanelClassified::sendClassifiedClickMessage(const char* type)
 	// You're allowed to click on your own ads to reassure yourself
 	// that the system is working.
 	std::vector<std::string> strings;
-	strings.push_back(mClassifiedID.getString());
+	strings.push_back(mClassifiedID.asString());
 	strings.push_back(type);
 	LLUUID no_invoice;
 	send_generic_message("classifiedclick", strings, no_invoice);

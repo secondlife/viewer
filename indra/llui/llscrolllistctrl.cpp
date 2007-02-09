@@ -76,7 +76,7 @@ protected:
 // LLScrollListIcon
 //
 LLScrollListIcon::LLScrollListIcon(LLImageGL* icon, S32 width, LLUUID image_id) :
-mIcon(icon), mImageUUID(image_id.getString())
+mIcon(icon), mImageUUID(image_id.asString())
 {
 	if (width)
 	{

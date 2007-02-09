@@ -8,6 +8,7 @@
  * $License$
  */
 
+#include "linden_common.h"
 #include "lltut.h"
 
 #include "llformat.h"

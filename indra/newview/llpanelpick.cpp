@@ -488,7 +488,7 @@ void LLPanelPick::onCommitAny(LLUICtrl* ctrl, void* data)
 		else
 		{*/
 			LLTabContainerVertical* tab = (LLTabContainerVertical*)self->getParent();
-			tab->setCurrentTabName(self->mNameEditor->getText());
+			if(tab) tab->setCurrentTabName(self->mNameEditor->getText());
 		//}
 	}
 }

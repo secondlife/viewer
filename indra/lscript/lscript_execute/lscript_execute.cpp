@@ -2577,6 +2577,7 @@ BOOL run_jump(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 	offset += arg;
 	return FALSE;
 }
+
 BOOL run_jumpif(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 {
 	if (b_print)
@@ -2629,8 +2630,10 @@ BOOL run_jumpif(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 	else if (type == LST_STRING)
 	{
 		S32 base_address = lscript_pop_int(buffer);
-	// this bit of nastiness is to get around that code paths to local variables can result in lack of initialization
-	// and function clean up of ref counts isn't based on scope (a mistake, I know)
+		// this bit of nastiness is to get around that code paths to
+		// local variables can result in lack of initialization and
+		// function clean up of ref counts isn't based on scope (a
+		// mistake, I know)
 		S32 address = base_address + get_register(buffer, LREG_HR) - 1;
 		if (address)
 		{
@@ -2655,8 +2658,10 @@ BOOL run_jumpif(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 	else if (type == LST_KEY)
 	{
 		S32 base_address = lscript_pop_int(buffer);
-	// this bit of nastiness is to get around that code paths to local variables can result in lack of initialization
-	// and function clean up of ref counts isn't based on scope (a mistake, I know)
+		// this bit of nastiness is to get around that code paths to
+		// local variables can result in lack of initialization and
+		// function clean up of ref counts isn't based on scope (a
+		// mistake, I know)
 		S32 address = base_address + get_register(buffer, LREG_HR) - 1;
 		if (address)
 		{
@@ -2672,26 +2677,34 @@ BOOL run_jumpif(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 				if (strlen(sdata))		/*Flawfinder: ignore*/
 				{
 					LLUUID id;
-					id.set(sdata);
-					if (id != LLUUID::null)
+					if (id.set(sdata) && id.notNull())
 						offset += arg;
 				}
 				delete [] sdata;
 			}
 			lsa_decrease_ref_count(buffer, base_address);
 		}
-		else if (type == LST_LIST)
+	}
+	else if (type == LST_LIST)
+	{
+		S32 base_address = lscript_pop_int(buffer);
+		S32 address = base_address + get_register(buffer, LREG_HR) - 1;
+		if (address)
 		{
-			S32 address = lscript_pop_int(buffer);
-			LLScriptLibData *list = lsa_get_data(buffer, address, TRUE);
-			if (list->getListLength())
+			if (safe_heap_check_address(buffer, address + SIZEOF_SCRIPT_ALLOC_ENTRY, 1))
 			{
-				offset += arg;
+				LLScriptLibData *list = lsa_get_list_ptr(buffer, base_address, TRUE);
+				if (list && list->getListLength())
+				{
+					offset += arg;
+				}
+				delete list;
 			}
 		}
 	}
 	return FALSE;
 }
+
 BOOL run_jumpnif(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 {
 	if (b_print)
@@ -2744,8 +2757,10 @@ BOOL run_jumpnif(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 	else if (type == LST_STRING)
 	{
 		S32 base_address = lscript_pop_int(buffer);
-	// this bit of nastiness is to get around that code paths to local variables can result in lack of initialization
-	// and function clean up of ref counts isn't based on scope (a mistake, I know)
+		// this bit of nastiness is to get around that code paths to
+		// local variables can result in lack of initialization and
+		// function clean up of ref counts isn't based on scope (a
+		// mistake, I know)
 		S32 address = base_address + get_register(buffer, LREG_HR) - 1;
 		if (address)
 		{
@@ -2770,8 +2785,10 @@ BOOL run_jumpnif(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 	else if (type == LST_KEY)
 	{
 		S32 base_address = lscript_pop_int(buffer);
-	// this bit of nastiness is to get around that code paths to local variables can result in lack of initialization
-	// and function clean up of ref counts isn't based on scope (a mistake, I know)
+		// this bit of nastiness is to get around that code paths to
+		// local variables can result in lack of initialization and
+		// function clean up of ref counts isn't based on scope (a
+		// mistake, I know)
 		S32 address = base_address + get_register(buffer, LREG_HR) - 1;
 		if (address)
 		{
@@ -2787,8 +2804,7 @@ BOOL run_jumpnif(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 				if (strlen(sdata))		/*Flawfinder: ignore*/
 				{
 					LLUUID id;
-					id.set(sdata);
-					if (id == LLUUID::null)
+					if (!id.set(sdata) || id.isNull())
 						offset += arg;
 				}
 				else
@@ -2799,13 +2815,25 @@ BOOL run_jumpnif(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 			}
 			lsa_decrease_ref_count(buffer, base_address);
 		}
-		else if (type == LST_LIST)
+	}
+	else if (type == LST_LIST)
+	{
+		S32 base_address = lscript_pop_int(buffer);
+		// this bit of nastiness is to get around that code paths to
+		// local variables can result in lack of initialization and
+		// function clean up of ref counts isn't based on scope (a
+		// mistake, I know)
+		S32 address = base_address + get_register(buffer, LREG_HR) - 1;
+		if (address)
 		{
-			S32 address = lscript_pop_int(buffer);
-			LLScriptLibData *list = lsa_get_data(buffer, address, TRUE);
-			if (!list->getListLength())
+			if (safe_heap_check_address(buffer, address + SIZEOF_SCRIPT_ALLOC_ENTRY, 1))
 			{
-				offset += arg;
+				LLScriptLibData *list = lsa_get_list_ptr(buffer, base_address, TRUE);
+				if (!list || !list->getListLength())
+				{
+					offset += arg;
+				}
+				delete list;
 			}
 		}
 	}

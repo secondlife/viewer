@@ -2627,7 +2627,7 @@ void LLPanelEstateCovenant::sendChangeCovenantID(const LLUUID &asset_id)
 		msg->addUUID("Invoice", LLFloaterRegionInfo::getLastInvoice());
 
 		msg->nextBlock("ParamList");
-		msg->addString("Parameter", getCovenantID().getString().c_str());
+		msg->addString("Parameter", getCovenantID().asString());
 		gAgent.sendReliableMessage();
 	}
 }

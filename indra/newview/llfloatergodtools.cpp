@@ -971,7 +971,7 @@ void LLPanelGridTools::flushMapVisibilityCachesConfirm(S32 option, void* data)
 	msg->addString("Method", "refreshmapvisibility");
 	msg->addUUID("Invoice", LLUUID::null);
 	msg->nextBlock("ParamList");
-	msg->addString("Parameter", gAgent.getID().getString());
+	msg->addString("Parameter", gAgent.getID().asString());
 	gAgent.sendReliableMessage();
 }
 

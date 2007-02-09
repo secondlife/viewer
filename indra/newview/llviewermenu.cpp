@@ -2124,7 +2124,7 @@ class LLAvatarDebug : public view_listener_t
 		}
 		llinfos << "Dumping temporary asset data to simulator logs for avatar " << avatar->getID() << llendl;
 		std::vector<std::string> strings;
-		strings.push_back( avatar->getID().getString() );
+		strings.push_back(avatar->getID().asString());
 		LLUUID invoice;
 		send_generic_message("dumptempassetdata", strings, invoice);
 		LLFloaterAvatarTextures::show( avatar->getID() );
@@ -7431,7 +7431,7 @@ void handle_selected_texture_info(void*)
 			std::string image_id_string;
 			if (gAgent.isGodlike())
 			{
-				image_id_string = image_id.getString() + " ";
+				image_id_string = image_id.asString() + " ";
 			}
 			msg = llformat("%s%dx%d %s on face ",
 								image_id_string.c_str(),
@@ -8246,7 +8246,9 @@ BOOL LLViewerMenuHolderGL::hideMenus()
 	if (handled)
 	{
 		gSelectMgr->deselectTransient();
-		if (!gFloaterTools->getVisible() && !LLFloaterLand::floaterVisible())
+		if(!gFloaterTools->getVisible()
+		   && !LLFloaterLand::floaterVisible()
+		   && !LLFloaterBuyLand::isOpen()) 
 		{
 			gParcelMgr->deselectLand();	
 		}
