@@ -93,7 +93,17 @@ public:
 
 	/*virtual*/ void *getPlatformWindow();
 	/*virtual*/ void bringToFront();
-	
+
+	// Not great that these are public, but they have to be accessible
+	// by non-class code and it's better than making them global.
+#if LL_X11
+	// These are set up by the X11 clipboard initialization code
+	Window mSDL_XWindowID;
+	Display *mSDL_Display;
+#endif
+	void (*Lock_Display)(void);
+	void (*Unlock_Display)(void);
+
 protected:
 	LLWindowSDL(
 		char *title, int x, int y, int width, int height, U32 flags,
@@ -160,10 +170,6 @@ protected:
 
 #if LL_X11
 private:
-	// These are set up by the X11 clipboard initialization code
-	Window mSDL_XWindowID;
-	void (*Lock_Display)(void);
-	void (*Unlock_Display)(void);
 	// more X11 clipboard stuff
 	int init_x11clipboard(void);
 	void quit_x11clipboard(void);
@@ -194,5 +200,15 @@ S32 OSMessageBoxSDL(const char* text, const char* caption, U32 type);
 
 void load_url_external(const char* url);
 void shell_open( const char* file_path );
+
+#if LL_GTK
+// Lazily initialize and check the runtime GTK version for goodness.
+BOOL ll_try_gtk_init(void);
+#endif // LL_GTK
+
+#if LL_X11
+Window get_SDL_XWindowID(void);
+Display* get_SDL_Display(void);
+#endif // LL_X11
 
 #endif //LL_LLWINDOWSDL_H

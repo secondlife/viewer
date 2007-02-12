@@ -17,6 +17,10 @@
 #include "lldir.h"
 #include "llframetimer.h"
 
+#if LL_SDL
+#include "llwindowsdl.h" // for some X/GTK utils to help with filepickers
+#endif // LL_SDL
+
 //
 // Globals
 //
@@ -954,8 +958,7 @@ static void store_filenames(GtkWidget *widget, gpointer user_data) {
 
 GtkWindow* LLFilePicker::buildFilePicker(void)
 {
-	gtk_disable_setlocale();
-	if (gtk_init_check(NULL, NULL) &&
+	if (ll_try_gtk_init() &&
 	    ! gViewerWindow->getWindow()->getFullscreen())
 	{
 		GtkWidget *win = NULL;
@@ -967,18 +970,17 @@ GtkWindow* LLFilePicker::buildFilePicker(void)
 		// Make GTK tell the window manager to associate this
 		// dialog with our non-GTK raw X11 window, which should try
 		// to keep it on top etc.
-		Window *XWindowID_ptr = (Window*) gViewerWindow->
-			getWindow()->getPlatformWindow();
-		if (XWindowID_ptr && None != *XWindowID_ptr)
+		Window XWindowID = get_SDL_XWindowID();
+		if (None != XWindowID)
 		{
 			gtk_widget_realize(GTK_WIDGET(win)); // so we can get its gdkwin
-			GdkWindow *gdkwin = gdk_window_foreign_new(*XWindowID_ptr);
+			GdkWindow *gdkwin = gdk_window_foreign_new(XWindowID);
 			gdk_window_set_transient_for(GTK_WIDGET(win)->window,
 						     gdkwin);
 		}
 		else
 		{
-			llwarns << "Hmm, couldn't get xwid from LLWindow." << llendl;
+			llwarns << "Hmm, couldn't get xwid to use for transient." << llendl;
 		}
 #  endif //LL_X11
 

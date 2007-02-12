@@ -38,7 +38,7 @@ export SDL_VIDEO_X11_DGAMOUSE=0
 
 RUN_PATH=`dirname "$0" || echo .`
 cd "${RUN_PATH}"
-LD_LIBRARY_PATH="`pwd`"/lib:"${LD_LIBRARY_PATH}" bin/do-not-directly-run-secondlife-bin `cat gridargs.dat` $@ | cat
+LD_LIBRARY_PATH="`pwd`"/lib:"`pwd`"/app_settings/mozilla:"${LD_LIBRARY_PATH}" bin/do-not-directly-run-secondlife-bin `cat gridargs.dat` $@ | cat
 
 echo
 echo '*********************************************************'

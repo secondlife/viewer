@@ -49,20 +49,12 @@ const S32	MAX_NUM_RESOLUTIONS = 32;
 
 #if LL_X11
 # include <X11/Xutil.h>
-// A global!  Well, SDL isn't really designed for communicating
-// with multiple physical X11 displays.  Heck, it's not really
-// designed for multiple X11 windows.
-// So, we need this for the SDL/X11 event filter callback (which
-// doesnt have a userdata parameter) and more.
-static Display *SDL_Display = NULL;
-static Window SDL_XWindowID = None;
 #endif //LL_X11
 
-// TOFU HACK -- (*exactly* the same hack as LLWindowMacOSX for the same reasons)
-// For SDL, to put up an OS dialog in full screen mode, we must first switch OUT of full screen mode.
-// The proper way to do this is to bracket the dialog with calls to beforeDialog() and afterDialog(), but these
-// require a pointer to the LLWindowMacSDL object.  Stash it here and maintain in the constructor and destructor.
-// This assumes that there will be only one object of this class at any time.  Hopefully this is true.
+// TOFU HACK -- (*exactly* the same hack as LLWindowMacOSX for a similar
+// set of reasons): Stash a pointer to the LLWindowSDL object here and
+// maintain in the constructor and destructor.  This assumes that there will
+// be only one object of this class at any time.  Hopefully this is true.
 static LLWindowSDL *gWindowImplementation = NULL;
 
 static BOOL was_fullscreen = FALSE;
@@ -94,14 +86,51 @@ void show_window_creation_error(const char* title)
 }
 
 
+void maybe_lock_display(void)
+{
+	if (gWindowImplementation) {
+		gWindowImplementation->Lock_Display();
+	}
+}
+
+
+void maybe_unlock_display(void)
+{
+	if (gWindowImplementation) {
+		gWindowImplementation->Unlock_Display();
+	}
+}
+
+
 #if LL_GTK
-// Check the runtime GTK version for goodness.
-static BOOL maybe_do_gtk_diagnostics(void)
+// Lazily initialize and check the runtime GTK version for goodness.
+BOOL ll_try_gtk_init(void)
 {
 	static BOOL done_gtk_diag = FALSE;
-	static BOOL is_good = TRUE;
-	gtk_disable_setlocale();
-	if ((!done_gtk_diag) && gtk_init_check(NULL, NULL))
+	static BOOL gtk_is_good = FALSE;
+	static BOOL done_setlocale = FALSE;
+	static BOOL tried_gtk_init = FALSE;
+
+	if (!done_setlocale)
+	{
+		llinfos << "Starting GTK Initialization." << llendl;
+		maybe_lock_display();
+		gtk_disable_setlocale();
+		maybe_unlock_display();
+		done_setlocale = TRUE;
+	}
+	
+	if (!tried_gtk_init)
+	{
+		tried_gtk_init = TRUE;
+		maybe_lock_display();
+		gtk_is_good = gtk_init_check(NULL, NULL);
+		maybe_unlock_display();
+		if (!gtk_is_good)
+			llwarns << "GTK Initialization failed." << llendl;
+	}
+
+	if (gtk_is_good && !done_gtk_diag)
 	{
 		llinfos << "GTK Initialized." << llendl;
 		llinfos << "- Compiled against GTK version "
@@ -113,21 +142,43 @@ static BOOL maybe_do_gtk_diagnostics(void)
 			<< gtk_minor_version << "."
 			<< gtk_micro_version << llendl;
 		gchar *gtk_warning;
+		maybe_lock_display();
 		gtk_warning = gtk_check_version(GTK_MAJOR_VERSION,
 						GTK_MINOR_VERSION,
 						GTK_MICRO_VERSION);
+		maybe_unlock_display();
 		if (gtk_warning)
 		{
 			llwarns << "- GTK COMPATIBILITY WARNING: " <<
 				gtk_warning << llendl;
-			is_good = FALSE;
+			gtk_is_good = FALSE;
 		}
 
 		done_gtk_diag = TRUE;
 	}
-	return is_good;
+
+	return gtk_is_good;
 }
 #endif // LL_GTK
+
+
+#if LL_X11
+Window get_SDL_XWindowID(void)
+{
+	if (gWindowImplementation) {
+		return gWindowImplementation->mSDL_XWindowID;
+	}
+	return None;
+}
+
+Display* get_SDL_Display(void)
+{
+	if (gWindowImplementation) {
+		return gWindowImplementation->mSDL_Display;
+	}
+	return NULL;
+}
+#endif // LL_X11
 
 
 BOOL check_for_card(const char* RENDERER, const char* bad_card)
@@ -189,6 +240,11 @@ LLWindowSDL::LLWindowSDL(char *title, S32 x, S32 y, S32 width,
 	mReallyCapturedCount = 0;
 	mHaveInputFocus = -1;
 	mIsMinimized = -1;
+
+#if LL_X11
+	mSDL_XWindowID = None;
+	mSDL_Display = NULL;
+#endif // LL_X11
 
 	// Get the original aspect ratio of the main device.
 	mOriginalAspectRatio = 1024.0 / 768.0;  // !!! FIXME //(double)CGDisplayPixelsWide(mDisplay) / (double)CGDisplayPixelsHigh(mDisplay);
@@ -934,24 +990,29 @@ void LLWindowSDL::beforeDialog()
 	}
 
 #if LL_X11
-	if (SDL_Display)
+	if (mSDL_Display)
 	{
 		// Everything that we/SDL asked for should happen before we
 		// potentially hand control over to GTK.
-		XSync(SDL_Display, False);
+		XSync(mSDL_Display, False);
 	}
 #endif // LL_X11
 
 #if LL_GTK
 	// this is a good time to grab some GTK version information for
 	// diagnostics
-	maybe_do_gtk_diagnostics();
+	ll_try_gtk_init();
 #endif // LL_GTK
+
+	maybe_lock_display();
 }
 
 void LLWindowSDL::afterDialog()
 {
 	llinfos << "LLWindowSDL::afterDialog()" << llendl;
+
+	maybe_unlock_display();
+
 	if (old_fullscreen && !was_fullscreen)
 	{
 		// *FIX: NOT YET WORKING (see below)
@@ -971,13 +1032,13 @@ S32 LLWindowSDL::stat(const char* file_name, struct stat* stat_info)
 // set/reset the XWMHints flag for 'urgency' that usually makes the icon flash
 void LLWindowSDL::x11_set_urgent(BOOL urgent)
 {
-	if (SDL_Display && !mFullscreen)
+	if (mSDL_Display && !mFullscreen)
 	{
 		XWMHints *wm_hints;
 		
 		llinfos << "X11 hint for urgency, " << urgent << llendl;
 
-		wm_hints = XGetWMHints(SDL_Display, mSDL_XWindowID);
+		wm_hints = XGetWMHints(mSDL_Display, mSDL_XWindowID);
 		if (!wm_hints)
 			wm_hints = XAllocWMHints();
 
@@ -986,9 +1047,9 @@ void LLWindowSDL::x11_set_urgent(BOOL urgent)
 		else
 			wm_hints->flags &= ~XUrgencyHint;
 
-		XSetWMHints(SDL_Display, mSDL_XWindowID, wm_hints);
+		XSetWMHints(mSDL_Display, mSDL_XWindowID, wm_hints);
 		XFree(wm_hints);
-		XSync(SDL_Display, False);
+		XSync(mSDL_Display, False);
 	}
 }
 #endif // LL_X11
@@ -1021,6 +1082,8 @@ void LLWindowSDL::flashIcon(F32 seconds)
    right now it has the rare and desirable trait of being
    generally stable and working. */
 
+typedef Atom x11clipboard_type;
+
 /* PRIMARY and CLIPBOARD are the two main kinds of
    X11 clipboard.  A third are the CUT_BUFFERs which an
    obsolete holdover from X10 days and use a quite orthogonal
@@ -1033,26 +1096,52 @@ void LLWindowSDL::flashIcon(F32 seconds)
    we support (to as full an extent as the clipboard content type
    allows) CLIPBOARD, PRIMARY, and CUT_BUFFER0.
  */
-#define SL_READWRITE_XCLIPBOARD_TYPE XInternAtom(SDL_Display, "CLIPBOARD", False)
-#define SL_WRITE_XCLIPBOARD_TYPE XA_PRIMARY
+static x11clipboard_type get_x11_readwrite_clipboard_type(void)
+{
+	return XInternAtom(get_SDL_Display(), "CLIPBOARD", False);
+}
+
+static x11clipboard_type get_x11_write_clipboard_type(void)
+{
+	return XA_PRIMARY;
+}
 
 /* This is where our own private cutbuffer goes - we don't use
    a regular cutbuffer (XA_CUT_BUFFER0 etc) for intermediate
    storage because their use isn't really defined for holding UTF8. */
-#define SL_CUTBUFFER_TYPE XInternAtom(SDL_Display, "SECONDLIFE_CUTBUFFER", False)
+static x11clipboard_type get_x11_cutbuffer_clipboard_type(void)
+{
+	return XInternAtom(get_SDL_Display(), "SECONDLIFE_CUTBUFFER", False);
+}
+
+/* Some X11 atom-generators */
+static Atom get_x11_targets_atom(void)
+{
+	return XInternAtom(get_SDL_Display(), "TARGETS", False);
+}
+
+static Atom get_x11_text_atom(void)
+{
+	return XInternAtom(get_SDL_Display(), "TEXT", False);
+}
 
 /* These defines, and convert_data/convert_x11clipboard,
    mostly exist to support non-text or unusually-encoded
    clipboard data, which we don't really have a need for at
    the moment. */
-#define SDLCLIPTYPE(A, B, C, D) (int)((A<<24)|(B<<16)|(C<<8)|(D<<0))
+#define SDLCLIPTYPE(A, B, C, D) (int)(((A)<<24)|((B)<<16)|((C)<<8)|((D)<<0))
 #define FORMAT_PREFIX	"SECONDLIFE_x11clipboard_0x"
-
-typedef Atom x11clipboard_type;
 
 static
 x11clipboard_type convert_format(int type)
 {
+	if (!gWindowImplementation)
+	{
+		llwarns << "!gWindowImplementation in convert_format()"
+			<< llendl;
+		return XA_STRING;
+	}
+
 	switch (type)
 	{
 	case SDLCLIPTYPE('T', 'E', 'X', 'T'):
@@ -1060,7 +1149,8 @@ x11clipboard_type convert_format(int type)
 		return XA_STRING;
 	case SDLCLIPTYPE('U', 'T', 'F', '8'):
 		// newer de-facto UTF8 clipboard atom
-		return XInternAtom(SDL_Display, "UTF8_STRING", False);
+		return XInternAtom(gWindowImplementation->mSDL_Display,
+				   "UTF8_STRING", False);
 	default:
 	{
 		/* completely arbitrary clipboard types... we don't actually use
@@ -1068,7 +1158,8 @@ x11clipboard_type convert_format(int type)
 		char format[sizeof(FORMAT_PREFIX)+8+1];	/* Flawfinder: ignore */
 
 		snprintf(format, sizeof(format), "%s%08lx", FORMAT_PREFIX, (unsigned long)type);	/* Flawfinder: ignore */
-		return XInternAtom(SDL_Display, format, False);
+		return XInternAtom(gWindowImplementation->mSDL_Display,
+				   format, False);
 	}
     }
 }
@@ -1149,9 +1240,9 @@ LLWindowSDL::is_empty_x11clipboard(void)
 {
 	int retval;
 
-	Lock_Display();
-	retval = ( XGetSelectionOwner(SDL_Display, SL_READWRITE_XCLIPBOARD_TYPE) == None );
-	Unlock_Display();
+	maybe_lock_display();
+	retval = ( XGetSelectionOwner(mSDL_Display, get_x11_readwrite_clipboard_type()) == None );
+	maybe_unlock_display();
 
 	return(retval);
 }
@@ -1169,8 +1260,8 @@ LLWindowSDL::put_x11clipboard(int type, int srclen, const char *src)
 	dst = (char *)malloc(dstlen);
 	if ( dst != NULL )
 	{
-		Window root = DefaultRootWindow(SDL_Display);
-		Lock_Display();
+		maybe_lock_display();
+		Window root = DefaultRootWindow(mSDL_Display);
 		convert_data(type, dst, src, srclen);
 		// Cutbuffers are only allowed to have STRING atom types,
 		// but Emacs puts UTF8 inside them anyway.  We cautiously
@@ -1179,7 +1270,7 @@ LLWindowSDL::put_x11clipboard(int type, int srclen, const char *src)
 		{
 			// dstlen-1 so we don't include the trailing \0
 			llinfos << "X11: Populating cutbuffer." <<llendl;
-			XChangeProperty(SDL_Display, root,
+			XChangeProperty(mSDL_Display, root,
 					XA_CUT_BUFFER0, XA_STRING, 8, PropModeReplace,
 					(unsigned char*)dst, dstlen-1);
 		} else {
@@ -1188,18 +1279,18 @@ LLWindowSDL::put_x11clipboard(int type, int srclen, const char *src)
 			//XDeleteProperty(SDL_Display, root, XA_CUT_BUFFER0);
 		}
 		// Private cutbuffer of an appropriate type.
-		XChangeProperty(SDL_Display, root,
-				SL_CUTBUFFER_TYPE, format, 8, PropModeReplace,
+		XChangeProperty(mSDL_Display, root,
+				get_x11_cutbuffer_clipboard_type(), format, 8, PropModeReplace,
 				(unsigned char*)dst, dstlen-1);
 		free(dst);
 		
 		/* Claim ownership of both PRIMARY and CLIPBOARD */
-		XSetSelectionOwner(SDL_Display, SL_READWRITE_XCLIPBOARD_TYPE,
+		XSetSelectionOwner(mSDL_Display, get_x11_readwrite_clipboard_type(),
 				   mSDL_XWindowID, CurrentTime);
-		XSetSelectionOwner(SDL_Display, SL_WRITE_XCLIPBOARD_TYPE,
+		XSetSelectionOwner(mSDL_Display, get_x11_write_clipboard_type(),
 				   mSDL_XWindowID, CurrentTime);
 		
-		Unlock_Display();
+		maybe_unlock_display();
 	}
 }
 
@@ -1219,19 +1310,19 @@ LLWindowSDL::get_x11clipboard(int type, int *dstlen, char **dst)
 	unsigned long overflow;
 	char *src;
 	
-	Lock_Display();
-	owner = XGetSelectionOwner(SDL_Display, SL_READWRITE_XCLIPBOARD_TYPE);
-	Unlock_Display();
+	maybe_lock_display();
+	owner = XGetSelectionOwner(mSDL_Display, get_x11_readwrite_clipboard_type());
+	maybe_unlock_display();
 	if (owner == None)
 	{
 		// Fall right back to ancient X10 cut-buffers
-		owner = DefaultRootWindow(SDL_Display);
+		owner = DefaultRootWindow(mSDL_Display);
 		selection = XA_CUT_BUFFER0;
 	} else if (owner == mSDL_XWindowID)
 	{
 		// Use our own uncooked opaque string property
-		owner = DefaultRootWindow(SDL_Display);
-		selection = SL_CUTBUFFER_TYPE;
+		owner = DefaultRootWindow(mSDL_Display);
+		selection = get_x11_cutbuffer_clipboard_type();
 	}
 	else
 	{
@@ -1240,11 +1331,11 @@ LLWindowSDL::get_x11clipboard(int type, int *dstlen, char **dst)
 		SDL_Event event;
 		
 		owner = mSDL_XWindowID;
-		Lock_Display();
-		selection = XInternAtom(SDL_Display, "SDL_SELECTION", False);
-		XConvertSelection(SDL_Display, SL_READWRITE_XCLIPBOARD_TYPE, format,
+		maybe_lock_display();
+		selection = XInternAtom(mSDL_Display, "SDL_SELECTION", False);
+		XConvertSelection(mSDL_Display, get_x11_readwrite_clipboard_type(), format,
 				  selection, owner, CurrentTime);
-		Unlock_Display();
+		maybe_unlock_display();
 		llinfos << "X11: Waiting for clipboard to arrive." <<llendl;
 		while ( ! selection_response )
 		{
@@ -1270,8 +1361,8 @@ LLWindowSDL::get_x11clipboard(int type, int *dstlen, char **dst)
 		llinfos << "X11: Clipboard arrived." <<llendl;
 	}
 
-	Lock_Display();
-	if ( XGetWindowProperty(SDL_Display, owner, selection, 0, INT_MAX/4,
+	maybe_lock_display();
+	if ( XGetWindowProperty(mSDL_Display, owner, selection, 0, INT_MAX/4,
 				False, format, &seln_type, &seln_format,
 				&nbytes, &overflow, (unsigned char **)&src) == Success )
 	{
@@ -1286,8 +1377,7 @@ LLWindowSDL::get_x11clipboard(int type, int *dstlen, char **dst)
 		}
 		XFree(src);
 	}
-	
-	Unlock_Display();
+	maybe_unlock_display();
 }
 
 int clipboard_filter_callback(const SDL_Event *event)
@@ -1300,7 +1390,7 @@ int clipboard_filter_callback(const SDL_Event *event)
 
 	/* Handle window-manager specific clipboard events */
 	switch (event->syswm.msg->event.xevent.type) {
-	/* Copy the selection from SL_CUTBUFFER_TYPE to the requested property */
+	/* Copy the selection from SECONDLIFE_CUTBUFFER to the requested property */
 	case SelectionRequest: {
 		XSelectionRequestEvent *req;
 		XEvent sevent;
@@ -1317,8 +1407,8 @@ int clipboard_filter_callback(const SDL_Event *event)
 		sevent.xselection.property = None;
 		sevent.xselection.requestor = req->requestor;
 		sevent.xselection.time = req->time;
-		if ( XGetWindowProperty(SDL_Display, DefaultRootWindow(SDL_Display),
-					SL_CUTBUFFER_TYPE, 0, INT_MAX/4, False, req->target,
+		if ( XGetWindowProperty(get_SDL_Display(), DefaultRootWindow(get_SDL_Display()),
+					get_x11_cutbuffer_clipboard_type(), 0, INT_MAX/4, False, req->target,
 					&sevent.xselection.target, &seln_format,
 					&nbytes, &overflow, &seln_data) == Success )
 		{
@@ -1331,21 +1421,20 @@ int clipboard_filter_callback(const SDL_Event *event)
 					if ( seln_data[nbytes-1] == '\0' )
 						--nbytes;
 				}
-				XChangeProperty(SDL_Display, req->requestor, req->property,
+				XChangeProperty(get_SDL_Display(), req->requestor, req->property,
 						req->target, seln_format, PropModeReplace,
 						seln_data, nbytes);
 				sevent.xselection.property = req->property;
-#define XA_TARGETS XInternAtom(SDL_Display, "TARGETS", False)
-			} else if (XA_TARGETS == req->target) {
+			} else if (get_x11_targets_atom() == req->target) {
 				/* only advertise what we currently support */
 				const int num_supported = 3;
 				Atom supported[num_supported] = {
 					XA_STRING, // will be over-written below
-					XInternAtom(SDL_Display, "TEXT",False),
-					XA_TARGETS
+					get_x11_text_atom(),
+					get_x11_targets_atom()
 				};
 				supported[0] = sevent.xselection.target;
-				XChangeProperty(SDL_Display, req->requestor,
+				XChangeProperty(get_SDL_Display(), req->requestor,
 						req->property, XA_ATOM, 32, PropModeReplace,
 						(unsigned char*)supported,
 						num_supported);
@@ -1358,10 +1447,10 @@ int clipboard_filter_callback(const SDL_Event *event)
 			XFree(seln_data);
 		}
 		int sendret =
-			XSendEvent(SDL_Display,req->requestor,False,0,&sevent);
+			XSendEvent(get_SDL_Display(),req->requestor,False,0,&sevent);
 		if ((sendret==BadValue) || (sendret==BadWindow))
 			llwarns << "Clipboard SendEvent failed" << llendl;
-		XSync(SDL_Display, False);
+		XSync(get_SDL_Display(), False);
 	}
 		break;
 	}
@@ -1386,8 +1475,7 @@ LLWindowSDL::init_x11clipboard(void)
 		/* Save the information for later use */
 		if ( info.subsystem == SDL_SYSWM_X11 )
 		{
-			SDL_Display = info.info.x11.display;
-			SDL_XWindowID = info.info.x11.wmwindow;
+			mSDL_Display = info.info.x11.display;
 			mSDL_XWindowID = info.info.x11.wmwindow;
 			Lock_Display = info.info.x11.lock_func;
 			Unlock_Display = info.info.x11.unlock_func;
@@ -1409,8 +1497,7 @@ LLWindowSDL::init_x11clipboard(void)
 void
 LLWindowSDL::quit_x11clipboard(void)
 {
-	SDL_Display = NULL;
-	SDL_XWindowID = None;
+	mSDL_Display = NULL;
 	mSDL_XWindowID = None;
 	Lock_Display = NULL;
 	Unlock_Display = NULL;
@@ -1651,7 +1738,7 @@ BOOL LLWindowSDL::SDLReallyCaptureInput(BOOL capture)
 	if (!mFullscreen) /* only bother if we're windowed anyway */
 	{
 #if LL_X11
-		if (SDL_Display)
+		if (mSDL_Display)
 		{
 			/* we dirtily mix raw X11 with SDL so that our pointer
 			   isn't (as often) constrained to the limits of the
@@ -1667,7 +1754,7 @@ BOOL LLWindowSDL::SDLReallyCaptureInput(BOOL capture)
 			{
 				//llinfos << "X11 POINTER GRABBY" << llendl;
 				//newmode = SDL_WM_GrabInput(wantmode);
-				result = XGrabPointer(SDL_Display, mSDL_XWindowID,
+				result = XGrabPointer(mSDL_Display, mSDL_XWindowID,
 						      True, 0, GrabModeAsync,
 						      GrabModeAsync,
 						      None, None, CurrentTime);
@@ -1681,9 +1768,9 @@ BOOL LLWindowSDL::SDLReallyCaptureInput(BOOL capture)
 				newmode = SDL_GRAB_OFF;
 				//newmode = SDL_WM_GrabInput(SDL_GRAB_OFF);
 
-				XUngrabPointer(SDL_Display, CurrentTime);
+				XUngrabPointer(mSDL_Display, CurrentTime);
 				// Make sure the ungrab happens RIGHT NOW.
-				XSync(SDL_Display, False);
+				XSync(mSDL_Display, False);
 			} else
 			{
 				newmode = SDL_GRAB_QUERY; // neutral
@@ -1749,6 +1836,20 @@ void LLWindowSDL::gatherInput()
     static Uint32 lastRightDown = 0;
     SDL_Event event;
 
+#if LL_GTK && LL_LIBXUL_ENABLED
+    // Pump GTK events so embedded Gecko doesn't starve.
+    if (ll_try_gtk_init())
+    {
+	    // Do a limited number of pumps so SL doesn't starve!
+	    // FIXME - this should ideally be time-limited, not count-limited.
+	    gtk_main_iteration_do(0); // Always do one non-blocking pump
+	    for (int iter=0; iter<10; ++iter)
+		    if (gtk_events_pending())
+			    gtk_main_iteration();
+    }
+#endif // LL_GTK && LL_LIBXUL_ENABLED
+
+    // Handle all outstanding SDL events
     while (SDL_PollEvent(&event))
     {
         switch (event.type)
@@ -2236,14 +2337,13 @@ S32 OSMessageBoxSDL(const char* text, const char* caption, U32 type)
 	S32 rtn = OSBTN_CANCEL;
 
 #if LL_GTK
-	maybe_do_gtk_diagnostics();
+	ll_try_gtk_init();
 #endif // LL_GTK
 
 	if(gWindowImplementation != NULL)
 		gWindowImplementation->beforeDialog();
 
-	gtk_disable_setlocale();
-	if (gtk_init_check(NULL, NULL)
+	if (ll_try_gtk_init()
 	    // We can NOT expect to combine GTK and SDL's aggressive fullscreen
 	    && ((NULL==gWindowImplementation) || (!was_fullscreen))
 	    )
@@ -2279,10 +2379,11 @@ S32 OSMessageBoxSDL(const char* text, const char* caption, U32 type)
 		// Make GTK tell the window manager to associate this
 		// dialog with our non-GTK SDL window, which should try
 		// to keep it on top etc.
-		if (SDL_XWindowID != None)
+		if (gWindowImplementation &&
+		    gWindowImplementation->mSDL_XWindowID != None)
 		{
 			gtk_widget_realize(GTK_WIDGET(win)); // so we can get its gdkwin
-			GdkWindow *gdkwin = gdk_window_foreign_new(SDL_XWindowID);
+			GdkWindow *gdkwin = gdk_window_foreign_new(gWindowImplementation->mSDL_XWindowID);
 			gdk_window_set_transient_for(GTK_WIDGET(win)->window,
 						     gdkwin);
 		}
@@ -2351,8 +2452,7 @@ BOOL LLWindowSDL::dialog_color_picker ( F32 *r, F32 *g, F32 *b)
 
 	beforeDialog();
 
-	gtk_disable_setlocale();
-	if (gtk_init_check(NULL, NULL)
+	if (ll_try_gtk_init()
 	    // We can NOT expect to combine GTK and SDL's aggressive fullscreen
 	    && !was_fullscreen
 	    )
@@ -2365,10 +2465,10 @@ BOOL LLWindowSDL::dialog_color_picker ( F32 *r, F32 *g, F32 *b)
 		// Get GTK to tell the window manager to associate this
 		// dialog with our non-GTK SDL window, which should try
 		// to keep it on top etc.
-		if (SDL_XWindowID != None)
+		if (mSDL_XWindowID != None)
 		{
 			gtk_widget_realize(GTK_WIDGET(win)); // so we can get its gdkwin
-			GdkWindow *gdkwin = gdk_window_foreign_new(SDL_XWindowID);
+			GdkWindow *gdkwin = gdk_window_foreign_new(mSDL_XWindowID);
 			gdk_window_set_transient_for(GTK_WIDGET(win)->window,
 						     gdkwin);
 		}
@@ -2440,8 +2540,9 @@ void spawn_web_browser(const char* escaped_url)
 	
 #if LL_LINUX
 #  if LL_X11
-	if (SDL_Display) // Just in case - before forking.
-		XSync(SDL_Display, False);
+	if (gWindowImplementation &&
+	 gWindowImplementation->mSDL_Display) // Just in case - before forking.
+		XSync(gWindowImplementation->mSDL_Display, False);
 #  endif // LL_X11
 
 	std::string cmd;
@@ -2486,13 +2587,26 @@ void shell_open( const char* file_path )
 
 void *LLWindowSDL::getPlatformWindow()
 {
-#if LL_X11
-	// pointer to our static raw X window
-	return (void*)&SDL_XWindowID;
-#else
-	// doubt we really want to return a high-level SDL structure here.
+#if LL_GTK && LL_LIBXUL_ENABLED
+	if (ll_try_gtk_init())
+	{
+		GtkWidget *win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+		// These hacks were attempts to get Gecko to see the keyboard,
+		// but I think they're doomed to fail.
+		//GdkWindow *gdkwin = gdk_window_foreign_new(SDL_XWindowID);
+		//GTK_WIDGET(win)->window = gdkwin;
+		//gtk_widget_set_parent_window(win, gdkwin);
+
+		// show the hidden-widget while debugging (needs mozlib change)
+		//gtk_widget_show_all(GTK_WIDGET(win));
+
+		gtk_widget_realize(GTK_WIDGET(win));
+		return win;
+	}
+#endif // LL_GTK && LL_LIBXUL_ENABLED
+	// Unixoid mozilla really needs GTK.
 	return NULL;
-#endif
 }
 
 void LLWindowSDL::bringToFront()
