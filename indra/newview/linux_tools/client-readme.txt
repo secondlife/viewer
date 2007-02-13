@@ -74,8 +74,6 @@ you wish.
 The following user-visible features are currently not fully implemented on
 the Linux client and are therefore known not to work properly:
   * QuickTime movie playback and movie recording
-  * F1 Help
-  * Embedded Web Profiles and HTML Login Screen
   * Video memory detection
   * Full Unicode font rendering
   * Auto-updater
