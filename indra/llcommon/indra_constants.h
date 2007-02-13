@@ -87,8 +87,8 @@ const	char* const DEFAULT_LOCAL_ASSET_SERVER	= "http://localhost:12041/asset/tmp
 const	char* const	LOCAL_ASSET_URL_FORMAT		= "http://%s:12041/asset";
 
 const	U32		DEFAULT_LAUNCHER_PORT			= 12029;
-const	U32		DEFAULT_BIGBOARD_PORT			= 12030;
-const	U32		DEFAULT_QUERYSIM_PORT			= 12031;
+//const	U32		DEFAULT_BIGBOARD_PORT			= 12030; // Deprecated
+//const	U32		DEFAULT_QUERYSIM_PORT			= 12031; // Deprecated
 const	U32		DEFAULT_DATA_SERVER_PORT		= 12032;
 const	U32		DEFAULT_SPACE_SERVER_PORT		= 12033;
 const	U32		DEFAULT_VIEWER_PORT				= 12034;
@@ -98,7 +98,9 @@ const	U32		DEFAULT_RPC_SERVER_PORT			= 12037;
 const	U32		DEFAULT_LOG_DATA_SERVER_PORT	= 12039;
 const	U32		DEFAULT_BACKBONE_PORT			= 12040;
 const   U32		DEFAULT_LOCAL_ASSET_PORT		= 12041;
-const   U32		DEFAULT_BACKBONE_CAP_PORT		= 12042;
+//const   U32		DEFAULT_BACKBONE_CAP_PORT		= 12042; // Deprecated
+const   U32		DEFAULT_CAP_PROXY_PORT			= 12043;
+const   U32		DEFAULT_INV_DATA_SERVER_PORT	= 12044;
 
 // For automatic port discovery when running multiple viewers on one host
 const	U32		PORT_DISCOVERY_RANGE_MIN		= 13000;
