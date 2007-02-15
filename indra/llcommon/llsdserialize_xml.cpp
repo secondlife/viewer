@@ -171,6 +171,7 @@ S32 LLSDXMLFormatter::format_impl(const LLSD& data, std::ostream& ostr, U32 opti
 		else
 		{
 			// *FIX: memory inefficient.
+			// *TODO: convert to use LLBase64
 			ostr << pre << "<binary encoding=\"base64\">";
 			int b64_buffer_length = apr_base64_encode_len(buffer.size());
 			char* b64_buffer = new char[b64_buffer_length];

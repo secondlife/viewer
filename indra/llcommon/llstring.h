@@ -904,7 +904,7 @@ void LLStringBase<T>::replaceNonstandardASCII( std::basic_string<T>& string, T r
 
 //static
 template<class T> 
-void LLStringBase<T>::replaceTabsWithSpaces( std::basic_string<T>& string, size_type spaces_per_tab )
+void LLStringBase<T>::replaceTabsWithSpaces( std::basic_string<T>& str, size_type spaces_per_tab )
 {
 	llassert( spaces_per_tab >= 0 );
 
@@ -913,19 +913,19 @@ void LLStringBase<T>::replaceTabsWithSpaces( std::basic_string<T>& string, size_
 
 	LLStringBase<T> out_str;
 	// Replace tabs with spaces
-	for (size_type i = 0; i < string.length(); i++)
+	for (size_type i = 0; i < str.length(); i++)
 	{
-		if (string[i] == TAB)
+		if (str[i] == TAB)
 		{
 			for (size_type j = 0; j < spaces_per_tab; j++)
 				out_str += SPACE;
 		}
 		else
 		{
-			out_str += string[i];
+			out_str += str[i];
 		}
 	}
-	string = out_str;
+	str = out_str;
 }
 
 //static

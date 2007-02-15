@@ -8,33 +8,33 @@
 
 #include "linden_common.h"
 
-#include "llcrypto.h"
+#include "llnullcipher.h"
 
 ///----------------------------------------------------------------------------
 /// Class LLNullCipher
 ///----------------------------------------------------------------------------
 
-BOOL LLNullCipher::encrypt(const U8* src, U32 src_len, U8* dst, U32 dst_len)
+U32  LLNullCipher::encrypt(const U8* src, U32 src_len, U8* dst, U32 dst_len)
 {
 	if((src_len == dst_len) && src && dst)
 	{
 		memmove(dst, src, src_len);
-		return TRUE;
+		return src_len;
 	}
-	return FALSE;
+	return 0;
 }
 
-BOOL LLNullCipher::decrypt(const U8* src, U32 src_len, U8* dst, U32 dst_len)
+U32 LLNullCipher::decrypt(const U8* src, U32 src_len, U8* dst, U32 dst_len)
 {
 	if((src_len == dst_len) && src && dst)
 	{
 		memmove(dst, src, src_len);
-		return TRUE;
+		return src_len;
 	}
-	return FALSE;
+	return 0;
 }
 
-U32 LLNullCipher::requiredEncryptionSpace(U32 len)
+U32 LLNullCipher::requiredEncryptionSpace(U32 len) const
 {
 	return len;
 }

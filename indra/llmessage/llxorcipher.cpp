@@ -8,7 +8,8 @@
 
 #include "linden_common.h"
 
-#include "llcrypto.h"
+#include "llxorcipher.h"
+
 #include "llerror.h"
 
 ///----------------------------------------------------------------------------
@@ -44,25 +45,26 @@ LLXORCipher& LLXORCipher::operator=(const LLXORCipher& cipher)
 	return *this;
 }
 
-BOOL LLXORCipher::encrypt(const U8* src, U32 src_len, U8* dst, U32 dst_len)
+U32 LLXORCipher::encrypt(const U8* src, U32 src_len, U8* dst, U32 dst_len)
 {
-	if(!src || !src_len || !dst || !dst_len || !mPad) return FALSE;
+	if(!src || !src_len || !dst || !dst_len || !mPad) return 0;
 	U8* pad_end = mPad + mPadLen;
-	while(src_len--)
+	U32 count = src_len;
+	while(count--)
 	{
 		*dst++ = *src++ ^ *mHead++;
 		if(mHead >= pad_end) mHead = mPad;
 	}
-	return TRUE;
+	return src_len;
 }
 
-BOOL LLXORCipher::decrypt(const U8* src, U32 src_len, U8* dst, U32 dst_len)
+U32 LLXORCipher::decrypt(const U8* src, U32 src_len, U8* dst, U32 dst_len)
 {
 	// xor is a symetric cipher, thus, just call the other function.
 	return encrypt(src, src_len, dst, dst_len);
 }
 
-U32 LLXORCipher::requiredEncryptionSpace(U32 len)
+U32 LLXORCipher::requiredEncryptionSpace(U32 len) const
 {
 	return len;
 }

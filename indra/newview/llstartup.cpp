@@ -25,7 +25,6 @@
 #include "audiosettings.h"
 #include "llcachename.h"
 #include "llviewercontrol.h"
-#include "llcrypto.h"
 #include "lldir.h"
 #include "lleconomy.h"
 #include "llerrorcontrol.h"
@@ -46,6 +45,7 @@
 #include "llversion.h"
 #include "llvfs.h"
 #include "llwindow.h"		// for shell_open
+#include "llxorcipher.h"	// saved password, MAC address
 #include "message.h"
 #include "v3math.h"
 

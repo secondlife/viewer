@@ -8,6 +8,8 @@
 
 #include "linden_common.h"
 
+#include "llmail.h"
+
 // APR on Windows needs full windows headers
 #ifdef LL_WINDOWS
 #	undef WIN32_LEAN_AND_MEAN
@@ -19,14 +21,16 @@
 #include <sstream>
 #include <boost/regex.hpp>
 
-#include "llmail.h"
-
 #include "apr-1/apr_pools.h"
 #include "apr-1/apr_network_io.h"
 
 #include "llapr.h"
+#include "llbase64.h"	// IM-to-email address
+#include "llblowfishcipher.h"
 #include "llerror.h"
 #include "llhost.h"
+#include "llstring.h"
+#include "lluuid.h"
 #include "net.h"
 
 //
@@ -86,11 +90,12 @@ void disconnect_smtp()
 
 // Returns TRUE on success.
 // message should NOT be SMTP escaped.
-BOOL send_mail(const char* from_name, const char* from_address,
+// static
+BOOL LLMail::send(const char* from_name, const char* from_address,
 			   const char* to_name, const char* to_address,
 			   const char* subject, const char* message)
 {
-	std::string header = build_smtp_transaction(
+	std::string header = buildSMTPTransaction(
 		from_name,
 		from_address,
 		to_name,
@@ -106,12 +111,13 @@ BOOL send_mail(const char* from_name, const char* from_address,
 	{
 		message_str = message;
 	}
-	bool rv = send_mail(header, message_str, to_address, from_address);
+	bool rv = send(header, message_str, to_address, from_address);
 	if(rv) return TRUE;
 	return FALSE;
 }
 
-void init_mail(const std::string& hostname, apr_pool_t* pool)
+// static
+void LLMail::init(const std::string& hostname, apr_pool_t* pool)
 {
 	gMailSocket = NULL;
 	if(hostname.empty() || !pool)
@@ -138,12 +144,14 @@ void init_mail(const std::string& hostname, apr_pool_t* pool)
 	}
 }
 
-void enable_mail(bool mail_enabled)
+// static
+void LLMail::enable(bool mail_enabled)
 {
 	gMailEnabled = mail_enabled;
 }
 
-std::string build_smtp_transaction(
+// static
+std::string LLMail::buildSMTPTransaction(
 	const char* from_name,
 	const char* from_address,
 	const char* to_name,
@@ -197,7 +205,8 @@ std::string build_smtp_transaction(
 	return header.str();
 }
 
-bool send_mail(
+// static
+bool LLMail::send(
 	const std::string& header,
 	const std::string& message,
 	const char* from_address,
@@ -289,4 +298,57 @@ bool send_mail(
 	llinfos << rfc2822_msg.str() << llendl;
 #endif
 	return true;
+}
+
+
+// static
+std::string LLMail::encryptIMEmailAddress(const LLUUID& from_agent_id,
+											const LLUUID& to_agent_id,
+											U32 time,
+											const U8* secret,
+											size_t secret_size)
+{
+	size_t data_size = 4 + UUID_BYTES + UUID_BYTES;
+	// Convert input data into a binary blob
+	std::vector<U8> data;
+	data.resize(data_size);
+	// *NOTE: This may suffer from endian issues.  Could be htonmemcpy.
+	memcpy(&data[0], &time, 4);
+	memcpy(&data[4], &from_agent_id.mData[0], UUID_BYTES);
+	memcpy(&data[4 + UUID_BYTES], &to_agent_id.mData[0], UUID_BYTES);
+	
+	// Encrypt the blob
+	LLBlowfishCipher cipher(secret, secret_size);
+	size_t encrypted_size = cipher.requiredEncryptionSpace(data.size());
+	U8* encrypted = new U8[encrypted_size];
+	cipher.encrypt(&data[0], data_size, encrypted, encrypted_size);
+
+	// Base64 encoded and replace the pieces of base64 that are less compatible 
+	// with e-mail local-parts.
+	// See RFC-4648 "Base 64 Encoding with URL and Filename Safe Alphabet"
+	std::string address = LLBase64::encode(encrypted, encrypted_size);
+	LLString::replaceChar(address, '+', '-');
+	LLString::replaceChar(address, '/', '_');
+
+	// Strip padding = signs, see RFC
+	size_t extra_bytes = encrypted_size % 3;
+	size_t padding_size = 0;
+	if (extra_bytes == 0)
+	{
+		padding_size = 0;
+	}
+	else if (extra_bytes == 1)
+	{
+		padding_size = 2;
+	}
+	else if (extra_bytes == 2)
+	{
+		padding_size = 1;
+	}
+
+	address.resize(address.size() - padding_size);
+
+	delete [] encrypted;
+
+	return address;
 }

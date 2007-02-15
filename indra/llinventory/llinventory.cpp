@@ -13,7 +13,7 @@
 #include "llinventory.h"
 
 #include "lldbstrings.h"
-#include "llcrypto.h"
+#include "llxorcipher.h"
 #include "llsd.h"
 #include "message.h"
 #include <boost/tokenizer.hpp>
