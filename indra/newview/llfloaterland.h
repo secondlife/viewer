@@ -31,6 +31,7 @@ class LLParcelSelectionObserver;
 class LLTabContainer;
 class LLTextureCtrl;
 class LLViewerTextEditor;
+class LLParcelSelection;
 
 class LLPanelLandGeneral;
 class LLPanelLandObjects;
@@ -53,9 +54,6 @@ public:
 
 	static LLPanelLandObjects* getCurrentPanelLandObjects();
 	static LLPanelLandCovenant* getCurrentPanelLandCovenant();
-
-	// Returns TRUE, but does some early prep work for closing the window.
-	virtual BOOL canClose();
 
 	// Destroys itself on close.
 	virtual void onClose(bool app_quitting);
@@ -93,6 +91,8 @@ protected:
 	LLPanelLandCovenant*	mPanelCovenant;
 	LLPanelLandRenters*		mPanelRenters;
 
+	LLHandle<LLParcelSelection>	mParcel;
+
 public:
 	// When closing the dialog, we want to deselect the land.  But when
 	// we send an update to the simulator, it usually replies with the
@@ -106,7 +106,7 @@ class LLPanelLandGeneral
 :	public LLPanel
 {
 public:
-	LLPanelLandGeneral();
+	LLPanelLandGeneral(LLHandle<LLParcelSelection>& parcelp);
 	virtual ~LLPanelLandGeneral();
 	void refresh();
 	void refreshNames();
@@ -198,6 +198,8 @@ protected:
 	LLButton*		mBtnBuyPass;
 	LLButton* mBtnStartAuction;
 
+	LLHandle<LLParcelSelection>&	mParcel;
+
 	static LLViewHandle sBuyPassDialogHandle;
 };
 
@@ -205,7 +207,7 @@ class LLPanelLandObjects
 :	public LLPanel
 {
 public:
-	LLPanelLandObjects();
+	LLPanelLandObjects(LLHandle<LLParcelSelection>& parcelp);
 	virtual ~LLPanelLandObjects();
 	void refresh();
 	virtual void draw();
@@ -215,7 +217,7 @@ public:
 	static void callbackReturnOtherObjects(S32, void*);
 	static void callbackReturnOwnerList(S32, void*);
 
-	static void clickShowCore(S32 return_type, uuid_list_t* list = 0);
+	static void clickShowCore(LLPanelLandObjects* panelp, S32 return_type, uuid_list_t* list = 0);
 	static void onClickShowOwnerObjects(void*);
 	static void onClickShowGroupObjects(void*);
 	static void onClickShowOtherObjects(void*);
@@ -295,6 +297,8 @@ protected:
 	LLString		mSelectedName;
 	S32				mSelectedCount;
 	BOOL			mSelectedIsGroup;
+
+	LLHandle<LLParcelSelection>&	mParcel;
 };
 
 
@@ -302,7 +306,7 @@ class LLPanelLandOptions
 :	public LLPanel
 {
 public:
-	LLPanelLandOptions();
+	LLPanelLandOptions(LLHandle<LLParcelSelection>& parcelp);
 	virtual ~LLPanelLandOptions();
 	void refresh();
 
@@ -340,6 +344,8 @@ protected:
 	LLCheckBoxCtrl		*mMatureCtrl;
 	LLCheckBoxCtrl		*mPushRestrictionCtrl;
 	LLButton			*mPublishHelpButton;
+
+	LLHandle<LLParcelSelection>&	mParcel;
 };
 
 
@@ -347,7 +353,7 @@ class LLPanelLandMedia
 :	public LLPanel
 {
 public:
-	LLPanelLandMedia();
+	LLPanelLandMedia(LLHandle<LLParcelSelection>& parcelp);
 	virtual ~LLPanelLandMedia();
 	void refresh();
 
@@ -365,6 +371,8 @@ protected:
 	LLCheckBoxCtrl*	mMediaAutoScaleCheck;
 	//LLButton*		mMediaStopButton;
 	//LLButton*		mMediaStartButton;
+
+	LLHandle<LLParcelSelection>&	mParcel;
 };
 
 
@@ -373,7 +381,7 @@ class LLPanelLandAccess
 :	public LLPanel
 {
 public:
-	LLPanelLandAccess();
+	LLPanelLandAccess(LLHandle<LLParcelSelection>& parcelp);
 	virtual ~LLPanelLandAccess();
 	void refresh();
 	void refreshNames();
@@ -407,6 +415,7 @@ protected:
 	LLCheckBoxCtrl*		mCheckTransacted;
 	LLRadioGroup*		mCheckStatusLevel;
 
+	LLHandle<LLParcelSelection>&	mParcel;
 };
 
 
@@ -414,7 +423,7 @@ class LLPanelLandBan
 :	public LLPanel
 {
 public:
-	LLPanelLandBan();
+	LLPanelLandBan(LLHandle<LLParcelSelection>& parcelp);
 	virtual ~LLPanelLandBan();
 	void refresh();
 
@@ -437,6 +446,8 @@ protected:
 	LLCheckBoxCtrl*		mCheckDenyAnonymous;
 	LLCheckBoxCtrl*		mCheckDenyIdentified;
 	LLCheckBoxCtrl*		mCheckDenyTransacted;
+
+	LLHandle<LLParcelSelection>&	mParcel;
 };
 
 
@@ -444,7 +455,7 @@ class LLPanelLandRenters
 :	public LLPanel
 {
 public:
-	LLPanelLandRenters();
+	LLPanelLandRenters(LLHandle<LLParcelSelection>& parcelp);
 	virtual ~LLPanelLandRenters();
 	void refresh();
 
@@ -456,13 +467,15 @@ protected:
 	LLNameListCtrl*		mListRenters;
 	LLButton*			mBtnAddRenter;
 	LLButton*			mBtnRemoveRenter;
+
+	LLHandle<LLParcelSelection>&	mParcel;
 };
 
 class LLPanelLandCovenant
 :	public LLPanel
 {
 public:
-	LLPanelLandCovenant();
+	LLPanelLandCovenant(LLHandle<LLParcelSelection>& parcelp);
 	virtual ~LLPanelLandCovenant();
 	virtual BOOL postBuild();
 	void refresh();
@@ -470,6 +483,9 @@ public:
 	static void updateEstateName(const std::string& name);
 	static void updateLastModified(const std::string& text);
 	static void updateEstateOwnerName(const std::string& name);
+
+protected:
+	LLHandle<LLParcelSelection>&	mParcel;
 };
 
 #endif

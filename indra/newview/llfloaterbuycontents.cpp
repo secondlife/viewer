@@ -49,8 +49,6 @@ LLFloaterBuyContents::LLFloaterBuyContents()
 
 LLFloaterBuyContents::~LLFloaterBuyContents()
 {
-	gSelectMgr->deselectAll();
-
 	sInstance = NULL;
 }
 
@@ -58,7 +56,9 @@ LLFloaterBuyContents::~LLFloaterBuyContents()
 // static
 void LLFloaterBuyContents::show(const LLSaleInfo& sale_info)
 {
-	if (gSelectMgr->getRootObjectCount() != 1)
+	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+
+	if (selection->getRootObjectCount() != 1)
 	{
 		gViewerWindow->alertXml("BuyContentsOneOnly");
 		return;
@@ -77,6 +77,7 @@ void LLFloaterBuyContents::show(const LLSaleInfo& sale_info)
 
 	sInstance->open(); /*Flawfinder: ignore*/
 	sInstance->setFocus(TRUE);
+	sInstance->mObjectSelection = gSelectMgr->getEditSelection();
 
 	// Always center the dialog.  User can change the size,
 	// but purchases are important and should be center screen.
@@ -96,7 +97,7 @@ void LLFloaterBuyContents::show(const LLSaleInfo& sale_info)
 	sInstance->mSaleInfo = sale_info;
 
 	// Update the display
-	LLSelectNode* node = gSelectMgr->getFirstRootNode();
+	LLSelectNode* node = selection->getFirstRootNode();
 	if (!node) return;
 	if(node->mPermissions->isGroupOwned())
 	{
@@ -112,7 +113,7 @@ void LLFloaterBuyContents::show(const LLSaleInfo& sale_info)
 	// Must do this after the floater is created, because
 	// sometimes the inventory is already there and 
 	// the callback is called immediately.
-	LLViewerObject* obj = gSelectMgr->getFirstRootObject();
+	LLViewerObject* obj = selection->getFirstRootObject();
 	sInstance->registerVOInventoryListener(obj,NULL);
 	sInstance->requestVOInventory();
 }

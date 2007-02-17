@@ -15,7 +15,7 @@
 #include "lluuid.h"
 #include "llviewerinventory.h"
 #include "lltabcontainer.h"
-#include "lllineeditor.h"
+#include <map>
 
 class LLLineEditor;
 class LLRadioGroup;
@@ -28,6 +28,13 @@ public:
 
 	/*virtual*/void open();		/*Flawfinder: ignore*/
 	/*virtual*/void tabOpen(LLFloater* opened_floater, bool from_click);
+
+	static LLMultiPreview* getAutoOpenInstance(const LLUUID& id);
+	static void setAutoOpenInstance(LLMultiPreview* previewp, const LLUUID& id);
+
+protected:
+	typedef std::map<LLUUID, LLViewHandle> handle_map_t;
+	static std::map<LLUUID, LLViewHandle> sAutoOpenPreviewHandles;
 };
 
 class LLPreview : public LLFloater

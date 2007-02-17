@@ -49,14 +49,55 @@ public:
 	virtual void changed() = 0;
 };
 
+class LLParcelSelection : public LLRefCount
+{
+	friend class LLViewerParcelMgr;
+
+public:
+	LLParcelSelection(LLParcel* parcel);
+	LLParcelSelection();
+
+	~LLParcelSelection();
+
+	// this can return NULL at any time, as parcel selection
+	// might have been invalidated.
+	LLParcel* getParcel() { return mParcel; }
+
+	// Return the number of grid units that are owned by you within
+	// the selection (computed by server).
+	S32 getSelfCount() const { return mSelectedSelfCount; }
+
+	// Returns area that will actually be claimed in meters squared.
+	S32		getClaimableArea() const;
+	bool	hasOthersSelected() const;
+
+	// Does the selection have multiple land owners in it?
+	BOOL	getMultipleOwners() const;
+
+	// Is the entire parcel selected, or just a part?
+	BOOL	getWholeParcelSelected() const;
+
+protected:
+	void setParcel(LLParcel* parcel) { mParcel = parcel; }
+
+protected:
+
+	LLParcel*	mParcel;
+	BOOL		mSelectedMultipleOwners;
+	BOOL		mWholeParcelSelected;
+	S32			mSelectedSelfCount;
+	S32			mSelectedOtherCount;
+	S32			mSelectedPublicCount;
+};
+
+typedef LLHandle<LLParcelSelection> LLParcelSelectionHandle;
+
 class LLViewerParcelMgr
 {
+
 public:
 	LLViewerParcelMgr();
 	~LLViewerParcelMgr();
-
-	void	destroyGL();
-	void	restoreGL();
 
 	BOOL	selectionEmpty() const;
 	F32		getSelectionWidth() const	{ return F32(mEastNorth.mdV[VX] - mWestSouth.mdV[VX]); }
@@ -67,16 +108,6 @@ public:
 	void	getDisplayInfo(S32* area, S32* claim, S32* rent, BOOL* for_sale, F32* dwell);
 
 	void	getPrimInfo(S32 &sw_max, S32 &sw_total, S32 &max, S32 &total, S32 &owner, S32 &group, S32 &other, S32& selected, F32 &parcel_object_bonus, S32 &other_clean);
-
-	// Does the selection have multiple land owners in it?
-	BOOL	getMultipleOwners() const;
-
-	// Is the entire parcel selected, or just a part?
-	BOOL	getWholeParcelSelected() const;
-
-	// Returns area that will actually be claimed in meters squared.
-	S32		getClaimableArea() const;
-	bool	hasOthersSelected() const;
 
 	// Returns selected area
 	S32 getSelectedArea() const;
@@ -96,18 +127,19 @@ public:
 	void selectCollisionParcel();
 
 	// Select the parcel at a specific point
-	void selectParcelAt(const LLVector3d& pos_global);
+	LLHandle<LLParcelSelection> selectParcelAt(const LLVector3d& pos_global);
 
 	// Take the current rectangle select, and select the parcel contained
 	// within it.
-	void selectParcelInRectangle();
+	LLParcelSelectionHandle selectParcelInRectangle();
 
 	// Select a piece of land
-	void	selectLand(const LLVector3d &corner1, const LLVector3d &corner2, 
+	LLParcelSelectionHandle selectLand(const LLVector3d &corner1, const LLVector3d &corner2, 
 					   BOOL snap_to_parcel);
 
 	// Clear the selection, and stop drawing the highlight.
 	void	deselectLand();
+	void	deselectUnused();
 
 	void addObserver(LLParcelObserver* observer);
 	void removeObserver(LLParcelObserver* observer);
@@ -122,14 +154,22 @@ public:
 
 	BOOL	canHearSound(const LLVector3d &pos_global) const;
 
-	LLParcel *getSelectedParcel() const;
+	// Returns a reference counted pointer to current parcel selection.  
+	// Selection does not change to reflect new selections made by user
+	// Use this when implementing a task UI that refers to a specific
+	// selection.
+	LLParcelSelectionHandle getParcelSelection() const;
+
+	// Returns a reference counted pointer to current parcel selection.
+	// Pointer tracks whatever the user has currently selected.
+	// Use this when implementing an inspector UI.
+	// http://en.wikipedia.org/wiki/Inspector_window
+	LLParcelSelectionHandle getFloatingParcelSelection() const;
+
+	//LLParcel *getParcelSelection() const;
 	LLParcel *getAgentParcel() const;
 
 	BOOL	inAgentParcel(const LLVector3d &pos_global) const;
-
-	// Return the number of grid units that are owned by you within
-	// the selection (computed by server).
-	S32 getSelfCount() const { return mSelectedSelfCount; }
 
 	// Returns a pointer only when it has valid data.
 	LLParcel*	getHoverParcel() const;
@@ -172,7 +212,7 @@ public:
 	// containing the southwest corner of the selection.
 	// If want_reply_to_update, simulator will send back a ParcelProperties
 	// message.
-	void	sendParcelPropertiesUpdate(LLParcel* parcel, BOOL want_reply_to_update);
+	void	sendParcelPropertiesUpdate(LLParcel* parcel);
 
 	// Takes an Access List flag, like AL_ACCESS or AL_BAN
 	void	sendParcelAccessListUpdate(U32 which);
@@ -265,26 +305,23 @@ protected:
 	//void	finishClaim(BOOL user_to_user_sale, U32 join);
 
 private:
-	BOOL		mSelected;
-	BOOL		mSelectedMultipleOwners;
-	BOOL		mWholeParcelSelected;
-	S32			mSelectedSelfCount;
-	S32			mSelectedOtherCount;
-	S32			mSelectedPublicCount;
+	BOOL						mSelected;
 
-	LLParcel	*mParcel;			// selected parcel info
-	S32			mRequestResult;		// result of last parcel request
-	LLVector3d	mWestSouth;
-	LLVector3d	mEastNorth;
-	F32			mSelectedDwell;
+	LLParcel*					mCurrentParcel;			// selected parcel info
+	LLParcelSelectionHandle		mCurrentParcelSelection;
+	LLParcelSelectionHandle		mFloatingParcelSelection;
+	S32							mRequestResult;		// result of last parcel request
+	LLVector3d					mWestSouth;
+	LLVector3d					mEastNorth;
+	F32							mSelectedDwell;
 
-	LLParcel	*mAgentParcel;		// info for parcel agent is in
-	S32			mAgentParcelSequenceID;	// incrementing counter to suppress out of order updates
+	LLParcel					*mAgentParcel;		// info for parcel agent is in
+	S32							mAgentParcelSequenceID;	// incrementing counter to suppress out of order updates
 
-	LLParcel*	mHoverParcel;
-	S32			mHoverRequestResult;
-	LLVector3d	mHoverWestSouth;
-	LLVector3d	mHoverEastNorth;
+	LLParcel*					mHoverParcel;
+	S32							mHoverRequestResult;
+	LLVector3d					mHoverWestSouth;
+	LLVector3d					mHoverEastNorth;
 
 	LLDynamicArray<LLParcelObserver*> mObservers;
 
@@ -293,30 +330,30 @@ private:
 	// we can represent edges of the grid.
 	// WEST_MASK = draw west edge
 	// SOUTH_MASK = draw south edge
-	S32			mParcelsPerEdge;
-	U8*			mHighlightSegments;
-	U8*			mAgentParcelOverlay;
+	S32							mParcelsPerEdge;
+	U8*							mHighlightSegments;
+	U8*							mAgentParcelOverlay;
 
 	// Raw data buffer for unpacking parcel overlay chunks
 	// Size = parcels_per_edge * parcels_per_edge / parcel_overlay_chunks
-	static U8* sPackedOverlay;
+	static U8*					sPackedOverlay;
 
 	// Watch for pending collisions with a parcel you can't access.
 	// If it's coming, draw the parcel's boundaries.
-	LLParcel*		mCollisionParcel;
-	U8*				mCollisionSegments;
-	BOOL			mRenderCollision; 
-	BOOL			mRenderSelection;
-	S32				mCollisionBanned;     
-	LLFrameTimer	mCollisionTimer;
-	LLUUID			mBlockedImageID;
-	LLUUID			mPassImageID;
-	LLPointer<LLViewerImage> mBlockedImage;
-	LLPointer<LLViewerImage> mPassImage;
+	LLParcel*					mCollisionParcel;
+	U8*							mCollisionSegments;
+	BOOL						mRenderCollision; 
+	BOOL						mRenderSelection;
+	S32							mCollisionBanned;     
+	LLFrameTimer				mCollisionTimer;
+	LLUUID						mBlockedImageID;
+	LLUUID						mPassImageID;
+	LLPointer<LLViewerImage> 	mBlockedImage;
+	LLPointer<LLViewerImage> 	mPassImage;
 
 	// Media
-	S32 mMediaParcelId;
-	U64 mMediaRegionId;
+	S32 						mMediaParcelId;
+	U64 						mMediaRegionId;
 };
 
 extern LLViewerParcelMgr *gParcelMgr;

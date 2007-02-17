@@ -129,7 +129,7 @@ void LLToolView::draw()
 {
 	// turn off highlighting for all containers 
 	// and hide all option panels except for the selected one.
-	LLTool* selected = gCurrentToolset->getSelectedTool();
+	LLTool* selected = gToolMgr->getCurrentToolset()->getSelectedTool();
 	for( LLToolContainer* contain = mContainList.getFirstData();
 		 contain != NULL;
 		 contain = mContainList.getNextData()
@@ -169,7 +169,6 @@ void LLToolView::onClickToolButton(void* userdata)
 	LLToolContainer* clicked = (LLToolContainer*) userdata;
 
 	// Switch to this one
-	gCurrentToolset->selectTool( clicked->mTool );
-	gToolMgr->useSelectedTool( gCurrentToolset );
+	gToolMgr->getCurrentToolset()->selectTool( clicked->mTool );
 }
 

@@ -42,7 +42,7 @@ LLToolFace::~LLToolFace()
 
 BOOL LLToolFace::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	if (!gSelectMgr->isEmpty())
+	if (!gSelectMgr->getSelection()->isEmpty())
 	{
 		// You should already have an object selected from the mousedown.
 		// If so, show its properties
@@ -90,7 +90,7 @@ void LLToolFace::pickCallback(S32 x, S32 y, MASK mask)
 				// object wasn't selected so add the object and face
 				gSelectMgr->selectObjectOnly(hit_obj, hit_face);
 			}
-			else if (!gSelectMgr->contains(hit_obj, hit_face) )
+			else if (!gSelectMgr->getSelection()->contains(hit_obj, hit_face) )
 			{
 				// object is selected, but not this face, so add it.
 				gSelectMgr->addAsIndividual(hit_obj, hit_face);

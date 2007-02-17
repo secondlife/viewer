@@ -163,7 +163,7 @@ void LLToolBrushLand::modifyLandInSelectionGlobal()
 		return;
 	}
 
-	if (gToolMgr->getCurrentTool(gKeyboard->currentMask(TRUE)) == gToolParcel)
+	if (gToolMgr->getCurrentTool() == gToolParcel)
 	{
 		// selecting land, don't do anything
 		return;
@@ -282,8 +282,8 @@ void LLToolBrushLand::modifyLandInSelectionGlobal()
 		msg->addF32Fast(_PREHASH_Seconds, seconds);
 		msg->addF32Fast(_PREHASH_Height, mStartingZ);
 
-		BOOL parcel_selected = gParcelMgr->getWholeParcelSelected();
-		LLParcel* selected_parcel = gParcelMgr->getSelectedParcel();
+		BOOL parcel_selected = gParcelMgr->getParcelSelection()->getWholeParcelSelected();
+		LLParcel* selected_parcel = gParcelMgr->getParcelSelection()->getParcel();
 
 		if (parcel_selected && selected_parcel)
 		{
@@ -516,7 +516,7 @@ void LLToolBrushLand::onIdle( void* brush_tool )
 {
 	LLToolBrushLand* self = reinterpret_cast<LLToolBrushLand*>(brush_tool);
 
-	if( gToolMgr->getCurrentTool( gKeyboard->currentMask(TRUE) ) == self )
+	if( gToolMgr->getCurrentTool() == self )
 	{
 		self->brush();
 	}

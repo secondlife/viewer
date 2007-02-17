@@ -26,6 +26,7 @@ public:
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 
+	virtual LLTool*	getOverrideTool(MASK mask) { return NULL; }
 	virtual BOOL	clipMouseWhenDown()		{ return FALSE; }
 
 private:

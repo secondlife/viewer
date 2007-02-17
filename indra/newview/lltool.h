@@ -58,6 +58,8 @@ public:
 	virtual void			handleSelect()			{ }	// do stuff when your tool is selected
 	virtual void			handleDeselect()		{ }	// clean up when your tool is deselected
 
+	virtual LLTool*			getOverrideTool(MASK mask);
+
 	// isAlwaysRendered() - return true if this is a tool that should
 	// always be rendered regardless of selection.
 	virtual BOOL isAlwaysRendered() { return FALSE; }

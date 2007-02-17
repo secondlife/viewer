@@ -16,6 +16,7 @@
 
 #include "llviewerwindow.h"
 #include "lltoolcomp.h"
+#include "lltoolfocus.h"
 #include "llfocusmgr.h"
 #include "llagent.h"
 #include "llviewborder.h"
@@ -135,6 +136,14 @@ BOOL LLTool::handleKey(KEY key, MASK mask)
 	return FALSE;
 }
 
+LLTool* LLTool::getOverrideTool(MASK mask)
+{
+	if (mask & MASK_ALT)
+	{
+		return gToolCamera;
+	}
+	return NULL;
+}
 
 // static
 void	LLTool::onMouseCaptureLost( LLMouseHandler* old_captor )

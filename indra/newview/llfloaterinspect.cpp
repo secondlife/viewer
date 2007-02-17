@@ -25,15 +25,12 @@ LLFloaterInspect::~LLFloaterInspect(void)
 {
 	if(!gFloaterTools->getVisible())
 	{
-		if(gToolMgr->getCurrentTool(MASK_NONE) == gToolInspect)
+		if(gToolMgr->getBaseTool() == gToolInspect)
 		{
 			select_tool(gToolNull);
 		}
-		gSelectMgr->deselectAll();
 		// Switch back to basic toolset
-		gCurrentToolset = gBasicToolset;
-		gBasicToolset->selectFirstTool();
-		gToolMgr->useSelectedTool( gBasicToolset );
+		gToolMgr->setCurrentToolset(gBasicToolset);
 	}
 	else
 	{
@@ -58,13 +55,16 @@ void LLFloaterInspect::show(void* ignored)
 		LLFloaterInspect* self = new LLFloaterInspect;
 		self->open();
 	}
+
+	sInstance->mObjectSelection = gSelectMgr->getSelection();
 	select_tool(gToolInspect);
+	sInstance->refresh();
 }
 
 void LLFloaterInspect::onClickCreatorProfile(void* ctrl)
 {
 	if(sInstance->mObjectList->getAllSelected().size() == 0) return;
-	LLSelectNode* obj = gSelectMgr->getFirstNode();
+	LLSelectNode* obj = sInstance->mObjectSelection->getFirstNode();
 	LLUUID obj_id, creator_id;
 	obj_id = sInstance->mObjectList->getFirstSelected()->getUUID();
 	while(obj)
@@ -74,7 +74,7 @@ void LLFloaterInspect::onClickCreatorProfile(void* ctrl)
 			creator_id = obj->mPermissions->getCreator();
 			break;
 		}
-		obj = gSelectMgr->getNextNode();
+		obj = sInstance->mObjectSelection->getNextNode();
 	}
 	if(obj)
 	{
@@ -85,7 +85,7 @@ void LLFloaterInspect::onClickCreatorProfile(void* ctrl)
 void LLFloaterInspect::onClickOwnerProfile(void* ctrl)
 {
 	if(sInstance->mObjectList->getAllSelected().size() == 0) return;
-	LLSelectNode* obj = gSelectMgr->getFirstNode();
+	LLSelectNode* obj = sInstance->mObjectSelection->getFirstNode();
 	LLUUID obj_id, owner_id;
 	obj_id = sInstance->mObjectList->getFirstSelected()->getUUID();
 	while(obj)
@@ -95,7 +95,7 @@ void LLFloaterInspect::onClickOwnerProfile(void* ctrl)
 			owner_id = obj->mPermissions->getOwner();
 			break;
 		}
-		obj = gSelectMgr->getNextNode();
+		obj = sInstance->mObjectSelection->getNextNode();
 	}
 	if(obj)
 	{
@@ -109,7 +109,6 @@ BOOL LLFloaterInspect::postBuild()
 	childSetAction("button owner",onClickOwnerProfile, this);
 	childSetAction("button creator",onClickCreatorProfile, this);
 	childSetCommitCallback("object_list", onSelectObject);
-	refresh();
 	return TRUE;
 }
 
@@ -143,7 +142,7 @@ void LLFloaterInspect::refresh()
 	if(selected_index > -1) selected_uuid = mObjectList->getFirstSelected()->getUUID();
 	mObjectList->operateOnAll(LLScrollListCtrl::OP_DELETE);
 	//List all transient objects, then all linked objects
-	LLSelectNode* obj = gSelectMgr->getFirstNode();
+	LLSelectNode* obj = mObjectSelection->getFirstNode();
 	LLSD row;
 	while(obj)
 	{
@@ -182,7 +181,7 @@ void LLFloaterInspect::refresh()
 		row["columns"][3]["type"] = "text";
 		row["columns"][3]["value"] = time;
 		mObjectList->addElement(row, ADD_TOP);
-		obj = gSelectMgr->getNextNode();
+		obj = mObjectSelection->getNextNode();
 	}
 	if(selected_index > -1 && mObjectList->getItemIndex(selected_uuid) == selected_index)
 	{

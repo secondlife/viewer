@@ -813,13 +813,12 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 		// freeze everything else
 		gSavedSettings.setBOOL("FreezeTime", TRUE);
 
-		if (gCurrentToolset != gCameraToolset)
+		if (gToolMgr->getCurrentToolset() != gCameraToolset)
 		{
-			sInstance->impl.mLastToolset = gCurrentToolset;
-			gCurrentToolset = gCameraToolset;
+			sInstance->impl.mLastToolset = gToolMgr->getCurrentToolset();
 			if (gToolMgr)
 			{
-				gToolMgr->useSelectedTool( gCurrentToolset );
+				gToolMgr->setCurrentToolset(gCameraToolset);
 			}
 		}
 	}
@@ -842,10 +841,9 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 		// restore last tool (e.g. pie menu, etc)
 		if (sInstance->impl.mLastToolset)
 		{
-			gCurrentToolset = sInstance->impl.mLastToolset;
 			if (gToolMgr)
 			{
-				gToolMgr->useSelectedTool( gCurrentToolset );
+				gToolMgr->setCurrentToolset(sInstance->impl.mLastToolset);
 			}
 		}
 	}
@@ -1220,10 +1218,9 @@ LLFloaterSnapshot::~LLFloaterSnapshot()
 
 	if (impl.mLastToolset)
 	{
-		gCurrentToolset = impl.mLastToolset;
-		if (gToolMgr && gCurrentToolset)
+		if (gToolMgr)
 		{
-			gToolMgr->useSelectedTool( gCurrentToolset );
+			gToolMgr->setCurrentToolset(impl.mLastToolset);
 		}
 	}
 
@@ -1487,7 +1484,7 @@ BOOL LLSnapshotFloaterView::handleMouseDown(S32 x, S32 y, MASK mask)
 	// give floater a change to handle mouse, else camera tool
 	if (childrenHandleMouseDown(x, y, mask) == NULL)
 	{
-		gToolMgr->getCurrentTool(mask)->handleMouseDown( x, y, mask );
+		gToolMgr->getCurrentTool()->handleMouseDown( x, y, mask );
 	}
 	return TRUE;
 }
@@ -1502,7 +1499,7 @@ BOOL LLSnapshotFloaterView::handleMouseUp(S32 x, S32 y, MASK mask)
 	// give floater a change to handle mouse, else camera tool
 	if (childrenHandleMouseUp(x, y, mask) == NULL)
 	{
-		gToolMgr->getCurrentTool(mask)->handleMouseUp( x, y, mask );
+		gToolMgr->getCurrentTool()->handleMouseUp( x, y, mask );
 	}
 	return TRUE;
 }
@@ -1517,7 +1514,7 @@ BOOL LLSnapshotFloaterView::handleHover(S32 x, S32 y, MASK mask)
 	// give floater a change to handle mouse, else camera tool
 	if (childrenHandleHover(x, y, mask) == NULL)
 	{
-		gToolMgr->getCurrentTool(mask)->handleHover( x, y, mask );
+		gToolMgr->getCurrentTool()->handleHover( x, y, mask );
 	}
 	return TRUE;
 }

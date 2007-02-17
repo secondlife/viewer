@@ -39,8 +39,8 @@ void LLFloaterTelehub::show()
 	sInstance = new LLFloaterTelehub();
 
 	// Show tools floater by selecting translate (select) tool
-	gCurrentToolset = gBasicToolset;
-	gCurrentToolset->selectTool( gToolTranslate );
+	gToolMgr->setCurrentToolset(gBasicToolset);
+	gToolMgr->getCurrentToolset()->selectTool( gToolTranslate );
 
 	// Find tools floater, glue to bottom
 	if (gFloaterTools)
@@ -82,6 +82,8 @@ LLFloaterTelehub::LLFloaterTelehub()
 		// otherwise you can't walk with arrow keys while floater is up
 		list->setAllowKeyboardMovement(FALSE);
 	}
+
+	mObjectSelection = gSelectMgr->getEditSelection();
 }
 
 LLFloaterTelehub::~LLFloaterTelehub()
@@ -104,10 +106,10 @@ void LLFloaterTelehub::draw()
 // Per-frame updates, because we don't have a selection manager observer.
 void LLFloaterTelehub::refresh()
 {
-	LLViewerObject* object = gSelectMgr->getFirstRootObject();
+	LLViewerObject* object = mObjectSelection->getFirstRootObject();
 	if(!object)
 	{
-		object = gSelectMgr->getFirstObject();
+		object = mObjectSelection->getFirstObject();
 	}
 	
 	BOOL have_selection = (object != NULL);

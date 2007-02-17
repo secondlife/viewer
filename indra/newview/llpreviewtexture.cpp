@@ -23,6 +23,7 @@
 #include "llimagetga.h"
 #include "llfilepicker.h"
 #include "llvieweruictrlfactory.h"
+#include "lllineeditor.h"
 
 const S32 PREVIEW_TEXTURE_MIN_WIDTH = 300;
 const S32 PREVIEW_TEXTURE_MIN_HEIGHT = 120;

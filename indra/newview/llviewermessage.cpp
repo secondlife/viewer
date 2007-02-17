@@ -2990,7 +2990,7 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 			//llinfos << "Kill message for local " << local_id << llendl;
 		}
 
-		gSelectMgr->selectionRemoveObject(id);
+		gSelectMgr->removeObjectFromSelections(id);
 
 		// ...don't kill the avatar
 		if (!(id == gAgentID))
@@ -3472,12 +3472,15 @@ void process_camera_constraint(LLMessageSystem *mesgsys, void **user_data)
 
 void near_sit_object(BOOL success, void *data)
 {
-	// Send message to sit on object
-	gMessageSystem->newMessageFast(_PREHASH_AgentSit);
-	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	gAgent.sendReliableMessage();
+	if (success)
+	{
+		// Send message to sit on object
+		gMessageSystem->newMessageFast(_PREHASH_AgentSit);
+		gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+		gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+		gAgent.sendReliableMessage();
+	}
 }
 
 void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
@@ -3518,9 +3521,6 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 		{
 			gAgent.startAutoPilotGlobal(gAgent.getPosGlobalFromAgent(sit_spot), "Sit", &sitRotation, near_sit_object, NULL, 0.5f);
 		}
-
-		// deselect transient selections (pie menu) when sitting
-		gSelectMgr->deselectTransient();
 	}
 	else
 	{

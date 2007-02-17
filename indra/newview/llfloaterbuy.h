@@ -22,6 +22,7 @@
 
 class LLViewerObject;
 class LLSaleInfo;
+class LLObjectSelection;
 
 class LLFloaterBuy
 : public LLFloater, public LLVOInventoryListener
@@ -47,6 +48,7 @@ protected:
 private:
 	static LLFloaterBuy* sInstance;
 
+	LLHandle<LLObjectSelection>	mObjectSelection;
 	LLSaleInfo mSaleInfo;
 };
 

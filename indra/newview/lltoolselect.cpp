@@ -174,9 +174,10 @@ void LLToolSelect::handleObjectSelection(LLViewerObject *object, MASK mask, BOOL
 			if (!already_selected)
 			{
 				LLViewerObject* root_object = (LLViewerObject*)object->getRootEdit();
+				LLObjectSelectionHandle selection = gSelectMgr->getSelection();
 
 				// this is just a temporary selection
-				LLSelectNode* select_node = gSelectMgr->findSelectNode(root_object);
+				LLSelectNode* select_node = selection->findNode(root_object);
 				if (select_node)
 				{
 					select_node->setTransient(TRUE);
@@ -184,7 +185,7 @@ void LLToolSelect::handleObjectSelection(LLViewerObject *object, MASK mask, BOOL
 
 				for (S32 i = 0; i < (S32)root_object->mChildList.size(); i++)
 				{
-					select_node = gSelectMgr->findSelectNode(root_object->mChildList[i]);
+					select_node = selection->findNode(root_object->mChildList[i]);
 					if (select_node)
 					{
 						select_node->setTransient(TRUE);

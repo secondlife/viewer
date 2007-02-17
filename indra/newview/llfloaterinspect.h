@@ -14,6 +14,7 @@
 #include "llfloater.h"
 
 //class LLTool;
+class LLObjectSelection;
 class LLScrollListCtrl;
 class LLUICtrl;
 
@@ -42,6 +43,8 @@ protected:
 private:
 	// static data
 	static LLFloaterInspect* sInstance;
+
+	LLHandle<LLObjectSelection> mObjectSelection;
 };
 
 #endif //LL_LLFLOATERINSPECT_H

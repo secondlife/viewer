@@ -94,7 +94,7 @@ static const BOOL BUY_PERSONAL_LAND = FALSE;
 LLFloaterLand* LLFloaterLand::sInstance = NULL;
 LLParcelSelectionObserver* LLFloaterLand::sObserver = NULL;
 S32 LLFloaterLand::sLastTab = 0;
-BOOL LLFloaterLand::sRequestReplyOnUpdate = TRUE;
+
 LLViewHandle LLPanelLandGeneral::sBuyPassDialogHandle;
 
 // Local classes
@@ -174,13 +174,11 @@ void LLFloaterLand::show()
 
 	// If we've already got the parcel data, fill the
 	// floater with it.
-	LLParcel *parcel = gParcelMgr->getSelectedParcel();
-	if (parcel)
+	sInstance->mParcel = gParcelMgr->getFloatingParcelSelection();
+	if (sInstance->mParcel->getParcel())
 	{
 		sInstance->refresh();
 	}
-
-	sRequestReplyOnUpdate = TRUE;
 }
 
 //static
@@ -214,29 +212,12 @@ void LLFloaterLand::refreshAll()
 	}
 }
 
-
-// virtual
-BOOL LLFloaterLand::canClose()
-{
-	// canClose is checked as the first step of attempting to close
-	// the window, before focus is released from controls.  Since we're
-	// closing the window and deselecting the land, we
-	// don't want replies to the upstream messages that get sent
-	// (because the reply will cause the land to be selected again).
-	sRequestReplyOnUpdate = FALSE;
-	return TRUE;
-}
-
 // virtual
 void LLFloaterLand::onClose(bool app_quitting)
 {
 	gParcelMgr->removeObserver( sObserver );
 	delete sObserver;
 	sObserver = NULL;
-
-	// Must do this after removing observer, otherwise
-	// infinite loops notifying and closing.
-	gParcelMgr->deselectLand();
 
 	// Might have been showing owned objects
 	gSelectMgr->unhighlightAll();
@@ -302,7 +283,7 @@ void LLFloaterLand::refresh()
 void* LLFloaterLand::createPanelLandGeneral(void* data)
 {
 	LLFloaterLand* self = (LLFloaterLand*)data;
-	self->mPanelGeneral = new LLPanelLandGeneral();
+	self->mPanelGeneral = new LLPanelLandGeneral(self->mParcel);
 	return self->mPanelGeneral;
 }
 
@@ -312,7 +293,7 @@ void* LLFloaterLand::createPanelLandGeneral(void* data)
 void* LLFloaterLand::createPanelLandCovenant(void* data)
 {
 	LLFloaterLand* self = (LLFloaterLand*)data;
-	self->mPanelCovenant = new LLPanelLandCovenant();
+	self->mPanelCovenant = new LLPanelLandCovenant(self->mParcel);
 	return self->mPanelCovenant;
 }
 
@@ -321,7 +302,7 @@ void* LLFloaterLand::createPanelLandCovenant(void* data)
 void* LLFloaterLand::createPanelLandObjects(void* data)
 {
 	LLFloaterLand* self = (LLFloaterLand*)data;
-	self->mPanelObjects = new LLPanelLandObjects();
+	self->mPanelObjects = new LLPanelLandObjects(self->mParcel);
 	return self->mPanelObjects;
 }
 
@@ -329,7 +310,7 @@ void* LLFloaterLand::createPanelLandObjects(void* data)
 void* LLFloaterLand::createPanelLandOptions(void* data)
 {
 	LLFloaterLand* self = (LLFloaterLand*)data;
-	self->mPanelOptions = new LLPanelLandOptions();
+	self->mPanelOptions = new LLPanelLandOptions(self->mParcel);
 	return self->mPanelOptions;
 }
 
@@ -337,7 +318,7 @@ void* LLFloaterLand::createPanelLandOptions(void* data)
 void* LLFloaterLand::createPanelLandMedia(void* data)
 {
 	LLFloaterLand* self = (LLFloaterLand*)data;
-	self->mPanelMedia = new LLPanelLandMedia();
+	self->mPanelMedia = new LLPanelLandMedia(self->mParcel);
 	return self->mPanelMedia;
 }
 
@@ -345,7 +326,7 @@ void* LLFloaterLand::createPanelLandMedia(void* data)
 void* LLFloaterLand::createPanelLandAccess(void* data)
 {
 	LLFloaterLand* self = (LLFloaterLand*)data;
-	self->mPanelAccess = new LLPanelLandAccess();
+	self->mPanelAccess = new LLPanelLandAccess(self->mParcel);
 	return self->mPanelAccess;
 }
 
@@ -353,7 +334,7 @@ void* LLFloaterLand::createPanelLandAccess(void* data)
 void* LLFloaterLand::createPanelLandBan(void* data)
 {
 	LLFloaterLand* self = (LLFloaterLand*)data;
-	self->mPanelBan = new LLPanelLandBan();
+	self->mPanelBan = new LLPanelLandBan(self->mParcel);
 	return self->mPanelBan;
 }
 
@@ -363,8 +344,9 @@ void* LLFloaterLand::createPanelLandBan(void* data)
 //---------------------------------------------------------------------------
 
 
-LLPanelLandGeneral::LLPanelLandGeneral()
+LLPanelLandGeneral::LLPanelLandGeneral(LLParcelSelectionHandle& parcel)
 :	LLPanel("land_general_panel"),
+	mParcel(parcel),
 	mUncheckedSell(FALSE)
 {
 }
@@ -452,9 +434,8 @@ BOOL LLPanelLandGeneral::postBuild()
 	mBtnBuyGroupLand->setClickedCallback(onClickBuyLand, (void*)&BUY_GROUP_LAND);
 	
 	
-	static BOOL deselect_when_done = FALSE;
 	mBtnBuyPass = LLUICtrlFactory::getButtonByName(this, "Buy Pass...");
-	mBtnBuyPass->setClickedCallback(onClickBuyPass, &deselect_when_done);
+	mBtnBuyPass->setClickedCallback(onClickBuyPass, this);
 
 	mBtnReleaseLand = LLUICtrlFactory::getButtonByName(this, "Abandon Land...");
 	mBtnReleaseLand->setClickedCallback(onClickRelease, NULL);
@@ -479,7 +460,7 @@ void LLPanelLandGeneral::refresh()
 {
 	mBtnStartAuction->setVisible(gAgent.isGodlike());
 
-	LLParcel *parcel = gParcelMgr->getSelectedParcel();
+	LLParcel *parcel = mParcel->getParcel();
 	bool region_owner = false;
 	LLViewerRegion* regionp = gParcelMgr->getSelectionRegion();
 	if(regionp && (regionp->getOwner() == gAgent.getID()))
@@ -761,7 +742,7 @@ void LLPanelLandGeneral::refresh()
 // public
 void LLPanelLandGeneral::refreshNames()
 {
-	LLParcel *parcel = gParcelMgr->getSelectedParcel();
+	LLParcel *parcel = mParcel->getParcel();
 	if (!parcel)
 	{
 		mTextOwner->setText("");
@@ -841,7 +822,8 @@ void LLPanelLandGeneral::onClickSetGroup(void* userdata)
 // static
 void LLPanelLandGeneral::onClickProfile(void* data)
 {
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLPanelLandGeneral* panelp = (LLPanelLandGeneral*)data;
+	LLParcel* parcel = panelp->mParcel->getParcel();
 	if (!parcel) return;
 
 	if (parcel->getIsGroupOwned())
@@ -866,7 +848,7 @@ void LLPanelLandGeneral::cbGroupID(LLUUID group_id, void* userdata)
 // public
 void LLPanelLandGeneral::setGroup(const LLUUID& group_id)
 {
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLParcel* parcel = mParcel->getParcel();
 	if (!parcel) return;
 
 	// Set parcel properties and send message
@@ -875,7 +857,7 @@ void LLPanelLandGeneral::setGroup(const LLUUID& group_id)
 	//mTextGroup->setText(group_name);
 
 	// Send update
-	gParcelMgr->sendParcelPropertiesUpdate(parcel, LLFloaterLand::sRequestReplyOnUpdate);
+	gParcelMgr->sendParcelPropertiesUpdate(parcel);
 
 	// Update UI
 	refresh();
@@ -888,16 +870,17 @@ void LLPanelLandGeneral::onClickBuyLand(void* data)
 	gParcelMgr->startBuyLand(*for_group);
 }
 
-BOOL LLPanelLandGeneral::enableDeedToGroup(void*)
+BOOL LLPanelLandGeneral::enableDeedToGroup(void* data)
 {
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLPanelLandGeneral* panelp = (LLPanelLandGeneral*)data;
+	LLParcel* parcel = panelp->mParcel->getParcel();
 	return (parcel != NULL) && (parcel->getParcelFlag(PF_ALLOW_DEED_TO_GROUP));
 }
 
 // static
 void LLPanelLandGeneral::onClickDeed(void*)
 {
-	//LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	//LLParcel* parcel = mParcel->getParcel();
 	//if (parcel)
 	//{
 	gParcelMgr->startDeedLandToGroup();
@@ -918,17 +901,20 @@ void LLPanelLandGeneral::onClickReclaim(void*)
 }
 
 // static
-BOOL LLPanelLandGeneral::enableBuyPass(void*)
+BOOL LLPanelLandGeneral::enableBuyPass(void* data)
 {
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLPanelLandGeneral* panelp = (LLPanelLandGeneral*)data;
+	LLParcel* parcel = panelp != NULL ? panelp->mParcel->getParcel() : gParcelMgr->getParcelSelection()->getParcel();
 	return (parcel != NULL) && (parcel->getParcelFlag(PF_USE_PASS_LIST) && !gParcelMgr->isCollisionBanned());
 }
 
 
 // static
-void LLPanelLandGeneral::onClickBuyPass(void* deselect_when_done)
+void LLPanelLandGeneral::onClickBuyPass(void* data)
 {
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLPanelLandGeneral* panelp = (LLPanelLandGeneral*)data;
+	LLParcel* parcel = panelp != NULL ? panelp->mParcel->getParcel() : gParcelMgr->getParcelSelection()->getParcel();
+
 	if (!parcel) return;
 
 	S32 pass_price = parcel->getPassPrice();
@@ -944,13 +930,14 @@ void LLPanelLandGeneral::onClickBuyPass(void* deselect_when_done)
 	args["[PARCEL_NAME]"] = parcel_name;
 	args["[TIME]"] = time;
 	
-	sBuyPassDialogHandle = gViewerWindow->alertXml("LandBuyPass", args, cbBuyPass, deselect_when_done)->getHandle();
+	sBuyPassDialogHandle = gViewerWindow->alertXml("LandBuyPass", args, cbBuyPass)->getHandle();
 }
 
 // static
-void LLPanelLandGeneral::onClickStartAuction(void*)
+void LLPanelLandGeneral::onClickStartAuction(void* data)
 {
-	LLParcel* parcelp = gParcelMgr->getSelectedParcel();
+	LLPanelLandGeneral* panelp = (LLPanelLandGeneral*)data;
+	LLParcel* parcelp = panelp->mParcel->getParcel();
 	if(parcelp)
 	{
 		if(parcelp->getForSale())
@@ -967,17 +954,10 @@ void LLPanelLandGeneral::onClickStartAuction(void*)
 // static
 void LLPanelLandGeneral::cbBuyPass(S32 option, void* data)
 {
-	BOOL deselect_when_done = (BOOL)(intptr_t)data;
-
 	if (0 == option)
 	{
 		// User clicked OK
 		gParcelMgr->buyPass();
-	}
-
-	if (deselect_when_done)
-	{
-		gParcelMgr->deselectLand();
 	}
 }
 
@@ -992,7 +972,7 @@ void LLPanelLandGeneral::onCommitAny(LLUICtrl *ctrl, void *userdata)
 {
 	LLPanelLandGeneral *panelp = (LLPanelLandGeneral *)userdata;
 
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLParcel* parcel = panelp->mParcel->getParcel();
 	if (!parcel)
 	{
 		return;
@@ -1015,7 +995,7 @@ void LLPanelLandGeneral::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	parcel->setContributeWithDeed(contribute_with_deed);
 
 	// Send update to server
-	gParcelMgr->sendParcelPropertiesUpdate( parcel, LLFloaterLand::sRequestReplyOnUpdate );
+	gParcelMgr->sendParcelPropertiesUpdate( parcel );
 
 	// Might have changed properties, so let's redraw!
 	panelp->refresh();
@@ -1030,20 +1010,21 @@ void LLPanelLandGeneral::onClickSellLand(void* data)
 // static
 void LLPanelLandGeneral::onClickStopSellLand(void* data)
 {
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLPanelLandGeneral* panelp = (LLPanelLandGeneral*)data;
+	LLParcel* parcel = panelp->mParcel->getParcel();
 
 	parcel->setParcelFlag(PF_FOR_SALE, FALSE);
 	parcel->setSalePrice(0);
 	parcel->setAuthorizedBuyerID(LLUUID::null);
 
-	gParcelMgr->sendParcelPropertiesUpdate(parcel, LLFloaterLand::sRequestReplyOnUpdate);
+	gParcelMgr->sendParcelPropertiesUpdate(parcel);
 }
 
 //---------------------------------------------------------------------------
 // LLPanelLandObjects
 //---------------------------------------------------------------------------
-LLPanelLandObjects::LLPanelLandObjects()
-:	LLPanel("land_objects_panel")
+LLPanelLandObjects::LLPanelLandObjects(LLParcelSelectionHandle& parcel)
+:	LLPanel("land_objects_panel"), mParcel(parcel)
 {
 }
 
@@ -1211,7 +1192,7 @@ void LLPanelLandObjects::onDoubleClickOwner(void *userdata)
 // public
 void LLPanelLandObjects::refresh()
 {
-	LLParcel *parcel = gParcelMgr->getSelectedParcel();
+	LLParcel *parcel = mParcel->getParcel();
 
 	mBtnShowOwnerObjects->setEnabled(FALSE);
 	mBtnShowGroupObjects->setEnabled(FALSE);
@@ -1406,7 +1387,7 @@ void send_return_objects_message(S32 parcel_local_id, S32 return_type,
 void LLPanelLandObjects::callbackReturnOwnerObjects(S32 option, void* userdata)
 {
 	LLPanelLandObjects	*lop = (LLPanelLandObjects *)userdata;
-	LLParcel *parcel = gParcelMgr->getSelectedParcel();
+	LLParcel *parcel = lop->mParcel->getParcel();
 	if (0 == option)
 	{
 		if (parcel)
@@ -1431,7 +1412,7 @@ void LLPanelLandObjects::callbackReturnOwnerObjects(S32 option, void* userdata)
 	}
 
 	gSelectMgr->unhighlightAll();
-	gParcelMgr->sendParcelPropertiesUpdate( parcel, LLFloaterLand::sRequestReplyOnUpdate );
+	gParcelMgr->sendParcelPropertiesUpdate( parcel );
 	lop->refresh();
 }
 
@@ -1439,7 +1420,7 @@ void LLPanelLandObjects::callbackReturnOwnerObjects(S32 option, void* userdata)
 void LLPanelLandObjects::callbackReturnGroupObjects(S32 option, void* userdata)
 {
 	LLPanelLandObjects	*lop = (LLPanelLandObjects *)userdata;
-	LLParcel *parcel = gParcelMgr->getSelectedParcel();
+	LLParcel *parcel = lop->mParcel->getParcel();
 	if (0 == option)
 	{
 		if (parcel)
@@ -1453,7 +1434,7 @@ void LLPanelLandObjects::callbackReturnGroupObjects(S32 option, void* userdata)
 		}
 	}
 	gSelectMgr->unhighlightAll();
-	gParcelMgr->sendParcelPropertiesUpdate( parcel, LLFloaterLand::sRequestReplyOnUpdate );
+	gParcelMgr->sendParcelPropertiesUpdate( parcel );
 	lop->refresh();
 }
 
@@ -1461,7 +1442,7 @@ void LLPanelLandObjects::callbackReturnGroupObjects(S32 option, void* userdata)
 void LLPanelLandObjects::callbackReturnOtherObjects(S32 option, void* userdata)
 {
 	LLPanelLandObjects	*lop = (LLPanelLandObjects *)userdata;
-	LLParcel *parcel = gParcelMgr->getSelectedParcel();
+	LLParcel *parcel = lop->mParcel->getParcel();
 	if (0 == option)
 	{
 		if (parcel)
@@ -1471,7 +1452,7 @@ void LLPanelLandObjects::callbackReturnOtherObjects(S32 option, void* userdata)
 		}
 	}
 	gSelectMgr->unhighlightAll();
-	gParcelMgr->sendParcelPropertiesUpdate( parcel, LLFloaterLand::sRequestReplyOnUpdate );
+	gParcelMgr->sendParcelPropertiesUpdate( parcel );
 	lop->refresh();
 }
 
@@ -1479,7 +1460,7 @@ void LLPanelLandObjects::callbackReturnOtherObjects(S32 option, void* userdata)
 void LLPanelLandObjects::callbackReturnOwnerList(S32 option, void* userdata)
 {
 	LLPanelLandObjects	*self = (LLPanelLandObjects *)userdata;
-	LLParcel *parcel = gParcelMgr->getSelectedParcel();
+	LLParcel *parcel = self->mParcel->getParcel();
 	if (0 == option)
 	{
 		if (parcel)
@@ -1506,7 +1487,7 @@ void LLPanelLandObjects::callbackReturnOwnerList(S32 option, void* userdata)
 		}
 	}
 	gSelectMgr->unhighlightAll();
-	gParcelMgr->sendParcelPropertiesUpdate( parcel, LLFloaterLand::sRequestReplyOnUpdate );
+	gParcelMgr->sendParcelPropertiesUpdate( parcel );
 	self->refresh();
 }
 
@@ -1524,7 +1505,7 @@ void LLPanelLandObjects::onClickReturnOwnerList(void* userdata)
 
 	gParcelMgr->getPrimInfo(sw_max, sw_total, max, total, owned, group, other, selected, parcel_object_bonus, other_time);
 
-	LLParcel* parcelp = gParcelMgr->getSelectedParcel();
+	LLParcel* parcelp = self->mParcel->getParcel();
 	if (!parcelp) return;
 
 	// Make sure we have something selected.
@@ -1558,7 +1539,7 @@ void LLPanelLandObjects::onClickRefresh(void* userdata)
 
 	LLMessageSystem *msg = gMessageSystem;
 
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLParcel* parcel = self->mParcel->getParcel();
 	if (!parcel) return;
 
 	LLViewerRegion* region = gParcelMgr->getSelectionRegion();
@@ -1711,7 +1692,7 @@ void LLPanelLandObjects::onCommitList(LLUICtrl* ctrl, void* data)
 		self->mBtnReturnOwnerList->setEnabled(TRUE);
 
 		// Highlight this user's objects
-		clickShowCore(RT_LIST, &(self->mSelectedOwners));
+		clickShowCore(self, RT_LIST, &(self->mSelectedOwners));
 	}
 }
 
@@ -1738,30 +1719,30 @@ void LLPanelLandObjects::onClickName(void* userdata)
 }
 
 // static
-void LLPanelLandObjects::clickShowCore(S32 return_type, uuid_list_t* list)
+void LLPanelLandObjects::clickShowCore(LLPanelLandObjects* self, S32 return_type, uuid_list_t* list)
 {
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLParcel* parcel = self->mParcel->getParcel();
 	if (!parcel) return;
 
 	send_parcel_select_objects(parcel->getLocalID(), return_type, list);
 }
 
 // static
-void LLPanelLandObjects::onClickShowOwnerObjects(void*)
+void LLPanelLandObjects::onClickShowOwnerObjects(void* userdata)
 {
-	clickShowCore(RT_OWNER);
+	clickShowCore((LLPanelLandObjects*)userdata, RT_OWNER);
 }
 
 // static
-void LLPanelLandObjects::onClickShowGroupObjects(void*)
+void LLPanelLandObjects::onClickShowGroupObjects(void* userdata)
 {
-	clickShowCore(RT_GROUP);
+	clickShowCore((LLPanelLandObjects*)userdata, (RT_GROUP));
 }
 
 // static
-void LLPanelLandObjects::onClickShowOtherObjects(void*)
+void LLPanelLandObjects::onClickShowOtherObjects(void* userdata)
 {
-	clickShowCore(RT_OTHER);
+	clickShowCore((LLPanelLandObjects*)userdata, RT_OTHER);
 }
 
 // static
@@ -1775,7 +1756,8 @@ void LLPanelLandObjects::onClickReturnOwnerObjects(void* userdata)
 
 	gParcelMgr->getPrimInfo(sw_max, sw_total, max, total, owned, group, other, selected, parcel_object_bonus, other_time);
 
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLPanelLandObjects* panelp = (LLPanelLandObjects*)userdata;
+	LLParcel* parcel = panelp->mParcel->getParcel();
 	if (!parcel) return;
 
 	send_parcel_select_objects(parcel->getLocalID(), RT_OWNER);
@@ -1813,7 +1795,8 @@ void LLPanelLandObjects::onClickReturnGroupObjects(void* userdata)
 	
 	gParcelMgr->getPrimInfo(sw_max, sw_total, max, total, owned, group, other, selected, parcel_object_bonus, other_time);
 
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLPanelLandObjects* panelp = (LLPanelLandObjects*)userdata;
+	LLParcel* parcel = panelp->mParcel->getParcel();
 	if (!parcel) return;
 
 	send_parcel_select_objects(parcel->getLocalID(), RT_GROUP);
@@ -1840,7 +1823,8 @@ void LLPanelLandObjects::onClickReturnOtherObjects(void* userdata)
 
 	gParcelMgr->getPrimInfo(sw_max, sw_total, max, total, owned, group, other, selected, parcel_object_bonus, other_time);
 
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLPanelLandObjects* panelp = (LLPanelLandObjects*)userdata;
+	LLParcel* parcel = panelp->mParcel->getParcel();
 	if (!parcel) return;
 
 	send_parcel_select_objects(parcel->getLocalID(), RT_OTHER);
@@ -1884,7 +1868,7 @@ void LLPanelLandObjects::onClickReturnOtherObjects(void* userdata)
 void LLPanelLandObjects::onLostFocus(LLLineEditor *caller, void* user_data)
 {
 	LLPanelLandObjects	*lop = (LLPanelLandObjects *)user_data;
-	LLParcel *parcel = gParcelMgr->getSelectedParcel();
+	LLParcel* parcel = lop->mParcel->getParcel();
 	if (parcel)
 	{
 		lop->mOtherTime = atoi(lop->mCleanOtherObjectsTime->getText().c_str());
@@ -1899,7 +1883,7 @@ void LLPanelLandObjects::onLostFocus(LLLineEditor *caller, void* user_data)
 // LLPanelLandOptions
 //---------------------------------------------------------------------------
 
-LLPanelLandOptions::LLPanelLandOptions()
+LLPanelLandOptions::LLPanelLandOptions(LLParcelSelectionHandle& parcel)
 :	LLPanel("land_options_panel"),
 	mCheckEditObjects(NULL),
 	mCheckEditGroupObjects(NULL),
@@ -1921,7 +1905,8 @@ LLPanelLandOptions::LLPanelLandOptions()
 	mAllowPublishCtrl(NULL),
 	mMatureCtrl(NULL),
 	mPushRestrictionCtrl(NULL),
-	mPublishHelpButton(NULL)
+	mPublishHelpButton(NULL),
+	mParcel(parcel)
 {
 
 }
@@ -2054,7 +2039,7 @@ LLPanelLandOptions::~LLPanelLandOptions()
 // public
 void LLPanelLandOptions::refresh()
 {
-	LLParcel *parcel = gParcelMgr->getSelectedParcel();
+	LLParcel *parcel = mParcel->getParcel();
 	
 	if (!parcel)
 	{
@@ -2225,7 +2210,7 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 {
 	LLPanelLandOptions *self = (LLPanelLandOptions *)userdata;
 
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLParcel* parcel = self->mParcel->getParcel();
 	if (!parcel)
 	{
 		return;
@@ -2279,7 +2264,7 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	parcel->setSnapshotID(snapshot_id);
 
 	// Send current parcel data upstream to server
-	gParcelMgr->sendParcelPropertiesUpdate( parcel, LLFloaterLand::sRequestReplyOnUpdate );
+	gParcelMgr->sendParcelPropertiesUpdate( parcel );
 
 	// Might have changed properties, so let's redraw!
 	self->refresh();
@@ -2291,7 +2276,7 @@ void LLPanelLandOptions::onClickSet(void* userdata)
 {
 	LLPanelLandOptions* self = (LLPanelLandOptions*)userdata;
 
-	LLParcel* selected_parcel = gParcelMgr->getSelectedParcel();
+	LLParcel* selected_parcel = self->mParcel->getParcel();
 	if (!selected_parcel) return;
 
 	LLParcel* agent_parcel = gParcelMgr->getAgentParcel();
@@ -2307,7 +2292,7 @@ void LLPanelLandOptions::onClickSet(void* userdata)
 	selected_parcel->setUserLocation(pos_region);
 	selected_parcel->setUserLookAt(gAgent.getFrameAgent().getAtAxis());
 
-	gParcelMgr->sendParcelPropertiesUpdate(selected_parcel, LLFloaterLand::sRequestReplyOnUpdate);
+	gParcelMgr->sendParcelPropertiesUpdate(selected_parcel);
 
 	self->refresh();
 }
@@ -2316,7 +2301,7 @@ void LLPanelLandOptions::onClickClear(void* userdata)
 {
 	LLPanelLandOptions* self = (LLPanelLandOptions*)userdata;
 
-	LLParcel* selected_parcel = gParcelMgr->getSelectedParcel();
+	LLParcel* selected_parcel = self->mParcel->getParcel();
 	if (!selected_parcel) return;
 
 	// yes, this magic number of 0,0,0 means that it is clear
@@ -2324,7 +2309,7 @@ void LLPanelLandOptions::onClickClear(void* userdata)
 	selected_parcel->setUserLocation(zero_vec);
 	selected_parcel->setUserLookAt(zero_vec);
 
-	gParcelMgr->sendParcelPropertiesUpdate(selected_parcel, LLFloaterLand::sRequestReplyOnUpdate);
+	gParcelMgr->sendParcelPropertiesUpdate(selected_parcel);
 
 	self->refresh();
 }
@@ -2339,8 +2324,8 @@ void LLPanelLandOptions::onClickPublishHelp(void*)
 // LLPanelLandMedia
 //---------------------------------------------------------------------------
 
-LLPanelLandMedia::LLPanelLandMedia()
-:	LLPanel("land_media_panel")
+LLPanelLandMedia::LLPanelLandMedia(LLParcelSelectionHandle& parcel)
+:	LLPanel("land_media_panel"), mParcel(parcel)
 {
 }
 
@@ -2382,7 +2367,7 @@ LLPanelLandMedia::~LLPanelLandMedia()
 // public
 void LLPanelLandMedia::refresh()
 {
-	LLParcel *parcel = gParcelMgr->getSelectedParcel();
+	LLParcel *parcel = mParcel->getParcel();
 
 	if (!parcel)
 	{
@@ -2467,7 +2452,7 @@ void LLPanelLandMedia::onCommitAny(LLUICtrl *ctrl, void *userdata)
 {
 	LLPanelLandMedia *self = (LLPanelLandMedia *)userdata;
 
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLParcel* parcel = self->mParcel->getParcel();
 	if (!parcel)
 	{
 		return;
@@ -2488,7 +2473,7 @@ void LLPanelLandMedia::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	parcel->setMediaAutoScale ( media_auto_scale );
 
 	// Send current parcel data upstream to server
-	gParcelMgr->sendParcelPropertiesUpdate( parcel, LLFloaterLand::sRequestReplyOnUpdate );
+	gParcelMgr->sendParcelPropertiesUpdate( parcel );
 
 	// Might have changed properties, so let's redraw!
 	self->refresh();
@@ -2512,8 +2497,8 @@ void LLPanelLandMedia::onClickStartMedia ( void* data )
 // LLPanelLandAccess
 //---------------------------------------------------------------------------
 
-LLPanelLandAccess::LLPanelLandAccess()
-:	LLPanel("land_access_panel")
+LLPanelLandAccess::LLPanelLandAccess(LLParcelSelectionHandle& parcel)
+:	LLPanel("land_access_panel"), mParcel(parcel)
 {
 }
 
@@ -2555,13 +2540,14 @@ BOOL LLPanelLandAccess::postBuild()
 
 
 LLPanelLandAccess::~LLPanelLandAccess()
-{ }
+{ 
+}
 
 void LLPanelLandAccess::refresh()
 {
 	mListAccess->deleteAllItems();
 
-	LLParcel *parcel = gParcelMgr->getSelectedParcel();
+	LLParcel *parcel = mParcel->getParcel();
 
 	if (parcel)
 	{
@@ -2667,7 +2653,7 @@ void LLPanelLandAccess::refresh()
 // public
 void LLPanelLandAccess::refreshNames()
 {
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLParcel* parcel = mParcel->getParcel();
 	char group_name[DB_GROUP_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 	group_name[0] = '\0';
 	if(parcel)
@@ -2698,7 +2684,7 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 {
 	LLPanelLandAccess *self = (LLPanelLandAccess *)userdata;
 
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLParcel* parcel = self->mParcel->getParcel();
 	if (!parcel)
 	{
 		return;
@@ -2731,7 +2717,7 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	parcel->setPassHours( pass_hours );
 
 	// Send current parcel data upstream to server
-	gParcelMgr->sendParcelPropertiesUpdate( parcel, LLFloaterLand::sRequestReplyOnUpdate );
+	gParcelMgr->sendParcelPropertiesUpdate( parcel );
 
 	// Might have changed properties, so let's redraw!
 	self->refresh();
@@ -2755,7 +2741,7 @@ void LLPanelLandAccess::callbackAvatarID(const std::vector<std::string>& names, 
 
 void LLPanelLandAccess::addAvatar(LLUUID id)
 {
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLParcel* parcel = mParcel->getParcel();
 	if (!parcel) return;
 
 	parcel->addToAccessList(id, 0);
@@ -2775,7 +2761,7 @@ void LLPanelLandAccess::onClickRemove(void* data)
 	LLScrollListItem* item = self->mListAccess->getFirstSelected();
 	if (!item) return;
 
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLParcel* parcel = self->mParcel->getParcel();
 	if (!parcel) return;
 
 	const LLUUID& agent_id = item->getUUID();
@@ -2792,8 +2778,8 @@ void LLPanelLandAccess::onClickRemove(void* data)
 //---------------------------------------------------------------------------
 // LLPanelLandBan
 //---------------------------------------------------------------------------
-LLPanelLandBan::LLPanelLandBan()
-:	LLPanel("land_ban_panel")
+LLPanelLandBan::LLPanelLandBan(LLParcelSelectionHandle& parcel)
+:	LLPanel("land_ban_panel"), mParcel(parcel)
 {
 
 }
@@ -2837,7 +2823,7 @@ void LLPanelLandBan::refresh()
 {
 	mList->deleteAllItems();
 
-	LLParcel *parcel = gParcelMgr->getSelectedParcel();
+	LLParcel *parcel = mParcel->getParcel();
 
 	if (parcel)
 	{
@@ -2949,7 +2935,7 @@ void LLPanelLandBan::onCommitAny(LLUICtrl *ctrl, void *userdata)
 {
 	LLPanelLandBan *self = (LLPanelLandBan*)userdata;
 
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLParcel* parcel = self->mParcel->getParcel();
 	if (!parcel)
 	{
 		return;
@@ -2968,7 +2954,7 @@ void LLPanelLandBan::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	parcel->setParcelFlag(PF_DENY_TRANSACTED, deny_access_transacted);
 
 	// Send current parcel data upstream to server
-	gParcelMgr->sendParcelPropertiesUpdate( parcel, LLFloaterLand::sRequestReplyOnUpdate );
+	gParcelMgr->sendParcelPropertiesUpdate( parcel );
 
 	// Might have changed properties, so let's redraw!
 	self->refresh();
@@ -2992,7 +2978,7 @@ void LLPanelLandBan::callbackAvatarID(const std::vector<std::string>& names, con
 
 void LLPanelLandBan::addAvatar(LLUUID id)
 {
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLParcel* parcel = mParcel->getParcel();
 	if (!parcel) return;
 
 	parcel->addToBanList(id, 0);
@@ -3012,7 +2998,7 @@ void LLPanelLandBan::onClickRemove(void* data)
 	LLScrollListItem* item = self->mList->getFirstSelected();
 	if (!item) return;
 
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	LLParcel* parcel = self->mParcel->getParcel();
 	if (!parcel) return;
 
 	const LLUUID& agent_id = item->getUUID();
@@ -3027,8 +3013,8 @@ void LLPanelLandBan::onClickRemove(void* data)
 //---------------------------------------------------------------------------
 // LLPanelLandRenters
 //---------------------------------------------------------------------------
-LLPanelLandRenters::LLPanelLandRenters()
-:	LLPanel("landrenters", LLRect(0,500,500,0))
+LLPanelLandRenters::LLPanelLandRenters(LLParcelSelectionHandle& parcel)
+:	LLPanel("landrenters", LLRect(0,500,500,0)), mParcel(parcel)
 {
 	const S32 BTN_WIDTH = 64;
 
@@ -3103,8 +3089,8 @@ void LLPanelLandRenters::onClickRemove(void*)
 //---------------------------------------------------------------------------
 // LLPanelLandCovenant
 //---------------------------------------------------------------------------
-LLPanelLandCovenant::LLPanelLandCovenant()
-:	LLPanel("land_covenant_panel")
+LLPanelLandCovenant::LLPanelLandCovenant(LLParcelSelectionHandle& parcel)
+:	LLPanel("land_covenant_panel"), mParcel(parcel)
 {	
 }
 

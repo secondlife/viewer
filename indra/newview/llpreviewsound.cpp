@@ -16,6 +16,7 @@
 #include "audioengine.h"
 #include "llviewermessage.h"  // send_guid_sound_trigger
 #include "llagent.h"          // gAgent
+#include "lllineeditor.h"
 #include "llvieweruictrlfactory.h"
 
 extern LLAudioEngine* gAudiop;

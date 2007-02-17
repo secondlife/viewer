@@ -2299,7 +2299,7 @@ void LLPipeline::stateSort()
 	{
 		LLViewerObject *vobjp;
 		S32             te;
-		gSelectMgr->getFirstTE(&vobjp,&te);
+		gSelectMgr->getSelection()->getFirstTE(&vobjp,&te);
 
 		while (vobjp)
 		{
@@ -2351,7 +2351,7 @@ void LLPipeline::stateSort()
 					}
 				}
 			}
-			gSelectMgr->getNextTE(&vobjp,&te);
+			gSelectMgr->getSelection()->getNextTE(&vobjp,&te);
 		}
 	}
 }

@@ -296,7 +296,7 @@ void LLFloaterTexturePicker::setCanApplyImmediately(BOOL b)
 
 void LLFloaterTexturePicker::stopUsingPipette()
 {
-	if (gToolMgr && gToolMgr->getCurrentTool(gKeyboard->currentMask(TRUE)) == gToolPipette)
+	if (gToolMgr && gToolMgr->getCurrentTool() == gToolPipette)
 	{
 		gToolMgr->clearTransientTool();
 	}
@@ -451,7 +451,7 @@ void LLFloaterTexturePicker::draw()
 	childSetEnabled("show_folders_check", mActive && mCanApplyImmediately && !mNoCopyTextureSelected);
 	childSetEnabled("Select", mActive);
 	childSetEnabled("Pipette", gToolMgr != NULL && mActive);
-	childSetValue("Pipette", gToolMgr && gToolMgr->getCurrentTool(gKeyboard->currentMask(TRUE)) == gToolPipette);
+	childSetValue("Pipette", gToolMgr && gToolMgr->getCurrentTool() == gToolPipette);
 
 	//RN: reset search bar to reflect actual search query (all caps, for example)
 	mSearchEdit->setText(mInventoryPanel->getFilterSubString());

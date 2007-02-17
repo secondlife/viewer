@@ -91,11 +91,12 @@ typedef enum e_selection_type
 	SELECT_TYPE_HUD
 }ESelectType;
 
-class LLSelectNodeList : public std::list<LLSelectNode*>
+class LLObjectSelection : public std::list<LLSelectNode*>, public LLRefCount
 {
+	friend class LLSelectMgr;
 public:
-	LLSelectNodeList();
-	virtual ~LLSelectNodeList();
+	LLObjectSelection();
+	virtual ~LLObjectSelection();
 
 	void updateEffects();
 
@@ -110,6 +111,8 @@ public:
 	LLSelectNode *getFirstRootNode();
 	LLSelectNode *getNextRootNode();
 
+	LLSelectNode*	getFirstMoveableNode(BOOL get_root = FALSE);
+
 	// iterate through objects
 	LLViewerObject* getFirstObject();
 	LLViewerObject* getNextObject();
@@ -117,6 +120,11 @@ public:
 	// iterate through root objects
 	LLViewerObject *getFirstRootObject();
 	LLViewerObject *getNextRootObject();
+
+	LLViewerObject*	getFirstEditableObject(BOOL get_root = FALSE);
+	LLViewerObject*	getFirstCopyableObject(BOOL get_root = FALSE);
+	LLViewerObject* getFirstDeleteableObject(BOOL get_root = FALSE);
+	LLViewerObject*	getFirstMoveableObject(BOOL get_root = FALSE);
 
 	// iterate through texture entries
 	void getPrimaryTE(LLViewerObject* *object, S32 *te);
@@ -130,24 +138,36 @@ public:
 	void deleteAllNodes();			// Delete all nodes
 	S32 getNumNodes();
 	LLSelectNode* findNode(LLViewerObject* objectp);
+
+	// count members
+	S32 getObjectCount();
+	S32 getTECount();
+	S32 getRootObjectCount();
+
+	BOOL contains(LLViewerObject* object);
+	BOOL contains(LLViewerObject* object, S32 te);
+
+	// returns TRUE is any node is currenly worn as an attachment
+	BOOL isAttachment();
+
+	// Apply functors to various subsets of the selected objects
+	// Returns the AND of all apply() calls.
+	bool applyToRootObjects(LLSelectedObjectFunctor* func);
+	bool applyToObjects(LLSelectedObjectFunctor* func);
+	bool applyToNodes(LLSelectedNodeFunctor* func);
+
+	ESelectType getSelectType() { return mSelectType; }
+
 private:
-	const LLSelectNodeList &operator=(const LLSelectNodeList &);
+	const LLObjectSelection &operator=(const LLObjectSelection &);
 
-	std::list<LLSelectNode*>::iterator mCurrentNode;
-	S32 mCurrentTE;
-	std::map<LLViewerObject*, LLSelectNode*> mSelectNodeMap;
+	std::list<LLSelectNode*>::iterator			mCurrentNode;
+	S32											mCurrentTE;
+	std::map<LLViewerObject*, LLSelectNode*>	mSelectNodeMap;
+	ESelectType									mSelectType;
 };
 
-struct LLSelectAction
-{
-public:
-	EActionType	mActionType;
-	LLVector3	mPosition;
-	LLVector3	mScale;
-	LLQuaternion	mRotation;
-	LLUUID		mObjectID;
-	BOOL		mIndividualSelection;
-};
+typedef LLHandle<LLObjectSelection> LLObjectSelectionHandle;
 
 class LLSelectMgr : public LLEditMenuHandler
 {
@@ -168,6 +188,7 @@ public:
 	static LLColor4				sHighlightChildColor;
 	static LLColor4				sHighlightInspectColor;
 	static LLColor4				sContextSilhouetteColor;
+
 public:
 	LLSelectMgr();
 	~LLSelectMgr();
@@ -188,114 +209,89 @@ public:
 	virtual void duplicate();
 	virtual BOOL canDuplicate();
 
-	// Apply functors to various subsets of the selected objects
-	// Returns the AND of all apply() calls.
-	bool applyToRootObjects(LLSelectedObjectFunctor* func);
-	bool applyToObjects(LLSelectedObjectFunctor* func);
-	bool applyToNodes(LLSelectedNodeFunctor* func);
-
 	void updateEffects(); // Update HUD effects
 
 	void setForceSelection(BOOL force) { mForceSelection = force; }
 
+	////////////////////////////////////////////////////////////////
+	// Selection methods
+	////////////////////////////////////////////////////////////////
+
+	////////////////////////////////////////////////////////////////
+	// Add
+	////////////////////////////////////////////////////////////////
+
 	// For when you want just a child object.
-	void selectObjectOnly(LLViewerObject* object, S32 face = SELECT_ALL_TES);
+	LLObjectSelectionHandle selectObjectOnly(LLViewerObject* object, S32 face = SELECT_ALL_TES);
 
 	// This method is meant to select an object, and then select all
 	// of the ancestors and descendents. This should be the normal behavior.
-	void selectObjectAndFamily(LLViewerObject* object, BOOL add_to_end = FALSE);
+	LLObjectSelectionHandle selectObjectAndFamily(LLViewerObject* object, BOOL add_to_end = FALSE);
 
 	// Same as above, but takes a list of objects.  Used by rectangle select.
-	void selectObjectAndFamily(const LLDynamicArray<LLViewerObject*>& object_list, BOOL send_to_sim = TRUE);
+	LLObjectSelectionHandle selectObjectAndFamily(const LLDynamicArray<LLViewerObject*>& object_list, BOOL send_to_sim = TRUE);
 
-	void deselectObjectOnly(LLViewerObject* object, BOOL send_to_sim = TRUE);
+	// converts all objects currently highlighted to a selection, and returns it
+	LLObjectSelectionHandle selectHighlightedObjects();
 
-	void deselectObjectAndFamily(LLViewerObject* object, BOOL send_to_sim = TRUE);
-
-	void deselectTransient(); // deselect "temporarily" selected objects (via pie menu)
-	void convertTransient(); // converts temporarily selected objects to full-fledged selections
-
-	// Send deselect messages to simulator, then clear the list
-	void deselectAll();
-
-	// Deselect if the selection center is too far away from the agent.
-	void deselectAllIfTooFar();
-
-	BOOL selectionRemoveObject(const LLUUID &id);
-
-	BOOL contains(LLViewerObject* object);
-	BOOL contains(LLViewerObject* object, S32 te);
-
-	ESelectType getSelectType() { return mSelectType; }
-
-	// count members
-	S32 getObjectCount();
-	S32 getTECount();
-	S32 getRootObjectCount();
-
-	BOOL isEmpty()				{ return !mSelectedObjects.getNumNodes(); }
-
-	BOOL shouldShowSelection()	{ return mShowSelection; }
-
-	LLSelectNodeList &getHoverObjects() { return mHoverObjects; }
-	LLSelectNodeList &getSelectedObjects() { return mSelectedObjects; }
-
-	// iterate through objects
-	LLViewerObject* getFirstObject()	{ return mSelectedObjects.getFirstObject(); }
-	LLViewerObject* getNextObject()		{ return mSelectedObjects.getNextObject(); }
-
-	// iterate through root objects
-	LLViewerObject *getFirstRootObject()	{ return mSelectedObjects.getFirstRootObject(); }
-	LLViewerObject *getNextRootObject()		{ return mSelectedObjects.getNextRootObject(); }
-
-	LLViewerObject* getFirstHighlightedObject() { return mHighlightedObjects.getFirstObject(); }
-	LLViewerObject* getNextHighlightedObject() { return mHighlightedObjects.getNextObject(); }
-
-	// iterate through tes
-	void getPrimaryTE(LLViewerObject* *object, S32 *te) { mSelectedObjects.getPrimaryTE(object, te); }
-	void getFirstTE(LLViewerObject* *object, S32 *te)	{ mSelectedObjects.getFirstTE(object, te); }
-	void getNextTE(LLViewerObject* *object, S32 *te)	{ mSelectedObjects.getNextTE(object, te); };
-
-	void setHoverObject(LLViewerObject *objectp);
-	
-	void addGridObject(LLViewerObject* objectp);
-	void clearGridObjects();
-	void setGridMode(EGridMode mode);
-	EGridMode getGridMode() { return mGridMode; }
-	void getGrid(LLVector3& origin, LLQuaternion& rotation, LLVector3 &scale);
+	LLObjectSelectionHandle setHoverObject(LLViewerObject *objectp);
 
 	void highlightObjectOnly(LLViewerObject *objectp);
 	void highlightObjectAndFamily(LLViewerObject *objectp);
 	void highlightObjectAndFamily(const LLDynamicArray<LLViewerObject*>& list);
+
+	////////////////////////////////////////////////////////////////
+	// Remove
+	////////////////////////////////////////////////////////////////
+
+	void deselectObjectOnly(LLViewerObject* object, BOOL send_to_sim = TRUE);
+	void deselectObjectAndFamily(LLViewerObject* object, BOOL send_to_sim = TRUE);
+
+	// Send deselect messages to simulator, then clear the list
+	void deselectAll();
+
+	// deselect only if nothing else currently referencing the selection
+	void deselectUnused();
+
+	// Deselect if the selection center is too far away from the agent.
+	void deselectAllIfTooFar();
+
+	// Removes all highlighted objects from current selection
+	void deselectHighlightedObjects();
+
 	void unhighlightObjectOnly(LLViewerObject *objectp);
 	void unhighlightObjectAndFamily(LLViewerObject *objectp);
 	void unhighlightAll();
-	void selectHighlightedObjects();
-	void deselectHighlightedObjects();
 
-	LLSelectNode *findSelectNode(LLViewerObject *objectp);
-	LLSelectNode *getFirstRootNode()	{ return mSelectedObjects.getFirstRootNode(); }
-	LLSelectNode *getNextRootNode()		{ return mSelectedObjects.getNextRootNode(); }
-	LLSelectNode* getFirstNode()	{ return mSelectedObjects.getFirstNode(); }
-	LLSelectNode* getNextNode()		{ return mSelectedObjects.getNextNode(); }
+	BOOL removeObjectFromSelections(const LLUUID &id);
+
+	////////////////////////////////////////////////////////////////
+	// Selection accessors
+	////////////////////////////////////////////////////////////////
+	LLObjectSelectionHandle	getHoverObjects() { return mHoverObjects; }
+	LLObjectSelectionHandle	getSelection() { return mSelectedObjects; }
+	// right now this just renders the selection with root/child colors instead of a single color
+	LLObjectSelectionHandle	getEditSelection() { convertTransient(); return mSelectedObjects; }
+	LLObjectSelectionHandle	getHighlightedObjects() { return mHighlightedObjects; }
 
 	LLSelectNode *getHoverNode();
+
+	////////////////////////////////////////////////////////////////
+	// Grid manipulation
+	////////////////////////////////////////////////////////////////
+	void			addGridObject(LLViewerObject* objectp);
+	void			clearGridObjects();
+	void			setGridMode(EGridMode mode);
+	EGridMode		getGridMode() { return mGridMode; }
+	void			getGrid(LLVector3& origin, LLQuaternion& rotation, LLVector3 &scale);
 
 	BOOL getTEMode()			{ return mTEMode; }
 	void setTEMode(BOOL b)	{ mTEMode = b; }
 
-	LLViewerObject*	getFirstCopyableObject(BOOL get_root = FALSE);
-	LLViewerObject*	getFirstEditableObject(BOOL get_root = FALSE);
-	LLViewerObject*	getFirstMoveableObject(BOOL get_root = FALSE);
-	LLViewerObject* getFirstDeleteableObject(BOOL get_root = FALSE);
-
-	LLSelectNode*	getFirstEditableNode(BOOL get_root = FALSE);
-	LLSelectNode*	getFirstMoveableNode(BOOL get_root = FALSE);
+	BOOL shouldShowSelection()	{ return mShowSelection; }
 
 	LLBBox getBBoxOfSelection() const;
 	LLBBox getSavedBBoxOfSelection() const { return mSavedSelectionBBox; }
-
-	BOOL areMultpleEditableObjectsSelected();
 
 	void dump();
 	void cleanup();
@@ -304,17 +300,18 @@ public:
 	void renderSilhouettes(BOOL for_hud);
 	void enableSilhouette(BOOL enable) { mRenderSilhouettes = enable; }
 	
-	// Utility functions to operate on the list
+	////////////////////////////////////////////////////////////////
+	// Utility functions that operate on the current selection
+	////////////////////////////////////////////////////////////////
+	void saveSelectedObjectTransform(EActionType action_type);
+	void saveSelectedObjectColors();
+	void saveSelectedObjectTextures();
 
-	void			saveSelectedObjectTransform(EActionType action_type);
-	void			saveSelectedObjectColors();
-	void			saveSelectedObjectTextures();
-
-	void			selectionUpdatePhysics(BOOL use_physics);
-	void			selectionUpdateTemporary(BOOL is_temporary);
-	void			selectionUpdatePhantom(BOOL is_ghost);
-	void			selectionUpdateCastShadows(BOOL cast_shadows);
-	void			selectionDump();
+	void selectionUpdatePhysics(BOOL use_physics);
+	void selectionUpdateTemporary(BOOL is_temporary);
+	void selectionUpdatePhantom(BOOL is_ghost);
+	void selectionUpdateCastShadows(BOOL cast_shadows);
+	void selectionDump();
 
 	BOOL selectionAllPCode(LLPCode code);		// all objects have this PCode
 	BOOL selectionGetMaterial(U8 *material);	// all objects have same material
@@ -343,11 +340,11 @@ public:
 	void selectionSetMediaTypeAndURL( U8 media_type, const std::string& media_url );
 	void selectionSetClickAction(U8 action);
 
-	void setObjectPermissions(U8 perm_field, BOOL set, U32 perm_mask, BOOL override = FALSE);
-	void setObjectName(const LLString& name);
-	void setObjectDescription(const LLString& desc);
-	void setObjectCategory(const LLCategory& category);
-	void setObjectSaleInfo(const LLSaleInfo& sale_info);
+	void selectionSetObjectPermissions(U8 perm_field, BOOL set, U32 perm_mask, BOOL override = FALSE);
+	void selectionSetObjectName(const LLString& name);
+	void selectionSetObjectDescription(const LLString& desc);
+	void selectionSetObjectCategory(const LLCategory& category);
+	void selectionSetObjectSaleInfo(const LLSaleInfo& sale_info);
 
 	void selectionTexScaleAutofit(F32 repeats_per_meter);
 	void selectionResetTexInfo(S32 te);						// sets S,T to 1
@@ -414,23 +411,20 @@ public:
 	// with the aggregate permissions for texture inventory items of the selection.
 	BOOL selectGetAggregateTexturePermissions(LLAggregatePermissions& ag_perm);
 
-	// returns TRUE is any node is currenly worn as an attachment
-	BOOL selectionIsAttachment();
-
 	LLPermissions* findObjectPermissions(const LLViewerObject* object);
 
 	void selectDelete();							// Delete on simulator
-	void	selectForceDelete();			// just delete, no into trash
+	void selectForceDelete();			// just delete, no into trash
 	void selectDuplicate(const LLVector3& offset, BOOL select_copy);	// Duplicate on simulator
 	void repeatDuplicate();
-	void		selectDuplicateOnRay(const LLVector3 &ray_start_region,
-									   const LLVector3 &ray_end_region,
-									   BOOL bypass_raycast,
-									   BOOL ray_end_is_intersection,
-									   const LLUUID &ray_target_id,
-									   BOOL copy_centers,
-									   BOOL copy_rotates,
-									   BOOL select_copy);
+	void selectDuplicateOnRay(const LLVector3 &ray_start_region,
+								const LLVector3 &ray_end_region,
+								BOOL bypass_raycast,
+								BOOL ray_end_is_intersection,
+								const LLUUID &ray_target_id,
+								BOOL copy_centers,
+								BOOL copy_rotates,
+								BOOL select_copy);
 
 	void sendMultipleUpdate(U32 type);	// Position, rotation, scale all in one
 	void sendOwner(const LLUUID& owner_id, const LLUUID& group_id, BOOL override = FALSE);
@@ -471,7 +465,7 @@ public:
 	void demoteSelectionToIndividuals();
 
 private:
-	
+	void convertTransient(); // converts temporarily selected objects to full-fledged selections
 	ESelectType getSelectTypeForObject(LLViewerObject* object);
 	void addAsFamily(LLDynamicArray<LLViewerObject*>& objects, BOOL add_to_end = FALSE);
 	void generateSilhouette(LLSelectNode *nodep, const LLVector3& view_point);
@@ -482,7 +476,6 @@ private:
 							void (*pack_body)(LLSelectNode* node, void *user_data), 
 							void *user_data,
 							ESendType send_type);
-	U32 undoRedo(std::deque<LLSelectAction*> &queue_src, std::deque<LLSelectAction*> &queue_dst, const LLUUID &object_id);
 
 	static void packAgentID(	void *);
 	static void packAgentAndSessionID(void* user_data);
@@ -517,22 +510,19 @@ private:
 	static void confirmDelete(S32 option, void* data);
 	
 private:
-	LLPointer<LLViewerImage> mSilhouetteImagep;
-
-	LLSelectNodeList		mSelectedObjects;
-
-	LLSelectNodeList		mHoverObjects;
-
+	LLPointer<LLViewerImage>				mSilhouetteImagep;
+	LLObjectSelectionHandle					mSelectedObjects;
+	LLObjectSelectionHandle					mHoverObjects;
+	LLObjectSelectionHandle					mHighlightedObjects;
 	std::set<LLPointer<LLViewerObject> >	mRectSelectedObjects;
 	
-	LLSelectNodeList		mGridObjects;
+	LLObjectSelection		mGridObjects;
 	LLQuaternion			mGridRotation;
 	LLVector3				mGridOrigin;
 	LLVector3				mGridScale;
 	EGridMode				mGridMode;
 	BOOL					mGridValid;
 
-	LLSelectNodeList		mHighlightedObjects;
 
 	BOOL					mTEMode;			// render te
 	LLVector3d				mSelectionCenterGlobal;
@@ -544,15 +534,10 @@ private:
 	BOOL					mRenderSilhouettes;	// do we render the silhouette
 	LLBBox					mSavedSelectionBBox;
 
-	ESelectType				mSelectType;
-
 	LLFrameTimer			mEffectsTimer;
 	BOOL					mForceSelection;
 
-	std::deque<LLSelectAction*>	mUndoQueue;
-	std::deque<LLSelectAction*>	mRedoQueue;
-
-	LLAnimPauseRequest	mPauseRequest;
+	LLAnimPauseRequest		mPauseRequest;
 };
 
 

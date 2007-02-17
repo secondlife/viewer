@@ -7,15 +7,17 @@
 
 #ifndef LL_LLFLOATERSELLLAND_H
 #define LL_LLFLOATERSELLLAND_H
+#include "llmemory.h"
 
 class LLParcel;
 class LLViewerRegion;
+class LLParcelSelection;
 
 class LLFloaterSellLand
 {
 public:
 	static void sellLand(LLViewerRegion* region,
-						LLParcel* parcel);
+						LLHandle<LLParcelSelection> parcel);
 };
 
 #endif // LL_LLFLOATERSELLLAND_H

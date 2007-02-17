@@ -376,7 +376,7 @@ LLFloaterTools::LLFloaterTools()
 	factory_map["ContentsInventory"] = LLCallbackMap(createPanelContentsInventory, this);//LLPanelContents
 	factory_map["land info panel"] = LLCallbackMap(createPanelLandInfo, this);//LLPanelLandInfo
 
-	gUICtrlFactory->buildFloater(this,"floater_tools.xml",&factory_map);
+	gUICtrlFactory->buildFloater(this,"floater_tools.xml",&factory_map,FALSE);
 
 	mLargeHeight = getRect().getHeight();
 	mSmallHeight = mLargeHeight;
@@ -459,7 +459,7 @@ void LLFloaterTools::resetToolState()
 
 void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 {
-	LLTool *tool = gToolMgr->getCurrentTool( mask );
+	LLTool *tool = gToolMgr->getCurrentTool();
 
 	// HACK to allow seeing the buttons when you have the app in a window.
 	// Keep the visibility the same as it 
@@ -560,7 +560,7 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 		S32 index = mComboGridMode->getCurrentIndex();
 		mComboGridMode->removeall();
 
-		switch (gSelectMgr->getSelectType())
+		switch (mObjectSelection->getSelectType())
 		{
 		case SELECT_TYPE_HUD:
 			mComboGridMode->add("Screen");
@@ -707,6 +707,13 @@ BOOL LLFloaterTools::canClose()
 }
 
 // virtual
+void LLFloaterTools::onOpen()
+{
+	mParcelSelection = gParcelMgr->getFloatingParcelSelection();
+	mObjectSelection = gSelectMgr->getEditSelection();
+}
+
+// virtual
 void LLFloaterTools::onClose(bool app_quitting)
 {
 	setMinimized(FALSE);
@@ -725,10 +732,14 @@ void LLFloaterTools::onClose(bool app_quitting)
 
 	resetToolState();
 
+	mParcelSelection = NULL;
+	mObjectSelection = NULL;
+
 	// Switch back to basic toolset
-	gCurrentToolset = gBasicToolset;
-	gBasicToolset->selectFirstTool();
-	gToolMgr->useSelectedTool( gBasicToolset );
+	gToolMgr->setCurrentToolset(gBasicToolset);
+	// we were already in basic toolset, using build tools
+	// so manually reset tool to default (pie menu tool)
+	gToolMgr->getCurrentToolset()->selectFirstTool();
 }
 
 void LLFloaterTools::showMore(BOOL show_more)
@@ -936,6 +947,5 @@ void LLFloaterTools::setEditTool(void* tool_pointer)
 
 void LLFloaterTools::onFocusReceived()
 {
-	gCurrentToolset = gBasicToolset;
-	gCurrentToolset->selectTool(gCurrentToolset->getSelectedTool());
+	gToolMgr->setCurrentToolset(gBasicToolset);
 }

@@ -150,7 +150,7 @@ F32 LLManip::getSubdivisionLevel(const LLVector3 &reference_point, const LLVecto
 {
 	//update current snap subdivision level
 	LLVector3 cam_to_reference;
-	if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		cam_to_reference = LLVector3(1.f / gAgent.getAvatarObject()->mHUDCurZoom, 0.f, 0.f);
 	}
@@ -167,12 +167,27 @@ F32 LLManip::getSubdivisionLevel(const LLVector3 &reference_point, const LLVecto
 	return subdivisions;
 }
 
+void LLManip::handleSelect()
+{
+	mObjectSelection = gSelectMgr->getEditSelection();
+}
+
+void LLManip::handleDeselect()
+{
+	mObjectSelection = NULL;
+}
+
+LLObjectSelectionHandle LLManip::getSelection()
+{
+	return mObjectSelection;
+}
+
 BOOL LLManip::handleHover(S32 x, S32 y, MASK mask)
 {
 	// We only handle the event if mousedown started with us
 	if( hasMouseCapture() )
 	{
-		if( gSelectMgr->isEmpty() )
+		if( mObjectSelection->isEmpty() )
 		{
 			// Somehow the object got deselected while we were dragging it.
 			// Release the mouse
@@ -217,7 +232,7 @@ BOOL LLManip::getMousePointOnPlaneAgent(LLVector3& point, S32 x, S32 y, LLVector
 
 BOOL LLManip::getMousePointOnPlaneGlobal(LLVector3d& point, S32 x, S32 y, LLVector3d origin, LLVector3 normal)
 {
-	if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		BOOL result = FALSE;
 		F32 mouse_x = ((F32)x / gViewerWindow->getWindowWidth() - 0.5f) * gCamera->getAspect() / gAgent.getAvatarObject()->mHUDCurZoom;
@@ -252,12 +267,12 @@ BOOL LLManip::getMousePointOnPlaneGlobal(LLVector3d& point, S32 x, S32 y, LLVect
 // Given the line defined by mouse cursor (a1 + a_param*(a2-a1)) and the line defined by b1 + b_param*(b2-b1),
 // returns a_param and b_param for the points where lines are closest to each other.
 // Returns false if the two lines are parallel.
-BOOL LLManip::nearestPointOnLineFromMouse( S32 x, S32 y, const LLVector3& b1, const LLVector3& b2, F32 &a_param, F32 &b_param ) const
+BOOL LLManip::nearestPointOnLineFromMouse( S32 x, S32 y, const LLVector3& b1, const LLVector3& b2, F32 &a_param, F32 &b_param )
 {
 	LLVector3 a1;
 	LLVector3 a2;
 
-	if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		F32 mouse_x = (((F32)x / gViewerWindow->getWindowWidth()) - 0.5f) * gCamera->getAspect() / gAgent.getAvatarObject()->mHUDCurZoom;
 		F32 mouse_y = (((F32)y / gViewerWindow->getWindowHeight()) - 0.5f) / gAgent.getAvatarObject()->mHUDCurZoom;
@@ -305,11 +320,11 @@ LLVector3 LLManip::getSavedPivotPoint() const
 	return gSelectMgr->getSavedBBoxOfSelection().getCenterAgent();
 }
 
-LLVector3 LLManip::getPivotPoint() const
+LLVector3 LLManip::getPivotPoint()
 {
-	if (gSelectMgr->getFirstObject() && gSelectMgr->getObjectCount() == 1 && gSelectMgr->getSelectType() != SELECT_TYPE_HUD)
+	if (mObjectSelection->getFirstObject() && mObjectSelection->getObjectCount() == 1 && mObjectSelection->getSelectType() != SELECT_TYPE_HUD)
 	{
-		return gSelectMgr->getFirstObject()->getPivotPositionAgent();
+		return mObjectSelection->getFirstObject()->getPivotPositionAgent();
 	}
 	return gSelectMgr->getBBoxOfSelection().getCenterAgent();
 }
@@ -322,10 +337,10 @@ void LLManip::renderGuidelines(BOOL draw_x, BOOL draw_y, BOOL draw_z)
 	LLVector3 grid_scale;
 	gSelectMgr->getGrid(grid_origin, grid_rot, grid_scale);
 
-	LLViewerObject* object = gSelectMgr->getFirstRootObject();
+	LLViewerObject* object = mObjectSelection->getFirstRootObject();
 	if (!object)
 	{
-		object = gSelectMgr->getFirstObject();
+		object = mObjectSelection->getFirstObject();
 		if (!object)
 		{
 			return;
@@ -447,7 +462,7 @@ void LLManip::renderTickText(const LLVector3& pos, const char* text, const LLCol
 {
 	const LLFontGL* big_fontp = gResMgr->getRes( LLFONT_SANSSERIF );
 
-	BOOL hud_selection = gSelectMgr->getSelectType() == SELECT_TYPE_HUD;
+	BOOL hud_selection = mObjectSelection->getSelectType() == SELECT_TYPE_HUD;
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	LLVector3 render_pos = pos;
@@ -465,9 +480,9 @@ void LLManip::renderTickText(const LLVector3& pos, const char* text, const LLCol
 	LLGLEnable tex(GL_TEXTURE_2D);
 	shadow_color.mV[VALPHA] = color.mV[VALPHA] * 0.5f;
 	gViewerWindow->setupViewport(1, -1);
-	hud_render_utf8text(text, render_pos, *big_fontp, LLFontGL::NORMAL, -0.5f * big_fontp->getWidthF32(text), 3.f, shadow_color, gSelectMgr->getSelectType() == SELECT_TYPE_HUD);
+	hud_render_utf8text(text, render_pos, *big_fontp, LLFontGL::NORMAL, -0.5f * big_fontp->getWidthF32(text), 3.f, shadow_color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
 	gViewerWindow->setupViewport();
-	hud_render_utf8text(text, render_pos, *big_fontp, LLFontGL::NORMAL, -0.5f * big_fontp->getWidthF32(text), 3.f, color, gSelectMgr->getSelectType() == SELECT_TYPE_HUD);
+	hud_render_utf8text(text, render_pos, *big_fontp, LLFontGL::NORMAL, -0.5f * big_fontp->getWidthF32(text), 3.f, color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
 
 	glPopMatrix();
 }
@@ -506,7 +521,7 @@ void LLManip::renderTickValue(const LLVector3& pos, F32 value, const char* suffi
 		}
 	}
 
-	BOOL hud_selection = gSelectMgr->getSelectType() == SELECT_TYPE_HUD;
+	BOOL hud_selection = mObjectSelection->getSelectType() == SELECT_TYPE_HUD;
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	LLVector3 render_pos = pos;

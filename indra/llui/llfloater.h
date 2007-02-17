@@ -157,6 +157,9 @@ public:
 
 	virtual void	draw();
 
+	// does nothing by default
+	virtual void	onOpen();
+
 	// Call destroy() to free memory, or setVisible(FALSE) to keep it
 	// If app_quitting, you might not want to save your visibility.
 	// Defaults to destroy().

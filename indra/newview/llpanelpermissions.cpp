@@ -128,16 +128,16 @@ void LLPanelPermissions::refresh()
 		BtnDeedToGroup->setLabelUnselected(deedText);
 	}
 	BOOL root_selected = TRUE;
-	LLSelectNode* nodep = gSelectMgr->getFirstRootNode();
-	S32 object_count = gSelectMgr->getRootObjectCount();
+	LLSelectNode* nodep = gSelectMgr->getSelection()->getFirstRootNode();
+	S32 object_count = gSelectMgr->getSelection()->getRootObjectCount();
 	if(!nodep || 0 == object_count)
 	{
-		nodep = gSelectMgr->getFirstNode();
-		object_count = gSelectMgr->getObjectCount();
+		nodep = gSelectMgr->getSelection()->getFirstNode();
+		object_count = gSelectMgr->getSelection()->getObjectCount();
 		root_selected = FALSE;
 	}
 
-	//BOOL attachment_selected = gSelectMgr->selectionIsAttachment();
+	//BOOL attachment_selected = gSelectMgr->getSelection()->isAttachment();
 	//attachment_selected = false;
 	LLViewerObject* objectp = NULL;
 	if(nodep) objectp = nodep->getObject();
@@ -230,7 +230,7 @@ void LLPanelPermissions::refresh()
 	BOOL is_one_object = (object_count == 1);
 
 	// BUG: fails if a root and non-root are both single-selected.
-	BOOL is_perm_modify = (gSelectMgr->getFirstRootNode() 
+	BOOL is_perm_modify = (gSelectMgr->getSelection()->getFirstRootNode() 
 							&& gSelectMgr->selectGetRootsModify()) 
 							|| gSelectMgr->selectGetModify();
 	const LLView* keyboard_focus_view = gFocusMgr.getKeyboardFocus();
@@ -354,8 +354,8 @@ void LLPanelPermissions::refresh()
 
 
 	// Pre-compute object info string
-	S32 prim_count = gSelectMgr->getObjectCount();
-	S32 obj_count = gSelectMgr->getRootObjectCount();
+	S32 prim_count = gSelectMgr->getSelection()->getObjectCount();
+	S32 obj_count = gSelectMgr->getSelection()->getRootObjectCount();
 
 	LLString object_info_string;
 	if (1 == obj_count)
@@ -833,7 +833,7 @@ void LLPanelPermissions::onClickDeedToGroup(void* data)
 // static
 void LLPanelPermissions::onCommitPerm(LLUICtrl *ctrl, void *data, U8 field, U32 perm)
 {
-	LLViewerObject* object = gSelectMgr->getFirstRootObject();
+	LLViewerObject* object = gSelectMgr->getSelection()->getFirstRootObject();
 	if(!object) return;
 
 	// Checkbox will have toggled itself
@@ -841,7 +841,7 @@ void LLPanelPermissions::onCommitPerm(LLUICtrl *ctrl, void *data, U8 field, U32 
 	LLCheckBoxCtrl *check = (LLCheckBoxCtrl *)ctrl;
 	BOOL new_state = check->get();
 	
-	gSelectMgr->setObjectPermissions(field, new_state, perm);
+	gSelectMgr->selectionSetObjectPermissions(field, new_state, perm);
 }
 
 // static
@@ -892,8 +892,8 @@ void LLPanelPermissions::onCommitName(LLUICtrl*, void* data)
 	LLLineEditor*	tb = gUICtrlFactory->getLineEditorByName(self,"Object Name");
 	if(tb)
 	{
-		gSelectMgr->setObjectName(tb->getText());
-//		gSelectMgr->setObjectName(self->mLabelObjectName->getText());
+		gSelectMgr->selectionSetObjectName(tb->getText());
+//		gSelectMgr->selectionSetObjectName(self->mLabelObjectName->getText());
 	}
 }
 
@@ -906,7 +906,7 @@ void LLPanelPermissions::onCommitDesc(LLUICtrl*, void* data)
 	LLLineEditor*	le = gUICtrlFactory->getLineEditorByName(self,"Object Description");
 	if(le)
 	{
-		gSelectMgr->setObjectDescription(le->getText());
+		gSelectMgr->selectionSetObjectDescription(le->getText());
 	}
 }
 
@@ -968,7 +968,7 @@ void LLPanelPermissions::setAllSaleInfo()
 	}
 
 	LLSaleInfo sale_info(sale_type, price);
-	gSelectMgr->setObjectSaleInfo(sale_info);
+	gSelectMgr->selectionSetObjectSaleInfo(sale_info);
 
 	// If turned off for-sale, make sure click-action buy is turned
 	// off as well
@@ -1022,7 +1022,7 @@ void LLPanelPermissions::onCommitClickAction(LLUICtrl* ctrl, void*)
 	{
 		// Verify object has script with money() handler
 		LLSelectionPayable payable;
-		bool can_pay = gSelectMgr->applyToObjects(&payable);
+		bool can_pay = gSelectMgr->getSelection()->applyToObjects(&payable);
 		if (!can_pay)
 		{
 			// Warn, but do it anyway.

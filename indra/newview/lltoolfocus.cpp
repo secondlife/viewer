@@ -43,9 +43,6 @@ BOOL gCameraBtnPan = FALSE;
 const S32 SLOP_RANGE = 4;
 const F32 FOCUS_OFFSET_FACTOR = 1.f;
 
-extern void handle_first_tool(void*);
-
-
 //
 // Camera - shared functionality
 //
@@ -136,7 +133,8 @@ void LLToolCamera::pickCallback(S32 x, S32 y, MASK mask)
 	// check for hud attachments
 	if (hit_obj && hit_obj->isHUDAttachment())
 	{
-		if (!gSelectMgr->getObjectCount() || gSelectMgr->getSelectType() != SELECT_TYPE_HUD)
+		LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+		if (!selection->getObjectCount() || selection->getSelectType() != SELECT_TYPE_HUD)
 		{
 			gToolCamera->mValidClickPoint = FALSE;
 			return;
@@ -175,7 +173,7 @@ void LLToolCamera::pickCallback(S32 x, S32 y, MASK mask)
 	}
 	//RN: check to see if this is mouse-driving as opposed to ALT-zoom or Focus tool
 	else if (mask & MASK_ALT || 
-			(gToolMgr->getCurrentTool(mask)->getName() == "Camera")) 
+			(gToolMgr->getCurrentTool()->getName() == "Camera")) 
 	{
 		LLViewerObject* hit_obj = gViewerWindow->lastObjectHit();
 		if (hit_obj)

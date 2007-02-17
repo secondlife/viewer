@@ -1925,9 +1925,10 @@ void LLVOAvatar::buildCharacter()
 					{
 						LLMenuItemCallGL* item;
 						item = new LLMenuItemCallGL(attachment->getName(), 
-							&handle_attach_to_avatar, 
-							object_selected_and_point_valid, 
-							attachment);
+							NULL, 
+							object_selected_and_point_valid);
+						item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", mAttachmentPoints.reverseLookup(attachment));
+						
 						gAttachPieMenu->append(item);
 
 						attachment_found = TRUE;
@@ -1979,9 +1980,9 @@ void LLVOAvatar::buildCharacter()
 			{
 				LLMenuItemCallGL* item;
 				item = new LLMenuItemCallGL(attachment->getName(), 
-					&handle_attach_to_avatar, 
-					object_selected_and_point_valid, 
-					attachment);
+					NULL, 
+					object_selected_and_point_valid);
+				item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", mAttachmentPoints.reverseLookup(attachment));
 				gAttachScreenPieMenu->append(item);
 				gDetachScreenPieMenu->append(new LLMenuItemCallGL(attachment->getName(), 
 							&handle_detach_from_avatar, object_attached, attachment));
@@ -1998,8 +1999,11 @@ void LLVOAvatar::buildCharacter()
 				{
 					continue;
 				}
-				gAttachSubMenu->append(new LLMenuItemCallGL(attachment->getName(), 
-					&handle_attach_to_avatar, object_selected_and_point_valid, &attach_label, attachment));
+				LLMenuItemCallGL* item = new LLMenuItemCallGL(attachment->getName(), 
+					NULL, &object_selected_and_point_valid, &attach_label, NULL);
+				item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", mAttachmentPoints.reverseLookup(attachment));
+				gAttachSubMenu->append(item);
+
 				gDetachSubMenu->append(new LLMenuItemCallGL(attachment->getName(), 
 					&handle_detach_from_avatar, object_attached, &detach_label, attachment));
 				
@@ -2049,8 +2053,10 @@ void LLVOAvatar::buildCharacter()
 
 				LLViewerJointAttachment* attachment = attach_it->second;
 
-				gAttachBodyPartPieMenus[group]->append(new LLMenuItemCallGL(attachment->getName(), 
-					&handle_attach_to_avatar, object_selected_and_point_valid, attachment));
+				LLMenuItemCallGL* item = new LLMenuItemCallGL(attachment->getName(), 
+					NULL, object_selected_and_point_valid);
+				gAttachBodyPartPieMenus[group]->append(item);
+				item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", mAttachmentPoints.reverseLookup(attachment));
 				gDetachBodyPartPieMenus[group]->append(new LLMenuItemCallGL(attachment->getName(), 
 					&handle_detach_from_avatar, object_attached, attachment));
 
@@ -2448,7 +2454,7 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 			if (attached_object && !attached_object->isDead() && attachment->getValid())
 			{
 				// if selecting any attachments, update all of them as non-damped
-				if (gSelectMgr->getObjectCount() && gSelectMgr->selectionIsAttachment())
+				if (gSelectMgr->getSelection()->getObjectCount() && gSelectMgr->getSelection()->isAttachment())
 				{
 					gPipeline.updateMoveNormalAsync(attached_object->mDrawable);
 				}
@@ -2905,22 +2911,24 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 
 	if (!mBeam.isNull())
 	{
+		LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+
 		if (gAgent.mPointAt.notNull())
 		{
 			// get point from pointat effect
 			mBeam->setPositionGlobal(gAgent.mPointAt->getPointAtPosGlobal());
 			mBeam->triggerLocal();
 		}
-		else if (gSelectMgr->getFirstRootObject() && 
-				gSelectMgr->getSelectType() != SELECT_TYPE_HUD)
+		else if (selection->getFirstRootObject() && 
+				selection->getSelectType() != SELECT_TYPE_HUD)
 		{
-			LLViewerObject* objectp = gSelectMgr->getFirstRootObject();
+			LLViewerObject* objectp = selection->getFirstRootObject();
 			mBeam->setTargetObject(objectp);
 		}
 		else
 		{
 			mBeam->setTargetObject(NULL);
-			LLTool *tool = gToolMgr->getCurrentTool( gKeyboard->currentMask(TRUE) );
+			LLTool *tool = gToolMgr->getCurrentTool();
 			if (tool->isEditing())
 			{
 				if (tool->getEditingObject())
@@ -3654,7 +3662,7 @@ BOOL LLVOAvatar::needsRenderBeam()
 	{
 		return FALSE;
 	}
-	LLTool *tool = gToolMgr->getCurrentTool( gKeyboard->currentMask(TRUE) );
+	LLTool *tool = gToolMgr->getCurrentTool();
 
 	BOOL is_touching_or_grabbing = (tool == gToolGrab && gToolGrab->isEditing());
 	if (gToolGrab->getEditingObject() && 

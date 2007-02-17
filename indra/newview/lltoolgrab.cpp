@@ -126,7 +126,7 @@ void LLToolGrab::pickCallback(S32 x, S32 y, MASK mask)
 
 	BOOL extend_select = (mask & MASK_SHIFT);
 
-	if (!extend_select && !gSelectMgr->isEmpty())
+	if (!extend_select && !gSelectMgr->getSelection()->isEmpty())
 	{
 		gSelectMgr->deselectAll();
 		gToolGrab->mDeselectedThisClick = TRUE;

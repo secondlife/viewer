@@ -462,17 +462,16 @@ void LLAgent::resetView(BOOL reset_camera)
 
 	if (!gNoRender)
 	{
-		gSelectMgr->deselectAll();
 		gSelectMgr->unhighlightAll();
 
 		// By popular request, keep land selection while walking around. JC
 		// gParcelMgr->deselectLand();
 
+		//FIXME: force deselect when walking? - RN
+		//	gSelectMgr->deselectAll();
+
 		// Hide all popup menus
-		gPieSelf->hide(FALSE);
-		gPieAvatar->hide(FALSE);
-		gPieObject->hide(FALSE);
-		gPieLand->hide(FALSE);
+		gMenuHolder->hideMenus();
 	}
 
 	if (reset_camera && !gSavedSettings.getBOOL("FreezeTime"))
@@ -1565,7 +1564,8 @@ F32 LLAgent::getCameraZoomFraction()
 {
 	// 0.f -> camera zoomed all the way out
 	// 1.f -> camera zoomed all the way in
-	if (gSelectMgr->getObjectCount() && gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+	if (selection->getObjectCount() && selection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		// already [0,1]
 		return mAvatarObject->mHUDTargetZoom;
@@ -1612,7 +1612,9 @@ void LLAgent::setCameraZoomFraction(F32 fraction)
 {
 	// 0.f -> camera zoomed all the way out
 	// 1.f -> camera zoomed all the way in
-	if (gSelectMgr->getObjectCount() && gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+
+	if (selection->getObjectCount() && selection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		mAvatarObject->mHUDTargetZoom = fraction;
 	}
@@ -1662,7 +1664,8 @@ void LLAgent::setCameraZoomFraction(F32 fraction)
 //-----------------------------------------------------------------------------
 void LLAgent::cameraOrbitAround(const F32 radians)
 {
-	if (gSelectMgr->getObjectCount() && gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+	if (selection->getObjectCount() && selection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		// do nothing for hud selection
 	}
@@ -1684,7 +1687,8 @@ void LLAgent::cameraOrbitAround(const F32 radians)
 //-----------------------------------------------------------------------------
 void LLAgent::cameraOrbitOver(const F32 angle)
 {
-	if (gSelectMgr->getObjectCount() && gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+	if (selection->getObjectCount() && selection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		// do nothing for hud selection
 	}
@@ -1718,7 +1722,8 @@ void LLAgent::cameraZoomIn(const F32 fraction)
 		return;
 	}
 
-	if (gSelectMgr->getObjectCount() && gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+	if (selection->getObjectCount() && selection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		// just update hud zoom level
 		mAvatarObject->mHUDTargetZoom /= fraction;
@@ -2237,11 +2242,9 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 			resetAxes(mAutoPilotTargetFacing);
 		}
 		//NB: auto pilot can terminate for a reason other than reaching the destination
-		//TODO: enforce rotation constraint here as well
-		if (mAutoPilotFinishedCallback && 
-			((mAutoPilotTargetDist < mAutoPilotStopDistance) || (mAutoPilotNoProgressFrameCount > AUTOPILOT_MAX_TIME_NO_PROGRESS * gFPSClamped)))
+		if (mAutoPilotFinishedCallback)
 		{
-			mAutoPilotFinishedCallback(!user_cancel && dist_vec(gAgent.getPositionGlobal(), mAutoPilotTargetGlobal) < mAutoPilotTargetDist, mAutoPilotCallbackData);
+			mAutoPilotFinishedCallback(!user_cancel && dist_vec(gAgent.getPositionGlobal(), mAutoPilotTargetGlobal) < mAutoPilotStopDistance, mAutoPilotCallbackData);
 		}
 		mLeaderID = LLUUID::null;
 
@@ -2712,8 +2715,8 @@ U8 LLAgent::getRenderState()
 		stopTyping();
 	}
 	
-	if ((!gSelectMgr->isEmpty() && gSelectMgr->shouldShowSelection())
-		|| gToolMgr->getCurrentTool( gKeyboard->currentMask(TRUE) )->isEditing() )
+	if ((!gSelectMgr->getSelection()->isEmpty() && gSelectMgr->shouldShowSelection())
+		|| gToolMgr->getCurrentTool()->isEditing() )
 	{
 		setRenderState(AGENT_STATE_EDITING);
 	}
@@ -2755,8 +2758,7 @@ void LLAgent::endAnimationUpdateUI()
 		gMenuBarView->setVisible(TRUE);
 		gStatusBar->setVisibleForMouselook(true);
 
-		gCurrentToolset = gBasicToolset;
-		gToolMgr->useSelectedTool( gCurrentToolset );
+		gToolMgr->setCurrentToolset(gBasicToolset);
 
 		// Only pop if we have pushed...
 		if (TRUE == mViewsPushed)
@@ -2804,8 +2806,7 @@ void LLAgent::endAnimationUpdateUI()
 	{
 		// make sure we ask to save changes
 
-		gCurrentToolset = gBasicToolset;
-		gToolMgr->useSelectedTool( gCurrentToolset );
+		gToolMgr->setCurrentToolset(gBasicToolset);
 
 		// HACK: If we're quitting, and we were in customize avatar, don't
 		// let the mini-map go visible again. JC
@@ -2842,8 +2843,7 @@ void LLAgent::endAnimationUpdateUI()
 		// JC - Added for always chat in third person option
 		gFocusMgr.setKeyboardFocus(NULL, NULL);
 
-		gCurrentToolset = gMouselookToolset;
-		gToolMgr->useSelectedTool( gMouselookToolset );
+		gToolMgr->setCurrentToolset(gMouselookToolset);
 
 		mViewsPushed = TRUE;
 
@@ -2901,8 +2901,7 @@ void LLAgent::endAnimationUpdateUI()
 	}
 	else if (mCameraMode == CAMERA_MODE_CUSTOMIZE_AVATAR)
 	{
-		gCurrentToolset = gFaceEditToolset;
-		gToolMgr->useSelectedTool( gFaceEditToolset );
+		gToolMgr->setCurrentToolset(gFaceEditToolset);
 
 		gFloaterMap->pushVisible(FALSE);
 		/*
@@ -3854,6 +3853,7 @@ void LLAgent::handleScrollWheel(S32 clicks)
 	}
 	else
 	{
+		LLObjectSelectionHandle selection = gSelectMgr->getSelection();
 		const F32 ROOT_ROOT_TWO = sqrt(F_SQRT2);
 
 		// Block if camera is animating
@@ -3862,7 +3862,7 @@ void LLAgent::handleScrollWheel(S32 clicks)
 			return;
 		}
 
-		if (gSelectMgr->getObjectCount() && gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+		if (selection->getObjectCount() && selection->getSelectType() == SELECT_TYPE_HUD)
 		{
 			F32 zoom_factor = (F32)pow(0.8, -clicks);
 			cameraZoomIn(zoom_factor);
@@ -3933,9 +3933,7 @@ void LLAgent::changeCameraToMouselook(BOOL animate)
 	// unpause avatar animation
 	mPauseRequest = NULL;
 
-	gCurrentToolset = gMouselookToolset;
-	gCurrentToolset->selectFirstTool();
-	gToolMgr->useSelectedTool( gCurrentToolset );
+	gToolMgr->setCurrentToolset(gMouselookToolset);
 
 	gSavedSettings.setBOOL("FirstPersonBtnState",	FALSE);
 	gSavedSettings.setBOOL("MouselookBtnState",		TRUE);
@@ -4017,9 +4015,7 @@ void LLAgent::changeCameraToFollow(BOOL animate)
 		
 		if (gBasicToolset)
 		{
-			gCurrentToolset = gBasicToolset;
-			gCurrentToolset->selectFirstTool();
-			gToolMgr->useSelectedTool( gCurrentToolset );
+			gToolMgr->setCurrentToolset(gBasicToolset);
 		}
 
 		if (mAvatarObject)
@@ -4092,9 +4088,7 @@ void LLAgent::changeCameraToThirdPerson(BOOL animate)
 	{
 		if (gBasicToolset)
 		{
-			gCurrentToolset = gBasicToolset;
-			gCurrentToolset->selectFirstTool();
-			gToolMgr->useSelectedTool( gCurrentToolset );
+			gToolMgr->setCurrentToolset(gBasicToolset);
 		}
 
 		mCameraLag.clearVec();
@@ -4157,9 +4151,7 @@ void LLAgent::changeCameraToCustomizeAvatar(BOOL animate)
 
 	if (gFaceEditToolset)
 	{
-		gCurrentToolset = gFaceEditToolset;
-		gCurrentToolset->selectFirstTool();
-		gToolMgr->useSelectedTool( gCurrentToolset );
+		gToolMgr->setCurrentToolset(gFaceEditToolset);
 	}
 
 	gSavedSettings.setBOOL("FirstPersonBtnState", FALSE);

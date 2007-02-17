@@ -56,7 +56,7 @@ private:
 	virtual ~LLFloaterBuyLandUI();
 
 	LLViewerRegion*	mRegion;
-	LLParcel*		mParcel;
+	LLParcelSelectionHandle mParcel;
 	bool			mIsClaim;
 	bool			mIsForGroup;
 
@@ -127,7 +127,7 @@ public:
 	static LLFloaterBuyLandUI* soleInstance(bool createIfNeeded);
 
 	void setForGroup(bool is_for_group);
-	void setParcel(LLViewerRegion* region, LLParcel* parcel);
+	void setParcel(LLViewerRegion* region, LLParcelSelectionHandle parcel);
 		
 	void updateAgentInfo();
 	void updateParcelInfo();
@@ -186,7 +186,7 @@ static void cacheNameUpdateRefreshesBuyLand(const LLUUID&,
 
 // static
 void LLFloaterBuyLand::buyLand(
-	LLViewerRegion* region, LLParcel* parcel, bool is_for_group)
+	LLViewerRegion* region, LLParcelSelectionHandle parcel, bool is_for_group)
 {
 	if(is_for_group && !gAgent.hasPowerInActiveGroup(GP_LAND_DEED))
 	{
@@ -331,7 +331,7 @@ void LLFloaterBuyLandUI::SelectionObserver::changed()
 		else {
 			ui->setParcel(
 				gParcelMgr->getSelectionRegion(),
-				gParcelMgr->getSelectedParcel());
+				gParcelMgr->getParcelSelection());
 		}
 	}
 }
@@ -349,7 +349,8 @@ void LLFloaterBuyLandUI::updateAgentInfo()
 
 void LLFloaterBuyLandUI::updateParcelInfo()
 {
-	mParcelValid = mParcel && mRegion;
+	LLParcel* parcel = mParcel->getParcel();
+	mParcelValid = parcel && mRegion;
 	mParcelIsForSale = false;
 	mParcelIsFirstLand = false;
 	mParcelIsGroupLand = false;
@@ -372,42 +373,41 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 		return;
 	}
 	
-	if (gParcelMgr->getMultipleOwners())
+	if (mParcel->getMultipleOwners())
 	{
 		mCannotBuyReason = childGetText("multiple_parcels_selected");
 		return;
 	}
 
+	const LLUUID& parcelOwner = parcel->getOwnerID();
 	
-	const LLUUID& parcelOwner = mParcel->getOwnerID();
-	
-	mIsClaim = mParcel->isPublic();
+	mIsClaim = parcel->isPublic();
 	if (!mIsClaim)
 	{
-		mParcelActualArea = mParcel->getArea();
-		mParcelIsForSale = mParcel->getForSale();
-		mParcelIsFirstLand = mParcel->getReservedForNewbie();
-		mParcelIsGroupLand = mParcel->getIsGroupOwned();
-		mParcelPrice = mParcelIsForSale ? mParcel->getSalePrice() : 0;
+		mParcelActualArea = parcel->getArea();
+		mParcelIsForSale = parcel->getForSale();
+		mParcelIsFirstLand = parcel->getReservedForNewbie();
+		mParcelIsGroupLand = parcel->getIsGroupOwned();
+		mParcelPrice = mParcelIsForSale ? parcel->getSalePrice() : 0;
 		
 		if (mParcelIsGroupLand)
 		{
-			LLUUID group_id = mParcel->getGroupID();
+			LLUUID group_id = parcel->getGroupID();
 			mParcelGroupContribution = gAgent.getGroupContribution(group_id);
 		}
 	}
 	else
 	{
-		mParcelActualArea = gParcelMgr->getClaimableArea();
+		mParcelActualArea = mParcel->getClaimableArea();
 		mParcelIsForSale = true;
-		mParcelPrice = mParcelActualArea * mParcel->getClaimPricePerMeter();
+		mParcelPrice = mParcelActualArea * parcel->getClaimPricePerMeter();
 	}
 
 	mParcelBillableArea =
 		llround(mRegion->getBillableFactor() * mParcelActualArea);
 
  	mParcelSupportedObjects = llround(
-		mParcel->getMaxPrimCapacity() * mParcel->getParcelPrimBonus()); 
+		parcel->getMaxPrimCapacity() * parcel->getParcelPrimBonus()); 
  	// Can't have more than region max tasks, regardless of parcel 
  	// object bonus factor. 
  	LLViewerRegion* region = gParcelMgr->getSelectionRegion(); 
@@ -418,15 +418,16 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 			mParcelSupportedObjects, max_tasks_per_region); 
  	} 
 
-	mParcelSoldWithObjects = mParcel->getSellWithObjects();
+	mParcelSoldWithObjects = parcel->getSellWithObjects();
+
 	
-	LLVector3 center = mParcel->getCenterpoint();
+	LLVector3 center = parcel->getCenterpoint();
 	mParcelLocation = llformat("%s %d,%d",
 				mRegion->getName().c_str(),
 				(int)center[VX], (int)center[VY]
 				);
 	
-	mParcelSnapshot = mParcel->getSnapshotID();
+	mParcelSnapshot = parcel->getSnapshotID();
 	
 	updateNames();
 	
@@ -445,7 +446,7 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 
 	if (!mIsClaim)
 	{
-		const LLUUID& authorizedBuyer = mParcel->getAuthorizedBuyerID();
+		const LLUUID& authorizedBuyer = parcel->getAuthorizedBuyerID();
 		const LLUUID buyer = gAgent.getID();
 		const LLUUID newOwner = mIsForGroup ? gAgent.getGroupID() : buyer;
 
@@ -484,7 +485,7 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 			return;
 		}
 
-		if (gParcelMgr->hasOthersSelected())
+		if (mParcel->hasOthersSelected())
 		{
 			// Policy: Must not have someone else's land selected
 			mCannotBuyReason = childGetText("not_owned_by_you");
@@ -503,7 +504,7 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 	}
 	*/
 	
-	if (mParcel->getReservedForNewbie())
+	if (parcel->getReservedForNewbie())
 	{
 		if (mIsForGroup)
 		{
@@ -814,7 +815,9 @@ void LLFloaterBuyLandUI::sendBuyLand()
 
 void LLFloaterBuyLandUI::updateNames()
 {
-	if (!mParcelValid)
+	LLParcel* parcelp = mParcel->getParcel();
+
+	if (!parcelp)
 	{
 		mParcelSellerName = "";
 		return;
@@ -824,11 +827,11 @@ void LLFloaterBuyLandUI::updateNames()
 	{
 		mParcelSellerName = "Linden Lab";
 	}
-	else if (mParcel->getIsGroupOwned())
+	else if (parcelp->getIsGroupOwned())
 	{
 		char groupName[DB_LAST_NAME_BUF_SIZE];	/*Flawfinder: ignore*/
 		
-		gCacheName->getGroupName(mParcel->getGroupID(), &groupName[0]);
+		gCacheName->getGroupName(parcelp->getGroupID(), &groupName[0]);
 		mParcelSellerName = groupName;
 	}
 	else
@@ -836,7 +839,7 @@ void LLFloaterBuyLandUI::updateNames()
 		char firstName[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 		char lastName[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 		
-		gCacheName->getName(mParcel->getOwnerID(), firstName, lastName);
+		gCacheName->getName(parcelp->getOwnerID(), firstName, lastName);
 		mParcelSellerName = llformat("%s %s", firstName, lastName);
 	}
 }
@@ -933,7 +936,7 @@ BOOL LLFloaterBuyLandUI::postBuild()
 	return TRUE;
 }
 
-void LLFloaterBuyLandUI::setParcel(LLViewerRegion* region, LLParcel* parcel)
+void LLFloaterBuyLandUI::setParcel(LLViewerRegion* region, LLParcelSelectionHandle parcel)
 {
 	if (mTransaction &&  mTransactionType == TransactionBuy)
 	{

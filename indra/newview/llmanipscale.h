@@ -94,7 +94,7 @@ private:
 	F32				partToMinScale( S32 part, const LLBBox& bbox ) const;
 	LLVector3		nearestAxis( const LLVector3& v ) const;
 
-	BOOL			isSelectionScalable() const;
+	BOOL			isSelectionScalable();
 
 	void			stretchFace( const LLVector3& drag_start_agent, const LLVector3& drag_delta_agent);
 

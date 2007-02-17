@@ -211,7 +211,7 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 		&& update_type != OUT_TERSE_IMPROVED 
 		&& objectp->mCreateSelected)
 	{
-		if ( gToolMgr->getCurrentTool( gKeyboard->currentMask(TRUE) ) != gToolPie )
+		if ( gToolMgr->getCurrentTool() != gToolPie )
 		{
 			//llinfos << "DEBUG selecting " << objectp->mID << " " 
 			//		<< objectp->mLocalID << llendl;
@@ -565,7 +565,8 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	}
 
 	// Selected
-	for (objectp = gSelectMgr->getFirstRootObject(); objectp; objectp = gSelectMgr->getNextRootObject())
+	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+	for (objectp = selection->getFirstRootObject(); objectp; objectp = selection->getNextRootObject())
 	{
 		objectp->boostTexturePriority();
 	}
@@ -1421,7 +1422,7 @@ void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
 
 	if (orphans_found && objectp->isSelected())
 	{
-		LLSelectNode* nodep = gSelectMgr->findSelectNode(objectp);
+		LLSelectNode* nodep = gSelectMgr->getSelection()->findNode(objectp);
 		if (nodep && !nodep->mIndividualSelection)
 		{
 			// rebuild selection with orphans

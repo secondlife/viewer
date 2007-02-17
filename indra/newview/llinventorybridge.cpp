@@ -3317,7 +3317,7 @@ BOOL LLObjectBridge::renameItem(const LLString& new_name)
 			{
 				gSelectMgr->deselectAll();
 				gSelectMgr->addAsIndividual( obj, SELECT_ALL_TES, FALSE );
-				gSelectMgr->setObjectName( new_name );
+				gSelectMgr->selectionSetObjectName( new_name );
 				gSelectMgr->deselectAll();
 			}
 		}

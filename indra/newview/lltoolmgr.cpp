@@ -34,7 +34,6 @@ LLToolMgr*		gToolMgr	= NULL;
 // Used when app not active to avoid processing hover.
 LLTool*			gToolNull	= NULL;
 
-LLToolset*		gCurrentToolset		= NULL;
 LLToolset*		gBasicToolset		= NULL;
 LLToolset*		gCameraToolset		= NULL;
 //LLToolset*		gLandToolset		= NULL;
@@ -46,10 +45,12 @@ LLToolset*		gFaceEditToolset	= NULL;
 
 LLToolMgr::LLToolMgr()
 	:
-	mCurrentTool(NULL), 
+	mBaseTool(NULL), 
 	mSavedTool(NULL),
 	mTransientTool( NULL ),
-	mOverrideTool( NULL )
+	mOverrideTool( NULL ),
+	mSelectedTool( NULL ),
+	mCurrentToolset( NULL )
 {
 	gToolNull = new LLTool(NULL);  // Does nothing
 	setCurrentTool(gToolNull);
@@ -59,8 +60,6 @@ LLToolMgr::LLToolMgr()
 //	gLandToolset		= new LLToolset();
 	gMouselookToolset	= new LLToolset();
 	gFaceEditToolset	= new LLToolset();
-
-	gCurrentToolset = gBasicToolset;
 }
 
 void LLToolMgr::initTools()
@@ -178,8 +177,8 @@ void LLToolMgr::initTools()
 	gToolObjPicker = new LLToolObjPicker();
 
 	// On startup, use "select" tool
+	setCurrentToolset(gBasicToolset);
 	gBasicToolset->selectTool( gToolPie );
-	useSelectedTool( gBasicToolset );
 }
 
 LLToolMgr::~LLToolMgr()
@@ -248,138 +247,103 @@ LLToolMgr::~LLToolMgr()
 	gToolNull = NULL;
 }
 
-
-void LLToolMgr::useSelectedTool( LLToolset* vp )
-{
-	setCurrentTool( vp->getSelectedTool() ); 
-}
-
 BOOL LLToolMgr::usingTransientTool()
 {
 	return mTransientTool ? TRUE : FALSE;
 }
 
-void LLToolMgr::setCurrentTool( LLTool* tool )
+void LLToolMgr::setCurrentToolset(LLToolset* current)
 {
-	if (tool == mCurrentTool)
-	{
-		// didn't change tool, so don't mess with
-		// handleSelect or handleDeselect
-		return;
-	}
+	if (!current) return;
 
-	if (mTransientTool)
+	// switching toolsets?
+	if (current != mCurrentToolset)
 	{
-		mTransientTool->handleDeselect();
-		mTransientTool = NULL;
+		// deselect current tool
+		if (mSelectedTool)
+		{
+			mSelectedTool->handleDeselect();
+		}
+		mCurrentToolset = current;
+		// select first tool of new toolset only if toolset changed
+		mCurrentToolset->selectFirstTool();
 	}
-	else if( mCurrentTool )
-	{
-		mCurrentTool->handleDeselect();
-	}
-
-	mCurrentTool = tool;
-	if (mCurrentTool)
-	{
-		mCurrentTool->handleSelect();
-	}
+	// update current tool based on new toolset
+	setCurrentTool( mCurrentToolset->getSelectedTool() );
 }
 
-LLTool* LLToolMgr::getCurrentTool(MASK override_mask)
+LLToolset* LLToolMgr::getCurrentToolset()
 {
-	// In mid-drag, always keep the current tool
-	if (gToolTranslate->hasMouseCapture()
-		|| gToolRotate->hasMouseCapture()
-		|| gToolStretch->hasMouseCapture())
+	return mCurrentToolset;
+}
+
+void LLToolMgr::setCurrentTool( LLTool* tool )
+{
+	if (mTransientTool)
 	{
-		// might have gotten here by overriding another tool
-		if (mOverrideTool)
-		{
-			return mOverrideTool;
-		}
-		else
-		{
-			return mCurrentTool;
-		}
+		mTransientTool = NULL;
 	}
 
+	mBaseTool = tool;
+	updateToolStatus();
+}
+
+LLTool* LLToolMgr::getCurrentTool()
+{
+	MASK override_mask = gKeyboard->currentMask(TRUE);
+
+	LLTool* cur_tool = NULL;
+	// always use transient tools if available
 	if (mTransientTool)
 	{
 		mOverrideTool = NULL;
-		return mTransientTool;
+		cur_tool = mTransientTool;
 	}
-
-	if (mCurrentTool == gToolGun)
+	// tools currently grabbing mouse input will stay active
+	else if (mSelectedTool && mSelectedTool->hasMouseCapture())
 	{
-		mOverrideTool = NULL;
-		return mCurrentTool;
-	}
-
-	// ALT always gets you the camera tool
-	if (override_mask & MASK_ALT)
-	{
-		mOverrideTool = gToolCamera;
-		return mOverrideTool;
-	}
-
-	if (mCurrentTool == gToolCamera)
-	{
-		// ...can't switch out of camera
-		mOverrideTool = NULL;
-		return mCurrentTool;
-	}
-	else if (mCurrentTool == gToolGrab)
-	{
-		// ...can't switch out of grab
-		mOverrideTool = NULL;
-		return mCurrentTool;
-	}
-	else if (mCurrentTool == gToolInspect)
-	{
-		// ...can't switch out of grab
-		mOverrideTool = NULL;
-		return mCurrentTool;
+		cur_tool = mSelectedTool;
 	}
 	else
 	{
-		// ...can switch between editing tools
-		if (override_mask == MASK_CONTROL)
-		{
-			// Control lifts when in the pie tool, otherwise switches to rotate
-			if (mCurrentTool == gToolPie)
-			{
-				mOverrideTool = gToolGrab;
-			}
-			else
-			{
-				mOverrideTool = gToolRotate;
-			}
-			return mOverrideTool;
-		}
-		else if (override_mask == (MASK_CONTROL | MASK_SHIFT))
-		{
-			// Shift-Control spins when in the pie tool, otherwise switches to scale
-			if (mCurrentTool == gToolPie)
-			{
-				mOverrideTool = gToolGrab;
-			}
-			else
-			{
-				mOverrideTool = gToolStretch;
-			}
-			return mOverrideTool;
-		}
-		else
-		{
-			mOverrideTool = NULL;
-			return mCurrentTool;
-		}
+		mOverrideTool = mBaseTool ? mBaseTool->getOverrideTool(override_mask) : NULL;
+
+		// use override tool if available otherwise drop back to base tool
+		cur_tool = mOverrideTool ? mOverrideTool : mBaseTool;
 	}
+
+	//update tool selection status
+	if (mSelectedTool != cur_tool)
+	{
+		if (mSelectedTool)
+		{
+			mSelectedTool->handleDeselect();
+		}
+		if (cur_tool)
+		{
+			cur_tool->handleSelect();
+		}
+		mSelectedTool = cur_tool;
+	}
+
+	return mSelectedTool;
+}
+
+LLTool* LLToolMgr::getBaseTool()
+{
+	return mBaseTool;
+}
+
+void LLToolMgr::updateToolStatus()
+{
+	// call getcurrenttool() to calculate active tool and call handleSelect() and handleDeselect() immediately
+	// when active tool changes
+	getCurrentTool();
 }
 
 BOOL LLToolMgr::inEdit()
 {
-	return mCurrentTool != gToolPie && mCurrentTool != gToolNull;
+	return mBaseTool != gToolPie && mBaseTool != gToolNull;
 }
 
 void LLToolMgr::setTransientTool(LLTool* tool)
@@ -392,34 +356,26 @@ void LLToolMgr::setTransientTool(LLTool* tool)
 	{
 		if (mTransientTool)
 		{
-			mTransientTool->handleDeselect();
 			mTransientTool = NULL;
-		}
-		else if (mCurrentTool)
-		{
-			mCurrentTool->handleDeselect();
 		}
 
 		mTransientTool = tool;
-		mTransientTool->handleSelect();
 	}
+
+	updateToolStatus();
 }
 
 void LLToolMgr::clearTransientTool()
 {
 	if (mTransientTool)
 	{
-		mTransientTool->handleDeselect();
 		mTransientTool = NULL;
-		if (mCurrentTool)
+		if (!mBaseTool)
 		{
-			mCurrentTool->handleSelect();
-		}
-		else
-		{
-			llwarns << "mCurrentTool is NULL" << llendl;
+			llwarns << "mBaseTool is NULL" << llendl;
 		}
 	}
+	updateToolStatus();
 }
 
 
@@ -428,26 +384,19 @@ void LLToolMgr::clearTransientTool()
 // release this locking.
 void LLToolMgr::onAppFocusLost()
 {
-	if (mCurrentTool 
-		&& mCurrentTool == gToolGun)
-	{
-		mCurrentTool->handleDeselect();
-	}
-	mSavedTool = mCurrentTool;
-	mCurrentTool = gToolNull;
+	mSavedTool = mBaseTool;
+	mBaseTool = gToolNull;
+	updateToolStatus();
 }
 
 void LLToolMgr::onAppFocusGained()
 {
 	if (mSavedTool)
 	{
-		if (mSavedTool == gToolGun)
-		{
-			mCurrentTool->handleSelect();
-		}
-		mCurrentTool = mSavedTool;
+		mBaseTool = mSavedTool;
 		mSavedTool = NULL;
 	}
+	updateToolStatus();
 }
 
 /////////////////////////////////////////////////////
@@ -491,7 +440,10 @@ BOOL LLToolset::isToolSelected( S32 index )
 void LLToolset::selectFirstTool()
 {
 	mSelectedTool = mToolList.getFirstData();
-	gToolMgr->setCurrentTool( mSelectedTool );
+	if (gToolMgr) 
+	{
+		gToolMgr->setCurrentTool( mSelectedTool );
+	}
 }
 
 
@@ -540,5 +492,5 @@ void LLToolset::selectPrevTool()
 void select_tool( void *tool_pointer )
 {
 	LLTool *tool = (LLTool *)tool_pointer;
-	gCurrentToolset->selectTool( tool );
+	gToolMgr->getCurrentToolset()->selectTool( tool );
 }

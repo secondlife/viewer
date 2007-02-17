@@ -33,6 +33,7 @@ public:
 
 	virtual void		onMouseCaptureLost();
 	virtual void		handleDeselect();
+	virtual LLTool*		getOverrideTool(MASK mask);
 
 	static void			leftMouseCallback(S32 x, S32 y, MASK mask);
 	static void			rightMouseCallback(S32 x, S32 y, MASK mask);

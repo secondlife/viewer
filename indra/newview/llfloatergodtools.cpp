@@ -1237,8 +1237,8 @@ void LLPanelObjectTools::onClickSetBySelection(void* data)
 	LLPanelObjectTools* panelp = (LLPanelObjectTools*) data;
 	if (!panelp) return;
 
-	LLSelectNode* node = gSelectMgr->getFirstRootNode();
-	if (!node) node = gSelectMgr->getFirstNode();
+	LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
+	if (!node) node = gSelectMgr->getSelection()->getFirstNode();
 	if (!node) return;
 
 	LLString owner_name;

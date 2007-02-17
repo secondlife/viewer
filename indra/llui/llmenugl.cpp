@@ -385,11 +385,7 @@ void LLMenuItemGL::doIt( void )
 {
 	// close all open menus by default
 	// if parent menu is actually visible (and we are not triggering menu item via accelerator)
-	// HACK: do not call hidemenus() from a pie menu item, as most pie menu operations
-	// assume that the thing you clicked on stays selected (parcel and/or object) after the
-	// pie menu is gone --RN
-	if (getMenu()->getWidgetType() != WIDGET_TYPE_PIE_MENU 
-		&& !getMenu()->getTornOff() 
+	if (!getMenu()->getTornOff() 
 		&& getMenu()->getVisible())
 	{
 		LLMenuGL::sMenuContainer->hideMenus();
@@ -3283,7 +3279,7 @@ void LLPieMenuBranch::doIt( void )
 	S32 center_y;
 	parent->localPointToScreen(rect.getWidth() / 2, rect.getHeight() / 2, &center_x, &center_y);
 
-	parent->hide(TRUE);
+	parent->hide(FALSE);
 	mBranch->show(	center_x, center_y, FALSE );
 }
 
@@ -3473,6 +3469,11 @@ BOOL LLPieMenu::handleMouseDown( S32 x, S32 y, MASK mask )
 		// to make sure it's within the item's rectangle
 		handled = item->handleMouseDown( 0, 0, mask );
 	}
+	else if (!mRightMouseDown)
+	{
+		// call hidemenus to make sure transient selections get cleared
+		((LLMenuHolderGL*)getParent())->hideMenus();
+	}
 
 	// always handle mouse down as mouse up will close open menus
 	return handled;
@@ -3545,6 +3546,11 @@ BOOL LLPieMenu::handleMouseUp( S32 x, S32 y, MASK mask )
 			handled = item->handleMouseUp( 0, 0, mask );
 			hide(TRUE);
 		}
+	}
+	else if (!mRightMouseDown)
+	{
+		// call hidemenus to make sure transient selections get cleared
+		((LLMenuHolderGL*)getParent())->hideMenus();
 	}
 
 	if (handled)

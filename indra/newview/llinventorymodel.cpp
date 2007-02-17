@@ -28,6 +28,7 @@
 #include "llmutelist.h"
 #include "llnotify.h"
 #include "llcallbacklist.h"
+#include "llpreview.h"
 #include <deque>
 
 //#define DIFF_INVENTORY_FILES
@@ -2295,6 +2296,8 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account, boo
 	item_array_t items;
 	update_map_t update;
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
+	bool all_one_folder = true;
+	LLUUID folder_id;
 	for(S32 i = 0; i < count; ++i)
 	{
 		LLPointer<LLViewerInventoryItem> titem = new LLViewerInventoryItem;
@@ -2321,6 +2324,14 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account, boo
 		{
 			++update[titem->getParentUUID()];
 		}
+		if (folder_id.isNull())
+		{
+			folder_id = titem->getParentUUID();
+		}
+		else
+		{
+			all_one_folder = false;
+		}
 	}
 	if(account)
 	{
@@ -2344,6 +2355,18 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account, boo
 		trash_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_TRASH);
 		if(!gInventory.isObjectDescendentOf(lastitem->getUUID(), trash_id))
 		{
+			LLMultiPreview* multi_previewp = LLMultiPreview::getAutoOpenInstance(folder_id);
+			if (!multi_previewp && all_one_folder)
+			{
+				S32 left, top;
+				gFloaterView->getNewFloaterPosition(&left, &top);
+
+				multi_previewp = new LLMultiPreview(LLRect(left, top, left + 300, top - 100));
+				LLMultiPreview::setAutoOpenInstance(multi_previewp, folder_id);
+			}
+
+			LLFloater::setFloaterHost(multi_previewp);
+
 			bool show_keep_discard = lastitem->getPermissions().getCreator() != gAgent.getID();
 			switch(lastitem->getType())
 			{
@@ -2374,6 +2397,13 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account, boo
 			default:
 				break;
 			}
+
+			LLFloater::setFloaterHost(NULL);
+			if (multi_previewp)
+			{
+				multi_previewp->open();
+			}
+
 			LLInventoryView* view = LLInventoryView::getActiveInventory();
 			if(view)
 			{

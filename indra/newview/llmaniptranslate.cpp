@@ -238,6 +238,7 @@ void LLManipTranslate::handleSelect()
 {
 	gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
 	gFloaterTools->setStatusText("Drag to move, shift-drag to copy");
+	LLManip::handleSelect();
 }
 
 void LLManipTranslate::handleDeselect()
@@ -245,6 +246,7 @@ void LLManipTranslate::handleDeselect()
 	mHighlightedPart = LL_NO_PART;
 	mManipPart = LL_NO_PART;
 	gFloaterTools->setStatusText("");
+	LLManip::handleDeselect();
 }
 
 BOOL LLManipTranslate::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -270,10 +272,10 @@ BOOL LLManipTranslate::handleMouseDown(S32 x, S32 y, MASK mask)
 // Assumes that one of the arrows on an object was hit.
 BOOL LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 {
-	BOOL can_move = gSelectMgr->getObjectCount() != 0;
-	for (LLViewerObject* objectp = gSelectMgr->getFirstObject();
+	BOOL can_move = mObjectSelection->getObjectCount() != 0;
+	for (LLViewerObject* objectp = mObjectSelection->getFirstObject();
 		objectp;
-		objectp = gSelectMgr->getNextObject())
+		objectp = mObjectSelection->getNextObject())
 	{
 		can_move = can_move && objectp->permMove() && (objectp->permModify() || gSavedSettings.getBOOL("SelectLinkedSet"));
 	}
@@ -313,7 +315,7 @@ BOOL LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 
 	LLVector3		axis;
 
-	LLSelectNode *selectNode = gSelectMgr->getFirstMoveableNode(TRUE);
+	LLSelectNode *selectNode = mObjectSelection->getFirstMoveableNode(TRUE);
 
 	if (!selectNode)
 	{
@@ -388,7 +390,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 	BOOL rotated = FALSE;
 
 	// ...build mode moves camera about focus point
-	if (gSelectMgr->getSelectType() != SELECT_TYPE_HUD)
+	if (mObjectSelection->getSelectType() != SELECT_TYPE_HUD)
 	{
 		if (x < ROTATE_H_MARGIN)
 		{
@@ -452,7 +454,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 
 	// pick the first object to constrain to grid w/ common origin
 	// this is so we don't screw up groups
-	LLSelectNode* selectNode = gSelectMgr->getFirstMoveableNode(TRUE);
+	LLSelectNode* selectNode = mObjectSelection->getFirstMoveableNode(TRUE);
 	if (!selectNode)
 	{
 		// somehow we lost the object!
@@ -624,9 +626,9 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 	LLVector3d clamped_relative_move = axis_magnitude * axis_d;	// scalar multiply
 	LLVector3 clamped_relative_move_f = (F32)axis_magnitude * axis_f; // scalar multiply
 	
-	for(selectNode = gSelectMgr->getFirstNode(); 
+	for(selectNode = mObjectSelection->getFirstNode(); 
 		selectNode; 
-		selectNode = gSelectMgr->getNextNode() )
+		selectNode = mObjectSelection->getNextNode() )
 	{
 		object = selectNode->getObject();
 
@@ -792,7 +794,7 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 {
 	mHighlightedPart = LL_NO_PART;
 
-	if (!gSelectMgr->getObjectCount())
+	if (!mObjectSelection->getObjectCount())
 	{
 		return;
 	}
@@ -813,7 +815,7 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 
 	LLMatrix4 transform;
 
-	if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		relative_camera_dir = LLVector3(1.f, 0.f, 0.f) * ~grid_rotation;
 		LLVector4 translation(object_position);
@@ -1060,7 +1062,7 @@ void LLManipTranslate::render()
 {
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
-	if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		F32 zoom = gAgent.getAvatarObject()->mHUDCurZoom;
 		glScalef(zoom, zoom, zoom);
@@ -1098,7 +1100,7 @@ void LLManipTranslate::renderSnapGuides()
 		return;
 	}
 
-	LLSelectNode *first_node = gSelectMgr->getFirstMoveableNode(TRUE);
+	LLSelectNode *first_node = mObjectSelection->getFirstMoveableNode(TRUE);
 	if (!first_node)
 	{
 		return;
@@ -1123,7 +1125,7 @@ void LLManipTranslate::renderSnapGuides()
 		getManipAxis(first_object, mManipPart, translate_axis);
 
 		LLVector3 at_axis_abs;
-		if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+		if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 		{
 			at_axis_abs = LLVector3::x_axis * ~grid_rotation;
 		}
@@ -1198,7 +1200,7 @@ void LLManipTranslate::renderSnapGuides()
 
 		F32 guide_size_meters;
 
-		if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+		if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 		{
 			guide_size_meters = 1.f / gAgent.getAvatarObject()->mHUDCurZoom;
 			mSnapOffsetMeters = mArrowLengthMeters * 1.5f;
@@ -1400,7 +1402,7 @@ void LLManipTranslate::renderSnapGuides()
 				}
 			}
 		}
-		if (gSelectMgr->getSelectType() != SELECT_TYPE_HUD)
+		if (mObjectSelection->getSelectType() != SELECT_TYPE_HUD)
 		{
 			// render helpful text
 			if (mHelpTextTimer.getElapsedTimeF32() < sHelpTextVisibleTime + sHelpTextFadeTime && sNumTimesHelpTextShown < sMaxTimesShowHelpText)
@@ -1424,10 +1426,10 @@ void LLManipTranslate::renderSnapGuides()
 				std::string help_text = "Move mouse cursor over ruler to snap";
 				LLColor4 help_text_color = LLColor4::white;
 				help_text_color.mV[VALPHA] = clamp_rescale(mHelpTextTimer.getElapsedTimeF32(), sHelpTextVisibleTime, sHelpTextVisibleTime + sHelpTextFadeTime, line_alpha, 0.f);
-				hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, gSelectMgr->getSelectType() == SELECT_TYPE_HUD);
+				hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
 				help_text = "to snap to grid";
 				help_text_pos -= gCamera->getUpAxis() * mSnapOffsetMeters * 0.2f;
-				hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, gSelectMgr->getSelectType() == SELECT_TYPE_HUD);
+				hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
 			}
 		}
 	}
@@ -1592,17 +1594,17 @@ void LLManipTranslate::renderGrid(F32 x, F32 y, F32 size, F32 r, F32 g, F32 b, F
 
 void LLManipTranslate::renderText()
 {
-	if (gSelectMgr->getRootObjectCount() && !gSelectMgr->selectionIsAttachment())
+	if (mObjectSelection->getRootObjectCount() && !mObjectSelection->isAttachment())
 	{
 		LLVector3 pos = getPivotPoint();
 		renderXYZ(pos);
 	}
 	else
 	{
-		LLViewerObject* objectp = gSelectMgr->getFirstRootObject();
+		LLViewerObject* objectp = mObjectSelection->getFirstRootObject();
 		if(!objectp)
 		{
-			objectp = gSelectMgr->getFirstObject();
+			objectp = mObjectSelection->getFirstObject();
 		}
 
 		if (objectp)
@@ -1621,7 +1623,7 @@ void LLManipTranslate::renderTranslationHandles()
 	
 	gSelectMgr->getGrid(grid_origin, grid_rotation, grid_scale);
 	LLVector3 at_axis;
-	if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		at_axis = LLVector3::x_axis * ~grid_rotation;
 	}
@@ -1657,13 +1659,13 @@ void LLManipTranslate::renderTranslationHandles()
 		mPlaneManipPositions.mV[VZ] = -1.f;
 	}
 
-	LLViewerObject *first_object = gSelectMgr->getFirstMoveableObject(TRUE);
+	LLViewerObject *first_object = mObjectSelection->getFirstMoveableObject(TRUE);
 	if (!first_object) return;
 
 	LLVector3 selection_center = getPivotPoint();
 
 	// Drag handles 	
-	if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		mArrowLengthMeters = mAxisArrowLength / gViewerWindow->getWindowHeight();
 		mArrowLengthMeters /= gAgent.getAvatarObject()->mHUDCurZoom;
@@ -1716,7 +1718,7 @@ void LLManipTranslate::renderTranslationHandles()
 
 		LLVector3 relative_camera_dir;
 		
-		if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+		if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 		{
 			relative_camera_dir = LLVector3::x_axis * invRotation;
 		}
@@ -1988,7 +1990,7 @@ void LLManipTranslate::renderTranslationHandles()
 
 			// draw arrows for deeper faces first, closer faces last
 			LLVector3 camera_axis;
-			if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+			if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 			{
 				camera_axis = LLVector3::x_axis;
 			}

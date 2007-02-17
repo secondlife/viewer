@@ -420,9 +420,6 @@ BOOL get_visibility(void*);
 void request_friendship(const LLUUID& agent_id);
 
 // Tools menu
-void handle_first_tool(void*);
-void handle_next_tool(void*);
-void handle_previous_tool(void*);
 void handle_force_unlock(void*);
 void handle_selected_texture_info(void*);
 void handle_dump_image_list(void*);
@@ -980,6 +977,7 @@ void init_debug_ui_menu(LLMenuGL* menu)
 	menu->append(new LLMenuItemToggleGL("Debug SelectMgr", &gDebugSelectMgr));
 	menu->append(new LLMenuItemToggleGL("Debug Clicks", &gDebugClicks));
 	menu->append(new LLMenuItemToggleGL("Debug Views", &LLView::sDebugRects));
+	menu->append(new LLMenuItemCheckGL("Show Name Tooltips", toggle_show_xui_names, NULL, check_show_xui_names, NULL));
 	menu->append(new LLMenuItemToggleGL("Debug Mouse Events", &LLView::sDebugMouseHandling));
 	menu->append(new LLMenuItemToggleGL("Debug Keys", &LLView::sDebugKeys));
 	menu->append(new LLMenuItemToggleGL("Debug WindowProc", &gDebugWindowProc));
@@ -1427,7 +1425,7 @@ class LLObjectRateOwner : public view_listener_t
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		// Don't allow rating of group owned objects.
-		LLSelectNode* node = gSelectMgr->getFirstRootNode();
+		LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
 		if (!node) return true;
 		if (node->mPermissions->isGroupOwned())
 		{
@@ -1517,12 +1515,13 @@ class LLObjectEnableReportAbuse : public view_listener_t
 BOOL enable_attach(void*)
 {
 	// All root objects must be owned by agent.
+	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
 	BOOL rv = FALSE;
-	LLViewerObject* obj = gSelectMgr->getFirstRootObject();
+	LLViewerObject* obj = selection->getFirstRootObject();
 	if(obj)
 	{
 		rv = TRUE;
-		for(obj = gSelectMgr->getFirstRootObject() ; obj != NULL; obj = gSelectMgr->getNextRootObject())
+		for(obj = selection->getFirstRootObject() ; obj != NULL; obj = selection->getNextRootObject())
 		{
 			for (U32 child_num = 0; child_num < obj->mChildList.size(); child_num++ )
 			{
@@ -1572,7 +1571,6 @@ class LLObjectTouch : public view_listener_t
 		msg->addU32Fast(_PREHASH_LocalID, object->mLocalID);
 		msg->sendMessage(object->getRegion()->getHost());
 
-		gSelectMgr->deselectTransient();
 		return true;
 	}
 };
@@ -1588,7 +1586,7 @@ class LLObjectEnableTouch : public view_listener_t
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 
 		// Update label based on the node touch name if available.
-		LLSelectNode* node = gSelectMgr->getFirstRootNode();
+		LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
 		if (node && node->mValid && !node->mTouchName.empty())
 		{
 			gMenuHolder->childSetText("Object Touch", node->mTouchName);
@@ -1604,7 +1602,7 @@ class LLObjectEnableTouch : public view_listener_t
 
 void label_touch(LLString& label, void*)
 {
-	LLSelectNode* node = gSelectMgr->getFirstRootNode();
+	LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
 	if (node && node->mValid && !node->mTouchName.empty())
 	{
 		label.assign(node->mTouchName);
@@ -1620,8 +1618,6 @@ bool handle_object_open()
 	LLViewerObject* obj = gObjectList.findObject(gLastHitObjectID);
 	if(!obj) return true;
 
-	// transient selection must be made permanent
-	gSelectMgr->convertTransient();
 	LLFloaterOpenObject::show();
 	return true;
 }
@@ -1682,8 +1678,8 @@ bool toggle_build_mode()
 			gAgent.cameraOrbitOver( 30.f * DEG_TO_RAD );
 		}
 
-		gCurrentToolset = gBasicToolset;
-		gCurrentToolset->selectTool( gToolCreate );
+		gToolMgr->setCurrentToolset(gBasicToolset);
+		gToolMgr->getCurrentToolset()->selectTool( gToolCreate );
 
 		// Could be first use
 		LLFirstUse::useBuild();
@@ -1719,8 +1715,8 @@ class LLObjectBuild : public view_listener_t
 			gViewerWindow->moveCursorToCenter();
 		}
 
-		gCurrentToolset = gBasicToolset;
-		gCurrentToolset->selectTool( gToolCreate );
+		gToolMgr->setCurrentToolset(gBasicToolset);
+		gToolMgr->getCurrentToolset()->selectTool( gToolCreate );
 
 		// Could be first use
 		LLFirstUse::useBuild();
@@ -1733,12 +1729,12 @@ class LLObjectEdit : public view_listener_t
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		gParcelMgr->deselectLand();
-		// convert transient selections to permanent
-		gSelectMgr->convertTransient();
 
 		if (gAgent.getFocusOnAvatar() && !gToolMgr->inEdit())
 		{
-			if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD || !gSavedSettings.getBOOL("EditCameraMovement"))
+			LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+
+			if (selection->getSelectType() == SELECT_TYPE_HUD || !gSavedSettings.getBOOL("EditCameraMovement"))
 			{
 				// always freeze camera in space, even if camera doesn't move
 				// so, for example, follow cam scripts can't affect you when in build mode
@@ -1758,7 +1754,7 @@ class LLObjectEdit : public view_listener_t
 
 		gFloaterTools->open();		/* Flawfinder: ignore */
 	
-		gCurrentToolset = gBasicToolset;
+		gToolMgr->setCurrentToolset(gBasicToolset);
 		gFloaterTools->setEditTool( gToolTranslate );
 
 		// Could be first use
@@ -1771,7 +1767,6 @@ class LLObjectInspect : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		gSelectMgr->convertTransient();
 		LLFloaterInspect::show();
 		return true;
 	}
@@ -1804,8 +1799,8 @@ class LLLandBuild : public view_listener_t
 		}
 
 
-		gCurrentToolset = gBasicToolset;
-		gCurrentToolset->selectTool( gToolCreate );
+		gToolMgr->setCurrentToolset(gBasicToolset);
+		gToolMgr->getCurrentToolset()->selectTool( gToolCreate );
 
 		// Could be first use
 		LLFirstUse::useBuild();
@@ -1974,7 +1969,7 @@ class LLObjectMute : public view_listener_t
 			// it's an object
 			id = object->getID();
 
-			LLSelectNode* node = gSelectMgr->getFirstRootNode();
+			LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
 			if (node)
 			{
 				name = node->mName;
@@ -1994,7 +1989,6 @@ class LLObjectMute : public view_listener_t
 			gFloaterMute->show();
 		}
 		
-		gSelectMgr->deselectAll();
 		return true;
 	}
 };
@@ -2011,9 +2005,6 @@ bool handle_go_to()
 	val = llformat("%g", gLastHitPosGlobal.mdV[VZ]);
 	strings.push_back(val);
 	send_generic_message("autopilot", strings);
-
-	// Don't select anything
-	gSelectMgr->deselectTransient();
 
 	gParcelMgr->deselectLand();
 
@@ -2359,9 +2350,9 @@ BOOL enable_buy(void*)
 {
     // In order to buy, there must only be 1 purchaseable object in
     // the selection manger.
-	if(gSelectMgr->getRootObjectCount() != 1) return FALSE;
+	if(gSelectMgr->getSelection()->getRootObjectCount() != 1) return FALSE;
     LLViewerObject* obj = NULL;
-    LLSelectNode* node = gSelectMgr->getFirstRootNode();
+    LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
 	if(node)
     {
         obj = node->getObject();
@@ -2422,14 +2413,12 @@ void handle_buy_object(LLSaleInfo sale_info)
 		return;
 	}
 
-	gSelectMgr->convertTransient();
 	LLFloaterBuy::show(sale_info);
 }
 
 
 void handle_buy_contents(LLSaleInfo sale_info)
 {
-	gSelectMgr->convertTransient();
 	LLFloaterBuyContents::show(sale_info);
 }
 
@@ -2772,7 +2761,6 @@ bool handle_sit_or_stand()
 	if (sitting_on_selection())
 	{
 		gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
-		gSelectMgr->deselectTransient();
 		return true;
 	}
 
@@ -2793,8 +2781,6 @@ bool handle_sit_or_stand()
 		gMessageSystem->addVector3Fast(_PREHASH_Offset, offset_single);
 
 		object->getRegion()->sendReliableMessage();
-
-		gSelectMgr->deselectTransient();
 	}
 	return true;
 }
@@ -2809,11 +2795,14 @@ class LLObjectSitOrStand : public view_listener_t
 
 void near_sit_down_point(BOOL success, void *)
 {
-	gAgent.setFlying(FALSE);
-	gAgent.setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
+	if (success)
+	{
+		gAgent.setFlying(FALSE);
+		gAgent.setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
 
-	// Might be first sit
-	LLFirstUse::useSit();
+		// Might be first sit
+		LLFirstUse::useSit();
+	}
 }
 
 class LLLandSit : public view_listener_t
@@ -3153,13 +3142,12 @@ void reset_view_final( BOOL proceed, void* )
 	gAgent.changeCameraToDefault();
 	
 	gAgent.resetView(!gFloaterTools->getVisible());
+	gFloaterTools->close();
 	
 	gViewerWindow->showCursor();
 
 	// Switch back to basic toolset
-	gCurrentToolset = gBasicToolset;
-	gBasicToolset->selectFirstTool();
-	gToolMgr->useSelectedTool( gBasicToolset );
+	gToolMgr->setCurrentToolset(gBasicToolset);
 }
 
 class LLViewLookAtLastChatter : public view_listener_t
@@ -3232,7 +3220,7 @@ class LLEditEnableDuplicate : public view_listener_t
 
 void disabled_duplicate(void*)
 {
-	if (gSelectMgr->getFirstObject())
+	if (gSelectMgr->getSelection()->getFirstObject())
 	{
 		LLNotifyBox::showXml("CopyFailed");
 	}
@@ -3262,7 +3250,7 @@ void handle_deed_object_to_group(void*)
 
 BOOL enable_deed_object_to_group(void*)
 {
-	if(gSelectMgr->isEmpty()) return FALSE;
+	if(gSelectMgr->getSelection()->isEmpty()) return FALSE;
 	LLPermissions perm;
 	LLUUID group_id;
 
@@ -3321,8 +3309,8 @@ void handle_object_owner_permissive(void*)
 	if(gAgent.isGodlike())
 	{
 		// do the objects.
-		gSelectMgr->setObjectPermissions(PERM_BASE, TRUE, PERM_ALL, TRUE);
-		gSelectMgr->setObjectPermissions(PERM_OWNER, TRUE, PERM_ALL, TRUE);
+		gSelectMgr->selectionSetObjectPermissions(PERM_BASE, TRUE, PERM_ALL, TRUE);
+		gSelectMgr->selectionSetObjectPermissions(PERM_OWNER, TRUE, PERM_ALL, TRUE);
 	}
 }
 
@@ -3338,7 +3326,7 @@ void handle_object_owner_self(void*)
 // Shortcut to set owner permissions to not editable.
 void handle_object_lock(void*)
 {
-	gSelectMgr->setObjectPermissions(PERM_OWNER, FALSE, PERM_MODIFY);
+	gSelectMgr->selectionSetObjectPermissions(PERM_OWNER, FALSE, PERM_MODIFY);
 }
 
 void handle_object_asset_ids(void*)
@@ -3490,8 +3478,9 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 	}
 	//gInventoryView->setPanelOpen(TRUE);
 
+	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
 	LLViewerObject* object = NULL;
-	LLSelectNode* node = gSelectMgr->getFirstRootNode();
+	LLSelectNode* node = selection->getFirstRootNode();
 	if(!node) return;
 	object = node->getObject();
 	if(!object) return;
@@ -3502,7 +3491,7 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 	// everything that we'll actually be derezzing.
 	LLDynamicArray<LLViewerObject*> derez_objects;
 	BOOL can_derez_current;
-	for( ; node != NULL; node = gSelectMgr->getNextRootNode())
+	for( ; node != NULL; node = selection->getNextRootNode())
 	{
 		object = node->getObject();
 		if(!object || !node->mValid) continue;
@@ -3636,42 +3625,47 @@ class LLToolsTakeCopy : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		if (gSelectMgr->isEmpty()) return true;
+		if (gSelectMgr->getSelection()->isEmpty()) return true;
 
 		const LLUUID& category_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_OBJECT);
 		derez_objects(DRD_ACQUIRE_TO_AGENT_INVENTORY, category_id);
 
-		// Only deselect if we're not building
-		if (!gToolMgr->inEdit())
-		{
-			gSelectMgr->deselectTransient();
-		}
 		return true;
 	}
 };
 
-
-void callback_return_to_owner(S32 option, void* data)
-{
-	if (0 == option)
-	{
-		// Ignore category ID for this derez destination.
-		derez_objects(DRD_RETURN_TO_OWNER, LLUUID::null);
-	}
-}
 
 // You can return an object to its owner if it is on your land.
 class LLObjectReturn : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		if (gSelectMgr->isEmpty()) return true;
+		if (gSelectMgr->getSelection()->isEmpty()) return true;
+		
+		mObjectSelection = gSelectMgr->getEditSelection();
 
 		gViewerWindow->alertXml("ReturnToOwner",
-			callback_return_to_owner,
-			NULL);
+			onReturnToOwner,
+			(void*)this);
 		return true;
 	}
+
+	static void onReturnToOwner(S32 option, void* data)
+	{
+		LLObjectReturn* object_return = (LLObjectReturn*)data;
+
+		if (0 == option)
+		{
+			// Ignore category ID for this derez destination.
+			derez_objects(DRD_RETURN_TO_OWNER, LLUUID::null);
+		}
+
+		// drop reference to current selection
+		object_return->mObjectSelection = NULL;
+	}
+
+protected:
+	LLObjectSelectionHandle mObjectSelection;
 };
 
 
@@ -3701,10 +3695,11 @@ class LLObjectEnableReturn : public view_listener_t
 				}
 				else
 				{
+					LLObjectSelectionHandle selection = gSelectMgr->getSelection();
 					LLViewerObject* obj = NULL;
-					for(obj = gSelectMgr->getFirstRootObject();
+					for(obj = selection->getFirstRootObject();
 						obj;
-						obj = gSelectMgr->getNextRootObject())
+						obj = selection->getNextRootObject())
 					{
 						if (obj->isOverAgentOwnedLand()
 							|| obj->isOverGroupOwnedLand()
@@ -3725,22 +3720,16 @@ class LLObjectEnableReturn : public view_listener_t
 
 void force_take_copy(void*)
 {
-	if (gSelectMgr->isEmpty()) return;
+	if (gSelectMgr->getSelection()->isEmpty()) return;
 	const LLUUID& category_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_OBJECT);
 	derez_objects(DRD_FORCE_TO_GOD_INVENTORY, category_id);
-
-	// Only deselect if we're not building
-	if (!gToolMgr->inEdit())
-	{
-		gSelectMgr->deselectTransient();
-	}
 }
 #ifdef _CORY_TESTING
 
 void force_export_copy(void*)
 {
 	LLViewerObject* object = NULL;
-	LLSelectNode* node = gSelectMgr->getFirstNode();
+	LLSelectNode* node = gSelectMgr->getSelection()->getFirstNode();
 	if(!node) return;
 	object = node->getObject();
 	if(!object) return;
@@ -3761,7 +3750,7 @@ void force_export_copy(void*)
 
 	S32 object_index = 0;
 
-	for( ; node != NULL; node = gSelectMgr->getNextNode())
+	for( ; node != NULL; node = gSelectMgr->getSelection()->getNextNode())
 	{
 		object = node->getObject();
 		if(!object || !node->mValid)
@@ -4090,16 +4079,16 @@ void handle_take()
 {
 	// we want to use the folder this was derezzed from if it's
 	// available. Otherwise, derez to the normal place.
-	if(gSelectMgr->isEmpty()) return;
+	if(gSelectMgr->getSelection()->isEmpty()) return;
 	LLSelectNode* node = NULL;
 	LLViewerObject* object = NULL;
 	BOOL you_own_everything = TRUE;
 
 	BOOL locked_but_takeable_object = FALSE;
 	LLUUID category_id;
-	for(node = gSelectMgr->getFirstRootNode();
+	for(node = gSelectMgr->getSelection()->getFirstRootNode();
 		node != NULL;
-		node = gSelectMgr->getNextRootNode())
+		node = gSelectMgr->getSelection()->getNextRootNode())
 	{
 		object = node->getObject();
 		if(object)
@@ -4222,9 +4211,9 @@ BOOL enable_take()
 	}
 
 	LLViewerObject* object = NULL;
-	for(LLSelectNode* node = gSelectMgr->getFirstRootNode();
+	for(LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
 		node != NULL;
-		node = gSelectMgr->getNextRootNode())
+		node = gSelectMgr->getSelection()->getNextRootNode())
 	{
 		object = node->getObject();
 		if(!object || !node->mValid) continue;
@@ -4258,7 +4247,7 @@ class LLToolsBuyOrTake : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		if (gSelectMgr->isEmpty())
+		if (gSelectMgr->getSelection()->isEmpty())
 		{
 			return true;
 		}
@@ -4338,9 +4327,9 @@ class LLToolsEnableBuyOrTake : public view_listener_t
 BOOL is_selection_buy_not_take()
 {
 	LLViewerObject* obj = NULL;
-	for(LLSelectNode* node = gSelectMgr->getFirstRootNode();
+	for(LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
 		node != NULL;
-		node = gSelectMgr->getNextRootNode())
+		node = gSelectMgr->getSelection()->getNextRootNode())
 	{
 		obj = node->getObject();
 		if(obj && !(obj->permYouOwner()) && (node->mSaleInfo.isForSale()))
@@ -4357,9 +4346,9 @@ S32 selection_price()
 {
 	LLViewerObject* obj = NULL;
 	S32 total_price = 0;
-	for(LLSelectNode* node = gSelectMgr->getFirstRootNode();
+	for(LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
 		node != NULL;
-		node = gSelectMgr->getNextRootNode())
+		node = gSelectMgr->getSelection()->getNextRootNode())
 	{
 		obj = node->getObject();
 		if(obj && !(obj->permYouOwner()) && (node->mSaleInfo.isForSale()))
@@ -4408,7 +4397,7 @@ void handle_buy_currency(void*)
 
 void handle_buy(void*)
 {
-	if (gSelectMgr->isEmpty()) return;
+	if (gSelectMgr->getSelection()->isEmpty()) return;
 
 	LLSaleInfo sale_info;
 	BOOL valid = gSelectMgr->selectGetSaleInfo(sale_info);
@@ -4435,7 +4424,7 @@ class LLObjectBuy : public view_listener_t
 
 BOOL sitting_on_selection()
 {
-	LLSelectNode* node = gSelectMgr->getFirstRootNode();
+	LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
 	if (!node)
 	{
 		return FALSE;
@@ -4480,7 +4469,7 @@ class LLToolsSaveToObjectInventory : public view_listener_t
 	{
 		if(gSelectMgr)
 		{
-			LLSelectNode* node = gSelectMgr->getFirstRootNode();
+			LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
 			if(node && (node->mValid) && (!node->mFromTaskID.isNull()))
 			{
 				// *TODO: check to see if the fromtaskid object exists.
@@ -4499,9 +4488,10 @@ class LLToolsSnapObjectXY : public view_listener_t
 		F64 snap_size = (F64)gSavedSettings.getF32("GridResolution");
 
 		LLViewerObject* obj;
-		for (obj = gSelectMgr->getFirstRootObject();
+		LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+		for (obj = selection->getFirstRootObject();
 			obj != NULL;
-			obj = gSelectMgr->getNextRootObject())
+			obj = selection->getNextRootObject())
 		{
 			if (obj->permModify())
 			{
@@ -4557,11 +4547,12 @@ class LLToolsEnableLink : public view_listener_t
 		// in component mode, can't link
 		if (gSavedSettings.getBOOL("SelectLinkedSet"))
 		{
-			if(gSelectMgr->selectGetAllRootsValid() && gSelectMgr->getRootObjectCount() >= 2)
+			if(gSelectMgr->selectGetAllRootsValid() && gSelectMgr->getSelection()->getRootObjectCount() >= 2)
 			{
-				for(LLViewerObject* object = gSelectMgr->getFirstRootObject();
+				LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+				for(LLViewerObject* object = selection->getFirstRootObject();
 					object != NULL;
-					object = gSelectMgr->getNextRootObject())
+					object = selection->getNextRootObject())
 				{
 					if(object->permModify())
 					{
@@ -4586,7 +4577,7 @@ class LLToolsLink : public view_listener_t
 			return true;
 		}
 
-		S32 object_count = gSelectMgr->getObjectCount();
+		S32 object_count = gSelectMgr->getSelection()->getObjectCount();
 		if (object_count > MAX_CHILDREN_PER_TASK + 1)
 		{
 			LLStringBase<char>::format_map_t args;
@@ -4597,7 +4588,7 @@ class LLToolsLink : public view_listener_t
 			return true;
 		}
 
-		if(gSelectMgr->getRootObjectCount() < 2)
+		if(gSelectMgr->getSelection()->getRootObjectCount() < 2)
 		{
 			gViewerWindow->alertXml("CannotLinkIncompleteSet");
 			return true;
@@ -4627,8 +4618,8 @@ class LLToolsEnableUnlink : public view_listener_t
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		bool new_value = gSelectMgr->selectGetAllRootsValid() &&
-			gSelectMgr->getFirstEditableObject() &&
-			!gSelectMgr->getFirstEditableObject()->isAttachment();
+			gSelectMgr->getSelection()->getFirstEditableObject() &&
+			!gSelectMgr->getSelection()->getFirstEditableObject()->isAttachment();
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -4690,7 +4681,7 @@ void handle_dehinge(void*)
 
 BOOL enable_dehinge(void*)
 {
-	LLViewerObject* obj = gSelectMgr->getFirstEditableObject();
+	LLViewerObject* obj = gSelectMgr->getSelection()->getFirstEditableObject();
 	return obj && !obj->isAttachment();
 }
 
@@ -5890,12 +5881,13 @@ LLUploadDialog *gExportDialog = NULL;
 
 void handle_export_selected( void * )
 {
-	if (gSelectMgr->isEmpty())
+	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+	if (selection->isEmpty())
 	{
 		return;
 	}
 	llinfos << "Exporting selected objects:" << llendl;
-	LLViewerObject *object = gSelectMgr->getFirstRootObject();
+	LLViewerObject *object = selection->getFirstRootObject();
 
 	gExporterRequestID.generate();
 	gExportDirectory = "";
@@ -5907,7 +5899,7 @@ void handle_export_selected( void * )
 	msg->addUUIDFast(_PREHASH_RequestID, gExporterRequestID);
 	msg->addS16Fast(_PREHASH_VolumeDetail, 4);
 
-	for (; object != NULL; object = gSelectMgr->getNextRootObject())
+	for (; object != NULL; object = selection->getNextRootObject())
 	{
 		msg->nextBlockFast(_PREHASH_ObjectData);
 		msg->addUUIDFast(_PREHASH_ObjectID, object->getID());
@@ -5921,7 +5913,7 @@ void handle_export_selected( void * )
 BOOL menu_check_build_tool( void* user_data )
 {
 	S32 index = (intptr_t) user_data;
-	return gCurrentToolset->isToolSelected( index );
+	return gToolMgr->getCurrentToolset()->isToolSelected( index );
 }
 
 void handle_reload_settings(void*)
@@ -6070,7 +6062,7 @@ class LLToolsLookAtSelection : public view_listener_t
 	{
 		const F32 PADDING_FACTOR = 2.f;
 		BOOL zoom = (userdata.asString() == "zoom");
-		if (!gSelectMgr->isEmpty())
+		if (!gSelectMgr->getSelection()->isEmpty())
 		{
 			gAgent.setFocusOnAvatar(FALSE, ANIMATE);
 
@@ -6083,11 +6075,11 @@ class LLToolsLookAtSelection : public view_listener_t
 
 			if (zoom)
 			{
-				gAgent.setCameraPosAndFocusGlobal(gSelectMgr->getSelectionCenterGlobal() + LLVector3d(obj_to_cam * distance), gSelectMgr->getSelectionCenterGlobal(), gSelectMgr->getFirstObject()->mID );
+				gAgent.setCameraPosAndFocusGlobal(gSelectMgr->getSelectionCenterGlobal() + LLVector3d(obj_to_cam * distance), gSelectMgr->getSelectionCenterGlobal(), gSelectMgr->getSelection()->getFirstObject()->mID );
 			}
 			else
 			{
-				gAgent.setFocusGlobal( gSelectMgr->getSelectionCenterGlobal(), gSelectMgr->getFirstObject()->mID );
+				gAgent.setFocusGlobal( gSelectMgr->getSelectionCenterGlobal(), gSelectMgr->getSelection()->getFirstObject()->mID );
 			}
 		}
 		return true;
@@ -6112,7 +6104,6 @@ class LLAvatarAddFriend : public view_listener_t
 		{
 			request_friendship(avatar->getID());
 		}
-		gSelectMgr->deselectTransient();
 		return true;
 	}
 };
@@ -6239,7 +6230,7 @@ class LLObjectEnableSitOrStand : public view_listener_t
 		}
 		else
 		{
-			LLSelectNode* node = gSelectMgr->getFirstRootNode();
+			LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
 			if (node && node->mValid && !node->mSitName.empty())
 			{
 				label.assign(node->mSitName);
@@ -6275,25 +6266,6 @@ void dump_inventory(void*)
 	gInventory.dumpInventory();
 }
 
-
-void handle_first_tool(void*)
-{
-	gCurrentToolset->selectFirstTool();
-}
-
-
-void handle_next_tool(void*)
-{
-	gCurrentToolset->selectNextTool();
-}
-
-
-void handle_previous_tool(void*)
-{
-	gCurrentToolset->selectPrevTool();
-}
-
-
 // forcibly unlock an object
 void handle_force_unlock(void*)
 {
@@ -6302,7 +6274,7 @@ void handle_force_unlock(void*)
 
 	// Second, lie to the viewer and mark it editable and unowned
 	LLViewerObject* object;
-	for (object = gSelectMgr->getFirstObject(); object; object = gSelectMgr->getNextObject() )
+	for (object = gSelectMgr->getSelection()->getFirstObject(); object; object = gSelectMgr->getSelection()->getNextObject() )
 	{
 		object->mFlags |= FLAGS_OBJECT_MOVE;
 		object->mFlags |= FLAGS_OBJECT_MODIFY;
@@ -6722,8 +6694,8 @@ void handle_focus(void *)
 	gViewerWindow->moveCursorToCenter();
 
 	// Switch to camera toolset
-//	gCurrentToolset = gCameraToolset;
-	gCurrentToolset->selectTool( gToolCamera );
+//	gToolMgr->setCurrentToolset(gCameraToolset);
+	gToolMgr->getCurrentToolset()->selectTool( gToolCamera );
 }
 
 class LLLandEdit : public view_listener_t
@@ -6749,10 +6721,10 @@ class LLLandEdit : public view_listener_t
 		gParcelMgr->selectParcelAt( gLastHitPosGlobal );
 
 		gFloaterTools->showMore(TRUE);
-	gFloaterView->bringToFront( gFloaterTools );
+		gFloaterView->bringToFront( gFloaterTools );
 
 		// Switch to land edit toolset
-		gCurrentToolset->selectTool( gToolParcel );
+		gToolMgr->getCurrentToolset()->selectTool( gToolParcel );
 		return true;
 	}
 };
@@ -6764,7 +6736,7 @@ class LLWorldEnableBuyLand : public view_listener_t
 		bool new_value = gParcelMgr->canAgentBuyParcel(
 								gParcelMgr->selectionEmpty()
 									? gParcelMgr->getAgentParcel()
-									: gParcelMgr->getSelectedParcel(),
+									: gParcelMgr->getParcelSelection()->getParcel(),
 								false);
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
@@ -6774,7 +6746,7 @@ class LLWorldEnableBuyLand : public view_listener_t
 BOOL enable_buy_land(void*)
 {
 	return gParcelMgr->canAgentBuyParcel(
-				gParcelMgr->getSelectedParcel(), false);
+				gParcelMgr->getParcelSelection()->getParcel(), false);
 }
 
 
@@ -6795,46 +6767,59 @@ void handle_move(void*)
 
 	gViewerWindow->moveCursorToCenter();
 
-	gCurrentToolset = gBasicToolset;
-	gCurrentToolset->selectTool( gToolGrab );
-}
-
-
-void near_attach_object(BOOL success, void *user_data)
-{
-	LLViewerJointAttachment *attachment = (LLViewerJointAttachment *)user_data;
-	
-	U8 attachment_id;
-	if (attachment)
-	{
-		attachment_id = gAgent.getAvatarObject()->mAttachmentPoints.reverseLookup(attachment);
-	}
-	else
-	{
-		// interpret 0 as "default location"
-		attachment_id = 0;
-	}
-	
-	gSelectMgr->sendAttach(attachment_id);
+	gToolMgr->setCurrentToolset(gBasicToolset);
+	gToolMgr->getCurrentToolset()->selectTool( gToolGrab );
 }
 
 class LLObjectAttachToAvatar : public view_listener_t
 {
+public:
+	static void setObjectSelection(LLObjectSelectionHandle selection) { sObjectSelection = selection; }
+
+private:
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLViewerObject* selectedObject = gSelectMgr->getFirstRootObject();
+		setObjectSelection(gSelectMgr->getSelection());
+		LLViewerObject* selectedObject = sObjectSelection->getFirstRootObject();
 		if (selectedObject)
 		{
-			confirm_replace_attachment(0, NULL);
+			LLViewerJointAttachment* attachment_point = gAgent.getAvatarObject()->mAttachmentPoints[userdata.asInteger()];
+			confirm_replace_attachment(0, attachment_point);
 		}
 		return true;
 	}
+
+protected:
+	static LLObjectSelectionHandle sObjectSelection;
 };
+
+LLObjectSelectionHandle LLObjectAttachToAvatar::sObjectSelection;
+
+void near_attach_object(BOOL success, void *user_data)
+{
+	if (success)
+	{
+		LLViewerJointAttachment *attachment = (LLViewerJointAttachment *)user_data;
+		
+		U8 attachment_id;
+		if (attachment)
+		{
+			attachment_id = gAgent.getAvatarObject()->mAttachmentPoints.reverseLookup(attachment);
+		}
+		else
+		{
+			// interpret 0 as "default location"
+			attachment_id = 0;
+		}
+		gSelectMgr->sendAttach(attachment_id);
+	}		
+	LLObjectAttachToAvatar::setObjectSelection(NULL);
+}
 
 // move this somewhere global
 void handle_attach_to_avatar(void* user_data)
 {
-    LLViewerObject* selectedObject = gSelectMgr->getFirstRootObject();
+    LLViewerObject* selectedObject = gSelectMgr->getSelection()->getFirstRootObject();
     if (selectedObject)
     {
         LLViewerJointAttachment *attachment = (LLViewerJointAttachment *)user_data;
@@ -6853,8 +6838,7 @@ void confirm_replace_attachment(S32 option, void* user_data)
 {
 	if (option == 0/*YES*/)
 	{
-		gSelectMgr->convertTransient();
-		LLViewerObject* selectedObject = gSelectMgr->getFirstRootObject();
+		LLViewerObject* selectedObject = gSelectMgr->getSelection()->getFirstRootObject();
 		if (selectedObject)
 		{
 			const F32 MIN_STOP_DISTANCE = 1.f;	// meters
@@ -6921,12 +6905,7 @@ class LLAttachmentDrop : public view_listener_t
 		// objects.  Thus we need to clear the list, make sure it only
 		// contains the object the user clicked, send the message,
 		// then clear the list.
-		// We use deselectAll to update the simulator's notion of what's
-		// selected, and removeAll just to change things locally.
-		//gSelectMgr->deselectAll();
-		//gSelectMgr->selectObjectAndFamily(object);
 		gSelectMgr->sendDropAttachment();
-		gSelectMgr->deselectTransient();
 		return true;
 	}
 };
@@ -7029,10 +7008,9 @@ class LLAttachmentDetach : public view_listener_t
 		// We use deselectAll to update the simulator's notion of what's
 		// selected, and removeAll just to change things locally.
 		//RN: I thought it was more useful to detach everything that was selected
-		if (gSelectMgr->selectionIsAttachment())
+		if (gSelectMgr->getSelection()->isAttachment())
 		{
 			gSelectMgr->sendDetach();
-			gSelectMgr->deselectAll();
 		}
 		return true;
 	}
@@ -7149,8 +7127,10 @@ class LLAttachmentEnableDetach : public view_listener_t
 BOOL object_selected_and_point_valid(void *user_data)
 {
 	//LLViewerJointAttachment *attachment = (LLViewerJointAttachment *)user_data;
+	if (gSelectMgr == NULL) return FALSE;
 
-	for (LLViewerObject *object = gSelectMgr->getFirstRootObject(); object; object = gSelectMgr->getNextRootObject())
+	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+	for (LLViewerObject *object = selection->getFirstRootObject(); object; object = selection->getNextRootObject())
 	{
 		for (U32 child_num = 0; child_num < object->mChildList.size(); child_num++ )
 		{
@@ -7161,12 +7141,11 @@ BOOL object_selected_and_point_valid(void *user_data)
 		}
 	}
 
-	return ((gSelectMgr != NULL) && 
-		(gSelectMgr->getRootObjectCount() == 1) && 
-		(gSelectMgr->getFirstRootObject()->getPCode() == LL_PCODE_VOLUME) && 
-		gSelectMgr->getFirstRootObject()->permYouOwner() &&
-		!((LLViewerObject*)gSelectMgr->getFirstRootObject()->getRoot())->isAvatar() && 
-		(gSelectMgr->getFirstRootObject()->getNVPair("AssetContainer") == NULL));
+	return (selection->getRootObjectCount() == 1) && 
+		(selection->getFirstRootObject()->getPCode() == LL_PCODE_VOLUME) && 
+		selection->getFirstRootObject()->permYouOwner() &&
+		!((LLViewerObject*)selection->getFirstRootObject()->getRoot())->isAvatar() && 
+		(selection->getFirstRootObject()->getNVPair("AssetContainer") == NULL);
 }
 
 // Also for seeing if object can be attached.  See above.
@@ -7177,13 +7156,14 @@ class LLObjectEnableWear : public view_listener_t
 		bool new_value = false;
 		if (gSelectMgr)
 		{
-			LLViewerObject* first_root = gSelectMgr->getFirstRootObject();
+			LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+			LLViewerObject* first_root = selection->getFirstRootObject();
 			if (first_root)
 			{
-				new_value = gSelectMgr->getRootObjectCount() == 1
+				new_value = selection->getRootObjectCount() == 1
 								&& first_root->getPCode() == LL_PCODE_VOLUME
 								&& first_root->permYouOwner()
-								&& !((LLViewerObject*)gSelectMgr->getFirstRootObject()->getRoot())->isAvatar()
+								&& !((LLViewerObject*)selection->getFirstRootObject()->getRoot())->isAvatar()
 								&& (first_root->getNVPair("AssetContainer") == NULL);
 			}
 		}
@@ -7266,9 +7246,9 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		BOOL scripted = FALSE;
 		BOOL modifiable = FALSE;
 
-		for(LLViewerObject* obj = gSelectMgr->getFirstObject();
+		for(LLViewerObject* obj = gSelectMgr->getSelection()->getFirstObject();
 			obj;
-			obj = gSelectMgr->getNextObject())
+			obj = gSelectMgr->getSelection()->getNextObject())
 		{
 			scripted = obj->flagScripted();
 			modifiable = obj->permModify();
@@ -7301,9 +7281,9 @@ void handle_reset_selection(void*)
 	BOOL scripted = FALSE;
 	BOOL modifiable = FALSE;
 
-	for(LLViewerObject* obj = gSelectMgr->getFirstObject();
+	for(LLViewerObject* obj = gSelectMgr->getSelection()->getFirstObject();
 		obj;
-		obj = gSelectMgr->getNextObject())
+		obj = gSelectMgr->getSelection()->getNextObject())
 	{
 		scripted = obj->flagScripted();
 		modifiable = obj->permModify();
@@ -7334,9 +7314,9 @@ void handle_set_run_selection(void*)
 	BOOL scripted = FALSE;
 	BOOL modifiable = FALSE;
 
-	for(LLViewerObject* obj = gSelectMgr->getFirstObject();
+	for(LLViewerObject* obj = gSelectMgr->getSelection()->getFirstObject();
 		obj;
-		obj = gSelectMgr->getNextObject())
+		obj = gSelectMgr->getSelection()->getNextObject())
 	{
 		scripted = obj->flagScripted();
 		modifiable = obj->permModify();
@@ -7367,9 +7347,9 @@ void handle_set_not_run_selection(void*)
 	BOOL scripted = FALSE;
 	BOOL modifiable = FALSE;
 
-	for(LLViewerObject* obj = gSelectMgr->getFirstObject();
+	for(LLViewerObject* obj = gSelectMgr->getSelection()->getFirstObject();
 		obj;
-		obj = gSelectMgr->getNextObject())
+		obj = gSelectMgr->getSelection()->getNextObject())
 	{
 		scripted = obj->flagScripted();
 		modifiable = obj->permModify();
@@ -7396,7 +7376,7 @@ void handle_set_not_run_selection(void*)
 void handle_selected_texture_info(void*)
 {
 	LLSelectNode* node = NULL;
-	for (node = gSelectMgr->getFirstNode(); node != NULL; node = gSelectMgr->getNextNode())
+	for (node = gSelectMgr->getSelection()->getFirstNode(); node != NULL; node = gSelectMgr->getSelection()->getNextNode())
 	{
 		if (!node->mValid) continue;
 
@@ -7583,7 +7563,7 @@ class LLSomethingSelected : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = !(gSelectMgr->isEmpty());
+		bool new_value = !(gSelectMgr->getSelection()->isEmpty());
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -7593,7 +7573,8 @@ class LLSomethingSelectedNoHUD : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = !(gSelectMgr->isEmpty()) && !(gSelectMgr->getSelectType() == SELECT_TYPE_HUD);
+		LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+		bool new_value = !(selection->isEmpty()) && !(selection->getSelectType() == SELECT_TYPE_HUD);
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -7601,14 +7582,14 @@ class LLSomethingSelectedNoHUD : public view_listener_t
 
 BOOL enable_more_than_one_selected(void* )
 {
-	return (gSelectMgr->getObjectCount() > 1);
+	return (gSelectMgr->getSelection()->getObjectCount() > 1);
 }
 
 class LLEditableSelected : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = (gSelectMgr->getFirstEditableObject() != NULL);
+		bool new_value = (gSelectMgr->getSelection()->getFirstEditableObject() != NULL);
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -7627,10 +7608,11 @@ class LLToolsEnableTakeCopy : public view_listener_t
 			if (gInProductionGrid || !gAgent.isGodlike())
 # endif
 			{
-				LLViewerObject* obj = gSelectMgr->getFirstRootObject();
+				LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+				LLViewerObject* obj = selection->getFirstRootObject();
 				if(obj)
 				{
-					for( ; obj; obj = gSelectMgr->getNextRootObject())
+					for( ; obj; obj = selection->getNextRootObject())
 					{
 						if(!(obj->permCopy()) || obj->isAttachment())
 						{
@@ -7650,11 +7632,15 @@ class LLToolsEnableTakeCopy : public view_listener_t
 BOOL enable_selection_you_own_all(void*)
 {
 	LLViewerObject *obj;
-	for (obj = gSelectMgr->getFirstRootObject(); obj; obj = gSelectMgr->getNextRootObject())
+	if (gSelectMgr)
 	{
-		if (!obj->permYouOwner())
+		LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+		for (obj = selection->getFirstRootObject(); obj; obj = selection->getNextRootObject())
 		{
-			return FALSE;
+			if (!obj->permYouOwner())
+			{
+				return FALSE;
+			}
 		}
 	}
 
@@ -7663,15 +7649,18 @@ BOOL enable_selection_you_own_all(void*)
 
 BOOL enable_selection_you_own_one(void*)
 {
-	LLViewerObject *obj;
-	for (obj = gSelectMgr->getFirstRootObject(); obj; obj = gSelectMgr->getNextRootObject())
+	if (gSelectMgr)
 	{
-		if (obj->permYouOwner())
+		LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+		LLViewerObject *obj;
+		for (obj = selection->getFirstRootObject(); obj; obj = selection->getNextRootObject())
 		{
-			return TRUE;
+			if (obj->permYouOwner())
+			{
+				return TRUE;
+			}
 		}
 	}
-
 	return FALSE;
 }
 
@@ -7705,9 +7694,9 @@ BOOL enable_save_into_inventory(void*)
 	{
 		// find the last root
 		LLSelectNode* last_node = NULL;
-		for(LLSelectNode* node = gSelectMgr->getFirstRootNode();
+		for(LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
 			node != NULL;
-			node = gSelectMgr->getNextRootNode())
+			node = gSelectMgr->getSelection()->getNextRootNode())
 		{
 			last_node = node;
 		}
@@ -7751,7 +7740,7 @@ BOOL enable_save_into_task_inventory(void*)
 {
 	if(gSelectMgr)
 	{
-		LLSelectNode* node = gSelectMgr->getFirstRootNode();
+		LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
 		if(node && (node->mValid) && (!node->mFromTaskID.isNull()))
 		{
 			// *TODO: check to see if the fromtaskid object exists.
@@ -7792,7 +7781,7 @@ class LLFileEnableUpload : public view_listener_t
 
 BOOL enable_export_selected(void *)
 {
-	if (gSelectMgr->isEmpty())
+	if (gSelectMgr->getSelection()->isEmpty())
 	{
 		return FALSE;
 	}
@@ -7823,7 +7812,7 @@ class LLToolsEnableToolNotPie : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = ( gToolMgr->getCurrentTool(MASK_NONE) != gToolPie );
+		bool new_value = ( gToolMgr->getBaseTool() != gToolPie );
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -8212,10 +8201,10 @@ class LLToolsUseSelectionForGrid : public view_listener_t
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		gSelectMgr->clearGridObjects();
-
-		for (LLViewerObject* objectp = gSelectMgr->getFirstRootObject();
+		LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+		for (LLViewerObject* objectp = selection->getFirstRootObject();
 			objectp;
-			objectp = gSelectMgr->getNextRootObject())
+			objectp = selection->getNextRootObject())
 			{
 				gSelectMgr->addGridObject(objectp);
 			}
@@ -8240,24 +8229,34 @@ void handle_test_load_url(void*)
 // LLViewerMenuHolderGL
 //
 
+LLViewerMenuHolderGL::LLViewerMenuHolderGL() : LLMenuHolderGL()
+{
+}
+
 BOOL LLViewerMenuHolderGL::hideMenus()
 {
 	BOOL handled = LLMenuHolderGL::hideMenus();
-	if (handled)
-	{
-		gSelectMgr->deselectTransient();
-		if(!gFloaterTools->getVisible()
-		   && !LLFloaterLand::floaterVisible()
-		   && !LLFloaterBuyLand::isOpen()) 
-		{
-			gParcelMgr->deselectLand();	
-		}
-	}
+
+	// drop pie menu selection
+	mParcelSelection = NULL;
+	mObjectSelection = NULL;
+
 	gMenuBarView->clearHoverItem();
 	gMenuBarView->resetMenuTrigger();
 
 	return handled;
 }
+
+void LLViewerMenuHolderGL::setParcelSelection(LLHandle<LLParcelSelection> selection) 
+{ 
+	mParcelSelection = selection; 
+}
+
+void LLViewerMenuHolderGL::setObjectSelection(LLHandle<LLObjectSelection> selection) 
+{ 
+	mObjectSelection = selection; 
+}
+
 
 const LLRect LLViewerMenuHolderGL::getMenuRect() const
 {
@@ -8586,23 +8585,23 @@ class LLToolsSelectTool : public view_listener_t
 		LLString tool_name = userdata.asString();
 		if (tool_name == "focus")
 		{
-			gCurrentToolset->selectToolByIndex(1);
+			gToolMgr->getCurrentToolset()->selectToolByIndex(1);
 		}
 		else if (tool_name == "move")
 		{
-			gCurrentToolset->selectToolByIndex(2);
+			gToolMgr->getCurrentToolset()->selectToolByIndex(2);
 		}
 		else if (tool_name == "edit")
 		{
-			gCurrentToolset->selectToolByIndex(3);
+			gToolMgr->getCurrentToolset()->selectToolByIndex(3);
 		}
 		else if (tool_name == "create")
 		{
-			gCurrentToolset->selectToolByIndex(4);
+			gToolMgr->getCurrentToolset()->selectToolByIndex(4);
 		}
 		else if (tool_name == "land")
 		{
-			gCurrentToolset->selectToolByIndex(5);
+			gToolMgr->getCurrentToolset()->selectToolByIndex(5);
 		}
 		return true;
 	}

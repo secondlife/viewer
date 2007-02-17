@@ -88,21 +88,22 @@ void LLFloaterAuction::show()
 
 void LLFloaterAuction::initialize()
 {
-	LLParcel* parcel = gParcelMgr->getSelectedParcel();
+	mParcelp = gParcelMgr->getParcelSelection();
 	LLViewerRegion* region = gParcelMgr->getSelectionRegion();
-	if(parcel && region && !parcel->getForSale())
+	LLParcel* parcelp = mParcelp->getParcel();
+	if(parcelp && region && !parcelp->getForSale())
 	{
 		mParcelHost = region->getHost();
-		mParcelID = parcel->getLocalID();
+		mParcelID = parcelp->getLocalID();
 
-		childSetText("parcel_text", parcel->getName());
+		childSetText("parcel_text", parcelp->getName());
 		childEnable("snapshot_btn");
 		childEnable("ok_btn");
 	}
 	else
 	{
 		mParcelHost.invalidate();
-		if(parcel && parcel->getForSale())
+		if(parcelp && parcelp->getForSale())
 		{
 			childSetText("parcel_text", childGetText("already for sale"));
 		}

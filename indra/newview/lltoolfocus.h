@@ -27,6 +27,8 @@ public:
 	virtual void	handleSelect();
 	virtual void	handleDeselect();
 
+	virtual LLTool*	getOverrideTool(MASK mask) { return NULL; }
+
 	static void pickCallback(S32 x, S32 y, MASK mask);
 	BOOL mouseSteerMode() { return mMouseSteering; }
 

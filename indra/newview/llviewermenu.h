@@ -18,6 +18,8 @@
 
 class LLUICtrl;
 class LLView;
+class LLParcelSelection;
+class LLObjectSelection;
 
 struct LLResourceData
 {
@@ -126,11 +128,18 @@ class LLPermissions;
 class LLViewerMenuHolderGL : public LLMenuHolderGL
 {
 public:
-	LLViewerMenuHolderGL() : LLMenuHolderGL() {};
+	LLViewerMenuHolderGL();
 
 	virtual BOOL hideMenus();
+	
+	void setParcelSelection(LLHandle<LLParcelSelection> selection);
+	void setObjectSelection(LLHandle<LLObjectSelection> selection);
+
 	virtual const LLRect getMenuRect() const;
-	//virtual BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
+
+protected:
+	LLHandle<LLParcelSelection> mParcelSelection;
+	LLHandle<LLObjectSelection> mObjectSelection;
 };
 
 extern const LLString SAVE_INTO_INVENTORY;

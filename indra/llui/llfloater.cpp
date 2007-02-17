@@ -527,6 +527,8 @@ void LLFloater::open()	/* Flawfinder: ignore */
 			make_ui_sound("UISndWindowOpen");
 		}
 	}
+
+	onOpen();
 }
 
 void LLFloater::close(bool app_quitting)
@@ -1334,6 +1336,11 @@ void LLFloater::draw()
 		}
 		drawChild(focused_child);
 	}
+}
+
+// virtual
+void LLFloater::onOpen()
+{
 }
 
 // virtual

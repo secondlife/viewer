@@ -32,14 +32,17 @@ public:
 	// Must be called after gSavedSettings set up.
 	void			initTools();
 
-	LLTool*			getCurrentTool(MASK override_mask);
+	LLTool*			getCurrentTool(); // returns active tool, taking into account keyboard state
+	LLTool*			getBaseTool(); // returns active tool when overrides are deactivated
 
 	BOOL			inEdit();
-	void			useSelectedTool( LLToolset* vp );
 
 	void			setTransientTool(LLTool* tool);
 	void			clearTransientTool();
 	BOOL			usingTransientTool();
+
+	void			setCurrentToolset(LLToolset* current);
+	LLToolset*		getCurrentToolset();
 
 	void			onAppFocusGained();
 	void			onAppFocusLost();
@@ -47,12 +50,15 @@ public:
 protected:
 	friend class LLToolset;  // to allow access to setCurrentTool();
 	void			setCurrentTool(LLTool* tool);
+	void			updateToolStatus();
 
 protected:
-	LLTool*			mCurrentTool;
+	LLTool*			mBaseTool;
 	LLTool*			mSavedTool;		// The current tool at the time application focus was lost.
 	LLTool*			mTransientTool;
 	LLTool*			mOverrideTool; // Tool triggered by keyboard override
+	LLTool*			mSelectedTool; // last known active tool
+	LLToolset*		mCurrentToolset;
 };
 
 // Sets of tools for various modes
@@ -87,7 +93,6 @@ void select_tool(void *tool);
 // Globals (created and destroyed by LLViewerWindow)
 extern LLToolMgr*   gToolMgr;
 
-extern LLToolset* gCurrentToolset;
 extern LLToolset* gBasicToolset;
 extern LLToolset *gCameraToolset;
 //extern LLToolset *gLandToolset;

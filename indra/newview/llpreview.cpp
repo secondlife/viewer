@@ -33,6 +33,7 @@
 // Globals and statics
 LLPreview::preview_multimap_t LLPreview::sPreviewsBySource;
 LLPreview::preview_map_t LLPreview::sInstances;
+std::map<LLUUID, LLViewHandle> LLMultiPreview::sAutoOpenPreviewHandles;
 
 // Functions
 LLPreview::LLPreview(const std::string& name) :
@@ -200,11 +201,11 @@ void LLPreview::onCommit()
 					{
 						gSelectMgr->deselectAll();
 						gSelectMgr->addAsIndividual( obj, SELECT_ALL_TES, FALSE );
-						gSelectMgr->setObjectDescription( childGetText("desc") );
+						gSelectMgr->selectionSetObjectDescription( childGetText("desc") );
 					
 						if( has_sale_info )
 						{
-							gSelectMgr->setObjectSaleInfo( sale_info );
+							gSelectMgr->selectionSetObjectSaleInfo( sale_info );
 						}
 
 						gSelectMgr->deselectAll();
@@ -490,5 +491,25 @@ void LLMultiPreview::tabOpen(LLFloater* opened_floater, bool from_click)
 	if (opened_preview && opened_preview->getAssetStatus() == LLPreview::PREVIEW_ASSET_UNLOADED)
 	{
 		opened_preview->loadAsset();
+	}
+}
+
+//static 
+LLMultiPreview* LLMultiPreview::getAutoOpenInstance(const LLUUID& id)
+{
+	handle_map_t::iterator found_it = sAutoOpenPreviewHandles.find(id);
+	if (found_it != sAutoOpenPreviewHandles.end())
+	{
+		return (LLMultiPreview*)gFloaterView->getFloaterByHandle(found_it->second);	
+	}
+	return NULL;
+}
+
+//static
+void LLMultiPreview::setAutoOpenInstance(LLMultiPreview* previewp, const LLUUID& id)
+{
+	if (previewp)
+	{
+		sAutoOpenPreviewHandles[id] = previewp->getHandle();
 	}
 }

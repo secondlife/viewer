@@ -131,7 +131,8 @@ void LLTextureView::draw()
 			{
 				S32 te;
 				LLViewerObject *objectp;
-				for (gSelectMgr->getFirstTE(&objectp, &te); objectp; gSelectMgr->getNextTE(&objectp, &te))
+				LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+				for (selection->getFirstTE(&objectp, &te); objectp; selection->getNextTE(&objectp, &te))
 				{
 					if (imagep == objectp->getTEImage(te))
 					{

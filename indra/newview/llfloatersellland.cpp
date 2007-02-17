@@ -36,15 +36,15 @@ private:
 	virtual ~LLFloaterSellLandUI();
 
 	LLViewerRegion*	mRegion;
-	LLParcel*		mParcel;
-	bool			mParcelIsForSale;
-	bool			mSellToBuyer;
-	bool			mChoseSellTo;
-	S32				mParcelPrice;
-	S32				mParcelActualArea;
-	LLUUID			mParcelSnapshot;
-	LLUUID			mAuthorizedBuyer;
-	bool			mParcelSoldWithObjects;
+	LLParcelSelectionHandle	mParcelSelection;
+	bool					mParcelIsForSale;
+	bool					mSellToBuyer;
+	bool					mChoseSellTo;
+	S32						mParcelPrice;
+	S32						mParcelActualArea;
+	LLUUID					mParcelSnapshot;
+	LLUUID					mAuthorizedBuyer;
+	bool					mParcelSoldWithObjects;
 	
 	void updateParcelInfo();
 	void refreshUI();
@@ -68,12 +68,19 @@ public:
 	
 	static LLFloaterSellLandUI* soleInstance(bool createIfNeeded);
 
-	bool setParcel(LLViewerRegion* region, LLParcel* parcel);
+	bool setParcel(LLViewerRegion* region, LLParcelSelectionHandle parcel);
+
+private:
+	class SelectionObserver : public LLParcelObserver
+	{
+	public:
+		virtual void changed();
+	};
 };
 
 // static
 void LLFloaterSellLand::sellLand(
-	LLViewerRegion* region, LLParcel* parcel)
+	LLViewerRegion* region, LLParcelSelectionHandle parcel)
 {
 	LLFloaterSellLandUI* ui = LLFloaterSellLandUI::soleInstance(true);
 	if (ui->setParcel(region, parcel))
@@ -96,12 +103,20 @@ LLFloaterSellLandUI* LLFloaterSellLandUI::soleInstance(bool createIfNeeded)
 		sInstance->center();
 	}
 	
+
+	static SelectionObserver* parcelSelectionObserver = NULL;
+	if (!parcelSelectionObserver)
+	{
+		parcelSelectionObserver = new SelectionObserver;
+		gParcelMgr->addObserver(parcelSelectionObserver);
+	}
+
 	return sInstance;
 }
 
 LLFloaterSellLandUI::LLFloaterSellLandUI()
 :	LLFloater("Sell Land"),
-	mRegion(0), mParcel(0)
+	mRegion(0)
 {
 }
 
@@ -113,6 +128,22 @@ LLFloaterSellLandUI::~LLFloaterSellLandUI()
 	}
 }
 
+void LLFloaterSellLandUI::SelectionObserver::changed()
+{
+	LLFloaterSellLandUI* ui = LLFloaterSellLandUI::soleInstance(false);
+	if (ui)
+	{
+		if (gParcelMgr->selectionEmpty())
+		{
+			ui->close();
+		}
+		else {
+			ui->setParcel(
+				gParcelMgr->getSelectionRegion(),
+				gParcelMgr->getParcelSelection());
+		}
+	}
+}
 
 void LLFloaterSellLandUI::onClose(bool app_quitting)
 {
@@ -133,16 +164,17 @@ BOOL LLFloaterSellLandUI::postBuild()
 	return TRUE;
 }
 
-bool LLFloaterSellLandUI::setParcel(LLViewerRegion* region, LLParcel* parcel)
+bool LLFloaterSellLandUI::setParcel(LLViewerRegion* region, LLParcelSelectionHandle parcel)
 {
-	if (!parcel) // || !can_agent_modify_parcel(parcel)) // can_agent_modify_parcel was deprecated by GROUPS
+	if (!parcel->getParcel()) // || !can_agent_modify_parcel(parcel)) // can_agent_modify_parcel was deprecated by GROUPS
 	{
 		return false;
 	}
 
 	mRegion = region;
-	mParcel = parcel;
+	mParcelSelection = parcel;
 	mChoseSellTo = false;
+
 
 	updateParcelInfo();
 	refreshUI();
@@ -152,14 +184,17 @@ bool LLFloaterSellLandUI::setParcel(LLViewerRegion* region, LLParcel* parcel)
 
 void LLFloaterSellLandUI::updateParcelInfo()
 {
-	mParcelActualArea = mParcel->getArea();
-	mParcelIsForSale = mParcel->getForSale();
+	LLParcel* parcelp = mParcelSelection->getParcel();
+	if (!parcelp) return;
+
+	mParcelActualArea = parcelp->getArea();
+	mParcelIsForSale = parcelp->getForSale();
 	if (mParcelIsForSale)
 	{
 		mChoseSellTo = true;
 	}
-	mParcelPrice = mParcelIsForSale ? mParcel->getSalePrice() : 0;
-	mParcelSoldWithObjects = mParcel->getSellWithObjects();
+	mParcelPrice = mParcelIsForSale ? parcelp->getSalePrice() : 0;
+	mParcelSoldWithObjects = parcelp->getSellWithObjects();
 	if (mParcelIsForSale)
 	{
 		childSetValue("price", mParcelPrice);
@@ -178,9 +213,9 @@ void LLFloaterSellLandUI::updateParcelInfo()
 		childSetValue("sell_objects", "none");
 	}
 
-	mParcelSnapshot = mParcel->getSnapshotID();
+	mParcelSnapshot = parcelp->getSnapshotID();
 
-	mAuthorizedBuyer = mParcel->getAuthorizedBuyerID();
+	mAuthorizedBuyer = parcelp->getAuthorizedBuyerID();
 	mSellToBuyer = mAuthorizedBuyer.notNull();
 
 	if(mSellToBuyer)
@@ -219,13 +254,16 @@ void LLFloaterSellLandUI::setBadge(const char* id, Badge badge)
 
 void LLFloaterSellLandUI::refreshUI()
 {
+	LLParcel* parcelp = mParcelSelection->getParcel();
+	if (!parcelp) return;
+
 	LLTextureCtrl* snapshot = LLViewerUICtrlFactory::getTexturePickerByName(this, "info_image");
 	if (snapshot)
 	{
 		snapshot->setImageAssetID(mParcelSnapshot);
 	}
 
-	childSetText("info_parcel", mParcel->getName());
+	childSetText("info_parcel", parcelp->getName());
 	childSetTextArg("info_size", "[AREA]", llformat("%d", mParcelActualArea));
 
 	LLString price_str = childGetValue("price").asString();
@@ -358,7 +396,7 @@ void LLFloaterSellLandUI::doSelectAgent(void *userdata)
 void LLFloaterSellLandUI::callbackAvatarPick(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* data)
 {	
 	LLFloaterSellLandUI* floaterp = (LLFloaterSellLandUI*)data;
-	LLParcel* parcel = floaterp->mParcel;
+	LLParcel* parcel = floaterp->mParcelSelection->getParcel();
 
 	if (names.empty() || ids.empty()) return;
 	
@@ -383,7 +421,10 @@ void LLFloaterSellLandUI::doCancel(void *userdata)
 void LLFloaterSellLandUI::doShowObjects(void *userdata)
 {
 	LLFloaterSellLandUI* self = (LLFloaterSellLandUI*)userdata;
-	send_parcel_select_objects(self->mParcel->getLocalID(), RT_SELL);
+	LLParcel* parcel = self->mParcelSelection->getParcel();
+	if (!parcel) return;
+
+	send_parcel_select_objects(parcel->getLocalID(), RT_SELL);
 
 	LLNotifyBox::showXml("TransferObjectsHighlighted",
 						 callbackHighlightTransferable,
@@ -401,7 +442,7 @@ void LLFloaterSellLandUI::doSellLand(void *userdata)
 {
 	LLFloaterSellLandUI* self = (LLFloaterSellLandUI*)userdata;
 
-	LLParcel* parcel = self->mParcel;
+	LLParcel* parcel = self->mParcelSelection->getParcel();
 
 	// Do a confirmation
 	if (!parcel->getForSale())
@@ -453,7 +494,8 @@ void LLFloaterSellLandUI::onConfirmSale(S32 option, void *userdata)
 		return;
 	}
 
-	LLParcel* parcel = self->mParcel;
+	LLParcel* parcel = self->mParcelSelection->getParcel();
+	if (!parcel) return;
 
 	// can_agent_modify_parcel deprecated by GROUPS
 // 	if (!can_agent_modify_parcel(parcel))
@@ -480,7 +522,7 @@ void LLFloaterSellLandUI::onConfirmSale(S32 option, void *userdata)
 	}
 
 	// Send update to server
-	gParcelMgr->sendParcelPropertiesUpdate( parcel, LLFloaterLand::sRequestReplyOnUpdate );
+	gParcelMgr->sendParcelPropertiesUpdate( parcel );
 
 	self->close();
 }

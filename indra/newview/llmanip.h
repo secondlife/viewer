@@ -17,6 +17,7 @@ class LLTextBox;
 class LLViewerObject;
 class LLToolComposite;
 class LLVector3;
+class LLObjectSelection;
 
 const S32 MIN_DIVISION_PIXEL_WIDTH = 9;
 
@@ -102,14 +103,18 @@ public:
 	void				renderGuidelines(BOOL draw_x = TRUE, BOOL draw_y = TRUE, BOOL draw_z = TRUE);
 	static void			renderXYZ(const LLVector3 &vec);
 
-    virtual BOOL		handleMouseDown(S32 x, S32 y, MASK mask) = 0;
     /*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
     /*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual EManipPart	getHighlightedPart() { return LL_NO_PART; }
 	virtual void		highlightManipulators(S32 x, S32 y) {};
+	virtual void		handleSelect();
+	virtual void		handleDeselect();
+
+	LLHandle<LLObjectSelection> getSelection();
+
 protected:
 	LLVector3			getSavedPivotPoint() const;
-	LLVector3			getPivotPoint() const;
+	LLVector3			getPivotPoint();
 	void				getManipNormal(LLViewerObject* object, EManipPart manip, LLVector3 &normal);
 	BOOL				getManipAxis(LLViewerObject* object, EManipPart manip, LLVector3 &axis);
 	F32					getSubdivisionLevel(const LLVector3 &reference_point, const LLVector3 &translate_axis, F32 grid_scale, S32 min_pixel_spacing = MIN_DIVISION_PIXEL_WIDTH);
@@ -118,11 +123,12 @@ protected:
 	void				updateGridSettings();
 	BOOL				getMousePointOnPlaneGlobal(LLVector3d& point, S32 x, S32 y, LLVector3d origin, LLVector3 normal);
 	BOOL				getMousePointOnPlaneAgent(LLVector3& point, S32 x, S32 y, LLVector3 origin, LLVector3 normal);
-	BOOL				nearestPointOnLineFromMouse( S32 x, S32 y, const LLVector3& b1, const LLVector3& b2, F32 &a_param, F32 &b_param ) const;
+	BOOL				nearestPointOnLineFromMouse( S32 x, S32 y, const LLVector3& b1, const LLVector3& b2, F32 &a_param, F32 &b_param );
 	LLColor4			setupSnapGuideRenderPass(S32 pass);
 protected:
 	LLFrameTimer		mHelpTextTimer;
 	BOOL				mInSnapRegime;
+	LLHandle<LLObjectSelection> mObjectSelection;
 
 	static F32			sHelpTextVisibleTime;
 	static F32			sHelpTextFadeTime;

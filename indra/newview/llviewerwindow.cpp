@@ -378,7 +378,7 @@ BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask
 	if (gToolMgr)
 	{
 		// Don't let the user move the mouse out of the window until mouse up.
-		if( gToolMgr->getCurrentTool(mask)->clipMouseWhenDown() )
+		if( gToolMgr->getCurrentTool()->clipMouseWhenDown() )
 		{
 			mWindow->setMouseClipping(TRUE);
 		}
@@ -429,7 +429,7 @@ BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask
 
 	if (gToolMgr)
 	{
-		if(gToolMgr->getCurrentTool(mask)->handleMouseDown( x, y, mask ) )
+		if(gToolMgr->getCurrentTool()->handleMouseDown( x, y, mask ) )
 		{
 			// This is necessary to force clicks in the world to cause edit
 			// boxes that might have keyboard focus to relinquish it, and hence
@@ -507,7 +507,7 @@ BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK ma
 
 	if (gToolMgr)
 	{
-		if(gToolMgr->getCurrentTool(mask)->handleDoubleClick( x, y, mask ) )
+		if(gToolMgr->getCurrentTool()->handleDoubleClick( x, y, mask ) )
 		{
 			return TRUE;
 		}
@@ -550,7 +550,7 @@ BOOL LLViewerWindow::handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 	LLTool *tool = NULL;
 	if (gToolMgr)
 	{
-		tool = gToolMgr->getCurrentTool(mask);
+		tool = gToolMgr->getCurrentTool();
 
 		if( tool->clipMouseWhenDown() )
 		{
@@ -649,7 +649,7 @@ BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK
 	if (gToolMgr)
 	{
 		// Don't let the user move the mouse out of the window until mouse up.
-		if( gToolMgr->getCurrentTool(mask)->clipMouseWhenDown() )
+		if( gToolMgr->getCurrentTool()->clipMouseWhenDown() )
 		{
 			mWindow->setMouseClipping(TRUE);
 		}
@@ -692,7 +692,7 @@ BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK
 
 	if (gToolMgr)
 	{
-		if(gToolMgr->getCurrentTool(mask)->handleRightMouseDown( x, y, mask ) )
+		if(gToolMgr->getCurrentTool()->handleRightMouseDown( x, y, mask ) )
 		{
 			// This is necessary to force clicks in the world to cause edit
 			// boxes that might have keyboard focus to relinquish it, and hence
@@ -750,7 +750,7 @@ BOOL LLViewerWindow::handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK m
 	LLTool *tool = NULL;
 	if (gToolMgr)
 	{
-		tool = gToolMgr->getCurrentTool(mask);
+		tool = gToolMgr->getCurrentTool();
 
 		if( tool->clipMouseWhenDown() )
 		{
@@ -1909,7 +1909,7 @@ void LLViewerWindow::draw()
 		if (gToolMgr)
 		{
 			// Draw tool specific overlay on world
-			gToolMgr->getCurrentTool( gKeyboard->currentMask(TRUE) )->draw();
+			gToolMgr->getCurrentTool()->draw();
 		}
 
 		if( gAgent.cameraMouselook() )
@@ -2097,7 +2097,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 
 	if (gToolMgr)
 	{
-		if( gToolMgr->getCurrentTool(mask)->handleKey(key, mask) )
+		if( gToolMgr->getCurrentTool()->handleKey(key, mask) )
 		{
 			return TRUE;
 		}
@@ -2457,7 +2457,7 @@ BOOL LLViewerWindow::handlePerFrameHover()
 	LLTool *tool = NULL;
 	if (gToolMgr && gHoverView)
 	{
-		tool = gToolMgr->getCurrentTool(mask);
+		tool = gToolMgr->getCurrentTool();
 
 		if(!handled && tool)
 		{
@@ -2477,8 +2477,8 @@ BOOL LLViewerWindow::handlePerFrameHover()
 		// Suppress the toolbox view if our source tool was the pie tool,
 		// and we've overridden to something else.
 		mSuppressToolbox = 
-			(gToolMgr->getCurrentTool(MASK_NONE) == gToolPie) &&
-			(gToolMgr->getCurrentTool(mask) != gToolPie);
+			(gToolMgr->getBaseTool() == gToolPie) &&
+			(gToolMgr->getCurrentTool() != gToolPie);
 
 	}
 
@@ -2539,8 +2539,8 @@ BOOL LLViewerWindow::handlePerFrameHover()
 			(tool != gToolPie						// not default tool
 			&& tool != gToolGun						// not coming out of mouselook
 			&& !mSuppressToolbox					// not override in third person
-			&& gCurrentToolset != gFaceEditToolset	// not special mode
-			&& gCurrentToolset != gMouselookToolset
+			&& gToolMgr->getCurrentToolset() != gFaceEditToolset	// not special mode
+			&& gToolMgr->getCurrentToolset() != gMouselookToolset
 			&& (!captor || captor->isView())) // not dragging
 			)
 		{
@@ -2653,7 +2653,7 @@ BOOL LLViewerWindow::handlePerFrameHover()
 	mLastMousePoint = mCurrentMousePoint;
 
 	// last ditch force of edit menu to selection manager
-	if (gEditMenuHandler == NULL && gSelectMgr && gSelectMgr->getObjectCount())
+	if (gEditMenuHandler == NULL && gSelectMgr && gSelectMgr->getSelection()->getObjectCount())
 	{
 		gEditMenuHandler = gSelectMgr;
 	}
@@ -2689,15 +2689,15 @@ BOOL LLViewerWindow::handlePerFrameHover()
 		gChatBar->startChat(NULL);
 	}
 
-	// sync land selection with edit and about land dialogs
-	if (gParcelMgr
-		&& !gMenuHolder->hasVisibleMenu()
-		&& !LLFloaterLand::floaterVisible()
-		&& !LLFloaterBuyLand::isOpen()
-		&& !LLPanelLandGeneral::buyPassDialogVisible()
-		&& (!gFloaterTools || !gFloaterTools->getVisible()))
+	// cleanup unused selections
+	if (gParcelMgr)
 	{
-		gParcelMgr->deselectLand();
+		gParcelMgr->deselectUnused();
+	}
+
+	if (gSelectMgr)
+	{
+		gSelectMgr->deselectUnused();
 	}
 
 	return handled;
@@ -2745,6 +2745,7 @@ void LLViewerWindow::saveLastMouse(const LLCoordGL &point)
 void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls, BOOL for_hud )
 {
 	LLViewerObject* object;
+	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
 
 	if (!for_hud && !for_gl_pick)
 	{
@@ -2760,15 +2761,15 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 			gParcelMgr->renderParcelCollision();
 		}
 	}
-	else if (( for_hud && gSelectMgr->getSelectType() == SELECT_TYPE_HUD) ||
-			 (!for_hud && gSelectMgr->getSelectType() != SELECT_TYPE_HUD))
+	else if (( for_hud && selection->getSelectType() == SELECT_TYPE_HUD) ||
+			 (!for_hud && selection->getSelectType() != SELECT_TYPE_HUD))
 	{		
 		gSelectMgr->renderSilhouettes(for_hud);
 		
 		stop_glerror();
 
 		// setup HUD render
-		if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD && gSelectMgr->getObjectCount())
+		if (selection->getSelectType() == SELECT_TYPE_HUD && gSelectMgr->getSelection()->getObjectCount())
 		{
 			LLBBox hud_bbox = gAgent.getAvatarObject()->getHUDBBox();
 
@@ -2794,12 +2795,12 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 			LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE);
 			glMatrixMode(GL_MODELVIEW);
 			glPushMatrix();
-			if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+			if (selection->getSelectType() == SELECT_TYPE_HUD)
 			{
 				F32 zoom = gAgent.getAvatarObject()->mHUDCurZoom;
 				glScalef(zoom, zoom, zoom);
 			}
-			for( object = gSelectMgr->getFirstObject(); object; object = gSelectMgr->getNextObject() )
+			for( object = gSelectMgr->getSelection()->getFirstObject(); object; object = gSelectMgr->getSelection()->getNextObject() )
 			{
 				LLDrawable* drawable = object->mDrawable;
 				if (drawable && drawable->isLight())
@@ -2834,7 +2835,7 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 		// not be recalculated at this time.  If they are, then group rotations will break.
 
 		// Draw arrows at average center of all selected objects
-		LLTool* tool = gToolMgr->getCurrentTool( gKeyboard->currentMask(TRUE) );
+		LLTool* tool = gToolMgr->getCurrentTool();
 		if (tool)
 		{
 			if(tool->isAlwaysRendered())
@@ -2843,13 +2844,13 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 			}
 			else
 			{
-				if( !gSelectMgr->isEmpty() )
+				if( !gSelectMgr->getSelection()->isEmpty() )
 				{
 					BOOL moveable_object_selected = FALSE;
 					BOOL all_selected_objects_move = TRUE;
 					BOOL all_selected_objects_modify = TRUE;
 					BOOL selecting_linked_set = gSavedSettings.getBOOL("SelectLinkedSet");
-					for( object = gSelectMgr->getFirstObject(); object; object = gSelectMgr->getNextObject() )
+					for( object = gSelectMgr->getSelection()->getFirstObject(); object; object = gSelectMgr->getSelection()->getNextObject() )
 					{
 						BOOL this_object_movable = FALSE;
 						if (object->permMove() && (object->permModify() || selecting_linked_set))
@@ -2884,7 +2885,7 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 					}
 				}
 			}
-			if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD && gSelectMgr->getObjectCount())
+			if (selection->getSelectType() == SELECT_TYPE_HUD && selection->getObjectCount())
 			{
 				glMatrixMode(GL_PROJECTION);
 				glPopMatrix();

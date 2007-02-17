@@ -226,9 +226,11 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 
 	if (shrink_selection)
 	{
-		for (LLViewerObject* vobjp = gSelectMgr->getFirstHighlightedObject();
+		LLObjectSelectionHandle highlighted_objects = gSelectMgr->getHighlightedObjects();
+
+		for (LLViewerObject* vobjp = highlighted_objects->getFirstObject();
 			vobjp;
-			vobjp = gSelectMgr->getNextHighlightedObject())
+			vobjp = highlighted_objects->getNextObject())
 			{
 				LLDrawable* drawable = vobjp->mDrawable;
 				if (!drawable || vobjp->getPCode() != LL_PCODE_VOLUME || vobjp->isAttachment())

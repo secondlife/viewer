@@ -211,11 +211,6 @@ LLFloaterReporter::~LLFloaterReporter()
 	std::for_each(mMCDList.begin(), mMCDList.end(), DeletePointer() );
 	mMCDList.clear();
 
-	if (gSelectMgr)
-	{
-		gSelectMgr->deselectTransient();
-	}
-
 	gDialogVisible = FALSE;
 }
 

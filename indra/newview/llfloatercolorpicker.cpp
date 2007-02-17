@@ -616,7 +616,7 @@ void LLFloaterColorPicker::draw()
 	}
 
 	mPipetteBtn->setEnabled(gToolMgr != NULL);
-	mPipetteBtn->setToggleState(gToolMgr && gToolMgr->getCurrentTool(gKeyboard->currentMask(TRUE)) == gToolPipette);
+	mPipetteBtn->setToggleState(gToolMgr && gToolMgr->getCurrentTool() == gToolPipette);
 	mApplyImmediateCheck->setEnabled(mActive && mCanApplyImmediately);
 	mSelectBtn->setEnabled(mActive);
 
@@ -1253,7 +1253,7 @@ void LLFloaterColorPicker::setActive(BOOL active)
 
 void LLFloaterColorPicker::stopUsingPipette()
 {
-	if (gToolMgr && gToolMgr->getCurrentTool(gKeyboard->currentMask(TRUE)) == gToolPipette)
+	if (gToolMgr && gToolMgr->getCurrentTool() == gToolPipette)
 	{
 		gToolMgr->clearTransientTool();
 	}

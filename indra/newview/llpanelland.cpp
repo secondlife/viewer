@@ -90,7 +90,7 @@ void LLPanelLandInfo::refreshAll()
 // public
 void LLPanelLandInfo::refresh()
 {
-	LLParcel *parcel = gParcelMgr->getSelectedParcel();
+	LLParcel *parcel = gParcelMgr->getParcelSelection()->getParcel();
 	LLViewerRegion *regionp = gParcelMgr->getSelectionRegion();
 
 	if (!parcel || !regionp)
@@ -158,7 +158,7 @@ void LLPanelLandInfo::refresh()
 		// and it must not be a whole parcel.
 		if (gParcelMgr->getSelectedArea() > PARCEL_UNIT_AREA
 			//&& gParcelMgr->getSelfCount() > 1
-			&& !gParcelMgr->getWholeParcelSelected())
+			&& !gParcelMgr->getParcelSelection()->getWholeParcelSelected())
 		{
 			childSetEnabled("button join land",TRUE);
 		}
@@ -181,7 +181,7 @@ void LLPanelLandInfo::refresh()
 								   &rent_price,
 								   &for_sale,
 								   &dwell);
-		if(is_public || (is_for_sale && gParcelMgr->getWholeParcelSelected()))
+		if(is_public || (is_for_sale && gParcelMgr->getParcelSelection()->getWholeParcelSelected()))
 		{
 			childSetTextArg("label_area_price","[PRICE]", llformat("%d",claim_price));
 			childSetTextArg("label_area_price","[AREA]", llformat("%d",area));
@@ -227,7 +227,7 @@ void LLPanelLandInfo::onClickJoin(void*)
 void LLPanelLandInfo::onClickAbout(void*)
 {
 	// Promote the rectangle selection to a parcel selection
-	if (!gParcelMgr->getWholeParcelSelected())
+	if (!gParcelMgr->getParcelSelection()->getWholeParcelSelected())
 	{
 		gParcelMgr->selectParcelInRectangle();
 	}

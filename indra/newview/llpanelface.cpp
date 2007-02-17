@@ -238,7 +238,8 @@ void LLPanelFace::sendTextureInfo()
 {
 	S32 te;
 	LLViewerObject* object;
-	for ( gSelectMgr->getFirstTE(&object, &te); object; gSelectMgr->getNextTE(&object, &te) )
+	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+	for ( selection->getFirstTE(&object, &te); object; selection->getNextTE(&object, &te) )
 	{
 		BOOL valid;
 		F32 value;
@@ -317,7 +318,7 @@ void LLPanelFace::sendTextureInfo()
 		}
 	}
 
-	for ( object = gSelectMgr->getFirstObject(); object; object = gSelectMgr->getNextObject() )
+	for ( object = gSelectMgr->getSelection()->getFirstObject(); object; object = gSelectMgr->getSelection()->getNextObject() )
 	{
 		object->sendTEUpdate();
 	}
@@ -325,7 +326,7 @@ void LLPanelFace::sendTextureInfo()
 
 void LLPanelFace::getState()
 {
-	LLViewerObject* objectp = gSelectMgr->getFirstObject();
+	LLViewerObject* objectp = gSelectMgr->getSelection()->getFirstObject();
 
 	if( objectp
 		&& objectp->getPCode() == LL_PCODE_VOLUME)
@@ -600,7 +601,7 @@ BOOL LLPanelFace::allFacesSameValue( F32 (get_face_value(LLViewerObject*, S32)),
 	// Get the value from the primary selected TE
 	F32 first_value = *value;
 	BOOL got_first = FALSE;
-	gSelectMgr->getPrimaryTE(&object, &te);
+	gSelectMgr->getSelection()->getPrimaryTE(&object, &te);
 	if (object)
 	{
 		first_value = get_face_value(object, te);
@@ -609,7 +610,8 @@ BOOL LLPanelFace::allFacesSameValue( F32 (get_face_value(LLViewerObject*, S32)),
 
 	// Now iterate through all TEs to test for sameness
 	BOOL identical = TRUE;
-	for ( gSelectMgr->getFirstTE(&object, &te); object; gSelectMgr->getNextTE(&object, &te) )
+	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+	for ( selection->getFirstTE(&object, &te); object; selection->getNextTE(&object, &te) )
 	{
 		if (!got_first)
 		{
@@ -760,13 +762,13 @@ void LLPanelFace::onCommitFullbright(LLUICtrl* ctrl, void* userdata)
 BOOL LLPanelFace::onDragTexture(LLUICtrl*, LLInventoryItem* item, void*)
 {
 	BOOL accept = TRUE;
-	LLViewerObject* obj = gSelectMgr->getFirstRootObject();
+	LLViewerObject* obj = gSelectMgr->getSelection()->getFirstRootObject();
 	while(accept && obj)
 	{
 		if(!LLToolDragAndDrop::isInventoryDropAcceptable(obj, item))
 			accept = FALSE;
 		else
-			obj = gSelectMgr->getNextRootObject();
+			obj = gSelectMgr->getSelection()->getNextRootObject();
 	}
 	return accept;
 }
@@ -823,7 +825,8 @@ void LLPanelFace::onClickAutoFix(void* userdata)
 	LLViewerObject* object;
 
 	// for all selected objects
-	for ( gSelectMgr->getFirstTE(&object, &te); object; gSelectMgr->getNextTE(&object, &te) )
+	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+	for ( selection->getFirstTE(&object, &te); object; selection->getNextTE(&object, &te) )
 	{
 		// only do this if it's a media texture
 		if ( object->getTE ( te )->getID() ==  LLMediaEngine::getInstance()->getImageUUID () )
@@ -848,7 +851,7 @@ void LLPanelFace::onClickAutoFix(void* userdata)
 	};
 
 	// not clear why this is in a separate loop but i followed the patter from further up this file just in case.
-	for ( object = gSelectMgr->getFirstObject(); object; object = gSelectMgr->getNextObject() )
+	for ( object = gSelectMgr->getSelection()->getFirstObject(); object; object = gSelectMgr->getSelection()->getNextObject() )
 	{
 		object->sendTEUpdate();
 	};

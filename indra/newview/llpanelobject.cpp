@@ -256,11 +256,11 @@ LLPanelObject::~LLPanelObject()
 
 void LLPanelObject::getState( )
 {
-	LLViewerObject* objectp = gSelectMgr->getFirstRootObject();
+	LLViewerObject* objectp = gSelectMgr->getSelection()->getFirstRootObject();
 	LLViewerObject* root_objectp = objectp;
 	if(!objectp)
 	{
-		objectp = gSelectMgr->getFirstObject();
+		objectp = gSelectMgr->getSelection()->getFirstObject();
 		// *FIX: shouldn't we just keep the child?
 		if (objectp)
 		{
@@ -372,9 +372,9 @@ void LLPanelObject::getState( )
 	owners_identical = gSelectMgr->selectGetOwner(owner_id, owner_name);
 
 	// BUG? Check for all objects being editable?
-	S32 roots_selected = gSelectMgr->getRootObjectCount();
+	S32 roots_selected = gSelectMgr->getSelection()->getRootObjectCount();
 	BOOL editable = root_objectp->permModify();
-	S32 selected_count = gSelectMgr->getObjectCount();
+	S32 selected_count = gSelectMgr->getSelection()->getObjectCount();
 	BOOL single_volume = (gSelectMgr->selectionAllPCode( LL_PCODE_VOLUME ))
 						 && (selected_count == 1);
 
@@ -1506,7 +1506,7 @@ void LLPanelObject::draw()
 	const LLColor4	blue(	0.f,	0.5f,	1.0f,	1);
 
 	// Tune the colors of the labels
-	LLTool* tool = gToolMgr->getCurrentTool( gKeyboard->currentMask(TRUE) );
+	LLTool* tool = gToolMgr->getCurrentTool();
 
 	if (tool == gToolTranslate)
 	{
@@ -1626,7 +1626,7 @@ void LLPanelObject::onCommitLock(LLUICtrl *ctrl, void *data)
 
 	BOOL new_state = self->mCheckLock->get();
 	
-	gSelectMgr->setObjectPermissions(PERM_OWNER, !new_state, PERM_MOVE | PERM_MODIFY);
+	gSelectMgr->selectionSetObjectPermissions(PERM_OWNER, !new_state, PERM_MOVE | PERM_MODIFY);
 }
 
 // static

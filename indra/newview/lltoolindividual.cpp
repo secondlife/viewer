@@ -66,7 +66,7 @@ void LLToolIndividual::pickCallback(S32 x, S32 y, MASK mask)
 
 BOOL LLToolIndividual::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	if(!gSelectMgr->isEmpty())
+	if(!gSelectMgr->getSelection()->isEmpty())
 	{
 		// You should already have an object selected from the mousedown.
 		// If so, show its inventory. 
@@ -85,10 +85,10 @@ BOOL LLToolIndividual::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 void LLToolIndividual::handleSelect()
 {
-	LLViewerObject* obj = gSelectMgr->getFirstRootObject();
+	LLViewerObject* obj = gSelectMgr->getSelection()->getFirstRootObject();
 	if(!obj)
 	{
-		obj = gSelectMgr->getFirstObject();
+		obj = gSelectMgr->getSelection()->getFirstObject();
 	}
 	gSelectMgr->deselectAll();
 	if(obj)

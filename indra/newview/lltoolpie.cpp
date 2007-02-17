@@ -63,7 +63,7 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 	// if buttons swapped, don't pick transparent so users can't "pay" 
 	// transparent objects
 	gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, leftMouseCallback, 
-											  TRUE, TRUE);
+											  FALSE, TRUE);
 	mGrabMouseButtonDown = TRUE;
 	return TRUE;
 }
@@ -194,7 +194,7 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 		!always_show)
 	{
 		gGrabTransientTool = this;
-		gCurrentToolset->selectTool( gToolGrab );
+		gToolMgr->getCurrentToolset()->selectTool( gToolGrab );
 		return gToolGrab->handleObjectHit( object, x, y, mask);
 	}
 	
@@ -253,8 +253,8 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 	// Spawn pie menu
 	if (mHitLand)
 	{
-		gParcelMgr->selectParcelAt( gLastHitPosGlobal );
-
+		LLParcelSelectionHandle selection = gParcelMgr->selectParcelAt( gLastHitPosGlobal );
+		gMenuHolder->setParcelSelection(selection);
 		gPieLand->show(x, y, mPieMouseButtonDown);
 
 		// VEFFECT: ShowPie
@@ -269,6 +269,8 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 	}
 	else if (object)
 	{
+		gMenuHolder->setObjectSelection(gSelectMgr->getSelection());
+
 		if (object->isAvatar() 
 			|| (object->isAttachment() && !object->isHUDAttachment() && !object->permYouOwner()))
 		{
@@ -302,7 +304,7 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 		{
 			// BUG: What about chatting child objects?
 			LLString name;
-			LLSelectNode* node = gSelectMgr->getFirstRootNode();
+			LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
 			if (node)
 			{
 				name = node->mName;
@@ -397,7 +399,7 @@ void LLToolPie::selectionPropertiesReceived()
 	if (sClickActionObject
 		&& !sClickActionObject->isDead())
 	{
-		LLViewerObject* root = gSelectMgr->getFirstRootObject();
+		LLViewerObject* root = gSelectMgr->getSelection()->getFirstRootObject();
 		if (root == sClickActionObject)
 		{
 			U8 action = root->getClickAction();
@@ -603,6 +605,19 @@ void LLToolPie::handleDeselect()
 	gSelectMgr->validateSelection();
 }
 
+LLTool* LLToolPie::getOverrideTool(MASK mask)
+{
+	if (mask == MASK_CONTROL)
+	{
+		return gToolGrab;
+	}
+	else if (mask == (MASK_CONTROL | MASK_SHIFT))
+	{
+		return gToolGrab;
+	}
+
+	return LLTool::getOverrideTool(mask);
+}
 
 void LLToolPie::stopEditing()
 {

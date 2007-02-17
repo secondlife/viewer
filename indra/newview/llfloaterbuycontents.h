@@ -20,6 +20,7 @@
 #include "llinventory.h"
 
 class LLViewerObject;
+class LLObjectSelection;
 
 class LLFloaterBuyContents
 : public LLFloater, public LLVOInventoryListener
@@ -43,6 +44,7 @@ protected:
 protected:
 	static LLFloaterBuyContents* sInstance;
 
+	LLHandle<LLObjectSelection> mObjectSelection;
 	LLSaleInfo mSaleInfo;
 };
 

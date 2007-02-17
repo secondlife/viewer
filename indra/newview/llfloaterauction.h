@@ -20,6 +20,7 @@
 //
 // Class which holds the functionality to start auctions.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLParcelSelection;
 
 class LLFloaterAuction : public LLFloater
 {
@@ -45,6 +46,7 @@ private:
 	LLTransactionID mTransactionID;
 	LLAssetID mImageID;
 	LLPointer<LLImageGL> mImage;
+	LLHandle<LLParcelSelection> mParcelp;
 	S32 mParcelID;
 	LLHost mParcelHost;
 };

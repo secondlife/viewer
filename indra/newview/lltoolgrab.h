@@ -34,7 +34,7 @@ public:
 
 	virtual void		handleSelect();
 	virtual void		handleDeselect();
-
+	
 	virtual LLViewerObject*	getEditingObject();
 	virtual LLVector3d		getEditingPointGlobal();
 	virtual BOOL			isEditing();

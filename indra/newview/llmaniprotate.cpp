@@ -62,7 +62,6 @@ const F32 SELECTED_MANIPULATOR_SCALE = 1.05f;
 const F32 MANIPULATOR_SCALE_HALF_LIFE = 0.07f;
 
 extern void handle_reset_rotation(void*);  // in LLViewerWindow
-extern void handle_first_tool(void*);
 
 LLManipRotate::LLManipRotate( LLToolComposite* composite )
 : 	LLManip( "Rotate", composite ),
@@ -89,6 +88,7 @@ void LLManipRotate::handleSelect()
 	// *FIX: put this in mouseDown?
 	gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
 	gFloaterTools->setStatusText("Drag colored bands to rotate object");
+	LLManip::handleSelect();
 }
 
 void LLManipRotate::handleDeselect()
@@ -97,6 +97,7 @@ void LLManipRotate::handleDeselect()
 	mManipPart = LL_NO_PART;
 
 	gFloaterTools->setStatusText("");
+	LLManip::handleDeselect();
 }
 
 void LLManipRotate::render()
@@ -108,7 +109,7 @@ void LLManipRotate::render()
 	LLGLEnable gls_alpha_test(GL_ALPHA_TEST);
 	
 	// You can rotate if you can move
-	LLViewerObject* first_object = gSelectMgr->getFirstMoveableObject(TRUE);
+	LLViewerObject* first_object = mObjectSelection->getFirstMoveableObject(TRUE);
 	if( !first_object )
 	{
 		return;
@@ -121,7 +122,7 @@ void LLManipRotate::render()
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
-	if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		F32 zoom = gAgent.getAvatarObject()->mHUDCurZoom;
 		glScalef(zoom, zoom, zoom);
@@ -339,7 +340,7 @@ BOOL LLManipRotate::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL	handled = FALSE;
 
-	LLViewerObject* first_object = gSelectMgr->getFirstMoveableObject(TRUE);
+	LLViewerObject* first_object = mObjectSelection->getFirstMoveableObject(TRUE);
 	if( first_object )
 	{
 		LLViewerObject* hit_obj = gViewerWindow->lastObjectHit();
@@ -355,10 +356,10 @@ BOOL LLManipRotate::handleMouseDown(S32 x, S32 y, MASK mask)
 // Assumes that one of the parts of the manipulator was hit.
 BOOL LLManipRotate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 {
-	BOOL can_rotate = gSelectMgr->getObjectCount() != 0;
-	for (LLViewerObject* objectp = gSelectMgr->getFirstObject();
+	BOOL can_rotate = mObjectSelection->getObjectCount() != 0;
+	for (LLViewerObject* objectp = mObjectSelection->getFirstObject();
 		objectp;
-		objectp = gSelectMgr->getNextObject())
+		objectp = mObjectSelection->getNextObject())
 	{
 		can_rotate = can_rotate && objectp->permMove() && (objectp->permModify() || gSavedSettings.getBOOL("SelectLinkedSet"));
 	}
@@ -463,7 +464,7 @@ BOOL LLManipRotate::handleHover(S32 x, S32 y, MASK mask)
 {
 	if( hasMouseCapture() )
 	{
-		if( gSelectMgr->isEmpty() )
+		if( mObjectSelection->isEmpty() )
 		{
 			// Somehow the object got deselected while we were dragging it.
 			setMouseCapture( FALSE );
@@ -531,7 +532,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 	LLSelectNode* selectNode;
 	BOOL using_linked_selection = gSavedSettings.getBOOL("SelectLinkedSet");
 
-	for( selectNode = gSelectMgr->getFirstNode(); selectNode != NULL; selectNode = gSelectMgr->getNextNode() )
+	for( selectNode = mObjectSelection->getFirstNode(); selectNode != NULL; selectNode = mObjectSelection->getNextNode() )
 	{
 		object = selectNode->getObject();
 
@@ -603,7 +604,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 	}
 
 	// update positions
-	for( selectNode = gSelectMgr->getFirstNode(); selectNode != NULL; selectNode = gSelectMgr->getNextNode() )
+	for( selectNode = mObjectSelection->getFirstNode(); selectNode != NULL; selectNode = mObjectSelection->getNextNode() )
 	{
 		object = selectNode->getObject();
 		
@@ -766,7 +767,7 @@ void LLManipRotate::renderSnapGuides()
 
 	LLVector3 center = gAgent.getPosAgentFromGlobal( mRotationCenter );
 	LLVector3 cam_at_axis;
-	if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		cam_at_axis.setVec(1.f, 0.f, 0.f);
 	}
@@ -780,7 +781,7 @@ void LLManipRotate::renderSnapGuides()
 	LLVector3 test_axis = constraint_axis;
 
 	BOOL constrain_to_ref_object = FALSE;
-	if (gSelectMgr->getSelectType() == SELECT_TYPE_ATTACHMENT && gAgent.getAvatarObject())
+	if (mObjectSelection->getSelectType() == SELECT_TYPE_ATTACHMENT && gAgent.getAvatarObject())
 	{
 		test_axis = test_axis * ~grid_rotation;
 	}
@@ -807,7 +808,7 @@ void LLManipRotate::renderSnapGuides()
 	}
 
 	LLVector3 projected_snap_axis = world_snap_axis;
-	if (gSelectMgr->getSelectType() == SELECT_TYPE_ATTACHMENT && gAgent.getAvatarObject())
+	if (mObjectSelection->getSelectType() == SELECT_TYPE_ATTACHMENT && gAgent.getAvatarObject())
 	{
 		projected_snap_axis = projected_snap_axis * grid_rotation;
 	}
@@ -947,32 +948,32 @@ void LLManipRotate::renderSnapGuides()
 					{
 						if (i == 0)
 						{
-							renderTickText(text_point, gSelectMgr->selectionIsAttachment() ? "Forward" : "East", LLColor4::white);
+							renderTickText(text_point, mObjectSelection->isAttachment() ? "Forward" : "East", LLColor4::white);
 						}
 						else if (i == 16)
 						{
 							if (constraint_axis.mV[VZ] > 0.f)
 							{
-								renderTickText(text_point, gSelectMgr->selectionIsAttachment() ? "Left" : "North", LLColor4::white);
+								renderTickText(text_point, mObjectSelection->isAttachment() ? "Left" : "North", LLColor4::white);
 							}
 							else
 							{
-								renderTickText(text_point, gSelectMgr->selectionIsAttachment() ? "Right" : "South", LLColor4::white);
+								renderTickText(text_point, mObjectSelection->isAttachment() ? "Right" : "South", LLColor4::white);
 							}
 						}
 						else if (i == 32)
 						{
-							renderTickText(text_point, gSelectMgr->selectionIsAttachment() ? "Back" : "West", LLColor4::white);
+							renderTickText(text_point, mObjectSelection->isAttachment() ? "Back" : "West", LLColor4::white);
 						}
 						else
 						{
 							if (constraint_axis.mV[VZ] > 0.f)
 							{
-								renderTickText(text_point, gSelectMgr->selectionIsAttachment() ? "Right" : "South", LLColor4::white);
+								renderTickText(text_point, mObjectSelection->isAttachment() ? "Right" : "South", LLColor4::white);
 							}
 							else
 							{
-								renderTickText(text_point, gSelectMgr->selectionIsAttachment() ? "Left" : "North", LLColor4::white);
+								renderTickText(text_point, mObjectSelection->isAttachment() ? "Left" : "North", LLColor4::white);
 							}
 						}
 					}
@@ -980,7 +981,7 @@ void LLManipRotate::renderSnapGuides()
 					{
 						if (i == 0)
 						{
-							renderTickText(text_point, gSelectMgr->selectionIsAttachment() ? "Left" : "North", LLColor4::white);
+							renderTickText(text_point, mObjectSelection->isAttachment() ? "Left" : "North", LLColor4::white);
 						}
 						else if (i == 16)
 						{
@@ -995,7 +996,7 @@ void LLManipRotate::renderSnapGuides()
 						}
 						else if (i == 32)
 						{
-							renderTickText(text_point, gSelectMgr->selectionIsAttachment() ? "Right" : "South", LLColor4::white);
+							renderTickText(text_point, mObjectSelection->isAttachment() ? "Right" : "South", LLColor4::white);
 						}
 						else
 						{
@@ -1019,11 +1020,11 @@ void LLManipRotate::renderSnapGuides()
 						{
 							if (constraint_axis.mV[VY] > 0.f)
 							{
-								renderTickText(text_point, gSelectMgr->selectionIsAttachment() ? "Forward" : "East", LLColor4::white);
+								renderTickText(text_point, mObjectSelection->isAttachment() ? "Forward" : "East", LLColor4::white);
 							}
 							else
 							{
-								renderTickText(text_point, gSelectMgr->selectionIsAttachment() ? "Back" : "West", LLColor4::white);
+								renderTickText(text_point, mObjectSelection->isAttachment() ? "Back" : "West", LLColor4::white);
 							}
 						}
 						else if (i == 32)
@@ -1034,11 +1035,11 @@ void LLManipRotate::renderSnapGuides()
 						{
 							if (constraint_axis.mV[VY] > 0.f)
 							{
-								renderTickText(text_point, gSelectMgr->selectionIsAttachment() ? "Back" : "West", LLColor4::white);
+								renderTickText(text_point, mObjectSelection->isAttachment() ? "Back" : "West", LLColor4::white);
 							}
 							else
 							{
-								renderTickText(text_point, gSelectMgr->selectionIsAttachment() ? "Forward" : "East", LLColor4::white);
+								renderTickText(text_point, mObjectSelection->isAttachment() ? "Forward" : "East", LLColor4::white);
 							}
 						}
 					}
@@ -1053,7 +1054,7 @@ void LLManipRotate::renderSnapGuides()
 				getObjectAxisClosestToMouse(object_axis);
 
 				// project onto constraint plane
-				LLSelectNode* first_node = gSelectMgr->getFirstMoveableNode(TRUE);
+				LLSelectNode* first_node = mObjectSelection->getFirstMoveableNode(TRUE);
 				object_axis = object_axis * first_node->getObject()->getRenderRotation();
 				object_axis = object_axis - (object_axis * getConstraintAxis()) * getConstraintAxis();
 				object_axis.normVec();
@@ -1137,7 +1138,7 @@ BOOL LLManipRotate::updateVisiblity()
 	BOOL visible = FALSE;
 
 	LLVector3 center = gAgent.getPosAgentFromGlobal( mRotationCenter );
-	if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
 		mCenterToCam = LLVector3(-1.f / gAgent.getAvatarObject()->mHUDCurZoom, 0.f, 0.f);
 		mCenterToCamNorm = mCenterToCam;
@@ -1246,7 +1247,7 @@ LLQuaternion LLManipRotate::dragUnconstrained( S32 x, S32 y )
 		F32 angle = (-1.f + dist_to_intersection / dist_to_tangent_point) * in_sphere_angle;
 
 		LLVector3 axis;
-		if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+		if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 		{
 			axis = LLVector3(-1.f, 0.f, 0.f) % profile_center_to_intersection;
 		}
@@ -1289,7 +1290,7 @@ LLVector3 LLManipRotate::getConstraintAxis()
 
 		gSelectMgr->getGrid(grid_origin, grid_rotation, grid_scale);
 
-		LLSelectNode* first_node = gSelectMgr->getFirstMoveableNode(TRUE);
+		LLSelectNode* first_node = mObjectSelection->getFirstMoveableNode(TRUE);
 		if (first_node)
 		{
 			// *FIX: get agent local attachment grid working
@@ -1303,7 +1304,7 @@ LLVector3 LLManipRotate::getConstraintAxis()
 
 LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
 {
-	LLSelectNode* first_object_node = gSelectMgr->getFirstMoveableNode(TRUE);
+	LLSelectNode* first_object_node = mObjectSelection->getFirstMoveableNode(TRUE);
 	LLVector3 constraint_axis = getConstraintAxis();
 	LLVector3 center = gAgent.getPosAgentFromGlobal( mRotationCenter );
 
@@ -1320,7 +1321,7 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
 	LLVector3 axis2;
 
 	LLVector3 test_axis = constraint_axis;
-	if (gSelectMgr->getSelectType() == SELECT_TYPE_ATTACHMENT && gAgent.getAvatarObject())
+	if (mObjectSelection->getSelectType() == SELECT_TYPE_ATTACHMENT && gAgent.getAvatarObject())
 	{
 		test_axis = test_axis * ~grid_rotation;
 	}
@@ -1344,7 +1345,7 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
 		axis1 = LLVector3::x_axis;
 	}
 
-	if (gSelectMgr->getSelectType() == SELECT_TYPE_ATTACHMENT && gAgent.getAvatarObject())
+	if (mObjectSelection->getSelectType() == SELECT_TYPE_ATTACHMENT && gAgent.getAvatarObject())
 	{
 		axis1 = axis1 * grid_rotation;
 	}
@@ -1366,7 +1367,7 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
 		// We're looking at the ring edge-on.
 		LLVector3 snap_plane_center = (center + (constraint_axis * mRadiusMeters * 0.5f));
 		LLVector3 cam_to_snap_plane;
-		if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+		if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 		{
 			cam_to_snap_plane.setVec(1.f, 0.f, 0.f);
 		}
@@ -1416,7 +1417,7 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
 		{
 			// try other plane
 			snap_plane_center = (center - (constraint_axis * mRadiusMeters * 0.5f));
-			if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+			if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 			{
 				cam_to_snap_plane.setVec(1.f, 0.f, 0.f);
 			}
@@ -1463,7 +1464,7 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
 		if (snap_plane > 0)
 		{
 			LLVector3 cam_at_axis;
-			if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+			if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 			{
 				cam_at_axis.setVec(1.f, 0.f, 0.f);
 			}
@@ -1661,9 +1662,10 @@ LLVector3 LLManipRotate::intersectRayWithSphere( const LLVector3& ray_pt, const 
 }
 
 // Utility function.  Should probably be moved to another class.
+//static
 void LLManipRotate::mouseToRay( S32 x, S32 y, LLVector3* ray_pt, LLVector3* ray_dir )
 {
-	if (gSelectMgr->getSelectType() == SELECT_TYPE_HUD)
+	if (gSelectMgr->getSelection()->getSelectType() == SELECT_TYPE_HUD)
 	{
 		F32 mouse_x = (((F32)x / gViewerWindow->getWindowWidth()) - 0.5f) / gAgent.getAvatarObject()->mHUDCurZoom;
 		F32 mouse_y = ((((F32)y) / gViewerWindow->getWindowHeight()) - 0.5f) / gAgent.getAvatarObject()->mHUDCurZoom;
@@ -1685,7 +1687,7 @@ void LLManipRotate::highlightManipulators( S32 x, S32 y )
 	mHighlightedPart = LL_NO_PART;
 
 	//LLBBox bbox = gSelectMgr->getBBoxOfSelection();
-	LLViewerObject *first_object = gSelectMgr->getFirstMoveableObject(TRUE);
+	LLViewerObject *first_object = mObjectSelection->getFirstMoveableObject(TRUE);
 	
 	if (!first_object)
 	{
@@ -1821,7 +1823,7 @@ void LLManipRotate::highlightManipulators( S32 x, S32 y )
 
 S32 LLManipRotate::getObjectAxisClosestToMouse(LLVector3& object_axis)
 {
-	LLSelectNode* first_object_node = gSelectMgr->getFirstMoveableNode(TRUE);
+	LLSelectNode* first_object_node = mObjectSelection->getFirstMoveableNode(TRUE);
 
 	if (!first_object_node)
 	{
