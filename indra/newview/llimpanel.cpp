@@ -592,7 +592,7 @@ void LLFloaterIMPanel::onInputEditorKeystroke(LLLineEditor* caller, void* userda
 	}
 }
 
-void LLFloaterIMPanel::close(bool app_quitting)
+void LLFloaterIMPanel::onClose(bool app_quitting)
 {
 	setTyping(FALSE);
 

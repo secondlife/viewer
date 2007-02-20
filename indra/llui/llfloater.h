@@ -183,7 +183,8 @@ public:
 
 	/*virtual*/ LLView*	getRootMostFastFrameView();
 
-	static void		closeByMenu(void *userdata);
+	static void		closeFocusedFloater();
+
 	static void		onClickClose(void *userdata);
 	static void		onClickMinimize(void *userdata);
 	static void		onClickTearOff(void *userdata);

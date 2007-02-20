@@ -86,7 +86,7 @@ BOOL LLFloaterSettingsDebug::postBuild()
 	childSetUserData("boolean_combo", this);
 	childSetCommitCallback("color_swatch", onCommitSettings);
 	childSetUserData("color_swatch", this);
-
+	childSetAction("default_btn", onClickDefault, this);
 	mComment = (LLTextEditor*)getChildByName("comment_text");
 	return TRUE;
 }

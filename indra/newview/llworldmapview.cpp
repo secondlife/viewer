@@ -148,8 +148,7 @@ LLWorldMapView::LLWorldMapView(const std::string& name, const LLRect& rect )
 	mMouseDownPanY( 0 ),
 	mMouseDownX( 0 ),
 	mMouseDownY( 0 ),
-	mSelectIDStart(0),
-	mAgentCountsUpdateTime(0)
+	mSelectIDStart(0)
 {
 	sPixelsPerMeter = gMapScale / REGION_WIDTH_METERS;
 	clearLastClick();
@@ -278,12 +277,6 @@ void LLWorldMapView::draw()
 	LLTextureView::clearDebugImages();
 
 	F64 current_time = LLTimer::getElapsedSeconds();
-
-	if (current_time - mAgentCountsUpdateTime > AGENT_COUNTS_UPDATE_TIME)
-	{
-		gWorldMap->sendItemRequest(MAP_ITEM_AGENT_COUNT);
-		mAgentCountsUpdateTime = current_time;
-	}
 
 	mVisibleRegions.clear();
 	

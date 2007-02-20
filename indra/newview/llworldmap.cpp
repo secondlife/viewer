@@ -247,7 +247,6 @@ void LLWorldMap::setCurrentLayer(S32 layer, bool request_layer)
 	if (!mMapLoaded[layer] || request_layer)
 	{
 		sendMapLayerRequest();
-		sendItemRequest(MAP_ITEM_AGENT_COUNT);
 	}
 
 	if (mTelehubs.size() == 0 ||
@@ -696,12 +695,6 @@ void LLWorldMap::processMapItemReply(LLMessageSystem* msg, void**)
 				// HACK: Z-height is in Extra2 field.
 				new_item.mPosGlobal.mdV[VZ] = (F64)extra2;
 				gWorldMap->mClassifieds.push_back(new_item);
-				break;
-			}
-			case MAP_ITEM_AGENT_COUNT: // agent counts
-			{
-				// We only ever receive one per region, i.e. this update superceeds any others
-				gWorldMap->mNumAgents[new_item.mRegionHandle] = new_item.mExtra;
 				break;
 			}
 			case MAP_ITEM_AGENT_LOCATIONS: // agent locations

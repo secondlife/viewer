@@ -57,7 +57,5 @@ const char LSL_DOC_URL[] =
 const char SL_KB_URL[] =
 	"http://secondlife.com/knowledgebase/";
 
-const char ACCOUNT_TRANSACTIONS_URL[] =
-	"https://secondlife.com/account/transactions.php";
-
 const char RELEASE_NOTES[] = "releasenotes.txt";
+

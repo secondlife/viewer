@@ -1185,6 +1185,8 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 		return TRUE;
 	}
 
+	if (!item) return FALSE;
+	
 	LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 	if(!item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
 	{
@@ -1217,6 +1219,7 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 				return FALSE;
 			}
 		}
+std::cout << "ASSET ID:  " << new_item->getAssetUUID() << "\n";
 		hit_obj->updateInventory(new_item, TASK_INVENTORY_ASSET_KEY, true);
 	}
 	else if(!item->getPermissions().allowOperationBy(PERM_TRANSFER,
@@ -1230,6 +1233,7 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 		// *FIX: may want to make sure agent can paint hit_obj.
 
 		// make sure the object has the texture in it's inventory.
+std::cout << "ASSET ID:  " << new_item->getAssetUUID() << "\n";
 		hit_obj->updateInventory(new_item, TASK_INVENTORY_ASSET_KEY, true);
 	}
 	return TRUE;
@@ -2305,6 +2309,12 @@ EAcceptance LLToolDragAndDrop::dad3dTextureObject(
 	{
 		return  ACCEPT_NO_LOCKED;
 	}
+	//If texture !copyable don't texture or you'll never get it back.
+	if(!item->getPermissions().allowCopyBy(gAgent.getID()))
+	{
+		return ACCEPT_NO;
+	}
+
 	if(drop && (ACCEPT_YES_SINGLE <= rv))
 	{
 		if((mask & MASK_SHIFT))

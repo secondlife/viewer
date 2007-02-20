@@ -33,8 +33,9 @@ class LLTextBox;
 #define SIM_MAP_AGENT_SCALE 20 // width in pixels, where we start drawing agents
 #define SIM_MAP_SCALE 90 // width in pixels, where we start drawing sim tiles
 
+// Updates for agent locations.
 #define AGENTS_UPDATE_TIME 60.0 // in seconds
-#define AGENT_COUNTS_UPDATE_TIME 60.0 // in seconds
+
 
 class LLWorldMapView : public LLPanel
 {
@@ -164,7 +165,6 @@ public:
 
 	static BOOL		sHandledLastClick;
 	S32				mSelectIDStart;
-	F64				mAgentCountsUpdateTime;
 
 	typedef std::vector<U64> handle_list_t;
 	handle_list_t mVisibleRegions; // set every frame

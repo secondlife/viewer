@@ -46,9 +46,8 @@ public:
 
 class LLScrollListText : public LLScrollListCell
 {
-	static U32 sCount;
 public:
-	LLScrollListText( const LLString& text, const LLFontGL* font, S32 width = 0, U8 font_style = LLFontGL::NORMAL, LLColor4& color = LLColor4::black, BOOL use_color = FALSE, BOOL visible = TRUE);
+	LLScrollListText( const LLString& text, const LLFontGL* font, S32 width = 0, U8 font_style = LLFontGL::NORMAL, LLFontGL::HAlign font_alignment = LLFontGL::LEFT, LLColor4& color = LLColor4::black, BOOL use_color = FALSE, BOOL visible = TRUE);
 	/*virtual*/ ~LLScrollListText();
 
 	virtual void    drawToWidth(S32 width, const LLColor4& color, const LLColor4& highlight_color) const;
@@ -65,13 +64,15 @@ private:
 	const LLFontGL*	mFont;
 	LLColor4*		mColor;
 	const U8		mFontStyle;
+	LLFontGL::HAlign mFontAlignment;
 	S32				mWidth;
-	S32				mEllipsisWidth;	// in pixels, of "..."
 	BOOL			mVisible;
 	S32				mHighlightCount;
 	S32				mHighlightOffset;
 
 	LLPointer<LLImageGL> mRoundedRectImage;
+
+	static U32 sCount;
 };
 
 class LLScrollListIcon : public LLScrollListCell
@@ -116,9 +117,10 @@ class LLScrollListColumn
 {
 public:
 	// Default constructor
-	LLScrollListColumn() : mName(""), mSortingColumn(""), mLabel(""), mWidth(-1), mRelWidth(-1.0), mDynamicWidth(FALSE), mIndex(-1), mParentCtrl(NULL), mButton(NULL) { }
+	LLScrollListColumn() : mName(""), mSortingColumn(""), mLabel(""), mWidth(-1), mRelWidth(-1.0), mDynamicWidth(FALSE), mIndex(-1), mParentCtrl(NULL), mButton(NULL), mFontAlignment(LLFontGL::LEFT) 
+	{ }
 
-	LLScrollListColumn(LLString name, LLString label, S32 width, F32 relwidth)
+	LLScrollListColumn(LLString name, LLString label, S32 width, F32 relwidth) 
 		: mName(name), mSortingColumn(name), mLabel(label), mWidth(width), mRelWidth(relwidth), mDynamicWidth(FALSE), mIndex(-1), mParentCtrl(NULL), mButton(NULL) { }
 
 	LLScrollListColumn(const LLSD &sd)
@@ -150,20 +152,27 @@ public:
 			mDynamicWidth = FALSE;
 			mRelWidth = -1;
 		}
+
+		if (sd.has("halign"))
+		{
+			mFontAlignment = (LLFontGL::HAlign)llclamp(sd.get("halign").asInteger(), (S32)LLFontGL::LEFT, (S32)LLFontGL::HCENTER);
+		}
+
 		mIndex = -1;
 		mParentCtrl = NULL;
 		mButton = NULL;
 	}
 
-	LLString mName;
-	LLString mSortingColumn;
-	LLString mLabel;
-	S32 mWidth;
-	F32 mRelWidth;
-	BOOL mDynamicWidth;
-	S32 mIndex;
-	LLScrollListCtrl *mParentCtrl;
-	LLButton *mButton;
+	LLString			mName;
+	LLString			mSortingColumn;
+	LLString			mLabel;
+	S32					mWidth;
+	F32					mRelWidth;
+	BOOL				mDynamicWidth;
+	S32					mIndex;
+	LLScrollListCtrl*	mParentCtrl;
+	LLButton*			mButton;
+	LLFontGL::HAlign	mFontAlignment;
 };
 
 class LLScrollListItem
@@ -190,8 +199,8 @@ public:
 
 	// If width = 0, just use the width of the text.  Otherwise override with
 	// specified width in pixels.
-	void	addColumn( const LLString& text, const LLFontGL* font, S32 width = 0 , U8 font_style = LLFontGL::NORMAL, BOOL visible = TRUE)
-				{ mColumns.push_back( new LLScrollListText(text, font, width, font_style, LLColor4::black, FALSE, visible) ); }
+	void	addColumn( const LLString& text, const LLFontGL* font, S32 width = 0 , U8 font_style = LLFontGL::NORMAL, LLFontGL::HAlign font_alignment = LLFontGL::LEFT, BOOL visible = TRUE)
+				{ mColumns.push_back( new LLScrollListText(text, font, width, font_style, font_alignment, LLColor4::black, FALSE, visible) ); }
 
 	void	addColumn( LLImageGL* icon, S32 width = 0 )
 				{ mColumns.push_back( new LLScrollListIcon(icon, width) ); }

@@ -338,16 +338,6 @@ BOOL LLPanel::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 		gFocusMgr.childHasKeyboardFocus(this) && !called_from_parent )
 	{
 		LLUICtrl* cur_focus = gFocusMgr.getKeyboardFocus();
-		if (key == KEY_RETURN && mask == MASK_NONE)
-		{
-			// set keyboard focus to self to trigger commitOnFocusLost behavior on current ctrl
-			if (cur_focus && cur_focus->acceptsTextInput())
-			{
-				cur_focus->onCommit();
-				handled = TRUE;
-			}
-		}
-
 		// If we have a default button, click it when
 		// return is pressed, unless current focus is a return-capturing button
 		// in which case *that* button will handle the return key
@@ -360,6 +350,16 @@ BOOL LLPanel::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 				&& mDefaultBtn->getEnabled())
 			{
 				mDefaultBtn->onCommit();
+				handled = TRUE;
+			}
+		}
+
+		if (key == KEY_RETURN && mask == MASK_NONE)
+		{
+			// set keyboard focus to self to trigger commitOnFocusLost behavior on current ctrl
+			if (cur_focus && cur_focus->acceptsTextInput())
+			{
+				cur_focus->onCommit();
 				handled = TRUE;
 			}
 		}

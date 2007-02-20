@@ -993,7 +993,7 @@ BOOL LLFloaterBuyLandUI::canClose()
 void LLFloaterBuyLandUI::onClose(bool app_quitting)
 {
 	LLFloater::onClose(app_quitting);
-	delete this;
+	destroy();
 }
 
 

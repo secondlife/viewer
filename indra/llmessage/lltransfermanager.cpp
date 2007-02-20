@@ -719,8 +719,11 @@ LLTransferSourceChannel::LLTransferSourceChannel(const LLTransferChannelType cha
 
 LLTransferSourceChannel::~LLTransferSourceChannel()
 {
-	LLPriQueueMap<LLTransferSource *>::pqm_iter iter;
-	for (iter = mTransferSources.mMap.begin(); iter != mTransferSources.mMap.end(); iter++)
+	LLPriQueueMap<LLTransferSource*>::pqm_iter iter =
+		mTransferSources.mMap.begin();
+	LLPriQueueMap<LLTransferSource*>::pqm_iter end =
+		mTransferSources.mMap.end();
+	for (; iter != end; ++iter)
 	{
 		// Just kill off all of the transfers
 		(*iter).second->abortTransfer();

@@ -397,6 +397,11 @@ void LLScriptLibrary::init()
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetParcelPrimCount", "i", "vii","integer llGetParcelPrimCount(vector pos, integer category, integer sim_wide)\nGets the number of prims on the parcel of the given category.\nCategories: PARCEL_COUNT_TOTAL, _OWNER, _GROUP, _OTHER, _SELECTED, _TEMP."));
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetParcelMaxPrims", "i", "vi","integer llGetParcelMaxPrims(vector pos, integer sim_wide)\nGets the maximum number of prims allowed on the parcel at pos."));
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetParcelDetails", "l", "vl","list llGetParcelDetails(vector pos, list params)\nGets the parcel details specified in params for the parcel at pos.\nParams is one or more of: PARCEL_DETAILS_NAME, _DESC, _OWNER, _GROUP, _AREA"));
+
+
+	addFunction(new LLScriptLibraryFunction(10.f, 0.2f, dummy_func, "llSetLinkPrimitiveParams", NULL, "il", "llSetLinkPrimitiveParams(integer linknumber, list rules)\nSet primitive parameters for linknumber based on rules."));
+	addFunction(new LLScriptLibraryFunction(10.f, 0.2f, dummy_func, "llSetLinkTexture", NULL, "isi", "llSetLinkTexture(integer link_pos, string texture, integer face)\nSets the texture of face for link_pos"));
+
 	
 	// energy, sleep, dummy_func, name, return type, parameters, help text, gods-only
 
@@ -420,10 +425,6 @@ void LLScriptLibrary::init()
 	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetCamFocus",				NULL, "v", "llSetCamFocus(vector focus)\nSets the focus (target position) of the camera"));
 	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetCamPositionLocked",		NULL, "i", "llSetCamPositionLocked(TRUE or FALSE)\nLocks the camera position so it will not move"));
 	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetCamFocusLocked",			NULL, "i", "llSetCamFocusLocked(TRUE or FALSE)\nLocks the camera focus so it will not move"));
-
-// These functions are being put on hold until we think through how we want them handled (security issues). DK 02/16/05
-	//addFunction(new LLScriptLibraryFunction(10.f, 0.2f, dummy_func, "llSetLinkPrimitiveParams", NULL, "il", "llSetLinkPrimitiveParams(integer linknumber, list rules)\nSet primitive parameters for linknumber based on rules."));
-	//addFunction(new LLScriptLibraryFunction(10.f, 0.2f, dummy_func, "llSetLinkTexture", NULL, "isi", "llSetLinkTexture(integer link_pos, string texture, integer face)\nSets the texture of face for link_pos"));
 
 	//addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetForSale", "i", "ii", "integer llSetForSale(integer selltype, integer price)\nSets this object for sale in mode selltype for price.  Returns TRUE if successfully set for sale."));
 

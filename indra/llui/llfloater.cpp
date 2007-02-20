@@ -1218,24 +1218,36 @@ void LLFloater::onClickEdit(void *userdata)
 }
 
 // static
-void LLFloater::closeByMenu( void* userdata )
+void LLFloater::closeFocusedFloater()
 {
-	LLFloater* self = (LLFloater*) userdata;
-	if (!self || self->getHost()) return;
+	LLFloater* focused_floater = NULL;
 
-	LLFloaterView* parent = (LLFloaterView*) self->getParent();
-
-	// grab focus status before close just in case floater is deleted
-	BOOL has_focus = gFocusMgr.childHasKeyboardFocus(self);
-	self->close();
-
-	// if this floater used to have focus and now nothing took focus
-	// give it to next floater (to allow closing multiple windows via keyboard in rapid succession)
-	if (has_focus && gFocusMgr.getKeyboardFocus() == NULL)
+	std::map<LLViewHandle, LLFloater*>::iterator iter;
+	for(iter = sFloaterMap.begin(); iter != sFloaterMap.end(); ++iter)
 	{
-		parent->focusFrontFloater();
+		focused_floater = iter->second;
+		if (focused_floater->hasFocus())
+		{
+			break;
+		}
 	}
 
+	if (iter == sFloaterMap.end())
+	{
+		// nothing found, return
+		return;
+	}
+
+	focused_floater->close();
+
+	// if nothing took focus after closing focused floater
+	// give it to next floater (to allow closing multiple windows via keyboard in rapid succession)
+	if (gFocusMgr.getKeyboardFocus() == NULL)
+	{
+		// HACK: use gFloaterView directly in case we are using Ctrl-W to close snapshot window
+		// which sits in gSnapshotFloaterView, and needs to pass focus on to normal floater view
+		gFloaterView->focusFrontFloater();
+	}
 }
 
 

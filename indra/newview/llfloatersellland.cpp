@@ -148,7 +148,7 @@ void LLFloaterSellLandUI::SelectionObserver::changed()
 void LLFloaterSellLandUI::onClose(bool app_quitting)
 {
 	LLFloater::onClose(app_quitting);
-	delete this;
+	destroy();
 }
 
 BOOL LLFloaterSellLandUI::postBuild()

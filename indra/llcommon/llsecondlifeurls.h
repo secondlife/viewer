@@ -55,9 +55,6 @@ extern const char LSL_DOC_URL[];
 // SL KnowledgeBase page
 extern const char SL_KB_URL[];
 
-// Account transactions
-extern const char ACCOUNT_TRANSACTIONS_URL[];
-
 // Local Url Release Notes
 extern const char RELEASE_NOTES[];
 

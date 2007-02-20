@@ -327,6 +327,14 @@ void hideContextEntries(LLMenuGL& menu,
 	for (itor = list->begin(); itor != list->end(); ++itor)
 	{
 		LLString name = (*itor)->getName();
+
+		// descend into split menus:
+		if ((name == "More") && (WIDGET_TYPE_MENU_ITEM_BRANCH == (*itor)->getWidgetType()))
+		{
+			hideContextEntries(*((LLMenuItemBranchGL *)(*itor))->getBranch(), entries_to_show, disabled_entries);
+		}
+		
+		
 		bool found = false;
 		std::vector<LLString>::const_iterator itor2;
 		for (itor2 = entries_to_show.begin(); itor2 != entries_to_show.end(); ++itor2)
@@ -1758,6 +1766,14 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	LLInventoryModel* model = mInventoryPanel->getModel();
 	if(!model) return;
 	LLUUID trash_id = model->findCategoryUUIDForType(LLAssetType::AT_TRASH);
+	LLUUID lost_and_found_id = model->findCategoryUUIDForType(LLAssetType::AT_LOST_AND_FOUND);
+
+	if (lost_and_found_id == mUUID)
+	  {
+		// This is the lost+found folder.
+		mItems.push_back("Empty Lost And Found");
+	  }
+
 	if(trash_id == mUUID)
 	{
 		// This is the trash.

@@ -212,7 +212,8 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 
 		mInventoryPanel->setAutoSelectOverride(true);
 		mInventoryPanel->setFilterTypes(filter_types);
-		mInventoryPanel->setFilterPermMask(getFilterPermMask());
+		//mInventoryPanel->setFilterPermMask(getFilterPermMask());  //Commented out due to no-copy texture loss.
+		mInventoryPanel->setFilterPermMask(immediate_filter_perm_mask);
 		mInventoryPanel->setSelectCallback(onSelectionChange, this);
 		mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 		mInventoryPanel->setAllowMultiSelect(FALSE);
@@ -350,7 +351,8 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 		if (mod)  item_perm_mask |= PERM_MODIFY;
 		if (xfer) item_perm_mask |= PERM_TRANSFER;
 		
-		PermissionMask filter_perm_mask = getFilterPermMask();
+		//PermissionMask filter_perm_mask = getFilterPermMask();  Commented out due to no-copy texture loss.
+		PermissionMask filter_perm_mask = mImmediateFilterPermMask;
 		if ( (item_perm_mask & filter_perm_mask) == filter_perm_mask )
 		{
 			if (drop)
@@ -729,7 +731,7 @@ void LLFloaterTexturePicker::onApplyImmediateCheck(LLUICtrl* ctrl, void *user_da
 
 void LLFloaterTexturePicker::updateFilterPermMask()
 {
-	mInventoryPanel->setFilterPermMask( getFilterPermMask() );
+	//mInventoryPanel->setFilterPermMask( getFilterPermMask() );  Commented out due to no-copy texture loss.
 }
 
 void LLFloaterTexturePicker::onSearchEdit(const LLString& search_string, void* user_data )
@@ -1252,8 +1254,9 @@ BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item)
 	if (mod)  item_perm_mask |= PERM_MODIFY;
 	if (xfer) item_perm_mask |= PERM_TRANSFER;
 	
-	PermissionMask filter_perm_mask = mCanApplyImmediately ? 
-			mImmediateFilterPermMask : mNonImmediateFilterPermMask;
+//	PermissionMask filter_perm_mask = mCanApplyImmediately ?			commented out due to no-copy texture loss.
+//			mImmediateFilterPermMask : mNonImmediateFilterPermMask;
+	PermissionMask filter_perm_mask = mImmediateFilterPermMask;
 	if ( (item_perm_mask & filter_perm_mask) == filter_perm_mask )
 	{
 		if(mDragCallback)

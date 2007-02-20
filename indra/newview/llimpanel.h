@@ -37,7 +37,7 @@ public:
 	// Check typing timeout timer.
 	/*virtual*/ void draw();
 
-	/*virtual*/ void close(bool app_quitting = FALSE);
+	/*virtual*/ void onClose(bool app_quitting = FALSE);
 
 	// add target ids to the session. 
 	// Return TRUE if successful, otherwise FALSE.

@@ -655,7 +655,7 @@ void copy_inventory_item(
 	msg->addUUIDFast(_PREHASH_OldAgentID, current_owner);
 	msg->addUUIDFast(_PREHASH_OldItemID, item_id);
 	msg->addUUIDFast(_PREHASH_NewFolderID, parent_id);
-	msg->addString("NewName", new_name);
+	msg->addStringFast(_PREHASH_NewName, new_name);
 	gAgent.sendReliableMessage();
 }
 
@@ -672,11 +672,11 @@ void move_inventory_item(
 	msg->nextBlockFast(_PREHASH_AgentData);
 	msg->addUUIDFast(_PREHASH_AgentID, agent_id);
 	msg->addUUIDFast(_PREHASH_SessionID, session_id);
-	msg->addBOOLFast(_PREHASH_Stamp, false);
+	msg->addBOOLFast(_PREHASH_Stamp, FALSE);
 	msg->nextBlockFast(_PREHASH_InventoryData);
 	msg->addUUIDFast(_PREHASH_ItemID, item_id);
 	msg->addUUIDFast(_PREHASH_FolderID, parent_id);
-	msg->addString("NewName", new_name);
+	msg->addStringFast(_PREHASH_NewName, new_name);
 	gAgent.sendReliableMessage();
 }
 

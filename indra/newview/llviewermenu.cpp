@@ -89,7 +89,6 @@
 #include "llfloaterland.h"
 #include "llfloaterlandholdings.h"
 #include "llfloatermap.h"
-#include "llfloateraccounthistory.h"
 #include "llfloaterimagepreview.h"
 #include "llfloatermute.h"
 #include "llfloaternamedesc.h"
@@ -5215,15 +5214,23 @@ void upload_error(const char* error_message, const char* label, const std::strin
 	LLFilePicker::instance().reset();						
 }
 
+class LLFileEnableCloseWindow : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		bool new_value = gFloaterView->getFocusedFloater() != NULL || gSnapshotFloaterView->getFocusedFloater() != NULL;
+		// horrendously opaque, this code
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
+		return true;
+	}
+};
+
 class LLFileCloseWindow : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLFloater *top = gFloaterView->getFrontmost();
-		if (top && top->hasFocus())
-		{
-			LLFloater::closeByMenu( top );
-		}
+		LLFloater::closeFocusedFloater();
+
 		return true;
 	}
 };
@@ -6410,10 +6417,6 @@ class LLShowFloater : public view_listener_t
 		else if (floater_name == "stat bar")
 		{
 			gDebugView->mStatViewp->setVisible(!gDebugView->mStatViewp->getVisible());
-		}
-		else if (floater_name == "account history")
-		{
-			LLFloaterAccountHistory::show(NULL);
 		}
 		else if (floater_name == "my land")
 		{
@@ -8615,6 +8618,7 @@ void initialize_menu_actions()
 	(new LLFileUploadAnim())->registerListener(gMenuHolder, "File.UploadAnim");
 	(new LLFileUploadBulk())->registerListener(gMenuHolder, "File.UploadBulk");
 	(new LLFileCloseWindow())->registerListener(gMenuHolder, "File.CloseWindow");
+	(new LLFileEnableCloseWindow())->registerListener(gMenuHolder, "File.EnableCloseWindow");
 	(new LLFileSaveTexture())->registerListener(gMenuHolder, "File.SaveTexture");
 	(new LLFileTakeSnapshot())->registerListener(gMenuHolder, "File.TakeSnapshot");
 	(new LLFileTakeSnapshotToDisk())->registerListener(gMenuHolder, "File.TakeSnapshotToDisk");

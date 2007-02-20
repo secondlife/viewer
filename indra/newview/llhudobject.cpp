@@ -148,7 +148,7 @@ LLHUDObject *LLHUDObject::addHUDObject(const U8 type)
 		((LLHUDEffectSpiral *)hud_objectp)->setColor(LLColor4U(255, 255, 255, 255));
 		break;
 	case LL_HUD_EFFECT_GLOW:
-		llerrs << "Glow not implemented!" << llendl;
+		// deprecated
 		break;
 	case LL_HUD_EFFECT_POINT:
 		hud_objectp = new LLHUDEffectSpiral(type);

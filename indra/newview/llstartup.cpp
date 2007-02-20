@@ -63,7 +63,6 @@
 #include "lleventnotifier.h"
 #include "llface.h"
 #include "llfeaturemanager.h"
-#include "llfloateraccounthistory.h"
 #include "llfloaterchat.h"
 #include "llfloatergesture.h"
 #include "llfloaterland.h"
@@ -2287,11 +2286,11 @@ BOOL idle_startup()
 		// JC - 7/20/2002
 		gViewerWindow->sendShapeToSim();
 
+		// Ignore stipend information for now.  Money history is on the web site.
 		// if needed, show the money history window
-		if (stipend_since_login && !gNoRender)
-		{
-			LLFloaterAccountHistory::show(NULL);
-		}
+		//if (stipend_since_login && !gNoRender)
+		//{
+		//}
 
 		if (!gAgent.isFirstLogin())
 		{
@@ -3125,14 +3124,6 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 
 	msg->setHandlerFuncFast(_PREHASH_GrantGodlikePowers, process_grant_godlike_powers);
 
-	msg->setHandlerFuncFast(_PREHASH_MoneySummaryReply,
-						LLFloaterAccountHistory::processMoneySummaryReply);
-	msg->setHandlerFuncFast(_PREHASH_MoneyDetailsReply,
-						LLFloaterAccountHistory::processMoneyDetailsReply);
-	msg->setHandlerFuncFast(_PREHASH_MoneyTransactionsReply,
-						LLFloaterAccountHistory::processMoneyTransactionsReply);
-
-	// ASDF
 	msg->setHandlerFuncFast(_PREHASH_GroupAccountSummaryReply,
 							LLGroupMoneyPlanningTabEventHandler::processGroupAccountSummaryReply);
 	msg->setHandlerFuncFast(_PREHASH_GroupAccountDetailsReply,
