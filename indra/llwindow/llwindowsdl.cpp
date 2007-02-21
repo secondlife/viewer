@@ -246,6 +246,14 @@ LLWindowSDL::LLWindowSDL(char *title, S32 x, S32 y, S32 width,
 	mSDL_Display = NULL;
 #endif // LL_X11
 
+#if LL_GTK
+	// We MUST be the first to initialize GTK, i.e. we have to beat
+	// our embedded Mozilla to the punch so that GTK doesn't get badly
+	// initialized with a non-C locale and cause lots of serious random
+	// weirdness.
+	ll_try_gtk_init();
+#endif // LL_GTK
+
 	// Get the original aspect ratio of the main device.
 	mOriginalAspectRatio = 1024.0 / 768.0;  // !!! FIXME //(double)CGDisplayPixelsWide(mDisplay) / (double)CGDisplayPixelsHigh(mDisplay);
 
@@ -313,7 +321,7 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 	{
 		llinfos << "sdl_init() failed! " << SDL_GetError() << llendl;
 		setupFailure("window creation error", "error", OSMB_OK);
-	    return false;
+		return false;
 	}
 
 	SDL_version c_sdl_version;
@@ -1000,7 +1008,7 @@ void LLWindowSDL::beforeDialog()
 
 #if LL_GTK
 	// this is a good time to grab some GTK version information for
-	// diagnostics
+	// diagnostics, if not already done.
 	ll_try_gtk_init();
 #endif // LL_GTK
 
@@ -1840,12 +1848,21 @@ void LLWindowSDL::gatherInput()
     // Pump GTK events so embedded Gecko doesn't starve.
     if (ll_try_gtk_init())
     {
+	    // Yuck, Mozilla's GTK callbacks play with the locale - push/pop
+	    // the locale to protect it, as exotic/non-C locales
+	    // causes our code lots of general critical weirdness
+	    // and crashness. (SL-35450)
+	    char *saved_locale = setlocale(LC_ALL, NULL);
+
 	    // Do a limited number of pumps so SL doesn't starve!
 	    // FIXME - this should ideally be time-limited, not count-limited.
 	    gtk_main_iteration_do(0); // Always do one non-blocking pump
 	    for (int iter=0; iter<10; ++iter)
 		    if (gtk_events_pending())
 			    gtk_main_iteration();
+
+	    if (saved_locale)
+		    setlocale(LC_ALL, saved_locale);
     }
 #endif // LL_GTK && LL_LIBXUL_ENABLED
 
@@ -2336,9 +2353,7 @@ S32 OSMessageBoxSDL(const char* text, const char* caption, U32 type)
 {
 	S32 rtn = OSBTN_CANCEL;
 
-#if LL_GTK
 	ll_try_gtk_init();
-#endif // LL_GTK
 
 	if(gWindowImplementation != NULL)
 		gWindowImplementation->beforeDialog();

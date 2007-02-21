@@ -464,12 +464,13 @@ BOOL idle_startup()
 		#if LL_LIBXUL_ENABLED
 		set_startup_status(0.48f, "Initializing embedded web browser...", gAgent.mMOTD.c_str());
 		display_startup();
+		llinfos << "Initializing embedded web browser..." << llendl;
 
 		#if LL_DARWIN
 			// For Mac OS, we store both the shared libraries and the runtime files (chrome/, plugins/, etc) in
 			// Second Life.app/Contents/MacOS/.  This matches the way Firefox is distributed on the Mac.
 			std::string profileBaseDir(gDirUtilp->getExecutableDir());
-		#else
+		#elif LL_WINDOWS
 			std::string profileBaseDir( gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "" ) );
 			profileBaseDir += gDirUtilp->getDirDelimiter();
 			#ifdef LL_DEBUG
@@ -477,8 +478,24 @@ BOOL idle_startup()
 			#else
 			profileBaseDir += "mozilla";
 			#endif
+                #else
+			std::string profileBaseDir( gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "" ) );
+			profileBaseDir += gDirUtilp->getDirDelimiter();
+			profileBaseDir += "mozilla";
 		#endif
-		LLMozLib::getInstance()->init( profileBaseDir, gDirUtilp->getExpandedFilename( LL_PATH_MOZILLA_PROFILE, "" ) ); 
+
+#if LL_LINUX
+		// Yuck, Mozilla init plays with the locale - push/pop
+		// the locale to protect it, as exotic/non-C locales
+		// causes our code lots of general critical weirdness
+		// and crashness. (SL-35450)
+		char *saved_locale = setlocale(LC_ALL, NULL);
+#endif // LL_LINUX
+		LLMozLib::getInstance()->init( profileBaseDir, gDirUtilp->getExpandedFilename( LL_PATH_MOZILLA_PROFILE, "" ) );
+#if LL_LINUX
+		if (saved_locale)
+			setlocale(LC_ALL, saved_locale);
+#endif // LL_LINUX
 
 		std::ostringstream codec;
 		codec << "[Second Life " << LL_VERSION_MAJOR << "." << LL_VERSION_MINOR << "." << LL_VERSION_PATCH << "." << LL_VERSION_BUILD << "]";
