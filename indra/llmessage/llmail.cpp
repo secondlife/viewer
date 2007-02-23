@@ -308,6 +308,9 @@ std::string LLMail::encryptIMEmailAddress(const LLUUID& from_agent_id,
 											const U8* secret,
 											size_t secret_size)
 {
+#if LL_WINDOWS
+	return "blowfish-not-supported-on-windows";
+#else
 	size_t data_size = 4 + UUID_BYTES + UUID_BYTES;
 	// Convert input data into a binary blob
 	std::vector<U8> data;
@@ -351,4 +354,5 @@ std::string LLMail::encryptIMEmailAddress(const LLUUID& from_agent_id,
 	delete [] encrypted;
 
 	return address;
+#endif
 }
