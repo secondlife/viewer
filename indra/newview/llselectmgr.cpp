@@ -1272,38 +1272,31 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 	LLViewerObject* objectp;
 	S32 te;
 
-	// Apply the texture to each side
-	for (mSelectedObjects->getFirstTE(&objectp, &te); objectp; mSelectedObjects->getNextTE(&objectp, &te))
+	mSelectedObjects->getFirstTE(&objectp, &te);
+	
+	for (objectp = mSelectedObjects->getFirstObject(); objectp; objectp = mSelectedObjects->getNextObject())
 	{
-
 		if (item)
 		{
-			LLToolDragAndDrop::dropTextureOneFace(objectp,te,item,LLToolDragAndDrop::SOURCE_AGENT,LLUUID::null);
-			
-			// HACK! HACK! ARG!
-			// *TODO: Replace mSelectedObjects with a REAL container class!
-			LLViewerObject* tmp_object;
-			S32 tmp_te;
-			mSelectedObjects->getCurrentTE(&tmp_object,&tmp_te);
-			if ((tmp_object != objectp) || (tmp_te != te) )
-			{
-				//AAARG someone has moved our list around!
-				mSelectedObjects->getFirstTE(&tmp_object, &tmp_te);
-				while ((tmp_object != objectp) || (tmp_te != te))
-				{
-					mSelectedObjects->getNextTE(&tmp_object, &tmp_te);
-				}
-			}
+			LLToolDragAndDrop::dropTextureAllFaces(objectp,
+											item,
+											LLToolDragAndDrop::SOURCE_AGENT,
+											LLUUID::null);
 		}
 		else
 		{
-			// Texture picker defaults aren't inventory items
-			// * Don't need to worry about permissions for them
-			// * Can just apply the texture and be done with it.
-			objectp->setTEImage(te, gImageList.getImage(imageid));
+			S32 num_faces = objectp->getNumTEs();
+			for( S32 face = 0; face < num_faces; face++ )
+			{
+				// Texture picker defaults aren't inventory items
+				// * Don't need to worry about permissions for them
+				// * Can just apply the texture and be done with it.
+				objectp->setTEImage(face, gImageList.getImage(imageid));
+			}
 			objectp->sendTEUpdate();
 		}
 	}
+
 
 	// 1 particle effect per object
 	if (mSelectedObjects->mSelectType != SELECT_TYPE_HUD)

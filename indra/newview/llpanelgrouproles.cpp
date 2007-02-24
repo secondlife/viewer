@@ -166,6 +166,9 @@ BOOL LLPanelGroupRoles::postBuild()
 
 BOOL LLPanelGroupRoles::isVisibleByAgent(LLAgent* agentp)
 {
+	if (agentp->isGodlike())
+		return TRUE;
+	
 	/* This power was removed to make group roles simpler
 	return agentp->hasPowerInGroup(mGroupID, 
 								   GP_ROLE_CREATE |

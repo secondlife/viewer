@@ -144,13 +144,20 @@ BOOL LLFloaterTOS::postBuild()
 		tos_agreement->setEnabled( false );
 	};
 
+	// hide the SL text widget if we're displaying TOS with using a browser widget.
+	LLTextEditor *editor = LLUICtrlFactory::getTextEditorByName(this, "tos_text");
+	if ( editor )
+	{
+		editor->setVisible( FALSE );
+	};
+
 	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(this, "tos_html");
 	if ( web_browser )
 	{
 		// start to observe it so we see navigate complete events
 		if ( web_browser )
 		{
-			web_browser->addObserver( this );		
+			web_browser->addObserver( this );
 		};
 
 		gResponsePtr = LLIamHere::build( this );

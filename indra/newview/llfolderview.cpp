@@ -3839,28 +3839,6 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 			search(getCurSelectedItem(), mSearchString.c_str(), FALSE);
 			handled = TRUE;
 		}
-		else if (mask & MASK_CONTROL && key == 'N')
-		{
-			LLFolderViewItem* selection = getCurSelectedItem();
-			if (selection)
-			{
-				selection = selection->getNextOpenNode();
-			}
-			search(selection, mSearchString.c_str(), FALSE);
-			mSearchTimer.reset();
-			handled = TRUE;
-		}
-		else if (mask & MASK_CONTROL && key == 'P')
-		{
-			LLFolderViewItem* selection = getCurSelectedItem();
-			if (selection)
-			{
-				selection = selection->getPreviousOpenNode();
-			}
-			search(selection, mSearchString.c_str(), TRUE);
-			mSearchTimer.reset();
-			handled = TRUE;
-		}
 	}
 
 	if (handled)

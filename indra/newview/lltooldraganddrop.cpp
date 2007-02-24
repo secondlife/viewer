@@ -1219,7 +1219,6 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 				return FALSE;
 			}
 		}
-std::cout << "ASSET ID:  " << new_item->getAssetUUID() << "\n";
 		hit_obj->updateInventory(new_item, TASK_INVENTORY_ASSET_KEY, true);
 	}
 	else if(!item->getPermissions().allowOperationBy(PERM_TRANSFER,
@@ -1233,7 +1232,6 @@ std::cout << "ASSET ID:  " << new_item->getAssetUUID() << "\n";
 		// *FIX: may want to make sure agent can paint hit_obj.
 
 		// make sure the object has the texture in it's inventory.
-std::cout << "ASSET ID:  " << new_item->getAssetUUID() << "\n";
 		hit_obj->updateInventory(new_item, TASK_INVENTORY_ASSET_KEY, true);
 	}
 	return TRUE;
@@ -1244,6 +1242,11 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 											LLToolDragAndDrop::ESource source,
 											const LLUUID& src_id)
 {
+	if (!item)
+	{
+		llwarns << "LLToolDragAndDrop::dropTextureAllFaces no texture item." << llendl;
+		return;
+	}
 	LLUUID asset_id = item->getAssetUUID();
 	BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
 	if(!success)
@@ -1259,11 +1262,9 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 		// update viewer side image in anticipation of update from simulator
 		hit_obj->setTEImage(face, image);
 		dialog_refresh_all();
-		
-		// send the update to the simulator
-		hit_obj->sendTEUpdate();
 	}
-
+	// send the update to the simulator
+	hit_obj->sendTEUpdate();
 }
 
 /*

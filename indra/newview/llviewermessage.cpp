@@ -922,9 +922,9 @@ void inventory_offer_callback(S32 option, void* user_data)
 			}
 			
 		}
-		if (!info->mFromGroup)
+		if (!info->mFromGroup && !info->mFromObject)
 		{
-		busy_message(msg,info->mFromID);
+			busy_message(msg,info->mFromID);
 		}
 		break;
 	}
@@ -1155,7 +1155,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	chat.mFromID = from_id;
 	chat.mFromName = name;
 
-	LLViewerObject *source = gObjectList.findObject(session_id);
+	LLViewerObject *source = gObjectList.findObject(session_id); //Session ID is probably the wrong thing.
 	if (source)
 	{
 		is_owned_by_me = source->permYouOwner();
@@ -1511,8 +1511,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			info->mFromName = name;
 			info->mDesc = message;
 			info->mHost = msg->getSender();
-			//if (!is_linden && ((is_busy && !is_owned_by_me) || is_muted))
-			if (((is_busy && !is_owned_by_me) || is_muted))
+			//if (((is_busy && !is_owned_by_me) || is_muted))
+			if ( is_muted )
 			{
 				// Same as closing window
 				inventory_offer_callback(-1, info);
