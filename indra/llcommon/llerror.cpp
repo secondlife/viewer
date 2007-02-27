@@ -277,7 +277,7 @@ namespace
 		}
 		
 		LLError::configure(configuration);
-		llwarns << "error logging reconfigured from " << filename() << llendl;
+		llinfos << "logging reconfigured from " << filename() << llendl;
 	}
 
 
