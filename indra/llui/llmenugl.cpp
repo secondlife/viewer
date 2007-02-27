@@ -1635,7 +1635,7 @@ BOOL LLMenuItemBranchDownGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	BOOL branch_visible = mBranch->getVisible();
 	BOOL handled = mBranch->handleAcceleratorKey(key, mask);
-	if (handled && !branch_visible)
+	if (handled && !branch_visible && getVisible())
 	{
 		// flash this menu entry because we triggered an invisible menu item
 		LLMenuHolderGL::setActivatedItem(this);
@@ -2262,6 +2262,12 @@ void LLMenuGL::setBackgroundColor( const LLColor4& color )
 {
 	mBackgroundColor = color;
 }
+
+LLColor4 LLMenuGL::getBackgroundColor()
+{
+	return mBackgroundColor;
+}
+
 
 // rearrange the child rects so they fit the shape of the menu.
 void LLMenuGL::arrange( void )
@@ -4159,6 +4165,7 @@ void LLMenuBarGL::arrange( void )
 		item->setRect( rect );
 		item->buildDrawLabel();
 	}
+	reshape(rect.mRight, rect.getHeight());
 }
 
 
@@ -4376,7 +4383,7 @@ BOOL LLMenuHolderGL::hasVisibleMenu() const
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 	{
 		LLView* viewp = *child_it;
-		if (viewp->getVisible())
+		if (viewp->getVisible() && viewp->getWidgetType() != WIDGET_TYPE_MENU_BAR)
 		{
 			return TRUE;
 		}
@@ -4402,7 +4409,8 @@ BOOL LLMenuHolderGL::hideMenus()
 		for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 		{
 			LLView* viewp = *child_it;
-			if (viewp->getVisible())
+			// clicks off of menu do not hide menu bar
+			if (viewp->getWidgetType() != WIDGET_TYPE_MENU_BAR && viewp->getVisible())
 			{
 				viewp->setVisible(FALSE);
 			}

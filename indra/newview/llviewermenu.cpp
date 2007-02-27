@@ -549,44 +549,6 @@ void init_menus()
 	// Initialize actions
 	initialize_menu_actions();
 
-	gMenuBarView = (LLMenuBarGL*)gUICtrlFactory->buildMenu("menu_viewer.xml", gMenuHolder);
-	gMenuBarView->setRect(LLRect(0, top, width, top - MENU_BAR_HEIGHT));
-	gViewerWindow->getRootView()->addChild(gMenuBarView);
-	
-	// menu holder appears on top of menu bar so you can see the menu title
-	// flash when an item is triggered (the flash occurs in the holder)
-	gViewerWindow->getRootView()->addChild(gMenuHolder);
-
-	gMenuHolder->childSetLabelArg("Upload Image", "[COST]", "10");
-	gMenuHolder->childSetLabelArg("Upload Sound", "[COST]", "10");
-	gMenuHolder->childSetLabelArg("Upload Animation", "[COST]", "10");
-	gMenuHolder->childSetLabelArg("Bulk Upload", "[COST]", "10");
-
-	gAFKMenu = (LLMenuItemCallGL*)gMenuBarView->getChildByName("Set Away", TRUE);
-	gBusyMenu = (LLMenuItemCallGL*)gMenuBarView->getChildByName("Set Busy", TRUE);
-	gAttachSubMenu = gMenuBarView->getChildMenuByName("Attach Object", TRUE);
-	gDetachSubMenu = gMenuBarView->getChildMenuByName("Detach Object", TRUE);
-
-	if (gAgent.mAccess < SIM_ACCESS_MATURE)
-	{
-		gMenuBarView->getChildByName("Menu Underpants", TRUE)->setVisible(FALSE);
-		gMenuBarView->getChildByName("Menu Undershirt", TRUE)->setVisible(FALSE);
-	}
-
-	// TomY TODO convert these two
-	LLMenuGL*menu;
-	menu = new LLMenuGL(CLIENT_MENU_NAME);
-	init_client_menu(menu);
-	gMenuBarView->appendMenu( menu );
-	menu->updateParent(LLMenuGL::sMenuContainer);
-
-	menu = new LLMenuGL(SERVER_MENU_NAME);
-	init_server_menu(menu);
-	gMenuBarView->appendMenu( menu );
-	menu->updateParent(LLMenuGL::sMenuContainer);
-
-	gMenuBarView->createJumpKeys();
-
 	///
 	/// Popup menu
 	///
@@ -629,18 +591,6 @@ void init_menus()
 	///
 	LLColor4 color;
 
-	// If we are not in production, use a different color to make it apparent.
-	if (gInProductionGrid)
-	{
-		color = gColors.getColor( "MenuBarBgColor" );
-	}
-	else
-	{
-		color = gColors.getColor( "MenuNonProductionBgColor" );
-	}
-
-	gMenuBarView->setBackgroundColor( color );
-
 	LLColor4 pie_color = gColors.getColor("PieMenuBgColor");
 	gPieSelf->setBackgroundColor( pie_color );
 	gPieAvatar->setBackgroundColor( pie_color );
@@ -650,6 +600,55 @@ void init_menus()
 
 	color = gColors.getColor( "MenuPopupBgColor" );
 	gPopupMenuView->setBackgroundColor( color );
+
+	// If we are not in production, use a different color to make it apparent.
+	if (gInProductionGrid)
+	{
+		color = gColors.getColor( "MenuBarBgColor" );
+	}
+	else
+	{
+		color = gColors.getColor( "MenuNonProductionBgColor" );
+	}
+	gMenuBarView = (LLMenuBarGL*)gUICtrlFactory->buildMenu("menu_viewer.xml", gMenuHolder);
+	gMenuBarView->setRect(LLRect(0, top, 0, top - MENU_BAR_HEIGHT));
+	gMenuBarView->setBackgroundColor( color );
+
+	gMenuHolder->addChild(gMenuBarView);
+	
+	// menu holder appears on top of menu bar so you can see the menu title
+	// flash when an item is triggered (the flash occurs in the holder)
+	gViewerWindow->getRootView()->addChild(gMenuHolder);
+
+	gMenuHolder->childSetLabelArg("Upload Image", "[COST]", "10");
+	gMenuHolder->childSetLabelArg("Upload Sound", "[COST]", "10");
+	gMenuHolder->childSetLabelArg("Upload Animation", "[COST]", "10");
+	gMenuHolder->childSetLabelArg("Bulk Upload", "[COST]", "10");
+
+	gAFKMenu = (LLMenuItemCallGL*)gMenuBarView->getChildByName("Set Away", TRUE);
+	gBusyMenu = (LLMenuItemCallGL*)gMenuBarView->getChildByName("Set Busy", TRUE);
+	gAttachSubMenu = gMenuBarView->getChildMenuByName("Attach Object", TRUE);
+	gDetachSubMenu = gMenuBarView->getChildMenuByName("Detach Object", TRUE);
+
+	if (gAgent.mAccess < SIM_ACCESS_MATURE)
+	{
+		gMenuBarView->getChildByName("Menu Underpants", TRUE)->setVisible(FALSE);
+		gMenuBarView->getChildByName("Menu Undershirt", TRUE)->setVisible(FALSE);
+	}
+
+	// TomY TODO convert these two
+	LLMenuGL*menu;
+	menu = new LLMenuGL(CLIENT_MENU_NAME);
+	init_client_menu(menu);
+	gMenuBarView->appendMenu( menu );
+	menu->updateParent(LLMenuGL::sMenuContainer);
+
+	menu = new LLMenuGL(SERVER_MENU_NAME);
+	init_server_menu(menu);
+	gMenuBarView->appendMenu( menu );
+	menu->updateParent(LLMenuGL::sMenuContainer);
+
+	gMenuBarView->createJumpKeys();
 
 	// Let land based option enable when parcel changes
 	gMenuParcelObserver = new LLMenuParcelObserver();
@@ -2549,10 +2548,12 @@ void set_god_level(U8 god_level)
 			if (gInProductionGrid)
 			{
 				gMenuBarView->setBackgroundColor( gColors.getColor( "MenuBarGodBgColor" ) );
+				gStatusBar->setBackgroundColor( gColors.getColor( "MenuBarGodBgColor" ) );
 			}
 			else
 			{
 				gMenuBarView->setBackgroundColor( gColors.getColor( "MenuNonProductionGodBgColor" ) );
+				gStatusBar->setBackgroundColor( gColors.getColor( "MenuNonProductionGodBgColor" ) );
 			}
 			LLNotifyBox::showXml("EnteringGodMode", args);
 		}
@@ -2562,10 +2563,12 @@ void set_god_level(U8 god_level)
 			if (gInProductionGrid)
 			{
 				gMenuBarView->setBackgroundColor( gColors.getColor( "MenuBarBgColor" ) );
+				gStatusBar->setBackgroundColor( gColors.getColor( "MenuBarBgColor" ) );
 			}
 			else
 			{
 				gMenuBarView->setBackgroundColor( gColors.getColor( "MenuNonProductionBgColor" ) );
+				gStatusBar->setBackgroundColor( gColors.getColor( "MenuNonProductionBgColor" ) );
 			}
 			LLNotifyBox::showXml("LeavingGodMode", args);
 		}

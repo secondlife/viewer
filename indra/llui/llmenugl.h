@@ -424,6 +424,7 @@ public:
 
 	static void setDefaultBackgroundColor( const LLColor4& color );
 	void setBackgroundColor( const LLColor4& color );
+	LLColor4 getBackgroundColor();
 	void setBackgroundVisible( BOOL b )	{ mBgVisible = b; }
 	void setCanTearOff(BOOL tear_off, LLViewHandle parent_floater_handle = LLViewHandle::sDeadHandle);
 

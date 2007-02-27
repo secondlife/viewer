@@ -40,30 +40,54 @@ enum EOnlineStatus
 	ONLINE_STATUS_YES     = 1
 };
 
-class LLPanelAvatarFirstLife
-: public LLPanel
+// Base class for all sub-tabs inside the avatar profile.  Many of these
+// panels need to keep track of the parent panel (to get the avatar id)
+// and only request data from the database when they are first drawn. JC
+class LLPanelAvatarTab : public LLPanel
+{
+public:
+	LLPanelAvatarTab(const std::string& name, const LLRect &rect, 
+		LLPanelAvatar* panel_avatar);
+
+	// Calls refresh() once per frame when panel is visible
+	/*virtual*/ void draw();
+
+	LLPanelAvatar* getPanelAvatar() const { return mPanelAvatar; }
+
+	void setDataRequested(bool requested) { mDataRequested = requested; }
+	bool isDataRequested() const		  { return mDataRequested; }
+
+	// If the data for this tab has not yet been requested,
+	// send the request.  Used by tabs that are filled in only
+	// when they are first displayed.
+	// type is one of "notes", "classifieds", "picks"
+	void sendAvatarProfileRequestIfNeeded(const char* type);
+
+private:
+	LLPanelAvatar* mPanelAvatar;
+	bool mDataRequested;
+};
+
+
+class LLPanelAvatarFirstLife : public LLPanelAvatarTab
 {
 public:
 	LLPanelAvatarFirstLife(const std::string& name, const LLRect &rect, LLPanelAvatar* panel_avatar);
-	/*virtual*/ ~LLPanelAvatarFirstLife();
-	/*virtual*/ BOOL	postBuild(void);
+
+	/*virtual*/ BOOL postBuild(void);
 
 	void enableControls(BOOL own_avatar);
-
-protected:
-	LLPanelAvatar* mPanelAvatar;
 };
 
 
 class LLPanelAvatarSecondLife
-: public LLPanel
+: public LLPanelAvatarTab
 {
 public:
 	LLPanelAvatarSecondLife(const std::string& name, const LLRect &rect, LLPanelAvatar* panel_avatar );
-	/*virtual*/ ~LLPanelAvatarSecondLife();
 
-	/*virtual*/ BOOL	postBuild(void);
-	/*virtual*/ void draw();
+	/*virtual*/ BOOL postBuild(void);
+	/*virtual*/ void refresh();
 
 	static void onClickImage(			void *userdata);
 	static void onClickFriends(			void *userdata);
@@ -80,15 +104,14 @@ public:
 
 	void setPartnerID(LLUUID id) { mPartnerID = id; }
 	
-protected:
-	LLPanelAvatar* mPanelAvatar;
-
+private:
 	LLUUID				mPartnerID;
 };
 
+
 // WARNING!  The order of the inheritance here matters!!  Do not change.  - KLW
 class LLPanelAvatarWeb : 
-	public LLPanel
+	public LLPanelAvatarTab
 #if LL_LIBXUL_ENABLED
 	, public LLWebBrowserCtrlObserver
 #endif
@@ -115,17 +138,17 @@ public:
 	virtual void onLocationChange( const EventType& eventIn );
 #endif
 
-protected:
-	LLPanelAvatar*		mPanelAvatar;
+private:
 	std::string			mURL;
 	LLWebBrowserCtrl*	mWebBrowser;
 };
 
-class LLPanelAvatarAdvanced : public LLPanel
+
+class LLPanelAvatarAdvanced : public LLPanelAvatarTab
 {
 public:
 	LLPanelAvatarAdvanced(const std::string& name, const LLRect& rect, LLPanelAvatar* panel_avatar);
-	/*virtual*/ ~LLPanelAvatarAdvanced();
+
 	/*virtual*/ BOOL	postBuild(void);
 
 	void enableControls(BOOL own_avatar);
@@ -136,8 +159,7 @@ public:
 					   U32* skills_mask, std::string& skills_text,
 					   std::string& languages_text);
 
-protected:
-	LLPanelAvatar*		mPanelAvatar;
+private:
 	S32					mWantToCount;
 	S32					mSkillsCount;
 	LLCheckBoxCtrl		*mWantToCheck[8];
@@ -147,35 +169,31 @@ protected:
 };
 
 
-class LLPanelAvatarNotes : public LLPanel
+class LLPanelAvatarNotes : public LLPanelAvatarTab
 {
 public:
 	LLPanelAvatarNotes(const std::string& name, const LLRect& rect, LLPanelAvatar* panel_avatar);
-	/*virtual*/ ~LLPanelAvatarNotes();
+
 	/*virtual*/ BOOL	postBuild(void);
 
-	void enableControls(BOOL own_avatar);
+	/*virtual*/ void refresh();
+
+	void clearControls();
 
 	static void onCommitNotes(LLUICtrl* field, void* userdata);
-
-protected:
-	LLPanelAvatar* mPanelAvatar;
 };
 
 
-class LLPanelAvatarClassified : public LLPanel
+class LLPanelAvatarClassified : public LLPanelAvatarTab
 {
 public:
 	LLPanelAvatarClassified(const LLString& name, const LLRect& rect, LLPanelAvatar* panel_avatar);
-	/*virtual*/ ~LLPanelAvatarClassified();
 
-	/*virtual*/ BOOL	postBuild(void);
-	/*virtual*/ void draw();
+	/*virtual*/ BOOL postBuild(void);
 
-	void refresh();
+	/*virtual*/ void refresh();
 
 	void apply();
-	void enableControls(BOOL own_avatar);
 
 	BOOL titleIsValid();
 
@@ -192,23 +210,17 @@ private:
 
 	static void callbackDelete(S32 option, void* data);
 	static void callbackNew(S32 option, void* data);
-
-private:
-	LLPanelAvatar* mPanelAvatar;
 };
 
-class LLPanelAvatarPicks : public LLPanel
+
+class LLPanelAvatarPicks : public LLPanelAvatarTab
 {
 public:
 	LLPanelAvatarPicks(const std::string& name, const LLRect& rect, LLPanelAvatar* panel_avatar);
-	/*virtual*/ ~LLPanelAvatarPicks();
 
 	/*virtual*/ BOOL	postBuild(void);
-	/*virtual*/ void draw();
 
-	void refresh();
-
-	void enableControls(BOOL own_avatar);
+	/*virtual*/ void refresh();
 
 	// Delete all the pick sub-panels from the tab container
 	void deletePickPanels();
@@ -223,9 +235,6 @@ private:
 	static void onClickDelete(void* data);
 
 	static void callbackDelete(S32 option, void* data);
-
-private:
-	LLPanelAvatar* mPanelAvatar;
 };
 
 

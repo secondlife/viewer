@@ -467,8 +467,12 @@ void LLAgent::resetView(BOOL reset_camera)
 		// By popular request, keep land selection while walking around. JC
 		// gParcelMgr->deselectLand();
 
-		//FIXME: force deselect when walking? - RN
-		//	gSelectMgr->deselectAll();
+		// force deselect when walking and attachment is selected
+		// this is so people don't wig out when their avatar moves without animating
+		if (gSelectMgr->getSelection()->isAttachment())
+		{
+			gSelectMgr->deselectAll();
+		}
 
 		// Hide all popup menus
 		gMenuHolder->hideMenus();

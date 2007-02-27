@@ -743,7 +743,7 @@ void LLPanelClassified::onClickSet(void* data)
 	self->mPosGlobal = gAgent.getPositionGlobal();
 
 	LLString location_text;
-	location_text.assign("(will update after save)");
+	location_text.assign("(will update after publish)");
 	location_text.append(", ");
 
     S32 region_x = llround((F32)self->mPosGlobal.mdV[VX]) % REGION_WIDTH_UNITS;

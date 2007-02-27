@@ -1613,6 +1613,9 @@ void LLViewerWindow::initWorldUI()
 
 	gStatusBar->reshape(root_rect.getWidth(), gStatusBar->getRect().getHeight(), TRUE);
 	gStatusBar->translate(0, root_rect.getHeight() - gStatusBar->getRect().getHeight());
+	// sync bg color with menu bar
+	gStatusBar->setBackgroundColor( gMenuBarView->getBackgroundColor() );
+
 
 	gViewerWindow->getRootView()->addChild(gStatusBar);
 

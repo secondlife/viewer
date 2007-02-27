@@ -164,10 +164,11 @@ void LLPanel::draw()
 		// draw background
 		if( mBgVisible )
 		{
-			S32 left = LLPANEL_BORDER_WIDTH;
-			S32 top = mRect.getHeight() - LLPANEL_BORDER_WIDTH;
-			S32 right = mRect.getWidth() - LLPANEL_BORDER_WIDTH;
-			S32 bottom = LLPANEL_BORDER_WIDTH;
+			//RN: I don't see the point of this
+			S32 left = 0;//LLPANEL_BORDER_WIDTH;
+			S32 top = mRect.getHeight();// - LLPANEL_BORDER_WIDTH;
+			S32 right = mRect.getWidth();// - LLPANEL_BORDER_WIDTH;
+			S32 bottom = 0;//LLPANEL_BORDER_WIDTH;
 
 			if (mBgOpaque )
 			{
@@ -457,6 +458,11 @@ void LLPanel::setFocus(BOOL b)
 void LLPanel::setBackgroundColor(const LLColor4& color)
 {
 	mBgColorOpaque = color;
+}
+
+LLColor4 LLPanel::getBackgroundColor()
+{
+	return mBgColorOpaque;
 }
 
 void LLPanel::setTransparentColor(const LLColor4& color)

@@ -43,6 +43,7 @@
 LLToolPie *gToolPie = NULL;
 
 LLViewerObject* LLToolPie::sClickActionObject = NULL;
+LLHandle<LLObjectSelection> LLToolPie::sLeftClickSelection = NULL;
 
 extern void handle_buy(void*);
 
@@ -169,19 +170,19 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 				|| parent && parent->flagTakesMoney())
 			{
 				sClickActionObject = parent;
-				LLToolSelect::handleObjectSelection(parent, MASK_NONE, FALSE, TRUE);
+				sLeftClickSelection = LLToolSelect::handleObjectSelection(parent, MASK_NONE, FALSE, TRUE);
 				return TRUE;
 			}
 			break;
 		case CLICK_ACTION_BUY:
 			sClickActionObject = parent;
-			LLToolSelect::handleObjectSelection(parent, MASK_NONE, FALSE, TRUE);
+			sLeftClickSelection = LLToolSelect::handleObjectSelection(parent, MASK_NONE, FALSE, TRUE);
 			return TRUE;
 		case CLICK_ACTION_OPEN:
 			if (parent && parent->allowOpen())
 			{
 				sClickActionObject = parent;
-				LLToolSelect::handleObjectSelection(parent, MASK_NONE, FALSE, TRUE);
+				sLeftClickSelection = LLToolSelect::handleObjectSelection(parent, MASK_NONE, FALSE, TRUE);
 			}
 			return TRUE;
 		}
@@ -396,10 +397,11 @@ void LLToolPie::selectionPropertiesReceived()
 		return;
 	}
 
-	if (sClickActionObject
-		&& !sClickActionObject->isDead())
+	if (!sLeftClickSelection->isEmpty())
 	{
-		LLViewerObject* root = gSelectMgr->getSelection()->getFirstRootObject();
+		LLViewerObject* root = sLeftClickSelection->getFirstRootObject();
+		// since we don't currently have a way to lock a selection, it could have changed
+		// after we initially clicked on the object
 		if (root == sClickActionObject)
 		{
 			U8 action = root->getClickAction();
@@ -419,6 +421,7 @@ void LLToolPie::selectionPropertiesReceived()
 			}
 		}
 	}
+	sLeftClickSelection = NULL;
 	sClickActionObject = NULL;
 }
 

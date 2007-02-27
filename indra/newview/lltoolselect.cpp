@@ -74,7 +74,7 @@ BOOL LLToolSelect::handleDoubleClick(S32 x, S32 y, MASK mask)
 }
 
 // static
-void LLToolSelect::handleObjectSelection(LLViewerObject *object, MASK mask, BOOL ignore_group, BOOL temp_select)
+LLHandle<LLObjectSelection> LLToolSelect::handleObjectSelection(LLViewerObject *object, MASK mask, BOOL ignore_group, BOOL temp_select)
 {
 	BOOL select_owned = gSavedSettings.getBOOL("SelectOwnedOnly");
 	BOOL select_movable = gSavedSettings.getBOOL("SelectMovableOnly");
@@ -203,6 +203,8 @@ void LLToolSelect::handleObjectSelection(LLViewerObject *object, MASK mask, BOOL
 		gSavedSettings.setBOOL("SelectMovableOnly", select_movable);
 		gSelectMgr->setForceSelection(FALSE);
 	}
+
+	return gSelectMgr->getSelection();
 }
 
 BOOL LLToolSelect::handleMouseUp(S32 x, S32 y, MASK mask)

@@ -13,6 +13,7 @@
 #include "lluuid.h"
 
 class LLViewerObject;
+class LLObjectSelection;
 
 class LLToolPie 
 :	public LLTool
@@ -53,6 +54,7 @@ protected:
 	LLUUID				mHitObjectID;
 	BOOL				mMouseOutsideSlop;				// for this drag, has mouse moved outside slop region
 	static LLViewerObject* sClickActionObject;
+	static LLHandle<LLObjectSelection> sLeftClickSelection;
 };
 
 extern LLToolPie *gToolPie;

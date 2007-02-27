@@ -86,6 +86,7 @@ public:
 	static BOOL		nextAlert(LLAlertInfo &alert);
 
 	void			setBackgroundColor( const LLColor4& color );
+	LLColor4		getBackgroundColor(); 
 	void			setTransparentColor(const LLColor4& color);
 	void			setBackgroundVisible( BOOL b )	{ mBgVisible = b; }
 	void			setBackgroundOpaque(BOOL b)		{ mBgOpaque = b; }

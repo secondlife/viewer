@@ -13,6 +13,8 @@
 #include "v3math.h"
 #include "lluuid.h"
 
+class LLObjectSelection;
+
 class LLToolSelect : public LLTool
 {
 public:
@@ -24,7 +26,7 @@ public:
 
 	virtual void		stopEditing();
 
-	static void			handleObjectSelection(LLViewerObject *object, MASK mask, BOOL ignore_group, BOOL temp_select);
+	static LLHandle<LLObjectSelection>	handleObjectSelection(LLViewerObject *object, MASK mask, BOOL ignore_group, BOOL temp_select);
 
 	virtual void		onMouseCaptureLost();
 	virtual void		handleDeselect();

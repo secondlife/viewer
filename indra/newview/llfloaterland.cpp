@@ -1221,15 +1221,15 @@ void LLPanelLandObjects::refresh()
 	else
 	{
 		char count[MAX_STRING];		/*Flawfinder: ignore*/
-		S32 sw_max;
-		S32 sw_total;
-		S32 max;
-		S32 total;
-		S32 owned;
-		S32 group;
-		S32 other;
-		S32 selected;
-		F32 parcel_object_bonus;
+		S32 sw_max = 0;
+		S32 sw_total = 0;
+		S32 max = 0;
+		S32 total = 0;
+		S32 owned = 0;
+		S32 group = 0;
+		S32 other = 0;
+		S32 selected = 0;
+		F32 parcel_object_bonus = 0.f;
 
 		gParcelMgr->getPrimInfo(sw_max, sw_total, 
 								  max, total, owned, group, other, selected,
