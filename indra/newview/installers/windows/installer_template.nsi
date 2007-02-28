@@ -1,10 +1,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; secondlife setup.nsi
-;;; Copyright 2004-2006, Linden Research, Inc.
+;;; @file viewer_manifest.py
+;;; @author James Cook, Don Kjer
+;;; @brief NSIS script for creating a Windows installer.
+;;;  This file has variables expanded by viewer_manifest.py 
+;;;  to produce the complete nsi script file.
 ;;; For info, see http://www.nullsoft.com/free/nsis/
-;;;
 ;;; NSIS 2.02 or higher required
-;;; Author: James Cook, Don Kjer
+;;;
+;;; Copyright (c) 2006-$CurrentYear$, Linden Research, Inc.
+;;; $License$
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -612,7 +616,7 @@ ShowUninstDetails show
 Section Uninstall
 
 ; Start with some default values.
-StrCpy $INSTFLAGS "${FARMFLAG}"
+StrCpy $INSTFLAGS "${INSTFLAGS}"
 StrCpy $INSTPROG "${INSTNAME}"
 StrCpy $INSTEXE "${INSTEXE}"
 StrCpy $INSTSHORTCUT "${SHORTCUT}"

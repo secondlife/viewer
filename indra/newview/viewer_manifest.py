@@ -11,7 +11,7 @@ import os.path
 import re
 import tarfile
 viewer_dir = os.path.dirname(__file__)
-# add llmanifest library to our path so you don't have to muck with PYTHONPATH
+# add llmanifest library to our path so we don't have to muck with PYTHONPATH
 sys.path.append(os.path.join(viewer_dir, '../lib/python/indra'))
 from llmanifest import LLManifest, main, proper_windows_path, path_ancestors
 
@@ -74,7 +74,7 @@ class ViewerManifest(LLManifest):
                 elif(self.args['grid'] == 'firstlook'):
                         return '-settings settings_firstlook.xml'
                 else:
-			return ("-settings settings_beta.xml --%(grid)s -helperuri http://preview-%(grid)s.secondlife.com/helpers/" % {'grid':self.args['grid']})
+                        return ("-settings settings_beta.xml --%(grid)s -helperuri http://preview-%(grid)s.secondlife.com/helpers/" % {'grid':self.args['grid']})
 
         def login_url(self):
                 """ Convenience function that returns the appropriate login url for the grid"""
@@ -92,16 +92,6 @@ class ViewerManifest(LLManifest):
                 # set the login page to point to a url appropriate for the type of client
                 self.replace_in("skins/xui/en-us/panel_login.xml", searchdict={'http://secondlife.com/app/login/':self.login_url()})
 
-        def create_unpacked(self):
-                unpacked_file_name = "unpacked_%(plat)s_%(vers)s.tar" % {
-                        'plat':self.args['platform'],
-                        'vers':'_'.join(self.args['version'])}
-                print "Creating unpacked file:", unpacked_file_name
-                # could add a gz here but that doubles the time it takes to do this step
-                tf = tarfile.open(self.src_path_of(unpacked_file_name), 'w:')
-                # add the entire installation package, at the very top level
-                tf.add(self.get_dst_prefix(), "")
-                tf.close()
 
 class WindowsManifest(ViewerManifest):
         def final_exe(self):
@@ -187,26 +177,25 @@ class WindowsManifest(ViewerManifest):
                                 result += 'File ' + pkg_file + '\n'
                         else:
                                 result += 'Delete ' + wpath(os.path.join('$INSTDIR', rel_file)) + '\n'
-		# at the end of a delete, just rmdir all the directories
-		if(not install):
-			deleted_file_dirs = [os.path.dirname(pair[1].replace(self.get_dst_prefix()+os.path.sep,'')) for pair in self.file_list]
-			# find all ancestors so that we don't skip any dirs that happened to have no non-dir children
-			deleted_dirs = []
-			for d in deleted_file_dirs:
-				deleted_dirs.extend(path_ancestors(d))
-			# sort deepest hierarchy first
-			deleted_dirs.sort(lambda a,b: cmp(a.count(os.path.sep),b.count(os.path.sep)) or cmp(a,b))
-			deleted_dirs.reverse()
-			prev = None
-			for d in deleted_dirs:
-				if d != prev:   # skip duplicates
-					result += 'RMDir ' + wpath(os.path.join('$INSTDIR', os.path.normpath(d))) + '\n'
-				prev = d
+                # at the end of a delete, just rmdir all the directories
+                if(not install):
+                        deleted_file_dirs = [os.path.dirname(pair[1].replace(self.get_dst_prefix()+os.path.sep,'')) for pair in self.file_list]
+                        # find all ancestors so that we don't skip any dirs that happened to have no non-dir children
+                        deleted_dirs = []
+                        for d in deleted_file_dirs:
+                                deleted_dirs.extend(path_ancestors(d))
+                        # sort deepest hierarchy first
+                        deleted_dirs.sort(lambda a,b: cmp(a.count(os.path.sep),b.count(os.path.sep)) or cmp(a,b))
+                        deleted_dirs.reverse()
+                        prev = None
+                        for d in deleted_dirs:
+                                if d != prev:   # skip duplicates
+                                        result += 'RMDir ' + wpath(os.path.join('$INSTDIR', os.path.normpath(d))) + '\n'
+                                prev = d
 
                 return result
 
         def package_finish(self):
-                self.create_unpacked()
                 version_vars_template = """
                 !define INSTEXE  "%(final_exe)s"
                 !define VERSION "%(version_short)s"
@@ -227,7 +216,7 @@ class WindowsManifest(ViewerManifest):
                         installer_file = "Second Life %(version_dashes)s (%(grid_caps)s) Setup.exe"
                         grid_vars_template = """
                         OutFile "%(outfile)s"
-			!define INSTFLAGS "%(flags)s"
+                        !define INSTFLAGS "%(flags)s"
                         !define INSTNAME   "SecondLife%(grid_caps)s"
                         !define SHORTCUT   "Second Life (%(grid_caps)s)"
                         !define URLNAME   "secondlife%(grid)s"
@@ -255,7 +244,7 @@ class WindowsManifest(ViewerManifest):
 
                 NSIS_path = 'C:\\Program Files\\NSIS\\makensis.exe'
                 self.run_command('"' + proper_windows_path(NSIS_path) + '" ' + self.dst_path_of(tempfile))
-#                self.remove(self.dst_path_of(tempfile))
+                self.remove(self.dst_path_of(tempfile))
                 self.created_path(installer_file)
 
 
@@ -268,9 +257,6 @@ class DarwinManifest(ViewerManifest):
                         # Expand the tar file containing the assorted mozilla bits into
                         #  <bundle>/Contents/MacOS/
                         self.contents_of_tar('mozilla-universal-darwin.tgz', 'MacOS')
-#                       self.run_command('tar -zx -C "%(macos)s" -f "%(tarfile)s"' %
-#                                                        {'macos':self.ensure_dst_dir("MacOS"),
-#                                                         'tarfile':self.src_path_of("mozilla-universal-darwin.tgz")})
 
                         # replace the default theme with our custom theme (so scrollbars work).
                         if self.prefix(src="mozilla-theme", dst="MacOS/chrome"):
@@ -305,21 +291,21 @@ class DarwinManifest(ViewerManifest):
                                 self.end_prefix("Resources")
 
                         self.end_prefix("Contents")
-
-
-        def package_finish(self):
+                        
                 # NOTE: the -S argument to strip causes it to keep enough info for
                 # annotated backtraces (i.e. function names in the crash log).  'strip' with no
                 # arguments yields a slightly smaller binary but makes crash logs mostly useless.
                 # This may be desirable for the final release.  Or not.
-                self.run_command('strip -S "%(viewer_binary)s"' %
-                                                 { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Second Life')})
+                if("package" in self.args['actions'] or
+                   "unpacked" in self.args['actions']):
+                    self.run_command('strip -S "%(viewer_binary)s"' %
+                                 { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Second Life')})
 
-                self.create_unpacked()
 
+        def package_finish(self):
                 imagename="SecondLife_" + '_'.join(self.args['version'])
                 if(self.args['grid'] != ''):
-                        imagename = imagename + '_' + self.args['grid']
+                        imagename = imagename + '_' + self.args['grid'].upper()
 
                 sparsename = imagename + ".sparseimage"
                 finalname = imagename + ".dmg"
@@ -367,6 +353,12 @@ class LinuxManifest(ViewerManifest):
                 # set proper login url
                 self.replace_login_url()
 
+                # stripping all the libs removes a few megabytes from the end-user package
+                for s,d in self.file_list:
+                        if re.search("lib/lib.+\.so.*", d):
+                                self.run_command('strip -S %s' % d)
+
+
         def package_finish(self):
                 if(self.args.has_key('installer_name')):
                         installer_name = self.args['installer_name']
@@ -375,11 +367,6 @@ class LinuxManifest(ViewerManifest):
                         if grid != '':
                                 installer_name += "_" + grid.upper()
 
-                # stripping all the libs removes a few megabytes from the end-user package
-                for s,d in self.file_list:
-                        if re.search("lib/lib.+\.so.*", d):
-                                self.run_command('strip -S %s' % d)
-                self.create_unpacked()
                 # temporarily move directory tree so that it has the right name in the tarfile
                 self.run_command("mv %(dst)s %(inst)s" % {'dst':self.get_dst_prefix(),'inst':self.src_path_of(installer_name)})
                 # --numeric-owner hides the username of the builder for security etc.
