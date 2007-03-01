@@ -312,7 +312,7 @@ class DarwinManifest(ViewerManifest):
                 # make sure we don't have stale files laying about
                 self.remove(sparsename, finalname)
 
-                self.run_command('hdiutil create "%(sparse)s" -volname "Second Life" -fs HFS+ -type SPARSE -megabytes 200' % {'sparse':sparsename})
+                self.run_command('hdiutil create "%(sparse)s" -volname "Second Life" -fs HFS+ -type SPARSE -megabytes 300' % {'sparse':sparsename})
 
                 # mount the image and get the name of the mount point and device node
                 hdi_output = self.run_command('hdiutil attach -private "' + sparsename + '"')
