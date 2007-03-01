@@ -31,6 +31,8 @@
 #include "llviewerwindow.h"
 #include "llviewermessage.h"
 
+const S32 NOTICE_DATE_STRING_SIZE = 30;
+
 /////////////////////////
 // LLPanelGroupNotices //
 /////////////////////////
@@ -162,8 +164,7 @@ char* build_notice_date(const time_t& the_time, char* buffer)
 	tm* lt = localtime(&t);
 	//for some reason, the month is off by 1.  See other uses of
 	//"local" time in the code...
-	snprintf(buffer, sizeof(buffer), "%i/%i/%i", lt->tm_mon + 1, lt->tm_mday, lt->tm_year + 1900);		/*Flawfinder: ignore*/
-
+	snprintf(buffer, NOTICE_DATE_STRING_SIZE, "%i/%i/%i", lt->tm_mon + 1, lt->tm_mday, lt->tm_year + 1900);		/*Flawfinder: ignore*/
 	return buffer;
 }
 
@@ -473,7 +474,7 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		row["columns"][2]["column"] = "from";
 		row["columns"][2]["value"] = name;
 
-		char buffer[30];		/*Flawfinder: ignore*/
+		char buffer[NOTICE_DATE_STRING_SIZE];		/*Flawfinder: ignore*/
 		build_notice_date(t, buffer);
 		row["columns"][3]["column"] = "date";
 		row["columns"][3]["value"] = buffer;
