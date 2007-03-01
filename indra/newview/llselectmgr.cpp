@@ -5532,7 +5532,7 @@ void LLSelectMgr::updateSelectionCenter()
 		}
 	}
 	
-	if ( !(gAgentID == LLUUID::null) ) 
+	if ( !(gAgentID == LLUUID::null) && gToolMgr) 
 	{
 		LLTool		*tool = gToolMgr->getCurrentTool();
 		if (mShowSelection)

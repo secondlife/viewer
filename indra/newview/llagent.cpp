@@ -834,6 +834,8 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 	// we could trake this at the dataserver side, but that's harder
 	U64 handle = regionp->getHandle();
 	mRegionsVisited.insert(handle);
+
+	gSelectMgr->updateSelectionCenter();
 }
 
 
