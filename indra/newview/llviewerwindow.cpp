@@ -1150,15 +1150,13 @@ LLViewerWindow::LLViewerWindow(
 	mSuppressToolbox( FALSE ),
 	mHideCursorPermanent( FALSE ),
 	mPickPending(FALSE),
-	mIgnoreActivate( FALSE ),
-	mRenderFullFrame(FALSE)
+	mIgnoreActivate( FALSE )
 {
 	// Default to application directory.
 	strcpy(LLViewerWindow::sSnapshotBaseName, "Snapshot");	/* Flawfinder: ignore */
 	strcpy(LLViewerWindow::sMovieBaseName, "SLmovie");	/* Flawfinder: ignore */
 	LLViewerWindow::sSnapshotDir[0] = '\0';
 
-	mFastFrameTimer.stop();
 
 	// create window
 	mWindow = LLWindowManager::createWindow(
@@ -1250,7 +1248,6 @@ LLViewerWindow::LLViewerWindow(
 
 	// Create container for all sub-views
 	mRootView = new LLRootView("root", mVirtualWindowRect, FALSE);
-	mRootView->setRenderInFastFrame(FALSE);
 
 	if (!gNoRender)
 	{
@@ -3126,8 +3123,6 @@ void LLViewerWindow::performPick()
 		return;
 	}
 
-	finishFastFrame();
-
 	mPickPending = FALSE;
 	U32	te_offset = NO_FACE;
 	
@@ -3412,45 +3407,6 @@ void LLViewerWindow::analyzeHit(
 	*hit_v_coord = 0.f;
 	//llinfos << "DEBUG Hit Nothing " << llendl;
 }
-
-
-void LLViewerWindow::requestFastFrame(LLView *view) 
-{ 
-	if (!mPickPending && 
-		mWindow->getSwapMethod() != LLWindow::SWAP_METHOD_UNDEFINED &&
-		gStartupState >= STATE_STARTED && 
-		gSavedSettings.getBOOL("RenderFastUI") && 
-		!gbCapturing)
-	{
-		if (!mFastFrameTimer.getStarted())
-		{
-			// we're double buffered, so when first requesting a fast ui update 
-			// we need to render the scene again so that the front and back buffers
-			// are synced
-			mRenderFullFrame = TRUE;
-		}
-		// calculation new expiration time and reset timer
-		F32 expiration;
-		if (mFastFrameTimer.hasExpired())
-		{
-			expiration =  FAST_FRAME_INCREMENT;
-		}
-		else
-		{
-			expiration = llmin(MAX_FAST_FRAME_TIME, mFastFrameTimer.getTimeToExpireF32() + FAST_FRAME_INCREMENT);
-		}
-
-		mFastFrameTimer.start();
-		mFastFrameTimer.setTimerExpirySec(expiration);
-
-		LLView::sFastFrameView = view->getRootMostFastFrameView();
-		if (!LLView::sFastFrameView)
-		{
-			LLView::sFastFrameView = view;
-		}
-	}
-}
-
 
 // Returns unit vector relative to camera
 // indicating direction of point on screen x,y
@@ -3924,9 +3880,6 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	{
 		return FALSE;
 	}
-
-	// IW 3/5/04 We don'a wan' nunna yer fest frumes har!
-	finishFastFrame();
 
 	// PRE SNAPSHOT
 

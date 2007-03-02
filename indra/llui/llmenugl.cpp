@@ -3044,7 +3044,6 @@ void LLMenuGL::setVisible(BOOL visible)
 			mFadeTimer.stop();
 		}
 
-		//gViewerWindow->finishFastFrame();
 		LLView::setVisible(visible);
 	}
 }

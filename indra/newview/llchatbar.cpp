@@ -580,8 +580,6 @@ void LLChatBar::onInputEditorKeystroke( LLLineEditor* caller, void* userdata )
 		//	<< " outlen " << out_str.getLength()
 		//	<< llendl;
 	}
-	// make sure we don't do UI-only render as it is apparent avatar isn't animating
-	gViewerWindow->finishFastFrame();
 }
 
 // static

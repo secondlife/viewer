@@ -145,7 +145,6 @@ protected:
 public:
 	LLViewHandle mViewHandle;
 	BOOL		mLastVisible;
-	BOOL		mRenderInFastFrame;
 	BOOL		mSpanChildren;
 
 private:
@@ -161,7 +160,6 @@ public:
 	static BOOL	sDebugRects;	// Draw debug rects behind everything.
 	static BOOL sDebugKeys;
 	static S32	sDepth;
-	static LLView* sFastFrameView;
 	static BOOL sDebugMouseHandling;
 	static LLString sMouseHandlerMessage;
 	static S32	sSelectID;
@@ -319,8 +317,8 @@ public:
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 	virtual void	translate( S32 x, S32 y );
+	virtual void	setOrigin( S32 x, S32 y )	{ mRect.translate( x - mRect.mLeft, y - mRect.mBottom ); }
 	BOOL			translateIntoRect( const LLRect& constraint, BOOL allow_partial_outside );
-	void			setOrigin( S32 x, S32 y )	{ mRect.translate( x - mRect.mLeft, y - mRect.mBottom ); }
 	LLView*			findSnapRect(LLRect& new_rect, const LLCoordGL& mouse_dir, LLView::ESnapType snap_type, S32 threshold, S32 padding = 0);
 	LLView*			findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESnapEdge snap_edge, ESnapType snap_type, S32 threshold, S32 padding = 0);
 
@@ -418,8 +416,6 @@ public:
 	virtual void	localRectToScreen( const LLRect& local, LLRect* screen ) const;
 	virtual BOOL	localRectToOtherView( const LLRect& local, LLRect* other, LLView* other_view ) const;
 
-	void			setRenderInFastFrame(BOOL render) { mRenderInFastFrame = render; }
-	virtual LLView*	getRootMostFastFrameView();
 
 	static LLWindow*	getWindow(void);
 

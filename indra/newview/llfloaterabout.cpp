@@ -26,7 +26,10 @@
 #include "llvieweruictrlfactory.h"
 #include "viewer.h"	// for gViewerDigest
 
+#if LL_LIBXUL_ENABLED
 #include "llmozlib.h"
+#endif // LL_LIBXUL_ENABLED
+
 #include "llglheaders.h"
 
 extern LLCPUInfo gSysCPU;

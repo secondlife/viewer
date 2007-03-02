@@ -3841,10 +3841,6 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 		}
 	}
 
-	if (handled)
-	{
-		gViewerWindow->requestFastFrame(this);
-	}
 	return handled;
 }
 
@@ -3878,11 +3874,6 @@ BOOL LLFolderView::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_pare
 		search(getCurSelectedItem(), mSearchString.c_str(), FALSE);
 
 		handled = TRUE;
-	}
-
-	if (handled)
-	{
-		gViewerWindow->requestFastFrame(this);
 	}
 
 	return handled;

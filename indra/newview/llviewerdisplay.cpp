@@ -155,11 +155,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 		// Clean up memory the pools may have allocated
 		if (rebuild)
 		{
-			if (!gViewerWindow->renderingFastFrame())
-			{
-				gFrameStats.start(LLFrameStats::REBUILD);
-				gPipeline.rebuildPools();
-			}
+			gFrameStats.start(LLFrameStats::REBUILD);
+			gPipeline.rebuildPools();
 		}
 		return; 
 	}
@@ -359,14 +356,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 		}
 	}
 
-	if (rebuild)
-	{
-		if (gViewerWindow->renderingFastFrame())
-		{
-			gFrameStats.start(LLFrameStats::STATE_SORT);
-			gFrameStats.start(LLFrameStats::REBUILD);
-		}
-	}
 
 	/////////////////////////////
 	//
@@ -452,7 +441,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 		gPipeline.updateCull();
 		stop_glerror();
 		
-		if (rebuild && !gViewerWindow->renderingFastFrame())
+		if (rebuild)
 		{
 			LLFastTimer t(LLFastTimer::FTM_REBUILD);
 
@@ -516,12 +505,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 	//	glPopMatrix();
 	//}
 
-	if (gViewerWindow->renderingFastFrame())
-	{
-		gFrameStats.start(LLFrameStats::RENDER_SYNC);
-		gFrameStats.start(LLFrameStats::RENDER_GEOM);
-	}
-	else if (!(gLogoutRequestSent && gHaveSavedSnapshot) 
+	if (!(gLogoutRequestSent && gHaveSavedSnapshot) 
 			&& !gRestoreGL
 			&& !gDisconnected)
 	{
@@ -566,7 +550,7 @@ void render_ui_and_swap()
 		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 		{
 			LLFastTimer t(LLFastTimer::FTM_RENDER_UI);
-			if (!gViewerWindow->renderingFastFrame() && !gDisconnected)
+			if (!gDisconnected)
 			{
 				render_ui_3d();
 #ifndef LL_RELEASE_FOR_DOWNLOAD
@@ -587,8 +571,6 @@ void render_ui_and_swap()
 			gViewerWindow->mWindow->swapBuffers();
 		}
 	}
-
-	gViewerWindow->finishFirstFastFrame();
 }
 
 void render_ui_3d()

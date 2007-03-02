@@ -487,17 +487,6 @@ void LLFloater::setVisible( BOOL visible )
 	}
 }
 
-LLView*	LLFloater::getRootMostFastFrameView()
-{
-	// trying to render a background floater in a fast frame, abort!!!
-	//if (!isFrontmost())
-	//{
-	//	gViewerWindow->finishFastFrame();
-	//}
-
-	return LLView::getRootMostFastFrameView();
-}
-
 void LLFloater::open()	/* Flawfinder: ignore */
 {
 	//RN: for now, we don't allow rehosting from one multifloater to another
@@ -673,7 +662,7 @@ const LLString& LLFloater::getTitle() const
 
 void LLFloater::translate(S32 x, S32 y)
 {
-	LLView::translate(x, y);
+	LLPanel::translate(x, y);
 
 	if (x != 0 || y != 0)
 	{
@@ -703,7 +692,7 @@ BOOL LLFloater::canSnapTo(LLView* other_view)
 		}
 	}
 
-	return LLView::canSnapTo(other_view);
+	return LLPanel::canSnapTo(other_view);
 }
 
 void LLFloater::snappedTo(LLView* snap_view)
@@ -1194,9 +1183,9 @@ void LLFloater::onClickTearOff(void *userdata)
 		self->open();	/* Flawfinder: ignore */
 		self->setRect(new_rect);
 		gFloaterView->adjustToFitScreen(self, FALSE);
-		self->setCanDrag(TRUE);		
-		self->setCanResize(TRUE);		
-		self->setCanMinimize(TRUE);
+		self->setCanDrag(TRUE);
+		// give focus to new window to keep continuity for the user
+		self->setFocus(TRUE);
 	}
 	else  //Attach to parent.
 	{
@@ -1347,6 +1336,17 @@ void LLFloater::draw()
 			focused_child->setVisible(TRUE);
 		}
 		drawChild(focused_child);
+
+		// update tearoff button for torn off floaters
+		// when last host goes away
+		if (mCanTearOff && !getHost())
+		{
+			LLFloater* old_host = gFloaterView->getFloaterByHandle(mLastHostHandle);
+			if (!old_host)
+			{
+				setCanTearOff(FALSE);
+			}
+		}
 	}
 }
 
@@ -2453,31 +2453,12 @@ LLString LLMultiFloater::getWidgetTag() const
 	return LL_MULTI_FLOATER_TAG;
 }
 
-void LLMultiFloater::init(const LLString& title, BOOL resizable, 
-						S32 min_width, S32 min_height, BOOL drag_on_left,
-						BOOL minimizable, BOOL close_btn)
-{
-	LLFloater::init(title, resizable, min_width, min_height, drag_on_left, minimizable, close_btn);
-
-	/*mTabContainer = new LLTabContainer("Preview Tabs", 
-		LLRect(LLPANEL_BORDER_WIDTH, mRect.getHeight() - LLFLOATER_HEADER_SIZE, mRect.getWidth() - LLPANEL_BORDER_WIDTH, 0), 
-		mTabPos, 
-		NULL, 
-		NULL);
-	mTabContainer->setFollowsAll();
-	if (mResizable && mTabPos == LLTabContainerCommon::BOTTOM)
-	{
-		mTabContainer->setRightTabBtnOffset(RESIZE_HANDLE_WIDTH);
-	}
-
-	addChild(mTabContainer);*/
-}
-
 void LLMultiFloater::open()	/* Flawfinder: ignore */
 {
 	if (mTabContainer->getTabCount() > 0)
 	{
 		LLFloater::open();	/* Flawfinder: ignore */
+		resizeToContents();
 	}
 	else
 	{
@@ -2549,16 +2530,9 @@ void LLMultiFloater::growToFit(LLFloater* floaterp, S32 width, S32 height)
 		// store new width and height with this floater so that it will keep its size when detached
 		found_data_it->second.mWidth = width;
 		found_data_it->second.mHeight = height;
-
-		S32 cur_height = mRect.getHeight();
-		reshape(llmax(mRect.getWidth(), width + LLPANEL_BORDER_WIDTH * 2), llmax(mRect.getHeight(), height + LLFLOATER_HEADER_SIZE + TABCNTR_HEADER_HEIGHT + (LLPANEL_BORDER_WIDTH * 2)));
-		
-		// make sure upper left corner doesn't move
-		translate(0, mRect.getHeight() - cur_height);
-
-		// Try to keep whole view onscreen, don't allow partial offscreen.
-		gFloaterView->adjustToFitScreen(this, FALSE);
 	}
+
+	resizeToContents();
 }
 
 /**
@@ -2699,24 +2673,7 @@ void LLMultiFloater::removeFloater(LLFloater* floaterp)
 
 	if (mAutoResize)
 	{
-		floater_data_map_t::iterator floater_it;
-		S32 new_width = 0;
-		S32 new_height = 0;
-		for (floater_it = mFloaterDataMap.begin(); floater_it != mFloaterDataMap.end(); ++floater_it)
-		{
-			new_width = llmax(new_width, floater_it->second.mWidth + LLPANEL_BORDER_WIDTH * 2);
-			new_height = llmax(new_height, floater_it->second.mHeight + LLFLOATER_HEADER_SIZE + TABCNTR_HEADER_HEIGHT);
-		}	
-
-		S32 cur_height = mRect.getHeight();
-
-		reshape(new_width, new_height);
-
-		// make sure upper left corner doesn't move
-		translate(0, cur_height - new_height);
-
-		// Try to keep whole view onscreen, don't allow partial offscreen.
-		gFloaterView->adjustToFitScreen(this, FALSE);
+		resizeToContents();
 	}
 
 	tabOpen((LLFloater*)mTabContainer->getCurrentPanel(), false);
@@ -2856,6 +2813,43 @@ BOOL LLMultiFloater::postBuild()
 	}
 
 	return FALSE;
+}
+
+void LLMultiFloater::resizeToContents()
+{
+	// we're already in the middle of a reshape, don't interrupt it
+	floater_data_map_t::iterator floater_it;
+	S32 new_width = 0;
+	S32 new_height = 0;
+	for (floater_it = mFloaterDataMap.begin(); floater_it != mFloaterDataMap.end(); ++floater_it)
+	{
+		new_width = llmax(new_width, floater_it->second.mWidth + LLPANEL_BORDER_WIDTH * 2);
+		new_height = llmax(new_height, floater_it->second.mHeight + LLFLOATER_HEADER_SIZE + TABCNTR_HEADER_HEIGHT);
+	}	
+
+	S32 new_min_width = 0;
+	S32 new_min_height = 0;
+	S32 tab_idx;
+	for (tab_idx = 0; tab_idx < mTabContainer->getTabCount(); ++tab_idx)
+	{
+		LLFloater* floaterp = (LLFloater*)mTabContainer->getPanelByIndex(tab_idx);
+		if (floaterp)
+		{
+			new_min_width = llmax(new_min_width, floaterp->getMinWidth() + LLPANEL_BORDER_WIDTH * 2);
+			new_min_height = llmax(new_min_height, floaterp->getMinHeight() + LLFLOATER_HEADER_SIZE + TABCNTR_HEADER_HEIGHT);
+		}
+	}
+	setResizeLimits(new_min_width, new_min_height);
+
+	S32 cur_height = mRect.getHeight();
+
+	reshape(new_width, new_height);
+
+	// make sure upper left corner doesn't move
+	translate(0, cur_height - new_height);
+
+	// Try to keep whole view onscreen, don't allow partial offscreen.
+	gFloaterView->adjustToFitScreen(this, FALSE);
 }
 
 // virtual

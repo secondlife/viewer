@@ -1278,21 +1278,30 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 	{
 		if (item)
 		{
-			LLToolDragAndDrop::dropTextureAllFaces(objectp,
-											item,
-											LLToolDragAndDrop::SOURCE_AGENT,
-											LLUUID::null);
-		}
-		else
-		{
-			S32 num_faces = objectp->getNumTEs();
-			for( S32 face = 0; face < num_faces; face++ )
+			if (te == -1) // all faces
 			{
-				// Texture picker defaults aren't inventory items
-				// * Don't need to worry about permissions for them
-				// * Can just apply the texture and be done with it.
-				objectp->setTEImage(face, gImageList.getImage(imageid));
+				LLToolDragAndDrop::dropTextureAllFaces(objectp,
+													   item,
+													   LLToolDragAndDrop::SOURCE_AGENT,
+													   LLUUID::null);
 			}
+			else // one face
+			{
+				LLToolDragAndDrop::dropTextureOneFace(objectp,
+													  te,
+													  item,
+													  LLToolDragAndDrop::SOURCE_AGENT,
+													  LLUUID::null);
+			}
+		}
+		
+		else // not an inventory item
+		{
+			// Texture picker defaults aren't inventory items
+			// * Don't need to worry about permissions for them
+			// * Can just apply the texture and be done with it.
+			objectp->setTEImage(te, gImageList.getImage(imageid));
+
 			objectp->sendTEUpdate();
 		}
 	}

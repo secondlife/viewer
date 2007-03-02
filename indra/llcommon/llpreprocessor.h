@@ -32,7 +32,9 @@
 	#define LL_LIBXUL_ENABLED		1
 #elif LL_LINUX
 	#define LL_QUICKTIME_ENABLED	0
-	#define LL_LIBXUL_ENABLED		1
+        #ifndef LL_LIBXUL_ENABLED
+                #define LL_LIBXUL_ENABLED		1
+        #endif // def LL_LIBXUL_ENABLED
 #endif
 
 #if LL_LIBXUL_ENABLED && !defined(MOZILLA_INTERNAL_API)

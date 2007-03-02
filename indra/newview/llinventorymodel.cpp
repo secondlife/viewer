@@ -2356,7 +2356,7 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account, boo
 		if(!gInventory.isObjectDescendentOf(lastitem->getUUID(), trash_id))
 		{
 			LLMultiPreview* multi_previewp = LLMultiPreview::getAutoOpenInstance(folder_id);
-			if (!multi_previewp && all_one_folder)
+			if (!multi_previewp && all_one_folder && count > 1)
 			{
 				S32 left, top;
 				gFloaterView->getNewFloaterPosition(&left, &top);

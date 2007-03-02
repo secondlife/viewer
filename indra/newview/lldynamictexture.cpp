@@ -187,7 +187,6 @@ BOOL LLDynamicTexture::updateAllInstances()
 				if (dynamicTexture->render())
 				{
 					result = TRUE;
-					gViewerWindow->finishFastFrame();
 					sNumRenders++;
 				}
 				dynamicTexture->postRender(result);

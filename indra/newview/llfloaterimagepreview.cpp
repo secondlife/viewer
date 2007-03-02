@@ -160,7 +160,6 @@ void	LLFloaterImagePreview::onPreviewTypeCommit(LLUICtrl* ctrl, void* userdata)
 		break;
 	}
 	fp->mAvatarPreview->refresh();
-	//gViewerWindow->requestFastFrame(fp);
 }
 
 //-----------------------------------------------------------------------------
@@ -470,7 +469,6 @@ BOOL LLFloaterImagePreview::handleHover(S32 x, S32 y, MASK mask)
 		}
 
 		LLUI::setCursorPositionLocal(this, mLastMouseX, mLastMouseY);
-		//gViewerWindow->requestFastFrame(this);
 	}
 
 	if (!mPreviewRect.pointInRect(x, y) || !mAvatarPreview)
@@ -502,7 +500,6 @@ BOOL LLFloaterImagePreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	{
 		mAvatarPreview->zoom((F32)clicks * -0.2f);
 		mAvatarPreview->refresh();
-		//gViewerWindow->requestFastFrame(this);
 	}
 
 	return TRUE;

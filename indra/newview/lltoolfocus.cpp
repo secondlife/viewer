@@ -69,13 +69,13 @@ LLToolCamera::~LLToolCamera()
 // virtual
 void LLToolCamera::handleSelect()
 {
-	gFloaterTools->setStatusText("Click and drag to change view");
+	if (gFloaterTools) gFloaterTools->setStatusText("Click and drag to change view");
 }
 
 // virtual
 void LLToolCamera::handleDeselect()
 {
-	gFloaterTools->setStatusText("");
+	if (gFloaterTools) gFloaterTools->setStatusText("");
 //	gAgent.setLookingAtAvatar(FALSE);
 }
 

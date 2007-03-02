@@ -473,6 +473,7 @@ LLPreview* LLPreview::getFirstPreviewForSource(const LLUUID& source_id)
 
 LLMultiPreview::LLMultiPreview(const LLRect& rect) : LLMultiFloater("Preview", rect)
 {
+	setCanResize(TRUE);
 }
 
 void LLMultiPreview::open()		/*Flawfinder: ignore*/

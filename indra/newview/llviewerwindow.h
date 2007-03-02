@@ -205,12 +205,6 @@ public:
 
 	LLViewerObject*	getObjectUnderCursor(const F32 depth = 16.0f);
 	
-	void			requestFastFrame(LLView* view);
-	BOOL			renderingFastFrame() { return mFastFrameTimer.getStarted() && !firstFastFrame(); }
-	void			finishFastFrame() { mFastFrameTimer.stop(); mRenderFullFrame = FALSE; }
-	BOOL			firstFastFrame() { return mRenderFullFrame; }
-	void			finishFirstFastFrame() { mRenderFullFrame = FALSE; }
-
 	// Returns a pointer to the last object hit
 	LLViewerObject	*lastObjectHit();
 	LLViewerObject  *lastNonFloraObjectHit();
@@ -326,8 +320,6 @@ protected:
 	static char		sMovieBaseName[LL_MAX_PATH];		/* Flawfinder: ignore */
 
 	BOOL			mIgnoreActivate;
-	LLFrameTimer	mFastFrameTimer;
-	BOOL			mRenderFullFrame;
 	U8*				mPickBuffer;
 };	
 

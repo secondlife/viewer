@@ -312,11 +312,36 @@ void LLPreviewTexture::updateAspectRatio()
 		button_height = BTN_HEIGHT + PREVIEW_PAD;
 	}
 	
+	if (client_height != mLastHeight || client_width != mLastWidth)
+	{
+		mLastWidth = client_width;
+		mLastHeight = client_height;
+
+		S32 old_top = mRect.mTop;
+		S32 old_left = mRect.mLeft;
+		if (getHost())
+		{
+			getHost()->growToFit(this, view_width, view_height);
+		}
+		else
+		{
+			reshape( view_width, view_height );
+			S32 new_bottom = old_top - mRect.getHeight();
+			setOrigin( old_left, new_bottom );
+			// Try to keep whole view onscreen, don't allow partial offscreen.
+			gFloaterView->adjustToFitScreen(this, FALSE);
+		}
+	}
+
+	// clamp texture size to fit within actual size of floater after attempting resize
+	client_width = llmin(client_width, mRect.getWidth() - horiz_pad);
+	client_height = llmin(client_height, mRect.getHeight() - PREVIEW_HEADER_SIZE - (2 * CLIENT_RECT_VPAD) - LLPANEL_BORDER_WIDTH - info_height);
+
 	LLRect window_rect(0, mRect.getHeight(), mRect.getWidth(), 0);
 	window_rect.mTop -= (PREVIEW_HEADER_SIZE + CLIENT_RECT_VPAD);
 	window_rect.mBottom += PREVIEW_BORDER + button_height + CLIENT_RECT_VPAD + info_height + CLIENT_RECT_VPAD;
-	LLMultiFloater* hostp = getHost();
-	if (hostp)
+
+	if (getHost())
 	{
 		// try to keep aspect ratio when hosted, as hosting view can resize without user input
 		mClientRect.setLeftTopAndSize(window_rect.getCenterX() - (client_width / 2), window_rect.mTop, client_width, client_height);
@@ -326,29 +351,7 @@ void LLPreviewTexture::updateAspectRatio()
 		mClientRect.setLeftTopAndSize(LLPANEL_BORDER_WIDTH + PREVIEW_PAD + 6,
 						mRect.getHeight() - (PREVIEW_HEADER_SIZE + CLIENT_RECT_VPAD),
 						mRect.getWidth() - horiz_pad,
-						mRect.getHeight() - (view_height - client_height) - 8);
-	}
-
-	if (mImage->mFullHeight > mLastHeight && mImage->mFullWidth > mLastWidth)
-	{
-		mLastWidth = image_width;
-		mLastHeight = image_height;
-
-		S32 old_top = mRect.mTop;
-		S32 old_left = mRect.mLeft;
-		if (hostp)
-		{
-			hostp->growToFit(this, view_width, view_height);
-		}
-		else
-		{
-			reshape( view_width, view_height );
-			S32 new_bottom = old_top - mRect.getHeight();
-			setOrigin( old_left, new_bottom );
-		}
-
-		// Try to keep whole view onscreen, don't allow partial offscreen.
-		gFloaterView->adjustToFitScreen(this, FALSE);
+						client_height);
 	}
 }
 
