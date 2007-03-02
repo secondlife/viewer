@@ -53,7 +53,7 @@ protected:
 	friend class LLImageJ2CImpl;
 	friend class LLImageJ2COJ;
 	friend class LLImageJ2CKDU;
-	void setDecodingDone(BOOL complete = TRUE);
+	void decodeFailed();
 	void updateRawDiscardLevel();
 
 	S32 mMaxBytes; // Maximum number of bytes of data to use...

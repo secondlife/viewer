@@ -82,10 +82,10 @@ void LLViewerJoint::setValid( BOOL valid, BOOL recursive )
 	//----------------------------------------------------------------
 	if (recursive)
 	{
-		for (	LLViewerJoint *joint = (LLViewerJoint*)mChildren.getFirstData();
-				joint != NULL;
-				joint = (LLViewerJoint*)mChildren.getNextData() )
+		for (child_list_t::iterator iter = mChildren.begin();
+			 iter != mChildren.end(); ++iter)
 		{
+			LLViewerJoint* joint = (LLViewerJoint*)(*iter);
 			joint->setValid(valid, TRUE);
 		}
 	}
@@ -198,10 +198,10 @@ void LLViewerJoint::renderSkeleton(BOOL recursive)
 	//----------------------------------------------------------------
 	if (recursive)
 	{
-		for (	LLViewerJoint *joint = (LLViewerJoint*)mChildren.getFirstData();
-				joint != NULL;
-				joint = (LLViewerJoint*)mChildren.getNextData() )
+		for (child_list_t::iterator iter = mChildren.begin();
+			 iter != mChildren.end(); ++iter)
 		{
+			LLViewerJoint* joint = (LLViewerJoint*)(*iter);
 			joint->renderSkeleton();
 		}
 	}
@@ -216,7 +216,7 @@ void LLViewerJoint::renderSkeleton(BOOL recursive)
 //--------------------------------------------------------------------
 // render()
 //--------------------------------------------------------------------
-U32 LLViewerJoint::render( F32 pixelArea )
+U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass )
 {
 	U32 triangle_count = 0;
 
@@ -226,73 +226,68 @@ U32 LLViewerJoint::render( F32 pixelArea )
 	if ( mValid )
 	{
 
+
 		//----------------------------------------------------------------
 		// if object is transparent, defer it, otherwise
 		// give the joint subclass a chance to draw itself
 		//----------------------------------------------------------------
 		if ( gRenderForSelect )
 		{
-			triangle_count += drawShape( pixelArea );
+			triangle_count += drawShape( pixelArea, first_pass );
 		}
 		else if ( isTransparent() )
 		{
-			LLGLEnable blend(GL_BLEND);
 			// Hair and Skirt
 			if ((pixelArea > MIN_PIXEL_AREA_3PASS_HAIR))
 			{
 				// render all three passes
-				LLGLEnable alpha_test(GL_ALPHA_TEST);
 				LLGLDisable cull(GL_CULL_FACE);
 				// first pass renders without writing to the z buffer
 				{
 					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-					triangle_count += drawShape( pixelArea );
+					triangle_count += drawShape( pixelArea, first_pass);
 				}
 				// second pass writes to z buffer only
 				glColorMask(FALSE, FALSE, FALSE, FALSE);
 				{
-					triangle_count += drawShape( pixelArea );
+					triangle_count += drawShape( pixelArea, FALSE );
 				}
 				// third past respects z buffer and writes color
 				glColorMask(TRUE, TRUE, TRUE, TRUE);
 				{
 					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-					triangle_count += drawShape( pixelArea );
+					triangle_count += drawShape( pixelArea, FALSE );
 				}
 			}
 			else
 			{
-				LLGLEnable alpha_test(GL_ALPHA_TEST);
 				// Render Inside (no Z buffer write)
 				glCullFace(GL_FRONT);
 				{
 					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-					triangle_count += drawShape( pixelArea );
+					triangle_count += drawShape( pixelArea, first_pass );
 				}
 				// Render Outside (write to the Z buffer)
 				glCullFace(GL_BACK);
 				{
-					triangle_count += drawShape( pixelArea );
+					triangle_count += drawShape( pixelArea, FALSE );
 				}
 			}
 		}
 		else
 		{
 			// set up render state
-			LLGLDisable blend(GL_BLEND);
-			LLGLSPipelineAvatar gls_pipeline_avatar;
-			triangle_count += drawShape( pixelArea );
+			triangle_count += drawShape( pixelArea, first_pass );
 		}
 	}
 
 	//----------------------------------------------------------------
 	// render children
 	//----------------------------------------------------------------
-	LLViewerJoint *joint;
-	for (	joint = (LLViewerJoint *)mChildren.getFirstData();
-			joint != NULL;
-			joint = (LLViewerJoint *)mChildren.getNextData() )
+	for (child_list_t::iterator iter = mChildren.begin();
+		 iter != mChildren.end(); ++iter)
 	{
+		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
 		F32 jointLOD = joint->getLOD();
 		if (pixelArea >= jointLOD || sDisableLOD)
 		{
@@ -305,7 +300,6 @@ U32 LLViewerJoint::render( F32 pixelArea )
 		}
 	}
 
-	glColorMask(TRUE, TRUE, TRUE, TRUE);
 	return triangle_count;
 }
 
@@ -377,7 +371,7 @@ BOOL LLViewerJoint::isTransparent()
 //--------------------------------------------------------------------
 // drawShape()
 //--------------------------------------------------------------------
-U32 LLViewerJoint::drawShape( F32 pixelArea )
+U32 LLViewerJoint::drawShape( F32 pixelArea, BOOL first_pass )
 {
 	return 0;
 }
@@ -390,50 +384,60 @@ void LLViewerJoint::setSkeletonComponents( U32 comp, BOOL recursive )
 	mComponents = comp;
 	if (recursive)
 	{
-		for (	LLViewerJoint *joint = (LLViewerJoint *)mChildren.getFirstData();
-				joint != NULL;
-				joint = (LLViewerJoint *)mChildren.getNextData() )
+		for (child_list_t::iterator iter = mChildren.begin();
+			 iter != mChildren.end(); ++iter)
 		{
+			LLViewerJoint* joint = (LLViewerJoint*)(*iter);
 			joint->setSkeletonComponents(comp, recursive);
 		}
 	}
 }
 
-void LLViewerJoint::updateFaceSizes(U32 &num_vertices, F32 pixel_area)
+void LLViewerJoint::updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area)
 {
-	for (	LLViewerJoint *joint = (LLViewerJoint*)mChildren.getFirstData();
-			joint != NULL;
-			joint = (LLViewerJoint*)mChildren.getNextData() )
+	for (child_list_t::iterator iter = mChildren.begin();
+		 iter != mChildren.end(); ++iter)
 	{
-		F32 jointLOD = joint->getLOD();
-		if (pixel_area >= jointLOD || sDisableLOD)
+		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
+		//F32 jointLOD = joint->getLOD();
+		//if (pixel_area >= jointLOD || sDisableLOD)
 		{
-			joint->updateFaceSizes(num_vertices, pixel_area);
+			joint->updateFaceSizes(num_vertices, num_indices, pixel_area);
 
-			if (jointLOD != DEFAULT_LOD)
-			{
-				break;
-			}
+		//	if (jointLOD != DEFAULT_LOD)
+		//	{
+		//		break;
+		//	}
 		}
 	}
 }
 
 void LLViewerJoint::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind)
 {
-	for (	LLViewerJoint *joint = (LLViewerJoint*)mChildren.getFirstData();
-			joint != NULL;
-			joint = (LLViewerJoint*)mChildren.getNextData() )
+	for (child_list_t::iterator iter = mChildren.begin();
+		 iter != mChildren.end(); ++iter)
 	{
-		F32 jointLOD = joint->getLOD();
-		if (pixel_area >= jointLOD || sDisableLOD)
+		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
+		//F32 jointLOD = joint->getLOD();
+		//if (pixel_area >= jointLOD || sDisableLOD)
 		{
 			joint->updateFaceData(face, pixel_area, damp_wind);
 
-			if (jointLOD != DEFAULT_LOD)
-			{
-				break;
-			}
+		//	if (jointLOD != DEFAULT_LOD)
+		//	{
+		//		break;
+		//	}
 		}
+	}
+}
+
+void LLViewerJoint::updateGeometry()
+{
+	for (child_list_t::iterator iter = mChildren.begin();
+		 iter != mChildren.end(); ++iter)
+	{
+		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
+		joint->updateGeometry();
 	}
 }
 
@@ -443,12 +447,12 @@ BOOL LLViewerJoint::updateLOD(F32 pixel_area, BOOL activate)
 	BOOL lod_changed = FALSE;
 	BOOL found_lod = FALSE;
 
-	for (	LLViewerJoint *joint = (LLViewerJoint*)mChildren.getFirstData();
-			joint != NULL;
-			joint = (LLViewerJoint*)mChildren.getNextData() )
+	for (child_list_t::iterator iter = mChildren.begin();
+		 iter != mChildren.end(); ++iter)
 	{
+		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
 		F32 jointLOD = joint->getLOD();
-
+		
 		if (found_lod || jointLOD == DEFAULT_LOD)
 		{
 			// we've already found a joint to enable, so enable the rest as alternatives
@@ -472,12 +476,12 @@ BOOL LLViewerJoint::updateLOD(F32 pixel_area, BOOL activate)
 
 void LLViewerJoint::dump()
 {
-	for (	LLViewerJoint *joint = (LLViewerJoint*)mChildren.getFirstData();
-			joint != NULL;
-			joint = (LLViewerJoint*)mChildren.getNextData() )
-		{
-			joint->dump();
-		}
+	for (child_list_t::iterator iter = mChildren.begin();
+		 iter != mChildren.end(); ++iter)
+	{
+		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
+		joint->dump();
+	}
 }
 
 void LLViewerJoint::setVisible(BOOL visible, BOOL recursive)
@@ -486,12 +490,12 @@ void LLViewerJoint::setVisible(BOOL visible, BOOL recursive)
 
 	if (recursive)
 	{
-		for (	LLViewerJoint *joint = (LLViewerJoint*)mChildren.getFirstData();
-				joint != NULL;
-				joint = (LLViewerJoint*)mChildren.getNextData() )
-			{
-				joint->setVisible(visible, recursive);
-			}
+		for (child_list_t::iterator iter = mChildren.begin();
+			 iter != mChildren.end(); ++iter)
+		{
+			LLViewerJoint* joint = (LLViewerJoint*)(*iter);
+			joint->setVisible(visible, recursive);
+		}
 	}
 }
 
@@ -511,10 +515,10 @@ void LLViewerJoint::writeCAL3D(apr_file_t* fp)
 	LLQuaternion bone_rot;
 
 	S32 num_children = 0;
-	for (LLViewerJoint *joint = (LLViewerJoint*)mChildren.getFirstData();
-		joint != NULL;
-		joint = (LLViewerJoint*)mChildren.getNextData() )
+	for (child_list_t::iterator iter = mChildren.begin();
+		 iter != mChildren.end(); ++iter)
 	{
+		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
 		if (joint->mJointNum != -1)
 		{
 			num_children++;
@@ -541,10 +545,10 @@ void LLViewerJoint::writeCAL3D(apr_file_t* fp)
 	apr_file_printf(fp, "		<LOCALROTATION>0 0 0 1</LOCALROTATION>\n");
 	apr_file_printf(fp, "		<PARENTID>%d</PARENTID>\n", mParent ? mParent->mJointNum + 1 : -1);
 	
-	for (LLViewerJoint *joint = (LLViewerJoint*)mChildren.getFirstData();
-		joint != NULL;
-		joint = (LLViewerJoint*)mChildren.getNextData() )
+	for (child_list_t::iterator iter = mChildren.begin();
+		 iter != mChildren.end(); ++iter)
 	{
+		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
 		if (joint->mJointNum != -1)
 		{
 			apr_file_printf(fp, "		<CHILDID>%d</CHILDID>\n", joint->mJointNum + 1);
@@ -553,10 +557,10 @@ void LLViewerJoint::writeCAL3D(apr_file_t* fp)
 	apr_file_printf(fp, "	</BONE>\n");
 
 	// recurse
-	for (LLViewerJoint *joint = (LLViewerJoint*)mChildren.getFirstData();
-		joint != NULL;
-		joint = (LLViewerJoint*)mChildren.getNextData() )
+	for (child_list_t::iterator iter = mChildren.begin();
+		 iter != mChildren.end(); ++iter)
 	{
+		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
 		if (joint->mJointNum != -1)
 		{
 			joint->writeCAL3D(fp);

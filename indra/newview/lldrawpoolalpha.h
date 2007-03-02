@@ -10,55 +10,43 @@
 #define LL_LLDRAWPOOLALPHA_H
 
 #include "lldrawpool.h"
-#include "llviewerimage.h"
 #include "llframetimer.h"
 
 class LLFace;
 class LLColor4;
 
-class LLDrawPoolAlpha: public LLDrawPool
+class LLDrawPoolAlpha: public LLRenderPass
 {
 public:
-	LLDrawPoolAlpha();
-	/*virtual*/ ~LLDrawPoolAlpha();
-
-	/*virtual*/ LLDrawPool *instancePool();
-
-	/*virtual*/ void beginRenderPass(S32 pass = 0);
-	/*virtual*/ void render(S32 pass = 0);
-	/*virtual*/ void renderFaceSelected(LLFace *facep, LLImageGL *image, const LLColor4 &color,
-										const S32 index_offset = 0, const S32 index_count = 0);
-	/*virtual*/ void prerender();
-	/*virtual*/ void renderForSelect();
-
-	/*virtual*/ void enqueue(LLFace *face);
-	/*virtual*/ BOOL removeFace(LLFace *face);
-	/*virtual*/ void resetDrawOrders();
-
-	/*virtual*/ void enableShade();
-	/*virtual*/ void disableShade();
-	/*virtual*/ void setShade(F32 shade);
-
-
-	virtual S32 getMaterialAttribIndex();
-
-	BOOL mRebuiltLastFrame;
 	enum
 	{
-		NUM_ALPHA_BINS = 1024
+		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
+							LLVertexBuffer::MAP_NORMAL |
+							LLVertexBuffer::MAP_COLOR |
+							LLVertexBuffer::MAP_TEXCOORD
 	};
+	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
 
-	/*virtual*/ BOOL verify() const;
-	/*virtual*/ LLViewerImage *getDebugTexture();
-	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
+	LLDrawPoolAlpha(U32 type = LLDrawPool::POOL_ALPHA);
+	/*virtual*/ ~LLDrawPoolAlpha();
 
+	/*virtual*/ void beginRenderPass(S32 pass = 0);
+	virtual void render(S32 pass = 0);
+	void render(std::vector<LLSpatialGroup*>& groups);
+	/*virtual*/ void prerender();
+
+	void renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
+	void renderAlpha(U32 mask, std::vector<LLSpatialGroup*>& groups);
+	void renderAlphaHighlight(U32 mask, std::vector<LLSpatialGroup*>& groups);
+	
 	static BOOL sShowDebugAlpha;
-protected:
-	F32 mMinDistance;
-	F32 mMaxDistance;
-	F32 mInvBinSize;
+};
 
-	LLDynamicArray<LLFace*> mDistanceBins[NUM_ALPHA_BINS];
+class LLDrawPoolAlphaPostWater : public LLDrawPoolAlpha
+{
+public:
+	LLDrawPoolAlphaPostWater();
+	virtual void render(S32 pass = 0);
 };
 
 #endif // LL_LLDRAWPOOLALPHA_H

@@ -57,6 +57,13 @@ class LLDriverParamInfo;
 class LLHUDText;
 class LLHUDEffectSpiral;
 
+class LLVertexBufferAvatar : public LLVertexBuffer
+{
+public:
+	LLVertexBufferAvatar();
+	virtual void setupVertexBuffer(U32 data_mask) const;
+};
+
 typedef enum e_mesh_id
 {
 	MESH_ID_HAIR,
@@ -213,6 +220,25 @@ protected:
 	virtual ~LLVOAvatar();
 
 public:
+
+	struct CompareScreenAreaGreater
+	{		
+		bool operator()(const LLCharacter* const& lhs, const LLCharacter* const& rhs)
+		{
+			return lhs->getPixelArea() > rhs->getPixelArea();
+		}
+	};
+
+	enum 
+	{
+		VERTEX_DATA_MASK =	(1 << LLVertexBuffer::TYPE_VERTEX) |
+							(1 << LLVertexBuffer::TYPE_NORMAL) |
+							(1 << LLVertexBuffer::TYPE_TEXCOORD) |
+							(1 << LLVertexBuffer::TYPE_WEIGHT) |
+							(1 << LLVertexBuffer::TYPE_CLOTHWEIGHT)							
+	}
+	eVertexDataMask;
+
 	LLVOAvatar(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 	/*virtual*/ void markDead();
 
@@ -228,20 +254,24 @@ public:
 										const EObjectUpdateType update_type,
 										LLDataPacker *dp);
 	virtual BOOL idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+	virtual BOOL updateLOD();
 	void setFootPlane(const LLVector4 &plane) { mFootPlane = plane; }
 	/*virtual*/ BOOL    isActive() const; // Whether this object needs to do an idleUpdate.
 
 	// Graphical stuff for objects - maybe broken out into render class later?
 
-	U32 renderSkinned(EAvatarRenderPass pass);
+	U32 renderFootShadows();
 	U32 renderRigid();
-
+	U32 renderSkinned(EAvatarRenderPass pass);
+	U32 renderTransparent();
 	void renderCollisionVolumes();
 	
 	/*virtual*/ void updateTextures(LLAgent &agent);
 	// If setting a baked texture, need to request it from a non-local sim.
 	/*virtual*/ S32 setTETexture(const U8 te, const LLUUID& uuid);
-
+	
+	virtual U32 getPartitionType() const;
+	
 	void updateVisibility(BOOL force_invisible);
 	void updateAttachmentVisibility(U32 camera_mode);
 	void clampAttachmentPositions();
@@ -259,11 +289,14 @@ public:
 	void updateShadowFaces();
 
 	/*virtual*/ void		setPixelAreaAndAngle(LLAgent &agent);
-	void					updateJointLODs();
+	BOOL					updateJointLODs();
 
 	void writeCAL3D(std::string& path, std::string& file_base);
 
 	virtual void updateRegion(LLViewerRegion *regionp);
+
+	
+	void updateSpatialExtents(LLVector3& newMin, LLVector3 &newMax);
 	
 	//--------------------------------------------------------------------
 	// texture entry assignment
@@ -323,7 +356,7 @@ public:
 	virtual BOOL allocateCharacterJoints( U32 num );
 	virtual LLJoint *getCharacterJoint( U32 num );
 	virtual void requestStopMotion( LLMotion* motion );
-	virtual F32 getPixelArea();
+	virtual F32 getPixelArea() const;
 	virtual LLPolyMesh*	getHeadMesh();
 	virtual LLPolyMesh*	getUpperBodyMesh();
 	virtual LLVector3d	getPosGlobalFromAgent(const LLVector3 &position);
@@ -343,7 +376,7 @@ public:
 	// Other public functions
 	//--------------------------------------------------------------------
 	BOOL			allocateCollisionVolumes( U32 num );
-
+	void			resetHUDAttachments();
 	static void		getAnimLabels( LLDynamicArray<const char*>* labels );
 	static void		getAnimNames( LLDynamicArray<const char*>* names );
 
@@ -420,6 +453,7 @@ public:
 	virtual void addChild(LLViewerObject *childp);
 	virtual void removeChild(LLViewerObject *childp);
 
+	LLViewerJointAttachment* getTargetAttachmentPoint(LLViewerObject* viewer_object);
 	BOOL attachObject(LLViewerObject *viewer_object);
 	BOOL detachObject(LLViewerObject *viewer_object);
 	void lazyAttach();
@@ -817,7 +851,6 @@ protected:
 
 	F32		mRenderPriority;
 	F32		mAdjustedPixelArea;
-	S32		mNumAGPVertices;
 
 	LLWString mNameString;
 	LLString  mTitle;
@@ -858,6 +891,8 @@ protected:
 	U32					mLowerMaskTexName;
 
 	BOOL				mCulled;
+	F32					mMinPixelArea; // debug
+	F32					mMaxPixelArea; // debug
 	
 	//--------------------------------------------------------------------
 	// Global Colors
@@ -884,6 +919,7 @@ protected:
 	
 	void			requestLayerSetUpdate(LLVOAvatar::ELocTexIndex i);
 	void			addLocalTextureStats(LLVOAvatar::ELocTexIndex i, LLViewerImage* imagep, F32 texel_area_ratio, BOOL rendered, BOOL covered_by_baked);
+	void			addBakedTextureStats( LLViewerImage* imagep, F32 pixel_area, F32 texel_area_ratio, S32 boost_level);
 	static void		onInitialBakedTextureLoaded( BOOL success, LLViewerImage *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
 	static void		onBakedTextureLoaded(BOOL success, LLViewerImage *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
 	void			useBakedTexture(const LLUUID& id);

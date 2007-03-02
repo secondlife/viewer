@@ -67,31 +67,41 @@ static struct ft_display_info ft_display_table[] =
 	{ LLFastTimer::FTM_RESET_DRAWORDER,		"  ResetDrawOrder",		&LLColor4::pink1, 0 },
 	{ LLFastTimer::FTM_WORLD_UPDATE,		"  World Update",		&LLColor4::blue1, 1 },
 	{ LLFastTimer::FTM_UPDATE_MOVE,			"   Move Objects",		&LLColor4::pink2, 0 },
-	{ LLFastTimer::FTM_OCTREE_BALANCE,		"    Octree Balance",	&LLColor4::red3, 0 },
-	{ LLFastTimer::FTM_CULL,				"   Object Cull",	&LLColor4::blue2, 0 },
-	{ LLFastTimer::FTM_CULL_REBOUND,		"    Rebound",		&LLColor4::blue3, 0 },
+	{ LLFastTimer::FTM_OCTREE_BALANCE,		"    Octree Balance", &LLColor4::red3, 0 },
+	{ LLFastTimer::FTM_TEMP1,				"   Blur",			&LLColor4::red1, 0 },
+	{ LLFastTimer::FTM_CULL,				"   Object Cull",	&LLColor4::blue2, 1 },
+    { LLFastTimer::FTM_CULL_REBOUND,		"    Rebound",		&LLColor4::blue3, 0 },
+	{ LLFastTimer::FTM_FRUSTUM_CULL,		"    Frustum Cull",	&LLColor4::blue4, 0 },
+	{ LLFastTimer::FTM_OCCLUSION,			"    Object Occlude", &LLColor4::pink1, 0 },
+	{ LLFastTimer::FTM_OCCLUSION_READBACK,	"    Occlusion Read", &LLColor4::red2, 0 },
 	{ LLFastTimer::FTM_HUD_EFFECTS,			"   HUD Effects",	&LLColor4::orange1, 0 },
 	{ LLFastTimer::FTM_HUD_UPDATE,			"   HUD Update",	&LLColor4::orange2, 0 },
-	{ LLFastTimer::FTM_OCCLUSION,			"   Object Occlude",&LLColor4::pink1, 0 },
-	{ LLFastTimer::FTM_OCCLUSION_READBACK,	"   Occlusion Read",&LLColor4::red2, 0 },
 	{ LLFastTimer::FTM_GEO_UPDATE,			"   Geo Update",	&LLColor4::blue3, 0 },
 	{ LLFastTimer::FTM_UPDATE_PRIMITIVES,	"    Volumes",		&LLColor4::blue4, 0 },
 	{ LLFastTimer::FTM_GEN_VOLUME,			"     Gen Volume",	&LLColor4::yellow3, 0 },
 	{ LLFastTimer::FTM_GEN_FLEX,			"     Flexible",	&LLColor4::yellow4, 0 },
 	{ LLFastTimer::FTM_GEN_TRIANGLES,		"     Triangles",	&LLColor4::yellow5, 0 },
+	{ LLFastTimer::FTM_UPDATE_AVATAR,		"    Avatar",		&LLColor4::yellow1, 0 },
+	{ LLFastTimer::FTM_UPDATE_TREE,			"    Tree",			&LLColor4::yellow2, 0 },
+	{ LLFastTimer::FTM_UPDATE_TERRAIN,		"    Terrain",		&LLColor4::yellow6, 0 },
+	{ LLFastTimer::FTM_UPDATE_CLOUDS,		"    Clouds",		&LLColor4::yellow7, 0 },
+	{ LLFastTimer::FTM_UPDATE_GRASS,		"    Grass",		&LLColor4::yellow8, 0 },
+	{ LLFastTimer::FTM_UPDATE_WATER,		"    Water",		&LLColor4::yellow9, 0 },
 	{ LLFastTimer::FTM_GEO_LIGHT,			"    Lighting",		&LLColor4::yellow1, 0 },
 	{ LLFastTimer::FTM_GEO_SHADOW,			"    Shadow",		&LLColor4::black, 0 },
 	{ LLFastTimer::FTM_UPDATE_PARTICLES,	"    Particles",	&LLColor4::blue5, 0 },
+	{ LLFastTimer::FTM_SIMULATE_PARTICLES,	"    Particle Sim",	&LLColor4::blue4, 0 },
 	{ LLFastTimer::FTM_GEO_RESERVE,			"    Reserve",		&LLColor4::blue6, 0 },
 	{ LLFastTimer::FTM_UPDATE_LIGHTS,		"    Lights",		&LLColor4::yellow2, 0 },
 	{ LLFastTimer::FTM_UPDATE_SKY,			"  Sky Update",		&LLColor4::cyan1, 0 },
-	{ LLFastTimer::FTM_OBJECTLIST_UPDATE,	"  Object Update",	&LLColor4::purple1, 1 },
+	{ LLFastTimer::FTM_OBJECTLIST_UPDATE,	"  Object Update",	&LLColor4::purple1, 0 },
 	{ LLFastTimer::FTM_AVATAR_UPDATE,		"   Avatars",		&LLColor4::purple2, 0 },
 	{ LLFastTimer::FTM_JOINT_UPDATE,		"    Joints",		&LLColor4::purple3, 0 },
 	{ LLFastTimer::FTM_ATTACHMENT_UPDATE,	"    Attachments",	&LLColor4::purple4, 0 },
 	{ LLFastTimer::FTM_UPDATE_ANIMATION,	"    Animation",	&LLColor4::purple5, 0 },
 	{ LLFastTimer::FTM_FLEXIBLE_UPDATE,		"   Flex Update",	&LLColor4::pink2, 0 },
 	{ LLFastTimer::FTM_LOD_UPDATE,			"   LOD Update",	&LLColor4::magenta1, 0 },
+	{ LLFastTimer::FTM_TEMP5,				"    Check",	&LLColor4::red1, 1},
 	{ LLFastTimer::FTM_REGION_UPDATE,		"  Region Update",	&LLColor4::cyan2, 0 },
 	{ LLFastTimer::FTM_NETWORK,				"  Network",		&LLColor4::orange1, 1 },
 	{ LLFastTimer::FTM_IDLE_NETWORK,		"   Decode Msgs",	&LLColor4::orange2, 0 },
@@ -106,17 +116,35 @@ static struct ft_display_info ft_display_table[] =
 	{ LLFastTimer::FTM_IMAGE_UPDATE,		"  Image Update",	&LLColor4::yellow4, 1 },
 	{ LLFastTimer::FTM_IMAGE_CREATE,		"   Image CreateGL",&LLColor4::yellow5, 0 },
 	{ LLFastTimer::FTM_IMAGE_DECODE,		"   Image Decode",	&LLColor4::yellow6, 0 },
+	{ LLFastTimer::FTM_IMAGE_MARK_DIRTY,	"   Dirty Textures",&LLColor4::red1, 0 },
 	{ LLFastTimer::FTM_VFILE_WAIT,			"  VFile Wait",		&LLColor4::cyan6, 0 },
 //	{ LLFastTimer::FTM_IDLE_CB,				"  Callbacks",		&LLColor4::pink1, 0 },
-	{ LLFastTimer::FTM_RENDER,				" Render",			&green0, 0 },
+	{ LLFastTimer::FTM_RENDER,				" Render",			&green0, 1 },
 	{ LLFastTimer::FTM_REBUILD,				"  Rebuild",		&LLColor4::green1, 1 },
 	{ LLFastTimer::FTM_STATESORT,			"   State Sort",	&LLColor4::orange1, 1 },
+	{ LLFastTimer::FTM_STATESORT_DRAWABLE,	"    Drawable",		&LLColor4::orange2, 0 },
+	{ LLFastTimer::FTM_STATESORT_POSTSORT,	"    Post Sort",	&LLColor4::orange3, 0 },
+	{ LLFastTimer::FTM_REBUILD_OCCLUSION_VB,"     Occlusion",		&LLColor4::cyan5, 0 },
+	{ LLFastTimer::FTM_REBUILD_VBO,			"     VBO Rebuild",	&LLColor4::red4, 0 },
+	{ LLFastTimer::FTM_REBUILD_VOLUME_VB,	"      Volume",		&LLColor4::blue1, 0 },
+	{ LLFastTimer::FTM_REBUILD_NONE_VB,		"       Unknown",	&LLColor4::cyan5, 0 },
+	{ LLFastTimer::FTM_REBUILD_BRIDGE_VB,	"      Bridge",		&LLColor4::blue2, 0 },
+	{ LLFastTimer::FTM_REBUILD_HUD_VB,		"      HUD",			&LLColor4::blue3, 0 },
+	{ LLFastTimer::FTM_REBUILD_TERRAIN_VB,	"      Terrain",		&LLColor4::blue4, 0 },
+	{ LLFastTimer::FTM_REBUILD_WATER_VB,	"      Water",		&LLColor4::blue5, 0 },
+	{ LLFastTimer::FTM_REBUILD_TREE_VB,		"      Tree",		&LLColor4::cyan1, 0 },
+	{ LLFastTimer::FTM_REBUILD_PARTICLE_VB,	"      Particle",	&LLColor4::cyan2, 0 },
+	{ LLFastTimer::FTM_REBUILD_CLOUD_VB,	"      Cloud",		&LLColor4::cyan3, 0 },
+	{ LLFastTimer::FTM_REBUILD_GRASS_VB,	"      Grass",		&LLColor4::cyan4, 0 },
 	{ LLFastTimer::FTM_RENDER_GEOMETRY,		"  Geometry",		&LLColor4::green2, 1 },
-	{ LLFastTimer::FTM_POOLS,				"   Pools",			&LLColor4::green3, 0 },
-	{ LLFastTimer::FTM_POOLRENDER,			"    RenderPool",	&LLColor4::green4, 0 },
+	{ LLFastTimer::FTM_POOLS,				"   Pools",			&LLColor4::green3, 1 },
+	{ LLFastTimer::FTM_POOLRENDER,			"    RenderPool",	&LLColor4::green4, 1 },
 	{ LLFastTimer::FTM_RENDER_TERRAIN,		"     Terrain",		&LLColor4::green6, 0 },
 	{ LLFastTimer::FTM_RENDER_CHARACTERS,	"     Avatars",		&LLColor4::yellow1, 0 },
 	{ LLFastTimer::FTM_RENDER_SIMPLE,		"     Simple",		&LLColor4::yellow2, 0 },
+	{ LLFastTimer::FTM_RENDER_FULLBRIGHT,	"     Fullbright",	&LLColor4::yellow5, 0 },
+	{ LLFastTimer::FTM_RENDER_GRASS,		"     Grass",		&LLColor4::yellow6, 0 },
+	{ LLFastTimer::FTM_RENDER_INVISIBLE,	"     Invisible",	&LLColor4::red2, 0 },
 	{ LLFastTimer::FTM_RENDER_SHINY,		"     Shiny",		&LLColor4::yellow3, 0 },
 	{ LLFastTimer::FTM_RENDER_BUMP,			"     Bump",		&LLColor4::yellow4, 0 },
 	{ LLFastTimer::FTM_RENDER_TREES,		"     Trees",		&LLColor4::yellow8, 0 },
@@ -130,15 +158,16 @@ static struct ft_display_info ft_display_table[] =
 //	{ LLFastTimer::FTM_RENDER_FONTS,		"   Fonts",			&LLColor4::pink1, 0 },
 //	{ LLFastTimer::FTM_UPDATE_TEXTURES,		"  Textures",		&LLColor4::pink2, 0 },
 	{ LLFastTimer::FTM_SWAP,				"  Swap",			&LLColor4::pink1, 0 },
+	{ LLFastTimer::FTM_TEMP6,				"  Client Copy",	&LLColor4::red1, 1},
 	
-//	{ LLFastTimer::FTM_TEMP1,				"  Temp1",			&LLColor4::red1, 0 },
-// 	{ LLFastTimer::FTM_TEMP2,				"  Temp2",			&LLColor4::magenta1, 0 },
-// 	{ LLFastTimer::FTM_TEMP3,				"  Temp3",			&LLColor4::red2, 0 },
-// 	{ LLFastTimer::FTM_TEMP4,				"  Temp4",			&LLColor4::magenta2, 0 },
-//	{ LLFastTimer::FTM_TEMP5,				"  Temp5",			&LLColor4::red3, 0 },
-//	{ LLFastTimer::FTM_TEMP6,				"  Temp6",			&LLColor4::magenta3, 0 },
-//	{ LLFastTimer::FTM_TEMP7,				"  Temp7",			&LLColor4::red4, 0 },
-//	{ LLFastTimer::FTM_TEMP8,				"  Temp8",			&LLColor4::magenta4, 0 },
+//	{ LLFastTimer::FTM_TEMP1,				" Temp1",			&LLColor4::red1, 0 },
+// 	{ LLFastTimer::FTM_TEMP2,				" Temp2",			&LLColor4::magenta1, 0 },
+// 	{ LLFastTimer::FTM_TEMP3,				" Temp3",			&LLColor4::red2, 0 },
+// 	{ LLFastTimer::FTM_TEMP4,				" Temp4",			&LLColor4::magenta2, 0 },
+//	{ LLFastTimer::FTM_TEMP5,				" Temp5",			&LLColor4::red3, 0 },
+//	{ LLFastTimer::FTM_TEMP6,				" Temp6",			&LLColor4::magenta3, 0 },
+//	{ LLFastTimer::FTM_TEMP7,				" Temp7",			&LLColor4::red4, 0 },
+//	{ LLFastTimer::FTM_TEMP8,				" Temp8",			&LLColor4::magenta4, 0 },
 
 	{ LLFastTimer::FTM_OTHER,				" Other",			&red0 }
 };
@@ -148,7 +177,7 @@ static const int FTV_DISPLAY_NUM  = (sizeof(ft_display_table)/sizeof(ft_display_
 S32 ft_display_idx[FTV_DISPLAY_NUM]; // line of table entry for display purposes (for collapse)
 
 LLFastTimerView::LLFastTimerView(const std::string& name, const LLRect& rect)
-:	LLView(name, rect, TRUE)
+	:	LLFloater(name, rect, "Fast Timers")
 {
 	setVisible(FALSE);
 	mDisplayMode = 0;
@@ -891,7 +920,10 @@ void LLFastTimerView::draw()
 			F32 ms = (F32)((F64)max_ticks * iclock_freq);
 			
 			//display y-axis range
-			LLString tdesc = llformat("%4.2f ms", ms);
+			LLString tdesc = mDisplayCalls ? 
+							llformat("%d calls", max_ticks) :
+							llformat("%4.2f ms", ms);
+							
 			x = graph_rect.mRight - LLFontGL::sMonospace->getWidth(tdesc)-5;
 			y = graph_rect.mTop - ((S32)LLFontGL::sMonospace->getLineHeight());
  
@@ -957,6 +989,13 @@ void LLFastTimerView::draw()
 				for (U32 j = 0; j < LLFastTimer::FTM_HISTORY_NUM; j++)
 				{
 					U64 ticks = ticks_sum[j+1][idx];
+					if (mDisplayCalls)
+					{
+						S32 tidx = ft_display_table[idx].timer;
+						S32 hidx = (LLFastTimer::sLastFrameIndex + j) % LLFastTimer::FTM_HISTORY_NUM;
+						ticks = (S32)LLFastTimer::sCallHistory[hidx][tidx];
+					}
+					
 					if (alpha == 1.f)
 					{ //normalize to highlighted timer
 						cur_max = llmax(cur_max, ticks);

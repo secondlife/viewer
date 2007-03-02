@@ -55,61 +55,6 @@ void show_window_creation_error(const char* title)
 {
 	llwarns << title << llendl;
 	shell_open( "help/window_creation_error.html");
-	/*
-	OSMessageBox(
-	"Second Life is unable to run because it can't set up your display.\n"
-	"We need to be able to make a 32-bit color window at 1024x768, with\n"
-	"an 8 bit alpha channel.\n"
-	"\n"
-	"First, be sure your monitor is set to True Color (32-bit) in\n"
-	"Start -> Control Panels -> Display -> Settings.\n"
-	"\n"
-	"Otherwise, this may be due to video card driver issues.\n"
-	"Please make sure you have the latest video card drivers installed.\n"
-	"ATI drivers are available at http://www.ati.com/\n"
-	"nVidia drivers are available at http://www.nvidia.com/\n"
-	"\n"
-	"If you continue to receive this message, contact customer service.",
-	title,
-	OSMB_OK);
-	*/
-}
-
-BOOL check_for_card(const char* RENDERER, const char* bad_card)
-{
-	if(bad_card == NULL)
-	{
-		return FALSE;
-	}
-	if (!strnicmp(RENDERER, bad_card, strlen(bad_card)))	/* Flawfinder: ignore */
-	{
-		char buffer[1024];	/* Flawfinder: ignore */
-		snprintf(buffer, sizeof(buffer), /* Flawfinder: ignore */
-			"Your video card appears to be a %s, which Second Life does not support.\n"
-			"\n"
-			"Second Life requires a video card with 32 Mb of memory or more, as well as\n"
-			"multitexture support.  We explicitly support nVidia GeForce 2 or better, \n"
-			"and ATI Radeon 8500 or better.\n"
-			"\n"
-			"If you own a supported card and continue to receive this message, try \n"
-			"updating to the latest video card drivers. Otherwise look in the\n"
-			"secondlife.com support section or e-mail technical support\n"
-			"\n"
-			"You can try to run Second Life, but it will probably crash or run\n"
-			"very slowly.  Try anyway?",
-			bad_card);
-		S32 button = OSMessageBox(buffer, "Unsupported video card", OSMB_YESNO);
-		if (OSBTN_YES == button)
-		{
-			return FALSE;
-		}
-		else
-		{
-			return TRUE;
-		}
-	}
-
-	return FALSE;
 }
 
 //static
@@ -132,6 +77,7 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 							 BOOL ignore_pixel_depth)
 	: LLWindow(fullscreen, flags)
 {
+	S32 i = 0;
 	mIconResource = gIconResource;
 	mOverrideAspectRatio = 0.f;
 	mNativeAspectRatio = 0.f;
@@ -498,37 +444,6 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 			close();
 			OSMessageBox("Can't activate GL rendering context", "Error", OSMB_OK);
 			return;
-		}
-
-		// Check for some explicitly unsupported cards.
-		const char* RENDERER = (const char*) glGetString(GL_RENDERER);
-
-		const char* CARD_LIST[] = 
-		{	"RAGE 128",
-		"RIVA TNT2",
-		"Intel 810",
-		"3Dfx/Voodoo3",
-		"Radeon 7000",
-		"Radeon 7200",
-		"Radeon 7500",
-		"Radeon DDR",
-		"Radeon VE",
-		"GDI Generic" };
-		const S32 CARD_COUNT = sizeof(CARD_LIST)/sizeof(char*);
-
-		// Future candidates:
-		// ProSavage/Twister
-		// SuperSavage
-
-		S32 i;
-		for (i = 0; i < CARD_COUNT; i++)
-		{
-			if (check_for_card(RENDERER, CARD_LIST[i]))
-			{
-				close();
-				shell_open( "help/unsupported_card.html" );
-				return;
-			}
 		}
 
 		gGLManager.initWGL();

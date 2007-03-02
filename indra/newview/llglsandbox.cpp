@@ -162,14 +162,16 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 	F32 select_dist_squared = gSavedSettings.getF32("MaxSelectDistance");
 	select_dist_squared = select_dist_squared * select_dist_squared;
 
-	x = llround((F32)x * LLUI::sGLScaleFactor.mV[VX]);
-	y = llround((F32)y * LLUI::sGLScaleFactor.mV[VY]);
-
 	BOOL deselect = (mask == MASK_CONTROL);
 	S32 left =	llmin(x, mDragStartX);
 	S32 right =	llmax(x, mDragStartX);
 	S32 top =	llmax(y, mDragStartY);
 	S32 bottom =llmin(y, mDragStartY);
+
+	left = llround((F32) left * LLUI::sGLScaleFactor.mV[VX]);
+	right = llround((F32) right * LLUI::sGLScaleFactor.mV[VX]);
+	top = llround((F32) top * LLUI::sGLScaleFactor.mV[VY]);
+	bottom = llround((F32) bottom * LLUI::sGLScaleFactor.mV[VY]);
 
 	F32 old_far_plane = gCamera->getFar();
 	F32 old_near_plane = gCamera->getNear();
@@ -238,7 +240,7 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 					continue;
 				}
 
-				S32 result = gCamera->sphereInFrustum(drawable->getWorldPosition(), drawable->getRadius());
+				S32 result = gCamera->sphereInFrustum(drawable->getPositionAgent(), drawable->getRadius());
 				switch (result)
 				{
 				case 0:
@@ -261,11 +263,16 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 	{
 		std::vector<LLDrawable*> potentials;
 		
-		if (gPipeline.mObjectPartition) 
+		
+		for (U32 i = 0; i < LLPipeline::NUM_PARTITIONS-1; i++)
 		{
-			gPipeline.mObjectPartition->cull(*gCamera, &potentials, TRUE);
+			LLSpatialPartition* part = gPipeline.getSpatialPartition(i);
+			if (part)
+			{
+				part->cull(*gCamera, &potentials, TRUE);
+			}
 		}
-
+		
 		for (std::vector<LLDrawable*>::iterator iter = potentials.begin();
 			 iter != potentials.end(); iter++)
 		{
@@ -285,7 +292,7 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 				continue;
 			}
 
-			S32 result = gCamera->sphereInFrustum(drawable->getWorldPosition(), drawable->getRadius());
+			S32 result = gCamera->sphereInFrustum(drawable->getPositionAgent(), drawable->getRadius());
 			if (result)
 			{
 				switch (result)
@@ -938,119 +945,6 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 
 	glEnd();
 }
-
-
-const S32 CLIENT_RECT_VPAD = 4;
-void LLPreviewTexture::draw()
-{
-	if( getVisible() )
-	{
-		updateAspectRatio();
-
-		LLPreview::draw();
-
-		if (!mMinimized)
-		{
-			LLGLSUIDefault gls_ui;
-			LLGLSNoTexture gls_notex;
-			
-			const LLRect& border = mClientRect;
-			LLRect interior = mClientRect;
-			interior.stretch( -PREVIEW_BORDER_WIDTH );
-
-			// ...border
-			gl_rect_2d( border, LLColor4(0.f, 0.f, 0.f, 1.f));
-			gl_rect_2d_checkerboard( interior );
-
-			if ( mImage.notNull() )
-			{
-				LLGLSTexture gls_no_texture;
-				// Draw the texture
-				glColor3f( 1.f, 1.f, 1.f );
-				gl_draw_scaled_image(interior.mLeft,
-									interior.mBottom,
-									interior.getWidth(),
-									interior.getHeight(),
-									mImage);
-
-				// Pump the texture priority
-				F32 pixel_area = mLoadingFullImage ? (F32)MAX_IMAGE_AREA  : (F32)(interior.getWidth() * interior.getHeight() );
-				mImage->addTextureStats( pixel_area );
-
-				// Don't bother decoding more than we can display, unless
-				// we're loading the full image.
-				if (!mLoadingFullImage)
-				{
-					S32 int_width = interior.getWidth();
-					S32 int_height = interior.getHeight();
-					mImage->setKnownDrawSize(int_width, int_height);
-				}
-				else
-				{
-					// Don't use this feature
-					mImage->setKnownDrawSize(0, 0);
-				}
-
-				if( mLoadingFullImage )
-				{
-					LLFontGL::sSansSerif->renderUTF8("Receiving:", 0,
-						interior.mLeft + 4, 
-						interior.mBottom + 4,
-						LLColor4::white, LLFontGL::LEFT, LLFontGL::BOTTOM,
-						LLFontGL::DROP_SHADOW);
-					
-					F32 data_progress = 0.0f;
-					F32 decode_progress = mImage->getDecodeProgress(&data_progress);
-					
-					// Draw the progress bar.
-					const S32 BAR_HEIGHT = 12;
-					const S32 BAR_LEFT_PAD = 80;
-					S32 left = interior.mLeft + 4 + BAR_LEFT_PAD;
-					S32 bar_width = mRect.getWidth() - left - RESIZE_HANDLE_WIDTH - 2;
-					S32 top = interior.mBottom + 4 + BAR_HEIGHT;
-					S32 right = left + bar_width;
-					S32 bottom = top - BAR_HEIGHT;
-
-					LLColor4 background_color(0.f, 0.f, 0.f, 0.75f);
-					LLColor4 decoded_color(0.f, 1.f, 0.f, 1.0f);
-					LLColor4 downloaded_color(0.f, 0.5f, 0.f, 1.0f);
-
-					gl_rect_2d(left, top, right, bottom, background_color);
-
-					if (data_progress > 0.0f)
-					{
-						// Decoded bytes
-						right = left + llfloor(decode_progress * (F32)bar_width);
-
-						if (left < right)
-						{
-							gl_rect_2d(left, top, right, bottom, decoded_color);
-						}
-
-						// Downloaded bytes
-						left = right;
-						right = left + llfloor((data_progress - decode_progress) * (F32)bar_width);
-
-						if (left < right)
-						{
-							gl_rect_2d(left, top, right, bottom, downloaded_color);
-						}
-					}
-				}
-				else
-				if( !mSavedFileTimer.hasExpired() )
-				{
-					LLFontGL::sSansSerif->renderUTF8("File Saved", 0,
-						interior.mLeft + 4,
-						interior.mBottom + 4,
-						LLColor4::white, LLFontGL::LEFT, LLFontGL::BOTTOM,
-						LLFontGL::DROP_SHADOW);
-				}
-			}
-		}
-	}
-}
-
 
 void draw_line_cube(F32 width, const LLVector3& center)
 {

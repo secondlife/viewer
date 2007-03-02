@@ -18,6 +18,7 @@
 #include "llhudicon.h"
 #include "llinventory.h"
 #include "llmemory.h"
+#include "llmemtype.h"
 #include "llprimitive.h"
 #include "lluuid.h"
 #include "llvoinventorylistener.h"
@@ -25,6 +26,7 @@
 #include "llquaternion.h"
 #include "v3dmath.h"
 #include "v3math.h"
+#include "llvertexbuffer.h"
 
 class LLAgent;			// TODO: Get rid of this.
 class LLAudioSource;
@@ -168,6 +170,7 @@ public:
 	
 	virtual LLDrawable* createDrawable(LLPipeline *pipeline);
 	virtual BOOL		updateGeometry(LLDrawable *drawable);
+	virtual void		updateFaceSize(S32 idx);
 	virtual BOOL		updateLOD();
 	virtual BOOL		setDrawableParent(LLDrawable* parentp);
 	virtual BOOL		updateLighting(BOOL do_lighting) { return TRUE; };
@@ -184,7 +187,7 @@ public:
 	LLViewerRegion* getRegion() const				{ return mRegionp; }
 
 	BOOL isSelected() const							{ return mUserSelected; }
-	void setSelected(BOOL sel)						{ mUserSelected = sel; mRotTime = 0.f;}
+	virtual void setSelected(BOOL sel)				{ mUserSelected = sel; mRotTime = 0.f;}
 
 	const LLUUID &getID() const						{ return mID; }
 	U32 getLocalID() const							{ return mLocalID; }
@@ -274,8 +277,6 @@ public:
 	/*virtual*/	BOOL	setMaterial(const U8 material);
 	virtual		void	setTEImage(const U8 te, LLViewerImage *imagep); // Not derived from LLPrimitive
 	LLViewerImage		*getTEImage(const U8 te) const;
-
-	S32					getFaceIndexOffset() { return mFaceIndexOffset; }
 	
 	void fitFaceTexture(const U8 face);
 	void sendTEUpdate() const;			// Sends packed representation of all texture entry information
@@ -288,6 +289,8 @@ public:
 	U8 getState()							{ return mState; }
 
 	F32 getAppAngle() const					{ return mAppAngle; }
+	F32 getPixelArea() const				{ return mPixelArea; }
+	void setPixelArea(F32 area)				{ mPixelArea = area; }
 	F32 getMaxScale() const;
 	F32 getMidScale() const;
 	F32 getMinScale() const;
@@ -320,6 +323,7 @@ public:
 	void markForUpdate(BOOL priority);
 	void updateVolume(const LLVolumeParams& volume_params);
 	virtual	void updateSpatialExtents(LLVector3& min, LLVector3& max);
+	virtual F32 getBinRadius();
 	
 	LLBBox				getBoundingBoxAgent() const;
 
@@ -417,6 +421,7 @@ public:
 	void printNameValuePairs() const;
 
 	virtual S32 getLOD() const { return 3; } 
+	virtual U32 getPartitionType() const;
 
 	virtual LLNetworkData* getParameterEntry(U16 param_type) const;
 	virtual bool setParameterEntry(U16 param_type, const LLNetworkData& new_value, bool local_origin);
@@ -528,7 +533,7 @@ protected:
 
 	F64				mLastInterpUpdateSecs;			// Last update for purposes of interpolation
 	F64				mLastMessageUpdateSecs;			// Last update from a message from the simulator
-
+	TPACKETID		mLatestRecvPacketID;			// Latest time stamp on message from simulator
 	// extra data sent from the sim...currently only used for tree species info
 	U8* mData;
 
@@ -559,7 +564,6 @@ protected:
 	BOOL			mOnActiveList;
 	BOOL			mOnMap;						// On the map.
 	BOOL			mStatic;					// Object doesn't move.
-	S32				mFaceIndexOffset;			// offset into drawable's faces, zero except in special cases
 	S32				mNumFaces;
 
 	S32				mLastUpdateFrame;			// frames in which an object had last moved for smart coalescing of drawables 
@@ -592,7 +596,6 @@ private:
 	static S32 sNumObjects;
 };
 
-
 ///////////////////
 //
 // Inlines
@@ -621,6 +624,36 @@ public:
 	LLString mMediaURL;	// for web pages on surfaces, one per prim
 	BOOL mPassedWhitelist;	// user has OK'd display
 	U8 mMediaType;			// see LLTextureEntry::WEB_PAGE, etc.
+};
+
+// subclass of viewer object that can be added to particle partitions
+class LLAlphaObject : public LLViewerObject
+{
+public:
+	LLAlphaObject(const LLUUID &id, const LLPCode type, LLViewerRegion *regionp)
+	: LLViewerObject(id,type,regionp) 
+	{ mDepth = 0.f; }
+
+	virtual BOOL isParticle();
+	virtual F32 getPartSize(S32 idx);
+	virtual void getGeometry(S32 idx,
+								LLStrider<LLVector3>& verticesp,
+								LLStrider<LLVector3>& normalsp, 
+								LLStrider<LLVector2>& texcoordsp,
+								LLStrider<LLColor4U>& colorsp, 
+								LLStrider<U32>& indicesp) = 0;
+
+	F32 mDepth;
+};
+
+class LLStaticViewerObject : public LLViewerObject
+{
+public:
+	LLStaticViewerObject(const LLUUID& id, const LLPCode type, LLViewerRegion* regionp)
+		: LLViewerObject(id,type,regionp)
+	{ }
+
+	virtual void updateDrawable(BOOL force_damped);
 };
 
 #endif

@@ -17,7 +17,7 @@ class LLSurfacePatch;
 class LLViewerImage;
 
 
-class LLVOGrass : public LLViewerObject
+class LLVOGrass : public LLAlphaObject
 {
 public:
 	LLVOGrass(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
@@ -27,6 +27,8 @@ public:
 	static void initClass();
 	static void cleanupClass();
 
+	virtual U32 getPartitionType() const;
+
 	/*virtual*/ U32 processUpdateMessage(LLMessageSystem *mesgsys,
 											void **user_data,
 											U32 block_num, 
@@ -34,11 +36,19 @@ public:
 											LLDataPacker *dp);
 	static void import(FILE *file, LLMessageSystem *mesgsys, const LLVector3 &pos);
 	/*virtual*/ void exportFile(FILE *file, const LLVector3 &position);
-	
+
+	void updateDrawable(BOOL force_damped);
 
 	/*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
 	/*virtual*/ BOOL		updateGeometry(LLDrawable *drawable);
+	/*virtual*/ void		getGeometry(S32 idx,
+								LLStrider<LLVector3>& verticesp,
+								LLStrider<LLVector3>& normalsp, 
+								LLStrider<LLVector2>& texcoordsp,
+								LLStrider<LLColor4U>& colorsp, 
+								LLStrider<U32>& indicesp);
 
+	void updateFaceSize(S32 idx) { }
 	/*virtual*/ void updateTextures(LLAgent &agent);											
 	/*virtual*/ BOOL updateLOD();
 	/*virtual*/ void setPixelAreaAndAngle(LLAgent &agent); // generate accurate apparent angle and area

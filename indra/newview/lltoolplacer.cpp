@@ -152,7 +152,6 @@ LLPCode LLToolPlacerPanel::sSphere		= LL_PCODE_SPHERE;
 LLPCode LLToolPlacerPanel::sSphereHemi	= LL_PCODE_SPHERE_HEMI;
 LLPCode LLToolPlacerPanel::sTree		= LL_PCODE_LEGACY_TREE;
 LLPCode LLToolPlacerPanel::sGrass		= LL_PCODE_LEGACY_GRASS;
-LLPCode LLToolPlacerPanel::sTreeNew		= LL_PCODE_TREE_NEW;
 
 S32			LLToolPlacerPanel::sButtonsAdded = 0;
 LLButton*	LLToolPlacerPanel::sButtons[ TOOL_PLACER_NUM_BUTTONS ];

@@ -1056,10 +1056,10 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
 		mJointScales[joint] = bone_info->mScaleDeformation;
 
 		// apply to children that need to inherit it
-		for (	LLViewerJoint *child_joint = (LLViewerJoint *)joint->mChildren.getFirstData();
-				child_joint != NULL;
-				child_joint = (LLViewerJoint *)joint->mChildren.getNextData() )
+		for (LLJoint::child_list_t::iterator iter = joint->mChildren.begin();
+			 iter != joint->mChildren.end(); ++iter)
 		{
+			LLViewerJoint* child_joint = (LLViewerJoint*)(*iter);
 			if (child_joint->inheritScale())
 			{
 				LLVector3 childDeformation = LLVector3(child_joint->getScale());

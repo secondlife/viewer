@@ -335,7 +335,7 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
 		{
 			// Perhaps this stuff should be inside a method in LLTransferPacket?
 			// I'm too lazy to do it now, though.
-			llinfos << "Playing back delayed packet " << packet_id << llendl;
+// 			llinfos << "Playing back delayed packet " << packet_id << llendl;
 			LLTransferPacket *packetp = ttp->mDelayedPacketMap[packet_id];
 
 			// This is somewhat inefficient, but avoids us having to duplicate
@@ -455,6 +455,8 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
 			ttcp->deleteTransfer(ttp);
 			return;
 		}
+#if 0
+		// Spammy!
 		const S32 LL_TRANSFER_WARN_GAP = 10;
 		if(!ttp->gotInfo())
 		{
@@ -468,6 +470,7 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
 				<< " from " << msgp->getSender() << ", got " << packet_id
 				<< " expecting " << ttp->getNextPacketID() << llendl;
 		}
+#endif
 		return;
 	}
 
@@ -508,7 +511,7 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
 		{
 			// Perhaps this stuff should be inside a method in LLTransferPacket?
 			// I'm too lazy to do it now, though.
-			llinfos << "Playing back delayed packet " << packet_id << llendl;
+// 			llinfos << "Playing back delayed packet " << packet_id << llendl;
 			LLTransferPacket *packetp = ttp->mDelayedPacketMap[packet_id];
 
 			// This is somewhat inefficient, but avoids us having to duplicate

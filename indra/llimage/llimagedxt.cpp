@@ -265,8 +265,7 @@ BOOL LLImageDXT::decode(LLImageRaw* raw_image, F32 time)
 	return TRUE;
 }
 
-// virtual
-BOOL LLImageDXT::requestDecodedData(LLPointer<LLImageRaw>& raw, S32 discard, F32 decode_time)
+BOOL LLImageDXT::getMipData(LLPointer<LLImageRaw>& raw, S32 discard)
 {
 	if (discard < 0)
 	{
@@ -281,11 +280,6 @@ BOOL LLImageDXT::requestDecodedData(LLPointer<LLImageRaw>& raw, S32 discard, F32
 	calcDiscardWidthHeight(discard, mFileFormat, width, height);
 	raw = new LLImageRaw(data, width, height, getComponents());
 	return TRUE;
-}
-
-void LLImageDXT::releaseDecodedData()
-{
-	// nothing to do
 }
 
 BOOL LLImageDXT::encode(const LLImageRaw* raw_image, F32 time, bool explicit_mips)
@@ -426,6 +420,7 @@ bool LLImageDXT::convertToDXR()
 	dxtfile_header_t* header = (dxtfile_header_t*)newdata;
 	header->pixel_fmt.fourcc = getFourCC(newformat);
 	setData(newdata, total_bytes);
+	updateData();
 	return true;
 }
 

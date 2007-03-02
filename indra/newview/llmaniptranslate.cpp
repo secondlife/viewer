@@ -40,6 +40,7 @@
 #include "llworld.h"
 #include "viewer.h"
 #include "llui.h"
+#include "pipeline.h"
 
 const S32 NUM_AXES = 3;
 const S32 MOUSE_DRAG_SLOP = 2;       // pixels
@@ -404,6 +405,8 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 		}
 	}
 
+	LLViewerObject	*object;
+
 	// Suppress processing if mouse hasn't actually moved.
 	// This may cause problems if the camera moves outside of the
 	// rotation above.
@@ -450,7 +453,6 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 
 	LLVector3		axis_f;
 	LLVector3d		axis_d;
-	LLViewerObject	*object;
 
 	// pick the first object to constrain to grid w/ common origin
 	// this is so we don't screw up groups
@@ -631,7 +633,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 		selectNode = mObjectSelection->getNextNode() )
 	{
 		object = selectNode->getObject();
-
+		
 		// Only apply motion to root objects and objects selected
 		// as "individual".
 		if (!object->isRootEdit() && !selectNode->mIndividualSelection)
@@ -762,27 +764,12 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 					send_update = TRUE;
 				}
 			}
+			selectNode->mLastPositionLocal  = object->getPosition();
 		}
-	}
-
-	// Handle throttling to 10 updates per second.
-	F32 elapsed_time = mUpdateTimer.getElapsedTimeF32();
-	const F32 UPDATE_DELAY = 0.1f;						//  min time between transmitted updates
-	if (send_update && (elapsed_time > UPDATE_DELAY))
-	{
-		gSelectMgr->sendMultipleUpdate(UPD_POSITION);
-		mUpdateTimer.reset();
-		mSendUpdateOnMouseUp = FALSE;
-	}
-	else
-	{
-		// ...suppressed update
-		mSendUpdateOnMouseUp = TRUE;
 	}
 
 	gSelectMgr->updateSelectionCenter();
 	gAgent.clearFocusObject();
-	//gAgent.setObjectTracking(FALSE);
 	dialog_refresh_all();		// ??? is this necessary?
 
 	lldebugst(LLERR_USER_INPUT) << "hover handled by LLManipTranslate (active)" << llendl;
@@ -1039,17 +1026,8 @@ BOOL LLManipTranslate::handleMouseUp(S32 x, S32 y, MASK mask)
 	gSelectMgr->enableSilhouette(TRUE);
 
 	// Might have missed last update due to UPDATE_DELAY timing.
-	if (mSendUpdateOnMouseUp)
-	{
-		gSelectMgr->sendMultipleUpdate( UPD_POSITION );
-		mSendUpdateOnMouseUp = FALSE;
-	}
-
-//	if (mCopyMadeThisDrag)
-//	{
-//		gSelectMgr->clearGridObjects();
-//	}
-
+	gSelectMgr->sendMultipleUpdate( UPD_POSITION );
+	
 	mInSnapRegime = FALSE;
 	gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
 	//gAgent.setObjectTracking(gSavedSettings.getBOOL("TrackFocusObject"));
@@ -1122,6 +1100,30 @@ void LLManipTranslate::renderSnapGuides()
 	//pick appropriate projection plane for snap rulers according to relative camera position
 	if (mManipPart >= LL_X_ARROW && mManipPart <= LL_Z_ARROW)
 	{
+		LLVector3 normal;
+		LLColor4 inner_color;
+		LLManip::EManipPart temp_manip = mManipPart;
+		switch (mManipPart)
+		{
+		case LL_X_ARROW:
+			normal.setVec(1,0,0);
+			inner_color.setVec(0,1,1,line_alpha);
+			mManipPart = LL_YZ_PLANE;
+			break;
+		case LL_Y_ARROW:
+			normal.setVec(0,1,0);
+			inner_color.setVec(1,0,1,line_alpha);
+			mManipPart = LL_XZ_PLANE;
+			break;
+		case LL_Z_ARROW:
+			normal.setVec(0,0,1);
+			inner_color.setVec(1,1,0,line_alpha);
+			mManipPart = LL_XY_PLANE;
+			break;
+		}
+
+		highlightIntersection(normal, selection_center, grid_rotation, inner_color);
+		mManipPart = temp_manip;
 		getManipAxis(first_object, mManipPart, translate_axis);
 
 		LLVector3 at_axis_abs;
@@ -1438,18 +1440,13 @@ void LLManipTranslate::renderSnapGuides()
 		// render gridlines for planar snapping
 
 		F32 u = 0, v = 0;
-		glPushMatrix();
-
-		F32 x,y,z,angle_radians;
-		grid_rotation.getAngleAxis(&angle_radians, &x, &y, &z);
-		glTranslatef(selection_center.mV[VX], selection_center.mV[VY], selection_center.mV[VZ]);
-		glRotatef(angle_radians * RAD_TO_DEG, x, y, z);
-
+        LLColor4 inner_color;
+		LLVector3 normal;
 		LLVector3 grid_center = selection_center - grid_origin;
-		grid_center *= ~grid_rotation;
-		
 		F32 usc = 1;
 		F32 vsc = 1;
+		
+		grid_center *= ~grid_rotation;
 
 		switch (mManipPart)
 		{
@@ -1458,23 +1455,38 @@ void LLManipTranslate::renderSnapGuides()
 			v = grid_center.mV[VZ];
 			usc = grid_scale.mV[VY];
 			vsc = grid_scale.mV[VZ];
+			inner_color.setVec(0,1,1,line_alpha);
+			normal.setVec(1,0,0);
 			break;
 		case LL_XZ_PLANE:
 			u = grid_center.mV[VX];
 			v = grid_center.mV[VZ];
 			usc = grid_scale.mV[VX];
 			vsc = grid_scale.mV[VZ];
+			inner_color.setVec(1,0,1,line_alpha);
+			normal.setVec(0,1,0);
 			break;
 		case LL_XY_PLANE:
 			u = grid_center.mV[VX];
 			v = grid_center.mV[VY];
 			usc = grid_scale.mV[VX];
 			vsc = grid_scale.mV[VY];
+			inner_color.setVec(1,1,0,line_alpha);
+			normal.setVec(0,0,1);
 			break;
 		default:
 			break;
 		}
 
+		highlightIntersection(normal, selection_center, grid_rotation, inner_color);
+
+		glPushMatrix();
+
+		F32 x,y,z,angle_radians;
+		grid_rotation.getAngleAxis(&angle_radians, &x, &y, &z);
+		glTranslatef(selection_center.mV[VX], selection_center.mV[VY], selection_center.mV[VZ]);
+		glRotatef(angle_radians * RAD_TO_DEG, x, y, z);
+		
 		F32 sz = mGridSizeMeters;
 		F32 tiles = sz;
 		glMatrixMode(GL_TEXTURE);
@@ -1591,6 +1603,104 @@ void LLManipTranslate::renderGrid(F32 x, F32 y, F32 size, F32 r, F32 g, F32 b, F
 	
 }
 
+void LLManipTranslate::highlightIntersection(LLVector3 normal, 
+											 LLVector3 selection_center, 
+											 LLQuaternion grid_rotation, 
+											 LLColor4 inner_color)
+{
+	if (!gSavedSettings.getBOOL("GridCrossSections"))
+	{
+		return;
+	}
+	
+	U32 types[] = { LLRenderPass::PASS_SIMPLE, LLRenderPass::PASS_ALPHA, LLRenderPass::PASS_FULLBRIGHT };
+
+	GLuint stencil_mask = 0xFFFFFFFF;
+	//stencil in volumes
+	{
+		glStencilMask(stencil_mask);
+		glClearStencil(1);
+		glClear(GL_STENCIL_BUFFER_BIT);
+		LLGLEnable cull_face(GL_CULL_FACE);
+		LLGLEnable stencil(GL_STENCIL_TEST);
+		LLGLDepthTest depth (GL_TRUE, GL_FALSE, GL_ALWAYS);
+		glStencilFunc(GL_ALWAYS, 0, stencil_mask);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+        LLGLDisable tex(GL_TEXTURE_2D);
+		glColor4f(1,1,1,1);
+
+		//setup clip plane
+		normal = normal * grid_rotation;
+		if (normal * (gCamera->getOrigin()-selection_center) < 0)
+		{
+			normal = -normal;
+		}
+		F32 d = -(selection_center * normal);
+		F64 plane[] = { normal.mV[0], normal.mV[1], normal.mV[2], d };
+		LLGLEnable clip(GL_CLIP_PLANE0);
+		glClipPlane(GL_CLIP_PLANE0, plane);
+
+		BOOL particles = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES);
+		BOOL clouds = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS);
+		
+		if (particles)
+		{
+			LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_PARTICLES);
+		}
+		if (clouds)
+		{
+			LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_CLOUDS);
+		}
+		
+		//stencil in volumes
+		glStencilOp(GL_INCR, GL_INCR, GL_INCR);
+		glCullFace(GL_FRONT);
+		for (U32 i = 0; i < 3; i++)
+		{
+			gPipeline.renderObjects(types[i], LLVertexBuffer::MAP_VERTEX, FALSE);
+		}
+
+		glStencilOp(GL_DECR, GL_DECR, GL_DECR);
+		glCullFace(GL_BACK);
+		for (U32 i = 0; i < 3; i++)
+		{
+			gPipeline.renderObjects(types[i], LLVertexBuffer::MAP_VERTEX, FALSE);
+		}
+		
+		if (particles)
+		{
+			LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_PARTICLES);
+		}
+		if (clouds)
+		{
+			LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_CLOUDS);
+		}
+
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	}
+
+	glPushMatrix();
+
+	F32 x,y,z,angle_radians;
+	grid_rotation.getAngleAxis(&angle_radians, &x, &y, &z);
+	glTranslatef(selection_center.mV[VX], selection_center.mV[VY], selection_center.mV[VZ]);
+	glRotatef(angle_radians * RAD_TO_DEG, x, y, z);
+	
+	F32 sz = mGridSizeMeters;
+	F32 tiles = sz;
+
+	//draw volume/plane intersections
+	{
+		LLGLDisable tex(GL_TEXTURE_2D);
+		LLGLDepthTest depth(GL_FALSE);
+		LLGLEnable stencil(GL_STENCIL_TEST);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+		glStencilFunc(GL_EQUAL, 0, stencil_mask);
+		renderGrid(0,0,tiles,inner_color.mV[0], inner_color.mV[1], inner_color.mV[2], 0.25f);
+	}
+
+	glPopMatrix();
+}
 
 void LLManipTranslate::renderText()
 {

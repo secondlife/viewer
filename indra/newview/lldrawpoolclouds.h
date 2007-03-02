@@ -14,6 +14,16 @@
 class LLDrawPoolClouds : public LLDrawPool
 {
 public:
+	enum
+	{
+		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
+							LLVertexBuffer::MAP_NORMAL |
+							LLVertexBuffer::MAP_TEXCOORD
+	};
+
+	BOOL addFace(LLFace* face);
+	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+
 	LLDrawPoolClouds();
 
 	/*virtual*/ void prerender();

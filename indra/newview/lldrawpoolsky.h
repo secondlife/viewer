@@ -14,13 +14,21 @@
 class LLSkyTex;
 class LLHeavenBody;
 
-class LLDrawPoolSky : public LLDrawPool
+class LLDrawPoolSky : public LLFacePool
 {
 private:
 	LLSkyTex			*mSkyTex;
 	LLHeavenBody		*mHB[2]; // Sun and Moon
 
 public:
+	enum
+	{
+		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
+							LLVertexBuffer::MAP_TEXCOORD
+	};
+
+	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+
 	LLDrawPoolSky();
 
 	/*virtual*/ LLDrawPool *instancePool();
@@ -33,8 +41,8 @@ public:
 	void setMoon(LLHeavenBody* moon) { mHB[1] = moon; }
 
 	void renderSkyCubeFace(U8 side);
-	void renderHeavenlyBody(U8 hb, const LLFace* face);
-	void renderSunHalo(const LLFace* face);
+	void renderHeavenlyBody(U8 hb, LLFace* face);
+	void renderSunHalo(LLFace* face);
 
 	virtual S32 getMaterialAttribIndex() { return 0; }
 };

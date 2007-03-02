@@ -32,9 +32,6 @@ class LLQuaternion;
 
 
 static const U32 NUM_VALUES_IN_MAT3	= 3;
-#if LL_WINDOWS
-__declspec( align(16) )
-#endif
 class LLMatrix3
 {
 	public:
@@ -119,11 +116,7 @@ class LLMatrix3
 		friend const LLMatrix3& operator*=(LLMatrix3 &a, const LLMatrix3 &b);				// Return a * b
 
 		friend std::ostream&	 operator<<(std::ostream& s, const LLMatrix3 &a);	// Stream a
-}
-#if LL_DARWIN
-__attribute__ ((aligned (16)))
-#endif
-;
+};
 
 inline LLMatrix3::LLMatrix3(void)
 {

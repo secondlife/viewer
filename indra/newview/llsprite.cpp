@@ -75,14 +75,7 @@ void LLSprite::updateFace(LLFace &face)
 	// First, figure out how many vertices/indices we need.
 	U32 num_vertices, num_indices;
 	U32 vertex_count = 0;
-
-
-	LLStrider<LLVector3> verticesp;
-	LLStrider<LLVector3> normalsp;
-	LLStrider<LLVector2> tex_coordsp;
-	U32 *indicesp;
-	S32 index_offset;
-
+	
 	// Get the total number of vertices and indices
 	if (mFollow)
 	{
@@ -95,14 +88,7 @@ void LLSprite::updateFace(LLFace &face)
 		num_indices = 12;
 	}
 
-	// Setup face
-	face.setPrimType(LLTriangles);
 	face.setSize(num_vertices, num_indices);
-	index_offset = face.getGeometry(verticesp,normalsp,tex_coordsp, indicesp);
-	if (-1 == index_offset)
-	{
-		return;
-	}
 	
 	if (mFollow) 
 	{
@@ -187,7 +173,30 @@ void LLSprite::updateFace(LLFace &face)
 	}
 
 	face.setFaceColor(mColor);
-	
+
+	LLStrider<LLVector3> verticesp;
+	LLStrider<LLVector3> normalsp;
+	LLStrider<LLVector2> tex_coordsp;
+	LLStrider<U32> indicesp;
+	S32 index_offset;
+
+	// Setup face
+	if (face.mVertexBuffer.isNull())
+	{	
+		face.mVertexBuffer = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | 
+												LLVertexBuffer::MAP_TEXCOORD,
+												GL_STREAM_DRAW_ARB);
+		face.mVertexBuffer->allocateBuffer(4, 12, TRUE);
+		face.setGeomIndex(0);
+		face.setIndicesIndex(0);
+	}
+		
+	index_offset = face.getGeometry(verticesp,normalsp,tex_coordsp, indicesp);
+	if (-1 == index_offset)
+	{
+		return;
+	}
+
 	*tex_coordsp = LLVector2(0.f, 0.f);
 	*verticesp = mC;
 	tex_coordsp++;
@@ -232,6 +241,7 @@ void LLSprite::updateFace(LLFace &face)
 		*indicesp++ = 3 + index_offset;
 	}
 
+	//face.mVertexBuffer->setBuffer(0);
 	face.mCenterAgent = mPosition;
 }
 

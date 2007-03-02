@@ -18,12 +18,10 @@
 #include "m4math.h"
 
 #include "llagent.h"
-#include "llagparray.h"
 #include "llcubemap.h"
 #include "lldrawable.h"
 #include "lldrawpoolsimple.h"
 #include "llface.h"
-#include "llgl.h"
 #include "llsky.h"
 #include "lltextureentry.h"
 #include "llviewercamera.h"
@@ -45,9 +43,11 @@ LLBumpImageList gBumpImageList;
 
 const S32 STD_BUMP_LATEST_FILE_VERSION = 1;
 
-S32 LLDrawPoolBump::sBumpTex = -1;
-S32 LLDrawPoolBump::sDiffTex = -1;
-S32 LLDrawPoolBump::sEnvTex = -1;
+const U32 VERTEX_MASK_SHINY = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_COLOR;
+const U32 VERTEX_MASK_BUMP = LLVertexBuffer::MAP_VERTEX |LLVertexBuffer::MAP_TEXCOORD | LLVertexBuffer::MAP_TEXCOORD2;
+
+U32 LLDrawPoolBump::sVertexMask = VERTEX_MASK_SHINY;
+static LLCubeMap* sCubeMap = NULL;
 
 // static 
 void LLStandardBumpmap::init()
@@ -109,7 +109,7 @@ void LLStandardBumpmap::restoreGL()
 			return;
 		}
 
-		llinfos << "Loading bumpmap: " << bump_file << " from viewerart" << llendl;
+// 		llinfos << "Loading bumpmap: " << bump_file << " from viewerart" << llendl;
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mLabel = label;
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage = gImageList.getImage( LLUUID(gViewerArt.getString(bump_file)) );
 		LLStandardBumpmap::sStandardBumpmapCount++;
@@ -133,15 +133,9 @@ void LLStandardBumpmap::destroyGL()
 
 ////////////////////////////////////////////////////////////////
 
-LLDrawPoolBump::LLDrawPoolBump(LLViewerImage *texturep) :
-	LLDrawPool(POOL_BUMP, DATA_BUMP_IL_MASK | DATA_COLORS_MASK, DATA_SIMPLE_NIL_MASK),
-	mTexturep(texturep)
+LLDrawPoolBump::LLDrawPoolBump() 
+: LLRenderPass(LLDrawPool::POOL_BUMP)
 {
-}
-
-LLDrawPool *LLDrawPoolBump::instancePool()
-{
-	return new LLDrawPoolBump(mTexturep);
 }
 
 
@@ -150,51 +144,16 @@ void LLDrawPoolBump::prerender()
 	mVertexShaderLevel = gPipeline.getVertexShaderLevel(LLPipeline::SHADER_OBJECT);
 }
 
-BOOL LLDrawPoolBump::match(LLFace* last_face, LLFace* facep)  
-{
-	if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_CHAIN_FACES) &&
-		!last_face->isState(LLFace::LIGHT | LLFace::FULLBRIGHT) &&
-		!facep->isState(LLFace::LIGHT | LLFace::FULLBRIGHT) &&
-		facep->getIndicesStart() == last_face->getIndicesStart()+last_face->getIndicesCount() &&
-		facep->getRenderColor() == last_face->getRenderColor() &&
-		facep->getTextureEntry()->getShiny() == last_face->getTextureEntry()->getShiny() &&
-		facep->getTextureEntry()->getBumpmap() == last_face->getTextureEntry()->getBumpmap())
-	{
-		if (facep->isState(LLFace::GLOBAL))
-		{
-			if (last_face->isState(LLFace::GLOBAL))
-			{
-				return TRUE;
-			}
-		}
-		else
-		{
-			if (!last_face->isState(LLFace::GLOBAL))
-			{
-				if (last_face->getRenderMatrix() == facep->getRenderMatrix())
-				{
-					return TRUE;
-				}
-			}
-		}
-	}
-	
-	return FALSE;
-}
-
 // static
 S32 LLDrawPoolBump::numBumpPasses()
 {
-	if (gPipeline.getVertexShaderLevel(LLPipeline::SHADER_OBJECT) > 0)
+	if (gSavedSettings.getBOOL("RenderObjectBump"))
 	{
-		return 1; // single pass for shaders
+		return 2;
 	}
-	else
+    else
 	{
-		if (gSavedSettings.getBOOL("RenderObjectBump"))
-			return 3;
-		else
-			return 1;
+		return 0;
 	}
 }
 
@@ -208,13 +167,10 @@ void LLDrawPoolBump::beginRenderPass(S32 pass)
 	switch( pass )
 	{
 		case 0:
-			beginPass0(this);
+			beginShiny();
 			break;
 		case 1:
-			beginPass1();
-			break;
-		case 2:
-			beginPass2();
+			beginBump();
 			break;
 		default:
 			llassert(0);
@@ -225,66 +181,17 @@ void LLDrawPoolBump::beginRenderPass(S32 pass)
 void LLDrawPoolBump::render(S32 pass)
 {
 	LLFastTimer t(LLFastTimer::FTM_RENDER_BUMP);
-	if (!mTexturep)
-	{
-		return;
-	}
-
-	if (mDrawFace.empty())
-	{
-		return;
-	}
-
-	const U32* index_array = getRawIndices();
 	
-	S32 indices = 0;
 	switch( pass )
 	{
 	  case 0:
 	  {
-		  stop_glerror();
-		  
-		  bindGLVertexPointer();
-		  bindGLTexCoordPointer();
-		  bindGLNormalPointer();
-		  if (gPipeline.getLightingDetail() >= 2)
-		  {
-			  bindGLColorPointer();
-		  }
-
-		  stop_glerror();
-		  
-		  LLGLState alpha_test(GL_ALPHA_TEST, FALSE);
-		  LLGLState blend(GL_BLEND, FALSE);
-		  LLViewerImage* tex = getTexture();
-		  if (tex && tex->getPrimaryFormat() == GL_ALPHA)
-		  {
-			  // Enable Invisibility Hack
-			  alpha_test.enable();
-			  blend.enable();
-		  }
-		  indices += renderPass0(this, mDrawFace, index_array, mTexturep);
+		  renderShiny();
 		  break;
 	  }
 	  case 1:
 	  {
-		  bindGLVertexPointer();
-		  bindGLNormalPointer();
-		  indices += renderPass1(mDrawFace, index_array, mTexturep);
-		  break;
-	  }
-	  case 2:
-	  {
-		  bindGLVertexPointer();
-		  // Texture unit 0
-		  glActiveTextureARB(GL_TEXTURE0_ARB);
-		  glClientActiveTextureARB(GL_TEXTURE0_ARB);
-		  bindGLTexCoordPointer();
-		  // Texture unit 1
-		  glActiveTextureARB(GL_TEXTURE1_ARB);
-		  glClientActiveTextureARB(GL_TEXTURE1_ARB);
-		  bindGLTexCoordPointer(1);
-		  indices += renderPass2(mDrawFace, index_array, mTexturep);
+		  renderBump();
 		  break;
 	  }
 	  default:
@@ -293,7 +200,6 @@ void LLDrawPoolBump::render(S32 pass)
 		  break;
 	  }
 	}
-	mIndicesDrawn += indices;
 }
 
 void LLDrawPoolBump::endRenderPass(S32 pass)
@@ -301,13 +207,10 @@ void LLDrawPoolBump::endRenderPass(S32 pass)
 	switch( pass )
 	{
 		case 0:
-			endPass0(this);
+			endShiny();
 			break;
 		case 1:
-			endPass1();
-			break;
-		case 2:
-			endPass2();
+			endBump();
 			break;
 		default:
 			llassert(0);
@@ -316,163 +219,13 @@ void LLDrawPoolBump::endRenderPass(S32 pass)
 }
 
 //static
-void LLDrawPoolBump::beginPass0(LLDrawPool* pool)
+void LLDrawPoolBump::beginShiny()
 {
-	stop_glerror();
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	if (gPipeline.getLightingDetail() >= 2)
-	{
-		glEnableClientState(GL_COLOR_ARRAY);
-	}
-
-	if (pool->getVertexShaderLevel() > 0)
-	{
-		enable_binormals(gPipeline.mObjectBumpProgram.mAttribute[LLPipeline::GLSL_BINORMAL]);
-
-		sEnvTex = gPipeline.mObjectBumpProgram.enableTexture(LLPipeline::GLSL_ENVIRONMENT_MAP, GL_TEXTURE_CUBE_MAP_ARB);
-		LLCubeMap* cube_map = gSky.mVOSkyp->getCubeMap();
-		if (sEnvTex >= 0 && cube_map)
-		{
-			cube_map->bind();
-			cube_map->setMatrix(1);
-		}
-		
-		sBumpTex = gPipeline.mObjectBumpProgram.enableTexture(LLPipeline::GLSL_BUMP_MAP);
-		sDiffTex = gPipeline.mObjectBumpProgram.enableTexture(LLPipeline::GLSL_DIFFUSE_MAP);
-		S32 scatterTex = gPipeline.mObjectBumpProgram.enableTexture(LLPipeline::GLSL_SCATTER_MAP);
-		LLViewerImage::bindTexture(gSky.mVOSkyp->getScatterMap(), scatterTex);
-	}
-	stop_glerror();
-}
-
-//static
-S32 LLDrawPoolBump::renderPass0(LLDrawPool* pool, face_array_t& face_list, const U32* index_array, LLViewerImage* tex)
-{
-	if (!tex)
-	{
-		return 0;
-	}
-	
-	if (face_list.empty())
-	{
-		return 0;
-	}
-
-	stop_glerror();
-
-	S32 res = 0;
-	if (pool->getVertexShaderLevel() > 0)
-	{
-		LLFastTimer t(LLFastTimer::FTM_RENDER_BUMP);
-		pool->bindGLBinormalPointer(gPipeline.mObjectBumpProgram.mAttribute[LLPipeline::GLSL_BINORMAL]);
-		
-		LLViewerImage::bindTexture(tex, sDiffTex);
-
-		//single pass shader driven shiny/bump
-		LLGLDisable(GL_ALPHA_TEST);
-
-		LLViewerImage::sWhiteImagep->bind(sBumpTex);
-		
-		GLfloat alpha[4] =
-		{
-			0.00f,
-			0.25f,
-			0.5f,
-			0.75f
-		};
-
-		LLImageGL* last_bump = NULL;
-
-		for (std::vector<LLFace*>::iterator iter = face_list.begin();
-			 iter != face_list.end(); iter++)
-		{
-			LLFace *facep = *iter;
-			if (facep->mSkipRender)
-			{
-				continue;
-			}
-			
-			const LLTextureEntry* te = facep->getTextureEntry();
-			if (te)
-			{
-				U8 index = te->getShiny();
-				LLColor4 col = te->getColor();
-				
-				gPipeline.mObjectBumpProgram.vertexAttrib4f(LLPipeline::GLSL_MATERIAL_COLOR,
-					col.mV[0], col.mV[1], col.mV[2], alpha[index]);
-				gPipeline.mObjectBumpProgram.vertexAttrib4f(LLPipeline::GLSL_SPECULAR_COLOR, 
-					alpha[index], alpha[index], alpha[index], alpha[index]);
-
-				LLImageGL* bump = getBumpMap(te, tex);
-				if (bump != last_bump)
-				{
-					if (bump)
-					{
-						bump->bind(sBumpTex);
-					}
-					else
-					{
-						LLViewerImage::sWhiteImagep->bind(sBumpTex);
-					}
-				}
-				last_bump = bump;
-
-				// Draw the geometry
-				facep->enableLights();
-				res += facep->renderIndexed(index_array);
-				stop_glerror();
-			}
-			else
-			{
-				llwarns << "DrawPoolBump has face with invalid texture entry." << llendl;
-			}
-		}
-	}
-	else
-	{
-		LLFastTimer t(LLFastTimer::FTM_RENDER_SIMPLE);
-		LLViewerImage::bindTexture(tex);
-		res = LLDrawPool::drawLoop(face_list, index_array);
-	}
-	return res;
-}
-
-//static
-void LLDrawPoolBump::endPass0(LLDrawPool* pool)
-{
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-
-	if (pool->getVertexShaderLevel() > 0)
-	{
-		gPipeline.mObjectBumpProgram.disableTexture(LLPipeline::GLSL_ENVIRONMENT_MAP, GL_TEXTURE_CUBE_MAP_ARB);
-		LLCubeMap* cube_map = gSky.mVOSkyp->getCubeMap();
-		if (sEnvTex >= 0 && cube_map)
-		{
-			cube_map->restoreMatrix();
-		}
-		
-		gPipeline.mObjectBumpProgram.disableTexture(LLPipeline::GLSL_SCATTER_MAP);
-		gPipeline.mObjectBumpProgram.disableTexture(LLPipeline::GLSL_BUMP_MAP);
-		gPipeline.mObjectBumpProgram.disableTexture(LLPipeline::GLSL_DIFFUSE_MAP);
-
-		disable_binormals(gPipeline.mObjectBumpProgram.mAttribute[LLPipeline::GLSL_BINORMAL]);
-		
-		glActiveTextureARB(GL_TEXTURE0_ARB);
-		glEnable(GL_TEXTURE_2D);
-	}
-}
-
-
-//static
-void LLDrawPoolBump::beginPass1()
-{
+	sVertexMask = VERTEX_MASK_SHINY;
 	// Second pass: environment map
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
 
 	LLCubeMap* cube_map = gSky.mVOSkyp->getCubeMap();
 	if( cube_map )
@@ -480,87 +233,156 @@ void LLDrawPoolBump::beginPass1()
 		cube_map->enable(0);
 		cube_map->setMatrix(0);
 		cube_map->bind();
+
+		if (gPipeline.getVertexShaderLevel(LLPipeline::SHADER_OBJECT) > 0)
+		{
+			LLMatrix4 mat;
+			glGetFloatv(GL_MODELVIEW_MATRIX, (F32*) mat.mMatrix);
+			gPipeline.mObjectShinyProgram.bind();
+			LLVector3 vec = LLVector3(gPipeline.mShinyOrigin) * mat;
+			LLVector4 vec4(vec, gPipeline.mShinyOrigin.mV[3]);
+			glUniform4fvARB(gPipeline.mObjectShinyProgram.mUniform[LLPipeline::GLSL_SHINY_ORIGIN], 1,
+				vec4.mV);
+		}
+		else
+		{
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,	GL_COMBINE_ARB);
+			
+			//use RGB from texture
+			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,	GL_REPLACE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,	GL_TEXTURE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,	GL_SRC_COLOR);
+
+			// use alpha from color
+			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB,		GL_REPLACE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_PRIMARY_COLOR);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
+		}
 	}
 }
 
-//static
-S32 LLDrawPoolBump::renderPass1(face_array_t& face_list, const U32* index_array, LLViewerImage* tex)
+void LLDrawPoolBump::renderShiny()
 {
 	LLFastTimer t(LLFastTimer::FTM_RENDER_SHINY);
-	if (gPipeline.getVertexShaderLevel(LLPipeline::SHADER_OBJECT) > 0) //everything happens in pass0
-	{
-		return 0;
-	}
+	
+	sCubeMap = NULL;
 
-	S32 res = 0;
 	if( gSky.mVOSkyp->getCubeMap() )
 	{
-		//LLGLSPipelineAlpha gls;
-		//LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_EQUAL);
 		LLGLEnable blend_enable(GL_BLEND);
-		
-		GLfloat alpha[4] =
-		{
-			0.00f,
-			0.25f,
-			0.5f,
-			0.75f
-		};
+		renderStatic(LLRenderPass::PASS_SHINY, sVertexMask);
+		renderActive(LLRenderPass::PASS_SHINY, sVertexMask);
+	}
+}
 
-		for (std::vector<LLFace*>::iterator iter = face_list.begin();
-			 iter != face_list.end(); iter++)
+void LLDrawPoolBump::renderActive(U32 type, U32 mask, BOOL texture)
+{
+#if !LL_RELEASE_FOR_DOWNLOAD
+	LLGLState::checkClientArrays(mask);
+#endif
+
+	LLSpatialBridge* last_bridge = NULL;
+	glPushMatrix();
+	
+	for (LLSpatialGroup::sg_vector_t::iterator i = gPipeline.mActiveGroups.begin(); i != gPipeline.mActiveGroups.end(); ++i)
+	{
+		LLSpatialGroup* group = *i;
+		if (!group->isDead() &&
+			gPipeline.hasRenderType(group->mSpatialPartition->mDrawableType) &&
+			group->mDrawMap.find(type) != group->mDrawMap.end())
 		{
-			LLFace *facep = *iter;
-			if (facep->mSkipRender)
+			LLSpatialBridge* bridge = (LLSpatialBridge*) group->mSpatialPartition;
+			if (bridge != last_bridge)
 			{
-				continue;
-			}
-			
-			const LLTextureEntry* te = facep->getTextureEntry();
-			if (te)
-			{
-				U8 index = te->getShiny();
-				if( index > 0 )
+				glPopMatrix();
+				glPushMatrix();
+				glMultMatrixf((F32*) bridge->mDrawable->getRenderMatrix().mMatrix);
+				last_bridge = bridge;
+
+				if (LLPipeline::sDynamicReflections)
 				{
-					LLOverrideFaceColor override_color(facep->getPool(), 1, 1, 1, alpha[index]);
-				
-					// Draw the geometry
-					facep->enableLights();
-					res += facep->renderIndexed(index_array);
-					stop_glerror();
+					LLSpatialPartition* part = gPipeline.getSpatialPartition(LLPipeline::PARTITION_VOLUME);
+					LLSpatialGroup::OctreeNode* node = part->mOctree->getNodeAt(LLVector3d(bridge->mDrawable->getPositionAgent()), 32.0);
+					if (node)
+					{
+						sCubeMap = ((LLSpatialGroup*) node->getListener(0))->mReflectionMap;
+					}
 				}
+			}
+
+			renderGroup(group,type,mask,texture);
+		}
+	}
+	
+	glPopMatrix();
+}
+
+
+
+void LLDrawPoolBump::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE)
+{					
+	std::vector<LLDrawInfo*>& draw_info = group->mDrawMap[type];
+	
+	for (std::vector<LLDrawInfo*>::const_iterator k = draw_info.begin(); k != draw_info.end(); ++k)
+	{
+		LLDrawInfo& params = **k;
+		if (LLPipeline::sDynamicReflections)
+		{
+			if (params.mReflectionMap.notNull())
+			{
+				params.mReflectionMap->bind();
 			}
 			else
 			{
-				llwarns << "DrawPoolBump has face with invalid texture entry." << llendl;
+				if (sCubeMap)
+				{
+					sCubeMap->bind();
+				}
+				else
+				{
+					gSky.mVOSkyp->getCubeMap()->bind();
+				}
 			}
 		}
+		
+		params.mVertexBuffer->setBuffer(mask);
+		U32* indices_pointer = (U32*) params.mVertexBuffer->getIndicesPointer();
+		glDrawRangeElements(GL_TRIANGLES, params.mStart, params.mEnd, params.mCount,
+							GL_UNSIGNED_INT, indices_pointer+params.mOffset);
+		gPipeline.mTrianglesDrawn += params.mCount/3;
 	}
-	return res;
 }
 
-//static
-void LLDrawPoolBump::endPass1()
+void LLDrawPoolBump::endShiny()
 {
 	LLCubeMap* cube_map = gSky.mVOSkyp->getCubeMap();
 	if( cube_map )
 	{
 		cube_map->disable();
 		cube_map->restoreMatrix();
+
+		if (gPipeline.getVertexShaderLevel(LLPipeline::SHADER_OBJECT) > 0)
+		{
+			gPipeline.mObjectShinyProgram.unbind();
+		}
+
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_MODULATE);
 	}
 	
 	LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
-	
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 }
 
 
 // static
-LLImageGL* LLDrawPoolBump::getBumpMap(const LLTextureEntry* te, LLViewerImage* tex)
+BOOL LLDrawPoolBump::bindBumpMap(LLDrawInfo& params)
 {
-	U32 bump_code = te->getBumpmap();
 	LLImageGL* bump = NULL;
+
+	U8 bump_code = params.mBump;
+	LLViewerImage* tex = params.mTexture;
 
 	switch( bump_code )
 	{
@@ -579,28 +401,33 @@ LLImageGL* LLDrawPoolBump::getBumpMap(const LLTextureEntry* te, LLViewerImage* t
 		if( bump_code < LLStandardBumpmap::sStandardBumpmapCount )
 		{
 			bump = gStandardBumpmapList[bump_code].mImage;
+			gBumpImageList.addTextureStats(bump_code, tex->getID(), params.mVSize, 1, 1);
 		}
 		break;
 	}
 
-	return bump;
+	if (bump)
+	{
+		bump->bind(1);
+		bump->bind(0);
+		return TRUE;
+	}
+	return FALSE;
 }
 
 //static
-void LLDrawPoolBump::beginPass2()
+void LLDrawPoolBump::beginBump()
 {	
+	sVertexMask = VERTEX_MASK_BUMP;
 	LLFastTimer t(LLFastTimer::FTM_RENDER_BUMP);
-	// Optional third pass: emboss bump map
+	// Optional second pass: emboss bump map
 	stop_glerror();
 
 	// TEXTURE UNIT 0
 	// Output.rgb = texture at texture coord 0
 	glActiveTextureARB(GL_TEXTURE0_ARB);
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
-
-	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,	GL_COMBINE_ARB);
 	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,	GL_REPLACE);
@@ -613,14 +440,10 @@ void LLDrawPoolBump::beginPass2()
 	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_TEXTURE);
 	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
 
-
 	// TEXTURE UNIT 1
 	glActiveTextureARB(GL_TEXTURE1_ARB);
 	glClientActiveTextureARB(GL_TEXTURE1_ARB);
-	
-	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
 
 	glEnable(GL_TEXTURE_2D); // Texture unit 1
 
@@ -650,68 +473,25 @@ void LLDrawPoolBump::beginPass2()
 	//		= dst.rgb + dst.rgb * (bump0 - bump1)
 	glBlendFunc(GL_DST_COLOR, GL_SRC_COLOR);
 //	glBlendFunc(GL_ONE, GL_ZERO);  // temp
-
+	glActiveTextureARB(GL_TEXTURE0_ARB);
 	stop_glerror();
 }
 
 //static
-S32 LLDrawPoolBump::renderPass2(face_array_t& face_list, const U32* index_array, LLViewerImage* tex)
+void LLDrawPoolBump::renderBump()
 {
-	if (gPipeline.getVertexShaderLevel(LLPipeline::SHADER_OBJECT) > 0) //everything happens in pass0
-	{
-		return 0;
-	}
-
+	LLFastTimer ftm(LLFastTimer::FTM_RENDER_BUMP);
 	LLGLDisable fog(GL_FOG);
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_EQUAL);
 	LLGLEnable tex2d(GL_TEXTURE_2D);
 	LLGLEnable blend(GL_BLEND);
-	S32 res = 0;
-
-	LLImageGL* last_bump = NULL;
-
-	for (std::vector<LLFace*>::iterator iter = face_list.begin();
-		 iter != face_list.end(); iter++)
-	{
-		LLFace *facep = *iter;
-		if (facep->mSkipRender)
-		{
-			continue;
-		}
-		LLOverrideFaceColor override_color(facep->getPool(), 1,1,1,1);
-	
-		const LLTextureEntry* te = facep->getTextureEntry();
-		LLImageGL* bump = getBumpMap(te, tex);
-		
-		if( bump )
-		{
-			if( bump != last_bump )
-			{
-				last_bump = bump;
-
-				// Texture unit 0
-				bump->bind(0);
-				stop_glerror();
-
-				// Texture unit 1
-				bump->bind(1);
-				stop_glerror();
-			}
-
-			// Draw the geometry
-			res += facep->renderIndexed(index_array);
-			stop_glerror();
-		}
-		else
-		{
-// 			llwarns << "Skipping invalid bump code " << (S32) te->getBumpmap() << llendl;
-		}
-	}
-	return res;
+	glColor4f(1,1,1,1);
+	renderBump(LLRenderPass::PASS_BUMP, sVertexMask);
+	renderBumpActive(LLRenderPass::PASS_BUMP, sVertexMask);
 }
 
 //static
-void LLDrawPoolBump::endPass2()
+void LLDrawPoolBump::endBump()
 {
 	// Disable texture unit 1
 	glActiveTextureARB(GL_TEXTURE1_ARB);
@@ -727,67 +507,6 @@ void LLDrawPoolBump::endPass2()
 	glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-}
-
-
-void LLDrawPoolBump::renderForSelect()
-{
-	if (mDrawFace.empty() || !mMemory.count())
-	{
-		return;
-	}
-
-	glEnableClientState ( GL_VERTEX_ARRAY );
-
-	bindGLVertexPointer();
-
-	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-		 iter != mDrawFace.end(); iter++)
-	{
-		LLFace *facep = *iter;
-		if (facep->getDrawable() && !facep->getDrawable()->isDead() && (facep->getViewerObject()->mGLName))
-		{
-			facep->renderForSelect();
-		}
-	}
-}
-
-
-void LLDrawPoolBump::renderFaceSelected(LLFace *facep, 
-										LLImageGL *image, 
-										const LLColor4 &color,
-										const S32 index_offset, const S32 index_count)
-{
-	facep->renderSelected(image, color, index_offset, index_count);
-}
-
-
-void LLDrawPoolBump::dirtyTexture(const LLViewerImage *texturep)
-{
-	if (mTexturep == texturep)
-	{
-		for (std::vector<LLFace*>::iterator iter = mReferences.begin();
-			 iter != mReferences.end(); iter++)
-		{
-			LLFace *facep = *iter;
-			gPipeline.markTextured(facep->getDrawable());
-		}
-	}
-}
-
-LLViewerImage *LLDrawPoolBump::getTexture()
-{
-	return mTexturep;
-}
-
-LLViewerImage *LLDrawPoolBump::getDebugTexture()
-{
-	return mTexturep;
-}
-
-LLColor3 LLDrawPoolBump::getDebugColor() const
-{
-	return LLColor3(1.f, 1.f, 0.f);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1113,25 +832,93 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerImage *src_vi, LLIma
 	}
 }
 
-S32 LLDrawPoolBump::getMaterialAttribIndex()
+void LLDrawPoolBump::renderBumpActive(U32 type, U32 mask)
 {
-	return gPipeline.mObjectBumpProgram.mAttribute[LLPipeline::GLSL_MATERIAL_COLOR];
+#if !LL_RELEASE_FOR_DOWNLOAD
+	LLGLState::checkClientArrays(mask);
+#endif
+
+	LLSpatialBridge* last_bridge = NULL;
+	glPushMatrix();
+	
+	for (LLSpatialGroup::sg_vector_t::iterator i = gPipeline.mActiveGroups.begin(); i != gPipeline.mActiveGroups.end(); ++i)
+	{
+		LLSpatialGroup* group = *i;
+		if (!group->isDead() && 
+			group->mSpatialPartition->mRenderByGroup &&
+			group->mDrawMap.find(type) != group->mDrawMap.end())
+		{
+			LLSpatialBridge* bridge = (LLSpatialBridge*) group->mSpatialPartition;
+			if (bridge != last_bridge)
+			{
+				glPopMatrix();
+				glPushMatrix();
+				glMultMatrixf((F32*) bridge->mDrawable->getRenderMatrix().mMatrix);
+				last_bridge = bridge;
+			}
+
+			renderGroupBump(group,type,mask);
+		}
+	}
+	
+	glPopMatrix();
 }
 
-// virtual
-void LLDrawPoolBump::enableShade()
-{
-	glDisableClientState(GL_COLOR_ARRAY);
+void LLDrawPoolBump::renderBump(U32 type, U32 mask)
+{	
+#if !LL_RELEASE_FOR_DOWNLOAD
+	LLGLState::checkClientArrays(mask);
+#endif
+
+	std::vector<LLDrawInfo*>& draw_info = gPipeline.mRenderMap[type];
+
+	for (std::vector<LLDrawInfo*>::iterator i = draw_info.begin(); i != draw_info.end(); ++i)
+	{
+		LLDrawInfo& params = **i;
+
+		if (LLDrawPoolBump::bindBumpMap(params))
+		{
+			pushBatch(params, mask, FALSE);
+		}
+	}
 }
 
-// virtual
-void LLDrawPoolBump::disableShade()
-{
-	glEnableClientState(GL_COLOR_ARRAY);
+void LLDrawPoolBump::renderGroupBump(LLSpatialGroup* group, U32 type, U32 mask)
+{					
+	const std::vector<LLDrawInfo*>& draw_info = group->mDrawMap[type];
+	
+	for (std::vector<LLDrawInfo*>::const_iterator k = draw_info.begin(); k != draw_info.end(); ++k)
+	{
+		LLDrawInfo& params = **k;
+		
+		if (LLDrawPoolBump::bindBumpMap(params))
+		{
+			pushBatch(params, mask, FALSE);
+		}
+	}
 }
 
-// virtual
-void LLDrawPoolBump::setShade(F32 shade)
+void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 {
-	glColor4f(0,0,0,shade);
+	if (params.mTextureMatrix)
+	{
+		glActiveTextureARB(GL_TEXTURE1_ARB);
+		glMatrixMode(GL_TEXTURE);
+		glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
+		glActiveTextureARB(GL_TEXTURE0_ARB);
+		glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
+	}
+	params.mVertexBuffer->setBuffer(mask);
+	U32* indices_pointer = (U32*) params.mVertexBuffer->getIndicesPointer();
+	glDrawRangeElements(GL_TRIANGLES, params.mStart, params.mEnd, params.mCount,
+						GL_UNSIGNED_INT, indices_pointer+params.mOffset);
+	gPipeline.mTrianglesDrawn += params.mCount/3;
+	if (params.mTextureMatrix)
+	{
+		glActiveTextureARB(GL_TEXTURE1_ARB);
+		glLoadIdentity();
+		glActiveTextureARB(GL_TEXTURE0_ARB);
+		glLoadIdentity();
+		glMatrixMode(GL_MODELVIEW);
+	}
 }

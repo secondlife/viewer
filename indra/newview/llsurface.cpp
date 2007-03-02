@@ -31,7 +31,7 @@
 #include "noise.h"
 #include "llviewercamera.h"
 #include "llglheaders.h"
-#include "lldrawpool.h"
+#include "lldrawpoolterrain.h"
 #include "lldrawable.h"
 
 extern LLPipeline gPipeline;
@@ -101,7 +101,7 @@ LLSurface::~LLSurface()
 	mNumberOfPatches = 0;
 	destroyPatchData();
 
-	LLDrawPool *poolp = gPipeline.findPool(LLDrawPool::POOL_TERRAIN, mSTexturep);
+	LLDrawPoolTerrain *poolp = (LLDrawPoolTerrain*) gPipeline.findPool(LLDrawPool::POOL_TERRAIN, mSTexturep);
 	if (!poolp)
 	{
 		llwarns << "No pool for terrain on destruction!" << llendl;
@@ -312,7 +312,6 @@ void LLSurface::setOriginGlobal(const LLVector3d &origin_global)
 		LLVector3d water_origin_global(x, y, z);
 
 		mWaterObjp->setPositionGlobal(water_origin_global);
-		gPipeline.markMoved(mWaterObjp->mDrawable);
 	}
 }
 
@@ -602,45 +601,45 @@ void LLSurface::updatePatchVisibilities(LLAgent &agent)
 	}
 }
 
-
-
-BOOL LLSurface::idleUpdate()
+BOOL LLSurface::idleUpdate(F32 max_update_time)
 {
 	if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_TERRAIN))
 	{
-		return TRUE;
+		return FALSE;
 	}
 	
 	// Perform idle time update of non-critical stuff.
 	// In this case, texture and normal updates.
 	LLTimer update_timer;
-	LLSurfacePatch *patchp = NULL;
+	BOOL did_update = FALSE;
 
 	// If the Z height data has changed, we need to rebuild our
 	// property line vertex arrays.
-	if (mDirtyPatchList.count() > 0)
+	if (mDirtyPatchList.size() > 0)
 	{
 		getRegion()->dirtyHeights();
 	}
 
-	S32 i = 0;
-	while (i < mDirtyPatchList.count())
+	// Always call updateNormals() / updateVerticalStats()
+	//  every frame to avoid artifacts
+	for(std::set<LLSurfacePatch *>::iterator iter = mDirtyPatchList.begin();
+		iter != mDirtyPatchList.end(); )
 	{
-		patchp = mDirtyPatchList[i];
+		std::set<LLSurfacePatch *>::iterator curiter = iter++;
+		LLSurfacePatch *patchp = *curiter;
 		patchp->updateNormals();
 		patchp->updateVerticalStats();
-
-		if ((update_timer.getElapsedTimeF32() < 0.05f) && patchp->updateTexture())
+		if (max_update_time == 0.f || update_timer.getElapsedTimeF32() < max_update_time)
 		{
-			patchp->clearDirty();
-			mDirtyPatchList.remove(i);
-		}
-		else
-		{
-			i++;
+			if (patchp->updateTexture())
+			{
+				did_update = TRUE;
+				patchp->clearDirty();
+				mDirtyPatchList.erase(curiter);
+			}
 		}
 	}
-	return TRUE;
+	return did_update;
 }
 
 // TODO -- move this to LLViewerRegion class
@@ -1210,10 +1209,7 @@ void LLSurface::dirtyAllPatches()
 void LLSurface::dirtySurfacePatch(LLSurfacePatch *patchp)
 {
 	// Put surface patch on dirty surface patch list
-	if (-1 == mDirtyPatchList.find(patchp))
-	{
-		mDirtyPatchList.put(patchp);
-	}
+	mDirtyPatchList.insert(patchp);
 }
 
 

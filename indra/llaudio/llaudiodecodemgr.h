@@ -19,7 +19,6 @@
 class LLVFS;
 class LLVorbisDecodeState;
 
-
 class LLAudioDecodeMgr
 {
 public:
@@ -27,19 +26,12 @@ public:
 	~LLAudioDecodeMgr();
 
 	void processQueue(const F32 num_secs = 0.005);
-
-	LLLinkedQueue<LLUUID> mDecodeQueue;
-
-	LLVorbisDecodeState *mCurrentDecodep;
-
 	BOOL addDecodeRequest(const LLUUID &uuid);
 	void addAudioRequest(const LLUUID &uuid);
-
-	S32 getRequestCount();
 	
 protected:
-	LLLinkedQueue<LLUUID> mDownloadQueue;
-	LLFrameTimer mCurrentTransferAge;
+	class Impl;
+	Impl* mImpl;
 };
 
 extern LLAudioDecodeMgr *gAudioDecodeMgrp;

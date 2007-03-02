@@ -22,7 +22,6 @@ class LLTreeState
 public:
 	LLTreeState(LLTreeNode<T>* node)				{ setNode(node); }
 	virtual ~LLTreeState() { };
-	
 	virtual bool insert(T* data) = 0;
 	virtual bool remove(T* data) = 0;
 	virtual void setNode(LLTreeNode<T>* node);
@@ -35,7 +34,7 @@ private:
 };
 
 template <class T>
-class LLTreeListener
+class LLTreeListener: public LLRefCount
 {
 public:
 	virtual ~LLTreeListener() { };
@@ -75,7 +74,7 @@ protected:
 	
 	LLTreeState<T>* mState;
 public:
-	std::vector<LLTreeListener<T>*> mListeners;
+	std::vector<LLPointer<LLTreeListener<T> > > mListeners;
 };
 
 template <class T>

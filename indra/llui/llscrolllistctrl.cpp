@@ -2720,7 +2720,7 @@ void LLScrollListCtrl::setFocus(BOOL b)
 	if (!getFirstSelected())
 	{
 		selectFirstItem();
-		onCommit();
+		//onCommit(); // SJB: selectFirstItem() will call onCommit() if appropriate
 	}
 	LLUICtrl::setFocus(b);
 }

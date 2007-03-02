@@ -10,6 +10,8 @@
 
 #include "llvosurfacepatch.h"
 
+#include "lldrawpoolterrain.h"
+
 #include "lldrawable.h"
 #include "llface.h"
 #include "llprimitive.h"
@@ -22,8 +24,52 @@
 #include "llvovolume.h"
 #include "pipeline.h"
 
+//============================================================================
+
+class LLVertexBufferTerrain : public LLVertexBuffer
+{
+public:
+	LLVertexBufferTerrain() :
+		LLVertexBuffer(MAP_VERTEX | MAP_NORMAL | MAP_TEXCOORD | MAP_TEXCOORD2 | MAP_COLOR, GL_DYNAMIC_DRAW_ARB)
+	{
+	};
+
+	// virtual
+	void setupVertexBuffer(U32 data_mask) const
+	{		
+		if (LLDrawPoolTerrain::getDetailMode() == 0)
+		{
+			LLVertexBuffer::setupVertexBuffer(data_mask);
+		}
+		else if (data_mask & LLVertexBuffer::MAP_TEXCOORD2)
+		{
+			U8* base = useVBOs() ? NULL : mMappedData;
+	
+			glVertexPointer(3,GL_FLOAT, mStride, (void*)(base + 0));
+			glNormalPointer(GL_FLOAT, mStride, (void*)(base + mOffsets[TYPE_NORMAL]));
+			glColorPointer(4, GL_UNSIGNED_BYTE, mStride, (void*)(base + mOffsets[TYPE_COLOR]));
+		
+			glClientActiveTextureARB(GL_TEXTURE3_ARB);
+			glTexCoordPointer(2,GL_FLOAT, mStride, (void*)(base + mOffsets[TYPE_TEXCOORD2]));
+			glClientActiveTextureARB(GL_TEXTURE2_ARB);
+			glTexCoordPointer(2,GL_FLOAT, mStride, (void*)(base + mOffsets[TYPE_TEXCOORD2]));
+			glClientActiveTextureARB(GL_TEXTURE1_ARB);
+			glTexCoordPointer(2,GL_FLOAT, mStride, (void*)(base + mOffsets[TYPE_TEXCOORD2]));
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+			glTexCoordPointer(2,GL_FLOAT, mStride, (void*)(base + mOffsets[TYPE_TEXCOORD2]));
+		}
+		else
+		{
+			LLVertexBuffer::setupVertexBuffer(data_mask);
+		}
+		llglassertok();		
+	}
+};
+
+//============================================================================
+
 LLVOSurfacePatch::LLVOSurfacePatch(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
-:	LLViewerObject(id, LL_VO_SURFACE_PATCH, regionp)
+:	LLStaticViewerObject(id, LL_VO_SURFACE_PATCH, regionp)
 {
 	// Terrain must draw during selection passes so it can block objects behind it.
 	mbCanSelect = TRUE;
@@ -76,9 +122,9 @@ void LLVOSurfacePatch::updateTextures(LLAgent &agent)
 }
 
 
-LLDrawPool *LLVOSurfacePatch::getPool()
+LLFacePool *LLVOSurfacePatch::getPool()
 {
-	mPool = gPipeline.getPool(LLDrawPool::POOL_TERRAIN, mPatchp->getSurface()->getSTexture());
+	mPool = (LLDrawPoolTerrain*) gPipeline.getPool(LLDrawPool::POOL_TERRAIN, mPatchp->getSurface()->getSTexture());
 
 	return mPool;
 }
@@ -106,15 +152,18 @@ LLDrawable *LLVOSurfacePatch::createDrawable(LLPipeline *pipeline)
 		range = 3;
 	}
 
-	LLDrawPool *poolp = getPool();
+	LLFacePool *poolp = getPool();
 
 	mDrawable->addFace(poolp, NULL);
+
 	return mDrawable;
 }
 
 
 BOOL LLVOSurfacePatch::updateGeometry(LLDrawable *drawable)
 {
+	LLFastTimer ftm(LLFastTimer::FTM_UPDATE_TERRAIN);
+
 	S32 min_comp, max_comp, range;
 	min_comp = lltrunc(mPatchp->getMinComposition());
 	max_comp = lltrunc(ceil(mPatchp->getMaxComposition()));
@@ -166,57 +215,63 @@ BOOL LLVOSurfacePatch::updateGeometry(LLDrawable *drawable)
 		east_stride = render_stride;
 	}
 
-	S32 num_vertices = 0;
-	S32 num_indices = 0;
-	S32 new_north_offset = 0;
-	S32 new_east_offset = 0;
+	mLastLength = length;
+	mLastStride = render_stride;
+	mLastNorthStride = north_stride;
+	mLastEastStride = east_stride;
 
-	getGeomSizesMain(render_stride, num_vertices, num_indices);
-	new_north_offset = num_vertices;
-	getGeomSizesNorth(render_stride, north_stride, num_vertices, num_indices);
-	new_east_offset = num_vertices;
-	getGeomSizesEast(render_stride, east_stride, num_vertices, num_indices);
-	S32 new_num_vertices = num_vertices;
-	S32 new_num_indices = num_indices;
+	return TRUE;
+}
 
-	LLFace *facep = NULL;
-
-	// Update the allocated face
-	LLStrider<LLVector3> verticesp;
-	LLStrider<LLVector3> normalsp;
-	LLStrider<LLVector2> texCoords0p;
-	LLStrider<LLVector2> texCoords1p;
-	LLStrider<LLColor4U> colorsp;
-	U32*       indicesp = NULL;
-	S32 index_offset;
-
-	facep = mDrawable->getFace(0);
-
-	facep->setSize(new_num_vertices, new_num_indices);
-	facep->setPrimType(LLTriangles);
-
-	index_offset = facep->getGeometryTerrain(
-							     verticesp,
-								 normalsp,
-								 colorsp,
-								 texCoords0p,
-								 texCoords1p,
-								 indicesp);
-	if (-1 == index_offset)
+void LLVOSurfacePatch::updateFaceSize(S32 idx)
+{
+	if (idx != 0)
 	{
-		return TRUE;
+		llwarns << "Terrain partition requested invalid face!!!" << llendl;
+		return;
 	}
 
-	mDrawable->updateLightSet();
+	LLFace* facep = mDrawable->getFace(idx);
+
+	S32 num_vertices = 0;
+	S32 num_indices = 0;
+	
+	if (mLastStride)
+	{
+		getGeomSizesMain(mLastStride, num_vertices, num_indices);
+		getGeomSizesNorth(mLastStride, mLastNorthStride, num_vertices, num_indices);
+		getGeomSizesEast(mLastStride, mLastEastStride, num_vertices, num_indices);
+	}
+
+	facep->setSize(num_vertices, num_indices);	
+}
+
+BOOL LLVOSurfacePatch::updateLOD()
+{
+	//mDrawable->updateLightSet();
+	mDrawable->setState(LLDrawable::LIGHTING_BUILT);
+	return TRUE;
+}
+
+void LLVOSurfacePatch::getGeometry(LLStrider<LLVector3> &verticesp,
+								LLStrider<LLVector3> &normalsp,
+								LLStrider<LLColor4U> &colorsp,
+								LLStrider<LLVector2> &texCoords0p,
+								LLStrider<LLVector2> &texCoords1p,
+								LLStrider<U32> &indicesp)
+{
+	LLFace* facep = mDrawable->getFace(0);
+
+	U32 index_offset = facep->getGeomIndex();
 
 	updateMainGeometry(facep, 
-					   verticesp,
-					   normalsp,
-					   colorsp,
-					   texCoords0p,
-					   texCoords1p,
-					   indicesp,
-					   index_offset);
+					verticesp,
+					normalsp,
+					colorsp,
+					texCoords0p,
+					texCoords1p,
+					indicesp,
+					index_offset);
 	updateNorthGeometry(facep, 
 						verticesp,
 						normalsp,
@@ -233,24 +288,6 @@ BOOL LLVOSurfacePatch::updateGeometry(LLDrawable *drawable)
 						texCoords1p,
 						indicesp,
 						index_offset);
-
-	if (mLastLength != 0)
-	{
-		// lazy, should cache the geom sizes so we know the offsets.
-		num_vertices = 0;
-		num_indices = 0;
-
-	}
-
-	mLastLength = length;
-	mLastStride = render_stride;
-	mLastNorthStride = north_stride;
-	mLastEastStride = east_stride;
-
-	mDrawable->setState(LLDrawable::LIGHTING_BUILT);
-	
-	LLPipeline::sCompiles++;
-	return TRUE;
 }
 
 void LLVOSurfacePatch::updateMainGeometry(LLFace *facep,
@@ -259,8 +296,8 @@ void LLVOSurfacePatch::updateMainGeometry(LLFace *facep,
 										LLStrider<LLColor4U> &colorsp,
 										LLStrider<LLVector2> &texCoords0p,
 										LLStrider<LLVector2> &texCoords1p,
-										U32* &indicesp,
-										S32 &index_offset)
+										LLStrider<U32> &indicesp,
+										U32 &index_offset)
 {
 	S32 i, j, x, y;
 
@@ -268,7 +305,7 @@ void LLVOSurfacePatch::updateMainGeometry(LLFace *facep,
 	S32 num_vertices, num_indices;
 	U32 index;
 
-	render_stride = mPatchp->getRenderStride();
+	render_stride = mLastStride;
 	patch_size = mPatchp->getSurface()->getGridsPerPatchEdge();
 	S32 vert_size = patch_size / render_stride;
 
@@ -364,29 +401,20 @@ void LLVOSurfacePatch::updateNorthGeometry(LLFace *facep,
 										LLStrider<LLColor4U> &colorsp,
 										LLStrider<LLVector2> &texCoords0p,
 										LLStrider<LLVector2> &texCoords1p,
-										U32* &indicesp,
-										S32 &index_offset)
+										LLStrider<U32> &indicesp,
+										U32 &index_offset)
 {
 	S32 vertex_count = 0;
 	S32 i, x, y;
 
 	S32 num_vertices, num_indices;
 
-	U32 render_stride = mPatchp->getRenderStride();
+	U32 render_stride = mLastStride;
 	S32 patch_size = mPatchp->getSurface()->getGridsPerPatchEdge();
 	S32 length = patch_size / render_stride;
 	S32 half_length = length / 2;
-
-	U32 north_stride;
-	if (mPatchp->getNeighborPatch(NORTH))
-	{
-		north_stride = mPatchp->getNeighborPatch(NORTH)->getRenderStride();
-	}
-	else
-	{
-		north_stride = render_stride;
-	}
-
+	U32 north_stride = mLastNorthStride;
+	
 	///////////////////////////
 	//
 	// Render the north strip
@@ -586,27 +614,19 @@ void LLVOSurfacePatch::updateEastGeometry(LLFace *facep,
 										  LLStrider<LLColor4U> &colorsp,
 										  LLStrider<LLVector2> &texCoords0p,
 										  LLStrider<LLVector2> &texCoords1p,
-										  U32* &indicesp,
-										  S32 &index_offset)
+										  LLStrider<U32> &indicesp,
+										  U32 &index_offset)
 {
 	S32 i, x, y;
 
 	S32 num_vertices, num_indices;
 
-	U32 render_stride = mPatchp->getRenderStride();
+	U32 render_stride = mLastStride;
 	S32 patch_size = mPatchp->getSurface()->getGridsPerPatchEdge();
 	S32 length = patch_size / render_stride;
 	S32 half_length = length / 2;
 
-	U32 east_stride;
-	if (mPatchp->getNeighborPatch(EAST))
-	{
-		east_stride = mPatchp->getNeighborPatch(EAST)->getRenderStride();
-	}
-	else
-	{
-		east_stride = render_stride;
-	}
+	U32 east_stride = mLastEastStride;
 
 	// Stride lengths are the same
 	if (east_stride == render_stride)
@@ -825,10 +845,6 @@ void LLVOSurfacePatch::setPatch(LLSurfacePatch *patchp)
 
 void LLVOSurfacePatch::dirtyPatch()
 {
-	if (mDrawable)
-	{
-		gPipeline.markMoved(mDrawable);
-	}
 	mDirtiedPatch = TRUE;
 	dirtyGeom();
 	mDirtyTerrain = TRUE;
@@ -846,6 +862,8 @@ void LLVOSurfacePatch::dirtyGeom()
 	if (mDrawable)
 	{
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+		mDrawable->getFace(0)->mVertexBuffer = NULL;
+		mDrawable->movePartition();
 	}
 }
 
@@ -918,7 +936,67 @@ void LLVOSurfacePatch::updateSpatialExtents(LLVector3& newMin, LLVector3 &newMax
 {
 	LLVector3 posAgent = getPositionAgent();
 	LLVector3 scale = getScale();
-	newMin = posAgent-scale;
-	newMax = posAgent+scale;
+	newMin = posAgent-scale*0.5f;
+	newMax = posAgent+scale*0.5f;
 	mDrawable->setPositionGroup((newMin+newMax)*0.5f);
 }
+
+U32 LLVOSurfacePatch::getPartitionType() const
+{ 
+	return LLPipeline::PARTITION_TERRAIN; 
+}
+
+LLTerrainPartition::LLTerrainPartition()
+: LLSpatialPartition(LLDrawPoolTerrain::VERTEX_DATA_MASK)
+{
+	mRenderByGroup = FALSE;
+	mBufferUsage = GL_DYNAMIC_DRAW_ARB;
+	mDrawableType = LLPipeline::RENDER_TYPE_TERRAIN;
+	mPartitionType = LLPipeline::PARTITION_TERRAIN;
+}
+
+LLVertexBuffer* LLTerrainPartition::createVertexBuffer(U32 type_mask, U32 usage)
+{
+	return new LLVertexBufferTerrain();
+}
+
+void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
+{
+	LLVertexBuffer* buffer = group->mVertexBuffer;
+
+	//get vertex buffer striders
+	LLStrider<LLVector3> vertices;
+	LLStrider<LLVector3> normals;
+	LLStrider<LLVector2> texcoords2;
+	LLStrider<LLVector2> texcoords;
+	LLStrider<LLColor4U> colors;
+	LLStrider<U32> indices;
+
+	buffer->getVertexStrider(vertices);
+	buffer->getNormalStrider(normals);
+	buffer->getTexCoordStrider(texcoords);
+	buffer->getTexCoord2Strider(texcoords2);
+	buffer->getColorStrider(colors);
+	buffer->getIndexStrider(indices);
+
+	U32 indices_index = 0;
+	U32 index_offset = 0;
+
+	for (std::vector<LLFace*>::iterator i = mFaceList.begin(); i != mFaceList.end(); ++i)
+	{
+		LLFace* facep = *i;
+
+		facep->setIndicesIndex(indices_index);
+		facep->setGeomIndex(index_offset);
+		facep->mVertexBuffer = buffer;
+
+		LLVOSurfacePatch* patchp = (LLVOSurfacePatch*) facep->getViewerObject();
+		patchp->getGeometry(vertices, normals, colors, texcoords, texcoords2, indices);
+
+		indices_index += facep->getIndicesCount();
+		index_offset += facep->getGeomCount();
+	}
+
+	mFaceList.clear();
+}
+

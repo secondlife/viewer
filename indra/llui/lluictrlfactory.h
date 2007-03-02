@@ -55,6 +55,8 @@ public:
 	// do not call!  needs to be public so run-time can clean up the singleton
 	virtual ~LLUICtrlFactory();
 
+	void setupPaths();
+	
 	void buildFloater(LLFloater* floaterp, const LLString &filename, 
 						const LLCallbackMap::map_t* factory_map = NULL, BOOL open = TRUE);
 

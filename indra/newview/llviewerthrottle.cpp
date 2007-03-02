@@ -18,11 +18,7 @@
 
 // consts
 
-// The viewer is allowed to set the under-the-hood bandwidth to 50%
-// greater than the prefs UI shows, under the assumption that the
-// viewer won't receive all the different message types at once.
-// I didn't design this, don't know who did. JC
-const F32 MAX_FRACTIONAL = 1.5f;
+const F32 MAX_FRACTIONAL = 1.0f; // was 1.5, which was causing packet loss, reduced to 1.0 - SJB
 const F32 MIN_FRACTIONAL = 0.2f;
 
 const F32 MIN_BANDWIDTH = 50.f;

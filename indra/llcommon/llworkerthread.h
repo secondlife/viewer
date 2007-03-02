@@ -28,13 +28,13 @@ class LLWorkerClass;
 class LLWorkerThread : public LLQueuedThread
 {
 public:
-	class Request : public LLQueuedThread::QueuedRequest
+	class WorkRequest : public LLQueuedThread::QueuedRequest
 	{
 	protected:
-		~Request() {}; // use deleteRequest()
+		virtual ~WorkRequest(); // use deleteRequest()
 		
 	public:
-		Request(handle_t handle, U32 priority, LLWorkerClass* workerclass, S32 param);
+		WorkRequest(handle_t handle, U32 priority, LLWorkerClass* workerclass, S32 param);
 
 		S32 getParam()
 		{
@@ -45,6 +45,8 @@ public:
 			return mWorkerClass;
 		}
 
+		/*virtual*/ bool processRequest();
+		/*virtual*/ void finishRequest(bool completed);
 		/*virtual*/ void deleteRequest();
 		
 	private:
@@ -52,26 +54,24 @@ public:
 		S32 mParam;
 	};
 
-public:
-	LLWorkerThread(bool threaded = true, bool runalways = true);
-	~LLWorkerThread();	
-
-protected:
-	/*virtual*/ bool processRequest(QueuedRequest* req);
+private:
+	typedef std::list<LLWorkerClass*> delete_list_t;
+	delete_list_t mDeleteList;
+	LLMutex* mDeleteMutex;
+	apr_pool_t* mWorkerAPRPoolp;
 	
 public:
-	handle_t add(LLWorkerClass* workerclass, S32 param, U32 priority = PRIORITY_NORMAL);
+	LLWorkerThread(const std::string& name, bool threaded = true);
+	~LLWorkerThread();
 
-	static void initClass(bool local_is_threaded = true, bool local_run_always = true); // Setup sLocal
-	static S32 updateClass(U32 ms_elapsed);
-	static S32 getAllPending();
-	static void pauseAll();
-	static void waitOnAllPending();
-	static void cleanupClass();		// Delete sLocal
-
-public:
-	static LLWorkerThread* sLocal;		// Default worker thread
-	static std::set<LLWorkerThread*> sThreadList; // array of threads (includes sLocal)
+	apr_pool_t* getWorkerAPRPool() { return mWorkerAPRPoolp; }
+	
+	/*virtual*/ S32 update(U32 max_time_ms);
+	
+	handle_t addWorkRequest(LLWorkerClass* workerclass, S32 param, U32 priority = PRIORITY_NORMAL);
+	
+	void deleteWorker(LLWorkerClass* workerclass); // schedule for deletion
+	S32 getNumDeletes() { return mDeleteList.size(); } // debug
 };
 
 //============================================================================
@@ -93,11 +93,17 @@ public:
 
 class LLWorkerClass
 {
+	friend class LLWorkerThread;
+	friend class LLWorkerThread::WorkRequest;
 public:
 	typedef LLWorkerThread::handle_t handle_t;
 	enum FLAGS
 	{
-		WCF_WORKING = 0x01,
+		WCF_HAVE_WORK = 0x01,
+		WCF_WORKING = 0x02,
+		WCF_WORK_FINISHED = 0x10,
+		WCF_WORK_ABORTED = 0x20,
+		WCF_DELETE_REQUESTED = 0x40,
 		WCF_ABORT_REQUESTED = 0x80
 	};
 	
@@ -106,17 +112,29 @@ public:
 	virtual ~LLWorkerClass();
 
 	// pure virtual, called from WORKER THREAD, returns TRUE if done
-	virtual bool doWork(S32 param)=0; // Called from LLWorkerThread::processRequest()
-
-	// called from WORKER THREAD
-	void setWorking(bool working) { working ? setFlags(WCF_WORKING) : clearFlags(WCF_WORKING); }
+	virtual bool doWork(S32 param)=0; // Called from WorkRequest::processRequest()
+	// virtual, called from finishRequest() after completed or aborted
+	virtual void finishWork(S32 param, bool completed); // called from finishRequest() (WORK THREAD)
+	// virtual, returns true if safe to delete the worker
+	virtual bool deleteOK(); // called from update() (WORK THREAD)
 	
+	// schedlueDelete(): schedules deletion once aborted or completed
+	void scheduleDelete();
+	
+	bool haveWork() { return getFlags(WCF_HAVE_WORK); } // may still be true if aborted
 	bool isWorking() { return getFlags(WCF_WORKING); }
 	bool wasAborted() { return getFlags(WCF_ABORT_REQUESTED); }
+
+	// setPriority(): changes the priority of a request
+	void setPriority(U32 priority);
+	U32  getPriority() { return mRequestPriority; }
 		
 	const std::string& getName() const { return mWorkerClassName; }
 
 protected:
+	// called from WORKER THREAD
+	void setWorking(bool working);
+	
 	// Call from doWork only to avoid eating up cpu time.
 	// Returns true if work has been aborted
 	// yields the current thread and calls mWorkerThread->checkPause()
@@ -128,20 +146,11 @@ protected:
 	void addWork(S32 param, U32 priority = LLWorkerThread::PRIORITY_NORMAL);
 
 	// abortWork(): requests that work be aborted
-	void abortWork();
+	void abortWork(bool autocomplete);
 	
 	// checkWork(): if doWork is complete or aborted, call endWork() and return true
-	bool checkWork();
+	bool checkWork(bool aborting = false);
 
-	// haveWork(): return true if mWorkHandle != null
-	bool haveWork() { return mWorkHandle != LLWorkerThread::nullHandle(); }
-
-	// killWork(): aborts work and waits for the abort to process
-	void killWork();
-
-	// setPriority(): changes the priority of a request
-	void setPriority(U32 priority);
-	
 private:
 	void setFlags(U32 flags) { mWorkFlags = mWorkFlags | flags; }
 	void clearFlags(U32 flags) { mWorkFlags = mWorkFlags & ~flags; }
@@ -156,9 +165,11 @@ private:
 protected:
 	LLWorkerThread* mWorkerThread;
 	std::string mWorkerClassName;
-	handle_t mWorkHandle;
+	handle_t mRequestHandle;
+	U32 mRequestPriority; // last priority set
 
 private:
+	LLMutex mMutex;
 	LLAtomicU32 mWorkFlags;
 };
 

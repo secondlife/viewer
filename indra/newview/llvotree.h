@@ -20,6 +20,14 @@ class LLDrawPool;
 class LLVOTree : public LLViewerObject
 {
 public:
+	enum 
+	{
+		VERTEX_DATA_MASK =	(1 << LLVertexBuffer::TYPE_VERTEX) |
+							(1 << LLVertexBuffer::TYPE_NORMAL) |
+							(1 << LLVertexBuffer::TYPE_TEXCOORD)
+	}
+	eVertexDataMask;
+
 	LLVOTree(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 	virtual ~LLVOTree();
 
@@ -40,10 +48,13 @@ public:
 
 	/*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
 	/*virtual*/ BOOL		updateGeometry(LLDrawable *drawable);
+	/*virtual*/ void		updateSpatialExtents(LLVector3 &min, LLVector3 &max);
+
+	virtual U32 getPartitionType() const;
 
 	void updateRadius();
 
-	void drawBranchPipeline(LLDrawPool *draw_pool, S32 trunk_LOD, S32 stop_level, U16 depth, U16 trunk_depth,  F32 scale, F32 twist, F32 droop,  F32 branches, F32 alpha);
+	U32 drawBranchPipeline(U32* indicesp, S32 trunk_LOD, S32 stop_level, U16 depth, U16 trunk_depth,  F32 scale, F32 twist, F32 droop,  F32 branches, F32 alpha);
  
 	void drawBranch(S32 stop_level, U16 depth, U16 trunk_depth, F32 scale, F32 twist, F32 droop,  F32 branches, F32 alpha, BOOL draw_leaves);
 

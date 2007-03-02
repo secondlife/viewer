@@ -14,6 +14,7 @@
 #include "llfontgl.h"
 #include "llgl.h"
 #include "v4color.h"
+#include "llstl.h"
 
 const S32 BOLD_OFFSET = 1;
 

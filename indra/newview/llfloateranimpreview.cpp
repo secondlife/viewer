@@ -997,7 +997,7 @@ LLPreviewAnimation::LLPreviewAnimation(S32 width, S32 height) : LLDynamicTexture
 	mDummyAvatar->updateGeometry(mDummyAvatar->mDrawable);
 	mDummyAvatar->startMotion(ANIM_AGENT_STAND, 5.f);
 	mDummyAvatar->mSkirtLOD.setVisible(FALSE, TRUE);
-	gPipeline.markVisible(mDummyAvatar->mDrawable);
+	gPipeline.markVisible(mDummyAvatar->mDrawable, *gCamera);
 
 	// stop extraneous animations
 	mDummyAvatar->stopMotion( ANIM_AGENT_HEAD_ROT, TRUE );
@@ -1073,6 +1073,10 @@ BOOL	LLPreviewAnimation::render()
 		avatarp->updateMotion();
 	}
 	
+	LLVertexBuffer::stopRender();
+	avatarp->updateLOD();
+	LLVertexBuffer::startRender();
+
 	avatarp->mRoot.updateWorldMatrixChildren();
 
 	stop_glerror();
@@ -1082,13 +1086,7 @@ BOOL	LLPreviewAnimation::render()
 	if (avatarp->mDrawable.notNull())
 	{
 		LLDrawPoolAvatar *avatarPoolp = (LLDrawPoolAvatar *)avatarp->mDrawable->getFace(0)->getPool();
-		gPipeline.unbindAGP();
-		avatarPoolp->syncAGP();
-		if (avatarPoolp->canUseAGP() && gPipeline.usingAGP())
-		{
-			gPipeline.bindAGP();
-		}
-		avatarPoolp->renderAvatars(avatarp, TRUE);  // renders only one avatar (no shaders)
+		avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
 	}
 	
 	return TRUE;

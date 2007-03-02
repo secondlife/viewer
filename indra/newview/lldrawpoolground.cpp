@@ -12,7 +12,6 @@
 
 #include "llviewercontrol.h"
 
-#include "llagparray.h"
 #include "lldrawable.h"
 #include "llface.h"
 #include "llsky.h"
@@ -20,9 +19,11 @@
 #include "llviewerwindow.h"
 #include "llworld.h"
 #include "pipeline.h"
+#include "llagent.h"
+#include "llviewerregion.h"
 
 LLDrawPoolGround::LLDrawPoolGround() :
-	LLDrawPool(POOL_GROUND, DATA_SIMPLE_IL_MASK, DATA_SIMPLE_NIL_MASK)
+	LLFacePool(POOL_GROUND)
 {
 }
 
@@ -41,42 +42,38 @@ void LLDrawPoolGround::render(S32 pass)
 	if (mDrawFace.empty())
 	{
 		return;
-	}
-
+	}	
+	
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-
-	bindGLVertexPointer();
-	bindGLTexCoordPointer();
 
 	LLGLSPipelineSkyBox gls_skybox;
+	LLGLDisable tex(GL_TEXTURE_2D);
 	LLGLDepthTest gls_depth(GL_FALSE, GL_FALSE);
 
 	glMatrixMode( GL_PROJECTION );
-
+		
 	glPushMatrix();
-	gViewerWindow->setup3DRender();
+	//gViewerWindow->setup3DRender();
 
 	glMatrixMode(GL_MODELVIEW);
 
-	LLGLState tex2d(GL_TEXTURE_2D, (mVertexShaderLevel > 0) ? TRUE : FALSE);
-	LLViewerImage::bindTexture(gSky.mVOSkyp->getScatterMap(), 0);
+	F32 water_height = gAgent.getRegion()->getWaterHeight();
+	glPushMatrix();
+	LLVector3 origin = gCamera->getOrigin();
+	glTranslatef(origin.mV[0], origin.mV[1], llmax(origin.mV[2], water_height));
 
 	LLFace *facep = mDrawFace[0];
 
-	if (!(mVertexShaderLevel > 0))
-	{
-		gPipeline.disableLights();
-	}
+	gPipeline.disableLights();
 
-	glColor4fv(facep->getFaceColor().mV);	
-
-	facep->renderIndexed(getRawIndices());
+	LLOverrideFaceColor col(this, gSky.mVOSkyp->getGLFogColor());
+	facep->renderIndexed();
 	
 	glMatrixMode( GL_PROJECTION );
 	glPopMatrix();
 	glMatrixMode( GL_MODELVIEW );
+	glPopMatrix();
 }
 
 void LLDrawPoolGround::renderForSelect()

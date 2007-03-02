@@ -17,11 +17,14 @@
 3Dfx							.*3Dfx.*								0
 3Dlabs							.*3Dlabs.*								0
 ATI All-in-Wonder PCI-E			.*ATI.*All-in-Wonder.*PCI-E.*			1
+ATI All-in-Wonder X800			.*ATI.*All-in-Wonder X8.*				2
 ATI All-in-Wonder X1800			.*ATI.*All-in-Wonder X18.*				3
 ATI All-in-Wonder X1900			.*ATI.*All-in-Wonder X19.*				3
-ATI ASUS X1300					.*ATI.*ASUS X13.*						3
-ATI ASUS X1600					.*ATI.*ASUS X16.*						3
-ATI Diamond X1300				.*ATI.*Diamond X13.*					3
+ATI ASUS X1xxx					.*ASUS X1.*			 					3
+ATI Mobility Radeon X1xxx		.*ATI.*Mobility.*X1.*					2
+ATI Radeon OpenGL				.*ATI.*Radeon OpenGL.* 					3
+ATI Diamond X1xxx				.*ATI.*Diamond.*X1.*					3
+ATI FireGL 5xxx					.*ATI.*FireGL V5.*						3
 ATI FireGL						.*ATI.*Fire.*GL.*						0
 ATI FireMV						.*ATI.*FireMV.*							0
 ATI Generic						.*ATI.*Generic.*						0
@@ -35,14 +38,19 @@ ATI Radeon 9600					.*ATI.*Radeon 96.*						1
 ATI Radeon 9700					.*ATI.*Radeon 97.*						1
 ATI Radeon 9800					.*ATI.*Radeon 98.*						1
 ATI Radeon X1300				.*ATI.*Radeon X13.*						3
+ATI Radeon X1400				.*ATI.*Radeon X14.*						3
+ATI Radeon X1500				.*ATI.*Radeon X15.*						3
 ATI Radeon X1600				.*ATI.*Radeon X16.*						3
+ATI Radeon X1700				.*ATI.*Radeon X17.*						3
 ATI Radeon X1800				.*ATI.*Radeon X18.*						3
 ATI Radeon X1900				.*ATI.*Radeon X19.*						3
 ATI Radeon X300					.*ATI.*Radeon X3.*						2
+ATI Radeon X400					.*ATI.*Radeon X4.*						2
 ATI Radeon X500					.*ATI.*Radeon X5.*						2
 ATI Radeon X600					.*ATI.*Radeon X6.*						2
 ATI Radeon X700					.*ATI.*Radeon X7.*						2
 ATI Radeon X800					.*ATI.*Radeon X8.*						2
+ATI Radeon X900					.*ATI.*Radeon X9.*						2
 ATI Radeon Xpress				.*ATI.*Radeon Xpress.*					1
 ATI Rage 128					.*ATI.*Rage 128.*						0
 Intel 830M						.*Intel.*830M							0
@@ -91,7 +99,6 @@ NVIDIA GeForce FX Go5600		.*NVIDIA.*GeForce FX Go56.*				1
 NVIDIA GeForce FX Go5700		.*NVIDIA.*GeForce FX Go57.*				1
 NVIDIA GeForce FX Go5800		.*NVIDIA.*GeForce FX Go58.*				1
 NVIDIA GeForce FX Go5900		.*NVIDIA.*GeForce FX Go59.*				1
-NVIDIA GeForce Go 6				.*GeForce Go 6.*						2
 NVIDIA GeForce Go 6100			.*NVIDIA.*GeForce Go 61.*				2
 NVIDIA GeForce Go 6200			.*NVIDIA.*GeForce Go 62.*				2
 NVIDIA GeForce Go 6500			.*NVIDIA.*GeForce Go 65.*				2
@@ -103,6 +110,7 @@ NVIDIA GeForce Go 7400			.*NVIDIA.*GeForce Go 74.*				3
 NVIDIA GeForce Go 7600			.*NVIDIA.*GeForce Go 76.*				3
 NVIDIA GeForce Go 7800			.*NVIDIA.*GeForce Go 78.*				3
 NVIDIA GeForce Go 7900			.*NVIDIA.*GeForce Go 79.*				3
+NVIDIA GeForce Go 6				.*GeForce Go 6.*						2
 NVIDIA GeForce PCX				.*GeForce PCX.*							1
 NVIDIA Generic					.*NVIDIA.*NV.*							0
 NVIDIA Generic					.*NVIDIA.*Unknown.*						0

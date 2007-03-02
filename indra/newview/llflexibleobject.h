@@ -57,6 +57,7 @@ class LLVolumeImplFlexible : public LLVolumeInterface
 		LLVolumeImplFlexible(LLViewerObject* volume, LLFlexibleObjectData* attributes);
 
 		// Implements LLVolumeInterface
+		U32 getID() const { return mID; }
 		LLVector3 getFramePosition() const;
 		LLQuaternion getFrameRotation() const;
 		LLVolumeInterfaceType getInterfaceType() const		{ return INTERFACE_FLEXIBLE; }
@@ -71,12 +72,10 @@ class LLVolumeImplFlexible : public LLVolumeInterface
 		bool isVolumeGlobal() const { return true; }
 		bool isActive() const { return true; }
 		const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const;
-		void updateRelativeXform(BOOL global_volume = FALSE);
+		void updateRelativeXform();
 		void doFlexibleUpdate(); // Called to update the simulation
 		void doFlexibleRebuild(); // Called to rebuild the geometry
-		static void resetUpdateBins();
-		static void doFlexibleUpdateBins();
-
+		
 		//void				setAttributes( LLFlexibleObjectData );
 		void				setParentPositionAndRotationDirectly( LLVector3 p, LLQuaternion r );
 		void				setUsingCollisionSphere( bool u );
@@ -109,10 +108,7 @@ class LLVolumeImplFlexible : public LLVolumeInterface
 		U32							mFrameNum;
 		LLVector3					mCollisionSpherePosition;
 		F32							mCollisionSphereRadius;
-		
-		U64							mLastUpdate;
-
-		BOOL						mJustShifted;
+		U32							mID;
 
 		//--------------------------------------
 		// private methods
@@ -121,29 +117,7 @@ class LLVolumeImplFlexible : public LLVolumeInterface
 
 		void remapSections(LLFlexibleObjectSection *source, S32 source_sections,
 										 LLFlexibleObjectSection *dest, S32 dest_sections);
-
-		U64 getLastUpdate() const	{ return mLastUpdate; }
-
-		// LOD Bins
-		struct FlexCompare
-		{
-			bool operator()(LLVolumeImplFlexible* a, LLVolumeImplFlexible* b) const
-			{
-				U64 a_update = a->getLastUpdate();
-				U64 b_update = b->getLastUpdate();
-				if (a_update == b_update)
-				{
-					return a < b; // compare pointers
-				}
-				return a_update < b_update;
-			}
-		};
-		typedef std::set<LLVolumeImplFlexible*, FlexCompare> lodset_t;
-		static lodset_t sLODBins[ FLEXIBLE_OBJECT_MAX_LOD ];
-		static U64					sCurrentUpdateFrame;
-		static U32					sDebugInserted;
-		static U32					sDebugVisible;
-
+		
 public:
 		// Global setting for update rate
 		static F32					sUpdateFactor;

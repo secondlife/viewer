@@ -761,27 +761,6 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 	const S32 GRID_STEP = S32( PARCEL_GRID_STEP_METERS );
 	const S32 vertex_per_edge = 3 + 2 * (GRID_STEP-1) + 3;
 
-	/* JC - Don't do this.  Unbinding AGP stalls the draw process,
-	dropping frame rate.  Not unbinding AGP causes random crashes
-	on nVidia cards due to binding non-AGP arrays.
-
-	gPipeline.unbindAGP();
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	glVertexPointer(3, GL_FLOAT,         0, mVertexArray );
-	glColorPointer( 4, GL_UNSIGNED_BYTE, 0, mColorArray );
-
-	S32 i;
-	for (i = 0; i < mVertexCount; i += vertex_per_edge)
-	{
-		// Each edge is several vertices
-		glDrawArrays(GL_LINE_STRIP, i, vertex_per_edge);
-	}
-	
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	*/
-
 	// Stomp the camera into two dimensions
 	LLVector3 camera_region = mRegion->getPosRegionFromGlobal( gAgent.getCameraPositionGlobal() );
 

@@ -305,6 +305,7 @@ public:
 
 	U32				mFaceVertexOffset;
 	U32				mFaceVertexCount;
+	U32				mFaceIndexOffset;
 	U32				mFaceIndexCount;
 	U32				mCurVertexCount;
 private:

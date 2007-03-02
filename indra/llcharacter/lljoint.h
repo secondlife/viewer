@@ -76,7 +76,8 @@ public:
 	LLDynamicArray<LLVector3> mConstraintSilhouette;
 
 	// child joints
-	LLLinkedList<LLJoint> mChildren;
+	typedef std::list<LLJoint*> child_list_t;
+	child_list_t mChildren;
 
 	// debug statics
 	static S32		sNumTouches;

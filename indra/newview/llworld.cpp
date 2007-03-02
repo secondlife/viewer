@@ -43,7 +43,6 @@ U32			gAgentPauseSerialNum = 0;
 // Constants
 //
 const S32 MAX_NUMBER_OF_CLOUDS	= 750;
-const F32 MIN_IDLE_UPDATE_TIME = 0.025f;
 const S32 WORLD_PATCH_SIZE = 16;
 
 extern LLColor4U MAX_WATER_COLOR;
@@ -63,7 +62,6 @@ LLWorld::LLWorld(const U32 grids_per_region, const F32 meters_per_grid)
 	mLastPacketsOut = 0;
 	mLastPacketsLost = 0;
 	mLandFarClip = DEFAULT_FAR_PLANE;
-	mIdleUpdateTime = MIN_IDLE_UPDATE_TIME;
 
 	if (gNoRender)
 	{
@@ -616,31 +614,22 @@ void LLWorld::updateVisibilities()
 	gCamera->setFar(cur_far_clip);
 }
 
-
-void LLWorld::updateRegions()
+void LLWorld::updateRegions(F32 max_update_time)
 {
 	LLViewerRegion *regionp;
 	LLTimer update_timer;
-
+	BOOL did_one = FALSE;
+	
 	// Perform idle time updates for the regions (and associated surfaces)
 	for (regionp = mRegionList.getFirstData();
 		 regionp;
 		 regionp = mRegionList.getNextData())
 	{
-		update_timer.reset();
-		if (!regionp->idleUpdate(update_timer, mIdleUpdateTime))
-		{
-			// Didn't finish all the updates.  Slightly increase the idle update time.
-			mIdleUpdateTime *= 1.05f;
-		}
-		else
-		{
-			mIdleUpdateTime *= 0.9f;
-			if (mIdleUpdateTime < MIN_IDLE_UPDATE_TIME)
-			{
-				mIdleUpdateTime = MIN_IDLE_UPDATE_TIME;
-			}
-		}
+		F32 max_time = max_update_time - update_timer.getElapsedTimeF32();
+		if (did_one && max_time <= 0.f)
+			break;
+		max_time = llmin(max_time, max_update_time*.1f);
+		did_one |= regionp->idleUpdate(max_update_time);
 	}
 }
 

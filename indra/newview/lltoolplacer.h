@@ -66,7 +66,6 @@ public:
 	static LLPCode sSphereHemi;
 	static LLPCode sTree;
 	static LLPCode sGrass;
-	static LLPCode sTreeNew;
 
 private:
 	void		addButton( const LLString& up_state, const LLString& down_state, LLPCode* pcode );

@@ -12,6 +12,7 @@
 #include "llerror.h"
 #include "llerrorcontrol.h"
 
+#include "llapp.h"
 #include "llapr.h"
 extern apr_thread_mutex_t *gLogMutexp;
 #include "llfile.h"

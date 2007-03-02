@@ -32,6 +32,7 @@ public:
 	Object* operator->()           { return mObjectp; }
 	Object& operator *()           { return *mObjectp; }
 	Object* operator ++(int)       { Object* old = mObjectp; mBytep += mSkip; return old; }
+	Object* operator +=(int i)     { mBytep += mSkip*i; return mObjectp; }
 	Object& operator[](U32 index)  { return *(Object*)(mBytep + (mSkip * index)); }
 };
 

@@ -71,8 +71,6 @@ protected:
 
 	BOOL mNeedsCreate;
 	LLUUID mTempID;
-
-	static std::list<LLTransferTargetParamsVFile*> sCallbackQueue;
 };
 
 #endif // LL_LLTRANSFERTARGETFILE_H

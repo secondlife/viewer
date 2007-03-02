@@ -114,6 +114,8 @@
 #include "llimview.h"
 #include "lltexlayer.h"
 #include "lltextbox.h"
+#include "lltexturecache.h"
+#include "lltexturefetch.h"
 #include "lltextureview.h"
 #include "lltool.h"
 #include "lltoolbar.h"
@@ -1203,6 +1205,13 @@ LLViewerWindow::LLViewerWindow(
 	
 	LLFontManager::initClass();
 
+	if (!gFeatureManagerp->isFeatureAvailable("RenderVBO") ||
+		!gGLManager.mHasVertexBufferObject)
+	{
+		gSavedSettings.setBOOL("RenderVBOEnable", FALSE);
+	}
+	LLVertexBuffer::initClass(gSavedSettings.getBOOL("RenderVBOEnable"));
+
 	//
 	// We want to set this stuff up BEFORE we initialize the pipeline, so we can turn off
 	// stuff like AGP if we think that it'll crash the viewer.
@@ -1231,7 +1240,6 @@ LLViewerWindow::LLViewerWindow(
 		gPipeline.init();
 		stop_glerror();
 		initGLDefaults();
-		LLViewerImage::initClass();
 	}
 
 	//
@@ -1244,6 +1252,7 @@ LLViewerWindow::LLViewerWindow(
 	// Init the image list.  Must happen after GL is initialized and before the images that
 	// LLViewerWindow needs are requested.
 	gImageList.init();
+	LLViewerImage::initClass();
 	gBumpImageList.init();
 
 	// Create container for all sub-views
@@ -1677,10 +1686,22 @@ LLViewerWindow::~LLViewerWindow()
 
 	LLWorldMapView::cleanupTextures();
 
+	llinfos << "Cleaning up pipeline" << llendl;
+	gPipeline.cleanup();
+	stop_glerror();
+
 	LLViewerImage::cleanupClass();
 	
 	delete[] mPickBuffer;
 	mPickBuffer = NULL;
+
+	if (gSelectMgr)
+	{
+		llinfos << "Cleaning up select manager" << llendl;
+		gSelectMgr->cleanup();
+	}
+
+	LLVertexBuffer::cleanupClass();
 
 	llinfos << "Stopping GL during shutdown" << llendl;
 	if (!gNoRender)
@@ -1689,15 +1710,7 @@ LLViewerWindow::~LLViewerWindow()
 		stop_glerror();
 	}
 
-	if (gSelectMgr)
-	{
-		llinfos << "Cleaning up select manager" << llendl;
-		gSelectMgr->cleanup();
-	}
 
-	llinfos << "Cleaning up pipeline" << llendl;
-	gPipeline.cleanup();
-	stop_glerror();
 	llinfos << "Destroying Window" << llendl;
 	destroyWindow();
 }
@@ -1829,6 +1842,13 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 
 		gViewerStats->setStat(LLViewerStats::ST_WINDOW_WIDTH, (F64)width);
 		gViewerStats->setStat(LLViewerStats::ST_WINDOW_HEIGHT, (F64)height);
+
+		//reposition HUD attachments
+		LLVOAvatar* avatarp = gAgent.getAvatarObject();
+		if (avatarp)
+		{
+			avatarp->resetHUDAttachments();
+		}
 	}
 }
 
@@ -2263,44 +2283,15 @@ void LLViewerWindow::handleScrollWheel(S32 clicks)
 
 void LLViewerWindow::moveCursorToCenter()
 {
-#if 1 // old version
-
-#if 0 // Dave's changes - this reportedly is making the drift worse on some systems?
-	S32 x = llround((F32) mVirtualWindowRect.getWidth() / 2);
-	S32 y = llround((F32) mVirtualWindowRect.getHeight() / 2);
-#else
 	S32 x = mVirtualWindowRect.getWidth() / 2;
 	S32 y = mVirtualWindowRect.getHeight() / 2;
-#endif
 	
 	//on a forced move, all deltas get zeroed out to prevent jumping
 	mCurrentMousePoint.set(x,y);
 	mLastMousePoint.set(x,y);
 	mCurrentMouseDelta.set(0,0);	
 
-	LLUI::setCursorPositionScreen(x, y);
-	
-#else // Richard's version - fails on intel macs
-
-	S32 x = llround((F32) mWindowRect.getWidth() / 2);
-	S32 y = llround((F32) mWindowRect.getHeight() / 2);
-	
-	LLCoordWindow window_point;
-	mWindow->convertCoords(LLCoordGL(x, y), &window_point);
-	mWindow->setCursorPosition(window_point);
-	
-	// read back cursor position
-	mWindow->getCursorPosition(&window_point);
-	LLCoordGL new_mouse_pos;
-	mWindow->convertCoords(window_point, &new_mouse_pos);
-	new_mouse_pos.mX = llround((F32)new_mouse_pos.mX / mDisplayScale.mV[VX]);
-	new_mouse_pos.mY = llround((F32)new_mouse_pos.mY / mDisplayScale.mV[VY]);
-
-	//on a forced move, all deltas get zeroed out to prevent jumping
-	mCurrentMousePoint = new_mouse_pos;
-	mLastMousePoint = new_mouse_pos;
-	mCurrentMouseDelta.set(0,0);
-#endif
+	LLUI::setCursorPositionScreen(x, y);	
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -2329,10 +2320,29 @@ BOOL LLViewerWindow::handlePerFrameHover()
 		mMouseInWindow = TRUE;
 	}
 
-	S32 dx = mCurrentMousePoint.mX - mLastMousePoint.mX;
-	S32 dy = mCurrentMousePoint.mY - mLastMousePoint.mY;
-	mCurrentMouseDelta.set(dx,dy);
-	LLVector2 mouse_vel((F32)dx, (F32)dy);
+	S32 dx = lltrunc((F32) (mCurrentMousePoint.mX - mLastMousePoint.mX) * LLUI::sGLScaleFactor.mV[VX]);
+	S32 dy = lltrunc((F32) (mCurrentMousePoint.mY - mLastMousePoint.mY) * LLUI::sGLScaleFactor.mV[VY]);
+
+	LLVector2 mouse_vel; 
+
+	if (gSavedSettings.getBOOL("MouseSmooth"))
+	{
+		static F32 fdx = 0.f;
+		static F32 fdy = 0.f;
+
+		F32 amount = 16.f;
+		fdx = fdx + ((F32) dx - fdx) * llmin(gFrameIntervalSeconds*amount,1.f);
+		fdy = fdy + ((F32) dy - fdy) * llmin(gFrameIntervalSeconds*amount,1.f);
+
+		mCurrentMouseDelta.set(llround(fdx), llround(fdy));
+		mouse_vel.setVec(fdx,fdy);
+	}
+	else
+	{
+		mCurrentMouseDelta.set(dx, dy);
+		mouse_vel.setVec((F32) dx, (F32) dy);
+	}
+    
 	mMouseVelocityStat.addValue(mouse_vel.magVec());
 
 	if (gNoRender)
@@ -3377,8 +3387,8 @@ void LLViewerWindow::analyzeHit(
 				const S32 UV_PICK_WIDTH = 41;
 				const S32 UV_PICK_HALF_WIDTH = (UV_PICK_WIDTH - 1) / 2;
 				U8 uv_pick_buffer[UV_PICK_WIDTH * UV_PICK_WIDTH * 4];
-				S32 pick_face = ((LLVOVolume*)objectp)->getAllTEsSame() ? 0 : face;
-				LLFace* facep = objectp->mDrawable->getFace(objectp->getFaceIndexOffset() + pick_face);
+				S32 pick_face = face;
+				LLFace* facep = objectp->mDrawable->getFace(pick_face);
 				gCamera->setPerspective(FOR_SELECTION, scaled_x - UV_PICK_HALF_WIDTH, scaled_y - UV_PICK_HALF_WIDTH, UV_PICK_WIDTH, UV_PICK_WIDTH, FALSE);
 				glViewport(scaled_x - UV_PICK_HALF_WIDTH, scaled_y - UV_PICK_HALF_WIDTH, UV_PICK_WIDTH, UV_PICK_WIDTH);
 				gPipeline.renderFaceForUVSelect(facep);
@@ -3604,22 +3614,38 @@ BOOL LLViewerWindow::mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d
 }
 
 // Saves an image to the harddrive as "SnapshotX" where X >= 1.
-BOOL LLViewerWindow::saveImageNumbered(LLImageRaw *raw)
+BOOL LLViewerWindow::saveImageNumbered(LLImageRaw *raw, const LLString& extension_in)
 {
 	if (! raw)
 	{
 		return FALSE;
 	}
+
+	LLString extension(extension_in);
+	if (extension.empty())
+	{
+		extension = (gSavedSettings.getBOOL("CompressSnapshotsToDisk")) ? ".j2c" : ".bmp";
+	}
+
+	LLFilePicker::ESaveFilter pick_type;
+	if (extension == ".j2c")
+		pick_type = LLFilePicker::FFSAVE_J2C;
+	else if (extension == ".bmp")
+		pick_type = LLFilePicker::FFSAVE_BMP;
+	else if (extension == ".tga")
+		pick_type = LLFilePicker::FFSAVE_TGA;
+	else
+		pick_type = LLFilePicker::FFSAVE_ALL; // ???
 	
 	// Get a directory if this is the first time.
 	if (strlen(sSnapshotDir) == 0)		/* Flawfinder: ignore */
 	{
 		LLString proposed_name( sSnapshotBaseName );
-		proposed_name.append( ".bmp" );
+		proposed_name.append( extension );
 
 		// pick a directory in which to save
 		LLFilePicker& picker = LLFilePicker::instance();
-		if (!picker.getSaveFile(LLFilePicker::FFSAVE_BMP, proposed_name.c_str()))
+		if (!picker.getSaveFile(pick_type, proposed_name.c_str()))
 		{
 			// Clicked cancel
 			return FALSE;
@@ -3634,8 +3660,8 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageRaw *raw)
 		S32 length = strlen(directory);		/* Flawfinder: ignore */
 		S32 index = length;
 
-		// Back up over ".bmp"
-		index -= 4;
+		// Back up over extension
+		index -= extension.length();
 		if (index >= 0 && directory[index] == '.')
 		{
 			directory[index] = '\0';
@@ -3674,10 +3700,9 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageRaw *raw)
 
 	do
 	{
-		char extension[100];		/* Flawfinder: ignore */
-		snprintf( extension, sizeof(extension), "_%.3d.bmp", i );		/* Flawfinder: ignore */
 		filepath = sSnapshotDir;
 		filepath += sSnapshotBaseName;
+		filepath += llformat("_%.3d",i);
 		filepath += extension;
 
 		struct stat stat_info;
@@ -3686,12 +3711,12 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageRaw *raw)
 	}
 	while( -1 != err );  // search until the file is not found (i.e., stat() gives an error).
 
-	LLPointer<LLImageBMP> bmp_image = new LLImageBMP;
+	LLPointer<LLImageFormatted> formatted_image = LLImageFormatted::createFromExtension(extension);
 	LLImageBase::setSizeOverride(TRUE);
-	BOOL success = bmp_image->encode(raw);
+	BOOL success = formatted_image->encode(raw);
 	if( success )
 	{
-		success = bmp_image->save(filepath);
+		success = formatted_image->save(filepath);
 	}
 	else
 	{
@@ -3894,10 +3919,11 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		LLPipeline::toggleRenderDebugFeature((void*)LLPipeline::RENDER_DEBUG_FEATURE_UI);
 	}
 
-	BOOL hide_hud = !gSavedSettings.getBOOL("RenderHUDInSnapshot") && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD);
+
+	BOOL hide_hud = !gSavedSettings.getBOOL("RenderHUDInSnapshot") && LLPipeline::sShowHUDAttachments;
 	if (hide_hud)
 	{
-		LLPipeline::toggleRenderType((void*)LLPipeline::RENDER_TYPE_HUD);
+		LLPipeline::sShowHUDAttachments = FALSE;
 	}
 
 	// Copy screen to a buffer
@@ -4034,7 +4060,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 
 	if (hide_hud)
 	{
-		LLPipeline::toggleRenderType((void*)LLPipeline::RENDER_TYPE_HUD);
+		LLPipeline::sShowHUDAttachments = TRUE;
 	}
 
 	if (high_res)
@@ -4296,6 +4322,12 @@ void LLViewerWindow::stopGL(BOOL save_state)
 	if (!gGLManager.mIsDisabled)
 	{
 		llinfos << "Shutting down GL..." << llendl;
+
+		// Pause texture decode threads (will get unpaused during main loop)
+		gTextureCache->pause();
+		gImageDecodeThread->pause();
+		gTextureFetch->pause();
+		
 		gSky.destroyGL();
 		stop_glerror();
 	
@@ -4346,7 +4378,6 @@ void LLViewerWindow::restoreGL(const LLString& progress_message)
 		LLManipTranslate::restoreGL();
 		gImageList.restoreGL();
 		gBumpImageList.restoreGL();
-		gPipeline.setUseAGP(gSavedSettings.getBOOL("RenderUseAGP"));
 		LLDynamicTexture::restoreGL();
 		LLVOAvatar::restoreGL();
 

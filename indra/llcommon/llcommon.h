@@ -12,7 +12,6 @@
 #include "llapr.h"
 // #include "llframecallbackmanager.h"
 #include "lltimer.h"
-#include "llworkerthread.h"
 #include "llfile.h"
 
 class LLCommon

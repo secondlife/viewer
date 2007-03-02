@@ -17,7 +17,7 @@
 #include "llmath.h"
 #include "stdtypes.h"
 #include "v4coloru.h"
-#include "llmemory.h"
+#include "llmemtype.h"
 
 #include "llimage.h"
 #include "llimagebmp.h"
@@ -114,7 +114,7 @@ U8* LLImageBase::allocateData(S32 size)
 			llerrs << llformat("LLImageBase::allocateData called with bad dimentions: %dx%dx%d",mWidth,mHeight,mComponents) << llendl;
 		}
 	}
-	else if ((size <= 0 || size > 4096*4096*16) && sSizeOverride == FALSE)
+	else if (size <= 0 || (size > 4096*4096*16 && sSizeOverride == FALSE))
 	{
 		llerrs << "LLImageBase::allocateData: bad size: " << size << llendl;
 	}
@@ -197,7 +197,8 @@ LLImageRaw::LLImageRaw(U8 *data, U16 width, U16 height, S8 components)
 	: LLImageBase()
 {
 	mMemType = LLMemType::MTYPE_IMAGERAW;
-	copyData(data, width, height, components);
+	allocateDataSize(width, height, components);
+	memcpy(getData(), data, width*height*components);
 	++sRawImageCount;
 }
 
@@ -237,20 +238,6 @@ void LLImageRaw::deleteData()
 {
 	sGlobalRawMemory -= getDataSize();
 	LLImageBase::deleteData();
-}
-
-BOOL LLImageRaw::copyData(U8 *data, U16 width, U16 height, S8 components)
-{
-	if (!resize(width, height, components))
-	{
-		return FALSE;
-	}
-	if (getData() == NULL || data == NULL)
-	{
-		return FALSE;
-	}
-	memcpy(getData(), data, width*height*components);	/* Flawfinder: ignore */
-	return TRUE;
 }
 
 BOOL LLImageRaw::resize(U16 width, U16 height, S8 components)
@@ -1243,25 +1230,8 @@ bool LLImageRaw::createFromFile(const LLString &filename, bool j2c_lowest_mip_on
 //static
 S32 LLImageFormatted::sGlobalFormattedMemory = 0;
 
-//static
-LLWorkerThread* LLImageFormatted::sWorkerThread = NULL;
-
-//static
-void LLImageFormatted::initClass(bool threaded, bool run_always)
-{
-	sWorkerThread = new LLWorkerThread(threaded, run_always);
-}
-
-//static
-void LLImageFormatted::cleanupClass()
-{
-	delete sWorkerThread;
-	sWorkerThread = NULL;
-}
-
-
 LLImageFormatted::LLImageFormatted(S8 codec)
-	: LLImageBase(), LLWorkerClass(sWorkerThread, "ImageFormatted"),
+	: LLImageBase(),
 	  mCodec(codec),
 	  mDecoding(0),
 	  mDecoded(0),
@@ -1276,64 +1246,14 @@ LLImageFormatted::~LLImageFormatted()
 	// NOTE: ~LLimageBase() call to deleteData() calls LLImageBase::deleteData()
 	//        NOT LLImageFormatted::deleteData()
 	deleteData();
-	releaseDecodedData();
-}
-
-//----------------------------------------------------------------------------
-
-//virtual
-void LLImageFormatted::startWork(S32 param)
-{
-	if (mDecoding) llerrs << "WTF?" << llendl;
-}
-
-bool LLImageFormatted::doWork(S32 param)
-{
-	if (!(isWorking())) llerrs << "WTF?" << llendl;
-	llassert(mDecodedImage.notNull());
-	if (param == 0)
-	{
-		// Decode primary channels
-		mDecoded = decode(mDecodedImage, .001f); // 1ms
-	}
-	else
-	{
-		// Decode aux channel
-		mDecoded = decode(mDecodedImage, .001f, param, param); // 1ms
-	}
-	if (mDecoded)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-void LLImageFormatted::endWork(S32 param, bool aborted)
-{
-	if (mDecoding) llerrs << "WTF?" << llendl;
-	if (!mDecoded) llerrs << "WTF?" << llendl;
 }
 
 //----------------------------------------------------------------------------
 
 // static
-LLImageFormatted* LLImageFormatted::createFromExtension(const LLString& instring)
+LLImageFormatted* LLImageFormatted::createFromType(S8 codec)
 {
-	LLString exten;
-	size_t dotidx = instring.rfind('.');
-	if (dotidx != LLString::npos)
-	{
-		exten = instring.substr(dotidx+1);
-	}
-	else
-	{
-		exten = instring;
-	}
-	S8 codec = get_codec(exten);
-	LLPointer<LLImageFormatted> image;
+	LLImageFormatted* image;
 	switch(codec)
 	{
 	  case IMG_CODEC_BMP:
@@ -1354,9 +1274,27 @@ LLImageFormatted* LLImageFormatted::createFromExtension(const LLString& instring
 		image = new LLImageDXT();
 		break;
 	  default:
+		image = NULL;
 		break;
 	}
 	return image;
+}
+
+// static
+LLImageFormatted* LLImageFormatted::createFromExtension(const LLString& instring)
+{
+	LLString exten;
+	size_t dotidx = instring.rfind('.');
+	if (dotidx != LLString::npos)
+	{
+		exten = instring.substr(dotidx+1);
+	}
+	else
+	{
+		exten = instring;
+	}
+	S8 codec = get_codec(exten);
+	return createFromType(codec);
 }
 //----------------------------------------------------------------------------
 
@@ -1373,15 +1311,6 @@ void LLImageFormatted::dump()
 }
 
 //----------------------------------------------------------------------------
-
-void LLImageFormatted::readHeader(U8* data, S32 size)
-{
-	if (size <= 0)
-	{
-		size = calcHeaderSize();
-	}
-	copyData(data, size); // calls updateData()
-}
 
 S32 LLImageFormatted::calcDataSize(S32 discard_level)
 {
@@ -1425,82 +1354,6 @@ BOOL LLImageFormatted::decode(LLImageRaw* raw_image,F32  decode_time, S32 first_
 	llassert( (first_channel == 0) && (max_channel == 4) );
 	return decode( raw_image, decode_time );  // Loads first 4 channels by default.
 } 
-
-// virtual
-BOOL LLImageFormatted::requestDecodedData(LLPointer<LLImageRaw>& raw, S32 discard, F32 decode_time)
-{
-	llassert(getData() && getDataSize());
-	// For most codecs, only mDiscardLevel data is available. (see LLImageDXT for exception)
-	if (discard >= 0 && discard != mDiscardLevel)
-	{
-		llerrs << "Request for invalid discard level" << llendl;
-	}
-	if (haveWork())
-	{
-		checkWork();
-	}
-	if (!mDecoded)
-	{
-		if (!haveWork())
-		{
-			llassert(!mDecoding);
-			mDecodedImage = new LLImageRaw(getWidth(), getHeight(), getComponents());
-			addWork(0);
-		}
-		return FALSE;
-	}
-	else
-	{
-		llassert(mDecodedImage.notNull());
-		llassert(!mDecoding);
-		raw = mDecodedImage;
-		return TRUE;
-	}
-}
-
-BOOL LLImageFormatted::requestDecodedAuxData(LLPointer<LLImageRaw>& raw, S32 channel, 
-											 S32 discard, F32 decode_time)
-{
-	llassert(getData() && getDataSize());
-	// For most codecs, only mDiscardLevel data is available. (see LLImageDXT for exception)
-	if (discard >= 0 && discard != mDiscardLevel)
-	{
-		llerrs << "Request for invalid discard level" << llendl;
-	}
-	if (haveWork())
-	{
-		checkWork();
-	}
-	if (!mDecoded)
-	{
-		if (!haveWork())
-		{
-			llassert(!mDecoding);
-			mDecodedImage = new LLImageRaw(getWidth(), getHeight(), 1);
-			addWork(channel);
-		}
-		return FALSE;
-	}
-	else
-	{
-		llassert(mDecodedImage.notNull());
-		llassert(!mDecoding);
-		raw = mDecodedImage;
-		return TRUE;
-	}
-}
-
-
-// virtual
-void LLImageFormatted::releaseDecodedData()
-{
-	if (mDecoded || mDecoding)
-	{
-		mDecodedImage = NULL; // deletes image
-		mDecoded = FALSE;
-		mDecoding = FALSE;
-	}
-}
 
 //----------------------------------------------------------------------------
 
@@ -1549,44 +1402,17 @@ void LLImageFormatted::sanityCheck()
 
 BOOL LLImageFormatted::copyData(U8 *data, S32 size)
 {
-	if (data && data != getData())
+	if ( (data && data != getData()) || (size != getDataSize()) )
 	{
 		deleteData();
 		allocateData(size);
 		memcpy(getData(), data, size);	/* Flawfinder: ignore */
 	}
-	updateData(); // virtual
-	
 	return TRUE;
 }
 
-BOOL LLImageFormatted::appendData(U8 *data, S32 size)
-{
-	LLMemType mt1((LLMemType::EMemType)mMemType);
-	S32 old_size = getDataSize();
-	U8* old_data = getData();
-	S32 new_size = old_size + size;
-	U8* new_data = new U8[new_size];
-	if (!new_data)
-	{
-		llerrs << "Out of memory in LLImageFormatted::appendData(U8 *data, S32 size)" << llendl;
-		return FALSE;
-	}
-	// resize the image
-	setDataAndSize(new_data, new_size);
-	// copy the old data and delete it
-	memcpy(new_data, old_data, old_size);	/* Flawfinder: ignore */
-	delete old_data;
-	// if we have new data, copy it and call updateData()
-	if (data)
-	{
-		memcpy(new_data + old_size, data, size);	/* Flawfinder: ignore */
-		updateData(); // virtual
-	}
-	return TRUE;
-}
-
-BOOL LLImageFormatted::setData(U8 *data, S32 size)
+// LLImageFormatted becomes the owner of data
+void LLImageFormatted::setData(U8 *data, S32 size)
 {
 	if (data && data != getData())
 	{
@@ -1594,7 +1420,24 @@ BOOL LLImageFormatted::setData(U8 *data, S32 size)
 		setDataAndSize(data, size); // Access private LLImageBase members
 		sGlobalFormattedMemory += getDataSize();
 	}
-	return updateData(); // virtual
+}
+
+void LLImageFormatted::appendData(U8 *data, S32 size)
+{
+	if (data)
+	{
+		if (!getData())
+		{
+			setData(data, size);
+		}
+		else 
+		{
+			S32 cursize = getDataSize();
+			S32 newsize = cursize + size;
+			reallocateData(newsize);
+			memcpy(getData() + cursize, data, size);
+		}
+	}
 }
 
 //----------------------------------------------------------------------------
@@ -1666,8 +1509,6 @@ S8 LLImageFormatted::getCodec() const
 }
 
 //============================================================================
-
-//----------------------------------------------------------------------------
 
 static void avg4_colors4(const U8* a, const U8* b, const U8* c, const U8* d, U8* dst)
 {
@@ -1794,3 +1635,5 @@ F32 LLImageBase::calc_download_priority(F32 virtual_size, F32 visible_pixels, S3
 
 	return w_priority;
 }
+
+//============================================================================

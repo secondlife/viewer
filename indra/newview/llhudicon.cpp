@@ -15,6 +15,7 @@
 #include "llviewerobject.h"
 #include "lldrawable.h"
 #include "llviewercamera.h"
+#include "llviewerimage.h"
 #include "llviewerwindow.h"
 
 //-----------------------------------------------------------------------------

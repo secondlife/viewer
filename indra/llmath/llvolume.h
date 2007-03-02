@@ -756,6 +756,8 @@ public:
 	S32 mNumS;
 	S32 mNumT;
 
+	LLVector3 mExtents[2]; //minimum and maximum point of face
+
 	std::vector<VertexData> mVertices;
 	std::vector<S32>	mIndices;
 	std::vector<S32>	mEdge;
@@ -849,7 +851,6 @@ public:
 	const LLVolumeFace &getVolumeFace(const S32 f) const {return mVolumeFaces[f];} // DO NOT DELETE VOLUME WHILE USING THIS REFERENCE, OR HOLD A POINTER TO THIS VOLUMEFACE
 
 	U32					mFaceMask;			// bit array of which faces exist in this volume
-	LLVector3			mBounds[2];			// bounding box (center, half-height)
 	LLVector3			mLODScaleBias;		// vector for biasing LOD based on scale
 
 protected:

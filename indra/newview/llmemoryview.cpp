@@ -16,6 +16,7 @@
 #include "llgl.h"
 #include "llmath.h"
 #include "llfontgl.h"
+#include "llmemtype.h"
 
 #include "viewer.h"
 #include "llui.h"
@@ -95,6 +96,7 @@ static struct mtv_display_info mtv_display_table[] =
 	{ LLMemType::MTYPE_PIPELINE,		"Pipeline",			&LLColor4::green3 },
 	{ LLMemType::MTYPE_PARTICLES,		"Particles",		&LLColor4::green4 },
 	{ LLMemType::MTYPE_SPACE_PARTITION,	"Space Partition",	&LLColor4::blue2 },
+	{ LLMemType::MTYPE_VERTEX_DATA,		"Vertex Buffer",	&LLColor4::blue3 },
 	{ LLMemType::MTYPE_AVATAR,			"Avatar",			&LLColor4::purple1 },
 	{ LLMemType::MTYPE_REGIONS,			"Regions",			&LLColor4::blue1 },
  	{ LLMemType::MTYPE_TEMP1,			"Temp1",			&LLColor4::red1 },

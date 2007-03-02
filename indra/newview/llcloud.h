@@ -110,7 +110,7 @@ public:
 	BOOL inGroup(const LLCloudPuff &puff) const;
 
 	F32 getDensity() const							{ return mDensity; }
-	S32 getNumPuffs() const							{ return mCloudPuffs.count(); }
+	S32 getNumPuffs() const							{ return (S32) mCloudPuffs.size(); }
 	const LLCloudPuff &getPuff(const S32 i)			{ return mCloudPuffs[i]; }
 protected:
 	LLCloudLayer *mCloudLayerp;
@@ -118,7 +118,7 @@ protected:
 	F32 mDensity;
 	S32 mTargetPuffCount;
 
-	LLDynamicArray<LLCloudPuff> mCloudPuffs;
+	std::vector<LLCloudPuff> mCloudPuffs;
 	LLPointer<LLVOClouds> mVOCloudsp;
 };
 

@@ -183,6 +183,27 @@ const std::string &LLDir::getTempDir() const
 	return mTempDir;
 }
 
+const std::string  LLDir::getCacheDir(bool get_default) const
+{
+	if (mCacheDir.empty() || get_default)
+	{
+		std::string res;
+		if (getOSUserAppDir().empty())
+		{
+			res = "data";
+		}
+		else
+		{
+			res = getOSUserAppDir() + mDirDelimiter + "cache";
+		}
+		return res;
+	}
+	else
+	{
+		return mCacheDir;
+	}
+}
+
 const std::string &LLDir::getCAFile() const
 {
 	return mCAFile;
@@ -198,7 +219,12 @@ const std::string &LLDir::getSkinDir() const
 	return mSkinDir;
 }
 
-std::string LLDir::getExpandedFilename(ELLPath location, const std::string &filename) const
+std::string LLDir::getExpandedFilename(ELLPath location, const std::string& filename) const
+{
+	return getExpandedFilename(location, "", filename);
+}
+
+std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subdir, const std::string& in_filename) const
 {
 	std::string prefix;
 	switch (location)
@@ -230,16 +256,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string &file
 		break;
 		
 	case LL_PATH_CACHE:
-		if (getOSUserAppDir().empty())
-		{
-			prefix = "data";
-		}
-		else
-		{
-			prefix = getOSUserAppDir();
-			prefix += mDirDelimiter;
-			prefix += "cache";
-		}
+	    prefix = getCacheDir();
 		break;
 		
 	case LL_PATH_USER_SETTINGS:
@@ -290,6 +307,16 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string &file
 		llassert(0);
 	}
 
+	std::string filename = in_filename;
+	if (!subdir.empty())
+	{
+		filename = subdir + mDirDelimiter + in_filename;
+	}
+	else
+	{
+		filename = in_filename;
+	}
+	
 	std::string expanded_filename;
 	if (!filename.empty())
 	{
@@ -304,8 +331,7 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string &file
 			expanded_filename = filename;
 		}
 	}
-	else
-	if (!prefix.empty())
+	else if (!prefix.empty())
 	{
 		// Directory only, no file name.
 		expanded_filename = prefix;
@@ -403,6 +429,30 @@ void LLDir::setSkinFolder(const std::string &skin_folder)
 	mSkinDir += "skins";
 	mSkinDir += mDirDelimiter;
 	mSkinDir += skin_folder;
+}
+
+bool LLDir::setCacheDir(const std::string &path)
+{
+	if (path.empty() )
+	{
+		// reset to default
+		mCacheDir = "";
+		return true;
+	}
+	else
+	{
+		LLFile::mkdir(path.c_str());
+		std::string tempname = path + mDirDelimiter + "temp";
+		LLFILE* file = LLFile::fopen(tempname.c_str(),"wt");
+		if (file)
+		{
+			fclose(file);
+			LLFile::remove(tempname.c_str());
+			mCacheDir = path;
+			return true;
+		}
+		return false;
+	}
 }
 
 void LLDir::dumpCurrentDirectories()

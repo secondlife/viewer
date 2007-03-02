@@ -1552,7 +1552,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 				gParcelMgr->resetSegments(gParcelMgr->mHighlightSegments);
 				gParcelMgr->writeSegmentsFromBitmap( bitmap, gParcelMgr->mHighlightSegments );
 
-				delete bitmap;
+				delete[] bitmap;
 				bitmap = NULL;
 
 				gParcelMgr->mCurrentParcelSelection->mWholeParcelSelected = TRUE;
@@ -1604,7 +1604,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 		gParcelMgr->resetSegments(gParcelMgr->mCollisionSegments);
 		gParcelMgr->writeSegmentsFromBitmap( bitmap, gParcelMgr->mCollisionSegments );
 
-		delete bitmap;
+		delete[] bitmap;
 		bitmap = NULL;
 
 	}
@@ -1753,10 +1753,10 @@ void optionally_start_music(const LLString& music_url)
 {
 	if (gSavedSettings.getWarning("FirstStreamingMusic"))
 	{
-		void* data = (void*)strdup(music_url.c_str());
+		std::string* newstring = new std::string(music_url);
 		gViewerWindow->alertXml("ParcelCanPlayMusic",
 			callback_start_music,
-			(void*)data);
+			(void*)newstring);
 
 	}
 	else if (gSavedSettings.getBOOL("AudioStreamingMusic"))
@@ -1779,7 +1779,7 @@ void optionally_start_music(const LLString& music_url)
 
 void callback_start_music(S32 option, void* data)
 {
-	const char* music_url = (const char*)data;
+	std::string* music_url = (std::string*)data;
 
 	if (0 == option)
 	{
@@ -1787,7 +1787,7 @@ void callback_start_music(S32 option, void* data)
 		llinfos << "Starting first parcel music " << music_url << llendl;
 		if (gAudiop) 
 		{
-			gAudiop->startInternetStream(music_url);
+			gAudiop->startInternetStream(music_url->c_str());
 			LLMediaRemoteCtrl* ctrl = gOverlayBar->getMusicRemoteControl();
 			ctrl->setTransportState( LLMediaRemoteCtrl::Play, FALSE );
 		}
@@ -1799,7 +1799,7 @@ void callback_start_music(S32 option, void* data)
 
 	gSavedSettings.setWarning("FirstStreamingMusic", FALSE);
 
-	delete [] music_url;
+	delete music_url;
 	music_url = NULL;
 }
 

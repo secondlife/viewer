@@ -298,6 +298,21 @@ inline LLVector2 operator-(const LLVector2 &a)
 	return LLVector2( -a.mV[0], -a.mV[1] );
 }
 
+inline void update_min_max(LLVector2& min, LLVector2& max, const LLVector2& pos)
+{
+	for (U32 i = 0; i < 2; i++)
+	{
+		if (min.mV[i] > pos.mV[i])
+		{
+			min.mV[i] = pos.mV[i];
+		}
+		if (max.mV[i] < pos.mV[i])
+		{
+			max.mV[i] = pos.mV[i];
+		}
+	}
+}
+
 inline std::ostream& operator<<(std::ostream& s, const LLVector2 &a) 
 {
 	s << "{ " << a.mV[VX] << ", " << a.mV[VY] << " }";

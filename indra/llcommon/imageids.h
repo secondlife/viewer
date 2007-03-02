@@ -31,7 +31,7 @@
 const LLUUID IMG_CLEAR			("11ee27f5-43c0-414e-afd5-d7f5688c351f");  // VIEWER
 const LLUUID IMG_SMOKE			("b4ba225c-373f-446d-9f7e-6cb7b5cf9b3d");  // VIEWER
 
-const LLUUID IMG_DEFAULT		("b4ba225c-373f-446d-9f7e-6cb7b5cf9b3d");  // VIEWER
+const LLUUID IMG_DEFAULT		("d2114404-dd59-4a4d-8e6c-49359e91bbf0");  // VIEWER
 
 //const LLUUID IMG_SAND			("0ff70ead-4562-45f9-9e8a-52b1a3286868"); // VIEWER 1.5k
 //const LLUUID IMG_GRASS			("5ab48dd5-05d0-4f1a-ace6-efd4e2fb3508"); // VIEWER 1.2k

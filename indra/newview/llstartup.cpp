@@ -99,6 +99,8 @@
 #include "llsky.h"
 #include "llstatview.h"
 #include "llsurface.h"
+#include "lltexturecache.h"
+#include "lltexturefetch.h"
 #include "lltoolmgr.h"
 #include "llui.h"
 #include "llurlwhitelist.h"
@@ -167,7 +169,6 @@ const char* SCREEN_LAST_FILENAME = "screen_last.bmp";
 //
 // Imported globals
 //
-extern LLPointer<LLImageGL> gStartImageGL;
 extern S32 gStartImageWidth;
 extern S32 gStartImageHeight;
 extern std::string gSerialNumber;
@@ -175,6 +176,8 @@ extern std::string gSerialNumber;
 //
 // local globals
 //
+
+LLPointer<LLImageGL> gStartImageGL;
 
 static LLHost gAgentSimHost;
 static BOOL gSkipOptionalUpdate = FALSE;
@@ -234,7 +237,13 @@ public:
 	}
 };
 
-
+void update_texture_fetch()
+{
+	gTextureCache->update(1); // unpauses the texture cache thread
+	gImageDecodeThread->update(1); // unpauses the image thread
+	gTextureFetch->update(1); // unpauses the texture fetch thread
+	gImageList.updateImages(0.10f);
+}
 
 // Returns FALSE to skip other idle processing. Should only return
 // TRUE when all initialization done.
@@ -285,8 +294,6 @@ BOOL idle_startup()
 
 	static BOOL samename = FALSE;
 
-	static BOOL did_precache = FALSE;
-	
 	BOOL do_normal_idle = FALSE;
 
 	// HACK: These are things from the main loop that usually aren't done
@@ -1590,6 +1597,8 @@ BOOL idle_startup()
 				args["[ERROR_MESSAGE]"] = emsg.str();
 				gViewerWindow->alertXml("ErrorMessage", args, login_alert_done);
 				gStartupState = STATE_LOGIN_SHOW;
+				gAutoLogin = FALSE;
+				show_connect_box = TRUE;
 			}
 		}
 		else
@@ -1605,6 +1614,8 @@ BOOL idle_startup()
 			args["[ERROR_MESSAGE]"] = emsg.str();
 			gViewerWindow->alertXml("ErrorMessage", args, login_alert_done);
 			gStartupState = STATE_LOGIN_SHOW;
+			gAutoLogin = FALSE;
+			show_connect_box = TRUE;
 		}
 		return do_normal_idle;
 	}
@@ -1637,6 +1648,9 @@ BOOL idle_startup()
 		//
 		// Initialize classes w/graphics stuff.
 		//
+		gImageList.doPrefetchImages();
+		update_texture_fetch();
+		
 		LLSurface::initClasses();
 
 		LLFace::initClass();
@@ -1799,7 +1813,7 @@ BOOL idle_startup()
 		llinfos << "Decoding images..." << llendl;
 		// For all images pre-loaded into viewer cache, decode them.
 		// Need to do this AFTER we init the sky
-		gImageList.decodeAllImages();
+		gImageList.decodeAllImages(2.f);
 		gStartupState++;
 
 		// JC - Do this as late as possible to increase likelihood Purify
@@ -2368,18 +2382,6 @@ BOOL idle_startup()
 	if (STATE_PRECACHE == gStartupState)
 	{
 		do_normal_idle = TRUE;
-		if (!did_precache)
-		{
-			did_precache = TRUE;
-			// Don't preload map information!  The amount of data for all the
-			// map items (icons for classifieds, avatar locations, etc.) is
-			// huge, and not throttled.  This overflows the downstream
-			// pipe during startup, when lots of information is being sent.
-			// The problem manifests itself as invisible avatars on login. JC
-			//gWorldMap->setCurrentLayer(0); // pre-load layer 0 of the world map
-
-			gImageList.doPreloadImages(); // pre-load some images from static VFS
-		}
 		
 		F32 timeout_frac = timeout.getElapsedTimeF32()/PRECACHING_DELAY;
 		// wait precache-delay and for agent's avatar or a lot longer.
@@ -2390,6 +2392,7 @@ BOOL idle_startup()
 		}
 		else
 		{
+			update_texture_fetch();
 			set_startup_status(0.50f + 0.50f * timeout_frac, "Precaching...",
 							   gAgent.mMOTD.c_str());
 		}
@@ -2418,6 +2421,7 @@ BOOL idle_startup()
 		}
 		else
 		{
+			update_texture_fetch();
 			set_startup_status(0.f + 0.25f * wearables_time / MAX_WEARABLES_TIME,
 							 "Downloading clothing...",
 							 gAgent.mMOTD.c_str());
@@ -2520,34 +2524,6 @@ BOOL idle_startup()
 // local function definition
 //
 
-void unsupported_graphics_callback(S32 option, void* userdata)
-{
-	if (0 == option)
-	{
-		llinfos << "User cancelled after driver check" << llendl;
-		std::string help_path;
-		help_path = gDirUtilp->getExpandedFilename(LL_PATH_HELP,
-			"unsupported_card.html");
-		app_force_quit( help_path.c_str() );
-	}
-
-	LLPanelLogin::giveFocus();
-}
-
-void check_driver_callback(S32 option, void* userdata)
-{
-	if (0 == option)
-	{
-		llinfos << "User cancelled after driver check" << llendl;
-		std::string help_path;
-		help_path = gDirUtilp->getExpandedFilename(LL_PATH_HELP,
-			"graphics_driver_update.html");
-		app_force_quit( help_path.c_str() );
-	}
-
-	LLPanelLogin::giveFocus();
-}
-
 void login_show()
 {
 	LLPanelLogin::show(	gViewerWindow->getVirtualWindowRect(),
@@ -2555,7 +2531,7 @@ void login_show()
 						login_callback, NULL );
 
 	// Make sure all the UI textures are present and decoded.
-	gImageList.decodeAllImages();
+	gImageList.decodeAllImages(2.f);
 
 	if( USERSERVER_OTHER == gUserServerChoice )
 	{
@@ -3027,8 +3003,8 @@ void use_circuit_callback(void**, S32 result)
 void register_viewer_callbacks(LLMessageSystem* msg)
 {
 	msg->setHandlerFuncFast(_PREHASH_LayerData,				process_layer_data );
-	msg->setHandlerFuncFast(_PREHASH_ImageData,				LLViewerImage::receiveImage );
-	msg->setHandlerFuncFast(_PREHASH_ImagePacket,				LLViewerImage::receiveImagePacket );
+	msg->setHandlerFuncFast(_PREHASH_ImageData,				LLViewerImageList::receiveImageHeader );
+	msg->setHandlerFuncFast(_PREHASH_ImagePacket,				LLViewerImageList::receiveImagePacket );
 	msg->setHandlerFuncFast(_PREHASH_ObjectUpdate,				process_object_update );
 	msg->setHandlerFunc("ObjectUpdateCompressed",				process_compressed_object_update );
 	msg->setHandlerFunc("ObjectUpdateCached",					process_cached_object_update );
@@ -3869,7 +3845,7 @@ void dialog_choose_gender_first_start()
 // location_id = 1 => home position
 void init_start_screen(S32 location_id)
 {
-	if (gStartImageGL)
+	if (gStartImageGL.notNull())
 	{
 		gStartImageGL = NULL;
 		llinfos << "re-initializing start screen" << llendl;

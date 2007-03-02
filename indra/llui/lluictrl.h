@@ -17,7 +17,6 @@
 //
 // Classes
 //
-class LLViewerImage;
 class LLFontGL;
 class LLButton;
 class LLTextBox;

@@ -49,7 +49,7 @@ S32 LLVOGrass::sMaxGrassSpecies = 0;
 
 
 LLVOGrass::LLVOGrass(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
-:	LLViewerObject(id, pcode, regionp)
+:	LLAlphaObject(id, pcode, regionp)
 {
 	mPatch               = NULL;
 	mLastPatchUpdateTime = 0;
@@ -299,38 +299,45 @@ void LLVOGrass::setPixelAreaAndAngle(LLAgent &agent)
 {
 	// This should be the camera's center, as soon as we move to all region-local.
 	LLVector3 relative_position = getPositionAgent() - agent.getCameraPositionAgent();
-	F32 range = relative_position.magVec();				// ugh, square root
+	F32 range = relative_position.magVec();
 
 	F32 max_scale = getMaxScale();
 
 	mAppAngle = (F32) atan2( max_scale, range) * RAD_TO_DEG;
 
 	// Compute pixels per meter at the given range
-	F32 pixels_per_meter = gCamera->getViewHeightInPixels() / 
-						(tan(gCamera->getView()) * range);
+	F32 pixels_per_meter = gCamera->getViewHeightInPixels() / (tan(gCamera->getView()) * range);
 
-	// Assume grass texture is a 1 meter by 1 meter sprite at the grass object's center
-	mPixelArea = (pixels_per_meter) * (pixels_per_meter);
+	// Assume grass texture is a 5 meter by 5 meter sprite at the grass object's center
+	mPixelArea = (pixels_per_meter) * (pixels_per_meter) * 25.f;
 }
 
 
 // BUG could speed this up by caching the relative_position and range calculations
 void LLVOGrass::updateTextures(LLAgent &agent)
 {
-	// dot_product = A B cos T
-	// BUT at_axis is unit, so dot_product = B cos T
-	LLVector3 relative_position = getPositionAgent() - agent.getCameraPositionAgent();
-	F32 dot_product = relative_position * agent.getFrameAgent().getAtAxis();
-	F32 cos_angle = dot_product / relative_position.magVec();
+	F32 texel_area_ratio = 1.f;
+	F32 cos_angle = 1.f;
 
 	if (getTEImage(0))
 	{
-		getTEImage(0)->addTextureStats(mPixelArea*20.f, 1.f, cos_angle);
+		if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
+		{
+			setDebugText(llformat("%4.0f", fsqrtf(mPixelArea)));
+		}
+		getTEImage(0)->addTextureStats(mPixelArea, texel_area_ratio, cos_angle);
 	}
 }
 
 BOOL LLVOGrass::updateLOD()
 {
+	if (mDrawable->getNumFaces() <= 0)
+	{
+		return FALSE;
+	}
+	
+	LLFace* face = mDrawable->getFace(0);
+
 	F32 tan_angle = 0.f;
 	S32 num_blades = 0;
 
@@ -344,6 +351,7 @@ BOOL LLVOGrass::updateLOD()
 			mNumBlades <<= 1;
 		}
 
+		face->setSize(mNumBlades*8, mNumBlades*12);
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 	}
 	else if (num_blades <= (mNumBlades >> 1))
@@ -353,6 +361,7 @@ BOOL LLVOGrass::updateLOD()
 			mNumBlades >>=1;
 		}
 
+		face->setSize(mNumBlades*8, mNumBlades*12);
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 		return TRUE;
 	}
@@ -363,53 +372,20 @@ BOOL LLVOGrass::updateLOD()
 LLDrawable* LLVOGrass::createDrawable(LLPipeline *pipeline)
 {
 	pipeline->allocDrawable(this);
-// 	mDrawable->setLit(FALSE);
 	mDrawable->setRenderType(LLPipeline::RENDER_TYPE_GRASS);
-
-	LLDrawPool *pool = gPipeline.getPool(LLDrawPool::POOL_ALPHA);
-
-	mDrawable->setNumFaces(1, pool, getTEImage(0));
-
+	
 	return mDrawable;
 }
 
 BOOL LLVOGrass::updateGeometry(LLDrawable *drawable)
 {
+	LLFastTimer ftm(LLFastTimer::FTM_UPDATE_GRASS);
 	plantBlades();
 	return TRUE;
 }
 
 void LLVOGrass::plantBlades()
 {
-	mPatch               = mRegionp->getLand().resolvePatchRegion(getPositionRegion());
-	mLastPatchUpdateTime = mPatch->getLastUpdateTime();
-	
-	LLVector3 position;
-	// Create random blades of grass with gaussian distribution
-	F32 x,y,xf,yf,dzx,dzy;
-
-	LLVector3 normal(0,0,1);
-	LLColor4U color(0,0,0,1);
-
-	LLFace *face = mDrawable->getFace(0);
-
-	LLStrider<LLVector3> verticesp;
-	LLStrider<LLVector3> normalsp;
-	LLStrider<LLVector2> texCoordsp;
-	LLStrider<LLColor4U> colorsp;
-
-	U32 *indicesp;
-
-	face->setPool(face->getPool(), getTEImage(0));
-	face->setState(LLFace::GLOBAL);
-	face->setSize(mNumBlades * 4, mNumBlades * 12);
-	face->setPrimType(LLTriangles);
-	S32 index_offset = face->getGeometryColors(verticesp,normalsp,texCoordsp,colorsp,indicesp);
-	if (-1 == index_offset)
-	{
-		return;
-	}
-
 	// It is possible that the species of a grass is not defined
 	// This is bad, but not the end of the world.
 	if (!sSpeciesTable.count(mSpecies))
@@ -418,8 +394,48 @@ void LLVOGrass::plantBlades()
 		return;
 	}
 	
+	if (mDrawable->getNumFaces() < 1)
+	{
+		mDrawable->setNumFaces(1, NULL, getTEImage(0));
+	}
+		
+	LLFace *face = mDrawable->getFace(0);
+
+	face->setTexture(getTEImage(0));
+	face->setState(LLFace::GLOBAL);
+	face->setSize(mNumBlades * 8, mNumBlades * 12);
+	face->mVertexBuffer = NULL;
+	face->setTEOffset(0);
+	face->mCenterLocal = mPosition + mRegionp->getOriginAgent();
+	
+	mDepth = (face->mCenterLocal - gCamera->getOrigin())*gCamera->getAtAxis();
+	mDrawable->setPosition(face->mCenterLocal);
+	mDrawable->movePartition();
+	LLPipeline::sCompiles++;
+}
+
+void LLVOGrass::getGeometry(S32 idx,
+								LLStrider<LLVector3>& verticesp,
+								LLStrider<LLVector3>& normalsp, 
+								LLStrider<LLVector2>& texcoordsp,
+								LLStrider<LLColor4U>& colorsp, 
+								LLStrider<U32>& indicesp)
+{
+	mPatch = mRegionp->getLand().resolvePatchRegion(getPositionRegion());
+	mLastPatchUpdateTime = mPatch->getLastUpdateTime();
+	
+	LLVector3 position;
+	// Create random blades of grass with gaussian distribution
+	F32 x,y,xf,yf,dzx,dzy;
+
+	LLColor4U color(255,255,255,255);
+
+	LLFace *face = mDrawable->getFace(idx);
+
 	F32 width  = sSpeciesTable[mSpecies]->mBladeSizeX;
 	F32 height = sSpeciesTable[mSpecies]->mBladeSizeY;
+
+	U32 index_offset = face->getGeomIndex();
 
 	for (S32 i = 0;  i < mNumBlades; i++)
 	{
@@ -430,70 +446,113 @@ void LLVOGrass::plantBlades()
 		dzx = dz_x [i];
 		dzy = dz_y [i];
 
+		LLVector3 v1,v2,v3;
 		F32 blade_height= GRASS_BLADE_HEIGHT * height * w_mod[i];
 
-		*texCoordsp++   = LLVector2(0, 0);
-		*texCoordsp++   = LLVector2(0, 0.98f);
-		*texCoordsp++   = LLVector2(1, 0);
-		*texCoordsp++   = LLVector2(1, 0.98f);
+		*texcoordsp++   = LLVector2(0, 0);
+		*texcoordsp++   = LLVector2(0, 0);
+		*texcoordsp++   = LLVector2(0, 0.98f);
+		*texcoordsp++   = LLVector2(0, 0.98f);
+		*texcoordsp++   = LLVector2(1, 0);
+		*texcoordsp++   = LLVector2(1, 0);
+		*texcoordsp++   = LLVector2(1, 0.98f);
+		*texcoordsp++   = LLVector2(1, 0.98f);
 
 		position.mV[0]  = mPosition.mV[VX] + x + xf;
 		position.mV[1]  = mPosition.mV[VY] + y + yf;
-		position.mV[2]  = 0.f;
 		position.mV[2]  = mRegionp->getLand().resolveHeightRegion(position);
-		*verticesp++    = position + mRegionp->getOriginAgent();
+		*verticesp++    = v1 = position + mRegionp->getOriginAgent();
+		*verticesp++    = v1;
+
 
 		position.mV[0] += dzx;
 		position.mV[1] += dzy;
 		position.mV[2] += blade_height;
-		*verticesp++    = position + mRegionp->getOriginAgent();
+		*verticesp++    = v2 = position + mRegionp->getOriginAgent();
+		*verticesp++    = v2;
 
 		position.mV[0]  = mPosition.mV[VX] + x - xf;
 		position.mV[1]  = mPosition.mV[VY] + y - xf;
-		position.mV[2]  = 0.f;
 		position.mV[2]  = mRegionp->getLand().resolveHeightRegion(position);
-		*verticesp++    = position + mRegionp->getOriginAgent();
+		*verticesp++    = v3 = position + mRegionp->getOriginAgent();
+		*verticesp++    = v3;
+
+		LLVector3 normal1 = (v1-v2) % (v2-v3);
+		normal1.mV[VZ] = 0.75f;
+		normal1.normVec();
+		LLVector3 normal2 = -normal1;
+		normal2.mV[VZ] = -normal2.mV[VZ];
 
 		position.mV[0] += dzx;
 		position.mV[1] += dzy;
 		position.mV[2] += blade_height;
-		*verticesp++    = position + mRegionp->getOriginAgent();
+		*verticesp++    = v1 = position + mRegionp->getOriginAgent();
+		*verticesp++    = v1;
 
-		*(normalsp++)   = normal;
-		*(normalsp++)   = normal;
-		*(normalsp++)   = normal;
-		*(normalsp++)   = normal;
+		*(normalsp++)   = normal1;
+		*(normalsp++)   = normal2;
+		*(normalsp++)   = normal1;
+		*(normalsp++)   = normal2;
 
+		*(normalsp++)   = normal1;
+		*(normalsp++)   = normal2;
+		*(normalsp++)   = normal1;
+		*(normalsp++)   = normal2;
+
+		*(colorsp++)   = color;
+		*(colorsp++)   = color;
+		*(colorsp++)   = color;
+		*(colorsp++)   = color;
 		*(colorsp++)   = color;
 		*(colorsp++)   = color;
 		*(colorsp++)   = color;
 		*(colorsp++)   = color;
 		
 		*indicesp++     = index_offset + 0;
-		*indicesp++     = index_offset + 1;
 		*indicesp++     = index_offset + 2;
+		*indicesp++     = index_offset + 4;
+
+		*indicesp++     = index_offset + 2;
+		*indicesp++     = index_offset + 6;
+		*indicesp++     = index_offset + 4;
 
 		*indicesp++     = index_offset + 1;
+		*indicesp++     = index_offset + 5;
 		*indicesp++     = index_offset + 3;
-		*indicesp++     = index_offset + 2;
 
-		*indicesp++     = index_offset + 0;
-		*indicesp++     = index_offset + 2;
-		*indicesp++     = index_offset + 1;
-
-		*indicesp++     = index_offset + 1;
-		*indicesp++     = index_offset + 2;
 		*indicesp++     = index_offset + 3;
-		index_offset   += 4;
+		*indicesp++     = index_offset + 5;
+		*indicesp++     = index_offset + 7;
+		index_offset   += 8;
 	}
 
 	LLPipeline::sCompiles++;
-
-	face->mCenterLocal = mPosition;
-
 }
 
+U32 LLVOGrass::getPartitionType() const
+{
+	return LLPipeline::PARTITION_GRASS;
+}
 
+LLGrassPartition::LLGrassPartition()
+{
+	mDrawableType = LLPipeline::RENDER_TYPE_GRASS;
+	mPartitionType = LLPipeline::PARTITION_GRASS;
+	mLODPeriod = 16;
+	mDepthMask = TRUE;
+	mSlopRatio = 0.1f;
+	mRenderPass = LLRenderPass::PASS_GRASS;
+	mBufferUsage = GL_DYNAMIC_DRAW_ARB;
+}
 
-
-
+// virtual
+void LLVOGrass::updateDrawable(BOOL force_damped)
+{
+	// Force an immediate rebuild on any update
+	if (mDrawable.notNull())
+	{
+		mDrawable->updateXform(TRUE);
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+	}
+	clearChanged(SHIFTED);
+}

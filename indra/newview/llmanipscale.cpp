@@ -360,15 +360,27 @@ BOOL LLManipScale::handleMouseUp(S32 x, S32 y, MASK mask)
 	// first, perform normal processing in case this was a quick-click
 	handleHover(x, y, mask);
 
+	if( (LL_FACE_MIN <= (S32)mManipPart) 
+		&& ((S32)mManipPart <= LL_FACE_MAX) )
+	{
+		sendUpdates(TRUE,TRUE,FALSE);
+	}
+	else
+	if( (LL_CORNER_MIN <= (S32)mManipPart) 
+		&& ((S32)mManipPart <= LL_CORNER_MAX) )
+	{
+		sendUpdates(TRUE,TRUE,TRUE);
+	}
+	
+	//send texture update
+	gSelectMgr->adjustTexturesByScale(TRUE, getStretchTextures());
+	
 	gSelectMgr->enableSilhouette(TRUE);
 	mManipPart = LL_NO_PART;
 
 	// Might have missed last update due to UPDATE_DELAY timing
-	if (mSendUpdateOnMouseUp)
-	{
-		gSelectMgr->sendMultipleUpdate( mLastUpdateFlags );
-	}
-		
+	gSelectMgr->sendMultipleUpdate( mLastUpdateFlags );
+	
 	//gAgent.setObjectTracking(gSavedSettings.getBOOL("TrackFocusObject"));
 	gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
 	return LLManip::handleMouseUp(x, y, mask);
@@ -398,7 +410,7 @@ BOOL LLManipScale::handleHover(S32 x, S32 y, MASK mask)
 	}
 	
 	// Patch up textures, if possible.
-	gSelectMgr->adjustTexturesByScale(TRUE, getStretchTextures());
+	gSelectMgr->adjustTexturesByScale(FALSE, getStretchTextures());
 
 	gViewerWindow->getWindow()->setCursor(UI_CURSOR_TOOLSCALE);
 	return TRUE;
@@ -789,8 +801,21 @@ void LLManipScale::drag( S32 x, S32 y )
 		dragCorner( x, y );
 	}
 	
-	//gAgent.setObjectTracking(FALSE);
-	gAgent.clearFocusObject();
+	// store changes to override updates
+	for (LLSelectNode* selectNode = gSelectMgr->getSelection()->getFirstNode();
+		 selectNode != NULL;
+		 selectNode = gSelectMgr->getSelection()->getNextNode())
+	{
+		LLViewerObject*cur = selectNode->getObject();
+		if( cur->permModify() && cur->permMove() && !cur->isAvatar())
+		{
+			selectNode->mLastScale = cur->getScale();
+			selectNode->mLastPositionLocal = cur->getPosition();
+		}
+	}	
+
+	gSelectMgr->updateSelectionCenter();
+    gAgent.clearFocusObject();
 }
 
 // Scale around the 
@@ -801,10 +826,7 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 	// Suppress scale if mouse hasn't moved.
 	if (x == mLastMouseX && y == mLastMouseY)
 	{
-		if (mSendUpdateOnMouseUp)
-		{
-			sendUpdates(TRUE,TRUE,TRUE);
-		}
+	//	sendUpdates(TRUE,TRUE,TRUE);
 		return;
 	}
 
@@ -1003,11 +1025,8 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 			if (!selectNode->mIndividualSelection)
 			{
 				cur->setPosition(selectNode->mSavedPositionLocal * scale_factor);
-				continue;
 			}
 
-			LLVector3d new_pos_global = drag_global + (selectNode->mSavedPositionGlobal - drag_global) * scale_factor;
-			cur->setPositionAbsoluteGlobal( new_pos_global );
 			rebuild(cur);
 		}
 	}
@@ -1015,8 +1034,6 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 	
 
 	mDragPointGlobal = drag_point_global;
-
-	sendUpdates( TRUE, TRUE, TRUE );
 }
 
 	
@@ -1025,10 +1042,7 @@ void LLManipScale::dragFace( S32 x, S32 y )
 	// Suppress scale if mouse hasn't moved.
 	if (x == mLastMouseX && y == mLastMouseY)
 	{
-		if (mSendUpdateOnMouseUp)
-		{
-			sendUpdates(TRUE,TRUE,FALSE);
-		}
+	//	sendUpdates(TRUE,TRUE,FALSE);
 		return;
 	}
 
@@ -1162,8 +1176,6 @@ void LLManipScale::dragFace( S32 x, S32 y )
 	send_scale_update = TRUE;
 
 	mDragPointGlobal = drag_point_global;
-
-	sendUpdates( send_position_update, send_scale_update );
 }
 
 void LLManipScale::sendUpdates( BOOL send_position_update, BOOL send_scale_update, BOOL corner )
@@ -1198,8 +1210,6 @@ void LLManipScale::sendUpdates( BOOL send_position_update, BOOL send_scale_updat
 		{
 			mSendUpdateOnMouseUp = TRUE;
 		}
-
-		gSelectMgr->updateSelectionCenter();
 		dialog_refresh_all();
 	}
 }

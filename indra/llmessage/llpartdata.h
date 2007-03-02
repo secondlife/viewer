@@ -167,6 +167,9 @@ public:
 	// a combination of multiple parameters, we
 	// need to clamp it using a separate method instead of an accessor.
 	void clampSourceParticleRate();
+	
+	friend std::ostream&	 operator<<(std::ostream& s, const LLPartSysData &data);		// Stream a
+	
 public:
 	// Public because I'm lazy....
 

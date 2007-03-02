@@ -204,7 +204,7 @@ BOOL LLToolCompTranslate::handleHover(S32 x, S32 y, MASK mask)
 BOOL LLToolCompTranslate::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	mMouseDown = TRUE;
-	gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, pickCallback);
+	gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, pickCallback, TRUE);
 	return TRUE;
 }
 

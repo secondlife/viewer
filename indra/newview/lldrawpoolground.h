@@ -12,9 +12,17 @@
 #include "lldrawpool.h"
 
 
-class LLDrawPoolGround : public LLDrawPool
+class LLDrawPoolGround : public LLFacePool
 {
 public:
+	enum
+	{
+		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
+							LLVertexBuffer::MAP_TEXCOORD
+	};
+
+	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+
 	LLDrawPoolGround();
 
 	/*virtual*/ LLDrawPool *instancePool();

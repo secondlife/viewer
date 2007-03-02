@@ -9,6 +9,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llvoground.h"
+#include "lldrawpoolground.h"
 
 #include "llviewercontrol.h"
 
@@ -21,7 +22,7 @@
 #include "pipeline.h"
 
 LLVOGround::LLVOGround(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
-:	LLViewerObject(id, pcode, regionp)
+:	LLStaticViewerObject(id, pcode, regionp)
 {
 	mbCanSelect = FALSE;
 }
@@ -38,10 +39,10 @@ BOOL LLVOGround::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		return TRUE;
 	}
 	
-	if (mDrawable)
+	/*if (mDrawable)
 	{
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
-	}
+	}*/
 	return TRUE;
 }
 
@@ -56,7 +57,8 @@ LLDrawable *LLVOGround::createDrawable(LLPipeline *pipeline)
 	pipeline->allocDrawable(this);
 	mDrawable->setLit(FALSE);
 
-	LLDrawPool *poolp = gPipeline.getPool(LLDrawPool::POOL_GROUND);
+	mDrawable->setRenderType(LLPipeline::RENDER_TYPE_GROUND);
+	LLDrawPoolGround *poolp = (LLDrawPoolGround*) gPipeline.getPool(LLDrawPool::POOL_GROUND);
 
 	mDrawable->addFace(poolp, NULL);
 
@@ -68,15 +70,25 @@ BOOL LLVOGround::updateGeometry(LLDrawable *drawable)
 	LLStrider<LLVector3> verticesp;
 	LLStrider<LLVector3> normalsp;
 	LLStrider<LLVector2> texCoordsp;
-	U32 *indicesp;
+	LLStrider<U32> indicesp;
 	S32 index_offset;
 	LLFace *face;	
 
+	LLDrawPoolGround *poolp = (LLDrawPoolGround*) gPipeline.getPool(LLDrawPool::POOL_GROUND);
+
 	if (drawable->getNumFaces() < 1)
-		drawable->addFace(gPipeline.getPool(LLDrawPool::POOL_GROUND), NULL);
+		drawable->addFace(poolp, NULL);
 	face = drawable->getFace(0); 
-	face->setPrimType(LLTriangles);
-	face->setSize(6, 12);
+		
+	if (face->mVertexBuffer.isNull())
+	{
+		face->setSize(5, 12);
+		face->mVertexBuffer = new LLVertexBuffer(LLDrawPoolGround::VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
+		face->mVertexBuffer->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE);
+		face->setGeomIndex(0);
+		face->setIndicesIndex(0);
+	}
+	
 	index_offset = face->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
 	if (-1 == index_offset)
 	{
@@ -98,68 +110,40 @@ BOOL LLVOGround::updateGeometry(LLDrawable *drawable)
 	left_dir.normVec();
 
 	// Our center top point
-	LLVector3 center_top, center_bottom;
-
 	LLColor4 ground_color = gSky.getFogColor();
 	ground_color.mV[3] = 1.f;
 	face->setFaceColor(ground_color);
 	
-	if (gCamera->getOrigin().mV[VZ] < gAgent.getRegion()->getWaterHeight())
-	{
-		// Underwater
-		//center_top = gCamera->getOrigin() + at_dir*gCamera->getFar();
-		center_top = gCamera->getOrigin() - LLVector3(0, 0, 5);
-		center_bottom = gCamera->getOrigin() + at_dir*gCamera->getFar();;
-		//center_top.mV[VZ] = gAgent.getRegion()->getWaterHeight() + 0.5f;
-		center_bottom.mV[VZ] = -100.f;
-	}
-	else
-	{
-		// Above water
-		center_top = gCamera->getOrigin() - LLVector3(0, 0, 30);
-		if ((gPipeline.getVertexShaderLevel(LLPipeline::SHADER_ENVIRONMENT) > 0))
-		{
-			center_top.mV[VZ] = gAgent.getRegion()->getWaterHeight();
-		}
-		//center_top = gCamera->getOrigin() + at_dir*9000.f;
-		center_bottom = gCamera->getOrigin() - at_dir*gCamera->getFar();
-		//center_top.mV[VZ] = 0.f;
-		//center_bottom.mV[VZ] = gAgent.getRegion()->getWaterHeight();
-	}
-
-	*(verticesp++)  = center_top + LLVector3(6000, 6000, 0);
-	*(verticesp++)  = center_top + LLVector3(-6000, 6000, 0);
-	*(verticesp++)  = center_top + LLVector3(-6000, -6000, 0);
-	
-	*(verticesp++)  = center_top + LLVector3(-6000, -6000, 0);
-	*(verticesp++)  = center_top + LLVector3(6000, -6000, 0);
-	*(verticesp++)  = center_top + LLVector3(6000, 6000, 0);
+	*(verticesp++)  = LLVector3(64, 64, 0);
+	*(verticesp++)  = LLVector3(-64, 64, 0);
+	*(verticesp++)  = LLVector3(-64, -64, 0);
+	*(verticesp++)  = LLVector3(64, -64, 0);
+	*(verticesp++)  = LLVector3(0, 0, -1024);
 	
 	
 	// Triangles for each side
 	*indicesp++ = index_offset + 0;
 	*indicesp++ = index_offset + 1;
-	*indicesp++ = index_offset + 3;
+	*indicesp++ = index_offset + 4;
 
+	*indicesp++ = index_offset + 1;
+	*indicesp++ = index_offset + 2;
+	*indicesp++ = index_offset + 4;
+
+	*indicesp++ = index_offset + 2;
+	*indicesp++ = index_offset + 3;
+	*indicesp++ = index_offset + 4;
+
+	*indicesp++ = index_offset + 3;
 	*indicesp++ = index_offset + 0;
-	*indicesp++ = index_offset + 3;
-	*indicesp++ = index_offset + 2;
-
-	*indicesp++ = index_offset + 2;
-	*indicesp++ = index_offset + 3;
-	*indicesp++ = index_offset + 5;
-
-	*indicesp++ = index_offset + 2;
-	*indicesp++ = index_offset + 5;
 	*indicesp++ = index_offset + 4;
 
 	*(texCoordsp++) = LLVector2(0.f, 0.f);
 	*(texCoordsp++) = LLVector2(1.f, 0.f);
-	*(texCoordsp++) = LLVector2(0.f, 1.f);
 	*(texCoordsp++) = LLVector2(1.f, 1.f);
-	*(texCoordsp++) = LLVector2(0.f, 2.f);
-	*(texCoordsp++) = LLVector2(1.f, 2.f);
-
+	*(texCoordsp++) = LLVector2(0.f, 1.f);
+	*(texCoordsp++) = LLVector2(0.5f, 0.5f);
+	
 	LLPipeline::sCompiles++;
 	return TRUE;
 }

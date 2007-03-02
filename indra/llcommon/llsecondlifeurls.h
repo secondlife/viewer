@@ -31,17 +31,8 @@ extern const char UPGRADE_TO_PREMIUM_URL[];
 // How to get DirectX 9
 extern const char DIRECTX_9_URL[];
 
-// On AMD with bad AGP controller
-extern const char AMD_AGP_URL[];
-
 // Out of date VIA chipset
 extern const char VIA_URL[];
-
-// Out of date intel chipset driver
-extern const char INTEL_CHIPSET_URL[];
-
-// Out of date SiS chipset driver
-extern const char SIS_CHIPSET_URL[];
 
 // Linden Blogs page
 extern const char BLOGS_URL[];

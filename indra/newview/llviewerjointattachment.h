@@ -37,7 +37,7 @@ public:
 
 	// Draws the shape attached to a joint.
 	// Called by render().
-	/*virtual*/ U32 drawShape( F32 pixelArea );
+	/*virtual*/ U32 drawShape( F32 pixelArea, BOOL first_pass );
 	
 	/*virtual*/ BOOL updateLOD(F32 pixel_area, BOOL activate);
 
@@ -60,7 +60,7 @@ public:
 	S32 getGroup() { return mGroup; }
 	S32 getPieSlice() { return mPieSlice; }
 	BOOL getAttachmentDirty() { return mAttachmentDirty && mAttachedObject; }
-	LLViewerObject *getObject(S32 i) { return mAttachedObject; }
+	LLViewerObject *getObject() { return mAttachedObject; }
 	S32	getNumObjects() { return (mAttachedObject ? 1 : 0); }
 	const LLUUID& getItemID() { return mItemID; }
 

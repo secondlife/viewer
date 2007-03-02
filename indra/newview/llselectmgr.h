@@ -210,6 +210,7 @@ public:
 	virtual BOOL canDuplicate();
 
 	void updateEffects(); // Update HUD effects
+	void overrideObjectUpdates();
 
 	void setForceSelection(BOOL force) { mForceSelection = force; }
 
@@ -580,9 +581,12 @@ public:
 	LLCategory		mCategory;
 	S16				mInventorySerial;
 	LLVector3		mSavedPositionLocal;	// for interactively modifying object position
+	LLVector3		mLastPositionLocal;
 	LLVector3d		mSavedPositionGlobal;	// for interactively modifying object position
 	LLVector3		mSavedScale;			// for interactively modifying object scale
+	LLVector3		mLastScale;
 	LLQuaternion	mSavedRotation;			// for interactively modifying object rotation
+	LLQuaternion	mLastRotation;
 	BOOL			mDuplicated;
 	LLVector3d		mDuplicatePos;
 	LLQuaternion	mDuplicateRot;

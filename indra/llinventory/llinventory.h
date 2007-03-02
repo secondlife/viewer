@@ -13,6 +13,7 @@
 
 #include "llassetstorage.h"
 #include "lldarray.h"
+#include "llmemtype.h"
 #include "llpermissions.h"
 #include "llsaleinfo.h"
 #include "llsd.h"

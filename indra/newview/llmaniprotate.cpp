@@ -445,11 +445,7 @@ BOOL LLManipRotate::handleMouseUp(S32 x, S32 y, MASK mask)
 	mManipPart = LL_NO_PART;
 
 	// Might have missed last update due to timing.
-	if (mSendUpdateOnMouseUp)
-	{
-		gSelectMgr->sendMultipleUpdate( UPD_ROTATION | UPD_POSITION );
-		mSendUpdateOnMouseUp = FALSE;
-	}
+	gSelectMgr->sendMultipleUpdate( UPD_ROTATION | UPD_POSITION );
 	gSelectMgr->enableSilhouette(TRUE);
 	//gAgent.setObjectTracking(gSavedSettings.getBOOL("TrackFocusObject"));
 
@@ -505,12 +501,6 @@ extern U32 gFrameCount;
 // Freeform rotation
 void LLManipRotate::drag( S32 x, S32 y )
 {
-	static LLTimer	update_timer;
-	F32 elapsed_time = update_timer.getElapsedTimeF32();
-	const F32 UPDATE_DELAY = 0.1f;						//  min time between transmitted updates
-	BOOL send_rotation_update = FALSE;
-	BOOL send_position_update = FALSE;
-
 	if( !updateVisiblity() )
 	{
 		return;
@@ -530,7 +520,6 @@ void LLManipRotate::drag( S32 x, S32 y )
 
 	LLViewerObject* object;
 	LLSelectNode* selectNode;
-	BOOL using_linked_selection = gSavedSettings.getBOOL("SelectLinkedSet");
 
 	for( selectNode = mObjectSelection->getFirstNode(); selectNode != NULL; selectNode = mObjectSelection->getNextNode() )
 	{
@@ -575,12 +564,6 @@ void LLManipRotate::drag( S32 x, S32 y )
 			{
 				object->setRotation(new_rot, damped);
 				rebuild(object);
-			}
-
-			// don't send updates all the time for sub-objects
-			if (using_linked_selection && object->getRenderRotation() != new_rot)
-			{
-				send_rotation_update = TRUE;
 			}
 
 			// for individually selected roots, we need to counterrotate all the children
@@ -674,11 +657,6 @@ void LLManipRotate::drag( S32 x, S32 y )
 				}
 			}
 
-			if (using_linked_selection && object->getPositionAgent() != new_position)
-			{
-				send_position_update = TRUE;
-			}
-
 			// for individually selected roots, we need to counter-translate all unselected children
 			if (object->isRootEdit() && selectNode->mIndividualSelection)
 			{
@@ -709,27 +687,19 @@ void LLManipRotate::drag( S32 x, S32 y )
 		}
 	}
 
-	if ((send_position_update || send_rotation_update) && (elapsed_time > UPDATE_DELAY))
+	// store changes to override updates
+	for (LLSelectNode* selectNode = gSelectMgr->getSelection()->getFirstNode();
+		 selectNode != NULL;
+		 selectNode = gSelectMgr->getSelection()->getNextNode())
 	{
-		U32 flag = UPD_NONE;
-		if (send_rotation_update) 
+		LLViewerObject*cur = selectNode->getObject();
+		if( cur->permModify() && cur->permMove() && !cur->isAvatar())
 		{
-			flag |= UPD_ROTATION;
+			selectNode->mLastRotation = cur->getRotation();
+			selectNode->mLastPositionLocal = cur->getPosition();
 		}
-		if (send_position_update) 
-		{
-			flag |= UPD_POSITION;
-		}
+	}	
 
-		gSelectMgr->sendMultipleUpdate( flag );
-		update_timer.reset();
-		mSendUpdateOnMouseUp = FALSE;
-	}
-	else
-	{
-		mSendUpdateOnMouseUp = TRUE;
-	}
-	
 	gSelectMgr->updateSelectionCenter();
 
 	// RN: just clear focus so camera doesn't follow spurious object updates

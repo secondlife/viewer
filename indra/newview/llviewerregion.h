@@ -153,7 +153,7 @@ public:
 
 	F32	getWidth() const						{ return mWidth; }
 
-	BOOL idleUpdate(LLTimer &timer, const F32 max_time);
+	BOOL idleUpdate(F32 max_update_time);
 
 	// Like idleUpdate, but forces everything to complete regardless of
 	// how long it takes.

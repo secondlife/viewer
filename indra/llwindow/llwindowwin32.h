@@ -182,6 +182,7 @@ private:
 };
 
 extern LLW32MsgCallback gAsyncMsgCallback;
+extern LPWSTR gIconResource;
 
 static void	handleMessage( const MSG& msg );
 

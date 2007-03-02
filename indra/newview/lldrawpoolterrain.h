@@ -11,10 +11,22 @@
 
 #include "lldrawpool.h"
 
-class LLDrawPoolTerrain : public LLDrawPool
+class LLDrawPoolTerrain : public LLFacePool
 {
 	LLPointer<LLViewerImage> mTexturep;
 public:
+	enum
+	{
+		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
+							LLVertexBuffer::MAP_NORMAL |
+							LLVertexBuffer::MAP_TEXCOORD |
+							LLVertexBuffer::MAP_TEXCOORD2 |
+							LLVertexBuffer::MAP_COLOR
+	};
+
+	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+	static S32 getDetailMode();
+
 	LLDrawPoolTerrain(LLViewerImage *texturep);
 	virtual ~LLDrawPoolTerrain();
 
@@ -24,7 +36,7 @@ public:
 	/*virtual*/ void render(S32 pass = 0);
 	/*virtual*/ void prerender();
 	/*virtual*/ void renderForSelect();
-	/*virtual*/ void dirtyTexture(const LLViewerImage *texturep);
+	/*virtual*/ void dirtyTextures(const std::set<LLViewerImage*>& textures);
 	/*virtual*/ LLViewerImage *getTexture();
 	/*virtual*/ LLViewerImage *getDebugTexture();
 	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display

@@ -167,8 +167,9 @@ protected:
 	BOOL				mDrawButton;
 	LLLineEditor*		mTextEntry;
 	LLPointer<LLImageGL>	mArrowImage;
+	S32					mArrowImageWidth;
 	BOOL				mAllowTextEntry;
-	S32				mMaxChars;
+	S32					mMaxChars;
 	BOOL				mTextEntryTentative;
 	void				(*mPrearrangeCallback)(LLUICtrl*,void*);
 	void				(*mTextEntryCallback)(LLLineEditor*, void*);

@@ -43,6 +43,7 @@ LLComboBox::LLComboBox(	const LLString& name, const LLRect &rect, const LLString
 	mDrawButton(TRUE),
 	mTextEntry(NULL),
 	mArrowImage(NULL),
+	mArrowImageWidth(8),
 	mAllowTextEntry(FALSE),
 	mMaxChars(20),
 	mTextEntryTentative(TRUE),
@@ -99,6 +100,7 @@ LLComboBox::LLComboBox(	const LLString& name, const LLRect &rect, const LLString
 
 	LLUUID arrow_image_id( LLUI::sAssetsGroup->getString("combobox_arrow.tga") );
 	mArrowImage = LLUI::sImageProvider->getUIImageByID(arrow_image_id);
+	mArrowImageWidth = llmax(8,mArrowImage->getWidth()); // In case image hasn't loaded yet
 }
 
 
@@ -502,7 +504,7 @@ void LLComboBox::setButtonVisible(BOOL visible)
 		LLRect text_entry_rect(0, mRect.getHeight(), mRect.getWidth(), 0);
 		if (visible)
 		{
-			text_entry_rect.mRight -= mArrowImage->getWidth() + 2 * LLUI::sConfigGroup->getS32("DropShadowButton");
+			text_entry_rect.mRight -= mArrowImageWidth + 2 * LLUI::sConfigGroup->getS32("DropShadowButton");
 		}
 		//mTextEntry->setRect(text_entry_rect);
 		mTextEntry->reshape(text_entry_rect.getWidth(), text_entry_rect.getHeight(), TRUE);
@@ -525,7 +527,7 @@ void LLComboBox::draw()
 			// Paste the graphic on the right edge
 			if (!mArrowImage.isNull())
 			{
-				S32 left = mRect.getWidth() - mArrowImage->getWidth() - LLUI::sConfigGroup->getS32("DropShadowButton");
+				S32 left = mRect.getWidth() - mArrowImageWidth - LLUI::sConfigGroup->getS32("DropShadowButton");
 
 				gl_draw_image( left, 0, mArrowImage,
 					LLColor4::white);
@@ -825,7 +827,7 @@ void LLComboBox::setAllowTextEntry(BOOL allow, S32 max_chars, BOOL set_tentative
 	if (allow && !mAllowTextEntry)
 	{
 		S32 shadow_size = LLUI::sConfigGroup->getS32("DropShadowButton");
-		mButton->setRect(LLRect( mRect.getWidth() - mArrowImage->getWidth() - 2 * shadow_size,
+		mButton->setRect(LLRect( mRect.getWidth() - mArrowImageWidth - 2 * shadow_size,
 								rect.mTop, rect.mRight, rect.mBottom));
 		mButton->setTabStop(FALSE);
 
@@ -835,7 +837,7 @@ void LLComboBox::setAllowTextEntry(BOOL allow, S32 max_chars, BOOL set_tentative
 		if (!mTextEntry)
 		{
 			LLRect text_entry_rect(0, mRect.getHeight(), mRect.getWidth(), 0);
-			text_entry_rect.mRight -= mArrowImage->getWidth() + 2 * LLUI::sConfigGroup->getS32("DropShadowButton");
+			text_entry_rect.mRight -= mArrowImageWidth + 2 * LLUI::sConfigGroup->getS32("DropShadowButton");
 			mTextEntry = new LLLineEditor("combo_text_entry",
 										text_entry_rect,
 										"",

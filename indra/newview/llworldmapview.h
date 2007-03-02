@@ -47,12 +47,13 @@ public:
 	virtual ~LLWorldMapView();
 
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE );
+	virtual void	setVisible(BOOL visible);
 
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleDoubleClick( S32 x, S32 y, MASK mask );
 	virtual BOOL	handleHover( S32 x, S32 y, MASK mask );
-	/*virtual*/ BOOL	handleToolTip( S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen );
+	virtual BOOL	handleToolTip( S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen );
 
 	bool			checkItemHit(S32 x, S32 y, LLItemInfo& item, LLUUID* id, bool track);
 	void			handleClick(S32 x, S32 y, MASK mask, S32* hit_type, LLUUID* id);

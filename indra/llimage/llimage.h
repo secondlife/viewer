@@ -13,7 +13,7 @@
 #include "lluuid.h"
 #include "llstring.h"
 #include "llmemory.h"
-#include "llworkerthread.h"
+#include "llthread.h"
 
 const S32 MIN_IMAGE_MIP =  2; // 4x4, only used for expand/contract power of 2
 const S32 MAX_IMAGE_MIP = 11; // 2048x2048
@@ -135,8 +135,6 @@ public:
 	/*virtual*/ U8* allocateData(S32 size = -1);
 	/*virtual*/ U8* reallocateData(S32 size);
 	
-	BOOL copyData(U8 *data, U16 width, U16 height, S8 components);
-
 	BOOL resize(U16 width, U16 height, S8 components);
 
 	U8 * getSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height) const;
@@ -206,11 +204,10 @@ public:
 
 // Compressed representation of image.
 // Subclass from this class for the different representations (J2C, bmp)
-class LLImageFormatted : public LLImageBase, public LLWorkerClass
+class LLImageFormatted : public LLImageBase
 {
 public:
-	static void initClass(bool threaded = true, bool run_always = true);
-	static void cleanupClass();
+	static LLImageFormatted* createFromType(S8 codec);
 	static LLImageFormatted* createFromExtension(const LLString& instring);	
 
 protected:
@@ -228,22 +225,11 @@ public:
 	/*virtual*/ void dump();
 	/*virtual*/ void sanityCheck();
 
-	// LLWorkerThread
-public:
-	// called from WORKER THREAD, returns TRUE if done
-	/*virtual*/ bool doWork(S32 param);
-private:
-	// called from MAIN THREAD
-	/*virtual*/ void startWork(S32 param); // called from addWork()
-	/*virtual*/ void endWork(S32 param, bool aborted); // called from doWork()
-
 	// New methods
 public:
 	// calcHeaderSize() returns the maximum size of header;
 	//   0 indicates we don't know have a header and have to lead the entire file
 	virtual S32 calcHeaderSize() { return 0; };
-	// readHeader() reads size bytes into mData, and sets width/height/ncomponents
-	virtual void readHeader(U8* data, S32 size);
 	// calcDataSize() returns how many bytes to read to load discard_level (including header)
 	virtual S32 calcDataSize(S32 discard_level);
 	// calcDiscardLevelBytes() returns the smallest valid discard level based on the number of input bytes
@@ -253,26 +239,15 @@ public:
 	
 	BOOL load(const LLString& filename);
 	BOOL save(const LLString& filename);
-// 	BOOL save(LLVFS *vfs, const LLUUID &uuid, const LLAssetType::EType type);
-//    Depricated to remove VFS dependency (see .cpp for replacement):
 
 	virtual BOOL updateData() = 0; // pure virtual
-	BOOL copyData(U8 *data, S32 size); // calls updateData()
- 	BOOL setData(U8 *data, S32 size); // calls updateData()
-	BOOL appendData(U8 *data, S32 size); // use if some data (e.g header) is already loaded, calls updateData()
+ 	void setData(U8 *data, S32 size);
+ 	void appendData(U8 *data, S32 size);
 
 	// Loads first 4 channels.
 	virtual BOOL decode(LLImageRaw* raw_image, F32 decode_time=0.0) = 0;  
 	// Subclasses that can handle more than 4 channels should override this function.
 	virtual BOOL decode(LLImageRaw* raw_image, F32 decode_time, S32 first_channel, S32 max_channel);
-
-	// Decode methods to return a pointer to raw data for purposes of passing to
-	// opengl or such. This class tracks the decoded data and keeps it alive until
-	// destroyed or releaseDecodedData() is called.
-	virtual BOOL requestDecodedData(LLPointer<LLImageRaw>& raw, S32 discard = -1, F32 decode_time=0.0);
-	virtual BOOL requestDecodedAuxData(LLPointer<LLImageRaw>& raw, S32 channel, 
-									   S32 discard = -1, F32 decode_time=0.0);
-	virtual void releaseDecodedData();
 
 	virtual BOOL encode(const LLImageRaw* raw_image, F32 encode_time=0.0) = 0;
 
@@ -283,16 +258,16 @@ public:
 	S8 getDiscardLevel() const { return mDiscardLevel; }
 
 protected:
+	BOOL copyData(U8 *data, S32 size); // calls updateData()
+	
+protected:
 	S8 mCodec;
 	S8 mDecoding;
 	S8 mDecoded;
 	S8 mDiscardLevel;
 
-	LLPointer<LLImageRaw> mDecodedImage;
-	
 public:
 	static S32 sGlobalFormattedMemory;
-	static LLWorkerThread* sWorkerThread;
 };
 
 #endif

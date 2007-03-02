@@ -115,6 +115,15 @@ void LLImageGL::unbindTexture(S32 stage, LLGLenum bind_target)
 	sCurrentBoundTextures[stage] = 0;
 }
 
+// static (duplicated for speed and to avoid GL_TEXTURE_2D default argument which requires GL header dependency)
+void LLImageGL::unbindTexture(S32 stage)
+{
+	glActiveTextureARB(GL_TEXTURE0_ARB + stage);
+	glClientActiveTextureARB(GL_TEXTURE0_ARB + stage);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	sCurrentBoundTextures[stage] = 0;
+}
+
 // static
 void LLImageGL::updateStats(F32 current_time)
 {
@@ -371,13 +380,8 @@ BOOL LLImageGL::bindTextureInternal(const S32 stage) const
 		llwarns << "Trying to bind a texture while GL is disabled!" << llendl;
 	}
 
-	stop_glerror();
-	
 	glActiveTextureARB(GL_TEXTURE0_ARB + stage);
-	//glClientActiveTextureARB(GL_TEXTURE0_ARB + stage);
-	
-	stop_glerror();
-
+		
 	if (sCurrentBoundTextures[stage] && sCurrentBoundTextures[stage] == mTexName)
 	{
 		// already set!
@@ -392,7 +396,6 @@ BOOL LLImageGL::bindTextureInternal(const S32 stage) const
 
 		glBindTexture(mBindTarget, mTexName);
 		sCurrentBoundTextures[stage] = mTexName;
-		stop_glerror();
 
 		if (mLastBindTime != sLastFrameTime)
 		{
@@ -631,6 +634,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 		}
 		mHasMipMaps = FALSE;
 	}
+	glFlush();
 	stop_glerror();
 }
 
@@ -645,6 +649,11 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
 		llwarns << "Setting subimage on image without GL texture" << llendl;
 		return FALSE;
 	}
+	if (datap == NULL)
+	{
+		llwarns << "Setting subimage on image with NULL datap" << llendl;
+		return FALSE;
+	}
 	
 	if (x_pos == 0 && y_pos == 0 && width == getWidth() && height == getHeight())
 	{
@@ -657,7 +666,9 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
 			dump();
 			llerrs << "setSubImage called with mipmapped image (not supported)" << llendl;
 		}
-		llassert(mCurrentDiscardLevel == 0);
+		llassert_always(mCurrentDiscardLevel == 0);
+		llassert_always(x_pos >= 0 && y_pos >= 0);
+		
 		if (((x_pos + width) > getWidth()) || 
 			(y_pos + height) > getHeight())
 		{
@@ -698,7 +709,8 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
 
 		datap += (y_pos * data_width + x_pos) * getComponents();
 		// Update the GL texture
-		llverify(bindTextureInternal(0));
+		BOOL res = bindTextureInternal(0);
+		if (!res) llerrs << "LLImageGL::setSubImage(): bindTexture failed" << llendl;
 		stop_glerror();
 
 		glTexSubImage2D(mTarget, 0, x_pos, y_pos, 
@@ -714,7 +726,7 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
 		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 		stop_glerror();
 	}
-	
+	glFlush();
 	return TRUE;
 }
 

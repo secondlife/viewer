@@ -196,6 +196,34 @@ void LLSelectMgr::updateEffects()
 	}
 }
 
+void LLSelectMgr::overrideObjectUpdates()
+{
+	//override any position updates from simulator on objects being edited
+	LLSelectNode* selectNode;
+	for (selectNode = gSelectMgr->getSelection()->getFirstNode();
+		 selectNode != NULL;
+		 selectNode = gSelectMgr->getSelection()->getNextNode())
+	{
+		LLViewerObject* object = selectNode->getObject();
+		
+		if (object->permMove())
+		{
+			if (!selectNode->mLastPositionLocal.isExactlyZero())
+			{
+				object->setPosition(selectNode->mLastPositionLocal);
+			}
+			if (selectNode->mLastRotation != LLQuaternion())
+			{
+				object->setRotation(selectNode->mLastRotation);
+			}
+			if (!selectNode->mLastScale.isExactlyZero())
+			{
+				object->setScale(selectNode->mLastScale);
+			}
+		}
+	}
+}
+
 //-----------------------------------------------------------------------------
 // Select just the object, not any other group members.
 //-----------------------------------------------------------------------------
@@ -3520,7 +3548,8 @@ void LLSelectMgr::sendAttach(U8 attachment_point)
 
 	BOOL build_mode = gToolMgr->inEdit();
 	// Special case: Attach to default location for this object.
-	if (0 == attachment_point)
+	if (0 == attachment_point ||
+		gAgent.getAvatarObject()->mAttachmentPoints.getIfThere(attachment_point))
 	{
 		sendListToRegions(
 			"ObjectAttach",
@@ -3531,48 +3560,6 @@ void LLSelectMgr::sendAttach(U8 attachment_point)
 		if (!build_mode)
 		{
 			deselectAll();
-		}
-	}
-	else
-	{
-		LLViewerJointAttachment* attachment = gAgent.getAvatarObject()->mAttachmentPoints.getIfThere(attachment_point);
-		if (attachment)
-		{
-			LLQuaternion object_world_rot = attach_object->getRenderRotation();
-			LLQuaternion attachment_pt__world_rot = attachment->getWorldRotation();
-			LLQuaternion local_rot = object_world_rot * ~attachment_pt__world_rot;
-
-			F32 x,y,z;
-			local_rot.getEulerAngles(&x, &y, &z);
-			// snap to nearest 90 degree rotation
-			// make sure all euler angles are positive
-			if (x < F_PI_BY_TWO) x += F_TWO_PI;
-			if (y < F_PI_BY_TWO) y += F_TWO_PI;
-			if (z < F_PI_BY_TWO) z += F_TWO_PI;
-
-			// add 45 degrees so that rounding down becomes rounding off
-			x += F_PI_BY_TWO / 2.f;
-			y += F_PI_BY_TWO / 2.f;
-			z += F_PI_BY_TWO / 2.f;
-			// round down to nearest multiple of 90 degrees
-			x -= fmodf(x, F_PI_BY_TWO);
-			y -= fmodf(y, F_PI_BY_TWO);
-			z -= fmodf(z, F_PI_BY_TWO);
-
-			// pass the requested rotation on to the simulator
-			local_rot.setQuat(x, y, z);
-			attach_object->setRotation(local_rot);
-
-			sendListToRegions(
-				"ObjectAttach",
-				packAgentIDAndSessionAndAttachment,
-				packObjectIDAndRotation,
-				&attachment_point,
-				SEND_ONLY_ROOTS );
-			if (!build_mode)
-			{
-				deselectAll();
-			}
 		}
 	}
 }
@@ -3764,7 +3751,10 @@ void LLSelectMgr::saveSelectedObjectTransform(EActionType action_type)
 			if (object->isRootEdit())
 			{
 				LLXform* parent_xform = object->mDrawable->getXform()->getParent();
-				selectNode->mSavedPositionGlobal = gAgent.getPosGlobalFromAgent((object->getPosition() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition());
+				if (parent_xform)
+				{
+					selectNode->mSavedPositionGlobal = gAgent.getPosGlobalFromAgent((object->getPosition() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition());
+				}
 			}
 			else
 			{
@@ -4064,6 +4054,17 @@ void LLSelectMgr::sendListToRegions(const LLString& message_name,
 	S32 objects_sent = 0;
 	S32 packets_sent = 0;
 	S32 objects_in_this_packet = 0;
+
+
+	//clear update override data (allow next update through)
+	for (node = mSelectedObjects->getFirstNode();
+		 node;
+		 node = mSelectedObjects->getNextNode())
+	{
+		node->mLastPositionLocal.setVec(0,0,0);
+		node->mLastRotation = LLQuaternion();
+		node->mLastScale.setVec(0,0,0);
+	}
 
 	std::queue<LLSelectNode*> nodes_to_send;
 	
@@ -4583,7 +4584,7 @@ void LLSelectMgr::updateSilhouettes()
 					|| objectp->isChanged(LLXform::SILHOUETTE)
 					|| (objectp->getParent() && objectp->getParent()->isChanged(LLXform::SILHOUETTE)))
 				{
-					if (num_sils_genned++ < MAX_SILS_PER_FRAME && objectp->mDrawable->isVisible())
+					if (num_sils_genned++ < MAX_SILS_PER_FRAME)// && objectp->mDrawable->isVisible())
 					{
 						generateSilhouette(node, gCamera->getOrigin());
 						changed_objects.put(objectp);
@@ -4816,7 +4817,6 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 	}
 	if (mSelectedObjects->getNumNodes())
 	{
-		glPushAttrib(GL_FOG_BIT);
 		LLUUID inspect_item_id = LLFloaterInspect::getSelectedUUID();
 		for (S32 pass = 0; pass < 2; pass++)
 		{
@@ -4848,7 +4848,6 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 				}
 			}
 		}
-		glPopAttrib();
 	}
 
 	if (mHighlightedObjects->getNumNodes())
@@ -5266,12 +5265,7 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 	}
 
 	BOOL is_hud_object = objectp->isHUDAttachment();
-
-	if (!drawable->isVisible() && !is_hud_object)
-	{
-		return;
-	}
-
+	
 	if (mSilhouetteVertices.size() == 0 || mSilhouetteNormals.size() != mSilhouetteVertices.size())
 	{
 		return;
@@ -5302,7 +5296,7 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 		else
 		{
 			LLVector3 view_vector = gCamera->getOrigin() - objectp->getRenderPosition();
-			silhouette_thickness = drawable->mDistanceWRTCamera * LLSelectMgr::sHighlightThickness * (gCamera->getView() / gCamera->getDefaultFOV());
+			silhouette_thickness = view_vector.magVec() * LLSelectMgr::sHighlightThickness * (gCamera->getView() / gCamera->getDefaultFOV());
 		}		
 		F32 animationTime = (F32)LLFrameTimer::getElapsedSeconds();
 
@@ -5328,7 +5322,6 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 				S32 i = 0;
 				for (S32 seg_num = 0; seg_num < (S32)mSilhouetteSegments.size(); seg_num++)
 				{
-// 					S32 first_i = i;
 					for(; i < mSilhouetteSegments[seg_num]; i++)
 					{
 						u_coord += u_divisor * LLSelectMgr::sHighlightUScale;
@@ -5337,11 +5330,6 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 						glTexCoord2f( u_coord, v_coord );
 						glVertex3fv( mSilhouetteVertices[i].mV );
 					}
-
-					/*u_coord += u_divisor * LLSelectMgr::sHighlightUScale;
-					glColor4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
-					glTexCoord2f( u_coord, v_coord );
-					glVertex3fv( mSilhouetteVertices[first_i].mV );*/
 				}
 			}
             glEnd();
@@ -5349,7 +5337,6 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 		}
 
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//glAlphaFunc(GL_GREATER, LLSelectMgr::sHighlightAlphaTest);
 		glBegin(GL_TRIANGLES);
 		{
 			S32 i = 0;
@@ -5467,6 +5454,10 @@ void LLSelectMgr::updateSelectionCenter()
 {
 	const F32 MOVE_SELECTION_THRESHOLD = 1.f;		//  Movement threshold in meters for updating selection
 													//  center (tractor beam)
+
+	//override any object updates received
+	//for selected objects
+	gSelectMgr->overrideObjectUpdates();
 
 	LLViewerObject* object = mSelectedObjects->getFirstObject();
 	if (!object)

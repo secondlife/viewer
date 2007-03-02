@@ -15,57 +15,41 @@
 #include "lluuid.h"
 
 class LLImageRaw;
+class LLSpatialGroup;
+class LLDrawInfo;
 
-class LLDrawPoolBump : public LLDrawPool
+class LLDrawPoolBump : public LLRenderPass
 {
-protected:
-	LLPointer<LLViewerImage> mTexturep;  // The primary texture, not the bump texture
-
 public:
-	LLDrawPoolBump(LLViewerImage *texturep);
+	static U32 sVertexMask;
 
-	/*virtual*/ LLDrawPool *instancePool();
+	virtual U32 getVertexDataMask() { return sVertexMask; }
+
+	LLDrawPoolBump();
 
 	/*virtual*/ void render(S32 pass = 0);
 	/*virtual*/ void beginRenderPass( S32 pass );
 	/*virtual*/ void endRenderPass( S32 pass );
 	/*virtual*/ S32	 getNumPasses();
-	/*virtual*/ void renderFaceSelected(LLFace *facep, LLImageGL *image, const LLColor4 &color,
-										const S32 index_offset = 0, const S32 index_count = 0);
 	/*virtual*/ void prerender();
-	/*virtual*/ void renderForSelect();
-	/*virtual*/ void dirtyTexture(const LLViewerImage *texturep);
-	/*virtual*/ LLViewerImage *getTexture();
-	/*virtual*/ LLViewerImage *getDebugTexture();
-	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
-	/*virtual*/ BOOL match(LLFace* last_face, LLFace* facep);
+	/*virtual*/ void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture);
+
+	void renderBump(U32 type, U32 mask);
+	void renderBumpActive(U32 type, U32 mask);
+	void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture);
+	void renderGroupBump(LLSpatialGroup* group, U32 type, U32 mask);
 	
-	virtual S32 getMaterialAttribIndex();
-	static S32 numBumpPasses();
+	S32 numBumpPasses();
 	
-	static void beginPass0(LLDrawPool* pool);
-	static S32  renderPass0(LLDrawPool* pool, face_array_t& face_list, const U32* index_array, LLViewerImage* tex);
-	static void endPass0(LLDrawPool* pool);
+	void beginShiny();
+	void renderShiny();
+	void endShiny();
+	void renderActive(U32 type, U32 mask, BOOL texture = TRUE);
 
-	static void beginPass1();
-	static S32  renderPass1(face_array_t& face_list, const U32* index_array, LLViewerImage* tex);
-	static void endPass1();
-
-	static void beginPass2();
-	static S32  renderPass2(face_array_t& face_list, const U32* index_array, LLViewerImage* tex);
-	static void endPass2();
-
-	/*virtual*/ void enableShade();
-	/*virtual*/ void disableShade();
-	/*virtual*/ void setShade(F32 shade);
-
-protected:
-	static LLImageGL* getBumpMap(const LLTextureEntry* te, LLViewerImage* tex);
-
-public:
-	static S32 sBumpTex;
-	static S32 sDiffTex;
-	static S32 sEnvTex;
+	void beginBump();
+	void renderBump();
+	void endBump();
+	BOOL bindBumpMap(LLDrawInfo& params);
 };
 
 enum EBumpEffect

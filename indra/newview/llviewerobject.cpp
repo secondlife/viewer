@@ -68,7 +68,6 @@
 #include "llvosurfacepatch.h"
 #include "llvotextbubble.h"
 #include "llvotree.h"
-#include "llvotreenew.h"
 #include "llvovolume.h"
 #include "llvowater.h"
 #include "llworld.h"
@@ -112,7 +111,6 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 	case LL_PCODE_TREE_NEW:
 		llwarns << "Creating new tree!" << llendl;
 //		res = new LLVOTree(id, pcode, regionp); break;
-//		res = new LLVOTreeNew(id, pcode, regionp); break;
 		res = NULL; break;
 	case LL_PCODE_LEGACY_TEXT_BUBBLE:
 	  res = new LLVOTextBubble(id, pcode, regionp); break;
@@ -154,10 +152,11 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mText(),
 	mLastInterpUpdateSecs(0.f),
 	mLastMessageUpdateSecs(0.f),
+	mLatestRecvPacketID(0),
 	mData(NULL),
 	mAudioSourcep(NULL),
 	mAppAngle(0.f),
-	mPixelArea(0.f),
+	mPixelArea(1024.f),
 	mInventory(NULL),
 	mInventorySerialNum(0),
 	mRegionp( regionp ),
@@ -169,7 +168,6 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mOnActiveList(FALSE),
 	mOnMap(FALSE),
 	mStatic(FALSE),
-	mFaceIndexOffset(0),
 	mNumFaces(0),
 	mLastUpdateFrame(0),
 	mTimeDilation(1.f),
@@ -349,10 +347,12 @@ void LLViewerObject::dump() const
 	llinfos << "Velocity: " << getVelocity() << llendl;
 	if (mDrawable.notNull() && mDrawable->getNumFaces())
 	{
-		LLDrawPool *poolp = mDrawable->getFace(0)->getPool();
-		llinfos << "Pool: " << poolp << llendl;
-		llinfos << "Pool reference count: " << poolp->mReferences.size() << llendl;
-		llinfos << "Pool vertex count: " << poolp->getVertexCount() << llendl;
+		LLFacePool *poolp = mDrawable->getFace(0)->getPool();
+		if (poolp)
+		{
+			llinfos << "Pool: " << poolp << llendl;
+			llinfos << "Pool reference count: " << poolp->mReferences.size() << llendl;
+		}
 	}
 	//llinfos << "BoxTree Min: " << mDrawable->getBox()->getMin() << llendl;
 	//llinfos << "BoxTree Max: " << mDrawable->getBox()->getMin() << llendl;
@@ -596,11 +596,24 @@ BOOL LLViewerObject::setDrawableParent(LLDrawable* parentp)
 		return FALSE;
 	}
 
+	LLDrawable* old_parent = mDrawable->mParent;
+
 	mDrawable->mParent = parentp; 
 	
 	BOOL ret = mDrawable->mXform.setParent(parentp ? &parentp->mXform : NULL);
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
-	gPipeline.markMoved(mDrawable, FALSE);
+	if (old_parent || (parentp && parentp->isActive()))
+	{
+		gPipeline.markMoved(mDrawable, FALSE);
+	}
+	else
+	{
+		mDrawable->updateXform(TRUE);
+		if (!mDrawable->getSpatialGroup())
+		{
+			mDrawable->movePartition();
+		}
+	}
 	
 	return ret;
 }
@@ -655,7 +668,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	LLVector3 new_acc;
 	LLVector3 new_angv;
 	LLQuaternion new_rot;
-	LLVector3 new_scale;
+	LLVector3 new_scale = getScale();
 
 	U32	parent_id = 0;
 	U8	material = 0;
@@ -880,13 +893,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 				// ...new objects that should come in selected need to be added to the selected list
 				mCreateSelected = ((flags & FLAGS_CREATE_SELECTED) != 0);
-
-				// Set the change flags for scale
-				if (new_scale != getScale())
-				{
-					setChanged(SCALED | SILHOUETTE);
-					setScale(new_scale);  // Must follow setting permYouOwner()
-				}
 
 				// Set all name value pairs
 				S32 nv_size = mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_NameValue);
@@ -1465,14 +1471,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 					// ...new objects that should come in selected need to be added to the selected list
 				mCreateSelected = ((flags & FLAGS_CREATE_SELECTED) != 0);
-
-				// Set the change flags for scale
-				if (new_scale != getScale())
-				{
-					setChanged(SCALED | SILHOUETTE);
-					setScale(new_scale);  // Must follow setting permYouOwner()
-				}
-
 			}
 			break;
 
@@ -1744,6 +1742,23 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	//
 	//
 
+	U32 packet_id = mesgsys->getCurrentRecvPacketID(); 
+	if (packet_id < mLatestRecvPacketID && 
+		mLatestRecvPacketID - packet_id < 65536)
+	{
+		//skip application of this message, it's old
+		return retval;
+	}
+
+	mLatestRecvPacketID = packet_id;
+
+	// Set the change flags for scale
+	if (new_scale != getScale())
+	{
+		setChanged(SCALED | SILHOUETTE);
+		setScale(new_scale);  // Must follow setting permYouOwner()
+	}
+
 	// first, let's see if the new position is actually a change
 
 	//static S32 counter = 0;
@@ -1771,14 +1786,10 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 	if (new_rot != mLastRot)
 	{
-	//	if (getAngularVelocity().isExactlyZero() || 
-	//		new_angv != getAngularVelocity())
-		{
-			mLastRot = new_rot;
-			setChanged(ROTATED | SILHOUETTE);
-			setRotation(new_rot);
-			resetRot();
-		}
+		mLastRot = new_rot;
+		setChanged(ROTATED | SILHOUETTE);
+		setRotation(new_rot);
+		resetRot();
 	}
 
 
@@ -2625,6 +2636,11 @@ BOOL LLViewerObject::updateGeometry(LLDrawable *drawable)
 	return TRUE;
 }
 
+void LLViewerObject::updateFaceSize(S32 idx)
+{
+	
+}
+
 LLDrawable* LLViewerObject::createDrawable(LLPipeline *pipeline)
 {
 	return NULL;
@@ -2665,11 +2681,21 @@ void LLViewerObject::setScale(const LLVector3 &scale, BOOL damped)
 void LLViewerObject::updateSpatialExtents(LLVector3& newMin, LLVector3 &newMax)
 {
 	LLVector3 center = getRenderPosition();
-	F32 sz = llmin(mDrawable->getRadius(), 256.f);
-	LLVector3 size = LLVector3(sz,sz,sz);
+	LLVector3 size = getScale();
 	newMin.setVec(center-size);
 	newMax.setVec(center+size);
 	mDrawable->setPositionGroup((newMin + newMax) * 0.5f);
+}
+
+F32 LLViewerObject::getBinRadius()
+{
+	if (mDrawable.notNull())
+	{
+		const LLVector3* ext = mDrawable->getSpatialExtents();
+		return (ext[1]-ext[0]).magVec();
+	}
+	
+	return getScale().magVec();
 }
 
 F32 LLViewerObject::getMaxScale() const
@@ -3574,11 +3600,6 @@ S32 LLViewerObject::setTETexGen(const U8 te, const U8 texgen)
 	{
 		retval = LLPrimitive::setTETexGen(te, texgen);
 		setChanged(TEXTURE);
-		if (mDrawable.notNull() && retval)
-		{
-			gPipeline.markTextured(mDrawable);
-			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
-		}
 	}
 	return retval;
 }
@@ -3595,11 +3616,6 @@ S32 LLViewerObject::setTEShiny(const U8 te, const U8 shiny)
 	{
 		retval = LLPrimitive::setTEShiny(te, shiny);
 		setChanged(TEXTURE);
-		if (mDrawable.notNull() && retval)
-		{
-			gPipeline.markTextured(mDrawable);
-			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY, TRUE);
-		}
 	}
 	return retval;
 }
@@ -3744,7 +3760,7 @@ LLViewerImage *LLViewerObject::getTEImage(const U8 face) const
 		}
 	}
 
-	llerrs << "Requested invalid face!" << llendl;
+	llerrs << llformat("Requested Image from invalid face: %d/%d",face,getNumTEs()) << llendl;
 
 	return NULL;
 }
@@ -3838,6 +3854,11 @@ void LLViewerObject::setCanSelect(BOOL canSelect)
 
 void LLViewerObject::setDebugText(const std::string &utf8text)
 {
+	if (utf8text.empty() && !mText)
+	{
+		return;
+	}
+
 	if (!mText)
 	{
 		mText = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
@@ -4558,6 +4579,7 @@ void LLViewerObject::markForUpdate(BOOL priority)
 void LLViewerObject::setRegion(LLViewerRegion *regionp)
 {
 	llassert(regionp);
+	mLatestRecvPacketID = 0;
 	mRegionp = regionp;
 	setChanged(MOVED | SILHOUETTE);
 	updateDrawable(FALSE);
@@ -4645,4 +4667,31 @@ void LLViewerObject::applyAngularVelocity(F32 dt)
 void LLViewerObject::resetRot()
 {
 	mRotTime = 0.0f;
+}
+
+U32 LLViewerObject::getPartitionType() const
+{ 
+	return LLPipeline::PARTITION_NONE; 
+}
+
+BOOL LLAlphaObject::isParticle()
+{
+	return FALSE;
+}
+
+F32 LLAlphaObject::getPartSize(S32 idx)
+{
+	return 0.f;
+}
+
+// virtual
+void LLStaticViewerObject::updateDrawable(BOOL force_damped)
+{
+	// Force an immediate rebuild on any update
+	if (mDrawable.notNull())
+	{
+		mDrawable->updateXform(TRUE);
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+	}
+	clearChanged(SHIFTED);
 }

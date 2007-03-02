@@ -15,7 +15,7 @@
 #include "llmath.h"
 #include "noise.h"
 #include "v3math.h"
-
+#include "llvertexbuffer.h"
 #include "llgl.h"
 #include "llglheaders.h"
 
@@ -24,6 +24,10 @@ LLCone		gCone;
 
 GLUquadricObj* gQuadObj = NULL;
 
+static const GLint SLICES[] = { 30, 20, 12, 6 };		// same as sphere slices
+static const GLint STACKS = 2;
+static const GLfloat RADIUS = 0.5f;
+	
 // draws a cylinder or cone
 // returns approximate number of triangles required
 U32 draw_cylinder_side(GLint slices, GLint stacks, GLfloat base_radius, GLfloat top_radius)
@@ -87,46 +91,27 @@ U32 draw_cylinder_cap(GLint slices, GLfloat base_radius, BOOL is_top)
 	return triangles;
 }
 
+void LLCylinder::drawSide(S32 detail)
+{
+	draw_cylinder_side(SLICES[detail], STACKS, RADIUS, RADIUS);
+}
+
+void LLCylinder::drawTop(S32 detail)
+{
+	draw_cylinder_cap(SLICES[detail], RADIUS, TOP);
+}
+
+void LLCylinder::drawBottom(S32 detail)
+{
+	draw_cylinder_cap(SLICES[detail], RADIUS, BOTTOM);
+}
 
 void LLCylinder::prerender()
 {
-	GLint stacks = 2;
-	GLfloat radius = 0.5f;
-	GLint slices[CYLINDER_LEVELS_OF_DETAIL] = { 30, 20, 12, 6 };		// same as sphere slices
-
-	for (S32 detail = 0; detail < CYLINDER_LEVELS_OF_DETAIL; detail++)
-	{
-		mTriangleCount[detail] = 0;
-
-		mDisplayListSide[detail] = glGenLists(1);
-		glNewList(mDisplayListSide[detail], GL_COMPILE);
-		mTriangleCount[detail] += draw_cylinder_side( slices[detail], stacks, radius, radius );
-		glEndList();
-
-		mDisplayListTop[detail] = glGenLists(1);
-		glNewList( mDisplayListTop[detail], GL_COMPILE);
-		mTriangleCount[detail] += draw_cylinder_cap( slices[detail], radius, TOP );
-		glEndList();
-
-		mDisplayListBottom[detail] = glGenLists(1);
-		glNewList( mDisplayListBottom[detail], GL_COMPILE);
-		mTriangleCount[detail] += draw_cylinder_cap( slices[detail], radius, BOTTOM );
-		glEndList();
-	}
 }
 
 void LLCylinder::cleanupGL()
 {
-	for (S32 detail = 0; detail < CYLINDER_LEVELS_OF_DETAIL; detail++)
-	{
-		glDeleteLists(mDisplayListSide[detail], 1);
-		mDisplayListSide[detail] = 0;
-		glDeleteLists(mDisplayListTop[detail], 1);
-		mDisplayListTop[detail] = 0;
-		glDeleteLists(mDisplayListBottom[detail], 1);
-		mDisplayListBottom[detail] = 0;
-	}
-
 	if (gQuadObj)
 	{
 		gluDeleteQuadric(gQuadObj);
@@ -178,19 +163,21 @@ void LLCylinder::renderface(F32 pixel_area, S32 face)
 		return;
 	}
 
+	LLVertexBuffer::unbind();
+	
 	switch(face)
 	{
 	case 0:
 		glTranslatef(0.f, 0.f, -0.5f);
-		glCallList(mDisplayListSide[level_of_detail]);
+		drawSide(level_of_detail);
 		break;
 	case 1:
 		glTranslatef(0.0f, 0.f, 0.5f);
-		glCallList(mDisplayListTop[level_of_detail]);
+		drawTop(level_of_detail);
 		break;
 	case 2:
 		glTranslatef(0.0f, 0.f, -0.5f);
-		glCallList(mDisplayListBottom[level_of_detail]);
+		drawBottom(level_of_detail);
 		break;
 	default:
 		llerror("LLCylinder::renderface() fell out of switch", 0);
@@ -208,37 +195,10 @@ void LLCylinder::renderface(F32 pixel_area, S32 face)
 
 void LLCone::prerender()
 {
-	GLint stacks = 2;
-	GLfloat radius = 0.5f;
-	GLint slices[CONE_LEVELS_OF_DETAIL] = { 32, 18, 12, 6 };
-
-	for (S32 detail = 0; detail < CONE_LEVELS_OF_DETAIL; detail++)
-	{
-		mTriangleCount[detail] = 0;
-
-		mDisplayListSide[detail] = glGenLists(1);
-		glNewList(mDisplayListSide[detail], GL_COMPILE);
-		mTriangleCount[detail] += draw_cylinder_side( slices[detail], stacks, radius, 0.f );
-		glEndList();
-
-		mDisplayListBottom[detail] = glGenLists(1);
-		glNewList( mDisplayListBottom[detail], GL_COMPILE);
-		mTriangleCount[detail] += draw_cylinder_cap( slices[detail], radius, BOTTOM );
-		glEndList();
-	}
 }
 
 void LLCone::cleanupGL()
 {
-	for (S32 detail = 0; detail < CYLINDER_LEVELS_OF_DETAIL; detail++)
-	{
-		glDeleteLists(mDisplayListSide[detail], 1);
-		mDisplayListSide[detail] = 0;
-
-		glDeleteLists(mDisplayListBottom[detail], 1);
-		mDisplayListBottom[detail] = 0;
-	}
-
 	if (gQuadObj)
 	{
 		gluDeleteQuadric(gQuadObj);
@@ -246,6 +206,15 @@ void LLCone::cleanupGL()
 	}
 }
 
+void LLCone::drawSide(S32 detail)
+{
+	draw_cylinder_side( SLICES[detail], STACKS, RADIUS, 0.f );	
+}
+
+void LLCone::drawBottom(S32 detail)
+{
+	draw_cylinder_cap( SLICES[detail], RADIUS, BOTTOM );
+}
 
 void LLCone::render(S32 level_of_detail)
 {
@@ -263,8 +232,9 @@ void LLCone::render(S32 level_of_detail)
 	// center object at 0
 	glTranslatef(0.f, 0.f, - height / 2.0f);
 
-	glCallList(mDisplayListSide[level_of_detail]);
-	glCallList(mDisplayListBottom[level_of_detail]);
+	LLVertexBuffer::unbind();
+	drawSide(level_of_detail);
+	drawBottom(level_of_detail);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
@@ -288,15 +258,17 @@ void LLCone::renderface(S32 level_of_detail, S32 face)
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 
+	LLVertexBuffer::unbind();
+	
 	switch(face)
 	{
 	case 0:
 		glTranslatef(0.f, 0.f, -0.5f);
-		glCallList(mDisplayListSide[level_of_detail]);
+		drawSide(level_of_detail);
 		break;
 	case 1:
 		glTranslatef(0.f, 0.f, -0.5f);
-		glCallList(mDisplayListBottom[level_of_detail]);
+		drawBottom(level_of_detail);
 		break;
 	default:
 		llerror("LLCylinder::renderface() fell out of switch", 0);

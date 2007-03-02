@@ -151,7 +151,6 @@ BOOL LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decod
 	/* free image data structure */
 	opj_image_destroy(image);
 
-	base.setDecodingDone();
 	return TRUE;
 }
 
@@ -262,6 +261,7 @@ BOOL LLImageJ2COJ::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, con
 	codestream_length = cio_tell(cio);
 
 	base.copyData(cio->buffer, codestream_length);
+	base.updateData(); // set width, height
 
 	/* close and free the byte stream */
 	opj_cio_close(cio);

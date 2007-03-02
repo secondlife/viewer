@@ -1,4 +1,4 @@
-version 9
+version 10
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -23,7 +23,7 @@ version 9
 // NOTE: All settings are set to the MIN of applied values, including 'all'!
 //
 list all
-RenderAGP				1	1
+RenderVBO			1	1
 RenderAniso			1	0
 RenderAvatarMode	1	2
 RenderAvatarVP		1	1
@@ -40,6 +40,7 @@ VertexShaderEnable	1	1
 //
 list Class0
 VertexShaderEnable	1	0
+RenderVBO			1	1
 RenderDistance		1	64
 RenderAvatarVP		1	0
 RenderAvatarMode	1	0
@@ -52,6 +53,7 @@ RenderRippleWater	1	0
 //
 list Class1
 VertexShaderEnable	1	0
+RenderVBO			1	1
 RenderDistance		1	96
 RenderAvatarVP		1	1
 RenderAvatarMode	1	0
@@ -99,7 +101,7 @@ RenderAvatarVP		0  0
 // "Default" setups for safe, low, medium, high
 //
 list safe
-RenderAGP				1	0
+RenderVBO			1	0
 RenderAniso			1	0
 RenderAvatarVP		0	0
 RenderLighting		1	0
@@ -108,7 +110,7 @@ RenderTerrainDetail 1	0
 
 
 list low
-RenderAGP				1	1
+RenderVBO			1	0
 RenderAniso			1	0
 RenderLighting		1	0
 
@@ -135,12 +137,17 @@ RenderObjectBump	0	0
 //
 // Graphics card based feature masks
 //
-list Brookdale
+list OpenGLPre15
+RenderVBO			1	0
+
+list Intel
+RenderVBO			1	0
 RenderAniso			1	0
 RenderLighting		1	0
 RenderTerrainDetail	1	0
 
 list GeForce2
+RenderVBO			1	1
 RenderAniso			1	0
 RenderLighting		1	0
 RenderParticleCount	1	2048
@@ -150,10 +157,7 @@ list GeForce3
 
 list ATI
 
-// Hacked to be paranoid "safe"
-// Disable AGP entirely, in Catalyst 4.3 it's at least 50% slower
 list Radeon8500
-RenderAGP				0	0
 RenderLighting		1	0
 RenderParticleCount	1	4096
 
@@ -162,9 +166,8 @@ list Radeon9700
 RenderParticleCount	1	4096
 
 // Hacked to be paranoid "safe"
-// Disable AGP entirely, in Catalyst 4.3 it's at least 50% slower
 list MobilityRadeon9000
-RenderLighting			1	0
+RenderLighting		1	0
 RenderParticleCount	1	4096
 
 list GeForceFX

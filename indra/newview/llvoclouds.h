@@ -19,7 +19,7 @@ class LLViewerCloudGroup;
 class LLCloudGroup;
 
 
-class LLVOClouds : public LLViewerObject
+class LLVOClouds : public LLAlphaObject
 {
 public:
 	LLVOClouds(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp );
@@ -28,15 +28,28 @@ public:
 	// Initialize data that's only inited once per class.
 	static void initClass();
 
+	void updateDrawable(BOOL force_damped); 
+
 	/*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
 	/*virtual*/ BOOL        updateGeometry(LLDrawable *drawable);
+	/*virtual*/ void		getGeometry(S32 te, 
+							LLStrider<LLVector3>& verticesp, 
+							LLStrider<LLVector3>& normalsp, 
+							LLStrider<LLVector2>& texcoordsp, 
+							LLStrider<LLColor4U>& colorsp, 
+							LLStrider<U32>& indicesp);
 
 	/*virtual*/ BOOL    isActive() const; // Whether this object needs to do an idleUpdate.
+	BOOL isParticle();
+	F32 getPartSize(S32 idx);
 
 	/*virtual*/ void updateTextures(LLAgent &agent);
 	/*virtual*/ void setPixelAreaAndAngle(LLAgent &agent); // generate accurate apparent angle and area
-
+	
+	void updateFaceSize(S32 idx) { }
 	BOOL idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
+
+	virtual U32 getPartitionType() const;
 
 	void setCloudGroup(LLCloudGroup *cgp)		{ mCloudGroupp = cgp; }
 protected:

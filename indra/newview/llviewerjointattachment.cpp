@@ -60,7 +60,7 @@ BOOL LLViewerJointAttachment::isTransparent()
 //-----------------------------------------------------------------------------
 // drawShape()
 //-----------------------------------------------------------------------------
-U32 LLViewerJointAttachment::drawShape( F32 pixelArea )
+U32 LLViewerJointAttachment::drawShape( F32 pixelArea, BOOL first_pass )
 {
 	if (LLVOAvatar::sShowAttachmentPoints)
 	{
@@ -277,47 +277,20 @@ void LLViewerJointAttachment::removeObject(LLViewerObject *object)
 //-----------------------------------------------------------------------------
 void LLViewerJointAttachment::setAttachmentVisibility(BOOL visible)
 {
-	if (!mAttachedObject || mAttachedObject->mDrawable.isNull())
+	if (!mAttachedObject || mAttachedObject->mDrawable.isNull() || 
+		!(mAttachedObject->mDrawable->getSpatialBridge()))
 		return;
 
 	if (visible)
 	{
 		// Hack to make attachments not visible by disabling their type mask!
 		// This will break if you can ever attach non-volumes! - djs 02/14/03
-		mAttachedObject->mDrawable->setRenderType(LLPipeline::RENDER_TYPE_VOLUME);
-		for (LLViewerObject::child_list_t::iterator iter = mAttachedObject->mChildList.begin();
-			 iter != mAttachedObject->mChildList.end(); ++iter)
-		{
-			LLViewerObject* childp = *iter;
-			if (childp && childp->mDrawable.notNull())
-			{
-				childp->mDrawable->setRenderType(LLPipeline::RENDER_TYPE_VOLUME);
-			}
-		}
+		mAttachedObject->mDrawable->getSpatialBridge()->mDrawableType = 
+			mAttachedObject->isHUDAttachment() ? LLPipeline::RENDER_TYPE_HUD : LLPipeline::RENDER_TYPE_VOLUME;
 	}
 	else
 	{
-		//RN: sometimes we call this on objects that are already invisible, so check for that case
-		if (!mAttachedObject->mDrawable->isRenderType(LLPipeline::RENDER_TYPE_VOLUME) && 
-			!mAttachedObject->mDrawable->isRenderType(0))
-		{
-			llerrs << "Tried to attach non-volume to a joint, visibility hack dangerous!" << llendl;
-		}
-		mAttachedObject->mDrawable->setRenderType(0);
-		for (LLViewerObject::child_list_t::iterator iter = mAttachedObject->mChildList.begin();
-			 iter != mAttachedObject->mChildList.end(); ++iter)
-		{
-			LLViewerObject* childp = *iter;
-			if (childp && childp->mDrawable.notNull())
-			{
-				if (!childp->mDrawable->isRenderType(LLPipeline::RENDER_TYPE_VOLUME) && 
-					!mAttachedObject->mDrawable->isRenderType(0))
-				{
-					llerrs << "Tried to attach non-volume to a joint, visibility hack dangerous!" << llendl;
-				}
-				childp->mDrawable->setRenderType(0);
-			}
-		}
+		mAttachedObject->mDrawable->getSpatialBridge()->mDrawableType = 0;
 	}
 }
 

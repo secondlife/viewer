@@ -50,6 +50,7 @@ public:
 	// be overridden by the user's umask.  It is ignored on Windows.
 	static	int		mkdir(const char* filename, int perms = 0700);
 
+	static	int		rmdir(const char* filename);
 	static	int		remove(const char* filename);
 	static	int		rename(const char* filename,const char*	newname);
 	static	int		stat(const char*	filename,llstat*	file_status);

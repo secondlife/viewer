@@ -298,7 +298,6 @@ void LLWorldMapView::draw()
 	{
 		LLGLSNoTexture no_texture;
 	
-
 		glMatrixMode(GL_MODELVIEW);
 
 		// Clear the background alpha to 0
@@ -362,14 +361,12 @@ void LLWorldMapView::draw()
 		current_image->setBoostLevel(LLViewerImage::BOOST_MAP_LAYER);
 		current_image->setKnownDrawSize(llround(pix_width), llround(pix_height));
 		
-#if 1 || LL_RELEASE_FOR_DOWNLOAD
 		if (!current_image->getHasGLTexture())
 		{
 			continue; // better to draw nothing than the default image
 		}
-#endif
 
-		LLTextureView::addDebugImage(current_image);
+// 		LLTextureView::addDebugImage(current_image);
 		
 		// Draw using the texture.  If we don't clamp we get artifact at
 		// the edge.
@@ -522,7 +519,7 @@ void LLWorldMapView::draw()
 			overlayimage->setKnownDrawSize(draw_size, draw_size);
 		}
 			
-		LLTextureView::addDebugImage(simimage);
+// 		LLTextureView::addDebugImage(simimage);
 
 		if (sim_visible && info->mAlpha > 0.001f)
 		{
@@ -813,6 +810,39 @@ void LLWorldMapView::draw()
 	LLView::draw();
 
 	updateVisibleBlocks();
+}
+
+//virtual
+void LLWorldMapView::setVisible(BOOL visible)
+{
+	LLPanel::setVisible(visible);
+	if (!visible && gWorldMap)
+	{
+		for (S32 map = 0; map < MAP_SIM_IMAGE_TYPES; map++)
+		{
+			for (U32 layer_idx=0; layer_idx<gWorldMap->mMapLayers[map].size(); ++layer_idx)
+			{
+				if (gWorldMap->mMapLayers[map][layer_idx].LayerDefined)
+				{
+					LLWorldMapLayer *layer = &gWorldMap->mMapLayers[map][layer_idx];
+					layer->LayerImage->setBoostLevel(0);
+				}
+			}
+		}
+		for (LLWorldMap::sim_info_map_t::iterator it = gWorldMap->mSimInfoMap.begin();
+			 it != gWorldMap->mSimInfoMap.end(); ++it)
+		{
+			LLSimInfo* info = (*it).second;
+			if (info->mCurrentImage.notNull())
+			{
+				info->mCurrentImage->setBoostLevel(0);
+			}
+			if (info->mOverlayImage.notNull())
+			{
+				info->mOverlayImage->setBoostLevel(0);
+			}
+		}
+	}
 }
 
 void LLWorldMapView::drawGenericItems(const LLWorldMap::item_info_list_t& items, LLPointer<LLViewerImage> image)

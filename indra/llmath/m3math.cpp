@@ -33,14 +33,14 @@
 
 LLMatrix3::LLMatrix3(const LLQuaternion &q)
 {
-	*this = q.getMatrix3();
+	setRot(q);
 }
 
 
 LLMatrix3::LLMatrix3(const F32 angle, const LLVector3 &vec)
 {
 	LLQuaternion	quat(angle, vec);
-	*this = setRot(quat);
+	setRot(quat);
 }
 
 LLMatrix3::LLMatrix3(const F32 angle, const LLVector3d &vec)
@@ -48,60 +48,25 @@ LLMatrix3::LLMatrix3(const F32 angle, const LLVector3d &vec)
 	LLVector3 vec_f;
 	vec_f.setVec(vec);
 	LLQuaternion	quat(angle, vec_f);
-	*this = setRot(quat);
+	setRot(quat);
 }
 
 LLMatrix3::LLMatrix3(const F32 angle, const LLVector4 &vec)
 {
 	LLQuaternion	quat(angle, vec);
-	*this = setRot(quat);
+	setRot(quat);
 }
 
 LLMatrix3::LLMatrix3(const F32 angle, const F32 x, const F32 y, const F32 z)
 {
 	LLVector3 vec(x, y, z);
 	LLQuaternion	quat(angle, vec);
-	*this = setRot(quat);
+	setRot(quat);
 }
 
 LLMatrix3::LLMatrix3(const F32 roll, const F32 pitch, const F32 yaw)
 {
-	// Rotates RH about x-axis by 'roll'  then
-	// rotates RH about the old y-axis by 'pitch' then
-	// rotates RH about the original z-axis by 'yaw'.
-	//                .
-	//               /|\ yaw axis
-	//                |     __.
-	//   ._        ___|      /| pitch axis
-	//  _||\       \\ |-.   /
-	//  \|| \_______\_|__\_/_______
-	//   | _ _   o o o_o_o_o o   /_\_  ________\ roll axis
-	//   //  /_______/    /__________>         /   
-	//  /_,-'       //   /
-	//             /__,-'
-
-	F32		cx, sx, cy, sy, cz, sz;
-	F32		cxsy, sxsy;
-
-    cx = (F32)cos(roll); //A
-    sx = (F32)sin(roll); //B
-    cy = (F32)cos(pitch); //C
-    sy = (F32)sin(pitch); //D
-    cz = (F32)cos(yaw); //E
-    sz = (F32)sin(yaw); //F
-
-    cxsy = cx * sy; //AD
-    sxsy = sx * sy; //BD 
-
-    mMatrix[0][0] =  cy * cz;
-    mMatrix[1][0] = -cy * sz;
-    mMatrix[2][0] = sy;
-    mMatrix[0][1] = sxsy * cz + cx * sz;
-    mMatrix[1][1] = -sxsy * sz + cx * cz;
-    mMatrix[2][1] = -sx * cy;
-    mMatrix[0][2] =  -cxsy * cz + sx * sz;
-    mMatrix[1][2] =  cxsy * sz + sx * cz;
-    mMatrix[2][2] =  cx * cy;
+	setRot(roll,pitch,yaw);
 }
 
 // From Matrix and Quaternion FAQ
@@ -288,33 +253,63 @@ LLQuaternion	LLMatrix3::quaternion() const
 // These functions take Rotation arguments
 const LLMatrix3&	LLMatrix3::setRot(const F32 angle, const F32 x, const F32 y, const F32 z)
 {
-	LLMatrix3	mat(angle, x, y, z);
-	*this = mat;
+	setRot(LLQuaternion(angle,x,y,z));
 	return *this;
 }
 
 const LLMatrix3&	LLMatrix3::setRot(const F32 angle, const LLVector3 &vec)
 {
-	LLMatrix3	mat(angle, vec);
-	*this = mat;
+	setRot(LLQuaternion(angle, vec));
 	return *this;
 }
 
 const LLMatrix3&	LLMatrix3::setRot(const F32 roll, const F32 pitch, const F32 yaw)
 {
-	LLMatrix3	mat(roll, pitch, yaw); 
-	*this = mat;
+	// Rotates RH about x-axis by 'roll'  then
+	// rotates RH about the old y-axis by 'pitch' then
+	// rotates RH about the original z-axis by 'yaw'.
+	//                .
+	//               /|\ yaw axis
+	//                |     __.
+	//   ._        ___|      /| pitch axis
+	//  _||\       \\ |-.   /
+	//  \|| \_______\_|__\_/_______
+	//   | _ _   o o o_o_o_o o   /_\_  ________\ roll axis
+	//   //  /_______/    /__________>         /   
+	//  /_,-'       //   /
+	//             /__,-'
+
+	F32		cx, sx, cy, sy, cz, sz;
+	F32		cxsy, sxsy;
+
+    cx = (F32)cos(roll); //A
+    sx = (F32)sin(roll); //B
+    cy = (F32)cos(pitch); //C
+    sy = (F32)sin(pitch); //D
+    cz = (F32)cos(yaw); //E
+    sz = (F32)sin(yaw); //F
+
+    cxsy = cx * sy; //AD
+    sxsy = sx * sy; //BD 
+
+    mMatrix[0][0] =  cy * cz;
+    mMatrix[1][0] = -cy * sz;
+    mMatrix[2][0] = sy;
+    mMatrix[0][1] = sxsy * cz + cx * sz;
+    mMatrix[1][1] = -sxsy * sz + cx * cz;
+    mMatrix[2][1] = -sx * cy;
+    mMatrix[0][2] =  -cxsy * cz + sx * sz;
+    mMatrix[1][2] =  cxsy * sz + sx * cz;
+    mMatrix[2][2] =  cx * cy;
 	return *this;
 }
 
 
 const LLMatrix3&	LLMatrix3::setRot(const LLQuaternion &q)
 {
-	LLMatrix3	mat(q);
-	*this = mat;
+	*this = q.getMatrix3();
 	return *this;
 }
-
 
 const LLMatrix3&	LLMatrix3::setRows(const LLVector3 &fwd, const LLVector3 &left, const LLVector3 &up)
 {

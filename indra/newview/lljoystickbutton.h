@@ -11,6 +11,7 @@
 
 #include "llbutton.h"
 #include "llcoord.h"
+#include "llviewerimage.h"
 
 typedef enum e_joystick_quadrant
 {

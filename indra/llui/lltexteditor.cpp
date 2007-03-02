@@ -3934,6 +3934,8 @@ LLXMLNodePtr LLTextEditor::getXML(bool save_children) const
 
 	node->createChild("word_wrap", TRUE)->setBoolValue(mWordWrap);
 
+	node->createChild("hide_scrollbar", TRUE)->setBoolValue(mHideScrollbarForShortDocs);
+
 	addColorXML(node, mCursorColor, "cursor_color", "TextCursorColor");
 	addColorXML(node, mFgColor, "text_color", "TextFgColor");
 	addColorXML(node, mReadOnlyFgColor, "text_readonly_color", "TextFgReadOnlyColor");

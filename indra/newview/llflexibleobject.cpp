@@ -25,11 +25,6 @@
 #include "llviewerregion.h"
 #include "llworld.h"
 
-/*static*/ LLVolumeImplFlexible::lodset_t LLVolumeImplFlexible::sLODBins[ FLEXIBLE_OBJECT_MAX_LOD ];
-/*static*/ U64 LLVolumeImplFlexible::sCurrentUpdateFrame = 0;
-/*static*/ U32 LLVolumeImplFlexible::sDebugInserted = 0;
-/*static*/ U32 LLVolumeImplFlexible::sDebugVisible = 0;
-
 /*static*/ F32 LLVolumeImplFlexible::sUpdateFactor = 1.0f;
 
 // LLFlexibleObjectData::pack/unpack now in llprimitive.cpp
@@ -40,14 +35,13 @@
 LLVolumeImplFlexible::LLVolumeImplFlexible(LLViewerObject* vo, LLFlexibleObjectData* attributes) :
 		mVO(vo), mAttributes(attributes)
 {
+	static U32 seed = 0;
+	mID = seed++;
 	mInitialized = FALSE;
 	mUpdated = FALSE;
-	mJustShifted = FALSE;
 	mInitializedRes = -1;
 	mSimulateRes = 0;
 	mFrameNum = 0;
-	mLastUpdate = 0;
-
 }//-----------------------------------------------
 
 LLVector3 LLVolumeImplFlexible::getFramePosition() const
@@ -75,7 +69,6 @@ void LLVolumeImplFlexible::onShift(const LLVector3 &shift_vector)
 	{
 		mSection[section].mPosition += shift_vector;	
 	}
-	mVO->getVolume()->mBounds[0] += shift_vector;
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -88,7 +81,7 @@ void LLVolumeImplFlexible::setParentPositionAndRotationDirectly( LLVector3 p, LL
 
 void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 source_sections,
 										 LLFlexibleObjectSection *dest, S32 dest_sections)
-{
+{	
 	S32 num_output_sections = 1<<dest_sections;
 	LLVector3 scale = mVO->mDrawable->getScale();
 	F32 source_section_length = scale.mV[VZ] / (F32)(1<<source_sections);
@@ -209,6 +202,7 @@ void LLVolumeImplFlexible::setAttributesOfAllSections()
 
 	F32 t_inc = 1.f/F32(num_sections);
 	F32 t = t_inc;
+
 	for ( int i=1; i<= num_sections; i++)
 	{
 		mSection[i].mAxisRotation.setQuat(lerp(begin_rot,end_rot,t),0,0,1);
@@ -217,18 +211,23 @@ void LLVolumeImplFlexible::setAttributesOfAllSections()
 			scale.mV[VY] * lerp(bottom_scale.mV[1], top_scale.mV[1], t));
 		t += t_inc;
 	}
-	mLastUpdate = 0;
 }//-----------------------------------------------------------------------------------
 
 
 void LLVolumeImplFlexible::onSetVolume(const LLVolumeParams &volume_params, const S32 detail)
 {
-	doIdleUpdate(gAgent, *gWorldp, 0.0);
+	if (mVO && mVO->mDrawable.notNull())
+	{
+		LLVOVolume* volume = (LLVOVolume*) mVO;
+		volume->regenFaces();
+	}
+
+	/*doIdleUpdate(gAgent, *gWorldp, 0.0);
 	if (mVO && mVO->mDrawable.notNull())
 	{
 		gPipeline.markRebuild(mVO->mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
 		gPipeline.markMoved(mVO->mDrawable);
-	}
+	}*/
 }
 
 //---------------------------------------------------------------------------------
@@ -238,6 +237,13 @@ void LLVolumeImplFlexible::onSetVolume(const LLVolumeParams &volume_params, cons
 //---------------------------------------------------------------------------------
 BOOL LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
+	if (!gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE))
+	{
+		return TRUE;
+	}
+
+	LLFastTimer ftm(LLFastTimer::FTM_FLEXIBLE_UPDATE);
+
 	if (mVO->mDrawable.isNull())
 	{
 		// Don't do anything until we have a drawable
@@ -248,46 +254,17 @@ BOOL LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F6
 	mVO->mDrawable->mQuietCount = 0;
 	if (!mVO->mDrawable->isRoot())
 	{
-		mVO->mDrawable->getParent()->mQuietCount = 0;
+		LLViewerObject* parent = (LLViewerObject*) mVO->getParent();
+		parent->mDrawable->mQuietCount = 0;
 	}
-	
-	if (((LLVOVolume*)mVO)->mLODChanged || 
-		mVO->mDrawable->isState(LLDrawable::IN_REBUILD_Q1))
-	{
-		mLastUpdate = 0; // Force an immediate update
-	}
-	// Relegate invisible objects to the lowest priority bin
-	S32 lod = 0;
-	F32 app_angle = mVO->getAppAngle()*DEG_TO_RAD/gCamera->getView();
-	if (mVO->mDrawable->isVisible())
-	{
-		sDebugVisible++;
-		if (mVO->isSelected())
-		{
-			// Force selected objects to update *every* frame
-			lod = FLEXIBLE_OBJECT_MAX_LOD-1;
-		}
-		else
-		{
-			if (app_angle > 0)
-			{
-				lod = 5 - (S32)(1.0f/sqrtf(app_angle));
-				if (lod < 1)
-				{
-					lod = 1;
-				}
-			}
-
-			if (mVO->isAttachment())
-			{
-				lod += 3;
-			}
-		}
-	}
-
+		
 	S32 new_res = mAttributes->getSimulateLOD();
+
+	//number of segments only cares about z axis
+	F32 app_angle = llround((F32) atan2( mVO->getScale().mV[2]*2.f, mVO->mDrawable->mDistanceWRTCamera) * RAD_TO_DEG, 0.01f);
+
 	// Rendering sections increases with visible angle on the screen
-	mRenderRes = (S32)(FLEXIBLE_OBJECT_MAX_SECTIONS*4*app_angle);
+	mRenderRes = (S32)(FLEXIBLE_OBJECT_MAX_SECTIONS*4*app_angle*DEG_TO_RAD/gCamera->getView());
 	if (mRenderRes > FLEXIBLE_OBJECT_MAX_SECTIONS)
 	{
 		mRenderRes = FLEXIBLE_OBJECT_MAX_SECTIONS;
@@ -310,22 +287,32 @@ BOOL LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F6
 		mInitialized = TRUE;
 	}
 
-	sLODBins[lod].insert(this);
-	sDebugInserted++;
-	return TRUE;
-}
-
-// static
-void LLVolumeImplFlexible::resetUpdateBins()
-{
-	U32 lod;
-	for (lod=0; lod<FLEXIBLE_OBJECT_MAX_LOD; ++lod)
+	if (mVO->mDrawable->isVisible() &&
+		!mVO->mDrawable->isState(LLDrawable::IN_REBUILD_Q1) &&
+		mVO->getPixelArea() > 256.f)
 	{
-		sLODBins[lod].clear();
+		U32 id;
+		F32 pixel_area = mVO->getPixelArea();
+
+		if (mVO->isRootEdit())
+		{
+			id = mID;
+		}
+		else
+		{
+			LLVOVolume* parent = (LLVOVolume*) mVO->getParent();
+			id = parent->getVolumeInterfaceID();
+		}
+
+		U32 update_period = (U32) (gCamera->getScreenPixelArea()*0.01f/(pixel_area*(sUpdateFactor+1.f)))+1;
+
+		if ((LLDrawable::getCurrentFrame()+id)%update_period == 0)
+		{
+			gPipeline.markRebuild(mVO->mDrawable, LLDrawable::REBUILD_POSITION, FALSE);
+		}
 	}
-	++sCurrentUpdateFrame;
-	sDebugInserted = 0;
-	sDebugVisible = 0;
+	
+	return TRUE;
 }
 
 inline S32 log2(S32 x)
@@ -339,80 +326,15 @@ inline S32 log2(S32 x)
 	return ret;
 }
 
-// static
-void LLVolumeImplFlexible::doFlexibleUpdateBins()
-{
-	U32 lod;
-	U32 updated = 0;
-	U32 regen = 0;
-	U32 newflexies = 0;
-	F32 time_alloc[FLEXIBLE_OBJECT_MAX_LOD];
-	F32 total_time_alloc = 0;
-
-	bool new_objects_only = false;
-
-	if (!gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE))
-	{
-		new_objects_only = true;
-	}
-
-	for (lod=0; lod<FLEXIBLE_OBJECT_MAX_LOD; ++lod)
-	{
-		int count = sLODBins[lod].size();
-		if (count > 0)
-		{
-			time_alloc[lod] = (F32)((lod+1)*(log2(count)));
-		}
-		else
-		{
-			time_alloc[lod] = 0;
-		}
-		total_time_alloc += time_alloc[lod];
-	}
-	total_time_alloc = FLEXIBLE_OBJECT_TIMESLICE * (sUpdateFactor+0.01f) / total_time_alloc;
-
-	{
-		LLFastTimer t(LLFastTimer::FTM_FLEXIBLE_UPDATE);
-		LLTimer timer;
-		for (lod=0; lod<FLEXIBLE_OBJECT_MAX_LOD; ++lod)
-		{
-			LLVolumeImplFlexible::lodset_t::iterator itor = sLODBins[lod].begin();
-			int bin_count = 0;
-			if (!new_objects_only)
-			{
-				timer.reset();
-				double end_time = time_alloc[lod] * total_time_alloc;
-				for (; itor!=sLODBins[lod].end(); ++itor)
-				{
-
-					(*itor)->doFlexibleUpdate();
-					++updated;
-					(*itor)->doFlexibleRebuild();
-					++bin_count;
-					++regen;
-					if (timer.getElapsedTimeF64() > end_time)
-					{
-						break;
-					}
-				}
-			}
-			for (; itor != sLODBins[lod].end(); ++itor)
-			{
-				if ((*itor)->getLastUpdate() == 0)
-				{
-					// *Always* update newly-created objects, or objects which have changed LOD
-					(*itor)->doFlexibleUpdate();
-					(*itor)->doFlexibleRebuild();
-					++newflexies;
-				}
-			}
-		}
-	}
-}
-
 void LLVolumeImplFlexible::doFlexibleUpdate()
 {
 	LLPath *path = &mVO->getVolume()->getPath();
+	if (mSimulateRes == 0)
+	{
+		mVO->markForUpdate(TRUE);
+		doIdleUpdate(gAgent, *gWorldp, 0.0);
+	}
+	
 	S32 num_sections = 1 << mSimulateRes;
 
     F32 secondsThisFrame = mTimer.getElapsedTimeAndResetF32();
@@ -584,6 +506,10 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 		// calculate velocity
 		//------------------------------------------------------------------------------------------
 		mSection[i].mVelocity = mSection[i].mPosition - lastPosition;
+		if (mSection[i].mVelocity.magVecSquared() > 1.f)
+		{
+			mSection[i].mVelocity.normVec();
+		}
 	}
 
 	// Calculate derivatives (not necessary until normals are automagically generated)
@@ -624,11 +550,38 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	LLFlexibleObjectSection newSection[ (1<<FLEXIBLE_OBJECT_MAX_SECTIONS)+1 ];
 	remapSections(mSection, mSimulateRes, newSection, mRenderRes);
 
+	//generate transform from global to prim space
+	LLVector3 delta_scale = LLVector3(1,1,1);
+	LLVector3 delta_pos;
+	LLQuaternion delta_rot;
+
+	delta_rot = ~getFrameRotation();
+	delta_pos = -getFramePosition()*delta_rot;
+		
+	// Vertex transform (4x4)
+	LLVector3 x_axis = LLVector3(delta_scale.mV[VX], 0.f, 0.f) * delta_rot;
+	LLVector3 y_axis = LLVector3(0.f, delta_scale.mV[VY], 0.f) * delta_rot;
+	LLVector3 z_axis = LLVector3(0.f, 0.f, delta_scale.mV[VZ]) * delta_rot;
+
+	LLMatrix4 rel_xform;
+	rel_xform.initRows(LLVector4(x_axis, 0.f),
+								LLVector4(y_axis, 0.f),
+								LLVector4(z_axis, 0.f),
+								LLVector4(delta_pos, 1.f));
+			
 	for (i=0; i<=num_render_sections; ++i)
 	{
 		new_point = &path->mPath[i];
-		new_point->mPos = newSection[i].mPosition;
-		new_point->mRot = mSection[i].mAxisRotation * newSection[i].mRotation;
+		LLVector3 pos = newSection[i].mPosition * rel_xform;
+		LLQuaternion rot = mSection[i].mAxisRotation * newSection[i].mRotation * delta_rot;
+		
+		if (!mUpdated || (new_point->mPos-pos).magVecSquared() > 0.000001f)
+		{
+			new_point->mPos = newSection[i].mPosition * rel_xform;
+			mUpdated = FALSE;
+		}
+
+		new_point->mRot = rot;
 		new_point->mScale = newSection[i].mScale;
 		new_point->mTexT = ((F32)i)/(num_render_sections);
 	}
@@ -639,13 +592,10 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 void LLVolumeImplFlexible::doFlexibleRebuild()
 {
 	mVO->getVolume()->regen();
-
-	mVO->markForUpdate(TRUE);
-
 	mUpdated = TRUE;
+}
 
-	mLastUpdate = sCurrentUpdateFrame;
-}//------------------------------------------------------------------
+//------------------------------------------------------------------
 
 void LLVolumeImplFlexible::onSetScale(const LLVector3& scale, BOOL damped)
 {
@@ -654,8 +604,6 @@ void LLVolumeImplFlexible::onSetScale(const LLVector3& scale, BOOL damped)
 
 BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 {
-	BOOL compiled = FALSE;
-
 	LLVOVolume *volume = (LLVOVolume*)mVO;
 
 	if (volume->mDrawable.isNull()) // Not sure why this is happening, but it is...
@@ -663,60 +611,26 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 		return TRUE; // No update to complete
 	}
 
-	volume->calcAllTEsSame();
-
-	if (volume->mVolumeChanged || volume->mFaceMappingChanged)
+	if (volume->mLODChanged)
 	{
-		compiled = TRUE;
-		volume->regenFaces();
-	}
-	else if (volume->mLODChanged)
-	{
-		LLPointer<LLVolume> old_volumep, new_volumep;
-		F32 old_lod, new_lod;
-
-		old_volumep = volume->getVolume();
-		old_lod = old_volumep->getDetail();
-
- 		LLVolumeParams volume_params = volume->getVolume()->getParams();
+		LLVolumeParams volume_params = volume->getVolume()->getParams();
 		volume->setVolume(volume_params, 0);
-		doFlexibleUpdate();
-		volume->getVolume()->regen();
-		
-		new_volumep = volume->getVolume();
-		new_lod = new_volumep->getDetail();
-
-		if (new_lod != old_lod)
-		{
-			compiled = TRUE;
-			if (new_volumep->getNumFaces() != old_volumep->getNumFaces())
-			{
-				volume->regenFaces();
-			}
-		}
 	}
 
-	if (mUpdated)
+	volume->updateRelativeXform();
+	doFlexibleUpdate();
+	if (!mUpdated || volume->mFaceMappingChanged)
 	{
-		compiled = TRUE;
-		mUpdated = FALSE;
+		doFlexibleRebuild();
+		volume->genBBoxes(isVolumeGlobal());
 	}
-
-	if(compiled)
-	{
-		volume->updateRelativeXform(isVolumeGlobal());
-		volume->genTriangles(isVolumeGlobal());
-		LLPipeline::sCompiles++;
-	}
-	
+			
 	volume->mVolumeChanged = FALSE;
 	volume->mLODChanged = FALSE;
 	volume->mFaceMappingChanged = FALSE;
 
 	// clear UV flag
 	drawable->clearState(LLDrawable::UV);
-
-	drawable->movePartition();
 	
 	return TRUE;
 }
@@ -792,42 +706,32 @@ LLQuaternion LLVolumeImplFlexible::getEndRotation()
 }//------------------------------------------------------------------
 
 
-void LLVolumeImplFlexible::updateRelativeXform(BOOL global_volume)
+void LLVolumeImplFlexible::updateRelativeXform()
 {
-	LLVOVolume* vo = (LLVOVolume*) mVO;
-	
-	LLVector3 delta_scale = LLVector3(1,1,1);
-	LLVector3 delta_pos;
 	LLQuaternion delta_rot;
+	LLVector3 delta_pos, delta_scale;
+	LLVOVolume* vo = (LLVOVolume*) mVO;
 
-	if (!mVO->mDrawable->isRoot())
-	{	//global to parent relative
-		LLViewerObject* parent = (LLViewerObject*) vo->getParent();
-		delta_rot = ~parent->getRenderRotation();
-		delta_pos = -parent->getRenderPosition()*delta_rot;
-	}
-	else
-	{	//global to local
-		delta_rot = ~getFrameRotation();
-		delta_pos = -getFramePosition()*delta_rot;
-	}
-	
+	//matrix from local space to parent relative/global space
+	delta_rot = vo->mDrawable->isSpatialRoot() ? LLQuaternion() : vo->mDrawable->getRotation();
+	delta_pos = vo->mDrawable->isSpatialRoot() ? LLVector3(0,0,0) : vo->mDrawable->getPosition();
+	delta_scale = LLVector3(1,1,1);
+
 	// Vertex transform (4x4)
 	LLVector3 x_axis = LLVector3(delta_scale.mV[VX], 0.f, 0.f) * delta_rot;
 	LLVector3 y_axis = LLVector3(0.f, delta_scale.mV[VY], 0.f) * delta_rot;
 	LLVector3 z_axis = LLVector3(0.f, 0.f, delta_scale.mV[VZ]) * delta_rot;
 
 	vo->mRelativeXform.initRows(LLVector4(x_axis, 0.f),
-								LLVector4(y_axis, 0.f),
-								LLVector4(z_axis, 0.f),
-								LLVector4(delta_pos, 1.f));
+							LLVector4(y_axis, 0.f),
+							LLVector4(z_axis, 0.f),
+							LLVector4(delta_pos, 1.f));
 			
 	x_axis.normVec();
 	y_axis.normVec();
 	z_axis.normVec();
 	
 	vo->mRelativeXformInvTrans.setRows(x_axis, y_axis, z_axis);
-
 }
 
 const LLMatrix4& LLVolumeImplFlexible::getWorldMatrix(LLXformMatrix* xform) const

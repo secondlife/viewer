@@ -8,6 +8,7 @@
 #include "linden_common.h"
 
 #include "llcommon.h"
+#include "llthread.h"
 
 //static
 BOOL LLCommon::sAprInitialized = FALSE;

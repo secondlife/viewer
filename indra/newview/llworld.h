@@ -95,7 +95,7 @@ public:
 	F32						getRegionMinHeight() const		{ return -mWidthInMeters; }
 	F32						getRegionMaxHeight() const		{ return 3.f*mWidthInMeters; }
 
-	void					updateRegions();
+	void					updateRegions(F32 max_update_time);
 	void					updateVisibilities();
 	void					updateParticles();
 	void					updateClouds(const F32 dt);
@@ -140,7 +140,6 @@ private:
 	const F32 mWidthInMeters;
 
 	F32 mLandFarClip;					// Far clip distance for land.
-	F32 mIdleUpdateTime;
 	LLPatchVertexArray		mLandPatch;
 	S32 mLastPacketsIn;
 	S32 mLastPacketsOut;

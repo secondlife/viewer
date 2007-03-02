@@ -36,15 +36,24 @@ public:
 	//------------------------------------------------------------------------
 public:
 
+	class Responder : public LLThreadSafeRefCount
+	{
+	public:
+		virtual ~Responder();
+		virtual void completed(S32 bytes) = 0;
+	};
+
 	class Request : public QueuedRequest
 	{
 	protected:
-		~Request() {}; // use deleteRequest()
+		virtual ~Request(); // use deleteRequest()
 		
 	public:
-		Request(handle_t handle, U32 priority, U32 flags,
+		Request(LLLFSThread* thread,
+				handle_t handle, U32 priority, 
 				operation_t op, const LLString& filename,
-				U8* buffer, S32 offset, S32 numbytes);
+				U8* buffer, S32 offset, S32 numbytes,
+				Responder* responder);
 
 		S32 getBytes()
 		{
@@ -67,12 +76,12 @@ public:
 			return mFileName;
 		}
 		
-		/*virtual*/ void finishRequest();
+		/*virtual*/ bool processRequest();
+		/*virtual*/ void finishRequest(bool completed);
 		/*virtual*/ void deleteRequest();
-
-		bool processIO();
 		
 	private:
+		LLLFSThread* mThread;
 		operation_t mOperation;
 		
 		LLString mFileName;
@@ -80,35 +89,36 @@ public:
 		U8* mBuffer;	// dest for reads, source for writes, new UUID for rename
 		S32 mOffset;	// offset into file, -1 = append (WRITE only)
 		S32 mBytes;		// bytes to read from file, -1 = all
-		S32	mBytesRead;	// bytes read from file
+		S32 mBytesRead;	// bytes read from file
+
+		LLPointer<Responder> mResponder;
 	};
 
 	//------------------------------------------------------------------------
 public:
-	LLLFSThread(bool threaded = TRUE, bool runalways = TRUE);
+	LLLFSThread(bool threaded = TRUE);
 	~LLLFSThread();	
 
 	// Return a Request handle
 	handle_t read(const LLString& filename,	/* Flawfinder: ignore */ 
-				  U8* buffer, S32 offset, S32 numbytes, U32 pri=PRIORITY_NORMAL, U32 flags = 0);
+				  U8* buffer, S32 offset, S32 numbytes,
+				  Responder* responder, U32 pri=0);
 	handle_t write(const LLString& filename,
-				   U8* buffer, S32 offset, S32 numbytes, U32 flags = 0);
-	handle_t rename(const LLString& filename, const LLString& newname, U32 flags = 0);
-	handle_t remove(const LLString& filename, U32 flags = 0);
+				   U8* buffer, S32 offset, S32 numbytes,
+				   Responder* responder, U32 pri=0);
 	
-	// Return number of bytes read
-	S32 readImmediate(const LLString& filename,
-					  U8* buffer, S32 offset, S32 numbytes);
-	S32 writeImmediate(const LLString& filename,
-					   U8* buffer, S32 offset, S32 numbytes);
-
-	static void initClass(bool local_is_threaded = TRUE, bool run_always = TRUE); // Setup sLocal
+	// Misc
+	U32 priorityCounter() { return mPriorityCounter-- & PRIORITY_LOWBITS; } // Use to order IO operations
+	
+	// static initializers
+	static void initClass(bool local_is_threaded = TRUE); // Setup sLocal
 	static S32 updateClass(U32 ms_elapsed);
 	static void cleanupClass();		// Delete sLocal
 
-protected:
-	/*virtual*/ bool processRequest(QueuedRequest* req);
-
+	
+private:
+	U32 mPriorityCounter;
+	
 public:
 	static LLLFSThread* sLocal;		// Default local file thread
 };

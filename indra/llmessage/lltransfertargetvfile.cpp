@@ -15,33 +15,8 @@
 #include "llvfile.h"
 
 //static
-std::list<LLTransferTargetParamsVFile*> LLTransferTargetVFile::sCallbackQueue;
-
-//static
 void LLTransferTargetVFile::updateQueue(bool shutdown)
 {
-	for(std::list<LLTransferTargetParamsVFile*>::iterator iter = sCallbackQueue.begin();
-		iter != sCallbackQueue.end(); )
-	{
-		std::list<LLTransferTargetParamsVFile*>::iterator curiter = iter++;
-		LLTransferTargetParamsVFile* params = *curiter;
-		LLVFSThread::status_t s = LLVFile::getVFSThread()->getRequestStatus(params->mHandle);
-		if (s == LLVFSThread::STATUS_COMPLETE || s == LLVFSThread::STATUS_EXPIRED)
-		{
-			params->mCompleteCallback(
-				params->mErrCode,
-				params->getAssetID(),
-				params->getAssetType(),
-				params->mUserDatap);
-			delete params;
-			iter = sCallbackQueue.erase(curiter);
-		}
-		else if (shutdown)
-		{
-			delete params;
-			iter = sCallbackQueue.erase(curiter);
-		}
-	}
 }
 
 
@@ -50,8 +25,7 @@ LLTransferTargetParamsVFile::LLTransferTargetParamsVFile() :
 	mAssetType(LLAssetType::AT_NONE),
 	mCompleteCallback(NULL),
 	mUserDatap(NULL),
-	mErrCode(0),
-	mHandle(LLVFSThread::nullHandle())
+	mErrCode(0)
 {
 }
 
@@ -166,7 +140,6 @@ void LLTransferTargetVFile::completionCallback(const LLTSCode status)
 		llwarns << "Aborting vfile transfer after asset storage shut down!" << llendl;
 		return;
 	}
-	LLVFSThread::handle_t handle = LLVFSThread::nullHandle();
 	
 	// Still need to gracefully handle error conditions.
 	S32 err_code = 0;
@@ -175,11 +148,11 @@ void LLTransferTargetVFile::completionCallback(const LLTSCode status)
 	  case LLTS_DONE:
 		if (!mNeedsCreate)
 		{
-			handle = LLVFile::getVFSThread()->rename(
-				gAssetStorage->mVFS,
-				mTempID, mParams.getAssetType(),
-				mParams.getAssetID(), mParams.getAssetType(),
-				LLVFSThread::AUTO_DELETE);
+			LLVFile file(gAssetStorage->mVFS, mTempID, mParams.getAssetType(), LLVFile::WRITE);
+			if (!file.rename(mParams.getAssetID(), mParams.getAssetType()))
+			{
+				llerrs << "LLTransferTargetVFile: rename failed" << llendl;
+			}
 		}
 		err_code = LL_ERR_NOERR;
 		lldebugs << "LLTransferTargetVFile::completionCallback for "
@@ -219,20 +192,9 @@ void LLTransferTargetVFile::completionCallback(const LLTSCode status)
 	}
 	if (mParams.mCompleteCallback)
 	{
-		if (handle != LLVFSThread::nullHandle())
-		{
-			LLTransferTargetParamsVFile* params = new LLTransferTargetParamsVFile(mParams);
-			params->mErrCode = err_code;
-			params->mHandle = handle;
-			sCallbackQueue.push_back(params);
-		}
-		else
-		{
-			mParams.mCompleteCallback(
-				err_code,
-				mParams.getAssetID(),
-				mParams.getAssetType(),
-				mParams.mUserDatap);
-		}
+		mParams.mCompleteCallback(err_code,
+								  mParams.getAssetID(),
+								  mParams.getAssetType(),
+								  mParams.mUserDatap);
 	}
 }

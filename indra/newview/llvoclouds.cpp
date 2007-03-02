@@ -10,6 +10,8 @@
 
 #include "llvoclouds.h"
 
+#include "lldrawpoolalpha.h"
+
 #include "llviewercontrol.h"
 
 #include "llagent.h"		// to get camera position
@@ -27,7 +29,7 @@
 #include "viewer.h"
 
 LLVOClouds::LLVOClouds(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
-:	LLViewerObject(id, LL_VO_CLOUDS, regionp)
+:	LLAlphaObject(id, LL_VO_CLOUDS, regionp)
 {
 	mCloudGroupp = NULL;
 	mbCanSelect = FALSE;
@@ -80,77 +82,132 @@ LLDrawable* LLVOClouds::createDrawable(LLPipeline *pipeline)
 	mDrawable->setLit(FALSE);
 	mDrawable->setRenderType(LLPipeline::RENDER_TYPE_CLOUDS);
 
-	LLDrawPool *pool = gPipeline.getPool(LLDrawPool::POOL_CLOUDS);
-
-	mDrawable->setNumFaces(1, pool, getTEImage(0));
-
 	return mDrawable;
 }
 
 BOOL LLVOClouds::updateGeometry(LLDrawable *drawable)
 {
+	LLFastTimer ftm(LLFastTimer::FTM_UPDATE_CLOUDS);
  	if (!(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS)))
 		return TRUE;
 	
-	LLVector3 at;
-	LLVector3 up;
-	LLVector3 right;
-	LLVector3 normal(0.f,0.f,-1.f);
-	LLVector3 position_agent;
-	//LLVector3 v[4];
 	LLFace *facep;
-	const LLVector3 region_pos_agent = mRegionp->getOriginAgent();
-	const LLVector3 camera_agent = gAgent.getCameraPositionAgent();
-	LLVector3 center_offset = getPositionRegion();
-	LLVector2 uvs[4];
-
-	uvs[0].setVec(0.f, 1.f);
-	uvs[1].setVec(0.f, 0.f);
-	uvs[2].setVec(1.f, 1.f);
-	uvs[3].setVec(1.f, 0.f);
-
-	LLVector3 vtx[4];
-
+	
 	S32 num_faces = mCloudGroupp->getNumPuffs();
 
-	drawable->setNumFacesFast(num_faces, gPipeline.getPool(LLDrawPool::POOL_CLOUDS), getTEImage(0));
+	if (num_faces > drawable->getNumFaces())
+	{
+		drawable->setNumFacesFast(num_faces, NULL, getTEImage(0));
+	}
+
+	mDepth = (getPositionAgent()-gCamera->getOrigin())*gCamera->getAtAxis();
 
 	S32 face_indx = 0;
 	for ( ;	face_indx < num_faces; face_indx++)
 	{
 		facep = drawable->getFace(face_indx);
-
-		LLStrider<LLVector3> verticesp, normalsp;
-		LLStrider<LLVector2> texCoordsp;
-		U32 *indicesp;
-		S32 index_offset;
-
-		facep->setPrimType(LLTriangles);
-		facep->setSize(4, 6);
-		index_offset = facep->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
-		if (-1 == index_offset)
+		if (isParticle())
 		{
-			return TRUE;
+			facep->setSize(1,1);
 		}
-
+		else
+		{
+			facep->setSize(4, 6);
+		}
+		facep->setTEOffset(face_indx);
+		facep->setTexture(getTEImage(0));
 		const LLCloudPuff &puff = mCloudGroupp->getPuff(face_indx);
 		const LLVector3 puff_pos_agent = gAgent.getPosAgentFromGlobal(puff.getPositionGlobal());
-		facep->mCenterAgent = puff_pos_agent;
+		facep->mCenterLocal = puff_pos_agent;
+	}
+	for ( ; face_indx < drawable->getNumFaces(); face_indx++)
+	{
+		facep = drawable->getFace(face_indx);
+		facep->setTEOffset(face_indx);
+		facep->setSize(0,0);
+	}
 
-		LLVector3 from_camera_vec = gCamera->getAtAxis();//puff_pos_agent - camera_agent;
-		at = from_camera_vec;
+	drawable->movePartition();
+
+	return TRUE;
+}
+
+BOOL LLVOClouds::isParticle()
+{
+	return FALSE; // gGLManager.mHasPointParameters;
+}
+
+F32 LLVOClouds::getPartSize(S32 idx)
+{
+	return (CLOUD_PUFF_HEIGHT+CLOUD_PUFF_WIDTH)*0.5f;
+}
+
+void LLVOClouds::getGeometry(S32 te, 
+							LLStrider<LLVector3>& verticesp, 
+							LLStrider<LLVector3>& normalsp, 
+							LLStrider<LLVector2>& texcoordsp, 
+							LLStrider<LLColor4U>& colorsp, 
+							LLStrider<U32>& indicesp)
+{
+
+	if (te >= mCloudGroupp->getNumPuffs())
+	{
+		return;
+	}
+
+	LLDrawable* drawable = mDrawable;
+	LLFace *facep = drawable->getFace(te);
+
+	if (!facep->hasGeometry())
+	{
+		return;
+	}
+	
+	LLVector3 normal(0.f,0.f,-1.f);
+
+	const LLCloudPuff &puff = mCloudGroupp->getPuff(te);
+	S32 index_offset = facep->getGeomIndex();
+	LLColor4U color(255, 255, 255, (U8) (puff.getAlpha()*255));
+	facep->setFaceColor(LLColor4(color));
+		
+	
+	if (isParticle())
+	{
+		*verticesp++ = facep->mCenterLocal;
+		*texcoordsp++ = LLVector2(0.5f, 0.5f);
+		*colorsp++ = color;
+		*normalsp++ = normal;
+		*indicesp++ = facep->getGeomIndex();
+	}
+	else
+	{
+		LLVector3 up;
+		LLVector3 right;
+		LLVector3 at;
+
+		const LLVector3& puff_pos_agent = facep->mCenterLocal;
+		LLVector2 uvs[4];
+
+		uvs[0].setVec(0.f, 1.f);
+		uvs[1].setVec(0.f, 0.f);
+		uvs[2].setVec(1.f, 1.f);
+		uvs[3].setVec(1.f, 0.f);
+
+		LLVector3 vtx[4];
+
+		at = gCamera->getAtAxis();
 		right = at % LLVector3(0.f, 0.f, 1.f);
 		right.normVec();
 		up = right % at;
 		up.normVec();
 		right *= 0.5f*CLOUD_PUFF_WIDTH;
 		up *= 0.5f*CLOUD_PUFF_HEIGHT;;
-
-		facep->mCenterAgent = puff_pos_agent;
-
-		LLColor4 color(1.f, 1.f, 1.f, puff.getAlpha());
-		facep->setFaceColor(color);
 		
+		*colorsp++ = color;
+		*colorsp++ = color;
+		*colorsp++ = color;
+		*colorsp++ = color;
+
 		vtx[0] = puff_pos_agent - right + up;
 		vtx[1] = puff_pos_agent - right - up;
 		vtx[2] = puff_pos_agent + right + up;
@@ -161,10 +218,10 @@ BOOL LLVOClouds::updateGeometry(LLDrawable *drawable)
 		*verticesp++  = vtx[2];
 		*verticesp++  = vtx[3];
 
-		*texCoordsp++ = uvs[0];
-		*texCoordsp++ = uvs[1];
-		*texCoordsp++ = uvs[2];
-		*texCoordsp++ = uvs[3];
+		*texcoordsp++ = uvs[0];
+		*texcoordsp++ = uvs[1];
+		*texcoordsp++ = uvs[2];
+		*texcoordsp++ = uvs[3];
 
 		*normalsp++   = normal;
 		*normalsp++   = normal;
@@ -179,10 +236,28 @@ BOOL LLVOClouds::updateGeometry(LLDrawable *drawable)
 		*indicesp++ = index_offset + 3;
 		*indicesp++ = index_offset + 2;
 	}
-	for ( ; face_indx < drawable->getNumFaces(); face_indx++) 
-	{
-		drawable->getFace(face_indx)->setSize(0,0);
-	}
-
-	return TRUE;
 }
+
+U32 LLVOClouds::getPartitionType() const
+{
+	return LLPipeline::PARTITION_CLOUD;
+}
+
+// virtual
+void LLVOClouds::updateDrawable(BOOL force_damped)
+{
+	// Force an immediate rebuild on any update
+	if (mDrawable.notNull())
+	{
+		mDrawable->updateXform(TRUE);
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+	}
+	clearChanged(SHIFTED);
+}
+
+LLCloudPartition::LLCloudPartition()
+{
+	mDrawableType = LLPipeline::RENDER_TYPE_CLOUDS;
+	mPartitionType = LLPipeline::PARTITION_CLOUD;
+}
+

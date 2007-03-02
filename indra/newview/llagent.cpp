@@ -103,7 +103,6 @@
 // end Ventrella
 
 extern LLMenuBarGL* gMenuBarView;
-extern F32 gMinObjectDistance;
 extern U8 gLastPickAlpha;
 extern F32 gFrameDTClamped;
 
@@ -3322,7 +3321,7 @@ void LLAgent::updateCamera()
 			attachment;
 			attachment = mAvatarObject->mAttachmentPoints.getNextData())
 		{
-			LLViewerObject *attached_object = attachment->getObject(0);
+			LLViewerObject *attached_object = attachment->getObject();
 			if (attached_object && !attached_object->isDead() && attached_object->mDrawable.notNull())
 			{
 				// clear any existing "early" movements of attachment
@@ -3432,21 +3431,26 @@ LLVector3d LLAgent::calcFocusPositionTargetGlobal()
 		{
 			LLDrawable* drawablep = mFocusObject->mDrawable;
 			
-			if (mTrackFocusObject && drawablep && drawablep->isActive())
+			if (mTrackFocusObject &&
+				drawablep && 
+				drawablep->isActive())
 			{
-				if (mFocusObject->isSelected())
+				if (!mFocusObject->isAvatar())
 				{
-					gPipeline.updateMoveNormalAsync(drawablep);
-				}
-				else
-				{
-					if (drawablep->isState(LLDrawable::MOVE_UNDAMPED))
+					if (mFocusObject->isSelected())
 					{
 						gPipeline.updateMoveNormalAsync(drawablep);
 					}
 					else
 					{
-						gPipeline.updateMoveDampedAsync(drawablep);
+						if (drawablep->isState(LLDrawable::MOVE_UNDAMPED))
+						{
+							gPipeline.updateMoveNormalAsync(drawablep);
+						}
+						else
+						{
+							gPipeline.updateMoveDampedAsync(drawablep);
+						}
 					}
 				}
 			}
@@ -3457,11 +3461,6 @@ LLVector3d LLAgent::calcFocusPositionTargetGlobal()
 			}
 			LLVector3 focus_agent = mFocusObject->getRenderPosition() + mFocusObjectOffset;
 			mFocusTargetGlobal.setVec(getPosGlobalFromAgent(focus_agent));
-			// *FIX: get camera pointat behavior working
-			//if (mTrackFocusObject)
-			//{
-			//	mCameraFocusOffset = gAgent.getPosGlobalFromAgent(gCamera->getOrigin()) - mFocusTargetGlobal;
-			//}
 		}
 		return mFocusTargetGlobal;
 	}
@@ -3826,8 +3825,6 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 	if (camera_position_global.mdV[VZ] < camera_land_height + camera_min_off_ground)
 	{
 		camera_position_global.mdV[VZ] = camera_land_height + camera_min_off_ground;
-
-		gMinObjectDistance = MIN_NEAR_PLANE;
 		isConstrained = TRUE;
 	}
 
@@ -6572,7 +6569,7 @@ void LLAgent::makeNewOutfit(
 			S32 attachment_pt = attachments_to_include[i];
 			LLViewerJointAttachment* attachment = mAvatarObject->mAttachmentPoints.getIfThere( attachment_pt );
 			if(!attachment) continue;
-			LLViewerObject* attached_object = attachment->getObject(0);
+			LLViewerObject* attached_object = attachment->getObject();
 			if(!attached_object) continue;
 			const LLUUID& item_id = attachment->getItemID();
 			if(item_id.isNull()) continue;
@@ -7195,7 +7192,7 @@ void LLAgent::userRemoveAllAttachments( void* userdata )
 		 attachment;
 		 attachment = avatarp->mAttachmentPoints.getNextData())
 	{
-		LLViewerObject* objectp = attachment->getObject(0);
+		LLViewerObject* objectp = attachment->getObject();
 		if (objectp)
 		{
 			gMessageSystem->nextBlockFast(_PREHASH_ObjectData);

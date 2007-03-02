@@ -9,7 +9,6 @@
 #ifndef LL_PIPELINE_H
 #define LL_PIPELINE_H
 
-#include "llagparray.h"
 #include "lldarrayptr.h"
 #include "lldqueueptr.h"
 #include "llstat.h"
@@ -31,8 +30,7 @@ class LLAgent;
 class LLDisplayPrimitive;
 class LLTextureEntry;
 class LLRenderFunc;
-class LLAGPMemPool;
-class LLAGPMemBlock;
+class LLCubeMap;
 
 typedef enum e_avatar_skinning_method
 {
@@ -43,6 +41,7 @@ typedef enum e_avatar_skinning_method
 BOOL compute_min_max(LLMatrix4& box, LLVector2& min, LLVector2& max); // Shouldn't be defined here!
 bool LLRayAABB(const LLVector3 &center, const LLVector3 &size, const LLVector3& origin, const LLVector3& dir, LLVector3 &coord, F32 epsilon = 0);
 BOOL LLLineSegmentAABB(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size);
+BOOL setup_hud_matrices(BOOL for_select);
 
 class LLGLSLShader
 {
@@ -72,7 +71,6 @@ public:
 	void bind();
 	void unbind();
 
-
 	GLhandleARB mProgramObject;
 	std::vector<GLint> mAttribute;
 	std::vector<GLint> mUniform;
@@ -88,6 +86,11 @@ public:
 
 	void destroyGL();
 	void restoreGL();
+	void resetVertexBuffers();
+	void resetVertexBuffers(LLDrawable* drawable);
+	void setUseVBO(BOOL use_vbo);
+	void generateReflectionMap(LLCubeMap* cube_map, LLCamera& camera, GLsizei res);
+	void blurReflectionMap(LLCubeMap* cube_in, LLCubeMap* cube_out, U32 res);
 
 	void init();
 	void cleanup();
@@ -102,6 +105,7 @@ public:
 
 	/// @brief Figures out draw pool type from texture entry. Creates pool if necessary.
 	static LLDrawPool* getPoolFromTE(const LLTextureEntry* te, LLViewerImage* te_image);
+	static U32 getPoolTypeFromTE(const LLTextureEntry* te, LLViewerImage* imagep);
 
 	void		 addPool(LLDrawPool *poolp);	// Only to be used by LLDrawPool classes for splitting pools!
 	void		 removePool( LLDrawPool* poolp );
@@ -111,27 +115,25 @@ public:
 	void		 unlinkDrawable(LLDrawable*);
 
 	// Object related methods
-	void        markVisible(LLDrawable *drawablep);
-	void		doOcclusion();
-	void		markNotCulled(LLDrawable* drawablep, LLCamera& camera);
+	void        markVisible(LLDrawable *drawablep, LLCamera& camera);
+	void		doOcclusion(LLCamera& camera);
+	void		markNotCulled(LLSpatialGroup* group, LLCamera &camera, BOOL active = FALSE);
 	void        markMoved(LLDrawable *drawablep, BOOL damped_motion = FALSE);
 	void        markShift(LLDrawable *drawablep);
 	void        markTextured(LLDrawable *drawablep);
-	void		markMaterialed(LLDrawable *drawablep);
 	void        markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag = LLDrawable::REBUILD_ALL, BOOL priority = FALSE);
+	void		markRebuild(LLSpatialGroup* groupp);
 	void        markRelight(LLDrawable *drawablep, const BOOL now = FALSE);
 	
 	//get the object between start and end that's closest to start.  Return the point of collision in collision.
 	LLViewerObject* pickObject(const LLVector3 &start, const LLVector3 &end, LLVector3 &collision);
-	
-	void        dirtyPoolObjectTextures(const LLViewerImage *texture); // Something about this texture has changed.  Dirty it.
+
+	// Something about these textures has changed.  Dirty them.
+	void        dirtyPoolObjectTextures(const std::set<LLViewerImage*>& textures);
 
 	void        resetDrawOrders();
 
 	U32         addObject(LLViewerObject *obj);
-
-	BOOL		usingAGP() const;
-	void		setUseAGP(const BOOL use_agp);	// Attempt to use AGP;
 
 	void		enableShadows(const BOOL enable_shadows);
 
@@ -155,60 +157,42 @@ public:
 	BOOL		validateProgramObject(GLhandleARB obj);
 	GLhandleARB loadShader(const LLString& filename, S32 cls, GLenum type);
 
-	void		setUseOcclusionCulling(BOOL b) { mUseOcclusionCulling = b; }
-	BOOL		getUseOcclusionCulling() const { return mUseOcclusionCulling; }
-
-	BOOL initAGP();
-	void cleanupAGP();
-	LLAGPMemBlock *allocAGPFromPool(const S32 bytes, const U32 target); // Static flag is ignored for now.
-	void flushAGPMemory(); // Clear all AGP memory blocks (to pack & reduce fragmentation)
-
 	// phases
 	void resetFrameStats();
 
 	void updateMoveDampedAsync(LLDrawable* drawablep);
 	void updateMoveNormalAsync(LLDrawable* drawablep);
+	void updateMovedList(LLDrawable::drawable_vector_t& move_list);
 	void updateMove();
-	void updateCull();
+	void updateCull(LLCamera& camera);
 	void updateGeom(F32 max_dtime);
 
-	void stateSort();
+	//calculate pixel area of given box from vantage point of given camera
+	static F32 calcPixelArea(LLVector3 center, LLVector3 size, LLCamera& camera);
 
-	void renderGeom();
+	void stateSort(LLCamera& camera);
+	void stateSort(LLSpatialGroup* group, LLCamera& camera);
+	void stateSort(LLSpatialBridge* bridge, LLCamera& camera);
+	void stateSort(LLDrawable* drawablep, LLCamera& camera);
+	void postSort(LLCamera& camera);
+	void forAllDrawables(LLSpatialGroup::sg_vector_t& groups, void (*func)(LLDrawable*));
+	void forAllVisibleDrawables(void (*func)(LLDrawable*));
+	static void highlightPhysical(LLDrawable* drawablep);
+
+	void renderObjects(U32 type, U32 mask, BOOL texture = TRUE);
+
+	void renderGeom(LLCamera& camera);
 	void renderHighlights();
 	void renderDebug();
+	void processGeometry(LLCamera& camera);
+	void processOcclusion(LLCamera& camera);
 
-	void renderForSelect();
+	void renderForSelect(std::set<LLViewerObject*>& objects);
 	void renderFaceForUVSelect(LLFace* facep);
 	void rebuildPools(); // Rebuild pools
 
-	// bindAGP and unbindAGP are used to bind AGP memory.
-	// AGP should never be bound if you're writing/copying data to AGP.
-	// bindAGP will do the correct thing if AGP rendering has been disabled globally.
-	void bindAGP();
-	void unbindAGP();
-	inline BOOL isAGPBound() const			{ return mAGPBound; }
-
-	void setupVisibility();
-	void computeVisibility();
-
-	LLViewerObject *nearestObjectAt(F32 yaw, F32 pitch);	// CCW yaw from +X = 0 radians, pitch down from +Y = 0 radians, NULL if no object
-
-	void displayPools();
-	void displayAGP();
-	void displayMap();
-	void displaySSBB();
-	void displayQueues();
-	void printPools();
-
 	void findReferences(LLDrawable *drawablep);	// Find the lists which have references to this object
 	BOOL verify();						// Verify that all data in the pipeline is "correct"
-
-	// just the AGP part
-	S32 getAGPMemUsage();
-
-	// all pools
-	S32 getMemUsage(const BOOL print = FALSE);
 
 	S32  getVisibleCount() const { return mVisibleList.size(); }
 	S32  getLightCount() const { return mLights.size(); }
@@ -234,18 +218,15 @@ public:
 	BOOL hasRenderDebugFeatureMask(const U32 mask) const	{ return (mRenderDebugFeatureMask & mask) ? TRUE : FALSE; }
 	BOOL hasRenderFeatureMask(const U32 mask) const			{ return (mRenderFeatureMask & mask) ? TRUE : FALSE; }
 	BOOL hasRenderDebugMask(const U32 mask) const			{ return (mRenderDebugMask & mask) ? TRUE : FALSE; }
-
-	// Vertex buffer stuff?
-	U8* bufferGetScratchMemory(void);
-	void bufferWaitFence(void);
-	void bufferSendFence(void);
-	void bufferRotate(void);
+	void setRenderTypeMask(const U32 mask)					{ mRenderTypeMask = mask; }
+	U32  getRenderTypeMask() const							{ return mRenderTypeMask; }
+	static void toggleRenderType(U32 type);
 
 	// For UI control of render features
-	static void toggleRenderType(void* data);
+	static BOOL hasRenderTypeControl(void* data);
 	static void toggleRenderDebug(void* data);
 	static void toggleRenderDebugFeature(void* data);
-	static BOOL toggleRenderTypeControl(void* data);
+	static void toggleRenderTypeControl(void* data);
 	static BOOL toggleRenderTypeControlNegated(void* data);
 	static BOOL toggleRenderDebugControl(void* data);
 	static BOOL toggleRenderDebugFeatureControl(void* data);
@@ -295,20 +276,17 @@ public:
 		RENDER_TYPE_GROUND		= LLDrawPool::POOL_GROUND,	
 		RENDER_TYPE_TERRAIN		= LLDrawPool::POOL_TERRAIN,
 		RENDER_TYPE_SIMPLE		= LLDrawPool::POOL_SIMPLE,
-		RENDER_TYPE_MEDIA		= LLDrawPool::POOL_MEDIA,
 		RENDER_TYPE_BUMP		= LLDrawPool::POOL_BUMP,
 		RENDER_TYPE_AVATAR		= LLDrawPool::POOL_AVATAR,
 		RENDER_TYPE_TREE		= LLDrawPool::POOL_TREE,
-		RENDER_TYPE_TREE_NEW	= LLDrawPool::POOL_TREE_NEW,
 		RENDER_TYPE_WATER		= LLDrawPool::POOL_WATER,
- 		RENDER_TYPE_CLOUDS		= LLDrawPool::POOL_CLOUDS,
  		RENDER_TYPE_ALPHA		= LLDrawPool::POOL_ALPHA,
- 		RENDER_TYPE_HUD			= LLDrawPool::POOL_HUD,
-
 		// Following are object types (only used in drawable mRenderType)
+		RENDER_TYPE_HUD = LLDrawPool::NUM_POOL_TYPES,
 		RENDER_TYPE_VOLUME,
 		RENDER_TYPE_GRASS,
 		RENDER_TYPE_PARTICLES,
+		RENDER_TYPE_CLOUDS,
 	};
 
 	enum LLRenderDebugFeatureMask
@@ -322,13 +300,12 @@ public:
 		RENDER_DEBUG_FEATURE_FOG				= 0x0020,
 		RENDER_DEBUG_FEATURE_PALETTE			= 0x0040,
 		RENDER_DEBUG_FEATURE_FR_INFO			= 0x0080,
-		RENDER_DEBUG_FEATURE_CHAIN_FACES		= 0x0100
+		RENDER_DEBUG_FEATURE_FOOT_SHADOWS		= 0x0100,
 	};
 
 	enum LLRenderFeatureMask
 	{
-		RENDER_FEATURE_AGP					= 0x01,
-// 		RENDER_FEATURE_LOCAL_LIGHTING		= 0x02,
+		RENDER_FEATURE_LOCAL_LIGHTING		= 0x02,
 		RENDER_FEATURE_OBJECT_BUMP			= 0x04,
 		RENDER_FEATURE_AVATAR_BUMP			= 0x08,
 // 		RENDER_FEATURE_SHADOWS				= 0x10,
@@ -337,26 +314,44 @@ public:
 
 	enum LLRenderDebugMask
 	{
-		RENDER_DEBUG_LIGHT_TRACE		= 0x0001,
-		RENDER_DEBUG_POOLS				= 0x0002,
-		RENDER_DEBUG_MAP				= 0x0004,
-		RENDER_DEBUG_AGP_MEM			= 0x0008,
-		RENDER_DEBUG_QUEUES				= 0x0010,
-		RENDER_DEBUG_COMPOSITION		= 0x0020,
-		RENDER_DEBUG_SSBB				= 0x0040,
-		RENDER_DEBUG_VERIFY				= 0x0080,
-		RENDER_DEBUG_SHADOW_MAP			= 0x0100,
-		RENDER_DEBUG_BBOXES				= 0x0200,
-		RENDER_DEBUG_OCTREE				= 0x0400,
-		RENDER_DEBUG_FACE_CHAINS		= 0x0800,
-		RENDER_DEBUG_OCCLUSION			= 0x1000,
-		RENDER_DEBUG_POINTS				= 0x2000,
-		RENDER_DEBUG_TEXTURE_PRIORITY	= 0x4000,
+		RENDER_DEBUG_LIGHT_TRACE		= 0x00001,
+		RENDER_DEBUG_COMPOSITION		= 0x00020,
+		RENDER_DEBUG_VERIFY				= 0x00080,
+		RENDER_DEBUG_SHADOW_MAP			= 0x00100,
+		RENDER_DEBUG_BBOXES				= 0x00200,
+		RENDER_DEBUG_OCTREE				= 0x00400,
+		RENDER_DEBUG_PICKING			= 0x00800,
+		RENDER_DEBUG_OCCLUSION			= 0x01000,
+		RENDER_DEBUG_POINTS				= 0x02000,
+		RENDER_DEBUG_TEXTURE_PRIORITY	= 0x04000,
+		RENDER_DEBUG_TEXTURE_AREA		= 0x08000,
+		RENDER_DEBUG_PARTICLES			= 0x10000,
 	};
 
 	LLPointer<LLViewerImage>	mAlphaSizzleImagep;
 
-	LLSpatialPartition *mObjectPartition;
+	//MUST MATCH THE ORDER OF DECLARATION IN LLPipeline::init()
+	typedef enum 
+	{
+		PARTITION_VOLUME = 0,
+		PARTITION_BRIDGE,
+		PARTITION_HUD,
+		PARTITION_TERRAIN,
+		PARTITION_WATER,
+		PARTITION_TREE,
+		PARTITION_PARTICLE,
+		PARTITION_CLOUD,
+		PARTITION_GRASS,
+		PARTITION_NONE,
+		NUM_PARTITIONS
+	} eObjectPartitions;
+
+private:
+	std::vector<LLSpatialPartition*> mObjectPartition;
+public:
+	
+	LLSpatialPartition* getSpatialPartition(LLViewerObject* vobj);
+	LLSpatialPartition* getSpatialPartition(U32 index);
 
 	BOOL					 mBackfaceCull;
 	S32						 mTrianglesDrawn;
@@ -375,10 +370,16 @@ public:
 	LLStat					 mNumVisibleFacesStat;
 	LLStat					 mNumVisibleDrawablesStat;
 
-	static S32				sAGPMaxPoolSize;
 	static S32				sCompiles;
 
-	BOOL					mUseVBO;		// Use ARB vertex buffer objects, if available
+	static BOOL				sShowHUDAttachments;
+	static BOOL				sUseOcclusion;
+	static BOOL				sSkipUpdate; //skip lod updates
+	static BOOL				sDynamicReflections;
+
+	//cube map for anti-aliasing reflections
+	LLCubeMap*				mCubeBuffer;
+	GLuint					mCubeList;
 
 	class LLScatterShader
 	{
@@ -413,15 +414,25 @@ public:
 		GLSL_SPECULAR_MAP,
 		GLSL_BUMP_MAP,
 		GLSL_ENVIRONMENT_MAP,
-		GLSL_SCATTER_MAP,
 		GLSL_END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
+
+	static const char* sShinyUniforms[];
+	static U32 sShinyUniformCount;
+
+	typedef enum
+	{
+		GLSL_SHINY_ORIGIN = GLSL_END_RESERVED_UNIFORMS
+	} eShinyUniforms;
+
+	LLVector4				mShinyOrigin;
 
 	//object shaders
 	LLGLSLShader			mObjectSimpleProgram;
 	LLGLSLShader			mObjectAlphaProgram;
 	LLGLSLShader			mObjectBumpProgram;
-	
+	LLGLSLShader			mObjectShinyProgram;
+
 	//water parameters
 	static const char* sWaterUniforms[];
 	static U32 sWaterUniformCount;
@@ -496,15 +507,17 @@ public:
 
 	LLColor4				mSunDiffuse;
 	LLVector3				mSunDir;
+
+	LLSpatialGroup::sg_vector_t mActiveGroups;
+	std::vector<LLDrawInfo*> mRenderMap[LLRenderPass::NUM_RENDER_TYPES];
+	std::vector<LLSpatialGroup* > mAlphaGroups;
+	std::vector<LLSpatialGroup* > mAlphaGroupsPostWater;
+	LLSpatialGroup::sg_vector_t mVisibleGroups;
+	LLSpatialGroup::sg_vector_t mDrawableGroups;
+
+	void clearRenderMap();
 	
 protected:
-	class SelectedFaceInfo
-	{
-	public:
-		LLFace *mFacep;
-		S32 mTE;
-	};
-
 	BOOL					mVertexShadersEnabled;
 	S32						mVertexShadersLoaded; // 0 = no, 1 = yes, -1 = failed
 	S32						mVertexShaderLevel[SHADER_COUNT];
@@ -515,12 +528,16 @@ protected:
 	U32						mRenderDebugFeatureMask;
 	U32						mRenderDebugMask;
 
+	U32						mOldRenderDebugMask;
+	
 	/////////////////////////////////////////////
 	//
 	//
 	LLDrawable::drawable_vector_t	mVisibleList;
-	LLDrawable::drawable_set_t		mMovedList;
-	
+	LLSpatialBridge::bridge_vector_t mVisibleBridge;
+	LLSpatialBridge::bridge_vector_t mOccludedBridge;
+	LLDrawable::drawable_vector_t	mMovedList;
+	LLDrawable::drawable_vector_t mMovedBridge;
 	LLDrawable::drawable_vector_t	mShiftList;
 
 	/////////////////////////////////////////////
@@ -559,13 +576,13 @@ protected:
 	//
 	// Different queues of drawables being processed.
 	//
-	LLDrawable::drawable_set_t 		mBuildQ1; // priority
+	LLDrawable::drawable_list_t 	mBuildQ1; // priority
 	LLDrawable::drawable_list_t 	mBuildQ2; // non-priority
+	LLSpatialGroup::sg_set_t		mGroupQ; //spatial groups
 	
 	LLDrawable::drawable_set_t		mActiveQ;
 	
 	LLDrawable::drawable_set_t		mRetexturedList;
-	LLDrawable::drawable_set_t		mRematerialedList;
 
 	//////////////////////////////////////////////////
 	//
@@ -598,45 +615,27 @@ protected:
 	LLDrawPool*	mLastRebuildPool;
 	
 	// For quick-lookups into mPools (mapped by texture pointer)
-	std::map<uintptr_t, LLDrawPool*>	mSimplePools;
 	std::map<uintptr_t, LLDrawPool*>	mTerrainPools;
 	std::map<uintptr_t, LLDrawPool*>	mTreePools;
-	std::map<uintptr_t, LLDrawPool*>	mTreeNewPools;
-	std::map<uintptr_t, LLDrawPool*>	mBumpPools;
-	std::map<uintptr_t, LLDrawPool*>	mMediaPools;
 	LLDrawPool*					mAlphaPool;
+	LLDrawPool*					mAlphaPoolPostWater;
 	LLDrawPool*					mSkyPool;
 	LLDrawPool*					mStarsPool;
-	LLDrawPool*					mCloudsPool;
 	LLDrawPool*					mTerrainPool;
 	LLDrawPool*					mWaterPool;
 	LLDrawPool*					mGroundPool;
-	LLDrawPool*					mHUDPool;
+	LLRenderPass*				mSimplePool;
+	LLDrawPool*					mBumpPool;
 	// Note: no need to keep an quick-lookup to avatar pools, since there's only one per avatar
 	
 
-	LLDynamicArray<LLFace*>		mHighlightFaces;	// highlight faces on physical objects
-	LLDynamicArray<SelectedFaceInfo>	mSelectedFaces;
+	std::vector<LLFace*>		mHighlightFaces;	// highlight faces on physical objects
+	std::vector<LLFace*>		mSelectedFaces;
 
 	LLPointer<LLViewerImage>	mFaceSelectImagep;
 	LLPointer<LLViewerImage>	mBloomImagep;
 	LLPointer<LLViewerImage>	mBloomImage2p;
-
-	BOOL					mAGPBound;
-	LLAGPMemPool            *mAGPMemPool;
-	U32						mGlobalFence;
-
-	// Round-robin AGP buffers for use by the software skinner
-	enum
-	{
-		kMaxBufferCount = 4
-	};
 	
-	S32						mBufferIndex;
-	S32						mBufferCount;
-	LLAGPArray<U8>			*mBufferMemory[kMaxBufferCount];
-	U32						mBufferFence[kMaxBufferCount];
-	BOOL					mUseOcclusionCulling;	// object-object occlusion culling
 	U32						mLightMask;
 	U32						mLightMovingMask;
 	S32						mLightingDetail;

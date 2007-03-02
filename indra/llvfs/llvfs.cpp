@@ -771,12 +771,17 @@ BOOL LLVFS::setMaxSize(const LLUUID &file_id, const LLAssetType::EType file_type
 	}
     
 	// round all sizes upward to KB increments
-	if (max_size & FILE_BLOCK_MASK)
+	// SJB: Need to not round for the new texture-pipeline code so we know the correct
+	//      max file size. Need to investigate the potential problems with this...
+	if (file_type != LLAssetType::AT_TEXTURE)
 	{
-		max_size += FILE_BLOCK_MASK;
-		max_size &= ~FILE_BLOCK_MASK;
-	}
-    
+		if (max_size & FILE_BLOCK_MASK)
+		{
+			max_size += FILE_BLOCK_MASK;
+			max_size &= ~FILE_BLOCK_MASK;
+		}
+    }
+	
 	if (block && block->mLength > 0)
 	{    
 		block->mAccessTime = (U32)time(NULL);
@@ -1998,7 +2003,7 @@ LLString get_extension(LLAssetType::EType type)
 	switch(type)
 	{
 	  case LLAssetType::AT_TEXTURE:
-		extension = ".jp2"; // ".j2c"; // IrfanView recognizes .jp2 -sjb
+		extension = ".j2c";
 		break;
 	  case LLAssetType::AT_SOUND:
 		extension = ".ogg";

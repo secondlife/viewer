@@ -15,7 +15,7 @@
 #include "llviewerimage.h"
 #include "llviewerobject.h"
 
-class LLVOGround : public LLViewerObject
+class LLVOGround : public LLStaticViewerObject
 {
 protected:
 public:

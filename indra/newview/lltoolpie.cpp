@@ -61,10 +61,9 @@ LLToolPie::LLToolPie()
 
 BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	// if buttons swapped, don't pick transparent so users can't "pay" 
-	// transparent objects
+	//left mouse down always picks transparent
 	gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, leftMouseCallback, 
-											  FALSE, TRUE);
+											  TRUE, TRUE);
 	mGrabMouseButtonDown = TRUE;
 	return TRUE;
 }

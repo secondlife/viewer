@@ -347,7 +347,7 @@ void LLSky::updateCull()
 
 	if (mVOStarsp.notNull() && mVOStarsp->mDrawable.notNull())
 	{
-		gPipeline.markVisible(mVOStarsp->mDrawable);
+		gPipeline.markVisible(mVOStarsp->mDrawable, *gCamera);
 	}
 	else
 	{
@@ -372,10 +372,10 @@ void LLSky::updateSky()
 	}
 	if (mVOStarsp)
 	{
-		if (mVOStarsp->mDrawable)
-		{
-			gPipeline.markRebuild(mVOStarsp->mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
-		}
+		//if (mVOStarsp->mDrawable)
+		//{
+		//	gPipeline.markRebuild(mVOStarsp->mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
+		//}
 	}
 }
 

@@ -51,13 +51,16 @@ public:
 	LLVector3	mPosAgent; // Location of the particle source
 	LLVector3	mTargetPosAgent; // Location of the target position
 	LLVector3	mLastUpdatePosAgent;
+	LLPointer<LLViewerObject>	mSourceObjectp;
+	U32 mID;
+
 protected:
 	U32			mType;
 	BOOL		mIsDead;
 	F32			mLastUpdateTime;
 	F32			mLastPartTime;
 	LLUUID		mOwnerUUID;
-
+	
 	// Particle information
 	U32			mPartFlags; // Flags for the particle
 };
@@ -96,7 +99,6 @@ public:
 protected:
 	LLQuaternion				mRotation;			// Current rotation for particle source
 	LLPointer<LLViewerImage>	mImagep;			// Cached image pointer of the mPartSysData UUID
-	LLPointer<LLViewerObject>	mSourceObjectp;		// Source object that this particle system is attached to
 	LLPointer<LLViewerObject>	mTargetObjectp;		// Target object for the particle source
 };
 
@@ -122,7 +124,6 @@ public:
 	LLColor4 mColor;
 protected:
 	LLPointer<LLViewerImage>	mImagep;
-	LLPointer<LLViewerObject>	mSourceObjectp;
 	LLVector3d mLKGSourcePosGlobal;
 };
 
@@ -150,7 +151,6 @@ public:
 
 	static void updatePart(LLViewerPart &part, const F32 dt);
 	LLPointer<LLViewerImage>	mImagep;
-	LLPointer<LLViewerObject>	mSourceObjectp;
 	LLPointer<LLViewerObject>	mTargetObjectp;
 	LLVector3d		mLKGTargetPosGlobal;
 	LLColor4 mColor;
@@ -180,7 +180,6 @@ public:
 	LLColor4 mColor;
 protected:
 	LLPointer<LLViewerImage>	mImagep;
-	LLPointer<LLViewerObject>	mSourceObjectp;
 	LLVector3d mLKGSourcePosGlobal;
 };
 

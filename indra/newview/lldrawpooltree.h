@@ -11,10 +11,19 @@
 
 #include "lldrawpool.h"
 
-class LLDrawPoolTree : public LLDrawPool
+class LLDrawPoolTree : public LLFacePool
 {
 	LLPointer<LLViewerImage> mTexturep;
 public:
+	enum
+	{
+		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
+							LLVertexBuffer::MAP_NORMAL |
+							LLVertexBuffer::MAP_TEXCOORD							
+	};
+
+	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+
 	LLDrawPoolTree(LLViewerImage *texturep);
 
 	/*virtual*/ LLDrawPool *instancePool();
@@ -24,7 +33,6 @@ public:
 	/*virtual*/ void render(S32 pass = 0);
 	/*virtual*/ void endRenderPass( S32 pass );
 	/*virtual*/ void renderForSelect();
-	/*virtual*/ S32 rebuild();
 	/*virtual*/ BOOL verify() const;
 	/*virtual*/ LLViewerImage *getTexture();
 	/*virtual*/ LLViewerImage *getDebugTexture();

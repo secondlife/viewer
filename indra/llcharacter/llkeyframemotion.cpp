@@ -1892,28 +1892,26 @@ void LLKeyframeMotion::onLoadComplete(LLVFS *vfs,
 									   void* user_data, S32 status)
 {
 	LLUUID* id = (LLUUID*)user_data;
+		
+	std::vector<LLCharacter* >::iterator char_iter = LLCharacter::sInstances.begin();
 
-	LLCharacter* character = NULL;
+	while(char_iter != LLCharacter::sInstances.end() &&
+			(*char_iter)->getID() != *id)
+	{
+		++char_iter;
+	}
 	
-	for(character = LLCharacter::sInstances.getFirstData();
-		character;
-		character = LLCharacter::sInstances.getNextData())
-		{
-			if (character->getID() == *id)
-			{
-				break;
-			}
-		}
-
 	delete id;
 
-	if (!character)
+	if (char_iter == LLCharacter::sInstances.end())
 	{
 		return;
 	}
 
+	LLCharacter* character = *char_iter;
+
 	// create an instance of this motion (it may or may not already exist)
-	LLKeyframeMotion* motionp = (LLKeyframeMotion*)character->createMotion(asset_uuid);
+	LLKeyframeMotion* motionp = (LLKeyframeMotion*) character->createMotion(asset_uuid);
 
 	if (0 == status && motionp)
 	{

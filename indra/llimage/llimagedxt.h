@@ -82,12 +82,11 @@ public:
 				BOOL encode(const LLImageRaw* raw_image, F32 time, bool explicit_mips);
 	/*virtual*/ BOOL encode(const LLImageRaw* raw_image, F32 time=0.0);
 
-	/*virtual*/ BOOL requestDecodedData(LLPointer<LLImageRaw>& raw, S32 discard=-1, F32 decode_time=0.0);
-	/*virtual*/ void releaseDecodedData();
-	
 	/*virtual*/ S32 calcHeaderSize();
 	/*virtual*/ S32 calcDataSize(S32 discard_level = 0);
 
+	BOOL getMipData(LLPointer<LLImageRaw>& raw, S32 discard=-1);
+	
 	void setFormat();
 	S32 getMipOffset(S32 discard);
 	

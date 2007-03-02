@@ -16,6 +16,8 @@
 #include "llviewercamera.h"
 #include "llviewercontrol.h"
 #include "llviewerimage.h"
+#include "llvertexbuffer.h"
+
 
 // static
 LLLinkedList<LLDynamicTexture> LLDynamicTexture::sInstances[ LLDynamicTexture::ORDER_COUNT ];
@@ -174,6 +176,8 @@ BOOL LLDynamicTexture::updateAllInstances()
 		return TRUE;
 	}
 
+	BOOL started = FALSE;
+		
 	BOOL result = FALSE;
 	for( S32 order = 0; order < ORDER_COUNT; order++ )
 	{
@@ -183,6 +187,12 @@ BOOL LLDynamicTexture::updateAllInstances()
 		{
 			if (dynamicTexture->needsRender())
 			{
+				if (!started)
+				{
+					started = TRUE;
+					LLVertexBuffer::startRender();
+				}
+				
 				dynamicTexture->preRender();
 				if (dynamicTexture->render())
 				{
@@ -194,6 +204,11 @@ BOOL LLDynamicTexture::updateAllInstances()
 		}
 	}
 
+	if (started)
+	{
+		LLVertexBuffer::stopRender();
+	}
+	
 	return result;
 }
 

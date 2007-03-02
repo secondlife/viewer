@@ -20,8 +20,9 @@
 #include "llglheaders.h"
 
 #include "llagent.h"
-#include "llfocusmgr.h"
 #include "llbutton.h"
+#include "llfocusmgr.h"
+#include "llstartup.h"
 #include "llviewercontrol.h"
 #include "llviewerimagelist.h"
 #include "llviewerwindow.h"
@@ -29,9 +30,8 @@
 
 LLProgressView* LLProgressView::sInstance = NULL;
 
-LLPointer<LLImageGL> gStartImageGL = NULL;
-S32						gStartImageWidth = 1;
-S32						gStartImageHeight = 1;
+S32 gStartImageWidth = 1;
+S32 gStartImageHeight = 1;
 const F32 FADE_IN_TIME = 1.f;
 
 const LLString ANIMATION_FILENAME = "Login Sequence ";

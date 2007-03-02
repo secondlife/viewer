@@ -11,6 +11,7 @@
 
 #include "llapr.h"
 #include "llapp.h"
+#include "llmemory.h"
 
 #include "apr-1/apr_thread_cond.h"
 
@@ -30,19 +31,20 @@ public:
 
 	LLThread(const std::string& name, apr_pool_t *poolp = NULL);
 	virtual ~LLThread(); // Warning!  You almost NEVER want to destroy a thread unless it's in the STOPPED state.
-		
+	virtual void shutdown(); // stops the thread
+	
 	static void yield(); // Static because it can be called by the main thread, which doesn't have an LLThread data structure.
 
 
-	bool isQuitting() const;
-	bool isStopped() const;
+	bool isQuitting() const { return (QUITTING == mStatus); }
+	bool isStopped() const { return (STOPPED == mStatus); }
 	
 	// PAUSE / RESUME functionality. See source code for important usage notes.
 public:
 	// Called from MAIN THREAD.
 	void pause();
 	void unpause();
-	bool isPaused() { return mPaused ? true : false; }
+	bool isPaused() { return isStopped() || mPaused == TRUE; }
 	
 	// Cause the thread to wake up and check its condition
 	void wake();
@@ -60,7 +62,7 @@ public:
 	
 private:
 	BOOL				mPaused;
-
+	
 	// static function passed to APR thread creation routine
 	static void *APR_THREAD_FUNC staticRun(apr_thread_t *apr_threadp, void *datap);
 
@@ -158,6 +160,69 @@ void LLThread::unlockData()
 	mRunCondition->unlock();
 }
 
+
+//============================================================================
+
+// see llmemory.h for LLPointer<> definition
+
+class LLThreadSafeRefCount
+{
+public:
+	static void initClass(); // creates sMutex
+	static void cleanupClass(); // destroys sMutex
+	
+private:
+	static LLMutex* sMutex;
+
+private:
+	LLThreadSafeRefCount(const LLThreadSafeRefCount&); // not implemented
+	LLThreadSafeRefCount&operator=(const LLThreadSafeRefCount&); // not implemented
+
+protected:
+	virtual ~LLThreadSafeRefCount(); // use unref()
+	
+public:
+	LLThreadSafeRefCount();
+	
+	void ref()
+	{
+		if (sMutex) sMutex->lock();
+		mRef++; 
+		if (sMutex) sMutex->unlock();
+	} 
+
+	S32 unref()
+	{
+		llassert(mRef >= 1);
+		if (sMutex) sMutex->lock();
+		S32 res = --mRef;
+		if (sMutex) sMutex->unlock();
+		if (0 == res) 
+		{
+			delete this; 
+			res = 0;
+		}
+		return res;
+	}	
+	S32 getNumRefs() const
+	{
+		return mRef;
+	}
+
+private: 
+	S32	mRef; 
+};
+
+//============================================================================
+
+// Simple responder for self destructing callbacks
+// Pure virtual class
+class LLResponder : public LLThreadSafeRefCount
+{
+public:
+	virtual ~LLResponder();
+	virtual void completed(bool success) = 0;
+};
 
 //============================================================================
 

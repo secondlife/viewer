@@ -10,7 +10,6 @@
 
 #include "lldrawpooltree.h"
 
-#include "llagparray.h"
 #include "lldrawable.h"
 #include "llface.h"
 #include "llsky.h"
@@ -22,7 +21,7 @@
 S32 LLDrawPoolTree::sDiffTex = 0;
 
 LLDrawPoolTree::LLDrawPoolTree(LLViewerImage *texturep) :
-	LLDrawPool(POOL_TREE, DATA_SIMPLE_IL_MASK, 0),
+	LLFacePool(POOL_TREE),
 	mTexturep(texturep)
 {
 	mTexturep->bind(0);
@@ -36,7 +35,7 @@ LLDrawPool *LLDrawPoolTree::instancePool()
 
 void LLDrawPoolTree::prerender()
 {
-	mVertexShaderLevel = gPipeline.getVertexShaderLevel(LLPipeline::SHADER_OBJECT);
+	mVertexShaderLevel = 0;
 }
 
 void LLDrawPoolTree::beginRenderPass(S32 pass)
@@ -44,13 +43,7 @@ void LLDrawPoolTree::beginRenderPass(S32 pass)
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	
-	if ((mVertexShaderLevel > 0))
-	{
-		S32 scatterTex = gPipeline.mObjectSimpleProgram.enableTexture(LLPipeline::GLSL_SCATTER_MAP);
-		LLViewerImage::bindTexture(gSky.mVOSkyp->getScatterMap(), scatterTex);
-		sDiffTex = gPipeline.mObjectSimpleProgram.enableTexture(LLPipeline::GLSL_DIFFUSE_MAP);
-	}
+	glAlphaFunc(GL_GREATER, 0.5f);
 }
 
 void LLDrawPoolTree::render(S32 pass)
@@ -64,34 +57,21 @@ void LLDrawPoolTree::render(S32 pass)
 
 	gPipeline.enableLightsDynamic(1.f);
 	LLGLSPipelineAlpha gls_pipeline_alpha;
-	
-	bindGLVertexPointer();
-	bindGLTexCoordPointer();
-	bindGLNormalPointer();
-
 	LLOverrideFaceColor color(this, 1.f, 1.f, 1.f, 1.f);
 
 	renderTree();
-	
 }
 
 void LLDrawPoolTree::endRenderPass(S32 pass)
 {
-	if ((mVertexShaderLevel > 0))
-	{
-		gPipeline.mObjectSimpleProgram.disableTexture(LLPipeline::GLSL_SCATTER_MAP);
-		gPipeline.mObjectSimpleProgram.disableTexture(LLPipeline::GLSL_DIFFUSE_MAP);
-		glActiveTextureARB(GL_TEXTURE0_ARB);
-		glEnable(GL_TEXTURE_2D);
-	}
-
+	glAlphaFunc(GL_GREATER, 0.01f);
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void LLDrawPoolTree::renderForSelect()
 {
-	if (mDrawFace.empty() || !mMemory.count())
+	if (mDrawFace.empty())
 	{
 		return;
 	}
@@ -104,10 +84,7 @@ void LLDrawPoolTree::renderForSelect()
 	LLGLSObjectSelectAlpha gls_alpha;
 
 	glBlendFunc(GL_ONE, GL_ZERO);
-	glAlphaFunc(gPickTransparent ? GL_GEQUAL : GL_GREATER, 0.f);
-
-	bindGLVertexPointer();
-	bindGLTexCoordPointer();
+	glAlphaFunc(GL_GREATER, 0.5f);
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
 	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_REPLACE);
@@ -147,6 +124,8 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 		}
 	}
 
+	U32 indices_drawn = 0;
+
 	glMatrixMode(GL_MODELVIEW);
 	
 	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
@@ -155,10 +134,13 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 		LLFace *face = *iter;
 		LLDrawable *drawablep = face->getDrawable();
 
-		if (drawablep->isDead())
+		if (drawablep->isDead() || face->mVertexBuffer.isNull())
 		{
 			continue;
 		}
+
+		face->mVertexBuffer->setBuffer(LLDrawPoolTree::VERTEX_DATA_MASK);
+		U32* indicesp = (U32*) face->mVertexBuffer->getIndicesPointer();
 
 		// Render each of the trees
 		LLVOTree *treep = (LLVOTree *)drawablep->getVObj();
@@ -217,55 +199,26 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 				}
 			} 
 
-			if (app_angle > (THRESH_ANGLE_FOR_BILLBOARD + BLEND_RANGE_FOR_BILLBOARD))
-			{
-				//
-				//  Draw only the full geometry tree
-				//
-				//stop_depth = (app_angle < THRESH_ANGLE_FOR_RECURSION_REDUCTION);
-				glAlphaFunc(GL_GREATER, 0.5f);
-				LLDrawPool::LLOverrideFaceColor clr(this, color); 
-				treep->drawBranchPipeline(this, trunk_LOD, stop_depth, treep->mDepth, treep->mTrunkDepth, 1.0, treep->mTwist, droop, treep->mBranches, alpha);
-			}
-			else if (app_angle < (THRESH_ANGLE_FOR_BILLBOARD - BLEND_RANGE_FOR_BILLBOARD))
+			if (app_angle < (THRESH_ANGLE_FOR_BILLBOARD - BLEND_RANGE_FOR_BILLBOARD))
 			{
 				//
 				//  Draw only the billboard 
 				//
 				//  Only the billboard, can use closer to normal alpha func.
 				stop_depth = -1;
-				glAlphaFunc(GL_GREATER, 0.4f);
-				LLDrawPool::LLOverrideFaceColor clr(this, color); 
-				treep->drawBranchPipeline(this, trunk_LOD, stop_depth, treep->mDepth, treep->mTrunkDepth, 1.0, treep->mTwist, droop, treep->mBranches, alpha);
+				LLFacePool::LLOverrideFaceColor clr(this, color); 
+				indices_drawn += treep->drawBranchPipeline(indicesp, trunk_LOD, stop_depth, treep->mDepth, treep->mTrunkDepth, 1.0, treep->mTwist, droop, treep->mBranches, alpha);
 			}
-			else
+			else // if (app_angle > (THRESH_ANGLE_FOR_BILLBOARD + BLEND_RANGE_FOR_BILLBOARD))
 			{
 				//
-				//  Draw a blended version including both billboard and full tree 
-				// 
-				alpha = (app_angle - THRESH_ANGLE_FOR_BILLBOARD)/BLEND_RANGE_FOR_BILLBOARD;
-				BOOL billboard_depth = TRUE; // billboard gets alpha
-				if (alpha > 0.5f)
-				{
-					billboard_depth = FALSE;
-				}
-				alpha = alpha/2.f + 0.5f;
-								
-				glAlphaFunc(GL_GREATER, alpha*0.5f);
-				{
-					LLGLDepthTest gls_depth(GL_TRUE, billboard_depth ? GL_FALSE : GL_TRUE);
-					color.mV[3] = (U8) (llclamp(alpha, 0.0f, 1.0f) * 255);
-					LLDrawPool::LLOverrideFaceColor clr(this, color); 
-					treep->drawBranchPipeline(this, trunk_LOD, 0, treep->mDepth, treep->mTrunkDepth, 1.0, treep->mTwist, droop, treep->mBranches, alpha);
-				}
-				{
-					LLGLDepthTest gls_depth(GL_TRUE, billboard_depth ? GL_TRUE : GL_FALSE);
-					glAlphaFunc(GL_GREATER, (1.f - alpha)*0.1f);
-					color.mV[3] = (U8) (llclamp(1.f-alpha, 0.0f, 1.0f) * 255);
-					LLDrawPool::LLOverrideFaceColor clr(this, color); 
-					treep->drawBranchPipeline(this, trunk_LOD, -1, treep->mDepth, treep->mTrunkDepth, 1.0, treep->mTwist, droop, treep->mBranches, 1.f - alpha);
-				}
+				//  Draw only the full geometry tree
+				//
+				//stop_depth = (app_angle < THRESH_ANGLE_FOR_RECURSION_REDUCTION);
+				LLFacePool::LLOverrideFaceColor clr(this, color); 
+				indices_drawn += treep->drawBranchPipeline(indicesp, trunk_LOD, stop_depth, treep->mDepth, treep->mTrunkDepth, 1.0, treep->mTwist, droop, treep->mBranches, alpha);
 			}
+			
 			glPopMatrix();
 		}
 	}
@@ -279,45 +232,21 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		}
 	}
-	glAlphaFunc(GL_GREATER, 0.01f);
-}
 
-
-S32 LLDrawPoolTree::rebuild()
-{
-	mRebuildTime++;
-	if (mRebuildTime >  mRebuildFreq)
-	{
-		// Flush AGP to force an AGP realloc and reduce AGP fragmentation
-		flushAGP();
-		mRebuildTime = 0;
-	}
-
-	return 0;
+	addIndicesDrawn(indices_drawn);
 }
 
 BOOL LLDrawPoolTree::verify() const
 {
-	BOOL ok = TRUE;
+/*	BOOL ok = TRUE;
 
-	// shared geometry.  Just verify that it's there and correct.
-
-	// Verify all indices in the pool are in the right range
-	const U32 *indicesp = getRawIndices();
-	for (U32 i = 0; i < getIndexCount(); i++)
-	{
-		if (indicesp[i] > getVertexCount())
-		{
-			ok = FALSE;
-			llinfos << "Bad index in tree pool!" << llendl;
-		}
-	}
-	
 	if (!ok)
 	{
 		printDebugInfo();
 	}
-	return ok;
+	return ok;*/
+
+	return TRUE;
 }
 
 LLViewerImage *LLDrawPoolTree::getTexture()

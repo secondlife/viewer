@@ -575,23 +575,25 @@ void LLViewerRegion::dirtyHeights()
 	}
 }
 
-BOOL LLViewerRegion::idleUpdate(LLTimer &timer, const F32 max_time)
+BOOL LLViewerRegion::idleUpdate(F32 max_update_time)
 {
-	BOOL done = mLandp->idleUpdate();
-
+	// did_update returns TRUE if we did at least one significant update
+	BOOL did_update = mLandp->idleUpdate(max_update_time);
+	
 	if (mParcelOverlay)
 	{
+		// Hopefully not a significant time sink...
 		mParcelOverlay->idleUpdate();
 	}
 
-	return done;
+	return did_update;
 }
 
 
 // As above, but forcibly do the update.
 void LLViewerRegion::forceUpdate()
 {
-	mLandp->idleUpdate();
+	mLandp->idleUpdate(0.f);
 
 	if (mParcelOverlay)
 	{
@@ -826,7 +828,7 @@ LLVector3 LLViewerRegion::getPosAgentFromRegion(const LLVector3 &pos_region) con
 
 LLVector3 LLViewerRegion::getPosRegionFromAgent(const LLVector3 &pos_agent) const
 {
-	return getPosRegionFromGlobal(gAgent.getPosGlobalFromAgent(pos_agent));
+	return pos_agent - getOriginAgent();
 }
 
 F32 LLViewerRegion::getLandHeightRegion(const LLVector3& region_pos)
@@ -1260,6 +1262,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("MapLayerGod");
 	capabilityNames.append("NewAgentInventory");
 	capabilityNames.append("EventQueueGet");
+	capabilityNames.append("RequestTextureDownload");
 	LLHTTPClient::post(url, capabilityNames, BaseCapabilitiesComplete::build(this));
 }
 

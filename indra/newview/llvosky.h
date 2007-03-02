@@ -178,7 +178,7 @@ protected:
 	}
 
 	LLImageRaw* getImageRaw(BOOL curr=TRUE)			{ return mImageRaw[getWhich(curr)]; }
-	void createTexture(BOOL curr=TRUE);
+	void createGLImage(BOOL curr=TRUE);
 };
 
 
@@ -492,7 +492,7 @@ public:
 class LLCubeMap;
 
 
-class LLVOSky : public LLViewerObject
+class LLVOSky : public LLStaticViewerObject
 {
 public:
 	enum
@@ -574,6 +574,7 @@ public:
 	LLColor4 getMoonAmbientColor() const					{ return mMoonAmbient; }
 	const LLColor4& getTotalAmbientColor() const			{ return mTotalAmbient; }
 	LLColor4 getFogColor() const							{ return mFogColor; }
+	LLColor4 getGLFogColor() const							{ return mGLFogCol; }
 	
 	LLVector3 calcUpVec(const LLVector3 &pos) const
 	{
@@ -710,6 +711,8 @@ protected:
 	F32					sInterpVal;
 
 	LLColor4			mFogColor;
+	LLColor4			mGLFogCol;
+	
 	F32					mFogRatio;
 	F32					mWorldScale;
 
@@ -720,7 +723,7 @@ protected:
 	LLColor3			mMoonDiffuse;
 	LLColor4U			mFadeColor;					// Color to fade in from	
 
-	LLCubeMap			*mCubeMap;					// Cube map for the sky
+	LLCubeMap			*mCubeMap;					// Cube map for the environment
 	S32					mDrawRefl;
 
 	LLFrameTimer		mUpdateTimer;

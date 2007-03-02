@@ -12,6 +12,7 @@
 
 #include "llsd.h"
 #include "llmemory.h"
+#include "llthread.h"
 
 class LLEventListener;
 class LLEvent;

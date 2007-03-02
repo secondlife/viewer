@@ -12,8 +12,6 @@
 #include <cstdlib>
 
 #include "llerror.h"
-#include "llthread.h"
-#include "llmemtype.h"
 
 extern S32 gTotalDAlloc;
 extern S32 gTotalDAUse;
@@ -42,53 +40,7 @@ private:
 //   LLPointer<LLFoo> x = new LLFoo; // constructor does not do anything interesting
 //   x->instantiate(); // does stuff like place x into an update queue
 
-class LLThreadSafeRefCount
-{
-public:
-	static void initClass(); // creates sMutex
-	static void cleanupClass(); // destroys sMutex
-	
-private:
-	static LLMutex* sMutex;
-
-private:
-	LLThreadSafeRefCount(const LLThreadSafeRefCount&); // not implemented
-	LLThreadSafeRefCount&operator=(const LLThreadSafeRefCount&); // not implemented
-
-protected:
-	virtual ~LLThreadSafeRefCount(); // use unref()
-	
-public:
-	LLThreadSafeRefCount();
-	
-	void ref()
-	{
-		if (sMutex) sMutex->lock();
-		mRef++; 
-		if (sMutex) sMutex->unlock();
-	} 
-
-	S32 unref()
-	{
-		llassert(mRef >= 1);
-		if (sMutex) sMutex->lock();
-		S32 res = --mRef;
-		if (sMutex) sMutex->unlock();
-		if (0 == res) 
-		{
-			delete this; 
-			res = 0;
-		}
-		return res;
-	}	
-	S32 getNumRefs() const
-	{
-		return mRef;
-	}
-
-private: 
-	S32	mRef; 
-};
+// see llthread.h for LLThreadSafeRefCount
 
 //----------------------------------------------------------------------------
 
@@ -132,6 +84,7 @@ private:
 
 //----------------------------------------------------------------------------
 
+// Note: relies on Type having ref() and unref() methods
 template <class Type> class LLPointer
 {
 public:

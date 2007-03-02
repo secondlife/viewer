@@ -57,7 +57,6 @@
 #include "lldir.h"
 #include "lldrawable.h"
 #include "lldrawpoolalpha.h"
-#include "lldrawpoolhud.h"
 #include "lldrawpooltree.h"
 #include "llface.h"
 #include "llfirstuse.h"
@@ -263,7 +262,6 @@ typedef LLMemberListener<LLView> view_listener_t;
 //
 // Local prototypes
 //
-BOOL enable_attach(void*);
 void handle_leave_group(void *);
 
 // File Menu
@@ -334,9 +332,6 @@ BOOL check_toggle_hacked_godmode(void*);
 
 void toggle_glow(void *);
 BOOL check_glow(void *);
-
-void toggle_vbo(void *);
-BOOL check_vbo(void *);
 
 void toggle_vertex_shaders(void *);
 BOOL check_vertex_shaders(void *);
@@ -758,6 +753,12 @@ void init_client_menu(LLMenuGL* menu)
 	menu->append(new LLMenuItemToggleGL("Quiet Snapshots to Disk",
 										&gQuietSnapshot));
 
+	menu->append(new LLMenuItemCheckGL( "Compress Snapshots to Disk",
+										&menu_toggle_control,
+										NULL,
+										&menu_check_control,
+										(void*)"CompressSnapshotsToDisk"));
+
 	menu->append(new LLMenuItemCheckGL("Show Mouselook Crosshairs",
 									   &menu_toggle_control,
 									   NULL,
@@ -880,6 +881,11 @@ void init_client_menu(LLMenuGL* menu)
 	menu->append(new LLMenuItemToggleGL("Disable Camera Constraints", 
 		&LLViewerCamera::sDisableCameraConstraints));
 
+	menu->append(new LLMenuItemCheckGL("Mouse Smoothing",
+										&menu_toggle_control,
+										NULL,
+										&menu_check_control,
+										(void*) "MouseSmooth"));
 	menu->appendSeparator();
 
 	menu->append(new LLMenuItemCheckGL( "Console Window", 
@@ -1008,56 +1014,56 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	menu->appendMenu(sub_menu);
 
 	sub_menu->append(new LLMenuItemCheckGL("Simple",
-											&LLPipeline::toggleRenderType, NULL,
-											&LLPipeline::toggleRenderTypeControl,
+											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_SIMPLE,	'1', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->append(new LLMenuItemCheckGL("Alpha",
-											&LLPipeline::toggleRenderType, NULL,
-											&LLPipeline::toggleRenderTypeControl,
+											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_ALPHA, '2', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->append(new LLMenuItemCheckGL("Tree",
-											&LLPipeline::toggleRenderType, NULL,
-											&LLPipeline::toggleRenderTypeControl,
+											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_TREE, '3', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->append(new LLMenuItemCheckGL("Character",
-											&LLPipeline::toggleRenderType, NULL,
-											&LLPipeline::toggleRenderTypeControl,
+											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_AVATAR, '4', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->append(new LLMenuItemCheckGL("SurfacePatch",
-											&LLPipeline::toggleRenderType, NULL,
-											&LLPipeline::toggleRenderTypeControl,
+											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_TERRAIN, '5', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->append(new LLMenuItemCheckGL("Sky",
-											&LLPipeline::toggleRenderType, NULL,
-											&LLPipeline::toggleRenderTypeControl,
+											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_SKY, '6', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->append(new LLMenuItemCheckGL("Water",
-											&LLPipeline::toggleRenderType, NULL,
-											&LLPipeline::toggleRenderTypeControl,
+											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_WATER, '7', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->append(new LLMenuItemCheckGL("Ground",
-											&LLPipeline::toggleRenderType, NULL,
-											&LLPipeline::toggleRenderTypeControl,
+											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_GROUND, '8', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->append(new LLMenuItemCheckGL("Volume",
-											&LLPipeline::toggleRenderType, NULL,
-											&LLPipeline::toggleRenderTypeControl,
+											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_VOLUME, '9', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->append(new LLMenuItemCheckGL("Grass",
-											&LLPipeline::toggleRenderType, NULL,
-											&LLPipeline::toggleRenderTypeControl,
+											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_GRASS, '0', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->append(new LLMenuItemCheckGL("Clouds",
-											&LLPipeline::toggleRenderType, NULL,
-											&LLPipeline::toggleRenderTypeControl,
+											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_CLOUDS, '-', MASK_CONTROL|MASK_ALT| MASK_SHIFT));
 	sub_menu->append(new LLMenuItemCheckGL("Particles",
-											&LLPipeline::toggleRenderType, NULL,
-											&LLPipeline::toggleRenderTypeControl,
+											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_PARTICLES, '=', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->append(new LLMenuItemCheckGL("Bump",
-											&LLPipeline::toggleRenderType, NULL,
-											&LLPipeline::toggleRenderTypeControl,
+											&LLPipeline::toggleRenderTypeControl, NULL,
+											&LLPipeline::hasRenderTypeControl,
 											(void*)LLPipeline::RENDER_TYPE_BUMP, '\\', MASK_CONTROL|MASK_ALT|MASK_SHIFT));
 	sub_menu->createJumpKeys();
 	sub_menu = new LLMenuGL("Features");
@@ -1078,6 +1084,10 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 											&LLPipeline::toggleRenderDebugFeature, NULL,
 											&LLPipeline::toggleRenderDebugFeatureControl,
 											(void*)LLPipeline::RENDER_DEBUG_FEATURE_DYNAMIC_TEXTURES, '4', MASK_ALT|MASK_CONTROL));
+	sub_menu->append(new LLMenuItemCheckGL( "Foot Shadows", 
+											&LLPipeline::toggleRenderDebugFeature, NULL,
+											&LLPipeline::toggleRenderDebugFeatureControl,
+											(void*)LLPipeline::RENDER_DEBUG_FEATURE_FOOT_SHADOWS, '5', MASK_ALT|MASK_CONTROL));
 	sub_menu->append(new LLMenuItemCheckGL("Fog",
 											&LLPipeline::toggleRenderDebugFeature, NULL,
 											&LLPipeline::toggleRenderDebugFeatureControl,
@@ -1091,13 +1101,9 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 											&LLPipeline::toggleRenderDebugFeatureControl,
 											(void*)LLPipeline::RENDER_DEBUG_FEATURE_FR_INFO, '8', MASK_ALT|MASK_CONTROL));
 	sub_menu->append(new LLMenuItemCheckGL( "Flexible Objects", 
-										&LLPipeline::toggleRenderDebugFeature, NULL,
+											&LLPipeline::toggleRenderDebugFeature, NULL,
 											&LLPipeline::toggleRenderDebugFeatureControl,
 											(void*)LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE, '9', MASK_ALT|MASK_CONTROL));
-	sub_menu->append(new LLMenuItemCheckGL( "Chain Faces", 
-										&LLPipeline::toggleRenderDebugFeature, NULL,
-											&LLPipeline::toggleRenderDebugFeatureControl,
-											(void*)LLPipeline::RENDER_DEBUG_FEATURE_CHAIN_FACES, '0', MASK_ALT|MASK_CONTROL));
 	sub_menu->createJumpKeys();
 
 	/////////////////////////////
@@ -1110,9 +1116,6 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	sub_menu->append(new LLMenuItemCheckGL("Verify",	&LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_VERIFY));
-	sub_menu->append(new LLMenuItemCheckGL("AGP Map",	&LLPipeline::toggleRenderDebug, NULL,
-													&LLPipeline::toggleRenderDebugControl,
-													(void*)LLPipeline::RENDER_DEBUG_AGP_MEM));
 	sub_menu->append(new LLMenuItemCheckGL("BBoxes",	&LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_BBOXES));
@@ -1125,12 +1128,18 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	sub_menu->append(new LLMenuItemCheckGL("Occlusion",	&LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_OCCLUSION));
-	sub_menu->append(new LLMenuItemCheckGL("Face Chains",	&LLPipeline::toggleRenderDebug, NULL,
-													&LLPipeline::toggleRenderDebugControl,
-													(void*)LLPipeline::RENDER_DEBUG_FACE_CHAINS));
 	sub_menu->append(new LLMenuItemCheckGL("Texture Priority",	&LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
-													(void*)LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY));													
+													(void*)LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY));
+	sub_menu->append(new LLMenuItemCheckGL("Texture Area (sqrt(A))",&LLPipeline::toggleRenderDebug, NULL,
+													&LLPipeline::toggleRenderDebugControl,
+													(void*)LLPipeline::RENDER_DEBUG_TEXTURE_AREA));
+	sub_menu->append(new LLMenuItemCheckGL("Pick Render",	&LLPipeline::toggleRenderDebug, NULL,
+													&LLPipeline::toggleRenderDebugControl,
+													(void*)LLPipeline::RENDER_DEBUG_PICKING));
+	sub_menu->append(new LLMenuItemCheckGL("Particles",	&LLPipeline::toggleRenderDebug, NULL,
+													&LLPipeline::toggleRenderDebugControl,
+													(void*)LLPipeline::RENDER_DEBUG_PARTICLES));
 	sub_menu->append(new LLMenuItemCheckGL("Composition", &LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_COMPOSITION));
@@ -1140,16 +1149,7 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	sub_menu->append(new LLMenuItemCheckGL("LightTrace",&LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_LIGHT_TRACE));
-	sub_menu->append(new LLMenuItemCheckGL("Pools",     &LLPipeline::toggleRenderDebug, NULL,
-													&LLPipeline::toggleRenderDebugControl,
-													(void*)LLPipeline::RENDER_DEBUG_POOLS));
-	sub_menu->append(new LLMenuItemCheckGL("Queues",    &LLPipeline::toggleRenderDebug, NULL,
-													&LLPipeline::toggleRenderDebugControl,
-													(void*)LLPipeline::RENDER_DEBUG_QUEUES));
-	sub_menu->append(new LLMenuItemCheckGL("Map",       &LLPipeline::toggleRenderDebug, NULL,
-													LLPipeline::toggleRenderDebugControl,
-													(void*)LLPipeline::RENDER_DEBUG_MAP));
-
+	
 	sub_menu->append(new LLMenuItemCheckGL("Show Depth Buffer",
 										   &menu_toggle_control,
 										   NULL,
@@ -1174,8 +1174,6 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 
 	menu->appendSeparator();
 	menu->append(new LLMenuItemCheckGL("Axes", menu_toggle_control, NULL, menu_check_control, (void*)"ShowAxes"));
-	menu->append(new LLMenuItemCheckGL("Use VBO", toggle_vbo, NULL, check_vbo, NULL));
-	menu->append(new LLMenuItemCheckGL("Light Glows", toggle_glow, NULL, check_glow, NULL));
 //	menu->append(new LLMenuItemCheckGL("Cull Small Objects", toggle_cull_small, NULL, menu_check_control, (void*)"RenderCullBySize"));
 
 	menu->appendSeparator();
@@ -1199,6 +1197,19 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	
 	item = new LLMenuItemCheckGL("Disable Textures", menu_toggle_variable, NULL, menu_check_variable, (void*)&LLViewerImage::sDontLoadVolumeTextures);
 	menu->append(item);
+	
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	item = new LLMenuItemCheckGL("HTTP Get Textures", menu_toggle_control, NULL, menu_check_control, (void*)"ImagePipelineUseHTTP");
+	menu->append(item);
+#endif
+	
+	item = new LLMenuItemCheckGL("Run Multiple Threads", menu_toggle_control, NULL, menu_check_control, (void*)"RunMultipleThreads");
+	menu->append(item);
+
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	item = new LLMenuItemCheckGL("Dynamic Reflections", menu_toggle_control, NULL, menu_check_control, (void*)"RenderDynamicReflections");
+	menu->append(item);
+#endif
 	
 	item = new LLMenuItemCheckGL("Cheesy Beacon", menu_toggle_control, NULL, menu_check_control, (void*)"CheesyBeacon");
 	menu->append(item);
@@ -1256,10 +1267,6 @@ void init_debug_avatar_menu(LLMenuGL* menu)
 	//menu->append(new LLMenuItemToggleGL("Show Attachment Points", &LLVOAvatar::sShowAttachmentPoints));
 	menu->append(new LLMenuItemToggleGL("Show Collision Plane", &LLVOAvatar::sShowFootPlane));
 	menu->append(new LLMenuItemToggleGL("Show Collision Skeleton", &LLVOAvatar::sShowCollisionVolumes));
-	menu->append(new LLMenuItemToggleGL("Software Blending SSE", &gGLManager.mSoftwareBlendSSE));
-#if 0 // Removed since this feature doesn't actually work as of 1.9.1 --TomY
-	menu->append(new LLMenuItemToggleGL("Character Load Test", &LLVOAvatar::sAvatarLoadTest));
-#endif
 	menu->append(new LLMenuItemToggleGL( "Display Agent Target", &LLAgent::sDebugDisplayTarget));
 	menu->append(new LLMenuItemToggleGL( "Debug Rotation", &gDebugAvatarRotation));
 	menu->append(new LLMenuItemCallGL("Dump Attachments", handle_dump_attachments));
@@ -1319,7 +1326,8 @@ void init_server_menu(LLMenuGL* menu)
 		menu->appendMenu(sub);
 
 		sub->append(new LLMenuItemCallGL( "Take Copy",
-										   &force_take_copy, &enable_god_customer_service, NULL));
+										  &force_take_copy, &enable_god_customer_service, NULL,
+										  'O', MASK_SHIFT | MASK_ALT | MASK_CONTROL));
 #ifdef _CORY_TESTING
 		sub->append(new LLMenuItemCallGL( "Export Copy",
 										   &force_export_copy, NULL, NULL));
@@ -1508,37 +1516,6 @@ class LLObjectEnableReportAbuse : public view_listener_t
 		return true;
 	}
 };
-
-
-BOOL enable_attach(void*)
-{
-	// All root objects must be owned by agent.
-	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
-	BOOL rv = FALSE;
-	LLViewerObject* obj = selection->getFirstRootObject();
-	if(obj)
-	{
-		rv = TRUE;
-		for(obj = selection->getFirstRootObject() ; obj != NULL; obj = selection->getNextRootObject())
-		{
-			for (U32 child_num = 0; child_num < obj->mChildList.size(); child_num++ )
-			{
-				LLViewerObject *child = obj->mChildList[child_num];
-				if (child->isAvatar())
-				{
-					return FALSE;
-				}
-			}
-			if(!obj->permMove())
-			{
-				rv = FALSE;
-				break;
-			}
-		}
-	}
-	return rv;
-}
-
 
 class LLObjectTouch : public view_listener_t
 {
@@ -1886,7 +1863,7 @@ class LLSelfEnableRemoveAllAttachments : public view_listener_t
 				attachmentp;
 				attachmentp = avatarp->mAttachmentPoints.getNextData())
 			{
-				if (attachmentp->getObject(0))
+				if (attachmentp->getObject())
 				{
 					new_value = true;
 					break;
@@ -6096,15 +6073,6 @@ class LLToolsLookAtSelection : public view_listener_t
 	}
 };
 
-/*
-void handle_reset_rotation(void*)
-{
-	gSelectMgr->selectionResetRotation();
-
-	dialog_refresh_all();
-}
-*/
-
 class LLAvatarAddFriend : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -6789,7 +6757,10 @@ private:
 		LLViewerObject* selectedObject = sObjectSelection->getFirstRootObject();
 		if (selectedObject)
 		{
-			LLViewerJointAttachment* attachment_point = gAgent.getAvatarObject()->mAttachmentPoints[userdata.asInteger()];
+			S32 index = userdata.asInteger();
+			LLViewerJointAttachment* attachment_point = index > 0 ?
+				gAgent.getAvatarObject()->mAttachmentPoints[index] :
+				NULL;
 			confirm_replace_attachment(0, attachment_point);
 		}
 		return true;
@@ -6830,7 +6801,7 @@ void handle_attach_to_avatar(void* user_data)
     {
         LLViewerJointAttachment *attachment = (LLViewerJointAttachment *)user_data;
 
-        if (attachment && attachment->getObject(0))
+        if (attachment && attachment->getObject())
         {
             gViewerWindow->alertXml("ReplaceAttachment", confirm_replace_attachment, user_data);
         }
@@ -6921,7 +6892,7 @@ void handle_detach_from_avatar(void* user_data)
 {
 	LLViewerJointAttachment *attachment = (LLViewerJointAttachment *)user_data;
 	
-	LLViewerObject* attached_object = attachment->getObject(0);
+	LLViewerObject* attached_object = attachment->getObject();
 
 	if (attached_object)
 	{
@@ -6942,7 +6913,7 @@ void attach_label(LLString& label, void* user_data)
 	if (attachmentp)
 	{
 		label = attachmentp->getName();
-		if (attachmentp->getObject(0))
+		if (attachmentp->getObject())
 		{
 			LLViewerInventoryItem* itemp = gInventory.getItem(attachmentp->getItemID());
 			if (itemp)
@@ -6959,7 +6930,7 @@ void detach_label(LLString& label, void* user_data)
 	if (attachmentp)
 	{
 		label = attachmentp->getName();
-		if (attachmentp->getObject(0))
+		if (attachmentp->getObject())
 		{
 			LLViewerInventoryItem* itemp = gInventory.getItem(attachmentp->getItemID());
 			if (itemp)
@@ -7159,23 +7130,7 @@ class LLObjectEnableWear : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = false;
-		if (gSelectMgr)
-		{
-			LLObjectSelectionHandle selection = gSelectMgr->getSelection();
-			LLViewerObject* first_root = selection->getFirstRootObject();
-			if (first_root)
-			{
-				new_value = selection->getRootObjectCount() == 1
-								&& first_root->getPCode() == LL_PCODE_VOLUME
-								&& first_root->permYouOwner()
-								&& !((LLViewerObject*)selection->getFirstRootObject()->getRoot())->isAvatar()
-								&& (first_root->getNVPair("AssetContainer") == NULL);
-			}
-		}
-
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
-		return true;
+		return object_selected_and_point_valid(NULL);
 	}
 };
 
@@ -7184,7 +7139,7 @@ BOOL object_attached(void *user_data)
 {
 	LLViewerJointAttachment *attachment = (LLViewerJointAttachment *)user_data;
 
-	return attachment->getObject(0) != NULL;
+	return attachment->getObject() != NULL;
 }
 
 class LLAvatarSendIM : public view_listener_t
@@ -7481,16 +7436,16 @@ void handle_dump_attachments(void*)
 		attachment = avatar->mAttachmentPoints.getNextData() )
 	{
 		S32 key = avatar->mAttachmentPoints.getCurrentKeyWithoutIncrement();
-		BOOL visible = (attachment->getObject(0) != NULL &&
-						attachment->getObject(0)->mDrawable.notNull() && 
-						!attachment->getObject(0)->mDrawable->isRenderType(0));
+		BOOL visible = (attachment->getObject() != NULL &&
+						attachment->getObject()->mDrawable.notNull() && 
+						!attachment->getObject()->mDrawable->isRenderType(0));
 		LLVector3 pos;
-		if (visible) pos = attachment->getObject(0)->mDrawable->getPosition();
+		if (visible) pos = attachment->getObject()->mDrawable->getPosition();
 		llinfos << "ATTACHMENT " << key << ": item_id=" << attachment->getItemID()
-				<< (attachment->getObject(0) ? " present " : " absent ")
+				<< (attachment->getObject() ? " present " : " absent ")
 				<< (visible ? "visible " : "invisible ")
 				<<  " at " << pos
-				<< " and " << (visible ? attachment->getObject(0)->getPosition() : LLVector3::zero)
+				<< " and " << (visible ? attachment->getObject()->getPosition() : LLVector3::zero)
 				<< llendl;
 	}
 }
@@ -7873,26 +7828,6 @@ BOOL enable_god_basic(void*)
 	return gAgent.getGodLevel() > GOD_NOT;
 }
 
-void toggle_vbo(void *)
-{
-	gPipeline.mUseVBO = !gPipeline.mUseVBO;
-
-	if (!gPipeline.usingAGP())
-	{
-		return;
-	}
-
-	gPipeline.setUseAGP(FALSE);
-	gPipeline.setUseAGP(TRUE);
-
-	gSavedSettings.setBOOL("RenderUseVBO", gPipeline.mUseVBO);
-}
-
-BOOL check_vbo(void *)
-{
-	return gPipeline.mUseVBO;
-}
-
 #if 0 // 1.9.2
 void toggle_vertex_shaders(void *)
 {
@@ -7905,19 +7840,6 @@ BOOL check_vertex_shaders(void *)
 	return gPipeline.getUseVertexShaders();
 }
 #endif
-
-void toggle_glow(void *)
-{
-	gRenderLightGlows = !gRenderLightGlows;
-
-	gSavedSettings.setBOOL("RenderLightGlows", gRenderLightGlows);
-}
-
-BOOL check_glow(void *)
-{
-	return gRenderLightGlows;
-}
-
 
 void toggle_show_xui_names(void *)
 {
@@ -8428,7 +8350,7 @@ class LLViewToggleRenderType : public view_listener_t
 		LLString type = userdata.asString();
 		if (type == "particles")
 		{
-			LLPipeline::toggleRenderType((void *)(S32)LLPipeline::RENDER_TYPE_PARTICLES);
+			LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_PARTICLES);
 		}
 		return true;
 	}
@@ -8449,12 +8371,11 @@ class LLViewCheckRenderType : public view_listener_t
 	}
 };
 
-// TomY TODO: Get rid of these?
 class LLViewShowHUDAttachments : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLDrawPoolHUD::sShowHUDAttachments = !LLDrawPoolHUD::sShowHUDAttachments;
+		LLPipeline::sShowHUDAttachments = !LLPipeline::sShowHUDAttachments;
 		return true;
 	}
 };
@@ -8463,7 +8384,7 @@ class LLViewCheckHUDAttachments : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = LLDrawPoolHUD::sShowHUDAttachments;
+		bool new_value = LLPipeline::sShowHUDAttachments;
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}

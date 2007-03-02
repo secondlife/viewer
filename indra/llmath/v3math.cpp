@@ -118,7 +118,7 @@ const LLVector3&	LLVector3::rotVec(F32 angle, const LLVector3 &vec)
 {
 	if ( !vec.isExactlyZero() && angle )
 	{
-		*this = *this * LLMatrix3(angle, vec);
+		*this = *this * LLQuaternion(angle, vec);
 	}
 	return *this;
 }
@@ -128,7 +128,7 @@ const LLVector3&	LLVector3::rotVec(F32 angle, F32 x, F32 y, F32 z)
 	LLVector3 vec(x, y, z);
 	if ( !vec.isExactlyZero() && angle )
 	{
-		*this = *this * LLMatrix3(angle, vec);
+		*this = *this * LLQuaternion(angle, vec);
 	}
 	return *this;
 }

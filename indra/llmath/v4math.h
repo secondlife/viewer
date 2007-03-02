@@ -21,10 +21,6 @@ class LLQuaternion;
 
 static const U32 LENGTHOFVECTOR4 = 4;
 
-#if LL_WINDOWS
-__declspec( align(16) )
-#endif
-
 class LLVector4
 {
 	public:
@@ -95,12 +91,7 @@ class LLVector4
 		friend const LLVector4& operator/=(LLVector4 &a, F32 k);				// Return a divided by scaler k
 
 		friend LLVector4 operator-(const LLVector4 &a);					// Return vector -a
-}
-#if LL_DARWIN
-__attribute__ ((aligned (16)))
-#endif
-;
-
+};
 
 // Non-member functions 
 F32 angle_between(const LLVector4 &a, const LLVector4 &b);		// Returns angle (radians) between a and b

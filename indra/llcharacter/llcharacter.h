@@ -21,6 +21,7 @@
 #include "linked_lists.h"
 #include "string_table.h"
 #include "llmemory.h"
+#include "llthread.h"
 
 class LLPolyMesh;
 
@@ -90,7 +91,7 @@ public:
 	virtual F32 getTimeDilation() = 0;
 
 	// gets current pixel area of this character
-	virtual F32 getPixelArea() = 0;
+	virtual F32 getPixelArea() const = 0;
 
 	// gets the head mesh of the character
 	virtual LLPolyMesh*	getHeadMesh() = 0;
@@ -223,7 +224,7 @@ public:
 	U32				getSkeletonSerialNum() const		{ return mSkeletonSerialNum; }
 	void			setSkeletonSerialNum( U32 num )	{ mSkeletonSerialNum = num; }
 
-	static LLLinkedList< LLCharacter > sInstances;
+	static std::vector< LLCharacter* > sInstances;
 
 protected:
 	LLMotionController	mMotionController;

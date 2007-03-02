@@ -50,8 +50,9 @@ LLJoint::LLJoint(const std::string &name, LLJoint *parent)
 
 	setName(name);
 	if (parent)
+	{
 		parent->addChild( this );
-
+	}
 	touch();
 }
 
@@ -61,6 +62,10 @@ LLJoint::LLJoint(const std::string &name, LLJoint *parent)
 //-----------------------------------------------------------------------------
 LLJoint::~LLJoint()
 {
+	if (mParent)
+	{
+		mParent->removeChild( this );
+	}
 	removeAllChildren();
 }
 
@@ -72,7 +77,9 @@ void LLJoint::setup(const std::string &name, LLJoint *parent)
 {
 	setName(name);
 	if (parent)
+	{
 		parent->addChild( this );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -90,11 +97,11 @@ void LLJoint::touch(U32 flags)
 		{
 			child_flags |= POSITION_DIRTY;
 		}
-		
-		for (	LLJoint *joint = mChildren.getFirstData();
-				joint != NULL;
-				joint = mChildren.getNextData() )
+
+		for (child_list_t::iterator iter = mChildren.begin();
+			 iter != mChildren.end(); ++iter)
 		{
+			LLJoint* joint = *iter;
 			joint->touch(child_flags);
 		}
 	}
@@ -121,13 +128,15 @@ LLJoint *LLJoint::findJoint( const std::string &name )
 	if (name == getName())
 		return this;
 
-	for (	LLJoint *j = mChildren.getFirstData();
-			j != NULL;
-			j = mChildren.getNextData() )
+	for (child_list_t::iterator iter = mChildren.begin();
+		 iter != mChildren.end(); ++iter)
 	{
-		LLJoint *found = j->findJoint(name);
+		LLJoint* joint = *iter;
+		LLJoint *found = joint->findJoint(name);
 		if (found)
+		{
 			return found;
+		}
 	}
 
 	return NULL;	
@@ -137,12 +146,12 @@ LLJoint *LLJoint::findJoint( const std::string &name )
 //--------------------------------------------------------------------
 // addChild()
 //--------------------------------------------------------------------
-void LLJoint::addChild(LLJoint *joint)
+void LLJoint::addChild(LLJoint* joint)
 {
 	if (joint->mParent)
 		joint->mParent->removeChild(joint);
 
-	mChildren.addDataAtEnd(joint);
+	mChildren.push_back(joint);
 	joint->mXform.setParent(&mXform);
 	joint->mParent = this;	
 	joint->touch();
@@ -152,9 +161,13 @@ void LLJoint::addChild(LLJoint *joint)
 //--------------------------------------------------------------------
 // removeChild()
 //--------------------------------------------------------------------
-void LLJoint::removeChild(LLJoint *joint)
+void LLJoint::removeChild(LLJoint* joint)
 {
-	this->mChildren.removeData(joint);
+	child_list_t::iterator iter = std::find(mChildren.begin(), mChildren.end(), joint);
+	if (iter != mChildren.end())
+	{
+		this->mChildren.erase(iter);
+	}
 	joint->mXform.setParent(NULL);
 	joint->mParent = NULL;
 	joint->touch();
@@ -166,11 +179,15 @@ void LLJoint::removeChild(LLJoint *joint)
 //--------------------------------------------------------------------
 void LLJoint::removeAllChildren()
 {
-	for (	LLJoint *joint = mChildren.getFirstData();
-			joint != NULL;
-			joint = mChildren.getNextData() )
+	for (child_list_t::iterator iter = mChildren.begin();
+		 iter != mChildren.end();)
 	{
-		removeChild(joint);
+		child_list_t::iterator curiter = iter++;
+		LLJoint* joint = *curiter;
+		mChildren.erase(curiter);
+		joint->mXform.setParent(NULL);
+		joint->mParent = NULL;
+		joint->touch();
 	}
 }
 
@@ -189,8 +206,11 @@ const LLVector3& LLJoint::getPosition()
 //--------------------------------------------------------------------
 void LLJoint::setPosition( const LLVector3& pos )
 {
-	mXform.setPosition(pos);
-	touch(MATRIX_DIRTY | POSITION_DIRTY);
+//	if (mXform.getPosition() != pos)
+	{
+		mXform.setPosition(pos);
+		touch(MATRIX_DIRTY | POSITION_DIRTY);
+	}
 }
 
 
@@ -257,8 +277,11 @@ void LLJoint::setRotation( const LLQuaternion& rot )
 {
 	if (rot.isFinite())
 	{
-		mXform.setRotation(rot);
-		touch(MATRIX_DIRTY | ROTATION_DIRTY);
+	//	if (mXform.getRotation() != rot)
+		{
+			mXform.setRotation(rot);
+			touch(MATRIX_DIRTY | ROTATION_DIRTY);
+		}
 	}
 }
 
@@ -320,8 +343,12 @@ const LLVector3& LLJoint::getScale()
 //--------------------------------------------------------------------
 void LLJoint::setScale( const LLVector3& scale )
 {
-	mXform.setScale(scale);
-	touch();
+//	if (mXform.getScale() != scale)
+	{
+		mXform.setScale(scale);
+		touch();
+	}
+
 }
 
 
@@ -393,14 +420,18 @@ void LLJoint::updateWorldPRSParent()
 // updateWorldMatrixChildren()
 //-----------------------------------------------------------------------------
 void LLJoint::updateWorldMatrixChildren()
-{
+{	
+	if (!this->mUpdateXform) return;
+
 	if (mDirtyFlags & MATRIX_DIRTY)
 	{
 		updateWorldMatrix();
 	}
-	for (LLJoint *child = mChildren.getFirstData(); child; child = mChildren.getNextData())
+	for (child_list_t::iterator iter = mChildren.begin();
+		 iter != mChildren.end(); ++iter)
 	{
-		child->updateWorldMatrixChildren();
+		LLJoint* joint = *iter;
+		joint->updateWorldMatrixChildren();
 	}
 }
 
@@ -475,8 +506,10 @@ void LLJoint::clampRotation(LLQuaternion old_rot, LLQuaternion new_rot)
 {
 	LLVector3 main_axis(1.f, 0.f, 0.f);
 
-	for (LLJoint* joint = mChildren.getFirstData(); joint; joint = mChildren.getNextData())
+	for (child_list_t::iterator iter = mChildren.begin();
+		 iter != mChildren.end(); ++iter)
 	{
+		LLJoint* joint = *iter;
 		if (joint->isAnimatable())
 		{
 			main_axis = joint->getPosition();

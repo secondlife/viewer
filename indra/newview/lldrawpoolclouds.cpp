@@ -17,7 +17,7 @@
 #include "pipeline.h"
 
 LLDrawPoolClouds::LLDrawPoolClouds() :
-	LLDrawPool(POOL_CLOUDS, DATA_SIMPLE_IL_MASK, 0)
+	LLDrawPool(POOL_CLOUDS)
 {
 }
 
@@ -26,16 +26,15 @@ LLDrawPool *LLDrawPoolClouds::instancePool()
 	return new LLDrawPoolClouds();
 }
 
+BOOL LLDrawPoolClouds::addFace(LLFace* face)
+{
+	llerrs << "WTF?" << llendl;
+	return FALSE;
+}
+
 void LLDrawPoolClouds::enqueue(LLFace *facep)
 {
-	if (facep->isState(LLFace::BACKLIST))
-	{
-		mMoveFace.put(facep);
-	}
-	else
-	{
-		mDrawFace.push_back(facep);
-	}
+	mDrawFace.push_back(facep);
 	facep->mDistance = (facep->mCenterAgent - gCamera->getOrigin()) * gCamera->getAtAxis();
 }
 
@@ -71,10 +70,6 @@ void LLDrawPoolClouds::render(S32 pass)
 	gPipeline.enableLightsFullbright(LLColor4(1.f,1.f,1.f));
 
 	mDrawFace[0]->bindTexture();
-	
-	bindGLVertexPointer();
-	bindGLTexCoordPointer();
-	bindGLNormalPointer();
 
 	std::sort(mDrawFace.begin(), mDrawFace.end(), LLFace::CompareDistanceGreater());
 

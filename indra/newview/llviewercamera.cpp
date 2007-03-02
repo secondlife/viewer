@@ -119,7 +119,8 @@ void LLViewerCamera::calcProjection(const F32 far_distance) const
 
 LLMatrix4 gProjectionMat;
 
-void LLViewerCamera::updateFrustumPlanes()
+//static
+void LLViewerCamera::updateFrustumPlanes(LLCamera& camera, BOOL ortho)
 {
 	GLint viewport[4];
 	GLdouble model[16];
@@ -140,23 +141,26 @@ void LLViewerCamera::updateFrustumPlanes()
 	frust[2].setVec((F32)objX,(F32)objY,(F32)objZ);
 	gluUnProject(viewport[0],viewport[1]+viewport[3],0,model,proj,viewport,&objX,&objY,&objZ);
 	frust[3].setVec((F32)objX,(F32)objY,(F32)objZ);
-	/*gluUnProject(viewport[0],viewport[1],1,model,proj,viewport,&objX,&objY,&objZ);
-	frust[4].setVec((F32)objX,(F32)objY,(F32)objZ);
-	gluUnProject(viewport[0]+viewport[2],viewport[1],1,model,proj,viewport,&objX,&objY,&objZ);
-	frust[5].setVec((F32)objX,(F32)objY,(F32)objZ);
-	gluUnProject(viewport[0]+viewport[2],viewport[1]+viewport[3],1,model,proj,viewport,&objX,&objY,&objZ);
-	frust[6].setVec((F32)objX,(F32)objY,(F32)objZ);
-	gluUnProject(viewport[0],viewport[1]+viewport[3],1,model,proj,viewport,&objX,&objY,&objZ);
-	frust[7].setVec((F32)objX,(F32)objY,(F32)objZ);*/
 	
-	for (U32 i = 0; i < 4; i++)
+	if (ortho)
 	{
-		LLVector3 vec = frust[i] - getOrigin();
-		vec.normVec();
-		frust[i+4] = getOrigin() + vec*getFar()*2.0;
+		LLVector3 far_shift = LLVector3(camera.getFar()*2.0f,0,0);
+		for (U32 i = 0; i < 4; i++)
+		{
+			frust[i+4] = frust[i] + far_shift;
+		}
+	}
+	else
+	{
+		for (U32 i = 0; i < 4; i++)
+		{
+			LLVector3 vec = frust[i] - camera.getOrigin();
+			vec.normVec();
+			frust[i+4] = camera.getOrigin() + vec*camera.getFar()*2.0f;
+		}
 	}
 
-	calcAgentFrustumPlanes(frust);
+	camera.calcAgentFrustumPlanes(frust);
 }
 
 void LLViewerCamera::setPerspective(BOOL for_selection,
@@ -255,7 +259,7 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 		glGetIntegerv(GL_VIEWPORT, (GLint*)gGLViewport);
 	}
 
-	updateFrustumPlanes();
+	updateFrustumPlanes(*this);
 
 	if (gSavedSettings.getBOOL("CameraOffset"))
 	{
@@ -583,22 +587,34 @@ BOOL LLViewerCamera::areVertsVisible(LLViewerObject* volumep, BOOL all_verts)
 		return FALSE;
 	}
 
-	num_faces = drawablep->getNumFaces();
+	LLVolume* volume = volumep->getVolume();
+	if (!volume)
+	{
+		return FALSE;
+	}
+
+	LLVOVolume* vo_volume = (LLVOVolume*) volumep;
+
+	vo_volume->updateRelativeXform();
+	LLMatrix4 mat = vo_volume->getRelativeXform();
+	
+	LLMatrix4 render_mat(vo_volume->getRenderRotation(), LLVector4(vo_volume->getRenderPosition()));
+
+	num_faces = volume->getNumFaces();
 	for (i = 0; i < num_faces; i++)
 	{
-		LLStrider<LLVector3> vertices;
-		LLFace* face = drawablep->getFace(i);
-		face->getVertices(vertices);
-		
-		for (S32 v = 0; v < (S32)drawablep->getFace(i)->getGeomCount(); v++)
+		const LLVolumeFace& face = volume->getVolumeFace(i);
+				
+		for (U32 v = 0; v < face.mVertices.size(); v++)
 		{
-			LLVector3 vec = vertices[v];
-			if (!face->isState(LLFace::GLOBAL))
+			LLVector4 vec = LLVector4(face.mVertices[v].mPosition) * mat;
+
+			if (drawablep->isActive())
 			{
-				vec = vec*face->getRenderMatrix();
+				vec = vec * render_mat;	
 			}
-			
-			BOOL in_frustum = pointInFrustum(vec) > 0;
+
+			BOOL in_frustum = pointInFrustum(LLVector3(vec)) > 0;
 
 			if ( !in_frustum && all_verts ||
 				 in_frustum && !all_verts)

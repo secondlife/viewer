@@ -3187,7 +3187,7 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 	rez_action->mItemID = item->getUUID();
 	rez_action->mAttachPt = gAgent.getAvatarObject()->mAttachmentPoints.reverseLookup(attachment);
 
-	if (attachment && attachment->getObject(0))
+	if (attachment && attachment->getObject())
 	{
 		gViewerWindow->alertXml("ReplaceAttachment", confirm_replace_attachment_rez, (void*)rez_action);
 	}

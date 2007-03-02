@@ -20,20 +20,15 @@ const S32 CYLINDER_FACES = 3;
 
 class LLCylinder
 {
-protected:
-	U32	mDisplayListSide[CYLINDER_LEVELS_OF_DETAIL];
-	U32	mDisplayListTop[CYLINDER_LEVELS_OF_DETAIL];
-	U32	mDisplayListBottom[CYLINDER_LEVELS_OF_DETAIL];
-	U32		mTriangleCount[CYLINDER_LEVELS_OF_DETAIL];
-
 public:
 	void prerender();
+	void drawTop(S32 detail);
+	void drawSide(S32 detail);
+	void drawBottom(S32 detail);
 	void cleanupGL();
 
 	void render(F32 pixel_area);
 	void renderface(F32 pixel_area, S32 face);
-
-	U32		getTriangleCount(S32 level_of_detail)		{ return mTriangleCount[level_of_detail]; }
 };
 
 
@@ -46,20 +41,14 @@ const S32 CONE_LEVELS_OF_DETAIL = 4;
 const S32 CONE_FACES = 2;
 
 class LLCone
-{
-protected:
-	U32	mDisplayListSide[CONE_LEVELS_OF_DETAIL];
-	U32	mDisplayListBottom[CONE_LEVELS_OF_DETAIL];
-	U32		mTriangleCount[CONE_LEVELS_OF_DETAIL];
-
+{	
 public:
 	void prerender();
 	void cleanupGL();
-
+	void drawSide(S32 detail);
+	void drawBottom(S32 detail);
 	void render(S32 level_of_detail);
 	void renderface(S32 level_of_detail, S32 face);
-
-	U32		getTriangleCount(S32 level_of_detail)		{ return mTriangleCount[level_of_detail]; }
 };
 
 extern LLCylinder gCylinder;

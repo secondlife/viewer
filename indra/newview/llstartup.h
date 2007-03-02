@@ -9,10 +9,13 @@
 #ifndef LL_LLSTARTUP_H
 #define LL_LLSTARTUP_H
 
+#include "llimagegl.h"
+
 // functions
 BOOL idle_startup();
 void cleanup_app();
 LLString load_password_from_disk();
+void release_start_screen();
 
 // constants, variables,  & enumerations
 extern const char* SCREEN_HOME_FILENAME;
@@ -59,6 +62,7 @@ enum EStartupState{
 // exorted symbol
 extern S32 gStartupState;
 extern bool gQuickTimeInitialized;
+extern LLPointer<LLImageGL> gStartImageGL;
 
 class LLStartUp
 {

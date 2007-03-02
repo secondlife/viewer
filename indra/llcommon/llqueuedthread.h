@@ -33,7 +33,8 @@ public:
 		PRIORITY_HIGH =      0x30000000,
 		PRIORITY_NORMAL =    0x20000000,
 		PRIORITY_LOW =       0x10000000,
-		PRIORITY_LOWBITS =   0x0FFFFFFF
+		PRIORITY_LOWBITS =   0x0FFFFFFF,
+		PRIORITY_HIGHBITS =  0x70000000
 	};
 	enum status_t {
 		STATUS_EXPIRED = -1,
@@ -41,13 +42,13 @@ public:
 		STATUS_QUEUED = 1,
 		STATUS_INPROGRESS = 2,
 		STATUS_COMPLETE = 3,
-		STATUS_ABORT = 4,
-		STATUS_ABORTED = 5,
-		STATUS_DELETE = 6
+		STATUS_ABORTED = 4,
+		STATUS_DELETE = 5
 	};
 	enum flags_t {
-		AUTO_COMPLETE = 1,
-		AUTO_DELETE = 2 // child-class dependent
+		FLAG_AUTO_COMPLETE = 1,
+		FLAG_AUTO_DELETE = 2, // child-class dependent
+		FLAG_ABORT = 4
 	};
 
 	typedef U32 handle_t;
@@ -60,7 +61,7 @@ public:
 		friend class LLQueuedThread;
 		
 	protected:
-		~QueuedRequest(); // use deleteRequest()
+		virtual ~QueuedRequest(); // use deleteRequest()
 		
 	public:
 		QueuedRequest(handle_t handle, U32 priority, U32 flags = 0);
@@ -92,26 +93,14 @@ public:
 			mStatus = newstatus;
 			return oldstatus;
 		}
-		status_t abortRequest(U32 flags)
-		{
-			// NOTE: flags are |'d
-			if (mStatus == STATUS_QUEUED)
-			{
-				setStatus(STATUS_ABORT);
-			}
-			mFlags |= flags;
-			status_t status = mStatus;
-			return status;
-		}
-		status_t setFlags(U32 flags)
+		void setFlags(U32 flags)
 		{
 			// NOTE: flags are |'d
 			mFlags |= flags;
-			status_t status = mStatus;
-			return status;
 		}
 		
-		virtual void finishRequest(); // Always called when after has been processed
+		virtual bool processRequest() = 0; // Return true when request has completed
+		virtual void finishRequest(bool completed); // Always called from thread after request has completed or aborted
 		virtual void deleteRequest(); // Only method to delete a request
 
 		void setPriority(U32 pri)
@@ -141,9 +130,10 @@ public:
 	static handle_t nullHandle() { return handle_t(0); }
 	
 public:
-	LLQueuedThread(const std::string& name, bool threaded = TRUE, bool runalways = TRUE);
+	LLQueuedThread(const std::string& name, bool threaded = true);
 	virtual ~LLQueuedThread();	
-
+	virtual void shutdown();
+	
 private:
 	// No copy constructor or copy assignment
 	LLQueuedThread(const LLQueuedThread&);
@@ -155,26 +145,25 @@ private:
 protected:
 	handle_t generateHandle();
 	bool addRequest(QueuedRequest* req);
-	int  processNextRequest(void);
+	S32  processNextRequest(void);
+	void incQueue();
 
-	virtual bool processRequest(QueuedRequest* req) = 0;
-	
 public:
 	bool waitForResult(handle_t handle, bool auto_complete = true);
 
-	void update(U32 ms_elapsed);
-	void updateQueue(S32 inc);
+	virtual S32 update(U32 max_time_ms);
+	S32 updateQueue(U32 max_time_ms);
+	
 	void waitOnPending();
 	void printQueueStats();
 
-	S32 getPending(bool child_thread = false);
+	S32 getPending();
 	bool getThreaded() { return mThreaded ? true : false; }
-	bool getRunAlways() { return mRunAlways ? true : false; }
 
 	// Request accessors
 	status_t getRequestStatus(handle_t handle);
-	status_t abortRequest(handle_t handle, U32 flags = 0);
-	status_t setFlags(handle_t handle, U32 flags);
+	void abortRequest(handle_t handle, bool autocomplete);
+	void setFlags(handle_t handle, U32 flags);
 	void setPriority(handle_t handle, U32 priority);
 	bool completeRequest(handle_t handle);
 	// This is public for support classes like LLWorkerThread,
@@ -186,7 +175,6 @@ public:
 	
 protected:
 	BOOL mThreaded;  // if false, run on main thread and do updates during update()
-	BOOL mRunAlways; // if false, only wake the threads when updateClass() is called
 	LLAtomic32<BOOL> mIdleThread; // request queue is empty (or we are quitting) and the thread is idle
 	
 	typedef std::set<QueuedRequest*, queued_request_less> request_queue_t;

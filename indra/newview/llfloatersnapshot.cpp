@@ -805,8 +805,10 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 
 		//RN: freeze all avatars
 		LLCharacter* avatarp;
-		for (avatarp = LLCharacter::sInstances.getFirstData(); avatarp; avatarp = LLCharacter::sInstances.getNextData())
+		for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
+			iter != LLCharacter::sInstances.end(); ++iter)
 		{
+			avatarp = *iter;
 			sInstance->impl.mAvatarPauseHandles.push_back(avatarp->requestPause());
 		}
 

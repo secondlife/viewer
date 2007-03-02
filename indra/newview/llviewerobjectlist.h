@@ -96,6 +96,7 @@ public:
 	void addToMap(LLViewerObject *objectp);
 	void removeFromMap(LLViewerObject *objectp);
 
+	void clearDebugText();
 
 	////////////////////////////////////////////
 	//

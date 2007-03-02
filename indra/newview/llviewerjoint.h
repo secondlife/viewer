@@ -43,7 +43,7 @@ public:
 	// Traverses the entire joint hierarchy, setting up
 	// transforms and calling the drawShape().
 	// Derived classes may add text/graphic output.
-	virtual U32 render( F32 pixelArea );	// Returns triangle count
+	virtual U32 render( F32 pixelArea, BOOL first_pass = TRUE );	// Returns triangle count
 
 	// Draws a bone graphic to the parent joint.
 	// Derived classes may add text/graphic output.
@@ -59,7 +59,7 @@ public:
 
 	// Draws the shape attached to a joint.
 	// Called by render().
-	virtual U32 drawShape( F32 pixelArea );
+	virtual U32 drawShape( F32 pixelArea, BOOL first_pass = TRUE );
 	virtual void drawNormals() {}
 
 	enum Components
@@ -78,9 +78,9 @@ public:
 	// Sets the level of detail for this node as a minimum
 	// pixel area threshold.  If the current pixel area for this
 	// object is less than the specified threshold, the node is
-	// not traversed.  In additin, if a value is specified (not
+	// not traversed.  In addition, if a value is specified (not
 	// default of 0.0), and the pixel area is larger than the
-	// specified miniumn, the node is rendered, but no other siblings
+	// specified minimum, the node is rendered, but no other siblings
 	// of this node under the same parent will be.
 	F32 getLOD() { return mMinPixelArea; }
 	void setLOD( F32 pixelArea ) { mMinPixelArea = pixelArea; }
@@ -101,9 +101,10 @@ public:
 	void setPickName(PickName name) { mPickName = name; }
 	PickName getPickName() { return mPickName; }
 
-	virtual void updateFaceSizes(U32 &num_vertices, F32 pixel_area);
+	virtual void updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area);
 	virtual void updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind = FALSE);
 	virtual BOOL updateLOD(F32 pixel_area, BOOL activate);
+	virtual void updateGeometry();
 	virtual void dump();
 
 	void setVisible( BOOL visible, BOOL recursive );
@@ -134,4 +135,5 @@ public:
 };
 
 #endif // LL_LLVIEWERJOINT_H
+
 

@@ -5,7 +5,7 @@ uniform sampler2D diffuseMap;
 void default_lighting() 
 {
 	vec4 color = gl_Color * texture2D(diffuseMap, gl_TexCoord[0].xy);
-	applyScatter(color.rgb);
+	//applyScatter(color.rgb);
 	gl_FragColor = color;
 }
 

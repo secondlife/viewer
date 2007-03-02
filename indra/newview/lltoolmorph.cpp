@@ -215,10 +215,7 @@ BOOL LLVisualParamHint::render()
 	{
 		LLDrawPoolAvatar *avatarPoolp = (LLDrawPoolAvatar *)avatarp->mDrawable->getFace(0)->getPool();
 		LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE);
-		gPipeline.unbindAGP();
-		avatarPoolp->syncAGP();
-		gPipeline.bindAGP();
-		avatarPoolp->renderAvatars(avatarp, TRUE);  // renders only one avatar (no shaders)
+		avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
 	}
 	avatarp->setVisualParamWeight(mVisualParam, mLastParamWeight);
 	

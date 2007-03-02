@@ -58,6 +58,10 @@ protected:
 	void		renderSnapGuides();
 	void		renderGrid(F32 x, F32 y, F32 size, F32 r, F32 g, F32 b, F32 a);
 	void		renderGridVert(F32 x_trans, F32 y_trans, F32 r, F32 g, F32 b, F32 alpha);
+	void		highlightIntersection(LLVector3 normal, 
+									 LLVector3 selection_center, 
+									 LLQuaternion grid_rotation, 
+									 LLColor4 inner_color);
 	F32			getMinGridScale();
 
 private:

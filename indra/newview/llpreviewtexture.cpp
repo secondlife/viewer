@@ -10,19 +10,20 @@
 
 #include "llpreviewtexture.h"
 
-#include "llviewerimage.h"
-#include "llviewerimagelist.h"
-#include "llresmgr.h"
 #include "llagent.h"
 #include "llbutton.h"
-#include "llui.h"
+#include "llfilepicker.h"
+#include "llimagetga.h"
 #include "llinventoryview.h"
 #include "llinventory.h"
-#include "llviewerwindow.h"
+#include "llresmgr.h"
 #include "lltextbox.h"
-#include "llimagetga.h"
-#include "llfilepicker.h"
+#include "lltextureview.h"
+#include "llui.h"
+#include "llviewerimage.h"
+#include "llviewerimagelist.h"
 #include "llvieweruictrlfactory.h"
+#include "llviewerwindow.h"
 #include "lllineeditor.h"
 
 const S32 PREVIEW_TEXTURE_MIN_WIDTH = 300;
@@ -163,6 +164,105 @@ void LLPreviewTexture::init()
 			childSetCommitCallback("desc", LLPreview::onText, this);
 			childSetText("desc", item->getDescription());
 			childSetPrevalidate("desc", &LLLineEditor::prevalidatePrintableNotPipe);
+		}
+	}
+}
+
+void LLPreviewTexture::draw()
+{
+	if( getVisible() )
+	{
+		updateAspectRatio();
+
+		LLPreview::draw();
+
+		if (!mMinimized)
+		{
+			LLGLSUIDefault gls_ui;
+			LLGLSNoTexture gls_notex;
+			
+			const LLRect& border = mClientRect;
+			LLRect interior = mClientRect;
+			interior.stretch( -PREVIEW_BORDER_WIDTH );
+
+			// ...border
+			gl_rect_2d( border, LLColor4(0.f, 0.f, 0.f, 1.f));
+			gl_rect_2d_checkerboard( interior );
+
+			if ( mImage.notNull() )
+			{
+				LLGLSTexture gls_no_texture;
+				// Draw the texture
+				glColor3f( 1.f, 1.f, 1.f );
+				gl_draw_scaled_image(interior.mLeft,
+									interior.mBottom,
+									interior.getWidth(),
+									interior.getHeight(),
+									mImage);
+
+				// Pump the texture priority
+				F32 pixel_area = mLoadingFullImage ? (F32)MAX_IMAGE_AREA  : (F32)(interior.getWidth() * interior.getHeight() );
+				mImage->addTextureStats( pixel_area );
+
+				// Don't bother decoding more than we can display, unless
+				// we're loading the full image.
+				if (!mLoadingFullImage)
+				{
+					S32 int_width = interior.getWidth();
+					S32 int_height = interior.getHeight();
+					mImage->setKnownDrawSize(int_width, int_height);
+				}
+				else
+				{
+					// Don't use this feature
+					mImage->setKnownDrawSize(0, 0);
+				}
+
+				if( mLoadingFullImage )
+				{
+					LLFontGL::sSansSerif->renderUTF8("Receiving:", 0,
+						interior.mLeft + 4, 
+						interior.mBottom + 4,
+						LLColor4::white, LLFontGL::LEFT, LLFontGL::BOTTOM,
+						LLFontGL::DROP_SHADOW);
+					
+					F32 data_progress = mImage->mDownloadProgress;
+					
+					// Draw the progress bar.
+					const S32 BAR_HEIGHT = 12;
+					const S32 BAR_LEFT_PAD = 80;
+					S32 left = interior.mLeft + 4 + BAR_LEFT_PAD;
+					S32 bar_width = mRect.getWidth() - left - RESIZE_HANDLE_WIDTH - 2;
+					S32 top = interior.mBottom + 4 + BAR_HEIGHT;
+					S32 right = left + bar_width;
+					S32 bottom = top - BAR_HEIGHT;
+
+					LLColor4 background_color(0.f, 0.f, 0.f, 0.75f);
+					LLColor4 decoded_color(0.f, 1.f, 0.f, 1.0f);
+					LLColor4 downloaded_color(0.f, 0.5f, 0.f, 1.0f);
+
+					gl_rect_2d(left, top, right, bottom, background_color);
+
+					if (data_progress > 0.0f)
+					{
+						// Downloaded bytes
+						right = left + llfloor(data_progress * (F32)bar_width);
+						if (right > left)
+						{
+							gl_rect_2d(left, top, right, bottom, downloaded_color);
+						}
+					}
+				}
+				else
+				if( !mSavedFileTimer.hasExpired() )
+				{
+					LLFontGL::sSansSerif->renderUTF8("File Saved", 0,
+						interior.mLeft + 4,
+						interior.mBottom + 4,
+						LLColor4::white, LLFontGL::LEFT, LLFontGL::BOTTOM,
+						LLFontGL::DROP_SHADOW);
+				}
+			}
 		}
 	}
 }

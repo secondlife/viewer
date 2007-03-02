@@ -11,7 +11,7 @@
 
 #include "lldir.h"
 #include "llimagej2c.h"
-#include "llmemory.h"
+#include "llmemtype.h"
 
 typedef LLImageJ2CImpl* (*CreateLLImageJ2CFunction)();
 typedef void (*DestroyLLImageJ2CFunction)(LLImageJ2CImpl*);
@@ -224,7 +224,22 @@ BOOL LLImageJ2C::decode(LLImageRaw *raw_imagep, F32 decode_time, S32 first_chann
 	// Update the raw discard level
 	updateRawDiscardLevel();
 
-	return mImpl->decodeImpl(*this, *raw_imagep, decode_time, first_channel, max_channel_count);
+	mDecoding = TRUE;
+	BOOL res = mImpl->decodeImpl(*this, *raw_imagep, decode_time, first_channel, max_channel_count);
+	if (res)
+	{
+		if (!mDecoding)
+		{
+			// Failed
+			raw_imagep->deleteData();
+		}
+		else
+		{
+			mDecoding = FALSE;
+		}
+		return TRUE; // done
+	}
+	return FALSE;
 }
 
 
@@ -334,7 +349,7 @@ BOOL LLImageJ2C::loadAndValidate(const LLString &filename)
 	U8 *data = new U8[file_size];
 	apr_size_t bytes_read = file_size;
 	apr_status_t s = apr_file_read(apr_file, data, &bytes_read); // modifies bytes_read	
-	if (s != APR_SUCCESS || bytes_read != file_size)
+	if (s != APR_SUCCESS || (S32)bytes_read != file_size)
 	{
 		delete[] data;
 		setLastError("Unable to read entire file");
@@ -349,9 +364,9 @@ BOOL LLImageJ2C::loadAndValidate(const LLString &filename)
 BOOL LLImageJ2C::validate(U8 *data, U32 file_size)
 {
 	LLMemType mt1((LLMemType::EMemType)mMemType);
-	// Taken from setData()
 
-	BOOL res = LLImageFormatted::setData(data, file_size);
+	setData(data, file_size);
+	BOOL res = updateData();
 	if ( !res )
 	{
 		return FALSE;
@@ -367,10 +382,9 @@ BOOL LLImageJ2C::validate(U8 *data, U32 file_size)
 	return mImpl->getMetadata(*this);
 }
 
-void LLImageJ2C::setDecodingDone(BOOL complete)
+void LLImageJ2C::decodeFailed()
 {
 	mDecoding = FALSE;
-	mDecoded = complete;
 }
 
 void LLImageJ2C::updateRawDiscardLevel()

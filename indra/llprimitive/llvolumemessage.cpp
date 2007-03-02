@@ -429,41 +429,36 @@ bool LLVolumeMessage::unpackPathParams(LLPathParams* params, LLDataPacker &dp)
 // static
 bool LLVolumeMessage::constrainVolumeParams(LLVolumeParams& params)
 {
-	bool ok = true;
+	U32 bad = 0;
 
 	// This is called immediately after an unpack. feed the raw data
 	// through the checked setters to constraint it to a valid set of
 	// volume params.
-	ok &= params.setType(
-		params.getProfileParams().getCurveType(),
-		params.getPathParams().getCurveType());
-	ok &= params.setBeginAndEndS(
-		params.getProfileParams().getBegin(),
-		params.getProfileParams().getEnd());
-	ok &= params.setBeginAndEndT(
-		params.getPathParams().getBegin(),
-		params.getPathParams().getEnd());
-	ok &= params.setHollow(params.getProfileParams().getHollow());
-	ok &= params.setTwistBegin(params.getPathParams().getTwistBegin());
-	ok &= params.setTwistEnd(params.getPathParams().getTwistEnd());
-	ok &= params.setRatio(
-		params.getPathParams().getScaleX(),
-		params.getPathParams().getScaleY());
-	ok &= params.setShear(
-		params.getPathParams().getShearX(),
-		params.getPathParams().getShearY());
-	ok &= params.setTaper(
-		params.getPathParams().getTaperX(),
-		params.getPathParams().getTaperY());
-	ok &= params.setRevolutions(params.getPathParams().getRevolutions());
-	ok &= params.setRadiusOffset(params.getPathParams().getRadiusOffset());
-	ok &= params.setSkew(params.getPathParams().getSkew());
-	if(!ok)
+	bad |= params.setType(params.getProfileParams().getCurveType(),
+						 params.getPathParams().getCurveType()) ? 0 : 1;
+	bad |= params.setBeginAndEndS(params.getProfileParams().getBegin(),
+								  params.getProfileParams().getEnd()) ? 0 : 2;
+	bad |= params.setBeginAndEndT(params.getPathParams().getBegin(),
+								  params.getPathParams().getEnd()) ? 0 : 4;
+	bad |= params.setHollow(params.getProfileParams().getHollow()) ? 0 : 8;
+	bad |= params.setTwistBegin(params.getPathParams().getTwistBegin()) ? 0 : 0x10;
+	bad |= params.setTwistEnd(params.getPathParams().getTwistEnd()) ? 0 : 0x20;
+	bad |= params.setRatio(params.getPathParams().getScaleX(),
+						   params.getPathParams().getScaleY()) ? 0 : 0x40;
+	bad |= params.setShear(params.getPathParams().getShearX(),
+						   params.getPathParams().getShearY()) ? 0 : 0x80;
+	bad |= params.setTaper(params.getPathParams().getTaperX(),
+						   params.getPathParams().getTaperY()) ? 0 : 0x100;
+	bad |= params.setRevolutions(params.getPathParams().getRevolutions()) ? 0 : 0x200;
+	bad |= params.setRadiusOffset(params.getPathParams().getRadiusOffset()) ? 0 : 0x400;
+	bad |= params.setSkew(params.getPathParams().getSkew()) ? 0 : 0x800;
+	if(bad)
 	{
 		llwarns << "LLVolumeMessage::constrainVolumeParams() - "
-			<< "forced to constrain incoming volume params." << llendl;
+				<< "forced to constrain incoming volume params: "
+				<< llformat("0x%04x",bad) << llendl;
 	}
-	return ok;
+	return bad ? false : true;
 }
 
 bool LLVolumeMessage::packVolumeParams(const LLVolumeParams* params, LLMessageSystem *mesgsys)

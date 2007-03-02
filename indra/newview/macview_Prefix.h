@@ -111,17 +111,15 @@
 #include "lldrawpoolalpha.h"
 #include "lldrawpoolavatar.h"
 #include "lldrawpooltree.h"
-#include "lldrawpooltreenew.h"
 #include "lldrawpoolterrain.h"
 #include "lldrawpoolsky.h"
 #include "lldrawpoolwater.h"
 #include "lldrawpoolground.h"
 #include "lldrawpoolbump.h"
-#include "llvotreenew.h"
 
 /////////////////// From llface.cpp
 #include "llgl.h"
-#include "llviewerimagelist.h"
+#include "llviewerimage.h"
 #include "llsky.h"
 #include "llvosky.h"
 #include "llcontrol.h"

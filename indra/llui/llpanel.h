@@ -17,6 +17,7 @@
 #include "llviewborder.h"
 #include "v4color.h"
 #include <list>
+#include <queue>
 
 const S32 LLPANEL_BORDER_WIDTH = 1;
 const BOOL BORDER_YES = TRUE;

@@ -29,6 +29,19 @@ int	LLFile::mkdir(const	char* dirname, int perms)
 }
 
 // static
+int	LLFile::rmdir(const	char* dirname)
+{
+#if LL_WINDOWS	
+	// permissions are ignored on Windows
+	std::string utf8dirname = dirname;
+	llutf16string utf16dirname = utf8str_to_utf16str(utf8dirname);
+	return _wrmdir(utf16dirname.c_str());
+#else
+	return ::rmdir(dirname);
+#endif
+}
+
+// static
 LLFILE*	LLFile::fopen(const	char* filename, const char* mode)	/* Flawfinder: ignore */
 {
 #if	LL_WINDOWS

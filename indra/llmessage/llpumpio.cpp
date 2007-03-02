@@ -868,7 +868,7 @@ void LLPumpIO::processChain(LLChainInfo& chain)
 			PUMP_DEBUG;
 			if(LLIOPipe::isError(status))
 			{
-				llinfos << "Pump generated pipe error: '"
+				llinfos << "Pump generated pipe err: '"
 #if LL_DEBUG_PIPE_TYPE_IN_PUMP
 						<< typeid(*((*it).mPipe)).name() << "':'"
 #endif

@@ -24,7 +24,7 @@
 #include "pipeline.h"
 
 LLVOTextBubble::LLVOTextBubble(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
-:	LLViewerObject(id, pcode, regionp)
+:	LLAlphaObject(id, pcode, regionp)
 {
 	setScale(LLVector3(1.5f, 1.5f, 0.25f));
 	mbCanSelect = FALSE;
@@ -83,8 +83,10 @@ BOOL LLVOTextBubble::idleUpdate(LLAgent &agent, LLWorld	&world, const F64 &time)
 	for (i = 0; i < getNumTEs(); i++)
 	{
 		setTEColor(i, color);
+		setTEFullbright(i, TRUE);
 	}
 
+	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
 	return TRUE;
 }
 
@@ -126,15 +128,14 @@ LLDrawable *LLVOTextBubble::createDrawable(LLPipeline *pipeline)
 	pipeline->allocDrawable(this);
 	mDrawable->setLit(FALSE);
 	mDrawable->setRenderType(LLPipeline::RENDER_TYPE_VOLUME);
-	LLDrawPool *poolp;
+	
 	for (U32 i = 0; i < getNumTEs(); i++)
 	{
 		LLViewerImage *imagep;
 		const LLTextureEntry *texture_entry = getTE(i);
 		imagep = gImageList.getImage(texture_entry->getID());
 
-		poolp = gPipeline.getPool(LLDrawPool::POOL_ALPHA);
-		mDrawable->addFace(poolp, imagep);
+		mDrawable->addFace((LLFacePool*) NULL, imagep);
 	}
 
 	return mDrawable;
@@ -181,24 +182,65 @@ BOOL LLVOTextBubble::updateGeometry(LLDrawable *drawable)
 	for (S32 i = 0; i < drawable->getNumFaces(); i++)
 	{
 		LLFace *face = drawable->getFace(i);
-
-		if (i == 0)
-		{
-			face->setSize(0);
-			continue;
-		}
-		if (i == 2)
-		{
-			face->setSize(0);
-			continue;
-		}
-
-		// Need to figure out how to readd logic to determine face dirty vs. entire object dirty.
 		face->setTEOffset(i);
-		face->clearState(LLFace::GLOBAL);
-		face->genVolumeTriangles(*getVolume(), i, identity4, identity3);
+		face->setTexture(LLViewerImage::sSmokeImagep);
+		face->setState(LLFace::FULLBRIGHT);
 	}
+
 	mVolumeChanged = FALSE;
 
+	mDrawable->movePartition();
 	return TRUE;
+}
+
+void LLVOTextBubble::updateFaceSize(S32 idx)
+{
+	LLFace* face = mDrawable->getFace(idx);
+	
+	if (idx == 0 || idx == 2)
+	{
+		face->setSize(0,0);
+	}
+	else
+	{
+		const LLVolumeFace& vol_face = getVolume()->getVolumeFace(idx);
+		face->setSize(vol_face.mVertices.size(), vol_face.mIndices.size());
+	}
+}
+
+void LLVOTextBubble::getGeometry(S32 idx,
+								LLStrider<LLVector3>& verticesp,
+								LLStrider<LLVector3>& normalsp, 
+								LLStrider<LLVector2>& texcoordsp,
+								LLStrider<LLColor4U>& colorsp, 
+								LLStrider<U32>& indicesp) 
+{
+	if (idx == 0 || idx == 2)
+	{
+		return;
+	}
+
+	const LLVolumeFace& face = getVolume()->getVolumeFace(idx);
+	
+	LLVector3 pos = getPositionAgent();
+	LLColor4U color = LLColor4U(getTE(idx)->getColor());
+	U32 offset = mDrawable->getFace(idx)->getGeomIndex();
+	
+	for (U32 i = 0; i < face.mVertices.size(); i++)
+	{
+		*verticesp++ = face.mVertices[i].mPosition.scaledVec(getScale()) + pos;
+		*normalsp++ = face.mVertices[i].mNormal;
+		*texcoordsp++ = face.mVertices[i].mTexCoord;
+		*colorsp++ = color;
+	}
+	
+	for (U32 i = 0; i < face.mIndices.size(); i++)
+	{
+		*indicesp++ = face.mIndices[i] + offset;
+	}
+}
+
+U32 LLVOTextBubble::getPartitionType() const
+{ 
+	return LLPipeline::PARTITION_PARTICLE; 
 }

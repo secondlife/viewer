@@ -31,7 +31,7 @@ typedef void (*LLVPCallback)(LLViewerPart &part, const F32 dt);
 //
 
 
-class LLViewerPart : public LLPartData
+class LLViewerPart : public LLPartData, public LLRefCount
 {
 public:
 	LLViewerPart();
@@ -71,19 +71,26 @@ public:
 
 	void cleanup();
 
-	BOOL addPart(LLViewerPart &part);
+	BOOL addPart(LLViewerPart* part, const F32 desired_size = -1.f);
 	
 	void updateParticles(const F32 dt);
 
-	BOOL posInGroup(const LLVector3 &pos);
+	BOOL posInGroup(const LLVector3 &pos, const F32 desired_size = -1.f);
 
 	void shift(const LLVector3 &offset);
 
-	LLDynamicArray<LLViewerPart> mParticles;
+	typedef std::vector<LLPointer<LLViewerPart> > part_list_t;
+	part_list_t mParticles;
 
 	const LLVector3 &getCenterAgent() const		{ return mCenterAgent; }
-	S32 getCount() const					{ return mParticles.count(); }
+	S32 getCount() const					{ return (S32) mParticles.size(); }
 	LLViewerRegion *getRegion() const		{ return mRegionp; }
+
+	LLPointer<LLVOPartGroup> mVOPartGroupp;
+
+	BOOL mUniformParticles;
+	U32 mID;
+
 protected:
 	void removePart(const S32 part_num);
 
@@ -93,10 +100,8 @@ protected:
 	LLVector3 mMinObjPos;
 	LLVector3 mMaxObjPos;
 
-	LLPointer<LLVOPartGroup> mVOPartGroupp;
 	LLViewerRegion *mRegionp;
 };
-
 
 class LLViewerPartSim
 {
@@ -113,7 +118,7 @@ public:
 	void cleanupRegion(LLViewerRegion *regionp);
 
 	BOOL shouldAddPart(); // Just decides whether this particle should be added or not (for particle count capping)
-	void addPart(LLViewerPart &part);
+	void addPart(LLViewerPart* part);
 	void cleanMutedParticles(const LLUUID& task_id);
 
 	friend class LLViewerPartGroup;
@@ -125,15 +130,18 @@ public:
 	static void incPartCount(const S32 count)			{ sParticleCount += count; }
 	static void decPartCount(const S32 count)			{ sParticleCount -= count; }
 	
-protected:
-	LLViewerPartGroup *createViewerPartGroup(const LLVector3 &pos_agent);
-	LLViewerPartGroup *put(LLViewerPart &part);
+	U32 mID;
 
 protected:
-	LLDynamicArray<LLViewerPartGroup *> mViewerPartGroups;
-	LLDynamicArrayPtr<LLPointer<LLViewerPartSource> > mViewerPartSources;
+	LLViewerPartGroup *createViewerPartGroup(const LLVector3 &pos_agent, const F32 desired_size);
+	LLViewerPartGroup *put(LLViewerPart* part);
+
+protected:
+	typedef std::vector<LLViewerPartGroup *> group_list_t;
+	typedef std::vector<LLPointer<LLViewerPartSource> > source_list_t;
+	group_list_t mViewerPartGroups;
+	source_list_t mViewerPartSources;
 	LLFrameTimer mSimulationTimer;
-
 	static S32 sMaxParticleCount;
 	static S32 sParticleCount;
 };

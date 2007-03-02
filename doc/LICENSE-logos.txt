@@ -6,7 +6,12 @@ Research, Inc.  Other trademarks include (but are not limited to): the
 names Linden and Linden Research, as well as the Linden Lab Hexagon
 Design and the Second Life Hand Design logos.
 
-Use of logos and trademarks are subject to the Linden Lab trademark
-policy, available at:
-
+The copyrightable materials in this file that are owned by Linden Lab
+are "Work" licensed under Creative Commons license Attribution-Share
+Alike 2.5 (summarized at
+http://creativecommons.org/licenses/by-sa/2.5/ , full text of license
+at http://creativecommons.org/licenses/by-sa/2.5/legalcode); provided
+however that all trademarks of Linden Lab are subject to the Linden
+Lab trademark policy, available at
 http://secondlife.com/corporate/trademark/
+

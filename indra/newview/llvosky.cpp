@@ -421,7 +421,7 @@ void LLSkyTex::initEmpty(const S32 tex)
 		}
 	}
 
-	createTexture(tex);
+	createGLImage(tex);
 }
 
 
@@ -448,10 +448,10 @@ void LLSkyTex::create(const F32 brightness_scale, const LLColor3& multiscatt)
 			*pix = temp1.mAll;
 		}
 	}
-	createTexture(sCurrent);
+	createGLImage(sCurrent);
 }
 
-void LLSkyTex::createTexture(S32 which)
+void LLSkyTex::createGLImage(S32 which)
 {	
 	mImageGL[which]->createGLTexture(0, mImageRaw[which]);
 	mImageGL[which]->setClamp(TRUE, TRUE);
@@ -475,7 +475,7 @@ S32 LLVOSky::sTileResX = sResolution/NUM_TILES_X;
 S32 LLVOSky::sTileResY = sResolution/NUM_TILES_Y;
 
 LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
-:	LLViewerObject(id, pcode, regionp),
+:	LLStaticViewerObject(id, pcode, regionp),
 	mSun(SUN_DISK_RADIUS), mMoon(MOON_DISK_RADIUS),
 	mBrightnessScale(1.f),
 	mBrightnessScaleNew(0.f),
@@ -1035,9 +1035,7 @@ void LLVOSky::calcBrightnessScaleAndColors()
 	}
 
 	calculateColors(); // MSMSM Moved this down here per Milo Lindens suggestion, to fix orange flashing bug at sunset.
-	generateScatterMap();
 }
-
 
 
 void LLVOSky::calculateColors()
@@ -1049,14 +1047,13 @@ void LLVOSky::calculateColors()
 	F32 sun_factor = 1;
 	
 	// Sun Diffuse
-	if (calcHitsEarth(mCameraPosAgent, tosun) < 0)
-	{
-		mSunDiffuse = mBrightnessScaleGuess * mSun.getIntensity() * mTransp.calcTransp(tosun.mV[2], h);
-	}
-	else
-	{
-		mSunDiffuse = mBrightnessScaleGuess * mSun.getIntensity() * mTransp.calcTransp(0, h);
-	}
+	F32 sun_height = tosun.mV[2];
+
+	if (sun_height <= 0.0)
+		sun_height = 0.0;
+	
+	mSunDiffuse = mBrightnessScaleGuess * mSun.getIntensity() * mTransp.calcTransp(sun_height, h);
+
 	mSunDiffuse = 1.0f * color_norm(mSunDiffuse);
 
 	// Sun Ambient
@@ -1169,8 +1166,6 @@ BOOL LLVOSky::updateSky()
 		return TRUE;
 	}
 
-	setPositionAgent(gAgent.getCameraPositionAgent());
-
 	static S32 next_frame = 0;
 	const S32 total_no_tiles = 6 * NUM_TILES;
 	const S32 cycle_frame_no = total_no_tiles + 1;
@@ -1234,20 +1229,26 @@ BOOL LLVOSky::updateSky()
 							LLImageRaw* raw1 = mSkyTex[side].getImageRaw(TRUE);
 							LLImageRaw* raw2 = mSkyTex[side].getImageRaw(FALSE);
 							raw2->copy(raw1);
-							mSkyTex[side].createTexture(mSkyTex[side].getWhich(FALSE));
+							mSkyTex[side].createGLImage(mSkyTex[side].getWhich(FALSE));
 						}
 						next_frame = 0;	
 						//llSkyTex::stepCurrent();
 					}
 
-					std::vector<LLPointer<LLImageRaw> > images;
-					for (S32 side = 0; side < 6; side++)
+					if (!gSavedSettings.getBOOL("RenderDynamicReflections"))
 					{
-						images.push_back(mSkyTex[side].getImageRaw(FALSE));
+						std::vector<LLPointer<LLImageRaw> > images;
+						for (S32 side = 0; side < 6; side++)
+						{
+							images.push_back(mSkyTex[side].getImageRaw(FALSE));
+						}
+						mCubeMap->init(images);
 					}
-					mCubeMap->init(images);
 				}
 			}
+
+			gPipeline.markRebuild(gSky.mVOGroundp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+			gPipeline.markRebuild(gSky.mVOStarsp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 
 			mForceUpdate = FALSE;
 		}
@@ -1287,7 +1288,8 @@ LLDrawable *LLVOSky::createDrawable(LLPipeline *pipeline)
 	poolp->setSkyTex(mSkyTex);
 	poolp->setSun(&mSun);
 	poolp->setMoon(&mMoon);
-
+	mDrawable->setRenderType(LLPipeline::RENDER_TYPE_SKY);
+	
 	for (S32 i = 0; i < 6; ++i)
 	{
 		mFace[FACE_SIDE0 + i] = mDrawable->addFace(poolp, NULL);
@@ -1297,9 +1299,6 @@ LLDrawable *LLVOSky::createDrawable(LLPipeline *pipeline)
 	mFace[FACE_MOON] = mDrawable->addFace(poolp, mMoonTexturep);
 	mFace[FACE_BLOOM] = mDrawable->addFace(poolp, mBloomTexturep);
 
-	//mDrawable->addFace(poolp, LLViewerImage::sDefaultImagep);
-	gPipeline.markMaterialed(mDrawable);
-
 	return mDrawable;
 }
 
@@ -1307,13 +1306,13 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 {
 	if (mFace[FACE_REFLECTION] == NULL)
 	{
-		mFace[FACE_REFLECTION] = drawable->addFace(gPipeline.getPool(LLDrawPool::POOL_WATER), NULL);
+		LLDrawPoolWater *poolp = (LLDrawPoolWater*) gPipeline.getPool(LLDrawPool::POOL_WATER);
+		mFace[FACE_REFLECTION] = drawable->addFace(poolp, NULL);
 	}
 
 	mCameraPosAgent = drawable->getPositionAgent();
 	mEarthCenter.mV[0] = mCameraPosAgent.mV[0];
 	mEarthCenter.mV[1] = mCameraPosAgent.mV[1];
-
 
 	LLVector3 v_agent[8];
 	for (S32 i = 0; i < 8; ++i)
@@ -1321,56 +1320,60 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 		F32 x_sgn = (i&1) ? 1.f : -1.f;
 		F32 y_sgn = (i&2) ? 1.f : -1.f;
 		F32 z_sgn = (i&4) ? 1.f : -1.f;
-		v_agent[i] = mCameraPosAgent + HORIZON_DIST * LLVector3(x_sgn, y_sgn, z_sgn);
+		v_agent[i] = HORIZON_DIST*0.25f * LLVector3(x_sgn, y_sgn, z_sgn);
 	}
 
 	LLStrider<LLVector3> verticesp;
 	LLStrider<LLVector3> normalsp;
 	LLStrider<LLVector2> texCoordsp;
-	U32 *indicesp;
+	LLStrider<U32> indicesp;
 	S32 index_offset;
 	LLFace *face;	
 
 	for (S32 side = 0; side < 6; ++side)
 	{
 		face = mFace[FACE_SIDE0 + side]; 
-		face->setPrimType(LLTriangles);
-		face->setSize(4, 6);
-		index_offset = face->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
-		if (-1 == index_offset)
+
+		if (face->mVertexBuffer.isNull())
 		{
-			return TRUE;
+			face->setSize(4, 6);
+			face->setGeomIndex(0);
+			face->setIndicesIndex(0);
+			face->mVertexBuffer = new LLVertexBuffer(LLDrawPoolSky::VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
+			face->mVertexBuffer->allocateBuffer(4, 6, TRUE);
+			
+			index_offset = face->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
+			
+			S32 vtx = 0;
+			S32 curr_bit = side >> 1; // 0/1 = Z axis, 2/3 = Y, 4/5 = X
+			S32 side_dir = side & 1;  // even - 0, odd - 1
+			S32 i_bit = (curr_bit + 2) % 3;
+			S32 j_bit = (i_bit + 2) % 3;
+
+			LLVector3 axis;
+			axis.mV[curr_bit] = 1;
+			face->mCenterAgent = (F32)((side_dir << 1) - 1) * axis * HORIZON_DIST;
+
+			vtx = side_dir << curr_bit;
+			*(verticesp++)  = v_agent[vtx];
+			*(verticesp++)  = v_agent[vtx | 1 << j_bit];
+			*(verticesp++)  = v_agent[vtx | 1 << i_bit];
+			*(verticesp++)  = v_agent[vtx | 1 << i_bit | 1 << j_bit];
+
+			*(texCoordsp++) = TEX00;
+			*(texCoordsp++) = TEX01;
+			*(texCoordsp++) = TEX10;
+			*(texCoordsp++) = TEX11;
+
+			// Triangles for each side
+			*indicesp++ = index_offset + 0;
+			*indicesp++ = index_offset + 1;
+			*indicesp++ = index_offset + 3;
+
+			*indicesp++ = index_offset + 0;
+			*indicesp++ = index_offset + 3;
+			*indicesp++ = index_offset + 2;
 		}
-
-		S32 vtx = 0;
-		S32 curr_bit = side >> 1; // 0/1 = Z axis, 2/3 = Y, 4/5 = X
-		S32 side_dir = side & 1;  // even - 0, odd - 1
-		S32 i_bit = (curr_bit + 2) % 3;
-		S32 j_bit = (i_bit + 2) % 3;
-
-		LLVector3 axis;
-		axis.mV[curr_bit] = 1;
-		face->mCenterAgent = mCameraPosAgent + (F32)((side_dir << 1) - 1) * axis * HORIZON_DIST;
-
-		vtx = side_dir << curr_bit;
-		*(verticesp++)  = v_agent[vtx];
-		*(verticesp++)  = v_agent[vtx | 1 << j_bit];
-		*(verticesp++)  = v_agent[vtx | 1 << i_bit];
-		*(verticesp++)  = v_agent[vtx | 1 << i_bit | 1 << j_bit];
-
-		*(texCoordsp++) = TEX00;
-		*(texCoordsp++) = TEX01;
-		*(texCoordsp++) = TEX10;
-		*(texCoordsp++) = TEX11;
-
-		// Triangles for each side
-		*indicesp++ = index_offset + 0;
-		*indicesp++ = index_offset + 1;
-		*indicesp++ = index_offset + 3;
-
-		*indicesp++ = index_offset + 0;
-		*indicesp++ = index_offset + 3;
-		*indicesp++ = index_offset + 2;
 	}
 
 	const LLVector3 &look_at = gCamera->getAtAxis();
@@ -1445,7 +1448,7 @@ BOOL LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, cons
 	LLStrider<LLVector3> verticesp;
 	LLStrider<LLVector3> normalsp;
 	LLStrider<LLVector2> texCoordsp;
-	U32 *indicesp;
+	LLStrider<U32> indicesp;
 	S32 index_offset;
 	LLFace *facep;
 
@@ -1493,8 +1496,16 @@ BOOL LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, cons
 	hb.setVisible(TRUE);
 
 	facep = mFace[f]; 
-	facep->setPrimType(LLTriangles);
-	facep->setSize(4, 6);
+
+	if (facep->mVertexBuffer.isNull())
+	{
+		facep->setSize(4, 6);
+		facep->mVertexBuffer = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
+		facep->mVertexBuffer->allocateBuffer(facep->getGeomCount(), facep->getIndicesCount(), TRUE);
+		facep->setGeomIndex(0);
+		facep->setIndicesIndex(0);
+	}
+
 	index_offset = facep->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
 	if (-1 == index_offset)
 	{
@@ -1623,7 +1634,7 @@ void LLVOSky::updateSunHaloGeometry(LLDrawable *drawable )
 	LLStrider<LLVector3> verticesp;
 	LLStrider<LLVector3> normalsp;
 	LLStrider<LLVector2> texCoordsp;
-	U32 *indicesp;
+	LLStrider<U32> indicesp;
 	S32 index_offset;
 	LLFace *face;
 
@@ -1642,8 +1653,16 @@ void LLVOSky::updateSunHaloGeometry(LLDrawable *drawable )
 	v_glow_corner[3] = draw_pos + right - up;
 
 	face = mFace[FACE_BLOOM]; 
-	face->setPrimType(LLTriangles);
-	face->setSize(4, 6);
+
+	if (face->mVertexBuffer.isNull())
+	{
+		face->setSize(4, 6);
+		face->setGeomIndex(0);
+		face->setIndicesIndex(0);
+		face->mVertexBuffer = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
+		face->mVertexBuffer->allocateBuffer(4, 6, TRUE);
+	}
+
 	index_offset = face->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
 	if (-1 == index_offset)
 	{
@@ -1877,15 +1896,23 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 		dt_clip = -0.1f;
 	}
 
+	LLFace *face = mFace[FACE_REFLECTION]; 
+
+	if (face->mVertexBuffer.isNull() || quads*4 != face->getGeomCount())
+	{
+		face->setSize(quads * 4, quads * 6);
+		face->mVertexBuffer = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
+		face->mVertexBuffer->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE);
+		face->setIndicesIndex(0);
+		face->setGeomIndex(0);
+	}
+	
 	LLStrider<LLVector3> verticesp;
 	LLStrider<LLVector3> normalsp;
 	LLStrider<LLVector2> texCoordsp;
-	U32 *indicesp;
+	LLStrider<U32> indicesp;
 	S32 index_offset;
-	LLFace *face = mFace[FACE_REFLECTION]; 
-
-	face->setPrimType(LLTriangles);
-	face->setSize(quads * 4, quads * 6);
+	
 	index_offset = face->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
 	if (-1 == index_offset)
 	{
@@ -2113,16 +2140,14 @@ void LLVOSky::updateFog(const F32 distance)
 
 	color_gamma_correct(sky_fog_color);
 
-	if (!(gPipeline.getVertexShaderLevel(LLPipeline::SHADER_ENVIRONMENT) > LLDrawPool::SHADER_LEVEL_SCATTERING))
-	{
-		render_fog_color = sky_fog_color;
-	}
-
+	render_fog_color = sky_fog_color;
+	
 	if (camera_height > water_height)
 	{
 		fog_distance = mFogRatio * distance;
 		LLColor4 fog(render_fog_color);
 		glFogfv(GL_FOG_COLOR, fog.mV);
+		mGLFogCol = fog;
 	}
 	else
 	{
@@ -2142,6 +2167,7 @@ void LLVOSky::updateFog(const F32 distance)
 		LLColor4 fogCol = brightness * (color_frac * render_fog_color + (1.f - color_frac) * LLColor4(0.f, 0.2f, 0.3f, 1.f));
 		fogCol.setAlpha(1);
 		glFogfv(GL_FOG_COLOR, (F32 *) &fogCol.mV);
+		mGLFogCol = fogCol;
 	}
 
 	mFogColor = sky_fog_color;

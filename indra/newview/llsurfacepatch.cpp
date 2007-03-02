@@ -794,7 +794,7 @@ void LLSurfacePatch::connectNeighbor(LLSurfacePatch *neighbor_patchp, const U32 
 
 void LLSurfacePatch::updateVisibility()
 {
-	if (mVObjp == (LLVOSurfacePatch*)NULL)
+	if (mVObjp.isNull())
 	{
 		return;
 	}

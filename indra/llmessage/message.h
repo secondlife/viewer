@@ -421,6 +421,7 @@ public:
 	void	addStringFast( const char* varname, const std::string& s);				// typed, checks storage space
 	void	addString( const char* varname, const std::string& s);				// typed, checks storage space
 
+	TPACKETID getCurrentRecvPacketID() { return mCurrentRecvPacketID; }
 	S32 getCurrentSendTotal() const { return mCurrentSendTotal; }
 
 	// This method checks for current send total and returns true if

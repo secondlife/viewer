@@ -13,8 +13,9 @@
 #export LL_BAD_ALSA=x
 
 ## - Avoids the optional OpenGL extensions which have proven most problematic
-##   on some hardware.  Disabling this option may cause crashes and hangs on
-##   some unstable combinations of drivers and hardware.
+##   on some hardware.  Disabling this option may cause BETTER PERFORMANCE but
+##   may also cause CRASHES and hangs on some unstable combinations of drivers
+##   and hardware.
 export LL_GL_BASICEXT=x
 
 ## - Avoids *all* optional OpenGL extensions.  This is the safest and least-

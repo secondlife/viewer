@@ -60,12 +60,14 @@ class LLDir
 	const std::string &getChatLogsDir() const;	// Location of the chat logs dir.
 	const std::string &getPerAccountChatLogsDir() const;	// Location of the per account chat logs dir.
 	const std::string &getTempDir() const;			// Common temporary directory
+	const std::string  getCacheDir(bool get_default = false) const;	// Location of the cache.
 	const std::string &getCAFile() const;			// File containing TLS certificate authorities
 	const std::string &getDirDelimiter() const;	// directory separator for platform (ie. '\' or '/' or ':')
 	const std::string &getSkinDir() const;		// User-specified skin folder.
 
 	// Expanded filename
 	std::string getExpandedFilename(ELLPath location, const std::string &filename) const;
+	std::string getExpandedFilename(ELLPath location, const std::string &subdir, const std::string &filename) const;
 
 	// random filename in common temporary directory
 	std::string getTempFilename() const;
@@ -74,6 +76,7 @@ class LLDir
 	virtual void setPerAccountChatLogsDir(const std::string &first, const std::string &last);		// Set the per user chat log directory.
 	virtual void setLindenUserDir(const std::string &first, const std::string &last);		// Set the linden user dir to this user's dir
 	virtual void setSkinFolder(const std::string &skin_folder);
+	virtual bool setCacheDir(const std::string &path);
 
 	virtual void dumpCurrentDirectories();
 	
@@ -91,6 +94,7 @@ protected:
 	std::string mChatLogsDir;		 // Location for chat logs.
 	std::string mCAFile;				 // Location of the TLS certificate authority PEM file.
 	std::string mTempDir;
+	std::string mCacheDir;
 	std::string mDirDelimiter;
 	std::string mSkinDir;			// Location for u ser-specified skin info.
 };

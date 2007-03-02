@@ -69,10 +69,9 @@ public:
 			return std::string(tbuf);
 		}
 		
-		/*virtual*/ void finishRequest();
+		/*virtual*/ bool processRequest();
+		/*virtual*/ void finishRequest(bool completed);
 		/*virtual*/ void deleteRequest();
-
-		bool processIO();
 		
 	private:
 		operation_t mOperation;
@@ -90,10 +89,10 @@ public:
 	//------------------------------------------------------------------------
 public:
 	static std::string sDataPath;
-	static void setDataPath(const std::string& path) { sDataPath = path; }
+	static LLVFSThread* sLocal;		// Default worker thread
 	
 public:
-	LLVFSThread(bool threaded = TRUE, bool runalways = TRUE);
+	LLVFSThread(bool threaded = TRUE);
 	~LLVFSThread();	
 
 	// Return a Request handle
@@ -101,8 +100,9 @@ public:
 				  U8* buffer, S32 offset, S32 numbytes, U32 pri=PRIORITY_NORMAL, U32 flags = 0);
 	handle_t write(LLVFS* vfs, const LLUUID &file_id, const LLAssetType::EType file_type,
 				   U8* buffer, S32 offset, S32 numbytes, U32 flags);
-	handle_t rename(LLVFS* vfs, const LLUUID &file_id, const LLAssetType::EType file_type,
-					const LLUUID &new_id, const LLAssetType::EType new_type, U32 flags);
+	// SJB: rename seems to have issues, especially when threaded
+// 	handle_t rename(LLVFS* vfs, const LLUUID &file_id, const LLAssetType::EType file_type,
+// 					const LLUUID &new_id, const LLAssetType::EType new_type, U32 flags);
 	// Return number of bytes read
 	S32 readImmediate(LLVFS* vfs, const LLUUID &file_id, const LLAssetType::EType file_type,
 					  U8* buffer, S32 offset, S32 numbytes);
@@ -111,12 +111,11 @@ public:
 
 	/*virtual*/ bool processRequest(QueuedRequest* req);
 
-	static void initClass(bool local_is_threaded = TRUE, bool run_always = TRUE); // Setup sLocal
+public:
+	static void initClass(bool local_is_threaded = TRUE); // Setup sLocal
 	static S32 updateClass(U32 ms_elapsed);
 	static void cleanupClass();		// Delete sLocal
-
-public:
-	static LLVFSThread* sLocal;		// Default worker thread
+	static void setDataPath(const std::string& path) { sDataPath = path; }
 };
 
 //============================================================================

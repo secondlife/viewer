@@ -212,6 +212,20 @@ BOOL LLPartSysData::unpack(LLDataPacker &dp)
 	return TRUE;
 }
 
+std::ostream& operator<<(std::ostream& s, const LLPartSysData &data)
+{
+	s << "Flags: " << std::hex << data.mFlags;
+	s << " Pattern: " << std::hex << (U32) data.mPattern << "\n";
+	s << "Age: [" << data.mStartAge << ", " << data.mMaxAge << "]\n";
+	s << "Angle: [" << data.mInnerAngle << ", " << data.mOuterAngle << "]\n";
+	s << "Burst Rate: " << data.mBurstRate << "\n";
+	s << "Burst Radius: " << data.mBurstRadius << "\n";
+	s << "Burst Speed: [" << data.mBurstSpeedMin << ", " << data.mBurstSpeedMax << "]\n";
+	s << "Burst Part Count: " << std::hex << (U32) data.mBurstPartCount << "\n";
+	s << "Angular Velocity: " << data.mAngularVelocity << "\n";
+	s << "Accel: " << data.mPartAccel;
+	return s;
+}
 
 BOOL LLPartSysData::isNullPS(const S32 block_num)
 {

@@ -345,6 +345,16 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 		mOFN.lpstrFilter =	RAW_FILTER \
 							L"\0";
 		break;
+	case FFSAVE_J2C:
+		if (!filename)
+		{
+			wcsncpy( mFilesW,L"untitled.j2c", FILENAME_BUFFER_SIZE);
+		}
+		mOFN.lpstrDefExt = L"j2c";
+		mOFN.lpstrFilter =
+			L"Compressed Images (*.j2c)\0*.j2c\0" \
+			L"\0";
+		break;
 	default:
 		return FALSE;
 	}
@@ -660,6 +670,12 @@ OSStatus	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const char* filename)
 			extension = CFSTR(".raw");
 			break;
 
+		case FFSAVE_J2C:
+			type = '\?\?\?\?';
+			creator = 'prvw';
+			extension = CFSTR(".j2c");
+			break;
+		
 		case FFSAVE_ALL:
 		default:
 			type = '\?\?\?\?';
@@ -1062,6 +1078,10 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const char* filename )
 		case FFSAVE_RAW:
 			caption += "RAW File (*.raw)";
 			suggest_ext += ".raw";
+			break;
+		case FFSAVE_J2C:
+			caption += "Compressed Images (*.j2c)";
+			suggest_ext += ".j2c";
 			break;
 		default:;
 			break;

@@ -1453,9 +1453,9 @@ void LLLiveLSLEditor::onLoadComplete(LLVFS *vfs, const LLUUID& asset_id,
 
 	if( LLLiveLSLEditor::sInstances.checkData(*xored_id) )
 	{
+		instance = LLLiveLSLEditor::sInstances[*xored_id];
 		if( LL_ERR_NOERR == status )
 		{
-			instance = LLLiveLSLEditor::sInstances[*xored_id];
 			instance->loadScriptText(vfs, asset_id, type);
 			instance->mAssetStatus = PREVIEW_ASSET_LOADED;
 		}

@@ -103,13 +103,13 @@ const StatAttributes STAT_INFO[LLViewerStats::ST_COUNT] =
 	// ST_SIM_FPS_20_SECONDS
 	StatAttributes("Seconds with sim FPS below 20", TRUE, TRUE),
 	// ST_PHYS_FPS_20_SECONDS
-	StatAttributes("Seconds with physics FPS below 20", TRUE, TRUE),
+	StatAttributes("Seconds with physics FPS below 20", FALSE, TRUE),
 	// ST_LOSS_05_SECONDS
 	StatAttributes("Seconds with packet loss > 5%", TRUE, TRUE),
 	// ST_FPS_DROP_50_RATIO
-	StatAttributes("Ratio of frames 2x longer than previous", TRUE, FALSE),
-	// ST_MEDIA_OBJECT_LIST_LENGTH
-	StatAttributes("Number of objects that want to display web pages", TRUE, FALSE),
+	StatAttributes("Ratio of frames 2x longer than previous", FALSE, FALSE),
+	// ST_ENABLE_VBO
+	StatAttributes("Vertex Buffers Enabled", TRUE, FALSE),
 	// ST_DELTA_BANDWIDTH
 	StatAttributes("Increase/Decrease in bandwidth based on packet loss", TRUE, FALSE),
 	// ST_MAX_BANDWIDTH

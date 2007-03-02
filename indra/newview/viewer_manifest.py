@@ -49,6 +49,8 @@ class ViewerManifest(LLManifest):
 
                 # XUI
                 if self.prefix(src="skins"):
+                        # include the entire textures directory recursively
+                        self.path("textures")
                         self.path("paths.xml")
                         self.path("xui/*/*.xml")
                         self.path('words.*.txt')
@@ -98,6 +100,8 @@ class WindowsManifest(ViewerManifest):
                 # *NOTE: these are the only two executable names that the crash reporter recognizes
                 if self.args['grid'] == '':
                         return "SecondLife.exe"
+                elif self.args['grid'] == 'firstlook':
+                        return "SecondLifeFirstLook.exe"
                 else:
                         return "SecondLifePreview.exe"
                         # return "SecondLifePreview%s.exe" % (self.args['grid'], )
@@ -396,7 +400,7 @@ class Linux_i686Manifest(LinuxManifest):
                         self.path("libvorbis.so.0")
                         self.path("libvorbisfile.so.0")
                         self.path("libvorbisenc.so.0")
-                        self.path("libcurl.so.3")
+                        self.path("libcurl.so.4")
                         self.path("libcrypto.so.0.9.7")
                         self.path("libssl.so.0.9.7")
                         self.path("libexpat.so.1")

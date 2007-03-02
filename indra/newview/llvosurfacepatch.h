@@ -16,9 +16,19 @@ class LLSurfacePatch;
 class LLDrawPool;
 class LLVector2;
 
-class LLVOSurfacePatch : public LLViewerObject
+class LLVOSurfacePatch : public LLStaticViewerObject
 {
 public:
+	enum 
+	{
+		VERTEX_DATA_MASK =	(1 << LLVertexBuffer::TYPE_VERTEX) |
+							(1 << LLVertexBuffer::TYPE_NORMAL) |
+							(1 << LLVertexBuffer::TYPE_TEXCOORD) |
+							(1 << LLVertexBuffer::TYPE_TEXCOORD2) |
+							(1 << LLVertexBuffer::TYPE_COLOR) 
+	}
+	eVertexDataMask;
+
 	LLVOSurfacePatch(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 	virtual ~LLVOSurfacePatch();
 
@@ -27,8 +37,18 @@ public:
 	// Initialize data that's only inited once per class.
 	static void initClass();
 
+	virtual U32 getPartitionType() const;
+
 	/*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
 	/*virtual*/ BOOL        updateGeometry(LLDrawable *drawable);
+	/*virtual*/ BOOL		updateLOD();
+	/*virtual*/ void		updateFaceSize(S32 idx);
+	void getGeometry(LLStrider<LLVector3> &verticesp,
+								LLStrider<LLVector3> &normalsp,
+								LLStrider<LLColor4U> &colorsp,
+								LLStrider<LLVector2> &texCoords0p,
+								LLStrider<LLVector2> &texCoords1p,
+								LLStrider<U32> &indicesp);
 
 	/*virtual*/ void updateTextures(LLAgent &agent);
 	/*virtual*/ void setPixelAreaAndAngle(LLAgent &agent); // generate accurate apparent angle and area
@@ -44,8 +64,8 @@ public:
 
 	BOOL			mDirtiedPatch;
 protected:
-	LLDrawPool		*mPool;
-	LLDrawPool		*getPool();
+	LLFacePool		*mPool;
+	LLFacePool		*getPool();
 	S32				mBaseComp;
 	LLSurfacePatch	*mPatchp;
 	BOOL			mDirtyTexture;
@@ -70,24 +90,24 @@ protected:
 					   LLStrider<LLColor4U> &colorsp,
 					   LLStrider<LLVector2> &texCoords0p,
 					   LLStrider<LLVector2> &texCoords1p,
-					   U32* &indicesp,
-					   S32 &index_offset);
+					   LLStrider<U32> &indicesp,
+					   U32 &index_offset);
 	void updateNorthGeometry(LLFace *facep,
 					   LLStrider<LLVector3> &verticesp,
 					   LLStrider<LLVector3> &normalsp,
 					   LLStrider<LLColor4U> &colorsp,
 					   LLStrider<LLVector2> &texCoords0p,
 					   LLStrider<LLVector2> &texCoords1p,
-					   U32* &indicesp,
-					   S32 &index_offset);
+					   LLStrider<U32> &indicesp,
+					   U32 &index_offset);
 	void updateEastGeometry(LLFace *facep,
 					   LLStrider<LLVector3> &verticesp,
 					   LLStrider<LLVector3> &normalsp,
 					   LLStrider<LLColor4U> &colorsp,
 					   LLStrider<LLVector2> &texCoords0p,
 					   LLStrider<LLVector2> &texCoords1p,
-					   U32* &indicesp,
-					   S32 &index_offset);
+					   LLStrider<U32> &indicesp,
+					   U32 &index_offset);
 };
 
 #endif // LL_VOSURFACEPATCH_H

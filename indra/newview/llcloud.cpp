@@ -97,16 +97,14 @@ void LLCloudGroup::updatePuffs(const F32 dt)
 		mVOCloudsp->setPositionRegion(mCenterRegion);
 		mVOCloudsp->setScale(LLVector3(256.f/CLOUD_GROUPS_PER_EDGE + CLOUD_PUFF_WIDTH,
 										 256.f/CLOUD_GROUPS_PER_EDGE + CLOUD_PUFF_WIDTH,
-										 CLOUD_HEIGHT_RANGE + CLOUD_PUFF_HEIGHT));
+										 CLOUD_HEIGHT_RANGE + CLOUD_PUFF_HEIGHT)*0.5f);
 		gPipeline.addObject(mVOCloudsp);
 	}
-
-	S32 i;
 
 	LLVector3 velocity;
 	LLVector3d vel_d;
 	// Update the positions of all of the clouds
-	for (i = 0; i < mCloudPuffs.count(); i++)
+	for (U32 i = 0; i < mCloudPuffs.size(); i++)
 	{
 		LLCloudPuff &puff = mCloudPuffs[i];
 		velocity = mCloudLayerp->getRegion()->mWind.getCloudVelocity(mCloudLayerp->getRegion()->getPosRegionFromGlobal(puff.mPositionGlobal));
@@ -121,8 +119,8 @@ void LLCloudGroup::updatePuffs(const F32 dt)
 
 void LLCloudGroup::updatePuffOwnership()
 {
-	S32 i = 0;
-	while (i < mCloudPuffs.count())
+	U32 i = 0;
+	while (i < mCloudPuffs.size())
 	{
 		if (mCloudPuffs[i].getLifeState() == LL_PUFF_DYING)
 		{
@@ -146,10 +144,11 @@ void LLCloudGroup::updatePuffOwnership()
 			continue;
 		}
 		//llinfos << "Puff handed off!" << llendl;
-		LLCloudPuff *puffp = new_cgp->mCloudPuffs.reserve_block(1);
-		puffp->mPositionGlobal = mCloudPuffs[i].mPositionGlobal;
-		puffp->mAlpha = mCloudPuffs[i].mAlpha;
-		mCloudPuffs.remove(i);
+		LLCloudPuff puff;
+		puff.mPositionGlobal = mCloudPuffs[i].mPositionGlobal;
+		puff.mAlpha = mCloudPuffs[i].mAlpha;
+		mCloudPuffs.erase(mCloudPuffs.begin() + i);
+		new_cgp->mCloudPuffs.push_back(puff);
 	}
 
 	//llinfos << "Puff count: " << LLCloudPuff::sPuffCount << llendl;
@@ -165,7 +164,7 @@ void LLCloudGroup::updatePuffCount()
 	S32 target_puff_count = llround(CLOUD_DENSITY * mDensity);
 	target_puff_count = llmax(0, target_puff_count);
 	target_puff_count = llmin(CLOUD_COUNT_MAX, target_puff_count);
-	S32 current_puff_count = mCloudPuffs.count();
+	S32 current_puff_count = (S32) mCloudPuffs.size();
 	// Create a new cloud if we need one
 	if (current_puff_count < target_puff_count)
 	{
@@ -186,7 +185,7 @@ void LLCloudGroup::updatePuffCount()
 
 	// Count the number of live puffs
 	S32 live_puff_count = 0;
-	for (i = 0; i < mCloudPuffs.count(); i++)
+	for (i = 0; i < (S32) mCloudPuffs.size(); i++)
 	{
 		if (mCloudPuffs[i].getLifeState() != LL_PUFF_DYING)
 		{
@@ -212,12 +211,12 @@ void LLCloudGroup::updatePuffCount()
 
 	// Remove fully dead puffs
 	i = 0;
-	while (i < mCloudPuffs.count())
+	while (i < (S32) mCloudPuffs.size())
 	{
 		if (mCloudPuffs[i].isDead())
 		{
 			//llinfos << "Removing dead puff!" << llendl;
-			mCloudPuffs.remove(i);
+			mCloudPuffs.erase(mCloudPuffs.begin() + i);
 			LLCloudPuff::sPuffCount--;
 		}
 		else

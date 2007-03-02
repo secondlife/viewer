@@ -81,6 +81,11 @@ LLThread::LLThread(const std::string& name, apr_pool_t *poolp) :
 
 LLThread::~LLThread()
 {
+	shutdown();
+}
+
+void LLThread::shutdown()
+{
 	// Warning!  If you somehow call the thread destructor from itself,
 	// the thread will die in an unclean fashion!
 	if (mAPRThreadp)
@@ -185,18 +190,6 @@ void LLThread::checkPause()
 }
 
 //============================================================================
-
-bool LLThread::isQuitting() const
-{
-	return (QUITTING == mStatus);
-}
-
-
-bool LLThread::isStopped() const
-{
-	return (STOPPED == mStatus);
-}
-
 
 void LLThread::setQuitting()
 {
@@ -328,3 +321,49 @@ void LLCondition::broadcast()
 	apr_thread_cond_broadcast(mAPRCondp);
 }
 
+//============================================================================
+
+//----------------------------------------------------------------------------
+
+//static
+LLMutex* LLThreadSafeRefCount::sMutex = 0;
+
+//static
+void LLThreadSafeRefCount::initClass()
+{
+	if (!sMutex)
+	{
+		sMutex = new LLMutex(0);
+	}
+}
+
+//static
+void LLThreadSafeRefCount::cleanupClass()
+{
+	delete sMutex;
+	sMutex = NULL;
+}
+	
+
+//----------------------------------------------------------------------------
+
+LLThreadSafeRefCount::LLThreadSafeRefCount() :
+	mRef(0)
+{
+}
+
+LLThreadSafeRefCount::~LLThreadSafeRefCount()
+{ 
+	if (mRef != 0)
+	{
+		llerrs << "deleting non-zero reference" << llendl;
+	}
+}
+
+//============================================================================
+
+LLResponder::~LLResponder()
+{
+}
+
+//============================================================================

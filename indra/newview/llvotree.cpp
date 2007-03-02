@@ -10,6 +10,8 @@
 
 #include "llvotree.h"
 
+#include "lldrawpooltree.h"
+
 #include "llviewercontrol.h"
 #include "lldir.h"
 #include "llprimitive.h"
@@ -19,7 +21,6 @@
 #include "object_flags.h"
 
 #include "llagent.h"
-#include "llagparray.h"
 #include "llcylinder.h"
 #include "lldrawable.h"
 #include "llface.h"
@@ -389,6 +390,10 @@ void LLVOTree::updateTextures(LLAgent &agent)
 	F32 cos_angle = 1.f;
 	if (mTreeImagep)
 	{
+		if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
+		{
+			setDebugText(llformat("%4.0f", fsqrtf(mPixelArea)));
+		}
 		mTreeImagep->addTextureStats(mPixelArea, texel_area_ratio, cos_angle);
 	}
 
@@ -402,13 +407,11 @@ LLDrawable* LLVOTree::createDrawable(LLPipeline *pipeline)
 
 	mDrawable->setRenderType(LLPipeline::RENDER_TYPE_TREE);
 
-	LLDrawPool *poolp = gPipeline.getPool(LLDrawPool::POOL_TREE, mTreeImagep);
+	LLDrawPoolTree *poolp = (LLDrawPoolTree*) gPipeline.getPool(LLDrawPool::POOL_TREE, mTreeImagep);
 
 	// Just a placeholder for an actual object...
-	LLFace *facep = mDrawable->addFace(poolp, mTreeImagep, TRUE);
+	LLFace *facep = mDrawable->addFace(poolp, mTreeImagep);
 	facep->setSize(1, 3);
-
-	gPipeline.markMaterialed(mDrawable);
 
 	updateRadius();
 
@@ -422,6 +425,7 @@ const S32 LEAF_VERTICES = 16;
 
 BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 {
+	LLFastTimer ftm(LLFastTimer::FTM_UPDATE_TREE);
 	U32 i, j;
 	const S32 MAX_SLICES = 32;
 
@@ -444,20 +448,6 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 	face->mCenterAgent = getPositionAgent();
 	face->mCenterLocal = face->mCenterAgent;
 
-	LLDrawPool *poolp = face->getPool();
-	
-	if (poolp->getVertexCount())
-	{
-		return TRUE;
-	}
-
-	if (!face->getDirty())
-	{
-		return FALSE;
-	}
-
-	poolp->setDirty();
-
 	for (lod = 0; lod < 4; lod++)
 	{
 		slices = sLODSlices[lod];
@@ -472,10 +462,17 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 	LLStrider<LLVector3> vertices;
 	LLStrider<LLVector3> normals;
 	LLStrider<LLVector2> tex_coords;
-	U32 *indicesp;
+	LLStrider<U32> indicesp;
 
 	face->setSize(max_vertices, max_indices);
+
+	face->mVertexBuffer = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
+	face->mVertexBuffer->allocateBuffer(max_vertices, max_indices, TRUE);
+	face->setGeomIndex(0);
+	face->setIndicesIndex(0);
+
 	face->getGeometry(vertices, normals, tex_coords, indicesp);
+	
 
 	S32 vertex_count = 0;
 	S32 index_count = 0;
@@ -774,17 +771,13 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 	return TRUE;
 }
 
-void LLVOTree::drawBranchPipeline(LLDrawPool *draw_pool, S32 trunk_LOD, S32 stop_level, U16 depth, U16 trunk_depth,  F32 scale, F32 twist, F32 droop,  F32 branches, F32 alpha)
+U32 LLVOTree::drawBranchPipeline(U32* indicesp, S32 trunk_LOD, S32 stop_level, U16 depth, U16 trunk_depth,  F32 scale, F32 twist, F32 droop,  F32 branches, F32 alpha)
 {
+	U32 ret = 0;
 	//
 	//  Draws a tree by recursing, drawing branches and then a 'leaf' texture.
 	//  If stop_level = -1, simply draws the whole tree as a billboarded texture
 	//
-
-	if (!draw_pool->getIndexCount())
-	{
-		return; // safety net
-	}
 	
 	static F32 constant_twist;
 	static F32 width = 0;
@@ -808,15 +801,15 @@ void LLVOTree::drawBranchPipeline(LLDrawPool *draw_pool, S32 trunk_LOD, S32 stop
 				width = scale * length * aspect;
 				glPushMatrix();
 				glScalef(width,width,scale * length);
- 				//glDrawElements(GL_TRIANGLES, sLODIndexCount[trunk_LOD], GL_UNSIGNED_INT, draw_pool.getRawIndices() + sLODIndexOffset[trunk_LOD]);
-				glDrawRangeElements(GL_TRIANGLES,
+ 				glDrawElements(GL_TRIANGLES, sLODIndexCount[trunk_LOD], GL_UNSIGNED_INT, indicesp + sLODIndexOffset[trunk_LOD]);
+				/*glDrawRangeElements(GL_TRIANGLES,
 									sLODVertexOffset[trunk_LOD],
 									sLODVertexOffset[trunk_LOD] + sLODVertexCount[trunk_LOD]-1,
 									sLODIndexCount[trunk_LOD],
 									GL_UNSIGNED_INT,
-									draw_pool->getRawIndices() + sLODIndexOffset[trunk_LOD]);
+									indicesp + sLODIndexOffset[trunk_LOD]);*/
 				stop_glerror();
-				draw_pool->addIndicesDrawn(sLODIndexCount[trunk_LOD]);
+				ret += sLODIndexCount[trunk_LOD];
 				glPopMatrix();
 			}
 			
@@ -828,7 +821,7 @@ void LLVOTree::drawBranchPipeline(LLDrawPool *draw_pool, S32 trunk_LOD, S32 stop
 				glRotatef((constant_twist + ((i%2==0)?twist:-twist))*i, 0.f, 0.f, 1.f);
 				glRotatef(droop, 0.f, 1.f, 0.f);
 				glRotatef(20.f, 0.f, 0.f, 1.f);				// rotate 20deg about axis of new branch to add some random variation
-				drawBranchPipeline(draw_pool, trunk_LOD, stop_level, depth - 1, 0, scale*mScaleStep, twist, droop, branches, alpha);
+				ret += drawBranchPipeline(indicesp, trunk_LOD, stop_level, depth - 1, 0, scale*mScaleStep, twist, droop, branches, alpha);
 				glPopMatrix();
 			}
 			//  Recurse to continue trunk
@@ -837,7 +830,7 @@ void LLVOTree::drawBranchPipeline(LLDrawPool *draw_pool, S32 trunk_LOD, S32 stop
 				glPushMatrix();
 				glTranslatef(0.f, 0.f, scale * length);
 				glRotatef(70.5f, 0.f, 0.f, 1.f);					// rotate a bit around Z when ascending 
-				drawBranchPipeline(draw_pool, trunk_LOD, stop_level, depth, trunk_depth-1, scale*mScaleStep, twist, droop, branches, alpha);
+				ret += drawBranchPipeline(indicesp, trunk_LOD, stop_level, depth, trunk_depth-1, scale*mScaleStep, twist, droop, branches, alpha);
 				glPopMatrix();
 			}
 		}
@@ -852,15 +845,15 @@ void LLVOTree::drawBranchPipeline(LLDrawPool *draw_pool, S32 trunk_LOD, S32 stop
 				//width = scale * (TREE_BRANCH_ASPECT + TREE_LEAF_ASPECT);
 				glScalef(scale*mLeafScale, scale*mLeafScale, scale*mLeafScale);
 				//glScalef(1.5f*width*mLeafScale,1,1.5f*scale*mLeafScale);
-// 				glDrawElements(GL_TRIANGLES, LEAF_INDICES, GL_UNSIGNED_INT, draw_pool.getRawIndices());
-				glDrawRangeElements(GL_TRIANGLES,
+ 				glDrawElements(GL_TRIANGLES, LEAF_INDICES, GL_UNSIGNED_INT, indicesp);
+				/*glDrawRangeElements(GL_TRIANGLES,
 									0,
 									LEAF_VERTICES-1,
 									LEAF_INDICES,
 									GL_UNSIGNED_INT,
-									draw_pool->getRawIndices());
+									indicesp);*/
 				stop_glerror();
-				draw_pool->addIndicesDrawn(LEAF_INDICES);
+				ret += LEAF_INDICES;
 				glPopMatrix();
 			}
 		}
@@ -878,21 +871,23 @@ void LLVOTree::drawBranchPipeline(LLDrawPool *draw_pool, S32 trunk_LOD, S32 stop
 		{
 			glPushMatrix();
 			glScalef(mBillboardScale*mBillboardRatio, mBillboardScale*mBillboardRatio, mBillboardScale);
-// 			glDrawElements(GL_TRIANGLES, LEAF_INDICES, GL_UNSIGNED_INT, draw_pool.getRawIndices());
-			glDrawRangeElements(GL_TRIANGLES,
+ 			glDrawElements(GL_TRIANGLES, LEAF_INDICES, GL_UNSIGNED_INT, indicesp);
+/*			glDrawRangeElements(GL_TRIANGLES,
 								0,
 								LEAF_VERTICES-1,
 								LEAF_INDICES,
 								GL_UNSIGNED_INT,
-								draw_pool->getRawIndices());
+								indicesp);*/
 			stop_glerror();
-			draw_pool->addIndicesDrawn(LEAF_INDICES);
+			ret += LEAF_INDICES;
 			glPopMatrix();
 		}
 		glMatrixMode(GL_TEXTURE);
 		glPopMatrix();
 		glMatrixMode(GL_MODELVIEW);
 	}
+
+	return ret;
 }
 
 void LLVOTree::updateRadius()
@@ -904,3 +899,30 @@ void LLVOTree::updateRadius()
 		
 	mDrawable->setRadius(32.0f);
 }
+
+void LLVOTree::updateSpatialExtents(LLVector3& newMin, LLVector3& newMax)
+{
+	LLVector3 center = getRenderPosition();
+	LLVector3 size = getScale();
+	center.mV[2] += size.mV[2];
+
+	newMin.setVec(center-size);
+	newMax.setVec(center+size);
+	mDrawable->setPositionGroup((newMin + newMax) * 0.5f);
+}
+
+U32 LLVOTree::getPartitionType() const
+{ 
+	return LLPipeline::PARTITION_TREE; 
+}
+
+LLTreePartition::LLTreePartition()
+: LLSpatialPartition(0)
+{
+	mRenderByGroup = FALSE;
+	mDrawableType = LLPipeline::RENDER_TYPE_TREE;
+	mPartitionType = LLPipeline::PARTITION_TREE;
+	mSlopRatio = 0.f;
+	mLODPeriod = 1;
+}
+

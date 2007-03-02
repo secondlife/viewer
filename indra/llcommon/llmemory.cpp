@@ -9,6 +9,7 @@
 #include "linden_common.h"
 
 #include "llmemory.h"
+#include "llmemtype.h"
 
 // not defining nullfunc will currently crash when trying to use a LLHandle
 template< typename _Ty >
@@ -241,43 +242,6 @@ void operator delete[] (void *p)
 }
 
 #endif
-
-//----------------------------------------------------------------------------
-
-//static
-LLMutex* LLThreadSafeRefCount::sMutex = 0;
-
-//static
-void LLThreadSafeRefCount::initClass()
-{
-	if (!sMutex)
-	{
-		sMutex = new LLMutex(0);
-	}
-}
-
-//static
-void LLThreadSafeRefCount::cleanupClass()
-{
-	delete sMutex;
-	sMutex = NULL;
-}
-	
-
-//----------------------------------------------------------------------------
-
-LLThreadSafeRefCount::LLThreadSafeRefCount() :
-	mRef(0)
-{
-}
-
-LLThreadSafeRefCount::~LLThreadSafeRefCount()
-{ 
-	if (mRef != 0)
-	{
-		llerrs << "deleting non-zero reference" << llendl;
-	}
-}
 
 //----------------------------------------------------------------------------
 
