@@ -3956,7 +3956,7 @@ void LLVOAvatar::renderCollisionVolumes()
 //------------------------------------------------------------------------
 void LLVOAvatar::updateTextures(LLAgent &agent)
 {
-	LLFastTimer ftm(LLFastTimer::FTM_TEMP5);
+// 	LLFastTimer ftm(LLFastTimer::FTM_TEMP5);
 	BOOL render_avatar = TRUE;
 
 	if (mIsDummy || gNoRender)
