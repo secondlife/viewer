@@ -25,7 +25,7 @@
 #include "apr-1/apr_network_io.h"
 
 #include "llapr.h"
-#include "llbase64.h"	// IM-to-email address
+#include "llbase32.h"	// IM-to-email address
 #include "llblowfishcipher.h"
 #include "llerror.h"
 #include "llhost.h"
@@ -326,30 +326,10 @@ std::string LLMail::encryptIMEmailAddress(const LLUUID& from_agent_id,
 	U8* encrypted = new U8[encrypted_size];
 	cipher.encrypt(&data[0], data_size, encrypted, encrypted_size);
 
-	// Base64 encoded and replace the pieces of base64 that are less compatible 
-	// with e-mail local-parts.
-	// See RFC-4648 "Base 64 Encoding with URL and Filename Safe Alphabet"
-	std::string address = LLBase64::encode(encrypted, encrypted_size);
-	LLString::replaceChar(address, '+', '-');
-	LLString::replaceChar(address, '/', '_');
+	std::string address = LLBase32::encode(encrypted, encrypted_size);
 
-	// Strip padding = signs, see RFC
-	size_t extra_bytes = encrypted_size % 3;
-	size_t padding_size = 0;
-	if (extra_bytes == 0)
-	{
-		padding_size = 0;
-	}
-	else if (extra_bytes == 1)
-	{
-		padding_size = 2;
-	}
-	else if (extra_bytes == 2)
-	{
-		padding_size = 1;
-	}
-
-	address.resize(address.size() - padding_size);
+	// Make it more pretty for humans.
+	LLString::toLower(address);
 
 	delete [] encrypted;
 
