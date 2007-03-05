@@ -1727,11 +1727,11 @@ bool inventory_and_asset_types_match(
 static const std::string INV_ITEM_ID_LABEL("item_id");
 static const std::string INV_FOLDER_ID_LABEL("folder_id");
 static const std::string INV_PARENT_ID_LABEL("parent_id");
-static const std::string INV_ASSET_TYPE_LABEL("asset_type");
+static const std::string INV_ASSET_TYPE_LABEL("type");
 static const std::string INV_PREFERRED_TYPE_LABEL("preferred_type");
 static const std::string INV_INVENTORY_TYPE_LABEL("inv_type");
 static const std::string INV_NAME_LABEL("name");
-static const std::string INV_DESC_LABEL("description");
+static const std::string INV_DESC_LABEL("desc");
 static const std::string INV_PERMISSIONS_LABEL("permissions");
 static const std::string INV_ASSET_ID_LABEL("asset_id");
 static const std::string INV_SALE_INFO_LABEL("sale_info");
