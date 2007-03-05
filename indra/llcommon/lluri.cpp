@@ -467,6 +467,25 @@ LLURI LLURI::buildAgentSessionURI(const LLUUID& agent_id, LLApp* app)
 }
 
 // static
+LLURI LLURI::buildInventoryHostURI(const LLUUID& agent_id, LLApp* app)
+{
+	std::string host = "localhost:12040";
+
+	if (app)
+	{
+		host = app->getOption("backbone-host-port").asString();
+	}
+
+	LLSD path = LLSD::emptyArray();
+	path.append("agent");
+	path.append(agent_id);
+	path.append("inventory");
+	path.append("host");
+
+	return buildHTTP(host, path);
+}
+
+// static
 LLURI LLURI::buildAgentLoginInfoURI(const LLUUID& agent_id, const std::string& dataserver)
 {
 	LLSD path = LLSD::emptyArray();
