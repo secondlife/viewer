@@ -988,15 +988,26 @@ namespace LLError
 		return std::string(s, where + p.size());
 	}
 	
+	void replaceChar(std::string& s, char old, char replacement)
+	{
+		std::string::size_type i = 0;
+		std::string::size_type len = s.length();
+		for ( ; i < len; i++ )
+		{
+			if (s[i] == old)
+			{
+				s[i] = replacement;
+			}
+		}
+	}
+
 	std::string abbreviateFile(const std::string& filePath)
 	{
 		std::string f = filePath;
-
 #if LL_WINDOWS
-		static std::string indra_prefix = "indra\\";
-#else
-		static std::string indra_prefix = "indra/";
+		replaceChar(f, '\\', '/');
 #endif
+		static std::string indra_prefix = "indra/";
 		f = removePrefix(f, indra_prefix);
 
 #if LL_DARWIN
