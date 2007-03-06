@@ -485,6 +485,11 @@ BOOL LLToolCompCreate::handleMouseUp(S32 x, S32 y, MASK mask)
 	mObjectPlacedOnMouseDown = FALSE;
 	mMouseDown = FALSE;
 
+	if (!handled)
+	{
+		handled = LLToolComposite::handleMouseUp(x, y, mask);
+	}
+
 	return handled;
 }
 

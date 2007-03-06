@@ -1300,9 +1300,7 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 	LLViewerObject* objectp;
 	S32 te;
 
-	mSelectedObjects->getFirstTE(&objectp, &te);
-	
-	for (objectp = mSelectedObjects->getFirstObject(); objectp; objectp = mSelectedObjects->getNextObject())
+	for (mSelectedObjects->getFirstTE(&objectp, &te); objectp; mSelectedObjects->getNextTE(&objectp, &te))
 	{
 		if (item)
 		{
@@ -2867,7 +2865,7 @@ void LLSelectMgr::selectDelete()
 	}
 	else
 	{
-		confirmDelete(0, (void*)this);
+		confirmDelete(0, (void*)selection_handlep);
 	}
 }
 
