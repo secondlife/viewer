@@ -68,7 +68,6 @@ BOOL is_agent_mappable(const LLUUID& agent_id);
 
 void menu_toggle_control( void* user_data );
 void check_toggle_control( LLUICtrl *, void* user_data );
-void handle_attach_to_avatar(void* user_data);
 void confirm_replace_attachment(S32 option, void* user_data);
 void handle_detach_from_avatar(void* user_data);
 void attach_label(LLString& label, void* user_data);

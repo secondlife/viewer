@@ -4136,10 +4136,8 @@ void handle_take()
 
 	   !you_own_everything)
 	{
-
 		if(locked_but_takeable_object && you_own_everything)
 		{
-			
 			gViewerWindow->alertXml("ConfirmObjectTakeLock",
 			confirm_take,
 			(void*)cat_id);
@@ -4147,7 +4145,6 @@ void handle_take()
 		}
 		else if(!locked_but_takeable_object && !you_own_everything)
 		{
-			
 			gViewerWindow->alertXml("ConfirmObjectTakeNoOwn",
 			confirm_take,
 			(void*)cat_id);
@@ -6093,31 +6090,10 @@ void complete_give_money(S32 option, void* user_data)
 		gAgent.clearBusy();
 	}
 
-	LLUUID* object_id = (LLUUID*)user_data;
+	LLObjectSelectionHandle handle(*(LLObjectSelectionHandle*)user_data);
+	delete (LLObjectSelectionHandle*)user_data;
 
-	LLViewerObject* object = gObjectList.findObject(*object_id);
-	if (object)
-	{
-		if (object->isAvatar())
-		{
-			const BOOL is_group = FALSE;
-			LLFloaterPay::payDirectly(&give_money,
-									  *object_id,
-									  is_group);
-		}
-		else
-		{
-			LLFloaterPay::payViaObject(&give_money, *object_id);
-		}
-	}
-	
-	delete object_id;
-}
-
-bool handle_give_money_dialog()
-{
-	LLViewerObject *objectp = gViewerWindow->lastObjectHit();
-	LLUUID* object_id = new LLUUID();
+	LLViewerObject *objectp = handle->getFirstRootObject();
 
 	// Show avatar's name if paying attachment
 	if (objectp && objectp->isAttachment())
@@ -6130,17 +6106,31 @@ bool handle_give_money_dialog()
 
 	if (objectp)
 	{
-		*object_id = objectp->getID();
+		if (objectp->isAvatar())
+		{
+			const BOOL is_group = FALSE;
+			LLFloaterPay::payDirectly(&give_money,
+									  objectp->getID(),
+									  is_group);
+		}
+		else
+		{
+			LLFloaterPay::payViaObject(&give_money, objectp->getID());
+		}
 	}
-	
+}
+
+bool handle_give_money_dialog()
+{
+	LLObjectSelectionHandle* handlep = new LLObjectSelectionHandle(gSelectMgr->getSelection());
 	if (gAgent.getBusy())
 	{
 		// warn users of being in busy mode during a transaction
-		gViewerWindow->alertXml("BusyModePay", complete_give_money, object_id);
+		gViewerWindow->alertXml("BusyModePay", complete_give_money, handlep);
 	}
 	else
 	{
-		complete_give_money(1, object_id);
+		complete_give_money(1, handlep);
 	}
 	return true;
 }
@@ -6793,24 +6783,6 @@ void near_attach_object(BOOL success, void *user_data)
 	LLObjectAttachToAvatar::setObjectSelection(NULL);
 }
 
-// move this somewhere global
-void handle_attach_to_avatar(void* user_data)
-{
-    LLViewerObject* selectedObject = gSelectMgr->getSelection()->getFirstRootObject();
-    if (selectedObject)
-    {
-        LLViewerJointAttachment *attachment = (LLViewerJointAttachment *)user_data;
-
-        if (attachment && attachment->getObject())
-        {
-            gViewerWindow->alertXml("ReplaceAttachment", confirm_replace_attachment, user_data);
-        }
-        else
-        {
-            confirm_replace_attachment(0, user_data);
-        }
-    }
-}
 void confirm_replace_attachment(S32 option, void* user_data)
 {
 	if (option == 0/*YES*/)

@@ -1609,6 +1609,24 @@ void LLPrimitive::setTextureList(LLTextureEntry *listp)
 
 //============================================================================
 
+//static 
+BOOL LLNetworkData::isValid(U16 param_type, U32 size)
+{
+	// ew - better mechanism needed
+	
+	switch(param_type)
+	{
+	case PARAMS_FLEXIBLE:
+		return (size == 16);
+	case PARAMS_LIGHT:
+		return (size == 16);
+	}
+	
+	return FALSE;
+}
+
+//============================================================================
+
 LLLightParams::LLLightParams()
 {
 	mColor.setToWhite();
@@ -1631,12 +1649,22 @@ BOOL LLLightParams::pack(LLDataPacker &dp) const
 
 BOOL LLLightParams::unpack(LLDataPacker &dp)
 {
-	LLColor4U color4u;
-	dp.unpackColor4U(color4u, "color");
-	mColor = LLColor4(color4u);
-	dp.unpackF32(mRadius, "radius");
-	dp.unpackF32(mCutoff, "cutoff");
-	dp.unpackF32(mFalloff, "falloff");
+	LLColor4U color;
+	dp.unpackColor4U(color, "color");
+	setColor(LLColor4(color));
+
+	F32 radius;
+	dp.unpackF32(radius, "radius");
+	setRadius(radius);
+
+	F32 cutoff;
+	dp.unpackF32(cutoff, "cutoff");
+	setCutoff(cutoff);
+
+	F32 falloff;
+	dp.unpackF32(falloff, "falloff");
+	setFalloff(falloff);
+	
 	return TRUE;
 }
 

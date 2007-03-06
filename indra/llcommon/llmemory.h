@@ -239,7 +239,7 @@ public:
 
 	// support conversion up the type hierarchy.  See Item 45 in Effective C++, 3rd Ed.
 	template<typename Subclass>
-	LLHandle(const LLPointer<Subclass>& ptr) : 
+	LLHandle(const LLHandle<Subclass>& ptr) : 
 		mPointer(ptr.get())
 	{
 		ref();

@@ -89,6 +89,7 @@ public:
 	virtual BOOL unpack(LLDataPacker &dp) = 0;
 	virtual bool operator==(const LLNetworkData& data) const = 0;
 	virtual void copy(const LLNetworkData& data) = 0;
+	static BOOL isValid(U16 param_type, U32 size);
 };
 
 extern const F32 LIGHT_MIN_RADIUS;

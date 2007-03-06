@@ -2699,13 +2699,13 @@ BOOL LLViewerWindow::handlePerFrameHover()
 		gChatBar->startChat(NULL);
 	}
 
-	// cleanup unused selections
-	if (gParcelMgr)
+	// cleanup unused selections when no modal dialogs are open
+	if (gParcelMgr && LLModalDialog::activeCount() == 0)
 	{
 		gParcelMgr->deselectUnused();
 	}
 
-	if (gSelectMgr)
+	if (gSelectMgr && LLModalDialog::activeCount() == 0)
 	{
 		gSelectMgr->deselectUnused();
 	}

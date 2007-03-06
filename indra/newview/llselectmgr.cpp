@@ -2799,6 +2799,8 @@ void LLSelectMgr::selectDelete()
 		return;
 	}
 
+	LLObjectSelectionHandle* selection_handlep = new LLObjectSelectionHandle(getSelection());
+
 	if(locked_but_deleteable_object ||
 	   no_copy_but_deleteable_object ||
 	   !all_owned_by_you)
@@ -2815,49 +2817,49 @@ void LLSelectMgr::selectDelete()
 			//Locked only
 			gViewerWindow->alertXml(  "ConfirmObjectDeleteLock",
 								  &LLSelectMgr::confirmDelete,
-								  this);
+								  selection_handlep);
 		}
 		else if(!locked_but_deleteable_object && no_copy_but_deleteable_object && all_owned_by_you)
 		{
 			//No Copy only
 			gViewerWindow->alertXml(  "ConfirmObjectDeleteNoCopy",
 								  &LLSelectMgr::confirmDelete,
-								  this);
+								  selection_handlep);
 		}
 		else if(!locked_but_deleteable_object && !no_copy_but_deleteable_object && !all_owned_by_you)
 		{
 			//not owned only
 			gViewerWindow->alertXml(  "ConfirmObjectDeleteNoOwn",
 								  &LLSelectMgr::confirmDelete,
-								  this);
+								  selection_handlep);
 		}
 		else if(locked_but_deleteable_object && no_copy_but_deleteable_object && all_owned_by_you)
 		{
 			//locked and no copy
 			gViewerWindow->alertXml(  "ConfirmObjectDeleteLockNoCopy",
 								  &LLSelectMgr::confirmDelete,
-								  this);
+								  selection_handlep);
 		}
 		else if(locked_but_deleteable_object && !no_copy_but_deleteable_object && !all_owned_by_you)
 		{
 			//locked and not owned
 			gViewerWindow->alertXml(  "ConfirmObjectDeleteLockNoOwn",
 								  &LLSelectMgr::confirmDelete,
-								  this);
+								  selection_handlep);
 		}
 		else if(!locked_but_deleteable_object && no_copy_but_deleteable_object && !all_owned_by_you)
 		{
 			//no copy and not owned
 			gViewerWindow->alertXml(  "ConfirmObjectDeleteNoCopyNoOwn",
 								  &LLSelectMgr::confirmDelete,
-								  this);
+								  selection_handlep);
 		}
 		else
 		{
 			//locked, no copy and not owned
 			gViewerWindow->alertXml(  "ConfirmObjectDeleteLockNoCopyNoOwn",
 								  &LLSelectMgr::confirmDelete,
-								  this);
+								  selection_handlep);
 		}
 		
 		
@@ -2872,8 +2874,15 @@ void LLSelectMgr::selectDelete()
 // static
 void LLSelectMgr::confirmDelete(S32 option, void* data)
 {
-	LLSelectMgr* self = (LLSelectMgr*)data;
-	if(!self) return;
+	LLObjectSelectionHandle handle = *(LLObjectSelectionHandle*)data;
+	delete (LLObjectSelectionHandle*)data;
+
+	if (!handle->getObjectCount())
+	{
+		llwarns << "Nothing to delete!" << llendl;
+		return;
+	}
+
 	switch(option)
 	{
 	case 0:
@@ -2882,19 +2891,19 @@ void LLSelectMgr::confirmDelete(S32 option, void* data)
 			LLUUID trash_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_TRASH);
 			// attempt to derez into the trash.
 			LLDeRezInfo* info = new LLDeRezInfo(DRD_TRASH, trash_id);
-			self->sendListToRegions("DeRezObject",
+			gSelectMgr->sendListToRegions("DeRezObject",
 									packDeRezHeader,
 									packObjectLocalID,
 									(void*)info,
 									SEND_ONLY_ROOTS);
 			// VEFFECT: Delete Object - one effect for all deletes
-			if (self->mSelectedObjects->mSelectType != SELECT_TYPE_HUD)
+			if (gSelectMgr->mSelectedObjects->mSelectType != SELECT_TYPE_HUD)
 			{
 				LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)gHUDManager->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
-				effectp->setPositionGlobal( self->getSelectionCenterGlobal() );
+				effectp->setPositionGlobal( gSelectMgr->getSelectionCenterGlobal() );
 				effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 				F32 duration = 0.5f;
-				duration += self->mSelectedObjects->getObjectCount() / 64.f;
+				duration += gSelectMgr->mSelectedObjects->getObjectCount() / 64.f;
 				effectp->setDuration(duration);
 			}
 
@@ -2902,7 +2911,7 @@ void LLSelectMgr::confirmDelete(S32 option, void* data)
 
 			// Keep track of how many objects have been deleted.
 			F64 obj_delete_count = gViewerStats->getStat(LLViewerStats::ST_OBJECT_DELETE_COUNT);
-			obj_delete_count += self->mSelectedObjects->getObjectCount();
+			obj_delete_count += gSelectMgr->mSelectedObjects->getObjectCount();
 			gViewerStats->setStat(LLViewerStats::ST_OBJECT_DELETE_COUNT, obj_delete_count );
 		}
 		break;
