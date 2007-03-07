@@ -57,6 +57,7 @@ bool LLDispatcher::dispatch(
 		LLDispatchHandler* func = (*it).second;
 		return (*func)(this, name, invoice, strings);
 	}
+	llwarns << "Unable to find handler for Generic message: " << name << llendl;
 	return false;
 }
 
