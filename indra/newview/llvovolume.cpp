@@ -245,34 +245,69 @@ BOOL LLVOVolume::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		if (result = mTextureAnimp->animateTextures(off_s, off_t, scale_s, scale_t, rot))
 		{
 			mTexAnimMode = result | mTextureAnimp->mMode;
-			LLQuaternion quat;
-			LLVector3 scale(1,1,1);
 
-			if (result & LLViewerTextureAnim::ROTATE)
+			S32 start, end;
+			if (mTextureAnimp->mFace == -1)
 			{
-				quat.setQuat(rot, 0, 0, -1);
+				start = 0; 
+				end = mDrawable->getNumFaces();
+			}
+			else
+			{
+				start = mTextureAnimp->mFace;
+				end = start + 1;
 			}
 			
-			if (!(result & LLViewerTextureAnim::TRANSLATE))
+			for (S32 i = start; i < end; i++)
 			{
-				off_s = off_t = 0.f;
-			}
-			
-			LLVector3 trans(off_s+0.5f, off_t+0.5f, 0.f);
+				LLQuaternion quat;
+				LLVector3 scale(1,1,1);
+				
+				LLFace* facep = mDrawable->getFace(i);
+				const LLTextureEntry* te = facep->getTextureEntry();
+				LLMatrix4& tex_mat = facep->mTextureMatrix;
+				
+				if (!te)
+				{
+					continue;
+				}
+				if (result & LLViewerTextureAnim::ROTATE)
+				{
+					F32 axis = -1;
+					F32 s,t;	
+					te->getScale(&s,&t);
+					if (s < 0)
+					{
+						axis = -axis;
+					}
+					if (t < 0)
+					{
+						axis = -axis;
+					}
+					quat.setQuat(rot, 0, 0, axis);
+				}
+				
+				if (!(result & LLViewerTextureAnim::TRANSLATE))
+				{
+					te->getOffset(&off_s,&off_t);
+				}			
 
-			mTextureMatrix.identity();
-			mTextureMatrix.translate(LLVector3(-0.5f, -0.5f, 0.f));
-			mTextureMatrix.rotate(quat);
+				LLVector3 trans(off_s+0.5f, off_t+0.5f, 0.f);
 
-			if (result & LLViewerTextureAnim::SCALE)
-			{
-				scale.setVec(scale_s, scale_t, 1.f);
-				LLMatrix4 mat;
-				mat.initAll(scale, LLQuaternion(), LLVector3());
-				mTextureMatrix *= mat;
+				tex_mat.identity();
+				tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
+				tex_mat.rotate(quat);
+				
+				if (result & LLViewerTextureAnim::SCALE)
+				{
+					scale.setVec(scale_s, scale_t, 1.f);
+					LLMatrix4 mat;
+					mat.initAll(scale, LLQuaternion(), LLVector3());
+					tex_mat *= mat;
+				}
+				
+				tex_mat.translate(trans);
 			}
-			
-			mTextureMatrix.translate(trans);
 		}
 	}
 
@@ -1845,16 +1880,15 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
 	BOOL fullbright = (type == LLRenderPass::PASS_FULLBRIGHT ||
 					  type == LLRenderPass::PASS_ALPHA) ? facep->isState(LLFace::FULLBRIGHT) : FALSE;
-	BOOL texanim = (type == LLRenderPass::PASS_SHINY) ? FALSE : facep->isState(LLFace::TEXTURE_ANIM);
-	U8 bump = (type == LLRenderPass::PASS_BUMP ? facep->getTextureEntry()->getBumpmap() : 0);
 
 	const LLMatrix4* tex_mat = NULL;
-	if (texanim)
+	if (type != LLRenderPass::PASS_SHINY && facep->isState(LLFace::TEXTURE_ANIM))
 	{
-		LLVOVolume* volume = (LLVOVolume*) facep->getViewerObject();
-		tex_mat = volume->getTextureMatrix();
+		tex_mat = &(facep->mTextureMatrix);	
 	}
 
+	U8 bump = (type == LLRenderPass::PASS_BUMP ? facep->getTextureEntry()->getBumpmap() : 0);
+	
 	//LLViewerImage* tex = facep->mAppAngle < FORCE_SIMPLE_RENDER_ANGLE ? NULL : facep->getTexture();
 	LLViewerImage* tex = facep->getTexture();
 

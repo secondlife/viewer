@@ -85,7 +85,6 @@ public:
 	const LLVector3		getPivotPositionAgent() const;
 	const LLMatrix4&	getRelativeXform() const				{ return mRelativeXform; }
 	const LLMatrix3&	getRelativeXformInvTrans() const		{ return mRelativeXformInvTrans; }
-	const LLMatrix4*	getTextureMatrix() const				{ return &mTextureMatrix; }
 	/*virtual*/	const LLMatrix4	getRenderMatrix() const;
 
 	/*virtual*/ BOOL	lineSegmentIntersect(const LLVector3& start, LLVector3& end) const;
@@ -194,7 +193,6 @@ protected:
 public:
 	LLViewerTextureAnim *mTextureAnimp;
 	U8 mTexAnimMode;
-
 protected:
 	friend class LLDrawable;
 	
@@ -205,7 +203,6 @@ protected:
 	S32			mLOD;
 	BOOL		mLODChanged;
 	F32			mRadius;
-	LLMatrix4	mTextureMatrix;
 	LLMatrix4	mRelativeXform;
 	LLMatrix3	mRelativeXformInvTrans;
 	BOOL		mVolumeChanged;

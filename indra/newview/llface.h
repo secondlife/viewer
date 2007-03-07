@@ -190,6 +190,7 @@ public:
 	LLPointer<LLVertexBuffer> mVertexBuffer;
 	LLPointer<LLVertexBuffer> mLastVertexBuffer;
 	F32			mLastUpdateTime;
+	LLMatrix4	mTextureMatrix;
 
 protected:
 	friend class LLGeometryManager;
