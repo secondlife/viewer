@@ -93,6 +93,7 @@
 #pragma warning( disable : 4284 )	// silly MS warning deep inside their <map> include file
 #pragma warning( disable : 4503 )	// 'decorated name length exceeded, name was truncated'. Does not seem to affect compilation.
 #pragma warning( disable : 4800 )	// 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+#pragma warning( disable : 4996 )	// warning: deprecated
 #endif	//	LL_WINDOWS
 
 #endif	//	not LL_LINDEN_PREPROCESSOR_H

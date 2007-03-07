@@ -17,9 +17,8 @@
 #include <set>
 
 #if LL_WINDOWS
-# if (_MSC_VER >= 1300)
+# if (_MSC_VER >= 1300 && _MSC_VER < 1400)
 #  define STRING_TABLE_HASH_MAP 1
-#  pragma warning(disable : 4996)
 # endif
 #else
 //# define STRING_TABLE_HASH_MAP 1

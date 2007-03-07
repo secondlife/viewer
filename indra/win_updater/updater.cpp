@@ -114,7 +114,7 @@ int WINAPI get_url_into_file(WCHAR *uri, char *path, int *cancelled)
 	{
 #if _DEBUG
 		DWORD err = GetLastError();
-		fprintf(logfile,"InternetQueryDataAvailable Failed: %d bytes\n",total_bytes);
+		fprintf(logfile,"InternetQueryDataAvailable Failed: %d bytes Err:%d\n",total_bytes,err);
 		fflush(logfile);
 #endif	
  		return success;

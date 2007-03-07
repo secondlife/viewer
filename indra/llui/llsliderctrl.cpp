@@ -196,7 +196,7 @@ void LLSliderCtrl::updateText()
 		LLLocale locale(LLLocale::USER_LOCALE);
 
 		// Don't display very small negative values as -0.000
-		F32 displayed_value = (F32)(floor(getValueF32() * pow(10, mPrecision) + 0.5) / pow(10, mPrecision));
+		F32 displayed_value = (F32)(floor(getValueF32() * pow(10.0, (F64)mPrecision) + 0.5) / pow(10.0, (F64)mPrecision));
 
 		LLString format = llformat("%%.%df", mPrecision);
 		LLString text = llformat(format.c_str(), displayed_value);

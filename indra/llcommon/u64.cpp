@@ -14,7 +14,7 @@
 U64 str_to_U64(const char *str)
 {
 	U64 result = 0;
-	char *aptr = strpbrk(str,"0123456789");
+	const char *aptr = strpbrk(str,"0123456789");
 
 	if (!aptr)
 	{

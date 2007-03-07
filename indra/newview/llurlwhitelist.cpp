@@ -21,7 +21,7 @@ LLUrlWhiteList::LLUrlWhiteList () :
 	mLoaded ( false ),
 	mFilename ( "url_whitelist.ini" ),
 	mUrlList ( 0 ),
-	mUrlListIter ( 0 )
+	mCurIndex ( 0 )
 {
 }
 
@@ -102,10 +102,10 @@ bool LLUrlWhiteList::save ()
 	if ( file.is_open () )
 	{
 		// for each entry we have
-		for ( LLStringListIter iter = mUrlList.begin (); iter != mUrlList.end (); ++iter )
+		for ( string_list_t::iterator iter = mUrlList.begin (); iter != mUrlList.end (); ++iter )
 		{
 			file << ( *iter ) << std::endl;
-		};
+		}
 
 		file.close ();
 
@@ -121,8 +121,7 @@ bool LLUrlWhiteList::clear ()
 {
 	mUrlList.clear ();
 
-	// invalidate iterator since we changed the contents 
-	mUrlListIter = mUrlList.end ();
+	mCurIndex = 0;
 
 	return true;
 }
@@ -156,7 +155,7 @@ bool LLUrlWhiteList::addItem ( const LLString& itemIn, bool saveAfterAdd )
 {
 	LLString item = url_cleanup(itemIn);
 	
-	mUrlList.insert ( mUrlList.end (), item );
+	mUrlList.push_back ( item );
 
 	// use this when all you want to do is call addItem ( ... ) where necessary
 	if ( saveAfterAdd )
@@ -172,11 +171,8 @@ bool LLUrlWhiteList::getFirst ( LLString& valueOut )
 	if ( mUrlList.size () == 0 )
 		return false;
 
-	mUrlListIter = mUrlList.begin ();
-
-	valueOut = * ( mUrlListIter );
-
-	++mUrlListIter;
+	mCurIndex = 0;
+	valueOut = mUrlList[mCurIndex++];
 
 	return true;	
 }
@@ -185,12 +181,10 @@ bool LLUrlWhiteList::getFirst ( LLString& valueOut )
 //
 bool LLUrlWhiteList::getNext ( LLString& valueOut )
 {
-	if ( mUrlListIter == mUrlList.end () )
+	if ( mCurIndex >= mUrlList.size () )
 		return false;
 
-	valueOut = * ( mUrlListIter );
-
-	++mUrlListIter;
+	valueOut = mUrlList[mCurIndex++];
 
 	return true;
 }

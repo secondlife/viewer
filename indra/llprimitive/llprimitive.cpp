@@ -1178,7 +1178,7 @@ S32 LLPrimitive::packTEField(U8 *cur_ptr, U8 *data_ptr, U8 data_size, U8 last_fa
 			{ 
 				if (!memcmp(data_ptr+(data_size *face_index), data_ptr+(data_size *i), data_size))
 				{
-					exception_faces |= (1 << i); 
+					exception_faces |= ((U64)1 << i); 
 				}
 			}
 			

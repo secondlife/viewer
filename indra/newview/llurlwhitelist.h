@@ -36,13 +36,12 @@ class LLUrlWhiteList
 		LLUrlWhiteList ();
 		static LLUrlWhiteList* sInstance;
 
-		typedef std::list < LLString > LLStringList;
-		typedef std::list < LLString >::iterator LLStringListIter;
+		typedef std::vector < LLString > string_list_t ;
 
 		bool mLoaded;
 		const LLString mFilename;
-		LLStringList mUrlList;
-		LLStringListIter mUrlListIter;
+		string_list_t mUrlList;
+		U32 mCurIndex;
 };
 
 #endif  // LL_LLURLWHITELIST_H

@@ -229,7 +229,7 @@ void LLSpinCtrl::updateEditor()
 	LLLocale locale(LLLocale::USER_LOCALE);
 
 	// Don't display very small negative values as -0.000
-	F32 displayed_value = (F32)floor(getValue().asReal() * pow(10, mPrecision) + 0.5) / (F32)pow(10, mPrecision);
+	F32 displayed_value = (F32)floor(getValue().asReal() * pow(10.0, (F64)mPrecision) + 0.5) / (F32)pow(10.0, (F64)mPrecision);
 
 //	if( S32( displayed_value * pow( 10, mPrecision ) ) == 0 )
 //	{
