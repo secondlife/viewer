@@ -1132,6 +1132,8 @@ void LLVOVolume::setLightColor(const LLColor3& color)
 		{
 			param_block->setColor(LLColor4(color, param_block->getColor().mV[3]));
 			parameterChanged(LLNetworkData::PARAMS_LIGHT, true);
+			gPipeline.markTextured(mDrawable);
+			mFaceMappingChanged = TRUE;
 		}
 	}
 }
@@ -1892,7 +1894,27 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	//LLViewerImage* tex = facep->mAppAngle < FORCE_SIMPLE_RENDER_ANGLE ? NULL : facep->getTexture();
 	LLViewerImage* tex = facep->getTexture();
 
-	if (idx >= 0 && 
+	if (type == LLRenderPass::PASS_GLOW)
+	{
+		U32 start = facep->getGeomIndex();
+		U32 end = start + facep->getGeomCount()-1;
+		U32 offset = facep->getIndicesStart();
+		U32 count = facep->getIndicesCount();
+		LLDrawInfo* draw_info = new LLDrawInfo(start,end,count,offset,tex, 
+			facep->mVertexBuffer, fullbright, bump); 
+		draw_info->mVSize = facep->getVirtualSize();
+		draw_vec.push_back(draw_info);
+		LLVOVolume* volume = (LLVOVolume*) facep->getViewerObject();
+		LLColor3 col = volume->getLightColor();
+		LLColor4 col2 = facep->getRenderColor();
+		draw_info->mGlowColor.setVec((U8) (col.mV[0]*col2.mV[0]*255),
+									(U8) (col.mV[1]*col2.mV[1]*255),
+									(U8) (col.mV[2]*col2.mV[2]*255),
+									196);					
+		draw_info->mTextureMatrix = tex_mat;
+		validate_draw_info(*draw_info);
+	}
+	else if (idx >= 0 && 
 		draw_vec[idx]->mVertexBuffer == facep->mVertexBuffer &&
 		draw_vec[idx]->mEnd == facep->getGeomIndex()-1 &&
 		draw_vec[idx]->mTexture == tex &&
@@ -2197,7 +2219,13 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				{
 					registerFace(group, facep, LLRenderPass::PASS_BUMP);
 				}
+
+				if (!force_simple && vobj->getIsLight())
+				{
+					registerFace(group, facep, LLRenderPass::PASS_GLOW);
+				}
 				
+
 				++face_iter;
 			}
 

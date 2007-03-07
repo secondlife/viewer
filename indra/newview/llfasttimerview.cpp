@@ -143,6 +143,7 @@ static struct ft_display_info ft_display_table[] =
 	{ LLFastTimer::FTM_RENDER_CHARACTERS,	"     Avatars",		&LLColor4::yellow1, 0 },
 	{ LLFastTimer::FTM_RENDER_SIMPLE,		"     Simple",		&LLColor4::yellow2, 0 },
 	{ LLFastTimer::FTM_RENDER_FULLBRIGHT,	"     Fullbright",	&LLColor4::yellow5, 0 },
+	{ LLFastTimer::FTM_RENDER_GLOW,			"     Glow",		&LLColor4::orange1, 0 },
 	{ LLFastTimer::FTM_RENDER_GRASS,		"     Grass",		&LLColor4::yellow6, 0 },
 	{ LLFastTimer::FTM_RENDER_INVISIBLE,	"     Invisible",	&LLColor4::red2, 0 },
 	{ LLFastTimer::FTM_RENDER_SHINY,		"     Shiny",		&LLColor4::yellow3, 0 },

@@ -36,6 +36,7 @@ public:
 	LLPointer<LLVertexBuffer> mVertexBuffer;
 	LLPointer<LLViewerImage> mTexture;
 	LLPointer<LLCubeMap> mReflectionMap;
+	LLColor4U mGlowColor;
 	const LLMatrix4* mTextureMatrix;
 	U32 mStart;
 	U32 mEnd;

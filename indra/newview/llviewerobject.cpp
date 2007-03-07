@@ -61,7 +61,6 @@
 #include "llvoground.h"
 #include "llvolume.h"
 #include "llvolumemessage.h"
-#include "llvopart.h"
 #include "llvopartgroup.h"
 #include "llvosky.h"
 #include "llvostars.h"
@@ -105,13 +104,15 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 	case LL_PCODE_LEGACY_GRASS:
 	  res = new LLVOGrass(id, pcode, regionp); break;
 	case LL_PCODE_LEGACY_PART_SYS:
-	  res = new LLVOPart(id, pcode, regionp); break;
+// 	  llwarns << "Creating old part sys!" << llendl;
+// 	  res = new LLVOPart(id, pcode, regionp); break;
+	  res = NULL; break;
 	case LL_PCODE_LEGACY_TREE:
 	  res = new LLVOTree(id, pcode, regionp); break;
 	case LL_PCODE_TREE_NEW:
-		llwarns << "Creating new tree!" << llendl;
-//		res = new LLVOTree(id, pcode, regionp); break;
-		res = NULL; break;
+// 	  llwarns << "Creating new tree!" << llendl;
+// 	  res = new LLVOTree(id, pcode, regionp); break;
+	  res = NULL; break;
 	case LL_PCODE_LEGACY_TEXT_BUBBLE:
 	  res = new LLVOTextBubble(id, pcode, regionp); break;
 	case LL_VO_CLOUDS:
@@ -404,7 +405,6 @@ void LLViewerObject::initVOClasses()
 	}
 	llinfos << "Viewer Object size: " << sizeof(LLViewerObject) << llendl;
 	LLVOGrass::initClass();
-	LLVOPart::initClass();
 	LLVOWater::initClass();
 	LLVOSky::initClass();
 	LLVOVolume::initClass();
