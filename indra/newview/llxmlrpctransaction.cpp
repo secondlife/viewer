@@ -408,9 +408,9 @@ void LLXMLRPCTransaction::Impl::setStatus(Status status,
 				mStatusMessage =
 					"Despite our best efforts, something unexpected has gone wrong. \n"
 					" \n"
-					"Please check www.secondlife.com/status and the Second Life \n"
-					"Announcements forum to see if there is a known problem with \n"
-					"the service.";
+					"Please check www.secondlife.com/status \n"
+					"to see if there is a known problem with the service.";
+
 				mStatusURI = "http://secondlife.com/status/";
 				/*
 				mStatusMessage =

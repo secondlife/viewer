@@ -488,6 +488,10 @@ BOOL idle_startup()
 			#else
 			profileBaseDir += "mozilla";
 			#endif
+                #elif LL_LINUX
+			std::string profileBaseDir( gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "" ) );
+			profileBaseDir += gDirUtilp->getDirDelimiter();
+			profileBaseDir += "mozilla-runtime-linux-i686";
                 #else
 			std::string profileBaseDir( gDirUtilp->getExpandedFilename( LL_PATH_APP_SETTINGS, "" ) );
 			profileBaseDir += gDirUtilp->getDirDelimiter();

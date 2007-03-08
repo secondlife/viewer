@@ -388,7 +388,7 @@ class Linux_i686Manifest(LinuxManifest):
                         # recurse
                         self.end_prefix("res-sdl")
 
-                self.path("app_settings/mozilla-runtime-linux-i686", "app_settings/mozilla")
+                self.path("app_settings/mozilla-runtime-linux-i686")
 
                 if self.prefix("../../libraries/i686-linux/lib_release_client", "lib"):
                         self.path("libkdu_v42R.so")

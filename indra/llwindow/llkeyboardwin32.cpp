@@ -168,10 +168,7 @@ MASK LLKeyboardWin32::updateModifiers()
 
 	// Scan the modifier keys as of the last Windows key message
 	// (keydown encoded in high order bit of short)
-	//setModifierKeyLevel( KEY_SHIFT, GetKeyState(VK_SHIFT) & 0x8000 );
-	//setModifierKeyLevel( KEY_CONTROL, GetKeyState(VK_CONTROL) & 0x8000 );
-	//setModifierKeyLevel( KEY_ALT, GetKeyState(VK_MENU) & 0x8000 );
-	//setModifierKeyLevel( KEY_CAPSLOCK, GetKeyState(VK_CAPITAL) & 0x0001); // Low order bit carries the toggle state.
+	mKeyLevel[KEY_CAPSLOCK] = (GetKeyState(VK_CAPITAL) & 0x0001) != 0; // Low order bit carries the toggle state.
 	// Get mask for keyboard events
 	MASK mask = currentMask(FALSE);
 	return mask;
