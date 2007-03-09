@@ -245,7 +245,7 @@ BOOL	LLFloaterTools::postBuild()
 			&LLToolPlacerPanel::sTriangleTorus,
 			&LLToolPlacerPanel::sTree,
 			&LLToolPlacerPanel::sGrass};
-	for(int t=0;t<sizeof(toolNames)/sizeof(toolNames[0]);t++)
+	for(size_t t=0; t<sizeof(toolNames)/sizeof(toolNames[0]); ++t)
 	{
 		LLButton *found = LLViewerUICtrlFactory::getButtonByName(this,toolNames[t]);
 		if(found)

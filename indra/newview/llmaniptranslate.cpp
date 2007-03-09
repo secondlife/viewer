@@ -1120,6 +1120,8 @@ void LLManipTranslate::renderSnapGuides()
 			inner_color.setVec(1,1,0,line_alpha);
 			mManipPart = LL_XY_PLANE;
 			break;
+		default:
+			break;
 		}
 
 		highlightIntersection(normal, selection_center, grid_rotation, inner_color);

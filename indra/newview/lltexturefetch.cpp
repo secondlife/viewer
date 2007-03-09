@@ -1205,9 +1205,9 @@ bool LLTextureFetchWorker::writeToCacheComplete()
 LLTextureFetch::LLTextureFetch(LLTextureCache* cache, bool threaded)
 	: LLWorkerThread("TextureFetch", threaded),
 	  mDebugCount(0),
-	  mDebugPause(0),
-	  mTextureCache(cache),
-	  mQueueMutex(getAPRPool())
+	  mDebugPause(FALSE),
+	  mQueueMutex(getAPRPool()),
+	  mTextureCache(cache)
 {
 }
 

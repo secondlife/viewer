@@ -346,8 +346,8 @@ void* LLFloaterLand::createPanelLandBan(void* data)
 
 LLPanelLandGeneral::LLPanelLandGeneral(LLParcelSelectionHandle& parcel)
 :	LLPanel("land_general_panel"),
-	mParcel(parcel),
-	mUncheckedSell(FALSE)
+	mUncheckedSell(FALSE),
+	mParcel(parcel)
 {
 }
 

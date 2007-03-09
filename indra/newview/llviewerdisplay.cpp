@@ -582,6 +582,11 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 			gPipeline.stateSort(hud_cam);
 		}
 		
+		if (LLVertexBuffer::sEnableVBOs)
+		{
+			LLImageGL::sBoundTextureMemory += LLVertexBuffer::sAllocatedBytes;
+		}
+		
 		gPipeline.renderGeom(hud_cam);
 
 		//restore type mask
@@ -716,9 +721,10 @@ void render_ui_and_swap()
 		}
 
 		{
-// 			LLFastTimer ftm(LLFastTimer::FTM_TEMP6);
-			LLVertexBuffer::clientCopy();
+ 			LLFastTimer ftm(LLFastTimer::FTM_CLIENT_COPY);
+			LLVertexBuffer::clientCopy(0.016);
 		}
+
 	}
 }
 

@@ -212,6 +212,8 @@ BOOL	LLPipeline::sSkipUpdate = FALSE;
 BOOL	LLPipeline::sDynamicReflections = FALSE;
 
 LLPipeline::LLPipeline() :
+	mCubeBuffer(NULL),
+	mCubeList(0),
 	mVertexShadersEnabled(FALSE),
 	mVertexShadersLoaded(0),
 	mLastRebuildPool(NULL),
@@ -225,9 +227,7 @@ LLPipeline::LLPipeline() :
 	mSimplePool(NULL),
 	mBumpPool(NULL),
 	mLightMask(0),
-	mLightMovingMask(0),
-	mCubeBuffer(NULL),
-	mCubeList(0)
+	mLightMovingMask(0)
 {
 
 }
@@ -1710,7 +1710,6 @@ void LLPipeline::updateMove()
 F32 LLPipeline::calcPixelArea(LLVector3 center, LLVector3 size, LLCamera &camera)
 {
 	LLVector3 lookAt = center - camera.getOrigin();
-	LLVector3 cross_vec = size * 2.f;	
 	F32 dist = lookAt.magVec();
 
 	//ramp down distance for nearby objects
@@ -1722,7 +1721,7 @@ F32 LLPipeline::calcPixelArea(LLVector3 center, LLVector3 size, LLCamera &camera
 	}
 
 	//get area of circle around node
-	F32 app_angle = atanf((cross_vec*0.5f).magVec()/dist);
+	F32 app_angle = atanf(size.magVec()/dist);
 	F32 radius = app_angle*LLDrawable::sCurPixelAngle;
 	return radius*radius * 3.14159f;
 }
@@ -2196,10 +2195,12 @@ void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)
 		}
 	}
 	
+#if !LL_DARWIN
 	if (gFrameTimeSeconds - group->mLastUpdateTime > 4.f)
 	{
 		group->makeStatic();
 	}
+#endif
 }
 
 void LLPipeline::stateSort(LLSpatialBridge* bridge, LLCamera& camera)

@@ -713,6 +713,8 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
 		if (!res) llerrs << "LLImageGL::setSubImage(): bindTexture failed" << llendl;
 		stop_glerror();
 
+		LLGLEnable tex( GL_TEXTURE_2D ); 
+
 		glTexSubImage2D(mTarget, 0, x_pos, y_pos, 
 						width, height, mFormatPrimary, mFormatType, datap);
 		stop_glerror();

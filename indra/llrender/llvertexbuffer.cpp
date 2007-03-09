@@ -12,8 +12,8 @@
 S32 LLVertexBuffer::sCount = 0;
 S32 LLVertexBuffer::sGLCount = 0;
 BOOL LLVertexBuffer::sEnableVBOs = TRUE;
-S32 LLVertexBuffer::sGLRenderBuffer = 0;
-S32 LLVertexBuffer::sGLRenderIndices = 0;
+U32 LLVertexBuffer::sGLRenderBuffer = 0;
+U32 LLVertexBuffer::sGLRenderIndices = 0;
 U32 LLVertexBuffer::sLastMask = 0;
 BOOL LLVertexBuffer::sVBOActive = FALSE;
 BOOL LLVertexBuffer::sIBOActive = FALSE;
@@ -92,7 +92,7 @@ void LLVertexBuffer::stopRender()
 	sRenderActive = FALSE;
 }
 
-void LLVertexBuffer::clientCopy()
+void LLVertexBuffer::clientCopy(F64 max_time)
 {
 	if (!sDeleteList.empty())
 	{
@@ -122,7 +122,7 @@ void LLVertexBuffer::clientCopy()
 			}
 			else
 			{
-				if (timer.getElapsedTimeF64() > 0.005)
+				if (timer.getElapsedTimeF64() > max_time)
 				{
 					break;
 				}
@@ -191,7 +191,10 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 	mNumVerts(0), mNumIndices(0), mUsage(usage), mGLBuffer(0), mGLIndices(0), 
 	mMappedData(NULL),
 	mMappedIndexData(NULL), mLocked(FALSE),
-	mResized(FALSE), mEmpty(TRUE), mFinal(FALSE), mFilthy(FALSE)
+	mFinal(FALSE),
+	mFilthy(FALSE),
+	mEmpty(TRUE),
+	mResized(FALSE)
 {
 	LLMemType mt(LLMemType::MTYPE_VERTEX_DATA);
 	if (!sEnableVBOs)
@@ -614,7 +617,6 @@ void LLVertexBuffer::unmapBuffer()
 						{
 							DirtyRegion& region = *i;
 							glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, region.mIndex*mStride, region.mCount*mStride, mMappedData + region.mIndex*mStride);
-							glFlush();
 						}
 					}
 				}
@@ -639,7 +641,6 @@ void LLVertexBuffer::unmapBuffer()
 							DirtyRegion& region = *i;
 							glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, region.mIndicesIndex*sizeof(U32), 
 								region.mIndicesCount*sizeof(U32), mMappedIndexData + region.mIndicesIndex*sizeof(U32));
-							glFlush();
 						}
 					}
 				}
@@ -786,13 +787,7 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 		unmapBuffer();
 	}
 	else
-	{
-		if (!mDirtyRegions.empty())
-		{
-			mFilthy = TRUE;
-			mDirtyRegions.clear();
-		}
-		
+	{		
 		if (mGLBuffer)
 		{
 			if (sEnableVBOs && sVBOActive)
@@ -890,6 +885,15 @@ void LLVertexBuffer::markDirty(U32 vert_index, U32 vert_count, U32 indices_index
 		if (!mDirtyRegions.empty())
 		{
 			DirtyRegion& region = *(mDirtyRegions.rbegin());
+			
+			if (region.mIndex+region.mCount > vert_index)
+			{
+				//this buffer has received multiple updates since the last copy, mark it filthy
+				mFilthy = TRUE;
+				mDirtyRegions.clear();
+				return;
+			}
+			
 			if (region.mIndex + region.mCount == vert_index &&
 				region.mIndicesIndex + region.mIndicesCount == indices_index)
 			{

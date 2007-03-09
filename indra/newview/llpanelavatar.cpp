@@ -512,25 +512,25 @@ BOOL LLPanelAvatarPicks::postBuild(void)
 	return TRUE;
 }
 
-BOOL	LLPanelAvatarAdvanced::postBuild()
+BOOL LLPanelAvatarAdvanced::postBuild()
 {
-	for( S32 i = 0; i < kArraySize(mWantToCheck); i++ )
-		mWantToCheck[i] = NULL;
-	for( S32 i = 0; i < kArraySize(mSkillsCheck); i++ )
-		mSkillsCheck[i] = NULL;
+	for(size_t ii = 0; ii < kArraySize(mWantToCheck); ++ii)
+		mWantToCheck[ii] = NULL;
+	for(size_t ii = 0; ii < kArraySize(mSkillsCheck); ++ii)
+		mSkillsCheck[ii] = NULL;
 	mWantToCount = (8>kArraySize(mWantToCheck))?kArraySize(mWantToCheck):8;
-	for(int t=0;t < mWantToCount ;t++)
+	for(S32 tt=0; tt < mWantToCount; ++tt)
 	{	
-		LLString ctlname = llformat("chk%d",t);
-		mWantToCheck[t] = LLUICtrlFactory::getCheckBoxByName(this,ctlname);
+		LLString ctlname = llformat("chk%d", tt);
+		mWantToCheck[tt] = LLUICtrlFactory::getCheckBoxByName(this,ctlname);
 	}	
 	mSkillsCount = (6>kArraySize(mSkillsCheck))?kArraySize(mSkillsCheck):6;
 
-	for(int t=0;t<mSkillsCount;t++)
+	for(S32 tt=0; tt < mSkillsCount; ++tt)
 	{
 		//Find the Skills checkboxes and save off thier controls
-		LLString ctlname = llformat("schk%d",t);
-		mSkillsCheck[t] = LLUICtrlFactory::getCheckBoxByName(this,ctlname);
+		LLString ctlname = llformat("schk%d",tt);
+		mSkillsCheck[tt] = LLUICtrlFactory::getCheckBoxByName(this,ctlname);
 	}
 
 	mWantToEdit = LLUICtrlFactory::getLineEditorByName(this,"want_to_edit");

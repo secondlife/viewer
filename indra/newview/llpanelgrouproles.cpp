@@ -1101,7 +1101,10 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 				check->setCommitCallback(onRoleCheck);
 				check->setCallbackUserData(this);
 				check->set( count > 0 );
-				check->setTentative(0 != count && selected_members.size() != count);
+				check->setTentative(
+					(0 != count)
+					&& (selected_members.size() !=
+						(std::vector<LLUUID>::size_type)count));
 
 				//NOTE: as of right now a user can break the group
 				//by removing himself from a role if he is the
@@ -1996,7 +1999,7 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
 
 		mRolesList->sortByColumn("name", TRUE);
 
-		if ( (gdatap->mRoles.size() < MAX_ROLES)
+		if ( (gdatap->mRoles.size() < (U32)MAX_ROLES)
 			&& gAgent.hasPowerInGroup(mGroupID, GP_ROLE_CREATE) )
 		{
 			mCreateRoleButton->setEnabled(TRUE);

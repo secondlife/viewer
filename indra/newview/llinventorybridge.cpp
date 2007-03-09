@@ -2174,6 +2174,8 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		case LLAssetType::AT_CATEGORY:
 			is_movable = ( LLAssetType::AT_NONE == ((LLInventoryCategory*)inv_item)->getPreferredType() );
 			break;
+		default:
+			break;
 		}
 
 		LLUUID trash_id = model->findCategoryUUIDForType(LLAssetType::AT_TRASH);
@@ -2189,6 +2191,8 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 
 			case LLAssetType::AT_OBJECT:
 				is_movable = !avatar->isWearingAttachment(inv_item->getUUID());
+				break;
+			default:
 				break;
 			}
 		}
@@ -2759,6 +2763,8 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 				}
 				break;
 			}
+		default:
+			break;
 		}
 	}
 	return rv;
@@ -3407,8 +3413,8 @@ struct LLFoundData
 				LLAssetType::EType asset_type) :
 		mItemID(item_id),
 		mAssetID(asset_id),
-		mAssetType(asset_type),
 		mName(name),
+		mAssetType(asset_type),
 		mWearable( NULL ) {}
 	
 	LLUUID mItemID;

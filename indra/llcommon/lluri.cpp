@@ -359,8 +359,7 @@ LLURI LLURI::buildHTTP(const std::string& host_port,
 	LLURI result;
 	
 	// TODO: deal with '/' '?' '#' in host_port
-	S32 index = host_port.find("://");
-	if (index != host_port.npos)
+	if (host_port.find("://") != host_port.npos)
 	{
 		// The scheme is part of the host_port
 		result.mScheme = "";

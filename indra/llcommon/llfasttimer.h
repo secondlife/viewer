@@ -25,6 +25,7 @@ public:
 		FTM_UPDATE,
 		FTM_RENDER,
 		FTM_SWAP,
+		FTM_CLIENT_COPY,
 		FTM_IDLE,
 		FTM_SLEEP,
 

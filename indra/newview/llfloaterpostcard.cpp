@@ -51,8 +51,8 @@ LLLinkedList<LLFloaterPostcard> LLFloaterPostcard::sInstances;
 
 LLFloaterPostcard::LLFloaterPostcard(LLImageJPEG* jpeg, LLImageGL *img, const LLVector2& img_scale, const LLVector3d& pos_taken_global)
 :	LLFloater("Postcard Floater"),
-	mViewerImage(img),
 	mJPEGImage(jpeg),
+	mViewerImage(img),
 	mImageScale(img_scale),
 	mPosTakenGlobal(pos_taken_global)
 {

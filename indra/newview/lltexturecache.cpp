@@ -979,7 +979,7 @@ void LLTextureCache::purgeTextures(bool validate)
 	
 	S32 filesize = ll_apr_file_size(mTexturesDirEntriesFileName, NULL);
 	S32 num_entries = filesize / sizeof(Entry);
-	if (num_entries * sizeof(Entry) != filesize)
+	if (num_entries * (S32)sizeof(Entry) != filesize)
 	{
 		llwarns << "Bad cache file: " << mTexturesDirEntriesFileName << " Purging." << llendl;
 		purgeAllTextures(false);

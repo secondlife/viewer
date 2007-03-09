@@ -216,12 +216,6 @@ void LLVolumeImplFlexible::setAttributesOfAllSections()
 
 void LLVolumeImplFlexible::onSetVolume(const LLVolumeParams &volume_params, const S32 detail)
 {
-	if (mVO && mVO->mDrawable.notNull())
-	{
-		LLVOVolume* volume = (LLVOVolume*) mVO;
-		volume->regenFaces();
-	}
-
 	/*doIdleUpdate(gAgent, *gWorldp, 0.0);
 	if (mVO && mVO->mDrawable.notNull())
 	{
@@ -615,11 +609,19 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 	{
 		LLVolumeParams volume_params = volume->getVolume()->getParams();
 		volume->setVolume(volume_params, 0);
+		mUpdated = FALSE;
 	}
 
 	volume->updateRelativeXform();
 	doFlexibleUpdate();
-	if (!mUpdated || volume->mFaceMappingChanged)
+	
+	if (volume->mLODChanged || volume->mFaceMappingChanged ||
+		volume->mVolumeChanged)
+	{
+		volume->regenFaces();
+	}
+
+	if (!mUpdated || volume->mFaceMappingChanged || volume->mVolumeChanged)
 	{
 		doFlexibleRebuild();
 		volume->genBBoxes(isVolumeGlobal());
@@ -628,6 +630,7 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 	volume->mVolumeChanged = FALSE;
 	volume->mLODChanged = FALSE;
 	volume->mFaceMappingChanged = FALSE;
+
 
 	// clear UV flag
 	drawable->clearState(LLDrawable::UV);

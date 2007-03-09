@@ -29,7 +29,7 @@ public:
 	static void cleanupClass();
  	static void startRender(); //between start and stop render, no client copies will occur
 	static void stopRender(); //any buffer not copied to GL will be rendered from client memory
-	static void clientCopy(); //copy data from client to GL
+	static void clientCopy(F64 max_time = 0.005); //copy data from client to GL
 	static void unbind(); //unbind any bound vertex buffer
 
 	enum {
@@ -167,8 +167,8 @@ public:
 	
 	static BOOL sEnableVBOs;
 	static S32 sTypeOffsets[TYPE_MAX];
-	static S32 sGLRenderBuffer;
-	static S32 sGLRenderIndices;
+	static U32 sGLRenderBuffer;
+	static U32 sGLRenderIndices;
 	static BOOL sVBOActive;
 	static BOOL sIBOActive;
 	static U32 sLastMask;

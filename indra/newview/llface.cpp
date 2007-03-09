@@ -711,11 +711,13 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 	const LLVolumeFace &face = volume.getVolumeFace(f);
 	
 	//get bounding box
-	if (mDrawablep->isState(LLDrawable::REBUILD_ALL))
+	if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION))
 	{
-		//vertex buffer no longer valid
-		mVertexBuffer = NULL;
-		mLastVertexBuffer = NULL;
+		if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME))
+		{ //vertex buffer no longer valid
+			mVertexBuffer = NULL;
+			mLastVertexBuffer = NULL;
+		}
 
 		LLVector3 min,max;
 			

@@ -908,8 +908,8 @@ void LLDrawable::updateLightSet()
 		// mLightSet points to nearby lights
 		mLightSet.clear();
 		part->getLights(getPositionAgent(), getRadius(), mLightSet);
-		const S32 max_lights = 16;
-		if (mLightSet.size() > max_lights)
+		const drawable_set_t::size_type MAX_LIGHTS = 16;
+		if (mLightSet.size() > MAX_LIGHTS)
 		{
 			typedef std::set<std::pair<F32,LLPointer<LLDrawable> > > sorted_pair_set_t;
 			sorted_pair_set_t sorted_set;

@@ -1357,7 +1357,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			// Make sure the binary bucket is big enough to hold the header 
 			// and a null terminated item name.
-			if ( (binary_bucket_size < (sizeof(notice_bucket_header_t) + sizeof(U8)))
+			if ( (binary_bucket_size < (S32)((sizeof(notice_bucket_header_t) + sizeof(U8))))
 				|| (binary_bucket[binary_bucket_size - 1] != '\0') )
 			{
 				llwarns << "Malformed group notice binary bucket" << llendl;

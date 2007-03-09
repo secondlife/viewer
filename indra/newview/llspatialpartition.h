@@ -173,6 +173,7 @@ public:
 	BOOL boundObjects(BOOL empty, LLVector3& newMin, LLVector3& newMax);
 	void unbound();
 	BOOL rebound();
+	void destroyGL();
 	
 	void updateDistance(LLCamera& camera);
 	BOOL changeLOD();
@@ -273,6 +274,8 @@ public:
 	BOOL isVolatile() const { return mVolatile; }
 
 	virtual LLSpatialBridge* asBridge() { return NULL; }
+	virtual BOOL isBridge() { return asBridge() != NULL; }
+
 	S32 getObjects(const LLVector3& pos,  F32 rad,  LLDrawable::drawable_set_t &results );
 	S32 getLights(const LLVector3& pos,  F32 rad,  LLDrawable::drawable_set_t &results );
 	

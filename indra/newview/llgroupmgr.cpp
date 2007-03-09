@@ -843,7 +843,7 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 		}
 	}
 
-	if (group_datap->mMembers.size() ==  group_datap->mMemberCount)
+	if (group_datap->mMembers.size() ==  (U32)group_datap->mMemberCount)
 	{
 		group_datap->mMemberDataComplete = TRUE;
 		group_datap->mMemberRequestID.setNull();
@@ -979,7 +979,7 @@ void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 		group_data->mRoles[role_id] = rd;
 	}
 
-	if (group_data->mRoles.size() == group_data->mRoleCount)
+	if (group_data->mRoles.size() == (U32)group_data->mRoleCount)
 	{
 		group_data->mRoleDataComplete = TRUE;
 		group_data->mRoleDataRequestID.setNull();

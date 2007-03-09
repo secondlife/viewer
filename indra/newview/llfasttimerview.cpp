@@ -159,7 +159,7 @@ static struct ft_display_info ft_display_table[] =
 //	{ LLFastTimer::FTM_RENDER_FONTS,		"   Fonts",			&LLColor4::pink1, 0 },
 //	{ LLFastTimer::FTM_UPDATE_TEXTURES,		"  Textures",		&LLColor4::pink2, 0 },
 	{ LLFastTimer::FTM_SWAP,				"  Swap",			&LLColor4::pink1, 0 },
-// 	{ LLFastTimer::FTM_TEMP6,				"  Client Copy",	&LLColor4::red1, 1},
+	{ LLFastTimer::FTM_CLIENT_COPY,			"  Client Copy",	&LLColor4::red1, 1},
 	
 //	{ LLFastTimer::FTM_TEMP1,				" Temp1",			&LLColor4::red1, 0 },
 // 	{ LLFastTimer::FTM_TEMP2,				" Temp2",			&LLColor4::magenta1, 0 },

@@ -748,9 +748,9 @@ LLVOAvatar::LLVOAvatar(
 	mLastSkirtBakedID( IMG_DEFAULT_AVATAR ),
 	mIsDummy(FALSE),
 	mSpecialRenderMode(0),
+	mTurning(FALSE),
 	mPelvisToFoot(0.f),
 	mLastSkeletonSerialNum( 0 ),
-	mTurning(FALSE),
 	mHeadOffset(),
 	mIsSitting(FALSE),
 	mTimeVisible(),
@@ -3005,8 +3005,12 @@ void LLVOAvatar::updateCharacter(LLAgent &agent)
 	{
 		F32 aspect = gCamera->getAspect();
 		LLVector3 scale(1.f, aspect, 1.f);
-		mScreenp->setScale(scale);
-		mScreenp->updateWorldMatrixChildren();
+		if (mScreenp->getScale() != scale)
+		{
+			mScreenp->setScale(scale);
+			mScreenp->updateWorldMatrixChildren();
+			resetHUDAttachments();
+		}
 	}
 
 	// clear debug text

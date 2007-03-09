@@ -79,7 +79,7 @@ public:
 	/*virtual*/ BOOL	isHUDAttachment() const;
 
 				void	generateSilhouette(LLSelectNode* nodep, const LLVector3& view_point);
-
+	/*virtual*/	void	setParent(LLViewerObject* parent);
 				F32		getIndividualRadius()					{ return mRadius; }
 				S32		getLOD() const							{ return mLOD; }
 	const LLVector3		getPivotPositionAgent() const;

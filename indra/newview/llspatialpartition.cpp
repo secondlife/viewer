@@ -289,6 +289,7 @@ void LLSpatialGroup::validateDrawMap()
 
 void LLSpatialGroup::makeStatic()
 {
+#if !LL_DARWIN
 	if (isState(GEOM_DIRTY | ALPHA_DIRTY))
 	{
 		return;
@@ -309,6 +310,7 @@ void LLSpatialGroup::makeStatic()
 		
 		mBuilt = 1.f;
 	}
+#endif
 }
 
 BOOL LLSpatialGroup::updateInGroup(LLDrawable *drawablep, BOOL immediate)
@@ -318,7 +320,12 @@ BOOL LLSpatialGroup::updateInGroup(LLDrawable *drawablep, BOOL immediate)
 	drawablep->updateSpatialExtents();
 	validate_drawable(drawablep);
 
-	if (mOctreeNode->isInside(drawablep) && mOctreeNode->contains(drawablep))
+	OctreeNode* parent = mOctreeNode->getOctParent();
+	
+	if (mOctreeNode->isInside(drawablep->getPositionGroup()) && 
+		(mOctreeNode->contains(drawablep) ||
+		 (drawablep->getBinRadius() > mOctreeNode->getSize().mdV[0] &&
+				parent && parent->getElementCount() >= LL_OCTREE_MAX_CAPACITY)))
 	{
 		unbound();
 		setState(OBJECT_DIRTY);
@@ -697,14 +704,21 @@ void LLSpatialGroup::clearState(U32 state, S32 mode)
 //		Octree Listener Implementation
 //======================================
 
-LLSpatialGroup::LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part)
-: mOctreeNode(node), mState(0), mSpatialPartition(part), mVertexBuffer(NULL), 
-  mDistance(0.f), mLastUpdateDistance(-1.f), 
-  mViewAngle(0.f), mLastUpdateViewAngle(-1.f), 
-  mDepth(0.f), mBuilt(0.f),
-  mLastUpdateTime(gFrameTimeSeconds), mLastRenderTime(gFrameTimeSeconds),
-  mLastAddTime(gFrameTimeSeconds),
-  mBufferUsage(GL_STATIC_DRAW_ARB)
+LLSpatialGroup::LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part) :
+	mState(0),
+	mBuilt(0.f),
+	mOctreeNode(node),
+	mSpatialPartition(part),
+	mVertexBuffer(NULL), 
+	mBufferUsage(GL_STATIC_DRAW_ARB),
+	mDistance(0.f),
+	mDepth(0.f),
+	mLastUpdateDistance(-1.f), 
+	mLastUpdateTime(gFrameTimeSeconds),
+	mLastAddTime(gFrameTimeSeconds),
+	mLastRenderTime(gFrameTimeSeconds),
+	mViewAngle(0.f),
+	mLastUpdateViewAngle(-1.f)
 {
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 
@@ -896,6 +910,31 @@ void LLSpatialGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* c
 void LLSpatialGroup::handleChildRemoval(const OctreeNode* parent, const OctreeNode* child)
 {
 	unbound();
+}
+
+void LLSpatialGroup::destroyGL() 
+{
+	setState(LLSpatialGroup::GEOM_DIRTY | 
+					LLSpatialGroup::OCCLUSION_DIRTY |
+					LLSpatialGroup::IMAGE_DIRTY);
+	mLastUpdateTime = gFrameTimeSeconds;
+	mVertexBuffer = NULL;
+	mBufferMap.clear();
+
+	mOcclusionVerts = NULL;
+	mReflectionMap = NULL;
+	clearDrawMap();
+
+	for (LLSpatialGroup::element_iter i = getData().begin(); i != getData().end(); ++i)
+	{
+		LLDrawable* drawable = *i;
+		for (S32 j = 0; j < drawable->getNumFaces(); j++)
+		{
+			LLFace* facep = drawable->getFace(j);
+			facep->mVertexBuffer = NULL;
+			facep->mLastVertexBuffer = NULL;
+		}
+	}
 }
 
 BOOL LLSpatialGroup::rebound()
@@ -1423,28 +1462,11 @@ public:
 	virtual void visit(const LLOctreeState<LLDrawable>* state)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*) state->getListener(0);
+		group->destroyGL();
 
-		group->setState(LLSpatialGroup::GEOM_DIRTY | 
-						LLSpatialGroup::OCCLUSION_DIRTY |
-						LLSpatialGroup::IMAGE_DIRTY);
-		group->mLastUpdateTime = gFrameTimeSeconds;
-		group->mVertexBuffer = NULL;
-		group->mBufferMap.clear();
-
-		group->mOcclusionVerts = NULL;
-		group->mReflectionMap = NULL;
-		group->clearDrawMap();
-	
 		for (LLSpatialGroup::element_iter i = group->getData().begin(); i != group->getData().end(); ++i)
 		{
 			LLDrawable* drawable = *i;
-			for (S32 j = 0; j < drawable->getNumFaces(); j++)
-			{
-				LLFace* facep = drawable->getFace(j);
-				facep->mVertexBuffer = NULL;
-				facep->mLastVertexBuffer = NULL;
-			}
-
 			if (drawable->getVObj() && !group->mSpatialPartition->mRenderByGroup)
 			{
 				gPipeline.markRebuild(drawable, LLDrawable::REBUILD_ALL, TRUE);
@@ -1458,6 +1480,7 @@ public:
 		}
 	}
 };
+
 void LLSpatialPartition::restoreGL()
 {
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
@@ -1597,7 +1620,7 @@ void LLSpatialPartition::processGeometry(LLCamera* camera)
 	U32 process_count = 8;
 
 	LLSpatialGroup* root = (LLSpatialGroup*) mOctree->getListener(0);
-	if (!root->isState(LLSpatialGroup::IN_GEOMETRY_QUEUE))
+	if (mUpdateQueue.empty())
 	{
 		root->setState(LLSpatialGroup::IN_GEOMETRY_QUEUE);
 		mUpdateQueue.push(root);
@@ -1628,18 +1651,19 @@ void LLSpatialPartition::processGeometry(LLCamera* camera)
 			}
 		}
 
-		if (!group->isDead() && 
-			!group->isVisible() && 
-			!group->isState(LLSpatialGroup::OBJECT_DIRTY) && 
-			group->mBufferUsage != GL_STREAM_DRAW_ARB)
+		if (!group->isDead() && !group->isVisible())
 		{
-			group->updateDistance(*camera);
-			for (LLSpatialGroup::element_iter i = group->getData().begin(); i != group->getData().end(); ++i)
+			if (!group->isState(LLSpatialGroup::OBJECT_DIRTY) && 
+				group->mBufferUsage != GL_STREAM_DRAW_ARB)
 			{
-				LLDrawable* drawablep = *i;
-				if (!drawablep->isDead())
+				group->updateDistance(*camera);
+				for (LLSpatialGroup::element_iter i = group->getData().begin(); i != group->getData().end(); ++i)
 				{
-					drawablep->updateDistance(*camera);
+					LLDrawable* drawablep = *i;
+					if (!drawablep->isDead())
+					{
+						drawablep->updateDistance(*camera);
+					}
 				}
 			}
 		}
@@ -1703,7 +1727,7 @@ void LLSpatialPartition::processImagery(LLCamera* camera)
 			}
 
 			gPipeline.generateReflectionMap(gPipeline.mCubeBuffer, cube_cam, 128);
-			gPipeline.blurReflectionMap(gPipeline.mCubeBuffer, cube_map, 32);
+			gPipeline.blurReflectionMap(gPipeline.mCubeBuffer, cube_map, 64);
 			group->mReflectionMap = cube_map;
 			group->setState(LLSpatialGroup::GEOM_DIRTY);
 			gPipeline.markRebuild(group);
@@ -2821,11 +2845,19 @@ LLDrawable*	LLSpatialPartition::pickDrawable(const LLVector3& start, const LLVec
 LLDrawInfo::LLDrawInfo(U32 start, U32 end, U32 count, U32 offset, 
 					   LLViewerImage* texture, LLVertexBuffer* buffer,
 					   BOOL fullbright, U8 bump, BOOL particle, F32 part_size)
-: mStart(start), mEnd(end), mCount(count), mOffset(offset), 
-  mTexture(texture), mVertexBuffer(buffer),
-  mFullbright(fullbright), mBump(bump),
-  mParticle(particle), mPartSize(part_size),
-  mVSize(0.f), mTextureMatrix(NULL)
+:
+	mVertexBuffer(buffer),
+	mTexture(texture),
+	mTextureMatrix(NULL),
+	mStart(start),
+	mEnd(end),
+	mCount(count),
+	mOffset(offset), 
+	mFullbright(fullbright),
+	mBump(bump),
+	mParticle(particle),
+	mPartSize(part_size),
+	mVSize(0.f)
 {
 }
 

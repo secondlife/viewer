@@ -5770,8 +5770,8 @@ BOOL LLSelectMgr::canSelectObject(LLViewerObject* object)
 LLObjectSelection::LLObjectSelection() : 
 	std::list<LLSelectNode*>(), 
 	LLRefCount(),
-	mCurrentTE(-1),
 	mCurrentNode(end()),
+	mCurrentTE(-1),
 	mSelectType(SELECT_TYPE_WORLD)
 {
 }

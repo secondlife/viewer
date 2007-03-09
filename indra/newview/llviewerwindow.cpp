@@ -1842,13 +1842,6 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 
 		gViewerStats->setStat(LLViewerStats::ST_WINDOW_WIDTH, (F64)width);
 		gViewerStats->setStat(LLViewerStats::ST_WINDOW_HEIGHT, (F64)height);
-
-		//reposition HUD attachments
-		LLVOAvatar* avatarp = gAgent.getAvatarObject();
-		if (avatarp)
-		{
-			avatarp->resetHUDAttachments();
-		}
 	}
 }
 

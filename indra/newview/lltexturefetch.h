@@ -82,4 +82,4 @@ private:
 	LLFrameTimer mNetworkTimer;
 };
 
-#endif LL_LLTEXTUREFETCH_H
+#endif // LL_LLTEXTUREFETCH_H

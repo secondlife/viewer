@@ -377,20 +377,21 @@ LLScrollListCtrl::LLScrollListCtrl(const LLString& name, const LLRect& rect,
 	mFgUnselectedColor( LLUI::sColorsGroup->getColor("ScrollUnselectedColor") ),
 	mFgDisabledColor( LLUI::sColorsGroup->getColor("ScrollDisabledColor") ),
 	mHighlightedColor( LLUI::sColorsGroup->getColor("ScrollHighlightedColor") ),
-	mHighlightedItem(-1),
 	mBorderThickness( 2 ),
 	mOnDoubleClickCallback( NULL ),
 	mOnMaximumSelectCallback( NULL ),
 	mOnSortChangedCallback( NULL ),
-	mDrewSelected(FALSE),
+	mHighlightedItem(-1),
 	mBorder(NULL),
-	mSearchColumn(0),
 	mDefaultColumn("SIMPLE"),
+	mSearchColumn(0),
 
 	mNumDynamicWidthColumns(0),
 	mTotalStaticColumnWidth(0),
 	mSortColumn(0),
-	mSortAscending(TRUE)
+	mSortAscending(TRUE),
+
+	mDrewSelected(FALSE)
 {
 	mItemListRect.setOriginAndSize(
 		mBorderThickness + LIST_BORDER_PAD,

@@ -244,7 +244,7 @@ BOOL LLVOVolume::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		S32 result;
 		if (result = mTextureAnimp->animateTextures(off_s, off_t, scale_s, scale_t, rot))
 		{
-			mTexAnimMode = result | mTextureAnimp->mMode;
+			mTexAnimMode = mTextureAnimp->mMode | result;
 
 			S32 start, end;
 			if (mTextureAnimp->mFace == -1)
@@ -309,6 +309,13 @@ BOOL LLVOVolume::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 				tex_mat.translate(trans);
 			}
 		}
+		else
+		{
+			if (mTextureAnimp->mRate == 0)
+			{
+				mTexAnimMode = 0;
+			}
+		}
 	}
 
 	// Dispatch to implementation
@@ -349,17 +356,18 @@ void LLVOVolume::updateTextures()
 
 	mTextureUpdateTimer.reset();
 	
+	F32 old_area = mPixelArea;
 	mPixelArea = 0.f;
-	const S32 num_faces = mDrawable->getNumFaces();
 
+	const S32 num_faces = mDrawable->getNumFaces();
 	F32 min_vsize=999999999.f, max_vsize=0.f;
 	for (S32 i = 0; i < num_faces; i++)
 	{
 		LLFace* face = mDrawable->getFace(i);
 		const LLTextureEntry *te = face->getTextureEntry();
 		LLViewerImage *imagep = face->getTexture();
-
-		if (!imagep || !te)
+		if (!imagep || !te ||
+			face->mExtents[0] == face->mExtents[1])
 		{
 			continue;
 		}
@@ -392,11 +400,12 @@ void LLVOVolume::updateTextures()
 			if (pri < min_vsize) min_vsize = pri;
 			if (pri > max_vsize) max_vsize = pri;
 		}
-	//	U8 bump = te->getBumpmap();
-	//	if( te && bump)
-	//	{
-	//		gBumpImageList.addTextureStats( bump, imagep->getID(), vsize, 1, 1);
-	//	}
+		else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_FACE_AREA))
+		{
+			F32 pri = mPixelArea;
+			if (pri < min_vsize) min_vsize = pri;
+			if (pri > max_vsize) max_vsize = pri;
+		}	
 	}
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
@@ -407,15 +416,22 @@ void LLVOVolume::updateTextures()
 	{
 		setDebugText(llformat("%.0f:%.0f", fsqrtf(min_vsize),fsqrtf(max_vsize)));
 	}
+	else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_FACE_AREA))
+	{
+		setDebugText(llformat("%.0f:%.0f", fsqrtf(min_vsize),fsqrtf(max_vsize)));
+	}
+
+	if (mPixelArea == 0)
+	{ //flexi phasing issues make this happen
+		mPixelArea = old_area;
+	}
 }
 
 F32 LLVOVolume::getTextureVirtualSize(LLFace* face)
 {
 	//get area of circle around face
 	LLVector3 center = face->getPositionAgent();
-	LLVector3 size = //isFlexible() ? 
-					//	getScale()*3.f :
-						(face->mExtents[1] - face->mExtents[0]) * 0.5f;
+	LLVector3 size = (face->mExtents[1] - face->mExtents[0]) * 0.5f;
 	
 	F32 face_area = LLPipeline::calcPixelArea(center, size, *gCamera);
 
@@ -585,9 +601,6 @@ BOOL LLVOVolume::calcLOD()
 		return FALSE;
 	}
 
-	//update textures here as well
-	updateTextures();
-
 	S32 cur_detail = 0;
 	
 	F32 radius = mVolumep->mLODScaleBias.scaledVec(getScale()).magVec();
@@ -689,6 +702,17 @@ void LLVOVolume::updateFaceFlags()
 	}
 }
 
+void LLVOVolume::setParent(LLViewerObject* parent)
+{
+	LLViewerObject::setParent(parent);
+	if (mDrawable)
+	{
+		gPipeline.markMoved(mDrawable);
+		mVolumeChanged = TRUE;
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
+	}
+}
+
 // NOTE: regenFaces() MUST be followed by genTriangles()!
 void LLVOVolume::regenFaces()
 {
@@ -748,6 +772,8 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 	{
 		mDrawable->setSpatialExtents(min,max);
 		mDrawable->setPositionGroup((min+max)*0.5f);	
+		//bounding boxes changed, update texture priorities
+		updateTextures();
 	}
 
 	updateRadius();
@@ -1918,8 +1944,10 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec[idx]->mVertexBuffer == facep->mVertexBuffer &&
 		draw_vec[idx]->mEnd == facep->getGeomIndex()-1 &&
 		draw_vec[idx]->mTexture == tex &&
-		//draw_vec[idx]->mEnd - draw_vec[idx]->mStart + facep->getGeomCount() <= (U32) gGLManager.mGLMaxVertexRange &&
-		//draw_vec[idx]->mCount + facep->getIndicesCount() <= (U32) gGLManager.mGLMaxIndexRange &&
+#if LL_DARWIN
+		draw_vec[idx]->mEnd - draw_vec[idx]->mStart + facep->getGeomCount() <= (U32) gGLManager.mGLMaxVertexRange &&
+		draw_vec[idx]->mCount + facep->getIndicesCount() <= (U32) gGLManager.mGLMaxIndexRange &&
+#endif
 		draw_vec[idx]->mFullbright == fullbright &&
 		draw_vec[idx]->mBump == bump &&
 		draw_vec[idx]->mTextureMatrix == tex_mat)
@@ -2220,7 +2248,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					registerFace(group, facep, LLRenderPass::PASS_BUMP);
 				}
 
-				if (!force_simple && vobj->getIsLight())
+				if (vobj->getIsLight())
 				{
 					registerFace(group, facep, LLRenderPass::PASS_GLOW);
 				}

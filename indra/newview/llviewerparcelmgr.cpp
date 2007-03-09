@@ -2523,9 +2523,9 @@ LLParcelSelection::LLParcelSelection() :
 	mParcel(NULL),
 	mSelectedMultipleOwners(FALSE),
 	mWholeParcelSelected(FALSE),
-	mSelectedPublicCount(0),
 	mSelectedSelfCount(0),
-	mSelectedOtherCount(0)
+	mSelectedOtherCount(0),
+	mSelectedPublicCount(0)
 {
 }
 
@@ -2533,9 +2533,9 @@ LLParcelSelection::LLParcelSelection(LLParcel* parcel)  :
 	mParcel(parcel),
 	mSelectedMultipleOwners(FALSE),
 	mWholeParcelSelected(FALSE),
-	mSelectedPublicCount(0),
 	mSelectedSelfCount(0),
-	mSelectedOtherCount(0)
+	mSelectedOtherCount(0),
+	mSelectedPublicCount(0)
 {
 }
 
