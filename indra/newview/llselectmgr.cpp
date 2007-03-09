@@ -231,6 +231,9 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectOnly(LLViewerObject* object, S3
 {
 	llassert( object );
 
+	//remember primary object
+	mSelectedObjects->mPrimaryObject = object;
+
 	// Don't add an object that is already in the list
 	if (object->isSelected() ) {
 		// make sure point at position is updated
@@ -290,6 +293,9 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectOnly(LLViewerObject* object, S3
 LLObjectSelectionHandle LLSelectMgr::selectObjectAndFamily(LLViewerObject* obj, BOOL add_to_end)
 {
 	llassert( obj );
+
+	//remember primary object
+	mSelectedObjects->mPrimaryObject = obj;
 
 	// This may be incorrect if things weren't family selected before... - djs 07/08/02
 	// Don't add an object that is already in the list
@@ -371,6 +377,9 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectAndFamily(const LLDynamicArray<
 	LLDynamicArray<LLViewerObject*> objects;
 	LLViewerObject *object;
 	S32 i;
+
+	//clear primary object (no primary object)
+	mSelectedObjects->mPrimaryObject = NULL;
 
 	if (object_list.count() < 1) return NULL;
 
@@ -841,6 +850,9 @@ LLObjectSelectionHandle LLSelectMgr::selectHighlightedObjects()
 	{
 		return NULL;
 	}
+
+	//clear primary object
+	mSelectedObjects->mPrimaryObject = NULL;
 
 	LLSelectNode *nodep;
 	for (nodep = mHighlightedObjects->getFirstNode();

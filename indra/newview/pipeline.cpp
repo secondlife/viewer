@@ -4763,57 +4763,47 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, 
 //send cube map vertices and texture coordinates
 void render_cube_map()
 {
-	if (gPipeline.mCubeList == 0)
+	
+	U32 idx[36];
+
+	idx[0] = 1; idx[1] = 0; idx[2] = 2; //front
+	idx[3] = 3; idx[4] = 2; idx[5] = 0;
+
+	idx[6] = 4; idx[7] = 5; idx[8] = 1; //top
+	idx[9] = 0; idx[10] = 1; idx[11] = 5; 
+
+	idx[12] = 5; idx[13] = 4; idx[14] = 6; //back
+	idx[15] = 7; idx[16] = 6; idx[17] = 4;
+
+	idx[18] = 6; idx[19] = 7; idx[20] = 3; //bottom
+	idx[21] = 2; idx[22] = 3; idx[23] = 7;
+
+	idx[24] = 0; idx[25] = 5; idx[26] = 3; //left
+	idx[27] = 6; idx[28] = 3; idx[29] = 5;
+
+	idx[30] = 4; idx[31] = 1; idx[32] = 7; //right
+	idx[33] = 2; idx[34] = 7; idx[35] = 1;
+
+	LLVector3 vert[8];
+	LLVector3 r = LLVector3(1,1,1);
+
+	vert[0] = r.scaledVec(LLVector3(-1,1,1)); //   0 - left top front
+	vert[1] = r.scaledVec(LLVector3(1,1,1));  //   1 - right top front
+	vert[2] = r.scaledVec(LLVector3(1,-1,1)); //   2 - right bottom front
+	vert[3] = r.scaledVec(LLVector3(-1,-1,1)); //  3 - left bottom front
+
+	vert[4] = r.scaledVec(LLVector3(1,1,-1)); //  4 - left top back
+	vert[5] = r.scaledVec(LLVector3(-1,1,-1)); //   5 - right top back
+	vert[6] = r.scaledVec(LLVector3(-1,-1,-1)); //  6 - right bottom back
+	vert[7] = r.scaledVec(LLVector3(1,-1,-1)); // 7 -left bottom back
+
+	glBegin(GL_TRIANGLES);
+	for (U32 i = 0; i < 36; i++)
 	{
-		gPipeline.mCubeList = glGenLists(1);
-		glNewList(gPipeline.mCubeList, GL_COMPILE);
-
-		U32 idx[36];
-
-		idx[0] = 1; idx[1] = 0; idx[2] = 2; //front
-		idx[3] = 3; idx[4] = 2; idx[5] = 0;
-
-		idx[6] = 4; idx[7] = 5; idx[8] = 1; //top
-		idx[9] = 0; idx[10] = 1; idx[11] = 5; 
-
-		idx[12] = 5; idx[13] = 4; idx[14] = 6; //back
-		idx[15] = 7; idx[16] = 6; idx[17] = 4;
-
-		idx[18] = 6; idx[19] = 7; idx[20] = 3; //bottom
-		idx[21] = 2; idx[22] = 3; idx[23] = 7;
-
-		idx[24] = 0; idx[25] = 5; idx[26] = 3; //left
-		idx[27] = 6; idx[28] = 3; idx[29] = 5;
-
-		idx[30] = 4; idx[31] = 1; idx[32] = 7; //right
-		idx[33] = 2; idx[34] = 7; idx[35] = 1;
-
-		LLVector3 vert[8];
-		LLVector3 r = LLVector3(1,1,1);
-
-		vert[0] = r.scaledVec(LLVector3(-1,1,1)); //   0 - left top front
-		vert[1] = r.scaledVec(LLVector3(1,1,1));  //   1 - right top front
-		vert[2] = r.scaledVec(LLVector3(1,-1,1)); //   2 - right bottom front
-		vert[3] = r.scaledVec(LLVector3(-1,-1,1)); //  3 - left bottom front
-
-		vert[4] = r.scaledVec(LLVector3(1,1,-1)); //  4 - left top back
-		vert[5] = r.scaledVec(LLVector3(-1,1,-1)); //   5 - right top back
-		vert[6] = r.scaledVec(LLVector3(-1,-1,-1)); //  6 - right bottom back
-		vert[7] = r.scaledVec(LLVector3(1,-1,-1)); // 7 -left bottom back
-
-		glBegin(GL_TRIANGLES);
-		for (U32 i = 0; i < 36; i++)
-		{
-			glTexCoord3fv(vert[idx[i]].mV);
-			glVertex3fv(vert[idx[i]].mV);
-		}
-		glEnd();
-
-		glEndList();
+		glTexCoord3fv(vert[idx[i]].mV);
+		glVertex3fv(vert[idx[i]].mV);
 	}
-
-	glCallList(gPipeline.mCubeList);
-
+	glEnd();
 }
 
 void LLPipeline::blurReflectionMap(LLCubeMap* cube_in, LLCubeMap* cube_out, U32 res)

@@ -125,6 +125,7 @@ public:
 	LLViewerObject*	getFirstCopyableObject(BOOL get_root = FALSE);
 	LLViewerObject* getFirstDeleteableObject(BOOL get_root = FALSE);
 	LLViewerObject*	getFirstMoveableObject(BOOL get_root = FALSE);
+	LLViewerObject* getPrimaryObject() { return mPrimaryObject; }
 
 	// iterate through texture entries
 	void getPrimaryTE(LLViewerObject* *object, S32 *te);
@@ -161,6 +162,7 @@ public:
 private:
 	const LLObjectSelection &operator=(const LLObjectSelection &);
 
+	LLPointer<LLViewerObject>					mPrimaryObject;
 	std::list<LLSelectNode*>::iterator			mCurrentNode;
 	S32											mCurrentTE;
 	std::map<LLViewerObject*, LLSelectNode*>	mSelectNodeMap;

@@ -6096,7 +6096,7 @@ void complete_give_money(S32 option, void* user_data)
 	LLObjectSelectionHandle handle(*(LLObjectSelectionHandle*)user_data);
 	delete (LLObjectSelectionHandle*)user_data;
 
-	LLViewerObject *objectp = handle->getFirstRootObject();
+	LLViewerObject* objectp = handle->getPrimaryObject();
 
 	// Show avatar's name if paying attachment
 	if (objectp && objectp->isAttachment())

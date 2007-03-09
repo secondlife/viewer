@@ -242,7 +242,7 @@ public:
 		llinfos << "LLHTTPLiveConfigSingleService::validate(" << name
 			<< ")" << llendl;
 		LLSD option = LLApp::instance()->getOption(name);
-		if(option) return true;
+		if(option.isDefined()) return true;
 		else return false;
 	}
 
