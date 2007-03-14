@@ -2323,41 +2323,45 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 	LLUUID task_id;
 	msg->getUUIDFast(_PREHASH_InventoryData, _PREHASH_TaskID, task_id);
 	LLViewerObject* object = gObjectList.findObject(task_id);
-	if(object)
+	if(!object)
 	{
-		msg->getS16Fast(_PREHASH_InventoryData, _PREHASH_Serial, object->mInventorySerialNum);
-		LLFilenameAndTask* ft = new LLFilenameAndTask;
-		ft->mTaskID = task_id;
-		msg->getStringFast(_PREHASH_InventoryData, _PREHASH_Filename, MAX_STRING, ft->mFilename);
-		if(!ft->mFilename[0])
-		{
-			lldebugs << "Task has no inventory" << llendl;
-			// mock up some inventory to make a drop target.
-			if(object->mInventory)
-			{
-				object->mInventory->clear(); // will deref and delete it
-			}
-			else
-			{
-				object->mInventory = new InventoryObjectList();
-			}
-			LLPointer<LLInventoryObject> obj;
-			obj = new LLInventoryObject(object->mID, LLUUID::null,
-										LLAssetType::AT_CATEGORY,
-										"Contents");
-			object->mInventory->push_front(obj);
-			object->doInventoryCallback();
-			delete ft;
-			return;
-		}
-		gXferManager->requestFile(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ft->mFilename).c_str(), 
-								  ft->mFilename, LL_PATH_CACHE,
-								  object->mRegionp->getHost(),
-								  TRUE,
-								  &LLViewerObject::processTaskInvFile,
-								  (void**)ft,
-								  LLXferManager::HIGH_PRIORITY);
+		llwarns << "LLViewerObject::processTaskInv object "
+			<< task_id << " does not exist." << llendl;
+		return;
 	}
+
+	msg->getS16Fast(_PREHASH_InventoryData, _PREHASH_Serial, object->mInventorySerialNum);
+	LLFilenameAndTask* ft = new LLFilenameAndTask;
+	ft->mTaskID = task_id;
+	msg->getStringFast(_PREHASH_InventoryData, _PREHASH_Filename, MAX_STRING, ft->mFilename);
+	if(!ft->mFilename[0])
+	{
+		lldebugs << "Task has no inventory" << llendl;
+		// mock up some inventory to make a drop target.
+		if(object->mInventory)
+		{
+			object->mInventory->clear(); // will deref and delete it
+		}
+		else
+		{
+			object->mInventory = new InventoryObjectList();
+		}
+		LLPointer<LLInventoryObject> obj;
+		obj = new LLInventoryObject(object->mID, LLUUID::null,
+									LLAssetType::AT_CATEGORY,
+									"Contents");
+		object->mInventory->push_front(obj);
+		object->doInventoryCallback();
+		delete ft;
+		return;
+	}
+	gXferManager->requestFile(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ft->mFilename).c_str(), 
+								ft->mFilename, LL_PATH_CACHE,
+								object->mRegionp->getHost(),
+								TRUE,
+								&LLViewerObject::processTaskInvFile,
+								(void**)ft,
+								LLXferManager::HIGH_PRIORITY);
 }
 
 void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code)
@@ -2580,6 +2584,18 @@ LLViewerInventoryItem* LLViewerObject::getInventoryItemByAsset(const LLUUID& ass
 		}		
 	}
 	return rv;
+}
+
+void LLViewerObject::updateViewerInventoryAsset(
+					const LLViewerInventoryItem* item,
+					const LLUUID& new_asset)
+{
+	LLPointer<LLViewerInventoryItem> task_item =
+		new LLViewerInventoryItem(item);
+	task_item->setAssetUUID(new_asset);
+
+	// do the internal logic
+	doUpdateInventory(task_item, TASK_INVENTORY_ITEM_KEY, false);
 }
 
 void LLViewerObject::setPixelAreaAndAngle(LLAgent &agent)

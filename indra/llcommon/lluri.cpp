@@ -13,273 +13,86 @@
 #include "llapp.h"
 #include "lluri.h"
 #include "llsd.h"
-
+#include <iomanip>
+  
 #include "../llmath/lluuid.h"
 
-// uric = reserved | unreserved | escaped
-// reserved = ";" | "/" | "?" | ":" | "@" | "&" | "=" | "+" | "$" | ","
-// unreserved = alphanum | mark
-// mark = "-" | "_" | "." | "!" | "~" | "*" | "'" | "(" | ")"
-// escaped = "%" hex hex
-static const char* ESCAPED_CHARACTERS[256] =
+
+// static
+std::string LLURI::escape(const std::string& str, const std::string & allowed)
 {
-	"%00",		// 0
-	"%01",		// 1
-	"%02",		// 2
-	"%03",		// 3
-	"%04",		// 4
-	"%05",		// 5
-	"%06",		// 6
-	"%07",		// 7
-	"%08",		// 8
-	"%09",		// 9
-	"%0a",		// 10
-	"%0b",		// 11
-	"%0c",		// 12
-	"%0d",		// 13
-	"%0e",		// 14
-	"%0f",		// 15
-	"%10",		// 16
-	"%11",		// 17
-	"%12",		// 18
-	"%13",		// 19
-	"%14",		// 20
-	"%15",		// 21
-	"%16",		// 22
-	"%17",		// 23
-	"%18",		// 24
-	"%19",		// 25
-	"%1a",		// 26
-	"%1b",		// 27
-	"%1c",		// 28
-	"%1d",		// 29
-	"%1e",		// 30
-	"%1f",		// 31
-	"%20",		// 32
-	"!",		// 33
-	"%22",		// 34
-	"%23",		// 35
-	"$",		// 36
-	"%25",		// 37
-	"&",		// 38
-	"'",		// 39
-	"(",		// 40
-	")",		// 41
-	"*",		// 42
-	"+",		// 43
-	",",		// 44
-	"-",		// 45
-	".",		// 46
-	"/",		// 47
-	"0",		// 48
-	"1",		// 49
-	"2",		// 50
-	"3",		// 51
-	"4",		// 52
-	"5",		// 53
-	"6",		// 54
-	"7",		// 55
-	"8",		// 56
-	"9",		// 57
-	":",		// 58
-	";",		// 59
-	"%3c",		// 60
-	"=",		// 61
-	"%3e",		// 62
-	"?",		// 63
-	"@",		// 64
-	"A",		// 65
-	"B",		// 66
-	"C",		// 67
-	"D",		// 68
-	"E",		// 69
-	"F",		// 70
-	"G",		// 71
-	"H",		// 72
-	"I",		// 73
-	"J",		// 74
-	"K",		// 75
-	"L",		// 76
-	"M",		// 77
-	"N",		// 78
-	"O",		// 79
-	"P",		// 80
-	"Q",		// 81
-	"R",		// 82
-	"S",		// 83
-	"T",		// 84
-	"U",		// 85
-	"V",		// 86
-	"W",		// 87
-	"X",		// 88
-	"Y",		// 89
-	"Z",		// 90
-	"%5b",		// 91
-	"%5c",		// 92
-	"%5d",		// 93
-	"%5e",		// 94
-	"_",		// 95
-	"%60",		// 96
-	"a",		// 97
-	"b",		// 98
-	"c",		// 99
-	"d",		// 100
-	"e",		// 101
-	"f",		// 102
-	"g",		// 103
-	"h",		// 104
-	"i",		// 105
-	"j",		// 106
-	"k",		// 107
-	"l",		// 108
-	"m",		// 109
-	"n",		// 110
-	"o",		// 111
-	"p",		// 112
-	"q",		// 113
-	"r",		// 114
-	"s",		// 115
-	"t",		// 116
-	"u",		// 117
-	"v",		// 118
-	"w",		// 119
-	"x",		// 120
-	"y",		// 121
-	"z",		// 122
-	"%7b",		// 123
-	"%7c",		// 124
-	"%7d",		// 125
-	"~",		// 126
-	"%7f",		// 127
-	"%80",		// 128
-	"%81",		// 129
-	"%82",		// 130
-	"%83",		// 131
-	"%84",		// 132
-	"%85",		// 133
-	"%86",		// 134
-	"%87",		// 135
-	"%88",		// 136
-	"%89",		// 137
-	"%8a",		// 138
-	"%8b",		// 139
-	"%8c",		// 140
-	"%8d",		// 141
-	"%8e",		// 142
-	"%8f",		// 143
-	"%90",		// 144
-	"%91",		// 145
-	"%92",		// 146
-	"%93",		// 147
-	"%94",		// 148
-	"%95",		// 149
-	"%96",		// 150
-	"%97",		// 151
-	"%98",		// 152
-	"%99",		// 153
-	"%9a",		// 154
-	"%9b",		// 155
-	"%9c",		// 156
-	"%9d",		// 157
-	"%9e",		// 158
-	"%9f",		// 159
-	"%a0",		// 160
-	"%a1",		// 161
-	"%a2",		// 162
-	"%a3",		// 163
-	"%a4",		// 164
-	"%a5",		// 165
-	"%a6",		// 166
-	"%a7",		// 167
-	"%a8",		// 168
-	"%a9",		// 169
-	"%aa",		// 170
-	"%ab",		// 171
-	"%ac",		// 172
-	"%ad",		// 173
-	"%ae",		// 174
-	"%af",		// 175
-	"%b0",		// 176
-	"%b1",		// 177
-	"%b2",		// 178
-	"%b3",		// 179
-	"%b4",		// 180
-	"%b5",		// 181
-	"%b6",		// 182
-	"%b7",		// 183
-	"%b8",		// 184
-	"%b9",		// 185
-	"%ba",		// 186
-	"%bb",		// 187
-	"%bc",		// 188
-	"%bd",		// 189
-	"%be",		// 190
-	"%bf",		// 191
-	"%c0",		// 192
-	"%c1",		// 193
-	"%c2",		// 194
-	"%c3",		// 195
-	"%c4",		// 196
-	"%c5",		// 197
-	"%c6",		// 198
-	"%c7",		// 199
-	"%c8",		// 200
-	"%c9",		// 201
-	"%ca",		// 202
-	"%cb",		// 203
-	"%cc",		// 204
-	"%cd",		// 205
-	"%ce",		// 206
-	"%cf",		// 207
-	"%d0",		// 208
-	"%d1",		// 209
-	"%d2",		// 210
-	"%d3",		// 211
-	"%d4",		// 212
-	"%d5",		// 213
-	"%d6",		// 214
-	"%d7",		// 215
-	"%d8",		// 216
-	"%d9",		// 217
-	"%da",		// 218
-	"%db",		// 219
-	"%dc",		// 220
-	"%dd",		// 221
-	"%de",		// 222
-	"%df",		// 223
-	"%e0",		// 224
-	"%e1",		// 225
-	"%e2",		// 226
-	"%e3",		// 227
-	"%e4",		// 228
-	"%e5",		// 229
-	"%e6",		// 230
-	"%e7",		// 231
-	"%e8",		// 232
-	"%e9",		// 233
-	"%ea",		// 234
-	"%eb",		// 235
-	"%ec",		// 236
-	"%ed",		// 237
-	"%ee",		// 238
-	"%ef",		// 239
-	"%f0",		// 240
-	"%f1",		// 241
-	"%f2",		// 242
-	"%f3",		// 243
-	"%f4",		// 244
-	"%f5",		// 245
-	"%f6",		// 246
-	"%f7",		// 247
-	"%f8",		// 248
-	"%f9",		// 249
-	"%fa",		// 250
-	"%fb",		// 251
-	"%fc",		// 252
-	"%fd",		// 253
-	"%fe",		// 254
-	"%ff"		// 255
-};
+	std::ostringstream ostr;
+
+	std::string::const_iterator it = str.begin();
+	std::string::const_iterator end = str.end();
+	for(; it != end; ++it)
+	{
+		std::string::value_type c = *it;
+		if(allowed.find(c) == std::string::npos)
+		  {
+		    ostr << "%"
+			 << std::uppercase << std::hex << std::setw(2) << std::setfill('0')
+			 << static_cast<U32>(c);
+		  }
+		else
+		  {
+		    ostr << c;
+		  }
+	}
+	return ostr.str();
+}
+
+// static
+std::string LLURI::unescape(const std::string& str)
+{
+	std::ostringstream ostr;
+	std::string::const_iterator it = str.begin();
+	std::string::const_iterator end = str.end();
+	for(; it != end; ++it)
+	{
+		if((*it) == '%')
+		{
+			++it;
+			if(it == end) break;
+			U8 c = hex_as_nybble(*it++);
+			c = c << 4;
+			if (it == end) break;
+			c |= hex_as_nybble(*it);
+			ostr.put((char)c);
+		}
+		else
+		{
+			ostr.put(*it);
+		}
+	}
+	return ostr.str();
+}
+
+namespace
+{
+	const std::string unreserved()
+	{
+		static const std::string s =   
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+			"0123456789"
+			"-._~";
+		return s;
+	}
+	const std::string sub_delims()
+	{
+		static const std::string s = "!$&'()*+,;=";
+		return s;
+	}
+
+	std::string escapeHostAndPort(const std::string& s)
+		{ return LLURI::escape(s, unreserved() + sub_delims() +":"); }
+	std::string escapePathComponent(const std::string& s)
+		{ return LLURI::escape(s, unreserved() + sub_delims() + ":@"); }
+	std::string escapeQueryVariable(const std::string& s)
+		{ return LLURI::escape(s, unreserved() + ":@!$'()*+,"); }	 // sub_delims - "&;=" + ":@"
+	std::string escapeQueryValue(const std::string& s)
+		{ return LLURI::escape(s, unreserved() + ":@!$'()*+,="); }	// sub_delims - "&;" + ":@"
+}
 
 LLURI::LLURI()
 {
@@ -352,23 +165,23 @@ LLURI::~LLURI()
 {
 }
 
-
-LLURI LLURI::buildHTTP(const std::string& host_port,
+// static
+LLURI LLURI::buildHTTP(const std::string& prefix,
 					   const LLSD& path)
 {
 	LLURI result;
 	
 	// TODO: deal with '/' '?' '#' in host_port
-	if (host_port.find("://") != host_port.npos)
+	if (prefix.find("://") != prefix.npos)
 	{
-		// The scheme is part of the host_port
-		result.mScheme = "";
-		result.mEscapedAuthority = escape(host_port);
+		// it is a prefix
+		result = LLURI(prefix);
 	}
 	else
 	{
-		result.mScheme = "HTTP";
-		result.mEscapedAuthority = "//" + escape(host_port);
+		// it is just a host and optional port
+		result.mScheme = "http";
+		result.mEscapedAuthority = escapeHostAndPort(prefix);
 	}
 
 	if (path.isArray())
@@ -379,20 +192,20 @@ LLURI LLURI::buildHTTP(const std::string& host_port,
 			 ++it)
 		{
 			lldebugs << "PATH: inserting " << it->asString() << llendl;
-			result.mEscapedPath += "/" + escape(it->asString());
+			result.mEscapedPath += "/" + escapePathComponent(it->asString());
 		}
 	}
-	result.mEscapedOpaque = result.mEscapedAuthority +
+	result.mEscapedOpaque = "//" + result.mEscapedAuthority +
 		result.mEscapedPath;
 	return result;
 }
 
 // static
-LLURI LLURI::buildHTTP(const std::string& host_port,
+LLURI LLURI::buildHTTP(const std::string& prefix,
 					   const LLSD& path,
 					   const LLSD& query)
 {
-	LLURI result = buildHTTP(host_port, path);
+	LLURI result = buildHTTP(prefix, path);
 	// break out and escape each query component
 	if (query.isMap())
 	{
@@ -400,8 +213,8 @@ LLURI LLURI::buildHTTP(const std::string& host_port,
 			 it != query.endMap();
 			 it++)
 		{
-			result.mEscapedQuery += escape(it->first) +
-				(it->second.isUndefined() ? "" : "=" + it->second.asString()) +
+			result.mEscapedQuery += escapeQueryVariable(it->first) +
+				(it->second.isUndefined() ? "" : "=" + escapeQueryValue(it->second.asString())) +
 				"&";
 		}
 		if (query.size() > 0)
@@ -413,56 +226,62 @@ LLURI LLURI::buildHTTP(const std::string& host_port,
 }
 
 // static
+LLURI LLURI::buildHTTP(const std::string& host,
+					   const U32& port,
+					   const LLSD& path)
+{
+	return LLURI::buildHTTP(llformat("%s:%u", host.c_str(), port), path);
+}
+
+// static
+LLURI LLURI::buildHTTP(const std::string& host,
+					   const U32& port,
+					   const LLSD& path,
+					   const LLSD& query)
+{
+	return LLURI::buildHTTP(llformat("%s:%u", host.c_str(), port), path, query);
+}
+
+
+namespace {
+	LLURI buildBackboneURL(LLApp* app,
+				const std::string& p1 = "",
+				const std::string& p2 = "",
+				const std::string& p3 = "")
+	{
+		std::string host = "localhost:12040";
+
+		if (app)
+		{
+			host = app->getOption("backbone-host-port").asString();
+		}
+
+		LLSD path = LLSD::emptyArray();
+		if (!p1.empty())	path.append(p1);
+		if (!p2.empty())	path.append(p2);
+		if (!p3.empty())	path.append(p3);
+
+		return LLURI::buildHTTP(host, path);
+	}
+}
+
+
+// static
 LLURI LLURI::buildAgentPresenceURI(const LLUUID& agent_id, LLApp* app)
 {
-	std::string host = "localhost:12040";
-
-	if (app)
-	{
-		host = app->getOption("backbone-host-port").asString();
-	}
-
-	LLSD path = LLSD::emptyArray();
-	path.append("agent");
-	path.append(agent_id);
-	path.append("presence");
-
-	return buildHTTP(host, path);
+	return buildBackboneURL(app, "agent", agent_id.asString(), "presence");
 }
 
 // static
 LLURI LLURI::buildBulkAgentPresenceURI(LLApp* app)
 {
-	std::string host = "localhost:12040";
-
-	if (app)
-	{
-		host = app->getOption("backbone-host-port").asString();
-	}
-
-	LLSD path = LLSD::emptyArray();
-	path.append("agent");
-	path.append("presence");
-
-	return buildHTTP(host, path);
+	return buildBackboneURL(app, "agent", "presence");
 }
 
 // static
 LLURI LLURI::buildAgentSessionURI(const LLUUID& agent_id, LLApp* app)
 {
-	std::string host = "localhost:12040";
-
-	if (app)
-	{
-		host = app->getOption("backbone-host-port").asString();
-	}
-
-	LLSD path = LLSD::emptyArray();
-	path.append("agent");
-	path.append(agent_id);
-	path.append("session");
-
-	return buildHTTP(host, path);
+	return buildBackboneURL(app, "agent", agent_id.asString(), "session");
 }
 
 // static
@@ -635,43 +454,3 @@ LLSD LLURI::queryMap(std::string escaped_query_string)
 	return result;
 }
 
-// static
-std::string LLURI::escape(const std::string& str)
-{
-	std::ostringstream ostr;
-	std::string::const_iterator it = str.begin();
-	std::string::const_iterator end = str.end();
-	S32 c;
-	for(; it != end; ++it)
-	{
-		c = (S32)(*it);
-		ostr << ESCAPED_CHARACTERS[c];
-	}
-	return ostr.str();
-}
-
-// static
-std::string LLURI::unescape(const std::string& str)
-{
-	std::ostringstream ostr;
-	std::string::const_iterator it = str.begin();
-	std::string::const_iterator end = str.end();
-	for(; it != end; ++it)
-	{
-		if((*it) == '%')
-		{
-			++it;
-			if(it == end) break;
-			U8 c = hex_as_nybble(*it++);
-			c = c << 4;
-			if (it == end) break;
-			c |= hex_as_nybble(*it);
-			ostr.put((char)c);
-		}
-		else
-		{
-			ostr.put(*it);
-		}
-	}
-	return ostr.str();
-}

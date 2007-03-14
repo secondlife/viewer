@@ -50,6 +50,14 @@ public:
 	const LLInventoryItem* getDragItem();
 
 
+	// return true if there is any embedded inventory.
+	bool hasEmbeddedInventory();
+
+	// After saving a notecard, the tcp based upload system will
+	// change the asset, therefore, we need to re-fetch it from the
+	// asset system. :(
+	void refreshFromInventory();
+
 protected:
 
 	virtual void loadAsset();

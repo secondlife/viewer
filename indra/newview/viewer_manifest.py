@@ -324,12 +324,15 @@ class DarwinManifest(ViewerManifest):
                 volpath = re.search('HFS\s+(.+)', hdi_output).group(1).strip()
 
                 # Copy everything in to the mounted .dmg
-                for s,d in {self.get_dst_prefix():("Second Life " + self.args['grid']).strip()+ ".app",
-                                        "lsl_guide.html":"Linden Scripting Language Guide.html",
-                                        "releasenotes.txt":"Release Notes.txt",
-                                        "installers/darwin/mac_image_hidden":".hidden",
-                                        "installers/darwin/mac_image_background.tga":"background.tga",
-                                        "installers/darwin/mac_image_DS_Store":".DS_Store"}.items():
+                # TODO change name of .app once mac_updater can handle it.
+                for s,d in {
+                        self.get_dst_prefix():"Second Life.app",
+                        "lsl_guide.html":"Linden Scripting Language Guide.html",
+                        "releasenotes.txt":"Release Notes.txt",
+                        "installers/darwin/mac_image_hidden":".hidden",
+                        "installers/darwin/mac_image_background.tga":"background.tga",
+                        "installers/darwin/mac_image_DS_Store":".DS_Store"}.items():
+                        
                         print "Copying to dmg", s, d
                         self.copy_action(self.src_path_of(s), os.path.join(volpath, d))
 

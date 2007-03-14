@@ -4,7 +4,7 @@ along with the issue identifier corresponding to the patches we've
 received from them.  To see more about these contributions, visit
 http://jira.secondlife.com/ , and enter the issue identifier.
 
-Alissa Sabre - VWR-81, VWR-86
+Alissa Sabre - VWR-81, VWR-83
 blino Nakamura - VWR-17
 Drewan Keats - VWR-28
 Dylan Haskell - VWR-72

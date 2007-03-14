@@ -1260,8 +1260,19 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	LLSD capabilityNames = LLSD::emptyArray();
 	capabilityNames.append("MapLayer");
 	capabilityNames.append("MapLayerGod");
-	capabilityNames.append("NewAgentInventory");
+	capabilityNames.append("NewFileAgentInventory");
 	capabilityNames.append("EventQueueGet");
+	capabilityNames.append("UpdateGestureAgentInventory");
+	capabilityNames.append("UpdateNotecardAgentInventory");
+	capabilityNames.append("UpdateScriptAgentInventory");
+	capabilityNames.append("UpdateGestureTaskInventory");
+	capabilityNames.append("UpdateNotecardTaskInventory");
+	capabilityNames.append("UpdateScriptTaskInventory");
+	capabilityNames.append("SendPostcard");
+	capabilityNames.append("ViewerStartAuction");
+	capabilityNames.append("ParcelGodReserveForNewbie");
+	capabilityNames.append("SendUserReport");
+	capabilityNames.append("SendUserReportWithScreenshot");
 	capabilityNames.append("RequestTextureDownload");
 	LLHTTPClient::post(url, capabilityNames, BaseCapabilitiesComplete::build(this));
 }
@@ -1302,5 +1313,18 @@ std::string LLViewerRegion::getCapability(const std::string& name) const
 		return "";
 	}
 	return iter->second;
+}
+
+void LLViewerRegion::logActiveCapabilities() const
+{
+	CapabilityMap::const_iterator iter;
+	for (iter = mCapabilities.begin(); iter != mCapabilities.end(); iter++)
+	{
+		if (!iter->second.empty())
+		{
+			// llinfos << "Active capability is " << iter->first << llendl;
+			llinfos << iter->first << " URL is " << iter->second << llendl;
+		}
+	}
 }
 

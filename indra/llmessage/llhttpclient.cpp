@@ -131,6 +131,27 @@ namespace
 
 		const LLSD mSD;
 	};
+
+	class RawInjector : public Injector
+	{
+	public:
+		RawInjector(const U8* data, S32 size) : mData(data), mSize(size) {}
+		virtual ~RawInjector() {}
+
+		const char* contentType() { return "application/octet-stream"; }
+
+		virtual EStatus process_impl(const LLChannelDescriptors& channels,
+			buffer_ptr_t& buffer, bool& eos, LLSD& context, LLPumpIO* pump)
+		{
+			LLBufferStream ostream(channels, buffer.get());
+			ostream.write((const char *)mData, mSize);  // hopefully chars are always U8s
+			eos = true;
+			return STATUS_DONE;
+		}
+
+		const U8* mData;
+		S32 mSize;
+	};
 	
 	class FileInjector : public Injector
 	{
@@ -299,6 +320,11 @@ void LLHTTPClient::put(const std::string& url, const LLSD& body, ResponderPtr re
 void LLHTTPClient::post(const std::string& url, const LLSD& body, ResponderPtr responder)
 {
 	request(url, LLURLRequest::HTTP_POST, new LLSDInjector(body), responder);
+}
+
+void LLHTTPClient::post(const std::string& url, const U8* data, S32 size, ResponderPtr responder)
+{
+	request(url, LLURLRequest::HTTP_POST, new RawInjector(data, size), responder);
 }
 
 void LLHTTPClient::del(const std::string& url, ResponderPtr responder)

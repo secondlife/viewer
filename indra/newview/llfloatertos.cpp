@@ -163,18 +163,8 @@ BOOL LLFloaterTOS::postBuild()
 		gResponsePtr = LLIamHere::build( this );
 		LLHTTPClient::get( childGetValue( "real_url" ).asString(), gResponsePtr );
 	};
-	#else
-	LLTextEditor *Editor = LLUICtrlFactory::getTextEditorByName(this, "tos_text");
-	if (Editor)
-	{
-		Editor->setHandleEditKeysDirectly( TRUE );
-		Editor->setEnabled( FALSE );
-		Editor->setReadOnlyFgColor(LLColor4::white);
-		Editor->setWordWrap(TRUE);
-		Editor->setFocus(TRUE);
-	}
-	childSetValue("tos_text", LLSD(mMessage));	
 	#endif
+
 	return TRUE;
 }
 

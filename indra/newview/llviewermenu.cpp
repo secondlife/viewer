@@ -273,6 +273,7 @@ BOOL enable_save_as(void *);
 
 // Edit menu
 void handle_dump_group_info(void *);
+void handle_dump_capabilities_info(void *);
 void handle_dump_focus(void*);
 
 void handle_region_dump_settings(void*);
@@ -716,6 +717,8 @@ void init_client_menu(LLMenuGL* menu)
 			&handle_region_dump_settings, NULL));
 		sub->append(new LLMenuItemCallGL("Group Info to Debug Console",
 			&handle_dump_group_info, NULL, NULL));
+		sub->append(new LLMenuItemCallGL("Capabilities Info to Debug Console",
+			&handle_dump_capabilities_info, NULL, NULL));
 		sub->createJumpKeys();
 	}
 	
@@ -2451,6 +2454,14 @@ void handle_dump_group_info(void *)
 	//llinfos << "insig   " << gAgent.mGroupInsigniaID << llendl;
 }
 
+void handle_dump_capabilities_info(void *)
+{
+	LLViewerRegion* regionp = gAgent.getRegion();
+	if (regionp)
+	{
+		regionp->logActiveCapabilities();
+	}
+}
 
 void handle_dump_focus(void *)
 {
@@ -5689,7 +5700,7 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 	llinfos << "Desc: " << desc << llendl;
 	lldebugs << "Folder: " << gInventory.findCategoryUUIDForType(destination_folder_type) << llendl;
 	lldebugs << "Asset Type: " << LLAssetType::lookup(asset_type) << llendl;
-	std::string url = gAgent.getRegion()->getCapability("NewAgentInventory");
+	std::string url = gAgent.getRegion()->getCapability("NewFileAgentInventory");
 	if (!url.empty())
 	{
 		llinfos << "New Agent Inventory via capability" << llendl;
@@ -5703,7 +5714,7 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 		std::ostringstream llsdxml;
 		LLSDSerialize::toXML(body, llsdxml);
 		lldebugs << "posting body to capability: " << llsdxml.str() << llendl;
-		LLHTTPClient::post(url, body, new LLNewAgentInventoryResponder(uuid, body));
+		LLHTTPClient::post(url, body, new LLNewAgentInventoryResponder(body, uuid, asset_type));
 	}
 	else
 	{

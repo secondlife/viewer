@@ -363,6 +363,11 @@ public:
 	LLViewerInventoryItem* getInventoryItemByAsset(const LLUUID& asset_id);
 	S16 getInventorySerial() const { return mInventorySerialNum; }
 
+	// These functions does viewer-side only object inventory modifications
+	void updateViewerInventoryAsset(
+		const LLViewerInventoryItem* item,
+		const LLUUID& new_asset);
+
 	// This function will make sure that we refresh the inventory.
 	void dirtyInventory();
 	BOOL isInventoryDirty() { return mInventoryDirty; }

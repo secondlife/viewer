@@ -23,6 +23,24 @@
 #include "llsdutil.h"
 
 ///----------------------------------------------------------------------------
+/// exported functions
+///----------------------------------------------------------------------------
+
+static const std::string INV_ITEM_ID_LABEL("item_id");
+static const std::string INV_FOLDER_ID_LABEL("folder_id");
+static const std::string INV_PARENT_ID_LABEL("parent_id");
+static const std::string INV_ASSET_TYPE_LABEL("type");
+static const std::string INV_PREFERRED_TYPE_LABEL("preferred_type");
+static const std::string INV_INVENTORY_TYPE_LABEL("inv_type");
+static const std::string INV_NAME_LABEL("name");
+static const std::string INV_DESC_LABEL("desc");
+static const std::string INV_PERMISSIONS_LABEL("permissions");
+static const std::string INV_ASSET_ID_LABEL("asset_id");
+static const std::string INV_SALE_INFO_LABEL("sale_info");
+static const std::string INV_FLAGS_LABEL("flags");
+static const std::string INV_CREATION_DATE_LABEL("created_at");
+
+///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
 
@@ -1113,24 +1131,24 @@ bool LLInventoryItem::fromLLSD(LLSD& sd)
 {
 	mInventoryType = LLInventoryType::IT_NONE;
 	mAssetUUID.setNull();
-	const char *w;
+	std::string w;
 
-	w = "item_id";
+	w = INV_ITEM_ID_LABEL;
 	if (sd.has(w))
 	{
 		mUUID = sd[w];
 	}
-	w = "parent_id";
+	w = INV_PARENT_ID_LABEL;
 	if (sd.has(w))
 	{
 		mParentUUID = sd[w];
 	}
-	w = "permissions";
+	w = INV_PERMISSIONS_LABEL;
 	if (sd.has(w))
 	{
 		mPermissions = ll_permissions_from_sd(sd[w]);
 	}
-	w = "sale_info";
+	w = INV_SALE_INFO_LABEL;
 	if (sd.has(w))
 	{
 		// Sale info used to contain next owner perm. It is now in
@@ -1164,40 +1182,40 @@ bool LLInventoryItem::fromLLSD(LLSD& sd)
 		LLXORCipher cipher(MAGIC_ID.mData, UUID_BYTES);
 		cipher.decrypt(mAssetUUID.mData, UUID_BYTES);
 	}
-	w = "asset_id";
+	w = INV_ASSET_ID_LABEL;
 	if (sd.has(w))
 	{
 		mAssetUUID = sd[w];
 	}
-	w = "type";
+	w = INV_ASSET_TYPE_LABEL;
 	if (sd.has(w))
 	{
 		mType = LLAssetType::lookup(sd[w].asString().c_str());
 	}
-	w = "inv_type";
+	w = INV_INVENTORY_TYPE_LABEL;
 	if (sd.has(w))
 	{
 		mInventoryType = LLInventoryType::lookup(sd[w].asString().c_str());
 	}
-	w = "flags";
+	w = INV_FLAGS_LABEL;
 	if (sd.has(w))
 	{
 		mFlags = ll_U32_from_sd(sd[w]);
 	}
-	w = "name";
+	w = INV_NAME_LABEL;
 	if (sd.has(w))
 	{
 		mName = sd[w].asString();
 		LLString::replaceNonstandardASCII(mName, ' ');
 		LLString::replaceChar(mName, '|', ' ');
 	}
-	w = "desc";
+	w = INV_DESC_LABEL;
 	if (sd.has(w))
 	{
 		mDescription = sd[w].asString();
 		LLString::replaceNonstandardASCII(mDescription, ' ');
 	}
-	w = "creation_date";
+	w = INV_CREATION_DATE_LABEL;
 	if (sd.has(w))
 	{
 		mCreationDate = sd[w];
@@ -1719,24 +1737,6 @@ bool inventory_and_asset_types_match(
 	}
 	return rv;
 }
-
-///----------------------------------------------------------------------------
-/// exported functions
-///----------------------------------------------------------------------------
-
-static const std::string INV_ITEM_ID_LABEL("item_id");
-static const std::string INV_FOLDER_ID_LABEL("folder_id");
-static const std::string INV_PARENT_ID_LABEL("parent_id");
-static const std::string INV_ASSET_TYPE_LABEL("type");
-static const std::string INV_PREFERRED_TYPE_LABEL("preferred_type");
-static const std::string INV_INVENTORY_TYPE_LABEL("inv_type");
-static const std::string INV_NAME_LABEL("name");
-static const std::string INV_DESC_LABEL("desc");
-static const std::string INV_PERMISSIONS_LABEL("permissions");
-static const std::string INV_ASSET_ID_LABEL("asset_id");
-static const std::string INV_SALE_INFO_LABEL("sale_info");
-static const std::string INV_FLAGS_LABEL("flags");
-static const std::string INV_CREATION_DATE_LABEL("created_at");
 
 LLSD ll_create_sd_from_inventory_item(LLPointer<LLInventoryItem> item)
 {

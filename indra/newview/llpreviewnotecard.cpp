@@ -13,6 +13,7 @@
 #include "llinventory.h"
 
 #include "llagent.h"
+#include "llassetuploadresponders.h"
 #include "llviewerwindow.h"
 #include "llbutton.h"
 #include "llinventorymodel.h"
@@ -219,6 +220,22 @@ const LLInventoryItem* LLPreviewNotecard::getDragItem()
 	return NULL;
 }
 
+bool LLPreviewNotecard::hasEmbeddedInventory()
+{
+	LLViewerTextEditor* editor = NULL;
+	editor = LLViewerUICtrlFactory::getViewerTextEditorByName(
+		this,
+		"Notecard Editor");
+	if (!editor) return false;
+	return editor->hasEmbeddedInventory();
+}
+
+void LLPreviewNotecard::refreshFromInventory()
+{
+	lldebugs << "LLPreviewNotecard::refreshFromInventory()" << llendl;
+	loadAsset();
+}
+
 void LLPreviewNotecard::loadAsset()
 {
 	// request the asset.
@@ -348,7 +365,7 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 			LLInventoryItem* item = preview->getItem();
 			BOOL modifiable = item && gAgent.allowOperation(PERM_MODIFY,
 								item->getPermissions(), GP_OBJECT_MANIPULATE);
-			previewEditor->setEnabled(modifiable);
+			preview->setEnabled(modifiable);
 			delete[] buffer;
 			preview->mAssetStatus = PREVIEW_ASSET_LOADED;
 		}
@@ -453,14 +470,43 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
 		LLInventoryItem* item = getItem();
 		// save it out to database
 		if (item)
-		{
-			
-			LLSaveNotecardInfo* info = new LLSaveNotecardInfo(this, mItemUUID, mObjectUUID,
-															  tid, copyitem);
-			gAssetStorage->storeAssetData(tid, LLAssetType::AT_NOTECARD,
-											&onSaveComplete,
-											(void*)info,
-											FALSE);
+		{			
+			std::string agent_url = gAgent.getRegion()->getCapability("UpdateNotecardAgentInventory");
+			std::string task_url = gAgent.getRegion()->getCapability("UpdateNotecardTaskInventory");
+			if (mObjectUUID.isNull() && !agent_url.empty())
+			{
+				// Saving into agent inventory
+				mAssetStatus = PREVIEW_ASSET_LOADING;
+				setEnabled(FALSE);
+				LLSD body;
+				body["item_id"] = mItemUUID;
+				llinfos << "Saving notecard " << mItemUUID
+					<< " into agent inventory via " << agent_url << llendl;
+				LLHTTPClient::post(agent_url, body,
+					new LLUpdateAgentInventoryResponder(body, asset_id, LLAssetType::AT_NOTECARD));
+			}
+			else if (!mObjectUUID.isNull() && !task_url.empty())
+			{
+				// Saving into task inventory
+				mAssetStatus = PREVIEW_ASSET_LOADING;
+				setEnabled(FALSE);
+				LLSD body;
+				body["task_id"] = mObjectUUID;
+				body["item_id"] = mItemUUID;
+				llinfos << "Saving notecard " << mItemUUID << " into task "
+					<< mObjectUUID << " via " << task_url << llendl;
+				LLHTTPClient::post(task_url, body,
+					new LLUpdateTaskInventoryResponder(body, asset_id, LLAssetType::AT_NOTECARD));
+			}
+			else if (gAssetStorage)
+			{
+				LLSaveNotecardInfo* info = new LLSaveNotecardInfo(this, mItemUUID, mObjectUUID,
+																tid, copyitem);
+				gAssetStorage->storeAssetData(tid, LLAssetType::AT_NOTECARD,
+												&onSaveComplete,
+												(void*)info,
+												FALSE);
+			}
 		}
 	}
 	return true;

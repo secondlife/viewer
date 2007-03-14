@@ -7,11 +7,10 @@
  */
 
 #include "linden_common.h"
-#include "llinventory.h"
 #include "llnotecard.h"
 #include "llstreamtools.h"
 
-LLNotecard::LLNotecard(U32 max_text)
+LLNotecard::LLNotecard(S32 max_text)
 : mMaxText(max_text)
 {
 }
@@ -179,7 +178,7 @@ bool LLNotecard::importStream(std::istream& str)
 	}
 	line_buf[STD_STRING_STR_LEN] = '\0';
 	
-	U32 text_len = 0;
+	S32 text_len = 0;
 	if( 1 != sscanf(line_buf, "Text length %d", &text_len) )
 	{
 		llwarns << "Invalid Linden text length field" << llendl;

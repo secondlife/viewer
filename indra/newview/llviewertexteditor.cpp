@@ -53,6 +53,9 @@ public:
 	LLEmbeddedItems(const LLViewerTextEditor* editor);
 	~LLEmbeddedItems();
 	void clear();
+
+	// return true if there are no embedded items.
+	bool empty();
 	
 	void	bindEmbeddedChars(const LLFontGL* font);
 	void	unbindEmbeddedChars(const LLFontGL* font);
@@ -115,6 +118,13 @@ void LLEmbeddedItems::clear()
 		removeEmbeddedItem(*nextiter);
 	}
 	mEmbeddedUsedChars.clear();
+	mEmbeddedIndexedChars.clear();
+}
+
+bool LLEmbeddedItems::empty()
+{
+	removeUnusedChars();
+	return mEmbeddedUsedChars.empty();
 }
 
 // Inserts a new unique entry
@@ -1367,10 +1377,11 @@ S32 LLViewerTextEditor::insertEmbeddedItem( S32 pos, LLInventoryItem* item )
 
 bool LLViewerTextEditor::importStream(std::istream& str)
 {
-	LLNotecard nc(MAX_NOTECARD_SIZE);
+	LLNotecard nc(LLNotecard::MAX_SIZE);
 	bool success = nc.importStream(str);
 	if (success)
 	{
+		mEmbeddedItemList->clear();
 		const std::vector<LLPointer<LLInventoryItem> >& items = nc.getItems();
 		mEmbeddedItemList->addItems(items);
 		// Actually set the text
@@ -1396,6 +1407,11 @@ void LLViewerTextEditor::copyInventory(LLInventoryItem* item)
 								 item);
 }
 
+bool LLViewerTextEditor::hasEmbeddedInventory()
+{
+	return (!(mEmbeddedItemList->empty()));
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 BOOL LLViewerTextEditor::importBuffer( const LLString& buffer )
@@ -1406,7 +1422,7 @@ BOOL LLViewerTextEditor::importBuffer( const LLString& buffer )
 
 BOOL LLViewerTextEditor::exportBuffer( LLString& buffer )
 {
-	LLNotecard nc(MAX_NOTECARD_SIZE);
+	LLNotecard nc(LLNotecard::MAX_SIZE);
 
 	std::vector<LLPointer<LLInventoryItem> > embedded_items;
 	mEmbeddedItemList->getEmbeddedItemList(embedded_items);

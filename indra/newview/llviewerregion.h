@@ -169,6 +169,7 @@ public:
 	void setSeedCapability(const std::string& url);
 	void setCapability(const std::string& name, const std::string& url);
 	std::string getCapability(const std::string& name) const;
+	void logActiveCapabilities() const;
 
 	const LLHost	&getHost() const			{ return mHost; }
 	const U64 		&getHandle() const 			{ return mHandle; }

@@ -39,6 +39,8 @@
 #include "llvfs.h"
 #include "viewer.h"
 
+#include "llassetuploadresponders.h"
+
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
@@ -206,6 +208,23 @@ void LLFloaterPostcard::onClickCancel(void* data)
 	}
 }
 
+class LLSendPostcardResponder : public LLAssetUploadResponder
+{
+public:
+	LLSendPostcardResponder(const LLSD &post_data,
+							const LLUUID& vfile_id,
+							LLAssetType::EType asset_type):
+	    LLAssetUploadResponder(post_data, vfile_id, asset_type)
+	{	
+	}
+	// *TODO define custom uploadFailed here so it's not such a generic message
+	void LLSendPostcardResponder::uploadComplete(const LLSD& content)
+	{
+		// we don't care about what the server returns from this post, just clean up the UI
+		LLUploadDialog::modalUploadFinished();
+	}
+};
+
 // static
 void LLFloaterPostcard::onClickSend(void* data)
 {
@@ -230,12 +249,31 @@ void LLFloaterPostcard::onClickSend(void* data)
 
 		if (self->mJPEGImage.notNull())
 		{
-			// upload the image
 			self->mTransactionID.generate();
 			self->mAssetID = self->mTransactionID.makeAssetID(gAgent.getSecureSessionID());
 			LLVFile::writeFile(self->mJPEGImage->getData(), self->mJPEGImage->getDataSize(), gVFS, self->mAssetID, LLAssetType::AT_IMAGE_JPEG);
-			
-			gAssetStorage->storeAssetData(self->mTransactionID, LLAssetType::AT_IMAGE_JPEG, &uploadCallback, (void *)self, FALSE);
+
+			// upload the image
+			std::string url = gAgent.getRegion()->getCapability("SendPostcard");
+			if(!url.empty())
+			{
+				llinfos << "Send Postcard via capability" << llendl;
+				LLSD body = LLSD::emptyMap();
+				// the capability already encodes: agent ID, region ID
+				body["pos-global"] = self->mPosTakenGlobal.getValue();
+				body["to"] = self->childGetValue("to_form").asString();
+				body["from"] = self->childGetValue("from_form").asString();
+				body["name"] = self->childGetValue("name_form").asString();
+				body["subject"] = self->childGetValue("subject_form").asString();
+				body["msg"] = self->childGetValue("msg_form").asString();
+				body["allow-publish"] = self->childGetValue("allow_publish_check").asBoolean();
+				body["mature-publish"] = self->childGetValue("mature_check").asBoolean();
+				LLHTTPClient::post(url, body, new LLSendPostcardResponder(body, self->mAssetID, LLAssetType::AT_IMAGE_JPEG));
+			} 
+			else
+			{
+				gAssetStorage->storeAssetData(self->mTransactionID, LLAssetType::AT_IMAGE_JPEG, &uploadCallback, (void *)self, FALSE);
+			}
 
 			LLUploadDialog::modalUploadDialog("Uploading...\n\nPostcard");
 

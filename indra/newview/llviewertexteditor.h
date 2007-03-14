@@ -67,7 +67,14 @@ public:
 		// If this starts a line, you need to prepend a newline.
 
 	void copyInventory(LLInventoryItem* item);
-	
+
+	// returns true if there is embedded inventory.
+	// *HACK: This is only useful because the notecard verifier may
+	// change the asset if there is embedded inventory. This mechanism
+	// should be changed to get a different asset id from the verifier
+	// rather than checking if a re-load is necessary. Phoenix 2007-02-27
+	bool hasEmbeddedInventory();
+
 protected:
 	// Embedded object operations
 	virtual llwchar	pasteEmbeddedItem(llwchar ext_char);

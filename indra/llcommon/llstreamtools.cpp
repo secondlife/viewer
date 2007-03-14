@@ -534,7 +534,7 @@ std::istream& fullread(std::istream& str, char *buf, std::streamsize requested)
 
 std::istream& operator>>(std::istream& str, const char *tocheck)
 {
-	char c;
+	char c = '\0';
 	const char *p;
 	p = tocheck;
 	while (*p && !str.bad())

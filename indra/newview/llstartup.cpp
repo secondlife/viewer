@@ -833,6 +833,7 @@ BOOL idle_startup()
 		case USERSERVER_SHAKTI:
 		case USERSERVER_DURGA:
 		case USERSERVER_SOMA:
+		case USERSERVER_VAAK:
 		case USERSERVER_GANGA:
 		case USERSERVER_UMA:
 		{
@@ -2557,6 +2558,7 @@ void login_show()
 	LLPanelLogin::addServer( gUserServerDomainName[USERSERVER_GANGA].mLabel,	USERSERVER_GANGA );
 	LLPanelLogin::addServer( gUserServerDomainName[USERSERVER_UMA].mLabel,	USERSERVER_UMA );
 	LLPanelLogin::addServer( gUserServerDomainName[USERSERVER_SOMA].mLabel,	USERSERVER_SOMA );
+	LLPanelLogin::addServer( gUserServerDomainName[USERSERVER_VAAK].mLabel,	USERSERVER_VAAK );
 }
 
 // Callback for when login screen is closed.  Option 0 = connect, option 1 = quit.

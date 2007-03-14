@@ -9,12 +9,21 @@
 #ifndef LL_NOTECARD_H
 #define LL_NOTECARD_H
 
-const S32 MAX_NOTECARD_SIZE = 65536;
+#include "llmemory.h"
+#include "llinventory.h"
 
 class LLNotecard
 {
 public:
-	LLNotecard(U32 max_text);
+	/**
+	 * @brief anonymous enumeration to set max size.
+	 */
+	enum
+	{
+		MAX_SIZE = 65536
+	};
+	
+	LLNotecard(S32 max_text = LLNotecard::MAX_SIZE);
 	virtual ~LLNotecard();
 
 	bool importStream(std::istream& str);
@@ -33,7 +42,7 @@ private:
 	bool exportEmbeddedItemsStream(std::ostream& str);
 	std::vector<LLPointer<LLInventoryItem> > mItems;
 	LLString mText;
-	U32 mMaxText;
+	S32 mMaxText;
 	S32 mVersion;
 	S32 mEmbeddedVersion;
 };

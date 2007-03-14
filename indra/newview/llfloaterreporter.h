@@ -21,6 +21,7 @@ class LLViewerObject;
 class LLAgent;
 class LLToolObjPicker;
 class LLMeanCollisionData;
+struct LLResourceData;
 
 // these flags are used to label info requests to the server
 const U32 BUG_REPORT_REQUEST 		= 0x01 << 0;
@@ -50,7 +51,6 @@ enum EReportType
 	COMPLAINT_REPORT = 3,
 	CS_REQUEST_REPORT = 4
 };
-
 
 class LLFloaterReporter
 :	public LLFloater
@@ -87,11 +87,16 @@ public:
 	static void processRegionInfo(LLMessageSystem* msg);
 	
 	void setPickedObjectProperties(const char *object_name, const char *owner_name);
-	void uploadScreenshot();
 
 private:
+	void takeScreenshot();
+	void sendReportViaCaps(std::string url);
+	void uploadImage();
+	bool validateReport();
 	void setReporterID();
-	void sendReport();
+	LLSD gatherReport();
+	void sendReportViaLegacy(const LLSD & report);
+	void sendReportViaCaps(std::string url, std::string sshot_url, const LLSD & report);
 	void setPosBox(const LLVector3d &pos);
 	void enableControls(BOOL own_avatar);
 	void getObjectInfo(const LLUUID& object_id);
@@ -108,6 +113,7 @@ private:
 	BOOL			mCopyrightWarningSeen;
 	std::list<LLMeanCollisionData*> mMCDList;
 	LLString		mDefaultSummary;
+	LLResourceData* mResourceDatap;
 };
 
 #endif
