@@ -11,12 +11,15 @@
 
 #include "llhttpassetstorage.h"
 
+#include <sys/stat.h>
+
 #include "indra_constants.h"
 #include "llvfile.h"
 #include "llvfs.h"
 
 #include "zlib/zlib.h"
 
+const U32 MAX_RUNNING_REQUESTS = 4;
 const F32 MAX_PROCESSING_TIME = 0.005f;
 const S32 CURL_XFER_BUFFER_SIZE = 65536;
 // Try for 30 minutes for now.
@@ -49,7 +52,9 @@ struct LLTempAssetData
 class LLHTTPAssetRequest : public LLAssetRequest
 {
 public:
-	LLHTTPAssetRequest(LLHTTPAssetStorage *asp, const LLUUID &uuid, LLAssetType::EType type, const char *url, CURLM *curl_multi);
+	LLHTTPAssetRequest(LLHTTPAssetStorage *asp, const LLUUID &uuid, 
+					LLAssetType::EType type, LLAssetStorage::ERequestType rt,
+					const char *url, CURLM *curl_multi);
 	virtual ~LLHTTPAssetRequest();
 	
 	void setupCurlHandle();
@@ -61,6 +66,9 @@ public:
 	static size_t curlCompressedUploadCallback(
 					void *data, size_t size, size_t nmemb, void *user_data);
 
+	virtual LLSD getTerseDetails() const;
+	virtual LLSD getFullDetails() const;
+
 public:
 	LLHTTPAssetStorage *mAssetStoragep;
 
@@ -70,9 +78,7 @@ public:
 	struct curl_slist *mHTTPHeaders;
 	LLVFile *mVFile;
 	LLUUID  mTmpUUID;
-	BOOL    mIsUpload;
-	BOOL	mIsLocalUpload;
-	BOOL	mIsDownload;
+	LLAssetStorage::ERequestType mRequestType;
 
 	bool		mZInitialized;
 	z_stream	mZStream;
@@ -83,7 +89,12 @@ public:
 };
 
 
-LLHTTPAssetRequest::LLHTTPAssetRequest(LLHTTPAssetStorage *asp, const LLUUID &uuid, LLAssetType::EType type, const char *url, CURLM *curl_multi)
+LLHTTPAssetRequest::LLHTTPAssetRequest(LLHTTPAssetStorage *asp, 
+						const LLUUID &uuid, 
+						LLAssetType::EType type, 
+						LLAssetStorage::ERequestType rt,
+						const char *url, 
+						CURLM *curl_multi)
 	: LLAssetRequest(uuid, type),
 	mZInitialized(false)
 {
@@ -91,10 +102,11 @@ LLHTTPAssetRequest::LLHTTPAssetRequest(LLHTTPAssetStorage *asp, const LLUUID &uu
 	mCurlHandle = NULL;
 	mCurlMultiHandle = curl_multi;
 	mVFile = NULL;
-	mIsUpload = FALSE;
-	mIsLocalUpload = FALSE;
-	mIsDownload = FALSE;
+	mRequestType = rt;
 	mHTTPHeaders = NULL;
+	mFP = NULL;
+	mZInputBuffer = NULL;
+	mZInputExhausted = false;
 	
 	mURLBuffer = new char[strlen(url) + 1]; /*Flawfinder: ignore*/
 	if (mURLBuffer)
@@ -113,22 +125,7 @@ LLHTTPAssetRequest::~LLHTTPAssetRequest()
 		if (mAssetStoragep)
 		{
 			// Terminating a request.  Thus upload or download is no longer pending.
-			if (mIsUpload)
-			{
-				mAssetStoragep->clearPendingUpload();
-			}
-			else if (mIsLocalUpload)
-			{
-				mAssetStoragep->clearPendingLocalUpload();
-			}
-			else if (mIsDownload)
-			{
-				mAssetStoragep->clearPendingDownload();
-			}
-			else
-			{
-				llerrs << "LLHTTPAssetRequest::~LLHTTPAssetRequest - Destroyed request is not upload OR download, this is bad!" << llendl;
-			}
+			mAssetStoragep->removeRunningRequest(mRequestType, this);
 		}
 		else
 		{
@@ -144,6 +141,82 @@ LLHTTPAssetRequest::~LLHTTPAssetRequest()
 	finishCompressedUpload();
 }
 
+// virtual
+LLSD LLHTTPAssetRequest::getTerseDetails() const
+{
+	LLSD sd = LLAssetRequest::getTerseDetails();
+
+	sd["url"] = mURLBuffer;
+
+	return sd;
+}
+
+// virtual
+LLSD LLHTTPAssetRequest::getFullDetails() const
+{
+	LLSD sd = LLAssetRequest::getFullDetails();
+
+	if (mCurlHandle)
+	{
+		long curl_response = -1;
+		long curl_connect = -1;
+		double curl_total_time = -1.0f;
+		double curl_size_upload = -1.0f;
+		double curl_size_download = -1.0f;
+		long curl_content_length_upload = -1;
+		long curl_content_length_download = -1;
+		long curl_request_size = -1;
+		const char* curl_content_type = NULL;
+
+		curl_easy_getinfo(mCurlHandle, CURLINFO_HTTP_CODE, &curl_response);
+		curl_easy_getinfo(mCurlHandle, CURLINFO_HTTP_CONNECTCODE, &curl_connect);
+		curl_easy_getinfo(mCurlHandle, CURLINFO_TOTAL_TIME, &curl_total_time);
+		curl_easy_getinfo(mCurlHandle, CURLINFO_SIZE_UPLOAD,  &curl_size_upload);
+		curl_easy_getinfo(mCurlHandle, CURLINFO_SIZE_DOWNLOAD, &curl_size_download);
+		curl_easy_getinfo(mCurlHandle, CURLINFO_CONTENT_LENGTH_UPLOAD,   &curl_content_length_upload);
+		curl_easy_getinfo(mCurlHandle, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &curl_content_length_download);
+		curl_easy_getinfo(mCurlHandle, CURLINFO_REQUEST_SIZE, &curl_request_size);
+		curl_easy_getinfo(mCurlHandle, CURLINFO_CONTENT_TYPE, &curl_content_type);
+
+		sd["curl_response_code"] = (int) curl_response;
+		sd["curl_http_connect_code"] = (int) curl_connect;
+		sd["curl_total_time"] = curl_total_time;
+		sd["curl_size_upload"]   = curl_size_upload;
+		sd["curl_size_download"] = curl_size_download;
+		sd["curl_content_length_upload"]   = (int) curl_content_length_upload;
+		sd["curl_content_length_download"] = (int) curl_content_length_download;
+		sd["curl_request_size"] = (int) curl_request_size;
+		if (curl_content_type)
+		{
+			sd["curl_content_type"] = curl_content_type;
+		}
+		else
+		{
+			sd["curl_content_type"] = "";
+		}
+	}
+
+	sd["temp_id"] = mTmpUUID;
+	sd["request_type"] = LLAssetStorage::getRequestName(mRequestType);
+	sd["z_initialized"] = mZInitialized;
+	sd["z_input_exhausted"] = mZInputExhausted;
+
+	S32 file_size = -1;
+	if (mFP)
+	{
+		struct stat file_stat;
+		int file_desc = fileno(mFP);
+		if ( fstat(file_desc, &file_stat) == 0)
+		{
+			file_size = file_stat.st_size;
+		}
+	}
+	sd["file_size"] = file_size;
+
+	return sd;
+}
+
+
 void LLHTTPAssetRequest::setupCurlHandle()
 {
 	mCurlHandle = curl_easy_init();
@@ -151,7 +224,7 @@ void LLHTTPAssetRequest::setupCurlHandle()
 	curl_easy_setopt(mCurlHandle, CURLOPT_NOPROGRESS, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_URL, mURLBuffer);
 	curl_easy_setopt(mCurlHandle, CURLOPT_PRIVATE, this);
-	if (mIsDownload)
+	if (LLAssetStorage::RT_DOWNLOAD == mRequestType)
 	{
 		curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
 		// only do this on downloads, as uploads 
@@ -174,22 +247,7 @@ void LLHTTPAssetRequest::setupCurlHandle()
 	if (mAssetStoragep)
 	{
 		// Set the appropriate pending upload or download flag
-		if (mIsUpload)
-		{
-			mAssetStoragep->setPendingUpload();
-		}
-		else if (mIsLocalUpload)
-		{
-			mAssetStoragep->setPendingLocalUpload();
-		}
-		else if (mIsDownload)
-		{
-			mAssetStoragep->setPendingDownload();
-		}
-		else
-		{
-			llerrs << "LLHTTPAssetRequest::setupCurlHandle - Request is not upload OR download, this is bad!" << llendl;
-		}
+		mAssetStoragep->addRunningRequest(mRequestType, this);
 	}
 	else
 	{
@@ -323,10 +381,6 @@ void LLHTTPAssetStorage::_init(const char *web_host, const char *local_web_host,
 	curl_global_init(CURL_GLOBAL_ALL);
 
 	mCurlMultiHandle = curl_multi_init();
-
-	mPendingDownload = FALSE;
-	mPendingUpload = FALSE;
-	mPendingLocalUpload = FALSE;
 }
 
 LLHTTPAssetStorage::~LLHTTPAssetStorage()
@@ -438,6 +492,113 @@ void LLHTTPAssetStorage::storeAssetData(
 	}
 }
 
+// virtual
+LLSD LLHTTPAssetStorage::getPendingDetails(LLAssetStorage::ERequestType rt,
+										LLAssetType::EType asset_type,
+										const std::string& detail_prefix) const
+{
+	LLSD sd = LLAssetStorage::getPendingDetails(rt, asset_type, detail_prefix);
+	const request_list_t* running = getRunningList(rt);
+	if (running)
+	{
+		// Loop through the pending requests sd, and add extra info about its running status.
+		S32 num_pending = sd["requests"].size();
+		S32 i;
+		for (i = 0; i < num_pending; ++i)
+		{
+			LLSD& pending = sd["requests"][i];
+			// See if this pending request is running.
+			const LLAssetRequest* req = findRequest(running, 
+									LLAssetType::lookup(pending["type"].asString().c_str()),
+									pending["asset_id"]);
+			if (req)
+			{
+				// Keep the detail_url so we don't have to rebuild it.
+				LLURI detail_url = pending["detail"];
+				pending = req->getTerseDetails();
+				pending["detail"] = detail_url;
+				pending["is_running"] = true;
+			}
+			else
+			{
+				pending["is_running"] = false;
+			}
+		}
+	}
+	return sd;
+}
+
+// virtual
+LLSD LLHTTPAssetStorage::getPendingRequest(LLAssetStorage::ERequestType rt,
+										LLAssetType::EType asset_type,
+										const LLUUID& asset_id) const
+{
+	// Look for this asset in the running list first.
+	const request_list_t* running = getRunningList(rt);
+	if (running)
+	{
+		LLSD sd = LLAssetStorage::getPendingRequest(running, asset_type, asset_id);
+		if (sd)
+		{
+			sd["is_running"] = true;
+			return sd;
+		}
+	}
+	LLSD sd = LLAssetStorage::getPendingRequest(rt, asset_type, asset_id);
+	if (sd)
+	{
+		sd["is_running"] = false;
+	}
+	return sd;
+}
+
+// virtual
+bool LLHTTPAssetStorage::deletePendingRequest(LLAssetStorage::ERequestType rt,
+											LLAssetType::EType asset_type,
+											const LLUUID& asset_id)
+{
+	// Try removing this from the running list first.
+	request_list_t* running = getRunningList(rt);
+	if (running)
+	{
+		LLAssetRequest* req = findRequest(running, asset_type, asset_id);
+		if (req)
+		{
+			// Remove this request from the running list to get it out of curl.
+			running->remove(req);
+			
+			// Find this request in the pending list, so we can move it to the end of the line.
+			request_list_t* pending = getRequestList(rt);
+			if (pending)
+			{
+				request_list_t::iterator result = std::find_if(pending->begin(), pending->end(),
+										std::bind2nd(ll_asset_request_equal<LLAssetRequest*>(), req));
+				if (pending->end() != result)
+				{
+					// This request was found in the pending list.  Move it to the end!
+					LLAssetRequest* pending_req = *result;
+					pending->remove(pending_req);
+					pending->push_back(pending_req);
+
+					llinfos << "Asset " << getRequestName(rt) << " request for "
+							<< asset_id << "." << LLAssetType::lookup(asset_type)
+							<< " removed from curl and placed at the end of the pending queue."
+							<< llendl;
+				}
+				else
+				{
+					llwarns << "Unable to find pending " << getRequestName(rt) << " request for "
+							<< asset_id << "." << LLAssetType::lookup(asset_type) << llendl;
+				}
+			}
+			delete req;
+
+			return true;
+		}
+	}
+	return LLAssetStorage::deletePendingRequest(rt, asset_type, asset_id);
+}
+
 // internal requester, used by getAssetData in superclass
 void LLHTTPAssetStorage::_queueDataRequest(const LLUUID& uuid, LLAssetType::EType type,
 										  void (*callback)(LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32),
@@ -469,13 +630,41 @@ void LLHTTPAssetStorage::_queueDataRequest(const LLUUID& uuid, LLAssetType::ETyp
 	}
 }
 
+LLAssetRequest* LLHTTPAssetStorage::findNextRequest(LLAssetStorage::request_list_t& pending, 
+													LLAssetStorage::request_list_t& running)
+{
+	// Early exit if the running list is full, or we don't have more pending than running.
+	if (running.size() >= MAX_RUNNING_REQUESTS
+		|| pending.size() <= running.size()) return NULL;
+
+	// Look for the first pending request that is not already running.
+	request_list_t::iterator running_begin = running.begin();
+	request_list_t::iterator running_end   = running.end();
+
+	request_list_t::iterator pending_iter = pending.begin();
+	request_list_t::iterator pending_end  = pending.end();
+	// Loop over all pending requests until we miss finding it in the running list.
+	for (; pending_iter != pending.end(); ++pending_iter)
+	{
+		LLAssetRequest* req = *pending_iter;
+		// Look for this pending request in the running list.
+		if (running_end == std::find_if(running_begin, running_end, 
+						std::bind2nd(ll_asset_request_equal<LLAssetRequest*>(), req)))
+		{
+			// It isn't running!  Return it.
+			return req;
+		}
+	}
+	return NULL;
+}
+
 // overloaded to additionally move data to/from the webserver
 void LLHTTPAssetStorage::checkForTimeouts()
 {
-	LLAssetRequest *req = NULL;
-	if (mPendingDownloads.size() > 0  && !mPendingDownload)
-	{	
-		req = mPendingDownloads.front();
+	CURLMcode mcode;
+	LLAssetRequest *req;
+	while (req = findNextRequest(mPendingDownloads, mRunningDownloads))
+	{
 		// Setup this curl download request
 		// We need to generate a new request here
 		// since the one in the list could go away
@@ -485,9 +674,9 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		std::string base_url = getBaseURL(req->getUUID(), req->getType());
 		snprintf(tmp_url, sizeof(tmp_url), "%s/%36s.%s", base_url.c_str() , uuid_str, LLAssetType::lookup(req->getType())); /*Flawfinder: ignore*/
 
-		LLHTTPAssetRequest *new_req = new LLHTTPAssetRequest(this, req->getUUID(), req->getType(), tmp_url, mCurlMultiHandle);
+		LLHTTPAssetRequest *new_req = new LLHTTPAssetRequest(this, req->getUUID(), 
+										req->getType(), RT_DOWNLOAD, tmp_url, mCurlMultiHandle);
 		new_req->mTmpUUID.generate();
-		new_req->mIsDownload = TRUE;
 
 		// Sets pending download flag internally
 		new_req->setupCurlHandle();
@@ -495,15 +684,22 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		curl_easy_setopt(new_req->mCurlHandle, CURLOPT_WRITEFUNCTION, &curlDownCallback);
 		curl_easy_setopt(new_req->mCurlHandle, CURLOPT_WRITEDATA, new_req->mCurlHandle);
 	
-		curl_multi_add_handle(mCurlMultiHandle, new_req->mCurlHandle);
-		llinfos << "Requesting " << new_req->mURLBuffer << llendl;
-
+		mcode = curl_multi_add_handle(mCurlMultiHandle, new_req->mCurlHandle);
+		if (mcode > CURLM_OK)
+		{
+			// Failure.  Deleting the pending request will remove it from the running
+			// queue, and push it to the end of the pending queue.
+			deletePendingRequest(RT_DOWNLOAD, req->getType(), req->getUUID());
+			break;
+		}
+		else
+		{
+			llinfos << "Requesting " << new_req->mURLBuffer << llendl;
+		}
 	}
 
-	
-	if (mPendingUploads.size() > 0 && !mPendingUpload)
+	while (req = findNextRequest(mPendingUploads, mRunningUploads))
 	{
-		req = mPendingUploads.front();
 		// setup this curl upload request
 
 		bool do_compress = req->getType() == LLAssetType::AT_OBJECT;
@@ -515,8 +711,8 @@ void LLHTTPAssetStorage::checkForTimeouts()
 				do_compress ? "%s/%s.%s.gz" : "%s/%s.%s",
 				mBaseURL.c_str(), uuid_str, LLAssetType::lookup(req->getType())); 
 
-		LLHTTPAssetRequest *new_req = new LLHTTPAssetRequest(this, req->getUUID(), req->getType(), tmp_url, mCurlMultiHandle);
-		new_req->mIsUpload = TRUE;
+		LLHTTPAssetRequest *new_req = new LLHTTPAssetRequest(this, req->getUUID(), 
+									req->getType(), RT_UPLOAD, tmp_url, mCurlMultiHandle);
 		if (do_compress)
 		{
 			new_req->prepareCompressedUpload();
@@ -541,15 +737,23 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		}
 		curl_easy_setopt(new_req->mCurlHandle, CURLOPT_READDATA, new_req->mCurlHandle);
 	
-		curl_multi_add_handle(mCurlMultiHandle, new_req->mCurlHandle);
-		llinfos << "Requesting PUT " << new_req->mURLBuffer << llendl;
+		mcode = curl_multi_add_handle(mCurlMultiHandle, new_req->mCurlHandle);
+		if (mcode > CURLM_OK)
+		{
+			// Failure.  Deleting the pending request will remove it from the running
+			// queue, and push it to the end of the pending queue.
+			deletePendingRequest(RT_UPLOAD, req->getType(), req->getUUID());
+			break;
+		}
+		else
+		{
+			llinfos << "Requesting PUT " << new_req->mURLBuffer << llendl;
+		}
 		// Pending upload will have been flagged by the request
 	}
 
-
-	if (mPendingLocalUploads.size() > 0 && !mPendingLocalUpload)
+	while (req = findNextRequest(mPendingLocalUploads, mRunningLocalUploads))
 	{
-		req = mPendingLocalUploads.front();
 		// setup this curl upload request
 		LLVFile file(mVFS, req->getUUID(), req->getType());
 
@@ -560,8 +764,8 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		// KLW - All temporary uploads are saved locally "http://localhost:12041/asset"
 		snprintf(tmp_url, sizeof(tmp_url), "%s/%36s.%s", mLocalBaseURL.c_str(), uuid_str, LLAssetType::lookup(req->getType())); /*Flawfinder: ignore*/
 
-		LLHTTPAssetRequest *new_req = new LLHTTPAssetRequest(this, req->getUUID(), req->getType(), tmp_url, mCurlMultiHandle);
-		new_req->mIsLocalUpload = TRUE;
+		LLHTTPAssetRequest *new_req = new LLHTTPAssetRequest(this, req->getUUID(), 
+										req->getType(), RT_LOCALUPLOAD, tmp_url, mCurlMultiHandle);
 		new_req->mRequestingAgentID = req->mRequestingAgentID;
 
 		// Sets pending upload flag internally
@@ -572,13 +776,22 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		curl_easy_setopt(new_req->mCurlHandle, CURLOPT_READFUNCTION, &curlUpCallback);
 		curl_easy_setopt(new_req->mCurlHandle, CURLOPT_READDATA, new_req->mCurlHandle);
 	
-		curl_multi_add_handle(mCurlMultiHandle, new_req->mCurlHandle);
-		llinfos << "TAT: LLHTTPAssetStorage::checkForTimeouts() : pending local!"
-			<< " Requesting PUT " << new_req->mURLBuffer << llendl;
+		mcode = curl_multi_add_handle(mCurlMultiHandle, new_req->mCurlHandle);
+		if (mcode > CURLM_OK)
+		{
+			// Failure.  Deleting the pending request will remove it from the running
+			// queue, and push it to the end of the pending queue.
+			deletePendingRequest(RT_LOCALUPLOAD, req->getType(), req->getUUID());
+			break;
+		}
+		else
+		{
+			llinfos << "TAT: LLHTTPAssetStorage::checkForTimeouts() : pending local!"
+				<< " Requesting PUT " << new_req->mURLBuffer << llendl;
+		}
 		// Pending upload will have been flagged by the request
 	}
 	S32 count = 0;
-	CURLMcode mcode;
 	int queue_length;
 	do
 	{
@@ -599,12 +812,15 @@ void LLHTTPAssetStorage::checkForTimeouts()
 			curl_easy_getinfo(curl_msg->easy_handle, CURLINFO_PRIVATE, &req);
 								
 			curl_easy_getinfo(curl_msg->easy_handle, CURLINFO_HTTP_CODE, &curl_result);
-			if (req->mIsUpload || req->mIsLocalUpload)
+			if (RT_UPLOAD == req->mRequestType || RT_LOCALUPLOAD == req->mRequestType)
 			{
-				if (curl_msg->data.result == CURLE_OK && (curl_result == HTTP_OK || curl_result == HTTP_PUT_OK || curl_result == HTTP_NO_CONTENT))
+				if (curl_msg->data.result == CURLE_OK && 
+					(   curl_result == HTTP_OK 
+					 || curl_result == HTTP_PUT_OK 
+					 || curl_result == HTTP_NO_CONTENT))
 				{
 					llinfos << "Success uploading " << req->getUUID() << " to " << req->mURLBuffer << llendl;
-					if (req->mIsLocalUpload)
+					if (RT_LOCALUPLOAD == req->mRequestType)
 					{
 						addTempAssetData(req->getUUID(), req->mRequestingAgentID, mHostName);
 					}
@@ -636,7 +852,7 @@ void LLHTTPAssetStorage::checkForTimeouts()
 					// Pending upload flag will get cleared when the request is deleted
 				}
 			}
-			else if (req->mIsDownload)
+			else if (RT_DOWNLOAD == req->mRequestType)
 			{
 				if (curl_result == HTTP_OK && curl_msg->data.result == CURLE_OK)
 				{
@@ -648,7 +864,7 @@ void LLHTTPAssetStorage::checkForTimeouts()
 					}
 					else
 					{
-						// TODO: if this actually indicates a bad asset on the server
+						// *TODO: if this actually indicates a bad asset on the server
 						// (not certain at this point), then delete it
 						llwarns << "Found " << req->mURLBuffer << " to be zero size" << llendl;
 						xfer_result = LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE;
@@ -774,9 +990,8 @@ S32 LLHTTPAssetStorage::getURLToFile(const LLUUID& uuid, LLAssetType::EType asse
 	}
 
 	// make sure we use the normal curl setup, even though we don't really need a request object
-	LLHTTPAssetRequest req(this, uuid, asset_type, url.c_str(), mCurlMultiHandle);
+	LLHTTPAssetRequest req(this, uuid, asset_type, RT_DOWNLOAD, url.c_str(), mCurlMultiHandle);
 	req.mFP = fp;
-	req.mIsDownload = TRUE;
 	
 	req.setupCurlHandle();
 	curl_easy_setopt(req.mCurlHandle, CURLOPT_FOLLOWLOCATION, TRUE);
@@ -866,6 +1081,63 @@ size_t LLHTTPAssetStorage::curlFileDownCallback(void *data, size_t size, size_t 
 	}
 
 	return fwrite(data, size, nmemb, req->mFP);
+}
+
+LLAssetStorage::request_list_t* LLHTTPAssetStorage::getRunningList(LLAssetStorage::ERequestType rt)
+{
+	switch (rt)
+	{
+	case RT_DOWNLOAD:
+		return &mRunningDownloads;
+	case RT_UPLOAD:
+		return &mRunningUploads;
+	case RT_LOCALUPLOAD:
+		return &mRunningLocalUploads;
+	default:
+		return NULL;
+	}
+}
+
+const LLAssetStorage::request_list_t* LLHTTPAssetStorage::getRunningList(LLAssetStorage::ERequestType rt) const
+{
+	switch (rt)
+	{
+	case RT_DOWNLOAD:
+		return &mRunningDownloads;
+	case RT_UPLOAD:
+		return &mRunningUploads;
+	case RT_LOCALUPLOAD:
+		return &mRunningLocalUploads;
+	default:
+		return NULL;
+	}
+}
+
+
+void LLHTTPAssetStorage::addRunningRequest(ERequestType rt, LLHTTPAssetRequest* request)
+{
+	request_list_t* requests = getRunningList(rt);
+	if (requests)
+	{
+		requests->push_back(request);
+	}
+	else
+	{
+		llerrs << "LLHTTPAssetStorage::addRunningRequest - Request is not an upload OR download, this is bad!" << llendl;
+	}
+}
+
+void LLHTTPAssetStorage::removeRunningRequest(ERequestType rt, LLHTTPAssetRequest* request)
+{
+	request_list_t* requests = getRunningList(rt);
+	if (requests)
+	{
+		requests->remove(request);
+	}
+	else
+	{
+		llerrs << "LLHTTPAssetStorage::removeRunningRequest - Destroyed request is not an upload OR download, this is bad!" << llendl;
+	}
 }
 
 // virtual 

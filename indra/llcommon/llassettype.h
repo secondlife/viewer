@@ -126,6 +126,7 @@ public:
 	static const char* lookup(EType type);
 
 	// translation from a type to a human readable form.
+	static EType lookupHumanReadable( const char* name );
 	static const char* lookupHumanReadable(EType type);
 
 	static EDragAndDropType lookupDragAndDropType( EType );

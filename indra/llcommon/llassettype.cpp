@@ -184,6 +184,20 @@ const char* LLAssetType::lookupHumanReadable(LLAssetType::EType type)
 	}
 }
 
+// static
+LLAssetType::EType LLAssetType::lookupHumanReadable( const char* name )
+{
+	for( S32 i = 0; i < AT_COUNT; i++ )
+	{
+		if( 0 == strcmp(name, mAssetTypeHumanNames[i]) )
+		{
+			// match
+			return (EType)i;
+		}
+	}
+	return AT_NONE;
+}
+
 EDragAndDropType LLAssetType::lookupDragAndDropType( EType asset )
 {
 	switch( asset )

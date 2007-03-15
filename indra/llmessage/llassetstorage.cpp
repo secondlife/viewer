@@ -155,10 +155,40 @@ LLAssetRequest::LLAssetRequest(const LLUUID &uuid, const LLAssetType::EType type
 	mTime = LLMessageSystem::getMessageTimeSeconds(TRUE);
 }
 
+// virtual
 LLAssetRequest::~LLAssetRequest()
 {
 }
 
+// virtual
+LLSD LLAssetRequest::getTerseDetails() const
+{
+	LLSD sd;
+	sd["asset_id"] = getUUID();
+	sd["type_long"] = LLAssetType::lookupHumanReadable(getType());
+	sd["type"] = LLAssetType::lookup(getType());
+	sd["time"] = mTime;
+	time_t timestamp = (time_t) mTime;
+	std::ostringstream time_string;
+	time_string << ctime(&timestamp);
+	sd["time_string"] = time_string.str();
+	return sd;
+}
+
+// virtual
+LLSD LLAssetRequest::getFullDetails() const
+{
+	LLSD sd = getTerseDetails();
+	sd["host"] = mHost.getIPandPort();
+	sd["requesting_agent"] = mRequestingAgentID;
+	sd["is_temp"] = mIsTemp;
+	sd["is_local"] = mIsLocal;
+	sd["is_priority"] = mIsPriority;
+	sd["data_send_in_first_packet"] = mDataSentInFirstPacket;
+	sd["data_is_in_vfs"] = mDataIsInVFS;
+
+	return sd;
+}
 
 ///----------------------------------------------------------------------------
 /// LLInvItemRequest
@@ -279,47 +309,41 @@ void LLAssetStorage::checkForTimeouts()
 
 void LLAssetStorage::_cleanupRequests(BOOL all, S32 error)
 {
-	const S32 NUM_QUEUES = 3;
 	F64 mt_secs = LLMessageSystem::getMessageTimeSeconds();
 
-	std::list<LLAssetRequest*>* requests[NUM_QUEUES];
-	requests[0] = &mPendingDownloads;
-	requests[1] = &mPendingUploads;
-	requests[2] = &mPendingLocalUploads;
-	static const char* REQUEST_TYPE[NUM_QUEUES] = { "download", "upload", "localuploads"};
-	
-	std::list<LLAssetRequest*> timed_out;
-	
-	for (S32 ii = 0; ii < NUM_QUEUES; ++ii)
+	request_list_t timed_out;
+	S32 rt;
+	for (rt = 0; rt < RT_COUNT; rt++)
 	{
-		for (std::list<LLAssetRequest*>::iterator iter = requests[ii]->begin();
-			 iter != requests[ii]->end(); )
+		request_list_t* requests = getRequestList((ERequestType)rt);
+		for (request_list_t::iterator iter = requests->begin();
+			 iter != requests->end(); )
 		{
-			std::list<LLAssetRequest*>::iterator curiter = iter++;
+			request_list_t::iterator curiter = iter++;
 			LLAssetRequest* tmp = *curiter;
 			// if all is true, we want to clean up everything
 			// otherwise just check for timed out requests
 			// EXCEPT for upload timeouts
 			if (all 
-				|| ((0 == ii)
+				|| ((RT_DOWNLOAD == rt)
 					&& LL_ASSET_STORAGE_TIMEOUT < (mt_secs - tmp->mTime)))
 			{
-				llwarns << "Asset " << REQUEST_TYPE[ii] << " request "
+				llwarns << "Asset " << getRequestName((ERequestType)rt) << " request "
 						<< (all ? "aborted" : "timed out") << " for "
 						<< tmp->getUUID() << "."
 						<< LLAssetType::lookup(tmp->getType()) << llendl;
 
 				timed_out.push_front(tmp);
-				iter = requests[ii]->erase(curiter);
+				iter = requests->erase(curiter);
 			}
 		}
 	}
 
 	LLAssetInfo	info;
-	for (std::list<LLAssetRequest*>::iterator iter = timed_out.begin();
+	for (request_list_t::iterator iter = timed_out.begin();
 		 iter != timed_out.end();  )
 	{
-		std::list<LLAssetRequest*>::iterator curiter = iter++;
+		request_list_t::iterator curiter = iter++;
 		LLAssetRequest* tmp = *curiter;
 		if (tmp->mUpCallback)
 		{
@@ -382,7 +406,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, vo
 		BOOL duplicate = FALSE;
 		
 		// check to see if there's a pending download of this uuid already
-		for (std::list<LLAssetRequest*>::iterator iter = mPendingDownloads.begin();
+		for (request_list_t::iterator iter = mPendingDownloads.begin();
 			 iter != mPendingDownloads.end(); ++iter )
 		{
 			LLAssetRequest  *tmp = *iter;
@@ -504,11 +528,11 @@ void LLAssetStorage::downloadCompleteCallback(
 	// find and callback ALL pending requests for this UUID
 	// SJB: We process the callbacks in reverse order, I do not know if this is important,
 	//      but I didn't want to mess with it.
-	std::list<LLAssetRequest*> requests;
-	for (std::list<LLAssetRequest*>::iterator iter = gAssetStorage->mPendingDownloads.begin();
+	request_list_t requests;
+	for (request_list_t::iterator iter = gAssetStorage->mPendingDownloads.begin();
 		 iter != gAssetStorage->mPendingDownloads.end();  )
 	{
-		std::list<LLAssetRequest*>::iterator curiter = iter++;
+		request_list_t::iterator curiter = iter++;
 		LLAssetRequest* tmp = *curiter;
 		if ((tmp->getUUID() == req->getUUID()) && (tmp->getType()== req->getType()))
 		{
@@ -516,10 +540,10 @@ void LLAssetStorage::downloadCompleteCallback(
 			iter = gAssetStorage->mPendingDownloads.erase(curiter);
 		}
 	}
-	for (std::list<LLAssetRequest*>::iterator iter = requests.begin();
+	for (request_list_t::iterator iter = requests.begin();
 		 iter != requests.end();  )
 	{
-		std::list<LLAssetRequest*>::iterator curiter = iter++;
+		request_list_t::iterator curiter = iter++;
 		LLAssetRequest* tmp = *curiter;
 		if (tmp->mDownCallback)
 		{
@@ -877,11 +901,11 @@ void LLAssetStorage::_callUploadCallbacks(const LLUUID &uuid, LLAssetType::EType
 {
 	// SJB: We process the callbacks in reverse order, I do not know if this is important,
 	//      but I didn't want to mess with it.
-	std::list<LLAssetRequest*> requests;
-	for (std::list<LLAssetRequest*>::iterator iter = mPendingUploads.begin();
+	request_list_t requests;
+	for (request_list_t::iterator iter = mPendingUploads.begin();
 		 iter != mPendingUploads.end();  )
 	{
-		std::list<LLAssetRequest*>::iterator curiter = iter++;
+		request_list_t::iterator curiter = iter++;
 		LLAssetRequest* req = *curiter;
 		if ((req->getUUID() == uuid) && (req->getType() == asset_type))
 		{
@@ -889,10 +913,10 @@ void LLAssetStorage::_callUploadCallbacks(const LLUUID &uuid, LLAssetType::EType
 			iter = mPendingUploads.erase(curiter);
 		}
 	}
-	for (std::list<LLAssetRequest*>::iterator iter = mPendingLocalUploads.begin();
+	for (request_list_t::iterator iter = mPendingLocalUploads.begin();
 		 iter != mPendingLocalUploads.end();  )
 	{
-		std::list<LLAssetRequest*>::iterator curiter = iter++;
+		request_list_t::iterator curiter = iter++;
 		LLAssetRequest* req = *curiter;
 		if ((req->getUUID() == uuid) && (req->getType() == asset_type))
 		{
@@ -900,10 +924,10 @@ void LLAssetStorage::_callUploadCallbacks(const LLUUID &uuid, LLAssetType::EType
 			iter = mPendingLocalUploads.erase(curiter);
 		}
 	}
-	for (std::list<LLAssetRequest*>::iterator iter = requests.begin();
+	for (request_list_t::iterator iter = requests.begin();
 		 iter != requests.end();  )
 	{
-		std::list<LLAssetRequest*>::iterator curiter = iter++;
+		request_list_t::iterator curiter = iter++;
 		LLAssetRequest* req = *curiter;
 		if (req->mUpCallback)
 		{
@@ -913,45 +937,239 @@ void LLAssetStorage::_callUploadCallbacks(const LLUUID &uuid, LLAssetType::EType
 	}
 }
 
+LLAssetStorage::request_list_t* LLAssetStorage::getRequestList(LLAssetStorage::ERequestType rt)
+{
+	switch (rt)
+	{
+	case RT_DOWNLOAD:
+		return &mPendingDownloads;
+	case RT_UPLOAD:
+		return &mPendingUploads;
+	case RT_LOCALUPLOAD:
+		return &mPendingLocalUploads;
+	default:
+		llwarns << "Unable to find request list for request type '" << rt << "'" << llendl;
+		return NULL;
+	}
+}
+
+const LLAssetStorage::request_list_t* LLAssetStorage::getRequestList(LLAssetStorage::ERequestType rt) const
+{
+	switch (rt)
+	{
+	case RT_DOWNLOAD:
+		return &mPendingDownloads;
+	case RT_UPLOAD:
+		return &mPendingUploads;
+	case RT_LOCALUPLOAD:
+		return &mPendingLocalUploads;
+	default:
+		llwarns << "Unable to find request list for request type '" << rt << "'" << llendl;
+		return NULL;
+	}
+}
+
+// static
+std::string LLAssetStorage::getRequestName(LLAssetStorage::ERequestType rt)
+{
+	switch (rt)
+	{
+	case RT_DOWNLOAD:
+		return "download";
+	case RT_UPLOAD:
+		return "upload";
+	case RT_LOCALUPLOAD:
+		return "localupload";
+	default:
+		llwarns << "Unable to find request name for request type '" << rt << "'" << llendl;
+		return "";
+	}
+}
+
+S32 LLAssetStorage::getNumPending(LLAssetStorage::ERequestType rt) const
+{
+	const request_list_t* requests = getRequestList(rt);
+	S32 num_pending = -1;
+	if (requests)
+	{
+		num_pending = requests->size();
+	}
+	return num_pending;
+}
 
 S32 LLAssetStorage::getNumPendingDownloads() const
 {
-	return mPendingDownloads.size();
+	return getNumPending(RT_DOWNLOAD);
 }
 
 S32 LLAssetStorage::getNumPendingUploads() const
 {
-	return mPendingUploads.size();
+	return getNumPending(RT_UPLOAD);
 }
 
 S32 LLAssetStorage::getNumPendingLocalUploads()
 {
-	return mPendingLocalUploads.size();
+	return getNumPending(RT_LOCALUPLOAD);
 }
 
-LLSD LLAssetStorage::getPendingTypes(const std::list<LLAssetRequest*>& requests) const
+// virtual
+LLSD LLAssetStorage::getPendingDetails(LLAssetStorage::ERequestType rt,
+										LLAssetType::EType asset_type,
+										const std::string& detail_prefix) const
 {
-	LLSD type_counts;
-	std::list<LLAssetRequest*>::const_iterator it = requests.begin();
-	std::list<LLAssetRequest*>::const_iterator end = requests.end();
-	for ( ; it != end; ++it)
+	const request_list_t* requests = getRequestList(rt);
+	LLSD sd;
+	sd["requests"] = getPendingDetails(requests, asset_type, detail_prefix);
+	return sd;
+}
+
+// virtual
+LLSD LLAssetStorage::getPendingDetails(const LLAssetStorage::request_list_t* requests,
+										LLAssetType::EType asset_type,
+										const std::string& detail_prefix) const
+{
+	LLSD details;
+	if (requests)
 	{
-		LLAssetRequest* req = *it;
+		request_list_t::const_iterator it = requests->begin();
+		request_list_t::const_iterator end = requests->end();
+		for ( ; it != end; ++it)
+		{
+			LLAssetRequest* req = *it;
+			if (   (LLAssetType::AT_NONE == asset_type)
+				|| (req->getType() == asset_type) )
+			{
+				LLSD row = req->getTerseDetails();
 
-		const char* type_name = LLAssetType::lookupHumanReadable(req->getType());
-		type_counts[type_name] = type_counts[type_name].asInteger() + 1;
+				std::ostringstream detail;
+				detail	<< detail_prefix << "/" << LLAssetType::lookup(req->getType())
+						<< "/" << req->getUUID();
+				row["detail"] = LLURI(detail.str());
+
+				details.append(row);
+			}
+		}
 	}
-	return type_counts;
+	return details;
 }
 
-LLSD LLAssetStorage::getPendingDownloadTypes() const
+
+// static
+const LLAssetRequest* LLAssetStorage::findRequest(const LLAssetStorage::request_list_t* requests,
+										LLAssetType::EType asset_type,
+										const LLUUID& asset_id)
 {
-	return getPendingTypes(mPendingDownloads);
+	if (requests) 
+	{
+		// Search the requests list for the asset.
+		request_list_t::const_iterator iter = requests->begin();
+		request_list_t::const_iterator end  = requests->end();
+		for (; iter != end; ++iter)
+		{
+			const LLAssetRequest* req = *iter;
+			if (asset_type == req->getType() &&
+				asset_id == req->getUUID() )
+			{
+				return req;
+			}
+		}
+	}
+	return NULL;
 }
 
-LLSD LLAssetStorage::getPendingUploadTypes() const
+// static
+LLAssetRequest* LLAssetStorage::findRequest(LLAssetStorage::request_list_t* requests,
+										LLAssetType::EType asset_type,
+										const LLUUID& asset_id)
 {
-	return getPendingTypes(mPendingUploads);
+	if (requests) 
+	{
+		// Search the requests list for the asset.
+		request_list_t::iterator iter = requests->begin();
+		request_list_t::iterator end  = requests->end();
+		for (; iter != end; ++iter)
+		{
+			LLAssetRequest* req = *iter;
+			if (asset_type == req->getType() &&
+				asset_id == req->getUUID() )
+			{
+				return req;
+			}
+		}
+	}
+	return NULL;
+}
+
+
+// virtual
+LLSD LLAssetStorage::getPendingRequest(LLAssetStorage::ERequestType rt,
+										LLAssetType::EType asset_type,
+										const LLUUID& asset_id) const
+{
+	const request_list_t* requests = getRequestList(rt);
+	return getPendingRequest(requests, asset_type, asset_id);
+}
+
+// virtual
+LLSD LLAssetStorage::getPendingRequest(const LLAssetStorage::request_list_t* requests,
+										LLAssetType::EType asset_type,
+										const LLUUID& asset_id) const
+{
+	LLSD sd;
+	const LLAssetRequest* req = findRequest(requests, asset_type, asset_id);
+	if (req)
+	{
+		sd = req->getFullDetails();
+	}
+	return sd;
+}
+
+// virtual
+bool LLAssetStorage::deletePendingRequest(LLAssetStorage::ERequestType rt,
+											LLAssetType::EType asset_type,
+											const LLUUID& asset_id)
+{
+	request_list_t* requests = getRequestList(rt);
+	if (deletePendingRequest(requests, asset_type, asset_id))
+	{
+		llinfos << "Asset " << getRequestName(rt) << " request for "
+				<< asset_id << "." << LLAssetType::lookup(asset_type)
+				<< " removed from pending queue." << llendl;
+		return true;
+	}
+	return false;
+}
+
+// virtual
+bool LLAssetStorage::deletePendingRequest(LLAssetStorage::request_list_t* requests,
+											LLAssetType::EType asset_type,
+											const LLUUID& asset_id)
+{
+	LLAssetRequest* req = findRequest(requests, asset_type, asset_id);
+	if (req)
+	{
+		// Remove the request from this list.
+		requests->remove(req);
+		S32 error = LL_ERR_TCP_TIMEOUT;
+		// Run callbacks.
+		if (req->mUpCallback)
+		{
+			req->mUpCallback(req->getUUID(), req->mUserData, error);
+		}
+		if (req->mDownCallback)
+		{
+			req->mDownCallback(mVFS, req->getUUID(), req->getType(), req->mUserData, error);
+		}
+		if (req->mInfoCallback)
+		{
+			LLAssetInfo info;
+			req->mInfoCallback(&info, req->mUserData, error);
+		}
+		delete req;
+		return true;
+	}
+	
+	return false;
 }
 
 // static
@@ -996,7 +1214,7 @@ const char* LLAssetStorage::getErrorString(S32 status)
 void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, void (*callback)(const char*, const LLUUID&, void *, S32), void *user_data, BOOL is_priority)
 {
 	// check for duplicates here, since we're about to fool the normal duplicate checker
-	for (std::list<LLAssetRequest*>::iterator iter = mPendingDownloads.begin();
+	for (request_list_t::iterator iter = mPendingDownloads.begin();
 		 iter != mPendingDownloads.end();  )
 	{
 		LLAssetRequest* tmp = *iter++;

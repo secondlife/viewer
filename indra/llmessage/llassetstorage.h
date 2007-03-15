@@ -90,6 +90,19 @@ public:
 	BOOL	mDataSentInFirstPacket;
 	BOOL	mDataIsInVFS;
 	LLUUID	mRequestingAgentID;	// Only valid for uploads from an agent
+
+	virtual LLSD getTerseDetails() const;
+	virtual LLSD getFullDetails() const;
+};
+
+template <class T>
+struct ll_asset_request_equal : public std::equal_to<T>
+{
+	bool operator()(const T& x, const T& y) const 
+	{ 
+		return (	x->getType() == y->getType()
+				&&	x->getUUID() == y->getUUID() );
+	}
 };
 
 
@@ -165,6 +178,15 @@ public:
 	LLVFS *mVFS;
 	typedef void (*LLStoreAssetCallback)(const LLUUID &asset_id, void *user_data, S32 status);
 
+	enum ERequestType
+	{
+		RT_INVALID = -1,
+		RT_DOWNLOAD = 0,
+		RT_UPLOAD = 1,
+		RT_LOCALUPLOAD = 2,
+		RT_COUNT = 3
+	};
+
 protected:
 	BOOL mShutDown;
 	LLHost mUpstreamHost;
@@ -172,9 +194,11 @@ protected:
 	LLMessageSystem *mMessageSys;
 	LLXferManager	*mXferManager;
 
-	std::list<LLAssetRequest*> mPendingDownloads;
-	std::list<LLAssetRequest*> mPendingUploads;
-	std::list<LLAssetRequest*> mPendingLocalUploads;
+
+	typedef std::list<LLAssetRequest*> request_list_t;
+	request_list_t mPendingDownloads;
+	request_list_t mPendingUploads;
+	request_list_t mPendingLocalUploads;
 	
 public:
 	LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
@@ -239,14 +263,48 @@ public:
 						 const LLUUID &asset_id, LLAssetType::EType atype,
 						 LLGetAssetCallback cb, void *user_data, BOOL is_priority = FALSE); // Get a particular inventory item.
 
+protected:
+	virtual LLSD getPendingDetails(const request_list_t* requests,
+	 				LLAssetType::EType asset_type,
+	 				const std::string& detail_prefix) const;
+
+	virtual LLSD getPendingRequest(const request_list_t* requests,
+							LLAssetType::EType asset_type,
+							const LLUUID& asset_id) const;
+
+	virtual bool deletePendingRequest(request_list_t* requests,
+							LLAssetType::EType asset_type,
+							const LLUUID& asset_id);
+
+public:
+	static const LLAssetRequest* findRequest(const request_list_t* requests,
+										LLAssetType::EType asset_type,
+										const LLUUID& asset_id);
+	static LLAssetRequest* findRequest(request_list_t* requests,
+										LLAssetType::EType asset_type,
+										const LLUUID& asset_id);
+
+	request_list_t* getRequestList(ERequestType rt);
+	const request_list_t* getRequestList(ERequestType rt) const;
+	static std::string getRequestName(ERequestType rt);
 
 	S32 getNumPendingDownloads() const;
 	S32 getNumPendingUploads() const;
 	S32 getNumPendingLocalUploads();
+	S32 getNumPending(ERequestType rt) const;
 
-	// Returns a map from type to num pending, eg 'texture' => 5, 'object' => 10
-	LLSD getPendingDownloadTypes() const;
-	LLSD getPendingUploadTypes() const;
+	virtual LLSD getPendingDetails(ERequestType rt,
+	 				LLAssetType::EType asset_type,
+	 				const std::string& detail_prefix) const;
+
+	virtual LLSD getPendingRequest(ERequestType rt,
+							LLAssetType::EType asset_type,
+							const LLUUID& asset_id) const;
+
+	virtual bool deletePendingRequest(ERequestType rt,
+							LLAssetType::EType asset_type,
+							const LLUUID& asset_id);
+
 
 	// download process callbacks
 	static void downloadCompleteCallback(
@@ -330,8 +388,6 @@ private:
 			   LLXferManager *xfer,
 			   LLVFS *vfs,
 			   const LLHost &upstream_host);
-	LLSD getPendingTypes(const std::list<LLAssetRequest*>& requests) const;
-
 };
 
 ////////////////////////////////////////////////////////////////////////

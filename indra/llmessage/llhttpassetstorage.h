@@ -13,6 +13,7 @@
 #include "curl/curl.h"
 
 class LLVFile;
+class LLHTTPAssetRequest;
 typedef void (*progress_callback)(void* userdata);
 
 struct LLTempAssetData;
@@ -56,11 +57,25 @@ public:
 		bool temp_file,
 		bool is_priority);
 
+	virtual LLSD getPendingDetails(ERequestType rt,
+	 				LLAssetType::EType asset_type,
+	 				const std::string& detail_prefix) const;
+
+	virtual LLSD getPendingRequest(ERequestType rt,
+							LLAssetType::EType asset_type,
+							const LLUUID& asset_id) const;
+
+	virtual bool deletePendingRequest(ERequestType rt,
+							LLAssetType::EType asset_type,
+							const LLUUID& asset_id);
+
 	// Hack.  One off curl download an URL to a file.  Probably should be elsewhere.
 	// Only used by lldynamicstate.  The API is broken, and should be replaced with
 	// a generic HTTP file fetch - Doug 9/25/06
 	S32 getURLToFile(const LLUUID& uuid, LLAssetType::EType asset_type, const LLString &url, const char *filename, progress_callback callback, void *userdata);
 	
+	LLAssetRequest* findNextRequest(request_list_t& pending, request_list_t& running);
+
 	void checkForTimeouts();
 	
 	static size_t curlDownCallback(void *data, size_t size, size_t nmemb, void *user_data);
@@ -69,12 +84,11 @@ public:
 	static size_t nullOutputCallback(void *data, size_t size, size_t nmemb, void *user_data);
 
 	// Should only be used by the LLHTTPAssetRequest
-	void setPendingUpload()			{ mPendingUpload = TRUE; }
-	void setPendingLocalUpload()	{ mPendingLocalUpload = TRUE; }
-	void setPendingDownload()		{ mPendingDownload = TRUE; }
-	void clearPendingUpload()		{ mPendingUpload = FALSE; }
-	void clearPendingLocalUpload()	{ mPendingLocalUpload = FALSE; }
-	void clearPendingDownload()		{ mPendingDownload = FALSE; }
+	void addRunningRequest(ERequestType rt, LLHTTPAssetRequest* request);
+	void removeRunningRequest(ERequestType rt, LLHTTPAssetRequest* request);
+
+	request_list_t* getRunningList(ERequestType rt);
+	const request_list_t* getRunningList(ERequestType rt) const;
 
 	// Temp assets are stored on sim nodes, they have agent ID and location data associated with them.
 	virtual void addTempAssetData(const LLUUID& asset_id, const LLUUID& agent_id, const std::string& host_name);
@@ -106,9 +120,9 @@ protected:
 
 	CURLM  *mCurlMultiHandle;
 
-	BOOL mPendingDownload;
-	BOOL mPendingUpload;
-	BOOL mPendingLocalUpload;
+	request_list_t mRunningDownloads;
+	request_list_t mRunningUploads;
+	request_list_t mRunningLocalUploads;
 
 	uuid_tempdata_map mTempAssets;
 };
