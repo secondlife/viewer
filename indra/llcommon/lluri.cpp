@@ -279,6 +279,23 @@ LLURI LLURI::buildBulkAgentPresenceURI(LLApp* app)
 }
 
 // static
+LLURI LLURI::buildBulkAgentNamesURI(LLApp* app)
+{
+	std::string host = "localhost:12040";
+
+	if (app)
+	{
+		host = app->getOption("backbone-host-port").asString();
+	}
+
+	LLSD path = LLSD::emptyArray();
+	path.append("agent");
+	path.append("names");
+
+	return buildHTTP(host, path);
+}
+
+// static
 LLURI LLURI::buildAgentSessionURI(const LLUUID& agent_id, LLApp* app)
 {
 	return buildBackboneURL(app, "agent", agent_id.asString(), "session");
@@ -299,6 +316,24 @@ LLURI LLURI::buildInventoryHostURI(const LLUUID& agent_id, LLApp* app)
 	path.append(agent_id);
 	path.append("inventory");
 	path.append("host");
+
+	return buildHTTP(host, path);
+}
+
+// static
+LLURI LLURI::buildAgentNameURI(const LLUUID& agent_id, LLApp* app)
+{
+	std::string host = "localhost:12040";
+
+	if (app)
+	{
+		host = app->getOption("backbone-host-port").asString();
+	}
+
+	LLSD path = LLSD::emptyArray();
+	path.append("agent");
+	path.append(agent_id);
+	path.append("name");
 
 	return buildHTTP(host, path);
 }

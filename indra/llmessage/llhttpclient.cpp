@@ -265,9 +265,17 @@ public:
 	LLSD asLLSD()
 	{
 		LLSD content;
+
+		if (mBuffer.empty()) return content;
+		
 		std::istringstream istr(mBuffer);
 		LLSDSerialize::fromXML(content, istr);
 		return content;
+	}
+
+	std::string asString()
+	{
+		return mBuffer;
 	}
 
 private:
@@ -298,15 +306,20 @@ LLSD LLHTTPClient::blockingGet(const std::string& url)
 	S32 http_status = 499;
 	curl_easy_getinfo(curlp,CURLINFO_RESPONSE_CODE, &http_status);
 
+	response["status"] = http_status;
+
 	if (curl_success != 0 
 		&& http_status != 404)  // We expect 404s, don't spam for them.
 	{
 		llwarns << "CURL ERROR: " << curl_error_buffer << llendl;
+		
+		response["body"] = http_buffer.asString();
+	}
+	else
+	{
+		response["body"] = http_buffer.asLLSD();
 	}
 	
-	response["status"] = http_status;
-	response["body"] = http_buffer.asLLSD();
-
 	curl_easy_cleanup(curlp);
 
 	return response;
@@ -375,4 +388,3 @@ namespace boost
 		}
 	}
 };
-
