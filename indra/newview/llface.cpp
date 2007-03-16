@@ -944,19 +944,26 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	{
 		LLVOVolume* vobj = (LLVOVolume*) (LLViewerObject*) mVObjp;
 		U8 mode = vobj->mTexAnimMode;
-		if (mode & LLViewerTextureAnim::TRANSLATE)
+		if (!mode)
 		{
-			os = ot = 0.f;
+			clearState(TEXTURE_ANIM);
 		}
-		if (mode & LLViewerTextureAnim::ROTATE)
+		else
 		{
-			r = 0.f;
-			cos_ang = 1.f;
-			sin_ang = 0.f;
-		}
-		if (mode & LLViewerTextureAnim::SCALE)
-		{
-			ms = mt = 1.f;
+			if (mode & LLViewerTextureAnim::TRANSLATE)
+			{
+				os = ot = 0.f;
+			}
+			if (mode & LLViewerTextureAnim::ROTATE)
+			{
+				r = 0.f;
+				cos_ang = 1.f;
+				sin_ang = 0.f;
+			}
+			if (mode & LLViewerTextureAnim::SCALE)
+			{
+				ms = mt = 1.f;
+			}
 		}
 	}
 

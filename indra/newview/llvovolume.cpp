@@ -59,6 +59,7 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 	: LLViewerObject(id, pcode, regionp),
 	  mVolumeImpl(NULL)
 {
+	mTexAnimMode = 0;
 	mRelativeXform.identity();
 	mRelativeXformInvTrans.identity();
 
@@ -118,8 +119,8 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 						mTextureAnimp->reset();
 					}
 				}
+				mTexAnimMode = 0;
 				mTextureAnimp->unpackTAMessage(mesgsys, block_num);
-				gPipeline.markTextured(mDrawable);
 			}
 			else
 			{
@@ -129,6 +130,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 					mTextureAnimp = NULL;
 					gPipeline.markTextured(mDrawable);
 					mFaceMappingChanged = TRUE;
+					mTexAnimMode = 0;
 				}
 			}
 
@@ -201,12 +203,16 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 						mTextureAnimp->reset();
 					}
 				}
+				mTexAnimMode = 0;
 				mTextureAnimp->unpackTAMessage(*dp);
 			}
-			else
+			else if (mTextureAnimp)
 			{
 				delete mTextureAnimp;
 				mTextureAnimp = NULL;
+				gPipeline.markTextured(mDrawable);
+				mFaceMappingChanged = TRUE;
+				mTexAnimMode = 0;
 			}
 		}
 		else
@@ -229,10 +235,96 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 }
 
 
+void LLVOVolume::animateTextures()
+{
+	F32 off_s = 0.f, off_t = 0.f, scale_s = 1.f, scale_t = 1.f, rot = 0.f;
+	S32 result;
+	
+	if (result = mTextureAnimp->animateTextures(off_s, off_t, scale_s, scale_t, rot))
+	{
+		if (!mTexAnimMode)
+		{
+			mFaceMappingChanged = TRUE;
+			gPipeline.markTextured(mDrawable);
+		}
+		mTexAnimMode = result | mTextureAnimp->mMode;
+				
+		S32 start=0, end=mDrawable->getNumFaces()-1;
+		if (mTextureAnimp->mFace >= 0 && mTextureAnimp->mFace <= end)
+		{
+			start = end = mTextureAnimp->mFace;
+		}
+		
+		for (S32 i = start; i <= end; i++)
+		{
+			LLQuaternion quat;
+			LLVector3 scale(1,1,1);
+			
+			LLFace* facep = mDrawable->getFace(i);
+			const LLTextureEntry* te = facep->getTextureEntry();
+			LLMatrix4& tex_mat = facep->mTextureMatrix;
+			
+			if (!te)
+			{
+				continue;
+			}
+			if (result & LLViewerTextureAnim::ROTATE)
+			{
+				F32 axis = -1;
+				F32 s,t;	
+				te->getScale(&s,&t);
+				if (s < 0)
+				{
+					axis = -axis;
+				}
+				if (t < 0)
+				{
+					axis = -axis;
+				}
+				quat.setQuat(rot, 0, 0, axis);
+			}
+			
+			if (!(result & LLViewerTextureAnim::TRANSLATE))
+			{
+				te->getOffset(&off_s,&off_t);
+			}			
+
+			LLVector3 trans(off_s+0.5f, off_t+0.5f, 0.f);
+
+			tex_mat.identity();
+			tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
+			tex_mat.rotate(quat);
+			
+			if (result & LLViewerTextureAnim::SCALE)
+			{
+				scale.setVec(scale_s, scale_t, 1.f);
+				LLMatrix4 mat;
+				mat.initAll(scale, LLQuaternion(), LLVector3());
+				tex_mat *= mat;
+			}
+			
+			tex_mat.translate(trans);
+		}
+	}
+	else
+	{
+		if (mTexAnimMode && mTextureAnimp->mRate == 0)
+		{
+			gPipeline.markTextured(mDrawable);
+			mFaceMappingChanged = TRUE;
+			mTexAnimMode = 0;
+		}
+	}
+}
 BOOL LLVOVolume::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
 	LLViewerObject::idleUpdate(agent, world, time);
 
+	if (mDead || mDrawable.isNull())
+	{
+		return TRUE;
+	}
+	
 	///////////////////////
 	//
 	// Do texture animation stuff
@@ -240,82 +332,7 @@ BOOL LLVOVolume::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 
 	if (mTextureAnimp && gAnimateTextures)
 	{
-		F32 off_s = 0.f, off_t = 0.f, scale_s = 1.f, scale_t = 1.f, rot = 0.f;
-		S32 result;
-		if (result = mTextureAnimp->animateTextures(off_s, off_t, scale_s, scale_t, rot))
-		{
-			mTexAnimMode = mTextureAnimp->mMode | result;
-
-			S32 start, end;
-			if (mTextureAnimp->mFace == -1)
-			{
-				start = 0; 
-				end = mDrawable->getNumFaces();
-			}
-			else
-			{
-				start = mTextureAnimp->mFace;
-				end = start + 1;
-			}
-			
-			for (S32 i = start; i < end; i++)
-			{
-				LLQuaternion quat;
-				LLVector3 scale(1,1,1);
-				
-				LLFace* facep = mDrawable->getFace(i);
-				const LLTextureEntry* te = facep->getTextureEntry();
-				LLMatrix4& tex_mat = facep->mTextureMatrix;
-				
-				if (!te)
-				{
-					continue;
-				}
-				if (result & LLViewerTextureAnim::ROTATE)
-				{
-					F32 axis = -1;
-					F32 s,t;	
-					te->getScale(&s,&t);
-					if (s < 0)
-					{
-						axis = -axis;
-					}
-					if (t < 0)
-					{
-						axis = -axis;
-					}
-					quat.setQuat(rot, 0, 0, axis);
-				}
-				
-				if (!(result & LLViewerTextureAnim::TRANSLATE))
-				{
-					te->getOffset(&off_s,&off_t);
-				}			
-
-				LLVector3 trans(off_s+0.5f, off_t+0.5f, 0.f);
-
-				tex_mat.identity();
-				tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
-				tex_mat.rotate(quat);
-				
-				if (result & LLViewerTextureAnim::SCALE)
-				{
-					scale.setVec(scale_s, scale_t, 1.f);
-					LLMatrix4 mat;
-					mat.initAll(scale, LLQuaternion(), LLVector3());
-					tex_mat *= mat;
-				}
-				
-				tex_mat.translate(trans);
-			}
-		}
-		else
-		{
-			if (mTextureAnimp->mRate == 0)
-			{
-				mTexAnimMode = 0;
-			}
-		}
+		animateTextures();
 	}
 
 	// Dispatch to implementation
@@ -717,15 +734,26 @@ void LLVOVolume::setParent(LLViewerObject* parent)
 void LLVOVolume::regenFaces()
 {
 	// remove existing faces
-	deleteFaces();
+	BOOL count_changed = mNumFaces != getNumTEs();
 	
-	// add new faces
-	mNumFaces = getNumTEs();
+	if (count_changed)
+	{
+		deleteFaces();		
+		// add new faces
+		mNumFaces = getNumTEs();
+	}
+		
 	for (S32 i = 0; i < mNumFaces; i++)
 	{
-		LLFace* facep = addFace(i);
-		facep->setViewerObject(this);
+		LLFace* facep = count_changed ? addFace(i) : mDrawable->getFace(i);
 		facep->setTEOffset(i);
+		facep->setTexture(getTEImage(i));
+		facep->setViewerObject(this);
+	}
+	
+	if (!count_changed)
+	{
+		updateFaceFlags();
 	}
 }
 
@@ -2062,21 +2090,14 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					facep->setState(LLFace::FULLBRIGHT);
 				}
 
-				if (vobj->mTextureAnimp)
+				if (vobj->mTextureAnimp && vobj->mTexAnimMode)
 				{
 					if (vobj->mTextureAnimp->mFace <= -1)
 					{
 						S32 face;
 						for (face = 0; face < vobj->getNumTEs(); face++)
 						{
-							if (vobj->mTextureAnimp->mMode & LLViewerTextureAnim::ON)
-							{
-								drawablep->getFace(face)->setState(LLFace::TEXTURE_ANIM);
-							}
-							else
-							{
-								drawablep->getFace(face)->clearState(LLFace::TEXTURE_ANIM);
-							}
+							drawablep->getFace(face)->setState(LLFace::TEXTURE_ANIM);
 						}
 					}
 					else if (vobj->mTextureAnimp->mFace < vobj->getNumTEs())

@@ -4449,14 +4449,15 @@ std::string::size_type LLInventoryFilter::getStringMatchOffset() const
 	return mSubStringMatchOffset;
 }
 
+// has user modified default filter params?
 BOOL LLInventoryFilter::isActive()
 {
-	return mFilterOps.mFilterTypes != 0xffffffff 
+	return mFilterOps.mFilterTypes != mDefaultFilterOps.mFilterTypes 
 		|| mFilterSubString.size() 
-		|| mFilterOps.mPermissions != PERM_NONE 
-		|| mFilterOps.mMinDate != 0 
-		|| mFilterOps.mMaxDate != U32_MAX
-		|| mFilterOps.mHoursAgo != 0;
+		|| mFilterOps.mPermissions != mDefaultFilterOps.mPermissions
+		|| mFilterOps.mMinDate != mDefaultFilterOps.mMinDate 
+		|| mFilterOps.mMaxDate != mDefaultFilterOps.mMaxDate
+		|| mFilterOps.mHoursAgo != mDefaultFilterOps.mHoursAgo;
 }
 
 BOOL LLInventoryFilter::isModified()

@@ -41,6 +41,8 @@ public:
 	void addObserver(LLCacheNameCallback callback);
 	void removeObserver(LLCacheNameCallback callback);
 
+	void cancelCallback(const LLUUID& id, LLCacheNameCallback callback, void* user_data = NULL);
+
 	// storing cache on disk; for viewer, in name.cache
 	void importFile(FILE* fp);
 	void exportFile(FILE* fp);

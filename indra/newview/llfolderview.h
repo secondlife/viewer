@@ -798,7 +798,6 @@ public:
 
 	static void idle(void* user_data);
 
-	void setAutoSelectOverride(bool override) { mAutoSelectOverride = override; }
 	BOOL needsAutoSelect() { return mNeedsAutoSelect && !mAutoSelectOverride; }
 	BOOL getDebugFilters() { return mDebugFilters; }
 

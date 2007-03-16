@@ -2014,7 +2014,7 @@ void LLVOAvatar::buildCharacter()
 					continue;
 				}
 				LLMenuItemCallGL* item = new LLMenuItemCallGL(attachment->getName(), 
-					NULL, &object_selected_and_point_valid, &attach_label, NULL);
+					NULL, &object_selected_and_point_valid, &attach_label, attachment);
 				item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", mAttachmentPoints.reverseLookup(attachment));
 				gAttachSubMenu->append(item);
 
@@ -4508,14 +4508,7 @@ BOOL LLVOAvatar::stopMotion(const LLUUID& id, BOOL stop_immediate)
 {
 	if (mIsSelf)
 	{
-		if (id == ANIM_AGENT_STAND)
-		{
-			LLAgent::stopFidget();
-		}
-		else if (id == ANIM_AGENT_AWAY)
-		{
-			gAgent.clearAFK();
-		}
+		gAgent.onAnimStop(id);
 	}
 
 	if (id == ANIM_AGENT_WALK)

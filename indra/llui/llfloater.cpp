@@ -489,6 +489,15 @@ void LLFloater::setVisible( BOOL visible )
 
 void LLFloater::open()	/* Flawfinder: ignore */
 {
+	if (mSoundFlags != SILENT 
+	// don't play open sound for hosted (tabbed) windows
+		&& !getHost() 
+		&& !sHostp
+		&& (!getVisible() || isMinimized()))
+	{
+		make_ui_sound("UISndWindowOpen");
+	}
+
 	//RN: for now, we don't allow rehosting from one multifloater to another
 	// just need to fix the bugs
 	LLMultiFloater* hostp = getHost();
@@ -509,14 +518,6 @@ void LLFloater::open()	/* Flawfinder: ignore */
 		setVisibleAndFrontmost(mAutoFocus);
 	}
 
-	if (mSoundFlags != SILENT)
-	{
-		if (!getVisible() || isMinimized())
-		{
-			make_ui_sound("UISndWindowOpen");
-		}
-	}
-
 	onOpen();
 }
 
@@ -535,6 +536,7 @@ void LLFloater::close(bool app_quitting)
 
 		if (mSoundFlags != SILENT
 			&& getVisible()
+			&& !getHost()
 			&& !app_quitting)
 		{
 			make_ui_sound("UISndWindowClose");
@@ -2458,7 +2460,6 @@ void LLMultiFloater::open()	/* Flawfinder: ignore */
 	if (mTabContainer->getTabCount() > 0)
 	{
 		LLFloater::open();	/* Flawfinder: ignore */
-		resizeToContents();
 	}
 	else
 	{

@@ -4,7 +4,7 @@ L			[a-zA-Z_]
 H			[a-fA-F0-9]
 E			[Ee][+-]?{D}+
 FS			(f|F)
-%e 8000
+%e 9000
 %n 4000
 %p 5000
 
@@ -558,6 +558,10 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "PARCEL_DETAILS_OWNER"	{ count(); yylval.ival = PARCEL_DETAILS_OWNER; return(INTEGER_CONSTANT); }
 "PARCEL_DETAILS_GROUP"	{ count(); yylval.ival = PARCEL_DETAILS_GROUP; return(INTEGER_CONSTANT); }
 "PARCEL_DETAILS_AREA"	{ count(); yylval.ival = PARCEL_DETAILS_AREA; return(INTEGER_CONSTANT); }
+
+"STRING_TRIM_HEAD"	{ count(); yylval.ival = STRING_TRIM_HEAD; return(INTEGER_CONSTANT); }
+"STRING_TRIM_TAIL"	{ count(); yylval.ival = STRING_TRIM_TAIL; return(INTEGER_CONSTANT); }
+"STRING_TRIM"	{ count(); yylval.ival = STRING_TRIM; return(INTEGER_CONSTANT); }
 
 {L}({L}|{N})*		{ count(); yylval.sval = new char[strlen(yytext) + 1]; strcpy(yylval.sval, yytext); return(IDENTIFIER); }
 

@@ -439,6 +439,14 @@ void LLFloaterWorldMap::draw()
 		return;
 	}
 
+	// On orientation island, users don't have a home location yet, so don't
+	// let them teleport "home".  It dumps them in an often-crowed welcome
+	// area (infohub) and they get confused. JC
+	LLViewerRegion* regionp = gAgent.getRegion();
+	bool agent_on_prelude = (regionp && regionp->isPrelude());
+	bool enable_go_home = gAgent.isGodlike() || !agent_on_prelude;
+	childSetEnabled("Go Home", enable_go_home);
+
 	updateLocation();
 	
 	LLTracker::ETrackingStatus tracking_status = LLTracker::getTrackingStatus(); 

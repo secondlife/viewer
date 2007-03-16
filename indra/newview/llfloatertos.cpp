@@ -106,9 +106,9 @@ BOOL LLFloaterTOS::postBuild()
 	childSetAction("Cancel", onCancel, this);
 	childSetCommitCallback("tos_agreement", updateAgree, this);
 
-	// this displays the critical message
 	if ( mType != TOS_TOS )
 	{
+		// this displays the critical message
 		LLTextEditor *Editor = LLUICtrlFactory::getTextEditorByName(this, "tos_text");
 		if (Editor)
 		{
@@ -118,25 +118,11 @@ BOOL LLFloaterTOS::postBuild()
 			Editor->setWordWrap(TRUE);
 			Editor->setFocus(TRUE);
 		}
-		childSetValue("tos_text", LLSD(mMessage));	
-	};
+		childSetValue("tos_text", LLSD(mMessage));
+		return TRUE;
+	}
 
-	// this displays the critical message
-	if ( mType != TOS_TOS )
-	{
-		LLTextEditor *Editor = LLUICtrlFactory::getTextEditorByName(this, "tos_text");
-		if (Editor)
-		{
-			Editor->setHandleEditKeysDirectly( TRUE );
-			Editor->setEnabled( FALSE );
-			Editor->setReadOnlyFgColor(LLColor4::white);
-			Editor->setWordWrap(TRUE);
-			Editor->setFocus(TRUE);
-		}
-		childSetValue("tos_text", LLSD(mMessage));	
-	};
-
-	#if LL_LIBXUL_ENABLED
+#if LL_LIBXUL_ENABLED
 	// disable Agree to TOS radio button until the page has fully loaded
 	LLRadioGroup* tos_agreement = LLUICtrlFactory::getRadioGroupByName(this, "tos_agreement");
 	if ( tos_agreement )
@@ -163,7 +149,18 @@ BOOL LLFloaterTOS::postBuild()
 		gResponsePtr = LLIamHere::build( this );
 		LLHTTPClient::get( childGetValue( "real_url" ).asString(), gResponsePtr );
 	};
-	#endif
+#else
+	LLTextEditor *Editor = LLUICtrlFactory::getTextEditorByName(this, "tos_text");
+	if (Editor)
+	{
+		Editor->setHandleEditKeysDirectly( TRUE );
+		Editor->setEnabled( FALSE );
+		Editor->setReadOnlyFgColor(LLColor4::white);
+		Editor->setWordWrap(TRUE);
+		Editor->setFocus(TRUE);
+	}
+	childSetValue("tos_text", LLSD(mMessage));	
+#endif
 
 	return TRUE;
 }

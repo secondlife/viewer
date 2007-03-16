@@ -71,26 +71,30 @@ you wish.
 4. KNOWN ISSUES
 -=-=-=-=-=-=-=-
 
-The following user-visible features are currently not fully implemented on
-the Linux client and are therefore known not to work properly:
+These are the most commonly-encountered known issues which are specific to
+the Alpha release of the Linux client.
+
+* VISUAL EFFECTS AND PERFORMANCE - many Linux graphics drivers are not as
+  robust as their counterparts for other operating systems, so some advanced
+  Second Life graphical features have been DISABLED by default to aid
+  stability.  See PROBLEM 3 in the TROUBLESHOOTING section if you wish to
+  turn these on to possibly enhance your experience.
+
+* MISC - The following user-visible features are not currently fully
+  implemented on the Linux client and are therefore known not to work properly
+  at this time:
   * QuickTime movie playback and movie recording
   * Video memory detection
   * Full Unicode font rendering
   * Auto-updater
 
+* UPLOAD / SAVE / COLOR-PICKER DIALOGS - These only appear when the client
+  is in 'windowed' mode, not 'fullscreen' mode.
+
 * UPDATING - when the client detects that a new version of Second Life
   is available, it will ask you if you wish to download the new version.
   This option is not implemented; to upgrade, you should manually download a
   new version from the Second Life web site, <http://www.secondlife.com/>.
-
-* UPLOAD / SAVE / COLOR-PICKER DIALOGS - These only function when the client
-  is in 'windowed' mode, not 'fullscreen' mode.
-
-* GRAPHICAL SPEED/QUALITY - as many Linux graphics drivers are not as robust
-  as their counterparts for some other operating systems, advanced Second Life
-  graphical features have been disabled to aid stability.  See PROBLEM 3 in the
-  TROUBLESHOOTING section if you wish to turn these on to enhance your
-  experience.
 
 
 5. TROUBLESHOOTING
@@ -130,8 +134,8 @@ SOLUTION:- As a last resort, you can disable most of Second Life's advanced
    from the line which reads '#export LL_GL_NOEXT=x'
 
 PROBLEM 3:- Performance or graphical quality are not as high as I expect.
+PROBLEM:- 'SHINY' doesn't work.
 PROBLEM:- I can't turn on Anisotropic Filtering, Ripple Water, or AGP.
-PROBLEM:- 'Shiny' doesn't work.
 SOLUTION:- Some graphics performance features in Second Life are disabled
    by default for the Linux version due to stability issues with some common
    Linux graphic drivers.  You can re-enable these features at the slight

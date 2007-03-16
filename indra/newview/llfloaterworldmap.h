@@ -37,18 +37,18 @@ public:
 	static void *createWorldMapView(void* data);
 	BOOL postBuild();
 
-	virtual void onClose(bool app_quitting);
+	/*virtual*/ void onClose(bool app_quitting);
 
 	static void show(void*, BOOL center_on_target );
 	static void reloadIcons(void*);
 	static void toggle(void*);
 	static void hide(void*); 
 
-	virtual void	reshape( S32 width, S32 height, BOOL called_from_parent = TRUE );
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
-	virtual void	setVisible(BOOL visible);
-	virtual void	draw();
+	/*virtual*/ void reshape( S32 width, S32 height, BOOL called_from_parent = TRUE );
+	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
+	/*virtual*/ void setVisible(BOOL visible);
+	/*virtual*/ void draw();
 
 	// methods for dealing with inventory. The observe() method is
 	// called during program startup. inventoryUpdated() will be

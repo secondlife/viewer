@@ -364,6 +364,12 @@ struct SetItemOwnerAndGroup
 		LLPermissions perm = item->getPermissions();
 		bool is_atomic = (LLAssetType::AT_OBJECT == item->getType()) ? false : true;
 		perm.setOwnerAndGroup(mAuthorityID, mOwnerID, mGroupID, is_atomic);
+		// If no owner id is set, this is equivalent to a deed action.
+		// Clear 'share with group'.
+		if (mOwnerID.isNull())
+		{
+			perm.setMaskGroup(PERM_NONE);
+		}
 		item->setPermissions(perm);
 	}
 };

@@ -169,6 +169,18 @@ LLFloaterScriptSearch::LLFloaterScriptSearch(std::string title, LLRect rect, LLS
 	sInstance = this;
 
 	childSetFocus("search_text", TRUE);
+
+	// find floater in which script panel is embedded
+	LLView* viewp = (LLView*)editor_core;
+	while(viewp)
+	{
+		if (viewp->getWidgetType() == WIDGET_TYPE_FLOATER)
+		{
+			((LLFloater*)viewp)->addDependentFloater(this);
+			break;
+		}
+		viewp = viewp->getParent();
+	}
 }
 
 //static 

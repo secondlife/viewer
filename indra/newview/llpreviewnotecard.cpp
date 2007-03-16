@@ -128,6 +128,7 @@ BOOL LLPreviewNotecard::postBuild()
 	if (ed)
 	{
 		ed->setNotecardInfo(mNotecardItemID, mObjectID);
+		ed->makePristine();
 	}
 	return TRUE;
 }

@@ -1131,6 +1131,9 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	sub_menu->append(new LLMenuItemCheckGL("Occlusion",	&LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_OCCLUSION));
+	sub_menu->append(new LLMenuItemCheckGL("Animated Textures",	&LLPipeline::toggleRenderDebug, NULL,
+													&LLPipeline::toggleRenderDebugControl,
+													(void*)LLPipeline::RENDER_DEBUG_TEXTURE_ANIM));
 	sub_menu->append(new LLMenuItemCheckGL("Texture Priority",	&LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY));
@@ -7787,6 +7790,18 @@ class LLWorldEnableSetHomeLocation : public view_listener_t
 	}
 };
 
+class LLWorldEnableTeleportHome : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLViewerRegion* regionp = gAgent.getRegion();
+		bool agent_on_prelude = (regionp && regionp->isPrelude());
+		bool enable_teleport_home = gAgent.isGodlike() || !agent_on_prelude;
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(enable_teleport_home);
+		return true;
+	}
+};
+
 BOOL enable_region_owner(void*)
 {
 	if(gAgent.getRegion() && gAgent.getRegion()->getOwner() == gAgent.getID())
@@ -8603,6 +8618,7 @@ void initialize_menu_actions()
 
 	(new LLWorldEnableCreateLandmark())->registerListener(gMenuHolder, "World.EnableCreateLandmark");
 	(new LLWorldEnableSetHomeLocation())->registerListener(gMenuHolder, "World.EnableSetHomeLocation");
+	(new LLWorldEnableTeleportHome())->registerListener(gMenuHolder, "World.EnableTeleportHome");
 	(new LLWorldEnableBuyLand())->registerListener(gMenuHolder, "World.EnableBuyLand");
 
 	(new LLWorldCheckAlwaysRun())->registerListener(gMenuHolder, "World.CheckAlwaysRun");

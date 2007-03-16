@@ -95,6 +95,7 @@ public:
 						EAcceptance *accept,
 						LLString& tooltip_msg);
 	virtual void	draw();
+	virtual BOOL	handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
 
 	// LLFloater overrides
 	virtual void	onClose(bool app_quitting);
@@ -156,6 +157,7 @@ protected:
 	BOOL				mCanApplyImmediately;
 	BOOL				mNoCopyTextureSelected;
 	F32					mContextConeOpacity;
+	LLSaveFolderState	mSavedFolderState;
 };
 
 LLFloaterTexturePicker::LLFloaterTexturePicker(	
@@ -210,13 +212,16 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 		filter_types |= 0x1 << LLInventoryType::IT_TEXTURE;
 		filter_types |= 0x1 << LLInventoryType::IT_SNAPSHOT;
 
-		mInventoryPanel->setAutoSelectOverride(true);
 		mInventoryPanel->setFilterTypes(filter_types);
 		//mInventoryPanel->setFilterPermMask(getFilterPermMask());  //Commented out due to no-copy texture loss.
 		mInventoryPanel->setFilterPermMask(immediate_filter_perm_mask);
 		mInventoryPanel->setSelectCallback(onSelectionChange, this);
 		mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 		mInventoryPanel->setAllowMultiSelect(FALSE);
+
+		// store this filter as the default one
+		mInventoryPanel->getRootFolder()->getFilter()->markDefault();
+
 		// Commented out to stop opening all folders with textures
 		// mInventoryPanel->openDefaultFolderForType(LLAssetType::AT_TEXTURE);
 		
@@ -244,6 +249,8 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	updateFilterPermMask();
 
 	setCanMinimize(FALSE);
+
+	mSavedFolderState.setApply(FALSE);
 }
 
 LLFloaterTexturePicker::~LLFloaterTexturePicker()
@@ -377,6 +384,41 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 	lldebugst(LLERR_USER_INPUT) << "dragAndDrop handled by LLFloaterTexturePicker " << getName() << llendl;
 
 	return handled;
+}
+
+BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+{
+	LLFolderView* root_folder = mInventoryPanel->getRootFolder();
+
+	if (!called_from_parent && root_folder &&
+		mSearchEdit && mSearchEdit->hasFocus() &&
+		(key == KEY_RETURN || key == KEY_DOWN) && mask == MASK_NONE)
+	{
+		if (!root_folder->getCurSelectedItem())
+		{
+			LLFolderViewItem* itemp = root_folder->getItemByID(gAgent.getInventoryRootID());
+			if (itemp)
+			{
+				root_folder->setSelection(itemp, FALSE, FALSE);
+			}
+		}
+		root_folder->scrollToShowSelection();
+
+		// move focus to inventory proper
+		root_folder->setFocus(TRUE);
+		
+		// treat this as a user selection of the first filtered result
+		commitIfImmediateSet();
+
+		return TRUE;
+	}
+
+	if (root_folder->hasFocus() && key == KEY_UP)
+	{
+		mSearchEdit->focusFirstItem(TRUE);
+	}
+
+	return LLFloater::handleKeyHere(key, mask, called_from_parent);
 }
 
 // virtual
@@ -738,53 +780,36 @@ void LLFloaterTexturePicker::onSearchEdit(const LLString& search_string, void* u
 {
 	LLFloaterTexturePicker* picker = (LLFloaterTexturePicker*)user_data;
 
-	std::string filter_text = search_string;
-
-	if (filter_text.empty()&& picker->mInventoryPanel->getFilterSubString().empty())
-	{
-		// current filter and new filter empty, do nothing
-		return;
-	}
-	std::string upper_case_search_string = filter_text;
+	std::string upper_case_search_string = search_string;
 	LLString::toUpper(upper_case_search_string);
 
-	picker->mInventoryPanel->setFilterSubString(upper_case_search_string);
-
-	LLFolderView* root_folder = picker->mInventoryPanel->getRootFolder();
-
-	//if (search_string.size())
-	//{
-	//	LLSelectFirstFilteredItem filter;
-	//	root_folder->applyFunctorRecursively(filter);
-	//	//...and scroll to show it
-	//	root_folder->scrollToShowSelection();
-	//}
-
-	KEY key = gKeyboard->currentKey();
-
-	if ((key == KEY_RETURN || key == KEY_DOWN) && gKeyboard->currentMask(FALSE) == MASK_NONE)
+	if (upper_case_search_string.empty())
 	{
-		if (search_string.size())
+		if (picker->mInventoryPanel->getFilterSubString().empty())
 		{
-			LLSelectFirstFilteredItem filter;
-			root_folder->applyFunctorRecursively(filter);
-			//...and scroll to show it
-			root_folder->scrollToShowSelection();
+			// current filter and new filter empty, do nothing
+			return;
 		}
 
-		if (!root_folder->getCurSelectedItem())
-		{
-			LLFolderViewItem* itemp = root_folder->getItemByID(gAgent.getInventoryRootID());
-			if (itemp)
-			{
-				root_folder->setSelection(itemp, FALSE, FALSE);
-			}
-		}
+		picker->mSavedFolderState.setApply(TRUE);
+		picker->mInventoryPanel->getRootFolder()->applyFunctorRecursively(picker->mSavedFolderState);
+		// add folder with current item to list of previously opened folders
+		LLOpenFoldersWithSelection opener;
+		picker->mInventoryPanel->getRootFolder()->applyFunctorRecursively(opener);
+		picker->mInventoryPanel->getRootFolder()->scrollToShowSelection();
 
-		// move focus to inventory proper
-		root_folder->setFocus(TRUE);
-		root_folder->scrollToShowSelection();
 	}
+	else if (picker->mInventoryPanel->getFilterSubString().empty())
+	{
+		// first letter in search term, save existing folder open state
+		if (!picker->mInventoryPanel->getRootFolder()->isFilterActive())
+		{
+			picker->mSavedFolderState.setApply(FALSE);
+			picker->mInventoryPanel->getRootFolder()->applyFunctorRecursively(picker->mSavedFolderState);
+		}
+	}
+
+	picker->mInventoryPanel->setFilterSubString(upper_case_search_string);
 }
 
 //static 

@@ -4649,14 +4649,26 @@ void LLAgent::requestStopMotion( LLMotion* motion )
 	// Notify all avatars that a motion has stopped.
 	// This is needed to clear the animation state bits
 	LLUUID anim_state = motion->getID();
+	onAnimStop(motion->getID());
 
 	// if motion is not looping, it could have stopped by running out of time
 	// so we need to tell the server this
 //	llinfos << "Sending stop for motion " << motion->getName() << llendl;
 	sendAnimationRequest( anim_state, ANIM_REQUEST_STOP );
+}
 
+void LLAgent::onAnimStop(const LLUUID& id)
+{
 	// handle automatic state transitions (based on completion of animation playback)
-	if (anim_state == ANIM_AGENT_STANDUP)
+	if (id == ANIM_AGENT_STAND)
+	{
+		stopFidget();
+	}
+	else if (id == ANIM_AGENT_AWAY)
+	{
+		clearAFK();
+	}
+	else if (id == ANIM_AGENT_STANDUP)
 	{
 		// send stand up command
 		setControlFlags(AGENT_CONTROL_FINISH_ANIM);
@@ -4665,7 +4677,7 @@ void LLAgent::requestStopMotion( LLMotion* motion )
 		if (mAvatarObject.notNull() && !mAvatarObject->mBelowWater && rand() % 3 == 0)
 			sendAnimationRequest( ANIM_AGENT_BRUSH, ANIM_REQUEST_START );
 	}
-	else if (anim_state == ANIM_AGENT_PRE_JUMP || anim_state == ANIM_AGENT_LAND || anim_state == ANIM_AGENT_MEDIUM_LAND)
+	else if (id == ANIM_AGENT_PRE_JUMP || id == ANIM_AGENT_LAND || id == ANIM_AGENT_MEDIUM_LAND)
 	{
 		setControlFlags(AGENT_CONTROL_FINISH_ANIM);
 	}

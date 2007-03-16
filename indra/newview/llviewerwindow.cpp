@@ -2172,7 +2172,9 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	}
 
 	// don't pass keys on to world when something in ui has focus
-	return gFocusMgr.childHasKeyboardFocus(mRootView) || (gMenuBarView && gMenuBarView->getHighlightedItem());
+	return gFocusMgr.childHasKeyboardFocus(mRootView) 
+		|| LLMenuGL::getKeyboardMode() 
+		|| (gMenuBarView && gMenuBarView->getHighlightedItem() && gMenuBarView->getHighlightedItem()->isActive());
 }
 
 

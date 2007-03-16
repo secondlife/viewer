@@ -264,6 +264,7 @@ BOOL LLPermissions::deedToGroup(const LLUUID& agent, const LLUUID& group)
 			mOwner.setNull();
 		}
 		mMaskBase = mMaskNextOwner;
+		mMaskGroup = PERM_NONE;
 		mGroup = group;
 		mIsGroupOwned = true;
 		fixFairUse();

@@ -1647,7 +1647,8 @@ BOOL LLMenuItemBranchDownGL::handleAcceleratorKey(KEY key, MASK mask)
 BOOL LLMenuItemBranchDownGL::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 {
 	BOOL menu_open = mBranch->getVisible();
-	if (getHighlight() && getMenu()->getVisible())
+	// don't do keyboard navigation of top-level menus unless in keyboard mode, or menu expanded
+	if (getHighlight() && getMenu()->getVisible() && (isActive() || LLMenuGL::getKeyboardMode()))
 	{
 		if (key == KEY_LEFT)
 		{
@@ -4144,9 +4145,9 @@ void LLMenuBarGL::checkMenuTrigger()
 
 BOOL LLMenuBarGL::jumpKeysActive()
 {
-	// require item to be highlighted to activate key triggers
-	// as menu bars are always visible
-	return getHighlightedItem() && LLMenuGL::jumpKeysActive();
+	// require user to be in keyboard navigation mode to activate key triggers
+	// as menu bars are always visible and it is easy to leave the mouse cursor over them
+	return LLMenuGL::getKeyboardMode() && getHighlightedItem() && LLMenuGL::jumpKeysActive();
 }
 
 // rearrange the child rects so they fit the shape of the menu bar.
@@ -4404,6 +4405,7 @@ BOOL LLMenuHolderGL::hideMenus()
 	BOOL menu_visible = hasVisibleMenu();
 	if (menu_visible)
 	{
+		LLMenuGL::setKeyboardMode(FALSE);
 		// clicked off of menu, hide them all
 		for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 		{

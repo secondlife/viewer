@@ -71,6 +71,7 @@ public:
 
 				void	deleteFaces();
 
+				void	animateTextures();
 	/*virtual*/ BOOL	idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 
 	/*virtual*/ BOOL	isActive() const;

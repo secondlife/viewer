@@ -1978,6 +1978,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		is_linden = gMuteListp->isLinden(from_name);
 	}
 
+	BOOL is_audible = (CHAT_AUDIBLE_FULLY == chat.mAudible);
 	chatter = gObjectList.findObject(from_id);
 	if (chatter)
 	{
@@ -1997,7 +1998,8 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		}
 
 		// only pay attention to other people chatting
-		if ((is_linden || (!is_muted && !is_busy))
+		if (is_audible
+			&& (is_linden || (!is_muted && !is_busy))
 			&& chatter != gAgent.getAvatarObject())
 		{
 			gAgent.heardChat(chat);
@@ -2010,7 +2012,6 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		is_owned_by_me = chatter->permYouOwner();
 	}
 
-	BOOL is_audible = (CHAT_AUDIBLE_FULLY == chat.mAudible);
 	if (is_audible)
 	{
 		BOOL visible_in_chat_bubble = FALSE;

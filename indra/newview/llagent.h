@@ -331,6 +331,7 @@ public:
 
 	// Animation functions
 	void			requestStopMotion( LLMotion* motion );
+	void			onAnimStop(const LLUUID& id);
 
 	void			sendAnimationRequests(LLDynamicArray<LLUUID> &anim_ids, EAnimRequest request);
 	void			sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request);

@@ -386,21 +386,23 @@ BOOL LLScrollbar::handleScrollWheel(S32 x, S32 y, S32 clicks)
 BOOL LLScrollbar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									EDragAndDropType cargo_type, void *carge_data, EAcceptance *accept, LLString &tooltip_msg)
 {
-	if (!drop)
-	{
-		//TODO: refactor this
-		S32 variable_lines = getDocPosMax();
-		S32 pos = (VERTICAL == mOrientation) ? y : x;
-		S32 thumb_length = (VERTICAL == mOrientation) ? mThumbRect.getHeight() : mThumbRect.getWidth();
-		S32 thumb_track_length = (VERTICAL == mOrientation) ? (mRect.getHeight() - 2 * SCROLLBAR_SIZE) : (mRect.getWidth() - 2 * SCROLLBAR_SIZE);
-		S32 usable_track_length = thumb_track_length - thumb_length;
-		F32 ratio = (VERTICAL == mOrientation) ? F32(pos - SCROLLBAR_SIZE - thumb_length) / usable_track_length
-			: F32(pos - SCROLLBAR_SIZE) / usable_track_length;	
-		S32 new_pos = (VERTICAL == mOrientation) ? llclamp( S32(variable_lines - ratio * variable_lines + 0.5f), 0, variable_lines )
-			: llclamp( S32(ratio * variable_lines + 0.5f), 0, variable_lines );
-		changeLine( new_pos - mDocPos, TRUE );
-	}
-	return TRUE;
+	// enable this to get drag and drop to control scrollbars
+	//if (!drop)
+	//{
+	//	//TODO: refactor this
+	//	S32 variable_lines = getDocPosMax();
+	//	S32 pos = (VERTICAL == mOrientation) ? y : x;
+	//	S32 thumb_length = (VERTICAL == mOrientation) ? mThumbRect.getHeight() : mThumbRect.getWidth();
+	//	S32 thumb_track_length = (VERTICAL == mOrientation) ? (mRect.getHeight() - 2 * SCROLLBAR_SIZE) : (mRect.getWidth() - 2 * SCROLLBAR_SIZE);
+	//	S32 usable_track_length = thumb_track_length - thumb_length;
+	//	F32 ratio = (VERTICAL == mOrientation) ? F32(pos - SCROLLBAR_SIZE - thumb_length) / usable_track_length
+	//		: F32(pos - SCROLLBAR_SIZE) / usable_track_length;	
+	//	S32 new_pos = (VERTICAL == mOrientation) ? llclamp( S32(variable_lines - ratio * variable_lines + 0.5f), 0, variable_lines )
+	//		: llclamp( S32(ratio * variable_lines + 0.5f), 0, variable_lines );
+	//	changeLine( new_pos - mDocPos, TRUE );
+	//}
+	//return TRUE;
+	return FALSE;
 }
 
 BOOL LLScrollbar::handleMouseUp(S32 x, S32 y, MASK mask)

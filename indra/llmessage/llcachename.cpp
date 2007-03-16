@@ -257,6 +257,40 @@ void LLCacheName::addObserver(LLCacheNameCallback callback)
 	impl.mObservers.push_back(callback);
 }
 
+void LLCacheName::removeObserver(LLCacheNameCallback callback)
+{
+	Observers::iterator it = impl.mObservers.begin();
+	Observers::iterator end = impl.mObservers.end();
+
+	for ( ; it != end; ++it)
+	{
+		const LLCacheNameCallback& cb = (*it);
+		if (cb == callback)
+		{
+			impl.mObservers.erase(it);
+			return;
+		}
+	}
+}
+
+void LLCacheName::cancelCallback(const LLUUID& id, LLCacheNameCallback callback, void* user_data)
+{
+	ReplyQueue::iterator it = impl.mReplyQueue.begin();
+	ReplyQueue::iterator end = impl.mReplyQueue.end();
+	
+	for(; it != end; ++it)
+	{
+		const PendingReply& reply = (*it);
+
+		if ((callback == reply.mCallback)
+			&& (id == reply.mID)
+			&& (user_data == reply.mData) )
+		{
+			impl.mReplyQueue.erase(it);
+			return;
+		}
+	}
+}
 
 void LLCacheName::importFile(FILE* fp)
 {

@@ -2312,6 +2312,14 @@ S32 LLSpatialPartition::getLights(const LLVector3& pos, F32 rad, LLDrawable::dra
 	return getDrawables(pos, rad, results, TRUE);
 }
 
+void pushVerts(LLDrawInfo* params, U32 mask)
+{
+	params->mVertexBuffer->setBuffer(mask);
+	U32* indicesp = (U32*) params->mVertexBuffer->getIndicesPointer();
+	glDrawRangeElements(params->mParticle ? GL_POINTS : GL_TRIANGLES, params->mStart, params->mEnd, params->mCount,
+					GL_UNSIGNED_INT, indicesp+params->mOffset);
+}
+
 void pushVerts(LLSpatialGroup* group, U32 mask)
 {
 	LLDrawInfo* params = NULL;
@@ -2321,10 +2329,7 @@ void pushVerts(LLSpatialGroup* group, U32 mask)
 		for (std::vector<LLDrawInfo*>::iterator j = i->second.begin(); j != i->second.end(); ++j)
 		{
 			params = *j;
-			params->mVertexBuffer->setBuffer(mask);
-			U32* indicesp = (U32*) params->mVertexBuffer->getIndicesPointer();
-			glDrawRangeElements(params->mParticle ? GL_POINTS : GL_TRIANGLES, params->mStart, params->mEnd, params->mCount,
-							GL_UNSIGNED_INT, indicesp+params->mOffset);
+			pushVerts(params, mask);
 		}
 	}
 }
@@ -2617,6 +2622,18 @@ void renderPoints(LLDrawable* drawablep)
 	glEnd();
 }
 
+void renderTextureAnim(LLDrawInfo* params)
+{
+	if (!params->mTextureMatrix)
+	{
+		return;
+	}
+	
+	LLGLEnable blend(GL_BLEND);
+	glColor4f(1,1,0,0.5f);
+	pushVerts(params, LLVertexBuffer::MAP_VERTEX);
+}
+
 class LLOctreeRenderNonOccluded : public LLOctreeTraveler<LLDrawable>
 {
 public:
@@ -2685,6 +2702,19 @@ public:
 				renderPoints(drawable);
 			}
 		}
+		
+		for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
+		{
+			std::vector<LLDrawInfo*>& draw_vec = i->second;
+			for (std::vector<LLDrawInfo*>::iterator j = draw_vec.begin(); j != draw_vec.end(); ++j)
+			{
+				LLDrawInfo* draw_info = *j;
+				if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_ANIM))
+				{
+					renderTextureAnim(draw_info);
+				}
+			}
+		}
 	}
 };
 
@@ -2694,7 +2724,8 @@ void LLSpatialPartition::renderDebug()
 									  LLPipeline::RENDER_DEBUG_OCCLUSION |
 									  LLPipeline::RENDER_DEBUG_BBOXES |
 									  LLPipeline::RENDER_DEBUG_POINTS |
-									  LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
+									  LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY |
+									  LLPipeline::RENDER_DEBUG_TEXTURE_ANIM))
 	{
 		return;
 	}
