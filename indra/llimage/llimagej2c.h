@@ -68,7 +68,17 @@ class LLImageJ2CImpl
 public:
 	virtual ~LLImageJ2CImpl();
 protected:
+	// Find out the image size and number of channels.
+	// Return value:
+	// true: image size and number of channels was determined
+	// false: error on decode
 	virtual BOOL getMetadata(LLImageJ2C &base) = 0;
+	// Decode the raw image optionally aborting (to continue later) after
+	// decode_time seconds.  Decode at most max_channel_count and start
+	// decoding channel first_channel.
+	// Return value:
+	// true: decoding complete (even if it failed)
+	// false: time expired while decoding
 	virtual BOOL decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count) = 0;
 	virtual BOOL encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text, F32 encode_time=0.0) = 0;
 

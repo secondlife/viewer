@@ -9,6 +9,8 @@
 #include "linden_common.h"
 #include "llimagej2coj.h"
 
+// this is defined so that we get static linking.
+#define OPJ_STATIC
 #include "openjpeg/openjpeg.h"
 
 #include "lltimer.h"
@@ -103,46 +105,61 @@ BOOL LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decod
 
 	/* decode the stream and fill the image structure */
 	image = opj_decode(dinfo, cio);
-	if(!image)
-	{
-		fprintf(stderr, "ERROR -> j2k_to_image: failed to decode image!\n");
-		opj_destroy_decompress(dinfo);
-		opj_cio_close(cio);
-		return 1;
-	}
 
 	/* close the byte stream */
 	opj_cio_close(cio);
 
-
 	/* free remaining structures */
-	if(dinfo) {
+	if(dinfo)
+	{
 		opj_destroy_decompress(dinfo);
 	}
 
+	// The image decode failed if the return was NULL or the component
+	// count was zero.  The latter is just a sanity check before we
+	// dereference the array.
+	if(!image || !image->numcomps)
+	{
+		fprintf(stderr, "ERROR -> decodeImpl: failed to decode image!\n");
+		if (image)
+			opj_image_destroy(image);
+
+		return TRUE; // done
+	}
+
 	// Copy image data into our raw image format (instead of the separate channel format
-	S32 width = 0;
-	S32 height = 0;
 
 	S32 img_components = image->numcomps;
 	S32 channels = img_components - first_channel;
 	if( channels > max_channel_count )
-	{
 		channels = max_channel_count;
-	}
-	width = image->x1 - image->x0;
-	height = image->y1 - image->y0;
+
+	// Component buffers are allocated in an image width by height buffer.
+	// The image placed in that buffer is ceil(width/2^factor) by
+	// ceil(height/2^factor) and if the factor isn't zero it will be at the
+	// top left of the buffer with black filled in the rest of the pixels.
+	// It is integer math so the formula is written in ceildivpo2.
+	// (Assuming all the components have the same width, height and
+	// factor.)
+	S32 comp_width = image->comps[0].w;
+	S32 f=image->comps[0].factor;
+	S32 width = ceildivpow2(image->x1 - image->x0, f);
+	S32 height = ceildivpow2(image->y1 - image->y0, f);
 	raw_image.resize(width, height, channels);
 	U8 *rawp = raw_image.getData();
 
-	for (S32 comp = first_channel; comp < first_channel + channels; comp++)
+	// first_channel is what channel to start copying from
+	// dest is what channel to copy to.  first_channel comes from the
+	// argument, dest always starts writing at channel zero.
+	for (S32 comp = first_channel, dest=0; comp < first_channel + channels;
+		comp++, dest++)
 	{
-		S32 offset = comp;
+		S32 offset = dest;
 		for (S32 y = (height - 1); y >= 0; y--)
 		{
 			for (S32 x = 0; x < width; x++)
 			{
-				rawp[offset] = image->comps[comp].data[y*width + x];
+				rawp[offset] = image->comps[comp].data[y*comp_width + x];
 				offset += channels;
 			}
 		}
@@ -151,7 +168,7 @@ BOOL LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decod
 	/* free image data structure */
 	opj_image_destroy(image);
 
-	return TRUE;
+	return TRUE; // done
 }
 
 
@@ -304,6 +321,9 @@ BOOL LLImageJ2COJ::getMetadata(LLImageJ2C &base)
 	/* set decoding parameters to default values */
 	opj_set_default_decoder_parameters(&parameters);
 
+	// Only decode what's required to get the size data.
+	parameters.cp_limit_decoding=LIMIT_TO_MAIN_HEADER;
+
 	//parameters.cp_reduce = mRawDiscardLevel;
 
 	/* decode the code-stream */
@@ -325,21 +345,20 @@ BOOL LLImageJ2COJ::getMetadata(LLImageJ2C &base)
 
 	/* decode the stream and fill the image structure */
 	image = opj_decode(dinfo, cio);
-	if(!image)
-	{
-		fprintf(stderr, "ERROR -> j2k_to_image: failed to decode image!\n");
-		opj_destroy_decompress(dinfo);
-		opj_cio_close(cio);
-		return 1;
-	}
 
 	/* close the byte stream */
 	opj_cio_close(cio);
 
-
 	/* free remaining structures */
-	if(dinfo) {
+	if(dinfo)
+	{
 		opj_destroy_decompress(dinfo);
+	}
+
+	if(!image)
+	{
+		fprintf(stderr, "ERROR -> getMetadata: failed to decode image!\n");
+		return FALSE;
 	}
 
 	// Copy image data into our raw image format (instead of the separate channel format
@@ -352,5 +371,6 @@ BOOL LLImageJ2COJ::getMetadata(LLImageJ2C &base)
 	base.setSize(width, height, img_components);
 
 	/* free image data structure */
-	opj_image_destroy(image);	return TRUE;
+	opj_image_destroy(image);
+	return TRUE;
 }
