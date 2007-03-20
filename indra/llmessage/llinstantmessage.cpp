@@ -207,8 +207,21 @@ void pack_instant_message_block(
 	S32 bytes_left = MTUBYTES;
 	if(message)
 	{
-		char buffer[MTUBYTES];	/*Flawfinder: ignore*/
-		bytes_left -= snprintf(buffer, MTUBYTES, "%s", message);	/*Flawfinder: ignore*/
+		char buffer[MTUBYTES];
+		int num_written = snprintf(buffer, MTUBYTES, "%s", message);	/* Flawfinder: ignore */
+		// snprintf returns number of bytes that would have been written
+		// had the output not being truncated. In that case, it will
+		// return either -1 or value >= passed in size value . So a check needs to be added
+		// to detect truncation, and if there is any, only account for the
+		// actual number of bytes written..and not what could have been
+		// written.
+		if (num_written < 0 || num_written >= MTUBYTES)
+		{
+			num_written = MTUBYTES - 1;
+			llwarns << "pack_instant_message_block: message truncated: " << message << llendl;
+		}
+
+		bytes_left -= num_written;
 		bytes_left = llmax(0, bytes_left);
 		msg->addStringFast(_PREHASH_Message, buffer);
 	}

@@ -747,7 +747,7 @@ BOOL idle_startup()
 			if (gUserServerChoice == USERSERVER_OTHER)
 			{
 				gUserServer.setHostByName( server_label.c_str() );
-				snprintf(gUserServerName, MAX_STRING, "%s", server_label.c_str());		/* Flawfinder: ignore */
+				snprintf(gUserServerName, MAX_STRING, "%s", server_label.c_str());			/* Flawfinder: ignore */
 			}
 		}
 

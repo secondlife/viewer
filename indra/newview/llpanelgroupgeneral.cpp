@@ -627,7 +627,7 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 
 		if ( visible )
 		{
-			snprintf(fee_buff, sizeof(fee_buff), "Join (L$%d)", gdatap->mMembershipFee);		/*Flawfinder: ignore*/
+			snprintf(fee_buff, sizeof(fee_buff), "Join (L$%d)", gdatap->mMembershipFee);			/* Flawfinder: ignore */
 			mBtnJoinGroup->setLabelSelected(std::string(fee_buff));
 			mBtnJoinGroup->setLabelUnselected(std::string(fee_buff));
 		}

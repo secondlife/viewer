@@ -57,7 +57,7 @@ BOOL LLXmlParser::parseFile(const std::string &path)
 	FILE* file = LLFile::fopen(path.c_str(), "rb");		/* Flawfinder: ignore */
 	if( !file )
 	{
-		snprintf( mAuxErrorString, sizeof(mAuxErrorString), "Couldn't open file %s", path.c_str());		/* Flawfinder: ignore */
+		snprintf( mAuxErrorString, sizeof(mAuxErrorString), "Couldn't open file %s", path.c_str());	/* Flawfinder: ignore */
 		success = FALSE;
 	}
 	else
@@ -71,7 +71,7 @@ BOOL LLXmlParser::parseFile(const std::string &path)
 		void* buffer = XML_GetBuffer(mParser, buffer_size);
 		if( !buffer ) 
 		{
-			snprintf( mAuxErrorString, sizeof(mAuxErrorString), "Unable to allocate XML buffer while reading file %s", path.c_str() );		/* Flawfinder: ignore */
+			snprintf( mAuxErrorString, sizeof(mAuxErrorString), "Unable to allocate XML buffer while reading file %s", path.c_str() );	/* Flawfinder: ignore */
 			success = FALSE;
 			goto exit_label;
 		}
@@ -79,14 +79,14 @@ BOOL LLXmlParser::parseFile(const std::string &path)
 		bytes_read = (S32)fread(buffer, 1, buffer_size, file);
 		if( bytes_read <= 0 )
 		{
-			snprintf( mAuxErrorString, sizeof(mAuxErrorString), "Error while reading file  %s", path.c_str() );		/* Flawfinder: ignore */
+			snprintf( mAuxErrorString, sizeof(mAuxErrorString), "Error while reading file  %s", path.c_str() );	/* Flawfinder: ignore */
 			success = FALSE;
 			goto exit_label;
 		}
 		
 		if( !XML_ParseBuffer(mParser, bytes_read, TRUE ) )
 		{
-			snprintf( mAuxErrorString, sizeof(mAuxErrorString), "Error while parsing file  %s", path.c_str() );		/* Flawfinder: ignore */
+			snprintf( mAuxErrorString, sizeof(mAuxErrorString), "Error while parsing file  %s", path.c_str() );	/* Flawfinder: ignore */
 			success = FALSE;
 		}
 

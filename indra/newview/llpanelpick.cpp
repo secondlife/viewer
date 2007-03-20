@@ -305,7 +305,7 @@ void LLPanelPick::processPickInfoReply(LLMessageSystem *msg, void **)
     S32 region_y = llround((F32)pos_global.mdV[VY]) % REGION_WIDTH_UNITS;
 	S32 region_z = llround((F32)pos_global.mdV[VZ]);
    
-    snprintf(buffer, sizeof(buffer), "%s (%d, %d, %d)", sim_name, region_x, region_y, region_z);		/*Flawfinder: ignore*/
+    snprintf(buffer, sizeof(buffer), "%s (%d, %d, %d)", sim_name, region_x, region_y, region_z);			/* Flawfinder: ignore */
     location_text.append(buffer);
 
 	S32 sort_order;
@@ -340,7 +340,7 @@ void LLPanelPick::processPickInfoReply(LLMessageSystem *msg, void **)
         self->mLocationEditor->setText(location_text);
         self->mEnabledCheck->set(enabled);
 
-		snprintf(buffer, sizeof(buffer), "%d", sort_order);		/*Flawfinder: ignore*/
+		snprintf(buffer, sizeof(buffer), "%d", sort_order);			/* Flawfinder: ignore */
 		self->mSortOrderEditor->setText(buffer);
     }
 }

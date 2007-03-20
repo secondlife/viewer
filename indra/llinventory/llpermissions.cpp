@@ -738,15 +738,15 @@ BOOL LLPermissions::exportLegacyStream(std::ostream& output_stream) const
 	output_stream <<  "\t{\n";
 
 	char buffer[256];	/* Flawfinder: ignore */
-	snprintf(buffer, sizeof(buffer), "\t\tbase_mask\t%08x\n",		mMaskBase);	/* Flawfinder: ignore */
+	snprintf(buffer, sizeof(buffer), "\t\tbase_mask\t%08x\n",		mMaskBase);		/* Flawfinder: ignore */
 	output_stream << buffer;
-	snprintf(buffer, sizeof(buffer), "\t\towner_mask\t%08x\n",		mMaskOwner);	/* Flawfinder: ignore */
+	snprintf(buffer, sizeof(buffer), "\t\towner_mask\t%08x\n",		mMaskOwner);		/* Flawfinder: ignore */
 	output_stream << buffer;
-	snprintf(buffer, sizeof(buffer), "\t\tgroup_mask\t%08x\n",		mMaskGroup);	/* Flawfinder: ignore */
+	snprintf(buffer, sizeof(buffer), "\t\tgroup_mask\t%08x\n",		mMaskGroup);		/* Flawfinder: ignore */
 	output_stream << buffer;
-	snprintf(buffer, sizeof(buffer), "\t\teveryone_mask\t%08x\n",	mMaskEveryone);	/* Flawfinder: ignore */
+	snprintf(buffer, sizeof(buffer), "\t\teveryone_mask\t%08x\n",	mMaskEveryone);		/* Flawfinder: ignore */
 	output_stream << buffer;
-	snprintf(buffer, sizeof(buffer), "\t\tnext_owner_mask\t%08x\n",	mMaskNextOwner);	/* Flawfinder: ignore */
+	snprintf(buffer, sizeof(buffer), "\t\tnext_owner_mask\t%08x\n",	mMaskNextOwner);		/* Flawfinder: ignore */
 	output_stream << buffer;
 
 	mCreator.toString(uuid_str);

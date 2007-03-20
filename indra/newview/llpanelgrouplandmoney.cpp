@@ -223,7 +223,7 @@ void LLPanelGroupLandMoney::impl::setYourMaxContributionTextBox(int max)
 	char buffer[MAX_STRING];		/*Flawfinder: ignore*/
 	buffer[0] = '\0';
 
-	snprintf(buffer, sizeof(buffer), "(%d max)", max);		/*Flawfinder: ignore*/
+	snprintf(buffer, sizeof(buffer), "(%d max)", max);			/* Flawfinder: ignore */
 	if ( mYourContributionMaxTextp )
 	{
 		mYourContributionMaxTextp->setText(buffer);
@@ -289,14 +289,14 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 			S32 total_contribution;
 			msg->getS32("QueryData", "ActualArea", total_contribution, 0);
 			char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-			snprintf(buffer, sizeof(buffer), "%d sq. meters", total_contribution);		/*Flawfinder: ignore*/
+			snprintf(buffer, sizeof(buffer), "%d sq. meters", total_contribution);			/* Flawfinder: ignore */
 			mTotalContributedLandp->setText(buffer);
 			S32 committed;
 			msg->getS32("QueryData", "BillableArea", committed, 0);
-			snprintf(buffer, sizeof(buffer), "%d sq. meters", committed);		/*Flawfinder: ignore*/
+			snprintf(buffer, sizeof(buffer), "%d sq. meters", committed);			/* Flawfinder: ignore */
 			mTotalLandInUsep->setText(buffer);
 			S32 available = total_contribution - committed;
-			snprintf(buffer, sizeof(buffer), "%d sq. meters", available);		/*Flawfinder: ignore*/
+			snprintf(buffer, sizeof(buffer), "%d sq. meters", available);			/* Flawfinder: ignore */
 			mLandAvailablep->setText(buffer);
 			buffer[0] = '\0';
 			if ( mGroupOverLimitTextp && mGroupOverLimitIconp )
@@ -340,18 +340,18 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 			S32 region_x = llround(global_x) % REGION_WIDTH_UNITS;
 			S32 region_y = llround(global_y) % REGION_WIDTH_UNITS;
 			char location[MAX_STRING];		/*Flawfinder: ignore*/
-			snprintf(location, MAX_STRING, "%s (%d, %d)", sim_name, region_x, region_y);		/*Flawfinder: ignore*/
+			snprintf(location, MAX_STRING, "%s (%d, %d)", sim_name, region_x, region_y);			/* Flawfinder: ignore */
 			char area[MAX_STRING];		/*Flawfinder: ignore*/
 			if(billable_area == actual_area)
 			{
-				snprintf(area, MAX_STRING, "%d", billable_area);		/*Flawfinder: ignore*/
+				snprintf(area, MAX_STRING, "%d", billable_area);			/* Flawfinder: ignore */
 			}
 			else
 			{
-				snprintf(area, MAX_STRING, "%d / %d", billable_area, actual_area);		/*Flawfinder: ignore*/
+				snprintf(area, MAX_STRING, "%d / %d", billable_area, actual_area);			/* Flawfinder: ignore */
 			}
 			char hidden[MAX_STRING];		/*Flawfinder: ignore*/
-			snprintf(hidden, MAX_STRING, "%f %f", global_x, global_y);		/*Flawfinder: ignore*/
+			snprintf(hidden, MAX_STRING, "%f %f", global_x, global_y);			/* Flawfinder: ignore */
 
 			LLSD row;
 
@@ -977,7 +977,7 @@ void LLGroupMoneyDetailsTabEventHandler::processReply(LLMessageSystem* msg,
 		return;
 	}
 
-	snprintf(line, MAX_STRING,  "%s\n\n", start_date);		/*Flawfinder: ignore*/
+	snprintf(line, MAX_STRING,  "%s\n\n", start_date);			/* Flawfinder: ignore */
 	text.append(line);
 
 	S32 total_amount = 0;
@@ -992,7 +992,7 @@ void LLGroupMoneyDetailsTabEventHandler::processReply(LLMessageSystem* msg,
 
 		if (amount != 0)
 		{
-			snprintf(line, MAX_STRING, "%-24s %6d\n", desc, amount );		/*Flawfinder: ignore*/
+			snprintf(line, MAX_STRING, "%-24s %6d\n", desc, amount );			/* Flawfinder: ignore */
 			text.append(line);
 		}
 		else
@@ -1005,7 +1005,7 @@ void LLGroupMoneyDetailsTabEventHandler::processReply(LLMessageSystem* msg,
 
 	text.append(1, '\n');
 
-	snprintf(line, MAX_STRING, "%-24s %6d\n", "Total", total_amount );		/*Flawfinder: ignore*/
+	snprintf(line, MAX_STRING, "%-24s %6d\n", "Total", total_amount );			/* Flawfinder: ignore */
 	text.append(line);
 
 	if ( mImplementationp->mTextEditorp )
@@ -1122,7 +1122,7 @@ void LLGroupMoneySalesTabEventHandler::processReply(LLMessageSystem* msg,
 	{
 		text.clear();
 
-		snprintf(line, MAX_STRING, "%s\n\n", start_date); 		/*Flawfinder: ignore*/
+		snprintf(line, MAX_STRING, "%s\n\n", start_date); 			/* Flawfinder: ignore */
 		text.append(line);
 	}
 
@@ -1177,7 +1177,7 @@ void LLGroupMoneySalesTabEventHandler::processReply(LLMessageSystem* msg,
 					break;
 				}
 
-				snprintf(line, sizeof(line), "%s %6d - %s %s %s\n", time, amount, user, verb, item);		/*Flawfinder: ignore*/
+				snprintf(line, sizeof(line), "%s %6d - %s %s %s\n", time, amount, user, verb, item);			/* Flawfinder: ignore */
 				text.append(line);
 			}
 		}
@@ -1330,26 +1330,26 @@ void LLGroupMoneyPlanningTabEventHandler::processReply(LLMessageSystem* msg,
 		return;
 	}
 
-	snprintf(line, MAX_STRING, "Summary for this week, beginning on %s\n", start_date);		/*Flawfinder: ignore*/
+	snprintf(line, MAX_STRING, "Summary for this week, beginning on %s\n", start_date);			/* Flawfinder: ignore */
 	text.append(line);
 
 	if (current_interval == 0)
 	{
-		snprintf(line, MAX_STRING, "The next stipend day is %s\n\n", next_stipend_date);		/*Flawfinder: ignore*/
+		snprintf(line, MAX_STRING, "The next stipend day is %s\n\n", next_stipend_date);			/* Flawfinder: ignore */
 		text.append(line);
-		snprintf(line, MAX_STRING, "%-24sL$%6d\n", "Balance", balance );		/*Flawfinder: ignore*/
+		snprintf(line, MAX_STRING, "%-24sL$%6d\n", "Balance", balance );			/* Flawfinder: ignore */
 		text.append(line);
 
 		text.append(1, '\n');
 	}
 
-	snprintf(line, MAX_STRING,  "                      Group       Individual Share\n");		/*Flawfinder: ignore*/
+	snprintf(line, MAX_STRING,  "                      Group       Individual Share\n");			/* Flawfinder: ignore */
 	text.append(line);
-	snprintf(line, MAX_STRING,     "%-24s %6d      %6d \n", "Credits", total_credits, (S32)floor((F32)total_credits/(F32)non_exempt_members));		/*Flawfinder: ignore*/
+	snprintf(line, MAX_STRING,     "%-24s %6d      %6d \n", "Credits", total_credits, (S32)floor((F32)total_credits/(F32)non_exempt_members));			/* Flawfinder: ignore */
 	text.append(line);
-	snprintf(line, MAX_STRING,     "%-24s %6d      %6d \n", "Debits", total_debits,  (S32)floor((F32)total_debits/(F32)non_exempt_members));		/*Flawfinder: ignore*/
+	snprintf(line, MAX_STRING,     "%-24s %6d      %6d \n", "Debits", total_debits,  (S32)floor((F32)total_debits/(F32)non_exempt_members));			/* Flawfinder: ignore */
 	text.append(line);
-	snprintf(line, MAX_STRING,     "%-24s %6d      %6d \n", "Total", total_credits + total_debits,  (S32)floor((F32)(total_credits + total_debits)/(F32)non_exempt_members));		/*Flawfinder: ignore*/
+	snprintf(line, MAX_STRING,     "%-24s %6d      %6d \n", "Total", total_credits + total_debits,  (S32)floor((F32)(total_credits + total_debits)/(F32)non_exempt_members));			/* Flawfinder: ignore */
 	text.append(line);
 
 	if ( mImplementationp->mTextEditorp )

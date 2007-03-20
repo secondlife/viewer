@@ -707,7 +707,7 @@ LLSD LLFloaterReporter::gatherReport()
 	details << childGetValue("details_edit").asString();
 
 	char version_string[MAX_STRING];		/* Flawfinder: ignore */
-	snprintf(version_string,						/* Flawfinder: ignore */
+	snprintf(version_string,				/* Flawfinder: ignore */
 			MAX_STRING,
 			"%d.%d.%d %s %s %s %s",
 			LL_VERSION_MAJOR,

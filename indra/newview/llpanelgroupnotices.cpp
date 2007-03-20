@@ -479,7 +479,7 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		row["columns"][3]["column"] = "date";
 		row["columns"][3]["value"] = buffer;
 
-		snprintf(buffer, 30, "%u", timestamp);		/*Flawfinder: ignore*/
+		snprintf(buffer, 30, "%u", timestamp);			/* Flawfinder: ignore */
 		row["columns"][4]["column"] = "sort";
 		row["columns"][4]["value"] = buffer;
 

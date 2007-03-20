@@ -774,7 +774,7 @@ void LLPreviewGesture::refresh()
 				mWaitTimeCheck->set(wait_step->mFlags & WAIT_FLAG_TIME);
 				mWaitTimeEditor->setVisible(TRUE);
 				char buffer[16];		/*Flawfinder: ignore*/
-				snprintf(buffer, sizeof(buffer),  "%.1f", (double)wait_step->mWaitSeconds);		/*Flawfinder: ignore*/
+				snprintf(buffer, sizeof(buffer),  "%.1f", (double)wait_step->mWaitSeconds);			/* Flawfinder: ignore */
 				mWaitTimeEditor->setText(buffer);
 				break;
 			}

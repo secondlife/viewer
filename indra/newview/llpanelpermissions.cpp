@@ -365,7 +365,7 @@ void LLPanelPermissions::refresh()
 	else
 	{
 		char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-		snprintf(buffer, MAX_STRING, "%d Objects, ", obj_count);		/*Flawfinder: ignore*/
+		snprintf(buffer, MAX_STRING, "%d Objects, ", obj_count);			/* Flawfinder: ignore */
 		object_info_string.assign(buffer);
 	}
 	if (1 == prim_count)
@@ -375,7 +375,7 @@ void LLPanelPermissions::refresh()
 	else
 	{
 		char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-		snprintf(buffer, MAX_STRING, "%d Primitives", prim_count);		/*Flawfinder: ignore*/
+		snprintf(buffer, MAX_STRING, "%d Primitives", prim_count);			/* Flawfinder: ignore */
 		object_info_string.append(buffer);
 	}
 	childSetText("prim info",object_info_string);

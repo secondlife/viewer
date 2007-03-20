@@ -2059,7 +2059,7 @@ void LLSelectMgr::packGodlikeHead(void* user_data)
 void LLSelectMgr::packObjectIDAsParam(LLSelectNode* node, void *)
 {
 	char buf [MAX_STRING];		/* Flawfinder: ignore */
-	snprintf(buf, MAX_STRING, "%u", node->getObject()->getLocalID());		/* Flawfinder: ignore */
+	snprintf(buf, MAX_STRING, "%u", node->getObject()->getLocalID());			/* Flawfinder: ignore */
 	gMessageSystem->nextBlock("ParamList");
 	gMessageSystem->addString("Parameter", buf);
 }

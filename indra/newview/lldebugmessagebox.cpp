@@ -191,14 +191,14 @@ void LLDebugVarMessageBox::draw()
 	switch(mVarType)
 	{
 	case VAR_TYPE_F32:
-		snprintf(text, sizeof(text), "%.3f", *((F32*)mVarData));		 /*Flawfinder: ignore*/
+		snprintf(text, sizeof(text), "%.3f", *((F32*)mVarData));		 	/* Flawfinder: ignore */
 		break;
 	case VAR_TYPE_S32:
-		snprintf(text, sizeof(text), "%d", *((S32*)mVarData)); 		 /*Flawfinder: ignore*/
+		snprintf(text, sizeof(text), "%d", *((S32*)mVarData)); 		 	/* Flawfinder: ignore */
 		break;
 	case VAR_TYPE_VEC3:
 		LLVector3* vec_p = (LLVector3*)mVarData;
-		snprintf(text, sizeof(text), "%.3f %.3f %.3f", vec_p->mV[VX], vec_p->mV[VY], vec_p->mV[VZ]);	 /*Flawfinder: ignore*/
+		snprintf(text, sizeof(text), "%.3f %.3f %.3f", vec_p->mV[VX], vec_p->mV[VY], vec_p->mV[VZ]);	 	/* Flawfinder: ignore */
 		break;
 	}
 	mText->setText(text);

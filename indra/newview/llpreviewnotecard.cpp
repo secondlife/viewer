@@ -586,7 +586,7 @@ void LLPreviewNotecard::onSaveComplete(const LLUUID& asset_uuid, void* user_data
 	char uuid_string[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
 	asset_uuid.toString(uuid_string);
 	char filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
-	snprintf(filename, LL_MAX_PATH, "%s.tmp", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());		/*Flawfinder: ignore*/
+	snprintf(filename, LL_MAX_PATH, "%s.tmp", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());			/* Flawfinder: ignore */
 	LLFile::remove(filename);
 	delete info;
 }

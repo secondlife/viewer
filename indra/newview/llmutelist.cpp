@@ -443,7 +443,7 @@ void LLMuteList::requestFromServer(const LLUUID& agent_id)
 	char agent_id_string[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
 	char filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
 	agent_id.toString(agent_id_string);
-	snprintf(filename, sizeof(filename), "%s.cached_mute", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,agent_id_string).c_str());		/*Flawfinder: ignore*/
+	snprintf(filename, sizeof(filename), "%s.cached_mute", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,agent_id_string).c_str());			/* Flawfinder: ignore */
 	LLCRC crc;
 	crc.update(filename);
 
@@ -469,7 +469,7 @@ void LLMuteList::cache(const LLUUID& agent_id)
 		char agent_id_string[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
 		char filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
 		agent_id.toString(agent_id_string);
-		snprintf(filename, sizeof(filename), "%s.cached_mute", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,agent_id_string).c_str());		/*Flawfinder: ignore*/
+		snprintf(filename, sizeof(filename), "%s.cached_mute", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,agent_id_string).c_str());			/* Flawfinder: ignore */
 		saveToFile(filename);
 	}
 }
@@ -512,7 +512,7 @@ void LLMuteList::processUseCachedMuteList(LLMessageSystem* msg, void**)
 	char agent_id_string[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
 	gAgent.getID().toString(agent_id_string);
 	char filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
-	snprintf(filename, sizeof(filename), "%s.cached_mute", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,agent_id_string).c_str());		/*Flawfinder: ignore*/
+	snprintf(filename, sizeof(filename), "%s.cached_mute", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,agent_id_string).c_str());			/* Flawfinder: ignore */
 	gMuteListp->loadFromFile(filename);
 }
 

@@ -5383,7 +5383,7 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 		LLString short_name = filename.substr(offset);
 		
 		// No extension
-		snprintf(error_message,		/* Flawfinder: ignore */	
+		snprintf(error_message,		/* Flawfinder: ignore */
 				MAX_STRING,
 				"No file extension for the file: '%s'\nPlease make sure the file has a correct file extension",
 				short_name.c_str());
@@ -5532,7 +5532,7 @@ void upload_new_resource(const LLString& src_filename, std::string name,
                          else	 	
                          {	 	
                                  fclose(in);	 	
-                                 snprintf(error_message, MAX_STRING, "unknown linden resource file version in file: %s", src_filename.c_str());		/* Flawfinder: ignore */	 	
+                                 snprintf(error_message, MAX_STRING, "unknown linden resource file version in file: %s", src_filename.c_str());		/* Flawfinder: ignore */
 								 args["[FILE]"] = src_filename;
 								 upload_error(error_message, "UnknownResourceFileVersion", filename, args);
                                  return;
@@ -5568,7 +5568,7 @@ void upload_new_resource(const LLString& src_filename, std::string name,
                  else	 	
                  {	 	
                          fclose(in);	 	
-                         snprintf(error_message, MAX_STRING, "Unable to create output file: %s", filename.c_str());		/* Flawfinder: ignore */	 	
+                         snprintf(error_message, MAX_STRING, "Unable to create output file: %s", filename.c_str());		/* Flawfinder: ignore */
 						 args["[FILE]"] = filename;
 						 upload_error(error_message, "UnableToCreateOutputFile", filename, args);
                          return;

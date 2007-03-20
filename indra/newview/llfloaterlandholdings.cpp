@@ -188,20 +188,20 @@ void LLFloaterLandHoldings::processPlacesReply(LLMessageSystem* msg, void**)
 		S32 region_y = llround(global_y) % REGION_WIDTH_UNITS;
 
 		char location[MAX_STRING];		/* Flawfinder: ignore */
-		snprintf(location, MAX_STRING, "%s (%d, %d)", sim_name, region_x, region_y);		/* Flawfinder: ignore */
+		snprintf(location, MAX_STRING, "%s (%d, %d)", sim_name, region_x, region_y);			/* Flawfinder: ignore */
 
 		char area[MAX_STRING];		/* Flawfinder: ignore */
 		if(billable_area == actual_area)
 		{
-			snprintf(area, MAX_STRING, "%d", billable_area);		/* Flawfinder: ignore */
+			snprintf(area, MAX_STRING, "%d", billable_area);			/* Flawfinder: ignore */
 		}
 		else
 		{
-			snprintf(area, MAX_STRING, "%d / %d", billable_area, actual_area);		/* Flawfinder: ignore */
+			snprintf(area, MAX_STRING, "%d / %d", billable_area, actual_area);			/* Flawfinder: ignore */
 		}
 
 		char hidden[MAX_STRING];		/* Flawfinder: ignore */
-		snprintf(hidden, MAX_STRING, "%f %f", global_x, global_y);		/* Flawfinder: ignore */
+		snprintf(hidden, MAX_STRING, "%f %f", global_x, global_y);			/* Flawfinder: ignore */
 
 		LLSD element;
 		element["columns"][0]["column"] = "name";
@@ -294,12 +294,12 @@ void LLFloaterLandHoldings::refreshAggregates()
 
 	char buffer[MAX_STRING];		/* Flawfinder: ignore */
 
-	snprintf(buffer, MAX_STRING, "%d sq. meters", allowed_area);		/* Flawfinder: ignore */
+	snprintf(buffer, MAX_STRING, "%d sq. meters", allowed_area);			/* Flawfinder: ignore */
 	childSetValue("allowed_text", LLSD(buffer));
 
-	snprintf(buffer, MAX_STRING, "%d sq. meters", current_area);		/* Flawfinder: ignore */
+	snprintf(buffer, MAX_STRING, "%d sq. meters", current_area);			/* Flawfinder: ignore */
 	childSetValue("current_text", LLSD(buffer));
 
-	snprintf(buffer, MAX_STRING, "%d sq. meters", available_area);		/* Flawfinder: ignore */
+	snprintf(buffer, MAX_STRING, "%d sq. meters", available_area);			/* Flawfinder: ignore */
 	childSetValue("available_text", LLSD(buffer));
 }

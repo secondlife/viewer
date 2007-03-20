@@ -2148,7 +2148,7 @@ void LLPanelAvatar::processAvatarStatisticsReply(LLMessageSystem *msg, void**)
 			item = new LLScrollListItem();
 			item->addColumn( name, font, TEXT_WIDTH );
 
-			snprintf( value_string, sizeof(value_string),  "+%d", positive);		/*Flawfinder: ignore*/
+			snprintf( value_string, sizeof(value_string),  "+%d", positive);			/* Flawfinder: ignore */
 			item->addColumn( value_string, font, 50 );
 
 			item->addColumn("", font);	// extra column to force striped appearance

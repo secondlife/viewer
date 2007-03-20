@@ -329,7 +329,7 @@ BOOL LLKeyframeMotionParam::loadMotions()
 	// Load data into a buffer to be parsed.
 	//-------------------------------------------------------------------------
 	char path[LL_MAX_PATH];		/* Flawfinder: ignore */
-	snprintf( path,sizeof(path), "%s_%s.llp",	/* Flawfinder: ignore */
+	snprintf( path,sizeof(path), "%s_%s.llp",
 		gDirUtilp->getExpandedFilename(LL_PATH_MOTIONS,mCharacter->getAnimationPrefix()).c_str(),
 		getName().c_str() );	
 

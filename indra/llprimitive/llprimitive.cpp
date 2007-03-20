@@ -714,7 +714,7 @@ const char * LLPrimitive::pCodeToString(const LLPCode pcode)
 			snprintf(pcode_string, sizeof(pcode_string), "text bubble");	/* Flawfinder: ignore */
 			break;
 		case LL_PCODE_LEGACY_TREE:
-			snprintf(pcode_string, sizeof(pcode_string), "tree");	/* Flawfinder: ignore */
+			snprintf(pcode_string, sizeof(pcode_string), "tree");		/* Flawfinder: ignore */
 			break;
 		case LL_PCODE_TREE_NEW:
 			snprintf(pcode_string, sizeof(pcode_string), "tree_new");	/* Flawfinder: ignore */
@@ -745,23 +745,23 @@ const char * LLPrimitive::pCodeToString(const LLPCode pcode)
 		}
 		else if (base_code == LL_PCODE_PYRAMID)
 		{
-			snprintf(shape, sizeof(shape), "pyramid");	/* Flawfinder: ignore */
+			snprintf(shape, sizeof(shape), "pyramid");		/* Flawfinder: ignore */
 		}
 		else if (base_code == LL_PCODE_SPHERE)
 		{
-			snprintf(shape, sizeof(shape), "sphere");	/* Flawfinder: ignore */
+			snprintf(shape, sizeof(shape), "sphere");		/* Flawfinder: ignore */
 		}
 		else if (base_code == LL_PCODE_TETRAHEDRON)
 		{
-			snprintf(shape, sizeof(shape), "tetrahedron");	/* Flawfinder: ignore */
+			snprintf(shape, sizeof(shape), "tetrahedron");		/* Flawfinder: ignore */
 		}
 		else if (base_code == LL_PCODE_VOLUME)
 		{
-			snprintf(shape, sizeof(shape), "volume");	/* Flawfinder: ignore */
+			snprintf(shape, sizeof(shape), "volume");		/* Flawfinder: ignore */
 		}
 		else if (base_code == LL_PCODE_APP)
 		{
-			snprintf(shape, sizeof(shape), "app");	/* Flawfinder: ignore */
+			snprintf(shape, sizeof(shape), "app");		/* Flawfinder: ignore */
 		}
 		else
 		{
@@ -771,15 +771,15 @@ const char * LLPrimitive::pCodeToString(const LLPCode pcode)
 		U8 mask_code = pcode & (~LL_PCODE_BASE_MASK);
 		if (base_code == LL_PCODE_APP)
 		{
-			snprintf(mask, sizeof(mask), "%x", mask_code);	/* Flawfinder: ignore */
+			snprintf(mask, sizeof(mask), "%x", mask_code);		/* Flawfinder: ignore */
 		}
 		else if (mask_code & LL_PCODE_HEMI_MASK)
 		{
-			snprintf(mask, sizeof(mask), "hemi");	/* Flawfinder: ignore */
+			snprintf(mask, sizeof(mask), "hemi");		/* Flawfinder: ignore */
 		}
 		else if (mask != 0)
 		{
-			snprintf(mask, sizeof(mask), "%x", mask_code);	/* Flawfinder: ignore */
+			snprintf(mask, sizeof(mask), "%x", mask_code);		/* Flawfinder: ignore */
 		}
 		else
 		{
@@ -788,11 +788,11 @@ const char * LLPrimitive::pCodeToString(const LLPCode pcode)
 
 		if (mask[0])
 		{
-			snprintf(pcode_string, sizeof(pcode_string), "%s-%s", shape, mask);	/* Flawfinder: ignore */
+			snprintf(pcode_string, sizeof(pcode_string), "%s-%s", shape, mask);		/* Flawfinder: ignore */
 		}
 		else
 		{
-			snprintf(pcode_string, sizeof(pcode_string), "%s", shape);	/* Flawfinder: ignore */
+			snprintf(pcode_string, sizeof(pcode_string), "%s", shape);		/* Flawfinder: ignore */
 		}
 	}
 	return pcode_string;

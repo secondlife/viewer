@@ -2143,7 +2143,7 @@ void LLXMLNode::setFloatValue(U32 length, const F32 *array, Encoding encoding, U
 			{
 				precision = 25;
 			}
-			snprintf(format_string, sizeof(format_string), "%%.%dg", precision);		/* Flawfinder: ignore */
+			snprintf(format_string, sizeof(format_string), "%%.%dg", precision);	/* Flawfinder: ignore */
 		}
 		else
 		{
@@ -2194,7 +2194,7 @@ void LLXMLNode::setDoubleValue(U32 length, const F64 *array, Encoding encoding, 
 			{
 				precision = 25;
 			}
-			snprintf(format_string, sizeof(format_string), "%%.%dg", precision);		/* Flawfinder: ignore */
+			snprintf(format_string, sizeof(format_string), "%%.%dg", precision);	/* Flawfinder: ignore */
 		}
 		else
 		{

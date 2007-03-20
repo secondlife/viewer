@@ -51,7 +51,7 @@ void LLHost::getString(char* buffer, S32 length) const
 		return;
 	}
 
-	snprintf(buffer, length, "%s:%u", u32_to_ip_string(mIP), mPort);  /*Flawfinder: ignore*/
+	snprintf(buffer, length, "%s:%u", u32_to_ip_string(mIP), mPort); 	/* Flawfinder: ignore */
 }
 
 void LLHost::getIPString(char* buffer, S32 length) const
@@ -62,7 +62,7 @@ void LLHost::getIPString(char* buffer, S32 length) const
 		return;
 	}
 
-	snprintf(buffer, length, "%s", u32_to_ip_string(mIP)); /*Flawfinder: ignore*/
+	snprintf(buffer, length, "%s", u32_to_ip_string(mIP));	/* Flawfinder: ignore */
 }
 
 

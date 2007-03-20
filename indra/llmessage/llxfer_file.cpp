@@ -114,7 +114,7 @@ S32 LLXfer_File::initializeRequest(U64 xfer_id,
 	mRemoteHost = remote_host;
 	mDeleteRemoteOnCompletion = delete_remote_on_completion;
 
-	snprintf(mTempFilename, sizeof(mTempFilename), "%s",gDirUtilp->getTempFilename().c_str());		/* Flawfinder : ignore */
+	snprintf(mTempFilename, sizeof(mTempFilename), "%s",gDirUtilp->getTempFilename().c_str());	/* Flawfinder: ignore */
 
 	mCallback = callback;
 	mCallbackDataHandle = user_data;

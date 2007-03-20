@@ -262,7 +262,7 @@ BOOL LLFloaterAnimPreview::postBuild()
 			childSetValue("ease_out_time", LLSD(motionp->getEaseOutDuration()));
 			mEnabled = TRUE;
 			char seconds_string[128];		/*Flawfinder: ignore*/
-			snprintf(seconds_string, sizeof(seconds_string), " - %.2f seconds", motionp->getDuration());		/*Flawfinder: ignore*/
+			snprintf(seconds_string, sizeof(seconds_string), " - %.2f seconds", motionp->getDuration());	/* Flawfinder: ignore */
 
 			setTitle(mFilename + LLString(seconds_string));
 		}
@@ -284,7 +284,7 @@ BOOL LLFloaterAnimPreview::postBuild()
 			{
 				char output_str[256];	/*Flawfinder: ignore*/
 
-				snprintf(output_str, sizeof(output_str), "Animation file is %.1f seconds in length.\n\nMaximum animation length is %.1f seconds.\n",			/*Flawfinder: ignore*/
+				snprintf(output_str, sizeof(output_str), "Animation file is %.1f seconds in length.\n\nMaximum animation length is %.1f seconds.\n",	/* Flawfinder: ignore */
 					loaderp->getDuration(), MAX_ANIM_DURATION);
 				childSetValue("bad_animation_text", LLSD(output_str));
 			}

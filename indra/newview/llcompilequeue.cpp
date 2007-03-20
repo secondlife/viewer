@@ -179,7 +179,7 @@ BOOL LLFloaterScriptQueue::start()
 {
 	//llinfos << "LLFloaterCompileQueue::start()" << llendl;
 	char buffer[MAX_STRING]; 				/*Flawfinder: ignore*/
-	snprintf(buffer, sizeof(buffer), "Starting %s of %d items.", mStartString, mObjectIDs.count()); 	/*Flawfinder: ignore*/
+	snprintf(buffer, sizeof(buffer), "Starting %s of %d items.", mStartString, mObjectIDs.count()); 		/* Flawfinder: ignore */
 	
 	LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(this, "queue output");
 	list->addSimpleItem(buffer);
@@ -219,7 +219,7 @@ BOOL LLFloaterScriptQueue::nextObject()
 
 		mDone = TRUE;
 		char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-		snprintf(buffer, sizeof(buffer), "Done.");			/*Flawfinder: ignore*/
+		snprintf(buffer, sizeof(buffer), "Done.");				/* Flawfinder: ignore */
 		list->addSimpleItem(buffer);
 		childSetEnabled("close",TRUE);
 	}
@@ -364,7 +364,7 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 		LLVFile file(vfs, asset_id, type);
 		char uuid_str[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
 		asset_id.toString(uuid_str);
-		snprintf(filename, sizeof(filename), "%s.%s",gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_str).c_str(),LLAssetType::lookup(type)); /*Flawfinder: ignore*/
+		snprintf(filename, sizeof(filename), "%s.%s",gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_str).c_str(),LLAssetType::lookup(type)); 	/* Flawfinder: ignore */
 
 		FILE *fp = LLFile::fopen(filename, "wb");	 /*Flawfinder: ignore*/
 		if (fp)
@@ -384,7 +384,7 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 		}
 
 		// It's now in the file, now compile it.
-		snprintf(buffer, sizeof(buffer), "Downloaded, now compiling '%s'.", data->mScriptName.c_str());  /*Flawfinder: ignore*/
+		snprintf(buffer, sizeof(buffer), "Downloaded, now compiling '%s'.", data->mScriptName.c_str());  	/* Flawfinder: ignore */
 		queue->compile(filename, asset_id);
 
 		// Delete it after we're done compiling?
@@ -401,19 +401,19 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 		{
 			LLChat chat("Script not found on server.");
 			LLFloaterChat::addChat(chat);
-			snprintf(buffer, sizeof(buffer), "Problem downloading %s.", /*Flawfinder: ignore*/
+			snprintf(buffer, sizeof(buffer), "Problem downloading %s.", 	/* Flawfinder: ignore */
 				data->mScriptName.c_str());
 		}
 		else if (LL_ERR_INSUFFICIENT_PERMISSIONS == status)
 		{
 			LLChat chat("Insufficient permissions to download a script.");
 			LLFloaterChat::addChat(chat);
-			snprintf(buffer, sizeof(buffer), "Insufficient permissions for '%s'.", /*Flawfinder: ignore*/
+			snprintf(buffer, sizeof(buffer), "Insufficient permissions for '%s'.", 	/* Flawfinder: ignore */
 				data->mScriptName.c_str());
 		}
 		else
 		{
-			snprintf(buffer, sizeof(buffer), "Unknown failure to download %s.", /*Flawfinder: ignore*/
+			snprintf(buffer, sizeof(buffer), "Unknown failure to download %s.", 	/* Flawfinder: ignore */
 				data->mScriptName.c_str());
 		}
 
@@ -477,9 +477,9 @@ void LLFloaterCompileQueue::compile(const char* filename,
 	char uuid_string[UUID_STR_LENGTH];  /*Flawfinder: ignore*/
 	new_asset_id.toString(uuid_string);
 	char dst_filename[LL_MAX_PATH];	 /*Flawfinder: ignore*/
-	snprintf(dst_filename, sizeof(dst_filename), "%s.lso", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());	 /*Flawfinder: ignore*/
+	snprintf(dst_filename, sizeof(dst_filename), "%s.lso", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());	 	/* Flawfinder: ignore */
 	char err_filename[LL_MAX_PATH];	 /*Flawfinder: ignore*/
-	snprintf(err_filename, sizeof(err_filename), "%s.out", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());	 /*Flawfinder: ignore*/
+	snprintf(err_filename, sizeof(err_filename), "%s.out", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_string).c_str());	 	/* Flawfinder: ignore */
 
 	gAssetStorage->storeAssetData(filename, tid,
 								  LLAssetType::AT_LSL_TEXT,
@@ -603,7 +603,7 @@ void LLFloaterResetQueue::handleInventory(LLViewerObject* viewer_obj,
 				LLInventoryItem* item = (LLInventoryItem*)((LLInventoryObject*)(*it));
 				LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(this, "queue output");
 				char buffer[MAX_STRING];		 /*Flawfinder: ignore*/
-				snprintf(buffer, sizeof(buffer), "Resetting '%s'.", item->getName().c_str());		 /*Flawfinder: ignore*/
+				snprintf(buffer, sizeof(buffer), "Resetting '%s'.", item->getName().c_str());		 	/* Flawfinder: ignore */
 				list->addSimpleItem(buffer);
 				LLMessageSystem* msg = gMessageSystem;
 				msg->newMessageFast(_PREHASH_ScriptReset);
@@ -666,7 +666,7 @@ void LLFloaterRunQueue::handleInventory(LLViewerObject* viewer_obj,
 				LLInventoryItem* item = (LLInventoryItem*)((LLInventoryObject*)(*it));
 				LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(this, "queue output");
 				char buffer[MAX_STRING];  	/*Flawfinder: ignore*/
-				snprintf(buffer, sizeof(buffer), "Running '%s'.", item->getName().c_str());		 /*Flawfinder: ignore*/
+				snprintf(buffer, sizeof(buffer), "Running '%s'.", item->getName().c_str());		 	/* Flawfinder: ignore */
 				list->addSimpleItem(buffer);
 
 				LLMessageSystem* msg = gMessageSystem;
@@ -731,7 +731,7 @@ void LLFloaterNotRunQueue::handleInventory(LLViewerObject* viewer_obj,
 				LLInventoryItem* item = (LLInventoryItem*)((LLInventoryObject*)(*it));
 				LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(this, "queue output");
 				char buffer[MAX_STRING];		 /*Flawfinder: ignore*/
-				snprintf(buffer, sizeof(buffer), "Not running '%s'.", item->getName().c_str());	 /*Flawfinder: ignore*/
+				snprintf(buffer, sizeof(buffer), "Not running '%s'.", item->getName().c_str());	 	/* Flawfinder: ignore */
 				list->addSimpleItem(buffer);
 	
 				LLMessageSystem* msg = gMessageSystem;

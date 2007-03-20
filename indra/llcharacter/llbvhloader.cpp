@@ -156,7 +156,7 @@ LLBVHLoader::Status LLBVHLoader::loadTranslationTable(const char *fileName)
 	//--------------------------------------------------------------------
 	char path[LL_MAX_PATH];		/* Flawfinder: ignore */
 
-	snprintf( path, sizeof(path), "%s",/* Flawfinder: ignore */
+	snprintf( path, sizeof(path), "%s",	/* Flawfinder: ignore */
 		gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,fileName).c_str());	
 
 

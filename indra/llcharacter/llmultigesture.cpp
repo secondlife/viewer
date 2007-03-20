@@ -450,7 +450,7 @@ std::string LLGestureStepWait::getLabel() const
 	if (mFlags & WAIT_FLAG_TIME)
 	{
 		char buffer[64];		/* Flawfinder: ignore */
-		snprintf(buffer, sizeof(buffer), "%.1f seconds", (double)mWaitSeconds);		/* Flawfinder: ignore */
+		snprintf(buffer, sizeof(buffer), "%.1f seconds", (double)mWaitSeconds);	/* Flawfinder: ignore */
 		label += buffer;
 	}
 	else if (mFlags & WAIT_FLAG_ALL_ANIM)

@@ -726,7 +726,7 @@ LLPolyMesh *LLPolyMesh::getMesh(const LLString &name, LLPolyMesh* reference_mesh
 	// if not found, create a new one, add it to the list
 	//-------------------------------------------------------------------------
 	char full_path[LL_MAX_PATH];		/*Flawfinder: ignore*/
-	snprintf(full_path, LL_MAX_PATH, "%s", (gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,name.c_str())).c_str());		/*Flawfinder: ignore*/
+	snprintf(full_path, LL_MAX_PATH, "%s", (gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,name.c_str())).c_str());			/* Flawfinder: ignore */
 
 	LLPolyMeshSharedData *mesh_data = new LLPolyMeshSharedData();
 	if (reference_mesh)
@@ -804,7 +804,7 @@ void LLPolyMesh::dumpDiagInfo()
 		S32 num_faces = mesh.mNumFaces;
 		U32 num_kb = mesh.getNumKB();
 
-		snprintf(buf, sizeof(buf), "%8d %8d %8d %s", num_verts, num_faces, num_kb, mesh_name_p->c_str());		/*Flawfinder: ignore*/
+		snprintf(buf, sizeof(buf), "%8d %8d %8d %s", num_verts, num_faces, num_kb, mesh_name_p->c_str());			/* Flawfinder: ignore */
 		llinfos << buf << llendl;
 
 		total_verts += num_verts;
@@ -813,7 +813,7 @@ void LLPolyMesh::dumpDiagInfo()
 	}
 
 	llinfos << "-----------------------------------------------------" << llendl;
-	snprintf(buf, sizeof(buf), "%8d %8d %8d TOTAL", total_verts, total_faces, total_kb );		/*Flawfinder: ignore*/
+	snprintf(buf, sizeof(buf), "%8d %8d %8d TOTAL", total_verts, total_faces, total_kb );			/* Flawfinder: ignore */
 	llinfos << buf << llendl;
 	llinfos << "-----------------------------------------------------" << llendl;
 }

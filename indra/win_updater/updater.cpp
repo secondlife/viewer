@@ -14,6 +14,7 @@
 #include <wininet.h>
 
 #include <stdio.h>
+#include <stdarg.h>
 #include "llpreprocessor.h"
 #include "llfile.h"
 
@@ -488,11 +489,13 @@ WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nSho
 	char params[2048];		/* Flawfinder: ignore */
 	if (gIsSilent && gProgramName)
 	{
-		snprintf(params, sizeof(params), "/S /P=\"%s\"", gProgramName);		/* Flawfinder: ignore */
+		_snprintf(params, sizeof(params), "/S /P=\"%s\"", gProgramName);		/* Flawfinder: ignore */
+		params[2047] = '\0';
 	}
 	else if (gProgramName)
 	{
-		snprintf(params, sizeof(params), "/P=\"%s\"", gProgramName);		/* Flawfinder: ignore */
+		_snprintf(params, sizeof(params), "/P=\"%s\"", gProgramName);		/* Flawfinder: ignore */
+		params[2047] = '\0';
 	}
 	else if (gIsSilent)
 	{

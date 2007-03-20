@@ -435,25 +435,25 @@ void LLManip::renderXYZ(const LLVector3 &vec)
 		LLGLDepthTest gls_depth(GL_FALSE);
 		LLGLEnable tex(GL_TEXTURE_2D);
 		// render drop shadowed text
-		snprintf(feedback_string, sizeof(feedback_string), "X: %.3f", vec.mV[VX]);		/*Flawfinder: ignore*/
+		snprintf(feedback_string, sizeof(feedback_string), "X: %.3f", vec.mV[VX]);			/* Flawfinder: ignore */
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *gResMgr->getRes( LLFONT_SANSSERIF ), LLFontGL::NORMAL, -102.f + 1.f, (F32)vertical_offset - 1.f, LLColor4::black, FALSE);
 
-		snprintf(feedback_string, sizeof(feedback_string), "Y: %.3f", vec.mV[VY]);		/*Flawfinder: ignore*/
+		snprintf(feedback_string, sizeof(feedback_string), "Y: %.3f", vec.mV[VY]);			/* Flawfinder: ignore */
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *gResMgr->getRes( LLFONT_SANSSERIF ), LLFontGL::NORMAL, -27.f + 1.f, (F32)vertical_offset - 1.f, LLColor4::black, FALSE);
 		
-		snprintf(feedback_string, sizeof(feedback_string), "Z: %.3f", vec.mV[VZ]);		/*Flawfinder: ignore*/
+		snprintf(feedback_string, sizeof(feedback_string), "Z: %.3f", vec.mV[VZ]);			/* Flawfinder: ignore */
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *gResMgr->getRes( LLFONT_SANSSERIF ), LLFontGL::NORMAL, 48.f + 1.f, (F32)vertical_offset - 1.f, LLColor4::black, FALSE);
 
 		// render text on top
-		snprintf(feedback_string, sizeof(feedback_string), "X: %.3f", vec.mV[VX]);		/*Flawfinder: ignore*/
+		snprintf(feedback_string, sizeof(feedback_string), "X: %.3f", vec.mV[VX]);			/* Flawfinder: ignore */
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *gResMgr->getRes( LLFONT_SANSSERIF ), LLFontGL::NORMAL, -102.f, (F32)vertical_offset, LLColor4(1.f, 0.5f, 0.5f, 1.f), FALSE);
 
 		glColor3f(0.5f, 1.f, 0.5f);
-		snprintf(feedback_string, sizeof(feedback_string), "Y: %.3f", vec.mV[VY]);		/*Flawfinder: ignore*/
+		snprintf(feedback_string, sizeof(feedback_string), "Y: %.3f", vec.mV[VY]);			/* Flawfinder: ignore */
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *gResMgr->getRes( LLFONT_SANSSERIF ), LLFontGL::NORMAL, -27.f, (F32)vertical_offset, LLColor4(0.5f, 1.f, 0.5f, 1.f), FALSE);
 		
 		glColor3f(0.5f, 0.5f, 1.f);
-		snprintf(feedback_string, sizeof(feedback_string), "Z: %.3f", vec.mV[VZ]);		/*Flawfinder: ignore*/
+		snprintf(feedback_string, sizeof(feedback_string), "Z: %.3f", vec.mV[VZ]);			/* Flawfinder: ignore */
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *gResMgr->getRes( LLFONT_SANSSERIF ), LLFontGL::NORMAL, 48.f, (F32)vertical_offset, LLColor4(0.5f, 0.5f, 1.f, 1.f), FALSE);
 	}
 }
@@ -502,22 +502,22 @@ void LLManip::renderTickValue(const LLVector3& pos, F32 value, const char* suffi
 	{
 		if (fractional_portion == 0)
 		{
-			snprintf(val_string, sizeof(val_string), "-%d%s", lltrunc(llabs(val_to_print)), suffix);		/*Flawfinder: ignore*/
+			snprintf(val_string, sizeof(val_string), "-%d%s", lltrunc(llabs(val_to_print)), suffix);			/* Flawfinder: ignore */
 		}
 		else
 		{
-			snprintf(val_string, sizeof(val_string), "-%d", lltrunc(llabs(val_to_print)));		/*Flawfinder: ignore*/
+			snprintf(val_string, sizeof(val_string), "-%d", lltrunc(llabs(val_to_print)));			/* Flawfinder: ignore */
 		}
 	}
 	else
 	{
 		if (fractional_portion == 0)
 		{
-			snprintf(val_string, sizeof(val_string), "%d%s", lltrunc(llabs(val_to_print)), suffix);		/*Flawfinder: ignore*/
+			snprintf(val_string, sizeof(val_string), "%d%s", lltrunc(llabs(val_to_print)), suffix);			/* Flawfinder: ignore */
 		}
 		else
 		{
-			snprintf(val_string, sizeof(val_string), "%d", lltrunc(val_to_print));		/*Flawfinder: ignore*/
+			snprintf(val_string, sizeof(val_string), "%d", lltrunc(val_to_print));			/* Flawfinder: ignore */
 		}
 	}
 
@@ -540,7 +540,7 @@ void LLManip::renderTickValue(const LLVector3& pos, F32 value, const char* suffi
 	LLGLEnable tex(GL_TEXTURE_2D);
 	if (fractional_portion != 0)
 	{
-		snprintf(fraction_string, sizeof(fraction_string), "%c%d%s", gResMgr->getDecimalPoint(), fractional_portion, suffix);		/*Flawfinder: ignore*/
+		snprintf(fraction_string, sizeof(fraction_string), "%c%d%s", gResMgr->getDecimalPoint(), fractional_portion, suffix);			/* Flawfinder: ignore */
 
 		gViewerWindow->setupViewport(1, -1);
 		hud_render_utf8text(val_string, render_pos, *big_fontp, LLFontGL::NORMAL, -1.f * big_fontp->getWidthF32(val_string), 3.f, shadow_color, hud_selection);

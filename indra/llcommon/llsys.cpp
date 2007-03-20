@@ -124,7 +124,7 @@ LLOSInfo::LLOSInfo() :
 			}
 			else
 			{
-				snprintf( /* Flawfinder: ignore */
+				snprintf(	/* Flawfinder: ignore */
 					tmp,
 					sizeof(tmp),
 					"%s (Build %d)",
@@ -324,7 +324,7 @@ std::string LLCPUInfo::getCPUStringTerse() const
 	if (freq < 10000.f && freq > 200.f )
 	{
 		char tmp[MAX_STRING];		/* Flawfinder: ignore */
-		snprintf(tmp, sizeof(tmp), " (%.0f Mhz)", freq);		/* Flawfinder: ignore */
+		snprintf(tmp, sizeof(tmp), " (%.0f Mhz)", freq);	/* Flawfinder: ignore */
 
 		cpu_string.append(tmp);
 	}

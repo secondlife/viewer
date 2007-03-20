@@ -1136,7 +1136,7 @@ void LLInventoryModel::cache(
 	char inventory_filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
 	agent_id.toString(agent_id_str);
 	std::string path(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, agent_id_str));
-	snprintf(		/*Flawfinder: ignore*/
+	snprintf(			/* Flawfinder: ignore */
 		inventory_filename,
 		LL_MAX_PATH,
 		CACHE_FORMAT_STRING,
@@ -1425,7 +1425,7 @@ bool LLInventoryModel::loadSkeleton(
 		owner_id.toString(owner_id_str);
 		std::string path(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, owner_id_str));
 		char inventory_filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
-		snprintf(		/*Flawfinder: ignore*/
+		snprintf(			/* Flawfinder: ignore */
 			inventory_filename,
 			LL_MAX_PATH,
 			CACHE_FORMAT_STRING,

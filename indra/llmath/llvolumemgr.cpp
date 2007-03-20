@@ -278,7 +278,7 @@ F32 LLVolumeLODGroup::dump()
 	}
 	usage = usage / (F32)NUM_LODS;
 
-	snprintf(dump_str, sizeof(dump_str), "%.3f %d %d %d %d", usage, mAccessCount[0], mAccessCount[1], mAccessCount[2], mAccessCount[3]);		/* Flawfinder: ignore */
+	snprintf(dump_str, sizeof(dump_str), "%.3f %d %d %d %d", usage, mAccessCount[0], mAccessCount[1], mAccessCount[2], mAccessCount[3]);	/* Flawfinder: ignore */
 
 	llinfos << dump_str << llendl;
 	return usage;

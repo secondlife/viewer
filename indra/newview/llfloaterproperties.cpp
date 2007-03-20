@@ -415,27 +415,27 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 		
 		char perm_string[11];		/* Flawfinder: ignore */
 
-		snprintf(perm_string, sizeof(perm_string), "B: ");		/* Flawfinder: ignore */
+		snprintf(perm_string, sizeof(perm_string), "B: ");			/* Flawfinder: ignore */
 		mask_to_string(base_mask, perm_string+3);
 		childSetText("BaseMaskDebug",perm_string);
 		childSetVisible("BaseMaskDebug",TRUE);
 		
-		snprintf(perm_string, sizeof(perm_string), "O: ");		/* Flawfinder: ignore */
+		snprintf(perm_string, sizeof(perm_string), "O: ");			/* Flawfinder: ignore */
 		mask_to_string(owner_mask, perm_string+3);
 		childSetText("OwnerMaskDebug",perm_string);
 		childSetVisible("OwnerMaskDebug",TRUE);
 		
-		snprintf(perm_string, sizeof(perm_string), "G%s: ", overwrite_group ? "*" : "");		/* Flawfinder: ignore */
+		snprintf(perm_string, sizeof(perm_string), "G%s: ", overwrite_group ? "*" : "");			/* Flawfinder: ignore */
 		mask_to_string(group_mask, perm_string + (overwrite_group ? 4 : 3));
 		childSetText("GroupMaskDebug",perm_string);
 		childSetVisible("GroupMaskDebug",TRUE);
 		
-		snprintf(perm_string, sizeof(perm_string), "E%s: ", overwrite_everyone ? "*" : "");		/* Flawfinder: ignore */
+		snprintf(perm_string, sizeof(perm_string), "E%s: ", overwrite_everyone ? "*" : "");			/* Flawfinder: ignore */
 		mask_to_string(everyone_mask, perm_string + (overwrite_everyone ? 4 : 3));
 		childSetText("EveryoneMaskDebug",perm_string);
 		childSetVisible("EveryoneMaskDebug",TRUE);
 		
-		snprintf(perm_string, sizeof(perm_string), "N%s: ", slam_perm ? "*" : "");		/* Flawfinder: ignore */
+		snprintf(perm_string, sizeof(perm_string), "N%s: ", slam_perm ? "*" : "");			/* Flawfinder: ignore */
 		mask_to_string(next_owner_mask, perm_string + (slam_perm ? 4 : 3));
 		childSetText("NextMaskDebug",perm_string);
 		childSetVisible("NextMaskDebug",TRUE);
@@ -549,7 +549,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	{
 		radioSaleType->setSelectedIndex((S32)sale_info.getSaleType() - 1);
 		char numerical_price[MAX_STRING];		/* Flawfinder: ignore */
-		snprintf(numerical_price, MAX_STRING, "%d", sale_info.getSalePrice());		/* Flawfinder: ignore */
+		snprintf(numerical_price, MAX_STRING, "%d", sale_info.getSalePrice());			/* Flawfinder: ignore */
 		childSetText("EditPrice",numerical_price);
 	}
 	else

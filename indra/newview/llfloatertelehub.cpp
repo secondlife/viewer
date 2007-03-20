@@ -225,7 +225,7 @@ void LLFloaterTelehub::onClickRemoveSpawnPoint(void* data)
 	msg->addString("Parameter", "spawnpoint remove");
 
 	char buffer[MAX_STRING];		/* Flawfinder: ignore */
-	snprintf(buffer, MAX_STRING, "%d", spawn_index);		/* Flawfinder: ignore */
+	snprintf(buffer, MAX_STRING, "%d", spawn_index);	/* Flawfinder: ignore */
 	msg->nextBlock("ParamList");
 	msg->addString("Parameter", buffer);
 

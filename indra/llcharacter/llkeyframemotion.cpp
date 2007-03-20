@@ -1708,11 +1708,11 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 			success &= dp.packVector3(shared_constraintp->mSourceConstraintOffset, "source_offset");
 			if (shared_constraintp->mConstraintTargetType == TYPE_GROUND)
 			{
-				snprintf(volume_name,sizeof(volume_name), "%s", "GROUND");	/* Flawfinder: ignore */
+				snprintf(volume_name,sizeof(volume_name), "%s", "GROUND");		/* Flawfinder: ignore */
 			}
 			else
 			{
-				snprintf(volume_name, sizeof(volume_name),"%s", /* Flawfinder: ignore */
+				snprintf(volume_name, sizeof(volume_name),"%s", 	/* Flawfinder: ignore */
 					mCharacter->findCollisionVolume(shared_constraintp->mTargetConstraintVolume)->getName().c_str());	
 			}
 			success &= dp.packBinaryDataFixed((U8*)volume_name, 16, "target_volume");

@@ -81,7 +81,7 @@ char *fv3(F32 *f)
 char *fv1(F32 *f)
 {
 	static char str[128];	/* Flawfinder: ignore */
-	snprintf(str, sizeof(str), "%8.3f", f[0]);	/* Flawfinder: ignore */
+	snprintf(str, sizeof(str), "%8.3f", f[0]);		/* Flawfinder: ignore */
 	return str;
 }
 

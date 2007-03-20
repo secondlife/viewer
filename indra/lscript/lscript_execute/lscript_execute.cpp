@@ -2996,7 +2996,7 @@ BOOL run_cast(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 			case LST_STRING:
 				{
 					S32 address, source = lscript_pop_int(buffer);
-					snprintf(caststr, sizeof(caststr), "%d", source);		/*Flawfinder: ignore*/
+					snprintf(caststr, sizeof(caststr), "%d", source);		/* Flawfinder: ignore */
 					address = lsa_heap_add_data(buffer, new LLScriptLibData(caststr), get_max_heap_size(buffer), TRUE);
 					lscript_push(buffer, address);
 				}
@@ -3033,7 +3033,7 @@ BOOL run_cast(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 				{
 					S32 address;
 					F32 source = lscript_pop_float(buffer);
-					snprintf(caststr, sizeof(caststr), "%f", source);		/*Flawfinder: ignore*/
+					snprintf(caststr, sizeof(caststr), "%f", source);		/* Flawfinder: ignore */
 					address = lsa_heap_add_data(buffer, new LLScriptLibData(caststr), get_max_heap_size(buffer), TRUE);
 					lscript_push(buffer, address);
 				}
@@ -3242,7 +3242,7 @@ BOOL run_cast(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 					S32 address;
 					LLVector3 source;
 					lscript_pop_vector(buffer, source);
-					snprintf(caststr, sizeof(caststr), "<%5.5f, %5.5f, %5.5f>", source.mV[VX], source.mV[VY], source.mV[VZ]);		/*Flawfinder: ignore*/
+					snprintf(caststr, sizeof(caststr), "<%5.5f, %5.5f, %5.5f>", source.mV[VX], source.mV[VY], source.mV[VZ]);		/* Flawfinder: ignore */
 					address = lsa_heap_add_data(buffer, new LLScriptLibData(caststr), get_max_heap_size(buffer), TRUE);
 					lscript_push(buffer, address);
 				}
@@ -3275,7 +3275,7 @@ BOOL run_cast(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 					S32 address;
 					LLQuaternion source;
 					lscript_pop_quaternion(buffer, source);
-					snprintf(caststr, sizeof(caststr), "<%5.5f, %5.5f, %5.5f, %5.5f>", source.mQ[VX], source.mQ[VY], source.mQ[VZ], source.mQ[VS]);		/*Flawfinder: ignore*/
+					snprintf(caststr, sizeof(caststr), "<%5.5f, %5.5f, %5.5f, %5.5f>", source.mQ[VX], source.mQ[VY], source.mQ[VZ], source.mQ[VS]);		/* Flawfinder: ignore */
 					address = lsa_heap_add_data(buffer, new LLScriptLibData(caststr), get_max_heap_size(buffer), TRUE);
 					lscript_push(buffer, address);
 				}

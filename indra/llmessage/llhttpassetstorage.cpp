@@ -672,7 +672,7 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		char uuid_str[UUID_STR_LENGTH]; /*Flawfinder: ignore*/
 		req->getUUID().toString(uuid_str);
 		std::string base_url = getBaseURL(req->getUUID(), req->getType());
-		snprintf(tmp_url, sizeof(tmp_url), "%s/%36s.%s", base_url.c_str() , uuid_str, LLAssetType::lookup(req->getType())); /*Flawfinder: ignore*/
+		snprintf(tmp_url, sizeof(tmp_url), "%s/%36s.%s", base_url.c_str() , uuid_str, LLAssetType::lookup(req->getType()));	/* Flawfinder: ignore */
 
 		LLHTTPAssetRequest *new_req = new LLHTTPAssetRequest(this, req->getUUID(), 
 										req->getType(), RT_DOWNLOAD, tmp_url, mCurlMultiHandle);
@@ -707,7 +707,7 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		char tmp_url[MAX_STRING];/*Flawfinder: ignore*/
 		char uuid_str[UUID_STR_LENGTH];/*Flawfinder: ignore*/
 		req->getUUID().toString(uuid_str);
-		snprintf(tmp_url, sizeof(tmp_url), 					/*Flawfinder: ignore*/
+		snprintf(tmp_url, sizeof(tmp_url), 					/* Flawfinder: ignore */
 				do_compress ? "%s/%s.%s.gz" : "%s/%s.%s",
 				mBaseURL.c_str(), uuid_str, LLAssetType::lookup(req->getType())); 
 
@@ -762,7 +762,7 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		req->getUUID().toString(uuid_str);
 		
 		// KLW - All temporary uploads are saved locally "http://localhost:12041/asset"
-		snprintf(tmp_url, sizeof(tmp_url), "%s/%36s.%s", mLocalBaseURL.c_str(), uuid_str, LLAssetType::lookup(req->getType())); /*Flawfinder: ignore*/
+		snprintf(tmp_url, sizeof(tmp_url), "%s/%36s.%s", mLocalBaseURL.c_str(), uuid_str, LLAssetType::lookup(req->getType())); 	/* Flawfinder: ignore */
 
 		LLHTTPAssetRequest *new_req = new LLHTTPAssetRequest(this, req->getUUID(), 
 										req->getType(), RT_LOCALUPLOAD, tmp_url, mCurlMultiHandle);

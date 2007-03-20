@@ -72,7 +72,7 @@ BOOL check_for_card(const char* RENDERER, const char* bad_card)
 	if (!strnicmp(RENDERER, bad_card, strlen(bad_card)))
 	{
 		char buffer[1024];/* Flawfinder: ignore */
-		snprintf(buffer, sizeof(buffer), /* Flawfinder: ignore */
+		snprintf(buffer, sizeof(buffer), 
 			"Your video card appears to be a %s, which Second Life does not support.\n"
 			"\n"
 			"Second Life requires a video card with 32 Mb of memory or more, as well as\n"
@@ -407,7 +407,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 			mFullscreenRefresh = -1;
 
 			char error[256];	/* Flawfinder: ignore */
-			snprintf(error, sizeof(error), "Unable to run fullscreen at %d x %d.\nRunning in window.", width, height);	/* Flawfinder: ignore */
+			snprintf(error, sizeof(error), "Unable to run fullscreen at %d x %d.\nRunning in window.", width, height);	
 			OSMessageBox(error, "Error", OSMB_OK);
 		}
 	}

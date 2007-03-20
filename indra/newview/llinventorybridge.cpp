@@ -818,7 +818,7 @@ LLString LLItemBridge::getLabelSuffix() const
 			if(xfer) sxfer = EMPTY;
 			else sxfer = NO_XFER;
 			char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-			snprintf(					/*Flawfinder: ignore*/
+			snprintf(						/* Flawfinder: ignore */
 				buffer,
 				MAX_STRING,
 				"%s%s%s",

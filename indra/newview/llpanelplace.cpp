@@ -174,16 +174,16 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 		self->mDescEditor->setText(desc);
 
 		LLString info;
-		snprintf(buffer, sizeof(buffer), "Traffic: %.0f, Area: %d sq. m.", dwell, actual_area);		/*Flawfinder: ignore*/
+		snprintf(buffer, sizeof(buffer), "Traffic: %.0f, Area: %d sq. m.", dwell, actual_area);			/* Flawfinder: ignore */
 		info.append(buffer);
 		if (flags & DFQ_FOR_SALE)
 		{
-			snprintf(buffer, sizeof(buffer), ", For Sale for L$%d", sale_price);		/*Flawfinder: ignore*/
+			snprintf(buffer, sizeof(buffer), ", For Sale for L$%d", sale_price);			/* Flawfinder: ignore */
 			info.append(buffer);
 		}
 		if (auction_id != 0)
 		{
-			snprintf(buffer, sizeof(buffer), ", Auction ID %010d", auction_id);		/*Flawfinder: ignore*/
+			snprintf(buffer, sizeof(buffer), ", Auction ID %010d", auction_id);			/* Flawfinder: ignore */
 			info.append(buffer);
 		}
 		self->mInfoEditor->setText(info);
@@ -199,7 +199,7 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 			rating = LLViewerRegion::accessToString(SIM_ACCESS_MATURE);
 		}
 
-		snprintf(buffer, sizeof(buffer), "%s %d, %d, %d (%s)", 		/*Flawfinder: ignore*/
+		snprintf(buffer, sizeof(buffer), "%s %d, %d, %d (%s)", 			/* Flawfinder: ignore */
 			sim_name, region_x, region_y, region_z, rating);
 		self->mLocationEditor->setText(buffer);
 
@@ -262,7 +262,7 @@ void LLPanelPlace::callbackAuctionWebPage(S32 option, void* data)
 	if (0 == option)
 	{
 		char url[256];		/*Flawfinder: ignore*/
-		snprintf(url, sizeof(url), "%s%010d", AUCTION_URL, self->mAuctionID);		/*Flawfinder: ignore*/
+		snprintf(url, sizeof(url), "%s%010d", AUCTION_URL, self->mAuctionID);			/* Flawfinder: ignore */
 
 		llinfos << "Loading auction page " << url << llendl;
 

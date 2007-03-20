@@ -1082,7 +1082,7 @@ BOOL LLInventoryItem::exportLegacyStream(std::ostream& output_stream, BOOL inclu
 	if(inv_type_str) 
 		output_stream << "\t\tinv_type\t" << inv_type_str << "\n";
 	char buffer[32];	/* Flawfinder: ignore */
-	snprintf(buffer, sizeof(buffer), "\t\tflags\t%08x\n", mFlags);	/* Flawfinder: ignore */
+	snprintf(buffer, sizeof(buffer), "\t\tflags\t%08x\n", mFlags);		/* Flawfinder: ignore */
 	output_stream << buffer;
 	mSaleInfo.exportLegacyStream(output_stream);
 	output_stream << "\t\tname\t" << mName.c_str() << "|\n";

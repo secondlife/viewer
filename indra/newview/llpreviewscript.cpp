@@ -423,7 +423,7 @@ void LLScriptEdCore::draw()
 		S32 column = 0;
 		mEditor->getCurrentLineAndColumn( &line, &column, FALSE );  // don't include wordwrap
 		char cursor_pos[STD_STRING_BUF_SIZE];		/*Flawfinder: ignore*/
-		snprintf( cursor_pos, STD_STRING_BUF_SIZE, "Line %d, Column %d", line, column );		/*Flawfinder: ignore*/
+		snprintf( cursor_pos, STD_STRING_BUF_SIZE, "Line %d, Column %d", line, column );			/* Flawfinder: ignore */
 		childSetText("line_col", cursor_pos);
 	}
 	else

@@ -496,7 +496,7 @@ void LLScriptLibData::print(std::ostream &s, BOOL b_prepend_comma)
 	     s << mInteger;
 	     break;
 	case LST_FLOATINGPOINT:
-	     snprintf(tmp, 1024, "%f", mFP);	/*Flawfinder: ignore*/
+	     snprintf(tmp, 1024, "%f", mFP);	/* Flawfinder: ignore */
 	     s << tmp;
 	     break;
 	case LST_KEY:

@@ -538,7 +538,7 @@ void LLDataPackerBinaryBuffer::dumpBufferToLog()
 	S32 cur_line = 0;
 	for (i = 0; i < mBufferSize; i++)
 	{
-		snprintf(line_buffer + cur_line_pos*3, sizeof(line_buffer) - cur_line_pos*3, "%02x ", mBufferp[i]); /*Flawfinder: ignore*/
+		snprintf(line_buffer + cur_line_pos*3, sizeof(line_buffer) - cur_line_pos*3, "%02x ", mBufferp[i]); 	/* Flawfinder: ignore */
 		cur_line_pos++;
 		if (cur_line_pos >= 16)
 		{
@@ -563,7 +563,7 @@ BOOL LLDataPackerAsciiBuffer::packString(const char *value, const char *name)
 	int numCopied = 0;
 	if (mWriteEnabled) 
 	{
-		numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%s\n", value);		/*Flawfinder: ignore*/
+		numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%s\n", value);		/* Flawfinder: ignore */
 	}
 	else
 	{
@@ -572,14 +572,15 @@ BOOL LLDataPackerAsciiBuffer::packString(const char *value, const char *name)
 
 	// snprintf returns number of bytes that would have been written
 	// had the output not being truncated. In that case, it will
-	// return >= passed in size value.  so a check needs to be added
+	// return either -1 or value >= passed in size value . So a check needs to be added
 	// to detect truncation, and if there is any, only account for the
 	// actual number of bytes written..and not what could have been
 	// written.
-	if (numCopied > getBufferSize()-getCurrentSize())
+	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 		// *NOTE: I believe we need to mark a failure bit at this point.
 	    numCopied = getBufferSize()-getCurrentSize();
+		llwarns << "LLDataPackerAsciiBuffer::packString: string truncated: " << value << llendl;
 	}
 	mCurBufferp += numCopied;
 	return success;
@@ -607,7 +608,7 @@ BOOL LLDataPackerAsciiBuffer::packBinaryData(const U8 *value, S32 size, const ch
 	int numCopied = 0;
 	if (mWriteEnabled)
 	{
-		numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%010d ", size);		/*Flawfinder: ignore*/
+		numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%010d ", size);	/* Flawfinder: ignore */
 
 		// snprintf returns number of bytes that would have been
 		// written had the output not being truncated. In that case,
@@ -615,9 +616,10 @@ BOOL LLDataPackerAsciiBuffer::packBinaryData(const U8 *value, S32 size, const ch
 		// to be added to detect truncation, and if there is any, only
 		// account for the actual number of bytes written..and not
 		// what could have been written.
-		if (numCopied > getBufferSize()-getCurrentSize())
+		if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 		{
 			numCopied = getBufferSize()-getCurrentSize();
+			llwarns << "LLDataPackerAsciiBuffer::packBinaryData: number truncated: " << size << llendl;
 		}
 		mCurBufferp += numCopied;
 
@@ -626,10 +628,11 @@ BOOL LLDataPackerAsciiBuffer::packBinaryData(const U8 *value, S32 size, const ch
 		BOOL bBufferFull = FALSE;
 		for (i = 0; i < size && !bBufferFull; i++)
 		{
-			numCopied = snprintf(mCurBufferp, getBufferSize()-getCurrentSize(), "%02x ", value[i]);		/* Flawfinder: ignore */
-			if (numCopied > getBufferSize()-getCurrentSize())
+			numCopied = snprintf(mCurBufferp, getBufferSize()-getCurrentSize(), "%02x ", value[i]);	/* Flawfinder: ignore */
+			if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 			{
 				numCopied = getBufferSize()-getCurrentSize();
+				llwarns << "LLDataPackerAsciiBuffer::packBinaryData: data truncated: " << llendl;
 				bBufferFull = TRUE;
 			}
 			mCurBufferp += numCopied;
@@ -637,10 +640,11 @@ BOOL LLDataPackerAsciiBuffer::packBinaryData(const U8 *value, S32 size, const ch
 
 		if (!bBufferFull)
 		{
-			numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(), "\n");		/* Flawfinder: ignore */
-			if (numCopied > getBufferSize()-getCurrentSize())
+			numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(), "\n");	/* Flawfinder: ignore */
+			if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 		    	{
 				numCopied = getBufferSize()-getCurrentSize();
+				llwarns << "LLDataPackerAsciiBuffer::packBinaryData: newline truncated: " << llendl;
 		    	}
 		    	mCurBufferp += numCopied;
 		}
@@ -698,10 +702,11 @@ BOOL LLDataPackerAsciiBuffer::packBinaryDataFixed(const U8 *value, S32 size, con
 		BOOL bBufferFull = FALSE;
 		for (i = 0; i < size && !bBufferFull; i++)
 		{
-			numCopied = snprintf(mCurBufferp, getBufferSize()-getCurrentSize(), "%02x ", value[i]);		/* Flawfinder: ignore */
-			if (numCopied > getBufferSize()-getCurrentSize())
+			numCopied = snprintf(mCurBufferp, getBufferSize()-getCurrentSize(), "%02x ", value[i]);	/* Flawfinder: ignore */
+			if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 			{
 			    numCopied = getBufferSize()-getCurrentSize();
+				llwarns << "LLDataPackerAsciiBuffer::packBinaryDataFixed: data truncated: " << llendl;
 			    bBufferFull = TRUE;
 			}
 			mCurBufferp += numCopied;
@@ -709,10 +714,11 @@ BOOL LLDataPackerAsciiBuffer::packBinaryDataFixed(const U8 *value, S32 size, con
 		}
 		if (!bBufferFull)
 		{
-			numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(), "\n");		/* Flawfinder: ignore */
-			if (numCopied > getBufferSize()-getCurrentSize())
+			numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(), "\n");	/* Flawfinder: ignore */
+			if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 			{
 				numCopied = getBufferSize()-getCurrentSize();
+				llwarns << "LLDataPackerAsciiBuffer::packBinaryDataFixed: newline truncated: " << llendl;
 			}
 			
 			mCurBufferp += numCopied;
@@ -762,21 +768,24 @@ BOOL LLDataPackerAsciiBuffer::packU8(const U8 value, const char *name)
 	int numCopied = 0;
 	if (mWriteEnabled)
 	{
-	    	numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%d\n", value);		/*Flawfinder: ignore*/
+	    	numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%d\n", value);	/* Flawfinder: ignore */
 	}
 	else
 	{
 		// just do the write to a temp buffer to get the length
-		numCopied = snprintf(DUMMY_BUFFER, sizeof(DUMMY_BUFFER), "%d\n", value);		/* Flawfinder: ignore */
+		numCopied = snprintf(DUMMY_BUFFER, sizeof(DUMMY_BUFFER), "%d\n", value);	/* Flawfinder: ignore */
 	}
 
-	// snprintf returns number of bytes that would have been written had the 
-	// output not being truncated. In that case, it will retuen >= passed in size value.
-	// so a check needs to be added to detect truncation, and if there is any,
-	// only account for the actual number of bytes written..and not what could have been written.
-	if (numCopied > getBufferSize()-getCurrentSize())
+	// snprintf returns number of bytes that would have been written
+	// had the output not being truncated. In that case, it will
+	// return either -1 or value >= passed in size value . So a check needs to be added
+	// to detect truncation, and if there is any, only account for the
+	// actual number of bytes written..and not what could have been
+	// written.
+	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 		numCopied = getBufferSize()-getCurrentSize();
+		llwarns << "LLDataPackerAsciiBuffer::packU8: val truncated: " << llendl;
 	}
 
 	mCurBufferp += numCopied;
@@ -807,20 +816,23 @@ BOOL LLDataPackerAsciiBuffer::packU16(const U16 value, const char *name)
 	int numCopied = 0;
 	if (mWriteEnabled)
 	{
-	    	numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%d\n", value);		/*Flawfinder: ignore*/
+	    	numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%d\n", value);	/* Flawfinder: ignore */
 	}
 	else
 	{
-		numCopied = snprintf(DUMMY_BUFFER, sizeof(DUMMY_BUFFER), "%d\n", value);		/* Flawfinder: ignore */
+		numCopied = snprintf(DUMMY_BUFFER, sizeof(DUMMY_BUFFER), "%d\n", value);	/* Flawfinder: ignore */
 	}
 
-	// snprintf returns number of bytes that would have been written had the 
-	// output not being truncated. In that case, it will retuen >= passed in size value.
-	// so a check needs to be added to detect truncation, and if there is any,
-	// only account for the actual number of bytes written..and not what could have been written.
-	if (numCopied > getBufferSize()-getCurrentSize())
+	// snprintf returns number of bytes that would have been written
+	// had the output not being truncated. In that case, it will
+	// return either -1 or value >= passed in size value . So a check needs to be added
+	// to detect truncation, and if there is any, only account for the
+	// actual number of bytes written..and not what could have been
+	// written.
+	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 		numCopied = getBufferSize()-getCurrentSize();
+		llwarns << "LLDataPackerAsciiBuffer::packU16: val truncated: " << llendl;
 	}
 
 	mCurBufferp += numCopied;
@@ -852,19 +864,22 @@ BOOL LLDataPackerAsciiBuffer::packU32(const U32 value, const char *name)
 	int numCopied = 0;
 	if (mWriteEnabled)
 	{
-	    	numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%u\n", value);		/* Flawfinder: ignore */
+	    	numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%u\n", value);	/* Flawfinder: ignore */
 	}
 	else
 	{
-		numCopied = snprintf(DUMMY_BUFFER, sizeof(DUMMY_BUFFER), "%u\n", value);		/* Flawfinder: ignore */
+		numCopied = snprintf(DUMMY_BUFFER, sizeof(DUMMY_BUFFER), "%u\n", value);	/* Flawfinder: ignore */
 	}
-	// snprintf returns number of bytes that would have been written had the 
-	// output not being truncated. In that case, it will retuen >= passed in size value.
-	// so a check needs to be added to detect truncation, and if there is any,
-	// only account for the actual number of bytes written..and not what could have been written.
-	if (numCopied > getBufferSize()-getCurrentSize())
+	// snprintf returns number of bytes that would have been written
+	// had the output not being truncated. In that case, it will
+	// return either -1 or value >= passed in size value . So a check needs to be added
+	// to detect truncation, and if there is any, only account for the
+	// actual number of bytes written..and not what could have been
+	// written.
+	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 		numCopied = getBufferSize()-getCurrentSize();
+		llwarns << "LLDataPackerAsciiBuffer::packU32: val truncated: " << llendl;
 	}
 
 	mCurBufferp += numCopied;
@@ -893,19 +908,22 @@ BOOL LLDataPackerAsciiBuffer::packS32(const S32 value, const char *name)
 	int numCopied = 0;
 	if (mWriteEnabled)
 	{
-	    	numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%d\n", value);		/* Flawfinder: ignore */
+	    	numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%d\n", value);	/* Flawfinder: ignore */
 	}
 	else
 	{
 		numCopied = snprintf(DUMMY_BUFFER, sizeof(DUMMY_BUFFER), "%d\n", value);		/* Flawfinder: ignore */	
 	}
-	// snprintf returns number of bytes that would have been written had the 
-	// output not being truncated. In that case, it will retuen >= passed in size value.
-	// so a check needs to be added to detect truncation, and if there is any,
-	// only account for the actual number of bytes written..and not what could have been written.
-	if (numCopied > getBufferSize()-getCurrentSize())
+	// snprintf returns number of bytes that would have been written
+	// had the output not being truncated. In that case, it will
+	// return either -1 or value >= passed in size value . So a check needs to be added
+	// to detect truncation, and if there is any, only account for the
+	// actual number of bytes written..and not what could have been
+	// written.
+	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 		numCopied = getBufferSize()-getCurrentSize();
+		llwarns << "LLDataPackerAsciiBuffer::packS32: val truncated: " << llendl;
 	}
 
 	mCurBufferp += numCopied;
@@ -934,19 +952,22 @@ BOOL LLDataPackerAsciiBuffer::packF32(const F32 value, const char *name)
 	int numCopied = 0;
 	if (mWriteEnabled)
 	{
-	    	numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%g\n", value);		/* Flawfinder: ignore */
+	    	numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%g\n", value);	/* Flawfinder: ignore */
 	}
 	else
 	{
-		numCopied = snprintf(DUMMY_BUFFER, sizeof(DUMMY_BUFFER), "%g\n", value);		/* Flawfinder: ignore */	
+		numCopied = snprintf(DUMMY_BUFFER, sizeof(DUMMY_BUFFER), "%g\n", value);	/* Flawfinder: ignore */
 	}
-	// snprintf returns number of bytes that would have been written had the 
-	// output not being truncated. In that case, it will retuen >= passed in size value.
-	// so a check needs to be added to detect truncation, and if there is any,
-	// only account for the actual number of bytes written..and not what could have been written.
-	if (numCopied > getBufferSize()-getCurrentSize())
+	// snprintf returns number of bytes that would have been written
+	// had the output not being truncated. In that case, it will
+	// return either -1 or value >= passed in size value . So a check needs to be added
+	// to detect truncation, and if there is any, only account for the
+	// actual number of bytes written..and not what could have been
+	// written.
+	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 		numCopied = getBufferSize()-getCurrentSize();
+		llwarns << "LLDataPackerAsciiBuffer::packF32: val truncated: " << llendl;
 	}
 
 	mCurBufferp += numCopied;
@@ -975,19 +996,22 @@ BOOL LLDataPackerAsciiBuffer::packColor4(const LLColor4 &value, const char *name
 	int numCopied = 0;
 	if (mWriteEnabled)
 	{
-	    	numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%g %g %g %g\n", value.mV[0], value.mV[1], value.mV[2], value.mV[3]);	/* Flawfinder: ignore */
+	    numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%g %g %g %g\n", value.mV[0], value.mV[1], value.mV[2], value.mV[3]);	/* Flawfinder: ignore */
 	}
 	else
 	{
 		numCopied = snprintf(DUMMY_BUFFER,sizeof(DUMMY_BUFFER),"%g %g %g %g\n", value.mV[0], value.mV[1], value.mV[2], value.mV[3]);	/* Flawfinder: ignore */
 	}
-	// snprintf returns number of bytes that would have been written had the 
-	// output not being truncated. In that case, it will retuen >= passed in size value.
-	// so a check needs to be added to detect truncation, and if there is any,
-	// only account for the actual number of bytes written..and not what could have been written.
-	if (numCopied > getBufferSize()-getCurrentSize())
+	// snprintf returns number of bytes that would have been written
+	// had the output not being truncated. In that case, it will
+	// return either -1 or value >= passed in size value . So a check needs to be added
+	// to detect truncation, and if there is any, only account for the
+	// actual number of bytes written..and not what could have been
+	// written.
+	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 		numCopied = getBufferSize()-getCurrentSize();
+		llwarns << "LLDataPackerAsciiBuffer::packColor4: truncated: " << llendl;
 	}
 
 	mCurBufferp += numCopied;
@@ -1015,19 +1039,22 @@ BOOL LLDataPackerAsciiBuffer::packColor4U(const LLColor4U &value, const char *na
 	int numCopied = 0;
 	if (mWriteEnabled)
 	{
-	    	numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%d %d %d %d\n", value.mV[0], value.mV[1], value.mV[2], value.mV[3]);	/* Flawfinder: ignore */
+		numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%d %d %d %d\n", value.mV[0], value.mV[1], value.mV[2], value.mV[3]);	/* Flawfinder: ignore */
 	}
 	else
 	{
 		numCopied = snprintf(DUMMY_BUFFER,sizeof(DUMMY_BUFFER),"%d %d %d %d\n", value.mV[0], value.mV[1], value.mV[2], value.mV[3]);	/* Flawfinder: ignore */
 	}
-	// snprintf returns number of bytes that would have been written had the 
-	// output not being truncated. In that case, it will retuen >= passed in size value.
-	// so a check needs to be added to detect truncation, and if there is any,
-	// only account for the actual number of bytes written..and not what could have been written.
-	if (numCopied > getBufferSize()-getCurrentSize())
+	// snprintf returns number of bytes that would have been written
+	// had the output not being truncated. In that case, it will
+	// return either -1 or value >= passed in size value . So a check needs to be added
+	// to detect truncation, and if there is any, only account for the
+	// actual number of bytes written..and not what could have been
+	// written.
+	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 		numCopied = getBufferSize()-getCurrentSize();
+		llwarns << "LLDataPackerAsciiBuffer::packColor4U: truncated: " << llendl;
 	}
 
 	mCurBufferp += numCopied;
@@ -1066,15 +1093,18 @@ BOOL LLDataPackerAsciiBuffer::packVector2(const LLVector2 &value, const char *na
 	}
 	else
 	{
-		numCopied = snprintf(DUMMY_BUFFER,sizeof(DUMMY_BUFFER),"%g %g\n", value.mV[0], value.mV[1]);		/* Flawfinder: ignore */
+		numCopied = snprintf(DUMMY_BUFFER,sizeof(DUMMY_BUFFER),"%g %g\n", value.mV[0], value.mV[1]);	/* Flawfinder: ignore */
 	}
-	// snprintf returns number of bytes that would have been written had the 
-	// output not being truncated. In that case, it will retuen >= passed in size value.
-	// so a check needs to be added to detect truncation, and if there is any,
-	// only account for the actual number of bytes written..and not what could have been written.
-	if (numCopied > getBufferSize()-getCurrentSize())
+	// snprintf returns number of bytes that would have been written
+	// had the output not being truncated. In that case, it will
+	// return either -1 or value >= passed in size value . So a check needs to be added
+	// to detect truncation, and if there is any, only account for the
+	// actual number of bytes written..and not what could have been
+	// written.
+	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 		numCopied = getBufferSize()-getCurrentSize();
+		llwarns << "LLDataPackerAsciiBuffer::packVector2: truncated: " << llendl;
 	}
 
 	mCurBufferp += numCopied;
@@ -1109,13 +1139,16 @@ BOOL LLDataPackerAsciiBuffer::packVector3(const LLVector3 &value, const char *na
 	{
 		numCopied = snprintf(DUMMY_BUFFER,sizeof(DUMMY_BUFFER),"%g %g %g\n", value.mV[0], value.mV[1], value.mV[2]);	/* Flawfinder: ignore */
 	}
-	// snprintf returns number of bytes that would have been written had the 
-	// output not being truncated. In that case, it will retuen >= passed in size value.
-	// so a check needs to be added to detect truncation, and if there is any,
-	// only account for the actual number of bytes written..and not what could have been written.
-	if (numCopied > getBufferSize()-getCurrentSize())
+	// snprintf returns number of bytes that would have been written
+	// had the output not being truncated. In that case, it will
+	// return either -1 or value >= passed in size value . So a check needs to be added
+	// to detect truncation, and if there is any, only account for the
+	// actual number of bytes written..and not what could have been
+	// written.
+	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 	    numCopied = getBufferSize()-getCurrentSize();
+		llwarns << "LLDataPackerAsciiBuffer::packVector3: truncated: " << llendl;
 	}
 
 	mCurBufferp += numCopied;
@@ -1149,13 +1182,16 @@ BOOL LLDataPackerAsciiBuffer::packVector4(const LLVector4 &value, const char *na
 	{
 		numCopied = snprintf(DUMMY_BUFFER,sizeof(DUMMY_BUFFER),"%g %g %g %g\n", value.mV[0], value.mV[1], value.mV[2], value.mV[3]);	/* Flawfinder: ignore */
 	}
-	// snprintf returns number of bytes that would have been written had the 
-	// output not being truncated. In that case, it will retuen >= passed in size value.
-	// so a check needs to be added to detect truncation, and if there is any,
-	// only account for the actual number of bytes written..and not what could have been written.
-	if (numCopied > getBufferSize()-getCurrentSize())
+	// snprintf returns number of bytes that would have been written
+	// had the output not being truncated. In that case, it will
+	// return either -1 or value >= passed in size value . So a check needs to be added
+	// to detect truncation, and if there is any, only account for the
+	// actual number of bytes written..and not what could have been
+	// written.
+	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 	    numCopied = getBufferSize()-getCurrentSize();
+		llwarns << "LLDataPackerAsciiBuffer::packVector4: truncated: " << llendl;
 	}
 
 	mCurBufferp += numCopied;
@@ -1193,13 +1229,16 @@ BOOL LLDataPackerAsciiBuffer::packUUID(const LLUUID &value, const char *name)
 	{
 		numCopied = 64 + 1; // UUID + newline
 	}
-	// snprintf returns number of bytes that would have been written had the 
-	// output not being truncated. In that case, it will retuen >= passed in size value.
-	// so a check needs to be added to detect truncation, and if there is any,
-	// only account for the actual number of bytes written..and not what could have been written.
-	if (numCopied > getBufferSize()-getCurrentSize())
+	// snprintf returns number of bytes that would have been written
+	// had the output not being truncated. In that case, it will
+	// return either -1 or value >= passed in size value . So a check needs to be added
+	// to detect truncation, and if there is any, only account for the
+	// actual number of bytes written..and not what could have been
+	// written.
+	if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 	{
 	    numCopied = getBufferSize()-getCurrentSize();
+		llwarns << "LLDataPackerAsciiBuffer::packUUID: truncated: " << llendl;
 		success = FALSE;
 	}
 	mCurBufferp += numCopied;
@@ -1235,21 +1274,26 @@ void LLDataPackerAsciiBuffer::writeIndentedName(const char *name)
 		int numCopied = 0;
 		if (mWriteEnabled)
 		{
-	    		numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%s\t", name);	/* Flawfinder: ignore */
+			numCopied = snprintf(mCurBufferp,getBufferSize()-getCurrentSize(),"%s\t", name);	/* Flawfinder: ignore */
 		}
 		else
 		{
 			numCopied = (S32)strlen(name) + 1; 	/* Flawfinder: ignore */ //name + tab  	
 		}
 
-		// snprintf returns number of bytes that would have been written had the 
-		// output not being truncated. In that case, it will retuen >= passed in size value.
-		// so a check needs to be added to detect truncation, and if there is any,
-		// only account for the actual number of bytes written..and not what could have been written.
-		if (numCopied > getBufferSize()-getCurrentSize())
+		// snprintf returns number of bytes that would have been written
+		// had the output not being truncated. In that case, it will
+		// return either -1 or value >= passed in size value . So a check needs to be added
+		// to detect truncation, and if there is any, only account for the
+		// actual number of bytes written..and not what could have been
+		// written.
+		if (numCopied < 0 || numCopied > getBufferSize()-getCurrentSize())
 		{
 			numCopied = getBufferSize()-getCurrentSize();
+			llwarns << "LLDataPackerAsciiBuffer::writeIndentedName: truncated: " << llendl;
 		}
+
+		mCurBufferp += numCopied;
 	}
 }
 
@@ -1405,7 +1449,7 @@ BOOL LLDataPackerAsciiFile::packBinaryDataFixed(const U8 *value, S32 size, const
 		S32 i;
 		for (i = 0; i < size; i++)
 		{
-			snprintf(buffer, sizeof(buffer), "%02x ", value[i]); /*Flawfinder: ignore*/
+			snprintf(buffer, sizeof(buffer), "%02x ", value[i]);	/* Flawfinder: ignore */
 			*mOutputStream << buffer;
 		}
 		*mOutputStream << "\n";

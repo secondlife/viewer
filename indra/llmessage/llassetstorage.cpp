@@ -1253,7 +1253,7 @@ void LLAssetStorage::legacyGetDataCallback(LLVFS *vfs, const LLUUID &uuid, LLAss
 		char uuid_str[UUID_STR_LENGTH];	/* Flawfinder: ignore */ 
 
 		uuid.toString(uuid_str);
-		snprintf(filename,sizeof(filename),"%s.%s",gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_str).c_str(),LLAssetType::lookup(type));	/* Flawfinder: ignore */ 
+		snprintf(filename,sizeof(filename),"%s.%s",gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_str).c_str(),LLAssetType::lookup(type));	/* Flawfinder: ignore */
 
 		FILE* fp = LLFile::fopen(filename, "wb");	/* Flawfinder: ignore */ 
 		if (fp)

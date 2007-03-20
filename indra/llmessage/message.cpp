@@ -1950,7 +1950,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 						std::ostringstream str;
 						str << "MSG: <- " << host;
 						char buffer[MAX_STRING]; /* Flawfinder: ignore*/
-						snprintf(buffer, MAX_STRING, "\t%6d\t%6d\t%6d ", mReceiveSize, (mIncomingCompressedSize ? mIncomingCompressedSize : mReceiveSize), mCurrentRecvPacketID);/* Flawfinder: ignore*/
+						snprintf(buffer, MAX_STRING, "\t%6d\t%6d\t%6d ", mReceiveSize, (mIncomingCompressedSize ? mIncomingCompressedSize : mReceiveSize), mCurrentRecvPacketID);	/* Flawfinder: ignore */
 						str << buffer << "(unknown)"
 							<< (recv_reliable ? " reliable" : "")
 							<< " resent "
@@ -3224,7 +3224,7 @@ void LLMessageSystem::logMsgFromInvalidCircuit( const LLHost& host, BOOL recv_re
 		std::ostringstream str;
 		str << "MSG: <- " << host;
 		char buffer[MAX_STRING];			/* Flawfinder: ignore */
-		snprintf(buffer, MAX_STRING, "\t%6d\t%6d\t%6d ", mReceiveSize, (mIncomingCompressedSize ? mIncomingCompressedSize: mReceiveSize), mCurrentRecvPacketID);		/* Flawfinder: ignore */
+		snprintf(buffer, MAX_STRING, "\t%6d\t%6d\t%6d ", mReceiveSize, (mIncomingCompressedSize ? mIncomingCompressedSize: mReceiveSize), mCurrentRecvPacketID);	/* Flawfinder: ignore */
 		str << buffer
 			<< mCurrentRMessageTemplate->mName
 			<< (recv_reliable ? " reliable" : "")
@@ -4771,75 +4771,75 @@ void LLMessageSystem::summarizeLogs(std::ostream& str)
 	char tmp_str[MAX_STRING];	 /* Flawfinder: ignore */ 
 	F32 run_time = mMessageSystemTimer.getElapsedTimeF32();
 	str << "START MESSAGE LOG SUMMARY" << std::endl;
-	snprintf(buffer, MAX_STRING, "Run time: %12.3f seconds", run_time);	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Run time: %12.3f seconds", run_time);	/* Flawfinder: ignore */
 
 	// Incoming
 	str << buffer << std::endl << "Incoming:" << std::endl;
 	U64_to_str(mTotalBytesIn, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total bytes received:      %20s (%5.2f kbits per second)", tmp_str, ((F32)mTotalBytesIn * 0.008f) / run_time);	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Total bytes received:      %20s (%5.2f kbits per second)", tmp_str, ((F32)mTotalBytesIn * 0.008f) / run_time);	/* Flawfinder: ignore */
 	str << buffer << std::endl;
 	U64_to_str(mPacketsIn, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total packets received:    %20s (%5.2f packets per second)", tmp_str, ((F32) mPacketsIn / run_time));	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Total packets received:    %20s (%5.2f packets per second)", tmp_str, ((F32) mPacketsIn / run_time));	/* Flawfinder: ignore */
 	str << buffer << std::endl;
-	snprintf(buffer, MAX_STRING, "Average packet size:       %20.0f bytes", (F32)mTotalBytesIn / (F32)mPacketsIn);	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Average packet size:       %20.0f bytes", (F32)mTotalBytesIn / (F32)mPacketsIn);	/* Flawfinder: ignore */
 	str << buffer << std::endl;
 	U64_to_str(mReliablePacketsIn, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total reliable packets:    %20s (%5.2f%%)", tmp_str, 100.f * ((F32) mReliablePacketsIn)/((F32) mPacketsIn + 1));	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Total reliable packets:    %20s (%5.2f%%)", tmp_str, 100.f * ((F32) mReliablePacketsIn)/((F32) mPacketsIn + 1));		/* Flawfinder: ignore */
 	str << buffer << std::endl;
 	U64_to_str(mCompressedPacketsIn, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total compressed packets:  %20s (%5.2f%%)", tmp_str, 100.f * ((F32) mCompressedPacketsIn)/((F32) mPacketsIn + 1));	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Total compressed packets:  %20s (%5.2f%%)", tmp_str, 100.f * ((F32) mCompressedPacketsIn)/((F32) mPacketsIn + 1));	/* Flawfinder: ignore */
 	str << buffer << std::endl;
 	S64 savings = mUncompressedBytesIn - mCompressedBytesIn;
 	U64_to_str(savings, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total compression savings: %20s bytes", tmp_str);	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Total compression savings: %20s bytes", tmp_str);	/* Flawfinder: ignore */
 	str << buffer << std::endl;
 	U64_to_str(savings/(mCompressedPacketsIn +1), tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Avg comp packet savings:   %20s (%5.2f : 1)", tmp_str, ((F32) mUncompressedBytesIn)/((F32) mCompressedBytesIn+1));	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Avg comp packet savings:   %20s (%5.2f : 1)", tmp_str, ((F32) mUncompressedBytesIn)/((F32) mCompressedBytesIn+1));	/* Flawfinder: ignore */
 	str << buffer << std::endl;
 	U64_to_str(savings/(mPacketsIn+1), tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Avg overall comp savings:  %20s (%5.2f : 1)", tmp_str, ((F32) mTotalBytesIn + (F32) savings)/((F32) mTotalBytesIn + 1.f));	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Avg overall comp savings:  %20s (%5.2f : 1)", tmp_str, ((F32) mTotalBytesIn + (F32) savings)/((F32) mTotalBytesIn + 1.f));	/* Flawfinder: ignore */
 
 	// Outgoing
 	str << buffer << std::endl << std::endl << "Outgoing:" << std::endl;
 	U64_to_str(mTotalBytesOut, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total bytes sent:          %20s (%5.2f kbits per second)", tmp_str, ((F32)mTotalBytesOut * 0.008f) / run_time );	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Total bytes sent:          %20s (%5.2f kbits per second)", tmp_str, ((F32)mTotalBytesOut * 0.008f) / run_time );	/* Flawfinder: ignore */
 	str << buffer << std::endl;
 	U64_to_str(mPacketsOut, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total packets sent:        %20s (%5.2f packets per second)", tmp_str, ((F32)mPacketsOut / run_time));	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Total packets sent:        %20s (%5.2f packets per second)", tmp_str, ((F32)mPacketsOut / run_time));	/* Flawfinder: ignore */
 	str << buffer << std::endl;
-	snprintf(buffer, MAX_STRING, "Average packet size:       %20.0f bytes", (F32)mTotalBytesOut / (F32)mPacketsOut);	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Average packet size:       %20.0f bytes", (F32)mTotalBytesOut / (F32)mPacketsOut);	/* Flawfinder: ignore */
 	str << buffer << std::endl;
 	U64_to_str(mReliablePacketsOut, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total reliable packets:    %20s (%5.2f%%)", tmp_str, 100.f * ((F32) mReliablePacketsOut)/((F32) mPacketsOut + 1));		/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Total reliable packets:    %20s (%5.2f%%)", tmp_str, 100.f * ((F32) mReliablePacketsOut)/((F32) mPacketsOut + 1));		/* Flawfinder: ignore */
 	str << buffer << std::endl;
 	U64_to_str(mCompressedPacketsOut, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total compressed packets:  %20s (%5.2f%%)", tmp_str, 100.f * ((F32) mCompressedPacketsOut)/((F32) mPacketsOut + 1));	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Total compressed packets:  %20s (%5.2f%%)", tmp_str, 100.f * ((F32) mCompressedPacketsOut)/((F32) mPacketsOut + 1));		/* Flawfinder: ignore */
 	str << buffer << std::endl;
 	savings = mUncompressedBytesOut - mCompressedBytesOut;
 	U64_to_str(savings, tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Total compression savings: %20s bytes", tmp_str);	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Total compression savings: %20s bytes", tmp_str);	/* Flawfinder: ignore */
 	str << buffer << std::endl;
 	U64_to_str(savings/(mCompressedPacketsOut +1), tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Avg comp packet savings:   %20s (%5.2f : 1)", tmp_str, ((F32) mUncompressedBytesOut)/((F32) mCompressedBytesOut+1));	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Avg comp packet savings:   %20s (%5.2f : 1)", tmp_str, ((F32) mUncompressedBytesOut)/((F32) mCompressedBytesOut+1));		/* Flawfinder: ignore */
 	str << buffer << std::endl;
 	U64_to_str(savings/(mPacketsOut+1), tmp_str, sizeof(tmp_str));
-	snprintf(buffer, MAX_STRING, "Avg overall comp savings:  %20s (%5.2f : 1)", tmp_str, ((F32) mTotalBytesOut + (F32) savings)/((F32) mTotalBytesOut + 1.f));	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Avg overall comp savings:  %20s (%5.2f : 1)", tmp_str, ((F32) mTotalBytesOut + (F32) savings)/((F32) mTotalBytesOut + 1.f));		/* Flawfinder: ignore */
 	str << buffer << std::endl << std::endl;
-	snprintf(buffer, MAX_STRING, "SendPacket failures:       %20d", mSendPacketFailureCount);	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "SendPacket failures:       %20d", mSendPacketFailureCount);	/* Flawfinder: ignore */
 	str << buffer << std::endl;
-	snprintf(buffer, MAX_STRING, "Dropped packets:           %20d", mDroppedPackets);	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Dropped packets:           %20d", mDroppedPackets);	/* Flawfinder: ignore */
 	str << buffer << std::endl;
-	snprintf(buffer, MAX_STRING, "Resent packets:            %20d", mResentPackets);	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Resent packets:            %20d", mResentPackets);	/* Flawfinder: ignore */
 	str << buffer << std::endl;
-	snprintf(buffer, MAX_STRING, "Failed reliable resends:   %20d", mFailedResendPackets);	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Failed reliable resends:   %20d", mFailedResendPackets);	/* Flawfinder: ignore */
 	str << buffer << std::endl;
-	snprintf(buffer, MAX_STRING, "Off-circuit rejected packets: %17d", mOffCircuitPackets);	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "Off-circuit rejected packets: %17d", mOffCircuitPackets);	/* Flawfinder: ignore */
 	str << buffer << std::endl;
-	snprintf(buffer, MAX_STRING, "On-circuit invalid packets:   %17d", mInvalidOnCircuitPackets);	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "On-circuit invalid packets:   %17d", mInvalidOnCircuitPackets);		/* Flawfinder: ignore */
 	str << buffer << std::endl << std::endl;
 
 	str << "Decoding: " << std::endl;
-	snprintf(buffer, MAX_STRING, "%35s%10s%10s%10s%10s", "Message", "Count", "Time", "Max", "Avg");	/* Flawfinder: ignore */ 
+	snprintf(buffer, MAX_STRING, "%35s%10s%10s%10s%10s", "Message", "Count", "Time", "Max", "Avg");	/* Flawfinder: ignore */
 	str << buffer << std:: endl;	
 	F32 avg;
 	for (message_template_name_map_t::iterator iter = mMessageTemplates.begin(),
@@ -4850,7 +4850,7 @@ void LLMessageSystem::summarizeLogs(std::ostream& str)
 		if(mt->mTotalDecoded > 0)
 		{
 			avg = mt->mTotalDecodeTime / (F32)mt->mTotalDecoded;
-			snprintf(buffer, MAX_STRING, "%35s%10u%10f%10f%10f", mt->mName, mt->mTotalDecoded, mt->mTotalDecodeTime, mt->mMaxDecodeTimePerMsg, avg);	/* Flawfinder: ignore */ 
+			snprintf(buffer, MAX_STRING, "%35s%10u%10f%10f%10f", mt->mName, mt->mTotalDecoded, mt->mTotalDecodeTime, mt->mMaxDecodeTimePerMsg, avg);	/* Flawfinder: ignore */
 			str << buffer << std::endl;
 		}
 	}
@@ -5565,7 +5565,7 @@ bool LLMessageSystem::generateDigestForNumberAndUUIDs(
 
 	d.update((const unsigned char *) colon, (U32)strlen(colon));	/* Flawfinder: ignore */ 
 	
-	snprintf(tbuf, sizeof(tbuf),"%i", number);	/* Flawfinder: ignore */ 
+	snprintf(tbuf, sizeof(tbuf),"%i", number);		/* Flawfinder: ignore */
 	d.update((unsigned char *) tbuf, (U32)strlen(tbuf));	/* Flawfinder: ignore */ 
 	
 	d.update((const unsigned char *) colon, (U32)strlen(colon));	/* Flawfinder: ignore */ 
@@ -5824,7 +5824,7 @@ void LLMessageSystem::dumpPacketToLog()
 	S32 cur_line = 0;
 	for (i = 0; i < mTrueReceiveSize; i++)
 	{
-		snprintf(line_buffer + cur_line_pos*3, sizeof(line_buffer),"%02x ", mTrueReceiveBuffer[i]);	/* Flawfinder: ignore */ 
+		snprintf(line_buffer + cur_line_pos*3, sizeof(line_buffer),"%02x ", mTrueReceiveBuffer[i]);	/* Flawfinder: ignore */
 		cur_line_pos++;
 		if (cur_line_pos >= 16)
 		{
