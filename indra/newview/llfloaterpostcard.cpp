@@ -218,7 +218,7 @@ public:
 	{	
 	}
 	// *TODO define custom uploadFailed here so it's not such a generic message
-	void LLSendPostcardResponder::uploadComplete(const LLSD& content)
+	void uploadComplete(const LLSD& content)
 	{
 		// we don't care about what the server returns from this post, just clean up the UI
 		LLUploadDialog::modalUploadFinished();

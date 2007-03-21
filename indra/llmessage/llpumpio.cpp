@@ -202,16 +202,15 @@ bool LLPumpIO::setConditional(LLIOPipe* pipe, const apr_pollfd_t* poll)
 	{
 		// remove any matching poll file descriptors for this pipe.
 		LLIOPipe::ptr_t pipe_ptr(pipe);
-
-		LLChainInfo::conditionals_t::iterator it = (*mCurrentChain).mDescriptors.begin();
-		LLChainInfo::conditionals_t::iterator end = (*mCurrentChain).mDescriptors.end();
-		while (it != end)
+		LLChainInfo::conditionals_t::iterator it;
+		it = (*mCurrentChain).mDescriptors.begin();
+		while(it != (*mCurrentChain).mDescriptors.end())
 		{
 			LLChainInfo::pipe_conditional_t& value = (*it);
-			if ( pipe_ptr == value.first )
+			if(pipe_ptr == value.first)
 			{
 				ll_delete_apr_pollset_fd_client_data()(value);
-				(*mCurrentChain).mDescriptors.erase(it++);
+				it = (*mCurrentChain).mDescriptors.erase(it);
 				mRebuildPollset = true;
 			}
 			else
@@ -453,7 +452,7 @@ void LLPumpIO::pump()
 //						<< (*run_chain).mChainLinks[0].mPipe
 //						<< " because we reached the end." << llendl;
 #endif
-				mRunningChains.erase(run_chain++);
+				run_chain = mRunningChains.erase(run_chain);
 				continue;
 			}
 		}
@@ -532,7 +531,7 @@ void LLPumpIO::pump()
 				(*run_chain).mDescriptors.begin(),
 				(*run_chain).mDescriptors.end(),
 				ll_delete_apr_pollset_fd_client_data());
-			mRunningChains.erase(run_chain++);
+			run_chain = mRunningChains.erase(run_chain);
 
 			// *NOTE: may not always need to rebuild the pollset.
 			mRebuildPollset = true;

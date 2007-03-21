@@ -1076,7 +1076,7 @@ LLSpatialGroup *LLSpatialPartition::put(LLDrawable *drawablep, BOOL was_visible)
 			
 	if (drawablep->getPositionGroup().magVecSquared() > MAX_MAG)
 	{
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if 0 //ndef LL_RELEASE_FOR_DOWNLOAD
 		llwarns << "LLSpatialPartition::put Object out of range!" << llendl;
 		llinfos << drawablep->getPositionGroup() << llendl;
 
@@ -1726,8 +1726,9 @@ void LLSpatialPartition::processImagery(LLCamera* camera)
 				gPipeline.mCubeBuffer->initGL();
 			}
 
+			S32 res = gSavedSettings.getS32("RenderReflectionRes");
 			gPipeline.generateReflectionMap(gPipeline.mCubeBuffer, cube_cam, 128);
-			gPipeline.blurReflectionMap(gPipeline.mCubeBuffer, cube_map, 64);
+			gPipeline.blurReflectionMap(gPipeline.mCubeBuffer, cube_map, res);
 			group->mReflectionMap = cube_map;
 			group->setState(LLSpatialGroup::GEOM_DIRTY);
 			gPipeline.markRebuild(group);
@@ -2203,7 +2204,7 @@ void LLSpatialPartition::doOcclusion(LLCamera* camera)
 
 	glFlush();
 
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 }
 
 class LLOctreeGet : public LLSpatialGroup::OctreeTraveler

@@ -195,9 +195,17 @@ void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
 
 		// Create the line in the list
 		LLSD row;
+
+		BOOL item_is_multi = FALSE;
+		if ( inv_item->getFlags() & LLInventoryItem::II_FLAGS_LANDMARK_VISITED )
+		{
+			item_is_multi = TRUE;
+		}
+
 		LLUUID icon_id = get_item_icon_uuid(inv_item->getType(), 
 							 inv_item->getInventoryType(),
-							 inv_item->getFlags());
+							 inv_item->getFlags(),
+							 item_is_multi);
 		row["columns"][0]["column"] = "icon";
 		row["columns"][0]["type"] = "icon";
 		row["columns"][0]["value"] = icon_id;

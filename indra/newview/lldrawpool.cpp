@@ -43,6 +43,9 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerImage *tex0)
 	case POOL_SIMPLE:
 		poolp = new LLDrawPoolSimple();
 		break;
+	case POOL_GLOW:
+		poolp = new LLDrawPoolGlow();
+		break;
 	case POOL_ALPHA:
 		poolp = new LLDrawPoolAlpha();
 		break;

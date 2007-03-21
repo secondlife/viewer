@@ -128,7 +128,8 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 	// Compute icon for this item
 	LLUUID icon_id = get_item_icon_uuid(LLAssetType::AT_OBJECT, 
 						 LLInventoryType::IT_OBJECT,
-						 0x0);
+						 0x0, FALSE);
+
 	row["columns"][0]["column"] = "icon";
 	row["columns"][0]["type"] = "icon";
 	row["columns"][0]["value"] = icon_id;
@@ -224,9 +225,16 @@ void LLFloaterBuy::inventoryChanged(LLViewerObject* obj,
 		LLSD row;
 
 		// Compute icon for this item
+		BOOL item_is_multi = FALSE;
+		if ( inv_item->getFlags() & LLInventoryItem::II_FLAGS_LANDMARK_VISITED )
+		{
+			item_is_multi = TRUE;
+		}
+
 		LLUUID icon_id = get_item_icon_uuid(inv_item->getType(), 
 							 inv_item->getInventoryType(),
-							 inv_item->getFlags());
+							 inv_item->getFlags(),
+							 item_is_multi);
 		row["columns"][0]["column"] = "icon";
 		row["columns"][0]["type"] = "icon";
 		row["columns"][0]["value"] = icon_id;

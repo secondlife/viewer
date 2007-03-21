@@ -253,7 +253,7 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass )
 					triangle_count += drawShape( pixelArea, FALSE );
 				}
 				// third past respects z buffer and writes color
-				glColorMask(TRUE, TRUE, TRUE, TRUE);
+				glColorMask(TRUE, TRUE, TRUE, FALSE);
 				{
 					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 					triangle_count += drawShape( pixelArea, FALSE );

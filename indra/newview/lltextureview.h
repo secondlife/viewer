@@ -18,6 +18,8 @@ class LLGLTexMemBar;
 
 class LLTextureView : public LLContainerView
 {
+	friend class LLTextureBar;
+	friend class LLGLTexMemBar;
 public:
 	LLTextureView(const std::string& name, const LLRect& rect);
 	~LLTextureView();
@@ -38,11 +40,11 @@ private:
 	BOOL addBar(LLViewerImage *image, BOOL hilight = FALSE);
 	void removeAllBars();
 
-public:
+private:
 	BOOL mFreezeView;
 	BOOL mOrderFetch;
+	BOOL mPrintList;
 	
-private:
 	LLTextBox *mInfoTextp;
 
 	std::vector<LLTextureBar*> mTextureBars;

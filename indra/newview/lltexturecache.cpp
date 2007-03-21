@@ -671,7 +671,7 @@ void LLTextureCacheWorker::finishWork(S32 param, bool completed)
 			mWriteData = NULL; // we never owned data
 			mDataSize = 0;
 		}
-		mResponder->completed(success);
+		mCache->addCompleted(mResponder, success);
 	}
 }
 
@@ -705,6 +705,7 @@ LLTextureCache::LLTextureCache(bool threaded)
 	: LLWorkerThread("TextureCache", threaded),
 	  mWorkersMutex(getAPRPool()),
 	  mHeaderMutex(getAPRPool()),
+	  mListMutex(getAPRPool()),
 	  mFileAPRPool(NULL),
 	  mReadOnly(FALSE),
 	  mTexturesSizeTotal(0),
@@ -726,9 +727,17 @@ S32 LLTextureCache::update(U32 max_time_ms)
 	S32 res;
 	res = LLWorkerThread::update(max_time_ms);
 
+	mListMutex.lock();
+	handle_list_t priorty_list = mPrioritizeWriteList; // copy list
+	mPrioritizeWriteList.clear();
+	responder_list_t completed_list = mCompletedList; // copy list
+	mCompletedList.clear();
+	mListMutex.unlock();
+	
 	lockWorkers();
-	for (std::vector<handle_t>::iterator iter1 = mPrioritizeWriteList.begin();
-		 iter1 != mPrioritizeWriteList.end(); ++iter1)
+	
+	for (handle_list_t::iterator iter1 = priorty_list.begin();
+		 iter1 != priorty_list.end(); ++iter1)
 	{
 		handle_t handle = *iter1;
 		handle_map_t::iterator iter2 = mWriters.find(handle);
@@ -738,8 +747,17 @@ S32 LLTextureCache::update(U32 max_time_ms)
 			worker->setPriority(LLWorkerThread::PRIORITY_HIGH | worker->mPriority);
 		}
 	}
-	mPrioritizeWriteList.clear();
+
+	for (responder_list_t::iterator iter1 = completed_list.begin();
+		 iter1 != completed_list.end(); ++iter1)
+	{
+		Responder *responder = iter1->first;
+		bool success = iter1->second;
+		responder->completed(success);
+	}
+	
 	unlockWorkers();
+	
 	return res;
 }
 
@@ -1294,7 +1312,14 @@ void LLTextureCache::prioritizeWrite(handle_t handle)
 {
 	// Don't prioritize yet, we might be working on this now
 	//   which could create a deadlock
+	LLMutexLock lock(&mListMutex);	
 	mPrioritizeWriteList.push_back(handle);
+}
+
+void LLTextureCache::addCompleted(Responder* responder, bool success)
+{
+	LLMutexLock lock(&mListMutex);
+	mCompletedList.push_back(std::make_pair(responder,success));
 }
 
 //////////////////////////////////////////////////////////////////////////////

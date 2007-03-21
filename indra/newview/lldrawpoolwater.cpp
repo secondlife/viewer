@@ -33,16 +33,6 @@ const LLUUID WATER_TEST("2bfd3884-7e27-69b9-ba3a-3e673f680004");
 
 static float sTime;
 
-int nhpo2(int v) 
-{
-	int r = 1;
-	while (r < v) {
-		r *= 2;
-	}
-	return r;
-}
-
-static GLuint sScreenTex = 0;
 BOOL LLDrawPoolWater::sSkipScreenCopy = FALSE;
 
 LLDrawPoolWater::LLDrawPoolWater() :
@@ -69,29 +59,8 @@ LLDrawPoolWater::~LLDrawPoolWater()
 //static
 void LLDrawPoolWater::restoreGL()
 {
-	if (gPipeline.getVertexShaderLevel(LLPipeline::SHADER_ENVIRONMENT) >= SHADER_LEVEL_RIPPLE)
-	{
-		//build screen texture
-		glClientActiveTextureARB(GL_TEXTURE0_ARB);
-		glActiveTextureARB(GL_TEXTURE0_ARB);
-		glGenTextures(1, &sScreenTex);
-		LLGLEnable gl_texture_2d(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, sScreenTex);
-		GLint viewport[4];
-		glGetIntegerv(GL_VIEWPORT, viewport);
-		GLuint resX = nhpo2(viewport[2]);
-		GLuint resY = nhpo2(viewport[3]);
-		
-		gImageList.updateMaxResidentTexMem(-1, resX*resY*3);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, resX, resY, 0, GL_RGB, GL_FLOAT, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	}
+	
 }
-
 
 LLDrawPool *LLDrawPoolWater::instancePool()
 {
@@ -130,7 +99,7 @@ void LLDrawPoolWater::render(S32 pass)
 
 	std::sort(mDrawFace.begin(), mDrawFace.end(), LLFace::CompareDistanceGreater());
 
-	LLGLSPipelineAlpha alphaState;
+	LLGLEnable blend(GL_BLEND);
 
 	if ((mVertexShaderLevel >= SHADER_LEVEL_RIPPLE))
 	{
@@ -324,7 +293,6 @@ void LLDrawPoolWater::render(S32 pass)
 	glDisableClientState(GL_NORMAL_ARRAY);
 	
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
 }
 
 
@@ -508,50 +476,10 @@ void LLDrawPoolWater::renderReflection(LLFace* face)
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
-void bindScreenToTexture() 
-{
-	if (LLDrawPoolWater::sSkipScreenCopy)
-	{
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-	else
-	{
-
-		GLint viewport[4];
-		glGetIntegerv(GL_VIEWPORT, viewport);
-		GLuint resX = nhpo2(viewport[2]);
-		GLuint resY = nhpo2(viewport[3]);
-
-		glBindTexture(GL_TEXTURE_2D, sScreenTex);
-		GLint cResX;
-		GLint cResY;
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &cResX);
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &cResY);
-
-		if (cResX != (GLint)resX || cResY != (GLint)resY)
-		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, resX, resY, 0, GL_RGB, GL_FLOAT, NULL);
-			gImageList.updateMaxResidentTexMem(-1, resX*resY*3);
-		}
-
-		glCopyTexSubImage2D(GL_TEXTURE_2D, 0, viewport[0], viewport[1], 0, 0, viewport[2], viewport[3]); 
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-		float scale[2];
-		scale[0] = (float) viewport[2]/resX;
-		scale[1] = (float) viewport[3]/resY;
-		glUniform2fvARB(gPipeline.mWaterProgram.mUniform[LLPipeline::GLSL_WATER_FBSCALE], 1, scale);
-
-		LLImageGL::sBoundTextureMemory += resX * resY * 3;
-	}
-}
-
 void LLDrawPoolWater::shade()
 {
+	glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+
 	static LLVector2 d1( 0.5f, -0.17f );
 	static LLVector2 d2( 0.58f, -0.67f );
 	static LLVector2 d3( 0.5f, 0.25f );
@@ -630,8 +558,18 @@ void LLDrawPoolWater::shade()
 
 	gPipeline.mWaterProgram.bind();
 	
-	bindScreenToTexture();
+	if (!sSkipScreenCopy)
+	{
+		gPipeline.bindScreenToTexture();
+	}
+	else
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
 	
+	glUniform2fvARB(gPipeline.mWaterProgram.mUniform[LLPipeline::GLSL_WATER_FBSCALE], 1, 
+			gPipeline.mScreenScale.mV);
+
 	S32 diffTex = gPipeline.mWaterProgram.enableTexture(LLPipeline::GLSL_DIFFUSE_MAP);
 	
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
@@ -693,6 +631,7 @@ void LLDrawPoolWater::shade()
 	
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_FALSE);
 }
 
 void LLDrawPoolWater::renderForSelect()

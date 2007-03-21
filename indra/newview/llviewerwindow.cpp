@@ -3007,7 +3007,7 @@ void LLViewerWindow::hitObjectOrLandGlobalAsync(S32 x, S32 y_from_bot, MASK mask
 	glViewport(scaled_x - (PICK_HALF_WIDTH + 2), scaled_y - (PICK_HALF_WIDTH + 2), PICK_DIAMETER + 4, PICK_DIAMETER + 4);
 	stop_glerror();
 
-	glClearColor(0.f, 0.f, 0.f, 1.f);
+	glClearColor(0.f, 0.f, 0.f, 0.f);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	// Draw the objects so the user can select them.
@@ -3098,7 +3098,7 @@ void LLViewerWindow::hitUIElementAsync(S32 x, S32 y_from_bot, MASK mask, void (*
 	glViewport(x - (PICK_HALF_WIDTH + 2), y_from_bot - (PICK_HALF_WIDTH + 2), PICK_DIAMETER + 4, PICK_DIAMETER + 4);
 	stop_glerror();
 
-	glClearColor(0.f, 0.f, 0.f, 1.f);
+	glClearColor(0.f, 0.f, 0.f, 0.f);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 	// Draw the objects so the user can select them.
@@ -3974,7 +3974,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 			gDisplaySwapBuffers = FALSE;
 			if (type == SNAPSHOT_TYPE_OBJECT_ID)
 			{
-				glClearColor(0.f, 0.f, 0.f, 1.f);
+				glClearColor(0.f, 0.f, 0.f, 0.f);
 				glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 				gCamera->setZoomParameters(scale_factor, subimage_x+(subimage_y*llceil(scale_factor)));

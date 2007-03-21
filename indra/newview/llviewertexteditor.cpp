@@ -323,7 +323,16 @@ void LLEmbeddedItems::bindEmbeddedChars( const LLFontGL* font )
 			}
 			break;
 		  case LLAssetType::AT_CLOTHING:		img_name = "inv_item_clothing.tga";	break;
-		  case LLAssetType::AT_OBJECT:			img_name = "inv_item_object.tga";	break;
+		  case LLAssetType::AT_OBJECT:			
+			if (item->getFlags() & LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS)
+			{
+				img_name = "inv_item_object_multi.tga";	
+			}
+			else
+			{
+				img_name = "inv_item_object.tga";	
+			}
+			break;
 		  case LLAssetType::AT_NOTECARD:		img_name = "inv_item_notecard.tga";	break;
 		  case LLAssetType::AT_LSL_TEXT:		img_name = "inv_item_script.tga";	break;
 		  case LLAssetType::AT_BODYPART:		img_name = "inv_item_bodypart.tga";	break;

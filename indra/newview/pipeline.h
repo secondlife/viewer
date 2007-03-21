@@ -87,10 +87,13 @@ public:
 	void destroyGL();
 	void restoreGL();
 	void resetVertexBuffers();
+	void releaseGLBuffers();
 	void resetVertexBuffers(LLDrawable* drawable);
 	void setUseVBO(BOOL use_vbo);
 	void generateReflectionMap(LLCubeMap* cube_map, LLCamera& camera, GLsizei res);
 	void blurReflectionMap(LLCubeMap* cube_in, LLCubeMap* cube_out, U32 res);
+	void bindScreenToTexture();
+	void renderBloom(GLuint source, GLuint dest, GLuint buffer, U32 res, LLVector2 tc1, LLVector2 tc2);
 
 	void init();
 	void cleanup();
@@ -281,6 +284,8 @@ public:
 		RENDER_TYPE_TREE		= LLDrawPool::POOL_TREE,
 		RENDER_TYPE_WATER		= LLDrawPool::POOL_WATER,
  		RENDER_TYPE_ALPHA		= LLDrawPool::POOL_ALPHA,
+		RENDER_TYPE_GLOW		= LLDrawPool::POOL_GLOW,
+
 		// Following are object types (only used in drawable mRenderType)
 		RENDER_TYPE_HUD = LLDrawPool::NUM_POOL_TYPES,
 		RENDER_TYPE_VOLUME,
@@ -327,7 +332,8 @@ public:
 		RENDER_DEBUG_TEXTURE_AREA		= 0x08000,
 		RENDER_DEBUG_FACE_AREA			= 0x10000,
 		RENDER_DEBUG_PARTICLES			= 0x20000,
-		RENDER_DEBUG_TEXTURE_ANIM		= 0x40000,
+		RENDER_DEBUG_GLOW				= 0x40000,
+		RENDER_DEBUG_TEXTURE_ANIM		= 0x80000,
 	};
 
 	LLPointer<LLViewerImage>	mAlphaSizzleImagep;
@@ -355,6 +361,11 @@ public:
 	LLSpatialPartition* getSpatialPartition(LLViewerObject* vobj);
 	LLSpatialPartition* getSpatialPartition(U32 index);
 
+	void updateCamera();
+	
+	LLVector3				mFlyCamPosition;
+	LLQuaternion			mFlyCamRotation;
+
 	BOOL					 mBackfaceCull;
 	S32						 mTrianglesDrawn;
 	LLStat                   mTrianglesDrawnStat;
@@ -378,10 +389,28 @@ public:
 	static BOOL				sUseOcclusion;
 	static BOOL				sSkipUpdate; //skip lod updates
 	static BOOL				sDynamicReflections;
+	static BOOL				sRenderGlow;
+	static BOOL				sOverrideAgentCamera;
 
-	//cube map for anti-aliasing reflections
+	//screen texture
+	GLuint					mScreenTex;
+	LLVector2				mScreenScale;
+
+	//texture for making the glow
+	GLuint					mGlowMap;
+	GLuint					mGlowBuffer;
+
+	//framebuffer objects for off-screen scratch space
+	GLuint					mFramebuffer[2];
+
+	//dynamic cube map scratch space
 	LLCubeMap*				mCubeBuffer;
-	GLuint					mCubeList;
+
+	//frambuffer object for rendering dynamic cube maps
+	GLuint					mCubeFrameBuffer;
+	
+	//depth buffer object for rendering dynamic cube maps
+	GLuint					mCubeDepth;
 
 	class LLScatterShader
 	{
@@ -465,8 +494,18 @@ public:
 		GLSL_TERRAIN_ALPHARAMP
 	} eTerrainUniforms;
 
+	//glow parameters
+	static const char* sGlowUniforms[];
+	static U32 sGlowUniformCount;
+
+	typedef enum
+	{
+		GLSL_GLOW_DELTA = GLSL_END_RESERVED_UNIFORMS
+	} eGlowUniforms;
+
 	//environment shaders
 	LLGLSLShader			mTerrainProgram;
+	LLGLSLShader			mGlowProgram;
 	LLGLSLShader			mGroundProgram;
 	LLGLSLShader			mWaterProgram;
 
@@ -627,6 +666,7 @@ protected:
 	LLDrawPool*					mWaterPool;
 	LLDrawPool*					mGroundPool;
 	LLRenderPass*				mSimplePool;
+	LLDrawPool*					mGlowPool;
 	LLDrawPool*					mBumpPool;
 	// Note: no need to keep an quick-lookup to avatar pools, since there's only one per avatar
 	

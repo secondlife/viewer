@@ -1678,7 +1678,7 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 			LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_CLOUDS);
 		}
 
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 	}
 
 	glPushMatrix();

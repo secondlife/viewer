@@ -103,6 +103,7 @@ const char* ICON_NAME[ICON_NAME_COUNT] =
 	"inv_item_script.tga",
 	"inv_item_clothing.tga",
 	"inv_item_object.tga",
+	"inv_item_object_multi.tga",
 	"inv_item_notecard.tga",
 	"inv_item_bodypart.tga",
 	"inv_item_snapshot.tga",
@@ -2313,7 +2314,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 
 LLViewerImage* LLScriptBridge::getIcon() const
 {
-	return get_item_icon(LLAssetType::AT_SCRIPT, LLInventoryType::IT_LSL, 0);
+	return get_item_icon(LLAssetType::AT_SCRIPT, LLInventoryType::IT_LSL, 0, FALSE);
 }
 
 // +=================================================+
@@ -2325,7 +2326,7 @@ LLString LLTextureBridge::sPrefix("Texture: ");
 
 LLViewerImage* LLTextureBridge::getIcon() const
 {
-	return get_item_icon(LLAssetType::AT_TEXTURE, mInvType, 0);
+	return get_item_icon(LLAssetType::AT_TEXTURE, mInvType, 0, FALSE);
 }
 	
 void open_texture(const LLUUID& item_id, 
@@ -2375,7 +2376,7 @@ LLString LLSoundBridge::sPrefix("Sound: ");
 
 LLViewerImage* LLSoundBridge::getIcon() const
 {
-	return get_item_icon(LLAssetType::AT_SOUND, LLInventoryType::IT_SOUND, 0);
+	return get_item_icon(LLAssetType::AT_SOUND, LLInventoryType::IT_SOUND, 0, FALSE);
 }
 
 void LLSoundBridge::openItem()
@@ -2470,7 +2471,7 @@ LLString LLLandmarkBridge::sPrefix("Landmark:  ");
 
 LLViewerImage* LLLandmarkBridge::getIcon() const
 {
-	return get_item_icon(LLAssetType::AT_LANDMARK, LLInventoryType::IT_LANDMARK, mVisited);
+	return get_item_icon(LLAssetType::AT_LANDMARK, LLInventoryType::IT_LANDMARK, mVisited, FALSE);
 }
 
 void LLLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
@@ -2631,7 +2632,7 @@ LLViewerImage* LLCallingCardBridge::getIcon() const
 	{
 		online = LLAvatarTracker::instance().isBuddyOnline(item->getCreatorUUID());
 	}
-	return get_item_icon(LLAssetType::AT_CALLINGCARD, LLInventoryType::IT_CALLINGCARD, online);
+	return get_item_icon(LLAssetType::AT_CALLINGCARD, LLInventoryType::IT_CALLINGCARD, online, FALSE);
 }
 
 LLString LLCallingCardBridge::getLabelSuffix() const
@@ -2779,7 +2780,7 @@ LLString LLNotecardBridge::sPrefix("Note: ");
 
 LLViewerImage* LLNotecardBridge::getIcon() const
 {
-	return get_item_icon(LLAssetType::AT_NOTECARD, LLInventoryType::IT_NOTECARD, 0);
+	return get_item_icon(LLAssetType::AT_NOTECARD, LLInventoryType::IT_NOTECARD, 0, FALSE);
 }
 
 void open_notecard(const LLUUID& item_id, 
@@ -2851,7 +2852,7 @@ LLString LLGestureBridge::sPrefix("Gesture: ");
 
 LLViewerImage* LLGestureBridge::getIcon() const
 {
-	return get_item_icon(LLAssetType::AT_GESTURE, LLInventoryType::IT_GESTURE, 0);
+	return get_item_icon(LLAssetType::AT_GESTURE, LLInventoryType::IT_GESTURE, 0, FALSE);
 }
 
 LLFontGL::StyleFlags LLGestureBridge::getLabelStyle() const
@@ -2984,7 +2985,7 @@ LLString LLAnimationBridge::sPrefix("Animation: ");
 
 LLViewerImage* LLAnimationBridge::getIcon() const
 {
-	return get_item_icon(LLAssetType::AT_ANIMATION, LLInventoryType::IT_ANIMATION, 0);
+	return get_item_icon(LLAssetType::AT_ANIMATION, LLInventoryType::IT_ANIMATION, 0, FALSE);
 }
 
 void LLAnimationBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
@@ -3102,7 +3103,7 @@ BOOL LLObjectBridge::isItemRemovable()
 
 LLViewerImage* LLObjectBridge::getIcon() const
 {
-	return get_item_icon(LLAssetType::AT_OBJECT, mInvType, mAttachPt);
+	return get_item_icon(LLAssetType::AT_OBJECT, mInvType, mAttachPt, mIsMultiObject );
 }
 
 void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attachment);
@@ -3357,7 +3358,7 @@ LLString LLLSLTextBridge::sPrefix("Script: ");
 
 LLViewerImage* LLLSLTextBridge::getIcon() const
 {
-	return get_item_icon(LLAssetType::AT_SCRIPT, LLInventoryType::IT_LSL, 0);
+	return get_item_icon(LLAssetType::AT_SCRIPT, LLInventoryType::IT_LSL, 0, FALSE);
 }
 
 void LLLSLTextBridge::openItem()
@@ -4120,7 +4121,7 @@ LLString LLWearableBridge::getLabelSuffix() const
 
 LLViewerImage* LLWearableBridge::getIcon() const
 {
-	return get_item_icon(mAssetType, mInvType, mWearableType);
+	return get_item_icon(mAssetType, mInvType, mWearableType, FALSE);
 }
 
 // virtual

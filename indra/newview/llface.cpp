@@ -915,7 +915,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	LLVector2 tmin, tmax;
 	
 	const LLTextureEntry *tep = mVObjp->getTE(f);
-	U8  bump_code = tep ? bump_code = tep->getBumpmap() : 0;
+	U8  bump_code = tep ? tep->getBumpmap() : 0;
 
 	if (rebuild_tcoord)
 	{

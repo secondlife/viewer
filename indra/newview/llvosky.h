@@ -671,6 +671,7 @@ public:
 
 public:
 	static F32 sNighttimeBrightness; // [0,2] default = 1.0
+	LLFace				*mFace[FACE_COUNT];
 
 protected:
 	LLPointer<LLViewerImage> mSunTexturep;
@@ -700,8 +701,7 @@ protected:
 	BOOL				mWeatherChange;
 	F32					mCloudDensity;
 	F32					mWind;
-	LLFace				*mFace[FACE_COUNT];
-
+	
 	BOOL				mInitialized;
 	BOOL				mForceUpdate;				//flag to force instantaneous update of cubemap
 	LLVector3			mLastLightingDirection;

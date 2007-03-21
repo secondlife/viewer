@@ -25,7 +25,7 @@
 #include "material_codes.h"
 #include "timing.h"
 #include "v3color.h"
-#include "llui.h"
+#include "llui.h" 
 #include "llglheaders.h"
 
 // newview includes
@@ -70,6 +70,7 @@
 #include "llworld.h"
 #include "viewer.h"
 #include "llcubemap.h"
+#include "lldebugmessagebox.h"
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
@@ -157,6 +158,13 @@ const char* LLPipeline::sTerrainUniforms[] =
 
 U32 LLPipeline::sTerrainUniformCount = sizeof(LLPipeline::sTerrainUniforms)/sizeof(char*);
 
+const char* LLPipeline::sGlowUniforms[] =
+{
+	"delta"
+};
+
+U32 LLPipeline::sGlowUniformCount = sizeof(LLPipeline::sGlowUniforms)/sizeof(char*);
+
 const char* LLPipeline::sShinyUniforms[] = 
 {
 	"origin"
@@ -196,6 +204,14 @@ void stamp(F32 x, F32 y, F32 xs, F32 ys)
 	glEnd();
 }
 
+U32 nhpo2(U32 v) 
+{
+	U32 r = 1;
+	while (r < v) {
+		r *= 2;
+	}
+	return r;
+}
 
 
 //----------------------------------------
@@ -210,10 +226,14 @@ BOOL	LLPipeline::sRenderSoundBeacons = FALSE;
 BOOL	LLPipeline::sUseOcclusion = FALSE;
 BOOL	LLPipeline::sSkipUpdate = FALSE;
 BOOL	LLPipeline::sDynamicReflections = FALSE;
+BOOL	LLPipeline::sRenderGlow = FALSE;
+BOOL	LLPipeline::sOverrideAgentCamera = FALSE;
 
 LLPipeline::LLPipeline() :
+	mScreenTex(0),
 	mCubeBuffer(NULL),
-	mCubeList(0),
+	mGlowMap(0),
+	mGlowBuffer(0),
 	mVertexShadersEnabled(FALSE),
 	mVertexShadersLoaded(0),
 	mLastRebuildPool(NULL),
@@ -225,11 +245,14 @@ LLPipeline::LLPipeline() :
 	mWaterPool(NULL),
 	mGroundPool(NULL),
 	mSimplePool(NULL),
+	mGlowPool(NULL),
 	mBumpPool(NULL),
 	mLightMask(0),
 	mLightMovingMask(0)
 {
-
+	mFramebuffer[0] = mFramebuffer[1] = 0;
+	mCubeFrameBuffer = 0;
+	mCubeDepth = 0;
 }
 
 void LLPipeline::init()
@@ -256,6 +279,7 @@ void LLPipeline::init()
 	getPool(LLDrawPool::POOL_ALPHA_POST_WATER);
 	getPool(LLDrawPool::POOL_SIMPLE);
 	getPool(LLDrawPool::POOL_BUMP);
+	getPool(LLDrawPool::POOL_GLOW);
 
 	mTrianglesDrawnStat.reset();
 	resetFrameStats();
@@ -339,20 +363,12 @@ void LLPipeline::cleanup()
 	mGroundPool = NULL;
 	delete mSimplePool;
 	mSimplePool = NULL;
+	delete mGlowPool;
+	mGlowPool = NULL;
 	delete mBumpPool;
 	mBumpPool = NULL;
 
-	if (mCubeBuffer)
-	{
-		delete mCubeBuffer;
-		mCubeBuffer = NULL;
-	}
-
-	if (mCubeList)
-	{
-		glDeleteLists(mCubeList, 1);
-		mCubeList = 0;
-	}
+	releaseGLBuffers();
 
 	mBloomImagep = NULL;
 	mBloomImage2p = NULL;
@@ -395,16 +411,46 @@ void LLPipeline::destroyGL()
 	clearRenderMap();
 	resetVertexBuffers();
 
+	releaseGLBuffers();
+}
+
+void LLPipeline::releaseGLBuffers()
+{
+	if (mGlowMap)
+	{
+		glDeleteTextures(1, &mGlowMap);
+		mGlowMap = 0;
+	}
+
+	if (mGlowBuffer)
+	{
+		glDeleteTextures(1, &mGlowBuffer);
+		mGlowBuffer = 0;
+	}
+
+	if (mScreenTex)
+	{
+		glDeleteTextures(1, &mScreenTex);
+		mScreenTex = 0;
+	}
+
 	if (mCubeBuffer)
 	{
 		delete mCubeBuffer;
 		mCubeBuffer = NULL;
 	}
 
-	if (mCubeList)
+	if (mCubeFrameBuffer)
 	{
-		glDeleteLists(mCubeList, 1);
-		mCubeList = 0;
+		glDeleteFramebuffersEXT(1, &mCubeFrameBuffer);
+		glDeleteRenderbuffersEXT(1, &mCubeDepth);
+		mCubeDepth = mCubeFrameBuffer = 0;
+	}
+
+	if (mFramebuffer[0])
+	{
+		glDeleteFramebuffersEXT(2, mFramebuffer);
+		mFramebuffer[0] = mFramebuffer[1] = 0;
 	}
 }
 
@@ -665,8 +711,16 @@ BOOL LLPipeline::validateProgramObject(GLhandleARB obj)
 
 void LLPipeline::setShaders()
 {
-	sDynamicReflections = gSavedSettings.getBOOL("RenderDynamicReflections");
-
+	if (gGLManager.mHasFramebufferObject)
+	{
+		sDynamicReflections = gSavedSettings.getBOOL("RenderDynamicReflections");
+		sRenderGlow = gSavedSettings.getBOOL("RenderGlow");
+	}
+	else
+	{
+		sDynamicReflections = sRenderGlow = FALSE;
+	}
+	
 	//hack to reset buffers that change behavior with shaders
 	resetVertexBuffers();
 
@@ -788,6 +842,7 @@ void LLPipeline::unloadShaders()
 	mObjectAlphaProgram.unload();
 	mWaterProgram.unload();
 	mTerrainProgram.unload();
+	mGlowProgram.unload();
 	mGroundProgram.unload();
 	mAvatarProgram.unload();
 	mAvatarEyeballProgram.unload();
@@ -913,6 +968,7 @@ BOOL LLPipeline::loadShadersEnvironment()
 		mWaterProgram.unload();
 		mGroundProgram.unload();
 		mTerrainProgram.unload();
+		mGlowProgram.unload();
 		return FALSE;
 	}
 	
@@ -974,6 +1030,26 @@ BOOL LLPipeline::loadShadersEnvironment()
 		if (!success)
 		{
 			llwarns << "Failed to load " << terrainvertex << llendl;
+		}
+	}
+
+	if (success)
+	{
+		//load glow shader
+		std::string glowvertex = "environment/glowV.glsl";
+		std::string glowfragment = "environment/glowF.glsl";
+		mGlowProgram.mProgramObject = glCreateProgramObjectARB();
+		mGlowProgram.attachObjects(baseObjects, baseCount);
+		mGlowProgram.attachObject(loadShader(glowvertex, SHADER_ENVIRONMENT, GL_VERTEX_SHADER_ARB));
+		mGlowProgram.attachObject(loadShader(glowfragment, SHADER_ENVIRONMENT, GL_FRAGMENT_SHADER_ARB));
+		success = mGlowProgram.mapAttributes();
+		if (success)
+		{
+			success = mGlowProgram.mapUniforms(sGlowUniforms, sGlowUniformCount);
+		}
+		if (!success)
+		{
+			llwarns << "Failed to load " << glowvertex << llendl;
 		}
 	}
 
@@ -1354,6 +1430,10 @@ LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerImage *tex0)
 	{
 	case LLDrawPool::POOL_SIMPLE:
 		poolp = mSimplePool;
+		break;
+
+	case LLDrawPool::POOL_GLOW:
+		poolp = mGlowPool;
 		break;
 
 	case LLDrawPool::POOL_TREE:
@@ -2777,8 +2857,8 @@ void LLPipeline::renderGeom(LLCamera& camera)
 	else
 	{
 		LLFastTimer t(LLFastTimer::FTM_POOLS);
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 		calcNearbyLights();
-
 		pool_set_t::iterator iter1 = mPools.begin();
 		while ( iter1 != mPools.end() )
 		{
@@ -2851,12 +2931,13 @@ void LLPipeline::renderGeom(LLCamera& camera)
 			iter1 = iter2;
 			stop_glerror();
 		}
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	}
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-		LLGLState::checkStates();
-		LLGLState::checkTextureChannels();
-		LLGLState::checkClientArrays();
+	LLGLState::checkStates();
+	LLGLState::checkTextureChannels();
+	LLGLState::checkClientArrays();
 #endif
 
 	if (occlude)
@@ -2886,6 +2967,38 @@ void LLPipeline::renderGeom(LLCamera& camera)
 	// Contains a list of the faces of objects that are physical or
 	// have touch-handlers.
 	mHighlightFaces.clear();
+
+	if (!hasRenderType(LLPipeline::RENDER_TYPE_HUD) && 
+		!LLDrawPoolWater::sSkipScreenCopy &&
+		sRenderGlow &&
+		gGLManager.mHasFramebufferObject)
+	{
+		const U32 glow_res = nhpo2(gSavedSettings.getS32("RenderGlowResolution"));
+		if (mGlowMap == 0)
+		{
+			glGenTextures(1, &mGlowMap);
+			glBindTexture(GL_TEXTURE_2D, mGlowMap);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, glow_res, glow_res, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+		}
+
+		if (mGlowBuffer == 0)
+		{
+			glGenTextures(1, &mGlowBuffer);
+			glBindTexture(GL_TEXTURE_2D, mGlowBuffer);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, glow_res, glow_res, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+		}
+
+		bindScreenToTexture();
+		renderBloom(mScreenTex, mGlowMap, mGlowBuffer, glow_res, LLVector2(0,0), mScreenScale);
+	}
 }
 
 void LLPipeline::processGeometry(LLCamera& camera)
@@ -3257,6 +3370,18 @@ void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
 		}
 		break;
 
+	case LLDrawPool::POOL_GLOW:
+		if (mGlowPool)
+		{
+			llassert(0);
+			llwarns << "Ignoring duplicate glow pool." << llendl;
+		}
+		else
+		{
+			mGlowPool = (LLRenderPass*) new_poolp;
+		}
+		break;
+
 	case LLDrawPool::POOL_TREE:
 		mTreePools[ uintptr_t(new_poolp->getTexture()) ] = new_poolp ;
 		break;
@@ -3374,6 +3499,11 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 	case LLDrawPool::POOL_SIMPLE:
 		llassert(mSimplePool == poolp);
 		mSimplePool = NULL;
+		break;
+
+	case LLDrawPool::POOL_GLOW:
+		llassert(mGlowPool == poolp);
+		mGlowPool = NULL;
 		break;
 
 	case LLDrawPool::POOL_TREE:
@@ -4445,8 +4575,6 @@ BOOL LLGLSLShader::mapUniforms(const char** uniform_names,  S32 count)
 	mUniform.resize(count + LLPipeline::sReservedUniformCount, -1);
 	mTexture.resize(count + LLPipeline::sReservedUniformCount, -1);
 	
-
-
 	bind();
 
 	//get the number of active uniforms
@@ -4663,6 +4791,14 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, 
 		glGenTextures(1, &blur_tex);
 	}
 
+	BOOL reattach = FALSE;
+	if (mCubeFrameBuffer == 0)
+	{
+		glGenFramebuffersEXT(1, &mCubeFrameBuffer);
+		glGenRenderbuffersEXT(1, &mCubeDepth);
+		reattach = TRUE;
+	}
+
 	BOOL toggle_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
 	if (toggle_ui)
 	{
@@ -4679,6 +4815,7 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, 
 					(1 << LLPipeline::RENDER_TYPE_CLOUDS) |
 					//(1 << LLPipeline::RENDER_TYPE_STARS) |
 					//(1 << LLPipeline::RENDER_TYPE_AVATAR) |
+					(1 << LLPipeline::RENDER_TYPE_GLOW) |
 					(1 << LLPipeline::RENDER_TYPE_GRASS) |
 					(1 << LLPipeline::RENDER_TYPE_VOLUME) |
 					(1 << LLPipeline::RENDER_TYPE_TERRAIN) |
@@ -4712,9 +4849,43 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, 
 
 	gPipeline.calcNearbyLights();
 
+	cube_map->bind();
 	for (S32 i = 0; i < 6; i++)
 	{
+		GLint res_x, res_y;
+		glGetTexLevelParameteriv(cube_face[i], 0, GL_TEXTURE_WIDTH, &res_x);
+		glGetTexLevelParameteriv(cube_face[i], 0, GL_TEXTURE_HEIGHT, &res_y);
+
+		if (res_x != res || res_y != res)
+		{
+			glTexImage2D(cube_face[i],0,GL_RGBA,res,res,0,GL_RGBA,GL_FLOAT,NULL);
+			reattach = TRUE;
+		}
+	}
+	cube_map->disable();
+
+	if (reattach)
+	{
+		glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, mCubeDepth);
+		GLint res_x, res_y;
+		glGetRenderbufferParameterivEXT(GL_RENDERBUFFER_EXT, GL_RENDERBUFFER_WIDTH_EXT, &res_x);
+		glGetRenderbufferParameterivEXT(GL_RENDERBUFFER_EXT, GL_RENDERBUFFER_HEIGHT_EXT, &res_y);
+
+		if (res_x != res || res_y != res)
+		{
+			glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT,GL_DEPTH_COMPONENT24,res,res);
+		}
 		
+		glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+	}
+
+	for (S32 i = 0; i < 6; i++)
+	{
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mCubeFrameBuffer);
+		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+									cube_face[i], cube_map->getGLName(), 0);
+		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
+										GL_RENDERBUFFER_EXT, mCubeDepth);		
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		gluPerspective(90.f, 1.f, 0.1f, 1024.f);
@@ -4723,7 +4894,6 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, 
 		
 		apply_cube_face_rotation(i);
 
-		
 		glTranslatef(-origin.mV[0], -origin.mV[1], -origin.mV[2]);
 		cube_cam.setOrigin(origin);
 		LLViewerCamera::updateFrustumPlanes(cube_cam);
@@ -4731,14 +4901,11 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, 
 		gPipeline.updateCull(cube_cam);
 		gPipeline.stateSort(cube_cam);
 		
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 		gPipeline.renderGeom(cube_cam);
-
-		cube_map->enable(0);
-		cube_map->bind();
-		glCopyTexImage2D(cube_face[i], 0, GL_RGB, 0, 0, res, res, 0);
-		cube_map->disable();
 	}
+
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
 	cube_cam.setOrigin(origin);
 	gPipeline.resetDrawOrders();
@@ -4756,14 +4923,12 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, 
 	{
 		gPipeline.toggleRenderDebugFeature((void*)LLPipeline::RENDER_DEBUG_FEATURE_UI);
 	}
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	LLDrawPoolWater::sSkipScreenCopy = FALSE;
 }
 
 //send cube map vertices and texture coordinates
 void render_cube_map()
 {
-	
 	U32 idx[36];
 
 	idx[0] = 1; idx[1] = 0; idx[2] = 2; //front
@@ -4810,7 +4975,7 @@ void LLPipeline::blurReflectionMap(LLCubeMap* cube_in, LLCubeMap* cube_out, U32 
 {
 	LLGLEnable cube(GL_TEXTURE_CUBE_MAP_ARB);
 	LLGLDepthTest depth(GL_FALSE);
-
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
@@ -4823,9 +4988,9 @@ void LLPipeline::blurReflectionMap(LLCubeMap* cube_in, LLCubeMap* cube_out, U32 
 	
 	S32 kernel = 2;
 	F32 step = 90.f/res;
-	F32 alpha = 1.f/((kernel*2+1));
+	F32 alpha = 1.f/((kernel*2)+1);
 
-	glColor4f(1,1,1,alpha);
+	glColor4f(alpha,alpha,alpha,alpha*1.25f);
 
 	S32 x = 0;
 
@@ -4847,7 +5012,7 @@ void LLPipeline::blurReflectionMap(LLCubeMap* cube_in, LLCubeMap* cube_out, U32 
 	};
 
 	
-	glBlendFunc(GL_SRC_ALPHA_SATURATE, GL_ONE);
+	glBlendFunc(GL_ONE, GL_ONE);
 	//3-axis blur
 	for (U32 j = 0; j < 3; j++)
 	{
@@ -4879,7 +5044,7 @@ void LLPipeline::blurReflectionMap(LLCubeMap* cube_in, LLCubeMap* cube_out, U32 
 		}
 		for (U32 i = 0; i < 6; i++)
 		{
-			glCopyTexImage2D(cube_face[i], 0, GL_RGB, 0, i*res, res, res, 0);
+			glCopyTexImage2D(cube_face[i], 0, GL_RGBA, 0, i*res, res, res, 0);
 		}
 	}
 	
@@ -4889,6 +5054,273 @@ void LLPipeline::blurReflectionMap(LLCubeMap* cube_in, LLCubeMap* cube_out, U32 
 	glPopMatrix();
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
+void LLPipeline::bindScreenToTexture() 
+{
+	LLGLEnable gl_texture_2d(GL_TEXTURE_2D);
 
+	if (mScreenTex == 0)
+	{
+		glGenTextures(1, &mScreenTex);
+		glBindTexture(GL_TEXTURE_2D, mScreenTex);
+		GLint viewport[4];
+		glGetIntegerv(GL_VIEWPORT, viewport);
+		GLuint resX = nhpo2(viewport[2]);
+		GLuint resY = nhpo2(viewport[3]);
+		
+		gImageList.updateMaxResidentTexMem(-1, resX*resY*3);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, resX, resY, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
+
+	GLint viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	GLuint resX = nhpo2(viewport[2]);
+	GLuint resY = nhpo2(viewport[3]);
+
+	glBindTexture(GL_TEXTURE_2D, mScreenTex);
+	GLint cResX;
+	GLint cResY;
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &cResX);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &cResY);
+
+	if (cResX != (GLint)resX || cResY != (GLint)resY)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, resX, resY, 0, GL_RGB, GL_FLOAT, NULL);
+		gImageList.updateMaxResidentTexMem(-1, resX*resY*3);
+	}
+
+	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, viewport[0], viewport[1], 0, 0, viewport[2], viewport[3]); 
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	
+	mScreenScale.mV[0] = (float) viewport[2]/resX;
+	mScreenScale.mV[1] = (float) viewport[3]/resY;
+	
+	LLImageGL::sBoundTextureMemory += resX * resY * 3;
+}
+
+void LLPipeline::renderBloom(GLuint source, GLuint dest, GLuint buffer, U32 res, LLVector2 tc1, LLVector2 tc2)
+{
+	mGlowProgram.bind();
+
+	if (!gGLManager.mHasFramebufferObject)
+	{
+		llerrs << "WTF?" << llendl;
+	}
+
+	LLGLEnable tex(GL_TEXTURE_2D);
+	LLGLDepthTest depth(GL_FALSE);
+	LLGLDisable blend(GL_BLEND);
+	LLGLDisable cull(GL_CULL_FACE);
+
+	if (mFramebuffer[0] == 0)
+	{
+		glGenFramebuffersEXT(2, mFramebuffer);
+	}
+
+	GLint viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glViewport(0,0,res,res);
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glBindTexture(GL_TEXTURE_2D, source);
+	
+	S32 kernel = gSavedSettings.getS32("RenderGlowSize")*2;
+	
+	LLGLDisable test(GL_ALPHA_TEST);
+
+	F32 delta = 1.f/(res*gSavedSettings.getF32("RenderGlowStrength"));
+
+	for (S32 i = 0; i < kernel; i++)
+	{
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFramebuffer[i%2]);
+		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
+								GL_COLOR_ATTACHMENT0_EXT,
+								GL_TEXTURE_2D, 
+								i%2 == 0 ? buffer : dest, 0);
+		
+		glBindTexture(GL_TEXTURE_2D, i == 0 ? source : 
+									i%2==0 ? dest :
+									buffer);
+		
+		glUniform1fARB(mGlowProgram.mUniform[LLPipeline::GLSL_GLOW_DELTA],delta);					
+
+		glBegin(GL_TRIANGLE_STRIP);
+		glTexCoord2f(tc1.mV[0], tc1.mV[1]);
+		glVertex2f(-1,-1);
+		
+		glTexCoord2f(tc1.mV[0], tc2.mV[1]);
+		glVertex2f(-1,1);
+		
+		glTexCoord2f(tc2.mV[0], tc1.mV[1]);
+		glVertex2f(1,-1);
+		
+		glTexCoord2f(tc2.mV[0], tc2.mV[1]);
+		glVertex2f(1,1);
+		glEnd();
+	
+		tc1.setVec(0,0);
+		tc2.setVec(1,1);
+		
+	}
+
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	mGlowProgram.unbind();
+
+	glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_GLOW))
+	{
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
+
+	glBindTexture(GL_TEXTURE_2D, dest);
+	{
+		LLGLEnable blend(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+		glBegin(GL_TRIANGLE_STRIP);
+		glColor4f(1,1,1,1);
+		glTexCoord2f(tc1.mV[0], tc1.mV[1]);
+		glVertex2f(-1,-1);
+		
+		glTexCoord2f(tc1.mV[0], tc2.mV[1]);
+		glVertex2f(-1,1);
+		
+		glTexCoord2f(tc2.mV[0], tc1.mV[1]);
+		glVertex2f(1,-1);
+		
+		glTexCoord2f(tc2.mV[0], tc2.mV[1]);
+		glVertex2f(1,1);
+		glEnd();
+
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+}
+
+void LLPipeline::updateCamera()
+{
+	LLWindow* window = gViewerWindow->getWindow();
+
+	F32 time = gFrameIntervalSeconds;
+
+	S32 axis[] = 
+	{
+		gSavedSettings.getS32("JoystickAxis0"),
+		gSavedSettings.getS32("JoystickAxis1"),
+		gSavedSettings.getS32("JoystickAxis2"),
+		gSavedSettings.getS32("JoystickAxis3"),
+		gSavedSettings.getS32("JoystickAxis4"),
+		gSavedSettings.getS32("JoystickAxis5")
+	};
+
+	F32 axis_scale[] =
+	{
+		gSavedSettings.getF32("JoystickAxisScale0"),
+		gSavedSettings.getF32("JoystickAxisScale1"),
+		gSavedSettings.getF32("JoystickAxisScale2"),
+		gSavedSettings.getF32("JoystickAxisScale3"),
+		gSavedSettings.getF32("JoystickAxisScale4"),
+		gSavedSettings.getF32("JoystickAxisScale5")
+	};
+
+	F32 dead_zone[] =
+	{
+		gSavedSettings.getF32("JoystickAxisDeadZone0"),
+		gSavedSettings.getF32("JoystickAxisDeadZone1"),
+		gSavedSettings.getF32("JoystickAxisDeadZone2"),
+		gSavedSettings.getF32("JoystickAxisDeadZone3"),
+		gSavedSettings.getF32("JoystickAxisDeadZone4"),
+		gSavedSettings.getF32("JoystickAxisDeadZone5")
+	};
+
+	F32 cur_delta[6];
+	static F32 last_delta[] = {0,0,0,0,0,0};
+	static F32 delta[] = { 0,0,0,0,0,0 };
+
+	F32 feather = gSavedSettings.getF32("FlycamFeathering");
+	BOOL absolute = gSavedSettings.getBOOL("FlycamAbsolute");
+
+	for (U32 i = 0; i < 6; i++)
+	{
+		cur_delta[i] = window->getJoystickAxis(axis[i]);	
+		F32 tmp = cur_delta[i];
+		if (absolute)
+		{
+			cur_delta[i] = cur_delta[i] - last_delta[i];
+		}
+		last_delta[i] = tmp;
+
+		if (cur_delta[i] > 0)
+		{
+			cur_delta[i] = llmax(cur_delta[i]-dead_zone[i], 0.f);
+		}
+		else
+		{
+			cur_delta[i] = llmin(cur_delta[i]+dead_zone[i], 0.f);
+		}
+		cur_delta[i] *= axis_scale[i];
+		
+		if (!absolute)
+		{
+			cur_delta[i] *= time;
+		}
+
+		delta[i] = delta[i] + (cur_delta[i]-delta[i])*time*feather;
+	}
+	
+	mFlyCamPosition += LLVector3(delta) * mFlyCamRotation;
+
+	LLMatrix3 rot_mat(delta[3],
+					  delta[4],
+					  delta[5]);
+	
+	mFlyCamRotation = LLQuaternion(rot_mat)*mFlyCamRotation;
+
+	if (gSavedSettings.getBOOL("FlycamAutoLeveling"))
+	{
+		LLMatrix3 level(mFlyCamRotation);
+
+		LLVector3 x = LLVector3(level.mMatrix[0]);
+		LLVector3 y = LLVector3(level.mMatrix[1]);
+		LLVector3 z = LLVector3(level.mMatrix[2]);
+
+		y.mV[2] = 0.f;
+		y.normVec();
+
+		level.setRows(x,y,z);
+		level.orthogonalize();
+				
+		LLQuaternion quat = LLQuaternion(level);
+		mFlyCamRotation = nlerp(llmin(feather*time,1.f), mFlyCamRotation, quat);
+	}
+
+	LLMatrix3 mat(mFlyCamRotation);
+
+	gCamera->setOrigin(mFlyCamPosition);
+	gCamera->mXAxis = LLVector3(mat.mMatrix[0]);
+	gCamera->mYAxis = LLVector3(mat.mMatrix[1]);
+	gCamera->mZAxis = LLVector3(mat.mMatrix[2]);
+}

@@ -443,7 +443,7 @@ void LLSkyTex::create(const F32 brightness_scale, const LLColor3& multiscatt)
 			}
 			
 			U32* pix = (U32*)(data + offset);
-			LLColor4 temp = LLColor4(col);
+			LLColor4 temp = LLColor4(col, 0);
 			LLColor4U temp1 = LLColor4U(temp);
 			*pix = temp1.mAll;
 		}

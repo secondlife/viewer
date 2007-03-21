@@ -47,6 +47,7 @@ public:
 	static void restoreGL();
 
 protected:
+	void releaseGLTexture();
 	void generateGLTexture();
 	void generateGLTexture(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format, BOOL swap_bytes = FALSE);
 

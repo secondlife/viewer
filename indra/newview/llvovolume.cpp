@@ -1768,7 +1768,8 @@ F32 LLVOVolume::getBinRadius()
 	
 	BOOL shrink_wrap = mDrawable->isAnimating();
 	BOOL alpha_wrap = FALSE;
-	//if (!shrink_wrap)
+
+	if (!isHUDAttachment())
 	{
 		for (S32 i = 0; i < mDrawable->getNumFaces(); i++)
 		{
@@ -1778,6 +1779,10 @@ F32 LLVOVolume::getBinRadius()
 				break;
 			}
 		}
+	}
+	else
+	{
+		shrink_wrap = FALSE;
 	}
 
 	if (alpha_wrap)
@@ -1959,12 +1964,15 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_info->mVSize = facep->getVirtualSize();
 		draw_vec.push_back(draw_info);
 		LLVOVolume* volume = (LLVOVolume*) facep->getViewerObject();
-		LLColor3 col = volume->getLightColor();
+		BOOL is_light = volume->mDrawable->isLight();
+
+		U8 alpha = is_light ? 196 : 160;
+		LLColor3 col = is_light ? volume->getLightColor() : LLColor3(0,0,0);
 		LLColor4 col2 = facep->getRenderColor();
 		draw_info->mGlowColor.setVec((U8) (col.mV[0]*col2.mV[0]*255),
 									(U8) (col.mV[1]*col2.mV[1]*255),
 									(U8) (col.mV[2]*col2.mV[2]*255),
-									196);					
+									alpha);					
 		draw_info->mTextureMatrix = tex_mat;
 		validate_draw_info(*draw_info);
 	}
@@ -2269,7 +2277,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					registerFace(group, facep, LLRenderPass::PASS_BUMP);
 				}
 
-				if (vobj->getIsLight())
+				if (vobj->getIsLight() ||
+					(LLPipeline::sRenderGlow && facep->isState(LLFace::FULLBRIGHT)))
 				{
 					registerFace(group, facep, LLRenderPass::PASS_GLOW);
 				}

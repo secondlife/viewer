@@ -321,7 +321,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 		}
 
 		U8 rotationOrder;
-		numRead = fread(&rotationOrder, 1, 1, fp);
+		numRead = fread(&rotationOrder, sizeof(U8), 1, fp);
 
 		if (numRead != 1)
 		{

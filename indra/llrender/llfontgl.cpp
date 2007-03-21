@@ -285,14 +285,18 @@ BOOL LLFontGL::initDefaultFonts(F32 screen_dpi, F32 x_scale, F32 y_scale,
 		sSansSerifHuge->reset();
 	}
 
-	if (!sSSHugeFallback)
+	if (sSSHugeFallback)
 	{
-		sSSHugeFallback = new LLFontList();
-		 if (!loadFaceFallback(sSSHugeFallback, sanserif_fallback_file, huge_size*ss_fallback_scale))
-		 {
-			 delete sSSHugeFallback;
-			 sSSHugeFallback = NULL;
-		 }
+		delete sSSHugeFallback;
+	}
+	sSSHugeFallback = new LLFontList();
+	if (!loadFaceFallback(
+			sSSHugeFallback,
+			sanserif_fallback_file,
+			huge_size*ss_fallback_scale))
+	{
+		delete sSSHugeFallback;
+		sSSHugeFallback = NULL;
 	}
 
 	failed |= !loadFace(sSansSerifHuge, sansserif_file, huge_size, sSSHugeFallback);
@@ -307,14 +311,18 @@ BOOL LLFontGL::initDefaultFonts(F32 screen_dpi, F32 x_scale, F32 y_scale,
 		sSansSerifBig->reset();
 	}
 
-	if (!sSSBigFallback)
+	if (sSSBigFallback)
 	{
-		sSSBigFallback = new LLFontList();
-		if (!loadFaceFallback(sSSBigFallback, sanserif_fallback_file, big_size*ss_fallback_scale))
-		{
-			delete sSSBigFallback;
-			sSSBigFallback = NULL;
-		}
+		delete sSSBigFallback;
+	}
+	sSSBigFallback = new LLFontList();
+	if (!loadFaceFallback(
+			sSSBigFallback,
+			sanserif_fallback_file,
+			big_size*ss_fallback_scale))
+	{
+		delete sSSBigFallback;
+		sSSBigFallback = NULL;
 	}
 
 	failed |= !loadFace(sSansSerifBig, sansserif_file, big_size, sSSBigFallback);
@@ -329,14 +337,18 @@ BOOL LLFontGL::initDefaultFonts(F32 screen_dpi, F32 x_scale, F32 y_scale,
 		sSansSerif->reset();
 	}
 
-	if (!sSSFallback)
+	if (sSSFallback)
 	{
-		sSSFallback = new LLFontList();
-		if (!loadFaceFallback(sSSFallback, sanserif_fallback_file, medium_size*ss_fallback_scale))
-		{
-			delete sSSFallback;
-			sSSFallback = NULL;
-		}
+		delete sSSFallback;
+	}
+	sSSFallback = new LLFontList();
+	if (!loadFaceFallback(
+			sSSFallback,
+			sanserif_fallback_file,
+			medium_size*ss_fallback_scale))
+	{
+		delete sSSFallback;
+		sSSFallback = NULL;
 	}
 	failed |= !loadFace(sSansSerif, sansserif_file, medium_size, sSSFallback);
 
@@ -350,14 +362,18 @@ BOOL LLFontGL::initDefaultFonts(F32 screen_dpi, F32 x_scale, F32 y_scale,
 		sSansSerifSmall->reset();
 	}
 
-	if (!sSSSmallFallback)
+	if(sSSSmallFallback)
 	{
-		sSSSmallFallback = new LLFontList();
-		if (!loadFaceFallback(sSSSmallFallback, sanserif_fallback_file, small_size*ss_fallback_scale))
-		{
-			delete sSSSmallFallback;
-			sSSSmallFallback = NULL;
-		}
+		delete sSSSmallFallback;
+	}
+	sSSSmallFallback = new LLFontList();
+	if (!loadFaceFallback(
+			sSSSmallFallback,
+			sanserif_fallback_file,
+			small_size*ss_fallback_scale))
+	{
+		delete sSSSmallFallback;
+		sSSSmallFallback = NULL;
 	}
 	failed |= !loadFace(sSansSerifSmall, sansserif_file, small_size, sSSSmallFallback);
 
@@ -374,14 +390,18 @@ BOOL LLFontGL::initDefaultFonts(F32 screen_dpi, F32 x_scale, F32 y_scale,
 		sSansSerifBold->reset();
 	}
 
-	if (!sSSBoldFallback)
+	if (sSSBoldFallback)
 	{
-		sSSBoldFallback = new LLFontList();
-		if (!loadFaceFallback(sSSBoldFallback, sanserif_fallback_file, medium_size*ss_fallback_scale))
-		{
-			delete sSSBoldFallback;
-			sSSBoldFallback = NULL;
-		}
+		delete sSSBoldFallback;
+	}
+	sSSBoldFallback = new LLFontList();
+	if (!loadFaceFallback(
+			sSSBoldFallback,
+			sanserif_fallback_file,
+			medium_size*ss_fallback_scale))
+	{
+		delete sSSBoldFallback;
+		sSSBoldFallback = NULL;
 	}
 	failed |= !loadFace(sSansSerifBold, sansserif_bold_file, medium_size, sSSBoldFallback);
 

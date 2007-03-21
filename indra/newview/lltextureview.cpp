@@ -131,9 +131,7 @@ void LLTextureBar::draw()
 	{
 		S32 idx = llclamp(mHilite,1,4);
 		if (idx==1) color = LLColor4::yellow;
-		if (idx==2) color = LLColor4::cyan;
-		if (idx==3) color = LLColor4::magenta;
-		if (idx==4) color = LLColor4::blue;
+		else color = LLColor4::orange;
 	}
 	else if (mImagep->getBoostLevel())
 	{
@@ -331,7 +329,7 @@ void LLTextureBar::draw()
 
 BOOL LLTextureBar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (mask & MASK_ALT)
+	if ((mask & (MASK_CONTROL|MASK_SHIFT|MASK_ALT)) == MASK_ALT)
 	{
 		gTextureFetch->mDebugID = mImagep->getID();
 		return TRUE;
@@ -453,9 +451,10 @@ void LLGLTexMemBar::draw()
 
 	LLGLEnable tex(GL_TEXTURE_2D);
 	
-	text = llformat("Textures: Count: %d Fetch: %d(%d) Cache R/W: %d/%d LFS:%d IW:%d(%d) RAW:%d",
+	text = llformat("Textures: Count: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d IW:%d(%d) RAW:%d",
 					gImageList.getNumImages(),
 					gTextureFetch->getNumRequests(), gTextureFetch->getNumDeletes(),
+					gTextureFetch->mPacketCount, gTextureFetch->mBadPacketCount, 
 					gTextureCache->getNumReads(), gTextureCache->getNumWrites(),
 					LLLFSThread::sLocal->getPending(),
 					LLImageWorker::sCount, LLImageWorker::getWorkerThread()->getNumDeletes(),
@@ -513,13 +512,14 @@ LLRect LLGLTexMemBar::getRequiredRect()
 ////////////////////////////////////////////////////////////////////////////
 
 LLTextureView::LLTextureView(const std::string& name, const LLRect& rect)
-:	LLContainerView(name, rect)
+	:	LLContainerView(name, rect),
+		mFreezeView(FALSE),
+		mOrderFetch(FALSE),
+		mPrintList(FALSE),
+		mNumTextureBars(0)
 {
 	setVisible(FALSE);
-	mFreezeView = FALSE;
-	mOrderFetch = FALSE;
 	
-	mNumTextureBars = 0;
 	setDisplayChildren(TRUE);
 	mGLTexMemBar = 0;
 }
@@ -567,10 +567,28 @@ void LLTextureView::draw()
 		typedef std::multiset<decode_pair_t, compare_decode_pair > display_list_t;
 		display_list_t display_image_list;
 	
+		if (mPrintList)
+		{
+			llinfos << "ID\tMEM\tBOOST\tPRI\tWIDTH\tHEIGHT\tDISCARD" << llendl;
+		}
+	
 		for (LLViewerImageList::image_priority_list_t::iterator iter = gImageList.mImageList.begin();
 			 iter != gImageList.mImageList.end(); )
 		{
 			LLPointer<LLViewerImage> imagep = *iter++;
+
+			if (mPrintList)
+			{
+				llinfos << imagep->getID()
+						<< "\t" <<  imagep->mTextureMemory
+						<< "\t" << imagep->getBoostLevel()
+						<< "\t" << imagep->getDecodePriority()
+						<< "\t" << imagep->getWidth()
+						<< "\t" << imagep->getHeight()
+						<< "\t" << imagep->getDiscardLevel()
+						<< llendl;
+			}
+		
 #if 0
 			if (imagep->getDontDiscard())
 			{
@@ -661,7 +679,12 @@ void LLTextureView::draw()
 				display_image_list.insert(std::make_pair(pri, imagep));
 			}
 		}
-
+		
+		if (mPrintList)
+		{
+			mPrintList = FALSE;
+		}
+		
 		static S32 max_count = 50;
 		S32 count = 0;
 		for (display_list_t::iterator iter = display_image_list.begin();
@@ -687,7 +710,7 @@ void LLTextureView::draw()
 			sortChildren(LLTextureBar::sort_fetch());
 		else
 			sortChildren(LLTextureBar::sort());
-	
+
 		mGLTexMemBar = new LLGLTexMemBar("gl texmem bar", this);
 		addChild(mGLTexMemBar);
 	
@@ -737,7 +760,12 @@ BOOL LLTextureView::addBar(LLViewerImage *imagep, S32 hilite)
 
 BOOL LLTextureView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if ((mask & MASK_CONTROL) && (mask & MASK_SHIFT))
+	if ((mask & (MASK_CONTROL|MASK_SHIFT|MASK_ALT)) == (MASK_ALT|MASK_SHIFT))
+	{
+		mPrintList = TRUE;
+		return TRUE;
+	}
+	if ((mask & (MASK_CONTROL|MASK_SHIFT|MASK_ALT)) == (MASK_CONTROL|MASK_SHIFT))
 	{
 		gTextureFetch->mDebugPause = !gTextureFetch->mDebugPause;
 		return TRUE;

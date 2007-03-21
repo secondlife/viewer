@@ -322,9 +322,6 @@ public:
 	BOOL					hasAlphaParams() { return (!mParamAlphaList.empty());}
 
 protected:
-	BOOL					loadStaticImageRaw();
-
-protected:
 	LLTexLayerSet*			mTexLayerSet;
 	LLPointer<LLImageRaw>	mStaticImageRaw;
 
@@ -498,15 +495,12 @@ private:
 private:
 	static LLStringTable sImageNames;
 
-	typedef std::map< const char *, LLPointer<LLImageRaw> > image_raw_map_t;
 	typedef std::map< const char *, LLPointer<LLImageGL> > image_gl_map_t;
 	typedef std::map< const char *, LLPointer<LLImageTGA> > image_tga_map_t;
-	image_raw_map_t mStaticImageListRaw;
 	image_gl_map_t mStaticImageListGL;
 	image_tga_map_t mStaticImageListTGA;
 
 public:
-	S32 mRawBytes;
 	S32 mGLBytes;
 	S32 mTGABytes;
 };

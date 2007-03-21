@@ -37,8 +37,8 @@ public:
 							LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux);
 	bool updateRequestPriority(const LLUUID& id, F32 priority);
 
-	bool receiveImageHeader(const LLUUID& id, U8 codec, U16 packets, U32 totalbytes, U16 data_size, U8* data);
-	bool receiveImagePacket(const LLUUID& id, U16 packet_num, U16 data_size, U8* data);
+	bool receiveImageHeader(const LLHost& host, const LLUUID& id, U8 codec, U16 packets, U32 totalbytes, U16 data_size, U8* data);
+	bool receiveImagePacket(const LLHost& host, const LLUUID& id, U16 packet_num, U16 data_size, U8* data);
 
 	// Debug
 	S32 getFetchState(const LLUUID& id, F32& decode_progress_p, F32& requested_priority_p,
@@ -63,6 +63,8 @@ public:
 	LLUUID mDebugID;
 	S32 mDebugCount;
 	BOOL mDebugPause;
+	S32 mPacketCount;
+	S32 mBadPacketCount;
 	
 private:
 	LLMutex mQueueMutex;

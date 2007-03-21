@@ -84,6 +84,7 @@ protected:
 	bool appendToTextureEntryList(const LLUUID& id, S32 size);
 	std::string getLocalFileName(const LLUUID& id);
 	std::string getTextureFileName(const LLUUID& id);
+	void addCompleted(Responder* responder, bool success);
 	
 private:
 	void setDirNames(ELLPath location);
@@ -99,12 +100,18 @@ private:
 	// Internal
 	LLMutex mWorkersMutex;
 	LLMutex mHeaderMutex;
+	LLMutex mListMutex;
 	apr_pool_t* mFileAPRPool;
 	
 	typedef std::map<handle_t, LLTextureCacheWorker*> handle_map_t;
 	handle_map_t mReaders;
 	handle_map_t mWriters;
-	std::vector<handle_t> mPrioritizeWriteList;
+
+	typedef std::vector<handle_t> handle_list_t;
+	handle_list_t mPrioritizeWriteList;
+
+	typedef std::vector<std::pair<LLPointer<Responder>, bool> > responder_list_t;
+	responder_list_t mCompletedList;
 	
 	BOOL mReadOnly;
 	

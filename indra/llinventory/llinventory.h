@@ -195,6 +195,10 @@ public:
 		II_FLAGS_OBJECT_PERM_OVERWRITE_EVERYONE		= 0x080000,
 		II_FLAGS_OBJECT_PERM_OVERWRITE_NEXT_OWNER	= 0x100000,
 
+ 		// flag to indicate whether an object that is returned is composed 
+		// of muiltiple items or not.
+		II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS			= 0x200000,
+
 		// wearables use the low order byte of flags to store the
 		// EWearableType enumeration found in newview/llwearable.h
 	};

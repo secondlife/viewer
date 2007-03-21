@@ -22,6 +22,7 @@ enum EInventoryIcon
 	SCRIPT_ICON_NAME,
 	CLOTHING_ICON_NAME,
 	OBJECT_ICON_NAME,
+	OBJECT_MULTI_ICON_NAME,
 	NOTECARD_ICON_NAME,
 	BODYPART_ICON_NAME,
 	SNAPSHOT_ICON_NAME,
@@ -509,6 +510,8 @@ protected:
 		LLItemBridge(inventory, uuid), mInvType(type)
 	{
 		mAttachPt = (flags & 0xff); // low bye of inventory flags
+
+		mIsMultiObject = ( flags & LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS ) ?  TRUE: FALSE;
 	}
 
 protected:
@@ -516,7 +519,7 @@ protected:
 	static LLUUID	sContextMenuItemID;  // Only valid while the context menu is open.
 	LLInventoryType::EType mInvType;
 	U32 mAttachPt;
-
+	BOOL mIsMultiObject;
 };
 
 

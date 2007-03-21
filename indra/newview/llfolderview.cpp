@@ -2524,6 +2524,7 @@ LLFolderView::LLFolderView( const LLString& name, LLViewerImage* root_folder_ico
 	mShowSingleSelection(FALSE),
 	mArrangeGeneration(0),
 	mSelectCallback(NULL),
+	mSelectionChanged(FALSE),
 	mMinWidth(0),
 	mDragAndDropThisFrame(FALSE)
 {
@@ -4408,9 +4409,11 @@ LLInventoryFilter::LLInventoryFilter(const LLString& name) :
 	mFilterGeneration = 0;
 	mMustPassGeneration = S32_MAX;
 	mMinRequiredGeneration = 0;
+	mFilterCount = 0;
 	mNextFilterGeneration = mFilterGeneration + 1;
 
 	mLastLogoff = gSavedPerAccountSettings.getU32("LastLogoff");
+	mFilterBehavior = FILTER_NONE;
 }
 
 LLInventoryFilter::~LLInventoryFilter()

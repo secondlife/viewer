@@ -132,5 +132,7 @@ void main()
    //apply fog
    applyScatter(color.rgb);
    
+   color.a = spec*0.5+fb.a;
+   
    gl_FragColor = color;
 }

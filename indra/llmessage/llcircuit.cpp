@@ -948,7 +948,7 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 					<< (*it).first;
 				llinfos << str.str().c_str() << llendl;
 			}
-			mPotentialLostPackets.erase((*(it++)).first);
+			mPotentialLostPackets.erase(it++);
 		}
 		else
 		{

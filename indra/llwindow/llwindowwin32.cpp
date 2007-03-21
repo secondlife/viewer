@@ -2796,6 +2796,13 @@ void LLWindowWin32::updateJoystick( )
 	if( FAILED( hr = g_pJoystick->GetDeviceState( sizeof(DIJOYSTATE), &js ) ) )
 		return; // The device should have been acquired during the Poll()
 
+	mJoyAxis[0] = js.lX/1000.f;
+	mJoyAxis[1] = js.lY/1000.f;
+	mJoyAxis[2] = js.lZ/1000.f;
+	mJoyAxis[3] = js.lRx/1000.f;
+	mJoyAxis[4] = js.lRy/1000.f;
+	mJoyAxis[5] = js.lRz/1000.f;
+
 	if (js.lX <= -500)
 	{
 		if (!(mJoyStickState & 0x1))

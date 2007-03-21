@@ -271,12 +271,20 @@ void LLDrawPoolAlpha::renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask
 			{
 				gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
 				light_enabled = FALSE;
+				if (LLPipeline::sRenderGlow)
+				{
+					glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+				}
 			}
 		}
 		else if (!light_enabled)
 		{
 			gPipeline.enableLightsDynamic(1.f);
 			light_enabled = TRUE;
+			if (LLPipeline::sRenderGlow)
+			{
+				glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+			}
 		}
 
 		/*if (params.mParticle)
@@ -309,6 +317,11 @@ void LLDrawPoolAlpha::renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask
 	if (!light_enabled)
 	{
 		gPipeline.enableLightsDynamic(1.f);
+	
+		if (LLPipeline::sRenderGlow)
+		{
+			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+		}
 	}
 
 	/*glPointSize(1.f);

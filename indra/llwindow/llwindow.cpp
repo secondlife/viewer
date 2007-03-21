@@ -213,6 +213,10 @@ LLWindow::LLWindow(BOOL fullscreen, U32 flags)
 	  mHideCursorPermanent(FALSE),
 	  mFlags(flags)
 {
+	for (U32 i = 0; i < 6; i++)
+	{
+		mJoyAxis[i] = 0;
+	}
 }
 	
 // virtual
@@ -228,6 +232,15 @@ void LLWindow::decBusyCount()
 	{
 		--mBusyCount;
 	}
+}
+
+F32 LLWindow::getJoystickAxis(U32 axis)
+{
+	if (axis < 6)
+	{
+		return mJoyAxis[axis];
+	}
+	return 0.f;
 }
 
 void LLWindow::setCallbacks(LLWindowCallbacks *callbacks)

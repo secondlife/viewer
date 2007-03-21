@@ -2059,7 +2059,7 @@ bool LLVolumeParams::setSkew(const F32 skew_value)
 		{
 			skew = min_skew_mag;
 		}
-		valid = approx_zero(delta);
+		valid = approx_zero(delta, .01f);
 	}
 
 	mPathParams.setSkew(skew);

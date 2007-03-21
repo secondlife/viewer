@@ -304,9 +304,16 @@ void LLPanelGroupNotices::setItem(LLPointer<LLInventoryItem> inv_item)
 {
 	mInventoryItem = inv_item;
 
+	BOOL item_is_multi = FALSE;
+	if ( inv_item->getFlags() & LLInventoryItem::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS )
+	{
+		item_is_multi = TRUE;
+	};
+
 	LLViewerImage* item_icon = get_item_icon(inv_item->getType(),
 										inv_item->getInventoryType(),
-										inv_item->getFlags());
+										inv_item->getFlags(),
+										item_is_multi );
 
 	mCreateInventoryIcon->setImage(item_icon->getID());
 	mCreateInventoryIcon->setVisible(TRUE);
@@ -463,7 +470,7 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		{
 			LLUUID icon_id = get_item_icon_uuid(
 						(LLAssetType::EType)asset_type,
-						LLInventoryType::IT_NONE,FALSE);
+						LLInventoryType::IT_NONE,FALSE, FALSE);
 			row["columns"][0]["type"] = "icon";
 			row["columns"][0]["value"] = icon_id;
 		}
@@ -531,7 +538,7 @@ void LLPanelGroupNotices::showNotice(const char* subject,
 
 		LLViewerImage* item_icon = get_item_icon(mInventoryOffer->mType,
 												LLInventoryType::IT_TEXTURE,
-												0);
+												0, FALSE);
 
 		mViewInventoryIcon->setImage(item_icon->getID());
 		mViewInventoryIcon->setVisible(TRUE);

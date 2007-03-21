@@ -181,7 +181,8 @@ public:
 	virtual F32	getNativeAspectRatio() = 0;
 	virtual F32 getPixelAspectRatio() = 0;
 	virtual void setNativeAspectRatio(F32 aspect) = 0;
-
+	
+	F32 getJoystickAxis(U32 axis);
 	void setCallbacks(LLWindowCallbacks *callbacks);
 
 	virtual void beforeDialog() {};	// prepare to put up an OS dialog (if special measures are required, such as in fullscreen mode)
@@ -219,6 +220,7 @@ protected:
 	ESwapMethod mSwapMethod;
 	BOOL		mHideCursorPermanent;
 	U32			mFlags;
+	F32			mJoyAxis[6]; 
 	
 	friend class LLWindowManager;
 };

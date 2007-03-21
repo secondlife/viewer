@@ -31,4 +31,24 @@ public:
 
 };
 
+class LLDrawPoolGlow : public LLRenderPass
+{
+public:
+	LLDrawPoolGlow(): LLRenderPass(LLDrawPool::POOL_GLOW) { }
+	
+	enum
+	{
+		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
+							LLVertexBuffer::MAP_TEXCOORD
+	};
+
+	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+
+	virtual void prerender() { }
+
+	void render(S32 pass = 0);
+	void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture = TRUE);
+
+};
+
 #endif // LL_LLDRAWPOOLSIMPLE_H

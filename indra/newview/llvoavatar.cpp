@@ -1725,6 +1725,9 @@ BOOL LLVOAvatar::buildSkeleton(LLVOAvatarSkeletonInfo *info)
 		mScreenp = new LLViewerJoint("mScreen", NULL);
 		// for now, put screen at origin, as it is only used during special
 		// HUD rendering mode
+		F32 aspect = gCamera->getAspect();
+		LLVector3 scale(1.f, aspect, 1.f);
+		mScreenp->setScale(scale);
 		mScreenp->setWorldPosition(LLVector3::zero);
 	}
 
@@ -3005,12 +3008,9 @@ void LLVOAvatar::updateCharacter(LLAgent &agent)
 	{
 		F32 aspect = gCamera->getAspect();
 		LLVector3 scale(1.f, aspect, 1.f);
-		if (mScreenp->getScale() != scale)
-		{
-			mScreenp->setScale(scale);
-			mScreenp->updateWorldMatrixChildren();
-			resetHUDAttachments();
-		}
+		mScreenp->setScale(scale);
+		mScreenp->updateWorldMatrixChildren();
+		resetHUDAttachments();
 	}
 
 	// clear debug text

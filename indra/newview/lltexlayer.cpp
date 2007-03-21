@@ -36,8 +36,6 @@
 
 // SJB: We really always want to use the GL cache;
 // let GL page textures in and out of video RAM instead of trying to do so by hand.
-// const U32 USE_AVATAR_GL_CACHE_THRESHOLD = 1024 * 1024 * 35; // 35 MB
-BOOL gUseAvatarGLCache = TRUE; //FALSE;
 
 LLGradientPaletteList gGradientPaletteList;
 
@@ -217,8 +215,6 @@ void LLTexLayerSetBuffer::postRender(BOOL success)
 BOOL LLTexLayerSetBuffer::render()
 {
 	U8* baked_bump_data = NULL;
-
-// 	gUseAvatarGLCache = ( gImageList.getMaxResidentTexMem() > USE_AVATAR_GL_CACHE_THRESHOLD );
 
 	// do we need to upload, and do we have sufficient data to create an uploadable composite?
 	// When do we upload the texture if gAgent.mNumPendingQueries is non-zero?
@@ -754,7 +750,6 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 		glColorMask( GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE );
 		glBlendFunc( GL_ONE, GL_ZERO );
 
-		if( gUseAvatarGLCache )
 		{
 			LLImageGL* image_gl = gTexStaticImageList.getImageGL( getInfo()->mStaticAlphaFileName, TRUE );
 			if( image_gl )
@@ -762,29 +757,6 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 				LLGLSUIDefault gls_ui;
 				image_gl->bind();
 				gl_rect_2d_simple_tex( width, height );
-			}
-			else
-			{
-				success = FALSE;
-			}
-		}
-		else
-		{
-			LLImageRaw* image_raw = gTexStaticImageList.getImageRaw( getInfo()->mStaticAlphaFileName );
-			if( image_raw )
-			{
-				GLenum format = GL_ALPHA;
-				if( mAvatar->bindScratchTexture(format) )
-				{
-					glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, image_raw->getWidth(), image_raw->getHeight(), format, GL_UNSIGNED_BYTE, image_raw->getData() );
-					stop_glerror();
-
-					gl_rect_2d_simple_tex( width, height );
-				}
-				else
-				{
-					success = FALSE;
-				}
 			}
 			else
 			{
@@ -1267,23 +1239,6 @@ BOOL LLTexLayer::parseData( LLXmlTreeNode* node )
 //-----------------------------------------------------------------------------
 
 
-BOOL LLTexLayer::loadStaticImageRaw()
-{
-	if( mStaticImageRaw.isNull() && !mStaticImageInvalid)
-	{
-		mStaticImageRaw = gTexStaticImageList.getImageRaw( getInfo()->mStaticImageFileName );  
-		// We now have something in one of our caches
-		LLTexLayerSet::sHasCaches |= mStaticImageRaw.notNull() ? TRUE : FALSE;
-		if( mStaticImageRaw.isNull() )
-		{
-			llwarns << "Unable to load static file: " << getInfo()->mStaticImageFileName << llendl;
-			mStaticImageInvalid = TRUE; // don't try again.
-			return FALSE;
-		}
-	}
-	return TRUE;
-}
-
 void LLTexLayer::deleteCaches()
 {
 	for( alpha_list_t::iterator iter = mParamAlphaList.begin();
@@ -1356,7 +1311,6 @@ BOOL LLTexLayer::render( S32 x, S32 y, S32 width, S32 height )
 
 	if( (getInfo()->mLocalTexture != -1) && !getInfo()->mUseLocalTextureAlphaOnly )
 	{
-		if( gUseAvatarGLCache )
 		{
 			LLImageGL* image_gl = NULL;
 			if( mTexLayerSet->getAvatar()->getLocalTextureGL( getInfo()->mLocalTexture, &image_gl ) )
@@ -1382,29 +1336,10 @@ BOOL LLTexLayer::render( S32 x, S32 y, S32 width, S32 height )
 				success = FALSE;
 			}
 		}
-		else
-		{
-			LLPointer<LLImageRaw> image_raw = new LLImageRaw;
-			if( mTexLayerSet->getAvatar()->getLocalTextureRaw( getInfo()->mLocalTexture, image_raw ) )
-			{
-				success &= renderImageRaw( image_raw->getData(),
-										   image_raw->getWidth(),
-										   image_raw->getHeight(),
-										   image_raw->getComponents(), 
-										   width, 
-										   height, 
-										   FALSE );
-			}
-			else
-			{
-				success = FALSE;
-			}
-		}
 	}
 
 	if( !getInfo()->mStaticImageFileName.empty() )
 	{
-		if( gUseAvatarGLCache )
 		{
 			LLImageGL* image_gl = gTexStaticImageList.getImageGL( getInfo()->mStaticImageFileName, getInfo()->mStaticImageIsMask );
 			if( image_gl )
@@ -1412,26 +1347,6 @@ BOOL LLTexLayer::render( S32 x, S32 y, S32 width, S32 height )
 				image_gl->bind();
 				gl_rect_2d_simple_tex( width, height );
 				image_gl->unbindTexture(0, GL_TEXTURE_2D);
-			}
-			else
-			{
-				success = FALSE;
-			}
-		}
-		else
-		{
-			// Don't load the image file until we actually need it the first time.  Like now.
-			if (!loadStaticImageRaw())
-			{
-				success = FALSE;
-			}
-			if( mStaticImageRaw.notNull() )
-			{
-				success &= renderImageRaw( 
-					mStaticImageRaw->getData(),
-					mStaticImageRaw->getWidth(),
-					mStaticImageRaw->getHeight(),
-					mStaticImageRaw->getComponents(), width, height, getInfo()->mStaticImageIsMask );
 			}
 			else
 			{
@@ -1591,7 +1506,6 @@ BOOL LLTexLayer::renderAlphaMasks( S32 x, S32 y, S32 width, S32 height, LLColor4
 	// Accumulate the alpha component of the texture
 	if( getInfo()->mLocalTexture != -1 )
 	{
-		if( gUseAvatarGLCache )
 		{
 			LLImageGL* image_gl = NULL;
 			if( mTexLayerSet->getAvatar()->getLocalTextureGL( getInfo()->mLocalTexture, &image_gl ) )
@@ -1616,30 +1530,10 @@ BOOL LLTexLayer::renderAlphaMasks( S32 x, S32 y, S32 width, S32 height, LLColor4
 				success = FALSE;
 			}
 		}
-		else
-		{
-			LLPointer<LLImageRaw> image_raw = new LLImageRaw;
-			if( mTexLayerSet->getAvatar()->getLocalTextureRaw( getInfo()->mLocalTexture,  image_raw ) )
-			{
-				if(image_raw->getComponents() == 4)
-				{
-					success &= renderImageRaw( 
-						image_raw->getData(),
-						image_raw->getWidth(),
-						image_raw->getHeight(),
-						image_raw->getComponents(), width, height, FALSE );
-				}
-			}
-			else
-			{
-				success = FALSE;
-			}
-		}
 	}
 
 	if( !getInfo()->mStaticImageFileName.empty() )
 	{
-		if( gUseAvatarGLCache )
 		{
 			LLImageGL* image_gl = gTexStaticImageList.getImageGL( getInfo()->mStaticImageFileName, getInfo()->mStaticImageIsMask );
 			if( image_gl )
@@ -1651,31 +1545,6 @@ BOOL LLTexLayer::renderAlphaMasks( S32 x, S32 y, S32 width, S32 height, LLColor4
 					image_gl->bind();
 					gl_rect_2d_simple_tex( width, height );
 					image_gl->unbindTexture(0, GL_TEXTURE_2D);
-				}
-			}
-			else
-			{
-				success = FALSE;
-			}
-		}
-		else
-		{
-			// Don't load the image file until we actually need it the first time.  Like now.
-			if (!loadStaticImageRaw())
-			{
-				success = FALSE;
-			}
-
-			if( mStaticImageRaw.notNull() )
-			{
-				if(	(mStaticImageRaw->getComponents() == 4) ||
-					( (mStaticImageRaw->getComponents() == 1) && getInfo()->mStaticImageIsMask ) )
-				{
-					success &= renderImageRaw( 
-						mStaticImageRaw->getData(),
-						mStaticImageRaw->getWidth(),
-						mStaticImageRaw->getHeight(),
-						mStaticImageRaw->getComponents(), width, height, getInfo()->mStaticImageIsMask );
 				}
 			}
 			else
@@ -2087,8 +1956,7 @@ BOOL LLTexLayerParamAlpha::render( S32 x, S32 y, S32 width, S32 height )
 		if(	!mCachedProcessedImageGL ||
 			(mCachedProcessedImageGL->getWidth() != image_tga_width) ||
 			(mCachedProcessedImageGL->getHeight() != image_tga_height) ||
-			(weight_changed && !(gGLManager.mHasPalettedTextures && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_PALETTE))) ||
-			(!gUseAvatarGLCache) )
+			(weight_changed && !(gGLManager.mHasPalettedTextures && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_PALETTE))) )
 		{
 //			llinfos << "Building Cached Alpha: " << mName << ": (" << mStaticImageRaw->getWidth() << ", " << mStaticImageRaw->getHeight() << ") " << effective_weight << llendl;
 			mCachedEffectiveWeight = effective_weight;
@@ -2130,7 +1998,6 @@ BOOL LLTexLayerParamAlpha::render( S32 x, S32 y, S32 width, S32 height )
 
 		if( mCachedProcessedImageGL )
 		{
-			if( gUseAvatarGLCache ) // 64 MB
 			{
 				if (gGLManager.mHasPalettedTextures && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_PALETTE))
 				{
@@ -2167,94 +2034,6 @@ BOOL LLTexLayerParamAlpha::render( S32 x, S32 y, S32 width, S32 height )
 					mCachedProcessedImageGL->unbindTexture(0, GL_TEXTURE_2D);
 				}
 				stop_glerror();
-			}
-			else
-			{
-				if( (mCachedProcessedImageGL->getWidth() != VOAVATAR_SCRATCH_TEX_WIDTH) ||
-					(mCachedProcessedImageGL->getHeight() != VOAVATAR_SCRATCH_TEX_HEIGHT) )
-				{
-					if (gGLManager.mHasPalettedTextures && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_PALETTE))
-					{
-						mCachedProcessedImageGL->createGLTexture(0, mStaticImageRaw);
-						
-						LLGLSNoAlphaTest gls_no_alpha_test;
-						
-						mCachedProcessedImageGL->bind();
-						mCachedProcessedImageGL->setClamp(TRUE, TRUE);
-
-						gGradientPaletteList.setHardwarePalette( getInfo()->mDomain, effective_weight );
-						gl_rect_2d_simple_tex( width, height );
-						LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
-						mCachedProcessedImageGL->destroyGLTexture();
-					}
-					else
-					{
-						// Create the GL texture, bind it and draw a rect, and then immediately destroy it.
-						mCachedProcessedImageGL->createGLTexture(0, mStaticImageRaw);
-
-						LLGLSNoAlphaTest gls_no_alpha_test;
-						
-						mCachedProcessedImageGL->bind();
-						mCachedProcessedImageGL->setClamp(TRUE, TRUE);
-
-						gl_rect_2d_simple_tex( width, height );
-
-						LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
-
-						mCachedProcessedImageGL->destroyGLTexture();
-					}
-					stop_glerror();
-				}
-				else
-				{
-					if (gGLManager.mHasPalettedTextures && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_PALETTE))
-					{
-						// Write into a pre-existing GL Image, and then bind and render that.
-						// Faster than creating a new GL Image and then destroying it.
-						if( mTexLayer->getTexLayerSet()->getAvatar()->bindScratchTexture( GL_COLOR_INDEX ) )
-						{
-							glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0,
-								mCachedProcessedImageGL->getWidth(),
-								mCachedProcessedImageGL->getHeight(),
-								GL_COLOR_INDEX, GL_UNSIGNED_BYTE,
-								mStaticImageRaw->getData() );
-							stop_glerror();
-
-							LLGLSNoAlphaTest gls_no_alpha_test;
-							gGradientPaletteList.setHardwarePalette( getInfo()->mDomain, effective_weight );
-							gl_rect_2d_simple_tex( width, height );
-
-							LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
-						}
-						else
-						{
-							success = FALSE;
-						}
-					}
-					else
-					{
-						// Write into a pre-existing GL Image, and then bind and render that.
-						// Faster than creating a new GL Image and then destroying it.
-						if( mTexLayer->getTexLayerSet()->getAvatar()->bindScratchTexture( GL_ALPHA ) )
-						{
-							glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0,
-								mCachedProcessedImageGL->getWidth(),
-								mCachedProcessedImageGL->getHeight(),
-								GL_ALPHA, GL_UNSIGNED_BYTE,
-								mStaticImageRaw->getData() );
-							stop_glerror();
-
-							LLGLSNoAlphaTest gls_no_alpha_test;
-							gl_rect_2d_simple_tex( width, height );
-
-							LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
-						}
-						else
-						{
-							success = FALSE;
-						}
-					}
-				}
 			}
 		}
 
@@ -2606,7 +2385,6 @@ LLStringTable LLTexStaticImageList::sImageNames(16384);
 
 LLTexStaticImageList::LLTexStaticImageList()
 	:
-	mRawBytes( 0 ),
 	mGLBytes( 0 ),
 	mTGABytes( 0 )
 {}
@@ -2619,36 +2397,31 @@ LLTexStaticImageList::~LLTexStaticImageList()
 void LLTexStaticImageList::dumpByteCount()
 {
 	llinfos << "Avatar Static Textures " <<
-		" Raw:" << (mRawBytes / 1024) <<
 		"KB GL:" << (mGLBytes / 1024) <<
 		"KB TGA:" << (mTGABytes / 1024) << "KB" << llendl;
 }
 
 void LLTexStaticImageList::deleteCachedImages()
 {
-	if( mRawBytes || mGLBytes || mTGABytes )
+	if( mGLBytes || mTGABytes )
 	{
 		llinfos << "Clearing Static Textures " <<
-			" Raw:" << (mRawBytes / 1024) <<
 			"KB GL:" << (mGLBytes / 1024) <<
 			"KB TGA:" << (mTGABytes / 1024) << "KB" << llendl;
 
 		//mStaticImageLists uses LLPointers, clear() will cause deletion
 		
-		mStaticImageListRaw.clear();
 		mStaticImageListTGA.clear();
 		mStaticImageListGL.clear();
 		
-		mRawBytes = 0;
 		mGLBytes = 0;
 		mTGABytes = 0;
 	}
 }
 
-// Note: in general, for a given image image we'll call either getImageTga(), getImageRaw() or getImageGL().
+// Note: in general, for a given image image we'll call either getImageTga() or getImageGL().
 // We call getImageTga() if the image is used as an alpha gradient.
-// Otherwise, we call getImageRaw() if we have 32 MB or less of video RAM or less and getImageGL() if we have
-// more video RAM than that.
+// Otherwise, we call getImageGL()
 
 // Returns an LLImageTGA that contains the encoded data from a tga file named file_name.
 // Caches the result to speed identical subsequent requests.
@@ -2679,34 +2452,6 @@ LLImageTGA* LLTexStaticImageList::getImageTGA(const LLString& file_name)
 }
 
 
-
-// Returns an LLImageRaw that contains the decoded data from a tga file named file_name.
-// Caches the result to speed identical subsequent requests.
-LLImageRaw* LLTexStaticImageList::getImageRaw(const LLString& file_name)
-{
-	LLPointer<LLImageRaw> image_raw;
-	const char *namekey = sImageNames.addString(file_name);
-	image_raw_map_t::iterator iter = mStaticImageListRaw.find(namekey);
-	if( iter != mStaticImageListRaw.end() )
-	{
-		image_raw = iter->second;
-	}
-	else
-	{
-		image_raw = new LLImageRaw();
-		if( loadImageRaw( file_name, image_raw ) )
-		{
-			mStaticImageListRaw[ namekey ] = image_raw;
-			mRawBytes += image_raw->getDataSize();
-		}
-		else
-		{
-			image_raw = NULL;
-		}
-	}
-
-	return image_raw;
-}
 
 // Returns a GL Image (without a backing ImageRaw) that contains the decoded data from a tga file named file_name.
 // Caches the result to speed identical subsequent requests.

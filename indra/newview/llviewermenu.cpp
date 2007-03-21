@@ -422,6 +422,8 @@ void handle_dump_image_list(void*);
 void handle_fullscreen_debug(void*);
 void handle_crash(void*);
 void handle_dump_followcam(void*);
+void handle_toggle_flycam(void*);
+BOOL check_flycam(void*);
 void handle_viewer_enable_message_log(void*);
 void handle_viewer_disable_message_log(void*);
 void handle_send_postcard(void*);
@@ -884,6 +886,9 @@ void init_client_menu(LLMenuGL* menu)
 	menu->append(new LLMenuItemToggleGL("Disable Camera Constraints", 
 		&LLViewerCamera::sDisableCameraConstraints));
 
+	menu->append(new LLMenuItemCheckGL("Joystick Flycam", 
+		&handle_toggle_flycam,NULL,&check_flycam,NULL));
+		
 	menu->append(new LLMenuItemCheckGL("Mouse Smoothing",
 										&menu_toggle_control,
 										NULL,
@@ -1158,6 +1163,9 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	sub_menu->append(new LLMenuItemCheckGL("LightTrace",&LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_LIGHT_TRACE));
+	sub_menu->append(new LLMenuItemCheckGL("Glow",&LLPipeline::toggleRenderDebug, NULL,
+													&LLPipeline::toggleRenderDebugControl,
+													(void*)LLPipeline::RENDER_DEBUG_GLOW));
 	
 	sub_menu->append(new LLMenuItemCheckGL("Show Depth Buffer",
 										   &menu_toggle_control,
@@ -6319,6 +6327,20 @@ class LLWorldForceSun : public view_listener_t
 void handle_dump_followcam(void*)
 {
 	LLFollowCamMgr::dump();
+}
+
+BOOL check_flycam(void*)
+{
+	return LLPipeline::sOverrideAgentCamera;
+}
+
+void handle_toggle_flycam(void*)
+{
+	LLPipeline::sOverrideAgentCamera = !LLPipeline::sOverrideAgentCamera;
+	if (LLPipeline::sOverrideAgentCamera)
+	{
+		LLFloaterJoystick::show(NULL);
+	}
 }
 
 void handle_viewer_enable_message_log(void*)
