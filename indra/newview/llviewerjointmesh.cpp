@@ -11,6 +11,10 @@
 //-----------------------------------------------------------------------------
 #include "llviewerprecompiledheaders.h"
 
+#if LL_WINDOWS // For Intel vector classes
+	#include "fvec.h"
+#endif
+
 #include "imageids.h"
 #include "llfasttimer.h"
 
