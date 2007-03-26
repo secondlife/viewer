@@ -1406,8 +1406,14 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				// Unpack particle system data
 				//
 				if (value & 0x8)
+				{
 					unpackParticleSource(*dp, owner_id);
-
+				}
+				else
+				{
+					deleteParticleSource();
+				}
+				
 				// Mark all extra parameters not used
 				std::map<U16, ExtraParameter*>::iterator iter;
 				for (iter = mExtraParameterList.begin(); iter != mExtraParameterList.end(); ++iter)
@@ -4060,6 +4066,15 @@ void LLViewerObject::unpackParticleSource(LLDataPacker &dp, const LLUUID& owner_
 			}
 			mPartSourcep->setImage(image);
 		}
+	}
+}
+
+void LLViewerObject::deleteParticleSource()
+{
+	if (mPartSourcep.notNull())
+	{
+		mPartSourcep->setDead();
+		mPartSourcep = NULL;
 	}
 }
 

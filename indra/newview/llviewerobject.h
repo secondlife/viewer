@@ -527,6 +527,7 @@ protected:
 
 	void unpackParticleSource(const S32 block_num, const LLUUID& owner_id);
 	void unpackParticleSource(LLDataPacker &dp, const LLUUID& owner_id);
+	void deleteParticleSource();
 
 private:
 	void setNameValueList(const std::string& list);		// clears nv pairs and then individually adds \n separated NV pairs from \0 terminated string

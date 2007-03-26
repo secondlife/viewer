@@ -407,11 +407,11 @@ public:
 		}
 	}
 
-	LLScriptLibData(LLVector3 &vec) : mType(LST_VECTOR), mInteger(0), mFP(0.f), mKey(NULL), mString(NULL), mVec(vec), mQuat(), mListp(NULL)
+	LLScriptLibData(const LLVector3 &vec) : mType(LST_VECTOR), mInteger(0), mFP(0.f), mKey(NULL), mString(NULL), mVec(vec), mQuat(), mListp(NULL)
 	{
 	}
 
-	LLScriptLibData(LLQuaternion &quat) : mType(LST_QUATERNION), mInteger(0), mFP(0.f), mKey(NULL), mString(NULL), mVec(), mQuat(quat), mListp(NULL)
+	LLScriptLibData(const LLQuaternion &quat) : mType(LST_QUATERNION), mInteger(0), mFP(0.f), mKey(NULL), mString(NULL), mVec(), mQuat(quat), mListp(NULL)
 	{
 	}
 
