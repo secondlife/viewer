@@ -495,7 +495,11 @@ namespace LLError
 {
 	void initForServer(const std::string& identity)
 	{
-		std::string dir = LLApp::instance()->getOption("configdir");
+		std::string dir = "/opt/linden/etc";
+		if (LLApp::instance())
+		{
+			dir = LLApp::instance()->getOption("configdir").asString();
+		}
 		commonInit(dir);
 #if !LL_WINDOWS
 		addRecorder(new RecordToSyslog(identity));
