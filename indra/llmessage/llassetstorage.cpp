@@ -415,19 +415,20 @@ void LLAssetStorage::getAssetData(const LLUUID uuid, LLAssetType::EType type, vo
 				if (callback == tmp->mDownCallback && user_data == tmp->mUserData)
 				{
 					// this is a duplicate from the same subsystem - throw it away
-					llinfos << "Discarding duplicate request for UUID " << uuid << llendl;
+					llwarns << "Discarding duplicate request for asset " << uuid
+							<< "." << LLAssetType::lookup(type) << llendl;
 					return;
-				}
-				else
-				{
-					llinfos << "Adding additional non-duplicate request for UUID " << uuid << llendl;
 				}
 				
 				// this is a duplicate request
 				// queue the request, but don't actually ask for it again
 				duplicate = TRUE;
-				break;
 			}
+		}
+		if (duplicate)
+		{
+			llinfos << "Adding additional non-duplicate request for asset " << uuid 
+					<< "." << LLAssetType::lookup(type) << llendl;
 		}
 		
 		// This can be overridden by subclasses

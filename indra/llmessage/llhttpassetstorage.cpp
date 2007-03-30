@@ -19,7 +19,7 @@
 
 #include "zlib/zlib.h"
 
-const U32 MAX_RUNNING_REQUESTS = 4;
+const U32 MAX_RUNNING_REQUESTS = 1;
 const F32 MAX_PROCESSING_TIME = 0.005f;
 const S32 CURL_XFER_BUFFER_SIZE = 65536;
 // Try for 30 minutes for now.
@@ -58,6 +58,7 @@ public:
 	virtual ~LLHTTPAssetRequest();
 	
 	void setupCurlHandle();
+	void cleanupCurlHandle();
 
 	void   	prepareCompressedUpload();
 	void	finishCompressedUpload();
@@ -121,16 +122,7 @@ LLHTTPAssetRequest::~LLHTTPAssetRequest()
 	if (mCurlHandle)
 	{
 		curl_multi_remove_handle(mCurlMultiHandle, mCurlHandle);
-		curl_easy_cleanup(mCurlHandle);
-		if (mAssetStoragep)
-		{
-			// Terminating a request.  Thus upload or download is no longer pending.
-			mAssetStoragep->removeRunningRequest(mRequestType, this);
-		}
-		else
-		{
-			llerrs << "LLHTTPAssetRequest::~LLHTTPAssetRequest - No asset storage associated with this request!" << llendl;
-		}
+		cleanupCurlHandle();
 	}
 	if (mHTTPHeaders)
 	{
@@ -253,6 +245,21 @@ void LLHTTPAssetRequest::setupCurlHandle()
 	{
 		llerrs << "LLHTTPAssetRequest::setupCurlHandle - No asset storage associated with this request!" << llendl;
 	}
+}
+
+void LLHTTPAssetRequest::cleanupCurlHandle()
+{
+	curl_easy_cleanup(mCurlHandle);
+	if (mAssetStoragep)
+	{
+		// Terminating a request.  Thus upload or download is no longer pending.
+		mAssetStoragep->removeRunningRequest(mRequestType, this);
+	}
+	else
+	{
+		llerrs << "LLHTTPAssetRequest::~LLHTTPAssetRequest - No asset storage associated with this request!" << llendl;
+	}
+	mCurlHandle = NULL;
 }
 
 void LLHTTPAssetRequest::prepareCompressedUpload()
@@ -663,7 +670,7 @@ void LLHTTPAssetStorage::checkForTimeouts()
 {
 	CURLMcode mcode;
 	LLAssetRequest *req;
-	while (req = findNextRequest(mPendingDownloads, mRunningDownloads))
+	while ( (req = findNextRequest(mPendingDownloads, mRunningDownloads)) )
 	{
 		// Setup this curl download request
 		// We need to generate a new request here
@@ -689,7 +696,8 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		{
 			// Failure.  Deleting the pending request will remove it from the running
 			// queue, and push it to the end of the pending queue.
-			deletePendingRequest(RT_DOWNLOAD, req->getType(), req->getUUID());
+			new_req->cleanupCurlHandle();
+			deletePendingRequest(RT_DOWNLOAD, new_req->getType(), new_req->getUUID());
 			break;
 		}
 		else
@@ -698,7 +706,7 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		}
 	}
 
-	while (req = findNextRequest(mPendingUploads, mRunningUploads))
+	while ( (req = findNextRequest(mPendingUploads, mRunningUploads)) )
 	{
 		// setup this curl upload request
 
@@ -742,7 +750,8 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		{
 			// Failure.  Deleting the pending request will remove it from the running
 			// queue, and push it to the end of the pending queue.
-			deletePendingRequest(RT_UPLOAD, req->getType(), req->getUUID());
+			new_req->cleanupCurlHandle();
+			deletePendingRequest(RT_UPLOAD, new_req->getType(), new_req->getUUID());
 			break;
 		}
 		else
@@ -752,7 +761,7 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		// Pending upload will have been flagged by the request
 	}
 
-	while (req = findNextRequest(mPendingLocalUploads, mRunningLocalUploads))
+	while ( (req = findNextRequest(mPendingLocalUploads, mRunningLocalUploads)) )
 	{
 		// setup this curl upload request
 		LLVFile file(mVFS, req->getUUID(), req->getType());
@@ -781,7 +790,8 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		{
 			// Failure.  Deleting the pending request will remove it from the running
 			// queue, and push it to the end of the pending queue.
-			deletePendingRequest(RT_LOCALUPLOAD, req->getType(), req->getUUID());
+			new_req->cleanupCurlHandle();
+			deletePendingRequest(RT_LOCALUPLOAD, new_req->getType(), new_req->getUUID());
 			break;
 		}
 		else
