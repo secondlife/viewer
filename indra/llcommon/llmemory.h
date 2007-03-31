@@ -220,29 +220,28 @@ class LLHandle
 {
 public:
 	LLHandle() :
-		mPointer(sNullFunc())
+		mPointer(NULL)
 	{
-		ref();
 	}
 
 	LLHandle(Type* ptr) : 
-		mPointer(nonNull(ptr))
+		mPointer(NULL)
 	{
-		ref();
+		assign(ptr);
 	}
 
 	LLHandle(const LLHandle<Type>& ptr) : 
-		mPointer(ptr.mPointer)
+		mPointer(NULL)
 	{
-		ref();
+		assign(ptr.mPointer);
 	}
 
 	// support conversion up the type hierarchy.  See Item 45 in Effective C++, 3rd Ed.
 	template<typename Subclass>
 	LLHandle(const LLHandle<Subclass>& ptr) : 
-		mPointer(ptr.get())
+		mPointer(NULL)
 	{
-		ref();
+		assign(ptr.get());
 	}
 
 	~LLHandle()								
@@ -250,47 +249,39 @@ public:
 		unref();
 	}
 
-	Type*	get() const							{ return mPointer; }
-	const Type*	operator->() const				{ return mPointer; }
-	Type*	operator->()						{ return mPointer; }
-	const Type&	operator*() const				{ return *mPointer; }
-	Type&	operator*()							{ return *mPointer; }
+	const Type*	operator->() const				{ return nonNull(mPointer); }
+	Type*	operator->()						{ return nonNull(mPointer); }
 
-	operator BOOL()  const						{ return (mPointer != sNullFunc()); }
-	operator bool()  const						{ return (mPointer != sNullFunc()); }
-	bool operator!() const						{ return (mPointer == sNullFunc()); }
-	bool isNull() const							{ return (mPointer == sNullFunc()); }
-	bool notNull() const						{ return (mPointer != sNullFunc()); }
+	Type*	get() const							{ return mPointer; }
+	// we disallow these operations as they expose our null objects to direct manipulation
+	// and bypass the reference counting semantics
+	//const Type&	operator*() const			{ return *nonNull(mPointer); }
+	//Type&	operator*()							{ return *nonNull(mPointer); }
+
+	operator BOOL()  const						{ return mPointer != NULL; }
+	operator bool()  const						{ return mPointer != NULL; }
+	bool operator!() const						{ return mPointer == NULL; }
+	bool isNull() const							{ return mPointer == NULL; }
+	bool notNull() const						{ return mPointer != NULL; }
 
 
 	operator Type*()       const				{ return mPointer; }
 	operator const Type*() const				{ return mPointer; }
-	bool operator !=(Type* ptr) const           { return (mPointer != nonNull(ptr)); 	}
-	bool operator ==(Type* ptr) const           { return (mPointer == nonNull(ptr)); 	}
+	bool operator !=(Type* ptr) const           { return (mPointer != ptr); 	}
+	bool operator ==(Type* ptr) const           { return (mPointer == ptr); 	}
 	bool operator ==(const LLHandle<Type>& ptr) const           { return (mPointer == ptr.mPointer); 	}
 	bool operator < (const LLHandle<Type>& ptr) const           { return (mPointer < ptr.mPointer); 	}
 	bool operator > (const LLHandle<Type>& ptr) const           { return (mPointer > ptr.mPointer); 	}
 
 	LLHandle<Type>& operator =(Type* ptr)                   
 	{ 
-		if( mPointer != ptr )
-		{
-			unref(); 
-			mPointer = nonNull(ptr); 
-			ref();
-		}
-
+		assign(ptr);
 		return *this; 
 	}
 
 	LLHandle<Type>& operator =(const LLHandle<Type>& ptr)  
 	{ 
-		if( mPointer != ptr.mPointer )
-		{
-			unref(); 
-			mPointer = ptr.mPointer;
-			ref();
-		}
+		assign(ptr.mPointer);
 		return *this; 
 	}
 
@@ -298,12 +289,7 @@ public:
 	template<typename Subclass>
 	LLHandle<Type>& operator =(const LLHandle<Subclass>& ptr)  
 	{ 
-		if( mPointer != ptr.get() )
-		{
-			unref(); 
-			mPointer = ptr.get();
-			ref();
-		}
+		assign(ptr.get());
 		return *this; 
 	}
 
@@ -325,13 +311,23 @@ protected:
 		if (mPointer)
 		{
 			Type *tempp = mPointer;
-			mPointer = sNullFunc();
+			mPointer = NULL;
 			tempp->unref();
-			if (mPointer != sNullFunc())
+			if (mPointer != NULL)
 			{
 				llwarns << "Unreference did assignment to non-NULL because of destructor" << llendl;
 				unref();
 			}
+		}
+	}
+
+	void assign(Type* ptr)
+	{
+		if( mPointer != ptr )
+		{
+			unref(); 
+			mPointer = ptr; 
+			ref();
 		}
 	}
 
@@ -340,14 +336,7 @@ protected:
 		return ptr == NULL ? sNullFunc() : ptr;
 	}
 
-	static Type* defaultNullFunc()
-	{
-		llerrs << "No null value provided for LLHandle" << llendl;
-		return NULL;
-	}
-
 protected:
-
 	Type*	mPointer;
 };
 

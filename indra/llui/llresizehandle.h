@@ -37,8 +37,8 @@ protected:
 	BOOL			pointInHandle( S32 x, S32 y );
 
 protected:
-	S32				mDragStartScreenX;
-	S32				mDragStartScreenY;
+	S32				mDragLastScreenX;
+	S32				mDragLastScreenY;
 	S32				mLastMouseScreenX;
 	S32				mLastMouseScreenY;
 	LLCoordGL		mLastMouseDir;

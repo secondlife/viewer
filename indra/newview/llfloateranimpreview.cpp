@@ -390,7 +390,7 @@ BOOL LLFloaterAnimPreview::handleMouseDown(S32 x, S32 y, MASK mask)
 	if (mPreviewRect.pointInRect(x, y))
 	{
 		bringToFront( x, y );
-		gViewerWindow->setMouseCapture(this, onMouseCaptureLost);
+		gViewerWindow->setMouseCapture(this);
 		gViewerWindow->hideCursor();
 		mLastMouseX = x;
 		mLastMouseY = y;
@@ -405,7 +405,7 @@ BOOL LLFloaterAnimPreview::handleMouseDown(S32 x, S32 y, MASK mask)
 //-----------------------------------------------------------------------------
 BOOL LLFloaterAnimPreview::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	gViewerWindow->setMouseCapture(FALSE, NULL);
+	gViewerWindow->setMouseCapture(FALSE);
 	gViewerWindow->showCursor();
 	return LLFloater::handleMouseUp(x, y, mask);
 }
@@ -417,7 +417,7 @@ BOOL LLFloaterAnimPreview::handleHover(S32 x, S32 y, MASK mask)
 {
 	MASK local_mask = mask & ~MASK_ALT;
 
-	if (mAnimPreview && gViewerWindow->hasMouseCapture(this))
+	if (mAnimPreview && hasMouseCapture())
 	{
 		if (local_mask == MASK_PAN)
 		{
@@ -479,7 +479,7 @@ BOOL LLFloaterAnimPreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
 //-----------------------------------------------------------------------------
 // onMouseCaptureLost()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::onMouseCaptureLost(LLMouseHandler* handler)
+void LLFloaterAnimPreview::onMouseCaptureLost()
 {
 	gViewerWindow->showCursor();
 }

@@ -272,9 +272,6 @@ class DarwinManifest(ViewerManifest):
                         if self.prefix(src="", dst="Resources"):
                                 super(DarwinManifest, self).construct()
 
-                                # the trial directory seems to be not used [rdw]
-                                self.path('trial')
-
                                 if self.prefix("cursors_mac"):
                                         self.path("*.tif")
                                         self.end_prefix("cursors_mac")

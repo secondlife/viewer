@@ -46,7 +46,9 @@ LLButton::LLButton(	const LLString& name, const LLRect& rect, const LLString& co
 	mMouseUpCallback( NULL ),
 	mHeldDownCallback( NULL ),
 	mGLFont( NULL ),
+	mMouseDownFrame( 0 ),
 	mHeldDownDelay( 0.5f ),			// seconds until held-down callback is called
+	mHeldDownFrameDelay( 0 ),
 	mImageUnselected( NULL ),
 	mImageSelected( NULL ),
 	mImageHoverSelected( NULL ),
@@ -99,7 +101,9 @@ LLButton::LLButton(const LLString& name, const LLRect& rect,
 	mMouseUpCallback( NULL ),
 	mHeldDownCallback( NULL ),
 	mGLFont( NULL ),
+	mMouseDownFrame( 0 ),
 	mHeldDownDelay( 0.5f ),			// seconds until held-down callback is called
+	mHeldDownFrameDelay( 0 ),
 	mImageUnselected( NULL ),
 	mImageSelected( NULL ),
 	mImageHoverSelected( NULL ),
@@ -196,9 +200,9 @@ void LLButton::init(void (*click_callback)(void*), void *callback_data, const LL
 
 LLButton::~LLButton()
 {
- 	if( this == gFocusMgr.getMouseCapture() )
+ 	if( hasMouseCapture() )
 	{
-		gFocusMgr.setMouseCapture( NULL, NULL );
+		gFocusMgr.setMouseCapture( NULL );
 	}
 }
 
@@ -284,7 +288,7 @@ BOOL LLButton::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent )
 BOOL LLButton::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	// Route future Mouse messages here preemptively.  (Release on mouse up.)
-	gFocusMgr.setMouseCapture( this, &LLButton::onMouseCaptureLost );
+	gFocusMgr.setMouseCapture( this );
 
 	if (hasTabStop() && !getIsChrome())
 	{
@@ -297,6 +301,7 @@ BOOL LLButton::handleMouseDown(S32 x, S32 y, MASK mask)
 	}
 
 	mMouseDownTimer.start();
+	mMouseDownFrame = LLFrameTimer::getFrameCount();
 	
 	if (mSoundFlags & MOUSE_DOWN)
 	{
@@ -310,18 +315,16 @@ BOOL LLButton::handleMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLButton::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	// We only handle the click if the click both started and ended within us
-	if( this == gFocusMgr.getMouseCapture() )
+	if( hasMouseCapture() )
 	{
+		// Always release the mouse
+		gFocusMgr.setMouseCapture( NULL );
+
 		// Regardless of where mouseup occurs, handle callback
 		if (mMouseUpCallback)
 		{
 			(*mMouseUpCallback)(mCallbackUserData);
 		}
-
-		mMouseDownTimer.stop();
-
-		// Always release the mouse
-		gFocusMgr.setMouseCapture( NULL, NULL );
 
 		// DO THIS AT THE VERY END to allow the button to be destroyed as a result of being clicked.
 		// If mouseup in the widget, it's been clicked
@@ -337,6 +340,9 @@ BOOL LLButton::handleMouseUp(S32 x, S32 y, MASK mask)
 				(*mClickedCallback)( mCallbackUserData );
 			}
 		}
+
+		mMouseDownTimer.stop();
+		mMouseDownTimer.reset();
 	}
 
 	return TRUE;
@@ -356,14 +362,14 @@ BOOL LLButton::handleHover(S32 x, S32 y, MASK mask)
 	if (mMouseDownTimer.getStarted() && NULL != mHeldDownCallback)
 	{
 		F32 elapsed = mMouseDownTimer.getElapsedTimeF32();
- 		if( mHeldDownDelay < elapsed )
+		if( mHeldDownDelay <= elapsed && mHeldDownFrameDelay <= LLFrameTimer::getFrameCount() - mMouseDownFrame)
 		{
 			mHeldDownCallback( mCallbackUserData );		
 		}
 	}
 
 	// We only handle the click if the click both started and ended within us
-	if( this == gFocusMgr.getMouseCapture() )
+	if( hasMouseCapture() )
 	{
 		handled = TRUE;
 	}
@@ -412,7 +418,7 @@ void LLButton::draw()
 		cursor_pos_gl.mY = llround((F32)cursor_pos_gl.mY / LLUI::sGLScaleFactor.mV[VY]);
 		screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &local_mouse_x, &local_mouse_y);
 
-		BOOL pressed = pressed_by_keyboard || (this == gFocusMgr.getMouseCapture() && pointInView(local_mouse_x, local_mouse_y));
+		BOOL pressed = pressed_by_keyboard || (hasMouseCapture() && pointInView(local_mouse_x, local_mouse_y));
 
 		BOOL display_state = FALSE;
 		if( pressed )
@@ -800,11 +806,10 @@ void LLButton::setHoverImages( const LLString& image_name, const LLString& selec
 	setImageHoverSelected(selected_name);
 }
 
-// static
-void LLButton::onMouseCaptureLost( LLMouseHandler* old_captor )
+void LLButton::onMouseCaptureLost()
 {
-	LLButton* self = (LLButton*) old_captor;
-	self->mMouseDownTimer.stop();
+	mMouseDownTimer.stop();
+	mMouseDownTimer.reset();
 }
 
 //-------------------------------------------------------------------------

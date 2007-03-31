@@ -356,7 +356,7 @@ BOOL LLFloaterImagePreview::handleMouseDown(S32 x, S32 y, MASK mask)
 	if (mPreviewRect.pointInRect(x, y))
 	{
 		bringToFront( x, y );
-		gViewerWindow->setMouseCapture(this, onMouseCaptureLost);
+		gViewerWindow->setMouseCapture(this);
 		gViewerWindow->hideCursor();
 		mLastMouseX = x;
 		mLastMouseY = y;
@@ -371,7 +371,7 @@ BOOL LLFloaterImagePreview::handleMouseDown(S32 x, S32 y, MASK mask)
 //-----------------------------------------------------------------------------
 BOOL LLFloaterImagePreview::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	gViewerWindow->setMouseCapture(FALSE, NULL);
+	gViewerWindow->setMouseCapture(FALSE);
 	gViewerWindow->showCursor();
 	return LLFloater::handleMouseUp(x, y, mask);
 }
@@ -383,7 +383,7 @@ BOOL LLFloaterImagePreview::handleHover(S32 x, S32 y, MASK mask)
 {
 	MASK local_mask = mask & ~MASK_ALT;
 
-	if (mAvatarPreview && gViewerWindow->hasMouseCapture(this))
+	if (mAvatarPreview && hasMouseCapture())
 	{
 		if (local_mask == MASK_PAN)
 		{

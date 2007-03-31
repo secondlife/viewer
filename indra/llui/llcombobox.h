@@ -34,6 +34,12 @@ class LLComboBox
 :	public LLUICtrl, public LLCtrlListInterface
 {
 public:
+	typedef enum e_preferred_position
+	{
+		ABOVE,
+		BELOW
+	} EPreferredPosition;
+
 	LLComboBox(
 		const LLString& name, 
 		const LLRect &rect,
@@ -58,12 +64,6 @@ public:
 	virtual BOOL	handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect);
 	virtual BOOL	handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
 	virtual BOOL	handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent);
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 
 	// LLUICtrl interface
 	virtual void	clear();					// select nothing
@@ -146,34 +146,31 @@ public:
 
 	void			setButtonVisible(BOOL visible);
 
-	static void		onButtonClick(void *userdata);
+	static void		onButtonDown(void *userdata);
 	static void		onItemSelected(LLUICtrl* item, void *userdata);
-	static void		onTopViewLost(LLView* old_focus);
-	static void		onMouseCaptureLost(LLMouseHandler* old_captor);
+	static void		onListFocusChanged(LLUICtrl* item, void *userdata);
 	static void		onTextEntry(LLLineEditor* line_editor, void* user_data);
 	static void		onTextCommit(LLUICtrl* caller, void* user_data);
 
 	void			updateSelection();
-	void			showList();
-	void			hideList();
-
-	static void		onListFocusLost(LLUICtrl* old_focus);
-
+	virtual void	showList();
+	virtual void	hideList();
+	
 protected:
 	LLButton*			mButton;
 	LLScrollListCtrl*	mList;
 	LLViewBorder*		mBorder;
 	BOOL				mKeyboardFocusOnClick;
-	BOOL				mDrawButton;
+	BOOL				mDrawArrow;
 	LLLineEditor*		mTextEntry;
 	LLPointer<LLImageGL>	mArrowImage;
 	S32					mArrowImageWidth;
 	BOOL				mAllowTextEntry;
 	S32					mMaxChars;
 	BOOL				mTextEntryTentative;
+	EPreferredPosition	mListPosition;
 	void				(*mPrearrangeCallback)(LLUICtrl*,void*);
 	void				(*mTextEntryCallback)(LLLineEditor*, void*);
-	S32 mListWidth;	// width of pop-up list, 0 = use combobox width
 };
 
 #endif

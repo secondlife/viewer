@@ -2568,6 +2568,6 @@ bool LLParcelSelection::hasOthersSelected() const
 
 LLParcelSelection* get_null_parcel_selection()
 {
-	static LLParcelSelectionHandle null_ptr = new LLParcelSelection();
-	return null_ptr;
+	static LLParcelSelection null_selection;
+	return &null_selection;
 }

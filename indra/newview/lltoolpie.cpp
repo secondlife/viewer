@@ -44,6 +44,7 @@ LLToolPie *gToolPie = NULL;
 
 LLViewerObject* LLToolPie::sClickActionObject = NULL;
 LLHandle<LLObjectSelection> LLToolPie::sLeftClickSelection = NULL;
+U8 LLToolPie::sClickAction = 0;
 
 extern void handle_buy(void*);
 
@@ -145,17 +146,17 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 	// If it's a left-click, and we have a special action, do it.
 	if (useClickAction(always_show, mask, object, parent))
 	{
-		U8 click_action = 0;
+		sClickAction = 0;
 		if (object && object->getClickAction()) 
 		{
-			click_action = object->getClickAction();
+			sClickAction = object->getClickAction();
 		}
 		else if (parent && parent->getClickAction()) 
 		{
-			click_action = parent->getClickAction();
+			sClickAction = parent->getClickAction();
 		}
 
-		switch(click_action)
+		switch(sClickAction)
 		{
 		case CLICK_ACTION_TOUCH:
 		default:
@@ -168,8 +169,9 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 			if (object && object->flagTakesMoney()
 				|| parent && parent->flagTakesMoney())
 			{
-				sClickActionObject = parent;
-				sLeftClickSelection = LLToolSelect::handleObjectSelection(parent, MASK_NONE, FALSE, TRUE);
+				// pay event goes to object actually clicked on
+				sClickActionObject = object;
+				sLeftClickSelection = LLToolSelect::handleObjectSelection(object, MASK_NONE, FALSE, TRUE);
 				return TRUE;
 			}
 			break;
@@ -398,13 +400,12 @@ void LLToolPie::selectionPropertiesReceived()
 
 	if (!sLeftClickSelection->isEmpty())
 	{
-		LLViewerObject* root = sLeftClickSelection->getFirstRootObject();
+		LLViewerObject* selected_object = sLeftClickSelection->getPrimaryObject();
 		// since we don't currently have a way to lock a selection, it could have changed
 		// after we initially clicked on the object
-		if (root == sClickActionObject)
+		if (selected_object == sClickActionObject)
 		{
-			U8 action = root->getClickAction();
-			switch (action)
+			switch (sClickAction)
 			{
 			case CLICK_ACTION_BUY:
 				handle_buy(NULL);
@@ -422,6 +423,7 @@ void LLToolPie::selectionPropertiesReceived()
 	}
 	sLeftClickSelection = NULL;
 	sClickActionObject = NULL;
+	sClickAction = 0;
 }
 
 BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)

@@ -24,7 +24,7 @@
 const S32 MIN_WIDTH = 200;
 const S32 MIN_HEIGHT = 340;
 const LLRect FLOATER_RECT(0, 380, 240, 0);
-const char FLOATER_TITLE[] = "Choose Person";
+const char FLOATER_TITLE[] = "Choose Resident";
 
 // static
 LLFloaterAvatarPicker* LLFloaterAvatarPicker::sInstance = NULL;
@@ -89,9 +89,7 @@ BOOL LLFloaterAvatarPicker::postBuild()
 
 	if (mListNames)
 	{
-		LLScrollListItem* row = new LLScrollListItem( TRUE, NULL, LLUUID::null );
-		row->addColumn("No results", LLFontGL::sSansSerif);
-		mListNames->addItem(row);
+		mListNames->addSimpleElement("No results");
 	}
 
 	mInventoryPanel = (LLInventoryPanel*)this->getCtrlByNameAndType("Inventory Panel", WIDGET_TYPE_INVENTORY_PANEL);
@@ -237,10 +235,7 @@ void LLFloaterAvatarPicker::find()
 	if (mListNames)
 	{
 		mListNames->deleteAllItems();	
-	
-		LLScrollListItem* row = new LLScrollListItem( TRUE, NULL, LLUUID::null );
-		row->addColumn("Searching...", LLFontGL::sSansSerif);
-		mListNames->addItem(row);
+		mListNames->addSimpleElement("Searching...");
 	}
 	
 	childSetEnabled("Select", FALSE);
@@ -305,23 +300,20 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 			msg->getStringFast(_PREHASH_Data,_PREHASH_FirstName, DB_FIRST_NAME_BUF_SIZE, first_name, i);
 			msg->getStringFast(_PREHASH_Data,_PREHASH_LastName,	DB_LAST_NAME_BUF_SIZE, last_name, i);
 		
-			LLScrollListItem* row = new LLScrollListItem( TRUE, NULL, avatar_id );
-
+			LLString avatar_name;
 			if (avatar_id.isNull())
 			{
 				self->childSetTextArg("NotFound", "[TEXT]", self->childGetText("Edit"));
-				LLString msg = self->childGetValue("NotFound").asString();
-				row->addColumn(msg, LLFontGL::sSansSerif);
+				avatar_name = self->childGetValue("NotFound").asString();
 				self->mListNames->setEnabled(FALSE);
 			}
 			else
 			{
-				LLString buffer = LLString(first_name) + " " + last_name;
-				row->addColumn(buffer, LLFontGL::sSansSerif);
+				avatar_name = LLString(first_name) + " " + last_name;
 				self->mListNames->setEnabled(TRUE);
 				found_one = TRUE;
 			}
-			self->mListNames->addItem(row);	
+			self->mListNames->addSimpleElement(avatar_name);
 		}
 	
 		if (found_one)

@@ -34,6 +34,7 @@
 #include "llvoavatar.h"
 #include "llsky.h"
 #include "pipeline.h"
+#include "llglslshader.h"
 
 #if !LL_DARWIN && !LL_LINUX
 extern PFNGLWEIGHTPOINTERARBPROC glWeightPointerARB;
@@ -479,7 +480,7 @@ void LLViewerJointMesh::uploadJointMatrices()
 				//cgGLSetParameterArray4f(gPipeline.mAvatarMatrix, offset, 1, vector);
 			}
 		}
-		glUniform4fvARB(gPipeline.mAvatarMatrixParam, 45, mat);
+		glUniform4fvARB(gAvatarMatrixParam, 45, mat);
 	}
 }
 
@@ -554,14 +555,14 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 		{
 			glColor4f(0,0,0,1);
 			
-			if (gPipeline.mMaterialIndex > 0)
+			if (gMaterialIndex > 0)
 			{
-				glVertexAttrib4fvARB(gPipeline.mMaterialIndex, mColor.mV);
+				glVertexAttrib4fvARB(gMaterialIndex, mColor.mV);
 			}
 			
-			if (mShiny && gPipeline.mSpecularIndex > 0)
+			if (mShiny && gSpecularIndex > 0)
 			{
-				glVertexAttrib4fARB(gPipeline.mSpecularIndex, 1,1,1,1);
+				glVertexAttrib4fARB(gSpecularIndex, 1,1,1,1);
 			}
 		}
 		else
@@ -888,7 +889,7 @@ void LLViewerJointMesh::updateGeometry()
 	if (mValid && mMesh && mFace &&
 		mMesh->hasWeights() &&
 		mFace->mVertexBuffer.notNull() &&
-		gPipeline.getVertexShaderLevel(LLPipeline::SHADER_AVATAR) == 0)
+		LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_AVATAR) == 0)
 	{
 		uploadJointMatrices();
 		LLStrider<LLVector3> o_vertices;

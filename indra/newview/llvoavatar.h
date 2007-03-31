@@ -368,7 +368,7 @@ public:
 	virtual LLVector3 getVolumePos(S32 joint_index, LLVector3& volume_offset);
 	virtual LLJoint* findCollisionVolume(U32 volume_id);
 	virtual S32 getCollisionVolumeID(std::string &name);
-	virtual void addDebugText(const char* text);
+	virtual void addDebugText(const std::string& text);
 	virtual const LLUUID& getID();
 	virtual LLJoint *getJoint( const std::string &name );
 

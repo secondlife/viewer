@@ -29,7 +29,7 @@
 // Static Definitions
 //-----------------------------------------------------------------------------
 LLVFS*				LLKeyframeMotion::sVFS = NULL;
-LLKeyframeDataCache::LLKeyframeDataMap	LLKeyframeDataCache::sKeyframeDataMap;
+LLKeyframeDataCache::keyframe_data_map_t	LLKeyframeDataCache::sKeyframeDataMap;
 
 //-----------------------------------------------------------------------------
 // Globals
@@ -45,8 +45,20 @@ static F32 MIN_ACCELERATION_SQUARED = 0.0005f * 0.0005f;
 static F32 MAX_CONSTRAINTS = 10;
 
 //-----------------------------------------------------------------------------
-// JointMotionList::dumpDiagInfo()
+// JointMotionList
 //-----------------------------------------------------------------------------
+LLKeyframeMotion::JointMotionList::JointMotionList()
+	: mNumJointMotions(0),
+	  mJointMotionArray(NULL)
+{
+}
+
+LLKeyframeMotion::JointMotionList::~JointMotionList()
+{
+	for_each(mConstraints.begin(), mConstraints.end(), DeletePointer());
+	delete [] mJointMotionArray;
+}
+
 U32 LLKeyframeMotion::JointMotionList::dumpDiagInfo()
 {
 	S32	total_size = sizeof(JointMotionList);
@@ -415,7 +427,7 @@ LLKeyframeMotion::~LLKeyframeMotion()
 	{
 		delete [] mJointStates;
 	}
-	mConstraints.deleteAllData();
+	for_each(mConstraints.begin(), mConstraints.end(), DeletePointer());
 }
 
 //-----------------------------------------------------------------------------
@@ -550,8 +562,7 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
 BOOL LLKeyframeMotion::setupPose()
 {
 	// add all valid joint states to the pose
-	U32 jm;
-	for (jm=0; jm<mJointMotionList->mNumJointMotions; jm++)
+	for (U32 jm=0; jm<mJointMotionList->mNumJointMotions; jm++)
 	{
 		if ( mJointStates[jm].getJoint() )
 		{
@@ -560,16 +571,16 @@ BOOL LLKeyframeMotion::setupPose()
 	}
 
 	// initialize joint constraints
-	for (JointConstraintSharedData* shared_constraintp = mJointMotionList->mConstraints.getFirstData();
-		shared_constraintp;
-		shared_constraintp = mJointMotionList->mConstraints.getNextData())
-		{
-			JointConstraint* constraintp = new JointConstraint(shared_constraintp);
-			initializeConstraint(constraintp);
-			mConstraints.addData(constraintp);
-		}
+	for (JointMotionList::constraint_list_t::iterator iter = mJointMotionList->mConstraints.begin();
+		 iter != mJointMotionList->mConstraints.end(); ++iter)
+	{
+		JointConstraintSharedData* shared_constraintp = *iter;
+		JointConstraint* constraintp = new JointConstraint(shared_constraintp);
+		initializeConstraint(constraintp);
+		mConstraints.push_front(constraintp);
+	}
 
-	if (mJointMotionList->mConstraints.getLength())
+	if (mJointMotionList->mConstraints.size())
 	{
 		mPelvisp = mCharacter->getJoint("mPelvis");
 		if (!mPelvisp)
@@ -692,21 +703,21 @@ void LLKeyframeMotion::applyConstraints(F32 time, U8* joint_mask)
 	if (mCharacter->getSkeletonSerialNum() != mLastSkeletonSerialNum)
 	{
 		mLastSkeletonSerialNum = mCharacter->getSkeletonSerialNum();
-		for (JointConstraint* constraintp = mConstraints.getFirstData();
-			constraintp;
-			constraintp = mConstraints.getNextData())
-			{
-				initializeConstraint(constraintp);
-			}
+		for (constraint_list_t::iterator iter = mConstraints.begin();
+			 iter != mConstraints.end(); ++iter)
+		{
+			JointConstraint* constraintp = *iter;
+			initializeConstraint(constraintp);
+		}
 	}
 
 	// apply constraints
-	for (JointConstraint* constraintp = mConstraints.getFirstData();
-		constraintp;
-		constraintp = mConstraints.getNextData())
-		{
-			applyConstraint(constraintp, time, joint_mask);
-		}
+	for (constraint_list_t::iterator iter = mConstraints.begin();
+		 iter != mConstraints.end(); ++iter)
+	{
+		JointConstraint* constraintp = *iter;
+		applyConstraint(constraintp, time, joint_mask);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -714,12 +725,12 @@ void LLKeyframeMotion::applyConstraints(F32 time, U8* joint_mask)
 //-----------------------------------------------------------------------------
 void LLKeyframeMotion::onDeactivate()
 {
-	for (JointConstraint* constraintp = mConstraints.getFirstData();
-		constraintp;
-		constraintp = mConstraints.getNextData())
-		{
-			deactivateConstraint(constraintp);
-		}
+	for (constraint_list_t::iterator iter = mConstraints.begin();
+		 iter != mConstraints.end(); ++iter)
+	{
+		JointConstraint* constraintp = *iter;
+		deactivateConstraint(constraintp);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1586,7 +1597,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				return FALSE;
 			}
 
-			mJointMotionList->mConstraints.addData(constraintp);
+			mJointMotionList->mConstraints.push_front(constraintp);
 
 			constraintp->mJointStateIndices = new S32[constraintp->mChainLength + 1];
 			
@@ -1694,10 +1705,19 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 		}
 	}	
 
-	success &= dp.packS32(mJointMotionList->mConstraints.getLength(), "num_constraints");
-	for (JointConstraintSharedData* shared_constraintp = mJointMotionList->mConstraints.getFirstData();
-		shared_constraintp;
-		shared_constraintp = mJointMotionList->mConstraints.getNextData())
+	success &= dp.packS32(mJointMotionList->mConstraints.size(), "num_constraints");
+	for (JointMotionList::constraint_list_t::iterator iter = mJointMotionList->mConstraints.begin();
+		 iter != mJointMotionList->mConstraints.end(); ++iter)
+	{
+		JointConstraintSharedData* shared_constraintp = *iter;
+		success &= dp.packU8(shared_constraintp->mChainLength, "chain_length");
+		success &= dp.packU8(shared_constraintp->mConstraintType, "constraint_type");
+		char volume_name[16];	/* Flawfinder: ignore */
+		snprintf(volume_name, sizeof(volume_name), "%s",	/* Flawfinder: ignore */
+				 mCharacter->findCollisionVolume(shared_constraintp->mSourceConstraintVolume)->getName().c_str()); 
+		success &= dp.packBinaryDataFixed((U8*)volume_name, 16, "source_volume");
+		success &= dp.packVector3(shared_constraintp->mSourceConstraintOffset, "source_offset");
+		if (shared_constraintp->mConstraintTargetType == TYPE_GROUND)
 		{
 			success &= dp.packU8(shared_constraintp->mChainLength, "chain_length");
 			success &= dp.packU8(shared_constraintp->mConstraintType, "constraint_type");
@@ -1708,7 +1728,7 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 			success &= dp.packVector3(shared_constraintp->mSourceConstraintOffset, "source_offset");
 			if (shared_constraintp->mConstraintTargetType == TYPE_GROUND)
 			{
-				snprintf(volume_name,sizeof(volume_name), "%s", "GROUND");		/* Flawfinder: ignore */
+				snprintf(volume_name,sizeof(volume_name), "%s", "GROUND");	/* Flawfinder: ignore */
 			}
 			else
 			{
@@ -1723,6 +1743,19 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 			success &= dp.packF32(shared_constraintp->mEaseOutStartTime, "ease_out_start");
 			success &= dp.packF32(shared_constraintp->mEaseOutStopTime, "ease_out_stop");
 		}
+		else
+		{
+			snprintf(volume_name, sizeof(volume_name),"%s", /* Flawfinder: ignore */
+					 mCharacter->findCollisionVolume(shared_constraintp->mTargetConstraintVolume)->getName().c_str());	
+		}
+		success &= dp.packBinaryDataFixed((U8*)volume_name, 16, "target_volume");
+		success &= dp.packVector3(shared_constraintp->mTargetConstraintOffset, "target_offset");
+		success &= dp.packVector3(shared_constraintp->mTargetConstraintDir, "target_dir");
+		success &= dp.packF32(shared_constraintp->mEaseInStartTime, "ease_in_start");
+		success &= dp.packF32(shared_constraintp->mEaseInStopTime, "ease_in_stop");
+		success &= dp.packF32(shared_constraintp->mEaseOutStartTime, "ease_out_start");
+		success &= dp.packF32(shared_constraintp->mEaseOutStopTime, "ease_out_stop");
+	}
 
 	return success;
 }
@@ -1813,7 +1846,8 @@ void LLKeyframeMotion::setEaseOut(F32 ease_in)
 //-----------------------------------------------------------------------------
 void LLKeyframeMotion::flushKeyframeCache()
 {
-	LLKeyframeDataCache::clear();
+	// TODO: Make this safe to do
+// 	LLKeyframeDataCache::clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -2022,8 +2056,8 @@ void LLKeyframeDataCache::dumpDiagInfo()
 	llinfos << "-----------------------------------------------------" << llendl;
 
 	// print each loaded mesh, and it's memory usage
-	LLKeyframeDataMap::iterator map_it;
-	for (map_it = sKeyframeDataMap.begin(); map_it != sKeyframeDataMap.end(); ++map_it)
+	for (keyframe_data_map_t::iterator map_it = sKeyframeDataMap.begin();
+		 map_it != sKeyframeDataMap.end(); ++map_it)
 	{
 		U32 joint_motion_kb;
 
@@ -2057,12 +2091,12 @@ void LLKeyframeDataCache::addKeyframeData(const LLUUID& id, LLKeyframeMotion::Jo
 //--------------------------------------------------------------------
 void LLKeyframeDataCache::removeKeyframeData(const LLUUID& id)
 {
-	LLKeyframeMotion::JointMotionList* joint_motion_listp = getKeyframeData(id);
-	if (joint_motion_listp)
+	keyframe_data_map_t::iterator found_data = sKeyframeDataMap.find(id);
+	if (found_data != sKeyframeDataMap.end())
 	{
-		delete joint_motion_listp;
+		delete found_data->second;
+		sKeyframeDataMap.erase(found_data);
 	}
-	sKeyframeDataMap.erase(id);
 }
 
 //--------------------------------------------------------------------
@@ -2070,7 +2104,7 @@ void LLKeyframeDataCache::removeKeyframeData(const LLUUID& id)
 //--------------------------------------------------------------------
 LLKeyframeMotion::JointMotionList* LLKeyframeDataCache::getKeyframeData(const LLUUID& id)
 {
-	LLKeyframeDataMap::iterator found_data = sKeyframeDataMap.find(id);
+	keyframe_data_map_t::iterator found_data = sKeyframeDataMap.find(id);
 	if (found_data == sKeyframeDataMap.end())
 	{
 		return NULL;

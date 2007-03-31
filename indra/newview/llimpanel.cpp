@@ -570,7 +570,7 @@ void LLFloaterIMPanel::onInputEditorFocusReceived( LLUICtrl* caller, void* userd
 }
 
 // static
-void LLFloaterIMPanel::onInputEditorFocusLost(LLLineEditor* caller, void* userdata)
+void LLFloaterIMPanel::onInputEditorFocusLost(LLUICtrl* caller, void* userdata)
 {
 	LLFloaterIMPanel* self = (LLFloaterIMPanel*) userdata;
 	self->setTyping(FALSE);

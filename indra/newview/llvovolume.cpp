@@ -268,7 +268,11 @@ void LLVOVolume::animateTextures()
 			{
 				continue;
 			}
-			if (result & LLViewerTextureAnim::ROTATE)
+			if (!(result & LLViewerTextureAnim::ROTATE))
+			{
+				te->getRotation(&rot);
+			}
+
 			{
 				F32 axis = -1;
 				F32 s,t;	
@@ -293,16 +297,20 @@ void LLVOVolume::animateTextures()
 
 			tex_mat.identity();
 			tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
-			tex_mat.rotate(quat);
-			
-			if (result & LLViewerTextureAnim::SCALE)
+			tex_mat.rotate(quat);				
+
+			if (!(result & LLViewerTextureAnim::SCALE))
+			{
+				te->getScale(&scale_s, &scale_t);
+			}
+	
 			{
 				scale.setVec(scale_s, scale_t, 1.f);
 				LLMatrix4 mat;
 				mat.initAll(scale, LLQuaternion(), LLVector3());
 				tex_mat *= mat;
 			}
-			
+
 			tex_mat.translate(trans);
 		}
 	}
@@ -310,6 +318,35 @@ void LLVOVolume::animateTextures()
 	{
 		if (mTexAnimMode && mTextureAnimp->mRate == 0)
 		{
+			U8 start, count;
+
+			if (mTextureAnimp->mFace == -1)
+			{
+				start = 0;
+				count = getNumTEs();
+			}
+			else
+			{
+				start = (U8) mTextureAnimp->mFace;
+				count = 1;
+			}
+
+			for (S32 i = start; i < start + count; i++)
+			{
+				if (mTexAnimMode & LLViewerTextureAnim::TRANSLATE)
+				{
+					setTEOffset(i, mTextureAnimp->mOffS, mTextureAnimp->mOffT);				
+				}
+				if (mTexAnimMode & LLViewerTextureAnim::SCALE)
+				{
+					setTEScale(i, mTextureAnimp->mScaleS, mTextureAnimp->mScaleT);	
+				}
+				if (mTexAnimMode & LLViewerTextureAnim::ROTATE)
+				{
+					setTERotation(i, mTextureAnimp->mRot);
+				}
+			}
+
 			gPipeline.markTextured(mDrawable);
 			mFaceMappingChanged = TRUE;
 			mTexAnimMode = 0;

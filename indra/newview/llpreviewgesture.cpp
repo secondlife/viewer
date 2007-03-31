@@ -1023,11 +1023,11 @@ void LLPreviewGesture::loadUIFromGesture(LLMultiGesture* gesture)
 		if (!new_step) continue;
 
 		// Create an enabled item with this step
-		LLScrollListItem* item = new LLScrollListItem(TRUE, new_step);
-		item->addColumn(new_step->getLabel(), LLFontGL::sSansSerifSmall);
-
-		// Add item to bottom of list
-		mStepList->addItem(item, ADD_BOTTOM);
+		LLSD row;
+		row["columns"][0]["value"] = new_step->getLabel();
+		row["columns"][0]["font"] = "SANSSERIF_SMALL";
+		LLScrollListItem* item = mStepList->addElement(row);
+		item->setUserdata(new_step);
 	}
 }
 
@@ -1572,12 +1572,11 @@ LLScrollListItem* LLPreviewGesture::addStep(const std::string& library_text)
 	}
 
 	// Create an enabled item with this step
-	LLScrollListItem* step_item = new LLScrollListItem(TRUE, step);
-	std::string label = step->getLabel();
-	step_item->addColumn(label, LLFontGL::sSansSerifSmall);
-
-	// Add item to bottom of list
-	mStepList->addItem(step_item, ADD_BOTTOM);
+	LLSD row;
+	row["columns"][0]["value"] = step->getLabel();
+	row["columns"][0]["font"] = "SANSSERIF_SMALL";
+	LLScrollListItem* step_item = mStepList->addElement(row);
+	step_item->setUserdata(step);
 
 	// And move selection to the list on the right
 	mLibraryList->deselectAllItems();

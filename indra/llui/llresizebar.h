@@ -30,8 +30,8 @@ public:
 	void			setResizeLimits( S32 min_width, S32 min_height ) { mMinWidth = min_width; mMinHeight = min_height; }
 
 protected:
-	S32				mDragStartScreenX;
-	S32				mDragStartScreenY;
+	S32				mDragLastScreenX;
+	S32				mDragLastScreenY;
 	S32				mLastMouseScreenX;
 	S32				mLastMouseScreenY;
 	LLCoordGL		mLastMouseDir;

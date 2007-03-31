@@ -802,7 +802,7 @@ void LLFloaterTexturePicker::onSearchEdit(const LLString& search_string, void* u
 	else if (picker->mInventoryPanel->getFilterSubString().empty())
 	{
 		// first letter in search term, save existing folder open state
-		if (!picker->mInventoryPanel->getRootFolder()->isFilterActive())
+		if (!picker->mInventoryPanel->getRootFolder()->isFilterModified())
 		{
 			picker->mSavedFolderState.setApply(FALSE);
 			picker->mInventoryPanel->getRootFolder()->applyFunctorRecursively(picker->mSavedFolderState);

@@ -56,10 +56,10 @@ public:
 	BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 	BOOL handleHover(S32 x, S32 y, MASK mask);
 	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
+	void onMouseCaptureLost();
 
 	void refresh();
 
-	static void onMouseCaptureLost(LLMouseHandler*);
 	static void	onBtnPlay(void*);
 	static void	onBtnStop(void*);
 	static void setUploadAmount(S32 amount) { sUploadAmount = amount; }

@@ -87,8 +87,10 @@ class LLMotion;
 class LLPoseBlender
 {
 protected:
-	LLMap<LLJoint*,LLJointStateBlender*> mJointStateBlenderPool;
-	LLLinkedList<LLJointStateBlender> mActiveBlenders;
+	typedef std::list<LLJointStateBlender*> blender_list_t;
+	typedef std::map<LLJoint*,LLJointStateBlender*> blender_map_t;
+	blender_map_t mJointStateBlenderPool;
+	blender_list_t mActiveBlenders;
 
 	S32			mNextPoseSlot;
 	LLPose		mBlendedPose;

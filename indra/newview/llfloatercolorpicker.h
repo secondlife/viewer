@@ -36,6 +36,7 @@ class LLFloaterColorPicker
 		virtual BOOL handleMouseDown ( S32 x, S32 y, MASK mask );
 		virtual BOOL handleMouseUp ( S32 x, S32 y, MASK mask );
 		virtual BOOL handleHover ( S32 x, S32 y, MASK mask );
+		virtual void onMouseCaptureLost();
 		virtual void onClose(bool app_quitting);
 
 		// implicit methods
@@ -94,7 +95,6 @@ class LLFloaterColorPicker
 		F32	 hueToRgb ( F32 val1In, F32 val2In, F32 valHUeIn );
 
 		void setActive(BOOL active);
-		static void	onMouseCaptureLost(LLMouseHandler* old_captor);
 
 	protected:
 		// callbacks

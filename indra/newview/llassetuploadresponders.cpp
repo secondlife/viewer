@@ -79,7 +79,7 @@ void LLAssetUploadResponder::error(U32 statusNum, const std::string& reason)
 		default:
 			args["[FILE]"] = (mFileName.empty() ? mVFileID.asString() : mFileName);
 			args["[REASON]"] = "The server is experiencing unexpected "
-				"difficulties. Please try again later.";
+				"difficulties.";
 			gViewerWindow->alertXml("CannotUploadReason", args);
 			break;
 	}

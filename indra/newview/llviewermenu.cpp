@@ -174,6 +174,7 @@
 #include "pipeline.h"
 #include "viewer.h"
 #include "roles_constants.h"
+#include "llviewerjoystick.h"
 
 #include "lltexlayer.h"
 
@@ -994,6 +995,10 @@ void init_debug_ui_menu(LLMenuGL* menu)
 	menu->append(new LLMenuItemToggleGL("Debug Keys", &LLView::sDebugKeys));
 	menu->append(new LLMenuItemToggleGL("Debug WindowProc", &gDebugWindowProc));
 	menu->append(new LLMenuItemToggleGL("Debug Text Editor Tips", &gDebugTextEditorTips));
+	menu->appendSeparator();
+	menu->append(new LLMenuItemCheckGL("Show Time", menu_toggle_control, NULL, menu_check_control, (void*)"DebugShowTime"));
+	menu->append(new LLMenuItemCheckGL("Show Render Info", menu_toggle_control, NULL, menu_check_control, (void*)"DebugShowRenderInfo"));
+	
 	menu->createJumpKeys();
 }
 
@@ -3145,6 +3150,11 @@ void reset_view_final( BOOL proceed, void* )
 
 	gAgent.changeCameraToDefault();
 	
+	if (LLViewerJoystick::sOverrideCamera)
+	{
+		handle_toggle_flycam(NULL);
+	}
+
 	gAgent.resetView(!gFloaterTools->getVisible());
 	gFloaterTools->close();
 	
@@ -6331,14 +6341,15 @@ void handle_dump_followcam(void*)
 
 BOOL check_flycam(void*)
 {
-	return LLPipeline::sOverrideAgentCamera;
+	return LLViewerJoystick::sOverrideCamera;
 }
 
 void handle_toggle_flycam(void*)
 {
-	LLPipeline::sOverrideAgentCamera = !LLPipeline::sOverrideAgentCamera;
-	if (LLPipeline::sOverrideAgentCamera)
+	LLViewerJoystick::sOverrideCamera = !LLViewerJoystick::sOverrideCamera;
+	if (LLViewerJoystick::sOverrideCamera)
 	{
+		LLViewerJoystick::updateCamera(TRUE);
 		LLFloaterJoystick::show(NULL);
 	}
 }

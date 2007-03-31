@@ -339,7 +339,8 @@ protected:
 	BOOL						mAllowEdit;
 	BOOL						mDisableRate;
 
-	static LLLinkedList<LLPanelAvatar> sAllPanels;
+	typedef std::list<LLPanelAvatar*> panel_list_t;
+	static panel_list_t sAllPanels;
 };
 
 // helper funcs

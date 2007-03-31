@@ -71,6 +71,8 @@
 #include "viewer.h"
 #include "llcubemap.h"
 #include "lldebugmessagebox.h"
+#include "llglslshader.h"
+#include "llviewerjoystick.h"
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
@@ -109,84 +111,6 @@ BOOL	gAvatarBacklight = FALSE;
 S32		gTrivialAccepts = 0;
 
 BOOL	gRenderForSelect = FALSE;
-
-//glsl parameter tables
-const char* LLPipeline::sReservedAttribs[] =
-{
-	"materialColor",
-	"specularColor",
-	"binormal"
-};
-
-U32 LLPipeline::sReservedAttribCount = LLPipeline::GLSL_END_RESERVED_ATTRIBS;
-
-const char* LLPipeline::sAvatarAttribs[] = 
-{
-	"weight",
-	"clothing",
-	"gWindDir",
-	"gSinWaveParams",
-	"gGravity"
-};
-
-U32 LLPipeline::sAvatarAttribCount =  sizeof(LLPipeline::sAvatarAttribs)/sizeof(char*);
-
-const char* LLPipeline::sAvatarUniforms[] = 
-{
-	"matrixPalette"
-};
-
-U32 LLPipeline::sAvatarUniformCount = 1;
-
-const char* LLPipeline::sReservedUniforms[] =
-{
-	"diffuseMap",
-	"specularMap",
-	"bumpMap",
-	"environmentMap",
-	"scatterMap"
-};
-
-U32 LLPipeline::sReservedUniformCount = LLPipeline::GLSL_END_RESERVED_UNIFORMS;
-
-const char* LLPipeline::sTerrainUniforms[] =
-{
-	"detail0",
-	"detail1",
-	"alphaRamp"
-};
-
-U32 LLPipeline::sTerrainUniformCount = sizeof(LLPipeline::sTerrainUniforms)/sizeof(char*);
-
-const char* LLPipeline::sGlowUniforms[] =
-{
-	"delta"
-};
-
-U32 LLPipeline::sGlowUniformCount = sizeof(LLPipeline::sGlowUniforms)/sizeof(char*);
-
-const char* LLPipeline::sShinyUniforms[] = 
-{
-	"origin"
-};
-
-U32 LLPipeline::sShinyUniformCount = sizeof(LLPipeline::sShinyUniforms)/sizeof(char*);
-
-const char* LLPipeline::sWaterUniforms[] =
-{
-	"screenTex",
-	"eyeVec",
-	"time",
-	"d1",
-	"d2",
-	"lightDir",
-	"specular",
-	"lightExp",
-	"fbScale",
-	"refScale"
-};
-
-U32 LLPipeline::sWaterUniformCount =  sizeof(LLPipeline::sWaterUniforms)/sizeof(char*);
 
 //----------------------------------------
 
@@ -227,7 +151,6 @@ BOOL	LLPipeline::sUseOcclusion = FALSE;
 BOOL	LLPipeline::sSkipUpdate = FALSE;
 BOOL	LLPipeline::sDynamicReflections = FALSE;
 BOOL	LLPipeline::sRenderGlow = FALSE;
-BOOL	LLPipeline::sOverrideAgentCamera = FALSE;
 
 LLPipeline::LLPipeline() :
 	mScreenTex(0),
@@ -298,14 +221,7 @@ void LLPipeline::init()
 	// Enable features
 	stop_glerror();
 		
-	setShaders();
-}
-
-void LLPipeline::LLScatterShader::init(GLhandleARB shader, int map_stage)
-{
-	glUseProgramObjectARB(shader);
-	glUniform1iARB(glGetUniformLocationARB(shader, "scatterMap"), map_stage);
-	glUseProgramObjectARB(0);
+	LLShaderMgr::setShaders();
 }
 
 LLPipeline::~LLPipeline()
@@ -381,7 +297,6 @@ void LLPipeline::cleanup()
 	}
 	mObjectPartition.clear();
 
-	mGroupQ.clear();
 	mVisibleList.clear();
 	mVisibleGroups.clear();
 	mDrawableGroups.clear();
@@ -400,7 +315,6 @@ void LLPipeline::destroyGL()
 	stop_glerror();
 	unloadShaders();
 	mHighlightFaces.clear();
-	mGroupQ.clear();
 	mVisibleList.clear();
 	mVisibleGroups.clear();
 	mDrawableGroups.clear();
@@ -460,7 +374,7 @@ void LLPipeline::restoreGL()
 
 	if (mVertexShadersEnabled)
 	{
-		setShaders();
+		LLShaderMgr::setShaders();
 	}
 	
 	for (U32 i = 0; i < mObjectPartition.size()-1; i++)
@@ -472,352 +386,6 @@ void LLPipeline::restoreGL()
 	}
 }
 
-//============================================================================
-// Load Shader
-
-static LLString get_object_log(GLhandleARB ret)
-{
-	LLString res;
-	
-	//get log length
-	GLint length;
-	glGetObjectParameterivARB(ret, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length);
-	if (length > 0)
-	{
-		//the log could be any size, so allocate appropriately
-		GLcharARB* log = new GLcharARB[length];
-		glGetInfoLogARB(ret, length, &length, log);
-		res = LLString(log);
-		delete[] log;
-	}
-	return res;
-}
-
-void LLPipeline::dumpObjectLog(GLhandleARB ret, BOOL warns) 
-{
-	LLString log = get_object_log(ret);
-	if (warns)
-	{
-		llwarns << log << llendl;
-	}
-	else
-	{
-		llinfos << log << llendl;
-	}
-}
-
-GLhandleARB LLPipeline::loadShader(const LLString& filename, S32 cls, GLenum type)
-{
-	GLenum error;
-	error = glGetError();
-	if (error != GL_NO_ERROR)
-	{
-		llwarns << "GL ERROR entering loadShader(): " << error << llendl;
-	}
-	
-	llinfos << "Loading shader file: " << filename << llendl;
-
-	if (filename.empty()) 
-	{
-		return 0;
-	}
-
-
-	//read in from file
-	FILE* file = NULL;
-
-	S32 try_gpu_class = mVertexShaderLevel[cls];
-	S32 gpu_class;
-
-	//find the most relevant file
-	for (gpu_class = try_gpu_class; gpu_class > 0; gpu_class--)
-	{	//search from the current gpu class down to class 1 to find the most relevant shader
-		std::stringstream fname;
-		fname << gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "shaders/class");
-		fname << gpu_class << "/" << filename;
-		
-// 		llinfos << "Looking in " << fname.str().c_str() << llendl;
-		file = fopen(fname.str().c_str(), "r");		/* Flawfinder: ignore */
-		if (file)
-		{
-			break; // done
-		}
-	}
-	
-	if (file == NULL)
-	{
-		llinfos << "GLSL Shader file not found: " << filename << llendl;
-		return 0;
-	}
-
-	//we can't have any lines longer than 1024 characters 
-	//or any shaders longer than 1024 lines... deal - DaveP
-	GLcharARB buff[1024];
-	GLcharARB* text[1024];
-	GLuint count = 0;
-
-	//copy file into memory
-	while(fgets(buff, 1024, file) != NULL) 
-	{
-		text[count++] = strdup(buff);
-    }
-	fclose(file);
-
-	//create shader object
-	GLhandleARB ret = glCreateShaderObjectARB(type);
-	error = glGetError();
-	if (error != GL_NO_ERROR)
-	{
-		llwarns << "GL ERROR in glCreateShaderObjectARB: " << error << llendl;
-	}
-	else
-	{
-		//load source
-		glShaderSourceARB(ret, count, (const GLcharARB**) text, NULL);
-		error = glGetError();
-		if (error != GL_NO_ERROR)
-		{
-			llwarns << "GL ERROR in glShaderSourceARB: " << error << llendl;
-		}
-		else
-		{
-			//compile source
-			glCompileShaderARB(ret);
-			error = glGetError();
-			if (error != GL_NO_ERROR)
-			{
-				llwarns << "GL ERROR in glCompileShaderARB: " << error << llendl;
-			}
-		}
-	}
-	//free memory
-	for (GLuint i = 0; i < count; i++)
-	{
-		free(text[i]);
-	}
-	if (error == GL_NO_ERROR)
-	{
-		//check for errors
-		GLint success = GL_TRUE;
-		glGetObjectParameterivARB(ret, GL_OBJECT_COMPILE_STATUS_ARB, &success);
-		error = glGetError();
-		if (error != GL_NO_ERROR || success == GL_FALSE) 
-		{
-			//an error occured, print log
-			llwarns << "GLSL Compilation Error: (" << error << ") in " << filename << llendl;
-			dumpObjectLog(ret);
-			ret = 0;
-		}
-	}
-	else
-	{
-		ret = 0;
-	}
-	stop_glerror();
-
-	//successfully loaded, save results
-#if 1 // 1.9.1
-	if (ret)
-	{
-		mVertexShaderLevel[cls] = try_gpu_class;
-	}
-	else
-	{
-		if (mVertexShaderLevel[cls] > 1)
-		{
-			mVertexShaderLevel[cls] = mVertexShaderLevel[cls] - 1;
-			ret = loadShader(filename,cls,type);
-			if (ret && mMaxVertexShaderLevel[cls] > mVertexShaderLevel[cls])
-			{
-				mMaxVertexShaderLevel[cls] = mVertexShaderLevel[cls];
-			}
-		}
-	}
-#else
-	if (ret)
-	{
-		S32 max = -1;
-		/*if (try_gpu_class == mMaxVertexShaderLevel[cls])
-		{
-			max = gpu_class;
-		}*/
-		saveVertexShaderLevel(cls,try_gpu_class,max);
-	}
-	else
-	{
-		if (mVertexShaderLevel[cls] > 1)
-		{
-			mVertexShaderLevel[cls] = mVertexShaderLevel[cls] - 1;
-			ret = loadShader(f,cls,type);
-			if (ret && mMaxVertexShaderLevel[cls] > mVertexShaderLevel[cls])
-			{
-				saveVertexShaderLevel(cls, mVertexShaderLevel[cls], mVertexShaderLevel[cls]);
-			}
-		}
-	}
-#endif
-	return ret;
-}
-
-BOOL LLPipeline::linkProgramObject(GLhandleARB obj, BOOL suppress_errors) 
-{
-	//check for errors
-	glLinkProgramARB(obj);
-	GLint success = GL_TRUE;
-	glGetObjectParameterivARB(obj, GL_OBJECT_LINK_STATUS_ARB, &success);
-	if (!suppress_errors && success == GL_FALSE) 
-	{
-		//an error occured, print log
-		llwarns << "GLSL Linker Error:" << llendl;
-	}
-
-	LLString log = get_object_log(obj);
-	LLString::toLower(log);
-	if (log.find("software") != LLString::npos)
-	{
-		llwarns << "GLSL Linker: Running in Software:" << llendl;
-		success = GL_FALSE;
-		suppress_errors = FALSE;
-	}
-	if (!suppress_errors)
-	{
-        dumpObjectLog(obj, !success);
-	}
-
-	return success;
-}
-
-BOOL LLPipeline::validateProgramObject(GLhandleARB obj)
-{
-	//check program validity against current GL
-	glValidateProgramARB(obj);
-	GLint success = GL_TRUE;
-	glGetObjectParameterivARB(obj, GL_OBJECT_VALIDATE_STATUS_ARB, &success);
-	if (success == GL_FALSE)
-	{
-		llwarns << "GLSL program not valid: " << llendl;
-		dumpObjectLog(obj);
-	}
-	else
-	{
-		dumpObjectLog(obj, FALSE);
-	}
-
-	return success;
-}
-
-//============================================================================
-// Shader Management
-
-void LLPipeline::setShaders()
-{
-	if (gGLManager.mHasFramebufferObject)
-	{
-		sDynamicReflections = gSavedSettings.getBOOL("RenderDynamicReflections");
-		sRenderGlow = gSavedSettings.getBOOL("RenderGlow");
-	}
-	else
-	{
-		sDynamicReflections = sRenderGlow = FALSE;
-	}
-	
-	//hack to reset buffers that change behavior with shaders
-	resetVertexBuffers();
-
-	if (gViewerWindow)
-	{
-		gViewerWindow->setCursor(UI_CURSOR_WAIT);
-	}
-
-	// Lighting
-	setLightingDetail(-1);
-
-	// Shaders
-	for (S32 i=0; i<SHADER_COUNT; i++)
-	{
-		mVertexShaderLevel[i] = 0;
-		mMaxVertexShaderLevel[i] = 0;
-	}
-	if (canUseVertexShaders())
-	{
-		S32 light_class = 2;
-		S32 env_class = 2;
-		S32 obj_class = 0;
-
-		if (getLightingDetail() == 0)
-		{
-			light_class = 1;
-		}
-		// Load lighting shaders
-		mVertexShaderLevel[SHADER_LIGHTING] = light_class;
-		mMaxVertexShaderLevel[SHADER_LIGHTING] = light_class;
-		mVertexShaderLevel[SHADER_ENVIRONMENT] = env_class;
-		mMaxVertexShaderLevel[SHADER_ENVIRONMENT] = env_class;
-		mVertexShaderLevel[SHADER_OBJECT] = obj_class;
-		mMaxVertexShaderLevel[SHADER_OBJECT] = obj_class;
-
-		BOOL loaded = loadShadersLighting();
-
-		if (loaded)
-		{
-			mVertexShadersEnabled = TRUE;
-			mVertexShadersLoaded = 1;
-
-			// Load all shaders to set max levels
-			loadShadersEnvironment();
-			loadShadersObject();
-			// Load max avatar shaders to set the max level
-			mVertexShaderLevel[SHADER_AVATAR] = 3;
-			mMaxVertexShaderLevel[SHADER_AVATAR] = 3;
-			loadShadersAvatar();
-
-			// Load shaders to correct levels
-			if (!gSavedSettings.getBOOL("RenderRippleWater"))
-			{
-				mVertexShaderLevel[SHADER_ENVIRONMENT] = 0;
-				loadShadersEnvironment(); // unloads
-			}
-
-#if LL_DARWIN // force avatar shaders off for mac
-			mVertexShaderLevel[SHADER_AVATAR] = 0;
-			mMaxVertexShaderLevel[SHADER_AVATAR] = 0;
-#else
-			if (gSavedSettings.getBOOL("RenderAvatarVP"))
-			{
-				S32 avatar = gSavedSettings.getS32("RenderAvatarMode");
-				S32 avatar_class = 1 + avatar;
-				// Set the actual level
-				mVertexShaderLevel[SHADER_AVATAR] = avatar_class;
-				loadShadersAvatar();
-				if (mVertexShaderLevel[SHADER_AVATAR] != avatar_class)
-				{
-					if (mVertexShaderLevel[SHADER_AVATAR] == 0)
-					{
-						gSavedSettings.setBOOL("RenderAvatarVP", FALSE);
-					}
-					avatar = llmax(mVertexShaderLevel[SHADER_AVATAR]-1,0);
-					gSavedSettings.setS32("RenderAvatarMode", avatar);
-				}
-			}
-			else
-			{
-				mVertexShaderLevel[SHADER_AVATAR] = 0;
-				gSavedSettings.setS32("RenderAvatarMode", 0);
-				loadShadersAvatar(); // unloads
-			}
-#endif
-		}
-		else
-		{
-			mVertexShadersEnabled = FALSE;
-			mVertexShadersLoaded = 0;
-		}
-	}
-	if (gViewerWindow)
-	{
-		gViewerWindow->setCursor(UI_CURSOR_ARROW);
-	}
-}
 
 BOOL LLPipeline::canUseVertexShaders()
 {
@@ -836,488 +404,8 @@ BOOL LLPipeline::canUseVertexShaders()
 
 void LLPipeline::unloadShaders()
 {
-	mObjectSimpleProgram.unload();
-	mObjectShinyProgram.unload();
-	mObjectBumpProgram.unload();
-	mObjectAlphaProgram.unload();
-	mWaterProgram.unload();
-	mTerrainProgram.unload();
-	mGlowProgram.unload();
-	mGroundProgram.unload();
-	mAvatarProgram.unload();
-	mAvatarEyeballProgram.unload();
-	mAvatarPickProgram.unload();
-	mHighlightProgram.unload();
-
-	mVertexShaderLevel[SHADER_LIGHTING] = 0;
-	mVertexShaderLevel[SHADER_OBJECT] = 0;
-	mVertexShaderLevel[SHADER_AVATAR] = 0;
-	mVertexShaderLevel[SHADER_ENVIRONMENT] = 0;
-	mVertexShaderLevel[SHADER_INTERFACE] = 0;
-
-	mLightVertex = mLightFragment = mScatterVertex = mScatterFragment = 0;
+	LLShaderMgr::unloadShaders();
 	mVertexShadersLoaded = 0;
-}
-
-#if 0 // 1.9.2
-// Any time shader options change
-BOOL LLPipeline::loadShaders()
-{
-	unloadShaders();
-
-	if (!canUseVertexShaders())
-	{
-		return FALSE;
-	}
-
-	S32 light_class = mMaxVertexShaderLevel[SHADER_LIGHTING];
-	if (getLightingDetail() == 0)
-	{
-		light_class = 1; // Use minimum lighting shader
-	}
-	else if (getLightingDetail() == 1)
-	{
-		light_class = 2; // Use medium lighting shader
-	}
-	mVertexShaderLevel[SHADER_LIGHTING] = light_class;
-	//mVertexShaderLevel[SHADER_OBJECT] = llmin(mMaxVertexShaderLevel[SHADER_OBJECT], gSavedSettings.getS32("VertexShaderLevelObject"));
-	mVertexShaderLevel[SHADER_OBJECT] = 0;
-	mVertexShaderLevel[SHADER_AVATAR] = llmin(mMaxVertexShaderLevel[SHADER_AVATAR], gSavedSettings.getS32("VertexShaderLevelAvatar"));
-	mVertexShaderLevel[SHADER_ENVIRONMENT] = llmin(mMaxVertexShaderLevel[SHADER_ENVIRONMENT], gSavedSettings.getS32("VertexShaderLevelEnvironment"));
-	mVertexShaderLevel[SHADER_INTERFACE] = mMaxVertexShaderLevel[SHADER_INTERFACE];
-	
-	BOOL loaded = loadShadersLighting();
-	if (loaded)
-	{
-		loadShadersEnvironment(); // Must load this before object/avatar for scatter
-		loadShadersObject();
-		loadShadersAvatar();
-		loadShadersInterface();
-		mVertexShadersLoaded = 1;
-	}
-	else
-	{
-		unloadShaders();
-		mVertexShadersEnabled = FALSE;
-		mVertexShadersLoaded = 0; //-1; // -1 = failed
-		setLightingDetail(-1);
-	}
-	
-	return loaded;
-}
-#endif
-
-BOOL LLPipeline::loadShadersLighting()
-{
-	// Load light dependency shaders first
-	// All of these have to load for any shaders to function
-	
-    std::string lightvertex = "lighting/lightV.glsl";
-	//get default light function implementation
-	mLightVertex = loadShader(lightvertex, SHADER_LIGHTING, GL_VERTEX_SHADER_ARB);
-	if( !mLightVertex )
-	{
-		llwarns << "Failed to load " << lightvertex << llendl;
-		return FALSE;
-	}
-	
-	std::string lightfragment = "lighting/lightF.glsl";
-	mLightFragment = loadShader(lightfragment, SHADER_LIGHTING, GL_FRAGMENT_SHADER_ARB);
-	if ( !mLightFragment )
-	{
-		llwarns << "Failed to load " << lightfragment << llendl;
-		return FALSE;
-	}
-
-	// NOTE: Scatter shaders use the ENVIRONMENT detail level
-	
-	std::string scattervertex = "environment/scatterV.glsl";
-	mScatterVertex = loadShader(scattervertex, SHADER_ENVIRONMENT, GL_VERTEX_SHADER_ARB);
-	if ( !mScatterVertex )
-	{
-		llwarns << "Failed to load " << scattervertex << llendl;
-		return FALSE;
-	}
-
-	std::string scatterfragment = "environment/scatterF.glsl";
-	mScatterFragment = loadShader(scatterfragment, SHADER_ENVIRONMENT, GL_FRAGMENT_SHADER_ARB);
-	if ( !mScatterFragment )
-	{
-		llwarns << "Failed to load " << scatterfragment << llendl;
-		return FALSE;
-	}
-	
-	return TRUE;
-}
-
-BOOL LLPipeline::loadShadersEnvironment()
-{
-	GLhandleARB baseObjects[] = 
-	{
-		mLightFragment,
-		mLightVertex,
-		mScatterFragment,
-		mScatterVertex
-	};
-	S32 baseCount = 4;
-
-	BOOL success = TRUE;
-
-	if (mVertexShaderLevel[SHADER_ENVIRONMENT] == 0)
-	{
-		mWaterProgram.unload();
-		mGroundProgram.unload();
-		mTerrainProgram.unload();
-		mGlowProgram.unload();
-		return FALSE;
-	}
-	
-	if (success)
-	{
-		//load water vertex shader
-		std::string waterfragment = "environment/waterF.glsl";
-		std::string watervertex = "environment/waterV.glsl";
-		mWaterProgram.mProgramObject = glCreateProgramObjectARB();
-		mWaterProgram.attachObjects(baseObjects, baseCount);
-		mWaterProgram.attachObject(loadShader(watervertex, SHADER_ENVIRONMENT, GL_VERTEX_SHADER_ARB));
-		mWaterProgram.attachObject(loadShader(waterfragment, SHADER_ENVIRONMENT, GL_FRAGMENT_SHADER_ARB));
-
-		success = mWaterProgram.mapAttributes();	
-		if (success)
-		{
-			success = mWaterProgram.mapUniforms(sWaterUniforms, sWaterUniformCount);
-		}
-		if (!success)
-		{
-			llwarns << "Failed to load " << watervertex << llendl;
-		}
-	}
-	if (success)
-	{
-		//load ground vertex shader
-		std::string groundvertex = "environment/groundV.glsl";
-		std::string groundfragment = "environment/groundF.glsl";
-		mGroundProgram.mProgramObject = glCreateProgramObjectARB();
-		mGroundProgram.attachObjects(baseObjects, baseCount);
-		mGroundProgram.attachObject(loadShader(groundvertex, SHADER_ENVIRONMENT, GL_VERTEX_SHADER_ARB));
-		mGroundProgram.attachObject(loadShader(groundfragment, SHADER_ENVIRONMENT, GL_FRAGMENT_SHADER_ARB));
-	
-		success = mGroundProgram.mapAttributes();
-		if (success)
-		{
-			success = mGroundProgram.mapUniforms();
-		}
-		if (!success)
-		{
-			llwarns << "Failed to load " << groundvertex << llendl;
-		}
-	}
-
-	if (success)
-	{
-		//load terrain vertex shader
-		std::string terrainvertex = "environment/terrainV.glsl";
-		std::string terrainfragment = "environment/terrainF.glsl";
-		mTerrainProgram.mProgramObject = glCreateProgramObjectARB();
-		mTerrainProgram.attachObjects(baseObjects, baseCount);
-		mTerrainProgram.attachObject(loadShader(terrainvertex, SHADER_ENVIRONMENT, GL_VERTEX_SHADER_ARB));
-		mTerrainProgram.attachObject(loadShader(terrainfragment, SHADER_ENVIRONMENT, GL_FRAGMENT_SHADER_ARB));
-		success = mTerrainProgram.mapAttributes();
-		if (success)
-		{
-			success = mTerrainProgram.mapUniforms(sTerrainUniforms, sTerrainUniformCount);
-		}
-		if (!success)
-		{
-			llwarns << "Failed to load " << terrainvertex << llendl;
-		}
-	}
-
-	if (success)
-	{
-		//load glow shader
-		std::string glowvertex = "environment/glowV.glsl";
-		std::string glowfragment = "environment/glowF.glsl";
-		mGlowProgram.mProgramObject = glCreateProgramObjectARB();
-		mGlowProgram.attachObjects(baseObjects, baseCount);
-		mGlowProgram.attachObject(loadShader(glowvertex, SHADER_ENVIRONMENT, GL_VERTEX_SHADER_ARB));
-		mGlowProgram.attachObject(loadShader(glowfragment, SHADER_ENVIRONMENT, GL_FRAGMENT_SHADER_ARB));
-		success = mGlowProgram.mapAttributes();
-		if (success)
-		{
-			success = mGlowProgram.mapUniforms(sGlowUniforms, sGlowUniformCount);
-		}
-		if (!success)
-		{
-			llwarns << "Failed to load " << glowvertex << llendl;
-		}
-	}
-
-	if( !success )
-	{
-		mVertexShaderLevel[SHADER_ENVIRONMENT] = 0;
-		mMaxVertexShaderLevel[SHADER_ENVIRONMENT] = 0;
-		return FALSE;
-	}
-	
-	if (gWorldPointer)
-	{
-		gWorldPointer->updateWaterObjects();
-	}
-	
-	return TRUE;
-}
-
-BOOL LLPipeline::loadShadersObject()
-{
-	GLhandleARB baseObjects[] = 
-	{
-		mLightFragment,
-		mLightVertex,
-		mScatterFragment,
-		mScatterVertex
-	};
-	S32 baseCount = 4;
-
-	BOOL success = TRUE;
-
-	if (mVertexShaderLevel[SHADER_OBJECT] == 0)
-	{
-		mObjectShinyProgram.unload();
-		mObjectSimpleProgram.unload();
-		mObjectBumpProgram.unload();
-		mObjectAlphaProgram.unload();
-		return FALSE;
-	}
-
-#if 0
-	if (success)
-	{
-		//load object (volume/tree) vertex shader
-		std::string simplevertex = "objects/simpleV.glsl";
-		std::string simplefragment = "objects/simpleF.glsl";
-		mObjectSimpleProgram.mProgramObject = glCreateProgramObjectARB();
-		mObjectSimpleProgram.attachObjects(baseObjects, baseCount);
-		mObjectSimpleProgram.attachObject(loadShader(simplevertex, SHADER_OBJECT, GL_VERTEX_SHADER_ARB));
-		mObjectSimpleProgram.attachObject(loadShader(simplefragment, SHADER_OBJECT, GL_FRAGMENT_SHADER_ARB));
-		success = mObjectSimpleProgram.mapAttributes();
-		if (success)
-		{
-			success = mObjectSimpleProgram.mapUniforms();
-		}
-		if( !success )
-		{
-			llwarns << "Failed to load " << simplevertex << llendl;
-		}
-	}
-	
-	if (success)
-	{
-		//load object bumpy vertex shader
-		std::string bumpshinyvertex = "objects/bumpshinyV.glsl";
-		std::string bumpshinyfragment = "objects/bumpshinyF.glsl";
-		mObjectBumpProgram.mProgramObject = glCreateProgramObjectARB();
-		mObjectBumpProgram.attachObjects(baseObjects, baseCount);
-		mObjectBumpProgram.attachObject(loadShader(bumpshinyvertex, SHADER_OBJECT, GL_VERTEX_SHADER_ARB));
-		mObjectBumpProgram.attachObject(loadShader(bumpshinyfragment, SHADER_OBJECT, GL_FRAGMENT_SHADER_ARB));
-		success = mObjectBumpProgram.mapAttributes();
-		if (success)
-		{
-			success = mObjectBumpProgram.mapUniforms();
-		}
-		if( !success )
-		{
-			llwarns << "Failed to load " << bumpshinyvertex << llendl;
-		}
-	}
-
-	if (success)
-	{
-		//load object alpha vertex shader
-		std::string alphavertex = "objects/alphaV.glsl";
-		std::string alphafragment = "objects/alphaF.glsl";
-		mObjectAlphaProgram.mProgramObject = glCreateProgramObjectARB();
-		mObjectAlphaProgram.attachObjects(baseObjects, baseCount);
-		mObjectAlphaProgram.attachObject(loadShader(alphavertex, SHADER_OBJECT, GL_VERTEX_SHADER_ARB));
-		mObjectAlphaProgram.attachObject(loadShader(alphafragment, SHADER_OBJECT, GL_FRAGMENT_SHADER_ARB));
-
-		success = mObjectAlphaProgram.mapAttributes();
-		if (success)
-		{
-			success = mObjectAlphaProgram.mapUniforms();
-		}
-		if( !success )
-		{
-			llwarns << "Failed to load " << alphavertex << llendl;
-		}
-	}
-#endif
-
-	if (success)
-	{
-		//load shiny vertex shader
-		std::string shinyvertex = "objects/shinyV.glsl";
-		std::string shinyfragment = "objects/shinyF.glsl";
-		mObjectShinyProgram.mProgramObject = glCreateProgramObjectARB();
-		mObjectShinyProgram.attachObjects(baseObjects, baseCount);
-		mObjectShinyProgram.attachObject(loadShader(shinyvertex, SHADER_OBJECT, GL_VERTEX_SHADER_ARB));
-		mObjectShinyProgram.attachObject(loadShader(shinyfragment, SHADER_OBJECT, GL_FRAGMENT_SHADER_ARB));
-
-		success = mObjectShinyProgram.mapAttributes();
-		if (success)
-		{
-			success = mObjectShinyProgram.mapUniforms(LLPipeline::sShinyUniforms, LLPipeline::sShinyUniformCount);
-		}
-		if( !success )
-		{
-			llwarns << "Failed to load " << shinyvertex << llendl;
-		}
-	}
-
-	if( !success )
-	{
-		mVertexShaderLevel[SHADER_OBJECT] = 0;
-		mMaxVertexShaderLevel[SHADER_OBJECT] = 0;
-		return FALSE;
-	}
-	
-	return TRUE;
-}
-
-BOOL LLPipeline::loadShadersAvatar()
-{
-	GLhandleARB baseObjects[] = 
-	{
-		mLightFragment,
-		mLightVertex,
-		mScatterFragment,
-		mScatterVertex
-	};
-	S32 baseCount = 4;
-	
-	BOOL success = TRUE;
-
-	if (mVertexShaderLevel[SHADER_AVATAR] == 0)
-	{
-		mAvatarProgram.unload();
-		mAvatarEyeballProgram.unload();
-		mAvatarPickProgram.unload();
-		return FALSE;
-	}
-	
-	if (success)
-	{
-		//load specular (eyeball) vertex program
-		std::string eyeballvertex = "avatar/eyeballV.glsl";
-		std::string eyeballfragment = "avatar/eyeballF.glsl";
-		mAvatarEyeballProgram.mProgramObject = glCreateProgramObjectARB();
-		mAvatarEyeballProgram.attachObjects(baseObjects, baseCount);
-		mAvatarEyeballProgram.attachObject(loadShader(eyeballvertex, SHADER_AVATAR, GL_VERTEX_SHADER_ARB));
-		mAvatarEyeballProgram.attachObject(loadShader(eyeballfragment, SHADER_AVATAR, GL_FRAGMENT_SHADER_ARB));
-		success = mAvatarEyeballProgram.mapAttributes();
-		if (success)
-		{
-			success = mAvatarEyeballProgram.mapUniforms();
-		}
-		if( !success )
-		{
-			llwarns << "Failed to load " << eyeballvertex << llendl;
-		}
-	}
-
-	if (success)
-	{
-		mAvatarSkinVertex = loadShader("avatar/avatarSkinV.glsl", SHADER_AVATAR, GL_VERTEX_SHADER_ARB);
-		//load avatar vertex shader
-		std::string avatarvertex = "avatar/avatarV.glsl";
-		std::string avatarfragment = "avatar/avatarF.glsl";
-		
-		mAvatarProgram.mProgramObject = glCreateProgramObjectARB();
-		mAvatarProgram.attachObjects(baseObjects, baseCount);
-		mAvatarProgram.attachObject(mAvatarSkinVertex);
-		mAvatarProgram.attachObject(loadShader(avatarvertex, SHADER_AVATAR, GL_VERTEX_SHADER_ARB));
-		mAvatarProgram.attachObject(loadShader(avatarfragment, SHADER_AVATAR, GL_FRAGMENT_SHADER_ARB));
-		
-		success = mAvatarProgram.mapAttributes(sAvatarAttribs, sAvatarAttribCount);
-		if (success)
-		{
-			success = mAvatarProgram.mapUniforms(sAvatarUniforms, sAvatarUniformCount);
-		}
-		if( !success )
-		{
-			llwarns << "Failed to load " << avatarvertex << llendl;
-		}
-	}
-
-	if (success)
-	{
-		//load avatar picking shader
-		std::string pickvertex = "avatar/pickAvatarV.glsl";
-		std::string pickfragment = "avatar/pickAvatarF.glsl";
-		mAvatarPickProgram.mProgramObject = glCreateProgramObjectARB();
-		mAvatarPickProgram.attachObject(loadShader(pickvertex, SHADER_AVATAR, GL_VERTEX_SHADER_ARB));
-		mAvatarPickProgram.attachObject(loadShader(pickfragment, SHADER_AVATAR, GL_FRAGMENT_SHADER_ARB));
-		mAvatarPickProgram.attachObject(mAvatarSkinVertex);
-
-		success = mAvatarPickProgram.mapAttributes(sAvatarAttribs, sAvatarAttribCount);
-		if (success)
-		{
-			success = mAvatarPickProgram.mapUniforms(sAvatarUniforms, sAvatarUniformCount);
-		}
-		if( !success )
-		{
-			llwarns << "Failed to load " << pickvertex << llendl;
-		}
-	}
-
-	if( !success )
-	{
-		mVertexShaderLevel[SHADER_AVATAR] = 0;
-		mMaxVertexShaderLevel[SHADER_AVATAR] = 0;
-		return FALSE;
-	}
-	
-	return TRUE;
-}
-
-BOOL LLPipeline::loadShadersInterface()
-{
-	BOOL success = TRUE;
-
-	if (mVertexShaderLevel[SHADER_INTERFACE] == 0)
-	{
-		mHighlightProgram.unload();
-		return FALSE;
-	}
-	
-	if (success)
-	{
-		//load highlighting shader
-		std::string highlightvertex = "interface/highlightV.glsl";
-		std::string highlightfragment = "interface/highlightF.glsl";
-		mHighlightProgram.mProgramObject = glCreateProgramObjectARB();
-		mHighlightProgram.attachObject(loadShader(highlightvertex, SHADER_INTERFACE, GL_VERTEX_SHADER_ARB));
-		mHighlightProgram.attachObject(loadShader(highlightfragment, SHADER_INTERFACE, GL_FRAGMENT_SHADER_ARB));
-	
-		success = mHighlightProgram.mapAttributes();
-		if (success)
-		{
-			success = mHighlightProgram.mapUniforms();
-		}
-		if( !success )
-		{
-			llwarns << "Failed to load " << highlightvertex << llendl;
-		}
-	}
-
-	if( !success )
-	{
-		mVertexShaderLevel[SHADER_INTERFACE] = 0;
-		mMaxVertexShaderLevel[SHADER_INTERFACE] = 0;
-		return FALSE;
-	}
-	
-	return TRUE;
 }
 
 //============================================================================
@@ -1357,7 +445,7 @@ S32 LLPipeline::setLightingDetail(S32 level)
 
 		if (mVertexShadersLoaded == 1)
 		{
-			gPipeline.setShaders();
+			LLShaderMgr::setShaders();
 		}
 	}
 	return mLightingDetail;
@@ -1384,7 +472,6 @@ public:
 					if (mTextures.find(params->mTexture) != mTextures.end())
 					{ 
 						group->setState(LLSpatialGroup::GEOM_DIRTY);
-						gPipeline.markRebuild(group);
 					}
 				}
 			}
@@ -1828,9 +915,6 @@ void LLPipeline::updateCull(LLCamera& camera)
 		}
 	}
 
-	//do a terse update on some off-screen geometry
-	processGeometry(camera);
-	
 	if (gSky.mVOSkyp.notNull() && gSky.mVOSkyp->mDrawable.notNull())
 	{
 		// Hack for sky - always visible.
@@ -2171,11 +1255,6 @@ void LLPipeline::markTextured(LLDrawable *drawablep)
 	}
 }
 
-void LLPipeline::markRebuild(LLSpatialGroup* group)
-{
-	mGroupQ.insert(group);
-}
-
 void LLPipeline::markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag, BOOL priority)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
@@ -2475,16 +1554,8 @@ void LLPipeline::postSort(LLCamera& camera)
 	}
 
 
-	//rebuild offscreen geometry
 	if (!sSkipUpdate)
 	{
-		for (LLSpatialGroup::sg_set_t::iterator iter = mGroupQ.begin(); iter != mGroupQ.end(); ++iter)
-		{
-			LLSpatialGroup* group = *iter;
-			group->rebuildGeom();
-		}
-		mGroupQ.clear();
-	
 		//rebuild drawable geometry
 		for (LLSpatialGroup::sg_vector_t::iterator i = mDrawableGroups.begin(); i != mDrawableGroups.end(); ++i)
 		{
@@ -2721,10 +1792,10 @@ void LLPipeline::renderHighlights()
 	LLGLEnable color_mat(GL_COLOR_MATERIAL);
 	disableLights();
 
-	if ((mVertexShaderLevel[SHADER_INTERFACE] > 0))
+	if ((LLShaderMgr::sVertexShaderLevel[LLShaderMgr::SHADER_INTERFACE] > 0))
 	{
-		mHighlightProgram.bind();
-		gPipeline.mHighlightProgram.vertexAttrib4f(LLPipeline::GLSL_MATERIAL_COLOR,1,0,0,0.5f);
+		gHighlightProgram.bind();
+		gHighlightProgram.vertexAttrib4f(LLShaderMgr::MATERIAL_COLOR,1,0,0,0.5f);
 	}
 	
 	if (hasRenderDebugFeatureMask(RENDER_DEBUG_FEATURE_SELECTED))
@@ -2763,9 +1834,9 @@ void LLPipeline::renderHighlights()
 	// have touch-handlers.
 	mHighlightFaces.clear();
 
-	if (mVertexShaderLevel[SHADER_INTERFACE] > 0)
+	if (LLShaderMgr::sVertexShaderLevel[LLShaderMgr::SHADER_INTERFACE] > 0)
 	{
-		mHighlightProgram.unbind();
+		gHighlightProgram.unbind();
 	}
 }
 
@@ -2858,7 +1929,7 @@ void LLPipeline::renderGeom(LLCamera& camera)
 	{
 		LLFastTimer t(LLFastTimer::FTM_POOLS);
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
-		calcNearbyLights();
+		calcNearbyLights(camera);
 		pool_set_t::iterator iter1 = mPools.begin();
 		while ( iter1 != mPools.end() )
 		{
@@ -2998,22 +2069,6 @@ void LLPipeline::renderGeom(LLCamera& camera)
 
 		bindScreenToTexture();
 		renderBloom(mScreenTex, mGlowMap, mGlowBuffer, glow_res, LLVector2(0,0), mScreenScale);
-	}
-}
-
-void LLPipeline::processGeometry(LLCamera& camera)
-{
-	if (sSkipUpdate)
-	{
-		return;
-	}
-
-	for (U32 i = 0; i < mObjectPartition.size(); i++)
-	{
-		if (mObjectPartition[i] && hasRenderType(mObjectPartition[i]->mDrawableType))
-		{
-			mObjectPartition[i]->processGeometry(&camera);
-		}
 	}
 }
 
@@ -3691,7 +2746,7 @@ static F32 calc_light_dist(LLVOVolume* light, const LLVector3& cam_pos, F32 max_
 	return dist;
 }
 
-void LLPipeline::calcNearbyLights()
+void LLPipeline::calcNearbyLights(LLCamera& camera)
 {
 	if (mLightingDetail >= 1)
 	{
@@ -3699,34 +2754,39 @@ void LLPipeline::calcNearbyLights()
 		// begin() == the closest light and rbegin() == the farthest light
 		const S32 MAX_LOCAL_LIGHTS = 6;
 // 		LLVector3 cam_pos = gAgent.getCameraPositionAgent();
-		LLVector3 cam_pos = gAgent.getPositionAgent();
+		LLVector3 cam_pos = LLPipeline::sSkipUpdate || LLViewerJoystick::sOverrideCamera ?
+						camera.getOrigin() : 
+						gAgent.getPositionAgent();
 
 		F32 max_dist = LIGHT_MAX_RADIUS * 4.f; // ignore enitrely lights > 4 * max light rad
 		
 		// UPDATE THE EXISTING NEARBY LIGHTS
-		light_set_t cur_nearby_lights;
-		for (light_set_t::iterator iter = mNearbyLights.begin();
-			 iter != mNearbyLights.end(); iter++)
+		if (!LLPipeline::sSkipUpdate)
 		{
-			const Light* light = &(*iter);
-			LLDrawable* drawable = light->drawable;
-			LLVOVolume* volight = drawable->getVOVolume();
-			if (!volight || !drawable->isState(LLDrawable::LIGHT))
+			light_set_t cur_nearby_lights;
+			for (light_set_t::iterator iter = mNearbyLights.begin();
+				iter != mNearbyLights.end(); iter++)
 			{
-				drawable->clearState(LLDrawable::NEARBY_LIGHT);
-				continue;
+				const Light* light = &(*iter);
+				LLDrawable* drawable = light->drawable;
+				LLVOVolume* volight = drawable->getVOVolume();
+				if (!volight || !drawable->isState(LLDrawable::LIGHT))
+				{
+					drawable->clearState(LLDrawable::NEARBY_LIGHT);
+					continue;
+				}
+				if (light->fade <= -LIGHT_FADE_TIME)
+				{
+					drawable->clearState(LLDrawable::NEARBY_LIGHT);
+				}
+				else
+				{
+					F32 dist = calc_light_dist(volight, cam_pos, max_dist);
+					cur_nearby_lights.insert(Light(drawable, dist, light->fade));
+				}
 			}
-			if (light->fade <= -LIGHT_FADE_TIME)
-			{
-				drawable->clearState(LLDrawable::NEARBY_LIGHT);
-			}
-			else
-			{
-				F32 dist = calc_light_dist(volight, cam_pos, max_dist);
-				cur_nearby_lights.insert(Light(drawable, dist, light->fade));
-			}
+			mNearbyLights = cur_nearby_lights;
 		}
-		mNearbyLights = cur_nearby_lights;
 		
 		// FIND NEW LIGHTS THAT ARE IN RANGE
 		light_set_t new_nearby_lights;
@@ -3861,7 +2921,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			LLColor4  light_color = light->getLightColor();
 			light_color.mV[3] = 0.0f;
 
-			F32 fade = iter->fade;
+			F32 fade = LLPipeline::sSkipUpdate ? 1.f : iter->fade;
 			if (fade < LIGHT_FADE_TIME)
 			{
 				// fade in/out light
@@ -4407,255 +3467,6 @@ BOOL LLPipeline::getRenderSoundBeacons(void*)
 	return sRenderSoundBeacons;
 }
 
-//===============================
-// LLGLSL Shader implementation
-//===============================
-LLGLSLShader::LLGLSLShader()
-: mProgramObject(0)
-{ }
-
-void LLGLSLShader::unload()
-{
-	stop_glerror();
-	mAttribute.clear();
-	mTexture.clear();
-	mUniform.clear();
-
-	if (mProgramObject)
-	{
-		GLhandleARB obj[1024];
-		GLsizei count;
-
-		glGetAttachedObjectsARB(mProgramObject, 1024, &count, obj);
-		for (GLsizei i = 0; i < count; i++)
-		{
-			glDeleteObjectARB(obj[i]);
-		}
-
-		glDeleteObjectARB(mProgramObject);
-
-		mProgramObject = 0;
-	}
-	
-	//hack to make apple not complain
-	glGetError();
-	
-	stop_glerror();
-}
-
-void LLGLSLShader::attachObject(GLhandleARB object)
-{
-	if (object != 0)
-	{
-		stop_glerror();
-		glAttachObjectARB(mProgramObject, object);
-		stop_glerror();
-	}
-	else
-	{
-		llwarns << "Attempting to attach non existing shader object. " << llendl;
-	}
-}
-
-void LLGLSLShader::attachObjects(GLhandleARB* objects, S32 count)
-{
-	for (S32 i = 0; i < count; i++)
-	{
-		attachObject(objects[i]);
-	}
-}
-
-BOOL LLGLSLShader::mapAttributes(const char** attrib_names, S32 count)
-{
-	//link the program
-	BOOL res = link();
-
-	mAttribute.clear();
-	mAttribute.resize(LLPipeline::sReservedAttribCount + count, -1);
-	
-	if (res)
-	{ //read back channel locations
-
-		//read back reserved channels first
-		for (S32 i = 0; i < (S32) LLPipeline::sReservedAttribCount; i++)
-		{
-			const char* name = LLPipeline::sReservedAttribs[i];
-			S32 index = glGetAttribLocationARB(mProgramObject, name);
-			if (index != -1)
-			{
-				mAttribute[i] = index;
-				llinfos << "Attribute " << name << " assigned to channel " << index << llendl;
-			}
-		}
-
-		for (S32 i = 0; i < count; i++)
-		{
-			const char* name = attrib_names[i];
-			S32 index = glGetAttribLocationARB(mProgramObject, name);
-			if (index != -1)
-			{
-				mAttribute[LLPipeline::sReservedAttribCount + i] = index;
-				llinfos << "Attribute " << name << " assigned to channel " << index << llendl;
-			}
-		}
-
-		return TRUE;
-	}
-	
-	return FALSE;
-}
-
-void LLGLSLShader::mapUniform(GLint index, const char** uniform_names, S32 count)
-{
-	if (index == -1)
-	{
-		return;
-	}
-
-	GLenum type;
-	GLsizei length;
-	GLint size;
-	char name[1024];		/* Flawfinder: ignore */
-	name[0] = 0;
-
-	glGetActiveUniformARB(mProgramObject, index, 1024, &length, &size, &type, name);
-	
-	//find the index of this uniform
-	for (S32 i = 0; i < (S32) LLPipeline::sReservedUniformCount; i++)
-	{
-		if (mUniform[i] == -1 && !strncmp(LLPipeline::sReservedUniforms[i],name, strlen(LLPipeline::sReservedUniforms[i])))		/* Flawfinder: ignore */
-		{
-			//found it
-			S32 location = glGetUniformLocationARB(mProgramObject, name);
-			mUniform[i] = location;
-			llinfos << "Uniform " << name << " is at location " << location << llendl;
-			mTexture[i] = mapUniformTextureChannel(location, type);
-			return;
-		}
-	}
-
-	for (S32 i = 0; i < count; i++)
-	{
-		if (mUniform[i+LLPipeline::sReservedUniformCount] == -1 && 
-			!strncmp(uniform_names[i],name, strlen(uniform_names[i])))		/* Flawfinder: ignore */
-		{
-			//found it
-			S32 location = glGetUniformLocationARB(mProgramObject, name);
-			mUniform[i+LLPipeline::sReservedUniformCount] = location;
-			llinfos << "Uniform " << name << " is at location " << location << " stored in index " << 
-				(i+LLPipeline::sReservedUniformCount) << llendl;
-			mTexture[i+LLPipeline::sReservedUniformCount] = mapUniformTextureChannel(location, type);
-			return;
-		}
-	}
-
-	//llinfos << "Unknown uniform: " << name << llendl;
- }
-
-GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type)
-{
-	if (type >= GL_SAMPLER_1D_ARB && type <= GL_SAMPLER_2D_RECT_SHADOW_ARB)
-	{	//this here is a texture
-		glUniform1iARB(location, mActiveTextureChannels);
-		llinfos << "Assigned to texture channel " << mActiveTextureChannels << llendl;
-		return mActiveTextureChannels++;
-	}
-	return -1;
-}
-
-BOOL LLGLSLShader::mapUniforms(const char** uniform_names,  S32 count)
-{
-	BOOL res = TRUE;
-	
-	mActiveTextureChannels = 0;
-	mUniform.clear();
-	mTexture.clear();
-
-	//initialize arrays
-	mUniform.resize(count + LLPipeline::sReservedUniformCount, -1);
-	mTexture.resize(count + LLPipeline::sReservedUniformCount, -1);
-	
-	bind();
-
-	//get the number of active uniforms
-	GLint activeCount;
-	glGetObjectParameterivARB(mProgramObject, GL_OBJECT_ACTIVE_UNIFORMS_ARB, &activeCount);
-
-	for (S32 i = 0; i < activeCount; i++)
-	{
-		mapUniform(i, uniform_names, count);
-	}
-	
-	unbind();
-
-	return res;
-}
-
-BOOL LLGLSLShader::link(BOOL suppress_errors)
-{
-	return gPipeline.linkProgramObject(mProgramObject, suppress_errors);
-}
-
-void LLGLSLShader::bind()
-{
-	glUseProgramObjectARB(mProgramObject);
-	if (mAttribute.size() > 0)
-	{
-		gPipeline.mMaterialIndex = mAttribute[0];
-	}
-}
-
-void LLGLSLShader::unbind()
-{
-	for (U32 i = 0; i < mAttribute.size(); ++i)
-	{
-		vertexAttrib4f(i, 0,0,0,1);
-	}
-	glUseProgramObjectARB(0);
-}
-
-S32 LLGLSLShader::enableTexture(S32 uniform, S32 mode)
-{
-	if (uniform < 0 || uniform >= (S32)mTexture.size())
-	{
-		llerrs << "LLGLSLShader::enableTexture: uniform out of range: " << uniform << llendl;
-	}
-	S32 index = mTexture[uniform];
-	if (index != -1)
-	{
-		glActiveTextureARB(GL_TEXTURE0_ARB+index);
-		glEnable(mode);
-	}
-	return index;
-}
-
-S32 LLGLSLShader::disableTexture(S32 uniform, S32 mode)
-{
-	S32 index = mTexture[uniform];
-	if (index != -1)
-	{
-		glActiveTextureARB(GL_TEXTURE0_ARB+index);
-		glDisable(mode);
-	}
-	return index;
-}
-
-void LLGLSLShader::vertexAttrib4f(U32 index, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
-{
-	if (mAttribute[index] > 0)
-	{
-		glVertexAttrib4fARB(mAttribute[index], x, y, z, w);
-	}
-}
-
-void LLGLSLShader::vertexAttrib4fv(U32 index, GLfloat* v)
-{
-	if (mAttribute[index] > 0)
-	{
-		glVertexAttrib4fvARB(mAttribute[index], v);
-	}
-}
-
 LLViewerObject* LLPipeline::pickObject(const LLVector3 &start, const LLVector3 &end, LLVector3 &collision)
 {
 	LLDrawable* drawable = mObjectPartition[PARTITION_VOLUME]->pickDrawable(start, end, collision);
@@ -4847,7 +3658,7 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, 
 	
 	LLVector3 origin = cube_cam.getOrigin();
 
-	gPipeline.calcNearbyLights();
+	gPipeline.calcNearbyLights(cube_cam);
 
 	cube_map->bind();
 	for (S32 i = 0; i < 6; i++)
@@ -4909,7 +3720,7 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, 
 
 	cube_cam.setOrigin(origin);
 	gPipeline.resetDrawOrders();
-	gPipeline.mShinyOrigin.setVec(cube_cam.getOrigin(), cube_cam.getFar()*2.f);
+	gShinyOrigin.setVec(cube_cam.getOrigin(), cube_cam.getFar()*2.f);
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -5112,12 +3923,7 @@ void LLPipeline::bindScreenToTexture()
 
 void LLPipeline::renderBloom(GLuint source, GLuint dest, GLuint buffer, U32 res, LLVector2 tc1, LLVector2 tc2)
 {
-	mGlowProgram.bind();
-
-	if (!gGLManager.mHasFramebufferObject)
-	{
-		llerrs << "WTF?" << llendl;
-	}
+	gGlowProgram.bind();
 
 	LLGLEnable tex(GL_TEXTURE_2D);
 	LLGLDepthTest depth(GL_FALSE);
@@ -5160,7 +3966,7 @@ void LLPipeline::renderBloom(GLuint source, GLuint dest, GLuint buffer, U32 res,
 									i%2==0 ? dest :
 									buffer);
 		
-		glUniform1fARB(mGlowProgram.mUniform[LLPipeline::GLSL_GLOW_DELTA],delta);					
+		glUniform1fARB(gGlowProgram.mUniform[LLShaderMgr::GLOW_DELTA],delta);					
 
 		glBegin(GL_TRIANGLE_STRIP);
 		glTexCoord2f(tc1.mV[0], tc1.mV[1]);
@@ -5182,7 +3988,7 @@ void LLPipeline::renderBloom(GLuint source, GLuint dest, GLuint buffer, U32 res,
 	}
 
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-	mGlowProgram.unbind();
+	gGlowProgram.unbind();
 
 	glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 
@@ -5220,107 +4026,3 @@ void LLPipeline::renderBloom(GLuint source, GLuint dest, GLuint buffer, U32 res,
 	glPopMatrix();
 }
 
-void LLPipeline::updateCamera()
-{
-	LLWindow* window = gViewerWindow->getWindow();
-
-	F32 time = gFrameIntervalSeconds;
-
-	S32 axis[] = 
-	{
-		gSavedSettings.getS32("JoystickAxis0"),
-		gSavedSettings.getS32("JoystickAxis1"),
-		gSavedSettings.getS32("JoystickAxis2"),
-		gSavedSettings.getS32("JoystickAxis3"),
-		gSavedSettings.getS32("JoystickAxis4"),
-		gSavedSettings.getS32("JoystickAxis5")
-	};
-
-	F32 axis_scale[] =
-	{
-		gSavedSettings.getF32("JoystickAxisScale0"),
-		gSavedSettings.getF32("JoystickAxisScale1"),
-		gSavedSettings.getF32("JoystickAxisScale2"),
-		gSavedSettings.getF32("JoystickAxisScale3"),
-		gSavedSettings.getF32("JoystickAxisScale4"),
-		gSavedSettings.getF32("JoystickAxisScale5")
-	};
-
-	F32 dead_zone[] =
-	{
-		gSavedSettings.getF32("JoystickAxisDeadZone0"),
-		gSavedSettings.getF32("JoystickAxisDeadZone1"),
-		gSavedSettings.getF32("JoystickAxisDeadZone2"),
-		gSavedSettings.getF32("JoystickAxisDeadZone3"),
-		gSavedSettings.getF32("JoystickAxisDeadZone4"),
-		gSavedSettings.getF32("JoystickAxisDeadZone5")
-	};
-
-	F32 cur_delta[6];
-	static F32 last_delta[] = {0,0,0,0,0,0};
-	static F32 delta[] = { 0,0,0,0,0,0 };
-
-	F32 feather = gSavedSettings.getF32("FlycamFeathering");
-	BOOL absolute = gSavedSettings.getBOOL("FlycamAbsolute");
-
-	for (U32 i = 0; i < 6; i++)
-	{
-		cur_delta[i] = window->getJoystickAxis(axis[i]);	
-		F32 tmp = cur_delta[i];
-		if (absolute)
-		{
-			cur_delta[i] = cur_delta[i] - last_delta[i];
-		}
-		last_delta[i] = tmp;
-
-		if (cur_delta[i] > 0)
-		{
-			cur_delta[i] = llmax(cur_delta[i]-dead_zone[i], 0.f);
-		}
-		else
-		{
-			cur_delta[i] = llmin(cur_delta[i]+dead_zone[i], 0.f);
-		}
-		cur_delta[i] *= axis_scale[i];
-		
-		if (!absolute)
-		{
-			cur_delta[i] *= time;
-		}
-
-		delta[i] = delta[i] + (cur_delta[i]-delta[i])*time*feather;
-	}
-	
-	mFlyCamPosition += LLVector3(delta) * mFlyCamRotation;
-
-	LLMatrix3 rot_mat(delta[3],
-					  delta[4],
-					  delta[5]);
-	
-	mFlyCamRotation = LLQuaternion(rot_mat)*mFlyCamRotation;
-
-	if (gSavedSettings.getBOOL("FlycamAutoLeveling"))
-	{
-		LLMatrix3 level(mFlyCamRotation);
-
-		LLVector3 x = LLVector3(level.mMatrix[0]);
-		LLVector3 y = LLVector3(level.mMatrix[1]);
-		LLVector3 z = LLVector3(level.mMatrix[2]);
-
-		y.mV[2] = 0.f;
-		y.normVec();
-
-		level.setRows(x,y,z);
-		level.orthogonalize();
-				
-		LLQuaternion quat = LLQuaternion(level);
-		mFlyCamRotation = nlerp(llmin(feather*time,1.f), mFlyCamRotation, quat);
-	}
-
-	LLMatrix3 mat(mFlyCamRotation);
-
-	gCamera->setOrigin(mFlyCamPosition);
-	gCamera->mXAxis = LLVector3(mat.mMatrix[0]);
-	gCamera->mYAxis = LLVector3(mat.mMatrix[1]);
-	gCamera->mZAxis = LLVector3(mat.mMatrix[2]);
-}

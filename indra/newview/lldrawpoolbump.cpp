@@ -27,7 +27,7 @@
 #include "llviewercamera.h"
 #include "llviewerimagelist.h"
 #include "pipeline.h"
-
+#include "llglslshader.h"
 
 //#include "llimagebmp.h"
 //#include "../tools/imdebug/imdebug.h"
@@ -141,7 +141,7 @@ LLDrawPoolBump::LLDrawPoolBump()
 
 void LLDrawPoolBump::prerender()
 {
-	mVertexShaderLevel = gPipeline.getVertexShaderLevel(LLPipeline::SHADER_OBJECT);
+	mVertexShaderLevel = LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_OBJECT);
 }
 
 // static
@@ -234,14 +234,14 @@ void LLDrawPoolBump::beginShiny()
 		cube_map->setMatrix(0);
 		cube_map->bind();
 
-		if (gPipeline.getVertexShaderLevel(LLPipeline::SHADER_OBJECT) > 0)
+		if (LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_OBJECT) > 0)
 		{
 			LLMatrix4 mat;
 			glGetFloatv(GL_MODELVIEW_MATRIX, (F32*) mat.mMatrix);
-			gPipeline.mObjectShinyProgram.bind();
-			LLVector3 vec = LLVector3(gPipeline.mShinyOrigin) * mat;
-			LLVector4 vec4(vec, gPipeline.mShinyOrigin.mV[3]);
-			glUniform4fvARB(gPipeline.mObjectShinyProgram.mUniform[LLPipeline::GLSL_SHINY_ORIGIN], 1,
+			gObjectShinyProgram.bind();
+			LLVector3 vec = LLVector3(gShinyOrigin) * mat;
+			LLVector4 vec4(vec, gShinyOrigin.mV[3]);
+			glUniform4fvARB(gObjectShinyProgram.mUniform[LLShaderMgr::SHINY_ORIGIN], 1,
 				vec4.mV);
 		}
 		else
@@ -361,9 +361,9 @@ void LLDrawPoolBump::endShiny()
 		cube_map->disable();
 		cube_map->restoreMatrix();
 
-		if (gPipeline.getVertexShaderLevel(LLPipeline::SHADER_OBJECT) > 0)
+		if (LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_OBJECT) > 0)
 		{
-			gPipeline.mObjectShinyProgram.unbind();
+			gObjectShinyProgram.unbind();
 		}
 
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_MODULATE);

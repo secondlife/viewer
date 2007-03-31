@@ -859,7 +859,7 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 
 	BOOL handled = FALSE;
 
-	LLView* top_view = gViewerWindow->getTopView();
+	LLView* top_view = gViewerWindow->getTopCtrl();
 	LLViewerInventoryItem* item;
 	LLViewerInventoryCategory* cat;
 
@@ -2308,7 +2308,7 @@ EAcceptance LLToolDragAndDrop::dad3dTextureObject(
 	}
 	if(!obj->permModify())
 	{
-		return  ACCEPT_NO_LOCKED;
+		return ACCEPT_NO_LOCKED;
 	}
 	//If texture !copyable don't texture or you'll never get it back.
 	if(!item->getPermissions().allowCopyBy(gAgent.getID()))

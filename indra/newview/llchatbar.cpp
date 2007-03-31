@@ -583,7 +583,7 @@ void LLChatBar::onInputEditorKeystroke( LLLineEditor* caller, void* userdata )
 }
 
 // static
-void LLChatBar::onInputEditorFocusLost( LLLineEditor* caller, void* userdata)
+void LLChatBar::onInputEditorFocusLost( LLUICtrl* caller, void* userdata)
 {
 	// stop typing animation
 	gAgent.stopTyping();

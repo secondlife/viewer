@@ -59,7 +59,7 @@ public:
 						   LLString& tooltip_msg);
 
 	static void		onInputEditorFocusReceived( LLUICtrl* caller, void* userdata );
-	static void		onInputEditorFocusLost(LLLineEditor* caller, void* userdata);
+	static void		onInputEditorFocusLost(LLUICtrl* caller, void* userdata);
 	static void		onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
 	static void		onTabClick( void* userdata );
 

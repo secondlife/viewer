@@ -186,7 +186,7 @@ void LLSliderCtrl::clear()
 
 BOOL LLSliderCtrl::isMouseHeldDown()
 {
-	return gFocusMgr.getMouseCapture() == mSlider;
+	return mSlider->hasMouseCapture();
 }
 
 void LLSliderCtrl::updateText()

@@ -26,6 +26,7 @@
 #include "llviewerwindow.h"
 #include "pipeline.h"
 #include "llviewerregion.h"
+#include "llglslshader.h"
 
 BOOL LLDrawPoolAlpha::sShowDebugAlpha = FALSE;
 
@@ -47,7 +48,7 @@ LLDrawPoolAlpha::~LLDrawPoolAlpha()
 
 void LLDrawPoolAlpha::prerender()
 {
-	mVertexShaderLevel = gPipeline.getVertexShaderLevel(LLPipeline::SHADER_OBJECT);
+	mVertexShaderLevel = LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_OBJECT);
 }
 
 void LLDrawPoolAlpha::beginRenderPass(S32 pass)

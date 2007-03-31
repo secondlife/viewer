@@ -67,7 +67,7 @@ public:
 
 	static void	onTabClick( void* userdata );
 	static void	onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
-	static void	onInputEditorFocusLost(LLLineEditor* caller,void* userdata);
+	static void	onInputEditorFocusLost(LLUICtrl* caller,void* userdata);
 	static void	onInputEditorGainFocus(LLUICtrl* caller,void* userdata);
 
 	static void onCommitGesture(LLUICtrl* ctrl, void* data);

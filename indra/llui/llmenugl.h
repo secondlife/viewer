@@ -672,6 +672,7 @@ private:
 	BOOL			mUseInfiniteRadius;	// allow picking pie menu items anywhere outside of center circle
 	LLMenuItemGL*	mHoverItem;
 	BOOL			mHoverThisFrame;
+	BOOL			mHoveredAnyItem;
 	LLFrameTimer	mShrinkBorderTimer;
 	F32				mOuterRingAlpha; // for rendering pie menus as both bounded and unbounded
 	F32				mCurRadius;

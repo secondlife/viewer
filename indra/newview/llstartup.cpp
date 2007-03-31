@@ -214,7 +214,7 @@ void callback_choose_gender(S32 option, void* userdata);
 void init_start_screen(S32 location_id);
 void release_start_screen();
 void process_connect_to_userserver(LLMessageSystem* msg, void**);
-
+void reset_login();
 
 //
 // exported functionality
@@ -854,7 +854,7 @@ BOOL idle_startup()
 					args["[HOST_NAME]"] = host_name;
 
 					gViewerWindow->alertXml("UnableToConnect", args, login_alert_done );
-					gStartupState = STATE_LOGIN_SHOW;
+					reset_login();
 					return FALSE;
 				}
 				break;
@@ -891,7 +891,7 @@ BOOL idle_startup()
 				login_alert_status, NULL);
 
 			// Back up to login screen
-			gStartupState = STATE_LOGIN_SHOW;
+			reset_login();
 			gViewerStats->incStat(LLViewerStats::ST_LOGIN_TIMEOUT_COUNT);
 		}
 		ms_sleep(1);
@@ -907,7 +907,7 @@ BOOL idle_startup()
 
 			gViewerWindow->alertXml("PleaseSelectServer", args, login_alert_done );
 
-			gStartupState = STATE_LOGIN_SHOW;
+			reset_login();
 			return FALSE;
 		}
 
@@ -1055,7 +1055,7 @@ BOOL idle_startup()
 					NULL);
 
 				// Back up to login screen
-				gStartupState = STATE_LOGIN_SHOW;
+				reset_login();
 				gViewerStats->incStat(LLViewerStats::ST_LOGIN_TIMEOUT_COUNT);
 			}
 			else
@@ -1601,7 +1601,7 @@ BOOL idle_startup()
 				LLStringBase<char>::format_map_t args;
 				args["[ERROR_MESSAGE]"] = emsg.str();
 				gViewerWindow->alertXml("ErrorMessage", args, login_alert_done);
-				gStartupState = STATE_LOGIN_SHOW;
+				reset_login();
 				gAutoLogin = FALSE;
 				show_connect_box = TRUE;
 			}
@@ -1618,7 +1618,7 @@ BOOL idle_startup()
 			LLStringBase<char>::format_map_t args;
 			args["[ERROR_MESSAGE]"] = emsg.str();
 			gViewerWindow->alertXml("ErrorMessage", args, login_alert_done);
-			gStartupState = STATE_LOGIN_SHOW;
+			reset_login();
 			gAutoLogin = FALSE;
 			show_connect_box = TRUE;
 		}
@@ -2767,7 +2767,7 @@ void on_userserver_name_resolved( BOOL success, const LLString& host_name, U32 i
 		LLStringBase<char>::format_map_t args;
 		args["[HOST_NAME]"] = host_name;
 		gViewerWindow->alertXml("SetByHostFail", args, login_alert_done );
-		gStartupState = STATE_LOGIN_SHOW;
+		reset_login();
 	}
 }
 
@@ -2869,7 +2869,7 @@ void update_dialog_callback(S32 option, void *userdata)
 		{
 			app_force_quit();
 			// Bump them back to the login screen.
-			//gStartupState = STATE_LOGIN_SHOW;
+			//reset_login();
 		}
 		else
 		{
@@ -2997,7 +2997,7 @@ void use_circuit_callback(void**, S32 result)
 			llinfos << "Backing up to login screen!" << llendl;
 			gViewerWindow->alertXml("LoginPacketNeverReceived",
 				login_alert_status, NULL);
-			gStartupState = STATE_LOGIN_SHOW;
+			reset_login();
 		}
 		else
 		{
@@ -3918,4 +3918,9 @@ bool LLStartUp::canGoFullscreen()
 	return gStartupState >= STATE_WORLD_INIT;
 }
 
+void reset_login()
+{
+	gStartupState = STATE_LOGIN_SHOW;
 
+	// do cleanup here of in-world UI?
+}

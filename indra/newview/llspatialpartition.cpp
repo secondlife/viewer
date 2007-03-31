@@ -140,11 +140,6 @@ void LLSpatialGroup::clearDrawMap()
 	mDrawMap.clear();
 }
 
-BOOL LLSpatialGroup::safeToDelete()
-{
-	return gQuit || !isState(IN_QUEUE | ACTIVE_OCCLUSION | RESHADOW_QUEUE);
-}
-
 class LLRelightPainter : public LLSpatialGroup::OctreeTraveler
 {
 public:
@@ -330,7 +325,6 @@ BOOL LLSpatialGroup::updateInGroup(LLDrawable *drawablep, BOOL immediate)
 		unbound();
 		setState(OBJECT_DIRTY);
 		setState(GEOM_DIRTY);
-		gPipeline.markRebuild(this);
 		validate_drawable(drawablep);
 		return TRUE;
 	}
@@ -351,13 +345,15 @@ BOOL LLSpatialGroup::addObject(LLDrawable *drawablep, BOOL add_all, BOOL from_oc
 		drawablep->setSpatialGroup(this, 0);
 		validate_drawable(drawablep);
 		setState(OBJECT_DIRTY | GEOM_DIRTY);
-		gPipeline.markRebuild(this);
 		mLastAddTime = gFrameTimeSeconds;
 		if (drawablep->isSpatialBridge())
 		{
 			mBridgeList.push_back((LLSpatialBridge*) drawablep);
 		}
-		setState(IMAGE_DIRTY);
+		if (drawablep->getRadius() > 1.f)
+		{
+			setState(IMAGE_DIRTY);
+		}
 	}
 
 	return TRUE;
@@ -560,7 +556,6 @@ BOOL LLSpatialGroup::removeObject(LLDrawable *drawablep, BOOL from_octree)
 	{
 		drawablep->setSpatialGroup(NULL, -1);
 		setState(GEOM_DIRTY);
-		gPipeline.markRebuild(this);
 		if (drawablep->isSpatialBridge())
 		{
 			for (bridge_list_t::iterator i = mBridgeList.begin(); i != mBridgeList.end(); ++i)
@@ -589,7 +584,6 @@ void LLSpatialGroup::shift(const LLVector3 &offset)
 	mObjectExtents[0] += offset;
 	mObjectExtents[1] += offset;
 
-	gPipeline.markRebuild(this);
 	setState(GEOM_DIRTY | MATRIX_DIRTY | OCCLUSION_DIRTY);
 }
 
@@ -1610,66 +1604,6 @@ BOOL earlyFail(LLCamera* camera, LLSpatialGroup* group)
 	return TRUE;
 }
 
-void LLSpatialPartition::processGeometry(LLCamera* camera)
-{
-	if (!mRenderByGroup || mBufferUsage == GL_STREAM_DRAW_ARB)
-	{
-		return;
-	}
-
-	U32 process_count = 8;
-
-	LLSpatialGroup* root = (LLSpatialGroup*) mOctree->getListener(0);
-	if (mUpdateQueue.empty())
-	{
-		root->setState(LLSpatialGroup::IN_GEOMETRY_QUEUE);
-		mUpdateQueue.push(root);
-	}
-
-	while (process_count > 0 && !mUpdateQueue.empty())
-	{
-		process_count--;
-		LLPointer<LLSpatialGroup> group = mUpdateQueue.front();
-		mUpdateQueue.pop();
-	
-		group->clearState(LLSpatialGroup::IN_GEOMETRY_QUEUE);
-
-		if (group->isDead())
-		{
-			continue;
-		}
-
-		//push children onto queue
-		for (U32 i = 0; i < group->mOctreeNode->getChildCount(); i++)
-		{
-			LLSpatialGroup* child = (LLSpatialGroup*) group->mOctreeNode->getChild(i)->getListener(0);
-
-			if (!child->isState(LLSpatialGroup::IN_GEOMETRY_QUEUE))
-			{
-				child->setState(LLSpatialGroup::IN_GEOMETRY_QUEUE);
-				mUpdateQueue.push(child);
-			}
-		}
-
-		if (!group->isDead() && !group->isVisible())
-		{
-			if (!group->isState(LLSpatialGroup::OBJECT_DIRTY) && 
-				group->mBufferUsage != GL_STREAM_DRAW_ARB)
-			{
-				group->updateDistance(*camera);
-				for (LLSpatialGroup::element_iter i = group->getData().begin(); i != group->getData().end(); ++i)
-				{
-					LLDrawable* drawablep = *i;
-					if (!drawablep->isDead())
-					{
-						drawablep->updateDistance(*camera);
-					}
-				}
-			}
-		}
-	}
-}
-
 void LLSpatialPartition::markReimage(LLSpatialGroup* group)
 {
 	if (mImageEnabled && group->isState(LLSpatialGroup::IMAGE_DIRTY))
@@ -1731,7 +1665,6 @@ void LLSpatialPartition::processImagery(LLCamera* camera)
 			gPipeline.blurReflectionMap(gPipeline.mCubeBuffer, cube_map, res);
 			group->mReflectionMap = cube_map;
 			group->setState(LLSpatialGroup::GEOM_DIRTY);
-			gPipeline.markRebuild(group);
 		}
 
 		group->clearState(LLSpatialGroup::IMAGE_DIRTY);

@@ -98,7 +98,7 @@ F32 LLSlider::getValueF32() const
 
 BOOL LLSlider::handleHover(S32 x, S32 y, MASK mask)
 {
-	if( gFocusMgr.getMouseCapture() == this )
+	if( hasMouseCapture() )
 	{
 		S32 left_edge = THUMB_WIDTH/2;
 		S32 right_edge = mRect.getWidth() - (THUMB_WIDTH/2);
@@ -125,9 +125,9 @@ BOOL LLSlider::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = FALSE;
 
-	if( gFocusMgr.getMouseCapture() == this )
+	if( hasMouseCapture() )
 	{
-		gFocusMgr.setMouseCapture( NULL, NULL );
+		gFocusMgr.setMouseCapture( NULL );
 
 		if( mMouseUpCallback )
 		{
@@ -175,7 +175,7 @@ BOOL LLSlider::handleMouseDown(S32 x, S32 y, MASK mask)
 
 		// Start dragging the thumb
 		// No handler needed for focus lost since this class has no state that depends on it.
-		gFocusMgr.setMouseCapture( this, NULL );  
+		gFocusMgr.setMouseCapture( this );  
 		mDragStartThumbRect = mThumbRect;				
 	}
 	make_ui_sound("UISndClick");
@@ -242,12 +242,12 @@ void LLSlider::draw()
 		if (!thumb_imagep)
 		{
 			gl_rect_2d(mThumbRect, mThumbCenterColor, TRUE);
-			if (gFocusMgr.getMouseCapture() == this)
+			if (hasMouseCapture())
 			{
 				gl_rect_2d(mDragStartThumbRect, mThumbCenterColor % opacity, FALSE);
 			}
 		}
-		else if( gFocusMgr.getMouseCapture() == this )
+		else if( hasMouseCapture() )
 		{
 			gl_draw_scaled_image_with_border(mDragStartThumbRect.mLeft, mDragStartThumbRect.mBottom, 16, 16, mDragStartThumbRect.getWidth(), mDragStartThumbRect.getHeight(), 
 				thumb_imagep, mThumbCenterColor % 0.3f, TRUE);

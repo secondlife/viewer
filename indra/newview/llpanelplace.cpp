@@ -32,7 +32,7 @@
 #include "llweb.h"
 
 //static
-LLLinkedList<LLPanelPlace> LLPanelPlace::sAllPanels;
+std::list<LLPanelPlace*> LLPanelPlace::sAllPanels;
 
 LLPanelPlace::LLPanelPlace()
 :	LLPanel("Places Panel"),
@@ -40,13 +40,13 @@ LLPanelPlace::LLPanelPlace()
 	mPosGlobal(),
 	mAuctionID(0)
 {
-	sAllPanels.addData(this);
+	sAllPanels.push_back(this);
 }
 
 
 LLPanelPlace::~LLPanelPlace()
 {
-	sAllPanels.removeData(this);
+	sAllPanels.remove(this);
 }
 
 
@@ -139,10 +139,9 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 	msg->getUUID("Data", "ParcelID", parcel_id);
 
 	// look up all panels which have this avatar
-	LLPanelPlace *self = NULL;
-
-	for (self = sAllPanels.getFirstData(); self; self = sAllPanels.getNextData())
+	for (panel_list_t::iterator iter = sAllPanels.begin(); iter != sAllPanels.end(); ++iter)
 	{
+		LLPanelPlace* self = *iter;
 		if (self->mParcelID != parcel_id)
 		{
 			continue;

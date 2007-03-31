@@ -158,6 +158,13 @@ BOOL LLNameListCtrl::addNameItem(LLScrollListItem* item, EAddPosition pos)
 
 	addItem(item, pos);
 
+	// this column is resizable
+	LLScrollListColumn* columnp = getColumn(mNameColumnIndex);
+	if (columnp && columnp->mHeader)
+	{
+		columnp->mHeader->setHasResizableElement(TRUE);
+	}
+
 	return result;
 }
 
@@ -177,6 +184,15 @@ LLScrollListItem* LLNameListCtrl::addElement(const LLSD& value, EAddPosition pos
 
 	LLScrollListCell* cell = (LLScrollListCell*)item->getColumn(mNameColumnIndex);
 	((LLScrollListText*)cell)->setText( fullname );
+
+	updateMaxContentWidth(item);
+
+	// this column is resizable
+	LLScrollListColumn* columnp = getColumn(mNameColumnIndex);
+	if (columnp && columnp->mHeader)
+	{
+		columnp->mHeader->setHasResizableElement(TRUE);
+	}
 
 	return item;
 }
@@ -222,6 +238,7 @@ void LLNameListCtrl::refresh(const LLUUID& id, const char* first,
 			cell = (LLScrollListCell*)item->getColumn(mNameColumnIndex);
 
 			((LLScrollListText*)cell)->setText( fullname );
+			updateMaxContentWidth(item);
 		}
 	}
 }
@@ -299,13 +316,6 @@ LLView* LLNameListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFacto
 		node->getAttributeS32("heading_height", heading_height);
 		name_list->setHeadingHeight(heading_height);
 	}
-	if (node->hasAttribute("heading_font"))
-	{
-		LLString heading_font("");
-		node->getAttributeString("heading_font", heading_font);
-		LLFontGL* gl_font = LLFontGL::fontFromName(heading_font.c_str());
-		name_list->setHeadingFont(gl_font);
-	}
 	name_list->setCollapseEmptyColumns(collapse_empty_columns);
 
 	BOOL allow_calling_card_drop = FALSE;
@@ -344,8 +354,12 @@ LLView* LLNameListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFacto
 				columns[index]["width"] = columnwidth;
 			}
 
+			LLFontGL::HAlign h_align = LLFontGL::LEFT;
+			h_align = LLView::selectFontHAlign(child);
+
 			columns[index]["name"] = columnname;
 			columns[index]["label"] = labelname;
+			columns[index]["halign"] = (S32)h_align;
 			index++;
 		}
 	}

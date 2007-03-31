@@ -617,7 +617,6 @@ void LLVOSky::restoreGL()
 
 	calcBrightnessScaleAndColors();
 
-	// Water is currently broken on Mac.
 	if (gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap)
 	{
 		LLCubeMap* cube_map = getCubeMap();
@@ -1232,18 +1231,14 @@ BOOL LLVOSky::updateSky()
 							mSkyTex[side].createGLImage(mSkyTex[side].getWhich(FALSE));
 						}
 						next_frame = 0;	
-						//llSkyTex::stepCurrent();
 					}
 
-					if (!gSavedSettings.getBOOL("RenderDynamicReflections"))
+					std::vector<LLPointer<LLImageRaw> > images;
+					for (S32 side = 0; side < 6; side++)
 					{
-						std::vector<LLPointer<LLImageRaw> > images;
-						for (S32 side = 0; side < 6; side++)
-						{
-							images.push_back(mSkyTex[side].getImageRaw(FALSE));
-						}
-						mCubeMap->init(images);
+						images.push_back(mSkyTex[side].getImageRaw(FALSE));
 					}
+					mCubeMap->init(images);
 				}
 			}
 

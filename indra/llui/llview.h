@@ -294,6 +294,7 @@ public:
 	const LLRect	getScreenRect() const;
 	const LLRect	getLocalRect() const;
 	virtual const LLRect getSnapRect() const	{ return mRect; }
+	virtual const LLRect getLocalSnapRect() const;
 
 	virtual LLRect getRequiredRect();		// Get required size for this object. 0 for width/height means don't care.
 	virtual void updateRect();				// apply procedural updates to own rectangle
@@ -315,12 +316,13 @@ public:
 
 	// Default behavior is to use reshape flags to resize child views
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-
 	virtual void	translate( S32 x, S32 y );
 	virtual void	setOrigin( S32 x, S32 y )	{ mRect.translate( x - mRect.mLeft, y - mRect.mBottom ); }
 	BOOL			translateIntoRect( const LLRect& constraint, BOOL allow_partial_outside );
-	LLView*			findSnapRect(LLRect& new_rect, const LLCoordGL& mouse_dir, LLView::ESnapType snap_type, S32 threshold, S32 padding = 0);
-	LLView*			findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESnapEdge snap_edge, ESnapType snap_type, S32 threshold, S32 padding = 0);
+
+	virtual void	userSetShape(const LLRect& new_rect);
+	virtual LLView*	findSnapRect(LLRect& new_rect, const LLCoordGL& mouse_dir, LLView::ESnapType snap_type, S32 threshold, S32 padding = 0);
+	virtual LLView*	findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESnapEdge snap_edge, ESnapType snap_type, S32 threshold, S32 padding = 0);
 
 	// Defaults to other_view->getVisible()
 	virtual BOOL	canSnapTo(LLView* other_view);
@@ -345,6 +347,8 @@ public:
 	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
 	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);
+	/*virtual*/ void	onMouseCaptureLost();
+	/*virtual*/ BOOL	hasMouseCapture();
 
 	// Default behavior is to pass the tooltip event to children,
 	// then display mToolTipMsg if no child handled it.

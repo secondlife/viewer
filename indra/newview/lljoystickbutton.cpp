@@ -115,7 +115,7 @@ BOOL LLJoystick::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	// llinfos << "joystick mouse up " << x << ", " << y << llendl;
 
-	if( gViewerWindow->hasMouseCapture( this ) )
+	if( hasMouseCapture() )
 	{
 		mLastMouse.set(x, y);
 		mHeldDown = FALSE;
@@ -128,7 +128,7 @@ BOOL LLJoystick::handleMouseUp(S32 x, S32 y, MASK mask)
 
 BOOL LLJoystick::handleHover(S32 x, S32 y, MASK mask)
 {
-	if( gViewerWindow->hasMouseCapture( this ) )
+	if( hasMouseCapture() )
 	{
 		mLastMouse.set(x, y);
 	}
@@ -153,7 +153,9 @@ void LLJoystick::onHeldDown(void *userdata)
 {
 	LLJoystick *self = (LLJoystick *)userdata;
 
-	llassert( gViewerWindow->hasMouseCapture( self ) );
+	// somebody removed this function without checking the
+	// build. Removed 2007-03-26.
+	//llassert( gViewerWindow->hasMouseCapture( self ) );
 
 	self->mHeldDown = TRUE;
 	self->onHeldDown();

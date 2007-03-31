@@ -27,7 +27,7 @@ public:
 	~LLFocusMgr();
 
 	// Mouse Captor
-	void			setMouseCapture(LLMouseHandler* new_captor,void (*on_capture_lost)(LLMouseHandler* old_captor));	// new_captor = NULL to release the mouse.
+	void			setMouseCapture(LLMouseHandler* new_captor);	// new_captor = NULL to release the mouse.
 	LLMouseHandler* getMouseCapture() { return mMouseCaptor; } 
 	void			removeMouseCaptureWithoutCallback( LLMouseHandler* captor );
 	BOOL			childHasMouseCapture( LLView* parent );
@@ -54,10 +54,10 @@ public:
 
 	
 	// Top View
-	void			setTopView(LLView* new_top, void (*on_top_lost)(LLView* old_top));
-	LLView*			getTopView() const					{ return mTopView; }
-	void			removeTopViewWithoutCallback( LLView* top_view );
-	BOOL			childIsTopView( LLView* parent );
+	void			setTopCtrl(LLUICtrl* new_top);
+	LLUICtrl*		getTopCtrl() const					{ return mTopCtrl; }
+	void			removeTopCtrlWithoutCallback( LLUICtrl* top_view );
+	BOOL			childIsTopCtrl( LLView* parent );
 
 	// All Three
 	void			releaseFocusIfNeeded( LLView* top_view );
@@ -70,7 +70,6 @@ protected:
 
 	// Mouse Captor
 	LLMouseHandler*		mMouseCaptor;				// Mouse events are premptively routed to this object
-	void				(*mMouseCaptureLostCallback)(LLMouseHandler*);	// The object to which mouse events are routed is called before another object takes its place
 
 	// Keyboard Focus
 	LLUICtrl*			mKeyboardFocus;				// Keyboard events are preemptively routed to this object
@@ -78,8 +77,7 @@ protected:
 	FocusLostCallback	mKeyboardFocusLostCallback;	// The object to which keyboard events are routed is called before another object takes its place
 
 	// Top View
-	LLView*				mTopView;
-	void				(*mTopViewLostCallback)(LLView*);
+	LLUICtrl*			mTopCtrl;
 
 	LLFrameTimer		mFocusTimer;
 	F32					mFocusWeight;
@@ -92,7 +90,7 @@ protected:
 	#ifdef _DEBUG
 		LLString		mMouseCaptorName;
 		LLString		mKeyboardFocusName;
-		LLString		mTopViewName;
+		LLString		mTopCtrlName;
 	#endif
 };
 

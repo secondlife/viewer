@@ -191,6 +191,7 @@ public:
 	BOOL check(LLFolderViewItem* item);
 	std::string::size_type getStringMatchOffset() const;
 	BOOL isActive();
+	BOOL isNotDefault();
 	BOOL isModified();
 	BOOL isModifiedAndClear();
 	BOOL isSinceLogoff();
@@ -678,7 +679,7 @@ public:
 	PermissionMask getFilterPermissions() const { return mFilter.getFilterPermissions(); }
 	LLInventoryFilter::EFolderShow getShowFolderState() { return mFilter.getShowFolderState(); }
 	U32 getSortOrder() const;
-	BOOL isFilterActive() { return mFilter.isActive(); }
+	BOOL isFilterModified() { return mFilter.isNotDefault(); }
 	BOOL getAllowMultiSelect() { return mAllowMultiSelect; }
 
 	// Close all folders in the view

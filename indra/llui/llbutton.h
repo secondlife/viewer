@@ -75,6 +75,8 @@ public:
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual void	draw();
 
+	virtual void	onMouseCaptureLost();
+
 	// HACK: "committing" a button is the same as clicking on it.
 	virtual void	onCommit();
 
@@ -85,7 +87,7 @@ public:
 	void			setMouseDownCallback( void (*cb)(void *data) )		{ mMouseDownCallback = cb; }	// mouse down within button
 	void			setMouseUpCallback( void (*cb)(void *data) )		{ mMouseUpCallback = cb; }		// mouse up, EVEN IF NOT IN BUTTON
 	void			setHeldDownCallback( void (*cb)(void *data) )		{ mHeldDownCallback = cb; }		// Mouse button held down and in button
-	void			setHeldDownDelay( F32 seconds)						{ mHeldDownDelay = seconds; }
+	void			setHeldDownDelay( F32 seconds, S32 frames = 0)		{ mHeldDownDelay = seconds; mHeldDownFrameDelay = frames; }
 
 	F32				getHeldDownTime() const								{ return mMouseDownTimer.getElapsedTimeF32(); }
 
@@ -140,7 +142,6 @@ public:
 	void			setBorderEnabled(BOOL b)					{ mBorderEnabled = b; }
 
 	static void		onHeldDown(void *userdata);  // to be called by gIdleCallbacks
-	static void		onMouseCaptureLost(LLMouseHandler* old_captor);
 
 	void			setFixedBorder(S32 width, S32 height) { mFixedWidth = width; mFixedHeight = height; }
 	void			setHoverGlowStrength(F32 strength) { mHoverGlowStrength = strength; }
@@ -175,7 +176,9 @@ protected:
 	const LLFontGL	*mGLFont;
 	
 	LLFrameTimer	mMouseDownTimer;
+	S32				mMouseDownFrame;
 	F32				mHeldDownDelay;		// seconds, after which held-down callbacks get called
+	S32				mHeldDownFrameDelay;	// frames, after which held-down callbacks get called
 
 	LLPointer<LLImageGL>	mImageUnselected;
 	LLUIString				mUnselectedLabel;

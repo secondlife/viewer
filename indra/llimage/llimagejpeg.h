@@ -14,7 +14,6 @@
 #include "llimage.h"
 
 extern "C" {
-#include "jpeglib/jinclude.h"
 #include "jpeglib/jpeglib.h"
 #include "jpeglib/jerror.h"
 }

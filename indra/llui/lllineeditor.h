@@ -51,7 +51,7 @@ public:
 				 S32 max_length_bytes = 254,
 				 void (*commit_callback)(LLUICtrl* caller, void* user_data) = NULL,
 				 void (*keystroke_callback)(LLLineEditor* caller, void* user_data) = NULL,
-				 void (*focus_lost_callback)(LLLineEditor* caller, void* user_data) = NULL,
+				 void (*focus_lost_callback)(LLUICtrl* caller, void* user_data) = NULL,
 				 void* userdata = NULL,
 				 LLLinePrevalidateFunc prevalidate_func = NULL,
 				 LLViewBorder::EBevel border_bevel = LLViewBorder::BEVEL_IN,
@@ -72,6 +72,7 @@ public:
 	/*virtual*/ BOOL	handleDoubleClick(S32 x,S32 y,MASK mask);
 	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask, BOOL called_from_parent );
 	/*virtual*/ BOOL	handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent);
+	/*virtual*/ void	onMouseCaptureLost();
 
 	// LLEditMenuHandler overrides
 	virtual void	cut();
@@ -166,7 +167,6 @@ public:
 	void			setSelectAllonFocusReceived(BOOL b);
 
 	void			setKeystrokeCallback(void (*keystroke_callback)(LLLineEditor* caller, void* user_data));
-	void			setFocusLostCallback(void (*keystroke_callback)(LLLineEditor* caller, void* user_data));
 
 	void			setMaxTextLength(S32 max_text_length); 
 	void			setBorderWidth(S32 left, S32 right);
@@ -185,8 +185,6 @@ public:
 	static BOOL		prevalidateASCII(const LLWString &str);
 
 	static BOOL		postvalidateFloat(const LLString &str);
-
-	static void		onMouseCaptureLost( LLMouseHandler* old_captor );
 
 protected:
 	void			removeChar();
@@ -222,7 +220,6 @@ protected:
 	BOOL		mRevertOnEsc;
 
 	void		(*mKeystrokeCallback)( LLLineEditor* caller, void* userdata );
-	void		(*mFocusLostCallback)( LLLineEditor* caller, void* userdata );
 
 	BOOL		mIsSelecting;				// Selection for clipboard operations
 	S32			mSelectionStart;

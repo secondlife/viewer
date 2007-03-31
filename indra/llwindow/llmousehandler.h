@@ -15,8 +15,6 @@
 // Intended for use via multiple inheritance. 
 // A class may have as many interfaces as it likes, but never needs to inherit one more than once.
 
-#include "llstring.h"
-
 class LLMouseHandler
 {
 public:
@@ -33,11 +31,15 @@ public:
 	virtual BOOL	handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen) = 0;
 	virtual const LLString& getName() const = 0;
 
+	virtual void	onMouseCaptureLost() = 0;
+
 	// Hack to support LLFocusMgr
 	virtual BOOL isView() = 0;
 
 	virtual void	screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const = 0;
 	virtual void	localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const = 0;
+
+	virtual BOOL hasMouseCapture() = 0;
 };
 
 #endif

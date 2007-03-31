@@ -504,7 +504,7 @@ void LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 								 previewp->mSnapshotDelayTimer.hasExpired());
 
 	// don't take snapshots while ALT-zoom active
-	if (gFocusMgr.getMouseCapture() == gToolCamera)
+	if (gToolCamera->hasMouseCapture())
 	{
 		previewp->mSnapshotActive = FALSE;
 	}

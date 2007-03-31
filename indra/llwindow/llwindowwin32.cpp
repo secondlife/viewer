@@ -744,8 +744,6 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 	}
 
 	SetTimer( mWindowHandle, 0, 1000 / 30, NULL ); // 30 fps timer
-	mJoyStickState = 0;
-	mJoyButtonState = 0;
 }
 
 
@@ -2803,89 +2801,9 @@ void LLWindowWin32::updateJoystick( )
 	mJoyAxis[4] = js.lRy/1000.f;
 	mJoyAxis[5] = js.lRz/1000.f;
 
-	if (js.lX <= -500)
+	for (U32 i = 0; i < 16; i++)
 	{
-		if (!(mJoyStickState & 0x1))
-		{
-			gKeyboard->handleTranslatedKeyDown(KEY_PAD_LEFT, 0);
-			mJoyStickState |= 0x1;
-		}
-	}
-	else 
-	{
-		if (mJoyStickState & 0x1)
-		{
-			gKeyboard->handleTranslatedKeyUp(KEY_PAD_LEFT, 0);
-			mJoyStickState &= ~0x1;
-		}
-	}
-	if (js.lX >= 500)
-	{
-		if (!(mJoyStickState & 0x2))
-		{
-			gKeyboard->handleTranslatedKeyDown(KEY_PAD_RIGHT, 0);
-			mJoyStickState |= 0x2;
-		}
-	}
-	else 
-	{
-		if (mJoyStickState & 0x2)
-		{
-			gKeyboard->handleTranslatedKeyUp(KEY_PAD_RIGHT, 0);
-			mJoyStickState &= ~0x2;
-		}
-	}
-	if (js.lY <= -500)
-	{
-		if (!(mJoyStickState & 0x4))
-		{
-			gKeyboard->handleTranslatedKeyDown(KEY_PAD_UP, 0);
-			mJoyStickState |= 0x4;
-		}
-	}
-	else 
-	{
-		if (mJoyStickState & 0x4)
-		{
-			gKeyboard->handleTranslatedKeyUp(KEY_PAD_UP, 0);
-			mJoyStickState &= ~0x4;
-		}
-	}
-	if (js.lY >=  500)
-	{
-		if (!(mJoyStickState & 0x8))
-		{
-			gKeyboard->handleTranslatedKeyDown(KEY_PAD_DOWN, 0);
-			mJoyStickState |= 0x8;
-		}
-	}
-	else 
-	{
-		if (mJoyStickState & 0x8)
-		{
-			gKeyboard->handleTranslatedKeyUp(KEY_PAD_DOWN, 0);
-			mJoyStickState &= ~0x8;
-		}
-	}
-
-	for( int i = 0; i < 15; i++ )
-	{
-		if ( js.rgbButtons[i] & 0x80 )
-		{
-			if (!(mJoyButtonState & (1<<i)))
-			{
-				gKeyboard->handleTranslatedKeyDown(KEY_BUTTON1+i, 0);
-				mJoyButtonState |= (1<<i);
-			}
-		}
-		else
-		{
-			if (mJoyButtonState & (1<<i))
-			{
-				gKeyboard->handleTranslatedKeyUp(KEY_BUTTON1+i, 0);
-				mJoyButtonState &= ~(1<<i);
-			}
-		}
+		mJoyButtonState[i] = js.rgbButtons[i];
 	}
 }
 

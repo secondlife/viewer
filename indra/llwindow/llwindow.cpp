@@ -217,6 +217,11 @@ LLWindow::LLWindow(BOOL fullscreen, U32 flags)
 	{
 		mJoyAxis[i] = 0;
 	}
+
+	for (U32 i = 0; i < 16; i++)
+	{
+		mJoyButtonState[i] = 0;
+	}
 }
 	
 // virtual
@@ -241,6 +246,15 @@ F32 LLWindow::getJoystickAxis(U32 axis)
 		return mJoyAxis[axis];
 	}
 	return 0.f;
+}
+
+U8 LLWindow::getJoystickButton(U32 button)
+{
+	if (button < 16)
+	{
+		return mJoyButtonState[button];
+	}
+	return 0;
 }
 
 void LLWindow::setCallbacks(LLWindowCallbacks *callbacks)

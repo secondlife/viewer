@@ -11,11 +11,6 @@
 #include "llmemory.h"
 #include "llmemtype.h"
 
-// not defining nullfunc will currently crash when trying to use a LLHandle
-template< typename _Ty >
-  const typename LLHandle< _Ty >::NullFunc
-    LLHandle< _Ty >::sNullFunc = LLHandle< _Ty >::defaultNullFunc;
-
 //----------------------------------------------------------------------------
 
 //static

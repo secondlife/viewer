@@ -398,8 +398,6 @@ public:
 
 	void			propagate(const F32 dt);									// BUG: should roll into updateAgentPosition
 
-	void			updateWanderTarget();									// drones will pick points in the world to autopilot towards
-
 	void			startAutoPilotGlobal(const LLVector3d &pos_global, const std::string& behavior_name = "", const LLQuaternion *target_rotation = NULL, 
 									void (*finish_callback)(BOOL, void *) = NULL, void *callback_data = NULL, F32 stop_distance = 0.f, F32 rotation_threshold = 0.03f);
 
@@ -770,9 +768,6 @@ private:
 	BOOL 			mbFlagsNeedReset;				// HACK for preventing incorrect flags sent when crossing region boundaries
 
 	BOOL 			mbJump;
-
-	LLFrameTimer	mWanderTimer;
-	LLVector3d		mWanderTargetGlobal;
 
 	BOOL			mAutoPilot;
 	BOOL			mAutoPilotFlyOnStop;

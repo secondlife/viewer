@@ -44,8 +44,7 @@ public:
 		return sTotalSeconds;
 	}
 
-	// Call this method once per frame to update the current frame
-	// time.
+	// Call this method once per frame to update the current frame time.
 	static void updateFrameTime();
 
 	static S32  getFrameCount()						{ return sFrameCount; }
@@ -53,10 +52,12 @@ public:
 	static F32	getFrameDeltaTimeF32();
 
 	// MANIPULATORS
-	void start()									{ reset(); mStarted = TRUE; }
-	void stop()										{ mStarted = FALSE; }
-	void reset()									{ mStartTime = sFrameTime; mExpiry = sFrameTime; }
-	void setTimerExpirySec(F32 expiration)			{ mExpiry = expiration + mStartTime; }
+	void start();
+	void stop();
+	void reset();
+	void pause();
+	void unpause();
+	void setTimerExpirySec(F32 expiration);
 	void setExpiryAt(F64 seconds_since_epoch);
 	BOOL checkExpirationAndReset(F32 expiration);
 	F32 getElapsedTimeAndResetF32() 				{ F32 t = F32(sFrameTime - mStartTime); reset(); return t; }
@@ -66,7 +67,7 @@ public:
 	// ACCESSORS
 	BOOL hasExpired() const							{ return (sFrameTime >= mExpiry); }
 	F32  getTimeToExpireF32() const					{ return (F32)(mExpiry - sFrameTime); }
-	F32  getElapsedTimeF32() const					{ return (F32)(sFrameTime - mStartTime); }
+	F32  getElapsedTimeF32() const					{ return mStarted ? (F32)(sFrameTime - mStartTime) : (F32)mStartTime; }
 	BOOL getStarted() const							{ return mStarted; }
 
 	// return the seconds since epoch when this timer will expire.

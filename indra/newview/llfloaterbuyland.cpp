@@ -1261,14 +1261,12 @@ void LLFloaterBuyLandUI::refreshUI()
 			
 		}
 
-		//remove_contribution not in XML - ?!
 		childSetValue("remove_contribution", LLSD(groupContributionEnough));
 		childSetEnabled("remove_contribution", groupContributionEnough);
 		bool showRemoveContribution = mParcelIsGroupLand
 							&& (mParcelGroupContribution > 0);
-		childSetText("remove_contribution",
-			llformat("Remove %d square meters of contribution from group",
-				minContribution));
+		childSetLabelArg("remove_contribution", "[AMOUNT]",
+							llformat("%d", minContribution));
 		childSetVisible("remove_contribution", showRemoveContribution);
 
 		childShow("step_3");

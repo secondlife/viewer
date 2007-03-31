@@ -17,6 +17,7 @@
 #include "llface.h"
 #include "llsky.h"
 #include "pipeline.h"
+#include "llglslshader.h"
 
 class LLRenderShinyGlow : public LLDrawPoolBump
 {
@@ -102,7 +103,7 @@ LLDrawPoolSimple::LLDrawPoolSimple() :
 
 void LLDrawPoolSimple::prerender()
 {
-	mVertexShaderLevel = gPipeline.getVertexShaderLevel(LLPipeline::SHADER_OBJECT);
+	mVertexShaderLevel = LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_OBJECT);
 }
 
 void LLDrawPoolSimple::beginRenderPass(S32 pass)

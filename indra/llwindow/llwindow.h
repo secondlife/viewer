@@ -183,6 +183,8 @@ public:
 	virtual void setNativeAspectRatio(F32 aspect) = 0;
 	
 	F32 getJoystickAxis(U32 axis);
+	U8 getJoystickButton(U32 button);
+
 	void setCallbacks(LLWindowCallbacks *callbacks);
 
 	virtual void beforeDialog() {};	// prepare to put up an OS dialog (if special measures are required, such as in fullscreen mode)
@@ -221,7 +223,8 @@ protected:
 	BOOL		mHideCursorPermanent;
 	U32			mFlags;
 	F32			mJoyAxis[6]; 
-	
+	U8			mJoyButtonState[16];
+
 	friend class LLWindowManager;
 };
 

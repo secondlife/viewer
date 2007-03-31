@@ -104,6 +104,7 @@ public:
 	virtual void	setMaxValue(LLSD max_value);
 
 	// In general, only LLPanel uses these.
+	void			setFocusLostCallback(void (*cb)(LLUICtrl* caller, void* user_data)) { mFocusLostCallback = cb; }
 	void			setFocusReceivedCallback( void (*cb)(LLUICtrl*, void*) )	{ mFocusReceivedCallback = cb; }
 	void			setFocusChangedCallback( void (*cb)(LLUICtrl*, void*) )		{ mFocusChangedCallback = cb; }
 
@@ -135,6 +136,7 @@ protected:
 protected:
 
 	void			(*mCommitCallback)( LLUICtrl* ctrl, void* userdata );
+	void			(*mFocusLostCallback)( LLUICtrl* caller, void* userdata );
 	void			(*mFocusReceivedCallback)( LLUICtrl* ctrl, void* userdata );
 	void			(*mFocusChangedCallback)( LLUICtrl* ctrl, void* userdata );
 	BOOL			(*mValidateCallback)( LLUICtrl* ctrl, void* userdata );

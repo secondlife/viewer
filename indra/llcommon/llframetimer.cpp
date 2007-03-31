@@ -33,6 +33,50 @@ void LLFrameTimer::updateFrameTime()
 	sFrameCount++;
 } 
 
+void LLFrameTimer::start()
+{
+	reset();
+	mStarted = TRUE;
+}
+
+void LLFrameTimer::stop()
+{
+	mStarted = FALSE;
+}
+
+void LLFrameTimer::reset()
+{
+	mStartTime = sFrameTime;
+	mExpiry = sFrameTime;
+}
+
+// Don't combine pause/unpause with start/stop
+// Useage:
+//  LLFrameTime foo; // starts automatically
+//  foo.unpause(); // noop but safe
+//  foo.pause(); // pauses timer
+//  foo.unpause() // unpauses
+//  F32 elapsed = foo.getElapsedTimeF32() // does not include time between pause() and unpause()
+//  Note: elapsed would also be valid with no unpause() call (= time run until pause() called)
+void LLFrameTimer::pause()
+{
+	if (mStarted)
+		mStartTime = sFrameTime - mStartTime; // save dtime
+	mStarted = FALSE;
+}
+
+void LLFrameTimer::unpause()
+{
+	if (!mStarted)
+		mStartTime = sFrameTime - mStartTime; // restore dtime
+	mStarted = TRUE;
+}
+
+void LLFrameTimer::setTimerExpirySec(F32 expiration)
+{
+	mExpiry = expiration + mStartTime;
+}
+
 void LLFrameTimer::setExpiryAt(F64 seconds_since_epoch)
 {
 	mStartTime = sFrameTime;

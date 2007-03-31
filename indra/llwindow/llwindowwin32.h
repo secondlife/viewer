@@ -150,9 +150,6 @@ protected:
 	WORD		mPrevGammaRamp[256*3];
 	WORD		mCurrentGammaRamp[256*3];
 
-	U32			mJoyStickState;
-	U32			mJoyButtonState;
-
 	LPWSTR		mIconResource;
 	BOOL		mMousePositionModified;
 	BOOL		mInputProcessingPaused;

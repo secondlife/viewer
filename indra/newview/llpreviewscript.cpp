@@ -859,15 +859,14 @@ void LLPreviewLSL::callbackLSLCompileFailed(const LLSD& compile_errors)
 {
 	llinfos << "Compile failed!" << llendl;
 
-	const LLFontGL* err_font = gResMgr->getRes(LLFONT_OCRA);
-	LLScrollListItem* item = NULL;
 	for(LLSD::array_const_iterator line = compile_errors.beginArray();
 		line < compile_errors.endArray();
 		line++)
 	{
-		item = new LLScrollListItem();
-		item->addColumn(line->asString(), err_font);
-		mScriptEd->mErrorList->addItem(item);
+		LLSD row;
+		row["columns"][0]["value"] = line->asString();
+		row["columns"][0]["font"] = "OCRA";
+		mScriptEd->mErrorList->addElement(row);
 	}
 	mScriptEd->selectFirstError();
 	closeIfNeeded();
@@ -992,9 +991,11 @@ void LLPreviewLSL::saveIfNeeded()
 	if(!fp)
 	{
 		llwarns << "Unable to write to " << filename << llendl;
-		LLScrollListItem* item = new LLScrollListItem();
-		item->addColumn("Error writing to local file. Is your hard drive full?", LLFontGL::sSansSerifSmall);
-		mScriptEd->mErrorList->addItem(item);
+
+		LLSD row;
+		row["columns"][0]["value"] = "Error writing to local file. Is your hard drive full?";
+		row["columns"][0]["font"] = "SANSSERIF_SMALL";
+		mScriptEd->mErrorList->addElement(row);
 		return;
 	}
 
@@ -1049,8 +1050,6 @@ void LLPreviewLSL::uploadAssetLegacy(const std::string& filename,
 	std::string dst_filename = llformat("%s.lso", filepath.c_str());
 	std::string err_filename = llformat("%s.out", filepath.c_str());
 
-	LLScrollListItem* item = NULL;
-	const LLFontGL* err_font = gResMgr->getRes(LLFONT_OCRA);
 	if(!lscript_compile(filename.c_str(),
 						dst_filename.c_str(),
 						err_filename.c_str(),
@@ -1082,9 +1081,11 @@ void LLPreviewLSL::uploadAssetLegacy(const std::string& filename,
 				{
 					line.assign(buffer);
 					LLString::stripNonprintable(line);
-					item = new LLScrollListItem();
-					item->addColumn(line, err_font);
-					mScriptEd->mErrorList->addItem(item);
+
+					LLSD row;
+					row["columns"][0]["value"] = line;
+					row["columns"][0]["font"] = "OCRA";
+					mScriptEd->mErrorList->addElement(row);
 				}
 			}
 			fclose(fp);
@@ -1176,9 +1177,10 @@ void LLPreviewLSL::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* user_d
 	{
 		if (self)
 		{
-			LLScrollListItem* item = new LLScrollListItem();
-			item->addColumn("Compile successful!", LLFontGL::sSansSerifSmall);
-			self->mScriptEd->mErrorList->addItem(item);
+			LLSD row;
+			row["columns"][0]["value"] = "Compile successful!";
+			row["columns"][0]["font"] = "SANSSERIF_SMALL";
+			self->mScriptEd->mErrorList->addElement(row);
 
 			// Find our window and close it if requested.
 			self->getWindow()->decBusyCount();
@@ -1399,15 +1401,14 @@ void LLLiveLSLEditor::callbackLSLCompileSucceeded(const LLUUID& task_id,
 void LLLiveLSLEditor::callbackLSLCompileFailed(const LLSD& compile_errors)
 {
 	lldebugs << "Compile failed!" << llendl;
-	const LLFontGL* err_font = gResMgr->getRes(LLFONT_OCRA);
-	LLScrollListItem* item = NULL;
 	for(LLSD::array_const_iterator line = compile_errors.beginArray();
 		line < compile_errors.endArray();
 		line++)
 	{
-		item = new LLScrollListItem();
-		item->addColumn(line->asString(), err_font);
-		mScriptEd->mErrorList->addItem(item);
+		LLSD row;
+		row["columns"][0]["value"] = line->asString();
+		row["columns"][0]["font"] = "OCRA";
+		mScriptEd->mErrorList->addElement(row);
 	}
 	mScriptEd->selectFirstError();
 	closeIfNeeded();
@@ -1769,9 +1770,11 @@ void LLLiveLSLEditor::saveIfNeeded()
 	if(!fp)
 	{
 		llwarns << "Unable to write to " << filename << llendl;
-		LLScrollListItem* item = new LLScrollListItem();
-		item->addColumn("Error writing to local file. Is your hard drive full?", LLFontGL::sSansSerifSmall);
-		mScriptEd->mErrorList->addItem(item);
+
+		LLSD row;
+		row["columns"][0]["value"] = "Error writing to local file. Is your hard drive full?";
+		row["columns"][0]["font"] = "SANSSERIF_SMALL";
+		mScriptEd->mErrorList->addElement(row);
 		return;
 	}
 	LLString utf8text = mScriptEd->mEditor->getText();
@@ -1829,8 +1832,6 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 	std::string dst_filename = llformat("%s.lso", filepath.c_str());
 	std::string err_filename = llformat("%s.out", filepath.c_str());
 
-	LLScrollListItem* item = NULL;
-	const LLFontGL* err_font = gResMgr->getRes(LLFONT_OCRA);
 	FILE *fp;
 	if(!lscript_compile(filename.c_str(),
 						dst_filename.c_str(),
@@ -1859,9 +1860,11 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 				{
 					line.assign(buffer);
 					LLString::stripNonprintable(line);
-					item = new LLScrollListItem();
-					item->addColumn(line, err_font);
-					mScriptEd->mErrorList->addItem(item);
+				
+					LLSD row;
+					row["columns"][0]["value"] = line;
+					row["columns"][0]["font"] = "OCRA";
+					mScriptEd->mErrorList->addElement(row);
 				}
 			}
 			fclose(fp);

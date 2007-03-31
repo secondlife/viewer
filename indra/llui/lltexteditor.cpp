@@ -1182,7 +1182,7 @@ BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 				setCursorAtLocalPos( x, y, TRUE );
 				startSelection();
 			}
-			gFocusMgr.setMouseCapture( this, &LLTextEditor::onMouseCaptureLost );
+			gFocusMgr.setMouseCapture( this );
 		}
 
 		handled = TRUE;
@@ -1208,7 +1208,7 @@ BOOL LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
 	mHoverSegment = NULL;
 	if( getVisible() )
 	{
-		if(gFocusMgr.getMouseCapture() == this )
+		if(hasMouseCapture() )
 		{
 			if( mIsSelecting ) 
 			{
@@ -1341,9 +1341,9 @@ BOOL LLTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 	// Delay cursor flashing
 	mKeystrokeTimer.reset();
 
-	if( gFocusMgr.getMouseCapture() == this  )
+	if( hasMouseCapture()  )
 	{
-		gFocusMgr.setMouseCapture( NULL, NULL );
+		gFocusMgr.setMouseCapture( NULL );
 		handled = TRUE;
 	}
 
@@ -2454,6 +2454,8 @@ void LLTextEditor::onFocusLost()
 
 	// Make sure cursor is shown again
 	getWindow()->showCursorFromMouseMove();
+
+	LLUICtrl::onFocusLost();
 }
 
 void LLTextEditor::setEnabled(BOOL enabled)
@@ -3734,11 +3736,9 @@ S32 LLTextEditor::getSegmentIdxAtOffset(S32 offset)
 	}
 }
 
-//static
-void LLTextEditor::onMouseCaptureLost( LLMouseHandler* old_captor )
+void LLTextEditor::onMouseCaptureLost()
 {
-	LLTextEditor* self = (LLTextEditor*) old_captor;
-	self->endSelection();
+	endSelection();
 }
 
 void LLTextEditor::setOnScrollEndCallback(void (*callback)(void*), void* userdata)

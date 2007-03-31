@@ -42,7 +42,7 @@ const S32 ANIMATION_FRAMES = 1; //13;
 
 // XUI:translate
 LLProgressView::LLProgressView(const std::string& name, const LLRect &rect) 
-: LLView(name, rect, TRUE)
+: LLPanel(name, rect, FALSE)
 {
 	mPercentDone = 0.f;
 	mDrawBackground = TRUE;
@@ -119,7 +119,7 @@ void LLProgressView::setVisible(BOOL visible)
 	}
 	else if (!getVisible() && visible)
 	{
-		gFocusMgr.setTopView(this, NULL);
+		gFocusMgr.setTopCtrl(this);
 		mFadeTimer.stop();
 		mProgressTimer.start();
 		LLView::setVisible(visible);
@@ -183,7 +183,7 @@ void LLProgressView::draw()
 		LLView::draw();
 		if (mFadeTimer.getElapsedTimeF32() > FADE_IN_TIME)
 		{
-			gFocusMgr.removeTopViewWithoutCallback(this);
+			gFocusMgr.removeTopCtrlWithoutCallback(this);
 			LLView::setVisible(FALSE);
 			gStartImageGL = NULL;
 		}

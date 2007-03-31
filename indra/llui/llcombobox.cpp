@@ -40,7 +40,7 @@ LLComboBox::LLComboBox(	const LLString& name, const LLRect &rect, const LLString
 	)
 :	LLUICtrl(name, rect, TRUE, commit_callback, callback_userdata, 
 			 FOLLOWS_LEFT | FOLLOWS_TOP),
-	mDrawButton(TRUE),
+	mDrawArrow(TRUE),
 	mTextEntry(NULL),
 	mArrowImage(NULL),
 	mArrowImageWidth(8),
@@ -48,8 +48,8 @@ LLComboBox::LLComboBox(	const LLString& name, const LLRect &rect, const LLString
 	mMaxChars(20),
 	mTextEntryTentative(TRUE),
 	mPrearrangeCallback( NULL ),
-	mTextEntryCallback( NULL ),
-	mListWidth(list_width)
+	mListPosition(BELOW),
+	mTextEntryCallback( NULL )
 {
 	// For now, all comboboxes don't take keyboard focus when clicked.
 	// This might change if it is part of a modal dialog.
@@ -57,7 +57,7 @@ LLComboBox::LLComboBox(	const LLString& name, const LLRect &rect, const LLString
 
 	// Revert to standard behavior.  When this control's parent is hidden, it needs to
 	// hide this ctrl--which won't just happen automatically since when LLComboBox is 
-	// showing its list, it's also set to TopView.  When keyboard focus is cleared all
+	// showing its list, it's also set to TopCtrl.  When keyboard focus is cleared all
 	// controls (including this one) know that they are no longer editing.
 	mKeyboardFocusOnClick = TRUE;
 
@@ -68,7 +68,8 @@ LLComboBox::LLComboBox(	const LLString& name, const LLRect &rect, const LLString
 	// Text label button
 	mButton = new LLSquareButton("comboxbox button",
 								 r, label, NULL, LLString::null,
-								 &LLComboBox::onButtonClick, this);
+								 NULL, this);
+	mButton->setMouseDownCallback(onButtonDown);
 	mButton->setFont(LLFontGL::sSansSerifSmall);
 	mButton->setFollows(FOLLOWS_LEFT | FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
 	mButton->setHAlign( LLFontGL::LEFT );
@@ -91,6 +92,7 @@ LLComboBox::LLComboBox(	const LLString& name, const LLRect &rect, const LLString
 	mList->setVisible(FALSE);
 	mList->setBgWriteableColor( LLColor4(1,1,1,1) );
 	mList->setCommitOnKeyboardMovement(FALSE);
+	mList->setFocusChangedCallback(onListFocusChanged);
 	addChild(mList);
 
 	LLRect border_rect(0, mRect.getHeight(), mRect.getWidth(), 0);
@@ -202,111 +204,6 @@ void LLComboBox::setEnabled(BOOL enabled)
 {
 	LLUICtrl::setEnabled(enabled);
 	mButton->setEnabled(enabled);
-}
-
-// *HACK: these are all hacks to support the fact that the combobox
-// has mouse capture so we can hide the list when we don't handle the
-// mouse up event
-BOOL LLComboBox::handleHover(S32 x, S32 y, MASK mask)
-{
-	if (mList->getVisible())
-	{
-		S32 local_x, local_y;
-		LLView::localPointToOtherView(x, y, &local_x, &local_y, mList);
-		if (mList->pointInView(local_x, local_y))
-		{
-			return mList->handleHover(local_x, local_y, mask);
-		}
-	}
-	return LLUICtrl::handleHover(x, y, mask);
-}
-
-BOOL LLComboBox::handleMouseDown(S32 x, S32 y, MASK mask)
-{
-	if (mList->getVisible())
-	{
-		S32 local_x, local_y;
-		LLView::localPointToOtherView(x, y, &local_x, &local_y, mList);
-		if (mList->pointInView(local_x, local_y))
-		{
-			return mList->handleMouseDown(local_x, local_y, mask);
-		}
-	}
-	BOOL has_focus_now = hasFocus();
-	BOOL handled = LLUICtrl::handleMouseDown(x, y, mask);
-	if (handled && !has_focus_now)
-	{
-		onFocusReceived();
-	}
-
-	return handled;
-}	
-
-BOOL LLComboBox::handleRightMouseDown(S32 x, S32 y, MASK mask)
-{
-	if (mList->getVisible())
-	{
-		S32 local_x, local_y;
-		LLView::localPointToOtherView(x, y, &local_x, &local_y, mList);
-		if (mList->pointInView(local_x, local_y))
-		{
-			return mList->handleRightMouseDown(local_x, local_y, mask);
-		}
-	}
-	return LLUICtrl::handleRightMouseDown(x, y, mask);
-}
-
-BOOL LLComboBox::handleRightMouseUp(S32 x, S32 y, MASK mask)
-{
-	if (mList->getVisible())
-	{
-		S32 local_x, local_y;
-		LLView::localPointToOtherView(x, y, &local_x, &local_y, mList);
-		if (mList->pointInView(local_x, local_y))
-		{
-			return mList->handleRightMouseUp(local_x, local_y, mask);
-		}
-	}
-	return LLUICtrl::handleRightMouseUp(x, y, mask);
-}
-
-BOOL LLComboBox::handleDoubleClick(S32 x, S32 y, MASK mask)
-{
-	if (mList->getVisible())
-	{
-		S32 local_x, local_y;
-		LLView::localPointToOtherView(x, y, &local_x, &local_y, mList);
-		if (mList->pointInView(local_x, local_y))
-		{
-			return mList->handleDoubleClick(local_x, local_y, mask);
-		}
-	}
-	return LLUICtrl::handleDoubleClick(x, y, mask);
-}
-
-BOOL LLComboBox::handleMouseUp(S32 x, S32 y, MASK mask)
-{
-	BOOL handled = childrenHandleMouseUp(x, y, mask) != NULL;
-
-	if (!handled && mList->getVisible())
-	{
-		S32 local_x, local_y;
-		LLView::localPointToOtherView(x, y, &local_x, &local_y, mList);
-		if (mList->pointInView(local_x, local_y))
-		{
-			handled = mList->handleMouseUp(local_x, local_y, mask);
-		}
-	}
-
-	if( !handled && gFocusMgr.getMouseCapture() == this )
-	{
-		// Mouse events that we didn't handle cause the list to be hidden.
-		// Eat mouse event, regardless of where on the screen it happens.
-		hideList();
-		handled = TRUE;
-	}
-
-	return handled;
 }
 
 void LLComboBox::clear()
@@ -493,12 +390,13 @@ void LLComboBox::onFocusLost()
 	{
 		mTextEntry->selectAll();
 	}
+	LLUICtrl::onFocusLost();
 }
 
 void LLComboBox::setButtonVisible(BOOL visible)
 {
 	mButton->setVisible(visible);
-	mDrawButton = visible;
+	mDrawArrow = visible;
 	if (mTextEntry)
 	{
 		LLRect text_entry_rect(0, mRect.getHeight(), mRect.getWidth(), 0);
@@ -522,15 +420,17 @@ void LLComboBox::draw()
 		// Draw children
 		LLUICtrl::draw();
 
-		if (mDrawButton)
+		if (mDrawArrow)
 		{
 			// Paste the graphic on the right edge
 			if (!mArrowImage.isNull())
 			{
-				S32 left = mRect.getWidth() - mArrowImageWidth - LLUI::sConfigGroup->getS32("DropShadowButton");
+				S32 arrow_height = llmin(mRect.getHeight(), mArrowImage->getHeight());
+				S32 arrow_width = llround((F32)mArrowImage->getWidth() * ((F32)arrow_height / (F32)mArrowImage->getHeight()));
 
-				gl_draw_image( left, 0, mArrowImage,
-					LLColor4::white);
+				S32 left = mRect.getWidth() - mArrowImage->getWidth() - LLUI::sConfigGroup->getS32("DropShadowButton");
+
+				gl_draw_scaled_image( left, 0, arrow_width, arrow_height, mArrowImage, LLColor4::white);
 			}
 		}
 	}
@@ -576,18 +476,60 @@ void LLComboBox::showList()
 	//HACK: shouldn't have to know about scale here
 	mList->arrange( 192, llfloor((F32)window_size.mY / LLUI::sGLScaleFactor.mV[VY]) - 50 );
 
-	// Move rect so it hangs off the bottom of this view
+	// Make sure that we can see the whole list
+	LLRect floater_area_local;
+	gFloaterView->localRectToOtherView(gFloaterView->getLocalSnapRect(), &floater_area_local, this);
+	
 	LLRect rect = mList->getRect();
 
-	rect.setLeftTopAndSize(0, 0, rect.getWidth(), rect.getHeight() );
-	mList->setRect(rect);
+	if (mListPosition == BELOW)
+	{
+		if (rect.getHeight() <= -floater_area_local.mBottom)
+		{
+			// Move rect so it hangs off the bottom of this view
+			rect.setLeftTopAndSize(0, 0, rect.getWidth(), rect.getHeight() );
+		}
+		else
+		{	
+			// stack on top or bottom, depending on which has more room
+			if (-floater_area_local.mBottom > floater_area_local.mTop - mRect.getHeight())
+			{
+				// Move rect so it hangs off the bottom of this view
+				rect.setLeftTopAndSize(0, 0, rect.getWidth(), llmin(-floater_area_local.mBottom, rect.getHeight()));
+			}
+			else
+			{
+				// move rect so it stacks on top of this view (clipped to size of screen)
+				rect.setOriginAndSize(0, mRect.getHeight(), rect.getWidth(), llmin(floater_area_local.mTop - mRect.getHeight(), rect.getHeight()));
+			}
+		}
+	}
+	else // ABOVE
+	{
+		if (rect.getHeight() <= floater_area_local.mTop - mRect.getHeight())
+		{
+			// move rect so it stacks on top of this view (clipped to size of screen)
+			rect.setOriginAndSize(0, mRect.getHeight(), rect.getWidth(), llmin(floater_area_local.mTop - mRect.getHeight(), rect.getHeight()));
+		}
+		else
+		{
+			// stack on top or bottom, depending on which has more room
+			if (-floater_area_local.mBottom > floater_area_local.mTop - mRect.getHeight())
+			{
+				// Move rect so it hangs off the bottom of this view
+				rect.setLeftTopAndSize(0, 0, rect.getWidth(), llmin(-floater_area_local.mBottom, rect.getHeight()));
+			}
+			else
+			{
+				// move rect so it stacks on top of this view (clipped to size of screen)
+				rect.setOriginAndSize(0, mRect.getHeight(), rect.getWidth(), llmin(floater_area_local.mTop - mRect.getHeight(), rect.getHeight()));
+			}
+		}
 
-	// Make sure that we can see the whole list
-	LLRect floater_area_screen;
-	LLRect floater_area_local;
-	gFloaterView->getParent()->localRectToScreen( gFloaterView->getRect(), &floater_area_screen );
-	screenRectToLocal( floater_area_screen, &floater_area_local );
-	mList->translateIntoRect( floater_area_local, FALSE );
+	}
+	mList->setOrigin(rect.mLeft, rect.mBottom);
+	mList->reshape(rect.getWidth(), rect.getHeight());
+	mList->translateIntoRect(floater_area_local, FALSE);
 
 	// Make sure we didn't go off bottom of screen
 	S32 x, y;
@@ -598,7 +540,12 @@ void LLComboBox::showList()
 		mList->translate(0, -y);
 	}
 
-	gFocusMgr.setMouseCapture( this, LLComboBox::onMouseCaptureLost );
+	// pass mouse capture on to list if button is depressed
+	if (mButton->hasMouseCapture())
+	{
+		gFocusMgr.setMouseCapture(mList);
+	}
+	
 	// NB: this call will trigger the focuslost callback which will hide the list, so do it first
 	// before finally showing the list
 
@@ -608,14 +555,13 @@ void LLComboBox::showList()
 		// so that the callback is not immediately triggered on setFocus()
 		mList->selectFirstItem();
 	}
-	gFocusMgr.setKeyboardFocus(mList, onListFocusLost);
+	mList->setFocus(TRUE);
 
 	// Show the list and push the button down
 	mButton->setToggleState(TRUE);
 	mList->setVisible(TRUE);
 	
-	gFocusMgr.setTopView(mList, LLComboBox::onTopViewLost );
-
+	gFocusMgr.setTopCtrl(mList);
 }
 
 void LLComboBox::hideList()
@@ -624,29 +570,13 @@ void LLComboBox::hideList()
 	mList->setVisible(FALSE);
 	mList->highlightNthItem(-1);
 
-	if( gFocusMgr.getTopView() == mList )
+	if( gFocusMgr.getTopCtrl() == mList )
 	{
-		gFocusMgr.setTopView(NULL, NULL);
+		gFocusMgr.setTopCtrl(NULL);
 	}
 
-	if( gFocusMgr.getMouseCapture() == this )
-	{
-		gFocusMgr.setMouseCapture( NULL, NULL );
-	}
-
-	if( gFocusMgr.getKeyboardFocus() == mList )
-	{
-		if (mAllowTextEntry)
-		{
-			mTextEntry->setFocus(TRUE);
-		}
-		else
-		{
-			setFocus(TRUE);
-		}
-	}
+	//mList->setFocus(FALSE);
 }
-
 
 
 //------------------------------------------------------------------
@@ -654,7 +584,7 @@ void LLComboBox::hideList()
 //------------------------------------------------------------------
 
 // static
-void LLComboBox::onButtonClick(void *userdata)
+void LLComboBox::onButtonDown(void *userdata)
 {
 	LLComboBox *self = (LLComboBox *)userdata;
 
@@ -701,50 +631,46 @@ void LLComboBox::onItemSelected(LLUICtrl* item, void *userdata)
 
 	const LLString& name = self->mList->getSimpleSelectedItem();
 
-	self->hideList();
-
 	S32 cur_id = self->getCurrentIndex();
 	if (cur_id != -1)
 	{
-		self->setLabel(self->mList->getSimpleSelectedItem());
+		self->setLabel(name);
 
 		if (self->mAllowTextEntry)
 		{
-			self->mTextEntry->setText(name);
-			self->mTextEntry->setTentative(FALSE);
 			gFocusMgr.setKeyboardFocus(self->mTextEntry, NULL);
 			self->mTextEntry->selectAll();
 		}
-		else
-		{
-			self->mButton->setLabelUnselected( name );
-			self->mButton->setLabelSelected( name );
-			self->mButton->setDisabledLabel( name );
-			self->mButton->setDisabledSelectedLabel( name );
-		}
+	}
+	else
+	{
+		// invalid selection, just restore existing value
+		self->mList->selectSimpleItem(self->mButton->getLabelSelected());
 	}
 	self->onCommit();
-}
 
-// static
-void LLComboBox::onTopViewLost(LLView* old_focus)
-{
-	LLComboBox *self = (LLComboBox *) old_focus->getParent();
 	self->hideList();
 }
 
-
 // static
-void LLComboBox::onMouseCaptureLost(LLMouseHandler*)
+void LLComboBox::onListFocusChanged(LLUICtrl* list, void* user_data)
 {
-	// Can't hide the list here.  If the list scrolls off the screen,
-	// and you click in the arrow buttons of the scroll bar, they must capture
-	// the mouse to handle scrolling-while-mouse-down.
+	LLComboBox *self = (LLComboBox *) list->getParent();
+	if (!list->hasFocus())
+	{
+		//*HACK: store the original value explicitly somewhere, not just in label
+		LLString orig_selection = self->mAllowTextEntry ? self->mTextEntry->getText() : self->mButton->getLabelSelected();
+
+		self->hideList();
+
+		// reassert original selection
+		self->mList->selectSimpleItem(orig_selection, FALSE);
+	}
 }
 
 BOOL LLComboBox::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen)
 {
-	
+
     LLString tool_tip;
 
 	if (LLUI::sShowXUINames)
@@ -1121,16 +1047,4 @@ BOOL LLComboBox::operateOnAll(EOperation op)
 		return TRUE;
 	}
 	return FALSE;
-}
-
-//static 
-void LLComboBox::onListFocusLost(LLUICtrl* old_focus)
-{
-	// if focus is going to nothing (user hit ESC), take it back
-	LLComboBox* combo = (LLComboBox*)old_focus->getParent();
-	combo->hideList();
-	if (gFocusMgr.getKeyboardFocus() == NULL)
-	{
-		combo->focusFirstItem();
-	}
 }

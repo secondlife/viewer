@@ -161,9 +161,9 @@ LLMotionController::~LLMotionController()
 //-----------------------------------------------------------------------------
 void LLMotionController::deleteAllMotions()
 {
-	mLoadingMotions.removeAllNodes();
+	mLoadingMotions.clear();
 	mLoadedMotions.clear();
-	mActiveMotions.removeAllNodes();
+	mActiveMotions.clear();
 
 	for_each(mAllMotions.begin(), mAllMotions.end(), DeletePairedPointer());
 	mAllMotions.clear();
@@ -215,16 +215,16 @@ void LLMotionController::setTimeStep(F32 step)
 	if (step != 0.f)
 	{
 		// make sure timestamps conform to new quantum
-		for(	LLMotion* motionp = mActiveMotions.getFirstData();
-			motionp != NULL;
-			motionp = mActiveMotions.getNextData() )
-			{
-				motionp->mActivationTimestamp = (F32)llfloor(motionp->mActivationTimestamp / step) * step;
-				BOOL stopped = motionp->isStopped();
-				motionp->setStopTime((F32)llfloor(motionp->getStopTime() / step) * step);
-				motionp->setStopped(stopped);
-				motionp->mSendStopTimestamp = (F32)llfloor(motionp->mSendStopTimestamp / step) * step;
-			}
+		for (motion_list_t::iterator iter = mActiveMotions.begin();
+			 iter != mActiveMotions.end(); ++iter)
+		{
+			LLMotion* motionp = *iter;
+			motionp->mActivationTimestamp = (F32)llfloor(motionp->mActivationTimestamp / step) * step;
+			BOOL stopped = motionp->isStopped();
+			motionp->setStopTime((F32)llfloor(motionp->getStopTime() / step) * step);
+			motionp->setStopped(stopped);
+			motionp->mSendStopTimestamp = (F32)llfloor(motionp->mSendStopTimestamp / step) * step;
+		}
 	}
 }
 
@@ -236,23 +236,6 @@ void LLMotionController::setTimeFactor(F32 time_factor)
 	mTimeOffset += mTimer.getElapsedTimeAndResetF32() * mTimeFactor; 
 	mTimeFactor = time_factor; 
 }
-
-//-----------------------------------------------------------------------------
-// getFirstActiveMotion()
-//-----------------------------------------------------------------------------
-LLMotion* LLMotionController::getFirstActiveMotion() 
-{ 
-	return mActiveMotions.getFirstData();
-}
-
-//-----------------------------------------------------------------------------
-// getNextActiveMotion()
-//-----------------------------------------------------------------------------
-LLMotion* LLMotionController::getNextActiveMotion()
-{ 
-	return mActiveMotions.getNextData();
-}
-
 
 //-----------------------------------------------------------------------------
 // setCharacter()
@@ -281,17 +264,9 @@ void LLMotionController::removeMotion( const LLUUID& id)
 	{
 		stopMotionLocally(id, TRUE);
 
-		mLoadingMotions.deleteData(motionp);
-		std::deque<LLMotion*>::iterator motion_it;
-		for (motion_it = mLoadedMotions.begin(); motion_it != mLoadedMotions.end(); ++motion_it)
-		{
-			if(*motion_it == motionp)
-			{
-				mLoadedMotions.erase(motion_it);
-				break;
-			}
-		}
-		mActiveMotions.deleteData(motionp);
+		mLoadingMotions.erase(motionp);
+		mLoadedMotions.remove(motionp);
+		mActiveMotions.remove(motionp);
 		mAllMotions.erase(id);
 		delete motionp;
 	}
@@ -332,7 +307,7 @@ LLMotion* LLMotionController::createMotion( const LLUUID &id )
 			delete motion;
 			return NULL;
 		case LLMotion::STATUS_HOLD:
-			mLoadingMotions.addData(motion);
+			mLoadingMotions.insert(motion);
 			break;
 		case LLMotion::STATUS_SUCCESS:
 			// add motion to our list
@@ -451,10 +426,10 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 	memset(&last_joint_signature, 0, sizeof(U8) * LL_CHARACTER_MAX_JOINTS);
 
 	// iterate through active motions in chronological order
-	for(LLMotion* motionp = mActiveMotions.getFirstData();
-		motionp != NULL;
-		motionp = mActiveMotions.getNextData())
+	for (motion_list_t::iterator iter = mActiveMotions.begin();
+		 iter != mActiveMotions.end(); ++iter)
 	{
+		LLMotion* motionp = *iter;
 		if (motionp->getBlendType() != anim_type)
 		{
 			continue;
@@ -468,9 +443,8 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 		}
 		else
 		{
-			S32 i;
 			// NUM_JOINT_SIGNATURE_STRIDES should be multiple of 4
-			for (i = 0; i < NUM_JOINT_SIGNATURE_STRIDES; i++)
+			for (S32 i = 0; i < NUM_JOINT_SIGNATURE_STRIDES; i++)
 			{
 		 		U32 *current_signature = (U32*)&(mJointSignature[0][i * 4]);
 				U32 test_signature = *(U32*)&(motionp->mJointSignature[0][i * 4]);
@@ -726,16 +700,15 @@ void LLMotionController::updateMotion()
 	}
 
 	// query pending motions for completion
-	LLMotion* motionp;
-
-	for (	motionp = mLoadingMotions.getFirstData();
-			motionp != NULL;
-			motionp = mLoadingMotions.getNextData() )
+	for (motion_set_t::iterator iter = mLoadingMotions.begin();
+		 iter != mLoadingMotions.end(); )
 	{
+		motion_set_t::iterator curiter = iter++;
+		LLMotion* motionp = *curiter;
 		LLMotion::LLMotionInitStatus status = motionp->onInitialize(mCharacter);
 		if (status == LLMotion::STATUS_SUCCESS)
 		{
-			mLoadingMotions.removeCurrentData();
+			mLoadingMotions.erase(curiter);
 			// add motion to our loaded motion list
 			addLoadedMotion(motionp);
 			// this motion should be playing
@@ -748,7 +721,7 @@ void LLMotionController::updateMotion()
 		{
 			llinfos << "Motion " << motionp->getID() << " init failed." << llendl;
 			sRegistry.markBad(motionp->getID());
-			mLoadingMotions.removeCurrentData();
+			mLoadingMotions.erase(curiter);
 			mAllMotions.erase(motionp->getID());
 			delete motionp;
 		}
@@ -785,7 +758,7 @@ void LLMotionController::updateMotion()
 //-----------------------------------------------------------------------------
 BOOL LLMotionController::activateMotion(LLMotion *motion, F32 time)
 {
-	if (mLoadingMotions.checkData(motion))
+	if (mLoadingMotions.find(motion) != mLoadingMotions.end())
 	{
 		// we want to start this motion, but we can't yet, so flag it as started
 		motion->setStopped(FALSE);
@@ -816,7 +789,7 @@ BOOL LLMotionController::activateMotion(LLMotion *motion, F32 time)
 		motion->mSendStopTimestamp = F32_MAX;
 	}
 
-	mActiveMotions.addData(motion);
+	mActiveMotions.push_front(motion);
 
 	motion->activate();
 	motion->onUpdate(0.f, mJointSignature[1]);
@@ -830,7 +803,7 @@ BOOL LLMotionController::activateMotion(LLMotion *motion, F32 time)
 BOOL LLMotionController::deactivateMotion(LLMotion *motion)
 {
 	motion->deactivate();
-	mActiveMotions.removeData(motion);
+	mActiveMotions.remove(motion);
 
 	return TRUE;
 }
@@ -838,22 +811,17 @@ BOOL LLMotionController::deactivateMotion(LLMotion *motion)
 //-----------------------------------------------------------------------------
 // isMotionActive()
 //-----------------------------------------------------------------------------
-BOOL LLMotionController::isMotionActive(LLMotion *motion)
+bool LLMotionController::isMotionActive(LLMotion *motion)
 {
-	if (motion && motion->isActive())
-	{
-		return TRUE;
-	}
-
-	return FALSE;
+	return (motion && motion->isActive());
 }
 
 //-----------------------------------------------------------------------------
 // isMotionLoading()
 //-----------------------------------------------------------------------------
-BOOL LLMotionController::isMotionLoading(LLMotion* motion)
+bool LLMotionController::isMotionLoading(LLMotion* motion)
 {
-	return mLoadingMotions.checkData(motion);
+	return (mLoadingMotions.find(motion) != mLoadingMotions.end());
 }
 
 
@@ -871,15 +839,14 @@ LLMotion *LLMotionController::findMotion(const LLUUID& id)
 //-----------------------------------------------------------------------------
 void LLMotionController::flushAllMotions()
 {
-	LLDynamicArray<LLUUID> active_motions;
-	LLDynamicArray<F32> active_motion_times;
-
-	for (LLMotion* motionp = mActiveMotions.getFirstData();
-		motionp;
-		motionp = mActiveMotions.getNextData())
+	std::vector<std::pair<LLUUID,F32> > active_motions;
+	active_motions.reserve(mActiveMotions.size());
+	for (motion_list_t::iterator iter = mActiveMotions.begin();
+		 iter != mActiveMotions.end(); ++iter)
 	{
-		active_motions.put(motionp->getID());
-		active_motion_times.put(mTime - motionp->mActivationTimestamp);
+		LLMotion* motionp = *iter;
+		F32 dtime = mTime - motionp->mActivationTimestamp;
+		active_motions.push_back(std::make_pair(motionp->getID(),dtime));
 		motionp->deactivate();
 	}
 
@@ -891,9 +858,10 @@ void LLMotionController::flushAllMotions()
 	mCharacter->removeAnimationData("Hand Pose");
 
 	// restart motions
-	for (S32 i = 0; i < active_motions.count(); i++)
+	for (std::vector<std::pair<LLUUID,F32> >::iterator iter = active_motions.begin();
+		 iter != active_motions.end(); ++iter)
 	{
-		startMotion(active_motions[i], active_motion_times[i]);
+		startMotion(iter->first, iter->second);
 	}
 }
 

@@ -309,9 +309,6 @@ LLAgent::LLAgent()
 
 	mbJump(FALSE),
 
-	mWanderTimer(),
-	mWanderTargetGlobal( LLVector3d::zero ),
-
 	mAutoPilot(FALSE),
 	mAutoPilotFlyOnStop(FALSE),
 	mAutoPilotTargetGlobal(),
@@ -2095,36 +2092,6 @@ BOOL LLAgent::getBusy() const
 	return mIsBusy;
 }
 
-
-//-----------------------------------------------------------------------------
-// updateWanderTarget()
-//-----------------------------------------------------------------------------
-void LLAgent::updateWanderTarget()
-{
-	S32 num_regions;
-	LLViewerRegion*	rand_region;
-	F32 rand_x;
-	F32 rand_y;
-
-	if (mWanderTimer.checkExpirationAndReset(ll_frand(MAX_WANDER_TIME)))
-	{
-		// Pick a random spot to wander towards
-		num_regions = gWorldPointer->mActiveRegionList.getLength();
-		S32 region_num = llround(ll_frand() * num_regions);
-		rand_region = gWorldPointer->mActiveRegionList.getFirstData();
-		S32 i = 0;
-		while (i < region_num)
-		{
-			rand_region = gWorldPointer->mActiveRegionList.getNextData();
-			i++;
-		}
-		rand_x = ll_frand(rand_region->getWidth());
-		rand_y = ll_frand(rand_region->getWidth());
-		
-		stopAutoPilot();
-		startAutoPilotGlobal(rand_region->getPosGlobalFromRegion(LLVector3(rand_x, rand_y, 0.f)));
-	}
-}
 
 //-----------------------------------------------------------------------------
 // startAutoPilotGlobal()
@@ -4043,10 +4010,6 @@ void LLAgent::changeCameraToFollow(BOOL animate)
 			mbFlagsDirty = TRUE;
 		}
 
-		//RN: this doesn't seem to be necessary and destroys the UE for script-driven cameras
-		//gViewerWindow->setKeyboardFocus( NULL, NULL );
-		//gViewerWindow->setMouseCapture( NULL, NULL );
-
 		if (animate)
 		{
 			startCameraAnimation();
@@ -4110,9 +4073,6 @@ void LLAgent::changeCameraToThirdPerson(BOOL animate)
 			mbFlagsDirty = TRUE;
 		}
 
-		//RN: this doesn't seem to be necessary and destroys the UE for script-driven cameras
-		//gViewerWindow->setKeyboardFocus( NULL, NULL );
-		//gViewerWindow->setMouseCapture( NULL, NULL );
 	}
 
 	// Remove any pitch from the avatar
@@ -4185,7 +4145,7 @@ void LLAgent::changeCameraToCustomizeAvatar(BOOL animate)
 		}
 
 		gViewerWindow->setKeyboardFocus( NULL, NULL );
-		gViewerWindow->setMouseCapture( NULL, NULL );
+		gViewerWindow->setMouseCapture( NULL );
 
 		LLVOAvatar::onCustomizeStart();
 	}

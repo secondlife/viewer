@@ -254,7 +254,8 @@ LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerImage *texturep)
 	LLMemType mt(LLMemType::MTYPE_DRAWABLE);
 	
 	LLFace *face = new LLFace(this, mVObjp);
-
+	if (!face) llerrs << "Allocating new Face: " << mFaces.size() << llendl;
+	
 	if (face)
 	{
 		mFaces.push_back(face);

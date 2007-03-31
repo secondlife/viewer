@@ -316,8 +316,8 @@ void LLSpinCtrl::setTentative(BOOL b)
 BOOL LLSpinCtrl::isMouseHeldDown()
 {
 	return 
-		gFocusMgr.getMouseCapture() == mDownBtn ||
-		gFocusMgr.getMouseCapture() == mUpBtn;
+		mDownBtn->hasMouseCapture()
+		|| mUpBtn->hasMouseCapture();
 }
 
 void LLSpinCtrl::onCommit()

@@ -422,7 +422,6 @@ LLVector3 LLViewerRegion::getCenterAgent() const
 	return gAgent.getPosAgentFromGlobal(mCenterGlobal);
 }
 
-
 void LLViewerRegion::setRegionNameAndZone(const char* name_and_zone)
 {
 	LLString name_zone(name_and_zone);
@@ -705,21 +704,6 @@ F32 LLViewerRegion::getCompositionXY(const S32 x, const S32 y) const
 	return getComposition()->getValueScaled((F32)x, (F32)y);
 }
 
-
-// ---------------- Friends ----------------
-
-std::ostream& operator<<(std::ostream &s, const LLViewerRegion &region)
-{
-	s << "{ ";
-	s << region.mHost;
-	s << " mOriginGlobal = " << region.getOriginGlobal()<< "\n";
-	s << "}";
-	return s;
-}
-
-
-// ---------------- Protected Member Functions ----------------
-
 void LLViewerRegion::calculateCenterGlobal() 
 {
 	mCenterGlobal = mOriginGlobal;
@@ -735,7 +719,24 @@ void LLViewerRegion::calculateCenterGlobal()
 	}
 }
 
+void LLViewerRegion::calculateCameraDistance()
+{
+	mCameraDistanceSquared = (F32)(gAgent.getCameraPositionGlobal() - getCenterGlobal()).magVecSquared();
+}
 
+// ---------------- Friends ----------------
+
+std::ostream& operator<<(std::ostream &s, const LLViewerRegion &region)
+{
+	s << "{ ";
+	s << region.mHost;
+	s << " mOriginGlobal = " << region.getOriginGlobal()<< "\n";
+	s << "}";
+	return s;
+}
+
+
+// ---------------- Protected Member Functions ----------------
 
 void LLViewerRegion::updateNetStats()
 {

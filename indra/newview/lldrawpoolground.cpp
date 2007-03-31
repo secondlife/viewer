@@ -21,6 +21,7 @@
 #include "pipeline.h"
 #include "llagent.h"
 #include "llviewerregion.h"
+#include "llglslshader.h"
 
 LLDrawPoolGround::LLDrawPoolGround() :
 	LLFacePool(POOL_GROUND)
@@ -34,7 +35,7 @@ LLDrawPool *LLDrawPoolGround::instancePool()
 
 void LLDrawPoolGround::prerender()
 {
-	mVertexShaderLevel = gPipeline.getVertexShaderLevel(LLPipeline::SHADER_ENVIRONMENT);
+	mVertexShaderLevel = LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_ENVIRONMENT);
 }
 
 void LLDrawPoolGround::render(S32 pass)

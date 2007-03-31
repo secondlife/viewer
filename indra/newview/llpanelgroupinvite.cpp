@@ -99,11 +99,11 @@ void LLPanelGroupInvite::impl::addUsers(const std::vector<std::string>& names,
 		}
 
 		//add the name to the names list
-		const BOOL enabled = TRUE;
-		LLScrollListItem* row = new LLScrollListItem(
-										enabled, NULL, id);
-		row->addColumn(name.c_str(), LLFontGL::sSansSerif);
-		mInvitees->addItem(row);
+		LLSD row;
+		row["id"] = id;
+		row["columns"][0]["value"] = name;
+
+		mInvitees->addElement(row);
 	}
 }
 

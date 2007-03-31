@@ -677,7 +677,7 @@ S32 LLFontGL::render(const LLWString &wstr,
 	if (use_ellipses && halign == LEFT)
 	{
 		// check for too long of a string
-		if (getWidthF32(wstr.c_str(), 0, max_chars) > scaled_max_pixels)
+		if (getWidthF32(wstr.c_str(), 0, max_chars) * sScaleX > scaled_max_pixels)
 		{
 			// use four dots for ellipsis width to generate padding
 			const LLWString dots(utf8str_to_wstring(LLString("....")));

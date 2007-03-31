@@ -584,7 +584,7 @@ BOOL LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 			{
 				mDragItem = item_at_pos;
 				mDragItemSaved = LLEmbeddedItems::getEmbeddedItemSaved(wc);
-				gFocusMgr.setMouseCapture( this, NULL );
+				gFocusMgr.setMouseCapture( this );
 				mMouseDownX = x;
 				mMouseDownY = y;
 				S32 screen_x;
@@ -646,7 +646,7 @@ BOOL LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 				setCursorAtLocalPos( x, y, TRUE );
 				startSelection();
 			}
-			gFocusMgr.setMouseCapture( this, &LLTextEditor::onMouseCaptureLost );
+			gFocusMgr.setMouseCapture( this );
 		}
 
 		handled = TRUE;
@@ -676,7 +676,7 @@ BOOL LLViewerTextEditor::handleHover(S32 x, S32 y, MASK mask)
 	}
 	if( getVisible() )
 	{
-		if(gFocusMgr.getMouseCapture() == this )
+		if(hasMouseCapture() )
 		{
 			if( mIsSelecting ) 
 			{
@@ -829,7 +829,7 @@ BOOL LLViewerTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 	// Delay cursor flashing
 	mKeystrokeTimer.reset();
 
-	if( gFocusMgr.getMouseCapture() == this  )
+	if( hasMouseCapture()  )
 	{
 		if (mDragItem)
 		{
@@ -842,7 +842,7 @@ BOOL LLViewerTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 			}
 		}
 		mDragItem = NULL;
-		gFocusMgr.setMouseCapture( NULL, NULL );
+		gFocusMgr.setMouseCapture( NULL );
 		handled = TRUE;
 	}
 

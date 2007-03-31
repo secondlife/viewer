@@ -72,7 +72,6 @@ public:
 	// Note: NOT virtual.  Subclasses should call this version.
 	void					setMouseCapture(BOOL b);
 	BOOL					hasMouseCapture();
-	static void				onMouseCaptureLost(LLMouseHandler* old_captor);
 	virtual void			onMouseCaptureLost() {}  // override this one as needed.
 
 protected:

@@ -1723,6 +1723,10 @@ LLString LLUI::locateSkin(const LLString& filename)
 		if (!gDirUtilp->fileExists(found_file))
 		{
 			LLString localization(sConfigGroup->getString("Language"));		
+			if(localization == "default")
+			{
+				localization = sConfigGroup->getString("SystemLanguage");
+			}
 			LLString local_skin = "xui" + slash + localization + slash + filename;
 			found_file = gDirUtilp->getExpandedFilename(LL_PATH_SKINS, local_skin);
 		}

@@ -129,21 +129,18 @@ void LLTextureBar::draw()
 	}
 	else if (mHilite)
 	{
-		S32 idx = llclamp(mHilite,1,4);
-		if (idx==1) color = LLColor4::yellow;
-		else color = LLColor4::orange;
+		S32 idx = llclamp(mHilite,1,3);
+		if (idx==1) color = LLColor4::orange;
+		else if (idx==2) color = LLColor4::yellow;
+		else color = LLColor4::pink2;
+	}
+	else if (mImagep->mDontDiscard)
+	{
+		color = LLColor4::green4;
 	}
 	else if (mImagep->getBoostLevel())
 	{
 		color = LLColor4::magenta;
-	}
-	else if (mImagep->mDontDiscard)
-	{
-		color = LLColor4::pink2;
-	}
-	else if (!mImagep->getUseMipMaps())
-	{
-		color = LLColor4::green4;
 	}
 	else if (mImagep->getDecodePriority() == 0.0f)
 	{
@@ -577,6 +574,9 @@ void LLTextureView::draw()
 		{
 			LLPointer<LLViewerImage> imagep = *iter++;
 
+			S32 cur_discard = imagep->getDiscardLevel();
+			S32 desired_discard = imagep->mDesiredDiscardLevel;
+			
 			if (mPrintList)
 			{
 				llinfos << imagep->getID()
@@ -585,7 +585,7 @@ void LLTextureView::draw()
 						<< "\t" << imagep->getDecodePriority()
 						<< "\t" << imagep->getWidth()
 						<< "\t" << imagep->getHeight()
-						<< "\t" << imagep->getDiscardLevel()
+						<< "\t" << cur_discard
 						<< llendl;
 			}
 		
@@ -614,7 +614,7 @@ void LLTextureView::draw()
 			
 			if (sDebugImages.find(imagep) != sDebugImages.end())
 			{
-				pri += 3*HIGH_PRIORITY;
+				pri += 4*HIGH_PRIORITY;
 			}
 
 			if (!mOrderFetch)
@@ -629,14 +629,14 @@ void LLTextureView::draw()
 				{
 					if (imagep == objectp->getTEImage(te))
 					{
-						pri += 2*HIGH_PRIORITY;
+						pri += 3*HIGH_PRIORITY;
 						break;
 					}
 				}
 			}
 #endif
 #if 1
-			if (pri < HIGH_PRIORITY)
+			if (pri < HIGH_PRIORITY && (cur_discard< 0 || desired_discard < cur_discard))
 			{
 				LLViewerObject *objectp = gHoverView->getLastHoverObject();
 				if (objectp)
@@ -650,15 +650,6 @@ void LLTextureView::draw()
 							break;
 						}
 					}
-				}
-			}
-#endif
-#if 0
-			if (pri < HIGH_PRIORITY)
-			{
-				if (imagep->mBoostPriority)
-				{
-					pri += 4*HIGH_PRIORITY;
 				}
 			}
 #endif

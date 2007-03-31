@@ -736,6 +736,11 @@ BOOL LLToolCompGun::handleMouseUp(S32 x, S32 y, MASK mask)
 
 void LLToolCompGun::onMouseCaptureLost()
 {
+	if (mComposite)
+	{
+		mComposite->onMouseCaptureLost();
+		return;
+	}
 	mCur->onMouseCaptureLost();
 
 	// JC - I don't know if this is necessary.  Maybe we could lose capture

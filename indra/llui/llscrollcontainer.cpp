@@ -437,7 +437,7 @@ void LLScrollableContainerView::draw()
 		// auto-focus when scrollbar active
 		// this allows us to capture user intent (i.e. stop automatically scrolling the view/etc)
 		if (!gFocusMgr.childHasKeyboardFocus(this) && 
-			(gFocusMgr.getMouseCapture() == mScrollbar[VERTICAL] || gFocusMgr.getMouseCapture() == mScrollbar[HORIZONTAL]))
+			(mScrollbar[VERTICAL]->hasMouseCapture() || mScrollbar[HORIZONTAL]->hasMouseCapture()))
 		{
 			focusFirstItem();
 		}

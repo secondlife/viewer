@@ -108,7 +108,7 @@ public:
 	// updates all visual parameters for this character
 	virtual void updateVisualParams();
 
-	virtual void addDebugText( const char* text ) = 0;
+	virtual void addDebugText( const std::string& text ) = 0;
 
 	virtual const LLUUID&	getID() = 0;
 	//-------------------------------------------------------------------------

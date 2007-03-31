@@ -64,7 +64,8 @@ protected:
 	//LLButton*	mLandmarkBtn;
 	LLButton*	mAuctionBtn;
 
-	static LLLinkedList<LLPanelPlace> sAllPanels;
+	typedef std::list<LLPanelPlace*> panel_list_t;
+	static panel_list_t sAllPanels;
 };
 
 #endif // LL_LLPANELPLACE_H

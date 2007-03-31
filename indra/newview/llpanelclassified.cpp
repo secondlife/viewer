@@ -72,7 +72,7 @@ public:
 static LLDispatchClassifiedClickThrough sClassifiedClickThrough;
 
 //static
-LLLinkedList<LLPanelClassified> LLPanelClassified::sAllPanels;
+std::list<LLPanelClassified*> LLPanelClassified::sAllPanels;
 
 LLPanelClassified::LLPanelClassified(BOOL in_finder)
 :	LLPanel("Classified Panel"),
@@ -99,7 +99,7 @@ LLPanelClassified::LLPanelClassified(BOOL in_finder)
     mSetBtn(NULL),
 	mClickThroughText(NULL)
 {
-    sAllPanels.addData(this);
+    sAllPanels.push_back(this);
 
 	std::string classified_def_file;
 	if (mInFinder)
@@ -119,7 +119,7 @@ LLPanelClassified::LLPanelClassified(BOOL in_finder)
 
 LLPanelClassified::~LLPanelClassified()
 {
-    sAllPanels.removeData(this);
+    sAllPanels.remove(this);
 }
 
 
@@ -300,9 +300,9 @@ void LLPanelClassified::setClickThrough(const LLUUID& classified_id,
 										S32 map,
 										S32 profile)
 {
-    LLPanelClassified *self = NULL;
-    for (self = sAllPanels.getFirstData(); self; self = sAllPanels.getNextData())
-    {
+	for (panel_list_t::iterator iter = sAllPanels.begin(); iter != sAllPanels.end(); ++iter)
+	{
+		LLPanelClassified* self = *iter;
 		// For top picks, must match pick id
 		if (self->mClassifiedID != classified_id)
 		{
@@ -483,9 +483,9 @@ void LLPanelClassified::processClassifiedInfoReply(LLMessageSystem *msg, void **
 	msg->getS32("Data", "PriceForListing", price_for_listing);
 
     // Look up the panel to fill in
-    LLPanelClassified *self = NULL;
-    for (self = sAllPanels.getFirstData(); self; self = sAllPanels.getNextData())
-    {
+	for (panel_list_t::iterator iter = sAllPanels.begin(); iter != sAllPanels.end(); ++iter)
+	{
+		LLPanelClassified* self = *iter;
 		// For top picks, must match pick id
 		if (self->mClassifiedID != classified_id)
 		{

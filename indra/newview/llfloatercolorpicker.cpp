@@ -554,11 +554,10 @@ void LLFloaterColorPicker::onColorSelect( const LLTextureEntry& te, void *data )
 	}
 }
 
-void LLFloaterColorPicker::onMouseCaptureLost(LLMouseHandler *old_captor)
+void LLFloaterColorPicker::onMouseCaptureLost()
 {
-	LLFloaterColorPicker* self = (LLFloaterColorPicker*)old_captor;
-	self->setMouseDownInHueRegion(FALSE);
-	self->setMouseDownInLumRegion(FALSE);
+	setMouseDownInHueRegion(FALSE);
+	setMouseDownInLumRegion(FALSE);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -942,7 +941,7 @@ handleMouseDown ( S32 x, S32 y, MASK mask )
 
 		if ( rgbAreaRect.pointInRect ( x, y ) )
 		{
-			gViewerWindow->setMouseCapture(this, onMouseCaptureLost);
+			gViewerWindow->setMouseCapture(this);
 			// mouse button down
 			setMouseDownInHueRegion ( TRUE );
 
@@ -961,7 +960,7 @@ handleMouseDown ( S32 x, S32 y, MASK mask )
 
 		if ( lumAreaRect.pointInRect ( x, y ) )
 		{
-			gViewerWindow->setMouseCapture(this, onMouseCaptureLost);
+			gViewerWindow->setMouseCapture(this);
 			// mouse button down
 			setMouseDownInLumRegion ( TRUE );
 
@@ -1174,9 +1173,9 @@ handleMouseUp ( S32 x, S32 y, MASK mask )
 	// mouse button not down in color swatch anymore
 	mMouseDownInSwatch = false;
 
-	if (gViewerWindow->hasMouseCapture(this))
+	if (hasMouseCapture())
 	{
-		gViewerWindow->setMouseCapture(NULL, NULL);
+		gViewerWindow->setMouseCapture(NULL);
 	}
 
 	// dispatch to base class for the rest of things

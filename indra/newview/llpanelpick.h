@@ -93,7 +93,8 @@ protected:
     LLCheckBoxCtrl* mEnabledCheck;
     LLButton*    mSetBtn;
 
-    static LLLinkedList<LLPanelPick> sAllPanels;
+    typedef std::list<LLPanelPick*> panel_list_t;
+	static panel_list_t sAllPanels;
 };
 
 #endif // LL_LLPANELPICK_H

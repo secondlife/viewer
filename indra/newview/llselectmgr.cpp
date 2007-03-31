@@ -133,8 +133,8 @@ struct LLDeRezInfo
 
 LLObjectSelection* get_null_object_selection()
 {
-	static LLObjectSelectionHandle null_ptr(new LLObjectSelection());
-	return (LLObjectSelection*)null_ptr;
+	static LLObjectSelection null_selection;
+	return &null_selection;;
 }
 
 

@@ -9,13 +9,13 @@
 #ifndef LL_LLPROGRESSVIEW_H
 #define LL_LLPROGRESSVIEW_H
 
-#include "llview.h"
+#include "llpanel.h"
 #include "llframetimer.h"
 
 class LLImageRaw;
 class LLButton;
 
-class LLProgressView : public LLView
+class LLProgressView : public LLPanel
 {
 public:
 	LLProgressView(const std::string& name, const LLRect& rect);

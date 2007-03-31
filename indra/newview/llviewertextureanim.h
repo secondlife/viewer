@@ -25,6 +25,13 @@ public:
 	{
 		TRANSLATE = 0x01 // Result code JUST for animateTextures
 	};
+
+	F32 mOffS;
+	F32 mOffT;
+	F32 mScaleS;
+	F32 mScaleT;
+	F32 mRot;
+
 protected:
 	LLFrameTimer mTimer;
 	F64 mLastTime;

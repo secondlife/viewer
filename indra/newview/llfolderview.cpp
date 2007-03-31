@@ -71,7 +71,7 @@ void copy_selected_item(void* user_data);
 void open_selected_items(void* user_data);
 void properties_selected_items(void* user_data);
 void paste_items(void* user_data);
-void top_view_lost( LLView* handler );	
+void renamer_focus_lost( LLUICtrl* handler, void* user_data );
 
 ///----------------------------------------------------------------------------
 /// Class LLFolderViewItem
@@ -588,7 +588,7 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 {
 	// No handler needed for focus lost since this class has no
 	// state that depends on it.
-	gViewerWindow->setMouseCapture( this, NULL );
+	gViewerWindow->setMouseCapture( this );
 
 	if (!mIsSelected)
 	{
@@ -623,7 +623,7 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 
 BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 {
-	if( gViewerWindow->hasMouseCapture( this ) && isMovable() )
+	if( hasMouseCapture() && isMovable() )
 	{
 		S32 screen_x;
 		S32 screen_y;
@@ -723,10 +723,10 @@ BOOL LLFolderViewItem::handleMouseUp( S32 x, S32 y, MASK mask )
 	
 	mSelectPending = FALSE;
 
-	if( gViewerWindow->hasMouseCapture( this ) )
+	if( hasMouseCapture() )
 	{
 		getRoot()->setShowSelectionContext(FALSE);
-		gViewerWindow->setMouseCapture( NULL, NULL );
+		gViewerWindow->setMouseCapture( NULL );
 	}
 	return TRUE;
 }
@@ -1226,7 +1226,7 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 	}
 
 	// when applying a filter, matching folders get their contents downloaded first
-	if (getRoot()->isFilterActive() && getFiltered(filter.getMinRequiredGeneration()) && !gInventory.isCategoryComplete(mListener->getUUID()))
+	if (filter.isNotDefault() && getFiltered(filter.getMinRequiredGeneration()) && !gInventory.isCategoryComplete(mListener->getUUID()))
 	{
 		gInventory.startBackgroundFetch(mListener->getUUID());
 	}
@@ -2596,9 +2596,9 @@ LLFolderView::~LLFolderView( void )
 
 	LLView::deleteViewByHandle(mPopupMenuHandle);
 
-	if(gViewerWindow->hasTopView(mRenamer))
+	if(gViewerWindow->hasTopCtrl(mRenamer))
 	{
-		gViewerWindow->setTopView(NULL, NULL);
+		gViewerWindow->setTopCtrl(NULL);
 	}
 
 	mAutoOpenItems.removeAllNodes();
@@ -3175,7 +3175,7 @@ void LLFolderView::finishRenamingItem( void )
 	mRenamer->setFocus( FALSE );
 	mRenamer->setVisible( FALSE );
 	mRenamer->setCommitOnFocusLost( TRUE );
-	gViewerWindow->setTopView( NULL, NULL );
+	gViewerWindow->setTopCtrl( NULL );
 
 	if( mRenameItem )
 	{
@@ -3193,7 +3193,7 @@ void LLFolderView::revertRenamingItem( void )
 	mRenamer->setFocus( FALSE );
 	mRenamer->setVisible( FALSE );
 	mRenamer->setCommitOnFocusLost( TRUE );
-	gViewerWindow->setTopView( NULL, NULL );
+	gViewerWindow->setTopCtrl( NULL );
 
 	if( mRenameItem )
 	{
@@ -3591,7 +3591,8 @@ void LLFolderView::startRenamingSelectedItem( void )
 		mRenamer->setVisible( TRUE );
 		// set focus will fail unless item is visible
 		mRenamer->setFocus( TRUE );
-		gViewerWindow->setTopView( mRenamer, top_view_lost );
+		mRenamer->setFocusLostCallback(renamer_focus_lost);
+		gViewerWindow->setTopCtrl( mRenamer );
 	}
 }
 
@@ -3920,6 +3921,7 @@ void LLFolderView::onFocusLost( )
 	{
 		gEditMenuHandler = NULL;
 	}
+	LLUICtrl::onFocusLost();
 }
 
 BOOL LLFolderView::search(LLFolderViewItem* first_item, const LLString &search_string, BOOL backward)
@@ -4077,9 +4079,9 @@ BOOL LLFolderView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 
 void LLFolderView::deleteAllChildren()
 {
-	if(gViewerWindow->hasTopView(mRenamer))
+	if(gViewerWindow->hasTopCtrl(mRenamer))
 	{
-		gViewerWindow->setTopView(NULL, NULL);
+		gViewerWindow->setTopCtrl(NULL);
 	}
 	LLView::deleteViewByHandle(mPopupMenuHandle);
 	mPopupMenuHandle = LLViewHandle::sDeadHandle;
@@ -4219,7 +4221,7 @@ void LLFolderView::idle(void* user_data)
 
 	self->mFilter.clearModified();
 	BOOL filter_modified_and_active = self->mCompletedFilterGeneration < self->mFilter.getCurrentGeneration() && 
-										self->mFilter.isActive();
+										self->mFilter.isNotDefault();
 	self->mNeedsAutoSelect = filter_modified_and_active &&
 							!(gFocusMgr.childHasKeyboardFocus(self) || gFocusMgr.getMouseCapture());
 	
@@ -4288,6 +4290,12 @@ void LLFolderView::dumpSelectionInformation()
 
 bool sort_item_name(LLFolderViewItem* a, LLFolderViewItem* b)
 {
+	// Sort 'system' / unmovable folders to the top.
+	if (a->isMovable() != b->isMovable())
+	{
+		return b->isMovable();
+	}
+
 	S32 compare = LLString::compareDict(a->getLabel(), b->getLabel());
 	if (0 == compare)
 	{
@@ -4303,6 +4311,12 @@ bool sort_item_name(LLFolderViewItem* a, LLFolderViewItem* b)
 // of inventory items.
 bool sort_item_date(LLFolderViewItem* a, LLFolderViewItem* b)
 {
+	// Sort 'system' / unmovable folders to the top.
+	if (a->isMovable() != b->isMovable())
+	{
+		return b->isMovable();
+	}
+
 	U32 first_create = a->getCreationDate();
 	U32 second_create = b->getCreationDate();
 	if (first_create == second_create)
@@ -4315,9 +4329,12 @@ bool sort_item_date(LLFolderViewItem* a, LLFolderViewItem* b)
 	}
 }
 
-void top_view_lost( LLView* view )
+void renamer_focus_lost( LLUICtrl* ctrl, void* userdata)
 {
-	if( view ) view->setVisible( FALSE );
+	if( ctrl ) 
+	{
+		ctrl->setVisible( FALSE );
+	}
 }
 
 void delete_selected_item(void* user_data)
@@ -4453,7 +4470,7 @@ std::string::size_type LLInventoryFilter::getStringMatchOffset() const
 }
 
 // has user modified default filter params?
-BOOL LLInventoryFilter::isActive()
+BOOL LLInventoryFilter::isNotDefault()
 {
 	return mFilterOps.mFilterTypes != mDefaultFilterOps.mFilterTypes 
 		|| mFilterSubString.size() 
@@ -4461,6 +4478,16 @@ BOOL LLInventoryFilter::isActive()
 		|| mFilterOps.mMinDate != mDefaultFilterOps.mMinDate 
 		|| mFilterOps.mMaxDate != mDefaultFilterOps.mMaxDate
 		|| mFilterOps.mHoursAgo != mDefaultFilterOps.mHoursAgo;
+}
+
+BOOL LLInventoryFilter::isActive()
+{
+	return mFilterOps.mFilterTypes != 0xffffffff 
+		|| mFilterSubString.size() 
+		|| mFilterOps.mPermissions != PERM_NONE 
+		|| mFilterOps.mMinDate != 0 
+		|| mFilterOps.mMaxDate != U32_MAX
+		|| mFilterOps.mHoursAgo != 0;
 }
 
 BOOL LLInventoryFilter::isModified()
@@ -4672,7 +4699,7 @@ void LLInventoryFilter::setModified(EFilterBehavior behavior)
 		mFilterBehavior = FILTER_RESTART;
 	}
 
-	if (isActive())
+	if (isNotDefault())
 	{
 		// if not keeping current filter results, update last valid as well
 		switch(mFilterBehavior)

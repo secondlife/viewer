@@ -231,8 +231,6 @@ void LLFace::setDrawable(LLDrawable *drawable)
 
 void LLFace::setSize(const S32 num_vertices, const S32 num_indices)
 {
-	LLMemType mt1(LLMemType::MTYPE_DRAWABLE);
-	
 	mGeomCount    = num_vertices;
 	mIndicesCount = num_indices;
 }
@@ -950,17 +948,17 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		}
 		else
 		{
-			if (mode & LLViewerTextureAnim::TRANSLATE)
+			//if (mode & LLViewerTextureAnim::TRANSLATE)
 			{
 				os = ot = 0.f;
 			}
-			if (mode & LLViewerTextureAnim::ROTATE)
+			//if (mode & LLViewerTextureAnim::ROTATE)
 			{
 				r = 0.f;
 				cos_ang = 1.f;
 				sin_ang = 0.f;
 			}
-			if (mode & LLViewerTextureAnim::SCALE)
+			//if (mode & LLViewerTextureAnim::SCALE)
 			{
 				ms = mt = 1.f;
 			}

@@ -21,6 +21,7 @@
 #include "llviewerregion.h"
 #include "noise.h"
 #include "pipeline.h"
+#include "llglslshader.h"
 
 static U32 sDataMask = LLDrawPoolAvatar::VERTEX_DATA_MASK;
 static U32 sBufferUsage = GL_STREAM_DRAW_ARB;
@@ -82,12 +83,12 @@ static LLMatrix4 sModelViewMatrix = LLMatrix4();
 
 S32 LLDrawPoolAvatar::getVertexShaderLevel() const
 {
-	return (S32) gPipeline.getVertexShaderLevel(LLPipeline::SHADER_AVATAR);
+	return (S32) LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_AVATAR);
 }
 
 void LLDrawPoolAvatar::prerender()
 {
-	mVertexShaderLevel = gPipeline.getVertexShaderLevel(LLPipeline::SHADER_AVATAR);
+	mVertexShaderLevel = LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_AVATAR);
 	sShaderLevel = mVertexShaderLevel;
 	
 	if (sShaderLevel > 0)
@@ -171,15 +172,15 @@ void LLDrawPoolAvatar::endFootShadow()
 
 void LLDrawPoolAvatar::beginRigid()
 {
-	sVertexProgram = &gPipeline.mAvatarEyeballProgram;
+	sVertexProgram = &gAvatarEyeballProgram;
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	if (sShaderLevel > 0)
 	{	//eyeballs render with the specular shader
-		gPipeline.mAvatarEyeballProgram.bind();
-		gPipeline.mMaterialIndex = gPipeline.mAvatarEyeballProgram.mAttribute[LLPipeline::GLSL_MATERIAL_COLOR];
-		gPipeline.mSpecularIndex = gPipeline.mAvatarEyeballProgram.mAttribute[LLPipeline::GLSL_SPECULAR_COLOR];
+		gAvatarEyeballProgram.bind();
+		gMaterialIndex = gAvatarEyeballProgram.mAttribute[LLShaderMgr::MATERIAL_COLOR];
+		gSpecularIndex = gAvatarEyeballProgram.mAttribute[LLShaderMgr::SPECULAR_COLOR];
 	}
 }
 
@@ -194,7 +195,7 @@ void LLDrawPoolAvatar::beginSkinned()
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	sVertexProgram = &gPipeline.mAvatarProgram;
+	sVertexProgram = &gAvatarProgram;
 
 	if (sShaderLevel > 0)  // for hardware blending
 	{
@@ -202,22 +203,22 @@ void LLDrawPoolAvatar::beginSkinned()
 		glClientActiveTextureARB(GL_TEXTURE1_ARB);
 		if (sShaderLevel >= SHADER_LEVEL_BUMP)
 		{
-			gPipeline.mMaterialIndex = sVertexProgram->mAttribute[LLPipeline::GLSL_MATERIAL_COLOR];
-			gPipeline.mSpecularIndex = sVertexProgram->mAttribute[LLPipeline::GLSL_SPECULAR_COLOR];
+			gMaterialIndex = sVertexProgram->mAttribute[LLShaderMgr::MATERIAL_COLOR];
+			gSpecularIndex = sVertexProgram->mAttribute[LLShaderMgr::SPECULAR_COLOR];
 		}
 		sVertexProgram->bind();
 		if (sShaderLevel >= SHADER_LEVEL_CLOTH)
 		{
-			enable_cloth_weights(sVertexProgram->mAttribute[LLPipeline::GLSL_AVATAR_CLOTHING]);
+			enable_cloth_weights(sVertexProgram->mAttribute[LLShaderMgr::AVATAR_CLOTHING]);
 		}
-		enable_vertex_weighting(sVertexProgram->mAttribute[LLPipeline::GLSL_AVATAR_WEIGHT]);
+		enable_vertex_weighting(sVertexProgram->mAttribute[LLShaderMgr::AVATAR_WEIGHT]);
 
 		if (sShaderLevel >= SHADER_LEVEL_BUMP)
 		{
-			enable_binormals(sVertexProgram->mAttribute[LLPipeline::GLSL_BINORMAL]);
+			enable_binormals(sVertexProgram->mAttribute[LLShaderMgr::BINORMAL]);
 		}
 		
-		sVertexProgram->enableTexture(LLPipeline::GLSL_BUMP_MAP);
+		sVertexProgram->enableTexture(LLShaderMgr::BUMP_MAP);
 		glActiveTextureARB(GL_TEXTURE0_ARB);
 	}
 }
@@ -228,17 +229,17 @@ void LLDrawPoolAvatar::endSkinned()
 	if (sShaderLevel > 0)
 	{
 		sRenderingSkinned = FALSE;
-		sVertexProgram->disableTexture(LLPipeline::GLSL_BUMP_MAP);
+		sVertexProgram->disableTexture(LLShaderMgr::BUMP_MAP);
 		glActiveTextureARB(GL_TEXTURE0_ARB);
 		glClientActiveTextureARB(GL_TEXTURE0_ARB);
-		disable_vertex_weighting(sVertexProgram->mAttribute[LLPipeline::GLSL_AVATAR_WEIGHT]);
+		disable_vertex_weighting(sVertexProgram->mAttribute[LLShaderMgr::AVATAR_WEIGHT]);
 		if (sShaderLevel >= SHADER_LEVEL_BUMP)
 		{
-			disable_binormals(sVertexProgram->mAttribute[LLPipeline::GLSL_BINORMAL]);
+			disable_binormals(sVertexProgram->mAttribute[LLShaderMgr::BINORMAL]);
 		}
 		if ((sShaderLevel >= SHADER_LEVEL_CLOTH))
 		{
-			disable_cloth_weights(sVertexProgram->mAttribute[LLPipeline::GLSL_AVATAR_CLOTHING]);
+			disable_cloth_weights(sVertexProgram->mAttribute[LLShaderMgr::AVATAR_CLOTHING]);
 		}
 
 		sVertexProgram->unbind();
@@ -354,7 +355,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 
 	if (sShaderLevel > 0)
 	{
-		gPipeline.mAvatarMatrixParam = sVertexProgram->mUniform[LLPipeline::GLSL_AVATAR_MATRIX];
+		gAvatarMatrixParam = sVertexProgram->mUniform[LLShaderMgr::AVATAR_MATRIX];
 	}
     
 	if ((sShaderLevel >= SHADER_LEVEL_CLOTH))
@@ -370,16 +371,16 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		wind = wind * rot_mat;
 		wind.mV[VW] = avatarp->mWindVec.mV[VW];
 
-		sVertexProgram->vertexAttrib4fv(LLPipeline::GLSL_AVATAR_WIND, wind.mV);
+		sVertexProgram->vertexAttrib4fv(LLShaderMgr::AVATAR_WIND, wind.mV);
 		F32 phase = -1.f * (avatarp->mRipplePhase);
 
 		F32 freq = 7.f + (noise1(avatarp->mRipplePhase) * 2.f);
 		LLVector4 sin_params(freq, freq, freq, phase);
-		sVertexProgram->vertexAttrib4fv(LLPipeline::GLSL_AVATAR_SINWAVE, sin_params.mV);
+		sVertexProgram->vertexAttrib4fv(LLShaderMgr::AVATAR_SINWAVE, sin_params.mV);
 
 		LLVector4 gravity(0.f, 0.f, -CLOTHING_GRAVITY_EFFECT, 0.f);
 		gravity = gravity * rot_mat;
-		sVertexProgram->vertexAttrib4fv(LLPipeline::GLSL_AVATAR_GRAVITY, gravity.mV);
+		sVertexProgram->vertexAttrib4fv(LLShaderMgr::AVATAR_GRAVITY, gravity.mV);
 	}
 
 	if( !single_avatar || (avatarp == single_avatar) )
@@ -507,10 +508,10 @@ void LLDrawPoolAvatar::renderForSelect()
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glGetFloatv(GL_MODELVIEW_MATRIX, (F32*) sModelViewMatrix.mMatrix);
-	sVertexProgram = &gPipeline.mAvatarPickProgram;
+	sVertexProgram = &gAvatarPickProgram;
 	if (sShaderLevel > 0)
 	{
-		gPipeline.mAvatarMatrixParam = sVertexProgram->mUniform[LLPipeline::GLSL_AVATAR_MATRIX];
+		gAvatarMatrixParam = sVertexProgram->mUniform[LLShaderMgr::AVATAR_MATRIX];
 	}
 	glAlphaFunc(GL_GEQUAL, 0.2f);
 	glBlendFunc(GL_ONE, GL_ZERO);
@@ -527,7 +528,7 @@ void LLDrawPoolAvatar::renderForSelect()
 		glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		sRenderingSkinned = TRUE;
 		sVertexProgram->bind();
-		enable_vertex_weighting(sVertexProgram->mAttribute[LLPipeline::GLSL_AVATAR_WEIGHT]);
+		enable_vertex_weighting(sVertexProgram->mAttribute[LLShaderMgr::AVATAR_WEIGHT]);
 	}
 	
 	mIndicesDrawn += avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
@@ -537,7 +538,7 @@ void LLDrawPoolAvatar::renderForSelect()
 	{
 		sRenderingSkinned = FALSE;
 		sVertexProgram->unbind();
-		disable_vertex_weighting(sVertexProgram->mAttribute[LLPipeline::GLSL_AVATAR_WEIGHT]);
+		disable_vertex_weighting(sVertexProgram->mAttribute[LLShaderMgr::AVATAR_WEIGHT]);
 	}
 
 	glAlphaFunc(GL_GREATER, 0.01f);
@@ -577,7 +578,7 @@ LLColor3 LLDrawPoolAvatar::getDebugColor() const
 
 LLVertexBufferAvatar::LLVertexBufferAvatar()
 : LLVertexBuffer(sDataMask, 
-	gPipeline.getVertexShaderLevel(LLPipeline::SHADER_AVATAR) > 0 ?	
+	LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_AVATAR) > 0 ?	
 	GL_STATIC_DRAW_ARB : 
 	GL_STREAM_DRAW_ARB)
 {
@@ -599,16 +600,16 @@ void LLVertexBufferAvatar::setupVertexBuffer(U32 data_mask) const
 		glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		glTexCoordPointer(2,GL_FLOAT, mStride, (void*)(base + mOffsets[TYPE_TEXCOORD]));
 		
-		set_vertex_weights(sVertexProgram->mAttribute[LLPipeline::GLSL_AVATAR_WEIGHT], mStride, (F32*)(base + mOffsets[TYPE_WEIGHT]));
+		set_vertex_weights(sVertexProgram->mAttribute[LLShaderMgr::AVATAR_WEIGHT], mStride, (F32*)(base + mOffsets[TYPE_WEIGHT]));
 
 		if (sShaderLevel >= LLDrawPoolAvatar::SHADER_LEVEL_BUMP)
 		{
-			set_binormals(sVertexProgram->mAttribute[LLPipeline::GLSL_BINORMAL], mStride, (LLVector3*)(base + mOffsets[TYPE_BINORMAL]));
+			set_binormals(sVertexProgram->mAttribute[LLShaderMgr::BINORMAL], mStride, (LLVector3*)(base + mOffsets[TYPE_BINORMAL]));
 		}
 	
 		if (sShaderLevel >= LLDrawPoolAvatar::SHADER_LEVEL_CLOTH)
 		{
-			set_vertex_clothing_weights(sVertexProgram->mAttribute[LLPipeline::GLSL_AVATAR_CLOTHING], mStride, (LLVector4*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
+			set_vertex_clothing_weights(sVertexProgram->mAttribute[LLShaderMgr::AVATAR_CLOTHING], mStride, (LLVector4*)(base + mOffsets[TYPE_CLOTHWEIGHT]));
 		}
 	}
 	else

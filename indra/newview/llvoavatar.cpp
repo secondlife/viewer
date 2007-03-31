@@ -90,6 +90,7 @@
 #include "llwearablelist.h"
 #include "llworld.h"
 #include "pipeline.h"
+#include "llglslshader.h"
 #include "viewer.h"
 #include "lscript_byteformat.h"
 
@@ -2556,7 +2557,7 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	}
 
 	// update wind effect
-	if ((gPipeline.getVertexShaderLevel(LLPipeline::SHADER_AVATAR) >= LLDrawPoolAvatar::SHADER_LEVEL_CLOTH))
+	if ((LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_AVATAR) >= LLDrawPoolAvatar::SHADER_LEVEL_CLOTH))
 	{
 		F32 hover_strength = 0.f;
 		F32 time_delta = mRippleTimer.getElapsedTimeF32() - mRippleTimeLast;
@@ -3015,38 +3016,30 @@ void LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	// clear debug text
 	mDebugText.clear();
-
 	if (LLVOAvatar::sShowAnimationDebug)
 	{
-		LLString playing_anims;
-		for (LLMotion* motionp = mMotionController.getFirstActiveMotion();
-			motionp;
-			motionp = mMotionController.getNextActiveMotion())
+		for (LLMotionController::motion_list_t::iterator iter = mMotionController.getActiveMotions().begin();
+			 iter != mMotionController.getActiveMotions().end(); ++iter)
+		{
+			LLMotion* motionp = *iter;
+			if (motionp->getMinPixelArea() < getPixelArea())
 			{
-				if (motionp->getMinPixelArea() < getPixelArea())
+				std::string output;
+				if (motionp->getName().empty())
 				{
-					char output[MAX_STRING];	/* Flawfinder: ignore */
-					if (motionp->getName().empty())
-					{
-						snprintf( /* Flawfinder: ignore */
-							output,
-							MAX_STRING,
-							"%s - %d",
-							motionp->getID().asString().c_str(),
-							(U32)motionp->getPriority());
-					}
-					else
-					{
-						snprintf(	/* Flawfinder: ignore */
-							output,
-							MAX_STRING,
-							"%s - %d",
-							motionp->getName().c_str(),
-							(U32)motionp->getPriority());
-					}
-					addDebugText(output);
+					output = llformat("%s - %d",
+									  motionp->getID().asString().c_str(),
+									  (U32)motionp->getPriority());
 				}
+				else
+				{
+					output = llformat("%s - %d",
+									  motionp->getName().c_str(),
+									  (U32)motionp->getPriority());
+				}
+				addDebugText(output);
 			}
+		}
 	}
 
 	if (gNoRender)
@@ -4592,7 +4585,7 @@ S32 LLVOAvatar::getCollisionVolumeID(std::string &name)
 //-----------------------------------------------------------------------------
 // addDebugText()
 //-----------------------------------------------------------------------------
-void LLVOAvatar::addDebugText(const char* text)
+ void LLVOAvatar::addDebugText(const std::string& text)
 {
 	mDebugText.append(1, '\n');
 	mDebugText.append(text);

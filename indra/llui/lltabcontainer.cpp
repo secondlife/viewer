@@ -983,7 +983,7 @@ void LLTabContainer::updateMaxScrollPos()
 
 void LLTabContainer::commitHoveredButton(S32 x, S32 y)
 {
-	if (gFocusMgr.getMouseCapture() == this)
+	if (hasMouseCapture())
 	{
 		for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
 		{
@@ -1244,7 +1244,7 @@ BOOL LLTabContainer::handleMouseDown( S32 x, S32 y, MASK mask )
 		if( tab_rect.pointInRect( x, y ) )
 		{
 			LLButton* tab_button = mTabList[getCurrentPanelIndex()]->mButton;
-			gFocusMgr.setMouseCapture(this, NULL);
+			gFocusMgr.setMouseCapture(this);
 			gFocusMgr.setKeyboardFocus(tab_button, NULL);
 		}
 	}
@@ -1307,7 +1307,7 @@ BOOL LLTabContainer::handleMouseUp( S32 x, S32 y, MASK mask )
 
 	commitHoveredButton(x, y);
 	LLPanel* cur_panel = getCurrentPanel();
-	if (gFocusMgr.getMouseCapture() == this)
+	if (hasMouseCapture())
 	{
 		if (cur_panel)
 		{
@@ -1318,7 +1318,7 @@ BOOL LLTabContainer::handleMouseUp( S32 x, S32 y, MASK mask )
 				mTabList[getCurrentPanelIndex()]->mButton->setFocus(TRUE);
 			}
 		}
-		gFocusMgr.setMouseCapture(NULL, NULL);
+		gFocusMgr.setMouseCapture(NULL);
 	}
 	return handled;
 }

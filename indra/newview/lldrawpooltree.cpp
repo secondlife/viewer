@@ -17,6 +17,7 @@
 #include "llvotree.h"
 #include "pipeline.h"
 #include "llviewercamera.h"
+#include "llglslshader.h"
 
 S32 LLDrawPoolTree::sDiffTex = 0;
 
@@ -267,5 +268,5 @@ LLColor3 LLDrawPoolTree::getDebugColor() const
 
 S32 LLDrawPoolTree::getMaterialAttribIndex() 
 { 
-	return gPipeline.mObjectSimpleProgram.mAttribute[LLPipeline::GLSL_MATERIAL_COLOR];
+	return gObjectSimpleProgram.mAttribute[LLShaderMgr::MATERIAL_COLOR];
 }

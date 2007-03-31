@@ -134,9 +134,8 @@ public:
 		SKIP_FRUSTUM_CHECK		= 0x00040000,
 		OCCLUSION_DIRTY			= 0x00080000,
 		BELOW_WATER				= 0x00100000,
-		IN_GEOMETRY_QUEUE		= 0x00200000,
-		IN_IMAGE_QUEUE		= 0x00400000,
-		IMAGE_DIRTY				= 0x00800000,
+		IN_IMAGE_QUEUE			= 0x00200000,
+		IMAGE_DIRTY				= 0x00400000,
 	} eSpatialState;
 
 	typedef enum
@@ -147,7 +146,6 @@ public:
 	} eSetStateMode;
 
 	LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part);
-	BOOL safeToDelete();
 	virtual ~LLSpatialGroup();
 
 	BOOL isDead()							{ return isState(DEAD); }
@@ -265,7 +263,6 @@ public:
 	S32 cull(LLCamera &camera, std::vector<LLDrawable *>* results = NULL, BOOL for_select = FALSE); // Cull on arbitrary frustum
 	BOOL checkOcclusion(LLSpatialGroup* group, LLCamera* camera);
 	void markReimage(LLSpatialGroup* group);
-	void processGeometry(LLCamera* camera);
 	void processImagery(LLCamera* camera);
 	void processOcclusion(LLCamera* camera);
 	void buildOcclusion();
@@ -292,9 +289,6 @@ protected:
 	//things that might be occluded
 	typedef std::queue<LLPointer<LLSpatialGroup> > spatial_group_queue_t;
 	spatial_group_queue_t mOcclusionQueue;
-
-	//things that need a terse update
-	spatial_group_queue_t mUpdateQueue;
 
 	//things that need an image update
 	spatial_group_queue_t mImageQueue;

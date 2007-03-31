@@ -30,22 +30,23 @@ void fallbackDestroyLLImageJ2CImpl(LLImageJ2CImpl* impl)
 /**
 sample error callback expecting a FILE* client object
 */
-void error_callback(const char *msg, void *client_data) {
-	FILE *stream = (FILE*)client_data;
-	fprintf(stream, "[ERROR] %s", msg);
+void error_callback(const char* msg, void*)
+{
+	llwarns << "LLImageJ2CImpl: " << msg << llendl;
 }
 /**
 sample warning callback expecting a FILE* client object
 */
-void warning_callback(const char *msg, void *client_data) {
-	FILE *stream = (FILE*)client_data;
-	fprintf(stream, "[WARNING] %s", msg);
+void warning_callback(const char* msg, void*)
+{
+	llinfos << "LLImageJ2CImpl: " << msg << llendl;
 }
 /**
 sample debug callback expecting no client object
 */
-void info_callback(const char *msg, void *client_data) {
-	fprintf(stdout, "[INFO] %s", msg);
+void info_callback(const char* msg, void*)
+{
+	lldebugs << "LLImageJ2CImpl: " << msg << llendl;
 }
 
 

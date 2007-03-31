@@ -17,6 +17,9 @@ LLViewerTextureAnim::LLViewerTextureAnim() : LLTextureAnim()
 {
 	mLastFrame = -1.f;	// Force an update initially
 	mLastTime = 0.f;
+	mOffS = mOffT = 0;
+	mScaleS = mScaleT = 1;
+	mRot = 0;
 }
 
 LLViewerTextureAnim::~LLViewerTextureAnim()
@@ -148,13 +151,13 @@ S32 LLViewerTextureAnim::animateTextures(F32 &off_s, F32 &off_t,
 		if (mMode & ROTATE)
 		{
 			result |= ROTATE;
-			rot = frame_counter;
+			mRot = rot = frame_counter;
 		}
 		else if (mMode & SCALE)
 		{
 			result |= SCALE;
-			scale_s = frame_counter;
-			scale_t = frame_counter;
+			mScaleS = scale_s = frame_counter;
+			mScaleT = scale_t = frame_counter;
 		}
 		else
 		{
@@ -168,22 +171,22 @@ S32 LLViewerTextureAnim::animateTextures(F32 &off_s, F32 &off_t,
 				&&(mSizeY))
 			{
 				result |= SCALE;
-				scale_s = 1.f/mSizeX;
-				scale_t = 1.f/mSizeY;
+				mScaleS = scale_s = 1.f/mSizeX;
+				mScaleT = scale_t = 1.f/mSizeY;
 				x_frame = fmod(frame_counter, mSizeX);
 				y_frame = (S32)(frame_counter / mSizeX);
 				x_pos = x_frame * scale_s;
 				y_pos = y_frame * scale_t;
-				off_s = (-0.5f + 0.5f*scale_s)+ x_pos;
-				off_t = (0.5f - 0.5f*scale_t) - y_pos;
+				mOffS = off_s = (-0.5f + 0.5f*scale_s)+ x_pos;
+				mOffT = off_t = (0.5f - 0.5f*scale_t) - y_pos;
 			}
 			else
 			{
-				scale_s = 1.f;
-				scale_t = 1.f;
+				mScaleS = scale_s = 1.f;
+				mScaleT = scale_t = 1.f;
 				x_pos = frame_counter * scale_s;
-				off_s = (-0.5f + 0.5f*scale_s)+ x_pos;
-				off_t = 0.f;
+				mOffS = off_s = (-0.5f + 0.5f*scale_s)+ x_pos;
+				mOffT = off_t = 0.f;
 			}
 		}
 	}

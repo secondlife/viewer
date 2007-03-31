@@ -392,8 +392,8 @@ BOOL LLPanelLandGeneral::postBuild()
 	mBtnDeedToGroup->setClickedCallback(onClickDeed, this);
 
 	
-	mCheckContributeWithDeed = LLUICtrlFactory::getCheckBoxByName(this, "check contib");
-	childSetCommitCallback("check contib", onCommitAny, this);
+	mCheckContributeWithDeed = LLUICtrlFactory::getCheckBoxByName(this, "check contrib");
+	childSetCommitCallback("check contrib", onCommitAny, this);
 
 	
 	
@@ -1865,7 +1865,7 @@ void LLPanelLandObjects::onClickReturnOtherObjects(void* userdata)
 }
 
 // static
-void LLPanelLandObjects::onLostFocus(LLLineEditor *caller, void* user_data)
+void LLPanelLandObjects::onLostFocus(LLUICtrl *caller, void* user_data)
 {
 	LLPanelLandObjects	*lop = (LLPanelLandObjects *)user_data;
 	LLParcel* parcel = lop->mParcel->getParcel();

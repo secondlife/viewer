@@ -43,41 +43,6 @@ bool LLRayAABB(const LLVector3 &center, const LLVector3 &size, const LLVector3& 
 BOOL LLLineSegmentAABB(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size);
 BOOL setup_hud_matrices(BOOL for_select);
 
-class LLGLSLShader
-{
-public:
-	LLGLSLShader();
-
-	void unload();
-	void attachObject(GLhandleARB object);
-	void attachObjects(GLhandleARB* objects = NULL, S32 count = 0);
-	BOOL mapAttributes(const char** attrib_names = NULL, S32 count = 0);
-	BOOL mapUniforms(const char** uniform_names = NULL,  S32 count = 0);
-	void mapUniform(GLint index, const char** uniform_names = NULL,  S32 count = 0);
-	void vertexAttrib4f(U32 index, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
-	void vertexAttrib4fv(U32 index, GLfloat* v);
-	
-	GLint mapUniformTextureChannel(GLint location, GLenum type);
-	
-
-	//enable/disable texture channel for specified uniform
-	//if given texture uniform is active in the shader, 
-	//the corresponding channel will be active upon return
-	//returns channel texture is enabled in from [0-MAX)
-	S32 enableTexture(S32 uniform, S32 mode = GL_TEXTURE_2D);
-	S32 disableTexture(S32 uniform, S32 mode = GL_TEXTURE_2D); 
-	
-    BOOL link(BOOL suppress_errors = FALSE);
-	void bind();
-	void unbind();
-
-	GLhandleARB mProgramObject;
-	std::vector<GLint> mAttribute;
-	std::vector<GLint> mUniform;
-	std::vector<GLint> mTexture;
-	S32 mActiveTextureChannels;
-};
-
 class LLPipeline
 {
 public:
@@ -125,7 +90,6 @@ public:
 	void        markShift(LLDrawable *drawablep);
 	void        markTextured(LLDrawable *drawablep);
 	void        markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag = LLDrawable::REBUILD_ALL, BOOL priority = FALSE);
-	void		markRebuild(LLSpatialGroup* groupp);
 	void        markRelight(LLDrawable *drawablep, const BOOL now = FALSE);
 	
 	//get the object between start and end that's closest to start.  Return the point of collision in collision.
@@ -149,17 +113,7 @@ public:
 	void		setUseVertexShaders(BOOL use_shaders);
 	BOOL		getUseVertexShaders() const { return mVertexShadersEnabled; }
 	BOOL		canUseVertexShaders();
-	BOOL		setVertexShaderLevel(S32 type, S32 level);
-	S32			getVertexShaderLevel(S32 type) const { return mVertexShaderLevel[type]; }
-	S32			getMaxVertexShaderLevel(S32 type) const { return mMaxVertexShaderLevel[type]; }
-
-	void		setShaders();
 	
-	void		dumpObjectLog(GLhandleARB ret, BOOL warns = TRUE);
-	BOOL		linkProgramObject(GLhandleARB obj, BOOL suppress_errors = FALSE);
-	BOOL		validateProgramObject(GLhandleARB obj);
-	GLhandleARB loadShader(const LLString& filename, S32 cls, GLenum type);
-
 	// phases
 	void resetFrameStats();
 
@@ -187,7 +141,6 @@ public:
 	void renderGeom(LLCamera& camera);
 	void renderHighlights();
 	void renderDebug();
-	void processGeometry(LLCamera& camera);
 	void processOcclusion(LLCamera& camera);
 
 	void renderForSelect(std::set<LLViewerObject*>& objects);
@@ -200,7 +153,7 @@ public:
 	S32  getVisibleCount() const { return mVisibleList.size(); }
 	S32  getLightCount() const { return mLights.size(); }
 
-	void calcNearbyLights();
+	void calcNearbyLights(LLCamera& camera);
 	void setupHWLights(LLDrawPool* pool);
 	void setupAvatarLights(BOOL for_edit = FALSE);
 	void enableLights(U32 mask, F32 shadow_factor);
@@ -250,11 +203,6 @@ private:
 	void initShaders(BOOL force);
 	void unloadShaders();
 	BOOL loadShaders();
-	BOOL loadShadersLighting();
-	BOOL loadShadersObject();
-	BOOL loadShadersAvatar();
-	BOOL loadShadersEnvironment();
-	BOOL loadShadersInterface();
 	void saveVertexShaderLevel(S32 type, S32 level, S32 max);
 	void addToQuickLookup( LLDrawPool* new_poolp );
 	void removeFromQuickLookup( LLDrawPool* poolp );
@@ -262,15 +210,7 @@ private:
 	
 public:
 	enum {GPU_CLASS_MAX = 3 };
-	enum EShaderClass
-	{
-		SHADER_LIGHTING,
-		SHADER_OBJECT,
-		SHADER_AVATAR,
-		SHADER_ENVIRONMENT,
-		SHADER_INTERFACE,
-		SHADER_COUNT
-	};
+
 	enum LLRenderTypeMask
 	{
 		// Following are pool types (some are also object types)
@@ -361,7 +301,7 @@ public:
 	LLSpatialPartition* getSpatialPartition(LLViewerObject* vobj);
 	LLSpatialPartition* getSpatialPartition(U32 index);
 
-	void updateCamera();
+	void updateCamera(BOOL reset = FALSE);
 	
 	LLVector3				mFlyCamPosition;
 	LLQuaternion			mFlyCamRotation;
@@ -390,7 +330,6 @@ public:
 	static BOOL				sSkipUpdate; //skip lod updates
 	static BOOL				sDynamicReflections;
 	static BOOL				sRenderGlow;
-	static BOOL				sOverrideAgentCamera;
 
 	//screen texture
 	GLuint					mScreenTex;
@@ -412,140 +351,7 @@ public:
 	//depth buffer object for rendering dynamic cube maps
 	GLuint					mCubeDepth;
 
-	class LLScatterShader
-	{
-	public:
-		static void init(GLhandleARB shader, int map_stage);
-	};
 	
-	//utility shader objects (not shader programs)
-	GLhandleARB				mLightVertex;
-	GLhandleARB				mLightFragment;
-	GLhandleARB				mScatterVertex;
-	GLhandleARB				mScatterFragment;
-	
-	//global (reserved slot) shader parameters
-	static const char* sReservedAttribs[];
-	static U32 sReservedAttribCount;
-
-	typedef enum 
-	{
-		GLSL_MATERIAL_COLOR = 0,
-		GLSL_SPECULAR_COLOR,
-		GLSL_BINORMAL,
-		GLSL_END_RESERVED_ATTRIBS
-	} eGLSLReservedAttribs;
-
-	static const char* sReservedUniforms[];
-	static U32 sReservedUniformCount;
-	
-	typedef enum
-	{
-		GLSL_DIFFUSE_MAP = 0,
-		GLSL_SPECULAR_MAP,
-		GLSL_BUMP_MAP,
-		GLSL_ENVIRONMENT_MAP,
-		GLSL_END_RESERVED_UNIFORMS
-	} eGLSLReservedUniforms;
-
-	static const char* sShinyUniforms[];
-	static U32 sShinyUniformCount;
-
-	typedef enum
-	{
-		GLSL_SHINY_ORIGIN = GLSL_END_RESERVED_UNIFORMS
-	} eShinyUniforms;
-
-	LLVector4				mShinyOrigin;
-
-	//object shaders
-	LLGLSLShader			mObjectSimpleProgram;
-	LLGLSLShader			mObjectAlphaProgram;
-	LLGLSLShader			mObjectBumpProgram;
-	LLGLSLShader			mObjectShinyProgram;
-
-	//water parameters
-	static const char* sWaterUniforms[];
-	static U32 sWaterUniformCount;
-
-	typedef enum
-	{
-		GLSL_WATER_SCREENTEX = GLSL_END_RESERVED_UNIFORMS,
-		GLSL_WATER_EYEVEC,
-		GLSL_WATER_TIME,
-		GLSL_WATER_WAVE_DIR1,
-		GLSL_WATER_WAVE_DIR2,
-		GLSL_WATER_LIGHT_DIR,
-		GLSL_WATER_SPECULAR,
-		GLSL_WATER_SPECULAR_EXP,
-		GLSL_WATER_FBSCALE,
-		GLSL_WATER_REFSCALE
-	} eWaterUniforms;
-		
-
-	//terrain parameters
-	static const char* sTerrainUniforms[];
-	static U32 sTerrainUniformCount;
-
-	typedef enum
-	{
-		GLSL_TERRAIN_DETAIL0 = GLSL_END_RESERVED_UNIFORMS,
-		GLSL_TERRAIN_DETAIL1,
-		GLSL_TERRAIN_ALPHARAMP
-	} eTerrainUniforms;
-
-	//glow parameters
-	static const char* sGlowUniforms[];
-	static U32 sGlowUniformCount;
-
-	typedef enum
-	{
-		GLSL_GLOW_DELTA = GLSL_END_RESERVED_UNIFORMS
-	} eGlowUniforms;
-
-	//environment shaders
-	LLGLSLShader			mTerrainProgram;
-	LLGLSLShader			mGlowProgram;
-	LLGLSLShader			mGroundProgram;
-	LLGLSLShader			mWaterProgram;
-
-	//interface shaders
-	LLGLSLShader			mHighlightProgram;
-	
-	//avatar shader parameter tables
-	static const char* sAvatarAttribs[];
-	static U32 sAvatarAttribCount;
-
-	typedef enum
-	{
-		GLSL_AVATAR_WEIGHT = GLSL_END_RESERVED_ATTRIBS,
-		GLSL_AVATAR_CLOTHING,
-		GLSL_AVATAR_WIND,
-		GLSL_AVATAR_SINWAVE,
-		GLSL_AVATAR_GRAVITY
-	} eAvatarAttribs;
-
-	static const char* sAvatarUniforms[];
-	static U32 sAvatarUniformCount;
-
-	typedef enum
-	{
-		GLSL_AVATAR_MATRIX = GLSL_END_RESERVED_UNIFORMS
-	} eAvatarUniforms;
-
-	//avatar skinning utility shader object
-	GLhandleARB				mAvatarSkinVertex;
-
-	//avatar shader handles
-	LLGLSLShader			mAvatarProgram;
-	LLGLSLShader			mAvatarEyeballProgram;
-	LLGLSLShader			mAvatarPickProgram;
-	
-	//current avatar shader parameter pointer
-	GLint					mAvatarMatrixParam;
-	GLint					mMaterialIndex;
-	GLint					mSpecularIndex;
-
 	LLColor4				mSunDiffuse;
 	LLVector3				mSunDir;
 
@@ -557,13 +363,11 @@ public:
 	LLSpatialGroup::sg_vector_t mDrawableGroups;
 
 	void clearRenderMap();
-	
-protected:
+
 	BOOL					mVertexShadersEnabled;
 	S32						mVertexShadersLoaded; // 0 = no, 1 = yes, -1 = failed
-	S32						mVertexShaderLevel[SHADER_COUNT];
-	S32						mMaxVertexShaderLevel[SHADER_COUNT];
-	
+
+protected:
 	U32						mRenderTypeMask;
 	U32						mRenderFeatureMask;
 	U32						mRenderDebugFeatureMask;
@@ -619,7 +423,6 @@ protected:
 	//
 	LLDrawable::drawable_list_t 	mBuildQ1; // priority
 	LLDrawable::drawable_list_t 	mBuildQ2; // non-priority
-	LLSpatialGroup::sg_set_t		mGroupQ; //spatial groups
 	
 	LLDrawable::drawable_set_t		mActiveQ;
 	

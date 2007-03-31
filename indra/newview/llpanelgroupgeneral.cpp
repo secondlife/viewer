@@ -683,12 +683,14 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 		}
 		else
 		{
-			LLScrollListItem* row = new LLScrollListItem( TRUE, NULL, LLUUID::null );
 			std::stringstream pending;
 			pending << "Retrieving member list (" << gdatap->mMembers.size() << "\\" << gdatap->mMemberCount  << ")";
-			row->addColumn(pending.str(), LLFontGL::sSansSerif);
+
+			LLSD row;
+			row["columns"][0]["value"] = pending.str();
+
 			mListVisibleMembers->setEnabled(FALSE);
-			mListVisibleMembers->addItem(row);
+			mListVisibleMembers->addElement(row);
 		}
 	}
 }

@@ -222,6 +222,10 @@ void LLUICtrlFactory::setupPaths()
 			if (LLUI::sConfigGroup)
 			{
 				language = LLUI::sConfigGroup->getString("Language");
+				if(language == "default")
+				{
+					language = LLUI::sConfigGroup->getString("SystemLanguage");
+				}
 			}
 			path_val_ui.setArg("[Language]", language);
 			LLString fullpath = app_dir + path_val_ui.getString();

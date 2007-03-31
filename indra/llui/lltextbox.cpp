@@ -94,7 +94,7 @@ BOOL LLTextBox::handleMouseDown(S32 x, S32 y, MASK mask)
 		handled = TRUE;
 
 		// Route future Mouse messages here preemptively.  (Release on mouse up.)
-		gFocusMgr.setMouseCapture( this, NULL );
+		gFocusMgr.setMouseCapture( this );
 		
 		if (mSoundFlags & MOUSE_DOWN)
 		{
@@ -115,12 +115,12 @@ BOOL LLTextBox::handleMouseUp(S32 x, S32 y, MASK mask)
 	// HACK: Only do this if there actually is a click callback, so that
 	// overly large text boxes in the older UI won't start eating clicks.
 	if (mClickedCallback
-		&& this == gFocusMgr.getMouseCapture())
+		&& hasMouseCapture())
 	{
 		handled = TRUE;
 
 		// Release the mouse
-		gFocusMgr.setMouseCapture( NULL, NULL );
+		gFocusMgr.setMouseCapture( NULL );
 
 		if (mSoundFlags & MOUSE_UP)
 		{

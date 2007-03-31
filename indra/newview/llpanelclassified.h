@@ -123,7 +123,8 @@ protected:
 	LLTextBox*		mClickThroughText;
 
 	LLRect		mSnapshotSize;
-    static LLLinkedList<LLPanelClassified> sAllPanels;
+	typedef std::list<LLPanelClassified*> panel_list_t;
+	static panel_list_t sAllPanels;
 };
 
 

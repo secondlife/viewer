@@ -36,7 +36,7 @@
 #include "llviewerwindow.h"
 
 //static
-LLLinkedList<LLPanelPick> LLPanelPick::sAllPanels;
+std::list<LLPanelPick*> LLPanelPick::sAllPanels;
 
 LLPanelPick::LLPanelPick(BOOL top_pick)
 :	LLPanel("Top Picks Panel"),
@@ -59,7 +59,7 @@ LLPanelPick::LLPanelPick(BOOL top_pick)
     mEnabledCheck(NULL),
     mSetBtn(NULL)
 {
-    sAllPanels.addData(this);
+    sAllPanels.push_back(this);
 
 	std::string pick_def_file;
 	if (top_pick)
@@ -75,7 +75,7 @@ LLPanelPick::LLPanelPick(BOOL top_pick)
 
 LLPanelPick::~LLPanelPick()
 {
-    sAllPanels.removeData(this);
+    sAllPanels.remove(this);
 }
 
 
@@ -315,9 +315,9 @@ void LLPanelPick::processPickInfoReply(LLMessageSystem *msg, void **)
 	msg->getBOOL("Data", "Enabled", enabled);
 
     // Look up the panel to fill in
-    LLPanelPick *self = NULL;
-    for (self = sAllPanels.getFirstData(); self; self = sAllPanels.getNextData())
-    {
+	for (panel_list_t::iterator iter = sAllPanels.begin(); iter != sAllPanels.end(); ++iter)
+	{
+		LLPanelPick* self = *iter;
 		// For top picks, must match pick id
 		if (self->mPickID != pick_id)
 		{

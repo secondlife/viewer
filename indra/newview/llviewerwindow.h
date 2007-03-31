@@ -107,8 +107,8 @@ public:
 	BOOL			getLeftMouseDown()	const	{ return mLeftMouseDown; }
 	BOOL			getRightMouseDown()	const	{ return mRightMouseDown; }
 
-	LLView*			getTopView() const;
-	BOOL			hasTopView(LLView* view) const;
+	LLUICtrl*		getTopCtrl() const;
+	BOOL			hasTopCtrl(LLView* view) const;
 
 	void			setupViewport(S32 x_offset = 0, S32 y_offset = 0);
 	void			setup3DRender();
@@ -160,17 +160,18 @@ public:
 	BOOL			hasKeyboardFocus( const LLUICtrl* possible_focus ) const;
 	BOOL			childHasKeyboardFocus( const LLView* parent ) const;
 	
-	void			setMouseCapture(LLMouseHandler* new_captor,void (*on_capture_lost)(LLMouseHandler* old_captor));	// new_captor = NULL to release the mouse.
-	BOOL			hasMouseCapture(const LLMouseHandler* possible_captor ) const;
+	void			setMouseCapture(LLMouseHandler* new_captor);	// new_captor = NULL to release the mouse.
 	LLMouseHandler*	getMouseCaptor() const;
 
-	void			setTopView(LLView* new_top, void (*on_top_lost)(LLView* old_top)); // set new_top = NULL to release top_view.
+	void			setTopCtrl(LLUICtrl* new_top); // set new_top = NULL to release top_view.
 
 	void			reshape(S32 width, S32 height);
 	void			sendShapeToSim();
 
 	void			draw();
 //	void			drawSelectedObjects();
+	void			updateDebugText();
+	void			drawDebugText();
 
 	static void		loadUserImage(void **cb_data, const LLUUID &uuid);
 
@@ -188,7 +189,7 @@ public:
 
 	BOOL			saveSnapshot(const LLString&  filename, S32 image_width, S32 image_height, BOOL show_ui = TRUE, BOOL do_rebuild = FALSE, ESnapshotType type = SNAPSHOT_TYPE_COLOR);
 	BOOL			rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, BOOL keep_window_aspect = TRUE, 
-		BOOL show_ui = TRUE, BOOL do_rebuild = FALSE, ESnapshotType type = SNAPSHOT_TYPE_COLOR );
+								BOOL show_ui = TRUE, BOOL do_rebuild = FALSE, ESnapshotType type = SNAPSHOT_TYPE_COLOR );
 	BOOL		    saveImageNumbered(LLImageRaw *raw, const LLString& extension = "");
 
 	void			playSnapshotAnimAndSound();
@@ -259,7 +260,7 @@ private:
 	void			stopGL(BOOL save_state = TRUE);
 	void			restoreGL(const LLString& progress_message = LLString::null);
 	void			initFonts(F32 zoom_factor = 1.f);
-
+	
 	void			analyzeHit(
 						S32				x,				// input
 						S32				y_from_bot,		// input
@@ -272,6 +273,7 @@ private:
 						F32*			hit_u_coord,	// output
 						F32*			hit_v_coord);	// output
 
+	
 public:
 	LLWindow*		mWindow;						// graphical window object
 
@@ -314,13 +316,16 @@ protected:
 
 	LLString		mOverlayTitle;		// Used for special titles such as "Second Life - Special E3 2003 Beta"
 
+	BOOL			mIgnoreActivate;
+	U8*				mPickBuffer;
+
+	class LLDebugText* mDebugText; // Internal class for debug text
+
+protected:
 	static char		sSnapshotBaseName[LL_MAX_PATH];		/* Flawfinder: ignore */
 	static char		sSnapshotDir[LL_MAX_PATH];		/* Flawfinder: ignore */
 
 	static char		sMovieBaseName[LL_MAX_PATH];		/* Flawfinder: ignore */
-
-	BOOL			mIgnoreActivate;
-	U8*				mPickBuffer;
 };	
 
 class LLBottomPanel : public LLPanel

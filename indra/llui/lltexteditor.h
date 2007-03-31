@@ -75,6 +75,8 @@ public:
 	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									  EDragAndDropType cargo_type, void *cargo_data,
 									  EAcceptance *accept, LLString& tooltip_msg);
+	virtual void	onMouseCaptureLost();
+
 
 	// view overrides
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent);
@@ -190,7 +192,6 @@ public:
 	void			setHandleEditKeysDirectly( BOOL b ) 	{ mHandleEditKeysDirectly = b; }
 
 	// Callbacks
-	static void		onMouseCaptureLost( LLMouseHandler* old_captor );
 	static void		setLinkColor(LLColor4 color) { mLinkColor = color; }
 	static void		setURLCallbacks(	void (*callback1) (const char* url), 
 										BOOL (*callback2) (LLString url)      ) 

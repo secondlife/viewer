@@ -96,7 +96,7 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 						   S32 max_length_bytes,
 						   void (*commit_callback)(LLUICtrl* caller, void* user_data ),
 						   void (*keystroke_callback)(LLLineEditor* caller, void* user_data ),
-						   void (*focus_lost_callback)(LLLineEditor* caller, void* user_data ),
+						   void (*focus_lost_callback)(LLUICtrl* caller, void* user_data ),
 						   void* userdata,
 						   LLLinePrevalidateFunc prevalidate_func,
 						   LLViewBorder::EBevel border_bevel,
@@ -113,7 +113,6 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 		mCommitOnFocusLost( TRUE ),
 		mRevertOnEsc( TRUE ),
 		mKeystrokeCallback( keystroke_callback ),
-		mFocusLostCallback( focus_lost_callback ),
 		mIsSelecting( FALSE ),
 		mSelectionStart( 0 ),
 		mSelectionEnd( 0 ),
@@ -147,6 +146,8 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 		mGLFont = LLFontGL::sSansSerifSmall;
 	}
 
+	setFocusLostCallback(focus_lost_callback);
+
 	mMinHPixels = mBorderThickness + UI_LINEEDITOR_H_PAD + mBorderLeft;
 	mMaxHPixels = mRect.getWidth() - mMinHPixels - mBorderThickness - mBorderRight;
 
@@ -167,7 +168,6 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 
 LLLineEditor::~LLLineEditor()
 {
-	mFocusLostCallback = NULL;
 	mCommitOnFocusLost = FALSE;
 
 	gFocusMgr.releaseFocusIfNeeded( this );
@@ -192,11 +192,8 @@ LLString LLLineEditor::getWidgetTag() const
 
 void LLLineEditor::onFocusLost()
 {
-	if( mFocusLostCallback )
-	{
-		mFocusLostCallback( this, mCallbackUserData );
-	}
-	
+	LLUICtrl::onFocusLost();
+
 	if( mCommitOnFocusLost && mText.getString() != mPrevText) 
 	{
 		onCommit();
@@ -483,7 +480,7 @@ BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 			startSelection();
 		}
 
-		gFocusMgr.setMouseCapture( this, &LLLineEditor::onMouseCaptureLost );
+		gFocusMgr.setMouseCapture( this );
 	}
 
 	// delay cursor flashing
@@ -496,14 +493,14 @@ BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLLineEditor::handleHover(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = FALSE;
-	if (gFocusMgr.getMouseCapture() != this && (x < mBorderLeft || x > (mRect.getWidth() - mBorderRight)))
+	if (!hasMouseCapture() && (x < mBorderLeft || x > (mRect.getWidth() - mBorderRight)))
 	{
 		return LLUICtrl::handleHover(x, y, mask);
 	}
 
 	if( getVisible() )
 	{
-		if( (gFocusMgr.getMouseCapture() == this) && mIsSelecting )
+		if( (hasMouseCapture()) && mIsSelecting )
 		{
 			if (x != mLastSelectionX || y != mLastSelectionY)
 			{
@@ -561,9 +558,9 @@ BOOL LLLineEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	BOOL	handled = FALSE;
 
-	if( gFocusMgr.getMouseCapture() == this )
+	if( hasMouseCapture() )
 	{
-		gFocusMgr.setMouseCapture( NULL, NULL );
+		gFocusMgr.setMouseCapture( NULL );
 		handled = TRUE;
 	}
 
@@ -1897,11 +1894,9 @@ BOOL LLLineEditor::prevalidateASCII(const LLWString &str)
 	return rv;
 }
 
-//static
-void LLLineEditor::onMouseCaptureLost( LLMouseHandler* old_captor )
+void LLLineEditor::onMouseCaptureLost()
 {
-	LLLineEditor* self = (LLLineEditor*) old_captor;
-	self->endSelection();
+	endSelection();
 }
 
 
@@ -1914,11 +1909,6 @@ void LLLineEditor::setSelectAllonFocusReceived(BOOL b)
 void LLLineEditor::setKeystrokeCallback(void (*keystroke_callback)(LLLineEditor* caller, void* user_data))
 {
 	mKeystrokeCallback = keystroke_callback;
-}
-
-void LLLineEditor::setFocusLostCallback(void (*keystroke_callback)(LLLineEditor* caller, void* user_data))
-{
-	mFocusLostCallback = keystroke_callback;
 }
 
 // virtual

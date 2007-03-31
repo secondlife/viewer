@@ -3884,7 +3884,16 @@ void process_alert_core(const char* buffer, BOOL modal)
 	}
 
 	// Translate system messages here.
-	if (buffer[0] == '/')
+	const char ALERT_PREFIX[] = "ALERT: ";
+	const size_t ALERT_PREFIX_LEN = sizeof(ALERT_PREFIX) - 1;
+	if (!strncmp(buffer, ALERT_PREFIX, ALERT_PREFIX_LEN))
+	{
+		// Allow the server to spawn a named alert so that server alerts can be
+		// translated out of English. JC
+		std::string alert_name(buffer + ALERT_PREFIX_LEN);
+		LLAlertDialog::showXml(alert_name);
+	}
+	else if (buffer[0] == '/')
 	{
 		// System message is important, show in upper-right box not tip
 		LLString text(buffer+1);
