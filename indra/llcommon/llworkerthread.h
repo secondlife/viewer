@@ -71,7 +71,7 @@ public:
 	handle_t addWorkRequest(LLWorkerClass* workerclass, S32 param, U32 priority = PRIORITY_NORMAL);
 	
 	void deleteWorker(LLWorkerClass* workerclass); // schedule for deletion
-	S32 getNumDeletes() { return mDeleteList.size(); } // debug
+	S32 getNumDeletes() { return (S32)mDeleteList.size(); } // debug
 };
 
 //============================================================================
