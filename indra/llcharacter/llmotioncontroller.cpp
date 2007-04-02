@@ -427,9 +427,10 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 
 	// iterate through active motions in chronological order
 	for (motion_list_t::iterator iter = mActiveMotions.begin();
-		 iter != mActiveMotions.end(); ++iter)
+		 iter != mActiveMotions.end(); )
 	{
-		LLMotion* motionp = *iter;
+		motion_list_t::iterator curiter = iter++;
+		LLMotion* motionp = *curiter;
 		if (motionp->getBlendType() != anim_type)
 		{
 			continue;
@@ -842,9 +843,10 @@ void LLMotionController::flushAllMotions()
 	std::vector<std::pair<LLUUID,F32> > active_motions;
 	active_motions.reserve(mActiveMotions.size());
 	for (motion_list_t::iterator iter = mActiveMotions.begin();
-		 iter != mActiveMotions.end(); ++iter)
+		 iter != mActiveMotions.end(); )
 	{
-		LLMotion* motionp = *iter;
+		motion_list_t::iterator curiter = iter++;
+		LLMotion* motionp = *curiter;
 		F32 dtime = mTime - motionp->mActivationTimestamp;
 		active_motions.push_back(std::make_pair(motionp->getID(),dtime));
 		motionp->deactivate();
