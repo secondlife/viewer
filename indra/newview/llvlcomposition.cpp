@@ -250,6 +250,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 
 	// These have already been validated by generateComposition.
 	U8* st_data[4];
+	S32 st_data_size[4]; // for debugging
 
 	for (S32 i = 0; i < 4; i++)
 	{
@@ -280,6 +281,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 			}
 		}
 		st_data[i] = mRawImages[i]->getData();
+		st_data_size[i] = mRawImages[i]->getDataSize();
 	}
 
 	///////////////////////////////////////
@@ -394,9 +396,18 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 			for (U32 k = 0; k < tex_comps; k++)
 			{
 				// Linearly interpolate based on composition.
-				F32 a = *(st_data[tex0] + st_offset);
-				F32 b = *(st_data[tex1] + st_offset);
-				rawp[ offset ] = (U8)lltrunc( a + composition * (b - a) );
+				if (st_offset >= st_data_size[tex0] || st_offset >= st_data_size[tex1])
+				{
+					// SJB: This shouldn't be happening, but does... Rounding error?
+					//llwarns << "offset 0 [" << tex0 << "] =" << st_offset << " >= size=" << st_data_size[tex0] << llendl;
+					//llwarns << "offset 1 [" << tex1 << "] =" << st_offset << " >= size=" << st_data_size[tex1] << llendl;
+				}
+				else
+				{
+					F32 a = *(st_data[tex0] + st_offset);
+					F32 b = *(st_data[tex1] + st_offset);
+					rawp[ offset ] = (U8)lltrunc( a + composition * (b - a) );
+				}
 				offset++;
 				st_offset++;
 			}

@@ -1,4 +1,4 @@
-version 9
+version 10
 
 // NOTE: This is mostly identical to featuretable.txt with a few differences
 // Should be combined into one table
@@ -24,7 +24,7 @@ version 9
 //
 // Mac specific: RenderAvatarVP not enabled at all
 list all
-RenderVBO			1	1
+RenderVBO			1	0
 RenderAniso			1	0
 RenderAvatarMode	1	2
 RenderAvatarVP		1	0

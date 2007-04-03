@@ -619,6 +619,7 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 		volume->mVolumeChanged)
 	{
 		volume->regenFaces();
+		volume->mDrawable->setState(LLDrawable::REBUILD_VOLUME);
 	}
 
 	if (!mUpdated || volume->mFaceMappingChanged || volume->mVolumeChanged)

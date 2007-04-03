@@ -49,7 +49,7 @@ const StatAttributes STAT_INFO[LLViewerStats::ST_COUNT] =
 	// ST_IM_COUNT
 	StatAttributes("IMs sent", FALSE, FALSE),
 	// ST_FULLSCREEN_BOOL
-	StatAttributes("Fullscreen mode", TRUE, FALSE),
+	StatAttributes("Fullscreen mode", FALSE, FALSE),
 	// ST_RELEASE_COUNT
 	StatAttributes("Object release count", FALSE, FALSE),
 	// ST_CREATE_COUNT
@@ -99,61 +99,61 @@ const StatAttributes STAT_INFO[LLViewerStats::ST_COUNT] =
 	// ST_UPLOAD_ANIM_COUNT
 	StatAttributes("Animations uploaded", FALSE, FALSE),
 	// ST_FPS_8_SECONDS
-	StatAttributes("Seconds below 8 FPS", TRUE, TRUE),
+	StatAttributes("Seconds below 8 FPS", FALSE, TRUE),
 	// ST_SIM_FPS_20_SECONDS
-	StatAttributes("Seconds with sim FPS below 20", TRUE, TRUE),
+	StatAttributes("Seconds with sim FPS below 20", FALSE, TRUE),
 	// ST_PHYS_FPS_20_SECONDS
 	StatAttributes("Seconds with physics FPS below 20", FALSE, TRUE),
 	// ST_LOSS_05_SECONDS
-	StatAttributes("Seconds with packet loss > 5%", TRUE, TRUE),
+	StatAttributes("Seconds with packet loss > 5%", FALSE, TRUE),
 	// ST_FPS_DROP_50_RATIO
 	StatAttributes("Ratio of frames 2x longer than previous", FALSE, FALSE),
 	// ST_ENABLE_VBO
 	StatAttributes("Vertex Buffers Enabled", TRUE, FALSE),
 	// ST_DELTA_BANDWIDTH
-	StatAttributes("Increase/Decrease in bandwidth based on packet loss", TRUE, FALSE),
+	StatAttributes("Increase/Decrease in bandwidth based on packet loss", FALSE, FALSE),
 	// ST_MAX_BANDWIDTH
-	StatAttributes("Max bandwidth setting", TRUE, FALSE),
+	StatAttributes("Max bandwidth setting", FALSE, FALSE),
 	// ST_LIGHTING_DETAIL
-	StatAttributes("Lighting Detail", TRUE, FALSE),
+	StatAttributes("Lighting Detail", FALSE, FALSE),
 	// ST_VISIBLE_AVATARS
-	StatAttributes("Visible Avatars", TRUE, FALSE),
+	StatAttributes("Visible Avatars", FALSE, FALSE),
 	// ST_SHADER_OJECTS
-	StatAttributes("Object Shaders", TRUE, FALSE),
+	StatAttributes("Object Shaders", FALSE, FALSE),
 	// ST_SHADER_ENVIRONMENT
-	StatAttributes("Environment Shaders", TRUE, FALSE),
+	StatAttributes("Environment Shaders", FALSE, FALSE),
 	// ST_VISIBLE_DRAW_DIST
-	StatAttributes("Draw Distance", TRUE, FALSE),
+	StatAttributes("Draw Distance", FALSE, FALSE),
 	// ST_VISIBLE_CHAT_BUBBLES
-	StatAttributes("Chat Bubbles Enabled", TRUE, FALSE),
+	StatAttributes("Chat Bubbles Enabled", FALSE, FALSE),
 	// ST_SHADER_AVATAR
-	StatAttributes("Avatar Shaders", TRUE, FALSE),
+	StatAttributes("Avatar Shaders", FALSE, FALSE),
 	// ST_FRAME_SECS
-	StatAttributes("FRAME_SECS", TRUE, FALSE),
+	StatAttributes("FRAME_SECS", FALSE, FALSE),
 	// ST_UPDATE_SECS
-	StatAttributes("UPDATE_SECS", TRUE, FALSE),
+	StatAttributes("UPDATE_SECS", FALSE, FALSE),
 	// ST_NETWORK_SECS
-	StatAttributes("NETWORK_SECS", TRUE, FALSE),
+	StatAttributes("NETWORK_SECS", FALSE, FALSE),
 	// ST_IMAGE_SECS
-	StatAttributes("IMAGE_SECS", TRUE, FALSE),
+	StatAttributes("IMAGE_SECS", FALSE, FALSE),
 	// ST_REBUILD_SECS
-	StatAttributes("REBUILD_SECS", TRUE, FALSE),
+	StatAttributes("REBUILD_SECS", FALSE, FALSE),
 	// ST_RENDER_SECS
-	StatAttributes("RENDER_SECS", TRUE, FALSE),
+	StatAttributes("RENDER_SECS", FALSE, FALSE),
 	// ST_CROSSING_AVG
-	StatAttributes("CROSSING_AVG", TRUE, FALSE),
+	StatAttributes("CROSSING_AVG", FALSE, FALSE),
 	// ST_CROSSING_MAX
-	StatAttributes("CROSSING_MAX", TRUE, FALSE),
+	StatAttributes("CROSSING_MAX", FALSE, FALSE),
 	// ST_LIBXUL_WIDGET_USED
-	StatAttributes("LibXUL Widget used", TRUE, FALSE),
+	StatAttributes("LibXUL Widget used", FALSE, FALSE),
 	// ST_WINDOW_WIDTH
-	StatAttributes("Window width", TRUE, FALSE),
+	StatAttributes("Window width", FALSE, FALSE),
 	// ST_WINDOW_HEIGHT
-	StatAttributes("Window height", TRUE, FALSE),
+	StatAttributes("Window height", FALSE, FALSE),
 	// ST_TEX_BAKES
-	StatAttributes("Texture Bakes", TRUE, FALSE),
+	StatAttributes("Texture Bakes", FALSE, FALSE),
 	// ST_TEX_REBAKES
-	StatAttributes("Texture Rebakes", TRUE, FALSE)
+	StatAttributes("Texture Rebakes", FALSE, FALSE)
 };
 
 LLViewerStats::LLViewerStats()

@@ -30,8 +30,8 @@ public:
 	
 	void stop()
 	{
-		llinfos << "LLEventPoll::Impl::stop <" << mCount << "> "
-			<< mPollURL << llendl;
+		lldebugs << "LLEventPoll::Impl::stop <" << mCount << "> "
+				 << mPollURL << llendl;
 		// there should be a way to stop a LLHTTPClient request in progress
 		mDone = true;
 		mPtr = NULL;
@@ -50,7 +50,7 @@ private:
 	~Impl()
 	{
 		lldebugs << "LLEventPoll::Impl::~Impl <" << mCount << "> "
-			<< mPollURL << llendl;
+				 << mPollURL << llendl;
 	}
 
 

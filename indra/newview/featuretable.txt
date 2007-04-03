@@ -40,7 +40,7 @@ VertexShaderEnable	1	1
 //
 list Class0
 VertexShaderEnable	1	0
-RenderVBO			1	1
+RenderVBO			1	0
 RenderDistance		1	64
 RenderAvatarVP		1	0
 RenderAvatarMode	1	0
