@@ -428,17 +428,17 @@ void LLPanelObject::getState( )
 	// Physics checkbox
 	mIsPhysical = root_objectp->usePhysics();
 	mCheckPhysics->set( mIsPhysical );
-	mCheckPhysics->setEnabled( roots_selected==1 
+	mCheckPhysics->setEnabled( roots_selected>0 
 								&& (editable || gAgent.isGodlike()) 
 								&& !is_flexible);
 
 	mIsTemporary = root_objectp->flagTemporaryOnRez();
 	mCheckTemporary->set( mIsTemporary );
-	mCheckTemporary->setEnabled( roots_selected==1 && editable );
+	mCheckTemporary->setEnabled( roots_selected>0 && editable );
 
 	mIsPhantom = root_objectp->flagPhantom();
 	mCheckPhantom->set( mIsPhantom );
-	mCheckPhantom->setEnabled( roots_selected==1 && editable && !is_flexible );
+	mCheckPhantom->setEnabled( roots_selected>0 && editable && !is_flexible );
 
 #if 0 // 1.9.2
 	mCastShadows = root_objectp->flagCastShadows();
