@@ -1916,10 +1916,12 @@ void LLPipeline::renderGeom(LLCamera& camera)
 	//
 	//	
 	stop_glerror();
-	BOOL did_hud_elements = FALSE;
+	BOOL did_hud_elements = LLDrawPoolWater::sSkipScreenCopy;
 	BOOL occlude = sUseOcclusion;
 
 	U32 cur_type = 0;
+
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PICKING))
 	{
@@ -1928,7 +1930,6 @@ void LLPipeline::renderGeom(LLCamera& camera)
 	else
 	{
 		LLFastTimer t(LLFastTimer::FTM_POOLS);
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 		calcNearbyLights(camera);
 		pool_set_t::iterator iter1 = mPools.begin();
 		while ( iter1 != mPools.end() )
@@ -2002,7 +2003,6 @@ void LLPipeline::renderGeom(LLCamera& camera)
 			iter1 = iter2;
 			stop_glerror();
 		}
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	}
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
@@ -2038,6 +2038,8 @@ void LLPipeline::renderGeom(LLCamera& camera)
 	// Contains a list of the faces of objects that are physical or
 	// have touch-handlers.
 	mHighlightFaces.clear();
+
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 	if (!hasRenderType(LLPipeline::RENDER_TYPE_HUD) && 
 		!LLDrawPoolWater::sSkipScreenCopy &&

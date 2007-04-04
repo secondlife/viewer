@@ -1,6 +1,6 @@
 /** 
  * @file lldir_mac.h
- * @brief Definition of directory utilities class for Mac OS X 
+ * @brief Definition of directory utilities class for Mac OS X
  *
  * Copyright (c) 2000-$CurrentYear$, Linden Research, Inc.
  * $License$

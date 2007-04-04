@@ -421,8 +421,8 @@ const LLString LLLocale::SYSTEM_LOCALE("English_United States.1252");
 const LLString LLLocale::USER_LOCALE("en_US.iso8859-1");// = LLString::null;
 const LLString LLLocale::SYSTEM_LOCALE("en_US.iso8859-1");
 #else // LL_LINUX likes this
-const LLString LLLocale::USER_LOCALE("en_US.utf8");// = LLString::null;
-const LLString LLLocale::SYSTEM_LOCALE("en_US.utf8");
+const LLString LLLocale::USER_LOCALE("en_US.utf8");
+const LLString LLLocale::SYSTEM_LOCALE("C");
 #endif
 
 

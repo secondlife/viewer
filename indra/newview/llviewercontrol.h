@@ -36,7 +36,7 @@ protected:
 
 //setting variables are declared in this function
 void declare_settings();
-void settings_version_fixup();
+void fixup_settings();
 
 // saved at end of session
 extern LLControlGroup gSavedSettings;

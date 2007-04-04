@@ -260,6 +260,7 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const char* filename)
 			wcsncpy( mFilesW,L"untitled.wav", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
 		mOFN.lpstrDefExt = L"wav";
+		mOFN.lpstrFilter =
 			L"WAV Sounds (*.wav)\0*.wav\0" \
 			L"\0";
 		break;

@@ -138,12 +138,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 	LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE, GL_LEQUAL);
 
 	// No clue where this is getting unset, but safe enough to reset it here.
-	for (S32 j = 7; j >=0; j--)
-	{
-		glActiveTextureARB(GL_TEXTURE0_ARB+j);
-		glClientActiveTextureARB(GL_TEXTURE0_ARB+j);
-		j == 0 ? glEnable(GL_TEXTURE_2D) : glDisable(GL_TEXTURE_2D);
-	}
+	LLGLState::resetTextureStates();
 	
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	LLGLState::checkStates();

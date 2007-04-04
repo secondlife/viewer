@@ -73,11 +73,14 @@ LLPreviewAnim::LLPreviewAnim(const std::string& name, const LLRect& rect, const 
 // static
 void LLPreviewAnim::endAnimCallback( void *userdata )
 {
-	LLPreviewAnim* self = (LLPreviewAnim*) userdata;
-
-	self->childSetValue("Anim play btn", FALSE);
-	self->childSetValue("Anim audition btn", FALSE);
-
+	LLViewHandle* handlep = ((LLViewHandle*)userdata);
+	LLFloater* self = getFloaterByHandle(*handlep);
+	delete handlep; // done with the handle
+	if (self)
+	{
+		self->childSetValue("Anim play btn", FALSE);
+		self->childSetValue("Anim audition btn", FALSE);
+	}
 }
 
 // static
@@ -105,7 +108,9 @@ void LLPreviewAnim::playAnim( void *userdata )
 			LLMotion*   motion = avatar->findMotion(itemID);
 			
 			if (motion)
-				motion->setDeactivateCallback(&endAnimCallback, (void *)self);
+			{
+				motion->setDeactivateCallback(&endAnimCallback, (void *)(new LLViewHandle(self->getHandle())));
+			}
 		}
 		else
 		{
@@ -140,7 +145,9 @@ void LLPreviewAnim::auditionAnim( void *userdata )
 			LLMotion*   motion = avatar->findMotion(itemID);
 			
 			if (motion)
-				motion->setDeactivateCallback(&endAnimCallback, (void *)self);
+			{
+				motion->setDeactivateCallback(&endAnimCallback, (void *)(new LLViewHandle(self->getHandle())));
+			}
 		}
 		else
 		{
@@ -190,8 +197,9 @@ void LLPreviewAnim::onClose(bool app_quitting)
 		LLMotion*   motion = avatar->findMotion(item->getAssetUUID());
 		
 		if (motion)
+		{
 			motion->setDeactivateCallback(NULL, (void *)NULL);
-
+		}
 	}
 	destroy();
 }

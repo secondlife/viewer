@@ -128,8 +128,8 @@
 #include "viewer.h"
 #include "llmediaengine.h"
 #include "llfasttimerview.h"
+#include "llfloatermap.h"
 #include "llweb.h"
-#include "llfloaterhtml.h"
 
 #if LL_LIBXUL_ENABLED
 #include "llmozlib.h"
@@ -503,12 +503,11 @@ BOOL idle_startup()
 		// the locale to protect it, as exotic/non-C locales
 		// causes our code lots of general critical weirdness
 		// and crashness. (SL-35450)
-		char *saved_locale = setlocale(LC_ALL, NULL);
+		std::string saved_locale = setlocale(LC_ALL, NULL);
 #endif // LL_LINUX
 		LLMozLib::getInstance()->init( profileBaseDir, gDirUtilp->getExpandedFilename( LL_PATH_MOZILLA_PROFILE, "" ) );
 #if LL_LINUX
-		if (saved_locale)
-			setlocale(LC_ALL, saved_locale);
+		setlocale(LC_ALL, saved_locale.c_str() );
 #endif // LL_LINUX
 
 		std::ostringstream codec;

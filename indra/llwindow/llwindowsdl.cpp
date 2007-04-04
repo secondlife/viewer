@@ -1852,7 +1852,7 @@ void LLWindowSDL::gatherInput()
 	    // the locale to protect it, as exotic/non-C locales
 	    // causes our code lots of general critical weirdness
 	    // and crashness. (SL-35450)
-	    char *saved_locale = setlocale(LC_ALL, NULL);
+	    std::string saved_locale = setlocale(LC_ALL, NULL);
 
 	    // Do a limited number of pumps so SL doesn't starve!
 	    // FIXME - this should ideally be time-limited, not count-limited.
@@ -1861,8 +1861,7 @@ void LLWindowSDL::gatherInput()
 		    if (gtk_events_pending())
 			    gtk_main_iteration();
 
-	    if (saved_locale)
-		    setlocale(LC_ALL, saved_locale);
+	    setlocale(LC_ALL, saved_locale.c_str() );
     }
 #endif // LL_GTK && LL_LIBXUL_ENABLED
 

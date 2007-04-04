@@ -1,6 +1,6 @@
 /** 
  * @file lldir_mac.cpp
- * @brief Implementation of directory utilities for linux
+ * @brief Implementation of directory utilities for Mac OS X
  *
  * Copyright (c) 2002-$CurrentYear$, Linden Research, Inc.
  * $License$

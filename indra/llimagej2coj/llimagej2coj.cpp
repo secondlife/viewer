@@ -32,21 +32,21 @@ sample error callback expecting a FILE* client object
 */
 void error_callback(const char* msg, void*)
 {
-	llwarns << "LLImageJ2CImpl: " << msg << llendl;
+	lldebugs << "LLImageJ2CImpl error_callback: " << msg << llendl;
 }
 /**
 sample warning callback expecting a FILE* client object
 */
 void warning_callback(const char* msg, void*)
 {
-	llinfos << "LLImageJ2CImpl: " << msg << llendl;
+	lldebugs << "LLImageJ2CImpl warning_callback: " << msg << llendl;
 }
 /**
 sample debug callback expecting no client object
 */
 void info_callback(const char* msg, void*)
 {
-	lldebugs << "LLImageJ2CImpl: " << msg << llendl;
+	lldebugs << "LLImageJ2CImpl info_callback: " << msg << llendl;
 }
 
 
@@ -271,9 +271,10 @@ BOOL LLImageJ2COJ::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, con
 
 	/* encode the image */
 	bool bSuccess = opj_encode(cinfo, cio, image, parameters.index);
-	if (!bSuccess) {
+	if (!bSuccess)
+	{
 		opj_cio_close(cio);
-		fprintf(stderr, "failed to encode image\n");
+		llinfos << "Failed to encode image." << llendl;
 		return FALSE;
 	}
 	codestream_length = cio_tell(cio);

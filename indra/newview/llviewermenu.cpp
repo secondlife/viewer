@@ -81,6 +81,7 @@
 #include "llfloatergodtools.h"
 #include "llfloatergroupinfo.h"
 #include "llfloatergroups.h"
+#include "llfloaterhtml.h"
 #include "llfloaterhtmlhelp.h"
 #include "llfloaterhtmlfind.h"
 #include "llfloaterimport.h"
@@ -6477,10 +6478,22 @@ class LLShowFloater : public view_listener_t
 		{
 			LLFloaterScriptDebug::show(LLUUID::null);
 		}
-		else if (floater_name == "help")
+		else if (floater_name == "help f1")
 		{
 #if LL_LIBXUL_ENABLED
-			LLHtmlHelp::show(NULL);
+			LLHtmlHelp::show();
+#endif
+		}
+		else if (floater_name == "help in-world")
+		{
+#if LL_LIBXUL_ENABLED
+			LLFloaterHtml::getInstance()->show( "in-world_help" );
+#endif
+		}
+		else if (floater_name == "help additional")
+		{
+#if LL_LIBXUL_ENABLED
+			LLFloaterHtml::getInstance()->show( "additional_help" );
 #endif
 		}
 		else if (floater_name == "complaint reporter")

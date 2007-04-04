@@ -1035,65 +1035,39 @@ BOOL LLPanelLandObjects::postBuild()
 	
 	mFirstReply = TRUE;
 	mParcelObjectBonus = LLUICtrlFactory::getTextBoxByName(this, "Simulator Primitive Bonus Factor: 1.00");
-	
-	mSWTotalObjectsLabel = LLUICtrlFactory::getTextBoxByName(this, "Simulator primitive usage:");
 	mSWTotalObjects = LLUICtrlFactory::getTextBoxByName(this, "0 out of 0 available");
-	
-	mObjectContributionLabel = LLUICtrlFactory::getTextBoxByName(this, "Primitives parcel supports:");
 	mObjectContribution = LLUICtrlFactory::getTextBoxByName(this, "object_contrib_text");
-
-	
-	mTotalObjectsLabel = LLUICtrlFactory::getTextBoxByName(this, "Primitives on parcel:");
 	mTotalObjects = LLUICtrlFactory::getTextBoxByName(this, "total_objects_text");
-
-	
-	mOwnerObjectsLabel = LLUICtrlFactory::getTextBoxByName(this, "Owned by parcel owner:");
 	mOwnerObjects = LLUICtrlFactory::getTextBoxByName(this, "owner_objects_text");
-
 	
 	mBtnShowOwnerObjects = LLUICtrlFactory::getButtonByName(this, "ShowOwner");
 	mBtnShowOwnerObjects->setClickedCallback(onClickShowOwnerObjects, this);
-
+	
 	mBtnReturnOwnerObjects = LLUICtrlFactory::getButtonByName(this, "ReturnOwner...");
 	mBtnReturnOwnerObjects->setClickedCallback(onClickReturnOwnerObjects, this);
-
 	
-	mGroupObjectsLabel = LLUICtrlFactory::getTextBoxByName(this, "Set to group:");
 	mGroupObjects = LLUICtrlFactory::getTextBoxByName(this, "group_objects_text");
-
-	
 	mBtnShowGroupObjects = LLUICtrlFactory::getButtonByName(this, "ShowGroup");
 	mBtnShowGroupObjects->setClickedCallback(onClickShowGroupObjects, this);
-
+	
 	mBtnReturnGroupObjects = LLUICtrlFactory::getButtonByName(this, "ReturnGroup...");
 	mBtnReturnGroupObjects->setClickedCallback(onClickReturnGroupObjects, this);
-
 	
-	mOtherObjectsLabel = LLUICtrlFactory::getTextBoxByName(this, "Owned by others:");
 	mOtherObjects = LLUICtrlFactory::getTextBoxByName(this, "other_objects_text");
-	
 	mBtnShowOtherObjects = LLUICtrlFactory::getButtonByName(this, "ShowOther");
 	mBtnShowOtherObjects->setClickedCallback(onClickShowOtherObjects, this);
-
+	
 	mBtnReturnOtherObjects = LLUICtrlFactory::getButtonByName(this, "ReturnOther...");
 	mBtnReturnOtherObjects->setClickedCallback(onClickReturnOtherObjects, this);
-
-	mSelectedObjectsLabel = LLUICtrlFactory::getTextBoxByName(this, "Selected / sat upon:");
-	mSelectedObjects = LLUICtrlFactory::getTextBoxByName(this, "selected_objects_text");
 	
-	mCleanOtherObjectsLabel = LLUICtrlFactory::getTextBoxByName(this, "Autoreturn other resident's objects (minutes, 0 for off):");
-
+	mSelectedObjects = LLUICtrlFactory::getTextBoxByName(this, "selected_objects_text");
 	mCleanOtherObjectsTime = LLUICtrlFactory::getLineEditorByName(this, "clean other time");
 	mCleanOtherObjectsTime->setFocusLostCallback(onLostFocus);	
 	childSetPrevalidate("clean other time", LLLineEditor::prevalidateNonNegativeS32);
 	childSetUserData("clean other time", this);
 	
-	mOwnerListText = LLUICtrlFactory::getTextBoxByName(this, "Object Owners:");
-
-	
 	mBtnRefresh = LLUICtrlFactory::getButtonByName(this, "Refresh List");
 	mBtnRefresh->setClickedCallback(onClickRefresh, this);
-
 	
 	mBtnReturnOwnerList = LLUICtrlFactory::getButtonByName(this, "Return objects...");
 	mBtnReturnOwnerList->setClickedCallback(onClickReturnOwnerList, this);
@@ -2515,6 +2489,7 @@ BOOL LLPanelLandAccess::postBuild()
 	childSetCommitCallback("AccessCheck", onCommitAny, this);
 
 	mListAccess = LLUICtrlFactory::getNameListByName(this, "AccessList");
+	mListAccess->sortByColumn(0, TRUE); // ascending
 
 	mBtnAddAccess = LLUICtrlFactory::getButtonByName(this, "Add...");
 
@@ -2601,9 +2576,9 @@ void LLPanelLandAccess::refresh()
 				}
 				suffix.append(" remaining)");
 			}
-			mListAccess->addNameItem(entry.mID, ADD_BOTTOM, TRUE, suffix);
+			mListAccess->addNameItem(entry.mID, ADD_SORTED, TRUE, suffix);
 		}
-
+		
 		BOOL can_manage_allowed = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_MANAGE_ALLOWED);
 
 		BOOL enable_add = can_manage_allowed && (count < PARCEL_MAX_ACCESS_LIST);
@@ -2793,6 +2768,7 @@ BOOL LLPanelLandBan::postBuild()
 	childSetCommitCallback("LandBanCheck", onCommitAny, this);
 	
 	mList = LLUICtrlFactory::getNameListByName(this, "LandBanList");
+	mList->sortByColumn(0, TRUE); // ascending
 
 	mBtnAdd = LLUICtrlFactory::getButtonByName(this, "Add...");
 	
@@ -2870,7 +2846,7 @@ void LLPanelLandBan::refresh()
 				}
 				suffix.append(" remaining)");
 			}
-			mList->addNameItem(entry.mID, ADD_BOTTOM, TRUE, suffix);
+			mList->addNameItem(entry.mID, ADD_SORTED, TRUE, suffix);
 		}
 
 		BOOL can_manage_banned = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_MANAGE_BANNED);

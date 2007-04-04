@@ -167,11 +167,12 @@ void LLFloaterAvatarPicker::onList(LLUICtrl* ctrl, void* userdata)
 	}
 	
 	std::vector<LLScrollListItem*> items = self->mListNames->getAllSelected();
-	std::vector<LLScrollListItem*>::iterator itor;
-	for (itor = items.begin(); itor != items.end(); ++itor)
+	for (std::vector<LLScrollListItem*>::iterator iter = items.begin();
+		 iter != items.end(); ++iter)
 	{
-		self->mAvatarNames.push_back((*itor)->getColumn(0)->getText());
-		self->mAvatarIDs.push_back((*itor)->getUUID());
+		LLScrollListItem* item = *iter;
+		self->mAvatarNames.push_back(item->getColumn(0)->getText());
+		self->mAvatarIDs.push_back(item->getUUID());
 		self->childSetEnabled("Select", TRUE);
 	}
 }
@@ -313,7 +314,10 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 				self->mListNames->setEnabled(TRUE);
 				found_one = TRUE;
 			}
-			self->mListNames->addSimpleElement(avatar_name);
+			LLSD element;
+			element["id"] = avatar_id; // value
+			element["columns"][0]["value"] = avatar_name;
+			self->mListNames->addElement(element);
 		}
 	
 		if (found_one)
