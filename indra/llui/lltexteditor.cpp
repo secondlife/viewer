@@ -793,6 +793,31 @@ LLWString LLTextEditor::getWSubString(S32 pos, S32 len)
 	return mWText.substr(pos, len);
 }
 
+LLTextSegment*	LLTextEditor::getCurrentSegment()
+{
+	return getSegmentAtOffset(mCursorPos);
+}
+
+LLTextSegment*	LLTextEditor::getPreviousSegment()
+{
+	// find segment index at character to left of cursor (or rightmost edge of selection)
+	S32 idx = llmax(0, getSegmentIdxAtOffset(mCursorPos) - 1);
+	return idx >= 0 ? mSegments[idx] : NULL;
+}
+
+void LLTextEditor::getSelectedSegments(std::vector<LLTextSegment*>& segments)
+{
+	S32 left = hasSelection() ? llmin(mSelectionStart, mSelectionEnd) : mCursorPos;
+	S32 right = hasSelection() ? llmax(mSelectionStart, mSelectionEnd) : mCursorPos;
+	S32 first_idx = llmax(0, getSegmentIdxAtOffset(left));
+	S32 last_idx = llmax(0, first_idx, getSegmentIdxAtOffset(right));
+
+	for (S32 idx = first_idx; idx <= last_idx; ++idx)
+	{
+		segments.push_back(mSegments[idx]);
+	}
+}
+
 S32 LLTextEditor::getCursorPosFromLocalCoord( S32 local_x, S32 local_y, BOOL round )
 {
 		// If round is true, if the position is on the right half of a character, the cursor

@@ -48,6 +48,21 @@ public:
 	virtual	void	setEnabled(BOOL enable) { }
 };
 
+class LLScrollListSeparator : public LLScrollListCell
+{
+public:
+	LLScrollListSeparator(S32 width);
+	virtual ~LLScrollListSeparator() {};
+	virtual void			drawToWidth(S32 width, const LLColor4& color, const LLColor4& highlight_color) const;		// truncate to given width, if possible
+	virtual S32				getWidth() const {return mWidth;}
+	virtual S32				getHeight() const { return 5; };
+	virtual void			setWidth(S32 width) {mWidth = width; }
+	virtual BOOL			isText() { return FALSE; }
+
+protected:
+	S32 mWidth;
+};
+
 class LLScrollListText : public LLScrollListCell
 {
 public:

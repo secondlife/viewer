@@ -50,6 +50,7 @@ const F32 PIXEL_BORDER_THRESHOLD = 0.0001f;
 const F32 PIXEL_CORRECTION_DISTANCE = 0.01f;
 
 const F32 PAD_AMT = 0.5f;
+const F32 DROP_SHADOW_STRENGTH = 0.3f;
 
 F32 llfont_round_x(F32 x)
 {
@@ -114,7 +115,8 @@ void LLFontGL::init()
 		mImageGLp = new LLImageGL(FALSE);
 		//RN: use nearest mipmap filtering to obviate the need to do pixel-accurate positioning
 		mImageGLp->bind();
-		mImageGLp->setMipFilterNearest(TRUE, TRUE);
+		// we allow bilinear filtering to get sub-pixel positioning for drop shadows
+		//mImageGLp->setMipFilterNearest(TRUE, TRUE);
 	}
 	if (mRawImageGLp.isNull())
 	{
@@ -530,27 +532,7 @@ S32 LLFontGL::render(const LLWString &wstr,
 		return 0;
 	} 
 
-	if (style & DROP_SHADOW)
-	{
-		LLColor4 shadow_color = sShadowColor;
-		shadow_color[3] = color[3];
-		render(wstr, begin_offset,
-				x + 1.f / sScaleX, 
-				y - 1.f / sScaleY,
-				shadow_color,
-				halign, 
-				valign,
-				style & (~DROP_SHADOW),
-				max_chars,
-				max_pixels,
-			   	right_x,
-			   	use_embedded,
-				use_ellipses);
-	}
-
 	S32 scaled_max_pixels = max_pixels == S32_MAX ? S32_MAX : llceil((F32)max_pixels * sScaleX);
-
-	BOOL render_bold = FALSE;
 
 	// HACK for better bolding
 	if (style & BOLD)
@@ -566,9 +548,17 @@ S32 LLFontGL::render(const LLWString &wstr,
 				max_chars, max_pixels,
 				right_x, use_embedded);
 		}
-		else
+	}
+
+	F32 drop_shadow_strength = 0.f;
+	if (style & DROP_SHADOW)
+	{
+		F32 luminance;
+		color.calcHSL(NULL, NULL, &luminance);
+		drop_shadow_strength = clamp_rescale(luminance, 0.35f, 0.6f, 0.f, DROP_SHADOW_STRENGTH);
+		if (luminance < 0.35f)
 		{
-			render_bold = TRUE;
+			style = style & ~DROP_SHADOW;
 		}
 	}
 
@@ -612,9 +602,6 @@ S32 LLFontGL::render(const LLWString &wstr,
 	}
 
 	F32 cur_x, cur_y, cur_render_x, cur_render_y;
-	F32 slant_offset;
-
-	slant_offset = ((style & ITALIC) ? ( -mAscender * 0.25f) : 0.f);
 
 	// Bind the font texture
 	
@@ -718,34 +705,13 @@ S32 LLFontGL::render(const LLWString &wstr,
 
 			glEnd();
 
-			glColor3f(1.f, 1.f, 1.f);
-
 			ext_image->bind();
 			const F32 ext_x = cur_render_x + (EXT_X_BEARING * sScaleX);
 			const F32 ext_y = cur_render_y + (EXT_Y_BEARING * sScaleY + mAscender - mLineHeight);
 
-			glBegin(GL_QUADS);
-			{
-				S32 num_passes = render_bold ? 2 : 1;
-				for (S32 pass = 0; pass < num_passes; pass++)
-				{
-					glTexCoord2f(1.f, 1.f);
-					glVertex2f(llfont_round_x(ext_x + ext_width  + (F32)(pass * BOLD_OFFSET)), 
-								llfont_round_y(ext_y + ext_height));
-
-					glTexCoord2f(0.f, 1.f);
-					glVertex2f(llfont_round_x(ext_x + (F32)(pass * BOLD_OFFSET)), 
-								llfont_round_y(ext_y + ext_height));
-
-					glTexCoord2f(0.f, 0.f);
-					glVertex2f(llfont_round_x(ext_x + (F32)(pass * BOLD_OFFSET)), llfont_round_y(ext_y));
-
-					glTexCoord2f(1.f, 0.f);
-					glVertex2f(llfont_round_x(ext_x + ext_width + (F32)(pass * BOLD_OFFSET)), 
-								llfont_round_y(ext_y));
-				}
-			}
-			glEnd();
+			LLRectf uv_rect(0.f, 1.f, 1.f, 0.f);
+			LLRectf screen_rect(ext_x, ext_y + ext_height, ext_x + ext_width, ext_y);
+			drawGlyph(screen_rect, uv_rect, LLColor4::white, style, drop_shadow_strength);
 
 			if (!label.empty())
 			{
@@ -798,31 +764,21 @@ S32 LLFontGL::render(const LLWString &wstr,
 
 			// Draw the text at the appropriate location
 			//Specify vertices and texture coordinates
-			S32 num_passes = render_bold ? 2 : 1;
-			for (S32 pass = 0; pass < num_passes; pass++)
-			{
-				glTexCoord2f((fgi->mXBitmapOffset - PAD_AMT) * inv_width,
-					(fgi->mYBitmapOffset + fgi->mHeight + PAD_AMT) * inv_height);
-				glVertex2f(llfont_round_x(cur_render_x + (F32)fgi->mXBearing + (F32)(pass * BOLD_OFFSET) - PAD_AMT),
-					llfont_round_y(cur_render_y + (F32)fgi->mYBearing + PAD_AMT));
-				glTexCoord2f((fgi->mXBitmapOffset - PAD_AMT) * inv_width,
-					(fgi->mYBitmapOffset - PAD_AMT) * inv_height);
-				glVertex2f(llfont_round_x(cur_render_x + (F32)fgi->mXBearing + slant_offset + (F32)(pass * BOLD_OFFSET) - PAD_AMT),
-					llfont_round_y(cur_render_y + (F32)fgi->mYBearing - (F32)fgi->mHeight - PAD_AMT));
-				glTexCoord2f((fgi->mXBitmapOffset + fgi->mWidth + PAD_AMT) * inv_width,
-					(fgi->mYBitmapOffset - PAD_AMT) * inv_height);
-				glVertex2f(llfont_round_x(cur_render_x + (F32)fgi->mXBearing + slant_offset + (F32)fgi->mWidth + (F32)(pass * BOLD_OFFSET) + PAD_AMT),
-					llfont_round_y(cur_render_y + (F32)fgi->mYBearing - (F32)fgi->mHeight - PAD_AMT));
-				glTexCoord2f((fgi->mXBitmapOffset + fgi->mWidth + PAD_AMT) * inv_width,
-					(fgi->mYBitmapOffset + fgi->mHeight + PAD_AMT) * inv_height);
-				glVertex2f(llfont_round_x(cur_render_x + (F32)fgi->mXBearing + (F32)fgi->mWidth + (F32)(pass * BOLD_OFFSET) + PAD_AMT),
-					llfont_round_y(cur_render_y + (F32)fgi->mYBearing + PAD_AMT));
-			}
+			LLRectf uv_rect((fgi->mXBitmapOffset - PAD_AMT) * inv_width,
+							(fgi->mYBitmapOffset + fgi->mHeight + PAD_AMT) * inv_height,
+							(fgi->mXBitmapOffset + fgi->mWidth + PAD_AMT) * inv_width,
+							(fgi->mYBitmapOffset - PAD_AMT) * inv_height);
+			LLRectf screen_rect(cur_render_x + (F32)fgi->mXBearing - PAD_AMT,
+								cur_render_y + (F32)fgi->mYBearing + PAD_AMT,
+								cur_render_x + (F32)fgi->mXBearing + (F32)fgi->mWidth + PAD_AMT,
+								cur_render_y + (F32)fgi->mYBearing - (F32)fgi->mHeight - PAD_AMT);
+
+			drawGlyph(screen_rect, uv_rect, color, style, drop_shadow_strength);
 
 			chars_drawn++;
-
 			cur_x += fgi->mXAdvance;
 			cur_y += fgi->mYAdvance;
+
 			llwchar next_char = wstr[i+1];
 			if (next_char && (next_char < LAST_CHARACTER))
 			{
@@ -1326,6 +1282,89 @@ void LLFontGL::removeEmbeddedChar( llwchar wc )
 		delete iter->second;
 		mEmbeddedChars.erase(wc);
 	}
+}
+
+
+void LLFontGL::renderQuad(const LLRectf& screen_rect, const LLRectf& uv_rect, F32 slant_amt) const
+{
+	glTexCoord2f(uv_rect.mRight, uv_rect.mTop);
+	glVertex2f(llfont_round_x(screen_rect.mRight), 
+				llfont_round_y(screen_rect.mTop));
+
+	glTexCoord2f(uv_rect.mLeft, uv_rect.mTop);
+	glVertex2f(llfont_round_x(screen_rect.mLeft), 
+				llfont_round_y(screen_rect.mTop));
+
+	glTexCoord2f(uv_rect.mLeft, uv_rect.mBottom);
+	glVertex2f(llfont_round_x(screen_rect.mLeft + slant_amt), 
+				llfont_round_y(screen_rect.mBottom));
+
+	glTexCoord2f(uv_rect.mRight, uv_rect.mBottom);
+	glVertex2f(llfont_round_x(screen_rect.mRight + slant_amt), 
+				llfont_round_y(screen_rect.mBottom));
+}
+
+void LLFontGL::drawGlyph(const LLRectf& screen_rect, const LLRectf& uv_rect, const LLColor4& color, U8 style, F32 drop_shadow_strength) const
+{
+	F32 slant_offset;
+	slant_offset = ((style & ITALIC) ? ( -mAscender * 0.2f) : 0.f);
+
+	glBegin(GL_QUADS);
+	{
+		//FIXME: bold and drop shadow are mutually exclusive only for convenience
+		//Allow both when we need them.
+		if (style & BOLD)
+		{
+			glColor4fv(color.mV);
+			for (S32 pass = 0; pass < 2; pass++)
+			{
+				LLRectf screen_rect_offset = screen_rect;
+
+				screen_rect_offset.translate((F32)(pass * BOLD_OFFSET), 0.f);
+				renderQuad(screen_rect_offset, uv_rect, slant_offset);
+			}
+		}
+		else if (style & DROP_SHADOW)
+		{
+			LLColor4 shadow_color = LLFontGL::sShadowColor;
+			shadow_color.mV[VALPHA] = color.mV[VALPHA] * drop_shadow_strength;
+			glColor4fv(shadow_color.mV);
+			for (S32 pass = 0; pass < 5; pass++)
+			{
+				LLRectf screen_rect_offset = screen_rect;
+
+				switch(pass)
+				{
+				case 0:
+					screen_rect_offset.translate(-1.f, -1.f);
+					break;
+				case 1:
+					screen_rect_offset.translate(1.f, -1.f);
+					break;
+				case 2:
+					screen_rect_offset.translate(1.f, 1.f);
+					break;
+				case 3:
+					screen_rect_offset.translate(-1.f, 1.f);
+					break;
+				case 4:
+					screen_rect_offset.translate(0, -2.f);
+					break;
+				}
+			
+				renderQuad(screen_rect_offset, uv_rect, slant_offset);
+			}
+			glColor4fv(color.mV);
+			renderQuad(screen_rect, uv_rect, slant_offset);
+		}
+		else // normal rendering
+		{
+			glColor4fv(color.mV);
+			renderQuad(screen_rect, uv_rect, slant_offset);
+		}
+
+	}
+	glEnd();
 }
 
 // static

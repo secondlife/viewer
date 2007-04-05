@@ -221,6 +221,10 @@ public:
 	llwchar			getWChar(S32 pos);
 	LLWString		getWSubString(S32 pos, S32 len);
 	
+	LLTextSegment*	getCurrentSegment();
+	LLTextSegment*  getPreviousSegment();
+	void getSelectedSegments(std::vector<LLTextSegment*>& segments);
+
 protected:
  	S32				getLength() const;
 	void			getSegmentAndOffset( S32 startpos, S32* segidxp, S32* offsetp );

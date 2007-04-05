@@ -14,6 +14,7 @@
 #include "llimagegl.h"
 #include "v2math.h"
 #include "llcoord.h"
+#include "llrect.h"
 
 class LLColor4;
 
@@ -187,6 +188,8 @@ protected:
 	const embedded_data_t* getEmbeddedCharData(const llwchar wch) const;
 	F32 getEmbeddedCharAdvance(const embedded_data_t* ext_data) const;
 	void clearEmbeddedChars();
+	void renderQuad(const LLRectf& screen_rect, const LLRectf& uv_rect, F32 slant_amt) const;
+	void drawGlyph(const LLRectf& screen_rect, const LLRectf& uv_rect, const LLColor4& color, U8 style, F32 drop_shadow_fade) const;
 
 public:
 	static F32 sVertDPI;

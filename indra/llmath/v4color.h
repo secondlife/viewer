@@ -54,6 +54,8 @@ class LLColor4
 			mV[3] = (F32) sd[3].asReal();
 		}
 
+		void calcHSL(F32* hue, F32* saturation, F32* luminance) const;
+
 		const LLColor4&	setToBlack();						// zero LLColor4 to (0, 0, 0, 1)
 		const LLColor4&	setToWhite();						// zero LLColor4 to (0, 0, 0, 1)
 

@@ -205,6 +205,55 @@ LLColor4	vec3to4(const LLColor3 &vec)
 	return temp;
 }
 
+void LLColor4::calcHSL(F32* hue, F32* saturation, F32* luminance) const
+{
+	F32 var_R = mV[VRED];
+	F32 var_G = mV[VGREEN];
+	F32 var_B = mV[VBLUE];
+
+	F32 var_Min = ( var_R < ( var_G < var_B ? var_G : var_B ) ? var_R : ( var_G < var_B ? var_G : var_B ) );
+	F32 var_Max = ( var_R > ( var_G > var_B ? var_G : var_B ) ? var_R : ( var_G > var_B ? var_G : var_B ) );
+
+	F32 del_Max = var_Max - var_Min;
+
+	F32 L = ( var_Max + var_Min ) / 2.0f;
+	F32 H = 0.0f;
+	F32 S = 0.0f;
+
+	if ( del_Max == 0.0f )
+	{
+	   H = 0.0f;
+	   S = 0.0f;
+	}
+	else
+	{
+		if ( L < 0.5 )
+			S = del_Max / ( var_Max + var_Min );
+		else
+			S = del_Max / ( 2.0f - var_Max - var_Min );
+
+		F32 del_R = ( ( ( var_Max - var_R ) / 6.0f ) + ( del_Max / 2.0f ) ) / del_Max;
+		F32 del_G = ( ( ( var_Max - var_G ) / 6.0f ) + ( del_Max / 2.0f ) ) / del_Max;
+		F32 del_B = ( ( ( var_Max - var_B ) / 6.0f ) + ( del_Max / 2.0f ) ) / del_Max;
+
+		if ( var_R >= var_Max )
+			H = del_B - del_G;
+		else
+		if ( var_G >= var_Max )
+			H = ( 1.0f / 3.0f ) + del_R - del_B;
+		else
+		if ( var_B >= var_Max )
+			H = ( 2.0f / 3.0f ) + del_G - del_R;
+
+		if ( H < 0.0f ) H += 1.0f;
+		if ( H > 1.0f ) H -= 1.0f;
+	}
+
+	if (hue) *hue = H;
+	if (saturation) *saturation = S;
+	if (luminance) *luminance = L;
+}
+
 // static
 BOOL LLColor4::parseColor(const char* buf, LLColor4* color)
 {

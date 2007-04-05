@@ -91,7 +91,6 @@ class LLFloaterColorPicker
 
 		// convert RGB to HSL and vice-versa
 		void hslToRgb ( F32 hValIn, F32 sValIn, F32 lValIn, F32& rValOut, F32& gValOut, F32& bValOut );
-		void rgbToHsl ( F32 rValIn, F32 gValIn, F32 bValIn, F32& hValOut, F32& sValOut, F32& lValOut );
 		F32	 hueToRgb ( F32 val1In, F32 val2In, F32 valHUeIn );
 
 		void setActive(BOOL active);

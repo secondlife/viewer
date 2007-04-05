@@ -136,6 +136,19 @@ BOOL LLScrollListCheck::handleClick()
 }
 
 //
+// LLScrollListSeparator
+//
+LLScrollListSeparator::LLScrollListSeparator(S32 width) : mWidth(width)
+{
+}
+
+void LLScrollListSeparator::drawToWidth(S32 width, const LLColor4& color, const LLColor4& highlight_color) const
+{
+	//*FIXME: use dynamic item heights and make separators narrow, and inactive
+	gl_line_2d(5, 8, llmax(5, width - 5), 8, color);
+}
+
+//
 // LLScrollListText
 //
 U32 LLScrollListText::sCount = 0;
@@ -2749,6 +2762,10 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& value, EAddPosition p
 			LLCheckBoxCtrl* ctrl = new LLCheckBoxCtrl(value.asString(),
 														LLRect(0, 0, width, width), "label");
 			new_item->setColumn(index, new LLScrollListCheck(ctrl,width));
+		}
+		else if (type == "separator")
+		{
+			new_item->setColumn(index, new LLScrollListSeparator(width));
 		}
 		else
 		{

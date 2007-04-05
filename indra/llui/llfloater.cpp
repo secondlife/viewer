@@ -38,6 +38,8 @@ extern BOOL gNoRender;
 
 const S32 MINIMIZED_WIDTH = 160;
 const S32 CLOSE_BOX_FROM_TOP = 1;
+// use this to control "jumping" behavior when Ctrl-Tabbing
+const S32 TABBED_FLOATER_OFFSET = 0;
 
 LLString	LLFloater::sButtonActiveImageNames[BUTTON_COUNT] = 
 {
@@ -2169,32 +2171,27 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 
 void LLFloaterView::draw()
 {
-	if( getVisible() )
+	refresh();
+
+	// hide focused floater if in cycle mode, so that it can be drawn on top
+	LLFloater* focused_floater = getFocusedFloater();
+
+	if (mFocusCycleMode && focused_floater)
 	{
-		refresh();
-
-		// hide focused floater if in cycle mode, so that it can be drawn on top
-		LLFloater* focused_floater = getFocusedFloater();
-		BOOL floater_visible = FALSE;
-		if (mFocusCycleMode && focused_floater)
+		child_list_const_iter_t child_it = getChildList()->begin();
+		for (;child_it != getChildList()->end(); ++child_it)
 		{
-			floater_visible = focused_floater->getVisible();
-			focused_floater->setVisible(FALSE);
-		}
-
-		// And actually do the draw
-		LLView::draw();
-
-		// manually draw focused floater on top when in cycle mode
-		if (mFocusCycleMode && focused_floater)
-		{
-			// draw focused item on top for better feedback
-			focused_floater->setVisible(floater_visible);
-			if (floater_visible)
+			if ((*child_it) != focused_floater)
 			{
-				drawChild(focused_floater);
+				drawChild(*child_it);
 			}
 		}
+
+		drawChild(focused_floater, -TABBED_FLOATER_OFFSET, TABBED_FLOATER_OFFSET);
+	}
+	else
+	{
+		LLView::draw();
 	}
 }
 

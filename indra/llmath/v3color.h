@@ -52,6 +52,8 @@ public:
 		mV[1] = (F32) sd[1].asReal();;
 		mV[2] = (F32) sd[2].asReal();;
 	}
+
+	void calcHSL(F32* hue, F32* saturation, F32* luminance) const;
 	
 	const LLColor3&	setToBlack();					// Clears LLColor3 to (0, 0, 0)
 	const LLColor3&	setToWhite();					// Zero LLColor3 to (0, 0, 0)

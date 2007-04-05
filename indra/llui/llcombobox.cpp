@@ -782,6 +782,7 @@ void LLComboBox::setAllowTextEntry(BOOL allow, S32 max_chars, BOOL set_tentative
 			mTextEntry->setCommitOnFocusLost(FALSE);
 			mTextEntry->setText(cur_label);
 			mTextEntry->setIgnoreTab(TRUE);
+			mTextEntry->setFollowsAll();
 			addChild(mTextEntry);
 			mMaxChars = max_chars;
 		}
@@ -789,6 +790,8 @@ void LLComboBox::setAllowTextEntry(BOOL allow, S32 max_chars, BOOL set_tentative
 		{
 			mTextEntry->setVisible(TRUE);
 		}
+
+		mButton->setFollows(FOLLOWS_BOTTOM | FOLLOWS_TOP | FOLLOWS_RIGHT);
 	}
 	else if (!allow && mAllowTextEntry)
 	{
@@ -799,6 +802,7 @@ void LLComboBox::setAllowTextEntry(BOOL allow, S32 max_chars, BOOL set_tentative
 		{
 			mTextEntry->setVisible(FALSE);
 		}
+		mButton->setFollowsAll();
 	}
 	mAllowTextEntry = allow;
 	mTextEntryTentative = set_tentative;	
@@ -834,6 +838,7 @@ void LLComboBox::onTextEntry(LLLineEditor* line_editor, void* user_data)
 		else
 		{
 			line_editor->setTentative(self->mTextEntryTentative);
+			self->mList->deselectAllItems();
 		}
 		return;
 	}
