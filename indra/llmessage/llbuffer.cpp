@@ -65,24 +65,44 @@ S32 LLSegment::size() const
 	return mSize;
 }
 
+bool LLSegment::operator==(const LLSegment& rhs) const
+{
+	if((mData != rhs.mData)||(mSize != rhs.mSize)||(mChannel != rhs.mChannel))
+	{
+		return false;
+	}
+	return true;
+}
 
 /** 
  * LLHeapBuffer
  */
-LLHeapBuffer::LLHeapBuffer() 
+LLHeapBuffer::LLHeapBuffer() :
+	mBuffer(NULL),
+	mSize(0),
+	mNextFree(NULL),
+	mReclaimedBytes(0)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_BUFFER);
 	const S32 DEFAULT_HEAP_BUFFER_SIZE = 16384;
 	allocate(DEFAULT_HEAP_BUFFER_SIZE);
 }
 
-LLHeapBuffer::LLHeapBuffer(S32 size)
+LLHeapBuffer::LLHeapBuffer(S32 size) :
+	mBuffer(NULL),
+	mSize(0),
+	mNextFree(NULL),
+	mReclaimedBytes(0)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_BUFFER);
 	allocate(size);
 }
 
-LLHeapBuffer::LLHeapBuffer(const U8* src, S32 len)
+LLHeapBuffer::LLHeapBuffer(const U8* src, S32 len) :
+	mBuffer(NULL),
+	mSize(0),
+	mNextFree(NULL),
+	mReclaimedBytes(0)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_BUFFER);
 	if((len > 0) && src)
@@ -92,12 +112,6 @@ LLHeapBuffer::LLHeapBuffer(const U8* src, S32 len)
 		{
 			memcpy(mBuffer, src, len);	/*Flawfinder: ignore*/
 		}
-	}
-	else
-	{
-		mBuffer = NULL;
-		mSize = 0;
-		mNextFree = NULL;
 	}
 }
 
@@ -111,11 +125,10 @@ LLHeapBuffer::~LLHeapBuffer()
 	mNextFree = NULL;
 }
 
-// virtual
-//S32 LLHeapBuffer::bytesLeft() const
-//{
-//	return (mSize - (mNextFree - mBuffer));
-//}
+S32 LLHeapBuffer::bytesLeft() const
+{
+	return (mSize - (mNextFree - mBuffer));
+}
 
 // virtual
 bool LLHeapBuffer::createSegment(
@@ -139,9 +152,47 @@ bool LLHeapBuffer::createSegment(
 	return true;
 }
 
+// virtual
+bool LLHeapBuffer::reclaimSegment(const LLSegment& segment)
+{
+	if(containsSegment(segment))
+	{
+		mReclaimedBytes += segment.size();
+		if(mReclaimedBytes == mSize)
+		{
+			// We have reclaimed all of the memory from this
+			// buffer. Therefore, we can reset the mNextFree to the
+			// start of the buffer, and reset the reclaimed bytes.
+			mReclaimedBytes = 0;
+			mNextFree = mBuffer;
+		}
+		else if(mReclaimedBytes > mSize)
+		{
+			llwarns << "LLHeapBuffer reclaimed more memory than allocated."
+				<< " This is probably programmer error." << llendl;
+		}
+		return true;
+	}
+	return false;
+}
+
+// virtual
+bool LLHeapBuffer::containsSegment(const LLSegment& segment) const
+{
+	// *NOTE: this check is fairly simple because heap buffers are
+	// simple contiguous chunks of heap memory.
+	if((mBuffer > segment.data())
+	   || ((mBuffer + mSize) < (segment.data() + segment.size())))
+	{
+		return false;
+	}
+	return true;
+}
+
 void LLHeapBuffer::allocate(S32 size)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_BUFFER);
+	mReclaimedBytes = 0;	
 	mBuffer = new U8[size];
 	if(mBuffer)
 	{
@@ -178,6 +229,18 @@ LLChannelDescriptors LLBufferArray::nextChannel()
 {
 	LLChannelDescriptors rv(mNextBaseChannel++);
 	return rv;
+}
+
+S32 LLBufferArray::capacity() const
+{
+	S32 total = 0;
+	const_buffer_iterator_t iter = mBuffers.begin();
+	const_buffer_iterator_t end = mBuffers.end();
+	for(; iter != end; ++iter)
+	{
+		total += (*iter)->capacity();
+	}
+	return total;
 }
 
 bool LLBufferArray::append(S32 channel, const U8* src, S32 len)
@@ -684,14 +747,31 @@ LLBufferArray::segment_iterator_t LLBufferArray::makeSegment(
 	return send;
 }
 
-bool LLBufferArray::eraseSegment(const segment_iterator_t& iter)
+bool LLBufferArray::eraseSegment(const segment_iterator_t& erase_iter)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_BUFFER);
-	// *FIX: in theory, we could reclaim the memory. We are leaking a
-	// bit of buffered memory into an unusable but still referenced
-	// location.
-	(void)mSegments.erase(iter);
-	return true;
+
+	// Find out which buffer contains the segment, and if it is found,
+	// ask it to reclaim the memory.
+	bool rv = false;
+	LLSegment segment(*erase_iter);
+	buffer_iterator_t iter = mBuffers.begin();
+	buffer_iterator_t end = mBuffers.end();
+	for(; iter != end; ++iter)
+	{
+		// We can safely call reclaimSegment on every buffer, and once
+		// it returns true, the segment was found.
+		if((*iter)->reclaimSegment(segment))
+		{
+			rv = true;
+			break;
+		}
+	}
+
+	// No need to get the return value since we are not interested in
+	// the interator retured by the call.
+	(void)mSegments.erase(erase_iter);
+	return rv;
 }
 
 

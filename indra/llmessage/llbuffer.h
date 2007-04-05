@@ -13,7 +13,7 @@
 
 /**
  * Declaration of classes used for minimizing calls to new[],
- * memcpy(), and delete[]. Typically, you would create an LLHeapArray,
+ * memcpy(), and delete[]. Typically, you would create an LLBufferArray,
  * feed it data, modify and add segments as you process it, and feed
  * it to a sink.
  */
@@ -89,6 +89,16 @@ public:
 	 */
 	S32 size() const;
 
+	/** 
+	 * @brief Check if two segments are the same.
+	 *
+	 * Two segments are considered equal if they are on the same
+	 * channel and cover the exact same address range.
+	 * @param rhs the segment to compare with this segment.
+	 * @return Returns true if they are equal.
+	 */
+	bool operator==(const LLSegment& rhs) const;
+
 protected:
 	S32 mChannel;
 	U8* mData;
@@ -126,6 +136,35 @@ public:
 	 * @return Returns true if a segment was found.
 	 */
 	virtual bool createSegment(S32 channel, S32 size, LLSegment& segment) = 0;
+
+	/** 
+	 * @brief Reclaim a segment from this buffer. 
+	 *
+	 * This method is called on a buffer object when a caller is done
+	 * with a contiguous segment of memory inside this buffer. Since
+	 * segments can be cut arbitrarily outside of the control of the
+	 * buffer, this segment may not match any segment returned from
+	 * <code>createSegment()</code>.  
+	 * @param segment The contiguous buffer segment to reclaim.
+	 * @return Returns true if the call was successful.
+	 */
+	virtual bool reclaimSegment(const LLSegment& segment) = 0;
+
+	/** 
+	 * @brief Test if a segment is inside this buffer.
+	 *
+	 * @param segment The contiguous buffer segment to test.
+	 * @return Returns true if the segment is in the bufffer.
+	 */
+	virtual bool containsSegment(const LLSegment& segment) const = 0;
+
+	/** 
+	 * @brief Return the current number of bytes allocated.
+	 *
+	 * This was implemented as a debugging tool, and it is not
+	 * necessarily a good idea to use it for anything else.
+	 */
+	virtual S32 capacity() const = 0;
 };
 
 /** 
@@ -167,9 +206,11 @@ public:
 	/** 
 	 * @brief Get the number of bytes left in the buffer.
 	 *
+	 * Note that this is not a virtual function, and only available in
+	 * the LLHeapBuffer as a debugging aid.
 	 * @return Returns the number of bytes left.
 	 */
-	//virtual S32 bytesLeft() const;
+	S32 bytesLeft() const;
 
 	/** 
 	 * @brief Generate a segment for this buffer.
@@ -186,10 +227,40 @@ public:
 	 */
 	virtual bool createSegment(S32 channel, S32 size, LLSegment& segment);
 
+	/** 
+	 * @brief reclaim a segment from this buffer. 
+	 *
+	 * This method is called on a buffer object when a caller is done
+	 * with a contiguous segment of memory inside this buffer. Since
+	 * segments can be cut arbitrarily outside of the control of the
+	 * buffer, this segment may not match any segment returned from
+	 * <code>createSegment()</code>.  
+	 * This call will fail if the segment passed in is note completely
+	 * inside the buffer, eg, if the segment starts before this buffer
+	 * in memory or ends after it.
+	 * @param segment The contiguous buffer segment to reclaim.
+	 * @return Returns true if the call was successful.
+	 */
+	virtual bool reclaimSegment(const LLSegment& segment);
+
+	/** 
+	 * @brief Test if a segment is inside this buffer.
+	 *
+	 * @param segment The contiguous buffer segment to test.
+	 * @return Returns true if the segment is in the bufffer.
+	 */
+	virtual bool containsSegment(const LLSegment& segment) const;
+
+	/** 
+	 * @brief Return the current number of bytes allocated.
+	 */
+	virtual S32 capacity() const { return mSize; }
+
 protected:
 	U8* mBuffer;
 	S32 mSize;
 	U8* mNextFree;
+	S32 mReclaimedBytes;
 
 private:
 	/** 
@@ -204,13 +275,14 @@ private:
  * @brief Class to represent scattered memory buffers and in-order segments
  * of that buffered data.
  *
- * NOTE: This class needs to have an iovec interface
+ * *NOTE: This class needs to have an iovec interface
  */
 class LLBufferArray
 {
 public:
 	typedef std::vector<LLBuffer*> buffer_list_t;
 	typedef buffer_list_t::iterator buffer_iterator_t;
+	typedef buffer_list_t::const_iterator const_buffer_iterator_t;
 	typedef std::list<LLSegment> segment_list_t;
 	typedef segment_list_t::const_iterator const_segment_iterator_t;
 	typedef segment_list_t::iterator segment_iterator_t;
@@ -241,10 +313,15 @@ public:
 	 */
 	LLChannelDescriptors nextChannel();
 	//@}
-	
+
 	/* @name Data methods
 	 */
 	//@{
+
+	/** 
+	 * @brief Return the sum of all allocated bytes.
+	 */
+	S32 capacity() const;
 
 	// These methods will be useful once there is any kind of buffer
 	// besides a heap buffer.
@@ -275,7 +352,6 @@ public:
 	 * new segment is created and put in the front of the array. This
 	 * object will internally allocate new buffers if necessary.
 	 * @param channel The channel for this data
-
 	 * @param src The start of memory for the data to be copied
 	 * @param len The number of bytes of data to copy
 	 * @return Returns true if the method worked.
@@ -359,7 +435,7 @@ public:
 	bool takeContents(LLBufferArray& source);
 	//@}
 
-	/* @name Segment methods 
+	/* @name Segment methods
 	 */
 	//@{
 	/** 
@@ -449,7 +525,7 @@ public:
 	 * endSegment() on failure.
 	 */
 	segment_iterator_t makeSegment(S32 channel, S32 length);
-		
+
 	/** 
 	 * @brief Erase the segment if it is in the buffer array.
 	 *

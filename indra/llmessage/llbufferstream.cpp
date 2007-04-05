@@ -43,34 +43,64 @@ int LLBufferStreamBuf::underflow()
 	{
 		return EOF;
 	}
-	LLSegment segment;
-	LLBufferArray::segment_iterator_t it;
-	U8* last_pos = (U8*)gptr();
-	if(last_pos) --last_pos;
-	
-	LLBufferArray::segment_iterator_t end = mBuffer->endSegment();
 
-	// Get iterator to full segment containing last_pos
-	// and construct sub-segment starting at last_pos.
-	// Note: segment may != *it at this point
-	it = mBuffer->constructSegmentAfter(last_pos, segment);
-	if(it == end)
+	LLBufferArray::segment_iterator_t iter;
+	LLBufferArray::segment_iterator_t end = mBuffer->endSegment();
+	U8* last_pos = (U8*)gptr();
+	LLSegment segment;
+	if(last_pos)
+	{
+		// Back up into a piece of memory we know that we have
+		// allocated so that calls for the next segment based on
+		// 'after' will succeed.
+		--last_pos;
+		iter = mBuffer->splitAfter(last_pos);
+		if(iter != end)
+		{
+			// We need to clear the read segment just in case we have
+			// an early exit in the function and never collect the
+			// next segment. Calling eraseSegment() with the same
+			// segment twice is just like double deleting -- nothing
+			// good comes from it.
+			mBuffer->eraseSegment(iter++);
+			if(iter != end) segment = (*iter);
+		}
+		else
+		{
+			// This should never really happen, but somehow, the
+			// istream is telling the buf that it just finished
+			// reading memory that is not in the buf. I think this
+			// would only happen if there were a bug in the c++ stream
+			// class. Just bail.
+			// *TODO: can we set the fail bit on the stream somehow?
+			return EOF;
+		}
+	}
+	else
+	{
+		// Get iterator to full segment containing last_pos
+		// and construct sub-segment starting at last_pos.
+		// Note: segment may != *it at this point
+		iter = mBuffer->constructSegmentAfter(last_pos, segment);
+	}
+	if(iter == end)
 	{
 		return EOF;
 	}
-	
+
 	// Iterate through segments to find a non-empty segment on input channel.
 	while((!segment.isOnChannel(mChannels.in()) || (segment.size() == 0)))
 	{
-		++it;
-		if(it == end)
+		++iter;
+		if(iter == end)
 		{
 			return EOF;
 		}
 
-		segment = *it;
+		segment = *(iter);
 	}
-	
+
+	// set up the stream to read from the next segment.
 	char* start = (char*)segment.data();
 	setg(start, start, start + segment.size());
 	return *gptr();
@@ -125,12 +155,43 @@ int LLBufferStreamBuf::sync()
 		return return_value;
 	}
 
+	// This chunk of code is not necessary because typically, users of
+	// the stream will read until EOF. Therefore, underflow was called
+	// and the segment was discarded before the sync() was called in
+	// the destructor. Theoretically, we could keep some more data
+	// around and detect the rare case where an istream was deleted
+	// before reading to the end, but that will only leave behind some
+	// unavailable but still referenced memory. Also, if another
+	// istream is constructed, it will re-read that segment, and then
+	// discard it.
+	//U8* last_pos = (U8*)gptr();
+	//if(last_pos)
+	//{
+	//	// Looks like we read something. Discard what we have read.
+	//	// gptr() actually returns the currrent position, but we call
+	//	// it last_pos because of how it is used in the split call
+	//	// below.
+	//	--last_pos;
+	//	LLBufferArray::segment_iterator_t iter;
+	//	iter = mBuffer->splitAfter(last_pos);
+	//	if(iter != mBuffer->endSegment())
+	//	{
+	//		// We need to clear the read segment just in case we have
+	//		// an early exit in the function and never collect the
+	//		// next segment. Calling eraseSegment() with the same
+	//		// segment twice is just like double deleting -- nothing
+	//		// good comes from it.
+	//		mBuffer->eraseSegment(iter);
+	//	}
+	//}
+
 	// set the put pointer so that we force an overflow on the next
 	// write.
 	U8* address = (U8*)pptr();
 	setp(NULL, NULL);
 
-	// *NOTE: I bet we could just --address. Need to think about that.
+	// *NOTE: I bet we could just --address if address is not NULL.
+	// Need to think about that.
 	address = mBuffer->seek(mChannels.out(), address, -1);
 	if(address)
 	{

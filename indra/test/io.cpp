@@ -31,6 +31,101 @@
 
 namespace tut
 {
+	struct heap_buffer_data
+	{
+		heap_buffer_data() : mBuffer(NULL) {}
+		~heap_buffer_data() { if(mBuffer) delete mBuffer; }
+		LLHeapBuffer* mBuffer;
+	};
+	typedef test_group<heap_buffer_data> heap_buffer_test;
+	typedef heap_buffer_test::object heap_buffer_object;
+	tut::heap_buffer_test thb("heap_buffer");
+
+	template<> template<>
+	void heap_buffer_object::test<1>()
+	{
+		const S32 BUF_SIZE = 100;
+		mBuffer = new LLHeapBuffer(BUF_SIZE);
+		ensure_equals("empty buffer capacity", mBuffer->capacity(), BUF_SIZE);
+		const S32 SEGMENT_SIZE = 50;
+		LLSegment segment;
+		mBuffer->createSegment(0, SEGMENT_SIZE, segment);
+		ensure_equals("used buffer capacity", mBuffer->capacity(), BUF_SIZE);
+	}
+
+	template<> template<>
+	void heap_buffer_object::test<2>()
+	{
+		const S32 BUF_SIZE = 10;
+		mBuffer = new LLHeapBuffer(BUF_SIZE);
+		LLSegment segment;
+		mBuffer->createSegment(0, BUF_SIZE, segment);
+		ensure("segment is in buffer", mBuffer->containsSegment(segment));
+		ensure_equals("buffer consumed", mBuffer->bytesLeft(), 0);
+		bool  created;
+		created = mBuffer->createSegment(0, 0, segment);
+		ensure("Create zero size segment fails", !created);
+		created = mBuffer->createSegment(0, BUF_SIZE, segment);
+		ensure("Create segment fails", !created);
+	}
+
+	template<> template<>
+	void heap_buffer_object::test<3>()
+	{
+		const S32 BUF_SIZE = 10;
+		mBuffer = new LLHeapBuffer(BUF_SIZE);
+		LLSegment segment;
+		mBuffer->createSegment(0, BUF_SIZE, segment);
+		ensure("segment is in buffer", mBuffer->containsSegment(segment));
+		ensure_equals("buffer consumed", mBuffer->bytesLeft(), 0);
+		bool reclaimed = mBuffer->reclaimSegment(segment);
+		ensure("buffer reclaimed.", reclaimed);
+		ensure_equals("buffer available", mBuffer->bytesLeft(), BUF_SIZE);
+		bool  created;
+		created = mBuffer->createSegment(0, 0, segment);
+		ensure("Create zero size segment fails", !created);
+		created = mBuffer->createSegment(0, BUF_SIZE, segment);
+		ensure("Create another segment succeeds", created);
+	}
+
+	template<> template<>
+	void heap_buffer_object::test<4>()
+	{
+		const S32 BUF_SIZE = 10;
+		const S32 SEGMENT_SIZE = 4;
+		mBuffer = new LLHeapBuffer(BUF_SIZE);
+		LLSegment seg1;
+		mBuffer->createSegment(0, SEGMENT_SIZE, seg1);
+		ensure("segment is in buffer", mBuffer->containsSegment(seg1));
+		LLSegment seg2;
+		mBuffer->createSegment(0, SEGMENT_SIZE, seg2);
+		ensure("segment is in buffer", mBuffer->containsSegment(seg2));
+		LLSegment seg3;
+		mBuffer->createSegment(0, SEGMENT_SIZE, seg3);
+		ensure("segment is in buffer", mBuffer->containsSegment(seg3));
+		ensure_equals("segment is truncated", seg3.size(), 2);
+		LLSegment seg4;
+		bool created;
+		created = mBuffer->createSegment(0, SEGMENT_SIZE, seg4);
+		ensure("Create segment fails", !created);
+		bool reclaimed;
+		reclaimed = mBuffer->reclaimSegment(seg1);
+		ensure("buffer reclaim succeed.", reclaimed);
+		ensure_equals("no buffer available", mBuffer->bytesLeft(), 0);
+		reclaimed = mBuffer->reclaimSegment(seg2);
+		ensure("buffer reclaim succeed.", reclaimed);
+		ensure_equals("buffer reclaimed", mBuffer->bytesLeft(), 0);
+		reclaimed = mBuffer->reclaimSegment(seg3);
+		ensure("buffer reclaim succeed.", reclaimed);
+		ensure_equals("buffer reclaimed", mBuffer->bytesLeft(), BUF_SIZE);
+		created = mBuffer->createSegment(0, SEGMENT_SIZE, seg1);
+		ensure("segment is in buffer", mBuffer->containsSegment(seg1));
+		ensure("Create segment succeds", created);
+	}
+}
+
+namespace tut
+{
 	struct buffer_data
 	{
 		LLBufferArray mBuffer;
@@ -209,6 +304,37 @@ namespace tut
 		delete[] temp;
 	}
 
+	template<> template<>
+	void buffer_object::test<9>()
+	{
+		LLChannelDescriptors ch = mBuffer.nextChannel();
+		mBuffer.append(ch.in(), (U8*)"1", 1);
+		S32 capacity = mBuffer.capacity();
+		ensure("has capacity", capacity > 0);
+		U8* temp = new U8[capacity - 1];
+		mBuffer.append(ch.in(), temp, capacity - 1);
+		capacity = mBuffer.capacity();
+		ensure("has capacity when full", capacity > 0);
+		S32 used = mBuffer.countAfter(ch.in(), NULL);
+		ensure_equals("used equals capacity", used, capacity);
+
+		LLBufferArray::segment_iterator_t iter = mBuffer.beginSegment();
+		while(iter != mBuffer.endSegment())
+		{
+			mBuffer.eraseSegment(iter++);
+		}
+
+		used = mBuffer.countAfter(ch.in(), NULL);
+		ensure_equals("used is zero", used, 0);
+		S32 capacity2 = mBuffer.capacity();
+		ensure_equals("capacity the same after erase", capacity2, capacity);
+		mBuffer.append(ch.in(), temp, capacity - 1);
+		capacity2 = mBuffer.capacity();
+		ensure_equals("capacity the same after append", capacity2, capacity);
+
+		delete[] temp;
+	}
+
 #if 0
 	template<> template<>
 	void buffer_object::test<9>()
@@ -268,7 +394,7 @@ namespace tut
 	void bas_object::test<1>()
 	{
 		const char HELLO_WORLD[] = "hello world";
-		const S32 str_len = strlen(HELLO_WORLD);		/* Flawfinder: ignore */
+		const S32 str_len = strlen(HELLO_WORLD);	/* Flawfinder: ignore */
 		LLChannelDescriptors ch = mBuffer.nextChannel();
 		LLBufferStream str(ch, &mBuffer);
 		mBuffer.append(ch.in(), (U8*)HELLO_WORLD, str_len);
