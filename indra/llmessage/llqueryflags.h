@@ -38,6 +38,9 @@ const U32 DFQ_NAME_SORT			= 0x1 << 19;
 const U32 DFQ_LIMIT_BY_PRICE	= 0x1 << 20;
 const U32 DFQ_LIMIT_BY_AREA		= 0x1 << 21;
 
+const U32 DFQ_FILTER_MATURE		= 0x1 << 22;
+const U32 DFQ_PG_PARCELS_ONLY	= 0x1 << 23;
+
 // Sell Type flags
 const U32 ST_AUCTION	= 0x1 << 1;
 const U32 ST_NEWBIE		= 0x1 << 2;
