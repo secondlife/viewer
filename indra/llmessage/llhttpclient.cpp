@@ -20,7 +20,7 @@
 
 #include <curl/curl.h>
 
-static const F32 HTTP_REQUEST_EXPIRY_SECS = 60.0f;
+const F32 HTTP_REQUEST_EXPIRY_SECS = 60.0f;
 
 static std::string gCABundle;
 
@@ -214,7 +214,7 @@ namespace
 }
 
 static void request(const std::string& url, LLURLRequest::ERequestAction method,
-	Injector* body_injector, LLHTTPClient::ResponderPtr responder)
+	Injector* body_injector, LLHTTPClient::ResponderPtr responder, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS)
 {
 	if (!LLHTTPClient::hasPump())
 	{
@@ -239,12 +239,12 @@ static void request(const std::string& url, LLURLRequest::ERequestAction method,
 	}
 	chain.push_back(LLIOPipe::ptr_t(req));
 
-	theClientPump->addChain(chain, HTTP_REQUEST_EXPIRY_SECS);
+	theClientPump->addChain(chain, timeout);
 }
 
-void LLHTTPClient::get(const std::string& url, ResponderPtr responder)
+void LLHTTPClient::get(const std::string& url, ResponderPtr responder, const F32 timeout)
 {
-	request(url, LLURLRequest::HTTP_GET, NULL, responder);
+	request(url, LLURLRequest::HTTP_GET, NULL, responder, timeout);
 }
 
 // A simple class for managing data returned from a curl http request.
@@ -325,36 +325,36 @@ LLSD LLHTTPClient::blockingGet(const std::string& url)
 	return response;
 }
 
-void LLHTTPClient::put(const std::string& url, const LLSD& body, ResponderPtr responder)
+void LLHTTPClient::put(const std::string& url, const LLSD& body, ResponderPtr responder, const F32 timeout)
 {
-	request(url, LLURLRequest::HTTP_PUT, new LLSDInjector(body), responder);
+	request(url, LLURLRequest::HTTP_PUT, new LLSDInjector(body), responder, timeout);
 }
 
-void LLHTTPClient::post(const std::string& url, const LLSD& body, ResponderPtr responder)
+void LLHTTPClient::post(const std::string& url, const LLSD& body, ResponderPtr responder, const F32 timeout)
 {
-	request(url, LLURLRequest::HTTP_POST, new LLSDInjector(body), responder);
+	request(url, LLURLRequest::HTTP_POST, new LLSDInjector(body), responder, timeout);
 }
 
-void LLHTTPClient::post(const std::string& url, const U8* data, S32 size, ResponderPtr responder)
+void LLHTTPClient::post(const std::string& url, const U8* data, S32 size, ResponderPtr responder, const F32 timeout)
 {
-	request(url, LLURLRequest::HTTP_POST, new RawInjector(data, size), responder);
+	request(url, LLURLRequest::HTTP_POST, new RawInjector(data, size), responder, timeout);
 }
 
-void LLHTTPClient::del(const std::string& url, ResponderPtr responder)
+void LLHTTPClient::del(const std::string& url, ResponderPtr responder, const F32 timeout)
 {
-	request(url, LLURLRequest::HTTP_DELETE, NULL, responder);
+	request(url, LLURLRequest::HTTP_DELETE, NULL, responder, timeout);
 }
 
 #if 1
-void LLHTTPClient::postFile(const std::string& url, const std::string& filename, ResponderPtr responder)
+void LLHTTPClient::postFile(const std::string& url, const std::string& filename, ResponderPtr responder, const F32 timeout)
 {
-	request(url, LLURLRequest::HTTP_POST, new FileInjector(filename), responder);
+	request(url, LLURLRequest::HTTP_POST, new FileInjector(filename), responder, timeout);
 }
 
 void LLHTTPClient::postFile(const std::string& url, const LLUUID& uuid,
-							LLAssetType::EType asset_type, ResponderPtr responder)
+							LLAssetType::EType asset_type, ResponderPtr responder, const F32 timeout)
 {
-	request(url, LLURLRequest::HTTP_POST, new VFileInjector(uuid, asset_type), responder);
+	request(url, LLURLRequest::HTTP_POST, new VFileInjector(uuid, asset_type), responder, timeout);
 }
 #endif
 

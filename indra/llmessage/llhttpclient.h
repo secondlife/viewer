@@ -19,6 +19,8 @@
 
 #include "llassettype.h"
 
+extern const F32 HTTP_REQUEST_EXPIRY_SECS;
+
 class LLUUID;
 class LLPumpIO;
 class LLSD;
@@ -50,19 +52,19 @@ public:
 
 	typedef boost::intrusive_ptr<Responder>	ResponderPtr;
 	
-	static void get(const std::string& url, ResponderPtr);
-	static void put(const std::string& url, const LLSD& body, ResponderPtr);
+	static void get(const std::string& url, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+	static void put(const std::string& url, const LLSD& body, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 		///< non-blocking
-	static void post(const std::string& url, const LLSD& body, ResponderPtr);
-	static void post(const std::string& url, const U8* data, S32 size, ResponderPtr responder);
-	static void postFile(const std::string& url, const std::string& filename, ResponderPtr);
+	static void post(const std::string& url, const LLSD& body, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+	static void post(const std::string& url, const U8* data, S32 size, ResponderPtr responder, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+	static void postFile(const std::string& url, const std::string& filename, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void postFile(const std::string& url, const LLUUID& uuid,
-		LLAssetType::EType asset_type, ResponderPtr responder);
+		LLAssetType::EType asset_type, ResponderPtr responder, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 
 	// Blocking HTTP get that returns an LLSD map of status and body.
 	static LLSD blockingGet(const std::string& url);
 
-	static void del(const std::string& url, ResponderPtr);
+	static void del(const std::string& url, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 		///< sends a DELETE method, but we can't call it delete in c++
 	
 	
