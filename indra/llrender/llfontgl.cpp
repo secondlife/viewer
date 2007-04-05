@@ -674,7 +674,6 @@ S32 LLFontGL::render(const LLWString &wstr,
 	}
 
 
-	glBegin(GL_QUADS);
 	for (i = begin_offset; i < begin_offset + length; i++)
 	{
 		llwchar wch = wstr[i];
@@ -702,8 +701,6 @@ S32 LLFontGL::render(const LLWString &wstr,
 				// Not enough room for this character.
 				break;
 			}
-
-			glEnd();
 
 			ext_image->bind();
 			const F32 ext_x = cur_render_x + (EXT_X_BEARING * sScaleX);
@@ -740,15 +737,12 @@ S32 LLFontGL::render(const LLWString &wstr,
 
 			// Bind the font texture
 			mImageGLp->bind();
-			glBegin(GL_QUADS);
 		}
 		else
 		{
 			if (!hasGlyph(wch))
 			{
-				glEnd();
 				(const_cast<LLFontGL*>(this))->addChar(wch);
-				glBegin(GL_QUADS);
 			}
 
 			const LLFontGlyphInfo* fgi= getGlyphInfo(wch);
@@ -785,9 +779,7 @@ S32 LLFontGL::render(const LLWString &wstr,
 				// Kern this puppy.
 				if (!hasGlyph(next_char))
 				{
-					glEnd();
 					(const_cast<LLFontGL*>(this))->addChar(next_char);
-					glBegin(GL_QUADS);
 				}
 				cur_x += getXKerning(wch, next_char);
 			}
@@ -803,8 +795,6 @@ S32 LLFontGL::render(const LLWString &wstr,
 			cur_render_y = cur_y;
 		}
 	}
-
-	glEnd();
 
 	if (right_x)
 	{
