@@ -5145,7 +5145,8 @@ void LLSelectNode::saveTextureScaleRatios()
 			F32 s,t;
 			const LLTextureEntry* tep = mObject->getTE(i);
 			tep->getScale(&s,&t);
-			U32 s_axis, t_axis;
+			U32 s_axis = 0;
+			U32 t_axis = 0;
 
 			gSelectMgr->getTESTAxes(mObject, i, &s_axis, &t_axis);
 
