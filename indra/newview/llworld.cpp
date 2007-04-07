@@ -790,7 +790,10 @@ void LLWorld::updateWaterObjects()
 
 	// First, determine the min and max "box" of water objects
 	bool first = true;
-	S32 min_x, min_y, max_x, max_y;
+	S32 min_x = 0;
+	S32 min_y = 0;
+	S32 max_x = 0;
+	S32 max_y = 0;
 	U32 region_x, region_y;
 
 	S32 rwidth = llfloor(getRegionWidthInMeters());
