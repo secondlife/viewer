@@ -276,7 +276,10 @@ BOOL LLImageDXT::getMipData(LLPointer<LLImageRaw>& raw, S32 discard)
 		llerrs << "Request for invalid discard level" << llendl;
 	}
 	U8* data = getData() + getMipOffset(discard);
-	S32 width, height;
+	// I'm not sure these are the correct initial values for height and width,
+	// but previously they were being used uninitialized. JC
+	S32 width = raw->getWidth();
+	S32 height = raw->getHeight();
 	calcDiscardWidthHeight(discard, mFileFormat, width, height);
 	raw = new LLImageRaw(data, width, height, getComponents());
 	return TRUE;
