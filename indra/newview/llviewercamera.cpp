@@ -77,6 +77,7 @@ void LLViewerCamera::updateCameraLocation(const LLVector3 &center,
 
 // Handy copies of last good GL matrices
 F64	gGLModelView[16];
+F64 gGLProjection[16];
 S32	gGLViewport[4];
 
 const LLMatrix4 &LLViewerCamera::getProjection() const
@@ -231,6 +232,7 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 				   aspect,
 				   z_near,
 				   z_far);
+	glGetDoublev(GL_PROJECTION_MATRIX, gGLProjection);
 	glGetFloatv(GL_PROJECTION_MATRIX, (float*)&gProjectionMat);
 	
 	glMatrixMode( GL_MODELVIEW );

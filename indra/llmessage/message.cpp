@@ -33,6 +33,7 @@
 
 // linden library headers
 #include "indra_constants.h"
+#include "lldarray.h"
 #include "lldir.h"
 #include "llerror.h"
 #include "llfasttimer.h"
@@ -447,7 +448,6 @@ private:
 };
 
 
-
 // static
 BOOL LLMessageSystem::mTimeDecodes = FALSE;
 
@@ -827,6 +827,9 @@ void LLMessageSystem::init()
 
 	mMessageFileChecksum = 0;
 	mMessageFileVersionNumber = 0.f;
+
+	mTimingCallback = NULL;
+	mTimingCallbackData = NULL;
 }
 
 LLMessageSystem::LLMessageSystem()
@@ -3480,7 +3483,7 @@ BOOL LLMessageSystem::decodeData(const U8* buffer, const LLHost& sender )
 	{
 		static LLTimer decode_timer;
 
-		if( mTimeDecodes )
+		if( mTimeDecodes || mTimingCallback )
 		{
 			decode_timer.reset();
 		}
@@ -3503,25 +3506,36 @@ BOOL LLMessageSystem::decodeData(const U8* buffer, const LLHost& sender )
 		//		VTPause();	// VTune
 		//	}
 
-		if( mTimeDecodes )
+		if( mTimeDecodes || mTimingCallback )
 		{
 			F32 decode_time = decode_timer.getElapsedTimeF32();
-			mCurrentRMessageTemplate->mDecodeTimeThisFrame += decode_time;
 
-			mCurrentRMessageTemplate->mTotalDecoded++;
-			mCurrentRMessageTemplate->mTotalDecodeTime += decode_time;
-
-			if( mCurrentRMessageTemplate->mMaxDecodeTimePerMsg < decode_time )
+			if (mTimingCallback)
 			{
-				mCurrentRMessageTemplate->mMaxDecodeTimePerMsg = decode_time;
+				mTimingCallback(mCurrentRMessageTemplate->mName,
+								decode_time,
+								mTimingCallbackData);
 			}
 
-
-			if( decode_time > mTimeDecodesSpamThreshold )
+			if (mTimeDecodes)
 			{
-				lldebugs << "--------- Message " << mCurrentRMessageTemplate->mName << " decode took " << decode_time << " seconds. (" <<
-					mCurrentRMessageTemplate->mMaxDecodeTimePerMsg << " max, " <<
-					(mCurrentRMessageTemplate->mTotalDecodeTime / mCurrentRMessageTemplate->mTotalDecoded) << " avg)" << llendl;
+				mCurrentRMessageTemplate->mDecodeTimeThisFrame += decode_time;
+
+				mCurrentRMessageTemplate->mTotalDecoded++;
+				mCurrentRMessageTemplate->mTotalDecodeTime += decode_time;
+
+				if( mCurrentRMessageTemplate->mMaxDecodeTimePerMsg < decode_time )
+				{
+					mCurrentRMessageTemplate->mMaxDecodeTimePerMsg = decode_time;
+				}
+
+
+				if( decode_time > mTimeDecodesSpamThreshold )
+				{
+					lldebugs << "--------- Message " << mCurrentRMessageTemplate->mName << " decode took " << decode_time << " seconds. (" <<
+						mCurrentRMessageTemplate->mMaxDecodeTimePerMsg << " max, " <<
+						(mCurrentRMessageTemplate->mTotalDecodeTime / mCurrentRMessageTemplate->mTotalDecoded) << " avg)" << llendl;
+				}
 			}
 		}
 	}
@@ -4516,76 +4530,6 @@ void process_deny_trusted_circuit(LLMessageSystem *msg, void **)
 	msg->sendCreateTrustedCircuit(msg->getSender(), local_id, remote_id);
 }
 
-#define LL_ENCRYPT_BUF_LENGTH	16384
-
-void encrypt_template(const char *src_name, const char *dest_name)
-{
-	// encrypt and decrypt are symmetric
-	decrypt_template(src_name, dest_name);
-}
-
-BOOL decrypt_template(const char *src_name, const char *dest_name)
-{
-	S32 buf_length = LL_ENCRYPT_BUF_LENGTH;
-	char buf[LL_ENCRYPT_BUF_LENGTH];	/* Flawfinder: ignore */
-	
-	FILE* infp = NULL;
-	FILE* outfp = NULL;
-	BOOL success = FALSE;
-	char* bufp = NULL;
-	U32 key = 0;
-	S32 more_data = 0;
-
-	if(src_name==NULL)
-	{
-		 llwarns << "Input src_name is NULL!!" << llendl;
-		 goto exit;
-	}
-
-	infp = LLFile::fopen(src_name,"rb");	/* Flawfinder: ignore */
-	if (!infp)
-	{
-		llwarns << "could not open " << src_name << " for reading" << llendl;
-		goto exit;
-	}
-
-	if(dest_name==NULL)
-	{
-		 llwarns << "Output dest_name is NULL!!" << llendl;
-		 goto exit;
-	}
-
-	outfp = LLFile::fopen(dest_name,"w+b");	/* Flawfinder: ignore */
-	if (!outfp)
-	{
-		llwarns << "could not open " << src_name << " for writing" << llendl;
-		goto exit;
-	}
-
-	while ((buf_length = (S32)fread(buf,1,LL_ENCRYPT_BUF_LENGTH,infp)))
-	{
-		// unscrozzle bits here
-		bufp = buf;
-		more_data = buf_length;
-		while (more_data--)
-		{
-			*bufp = *bufp ^ ((key * 43) % 256);
-			key++;
-			bufp++;
-		}
-
-		if(buf_length != (S32)fwrite(buf,1,buf_length,outfp))
-		{
-			goto exit;
-		}
-	}
-	success = TRUE;
-
- exit:
-	if(infp) fclose(infp);
-	if(outfp) fclose(outfp);
-	return success;
-}
 
 void dump_prehash_files()
 {
@@ -5276,6 +5220,12 @@ BOOL LLMessageSystem::callExceptionFunc(EMessageException exception)
 		return TRUE;
 	}
 	return FALSE;
+}
+
+void LLMessageSystem::setTimingFunc(msg_timing_callback func, void* data)
+{
+	mTimingCallback = func;
+	mTimingCallbackData = data;
 }
 
 BOOL LLMessageSystem::isCircuitCodeKnown(U32 code) const

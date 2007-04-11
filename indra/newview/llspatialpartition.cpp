@@ -126,7 +126,7 @@ LLSpatialGroup::~LLSpatialGroup()
 	{
 		sZombieGroups--;
 	}
-
+	
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	clearDrawMap();
 }
@@ -197,9 +197,33 @@ void LLSpatialGroup::validate()
 #if LL_OCTREE_PARANOIA_CHECK
 
 	sg_assert(!isState(DIRTY));
+	sg_assert(!isDead());
 
 	LLVector3 myMin = mBounds[0] - mBounds[1];
 	LLVector3 myMax = mBounds[0] + mBounds[1];
+
+	validateDrawMap();
+
+	for (element_iter i = getData().begin(); i != getData().end(); ++i)
+	{
+		LLDrawable* drawable = *i;
+		sg_assert(drawable->getSpatialGroup() == this);
+		if (drawable->getSpatialBridge())
+		{
+			sg_assert(drawable->getSpatialBridge() == mSpatialPartition->asBridge());
+		}
+
+		if (drawable->isSpatialBridge())
+		{
+			LLSpatialPartition* part = drawable->asPartition();
+			if (!part)
+			{
+				llerrs << "Drawable reports it is a spatial bridge but not a partition." << llendl;
+			}
+			LLSpatialGroup* group = (LLSpatialGroup*) part->mOctree->getListener(0);
+			group->validate();
+		}
+	}
 
 	for (U32 i = 0; i < mOctreeNode->getChildCount(); ++i)
 	{
@@ -226,8 +250,8 @@ void LLSpatialGroup::validate()
 
 void validate_draw_info(LLDrawInfo& params)
 {
-#if LL_DEBUG
-/*	if (params.mVertexBuffer.isNull())
+#if LL_OCTREE_PARANOIA_CHECK
+	if (params.mVertexBuffer.isNull())
 	{
 		llerrs << "Draw batch has no vertex buffer." << llendl;
 	}
@@ -238,12 +262,12 @@ void validate_draw_info(LLDrawInfo& params)
 		llerrs << "Draw batch has invalid range." << llendl;
 	}
 	
-	if (params.mEnd >= params.mVertexBuffer->getNumVerts())
+	if (params.mEnd >= (U32) params.mVertexBuffer->getNumVerts())
 	{
 		llerrs << "Draw batch has buffer overrun error." << llendl;
 	}
 	
-	if (params.mOffset + params.mCount > params.mVertexBuffer->getNumIndices())
+	if (params.mOffset + params.mCount > (U32) params.mVertexBuffer->getNumIndices())
 	{
 		llerrs << "Draw batch has index buffer ovverrun error." << llendl;
 	}
@@ -264,13 +288,14 @@ void validate_draw_info(LLDrawInfo& params)
 				llerrs << "Draw batch has vertex buffer index out of range error (index too high)." << llendl;
 			}
 		}
-	}*/
+	}
 #endif
 }
 
 void LLSpatialGroup::validateDrawMap()
 {
-/*	for (draw_map_t::iterator i = mDrawMap.begin(); i != mDrawMap.end(); ++i)
+#if LL_OCTREE_PARANOIA_CHECK
+	for (draw_map_t::iterator i = mDrawMap.begin(); i != mDrawMap.end(); ++i)
 	{
 		std::vector<LLDrawInfo*>& draw_vec = i->second;
 		for (std::vector<LLDrawInfo*>::iterator j = draw_vec.begin(); j != draw_vec.end(); ++j)
@@ -279,7 +304,8 @@ void LLSpatialGroup::validateDrawMap()
 			
 			validate_draw_info(params);
 		}
-	}*/
+	}
+#endif
 }
 
 void LLSpatialGroup::makeStatic()
@@ -342,7 +368,7 @@ BOOL LLSpatialGroup::addObject(LLDrawable *drawablep, BOOL add_all, BOOL from_oc
 	}
 	else
 	{
-		drawablep->setSpatialGroup(this, 0);
+		drawablep->setSpatialGroup(this);
 		validate_drawable(drawablep);
 		setState(OBJECT_DIRTY | GEOM_DIRTY);
 		mLastAddTime = gFrameTimeSeconds;
@@ -554,7 +580,7 @@ BOOL LLSpatialGroup::removeObject(LLDrawable *drawablep, BOOL from_octree)
 	}
 	else
 	{
-		drawablep->setSpatialGroup(NULL, -1);
+		drawablep->setSpatialGroup(NULL);
 		setState(GEOM_DIRTY);
 		if (drawablep->isSpatialBridge())
 		{
@@ -867,6 +893,16 @@ void LLSpatialGroup::handleDestruction(const TreeNode* node)
 {
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	setState(DEAD);
+	
+	for (element_iter i = getData().begin(); i != getData().end(); ++i)
+	{
+		LLDrawable* drawable = *i;
+		if (drawable->getSpatialGroup() == this)
+		{
+			drawable->setSpatialGroup(NULL);
+		}
+	}
+	
 	clearDrawMap();
 	mOcclusionVerts = NULL;
 	mVertexBuffer = NULL;
@@ -1108,7 +1144,7 @@ BOOL LLSpatialPartition::remove(LLDrawable *drawablep, LLSpatialGroup *curp)
 {
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	
-	drawablep->setSpatialGroup(NULL, -1);
+	drawablep->setSpatialGroup(NULL);
 
 	if (!curp->removeObject(drawablep))
 	{

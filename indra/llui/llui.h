@@ -15,6 +15,7 @@
 #include "llcontrol.h"
 #include "llrect.h"
 #include "llcoord.h"
+#include "llhtmlhelp.h"
 
 class LLColor4;
 class LLVector3;
@@ -151,6 +152,7 @@ public:
 	static void setLineWidth(F32 width);
 	static LLUUID findAssetUUIDByName(const LLString&	name);
 	static LLVector2 getWindowSize();
+	static void setHtmlHelp(LLHtmlHelp* html_help);
 public:
 	static LLControlGroup* sConfigGroup;
 	static LLControlGroup* sColorsGroup;
@@ -160,6 +162,7 @@ public:
 	static LLVector2		sGLScaleFactor;
 	static LLWindow*		sWindow;
 	static BOOL             sShowXUINames;
+	static LLHtmlHelp*		sHtmlHelp;
 };
 
 // UI widgets

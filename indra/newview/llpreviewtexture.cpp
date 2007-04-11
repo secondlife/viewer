@@ -457,7 +457,7 @@ void LLPreviewTexture::updateAspectRatio()
 
 void LLPreviewTexture::loadAsset()
 {
-	mImage = gImageList.getImage(mImageID, MIPMAP_FALSE, FALSE);
+	mImage = gImageList.getImage(mImageID, MIPMAP_TRUE, FALSE);
 	mImage->setBoostLevel(LLViewerImage::BOOST_PREVIEW);
 	mAssetStatus = PREVIEW_ASSET_LOADING;
 }

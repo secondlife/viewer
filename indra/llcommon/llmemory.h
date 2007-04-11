@@ -174,6 +174,14 @@ public:
 		}
 		return *this; 
 	}
+	
+	// Just exchange the pointers, which will not change the reference counts.
+	static void swap(LLPointer<Type>& a, LLPointer<Type>& b)
+	{
+		Type* temp = a.mPointer;
+		a.mPointer = b.mPointer;
+		b.mPointer = temp;
+	}
 
 protected:
 	void ref()                             

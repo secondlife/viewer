@@ -251,7 +251,6 @@ void LLScriptConstantString::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCom
 		break;
 	case LSCP_EMIT_ASSEMBLY:
 		fprintf(fp, "PUSHARGS \"%s\"\n", mValue);
-		fprintf(fp, "STACKTOS %lu\n", strlen(mValue) + 1);	/*Flawfinder: ignore*/
 		break;
 	case LSCP_TYPE:
 		type = mType;

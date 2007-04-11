@@ -328,13 +328,16 @@ BOOL idle_startup()
 		{
 			gViewerWindow->alertXml("DisplaySetToSafe");
 		}
-		else if (gSavedSettings.getS32("LastFeatureVersion") < gFeatureManagerp->getVersion())
+		else if ((gSavedSettings.getS32("LastFeatureVersion") < gFeatureManagerp->getVersion()) &&
+				 (gSavedSettings.getS32("LastFeatureVersion") != 0))
 		{
-			if (gSavedSettings.getS32("LastFeatureVersion") != 0)
-			{
-				gViewerWindow->alertXml("DisplaySetToRecommended");
-			}
+			gViewerWindow->alertXml("DisplaySetToRecommended");
 		}
+		else if (!gViewerWindow->getInitAlert().empty())
+		{
+			gViewerWindow->alertXml(gViewerWindow->getInitAlert());
+		}
+			
 		gSavedSettings.setS32("LastFeatureVersion", gFeatureManagerp->getVersion());
 
 		LLString xml_file = LLUI::locateSkin("xui_version.xml");

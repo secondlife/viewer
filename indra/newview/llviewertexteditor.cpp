@@ -1433,12 +1433,14 @@ BOOL LLViewerTextEditor::exportBuffer( LLString& buffer )
 {
 	LLNotecard nc(LLNotecard::MAX_SIZE);
 
-	std::vector<LLPointer<LLInventoryItem> > embedded_items;
-	mEmbeddedItemList->getEmbeddedItemList(embedded_items);
-	
-	nc.setItems(embedded_items);
+	// Get the embedded text and update the item list to just be the used items
 	nc.setText(getEmbeddedText());
 
+	// Now get the used items and copy the list to the notecard
+	std::vector<LLPointer<LLInventoryItem> > embedded_items;
+	mEmbeddedItemList->getEmbeddedItemList(embedded_items);	
+	nc.setItems(embedded_items);
+	
 	std::stringstream out_stream;
 	nc.exportStream(out_stream);
 	

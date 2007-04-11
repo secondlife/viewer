@@ -22,6 +22,8 @@ const U8 CLASSIFIED_QUERY_FILTER_MATURE		= 1 << 1;
 const U8 CLASSIFIED_QUERY_FILTER_ENABLED	= 1 << 2;
 const U8 CLASSIFIED_QUERY_FILTER_PRICE		= 1 << 3;
 
+const S32 MAX_CLASSIFIEDS = 100;
+
 ClassifiedFlags pack_classified_flags(BOOL is_mature, BOOL auto_renew);
 bool is_cf_mature(ClassifiedFlags flags);
 //bool is_cf_enabled(ClassifiedFlags flags);

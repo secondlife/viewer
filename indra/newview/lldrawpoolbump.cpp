@@ -16,6 +16,7 @@
 #include "llimagegl.h"
 #include "m3math.h"
 #include "m4math.h"
+#include "v4math.h"
 
 #include "llagent.h"
 #include "llcubemap.h"
@@ -182,6 +183,11 @@ void LLDrawPoolBump::render(S32 pass)
 {
 	LLFastTimer t(LLFastTimer::FTM_RENDER_BUMP);
 	
+	if (!gPipeline.hasRenderType(LLDrawPool::POOL_SIMPLE))
+	{
+		return;
+	}
+	
 	switch( pass )
 	{
 	  case 0:
@@ -237,7 +243,10 @@ void LLDrawPoolBump::beginShiny()
 		if (LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_OBJECT) > 0)
 		{
 			LLMatrix4 mat;
-			glGetFloatv(GL_MODELVIEW_MATRIX, (F32*) mat.mMatrix);
+			mat.initRows(LLVector4(gGLModelView+0),
+						 LLVector4(gGLModelView+4),
+						 LLVector4(gGLModelView+8),
+						 LLVector4(gGLModelView+12));
 			gObjectShinyProgram.bind();
 			LLVector3 vec = LLVector3(gShinyOrigin) * mat;
 			LLVector4 vec4(vec, gShinyOrigin.mV[3]);

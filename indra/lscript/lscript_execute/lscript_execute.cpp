@@ -3337,6 +3337,7 @@ BOOL run_cast(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 
 BOOL run_stacktos(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 {
+	offset++;
 	S32 length = lscript_pop_int(buffer);
 	S32 i;
 	char *arg = new char[length];

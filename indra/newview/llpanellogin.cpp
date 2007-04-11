@@ -382,7 +382,7 @@ BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 		if ( KEY_F1 == key )
 		{
 			llinfos << "Spawning HTML help window" << llendl;
-			LLHtmlHelp::show();
+			gViewerHtmlHelp.show();
 			return TRUE;
 		};
 			#if ! LL_RELEASE_FOR_DOWNLOAD

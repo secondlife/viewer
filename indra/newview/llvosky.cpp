@@ -169,7 +169,7 @@ inline F32 color_intens ( const LLColor4 &col )
 
 inline F32 color_avg ( const LLColor3 &col )
 {
-	return color_intens(col) / 3;
+	return color_intens(col) / 3.f;
 }
 
 inline void color_gamma_correct(LLColor3 &col)
@@ -756,7 +756,7 @@ LLColor3 LLVOSky::calcSkyColorInDir(const LLVector3 &dir)
 {
 	LLColor3 col, transp;
 
-	if (dir.mV[VZ] < -0.02)
+	if (dir.mV[VZ] < -0.02f)
 	{
 		col = LLColor3(llmax(mFogColor[0],0.2f), llmax(mFogColor[1],0.2f), llmax(mFogColor[2],0.27f));
 		float x = 1.0f-fabsf(-0.1f-dir.mV[VZ]);
@@ -806,15 +806,18 @@ void LLVOSky::calcSkyColorInDir(LLColor3& res, LLColor3& transp, const LLVector3
 	const F32 e_pow_k = (F32)LL_FAST_EXP(K);
 	F32 step = FIRST_STEP * (1 - 1 / e_pow_k);
 
+	// Initialize outside the loop because we write into them every iteration. JC
+	LLColor3 air_sca_opt_depth;
+	LLColor3 haze_sca_opt_depth;
+	LLColor3 air_transp;
+
 	for (S32 s = 0; s < NO_STEPS; ++s)
 	{
 		h = calcHeight(cur_pos);
 		step *= e_pow_k;
-		LLColor3 air_sca_opt_depth;
 		LLHaze::calcAirSca(h, air_sca_opt_depth);
 		air_sca_opt_depth *= step;
 
-		LLColor3 haze_sca_opt_depth;
 		mHaze.calcSigSca(h, haze_sca_opt_depth);
 		haze_sca_opt_depth *= step;
 
@@ -824,7 +827,6 @@ void LLVOSky::calcSkyColorInDir(LLColor3& res, LLColor3& transp, const LLVector3
 		if (calcHitsEarth(cur_pos, tosun) < 0) // calculates amount of in-scattered light from the sun
 		{
 			//visibility check is too expensive
-			LLColor3 air_transp;
 			mTransp.calcTransp(calcUpVec(cur_pos) * tosun, h, air_transp);
 			air_transp *= transp;
 			res += air_sca_opt_depth * air_transp;

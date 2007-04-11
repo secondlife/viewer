@@ -328,7 +328,7 @@ void LLTextBox::draw()
 void LLTextBox::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	// reparse line lengths
-	setText(mText);
+	setLineLengths();
 	LLView::reshape(width, height, called_from_parent);
 }
 

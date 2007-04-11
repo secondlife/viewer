@@ -219,8 +219,6 @@ void LLNetMap::draw()
 	mCurPanY = lerp(mCurPanY, mTargetPanY, LLCriticalDamp::getInterpolant(0.1f));
 
 	// Prepare a scissor region
-	// GLint params[4];
-	// glGetIntegerv( GL_SCISSOR_BOX, params );
 	F32 rotation = 0;
 
 	{

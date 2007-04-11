@@ -93,7 +93,7 @@ LLFloaterAbout::LLFloaterAbout()
 
 	// CPU
 	support.append("CPU: ");
-	support.append( gSysCPU.getCPUStringTerse() );
+	support.append( gSysCPU.getCPUString() );
 	support.append("\n");
 
 	U32 memory = gSysMemory.getPhysicalMemory() / 1024 / 1024;

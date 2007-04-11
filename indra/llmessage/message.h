@@ -26,16 +26,13 @@
 #include "llerror.h"
 #include "net.h"
 #include "string_table.h"
-#include "llptrskipmap.h"
 #include "llcircuit.h"
 #include "lltimer.h"
 #include "llpacketring.h"
 #include "llhost.h"
 #include "llpacketack.h"
-#include "doublelinkedlist.h"
 #include "message_prehash.h"
 #include "llstl.h"
-#include "lldarray.h"
 
 const U32 MESSAGE_MAX_STRINGS_LENGTH = 64;
 const U32 MESSAGE_NUMBER_OF_HASH_BUCKETS = 8192;
@@ -178,7 +175,6 @@ enum EMessageException
 typedef void (*msg_exception_callback)(LLMessageSystem*,void*,EMessageException);
 
 
-
 class LLMsgData;
 class LLMsgBlkData;
 class LLMessageTemplate;
@@ -306,6 +302,12 @@ public:
 	// Call the specified exception func, and return TRUE if a
 	// function was found and called. Otherwise return FALSE.
 	BOOL callExceptionFunc(EMessageException exception);
+
+	// Set a function that will be called once per packet processed with the 
+	// hashed message name and the time spent in the processing handler function
+	// measured in seconds.  JC
+	typedef void (*msg_timing_callback)(const char* hashed_name, F32 time, void* data);
+	void setTimingFunc(msg_timing_callback func, void* data = NULL);
 
 	// This method returns true if the code is in the circuit codes map.
 	BOOL isCircuitCodeKnown(U32 code) const;
@@ -734,16 +736,15 @@ private:
 	static F32 mTimeDecodesSpamThreshold;  // If mTimeDecodes is on, all this many seconds for each msg decode before spamming
 	static BOOL mTimeDecodes;  // Measure time for all message decodes if TRUE;
 
+	msg_timing_callback mTimingCallback;
+	void* mTimingCallbackData;
+
 	void init(); // ctor shared initialisation.
 };
 
 
 // external hook into messaging system
 extern LLMessageSystem	*gMessageSystem;
-//extern const char* MESSAGE_LOG_FILENAME;
-
-void encrypt_template(const char *src_name, const char *dest_name);
-BOOL decrypt_template(const char *src_name, const char *dest_name);
 
 // Must specific overall system version, which is used to determine
 // if a patch is available in the message template checksum verification.
@@ -1232,22 +1233,9 @@ inline void LLMessageSystem::getString(const char *block, const char *var, S32 b
 	s[buffer_size - 1] = '\0';
 }
 
-//-----------------------------------------------------------------------------
-// Transmission aliases
-//-----------------------------------------------------------------------------
-//inline S32 LLMessageSystem::sendMessage(U32 ip, U32 port, BOOL zero_code)
-//{
-//	return sendMessage(LLHost(ip, port), zero_code);
-//}
-
-//inline S32 LLMessageSystem::sendMessage(const char *ip_str, U32 port, BOOL zero_code)
-//{
-//	return sendMessage(LLHost(ip_str, port), zero_code);
-//}
-
-inline S32 LLMessageSystem::sendMessage(const U32 circuit)//, BOOL zero_code)
+inline S32 LLMessageSystem::sendMessage(const U32 circuit)
 {
-	return sendMessage(findHost(circuit));//, zero_code);
+	return sendMessage(findHost(circuit));
 }
 
 #endif

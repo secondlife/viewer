@@ -4612,6 +4612,13 @@ void LLViewerObject::setRegion(LLViewerRegion *regionp)
 	llassert(regionp);
 	mLatestRecvPacketID = 0;
 	mRegionp = regionp;
+
+	for (child_list_t::iterator i = getChildren().begin(); i != getChildren().end(); ++i)
+	{
+		LLViewerObject* child = *i;
+		child->setRegion(regionp);
+	}
+
 	setChanged(MOVED | SILHOUETTE);
 	updateDrawable(FALSE);
 }

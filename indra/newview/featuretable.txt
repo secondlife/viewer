@@ -153,21 +153,8 @@ RenderLighting		1	0
 RenderParticleCount	1	2048
 RenderTerrainDetail	1	0
 
-list GeForce3
+list ATI_Mobility_Radeon_X3xx
+VertexShaderEnable	1	0
 
-list ATI
-
-list Radeon8500
-RenderLighting		1	0
-RenderParticleCount	1	4096
-
-// Hacked to be paranoid "safe"
-list Radeon9700
-RenderParticleCount	1	4096
-
-// Hacked to be paranoid "safe"
-list MobilityRadeon9000
-RenderLighting		1	0
-RenderParticleCount	1	4096
-
-list GeForceFX
+list ATI_Mobility_Radeon_X6xx
+VertexShaderEnable	1	0

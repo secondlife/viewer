@@ -457,6 +457,24 @@ void LLTabContainerCommon::onPrevBtn( void* userdata )
 	self->mScrolled = FALSE;
 }
 
+
+void LLTabContainerCommon::onJumpFirstBtn( void* userdata )
+{
+	LLTabContainer* self = (LLTabContainer*) userdata;
+	
+	self->mScrollPos = 0;
+
+}
+
+
+void LLTabContainerCommon::onJumpLastBtn( void* userdata )
+{
+	LLTabContainer* self = (LLTabContainer*) userdata;
+
+	self->mScrollPos = self->mMaxScrollPos;
+}
+
+
 // static 
 void LLTabContainerCommon::onPrevBtnHeld( void* userdata )
 {
@@ -673,6 +691,8 @@ LLTabContainer::LLTabContainer(
 	LLTabContainerCommon(name, rect, pos, close_callback, callback_userdata, bordered),
 	mLeftArrowBtn(NULL),
 	mRightArrowBtn(NULL),
+	mJumpLeftArrowBtn(NULL),
+	mJumpRightArrowBtn(NULL),
 	mRightTabBtnOffset(0),
 	mMinTabWidth(TABCNTR_TAB_MIN_WIDTH),
 	mMaxTabWidth(TABCNTR_TAB_MAX_WIDTH),
@@ -689,6 +709,8 @@ LLTabContainer::LLTabContainer(
 	LLTabContainerCommon(name, rect_control, pos, close_callback, callback_userdata, bordered),
 	mLeftArrowBtn(NULL),
 	mRightArrowBtn(NULL),
+	mJumpLeftArrowBtn(NULL),
+	mJumpRightArrowBtn(NULL),
 	mRightTabBtnOffset(0),
 	mMinTabWidth(TABCNTR_TAB_MIN_WIDTH),
 	mMaxTabWidth(TABCNTR_TAB_MAX_WIDTH),
@@ -720,13 +742,34 @@ void LLTabContainer::initButtons()
 	S32 btn_top = (mTabPosition == TOP ) ? mRect.getHeight() - mTopBorderHeight : TABCNTR_ARROW_BTN_SIZE + 1;
 
 	LLRect left_arrow_btn_rect;
-	left_arrow_btn_rect.setLeftTopAndSize( LLPANEL_BORDER_WIDTH+1, btn_top + arrow_fudge, TABCNTR_ARROW_BTN_SIZE, TABCNTR_ARROW_BTN_SIZE );
+	left_arrow_btn_rect.setLeftTopAndSize( LLPANEL_BORDER_WIDTH+1+TABCNTR_ARROW_BTN_SIZE, btn_top + arrow_fudge, TABCNTR_ARROW_BTN_SIZE, TABCNTR_ARROW_BTN_SIZE );
+
+	LLRect jump_left_arrow_btn_rect;
+	jump_left_arrow_btn_rect.setLeftTopAndSize( LLPANEL_BORDER_WIDTH+1, btn_top + arrow_fudge, TABCNTR_ARROW_BTN_SIZE, TABCNTR_ARROW_BTN_SIZE );
 
 	S32 right_pad = TABCNTR_ARROW_BTN_SIZE + LLPANEL_BORDER_WIDTH + 1;
+
 	LLRect right_arrow_btn_rect;
-	right_arrow_btn_rect.setLeftTopAndSize( mRect.getWidth() - mRightTabBtnOffset - right_pad,
+	right_arrow_btn_rect.setLeftTopAndSize( mRect.getWidth() - mRightTabBtnOffset - right_pad - TABCNTR_ARROW_BTN_SIZE,
 											btn_top + arrow_fudge,
 											TABCNTR_ARROW_BTN_SIZE, TABCNTR_ARROW_BTN_SIZE );
+
+
+	LLRect jump_right_arrow_btn_rect;
+	jump_right_arrow_btn_rect.setLeftTopAndSize( mRect.getWidth() - mRightTabBtnOffset - right_pad,
+											btn_top + arrow_fudge,
+											TABCNTR_ARROW_BTN_SIZE, TABCNTR_ARROW_BTN_SIZE );
+
+	out_id = "UIImgBtnJumpLeftOutUUID";
+	in_id = "UIImgBtnJumpLeftInUUID";
+	mJumpLeftArrowBtn = new LLButton(
+		"Jump Left Arrow", jump_left_arrow_btn_rect,
+		out_id, in_id, "",
+		&LLTabContainer::onJumpFirstBtn, this, LLFontGL::sSansSerif );
+	mJumpLeftArrowBtn->setFollowsLeft();
+	mJumpLeftArrowBtn->setSaveToXML(false);
+	mJumpLeftArrowBtn->setTabStop(FALSE);
+	addChild(mJumpLeftArrowBtn);
 
 	out_id = "UIImgBtnScrollLeftOutUUID";
 	in_id = "UIImgBtnScrollLeftInUUID";
@@ -739,6 +782,18 @@ void LLTabContainer::initButtons()
 	mLeftArrowBtn->setSaveToXML(false);
 	mLeftArrowBtn->setTabStop(FALSE);
 	addChild(mLeftArrowBtn);
+	
+	out_id = "UIImgBtnJumpRightOutUUID";
+	in_id = "UIImgBtnJumpRightInUUID";
+	mJumpRightArrowBtn = new LLButton(
+		"Jump Right Arrow", jump_right_arrow_btn_rect,
+		out_id, in_id, "",
+		&LLTabContainer::onJumpLastBtn, this,
+		LLFontGL::sSansSerif);
+	mJumpRightArrowBtn->setFollowsRight();
+	mJumpRightArrowBtn->setSaveToXML(false);
+	mJumpRightArrowBtn->setTabStop(FALSE);
+	addChild(mJumpRightArrowBtn);
 
 	out_id = "UIImgBtnScrollRightOutUUID";
 	in_id = "UIImgBtnScrollRightInUUID";
@@ -753,15 +808,20 @@ void LLTabContainer::initButtons()
 	mRightArrowBtn->setTabStop(FALSE);
 	addChild(mRightArrowBtn);
 
+
 	if( mTabPosition == TOP )
 	{
 		mRightArrowBtn->setFollowsTop();
 		mLeftArrowBtn->setFollowsTop();
+		mJumpLeftArrowBtn->setFollowsTop();
+		mJumpRightArrowBtn->setFollowsTop();
 	}
 	else
 	{
 		mRightArrowBtn->setFollowsBottom();
 		mLeftArrowBtn->setFollowsBottom();
+		mJumpLeftArrowBtn->setFollowsBottom();
+		mJumpRightArrowBtn->setFollowsBottom();
 	}
 
 	// set default tab group to be panel contents
@@ -952,7 +1012,7 @@ void LLTabContainer::updateMaxScrollPos()
 
 	if( tab_space > available_space )
 	{
-		S32 available_width_with_arrows = mRect.getWidth() - mRightTabBtnOffset - 2 * (LLPANEL_BORDER_WIDTH + TABCNTR_ARROW_BTN_SIZE + 1);
+		S32 available_width_with_arrows = mRect.getWidth() - mRightTabBtnOffset - 2 * (LLPANEL_BORDER_WIDTH + TABCNTR_ARROW_BTN_SIZE  + TABCNTR_ARROW_BTN_SIZE + 1);
 		// subtract off reserved portion on left
 		available_width_with_arrows -= TABCNTR_TAB_PARTIAL_WIDTH;
 
@@ -1059,7 +1119,7 @@ BOOL LLTabContainer::selectTab(S32 which)
 				}
 				else
 				{
-					S32 available_width_with_arrows = mRect.getWidth() - mRightTabBtnOffset - 2 * (LLPANEL_BORDER_WIDTH + TABCNTR_ARROW_BTN_SIZE + 1);
+					S32 available_width_with_arrows = mRect.getWidth() - mRightTabBtnOffset - 2 * (LLPANEL_BORDER_WIDTH + TABCNTR_ARROW_BTN_SIZE  + TABCNTR_ARROW_BTN_SIZE + 1);
 					S32 running_tab_width = tuple->mButton->getRect().getWidth();
 					S32 j = i - 1;
 					S32 min_scroll_pos = i;
@@ -1101,7 +1161,7 @@ void LLTabContainer::draw()
 	S32 cur_scroll_pos = mScrollPos;
 	if (cur_scroll_pos > 0)
 	{
-		S32 available_width_with_arrows = mRect.getWidth() - mRightTabBtnOffset - 2 * (LLPANEL_BORDER_WIDTH + TABCNTR_ARROW_BTN_SIZE + 1);
+		S32 available_width_with_arrows = mRect.getWidth() - mRightTabBtnOffset - 2 * (LLPANEL_BORDER_WIDTH + TABCNTR_ARROW_BTN_SIZE  + TABCNTR_ARROW_BTN_SIZE + 1);
 		for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
 		{
 			if (cur_scroll_pos == 0)
@@ -1122,11 +1182,13 @@ void LLTabContainer::draw()
 	if( getVisible() )
 	{
 		BOOL has_scroll_arrows = (mMaxScrollPos > 0) || (mScrollPosPixels > 0);
+		mJumpLeftArrowBtn->setVisible( has_scroll_arrows );
+		mJumpRightArrowBtn->setVisible( has_scroll_arrows );
 		mLeftArrowBtn->setVisible( has_scroll_arrows );
 		mRightArrowBtn->setVisible( has_scroll_arrows );
 
 		// Set the leftmost position of the tab buttons.
-		S32 left = LLPANEL_BORDER_WIDTH + (has_scroll_arrows ? TABCNTR_ARROW_BTN_SIZE : TABCNTR_TAB_H_PAD);
+		S32 left = LLPANEL_BORDER_WIDTH + (has_scroll_arrows ? (TABCNTR_ARROW_BTN_SIZE * 2) : TABCNTR_TAB_H_PAD);
 		left -= mScrollPosPixels;
 
 		// Hide all the buttons
@@ -1215,7 +1277,19 @@ BOOL LLTabContainer::handleMouseDown( S32 x, S32 y, MASK mask )
 	BOOL has_scroll_arrows = (mMaxScrollPos > 0);
 
 	if (has_scroll_arrows)
-	{
+	{		
+		if (mJumpLeftArrowBtn->getRect().pointInRect(x, y))
+		{
+			S32 local_x = x - mJumpLeftArrowBtn->getRect().mLeft;
+			S32 local_y = y - mJumpLeftArrowBtn->getRect().mBottom;
+			handled = mJumpLeftArrowBtn->handleMouseDown(local_x, local_y, mask);
+		}
+		if (mJumpRightArrowBtn->getRect().pointInRect(x, y))
+		{
+			S32 local_x = x - mJumpRightArrowBtn->getRect().mLeft;
+			S32 local_y = y - mJumpRightArrowBtn->getRect().mBottom;
+			handled = mJumpRightArrowBtn->handleMouseDown(local_x, local_y, mask);
+		}
 		if (mLeftArrowBtn->getRect().pointInRect(x, y))
 		{
 			S32 local_x = x - mLeftArrowBtn->getRect().mLeft;
@@ -1237,9 +1311,9 @@ BOOL LLTabContainer::handleMouseDown( S32 x, S32 y, MASK mask )
 	if (mTabList.size() > 0)
 	{
 		LLTabTuple* firsttuple = mTabList[0];
-		LLRect tab_rect(has_scroll_arrows ? mLeftArrowBtn->getRect().mRight : mLeftArrowBtn->getRect().mLeft,
+		LLRect tab_rect(has_scroll_arrows ? mLeftArrowBtn->getRect().mRight : mJumpLeftArrowBtn->getRect().mLeft,
 						firsttuple->mButton->getRect().mTop,
-						has_scroll_arrows ? mRightArrowBtn->getRect().mLeft : mRightArrowBtn->getRect().mRight,
+						has_scroll_arrows ? mRightArrowBtn->getRect().mLeft : mJumpRightArrowBtn->getRect().mRight,
 						firsttuple->mButton->getRect().mBottom );
 		if( tab_rect.pointInRect( x, y ) )
 		{
@@ -1257,7 +1331,19 @@ BOOL LLTabContainer::handleHover( S32 x, S32 y, MASK mask )
 	BOOL has_scroll_arrows = (mMaxScrollPos > 0);
 
 	if (has_scroll_arrows)
-	{
+	{		
+		if (mJumpLeftArrowBtn->getRect().pointInRect(x, y))
+		{
+			S32 local_x = x - mJumpLeftArrowBtn->getRect().mLeft;
+			S32 local_y = y - mJumpLeftArrowBtn->getRect().mBottom;
+			handled = mJumpLeftArrowBtn->handleHover(local_x, local_y, mask);
+		}
+		if (mJumpRightArrowBtn->getRect().pointInRect(x, y))
+		{
+			S32 local_x = x - mJumpRightArrowBtn->getRect().mLeft;
+			S32 local_y = y - mJumpRightArrowBtn->getRect().mBottom;
+			handled = mJumpRightArrowBtn->handleHover(local_x, local_y, mask);
+		}
 		if (mLeftArrowBtn->getRect().pointInRect(x, y))
 		{
 			S32 local_x = x - mLeftArrowBtn->getRect().mLeft;
@@ -1287,6 +1373,18 @@ BOOL LLTabContainer::handleMouseUp( S32 x, S32 y, MASK mask )
 
 	if (has_scroll_arrows)
 	{
+		if (mJumpLeftArrowBtn->getRect().pointInRect(x, y))
+		{
+			S32 local_x = x - mJumpLeftArrowBtn->getRect().mLeft;
+			S32 local_y = y - mJumpLeftArrowBtn->getRect().mBottom;
+			handled = mJumpLeftArrowBtn->handleMouseUp(local_x, local_y, mask);
+		}		
+		if (mJumpRightArrowBtn->getRect().pointInRect(x,	y))
+		{
+			S32	local_x	= x	- mJumpRightArrowBtn->getRect().mLeft;
+			S32	local_y	= y	- mJumpRightArrowBtn->getRect().mBottom;
+			handled = mJumpRightArrowBtn->handleMouseUp(local_x,	local_y, mask);
+		}
 		if (mLeftArrowBtn->getRect().pointInRect(x, y))
 		{
 			S32 local_x = x - mLeftArrowBtn->getRect().mLeft;
@@ -1332,7 +1430,7 @@ BOOL LLTabContainer::handleToolTip( S32 x, S32 y, LLString& msg, LLRect* sticky_
 
 		BOOL has_scroll_arrows = (mMaxScrollPos > 0);
 		LLRect clip(
-			has_scroll_arrows ? mLeftArrowBtn->getRect().mRight : mLeftArrowBtn->getRect().mLeft,
+			has_scroll_arrows ? mJumpLeftArrowBtn->getRect().mRight : mJumpLeftArrowBtn->getRect().mLeft,
 			firsttuple->mButton->getRect().mTop,
 			has_scroll_arrows ? mRightArrowBtn->getRect().mLeft : mRightArrowBtn->getRect().mRight,
 			0 );
@@ -1438,6 +1536,18 @@ BOOL LLTabContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,	BOOL drop,	EDrag
 
 	if (has_scroll_arrows)
 	{
+		if (mJumpLeftArrowBtn->getRect().pointInRect(x,	y))
+		{
+			S32	local_x	= x	- mJumpLeftArrowBtn->getRect().mLeft;
+			S32	local_y	= y	- mJumpLeftArrowBtn->getRect().mBottom;
+			mJumpLeftArrowBtn->handleHover(local_x,	local_y, mask);
+		}
+		if (mJumpRightArrowBtn->getRect().pointInRect(x,	y))
+		{
+			S32	local_x	= x	- mJumpRightArrowBtn->getRect().mLeft;
+			S32	local_y	= y	- mJumpRightArrowBtn->getRect().mBottom;
+			mJumpRightArrowBtn->handleHover(local_x,	local_y, mask);
+		}
 		if (mLeftArrowBtn->getRect().pointInRect(x,	y))
 		{
 			S32	local_x	= x	- mLeftArrowBtn->getRect().mLeft;

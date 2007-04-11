@@ -22,6 +22,13 @@
 #define LL_BIG_ENDIAN 1
 #endif
 
+// Per-compiler switches
+#ifdef __GNUC__
+#define LL_FORCE_INLINE inline __attribute__((always_inline))
+#else
+#define LL_FORCE_INLINE __forceinline
+#endif
+
 // Per-OS feature switches.
 
 #if LL_DARWIN

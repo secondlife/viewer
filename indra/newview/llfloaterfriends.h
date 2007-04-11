@@ -53,7 +53,14 @@ public:
 	// Toggles visibility of floater
 	static void toggle(void* unused = NULL);
 
-	static void requestFriendship(const LLUUID& target_id, const LLString& target_name);
+	// Show a dialog explaining what friendship entails, then request
+	// friendship. JC
+	static void requestFriendshipDialog(const LLUUID& target_id, 
+										const std::string& target_name);
+
+	// Just request friendship, no dialog.
+	static void requestFriendship(const LLUUID& target_id,
+								  const LLString& target_name);
 
 private:
 

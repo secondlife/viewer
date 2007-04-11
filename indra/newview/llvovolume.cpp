@@ -257,60 +257,41 @@ void LLVOVolume::animateTextures()
 		
 		for (S32 i = start; i <= end; i++)
 		{
-			LLQuaternion quat;
-			LLVector3 scale(1,1,1);
-			
 			LLFace* facep = mDrawable->getFace(i);
 			const LLTextureEntry* te = facep->getTextureEntry();
-			LLMatrix4& tex_mat = facep->mTextureMatrix;
 			
 			if (!te)
 			{
 				continue;
 			}
+		
 			if (!(result & LLViewerTextureAnim::ROTATE))
 			{
 				te->getRotation(&rot);
 			}
-
-			{
-				F32 axis = -1;
-				F32 s,t;	
-				te->getScale(&s,&t);
-				if (s < 0)
-				{
-					axis = -axis;
-				}
-				if (t < 0)
-				{
-					axis = -axis;
-				}
-				quat.setQuat(rot, 0, 0, axis);
-			}
-			
 			if (!(result & LLViewerTextureAnim::TRANSLATE))
 			{
 				te->getOffset(&off_s,&off_t);
 			}			
-
-			LLVector3 trans(off_s+0.5f, off_t+0.5f, 0.f);
-
-			tex_mat.identity();
-			tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
-			tex_mat.rotate(quat);				
-
 			if (!(result & LLViewerTextureAnim::SCALE))
 			{
 				te->getScale(&scale_s, &scale_t);
 			}
-	
-			{
-				scale.setVec(scale_s, scale_t, 1.f);
-				LLMatrix4 mat;
-				mat.initAll(scale, LLQuaternion(), LLVector3());
-				tex_mat *= mat;
-			}
 
+			LLVector3 scale(scale_s, scale_t, 1.f);
+			LLVector3 trans(off_s+0.5f, off_t+0.5f, 0.f);
+			LLQuaternion quat;
+			quat.setQuat(rot, 0, 0, -1.f);
+		
+			LLMatrix4& tex_mat = facep->mTextureMatrix;
+			tex_mat.identity();
+			tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
+			tex_mat.rotate(quat);				
+
+			LLMatrix4 mat;
+			mat.initAll(scale, LLQuaternion(), LLVector3());
+			tex_mat *= mat;
+		
 			tex_mat.translate(trans);
 		}
 	}

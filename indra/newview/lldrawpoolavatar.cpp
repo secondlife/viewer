@@ -79,7 +79,6 @@ LLDrawPool *LLDrawPoolAvatar::instancePool()
 }
 
 BOOL gRenderAvatar = TRUE;
-static LLMatrix4 sModelViewMatrix = LLMatrix4();
 
 S32 LLDrawPoolAvatar::getVertexShaderLevel() const
 {
@@ -103,7 +102,14 @@ void LLDrawPoolAvatar::prerender()
 
 LLMatrix4& LLDrawPoolAvatar::getModelView()
 {
-	return sModelViewMatrix;
+	static LLMatrix4 ret;
+
+	ret.initRows(LLVector4(gGLModelView+0),
+				 LLVector4(gGLModelView+4),
+				 LLVector4(gGLModelView+8),
+				 LLVector4(gGLModelView+12));
+
+	return ret;
 }
 
 //-----------------------------------------------------------------------------
@@ -132,7 +138,6 @@ void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 		beginFootShadow();
 		break;
 	case 1:
-		glGetFloatv(GL_MODELVIEW_MATRIX, (F32*) sModelViewMatrix.mMatrix);
 		beginRigid();
 		break;
 	case 2:
@@ -507,7 +512,6 @@ void LLDrawPoolAvatar::renderForSelect()
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glGetFloatv(GL_MODELVIEW_MATRIX, (F32*) sModelViewMatrix.mMatrix);
 	sVertexProgram = &gAvatarPickProgram;
 	if (sShaderLevel > 0)
 	{

@@ -1450,6 +1450,8 @@ LLViewerWindow::LLViewerWindow(
 	
 	LLFontManager::initClass();
 
+	// Initialize OpenGL Renderer
+
 	if (!gFeatureManagerp->isFeatureAvailable("RenderVBO") ||
 		!gGLManager.mHasVertexBufferObject)
 	{
@@ -1475,16 +1477,30 @@ LLViewerWindow::LLViewerWindow(
 		idx = LLViewerImageList::getMaxVideoRamSetting(-2); // get max recommended setting
 		gSavedSettings.setS32("GraphicsCardMemorySetting", idx);
 	}
-	
+
+	// If we crashed while initializng GL stuff last time, disable certain features
+	if (gSavedSettings.getBOOL("RenderInitError"))
+	{
+		mInitAlert = "DisplaySettingsNoShaders";
+		gSavedSettings.setBOOL("VertexShaderEnable", FALSE);
+	}
+		
 	if (!gNoRender)
 	{
 		//
 		// Initialize GL stuff
 		//
 
+		// Set this flag in case we crash while initializing GL
+		gSavedSettings.setBOOL("RenderInitError", TRUE);
+		gSavedSettings.saveToFile( gSettingsFileName, TRUE );
+	
 		gPipeline.init();
 		stop_glerror();
 		initGLDefaults();
+
+		gSavedSettings.setBOOL("RenderInitError", FALSE);
+		gSavedSettings.saveToFile( gSettingsFileName, TRUE );
 	}
 
 	//
@@ -1531,6 +1547,7 @@ LLViewerWindow::LLViewerWindow(
 	gSavedSettings.getControl("NumpadControl")->firePropertyChanged();
 
 	mDebugText = new LLDebugText(this);
+
 }
 
 void LLViewerWindow::initGLDefaults()

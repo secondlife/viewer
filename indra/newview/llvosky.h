@@ -42,19 +42,12 @@ const F32 INV_NO_STEPS = 1.f/NO_STEPS;
 
 // constants used in calculation of scattering coeff of clear air
 const F32 sigma		= 0.035f;
-const F32 fsigma	= (6+3*sigma)/(6.f-7.f*sigma);
+const F32 fsigma	= (6.f + 3.f * sigma) / (6.f-7.f*sigma);
 const F64 Ndens		= 2.55e25;
 const F64 Ndens2	= Ndens*Ndens;
 
-// !!! *FIX: This #define should be in llcommon somewhere...
-// We should not be #defining anything with leading underscores and
-// much less double leading underscores since that is always vendor
-// specific. Change this to something like LL_FORCE_INLINE.
-#ifdef __GNUC__
-#define __forceinline inline __attribute__((always_inline))
-#endif
 
-__forceinline LLColor3 color_div(const LLColor3 &col1, const LLColor3 &col2)
+LL_FORCE_INLINE LLColor3 color_div(const LLColor3 &col1, const LLColor3 &col2)
 {
 	return LLColor3( 
 		col1.mV[0] / col2.mV[0],
@@ -121,7 +114,7 @@ private:
 public:
 	static F32 getInterpVal()					{ return sInterpVal; }
 	static void setInterpVal(const F32 v)		{ sInterpVal = v; }
-	static BOOL doInterpolate()					{ return sInterpVal > 0.001; }
+	static BOOL doInterpolate()					{ return sInterpVal > 0.001f; }
 
 	void bindTexture(BOOL curr = TRUE);
 	
@@ -292,7 +285,7 @@ public:
 };
 
 
-__forceinline LLColor3 refr_ind_calc(const LLColor3 &wave_length)
+LL_FORCE_INLINE LLColor3 refr_ind_calc(const LLColor3 &wave_length)
 {
 	LLColor3 refr_ind;
 	for (S32 i = 0; i < 3; ++i)
@@ -306,7 +299,7 @@ __forceinline LLColor3 refr_ind_calc(const LLColor3 &wave_length)
 }
 
 
-__forceinline LLColor3 calc_air_sca_sea_level()
+LL_FORCE_INLINE LLColor3 calc_air_sca_sea_level()
 {
 	const static LLColor3 WAVE_LEN(675, 520, 445);
 	const static LLColor3 refr_ind = refr_ind_calc(WAVE_LEN);

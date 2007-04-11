@@ -82,7 +82,6 @@ void LLDrawable::init()
 	mVObjp   = NULL;
 	// mFaces
 	mSpatialGroupp = NULL;
-	mSpatialGroupOffset = -1;
 	mVisible = 0;
 	mRadius = 0.f;
 	mSunShadowFactor = 1.f;
@@ -1026,18 +1025,13 @@ void LLDrawable::updateUVMinMax()
 {
 }
 
-void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp, const S32 offset)
+void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 {
-	mSpatialGroupp = groupp;
-	
-	if (mSpatialGroupp)
+	if (mSpatialGroupp && (groupp != mSpatialGroupp))
 	{
-		mSpatialGroupOffset = offset;
+		mSpatialGroupp->setState(LLSpatialGroup::GEOM_DIRTY);
 	}
-	else
-	{
-		mSpatialGroupOffset = -1;
-	}	
+	mSpatialGroupp = groupp;
 }
 
 LLSpatialPartition* LLDrawable::getSpatialPartition()
@@ -1411,13 +1405,13 @@ void LLSpatialBridge::cleanupReferences()
 	LLDrawable::cleanupReferences();
 	if (mDrawable)
 	{
-		mDrawable->setSpatialGroup(NULL, -1);
+		mDrawable->setSpatialGroup(NULL);
 		for (U32 i = 0; i < mDrawable->getChildCount(); i++)
 		{
 			LLDrawable* drawable = mDrawable->getChild(i);
-			if (drawable && drawable->getVOVolume())
+			if (drawable)
 			{
-				drawable->setSpatialGroup(NULL, -1);
+				drawable->setSpatialGroup(NULL);
 			}
 		}
 

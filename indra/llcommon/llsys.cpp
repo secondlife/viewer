@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <zlib/zlib.h>
+
 #include "processor.h"
 
 #if LL_WINDOWS
@@ -289,50 +290,28 @@ LLCPUInfo::LLCPUInfo()
 	mFamily.assign( info->strFamily );
 }
 
+
 std::string LLCPUInfo::getCPUString() const
 {
-	std::string cpu_string;
-
 #if LL_WINDOWS || LL_DARWIN
-	// gather machine information.
-	char proc_buf[CPUINFO_BUFFER_SIZE];		/* Flawfinder: ignore */
+	std::ostringstream out;
+
 	CProcessor proc;
-	if(proc.CPUInfoToText(proc_buf, CPUINFO_BUFFER_SIZE))
-	{
-		cpu_string.append(proc_buf);
-	}
-#else
-	cpu_string.append("Can't get CPU information");
-#endif
-
-	return cpu_string;
-}
-
-std::string LLCPUInfo::getCPUStringTerse() const
-{
-	std::string cpu_string;
-
-#if LL_WINDOWS || LL_DARWIN
-	CProcessor proc;
-	const ProcessorInfo *info = proc.GetCPUInfo();
-
-	cpu_string.append(info->strBrandID);
+	(void) proc.GetCPUInfo();
+	out << proc.strCPUName << " ";
 	
-	F64 freq = (F64)(S64)proc.GetCPUFrequency(50) / 1000000.f;
+	F32 freq = (F32)(proc.GetCPUFrequency(50) / 1000000.0);
 
 	// cpu speed is often way wrong, do a sanity check
-	if (freq < 10000.f && freq > 200.f )
+	if (200.f < freq && freq < 10000.f)
 	{
-		char tmp[MAX_STRING];		/* Flawfinder: ignore */
-		snprintf(tmp, sizeof(tmp), " (%.0f Mhz)", freq);	/* Flawfinder: ignore */
-
-		cpu_string.append(tmp);
+		out << "(" << (S32)(freq) << " MHz)";
 	}
-#else
-	cpu_string.append("Can't get terse CPU information");
-#endif
 
-	return cpu_string;
+	return out.str();
+#else
+	return "Can't get terse CPU information";
+#endif
 }
 
 void LLCPUInfo::stream(std::ostream& s) const

@@ -1560,7 +1560,17 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				return;
 			}
-			
+
+			// System messages, specifically "Foo Bar has left this session"
+			// are not shown unless you actually have that session open.
+			// Band-aid.  JC
+			if (offline == IM_ONLINE
+				&& chat.mFromName == SYSTEM_FROM
+				&& !gIMView->hasSession(session_id))
+			{
+				return;
+			}
+
 			// standard message, not from system
 			char saved[MAX_STRING];		/* Flawfinder: ignore */
 			saved[0] = '\0';

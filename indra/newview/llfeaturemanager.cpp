@@ -173,7 +173,7 @@ BOOL LLFeatureManager::maskFeatures(const char *name)
 	LLFeatureList *maskp = findMask(name);
 	if (!maskp)
 	{
-		llwarns << "Unknown feature mask " << name << llendl;
+// 		llwarns << "Unknown feature mask " << name << llendl;
 		return FALSE;
 	}
 	llinfos << "Applying Feature Mask: " << name << llendl;
@@ -431,14 +431,6 @@ void LLFeatureManager::initGraphicsFeatureMasks()
 	{
 		maskFeatures("ATI");
 	}
-	if (gGLManager.mIsRadeon8500)
-	{
-		maskFeatures("Radeon8500");
-	}
-	if (gGLManager.mIsRadeon9700)
-	{
-		maskFeatures("Radeon9700");
-	}
 	if (gGLManager.mIsGFFX)
 	{
 		maskFeatures("GeForceFX");
@@ -451,11 +443,18 @@ void LLFeatureManager::initGraphicsFeatureMasks()
 	{
 		maskFeatures("OpenGLPre15");
 	}
-
-	if (gGLManager.mIsMobilityRadeon9000)
+	// Replaces ' ' with '_' in mGPUString to deal with inability for parser to handle spaces
+	std::string gpustr = mGPUString;
+	for (std::string::iterator iter = gpustr.begin(); iter != gpustr.end(); ++iter)
 	{
-		maskFeatures("MobilityRadeon9000");
+		if (*iter == ' ')
+		{
+			*iter = '_';
+		}
 	}
+// 	llinfos << "Masking features from gpu table match: " << gpustr << llendl;
+	maskFeatures(gpustr.c_str());
+
 	if (isSafe())
 	{
 		maskFeatures("safe");

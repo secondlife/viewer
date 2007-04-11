@@ -790,6 +790,7 @@ BOOL LLMotionController::activateMotion(LLMotion *motion, F32 time)
 		motion->mSendStopTimestamp = F32_MAX;
 	}
 
+	mActiveMotions.remove(motion); // in case it is already in the active list
 	mActiveMotions.push_front(motion);
 
 	motion->activate();

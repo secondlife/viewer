@@ -125,7 +125,9 @@ public:
 	void			getTargetWindow(BOOL& fullscreen, S32& width, S32& height) const;
 		// The 'target' is where the user wants the window to be. It may not be
 		// there yet, because we may be supressing fullscreen prior to login.
-		
+
+	const LLString&	getInitAlert() { return mInitAlert; }
+	
 	//
 	// MANIPULATORS
 	//
@@ -319,6 +321,8 @@ protected:
 	BOOL			mIgnoreActivate;
 	U8*				mPickBuffer;
 
+	LLString		mInitAlert;			// Window / GL initialization requires an alert
+	
 	class LLDebugText* mDebugText; // Internal class for debug text
 
 protected:

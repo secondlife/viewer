@@ -230,13 +230,13 @@ void LLViewerPartGroup::removePart(const S32 part_num)
 void LLViewerPartGroup::updateParticles(const F32 dt)
 {
 	LLMemType mt(LLMemType::MTYPE_PARTICLES);
-	S32 i, count;
+	S32 i;
 	
 	LLVector3 gravity(0.f, 0.f, -9.8f);
 
 	LLViewerRegion *regionp = getRegion();
-	count = (S32) mParticles.size();
-	for (i = 0; i < count; i++)
+	S32 end = (S32) mParticles.size();
+	for (i = 0; i < end; i++)
 	{
 		LLVector3 a(0.f, 0.f, 0.f);
 		LLViewerPart& part = *((LLViewerPart*) mParticles[i]);
@@ -345,9 +345,8 @@ void LLViewerPartGroup::updateParticles(const F32 dt)
 		// Kill dead particles (either flagged dead, or too old)
 		if ((part.mLastUpdateTime > part.mMaxAge) || (LLViewerPart::LL_PART_DEAD_MASK == part.mFlags))
 		{
-			removePart(i);
-			i--;
-			count--;
+			end--;
+			LLPointer<LLViewerPart>::swap(mParticles[i], mParticles[end]);
 		}
 		else 
 		{
@@ -356,13 +355,24 @@ void LLViewerPartGroup::updateParticles(const F32 dt)
 			{
 				// Transfer particles between groups
 				gWorldPointer->mPartSim.put(&part);
-				removePart(i);
-				i--;
-				count--;
+				end--;
+				LLPointer<LLViewerPart>::swap(mParticles[i], mParticles[end]);
 			}
 		}
 	}
 
+	S32 removed = (S32)mParticles.size() - end;
+	if (removed > 0)
+	{
+		// we removed one or more particles, so flag this group for update
+		mParticles.erase(mParticles.begin() + end, mParticles.end());
+		if (mVOPartGroupp.notNull())
+		{
+			gPipeline.markRebuild(mVOPartGroupp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+		}
+		LLViewerPartSim::decPartCount(removed);
+	}
+	
 	// Kill the viewer object if this particle group is empty
 	if (mParticles.empty())
 	{

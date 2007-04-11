@@ -181,6 +181,8 @@ LLPipeline::LLPipeline() :
 void LLPipeline::init()
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
+
+	mInitialized = TRUE;
 	
 	stop_glerror();
 
@@ -1466,7 +1468,7 @@ void renderScriptedBeacons(LLDrawable* drawablep)
 		&& !vobj->getParent()
 		&& vobj->flagScripted())
 	{
-		gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", LLColor4(1.f, 0.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f));
+		gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", LLColor4(1.f, 0.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f), gSavedSettings.getS32("DebugBeaconLineWidth"));
 	}
 }
 
@@ -1478,7 +1480,7 @@ void renderPhysicalBeacons(LLDrawable* drawablep)
 		&& !vobj->getParent()
 		&& vobj->usePhysics())
 	{
-		gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", LLColor4(0.f, 1.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f));
+		gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", LLColor4(0.f, 1.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f), gSavedSettings.getS32("DebugBeaconLineWidth"));
 	}
 }
 
@@ -1490,7 +1492,7 @@ void renderParticleBeacons(LLDrawable* drawablep)
 		&& vobj->isParticleSource())
 	{
 		LLColor4 light_blue(0.5f, 0.5f, 1.f, 0.5f);
-		gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", light_blue, LLColor4(1.f, 1.f, 1.f, 0.5f));
+		gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", light_blue, LLColor4(1.f, 1.f, 1.f, 0.5f), gSavedSettings.getS32("DebugBeaconLineWidth"));
 	}
 }
 
@@ -1711,7 +1713,7 @@ void LLPipeline::postSort(LLCamera& camera)
 			LLVector3d pos_global = sourcep->getPositionGlobal();
 			LLVector3 pos = gAgent.getPosAgentFromGlobal(pos_global);
 			//pos += LLVector3(0.f, 0.f, 0.2f);
-			gObjectList.addDebugBeacon(pos, "", LLColor4(1.f, 1.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f));
+			gObjectList.addDebugBeacon(pos, "", LLColor4(1.f, 1.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f), gSavedSettings.getS32("DebugBeaconLineWidth"));
 		}
 	}
 
@@ -1976,6 +1978,7 @@ void LLPipeline::renderGeom(LLCamera& camera)
 					}
 					poolp->endRenderPass(i);
 #ifndef LL_RELEASE_FOR_DOWNLOAD
+#if LL_DEBUG_GL
 					GLint depth;
 					glGetIntegerv(GL_MODELVIEW_STACK_DEPTH, &depth);
 					if (depth > 3)
@@ -1985,6 +1988,7 @@ void LLPipeline::renderGeom(LLCamera& camera)
 					LLGLState::checkStates();
 					LLGLState::checkTextureChannels();
 					LLGLState::checkClientArrays();
+#endif
 #endif
 				}
 			}
@@ -3874,14 +3878,14 @@ void LLPipeline::bindScreenToTexture()
 {
 	LLGLEnable gl_texture_2d(GL_TEXTURE_2D);
 
+	GLint* viewport = (GLint*) gGLViewport;
+	GLuint resX = nhpo2(viewport[2]);
+	GLuint resY = nhpo2(viewport[3]);
+
 	if (mScreenTex == 0)
 	{
 		glGenTextures(1, &mScreenTex);
 		glBindTexture(GL_TEXTURE_2D, mScreenTex);
-		GLint viewport[4];
-		glGetIntegerv(GL_VIEWPORT, viewport);
-		GLuint resX = nhpo2(viewport[2]);
-		GLuint resY = nhpo2(viewport[3]);
 		
 		gImageList.updateMaxResidentTexMem(-1, resX*resY*3);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, resX, resY, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
@@ -3891,11 +3895,6 @@ void LLPipeline::bindScreenToTexture()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
-
-	GLint viewport[4];
-	glGetIntegerv(GL_VIEWPORT, viewport);
-	GLuint resX = nhpo2(viewport[2]);
-	GLuint resY = nhpo2(viewport[3]);
 
 	glBindTexture(GL_TEXTURE_2D, mScreenTex);
 	GLint cResX;
@@ -4027,4 +4026,3 @@ void LLPipeline::renderBloom(GLuint source, GLuint dest, GLuint buffer, U32 res,
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 }
-

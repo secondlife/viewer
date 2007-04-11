@@ -10,6 +10,7 @@
 
 #include "llpanelavatar.h"
 
+#include "llclassifiedflags.h"
 #include "llfontgl.h"
 #include "llcachename.h"
 
@@ -24,6 +25,8 @@
 #include "llcallingcard.h"
 #include "llcheckboxctrl.h"
 #include "llfloater.h"
+
+#include "llfloaterfriends.h"
 #include "llfloatergroupinfo.h"
 #include "llfloaterworldmap.h"
 #include "llfloatermute.h"
@@ -446,7 +449,8 @@ BOOL LLPanelAvatarSecondLife::postBuild(void)
 
 	childSetAction("Show on Map", LLPanelAvatar::onClickTrack, getPanelAvatar());
 	childSetAction("Instant Message...", LLPanelAvatar::onClickIM, getPanelAvatar());
-	childSetAction("Rate...", LLPanelAvatar::onClickRate, getPanelAvatar());
+	//childSetAction("Rate...", LLPanelAvatar::onClickRate, getPanelAvatar());
+	childSetAction("Add Friend...", LLPanelAvatar::onClickAddFriend, getPanelAvatar());
 	childSetAction("Pay...", LLPanelAvatar::onClickPay, getPanelAvatar());
 	childSetAction("Mute", LLPanelAvatar::onClickMute, getPanelAvatar() );	
 
@@ -839,9 +843,9 @@ void LLPanelAvatarClassified::refresh()
 	
 	S32 tab_count = tabs ? tabs->getTabCount() : 0;
 
-	BOOL allow_new = TRUE; //tab_count < MAX_CLASSIFIEDS;
-	BOOL allow_delete = (tab_count > 0);
-	BOOL show_help = (tab_count == 0);
+	bool allow_new = tab_count < MAX_CLASSIFIEDS;
+	bool allow_delete = (tab_count > 0);
+	bool show_help = (tab_count == 0);
 
 	childSetEnabled("New...",self && allow_new);
 	childSetEnabled("Delete...",self && allow_delete);
@@ -904,9 +908,8 @@ void LLPanelAvatarClassified::processAvatarClassifiedReply(LLMessageSystem* msg,
 
 	LLTabContainerCommon* tabs = LLViewerUICtrlFactory::getTabContainerByName(this,"classified tab");
 
-	// Clear out all the old panels.
-	// We'll replace them with the correct number of new panels.
-	deleteClassifiedPanels();
+	// Don't remove old panels.  We need to be able to process multiple
+	// packets for people who have lots of classifieds. JC
 
 	block_count = msg->getNumberOfBlocksFast(_PREHASH_Data);
 	for (block = 0; block < block_count; block++)
@@ -1434,6 +1437,8 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id, const LLString &name,
 			childSetEnabled("Show on Map",FALSE);
 			childSetVisible("Rate...",FALSE);
 			childSetEnabled("Rate...",FALSE);
+			childSetVisible("Add Friend...",FALSE);
+			childSetEnabled("Add Friend...",FALSE);
 			childSetVisible("Pay...",FALSE);
 			childSetEnabled("Pay...",FALSE);
 		}
@@ -1472,6 +1477,8 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id, const LLString &name,
 			}
 			childSetVisible("Rate...",TRUE);
 			childSetEnabled("Rate...",FALSE);
+			childSetVisible("Add Friend...", true);
+			childSetEnabled("Add Friend...", true);
 			childSetVisible("Pay...",TRUE);
 			childSetEnabled("Pay...",FALSE);
 		}
@@ -1578,6 +1585,18 @@ void LLPanelAvatar::onClickRate(void *userdata)
 	LLPanelAvatar* self = (LLPanelAvatar*) userdata;
 
 	LLFloaterRate::show(self->mAvatarID);
+}
+
+// static
+void LLPanelAvatar::onClickAddFriend(void* userdata)
+{
+	LLPanelAvatar* self = (LLPanelAvatar*) userdata;
+	LLNameEditor* name_edit = LLViewerUICtrlFactory::getNameEditorByName(self->mPanelSecondLife, "name");	
+	if (name_edit)
+	{
+		LLFloaterFriends::requestFriendshipDialog(self->getAvatarID(),
+												  name_edit->getText());
+	}
 }
 
 //-----------------------------------------------------------------------------

@@ -1237,11 +1237,6 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	item = new LLMenuItemCheckGL("Cheesy Beacon", menu_toggle_control, NULL, menu_check_control, (void*)"CheesyBeacon");
 	menu->append(item);
 	
-#if 0 // 1.9.2
-	item = new LLMenuItemCheckGL("Vertex Shaders", toggle_vertex_shaders, NULL, check_vertex_shaders, (void*)"VertexShaderEnable", 'V', MASK_CONTROL|MASK_ALT);
-	item->setEnabled(gGLManager.mHasVertexShader);
-	menu->append(item);
-#endif
 	menu->createJumpKeys();
 }
 
@@ -6481,7 +6476,7 @@ class LLShowFloater : public view_listener_t
 		else if (floater_name == "help f1")
 		{
 #if LL_LIBXUL_ENABLED
-			LLHtmlHelp::show();
+			gViewerHtmlHelp.show();
 #endif
 		}
 		else if (floater_name == "help in-world")

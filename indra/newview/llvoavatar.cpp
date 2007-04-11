@@ -6329,7 +6329,7 @@ BOOL LLVOAvatar::getLocalTextureRaw(S32 index, LLImageRaw* image_raw)
 		}
 		else
 		{
-			if( mLocalTexture[ index ]->readBackRaw(-1, image_raw) )
+			if( mLocalTexture[ index ]->readBackRaw(-1, image_raw, false) )
 			{
 				success = TRUE;
 			}
@@ -9184,7 +9184,7 @@ void LLVOAvatar::writeCAL3D(std::string& path, std::string& file_base)
 			continue;
 		}
 		LLPointer<LLImageRaw> raw_image = new LLImageRaw;
-		viewer_imagep->readBackRaw(-1, raw_image);
+		viewer_imagep->readBackRaw(-1, raw_image, false);
 		BOOL success = tga_image->encode(raw_image);
 		success = tga_image->save(filename);
 	}
@@ -9199,7 +9199,7 @@ void LLVOAvatar::writeCAL3D(std::string& path, std::string& file_base)
 	else
 	{
 		LLPointer<LLImageRaw> raw_image = new LLImageRaw;
-		viewer_imagep->readBackRaw(-1, raw_image);
+		viewer_imagep->readBackRaw(-1, raw_image, false);
 		BOOL success = tga_image->encode(raw_image);
 		success = tga_image->save(filename);
 	}

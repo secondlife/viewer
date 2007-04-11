@@ -289,6 +289,7 @@ public:
 	static void onClickOfferTeleport(	void *userdata);
 	static void onClickPay(	void *userdata);
 	static void onClickRate(	void *userdata);
+	static void onClickAddFriend(void* userdata);
 	static void onClickOK(		void *userdata);
 	static void onClickCancel(	void *userdata);
 	static void onClickKick(	void *userdata);
@@ -296,7 +297,6 @@ public:
 	static void onClickUnfreeze(void *userdata);
 	static void onClickCSR(		void *userdata);
 	static void onClickMute(	void *userdata);
-	static void onClickAddFriend(void* data);
 
 	static void finishKick(S32 option, const LLString& text, void* userdata);
 	static void finishFreeze(S32 option, const LLString& text, void* userdata);

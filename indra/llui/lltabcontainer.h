@@ -109,6 +109,8 @@ public:
 	static void	onNextBtnHeld(void* userdata);
 	static void	onPrevBtn(void* userdata);
 	static void	onPrevBtnHeld(void* userdata);
+	static void onJumpFirstBtn( void* userdata );
+	static void onJumpLastBtn( void* userdata );
 
 	virtual void		setRightTabBtnOffset( S32 offset ) { }
 	virtual void		setPanelTitle(S32 index, const LLString& title) { }
@@ -223,7 +225,9 @@ public:
 protected:
 
 	LLButton*						mLeftArrowBtn;
+	LLButton*						mJumpLeftArrowBtn;
 	LLButton*						mRightArrowBtn;
+	LLButton*						mJumpRightArrowBtn;
 
 	S32								mRightTabBtnOffset; // Extra room to the right of the tab buttons.
 

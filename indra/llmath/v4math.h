@@ -26,7 +26,8 @@ class LLVector4
 	public:
 		F32 mV[LENGTHOFVECTOR4];
 		LLVector4();						// Initializes LLVector4 to (0, 0, 0, 1)
-		explicit LLVector4(const F32 *vec);			// Initializes LLVector4 to (vec[0]. vec[1], vec[2], 1)
+		explicit LLVector4(const F32 *vec);			// Initializes LLVector4 to (vec[0]. vec[1], vec[2], vec[3])
+		explicit LLVector4(const F64 *vec);			// Initialized LLVector4 to ((F32) vec[0], (F32) vec[1], (F32) vec[3], (F32) vec[4]);
 		explicit LLVector4(const LLVector3 &vec);			// Initializes LLVector4 to (vec, 1)
 		explicit LLVector4(const LLVector3 &vec, F32 w);	// Initializes LLVector4 to (vec, w)
 		LLVector4(F32 x, F32 y, F32 z);		// Initializes LLVector4 to (x. y, z, 1)
@@ -134,6 +135,14 @@ inline LLVector4::LLVector4(const F32 *vec)
 	mV[VY] = vec[VY];
 	mV[VZ] = vec[VZ];
 	mV[VW] = vec[VW];
+}
+
+inline LLVector4::LLVector4(const F64 *vec)
+{
+	mV[VX] = (F32) vec[VX];
+	mV[VY] = (F32) vec[VY];
+	mV[VZ] = (F32) vec[VZ];
+	mV[VW] = (F32) vec[VW];
 }
 
 inline LLVector4::LLVector4(const LLVector3 &vec)

@@ -577,11 +577,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 			gPipeline.stateSort(hud_cam);
 		}
 		
-		if (LLVertexBuffer::sEnableVBOs)
-		{
-			LLImageGL::sBoundTextureMemory += LLVertexBuffer::sAllocatedBytes;
-		}
-		
 		gPipeline.renderGeom(hud_cam);
 
 		//restore type mask
@@ -800,8 +795,10 @@ void render_ui_2d()
 		glPushMatrix();
 		S32 half_width = (gViewerWindow->getWindowWidth() / 2);
 		S32 half_height = (gViewerWindow->getWindowHeight() / 2);
+		glScalef(LLUI::sGLScaleFactor.mV[0], LLUI::sGLScaleFactor.mV[1], 1.f);
 		glTranslatef((F32)half_width, (F32)half_height, 0.f);
-		glScalef(gAgent.getAvatarObject()->mHUDCurZoom, gAgent.getAvatarObject()->mHUDCurZoom, gAgent.getAvatarObject()->mHUDCurZoom);
+		F32 zoom = gAgent.getAvatarObject()->mHUDCurZoom;
+		glScalef(zoom,zoom,1.f);
 		glColor4fv(LLColor4::white.mV);
 		gl_rect_2d(-half_width, half_height, half_width, -half_height, FALSE);
 		glPopMatrix();

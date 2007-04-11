@@ -163,6 +163,8 @@ public:
 	void			setCommitOnReturn(BOOL commit) { mCommitOnReturn = commit; }
 	BOOL			getCommitOnReturn() { return mCommitOnReturn; }
 
+	void			setHelpURLCallback(std::string help_url);
+	LLString		getHelpURL() { return mHelpURL; }
 protected:
 	virtual void	drawBorder(const LLColor4& color, S32 size);
 
@@ -242,6 +244,8 @@ protected:
 
 	BOOL			mNeedsHighlight;
 	BOOL			mCommitOnReturn;
+
+	LLString		mHelpURL;
 
 	LLPointer<LLImageGL> mImagep;
 

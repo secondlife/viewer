@@ -933,6 +933,19 @@ LLXMLNodePtr LLButton::getXML(bool save_children) const
 	return node;
 }
 
+void clicked_help(void* data)
+{
+	LLButton* self = (LLButton*)data;
+	if (!self) return;
+	
+	if (!LLUI::sHtmlHelp)
+	{
+		return;
+	}
+	
+	LLUI::sHtmlHelp->show(self->getHelpURL());
+}
+
 // static
 LLView* LLButton::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
@@ -1009,9 +1022,21 @@ LLView* LLButton::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *fa
 	{
 		button->setLabelSelected(node->getTextContents());
 	}
+		
+	if (node->hasAttribute("help_url")) 
+	{
+		LLString	help_url;
+		node->getAttributeString("help_url",help_url);
+		button->setHelpURLCallback(help_url);
+	}
 
 	button->initFromXML(node, parent);
 	
 	return button;
 }
 
+void LLButton::setHelpURLCallback(std::string help_url)
+{
+	mHelpURL = help_url;
+	setClickedCallback(clicked_help,this);
+}

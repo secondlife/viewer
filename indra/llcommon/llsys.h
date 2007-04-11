@@ -51,7 +51,6 @@ public:
 	void stream(std::ostream& s) const;
 
 	std::string getCPUString() const;
-	std::string getCPUStringTerse() const;
 
 	BOOL  hasSSE() const	{ return mHasSSE; }
 	BOOL  hasSSE2()	const	{ return mHasSSE2; }

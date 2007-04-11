@@ -364,6 +364,7 @@ public:
 
 	void clearRenderMap();
 
+	BOOL					mInitialized;
 	BOOL					mVertexShadersEnabled;
 	S32						mVertexShadersLoaded; // 0 = no, 1 = yes, -1 = failed
 

@@ -265,7 +265,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 				ddiscard++;
 				min_dim /= 2;
 			}
-			if (!mDetailTextures[i]->readBackRaw(ddiscard, mRawImages[i]))
+			if (!mDetailTextures[i]->readBackRaw(ddiscard, mRawImages[i], false))
 			{
 				llwarns << "Unable to read raw data for terrain detail texture: " << mDetailTextures[i]->getID() << llendl;
 				mRawImages[i] = NULL;

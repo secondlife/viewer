@@ -10,8 +10,16 @@ Life itself - please see <http://www.secondlife.com/whatis/>.
 3. Installing & Running
 4. Known Issues
 5. Troubleshooting
+   5.1. 'Error creating window.'
+   5.2. System hangs
+   5.3. 'Shiny' and client performance
+   5.4. Audio
+   5.5. 'Alt' key for camera controls doesn't work
 6. Advanced Troubleshooting
-7. Getting more help, and reporting problems
+   6.1. Audio
+   6.2. OpenGL
+7. Obtaining and working with the client source code
+8. Getting more help, and reporting problems
 
 
 1. INTRODUCTION
@@ -28,6 +36,11 @@ with your system.  Be aware that although the client itself is provided
 for testing purposes, any changes you make within the Second Life world
 are permanent.
 
+You will have either obtained this client from secondlife.com (the official
+site) or from a third-party packager; if you encounter any problems then
+we recommend trying the latest official builds from secondlife.com which are
+updated often.
+
 Please enjoy!
 
 
@@ -37,10 +50,10 @@ Please enjoy!
 Minimum requirements:
     * Internet Connection: Cable or DSL
     * Computer Processor: 800MHz Pentium III or Athlon, or better
-    * Computer Memory: 256MB or better
+    * Computer Memory: 256MB or better (strongly recommend more!)
     * Linux Operating System: A reasonably modern 32-bit Linux environment
-          is required.  If you are running a 64-bit Linux distribution, you
-          may need a set of 32-bit compatibility libraries.
+          is required.  If you are running a 64-bit Linux distribution then
+          you will need its 32-bit compatibility environment installed.
     * Video/Graphics Card:
           o nVidia GeForce 2, GeForce 4mx, or better
           o OR ATI Radeon 8500, 9250, or better
@@ -125,7 +138,7 @@ SOLUTION:- Usually this indicates that your graphics card does not meet
 PROBLEM 2:- My whole system seems to hang when running Second Life.
 SOLUTION:- This is typically a hardware/driver issue.  The first thing to
    do is to check that you have the most recent official drivers for your
-   graphics card.
+   graphics card (see PROBLEM 1).
 SOLUTION:- Some residents with ATI cards have reported that running
    'sudo aticonfig --locked-userpages=off' before running Second Life solves
    their stability issues.
@@ -147,12 +160,22 @@ SOLUTION:- Some graphics performance features in Second Life are disabled
      automatically used, and some new options in Preferences will now be
      available to you; there is no guarantee, however, that they will
      positively affect performance!
+SOLUTION:- If you are not running an official Second Life client obtained from
+     secondlife.com, you should consider doing so as you may find its
+     performance to be superior to third-party versions.
 
 PROBLEM 4:- Sound effects seem to 'lag' a fraction of a second behind
    actions.
 SOLUTION:- You may uncomment the 'LL_BAD_ESD' line in the 'secondlife' script
    to get more responsive audio.  However, if you do this then you may
    encounter audio issues or a hang during login, so beware.
+
+PROBLEM 5:- Using the 'Alt' key to control the camera doesn't work or just
+   moves the Second Life window.
+SOLUTION:- Some window managers eat the Alt key for their own purposes; you
+   can configure your window manager to use a different key instead (for
+   example, the 'Windows' key!) which will allow the Alt key to function
+   properly with mouse actions in Second Life and other applications.
 
 
 6. ADVANCED TROUBLESHOOTING
@@ -178,15 +201,28 @@ configuration options for advanced troubleshooters.
   LL_GL_BASICEXT and LL_GL_NOEXT should be commented-out for this to be useful.
 
 
-7. GETTING MORE HELP AND REPORTING PROBLEMS
+7. OBTAINING AND WORKING WITH THE CLIENT SOURCE CODE
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+We're pleased to have released the Second Life client's source code under
+an Open Source license compatible with the 'GPL'.  To get involved with client
+development, please see:
+<http://wiki.secondlife.com/wiki/Open_Source_Portal>
+
+
+8. GETTING MORE HELP AND REPORTING PROBLEMS
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 For general help and support with Second Life:
 <http://secondlife.com/community/support.php>
 
+For problems and discussion concerning unofficial (not secondlife.com)
+releases, please contact your packager or the SLDev mailing list:
+<https://lists.secondlife.com/cgi-bin/mailman/listinfo/sldev>
+
 In-world help: Please use the 'Help' menu in the client for general
 non-Linux-specific Second Life help including live support from the fabulous
-Live Help team.
+'Help Request' team.
 
 In-world discussion: There is a 'Linux Client Users' group
 inside Second Life which is free to join.  You can find it by pressing

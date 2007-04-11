@@ -90,6 +90,7 @@ public:
 
 extern LLViewerCamera *gCamera;
 extern F64 gGLModelView[16];
+extern F64 gGLProjection[16];
 extern S32 gGLViewport[4];
 
 #endif // LL_LLVIEWERCAMERA_H
