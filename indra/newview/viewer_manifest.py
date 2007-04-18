@@ -64,7 +64,6 @@ class ViewerManifest(LLManifest):
                                 self.end_prefix("html/*")
                         self.end_prefix("skins")
 
-                self.path("featuretable.txt")
                 self.path("releasenotes.txt")
                 self.path("lsl_guide.html")
                 self.path("gpu_table.txt")
@@ -114,6 +113,8 @@ class WindowsManifest(ViewerManifest):
                 # need to get the kdu dll from any of the build directories as well
                 self.path(self.find_existing_file('ReleaseForDownload/llkdu.dll', 'llkdu.dll', '../../libraries/i686-win32/lib_release/llkdu.dll'), dst='llkdu.dll')
                 self.path(src="licenses-win32.txt", dst="licenses.txt")
+
+                self.path("featuretable.txt")
 
                 # For use in crash reporting (generates minidumps)
                 self.path("dbghelp.dll")
@@ -387,6 +388,8 @@ class Linux_i686Manifest(LinuxManifest):
                         self.path("*")
                         # recurse
                         self.end_prefix("res-sdl")
+
+                self.path("featuretable_linux.txt")
 
                 self.path("app_settings/mozilla-runtime-linux-i686")
 

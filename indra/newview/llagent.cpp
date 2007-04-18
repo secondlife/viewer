@@ -7056,7 +7056,7 @@ void LLAgent::queryWearableCache()
 	// Look up affected baked textures.
 	// If they exist:
 	//		disallow updates for affected layersets (until dataserver responds with cache request.)
-	//		If cache miss…turn updates back on and invalidate composite.
+	//		If cache miss, turn updates back on and invalidate composite.
 	//		If cache hit, modify baked texture entries.
 	//
 	// Cache requests contain list of hashes for each baked texture entry.

@@ -40,6 +40,8 @@ extern void write_debug(const std::string& str);
 
 #if LL_DARWIN
 const char FEATURE_TABLE_FILENAME[] = "featuretable_mac.txt";
+#elif LL_LINUX
+const char FEATURE_TABLE_FILENAME[] = "featuretable_linux.txt";
 #else
 const char FEATURE_TABLE_FILENAME[] = "featuretable.txt";
 #endif

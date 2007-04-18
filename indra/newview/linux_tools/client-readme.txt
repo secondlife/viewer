@@ -97,7 +97,6 @@ the Alpha release of the Linux client.
   implemented on the Linux client and are therefore known not to work properly
   at this time:
   * QuickTime movie playback and movie recording
-  * Video memory detection
   * Full Unicode font rendering
   * Auto-updater
 
