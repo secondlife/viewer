@@ -20,6 +20,7 @@
 
 class LLPanelGeneral;
 class LLPanelInput;
+class LLPanelLCD;
 class LLPanelDisplay;
 class LLPanelDisplay2;
 class LLPanelDisplay3;
@@ -64,6 +65,7 @@ private:
 	LLPrefsChat				*mPrefsChat;
 	LLPrefsIM				*mPrefsIM;
 	LLPanelMsgs				*mMsgPanel;
+	LLPanelLCD				*mLCDPanel;
 //	LLPanelWeb*				mWebPanel;
 };
 
