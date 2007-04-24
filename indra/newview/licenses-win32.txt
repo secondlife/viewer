@@ -159,6 +159,20 @@ FreeType License
 Portions of this software are copyright (c) 2003 The FreeType
 Project (www.freetype.org). All rights reserved. 
 
+==========================
+FSI FontShop International
+==========================
+
+Certain of the fonts in the Meta family of copyrighted typefaces are
+used in Second Life under license from FSI FontShop
+International. Copies of such Meta fonts that are included in the
+Viewer are not themselves open source and are not available under the
+GPL license, and they may not be copied.  Developers may use those
+fonts solely to the extent necessary to use or customize the Linden
+Software in Second Life and to develop and distribute content solely
+for use in the Second Life environment, and for no other purposes.
+Second Life developers who wish to make other uses of Meta fonts must
+obtain a license from FSI FontShop International at www.fontfont.com.
 
 ==========
 GL License
