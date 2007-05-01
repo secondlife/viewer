@@ -17,6 +17,7 @@
 #include "llsdserialize.h"
 #include "llvfile.h"
 #include "llvfs.h"
+#include "lluri.h"
 
 #include "message.h"
 #include <curl/curl.h>
@@ -261,6 +262,14 @@ static void request(const std::string& url, LLURLRequest::ERequestAction method,
 void LLHTTPClient::get(const std::string& url, ResponderPtr responder, const F32 timeout)
 {
 	request(url, LLURLRequest::HTTP_GET, NULL, responder, timeout);
+}
+
+void LLHTTPClient::get(const std::string& url, const LLSD& query, ResponderPtr responder, const F32 timeout)
+{
+	LLURI uri;
+	
+	uri = LLURI::buildHTTP(url, LLSD::emptyArray(), query);
+	get(uri.asString(), responder, timeout);
 }
 
 // A simple class for managing data returned from a curl http request.
