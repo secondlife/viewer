@@ -36,9 +36,20 @@
 #include "lldarray.h"
 #include "lldir.h"
 #include "llerror.h"
+#include "llerrorlegacy.h"
 #include "llfasttimer.h"
+#include "llhttpclient.h"
+#include "llhttpsender.h"
 #include "llmd5.h"
+#include "llmessagebuilder.h"
+#include "llmessageconfig.h"
+#include "llpumpio.h"
+#include "lltemplatemessagebuilder.h"
+#include "lltemplatemessagereader.h"
+#include "llmessagetemplate.h"
 #include "llsd.h"
+#include "llsdmessagebuilder.h"
+#include "llsdmessagereader.h"
 #include "lltransfermanager.h"
 #include "lluuid.h"
 #include "llxfermanager.h"
@@ -55,405 +66,6 @@
 static const F32 CIRCUIT_DUMP_TIMEOUT = 30.f;
 static const S32 TRUST_TIME_WINDOW = 3;
 
-class LLMsgVarData
-{
-public:
-	LLMsgVarData() : mName(NULL), mSize(-1), mDataSize(-1), mData(NULL), mType(MVT_U8)
-	{
-	}
-
-	LLMsgVarData(const char *name, EMsgVariableType type) : mSize(-1), mDataSize(-1), mData(NULL), mType(type)
-	{
-		mName = (char *)name; 
-	}
-
-	~LLMsgVarData() 
-	{
-		// copy constructor just copies the mData pointer, so only delete mData explicitly
-	}
-	
-	void deleteData() 
-	{
-		delete[] mData;
-		mData = NULL;
-	}
-	
-	void addData(const void *indata, S32 size, EMsgVariableType type, S32 data_size = -1);
-
-	char *getName() const	{ return mName; }
-	S32 getSize() const		{ return mSize; }
-	void *getData()			{ return (void*)mData; }
-	S32 getDataSize() const	{ return mDataSize; }
-	EMsgVariableType getType() const	{ return mType; }
-
-protected:
-	char				*mName;
-	S32					mSize;
-	S32					mDataSize;
-
-	U8					*mData;
-	EMsgVariableType	mType;
-};
-
-
-class LLMsgBlkData
-{
-public:
-	LLMsgBlkData(const char *name, S32 blocknum) : mOffset(-1), mBlockNumber(blocknum), mTotalSize(-1) 
-	{ 
-		mName = (char *)name; 
-	}
-
-	~LLMsgBlkData()
-	{
-		for (msg_var_data_map_t::iterator iter = mMemberVarData.begin();
-			 iter != mMemberVarData.end(); iter++)
-		{
-			iter->deleteData();
-		}
-	}
-
-	void addVariable(const char *name, EMsgVariableType type)
-	{
-		LLMsgVarData tmp(name,type);
-		mMemberVarData[name] = tmp;
-	}
-
-	void addData(char *name, const void *data, S32 size, EMsgVariableType type, S32 data_size = -1)
-	{
-		LLMsgVarData* temp = &mMemberVarData[name]; // creates a new entry if one doesn't exist
-		temp->addData(data, size, type, data_size);
-	}
-
-	S32									mOffset;
-	S32									mBlockNumber;
-	typedef LLDynamicArrayIndexed<LLMsgVarData, const char *, 8> msg_var_data_map_t;
-	msg_var_data_map_t					mMemberVarData;
-	char								*mName;
-	S32									mTotalSize;
-};
-
-
-class LLMsgData
-{
-public:
-	LLMsgData(const char *name) : mTotalSize(-1) 
-	{ 
-		mName = (char *)name; 
-	}
-	~LLMsgData()
-	{
-		for_each(mMemberBlocks.begin(), mMemberBlocks.end(), DeletePairedPointer());
-	}
-
-	void addBlock(LLMsgBlkData *blockp)
-	{
-		mMemberBlocks[blockp->mName] = blockp;
-	}
-
-	void addDataFast(char *blockname, char *varname, const void *data, S32 size, EMsgVariableType type, S32 data_size = -1);
-
-public:
-	S32									mOffset;
-	typedef std::map<char*, LLMsgBlkData*> msg_blk_data_map_t;
-	msg_blk_data_map_t					mMemberBlocks;
-	char								*mName;
-	S32									mTotalSize;
-};
-
-inline void LLMsgVarData::addData(const void *data, S32 size, EMsgVariableType type, S32 data_size)
-{
-	mSize = size;
-	mDataSize = data_size;
-	if ( (type != MVT_VARIABLE) && (type != MVT_FIXED) 
-		 && (mType != MVT_VARIABLE) && (mType != MVT_FIXED))
-	{
-		if (mType != type)
-		{
-			llwarns << "Type mismatch in addData for " << mName
-					<< " message: " << gMessageSystem->getCurrentSMessageName()
-					<< " block: " << gMessageSystem->getCurrentSBlockName()
-					<< llendl;
-		}
-	}
-	if(size)
-	{
-		delete mData; // Delete it if it already exists
-		mData = new U8[size];
-		htonmemcpy(mData, data, mType, size);
-	}
-}
-
-
-
-inline void LLMsgData::addDataFast(char *blockname, char *varname, const void *data, S32 size, EMsgVariableType type, S32 data_size)
-{
-	// remember that if the blocknumber is > 0 then the number is appended to the name
-	char *namep = (char *)blockname;
-	LLMsgBlkData* block_data = mMemberBlocks[namep];
-	if (block_data->mBlockNumber)
-	{
-		namep += block_data->mBlockNumber;
-		block_data->addData(varname, data, size, type, data_size);
-	}
-	else
-	{
-		block_data->addData(varname, data, size, type, data_size);
-	}
-}
-
-// LLMessage* classes store the template of messages
-
-
-class LLMessageVariable
-{
-public:
-	LLMessageVariable() : mName(NULL), mType(MVT_NULL), mSize(-1)
-	{
-	}
-
-	LLMessageVariable(char *name) : mType(MVT_NULL), mSize(-1)
-	{
-		mName = name;
-	}
-
-	LLMessageVariable(char *name, const EMsgVariableType type, const S32 size) : mType(type), mSize(size) 
-	{
-		mName = gMessageStringTable.getString(name); 
-	}
-	
-	~LLMessageVariable() {}
-
-	friend std::ostream&	 operator<<(std::ostream& s, LLMessageVariable &msg);
-
-	EMsgVariableType getType() const				{ return mType; }
-	S32	getSize() const								{ return mSize; }
-	char *getName() const							{ return mName; }
-protected:
-	char				*mName;
-	EMsgVariableType	mType;
-	S32					mSize;
-};
-
-
-typedef enum e_message_block_type
-{
-	MBT_NULL,
-	MBT_SINGLE,
-	MBT_MULTIPLE,
-	MBT_VARIABLE,
-	MBT_EOF
-} EMsgBlockType;
-
-class LLMessageBlock
-{
-public:
-	LLMessageBlock(char *name, EMsgBlockType type, S32 number = 1) : mType(type), mNumber(number), mTotalSize(0) 
-	{ 
-		mName = gMessageStringTable.getString(name);
-	}
-
-	~LLMessageBlock()
-	{
-		for_each(mMemberVariables.begin(), mMemberVariables.end(), DeletePairedPointer());
-	}
-
-	void addVariable(char *name, const EMsgVariableType type, const S32 size)
-	{
-		LLMessageVariable** varp = &mMemberVariables[name];
-		if (*varp != NULL)
-		{
-			llerrs << name << " has already been used as a variable name!" << llendl;
-		}
-		*varp = new LLMessageVariable(name, type, size);
-		if (((*varp)->getType() != MVT_VARIABLE)
-			&&(mTotalSize != -1))
-		{
-			mTotalSize += (*varp)->getSize();
-		}
-		else
-		{
-			mTotalSize = -1;
-		}
-	}
-
-	EMsgVariableType getVariableType(char *name)
-	{
-		return (mMemberVariables[name])->getType();
-	}
-
-	S32 getVariableSize(char *name)
-	{
-		return (mMemberVariables[name])->getSize();
-	}
-
-	friend std::ostream&	 operator<<(std::ostream& s, LLMessageBlock &msg);
-
-	typedef std::map<const char *, LLMessageVariable*> message_variable_map_t;
-	message_variable_map_t 					mMemberVariables;
-	char									*mName;
-	EMsgBlockType							mType;
-	S32										mNumber;
-	S32										mTotalSize;
-};
-
-
-enum EMsgFrequency
-{
-	MFT_NULL	= 0,  // value is size of message number in bytes
-	MFT_HIGH	= 1,
-	MFT_MEDIUM	= 2,
-	MFT_LOW		= 4
-};
-
-typedef enum e_message_trust
-{
-	MT_TRUST,
-	MT_NOTRUST
-} EMsgTrust;
-
-enum EMsgEncoding
-{
-	ME_UNENCODED,
-	ME_ZEROCODED
-};
-
-class LLMessageTemplate
-{
-public:
-	LLMessageTemplate(const char *name, U32 message_number, EMsgFrequency freq)
-		: 
-		//mMemberBlocks(),
-		mName(NULL),
-		mFrequency(freq),
-		mTrust(MT_NOTRUST),
-		mEncoding(ME_ZEROCODED),
-		mMessageNumber(message_number), 
-		mTotalSize(0), 
-		mReceiveCount(0),
-		mReceiveBytes(0),
-		mReceiveInvalid(0),
-		mDecodeTimeThisFrame(0.f),
-		mTotalDecoded(0),
-		mTotalDecodeTime(0.f),
-		mMaxDecodeTimePerMsg(0.f),
-		mBanFromTrusted(false),
-		mBanFromUntrusted(false),
-		mHandlerFunc(NULL), 
-		mUserData(NULL)
-	{ 
-		mName = gMessageStringTable.getString(name);
-	}
-
-	~LLMessageTemplate()
-	{
-		for_each(mMemberBlocks.begin(), mMemberBlocks.end(), DeletePairedPointer());
-	}
-
-	void addBlock(LLMessageBlock *blockp)
-	{
-		LLMessageBlock** member_blockp = &mMemberBlocks[blockp->mName];
-		if (*member_blockp != NULL)
-		{
-			llerrs << "Block " << blockp->mName
-				<< "has already been used as a block name!" << llendl;
-		}
-		*member_blockp = blockp;
-		if (  (mTotalSize != -1)
-			&&(blockp->mTotalSize != -1)
-			&&(  (blockp->mType == MBT_SINGLE)
-			   ||(blockp->mType == MBT_MULTIPLE)))
-		{
-			mTotalSize += blockp->mNumber*blockp->mTotalSize;
-		}
-		else
-		{
-			mTotalSize = -1;
-		}
-	}
-
-	LLMessageBlock *getBlock(char *name)
-	{
-		return mMemberBlocks[name];
-	}
-
-	// Trusted messages can only be recieved on trusted circuits.
-	void setTrust(EMsgTrust t)
-	{
-		mTrust = t;
-	}
-
-	EMsgTrust getTrust(void)
-	{
-		return mTrust;
-	}
-
-	// controls for how the message should be encoded
-	void setEncoding(EMsgEncoding e)
-	{
-		mEncoding = e;
-	}
-	EMsgEncoding getEncoding()
-	{
-		return mEncoding;
-	}
-
-	void setHandlerFunc(void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data)
-	{
-		mHandlerFunc = handler_func;
-		mUserData = user_data;
-	}
-
-	BOOL callHandlerFunc(LLMessageSystem *msgsystem)
-	{
-		if (mHandlerFunc)
-		{
-			mHandlerFunc(msgsystem, mUserData);
-			return TRUE;
-		}
-		return FALSE;
-	}
-
-	bool isBanned(bool trustedSource)
-	{
-		return trustedSource ? mBanFromTrusted : mBanFromUntrusted;
-	}
-
-	friend std::ostream&	 operator<<(std::ostream& s, LLMessageTemplate &msg);
-
-public:
-	typedef std::map<char*, LLMessageBlock*> message_block_map_t;
-	message_block_map_t						mMemberBlocks;
-	char									*mName;
-	EMsgFrequency							mFrequency;
-	EMsgTrust								mTrust;
-	EMsgEncoding							mEncoding;
-	U32										mMessageNumber;
-	S32										mTotalSize;
-	U32										mReceiveCount;		// how many of this template have been received since last reset
-	U32										mReceiveBytes;		// How many bytes received
-	U32										mReceiveInvalid;	// How many "invalid" packets
-	F32										mDecodeTimeThisFrame;	// Total seconds spent decoding this frame
-	U32										mTotalDecoded;		// Total messages successfully decoded
-	F32										mTotalDecodeTime;	// Total time successfully decoding messages
-	F32										mMaxDecodeTimePerMsg;
-
-	bool									mBanFromTrusted;
-	bool									mBanFromUntrusted;
-
-private:
-	// message handler function (this is set by each application)
-	void									(*mHandlerFunc)(LLMessageSystem *msgsystem, void **user_data);
-	void									**mUserData;
-};
-
-
-// static
-BOOL LLMessageSystem::mTimeDecodes = FALSE;
-
-// static, 50ms per message decode
-F32  LLMessageSystem::mTimeDecodesSpamThreshold = 0.05f;
-
 // *NOTE: This needs to be moved into a seperate file so that it never gets
 // included in the viewer.  30 Sep 2002 mark
 // *NOTE: I don't think it's important that the messgage system tracks
@@ -467,113 +79,6 @@ public:
 	apr_socket_t *mAPRSocketp;
 	apr_pollfd_t mPollFD;
 };
-
-
-// LLMessageVariable functions and friends
-
-std::ostream& operator<<(std::ostream& s, LLMessageVariable &msg)
-{
-	s << "\t\t" << msg.mName << " (";
-	switch (msg.mType)
-	{
-	case MVT_FIXED:
-		s << "Fixed, " << msg.mSize << " bytes total)\n";
-		break;
-	case MVT_VARIABLE:
-		s << "Variable, " << msg.mSize << " bytes of size info)\n";
-		break;
-	default:
-		s << "Unknown\n";
-		break;
-	}
-	return s;
-}
-
-// LLMessageBlock functions and friends
-
-std::ostream& operator<<(std::ostream& s, LLMessageBlock &msg)
-{
-	s << "\t" << msg.mName << " (";
-	switch (msg.mType)
-	{
-	case MBT_SINGLE:
-		s << "Fixed";
-		break;
-	case MBT_MULTIPLE:
-		s << "Multiple - " << msg.mNumber << " copies";
-		break;
-	case MBT_VARIABLE:
-		s << "Variable";
-		break;
-	default:
-		s << "Unknown";
-		break;
-	}
-	if (msg.mTotalSize != -1)
-	{
-		s << ", " << msg.mTotalSize << " bytes each, " << msg.mNumber*msg.mTotalSize << " bytes total)\n";
-	}
-	else
-	{
-		s << ")\n";
-	}
-
-
-	for (LLMessageBlock::message_variable_map_t::iterator iter = msg.mMemberVariables.begin();
-		 iter != msg.mMemberVariables.end(); iter++)
-	{
-		LLMessageVariable& ci = *(iter->second);
-		s << ci;
-	}
-
-	return s;
-}
-
-// LLMessageTemplate functions and friends
-
-std::ostream& operator<<(std::ostream& s, LLMessageTemplate &msg)
-{
-	switch (msg.mFrequency)
-	{
-	case MFT_HIGH:
-		s << "========================================\n" << "Message #" << msg.mMessageNumber << "\n" << msg.mName << " (";
-		s << "High";
-		break;
-	case MFT_MEDIUM:
-		s << "========================================\n" << "Message #";
-		s << (msg.mMessageNumber & 0xFF) << "\n" << msg.mName << " (";
-		s << "Medium";
-		break;
-	case MFT_LOW:
-		s << "========================================\n" << "Message #";
-		s << (msg.mMessageNumber & 0xFFFF) << "\n" << msg.mName << " (";
-		s << "Low";
-		break;
-	default:
-		s << "Unknown";
-		break;
-	}
-
-	if (msg.mTotalSize != -1)
-	{
-		s << ", " << msg.mTotalSize << " bytes total)\n";
-	}
-	else
-	{
-		s << ")\n";
-	}
-	
-	for (LLMessageTemplate::message_block_map_t::iterator iter = msg.mMemberBlocks.begin();
-		 iter != msg.mMemberBlocks.end(); iter++)
-	{
-		LLMessageBlock* ci = iter->second;
-		s << *ci;
-	}
-
-	return s;
-}
-
-// LLMessageList functions and friends
 
 // Lets support a small subset of regular expressions here
 // Syntax is a string made up of:
@@ -776,6 +281,106 @@ BOOL	b_positive_integer_ok(char *token)
 	return TRUE;
 }
 
+namespace
+{
+	class LLFnPtrResponder : public LLHTTPClient::Responder
+	{
+	public:
+		LLFnPtrResponder(void (*callback)(void **,S32), void **callbackData) :
+			mCallback(callback),
+			mCallbackData(callbackData)
+		{
+		}
+
+		virtual void error(U32 status, const std::string& reason)
+		{
+			// TODO: Map status in to useful error code.
+			if(NULL != mCallback) mCallback(mCallbackData, LL_ERR_TCP_TIMEOUT);
+		}
+		
+		virtual void result(const LLSD& content)
+		{
+			if(NULL != mCallback) mCallback(mCallbackData, LL_ERR_NOERR);
+		}
+
+	private:
+
+		void (*mCallback)(void **,S32);    
+		void **mCallbackData;
+	};
+}
+
+
+class LLTrustedMessageService : public LLHTTPNode
+{
+	virtual bool validate(const std::string& name, LLSD& context) const
+		{ return true; }
+
+	virtual void post(LLHTTPNode::ResponsePtr response,
+					  const LLSD& context,
+					  const LLSD& input) const;
+};
+
+//virtual
+void LLTrustedMessageService::post(LLHTTPNode::ResponsePtr response,
+								   const LLSD& context,
+								   const LLSD& input) const
+{
+	std::string name = context["request"]["wildcard"]["message-name"];
+	std::string senderIP = context["request"]["remote-host"];
+	std::string senderPort = context["request"]["headers"]
+		["x-secondlife-udp-listen-port"];
+
+	LLSD message_data;
+	message_data["sender"] = senderIP + ":" + senderPort;
+	message_data["body"] = input;
+	
+	LLMessageSystem::dispatch(name, message_data, response);
+}
+
+class LLMessageHandlerBridge : public LLHTTPNode
+{
+	virtual bool validate(const std::string& name, LLSD& context) const
+		{ return true; }
+
+	virtual void post(LLHTTPNode::ResponsePtr response, const LLSD& context, 
+					  const LLSD& input) const;
+};
+
+//virtual 
+void LLMessageHandlerBridge::post(LLHTTPNode::ResponsePtr response, 
+							const LLSD& context, const LLSD& input) const
+{
+	std::string name = context["request"]["wildcard"]["message-name"];
+
+	lldebugs << "Setting mLastSender " << input["sender"].asString() << llendl;
+	gMessageSystem->mLastSender = LLHost(input["sender"].asString());
+	gMessageSystem->mPacketsIn += 1;
+	gMessageSystem->mLLSDMessageReader->setMessage(name, input["body"]);
+	gMessageSystem->mMessageReader = gMessageSystem->mLLSDMessageReader;
+	
+	if(gMessageSystem->callHandler(name.c_str(), false, gMessageSystem))
+	{
+		response->result(LLSD());
+	}
+	else
+	{
+		response->notFound();
+	}
+}
+
+LLHTTPRegistration<LLMessageHandlerBridge>
+	gHTTPRegistrationMessageWildcard("/message/<message-name>");
+
+LLHTTPRegistration<LLTrustedMessageService>
+	gHTTPRegistrationTrustedMessageWildcard("/trusted-message/<message-name>");
+
+//virtual
+LLUseCircuitCodeResponder::~LLUseCircuitCodeResponder()
+{
+	// even abstract base classes need a concrete destructor
+}
+
 void LLMessageSystem::init()
 {
 	// initialize member variables
@@ -783,24 +388,11 @@ void LLMessageSystem::init()
 
 	mbError = FALSE;
 	mErrorCode = 0;
-	mIncomingCompressedSize = 0;
 	mSendReliable = FALSE;
-
-	mbSBuilt = FALSE;
-	mbSClear = TRUE;
 
 	mUnackedListDepth = 0;
 	mUnackedListSize = 0;
 	mDSMaxListDepth = 0;
-
-	mCurrentRMessageData = NULL;
-	mCurrentRMessageTemplate = NULL;
-
-	mCurrentSMessageData = NULL;
-	mCurrentSMessageTemplate = NULL;
-	mCurrentSMessageName = NULL;
-
-	mCurrentRecvPacketID = 0;
 
 	mNumberHighFreqMessages = 0;
 	mNumberMediumFreqMessages = 0;
@@ -825,57 +417,26 @@ void LLMessageSystem::init()
 
 	mOurCircuitCode = 0;
 
+	mIncomingCompressedSize = 0;
+	mCurrentRecvPacketID = 0;
+
 	mMessageFileChecksum = 0;
 	mMessageFileVersionNumber = 0.f;
 
 	mTimingCallback = NULL;
 	mTimingCallbackData = NULL;
-}
 
-LLMessageSystem::LLMessageSystem()
-{
-	init();
-
-	mSystemVersionMajor = 0;
-	mSystemVersionMinor = 0;
-	mSystemVersionPatch = 0;
-	mSystemVersionServer = 0;
-	mVersionFlags = 0x0;
-
-	// default to not accepting packets from not alive circuits
-	mbProtected = TRUE;
-
-	mSendPacketFailureCount = 0;
-	mCircuitPrintFreq = 0.f;		// seconds
-
-	// initialize various bits of net info
-	mSocket = 0;
-	mPort = 0;
-
-	mPollInfop = NULL;
-
-	mResendDumpTime = 0;
-	mMessageCountTime = 0;
-	mCircuitPrintTime = 0;
-	mCurrentMessageTimeSeconds = 0;
-
-	// Constants for dumping output based on message processing time/count
-	mNumMessageCounts = 0;
-	mMaxMessageCounts = 0; // >= 0 means dump warnings
-	mMaxMessageTime   = 0.f;
-
-	mTrueReceiveSize = 0;
-
-	// Error if checking this state, subclass methods which aren't implemented are delegated
-	// to properly constructed message system.
-	mbError = TRUE;
+	mMessageBuilder = NULL;
+	mMessageReader = NULL;
 }
 
 // Read file and build message templates
 LLMessageSystem::LLMessageSystem(const char *filename, U32 port, 
 								 S32 version_major,
 								 S32 version_minor,
-								 S32 version_patch)
+								 S32 version_patch) :
+	mTemplateConfirmed(FALSE),
+	mTemplateMatches(FALSE)
 {
 	init();
 
@@ -893,6 +454,14 @@ LLMessageSystem::LLMessageSystem(const char *filename, U32 port,
 	mCircuitPrintFreq = 60.f;		// seconds
 
 	loadTemplateFile(filename);
+
+	mTemplateMessageBuilder = new LLTemplateMessageBuilder(mMessageTemplates);
+	mLLSDMessageBuilder = new LLSDMessageBuilder();
+	mMessageBuilder = NULL;
+
+	mTemplateMessageReader = new LLTemplateMessageReader(mMessageNumbers);
+	mLLSDMessageReader = new LLSDMessageReader();
+	mMessageReader = NULL;
 
 	// initialize various bits of net info
 	mSocket = 0;
@@ -1712,25 +1281,25 @@ LLMessageSystem::~LLMessageSystem()
 		end_net();
 	}
 	
-	delete mCurrentRMessageData;
-	mCurrentRMessageData = NULL;
+	delete mMessageReader;
+	mMessageReader = NULL;
 
-	delete mCurrentSMessageData;
-	mCurrentSMessageData = NULL;
+	delete mMessageBuilder;
+	mMessageBuilder = NULL;
 
 	delete mPollInfop;
 	mPollInfop = NULL;
+
+	mIncomingCompressedSize = 0;
+	mCurrentRecvPacketID = 0;
 }
 
 void LLMessageSystem::clearReceiveState()
 {
-	mReceiveSize = -1;
 	mCurrentRecvPacketID = 0;
-	mCurrentRMessageTemplate = NULL;
-	delete mCurrentRMessageData;
-	mCurrentRMessageData = NULL;
 	mIncomingCompressedSize = 0;
 	mLastSender.invalidate();
+	mMessageReader->clearMessage();
 }
 
 
@@ -1757,20 +1326,23 @@ BOOL LLMessageSystem::poll(F32 seconds)
 // Returns TRUE if a valid, on-circuit message has been received.
 BOOL LLMessageSystem::checkMessages( S64 frame_count )
 {
+	// Pump 
 	BOOL	valid_packet = FALSE;
+	mMessageReader = mTemplateMessageReader;
 
 	LLTransferTargetVFile::updateQueue();
 	
 	if (!mNumMessageCounts)
 	{
-		// This is the first message being handled after a resetReceiveCounts, we must be starting
-		// the message processing loop.  Reset the timers.
+		// This is the first message being handled after a resetReceiveCounts,
+		// we must be starting the message processing loop.  Reset the timers.
 		mCurrentMessageTimeSeconds = totalTime() * SEC_PER_USEC;
 		mMessageCountTime = getMessageTimeSeconds();
 	}
 
 	// loop until either no packets or a valid packet
 	// i.e., burn through packets from unregistered circuits
+	S32 receive_size = 0;
 	do
 	{
 		clearReceiveState();
@@ -1786,16 +1358,16 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 		// If you want to dump all received packets into SecondLife.log, uncomment this
 		//dumpPacketToLog();
 		
-		mReceiveSize = mTrueReceiveSize;
+		receive_size = mTrueReceiveSize;
 		mLastSender = mPacketRing.getLastSender();
 		
-		if (mReceiveSize < (S32) LL_MINIMUM_VALID_PACKET_SIZE)
+		if (receive_size < (S32) LL_MINIMUM_VALID_PACKET_SIZE)
 		{
 			// A receive size of zero is OK, that means that there are no more packets available.
 			// Ones that are non-zero but below the minimum packet size are worrisome.
-			if (mReceiveSize > 0)
+			if (receive_size > 0)
 			{
-				llwarns << "Invalid (too short) packet discarded " << mReceiveSize << llendl;
+				llwarns << "Invalid (too short) packet discarded " << receive_size << llendl;
 				callExceptionFunc(MX_PACKET_TOO_SHORT);
 			}
 			// no data in packet receive buffer
@@ -1809,18 +1381,18 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 			// note if packet acks are appended.
 			if(buffer[0] & LL_ACK_FLAG)
 			{
-				acks += buffer[--mReceiveSize];
-				true_rcv_size = mReceiveSize;
-				if(mReceiveSize >= ((S32)(acks * sizeof(TPACKETID) + LL_MINIMUM_VALID_PACKET_SIZE)))
+				acks += buffer[--receive_size];
+				true_rcv_size = receive_size;
+				if(receive_size >= ((S32)(acks * sizeof(TPACKETID) + LL_MINIMUM_VALID_PACKET_SIZE)))
 				{
-					mReceiveSize -= acks * sizeof(TPACKETID);
+					receive_size -= acks * sizeof(TPACKETID);
 				}
 				else
 				{
 					// mal-formed packet. ignore it and continue with
 					// the next one
 					llwarns << "Malformed packet received. Packet size "
-						<< mReceiveSize << " with invalid no. of acks " << acks
+						<< receive_size << " with invalid no. of acks " << acks
 						<< llendl;
 					valid_packet = FALSE;
 					continue;
@@ -1829,7 +1401,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 
 			// process the message as normal
 
-			mIncomingCompressedSize = zeroCodeExpand(&buffer,&mReceiveSize);
+			mIncomingCompressedSize = zeroCodeExpand(&buffer,&receive_size);
 			mCurrentRecvPacketID = buffer[1] + ((buffer[0] & 0x0f ) * 256);
 			if (sizeof(TPACKETID) == 4)
 			{
@@ -1953,7 +1525,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 						std::ostringstream str;
 						str << "MSG: <- " << host;
 						char buffer[MAX_STRING]; /* Flawfinder: ignore*/
-						snprintf(buffer, MAX_STRING, "\t%6d\t%6d\t%6d ", mReceiveSize, (mIncomingCompressedSize ? mIncomingCompressedSize : mReceiveSize), mCurrentRecvPacketID);	/* Flawfinder: ignore */
+						snprintf(buffer, MAX_STRING, "\t%6d\t%6d\t%6d ", receive_size, (mIncomingCompressedSize ? mIncomingCompressedSize : receive_size), mCurrentRecvPacketID);	/* Flawfinder: ignore */
 						str << buffer << "(unknown)"
 							<< (recv_reliable ? " reliable" : "")
 							<< " resent "
@@ -1971,23 +1543,22 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 			// But we don't want to acknowledge UseCircuitCode until the circuit is
 			// available, which is why the acknowledgement test is done above.  JC
 
-			valid_packet = decodeTemplate( buffer, mReceiveSize, &mCurrentRMessageTemplate );
-			if( valid_packet )
-			{
-				mCurrentRMessageTemplate->mReceiveCount++;
-				lldebugst(LLERR_MESSAGE) << "MessageRecvd:" << mCurrentRMessageTemplate->mName << " from " << host << llendl;
-			}
+			valid_packet = mTemplateMessageReader->validateMessage(buffer, 
+														   receive_size,
+														   host);
 
 			// UseCircuitCode is allowed in even from an invalid circuit, so that
 			// we can toss circuits around.
-			if (valid_packet && !cdp && (mCurrentRMessageTemplate->mName != _PREHASH_UseCircuitCode) )
+			if(valid_packet && !cdp && 
+			   (mTemplateMessageReader->getMessageName() != _PREHASH_UseCircuitCode))
 			{
 				logMsgFromInvalidCircuit( host, recv_reliable );
 				clearReceiveState();
 				valid_packet = FALSE;
 			}
 
-			if (valid_packet && cdp && !cdp->getTrusted() && (mCurrentRMessageTemplate->getTrust() == MT_TRUST) )
+			if(valid_packet && cdp && !cdp->getTrusted() && 
+				mTemplateMessageReader->isTrusted())
 			{
 				logTrustedMsgFromUntrustedCircuit( host );
 				clearReceiveState();
@@ -1997,11 +1568,11 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 			}
 
 			if (valid_packet
-			&& mCurrentRMessageTemplate->isBanned(cdp && cdp->getTrusted()))
+			&& mTemplateMessageReader->isBanned(cdp && cdp->getTrusted()))
 			{
 				llwarns << "LLMessageSystem::checkMessages "
 					<< "received banned message "
-					<< mCurrentRMessageTemplate->mName
+					<< mTemplateMessageReader->getMessageName()
 					<< " from "
 					<< ((cdp && cdp->getTrusted()) ? "trusted " : "untrusted ")
 					<< host << llendl;
@@ -2013,7 +1584,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 			{
 				logValidMsg(cdp, host, recv_reliable, recv_resent, (BOOL)(acks>0) );
 
-				valid_packet = decodeData( buffer, host );
+				valid_packet = mTemplateMessageReader->readMessage(buffer, host);
 			}
 
 			// It's possible that the circuit went away, because ANY message can disable the circuit
@@ -2026,7 +1597,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 				if( 1 )
 				{
 					static char* object_update = gMessageStringTable.getString("ObjectUpdate");
-					if(object_update == mCurrentRMessageTemplate->mName )
+					if(object_update == mTemplateMessageReader->getMessageName() )
 					{
 						llinfos << "ObjectUpdate:" << llendl;
 						U32 i;
@@ -2037,8 +1608,8 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 						}
 						llinfos << "" << llendl;
 
-						llinfos << "    Zero Unencoded: " << mReceiveSize << llendl;
-						for( i = 0; i<mReceiveSize; i++ )
+						llinfos << "    Zero Unencoded: " << receive_size << llendl;
+						for( i = 0; i<receive_size; i++ )
 						{
 							llinfos << "     " << i << ": " << (U32) buffer[i] << llendl;
 						}
@@ -2127,7 +1698,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 				if (mbProtected  && (!cdp))
 				{
 					llwarns << "Packet "
-							<< (mCurrentRMessageTemplate ? mCurrentRMessageTemplate->mName : "")
+							<< mTemplateMessageReader->getMessageName()
 							<< " from invalid circuit " << host << llendl;
 					mOffCircuitPackets++;
 				}
@@ -2140,7 +1711,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 			// Code for dumping the complete contents of a message 
 			// delete [] zero_unexpanded_buffer;
 		}
-	} while (!valid_packet && mReceiveSize > 0);
+	} while (!valid_packet && receive_size > 0);
 
 	F64 mt_sec = getMessageTimeSeconds();
 	// Check to see if we need to print debug info
@@ -2241,600 +1812,56 @@ void LLMessageSystem::processAcks()
 	}
 }
 
-
-void LLMessageSystem::newMessageFast(const char *name)
+void LLMessageSystem::copyMessageRtoS()
 {
-	mbSBuilt = FALSE;
-	mbSClear = FALSE;
-
-	mCurrentSendTotal = 0;
-	mSendReliable = FALSE;
-
-	char *namep = (char *)name; 
-
-	if (mMessageTemplates.count(namep) > 0)
+	// NOTE: babbage: switch builder to match reader to avoid
+	// converting message format
+	if(mMessageReader == mTemplateMessageReader)
 	{
-		mCurrentSMessageTemplate = mMessageTemplates[namep];
-		if (mCurrentSMessageData)
-		{
-			delete mCurrentSMessageData;
-		}
-		mCurrentSMessageData = new LLMsgData(namep);
-		mCurrentSMessageName = namep;
-		mCurrentSDataBlock = NULL;
-		mCurrentSBlockName = NULL;
-
-		// add at one of each block
-		LLMessageTemplate* msg_template = mMessageTemplates[namep];
-		for (LLMessageTemplate::message_block_map_t::iterator iter = msg_template->mMemberBlocks.begin();
-			 iter != msg_template->mMemberBlocks.end(); iter++)
-		{
-			LLMessageBlock* ci = iter->second;
-			LLMsgBlkData	*tblockp;
-			tblockp = new LLMsgBlkData(ci->mName, 0);
-			mCurrentSMessageData->addBlock(tblockp);
-		}
+		mMessageBuilder = mTemplateMessageBuilder;
 	}
 	else
 	{
-		llerrs << "newMessage - Message " << name << " not registered" << llendl;
+		mMessageBuilder = mLLSDMessageBuilder;
 	}
-}
-
-void LLMessageSystem::copyMessageRtoS()
-{
-	if (!mCurrentRMessageTemplate)
-	{
-		return;
-	}
-	newMessageFast(mCurrentRMessageTemplate->mName);
-
-	// copy the blocks
-	// counting variables used to encode multiple block info
-	S32 block_count = 0;
-    char *block_name = NULL;
-
-	// loop through msg blocks to loop through variables, totalling up size data and filling the new (send) message
-	LLMsgData::msg_blk_data_map_t::iterator iter = mCurrentRMessageData->mMemberBlocks.begin();
-	LLMsgData::msg_blk_data_map_t::iterator end = mCurrentRMessageData->mMemberBlocks.end();
-	for(; iter != end; ++iter)
-	{
-		LLMsgBlkData* mbci = iter->second;
-		if(!mbci) continue;
-
-		// do we need to encode a block code?
-		if (block_count == 0)
-		{
-			block_count = mbci->mBlockNumber;
-			block_name = (char *)mbci->mName;
-		}
-
-		// counting down mutliple blocks
-		block_count--;
-
-		nextBlockFast(block_name);
-
-		// now loop through the variables
-		LLMsgBlkData::msg_var_data_map_t::iterator dit = mbci->mMemberVarData.begin();
-		LLMsgBlkData::msg_var_data_map_t::iterator dend = mbci->mMemberVarData.end();
-		
-		for(; dit != dend; ++dit)
-		{
-			LLMsgVarData& mvci = *dit;
-			addDataFast(mvci.getName(), mvci.getData(), mvci.getType(), mvci.getSize());
-		}
-	}
+	mSendReliable = FALSE;
+	mMessageBuilder->newMessage(mMessageReader->getMessageName());
+	mMessageReader->copyToBuilder(*mMessageBuilder);
 }
 
 void LLMessageSystem::clearMessage()
 {
-	mbSBuilt = FALSE;
-	mbSClear = TRUE;
-
-	mCurrentSendTotal = 0;
 	mSendReliable = FALSE;
-
-	mCurrentSMessageTemplate = NULL;
-
-	delete mCurrentSMessageData;
-	mCurrentSMessageData = NULL;
-
-	mCurrentSMessageName = NULL;
-	mCurrentSDataBlock = NULL;
-	mCurrentSBlockName = NULL;
+	mMessageBuilder->clearMessage();
 }
-
 
 // set block to add data to within current message
 void LLMessageSystem::nextBlockFast(const char *blockname)
 {
-	char *bnamep = (char *)blockname; 
-
-	if (!mCurrentSMessageTemplate)
-	{
-		llerrs << "newMessage not called prior to setBlock" << llendl;
-		return;
-	}
-
-	// now, does this block exist?
-	LLMessageTemplate::message_block_map_t::iterator temp_iter = mCurrentSMessageTemplate->mMemberBlocks.find(bnamep);
-	if (temp_iter == mCurrentSMessageTemplate->mMemberBlocks.end())
-	{
-		llerrs << "LLMessageSystem::nextBlockFast " << bnamep
-			<< " not a block in " << mCurrentSMessageTemplate->mName << llendl;
-		return;
-	}
-	
-	LLMessageBlock* template_data = temp_iter->second;
-	
-	// ok, have we already set this block?
-	LLMsgBlkData* block_data = mCurrentSMessageData->mMemberBlocks[bnamep];
-	if (block_data->mBlockNumber == 0)
-	{
-		// nope! set this as the current block
-		block_data->mBlockNumber = 1;
-		mCurrentSDataBlock = block_data;
-		mCurrentSBlockName = bnamep;
-
-		// add placeholders for each of the variables
-		for (LLMessageBlock::message_variable_map_t::iterator iter = template_data->mMemberVariables.begin();
-			 iter != template_data->mMemberVariables.end(); iter++)
-		{
-			LLMessageVariable& ci = *(iter->second);
-			mCurrentSDataBlock->addVariable(ci.getName(), ci.getType());
-		}
-		return;
-	}
-	else
-	{
-		// already have this block. . . 
-		// are we supposed to have a new one?
-
-		// if the block is type MBT_SINGLE this is bad!
-		if (template_data->mType == MBT_SINGLE)
-		{
-			llerrs << "LLMessageSystem::nextBlockFast called multiple times"
-				<< " for " << bnamep << " but is type MBT_SINGLE" << llendl;
-			return;
-		}
-
-
-		// if the block is type MBT_MULTIPLE then we need a known number, make sure that we're not exceeding it
-		if (  (template_data->mType == MBT_MULTIPLE)
-			&&(mCurrentSDataBlock->mBlockNumber == template_data->mNumber))
-		{
-			llerrs << "LLMessageSystem::nextBlockFast called "
-				<< mCurrentSDataBlock->mBlockNumber << " times for " << bnamep
-				<< " exceeding " << template_data->mNumber
-				<< " specified in type MBT_MULTIPLE." << llendl;
-			return;
-		}
-
-		// ok, we can make a new one
-		// modify the name to avoid name collision by adding number to end
-		S32  count = block_data->mBlockNumber;
-
-		// incrememt base name's count
-		block_data->mBlockNumber++;
-
-		if (block_data->mBlockNumber > MAX_BLOCKS)
-		{
-			llerrs << "Trying to pack too many blocks into MBT_VARIABLE type (limited to " << MAX_BLOCKS << ")" << llendl;
-		}
-
-		// create new name
-		// Nota Bene: if things are working correctly, mCurrentMessageData->mMemberBlocks[blockname]->mBlockNumber == mCurrentDataBlock->mBlockNumber + 1
-
-		char *nbnamep = bnamep + count;
-	
-		mCurrentSDataBlock = new LLMsgBlkData(bnamep, count);
-		mCurrentSDataBlock->mName = nbnamep;
-		mCurrentSMessageData->mMemberBlocks[nbnamep] = mCurrentSDataBlock;
-
-		// add placeholders for each of the variables
-		for (LLMessageBlock::message_variable_map_t::iterator
-				 iter = template_data->mMemberVariables.begin(),
-				 end = template_data->mMemberVariables.end();
-			 iter != end; iter++)
-		{
-			LLMessageVariable& ci = *(iter->second);
-			mCurrentSDataBlock->addVariable(ci.getName(), ci.getType());
-		}
-		return;
-	}
-}
-
-// add data to variable in current block
-void LLMessageSystem::addDataFast(const char *varname, const void *data, EMsgVariableType type, S32 size)
-{
-	char *vnamep = (char *)varname; 
-
-	// do we have a current message?
-	if (!mCurrentSMessageTemplate)
-	{
-		llerrs << "newMessage not called prior to addData" << llendl;
-		return;
-	}
-
-	// do we have a current block?
-	if (!mCurrentSDataBlock)
-	{
-		llerrs << "setBlock not called prior to addData" << llendl;
-		return;
-	}
-
-	// kewl, add the data if it exists
-	LLMessageVariable* var_data = mCurrentSMessageTemplate->mMemberBlocks[mCurrentSBlockName]->mMemberVariables[vnamep];
-	if (!var_data || !var_data->getName())
-	{
-		llerrs << vnamep << " not a variable in block " << mCurrentSBlockName << " of " << mCurrentSMessageTemplate->mName << llendl;
-		return;
-	}
-
-	// ok, it seems ok. . . are we the correct size?
-	if (var_data->getType() == MVT_VARIABLE)
-	{
-		// Variable 1 can only store 255 bytes, make sure our data is smaller
-		if ((var_data->getSize() == 1) &&
-			(size > 255))
-		{
-			llwarns << "Field " << varname << " is a Variable 1 but program "
-			       << "attempted to stuff more than 255 bytes in "
-			       << "(" << size << ").  Clamping size and truncating data." << llendl;
-			size = 255;
-			char *truncate = (char *)data;
-			truncate[255] = 0;
-		}
-
-		// no correct size for MVT_VARIABLE, instead we need to tell how many bytes the size will be encoded as
-		mCurrentSDataBlock->addData(vnamep, data, size, type, var_data->getSize());
-		mCurrentSendTotal += size;
-	}
-	else
-	{
-		if (size != var_data->getSize())
-		{
-			llerrs << varname << " is type MVT_FIXED but request size " << size << " doesn't match template size "
-				   << var_data->getSize() << llendl;
-			return;
-		}
-		// alright, smash it in
-		mCurrentSDataBlock->addData(vnamep, data, size, type);
-		mCurrentSendTotal += size;
-	}
-}
-
-// add data to variable in current block - fails if variable isn't MVT_FIXED
-void LLMessageSystem::addDataFast(const char *varname, const void *data, EMsgVariableType type)
-{
-	char *vnamep = (char *)varname; 
-
-	// do we have a current message?
-	if (!mCurrentSMessageTemplate)
-	{
-		llerrs << "newMessage not called prior to addData" << llendl;
-		return;
-	}
-
-	// do we have a current block?
-	if (!mCurrentSDataBlock)
-	{
-		llerrs << "setBlock not called prior to addData" << llendl;
-		return;
-	}
-
-	// kewl, add the data if it exists
-	LLMessageVariable* var_data = mCurrentSMessageTemplate->mMemberBlocks[mCurrentSBlockName]->mMemberVariables[vnamep];
-	if (!var_data->getName())
-	{
-		llerrs << vnamep << " not a variable in block " << mCurrentSBlockName << " of " << mCurrentSMessageTemplate->mName << llendl;
-		return;
-	}
-
-	// ok, it seems ok. . . are we MVT_VARIABLE?
-	if (var_data->getType() == MVT_VARIABLE)
-	{
-		// nope
-		llerrs << vnamep << " is type MVT_VARIABLE. Call using addData(name, data, size)" << llendl;
-		return;
-	}
-	else
-	{
-		mCurrentSDataBlock->addData(vnamep, data, var_data->getSize(), type);
-		mCurrentSendTotal += var_data->getSize();
-	}
+	mMessageBuilder->nextBlock(blockname);
 }
 
 BOOL LLMessageSystem::isSendFull(const char* blockname)
 {
-	if(!blockname)
+	char* stringTableName = NULL;
+	if(NULL != blockname)
 	{
-		return (mCurrentSendTotal > MTUBYTES);
+		stringTableName = gMessageStringTable.getString(blockname);
 	}
-	return isSendFullFast(gMessageStringTable.getString(blockname));
+	return isSendFullFast(stringTableName);
 }
 
 BOOL LLMessageSystem::isSendFullFast(const char* blockname)
 {
-	if(mCurrentSendTotal > MTUBYTES)
-	{
-		return TRUE;
-	}
-	if(!blockname)
-	{
-		return FALSE;
-	}
-	char* bnamep = (char*)blockname;
-	S32 max;
-
-	LLMessageBlock* template_data = mCurrentSMessageTemplate->mMemberBlocks[bnamep];
-	
-	switch(template_data->mType)
-	{
-	case MBT_SINGLE:
-		max = 1;
-		break;
-	case MBT_MULTIPLE:
-		max = template_data->mNumber;
-		break;
-	case MBT_VARIABLE:
-	default:
-		max = MAX_BLOCKS;
-		break;
-	}
-	if(mCurrentSMessageData->mMemberBlocks[bnamep]->mBlockNumber >= max)
-	{
-		return TRUE;
-	}
-	return FALSE;
+	return mMessageBuilder->isMessageFull(blockname);
 }
 
 
 // blow away the last block of a message, return FALSE if that leaves no blocks or there wasn't a block to remove
-BOOL  LLMessageSystem::removeLastBlock()
+// TODO: Babbage: Remove this horror.
+BOOL LLMessageSystem::removeLastBlock()
 {
-	if (mCurrentSBlockName)
-	{
-		if (  (mCurrentSMessageData)
-			&&(mCurrentSMessageTemplate))
-		{
-			if (mCurrentSMessageData->mMemberBlocks[mCurrentSBlockName]->mBlockNumber >= 1)
-			{
-				// At least one block for the current block name.
-
-				// Store the current block name for future reference.
-				char *block_name = mCurrentSBlockName;
-
-				// Decrement the sent total by the size of the
-				// data in the message block that we're currently building.
-
-				LLMessageBlock* template_data = mCurrentSMessageTemplate->mMemberBlocks[mCurrentSBlockName];
-				
-				for (LLMessageBlock::message_variable_map_t::iterator iter = template_data->mMemberVariables.begin();
-					 iter != template_data->mMemberVariables.end(); iter++)
-				{
-					LLMessageVariable& ci = *(iter->second);
-					mCurrentSendTotal -= ci.getSize();
-				}
-
-
-				// Now we want to find the block that we're blowing away.
-
-				// Get the number of blocks.
-				LLMsgBlkData* block_data = mCurrentSMessageData->mMemberBlocks[block_name];
-				S32 num_blocks = block_data->mBlockNumber;
-
-				// Use the same (suspect?) algorithm that's used to generate
-				// the names in the nextBlock method to find it.
-				char *block_getting_whacked = block_name + num_blocks - 1;
-				LLMsgBlkData* whacked_data = mCurrentSMessageData->mMemberBlocks[block_getting_whacked];
-				delete whacked_data;
-				mCurrentSMessageData->mMemberBlocks.erase(block_getting_whacked);
-
-				if (num_blocks <= 1)
-				{
-					// we just blew away the last one, so return FALSE
-					return FALSE;
-				}
-				else
-				{
-					// Decrement the counter.
-					block_data->mBlockNumber--;
-					return TRUE;
-				}
-			}
-		}
-	}
-	return FALSE;
-}
-
-// make sure that all the desired data is in place and then copy the data into mSendBuffer
-void LLMessageSystem::buildMessage()
-{
-	// basic algorithm is to loop through the various pieces, building
-	// size and offset info if we encounter a -1 for mSize at any
-	// point that variable wasn't given data
-
-	// do we have a current message?
-	if (!mCurrentSMessageTemplate)
-	{
-		llerrs << "newMessage not called prior to buildMessage" << llendl;
-		return;
-	}
-
-	// zero out some useful values
-
-	// leave room for circuit counter
-	mSendSize = LL_PACKET_ID_SIZE;
-
-	// encode message number and adjust total_offset
-	if (mCurrentSMessageTemplate->mFrequency == MFT_HIGH)
-	{
-// old, endian-dependant way
-//		memcpy(&mSendBuffer[mSendSize], &mCurrentMessageTemplate->mMessageNumber, sizeof(U8));
-
-// new, independant way
-		mSendBuffer[mSendSize] = (U8)mCurrentSMessageTemplate->mMessageNumber;
-		mSendSize += sizeof(U8);
-	}
-	else if (mCurrentSMessageTemplate->mFrequency == MFT_MEDIUM)
-	{
-		U8 temp = 255;
-		memcpy(&mSendBuffer[mSendSize], &temp, sizeof(U8));  /*Flawfinder: ignore*/
-		mSendSize += sizeof(U8);
-
-		// mask off unsightly bits
-		temp = mCurrentSMessageTemplate->mMessageNumber & 255;
-		memcpy(&mSendBuffer[mSendSize], &temp, sizeof(U8));  /*Flawfinder: ignore*/
-		mSendSize += sizeof(U8);
-	}
-	else if (mCurrentSMessageTemplate->mFrequency == MFT_LOW)
-	{
-		U8 temp = 255;
-		U16  message_num;
-		memcpy(&mSendBuffer[mSendSize], &temp, sizeof(U8));  /*Flawfinder: ignore*/
-		mSendSize += sizeof(U8);
-		memcpy(&mSendBuffer[mSendSize], &temp, sizeof(U8));  /*Flawfinder: ignore*/
-		mSendSize += sizeof(U8);
-
-		// mask off unsightly bits
-		message_num = mCurrentSMessageTemplate->mMessageNumber & 0xFFFF;
-
-	    // convert to network byte order
-		message_num = htons(message_num);
-		memcpy(&mSendBuffer[mSendSize], &message_num, sizeof(U16)); /*Flawfinder: ignore*/
-		mSendSize += sizeof(U16);
-	}
-	else
-	{
-		llerrs << "unexpected message frequency in buildMessage" << llendl;
-		return;
-	}
-
-	// counting variables used to encode multiple block info
-	S32 block_count = 0;
-	U8  temp_block_number;
-
-	// loop through msg blocks to loop through variables, totalling up size data and copying into mSendBuffer
-	for (LLMsgData::msg_blk_data_map_t::iterator
-			 iter = mCurrentSMessageData->mMemberBlocks.begin(),
-			 end = mCurrentSMessageData->mMemberBlocks.end();
-		 iter != end; iter++)
-	{
-		LLMsgBlkData* mbci = iter->second;
-		// do we need to encode a block code?
-		if (block_count == 0)
-		{
-			block_count = mbci->mBlockNumber;
-
-			LLMessageBlock* template_data = mCurrentSMessageTemplate->mMemberBlocks[mbci->mName];
-			
-			// ok, if this is the first block of a repeating pack, set block_count and, if it's type MBT_VARIABLE encode a byte for how many there are
-			if (template_data->mType == MBT_VARIABLE)
-			{
-				// remember that mBlockNumber is a S32
-				temp_block_number = (U8)mbci->mBlockNumber;
-				if ((S32)(mSendSize + sizeof(U8)) < MAX_BUFFER_SIZE)
-				{
-				    memcpy(&mSendBuffer[mSendSize], &temp_block_number, sizeof(U8));	/* Flawfinder: ignore */
-				    mSendSize += sizeof(U8);
-				}
-				else
-				{
-				    // Just reporting error is likely not enough. Need
-				    // to check how to abort or error out gracefully
-				    // from this function. XXXTBD
-				    llerrs << "buildMessage failed. Message excedding"
-						" sendBuffersize." << llendl;
-				}
-			}
-			else if (template_data->mType == MBT_MULTIPLE)
-			{
-				if (block_count != template_data->mNumber)
-				{
-					// nope!  need to fill it in all the way!
-					llerrs << "Block " << mbci->mName
-						<< " is type MBT_MULTIPLE but only has data for "
-						<< block_count << " out of its "
-						<< template_data->mNumber << " blocks" << llendl;
-				}
-			}
-		}
-
-		// counting down multiple blocks
-		block_count--;
-
-		// now loop through the variables
-		for (LLMsgBlkData::msg_var_data_map_t::iterator iter = mbci->mMemberVarData.begin();
-			 iter != mbci->mMemberVarData.end(); iter++)
-		{
-			LLMsgVarData& mvci = *iter;
-			if (mvci.getSize() == -1)
-			{
-				// oops, this variable wasn't ever set!
-				llerrs << "The variable " << mvci.getName() << " in block "
-					<< mbci->mName << " of message "
-					<< mCurrentSMessageData->mName
-					<< " wasn't set prior to buildMessage call" << llendl;
-			}
-			else
-			{
-				S32 data_size = mvci.getDataSize();
-				if(data_size > 0)
-				{
-					// The type is MVT_VARIABLE, which means that we
-					// need to encode a size argument. Otherwise,
-					// there is no need.
-					S32 size = mvci.getSize();
-					U8 sizeb;
-					U16 sizeh;
-					switch(data_size)
-					{
-					case 1:
-						sizeb = size;
-						htonmemcpy(&mSendBuffer[mSendSize], &sizeb, MVT_U8, 1);
-						break;
-					case 2:
-						sizeh = size;
-						htonmemcpy(&mSendBuffer[mSendSize], &sizeh, MVT_U16, 2);
-						break;
-					case 4:
-						htonmemcpy(&mSendBuffer[mSendSize], &size, MVT_S32, 4);
-						break;
-					default:
-						llerrs << "Attempting to build variable field with unknown size of " << size << llendl;
-						break;
-					}
-					mSendSize += mvci.getDataSize();
-				}
-
-				// if there is any data to pack, pack it
-				if((mvci.getData() != NULL) && mvci.getSize())
-				{
-					if(mSendSize + mvci.getSize() < (S32)sizeof(mSendBuffer))
-					{
-					    memcpy( /* Flawfinder: ignore */
-							&mSendBuffer[mSendSize],
-							mvci.getData(),
-							mvci.getSize());
-					    mSendSize += mvci.getSize();
-					}
-					else
-					{
-					    // Just reporting error is likely not
-					    // enough. Need to check how to abort or error
-					    // out gracefully from this function. XXXTBD
-						llerrs << "LLMessageSystem::buildMessage failed. "
-							<< "Attempted to pack "
-							<< mSendSize + mvci.getSize()
-							<< " bytes into a buffer with size "
-							<< mSendBuffer << "." << llendl
-					}						
-				}
-			}
-		}
-	}
-	mbSBuilt = TRUE;
+	return mMessageBuilder->removeLastBlock();
 }
 
 S32 LLMessageSystem::sendReliable(const LLHost &host)
@@ -2858,7 +1885,9 @@ S32 LLMessageSystem::sendSemiReliable(const LLHost &host, void (*callback)(void 
 		timeout = LL_SEMIRELIABLE_TIMEOUT_FACTOR * LL_AVERAGED_PING_MAX;
 	}
 
-	return sendReliable(host, 0, FALSE, timeout, callback, callback_data);
+	const S32 retries = 0;
+	const BOOL ping_based_timeout = FALSE;
+	return sendReliable(host, retries, ping_based_timeout, timeout, callback, callback_data);
 }
 
 // send the message via a UDP packet
@@ -2884,7 +1913,8 @@ S32 LLMessageSystem::sendReliable(	const LLHost &host,
 
 	mSendReliable = TRUE;
 	mReliablePacketParams.set(host, retries, ping_based_timeout, timeout, 
-		callback, callback_data, mCurrentSMessageName);
+		callback, callback_data, 
+		const_cast<char*>(mMessageBuilder->getMessageName()));
 	return sendMessage(host);
 }
 
@@ -2922,11 +1952,13 @@ S32 LLMessageSystem::flushSemiReliable(const LLHost &host, void (*callback)(void
 	}
 
 	S32 send_bytes = 0;
-	if (mCurrentSendTotal)
+	if (mMessageBuilder->getMessageSize())
 	{
 		mSendReliable = TRUE;
 		// No need for ping-based retry as not going to retry
-		mReliablePacketParams.set(host, 0, FALSE, timeout, callback, callback_data, mCurrentSMessageName);
+		mReliablePacketParams.set(host, 0, FALSE, timeout, callback, 
+								  callback_data, 
+								  const_cast<char*>(mMessageBuilder->getMessageName()));
 		send_bytes = sendMessage(host);
 		clearMessage();
 	}
@@ -2940,7 +1972,7 @@ S32 LLMessageSystem::flushSemiReliable(const LLHost &host, void (*callback)(void
 S32 LLMessageSystem::flushReliable(const LLHost &host)
 {
 	S32 send_bytes = 0;
-	if (mCurrentSendTotal)
+	if (mMessageBuilder->getMessageSize())
 	{
 		send_bytes = sendReliable(host);
 	}
@@ -2953,12 +1985,11 @@ S32 LLMessageSystem::flushReliable(const LLHost &host)
 // so should should not use llinfos.
 S32 LLMessageSystem::sendMessage(const LLHost &host)
 {
-	if (!mbSBuilt)
+	if (! mMessageBuilder->isBuilt())
 	{
-		buildMessage();
+		mSendSize = mMessageBuilder->buildMessage(mSendBuffer,
+												  MAX_BUFFER_SIZE);
 	}
-
-	mCurrentSendTotal = 0;
 
 	if (!(host.isOk()))    // if port and ip are zero, don't bother trying to send the message
 	{
@@ -2976,10 +2007,10 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 			if(mVerboseLog)
 			{
 				llinfos << "MSG: -> " << host << "\tUNKNOWN CIRCUIT:\t"
-						<< mCurrentSMessageName << llendl;
+						<< mMessageBuilder->getMessageName() << llendl;
 			}
 			llwarns << "sendMessage - Trying to send "
-					<< mCurrentSMessageName << " on unknown circuit "
+					<< mMessageBuilder->getMessageName() << " on unknown circuit "
 					<< host << llendl;
 			return 0;
 		}
@@ -2998,13 +2029,39 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 			if(mVerboseLog)
 			{
 				llinfos << "MSG: -> " << host << "\tDEAD CIRCUIT\t\t"
-						<< mCurrentSMessageName << llendl;
+						<< mMessageBuilder->getMessageName() << llendl;
 			}
 			llwarns << "sendMessage - Trying to send message "
-					<< mCurrentSMessageName << " to dead circuit "
+					<< mMessageBuilder->getMessageName() << " to dead circuit "
 					<< host << llendl;
 			return 0;
 		}
+	}
+
+	// NOTE: babbage: LLSD message -> HTTP, template message -> UDP
+	if(mMessageBuilder == mLLSDMessageBuilder)
+	{
+		LLSD message = mLLSDMessageBuilder->getMessage();
+		
+		const LLHTTPSender& sender = LLHTTPSender::getSender(host);
+		LLHTTPClient::ResponderPtr responder = NULL;
+		if(mSendReliable)
+		{
+			responder =
+				new LLFnPtrResponder(mReliablePacketParams.mCallback,
+									 mReliablePacketParams.mCallbackData);
+		}
+		else
+		{
+			llwarns << "LLMessageSystem::sendMessage: Sending unreliable " << mMessageBuilder->getMessageName() << " message via HTTP" << llendl;
+			responder = new LLFnPtrResponder(NULL, NULL);
+		}
+		sender.send(host, mLLSDMessageBuilder->getMessageName(),
+					message, responder);
+
+		mSendReliable = FALSE;
+		mReliablePacketParams.clear();
+		return 1;
 	}
 
 	memset(mSendBuffer,0,LL_PACKET_ID_SIZE); // zero out the packet ID field
@@ -3017,20 +2074,17 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 
 	// Compress the message, which will usually reduce its size.
 	U8 * buf_ptr = (U8 *)mSendBuffer;
-	S32 buffer_length = mSendSize;
-	if(ME_ZEROCODED == mCurrentSMessageTemplate->getEncoding())
-	{
-		zeroCode(&buf_ptr, &buffer_length);
-	}
+	U32 buffer_length = mSendSize;
+	mMessageBuilder->compressMessage(buf_ptr, buffer_length);
 
 	if (buffer_length > 1500)
 	{
-		if((mCurrentSMessageName != _PREHASH_ChildAgentUpdate)
-		   && (mCurrentSMessageName != _PREHASH_SendXferPacket))
+		if((mMessageBuilder->getMessageName() != _PREHASH_ChildAgentUpdate)
+		   && (mMessageBuilder->getMessageName() != _PREHASH_SendXferPacket))
 		{
 			llwarns << "sendMessage - Trying to send "
 					<< ((buffer_length > 4000) ? "EXTRA " : "")
-					<< "BIG message " << mCurrentSMessageName << " - "
+					<< "BIG message " << mMessageBuilder->getMessageName() << " - "
 					<< buffer_length << llendl;
 		}
 	}
@@ -3055,7 +2109,7 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 	BOOL is_ack_appended = FALSE;
 	std::vector<TPACKETID> acks;
 	if((space_left > 0) && (ack_count > 0) && 
-	   (mCurrentSMessageName != _PREHASH_PacketAck))
+	   (mMessageBuilder->getMessageName() != _PREHASH_PacketAck))
 	{
 		buf_ptr[0] |= LL_ACK_FLAG;
 		S32 append_ack_count = llmin(space_left, ack_count);
@@ -3126,7 +2180,7 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 		char buffer[MAX_STRING];			/* Flawfinder: ignore */
 		snprintf(buffer, MAX_STRING, "\t%6d\t%6d\t%6d ", mSendSize, buffer_length, cdp->getPacketOutID());		/* Flawfinder: ignore */
 		str << buffer
-			<< mCurrentSMessageTemplate->mName
+			<< mMessageBuilder->getMessageName()
 			<< (mSendReliable ? " reliable " : "");
 		if(is_ack_appended)
 		{
@@ -3137,88 +2191,18 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 		llinfos << str.str() << llendl;
 	}
 
-	lldebugst(LLERR_MESSAGE) << "MessageSent at: " << (S32)totalTime() 
-		<< ", " << mCurrentSMessageTemplate->mName
-		<< " to " << host 
-		<< llendl;
-
-	// ok, clean up temp data
-	delete mCurrentSMessageData;
-	mCurrentSMessageData = NULL;
+	/*lldebugst(LLERR_MESSAGE) << "MessageSent at: " << (S32)totalTime() 
+							 << "," << mMessageBuilder->getMessageName()
+							 << " to " << host 
+							 << llendl;*/
 
 	mPacketsOut++;
 	mBytesOut += buffer_length;
 	
+	mSendReliable = FALSE;
+	mReliablePacketParams.clear();
 	return buffer_length;
 }
-
-
-// Returns template for the message contained in buffer
-BOOL LLMessageSystem::decodeTemplate(  
-		const U8* buffer, S32 buffer_size,  // inputs
-		LLMessageTemplate** msg_template ) // outputs
-{
-	const U8* header = buffer + LL_PACKET_ID_SIZE;
-
-	// is there a message ready to go?
-	if (buffer_size <= 0)
-	{
-		llwarns << "No message waiting for decode!" << llendl;
-		return(FALSE);
-	}
-
-	U32 num = 0;
-
-	if (header[0] != 255)
-	{
-		// high frequency message
-		num = header[0];
-	}
-	else if ((buffer_size >= ((S32) LL_MINIMUM_VALID_PACKET_SIZE + 1)) && (header[1] != 255))
-	{
-		// medium frequency message
-		num = (255 << 8) | header[1];
-	}
-	else if ((buffer_size >= ((S32) LL_MINIMUM_VALID_PACKET_SIZE + 3)) && (header[1] == 255))
-	{
-		// low frequency message
-		U16	message_id_U16 = 0;
-		// I think this check busts the message system.
-		// it appears that if there is a NULL in the message #, it won't copy it....
-		// what was the goal?
-		//if(header[2])
-		memcpy(&message_id_U16, &header[2], 2);	/* Flawfinder: ignore */
-
-		// dependant on endian-ness:
-		//		U32	temp = (255 << 24) | (255 << 16) | header[2];
-
-		// independant of endian-ness:
-		message_id_U16 = ntohs(message_id_U16);
-		num = 0xFFFF0000 | message_id_U16;
-	}
-	else // bogus packet received (too short)
-	{
-		llwarns << "Packet with unusable length received (too short): "
-				<< buffer_size << llendl;
-		return(FALSE);
-	}
-
-	LLMessageTemplate* temp = get_ptr_in_map(mMessageNumbers,num);
-	if (temp)
-	{
-		*msg_template = temp;
-	}
-	else
-	{
-		llwarns << "Message #" << std::hex << num << std::dec
-			<< " received but not registered!" << llendl;
-		callExceptionFunc(MX_UNREGISTERED_MESSAGE);
-		return(FALSE);
-	}
-
-	return(TRUE);
-}
-
 
 void LLMessageSystem::logMsgFromInvalidCircuit( const LLHost& host, BOOL recv_reliable )
 {
@@ -3227,9 +2211,9 @@ void LLMessageSystem::logMsgFromInvalidCircuit( const LLHost& host, BOOL recv_re
 		std::ostringstream str;
 		str << "MSG: <- " << host;
 		char buffer[MAX_STRING];			/* Flawfinder: ignore */
-		snprintf(buffer, MAX_STRING, "\t%6d\t%6d\t%6d ", mReceiveSize, (mIncomingCompressedSize ? mIncomingCompressedSize: mReceiveSize), mCurrentRecvPacketID);	/* Flawfinder: ignore */
+		snprintf(buffer, MAX_STRING, "\t%6d\t%6d\t%6d ", mMessageReader->getMessageSize(), (mIncomingCompressedSize ? mIncomingCompressedSize: mMessageReader->getMessageSize()), mCurrentRecvPacketID);		/* Flawfinder: ignore */
 		str << buffer
-			<< mCurrentRMessageTemplate->mName
+			<< mMessageReader->getMessageName()
 			<< (recv_reliable ? " reliable" : "")
  			<< " REJECTED";
 		llinfos << str.str() << llendl;
@@ -3244,8 +2228,9 @@ void LLMessageSystem::logMsgFromInvalidCircuit( const LLHost& host, BOOL recv_re
 	}
 	else
 	{
-		mMessageCountList[mNumMessageCounts].mMessageNum = mCurrentRMessageTemplate->mMessageNumber;
-		mMessageCountList[mNumMessageCounts].mMessageBytes = mReceiveSize;
+		// TODO: babbage: work out if we need these
+		// mMessageCountList[mNumMessageCounts].mMessageNum = mCurrentRMessageTemplate->mMessageNumber;
+		mMessageCountList[mNumMessageCounts].mMessageBytes = mMessageReader->getMessageSize();
 		mMessageCountList[mNumMessageCounts].mInvalid = TRUE;
 		mNumMessageCounts++;
 	}
@@ -3255,11 +2240,11 @@ void LLMessageSystem::logTrustedMsgFromUntrustedCircuit( const LLHost& host )
 {
 	// RequestTrustedCircuit is how we establish trust, so don't spam
 	// if it's received on a trusted circuit. JC
-	if (strcmp(mCurrentRMessageTemplate->mName, "RequestTrustedCircuit"))
+	if (strcmp(mMessageReader->getMessageName(), "RequestTrustedCircuit"))
 	{
 		llwarns << "Received trusted message on untrusted circuit. "
 	   		<< "Will reply with deny. "
-			<< "Message: " << mCurrentRMessageTemplate->mName
+			<< "Message: " << mMessageReader->getMessageName()
 			<< " Host: " << host << llendl;
 	}
 
@@ -3271,10 +2256,11 @@ void LLMessageSystem::logTrustedMsgFromUntrustedCircuit( const LLHost& host )
 	}
 	else
 	{
-		mMessageCountList[mNumMessageCounts].mMessageNum
-			= mCurrentRMessageTemplate->mMessageNumber;
+		// TODO: babbage: work out if we need these
+		//mMessageCountList[mNumMessageCounts].mMessageNum
+		//	= mCurrentRMessageTemplate->mMessageNumber;
 		mMessageCountList[mNumMessageCounts].mMessageBytes
-			= mReceiveSize;
+			= mMessageReader->getMessageSize();
 		mMessageCountList[mNumMessageCounts].mInvalid = TRUE;
 		mNumMessageCounts++;
 	}
@@ -3288,8 +2274,9 @@ void LLMessageSystem::logValidMsg(LLCircuitData *cdp, const LLHost& host, BOOL r
 	}
 	else
 	{
-		mMessageCountList[mNumMessageCounts].mMessageNum = mCurrentRMessageTemplate->mMessageNumber;
-		mMessageCountList[mNumMessageCounts].mMessageBytes = mReceiveSize;
+		// TODO: babbage: work out if we need these
+		//mMessageCountList[mNumMessageCounts].mMessageNum = mCurrentRMessageTemplate->mMessageNumber;
+		mMessageCountList[mNumMessageCounts].mMessageBytes = mMessageReader->getMessageSize();
 		mMessageCountList[mNumMessageCounts].mInvalid = FALSE;
 		mNumMessageCounts++;
 	}
@@ -3306,9 +2293,9 @@ void LLMessageSystem::logValidMsg(LLCircuitData *cdp, const LLHost& host, BOOL r
 		std::ostringstream str;
 		str << "MSG: <- " << host;
 		char buffer[MAX_STRING];			/* Flawfinder: ignore */
-		snprintf(buffer, MAX_STRING, "\t%6d\t%6d\t%6d ", mReceiveSize, (mIncomingCompressedSize ? mIncomingCompressedSize : mReceiveSize), mCurrentRecvPacketID);		/* Flawfinder: ignore */
+		snprintf(buffer, MAX_STRING, "\t%6d\t%6d\t%6d ", mMessageReader->getMessageSize(), (mIncomingCompressedSize ? mIncomingCompressedSize : mMessageReader->getMessageSize()), mCurrentRecvPacketID);		/* Flawfinder: ignore */
 		str << buffer
-			<< mCurrentRMessageTemplate->mName
+			<< mMessageReader->getMessageName()
 			<< (recv_reliable ? " reliable" : "")
 			<< (recv_resent ? " resent" : "")
 			<< (recv_acks ? " acks" : "");
@@ -3316,446 +2303,19 @@ void LLMessageSystem::logValidMsg(LLCircuitData *cdp, const LLHost& host, BOOL r
 	}
 }
 
-
-void LLMessageSystem::logRanOffEndOfPacket( const LLHost& host )
-{
-	// we've run off the end of the packet!
-	llwarns << "Ran off end of packet " << mCurrentRMessageTemplate->mName
-			<< " with id " << mCurrentRecvPacketID << " from " << host
-			<< llendl;
-	if(mVerboseLog)
-	{
-		llinfos << "MSG: -> " << host << "\tREAD PAST END:\t"
-				<< mCurrentRecvPacketID << " "
-				<< mCurrentSMessageTemplate->mName << llendl;
-	}
-	callExceptionFunc(MX_RAN_OFF_END_OF_PACKET);
-}
-
-
-// decode a given message
-BOOL LLMessageSystem::decodeData(const U8* buffer, const LLHost& sender )
-{
-	llassert( mReceiveSize >= 0 );
-	llassert( mCurrentRMessageTemplate);
-	llassert( !mCurrentRMessageData );
-	delete mCurrentRMessageData; // just to make sure
-
-	S32 decode_pos = LL_PACKET_ID_SIZE + (S32)(mCurrentRMessageTemplate->mFrequency);
-
-	// create base working data set
-	mCurrentRMessageData = new LLMsgData(mCurrentRMessageTemplate->mName);
-	
-	// loop through the template building the data structure as we go
-	for (LLMessageTemplate::message_block_map_t::iterator iter = mCurrentRMessageTemplate->mMemberBlocks.begin();
-		 iter != mCurrentRMessageTemplate->mMemberBlocks.end(); iter++)
-	{
-		LLMessageBlock* mbci = iter->second;
-		U8	repeat_number;
-		S32	i;
-
-		// how many of this block?
-
-		if (mbci->mType == MBT_SINGLE)
-		{
-			// just one
-			repeat_number = 1;
-		}
-		else if (mbci->mType == MBT_MULTIPLE)
-		{
-			// a known number
-			repeat_number = mbci->mNumber;
-		}
-		else if (mbci->mType == MBT_VARIABLE)
-		{
-			// need to read the number from the message
-			// repeat number is a single byte
-			if (decode_pos >= mReceiveSize)
-			{
-				logRanOffEndOfPacket( sender );
-				return FALSE;
-			}
-			repeat_number = buffer[decode_pos];
-			decode_pos++;
-		}
-		else
-		{
-			llerrs << "Unknown block type" << llendl;
-			return FALSE;
-		}
-
-		LLMsgBlkData* cur_data_block = NULL;
-
-		// now loop through the block
-		for (i = 0; i < repeat_number; i++)
-		{
-			if (i)
-			{
-				// build new name to prevent collisions
-				// TODO: This should really change to a vector
-				cur_data_block = new LLMsgBlkData(mbci->mName, repeat_number);
-				cur_data_block->mName = mbci->mName + i;
-			}
-			else
-			{
-				cur_data_block = new LLMsgBlkData(mbci->mName, repeat_number);
-			}
-
-			// add the block to the message
-			mCurrentRMessageData->addBlock(cur_data_block);
-
-			// now read the variables
-			for (LLMessageBlock::message_variable_map_t::iterator iter = mbci->mMemberVariables.begin();
-				 iter != mbci->mMemberVariables.end(); iter++)
-			{
-				LLMessageVariable& mvci = *(iter->second);
-				// ok, build out the variables
-				// add variable block
-				cur_data_block->addVariable(mvci.getName(), mvci.getType());
-
-				// what type of variable?
-				if (mvci.getType() == MVT_VARIABLE)
-				{
-					// variable, get the number of bytes to read from the template
-					S32 data_size = mvci.getSize();
-					U8 tsizeb = 0;
-					U16 tsizeh = 0;
-					U32 tsize = 0;
-
-					if ((decode_pos + data_size) > mReceiveSize)
-					{
-						logRanOffEndOfPacket( sender );
-						return FALSE;
-					}
-					switch(data_size)
-					{
-					case 1:
-						htonmemcpy(&tsizeb, &buffer[decode_pos], MVT_U8, 1);
-						tsize = tsizeb;
-						break;
-					case 2:
-						htonmemcpy(&tsizeh, &buffer[decode_pos], MVT_U16, 2);
-						tsize = tsizeh;
-						break;
-					case 4:
-						htonmemcpy(&tsizeb, &buffer[decode_pos], MVT_U32, 4);
-						break;
-					default:
-						llerrs << "Attempting to read variable field with unknown size of " << data_size << llendl;
-						break;
-						
-					}
-					decode_pos += data_size;
-
-					if ((decode_pos + (S32)tsize) > mReceiveSize)
-					{
-						logRanOffEndOfPacket( sender );
-						return FALSE;
-					}
-					cur_data_block->addData(mvci.getName(), &buffer[decode_pos], tsize, mvci.getType());
-					decode_pos += tsize;
-				}
-				else
-				{
-					// fixed!
-					// so, copy data pointer and set data size to fixed size
-
-					if ((decode_pos + mvci.getSize()) > mReceiveSize)
-					{
-						logRanOffEndOfPacket( sender );
-						return FALSE;
-					}
-
-					cur_data_block->addData(mvci.getName(), &buffer[decode_pos], mvci.getSize(), mvci.getType());
-					decode_pos += mvci.getSize();
-				}
-			}
-		}
-	}
-
-	if (mCurrentRMessageData->mMemberBlocks.empty()
-		&& !mCurrentRMessageTemplate->mMemberBlocks.empty())
-	{
-		lldebugs << "Empty message '" << mCurrentRMessageTemplate->mName << "' (no blocks)" << llendl;
-		return FALSE;
-	}
-
-	{
-		static LLTimer decode_timer;
-
-		if( mTimeDecodes || mTimingCallback )
-		{
-			decode_timer.reset();
-		}
-
-		//	if( mCurrentRMessageTemplate->mName == _PREHASH_AgentToNewRegion )
-		//	{
-		//		VTResume();  // VTune
-		//	}
-
-		{
-			LLFastTimer t(LLFastTimer::FTM_PROCESS_MESSAGES);
-			if( !mCurrentRMessageTemplate->callHandlerFunc(this) )
-			{
-				llwarns << "Message from " << sender << " with no handler function received: " << mCurrentRMessageTemplate->mName << llendl;
-			}
-		}
-
-		//	if( mCurrentRMessageTemplate->mName == _PREHASH_AgentToNewRegion )
-		//	{
-		//		VTPause();	// VTune
-		//	}
-
-		if( mTimeDecodes || mTimingCallback )
-		{
-			F32 decode_time = decode_timer.getElapsedTimeF32();
-
-			if (mTimingCallback)
-			{
-				mTimingCallback(mCurrentRMessageTemplate->mName,
-								decode_time,
-								mTimingCallbackData);
-			}
-
-			if (mTimeDecodes)
-			{
-				mCurrentRMessageTemplate->mDecodeTimeThisFrame += decode_time;
-
-				mCurrentRMessageTemplate->mTotalDecoded++;
-				mCurrentRMessageTemplate->mTotalDecodeTime += decode_time;
-
-				if( mCurrentRMessageTemplate->mMaxDecodeTimePerMsg < decode_time )
-				{
-					mCurrentRMessageTemplate->mMaxDecodeTimePerMsg = decode_time;
-				}
-
-
-				if( decode_time > mTimeDecodesSpamThreshold )
-				{
-					lldebugs << "--------- Message " << mCurrentRMessageTemplate->mName << " decode took " << decode_time << " seconds. (" <<
-						mCurrentRMessageTemplate->mMaxDecodeTimePerMsg << " max, " <<
-						(mCurrentRMessageTemplate->mTotalDecodeTime / mCurrentRMessageTemplate->mTotalDecoded) << " avg)" << llendl;
-				}
-			}
-		}
-	}
-	return TRUE;
-}
-
-void LLMessageSystem::getDataFast(const char *blockname, const char *varname, void *datap, S32 size, S32 blocknum, S32 max_size)
-{
-	// is there a message ready to go?
-	if (mReceiveSize == -1)
-	{
-		llerrs << "No message waiting for decode 2!" << llendl;
-		return;
-	}
-
-	if (!mCurrentRMessageData)
-	{
-		llerrs << "Invalid mCurrentMessageData in getData!" << llendl;
-		return;
-	}
-
-	char *bnamep = (char *)blockname + blocknum; // this works because it's just a hash.  The bnamep is never derefference
-	char *vnamep = (char *)varname; 
-
-	LLMsgData::msg_blk_data_map_t::iterator iter = mCurrentRMessageData->mMemberBlocks.find(bnamep);
-
-	if (iter == mCurrentRMessageData->mMemberBlocks.end())
-	{
-		llerrs << "Block " << blockname << " #" << blocknum
-			<< " not in message " << mCurrentRMessageData->mName << llendl;
-		return;
-	}
-
-	LLMsgBlkData *msg_block_data = iter->second;
-	LLMsgVarData& vardata = msg_block_data->mMemberVarData[vnamep];
-
-	if (!vardata.getName())
-	{
-		llerrs << "Variable "<< vnamep << " not in message "
-			<< mCurrentRMessageData->mName<< " block " << bnamep << llendl;
-		return;
-	}
-
-	if (size && size != vardata.getSize())
-	{
-		llerrs << "Msg " << mCurrentRMessageData->mName 
-			<< " variable " << vnamep
-			<< " is size " << vardata.getSize()
-			<< " but copying into buffer of size " << size
-			<< llendl;
-		return;
-	}
-
-
-	const S32 vardata_size = vardata.getSize();
-	if( max_size >= vardata_size )
-	{   
-		switch( vardata_size )
-		{ 
-		case 1:
-			*((U8*)datap) = *((U8*)vardata.getData());
-			break;
-		case 2:
-			*((U16*)datap) = *((U16*)vardata.getData());
-			break;
-		case 4:
-			*((U32*)datap) = *((U32*)vardata.getData());
-			break;
-		case 8:
-			((U32*)datap)[0] = ((U32*)vardata.getData())[0];
-			((U32*)datap)[1] = ((U32*)vardata.getData())[1];
-			break;
-		default:
-			memcpy(datap, vardata.getData(), vardata_size);	/* Flawfinder: ignore */
-			break;
-		}
-	}
-	else
-	{
-		llwarns << "Msg " << mCurrentRMessageData->mName 
-			<< " variable " << vnamep
-			<< " is size " << vardata.getSize()
-			<< " but truncated to max size of " << max_size
-			<< llendl;
-
-		memcpy(datap, vardata.getData(), max_size);	/* Flawfinder: ignore */
-	}
-}
-
-S32 LLMessageSystem::getNumberOfBlocksFast(const char *blockname)
-{
-	// is there a message ready to go?
-	if (mReceiveSize == -1)
-	{
-		llerrs << "No message waiting for decode 3!" << llendl;
-		return -1;
-	}
-
-	if (!mCurrentRMessageData)
-	{
-		llerrs << "Invalid mCurrentRMessageData in getData!" << llendl;
-		return -1;
-	}
-
-	char *bnamep = (char *)blockname; 
-
-	LLMsgData::msg_blk_data_map_t::iterator iter = mCurrentRMessageData->mMemberBlocks.find(bnamep);
-	
-	if (iter == mCurrentRMessageData->mMemberBlocks.end())
-	{
-//		sprintf(errmsg, "Block %s not in message %s", bnamep, mCurrentRMessageData->mName);
-//		llerrs << errmsg << llendl;
-//		return -1;
-		return 0;
-	}
-
-	return (iter->second)->mBlockNumber;
-}
-
-S32 LLMessageSystem::getSizeFast(const char *blockname, const char *varname)
-{
-	// is there a message ready to go?
-	if (mReceiveSize == -1)
-	{
-		llerrs << "No message waiting for decode 4!" << llendl;
-		return -1;
-	}
-
-	if (!mCurrentRMessageData)
-	{
-		llerrs << "Invalid mCurrentRMessageData in getData!" << llendl;
-		return -1;
-	}
-
-	char *bnamep = (char *)blockname; 
-
-	LLMsgData::msg_blk_data_map_t::iterator iter = mCurrentRMessageData->mMemberBlocks.find(bnamep);
-	
-	if (iter == mCurrentRMessageData->mMemberBlocks.end())
-	{
-		llerrs << "Block " << bnamep << " not in message "
-			<< mCurrentRMessageData->mName << llendl;
-		return -1;
-	}
-
-	char *vnamep = (char *)varname; 
-
-	LLMsgBlkData* msg_data = iter->second;
-	LLMsgVarData& vardata = msg_data->mMemberVarData[vnamep];
-	
-	if (!vardata.getName())
-	{
-		llerrs << "Variable " << varname << " not in message "
-			<< mCurrentRMessageData->mName << " block " << bnamep << llendl;
-		return -1;
-	}
-
-	if (mCurrentRMessageTemplate->mMemberBlocks[bnamep]->mType != MBT_SINGLE)
-	{
-		llerrs << "Block " << bnamep << " isn't type MBT_SINGLE,"
-			" use getSize with blocknum argument!" << llendl;
-		return -1;
-	}
-
-	return vardata.getSize();
-}
-
-
-S32 LLMessageSystem::getSizeFast(const char *blockname, S32 blocknum, const char *varname)
-{
-	// is there a message ready to go?
-	if (mReceiveSize == -1)
-	{
-		llerrs << "No message waiting for decode 5!" << llendl;
-		return -1;
-	}
-
-	if (!mCurrentRMessageData)
-	{
-		llerrs << "Invalid mCurrentRMessageData in getData!" << llendl;
-		return -1;
-	}
-
-	char *bnamep = (char *)blockname + blocknum; 
-	char *vnamep = (char *)varname; 
-
-	LLMsgData::msg_blk_data_map_t::iterator iter = mCurrentRMessageData->mMemberBlocks.find(bnamep);
-	
-	if (iter == mCurrentRMessageData->mMemberBlocks.end())
-	{
-		llerrs << "Block " << bnamep << " not in message "
-			<< mCurrentRMessageData->mName << llendl;
-		return -1;
-	}
-
-	LLMsgBlkData* msg_data = iter->second;
-	LLMsgVarData& vardata = msg_data->mMemberVarData[vnamep];
-	
-	if (!vardata.getName())
-	{
-		llerrs << "Variable " << vnamep << " not in message "
-			<<  mCurrentRMessageData->mName << " block " << bnamep << llendl;
-		return -1;
-	}
-
-	return vardata.getSize();
-}
-
-
 void LLMessageSystem::sanityCheck()
 {
-	if (!mCurrentRMessageData)
-	{
-		llerrs << "mCurrentRMessageData is NULL" << llendl;
-	}
+// TODO: babbage: reinstate
 
-	if (!mCurrentRMessageTemplate)
-	{
-		llerrs << "mCurrentRMessageTemplate is NULL" << llendl;
-	}
+//	if (!mCurrentRMessageData)
+//	{
+//		llerrs << "mCurrentRMessageData is NULL" << llendl;
+//	}
+
+//	if (!mCurrentRMessageTemplate)
+//	{
+//		llerrs << "mCurrentRMessageTemplate is NULL" << llendl;
+//	}
 
 //	if (!mCurrentRTemplateBlock)
 //	{
@@ -3767,25 +2327,25 @@ void LLMessageSystem::sanityCheck()
 //		llerrs << "mCurrentRDataBlock is NULL" << llendl;
 //	}
 
-	if (!mCurrentSMessageData)
-	{
-		llerrs << "mCurrentSMessageData is NULL" << llendl;
-	}
+//	if (!mCurrentSMessageData)
+//	{
+//		llerrs << "mCurrentSMessageData is NULL" << llendl;
+//	}
 
-	if (!mCurrentSMessageTemplate)
-	{
-		llerrs << "mCurrentSMessageTemplate is NULL" << llendl;
-	}
+//	if (!mCurrentSMessageTemplate)
+//	{
+//		llerrs << "mCurrentSMessageTemplate is NULL" << llendl;
+//	}
 
 //	if (!mCurrentSTemplateBlock)
 //	{
 //		llerrs << "mCurrentSTemplateBlock is NULL" << llendl;
 //	}
 
-	if (!mCurrentSDataBlock)
-	{
-		llerrs << "mCurrentSDataBlock is NULL" << llendl;
-	}
+//	if (!mCurrentSDataBlock)
+//	{
+//		llerrs << "mCurrentSDataBlock is NULL" << llendl;
+//	}
 }
 
 void LLMessageSystem::showCircuitInfo()
@@ -4171,7 +2731,8 @@ bool LLMessageSystem::addCircuitCode(U32 code, const LLUUID& session_id)
 //}
 
 // static
-void LLMessageSystem::processUseCircuitCode(LLMessageSystem* msg, void**)
+void LLMessageSystem::processUseCircuitCode(LLMessageSystem* msg,
+											void** user)
 {
 	U32 circuit_code_in;
 	msg->getU32Fast(_PREHASH_CircuitCode, _PREHASH_Code, circuit_code_in);
@@ -4291,6 +2852,13 @@ void LLMessageSystem::processUseCircuitCode(LLMessageSystem* msg, void**)
 		llinfos << "Circuit code " << circuit_code_in << " from "
 				<< msg->getSender() << " for agent " << id << " in session "
 				<< session_id << llendl;
+
+		const LLUseCircuitCodeResponder* responder =
+			(const LLUseCircuitCodeResponder*) user;
+		if(responder)
+		{
+			responder->complete(msg->getSender(), id);
+		}
 	}
 	else
 	{
@@ -4298,7 +2866,50 @@ void LLMessageSystem::processUseCircuitCode(LLMessageSystem* msg, void**)
 	}
 }
 
+static LLHTTPNode& messageRootNode()
+{
+	static LLHTTPNode root_node;
+	static bool initialized = false;
+	if (!initialized) {
+		initialized = true;
+		LLHTTPRegistrar::buildAllServices(root_node);
+	}
 
+	return root_node;
+}
+
+//static
+void LLMessageSystem::dispatch(const std::string& msg_name,
+								const LLSD& message)
+{
+	LLPointer<LLSimpleResponse>	responsep =	LLSimpleResponse::create();
+	dispatch(msg_name, message, responsep);
+}
+
+//static
+void LLMessageSystem::dispatch(const std::string& msg_name,
+								const LLSD& message,
+							   LLHTTPNode::ResponsePtr responsep)
+{
+	if (msg_name.empty())
+	{
+		llwarns	<< "LLMessageService::dispatch called with no message name"
+				<< llendl;
+		return;
+	}
+	
+	std::string	path = "/message/" + msg_name;
+	LLSD context;
+	const LLHTTPNode* handler =	messageRootNode().traverse(path, context);
+	if (!handler)
+	{
+		llwarns	<< "LLMessageService::dispatch > no handler for "
+				<< path << llendl;
+		return;
+	}
+
+	handler->post(responsep, context, message);
+}
 
 static void check_for_unrecognized_messages(
 		const char* type,
@@ -4613,7 +3224,8 @@ BOOL start_messaging_system(
 	S32 version_minor,
 	S32 version_patch,
 	BOOL b_dump_prehash_file,
-	const std::string& secret)
+	const std::string& secret,
+	const LLUseCircuitCodeResponder* responder)
 {
 	gMessageSystem = new LLMessageSystem(
 		template_name.c_str(),
@@ -4662,7 +3274,7 @@ BOOL start_messaging_system(
 	//gMessageSystem->setHandlerFuncFast(_PREHASH_AssignCircuitCode, LLMessageSystem::processAssignCircuitCode);	   
 	gMessageSystem->setHandlerFuncFast(_PREHASH_AddCircuitCode, LLMessageSystem::processAddCircuitCode);
 	//gMessageSystem->setHandlerFuncFast(_PREHASH_AckAddCircuitCode,		ack_add_circuit_code,		NULL);
-	gMessageSystem->setHandlerFuncFast(_PREHASH_UseCircuitCode, LLMessageSystem::processUseCircuitCode);
+	gMessageSystem->setHandlerFuncFast(_PREHASH_UseCircuitCode, LLMessageSystem::processUseCircuitCode, (void**)responder);
 	gMessageSystem->setHandlerFuncFast(_PREHASH_PacketAck,             process_packet_ack,	    NULL);
 	gMessageSystem->setHandlerFuncFast(_PREHASH_TemplateChecksumRequest,  process_template_checksum_request,	NULL);
 	gMessageSystem->setHandlerFuncFast(_PREHASH_SecuredTemplateChecksumRequest,  process_secured_template_checksum_request,	NULL);
@@ -4882,13 +3494,13 @@ void LLMessageSystem::dumpReceiveCounts()
 
 BOOL LLMessageSystem::isClear() const
 {
-	return mbSClear;
+	return mMessageBuilder->isClear();
 }
 
 
 S32 LLMessageSystem::flush(const LLHost &host)
 {
-	if (mCurrentSendTotal)
+	if (mMessageBuilder->getMessageSize())
 	{
 		S32 sentbytes = sendMessage(host);
 		clearMessage();
@@ -4905,91 +3517,22 @@ U32 LLMessageSystem::getListenPort( void ) const
 	return mPort;
 }
 
-
-S32 LLMessageSystem::zeroCode(U8 **data, S32 *data_size)
-{
-	S32 count = *data_size;
-	
-	S32 net_gain = 0;
-	U8 num_zeroes = 0;
-	
-	U8 *inptr = (U8 *)*data;
-	U8 *outptr = (U8 *)mEncodedSendBuffer;
-
-// skip the packet id field
-
-	for (U32 i=0;i<LL_PACKET_ID_SIZE;i++)
-	{
-		count--;
-		*outptr++ = *inptr++;
-	}
-
-// build encoded packet, keeping track of net size gain
-
-// sequential zero bytes are encoded as 0 [U8 count] 
-// with 0 0 [count] representing wrap (>256 zeroes)
-
-	while (count--)
-	{
-		if (!(*inptr))   // in a zero count
-		{
-			if (num_zeroes)
-			{
-				if (++num_zeroes > 254)
-				{
-					*outptr++ = num_zeroes;
-					num_zeroes = 0;
-				}
-				net_gain--;   // subseqent zeroes save one
-			}
-			else
-			{
-				*outptr++ = 0;
-				net_gain++;  // starting a zero count adds one
-				num_zeroes = 1;
-			}
-			inptr++;
-		}
-		else
-		{
-			if (num_zeroes)
-			{
-				*outptr++ = num_zeroes;
-				num_zeroes = 0;
-			}
-			*outptr++ = *inptr++;
-		}
-	}
-
-	if (num_zeroes)
-	{
-		*outptr++ = num_zeroes;
-	}
-
-	if (net_gain < 0)
-	{
-		mCompressedPacketsOut++;
-		mUncompressedBytesOut += *data_size;
-
-		*data = mEncodedSendBuffer;
-		*data_size += net_gain;
-		mEncodedSendBuffer[0] |= LL_ZERO_CODE_FLAG;          // set the head bit to indicate zero coding
-
-		mCompressedBytesOut += *data_size;
-
-	}
-	mTotalBytesOut += *data_size;
-
-	return(net_gain);
-}
-
+// TODO: babbage: remove this horror!
 S32 LLMessageSystem::zeroCodeAdjustCurrentSendTotal()
 {
-	if (!mbSBuilt)
+	if(mMessageBuilder == mLLSDMessageBuilder)
 	{
-		buildMessage();
+		// babbage: don't compress LLSD messages, so delta is 0
+		return 0;
 	}
-	mbSBuilt = FALSE;
+	
+	if (! mMessageBuilder->isBuilt())
+	{
+		mSendSize = mMessageBuilder->buildMessage(mSendBuffer,
+												  MAX_BUFFER_SIZE);
+	}
+	// TODO: babbage: remove this horror
+	mMessageBuilder->setBuilt(FALSE);
 
 	S32 count = mSendSize;
 	
@@ -5169,7 +3712,6 @@ void LLMessageSystem::setHandlerFuncFast(const char *name, void (*handler_func)(
 	}
 }
 
-
 bool LLMessageSystem::callHandler(const char *name,
 		bool trustedSource, LLMessageSystem* msg)
 {
@@ -5237,27 +3779,14 @@ BOOL LLMessageSystem::isCircuitCodeKnown(U32 code) const
 
 BOOL LLMessageSystem::isMessageFast(const char *msg)
 {
-	if (mCurrentRMessageTemplate)
-	{
-		return(msg == mCurrentRMessageTemplate->mName);
-	}
-	else
-	{
-		return FALSE;
-	}
+	return(msg == mMessageReader->getMessageName());
 }
 
 
 char* LLMessageSystem::getMessageName()
 {
-	if (mCurrentRMessageTemplate)
-	{
-		return mCurrentRMessageTemplate->mName;
-	}
-	else
-	{
-		return NULL;
-	}
+	const char* name = mMessageReader->getMessageName();
+	return name[0] == '\0'? NULL : const_cast<char*>(name);
 }
 
 const LLUUID& LLMessageSystem::getSenderID() const
@@ -5279,211 +3808,6 @@ const LLUUID& LLMessageSystem::getSenderSessionID() const
 		return (cdp->mRemoteSessionID);
 	}
 	return LLUUID::null;
-}
-
-void LLMessageSystem::addVector3Fast(const char *varname, const LLVector3& vec)
-{
-	addDataFast(varname, vec.mV, MVT_LLVector3, sizeof(vec.mV));
-}
-
-void LLMessageSystem::addVector3(const char *varname, const LLVector3& vec)
-{
-	addDataFast(gMessageStringTable.getString(varname), vec.mV, MVT_LLVector3, sizeof(vec.mV));
-}
-
-void LLMessageSystem::addVector4Fast(const char *varname, const LLVector4& vec)
-{
-	addDataFast(varname, vec.mV, MVT_LLVector4, sizeof(vec.mV));
-}
-
-void LLMessageSystem::addVector4(const char *varname, const LLVector4& vec)
-{
-	addDataFast(gMessageStringTable.getString(varname), vec.mV, MVT_LLVector4, sizeof(vec.mV));
-}
-
-
-void LLMessageSystem::addVector3dFast(const char *varname, const LLVector3d& vec)
-{
-	addDataFast(varname, vec.mdV, MVT_LLVector3d, sizeof(vec.mdV));
-}
-
-void LLMessageSystem::addVector3d(const char *varname, const LLVector3d& vec)
-{
-	addDataFast(gMessageStringTable.getString(varname), vec.mdV, MVT_LLVector3d, sizeof(vec.mdV));
-}
-
-
-void LLMessageSystem::addQuatFast(const char *varname, const LLQuaternion& quat)
-{
-	addDataFast(varname, quat.packToVector3().mV, MVT_LLQuaternion, sizeof(LLVector3));
-}
-
-void LLMessageSystem::addQuat(const char *varname, const LLQuaternion& quat)
-{
-	addDataFast(gMessageStringTable.getString(varname), quat.packToVector3().mV, MVT_LLQuaternion, sizeof(LLVector3));
-}
-
-
-void LLMessageSystem::addUUIDFast(const char *varname, const LLUUID& uuid)
-{
-	addDataFast(varname, uuid.mData, MVT_LLUUID, sizeof(uuid.mData));
-}
-
-void LLMessageSystem::addUUID(const char *varname, const LLUUID& uuid)
-{
-	addDataFast(gMessageStringTable.getString(varname), uuid.mData, MVT_LLUUID, sizeof(uuid.mData));
-}
-
-void LLMessageSystem::getF32Fast(const char *block, const char *var, F32 &d, S32 blocknum)
-{
-	getDataFast(block, var, &d, sizeof(F32), blocknum);
-
-	if( !llfinite( d ) )
-	{
-		llwarns << "non-finite in getF32Fast " << block << " " << var << llendl;
-		d = 0;
-	}
-}
-
-void LLMessageSystem::getF32(const char *block, const char *var, F32 &d, S32 blocknum)
-{
-	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), &d, sizeof(F32), blocknum);
-
-	if( !llfinite( d ) )
-	{
-		llwarns << "non-finite in getF32 " << block << " " << var << llendl;
-		d = 0;
-	}
-}
-
-void LLMessageSystem::getF64Fast(const char *block, const char *var, F64 &d, S32 blocknum)
-{
-	getDataFast(block, var, &d, sizeof(F64), blocknum);
-
-	if( !llfinite( d ) )
-	{
-		llwarns << "non-finite in getF64Fast " << block << " " << var << llendl;
-		d = 0;
-	}
-}
-
-void LLMessageSystem::getF64(const char *block, const char *var, F64 &d, S32 blocknum)
-{
-	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), &d, sizeof(F64), blocknum);
-
-	if( !llfinite( d ) )
-	{
-		llwarns << "non-finite in getF64 " << block << " " << var << llendl;
-		d = 0;
-	}
-}
-
-
-void LLMessageSystem::getVector3Fast(const char *block, const char *var, LLVector3 &v, S32 blocknum )
-{
-	getDataFast(block, var, v.mV, sizeof(v.mV), blocknum);
-
-	if( !v.isFinite() )
-	{
-		llwarns << "non-finite in getVector3Fast " << block << " " << var << llendl;
-		v.zeroVec();
-	}
-}
-
-void LLMessageSystem::getVector3(const char *block, const char *var, LLVector3 &v, S32 blocknum )
-{
-	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), v.mV, sizeof(v.mV), blocknum);
-
-	if( !v.isFinite() )
-	{
-		llwarns << "non-finite in getVector4 " << block << " " << var << llendl;
-		v.zeroVec();
-	}
-}
-
-void LLMessageSystem::getVector4Fast(const char *block, const char *var, LLVector4 &v, S32 blocknum )
-{
-	getDataFast(block, var, v.mV, sizeof(v.mV), blocknum);
-
-	if( !v.isFinite() )
-	{
-		llwarns << "non-finite in getVector4Fast " << block << " " << var << llendl;
-		v.zeroVec();
-	}
-}
-
-void LLMessageSystem::getVector4(const char *block, const char *var, LLVector4 &v, S32 blocknum )
-{
-	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), v.mV, sizeof(v.mV), blocknum);
-
-	if( !v.isFinite() )
-	{
-		llwarns << "non-finite in getVector3 " << block << " " << var << llendl;
-		v.zeroVec();
-	}
-}
-
-void LLMessageSystem::getVector3dFast(const char *block, const char *var, LLVector3d &v, S32 blocknum )
-{
-	getDataFast(block, var, v.mdV, sizeof(v.mdV), blocknum);
-
-	if( !v.isFinite() )
-	{
-		llwarns << "non-finite in getVector3dFast " << block << " " << var << llendl;
-		v.zeroVec();
-	}
-
-}
-
-void LLMessageSystem::getVector3d(const char *block, const char *var, LLVector3d &v, S32 blocknum )
-{
-	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), v.mdV, sizeof(v.mdV), blocknum);
-
-	if( !v.isFinite() )
-	{
-		llwarns << "non-finite in getVector3d " << block << " " << var << llendl;
-		v.zeroVec();
-	}
-}
-
-void LLMessageSystem::getQuatFast(const char *block, const char *var, LLQuaternion &q, S32 blocknum )
-{
-	LLVector3 vec;
-	getDataFast(block, var, vec.mV, sizeof(vec.mV), blocknum);
-	if( vec.isFinite() )
-	{
-		q.unpackFromVector3( vec );
-	}
-	else
-	{
-		llwarns << "non-finite in getQuatFast " << block << " " << var << llendl;
-		q.loadIdentity();
-	}
-}
-
-void LLMessageSystem::getQuat(const char *block, const char *var, LLQuaternion &q, S32 blocknum )
-{
-	LLVector3 vec;
-	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), vec.mV, sizeof(vec.mV), blocknum);
-	if( vec.isFinite() )
-	{
-		q.unpackFromVector3( vec );
-	}
-	else
-	{
-		llwarns << "non-finite in getQuat " << block << " " << var << llendl;
-		q.loadIdentity();
-	}
-}
-
-void LLMessageSystem::getUUIDFast(const char *block, const char *var, LLUUID &u, S32 blocknum )
-{
-	getDataFast(block, var, u.mData, sizeof(u.mData), blocknum);
-}
-
-void LLMessageSystem::getUUID(const char *block, const char *var, LLUUID &u, S32 blocknum )
-{
-	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), u.mData, sizeof(u.mData), blocknum);
 }
 
 bool LLMessageSystem::generateDigestForNumberAndUUIDs(
@@ -5790,6 +4114,121 @@ void LLMessageSystem::dumpPacketToLog()
 }
 
 //static
+BOOL LLMessageSystem::isTemplateConfirmed()
+{
+	return gMessageSystem->mTemplateConfirmed;
+}
+
+//static
+BOOL LLMessageSystem::doesTemplateMatch()
+{
+	if (!isTemplateConfirmed())
+	{
+		return FALSE;
+	}
+	return gMessageSystem->mTemplateMatches;
+}
+
+//static
+void LLMessageSystem::sendMessageTemplateChecksum(const LLHost &currentHost)
+{
+	gMessageSystem->mTemplateConfirmed = FALSE;
+	gMessageSystem->mTemplateMatches = FALSE;
+	gMessageSystem->newMessageFast(_PREHASH_TemplateChecksumRequest);
+	// Don't use ping-based retry
+	gMessageSystem->sendReliable(currentHost, 40, FALSE, 3, NULL, NULL);
+}
+
+//static
+void LLMessageSystem::processMessageTemplateChecksumReply(LLMessageSystem *msg,
+														  void** user_data)
+{
+	U32 remote_template_checksum = 0;
+	msg->getU32Fast(_PREHASH_DataBlock, _PREHASH_Checksum, remote_template_checksum);	
+	msg->mTemplateConfirmed = TRUE;
+	if ((remote_template_checksum) != msg->mMessageFileChecksum)
+	{
+		llwarns << "out of sync message template!" << llendl;
+		
+		msg->mTemplateMatches = FALSE;
+		msg->newMessageFast(_PREHASH_CloseCircuit);
+		msg->sendMessage(msg->getSender());
+		return;
+	}
+
+	msg->mTemplateMatches = TRUE;
+	llinfos << "According to " << msg->getSender()
+			<< " the message template is current!"
+			<< llendl;
+}
+
+//static
+void LLMessageSystem::sendSecureMessageTemplateChecksum(const LLHost& host)
+{
+	// generate an token for use during template checksum requests to
+	// prevent DOS attacks from injected bad template checksum replies.
+	LLUUID *template_tokenp = new LLUUID;
+	template_tokenp->generate();
+	lldebugs << "random token: " << *template_tokenp << llendl;
+
+	// register the handler for the reply while saving off template_token
+	gMessageSystem->setHandlerFuncFast(_PREHASH_TemplateChecksumReply,
+							LLMessageSystem::processSecureTemplateChecksumReply,
+							(void**)template_tokenp);
+
+	// send checksum request
+	gMessageSystem->mTemplateConfirmed = FALSE;
+	gMessageSystem->newMessageFast(_PREHASH_SecuredTemplateChecksumRequest);
+	gMessageSystem->nextBlockFast(_PREHASH_TokenBlock);
+	gMessageSystem->addUUIDFast(_PREHASH_Token, *template_tokenp);
+	gMessageSystem->sendReliable(host);
+}
+
+//static
+void LLMessageSystem::processSecureTemplateChecksumReply(LLMessageSystem *msg,
+														 void** user_data)
+{
+	// copy the token out into the stack and delete allocated memory
+	LLUUID template_token = *((LLUUID*)user_data);
+	delete user_data;
+
+	LLUUID received_token;
+	msg->getUUID("TokenBlock", "Token", received_token);
+
+	if(received_token != template_token)
+	{
+		llwarns << "Incorrect token in template checksum reply: "
+				<< received_token << llendl;
+		//return do_normal_idle;
+		return;
+	}
+
+	U32 remote_template_checksum = 0;
+	U8 major_version = 0;
+	U8 minor_version = 0;
+	U8 patch_version = 0;
+	U8 server_version = 0;
+	U32 flags = 0x0;
+	msg->getU32("DataBlock", "Checksum", remote_template_checksum);
+	msg->getU8 ("DataBlock", "MajorVersion", major_version);
+	msg->getU8 ("DataBlock", "MinorVersion", minor_version);
+	msg->getU8 ("DataBlock", "PatchVersion", patch_version);
+	msg->getU8 ("DataBlock", "ServerVersion", server_version);
+	msg->getU32("DataBlock", "Flags", flags);
+
+	msg->mTemplateConfirmed = TRUE;
+	if (remote_template_checksum != gMessageSystem->mMessageFileChecksum)
+	{
+		llinfos << "Message template out of sync" << llendl;
+		msg->mTemplateMatches = FALSE;
+	}
+	else
+	{
+		msg->mTemplateMatches = TRUE;
+	}
+}
+
+//static
 U64 LLMessageSystem::getMessageTimeUsecs(const BOOL update)
 {
 	if (gMessageSystem)
@@ -5834,3 +4273,558 @@ std::string get_shared_secret()
 	return g_shared_secret;
 }
 
+typedef std::map<const char*, LLMessageBuilder*> BuilderMap;
+
+static void setBuilder(BuilderMap& map, const char* name, LLMessageBuilder* builder)
+{
+	map[gMessageStringTable.getString(name)] = builder;
+}
+
+void LLMessageSystem::newMessageFast(const char *name)
+{
+	if(LLMessageConfig::isMessageBuiltTemplate(name))
+	{
+		mMessageBuilder = mTemplateMessageBuilder;
+	}
+	else
+	{
+		mMessageBuilder = mLLSDMessageBuilder;
+	}
+	mSendReliable = FALSE;
+	mMessageBuilder->newMessage(name);
+}
+	
+void LLMessageSystem::newMessage(const char *name)
+{
+	newMessageFast(gMessageStringTable.getString(name));
+}
+
+void LLMessageSystem::addBinaryDataFast(const char *varname, const void *data, S32 size)
+{
+	mMessageBuilder->addBinaryData(varname, data, size);
+}
+
+void LLMessageSystem::addBinaryData(const char *varname, const void *data, S32 size)
+{
+	mMessageBuilder->addBinaryData(gMessageStringTable.getString(varname),data, size);
+}
+
+void LLMessageSystem::addS8Fast(const char *varname, S8 v)
+{
+	mMessageBuilder->addS8(varname, v);
+}
+
+void LLMessageSystem::addS8(const char *varname, S8 v)
+{
+	mMessageBuilder->addS8(gMessageStringTable.getString(varname), v);
+}
+
+void LLMessageSystem::addU8Fast(const char *varname, U8 v)
+{
+	mMessageBuilder->addU8(varname, v);
+}
+
+void LLMessageSystem::addU8(const char *varname, U8 v)
+{
+	mMessageBuilder->addU8(gMessageStringTable.getString(varname), v);
+}
+
+void LLMessageSystem::addS16Fast(const char *varname, S16 v)
+{
+	mMessageBuilder->addS16(varname, v);
+}
+
+void LLMessageSystem::addS16(const char *varname, S16 v)
+{
+	mMessageBuilder->addS16(gMessageStringTable.getString(varname), v);
+}
+
+void LLMessageSystem::addU16Fast(const char *varname, U16 v)
+{
+	mMessageBuilder->addU16(varname, v);
+}
+
+void LLMessageSystem::addU16(const char *varname, U16 v)
+{
+	mMessageBuilder->addU16(gMessageStringTable.getString(varname), v);
+}
+
+void LLMessageSystem::addF32Fast(const char *varname, F32 v)
+{
+	mMessageBuilder->addF32(varname, v);
+}
+
+void LLMessageSystem::addF32(const char *varname, F32 v)
+{
+	mMessageBuilder->addF32(gMessageStringTable.getString(varname), v);
+}
+
+void LLMessageSystem::addS32Fast(const char *varname, S32 v)
+{
+	mMessageBuilder->addS32(varname, v);
+}
+
+void LLMessageSystem::addS32(const char *varname, S32 v)
+{
+	mMessageBuilder->addS32(gMessageStringTable.getString(varname), v);
+}
+
+void LLMessageSystem::addU32Fast(const char *varname, U32 v)
+{
+	mMessageBuilder->addU32(varname, v);
+}
+
+void LLMessageSystem::addU32(const char *varname, U32 v)
+{
+	mMessageBuilder->addU32(gMessageStringTable.getString(varname), v);
+}
+
+void LLMessageSystem::addU64Fast(const char *varname, U64 v)
+{
+	mMessageBuilder->addU64(varname, v);
+}
+
+void LLMessageSystem::addU64(const char *varname, U64 v)
+{
+	mMessageBuilder->addU64(gMessageStringTable.getString(varname), v);
+}
+
+void LLMessageSystem::addF64Fast(const char *varname, F64 v)
+{
+	mMessageBuilder->addF64(varname, v);
+}
+
+void LLMessageSystem::addF64(const char *varname, F64 v)
+{
+	mMessageBuilder->addF64(gMessageStringTable.getString(varname), v);
+}
+
+void LLMessageSystem::addIPAddrFast(const char *varname, U32 v)
+{
+	mMessageBuilder->addIPAddr(varname, v);
+}
+
+void LLMessageSystem::addIPAddr(const char *varname, U32 v)
+{
+	mMessageBuilder->addIPAddr(gMessageStringTable.getString(varname), v);
+}
+
+void LLMessageSystem::addIPPortFast(const char *varname, U16 v)
+{
+	mMessageBuilder->addIPPort(varname, v);
+}
+
+void LLMessageSystem::addIPPort(const char *varname, U16 v)
+{
+	mMessageBuilder->addIPPort(gMessageStringTable.getString(varname), v);
+}
+
+void LLMessageSystem::addBOOLFast(const char* varname, BOOL v)
+{
+	mMessageBuilder->addBOOL(varname, v);
+}
+
+void LLMessageSystem::addBOOL(const char* varname, BOOL v)
+{
+	mMessageBuilder->addBOOL(gMessageStringTable.getString(varname), v);
+}
+
+void LLMessageSystem::addStringFast(const char* varname, const char* v)
+{
+	mMessageBuilder->addString(varname, v);
+}
+
+void LLMessageSystem::addString(const char* varname, const char* v)
+{
+	mMessageBuilder->addString(gMessageStringTable.getString(varname), v);
+}
+
+void LLMessageSystem::addStringFast(const char* varname, const std::string& v)
+{
+	mMessageBuilder->addString(varname, v);
+}
+
+void LLMessageSystem::addString(const char* varname, const std::string& v)
+{
+	mMessageBuilder->addString(gMessageStringTable.getString(varname), v);
+}
+
+void LLMessageSystem::addVector3Fast(const char *varname, const LLVector3& v)
+{
+	mMessageBuilder->addVector3(varname, v);
+}
+
+void LLMessageSystem::addVector3(const char *varname, const LLVector3& v)
+{
+	mMessageBuilder->addVector3(gMessageStringTable.getString(varname), v);
+}
+
+void LLMessageSystem::addVector4Fast(const char *varname, const LLVector4& v)
+{
+	mMessageBuilder->addVector4(varname, v);
+}
+
+void LLMessageSystem::addVector4(const char *varname, const LLVector4& v)
+{
+	mMessageBuilder->addVector4(gMessageStringTable.getString(varname), v);
+}
+
+void LLMessageSystem::addVector3dFast(const char *varname, const LLVector3d& v)
+{
+	mMessageBuilder->addVector3d(varname, v);
+}
+
+void LLMessageSystem::addVector3d(const char *varname, const LLVector3d& v)
+{
+	mMessageBuilder->addVector3d(gMessageStringTable.getString(varname), v);
+}
+
+void LLMessageSystem::addQuatFast(const char *varname, const LLQuaternion& v)
+{
+	mMessageBuilder->addQuat(varname, v);
+}
+
+void LLMessageSystem::addQuat(const char *varname, const LLQuaternion& v)
+{
+	mMessageBuilder->addQuat(gMessageStringTable.getString(varname), v);
+}
+
+
+void LLMessageSystem::addUUIDFast(const char *varname, const LLUUID& v)
+{
+	mMessageBuilder->addUUID(varname, v);
+}
+
+void LLMessageSystem::addUUID(const char *varname, const LLUUID& v)
+{
+	mMessageBuilder->addUUID(gMessageStringTable.getString(varname), v);
+}
+
+S32 LLMessageSystem::getCurrentSendTotal() const
+{
+	return mMessageBuilder->getMessageSize();
+}
+
+void LLMessageSystem::getS8Fast(const char *block, const char *var, S8 &u, 
+								S32 blocknum)
+{
+	mMessageReader->getS8(block, var, u, blocknum);
+}
+
+void LLMessageSystem::getS8(const char *block, const char *var, S8 &u, 
+							S32 blocknum)
+{
+	getS8Fast(gMessageStringTable.getString(block), 
+			  gMessageStringTable.getString(var), u, blocknum);
+}
+
+void LLMessageSystem::getU8Fast(const char *block, const char *var, U8 &u, 
+								S32 blocknum)
+{
+	mMessageReader->getU8(block, var, u, blocknum);
+}
+
+void LLMessageSystem::getU8(const char *block, const char *var, U8 &u, 
+							S32 blocknum)
+{
+	getU8Fast(gMessageStringTable.getString(block), 
+				gMessageStringTable.getString(var), u, blocknum);
+}
+
+void LLMessageSystem::getBOOLFast(const char *block, const char *var, BOOL &b,
+								  S32 blocknum)
+{
+	mMessageReader->getBOOL(block, var, b, blocknum);
+}
+
+void LLMessageSystem::getBOOL(const char *block, const char *var, BOOL &b, 
+							  S32 blocknum)
+{
+	getBOOLFast(gMessageStringTable.getString(block), 
+				gMessageStringTable.getString(var), b, blocknum);
+}
+
+void LLMessageSystem::getS16Fast(const char *block, const char *var, S16 &d, 
+								 S32 blocknum)
+{
+	mMessageReader->getS16(block, var, d, blocknum);
+}
+
+void LLMessageSystem::getS16(const char *block, const char *var, S16 &d, 
+							 S32 blocknum)
+{
+	getS16Fast(gMessageStringTable.getString(block), 
+			   gMessageStringTable.getString(var), d, blocknum);
+}
+
+void LLMessageSystem::getU16Fast(const char *block, const char *var, U16 &d, 
+								 S32 blocknum)
+{
+	mMessageReader->getU16(block, var, d, blocknum);
+}
+
+void LLMessageSystem::getU16(const char *block, const char *var, U16 &d, 
+							 S32 blocknum)
+{
+	getU16Fast(gMessageStringTable.getString(block), 
+			   gMessageStringTable.getString(var), d, blocknum);
+}
+
+void LLMessageSystem::getS32Fast(const char *block, const char *var, S32 &d, 
+								 S32 blocknum)
+{
+	mMessageReader->getS32(block, var, d, blocknum);
+}
+
+void LLMessageSystem::getS32(const char *block, const char *var, S32 &d, 
+							 S32 blocknum)
+{
+	getS32Fast(gMessageStringTable.getString(block), 
+			   gMessageStringTable.getString(var), d, blocknum);
+}
+
+void LLMessageSystem::getU32Fast(const char *block, const char *var, U32 &d, 
+								 S32 blocknum)
+{
+	mMessageReader->getU32(block, var, d, blocknum);
+}
+
+void LLMessageSystem::getU32(const char *block, const char *var, U32 &d, 
+							 S32 blocknum)
+{
+	getU32Fast(gMessageStringTable.getString(block), 
+				gMessageStringTable.getString(var), d, blocknum);
+}
+
+void LLMessageSystem::getU64Fast(const char *block, const char *var, U64 &d, 
+								 S32 blocknum)
+{
+	mMessageReader->getU64(block, var, d, blocknum);
+}
+
+void LLMessageSystem::getU64(const char *block, const char *var, U64 &d, 
+							 S32 blocknum)
+{
+	
+	getU64Fast(gMessageStringTable.getString(block), 
+			   gMessageStringTable.getString(var), d, blocknum);
+}
+
+void LLMessageSystem::getBinaryDataFast(const char *blockname, 
+										const char *varname, 
+										void *datap, S32 size, 
+										S32 blocknum, S32 max_size)
+{
+	mMessageReader->getBinaryData(blockname, varname, datap, size, blocknum, 
+								  max_size);
+}
+
+void LLMessageSystem::getBinaryData(const char *blockname, 
+									const char *varname, 
+									void *datap, S32 size, 
+									S32 blocknum, S32 max_size)
+{
+	getBinaryDataFast(gMessageStringTable.getString(blockname), 
+					  gMessageStringTable.getString(varname), 
+					  datap, size, blocknum, max_size);
+}
+
+void LLMessageSystem::getF32Fast(const char *block, const char *var, F32 &d, 
+								 S32 blocknum)
+{
+	mMessageReader->getF32(block, var, d, blocknum);
+}
+
+void LLMessageSystem::getF32(const char *block, const char *var, F32 &d, 
+							 S32 blocknum)
+{
+	getF32Fast(gMessageStringTable.getString(block), 
+			   gMessageStringTable.getString(var), d, blocknum);
+}
+
+void LLMessageSystem::getF64Fast(const char *block, const char *var, F64 &d, 
+								 S32 blocknum)
+{
+	mMessageReader->getF64(block, var, d, blocknum);
+}
+
+void LLMessageSystem::getF64(const char *block, const char *var, F64 &d, 
+							 S32 blocknum)
+{
+	getF64Fast(gMessageStringTable.getString(block), 
+				gMessageStringTable.getString(var), d, blocknum);
+}
+
+
+void LLMessageSystem::getVector3Fast(const char *block, const char *var, 
+									 LLVector3 &v, S32 blocknum )
+{
+	mMessageReader->getVector3(block, var, v, blocknum);
+}
+
+void LLMessageSystem::getVector3(const char *block, const char *var, 
+								 LLVector3 &v, S32 blocknum )
+{
+	getVector3Fast(gMessageStringTable.getString(block), 
+				   gMessageStringTable.getString(var), v, blocknum);
+}
+
+void LLMessageSystem::getVector4Fast(const char *block, const char *var, 
+									 LLVector4 &v, S32 blocknum )
+{
+	mMessageReader->getVector4(block, var, v, blocknum);
+}
+
+void LLMessageSystem::getVector4(const char *block, const char *var, 
+								 LLVector4 &v, S32 blocknum )
+{
+	getVector4Fast(gMessageStringTable.getString(block), 
+				   gMessageStringTable.getString(var), v, blocknum);
+}
+
+void LLMessageSystem::getVector3dFast(const char *block, const char *var, 
+									  LLVector3d &v, S32 blocknum )
+{
+	mMessageReader->getVector3d(block, var, v, blocknum);
+}
+
+void LLMessageSystem::getVector3d(const char *block, const char *var, 
+								  LLVector3d &v, S32 blocknum )
+{
+	getVector3dFast(gMessageStringTable.getString(block), 
+				gMessageStringTable.getString(var), v, blocknum);
+}
+
+void LLMessageSystem::getQuatFast(const char *block, const char *var, 
+								  LLQuaternion &q, S32 blocknum )
+{
+	mMessageReader->getQuat(block, var, q, blocknum);
+}
+
+void LLMessageSystem::getQuat(const char *block, const char *var, 
+							  LLQuaternion &q, S32 blocknum)
+{
+	getQuatFast(gMessageStringTable.getString(block), 
+			gMessageStringTable.getString(var), q, blocknum);
+}
+
+void LLMessageSystem::getUUIDFast(const char *block, const char *var, 
+								  LLUUID &u, S32 blocknum )
+{
+	mMessageReader->getUUID(block, var, u, blocknum);
+}
+
+void LLMessageSystem::getUUID(const char *block, const char *var, LLUUID &u, 
+							  S32 blocknum )
+{
+	getUUIDFast(gMessageStringTable.getString(block), 
+				gMessageStringTable.getString(var), u, blocknum);
+}
+
+void LLMessageSystem::getIPAddrFast(const char *block, const char *var, 
+									U32 &u, S32 blocknum)
+{
+	mMessageReader->getIPAddr(block, var, u, blocknum);
+}
+
+void LLMessageSystem::getIPAddr(const char *block, const char *var, U32 &u, 
+								S32 blocknum)
+{
+	getIPAddrFast(gMessageStringTable.getString(block), 
+				  gMessageStringTable.getString(var), u, blocknum);
+}
+
+void LLMessageSystem::getIPPortFast(const char *block, const char *var, 
+									U16 &u, S32 blocknum)
+{
+	mMessageReader->getIPPort(block, var, u, blocknum);
+}
+
+void LLMessageSystem::getIPPort(const char *block, const char *var, U16 &u, 
+								S32 blocknum)
+{
+	getIPPortFast(gMessageStringTable.getString(block), 
+				  gMessageStringTable.getString(var), u, 
+				  blocknum);
+}
+
+
+void LLMessageSystem::getStringFast(const char *block, const char *var, 
+									S32 buffer_size, char *s, S32 blocknum)
+{
+	mMessageReader->getString(block, var, buffer_size, s, blocknum);
+}
+
+void LLMessageSystem::getString(const char *block, const char *var, 
+								S32 buffer_size, char *s, S32 blocknum )
+{
+	getStringFast(gMessageStringTable.getString(block), 
+				  gMessageStringTable.getString(var), buffer_size, s, 
+				  blocknum);
+}
+
+S32	LLMessageSystem::getNumberOfBlocksFast(const char *blockname)
+{
+	return mMessageReader->getNumberOfBlocks(blockname);
+}
+
+S32	LLMessageSystem::getNumberOfBlocks(const char *blockname)
+{
+	return getNumberOfBlocksFast(gMessageStringTable.getString(blockname));
+}
+	
+S32	LLMessageSystem::getSizeFast(const char *blockname, const char *varname)
+{
+	return mMessageReader->getSize(blockname, varname);
+}
+
+S32	LLMessageSystem::getSize(const char *blockname, const char *varname)
+{
+	return getSizeFast(gMessageStringTable.getString(blockname), 
+					   gMessageStringTable.getString(varname));
+}
+	
+// size in bytes of variable length data
+S32	LLMessageSystem::getSizeFast(const char *blockname, S32 blocknum, 
+								 const char *varname)
+{
+	return mMessageReader->getSize(blockname, blocknum, varname);
+}
+		
+S32	LLMessageSystem::getSize(const char *blockname, S32 blocknum, 
+							 const char *varname)
+{
+	return getSizeFast(gMessageStringTable.getString(blockname), blocknum, 
+					   gMessageStringTable.getString(varname));
+}
+
+S32 LLMessageSystem::getReceiveSize() const
+{
+	return mMessageReader->getMessageSize();
+}
+
+//static 
+void LLMessageSystem::setTimeDecodes( BOOL b )
+{
+	LLMessageReader::setTimeDecodes(b);
+}
+		
+//static 
+void LLMessageSystem::setTimeDecodesSpamThreshold( F32 seconds )
+{ 
+	LLMessageReader::setTimeDecodesSpamThreshold(seconds);
+}
+
+// HACK! babbage: return true if message rxed via either UDP or HTTP
+// TODO: babbage: move gServicePump in to LLMessageSystem?
+bool LLMessageSystem::checkAllMessages(S64 frame_count, LLPumpIO* http_pump)
+{
+	if(checkMessages(frame_count))
+	{
+		return true;
+	}
+	U32 packetsIn = mPacketsIn;
+	http_pump->pump();
+	http_pump->callback();
+	return (mPacketsIn - packetsIn) > 0;
+}

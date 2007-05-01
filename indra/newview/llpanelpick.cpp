@@ -28,6 +28,7 @@
 #include "llviewertexteditor.h"
 #include "lltexturectrl.h"
 #include "lluiconstants.h"
+#include "llviewergenericmessage.h"
 #include "llvieweruictrlfactory.h"
 #include "llviewerparcelmgr.h"
 #include "llworldmap.h"
@@ -165,9 +166,10 @@ void LLPanelPick::initNewPick()
 }
 
 
-void LLPanelPick::setPickID(const LLUUID& id)
+void LLPanelPick::setPickID(const LLUUID& pick_id, const LLUUID& creator_id)
 {
-	mPickID = id;
+	mPickID = pick_id;
+	mCreatorID = creator_id;
 }
 
 
@@ -188,15 +190,12 @@ std::string LLPanelPick::getPickName()
 
 void LLPanelPick::sendPickInfoRequest()
 {
-    LLMessageSystem *msg = gMessageSystem;
-
-    msg->newMessage("PickInfoRequest");
-    msg->nextBlock("AgentData");
-    msg->addUUID("AgentID", gAgent.getID() );
-    msg->addUUID("SessionID", gAgent.getSessionID());
-    msg->nextBlock("Data");
-	msg->addUUID("PickID", mPickID);
-	gAgent.sendReliableMessage();
+	// Must ask for a pick based on the creator id because
+	// the pick database is distributed to the inventory cluster. JC
+	std::vector<std::string> strings;
+	strings.push_back( mCreatorID.asString() );
+	strings.push_back( mPickID.asString() );
+	send_generic_message("pickinforequest", strings);
 
 	mDataRequested = TRUE;
 }

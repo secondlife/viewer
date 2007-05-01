@@ -55,40 +55,171 @@ const S32 MIN_HEIGHT = 130;
 //
 static LLString sTitleString = "Instant Message with [NAME]";
 static LLString sTypingStartString = "[NAME]: ...";
+static LLString sSessionStartString = "Starting session with [NAME] please wait.";
+
+void session_starter_helper(const LLUUID& temp_session_id,
+							const LLUUID& other_participant_id,
+							EInstantMessage im_type)
+{
+	LLMessageSystem *msg = gMessageSystem;
+
+	msg->newMessageFast(_PREHASH_ImprovedInstantMessage);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+
+	msg->nextBlockFast(_PREHASH_MessageBlock);
+	msg->addBOOLFast(_PREHASH_FromGroup, FALSE);
+	msg->addUUIDFast(_PREHASH_ToAgentID, other_participant_id);
+	msg->addU8Fast(_PREHASH_Offline, IM_ONLINE);
+	msg->addU8Fast(_PREHASH_Dialog, im_type);
+	msg->addUUIDFast(_PREHASH_ID, temp_session_id);
+	msg->addU32Fast(_PREHASH_Timestamp, NO_TIMESTAMP); // no timestamp necessary
+
+	std::string name;
+	gAgent.buildFullname(name);
+
+	msg->addStringFast(_PREHASH_FromAgentName, name);
+	msg->addStringFast(_PREHASH_Message, LLString::null);
+	msg->addU32Fast(_PREHASH_ParentEstateID, 0);
+	msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
+	msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
+}
+
+// Returns true if any messages were sent, false otherwise.
+// Is sort of equivalent to "does the server need to do anything?"
+bool send_start_session_messages(const LLUUID& temp_session_id,
+								 const LLUUID& other_participant_id,
+								 const LLDynamicArray<LLUUID>& ids,
+								 EInstantMessage dialog)
+{
+	if ( (dialog == IM_SESSION_911_START) ||
+		 (dialog == IM_SESSION_GROUP_START) ||
+		 (dialog == IM_SESSION_CONFERENCE_START) )
+	{
+		S32 count = ids.size();
+		S32 bucket_size = UUID_BYTES * count;
+		U8* bucket;
+		U8* pos;
+
+		session_starter_helper(temp_session_id,
+							   other_participant_id,
+							   dialog);
+
+		switch(dialog)
+		{
+		case IM_SESSION_GROUP_START:
+		case IM_SESSION_911_START:
+			gMessageSystem->addBinaryDataFast(_PREHASH_BinaryBucket,
+											  EMPTY_BINARY_BUCKET,
+											  EMPTY_BINARY_BUCKET_SIZE);
+			break;
+		case IM_SESSION_CONFERENCE_START:
+			bucket = new U8[bucket_size];
+			pos = bucket;
+
+			// *FIX: this could suffer from endian issues
+			for(S32 i = 0; i < count; ++i)
+			{
+				memcpy(pos, &(ids.get(i)), UUID_BYTES);
+				pos += UUID_BYTES;
+			}
+			gMessageSystem->addBinaryDataFast(_PREHASH_BinaryBucket,
+											  bucket,
+											  bucket_size);
+			delete[] bucket;
+
+			break;
+		default:
+			break;
+		}
+		gAgent.sendReliableMessage();
+
+		return true;
+	}
+
+	return false;
+}
 
 // Member Functions
 //
 
-LLFloaterIMPanel::LLFloaterIMPanel(const std::string& name, const LLRect& rect,
-					 const std::string& session_label,
-					 const LLUUID& session_id, 
-					 const LLUUID& other_participant_id,
-					 EInstantMessage dialog) :
+LLFloaterIMPanel::LLFloaterIMPanel(const std::string& name,
+								   const LLRect& rect,
+								   const std::string& session_label,
+								   const LLUUID& session_id,
+								   const LLUUID& other_participant_id,
+								   EInstantMessage dialog) :
 	LLFloater(name, rect, session_label),
 	mInputEditor(NULL),
 	mHistoryEditor(NULL),
-	mSessionLabel(session_label),
 	mSessionUUID(session_id),
 	mOtherParticipantUUID(other_participant_id),
-	mLureID(),
 	mDialog(dialog),
 	mTyping(FALSE),
 	mOtherTyping(FALSE),
 	mTypingLineStartIndex(0),
 	mSentTypingState(TRUE),
 	mFirstKeystrokeTimer(),
-	mLastKeystrokeTimer()
+	mLastKeystrokeTimer(),
+	mSessionInitialized(FALSE),
+	mSessionInitRequested(FALSE)
 {
-	init();
-	setLabel(session_label);
-	setTitle(session_label);
-	mInputEditor->setMaxTextLength(1023);
+	init(session_label);
+}
+
+LLFloaterIMPanel::LLFloaterIMPanel(const std::string& name,
+								   const LLRect& rect,
+								   const std::string& session_label,
+								   const LLUUID& session_id,
+								   const LLUUID& other_participant_id,
+								   const LLDynamicArray<LLUUID>& ids,
+								   EInstantMessage dialog) :
+	LLFloater(name, rect, session_label),
+	mInputEditor(NULL),
+	mHistoryEditor(NULL),
+	mSessionUUID(session_id),
+	mOtherParticipantUUID(other_participant_id),
+	mDialog(dialog),
+	mTyping(FALSE),
+	mOtherTyping(FALSE),
+	mTypingLineStartIndex(0),
+	mSentTypingState(TRUE),
+	mFirstKeystrokeTimer(),
+	mLastKeystrokeTimer(),
+	mSessionInitialized(FALSE),
+	mSessionInitRequested(FALSE)
+{
+	init(session_label);
+
+	mSessionInitialTargetIDs = ids;
 }
 
 
-void LLFloaterIMPanel::init()
+void LLFloaterIMPanel::init(const LLString& session_label)
 {
-	gUICtrlFactory->buildFloater(this, "floater_instant_message.xml", NULL, FALSE);
+	gUICtrlFactory->buildFloater(this,
+								 "floater_instant_message.xml",
+								 NULL,
+								 FALSE);
+
+	setLabel(session_label);
+	setTitle(session_label);
+	mInputEditor->setMaxTextLength(1023);
+
+	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
+	{
+		LLLogChat::loadHistory(session_label,
+							   &chatFromLogFile,
+							   (void *)this);
+	}
+
+	if(IM_SESSION_911_START == mDialog)
+	{
+		LLTextBox* live_help_text = 
+			LLUICtrlFactory::getTextBoxByName(this, "live_help_dialog");
+		addHistoryLine(live_help_text->getText());
+	}
 }
 
 
@@ -101,6 +232,8 @@ BOOL LLFloaterIMPanel::postBuild()
 	requires("live_help_dialog", WIDGET_TYPE_TEXT_BOX);
 	requires("title_string", WIDGET_TYPE_TEXT_BOX);
 	requires("typing_start_string", WIDGET_TYPE_TEXT_BOX);
+	requires("session_start_string", WIDGET_TYPE_TEXT_BOX);
+	requires("teleport_btn", WIDGET_TYPE_BUTTON);
 
 	if (checkRequirements())
 	{
@@ -118,30 +251,30 @@ BOOL LLFloaterIMPanel::postBuild()
 		LLButton* close_btn = LLUICtrlFactory::getButtonByName(this, "close_btn");
 		close_btn->setClickedCallback(&LLFloaterIMPanel::onClickClose, this);
 
+		LLButton* tp_btn = LLUICtrlFactory::getButtonByName(this, "teleport_btn");
+		tp_btn->setClickedCallback(&LLFloaterIMPanel::onTeleport, this);
+		tp_btn->setVisible(FALSE);
+		tp_btn->setEnabled(FALSE);
+
 		mHistoryEditor = LLViewerUICtrlFactory::getViewerTextEditorByName(this, "im_history");
 		mHistoryEditor->setParseHTML(TRUE);
-		if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
-		{
-			LLLogChat::loadHistory(mSessionLabel, &chatFromLogFile, (void *)this); 
-		}
 
 		if (IM_SESSION_GROUP_START == mDialog
 			|| IM_SESSION_911_START == mDialog)
 		{
 			profile_btn->setEnabled(FALSE);
-			if(IM_SESSION_911_START == mDialog)
-			{
-				LLTextBox* live_help_text = LLUICtrlFactory::getTextBoxByName(this, "live_help_dialog");
-				addHistoryLine(live_help_text->getText());
-			}
 		}
-
 		LLTextBox* title = LLUICtrlFactory::getTextBoxByName(this, "title_string");
 		sTitleString = title->getText();
 		
 		LLTextBox* typing_start = LLUICtrlFactory::getTextBoxByName(this, "typing_start_string");
 				
 		sTypingStartString = typing_start->getText();
+
+		LLTextBox* session_start = LLUICtrlFactory::getTextBoxByName(
+			this,
+			"session_start_string");
+		sSessionStartString = session_start->getText();
 
 		return TRUE;
 	}
@@ -176,12 +309,14 @@ void LLFloaterIMPanel::draw()
 
 BOOL LLFloaterIMPanel::addParticipants(const LLDynamicArray<LLUUID>& ids)
 {
-	if(isAddAllowed())
+	S32 count = ids.count();
+
+	if( isAddAllowed() && (count > 0) )
 	{
 		llinfos << "LLFloaterIMPanel::addParticipants() - adding participants" << llendl;
 		const S32 MAX_AGENTS = 50;
-		S32 count = ids.count();
 		if(count > MAX_AGENTS) return FALSE;
+
 		LLMessageSystem *msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_ImprovedInstantMessage);
 		msg->nextBlockFast(_PREHASH_AgentData);
@@ -191,7 +326,7 @@ BOOL LLFloaterIMPanel::addParticipants(const LLDynamicArray<LLUUID>& ids)
 		msg->addBOOLFast(_PREHASH_FromGroup, FALSE);
 		msg->addUUIDFast(_PREHASH_ToAgentID, mOtherParticipantUUID);
 		msg->addU8Fast(_PREHASH_Offline, IM_ONLINE);
-		msg->addU8Fast(_PREHASH_Dialog, mDialog);
+		msg->addU8Fast(_PREHASH_Dialog, IM_SESSION_ADD);
 		msg->addUUIDFast(_PREHASH_ID, mSessionUUID);
 		msg->addU32Fast(_PREHASH_Timestamp, NO_TIMESTAMP); // no timestamp necessary
 		std::string name;
@@ -201,57 +336,21 @@ BOOL LLFloaterIMPanel::addParticipants(const LLDynamicArray<LLUUID>& ids)
 		msg->addU32Fast(_PREHASH_ParentEstateID, 0);
 		msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
 		msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
-		if (IM_SESSION_GROUP_START == mDialog)
-		{
-			// *HACK: binary bucket contains session label - the server
-			// will actually add agents.
-			llinfos << "Group IM session name '" << mSessionLabel 
-				<< "'" << llendl;
-			msg->addStringFast(_PREHASH_BinaryBucket, mSessionLabel);
-			gAgent.sendReliableMessage();
-		}
-		else if (IM_SESSION_911_START == mDialog)
-		{
-			// HACK -- we modify the name of the session going out to
-			// the helpers to help them easily identify "Help"
-			// sessions in their collection of IM panels.
-			LLString name;
-			gAgent.getName(name);
-			LLString buffer = LLString("HELP ") +  name;
-			llinfos << "LiveHelp IM session '" << buffer << "'." << llendl;
-			msg->addStringFast(_PREHASH_BinaryBucket, buffer.c_str());
 
-			// automaticaly open a wormhole when this reliable message gets through
-			msg->sendReliable(
-					gAgent.getRegionHost(),
-					3,      // retries
-					TRUE,   // ping-based
-					5.0f,   // timeout
-					send_lure_911,
-					(void**)&mSessionUUID);
-		}
-		else
+		// *FIX: this could suffer from endian issues
+		S32 bucket_size = UUID_BYTES * count;
+		U8* bucket = new U8[bucket_size];
+		U8* pos = bucket;
+		for(S32 i = 0; i < count; ++i)
 		{
-			if (mDialog != IM_SESSION_ADD
-				&& mDialog != IM_SESSION_OFFLINE_ADD)
-			{
-				llwarns << "LLFloaterIMPanel::addParticipants() - dialog type " << mDialog
-					<< " is not an ADD" << llendl;
-			}
-			// *FIX: this could suffer from endian issues
-			S32 bucket_size = UUID_BYTES * count;
-			U8* bucket = new U8[bucket_size];
-			U8* pos = bucket;
-			for(S32 i = 0; i < count; ++i)
-			{
-				memcpy(pos, &(ids.get(i)), UUID_BYTES);		/* Flawfinder: ignore */
-				pos += UUID_BYTES;
-			}
-			msg->addBinaryDataFast(_PREHASH_BinaryBucket, bucket, bucket_size);
-			delete[] bucket;
-			gAgent.sendReliableMessage();
+			memcpy(pos, &(ids.get(i)), UUID_BYTES);
+			pos += UUID_BYTES;
 		}
-
+		msg->addBinaryDataFast(_PREHASH_BinaryBucket,
+							   bucket,
+							   bucket_size);
+		delete[] bucket;
+		gAgent.sendReliableMessage();
 	}
 	else
 	{
@@ -260,6 +359,7 @@ BOOL LLFloaterIMPanel::addParticipants(const LLDynamicArray<LLUUID>& ids)
 		// successful add, because everyone that needed to get added
 		// was added.
 	}
+
 	return TRUE;
 }
 
@@ -293,7 +393,7 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4
 	{
 		LLString histstr =  timestring + utf8msg;
 
-		LLLogChat::saveHistory(mSessionLabel,histstr);
+		LLLogChat::saveHistory(getTitle(),histstr);
 	}
 }
 
@@ -455,11 +555,8 @@ BOOL LLFloaterIMPanel::dropCategory(LLInventoryCategory* category, BOOL drop)
 BOOL LLFloaterIMPanel::isAddAllowed() const
 {
 
-	return ((IM_SESSION_ADD == mDialog) 
-			|| (IM_SESSION_OFFLINE_ADD == mDialog)
-			|| (IM_SESSION_GROUP_START == mDialog)
-			|| (IM_SESSION_911_START == mDialog)
-			|| (IM_SESSION_CARDLESS_START == mDialog));
+	return ((IM_SESSION_CONFERENCE_START == mDialog) 
+			|| (IM_SESSION_ADD) );
 }
 
 
@@ -493,72 +590,36 @@ void LLFloaterIMPanel::onClickClose( void* userdata )
 	}
 }
 
-void LLFloaterIMPanel::addTeleportButton(const LLUUID& lure_id)
+void LLFloaterIMPanel::addTeleportButton()
 {
-	LLButton* btn = LLViewerUICtrlFactory::getButtonByName(this, "Teleport Btn");
-	if (!btn)
-	{
-		S32 BTN_VPAD = 2;
-		S32 BTN_HPAD = 2;
+	LLButton* btn =
+		LLViewerUICtrlFactory::getButtonByName(this, "teleport_btn");
 
-		const char* teleport_label = "Teleport";
-	
-		const LLFontGL* font = gResMgr->getRes( LLFONT_SANSSERIF );
-		S32 p_btn_width = 75;
-		S32 c_btn_width = 60;
-		S32 t_btn_width = 75;
-	
-		// adjust the size of the editor to make room for the new button
+	if ( !btn->getEnabled() )
+	{
+		//it's required, don't need to check for null here
+		// adjust the size of the editor to make room for the button
 		LLRect rect = mInputEditor->getRect();
-		S32 editor_right = rect.mRight - t_btn_width;
+		S32 editor_right = rect.mRight - btn->getRect().getWidth();
 		rect.mRight = editor_right;
 		mInputEditor->reshape(rect.getWidth(), rect.getHeight(), FALSE);
 		mInputEditor->setRect(rect);
-	
-		const S32 IMPANEL_PAD = 1 + LLPANEL_BORDER_WIDTH;
-		const S32 IMPANEL_INPUT_HEIGHT = 20;
 
-		rect.setLeftTopAndSize(
-			mRect.getWidth() - IMPANEL_PAD - p_btn_width - c_btn_width - t_btn_width - BTN_HPAD - RESIZE_HANDLE_WIDTH,
-			IMPANEL_INPUT_HEIGHT + IMPANEL_PAD - BTN_VPAD,
-			t_btn_width,
-			BTN_HEIGHT);
-
-		btn = new LLButton( 
-			"Teleport Btn", rect, 
-			"","",	"",
-			&LLFloaterIMPanel::onTeleport, this,
-			font, teleport_label, teleport_label );
-		
-		btn->setFollowsBottom();
-		btn->setFollowsRight();
-		addChild( btn );
-	}
-	btn->setEnabled(TRUE);
-	mLureID = lure_id;
-}
-
-void LLFloaterIMPanel::removeTeleportButton()
-{
-	// TODO -- purge the button
-	LLButton* btn = LLViewerUICtrlFactory::getButtonByName(this, "Teleport Btn");
-	if (btn)
-	{
-		btn->setEnabled(FALSE);
+		btn->setVisible(TRUE);
+		btn->setEnabled(TRUE);
 	}
 }
 
-// static 
+// static
 void LLFloaterIMPanel::onTeleport(void* userdata)
 {
 	LLFloaterIMPanel* self = (LLFloaterIMPanel*) userdata;
 	if(self)
 	{
-		send_simple_im(self->mLureID,
-							"",
-							IM_LURE_911,
-							LLUUID::null);
-		self->removeTeleportButton();
+		send_simple_im(self->mSessionUUID, //to
+					   "",
+					   IM_TELEPORT_911,
+					   self->mSessionUUID);//session
 	}
 }
 
@@ -618,6 +679,44 @@ void LLFloaterIMPanel::onClose(bool app_quitting)
 	destroy();
 }
 
+void deliver_message(const std::string& utf8_text,
+					 const LLUUID& im_session_id,
+					 const LLUUID& other_participant_id,
+					 EInstantMessage dialog)
+{
+	std::string name;
+	gAgent.buildFullname(name);
+
+	const LLRelationship* info = NULL;
+	info = LLAvatarTracker::instance().getBuddyInfo(other_participant_id);
+	U8 offline = (!info || info->isOnline()) ? IM_ONLINE : IM_OFFLINE;
+
+	// default to IM_SESSION_SEND unless it's nothing special - in
+	// which case it's probably an IM to everyone.
+	U8 new_dialog = dialog;
+
+	if ( dialog == IM_SESSION_911_START )
+	{
+		new_dialog = IM_SESSION_911_SEND;
+	}
+	else if ( dialog != IM_NOTHING_SPECIAL )
+	{
+		new_dialog = IM_SESSION_SEND;
+	}
+
+	pack_instant_message(
+		gMessageSystem,
+		gAgent.getID(),
+		FALSE,
+		gAgent.getSessionID(),
+		other_participant_id,
+		name.c_str(),
+		utf8_text.c_str(),
+		offline,
+		(EInstantMessage)new_dialog,
+		im_session_id);
+	gAgent.sendReliableMessage();
+}
 
 void LLFloaterIMPanel::sendMsg()
 {
@@ -635,50 +734,82 @@ void LLFloaterIMPanel::sendMsg()
 		// Truncate and convert to UTF8 for transport
 		std::string utf8_text = wstring_to_utf8str(text);
 		utf8_text = utf8str_truncate(utf8_text, MAX_MSG_BUF_SIZE - 1);
-		std::string name;
-		gAgent.buildFullname(name);
 
-		const LLRelationship* info = NULL;
-		info = LLAvatarTracker::instance().getBuddyInfo(mOtherParticipantUUID);
-		U8 offline = (!info || info->isOnline()) ? IM_ONLINE : IM_OFFLINE;
-
-		// default to IM_SESSION_SEND unless it's nothing special - in
-		// which case it's probably an IM to everyone.
-		U8 dialog = (mDialog == IM_NOTHING_SPECIAL)
-			? (U8)IM_NOTHING_SPECIAL : (U8)IM_SESSION_SEND;
-		pack_instant_message(
-			gMessageSystem,
-			gAgent.getID(),
-			FALSE,
-			gAgent.getSessionID(),
-			mOtherParticipantUUID,
-			name.c_str(),
-			utf8_text.c_str(),
-			offline,
-			(EInstantMessage)dialog,
-			mSessionUUID);
-		gAgent.sendReliableMessage();
-
-		// local echo
-		if((mDialog == IM_NOTHING_SPECIAL) && (mOtherParticipantUUID.notNull()))
+		if ( !mSessionInitialized )
 		{
-			std::string history_echo;
-			gAgent.buildFullname(history_echo);
-
-			// Look for IRC-style emotes here.
-			char tmpstr[5];		/* Flawfinder: ignore */
-			strncpy(tmpstr,utf8_text.substr(0,4).c_str(), sizeof(tmpstr) -1);		/* Flawfinder: ignore */
-			tmpstr[sizeof(tmpstr) -1] = '\0';
-			if (!strncmp(tmpstr, "/me ", 4) || !strncmp(tmpstr, "/me'", 4))
+			//we send requests (if we need to) to initialize our session
+			if ( !mSessionInitRequested )
 			{
-				utf8_text.replace(0,3,"");
+				mSessionInitRequested = TRUE;
+				if ( !send_start_session_messages(mSessionUUID,
+												 mOtherParticipantUUID,
+												 mSessionInitialTargetIDs,
+												 mDialog) )
+				{
+					//we don't need to need to wait for any responses
+					//so we don't need to disable
+					mSessionInitialized = TRUE;
+				}
+				else
+				{
+					//queue up the message to send once the session is
+					//initialized
+					mQueuedMsgsForInit.append(utf8_text);
+
+					//locally echo a little "starting session" message
+					LLUIString session_start = sSessionStartString;
+
+					session_start.setArg("[NAME]", getTitle());
+					mSessionStartMsgPos = 
+						mHistoryEditor->getText().length();
+
+					bool log_to_file = false;
+					addHistoryLine(session_start,
+								   LLColor4::grey,
+								   log_to_file);
+
+				}
 			}
 			else
 			{
-				history_echo += ": ";
+				//queue up the message to send once the session is
+				//initialized
+				mQueuedMsgsForInit.append(utf8_text);
 			}
-			history_echo += utf8_text;
-			addHistoryLine(history_echo);
+		}
+
+		if ( mSessionInitialized )
+		{
+			deliver_message(utf8_text,
+							mSessionUUID,
+							mOtherParticipantUUID,
+							mDialog);
+
+			// local echo
+			if((mDialog == IM_NOTHING_SPECIAL) && 
+			   (mOtherParticipantUUID.notNull()))
+			{
+				std::string history_echo;
+				gAgent.buildFullname(history_echo);
+
+				// Look for IRC-style emotes here.
+				char tmpstr[5];		/* Flawfinder: ignore */
+				strncpy(tmpstr,
+						utf8_text.substr(0,4).c_str(),
+						sizeof(tmpstr) -1);		/* Flawfinder: ignore */
+				tmpstr[sizeof(tmpstr) -1] = '\0';
+				if (!strncmp(tmpstr, "/me ", 4) || 
+					!strncmp(tmpstr, "/me'", 4))
+				{
+					utf8_text.replace(0,3,"");
+				}
+				else
+				{
+					history_echo += ": ";
+				}
+				history_echo += utf8_text;
+				addHistoryLine(history_echo);
+			}
 		}
 
 		gViewerStats->incStat(LLViewerStats::ST_IM_COUNT);
@@ -689,6 +820,31 @@ void LLFloaterIMPanel::sendMsg()
 	// client will infer it from receiving the message.
 	mTyping = FALSE;
 	mSentTypingState = TRUE;
+}
+
+void LLFloaterIMPanel::sessionInitReplyReceived(const LLUUID& session_id)
+{
+	mSessionUUID = session_id;
+	mSessionInitialized = TRUE;
+
+	//we assume the history editor hasn't moved at all since
+	//we added the starting session message
+	//so, we count how many characters to remove
+	S32 chars_to_remove = mHistoryEditor->getText().length() - 
+		mSessionStartMsgPos;
+	mHistoryEditor->removeTextFromEnd(chars_to_remove);
+
+	//and now, send the queued msg
+	LLSD::array_iterator iter;
+	for ( iter = mQueuedMsgsForInit.beginArray();
+		  iter != mQueuedMsgsForInit.endArray();
+		  ++iter)
+	{
+		deliver_message(iter->asString(),
+						mSessionUUID,
+						mOtherParticipantUUID,
+						mDialog);
+	}
 }
 
 

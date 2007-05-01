@@ -102,7 +102,7 @@ LLComboBox::LLComboBox(	const LLString& name, const LLRect &rect, const LLString
 
 	LLUUID arrow_image_id( LLUI::sAssetsGroup->getString("combobox_arrow.tga") );
 	mArrowImage = LLUI::sImageProvider->getUIImageByID(arrow_image_id);
-	mArrowImageWidth = llmax(8,mArrowImage->getWidth()); // In case image hasn't loaded yet
+	mArrowImageWidth = llmax(8,mArrowImage->getWidth(0)); // In case image hasn't loaded yet
 }
 
 
@@ -202,7 +202,7 @@ LLView* LLComboBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *
 
 void LLComboBox::setEnabled(BOOL enabled)
 {
-	LLUICtrl::setEnabled(enabled);
+	LLView::setEnabled(enabled);
 	mButton->setEnabled(enabled);
 }
 
@@ -477,14 +477,15 @@ void LLComboBox::showList()
 	mList->arrange( 192, llfloor((F32)window_size.mY / LLUI::sGLScaleFactor.mV[VY]) - 50 );
 
 	// Make sure that we can see the whole list
-	LLRect floater_area_local;
-	gFloaterView->localRectToOtherView(gFloaterView->getLocalSnapRect(), &floater_area_local, this);
+	LLRect root_view_local;
+	LLView* root_view = getRootView();
+	root_view->localRectToOtherView(root_view->getLocalRect(), &root_view_local, this);
 	
 	LLRect rect = mList->getRect();
 
 	if (mListPosition == BELOW)
 	{
-		if (rect.getHeight() <= -floater_area_local.mBottom)
+		if (rect.getHeight() <= -root_view_local.mBottom)
 		{
 			// Move rect so it hangs off the bottom of this view
 			rect.setLeftTopAndSize(0, 0, rect.getWidth(), rect.getHeight() );
@@ -492,44 +493,44 @@ void LLComboBox::showList()
 		else
 		{	
 			// stack on top or bottom, depending on which has more room
-			if (-floater_area_local.mBottom > floater_area_local.mTop - mRect.getHeight())
+			if (-root_view_local.mBottom > root_view_local.mTop - mRect.getHeight())
 			{
 				// Move rect so it hangs off the bottom of this view
-				rect.setLeftTopAndSize(0, 0, rect.getWidth(), llmin(-floater_area_local.mBottom, rect.getHeight()));
+				rect.setLeftTopAndSize(0, 0, rect.getWidth(), llmin(-root_view_local.mBottom, rect.getHeight()));
 			}
 			else
 			{
 				// move rect so it stacks on top of this view (clipped to size of screen)
-				rect.setOriginAndSize(0, mRect.getHeight(), rect.getWidth(), llmin(floater_area_local.mTop - mRect.getHeight(), rect.getHeight()));
+				rect.setOriginAndSize(0, mRect.getHeight(), rect.getWidth(), llmin(root_view_local.mTop - mRect.getHeight(), rect.getHeight()));
 			}
 		}
 	}
 	else // ABOVE
 	{
-		if (rect.getHeight() <= floater_area_local.mTop - mRect.getHeight())
+		if (rect.getHeight() <= root_view_local.mTop - mRect.getHeight())
 		{
 			// move rect so it stacks on top of this view (clipped to size of screen)
-			rect.setOriginAndSize(0, mRect.getHeight(), rect.getWidth(), llmin(floater_area_local.mTop - mRect.getHeight(), rect.getHeight()));
+			rect.setOriginAndSize(0, mRect.getHeight(), rect.getWidth(), llmin(root_view_local.mTop - mRect.getHeight(), rect.getHeight()));
 		}
 		else
 		{
 			// stack on top or bottom, depending on which has more room
-			if (-floater_area_local.mBottom > floater_area_local.mTop - mRect.getHeight())
+			if (-root_view_local.mBottom > root_view_local.mTop - mRect.getHeight())
 			{
 				// Move rect so it hangs off the bottom of this view
-				rect.setLeftTopAndSize(0, 0, rect.getWidth(), llmin(-floater_area_local.mBottom, rect.getHeight()));
+				rect.setLeftTopAndSize(0, 0, rect.getWidth(), llmin(-root_view_local.mBottom, rect.getHeight()));
 			}
 			else
 			{
 				// move rect so it stacks on top of this view (clipped to size of screen)
-				rect.setOriginAndSize(0, mRect.getHeight(), rect.getWidth(), llmin(floater_area_local.mTop - mRect.getHeight(), rect.getHeight()));
+				rect.setOriginAndSize(0, mRect.getHeight(), rect.getWidth(), llmin(root_view_local.mTop - mRect.getHeight(), rect.getHeight()));
 			}
 		}
 
 	}
 	mList->setOrigin(rect.mLeft, rect.mBottom);
 	mList->reshape(rect.getWidth(), rect.getHeight());
-	mList->translateIntoRect(floater_area_local, FALSE);
+	mList->translateIntoRect(root_view_local, FALSE);
 
 	// Make sure we didn't go off bottom of screen
 	S32 x, y;
@@ -656,7 +657,8 @@ void LLComboBox::onItemSelected(LLUICtrl* item, void *userdata)
 void LLComboBox::onListFocusChanged(LLUICtrl* list, void* user_data)
 {
 	LLComboBox *self = (LLComboBox *) list->getParent();
-	if (!list->hasFocus())
+	// user not manipulating list or clicking on drop down button
+	if (!self->mList->hasFocus() && !self->mButton->hasMouseCapture())
 	{
 		//*HACK: store the original value explicitly somewhere, not just in label
 		LLString orig_selection = self->mAllowTextEntry ? self->mTextEntry->getText() : self->mButton->getLabelSelected();

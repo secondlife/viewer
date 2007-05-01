@@ -97,7 +97,7 @@ namespace tut
 			LLSD context;
 
 			chain.push_back(LLIOPipe::ptr_t(injector));
-			LLCreateHTTPPipe(chain, mRoot);
+			LLCreateHTTPPipe(chain, mRoot, LLSD());
 			chain.push_back(LLIOPipe::ptr_t(extractor));
 
 			pump->addChain(chain, DEFAULT_CHAIN_EXPIRY_SECS);
@@ -276,6 +276,33 @@ namespace tut
 			"\r\n"
 			"<llsd><string>agent99</string></llsd>"
 			);
+	}
+
+	template<> template<>
+	void HTTPServiceTestObject::test<7>()
+	{
+		// test large request
+		std::stringstream stream;
+
+		//U32 size = 36 * 1024 * 1024;
+		//U32 size = 36 * 1024;
+		//std::vector<char> data(size);
+		//memset(&(data[0]), '1', size);
+		//data[size - 1] = '\0';
+
+		
+		//std::string result = httpPOST("web/echo", &(data[0]));
+
+		stream << "<llsd><array>";
+		for(U32 i = 0; i < 1000000; ++i)
+		{
+			stream << "<integer>42</integer>";
+		}
+		stream << "</array></llsd>";
+		llinfos << "HTTPServiceTestObject::test<7>"
+				<< stream.str().length() << llendl;
+		std::string result = httpPOST("web/echo", stream.str());
+		ensure_starts_with("large echo status", result, "HTTP/1.0 200 OK\r\n");
 	}
 
 	/* TO DO:

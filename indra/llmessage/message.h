@@ -1,5 +1,5 @@
 /** 
- * @file message.h
+ * @FILE message.h
  * @brief LLMessageSystem class header file
  *
  * Copyright (c) 2001-$CurrentYear$, Linden Research, Inc.
@@ -30,9 +30,11 @@
 #include "lltimer.h"
 #include "llpacketring.h"
 #include "llhost.h"
+#include "llhttpnode.h"
 #include "llpacketack.h"
 #include "message_prehash.h"
 #include "llstl.h"
+#include "llmsgvariabletype.h"
 
 const U32 MESSAGE_MAX_STRINGS_LENGTH = 64;
 const U32 MESSAGE_NUMBER_OF_HASH_BUCKETS = 8192;
@@ -131,38 +133,9 @@ class LLQuaternion;
 class LLSD;
 class LLUUID;
 class LLMessageSystem;
+class LLPumpIO;
 
 // message data pieces are used to collect the data called for by the message template
-
-// iterator typedefs precede each class as needed
-typedef enum e_message_variable_type
-{
-	MVT_NULL,
-	MVT_FIXED,
-	MVT_VARIABLE,
-	MVT_U8,
-	MVT_U16,
-	MVT_U32,
-	MVT_U64,
-	MVT_S8,
-	MVT_S16,
-	MVT_S32,
-	MVT_S64,
-	MVT_F32,
-	MVT_F64,
-	MVT_LLVector3,
-	MVT_LLVector3d,
-	MVT_LLVector4,
-	MVT_LLQuaternion,
-	MVT_LLUUID,	
-	MVT_BOOL,
-	MVT_IP_ADDR,
-	MVT_IP_PORT,
-	MVT_U16Vec3,
-	MVT_U16Quat,
-	MVT_S16Array,
-	MVT_EOL
-} EMsgVariableType;
 
 // message system exceptional condition handlers.
 enum EMessageException
@@ -180,19 +153,29 @@ class LLMsgBlkData;
 class LLMessageTemplate;
 
 class LLMessagePollInfo;
+class LLMessageBuilder;
+class LLTemplateMessageBuilder;
+class LLSDMessageBuilder;
+class LLMessageReader;
+class LLTemplateMessageReader;
+class LLSDMessageReader;
 
-class LLMessageSystem
+class LLUseCircuitCodeResponder
 {
 	LOG_CLASS(LLMessageSystem);
 	
 public:
-	U8										mSendBuffer[MAX_BUFFER_SIZE];
-	// Encoded send buffer needs to be slightly larger since the zero
-	// coding can potentially increase the size of the send data.
-	U8										mEncodedSendBuffer[2 * MAX_BUFFER_SIZE];
-	S32										mSendSize;
-	S32										mCurrentSendTotal;
+	virtual ~LLUseCircuitCodeResponder();
+	virtual void complete(const LLHost& host, const LLUUID& agent) const = 0;
+};
 
+class LLMessageSystem
+{
+ private:
+	U8										mSendBuffer[MAX_BUFFER_SIZE];
+	S32										mSendSize;
+
+ public:
 	LLPacketRing							mPacketRing;
 	LLReliablePacketParams					mReliablePacketParams;
 
@@ -271,12 +254,7 @@ public:
 	LLMessageSystem(const char *filename, U32 port, S32 version_major,
 		S32 version_minor, S32 version_patch);
 
-public:
-	// Subclass use.
-	LLMessageSystem();
-
-public:
-	virtual ~LLMessageSystem();
+	~LLMessageSystem();
 
 	BOOL isOK() const { return !mbError; }
 	S32 getErrorCode() const { return mErrorCode; }
@@ -294,9 +272,6 @@ public:
 		setHandlerFuncFast(gMessageStringTable.getString(name), handler_func, user_data);
 	}
 
-	bool callHandler(const char *name, bool trustedSource,
-							LLMessageSystem* msg);
-
 	// Set a callback function for a message system exception.
 	void setExceptionFunc(EMessageException exception, msg_exception_callback func, void* data = NULL);
 	// Call the specified exception func, and return TRUE if a
@@ -308,6 +283,14 @@ public:
 	// measured in seconds.  JC
 	typedef void (*msg_timing_callback)(const char* hashed_name, F32 time, void* data);
 	void setTimingFunc(msg_timing_callback func, void* data = NULL);
+	msg_timing_callback getTimingCallback() 
+	{ 
+		return mTimingCallback; 
+	}
+	void* getTimingCallbackData() 
+	{
+		return mTimingCallbackData;
+	}
 
 	// This method returns true if the code is in the circuit codes map.
 	BOOL isCircuitCodeKnown(U32 code) const;
@@ -347,42 +330,21 @@ public:
 	void setMySessionID(const LLUUID& session_id) { mSessionID = session_id; }
 	const LLUUID& getMySessionID() { return mSessionID; }
 
-	virtual void newMessageFast(const char *name);
-	void	newMessage(const char *name)
-	{
-		newMessageFast(gMessageStringTable.getString(name));
-	}
+	void newMessageFast(const char *name);
+	void newMessage(const char *name);
 
 	void	copyMessageRtoS();
 	void	clearMessage();
 
-	virtual void nextBlockFast(const char *blockname);
+	void nextBlockFast(const char *blockname);
 	void	nextBlock(const char *blockname)
 	{
 		nextBlockFast(gMessageStringTable.getString(blockname));
 	}
-private:
-	void	addDataFast(const char *varname, const void *data, EMsgVariableType type, S32 size);	// Use only for types not in system already
-	void	addData(const char *varname, const void *data, EMsgVariableType type, S32 size)
-	{
-		addDataFast(gMessageStringTable.getString(varname), data, type, size);
-	}
 
-	
-	void	addDataFast(const char *varname, const void *data, EMsgVariableType type);				// DEPRECATED - not typed, doesn't check storage space
-	void	addData(const char *varname, const void *data, EMsgVariableType type)
-	{
-		addDataFast(gMessageStringTable.getString(varname), data, type);
-	}
 public:
-	void	addBinaryDataFast(const char *varname, const void *data, S32 size)
-	{
-		addDataFast(varname, data, MVT_FIXED, size);
-	}
-	void	addBinaryData(const char *varname, const void *data, S32 size)
-	{
-		addDataFast(gMessageStringTable.getString(varname), data, MVT_FIXED, size);
-	}
+	void addBinaryDataFast(const char *varname, const void *data, S32 size);
+	void addBinaryData(const char *varname, const void *data, S32 size);
 
 	void	addBOOLFast( const char* varname, BOOL b);						// typed, checks storage space
 	void	addBOOL( const char* varname, BOOL b);						// typed, checks storage space
@@ -398,7 +360,7 @@ public:
 	void	addF32(	const char *varname, F32 f);						// typed, checks storage space
 	void	addS32Fast(	const char *varname, S32 s);						// typed, checks storage space
 	void	addS32(	const char *varname, S32 s);						// typed, checks storage space
-	virtual void addU32Fast(	const char *varname, U32 u);						// typed, checks storage space
+	void addU32Fast(	const char *varname, U32 u);						// typed, checks storage space
 	void	addU32(	const char *varname, U32 u);						// typed, checks storage space
 	void	addU64Fast(	const char *varname, U64 lu);						// typed, checks storage space
 	void	addU64(	const char *varname, U64 lu);						// typed, checks storage space
@@ -412,7 +374,7 @@ public:
 	void	addVector3d( const char *varname, const LLVector3d& vec);	// typed, checks storage space
 	void	addQuatFast( const char *varname, const LLQuaternion& quat);	// typed, checks storage space
 	void	addQuat( const char *varname, const LLQuaternion& quat);	// typed, checks storage space
-	virtual void addUUIDFast( const char *varname, const LLUUID& uuid);			// typed, checks storage space
+	void addUUIDFast( const char *varname, const LLUUID& uuid);			// typed, checks storage space
 	void	addUUID( const char *varname, const LLUUID& uuid);			// typed, checks storage space
 	void	addIPAddrFast( const char *varname, const U32 ip);			// typed, checks storage space
 	void	addIPAddr( const char *varname, const U32 ip);			// typed, checks storage space
@@ -423,8 +385,8 @@ public:
 	void	addStringFast( const char* varname, const std::string& s);				// typed, checks storage space
 	void	addString( const char* varname, const std::string& s);				// typed, checks storage space
 
+	S32 getCurrentSendTotal() const;
 	TPACKETID getCurrentRecvPacketID() { return mCurrentRecvPacketID; }
-	S32 getCurrentSendTotal() const { return mCurrentSendTotal; }
 
 	// This method checks for current send total and returns true if
 	// you need to go to the next block type or need to start a new
@@ -433,16 +395,16 @@ public:
 	BOOL isSendFull(const char* blockname = NULL);
 	BOOL isSendFullFast(const char* blockname = NULL);
 
-	BOOL	removeLastBlock();
+	BOOL removeLastBlock();
 
-	void	buildMessage();
+	//void	buildMessage();
 
 	S32     zeroCode(U8 **data, S32 *data_size);
 	S32		zeroCodeExpand(U8 **data, S32 *data_size);
 	S32		zeroCodeAdjustCurrentSendTotal();
 
 	// Uses ping-based retry
-	virtual S32 sendReliable(const LLHost &host);
+	S32 sendReliable(const LLHost &host);
 
 	// Uses ping-based retry
 	S32	sendReliable(const U32 circuit)			{ return sendReliable(findHost(circuit)); }
@@ -471,28 +433,10 @@ public:
 	S32		sendMessage(const LLHost &host);
 	S32		sendMessage(const U32 circuit);
 
-	BOOL	decodeData(const U8 *buffer, const LLHost &host);
+	// BOOL	decodeData(const U8 *buffer, const LLHost &host);
 
-	// TODO: Consolide these functions
-	// TODO: Make these private, force use of typed functions.
-	// If size is not 0, an error is generated if size doesn't exactly match the size of the data.
-	// At all times, the number if bytes written to *datap is <= max_size.
-private:
-	void	getDataFast(const char *blockname, const char *varname, void *datap, S32 size = 0, S32 blocknum = 0, S32 max_size = S32_MAX);
-	void	getData(const char *blockname, const char *varname, void *datap, S32 size = 0, S32 blocknum = 0, S32 max_size = S32_MAX)
-	{
-		getDataFast(gMessageStringTable.getString(blockname), gMessageStringTable.getString(varname), datap, size, blocknum, max_size);
-	}
-public:
-	void	getBinaryDataFast(const char *blockname, const char *varname, void *datap, S32 size, S32 blocknum = 0, S32 max_size = S32_MAX)
-	{
-		getDataFast(blockname, varname, datap, size, blocknum, max_size);
-	}
-	void	getBinaryData(const char *blockname, const char *varname, void *datap, S32 size, S32 blocknum = 0, S32 max_size = S32_MAX)
-	{
-		getDataFast(gMessageStringTable.getString(blockname), gMessageStringTable.getString(varname), datap, size, blocknum, max_size);
-	}
-
+	void	getBinaryDataFast(const char *blockname, const char *varname, void *datap, S32 size, S32 blocknum = 0, S32 max_size = S32_MAX);
+	void	getBinaryData(const char *blockname, const char *varname, void *datap, S32 size, S32 blocknum = 0, S32 max_size = S32_MAX);
 	void	getBOOLFast(	const char *block, const char *var, BOOL &data, S32 blocknum = 0);
 	void	getBOOL(	const char *block, const char *var, BOOL &data, S32 blocknum = 0);
 	void	getS8Fast(		const char *block, const char *var, S8 &data, S32 blocknum = 0);
@@ -507,9 +451,9 @@ public:
 	void	getS32(		const char *block, const char *var, S32 &data, S32 blocknum = 0);
 	void	getF32Fast(		const char *block, const char *var, F32 &data, S32 blocknum = 0);
 	void	getF32(		const char *block, const char *var, F32 &data, S32 blocknum = 0);
-	virtual void getU32Fast(		const char *block, const char *var, U32 &data, S32 blocknum = 0);
+	void getU32Fast(		const char *block, const char *var, U32 &data, S32 blocknum = 0);
 	void	getU32(		const char *block, const char *var, U32 &data, S32 blocknum = 0);
-	virtual void getU64Fast(		const char *block, const char *var, U64 &data, S32 blocknum = 0);
+	void getU64Fast(		const char *block, const char *var, U64 &data, S32 blocknum = 0);
 	void	getU64(		const char *block, const char *var, U64 &data, S32 blocknum = 0);
 	void	getF64Fast(		const char *block, const char *var, F64 &data, S32 blocknum = 0);
 	void	getF64(		const char *block, const char *var, F64 &data, S32 blocknum = 0);
@@ -521,13 +465,13 @@ public:
 	void	getVector3d(const char *block, const char *var, LLVector3d &vec, S32 blocknum = 0);
 	void	getQuatFast(	const char *block, const char *var, LLQuaternion &q, S32 blocknum = 0);
 	void	getQuat(	const char *block, const char *var, LLQuaternion &q, S32 blocknum = 0);
-	virtual void getUUIDFast(	const char *block, const char *var, LLUUID &uuid, S32 blocknum = 0);
+	void getUUIDFast(	const char *block, const char *var, LLUUID &uuid, S32 blocknum = 0);
 	void	getUUID(	const char *block, const char *var, LLUUID &uuid, S32 blocknum = 0);
-	virtual void getIPAddrFast(	const char *block, const char *var, U32 &ip, S32 blocknum = 0);
+	void getIPAddrFast(	const char *block, const char *var, U32 &ip, S32 blocknum = 0);
 	void	getIPAddr(	const char *block, const char *var, U32 &ip, S32 blocknum = 0);
-	virtual void getIPPortFast(	const char *block, const char *var, U16 &port, S32 blocknum = 0);
+	void getIPPortFast(	const char *block, const char *var, U16 &port, S32 blocknum = 0);
 	void	getIPPort(	const char *block, const char *var, U16 &port, S32 blocknum = 0);
-	virtual void getStringFast(	const char *block, const char *var, S32 buffer_size, char *buffer, S32 blocknum = 0);
+	void getStringFast(	const char *block, const char *var, S32 buffer_size, char *buffer, S32 blocknum = 0);
 	void	getString(	const char *block, const char *var, S32 buffer_size, char *buffer, S32 blocknum = 0);
 
 
@@ -549,7 +493,7 @@ public:
 	void	showCircuitInfo();
 	LLString getCircuitInfoString();
 
-	virtual U32 getOurCircuitCode();
+	U32 getOurCircuitCode();
 	
 	void	enableCircuit(const LLHost &host, BOOL trusted);
 	void	disableCircuit(const LLHost &host);
@@ -595,20 +539,12 @@ public:
 	void	sanityCheck();
 
 	S32		getNumberOfBlocksFast(const char *blockname);
-	S32		getNumberOfBlocks(const char *blockname)
-	{
-		return getNumberOfBlocksFast(gMessageStringTable.getString(blockname));
-	}
+	S32		getNumberOfBlocks(const char *blockname);
 	S32		getSizeFast(const char *blockname, const char *varname);
-	S32		getSize(const char *blockname, const char *varname)
-	{
-		return getSizeFast(gMessageStringTable.getString(blockname), gMessageStringTable.getString(varname));
-	}
-	S32		getSizeFast(const char *blockname, S32 blocknum, const char *varname);		// size in bytes of variable length data
-	S32		getSize(const char *blockname, S32 blocknum, const char *varname)
-	{
-		return getSizeFast(gMessageStringTable.getString(blockname), blocknum, gMessageStringTable.getString(varname));
-	}
+	S32		getSize(const char *blockname, const char *varname);
+	S32		getSizeFast(const char *blockname, S32 blocknum, 
+						const char *varname); // size in bytes of data
+	S32		getSize(const char *blockname, S32 blocknum, const char *varname);
 
 	void	resetReceiveCounts();				// resets receive counts for all message types to 0
 	void	dumpReceiveCounts();				// dumps receive count for each message type to llinfos
@@ -623,14 +559,14 @@ public:
 	void stopLogging();						// flush and close file
 	void summarizeLogs(std::ostream& str);	// log statistics
 
-	S32		getReceiveSize() const				{ return mReceiveSize; }
-	S32		getReceiveCompressedSize() const	{ return mIncomingCompressedSize; }
+	S32		getReceiveSize() const;
+	S32		getReceiveCompressedSize() const { return mIncomingCompressedSize; }
 	S32		getReceiveBytes() const;
 
 	S32		getUnackedListSize() const			{ return mUnackedListSize; }
 
-	const char* getCurrentSMessageName() const { return mCurrentSMessageName; }
-	const char* getCurrentSBlockName() const { return mCurrentSBlockName; }
+	//const char* getCurrentSMessageName() const { return mCurrentSMessageName; }
+	//const char* getCurrentSBlockName() const { return mCurrentSBlockName; }
 
 	// friends
 	friend std::ostream&	operator<<(std::ostream& s, LLMessageSystem &msg);
@@ -639,25 +575,41 @@ public:
 	void setMaxMessageCounts(const S32 num);	// Max number of messages before dumping (neg to disable)
 	
 	// statics
-public:
+	static BOOL isTemplateConfirmed();
+	static BOOL doesTemplateMatch();
+	static void sendMessageTemplateChecksum(const LLHost&);
+	static void processMessageTemplateChecksumReply(LLMessageSystem *msg,
+													void** user_data);
+	static void sendSecureMessageTemplateChecksum(const LLHost&);
+	static void processSecureTemplateChecksumReply(LLMessageSystem *msg,
+													void** user_data);
 	static U64 getMessageTimeUsecs(const BOOL update = FALSE);	// Get the current message system time in microseconds
 	static F64 getMessageTimeSeconds(const BOOL update = FALSE); // Get the current message system time in seconds
 
-	static void setTimeDecodes( BOOL b )		
-		{ LLMessageSystem::mTimeDecodes = b; }
-
-	static void setTimeDecodesSpamThreshold( F32 seconds ) 
-		{ LLMessageSystem::mTimeDecodesSpamThreshold = seconds; }
+	static void setTimeDecodes(BOOL b);
+	static void setTimeDecodesSpamThreshold(F32 seconds); 
 
 	// message handlers internal to the message systesm
 	//static void processAssignCircuitCode(LLMessageSystem* msg, void**);
 	static void processAddCircuitCode(LLMessageSystem* msg, void**);
 	static void processUseCircuitCode(LLMessageSystem* msg, void**);
 
+	// dispatch llsd message to http node tree
+	static void dispatch(const std::string& msg_name,
+						 const LLSD& message);
+	static void dispatch(const std::string& msg_name,
+						 const LLSD& message,
+						 LLHTTPNode::ResponsePtr responsep);
+
 	void setMessageBans(const LLSD& trusted, const LLSD& untrusted);
+
+	// Check UDP messages and pump http_pump to receive HTTP messages.
+	bool checkAllMessages(S64 frame_count, LLPumpIO* http_pump);
 	
 private:
 	// data used in those internal handlers
+	BOOL mTemplateConfirmed;
+	BOOL mTemplateMatches;
 
 	// The mCircuitCodes is a map from circuit codes to session
 	// ids. This allows us to verify sessions on connect.
@@ -668,7 +620,6 @@ private:
 	// that no one gives them a bad circuit code.
 	LLUUID mSessionID;
 
-private:
 	void	addTemplate(LLMessageTemplate *templatep);
 	void		clearReceiveState();
 	BOOL		decodeTemplate( const U8* buffer, S32 buffer_size, LLMessageTemplate** msg_template );
@@ -678,7 +629,6 @@ private:
 	void		logValidMsg(LLCircuitData *cdp, const LLHost& sender, BOOL recv_reliable, BOOL recv_resent, BOOL recv_acks );
 	void		logRanOffEndOfPacket( const LLHost& sender );
 
-private:
 	class LLMessageCountInfo
 	{
 	public:
@@ -694,25 +644,9 @@ private:
 	S32										mTrueReceiveSize;
 
 	// Must be valid during decode
-	S32										mReceiveSize;
-	TPACKETID                               mCurrentRecvPacketID;       // packet ID of current receive packet (for reporting)
-	LLMessageTemplate						*mCurrentRMessageTemplate;
-	LLMsgData								*mCurrentRMessageData;
-	S32									    mIncomingCompressedSize;		// original size of compressed msg (0 if uncomp.)
-	LLHost									mLastSender;
-
-	// send message storage
-	LLMsgData								*mCurrentSMessageData;
-	LLMessageTemplate						*mCurrentSMessageTemplate;
-	LLMsgBlkData							*mCurrentSDataBlock;
-	char									*mCurrentSMessageName;
-	char									*mCurrentSBlockName;
-
+	
 	BOOL									mbError;
 	S32 mErrorCode;
-
-	BOOL									mbSBuilt;	// is send message built?
-	BOOL									mbSClear;	// is the send message clear?
 
 	F64										mResendDumpTime; // The last time we dumped resends
 
@@ -740,6 +674,22 @@ private:
 	void* mTimingCallbackData;
 
 	void init(); // ctor shared initialisation.
+
+	LLHost mLastSender;
+	S32 mIncomingCompressedSize;		// original size of compressed msg (0 if uncomp.)
+	TPACKETID mCurrentRecvPacketID;       // packet ID of current receive packet (for reporting)
+
+	LLMessageBuilder* mMessageBuilder;
+	LLTemplateMessageBuilder* mTemplateMessageBuilder;
+	LLSDMessageBuilder* mLLSDMessageBuilder;
+	LLMessageReader* mMessageReader;
+	LLTemplateMessageReader* mTemplateMessageReader;
+	LLSDMessageReader* mLLSDMessageReader;
+
+	friend class LLMessageHandlerBridge;
+	
+	bool callHandler(const char *name, bool trustedSource,
+					 LLMessageSystem* msg);
 };
 
 
@@ -756,7 +706,8 @@ BOOL start_messaging_system(
 	S32 version_minor,
 	S32 version_patch,
 	BOOL b_dump_prehash_file,
-	const std::string& secret);
+	const std::string& secret,
+	const LLUseCircuitCodeResponder* responder = NULL);
 
 void end_messaging_system();
 
@@ -932,12 +883,9 @@ inline void *ntohmemcpy(void *s, const void *ct, EMsgVariableType type, size_t n
 }
 
 
-inline const LLHost& LLMessageSystem::getSender() const
-{
-	return mLastSender;
-}
+inline const LLHost& LLMessageSystem::getSender() const {return mLastSender;}
 
-inline U32 LLMessageSystem::getSenderIP() const
+inline U32 LLMessageSystem::getSenderIP() const 
 {
 	return mLastSender.getAddress();
 }
@@ -947,291 +895,9 @@ inline U32 LLMessageSystem::getSenderPort() const
 	return mLastSender.getPort();
 }
 
-inline void LLMessageSystem::addS8Fast(const char *varname, S8 s)
-{
-	addDataFast(varname, &s, MVT_S8, sizeof(s));
-}
-
-inline void LLMessageSystem::addS8(const char *varname, S8 s)
-{
-	addDataFast(gMessageStringTable.getString(varname), &s, MVT_S8, sizeof(s));
-}
-
-inline void LLMessageSystem::addU8Fast(const char *varname, U8 u)
-{
-	addDataFast(varname, &u, MVT_U8, sizeof(u));
-}
-
-inline void LLMessageSystem::addU8(const char *varname, U8 u)
-{
-	addDataFast(gMessageStringTable.getString(varname), &u, MVT_U8, sizeof(u));
-}
-
-inline void LLMessageSystem::addS16Fast(const char *varname, S16 i)
-{
-	addDataFast(varname, &i, MVT_S16, sizeof(i));
-}
-
-inline void LLMessageSystem::addS16(const char *varname, S16 i)
-{
-	addDataFast(gMessageStringTable.getString(varname), &i, MVT_S16, sizeof(i));
-}
-
-inline void LLMessageSystem::addU16Fast(const char *varname, U16 i)
-{
-	addDataFast(varname, &i, MVT_U16, sizeof(i));
-}
-
-inline void LLMessageSystem::addU16(const char *varname, U16 i)
-{
-	addDataFast(gMessageStringTable.getString(varname), &i, MVT_U16, sizeof(i));
-}
-
-inline void LLMessageSystem::addF32Fast(const char *varname, F32 f)
-{
-	addDataFast(varname, &f, MVT_F32, sizeof(f));
-}
-
-inline void LLMessageSystem::addF32(const char *varname, F32 f)
-{
-	addDataFast(gMessageStringTable.getString(varname), &f, MVT_F32, sizeof(f));
-}
-
-inline void LLMessageSystem::addS32Fast(const char *varname, S32 s)
-{
-	addDataFast(varname, &s, MVT_S32, sizeof(s));
-}
-
-inline void LLMessageSystem::addS32(const char *varname, S32 s)
-{
-	addDataFast(gMessageStringTable.getString(varname), &s, MVT_S32, sizeof(s));
-}
-
-inline void LLMessageSystem::addU32Fast(const char *varname, U32 u)
-{
-	addDataFast(varname, &u, MVT_U32, sizeof(u));
-}
-
-inline void LLMessageSystem::addU32(const char *varname, U32 u)
-{
-	addDataFast(gMessageStringTable.getString(varname), &u, MVT_U32, sizeof(u));
-}
-
-inline void LLMessageSystem::addU64Fast(const char *varname, U64 lu)
-{
-	addDataFast(varname, &lu, MVT_U64, sizeof(lu));
-}
-
-inline void LLMessageSystem::addU64(const char *varname, U64 lu)
-{
-	addDataFast(gMessageStringTable.getString(varname), &lu, MVT_U64, sizeof(lu));
-}
-
-inline void LLMessageSystem::addF64Fast(const char *varname, F64 d)
-{
-	addDataFast(varname, &d, MVT_F64, sizeof(d));
-}
-
-inline void LLMessageSystem::addF64(const char *varname, F64 d)
-{
-	addDataFast(gMessageStringTable.getString(varname), &d, MVT_F64, sizeof(d));
-}
-
-inline void LLMessageSystem::addIPAddrFast(const char *varname, U32 u)
-{
-	addDataFast(varname, &u, MVT_IP_ADDR, sizeof(u));
-}
-
-inline void LLMessageSystem::addIPAddr(const char *varname, U32 u)
-{
-	addDataFast(gMessageStringTable.getString(varname), &u, MVT_IP_ADDR, sizeof(u));
-}
-
-inline void LLMessageSystem::addIPPortFast(const char *varname, U16 u)
-{
-	u = htons(u);
-	addDataFast(varname, &u, MVT_IP_PORT, sizeof(u));
-}
-
-inline void LLMessageSystem::addIPPort(const char *varname, U16 u)
-{
-	u = htons(u);
-	addDataFast(gMessageStringTable.getString(varname), &u, MVT_IP_PORT, sizeof(u));
-}
-
-inline void LLMessageSystem::addBOOLFast(const char* varname, BOOL b)
-{
-	// Can't just cast a BOOL (actually a U32) to a U8.
-	// In some cases the low order bits will be zero.
-	U8 temp = (b != 0);
-	addDataFast(varname, &temp, MVT_BOOL, sizeof(temp));
-}
-
-inline void LLMessageSystem::addBOOL(const char* varname, BOOL b)
-{
-	// Can't just cast a BOOL (actually a U32) to a U8.
-	// In some cases the low order bits will be zero.
-	U8 temp = (b != 0);
-	addDataFast(gMessageStringTable.getString(varname), &temp, MVT_BOOL, sizeof(temp));
-}
-
-inline void LLMessageSystem::addStringFast(const char* varname, const char* s)
-{
-	if (s)
-		addDataFast( varname, (void *)s, MVT_VARIABLE, (S32)strlen(s) + 1);  /* Flawfinder: ignore */  
-	else
-		addDataFast( varname, NULL, MVT_VARIABLE, 0); 
-}
-
-inline void LLMessageSystem::addString(const char* varname, const char* s)
-{
-	if (s)
-		addDataFast( gMessageStringTable.getString(varname), (void *)s, MVT_VARIABLE, (S32)strlen(s) + 1);  /* Flawfinder: ignore */ 
-	else
-		addDataFast( gMessageStringTable.getString(varname), NULL, MVT_VARIABLE, 0); 
-}
-
-inline void LLMessageSystem::addStringFast(const char* varname, const std::string& s)
-{
-	if (s.size())
-		addDataFast( varname, (void *)s.c_str(), MVT_VARIABLE, (S32)(s.size()) + 1); 
-	else
-		addDataFast( varname, NULL, MVT_VARIABLE, 0); 
-}
-
-inline void LLMessageSystem::addString(const char* varname, const std::string& s)
-{
-	if (s.size())
-		addDataFast( gMessageStringTable.getString(varname), (void *)s.c_str(), MVT_VARIABLE, (S32)(s.size()) + 1); 
-	else
-		addDataFast( gMessageStringTable.getString(varname), NULL, MVT_VARIABLE, 0); 
-}
-
-
 //-----------------------------------------------------------------------------
-// Retrieval aliases
+// Transmission aliases
 //-----------------------------------------------------------------------------
-inline void LLMessageSystem::getS8Fast(const char *block, const char *var, S8 &u, S32 blocknum)
-{
-	getDataFast(block, var, &u, sizeof(S8), blocknum);
-}
-
-inline void LLMessageSystem::getS8(const char *block, const char *var, S8 &u, S32 blocknum)
-{
-	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), &u, sizeof(S8), blocknum);
-}
-
-inline void LLMessageSystem::getU8Fast(const char *block, const char *var, U8 &u, S32 blocknum)
-{
-	getDataFast(block, var, &u, sizeof(U8), blocknum);
-}
-
-inline void LLMessageSystem::getU8(const char *block, const char *var, U8 &u, S32 blocknum)
-{
-	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), &u, sizeof(U8), blocknum);
-}
-
-inline void LLMessageSystem::getBOOLFast(const char *block, const char *var, BOOL &b, S32 blocknum )
-{
-	U8 value;
-	getDataFast(block, var, &value, sizeof(U8), blocknum);
-	b = (BOOL) value;
-}
-
-inline void LLMessageSystem::getBOOL(const char *block, const char *var, BOOL &b, S32 blocknum )
-{
-	U8 value;
-	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), &value, sizeof(U8), blocknum);
-	b = (BOOL) value;
-}
-
-inline void LLMessageSystem::getS16Fast(const char *block, const char *var, S16 &d, S32 blocknum)
-{
-	getDataFast(block, var, &d, sizeof(S16), blocknum);
-}
-
-inline void LLMessageSystem::getS16(const char *block, const char *var, S16 &d, S32 blocknum)
-{
-	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), &d, sizeof(S16), blocknum);
-}
-
-inline void LLMessageSystem::getU16Fast(const char *block, const char *var, U16 &d, S32 blocknum)
-{
-	getDataFast(block, var, &d, sizeof(U16), blocknum);
-}
-
-inline void LLMessageSystem::getU16(const char *block, const char *var, U16 &d, S32 blocknum)
-{
-	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), &d, sizeof(U16), blocknum);
-}
-
-inline void LLMessageSystem::getS32Fast(const char *block, const char *var, S32 &d, S32 blocknum)
-{
-	getDataFast(block, var, &d, sizeof(S32), blocknum);
-}
-
-inline void LLMessageSystem::getS32(const char *block, const char *var, S32 &d, S32 blocknum)
-{
-	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), &d, sizeof(S32), blocknum);
-}
-
-inline void LLMessageSystem::getU32Fast(const char *block, const char *var, U32 &d, S32 blocknum)
-{
-	getDataFast(block, var, &d, sizeof(U32), blocknum);
-}
-
-inline void LLMessageSystem::getU32(const char *block, const char *var, U32 &d, S32 blocknum)
-{
-	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), &d, sizeof(U32), blocknum);
-}
-
-inline void LLMessageSystem::getU64Fast(const char *block, const char *var, U64 &d, S32 blocknum)
-{
-	getDataFast(block, var, &d, sizeof(U64), blocknum);
-}
-
-inline void LLMessageSystem::getU64(const char *block, const char *var, U64 &d, S32 blocknum)
-{
-	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), &d, sizeof(U64), blocknum);
-}
-
-
-inline void LLMessageSystem::getIPAddrFast(const char *block, const char *var, U32 &u, S32 blocknum)
-{
-	getDataFast(block, var, &u, sizeof(U32), blocknum);
-}
-
-inline void LLMessageSystem::getIPAddr(const char *block, const char *var, U32 &u, S32 blocknum)
-{
-	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), &u, sizeof(U32), blocknum);
-}
-
-inline void LLMessageSystem::getIPPortFast(const char *block, const char *var, U16 &u, S32 blocknum)
-{
-	getDataFast(block, var, &u, sizeof(U16), blocknum);
-	u = ntohs(u);
-}
-
-inline void LLMessageSystem::getIPPort(const char *block, const char *var, U16 &u, S32 blocknum)
-{
-	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), &u, sizeof(U16), blocknum);
-	u = ntohs(u);
-}
-
-
-inline void LLMessageSystem::getStringFast(const char *block, const char *var, S32 buffer_size, char *s, S32 blocknum )
-{
-	s[0] = '\0';
-	getDataFast(block, var, s, 0, blocknum, buffer_size);
-	s[buffer_size - 1] = '\0';
-}
-
-inline void LLMessageSystem::getString(const char *block, const char *var, S32 buffer_size, char *s, S32 blocknum )
-{
-	s[0] = '\0';
-	getDataFast(gMessageStringTable.getString(block), gMessageStringTable.getString(var), s, 0, blocknum, buffer_size);
-	s[buffer_size - 1] = '\0';
-}
 
 inline S32 LLMessageSystem::sendMessage(const U32 circuit)
 {

@@ -1823,7 +1823,7 @@ void LLInventoryModel::buildParentChildMap()
 			msg->addUUIDFast(_PREHASH_ItemID, (*it));
 			msg->addUUIDFast(_PREHASH_FolderID, lnf);
 			msg->addString("NewName", NULL);
-			if(msg->mCurrentSendTotal >= MTUBYTES)
+			if(msg->isSendFull(NULL))
 			{
 				start_new_message = TRUE;
 				gAgent.sendReliableMessage();
@@ -3182,7 +3182,7 @@ void LLInventoryFetchObserver::fetchItems(
 		msg->nextBlockFast(_PREHASH_InventoryData);
 		msg->addUUIDFast(_PREHASH_OwnerID, owner_id);
 		msg->addUUIDFast(_PREHASH_ItemID, (*it));
-		if(msg->getCurrentSendTotal() >= MTUBYTES)
+		if(msg->isSendFull(NULL))
 		{
 			start_new_message = TRUE;
 			gAgent.sendReliableMessage();

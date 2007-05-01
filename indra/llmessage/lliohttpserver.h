@@ -31,7 +31,8 @@ LLHTTPNode& LLCreateHTTPServer(apr_pool_t* pool, LLPumpIO& pump, U16 port);
 	 *   for example), use the helper templates below.
 	 */
  
-void LLCreateHTTPPipe(LLPumpIO::chain_t& chain, const LLHTTPNode& root);
+void LLCreateHTTPPipe(LLPumpIO::chain_t& chain,
+		const LLHTTPNode& root, const LLSD& ctx);
 	/**< Create a pipe on the chain that handles HTTP requests.
 	 *   The requests are served by the node tree given at root.
 	 *

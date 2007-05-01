@@ -23,23 +23,25 @@ bool LLVolumeMessage::packProfileParams(
 	LLMessageSystem *mesgsys)
 {
 	// Default to cylinder
-	static LLProfileParams defaultparams(LL_PCODE_PROFILE_CIRCLE, U8(0), U8(0), U8(0));
+	static LLProfileParams defaultparams(LL_PCODE_PROFILE_CIRCLE, U16(0), U16(0), U16(0));
 	
 	if (!params)
 		params = &defaultparams;
 	
 	U8 tempU8;
+	U16 tempU16;
+	
 	tempU8 = params->getCurveType();
 	mesgsys->addU8Fast(_PREHASH_ProfileCurve, tempU8);
 
-	tempU8 = (U8) llround( params->getBegin() / CUT_QUANTA);
-	mesgsys->addU8Fast(_PREHASH_ProfileBegin, tempU8);
+	tempU16 = (U16) llround( params->getBegin() / CUT_QUANTA);
+	mesgsys->addU16Fast(_PREHASH_ProfileBegin, tempU16);
 
-	tempU8 = 200 - (U8) llround(params->getEnd() / CUT_QUANTA);
-	mesgsys->addU8Fast(_PREHASH_ProfileEnd, tempU8);
+	tempU16 = 50000 - (U16) llround(params->getEnd() / CUT_QUANTA);
+	mesgsys->addU16Fast(_PREHASH_ProfileEnd, tempU16);
 
-	tempU8 = (S8) llround(params->getHollow() / SHEAR_QUANTA);
-	mesgsys->addU8Fast(_PREHASH_ProfileHollow, tempU8);
+	tempU16 = (U16) llround(params->getHollow() / HOLLOW_QUANTA);
+	mesgsys->addU16Fast(_PREHASH_ProfileHollow, tempU16);
 
 	return true;
 }
@@ -49,23 +51,25 @@ bool LLVolumeMessage::packProfileParams(
 	LLDataPacker &dp)
 {
 	// Default to cylinder
-	static LLProfileParams defaultparams(LL_PCODE_PROFILE_CIRCLE, U8(0), U8(0), U8(0));
+	static LLProfileParams defaultparams(LL_PCODE_PROFILE_CIRCLE, U16(0), U16(0), U16(0));
 	
 	if (!params)
 		params = &defaultparams;
 	
 	U8 tempU8;
+	U16 tempU16;
+	
 	tempU8 = params->getCurveType();
 	dp.packU8(tempU8, "Curve");
 
-	tempU8 = (U8) llround( params->getBegin() / CUT_QUANTA);
-	dp.packU8(tempU8, "Begin");
+	tempU16 = (U16) llround( params->getBegin() / CUT_QUANTA);
+	dp.packU16(tempU16, "Begin");
 
-	tempU8 = 200 - (U8) llround(params->getEnd() / CUT_QUANTA);
-	dp.packU8(tempU8, "End");
+	tempU16 = 50000 - (U16) llround(params->getEnd() / CUT_QUANTA);
+	dp.packU16(tempU16, "End");
 
-	tempU8 = (S8) llround(params->getHollow() / SHEAR_QUANTA);
-	dp.packU8(tempU8, "Hollow");
+	tempU16 = (U16) llround(params->getHollow() / HOLLOW_QUANTA);
+	dp.packU16(tempU16, "Hollow");
 	return true;
 }
 
@@ -77,13 +81,14 @@ bool LLVolumeMessage::unpackProfileParams(
 {
 	bool ok = true;
 	U8 temp_u8;
+	U16 temp_u16;
 	F32 temp_f32;
 
 	mesgsys->getU8Fast(block_name, _PREHASH_ProfileCurve, temp_u8, block_num);
 	params->setCurveType(temp_u8);
 
-	mesgsys->getU8Fast(block_name, _PREHASH_ProfileBegin, temp_u8, block_num);
-	temp_f32 = temp_u8 * CUT_QUANTA;
+	mesgsys->getU16Fast(block_name, _PREHASH_ProfileBegin, temp_u16, block_num);
+	temp_f32 = temp_u16 * CUT_QUANTA;
 	if (temp_f32 > 1.f)
 	{
 		llwarns << "Profile begin out of range: " << temp_f32
@@ -93,8 +98,8 @@ bool LLVolumeMessage::unpackProfileParams(
 	}
 	params->setBegin(temp_f32);
 
-	mesgsys->getU8Fast(block_name, _PREHASH_ProfileEnd, temp_u8, block_num);
-	temp_f32 = temp_u8 * CUT_QUANTA;
+	mesgsys->getU16Fast(block_name, _PREHASH_ProfileEnd, temp_u16, block_num);
+	temp_f32 = temp_u16 * CUT_QUANTA;
 	if (temp_f32 > 1.f)
 	{
 		llwarns << "Profile end out of range: " << 1.f - temp_f32
@@ -104,8 +109,8 @@ bool LLVolumeMessage::unpackProfileParams(
 	}
 	params->setEnd(1.f - temp_f32);
 
-	mesgsys->getU8Fast(block_name, _PREHASH_ProfileHollow, temp_u8, block_num);
-	temp_f32 = temp_u8 * SCALE_QUANTA;
+	mesgsys->getU16Fast(block_name, _PREHASH_ProfileHollow, temp_u16, block_num);
+	temp_f32 = temp_u16 * HOLLOW_QUANTA;
 	if (temp_f32 > 1.f)
 	{
 		llwarns << "Profile hollow out of range: " << temp_f32
@@ -132,13 +137,14 @@ bool LLVolumeMessage::unpackProfileParams(
 {
 	bool ok = true;
 	U8 temp_u8;
+	U16 temp_u16;
 	F32 temp_f32;
 
 	dp.unpackU8(temp_u8, "Curve");
 	params->setCurveType(temp_u8);
 
-	dp.unpackU8(temp_u8, "Begin");
-	temp_f32 = temp_u8 * CUT_QUANTA;
+	dp.unpackU16(temp_u16, "Begin");
+	temp_f32 = temp_u16 * CUT_QUANTA;
 	if (temp_f32 > 1.f)
 	{
 		llwarns << "Profile begin out of range: " << temp_f32 << llendl;
@@ -148,8 +154,8 @@ bool LLVolumeMessage::unpackProfileParams(
 	}
 	params->setBegin(temp_f32);
 
-	dp.unpackU8(temp_u8, "End");
-	temp_f32 = temp_u8 * CUT_QUANTA;
+	dp.unpackU16(temp_u16, "End");
+	temp_f32 = temp_u16 * CUT_QUANTA;
 	if (temp_f32 > 1.f)
 	{
 		llwarns << "Profile end out of range: " << 1.f - temp_f32 << llendl;
@@ -159,8 +165,8 @@ bool LLVolumeMessage::unpackProfileParams(
 	}
 	params->setEnd(1.f - temp_f32);
 
-	dp.unpackU8(temp_u8, "Hollow");
-	temp_f32 = temp_u8 * SCALE_QUANTA;
+	dp.unpackU16(temp_u16, "Hollow");
+	temp_f32 = temp_u16 * HOLLOW_QUANTA;
 	if (temp_f32 > 1.f)
 	{
 		llwarns << "Profile hollow out of range: " << temp_f32 << llendl;
@@ -193,11 +199,11 @@ bool LLVolumeMessage::packPathParams(
 	U8 curve = params->getCurveType();
 	mesgsys->addU8Fast(_PREHASH_PathCurve, curve);
 
-	U8 begin = (U8) llround(params->getBegin() / SCALE_QUANTA);
-	mesgsys->addU8Fast(_PREHASH_PathBegin, begin);
+	U16 begin = (U16) llround(params->getBegin() / CUT_QUANTA);
+	mesgsys->addU16Fast(_PREHASH_PathBegin, begin);
 
-	U8 end = 100 - (U8) llround(params->getEnd() / SCALE_QUANTA);
-	mesgsys->addU8Fast(_PREHASH_PathEnd, end);
+	U16 end = 50000 - (U16) llround(params->getEnd() / CUT_QUANTA);
+	mesgsys->addU16Fast(_PREHASH_PathEnd, end);
 
 	// Avoid truncation problem with direct F32->U8 cast.
 	// (e.g., (U8) (0.50 / 0.01) = (U8) 49.9999999 = 49 not 50.
@@ -250,11 +256,11 @@ bool LLVolumeMessage::packPathParams(
 	U8 curve = params->getCurveType();
 	dp.packU8(curve, "Curve");
 
-	U8 begin = (U8) llround(params->getBegin() / SCALE_QUANTA);
-	dp.packU8(begin, "Begin");
+	U16 begin = (U16) llround(params->getBegin() / CUT_QUANTA);
+	dp.packU16(begin, "Begin");
 
-	U8 end = 100 - (U8) llround(params->getEnd() / SCALE_QUANTA);
-	dp.packU8(end, "End");
+	U16 end = 50000 - (U16) llround(params->getEnd() / CUT_QUANTA);
+	dp.packU16(end, "End");
 
 	// Avoid truncation problem with direct F32->U8 cast.
 	// (e.g., (U8) (0.50 / 0.01) = (U8) 49.9999999 = 49 not 50.
@@ -305,13 +311,13 @@ bool LLVolumeMessage::unpackPathParams(
 	mesgsys->getU8Fast(block_name, _PREHASH_PathCurve, curve, block_num);
 	params->setCurveType(curve);
 
-	U8 begin;
-	mesgsys->getU8Fast(block_name, _PREHASH_PathBegin, begin, block_num);
-	params->setBegin((F32)(begin * SCALE_QUANTA));
+	U16 begin;
+	mesgsys->getU16Fast(block_name, _PREHASH_PathBegin, begin, block_num);
+	params->setBegin((F32)(begin * CUT_QUANTA));
 
-	U8 end;
-	mesgsys->getU8Fast(block_name, _PREHASH_PathEnd, end, block_num);
-	params->setEnd((F32)((100 - end) * SCALE_QUANTA));
+	U16 end;
+	mesgsys->getU16Fast(block_name, _PREHASH_PathEnd, end, block_num);
+	params->setEnd((F32)((50000 - end) * CUT_QUANTA));
 
 	U8 pack_scale_x, pack_scale_y;
 	mesgsys->getU8Fast(block_name, _PREHASH_PathScaleX, pack_scale_x, block_num);
@@ -371,14 +377,16 @@ bool LLVolumeMessage::unpackPathParams(LLPathParams* params, LLDataPacker &dp)
 {
 	U8 value;
 	S8 svalue;
+	U16 temp_u16;
+	
 	dp.unpackU8(value, "Curve");
 	params->setCurveType( value );
 
-	dp.unpackU8(value, "Begin");
-	params->setBegin((F32)(value * SCALE_QUANTA));
+	dp.unpackU16(temp_u16, "Begin");
+	params->setBegin((F32)(temp_u16 * CUT_QUANTA));
 
-	dp.unpackU8(value, "End");
-	params->setEnd((F32)((100 - value) * SCALE_QUANTA));
+	dp.unpackU16(temp_u16, "End");
+	params->setEnd((F32)((50000 - temp_u16) * CUT_QUANTA));
 
 	dp.unpackU8(value, "ScaleX");
 	F32 x = (F32) (200 - value) * SCALE_QUANTA;

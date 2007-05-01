@@ -61,6 +61,7 @@ enum EStartupState{
 
 // exorted symbol
 extern S32 gStartupState;
+extern BOOL gAgentMovementCompleted;
 extern bool gQuickTimeInitialized;
 extern LLPointer<LLImageGL> gStartImageGL;
 

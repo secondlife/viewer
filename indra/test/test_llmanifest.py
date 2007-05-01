@@ -87,7 +87,7 @@ class TestLLManifest(unittest.TestCase):
     def testruncommand(self):
         self.assertEqual("Hello\n", self.m.run_command("echo Hello"))
         def tmp_test():
-            self.m.run_command("fff_garbage")
+            self.m.run_command("test_command_that_should_not_be_found")
         self.assertRaises(RuntimeError, tmp_test)
 
     def testpathof(self):

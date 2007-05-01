@@ -65,27 +65,33 @@ U32 LLBlowfishCipher::encrypt(const U8* src, U32 src_len, U8* dst, U32 dst_len)
 		<< " iv_len " << iv_length
 		<< llendl;
 
-    int output_len = 0;
-    if (!EVP_EncryptUpdate(&context,
-                dst,
-                &output_len,
-                src,
-                src_len))
-    {
-        llwarns << "LLBlowfishCipher::encrypt EVP_EncryptUpdate failure" << llendl;
-        return 0;
-    }
+	int output_len = 0;
+	int temp_len = 0;
+	if (!EVP_EncryptUpdate(&context,
+			dst,
+			&output_len,
+			src,
+			src_len))
+	{
+		llwarns << "LLBlowfishCipher::encrypt EVP_EncryptUpdate failure" << llendl;
+		goto ERROR;
+	}
 
 	// There may be some final data left to encrypt if the input is
 	// not an exact multiple of the block size.
-    int temp_len = 0;
-    if (!EVP_EncryptFinal_ex(&context, (unsigned char*)(dst + output_len), &temp_len))
-    {
-        llwarns << "LLBlowfishCipher::encrypt EVP_EncryptFinal failure" << llendl;
-        return 0;
-    }
-    output_len += temp_len;
+	if (!EVP_EncryptFinal_ex(&context, (unsigned char*)(dst + output_len), &temp_len))
+	{
+		llwarns << "LLBlowfishCipher::encrypt EVP_EncryptFinal failure" << llendl;
+		goto ERROR;
+	}
+	output_len += temp_len;
+
+	EVP_CIPHER_CTX_cleanup(&context);
 	return output_len;
+
+ERROR:
+	EVP_CIPHER_CTX_cleanup(&context);
+	return 0;
 }
 
 // virtual

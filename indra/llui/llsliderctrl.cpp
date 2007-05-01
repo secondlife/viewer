@@ -300,7 +300,7 @@ void LLSliderCtrl::onSliderCommit( LLUICtrl* caller, void *userdata )
 
 void LLSliderCtrl::setEnabled(BOOL b)
 {
-	LLUICtrl::setEnabled( b );
+	LLView::setEnabled( b );
 
 	if( mLabelBox )
 	{

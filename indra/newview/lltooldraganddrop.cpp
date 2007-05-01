@@ -1219,6 +1219,7 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 				return FALSE;
 			}
 		}
+std::cout << "ASSET ID:  " << new_item->getAssetUUID() << "\n";
 		hit_obj->updateInventory(new_item, TASK_INVENTORY_ASSET_KEY, true);
 	}
 	else if(!item->getPermissions().allowOperationBy(PERM_TRANSFER,
@@ -1232,6 +1233,7 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 		// *FIX: may want to make sure agent can paint hit_obj.
 
 		// make sure the object has the texture in it's inventory.
+std::cout << "ASSET ID:  " << new_item->getAssetUUID() << "\n";
 		hit_obj->updateInventory(new_item, TASK_INVENTORY_ASSET_KEY, true);
 	}
 	return TRUE;

@@ -27,10 +27,20 @@ public:
 	// the default. For example, if you open a session though a
 	// calling card, a new session id will be generated, but the
 	// target_id will be the agent referenced by the calling card.
-	LLFloaterIMPanel(const std::string& name, const LLRect& rect,
-			  const std::string& session_label,
-			  const LLUUID& session_id, const LLUUID& target_id,
-			  EInstantMessage dialog);
+	LLFloaterIMPanel(const std::string& name,
+					 const LLRect& rect,
+					 const std::string& session_label,
+					 const LLUUID& session_id,
+					 const LLUUID& target_id,
+					 EInstantMessage dialog);
+	LLFloaterIMPanel(const std::string& name,
+					 const LLRect& rect,
+					 const std::string& session_label,
+					 const LLUUID& session_id,
+					 const LLUUID& target_id,
+					 const LLDynamicArray<LLUUID>& ids,
+					 EInstantMessage dialog);
+
 
 	/*virtual*/ BOOL postBuild();
 
@@ -66,14 +76,14 @@ public:
 	static void		onClickProfile( void* userdata );		//  Profile button pressed
 	static void		onClickClose( void* userdata );
 
-	//const LLUUID& getItemUUID() const { return mItemUUID; }
 	const LLUUID& getSessionID() const { return mSessionUUID; }
 	const LLUUID& getOtherParticipantID() const { return mOtherParticipantUUID; }
 
 	// HACK -- for enabling a teleport button for helpers
 	static void onTeleport(void* userdata);
-	void addTeleportButton(const LLUUID& lure_id);
-	void removeTeleportButton();
+	void addTeleportButton();
+
+	void sessionInitReplyReceived(const LLUUID& im_session_id);
 
 	// Handle other participant in the session typing.
 	void processIMTyping(const LLIMInfo* im_info, BOOL typing);
@@ -81,7 +91,7 @@ public:
 
 private:
 	// called by constructors
-	void init();
+	void init(const LLString& session_label);
 
 	// Called by UI methods.
 	void sendMsg();
@@ -110,7 +120,6 @@ private:
 private:
 	LLLineEditor* mInputEditor;
 	LLViewerTextEditor* mHistoryEditor;
-	std::string mSessionLabel;
 
 	// The value of the mSessionUUID depends on how the IM session was started:
 	//   one-on-one  ==> random id
@@ -119,15 +128,17 @@ private:
 	//   911 ==> Gaurdian_Angel_Group_ID ^ gAgent.getID()
 	LLUUID mSessionUUID;
 
+	BOOL mSessionInitRequested;
+	BOOL mSessionInitialized;
+	LLSD mQueuedMsgsForInit;
+
 	// The value mOtherParticipantUUID depends on how the IM session was started:
 	//   one-on-one = recipient's id
 	//   group ==> group_id
 	//   inventory folder ==> first target id in list
 	//   911 ==> sender
 	LLUUID mOtherParticipantUUID;
-
-	// the lure ID for help IM sessions
-	LLUUID mLureID;
+	LLDynamicArray<LLUUID> mSessionInitialTargetIDs;
 
 	EInstantMessage mDialog;
 
@@ -139,6 +150,8 @@ private:
 
 	// Where does the "User is typing..." line start?
 	S32 mTypingLineStartIndex;
+	//Where does the "Starting session..." line start?
+	S32 mSessionStartMsgPos;
 
 	BOOL mSentTypingState;
 	
@@ -149,6 +162,8 @@ private:
 
 	// Timer to detect when user has stopped typing.
 	LLFrameTimer mLastKeystrokeTimer;
+
+	void disableWhileSessionStarting();
 };
 
 

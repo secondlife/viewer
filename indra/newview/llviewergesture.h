@@ -45,7 +45,6 @@ class LLViewerGestureList : public LLGestureList
 public:
 	LLViewerGestureList();
 
-	void saveToServer();
 	//void requestFromServer();
 	BOOL getIsLoaded() { return mIsLoaded; }
 
@@ -57,7 +56,6 @@ public:
 	BOOL matchPrefix(const std::string& in_str, std::string* out_str);
 
 	static void xferCallback(void *data, S32 size, void** /*user_data*/, S32 status);
-	static void processGestureUpdate(LLMessageSystem *msg, void** /*user_data*/);
 
 protected:
 	LLGesture *create_gesture(U8 **buffer, S32 max_size);

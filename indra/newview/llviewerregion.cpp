@@ -15,7 +15,6 @@
 #include "llhttpclient.h"
 #include "llregionflags.h"
 #include "llregionhandle.h"
-#include "llsdmessagesystem.h"
 #include "llsurface.h"
 #include "message.h"
 //#include "vmath.h"
@@ -24,6 +23,7 @@
 
 #include "llagent.h"
 #include "llcallingcard.h"
+#include "llcaphttpsender.h"
 #include "lldir.h"
 #include "lleventpoll.h"
 #include "llfloatergodtools.h"
@@ -38,6 +38,12 @@
 #include "llvocache.h"
 #include "llvoclouds.h"
 #include "llworld.h"
+#include "viewer.h"
+
+// Viewer object cache version, change if object update
+// format changes. JC
+const U32 INDRA_OBJECT_CACHE_VERSION = 12;
+
 
 extern BOOL gNoRender;
 
@@ -142,6 +148,7 @@ LLViewerRegion::~LLViewerRegion()
 	delete mParcelOverlay;
 	delete mLandp;
 	delete mEventPoll;
+	LLHTTPSender::clearSender(mHost);
 	
 	saveCache();
 }
@@ -1278,34 +1285,33 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("SendUserReport");
 	capabilityNames.append("SendUserReportWithScreenshot");
 	capabilityNames.append("RequestTextureDownload");
+	capabilityNames.append("UntrustedSimulatorMessage");
+	
 	LLHTTPClient::post(url, capabilityNames, BaseCapabilitiesComplete::build(this));
 }
 
 static
 LLEventPoll* createViewerEventPoll(const std::string& url)
 {
-	static LLHTTPNode eventRoot;
-	static bool eventRootServicesAdded = false;
-	if (!eventRootServicesAdded)
-	{
-		LLSDMessageSystem::useServices();
-		LLHTTPRegistrar::buildAllServices(eventRoot);
-		eventRootServicesAdded = true;
-	}
-
-	return new LLEventPoll(url, eventRoot);
+	return new LLEventPoll(url);
 }
 
 
 void LLViewerRegion::setCapability(const std::string& name, const std::string& url)
 {
-	mCapabilities[name] = url;
-	
-	if (name == "EventQueueGet")
+	if(name == "EventQueueGet")
 	{
 		delete mEventPoll;
 		mEventPoll = NULL;
 		mEventPoll = createViewerEventPoll(url);
+	}
+	else if(name == "UntrustedSimulatorMessage")
+	{
+		LLHTTPSender::setSender(mHost, new LLCapHTTPSender(url));
+	}
+	else
+	{
+		mCapabilities[name] = url;
 	}
 }
 

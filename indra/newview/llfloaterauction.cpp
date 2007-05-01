@@ -57,12 +57,6 @@ LLFloaterAuction::LLFloaterAuction() :
 	childSetCommitCallback("fence_check",
 		LLSavedSettingsGlue::setBOOL, (void*)"AuctionShowFence");
 
-	LLComboBox* combo = LLUICtrlFactory::getComboBoxByName(this, "saletype_combo");
-	if (combo)
-	{
-		combo->selectFirstItem();
-	}
-
 	childSetAction("snapshot_btn", onClickSnapshot, this);
 	childSetAction("ok_btn", onClickOK, this);
 }
@@ -196,28 +190,18 @@ void LLFloaterAuction::onClickSnapshot(void* data)
 void LLFloaterAuction::onClickOK(void* data)
 {
 	LLFloaterAuction* self = (LLFloaterAuction*)(data);
-	bool is_auction = false;
-	LLComboBox* combo = LLUICtrlFactory::getComboBoxByName(self, "saletype_combo");
-	if (combo 
-		&& combo->getCurrentIndex() == 0)
-	{
-		is_auction = true;
-	}
+
 	if(self->mImageID.notNull())
 	{
 		LLSD parcel_name = self->childGetValue("parcel_text");
 
-		// create the asset
-		if(is_auction)
-		{
-			// only need the tga if it is an auction.
-			LLString* name = new LLString(parcel_name.asString());
-			gAssetStorage->storeAssetData(self->mTransactionID, LLAssetType::AT_IMAGE_TGA,
-									   &auction_tga_upload_done,
-									   (void*)name,
-									   FALSE);
-			self->getWindow()->incBusyCount();
-		}
+	// create the asset
+		LLString* name = new LLString(parcel_name.asString());
+		gAssetStorage->storeAssetData(self->mTransactionID, LLAssetType::AT_IMAGE_TGA,
+									&auction_tga_upload_done,
+									(void*)name,
+									FALSE);
+		self->getWindow()->incBusyCount();
 
 		LLString* j2c_name = new LLString(parcel_name.asString());
 		gAssetStorage->storeAssetData(self->mTransactionID, LLAssetType::AT_TEXTURE,
@@ -226,24 +210,13 @@ void LLFloaterAuction::onClickOK(void* data)
 								   FALSE);
 		self->getWindow()->incBusyCount();
 
-		if(is_auction)
-		{
-			LLNotifyBox::showXml("UploadingAuctionSnapshot");
-		}
-		else
-		{
-			LLNotifyBox::showXml("UploadingSnapshot");
-		}
+		LLNotifyBox::showXml("UploadingAuctionSnapshot");
+
 	}
 	LLMessageSystem* msg = gMessageSystem;
-	if(is_auction)
-	{
-		msg->newMessage("ViewerStartAuction");
-	}
-	else
-	{
-		msg->newMessage("ParcelGodReserveForNewbie");
-	}
+
+	msg->newMessage("ViewerStartAuction");
+
 	msg->nextBlock("AgentData");
 	msg->addUUID("AgentID", gAgent.getID());
 	msg->addUUID("SessionID", gAgent.getSessionID());

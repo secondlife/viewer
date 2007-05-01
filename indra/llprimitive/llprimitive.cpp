@@ -1260,8 +1260,8 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 
 	U8     image_ids[MAX_TES*16];
 	U8     colors[MAX_TES*4];
-	S16    scale_s[MAX_TES];
-	S16    scale_t[MAX_TES];
+	F32    scale_s[MAX_TES];
+	F32    scale_t[MAX_TES];
 	S16    offset_s[MAX_TES];
 	S16    offset_t[MAX_TES];
 	S16    image_rot[MAX_TES];
@@ -1296,8 +1296,8 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 			colors[4*face_index + 3] = 255 - coloru.mV[3];
 
 			const LLTextureEntry* te = getTE(face_index);
-			scale_s[face_index] = (S16) llround(((llclamp(te->mScaleS,-LL_MAX_SCALE_S, LL_MAX_SCALE_S)-1.0f)/(LL_MAX_SCALE_S+1.f) * (F32)0x7FFF));
-			scale_t[face_index] = (S16) llround(((llclamp(te->mScaleT,-LL_MAX_SCALE_T, LL_MAX_SCALE_T)-1.0f)/(LL_MAX_SCALE_T+1.f) * (F32)0x7FFF));
+			scale_s[face_index] = (F32) te->mScaleS;
+			scale_t[face_index] = (F32) te->mScaleT;
 			offset_s[face_index] = (S16) llround((llclamp(te->mOffsetS,-1.0f,1.0f) * (F32)0x7FFF)) ;
 			offset_t[face_index] = (S16) llround((llclamp(te->mOffsetT,-1.0f,1.0f) * (F32)0x7FFF)) ;
 			image_rot[face_index] = (S16) llround(((fmod(te->mRotation, F_TWO_PI)/F_TWO_PI) * (F32)0x7FFF));
@@ -1310,9 +1310,9 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 		*cur_ptr++ = 0;
 		cur_ptr += packTEField(cur_ptr, (U8 *)colors, 4 ,last_face_index, MVT_U8);
 		*cur_ptr++ = 0;
-		cur_ptr += packTEField(cur_ptr, (U8 *)scale_s, 2 ,last_face_index, MVT_S16Array);
+		cur_ptr += packTEField(cur_ptr, (U8 *)scale_s, 4 ,last_face_index, MVT_F32);
 		*cur_ptr++ = 0;
-		cur_ptr += packTEField(cur_ptr, (U8 *)scale_t, 2 ,last_face_index, MVT_S16Array);
+		cur_ptr += packTEField(cur_ptr, (U8 *)scale_t, 4 ,last_face_index, MVT_F32);
 		*cur_ptr++ = 0;
 		cur_ptr += packTEField(cur_ptr, (U8 *)offset_s, 2 ,last_face_index, MVT_S16Array);
 		*cur_ptr++ = 0;
@@ -1336,8 +1336,8 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 
 	U8     image_ids[MAX_TES*16];
 	U8     colors[MAX_TES*4];
-	S16    scale_s[MAX_TES];
-	S16    scale_t[MAX_TES];
+	F32    scale_s[MAX_TES];
+	F32    scale_t[MAX_TES];
 	S16    offset_s[MAX_TES];
 	S16    offset_t[MAX_TES];
 	S16    image_rot[MAX_TES];
@@ -1372,8 +1372,8 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 			colors[4*face_index + 3] = 255 - coloru.mV[3];
 
 			const LLTextureEntry* te = getTE(face_index);
-			scale_s[face_index] = (S16) llround(((llclamp(te->mScaleS,-LL_MAX_SCALE_S, LL_MAX_SCALE_S)-1.0f)/(LL_MAX_SCALE_S+1.f) * (F32)0x7FFF));
-			scale_t[face_index] = (S16) llround(((llclamp(te->mScaleT,-LL_MAX_SCALE_T, LL_MAX_SCALE_T)-1.0f)/(LL_MAX_SCALE_T+1.f) * (F32)0x7FFF));
+			scale_s[face_index] = (F32) te->mScaleS;
+			scale_t[face_index] = (F32) te->mScaleT;
 			offset_s[face_index] = (S16) llround((llclamp(te->mOffsetS,-1.0f,1.0f) * (F32)0x7FFF)) ;
 			offset_t[face_index] = (S16) llround((llclamp(te->mOffsetT,-1.0f,1.0f) * (F32)0x7FFF)) ;
 			image_rot[face_index] = (S16) llround(((fmod(te->mRotation, F_TWO_PI)/F_TWO_PI) * (F32)0x7FFF));
@@ -1387,9 +1387,9 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 		*cur_ptr++ = 0;
 		cur_ptr += packTEField(cur_ptr, (U8 *)colors, 4 ,last_face_index, MVT_U8);
 		*cur_ptr++ = 0;
-		cur_ptr += packTEField(cur_ptr, (U8 *)scale_s, 2 ,last_face_index, MVT_S16Array);
+		cur_ptr += packTEField(cur_ptr, (U8 *)scale_s, 4 ,last_face_index, MVT_F32);
 		*cur_ptr++ = 0;
-		cur_ptr += packTEField(cur_ptr, (U8 *)scale_t, 2 ,last_face_index, MVT_S16Array);
+		cur_ptr += packTEField(cur_ptr, (U8 *)scale_t, 4 ,last_face_index, MVT_F32);
 		*cur_ptr++ = 0;
 		cur_ptr += packTEField(cur_ptr, (U8 *)offset_s, 2 ,last_face_index, MVT_S16Array);
 		*cur_ptr++ = 0;
@@ -1421,8 +1421,8 @@ S32 LLPrimitive::unpackTEMessage(LLMessageSystem *mesgsys, char *block_name, con
 
 	U8     image_data[MAX_TES*16];
 	U8	  colors[MAX_TES*4];
-	S16    scale_s[MAX_TES];
-	S16    scale_t[MAX_TES];
+	F32    scale_s[MAX_TES];
+	F32    scale_t[MAX_TES];
 	S16    offset_s[MAX_TES];
 	S16    offset_t[MAX_TES];
 	S16    image_rot[MAX_TES];
@@ -1465,9 +1465,9 @@ S32 LLPrimitive::unpackTEMessage(LLMessageSystem *mesgsys, char *block_name, con
 	cur_ptr++;
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)colors, 4, face_count, MVT_U8);
 	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)scale_s, 2, face_count, MVT_S16Array);
+	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)scale_s, 4, face_count, MVT_F32);
 	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)scale_t, 2, face_count, MVT_S16Array);
+	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)scale_t, 4, face_count, MVT_F32);
 	cur_ptr++;
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)offset_s, 2, face_count, MVT_S16Array);
 	cur_ptr++;
@@ -1484,9 +1484,7 @@ S32 LLPrimitive::unpackTEMessage(LLMessageSystem *mesgsys, char *block_name, con
 	for (U32 i = 0; i < face_count; i++)
 	{
 		retval |= setTETexture(i, ((LLUUID*)image_data)[i]);
-		retval |= setTEScale(i, 
-					floor((1.0f + ((((F32)scale_s[i] / (F32)0x7FFF)) * (LL_MAX_SCALE_S+1.f))) * 100.f + 0.5f) / 100.f, 
-					floor((1.0f + ((((F32)scale_t[i] / (F32)0x7FFF)) * (LL_MAX_SCALE_T+1.f))) * 100.f + 0.5f) / 100.f);
+		retval |= setTEScale(i, scale_s[i], scale_t[i]);
 		retval |= setTEOffset(i, (F32)offset_s[i] / (F32)0x7FFF, (F32) offset_t[i] / (F32) 0x7FFF);
 		retval |= setTERotation(i, ((F32)image_rot[i]/ (F32)0x7FFF) * F_TWO_PI);
 		retval |= setTEBumpShinyFullbright(i, bump[i]);
@@ -1518,8 +1516,8 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 
 	U8     image_data[MAX_TES*16];
 	U8	   colors[MAX_TES*4];
-	S16    scale_s[MAX_TES];
-	S16    scale_t[MAX_TES];
+	F32    scale_s[MAX_TES];
+	F32    scale_t[MAX_TES];
 	S16    offset_s[MAX_TES];
 	S16    offset_t[MAX_TES];
 	S16    image_rot[MAX_TES];
@@ -1552,9 +1550,9 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 	cur_ptr++;
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)colors, 4, face_count, MVT_U8);
 	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)scale_s, 2, face_count, MVT_S16Array);
+	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)scale_s, 4, face_count, MVT_F32);
 	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)scale_t, 2, face_count, MVT_S16Array);
+	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)scale_t, 4, face_count, MVT_F32);
 	cur_ptr++;
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)offset_s, 2, face_count, MVT_S16Array);
 	cur_ptr++;
@@ -1577,9 +1575,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 	for (i = 0; i < face_count; i++)
 	{
 		retval |= setTETexture(i, image_ids[i]);
-		retval |= setTEScale(i, 
-					floor((1.0f + ((((F32)scale_s[i] / (F32)0x7FFF)) * (LL_MAX_SCALE_S+1.f))) * 100.f + 0.5f) / 100.f, 
-					floor((1.0f + ((((F32)scale_t[i] / (F32)0x7FFF)) * (LL_MAX_SCALE_T+1.f))) * 100.f + 0.5f) / 100.f);
+		retval |= setTEScale(i, scale_s[i], scale_t[i]);
 		retval |= setTEOffset(i, (F32)offset_s[i] / (F32)0x7FFF, (F32) offset_t[i] / (F32) 0x7FFF);
 		retval |= setTERotation(i, ((F32)image_rot[i]/ (F32)0x7FFF) * F_TWO_PI);
 		retval |= setTEBumpShinyFullbright(i, bump[i]);

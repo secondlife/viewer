@@ -175,19 +175,27 @@ LLScrollListItem* LLNameListCtrl::addElement(const LLSD& value, EAddPosition pos
 	char first[DB_FIRST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 	char last[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 
-	LLString fullname;
-	if (gCacheName->getName(item->getUUID(), first, last))
-	{
-		fullname.assign(first);
-		fullname.append(1, ' ');
-		fullname.append(last);
-	}
-	else // didn't work as a resident name, try looking up as a group
+	// use supplied name by default
+	LLString fullname = value["name"].asString();
+	if (value["target"].asString() == "GROUP")
 	{
 		char group_name[DB_GROUP_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 		gCacheName->getGroupName(item->getUUID(), group_name);
 		// fullname will be "nobody" if group not found
 		fullname = group_name;
+	}
+	else if (value["target"].asString() == "SPECIAL")
+	{
+		// just use supplied name
+	}
+	else // normal resident
+	{
+		if (gCacheName->getName(item->getUUID(), first, last))
+		{
+			fullname.assign(first);
+			fullname.append(1, ' ');
+			fullname.append(last);
+		}
 	}
 	
 	LLScrollListCell* cell = (LLScrollListCell*)item->getColumn(mNameColumnIndex);
@@ -428,4 +436,5 @@ LLView* LLNameListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFacto
 
 	return name_list;
 }
+
 

@@ -39,13 +39,15 @@ public:
 
     /*virtual*/ void draw();
 
-	void refresh();
+	/*virtual*/ void refresh();
 
 	// Setup a new pick, including creating an id, giving a sane
 	// initial position, etc.
 	void initNewPick();
 
-	void setPickID(const LLUUID& id);
+	// We need to know the creator id so the database knows which partition
+	// to query for the pick data.
+	void setPickID(const LLUUID& pick_id, const LLUUID& creator_id);
 
 	// Schedules the panel to request data
 	// from the server next time it is drawn.
@@ -53,6 +55,7 @@ public:
 
 	std::string getPickName();
 	const LLUUID& getPickID() const { return mPickID; }
+	const LLUUID& getPickCreatorID() const { return mCreatorID; }
 
     void sendPickInfoRequest();
 	void sendPickInfoUpdate();

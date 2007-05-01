@@ -9,12 +9,10 @@
 #ifndef LL_LLVIEWERMESSAGE_H
 #define LL_LLVIEWERMESSAGE_H
 
-//#include "linked_lists.h"
 #include "llinstantmessage.h"
 #include "lltransactiontypes.h"
 #include "lluuid.h"
 #include "stdenums.h"
-#include "message.h"
 
 //
 // Forward declarations
@@ -23,6 +21,7 @@ class LLColor4;
 class LLViewerObject;
 class LLInventoryObject;
 class LLInventoryItem;
+class LLMessageSystem;
 class LLViewerRegion;
 
 //
@@ -169,8 +168,6 @@ void process_decline_callingcard(LLMessageSystem* msg, void**);
 // Message system exception prototypes
 void invalid_message_callback(LLMessageSystem*, void*, EMessageException);
 
-void send_lure_911(void** user_data, S32 result);
-
 void process_initiate_download(LLMessageSystem* msg, void**);
 void inventory_offer_callback(S32 option, void* user_data);
 
@@ -189,15 +186,7 @@ struct LLOfferInfo
 	LLHost mHost;
 };
 
-void send_generic_message(const char* method,
-						  const std::vector<std::string>& strings,
-						  const LLUUID& invoice = LLUUID::null);
-
-void process_generic_message(LLMessageSystem* msg, void**);
-
 void process_feature_disabled_message(LLMessageSystem* msg, void**);
-
-extern LLDispatcher gGenericDispatcher;
 
 #endif
 

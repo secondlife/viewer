@@ -38,7 +38,7 @@
 #include "llviewerwindow.h"
 #include "llworldmap.h"
 #include "llfloaterworldmap.h"
-#include "llviewermessage.h"	// send_generic_message
+#include "llviewergenericmessage.h"	// send_generic_message
 #include "llviewerwindow.h"	// for window width, height
 
 const S32 MINIMUM_PRICE_FOR_LISTING = 50;	// L$

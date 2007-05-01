@@ -173,7 +173,6 @@ void LLParcel::init(const LLUUID &owner_id,
 	mRecordTransaction = FALSE;
 
 	mAuctionID = 0;
-	mIsReservedForNewbie = FALSE;
 	mInEscrow = false;
 
 	mParcelFlags = PF_DEFAULT;
@@ -633,10 +632,6 @@ BOOL LLParcel::importStream(std::istream& input_stream)
 		{
 			LLString::convertToU32(value, mAuctionID);
 		}
-		else if("reserved_newbie" == keyword)
-		{
-			LLString::convertToBOOL(value, mIsReservedForNewbie);
-		}
 		else if ("allow_modify" == keyword)
 		{
 			LLString::convertToU32(value, setting);
@@ -1070,10 +1065,6 @@ BOOL LLParcel::exportStream(std::ostream& output_stream)
 	if(0 != mAuctionID)
 	{
 		output_stream << "\t\t auction_id       " << mAuctionID << "\n";
-	}
-	if(mIsReservedForNewbie)
-	{
-		output_stream << "\t\t reserved_newbie  " << mIsReservedForNewbie << "\n";
 	}
 
 	output_stream << "\t\t allow_modify     " << getAllowModify()  << "\n";
@@ -1615,7 +1606,6 @@ void LLParcel::expireSale(U32& type, U8& flags, LLUUID& from_id, LLUUID& to_id)
 	setSellWithObjects(FALSE);
 	type = TRANS_LAND_RELEASE;
 	mStatus = OS_NONE;
-	mIsReservedForNewbie = FALSE;
 	flags = pack_transaction_flags(mGroupOwned, FALSE);
 	mAuthBuyerID.setNull();
 	from_id = mOwnerID;
@@ -1633,7 +1623,6 @@ void LLParcel::completeSale(U32& type, U8& flags,
 	flags = pack_transaction_flags(mGroupOwned, mGroupOwned);
 	to_id = mOwnerID;
 	mAuthBuyerID.setNull();
-	mIsReservedForNewbie = FALSE;
 
 	// Purchased parcels are assumed to no longer be for sale.
 	// Otherwise someone can snipe the sale.
@@ -1666,7 +1655,6 @@ void LLParcel::clearSale()
 	setPreviousOwnerID(LLUUID::null);
 	setPreviouslyGroupOwned(FALSE);
 	setSellWithObjects(FALSE);
-	mIsReservedForNewbie = FALSE;
 }
 
 BOOL LLParcel::isPublic() const
@@ -1700,7 +1688,6 @@ void LLParcel::clearParcel()
 	setUserLookAt(LLVector3::x_axis);
 	setLandingType(L_LANDING_POINT);
 	setAuctionID(0);
-	setReservedForNewbie(FALSE);
 	setGroupID(LLUUID::null);
 	setPassPrice(0);
 	setPassHours(0.f);

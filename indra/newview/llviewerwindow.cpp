@@ -610,21 +610,18 @@ BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask
 
 	// Topmost view gets a chance before the hierarchy
 	LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
+	BOOL mouse_over_top_ctrl = FALSE;
 	if (top_ctrl)
 	{
 		S32 local_x, local_y;
 		top_ctrl->screenPointToLocal( x, y, &local_x, &local_y );
 		if (top_ctrl->pointInView(local_x, local_y))
 		{
+			mouse_over_top_ctrl = TRUE;
 			if(top_ctrl->handleMouseDown(local_x, local_y, mask)) 
 			{
 				return TRUE;
 			}
-		}
-		else if (top_ctrl->hasFocus())
-		{
-			// always defocus top view if we click off of it
-			top_ctrl->setFocus(FALSE);
 		}
 	}
 
@@ -636,11 +633,22 @@ BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask
 			llinfos << "Left Mouse Down" << LLView::sMouseHandlerMessage << llendl;
 			LLView::sMouseHandlerMessage = "";
 		}
+		if (top_ctrl && top_ctrl->hasFocus() && !mouse_over_top_ctrl)
+		{
+			// always defocus top view if we click off of it
+			top_ctrl->setFocus(FALSE);
+		}
 		return TRUE;
 	}
 	else if (LLView::sDebugMouseHandling)
 	{
 		llinfos << "Left Mouse Down not handled by view" << llendl;
+	}
+
+	if (top_ctrl && top_ctrl->hasFocus() && !mouse_over_top_ctrl)
+	{
+		// always defocus top view if we click off of it
+		top_ctrl->setFocus(FALSE);
 	}
 
 	if (gDisconnected)
@@ -699,22 +707,17 @@ BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK ma
 
 	// Check for hit on UI.
 	LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
+	BOOL mouse_over_top_ctrl = FALSE;
 	if (top_ctrl)
 	{
 		S32 local_x, local_y;
 		top_ctrl->screenPointToLocal( x, y, &local_x, &local_y );
 		if (top_ctrl->pointInView(local_x, local_y))
 		{
+			mouse_over_top_ctrl = TRUE;
 			if(top_ctrl->handleDoubleClick(local_x, local_y, mask))
 			{
 				return TRUE;
-			}
-		}
-		else
-		{
-			if (top_ctrl->hasFocus())
-			{
-				top_ctrl->setFocus(FALSE);
 			}
 		}
 	}
@@ -726,6 +729,11 @@ BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK ma
 			llinfos << "Left Mouse Down" << LLView::sMouseHandlerMessage << llendl;
 			LLView::sMouseHandlerMessage = "";
 		}
+		if (top_ctrl && top_ctrl->hasFocus() && !mouse_over_top_ctrl)
+		{
+			// always defocus top view if we click off of it
+			top_ctrl->setFocus(FALSE);
+		}
 		return TRUE;
 	}
 	else if (LLView::sDebugMouseHandling)
@@ -733,7 +741,13 @@ BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK ma
 		llinfos << "Left Mouse Down not handled by view" << llendl;
 	}
 
-	// Why is this here?  JC 9/3/2002
+	if (top_ctrl && top_ctrl->hasFocus() && !mouse_over_top_ctrl)
+	{
+		// always defocus top view if we click off of it
+		top_ctrl->setFocus(FALSE);
+	}
+
+		// Why is this here?  JC 9/3/2002
 	if (gNoRender) 
 	{
 		return TRUE;
@@ -903,22 +917,17 @@ BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK
 	}
 
 	LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
+	BOOL mouse_over_top_ctrl = FALSE;
 	if (top_ctrl)
 	{
 		S32 local_x, local_y;
 		top_ctrl->screenPointToLocal( x, y, &local_x, &local_y );
 		if (top_ctrl->pointInView(local_x, local_y))
 		{
+			mouse_over_top_ctrl = TRUE;
 			if(top_ctrl->handleRightMouseDown(local_x, local_y, mask)) 
 			{
 				return TRUE;
-			}
-		}
-		else
-		{
-			if (top_ctrl->hasFocus())
-			{
-				top_ctrl->setFocus(FALSE);
 			}
 		}
 	}
@@ -930,11 +939,22 @@ BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK
 			llinfos << "Right Mouse Down" << LLView::sMouseHandlerMessage << llendl;
 			LLView::sMouseHandlerMessage = "";
 		}
+		if (top_ctrl && top_ctrl->hasFocus() && !mouse_over_top_ctrl)
+		{
+			// always defocus top view if we click off of it
+			top_ctrl->setFocus(FALSE);
+		}
 		return TRUE;
 	}
 	else if (LLView::sDebugMouseHandling)
 	{
 		llinfos << "Right Mouse Down not handled by view" << llendl;
+	}
+
+	if (top_ctrl && top_ctrl->hasFocus() && !mouse_over_top_ctrl)
+	{
+		// always defocus top view if we click off of it
+		top_ctrl->setFocus(FALSE);
 	}
 
 	if (gToolMgr)
@@ -1464,8 +1484,27 @@ LLViewerWindow::LLViewerWindow(
 	// stuff like AGP if we think that it'll crash the viewer.
 	//
 	gFeatureManagerp->initGraphicsFeatureMasks();
+
+	// The ATI Mobility Radeon with 1.15.0 causes crashes in FMOD on startup for
+	// unknown reasons, but only if you have an old settings.ini file.
+	// In this case, force the graphics settings back to recommended, but only
+	// do it once. JC
+	std::string gpu_string = gFeatureManagerp->getGPUString();
+	LLString::toLower(gpu_string);
+	bool upgrade_to_1_15 = (gSavedSettings.getString("LastRunVersion") != "1.15.0");
+	bool mobility_radeon = (gpu_string.find("mobility radeon") != std::string::npos);
+	bool mobility_radeon_upgrade_hack = upgrade_to_1_15 && mobility_radeon;
+	if (mobility_radeon_upgrade_hack)
+	{
+		llinfos << "1.15.0 update on Mobility Radeon" << llendl;
+		llinfos << "Forcing recommended graphics settings" << llendl;
+		llinfos << "Forcing audio off" << llendl;
+		gUseAudio = FALSE;
+	}
+
 	if (gFeatureManagerp->isSafe()
-		|| (gSavedSettings.getS32("LastFeatureVersion") != gFeatureManagerp->getVersion()))
+		|| (gSavedSettings.getS32("LastFeatureVersion") != gFeatureManagerp->getVersion())
+		|| mobility_radeon_upgrade_hack)
 	{
 		gFeatureManagerp->applyRecommendedFeatures();
 	}

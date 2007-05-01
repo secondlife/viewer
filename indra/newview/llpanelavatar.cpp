@@ -30,7 +30,6 @@
 #include "llfloatergroupinfo.h"
 #include "llfloaterworldmap.h"
 #include "llfloatermute.h"
-#include "llfloaterrate.h"
 #include "llfloateravatarinfo.h"
 #include "lliconctrl.h"
 #include "llinventoryview.h"
@@ -48,7 +47,7 @@
 #include "lluiconstants.h"
 #include "llvoavatar.h"
 #include "llviewermenu.h"		// *FIX: for is_agent_friend()
-#include "llviewermessage.h"	// send_generic_message
+#include "llviewergenericmessage.h"	// send_generic_message
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewborder.h"
@@ -258,14 +257,13 @@ void LLPanelAvatarTab::draw()
 	}
 }
 
-void LLPanelAvatarTab::sendAvatarProfileRequestIfNeeded(const char* type)
+void LLPanelAvatarTab::sendAvatarProfileRequestIfNeeded(const char* method)
 {
 	if (!mDataRequested)
 	{
 		std::vector<std::string> strings;
 		strings.push_back( mPanelAvatar->getAvatarID().asString() );
-		strings.push_back( type );
-		send_generic_message("avatarprofilerequest", strings);
+		send_generic_message(method, strings);
 		mDataRequested = true;
 	}
 }
@@ -449,7 +447,7 @@ BOOL LLPanelAvatarSecondLife::postBuild(void)
 
 	childSetAction("Show on Map", LLPanelAvatar::onClickTrack, getPanelAvatar());
 	childSetAction("Instant Message...", LLPanelAvatar::onClickIM, getPanelAvatar());
-	//childSetAction("Rate...", LLPanelAvatar::onClickRate, getPanelAvatar());
+	
 	childSetAction("Add Friend...", LLPanelAvatar::onClickAddFriend, getPanelAvatar());
 	childSetAction("Pay...", LLPanelAvatar::onClickPay, getPanelAvatar());
 	childSetAction("Mute", LLPanelAvatar::onClickMute, getPanelAvatar() );	
@@ -807,7 +805,7 @@ LLPanelAvatarNotes::LLPanelAvatarNotes(const std::string& name, const LLRect& re
 
 void LLPanelAvatarNotes::refresh()
 {
-	sendAvatarProfileRequestIfNeeded("notes");
+	sendAvatarProfileRequestIfNeeded("avatarnotesrequest");
 }
 
 void LLPanelAvatarNotes::clearControls()
@@ -851,7 +849,7 @@ void LLPanelAvatarClassified::refresh()
 	childSetEnabled("Delete...",self && allow_delete);
 	childSetVisible("classified tab",!show_help);
 
-	sendAvatarProfileRequestIfNeeded("classifieds");
+	sendAvatarProfileRequestIfNeeded("avatarclassifiedsrequest");
 }
 
 
@@ -1052,7 +1050,7 @@ void LLPanelAvatarPicks::refresh()
 	childSetEnabled("New...",self && allow_new);
 	childSetEnabled("Delete...",self && allow_delete);
 
-	sendAvatarProfileRequestIfNeeded("picks");
+	sendAvatarProfileRequestIfNeeded("avatarpicksrequest");
 }
 
 
@@ -1083,6 +1081,9 @@ void LLPanelAvatarPicks::processAvatarPicksReply(LLMessageSystem* msg, void**)
 	// number of new panels.
 	deletePickPanels();
 
+	// The database needs to know for which user to look up picks.
+	LLUUID avatar_id = getPanelAvatar()->getAvatarID();
+	
 	block_count = msg->getNumberOfBlocks("Data");
 	for (block = 0; block < block_count; block++)
 	{
@@ -1091,7 +1092,7 @@ void LLPanelAvatarPicks::processAvatarPicksReply(LLMessageSystem* msg, void**)
 
 		panel_pick = new LLPanelPick(FALSE);
 
-		panel_pick->setPickID(pick_id);
+		panel_pick->setPickID(pick_id, avatar_id);
 
 		// This will request data from the server when the pick is first
 		// drawn.
@@ -1170,23 +1171,24 @@ void LLPanelAvatarPicks::callbackDelete(S32 option, void* data)
 		if(gAgent.isGodlike())
 		{
 			msg->newMessage("PickGodDelete");			
+			msg->nextBlock("AgentData");
+			msg->addUUID("AgentID", gAgent.getID());
+			msg->addUUID("SessionID", gAgent.getSessionID());
+			msg->nextBlock("Data");
+			msg->addUUID("PickID", panel_pick->getPickID());
+			// *HACK: We need to send the pick's creator id to accomplish
+			// the delete, and we don't use the query id for anything. JC
+			msg->addUUID( "QueryID", panel_pick->getPickCreatorID() );
 		}
 		else
 		{
 			msg->newMessage("PickDelete");
+			msg->nextBlock("AgentData");
+			msg->addUUID("AgentID", gAgent.getID());
+			msg->addUUID("SessionID", gAgent.getSessionID());
+			msg->nextBlock("Data");
+			msg->addUUID("PickID", panel_pick->getPickID());
 		}
-		msg->nextBlock("AgentData");
-		msg->addUUID("AgentID", gAgent.getID());
-		msg->addUUID("SessionID", gAgent.getSessionID());
-		msg->nextBlock("Data");
-		msg->addUUID("PickID", panel_pick->getPickID());
-		
-		//God delete receiving end expects a query ID but we dont need it, so send a null.
-		//This is to resolve SL-24170 God Picks Delete results in crash.
-		if(gAgent.isGodlike())
-			msg->addUUID( "QueryID", LLUUID::null );
-		
-
 		gAgent.sendReliableMessage();
 
 		if(tabs)
@@ -1219,8 +1221,7 @@ LLPanelAvatar::LLPanelAvatar(
 	mAvatarID( LLUUID::null ),	// mAvatarID is set with 'setAvatar' or 'setAvatarID'
 	mHaveProperties(FALSE),
 	mHaveStatistics(FALSE),
-	mAllowEdit(allow_edit),
-	mDisableRate(FALSE)
+	mAllowEdit(allow_edit)
 {
 
 	sAllPanels.push_back(this);
@@ -1435,8 +1436,6 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id, const LLString &name,
 			childSetEnabled("drop target",FALSE);
 			childSetVisible("Show on Map",FALSE);
 			childSetEnabled("Show on Map",FALSE);
-			childSetVisible("Rate...",FALSE);
-			childSetEnabled("Rate...",FALSE);
 			childSetVisible("Add Friend...",FALSE);
 			childSetEnabled("Add Friend...",FALSE);
 			childSetVisible("Pay...",FALSE);
@@ -1475,8 +1474,6 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id, const LLString &name,
 			{
 				childSetToolTip("Show on Map",childGetValue("ShowOnMapFriendOnline").asString());
 			}
-			childSetVisible("Rate...",TRUE);
-			childSetEnabled("Rate...",FALSE);
 			childSetVisible("Add Friend...", true);
 			childSetEnabled("Add Friend...", true);
 			childSetVisible("Pay...",TRUE);
@@ -1576,16 +1573,6 @@ void LLPanelAvatar::onClickTrack(void* userdata)
 	}
 }
 
-// static
-//-----------------------------------------------------------------------------
-// onClickRate()
-//-----------------------------------------------------------------------------
-void LLPanelAvatar::onClickRate(void *userdata)
-{
-	LLPanelAvatar* self = (LLPanelAvatar*) userdata;
-
-	LLFloaterRate::show(self->mAvatarID);
-}
 
 // static
 void LLPanelAvatar::onClickAddFriend(void* userdata)
@@ -1624,15 +1611,6 @@ void LLPanelAvatar::onClickMute(void *userdata)
 			gMuteListp->add(mute);
 		}
 	}
-}
-
-
-void LLPanelAvatar::disableRate()
-{
-	// Force off the rate button, but enable IM.
-	// Note that these buttons may not exist if it is your own profile.
-	childSetEnabled("Rate...",FALSE);
-	mDisableRate = TRUE;
 }
 
 
@@ -1783,10 +1761,6 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 		self->childSetEnabled("Pay...",TRUE);
 		self->childSetEnabled("Mute",TRUE);
 
-		if (!self->mDisableRate) 
-		{
-			self->childSetEnabled("Rate...",TRUE);
-		}
 		self->childSetEnabled("drop target",TRUE);
 
 		self->mHaveProperties = TRUE;
@@ -2015,7 +1989,7 @@ void LLPanelAvatar::processAvatarGroupsReply(LLMessageSystem *msg, void**)
 // Otherwise you will write blanks back into the database.
 void LLPanelAvatar::enableOKIfReady()
 {
-	if(mHaveProperties && mHaveStatistics && childIsVisible("OK"))
+	if(mHaveProperties && childIsVisible("OK"))
 	{
 		childSetEnabled("OK", TRUE);
 	}
@@ -2116,69 +2090,6 @@ void LLPanelAvatar::selectTabByName(std::string tab_name)
 		else
 		{
 			mTab->selectTabByName(tab_name);
-		}
-	}
-}
-
-
-// static
-void LLPanelAvatar::processAvatarStatisticsReply(LLMessageSystem *msg, void**)
-{
-	// extract the agent id
-	LLUUID agent_id;
-	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
-
-	LLUUID avatar_id;
-	msg->getUUIDFast(_PREHASH_AvatarData, _PREHASH_AvatarID, avatar_id);
-
-	// look up all panels which have this avatar
-	for (panel_list_t::iterator iter = sAllPanels.begin(); iter != sAllPanels.end(); ++iter)
-	{
-		LLPanelAvatar* self = *iter;
-		if (self->mAvatarID != avatar_id)
-		{
-			continue;
-		}
-
-		self->mHaveStatistics = TRUE;
-		self->enableOKIfReady();
-
-		// clear out list
-		LLScrollListCtrl*	ratings_list = LLUICtrlFactory::getScrollListByName(self->mPanelSecondLife,"ratings"); 
-		if (ratings_list)
-		{
-			ratings_list->deleteAllItems();
-		}
-		// build the item list
-		S32 items = msg->getNumberOfBlocksFast(_PREHASH_StatisticsData);
-		for (S32 i = 0; i < items; i++)
-		{
-			char name[MAX_STRING];		/*Flawfinder: ignore*/
-			S32 positive;
-			S32 negative;
-			char value_string[MAX_STRING];		/*Flawfinder: ignore*/
-
-			msg->getStringFast(	_PREHASH_StatisticsData, 
-								_PREHASH_Name, MAX_STRING, name, i);
-			msg->getS32(	"StatisticsData", "Positive", positive, i);
-			msg->getS32(	"StatisticsData", "Negative", negative, i);
-
-			const S32	TEXT_WIDTH = 75;
-
-			LLSD row;
-			row["columns"][0]["value"] = name;
-			row["columns"][0]["font"] = "SANSSERIF_SMALL";
-			row["columns"][0]["width"] = TEXT_WIDTH;
-			row["columns"][1]["value"] = value_string;
-			row["columns"][1]["font"] = "SANSSERIF_SMALL";
-			row["columns"][1]["width"] = 50;
-			row["columns"][2]["value"] = "";
-			row["columns"][2]["font"] = "SANSSERIF_SMALL";
-
-			if(ratings_list) 
-			{
-				ratings_list->addElement( row );
-			}
 		}
 	}
 }

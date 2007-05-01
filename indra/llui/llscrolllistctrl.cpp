@@ -405,6 +405,7 @@ LLScrollListCtrl::LLScrollListCtrl(const LLString& name, const LLRect& rect,
 	mNumDynamicWidthColumns(0),
 	mTotalStaticColumnWidth(0),
 	mSortColumn(-1),
+	mSorted(TRUE),
 	mSortAscending(TRUE)
 {
 	mItemListRect.setOriginAndSize(
@@ -623,22 +624,28 @@ BOOL LLScrollListCtrl::addItem( LLScrollListItem* item, EAddPosition pos )
 		{
 		case ADD_TOP:
 			mItemList.push_front(item);
+			setSorted(FALSE);
 			break;
 	
 		case ADD_SORTED:
-			mSortColumn = 0;
-			mSortAscending = TRUE;
+			if (mSortColumn == -1)
+			{
+				mSortColumn = 0;
+				mSortAscending = TRUE;
+			}
 			mItemList.push_back(item);
 			std::sort(mItemList.begin(), mItemList.end(), SortScrollListItem(mSortColumn, mSortAscending));
 			break;
 	
 		case ADD_BOTTOM:
 			mItemList.push_back(item);
+			setSorted(FALSE);
 			break;
 	
 		default:
 			llassert(0);
 			mItemList.push_back(item);
+			setSorted(FALSE);
 			break;
 		}
 	
@@ -1094,7 +1101,7 @@ void LLScrollListCtrl::selectNextItem( BOOL extend_selection)
 		}
 	}
 
-	if ((mCommitOnSelectionChange || mCommitOnKeyboardMovement))
+	if (mCommitOnKeyboardMovement)
 	{
 		onCommit();
 	}
@@ -1685,8 +1692,7 @@ BOOL LLScrollListCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 	}
 
 	// always commit when mouse operation is completed inside list
-	// this only needs to be done for lists that don't commit on selection change
-	if (!mCommitOnSelectionChange && pointInView(x,y))
+	if (mItemListRect.pointInRect(x,y))
 	{
 		mSelectionChanged = FALSE;
 		onCommit();
@@ -2090,6 +2096,16 @@ void LLScrollListCtrl::commitIfChanged()
 	}
 }
 
+void LLScrollListCtrl::setSorted(BOOL sorted)
+{
+	mSorted = sorted;
+}
+
+BOOL LLScrollListCtrl::isSorted()
+{
+	return mSorted;
+}
+
 // Called by scrollbar
 //static
 void LLScrollListCtrl::onScrollChange( S32 new_pos, LLScrollbar* scrollbar, void* userdata )
@@ -2102,10 +2118,11 @@ void LLScrollListCtrl::onScrollChange( S32 new_pos, LLScrollbar* scrollbar, void
 // First column is column 0
 void  LLScrollListCtrl::sortByColumn(U32 column, BOOL ascending)
 {
-	if (mSortColumn != column)
+	if (!mSorted || mSortColumn != column)
 	{
 		mSortColumn = column;
 		std::sort(mItemList.begin(), mItemList.end(), SortScrollListItem(mSortColumn, mSortAscending));
+		setSorted(TRUE);
 	}
 
 	// just reverse the list if changing sort order
@@ -2358,6 +2375,9 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 
 			LLString sortname(columnname);
 			child->getAttributeString("sort", sortname);
+		
+			BOOL sort_ascending = TRUE;
+			child->getAttributeBOOL("sort_ascending", sort_ascending);
 
 			LLString imagename;
 			child->getAttributeString("image", imagename);
@@ -2379,6 +2399,7 @@ LLView* LLScrollListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFac
 
 			columns[index]["name"] = columnname;
 			columns[index]["sort"] = sortname;
+			columns[index]["sort_ascending"] = sort_ascending;
 			columns[index]["image"] = imagename;
 			columns[index]["label"] = labelname;
 			columns[index]["width"] = columnwidth;
@@ -2543,6 +2564,13 @@ void LLScrollListCtrl::addColumn(const LLSD& column, EAddPosition pos)
 	{
 		mDefaultColumn = 0;
 	}
+	// if no column name provided, just use ordinal as name
+	if (name.empty())
+	{
+		std::ostringstream new_name;
+		new_name << mColumnsIndexed.size();
+		name = new_name.str();
+	}
 	if (mColumns.find(name) == mColumns.end())
 	{
 		// Add column
@@ -2621,6 +2649,7 @@ void LLScrollListCtrl::onClickColumn(void *userdata)
 	U32 column_index = info->mIndex;
 
 	LLScrollListColumn* column = parent->mColumnsIndexed[info->mIndex];
+	bool ascending = column->mSortAscending;
 	if (column->mSortingColumn != column->mName)
 	{
 		if (parent->mColumns.find(column->mSortingColumn) != parent->mColumns.end())
@@ -2630,7 +2659,6 @@ void LLScrollListCtrl::onClickColumn(void *userdata)
 		}
 	}
 
-	bool ascending = true;
 	if (column_index == parent->mSortColumn)
 	{
 		ascending = !parent->mSortAscending;
@@ -2715,6 +2743,7 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& value, EAddPosition p
 	// Add any columns we don't already have
 	LLSD columns = value["columns"];
 	LLSD::array_const_iterator itor;
+	S32 col_index = 0 ;
 	for (itor = columns.beginArray(); itor != columns.endArray(); ++itor)
 	{
 		LLString column = (*itor)["column"].asString();
@@ -2723,21 +2752,39 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& value, EAddPosition p
 		{
 			mDefaultColumn = 0;
 		}
-		std::map<LLString, LLScrollListColumn>::iterator column_itor = mColumns.find(column);
-		if (column_itor == mColumns.end())
+
+		LLScrollListColumn* columnp = NULL;
+
+		// empty columns strings index by ordinal
+		if (column.empty())
+		{
+			std::ostringstream new_name;
+			new_name << col_index;
+			column = new_name.str();
+		}
+
+		std::map<LLString, LLScrollListColumn>::iterator column_itor;
+		column_itor = mColumns.find(column);
+		if (column_itor != mColumns.end()) 
+		{
+			columnp = &column_itor->second;
+		}
+
+		// create new column on demand
+		if (!columnp)
 		{
 			LLSD new_column;
 			new_column["name"] = column;
 			new_column["label"] = column;
-			new_column["width"] = 0;
+			new_column["width"] = (*itor)["width"];
 			addColumn(new_column);
-			column_itor = mColumns.find(column);
+			columnp = &mColumns.find(column)->second;
 			new_item->setNumColumns(mColumns.size());
 		}
 
-		S32 index = column_itor->second.mIndex;
-		S32 width = column_itor->second.mWidth;
-		LLFontGL::HAlign font_alignment = column_itor->second.mFontAlignment;
+		S32 index = columnp->mIndex;
+		S32 width = columnp->mWidth;
+		LLFontGL::HAlign font_alignment = columnp->mFontAlignment;
 
 		LLSD value = (*itor)["value"];
 		LLString fontname = (*itor)["font"].asString();
@@ -2770,11 +2817,13 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& value, EAddPosition p
 		else
 		{
 			new_item->setColumn(index, new LLScrollListText(value.asString(), font, width, font_style, font_alignment));
-			if (column_itor->second.mHeader && !value.asString().empty())
+			if (columnp->mHeader && !value.asString().empty())
 			{
-				column_itor->second.mHeader->setHasResizableElement(TRUE);
+				columnp->mHeader->setHasResizableElement(TRUE);
 			}
 		}
+
+		col_index++;
 	}
 
 	S32 num_columns = mColumns.size();
@@ -2917,32 +2966,6 @@ LLColumnHeader::LLColumnHeader(const LLString& label, const LLRect &rect, LLScro
 	mAscendingText = "[LOW]...[HIGH](Ascending)";
 	mDescendingText = "[HIGH]...[LOW](Descending)";
 
-	LLSD row;
-	row["columns"][0]["column"] = "label";
-	row["columns"][0]["value"] = mAscendingText.getString();
-	row["columns"][0]["font"] = "SANSSERIF_SMALL";
-	row["columns"][0]["width"] = 80;
-	
-	row["columns"][1]["column"] = "arrow";
-	row["columns"][1]["type"] = "icon";
-	row["columns"][1]["value"] = LLUI::sAssetsGroup->getString("up_arrow.tga");
-	row["columns"][1]["width"] = 20;
-
-	mList->addElement(row);
-
-	row["columns"][0]["column"] = "label";
-	row["columns"][0]["type"] = "text";
-	row["columns"][0]["value"] = mDescendingText.getString();
-	row["columns"][0]["font"] = "SANSSERIF_SMALL";
-	row["columns"][0]["width"] = 80;
-	
-	row["columns"][1]["column"] = "arrow";
-	row["columns"][1]["type"] = "icon";
-	row["columns"][1]["value"] = LLUI::sAssetsGroup->getString("down_arrow.tga");
-	row["columns"][1]["width"] = 20;
-
-	mList->addElement(row);
-
 	mList->reshape(llmax(mList->getRect().getWidth(), 110, mRect.getWidth()), mList->getRect().getHeight());
 
 	// resize handles on left and right
@@ -2964,7 +2987,7 @@ void LLColumnHeader::draw()
 {
 	if( getVisible() )
 	{
-		mDrawArrow = !mColumn->mLabel.empty() && mColumn->mParentCtrl->getSortColumnName() == mColumn->mSortingColumn;
+		mDrawArrow = !mColumn->mLabel.empty() && mColumn->mParentCtrl->isSorted() && mColumn->mParentCtrl->getSortColumnName() == mColumn->mSortingColumn;
 
 		BOOL is_ascending = mColumn->mParentCtrl->getSortAscending();
 		mArrowImage = is_ascending ? LLUI::sImageProvider->getUIImageByID(LLUUID(LLUI::sAssetsGroup->getString("up_arrow.tga")))
@@ -3311,7 +3334,11 @@ void LLColumnHeader::setHasResizableElement(BOOL resizable)
 
 void LLColumnHeader::enableResizeBar(BOOL enable)
 {
-	mResizeBar->setEnabled(enable);
+	// for now, dynamically spaced columns can't be resized
+	if (!mColumn->mDynamicWidth)
+	{
+		mResizeBar->setEnabled(enable);
+	}
 }
 
 BOOL LLColumnHeader::canResize()

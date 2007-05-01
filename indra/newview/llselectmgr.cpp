@@ -32,7 +32,6 @@
 #include "lldrawable.h"
 #include "llfloaterinspect.h"
 #include "llfloaterproperties.h"
-#include "llfloaterrate.h"
 #include "llfloaterreporter.h"
 #include "llfloatertools.h"
 #include "llframetimer.h"
@@ -542,7 +541,7 @@ void LLSelectMgr::deselectObjectAndFamily(LLViewerObject* object, BOOL send_to_s
 		msg->addU32Fast(_PREHASH_ObjectLocalID, (objects[i])->getLocalID());
 		select_count++;
 
-		if(msg->mCurrentSendTotal >= MTUBYTES || select_count >= MAX_OBJECTS_PER_PACKET)
+		if(msg->isSendFull(NULL) || select_count >= MAX_OBJECTS_PER_PACKET)
 		{
 			msg->sendReliable(regionp->getHost() );
 			select_count = 0;
@@ -4179,7 +4178,7 @@ void LLSelectMgr::sendListToRegions(const LLString& message_name,
 
 		// if to same simulator and message not too big
 		if ((current_region == last_region)
-			&& (gMessageSystem->mCurrentSendTotal < MTUBYTES)
+			&& (! gMessageSystem->isSendFull(NULL))
 			&& (objects_in_this_packet < MAX_OBJECTS_PER_PACKET))
 		{
 			// add another instance of the body of the data
@@ -4214,7 +4213,7 @@ void LLSelectMgr::sendListToRegions(const LLString& message_name,
 	}
 
 	// flush messages
-	if (gMessageSystem->mCurrentSendTotal > 0)
+	if (gMessageSystem->getCurrentSendTotal() > 0)
 	{
 		gMessageSystem->sendReliable( current_region->getHost());
 		packets_sent++;
@@ -6220,7 +6219,6 @@ BOOL LLObjectSelection::getOwnershipCost(S32 &cost)
 }
 
 
-
 //-----------------------------------------------------------------------------
 // getObjectCount()
 //-----------------------------------------------------------------------------
@@ -6556,3 +6554,4 @@ LLViewerObject* LLObjectSelection::getFirstMoveableObject(BOOL get_root)
 
 	return object;
 }
+

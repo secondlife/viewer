@@ -162,6 +162,7 @@ BOOL LLFloaterTOS::postBuild()
 	childSetValue("tos_text", LLSD(mMessage));	
 #endif
 
+
 	return TRUE;
 }
 

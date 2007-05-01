@@ -219,6 +219,7 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 	curl_easy_setopt(mCurl, CURLOPT_ERRORBUFFER, &mCurlErrorBuffer);
 	curl_easy_setopt(mCurl, CURLOPT_CAINFO, gDirUtilp->getCAFile().c_str());
 	curl_easy_setopt(mCurl, CURLOPT_SSL_VERIFYPEER, gVerifySSLCert);
+	curl_easy_setopt(mCurl, CURLOPT_SSL_VERIFYHOST, gVerifySSLCert? 2 : 0);
 
 	/* Setting the DNS cache timeout to -1 disables it completely.
 	   This might help with bug #503 */

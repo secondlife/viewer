@@ -3060,6 +3060,13 @@ void LLVOAvatar::updateCharacter(LLAgent &agent)
 		return;
 	}
 
+	// For fading out the names above heads, only let the timer
+	// run if we're visible.
+	if (mDrawable.notNull() && !mDrawable->isVisible())
+	{
+		mTimeVisible.reset();
+	}
+
 	if (!mIsSelf && !isVisible())
 	{
 		return;
@@ -3088,13 +3095,6 @@ void LLVOAvatar::updateCharacter(LLAgent &agent)
 	else if (!getParent() && mIsSitting && !isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED))
 	{
 		getOffObject();
-	}
-
-	// For fading out the names above heads, only let the timer
-	// run if we're visible.
-	if (mDrawable.notNull() && !mDrawable->isVisible())
-	{
-		mTimeVisible.reset();
 	}
 
 	//--------------------------------------------------------------------

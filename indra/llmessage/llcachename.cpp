@@ -32,6 +32,10 @@ const char* CN_NONE = "(none)";
 const char* CN_HIPPOS = "(hippos)";
 const F32 HIPPO_PROBABILITY = 0.01f;
 
+// We track name requests in flight for up to this long.
+// We won't re-request a name during this time
+const U32 PENDING_TIMEOUT_SECS = 5 * 60;
+
 // File version number
 const S32 CN_FILE_VERSION = 2;
 
@@ -162,8 +166,9 @@ namespace {
 	}
 
 
-	typedef std::vector<LLUUID>					AskQueue;
+	typedef std::set<LLUUID>					AskQueue;
 	typedef std::vector<PendingReply>			ReplyQueue;
+	typedef std::map<LLUUID,U32>				PendingQueue;
 	typedef std::map<LLUUID, LLCacheNameEntry*> Cache;
 	typedef std::vector<LLCacheNameCallback>	Observers;
 };
@@ -180,6 +185,9 @@ public:
 	AskQueue			mAskNameQueue;
 	AskQueue			mAskGroupQueue;
 		// UUIDs to ask our upstream host about
+	
+	PendingQueue		mPendingQueue;
+		// UUIDs that have been requested but are not in cache yet.
 
 	ReplyQueue			mReplyQueue;
 		// requests awaiting replies from us
@@ -194,6 +202,7 @@ public:
 	void processPendingAsks();
 	void processPendingReplies();
 	void sendRequest(const char* msg_name, const AskQueue& queue);
+	bool isRequestPending(const LLUUID& id);
 
 	// Message system callbacks.
 	void processUUIDRequest(LLMessageSystem* msg, bool isGroup);
@@ -436,7 +445,10 @@ BOOL LLCacheName::getName(const LLUUID& id, char* first, char* last)
 						: CN_WAITING);
 		strcpy(last, "");	/*Flawfinder: ignore*/
 
-		impl.mAskNameQueue.push_back(id);
+		if (!impl.isRequestPending(id))
+		{
+			impl.mAskNameQueue.insert(id);
+		}	
 		return FALSE;
 	}
 
@@ -476,8 +488,10 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, char* group)
 		// The function signature needs to change to pass in the length
 		// of first and last.
 		strcpy(group, CN_WAITING);	/*Flawfinder: ignore*/
-
-		impl.mAskGroupQueue.push_back(id);
+		if (!impl.isRequestPending(id))
+		{
+			impl.mAskGroupQueue.insert(id);
+		}
 		return FALSE;
 	}
 }
@@ -505,13 +519,16 @@ void LLCacheName::get(const LLUUID& id, BOOL is_group, LLCacheNameCallback callb
 	}
 	else
 	{
-		if (!is_group)
+		if (!impl.isRequestPending(id))
 		{
-			impl.mAskNameQueue.push_back(id);
-		}
-		else
-		{
-			impl.mAskGroupQueue.push_back(id);
+			if (!is_group)
+			{
+				impl.mAskNameQueue.insert(id);
+			}
+			else
+			{
+				impl.mAskGroupQueue.insert(id);
+			}
 		}
 		impl.mReplyQueue.push_back(PendingReply(id, callback, user_data));
 	}
@@ -550,6 +567,19 @@ void LLCacheName::deleteEntriesOlderThan(S32 secs)
 			impl.mCache.erase(curiter);
 		}
 	}
+
+	// These are pending requests that we never heard back from.
+	U32 pending_expire_time = now - PENDING_TIMEOUT_SECS;
+	for(PendingQueue::iterator p_iter = impl.mPendingQueue.begin();
+		p_iter != impl.mPendingQueue.end(); )
+	{
+		PendingQueue::iterator p_curitor = p_iter++;
+ 
+		if (p_curitor->second < pending_expire_time)
+		{
+			impl.mPendingQueue.erase(p_curitor);
+		}
+	}
 }
 
 
@@ -577,6 +607,18 @@ void LLCacheName::dump()
 				<< llendl;
 		}
 	}
+}
+
+void LLCacheName::dumpStats()
+{
+	llinfos << "Queue sizes: "
+			<< " Cache=" << impl.mCache.size()
+			<< " AskName=" << impl.mAskNameQueue.size()
+			<< " AskGroup=" << impl.mAskGroupQueue.size()
+			<< " Pending=" << impl.mPendingQueue.size()
+			<< " Reply=" << impl.mReplyQueue.size()
+			<< " Observers=" << impl.mObservers.size()
+			<< llendl;
 }
 
 void LLCacheName::Impl::processPendingAsks()
@@ -682,7 +724,23 @@ void LLCacheName::Impl::notifyObservers(const LLUUID& id,
 	}
 }
 
+bool LLCacheName::Impl::isRequestPending(const LLUUID& id)
+{
+	U32 now = (U32)time(NULL);
+	U32 expire_time = now - PENDING_TIMEOUT_SECS;
 
+	PendingQueue::iterator iter = mPendingQueue.find(id);
+
+	if (iter == mPendingQueue.end()
+		|| (iter->second < expire_time) )
+	{
+		mPendingQueue[id] = now;
+		return false;
+	}
+
+	return true;
+}
+	
 void LLCacheName::Impl::processUUIDRequest(LLMessageSystem* msg, bool isGroup)
 {
 	// You should only get this message if the cache is at the simulator
@@ -720,13 +778,16 @@ void LLCacheName::Impl::processUUIDRequest(LLMessageSystem* msg, bool isGroup)
 		}
 		else
 		{
-			if (isGroup)
+			if (!isRequestPending(id))
 			{
-				mAskGroupQueue.push_back(id);
-			}
-			else
-			{
-				mAskNameQueue.push_back(id);
+				if (isGroup)
+				{
+					mAskGroupQueue.insert(id);
+				}
+				else
+				{
+					mAskNameQueue.insert(id);
+				}
 			}
 			
 			mReplyQueue.push_back(PendingReply(id, fromHost));
@@ -749,6 +810,8 @@ void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
 			entry = new LLCacheNameEntry;
 			mCache[id] = entry;
 		}
+
+		mPendingQueue.erase(id);
 
 		entry->mIsGroup = isGroup;
 		entry->mCreateTime = (U32)time(NULL);

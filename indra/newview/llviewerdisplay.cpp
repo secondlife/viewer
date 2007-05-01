@@ -253,7 +253,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 			gViewerWindow->setShowProgress(TRUE);
 			gViewerWindow->setProgressPercent(0);
 			gAgent.setTeleportState( LLAgent::TELEPORT_REQUESTED );
-			gAgent.setTeleportMessage("Requesting Teleport...");
+			gAgent.setTeleportMessage(
+				LLAgent::sTeleportProgressMessages["requesting"]);
 			break;
 
 		case LLAgent::TELEPORT_REQUESTED:
@@ -274,7 +275,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 			gViewerWindow->setProgressCancelButtonVisible(FALSE, "Cancel");
 			gViewerWindow->setProgressPercent(75.f);
 			gAgent.setTeleportState( LLAgent::TELEPORT_ARRIVING );
-			gAgent.setTeleportMessage("Arriving...");
+			gAgent.setTeleportMessage(
+				LLAgent::sTeleportProgressMessages["arriving"]);
 			gImageList.mForceResetTextureStats = TRUE;
 			break;
 

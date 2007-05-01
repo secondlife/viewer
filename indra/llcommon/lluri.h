@@ -77,13 +77,12 @@ public:
   static std::string unescape(const std::string& str);
 
 	// Functions for building specific URIs for web services
-	static LLURI buildAgentPresenceURI(const LLUUID& agent_id, LLApp* app);
-	static LLURI buildBulkAgentPresenceURI(LLApp* app);
-	static LLURI buildBulkAgentNamesURI(LLApp* app);
-	static LLURI buildAgentSessionURI(const LLUUID& agent_id, LLApp* app);
-	static LLURI buildAgentLoginInfoURI(const LLUUID& agent_id, const std::string& dataserver);
-	static LLURI buildInventoryHostURI(const LLUUID& agent_id, LLApp* app);
-	static LLURI buildAgentNameURI(const LLUUID& agent_id, LLApp* app);
+	// *NOTE: DEPRECATED. use the service builder instead.
+	//static LLURI buildBulkAgentNamesURI(LLApp* app);
+	//static LLURI buildAgentSessionURI(const LLUUID& agent_id, LLApp* app);
+	//static LLURI buildAgentLoginInfoURI(const LLUUID& agent_id, const std::string& dataserver);
+	//static LLURI buildAgentNameURI(const LLUUID& agent_id, LLApp* app);
+
 private:
   std::string mScheme;
   std::string mEscapedOpaque;

@@ -18,6 +18,7 @@
 #include "llvfile.h"
 #include "llvfs.h"
 
+#include "message.h"
 #include <curl/curl.h>
 
 const F32 HTTP_REQUEST_EXPIRY_SECS = 60.0f;
@@ -92,6 +93,14 @@ namespace
 			if (200 <= mStatus && mStatus < 300)
 			{
 				LLSDSerialize::fromXML(content, istr);
+/*
+				const S32 parseError = -1;
+				if(LLSDSerialize::fromXML(content, istr) == parseError)
+				{
+					mStatus = 498;
+					mReason = "Client Parse Error";
+				}
+*/
 			}
 
 			if (mResponder.get())
@@ -232,10 +241,17 @@ static void request(const std::string& url, LLURLRequest::ERequestAction method,
 	}
 	req->setCallback(new LLHTTPClientURLAdaptor(responder));
 
+	if (method == LLURLRequest::HTTP_POST  &&  gMessageSystem) {
+		req->addHeader(llformat("X-SecondLife-UDP-Listen-Port: %d",
+								gMessageSystem->mPort).c_str());
+   	}
+	
 	if (method == LLURLRequest::HTTP_PUT || method == LLURLRequest::HTTP_POST)
 	{
-		req->addHeader(llformat("Content-Type: %s", body_injector->contentType()).c_str());
-		chain.push_back(LLIOPipe::ptr_t(body_injector));
+		req->addHeader(llformat("Content-Type: %s",
+								body_injector->contentType()).c_str());
+
+   		chain.push_back(LLIOPipe::ptr_t(body_injector));
 	}
 	chain.push_back(LLIOPipe::ptr_t(req));
 
@@ -292,6 +308,14 @@ LLSD LLHTTPClient::blockingGet(const std::string& url)
 	CURL* curlp = curl_easy_init();
 
 	LLHTTPBuffer http_buffer;
+
+	// Without this timeout, blockingGet() calls have been observed to take
+	// up to 90 seconds to complete.  Users of blockingGet() already must 
+	// check the HTTP return code for validity, so this will not introduce
+	// new errors.  A 5 second timeout will succeed > 95% of the time (and 
+	// probably > 99% of the time) based on my statistics. JC
+	curl_easy_setopt(curlp, CURLOPT_NOSIGNAL, 1);	// don't use SIGALRM for timeouts
+	curl_easy_setopt(curlp, CURLOPT_TIMEOUT, 5);	// seconds
 
 	curl_easy_setopt(curlp, CURLOPT_WRITEFUNCTION, LLHTTPBuffer::curl_write);
 	curl_easy_setopt(curlp, CURLOPT_WRITEDATA, &http_buffer);
@@ -382,7 +406,7 @@ namespace boost
 	
 	void intrusive_ptr_release(LLHTTPClient::Responder* p)
 	{
-		if(0 == --p->mReferenceCount)
+		if(p && 0 == --p->mReferenceCount)
 		{
 			delete p;
 		}

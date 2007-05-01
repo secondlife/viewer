@@ -16,6 +16,7 @@
 #include "lluuid.h"
 #include "llsd.h"
 #include "llsdserialize.h"
+#include "llsdutil.h"
 #include "llmemory.h"
 #include "message.h"
 
@@ -288,6 +289,35 @@ void LLIMInfo::unpackMessageBlock(LLMessageSystem* msg)
 	{
 		mData.clear();
 	}
+}
+
+LLSD im_info_to_llsd(LLPointer<LLIMInfo> im_info)
+{
+	LLSD param_version;
+	param_version["version"] = 1;
+	LLSD param_message;
+	param_message["from_id"] = im_info->mFromID;
+	param_message["from_group"] = im_info->mFromGroup;
+	param_message["to_id"] = im_info->mToID;
+	param_message["from_name"] = im_info->mName;
+	param_message["message"] = im_info->mMessage;
+	param_message["type"] = (S32)im_info->mIMType;
+	param_message["id"] = im_info->mID;
+	param_message["timestamp"] = (S32)im_info->mTimeStamp;
+	param_message["offline"] = (S32)im_info->mOffline;
+	param_message["parent_estate_id"] = (S32)im_info->mParentEstateID;
+	param_message["region_id"] = im_info->mRegionID;
+	param_message["position"] = ll_sd_from_vector3(im_info->mPosition);
+	if (im_info->mData) param_message["data"] = im_info->mData;
+	LLSD param_agent;
+	param_agent["agent_id"] = im_info->mFromID;
+
+	LLSD params;
+	params.append(param_version);
+	params.append(param_message);
+	params.append(param_agent);
+
+	return params;
 }
 
 LLPointer<LLIMInfo> LLIMInfo::clone()

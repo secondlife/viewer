@@ -203,12 +203,6 @@ public:
 	// make the selected parcel a content parcel. 
 	void sendParcelGodForceToContent();
 
-	// Take the selected parcel, and toggle it's 'reserved for newbie'
-	// status.
-	// *NOTE: There is no longer a newbie toggle. It is a linden sale
-	// for newbie now.
-	//void toggleParcelGodReserveForNewbie();
-	
 	// Pack information about this parcel and send it to the region
 	// containing the southwest corner of the selection.
 	// If want_reply_to_update, simulator will send back a ParcelProperties

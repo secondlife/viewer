@@ -1012,7 +1012,7 @@ void LLTextureCtrl::setEnabled( BOOL enabled )
 
 	mCaption->setEnabled( enabled );
 
-	LLUICtrl::setEnabled( enabled );
+	LLView::setEnabled( enabled );
 }
 
 void LLTextureCtrl::setValid(BOOL valid )

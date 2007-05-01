@@ -501,14 +501,11 @@ void LLFloaterFriends::onClickIM(void* user_data)
 		}
 		else
 		{
-			LLUUID session_id;
-			session_id.generate();
 			gIMView->setFloaterOpen(TRUE);
-			gIMView->addSession(
-				"Friends Conference",
-				IM_SESSION_ADD,
-				session_id,
-				ids);
+			gIMView->addSession("Friends Conference",
+								IM_SESSION_CONFERENCE_START,
+								ids[0],
+								ids);
 		}
 	}
 }

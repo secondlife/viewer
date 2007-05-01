@@ -222,6 +222,12 @@ S32 start_net(S32& socket_out, int& nPort)
 			return 4;
 		}
 	}
+
+	sockaddr_in socket_address;
+	S32 socket_address_size = sizeof(socket_address);
+	getsockname(hSocket, (SOCKADDR*) &socket_address, &socket_address_size);
+	attempt_port = ntohs(socket_address.sin_port);
+
 	llinfos << "connected on port " << attempt_port << llendl;
 	nPort = attempt_port;
 	

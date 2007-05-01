@@ -87,6 +87,7 @@
 #include "llui.h"			// for make_ui_sound
 #include "lluploaddialog.h"
 #include "llviewercamera.h"
+#include "llviewergenericmessage.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"
 #include "llviewerobject.h"
@@ -122,8 +123,6 @@ static const F32 LOGOUT_REPLY_TIME = 3.f;	// Wait this long after LogoutReply be
 extern BOOL gDebugClicks;
 
 extern void bad_network_handler();
-
-LLDispatcher gGenericDispatcher;
 
 // function prototypes
 void open_offer(const std::vector<LLUUID>& items);
@@ -1540,26 +1539,90 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		break;
 	}
 	case IM_GROUP_VOTE:
-		{
-			LLUUID *userdata = new LLUUID(session_id);
-			args["[NAME]"] = name;
-			args["[MESSAGE]"] = message;
-			LLNotifyBox::showXml("GroupVote", args,
-								 &group_vote_callback, userdata);
-		}
-		break;
+	{
+		LLUUID *userdata = new LLUUID(session_id);
+		args["[NAME]"] = name;
+		args["[MESSAGE]"] = message;
+		LLNotifyBox::showXml("GroupVote", args,
+							 &group_vote_callback, userdata);
+	}
+	break;
 
 	case IM_GROUP_ELECTION_DEPRECATED:
+	{
+		llwarns << "Received IM: IM_GROUP_ELECTION_DEPRECATED" << llendl;
+	}
+	break;
+	
+	case IM_SESSION_911_SEND:
+	{
+		//this is just the same code as IM_SESSION_SEND for a bit
+		//I was too lazy to make this a function....sorry - jwolk
+		if (!is_linden && is_busy)
 		{
-			llwarns << "Received IM: IM_GROUP_ELECTION_DEPRECATED" << llendl;
+			return;
+		}
+			
+		// standard message, not from system
+		char saved[MAX_STRING];		/* Flawfinder: ignore */
+		saved[0] = '\0';
+		if(offline == IM_OFFLINE)
+		{
+			char time_buf[TIME_STR_LENGTH];		/* Flawfinder: ignore */
+			snprintf(saved,		/* Flawfinder: ignore */
+					 MAX_STRING, 
+					 "(Saved %s) ", 
+					 formatted_time(timestamp, time_buf));
+		}
+	
+		snprintf(buffer, 		/* Flawfinder: ignore */
+				 sizeof(buffer),
+				 "%s%s%s%s",
+				 name,
+				 separator_string,
+				 saved,
+				 (message+message_offset));
+
+		BOOL is_this_agent = FALSE;
+		if(from_id == gAgentID)
+		{
+			from_id = LLUUID::null;
+			is_this_agent = TRUE;
+		}
+
+		gIMView->addMessage(
+			session_id,
+			from_id,
+			name,
+			buffer,
+			(char*)binary_bucket,
+			IM_SESSION_ADD,
+			parent_estate_id,
+			region_id,
+			position);
+
+		snprintf(buffer, sizeof(buffer), "IM: %s%s%s%s", name, separator_string, saved, (message+message_offset));		/* Flawfinder: ignore */
+		chat.mText = buffer;
+		LLFloaterChat::addChat(chat, TRUE, is_this_agent);
+
+		//ok, now we want to add a teleport button if we are receving
+		//a message from not ourself
+		LLFloaterIMPanel* panel =
+			gIMView->findFloaterBySession(session_id);
+
+		if (panel && !is_this_agent )
+		{
+			//don't add a teleport button for yourself
+			panel->addTeleportButton();
 		}
 		break;
+	}
 	case IM_SESSION_SEND:
+	{
+		if (!is_linden && is_busy)
 		{
-			if (!is_linden && is_busy)
-			{
-				return;
-			}
+			return;
+		}
 
 			// System messages, specifically "Foo Bar has left this session"
 			// are not shown unless you actually have that session open.
@@ -1571,40 +1634,40 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				return;
 			}
 
-			// standard message, not from system
-			char saved[MAX_STRING];		/* Flawfinder: ignore */
-			saved[0] = '\0';
-			if(offline == IM_OFFLINE)
-			{
-				char time_buf[TIME_STR_LENGTH];		/* Flawfinder: ignore */
-				snprintf(saved,		/* Flawfinder: ignore */
-						MAX_STRING, 
-						"(Saved %s) ", 
-						formatted_time(timestamp, time_buf));
-			}
-			snprintf(buffer, sizeof(buffer), "%s%s%s%s", name, separator_string, saved, (message+message_offset));		/* Flawfinder: ignore */
-			BOOL is_this_agent = FALSE;
-			if(from_id == gAgentID)
-			{
-				from_id = LLUUID::null;
-				is_this_agent = TRUE;
-			}
-			gIMView->addMessage(
-				session_id,
-				from_id,
-				name,
-				buffer,
-				(char*)binary_bucket,
-				IM_SESSION_ADD,
-				parent_estate_id,
-				region_id,
-				position);
-				
-			snprintf(buffer, sizeof(buffer), "IM: %s%s%s%s", name, separator_string, saved, (message+message_offset));		/* Flawfinder: ignore */
-			chat.mText = buffer;
-			LLFloaterChat::addChat(chat, TRUE, is_this_agent);
+		// standard message, not from system
+		char saved[MAX_STRING];		/* Flawfinder: ignore */
+		saved[0] = '\0';
+		if(offline == IM_OFFLINE)
+		{
+			char time_buf[TIME_STR_LENGTH];		/* Flawfinder: ignore */
+			snprintf(saved,		/* Flawfinder: ignore */
+					 MAX_STRING, 
+					 "(Saved %s) ", 
+					 formatted_time(timestamp, time_buf));
 		}
-		break;
+		snprintf(buffer, sizeof(buffer), "%s%s%s%s", name, separator_string, saved, (message+message_offset));		/* Flawfinder: ignore */
+		BOOL is_this_agent = FALSE;
+		if(from_id == gAgentID)
+		{
+			from_id = LLUUID::null;
+			is_this_agent = TRUE;
+		}
+		gIMView->addMessage(
+			session_id,
+			from_id,
+			name,
+			buffer,
+			(char*)binary_bucket,
+			IM_SESSION_ADD,
+			parent_estate_id,
+			region_id,
+			position);
+
+		snprintf(buffer, sizeof(buffer), "IM: %s%s%s%s", name, separator_string, saved, (message+message_offset));		/* Flawfinder: ignore */
+		chat.mText = buffer;
+		LLFloaterChat::addChat(chat, TRUE, is_this_agent);
+	}
+	break;
 
 	case IM_FROM_TASK:
 		if (is_busy && !is_owned_by_me)
@@ -1672,21 +1735,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// do not show a message box, because you're about to be
 			// teleported.
 			lure_callback(0, (void *)info);
-		}
-		break;
-
-	case IM_LURE_911:
-		{
-			// HACK -- the from_id is the im_session_id
-			LLFloaterIMPanel* panel = gIMView->findFloaterBySession(session_id);
-			if (panel)
-			{
-				panel->addTeleportButton(from_id);
-			}
-			else
-			{
-				llinfos << "LLFloaterIMPanel not found for " << session_id << " from " << from_id << llendl;
-			}
 		}
 		break;
 
@@ -2299,7 +2347,18 @@ void process_teleport_progress(LLMessageSystem* msg, void**)
 	char buffer[MAX_STRING];		/* Flawfinder: ignore */
 	msg->getString("Info", "Message", MAX_STRING, buffer);
 	lldebugs << "teleport progress: " << buffer << llendl;
-	gAgent.setTeleportMessage(buffer);
+
+	//Sorta hacky...default to using simulator raw messages
+	//if we don't find the coresponding mapping in our progress mappings
+	LLString message = buffer;
+
+	if (LLAgent::sTeleportProgressMessages.find(buffer) != 
+		LLAgent::sTeleportProgressMessages.end() )
+	{
+		message = LLAgent::sTeleportProgressMessages[buffer];
+	}
+
+	gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages[message]);
 }
 
 class LLFetchInWelcomeArea : public LLInventoryFetchDescendentsObserver
@@ -2456,7 +2515,7 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 
 	send_complete_agent_movement(sim_host);
 	gAgent.setTeleportState( LLAgent::TELEPORT_MOVING );
-	gAgent.setTeleportMessage("Contacting New Region...");
+	gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["contacting"]);
 
 	regionp->setSeedCapability(std::string(seedCap));
 
@@ -2492,6 +2551,8 @@ void process_avatar_init_complete(LLMessageSystem* msg, void**)
 
 void process_agent_movement_complete(LLMessageSystem* msg, void**)
 {
+	gAgentMovementCompleted = TRUE;
+
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
 	LLUUID session_id;
@@ -4295,7 +4356,7 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 	msg->getStringFast(_PREHASH_Info, _PREHASH_Reason, STD_STRING_BUF_SIZE, reason);
 
 	LLStringBase<char>::format_map_t args;
-	args["[REASON]"] = reason;
+	args["[REASON]"] = LLAgent::sTeleportErrorMessages[reason];
 	gViewerWindow->alertXml("CouldNotTeleportReason", args);
 
 	if( gAgent.getTeleportState() != LLAgent::TELEPORT_NONE )
@@ -4447,25 +4508,6 @@ void handle_lure_callback(S32 option, const LLString& text, void* userdata)
 void handle_lure_callback_godlike(S32 option, void* userdata)
 {
 	handle_lure_callback(option, LLString::null, userdata);
-}
-
-void send_lure_911(void** user_data, S32 result) 
-{
-	LLUUID im_session_id(*((LLUUID*)user_data));
-	LLString name;
-	gAgent.getName(name);
-	LLString text = name + " needs help";	// this text is ignored for 911 lures
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessageFast(_PREHASH_StartLure);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->nextBlockFast(_PREHASH_Info);
-	msg->addU8Fast(_PREHASH_LureType, (U8)IM_LURE_911);	
-	msg->addStringFast(_PREHASH_Message, text.c_str());
-	msg->nextBlockFast(_PREHASH_TargetData);
-	msg->addUUIDFast(_PREHASH_TargetID, im_session_id);
-	gAgent.sendReliableMessage();
 }
 
 void handle_lure(const LLUUID& invitee)
@@ -4985,59 +5027,6 @@ void onCovenantLoadComplete(LLVFS *vfs,
 	LLFloaterBuyLand::updateCovenantText(covenant_text, asset_uuid);
 }
 
-void send_generic_message(const char* method,
-						  const std::vector<std::string>& strings,
-						  const LLUUID& invoice)
-{
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessage("GenericMessage");
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null); //not used
-	msg->nextBlock("MethodData");
-	msg->addString("Method", method);
-	msg->addUUID("Invoice", invoice);
-	if(strings.empty())
-	{
-		msg->nextBlock("ParamList");
-		msg->addString("Parameter", NULL);
-	}
-	else
-	{
-		std::vector<std::string>::const_iterator it = strings.begin();
-		std::vector<std::string>::const_iterator end = strings.end();
-		for(; it != end; ++it)
-		{
-			msg->nextBlock("ParamList");
-			msg->addString("Parameter", (*it).c_str());
-		}
-	}
-	gAgent.sendReliableMessage();
-}
-
-
-void process_generic_message(LLMessageSystem* msg, void**)
-{
-	LLUUID agent_id;
-	msg->getUUID("AgentData", "AgentID", agent_id);
-	if (agent_id != gAgent.getID())
-	{
-		llwarns << "GenericMessage for wrong agent" << llendl;
-		return;
-	}
-
-	std::string request;
-	LLUUID invoice;
-	LLDispatcher::sparam_t strings;
-	LLDispatcher::unpackMessage(msg, request, invoice, strings);
-
-	if(!gGenericDispatcher.dispatch(request, invoice, strings))
-	{
-		llwarns << "GenericMessage " << request << " failed to dispatch" 
-			<< llendl;
-	}
-}
 
 void process_feature_disabled_message(LLMessageSystem* msg, void**)
 {
@@ -5062,3 +5051,6 @@ void invalid_message_callback(LLMessageSystem* msg,
 {
 	bad_network_handler();
 }
+
+// Please do not add more message handlers here. This file is huge.
+// Put them in a file related to the functionality you are implementing. JC

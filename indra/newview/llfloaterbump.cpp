@@ -65,7 +65,7 @@ void LLFloaterBump::show(void *contents)
 		LLString none_detected = sInstance->childGetText("none_detected");
 		LLSD row;
 		row["columns"][0]["value"] = none_detected;
-		row["columns"][0]["font-style"] = "BOLD";
+		row["columns"][0]["font"] = "SansSerifBold";
 		list->addElement(row);
 	}
 	else
@@ -136,6 +136,6 @@ void LLFloaterBump::add(LLScrollListCtrl* list, LLMeanCollisionData* mcd)
 	LLSD row;
 	row["id"] = mcd->mPerp;
 	row["columns"][0]["value"] = text;
-	row["columns"][0]["font-style"] = "BOLD";
+	row["columns"][0]["font"] = "SansSerifBold";
 	list->addElement(row);
 }

@@ -672,6 +672,13 @@ public:
 
 	BOOL			mForceMouselook;
 
+	static void parseTeleportMessages(const LLString& xml_filename);
+	//we should really define ERROR and PROGRESS enums here
+	//but I don't really feel like doing that, so I am just going
+	//to expose the mappings....yup
+	static std::map<LLString, LLString> sTeleportErrorMessages;
+	static std::map<LLString, LLString> sTeleportProgressMessages;
+
 private:
 	ETeleportState	mTeleportState;
 	LLString		mTeleportMessage;

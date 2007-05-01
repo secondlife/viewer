@@ -123,69 +123,6 @@ LLViewerGestureList::LLViewerGestureList()
 	mIsLoaded = FALSE;
 }
 
-void LLViewerGestureList::saveToServer()
-{
-	U8 *buffer = new U8[getMaxSerialSize()];
-
-	U8 *end = serialize(buffer);
-
-	if (end - buffer > getMaxSerialSize())
-	{
-		llerrs << "Wrote off end of buffer, serial size computation is wrong" << llendl;
-	}
-
-	//U64 xfer_id = gXferManager->registerXfer(buffer, end - buffer);
-	// write to a file because mem<->mem xfer isn't implemented
-	LLUUID random_uuid;
-	char filename[LL_MAX_PATH];		/* Flawfinder: ignore */
-	random_uuid.generate();
-	random_uuid.toString(filename);
-	strcat(filename,".tmp");		/* Flawfinder: ignore */
-
-	char filename_and_path[LL_MAX_PATH];		/* Flawfinder: ignore */
-	snprintf(filename_and_path, LL_MAX_PATH, "%s%s%s", 		/* Flawfinder: ignore */
-		gDirUtilp->getTempDir().c_str(), 
-		gDirUtilp->getDirDelimiter().c_str(),
-		filename);
-
-	FILE* fp = LLFile::fopen(filename_and_path, "wb");		/* Flawfinder: ignore */
-
-	if (fp)
-	{
-		fwrite(buffer, end - buffer, 1, fp);
-		fclose(fp);
-
-		gMessageSystem->newMessageFast(_PREHASH_GestureUpdate);
-		gMessageSystem->nextBlockFast(_PREHASH_AgentBlock);
-		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		gMessageSystem->addStringFast(_PREHASH_Filename, filename);
-		gMessageSystem->addBOOLFast(_PREHASH_ToViewer, FALSE);
-		gMessageSystem->sendReliable(gUserServer);
-	}
-
-	delete[] buffer;
-}
-
-/*
-void LLViewerGestureList::requestFromServer()
-{
-	gMessageSystem->newMessageFast(_PREHASH_GestureRequest);
-	gMessageSystem->nextBlockFast(_PREHASH_AgentBlock);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, agent_get_id());
-	gMessageSystem->addU8("Reset", 0);
-	gMessageSystem->sendReliable(gUserServer);
-}
-
-void LLViewerGestureList::requestResetFromServer( BOOL is_male )
-{
-	gMessageSystem->newMessageFast(_PREHASH_GestureRequest);
-	gMessageSystem->nextBlockFast(_PREHASH_AgentBlock);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, agent_get_id());
-	gMessageSystem->addU8("Reset", is_male ? 1 : 2);
-	gMessageSystem->sendReliable(gUserServer);
-	mIsLoaded = FALSE;
-}
-*/
 
 // helper for deserialize that creates the right LLGesture subclass
 LLGesture *LLViewerGestureList::create_gesture(U8 **buffer, S32 max_size)
@@ -246,15 +183,4 @@ void LLViewerGestureList::xferCallback(void *data, S32 size, void** /*user_data*
 	{
 		llwarns << "Unable to load gesture list!" << llendl;
 	}
-}
-
-// static
-void LLViewerGestureList::processGestureUpdate(LLMessageSystem *msg, void** /*user_data*/)
-{
-	char remote_filename[MAX_STRING];		/* Flawfinder: ignore */
-	msg->getStringFast(_PREHASH_AgentBlock, _PREHASH_Filename, MAX_STRING, remote_filename);
-
-
-	gXferManager->requestFile(remote_filename, LL_PATH_CACHE, msg->getSender(), TRUE, xferCallback, NULL,
-							  LLXferManager::HIGH_PRIORITY);
 }

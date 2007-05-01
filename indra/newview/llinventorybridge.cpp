@@ -1724,7 +1724,7 @@ void LLFolderBridge::folderOptionsMenu()
 	if (mCallingCards || checkFolderForContentsOfType(model, is_callingcard))
 	{
 		mItems.push_back("Calling Card Separator");
-		mItems.push_back("IM Contacts In Folder");
+		mItems.push_back("Conference Chat Folder");
 		mItems.push_back("IM All Contacts In Folder");
 	}
 	
@@ -2041,58 +2041,6 @@ void LLFolderBridge::createWearable(LLUUID parent_id, EWearableType type)
 		wearable->getDescription(), asset_type, inv_type, wearable->getType(),
 		wearable->getPermissions().getMaskNextOwner(),
 		LLPointer<LLInventoryCallback>(NULL));
-}
-
-void LLFolderBridge::beginIMSession(BOOL only_online)
-{
-	LLInventoryModel* model = mInventoryPanel->getModel();
-	if(!model) return;
-	LLViewerInventoryCategory* cat = getCategory();
-	if(!cat) return;
-	LLUniqueBuddyCollector is_buddy;
-	LLInventoryModel::cat_array_t cat_array;
-	LLInventoryModel::item_array_t item_array;
-	model->collectDescendentsIf(mUUID,
-								cat_array,
-								item_array,
-								LLInventoryModel::EXCLUDE_TRASH,
-								is_buddy);
-	S32 count = item_array.count();
-	if(count > 0)
-	{
-		// create the session
-		gIMView->setFloaterOpen(TRUE);
-		LLDynamicArray<LLUUID> members;
-		//members.put(gAgent.getID());
-		S32 i;
-		EInstantMessage type = IM_SESSION_ADD;
-		if(only_online)
-		{
-			LLAvatarTracker& at = LLAvatarTracker::instance();
-			LLUUID id;
-			for(i = 0; i < count; ++i)
-			{
-				id = item_array.get(i)->getCreatorUUID();
-				if(at.isBuddyOnline(id))
-				{
-					members.put(id);
-				}
-			}
-		}
-		else
-		{
-			type = IM_SESSION_OFFLINE_ADD;
-			for(i = 0; i < count; ++i)
-			{
-				members.put(item_array.get(i)->getCreatorUUID());
-			}
-		}
-		// the session_id is always the item_id of the inventory folder
-		gIMView->addSession(cat->getName(),
-							  type,
-							  mUUID,
-							  members);
-	}
 }
 
 void LLFolderBridge::modifyOutfit(BOOL append)
@@ -2689,11 +2637,13 @@ void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		items.push_back("Send Instant Message");
 		items.push_back("Offer Teleport...");
+		items.push_back("Conference Chat");
 
 		if (!good_card)
 		{
 			disabled_items.push_back("Send Instant Message");
 			disabled_items.push_back("Offer Teleport...");
+			disabled_items.push_back("Conference Chat");
 		}
 	}
 	hideContextEntries(menu, items, disabled_items);

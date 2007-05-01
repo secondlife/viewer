@@ -1,0 +1,231 @@
+<?xml version="1.0"?>
+<llsd>
+    <map>
+		  <key>serverDefaults</key>
+            <!--
+				    a map of server names to default message transport
+				-->
+		  <map>
+				<key>simulator</key>
+				<string>template</string>
+								
+				<key>userserver</key>
+				<string>template</string>
+
+				<key>spaceserver</key>
+				<string>template</string>
+
+				<key>dataserver</key>
+				<string>template</string>
+
+				<key>logDataserver</key>
+				<string>template</string>
+
+				<key>inventoryDataserver</key>
+				<string>template</string>
+
+				<key>rpcserver</key>
+				<string>template</string>
+
+				<key>mapserver</key>
+				<string>template</string>
+
+		  </map>
+		  <key>messages</key>
+            <!--
+				    a map of individual message names that override defaults
+				-->
+		  <map>
+				<!--
+					Circuit related messages
+				-->
+				<key>PacketAck</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<key>OpenCircuit</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<key>CloseCircuit</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<key>StartPingCheck</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<key>CompletePingCheck</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<key>AddCircuitCode</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>true</boolean>
+				</map>
+
+				<key>UseCircuitCode</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<key>CreateTrustedCircuit</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<!--
+					Viewer to userserver messages.
+				-->
+				<key>ConnectAgentToUserserver</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<!--
+					Viewer to simulator messages sent before Untrusted-senderSimulatorMessage cap received.
+				-->
+				<key>SecuredTemplateChecksumRequest</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<key>CompleteAgentMovement</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<key>EconomyDataRequest</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<key>ViewerEffect</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<!--
+					Viewer to simulator messages sent unreliably.
+				-->
+				<key>AgentUpdate</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<!--
+					Messages created by LLThrottleGroup clients
+				-->
+				<key>ImagePacket</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<key>LayerData</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<key>ObjectUpdateCached</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<key>ObjectUpdateCompressed</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<key>ObjectUpdate</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<key>ImprovedTerseObjectUpdate</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<key>AvatarAnimation</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<key>AvatarAppearance</key>
+				<map>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+		  </map>
+    </map>
+</llsd>

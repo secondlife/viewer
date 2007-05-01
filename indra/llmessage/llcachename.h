@@ -78,7 +78,8 @@ public:
 	void deleteEntriesOlderThan(S32 secs);
 
 	// Debugging
-	void dump();
+	void dump();		// Dumps the contents of the cache
+	void dumpStats();	// Dumps the sizes of the cache and associated queues.
 
 private:
 	class Impl;

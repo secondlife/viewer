@@ -36,7 +36,7 @@
 
 #include "llagent.h"
 #include "llfloatermute.h"
-#include "llviewermessage.h"	// for gGenericDispatcher
+#include "llviewergenericmessage.h"	// for gGenericDispatcher
 #include "llviewerwindow.h"
 #include "viewer.h"
 #include "llworld.h" //for particle system banning

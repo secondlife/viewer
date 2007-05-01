@@ -218,4 +218,3 @@ void LLFloaterInspect::draw()
 
 	LLFloater::draw();
 }
-

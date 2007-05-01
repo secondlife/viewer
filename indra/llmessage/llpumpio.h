@@ -227,6 +227,7 @@ public:
 	 * chain has a file descriptor ready, <code>process()</code> will
 	 * be called for all pipes which have requested it.
 	 */
+	void pump(const S32& poll_timeout);
 	void pump();
 
 	/** 

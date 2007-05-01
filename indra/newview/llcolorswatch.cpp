@@ -226,7 +226,7 @@ void LLColorSwatchCtrl::draw()
 void LLColorSwatchCtrl::setEnabled( BOOL enabled )
 {
 	mCaption->setEnabled( enabled );
-	LLUICtrl::setEnabled( enabled );
+	LLView::setEnabled( enabled );
 
 	if (!enabled)
 	{

@@ -95,7 +95,6 @@
 #include "llfloateropenobject.h"
 #include "llfloaterpermissionsmgr.h"
 #include "llfloaterpreference.h"
-#include "llfloaterrate.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterreporter.h"
 #include "llfloaterscriptdebug.h"
@@ -155,6 +154,7 @@
 #include "lluuid.h"
 #include "llvelocitybar.h"
 #include "llviewercamera.h"
+#include "llviewergenericmessage.h"
 #include "llviewergesture.h"
 #include "llviewerimagelist.h"
 #include "llviewerinventory.h"
@@ -376,8 +376,6 @@ void force_import_geometry(void*);
 void handle_force_parcel_owner_to_me(void*);
 void handle_force_parcel_to_content(void*);
 void handle_claim_public_land(void*);
-
-void handle_god_expunge_user(void*);
 
 void handle_god_request_havok(void *);
 void handle_god_request_avatar_geometry(void *);	// Hack for easy testing of new avatar geometry
@@ -1381,8 +1379,6 @@ void init_server_menu(LLMenuGL* menu)
 										 &handle_force_parcel_to_content,
 										 &enable_god_customer_service, NULL,
 										 'C', MASK_SHIFT | MASK_ALT | MASK_CONTROL));
-		//sub->append(new LLMenuItemCallGL("Toggle First Land bit",
-		//								 &handle_toggle_parcel_newbie));
 		sub->appendSeparator();
 		sub->append(new LLMenuItemCallGL("Claim Public Land",
 										 &handle_claim_public_land, &enable_god_customer_service));
@@ -1435,33 +1431,6 @@ void cleanup_menus()
 // Object pie menu
 //-----------------------------------------------------------------------------
 
-class LLObjectRateCreator : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		LLFloaterRate::show(LLFloaterRate::RS_CREATOR);
-		return true;
-	}
-};
-
-class LLObjectRateOwner : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		// Don't allow rating of group owned objects.
-		LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
-		if (!node) return true;
-		if (node->mPermissions->isGroupOwned())
-		{
-			gViewerWindow->alertXml("CantRateOwnedByGroup");
-			return true;
-		}
-
-		LLFloaterRate::show(LLFloaterRate::RS_OWNER);
-		return true;
-	}
-};
-
 class LLObjectReportAbuse : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -1470,59 +1439,6 @@ class LLObjectReportAbuse : public view_listener_t
 		return true;
 	}
 };
-
-// Enable only when you didn't create it, and the creator
-// is not the owner.
-class LLObjectEnableRateCreator : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		LLUUID creator_id;
-		LLUUID owner_id;
-		LLString dummy;
-		BOOL identical_creator = gSelectMgr->selectGetCreator(creator_id, dummy);
-
-		BOOL new_value;
-		if (!identical_creator)
-		{
-			new_value = FALSE;
-		}
-		else
-		{
-			new_value = (creator_id != gAgent.getID());
-		}
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
-		return true;
-	}
-};
-
-// Enabled if object owner isn't the agent.
-class LLObjectEnableRateOwner : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		LLUUID owner_id;
-		LLString dummy;
-		BOOL identical_owner = gSelectMgr->selectGetOwner(owner_id, dummy);
-
-		BOOL new_value;
-		if (!identical_owner)
-		{
-			new_value = FALSE;
-		}
-		else if (owner_id.isNull())
-		{
-			new_value = FALSE;
-		}
-		else
-		{
-			new_value = (owner_id != gAgent.getID());
-		}
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
-		return true;
-	}
-};
-
 
 // Enabled it you clicked an object
 class LLObjectEnableReportAbuse : public view_listener_t
@@ -2246,20 +2162,6 @@ void login_done(S32 which, void *user)
 	LLPanelLogin::close();
 }
 
-
-
-class LLAvatarRate : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		LLVOAvatar* avatar = find_avatar_from_object( gViewerWindow->lastObjectHit() );
-		if( avatar )
-		{
-			LLFloaterRate::show( avatar->getID() );
-		}
-		return true;
-	}
-};
 
 void callback_leave_group(S32 option, void *userdata)
 {
@@ -3395,40 +3297,6 @@ void handle_claim_public_land(void*)
 	msg->nextBlock("ParamList");
 	msg->addString("Parameter", buffer);
 	gAgent.sendReliableMessage();
-}
-
-//void handle_toggle_parcel_newbie(void*)
-//{
-//	gParcelMgr->toggleParcelGodReserveForNewbie();
-//}
-
-void on_expunge_user(S32 option, const LLString& text, void*)
-{
-	if(option == -1) return;
-	llinfos << "on_expunge_user(" << option << "," << text << ")" << llendl;
-	LLMessageSystem* msg = gMessageSystem;
-	LLUUID user_id;
-	if(user_id.set(text))
-	{
-		msg->newMessage("GodExpungeUser");
-		msg->nextBlock("AgentData");
-		msg->addUUID("AgentID", gAgent.getID());
-		msg->addUUID("SessionID", gAgent.getSessionID());
-		msg->nextBlock("ExpungeData");
-		msg->addUUID("AgentID", user_id);
-		msg->sendReliable(gUserServer);
-	}
-	else
-	{
-		gViewerWindow->alertXml("InvalidUUID");
-	}
-}
-
-void handle_god_expunge_user(void*)
-{
-	gViewerWindow->alertXmlEditText("ExpungeUser", LLString::format_map_t(),
-									NULL, NULL,
-									on_expunge_user, NULL);
 }
 
 void handle_god_request_havok(void *)
@@ -6433,14 +6301,7 @@ class LLShowFloater : public view_listener_t
 		{
 			if (gParcelMgr->selectionEmpty())
 			{
-				if (gLastHitPosGlobal.isExactlyZero())
-				{
-					gParcelMgr->selectParcelAt(gAgent.getPositionGlobal());
-				}
-				else
-				{
-					gParcelMgr->selectParcelAt( gLastHitPosGlobal );
-				}
+				gParcelMgr->selectParcelAt(gAgent.getPositionGlobal());
 			}
 
 			LLFloaterLand::show();
@@ -6449,14 +6310,7 @@ class LLShowFloater : public view_listener_t
 		{
 			if (gParcelMgr->selectionEmpty())
 			{
-				if (gLastHitPosGlobal.isExactlyZero())
-				{
-					gParcelMgr->selectParcelAt(gAgent.getPositionGlobal());
-				}
-				else
-				{
-					gParcelMgr->selectParcelAt( gLastHitPosGlobal );
-				}
+				gParcelMgr->selectParcelAt(gAgent.getPositionGlobal());
 			}
 			
 			gParcelMgr->startBuyLand();
@@ -8709,7 +8563,6 @@ void initialize_menu_actions()
 
 	 // Avatar pie menu
 	(new LLObjectMute())->registerListener(gMenuHolder, "Avatar.Mute");
-	(new LLAvatarRate())->registerListener(gMenuHolder, "Avatar.Rate");
 	(new LLAvatarAddFriend())->registerListener(gMenuHolder, "Avatar.AddFriend");
 	(new LLAvatarFreeze())->registerListener(gMenuHolder, "Avatar.Freeze");
 	(new LLAvatarDebug())->registerListener(gMenuHolder, "Avatar.Debug");
@@ -8731,9 +8584,7 @@ void initialize_menu_actions()
 	(new LLObjectDelete())->registerListener(gMenuHolder, "Object.Delete");
 	(new LLObjectAttachToAvatar())->registerListener(gMenuHolder, "Object.AttachToAvatar");
 	(new LLObjectReturn())->registerListener(gMenuHolder, "Object.Return");
-	(new LLObjectRateOwner())->registerListener(gMenuHolder, "Object.RateOwner");
 	(new LLObjectReportAbuse())->registerListener(gMenuHolder, "Object.ReportAbuse");
-	(new LLObjectRateCreator())->registerListener(gMenuHolder, "Object.RateCreator");
 	(new LLObjectMute())->registerListener(gMenuHolder, "Object.Mute");
 	(new LLObjectBuy())->registerListener(gMenuHolder, "Object.Buy");
 	(new LLObjectEdit())->registerListener(gMenuHolder, "Object.Edit");
@@ -8745,9 +8596,7 @@ void initialize_menu_actions()
 	(new LLObjectEnableDelete())->registerListener(gMenuHolder, "Object.EnableDelete");
 	(new LLObjectEnableWear())->registerListener(gMenuHolder, "Object.EnableWear");
 	(new LLObjectEnableReturn())->registerListener(gMenuHolder, "Object.EnableReturn");
-	(new LLObjectEnableRateOwner())->registerListener(gMenuHolder, "Object.EnableRateOwner");
 	(new LLObjectEnableReportAbuse())->registerListener(gMenuHolder, "Object.EnableReportAbuse");
-	(new LLObjectEnableRateCreator())->registerListener(gMenuHolder, "Object.EnableRateCreator");
 	(new LLObjectEnableMute())->registerListener(gMenuHolder, "Object.EnableMute");
 	(new LLObjectEnableBuy())->registerListener(gMenuHolder, "Object.EnableBuy");
 

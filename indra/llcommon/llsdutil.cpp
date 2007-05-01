@@ -21,7 +21,7 @@
 #	include <arpa/inet.h>
 #endif
 
-
+#include "llsdserialize.h"
 
 // vector3
 LLSD ll_sd_from_vector3(const LLVector3& vec)
@@ -39,6 +39,27 @@ LLVector3 ll_vector3_from_sd(const LLSD& sd, S32 start_index)
 	rv.mV[VX] = (F32)sd[start_index].asReal();
 	rv.mV[VY] = (F32)sd[++start_index].asReal();
 	rv.mV[VZ] = (F32)sd[++start_index].asReal();
+	return rv;
+}
+
+// vector4
+LLSD ll_sd_from_vector4(const LLVector4& vec)
+{
+	LLSD rv;
+	rv.append((F64)vec.mV[VX]);
+	rv.append((F64)vec.mV[VY]);
+	rv.append((F64)vec.mV[VZ]);
+	rv.append((F64)vec.mV[VW]);
+	return rv;
+}
+
+LLVector4 ll_vector4_from_sd(const LLSD& sd, S32 start_index)
+{
+	LLVector4 rv;
+	rv.mV[VX] = (F32)sd[start_index].asReal();
+	rv.mV[VY] = (F32)sd[++start_index].asReal();
+	rv.mV[VZ] = (F32)sd[++start_index].asReal();
+	rv.mV[VW] = (F32)sd[++start_index].asReal();
 	return rv;
 }
 
@@ -208,9 +229,39 @@ U32 ll_ipaddr_from_sd(const LLSD& sd)
 LLSD ll_string_from_binary(const LLSD& sd)
 {
 	std::vector<U8> value = sd.asBinary();
-	char* c_str = new char[value.size() + 1];
-	memcpy(c_str, &value[0], value.size());
-	c_str[value.size()] = '\0';
+	std::string str;
+	str.resize(value.size());
+	memcpy(&str[0], &value[0], value.size());
+	return str;
+}
 
-	return c_str;
+// Converts an LLSD string to an LLSD binary
+LLSD ll_binary_from_string(const LLSD& sd)
+{
+	std::vector<U8> binary_value;
+
+	LLString string_value = sd.asString();
+	const char* string_p = string_value.c_str();
+	while (*string_p)
+	{
+		binary_value.push_back(*string_p);
+		string_p++;
+	}
+
+	binary_value.push_back('\0');
+
+	return binary_value;
+}
+
+char* ll_print_sd(const LLSD& sd)
+{
+	const U32 bufferSize = 10 * 1024;
+	static char buffer[bufferSize];
+	std::ostringstream stream;
+	//stream.rdbuf()->pubsetbuf(buffer, bufferSize);
+	stream << LLSDOStreamer<LLSDXMLFormatter>(sd);
+	stream << std::ends;
+	strncpy(buffer, stream.str().c_str(), bufferSize);
+	buffer[bufferSize - 1] = '\0';
+	return buffer;
 }

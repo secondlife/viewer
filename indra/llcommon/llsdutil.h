@@ -13,6 +13,7 @@
 
 #include "llsd.h"
 #include "../llmath/v3math.h"
+#include "../llmath/v4math.h"
 #include "../llmath/v3dmath.h"
 #include "../llmath/v2math.h"
 #include "../llmath/llquaternion.h"
@@ -22,6 +23,10 @@
 // vector3
 LLSD ll_sd_from_vector3(const LLVector3& vec);
 LLVector3 ll_vector3_from_sd(const LLSD& sd, S32 start_index = 0);
+
+// vector4
+LLSD ll_sd_from_vector4(const LLVector4& vec);
+LLVector4 ll_vector4_from_sd(const LLSD& sd, S32 start_index = 0);
 
 // vector3d (double)
 LLSD ll_sd_from_vector3d(const LLVector3d& vec);
@@ -53,5 +58,11 @@ U32 ll_ipaddr_from_sd(const LLSD& sd);
 
 // Binary to string
 LLSD ll_string_from_binary(const LLSD& sd);
+
+//String to binary
+LLSD ll_binary_from_string(const LLSD& sd);
+
+// Serializes sd to static buffer and returns pointer, useful for gdb debugging.
+char* ll_print_sd(const LLSD& sd);
 
 #endif // LL_LLSDUTIL_H

@@ -75,7 +75,6 @@ private:
 	// information about the parcel
 	bool			mParcelValid;
 	bool			mParcelIsForSale;
-	bool			mParcelIsFirstLand;
 	bool			mParcelIsGroupLand;
 	S32				mParcelGroupContribution;
 	S32				mParcelPrice;
@@ -352,7 +351,6 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 	LLParcel* parcel = mParcel->getParcel();
 	mParcelValid = parcel && mRegion;
 	mParcelIsForSale = false;
-	mParcelIsFirstLand = false;
 	mParcelIsGroupLand = false;
 	mParcelGroupContribution = 0;
 	mParcelPrice = 0;
@@ -386,7 +384,6 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 	{
 		mParcelActualArea = parcel->getArea();
 		mParcelIsForSale = parcel->getForSale();
-		mParcelIsFirstLand = parcel->getReservedForNewbie();
 		mParcelIsGroupLand = parcel->getIsGroupOwned();
 		mParcelPrice = mParcelIsForSale ? parcel->getSalePrice() : 0;
 		
@@ -491,36 +488,6 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 			mCannotBuyReason = childGetText("not_owned_by_you");
 			return;
 		}
-	}
-
-	/*
-	if ((mRegion->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL)
-		&& !gAgent.isGodlike())
-	{
-		mCannotBuyReason = llformat(
-				"The region %s does not allow transfer of land.",
-				mRegion->getName().c_str() );
-		return;
-	}
-	*/
-	
-	if (parcel->getReservedForNewbie())
-	{
-		if (mIsForGroup)
-		{
-			mCannotBuyReason = childGetText("first_time_group");
-			return;
-		}
-		
-		if (gStatusBar->getSquareMetersCommitted() > 0)
-		{
-			mCannotBuyReason == childGetText("first_time");
-			return;
-		}
-		
-		// *TODO: There should be a check based on the database value
-		// indra.user.ever_owned_land, only that value never makes it
-		// to the viewer, see SL-10728
 	}
 
 	mCanBuy = true;
@@ -1142,17 +1109,6 @@ void LLFloaterBuyLandUI::refreshUI()
 
 			message += childGetText("insufficient_land_credits");
 				
-		}
-		else if (mAgentHasNeverOwnedLand)
-		{
-			if (mParcelIsFirstLand)
-			{
-				message += childGetText("first_purchase");
-			}
-			else
-			{
-				message += childGetText("first_time_but_not_first_land");
-			}
 		}
 		else
 		{

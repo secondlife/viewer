@@ -190,7 +190,6 @@ public:
 	void setLandingType(const ELandingType type) { mLandingType = type; }
 
 	void setAuctionID(U32 auction_id) { mAuctionID = auction_id;}
-	void setReservedForNewbie(BOOL reserve) { mIsReservedForNewbie = reserve; }
 
 	void	setAllParcelFlags(U32 flags) { mParcelFlags = flags; }
 	void	setParcelFlag(U32 flag, BOOL b);
@@ -271,7 +270,6 @@ public:
 	BOOL			getIsGroupOwned() const		{ return mGroupOwned; }
 
 	U32 getAuctionID() { return mAuctionID; }
-	BOOL getReservedForNewbie() { return mIsReservedForNewbie; }
 	bool isInEscrow() const { return mInEscrow; }
 
 	BOOL isPublic() const;
@@ -517,9 +515,6 @@ protected:
 	// This value is non-zero if there is an auction associated with
 	// the parcel.
 	U32 mAuctionID;
-
-	// This value is TRUE if the land is reserved for a newbie.
-	BOOL mIsReservedForNewbie;
 
 	// value used to temporarily lock attempts to purchase the parcel.
 	bool mInEscrow;

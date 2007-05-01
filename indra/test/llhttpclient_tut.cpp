@@ -216,7 +216,7 @@ namespace tut
 	template<> template<>
 	void HTTPClientTestObject::test<1>()
 	{
-		LLHTTPClient::get("http://www.google.com/", newResult());
+		LLHTTPClient::get("http://www.secondlife.com/", newResult());
 		runThePump();
 		ensureStatusOK();
 		ensure("result object wasn't destroyed", mResultDeleted);

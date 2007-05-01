@@ -237,7 +237,7 @@ namespace boost
 	}
 	inline void intrusive_ptr_release(LLIOPipe* p)
 	{
-		if(0 == --p->mReferenceCount)
+		if(p && 0 == --p->mReferenceCount)
 		{
 			delete p;
 		}

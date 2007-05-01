@@ -793,10 +793,6 @@ void LLPanelLandGeneral::refreshNames()
 
 		mSaleInfoForSale2->setTextArg("[BUYER]", name);
 	}
-	else if(parcel->getReservedForNewbie())
-	{
-		mSaleInfoForSale2->setTextArg("[BUYER]", childGetText("new users only"));
-	}
 	else
 	{
 		mSaleInfoForSale2->setTextArg("[BUYER]", childGetText("anyone"));

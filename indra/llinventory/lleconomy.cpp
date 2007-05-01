@@ -151,6 +151,11 @@ void LLRegionEconomy::processEconomyData(LLMessageSystem *msg, void** user_data)
 void LLRegionEconomy::processEconomyDataRequest(LLMessageSystem *msg, void **user_data)
 {
 	LLRegionEconomy *this_ptr = (LLRegionEconomy*)user_data;
+	if (!this_ptr->hasData())
+	{
+		llwarns << "Dropping EconomyDataRequest, because EconomyData message "
+				<< "has not been processed" << llendl;
+	}
 
 	msg->newMessageFast(_PREHASH_EconomyData);
 	msg->nextBlockFast(_PREHASH_Info);

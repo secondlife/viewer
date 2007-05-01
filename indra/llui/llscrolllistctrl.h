@@ -142,6 +142,7 @@ public:
 	LLScrollListColumn() : 
 		mName(""), 
 		mSortingColumn(""), 
+        	mSortAscending(TRUE), 
 		mLabel(""), 
 		mWidth(-1), 
 		mRelWidth(-1.0), 
@@ -156,6 +157,7 @@ public:
 	LLScrollListColumn(LLString name, LLString label, S32 width, F32 relwidth) : 
 		mName(name), 
 		mSortingColumn(name), 
+        	mSortAscending(TRUE), 
 		mLabel(label), 
 		mWidth(width), 
 		mRelWidth(relwidth), 
@@ -175,6 +177,11 @@ public:
 		if (sd.has("sort"))
 		{
 			mSortingColumn = sd.get("sort").asString();
+		}
+		mSortAscending = TRUE;
+		if (sd.has("sort_ascending"))
+		{
+			mSortAscending = sd.get("sort_ascending").asBoolean();
 		}
 		mLabel = sd.get("label").asString();
 		if (sd.has("relwidth") && (F32)sd.get("relwidth").asReal() > 0)
@@ -210,6 +217,7 @@ public:
 
 	LLString			mName;
 	LLString			mSortingColumn;
+	BOOL				mSortAscending;
 	LLString			mLabel;
 	S32					mWidth;
 	F32					mRelWidth;
@@ -381,8 +389,10 @@ public:
 	// Returns FALSE if not found.
 	BOOL			setSelectedByValue(LLSD value, BOOL selected);
 
-	virtual BOOL	isSelected(LLSD value);
+	BOOL			isSorted();
 
+	virtual BOOL	isSelected(LLSD value);
+	
 	BOOL			selectFirstItem();
 	BOOL			selectNthItem( S32 index );
 	BOOL			selectItemAt(S32 x, S32 y, MASK mask);
@@ -552,6 +562,7 @@ protected:
 	void			selectItem(LLScrollListItem* itemp, BOOL single_select = TRUE);
 	void			deselectItem(LLScrollListItem* itemp);
 	void			commitIfChanged();
+	void			setSorted(BOOL sorted);
 
 protected:
 	S32				mCurIndex;			// For get[First/Next]Data
@@ -615,6 +626,7 @@ protected:
 
 	S32				mSortColumn;
 	BOOL			mSortAscending;
+	BOOL			mSorted;
 
 	std::map<LLString, LLScrollListColumn> mColumns;
 	std::vector<LLScrollListColumn*> mColumnsIndexed;

@@ -296,7 +296,6 @@ protected:
 
 	BOOL checkFolderForContentsOfType(LLInventoryModel* model, LLInventoryCollectFunctor& typeToCheck);
 
-	void beginIMSession(BOOL only_online);
 	void modifyOutfit(BOOL append);
 public:
 	static LLFolderBridge* sSelf;

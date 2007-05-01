@@ -952,7 +952,6 @@ sim -> dataserver
 		{	Name			Variable 1	}
 		{	ForSale			BOOL		}
 		{	Auction			BOOL		}
-		{	ReservedNewbie	BOOL		}
 		{	Dwell			F32			}
 	}
 }
@@ -1019,8 +1018,7 @@ sim -> dataserver
 		{	GroupID			LLUUID			}
 		{	GroupName		Variable	1	}	// string
 		{	Members			S32				}
-		{	OpenEnrollment	BOOL			}
-		{	MembershipFee	S32				}
+		{	SearchOrder		F32				}
 	}
 }
 
@@ -1339,7 +1337,6 @@ sim -> dataserver
 		{	Name			Variable 1	}
 		{	Auction			BOOL		}
 		{	ForSale			BOOL		}
-		{	ReservedNewbie	BOOL		}
 		{	SalePrice		S32			}
 		{	ActualArea		S32			}
 	}
@@ -2259,8 +2256,8 @@ sim -> dataserver
 
 		{	PathCurve		U8	}
 		{	ProfileCurve	U8	}
-		{	PathBegin		U8	}	// 0 to 1, quanta = 0.01
-		{	PathEnd			U8	}	// 0 to 1, quanta = 0.01
+		{	PathBegin		U16	}	// 0 to 1, quanta = 0.01
+		{	PathEnd			U16	}	// 0 to 1, quanta = 0.01
 		{	PathScaleX		U8	}	// 0 to 1, quanta = 0.01
 		{	PathScaleY		U8	}	// 0 to 1, quanta = 0.01
 		{	PathShearX		U8	}	// -.5 to .5, quanta = 0.01
@@ -2272,9 +2269,9 @@ sim -> dataserver
 		{	PathTaperY		S8	}	// -1 to 1, quanta = 0.01
 		{	PathRevolutions		U8	}	// 0 to 3, quanta = 0.015
 		{	PathSkew		S8	}	// -1 to 1, quanta = 0.01
-		{	ProfileBegin	U8	}	// 0 to 1, quanta = 0.01
-		{	ProfileEnd		U8	}	// 0 to 1, quanta = 0.01
-		{	ProfileHollow	U8	}	// 0 to 1, quanta = 0.01
+		{	ProfileBegin	U16	}	// 0 to 1, quanta = 0.01
+		{	ProfileEnd		U16	}	// 0 to 1, quanta = 0.01
+		{	ProfileHollow	U16	}	// 0 to 1, quanta = 0.01
 
 		{	BypassRaycast	U8	}
 		{	RayStart		LLVector3	}
@@ -2531,8 +2528,8 @@ sim -> dataserver
 		{	ObjectLocalID	U32	}
 		{	PathCurve		U8	}
 		{	ProfileCurve	U8	}
-		{	PathBegin		U8	}	// 0 to 1, quanta = 0.01
-		{	PathEnd			U8	}	// 0 to 1, quanta = 0.01
+		{	PathBegin		U16	}	// 0 to 1, quanta = 0.01
+		{	PathEnd			U16	}	// 0 to 1, quanta = 0.01
 		{	PathScaleX		U8	}	// 0 to 1, quanta = 0.01
 		{	PathScaleY		U8	}	// 0 to 1, quanta = 0.01
 		{	PathShearX		U8	}	// -.5 to .5, quanta = 0.01
@@ -2544,9 +2541,9 @@ sim -> dataserver
 		{	PathTaperY		S8	}	// -1 to 1, quanta = 0.01
 		{	PathRevolutions		U8	}	// 0 to 3, quanta = 0.015
 		{	PathSkew		S8	}	// -1 to 1, quanta = 0.01
-		{	ProfileBegin	U8	}	// 0 to 1, quanta = 0.01
-		{	ProfileEnd		U8	}	// 0 to 1, quanta = 0.01
-		{	ProfileHollow	U8	}	// 0 to 1, quanta = 0.01
+		{	ProfileBegin	U16	}	// 0 to 1, quanta = 0.01
+		{	ProfileEnd		U16	}	// 0 to 1, quanta = 0.01
+		{	ProfileHollow	U16	}	// 0 to 1, quanta = 0.01
 	}
 }
 
@@ -3623,8 +3620,8 @@ sim -> dataserver
 
 		{	PathCurve		U8	}
 		{	ProfileCurve	U8	}
-		{	PathBegin		U8	}	// 0 to 1, quanta = 0.01
-		{	PathEnd			U8	}	// 0 to 1, quanta = 0.01
+		{	PathBegin		U16	}	// 0 to 1, quanta = 0.01
+		{	PathEnd			U16	}	// 0 to 1, quanta = 0.01
 		{	PathScaleX		U8	}	// 0 to 1, quanta = 0.01
 		{	PathScaleY		U8	}	// 0 to 1, quanta = 0.01
 		{	PathShearX		U8	}	// -.5 to .5, quanta = 0.01
@@ -3636,9 +3633,9 @@ sim -> dataserver
 		{	PathTaperY		S8	}	// -1 to 1, quanta = 0.01
 		{	PathRevolutions		U8	}	// 0 to 3, quanta = 0.015
 		{	PathSkew		S8	}	// -1 to 1, quanta = 0.01
-		{	ProfileBegin	U8	}	// 0 to 1, quanta = 0.01
-		{	ProfileEnd		U8	}	// 0 to 1, quanta = 0.01
-		{	ProfileHollow	U8	}	// 0 to 1, quanta = 0.01
+		{	ProfileBegin	U16	}	// 0 to 1, quanta = 0.01
+		{	ProfileEnd		U16	}	// 0 to 1, quanta = 0.01
+		{	ProfileHollow	U16	}	// 0 to 1, quanta = 0.01
 
 		{	TextureEntry	Variable	2	}
 		{	TextureAnim		Variable	1	}
@@ -4861,7 +4858,6 @@ sim -> dataserver
 		{	OwnerID			LLUUID			}
 		{	IsGroupOwned	BOOL			}
 		{	AuctionID		U32				}
-		{	ReservedNewbie	BOOL			}
 		{	ClaimDate		S32				}	// time_t
 		{	ClaimPrice		S32				}
 		{	RentPrice		S32				}
@@ -5358,7 +5354,6 @@ sim -> dataserver
 		{	BillableArea	S32		}
 		{	ActualArea		S32		}
 		{	Final			BOOL	}  // true if buyer should be in tier
-		{	ReservedNewbie	BOOL	}
 	}
 }
 
@@ -5390,7 +5385,6 @@ sim -> dataserver
 		{	UserLocation	LLVector3	}
 		{	SalePrice		S32			}
 		{	AuthorizedBuyerID	LLUUID		}
-		{	ReservedNewbie	BOOL		}
 		{	AllowPublish	BOOL		}
 		{	MaturePublish	BOOL		}
 	}
@@ -5479,20 +5473,6 @@ sim -> dataserver
 	}
 }
 
-// viewer -> sim
-{
-	ParcelGodReserveForNewbie	Low	NotTrusted	Unencoded
-	{
-		AgentData	Single
-		{	AgentID		LLUUID	}
-		{	SessionID	LLUUID	}
-	}
-	{
-		ParcelData	Single
-		{	LocalID		S32		}
-		{	SnapshotID	LLUUID	}
-	}
-}
 
 // viewer -> sim
 // start an auction. viewer fills in the appropriate date, simulator
@@ -5845,8 +5825,8 @@ sim -> dataserver
 
 		{	PathCurve		U8	}
 		{	ProfileCurve	U8	}
-		{	PathBegin		U8	}	// 0 to 1, quanta = 0.01
-		{	PathEnd			U8	}	// 0 to 1, quanta = 0.01
+		{	PathBegin		U16	}	// 0 to 1, quanta = 0.01
+		{	PathEnd			U16	}	// 0 to 1, quanta = 0.01
 		{	PathScaleX		U8	}	// 0 to 1, quanta = 0.01
 		{	PathScaleY		U8	}	// 0 to 1, quanta = 0.01
 		{	PathShearX		U8	}	// -.5 to .5, quanta = 0.01
@@ -5858,9 +5838,9 @@ sim -> dataserver
 		{	PathTaperY		S8	}	// -1 to 1, quanta = 0.01
 		{	PathRevolutions		U8	}	// 0 to 3, quanta = 0.015
 		{	PathSkew		S8	}	// -1 to 1, quanta = 0.01
-		{	ProfileBegin	U8	}	// 0 to 1, quanta = 0.01
-		{	ProfileEnd		U8	}	// 0 to 1, quanta = 0.01
-		{	ProfileHollow	U8	}	// 0 to 1, quanta = 0.01
+		{	ProfileBegin	U16	}	// 0 to 1, quanta = 0.01
+		{	ProfileEnd		U16	}	// 0 to 1, quanta = 0.01
+		{	ProfileHollow	U16	}	// 0 to 1, quanta = 0.01
 
 		{	TextureEntry	Variable	2	}
 
@@ -6176,12 +6156,6 @@ sim -> dataserver
 		{   AgentID     LLUUID  }
 		{	SessionID	LLUUID	}
 	}
-}
-
-// DequeueInstantMessages - used to get messages out of the IM
-// queue that have come from outside of the system.
-{
-	DequeueInstantMessages Low Trusted Unencoded
 }
 
 // FindAgent - used to find an agent's global position. I used a
@@ -7367,6 +7341,9 @@ sim -> dataserver
 		{	AggregatePermNextOwner	U8	}
 		{	AggregatePermInventory	U8	}
 		{	TransactionType	S32		}	// see lltransactiontypes.h
+		{	RegionID		LLUUID		}	// region sending the request, for logging
+		{	GridX			U32			}	// *HACK: database doesn't have region_id in schema
+		{	GridY			U32			}	// *HACK: database doesn't have region_id in schema
 		{	Description		Variable 1	}	// string, name of item for purchases
 	}
 }
@@ -7638,27 +7615,6 @@ sim -> dataserver
 // Gesture saves/loads
 //---------------------------------------------------------------------------
 
-// viewer -> userserver -> dataserver
-// dataserver -> userserver -> viewer
-{
-	GestureUpdate		Medium		NotTrusted Unencoded
-	{
-		AgentBlock		Single
-		{	AgentID		LLUUID	}
-		{	Filename	Variable	1	}  // String
-		{	ToViewer	BOOL	}  // BOOL, direction this is going
-	}
-}
-
-// viewer -> userserver -> dataserver
-{
-	GestureRequest		Low		NotTrusted Unencoded
-	{
-		AgentBlock		Single
-		{	AgentID		LLUUID	}
-		{	Reset		BOOL	}	// 0=no reset, 1=male, 2=female
-	}
-}
 
 // Tell the database that some gestures are now active
 // viewer -> sim -> data
@@ -8096,8 +8052,12 @@ sim -> dataserver
 {
 	ReputationIndividualRequest Low NotTrusted Unencoded
 	{
+		AgentData		Single
+		{	AgentID			LLUUID	}
+		{	SessionID		LLUUID	}
+	}   
+	{
 		ReputationData		Single
-		{	FromID			LLUUID	}
 		{	ToID			LLUUID	}
 	}
 }
@@ -8107,8 +8067,11 @@ sim -> dataserver
 {
 	ReputationIndividualReply Low Trusted Unencoded
 	{
+		AgentData		Single
+		{	AgentID			LLUUID	}
+	}   
+	{
 		ReputationData		Single
-		{	FromID			LLUUID	}
 		{	ToID			LLUUID	}
 		{	Behavior		F32	}	// float, usually -1 or +1
 		{	Appearance		F32	}	// float, usually -1 or +1
@@ -9387,43 +9350,6 @@ sim -> dataserver
 // System operations and maintenance
 //-----------------------------------------------------------------------------
 
-// GodExpungeUser is sent from a viewer or other untrusted source to
-// start the process for getting rid of a list of users. The message
-// goes to the userserver, checks for godhood, and forwards the 
-// request to the dataserver. The dataserver then marks the user as being
-// expunged and sends a StartExpungeProcess out to the simulators.
-{
-	GodExpungeUser	Low	NotTrusted Zerocoded
-	{
-		AgentData		Single
-		{	AgentID		LLUUID	}
-		{	SessionID	LLUUID	}
-	}
-	{
-		ExpungeData	Variable
-		{	AgentID	LLUUID	}
-	}
-}
-
-// StartExpungeProcess is sent from the dataserver to the userserver,
-// and from there relayed to the simulators which mark parcels and
-// objects owned by the agent as being expunged. 
-{
-	StartExpungeProcess	Low	Trusted Zerocoded
-	{
-		ExpungeData	Variable
-		{	AgentID	LLUUID	}
-	}
-}
-
-// StartExpungeProcessAck - is sent from the userserver to anyone who
-// sends a StartExpungeProcess. This is used to aid scripting the
-// expunge process, since the message system does not generate
-// any errors if you attempt to connect to a non-existant host within
-// a reasonable timeframe for scripting
-{
-	StartExpungeProcessAck	Low	Trusted Unencoded
-}
 
 // Message to rename identified parcels. script -> userserver -> dataserver
 {

@@ -42,12 +42,12 @@ const S32 MAX_LOD = 3;
 const F32 MIN_VOLUME_PROFILE_WIDTH 	= 0.05f;
 const F32 MIN_VOLUME_PATH_WIDTH 	= 0.05f;
 
-const F32 CUT_QUANTA   = 0.005f;
-const F32 SCALE_QUANTA = 0.01f;
-const F32 SHEAR_QUANTA = 0.01f;
-const F32 TAPER_QUANTA = 0.01f;
-const F32 REV_QUANTA   = 0.015f;
-
+const F32 CUT_QUANTA    = 0.00002f;
+const F32 SCALE_QUANTA  = 0.01f;
+const F32 SHEAR_QUANTA  = 0.01f;
+const F32 TAPER_QUANTA  = 0.01f;
+const F32 REV_QUANTA    = 0.015f;
+const F32 HOLLOW_QUANTA = 0.00002f;
 
 //============================================================================
 
@@ -165,7 +165,7 @@ public:
 	{
 	}
 
-	LLProfileParams(U8 curve, U8 begin, U8 end, U8 hollow)
+	LLProfileParams(U8 curve, U16 begin, U16 end, U16 hollow)
 	{
 		mCurveType = curve;
 		F32 temp_f32 = begin * CUT_QUANTA;
@@ -180,7 +180,7 @@ public:
 			temp_f32 = 1.f;
 		}
 		mEnd = 1.f - temp_f32;
-		temp_f32 = hollow * SCALE_QUANTA;
+		temp_f32 = hollow * HOLLOW_QUANTA;
 		if (temp_f32 > 1.f)
 		{
 			temp_f32 = 1.f;
@@ -210,9 +210,9 @@ public:
 	const U8&   getCurveType () const			{ return mCurveType; }
 
 	void setCurveType(const U32 type)			{ mCurveType = type;}
-	void setBegin(const F32 begin)				{ mBegin = (begin >= 1.0f) ? 0.0f : ((int) (begin * 1000))/1000.0f;}
-	void setEnd(const F32 end)					{ mEnd   = (end   <= 0.0f) ? 1.0f : ((int) (end * 1000))/1000.0f;}
-	void setHollow(const F32 hollow)			{ mHollow = ((int) (hollow * 1000))/1000.0f;}
+	void setBegin(const F32 begin)				{ mBegin = (begin >= 1.0f) ? 0.0f : ((int) (begin * 100000))/100000.0f;}
+	void setEnd(const F32 end)					{ mEnd   = (end   <= 0.0f) ? 1.0f : ((int) (end * 100000))/100000.0f;}
+	void setHollow(const F32 hollow)			{ mHollow = ((int) (hollow * 100000))/100000.0f;}
 
 	friend std::ostream& operator<<(std::ostream &s, const LLProfileParams &profile_params);
 
@@ -296,11 +296,11 @@ public:
 		mTaper.setVec(tx,ty);
 	}
 
-	LLPathParams(U8 curve, U8 begin, U8 end, U8 scx, U8 scy, U8 shx, U8 shy, U8 twistend, U8 twistbegin, U8 radiusoffset, U8 tx, U8 ty, U8 revolutions, U8 skew)
+	LLPathParams(U8 curve, U16 begin, U16 end, U8 scx, U8 scy, U8 shx, U8 shy, U8 twistend, U8 twistbegin, U8 radiusoffset, U8 tx, U8 ty, U8 revolutions, U8 skew)
 	{
 		mCurveType = curve;
-		mBegin = (F32)(begin * SCALE_QUANTA);
-		mEnd = (F32)(100.f - end) * SCALE_QUANTA;
+		mBegin = (F32)(begin * CUT_QUANTA);
+		mEnd = (F32)(100.f - end) * CUT_QUANTA;
 		if (mEnd > 1.f)
 			mEnd = 1.f;
 		mScale.setVec((F32) (200 - scx) * SCALE_QUANTA,(F32) (200 - scy) * SCALE_QUANTA);

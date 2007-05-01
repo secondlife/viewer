@@ -60,8 +60,9 @@ public:
 	// If the data for this tab has not yet been requested,
 	// send the request.  Used by tabs that are filled in only
 	// when they are first displayed.
-	// type is one of "notes", "classifieds", "picks"
-	void sendAvatarProfileRequestIfNeeded(const char* type);
+	// type is one of "avatarnotesrequest", "avatarpicksrequest",
+	// or "avatarclassifiedsrequest"
+	void sendAvatarProfileRequestIfNeeded(const char* method);
 
 private:
 	LLPanelAvatar* mPanelAvatar;
@@ -256,8 +257,6 @@ public:
 	void setOnlineStatus(EOnlineStatus online_status);
 
 	const LLUUID& getAvatarID() const { return mAvatarID; }
-
-	void disableRate();
 	
 	void resetGroupList();
 
@@ -279,7 +278,6 @@ public:
 	static void processAvatarPropertiesReply(LLMessageSystem *msg, void **);
 	static void processAvatarInterestsReply(LLMessageSystem *msg, void **);
 	static void processAvatarGroupsReply(LLMessageSystem* msg, void**);
-	static void processAvatarStatisticsReply(LLMessageSystem *msg, void **);
 	static void processAvatarNotesReply(LLMessageSystem *msg, void **);
 	static void processAvatarPicksReply(LLMessageSystem *msg, void **);
 	static void processAvatarClassifiedReply(LLMessageSystem *msg, void **);
@@ -288,7 +286,6 @@ public:
 	static void onClickIM(		void *userdata);
 	static void onClickOfferTeleport(	void *userdata);
 	static void onClickPay(	void *userdata);
-	static void onClickRate(	void *userdata);
 	static void onClickAddFriend(void* userdata);
 	static void onClickOK(		void *userdata);
 	static void onClickCancel(	void *userdata);
@@ -337,7 +334,6 @@ protected:
 	BOOL						mHaveStatistics;
 	LLTabContainerCommon*		mTab;
 	BOOL						mAllowEdit;
-	BOOL						mDisableRate;
 
 	typedef std::list<LLPanelAvatar*> panel_list_t;
 	static panel_list_t sAllPanels;

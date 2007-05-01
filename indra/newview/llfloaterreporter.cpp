@@ -40,7 +40,6 @@
 #include "llviewerobject.h"
 #include "llviewerregion.h"
 #include "llcombobox.h"
-#include "llfloaterrate.h"
 #include "lltooldraganddrop.h"
 #include "llfloatermap.h"
 #include "lluiconstants.h"

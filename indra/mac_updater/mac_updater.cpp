@@ -46,9 +46,8 @@ EventHandlerRef gEventHandler = NULL;
 OSStatus gFailure = noErr;
 Boolean gCancelled = false;
 
-char *gUserServer;
+char *gUpdateURL;
 char *gProductName;
-char gUpdateURL[2048];		/* Flawfinder: ignore */
 
 void *updatethreadproc(void*);
 
@@ -305,20 +304,13 @@ int curl_progress_callback_func(void *clientp,
 
 int parse_args(int argc, char **argv)
 {
-	// Check for old-type arguments.
-	if (2 == argc)
-	{
-		gUserServer = argv[1];
-		return 0;
-	}
-	
 	int j;
 
 	for (j = 1; j < argc; j++) 
 	{
-		if ((!strcmp(argv[j], "-userserver")) && (++j < argc)) 
+		if ((!strcmp(argv[j], "-url")) && (++j < argc)) 
 		{
-			gUserServer = argv[j];
+			gUpdateURL = argv[j];
 		}
 		else if ((!strcmp(argv[j], "-name")) && (++j < argc)) 
 		{
@@ -338,17 +330,17 @@ int main(int argc, char **argv)
 	//
 	// Process command line arguments
 	//
-	gUserServer  = NULL;
+	gUpdateURL  = NULL;
 	gProductName = NULL;
 	parse_args(argc, argv);
-	if (!gUserServer)
+	if (!gUpdateURL)
 	{
-		llinfos << "Usage: mac_updater -userserver <server> [-name <product_name>] [-program <program_name>]" << llendl;
+		llinfos << "Usage: mac_updater -url <url> [-name <product_name>] [-program <program_name>]" << llendl;
 		exit(1);
 	}
 	else
 	{
-		llinfos << "User server is: " << gUserServer << llendl;
+		llinfos << "Update url is: " << gUpdateURL << llendl;
 		if (gProductName)
 		{
 			llinfos << "Product name is: " << gProductName << llendl;
@@ -361,9 +353,6 @@ int main(int argc, char **argv)
 	
 	llinfos << "Starting " << gProductName << " Updater" << llendl;
 
-	// Build the URL to download the update
-	snprintf(gUpdateURL, sizeof(gUpdateURL), "http://secondlife.com/update-macos.php?userserver=%s", gUserServer);		
-	
 	// Real UI...
 	OSStatus err;
 	IBNibRef nib = NULL;

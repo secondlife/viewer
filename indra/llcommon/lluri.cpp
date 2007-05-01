@@ -195,6 +195,19 @@ LLURI LLURI::buildHTTP(const std::string& prefix,
 			result.mEscapedPath += "/" + escapePathComponent(it->asString());
 		}
 	}
+	else if(path.isString())
+	{
+		result.mEscapedPath += "/" + escapePathComponent(path.asString());
+	} 
+	else if(path.isUndefined())
+	{
+	  // do nothing
+	}
+    else
+	{
+	  llwarns << "Valid path arguments to buildHTTP are array, string, or undef, you passed type" 
+			  << path.type() << llendl;
+	}
 	result.mEscapedOpaque = "//" + result.mEscapedAuthority +
 		result.mEscapedPath;
 	return result;
@@ -265,17 +278,22 @@ namespace {
 	}
 }
 
-
+#if LL_ENABLE_JANKY_DEPRECATED_WEB_SERVICE_CALLS
 // static
-LLURI LLURI::buildAgentPresenceURI(const LLUUID& agent_id, LLApp* app)
+LLURI LLURI::buildBulkAgentNamesURI(LLApp* app)
 {
-	return buildBackboneURL(app, "agent", agent_id.asString(), "presence");
-}
+	std::string host = "localhost:12040";
 
-// static
-LLURI LLURI::buildBulkAgentPresenceURI(LLApp* app)
-{
-	return buildBackboneURL(app, "agent", "presence");
+	if (app)
+	{
+		host = app->getOption("backbone-host-port").asString();
+	}
+
+	LLSD path = LLSD::emptyArray();
+	path.append("agent");
+	path.append("names");
+
+	return buildHTTP(host, path);
 }
 
 // static
@@ -302,7 +320,7 @@ LLURI LLURI::buildAgentSessionURI(const LLUUID& agent_id, LLApp* app)
 }
 
 // static
-LLURI LLURI::buildInventoryHostURI(const LLUUID& agent_id, LLApp* app)
+LLURI LLURI::buildAgentNameURI(const LLUUID& agent_id, LLApp* app)
 {
 	std::string host = "localhost:12040";
 
@@ -314,8 +332,7 @@ LLURI LLURI::buildInventoryHostURI(const LLUUID& agent_id, LLApp* app)
 	LLSD path = LLSD::emptyArray();
 	path.append("agent");
 	path.append(agent_id);
-	path.append("inventory");
-	path.append("host");
+	path.append("name");
 
 	return buildHTTP(host, path);
 }
@@ -348,6 +365,7 @@ LLURI LLURI::buildAgentLoginInfoURI(const LLUUID& agent_id, const std::string& d
 
 	return buildHTTP(dataserver, path);
 }
+#endif // LL_ENABLE_JANKY_DEPRECATED_WEB_SERVICE_CALLS
 
 std::string LLURI::asString() const
 {

@@ -203,6 +203,9 @@ BOOL LLAgent::sDebugDisplayTarget = FALSE;
 
 const F32 LLAgent::TYPING_TIMEOUT_SECS = 5.f;
 
+std::map<LLString, LLString> LLAgent::sTeleportErrorMessages;
+std::map<LLString, LLString> LLAgent::sTeleportProgressMessages;
+
 class LLAgentFriendObserver : public LLFriendObserver
 {
 public:
@@ -5472,6 +5475,8 @@ bool LLAgent::teleportCore(bool is_local)
 	LLFloaterWorldMap::hide(NULL);
 	LLFloaterDirectory::hide(NULL);
 
+	gParcelMgr->deselectLand();
+
 	// Close all pie menus, deselect land, etc.
 	// Don't change the camera until we know teleport succeeded. JC
 	resetView(FALSE);
@@ -7196,5 +7201,58 @@ void LLAgent::observeFriends()
 		friendsChanged();
 	}
 }
+
+void LLAgent::parseTeleportMessages(const LLString& xml_filename)
+{
+	LLXMLNodePtr root;
+	BOOL success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
+
+	if (!success || !root || !root->hasName( "teleport_messages" ))
+	{
+		llerrs << "Problem reading teleport string XML file: " 
+			   << xml_filename << llendl;
+		return;
+	}
+
+	for (LLXMLNode* message_set = root->getFirstChild();
+		 message_set != NULL;
+		 message_set = message_set->getNextSibling())
+	{
+		if ( !message_set->hasName("message_set") ) continue;
+
+		std::map<LLString, LLString> *teleport_msg_map = NULL;
+		LLString message_set_name;
+
+		if ( message_set->getAttributeString("name", message_set_name) )
+		{
+			//now we loop over all the string in the set and add them
+			//to the appropriate set
+			if ( message_set_name == "errors" )
+			{
+				teleport_msg_map = &sTeleportErrorMessages;
+			}
+			else if ( message_set_name == "progress" )
+			{
+				teleport_msg_map = &sTeleportProgressMessages;
+			}
+		}
+
+		if ( !teleport_msg_map ) continue;
+
+		LLString message_name;
+		for (LLXMLNode* message_node = message_set->getFirstChild();
+			 message_node != NULL;
+			 message_node = message_node->getNextSibling())
+		{
+			if ( message_node->hasName("message") && 
+				 message_node->getAttributeString("name", message_name) )
+			{
+				(*teleport_msg_map)[message_name] =
+					message_node->getTextContents();
+			} //end if ( message exists and has a name)
+		} //end for (all message in set)
+	}//end for (all message sets in xml file)
+}
+
 
 // EOF

@@ -196,7 +196,7 @@ void LLProfile::genNGon(S32 sides, F32 offset, F32 bevel, F32 ang_scale, S32 spl
 	t_fraction = (begin - t_first)*sides;
 
 	// Only use if it's not almost exactly on an edge.
-	if (t_fraction < 0.99f)
+	if (t_fraction < 0.9999f)
 	{
 		LLVector3 new_pt = lerp(pt1, pt2, t_fraction);
 		F32 pt_x = new_pt.mV[VX];
@@ -247,7 +247,7 @@ void LLProfile::genNGon(S32 sides, F32 offset, F32 bevel, F32 ang_scale, S32 spl
 
 	// Find the fraction that we need to add to the end point.
 	t_fraction = (end - (t - t_step))*sides;
-	if (t_fraction > 0.01f)
+	if (t_fraction > 0.0001f)
 	{
 		LLVector3 new_pt = lerp(pt1, pt2, t_fraction);
 		F32 pt_x = new_pt.mV[VX];
