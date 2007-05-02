@@ -267,7 +267,9 @@ inline LLScriptLibData *lsa_bubble_sort(LLScriptLibData *src, S32 stride, S32 as
 
 	src->mListp = NULL;
 
-	return sortarray[0];
+	temp = sortarray[0];
+	delete[] sortarray;
+	return temp;
 }
 
 

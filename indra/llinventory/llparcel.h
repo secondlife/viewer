@@ -226,6 +226,7 @@ public:
 	BOOL	importStream(std::istream& input_stream);
 	BOOL	importAccessEntry(std::istream& input_stream, LLAccessEntry* entry);
 	BOOL	exportStream(std::ostream& output_stream);
+	virtual LLSD asLLSD() const;
 
 	void	packMessage(LLMessageSystem* msg);
 	void	unpackMessage(LLMessageSystem* msg);
@@ -254,7 +255,7 @@ public:
 	BOOL removeFromBanList(const LLUUID& agent_id);
 
 	// ACCESSORS
-	const LLUUID& getID() { return mID; }
+	const LLUUID&	getID() const				{ return mID; }
 	const char*		getName() const				{ return mName.c_str(); }
 	const char*		getDesc() const				{ return mDesc.c_str(); }
 	const char*		getMusicURL() const			{ return mMusicURL.c_str(); }
@@ -263,14 +264,13 @@ public:
 	const U8		getMediaAutoScale() const	{ return mMediaAutoScale; }
 	S32				getLocalID() const			{ return mLocalID; }
 	const LLUUID&	getOwnerID() const			{ return mOwnerID; }
-	const LLUUID&	getGroupID() const	{ return mGroupID; }
-	//const char*		getGroupName() const	{ return mGroupName.c_str(); }
+	const LLUUID&	getGroupID() const			{ return mGroupID; }
 	S32				getPassPrice() const		{ return mPassPrice; }
 	F32				getPassHours() const		{ return mPassHours; }
 	BOOL			getIsGroupOwned() const		{ return mGroupOwned; }
 
-	U32 getAuctionID() { return mAuctionID; }
-	bool isInEscrow() const { return mInEscrow; }
+	U32 getAuctionID() const	{ return mAuctionID; }
+	bool isInEscrow() const		{ return mInEscrow; }
 
 	BOOL isPublic() const;
 

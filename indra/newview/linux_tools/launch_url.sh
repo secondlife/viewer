@@ -1,5 +1,5 @@
 #!/bin/sh
-# bash v1.14+ expected
+# Script tested with: bash 1.14, bash 3.1.17, zsh 4.2.5, ksh 1993-12-28
 
 # This script loads a web page in the 'default' graphical web browser.
 # It MUST return immediately (or soon), so the browser should be

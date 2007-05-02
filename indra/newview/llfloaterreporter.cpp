@@ -46,10 +46,9 @@
 #include "lluploaddialog.h"
 #include "llcallingcard.h"
 #include "llviewerobjectlist.h"
-#include "llagent.h"
 #include "lltoolobjpicker.h"
 #include "lltoolmgr.h"
-#include "llviewermenu.h"		// for LLResourceData
+#include "llresourcedata.h"		// for LLResourceData
 #include "llviewerwindow.h"
 #include "llviewerimagelist.h"
 #include "llworldmap.h"
@@ -945,8 +944,8 @@ void LLFloaterReporter::uploadDoneCallback(const LLUUID &uuid, void *user_data, 
 		self->mScreenID = uuid;
 		llinfos << "Got screen shot " << uuid << llendl;
 		self->sendReportViaLegacy(self->gatherReport());
+		self->close();
 	}
-	self->close();
 }
 
 

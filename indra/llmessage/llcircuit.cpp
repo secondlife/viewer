@@ -1147,13 +1147,13 @@ std::ostream& operator<<(std::ostream& s, LLCircuitData& circuit)
 	return s;
 }
 
-const char* LLCircuitData::getInfoString() const
+const LLString LLCircuitData::getInfoString() const
 {
 	std::ostringstream info;
 	info << "Circuit: " << mHost << std::endl
 		 << (mbAlive ? "Alive" : "Not Alive") << std::endl
 		 << "Age: " << mExistenceTimer.getElapsedTimeF32() << std::endl;
-	return info.str().c_str();
+	return LLString(info.str());
 }
 
 void LLCircuitData::dumpResendCountAndReset()
@@ -1177,7 +1177,7 @@ std::ostream& operator<<(std::ostream& s, LLCircuit &circuit)
 	return s;
 }
 
-const char* LLCircuit::getInfoString() const
+const LLString LLCircuit::getInfoString() const
 {
 	std::ostringstream info;
 	info << "Circuit Info:" << std::endl;
@@ -1187,7 +1187,7 @@ const char* LLCircuit::getInfoString() const
 	{
 		info << (*it).second->getInfoString() << std::endl;
 	}
-	return info.str().c_str();
+	return LLString(info.str());
 }
 
 void LLCircuit::getCircuitRange(

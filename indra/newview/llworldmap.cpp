@@ -471,7 +471,7 @@ void LLWorldMap::processMapBlockReply(LLMessageSystem* msg, void**)
 	U32 agent_flags;
 	msg->getU32Fast(_PREHASH_AgentData, _PREHASH_Flags, agent_flags);
 
-	if (agent_flags < 0 || agent_flags >= MAP_SIM_IMAGE_TYPES)
+	if ((S32)agent_flags < 0 || agent_flags >= MAP_SIM_IMAGE_TYPES)
 	{
 		llwarns << "Invalid map image type returned! " << agent_flags << llendl;
 		return;

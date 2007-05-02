@@ -287,6 +287,8 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 			{
 				llwarns << "Couldn't open vfs data file after trying many alternates" << llendl;
 				mValid = VFSVALID_BAD_CANNOT_CREATE;
+				delete[] temp_index;
+				delete[] temp_data;
 				return;
 			}
 
@@ -374,7 +376,6 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 			// to heal after some errors. JC
 			if (block->mLength > 0 &&
 				(U32)block->mLength <= data_size &&
-				block->mLocation >= 0 &&
 				block->mLocation < data_size &&
 				block->mSize > 0 &&
 				block->mSize <= block->mLength &&
@@ -415,7 +416,7 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 				delete block;
 			}
     
-			tmp_ptr += block->SERIAL_SIZE;
+			tmp_ptr += LLVFSFileBlock::SERIAL_SIZE;
 		}
 		delete[] buffer;
 
@@ -638,6 +639,7 @@ void LLVFS::presizeDataFile(const U32 size)
 	if (!mDataFP)
 	{
 		llerrs << "LLVFS::presizeDataFile() with no data file open" << llendl;
+		return;
 	}
 
 	// we're creating this file for the first time, size it
@@ -1711,7 +1713,6 @@ void LLVFS::audit()
     
 		// do sanity check on this block
 		if (block->mLength >= 0 &&
-			block->mLocation >= 0 &&
 			block->mSize >= 0 &&
 			block->mSize <= block->mLength &&
 			block->mFileType >= LLAssetType::AT_NONE &&

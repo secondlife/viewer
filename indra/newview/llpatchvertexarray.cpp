@@ -106,8 +106,16 @@ void LLPatchVertexArray::create(U32 surface_width, U32 patch_width, F32 meters_p
 		mRenderStridep = new U32 [mPatchOrder + 1];
 	}
 
+	if (NULL == mRenderLevelp || NULL == mRenderStridep)
+	{
+		// init() and some other things all want to deref these
+		// pointers, so this is serious.
+		llerrs << "mRenderLevelp or mRenderStridep was NULL; we'd crash soon." << llendl;
+		return;
+	}
 
-	// Now that we've allocated memory, we can initialize the arrays...
+	// Now that we've allocated memory, we can initialize
+	// the arrays...
 	init();
 }
 

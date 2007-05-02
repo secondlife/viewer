@@ -92,17 +92,19 @@ void LLHUDEffectSpiral::packData(LLMessageSystem *mesgsys)
 
 void LLHUDEffectSpiral::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 {
-	U8 packed_data[56];
+	const size_t EFFECT_SIZE = 56;
+	U8 packed_data[EFFECT_SIZE];
 
 	LLHUDEffect::unpackData(mesgsys, blocknum);
 	LLUUID object_id, target_object_id;
 	S32 size = mesgsys->getSizeFast(_PREHASH_Effect, blocknum, _PREHASH_TypeData);
-	if (size != 56)
+	if (size != EFFECT_SIZE)
 	{
 		llwarns << "Spiral effect with bad size " << size << llendl;
 		return;
 	}
-	mesgsys->getBinaryDataFast(_PREHASH_Effect, _PREHASH_TypeData, packed_data, 56, blocknum);
+	mesgsys->getBinaryDataFast(_PREHASH_Effect, _PREHASH_TypeData, 
+		packed_data, EFFECT_SIZE, blocknum, EFFECT_SIZE);
 	
 	htonmemcpy(object_id.mData, packed_data, MVT_LLUUID, 16);
 	htonmemcpy(target_object_id.mData, packed_data + 16, MVT_LLUUID, 16);

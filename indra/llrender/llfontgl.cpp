@@ -749,6 +749,7 @@ S32 LLFontGL::render(const LLWString &wstr,
 			if (!fgi)
 			{
 				llerrs << "Missing Glyph Info" << llendl;
+				break;
 			}
 			if ((start_x + scaled_max_pixels) < (cur_x + fgi->mXBearing + fgi->mWidth))
 			{

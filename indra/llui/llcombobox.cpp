@@ -35,8 +35,7 @@ S32 LLCOMBOBOX_WIDTH = 0;
  
 LLComboBox::LLComboBox(	const LLString& name, const LLRect &rect, const LLString& label,
 	void (*commit_callback)(LLUICtrl*,void*),
-	void *callback_userdata,
-	S32 list_width
+	void *callback_userdata
 	)
 :	LLUICtrl(name, rect, TRUE, commit_callback, callback_userdata, 
 			 FOLLOWS_LEFT | FOLLOWS_TOP),
@@ -79,10 +78,7 @@ LLComboBox::LLComboBox(	const LLString& name, const LLRect &rect, const LLString
 	addChild(mButton);
 
 	// Default size, will be set by arrange() call in button callback. 
-	if (list_width == 0)
-	{
-		list_width = mRect.getWidth() + SCROLLBAR_SIZE;
-	}
+	S32 list_width = mRect.getWidth() + SCROLLBAR_SIZE;
 	r.setOriginAndSize(0, 16, list_width, 220);
 
 	// disallow multiple selection
@@ -483,12 +479,14 @@ void LLComboBox::showList()
 	
 	LLRect rect = mList->getRect();
 
+	S32 list_width = mRect.getWidth() + SCROLLBAR_SIZE;
+
 	if (mListPosition == BELOW)
 	{
 		if (rect.getHeight() <= -root_view_local.mBottom)
 		{
 			// Move rect so it hangs off the bottom of this view
-			rect.setLeftTopAndSize(0, 0, rect.getWidth(), rect.getHeight() );
+			rect.setLeftTopAndSize(0, 0, list_width, rect.getHeight() );
 		}
 		else
 		{	
@@ -496,12 +494,12 @@ void LLComboBox::showList()
 			if (-root_view_local.mBottom > root_view_local.mTop - mRect.getHeight())
 			{
 				// Move rect so it hangs off the bottom of this view
-				rect.setLeftTopAndSize(0, 0, rect.getWidth(), llmin(-root_view_local.mBottom, rect.getHeight()));
+				rect.setLeftTopAndSize(0, 0, list_width, llmin(-root_view_local.mBottom, rect.getHeight()));
 			}
 			else
 			{
 				// move rect so it stacks on top of this view (clipped to size of screen)
-				rect.setOriginAndSize(0, mRect.getHeight(), rect.getWidth(), llmin(root_view_local.mTop - mRect.getHeight(), rect.getHeight()));
+				rect.setOriginAndSize(0, mRect.getHeight(), list_width, llmin(root_view_local.mTop - mRect.getHeight(), rect.getHeight()));
 			}
 		}
 	}
@@ -510,7 +508,7 @@ void LLComboBox::showList()
 		if (rect.getHeight() <= root_view_local.mTop - mRect.getHeight())
 		{
 			// move rect so it stacks on top of this view (clipped to size of screen)
-			rect.setOriginAndSize(0, mRect.getHeight(), rect.getWidth(), llmin(root_view_local.mTop - mRect.getHeight(), rect.getHeight()));
+			rect.setOriginAndSize(0, mRect.getHeight(), list_width, llmin(root_view_local.mTop - mRect.getHeight(), rect.getHeight()));
 		}
 		else
 		{
@@ -518,12 +516,12 @@ void LLComboBox::showList()
 			if (-root_view_local.mBottom > root_view_local.mTop - mRect.getHeight())
 			{
 				// Move rect so it hangs off the bottom of this view
-				rect.setLeftTopAndSize(0, 0, rect.getWidth(), llmin(-root_view_local.mBottom, rect.getHeight()));
+				rect.setLeftTopAndSize(0, 0, list_width, llmin(-root_view_local.mBottom, rect.getHeight()));
 			}
 			else
 			{
 				// move rect so it stacks on top of this view (clipped to size of screen)
-				rect.setOriginAndSize(0, mRect.getHeight(), rect.getWidth(), llmin(root_view_local.mTop - mRect.getHeight(), rect.getHeight()));
+				rect.setOriginAndSize(0, mRect.getHeight(), list_width, llmin(root_view_local.mTop - mRect.getHeight(), rect.getHeight()));
 			}
 		}
 

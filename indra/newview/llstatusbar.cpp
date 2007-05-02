@@ -686,3 +686,8 @@ void LLStatusBar::onClickBuyLand(void*)
 	gParcelMgr->selectParcelAt(gAgent.getPositionGlobal());
 	gParcelMgr->startBuyLand();
 }
+
+BOOL can_afford_transaction(S32 cost)
+{
+	return((cost <= 0)||((gStatusBar) && (gStatusBar->getBalance() >=cost)));
+}

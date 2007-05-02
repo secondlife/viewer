@@ -184,7 +184,7 @@ LLPanelGroupNotices::~LLPanelGroupNotices()
 	if (mInventoryOffer)
 	{
 		// Cancel the inventory offer.
-		inventory_offer_callback( 1 , mInventoryOffer); 
+		inventory_offer_callback( IOR_DECLINE , mInventoryOffer); 
 		mInventoryOffer = NULL;
 	}
 }
@@ -339,7 +339,7 @@ void LLPanelGroupNotices::onClickOpenAttachment(void* data)
 {
 	LLPanelGroupNotices* self = (LLPanelGroupNotices*)data;
 
-	inventory_offer_callback( 0 , self->mInventoryOffer);
+	inventory_offer_callback( IOR_ACCEPT , self->mInventoryOffer);
 	self->mInventoryOffer = NULL;
 	self->mBtnOpenAttachment->setEnabled(FALSE);
 }
@@ -378,7 +378,7 @@ void LLPanelGroupNotices::onClickNewMessage(void* data)
 
 	if (self->mInventoryOffer)
 	{
-		inventory_offer_callback( 1 , self->mInventoryOffer);
+		inventory_offer_callback( IOR_DECLINE , self->mInventoryOffer);
 		self->mInventoryOffer = NULL;
 	}
 
@@ -528,7 +528,7 @@ void LLPanelGroupNotices::showNotice(const char* subject,
 	if (mInventoryOffer)
 	{
 		// Cancel the inventory offer for the previously viewed notice
-		inventory_offer_callback( 1 , mInventoryOffer); 
+		inventory_offer_callback( IOR_DECLINE , mInventoryOffer); 
 		mInventoryOffer = NULL;
 	}
 

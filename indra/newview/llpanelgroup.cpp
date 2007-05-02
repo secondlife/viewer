@@ -640,7 +640,7 @@ void LLPanelGroup::showNotice(const char* subject,
 		// We need to clean up that inventory offer.
 		if (inventory_offer)
 		{
-			inventory_offer_callback( 1 , inventory_offer); 
+			inventory_offer_callback( IOR_DECLINE , inventory_offer); 
 		}
 		return;
 	}

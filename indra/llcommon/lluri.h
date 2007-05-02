@@ -74,6 +74,7 @@ public:
 
   // Escaping Utilities
   // Escape a string by urlencoding all the characters that aren't in the allowed string.
+  static std::string escape(const std::string& str);
   static std::string escape(const std::string& str, const std::string & allowed); 
   static std::string unescape(const std::string& str);
 

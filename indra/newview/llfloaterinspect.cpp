@@ -64,42 +64,54 @@ void LLFloaterInspect::show(void* ignored)
 void LLFloaterInspect::onClickCreatorProfile(void* ctrl)
 {
 	if(sInstance->mObjectList->getAllSelected().size() == 0) return;
-	LLSelectNode* obj = sInstance->mObjectSelection->getFirstNode();
-	LLUUID obj_id, creator_id;
-	obj_id = sInstance->mObjectList->getFirstSelected()->getUUID();
-	while(obj)
+	LLScrollListItem* first_selected =
+		sInstance->mObjectList->getFirstSelected();
+
+	if (first_selected)
 	{
-		if(obj_id == obj->getObject()->getID())
+		LLSelectNode* obj= sInstance->mObjectSelection->getFirstNode();
+		LLUUID obj_id, creator_id;
+		obj_id = first_selected->getUUID();
+		while(obj)
 		{
-			creator_id = obj->mPermissions->getCreator();
-			break;
+			if(obj_id == obj->getObject()->getID())
+			{
+				creator_id = obj->mPermissions->getCreator();
+				break;
+			}
+			obj = sInstance->mObjectSelection->getNextNode();
 		}
-		obj = sInstance->mObjectSelection->getNextNode();
-	}
-	if(obj)
-	{
-		LLFloaterAvatarInfo::showFromDirectory(creator_id);
+		if(obj)
+		{
+			LLFloaterAvatarInfo::showFromDirectory(creator_id);
+		}
 	}
 }
 
 void LLFloaterInspect::onClickOwnerProfile(void* ctrl)
 {
 	if(sInstance->mObjectList->getAllSelected().size() == 0) return;
-	LLSelectNode* obj = sInstance->mObjectSelection->getFirstNode();
-	LLUUID obj_id, owner_id;
-	obj_id = sInstance->mObjectList->getFirstSelected()->getUUID();
-	while(obj)
+	LLScrollListItem* first_selected =
+		sInstance->mObjectList->getFirstSelected();
+
+	if (first_selected)
 	{
-		if(obj_id == obj->getObject()->getID())
+		LLSelectNode* obj= sInstance->mObjectSelection->getFirstNode();
+		LLUUID obj_id, owner_id;
+		obj_id = first_selected->getUUID();
+		while(obj)
 		{
-			owner_id = obj->mPermissions->getOwner();
-			break;
+			if(obj_id == obj->getObject()->getID())
+			{
+				owner_id = obj->mPermissions->getOwner();
+				break;
+			}
+			obj = sInstance->mObjectSelection->getNextNode();
 		}
-		obj = sInstance->mObjectSelection->getNextNode();
-	}
-	if(obj)
-	{
-		LLFloaterAvatarInfo::showFromDirectory(owner_id);
+		if(obj)
+		{
+			LLFloaterAvatarInfo::showFromDirectory(owner_id);
+		}
 	}
 }
 
@@ -125,7 +137,15 @@ LLUUID LLFloaterInspect::getSelectedUUID()
 {
 	if(sInstance)
 	{
-		if(sInstance->mObjectList->getAllSelected().size() > 0) return sInstance->mObjectList->getFirstSelected()->getUUID();
+		if(sInstance->mObjectList->getAllSelected().size() > 0)
+		{
+			LLScrollListItem* first_selected =
+				sInstance->mObjectList->getFirstSelected();
+			if (first_selected)
+			{
+				return first_selected->getUUID();
+			}
+		}
 	}
 	return LLUUID::null;
 }
@@ -139,7 +159,15 @@ void LLFloaterInspect::refresh()
 	childSetEnabled("button creator", false);
 	LLUUID selected_uuid;
 	S32 selected_index = mObjectList->getFirstSelectedIndex();
-	if(selected_index > -1) selected_uuid = mObjectList->getFirstSelected()->getUUID();
+	if(selected_index > -1)
+	{
+		LLScrollListItem* first_selected =
+			mObjectList->getFirstSelected();
+		if (first_selected)
+		{
+			selected_uuid = first_selected->getUUID();
+		}
+	}
 	mObjectList->operateOnAll(LLScrollListCtrl::OP_DELETE);
 	//List all transient objects, then all linked objects
 	LLSelectNode* obj = mObjectSelection->getFirstNode();

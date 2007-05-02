@@ -370,11 +370,11 @@ U8 final_click_action(LLViewerObject* obj)
 	if (obj->isAttachment()) return CLICK_ACTION_NONE;
 
 	U8 click_action = CLICK_ACTION_TOUCH;
-	LLViewerObject* parent = (obj ? obj->getRootEdit() : NULL);
-	if ((obj && obj->getClickAction())
-		|| (parent && parent->getClickAction()))
+	LLViewerObject* parent = obj->getRootEdit();
+	if (obj->getClickAction()
+	    || (parent && parent->getClickAction()))
 	{
-		if (obj && obj->getClickAction())
+		if (obj->getClickAction())
 		{
 			click_action = obj->getClickAction();
 		}

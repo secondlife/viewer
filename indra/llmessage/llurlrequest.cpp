@@ -524,7 +524,10 @@ size_t headerCallback(void* data, size_t size, size_t nmemb, void* user)
 		int statusCode = atoi(status.c_str());
 		if (statusCode > 0)
 		{
-			complete->httpStatus((U32)statusCode, reason);
+			if (complete)
+			{
+				complete->httpStatus((U32)statusCode, reason);
+			}
 		}
 	}
 

@@ -549,10 +549,10 @@ const char* safe_inv_type_lookup(LLInventoryType::EType inv_type)
 }
 
 LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
-										   LLInventoryType::EType inv_type,
-										   LLInventoryPanel* inventory,
-										   const LLUUID& uuid,
-										   U32 flags)
+					   LLInventoryType::EType inv_type,
+					   LLInventoryPanel* inventory,
+					   const LLUUID& uuid,
+					   U32 flags)
 {
 	LLInvFVBridge* new_listener = NULL;
 	switch(asset_type)
@@ -657,7 +657,11 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 		break;
 	}
 
-	new_listener->mInvType = inv_type;
+	if (new_listener)
+	{
+		new_listener->mInvType = inv_type;
+	}
+
 	return new_listener;
 }
 
@@ -887,16 +891,20 @@ BOOL LLItemBridge::removeItem()
 	if(!model) return FALSE;
 	LLUUID trash_id = model->findCategoryUUIDForType(LLAssetType::AT_TRASH);
 	LLViewerInventoryItem* item = getItem();
-	if(item)
-	{
-		// restamp on move to trash.
-		LLInvFVBridge::changeItemParent(model, item, trash_id, TRUE);
-	}
 
-	// return false anyway, so that if it's called from the folder
-	// view, it doesn't remove the view - it's just being moved to the
-	// trash.
-	return FALSE;
+	// if item is not already in trash
+	if(item && !model->isObjectDescendentOf(mUUID, trash_id))
+	{
+		// move to trash, and restamp
+		LLInvFVBridge::changeItemParent(model, item, trash_id, TRUE);
+		// delete was successful
+		return TRUE;
+	}
+	else
+	{
+		// tried to delete already item in trash (should purge?)
+		return FALSE;
+	}
 }
 
 BOOL LLItemBridge::isItemCopyable() const
@@ -1442,11 +1450,20 @@ void LLInventoryCopyAndWearObserver::changed(U32 mask)
 		{
 			LLViewerInventoryCategory* category = gInventory.getCategory(mCatID);
 
-			if (category->getDescendentCount() == mContentsCount)
+			if (NULL == category)
 			{
-				gInventory.removeObserver(this);
-				wear_inventory_category(category, FALSE, TRUE);
-				delete this;
+				llwarns << "gInventory.getCategory(" << mCatID
+					<< ") was NULL" << llendl;
+			}
+			else
+			{
+				if (category->getDescendentCount() ==
+				    mContentsCount)
+				{
+					gInventory.removeObserver(this);
+					wear_inventory_category(category, FALSE, TRUE);
+					delete this;
+				}
 			}		
 		}
 
@@ -1662,11 +1679,7 @@ BOOL LLFolderBridge::removeItem()
 		LLInvFVBridge::changeCategoryParent(model, cat, trash_id, TRUE);
 	}
 
-	// return false anyway, so that if it's called from the folder
-	// view, it doesn't remove the view - it's just being moved to the
-	// trash.
-	return FALSE;
-
+	return TRUE;
 }
 
 BOOL LLFolderBridge::isClipboardPasteable() const
@@ -2158,10 +2171,13 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			// everything in the active window so that we don't follow
 			// the selection to its new location (which is very
 			// annoying).
-			LLInventoryPanel* active_panel = LLInventoryView::getActiveInventory()->getPanel();
-			if (mInventoryPanel != active_panel)
+			if (LLInventoryView::getActiveInventory())
 			{
-				active_panel->unSelectAll();
+				LLInventoryPanel* active_panel = LLInventoryView::getActiveInventory()->getPanel();
+				if (active_panel && (mInventoryPanel != active_panel))
+				{
+					active_panel->unSelectAll();
+				}
 			}
 
 			// restamp if the move is into the trash.
@@ -3097,7 +3113,16 @@ void LLObjectBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 			gMessageSystem->sendReliable( gAgent.getRegion()->getHost() );
 		}
 		// this object might have been selected, so let the selection manager know it's gone now
-		gSelectMgr->remove(gObjectList.findObject(item->getUUID()));
+		LLViewerObject *found_obj =
+			gObjectList.findObject(item->getUUID());
+		if (found_obj)
+		{
+			gSelectMgr->remove(found_obj);
+		}
+		else
+		{
+			llwarns << "object not found - ignoring" << llendl;
+		}
 	}
 	else LLItemBridge::performAction(folder, model, action);
 }
@@ -4007,7 +4032,15 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, void* userdata)
 				gMessageSystem->sendReliable( gAgent.getRegion()->getHost() );
 
 				// this object might have been selected, so let the selection manager know it's gone now
-				gSelectMgr->remove(gObjectList.findObject( obj_item_array.get(i)->getUUID()) );
+				LLViewerObject *found_obj = gObjectList.findObject( obj_item_array.get(i)->getUUID());
+				if (found_obj)
+				{
+					gSelectMgr->remove(found_obj);
+				}
+				else
+				{
+					llwarns << "object not found, ignoring" << llendl;
+				}
 			}
 		}
 

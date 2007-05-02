@@ -1114,5 +1114,5 @@ void post_show_depth_buffer()
 	}
 	glDrawPixels(xsize,ysize,GL_RED,GL_UNSIGNED_BYTE,buf);
 
-	delete buf;
+	delete [] buf;
 }

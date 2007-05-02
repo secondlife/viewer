@@ -1088,6 +1088,15 @@ F64 LLFastTimerView::getTime(LLFastTimer::EFastTimerType tidx)
 			break;
 		}
 	}
+
+	if (i == FTV_DISPLAY_NUM)
+	{
+		// walked off the end of ft_display_table without finding
+		// the desired timer type
+		llwarns << "Timer type " << tidx << " not known." << llendl;
+		return F64(0.0);
+	}
+
 	S32 table_idx = i;
 	
 	// Add child ticks to parent

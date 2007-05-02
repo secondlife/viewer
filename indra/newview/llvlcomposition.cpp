@@ -106,6 +106,13 @@ BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
 	}
 
 	llassert(mSurfacep);
+
+	if (!mSurfacep || !mSurfacep->getRegion()) 
+	{
+		// We don't always have the region yet here....
+		return FALSE;
+	}
+
 	S32 x_begin, y_begin, x_end, y_end;
 
 	x_begin = llround( x * mScaleInv );

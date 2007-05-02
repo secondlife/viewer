@@ -9,8 +9,6 @@
 #ifndef LL_LLVIEWERMENU_H
 #define LL_LLVIEWERMENU_H
 
-#include "llassetstorage.h"
-#include "llinventory.h"
 #include "llmenugl.h"
 
 //newview includes
@@ -21,14 +19,6 @@ class LLView;
 class LLParcelSelection;
 class LLObjectSelection;
 
-struct LLResourceData
-{
-	LLAssetInfo mAssetInfo;
-	LLAssetType::EType mPreferredLocation;
-	LLInventoryType::EType mInventoryType;
-	U32 mNextOwnerPerm;
-	void *mUserData;
-};
 
 void pre_init_menus();
 void init_menus();
@@ -93,25 +83,6 @@ bool handle_sit_or_stand();
 bool handle_give_money_dialog();
 bool handle_object_open();
 bool handle_go_to();
-
-void upload_new_resource(const LLString& src_filename, std::string name,
-						 std::string desc, S32 compression_info,
-						 LLAssetType::EType destination_folder_type,
-						 LLInventoryType::EType inv_type,
-						 U32 next_owner_perm = PERM_NONE,
-						 const LLString& display_name = LLString::null,
-						 LLAssetStorage::LLStoreAssetCallback callback = NULL,
-						 void *userdata = NULL);
-
-void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType type,
-						 std::string name,
-						 std::string desc, S32 compression_info,
-						 LLAssetType::EType destination_folder_type,
-						 LLInventoryType::EType inv_type,
-						 U32 next_owner_perm = PERM_NONE,
-						 const LLString& display_name = LLString::null,
-						 LLAssetStorage::LLStoreAssetCallback callback = NULL,
-						 void *userdata = NULL);
 
 // Export to XML or Collada
 void handle_export_selected( void * );

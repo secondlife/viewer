@@ -703,11 +703,11 @@ S32 LLTextEditor::prevWordPos(S32 cursorPos) const
 S32 LLTextEditor::nextWordPos(S32 cursorPos) const
 {
 	const LLWString& wtext = mWText;
-	while( (cursorPos < getLength()) && isPartOfWord( wtext[cursorPos+1] ) )
+	while( (cursorPos < getLength()) && isPartOfWord( wtext[cursorPos] ) )
 	{
 		cursorPos++;
 	} 
-	while( (cursorPos < getLength()) && (wtext[cursorPos+1] == ' ') )
+	while( (cursorPos < getLength()) && (wtext[cursorPos] == ' ') )
 	{
 		cursorPos++;
 	}
@@ -3647,10 +3647,18 @@ void LLTextEditor::pruneSegments()
 			break; // done
 		}			
 	}
-	// erase invalid segments
-	++iter;
-	std::for_each(iter, mSegments.end(), DeletePointer());
-	mSegments.erase(iter, mSegments.end());
+	if (iter != mSegments.end())
+	{
+		// erase invalid segments
+		++iter;
+		std::for_each(iter, mSegments.end(), DeletePointer());
+		mSegments.erase(iter, mSegments.end());
+	}
+	else
+	{
+		llwarns << "Tried to erase end of empty LLTextEditor"
+			<< llendl;
+	}
 }
 
 void LLTextEditor::findEmbeddedItemSegments()

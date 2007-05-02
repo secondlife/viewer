@@ -161,6 +161,7 @@ public:
 
 	static const U32 SO_DATE = 1;
 	static const U32 SO_FOLDERS_BY_NAME = 2;
+	static const U32 SO_SYSTEM_FOLDERS_TO_TOP = 4;
 
 	LLInventoryFilter(const LLString& name);
 	virtual ~LLInventoryFilter();
@@ -243,6 +244,34 @@ private:
 	BOOL mModified;
 	BOOL mNeedTextRebuild;
 	LLString mFilterText;
+};
+
+// These are grouping of inventory types.
+// Order matters when sorting system folders to the top.
+enum EInventorySortGroup
+{ 
+	SG_SYSTEM_FOLDER, 
+	SG_TRASH_FOLDER, 
+	SG_NORMAL_FOLDER, 
+	SG_ITEM 
+};
+
+class LLInventorySort
+{
+public:
+	LLInventorySort() 
+		: mSortOrder(0) { }
+	
+	// Returns true if order has changed
+	bool updateSort(U32 order);
+	U32 getSort() { return mSortOrder; }
+
+	bool operator()(LLFolderViewItem* a, LLFolderViewItem* b);
+private:
+	U32  mSortOrder;
+	bool mByDate;
+	bool mSystemToTop;
+	bool mFoldersByName;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -330,6 +359,8 @@ public:
 	// addToFolder() returns TRUE if it succeeds. FALSE otherwise
 	enum { ARRANGE = TRUE, DO_NOT_ARRANGE = FALSE };
 	virtual BOOL addToFolder(LLFolderViewFolder* folder, LLFolderView* root);
+
+	virtual EInventorySortGroup getSortGroup();
 
 	// Finds width and height of this object and it's children.  Also
 	// makes sure that this view and it's children are the right size.
@@ -429,8 +460,10 @@ public:
 
 	virtual void setStatusText(const LLString& text) { mStatusText = text; }
 
-	BOOL			getFiltered();
-	BOOL			getFiltered(S32 filter_generation);
+	virtual BOOL	potentiallyVisible(); // do we know for a fact that this item has been filtered out?
+
+	virtual BOOL	getFiltered();
+	virtual BOOL	getFiltered(S32 filter_generation);
 	virtual void	setFiltered(BOOL filtered, S32 filter_generation);
 
 	// change the icon
@@ -484,7 +517,7 @@ protected:
 	typedef std::vector<LLFolderViewFolder*> folders_t;
 	items_t mItems;
 	folders_t mFolders;
-	sort_order_f mSortFunction;
+	LLInventorySort	mSortFunction;
 
 	BOOL		mIsOpen;
 	BOOL		mExpanderHighlighted;
@@ -514,6 +547,8 @@ public:
 	virtual EWidgetType getWidgetType() const;
 	virtual LLString getWidgetTag() const;
 
+	virtual BOOL	potentiallyVisible();
+
 	LLFolderViewItem* getNextFromChild( LLFolderViewItem*, BOOL include_children = TRUE );
 	LLFolderViewItem* getPreviousFromChild( LLFolderViewItem*, BOOL include_children = TRUE  );
 
@@ -525,6 +560,9 @@ public:
 	virtual S32 arrange( S32* width, S32* height, S32 filter_generation );
 
 	BOOL needsArrange();
+
+	// Returns the sort group (system, trash, folder) for this folder.
+	virtual EInventorySortGroup getSortGroup();
 
 	virtual void	setCompletedFilterGeneration(S32 generation, BOOL recurse_up);
 	virtual S32		getCompletedFilterGeneration() { return mCompletedFilterGeneration; }
@@ -583,7 +621,7 @@ public:
 	// This function is called by a child that needs to be resorted.
 	void resort(LLFolderViewItem* item);
 
-	void setItemSortFunction(sort_order_f ordering);
+	void setItemSortOrder(U32 ordering);
 	void sortBy(U32);
 	//BOOL (*func)(LLFolderViewItem* a, LLFolderViewItem* b));
 
@@ -597,7 +635,8 @@ public:
 	virtual void setOpen(BOOL open = TRUE);		/* Flawfinder: ignore */
 
 	// Called when a child is refreshed.
-	virtual void requestArrange();
+	// don't rearrange child folder contents unless explicitly requested
+	virtual void requestArrange(BOOL include_descendants = FALSE);
 
 	// internal method which doesn't update the entire view. This
 	// method was written because the list iterators destroy the state

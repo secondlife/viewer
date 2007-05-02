@@ -12,6 +12,8 @@
 #include "message.h"
 #include "v3math.h"
 
+LLGlobalEconomy *gGlobalEconomy = NULL;
+
 LLGlobalEconomy::LLGlobalEconomy()
 :	mObjectCount( -1 ),
 	mObjectCapacity( -1 ),

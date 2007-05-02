@@ -14,6 +14,7 @@
 #include <sys/stat.h>
 
 #include "indra_constants.h"
+#include "message.h"
 #include "llvfile.h"
 #include "llvfs.h"
 
@@ -497,6 +498,8 @@ void LLHTTPAssetStorage::storeAssetData(
 			callback(LLUUID::null, user_data, LL_ERR_CANNOT_OPEN_FILE);
 		}
 	}
+	// Coverity CID-269 says there's a leak of 'legacy' here, but
+	// legacyStoreDataCallback() will delete it somewhere down the line.
 }
 
 // virtual
@@ -917,7 +920,43 @@ void LLHTTPAssetStorage::checkForTimeouts()
 	} while (curl_msg && queue_length > 0);
 	
 
+	// Cleanup 
+	// We want to bump to the back of the line any running uploads that have timed out.
+	bumpTimedOutUploads();
+
 	LLAssetStorage::checkForTimeouts();
+}
+
+void LLHTTPAssetStorage::bumpTimedOutUploads()
+{
+	// No point bumping currently running uploads if there are no others in line.
+	if (!(mPendingUploads.size() > mRunningUploads.size())) 
+	{
+		return;
+	}
+
+	F64 mt_secs = LLMessageSystem::getMessageTimeSeconds();
+
+	// deletePendingRequest will modify the mRunningUploads list so we don't want to iterate over it.
+	request_list_t temp_running = mRunningUploads;
+
+	request_list_t::iterator it = temp_running.begin();
+	request_list_t::iterator end = temp_running.end();
+	for ( ; it != end; ++it)
+	{
+		//request_list_t::iterator curiter = iter++;
+		LLAssetRequest* req = *it;
+
+		if ( LL_ASSET_STORAGE_TIMEOUT < (mt_secs - req->mTime) )
+		{
+			llwarns << "Asset upload request timed out for "
+					<< req->getUUID() << "."
+					<< LLAssetType::lookup(req->getType()) 
+					<< ", bumping to the back of the line!" << llendl;
+
+			deletePendingRequest(RT_UPLOAD, req->getType(), req->getUUID());
+		}
+	}
 }
 
 // static

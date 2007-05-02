@@ -1402,7 +1402,7 @@ void LLImageFormatted::sanityCheck()
 
 BOOL LLImageFormatted::copyData(U8 *data, S32 size)
 {
-	if ( (data && data != getData()) || (size != getDataSize()) )
+	if ( data && ((data != getData()) || (size != getDataSize())) )
 	{
 		deleteData();
 		allocateData(size);

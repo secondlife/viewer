@@ -220,6 +220,14 @@ void LLFloaterSettingsDebug::updateControl(LLControlBase* controlp)
 	LLSpinCtrl* spinner3 = LLUICtrlFactory::getSpinnerByName(this, "val_spinner_3");
 	LLSpinCtrl* spinner4 = LLUICtrlFactory::getSpinnerByName(this, "val_spinner_4");
 	LLColorSwatchCtrl* color_swatch = LLUICtrlFactory::getColorSwatchByName(this, "color_swatch");
+
+	if (!spinner1 || !spinner2 || !spinner3 || !spinner4 || !color_swatch)
+	{
+		llwarns << "Could not find all desired controls by name"
+			<< llendl;
+		return;
+	}
+
 	spinner1->setVisible(FALSE);
 	spinner2->setVisible(FALSE);
 	spinner3->setVisible(FALSE);

@@ -267,6 +267,7 @@ void LLFloaterFriends::refreshRightsChangeList(U8 state)
 	bool can_change_online_multiple = true;
 	bool can_change_map_multiple = true;
 	LLTextBox* processing_label = LLUICtrlFactory::getTextBoxByName(this, "process_rights_label");
+
 	if(!mAllowRightsChange)
 	{
 		if(processing_label)
@@ -282,9 +283,10 @@ void LLFloaterFriends::refreshRightsChangeList(U8 state)
 			processing_label->setVisible(false);
 		}
 	}
+
 	if(state == 1)
 	{
-		if(!friend_status->isOnline())
+		if(friend_status && !friend_status->isOnline())
 		{
 			childSetEnabled("offer_teleport_btn", false);
 		}

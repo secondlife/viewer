@@ -22,11 +22,13 @@ LLPacketBuffer::LLPacketBuffer(const LLHost &host, const char *datap, const S32 
 	{
 		llerrs << "Sending packet > " << NET_BUFFER_SIZE << " of size " << size << llendl;
 	}
-
-	if (datap != NULL)
+	else // we previously relied on llerrs being fatal to not get here...
 	{
-		memcpy(mData, datap, size);	/*Flawfinder: ignore*/
-		mSize = size;
+		if (datap != NULL)
+		{
+			memcpy(mData, datap, size);
+			mSize = size;
+		}
 	}
 	
 }

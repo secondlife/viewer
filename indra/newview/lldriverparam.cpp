@@ -326,7 +326,7 @@ const LLVector3*	LLDriverParam::getNextDistortion(U32 *index, LLPolyMesh **poly_
 
 	// We're already in the middle of a param's distortions, so get the next one.
 	const LLVector3* v = driven->mParam->getNextDistortion( index, poly_mesh );
-	if( !v )
+	if( (!v) && (iter != mDriven.end()) )
 	{
 		// This param is finished, so start the next param.  It might not have any
 		// distortions, though, so we have to loop to find the next param that does.

@@ -45,8 +45,7 @@ public:
 		const LLRect &rect,
 		const LLString& label,
 		void (*commit_callback)(LLUICtrl*, void*) = NULL,
-		void *callback_userdata = NULL,
-		S32 list_width = 0
+		void *callback_userdata = NULL
 		);
 	virtual ~LLComboBox(); 
 

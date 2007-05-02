@@ -401,6 +401,12 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 border_width, S32 border
 	stop_glerror();
 	F32 border_scale = 1.f;
 
+	if (NULL == image)
+	{
+		llwarns << "image == NULL; aborting function" << llendl;
+		return;
+	}
+
 	if (border_height * 2 > height)
 	{
 		border_scale = (F32)height / ((F32)border_height * 2.f);
@@ -579,6 +585,12 @@ void gl_draw_rotated_image(S32 x, S32 y, F32 degrees, LLImageGL* image, const LL
 
 void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degrees, LLImageGL* image, const LLColor4& color)
 {
+	if (NULL == image)
+	{
+		llwarns << "image == NULL; aborting function" << llendl;
+		return;
+	}
+
 	LLGLSUIDefault gls_ui;
 
 	glPushMatrix();
@@ -619,6 +631,12 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 
 void gl_draw_scaled_image_inverted(S32 x, S32 y, S32 width, S32 height, LLImageGL* image, const LLColor4& color)
 {
+	if (NULL == image)
+	{
+		llwarns << "image == NULL; aborting function" << llendl;
+		return;
+	}
+
 	LLGLSUIDefault gls_ui;
 
 	glPushMatrix();

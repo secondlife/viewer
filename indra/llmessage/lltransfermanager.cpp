@@ -938,6 +938,7 @@ void LLTransferTargetChannel::requestTransfer(
 	if (!ttp)
 	{
 		llwarns << "LLTransferManager::requestTransfer aborting due to target creation failure!" << llendl;
+		return;
 	}
 
 	ttp->applyParams(target_params);

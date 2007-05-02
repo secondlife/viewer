@@ -40,6 +40,7 @@ LLPreview::LLPreview(const std::string& name) :
 	LLFloater(name),
 	mCopyToInvBtn(NULL),
 	mForceClose(FALSE),
+	mUserResized(FALSE),
 	mCloseAfterSave(FALSE),
 	mAssetStatus(PREVIEW_ASSET_UNLOADED)
 {
@@ -56,6 +57,7 @@ LLPreview::LLPreview(const std::string& name, const LLRect& rect, const std::str
 	mObjectUUID(object_uuid),
 	mCopyToInvBtn( NULL ),
 	mForceClose( FALSE ),
+	mUserResized(FALSE),
 	mCloseAfterSave(FALSE),
 	mAssetStatus(PREVIEW_ASSET_UNLOADED)
 {
@@ -169,8 +171,6 @@ void LLPreview::onCommit()
 		}
 		
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
-		BOOL has_sale_info = FALSE;
-		LLSaleInfo sale_info;
 		new_item->setDescription(childGetText("desc"));
 		if(mObjectUUID.notNull())
 		{
@@ -202,11 +202,6 @@ void LLPreview::onCommit()
 						gSelectMgr->deselectAll();
 						gSelectMgr->addAsIndividual( obj, SELECT_ALL_TES, FALSE );
 						gSelectMgr->selectionSetObjectDescription( childGetText("desc") );
-					
-						if( has_sale_info )
-						{
-							gSelectMgr->selectionSetObjectSaleInfo( sale_info );
-						}
 
 						gSelectMgr->deselectAll();
 					}
@@ -467,6 +462,12 @@ LLPreview* LLPreview::getFirstPreviewForSource(const LLUUID& source_id)
 	return NULL;
 }
 
+void LLPreview::userSetShape(const LLRect& new_rect)
+{
+	userResized();
+	LLView::userSetShape(new_rect);
+}
+
 //
 // LLMultiPreview
 //
@@ -485,6 +486,15 @@ void LLMultiPreview::open()		/*Flawfinder: ignore*/
 		frontmost_preview->loadAsset();
 	}
 }
+
+
+void LLMultiPreview::userSetShape(const LLRect& new_rect)
+{
+	LLPreview* frontmost_preview = (LLPreview*)mTabContainer->getCurrentPanel();
+	if (frontmost_preview) frontmost_preview->userResized();
+	LLView::userSetShape(new_rect);
+}
+
 
 void LLMultiPreview::tabOpen(LLFloater* opened_floater, bool from_click)
 {

@@ -1502,40 +1502,43 @@ void LLPanelAvatar::resetGroupList()
 	{
 		return;
 	}
-	LLScrollListCtrl*	group_list = LLUICtrlFactory::getScrollListByName(mPanelSecondLife,"groups");
 		
-	if (mPanelSecondLife && group_list)
+	if (mPanelSecondLife)
 	{
-		group_list->deleteAllItems();
-
-		S32 count = gAgent.mGroups.count();
-		LLUUID id;
-
-		for(S32 i = 0; i < count; ++i)
+		LLScrollListCtrl* group_list = LLUICtrlFactory::getScrollListByName(mPanelSecondLife,"groups");
+		if (group_list)
 		{
-			LLGroupData group_data = gAgent.mGroups.get(i);
-			id = group_data.mID;
-			std::string group_string;
-			/* Show group title?  DUMMY_POWER for Don Grep
-			if(group_data.mOfficer)
+			group_list->deleteAllItems();
+			
+			S32 count = gAgent.mGroups.count();
+			LLUUID id;
+			
+			for(S32 i = 0; i < count; ++i)
 			{
-				group_string = "Officer of ";
-			}
-			else
-			{
-				group_string = "Member of ";
-			}
-			*/
+				LLGroupData group_data = gAgent.mGroups.get(i);
+				id = group_data.mID;
+				std::string group_string;
+				/* Show group title?  DUMMY_POWER for Don Grep
+				   if(group_data.mOfficer)
+				   {
+				   group_string = "Officer of ";
+				   }
+				   else
+				   {
+				   group_string = "Member of ";
+				   }
+				*/
 
-			group_string += group_data.mName;
+				group_string += group_data.mName;
 
-			LLSD row;
-			row["columns"][0]["value"] = group_string;
-			row["columns"][0]["font"] = "SANSSERIF_SMALL";
-			row["columns"][0]["width"] = 0;
-			group_list->addElement(row);
+				LLSD row;
+				row["columns"][0]["value"] = group_string;
+				row["columns"][0]["font"] = "SANSSERIF_SMALL";
+				row["columns"][0]["width"] = 0;
+				group_list->addElement(row);
+			}
+			group_list->sortByColumn(0, TRUE);
 		}
-		group_list->sortByColumn(0, TRUE);
 	}
 }
 

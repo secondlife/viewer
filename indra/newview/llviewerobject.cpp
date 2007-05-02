@@ -619,10 +619,10 @@ BOOL LLViewerObject::setDrawableParent(LLDrawable* parentp)
 }
 
 U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
-										  void **user_data,
-										  U32 block_num,
-										  const EObjectUpdateType update_type,
-										  LLDataPacker *dp)
+					 void **user_data,
+					 U32 block_num,
+					 const EObjectUpdateType update_type,
+					 LLDataPacker *dp)
 {
 	LLMemType mt(LLMemType::MTYPE_OBJECT);
 	
@@ -638,6 +638,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		from_region_handle(region_handle, &x, &y);
 
 		llerrs << "Object has invalid region " << x << ":" << y << "!" << llendl;
+		return retval;
 	}
 
 	U16 time_dilation16;
@@ -914,7 +915,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 				// Check for appended generic data
 				S32 data_size = mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_Data);
-				if (data_size == 0)
+				if (data_size <= 0)
 				{
 					mData = NULL;
 				}
@@ -1737,9 +1738,16 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	if (gPingInterpolate)
 	{ 
 		LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(mesgsys->getSender());
- 		F32 ping_delay = 0.5f * mTimeDilation * ( ((F32)cdp->getPingDelay()) * 0.001f + gFrameDTClamped);
-		LLVector3 diff = getVelocity() * (0.5f*mTimeDilation*(gFrameDTClamped + ((F32)ping_delay)*0.001f)); 
-		new_pos_parent += diff;
+		if (cdp)
+		{
+			F32 ping_delay = 0.5f * mTimeDilation * ( ((F32)cdp->getPingDelay()) * 0.001f + gFrameDTClamped);
+			LLVector3 diff = getVelocity() * (0.5f*mTimeDilation*(gFrameDTClamped + ((F32)ping_delay)*0.001f)); 
+			new_pos_parent += diff;
+		}
+		else
+		{
+			llwarns << "findCircuit() returned NULL; skipping interpolation" << llendl;
+		}
 	}
 
 	//////////////////////////
@@ -4114,7 +4122,7 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 	{
 		return;
 	}
-
+	
 	if (audio_uuid.isNull())
 	{
 		if (mAudioSourcep && mAudioSourcep->isLoop() && !mAudioSourcep->hasPendingPreloads())
@@ -4149,7 +4157,8 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 		}
 	}
 
-	if ( mAudioSourcep )
+		// don't clean up before previous sound is done. Solves: SL-33486
+	if ( mAudioSourcep && mAudioSourcep->isDone() ) 
 	{
 		gAudiop->cleanupAudioSource(mAudioSourcep);
 		mAudioSourcep = NULL;

@@ -131,7 +131,7 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 
 	if (!num_parts)
 	{
-		if (drawable->getNumFaces())
+		if (group && drawable->getNumFaces())
 		{
 			group->dirtyGeom();
 		}
@@ -186,6 +186,12 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 		count++;
 
 		facep = drawable->getFace(i);
+		if (!facep)
+		{
+			llwarns << "No face found for index " << i << "!" << llendl;
+			continue;
+		}
+
 		facep->setTEOffset(i);
 		const F32 NEAR_PART_DIST_SQ = 5.f*5.f;  // Only discard particles > 5 m from the camera
 		const F32 MIN_PART_AREA = .005f*.005f;  // only less than 5 mm x 5 mm at 1 m from camera
@@ -239,6 +245,11 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 	for (i = count; i < drawable->getNumFaces(); i++)
 	{
 		LLFace* facep = drawable->getFace(i);
+		if (!facep)
+		{
+			llwarns << "No face found for index " << i << "!" << llendl;
+			continue;
+		}
 		facep->setTEOffset(i);
 		facep->setSize(0,0);
 	}

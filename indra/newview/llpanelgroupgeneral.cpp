@@ -25,10 +25,10 @@
 #include "llnamebox.h"
 #include "llnamelistctrl.h"
 #include "llspinctrl.h"
+#include "llstatusbar.h"	// can_afford_transaction()
 #include "lltextbox.h"
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
-#include "llviewermessage.h"
 #include "llviewerwindow.h"
 
 // static
@@ -302,19 +302,27 @@ void LLPanelGroupGeneral::onClickJoin(void *userdata)
 
 	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(self->mGroupID);
 
-	S32 cost = gdatap->mMembershipFee;
-	LLString::format_map_t args;
-	args["[COST]"] = llformat("%d", cost);
-
-	if (can_afford_transaction(cost))
+	if (gdatap)
 	{
-		gViewerWindow->alertXml("JoinGroupCanAfford", args,
-								LLPanelGroupGeneral::joinDlgCB,
-								self);
+		S32 cost = gdatap->mMembershipFee;
+		LLString::format_map_t args;
+		args["[COST]"] = llformat("%d", cost);
+		
+		if (can_afford_transaction(cost))
+		{
+			gViewerWindow->alertXml("JoinGroupCanAfford", args,
+						LLPanelGroupGeneral::joinDlgCB,
+						self);
+		}
+		else
+		{
+			gViewerWindow->alertXml("JoinGroupCannotAfford", args);
+		}
 	}
 	else
 	{
-		gViewerWindow->alertXml("JoinGroupCannotAfford", args);
+		llwarns << "gGroupMgr->getGroupData(" << self->mGroupID
+			<< ") was NULL" << llendl;
 	}
 }
 

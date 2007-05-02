@@ -697,15 +697,16 @@ S32 LLViewerKeyboard::loadBindings(const char *filename)
 	S32 binding_count = 0;
 	S32 line_count = 0;
 
-	fp = LLFile::fopen(filename, "r");	/* Flawfinder: ignore */
+	if(!filename)
+	{
+		llerrs << " No filename specified" << llendl;
+		return 0;
+	}
+
+	fp = LLFile::fopen(filename, "r");
 
 	if (!fp)
 	{
-		if(!filename)
-		{
-			llerrs << " No filename specified" << llendl;
-			return 0;
-		}
 		return 0;
 	}
 

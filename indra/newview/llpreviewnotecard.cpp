@@ -276,11 +276,12 @@ void LLPreviewNotecard::loadAsset()
 					{
 						// The object that we're trying to look at disappeared, bail.
 						llwarns << "Can't find object " << mObjectUUID << " associated with notecard." << llendl;
-			            mAssetID.setNull();
-			            editor->setText("Unable to find object containing this note.");
-			            editor->makePristine();
-			            editor->setEnabled(FALSE);
-			            mAssetStatus = PREVIEW_ASSET_LOADED;
+						mAssetID.setNull();
+						editor->setText("Unable to find object containing this note.");
+						editor->makePristine();
+						editor->setEnabled(FALSE);
+						mAssetStatus = PREVIEW_ASSET_LOADED;
+						delete new_uuid;
 						return;
 					}
 				}

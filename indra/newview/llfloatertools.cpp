@@ -294,8 +294,8 @@ BOOL	LLFloaterTools::postBuild()
 		mTab->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT);
 		mTab->setVisible( gSavedSettings.getBOOL("ToolboxShowMore") );
 		mTab->setBorderVisible(FALSE);
+		mTab->selectFirstTab();
 	}
-	mTab->selectFirstTab();
 	return TRUE;
 }
 

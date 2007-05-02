@@ -544,6 +544,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 	glPushMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
+	
 	if (LLPipeline::sShowHUDAttachments && !gDisconnected && setup_hud_matrices(FALSE))
 	{
 		LLCamera hud_cam = *gCamera;
@@ -578,7 +579,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 			LLFastTimer ftm(LLFastTimer::FTM_REBUILD);
 			gPipeline.stateSort(hud_cam);
 		}
-		
+				
 		gPipeline.renderGeom(hud_cam);
 
 		//restore type mask
@@ -637,6 +638,7 @@ BOOL setup_hud_matrices(BOOL for_select)
 		}
 		LLBBox hud_bbox = my_avatarp->getHUDBBox();
 
+		
 		// set up transform to encompass bounding box of HUD
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
@@ -665,7 +667,7 @@ BOOL setup_hud_matrices(BOOL for_select)
 		glLoadMatrixf(OGL_TO_CFR_ROTATION);		// Load Cory's favorite reference frame
 		glTranslatef(-hud_bbox.getCenterLocal().mV[VX] + (hud_depth * 0.5f), 0.f, 0.f);
 		glScalef(zoom_level, zoom_level, zoom_level);
-
+		
 		return TRUE;
 	}
 	else

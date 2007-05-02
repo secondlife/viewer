@@ -465,20 +465,21 @@ void LLViewerParcelOverlay::updatePropertyLines()
 	// shuffling.
 	S32 new_vertex_count = new_vertex_array.count();
 	
-	// NOTE: If the new_vertex_count is 0 and wasn't 0 previously
-	// the arrays are still allocated as the arrays aren't set to NULL, etc.
-	// This won't cause any problems, but might waste a few cycles copying over
-	// old data. - jwolk
-	if ( !(mVertexArray && mColorArray && new_vertex_count == mVertexCount) && new_vertex_count > 0 )
+	if (!(mVertexArray && mColorArray && new_vertex_count == mVertexCount))
 	{
 		// ...need new arrays
 		delete[] mVertexArray;
+		mVertexArray = NULL;
 		delete[] mColorArray;
+		mColorArray = NULL;
 
 		mVertexCount = new_vertex_count;
 
-		mVertexArray   = new F32[3 * mVertexCount];
-		mColorArray    = new U8 [4 * mVertexCount];
+		if (new_vertex_count > 0)
+		{
+			mVertexArray   = new F32[3 * mVertexCount];
+			mColorArray    = new U8 [4 * mVertexCount];
+		}
 	}
 
 	// Copy the new data into the arrays

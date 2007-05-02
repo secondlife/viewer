@@ -1,4 +1,4 @@
-/** 
+/**
  * @file lscript_execute.cpp
  * @brief classes to execute bytecode
  *
@@ -55,7 +55,7 @@ LLScriptExecute::LLScriptExecute(FILE *fp)
 
 LLScriptExecute::LLScriptExecute(U8 *buffer)
 {
-	mBuffer = buffer; 
+	mBuffer = buffer;
 
 	init();
 }
@@ -981,7 +981,7 @@ BOOL run_loadgsp(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 	S32 address = lscript_global_get(buffer, arg);
 	if (address)
 		lsa_decrease_ref_count(buffer, address);
-	
+
 	lscript_global_store(buffer, arg, value);
 	return FALSE;
 }
@@ -999,7 +999,7 @@ BOOL run_loadglp(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 	S32 address = lscript_global_get(buffer, arg);
 	if (address)
 		lsa_decrease_ref_count(buffer, address);
-	
+
 	lscript_global_store(buffer, arg, value);
 	return FALSE;
 }
@@ -1366,14 +1366,31 @@ void integer_integer_operation(U8 *buffer, LSCRIPTOpCodesEnum opcode)
 		result = lside * rside;
 		break;
 	case LOPC_DIV:
-		if (rside)
-			result = lside / rside;
+		if (rside){
+			if( ( rside == -1 ) || ( rside == 0xffffffff ) )//	division by -1 can have funny results: multiplication is OK: SL-31252
+			{
+				result = -1 * lside;
+			}
+			else
+			{
+				result = lside / rside;
+			}
+		}
 		else
 			set_fault(buffer, LSRF_MATH);
 		break;
 	case LOPC_MOD:
 		if (rside)
-			result = lside % rside;
+		{
+			if (rside == -1 || rside == 1 )	 // mod(1) = mod(-1) = 0: SL-31252
+			{
+				result = 0;
+			}
+			else
+			{
+				result = lside % rside;
+			}
+		}
 		else
 			set_fault(buffer, LSRF_MATH);
 		break;
@@ -2925,14 +2942,14 @@ BOOL run_return(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 	return FALSE;
 }
 
-S32 axtoi(char *hexStg) 
+S32 axtoi(char *hexStg)
 {
   S32 n = 0;         // position in string
   S32 m = 0;         // position in digit[] to shift
   S32 count;         // loop index
   S32 intValue = 0;  // integer value of hex string
   S32 digit[9];      // hold values to convert
-  while (n < 8) 
+  while (n < 8)
   {
      if (hexStg[n]=='\0')
         break;
@@ -2948,7 +2965,7 @@ S32 axtoi(char *hexStg)
   count = n;
   m = n - 1;
   n = 0;
-  while(n < count) 
+  while(n < count)
   {
      // digit[n] is value of hex digit at position n
      // (m << 2) is the number of positions to shift
@@ -3120,7 +3137,7 @@ BOOL run_cast(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 							bytestream2char(arg, buffer, string);
 							F32 dest = (F32)atof(arg);
 
-							
+
 							lscript_push(buffer, dest);
 							delete [] arg;
 						}
@@ -3318,7 +3335,7 @@ BOOL run_cast(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 					delete list_root;
 					char *tmp = strdup(dest.str().c_str());
 					LLScriptLibData *string = new LLScriptLibData(tmp);
-					free(tmp); 
+					free(tmp);
 					tmp = NULL;
 					S32 destaddress = lsa_heap_add_data(buffer, string, get_max_heap_size(buffer), TRUE);
 					lscript_push(buffer, destaddress);
@@ -3373,7 +3390,7 @@ void lscript_stacktol_pop_variable(LLScriptLibData *data, U8 *buffer, char type)
 		break;
 	case LST_KEY:
 		data->mType = LST_KEY;
-		
+
 		base_address = lscript_pop_int(buffer);
 	// this bit of nastiness is to get around that code paths to local variables can result in lack of initialization
 	// and function clean up of ref counts isn't based on scope (a mistake, I know)
@@ -3597,48 +3614,53 @@ BOOL run_print(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 void lscript_run(char *filename, BOOL b_debug)
 {
 	LLTimer	timer;
-	char *error;
-	BOOL b_state;
-	LLScriptExecute *execute = NULL;
 	if (filename == NULL)
 	{
-		llerrs << "filename is empty" << llendl;
+		llerrs << "filename is NULL" << llendl;
 		// Just reporting error is likely not enough. Need
 		// to check how to abort or error out gracefully
 		// from this function. XXXTBD
 	}
-	FILE* file = LLFile::fopen(filename, "r");  /* Flawfinder: ignore */
-	if (file)
+	else
 	{
-		execute = new LLScriptExecute(file);
-		fclose(file);
-	}
-	file = LLFile::fopen(filename, "r");  /* Flawfinder: ignore */
-	if (file)
-	{
-		FILE* fp = LLFile::fopen("lscript.parse", "w");		/*Flawfinder: ignore*/
-		LLScriptLSOParse	*parse = new LLScriptLSOParse(file);
-		parse->printData(fp);
-		fclose(file);
-		fclose(fp);
-	}
-	file = LLFile::fopen(filename, "r");	/*Flawfinder: ignore*/
-	if (file && execute)
-	{
-		timer.reset();
-		while (!execute->run(b_debug, LLUUID::null, &error, b_state))
-			;
-		F32 time = timer.getElapsedTimeF32();
-		F32 ips = execute->mInstructionCount / time;
-		llinfos << execute->mInstructionCount << " instructions in " << time << " seconds" << llendl;
-		llinfos << ips/1000 << "K instructions per second" << llendl;
-		printf("ip: 0x%X\n", get_register(execute->mBuffer, LREG_IP));
-		printf("sp: 0x%X\n", get_register(execute->mBuffer, LREG_SP));
-		printf("bp: 0x%X\n", get_register(execute->mBuffer, LREG_BP));
-		printf("hr: 0x%X\n", get_register(execute->mBuffer, LREG_HR));
-		printf("hp: 0x%X\n", get_register(execute->mBuffer, LREG_HP));
-		delete execute;
-		fclose(file);
+		char *error;
+		BOOL b_state;
+		LLScriptExecute *execute = NULL;
+
+		FILE* file = LLFile::fopen(filename, "r");
+		if (file)
+		{
+			execute = new LLScriptExecute(file);
+			// note: LLScriptExecute() closes file for us
+		}
+		file = LLFile::fopen(filename, "r");
+		if (file)
+		{
+			FILE* fp = LLFile::fopen("lscript.parse", "w");		/*Flawfinder: ignore*/
+			LLScriptLSOParse *parse = new LLScriptLSOParse(file);
+			parse->printData(fp);
+			delete parse;
+			fclose(file);
+			fclose(fp);
+		}
+		file = LLFile::fopen(filename, "r");
+		if (file && execute)
+		{
+			timer.reset();
+			while (!execute->run(b_debug, LLUUID::null, &error, b_state))
+				;
+			F32 time = timer.getElapsedTimeF32();
+			F32 ips = execute->mInstructionCount / time;
+			llinfos << execute->mInstructionCount << " instructions in " << time << " seconds" << llendl;
+			llinfos << ips/1000 << "K instructions per second" << llendl;
+			printf("ip: 0x%X\n", get_register(execute->mBuffer, LREG_IP));
+			printf("sp: 0x%X\n", get_register(execute->mBuffer, LREG_SP));
+			printf("bp: 0x%X\n", get_register(execute->mBuffer, LREG_BP));
+			printf("hr: 0x%X\n", get_register(execute->mBuffer, LREG_HR));
+			printf("hp: 0x%X\n", get_register(execute->mBuffer, LREG_HP));
+			delete execute;
+			fclose(file);
+		}
 	}
 }
 
@@ -3659,7 +3681,7 @@ void lscript_pop_variable(LLScriptLibData *data, U8 *buffer, char type)
 		break;
 	case 'k':
 		data->mType = LST_KEY;
-		
+
 		base_address = lscript_pop_int(buffer);
 	// this bit of nastiness is to get around that code paths to local variables can result in lack of initialization
 	// and function clean up of ref counts isn't based on scope (a mistake, I know)

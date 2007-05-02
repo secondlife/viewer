@@ -368,29 +368,23 @@ void LLPreviewTexture::updateAspectRatio()
 	// If that fails, cut width by half.
 	S32 client_width = image_width;
 	S32 horiz_pad = 2 * (LLPANEL_BORDER_WIDTH + PREVIEW_PAD) + PREVIEW_RESIZE_HANDLE_SIZE;
+	S32 vert_pad = PREVIEW_HEADER_SIZE + 2 * CLIENT_RECT_VPAD + LLPANEL_BORDER_WIDTH;	
 	S32 screen_width = gViewerWindow->getWindowWidth();
 	S32 max_client_width = screen_width - horiz_pad;
+	S32 max_client_height = gViewerWindow->getWindowHeight() - vert_pad;
+	F32 inv_aspect_ratio = (F32) image_height / (F32) image_width;
 
-	while (client_width > max_client_width)
+	while ((client_width > max_client_width) || ( llround(client_width * inv_aspect_ratio) > max_client_height ) )
 	{
 		client_width /= 2;
-	}
-
-	// Demand width at least 128
-	if (client_width < 128)
-	{
-		client_width = 128;
 	}
 
 	S32 view_width = client_width + horiz_pad;
 
 	// Adjust the height based on the width computed above.
-	F32 inv_aspect_ratio = (F32) image_height / (F32) image_width;
 	S32 client_height = llround(client_width * inv_aspect_ratio);
-	S32 view_height = 
-		PREVIEW_HEADER_SIZE +				// header (includes top border)
-		client_height + 2 * CLIENT_RECT_VPAD +  // texture plus uniform spacing (which leaves room for resize handle)
-		LLPANEL_BORDER_WIDTH;				// bottom border
+	S32 view_height = client_height + vert_pad;
+
 	
 	// set text on dimensions display (should be moved out of here and into a callback of some sort)
 	childSetTextArg("dimensions", "[WIDTH]", llformat("%d", mImage->mFullWidth));
@@ -433,27 +427,42 @@ void LLPreviewTexture::updateAspectRatio()
 		}
 	}
 
-	// clamp texture size to fit within actual size of floater after attempting resize
-	client_width = llmin(client_width, mRect.getWidth() - horiz_pad);
-	client_height = llmin(client_height, mRect.getHeight() - PREVIEW_HEADER_SIZE - (2 * CLIENT_RECT_VPAD) - LLPANEL_BORDER_WIDTH - info_height);
+	
+	if (!mUserResized)
+	{
+		// clamp texture size to fit within actual size of floater after attempting resize
+		client_width = llmin(client_width, mRect.getWidth() - horiz_pad);
+		client_height = llmin(client_height, mRect.getHeight() - PREVIEW_HEADER_SIZE 
+						- (2 * CLIENT_RECT_VPAD) - LLPANEL_BORDER_WIDTH - info_height);
 
+		
+	}
+	else
+	{
+		client_width = mRect.getWidth() - horiz_pad;
+		client_height = llround(client_width * inv_aspect_ratio);
+	}
+
+
+	S32 max_height = mRect.getHeight() - PREVIEW_BORDER - button_height 
+			            - CLIENT_RECT_VPAD - info_height - CLIENT_RECT_VPAD - PREVIEW_HEADER_SIZE;
+	max_height = llmax(max_height, 1);
+
+	if (client_height > max_height)
+	{
+		F32 aspect_ratio = (F32) image_width / (F32) image_height;
+		client_height = max_height;
+		client_width = llround(client_height * aspect_ratio);
+	}
+	
 	LLRect window_rect(0, mRect.getHeight(), mRect.getWidth(), 0);
 	window_rect.mTop -= (PREVIEW_HEADER_SIZE + CLIENT_RECT_VPAD);
 	window_rect.mBottom += PREVIEW_BORDER + button_height + CLIENT_RECT_VPAD + info_height + CLIENT_RECT_VPAD;
 
-	if (getHost())
-	{
-		// try to keep aspect ratio when hosted, as hosting view can resize without user input
-		mClientRect.setLeftTopAndSize(window_rect.getCenterX() - (client_width / 2), window_rect.mTop, client_width, client_height);
-	}
-	else
-	{
-		mClientRect.setLeftTopAndSize(LLPANEL_BORDER_WIDTH + PREVIEW_PAD + 6,
-						mRect.getHeight() - (PREVIEW_HEADER_SIZE + CLIENT_RECT_VPAD),
-						mRect.getWidth() - horiz_pad,
-						client_height);
-	}
+	// try to keep aspect ratio when hosted, as hosting view can resize without user input
+	mClientRect.setLeftTopAndSize(window_rect.getCenterX() - (client_width / 2), window_rect.mTop, client_width, client_height);
 }
+
 
 void LLPreviewTexture::loadAsset()
 {

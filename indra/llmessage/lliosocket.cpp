@@ -403,23 +403,35 @@ LLIOPipe::EStatus LLIOSocketWriter::process_impl(
 	bool done = false;
 	while(it != end)
 	{
+
 		PUMP_DEBUG;
 		if((*it).isOnChannel(channels.in()))
 		{
 			PUMP_DEBUG;
 			// *FIX: check return code - sockets will fail (broken, etc.)
 			len = (apr_size_t)segment.size();
-			apr_socket_send(
+			apr_status_t status = apr_socket_send(
 				mDestination->getSocket(),
 				(const char*)segment.data(),
 				&len);
+			// We sometimes get a 'non-blocking socket operation could not be 
+			// completed immediately' error from apr_socket_send.  In this
+			// case we break and the data will be sent the next time the chain
+			// is pumped.
+#if LL_WINDOWS
+			if (status == 730035)
+				break;
+#endif 
 			mLastWritten = segment.data() + len - 1;
+
 			PUMP_DEBUG;
 			if((S32)len < segment.size())
 			{
 				break;
 			}
+			
 		}
+
 		++it;
 		if(it != end)
 		{
@@ -429,6 +441,7 @@ LLIOPipe::EStatus LLIOSocketWriter::process_impl(
 		{
 			done = true;
 		}
+
 	}
 	PUMP_DEBUG;
 	if(done && eos)

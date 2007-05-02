@@ -485,7 +485,16 @@ void LLPanelFace::getState()
 		{
 			F32 shinyf = 0.f;
 			identical = allFacesSameValue( &LLPanelFace::valueShiny, &shinyf );
-			childGetSelectionInterface("combobox shininess")->selectNthItem((S32)shinyf);
+			LLCtrlSelectionInterface* combobox_shininess =
+			      childGetSelectionInterface("combobox shininess");
+			if (combobox_shininess)
+			{
+				combobox_shininess->selectNthItem((S32)shinyf);
+			}
+			else
+			{
+				llwarns << "failed childGetSelectionInterface for 'combobox shininess'" << llendl;
+			}
 			childSetEnabled("combobox shininess",editable);
 			childSetTentative("combobox shininess",!identical);
 			childSetEnabled("label shininess",editable);
@@ -494,7 +503,16 @@ void LLPanelFace::getState()
 		{
 			F32 bumpf = 0.f;
 			identical = allFacesSameValue( &LLPanelFace::valueBump, &bumpf );
-			childGetSelectionInterface("combobox bumpiness")->selectNthItem((S32)bumpf);
+			LLCtrlSelectionInterface* combobox_bumpiness =
+			      childGetSelectionInterface("combobox bumpiness");
+			if (combobox_bumpiness)
+			{
+				combobox_bumpiness->selectNthItem((S32)bumpf);
+			}
+			else
+			{
+				llwarns << "failed childGetSelectionInterface for 'combobox bumpiness'" << llendl;
+			}
 			childSetEnabled("combobox bumpiness",editable);
 			childSetTentative("combobox bumpiness",!identical);
 			childSetEnabled("label bumpiness",editable);
@@ -503,8 +521,17 @@ void LLPanelFace::getState()
 		{
 			F32 genf = 0.f;
 			identical = allFacesSameValue( &LLPanelFace::valueTexGen, &genf);
-			S32	selected_texgen = ((S32) genf) >> TEM_TEX_GEN_SHIFT;
-			childGetSelectionInterface("combobox texgen")->selectNthItem(selected_texgen);
+			S32 selected_texgen = ((S32) genf) >> TEM_TEX_GEN_SHIFT;
+			LLCtrlSelectionInterface* combobox_texgen =
+			      childGetSelectionInterface("combobox texgen");
+			if (combobox_texgen)
+			{
+				combobox_texgen->selectNthItem(selected_texgen);
+			}
+			else
+			{
+				llwarns << "failed childGetSelectionInterface for 'combobox texgen'" << llendl;
+			}
 			childSetEnabled("combobox texgen",editable);
 			childSetTentative("combobox texgen",!identical);
 			childSetEnabled("tex gen",editable);

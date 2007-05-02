@@ -342,7 +342,7 @@ BOOL LLPanel::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 		// If we have a default button, click it when
 		// return is pressed, unless current focus is a return-capturing button
 		// in which case *that* button will handle the return key
-		if (!(cur_focus->getWidgetType() == WIDGET_TYPE_BUTTON && static_cast<LLButton *>(cur_focus)->getCommitOnReturn()))
+		if (cur_focus && !(cur_focus->getWidgetType() == WIDGET_TYPE_BUTTON && static_cast<LLButton *>(cur_focus)->getCommitOnReturn()))
 		{
 			// RETURN key means hit default button in this case
 			if (key == KEY_RETURN && mask == MASK_NONE 

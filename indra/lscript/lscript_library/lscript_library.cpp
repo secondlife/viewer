@@ -381,7 +381,7 @@ void LLScriptLibrary::init()
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetCameraParams",			 NULL, "l", "llSetCameraParams(list rules)\nSets multiple camera parameters at once.\nList format is [ rule1, data1, rule2, data2 . . . rulen, datan ]"));
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llClearCameraParams",		 NULL, NULL, "llClearCameraParams()\nResets all camera parameters to default values and turns off scripted camera control."));
 	
-	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llListStatistics", "f", "il", "integer llListStatistics(integer operation, list l)\nPerform statistical aggregate functions on list l using LIST_STAT_* operations."));
+	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llListStatistics", "f", "il", "float llListStatistics(integer operation, list l)\nPerform statistical aggregate functions on list l using LIST_STAT_* operations."));
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetUnixTime", "i", NULL, "integer llGetUnixTime()\nGet the number of seconds elapsed since 00:00 hours, Jan 1, 1970 UTC from the system clock."));
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetParcelFlags", "i", "v", "integer llGetParcelFlags(vector pos)\nGet the parcel flags (PARCEL_FLAG_*) for the parcel including the point pos."));
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetRegionFlags", "i", NULL, "integer llGetRegionFlags()\nGet the region flags (REGION_FLAG_*) for the region the object is in."));
@@ -528,12 +528,7 @@ void LLScriptLibData::print_separator(std::ostream& ostr, BOOL b_prepend_sep, ch
 	}
 	//print(ostr, FALSE);
 	{
-		BOOL b_prepend_comma = FALSE;
 		char tmp[1024];	/* Flawfinder: ignore */
-		if (b_prepend_comma)
-		{
-		        ostr << ", ";
-		}
 		switch (mType)
 		{
 		case LST_INTEGER:

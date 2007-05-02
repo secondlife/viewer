@@ -676,7 +676,13 @@ void LLFloater::translate(S32 x, S32 y)
 
 BOOL LLFloater::canSnapTo(LLView* other_view)
 {
-	if (other_view && other_view != getParent())
+	if (NULL == other_view)
+	{
+		llwarns << "other_view is NULL" << llendl;
+		return FALSE;
+	}
+
+	if (other_view != getParent())
 	{
 		LLFloater* other_floaterp = (LLFloater*)other_view;
 		
@@ -2535,6 +2541,7 @@ void LLMultiFloater::addFloater(LLFloater* floaterp, BOOL select_added_floater, 
 	if (!mTabContainer)
 	{
 		llerrs << "Tab Container used without having been initialized." << llendl;
+		return;
 	}
 
 	if (floaterp->getHost() == this)
@@ -2698,7 +2705,7 @@ void LLMultiFloater::setVisible(BOOL visible)
 BOOL LLMultiFloater::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 {
 	if (getEnabled()
-		&& mask == (MASK_CONTROL|MASK_SHIFT))
+		&& mask == MASK_CONTROL)
 	{
 		if (key == 'W')
 		{

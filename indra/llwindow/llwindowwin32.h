@@ -45,7 +45,7 @@ public:
 	/*virtual*/ void hideCursorUntilMouseMove();
 	/*virtual*/ BOOL isCursorHidden();
 	/*virtual*/ void setCursor(ECursorType cursor);
-	/*virtual*/ ECursorType getCursor();
+	/*virtual*/ ECursorType getCursor() const;
 	/*virtual*/ void captureMouse();
 	/*virtual*/ void releaseMouse();
 	/*virtual*/ void setMouseClipping( BOOL b );

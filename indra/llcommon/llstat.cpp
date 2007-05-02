@@ -99,9 +99,9 @@ void LLStatAccum::impl::sum(F64 value, U64 when)
 	}
 	if (when < mLastTime)
 	{
-		// JAMESDEBUG spams on Athlon
-		//llwarns << "LLStatAccum::sum clock has gone backwards from "
-		//	<< mLastTime << " to " << when << ", resetting" << llendl;
+		// This happens a LOT on some dual core systems.
+		lldebugs << "LLStatAccum::sum clock has gone backwards from "
+			<< mLastTime << " to " << when << ", resetting" << llendl;
 
 		reset(when);
 		return;

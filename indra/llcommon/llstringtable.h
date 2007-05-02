@@ -28,12 +28,6 @@
 #include <hash_map>
 #endif
 
-// string_table.h
-// LLStringTable class header file
-// Provides a _fast_ method for finding unique copies of strings
-// 
-// Copyright 2001-2002, Linden Research, Inc.
-
 const U32 MAX_STRINGS_LENGTH = 256;
 
 class LLStringTableEntry

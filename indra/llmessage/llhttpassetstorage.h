@@ -113,6 +113,10 @@ private:
 	// This will return the correct base URI for any http asset request
 	std::string getBaseURL(const LLUUID& asset_id, LLAssetType::EType asset_type);
 
+	// Check for running uploads that have timed out
+	// Bump these to the back of the line to let other uploads complete.
+	void bumpTimedOutUploads();
+
 protected:
 	std::string		mBaseURL;
 	std::string		mLocalBaseURL;

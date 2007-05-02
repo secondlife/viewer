@@ -44,7 +44,7 @@ static apr_sockaddr_t* gSockAddr;
 static apr_socket_t* gMailSocket;
 
 // According to RFC2822
-static const boost::regex valid_subject_chars("[\\x1-\\x9\\xb\\xc\\xe-\\x7f]+");
+static const boost::regex valid_subject_chars("[\\x1-\\x9\\xb\\xc\\xe-\\x7f]*");
 bool connect_smtp();
 void disconnect_smtp();
  

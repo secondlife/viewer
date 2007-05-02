@@ -203,8 +203,8 @@ LLXfer *LLXferManager::findXfer (U64 id, LLXfer *list_head)
 
 void LLXferManager::removeXfer (LLXfer *delp, LLXfer **list_head)
 {
-    LLXfer *xferp;
-	
+	// This function assumes that delp will only occur in the list
+	// zero or one times.
 	if (delp)
 	{
 		if (*list_head == delp)
@@ -214,14 +214,14 @@ void LLXferManager::removeXfer (LLXfer *delp, LLXfer **list_head)
 		}
 		else
 		{
-			xferp = *list_head;
+			LLXfer *xferp = *list_head;
 			while (xferp->mNext)
 			{
 				if (xferp->mNext == delp)
 				{
 					xferp->mNext = delp->mNext;
 					delete (delp);
-					continue;
+					break;
 				}
 				xferp = xferp->mNext;
 			}

@@ -9,9 +9,8 @@
  */
 
 #include "linden_common.h"
-#include "lliohttpserver.h"
 
-#include "boost/tokenizer.hpp"
+#include "lliohttpserver.h"
 
 #include "llapr.h"
 #include "llbuffer.h"
@@ -26,8 +25,11 @@
 #include "llsd.h"
 #include "llsdserialize_xml.h"
 #include "llstl.h"
+#include "lltimer.h"
 
 #include <sstream>
+
+#include "boost/tokenizer.hpp"
 
 static const char HTTP_VERSION_STR[] = "HTTP/1.0";
 static const std::string CONTEXT_REQUEST("request");
@@ -36,6 +38,8 @@ static const std::string HTTP_VERB_PUT("PUT");
 static const std::string HTTP_VERB_POST("POST");
 static const std::string HTTP_VERB_DELETE("DELETE");
 
+static LLIOHTTPServer::timing_callback_t sTimingCallback = NULL;
+static void* sTimingCallbackData = NULL;
 
 class LLHTTPPipe : public LLIOPipe
 {
@@ -131,6 +135,12 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		// TODO: Babbage: Parameterize parser?
 		LLBufferStream istr(channels, buffer.get());
 
+		static LLTimer timer;
+		if (sTimingCallback)
+		{
+			timer.reset();
+		}
+
 		std::string verb = context[CONTEXT_REQUEST]["verb"];
 		if(verb == HTTP_VERB_GET)
 		{
@@ -157,6 +167,18 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		else 
 		{
 		    mResponse->methodNotAllowed();
+		}
+
+		if (sTimingCallback)
+		{
+			LLHTTPNode::Description desc;
+			mNode.describe(desc);
+			LLSD info = desc.getInfo();
+			std::string timing_name = info["description"];
+			timing_name += " ";
+			timing_name += verb;
+			F32 delta = timer.getElapsedTimeF32();
+			sTimingCallback(timing_name.c_str(), delta, sTimingCallbackData);
 		}
 
 		// Log Internal Server Errors
@@ -799,9 +821,9 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 }
 
 
-
-void LLCreateHTTPPipe(LLPumpIO::chain_t& chain,
-		const LLHTTPNode& root, const LLSD& ctx)
+// static 
+void LLIOHTTPServer::createPipe(LLPumpIO::chain_t& chain, 
+        const LLHTTPNode& root, const LLSD& ctx)
 {
 	chain.push_back(LLIOPipe::ptr_t(new LLHTTPResponder(root, ctx)));
 }
@@ -812,7 +834,7 @@ class LLHTTPResponseFactory : public LLChainIOFactory
 public:
 	bool build(LLPumpIO::chain_t& chain, LLSD ctx) const
 	{
-		LLCreateHTTPPipe(chain, mTree, ctx);
+		LLIOHTTPServer::createPipe(chain, mTree, ctx);
 		return true;
 	}
 
@@ -823,7 +845,8 @@ private:
 };
 
 
-LLHTTPNode& LLCreateHTTPServer(
+// static
+LLHTTPNode& LLIOHTTPServer::create(
 	apr_pool_t* pool, LLPumpIO& pump, U16 port)
 {
 	LLSocket::ptr_t socket = LLSocket::create(
@@ -847,3 +870,10 @@ LLHTTPNode& LLCreateHTTPServer(
 	return factory->getRootNode();
 }
 
+// static
+void LLIOHTTPServer::setTimingCallback(timing_callback_t callback,
+									   void* data)
+{
+	sTimingCallback = callback;
+	sTimingCallbackData = data;
+}

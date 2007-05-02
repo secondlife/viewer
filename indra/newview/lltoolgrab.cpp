@@ -160,6 +160,12 @@ BOOL LLToolGrab::handleObjectHit(LLViewerObject *objectp, S32 x, S32 y, MASK mas
 		llinfos << "LLToolGrab handleObjectHit " << mMouseDownX << "," << mMouseDownY << llendl;
 	}
 
+	if (NULL == objectp) // unexpected
+	{
+		llwarns << "objectp was NULL; returning FALSE" << llendl;
+		return FALSE;
+	}
+
 	if (objectp->isAvatar())
 	{
 		if (gGrabTransientTool)
@@ -178,7 +184,7 @@ BOOL LLToolGrab::handleObjectHit(LLViewerObject *objectp, S32 x, S32 y, MASK mas
 	// objectp = (LLViewerObject *)objectp->getRoot();
 
 	LLViewerObject* parent = objectp->getRootEdit();
-	BOOL script_touch = (objectp && objectp->flagHandleTouch()) || (parent && parent->flagHandleTouch());
+	BOOL script_touch = (objectp->flagHandleTouch()) || (parent && parent->flagHandleTouch());
 
 	// Clicks on scripted or physical objects are temporary grabs, so
 	// not "Build mode"

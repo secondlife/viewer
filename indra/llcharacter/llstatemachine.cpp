@@ -342,28 +342,28 @@ void LLStateMachine::processTransition(LLFSMTransition& transition, void* user_d
 {
 	llassert(mStateDiagram);
 	
+	if (NULL == mCurrentState)
+	{
+		llwarns << "mCurrentState == NULL; aborting processTransition()" << llendl;
+		return;
+	}
+
 	LLFSMState* new_state = mStateDiagram->processTransition(*mCurrentState, transition);
+
+	if (NULL == new_state)
+	{
+		llwarns << "new_state == NULL; aborting processTransition()" << llendl;
+		return;
+	}
 
 	mLastTransition = &transition;
 	mLastState = mCurrentState;
 
 	if (*mCurrentState != *new_state)
 	{
-		if (mCurrentState && new_state && *mCurrentState != *new_state)
-		{
-			mCurrentState->onExit(user_data);
-		}
-		if (new_state)
-		{
-			if (!mCurrentState || *mCurrentState != *new_state)
-			{
-				mCurrentState = new_state;
-				if (mCurrentState)
-				{
-					mCurrentState->onEntry(user_data);
-				}
-			}
-		}
+		mCurrentState->onExit(user_data);
+		mCurrentState = new_state;
+		mCurrentState->onEntry(user_data);
 #if FSM_PRINT_STATE_TRANSITIONS
 		llinfos << "Entering state " << mCurrentState->getName() <<
 			" on transition " << transition.getName() << " from state " << 

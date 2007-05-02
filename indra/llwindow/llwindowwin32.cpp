@@ -1626,7 +1626,7 @@ void LLWindowWin32::setCursor(ECursorType cursor)
 	}
 }
 
-ECursorType LLWindowWin32::getCursor()
+ECursorType LLWindowWin32::getCursor() const
 {
 	return mCurrentCursor;
 }
@@ -2279,7 +2279,7 @@ BOOL LLWindowWin32::convertCoords(LLCoordGL from, LLCoordScreen *to)
 
 BOOL LLWindowWin32::isClipboardTextAvailable()
 {
-	return IsClipboardFormatAvailable(CF_UNICODETEXT) || IsClipboardFormatAvailable( CF_TEXT );
+	return IsClipboardFormatAvailable(CF_UNICODETEXT);
 }
 
 
@@ -2298,27 +2298,6 @@ BOOL LLWindowWin32::pasteTextFromClipboard(LLWString &dst)
 				if (utf16str)
 				{
 					dst = utf16str_to_wstring(utf16str);
-					LLWString::removeCRLF(dst);
-					GlobalUnlock(h_data);
-					success = TRUE;
-				}
-			}
-			CloseClipboard();
-		}
-	}
-	else if (IsClipboardFormatAvailable(CF_TEXT))
-	{
-		// This must be an OLD OS.  We don't do non-ASCII for old OSes
-		if (OpenClipboard(mWindowHandle))
-		{
-			HGLOBAL h_data = GetClipboardData(CF_TEXT);
-			if (h_data)
-			{
-				char* str = (char*) GlobalLock(h_data);
-				if (str)
-				{
-					// Strip non-ASCII characters
-					dst = utf8str_to_wstring(mbcsstring_makeASCII(str));
 					LLWString::removeCRLF(dst);
 					GlobalUnlock(h_data);
 					success = TRUE;
@@ -2357,30 +2336,6 @@ BOOL LLWindowWin32::copyTextToClipboard(const LLWString& wstr)
 				GlobalUnlock(hglobal_copy_utf16);
 
 				if (SetClipboardData(CF_UNICODETEXT, hglobal_copy_utf16))
-				{
-					success = TRUE;
-				}
-			}
-		}
-
-		// Also provide a copy as raw ASCII text.
-		LLWString ascii_string(wstr);
-		LLWString::_makeASCII(ascii_string);
-		LLWString::addCRLF(ascii_string);
-		std::string out_s = wstring_to_utf8str(ascii_string);
-		const size_t size = (out_s.length() + 1) * sizeof(char);
-
-		// Memory is allocated and then ownership of it is transfered to the system.
-		HGLOBAL hglobal_copy = GlobalAlloc(GMEM_MOVEABLE, size); 
-		if (hglobal_copy)
-		{
-			char* copy = (char*) GlobalLock(hglobal_copy);
-			if( copy )
-			{
-				memcpy(copy, out_s.c_str(), size);	/* Flawfinder: ignore */
-				GlobalUnlock(hglobal_copy);
-
-				if (SetClipboardData(CF_TEXT, hglobal_copy))
 				{
 					success = TRUE;
 				}

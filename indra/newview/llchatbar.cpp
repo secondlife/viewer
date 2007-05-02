@@ -98,9 +98,10 @@ LLChatBar::LLChatBar(const std::string& name, const LLRect& rect)
 		mInputEditor->setRevertOnEsc( FALSE );
 		mInputEditor->setIgnoreTab(TRUE);
 		mInputEditor->setPassDelete(TRUE);
+
+		mInputEditor->setMaxTextLength(1023);
 	}
 
-	mInputEditor->setMaxTextLength(1023);
 	// Build the list of gestures
 	refreshGestures();
 

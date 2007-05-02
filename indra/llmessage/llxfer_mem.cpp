@@ -142,7 +142,8 @@ S32 LLXfer_Mem::initializeRequest(U64 xfer_id,
 	mCallbackDataHandle = user_data;
 	mCallbackResult = LL_ERR_NOERR;
 
-	strncpy(mRemoteFilename, remote_filename.c_str(), LL_MAX_PATH);		/* Flawfinder : ignore */
+	strncpy(mRemoteFilename, remote_filename.c_str(), LL_MAX_PATH-1);
+	mRemoteFilename[LL_MAX_PATH-1] = '\0'; // stupid strncpy.
 	mRemotePath = remote_path;
 	mDeleteRemoteOnCompletion = delete_remote_on_completion;
 

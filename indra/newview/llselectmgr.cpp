@@ -71,7 +71,6 @@ const S32 MAX_ACTION_QUEUE_SIZE = 20;
 const S32 MAX_SILS_PER_FRAME = 50;
 const S32 MAX_OBJECTS_PER_PACKET = 254;
 
-extern LLGlobalEconomy *gGlobalEconomy;
 extern LLUUID			gLastHitObjectID;
 extern LLVector3d		gLastHitObjectOffset;
 
@@ -188,6 +187,20 @@ LLSelectMgr::~LLSelectMgr()
 
 void LLSelectMgr::updateEffects()
 {
+
+	//keep reference grid objects active
+	for (LLSelectNode* grid_nodep = mGridObjects.getFirstNode();
+		grid_nodep;
+		grid_nodep = mGridObjects.getNextNode())
+	{
+		LLViewerObject* grid_object = grid_nodep->getObject();
+		LLDrawable* drawable = grid_object->mDrawable;
+		if (drawable)
+		{
+			gPipeline.markMoved(drawable);
+		}
+	}
+
 	if (mEffectsTimer.getElapsedTimeF32() > 1.f)
 	{
 		mSelectedObjects->updateEffects();
@@ -973,7 +986,7 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 		LLVector3 first_grid_obj_pos = grid_object->getRenderPosition();
 
 		LLVector3 min_extents(F32_MAX, F32_MAX, F32_MAX);
-		LLVector3 max_extents(F32_MIN, F32_MIN, F32_MIN);
+		LLVector3 max_extents(-min_extents);
 		BOOL grid_changed = FALSE;
 		LLSelectNode* grid_nodep;
 		for (grid_nodep = mGridObjects.getFirstNode();
@@ -981,34 +994,23 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 			grid_nodep = mGridObjects.getNextNode())
 			{
 				grid_object = grid_nodep->getObject();
-
-				LLVector3 local_min_extents(F32_MAX, F32_MAX, F32_MAX);
-				LLVector3 local_max_extents(F32_MIN, F32_MIN, F32_MIN);
-
-				// *FIX: silhouette flag is insufficient as it gets
-				// cleared by view update.
-				if (!mGridValid || 
-					grid_object->isChanged(LLXform::SILHOUETTE)
-					|| (grid_object->getParent() && grid_object->getParent()->isChanged(LLXform::SILHOUETTE)))
+				LLDrawable* drawable = grid_object->mDrawable;
+				if (drawable)
 				{
-					getSilhouetteExtents(grid_nodep, mGridRotation, local_min_extents, local_max_extents);
+					const LLVector3* ext = drawable->getSpatialExtents();
+					update_min_max(min_extents, max_extents, ext[0]);
+					update_min_max(min_extents, max_extents, ext[1]);
 					grid_changed = TRUE;
-					LLVector3 object_offset = (grid_object->getRenderPosition() - first_grid_obj_pos) * ~mGridRotation;
-					local_min_extents += object_offset;
-					local_max_extents += object_offset;
 				}
-				min_extents.mV[VX] = llmin(min_extents.mV[VX], local_min_extents.mV[VX]);
-				min_extents.mV[VY] = llmin(min_extents.mV[VY], local_min_extents.mV[VY]);
-				min_extents.mV[VZ] = llmin(min_extents.mV[VZ], local_min_extents.mV[VZ]);
-				max_extents.mV[VX] = llmax(max_extents.mV[VX], local_max_extents.mV[VX]);
-				max_extents.mV[VY] = llmax(max_extents.mV[VY], local_max_extents.mV[VY]);
-				max_extents.mV[VZ] = llmax(max_extents.mV[VZ], local_max_extents.mV[VZ]);
 			}
 		if (grid_changed)
 		{
 			mGridOrigin = lerp(min_extents, max_extents, 0.5f);
-			mGridOrigin = mGridOrigin * ~mGridRotation;
-			mGridOrigin += first_grid_obj_pos;
+			LLDrawable* drawable = grid_object->mDrawable;
+			if (drawable && drawable->isActive())
+			{
+				mGridOrigin = mGridOrigin * grid_object->getRenderMatrix();
+			}
 			mGridScale = (max_extents - min_extents) * 0.5f;
 		}
 	}
@@ -4919,66 +4921,6 @@ void LLSelectMgr::generateSilhouette(LLSelectNode* nodep, const LLVector3& view_
 	}
 }
 
-void LLSelectMgr::getSilhouetteExtents(LLSelectNode* nodep, const LLQuaternion& orientation, LLVector3& min_extents, LLVector3& max_extents)
-{
-	LLViewerObject* objectp = nodep->getObject();
-
-	if (objectp->mDrawable.isNull())
-	{
-		return;
-	}
-	
-	LLQuaternion test_rot = orientation * ~objectp->getRenderRotation();
-	LLVector3 x_axis_rot = LLVector3::x_axis * test_rot;
-	LLVector3 y_axis_rot = LLVector3::y_axis * test_rot;
-	LLVector3 z_axis_rot = LLVector3::z_axis * test_rot;
-
-	x_axis_rot.scaleVec(objectp->mDrawable->getScale());
-	y_axis_rot.scaleVec(objectp->mDrawable->getScale());
-	z_axis_rot.scaleVec(objectp->mDrawable->getScale());
-
-	generateSilhouette(nodep, objectp->mDrawable->getPositionAgent() + x_axis_rot * 100.f);
-
-	S32 num_vertices = nodep->mSilhouetteVertices.size();
-	if (num_vertices)
-	{
-		min_extents.mV[VY] = llmin(min_extents.mV[VY], nodep->mSilhouetteVertices[0] * y_axis_rot);
-		max_extents.mV[VY] = llmax(max_extents.mV[VY], nodep->mSilhouetteVertices[0] * y_axis_rot);
-
-		min_extents.mV[VZ] = llmin(min_extents.mV[VZ], nodep->mSilhouetteVertices[0] * z_axis_rot);
-		max_extents.mV[VZ] = llmax(min_extents.mV[VZ], nodep->mSilhouetteVertices[0] * z_axis_rot);
-
-		for (S32 vert = 1; vert < num_vertices; vert++)
-		{
-			F32 y_pos = nodep->mSilhouetteVertices[vert] * y_axis_rot;
-			F32 z_pos = nodep->mSilhouetteVertices[vert] * z_axis_rot;
-			min_extents.mV[VY] = llmin(y_pos, min_extents.mV[VY]);
-			max_extents.mV[VY] = llmax(y_pos, max_extents.mV[VY]);
-			min_extents.mV[VZ] = llmin(z_pos, min_extents.mV[VZ]);
-			max_extents.mV[VZ] = llmax(z_pos, max_extents.mV[VZ]);
-		}
-	}
-
-	generateSilhouette(nodep, objectp->mDrawable->getPositionAgent() + y_axis_rot * 100.f);
-
-	num_vertices = nodep->mSilhouetteVertices.size();
-	if (num_vertices)
-	{
-		min_extents.mV[VX] = llmin(min_extents.mV[VX], nodep->mSilhouetteVertices[0] * x_axis_rot);
-		max_extents.mV[VX] = llmax(max_extents.mV[VX], nodep->mSilhouetteVertices[0] * x_axis_rot);
-
-		for (S32 vert = 1; vert < num_vertices; vert++)
-		{
-			F32 x_pos = nodep->mSilhouetteVertices[vert] * x_axis_rot;
-			min_extents.mV[VX] = llmin(x_pos, min_extents.mV[VX]);
-			max_extents.mV[VX] = llmax(x_pos, max_extents.mV[VX]);
-		}
-	}
-
-	generateSilhouette(nodep, gCamera->getOrigin());
-}
-
-
 //
 // Utility classes
 //
@@ -6459,6 +6401,8 @@ LLViewerObject* LLObjectSelection::getFirstDeleteableObject(BOOL get_root)
 	}
 	else
 	{
+		// We've avoided this path for a while.  It may not work.
+		llwarns << "!get_root code path may have bitrotted." << llendl;
 		for(LLViewerObject* current = getFirstObject();
 			current != NULL;
 			current = getNextObject())

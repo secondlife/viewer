@@ -194,6 +194,13 @@ BOOL LLPolyMorphTargetInfo::parseXml(LLXmlTreeNode* node)
 
 	LLXmlTreeNode *paramNode = node->getChildByName("param_morph");
 
+        if (NULL == paramNode)
+        {
+                llwarns << "Failed to getChildByName(\"param_morph\")"
+                        << llendl;
+                return FALSE;
+        }
+
 	for (LLXmlTreeNode* child_node = paramNode->getFirstChild();
 		 child_node;
 		 child_node = paramNode->getNextChild())
@@ -236,7 +243,10 @@ LLPolyMorphTarget::LLPolyMorphTarget(LLPolyMesh *poly_mesh)
 //-----------------------------------------------------------------------------
 LLPolyMorphTarget::~LLPolyMorphTarget()
 {
-	delete mVertMask;
+	if (mVertMask)
+	{
+		delete mVertMask;
+	}
 }
 
 //-----------------------------------------------------------------------------

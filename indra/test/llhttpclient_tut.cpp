@@ -78,7 +78,7 @@ namespace tut
 
 		void setupTheServer()
 		{
-			LLHTTPNode& root = LLCreateHTTPServer(mPool, *mServerPump, 8888);
+			LLHTTPNode& root = LLIOHTTPServer::create(mPool, *mServerPump, 8888);
 
 			LLHTTPStandardServices::useServices();
 			LLHTTPRegistrar::buildAllServices(root);

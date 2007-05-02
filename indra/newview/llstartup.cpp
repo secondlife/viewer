@@ -183,6 +183,7 @@ LLPointer<LLImageGL> gStartImageGL;
 static LLHost gAgentSimHost;
 static BOOL gSkipOptionalUpdate = FALSE;
 
+bool gUseQuickTime = true;
 bool gQuickTimeInitialized = false;
 static bool gGotUseCircuitCodeAck = false;
 LLString gInitialOutfit;
@@ -1847,7 +1848,8 @@ BOOL idle_startup()
 		}
 
 		#if LL_QUICKTIME_ENABLED	// windows only right now but will be ported to mac 
-		if (!gQuickTimeInitialized)
+		if (gUseQuickTime
+			&& !gQuickTimeInitialized)
 		{
 			// initialize quicktime libraries (fails gracefully if quicktime not installed ($QUICKTIME)
 			llinfos << "Initializing QuickTime...." << llendl;

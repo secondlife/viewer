@@ -16,7 +16,12 @@
 
 class LLPumpIO;
 
-LLHTTPNode& LLCreateHTTPServer(apr_pool_t* pool, LLPumpIO& pump, U16 port);
+class LLIOHTTPServer
+{
+public:
+	typedef void (*timing_callback_t)(const char* hashed_name, F32 time, void* data);
+
+	static LLHTTPNode& create(apr_pool_t* pool, LLPumpIO& pump, U16 port);
 	/**< Creates an HTTP wire server on the pump for the given TCP port.
 	 *
 	 *   Returns the root node of the new server.  Add LLHTTPNode instances
@@ -31,13 +36,22 @@ LLHTTPNode& LLCreateHTTPServer(apr_pool_t* pool, LLPumpIO& pump, U16 port);
 	 *   for example), use the helper templates below.
 	 */
  
-void LLCreateHTTPPipe(LLPumpIO::chain_t& chain,
-		const LLHTTPNode& root, const LLSD& ctx);
+	static void createPipe(LLPumpIO::chain_t& chain, 
+            const LLHTTPNode& root, const LLSD& ctx);
 	/**< Create a pipe on the chain that handles HTTP requests.
 	 *   The requests are served by the node tree given at root.
 	 *
 	 *   This is primarily useful for unit testing.
 	 */
+
+	static void setTimingCallback(timing_callback_t callback, void* data);
+	/**< Register a callback function that will be called every time
+	*    a GET, PUT, POST, or DELETE is handled.
+	*
+	* This is used to time the LLHTTPNode handler code, which often hits
+	* the database or does other, slow operations. JC
+	*/
+};
 
 /* @name Helper Templates
  *

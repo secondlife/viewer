@@ -28,6 +28,7 @@ public:
 
 	/*virtual*/void open();		/*Flawfinder: ignore*/
 	/*virtual*/void tabOpen(LLFloater* opened_floater, bool from_click);
+	/*virtual*/ void userSetShape(const LLRect& new_rect);
 
 	static LLMultiPreview* getAutoOpenInstance(const LLUUID& id);
 	static void setAutoOpenInstance(LLMultiPreview* previewp, const LLUUID& id);
@@ -81,6 +82,9 @@ public:
 	void				addKeepDiscardButtons();
 	static void			onKeepBtn(void* data);
 	static void			onDiscardBtn(void* data);
+	/*virtual*/ void	userSetShape(const LLRect& new_rect);
+
+	void userResized() { mUserResized = TRUE; };
 
 	virtual void loadAsset() { mAssetStatus = PREVIEW_ASSET_LOADED; }
 	virtual EAssetStatus getAssetStatus() { return mAssetStatus;}
@@ -114,6 +118,8 @@ protected:
 
 	// Close without saving changes
 	BOOL mForceClose;
+
+	BOOL mUserResized;
 
 	// When closing springs a "Want to save?" dialog, we want
 	// to keep the preview open until the save completes.

@@ -486,7 +486,7 @@ void LLCamera::calcAgentFrustumPlanes(LLVector3* frust)
 	mAgentPlanes[3] = planeFromPoints(frust[1], frust[0], frust[4]);
 
 	//cache plane octant facing mask for use in AABBInFrustum
-	for (int i = 0; i < 8; i++)
+	for (int i = 0; i < 6; i++)
 	{
 		U8 mask = 0;
 		LLPlane p = mAgentPlanes[i];

@@ -146,21 +146,22 @@ void LLViewerAssetStorage::storeAssetData(
 	if(!filename)
 	{
 		llerrs << "No filename specified" << llendl;
+		return;
 	}
 	
 	LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
 	llinfos << "LLViewerAssetStorage::storeAssetData (legacy)" << asset_id << ":" << LLAssetType::lookup(asset_type) << llendl;
 
-	LLLegacyAssetRequest *legacy = new LLLegacyAssetRequest;
-
 	llinfos << "ASSET_ID: " << asset_id << llendl;
 
-	legacy->mUpCallback = callback;
-	legacy->mUserData = user_data;
-
-	FILE* fp = LLFile::fopen(filename, "rb");		/* Flawfinder: ignore */
+	FILE* fp = LLFile::fopen(filename, "rb");
 	if (fp)
 	{
+		LLLegacyAssetRequest *legacy = new LLLegacyAssetRequest;
+		
+		legacy->mUpCallback = callback;
+		legacy->mUserData = user_data;
+
 		LLVFile file(mVFS, asset_id, asset_type, LLVFile::WRITE);
 
 		fseek(fp, 0, SEEK_END);

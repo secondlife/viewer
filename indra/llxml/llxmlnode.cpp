@@ -291,6 +291,12 @@ void XMLCALL StartXMLNode(void *userData,
 	// Set the parent-child relationship with the current active node
 	LLXMLNode* parent = (LLXMLNode *)userData;
 
+	if (NULL == parent)
+	{
+		llwarns << "parent (userData) is NULL; aborting function" << llendl;
+		return;
+	}
+
 	new_node_ptr->mParser = parent->mParser;
 
 	// Set the current active node to the new node

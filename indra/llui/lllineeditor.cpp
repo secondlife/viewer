@@ -691,11 +691,11 @@ S32 LLLineEditor::prevWordPos(S32 cursorPos) const
 S32 LLLineEditor::nextWordPos(S32 cursorPos) const
 {
 	const LLWString& wtext = mText.getWString();
-	while( (cursorPos < getLength()) && isPartOfWord( wtext[cursorPos+1] ) )
+	while( (cursorPos < getLength()) && isPartOfWord( wtext[cursorPos] ) )
 	{
 		cursorPos++;
 	} 
-	while( (cursorPos < getLength()) && (wtext[cursorPos+1] == ' ') )
+	while( (cursorPos < getLength()) && (wtext[cursorPos] == ' ') )
 	{
 		cursorPos++;
 	}
@@ -1015,7 +1015,8 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 		break;
 
 	case KEY_LEFT:
-		if (!mIgnoreArrowKeys)
+		if (!mIgnoreArrowKeys
+			&& mask != MASK_ALT)
 		{
 			if( hasSelection() )
 			{
@@ -1040,7 +1041,8 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 		break;
 
 	case KEY_RIGHT:
-		if (!mIgnoreArrowKeys)
+		if (!mIgnoreArrowKeys
+			&& mask != MASK_ALT)
 		{
 			if (hasSelection())
 			{

@@ -9,10 +9,8 @@
 #ifndef LL_LLINVENTORYMODEL_H
 #define LL_LLINVENTORYMODEL_H
 
-#include "llassetstorage.h"
+#include "llassettype.h"
 #include "lldarray.h"
-//#include "llskiplist.h"
-//#include "llptrskipmap.h"
 #include "lluuid.h"
 #include "llpermissionsflags.h"
 #include "llstring.h"
@@ -367,7 +365,7 @@ protected:
 	static void processMoveInventoryItem(LLMessageSystem* msg, void**);
 	static void processFetchInventoryReply(LLMessageSystem* msg, void**);
 
-	bool messageUpdateCore(LLMessageSystem* msg, bool do_accounting, bool highlight_new);
+	bool messageUpdateCore(LLMessageSystem* msg, bool do_accounting);
 
 protected:
 	// Varaibles used to track what has changed since the last notify.
@@ -728,6 +726,29 @@ protected:
 	typedef std::vector<LLUUID> item_ref_t;
 	item_ref_t mExist;
 	item_ref_t mMIA;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLInventoryAddedObserver
+//
+// This class is used as a base class for doing something when 
+// a new item arrives in inventory.
+// It does not watch for a certain UUID, rather it acts when anything is added
+// Derive a class from this class and implement the done() method to do
+// something useful.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLInventoryAddedObserver : public LLInventoryObserver
+{
+public:
+	LLInventoryAddedObserver() : mAdded() {}
+	virtual void changed(U32 mask);
+
+protected:
+	virtual void done() = 0;
+
+	typedef std::vector<LLUUID> item_ref_t;
+	item_ref_t mAdded;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

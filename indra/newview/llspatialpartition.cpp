@@ -1160,6 +1160,13 @@ void LLSpatialPartition::move(LLDrawable *drawablep, LLSpatialGroup *curp, BOOL 
 {
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	LLFastTimer t(LLFastTimer::FTM_UPDATE_MOVE);
+
+	// sanity check submitted by open source user bushing Spatula
+	// who was seeing crashing here. (See VWR-424 reported by Bunny Mayne)
+	if (!drawablep) {
+		OCT_ERRS << "LLSpatialPartition::move was passed a bad drawable." << llendl;
+		return;
+	}
 		
 	BOOL was_visible = curp ? curp->isVisible() : FALSE;
 

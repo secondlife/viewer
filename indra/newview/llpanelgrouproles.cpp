@@ -1303,13 +1303,17 @@ void LLPanelGroupMembersSubTab::onRoleCheck(LLUICtrl* ctrl, void* user_data)
 	LLCheckBoxCtrl* check_box = static_cast<LLCheckBoxCtrl*>(ctrl);
 	if (!check_box || !self) return;
 
-
-	LLUUID role_id = self->mAssignedRolesList->getFirstSelected()->getUUID();
-	LLRoleMemberChangeType change_type = (check_box->get() ? 
-										  RMC_ADD : 
-										  RMC_REMOVE);
-
-	self->handleRoleCheck(role_id, change_type);
+	LLScrollListItem* first_selected =
+		self->mAssignedRolesList->getFirstSelected();
+	if (first_selected)
+	{
+		LLUUID role_id = first_selected->getUUID();
+		LLRoleMemberChangeType change_type = (check_box->get() ? 
+						      RMC_ADD : 
+						      RMC_REMOVE);
+		
+		self->handleRoleCheck(role_id, change_type);
+	}
 }
 
 void LLPanelGroupMembersSubTab::handleMemberDoubleClick()
@@ -2036,8 +2040,9 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
 	}
 
 	if ((GC_ROLE_MEMBER_DATA == gc || GC_MEMBER_DATA == gc)
-		&& gdatap->isMemberDataComplete()
-		&& gdatap->isRoleMemberDataComplete())
+	    && gdatap
+	    && gdatap->isMemberDataComplete()
+	    && gdatap->isRoleMemberDataComplete())
 	{
 		buildMembersList();
 	}

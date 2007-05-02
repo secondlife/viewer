@@ -9,6 +9,8 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloaternamedesc.h"
+
+// project includes
 #include "lllineeditor.h"
 #include "llresmgr.h"
 #include "lltextbox.h"
@@ -16,12 +18,15 @@
 #include "llviewerwindow.h"
 #include "llfocusmgr.h"
 #include "llradiogroup.h"
-#include "llassetstorage.h"
 #include "lldbstrings.h"
 #include "lldir.h"
 #include "llviewercontrol.h"
-#include "llviewermenu.h"
+#include "llviewermenufile.h"	// upload_new_resource()
 #include "llvieweruictrlfactory.h"
+
+// linden includes
+#include "llassetstorage.h"
+#include "llinventorytype.h"
 
 const S32 PREVIEW_LINE_HEIGHT = 19;
 const S32 PREVIEW_CLOSE_BOX_SIZE = 16;

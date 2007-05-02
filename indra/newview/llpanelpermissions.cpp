@@ -706,14 +706,17 @@ void LLPanelPermissions::refresh()
 	LLSaleInfo::EForSale sale_type = sale_info.getSaleType();
 
 	LLRadioGroup* RadioSaleType = gUICtrlFactory->getRadioGroupByName(this,"sale type");
-	if(RadioSaleType && valid_sale_info)
+	if(RadioSaleType)
 	{
-		RadioSaleType->setSelectedIndex((S32)sale_type - 1);
-	}
-	else
-	{
-		// default option is sell copy, determined to be safest
-		RadioSaleType->setSelectedIndex((S32)LLSaleInfo::FS_COPY - 1);
+		if (valid_sale_info)
+		{
+			RadioSaleType->setSelectedIndex((S32)sale_type - 1);
+		}
+		else
+		{
+			// default option is sell copy, determined to be safest
+			RadioSaleType->setSelectedIndex((S32)LLSaleInfo::FS_COPY - 1);
+		}
 	}
 
 	if (is_for_sale)

@@ -777,14 +777,14 @@ const char * LLPrimitive::pCodeToString(const LLPCode pcode)
 		{
 			snprintf(mask, sizeof(mask), "hemi");		/* Flawfinder: ignore */
 		}
-		else if (mask != 0)
+		else 
 		{
 			snprintf(mask, sizeof(mask), "%x", mask_code);		/* Flawfinder: ignore */
 		}
-		else
-		{
-			mask[0] = 0;
-		}
+
+		// extra sanity against snprintf() being naturally crap
+		mask[sizeof(mask)-1] = '\0';
+		shape[sizeof(shape)-1] = '\0';
 
 		if (mask[0])
 		{
@@ -795,6 +795,11 @@ const char * LLPrimitive::pCodeToString(const LLPCode pcode)
 			snprintf(pcode_string, sizeof(pcode_string), "%s", shape);		/* Flawfinder: ignore */
 		}
 	}
+
+	// Be really sure that pcode_string is nul-terminated after we've
+	// been using crappy snprintf() to build it.
+	pcode_string[sizeof(pcode_string)-1] = '\0';
+
 	return pcode_string;
 }
 

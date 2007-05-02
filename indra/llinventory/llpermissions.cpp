@@ -511,10 +511,6 @@ BOOL LLPermissions::importFile(FILE* fp)
 			buffer,
 			" %255s %255s",
 			keyword, valuestr);
-		if (!keyword)
-		{
-			continue;
-		}
 		if (!strcmp("{", keyword))
 		{
 			continue;
@@ -649,10 +645,6 @@ BOOL LLPermissions::importLegacyStream(std::istream& input_stream)
 			buffer,
 			" %255s %255s",
 			keyword, valuestr);
-		if (!keyword)
-		{
-			continue;
-		}
 		if (!strcmp("{", keyword))
 		{
 			continue;

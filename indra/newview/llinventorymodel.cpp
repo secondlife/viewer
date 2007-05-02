@@ -7,6 +7,7 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+
 #include "llinventorymodel.h"
 
 #include "llassetstorage.h"
@@ -21,6 +22,7 @@
 #include "llfocusmgr.h"
 #include "llinventoryview.h"
 #include "llviewerinventory.h"
+#include "llviewermessage.h"
 #include "llviewerwindow.h"
 #include "viewer.h"
 #include "lldbstrings.h"
@@ -2262,7 +2264,7 @@ void LLInventoryModel::processUseCachedInventory(LLMessageSystem* msg, void**)
 void LLInventoryModel::processUpdateCreateInventoryItem(LLMessageSystem* msg, void**)
 {
 	// do accounting and highlight new items if they arrive
-	if (gInventory.messageUpdateCore(msg, true, true))
+	if (gInventory.messageUpdateCore(msg, true))
 	{
 		U32 callback_id;
 		LLUUID item_id;
@@ -2278,12 +2280,15 @@ void LLInventoryModel::processUpdateCreateInventoryItem(LLMessageSystem* msg, vo
 void LLInventoryModel::processFetchInventoryReply(LLMessageSystem* msg, void**)
 {
 	// no accounting
-	gInventory.messageUpdateCore(msg, false, false);
+	gInventory.messageUpdateCore(msg, false);
 }
 
 
-bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account, bool highlight_new)
+bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account)
 {
+	//make sure our added inventory observer is active -Gigs
+	start_new_inventory_observer();
+
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
 	if(agent_id != gAgent.getID())
@@ -2292,16 +2297,15 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account, boo
 				<< llendl;
 		return false;
 	}
-	LLPointer<LLViewerInventoryItem> lastitem; // hack
 	item_array_t items;
 	update_map_t update;
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
 	bool all_one_folder = true;
 	LLUUID folder_id;
+	// Does this loop ever execute more than once? -Gigs
 	for(S32 i = 0; i < count; ++i)
 	{
 		LLPointer<LLViewerInventoryItem> titem = new LLViewerInventoryItem;
-		lastitem = titem;
 		titem->unpackMessage(msg, _PREHASH_InventoryData, i);
 		lldebugs << "LLInventoryModel::messageUpdateCore() item id:"
 				 << titem->getUUID() << llendl;
@@ -2339,6 +2343,7 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account, boo
 	}
 
 	U32 changes = 0x0;
+	//as above, this loop never seems to loop more than once per call
 	for (item_array_t::iterator it = items.begin(); it != items.end(); ++it)
 	{
 		changes |= gInventory.updateItem(*it);
@@ -2346,88 +2351,6 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account, boo
 	gInventory.notifyObservers();
 	gViewerWindow->getWindow()->decBusyCount();
 
-	// *HACK: Do the 'show' logic for a new item in the inventory if
-	// it is a newly created item.
-	if (highlight_new
-		&& (changes & LLInventoryObserver::ADD) == LLInventoryObserver::ADD)
-	{
-		LLUUID trash_id;
-		trash_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_TRASH);
-		if(!gInventory.isObjectDescendentOf(lastitem->getUUID(), trash_id))
-		{
-			LLMultiPreview* multi_previewp = LLMultiPreview::getAutoOpenInstance(folder_id);
-			if (!multi_previewp && all_one_folder && count > 1)
-			{
-				S32 left, top;
-				gFloaterView->getNewFloaterPosition(&left, &top);
-
-				multi_previewp = new LLMultiPreview(LLRect(left, top, left + 300, top - 100));
-				LLMultiPreview::setAutoOpenInstance(multi_previewp, folder_id);
-			}
-
-			LLFloater::setFloaterHost(multi_previewp);
-
-			bool show_keep_discard = lastitem->getPermissions().getCreator() != gAgent.getID();
-			switch(lastitem->getType())
-			{
-			case LLAssetType::AT_NOTECARD:
-				open_notecard(
-					lastitem->getUUID(),
-					LLString("Note: ") + lastitem->getName(),
-					show_keep_discard,
-					LLUUID::null, 
-					FALSE);
-				break;
-			case LLAssetType::AT_LANDMARK:
-				open_landmark(
-					lastitem->getUUID(),
-					LLString("  ") + lastitem->getName(),
-					show_keep_discard,
-					LLUUID::null,
-					FALSE);
-				break;
-			case LLAssetType::AT_TEXTURE:
-				open_texture(
-					lastitem->getUUID(),
-					LLString("Texture: ") + lastitem->getName(),
-					show_keep_discard,
-					LLUUID::null, 
-					FALSE);
-				break;
-			default:
-				break;
-			}
-
-			LLFloater::setFloaterHost(NULL);
-			if (multi_previewp)
-			{
-				multi_previewp->open();
-			}
-
-			LLInventoryView* view = LLInventoryView::getActiveInventory();
-			if(view)
-			{
-				LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LOST_AND_FOUND);
-				BOOL inventory_has_focus = gFocusMgr.childHasKeyboardFocus(view);
-				BOOL user_is_away = gAwayTimer.getStarted();
-
-				// don't select lost and found items if an active user is working in the inventory
-				if (!gInventory.isObjectDescendentOf(lastitem->getUUID(), lost_and_found_id) ||
-					!inventory_has_focus ||
-					user_is_away)
-				{
-					LLUICtrl* focus_ctrl = gFocusMgr.getKeyboardFocus(); 	 
-					LLFocusMgr::FocusLostCallback callback = gFocusMgr.getFocusCallback(); 	 
-					view->getPanel()->setSelection(lastitem->getUUID(), TAKE_FOCUS_NO);
-					// HACK to open inventory offers that are
-					// accepted.  This information really needs to
-					// flow through the instant messages and
-					// inventory restore keyboard focus
-					gFocusMgr.setKeyboardFocus(focus_ctrl, callback); 	 
-				}
-			}
-		}
-	}
 	return true;
 }
 
@@ -3429,6 +3352,43 @@ void LLInventoryExistenceObserver::changed(U32 mask)
 		{
 			done();
 		}
+	}
+}
+
+void LLInventoryAddedObserver::changed(U32 mask)
+{
+	if(!(mask & LLInventoryObserver::ADD))
+	{
+		return;
+	}
+
+	// *HACK: If this was in response to a packet off
+	// the network, figure out which item was updated.
+	// Code from Gigs Taggert, sin allowed by JC.
+	LLMessageSystem* msg = gMessageSystem;
+	const char* msg_name = msg->getMessageName();
+	if (!msg_name) return;
+
+	if (!(!strcmp(msg_name, "UpdateCreateInventoryItem")
+		  || !strcmp(msg_name, "FetchInventoryReply")))
+	{
+		return;
+	}
+
+	LLPointer<LLViewerInventoryItem> titem = new LLViewerInventoryItem;
+	S32 num_blocks = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
+	for(S32 i = 0; i < num_blocks; ++i)
+	{
+		titem->unpackMessage(msg, _PREHASH_InventoryData, i);
+		if (!(titem->getUUID().isNull()))
+		{
+			//we don't do anything with null keys
+			mAdded.push_back(titem->getUUID());
+		}
+	}
+	if (!mAdded.empty())
+	{
+		done();
 	}
 }
 

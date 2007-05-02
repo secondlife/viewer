@@ -13,6 +13,7 @@
 
 #include "llassetstorage.h"
 #include "lldarray.h"
+#include "llinventorytype.h"
 #include "llmemtype.h"
 #include "llpermissions.h"
 #include "llsaleinfo.h"
@@ -31,63 +32,6 @@ enum
 	MAX_INVENTORY_BUFFER_SIZE = 1024
 };
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLInventoryType
-//
-// Class used to encapsulate operations around inventory type.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class LLInventoryType
-{
-public:
-	enum EType
-	{
-		IT_TEXTURE = 0,
-		IT_SOUND = 1, 
-		IT_CALLINGCARD = 2,
-		IT_LANDMARK = 3,
-		//IT_SCRIPT = 4,
-		//IT_CLOTHING = 5,
-		IT_OBJECT = 6,
-		IT_NOTECARD = 7,
-		IT_CATEGORY = 8,
-		IT_ROOT_CATEGORY = 9,
-		IT_LSL = 10,
-		//IT_LSL_BYTECODE = 11,
-		//IT_TEXTURE_TGA = 12,
-		//IT_BODYPART = 13,
-		//IT_TRASH = 14,
-		IT_SNAPSHOT = 15,
-		//IT_LOST_AND_FOUND = 16,
-		IT_ATTACHMENT = 17,
-		IT_WEARABLE = 18,
-		IT_ANIMATION = 19,
-		IT_GESTURE = 20,
-		IT_COUNT = 21,
-
-		IT_NONE = -1
-	};
-
-	// machine transation between type and strings
-	static EType lookup(const char* name);
-	static const char* lookup(EType type);
-
-	// translation from a type to a human readable form.
-	static const char* lookupHumanReadable(EType type);
-
-	// return the default inventory for the given asset type.
-	static EType defaultForAssetType(LLAssetType::EType asset_type);
-
-private:
-	// don't instantiate or derive one of these objects
-	LLInventoryType( void ) {}
-	~LLInventoryType( void ) {}
-
-//private:
-//	static const char* mInventoryTypeNames[];
-//	static const char* mInventoryTypeHumanNames[];
-//	static LLInventoryType::EType mInventoryAssetType[];
-};
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

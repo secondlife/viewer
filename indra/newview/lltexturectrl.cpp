@@ -390,32 +390,35 @@ BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask, BOOL called_from_
 {
 	LLFolderView* root_folder = mInventoryPanel->getRootFolder();
 
-	if (!called_from_parent && root_folder &&
-		mSearchEdit && mSearchEdit->hasFocus() &&
-		(key == KEY_RETURN || key == KEY_DOWN) && mask == MASK_NONE)
+	if (root_folder && mSearchEdit)
 	{
-		if (!root_folder->getCurSelectedItem())
+		if (!called_from_parent && mSearchEdit->hasFocus() &&
+		    (key == KEY_RETURN || key == KEY_DOWN) &&
+		    mask == MASK_NONE)
 		{
-			LLFolderViewItem* itemp = root_folder->getItemByID(gAgent.getInventoryRootID());
-			if (itemp)
+			if (!root_folder->getCurSelectedItem())
 			{
-				root_folder->setSelection(itemp, FALSE, FALSE);
+				LLFolderViewItem* itemp = root_folder->getItemByID(gAgent.getInventoryRootID());
+				if (itemp)
+				{
+					root_folder->setSelection(itemp, FALSE, FALSE);
+				}
 			}
+			root_folder->scrollToShowSelection();
+			
+			// move focus to inventory proper
+			root_folder->setFocus(TRUE);
+			
+			// treat this as a user selection of the first filtered result
+			commitIfImmediateSet();
+			
+			return TRUE;
 		}
-		root_folder->scrollToShowSelection();
-
-		// move focus to inventory proper
-		root_folder->setFocus(TRUE);
 		
-		// treat this as a user selection of the first filtered result
-		commitIfImmediateSet();
-
-		return TRUE;
-	}
-
-	if (root_folder->hasFocus() && key == KEY_UP)
-	{
-		mSearchEdit->focusFirstItem(TRUE);
+		if (root_folder->hasFocus() && key == KEY_UP)
+		{
+			mSearchEdit->focusFirstItem(TRUE);
+		}
 	}
 
 	return LLFloater::handleKeyHere(key, mask, called_from_parent);

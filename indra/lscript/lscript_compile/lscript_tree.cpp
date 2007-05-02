@@ -9916,6 +9916,8 @@ void LLScriptScript::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompilePass
 			
 			code->build(fp, bcfp);
 			fclose(bcfp);
+									   
+			delete code;
 		}
 		break;
 	case LSCP_EMIT_CIL_ASSEMBLY:

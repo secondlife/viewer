@@ -109,19 +109,27 @@ void LLImageGL::bindExternalTexture(LLGLuint gl_name, S32 stage, LLGLenum bind_t
 // static
 void LLImageGL::unbindTexture(S32 stage, LLGLenum bind_target)
 {
-	glActiveTextureARB(GL_TEXTURE0_ARB + stage);
-	glClientActiveTextureARB(GL_TEXTURE0_ARB + stage);
-	glBindTexture(bind_target, 0);
-	sCurrentBoundTextures[stage] = 0;
+	// LLGLSLShader can return -1
+	if (stage >= 0)
+	{
+		glActiveTextureARB(GL_TEXTURE0_ARB + stage);
+		glClientActiveTextureARB(GL_TEXTURE0_ARB + stage);
+		glBindTexture(bind_target, 0);
+		sCurrentBoundTextures[stage] = 0;
+	}
 }
 
 // static (duplicated for speed and to avoid GL_TEXTURE_2D default argument which requires GL header dependency)
 void LLImageGL::unbindTexture(S32 stage)
 {
-	glActiveTextureARB(GL_TEXTURE0_ARB + stage);
-	glClientActiveTextureARB(GL_TEXTURE0_ARB + stage);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	sCurrentBoundTextures[stage] = 0;
+	// LLGLSLShader can return -1
+	if (stage >= 0)
+	{
+		glActiveTextureARB(GL_TEXTURE0_ARB + stage);
+		glClientActiveTextureARB(GL_TEXTURE0_ARB + stage);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		sCurrentBoundTextures[stage] = 0;
+	}
 }
 
 // static

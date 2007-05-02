@@ -281,6 +281,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 		if (numRead != 1)
 		{
 			llerrs << "can't read HasWeights flag from " << fileName << llendl;
+			return FALSE;
 		}
 		if (!isLOD())
 		{
@@ -295,6 +296,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 		if (numRead != 1)
 		{
 			llerrs << "can't read HasDetailTexCoords flag from " << fileName << llendl;
+			return FALSE;
 		}
 
 		//----------------------------------------------------------------
@@ -306,6 +308,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 		if (numRead != 3)
 		{
 			llerrs << "can't read Position from " << fileName << llendl;
+			return FALSE;
 		}
 		setPosition( position );
 
@@ -318,6 +321,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 		if (numRead != 3)
 		{
 			llerrs << "can't read RotationAngles from " << fileName << llendl;
+			return FALSE;
 		}
 
 		U8 rotationOrder;
@@ -326,6 +330,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 		if (numRead != 1)
 		{
 			llerrs << "can't read RotationOrder from " << fileName << llendl;
+			return FALSE;
 		}
 
 		rotationOrder = 0;
@@ -344,6 +349,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 		if (numRead != 3)
 		{
 			llerrs << "can't read Scale from " << fileName << llendl;
+			return FALSE;
 		}
 		setScale( scale );
 
@@ -364,6 +370,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 			if (numRead != 1)
 			{
 				llerrs << "can't read NumVertices from " << fileName << llendl;
+				return FALSE;
 			}
 
 			allocateVertexData( numVertices );	
@@ -376,6 +383,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 			if (numRead != numVertices)
 			{
 				llerrs << "can't read Coordinates from " << fileName << llendl;
+				return FALSE;
 			}
 
 			//----------------------------------------------------------------
@@ -386,6 +394,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 			if (numRead != numVertices)
 			{
 				llerrs << " can't read Normals from " << fileName << llendl;
+				return FALSE;
 			}
 
 			//----------------------------------------------------------------
@@ -396,6 +405,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 			if (numRead != numVertices)
 			{
 				llerrs << " can't read Binormals from " << fileName << llendl;
+				return FALSE;
 			}
 
 
@@ -407,6 +417,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 			if (numRead != numVertices)
 			{
 				llerrs << "can't read TexCoords from " << fileName << llendl;
+				return FALSE;
 			}
 
 			//----------------------------------------------------------------
@@ -419,6 +430,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 				if (numRead != numVertices)
 				{
 					llerrs << "can't read DetailTexCoords from " << fileName << llendl;
+					return FALSE;
 				}
 			}
 
@@ -432,6 +444,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 				if (numRead != numVertices)
 				{
 					llerrs << "can't read Weights from " << fileName << llendl;
+					return FALSE;
 				}
 			}
 		}
@@ -445,6 +458,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 		if (numRead != 1)
 		{
 			llerrs << "can't read NumFaces from " << fileName << llendl;
+			return FALSE;
 		}
 		allocateFaceData( numFaces );
 
@@ -462,6 +476,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 			if (numRead != 3)
 			{
 				llerrs << "can't read Face[" << i << "] from " << fileName << llendl;
+				return FALSE;
 			}
 			if (mReferenceData)
 			{
@@ -518,6 +533,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 				if (numRead != 1)
 				{
 					llerrs << "can't read NumSkinJoints from " << fileName << llendl;
+					return FALSE;
 				}
 				allocateJointNames( numSkinJoints );
 			}
@@ -527,11 +543,13 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 			//----------------------------------------------------------------
 			for (i=0; i < numSkinJoints; i++)
 			{
-				char jointName[64];		/*Flawfinder: ignore*/
-				numRead = fread(jointName, sizeof(jointName), 1, fp);
+				char jointName[64+1];
+				numRead = fread(jointName, sizeof(jointName)-1, 1, fp);
+				jointName[sizeof(jointName)-1] = '\0'; // ensure nul-termination
 				if (numRead != 1)
 				{
 					llerrs << "can't read Skin[" << i << "].Name from " << fileName << llendl;
+					return FALSE;
 				}
 
 				std::string *jn = &mJointNames[i];
@@ -541,7 +559,8 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 			//-------------------------------------------------------------------------
 			// look for morph section
 			//-------------------------------------------------------------------------
-			char morphName[64];		/*Flawfinder: ignore*/
+			char morphName[64+1];
+			morphName[sizeof(morphName)-1] = '\0'; // ensure nul-termination
 			while(fread(&morphName, sizeof(char), 64, fp) == 64)
 			{
 				if (!strcmp(morphName, "End Morphs"))
@@ -970,6 +989,13 @@ BOOL LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
 		return FALSE;
 
 	LLXmlTreeNode* skeletalParam = node->getChildByName("param_skeleton");
+
+	if (NULL == skeletalParam)
+	{
+		llwarns << "Failed to getChildByName(\"param_skeleton\")"
+			<< llendl;
+		return FALSE;
+	}
 
 	for( LLXmlTreeNode* bone = skeletalParam->getFirstChild(); bone; bone = skeletalParam->getNextChild() )
 	{

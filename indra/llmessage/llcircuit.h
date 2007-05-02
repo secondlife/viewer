@@ -131,7 +131,7 @@ public:
 	//
 	void					checkPeriodTime();		// Reset per-period counters if necessary.
 	friend std::ostream&	operator<<(std::ostream& s, LLCircuitData &circuit);
-	const char* getInfoString() const;
+	const LLString getInfoString() const;
 
 	friend class LLCircuit;
 	friend class LLMessageSystem;
@@ -277,7 +277,7 @@ public:
 	void sendAcks();
 
 	friend std::ostream& operator<<(std::ostream& s, LLCircuit &circuit);
-	const char* getInfoString() const;
+	const LLString getInfoString() const;
 
 	void			dumpResends();
 

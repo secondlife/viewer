@@ -54,7 +54,6 @@
 const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
 
-#define LL_ENABLE_MAINLAND_VISIBLE_CONTROL 0
 
 ///----------------------------------------------------------------------------
 /// Local class declaration
@@ -1900,9 +1899,6 @@ BOOL LLPanelEstateInfo::postBuild()
 {
 	// set up the callbacks for the generic controls
 	initCtrl("externally_visible_check");
-#if LL_ENABLE_MAINLAND_VISIBLE_CONTROL
-	initCtrl("mainland_visible_check");
-#endif
 	initCtrl("use_global_time_check");
 	initCtrl("fixed_sun_check");
 	initCtrl("allow_direct_teleport");
@@ -1914,9 +1910,6 @@ BOOL LLPanelEstateInfo::postBuild()
 	initHelpBtn("use_global_time_help",			"HelpEstateUseGlobalTime");
 	initHelpBtn("fixed_sun_help",				"HelpEstateFixedSun");
 	initHelpBtn("externally_visible_help",		"HelpEstateExternallyVisible");
-#if LL_ENABLE_MAINLAND_VISIBLE_CONTROL
-	initHelpBtn("mainland_visible_help",		"HelpEstateMainlandVisible");
-#endif
 	initHelpBtn("allow_direct_teleport_help",	"HelpEstateAllowDirectTeleport");
 	initHelpBtn("allow_resident_help",			"HelpEstateAllowResident");
 	initHelpBtn("allow_group_help",				"HelpEstateAllowGroup");
@@ -2085,9 +2078,6 @@ void LLPanelEstateInfo::commitEstateInfo()
 void LLPanelEstateInfo::setEstateFlags(U32 flags)
 {
 	childSetValue("externally_visible_check", LLSD(flags & REGION_FLAGS_EXTERNALLY_VISIBLE ? TRUE : FALSE) );
-#if LL_ENABLE_MAINLAND_VISIBLE_CONTROL
-	childSetValue("mainland_visible_check", LLSD(flags & REGION_FLAGS_MAINLAND_VISIBLE ? TRUE : FALSE) );
-#endif
 	childSetValue("fixed_sun_check", LLSD(flags & REGION_FLAGS_SUN_FIXED ? TRUE : FALSE) );
 	childSetValue("allow_direct_teleport", LLSD(flags & REGION_FLAGS_ALLOW_DIRECT_TELEPORT ? TRUE : FALSE) );
 	childSetValue("deny_anonymous", LLSD(flags & REGION_FLAGS_DENY_ANONYMOUS ? TRUE : FALSE) );
@@ -2104,15 +2094,6 @@ U32 LLPanelEstateInfo::computeEstateFlags()
 	{
 		flags |= REGION_FLAGS_EXTERNALLY_VISIBLE;
 	}
-#if LL_ENABLE_MAINLAND_VISIBLE_CONTROL
-	// This flag is ignored by everything. 2006-11-17 Phoenix.
-	if (childGetValue("mainland_visible_check").asBoolean())
-	{
-		flags |= REGION_FLAGS_MAINLAND_VISIBLE;
-	}
-#else
-	flags |= REGION_FLAGS_MAINLAND_VISIBLE;
-#endif
 	
 	if (childGetValue("allow_direct_teleport").asBoolean())
 	{

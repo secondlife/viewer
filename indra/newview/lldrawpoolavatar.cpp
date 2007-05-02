@@ -82,7 +82,8 @@ BOOL gRenderAvatar = TRUE;
 
 S32 LLDrawPoolAvatar::getVertexShaderLevel() const
 {
-	return (S32) LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_AVATAR);
+	return sShaderLevel;
+	//return (S32) LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_AVATAR);
 }
 
 void LLDrawPoolAvatar::prerender()
@@ -177,20 +178,22 @@ void LLDrawPoolAvatar::endFootShadow()
 
 void LLDrawPoolAvatar::beginRigid()
 {
-	sVertexProgram = &gAvatarEyeballProgram;
+	sVertexProgram = NULL;
+	sShaderLevel = 0;
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	if (sShaderLevel > 0)
+	/*if (sShaderLevel > 0)
 	{	//eyeballs render with the specular shader
 		gAvatarEyeballProgram.bind();
 		gMaterialIndex = gAvatarEyeballProgram.mAttribute[LLShaderMgr::MATERIAL_COLOR];
 		gSpecularIndex = gAvatarEyeballProgram.mAttribute[LLShaderMgr::SPECULAR_COLOR];
-	}
+	}*/
 }
 
 void LLDrawPoolAvatar::endRigid()
 {
+	sShaderLevel = mVertexShaderLevel;
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }

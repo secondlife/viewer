@@ -125,8 +125,14 @@ extern BOOL gDebugClicks;
 extern void bad_network_handler();
 
 // function prototypes
-void open_offer(const std::vector<LLUUID>& items);
+void open_offer(const std::vector<LLUUID>& items, const std::string& from_name);
 void friendship_offer_callback(S32 option, void* user_data);
+bool check_offer_throttle(const std::string& from_name, bool check_only);
+
+//inventory offer throttle globals
+LLFrameTimer gThrottleTimer;
+const U32 OFFER_THROTTLE_MAX_COUNT=5; //number of items per time period
+const F32 OFFER_THROTTLE_TIME=10.f; //time period in seconds
 
 struct LLFriendshipOffer
 {
@@ -173,11 +179,6 @@ void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_
 	{
 		LLFloaterBuyCurrency::buyCurrency("Giving", amount);
 	}
-}
-
-BOOL can_afford_transaction(S32 cost)
-{
-	return((cost <= 0)||((gStatusBar) && (gStatusBar->getBalance() >=cost)));
 }
 
 void send_complete_agent_movement(const LLHost& sim_host)
@@ -255,9 +256,17 @@ void process_layer_data(LLMessageSystem *mesgsys, void **user_data)
 
 	mesgsys->getS8Fast(_PREHASH_LayerID, _PREHASH_Type, type);
 	size = mesgsys->getSizeFast(_PREHASH_LayerData, _PREHASH_Data);
-	if(!size)
+	if (0 == size)
 	{
 		llwarns << "Layer data has zero size." << llendl;
+		return;
+	}
+	if (size < 0)
+	{
+		// getSizeFast() is probably trying to tell us about an error
+		llwarns << "getSizeFast() returned negative result: "
+			<< size
+			<< llendl;
 		return;
 	}
 	U8 *datap = new U8[size];
@@ -306,25 +315,29 @@ void export_complete()
 		while ((pos = strstr(pos+1, "<sl:image ")) != 0)
 		{
 			char *pos_check = strstr(pos, "checksum=\"");
-			char *pos_uuid = strstr(pos_check, "\">");
 
-			if (pos_check && pos_uuid)
+			if (pos_check)
 			{
-				char image_uuid_str[UUID_STR_SIZE];		/* Flawfinder: ignore */
-				memcpy(image_uuid_str, pos_uuid+2, UUID_STR_SIZE-1);		/* Flawfinder: ignore */
-				image_uuid_str[UUID_STR_SIZE-1] = 0;
+				char *pos_uuid = strstr(pos_check, "\">");
 
-				LLUUID image_uuid(image_uuid_str);
-
-				llinfos << "Found UUID: " << image_uuid << llendl;
-
-				std::map<LLUUID, LLString>::iterator itor = gImageChecksums.find(image_uuid);
-				if (itor != gImageChecksums.end())
+				if (pos_uuid)
 				{
-					llinfos << "Replacing with checksum: " << itor->second << llendl;
-					if (itor->second.c_str() != NULL)
+					char image_uuid_str[UUID_STR_SIZE];		/* Flawfinder: ignore */
+					memcpy(image_uuid_str, pos_uuid+2, UUID_STR_SIZE-1);		/* Flawfinder: ignore */
+					image_uuid_str[UUID_STR_SIZE-1] = 0;
+					
+					LLUUID image_uuid(image_uuid_str);
+
+					llinfos << "Found UUID: " << image_uuid << llendl;
+
+					std::map<LLUUID, LLString>::iterator itor = gImageChecksums.find(image_uuid);
+					if (itor != gImageChecksums.end())
 					{
-						memcpy(&pos_check[10], itor->second.c_str(), 32);		/* Flawfinder: ignore */
+						llinfos << "Replacing with checksum: " << itor->second << llendl;
+						if (itor->second.c_str() != NULL)
+							{
+								memcpy(&pos_check[10], itor->second.c_str(), 32);		/* Flawfinder: ignore */
+							}
 					}
 				}
 			}
@@ -334,7 +347,7 @@ void export_complete()
 		fwrite(buffer, 1, length, fXMLOut);
 		fclose(fXMLOut);
 
-		delete buffer;
+		delete [] buffer;
 }
 
 
@@ -412,7 +425,7 @@ void exported_j2c_complete(const LLTSCode status, void *user_data)
 			char *end = strrchr(file_path, gDirUtilp->getDirDelimiter()[0]);
 			end[0] = 0;
 			LLString output_file = llformat("%s/image-%03d.tga", file_path, image_num);//filename;
-			delete file_path;
+			delete [] file_path;
 			//S32 name_len = output_file.length();
 			//strcpy(&output_file[name_len-3], "tga");
 			FILE* fOut = LLFile::fopen(output_file.c_str(), "wb");		/* Flawfinder: ignore */
@@ -579,31 +592,44 @@ void join_group_callback(S32 option, void* user_data)
 class LLOpenAgentOffer : public LLInventoryFetchObserver
 {
 public:
-	LLOpenAgentOffer() {}
-	virtual ~LLOpenAgentOffer() {}
-
-	virtual void done()
+	LLOpenAgentOffer(const std::string& from_name) : mFromName(from_name) {}
+	/*virtual*/ void done()
 	{
-		open_offer(mComplete);
+		open_offer(mComplete, mFromName);
 		gInventory.removeObserver(this);
 		delete this;
 	}
+private:
+	std::string mFromName;
 };
 
-class LLOpenTaskOffer : public LLInventoryExistenceObserver
+//unlike the FetchObserver for AgentOffer, we only make one 
+//instance of the AddedObserver for TaskOffers
+//and it never dies.  We do this because we don't know the UUID of 
+//task offers until they are accepted, so we don't wouldn't 
+//know what to watch for, so instead we just watch for all additions. -Gigs
+class LLOpenTaskOffer : public LLInventoryAddedObserver
 {
-public:
-	LLOpenTaskOffer() {}
-	virtual ~LLOpenTaskOffer() {}
-
 protected:
-	virtual void done()
+	/*virtual*/ void done()
 	{
-		open_offer(mExist);
-		gInventory.removeObserver(this);
-		delete this;
+		open_offer(mAdded, "");
+		mAdded.clear();
 	}
-};
+ };
+
+//one global instance to bind them
+LLOpenTaskOffer* gNewInventoryObserver=NULL;
+
+void start_new_inventory_observer()
+{
+	if (!gNewInventoryObserver) //task offer observer 
+	{
+		// Observer is deleted by gInventory
+		gNewInventoryObserver = new LLOpenTaskOffer;
+		gInventory.addObserver(gNewInventoryObserver);
+	}
+}
 
 class LLDiscardAgentOffer : public LLInventoryFetchComboObserver
 {
@@ -655,7 +681,71 @@ protected:
 };
 
 
-void open_offer(const std::vector<LLUUID>& items)
+//Returns TRUE if we are OK, FALSE if we are throttled
+//Set check_only true if you want to know the throttle status 
+//without registering a hit -Gigs
+bool check_offer_throttle(const std::string& from_name, bool check_only)
+{
+	static U32 throttle_count;
+	static bool throttle_logged;
+	LLChat chat;
+	LLString log_message;
+
+	if (!gSavedSettings.getBOOL("ShowNewInventory"))
+		return false;
+
+	if (check_only)
+	{
+		return gThrottleTimer.hasExpired();
+	}
+	
+	if(gThrottleTimer.checkExpirationAndReset(OFFER_THROTTLE_TIME))
+	{
+		//llinfos << "Throttle Expired" << llendl;
+		throttle_count=1;
+		throttle_logged=false;
+		return true;
+	}
+	else //has not expired
+	{
+		//llinfos << "Throttle Not Expired, Count: " << throttle_count << llendl;
+		// When downloading the initial inventory we get a lot of new items
+		// coming in and can't tell that from spam.  JC
+		if (gStartupState >= STATE_STARTED
+			&& throttle_count >= OFFER_THROTTLE_MAX_COUNT)
+		{
+			if (!throttle_logged)
+			{
+				// Use the name of the last item giver, who is probably the person
+				// spamming you. JC
+				std::ostringstream message;
+				message << gSecondLife;
+				if (!from_name.empty())
+				{
+					message << ": Items coming in too fast from " << from_name;
+				}
+				else
+				{
+					message << ": Items coming in too fast";
+				}
+				message << ", automatic preview disabled for "
+					<< OFFER_THROTTLE_TIME << " seconds.";
+				chat.mText = message.str();
+				//this is kinda important, so actually put it on screen
+				LLFloaterChat::addChat(chat, FALSE, FALSE);
+				throttle_logged=true;
+			}
+			return false;
+		}
+		else
+		{
+			throttle_count++;
+			return true;
+		}
+	}
+}
+ 
+void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 {
 	std::vector<LLUUID>::const_iterator it = items.begin();
 	std::vector<LLUUID>::const_iterator end = items.end();
@@ -673,33 +763,66 @@ void open_offer(const std::vector<LLUUID>& items)
 		{
 			continue;
 		}
-		switch(item->getType())
+		//if we are throttled, don't display them - Gigs
+		if (check_offer_throttle(from_name, false))
 		{
-		case LLAssetType::AT_NOTECARD:
-			open_notecard(*it, LLString("Note: ") + item->getName(), TRUE, LLUUID::null, FALSE);
-			break;
-		case LLAssetType::AT_LANDMARK:
-			open_landmark(*it, LLString("Landmark: ") + item->getName(), TRUE, LLUUID::null, FALSE);
-			break;
-		case LLAssetType::AT_TEXTURE:
-			open_texture(*it, LLString("Texture: ") + item->getName(), TRUE, LLUUID::null, FALSE);
-			break;
-		default:
-		{
-			// Don't auto-open the inventory - just select it if we
-			// already have an active inventory.
-			LLInventoryView* view = LLInventoryView::getActiveInventory();
-			if(view)
+			// I'm not sure this is a good idea.  JC
+			// bool show_keep_discard = item->getPermissions().getCreator() != gAgent.getID();
+			bool show_keep_discard = true;
+			switch(item->getType())
 			{
-				LLUICtrl* focus_ctrl = gFocusMgr.getKeyboardFocus();
-				LLFocusMgr::FocusLostCallback callback;
-				callback = gFocusMgr.getFocusCallback();
-				view->getPanel()->setSelection(item->getUUID(), TAKE_FOCUS_NO);
-				gFocusMgr.setKeyboardFocus(focus_ctrl, callback);
+			case LLAssetType::AT_NOTECARD:
+				open_notecard(*it, LLString("Note: ") + item->getName(), show_keep_discard, LLUUID::null, FALSE);
+				break;
+			case LLAssetType::AT_LANDMARK:
+				open_landmark(*it, LLString("Landmark: ") + item->getName(), show_keep_discard, LLUUID::null, FALSE);
+				break;
+			case LLAssetType::AT_TEXTURE:
+				open_texture(*it, LLString("Texture: ") + item->getName(), show_keep_discard, LLUUID::null, FALSE);
+				break;
+			default:
 				break;
 			}
 		}
+		//highlight item, if it's not in the trash or lost+found
+		
+		// Don't auto-open the inventory floater
+		LLInventoryView* view = LLInventoryView::getActiveInventory();
+		if(!view)
+		{
+			return;
 		}
+
+		//Trash Check
+		LLUUID trash_id;
+		trash_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_TRASH);
+		if(gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
+		{
+			return;
+		}
+		LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LOST_AND_FOUND);
+		//BOOL inventory_has_focus = gFocusMgr.childHasKeyboardFocus(view);
+		BOOL user_is_away = gAwayTimer.getStarted();
+
+		// don't select lost and found items if the user is active
+		if (gInventory.isObjectDescendentOf(item->getUUID(), lost_and_found_id)
+			&& !user_is_away)
+		{
+			return;
+		}
+
+		//Not sure about this check.  Could make it easy to miss incoming items. -Gigs
+		//don't dick with highlight while the user is working
+		//if(inventory_has_focus && !user_is_away)
+		//	break;
+		//llinfos << "Highlighting" << item->getUUID()  << llendl;
+		//highlight item
+
+		LLUICtrl* focus_ctrl = gFocusMgr.getKeyboardFocus();
+		LLFocusMgr::FocusLostCallback callback;
+		callback = gFocusMgr.getFocusCallback();
+		view->getPanel()->setSelection(item->getUUID(), TAKE_FOCUS_NO);
+		gFocusMgr.setKeyboardFocus(focus_ctrl, callback);
 	}
 }
 
@@ -787,11 +910,11 @@ void inventory_offer_callback(S32 option, void* user_data)
 			char group_name[MAX_STRING];		/* Flawfinder: ignore */
 			if (gCacheName->getGroupName(info->mFromID, group_name))
 			{
-				from_string = LLString("An object named ") + info->mFromName + " owned by the group '" + group_name + "'";
+				from_string = LLString("An object named '") + info->mFromName + "' owned by the group '" + group_name + "'";
 			}
 			else
 			{
-				from_string = LLString("An object named ") + info->mFromName + " owned by an unknown group";
+				from_string = LLString("An object named '") + info->mFromName + "' owned by an unknown group";
 			}
 		}
 		else
@@ -800,11 +923,11 @@ void inventory_offer_callback(S32 option, void* user_data)
 			char last_name[MAX_STRING];		/* Flawfinder: ignore */
 			if (gCacheName->getName(info->mFromID, first_name, last_name))
 			{
-				from_string = LLString("An object named ") + info->mFromName + " owned by " + first_name + " " + last_name;
+				from_string = LLString("An object named '") + info->mFromName + "' owned by " + first_name + " " + last_name;
 			}
 			else
 			{
-				from_string = LLString("An object named ") + info->mFromName + " owned by an unknown user";
+				from_string = LLString("An object named '") + info->mFromName + "' owned by an unknown user";
 			}
 		}
 	}
@@ -813,9 +936,11 @@ void inventory_offer_callback(S32 option, void* user_data)
 		from_string = info->mFromName;
 	}
 	
+	bool busy=FALSE;
+	
 	switch(option)
 	{
-	case 0:
+	case IOR_ACCEPT:
 		// ACCEPT. The math for the dialog works, because the accept
 		// for inventory_offered, task_inventory_offer or
 		// group_notice_inventory is 1 greater than the offer integer value.
@@ -826,9 +951,15 @@ void inventory_offer_callback(S32 option, void* user_data)
 					 sizeof(info->mFolderID.mData));
 		// send the message
 		msg->sendReliable(info->mHost);
-		log_message = info->mFromName + " gave you " + info->mDesc + ".";
-		chat.mText = log_message;
-		LLFloaterChat::addChatHistory(chat);
+
+		//don't spam them if they are getting flooded
+		if (check_offer_throttle(info->mFromName, true))
+		{
+ 			log_message = info->mFromName + " gave you " + info->mDesc + ".";
+ 			chat.mText = log_message;
+ 			LLFloaterChat::addChatHistory(chat);
+		}
+
 		// we will want to open this item when it comes back.
 		lldebugs << "Initializing an opener for tid: " << info->mTransactionID
 				 << llendl;
@@ -841,7 +972,7 @@ void inventory_offer_callback(S32 option, void* user_data)
 			// so we can fetch it out of our inventory.
 			LLInventoryFetchObserver::item_ref_t items;
 			items.push_back(info->mObjectID);
-			LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer;
+			LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(from_string);
 			open_agent_offer->fetchItems(items);
 			if(catp || (itemp && itemp->isComplete()))
 			{
@@ -857,22 +988,10 @@ void inventory_offer_callback(S32 option, void* user_data)
 		case IM_GROUP_NOTICE:
 		case IM_GROUP_NOTICE_REQUESTED:
 		{
-				// This is an offer from a task or group.
-				// Because it would be easy
-			// to write a task which would overload your inventory, we
-			// force the offer to stay in an instant message until
-			// accepted. Thus, we have to respond, and then wait for
-			// the update to come back before we open the item.
-			LLOpenTaskOffer* open_task_offer = new LLOpenTaskOffer;
-			open_task_offer->watchItem(info->mObjectID);
-			if(itemp && itemp->isComplete())
-			{
-				opener->changed(0x0);
-			}
-			else
-			{
-				opener = open_task_offer;
-			}
+			// This is an offer from a task or group.
+			// We don't use a new instance of an opener
+			// We instead use the singular observer gOpenTaskOffer
+			// Since it already exists, we don't need to actually do anything
 		}
 		break;
 		default:
@@ -881,9 +1000,12 @@ void inventory_offer_callback(S32 option, void* user_data)
 		}
 		break;
 
-	case 2:
+	case IOR_BUSY:
+		//Busy falls through to decline.  Says to make busy message.
+		busy=TRUE;
+	case IOR_MUTE:
 		// MUTE falls through to decline
-	case 1:
+	case IOR_DECLINE:
 		// DECLINE. The math for the dialog works, because the decline
 		// for inventory_offered, task_inventory_offer or
 		// group_notice_inventory is 2 greater than the offer integer value.
@@ -921,7 +1043,7 @@ void inventory_offer_callback(S32 option, void* user_data)
 			}
 			
 		}
-		if (!info->mFromGroup && !info->mFromObject)
+		if (busy || (!info->mFromGroup && !info->mFromObject))
 		{
 			busy_message(msg,info->mFromID);
 		}
@@ -944,88 +1066,81 @@ void inventory_offer_callback(S32 option, void* user_data)
 
 void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
 {
-	switch(info->mType)
+
+	//Until throttling is implmented, busy mode should reject inventory instead of silently
+	//accepting it.  SEE SL-39554
+	if (gAgent.getBusy())
+	{
+		inventory_offer_callback(IOR_BUSY, info);
+		return;
+	}
+	
+	//If muted, don't even go through the messaging stuff.  Just curtail the offer here.
+	if (gMuteListp->isMuted(info->mFromID, info->mFromName))
+	{
+		inventory_offer_callback(IOR_MUTE, info);
+		return;
+	}
+	
+	if (gSavedSettings.getBOOL("ShowNewInventory")
+		&& (info->mType == LLAssetType::AT_NOTECARD
+			|| info->mType == LLAssetType::AT_LANDMARK
+			|| info->mType == LLAssetType::AT_TEXTURE))
 	{
 		// For certain types, just accept the items into the inventory,
 		// and we'll automatically open them on receipt.
-	  case LLAssetType::AT_NOTECARD:
-	  case LLAssetType::AT_LANDMARK:
-	  case LLAssetType::AT_TEXTURE:
-	  {
-		  // 0 = accept button
-		  inventory_offer_callback(0, info);
-		  //LLInventoryView::sOpenNextNewItem = TRUE;
-	  }
-	  break;
+		// 0 = accept button
+		inventory_offer_callback(IOR_ACCEPT, info);
+		return;
+	}
 
-	  case LLAssetType::AT_SOUND:
-	  case LLAssetType::AT_CALLINGCARD:
-	  case LLAssetType::AT_SCRIPT:
-	  case LLAssetType::AT_CLOTHING:
-	  case LLAssetType::AT_OBJECT:
-	  case LLAssetType::AT_CATEGORY:
-	  case LLAssetType::AT_ROOT_CATEGORY:
-	  case LLAssetType::AT_LSL_TEXT:
-	  case LLAssetType::AT_LSL_BYTECODE:
-	  case LLAssetType::AT_TEXTURE_TGA:
-	  case LLAssetType::AT_BODYPART:
-	  case LLAssetType::AT_TRASH:
-	  case LLAssetType::AT_SNAPSHOT_CATEGORY:
-	  case LLAssetType::AT_LOST_AND_FOUND:
-	  case LLAssetType::AT_ANIMATION:
-	  case LLAssetType::AT_GESTURE:
-	  default:
-	  {
-		  LLString::format_map_t args;
-		  args["[OBJECTNAME]"] = info->mDesc;
-		  args["[OBJECTTYPE]"] = LLAssetType::lookupHumanReadable(info->mType);
+	LLString::format_map_t args;
+	args["[OBJECTNAME]"] = info->mDesc;
+	args["[OBJECTTYPE]"] = LLAssetType::lookupHumanReadable(info->mType);
 
-		  // Name cache callbacks don't store userdata, so can't save
-		  // off the LLOfferInfo.  Argh.  JC
-		  BOOL name_found = FALSE;
-		  char first_name[MAX_STRING];		/* Flawfinder: ignore */
-		  char last_name[MAX_STRING];		/* Flawfinder: ignore */
-		  if (info->mFromGroup)
-		  {
-			  if (gCacheName->getGroupName(info->mFromID, first_name))
-			  {
-				  args["[FIRST]"] = first_name;
-				  args["[LAST]"] = "";
-				  name_found = TRUE;
-			  }
-		  }
-		  else
-		  {
-			  if (gCacheName->getName(info->mFromID, first_name, last_name))
-			  {
-				  args["[FIRST]"] = first_name;
-				  args["[LAST]"] = last_name;
-				  name_found = TRUE;
-			  }
-		  }
-		  if (from_task)
-		  {
-			  args["[OBJECTFROMNAME]"] = info->mFromName;
-			  if (name_found)
-			  {
-				  LLNotifyBox::showXml("ObjectGiveItem", args,
-									   &inventory_offer_callback, (void*)info);
-			  }
-			  else
-			  {
-				  LLNotifyBox::showXml("ObjectGiveItemUnknownUser", args,
-									   &inventory_offer_callback, (void*)info);
-			  }
-		  }
-		  else
-		  {
-			  // XUI:translate -> [FIRST] [LAST]
-			  args["[NAME]"] = info->mFromName;
-			  LLNotifyBox::showXml("UserGiveItem", args,
-								   &inventory_offer_callback, (void*)info);
-		  }
-		  break;
-	  }
+	// Name cache callbacks don't store userdata, so can't save
+	// off the LLOfferInfo.  Argh.  JC
+	BOOL name_found = FALSE;
+	char first_name[MAX_STRING];		/* Flawfinder: ignore */
+	char last_name[MAX_STRING];		/* Flawfinder: ignore */
+	if (info->mFromGroup)
+	{
+		if (gCacheName->getGroupName(info->mFromID, first_name))
+		{
+			args["[FIRST]"] = first_name;
+			args["[LAST]"] = "";
+			name_found = TRUE;
+		}
+	}
+	else
+	{
+		if (gCacheName->getName(info->mFromID, first_name, last_name))
+		{
+			args["[FIRST]"] = first_name;
+			args["[LAST]"] = last_name;
+			name_found = TRUE;
+		}
+	}
+	if (from_task)
+	{
+		args["[OBJECTFROMNAME]"] = info->mFromName;
+		if (name_found)
+		{
+			LLNotifyBox::showXml("ObjectGiveItem", args,
+								&inventory_offer_callback, (void*)info);
+		}
+		else
+		{
+			LLNotifyBox::showXml("ObjectGiveItemUnknownUser", args,
+								&inventory_offer_callback, (void*)info);
+		}
+	}
+	else
+	{
+		// XUI:translate -> [FIRST] [LAST]
+		args["[NAME]"] = info->mFromName;
+		LLNotifyBox::showXml("UserGiveItem", args,
+							&inventory_offer_callback, (void*)info);
 	}
 }
 
@@ -1740,6 +1855,14 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 	case IM_GOTO_URL:
 		{
+			if (binary_bucket_size <= 0)
+			{
+				llwarns << "bad binary_bucket_size: "
+					<< binary_bucket_size
+					<< " - aborting function." << llendl;
+				return;
+			}
+
 			char* url = new char[binary_bucket_size];
 			if (url == NULL)
 			{
@@ -1965,16 +2088,22 @@ void process_offer_callingcard(LLMessageSystem* msg, void**)
 		{
 			// automatically decline offer
 			callingcard_offer_callback(1, (void*)offerdata);
-			return;
+			offerdata = NULL; // pointer was freed by callback
 		}
-
-		LLNotifyBox::showXml("OfferCallingCard", args,
-							 &callingcard_offer_callback, (void*)offerdata);
+		else
+		{
+			LLNotifyBox::showXml("OfferCallingCard", args,
+					     &callingcard_offer_callback, (void*)offerdata);
+			offerdata = NULL; // pointer ownership transferred
+		}
 	}
 	else
 	{
 		llwarns << "Calling card offer from an unknown source." << llendl;
 	}
+
+	delete offerdata; // !=NULL if we didn't give ownership away
+	offerdata = NULL;
 }
 
 void process_accept_callingcard(LLMessageSystem* msg, void**)
@@ -3589,7 +3718,7 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 	if (object)
 	{
 		LLVector3 sit_spot = object->getPositionAgent() + (sitPosition * object->getRotation());
-		if (!use_autopilot || (avatar->mIsSitting && avatar->getRoot() == object->getRoot()))
+		if (!use_autopilot || (avatar && avatar->mIsSitting && avatar->getRoot() == object->getRoot()))
 		{
 			//we're already sitting on this object, so don't autopilot
 		}
@@ -4982,9 +5111,10 @@ void onCovenantLoadComplete(LLVFS *vfs,
 		
 		if( (file_length > 19) && !strncmp( buffer, "Linden text version", 19 ) )
 		{
-			LLViewerTextEditor* editor = new LLViewerTextEditor("temp",
-																LLRect(0,0,0,0),
-																file_length+1);
+			LLViewerTextEditor* editor =
+				new LLViewerTextEditor("temp",
+						       LLRect(0,0,0,0),
+						       file_length+1);
 			if( !editor->importBuffer( buffer ) )
 			{
 				llwarns << "Problem importing estate covenant." << llendl;
@@ -5000,27 +5130,32 @@ void onCovenantLoadComplete(LLVFS *vfs,
 		}
 		else
 		{
-			if( gViewerStats )
-			{
-				gViewerStats->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
-			}
-
-			if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
-				LL_ERR_FILE_EMPTY == status)
-			{
-				covenant_text = "Estate covenant notecard is missing from database.";
-			}
-			else if (LL_ERR_INSUFFICIENT_PERMISSIONS == status)
-			{
-				covenant_text = "Insufficient permissions to view estate covenant.";
-			}
-			else
-			{
-				covenant_text = "Unable to load estate covenant at this time.";
-			}
-
-			llwarns << "Problem loading notecard: " << status << llendl;
+			llwarns << "Problem importing estate covenant: Covenant file format error." << llendl;
+			covenant_text = "Problem importing estate covenant: Covenant file format error.";
 		}
+	}
+	else
+	{
+		if( gViewerStats )
+		{
+			gViewerStats->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
+		}
+		
+		if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
+		    LL_ERR_FILE_EMPTY == status)
+		{
+			covenant_text = "Estate covenant notecard is missing from database.";
+		}
+		else if (LL_ERR_INSUFFICIENT_PERMISSIONS == status)
+		{
+			covenant_text = "Insufficient permissions to view estate covenant.";
+		}
+		else
+		{
+			covenant_text = "Unable to load estate covenant at this time.";
+		}
+		
+		llwarns << "Problem loading notecard: " << status << llendl;
 	}
 	LLPanelEstateCovenant::updateCovenantText(covenant_text, asset_uuid);
 	LLPanelLandCovenant::updateCovenantText(covenant_text);

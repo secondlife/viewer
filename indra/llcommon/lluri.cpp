@@ -94,6 +94,13 @@ namespace
 		{ return LLURI::escape(s, unreserved() + ":@!$'()*+,="); }	// sub_delims - "&;" + ":@"
 }
 
+// TODO: USE CURL!! After http textures gets merged everywhere.
+// static
+std::string LLURI::escape(const std::string& str)
+{
+	return escape(str,unreserved()  + ":@!$'()*+,=");
+}
+
 LLURI::LLURI()
 {
 }

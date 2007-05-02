@@ -167,6 +167,12 @@ BOOL LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
 		ParameterizedMotion* firstMotion = NULL;
 		ParameterizedMotion* secondMotion = NULL;
 
+		if (NULL == paramValue) // unexpected, but...
+		{
+			llwarns << "paramValue == NULL" << llendl;
+			continue;
+		}
+
 		for (ParameterizedMotion* paramMotion = motionList->getFirstData(); paramMotion; paramMotion = motionList->getNextData())
 		{
 			paramMotion->first->onUpdate(time, joint_mask);

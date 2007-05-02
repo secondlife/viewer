@@ -21,7 +21,7 @@
 #include "lluploaddialog.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
-#include "llviewermenu.h"
+#include "llviewermenufile.h"
 #include "llviewerwindow.h"
 #include "viewer.h"
 

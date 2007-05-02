@@ -62,7 +62,8 @@ void LLXfer_File::init (const LLString& local_filename, BOOL delete_local_on_com
 
 	if (!local_filename.empty())
 	{
-		strncpy(mLocalFilename, local_filename.c_str(), LL_MAX_PATH);		/* Flawfinder : ignore */
+		strncpy(mLocalFilename, local_filename.c_str(), LL_MAX_PATH-1);
+		mLocalFilename[LL_MAX_PATH-1] = '\0'; // stupid strncpy.
 
 		// You can only automatically delete .tmp file as a safeguard against nasty messages.
 		mDeleteLocalOnCompletion = (delete_local_on_completion && (strstr(mLocalFilename,".tmp") == &mLocalFilename[strlen(mLocalFilename)-4]));		/* Flawfinder : ignore */
@@ -97,19 +98,21 @@ void LLXfer_File::free ()
 ///////////////////////////////////////////////////////////
 
 S32 LLXfer_File::initializeRequest(U64 xfer_id,
-								   const LLString& local_filename,
-								   const LLString& remote_filename,
-								   ELLPath remote_path,
-								   const LLHost& remote_host,
-								   BOOL delete_remote_on_completion,
-								   void (*callback)(void**,S32),
-								   void** user_data)
+				   const LLString& local_filename,
+				   const LLString& remote_filename,
+				   ELLPath remote_path,
+				   const LLHost& remote_host,
+				   BOOL delete_remote_on_completion,
+				   void (*callback)(void**,S32),
+				   void** user_data)
 {
  	S32 retval = 0;  // presume success
 	
 	mID = xfer_id;
-	strncpy(mLocalFilename, local_filename.c_str(), LL_MAX_PATH);		/* Flawfinder : ignore */
-	strncpy(mRemoteFilename,remote_filename.c_str(), LL_MAX_PATH);		/* Flawfinder : ignore */
+	strncpy(mLocalFilename, local_filename.c_str(), LL_MAX_PATH-1);
+	mLocalFilename[LL_MAX_PATH-1] = '\0'; // stupid strncpy.
+	strncpy(mRemoteFilename,remote_filename.c_str(), LL_MAX_PATH-1);
+	mRemoteFilename[LL_MAX_PATH-1] = '\0'; // stupid strncpy.
 	mRemotePath = remote_path;
 	mRemoteHost = remote_host;
 	mDeleteRemoteOnCompletion = delete_remote_on_completion;

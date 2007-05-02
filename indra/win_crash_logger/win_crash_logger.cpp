@@ -180,7 +180,8 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 			{
 				i++;
 				
-				mbstowcs(gProductName, argv[i], sizeof(gProductName));
+				mbstowcs(gProductName, argv[i], sizeof(gProductName)/sizeof(gProductName[0]));
+				gProductName[ sizeof(gProductName)/sizeof(gProductName[0]) - 1 ] = 0;
 				llinfos << "Got product name " << argv[i] << llendl;
 			}
 		}
@@ -369,6 +370,7 @@ class LLFileEncoder
 {
 public:
 	LLFileEncoder(const char *formname, const char *filename);
+	~LLFileEncoder();
 
 	BOOL isValid() const { return mIsValid; }
 	LLString encodeURL(const S32 max_length = 0);
@@ -815,6 +817,15 @@ LLFileEncoder::LLFileEncoder(const char *form_name, const char *filename)
 	mBufLength = buf_size;
 
 	mIsValid = TRUE;
+}
+
+LLFileEncoder::~LLFileEncoder()
+{
+	if (mBuf)
+	{
+		delete mBuf;
+		mBuf = NULL;
+	}
 }
 
 LLString LLFileEncoder::encodeURL(const S32 max_length)

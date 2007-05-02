@@ -709,14 +709,18 @@ void LLMenuItemTearOffGL::doIt()
 
 		LLFloater* parent_floater = LLFloater::getFloaterByHandle(mParentHandle);
 		LLFloater* tear_off_menu = LLTearOffMenu::create(getMenu());
-		if (parent_floater && tear_off_menu)
-		{
-			parent_floater->addDependentFloater(tear_off_menu, FALSE);
-		}
 
-		// give focus to torn off menu because it will have been taken away
-		// when parent menu closes
-		tear_off_menu->setFocus(TRUE);
+		if (tear_off_menu)
+		{
+			if (parent_floater)
+			{
+				parent_floater->addDependentFloater(tear_off_menu, FALSE);
+			}
+
+			// give focus to torn off menu because it will have
+			// been taken away when parent menu closes
+			tear_off_menu->setFocus(TRUE);
+		}
 	}
 	LLMenuItemGL::doIt();
 }

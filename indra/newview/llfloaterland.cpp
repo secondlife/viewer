@@ -1976,12 +1976,18 @@ BOOL LLPanelLandOptions::postBuild()
 
 	
 	mSnapshotCtrl = LLUICtrlFactory::getTexturePickerByName(this, "snapshot_ctrl");
-	mSnapshotCtrl->setCommitCallback( onCommitAny );
-	mSnapshotCtrl->setCallbackUserData( this );
-	mSnapshotCtrl->setAllowNoTexture ( TRUE );
-	mSnapshotCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-	mSnapshotCtrl->setNonImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-
+	if (mSnapshotCtrl)
+	{
+		mSnapshotCtrl->setCommitCallback( onCommitAny );
+		mSnapshotCtrl->setCallbackUserData( this );
+		mSnapshotCtrl->setAllowNoTexture ( TRUE );
+		mSnapshotCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
+		mSnapshotCtrl->setNonImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
+	}
+	else
+	{
+		llwarns << "LLUICtrlFactory::getTexturePickerByName() returned NULL for 'snapshot_ctrl'" << llendl;
+	}
 
 
 	mLocationText = LLUICtrlFactory::getTextBoxByName(this, "Landing Point: (none)");
@@ -2313,12 +2319,19 @@ BOOL LLPanelLandMedia::postBuild()
 
 
 	mMediaTextureCtrl = LLUICtrlFactory::getTexturePickerByName(this, "media texture");
-	mMediaTextureCtrl->setCommitCallback( onCommitAny );
-	mMediaTextureCtrl->setCallbackUserData( this );
-	mMediaTextureCtrl->setAllowNoTexture ( TRUE );
-	mMediaTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-	mMediaTextureCtrl->setNonImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-
+	if (mMediaTextureCtrl)
+	{
+		mMediaTextureCtrl->setCommitCallback( onCommitAny );
+		mMediaTextureCtrl->setCallbackUserData( this );
+		mMediaTextureCtrl->setAllowNoTexture ( TRUE );
+		mMediaTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
+		mMediaTextureCtrl->setNonImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
+	}
+	else
+	{
+		llwarns << "LLUICtrlFactory::getTexturePickerByName() returned NULL for 'media texure'" << llendl;
+	}
+		
 	mMediaAutoScaleCheck = LLUICtrlFactory::getCheckBoxByName(this, "media_auto_scale");
 	childSetCommitCallback("media_auto_scale", onCommitAny, this);
 

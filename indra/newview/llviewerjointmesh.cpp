@@ -196,11 +196,11 @@ S32 LLViewerJointMesh::getBoundJointsByIndex(S32 index, S32 &joint_a, S32& joint
 		if (render_datap->mSkinJoint)
 		{
 			joint_b = render_datap->mSkinJoint->mJoint->mJointNum;
-		}
 
-		if (joint_a == -1)
-		{
-			joint_a = render_datap->mSkinJoint->mJoint->getParent()->mJointNum;
+			if (joint_a == -1)
+			{
+				joint_a = render_datap->mSkinJoint->mJoint->getParent()->mJointNum;
+			}
 		}
 		num_joints++;
 	}

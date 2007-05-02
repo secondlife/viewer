@@ -28,6 +28,14 @@ class LLViewerRegion;
 // Prototypes
 //
 
+enum InventoryOfferResponse
+{
+	IOR_ACCEPT,
+	IOR_DECLINE,
+	IOR_MUTE,
+	IOR_BUSY
+};
+
 BOOL can_afford_transaction(S32 cost);
 void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_group = FALSE,
 				S32 trx_type = TRANS_GIFT, const LLString& desc = LLString::null);
@@ -170,6 +178,7 @@ void invalid_message_callback(LLMessageSystem*, void*, EMessageException);
 
 void process_initiate_download(LLMessageSystem* msg, void**);
 void inventory_offer_callback(S32 option, void* user_data);
+void start_new_inventory_observer();
 
 struct LLOfferInfo
 {

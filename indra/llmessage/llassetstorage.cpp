@@ -37,10 +37,6 @@ LLAssetStorage *gAssetStorage = NULL;
 
 const LLUUID CATEGORIZE_LOST_AND_FOUND_ID("00000000-0000-0000-0000-000000000010");
 
-const F32 LL_ASSET_STORAGE_TIMEOUT = 300.0f;  // anything that takes longer than this will abort
-
-
-
 ///----------------------------------------------------------------------------
 /// LLAssetInfo
 ///----------------------------------------------------------------------------
@@ -816,43 +812,6 @@ void LLAssetStorage::downloadInvItemCompleteCallback(
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Store routines
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// virtual
-void LLAssetStorage::cancelStoreAsset(
-	const LLUUID& uuid,
-	LLAssetType::EType atype)
-{
-	bool do_callback = true;
-	LLAssetRequest* req = NULL;
-
-	if(mPendingUploads.size() > 0)
-	{
-		req = mPendingUploads.front();
-		if((req->getUUID() == uuid) && (req->getType() == atype))
-		{
-			// This is probably because the request is in progress - do
-			// not attempt to cancel.
-			do_callback = false;
-		}
-	}
-
-	if (mPendingLocalUploads.size() > 0)
-		{
-		req = mPendingLocalUploads.front();
-		if((req->getUUID() == uuid) && (req->getType() == atype))
-		{
-			// This is probably because the request is in progress - do
-			// not attempt to cancel.
-			do_callback = false;
-		}		
-	}
-
-	if (do_callback)
-	{
-			// clear it out of the upload queue if it is there.
-			_callUploadCallbacks(uuid, atype, FALSE);
-	}
-}
 
 // static
 void LLAssetStorage::uploadCompleteCallback(const LLUUID& uuid, void *user_data, S32 result) // StoreAssetData callback (fixed)

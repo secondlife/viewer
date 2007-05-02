@@ -431,8 +431,9 @@ void LLFilePicker::reset()
 
 void LLFilePicker::buildFilename( void )
 {
-	strncpy( mFilename, mFiles, LL_MAX_PATH );	/*Flawfinder: ignore*/
-	S32 len = strlen( mFilename );	/*Flawfinder: ignore*/
+	strncpy( mFilename, mFiles, LL_MAX_PATH );
+	mFilename[LL_MAX_PATH-1] = '\0'; // stupid strncpy
+	S32 len = strlen( mFilename );
 
 	strncat(mFilename,gDirUtilp->getDirDelimiter().c_str(), sizeof(mFilename)-len+1);		/*Flawfinder: ignore*/
 	len += strlen(gDirUtilp->getDirDelimiter().c_str());	/*Flawfinder: ignore*/
@@ -838,7 +839,10 @@ void LLFilePicker::getFilePath(SInt32 index)
 {
 	mFiles[0] = 0;
 	if (mFileVector.size())
-		strncpy(mFiles, mFileVector[index].c_str(), sizeof(mFiles));	/*Flawfinder: ignore*/ 	
+	{
+		strncpy(mFiles, mFileVector[index].c_str(), sizeof(mFiles));
+		mFiles[sizeof(mFiles)-1] = '\0'; // stupid strncpy
+	}
 }
 
 void LLFilePicker::getFileName(SInt32 index)
@@ -848,7 +852,10 @@ void LLFilePicker::getFileName(SInt32 index)
 	{
 		char	*start = strrchr(mFileVector[index].c_str(), '/');
 		if (start && ((start + 1 - mFileVector[index].c_str()) < (mFileVector[index].size())))
-			strncpy(mFilename, start + 1, sizeof(mFilename));		/*Flawfinder: ignore*/
+		{
+			strncpy(mFilename, start + 1, sizeof(mFilename));
+			mFilename[sizeof(mFilename)-1] = '\0';// stupid strncpy
+		}
 	}
 }
 

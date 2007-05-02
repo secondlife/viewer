@@ -921,8 +921,8 @@ void LLTabContainer::addTabPanel(LLPanel* child,
 	else
 	{
 		LLString tooltip = trimmed_label;
-		tooltip += "\nCtrl-[ for previous tab";
-		tooltip += "\nCtrl-] for next tab";
+		tooltip += "\nAlt-Left arrow for previous tab";
+		tooltip += "\nAlt-Right arrow for next tab";
 
 		LLButton* btn = new LLButton(
 			LLString(child->getName()) + " tab",
@@ -1466,12 +1466,12 @@ BOOL LLTabContainer::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 	if (!gFocusMgr.childHasKeyboardFocus(this)) return FALSE;
 
 	BOOL handled = FALSE;
-	if (key == '[' && mask == MASK_CONTROL)
+	if (key == KEY_LEFT && mask == MASK_ALT)
 	{
 		selectPrevTab();
 		handled = TRUE;
 	}
-	else if (key == ']' && mask == MASK_CONTROL)
+	else if (key == KEY_RIGHT && mask == MASK_ALT)
 	{
 		selectNextTab();
 		handled = TRUE;

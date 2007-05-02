@@ -472,7 +472,6 @@ private:
 	ESelectType getSelectTypeForObject(LLViewerObject* object);
 	void addAsFamily(LLDynamicArray<LLViewerObject*>& objects, BOOL add_to_end = FALSE);
 	void generateSilhouette(LLSelectNode *nodep, const LLVector3& view_point);
-	void getSilhouetteExtents(LLSelectNode* nodep, const LLQuaternion& orientation, LLVector3& min_extents, LLVector3& max_extents);
 	// Send one message to each region containing an object on selection list.
 	void sendListToRegions(	const LLString& message_name,
 							void (*pack_header)(void *user_data), 

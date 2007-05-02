@@ -34,7 +34,7 @@ public:
 	virtual EWidgetType getWidgetType() const;
 	virtual LLString getWidgetTag() const;
 
-	virtual BOOL	isCtrl();
+	virtual BOOL isCtrl() const;
 
 	// llview functionality
 	virtual void draw();

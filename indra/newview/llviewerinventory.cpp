@@ -442,10 +442,6 @@ bool LLViewerInventoryCategory::importFileLocal(FILE* fp)
 		fgets(buffer, MAX_STRING, fp);
 		sscanf(	/* Flawfinder: ignore */
 			buffer, " %254s %254s", keyword, valuestr); 
-		if(!keyword)
-		{
-			continue;
-		}
 		if(0 == strcmp("{",keyword))
 		{
 			continue;

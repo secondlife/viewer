@@ -123,6 +123,9 @@ protected:
 	LLFrameTimer*	mHealthTimer;
 };
 
+// *HACK: Status bar owns your cached money balance. JC
+BOOL can_afford_transaction(S32 cost);
+
 extern LLStatusBar *gStatusBar;
 
 #endif

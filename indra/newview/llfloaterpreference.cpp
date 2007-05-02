@@ -155,6 +155,66 @@ LLPreferenceCore::LLPreferenceCore(LLTabContainerCommon* tab_container, LLButton
 //	addTabPanel(mWebPanel, "Web", FALSE, onTabChanged, this);
 }
 
+LLPreferenceCore::~LLPreferenceCore()
+{
+	if (mGeneralPanel)
+	{
+		delete mGeneralPanel;
+		mGeneralPanel = NULL;
+	}
+	if (mInputPanel)
+	{
+		delete mInputPanel;
+		mInputPanel = NULL;
+	}
+	if (mNetworkPanel)
+	{
+		delete mNetworkPanel;
+		mNetworkPanel = NULL;
+	}
+	if (mDisplayPanel)
+	{
+		delete mDisplayPanel;
+		mDisplayPanel = NULL;
+	}
+	if (mDisplayPanel2)
+	{
+		delete mDisplayPanel2;
+		mDisplayPanel2 = NULL;
+	}
+	if (mDisplayPanel3)
+	{
+		delete mDisplayPanel3;
+		mDisplayPanel3 = NULL;
+	}
+	if (mAudioPanel)
+	{
+		delete mAudioPanel;
+		mAudioPanel = NULL;
+	}
+	if (mPrefsChat)
+	{
+		delete mPrefsChat;
+		mPrefsChat = NULL;
+	}
+	if (mPrefsIM)
+	{
+		delete mPrefsIM;
+		mPrefsIM = NULL;
+	}
+	if (mMsgPanel)
+	{
+		delete mMsgPanel;
+		mMsgPanel = NULL;
+	}
+	//if (mWebPanel)
+	//{
+	//	delete mWebPanel;
+	//	mWebPanel = NULL;
+	//}
+}
+
+
 void LLPreferenceCore::apply()
 {
 	mGeneralPanel->apply();

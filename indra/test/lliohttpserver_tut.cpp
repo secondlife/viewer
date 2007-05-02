@@ -97,7 +97,7 @@ namespace tut
 			LLSD context;
 
 			chain.push_back(LLIOPipe::ptr_t(injector));
-			LLCreateHTTPPipe(chain, mRoot, LLSD());
+			LLIOHTTPServer::createPipe(chain, mRoot, LLSD());
 			chain.push_back(LLIOPipe::ptr_t(extractor));
 
 			pump->addChain(chain, DEFAULT_CHAIN_EXPIRY_SECS);
