@@ -22,11 +22,9 @@ ATI All-in-Wonder X1800			.*ATI.*All-in-Wonder X18.*				3
 ATI All-in-Wonder X1900			.*ATI.*All-in-Wonder X19.*				3
 ATI ASUS X1xxx					.*ASUS X1.*			 					3
 ATI Mobility Radeon X1xxx		.*ATI.*Mobility.*X1.*					2
-// HACK: We crash on startup on some Mobility Radeon chips, with 1.15.0
-// in FMOD (!).  Try defaulting them to class 0. JC
-ATI Mobility Radeon X3xx		.*ATI.*Mobility.*X3.*					0
-ATI Mobility Radeon X6xx		.*ATI.*Mobility.*X6.*					0
-ATI Mobility Radeon X7xx		.*ATI.*Mobility.*X7.*					0
+ATI Mobility Radeon X3xx		.*ATI.*Mobility.*X3.*					1
+ATI Mobility Radeon X6xx		.*ATI.*Mobility.*X6.*					1
+ATI Mobility Radeon X7xx		.*ATI.*Mobility.*X7.*					1
 ATI Radeon OpenGL				.*ATI.*Radeon OpenGL.* 					3
 ATI Diamond X1xxx				.*ATI.*Diamond.*X1.*					3
 ATI FireGL 5xxx					.*ATI.*FireGL V5.*						3

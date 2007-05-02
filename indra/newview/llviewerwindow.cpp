@@ -1484,27 +1484,8 @@ LLViewerWindow::LLViewerWindow(
 	// stuff like AGP if we think that it'll crash the viewer.
 	//
 	gFeatureManagerp->initGraphicsFeatureMasks();
-
-	// The ATI Mobility Radeon with 1.15.0 causes crashes in FMOD on startup for
-	// unknown reasons, but only if you have an old settings.ini file.
-	// In this case, force the graphics settings back to recommended, but only
-	// do it once. JC
-	std::string gpu_string = gFeatureManagerp->getGPUString();
-	LLString::toLower(gpu_string);
-	bool upgrade_to_1_15 = (gSavedSettings.getString("LastRunVersion") != "1.15.0");
-	bool mobility_radeon = (gpu_string.find("mobility radeon") != std::string::npos);
-	bool mobility_radeon_upgrade_hack = upgrade_to_1_15 && mobility_radeon;
-	if (mobility_radeon_upgrade_hack)
-	{
-		llinfos << "1.15.0 update on Mobility Radeon" << llendl;
-		llinfos << "Forcing recommended graphics settings" << llendl;
-		llinfos << "Forcing audio off" << llendl;
-		gUseAudio = FALSE;
-	}
-
 	if (gFeatureManagerp->isSafe()
-		|| (gSavedSettings.getS32("LastFeatureVersion") != gFeatureManagerp->getVersion())
-		|| mobility_radeon_upgrade_hack)
+		|| (gSavedSettings.getS32("LastFeatureVersion") != gFeatureManagerp->getVersion()))
 	{
 		gFeatureManagerp->applyRecommendedFeatures();
 	}
