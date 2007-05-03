@@ -21,11 +21,27 @@
 
 #include "lldate.h"
 #include "lluri.h"
+#include "llmath.h"
 
 class LLSD;
 
 namespace tut
 {
+	inline void ensure_approximately_equals(const char* msg, F32 actual, F32 expected, U32 frac_bits)
+	{
+		if(!is_approx_equal_fraction(actual, expected, frac_bits))
+		{
+			std::stringstream ss;
+			ss << (msg?msg:"") << (msg?": ":"") << "not equal actual: " << actual << " expected: " << expected;
+			throw tut::failure(ss.str().c_str());
+		}
+	}
+
+	inline void ensure_approximately_equals(F32 actual, F32 expected, U32 frac_bits)
+	{
+		ensure_approximately_equals(NULL, actual, expected, frac_bits);
+	}
+
 	inline void ensure_memory_matches(const char* msg,const void* actual, U32 actual_len, const void* expected,U32 expected_len)
 	{
 		if((expected_len != actual_len) || 

@@ -1023,7 +1023,7 @@ void LLStringBase<T>::copyInto(std::basic_string<T>& dst, const std::basic_strin
 	}
 	else
 	{
-		LLWString tail = dst.substr(offset);
+		std::basic_string<T> tail = dst.substr(offset);
 
 		dst = dst.substr(0, offset);
 		dst += src;

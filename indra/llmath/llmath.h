@@ -79,6 +79,27 @@ inline BOOL is_approx_equal(F32 x, F32 y)
 	return (abs((S32) ((U32&)x - (U32&)y) ) < COMPARE_MANTISSA_UP_TO_BIT);
 }
 
+inline BOOL is_approx_equal_fraction(F32 x, F32 y, U32 frac_bits)
+{
+	BOOL ret = TRUE;
+	F32 diff = (F32) fabs(x - y);
+
+	S32 diffInt = (S32) diff;
+	S32 diffFracTolerance = (S32) ((diff - (F32) diffInt) * (1 << frac_bits));
+	
+	// if integer portion is not equal, not enough bits were used for packing
+	// so error out since either the use case is not correct OR there is
+	// an issue with pack/unpack. should fail in either case.
+	// for decimal portion, make sure that the delta is no more than 1
+	// based on the number of bits used for packing decimal portion.
+	if (diffInt != 0 || diffFracTolerance > 1)
+	{
+		ret = FALSE;
+	}
+
+	return ret;
+}
+
 inline S32 llabs(const S32 a)
 {
 	return S32(labs(a));
