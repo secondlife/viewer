@@ -966,7 +966,6 @@ void LLScrollListCtrl::highlightNthItem(S32 target_index)
 	if (mHighlightedItem != target_index)
 	{
 		mHighlightedItem = target_index;
-		llinfos << "Highlighting item " << target_index << llendl;
 	}
 }
 
@@ -2089,7 +2088,7 @@ void LLScrollListCtrl::deselectItem(LLScrollListItem* itemp)
 
 void LLScrollListCtrl::commitIfChanged()
 {
-	if (mSelectionChanged && !hasMouseCapture())
+	if (mSelectionChanged)
 	{
 		mSelectionChanged = FALSE;
 		onCommit();
