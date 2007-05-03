@@ -1731,29 +1731,7 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 		success &= dp.packVector3(shared_constraintp->mSourceConstraintOffset, "source_offset");
 		if (shared_constraintp->mConstraintTargetType == TYPE_GROUND)
 		{
-			success &= dp.packU8(shared_constraintp->mChainLength, "chain_length");
-			success &= dp.packU8(shared_constraintp->mConstraintType, "constraint_type");
-			char volume_name[16];	/* Flawfinder: ignore */
-			snprintf(volume_name, sizeof(volume_name), "%s",	/* Flawfinder: ignore */
-				mCharacter->findCollisionVolume(shared_constraintp->mSourceConstraintVolume)->getName().c_str()); 
-			success &= dp.packBinaryDataFixed((U8*)volume_name, 16, "source_volume");
-			success &= dp.packVector3(shared_constraintp->mSourceConstraintOffset, "source_offset");
-			if (shared_constraintp->mConstraintTargetType == TYPE_GROUND)
-			{
-				snprintf(volume_name,sizeof(volume_name), "%s", "GROUND");	/* Flawfinder: ignore */
-			}
-			else
-			{
-				snprintf(volume_name, sizeof(volume_name),"%s", 	/* Flawfinder: ignore */
-					mCharacter->findCollisionVolume(shared_constraintp->mTargetConstraintVolume)->getName().c_str());	
-			}
-			success &= dp.packBinaryDataFixed((U8*)volume_name, 16, "target_volume");
-			success &= dp.packVector3(shared_constraintp->mTargetConstraintOffset, "target_offset");
-			success &= dp.packVector3(shared_constraintp->mTargetConstraintDir, "target_dir");
-			success &= dp.packF32(shared_constraintp->mEaseInStartTime, "ease_in_start");
-			success &= dp.packF32(shared_constraintp->mEaseInStopTime, "ease_in_stop");
-			success &= dp.packF32(shared_constraintp->mEaseOutStartTime, "ease_out_start");
-			success &= dp.packF32(shared_constraintp->mEaseOutStopTime, "ease_out_stop");
+			snprintf(volume_name,sizeof(volume_name), "%s", "GROUND");	/* Flawfinder: ignore */
 		}
 		else
 		{
