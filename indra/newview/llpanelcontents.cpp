@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llpanelcontents.cpp
  * @brief Object contents panel in the tools floater.
  *
@@ -81,21 +81,21 @@ LLPanelContents::~LLPanelContents()
 void LLPanelContents::getState(LLViewerObject *objectp )
 {
 	if( !objectp )
-	{	
+	{
 		childSetEnabled("button new script",FALSE);
 		//mBtnNewScript->setEnabled( FALSE );
 		return;
 	}
 
 	// BUG? Check for all objects being editable?
-	BOOL editable = gAgent.isGodlike() 
+	BOOL editable = gAgent.isGodlike()
 					|| (objectp->permModify() && objectp->permYouOwner());
 	BOOL all_volume = gSelectMgr->selectionAllPCode( LL_PCODE_VOLUME );
 
 	// Edit script button - ok if object is editable and there's an
 	// unambiguous destination for the object.
-	if(	editable && 
-		all_volume && 
+	if(	editable &&
+		all_volume &&
 		((gSelectMgr->getSelection()->getRootObjectCount() == 1)
 					|| (gSelectMgr->getSelection()->getObjectCount() == 1)))
 	{
