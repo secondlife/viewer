@@ -34,8 +34,12 @@
 #include "indra_constants.h"
 
 // culled from winuser.h
+#ifndef WM_MOUSEWHEEL /* Added to be compatible with later SDK's */
 const S32	WM_MOUSEWHEEL = 0x020A;
+#endif
+#ifndef WHEEL_DELTA /* Added to be compatible with later SDK's */
 const S32	WHEEL_DELTA = 120;     /* Value for rolling one detent */
+#endif
 const S32	MAX_MESSAGE_PER_UPDATE = 20;
 const S32	BITS_PER_PIXEL = 32;
 const S32	MAX_NUM_RESOLUTIONS = 32;

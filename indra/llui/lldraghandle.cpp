@@ -102,6 +102,7 @@ void LLDragHandleTop::setTitle(const LLString& title)
 	const LLFontGL* font = gResMgr->getRes( LLFONT_SANSSERIF );
 	mTitleBox = new LLTextBox( "Drag Handle Title", mRect, trimmed_title, font );
 	mTitleBox->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT | FOLLOWS_RIGHT);
+	mTitleBox->setFontStyle(LLFontGL::DROP_SHADOW_SOFT);
 	reshapeTitleBox();
 	
 	// allow empty titles, as default behavior replaces them with title box name

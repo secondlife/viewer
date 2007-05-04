@@ -28,7 +28,7 @@ LLTextBox::LLTextBox(const LLString& name, const LLRect& rect, const LLString& t
 	mBorderColor(		LLUI::sColorsGroup->getColor( "DefaultHighlightLight" ) ),
 	mBackgroundVisible( FALSE ),
 	mBorderVisible( FALSE ),
-	mDropshadowVisible( TRUE ),
+	mFontStyle(LLFontGL::DROP_SHADOW_SOFT),
 	mBorderDropShadowVisible( FALSE ),
 	mHPad(0),
 	mVPad(0),
@@ -53,7 +53,7 @@ LLTextBox::LLTextBox(const LLString& name, const LLString& text, F32 max_width,
 	mBorderColor(LLUI::sColorsGroup->getColor("DefaultHighlightLight")),
 	mBackgroundVisible(FALSE),
 	mBorderVisible(FALSE),
-	mDropshadowVisible(TRUE),
+	mFontStyle(LLFontGL::DROP_SHADOW_SOFT),
 	mBorderDropShadowVisible(FALSE),
 	mHPad(0),
 	mVPad(0),
@@ -343,7 +343,7 @@ void LLTextBox::drawText( S32 x, S32 y, const LLColor4& color )
 			S32 line_length = *iter;
 			mFontGL->render(mText.getWString(), cur_pos, (F32)x, (F32)y, color,
 							mHAlign, mVAlign,
-							mDropshadowVisible ? LLFontGL::DROP_SHADOW : LLFontGL::NORMAL,
+							mFontStyle,
 							line_length, mRect.getWidth(), NULL, TRUE );
 			cur_pos += line_length + 1;
 			y -= llfloor(mFontGL->getLineHeight());
@@ -353,7 +353,7 @@ void LLTextBox::drawText( S32 x, S32 y, const LLColor4& color )
 	{
 		mFontGL->render(mText.getWString(), 0, (F32)x, (F32)y, color,
 						mHAlign, mVAlign, 
-						mDropshadowVisible ? LLFontGL::DROP_SHADOW : LLFontGL::NORMAL,
+						mFontStyle,
 						S32_MAX, mRect.getWidth(), NULL, TRUE);
 	}
 }
@@ -385,8 +385,6 @@ LLXMLNodePtr LLTextBox::getXML(bool save_children) const
 	node->createChild("bg_visible", TRUE)->setBoolValue(mBackgroundVisible);
 
 	node->createChild("border_visible", TRUE)->setBoolValue(mBorderVisible);
-
-	node->createChild("drop_shadow_visible", TRUE)->setBoolValue(mDropshadowVisible);
 
 	node->createChild("border_drop_shadow_visible", TRUE)->setBoolValue(mBorderDropShadowVisible);
 
@@ -426,6 +424,12 @@ LLView* LLTextBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *f
 	text_box->setHAlign(halign);
 
 	text_box->initFromXML(node, parent);
+
+	LLString font_style;
+	if (node->getAttributeString("font-style", font_style))
+	{
+		text_box->mFontStyle = LLFontGL::getStyleFromString(font_style);
+	}
 
 	if(node->hasAttribute("text_color"))
 	{

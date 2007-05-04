@@ -628,7 +628,7 @@ void LLButton::draw()
 			mGLFont->render(label, 0, (F32)x, (F32)(LLBUTTON_V_PAD + y_offset), 
 				label_color,
 				mHAlign, LLFontGL::BOTTOM,
-				mDropShadowedText ? LLFontGL::DROP_SHADOW : LLFontGL::NORMAL,
+				mDropShadowedText ? LLFontGL::DROP_SHADOW_SOFT : LLFontGL::NORMAL,
 				U32_MAX, drawable_width,
 				NULL, FALSE, FALSE);
 		}

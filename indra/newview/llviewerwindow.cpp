@@ -1708,7 +1708,7 @@ void LLViewerWindow::initBase()
 	mToolTip->setBorderVisible( FALSE );
 	mToolTip->setBackgroundColor( gColors.getColor( "ToolTipBgColor" ) );
 	mToolTip->setBackgroundVisible( TRUE );
-	mToolTip->setDropshadowVisible( FALSE );
+	mToolTip->setFontStyle(LLFontGL::NORMAL);
 	mToolTip->setBorderDropshadowVisible( TRUE );
 	mToolTip->setVisible( FALSE );
 

@@ -4,7 +4,7 @@ along with the issue identifier corresponding to the patches we've
 received from them.  To see more about these contributions, visit
 http://jira.secondlife.com/ and enter the issue identifier.
 
-Alissa Sabre - VWR-81, VWR-83, VWR-414
+Alissa Sabre - VWR-81, VWR-83, VWR-414, VWR-415
 blino Nakamura - VWR-17
 bushing Spatula - VWR-424
 Drewan Keats - VWR-28
@@ -22,7 +22,7 @@ Kunnis Basiat - VWR-82
 Paul Churchill - VWR-20
 Paula Innis - VWR-30
 Peekay Semyorka - VWR-7, VWR-19, VWR-49
-SignpostMarv Martin - VWR-155
+SignpostMarv Martin - VWR-154, VWR-155
 SpacedOut Frye - VWR-57, VWR-94, VWR-121, VWR-123
 Strife Onizuka - SVC-9, VWR-74, VWR-85, VWR-148
 Zipherius Turas - VWR-76, VWR-77

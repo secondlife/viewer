@@ -54,7 +54,7 @@ public:
 	
 	void			setBackgroundVisible(BOOL visible)		{ mBackgroundVisible = visible; }
 	void			setBorderVisible(BOOL visible)			{ mBorderVisible = visible; }
-	void			setDropshadowVisible(BOOL visible)		{ mDropshadowVisible = visible; }
+	void			setFontStyle(U8 style)					{ mFontStyle = style; }
 	void			setBorderDropshadowVisible(BOOL visible){ mBorderDropShadowVisible = visible; }
 	void			setHPad(S32 pixels)						{ mHPad = pixels; }
 	void			setVPad(S32 pixels)						{ mVPad = pixels; }
@@ -92,7 +92,7 @@ protected:
 	BOOL			mBackgroundVisible;
 	BOOL			mBorderVisible;
 	
-	BOOL			mDropshadowVisible;	// Draws black dropshadow below and to the right of the text.
+	U8				mFontStyle; // style bit flags for font
 	BOOL			mBorderDropShadowVisible;
 
 	S32				mHPad;

@@ -50,7 +50,7 @@ const F32 PIXEL_BORDER_THRESHOLD = 0.0001f;
 const F32 PIXEL_CORRECTION_DISTANCE = 0.01f;
 
 const F32 PAD_AMT = 0.5f;
-const F32 DROP_SHADOW_STRENGTH = 0.3f;
+const F32 DROP_SHADOW_SOFT_STRENGTH = 0.3f;
 
 F32 llfont_round_x(F32 x)
 {
@@ -85,6 +85,14 @@ U8 LLFontGL::getStyleFromString(const LLString &style)
 	if (style.find("UNDERLINE") != style.npos)
 	{
 		ret |= UNDERLINE;
+	}
+	if (style.find("SHADOW") != style.npos)
+	{
+		ret |= DROP_SHADOW;
+	}
+	if (style.find("SOFT_SHADOW") != style.npos)
+	{
+		ret |= DROP_SHADOW_SOFT;
 	}
 	return ret;
 }
@@ -551,14 +559,14 @@ S32 LLFontGL::render(const LLWString &wstr,
 	}
 
 	F32 drop_shadow_strength = 0.f;
-	if (style & DROP_SHADOW)
+	if (style & (DROP_SHADOW | DROP_SHADOW_SOFT))
 	{
 		F32 luminance;
 		color.calcHSL(NULL, NULL, &luminance);
-		drop_shadow_strength = clamp_rescale(luminance, 0.35f, 0.6f, 0.f, DROP_SHADOW_STRENGTH);
+		drop_shadow_strength = clamp_rescale(luminance, 0.35f, 0.6f, 0.f, 1.f);
 		if (luminance < 0.35f)
 		{
-			style = style & ~DROP_SHADOW;
+			style = style & ~(DROP_SHADOW | DROP_SHADOW_SOFT);
 		}
 	}
 
@@ -1315,10 +1323,10 @@ void LLFontGL::drawGlyph(const LLRectf& screen_rect, const LLRectf& uv_rect, con
 				renderQuad(screen_rect_offset, uv_rect, slant_offset);
 			}
 		}
-		else if (style & DROP_SHADOW)
+		else if (style & DROP_SHADOW_SOFT)
 		{
 			LLColor4 shadow_color = LLFontGL::sShadowColor;
-			shadow_color.mV[VALPHA] = color.mV[VALPHA] * drop_shadow_strength;
+			shadow_color.mV[VALPHA] = color.mV[VALPHA] * drop_shadow_strength * DROP_SHADOW_SOFT_STRENGTH;
 			glColor4fv(shadow_color.mV);
 			for (S32 pass = 0; pass < 5; pass++)
 			{
@@ -1345,6 +1353,17 @@ void LLFontGL::drawGlyph(const LLRectf& screen_rect, const LLRectf& uv_rect, con
 			
 				renderQuad(screen_rect_offset, uv_rect, slant_offset);
 			}
+			glColor4fv(color.mV);
+			renderQuad(screen_rect, uv_rect, slant_offset);
+		}
+		else if (style & DROP_SHADOW)
+		{
+			LLColor4 shadow_color = LLFontGL::sShadowColor;
+			shadow_color.mV[VALPHA] = color.mV[VALPHA] * drop_shadow_strength;
+			glColor4fv(shadow_color.mV);
+			LLRectf screen_rect_shadow = screen_rect;
+			screen_rect_shadow.translate(1.f, -1.f);
+			renderQuad(screen_rect_shadow, uv_rect, slant_offset);
 			glColor4fv(color.mV);
 			renderQuad(screen_rect, uv_rect, slant_offset);
 		}

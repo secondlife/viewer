@@ -14,6 +14,10 @@
 
 #include <tut/tut.h>
 #include "linden_common.h"
+
+// These are too slow on Windows to actually include in the build. JC
+#if !LL_WINDOWS
+
 #include "lltut.h"
 #include "llhttpclient.h"
 #include "llformat.h"
@@ -313,4 +317,7 @@ namespace tut
 		LLSD body = result["body"];
 		ensure_equals("echoed result matches", body.size(), expected.size());
 	}
+
 }
+
+#endif	// !LL_WINDOWS

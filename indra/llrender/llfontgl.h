@@ -45,7 +45,8 @@ public:
 		BOLD = 1,
 		ITALIC = 2,
 		UNDERLINE = 4,
-		DROP_SHADOW = 8
+		DROP_SHADOW = 8,
+		DROP_SHADOW_SOFT = 16
 	};
 	
 	// Takes a string with potentially several flags, i.e. "NORMAL|BOLD|ITALIC"

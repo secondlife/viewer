@@ -20,6 +20,8 @@ namespace tut
 	void ensure_equals(const char* msg, const LLDate& actual,
 		const LLDate& expected)
 	{
+		std::cout << "ensure_equals " << msg << std::endl;
+
 		ensure_equals(msg,
 			actual.secondsSinceEpoch(), expected.secondsSinceEpoch());
 	}
@@ -28,6 +30,8 @@ namespace tut
 	void ensure_equals(const char* msg, const LLURI& actual,
 		const LLURI& expected)
 	{
+		std::cout << "ensure_equals " << msg << std::endl;
+
 		ensure_equals(msg,
 			actual.asString(), expected.asString());
 	}
@@ -36,6 +40,8 @@ namespace tut
 	void ensure_equals(const char* msg,
 		const std::vector<U8>& actual, const std::vector<U8>& expected)
 	{
+		std::cout << "ensure_equals " << msg << std::endl;
+
 		std::string s(msg);
 		
 		ensure_equals(s + " size", actual.size(), expected.size());
@@ -54,6 +60,8 @@ namespace tut
 	void ensure_equals(const char* m, const LLSD& actual,
 		const LLSD& expected)
 	{
+		std::cout << "ensure_equals " << m << std::endl;
+
 		const std::string& msg = m;
 		
 		ensure_equals(msg + " type", actual.type(), expected.type());
@@ -129,6 +137,7 @@ namespace tut
 	void ensure_starts_with(const std::string& msg,
 		const std::string& actual, const std::string& expectedStart)
 	{
+		std::cout << "ensure_starts_with " << msg << std::endl;
 		if( actual.find(expectedStart, 0) != 0 )
 		{
 			std::stringstream ss;
@@ -141,6 +150,7 @@ namespace tut
 	void ensure_ends_with(const std::string& msg,
 		const std::string& actual, const std::string& expectedEnd)
 	{
+		std::cout << "ensure_ends_with " << msg << std::endl;
 		if( actual.size() < expectedEnd.size()
 			|| actual.rfind(expectedEnd)
 				!= (actual.size() - expectedEnd.size()) )
@@ -155,6 +165,7 @@ namespace tut
 	void ensure_contains(const std::string& msg,
 		const std::string& actual, const std::string& expectedSubString)
 	{
+		std::cout << "ensure_contains " << msg << std::endl;
 		if( actual.find(expectedSubString, 0) == std::string::npos )
 		{
 			std::stringstream ss;
@@ -167,6 +178,7 @@ namespace tut
 	void ensure_does_not_contain(const std::string& msg,
 		const std::string& actual, const std::string& expectedSubString)
 	{
+		std::cout << "ensure_does_not_contain " << msg << std::endl;
 		if( actual.find(expectedSubString, 0) != std::string::npos )
 		{
 			std::stringstream ss;

@@ -87,9 +87,13 @@ void LLPanelContents::getState(LLViewerObject *objectp )
 		return;
 	}
 
+	LLUUID group_id;			// used for SL-23488
+	gSelectMgr->selectGetGroup(group_id);  // sets group_id as a side effect SL-23488
+
 	// BUG? Check for all objects being editable?
 	BOOL editable = gAgent.isGodlike()
-					|| (objectp->permModify() && objectp->permYouOwner());
+					|| (objectp->permModify()
+					       && ( objectp->permYouOwner() || ( !group_id.isNull() && gAgent.isInGroup(group_id) )));  // solves SL-23488
 	BOOL all_volume = gSelectMgr->selectionAllPCode( LL_PCODE_VOLUME );
 
 	// Edit script button - ok if object is editable and there's an

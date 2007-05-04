@@ -1124,16 +1124,8 @@ void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
 	if (from_task)
 	{
 		args["[OBJECTFROMNAME]"] = info->mFromName;
-		if (name_found)
-		{
-			LLNotifyBox::showXml("ObjectGiveItem", args,
-								&inventory_offer_callback, (void*)info);
-		}
-		else
-		{
-			LLNotifyBox::showXml("ObjectGiveItemUnknownUser", args,
-								&inventory_offer_callback, (void*)info);
-		}
+		LLNotifyBox::showXml(name_found ? "ObjectGiveItem" : "ObjectGiveItemUnknownUser",
+							args, &inventory_offer_callback, (void*)info);
 	}
 	else
 	{
@@ -1633,10 +1625,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			else
 			{
-				if (dialog == IM_TASK_INVENTORY_OFFERED)
-					inventory_offer_handler(info, TRUE);
-				else
-					inventory_offer_handler(info, FALSE);
+				inventory_offer_handler(info, dialog == IM_TASK_INVENTORY_OFFERED);
 			}
 		}
 		break;

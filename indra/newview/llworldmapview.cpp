@@ -158,7 +158,6 @@ LLWorldMapView::LLWorldMapView(const std::string& name, const LLRect& rect )
 	LLRect major_dir_rect(  0, DIR_HEIGHT, DIR_WIDTH, 0 );
 
 	mTextBoxNorth = new LLTextBox( "N", major_dir_rect );
-	mTextBoxNorth->setDropshadowVisible( TRUE );
 	addChild( mTextBoxNorth );
 
 	LLColor4 minor_color( 1.f, 1.f, 1.f, .7f );

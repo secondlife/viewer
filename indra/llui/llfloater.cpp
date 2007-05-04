@@ -1919,7 +1919,11 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 		LLFloater* floaterp = (LLFloater*)(*view_it);
 		sendChildToFront(floaterp);
 
-		floaterp->setMinimized(FALSE);
+		// always unminimize dependee, but allow dependents to stay minimized
+		if (!floaterp->isDependent())
+		{
+			floaterp->setMinimized(FALSE);
+		}
 	}
 	floaters_to_move.clear();
 
@@ -1931,7 +1935,9 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 		if (dependent)
 		{
 			sendChildToFront(dependent);
-			dependent->setMinimized(FALSE);
+			//don't un-minimize dependent windows automatically
+			// respect user's wishes
+			//dependent->setMinimized(FALSE);
 		}
 		++dependent_it;
 	}

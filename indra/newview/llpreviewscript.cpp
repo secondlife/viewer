@@ -503,7 +503,7 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 			mLiveHelpTimer.stop();
 		}
 	}
-	else
+	else if (immediate)
 	{
 		setHelpPage("");
 	}
