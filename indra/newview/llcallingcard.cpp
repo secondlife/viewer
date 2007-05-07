@@ -249,12 +249,28 @@ S32 LLAvatarTracker::addBuddyList(const LLAvatarTracker::buddy_map_t& buds)
 	for(buddy_map_t::const_iterator itr = buds.begin(); itr != buds.end(); ++itr)
 	{
 		agent_id = (*itr).first;
-		if(mBuddyInfo.find(agent_id) == mBuddyInfo.end())
+		buddy_map_t::const_iterator existing_buddy = mBuddyInfo.find(agent_id);
+		if(existing_buddy == mBuddyInfo.end())
 		{
 			++new_buddy_count;
 			mBuddyInfo[agent_id] = (*itr).second;
 			gCacheName->getName(agent_id, first, last);
 			mModifyMask |= LLFriendObserver::ADD;
+			lldebugs << "Added buddy " << agent_id
+					<< ", " << (mBuddyInfo[agent_id]->isOnline() ? "Online" : "Offline")
+					<< ", TO: " << mBuddyInfo[agent_id]->getRightsGrantedTo()
+					<< ", FROM: " << mBuddyInfo[agent_id]->getRightsGrantedFrom()
+					<< llendl;
+		}
+		else
+		{
+			LLRelationship* e_r = (*existing_buddy).second;
+			LLRelationship* n_r = (*itr).second;
+			llwarns << "!! Add buddy for existing buddy: " << agent_id
+					<< " [" << (e_r->isOnline() ? "Online" : "Offline") << "->" << (n_r->isOnline() ? "Online" : "Offline")
+					<< ", " <<  e_r->getRightsGrantedTo() << "->" << n_r->getRightsGrantedTo()
+					<< ", " <<  e_r->getRightsGrantedTo() << "->" << n_r->getRightsGrantedTo()
+					<< "]" << llendl;
 		}
 	}
 	
@@ -305,6 +321,12 @@ void LLAvatarTracker::setBuddyOnline(const LLUUID& id, bool is_online)
 	{
 		info->online(is_online);
 		mModifyMask |= LLFriendObserver::ONLINE;
+		lldebugs << "Set buddy " << id << (is_online ? " Online" : " Offline") << llendl;
+	}
+	else
+	{
+		llwarns << "!! No buddy info found for " << id 
+				<< ", setting to " << (is_online ? "Online" : "Offline") << llendl;
 	}
 }
 
@@ -578,6 +600,7 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_AgentBlock);
 	BOOL chat_notify = gSavedSettings.getBOOL("ChatOnlineNotification");
 
+	lldebugs << "Received " << count << " online notifications **** " << llendl;
 	if(count > 0)
 	{
 		LLUUID agent_id;
@@ -608,6 +631,12 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 					}
 				}
 			}
+			else
+			{
+				llwarns << "Received online notification for unknown buddy: " 
+					<< agent_id << " is " << (online ? "ONLINE" : "OFFLINE") << llendl;
+			}
+
 			if(tracking_id == agent_id)
 			{
 				// we were tracking someone who went offline
