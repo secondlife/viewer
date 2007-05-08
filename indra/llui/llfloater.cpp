@@ -655,25 +655,6 @@ const LLString& LLFloater::getTitle() const
 	return mDragHandle ? mDragHandle->getTitle() : LLString::null;
 }
 
-void LLFloater::translate(S32 x, S32 y)
-{
-	LLPanel::translate(x, y);
-
-	if (x != 0 || y != 0)
-	{
-		for(handle_set_iter_t dependent_it = mDependents.begin();
-			dependent_it != mDependents.end(); ++dependent_it)
-		{
-			LLFloater* floaterp = LLFloater::getFloaterByHandle(*dependent_it);
-			// is a dependent snapped to us?
-			if (floaterp && floaterp->getSnapTarget() == mViewHandle)
-			{
-				floaterp->translate(x, y);
-			}
-		}
-	}
-}
-
 BOOL LLFloater::canSnapTo(LLView* other_view)
 {
 	if (NULL == other_view)
@@ -711,14 +692,13 @@ void LLFloater::snappedTo(LLView* snap_view)
 	}
 }
 
-void LLFloater::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLFloater::userSetShape(const LLRect& new_rect)
 {
-	S32 old_width = mRect.getWidth();
-	S32 old_height = mRect.getHeight();
+	LLRect old_rect = mRect;
+	LLView::userSetShape(new_rect);
 
-	LLView::reshape(width, height, called_from_parent);
-
-	if (width != old_width || height != old_height)
+	// if not minimized, adjust all snapped dependents to new shape
+	if (!isMinimized())
 	{
 		// gather all snapped dependents
 		for(handle_set_iter_t dependent_it = mDependents.begin();
@@ -730,22 +710,27 @@ void LLFloater::reshape(S32 width, S32 height, BOOL called_from_parent)
 			{
 				S32 delta_x = 0;
 				S32 delta_y = 0;
-				// check to see if it snapped to right or top
-				LLRect floater_rect = floaterp->getRect();
-				if (floater_rect.mLeft - mRect.mLeft >= old_width ||
-					floater_rect.mRight == mRect.mLeft + old_width)
+				// check to see if it snapped to right or top, and move if dependee floater is resizing
+				LLRect dependent_rect = floaterp->getRect();
+				if (dependent_rect.mLeft - mRect.mLeft >= old_rect.getWidth() || // dependent on my right?
+					dependent_rect.mRight == mRect.mLeft + old_rect.getWidth()) // dependent aligned with my right
 				{
 					// was snapped directly onto right side or aligned with it
-					delta_x += width - old_width;
+					delta_x += new_rect.getWidth() - old_rect.getWidth();
 				}
-				if (floater_rect.mBottom - mRect.mBottom >= old_height ||
-					floater_rect.mTop == mRect.mBottom + old_height)
+				if (dependent_rect.mBottom - mRect.mBottom >= old_rect.getHeight() ||
+					dependent_rect.mTop == mRect.mBottom + old_rect.getHeight())
 				{
 					// was snapped directly onto top side or aligned with it
-					delta_y += height - old_height;
+					delta_y += new_rect.getHeight() - old_rect.getHeight();
 				}
 
-				floaterp->translate(delta_x, delta_y);
+				// take translation of dependee floater into account as well
+				delta_x += new_rect.mLeft - old_rect.mLeft;
+				delta_y += new_rect.mBottom - old_rect.mBottom;
+
+				dependent_rect.translate(delta_x, delta_y);
+				floaterp->userSetShape(dependent_rect);
 			}
 		}
 	}
@@ -792,27 +777,32 @@ void LLFloater::setMinimized(BOOL minimize)
 		setBorderVisible(TRUE);
 
 		for(handle_set_iter_t dependent_it = mDependents.begin();
-			dependent_it != mDependents.end(); )
+			dependent_it != mDependents.end();
+			++dependent_it)
 		{
 			LLFloater* floaterp = LLFloater::getFloaterByHandle(*dependent_it);
 			if (floaterp)
 			{
-				floaterp->setVisible(FALSE);
+				if (floaterp->isMinimizeable())
+				{
+					floaterp->setMinimized(TRUE);
+				}
+				else if (!floaterp->isMinimized())
+				{
+					floaterp->setVisible(FALSE);
+				}
 			}
-			++dependent_it;
 		}
-
-		mMinimized = TRUE;
 
 		// Lose keyboard focus when minimized
 		releaseFocus();
+
+		mMinimized = TRUE;
 	}
 	else
 	{
 		reshape( mPreviousRect.getWidth(), mPreviousRect.getHeight(), TRUE );
 		setOrigin( mPreviousRect.mLeft, mPreviousRect.mBottom );
-
-		mMinimized = FALSE;
 
 		if (mButtonsEnabled[BUTTON_RESTORE])
 		{
@@ -837,15 +827,18 @@ void LLFloater::setMinimized(BOOL minimize)
 
 		// show dependent floater
 		for(handle_set_iter_t dependent_it = mDependents.begin();
-			dependent_it != mDependents.end(); )
+			dependent_it != mDependents.end();
+			++dependent_it)
 		{
 			LLFloater* floaterp = LLFloater::getFloaterByHandle(*dependent_it);
 			if (floaterp)
 			{
+				floaterp->setMinimized(FALSE);
 				floaterp->setVisible(TRUE);
 			}
-			++dependent_it;
 		}
+
+		mMinimized = FALSE;
 	}
 	make_ui_sound("UISndWindowClose");
 	updateButtons();

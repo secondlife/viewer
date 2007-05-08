@@ -308,7 +308,12 @@ BOOL LLDragHandle::handleHover(S32 x, S32 y, MASK mask)
 		// Resize the parent
 		S32 delta_x = screen_x - mDragLastScreenX;
 		S32 delta_y = screen_y - mDragLastScreenY;
-		getParent()->translate(delta_x, delta_y);
+
+		LLRect original_rect = getParent()->getRect();
+		LLRect translated_rect = getParent()->getRect();
+		translated_rect.translate(delta_x, delta_y);
+		// temporarily slam dragged window to new position
+		getParent()->setRect(translated_rect);
 		S32 pre_snap_x = getParent()->getRect().mLeft;
 		S32 pre_snap_y = getParent()->getRect().mBottom;
 		mDragLastScreenX = screen_x;
@@ -328,7 +333,12 @@ BOOL LLDragHandle::handleHover(S32 x, S32 y, MASK mask)
 		getParent()->snappedTo(snap_view);
 		delta_x = new_rect.mLeft - pre_snap_x;
 		delta_y = new_rect.mBottom - pre_snap_y;
-		getParent()->translate(delta_x, delta_y);
+		translated_rect.translate(delta_x, delta_y);
+
+		// restore original rect so delta are detected, then call user reshape method to handle snapped floaters, etc
+		getParent()->setRect(original_rect);
+		getParent()->userSetShape(translated_rect);
+
 		mDragLastScreenX += delta_x;
 		mDragLastScreenY += delta_y;
 

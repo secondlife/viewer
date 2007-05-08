@@ -1,7 +1,7 @@
 /** 
  * @file lluseroperation.h
  * @brief LLUserOperation class header file - used for message based
- * transaction. For example, money transactions.
+ * transaction. For example, L$ transactions.
  *
  * Copyright (c) 2002-$CurrentYear$, Linden Research, Inc.
  * $License$

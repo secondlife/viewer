@@ -52,7 +52,7 @@ void LLFloaterLandHoldings::show(void*)
 					  LLParcel::C_ANY,
 					  "");
 
-	// TODO: request updated money balance?
+	// TODO: request updated L$ balance?
 	floater->open();		/* Flawfinder: ignore */
 }
 

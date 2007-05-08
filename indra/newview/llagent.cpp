@@ -6753,7 +6753,7 @@ void LLAgent::removeWearable( EWearableType type )
 		if( old_wearable->isDirty() )
 		{
 			// Bring up view-modal dialog: Save changes? Yes, No, Cancel
-			gViewerWindow->alertXml("RemoveWearableSave", LLAgent::onRemoveWearableDialog, (void*)(S32)type );
+			gViewerWindow->alertXml("WearableSave", LLAgent::onRemoveWearableDialog, (void*)(S32)type );
 			return;
 		}
 		else
@@ -6983,7 +6983,7 @@ void LLAgent::setWearable( LLInventoryItem* new_item, LLWearable* new_wearable )
 		if( old_wearable->isDirty() )
 		{
 			// Bring up modal dialog: Save changes? Yes, No, Cancel
-			gViewerWindow->alertXml( "SetWearableSave", LLAgent::onSetWearableDialog,
+			gViewerWindow->alertXml( "WearableSave", LLAgent::onSetWearableDialog,
 				new LLSetWearableData( new_item->getUUID(), new_wearable ));
 			return;
 		}

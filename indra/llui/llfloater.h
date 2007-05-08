@@ -88,8 +88,7 @@ public:
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 	void initFloaterXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory, BOOL open = TRUE);
 
-	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = 1);
-	/*virtual*/ void translate(S32 x, S32 y);
+	/*virtual*/ void userSetShape(const LLRect& new_rect);
 	/*virtual*/ BOOL canSnapTo(LLView* other_view);
 	/*virtual*/ void snappedTo(LLView* snap_view);
 	/*virtual*/ void setFocus( BOOL b );

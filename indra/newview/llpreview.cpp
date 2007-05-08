@@ -464,8 +464,11 @@ LLPreview* LLPreview::getFirstPreviewForSource(const LLUUID& source_id)
 
 void LLPreview::userSetShape(const LLRect& new_rect)
 {
-	userResized();
-	LLView::userSetShape(new_rect);
+	if(new_rect.getWidth() != mRect.getWidth() || new_rect.getHeight() != mRect.getHeight())
+	{
+		userResized();
+	}
+	LLFloater::userSetShape(new_rect);
 }
 
 //
@@ -490,9 +493,12 @@ void LLMultiPreview::open()		/*Flawfinder: ignore*/
 
 void LLMultiPreview::userSetShape(const LLRect& new_rect)
 {
-	LLPreview* frontmost_preview = (LLPreview*)mTabContainer->getCurrentPanel();
-	if (frontmost_preview) frontmost_preview->userResized();
-	LLView::userSetShape(new_rect);
+	if(new_rect.getWidth() != mRect.getWidth() || new_rect.getHeight() != mRect.getHeight())
+	{
+		LLPreview* frontmost_preview = (LLPreview*)mTabContainer->getCurrentPanel();
+		if (frontmost_preview) frontmost_preview->userResized();
+	}
+	LLFloater::userSetShape(new_rect);
 }
 
 

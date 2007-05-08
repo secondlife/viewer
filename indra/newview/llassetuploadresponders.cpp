@@ -128,7 +128,7 @@ void LLAssetUploadResponder::uploadUpload(const LLSD& content)
 void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 {
 	std::string reason = content["state"];
-	// deal with money errors
+	// deal with L$ errors
 	if (reason == "insufficient funds")
 	{
 		LLFloaterBuyCurrency::buyCurrency("Uploading costs", gGlobalEconomy->getPriceUpload());
@@ -166,7 +166,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 	LLAssetType::EType asset_type = LLAssetType::lookup(mPostData["asset_type"].asString().c_str());
 	LLInventoryType::EType inventory_type = LLInventoryType::lookup(mPostData["inventory_type"].asString().c_str());
 
-	// Update money and ownership credit information
+	// Update L$ and ownership credit information
 	// since it probably changed on the server
 	if (asset_type == LLAssetType::AT_TEXTURE ||
 		asset_type == LLAssetType::AT_SOUND ||

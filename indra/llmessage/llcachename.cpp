@@ -508,26 +508,28 @@ void LLCacheName::get(const LLUUID& id, BOOL is_group, LLCacheNameCallback callb
 	LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache, id );
 	if (entry)
 	{
-		if (!entry->mIsGroup)
+		// id found in map therefore we can call the callback immediately.
+		if (entry->mIsGroup)
 		{
-			callback(id, entry->mFirstName, entry->mLastName, entry->mIsGroup, user_data);
+			callback(id, entry->mGroupName, "", entry->mIsGroup, user_data);
 		}
 		else
 		{
-			callback(id, entry->mGroupName, "", entry->mIsGroup, user_data);
+			callback(id, entry->mFirstName, entry->mLastName, entry->mIsGroup, user_data);
 		}
 	}
 	else
 	{
+		// id not found in map so we must queue the callback call until available.
 		if (!impl.isRequestPending(id))
 		{
-			if (!is_group)
+			if (is_group)
 			{
-				impl.mAskNameQueue.insert(id);
+				impl.mAskGroupQueue.insert(id);
 			}
 			else
 			{
-				impl.mAskGroupQueue.insert(id);
+				impl.mAskNameQueue.insert(id);
 			}
 		}
 		impl.mReplyQueue.push_back(PendingReply(id, callback, user_data));

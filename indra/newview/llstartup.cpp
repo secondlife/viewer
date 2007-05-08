@@ -2104,7 +2104,7 @@ BOOL idle_startup()
 			// request mute list
 			gMuteListp->requestFromServer(gAgent.getID());
 
-			// Get money and ownership credit information
+			// Get L$ and ownership credit information
 			msg->newMessageFast(_PREHASH_MoneyBalanceRequest);
 			msg->nextBlockFast(_PREHASH_AgentData);
 			msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
@@ -2300,7 +2300,7 @@ BOOL idle_startup()
 		gViewerWindow->sendShapeToSim();
 
 		// Ignore stipend information for now.  Money history is on the web site.
-		// if needed, show the money history window
+		// if needed, show the L$ history window
 		//if (stipend_since_login && !gNoRender)
 		//{
 		//}

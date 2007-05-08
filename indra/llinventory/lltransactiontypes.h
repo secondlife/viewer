@@ -15,7 +15,7 @@
 //   insert into transaction_description 
 //     set type = 1000, description = 'Object Claim';
 //
-// Also add it to the various money string lookups on the dataserver
+// Also add it to the various L$ string lookups on the dataserver
 // in lldatamoney
 
 // Money transaction failure codes

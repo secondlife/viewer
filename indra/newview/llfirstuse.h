@@ -29,8 +29,8 @@ reduced range, how to leave conversation, arrow keys to orbit.
 6.  First lft-click that does nothing (land,object):  Explain that rgt-click
 gives menu, lft-click interacts or moves if physical
 
-7.  On first receipt of money (not rez/derez) explain that objects or people may
-give you money, and how to give someone or something money ('Pay...'). 
+7.  On first receipt of L$ (not rez/derez) explain that objects or people may
+give you L$, and how to give someone or something money ('Pay...'). 
 
 8.  After first teleporting and being sent to nearest hub, a dialog explaining
 how to find and move toward the beacon. 

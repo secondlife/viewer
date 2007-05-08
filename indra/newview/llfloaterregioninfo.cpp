@@ -2771,7 +2771,7 @@ bool LLDispatchEstateUpdateInfo::operator()(
 	// UI, as anyone can teleport there.
 	// However, gods need to be able to edit the access list for
 	// linden estates, regardless of visibility, to allow object
-	// and money transfers.
+	// and L$ transfers.
 	bool enable_agent = (!visible_from_mainland || (god && linden_estate));
 	bool enable_group = enable_agent;
 	bool enable_ban = !linden_estate;

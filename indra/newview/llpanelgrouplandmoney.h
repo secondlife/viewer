@@ -1,6 +1,6 @@
 /** 
  * @file llpanelgrouplandmoney.h
- * @brief Panel for group land and money.
+ * @brief Panel for group land and L$.
  *
  * Copyright (c) 2006-$CurrentYear$, Linden Research, Inc.
  * $License$
