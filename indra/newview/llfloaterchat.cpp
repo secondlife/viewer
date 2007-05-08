@@ -47,9 +47,6 @@
 #include "llfloaterhtml.h"
 #include "llweb.h"
 
-// Used for LCD display
-extern void AddNewIMToLCD(const LLString &newLine);
-extern void AddNewChatToLCD(const LLString &newLine);
 //
 // Constants
 //
@@ -333,20 +330,6 @@ void LLFloaterChat::addChat(const LLChat& chat,
 			chat.mChatType == CHAT_TYPE_DEBUG_MSG
 			&& !gSavedSettings.getBOOL("ScriptErrorsAsChat");
 
-#if LL_WINDOWS
-	// add into LCD displays
-	if (!invisible_script_debug_chat)
-	{
-		if (!from_instant_message)
-		{
-			AddNewChatToLCD(chat.mText);
-		}
-		else
-		{
-			AddNewIMToLCD(chat.mText);
-		}
-	}
-#endif
 	if (!invisible_script_debug_chat 
 		&& !chat.mMuted 
 		&& gConsole 

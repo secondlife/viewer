@@ -31,7 +31,6 @@
 #include "llpaneldebug.h"
 #include "llpanelgeneral.h"
 #include "llpanelinput.h"
-#include "llpanelLCD.h"
 #include "llpanelmsgs.h"
 //#include "llpanelweb.h"
 #include "llprefschat.h"
@@ -57,14 +56,6 @@ const S32 PREF_CATEGORY_WIDTH = 150;
 const S32 PREF_FLOATER_MIN_HEIGHT = 2 * SCROLLBAR_SIZE + 2 * LLPANEL_BORDER_WIDTH + 96;
 
 LLFloaterPreference* LLFloaterPreference::sInstance = NULL;
-
-#if LL_WINDOWS
-// for Logitech LCD keyboards / speakers
-#ifndef LL_LCD_H
-#include "..\Logitech_LCD\LCD.h"
-#endif
-extern cLCD	*LcdScreen; 
-#endif
 
 // Must be done at run time, not compile time. JC
 S32 pref_min_width()
@@ -94,7 +85,6 @@ LLPreferenceCore::LLPreferenceCore(LLTabContainerCommon* tab_container, LLButton
 	mDisplayPanel(NULL),
 	mDisplayPanel2(NULL),
 	mAudioPanel(NULL),
-	mLCDPanel(NULL),
 	mMsgPanel(NULL)
 {
 	mGeneralPanel = new LLPanelGeneral();
@@ -133,15 +123,6 @@ LLPreferenceCore::LLPreferenceCore(LLTabContainerCommon* tab_container, LLButton
 	mTabContainer->addTabPanel(mPrefsIM->getPanel(), mPrefsIM->getPanel()->getLabel(), FALSE, onTabChanged, mTabContainer);
 	mPrefsIM->getPanel()->setDefaultBtn(default_btn);
 
-#if LL_WINDOWS
-	// only add this option if we actually have a logitech keyboard / speaker set
-	if (LcdScreen->Enabled())
-	{
-		mLCDPanel = new LLPanelLCD();
-		mTabContainer->addTabPanel(mLCDPanel, mLCDPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
-		mLCDPanel->setDefaultBtn(default_btn);
-	}
-#endif
 	mMsgPanel = new LLPanelMsgs();
 	gUICtrlFactory->buildPanel(mMsgPanel, "panel_settings_msgbox.xml");
 	mTabContainer->addTabPanel(mMsgPanel, mMsgPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
@@ -227,13 +208,6 @@ void LLPreferenceCore::apply()
 	mPrefsChat->apply();
 	mPrefsIM->apply();
 	mMsgPanel->apply();
-#if LL_WINDOWS
-	// only add this option if we actually have a logitech keyboard / speaker set
-	if (LcdScreen->Enabled())
-	{
-		mLCDPanel->apply();
-	}
-#endif
 //	mWebPanel->apply();
 }
 
@@ -250,13 +224,6 @@ void LLPreferenceCore::cancel()
 	mPrefsChat->cancel();
 	mPrefsIM->cancel();
 	mMsgPanel->cancel();
-#if LL_WINDOWS
-	// only add this option if we actually have a logitech keyboard / speaker set
-	if (LcdScreen->Enabled())
-	{
-		mLCDPanel->cancel();
-	}
-#endif
 //	mWebPanel->cancel();
 }
 
