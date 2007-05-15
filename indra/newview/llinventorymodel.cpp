@@ -3369,8 +3369,8 @@ void LLInventoryAddedObserver::changed(U32 mask)
 	const char* msg_name = msg->getMessageName();
 	if (!msg_name) return;
 
-	if (!(!strcmp(msg_name, "UpdateCreateInventoryItem")
-		  || !strcmp(msg_name, "FetchInventoryReply")))
+	// We only want newly created inventory items. JC
+	if ( strcmp(msg_name, "UpdateCreateInventoryItem") )
 	{
 		return;
 	}
