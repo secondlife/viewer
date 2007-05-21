@@ -1,10 +1,11 @@
-/*
- *  llcurl.cpp
- *  MacTester
+/**
+ * @file llcurl.h
+ * @author Zero / Donovan
+ * @date 2006-10-15
+ * @brief Curl wrapper
  *
- *  Created by Zero Linden on 10/15/06.
- *  Copyright 2006 __MyCompanyName__. All rights reserved.
- *
+ * Copyright (c) 2006-$CurrentYear$, Linden Research, Inc.
+ * $License$
  */
 
 #include "llcurl.h"
