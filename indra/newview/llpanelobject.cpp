@@ -33,6 +33,7 @@
 #include "llresmgr.h"
 #include "llselectmgr.h"
 #include "llspinctrl.h"
+#include "lltexturectrl.h"
 #include "lltextbox.h"
 #include "lltool.h"
 #include "lltoolcomp.h"
@@ -60,6 +61,7 @@ enum {
 	MI_TORUS,
 	MI_TUBE,
 	MI_RING,
+	MI_SCULPT,
 	MI_NONE,
 	MI_VOLUME_COUNT
 };
@@ -231,6 +233,34 @@ BOOL	LLPanelObject::postBuild()
 	mSpinRevolutions = gUICtrlFactory->getSpinnerByName(this,"Revolutions");
 	childSetCommitCallback("Revolutions",onCommitParametric,this);
 	mSpinRevolutions->setValidateBeforeCommit( &precommitValidate );
+
+	// Sculpt
+	mCtrlSculptTexture = LLUICtrlFactory::getTexturePickerByName(this,"sculpt texture control");
+	mCtrlSculptTexture->setDefaultImageAssetID(LLUUID(SCULPT_DEFAULT_TEXTURE));
+	mCtrlSculptTexture->setCommitCallback( LLPanelObject::onCommitSculpt );
+	mCtrlSculptTexture->setOnCancelCallback( LLPanelObject::onCancelSculpt );
+	mCtrlSculptTexture->setOnSelectCallback( LLPanelObject::onSelectSculpt );
+	mCtrlSculptTexture->setDropCallback(LLPanelObject::onDropSculpt);
+	mCtrlSculptTexture->setCallbackUserData( this );
+	// Don't allow (no copy) or (no transfer) textures to be selected during immediate mode
+	mCtrlSculptTexture->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
+	// Allow any texture to be used during non-immediate mode.
+	mCtrlSculptTexture->setNonImmediateFilterPermMask(PERM_NONE);
+	LLAggregatePermissions texture_perms;
+	if (gSelectMgr->selectGetAggregateTexturePermissions(texture_perms))
+	{
+		            BOOL can_copy =
+						texture_perms.getValue(PERM_COPY) == LLAggregatePermissions::AP_EMPTY ||
+						texture_perms.getValue(PERM_COPY) == LLAggregatePermissions::AP_ALL;
+					            BOOL can_transfer =
+									texture_perms.getValue(PERM_TRANSFER) == LLAggregatePermissions::AP_EMPTY ||
+									texture_perms.getValue(PERM_TRANSFER) == LLAggregatePermissions::AP_ALL;
+								mCtrlSculptTexture->setCanApplyImmediately(can_copy && can_transfer);
+	}
+	else
+	{
+		mCtrlSculptTexture->setCanApplyImmediately(FALSE);
+	}
 
 	// Start with everyone disabled
 	clearCtrls();
@@ -583,6 +613,14 @@ void LLPanelObject::getState( )
 			llinfos << "Unknown path " << (S32) path << " profile " << (S32) profile << " in getState" << llendl;
 			selected_item = MI_BOX;
 		}
+
+
+		if (objectp->getParameterEntryInUse(LLNetworkData::PARAMS_SCULPT))
+		{
+			selected_item = MI_SCULPT;
+		}
+
+		
 		mComboBaseType	->setCurrentByIndex( selected_item );
 		mSelectedType = selected_item;
 		
@@ -740,6 +778,8 @@ void LLPanelObject::getState( )
 
 	// Compute control visibility, label names, and twist range.
 	// Start with defaults.
+	BOOL cut_visible                = TRUE;
+	BOOL hollow_visible             = TRUE;
 	BOOL top_size_x_visible			= TRUE;
 	BOOL top_size_y_visible			= TRUE;
 	BOOL top_shear_x_visible		= TRUE;
@@ -750,6 +790,7 @@ void LLPanelObject::getState( )
 	BOOL skew_visible				= FALSE;
 	BOOL radius_offset_visible		= FALSE;
 	BOOL revolutions_visible		= FALSE;
+	BOOL sculpt_texture_visible     = FALSE;
 	F32	 twist_min					= OBJECT_TWIST_LINEAR_MIN;
 	F32	 twist_max					= OBJECT_TWIST_LINEAR_MAX;
 	F32	 twist_inc					= OBJECT_TWIST_LINEAR_INC;
@@ -787,6 +828,23 @@ void LLPanelObject::getState( )
 		twist_min				= OBJECT_TWIST_MIN;
 		twist_max				= OBJECT_TWIST_MAX;
 		twist_inc				= OBJECT_TWIST_INC;
+
+		break;
+
+	case MI_SCULPT:
+		cut_visible             = FALSE;
+		hollow_visible          = FALSE;
+		twist_visible           = FALSE;
+		top_size_x_visible      = FALSE;
+		top_size_y_visible      = FALSE;
+		top_shear_x_visible     = FALSE;
+		top_shear_y_visible     = FALSE;
+		skew_visible            = FALSE;
+		advanced_cut_visible    = FALSE;
+		taper_visible           = FALSE;
+		radius_offset_visible   = FALSE;
+		revolutions_visible     = FALSE;
+		sculpt_texture_visible  = TRUE;
 
 		break;
 		
@@ -909,6 +967,15 @@ void LLPanelObject::getState( )
 	mSpinRevolutions ->setEnabled( enabled );
 
 	// Update field visibility
+	mLabelCut		->setVisible( cut_visible );
+	mSpinCutBegin	->setVisible( cut_visible );
+	mSpinCutEnd		->setVisible( cut_visible ); 
+
+	mLabelHollow	->setVisible( hollow_visible );
+	mSpinHollow		->setVisible( hollow_visible );
+	mLabelHoleType	->setVisible( hollow_visible );
+	mComboHoleType	->setVisible( hollow_visible );
+	
 	mLabelTwist		->setVisible( twist_visible );
 	mSpinTwist		->setVisible( twist_visible );
 	mSpinTwistBegin	->setVisible( twist_visible );
@@ -942,6 +1009,30 @@ void LLPanelObject::getState( )
 	mLabelRevolutions->setVisible( revolutions_visible );
 	mSpinRevolutions ->setVisible( revolutions_visible );
 
+	mCtrlSculptTexture->setVisible( sculpt_texture_visible );
+
+
+	// sculpt texture
+
+	if (selected_item == MI_SCULPT)
+	{
+        LLUUID id;
+		LLSculptParams *sculpt_params = (LLSculptParams *)objectp->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+
+		LLTextureCtrl*  mTextureCtrl = LLViewerUICtrlFactory::getTexturePickerByName(this,"sculpt texture control");
+		if((mTextureCtrl) && (sculpt_params))
+		{
+			mTextureCtrl->setTentative(FALSE);
+			mTextureCtrl->setEnabled(editable);
+			mTextureCtrl->setImageAssetID(sculpt_params->getSculptTexture());
+
+			if (mObject != objectp)  // we've just selected a new object, so save for undo
+				mSculptTextureRevert = sculpt_params->getSculptTexture();
+		}
+
+	}
+
+	
 	//----------------------------------------------------------------------------
 
 	mObject = objectp;
@@ -1063,8 +1154,25 @@ void LLPanelObject::onCommitParametric( LLUICtrl* ctrl, void* userdata )
 	LLVolumeParams volume_params;
 	self->getVolumeParams(volume_params);
 	
+
+	
+	// set sculpting
+	S32 selected_type = self->mComboBaseType->getCurrentIndex();
+
+	if (selected_type == MI_SCULPT)
+	{
+		self->mObject->setParameterEntryInUse(LLNetworkData::PARAMS_SCULPT, TRUE, TRUE);
+	}
+	else
+	{
+		LLSculptParams *sculpt_params = (LLSculptParams *)self->mObject->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+		if (sculpt_params)
+			self->mObject->setParameterEntryInUse(LLNetworkData::PARAMS_SCULPT, FALSE, TRUE);
+	}
+
 	// Update the volume, if necessary.
 	self->mObject->updateVolume(volume_params);
+
 
 	// This was added to make sure thate when changes are made, the UI
 	// adjusts to present valid options.
@@ -1118,6 +1226,11 @@ void LLPanelObject::getVolumeParams(LLVolumeParams& volume_params)
 		path = LL_PCODE_PATH_CIRCLE;
 		break;
 
+	case MI_SCULPT:
+		profile = LL_PCODE_PROFILE_CIRCLE;
+		path = LL_PCODE_PATH_CIRCLE;
+		break;
+		
 	default:
 		llwarns << "Unknown base type " << selected_type 
 			<< " in getVolumeParams()" << llendl;
@@ -1127,6 +1240,7 @@ void LLPanelObject::getVolumeParams(LLVolumeParams& volume_params)
 		path = LL_PCODE_PATH_LINE;
 		break;
 	}
+
 
 	if (path == LL_PCODE_PATH_LINE)
 	{
@@ -1338,6 +1452,23 @@ void LLPanelObject::getVolumeParams(LLVolumeParams& volume_params)
 	F32 shear_x = mSpinShearX->get();
 	F32 shear_y = mSpinShearY->get();
 	volume_params.setShear( shear_x, shear_y );
+
+	if (selected_type == MI_SCULPT)
+	{
+		volume_params.setSculptID(LLUUID::null, 0);
+		volume_params.setBeginAndEndT   (0, 1);
+		volume_params.setBeginAndEndS   (0, 1);
+		volume_params.setHollow         (0);
+		volume_params.setTwistBegin     (0);
+		volume_params.setTwistEnd       (0);
+		volume_params.setRatio          (1, 0.5);
+		volume_params.setShear          (0, 0);
+		volume_params.setTaper          (0, 0);
+		volume_params.setRevolutions    (1);
+		volume_params.setRadiusOffset   (0);
+		volume_params.setSkew           (0);
+	}
+
 }
 
 // BUG: Make work with multiple objects
@@ -1482,6 +1613,18 @@ void LLPanelObject::sendPosition()
 	}
 }
 
+void LLPanelObject::sendSculpt()
+{
+	LLTextureCtrl* mTextureCtrl = gUICtrlFactory->getTexturePickerByName(this,"sculpt texture control");
+	if(!mTextureCtrl)
+		return;
+
+	LLSculptParams sculpt_params;
+	sculpt_params.setSculptTexture(mTextureCtrl->getImageAssetID());
+	sculpt_params.setSculptType(LL_SCULPT_TYPE_SPHERE);
+	
+	mObject->setParameterEntry(LLNetworkData::PARAMS_SCULPT, sculpt_params, TRUE);
+}
 
 void LLPanelObject::refresh()
 {
@@ -1676,4 +1819,60 @@ void LLPanelObject::onCommitCastShadows( LLUICtrl* ctrl, void* userdata )
 {
 	LLPanelObject* self = (LLPanelObject*) userdata;
 	self->sendCastShadows();
+}
+
+
+// static
+void LLPanelObject::onSelectSculpt(LLUICtrl* ctrl, void* userdata)
+{
+	LLPanelObject* self = (LLPanelObject*) userdata;
+
+    LLTextureCtrl* mTextureCtrl = gUICtrlFactory->getTexturePickerByName(self, "sculpt texture control");
+
+	if (mTextureCtrl)
+		self->mSculptTextureRevert = mTextureCtrl->getImageAssetID();
+	
+	self->sendSculpt();
+}
+
+
+void LLPanelObject::onCommitSculpt( LLUICtrl* ctrl, void* userdata )
+{
+	LLPanelObject* self = (LLPanelObject*) userdata;
+
+	self->sendSculpt();
+}
+
+// static
+BOOL LLPanelObject::onDropSculpt(LLUICtrl*, LLInventoryItem* item, void* userdata)
+{
+	LLPanelObject* self = (LLPanelObject*) userdata;
+
+    LLTextureCtrl* mTextureCtrl = gUICtrlFactory->getTexturePickerByName(self, "sculpt texture control");
+
+	if (mTextureCtrl)
+	{
+		LLUUID asset = item->getAssetUUID();
+
+		mTextureCtrl->setImageAssetID(asset);
+		self->mSculptTextureRevert = asset;
+	}
+	
+
+	return TRUE;
+}
+
+
+// static
+void LLPanelObject::onCancelSculpt(LLUICtrl* ctrl, void* userdata)
+{
+	LLPanelObject* self = (LLPanelObject*) userdata;
+
+	LLTextureCtrl* mTextureCtrl = gUICtrlFactory->getTexturePickerByName(self,"sculpt texture control");
+	if(!mTextureCtrl)
+		return;
+	
+	mTextureCtrl->setImageAssetID(self->mSculptTextureRevert);
+	
+	self->sendSculpt();
 }

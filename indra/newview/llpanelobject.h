@@ -23,6 +23,9 @@ class LLViewerObject;
 class LLComboBox;
 class LLPanelInventory;
 class LLColorSwatchCtrl;
+class LLTextureCtrl;
+class LLInventoryItem;
+class LLUUID;
 
 class LLPanelObject : public LLPanel
 {
@@ -50,6 +53,11 @@ public:
 	static void 	onCommitParametric(LLUICtrl* ctrl, void* userdata);
 
 	static void 	onCommitMaterial(		LLUICtrl* ctrl, void* userdata);
+
+	static void     onCommitSculpt(        LLUICtrl* ctrl, void* userdata);
+	static void     onCancelSculpt(        LLUICtrl* ctrl, void* userdata);
+	static void     onSelectSculpt(        LLUICtrl* ctrl, void* userdata);
+	static BOOL     onDropSculpt(LLUICtrl* ctrl, LLInventoryItem* item, void* ud);
 	
 protected:
 	void			getState();
@@ -61,7 +69,8 @@ protected:
 	void			sendIsTemporary();
 	void			sendIsPhantom();
 	void			sendCastShadows();
-
+	void            sendSculpt();
+	
 	void 			getVolumeParams(LLVolumeParams& volume_params);
 	
 protected:
@@ -133,12 +142,16 @@ protected:
 	LLCheckBoxCtrl	*mCheckPhantom;
 	LLCheckBoxCtrl	*mCheckCastShadows;
 
+	LLTextureCtrl   *mCtrlSculptTexture;
+	
 	LLVector3		mCurEulerDegrees;		// to avoid sending rotation when not changed
 	BOOL			mIsPhysical;			// to avoid sending "physical" when not changed
 	BOOL			mIsTemporary;			// to avoid sending "temporary" when not changed
 	BOOL			mIsPhantom;				// to avoid sending "phantom" when not changed
 	BOOL			mCastShadows;			// to avoid sending "cast shadows" when not changed
 	S32				mSelectedType;			// So we know what selected type we last were
+
+	LLUUID          mSculptTextureRevert;   // so we can revert the sculpt texture on cancel
 	
 	LLPointer<LLViewerObject> mObject;
 	LLPointer<LLViewerObject> mRootObject;

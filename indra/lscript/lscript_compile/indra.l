@@ -4,7 +4,7 @@ L			[a-zA-Z_]
 H			[a-fA-F0-9]
 E			[Ee][+-]?{D}+
 FS			(f|F)
-%e 9000
+%e 10000
 %n 4000
 %p 5000
 
@@ -434,6 +434,7 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "PRIM_TYPE_TORUS"		{ count(); yylval.ival = LSL_PRIM_TYPE_TORUS; return(INTEGER_CONSTANT); }
 "PRIM_TYPE_TUBE"		{ count(); yylval.ival = LSL_PRIM_TYPE_TUBE; return(INTEGER_CONSTANT); }
 "PRIM_TYPE_RING"		{ count(); yylval.ival = LSL_PRIM_TYPE_RING; return(INTEGER_CONSTANT); }
+"PRIM_TYPE_SCULPT"		{ count(); yylval.ival = LSL_PRIM_TYPE_SCULPT; return(INTEGER_CONSTANT); }
 
 "PRIM_HOLE_DEFAULT"		{ count(); yylval.ival = LSL_PRIM_HOLE_DEFAULT; return(INTEGER_CONSTANT); }
 "PRIM_HOLE_CIRCLE"		{ count(); yylval.ival = LSL_PRIM_HOLE_CIRCLE; return(INTEGER_CONSTANT); }
@@ -475,6 +476,11 @@ extern "C" { int yyerror(const char *fmt, ...); }
 
 "PRIM_TEXGEN_DEFAULT"	{ count(); yylval.ival = LSL_PRIM_TEXGEN_DEFAULT; return(INTEGER_CONSTANT); }
 "PRIM_TEXGEN_PLANAR"	{ count(); yylval.ival = LSL_PRIM_TEXGEN_PLANAR; return(INTEGER_CONSTANT); }
+
+"PRIM_SCULPT_TYPE_SPHERE"	{ count(); yylval.ival = LSL_PRIM_SCULPT_TYPE_SPHERE; return(INTEGER_CONSTANT); }
+"PRIM_SCULPT_TYPE_TORUS"	{ count(); yylval.ival = LSL_PRIM_SCULPT_TYPE_TORUS; return(INTEGER_CONSTANT); }
+"PRIM_SCULPT_TYPE_PLANE"	{ count(); yylval.ival = LSL_PRIM_SCULPT_TYPE_PLANE; return(INTEGER_CONSTANT); }
+"PRIM_SCULPT_TYPE_CYLINDER"	{ count(); yylval.ival = LSL_PRIM_SCULPT_TYPE_CYLINDER; return(INTEGER_CONSTANT); }
 
 "MASK_BASE"				{ count(); yylval.ival = 0; return(INTEGER_CONSTANT); }
 "MASK_OWNER"			{ count(); yylval.ival = 1; return(INTEGER_CONSTANT); }

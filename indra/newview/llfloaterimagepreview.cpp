@@ -82,10 +82,14 @@ BOOL LLFloaterImagePreview::postBuild()
 	{
 		mAvatarPreview = new LLImagePreviewAvatar(256, 256);
 		mAvatarPreview->setPreviewTarget("mPelvis", "mUpperBodyMesh0", mRawImagep, 2.f, FALSE);
+
+		mSculptedPreview = new LLImagePreviewSculpted(256, 256);
+		mSculptedPreview->setPreviewTarget(mRawImagep, 2.0f);
 	}
 	else
 	{
 		mAvatarPreview = NULL;
+		mSculptedPreview = NULL;
 		childShow("bad_image_text");
 		childDisable("clothing_type_combo");
 		childDisable("ok_btn");
@@ -101,6 +105,8 @@ LLFloaterImagePreview::~LLFloaterImagePreview()
 {
 	mRawImagep = NULL;
 	delete mAvatarPreview;
+	delete mSculptedPreview;
+	
 	if (mGLName)
 	{
 		glDeleteTextures(1, &mGLName );
@@ -115,7 +121,7 @@ void	LLFloaterImagePreview::onPreviewTypeCommit(LLUICtrl* ctrl, void* userdata)
 {
 	LLFloaterImagePreview *fp =(LLFloaterImagePreview *)userdata;
 	
-	if (!fp->mAvatarPreview)
+	if (!fp->mAvatarPreview || !fp->mSculptedPreview)
 	{
 		return;
 	}
@@ -156,10 +162,15 @@ void	LLFloaterImagePreview::onPreviewTypeCommit(LLUICtrl* ctrl, void* userdata)
 	case 8:
 		fp->mAvatarPreview->setPreviewTarget("mKneeLeft", "mSkirtMesh0", fp->mRawImagep, 1.3f, FALSE);
 		break;
+	case 9:
+		fp->mSculptedPreview->setPreviewTarget(fp->mRawImagep, 2.0f);
+		break;
 	default:
 		break;
 	}
+	
 	fp->mAvatarPreview->refresh();
+	fp->mSculptedPreview->refresh();
 }
 
 //-----------------------------------------------------------------------------
@@ -173,7 +184,11 @@ void LLFloaterImagePreview::draw()
 	if (mRawImagep.notNull())
 	{
 		LLCtrlSelectionInterface* iface = childGetSelectionInterface("clothing_type_combo");
-		if (iface && iface->getFirstSelectedIndex() <= 0)
+		U32 selected = 0;
+		if (iface)
+			selected = iface->getFirstSelectedIndex();
+		
+		if (selected <= 0)
 		{
 			gl_rect_2d_checkerboard(mPreviewRect);
 			LLGLDisable gls_alpha(GL_ALPHA_TEST);
@@ -210,6 +225,7 @@ void LLFloaterImagePreview::draw()
 				if (mAvatarPreview)
 				{
 					mAvatarPreview->setTexture(mGLName);
+					mSculptedPreview->setTexture(mGLName);
 				}
 			}
 
@@ -233,10 +249,14 @@ void LLFloaterImagePreview::draw()
 		}
 		else
 		{
-			if (mAvatarPreview)
+			if ((mAvatarPreview) && (mSculptedPreview))
 			{
 				glColor3f(1.f, 1.f, 1.f);
-				mAvatarPreview->bindTexture();
+
+				if (selected == 9)
+					mSculptedPreview->bindTexture();
+				else
+					mAvatarPreview->bindTexture();
 
 				glBegin( GL_QUADS );
 				{
@@ -251,11 +271,15 @@ void LLFloaterImagePreview::draw()
 				}
 				glEnd();
 
-				mAvatarPreview->unbindTexture();
+				if (selected == 9)
+					mSculptedPreview->unbindTexture();
+				else
+					mAvatarPreview->unbindTexture();
 			}
 		}
 	}
 }
+
 
 //-----------------------------------------------------------------------------
 // loadImage()
@@ -397,6 +421,7 @@ BOOL LLFloaterImagePreview::handleHover(S32 x, S32 y, MASK mask)
 			else
 			{
 				mAvatarPreview->pan((F32)(x - mLastMouseX) * -0.005f, (F32)(y - mLastMouseY) * -0.005f);
+				mSculptedPreview->pan((F32)(x - mLastMouseX) * -0.005f, (F32)(y - mLastMouseY) * -0.005f);
 			}
 		}
 		else if (local_mask == MASK_ORBIT)
@@ -405,6 +430,7 @@ BOOL LLFloaterImagePreview::handleHover(S32 x, S32 y, MASK mask)
 			F32 pitch_radians = (F32)(y - mLastMouseY) * 0.02f;
 			
 			mAvatarPreview->rotate(yaw_radians, pitch_radians);
+			mSculptedPreview->rotate(yaw_radians, pitch_radians);
 		}
 		else 
 		{
@@ -421,6 +447,8 @@ BOOL LLFloaterImagePreview::handleHover(S32 x, S32 y, MASK mask)
 				
 				mAvatarPreview->rotate(yaw_radians, 0.f);
 				mAvatarPreview->zoom(zoom_amt);
+				mSculptedPreview->rotate(yaw_radians, 0.f);
+				mSculptedPreview->zoom(zoom_amt);
 			}
 		}
 
@@ -466,12 +494,13 @@ BOOL LLFloaterImagePreview::handleHover(S32 x, S32 y, MASK mask)
 		else
 		{
 			mAvatarPreview->refresh();
+			mSculptedPreview->refresh();
 		}
 
 		LLUI::setCursorPositionLocal(this, mLastMouseX, mLastMouseY);
 	}
 
-	if (!mPreviewRect.pointInRect(x, y) || !mAvatarPreview)
+	if (!mPreviewRect.pointInRect(x, y) || !mAvatarPreview || !mSculptedPreview)
 	{
 		return LLFloater::handleHover(x, y, mask);
 	}
@@ -500,6 +529,9 @@ BOOL LLFloaterImagePreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	{
 		mAvatarPreview->zoom((F32)clicks * -0.2f);
 		mAvatarPreview->refresh();
+
+		mSculptedPreview->zoom((F32)clicks * -0.2f);
+		mSculptedPreview->refresh();
 	}
 
 	return TRUE;
@@ -539,6 +571,7 @@ LLImagePreviewAvatar::LLImagePreviewAvatar(S32 width, S32 height) : LLDynamicTex
 
 	mTextureName = 0;
 }
+
 
 LLImagePreviewAvatar::~LLImagePreviewAvatar()
 {
@@ -582,7 +615,7 @@ void LLImagePreviewAvatar::setPreviewTarget(const char* joint_name, const char* 
 //-----------------------------------------------------------------------------
 // update()
 //-----------------------------------------------------------------------------
-BOOL	LLImagePreviewAvatar::render()
+BOOL LLImagePreviewAvatar::render()
 {
 	mNeedsUpdate = FALSE;
 	LLVOAvatar* avatarp = mDummyAvatar;
@@ -620,6 +653,7 @@ BOOL	LLImagePreviewAvatar::render()
 
 	stop_glerror();
 
+	gCamera->setAspect((F32)mWidth / mHeight);
 	gCamera->setView(gCamera->getDefaultFOV() / mCameraZoom);
 	gCamera->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mWidth, mHeight, FALSE);
 
@@ -668,6 +702,173 @@ void LLImagePreviewAvatar::zoom(F32 zoom_amt)
 }
 
 void LLImagePreviewAvatar::pan(F32 right, F32 up)
+{
+	mCameraOffset.mV[VY] = llclamp(mCameraOffset.mV[VY] + right * mCameraDistance / mCameraZoom, -1.f, 1.f);
+	mCameraOffset.mV[VZ] = llclamp(mCameraOffset.mV[VZ] + up * mCameraDistance / mCameraZoom, -1.f, 1.f);
+}
+
+
+//-----------------------------------------------------------------------------
+// LLImagePreviewSculpted
+//-----------------------------------------------------------------------------
+
+LLImagePreviewSculpted::LLImagePreviewSculpted(S32 width, S32 height) : LLDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE)
+{
+	mNeedsUpdate = TRUE;
+	mCameraDistance = 0.f;
+	mCameraYaw = 0.f;
+	mCameraPitch = 0.f;
+	mCameraZoom = 1.f;
+	mTextureName = 0;
+
+	LLVolumeParams volume_params;
+	volume_params.setType(LL_PCODE_PROFILE_CIRCLE, LL_PCODE_PATH_CIRCLE);
+	mVolume = new LLVolume(volume_params, (F32) MAX_LOD);
+
+	/*
+	mDummyAvatar = new LLVOAvatar(LLUUID::null, LL_PCODE_LEGACY_AVATAR, gAgent.getRegion());
+	mDummyAvatar->createDrawable(&gPipeline);
+	mDummyAvatar->mIsDummy = TRUE;
+	mDummyAvatar->mSpecialRenderMode = 2;
+	mDummyAvatar->setPositionAgent(LLVector3::zero);
+	mDummyAvatar->slamPosition();
+	mDummyAvatar->updateJointLODs();
+	mDummyAvatar->updateGeometry(mDummyAvatar->mDrawable);
+	gPipeline.markVisible(mDummyAvatar->mDrawable, *gCamera);
+	mTextureName = 0;
+	*/
+}
+
+
+LLImagePreviewSculpted::~LLImagePreviewSculpted()
+{
+	/*
+	mDummyAvatar->markDead();
+	*/
+}
+
+
+void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
+{ 
+	mCameraDistance = distance;
+	mCameraZoom = 1.f;
+	mCameraPitch = 0.f;
+	mCameraYaw = 0.f;
+	mCameraOffset.clearVec();
+
+	if (imagep)
+	{
+		mVolume->sculpt(imagep->getWidth(), imagep->getHeight(), imagep->getComponents(), imagep->getData(), 0);
+	}
+	
+}
+
+
+//-----------------------------------------------------------------------------
+// render()
+//-----------------------------------------------------------------------------
+BOOL LLImagePreviewSculpted::render()
+{
+	mNeedsUpdate = FALSE;
+
+	LLGLSUIDefault def;
+	LLGLDisable no_blend(GL_BLEND);
+	LLGLEnable cull(GL_CULL_FACE);
+	LLGLDepthTest depth(GL_TRUE);
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0.0f, mWidth, 0.0f, mHeight, -1.0f, 1.0f);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+		
+	glColor4f(0.15f, 0.2f, 0.3f, 1.f);
+
+	gl_rect_2d_simple( mWidth, mHeight );
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	LLVector3 target_pos(0, 0, 0);
+
+	LLQuaternion camera_rot = LLQuaternion(mCameraPitch, LLVector3::y_axis) * 
+		LLQuaternion(mCameraYaw, LLVector3::z_axis);
+
+	LLQuaternion av_rot = camera_rot;
+	gCamera->setOriginAndLookAt(
+		target_pos + ((LLVector3(mCameraDistance, 0.f, 0.f) + mCameraOffset) * av_rot),		// camera
+		LLVector3::z_axis,																	// up
+		target_pos + (mCameraOffset  * av_rot) );											// point of interest
+
+	stop_glerror();
+
+	gCamera->setAspect((F32) mWidth / mHeight);
+	gCamera->setView(gCamera->getDefaultFOV() / mCameraZoom);
+	gCamera->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mWidth, mHeight, FALSE);
+
+	gPipeline.enableLightsAvatar(0.0);
+
+		
+	glPushMatrix();
+	glScalef(0.5, 0.5, 0.5);
+	
+	glBegin(GL_TRIANGLES);
+	glColor3f(0.8f, 0.8f, 0.8f);
+
+	const LLVolumeFace &vf = mVolume->getVolumeFace(0);
+	S32 num_indices = (S32)vf.mIndices.size();
+	for (U32 i = 0; (S32)i < num_indices; i++)
+	{
+		LLVector3 normal = vf.mVertices[vf.mIndices[i]].mNormal;
+		normal.normVec();
+		glNormal3f(normal.mV[VX], normal.mV[VY], normal.mV[VZ]);
+
+		LLVector3 position = vf.mVertices[vf.mIndices[i]].mPosition;
+		glVertex3f(position.mV[VX], position.mV[VY], position.mV[VZ]);
+	}
+		
+	glEnd();
+	
+	glPopMatrix();
+	
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// refresh()
+//-----------------------------------------------------------------------------
+void LLImagePreviewSculpted::refresh()
+{ 
+	mNeedsUpdate = TRUE; 
+}
+
+//-----------------------------------------------------------------------------
+// rotate()
+//-----------------------------------------------------------------------------
+void LLImagePreviewSculpted::rotate(F32 yaw_radians, F32 pitch_radians)
+{
+	mCameraYaw = mCameraYaw + yaw_radians;
+
+	mCameraPitch = llclamp(mCameraPitch + pitch_radians, F_PI_BY_TWO * -0.8f, F_PI_BY_TWO * 0.8f);
+}
+
+//-----------------------------------------------------------------------------
+// zoom()
+//-----------------------------------------------------------------------------
+void LLImagePreviewSculpted::zoom(F32 zoom_amt)
+{
+	mCameraZoom	= llclamp(mCameraZoom + zoom_amt, 1.f, 10.f);
+}
+
+void LLImagePreviewSculpted::pan(F32 right, F32 up)
 {
 	mCameraOffset.mV[VY] = llclamp(mCameraOffset.mV[VY] + right * mCameraDistance / mCameraZoom, -1.f, 1.f);
 	mCameraOffset.mV[VZ] = llclamp(mCameraOffset.mV[VZ] + up * mCameraDistance / mCameraZoom, -1.f, 1.f);

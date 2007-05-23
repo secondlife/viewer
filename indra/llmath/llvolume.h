@@ -149,6 +149,16 @@ const LLFaceID	LL_FACE_OUTER_SIDE_3	= 0x1 << 8;
 
 //============================================================================
 
+// sculpt types
+
+const U8 LL_SCULPT_TYPE_NONE      = 0;
+const U8 LL_SCULPT_TYPE_SPHERE    = 1;
+const U8 LL_SCULPT_TYPE_TORUS     = 2;
+const U8 LL_SCULPT_TYPE_PLAIN     = 3;
+const U8 LL_SCULPT_TYPE_CYLINDER  = 4;
+
+
+
 class LLProfileParams
 {
 public:
@@ -492,8 +502,9 @@ public:
 	{
 	}
 
-	LLVolumeParams(LLProfileParams &profile, LLPathParams &path)
-		: mProfileParams(profile), mPathParams(path)
+	LLVolumeParams(LLProfileParams &profile, LLPathParams &path,
+				   LLUUID sculpt_id = LLUUID::null, U8 sculpt_type = LL_SCULPT_TYPE_NONE)
+		: mProfileParams(profile), mPathParams(path), mSculptID(sculpt_id), mSculptType(sculpt_type)
 	{
 	}
 
@@ -544,6 +555,7 @@ public:
 	bool setRevolutions(const F32 revolutions);	// 1 to 4
 	bool setRadiusOffset(const F32 radius_offset);
 	bool setSkew(const F32 skew);
+	bool setSculptID(const LLUUID sculpt_id, U8 sculpt_type);
 
 	static bool validate(U8 prof_curve, F32 prof_begin, F32 prof_end, F32 hollow,
 		U8 path_curve, F32 path_begin, F32 path_end,
@@ -571,6 +583,8 @@ public:
 	const F32&  getTaperY() const		{ return mPathParams.getTaperY();		}
 	const F32&  getRevolutions() const	{ return mPathParams.getRevolutions();	}
 	const F32&  getSkew() const			{ return mPathParams.getSkew();			}
+	const LLUUID& getSculptID() const	{ return mSculptID;						}
+	const U8& getSculptType() const     { return mSculptType;                   }
 
 	BOOL isConvex() const;
 
@@ -593,6 +607,8 @@ public:
 protected:
 	LLProfileParams mProfileParams;
 	LLPathParams	mPathParams;
+	LLUUID mSculptID;
+	U8 mSculptType;
 };
 
 
@@ -615,7 +631,7 @@ public:
 	BOOL isFlat(S32 face) const							{ return (mFaces[face].mCount == 2); }
 	BOOL isOpen() const									{ return mOpen; }
 	void setDirty()										{ mDirty     = TRUE; }
-	BOOL generate(BOOL path_open, F32 detail = 1.0f, S32 split = 0);
+	BOOL generate(BOOL path_open, F32 detail = 1.0f, S32 split = 0, BOOL is_sculpted = FALSE);
 	BOOL isConcave() const								{ return mConcave; }
 public:
 	const LLProfileParams &mParams;
@@ -684,7 +700,7 @@ public:
 	virtual ~LLPath();
 
 	void genNGon(S32 sides, F32 offset=0.0f, F32 end_scale = 1.f, F32 twist_scale = 1.f);
-	virtual BOOL generate(F32 detail=1.0f, S32 split = 0);
+	virtual BOOL generate(F32 detail=1.0f, S32 split = 0, BOOL is_sculpted = FALSE);
 
 	BOOL isOpen() const						{ return mOpen; }
 	F32 getStep() const						{ return mStep; }
@@ -711,7 +727,7 @@ class LLDynamicPath : public LLPath
 {
 public:
 	LLDynamicPath(const LLPathParams &params) : LLPath(params) { }
-	BOOL generate(F32 detail=1.0f, S32 split = 0);
+	BOOL generate(F32 detail=1.0f, S32 split = 0, BOOL is_sculpted = FALSE);
 };
 
 // Yet another "face" class - caches volume-specific, but not instance-specific data for faces)
@@ -801,7 +817,7 @@ public:
 	U8 getProfileType()	const								{ return mProfilep->mParams.getCurveType(); }
 	U8 getPathType() const									{ return mPathp->mParams.getCurveType(); }
 	S32	getNumFaces() const									{ return (S32)mProfilep->mFaces.size(); }
-
+	S32 getNumVolumeFaces() const							{ return mNumVolumeFaces; }
 	const F32 getDetail() const								{ return mDetail; }
 	const LLVolumeParams & getParams() const				{ return mParams; }
 	LLVolumeParams getCopyOfParams() const					{ return mParams; }
@@ -819,6 +835,11 @@ public:
 	BOOL isFlat(S32 face);
 	BOOL isUnique() const									{ return mUnique; }
 
+	S32 getSculptLevel() const                              { return mSculptLevel; }
+	void setSculptLevel(S32 level)                          { mSculptLevel = level; }
+
+	U8 getSculptType() const                                { return mSculptType; }
+	
 	S32 *getTriangleIndices(U32 &num_indices) const;
 	void generateSilhouetteVertices(std::vector<LLVector3> &vertices, std::vector<LLVector3> &normals, std::vector<S32> &segments, const LLVector3& view_vec,
 											  const LLMatrix4& mat,
@@ -843,7 +864,7 @@ public:
 	LLFaceID generateFaceMask();
 
 	BOOL isFaceMaskValid(LLFaceID face_mask);
-	static S32 mNumMeshPoints;
+	static S32 sNumMeshPoints;
 
 	friend std::ostream& operator<<(std::ostream &s, const LLVolume &volume);
 	friend std::ostream& operator<<(std::ostream &s, const LLVolume *volumep);		// HACK to bypass Windoze confusion over 
@@ -852,14 +873,19 @@ public:
 
 	U32					mFaceMask;			// bit array of which faces exist in this volume
 	LLVector3			mLODScaleBias;		// vector for biasing LOD based on scale
-
+	
+	void sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level);
+	
 protected:
 	BOOL generate();
 	void createVolumeFaces();
 
-protected:
+ protected:
 	BOOL mUnique;
 	F32 mDetail;
+	S32 mSculptLevel;
+	U8  mSculptType;
+	
 	LLVolumeParams mParams;
 	LLPath *mPathp;
 	LLProfile *mProfilep;

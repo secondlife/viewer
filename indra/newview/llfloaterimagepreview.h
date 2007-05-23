@@ -19,6 +19,34 @@ class LLViewerJointMesh;
 class LLVOAvatar;
 class LLTextBox;
 
+class LLImagePreviewSculpted : public LLDynamicTexture
+{
+ public:
+	LLImagePreviewSculpted(S32 width, S32 height);
+	virtual ~LLImagePreviewSculpted();
+
+	void setPreviewTarget(LLImageRaw *imagep, F32 distance);
+	void setTexture(U32 name) { mTextureName = name; }
+
+	BOOL render();
+	void refresh();
+	void rotate(F32 yaw_radians, F32 pitch_radians);
+	void zoom(F32 zoom_amt);
+	void pan(F32 right, F32 up);
+	virtual BOOL needsRender() { return mNeedsUpdate; }
+
+ protected:
+	BOOL        mNeedsUpdate;
+	U32         mTextureName;
+	F32			mCameraDistance;
+	F32			mCameraYaw;
+	F32			mCameraPitch;
+	F32			mCameraZoom;
+	LLVector3	mCameraOffset;
+	LLPointer<LLVolume> mVolume;
+};
+
+
 class LLImagePreviewAvatar : public LLDynamicTexture
 {
 public:
@@ -71,6 +99,7 @@ protected:
 
 	LLPointer<LLImageRaw> mRawImagep;
 	LLImagePreviewAvatar* mAvatarPreview;
+	LLImagePreviewSculpted* mSculptedPreview;
 	S32				mLastMouseX;
 	S32				mLastMouseY;
 	LLRect			mPreviewRect;

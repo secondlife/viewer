@@ -706,8 +706,6 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 {
 	LLMemType mt1(LLMemType::MTYPE_DRAWABLE);
 
-	const LLVolumeFace &face = volume.getVolumeFace(f);
-	
 	//get bounding box
 	if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION))
 	{
@@ -718,9 +716,18 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		}
 
 		LLVector3 min,max;
-			
-		min = face.mExtents[0];
-		max = face.mExtents[1];
+	
+		if (f >= volume.getNumVolumeFaces())
+		{
+			min = LLVector3(-1,-1,-1);
+			max = LLVector3(1,1,1);
+		}
+		else
+		{
+			const LLVolumeFace &face = volume.getVolumeFace(f);
+			min = face.mExtents[0];
+			max = face.mExtents[1];
+		}
 
 		//min, max are in volume space, convert to drawable render space
 		LLVector3 center = ((min + max) * 0.5f)*mat_vert;
@@ -883,6 +890,10 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				{
 					full_rebuild = TRUE;
 				}
+			}
+			else
+			{
+				full_rebuild = TRUE;
 			}
 		}
 		else

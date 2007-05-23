@@ -69,6 +69,8 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 	mGlobalVolume = FALSE;
 	mVObjRadius = LLVector3(1,1,0.5f).magVec();
 	mNumFaces = 0;
+	mLODChanged = FALSE;
+	mSculptChanged = FALSE;
 }
 
 LLVOVolume::~LLVOVolume()
@@ -95,6 +97,15 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 
 	// Do base class updates...
 	U32 retval = LLViewerObject::processUpdateMessage(mesgsys, user_data, block_num, update_type, dp);
+
+	LLUUID sculpt_id;
+	U8 sculpt_type = 0;
+	if (isSculpted())
+	{
+		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+		sculpt_id = sculpt_params->getSculptTexture();
+		sculpt_type = sculpt_params->getSculptType();
+	}
 
 	if (!dp)
 	{
@@ -137,6 +148,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 			// Unpack volume data
 			LLVolumeParams volume_params;
 			LLVolumeMessage::unpackVolumeParams(&volume_params, mesgsys, _PREHASH_ObjectData, block_num);
+			volume_params.setSculptID(sculpt_id, sculpt_type);
 
 			if (setVolume(volume_params, 0))
 			{
@@ -166,7 +178,9 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 				llwarns << "Bogus volume parameters in object " << getID() << llendl;
 				llwarns << getRegion()->getOriginGlobal() << llendl;
 			}
-			
+
+			volume_params.setSculptID(sculpt_id, sculpt_type);
+
 			if (setVolume(volume_params, 0))
 			{
 				markForUpdate(TRUE);
@@ -442,6 +456,28 @@ void LLVOVolume::updateTextures()
 			if (pri > max_vsize) max_vsize = pri;
 		}	
 	}
+	
+	if (isSculpted())
+	{
+		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+		LLUUID id =  sculpt_params->getSculptTexture(); 
+		mSculptTexture = gImageList.getImage(id);
+		if (mSculptTexture.notNull())
+		{
+			mSculptTexture->addTextureStats(mPixelArea);
+		}
+
+		S32 desired_discard = MAX_LOD - mLOD;
+		S32 current_discard = getVolume()->getSculptLevel();
+
+		if (desired_discard != current_discard)
+		{
+			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, FALSE);
+			mSculptChanged = TRUE;
+		}
+		
+	}
+
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
 	{
@@ -604,20 +640,77 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &volume_params, const S32 detail
 			}
 		}
 	}
+	
 	mGlobalVolume = (mVolumeImpl && mVolumeImpl->isVolumeGlobal());
 	
-	if (LLPrimitive::setVolume(volume_params, mLOD, (mVolumeImpl && mVolumeImpl->isVolumeUnique())))
+	if ((LLPrimitive::setVolume(volume_params, mLOD, (mVolumeImpl && mVolumeImpl->isVolumeUnique()))) || mSculptChanged)
 	{
 		mFaceMappingChanged = TRUE;
-
+		
 		if (mVolumeImpl)
 		{
 			mVolumeImpl->onSetVolume(volume_params, detail);
+		}
+		
+		if (isSculpted())
+		{
+			mSculptTexture = gImageList.getImage(volume_params.getSculptID());
+			if (mSculptTexture.notNull())
+			{
+				sculpt();
+			}
+		}
+		else
+		{
+			mSculptTexture = NULL;
 		}
 
 		return TRUE;
 	}
 	return FALSE;
+}
+
+// sculpt replaces generate() for sculpted surfaces
+void LLVOVolume::sculpt()
+{
+	U16 sculpt_height = 0;
+	U16 sculpt_width = 0;
+	S8 sculpt_components = 0;
+	const U8* sculpt_data = NULL;
+
+	if (mSculptTexture.notNull())
+	{
+		S32 discard_level;
+		S32 desired_discard = MAX_LOD - mLOD;  // desired
+
+		discard_level = desired_discard;
+		
+		S32 max_discard = mSculptTexture->getMaxDiscardLevel();
+		if (discard_level > max_discard)
+			discard_level = max_discard;    // clamp to the best we can do
+
+		S32 best_discard = mSculptTexture->getDiscardLevel();
+		if (discard_level < best_discard)
+			discard_level = best_discard;   // clamp to what we have
+
+		if (best_discard == -1)
+			discard_level = -1;  // and if we have nothing, set to nothing
+
+		
+		S32 current_discard = getVolume()->getSculptLevel();
+		if (current_discard == discard_level)  // no work to do here
+			return;
+		
+		LLPointer<LLImageRaw> raw_image = new LLImageRaw();
+		mSculptTexture->readBackRaw(discard_level, raw_image, TRUE);
+
+		sculpt_height = raw_image->getHeight();
+		sculpt_width = raw_image->getWidth();
+
+		sculpt_components = raw_image->getComponents();
+		sculpt_data = raw_image->getData();
+		getVolume()->sculpt(sculpt_width, sculpt_height, sculpt_components, sculpt_data, discard_level);
+	}
 }
 
 S32	LLVOVolume::computeLODDetail(F32 distance, F32 radius)
@@ -958,7 +1051,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 			genBBoxes(FALSE);
 		}
 	}
-	else if (mLODChanged)
+	else if ((mLODChanged) || (mSculptChanged))
 	{
 		LLPointer<LLVolume> old_volumep, new_volumep;
 		F32 old_lod, new_lod;
@@ -974,7 +1067,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 		new_volumep = getVolume();
 		new_lod = new_volumep->getDetail();
 
-		if (new_lod != old_lod)
+		if ((new_lod != old_lod) || mSculptChanged)
 		{
 			compiled = TRUE;
 			sNumLODChanges += getVolume()->getNumFaces();
@@ -1010,6 +1103,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	
 	mVolumeChanged = FALSE;
 	mLODChanged = FALSE;
+	mSculptChanged = FALSE;
 	mFaceMappingChanged = FALSE;
 
 	return TRUE;
@@ -1017,9 +1111,16 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 
 void LLVOVolume::updateFaceSize(S32 idx)
 {
-	const LLVolumeFace& vol_face = getVolume()->getVolumeFace(idx);
 	LLFace* facep = mDrawable->getFace(idx);
-	facep->setSize(vol_face.mVertices.size(), vol_face.mIndices.size());
+	if (idx >= getVolume()->getNumVolumeFaces())
+	{
+		facep->setSize(0,0);
+	}
+	else
+	{
+		const LLVolumeFace& vol_face = getVolume()->getVolumeFace(idx);
+		facep->setSize(vol_face.mVertices.size(), vol_face.mIndices.size());
+	}
 }
 
 BOOL LLVOVolume::isRootEdit() const
@@ -1449,7 +1550,6 @@ BOOL LLVOVolume::isFlexible() const
 	{
 		if (getVolume()->getParams().getPathParams().getCurveType() != LL_PCODE_PATH_FLEXIBLE)
 		{
-			llwarns << "wtf" << llendl;
 			LLVolumeParams volume_params = getVolume()->getParams();
 			U8 profile_and_hole = volume_params.getProfileParams().getCurveType();
 			volume_params.setType(profile_and_hole, LL_PCODE_PATH_FLEXIBLE);
@@ -1460,6 +1560,16 @@ BOOL LLVOVolume::isFlexible() const
 	{
 		return FALSE;
 	}
+}
+
+BOOL LLVOVolume::isSculpted() const
+{
+	if (getParameterEntryInUse(LLNetworkData::PARAMS_SCULPT))
+	{
+		return TRUE;
+	}
+	
+	return FALSE;
 }
 
 BOOL LLVOVolume::isVolumeGlobal() const

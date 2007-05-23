@@ -132,6 +132,7 @@ public:
 				void	setTexture(const S32 face);
 
 	/*virtual*/ BOOL	setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume = false);
+				void	sculpt();
 				void	updateRelativeXform();
 	/*virtual*/ BOOL	updateGeometry(LLDrawable *drawable);
 	/*virtual*/ void	updateFaceSize(S32 idx);
@@ -177,6 +178,7 @@ public:
 	// Flexible Objects
 	U32 getVolumeInterfaceID() const;
 	virtual BOOL isFlexible() const;
+	virtual BOOL isSculpted() const;
 	BOOL isVolumeGlobal() const;
 	BOOL canBeFlexible() const;
 	BOOL setIsFlexible(BOOL is_flexible);
@@ -203,12 +205,14 @@ protected:
 	LLFrameTimer mTextureUpdateTimer;
 	S32			mLOD;
 	BOOL		mLODChanged;
+	BOOL		mSculptChanged;
 	F32			mRadius;
 	LLMatrix4	mRelativeXform;
 	LLMatrix3	mRelativeXformInvTrans;
 	BOOL		mVolumeChanged;
 	F32			mVObjRadius;
 	LLVolumeInterface *mVolumeImpl;
+	LLPointer<LLViewerImage> mSculptTexture;
 	
 	// statics
 public:

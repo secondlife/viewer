@@ -87,6 +87,9 @@ const BOOL FLEXIBLE_OBJECT_DEFAULT_USING_COLLISION_SPHERE = FALSE;
 const BOOL FLEXIBLE_OBJECT_DEFAULT_RENDERING_COLLISION_SPHERE = FALSE;
 
 
+const char *SCULPT_DEFAULT_TEXTURE = "be293869-d0d9-0a69-5989-ad27f1946fd4"; // old inverted texture: "7595d345-a24c-e7ef-f0bd-78793792133e";
+
+
 //===============================================================
 LLPrimitive::LLPrimitive()
 {
@@ -489,6 +492,18 @@ S32  LLPrimitive::setTEMediaFlags(const U8 te, const U8 media_flags)
 	}
 
 	return mTextureList[te].setMediaFlags( media_flags );
+}
+
+S32 LLPrimitive::setTEGlow(const U8 te, const F32 glow)
+{
+	// if we're asking for a non-existent face, return null
+	if (te >= mNumTEs)
+	{
+		llwarns << "setting non-existent te " << te << llendl
+			return 0;
+	}
+
+	return mTextureList[te].setGlow( glow );
 }
 
 
@@ -1272,7 +1287,8 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 	S16    image_rot[MAX_TES];
 	U8	   bump[MAX_TES];
 	U8	   media_flags[MAX_TES];
-
+    U8     glow[MAX_TES];
+	
 	const U32 MAX_TE_BUFFER = 4096;
 	U8 packed_buffer[MAX_TE_BUFFER];
 	U8 *cur_ptr = packed_buffer;
@@ -1308,7 +1324,7 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 			image_rot[face_index] = (S16) llround(((fmod(te->mRotation, F_TWO_PI)/F_TWO_PI) * (F32)0x7FFF));
 			bump[face_index] = te->getBumpShinyFullbright();
 			media_flags[face_index] = te->getMediaTexGen();
-//			llinfos << "BUMP pack [" << (S32)face_index << "]=" << (S32) bump[face_index] << llendl;
+			glow[face_index] = (U8) llround((llclamp(te->getGlow(), 0.0f, 1.0f) * (F32)0xFF));
 		}
 
 		cur_ptr += packTEField(cur_ptr, (U8 *)image_ids, sizeof(LLUUID),last_face_index, MVT_LLUUID);
@@ -1328,6 +1344,8 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 		cur_ptr += packTEField(cur_ptr, (U8 *)bump, 1 ,last_face_index, MVT_U8);
 		*cur_ptr++ = 0;
 		cur_ptr += packTEField(cur_ptr, (U8 *)media_flags, 1 ,last_face_index, MVT_U8);
+		*cur_ptr++ = 0;
+		cur_ptr += packTEField(cur_ptr, (U8 *)glow, 1 ,last_face_index, MVT_U8);
 	}
    	mesgsys->addBinaryDataFast(_PREHASH_TextureEntry, packed_buffer, (S32)(cur_ptr - packed_buffer));
 
@@ -1348,7 +1366,8 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 	S16    image_rot[MAX_TES];
 	U8	   bump[MAX_TES];
 	U8	   media_flags[MAX_TES];
-
+    U8     glow[MAX_TES];
+	
 	const U32 MAX_TE_BUFFER = 4096;
 	U8 packed_buffer[MAX_TE_BUFFER];
 	U8 *cur_ptr = packed_buffer;
@@ -1384,8 +1403,7 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 			image_rot[face_index] = (S16) llround(((fmod(te->mRotation, F_TWO_PI)/F_TWO_PI) * (F32)0x7FFF));
 			bump[face_index] = te->getBumpShinyFullbright();
 			media_flags[face_index] = te->getMediaTexGen();
-
-//			llinfos << "BUMP pack   (Datapacker) [" << (S32)face_index << "]=" << (S32) bump[face_index] << llendl;
+            glow[face_index] = (U8) llround((llclamp(te->getGlow(), 0.0f, 1.0f) * (F32)0xFF));
 		}
 
 		cur_ptr += packTEField(cur_ptr, (U8 *)image_ids, sizeof(LLUUID),last_face_index, MVT_LLUUID);
@@ -1405,6 +1423,8 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 		cur_ptr += packTEField(cur_ptr, (U8 *)bump, 1 ,last_face_index, MVT_U8);
 		*cur_ptr++ = 0;
 		cur_ptr += packTEField(cur_ptr, (U8 *)media_flags, 1 ,last_face_index, MVT_U8);
+		*cur_ptr++ = 0;
+		cur_ptr += packTEField(cur_ptr, (U8 *)glow, 1 ,last_face_index, MVT_U8);
 	}
 
 	dp.packBinaryData(packed_buffer, (S32)(cur_ptr - packed_buffer), "TextureEntry");
@@ -1433,7 +1453,8 @@ S32 LLPrimitive::unpackTEMessage(LLMessageSystem *mesgsys, char *block_name, con
 	S16    image_rot[MAX_TES];
 	U8	   bump[MAX_TES];
 	U8	   media_flags[MAX_TES];
-
+    U8     glow[MAX_TES];
+	
 	const U32 MAX_TE_BUFFER = 4096;
 	U8 packed_buffer[MAX_TE_BUFFER];
 	U8 *cur_ptr = packed_buffer;
@@ -1483,7 +1504,9 @@ S32 LLPrimitive::unpackTEMessage(LLMessageSystem *mesgsys, char *block_name, con
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)bump, 1, face_count, MVT_U8);
 	cur_ptr++;
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)media_flags, 1, face_count, MVT_U8);
-
+	cur_ptr++;
+	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)glow, 1, face_count, MVT_U8);
+	
 	LLColor4 color;
 	LLColor4U coloru;
 	for (U32 i = 0; i < face_count; i++)
@@ -1494,6 +1517,7 @@ S32 LLPrimitive::unpackTEMessage(LLMessageSystem *mesgsys, char *block_name, con
 		retval |= setTERotation(i, ((F32)image_rot[i]/ (F32)0x7FFF) * F_TWO_PI);
 		retval |= setTEBumpShinyFullbright(i, bump[i]);
 		retval |= setTEMediaTexGen(i, media_flags[i]);
+		retval |= setTEGlow(i, (F32)glow[i] / (F32)0xFF);
 		coloru = LLColor4U(colors + 4*i);
 
 		// Note:  This is an optimization to send common colors (1.f, 1.f, 1.f, 1.f)
@@ -1528,6 +1552,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 	S16    image_rot[MAX_TES];
 	U8	   bump[MAX_TES];
 	U8	   media_flags[MAX_TES];
+    U8     glow[MAX_TES];
 
 	const U32 MAX_TE_BUFFER = 4096;
 	U8 packed_buffer[MAX_TE_BUFFER];
@@ -1568,10 +1593,11 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)bump, 1, face_count, MVT_U8);
 	cur_ptr++;
 	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)media_flags, 1, face_count, MVT_U8);
+	cur_ptr++;
+	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)glow, 1, face_count, MVT_U8);
 
 	for (i = 0; i < face_count; i++)
 	{
-//		llinfos << "BUMP unpack (Datapacker) [" << i << "]=" << S32(bump[i]) <<llendl;
 		memcpy(image_ids[i].mData,&image_data[i*16],16);	/* Flawfinder: ignore */ 	
 	}
 	
@@ -1585,6 +1611,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 		retval |= setTERotation(i, ((F32)image_rot[i]/ (F32)0x7FFF) * F_TWO_PI);
 		retval |= setTEBumpShinyFullbright(i, bump[i]);
 		retval |= setTEMediaTexGen(i, media_flags[i]);
+		retval |= setTEGlow(i, (F32)glow[i] / (F32)0xFF);
 		coloru = LLColor4U(colors + 4*i);
 
 		// Note:  This is an optimization to send common colors (1.f, 1.f, 1.f, 1.f)
@@ -1621,6 +1648,8 @@ BOOL LLNetworkData::isValid(U16 param_type, U32 size)
 		return (size == 16);
 	case PARAMS_LIGHT:
 		return (size == 16);
+	case PARAMS_SCULPT:
+		return (size == 17);
 	}
 	
 	return FALSE;
@@ -1776,3 +1805,55 @@ void LLFlexibleObjectData::copy(const LLNetworkData& data)
 	//mUsingCollisionSphere = flex_data->mUsingCollisionSphere;
 	//mRenderingCollisionSphere = flex_data->mRenderingCollisionSphere;
 }
+
+
+//============================================================================
+
+LLSculptParams::LLSculptParams()
+{
+	mType = PARAMS_SCULPT;
+	mSculptTexture.set(SCULPT_DEFAULT_TEXTURE);
+	mSculptType = LL_SCULPT_TYPE_SPHERE;
+}
+
+BOOL LLSculptParams::pack(LLDataPacker &dp) const
+{
+	dp.packUUID(mSculptTexture, "texture");
+	dp.packU8(mSculptType, "type");
+	
+	return TRUE;
+}
+
+BOOL LLSculptParams::unpack(LLDataPacker &dp)
+{
+	dp.unpackUUID(mSculptTexture, "texture");
+	dp.unpackU8(mSculptType, "type");
+	
+	return TRUE;
+}
+
+bool LLSculptParams::operator==(const LLNetworkData& data) const
+{
+	if (data.mType != PARAMS_SCULPT)
+	{
+		return false;
+	}
+	
+	const LLSculptParams *param = (const LLSculptParams*)&data;
+	if ( (param->mSculptTexture != mSculptTexture) ||
+		 (param->mSculptType != mSculptType) )
+		 
+	{
+		return false;
+	}
+	
+	return true;
+}
+
+void LLSculptParams::copy(const LLNetworkData& data)
+{
+	const LLSculptParams *param = (LLSculptParams*)&data;
+	mSculptTexture = param->mSculptTexture;
+	mSculptType = param->mSculptType;
+}
+

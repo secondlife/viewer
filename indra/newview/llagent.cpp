@@ -4917,6 +4917,8 @@ void LLAgent::sendAnimationRequests(LLDynamicArray<LLUUID> &anim_ids, EAnimReque
 		num_valid_anims++;
 	}
 
+	msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
+	msg->addBinaryDataFast(_PREHASH_TypeData, NULL, 0);
 	if (num_valid_anims)
 	{
 		sendReliableMessage();
@@ -4940,6 +4942,8 @@ void LLAgent::sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request)
 	msg->addUUIDFast(_PREHASH_AnimID, (anim_id) );
 	msg->addBOOLFast(_PREHASH_StartAnim, (request == ANIM_REQUEST_START) ? TRUE : FALSE);
 
+	msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
+	msg->addBinaryDataFast(_PREHASH_TypeData, NULL, 0);
 	sendReliableMessage();
 }
 

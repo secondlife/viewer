@@ -87,7 +87,8 @@ public:
 	S32  setMediaFlags(U8 media_flags);
 	S32	 setTexGen(U8 texGen);
 	S32  setMediaTexGen(U8 media);
-
+    S32  setGlow(F32 glow);
+	
 	const LLUUID &getID() const { return mID; }
 	const LLColor4 &getColor() const { return mColor; }
 	void getScale(F32 *s, F32 *t) const { *s = mScaleS; *t = mScaleT; }
@@ -104,7 +105,8 @@ public:
 	U8	 getMediaFlags() const { return mMediaFlags & TEM_MEDIA_MASK; }
 	U8	 getTexGen() const	{ return mMediaFlags & TEM_TEX_GEN_MASK; }
 	U8	 getMediaTexGen() const { return mMediaFlags; }
-
+    F32  getGlow() const { return mGlow; }
+	
 	// Media flags
 	enum { MF_NONE = 0x0, MF_WEB_PAGE = 0x1 };
 
@@ -121,6 +123,8 @@ protected:
 	LLColor4			mColor;
 	U8					mBump;					// Bump map, shiny, and fullbright
 	U8					mMediaFlags;			// replace with web page, movie, etc.
+	F32                 mGlow;
+	
 };
 
 #endif

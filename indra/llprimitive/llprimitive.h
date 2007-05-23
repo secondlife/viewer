@@ -68,6 +68,7 @@ extern const F32 OBJECT_REV_MIN;
 extern const F32 OBJECT_REV_MAX;
 extern const F32 OBJECT_REV_INC;
 
+extern const char *SCULPT_DEFAULT_TEXTURE;
 
 //============================================================================
 
@@ -79,7 +80,8 @@ public:
 	enum
 	{
 		PARAMS_FLEXIBLE = 0x10,
-		PARAMS_LIGHT = 0x20
+		PARAMS_LIGHT    = 0x20,
+		PARAMS_SCULPT   = 0x30
 	};
 	
 public:
@@ -206,6 +208,29 @@ public:
 	void copy(const LLNetworkData& data);
 };// end of attributes structure
 
+
+
+class LLSculptParams : public LLNetworkData
+{
+protected:
+	LLUUID mSculptTexture;
+	U8 mSculptType;
+	
+public:
+	LLSculptParams();
+	/*virtual*/ BOOL pack(LLDataPacker &dp) const;
+	/*virtual*/ BOOL unpack(LLDataPacker &dp);
+	/*virtual*/ bool operator==(const LLNetworkData& data) const;
+	/*virtual*/ void copy(const LLNetworkData& data);
+
+	void setSculptTexture(const LLUUID& id) { mSculptTexture = id; }
+	LLUUID getSculptTexture()               { return mSculptTexture; }
+	void setSculptType(U8 type)             { mSculptType = type; }
+	U8 getSculptType()                      { return mSculptType; }
+};
+
+
+
 class LLPrimitive : public LLXform
 {
 public:
@@ -246,6 +271,7 @@ public:
 	virtual S32 setTEShiny(const U8 te, const U8 shiny);
 	virtual S32 setTEFullbright(const U8 te, const U8 fullbright);
 	virtual S32 setTEMediaFlags(const U8 te, const U8 flags);
+	virtual S32 setTEGlow(const U8 te, const F32 glow);
 	virtual BOOL setMaterial(const U8 material); // returns TRUE if material changed
 
 	void setTEArrays(const U8 size,

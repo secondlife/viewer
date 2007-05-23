@@ -2122,6 +2122,10 @@ sim -> dataserver
 		{ AnimID		LLUUID }
 		{ StartAnim		BOOL }
 	}
+	{
+		PhysicalAvatarEventList Variable
+		{ TypeData		Variable	1 }
+	}
 }
 
 // AgentRequestSit - Try to sit on an object
@@ -3957,6 +3961,11 @@ sim -> dataserver
 		AnimationSourceList Variable
 		{ ObjectID		LLUUID }
 	}
+	{
+		PhysicalAvatarEventList Variable
+		{ TypeData		Variable	1 }
+	}
+
 }
 
 // AvatarAppearance - Update visual params
@@ -6360,6 +6369,7 @@ sim -> dataserver
 		AgentData			Single
 		{	AgentID			LLUUID	}
 		{	SessionID		LLUUID	}
+		{	TransactionID	LLUUID	}
 	}
 	{
 		InventoryData		Variable
@@ -6400,6 +6410,7 @@ sim -> dataserver
 		AgentData			Single
 		{	AgentID			LLUUID	}
 		{	SimApproved		BOOL	}
+		{	TransactionID	LLUUID	}
 	}
 	{
 		InventoryData		Variable
@@ -6928,6 +6939,11 @@ sim -> dataserver
 // saving into task inventory.
 {
 	DeRezAck Low Trusted Unencoded
+	{
+		TransactionData			Single
+		{	TransactionID	LLUUID	}
+		{	Success			BOOL	}
+	}
 }
 
 // This message is sent from viewer -> simulator when the viewer wants

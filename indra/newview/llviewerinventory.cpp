@@ -164,6 +164,7 @@ void LLViewerInventoryItem::updateServer(BOOL is_new) const
 	msg->nextBlockFast(_PREHASH_AgentData);
 	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->addUUIDFast(_PREHASH_TransactionID, mTransactionID);
 	msg->nextBlockFast(_PREHASH_InventoryData);
 	msg->addU32Fast(_PREHASH_CallbackID, 0);
 	packMessage(msg);

@@ -37,6 +37,7 @@ LLTextureEntry::LLTextureEntry(const LLTextureEntry &rhs)
 	mColor = rhs.mColor;
 	mBump = rhs.mBump;
 	mMediaFlags = rhs.mMediaFlags;
+	mGlow = rhs.mGlow;
 }
 
 LLTextureEntry &LLTextureEntry::operator=(const LLTextureEntry &rhs)
@@ -52,6 +53,7 @@ LLTextureEntry &LLTextureEntry::operator=(const LLTextureEntry &rhs)
 		mColor = rhs.mColor;
 		mBump = rhs.mBump;
 		mMediaFlags = rhs.mMediaFlags;
+		mGlow = rhs.mGlow;
 	}
 
 	return *this;
@@ -68,7 +70,8 @@ void LLTextureEntry::init(const LLUUID& tex_id, F32 scale_s, F32 scale_t, F32 of
 	mRotation = rotation;
 	mBump = bump;
 	mMediaFlags = 0x0;
-
+    mGlow = 0;
+	
 	setColor(LLColor4(1.f, 1.f, 1.f, 1.f));
 }
 
@@ -341,6 +344,16 @@ S32 LLTextureEntry::setTexGen(U8 tex_gen)
 	{
 		mMediaFlags &= ~TEM_TEX_GEN_MASK;
 		mMediaFlags |= tex_gen;
+		return TEM_CHANGE_TEXTURE;
+	}
+	return 0;
+}
+
+S32 LLTextureEntry::setGlow(F32 glow)
+{
+	if (mGlow != glow)
+	{
+		mGlow = glow;
 		return TEM_CHANGE_TEXTURE;
 	}
 	return 0;
