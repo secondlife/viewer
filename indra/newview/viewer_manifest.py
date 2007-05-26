@@ -128,6 +128,7 @@ class WindowsManifest(ViewerManifest):
 
                 # Mozilla runtime DLLs (CP)
                 if self.prefix(src="../../libraries/i686-win32/lib_release", dst=""):
+                        self.path("freebl3.dll")
                         self.path("gksvggdiplus.dll")
                         self.path("js3250.dll")
                         self.path("nspr4.dll")
