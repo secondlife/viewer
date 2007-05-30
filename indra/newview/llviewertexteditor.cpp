@@ -1199,7 +1199,7 @@ BOOL LLViewerTextEditor::openEmbeddedItem(LLInventoryItem* item, BOOL saved)
 		return TRUE;
 
 	case LLAssetType::AT_LANDMARK:
-		showLandmarkDialog( item );
+		openEmbeddedLandmark( item );
 		return TRUE;
 		
 	case LLAssetType::AT_LSL_TEXT:
@@ -1253,35 +1253,28 @@ void LLViewerTextEditor::openEmbeddedSound( LLInventoryItem* item )
 	showCopyToInvDialog( item );
 }
 
-/*
+
 void LLViewerTextEditor::openEmbeddedLandmark( LLInventoryItem* item )
 {
-	// See if we can bring an existing preview to the front
-	if( !LLPreview::show( item->getUUID() ) )
-	{
-		// There isn't one, so make a new preview
-		S32 left, top;
-		gFloaterView->getNewFloaterPosition(&left, &top);
-		LLRect rect = gSavedSettings.getRect("PreviewLandmarkRect");
-		rect.translate( left - rect.mLeft, top - rect.mTop );
+	open_landmark((LLViewerInventoryItem*)item, "   preview landmark", FALSE, item->getUUID(), TRUE);
+}
 
-		LLPreviewLandmark* preview = new LLPreviewLandmark(
-			"preview landmark",
-			rect,
-			item->getName(),
-			item->getUUID());
-		preview->setAuxItem( item );
-		preview->addCopyToInvButton();
-		preview->open();
-	}
-}*/
 
 void LLViewerTextEditor::openEmbeddedNotecard( LLInventoryItem* item, BOOL saved )
 {
 	if (saved)
 	{
-		// Copy to inventory
-		copyInventory(item);
+		// Pop-up the notecard floater.
+		// Note: Previously would copy to inventory and rely on autodisplay to view.
+		// Now that autodisplay can be turned off, we need to make this case display always. 
+		// besides, there's no point adding to inventory -MG
+		open_notecard(
+			(LLViewerInventoryItem*)item,
+			LLString("Embedded Note: ") + item->getName(), // title
+			mObjectID,
+			FALSE, // show_keep_discard
+			LLUUID::null, // source_id
+			TRUE); // take_focus
 	}
 	else
 	{
@@ -1303,59 +1296,6 @@ void LLViewerTextEditor::onNotecardDialog( S32 option, void* userdata )
 	}
 }
 
-
-void LLViewerTextEditor::showLandmarkDialog( LLInventoryItem* item )
-{
-	LLNotecardCopyInfo *info = new LLNotecardCopyInfo(this, item);
-	gViewerWindow->alertXml("ConfirmLandmarkCopy",		
-		LLViewerTextEditor::onLandmarkDialog, (void*)info);
-}
-
-// static
-void LLViewerTextEditor::onLandmarkDialog( S32 option, void* userdata )
-{
-	LLNotecardCopyInfo *info = (LLNotecardCopyInfo *)userdata;
-	if( option == 0 )
-	{
-		// Copy to inventory
-		info->mTextEd->copyInventory(info->mItem);
-		/*
-		 * XXXPAM
-		 *
-		 * Yes, this is broken.  We don't show the map yet.
-		 *
-		LLInventoryItem* orig_item = (LLInventoryItem*)userdata;
-
-		// Copy to inventory
-		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem;
-		cloneInventoryItemToViewer(orig_item, new_item);
-		U32 flags = new_item->getFlags();
-		flags &= ~LLInventoryItem::II_FLAGS_LANDMARK_VISITED;
-		new_item->setFlags(flags);
-		new_item->updateServer(TRUE);
-		gInventory.updateItem(new_item);
-		gInventory.notifyObservers();
-
-		LLInventoryView* view = LLInventoryView::getActiveInventory();
-		if(view)
-		{
-			view->getPanel()->setSelection(new_item->getUUID(), TAKE_FOCUS_NO);
-		}
-
-		if( (0 == option) && gFloaterWorldMap )
-		{
-			// Note: there's a minor race condition here.
-			// If the user immediately tries to teleport to the landmark, the dataserver may
-			// not yet know that the user has the landmark in his inventory and so may 
-			// disallow the teleport.  However, the user will need to be pretty fast to make
-			// this happen, and, if it does, they haven't lost anything.  Once the dataserver
-			// knows about the new item, the user will be able to teleport to it successfully.
-			gFloaterWorldMap->trackLandmark(new_item->getUUID());
-			LLFloaterWorldMap::show(NULL, TRUE);
-		}*/
-	}
-	delete info;
-}
 
 
 void LLViewerTextEditor::showCopyToInvDialog( LLInventoryItem* item )

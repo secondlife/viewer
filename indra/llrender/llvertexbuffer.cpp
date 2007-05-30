@@ -1,3 +1,11 @@
+/** 
+ * @file llvertexbuffer.cpp
+ * @brief LLVertexBuffer implementation
+ *
+ * Copyright (c) 2003-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
 #include "linden_common.h"
 
 #include "llvertexbuffer.h"

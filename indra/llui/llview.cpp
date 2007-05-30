@@ -176,6 +176,9 @@ LLView::~LLView()
 		(*itor).second->clearDispatchers();
 		delete (*itor).second;
 	}
+
+	std::for_each(mFloaterControls.begin(), mFloaterControls.end(),
+				  DeletePairedPointer());
 }
 
 // virtual

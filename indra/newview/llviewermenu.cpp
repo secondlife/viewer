@@ -1415,6 +1415,30 @@ void cleanup_menus()
 {
 	delete gMenuParcelObserver;
 	gMenuParcelObserver = NULL;
+
+	delete gPieSelf;
+	gPieSelf = NULL;
+
+	delete gPieAvatar;
+	gPieAvatar = NULL;
+
+	delete gPieObject;
+	gPieObject = NULL;
+
+	delete gPieAttachment;
+	gPieAttachment = NULL;
+
+	delete gPieLand;
+	gPieLand = NULL;
+
+	delete gMenuBarView;
+	gMenuBarView = NULL;
+
+	delete gPopupMenuView;
+	gPopupMenuView = NULL;
+
+	delete gMenuHolder;
+	gMenuHolder = NULL; 
 }
 
 //-----------------------------------------------------------------------------

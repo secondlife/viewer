@@ -772,10 +772,10 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 			switch(item->getType())
 			{
 			case LLAssetType::AT_NOTECARD:
-				open_notecard(*it, LLString("Note: ") + item->getName(), show_keep_discard, LLUUID::null, FALSE);
+				open_notecard((LLViewerInventoryItem*)item, LLString("Note: ") + item->getName(), LLUUID::null, show_keep_discard, LLUUID::null, FALSE);
 				break;
 			case LLAssetType::AT_LANDMARK:
-				open_landmark(*it, LLString("Landmark: ") + item->getName(), show_keep_discard, LLUUID::null, FALSE);
+				open_landmark((LLViewerInventoryItem*)item, LLString("Landmark: ") + item->getName(), show_keep_discard, LLUUID::null, FALSE);
 				break;
 			case LLAssetType::AT_TEXTURE:
 				open_texture(*it, LLString("Texture: ") + item->getName(), show_keep_discard, LLUUID::null, FALSE);
@@ -830,7 +830,7 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 								   const char* first_name,
 								   const char* last_name,
 								   BOOL is_group,
-								   void*)
+								   void* user_data)
 {
 	LLString from_name;
 	LLMute::EType type;
@@ -854,10 +854,35 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 		gFloaterMute->show();
 		gFloaterMute->selectMute(blocked_id);
 	}
+
+	// purge the offer queue of any previously queued inventory offers from the same source.
+	LLView::child_list_t notification_queue(*(gNotifyBoxView->getChildList()));
+	for(LLView::child_list_iter_t iter = notification_queue.begin();
+		iter != notification_queue.end();
+		iter++)
+	{
+		LLNotifyBox* notification = (LLNotifyBox*)*iter;
+		// scan for other inventory offers (i.e. ignore other types of notifications).
+		// we can tell by looking for the associated callback they were created with.
+		if(notification->getNotifyCallback() == inventory_offer_callback)
+		{
+			// found one.
+			// safe to downcast user data because we know it's associated with offer callback.
+			LLOfferInfo* offer_data = (LLOfferInfo*)notification->getUserData();
+			if(offer_data == user_data)
+			{
+				continue; // don't remove the msg triggering us. it will be dequeued normally.
+			}
+			if(offer_data->mFromID == blocked_id) 
+			{
+				gNotifyBoxView->removeChild(notification);
+			}
+		}
+	}
 }
 
-void inventory_offer_callback(S32 option, void* user_data)
-{
+void inventory_offer_callback(S32 button, void* user_data)
+ {
 	LLChat chat;
 	LLString log_message;
 
@@ -869,9 +894,9 @@ void inventory_offer_callback(S32 option, void* user_data)
 	// * callback may be called immediately,
 	// * adding the mute sends a message,
 	// * we can't build two messages at once.  JC
-	if (option == 2)
+	if (2 == button)
 	{
-		gCacheName->get(info->mFromID, info->mFromGroup, inventory_offer_mute_callback, NULL);
+		gCacheName->get(info->mFromID, info->mFromGroup, inventory_offer_mute_callback, user_data);
 	}
 
 	LLMessageSystem* msg = gMessageSystem;
@@ -902,7 +927,8 @@ void inventory_offer_callback(S32 option, void* user_data)
 	}
 
 	// XUI:translate
-	LLString from_string;
+	LLString from_string; // Used in the pop-up.
+	LLString chatHistory_string;  // Used in chat history.
 	if (info->mFromObject == TRUE)
 	{
 		if (info->mFromGroup)
@@ -911,10 +937,12 @@ void inventory_offer_callback(S32 option, void* user_data)
 			if (gCacheName->getGroupName(info->mFromID, group_name))
 			{
 				from_string = LLString("An object named '") + info->mFromName + "' owned by the group '" + group_name + "'";
+				chatHistory_string = info->mFromName + " owned by the group '" + group_name + "'";
 			}
 			else
 			{
 				from_string = LLString("An object named '") + info->mFromName + "' owned by an unknown group";
+				chatHistory_string = info->mFromName + " owned by an unknown group";
 			}
 		}
 		else
@@ -924,21 +952,23 @@ void inventory_offer_callback(S32 option, void* user_data)
 			if (gCacheName->getName(info->mFromID, first_name, last_name))
 			{
 				from_string = LLString("An object named '") + info->mFromName + "' owned by " + first_name + " " + last_name;
+				chatHistory_string = info->mFromName + " owned by " + first_name + " " + last_name;
 			}
 			else
 			{
 				from_string = LLString("An object named '") + info->mFromName + "' owned by an unknown user";
+				chatHistory_string = info->mFromName + " owned by an unknown user";
 			}
 		}
 	}
 	else
 	{
-		from_string = info->mFromName;
+		from_string = chatHistory_string = info->mFromName;
 	}
 	
 	bool busy=FALSE;
 	
-	switch(option)
+	switch(button)
 	{
 	case IOR_ACCEPT:
 		// ACCEPT. The math for the dialog works, because the accept
@@ -955,7 +985,7 @@ void inventory_offer_callback(S32 option, void* user_data)
 		//don't spam them if they are getting flooded
 		if (check_offer_throttle(info->mFromName, true))
 		{
- 			log_message = info->mFromName + " gave you " + info->mDesc + ".";
+			log_message = chatHistory_string + " gave you " + info->mDesc + ".";
  			chat.mText = log_message;
  			LLFloaterChat::addChatHistory(chat);
 		}
@@ -997,7 +1027,7 @@ void inventory_offer_callback(S32 option, void* user_data)
 		default:
 			llwarns << "inventory_offer_callback: unknown offer type" << llendl;
 			break;
-		}
+		}	// end switch (info->mIM)
 		break;
 
 	case IOR_BUSY:
@@ -1020,6 +1050,10 @@ void inventory_offer_callback(S32 option, void* user_data)
 
 		log_message = "You decline " + info->mDesc + " from " + info->mFromName + ".";
 		chat.mText = log_message;
+		if( gMuteListp->isMuted(info->mFromID ) && ! gMuteListp->isLinden(info->mFromName) )  // muting for SL-42269
+		{
+			chat.mMuted = TRUE;
+		}
 		LLFloaterChat::addChatHistory(chat);
 
 		// If it's from an agent, we have to fetch the item to throw
@@ -1066,7 +1100,6 @@ void inventory_offer_callback(S32 option, void* user_data)
 
 void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
 {
-
 	//Until throttling is implmented, busy mode should reject inventory instead of silently
 	//accepting it.  SEE SL-39554
 	if (gAgent.getBusy())
@@ -1081,15 +1114,15 @@ void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
 		inventory_offer_callback(IOR_MUTE, info);
 		return;
 	}
-	
-	if (gSavedSettings.getBOOL("ShowNewInventory")
+
+	// Avoid the Accept/Discard dialog if the user so desires. JC
+	if (gSavedSettings.getBOOL("AutoAcceptNewInventory")
 		&& (info->mType == LLAssetType::AT_NOTECARD
 			|| info->mType == LLAssetType::AT_LANDMARK
 			|| info->mType == LLAssetType::AT_TEXTURE))
 	{
 		// For certain types, just accept the items into the inventory,
-		// and we'll automatically open them on receipt.
-		// 0 = accept button
+		// and possibly open them on receipt depending upon "ShowNewInventory".
 		inventory_offer_callback(IOR_ACCEPT, info);
 		return;
 	}

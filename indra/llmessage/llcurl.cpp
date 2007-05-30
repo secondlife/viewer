@@ -322,6 +322,12 @@ namespace
 		}
 		return sMainMulti;
 	}
+
+	void freeMulti()
+	{
+		delete sMainMulti;
+		sMainMulti = NULL;
+	}
 }
 
 void
@@ -342,3 +348,8 @@ LLCurl::process()
 	mainMulti()->process();
 }
 
+void LLCurl::cleanup()
+{
+	freeMulti();
+	curl_global_cleanup();
+}

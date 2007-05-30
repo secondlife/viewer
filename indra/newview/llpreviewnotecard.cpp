@@ -61,10 +61,12 @@ LLPreviewNotecard::LLPreviewNotecard(const std::string& name,
 									 const LLUUID& item_id, 
 									 const LLUUID& object_id,
 									 const LLUUID& asset_id,
-									 BOOL show_keep_discard) :
+									 BOOL show_keep_discard,
+									 LLViewerInventoryItem* inv_item) :
 	LLPreview(name, rect, title, item_id, object_id, TRUE,
 			  PREVIEW_MIN_WIDTH,
-			  PREVIEW_MIN_HEIGHT),
+			  PREVIEW_MIN_HEIGHT,
+			  inv_item),
 	mAssetID( asset_id ),
 	mNotecardItemID(item_id),
 	mObjectID(object_id)

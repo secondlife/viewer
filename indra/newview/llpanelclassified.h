@@ -43,9 +43,13 @@ public:
 
     /*virtual*/ void draw();
 
-	void refresh();
+	/*virtual*/ void refresh();
 
 	void apply();
+
+	// If can close, return TRUE.  If cannot close, pop save/discard dialog
+	// and return FALSE.
+	BOOL canClose();
 
 	// Setup a new classified, including creating an id, giving a sane
 	// initial position, etc.
@@ -74,6 +78,8 @@ public:
 	static void callbackConfirmPublish(S32 option, void* data);
 
 protected:
+	static void saveCallback(S32 option, void* data);
+
 	static void onClickUpdate(void* data);
     static void onClickTeleport(void* data);
     static void onClickMap(void* data);
@@ -87,6 +93,8 @@ protected:
 
 protected:
 	BOOL mInFinder;
+	bool mDirty;
+	bool mForceClose;
     LLUUID mClassifiedID;
     LLUUID mRequestedID;
 	LLUUID mCreatorID;
@@ -95,7 +103,6 @@ protected:
 
 	// Data will be requested on first draw
 	BOOL mDataRequested;
-	BOOL mEnableCommit;
 
 	// For avatar panel classifieds only, has the user been charged
 	// yet for this classified?  That is, have they saved once?

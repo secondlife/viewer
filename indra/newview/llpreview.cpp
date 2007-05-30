@@ -50,7 +50,7 @@ LLPreview::LLPreview(const std::string& name) :
 	mAutoFocus = FALSE;
 }
 
-LLPreview::LLPreview(const std::string& name, const LLRect& rect, const std::string& title, const LLUUID& item_uuid, const LLUUID& object_uuid, BOOL allow_resize, S32 min_width, S32 min_height )
+LLPreview::LLPreview(const std::string& name, const LLRect& rect, const std::string& title, const LLUUID& item_uuid, const LLUUID& object_uuid, BOOL allow_resize, S32 min_width, S32 min_height, LLViewerInventoryItem* inv_item )
 :	LLFloater(name, rect, title, allow_resize, min_width, min_height ),
 	mItemUUID(item_uuid),
 	mSourceID(LLUUID::null),
@@ -59,7 +59,8 @@ LLPreview::LLPreview(const std::string& name, const LLRect& rect, const std::str
 	mForceClose( FALSE ),
 	mUserResized(FALSE),
 	mCloseAfterSave(FALSE),
-	mAssetStatus(PREVIEW_ASSET_UNLOADED)
+	mAssetStatus(PREVIEW_ASSET_UNLOADED),
+	mItem(inv_item)
 {
 	mAuxItem = new LLInventoryItem;
 	// don't necessarily steal focus on creation -- sometimes these guys pop up without user action
@@ -136,6 +137,8 @@ void LLPreview::setSourceID(const LLUUID& source_id)
 
 LLViewerInventoryItem* LLPreview::getItem() const
 {
+	if(mItem != NULL)
+		return mItem;
 	LLViewerInventoryItem* item = NULL;
 	if(mObjectUUID.isNull())
 	{

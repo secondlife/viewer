@@ -29,6 +29,7 @@
 #include "llviewerwindow.h"
 #include "llfloaterdirectory.h"
 #include "llfloatergroupinfo.h"
+#include "lluictrlfactory.h"
 
 LLGroupMgr sGroupMgr; // use local instance so that it gets cleaned up on application exit
 LLGroupMgr* gGroupMgr = &sGroupMgr;
@@ -1709,21 +1710,28 @@ void LLGroupMgr::cancelGroupRoleChanges(const LLUUID& group_id)
 //static
 bool LLGroupMgr::parseRoleActions(const LLString& xml_filename)
 {
-	LLXmlTree xml_tree;
-	LLString xml_file = LLUI::locateSkin(xml_filename);
-	BOOL success = xml_tree.parseFile(xml_file, TRUE );
-	LLXmlTreeNode* root = xml_tree.getRoot();
+	LLXMLNodePtr root;
+
+	BOOL success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);	
+	
 	if (!success || !root || !root->hasName( "role_actions" ))
 	{
 		llerrs << "Problem reading UI role_actions file: " << xml_filename << llendl;
 		return false;
 	}
 
-	for (LLXmlTreeNode* action_set = root->getChildByName("action_set");
-		action_set != NULL; action_set = root->getNextNamedChild())
+	LLXMLNodeList role_list;
+	LLXMLNodeList::iterator role_iter;
+
+	root->getChildren("action_set", role_list, false);
+	
+	for (role_iter = role_list.begin(); role_iter != role_list.end(); ++role_iter)
 	{
+		LLXMLNodePtr action_set = role_iter->second;
+
 		LLRoleActionSet* role_action_set = new LLRoleActionSet();
 		LLRoleAction* role_action_data = new LLRoleAction();
+		
 		// name=
 		LLString action_set_name;
 		if (action_set->getAttributeString("name", action_set_name))
@@ -1754,9 +1762,15 @@ bool LLGroupMgr::parseRoleActions(const LLString& xml_filename)
 		// power mask=
 		U64 set_power_mask = 0;
 
-		for (LLXmlTreeNode* action = action_set->getChildByName("action");
-			action != NULL; action = action_set->getNextNamedChild())
+		LLXMLNodeList action_list;
+		LLXMLNodeList::iterator action_iter;
+
+		action_set->getChildren("action", action_list, false);
+
+		for (action_iter = action_list.begin(); action_iter != action_list.end(); ++action_iter)
 		{
+			LLXMLNodePtr action = action_iter->second;
+
 			LLRoleAction* role_action = new LLRoleAction();
 
 			// name=

@@ -40,6 +40,7 @@
 #include "llfloaterworldmap.h"
 #include "llviewergenericmessage.h"	// send_generic_message
 #include "llviewerwindow.h"	// for window width, height
+#include "viewer.h"	// app_abort_quit()
 
 const S32 MINIMUM_PRICE_FOR_LISTING = 50;	// L$
 
@@ -77,11 +78,12 @@ std::list<LLPanelClassified*> LLPanelClassified::sAllPanels;
 LLPanelClassified::LLPanelClassified(BOOL in_finder)
 :	LLPanel("Classified Panel"),
 	mInFinder(in_finder),
+	mDirty(false),
+	mForceClose(false),
 	mClassifiedID(),
 	mCreatorID(),
 	mPriceForListing(0),
 	mDataRequested(FALSE),
-	mEnableCommit(FALSE),
 	mPaidFor(FALSE),
     mPosGlobal(),
     mSnapshotCtrl(NULL),
@@ -132,7 +134,7 @@ void LLPanelClassified::reset()
 	// Don't request data, this isn't valid
 	mDataRequested = TRUE;
 
-	mEnableCommit = FALSE;
+	mDirty = false;
 	mPaidFor = FALSE;
 
 	mPosGlobal.clearVec();
@@ -215,7 +217,6 @@ BOOL LLPanelClassified::postBuild()
 	mUpdateBtn = LLUICtrlFactory::getButtonByName(this, "classified_update_btn");
     mUpdateBtn->setClickedCallback(onClickUpdate);
     mUpdateBtn->setCallbackUserData(this);
-	mEnableCommit = TRUE;
 
 	if (!mInFinder)
 	{
@@ -248,10 +249,56 @@ void LLPanelClassified::apply()
 {
 	// Apply is used for automatically saving results, so only
 	// do that if there is a difference, and this is a save not create.
-	if (mEnableCommit && mPaidFor)
+	if (mDirty && mPaidFor)
 	{
 		sendClassifiedInfoUpdate();
 	}
+}
+
+
+// static
+void LLPanelClassified::saveCallback(S32 option, void* data)
+{
+	LLPanelClassified* self = (LLPanelClassified*)data;
+	switch(option)
+	{
+		case 0: // Save
+			self->sendClassifiedInfoUpdate();
+			// fall through to close
+
+		case 1: // Don't Save
+			{
+				self->mForceClose = true;
+				// Close containing floater
+				LLView* view = self;
+				while (view)
+				{
+					if (view->getWidgetType() == WIDGET_TYPE_FLOATER)
+					{
+						LLFloater* f = (LLFloater*)view;
+						f->close();
+						break;
+					}
+					view = view->getParent();
+				}
+			}
+			break;
+
+		case 2: // Cancel
+		default:
+			app_abort_quit();
+			break;
+	}
+}
+
+BOOL LLPanelClassified::canClose()
+{
+	if (mForceClose || !mDirty) return TRUE;
+
+	LLString::format_map_t args;
+	args["[NAME]"] = mNameEditor->getText();
+	LLAlertDialog::showXml("ClassifiedSave", args, saveCallback, this);
+	return FALSE;
 }
 
 // Fill in some reasonable defaults for a new classified.
@@ -396,6 +443,8 @@ void LLPanelClassified::sendClassifiedInfoUpdate()
 	msg->addU8Fast(_PREHASH_ClassifiedFlags, flags);
 	msg->addS32("PriceForListing", mPriceForListing);
 	gAgent.sendReliableMessage();
+
+	mDirty = false;
 }
 
 
@@ -607,7 +656,7 @@ void LLPanelClassified::refresh()
 		mSetBtn->setVisible(is_self);
 		mSetBtn->setEnabled(is_self);
 
-		mUpdateBtn->setEnabled(is_self && mEnableCommit);
+		mUpdateBtn->setEnabled(is_self && mDirty);
 		mUpdateBtn->setVisible(is_self);
 	}
 }
@@ -690,7 +739,6 @@ void LLPanelClassified::callbackConfirmPublish(S32 option, void* data)
 		LLTabContainerVertical* tab = (LLTabContainerVertical*)self->getParent();
 		tab->setCurrentTabName(self->mNameEditor->getText());
 	}
-	self->mEnableCommit = FALSE;
 }
 
 // static
@@ -769,14 +817,14 @@ void LLPanelClassified::onCommitAny(LLUICtrl* ctrl, void* data)
 	LLPanelClassified* self = (LLPanelClassified*)data;
 	if (self)
 	{
-		self->mEnableCommit = TRUE;
+		self->mDirty = true;
 	}
 }
 
 // static
 void LLPanelClassified::onFocusReceived(LLUICtrl* ctrl, void* data)
 {
-	// first, allow the data to be saved
+	// allow the data to be saved
 	onCommitAny(ctrl, data);
 }
 

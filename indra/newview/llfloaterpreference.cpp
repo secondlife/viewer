@@ -129,7 +129,6 @@ LLPreferenceCore::LLPreferenceCore(LLTabContainerCommon* tab_container, LLButton
 	mPrefsIM->getPanel()->setDefaultBtn(default_btn);
 
 	mMsgPanel = new LLPanelMsgs();
-	gUICtrlFactory->buildPanel(mMsgPanel, "panel_settings_msgbox.xml");
 	mTabContainer->addTabPanel(mMsgPanel, mMsgPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
 	mMsgPanel->setDefaultBtn(default_btn);
 

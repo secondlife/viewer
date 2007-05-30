@@ -108,6 +108,7 @@ public:
 	static void getByteRange(const std::string& url, S32 offset, S32 length, ResponderPtr responder);
 	
 	static void process();
+	static void cleanup();
 };
 
 namespace boost

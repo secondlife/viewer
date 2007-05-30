@@ -8013,7 +8013,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	}
 	else
 	{
-		llwarns << "AvatarAppearance msg received without any parameters" << llendl;
+		llwarns << "AvatarAppearance msg received without any parameters, object: " << getID() << llendl;
 	}
 
 	setCompositeUpdatesEnabled( TRUE );

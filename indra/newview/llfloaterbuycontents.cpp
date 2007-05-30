@@ -44,7 +44,7 @@ LLFloaterBuyContents::LLFloaterBuyContents()
 	childDisable("buy_btn");
 	childDisable("wear_check");
 
-	setDefaultBtn("buy_btn");
+	setDefaultBtn("cancel_btn"); // to avoid accidental buy (SL-43130)
 }
 
 LLFloaterBuyContents::~LLFloaterBuyContents()

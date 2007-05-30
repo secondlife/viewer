@@ -39,7 +39,7 @@ LLFloaterBuy::LLFloaterBuy()
 	childSetAction("cancel_btn", onClickCancel, this);
 	childSetAction("buy_btn", onClickBuy, this);
 
-	setDefaultBtn("buy_btn");
+	setDefaultBtn("cancel_btn"); // to avoid accidental buy (SL-43130)
 }
 
 LLFloaterBuy::~LLFloaterBuy()

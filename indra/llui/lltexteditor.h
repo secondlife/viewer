@@ -339,6 +339,7 @@ protected:
 	undo_stack_t	mUndoStack;
 
 	S32				mCursorPos;				// I-beam is just after the mCursorPos-th character.
+	S32				mDesiredXPixel;			// X pixel position where the user wants the cursor to be
 	LLRect			mTextRect;				// The rect in which text is drawn.  Excludes borders.
 	// List of offsets and segment index of the start of each line.  Always has at least one node (0).
 	struct line_info

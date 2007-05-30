@@ -165,12 +165,7 @@ BOOL LLMuteList::isLinden(const LLString& name) const
 	if (token_iter == tokens.end()) return FALSE;
 	
 	LLString last_name = *token_iter;
-	
-	if (last_name == "Linden")
-	{
-		return TRUE;
-	}
-	return FALSE;
+	return last_name == "Linden";
 }
 
 

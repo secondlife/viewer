@@ -1901,7 +1901,7 @@ void LLFolderViewFolder::requestArrange(BOOL include_descendants)
 { 
 	mLastArrangeGeneration = -1; 
 	// flag all items up to root
-	if (mParentFolder && !mParentFolder->needsArrange())
+	if (mParentFolder)
 	{
 		mParentFolder->requestArrange();
 	}

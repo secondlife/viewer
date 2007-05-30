@@ -5,11 +5,12 @@ received from them.  To see more about these contributions, visit
 http://jira.secondlife.com/ and enter the issue identifier.
 
 Alissa Sabre - VWR-81, VWR-83, VWR-414, VWR-415
+Blakar Ogre - VWR-881
 blino Nakamura - VWR-17
 bushing Spatula - VWR-424
-Drewan Keats - VWR-28
+Drewan Keats - VWR-28, VWR-412
 Dylan Haskell - VWR-72
-Dzonatas Sol - VWR-198
+Dzonatas Sol - VWR-198, VWR-878
 Eddy Stryker - VWR-15, VWR-23
 Gigs Taggart - VWR-71, VWR-326
 Ginko Bayliss - VWR-4
@@ -19,11 +20,14 @@ Jacek Antonelli - VWR-165, VWR-188
 Joghert LeSabre - VWR-64
 Kage Pixel - VWR-11
 Kunnis Basiat - VWR-82
+Nicholaz Beresford - VWR-793, VWR-794, VWR-802, VWR-803, VWR-804, VWR-805, VWR-808, VWR-809, VWR-810, VWR-823, VWR-870
 Paul Churchill - VWR-20
 Paula Innis - VWR-30
 Peekay Semyorka - VWR-7, VWR-19, VWR-49
 SignpostMarv Martin - VWR-154, VWR-155
+Simon Nolan - VWR-409
 SpacedOut Frye - VWR-57, VWR-94, VWR-121, VWR-123
 Strife Onizuka - SVC-9, VWR-74, VWR-85, VWR-148
+Zi Ree - VWR-671, VWR-682
 Zipherius Turas - VWR-76, VWR-77
 

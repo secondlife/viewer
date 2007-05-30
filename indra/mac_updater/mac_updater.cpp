@@ -517,8 +517,7 @@ bool isDirWritable(FSRef &dir)
 
 static void utf8str_to_HFSUniStr255(HFSUniStr255 *dest, const char* src)
 {
-	LLWString		wstr = utf8str_to_wstring(src);
-	llutf16string	utf16str = wstring_to_utf16str(wstr);
+	llutf16string	utf16str = utf8str_to_utf16str(src);
 
 	dest->length = utf16str.size();
 	if(dest->length > 255)
@@ -528,6 +527,13 @@ static void utf8str_to_HFSUniStr255(HFSUniStr255 *dest, const char* src)
 		dest->length = 255;
 	}
 	memcpy(dest->unicode, utf16str.data(), sizeof(UniChar)* dest->length);		/* Flawfinder: ignore */
+}
+
+static std::string HFSUniStr255_to_utf8str(const HFSUniStr255* src)
+{
+	llutf16string string16((U16*)&(src->unicode), src->length);
+	std::string result = utf16str_to_utf8str(string16);
+	return result;
 }
 
 int restoreObject(const char* aside, const char* target, const char* path, const char* object)
@@ -576,6 +582,123 @@ void filterFile(const char* filename)
 	snprintf(temp, sizeof(temp), 		
 			"sed 's/Second Life/%s/g' '%s.tmp' > '%s'", gProductName, filename, filename);
 	system(temp);		/* Flawfinder: ignore */
+}
+
+static bool isFSRefViewerBundle(FSRef *targetRef)
+{
+	bool result = false;
+	CFURLRef targetURL = NULL;
+	CFBundleRef targetBundle = NULL;
+	CFStringRef targetBundleID = NULL;
+	
+	targetURL = CFURLCreateFromFSRef(NULL, targetRef);
+
+	if(targetURL == NULL)
+	{
+		llinfos << "Error creating target URL." << llendl;
+	}
+	else
+	{
+		targetBundle = CFBundleCreate(NULL, targetURL);
+	}
+	
+	if(targetBundle == NULL)
+	{
+		llinfos << "Failed to create target bundle." << llendl;
+	}
+	else
+	{
+		targetBundleID = CFBundleGetIdentifier(targetBundle);
+	}
+	
+	if(targetBundleID == NULL)
+	{
+		llinfos << "Couldn't retrieve target bundle ID." << llendl;
+	}
+	else
+	{
+		if(CFStringCompare(targetBundleID, CFSTR("com.secondlife.indra.viewer"), 0) == kCFCompareEqualTo)
+		{
+			// This is the bundle we're looking for.
+			result = true;
+		}
+		else
+		{
+			llinfos << "Target bundle ID mismatch." << llendl;
+		}
+	}
+	
+	// Don't release targetBundleID -- since we don't retain it, it's released when targetBundle is released.
+	if(targetURL != NULL)
+		CFRelease(targetURL);
+	if(targetBundle != NULL)
+		CFRelease(targetBundle);
+	
+	return result;
+}
+
+// Search through the directory specified by 'parent' for an item that appears to be a Second Life viewer.
+static OSErr findAppBundleOnDiskImage(FSRef *parent, FSRef *app)
+{
+	FSIterator		iterator;
+	bool			found = false;
+
+	OSErr err = FSOpenIterator( parent, kFSIterateFlat, &iterator );
+	if(!err)
+	{
+		do
+		{
+			ItemCount actualObjects = 0;
+			Boolean containerChanged = false;
+			FSCatalogInfo info;
+			FSRef ref;
+			HFSUniStr255 unicodeName;
+			err = FSGetCatalogInfoBulk( 
+					iterator, 
+					1, 
+					&actualObjects, 
+					&containerChanged,
+					kFSCatInfoNodeFlags, 
+					&info, 
+					&ref,
+					NULL, 
+					&unicodeName );
+			
+			if(actualObjects == 0)
+				break;
+				
+			if(!err)
+			{
+				// Call succeeded and not done with the iteration.
+				std::string name = HFSUniStr255_to_utf8str(&unicodeName);
+
+				llinfos << "Considering \"" << name << "\"" << llendl;
+
+				if(info.nodeFlags & kFSNodeIsDirectoryMask)
+				{
+					// This is a directory.  See if it's a .app
+					if(name.find(".app") != std::string::npos)
+					{
+						// Looks promising.  Check to see if it has the right bundle identifier.
+						if(isFSRefViewerBundle(&ref))
+						{
+							// This is the one.  Return it.
+							*app = ref;
+							found = true;
+						}
+					}
+				}
+			}
+		}
+		while(!err && !found);
+		
+		FSCloseIterator(iterator);
+	}
+	
+	if(!err && !found)
+		err = fnfErr;
+		
+	return err;
 }
 
 void *updatethreadproc(void*)
@@ -650,57 +773,15 @@ void *updatethreadproc(void*)
 			// Sanity check: make sure the target is a bundle with the right identifier
 			if(err == noErr)
 			{
-				CFURLRef targetURL = NULL;
-				CFBundleRef targetBundle = NULL;
-				CFStringRef targetBundleID = NULL;
-				
 				// Assume the worst...
 				err = -1;
-				
-				targetURL = CFURLCreateFromFSRef(NULL, &targetRef);
 
-				if(targetURL == NULL)
+				if(isFSRefViewerBundle(&targetRef))
 				{
-					llinfos << "Error creating target URL." << llendl;
+					// This is the bundle we're looking for.
+					err = noErr;
+					replacingTarget = true;
 				}
-				else
-				{
-					targetBundle = CFBundleCreate(NULL, targetURL);
-				}
-				
-				if(targetBundle == NULL)
-				{
-					llinfos << "Failed to create target bundle." << llendl;
-				}
-				else
-				{
-					targetBundleID = CFBundleGetIdentifier(targetBundle);
-				}
-				
-				if(targetBundleID == NULL)
-				{
-					llinfos << "Couldn't retrieve target bundle ID." << llendl;
-				}
-				else
-				{
-					if(CFStringCompare(targetBundleID, CFSTR("com.secondlife.indra.viewer"), 0) == kCFCompareEqualTo)
-					{
-						// This is the bundle we're looking for.
-						err = noErr;
-						replacingTarget = true;
-					}
-					else
-					{
-						llinfos << "Target bundle ID mismatch." << llendl;
-					}
-				}
-				
-				// Don't release targetBundleID -- since we don't retain it, it's released when targetBundle is released.
-				if(targetURL != NULL)
-					CFRelease(targetURL);
-				if(targetBundle != NULL)
-					CFRelease(targetBundle);
-				
 			}
 			
 			// Make sure the target's parent directory is writable.
@@ -923,13 +1004,24 @@ void *updatethreadproc(void*)
 		
 		// Get an FSRef to the new application on the disk image
 		FSRef sourceRef;
-		snprintf(temp, sizeof(temp), "%s/mnt/Second Life.app", tempDir);		
+		FSRef mountRef;
+		snprintf(temp, sizeof(temp), "%s/mnt", tempDir);		
 
-		llinfos << "Source application is: " << temp << llendl;
+		llinfos << "Disk image mount point is: " << temp << llendl;
 
-		err = FSPathMakeRef((UInt8 *)temp, &sourceRef, NULL);
+		err = FSPathMakeRef((UInt8 *)temp, &mountRef, NULL);
 		if(err != noErr)
+		{
+			llinfos << "Couldn't make FSRef to disk image mount point." << llendl;
 			throw 0;
+		}
+
+		err = findAppBundleOnDiskImage(&mountRef, &sourceRef);
+		if(err != noErr)
+		{
+			llinfos << "Couldn't find application bundle on mounted disk image." << llendl;
+			throw 0;
+		}
 		
 		FSRef asideRef;
 		char aside[MAX_PATH];		/* Flawfinder: ignore */

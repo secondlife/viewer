@@ -51,13 +51,13 @@ public:
 public:
 	// Used for XML-based construction.
 	LLPreview(const std::string& name);
-	LLPreview(const std::string& name, const LLRect& rect, const std::string& title, const LLUUID& item_uuid, const LLUUID& object_uuid, BOOL allow_resize = FALSE, S32 min_width = 0, S32 min_height = 0 );
+	LLPreview(const std::string& name, const LLRect& rect, const std::string& title, const LLUUID& item_uuid, const LLUUID& object_uuid, BOOL allow_resize = FALSE, S32 min_width = 0, S32 min_height = 0, LLViewerInventoryItem* inv_item = NULL );
 	virtual ~LLPreview();
 
 	void setItemID(const LLUUID& item_id);
 	void setObjectID(const LLUUID& object_id);
 	void setSourceID(const LLUUID& source_id);
-	LLViewerInventoryItem* getItem() const;
+	LLViewerInventoryItem* getItem() const; // searches if not constructed with it
 
 	static LLPreview* find(const LLUUID& item_uuid);
 	static LLPreview*	show(const LLUUID& item_uuid, BOOL take_focus = TRUE );
@@ -134,6 +134,7 @@ protected:
 	static preview_map_t sInstances;
 	LLUUID mNotecardInventoryID;
 	LLUUID mObjectID;
+	LLViewerInventoryItem* mItem;
 };
 
 

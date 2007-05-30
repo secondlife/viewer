@@ -84,12 +84,6 @@ bool LLNotecard::importEmbeddedItemsStream(std::istream& str)
 			goto import_file_failed;
 		}
 
-		if( (index < 0) )
-		{
-			llwarns << "Invalid LLEmbeddedItems file format: invalid ext char index: " << index << llendl;
-			goto import_file_failed;
-		}
-
 		str >> std::ws >> "inv_item\t0\n";
 		if(str.fail())
 		{

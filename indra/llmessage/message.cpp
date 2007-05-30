@@ -1324,11 +1324,16 @@ LLMessageSystem::~LLMessageSystem()
 		end_net();
 	}
 	
-	delete mMessageReader;
+	delete mTemplateMessageReader;
+	mTemplateMessageReader = NULL;
 	mMessageReader = NULL;
 
-	delete mMessageBuilder;
+	delete mTemplateMessageBuilder;
+	mTemplateMessageBuilder = NULL;
 	mMessageBuilder = NULL;
+
+	delete mLLSDMessageReader;
+	mLLSDMessageReader = NULL;
 
 	delete mPollInfop;
 	mPollInfop = NULL;

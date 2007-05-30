@@ -199,19 +199,21 @@ LLFloaterIMPanel::LLFloaterIMPanel(const std::string& name,
 void LLFloaterIMPanel::init(const LLString& session_label)
 {
 	gUICtrlFactory->buildFloater(this,
-								 "floater_instant_message.xml",
-								 NULL,
-								 FALSE);
-
+				     "floater_instant_message.xml",
+				     NULL,
+				     FALSE);
+	
 	setLabel(session_label);
 	setTitle(session_label);
 	mInputEditor->setMaxTextLength(1023);
+	// enable line history support for instant message bar
+	mInputEditor->setEnableLineHistory(TRUE);
 
 	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
 	{
 		LLLogChat::loadHistory(session_label,
-							   &chatFromLogFile,
-							   (void *)this);
+				       &chatFromLogFile,
+				       (void *)this);
 	}
 
 	if(IM_SESSION_911_START == mDialog)

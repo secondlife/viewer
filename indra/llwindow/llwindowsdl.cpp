@@ -276,9 +276,9 @@ static SDL_Surface *Load_BMP_Resource(const char *basename)
 #if LL_X11
 // This is an XFree86/XOrg-specific hack for detecting the amount of Video RAM
 // on this machine.  It works by searching /var/log/var/log/Xorg.?.log or
-// /var/log/XFree86.?.log for a ': VideoRAM: (%d+) kB' regex, where '?' is
-// the X11 display number derived from $DISPLAY
-static int x11_detect_VRAM_kb_fp(FILE *fp)
+// /var/log/XFree86.?.log for a ': (VideoRAM|Memory): (%d+) kB' regex, where
+// '?' is the X11 display number derived from $DISPLAY
+static int x11_detect_VRAM_kb_fp(FILE *fp, const char *prefix_str)
 {
 	const int line_buf_size = 1000;
 	char line_buf[line_buf_size];
@@ -290,7 +290,7 @@ static int x11_detect_VRAM_kb_fp(FILE *fp)
 		// favourite regex implementation - libboost_regex - is
 		// quite a heavy and troublesome dependency for the client, so
 		// it seems a shame to introduce it for such a simple task.
-		const char part1_template[] = ": VideoRAM: ";
+		const char *part1_template = prefix_str;
 		const char part2_template[] = " kB";
 		char *part1 = strstr(line_buf, part1_template);
 		if (part1) // found start of matching line
@@ -305,7 +305,6 @@ static int x11_detect_VRAM_kb_fp(FILE *fp)
 				int rtn = 0;
 				for (; part1 < part2; ++part1)
 				{
-					//lldebugs << "kB" << *part1 << llendl;
 					if (*part1 < '0' || *part1 > '9')
 					{
 						// unexpected char, abort parse
@@ -325,6 +324,7 @@ static int x11_detect_VRAM_kb_fp(FILE *fp)
 	}
 	return 0; // 'could not detect'
 }
+
 static int x11_detect_VRAM_kb()
 {
 	std::string x_log_location("/var/log/");
@@ -343,7 +343,7 @@ static int x11_detect_VRAM_kb()
 	// *TODO: we could be smarter and see which of Xorg/XFree86 has the
 	// freshest time-stamp.
 
-	// Try XOrg log first
+	// Try Xorg log first
 	fname = x_log_location;
 	fname += "Xorg.";
 	fname += ('0' + display_num);
@@ -351,12 +351,25 @@ static int x11_detect_VRAM_kb()
 	fp = fopen(fname.c_str(), "r");
 	if (fp)
 	{
-		rtn = x11_detect_VRAM_kb_fp(fp);
+		llinfos << "Looking in " << fname
+			<< " for VRAM info..." << llendl;
+		rtn = x11_detect_VRAM_kb_fp(fp, ": VideoRAM: ");
 		fclose(fp);
+		if (0 == rtn)
+		{
+			fp = fopen(fname.c_str(), "r");
+			if (fp)
+			{
+				rtn = x11_detect_VRAM_kb_fp(fp, ": Memory: ");
+				fclose(fp);
+			}
+		}
 	}
-	// Try old XFree86 log otherwise
-	if (rtn == 0)
+	else
 	{
+		llinfos << "Could not open " << fname
+			<< " - skipped." << llendl;	
+		// Try old XFree86 log otherwise
 		fname = x_log_location;
 		fname += "XFree86.";
 		fname += ('0' + display_num);
@@ -364,8 +377,24 @@ static int x11_detect_VRAM_kb()
 		fp = fopen(fname.c_str(), "r");
 		if (fp)
 		{
-			rtn = x11_detect_VRAM_kb_fp(fp);
+			llinfos << "Looking in " << fname
+				<< " for VRAM info..." << llendl;
+			rtn = x11_detect_VRAM_kb_fp(fp, ": VideoRAM: ");
 			fclose(fp);
+			if (0 == rtn)
+			{
+				fp = fopen(fname.c_str(), "r");
+				if (fp)
+				{
+					rtn = x11_detect_VRAM_kb_fp(fp, ": Memory: ");
+					fclose(fp);
+				}
+			}
+		}
+		else
+		{
+			llinfos << "Could not open " << fname
+				<< " - skipped." << llendl;
 		}
 	}
 	return rtn;

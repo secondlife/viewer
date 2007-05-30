@@ -1,3 +1,11 @@
+/** 
+ * @file llfloaterinspect.cpp
+ * @brief Floater for object inspection tool
+ *
+ * Copyright (c) 2002-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
 #include "llviewerprecompiledheaders.h"
 #include "llfloateravatarinfo.h"
 #include "llfloaterinspect.h"

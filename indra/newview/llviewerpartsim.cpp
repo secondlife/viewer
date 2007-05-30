@@ -501,6 +501,7 @@ LLViewerPartGroup *LLViewerPartSim::put(LLViewerPart* part)
 		llwarns << "LLViewerPartSim::put - Particle didn't go into its box!" << llendl;
 		llinfos << groupp->getCenterAgent() << llendl;
 		llinfos << part->mPosAgent << llendl;
+		delete groupp;
 		return NULL;
 	}
 	return groupp;
@@ -673,6 +674,7 @@ void LLViewerPartSim::cleanupRegion(LLViewerRegion *regionp)
 
 		if ((*iter)->getRegion() == regionp)
 		{
+			delete *iter;
 			i = mViewerPartGroups.erase(iter);			
 		}
 	}

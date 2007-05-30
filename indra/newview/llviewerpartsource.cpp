@@ -302,6 +302,7 @@ LLViewerPartSourceScript *LLViewerPartSourceScript::unpackPSS(LLViewerObject *so
 		LLViewerPartSourceScript *new_pssp = new LLViewerPartSourceScript(source_objp);
 		if (!new_pssp->mPartSysData.unpackBlock(block_num))
 		{
+			delete new_pssp;
 			return NULL;
 		}
 		if (new_pssp->mPartSysData.mTargetUUID.notNull())
@@ -340,6 +341,7 @@ LLViewerPartSourceScript *LLViewerPartSourceScript::unpackPSS(LLViewerObject *so
 		LLViewerPartSourceScript *new_pssp = new LLViewerPartSourceScript(source_objp);
 		if (!new_pssp->mPartSysData.unpack(dp))
 		{
+			delete new_pssp;
 			return NULL;
 		}
 		if (new_pssp->mPartSysData.mTargetUUID.notNull())
@@ -746,4 +748,5 @@ void LLViewerPartSourceChat::setColor(const LLColor4 &color)
 {
 	mColor = color;
 }
+
 

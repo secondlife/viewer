@@ -411,6 +411,7 @@ BOOL LLEyeMotion::onUpdate(F32 time, U8* joint_mask)
 		LLVector3		up;
 
 		eye_look_at = *targetPos;
+		has_eye_target = TRUE;
 		F32 lookAtDistance = eye_look_at.normVec();
 
 		left.setVec(skyward % eye_look_at);

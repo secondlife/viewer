@@ -1,3 +1,11 @@
+/** 
+ * @file llvertexbuffer.h
+ * @brief LLVertexBuffer wrapper for OpengGL vertex buffer objects
+ *
+ * Copyright (c) 2003-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
 #ifndef LL_LLVERTEXBUFFER_H
 #define LL_LLVERTEXBUFFER_H
 

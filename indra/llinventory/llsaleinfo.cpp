@@ -155,7 +155,7 @@ BOOL LLSaleInfo::importFile(FILE* fp, BOOL& has_perm_mask, U32& perm_mask)
 			buffer,
 			" %254s %254s",
 			keyword, valuestr);
-		if(!keyword)
+		if(!keyword[0])
 		{
 			continue;
 		}
@@ -211,7 +211,7 @@ BOOL LLSaleInfo::importLegacyStream(std::istream& input_stream, BOOL& has_perm_m
 			buffer,
 			" %254s %254s",
 			keyword, valuestr);
-		if(!keyword)
+		if(!keyword[0])
 		{
 			continue;
 		}

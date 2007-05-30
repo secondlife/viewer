@@ -208,6 +208,12 @@ LLViewerObject::~LLViewerObject()
 		mJointInfo = NULL;
 	}
 
+	if (mPartSourcep)
+	{
+		mPartSourcep->setDead();
+		mPartSourcep = NULL;
+	}
+
 	// Delete memory associated with extra parameters.
 	std::map<U16, ExtraParameter*>::iterator iter;
 	for (iter = mExtraParameterList.begin(); iter != mExtraParameterList.end(); ++iter)

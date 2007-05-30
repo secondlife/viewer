@@ -1559,8 +1559,6 @@ LLViewerWindow::LLViewerWindow(
 	// Can't have spaces in settings.ini strings, so use underscores instead and convert them.
 	LLString::replaceChar(mOverlayTitle, '_', ' ');
 
-	gAwayTimer.stop();
-
 	LLAlertDialog::setDisplayCallback(alertCallback); // call this before calling any modal dialogs
 
 	// sync the keyboard's setting with the saved setting
@@ -1857,6 +1855,7 @@ void LLViewerWindow::initWorldUI()
 
 	gIMView = new LLIMView("gIMView", LLRect() );
 	gIMView->setFollowsAll();
+	mRootView->addChild(gIMView);
 
 	LLRect morph_view_rect = full_window;
 	morph_view_rect.stretch( -STATUS_BAR_HEIGHT );
@@ -2380,7 +2379,17 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 				case KEY_LEFT:
 				case KEY_RIGHT:
 				case KEY_UP:
+					// let CTRL UP through for chat line history
+					if( MASK_CONTROL & mask )
+					{
+						break;
+					}
 				case KEY_DOWN:
+					// let CTRL DOWN through for chat line history
+					if( MASK_CONTROL & mask )
+					{
+						break;
+					}
 				case KEY_PAGE_UP:
 				case KEY_PAGE_DOWN:
 				case KEY_HOME:

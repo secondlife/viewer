@@ -194,6 +194,10 @@ public:
 
 	/*virtual*/ void refresh();
 
+	// If can close, return TRUE.  If cannot close, pop save/discard dialog
+	// and return FALSE.
+	BOOL canClose();
+
 	void apply();
 
 	BOOL titleIsValid();
@@ -246,6 +250,10 @@ public:
 	/*virtual*/ ~LLPanelAvatar();
 
 	/*virtual*/ BOOL	postBuild(void);
+
+	// If can close, return TRUE.  If cannot close, pop save/discard dialog
+	// and return FALSE.
+	BOOL canClose();
 
 	void setAvatar(LLViewerObject *avatarp);
 

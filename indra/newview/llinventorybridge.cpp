@@ -802,7 +802,7 @@ LLString LLItemBridge::getLabelSuffix() const
 	if(item) 
 	{
 		// it's a bit confusing to put nocopy/nomod/etc on calling cards.
-		if(LLAssetType::AT_CALLINGCARD != item->getType()
+		if( LLAssetType::AT_CALLINGCARD != item->getType()
 		   && item->getPermissions().getOwner() == gAgent.getID())
 		{
 			BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
@@ -814,14 +814,32 @@ LLString LLItemBridge::getLabelSuffix() const
 			const char* NO_MOD = " (no modify)";
 			const char* NO_XFER = " (no transfer)";
 			const char* scopy;
-			if(copy) scopy = EMPTY;
-			else scopy = NO_COPY;
+			if(copy)
+			{
+				scopy = EMPTY;
+			}
+			else
+			{
+				scopy = NO_COPY;
+			};
 			const char* smod;
-			if(mod) smod = EMPTY;
-			else smod = NO_MOD;
+			if(mod)
+			{
+				smod = EMPTY;
+			}
+			else
+			{
+				smod = NO_MOD;
+			};
 			const char* sxfer;
-			if(xfer) sxfer = EMPTY;
-			else sxfer = NO_XFER;
+			if(xfer)
+			{
+				sxfer = EMPTY;
+			}
+			else
+			{
+				sxfer = NO_XFER;
+			};
 			char buffer[MAX_STRING];		/*Flawfinder: ignore*/
 			snprintf(						/* Flawfinder: ignore */
 				buffer,
@@ -2490,14 +2508,14 @@ void LLLandmarkBridge::performAction(LLFolderView* folder, LLInventoryModel* mod
 	else LLItemBridge::performAction(folder, model, action);
 }
 
-void open_landmark(const LLUUID& item_id, 
+void open_landmark(LLViewerInventoryItem* inv_item,
 				   const LLString& title,
 				   BOOL show_keep_discard,
 				   const LLUUID& source_id,
 				   BOOL take_focus)
 {
 	// See if we can bring an exiting preview to the front
-	if( !LLPreview::show( item_id, take_focus ) )
+	if( !LLPreview::show( inv_item->getUUID(), take_focus ) )
 	{
 		// There isn't one, so make a new preview
 		S32 left, top;
@@ -2505,11 +2523,12 @@ void open_landmark(const LLUUID& item_id,
 		LLRect rect = gSavedSettings.getRect("PreviewLandmarkRect");
 		rect.translate( left - rect.mLeft, top - rect.mTop );
 
-		LLPreviewLandmark* preview = new LLPreviewLandmark("preview landmark",
+		LLPreviewLandmark* preview = new LLPreviewLandmark(title,
 								  rect,
 								  title,
-								  item_id,
-								  show_keep_discard);
+								  inv_item->getUUID(),
+								  show_keep_discard,
+								  inv_item);
 		preview->setSourceID(source_id);
 		if(take_focus) preview->setFocus(TRUE);
 		// keep onscreen
@@ -2522,7 +2541,7 @@ void LLLandmarkBridge::openItem()
 	LLViewerInventoryItem* item = getItem();
 	if( item )
 	{
-		open_landmark(mUUID, LLString("  ") + getPrefix() + item->getName(), FALSE);
+		open_landmark(item, LLString("  ") + getPrefix() + item->getName(), FALSE);
 	}
 }
 
@@ -2749,14 +2768,15 @@ LLViewerImage* LLNotecardBridge::getIcon() const
 	return get_item_icon(LLAssetType::AT_NOTECARD, LLInventoryType::IT_NOTECARD, 0, FALSE);
 }
 
-void open_notecard(const LLUUID& item_id, 
+void open_notecard(LLViewerInventoryItem* inv_item,
 				   const LLString& title,
+				   const LLUUID& object_id,
 				   BOOL show_keep_discard,
 				   const LLUUID& source_id,
 				   BOOL take_focus)
 {
 	// See if we can bring an existing preview to the front
-	if(!LLPreview::show(item_id, take_focus))
+	if(!LLPreview::show(inv_item->getUUID(), take_focus))
 	{
 		// There isn't one, so make a new preview
 		S32 left, top;
@@ -2764,13 +2784,9 @@ void open_notecard(const LLUUID& item_id,
 		LLRect rect = gSavedSettings.getRect("NotecardEditorRect");
 		rect.translate(left - rect.mLeft, top - rect.mTop);
 		LLPreviewNotecard* preview;
-		preview = new LLPreviewNotecard("preview notecard",
-										  rect,
-										  title,
-										  item_id,
-										  LLUUID::null,
-										  LLUUID::null,
-										  show_keep_discard);
+		preview = new LLPreviewNotecard("preview notecard", rect, title,
+						inv_item->getUUID(), object_id, inv_item->getAssetUUID(),
+						show_keep_discard, inv_item);
 		preview->setSourceID(source_id);
 		if(take_focus) preview->setFocus(TRUE);
 		// Force to be entirely onscreen.
@@ -2789,23 +2805,22 @@ void open_notecard(const LLUUID& item_id,
 		//		{
 		//			// create new multipreview if it doesn't exist
 		//			LLMultiPreview* preview_hostp = new LLMultiPreview(existing_preview->getRect());
-
 		//			preview_hostp->addFloater(existing_preview);
 		//		}
 		//		// add this preview to existing host
 		//		preview_hostp->addFloater(preview);
 		//	}
 		//}
-
 	}
 }
+
 
 void LLNotecardBridge::openItem()
 {
 	LLViewerInventoryItem* item = getItem();
 	if (item)
 	{
-		open_notecard(mUUID, getPrefix() + item->getName(), FALSE);
+		open_notecard(item, getPrefix() + item->getName(), LLUUID::null, FALSE);
 	}
 }
 

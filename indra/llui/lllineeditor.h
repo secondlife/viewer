@@ -16,6 +16,7 @@
 //		Clipboard (cut, copy, and paste)
 //		Horizontal scrolling to allow strings longer than widget size allows 
 //		Pre-validation (limit which keys can be used)
+//		Optional line history so previous entries can be recalled by CTRL UP/DOWN
 
 
 #ifndef LL_LLLINEEDITOR_H
@@ -186,6 +187,10 @@ public:
 
 	static BOOL		postvalidateFloat(const LLString &str);
 
+	// line history support:
+	void			setEnableLineHistory( BOOL enabled ); // switches line history on or off 
+	void			updateHistory(); // stores current line in history
+
 protected:
 	void			removeChar();
 	void			addChar(const llwchar c);
@@ -203,6 +208,11 @@ protected:
 	LLUIString		mText;					// The string being edited.
 	LLString		mPrevText;				// Saved string for 'ESC' revert
 	LLUIString		mLabel;					// text label that is visible when no user text provided
+
+	// line history support:
+	BOOL		mHaveHistory;				// flag for enabled line history
+	std::vector<LLString> mLineHistory;		// line history storage
+	U32			mCurrentHistoryLine;		// currently browsed history line
 
 	LLViewBorder* mBorder;
 	const LLFontGL*	mGLFont;

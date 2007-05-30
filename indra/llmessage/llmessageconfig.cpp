@@ -92,9 +92,10 @@ void LLMessageConfigFile::loadServerDefaults(const LLSD& data)
 
 void LLMessageConfigFile::loadMessages(const LLSD& data)
 {
-	mMessages = data["messages"];
+	LLPointer<LLSDXMLFormatter> formatter = new LLSDXMLFormatter;
 	std::ostringstream out;
-	LLSDXMLFormatter *formatter = new LLSDXMLFormatter;
+
+	mMessages = data["messages"];
 	formatter->format(mMessages, out);
 	lldebugs << "loading ... " << out.str()
 			<< " LLMessageConfigFile::loadMessages loaded "

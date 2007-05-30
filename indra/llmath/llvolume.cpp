@@ -1809,13 +1809,16 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 				U32 x = (U32) ((F32)s/(sizeS-1) * (F32) sculpt_width);
 				U32 y = (U32) ((F32)t/(sizeT-1) * (F32) sculpt_height);
 
-				if (y == sculpt_height)  // clamp to bottom row
+				if (y == sculpt_height)  // stitch bottom
+				{
 					y = sculpt_height - 1;
+					x = sculpt_width / 2;
+				}
 
 				if (x == sculpt_width)   // stitch sides
 					x = 0;
 
-				if ((y == 0) || (y == sculpt_height-1))  // stitch top and bottom
+				if (y == 0)  // stitch top
 					x = sculpt_width / 2;
 
 				U32 index = (x + y * sculpt_width) * sculpt_components;
@@ -1827,63 +1830,69 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 
 				last_index = index;
 			}
+		if ((F32)vertex_change / sizeS / sizeT < 0.05) // less than 5%
+			data_is_empty = TRUE;
 	}
 
-	
-	if ((F32)vertex_change / sizeS / sizeT < 0.05) // less than 5%
-		data_is_empty = TRUE;
-	
-	
 	//generate vertex positions
-	// Run along the path.
-	S32 s = 0, t = 0;
-	S32 line = 0;
-	while (s < sizeS)
+	if (data_is_empty) // if empty, make a sphere
 	{
-		t = 0;
-		// Run along the profile.
-		while (t < sizeT)
+		S32 line = 0;
+
+		for (S32 s = 0; s < sizeS; s++)
 		{
-			S32 i = t + line;
-			Point& pt = mMesh[i];
-
-			U32 x = (U32) ((F32)t/(sizeT-1) * (F32) sculpt_width);
-			U32 y = (U32) ((F32)s/(sizeS-1) * (F32) sculpt_height);
-
-			if (y == sculpt_height)  // clamp to bottom row
-				y = sculpt_height - 1;
-
-			if (x == sculpt_width)   // stitch sides
-				x = 0;
-
-			if ((y == 0) || (y == sculpt_height-1))  // stitch top and bottom
-				x = sculpt_width / 2;
-			
-
-			if (data_is_empty) // if empty, make a sphere
+			for (S32 t = 0; t < sizeT; t++)
 			{
+				S32 i = t + line;
+				Point& pt = mMesh[i];
+
+			
 				F32 u = (F32)s/(sizeS-1);
 				F32 v = (F32)t/(sizeT-1);
 
 				const F32 RADIUS = (F32) 0.3;
-				
+					
 				pt.mPos.mV[0] = (F32)(sin(F_PI * v) * cos(2.0 * F_PI * u) * RADIUS);
 				pt.mPos.mV[1] = (F32)(sin(F_PI * v) * sin(2.0 * F_PI * u) * RADIUS);
 				pt.mPos.mV[2] = (F32)(cos(F_PI * v) * RADIUS);
+
 			}
-			
-			else
+			line += sizeT;
+		}
+	}
+	else
+	{
+		S32 line = 0;
+		for (S32 s = 0; s < sizeS; s++)
+		{
+			// Run along the profile.
+			for (S32 t = 0; t < sizeT; t++)
 			{
+				S32 i = t + line;
+				Point& pt = mMesh[i];
+
+				U32 x = (U32) ((F32)t/(sizeT-1) * (F32) sculpt_width);
+				U32 y = (U32) ((F32)s/(sizeS-1) * (F32) sculpt_height);
+
+				if (y == sculpt_height)  // stitch bottom row
+				{
+					y = sculpt_height - 1;
+					x = sculpt_width / 2;
+				}
+
+				if (x == sculpt_width)   // stitch sides
+					x = 0;
+
+				if (y == 0)  // stitch top row
+					x = sculpt_width / 2;
+			
 				U32 index = (x + y * sculpt_width) * sculpt_components;
 				pt.mPos.mV[0] = sculpt_data[index  ] / 256.f - 0.5f;
 				pt.mPos.mV[1] = sculpt_data[index+1] / 256.f - 0.5f;
 				pt.mPos.mV[2] = sculpt_data[index+2] / 256.f - 0.5f;
 			}
-
-			t++;
+			line += sizeT;
 		}
-		line += sizeT;
-		s++;
 	}
 
 	for (S32 i = 0; i < (S32)mProfilep->mFaces.size(); i++)

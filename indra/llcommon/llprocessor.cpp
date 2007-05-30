@@ -257,7 +257,7 @@ bool CProcessor::AnalyzeIntelProcessor()
 
 	// Only override the brand if we have it in the lookup table.  We should
 	// already have a string here from GetCPUInfo().  JC
-	if (CPUInfo.uiBrandID < sizeof(INTEL_BRAND))
+	if (CPUInfo.uiBrandID < (sizeof(INTEL_BRAND)/sizeof(INTEL_BRAND[0])))
 	{
 		strcpy(CPUInfo.strBrandID, INTEL_BRAND[CPUInfo.uiBrandID]);
 

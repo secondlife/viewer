@@ -137,6 +137,14 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 {
 	llassert( max_length_bytes > 0 );
 
+	// line history support:
+	// - initialize line history list
+	mLineHistory.insert( mLineHistory.end(), "" );
+	// - disable line history by default
+	mHaveHistory = FALSE;
+	// - reset current history line pointer
+	mCurrentHistoryLine = 0;
+
 	if (font)
 	{
 		mGLFont = font;
@@ -209,8 +217,31 @@ void LLLineEditor::onFocusLost()
 
 void LLLineEditor::onCommit()
 {
+	// put current line into the line history
+	updateHistory();
+
 	LLUICtrl::onCommit();
 	selectAll();
+}
+
+// line history support
+void LLLineEditor::updateHistory()
+{
+	// On history enabled line editors, remember committed line and
+	// reset current history line number.
+	// Be sure only to remember lines that are not empty and that are
+	// different from the last on the list.
+	if( mHaveHistory && mText.length() && ( mLineHistory.empty() || getText() != mLineHistory.back() ) )
+	{
+		// discard possible empty line at the end of the history
+		// inserted by setText()
+		if( !mLineHistory.back().length() )
+		{
+			mLineHistory.pop_back();
+		}
+		mLineHistory.insert( mLineHistory.end(), getText() );
+		mCurrentHistoryLine = mLineHistory.size() - 1;
+	}
 }
 
 void LLLineEditor::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -220,6 +251,10 @@ void LLLineEditor::reshape(S32 width, S32 height, BOOL called_from_parent)
 	mMaxHPixels = mRect.getWidth() - 2 * (mBorderThickness + UI_LINEEDITOR_H_PAD) + 1 - mBorderRight;
 }
 
+void LLLineEditor::setEnableLineHistory( BOOL enabled )
+{
+	mHaveHistory = enabled;
+}
 
 void LLLineEditor::setEnabled(BOOL enabled)
 {
@@ -280,6 +315,13 @@ void LLLineEditor::setText(const LLString &new_text)
 		deselect();
 	}
 	setCursor(llmin((S32)mText.length(), getCursor()));
+
+	// Newly set text goes always in the last line of history.
+	// Possible empty strings (as with chat line) will be deleted later.
+	mLineHistory.insert( mLineHistory.end(), new_text );
+	// Set current history line to end of history.
+	mCurrentHistoryLine = mLineHistory.size() - 1;
+
 	mPrevText = mText;
 }
 
@@ -1064,6 +1106,45 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 			}
 			handled = TRUE;
 		}
+		break;
+
+	// handle ctrl-uparrow if we have a history enabled line editor.
+	case KEY_UP:
+		if( mHaveHistory && ( MASK_CONTROL & mask ) )
+		{
+			if( mCurrentHistoryLine > 0 )
+			{
+				mText.assign( mLineHistory[ --mCurrentHistoryLine ] );
+				setCursor(llmin((S32)mText.length(), getCursor()));
+			}
+			else
+			{
+				reportBadKeystroke();
+			}
+			handled = TRUE;
+		}
+		break;
+
+	// handle ctrl-downarrow if we have a history enabled line editor
+	case KEY_DOWN:
+		if( mHaveHistory  && ( MASK_CONTROL & mask ) )
+		{
+			if( !mLineHistory.empty() && mCurrentHistoryLine < mLineHistory.size() - 1 )
+			{
+				mText.assign( mLineHistory[ ++mCurrentHistoryLine ] );
+				setCursor(llmin((S32)mText.length(), getCursor()));
+			}
+			else
+			{
+				reportBadKeystroke();
+			}
+			handled = TRUE;
+		}
+		break;
+
+	case KEY_RETURN:
+		// store sent line in history
+		updateHistory();
 		break;
 
 	case KEY_ESCAPE:

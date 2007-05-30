@@ -845,13 +845,43 @@ void LLPanelAvatarClassified::refresh()
 	bool allow_delete = (tab_count > 0);
 	bool show_help = (tab_count == 0);
 
-	childSetEnabled("New...",self && allow_new);
-	childSetEnabled("Delete...",self && allow_delete);
+	// *HACK: Don't allow making new classifieds from inside the directory.
+	// The logic for save/don't save when closing is too hairy, and the 
+	// directory is conceptually read-only. JC
+	bool in_directory = false;
+	LLView* view = this;
+	while (view)
+	{
+		if (view->getName() == "directory")
+		{
+			in_directory = true;
+			break;
+		}
+		view = view->getParent();
+	}
+	childSetEnabled("New...", self && !in_directory && allow_new);
+	childSetVisible("New...", !in_directory);
+	childSetEnabled("Delete...", self && !in_directory && allow_delete);
+	childSetVisible("Delete...", !in_directory);
 	childSetVisible("classified tab",!show_help);
 
 	sendAvatarProfileRequestIfNeeded("avatarclassifiedsrequest");
 }
 
+
+BOOL LLPanelAvatarClassified::canClose()
+{
+	LLTabContainerCommon* tabs = LLViewerUICtrlFactory::getTabContainerByName(this, "classified tab");
+	for (S32 i = 0; i < tabs->getTabCount(); i++)
+	{
+		LLPanelClassified* panel = (LLPanelClassified*)tabs->getPanelByIndex(i);
+		if (!panel->canClose())
+		{
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
 
 BOOL LLPanelAvatarClassified::titleIsValid()
 {
@@ -1279,6 +1309,11 @@ LLPanelAvatar::~LLPanelAvatar()
 	sAllPanels.remove(this);
 }
 
+
+BOOL LLPanelAvatar::canClose()
+{
+	return mPanelClassified && mPanelClassified->canClose();
+}
 
 void LLPanelAvatar::setAvatar(LLViewerObject *avatarp)
 {

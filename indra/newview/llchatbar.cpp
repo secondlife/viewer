@@ -98,8 +98,8 @@ LLChatBar::LLChatBar(const std::string& name, const LLRect& rect)
 		mInputEditor->setRevertOnEsc( FALSE );
 		mInputEditor->setIgnoreTab(TRUE);
 		mInputEditor->setPassDelete(TRUE);
-
 		mInputEditor->setMaxTextLength(1023);
+		mInputEditor->setEnableLineHistory(TRUE);
 	}
 
 	// Build the list of gestures
@@ -426,6 +426,8 @@ void LLChatBar::sendChat( EChatType type )
 
 	if (!text.empty())
 	{
+		// store sent line in history, duplicates will get filtered
+		mInputEditor->updateHistory();
 		// Check if this is destined for another channel
 		S32 channel = 0;
 		stripChannelNumber(text, &channel);

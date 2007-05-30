@@ -289,6 +289,9 @@ LLTextEditor::LLTextEditor(
 {
 	mSourceID.generate();
 
+	// reset desired x cursor position
+	mDesiredXPixel = -1;
+
 	if (font)
 	{
 		mGLFont = font;
@@ -894,6 +897,8 @@ void LLTextEditor::setCursorPos(S32 offset)
 {
 	mCursorPos = llclamp(offset, 0, (S32)getLength());
 	updateScrollFromCursor();
+	// reset desired x cursor position
+	mDesiredXPixel = -1;
 }
 
 
@@ -3078,6 +3083,9 @@ void LLTextEditor::changePage( S32 delta )
 	S32 line, offset;
 	getLineAndOffset( mCursorPos, &line, &offset );
 
+	// get desired x position to remember previous position
+	S32 desired_x_pixel = mDesiredXPixel;
+
 	// allow one line overlap
 	S32 page_size = mScrollbar->getPageSize() - 1;
 	if( delta == -1 )
@@ -3092,6 +3100,10 @@ void LLTextEditor::changePage( S32 delta )
 		setCursorPos(getPos( line + page_size, offset ));
 		mScrollbar->setDocPos( mScrollbar->getDocPos() + page_size );
 	}
+
+	// put desired position into remember-buffer after setCursorPos()
+	mDesiredXPixel = desired_x_pixel;
+
 	if (mOnScrollEndCallback && mOnScrollEndData && (mScrollbar->getDocPos() == mScrollbar->getDocPosMax()))
 	{
 		mOnScrollEndCallback(mOnScrollEndData);
@@ -3107,9 +3119,13 @@ void LLTextEditor::changeLine( S32 delta )
 
 	S32  line_start = getLineStart(line);
 
-	S32 desired_x_pixel;
-	
-	desired_x_pixel = mGLFont->getWidth(mWText.c_str(), line_start, offset, mAllowEmbeddedItems );
+	// set desired x position to remembered previous position
+	S32 desired_x_pixel = mDesiredXPixel;
+	// if remembered position was reset (thus -1), calculate new one here
+	if( desired_x_pixel == -1 )
+	{
+		desired_x_pixel = mGLFont->getWidth(mWText.c_str(), line_start, offset, mAllowEmbeddedItems );
+	}
 
 	S32 new_line = 0;
 	if( (delta < 0) && (line > 0 ) )
@@ -3145,6 +3161,9 @@ void LLTextEditor::changeLine( S32 delta )
 											  mAllowEmbeddedItems);
 
 	setCursorPos (getPos( new_line, new_offset ));
+
+	// put desired position into remember-buffer after setCursorPos()
+	mDesiredXPixel = desired_x_pixel;
 	unbindEmbeddedChars( mGLFont );
 }
 

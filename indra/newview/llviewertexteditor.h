@@ -89,14 +89,12 @@ protected:
 
 	void			openEmbeddedTexture( LLInventoryItem* item );
 	void			openEmbeddedSound( LLInventoryItem* item );
-	//void			openEmbeddedLandmark( LLInventoryItem* item );
+	void			openEmbeddedLandmark( LLInventoryItem* item );
 	void			openEmbeddedNotecard( LLInventoryItem* item, BOOL saved );
 	void			showCopyToInvDialog( LLInventoryItem* item );
-	void			showLandmarkDialog( LLInventoryItem* item );
 
 	static void		onCopyToInvDialog( S32 option, void* userdata );
 	static void		onNotecardDialog( S32 option, void* userdata );
-	static void		onLandmarkDialog( S32 option, void* userdata );
 	
 protected:
 	LLPointer<LLInventoryItem> mDragItem;
