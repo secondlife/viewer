@@ -20,6 +20,7 @@ extern apr_thread_mutex_t *gLogMutexp;
 #include "lllivefile.h"
 #include "llsd.h"
 #include "llsdserialize.h"
+#include "llstl.h"
 
 #include <algorithm>
 #include <cctype>
@@ -389,6 +390,12 @@ namespace LLError
 				fixedBufferRecorder(NULL),
 				shouldLogCallCounter(0)
 			{ }
+		
+		~Settings()
+		{
+			for_each(recorders.begin(), recorders.end(),
+					 DeletePointer());
+		}
 		
 		static Settings*& getPtr();
 	};

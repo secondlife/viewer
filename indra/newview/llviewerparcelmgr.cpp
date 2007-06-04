@@ -2557,8 +2557,21 @@ bool LLParcelSelection::hasOthersSelected() const
 	return mSelectedOtherCount != 0;
 }
 
+static LLPointer<LLParcelSelection> sNullSelection;
+
 LLParcelSelection* get_null_parcel_selection()
 {
-	static LLParcelSelection null_selection;
-	return &null_selection;
+	if (sNullSelection.isNull())
+	{
+		sNullSelection = new LLParcelSelection;
+	}
+	
+	return sNullSelection;
+}
+
+void LLViewerParcelMgr::cleanupGlobals()
+{
+	delete gParcelMgr;
+	gParcelMgr = NULL;
+	sNullSelection = NULL;
 }

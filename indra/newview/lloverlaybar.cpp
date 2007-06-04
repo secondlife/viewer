@@ -308,27 +308,6 @@ void LLOverlayBar::refresh()
 		{
 			mMusicRemote->setVisible(TRUE);
 			mMusicRemote->setEnabled(TRUE);
-
-			S32 musicPlaying = gAudiop->isInternetStreamPlaying();
-
-			if ( musicPlaying == 0 )	// stopped
-			{
-				mMusicRemote->setTransportState ( LLMediaRemoteCtrl::Stop, FALSE );
-			}
-			else
-			if ( musicPlaying == 1 )	// playing
-			{
-				mMusicRemote->setTransportState ( LLMediaRemoteCtrl::Play, FALSE );
-				if (gAudiop)
-				{
-					gAudiop->setInternetStreamGain ( gSavedSettings.getF32 ( "AudioLevelMusic" ) );
-				}
-			}
-			else
-			if ( musicPlaying == 2 )	// paused
-			{
-				mMusicRemote->setTransportState ( LLMediaRemoteCtrl::Stop, FALSE );
-			}
 		}
 	}
 

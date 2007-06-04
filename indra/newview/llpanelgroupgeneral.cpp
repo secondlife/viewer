@@ -115,7 +115,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 	if (founder)
 	{
 		mFounderName = new LLNameBox(founder->getName(),founder->getRect(),LLUUID::null,FALSE,founder->getFont(),founder->getMouseOpaque());
-		removeChild(founder);
+		removeChild(founder, TRUE);
 		addChild(mFounderName);
 	}
 
@@ -201,14 +201,14 @@ BOOL LLPanelGroupGeneral::postBuild()
 	if (txt)
 	{
 		mIncompleteMemberDataStr = txt->getText();
-		removeChild(txt);
+		removeChild(txt, TRUE);
 	}
 
 	txt = (LLTextBox*)getChildByName("confirm_group_create_str");
 	if (txt)
 	{
 		mConfirmGroupCreateStr = txt->getText();
-		removeChild(txt);
+		removeChild(txt, TRUE);
 	}
 
 	// If the group_id is null, then we are creating a new group

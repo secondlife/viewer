@@ -221,7 +221,7 @@ public:
 	void		addChild(LLView* view, S32 tab_group = 0);
 	void		addChildAtEnd(LLView* view,  S32 tab_group = 0);
 	// remove the specified child from the view, and set it's parent to NULL.
-	void		removeChild( LLView* view );
+	void		removeChild(LLView* view, BOOL deleteIt = FALSE);
 
 	virtual void	addCtrl( LLUICtrl* ctrl, S32 tab_group);
 	virtual void	addCtrlAtEnd( LLUICtrl* ctrl, S32 tab_group);
@@ -464,7 +464,7 @@ protected:
 	LLView* childrenHandleRightMouseDown(S32 x, S32 y, MASK mask);
 	LLView* childrenHandleRightMouseUp(S32 x, S32 y, MASK mask);
 
-	typedef std::map<LLString, LLSimpleListener*> dispatch_list_t;
+	typedef std::map<LLString, LLPointer<LLSimpleListener> > dispatch_list_t;
 	dispatch_list_t mDispatchList;
 
 protected:

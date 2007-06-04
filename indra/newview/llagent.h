@@ -831,12 +831,12 @@ private:
 
 	class createStandardWearablesAllDoneCallback : public LLRefCount
 	{
-	public:
+	protected:
 		~createStandardWearablesAllDoneCallback();
 	};
 	class sendAgentWearablesUpdateCallback : public LLRefCount
 	{
-	public:
+	protected:
 		~sendAgentWearablesUpdateCallback();
 	};
 
@@ -866,7 +866,6 @@ private:
 			S32 index,
 			LLWearable* wearable,
 			U32 todo = CALL_NONE);
-		~addWearableToAgentInventoryCallback() {};
 		virtual void fire(const LLUUID& inv_item);
 
 	private:

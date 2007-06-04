@@ -2787,25 +2787,26 @@ void update_app(BOOL mandatory, const std::string& auth_msg)
 	LLStringBase<char>::format_map_t args;
 	args["[MESSAGE]"] = msg;
 	
-	BOOL *mandatoryp = new BOOL(mandatory);
+	// represent a bool as a null/non-null pointer
+	void *mandatoryp = mandatory ? &mandatory : NULL;
 
 #if LL_WINDOWS
 	if (mandatory)
 	{
 		gViewerWindow->alertXml("DownloadWindowsMandatory", args,
 								update_dialog_callback,
-								(void *)mandatoryp);
+								mandatoryp);
 	}
 	else
 	{
 #if LL_RELEASE_FOR_DOWNLOAD
 		gViewerWindow->alertXml("DownloadWindowsReleaseForDownload", args,
 								update_dialog_callback,
-								(void *)mandatoryp);
+								mandatoryp);
 #else
 		gViewerWindow->alertXml("DownloadWindows", args,
 								update_dialog_callback,
-								(void *)mandatoryp);
+								mandatoryp);
 #endif
 	}
 #else
@@ -2813,18 +2814,18 @@ void update_app(BOOL mandatory, const std::string& auth_msg)
 	{
 		gViewerWindow->alertXml("DownloadMacMandatory", args,
 								update_dialog_callback,
-								(void *)mandatoryp);
+								mandatoryp);
 	}
 	else
 	{
 #if LL_RELEASE_FOR_DOWNLOAD
 		gViewerWindow->alertXml("DownloadMacReleaseForDownload", args,
 								update_dialog_callback,
-								(void *)mandatoryp);
+								mandatoryp);
 #else
 		gViewerWindow->alertXml("DownloadMac", args,
 								update_dialog_callback,
-								(void *)mandatoryp);
+								mandatoryp);
 #endif
 	}
 #endif
@@ -2835,7 +2836,7 @@ void update_app(BOOL mandatory, const std::string& auth_msg)
 void update_dialog_callback(S32 option, void *userdata)
 {
 	std::string update_exe_path;
-	BOOL mandatory = *(BOOL *)userdata;
+	BOOL mandatory = userdata != NULL;
 
 #if !LL_RELEASE_FOR_DOWNLOAD
 	if (option == 2)

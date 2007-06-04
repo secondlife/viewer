@@ -1162,6 +1162,9 @@ void LLPanelObject::onCommitParametric( LLUICtrl* ctrl, void* userdata )
 	if (selected_type == MI_SCULPT)
 	{
 		self->mObject->setParameterEntryInUse(LLNetworkData::PARAMS_SCULPT, TRUE, TRUE);
+		LLSculptParams *sculpt_params = (LLSculptParams *)self->mObject->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+		if (sculpt_params)
+			volume_params.setSculptID(sculpt_params->getSculptTexture(), 0);
 	}
 	else
 	{

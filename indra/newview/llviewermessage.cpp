@@ -767,8 +767,8 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 		if (check_offer_throttle(from_name, false))
 		{
 			// I'm not sure this is a good idea.  JC
-			// bool show_keep_discard = item->getPermissions().getCreator() != gAgent.getID();
-			bool show_keep_discard = true;
+			bool show_keep_discard = item->getPermissions().getCreator() != gAgent.getID();
+			//bool show_keep_discard = true;
 			switch(item->getType())
 			{
 			case LLAssetType::AT_NOTECARD:
@@ -2197,7 +2197,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		if (chat.mSourceType == CHAT_SOURCE_OBJECT 
 			&& chat.mChatType != CHAT_TYPE_DEBUG_MSG)
 		{
-			LLViewerPartSourceChat *psc = new LLViewerPartSourceChat(chatter->getPositionAgent());
+			LLPointer<LLViewerPartSourceChat> psc = new LLViewerPartSourceChat(chatter->getPositionAgent());
 			psc->setSourceObject(chatter);
 			psc->setColor(color);
 			//We set the particles to be owned by the object's owner, 

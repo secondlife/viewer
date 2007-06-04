@@ -152,13 +152,13 @@ BOOL LLPanelGroupRoles::postBuild()
 	if (txt)
 	{
 		mDefaultNeedsApplyMesg = txt->getText();
-		removeChild(txt);
+		removeChild(txt, TRUE);
 	}
 	txt = (LLTextBox*)getChildByName("want_apply_text");
 	if (txt)
 	{
 		mWantApplyMesg = txt->getText();
-		removeChild(txt);
+		removeChild(txt, TRUE);
 	}
 
 	return LLPanelGroupTab::postBuild();
@@ -521,21 +521,21 @@ BOOL LLPanelGroupSubTab::postBuild()
 	if (icon && icon->getImage().notNull())
 	{
 		mActionIcons["folder"] = icon->getImage();
-		removeChild(icon);
+		removeChild(icon, TRUE);
 	}
 
 	icon = (LLIconCtrl*) getChildByName("power_all_have_icon",no_recurse);
 	if (icon && icon->getImage().notNull())
 	{
 		mActionIcons["full"] = icon->getImage();
-		removeChild(icon);
+		removeChild(icon, TRUE);
 	}
 
 	icon = (LLIconCtrl*) getChildByName("power_partial_icon",no_recurse);
 	if (icon && icon->getImage().notNull())
 	{
 		mActionIcons["partial"] = icon->getImage();
-		removeChild(icon);
+		removeChild(icon, TRUE);
 	}
 
 	return LLPanelGroupTab::postBuild();
@@ -1805,7 +1805,7 @@ BOOL LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
 	if (txt)
 	{
 		mRemoveEveryoneTxt = txt->getText();
-		parent->removeChild(txt);
+		parent->removeChild(txt, TRUE);
 	}
 
 	mCreateRoleButton = 

@@ -60,8 +60,8 @@ public:
 	void buildFloater(LLFloater* floaterp, const LLString &filename, 
 						const LLCallbackMap::map_t* factory_map = NULL, BOOL open = TRUE);
 
-	void buildPanel(LLPanel* panelp, const LLString &filename,
-						const LLCallbackMap::map_t* factory_map = NULL);
+	BOOL buildPanel(LLPanel* panelp, const LLString &filename,
+					const LLCallbackMap::map_t* factory_map = NULL);
 
 	LLMenuGL *buildMenu(const LLString &filename, LLView* parentp);
 

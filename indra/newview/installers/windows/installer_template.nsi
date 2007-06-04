@@ -1,63 +1,70 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; @file viewer_manifest.py
-;;; @author James Cook, Don Kjer
-;;; @brief NSIS script for creating a Windows installer.
-;;;  This file has variables expanded by viewer_manifest.py 
-;;;  to produce the complete nsi script file.
-;;; For info, see http://www.nullsoft.com/free/nsis/
-;;; NSIS 2.02 or higher required
-;;;
-;;; Copyright (c) 2006-$CurrentYear$, Linden Research, Inc.
-;;; $License$
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; secondlife setup.nsi
+;; Copyright 2004-2007, Linden Research, Inc.
+;; For info, see http://www.nullsoft.com/free/nsis/
+;;
+;; NSIS 2.22 or higher required
+;; Author: James Cook, Don Kjer, Callum Prentice
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Compiler flags
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Detect NSIS compiler version
 !define "NSIS${NSIS_VERSION}"
 !ifdef "NSISv2.02" | "NSISv2.03" | "NSISv2.04" | "NSISv2.05" | "NSISv2.06"
-    ;;; before 2.07 defaulted lzma to solid (whole file)
+    ;; before 2.07 defaulted lzma to solid (whole file)
     SetCompressor lzma
 !else
-    ;;; after 2.07 required /solid for whole file compression
+    ;; after 2.07 required /solid for whole file compression
     SetCompressor /solid lzma
 !endif
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Compiler flags
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 SetOverwrite on				; overwrite files
 SetCompress auto			; compress iff saves space
-SetDatablockOptimize off		; only saves us 0.1%, not worth it
-XPStyle on                              ; add an XP manifest to the installer
+SetDatablockOptimize off	; only saves us 0.1%, not worth it
+XPStyle on                  ; add an XP manifest to the installer
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Project flags
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 %%VERSION%%
 
-;;; Tweak for different servers/builds (this placeholder is replaced by viewer_manifest.py)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; - language files - one for each language (or flavor thereof)
+;; (these files are in the same place as the nsi template but the python script generates a new nsi file in the 
+;; application directory so we have to add a path to these include files)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+#!include "installers\windows\lang_de.nsi"
+!include "installers\windows\lang_en-us.nsi"
+#!include "installers\windows\lang_ja.nsi"
+!include "installers\windows\lang_ko.nsi"
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Tweak for different servers/builds (this placeholder is replaced by viewer_manifest.py)
 %%GRID_VARS%%
 
 Name ${INSTNAME}
 
-SubCaption 0 " Setup"			; override "license agreement" text
+SubCaption 0 $(LicenseSubTitleSetup)	; override "license agreement" text
 
-BrandingText " "				; bottom of window text
-Icon res\install_icon.ico		; our custom icon
+BrandingText " "						; bottom of window text
+Icon res\install_icon.ico				; our custom icon
 UninstallIcon res\uninstall_icon.ico    ; our custom icon
-WindowIcon on					; show our icon in left corner
-BGGradient off					; no big background window
-CRCCheck on						; make sure CRC is OK
+WindowIcon on							; show our icon in left corner
+BGGradient off							; no big background window
+CRCCheck on								; make sure CRC is OK
 InstProgressFlags smooth colored		; new colored smooth look
-ShowInstDetails nevershow		; no details, no "show" button
-SetOverwrite on					; stomp files by default
-AutoCloseWindow true			; after all files install, close window
+ShowInstDetails nevershow				; no details, no "show" button
+SetOverwrite on							; stomp files by default
+AutoCloseWindow true					; after all files install, close window
 
 !ifdef UPDATE
-LicenseText "This package will update Second Life to version ${VERSION_LONG}." "Next >"
+LicenseText $(LicenseDescUpdate) $(LicenseDescNext)
 !else
-LicenseText "This package will install Second Life on your computer." "Next >"
+LicenseText $(LicenseDescSetup) $(LicenseDescNext)
 !endif
 
 LicenseData "releasenotes.txt"
@@ -65,30 +72,30 @@ LicenseData "releasenotes.txt"
 InstallDir "$PROGRAMFILES\${INSTNAME}"
 InstallDirRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" ""
 !ifdef UPDATE
-DirText "Installation Directory" "Select the Second Life directory to update:"
+DirText $(DirectoryChooseTitle) $(DirectoryChooseUpdate)
 !else
-DirText "Installation Directory" "Select the directory to install Second Life in:"
+DirText $(DirectoryChooseTitle) $(DirectoryChooseSetup)
 !endif
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Variables
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Var INSTPROG
 Var INSTEXE
 Var INSTFLAGS
+Var LANGFLAGS
 Var INSTSHORTCUT
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Sections
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Section ""						; (default section)
 
 SetShellVarContext all			; install for all users (if you change this, change it in the uninstall as well)
 
-
 ; Start with some default values.
 StrCpy $INSTFLAGS "${INSTFLAGS}"
+StrCpy $INSTFLAGS "$INSTFLAGS $LANGFLAGS"
 StrCpy $INSTPROG "${INSTNAME}"
 StrCpy $INSTEXE "${INSTEXE}"
 StrCpy $INSTSHORTCUT "${SHORTCUT}"
@@ -103,21 +110,22 @@ Call CheckIfAlreadyCurrent		; Make sure that we haven't already installed this v
 Call CloseSecondLife			; Make sure we're not running
 Call RemoveNSIS					; Check for old NSIS install to remove
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Don't remove cache files during a regular install, removing the inventory cache on upgrades results in lots of damage to the servers.
 ;Call RemoveCacheFiles			; Installing over removes potentially corrupted
 								; VFS and cache files.
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Files
-;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; This placeholder is replaced by the complete list of all the files in the installer, by viewer_manifest.py
 %%INSTALL_FILES%%
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; If this is a silent update, we don't need to re-create these shortcuts or registry entries.
 IfSilent POST_INSTALL
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Shortcuts in start menu
 CreateDirectory	"$SMPROGRAMS\$INSTSHORTCUT"
 SetOutPath "$INSTDIR"
@@ -146,6 +154,7 @@ CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\SL Scripting Language Help.lnk" \
 CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\Uninstall $INSTSHORTCUT.lnk" \
 				'"$INSTDIR\uninst.exe"' '/P="$INSTPROG"'
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Other shortcuts
 SetOutPath "$INSTDIR"
 CreateShortCut "$DESKTOP\$INSTSHORTCUT.lnk" "$INSTDIR\$INSTEXE" "$INSTFLAGS"
@@ -164,6 +173,7 @@ CreateShortCut "$INSTDIR\$INSTSHORTCUT Museum Spanish.lnk" "$INSTDIR\$INSTEXE" "
 
 !endif
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Write registry
 WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "" "$INSTDIR"
 WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Version" "${VERSION_LONG}"
@@ -173,6 +183,7 @@ WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Exe" 
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayName" "$INSTPROG (remove only)"
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "UninstallString" '"$INSTDIR\uninst.exe" /P="$INSTPROG"'
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Write URL registry info
 WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "(default)" "URL:Second Life"
 WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "URL Protocol" ""
@@ -192,10 +203,10 @@ WriteUninstaller "$INSTDIR\uninst.exe"
 ; end of default section
 SectionEnd
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; PostInstallExe
 ; This just runs any post installation scripts.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function PostInstallExe
 push $0
   ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "PostInstallExe"
@@ -204,11 +215,10 @@ push $0
 pop $0
 FunctionEnd
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; CheckStartupParameters
 ; Sets INSTFLAGS, INSTPROG, and INSTEXE.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function CheckStartupParams
 push $0
 push $R0
@@ -237,7 +247,7 @@ push $R0
   Goto FINISHED
 
 ABORT:
-  MessageBox MB_OK "Could not find the program '$INSTPROG'. Silent update failed."
+  MessageBox MB_OK $(CheckStartupParamsMB)
   Quit
 
 FINISHED:
@@ -246,6 +256,9 @@ pop $R0
 pop $0
 FunctionEnd
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function un.CheckStartupParams
 push $0
 push $R0
@@ -274,7 +287,7 @@ push $R0
   Goto FINISHED
 
 ABORT:
-  MessageBox MB_OK "Could not find the program '$INSTPROG'. Silent update failed."
+  MessageBox MB_OK $(CheckStartupParamsMB)
   Quit
 
 FINISHED:
@@ -283,26 +296,26 @@ pop $R0
 pop $0
 FunctionEnd
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; After install completes, offer readme file
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function .onInstSuccess
 	MessageBox MB_YESNO \
-	"Start Second Life now?" /SD IDYES IDNO NoReadme
+	$(InstSuccesssQuestion) /SD IDYES IDNO NoReadme
 		; Assumes SetOutPath $INSTDIR
 		Exec '"$INSTDIR\$INSTEXE" $INSTFLAGS'
 	NoReadme:
 FunctionEnd
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Remove old NSIS version. Modifies no variables.
 ; Does NOT delete the LindenWorld directory, or any
 ; user files in that directory.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function RemoveNSIS
   Push $0
   ; Grab the installation directory of the old version
-  DetailPrint "Checking for old version..."
+  DetailPrint $(RemoveOldNSISVersion)
   ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" ""
 
   ; If key doesn't exist, skip uninstall
@@ -323,9 +336,9 @@ Function RemoveNSIS
   Pop $0
 FunctionEnd
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Make sure we're not on Windows 98 / ME
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function CheckWindowsVersion
 	DetailPrint "Checking Windows version..."
 	Call GetWindowsVersion
@@ -339,46 +352,49 @@ Function CheckWindowsVersion
 	StrCmp $R0 "NT" win_ver_bad
 	Return
 win_ver_bad:
-	MessageBox MB_YESNO 'Second Life only supports Windows XP, Windows 2000, and Mac OS X.$\n$\nAttempting to install on Windows $R0 can result in crashes and data loss.$\n$\nInstall anyway?' IDNO win_ver_abort
+	MessageBox MB_YESNO $(CheckWindowsVersionMB) IDNO win_ver_abort
 	Return
 win_ver_abort:
 	Quit
 FunctionEnd
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Make sure the user can install/uninstall
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function CheckIfAdministrator
-		DetailPrint "Checking for permission to install..."
+		DetailPrint $(CheckAdministratorInstDP)
          UserInfo::GetAccountType
          Pop $R0
          StrCmp $R0 "Admin" is_admin
-         MessageBox MB_OK 'You appear to be using a "limited" account.$\nYou must be an "administrator" to install Second Life.'
+         MessageBox MB_OK $(CheckAdministratorInstMB)
          Quit
 is_admin:
          Return
 FunctionEnd
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function un.CheckIfAdministrator
-		DetailPrint "Checking for permission to uninstall..."
+		DetailPrint $(CheckAdministratorUnInstDP)
          UserInfo::GetAccountType
          Pop $R0
          StrCmp $R0 "Admin" is_admin
-         MessageBox MB_OK 'You appear to be using a "limited" account.$\nYou must be an "administrator" to uninstall Second Life.'
+         MessageBox MB_OK $(CheckAdministratorUnInstMB)
          Quit
 is_admin:
          Return
 FunctionEnd
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Checks to see if the current version has already been installed (according to the registry).
 ; If it has, allow user to bail out of install process.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function CheckIfAlreadyCurrent
   Push $0
 	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Version"
     StrCmp $0 ${VERSION_LONG} 0 DONE
-	MessageBox MB_OKCANCEL "It appears that Second Life ${VERSION_LONG} is already installed.$\n$\nWould you like to install it again?" /SD IDOK IDOK DONE
+	MessageBox MB_OKCANCEL $(CheckIfCurrentMB) /SD IDOK IDOK DONE
     Quit
 
   DONE:
@@ -386,22 +402,21 @@ Function CheckIfAlreadyCurrent
     Return
 FunctionEnd
 	
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Close the program, if running. Modifies no variables.
 ; Allows user to bail out of install process.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function CloseSecondLife
   Push $0
   FindWindow $0 "Second Life" ""
   IntCmp $0 0 DONE
-  MessageBox MB_OKCANCEL "Second Life can't be installed while it is already running.$\n$\nFinish what you're doing then select OK to close Second Life and continue.$\nSelect CANCEL to cancel installation." IDOK CLOSE IDCANCEL CANCEL_INSTALL
+  MessageBox MB_OKCANCEL $(CloseSecondLifeInstMB) IDOK CLOSE IDCANCEL CANCEL_INSTALL
 
   CANCEL_INSTALL:
     Quit
 
   CLOSE:
-    DetailPrint "Waiting for Second Life to shut down..."
+    DetailPrint $(CloseSecondLifeInstDP)
     SendMessage $0 16 0 0
 
   LOOP:
@@ -416,59 +431,59 @@ Function CloseSecondLife
 FunctionEnd
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Delete files in Documents and Settings\<user>\SecondLife\cache
 ; Delete files in Documents and Settings\All Users\SecondLife\cache
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function RemoveCacheFiles
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Function RemoveCacheFiles
+;
+;; Delete files in Documents and Settings\<user>\SecondLife
+;Push $0
+;Push $1
+;Push $2
+;  DetailPrint $(RemoveCacheFilesDP)
+;
+;  StrCpy $0 0 ; Index number used to iterate via EnumRegKey
+;
+;  LOOP:
+;    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
+;    StrCmp $1 "" DONE               ; no more users
+;
+;    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
+;    StrCmp $2 "" CONTINUE 0         ; "ProfileImagePath" value is missing
+;
+;    ; Required since ProfileImagePath is of type REG_EXPAND_SZ
+;    ExpandEnvStrings $2 $2
+;
+;	; When explicitly uninstalling, everything goes away
+;    RMDir /r "$2\Application Data\SecondLife\cache"
+;
+;  CONTINUE:
+;    IntOp $0 $0 + 1
+;    Goto LOOP
+;  DONE:
+;Pop $2
+;Pop $1
+;Pop $0
+;
+;; Delete files in Documents and Settings\All Users\SecondLife
+;Push $0
+;  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
+;  StrCmp $0 "" +2
+;  RMDir /r "$0\SecondLife\cache"
+;Pop $0
+;
+;; Delete filse in C:\Windows\Application Data\SecondLife
+;; If the user is running on a pre-NT system, Application Data lives here instead of
+;; in Documents and Settings.
+;RMDir /r "$WINDIR\Application Data\SecondLife\cache"
+;
+;FunctionEnd
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Delete files in Documents and Settings\<user>\SecondLife
-Push $0
-Push $1
-Push $2
-  DetailPrint "Deleting cache files in Documents and Settings folder"
-
-  StrCpy $0 0 ; Index number used to iterate via EnumRegKey
-
-  LOOP:
-    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
-    StrCmp $1 "" DONE               ; no more users
-
-    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
-    StrCmp $2 "" CONTINUE 0         ; "ProfileImagePath" value is missing
-
-    ; Required since ProfileImagePath is of type REG_EXPAND_SZ
-    ExpandEnvStrings $2 $2
-
-	; When explicitly uninstalling, everything goes away
-    RMDir /r "$2\Application Data\SecondLife\cache"
-
-  CONTINUE:
-    IntOp $0 $0 + 1
-    Goto LOOP
-  DONE:
-Pop $2
-Pop $1
-Pop $0
-
 ; Delete files in Documents and Settings\All Users\SecondLife
-Push $0
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
-  StrCmp $0 "" +2
-  RMDir /r "$0\SecondLife\cache"
-Pop $0
-
-; Delete filse in C:\Windows\Application Data\SecondLife
-; If the user is running on a pre-NT system, Application Data lives here instead of
-; in Documents and Settings.
-RMDir /r "$WINDIR\Application Data\SecondLife\cache"
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Delete files in Documents and Settings\<user>\SecondLife
-; Delete files in Documents and Settings\All Users\SecondLife
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function un.DocumentsAndSettingsFolder
 
 ; Delete files in Documents and Settings\<user>\SecondLife
@@ -522,21 +537,21 @@ RMDir /r "$WINDIR\Application Data\SecondLife"
 
 FunctionEnd
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Close the program, if running. Modifies no variables.
 ; Allows user to bail out of uninstall process.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function un.CloseSecondLife
   Push $0
   FindWindow $0 "Second Life" ""
   IntCmp $0 0 DONE
-  MessageBox MB_OKCANCEL "Second Life can't be uninstalled while it is already running.$\n$\nFinish what you're doing then select OK to close Second Life and continue.$\nSelect CANCEL to cancel installation." IDOK CLOSE IDCANCEL CANCEL_UNINSTALL
+  MessageBox MB_OKCANCEL $(CloseSecondLifeUnInstMB) IDOK CLOSE IDCANCEL CANCEL_UNINSTALL
 
   CANCEL_UNINSTALL:
     Quit
 
   CLOSE:
-    DetailPrint "Waiting for Second Life to shut down..."
+    DetailPrint $(CloseSecondLifeUnInstDP)
     SendMessage $0 16 0 0
 
   LOOP:
@@ -550,7 +565,7 @@ Function un.CloseSecondLife
     Return
 FunctionEnd
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Delete the installed files
 ;;; This deletes the uninstall executable, but it works 
 ;;; because it is copied to temp directory before running
@@ -558,7 +573,7 @@ FunctionEnd
 ;;; Note:  You must list all files here, because we only
 ;;; want to delete our files, not things users left in the
 ;;; application directories.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function un.ProgramFiles
 
 ;; Remove mozilla file first so recursive directory deletion doesn't get hung up
@@ -597,26 +612,26 @@ RMDir "$INSTDIR"
 IfFileExists "$INSTDIR" FOLDERFOUND NOFOLDER
 
 FOLDERFOUND:
-  MessageBox MB_YESNO "There are still files in your SecondLife program directory.$\n$\nThese are possibly files you created or moved to:$\n$INSTDIR$\n$\nDo you want to remove them?" IDNO NOFOLDER
+  MessageBox MB_YESNO $(DeleteProgramFilesMB) IDNO NOFOLDER
   RMDir /r "$INSTDIR"
 
 NOFOLDER:
 
 FunctionEnd
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Uninstall settings
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-UninstallText "This will uninstall Second Life ${VERSION_LONG} from your system."
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+UninstallText $(UninstallTextMsg)
 ShowUninstDetails show
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Uninstall section
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Section Uninstall
 
 ; Start with some default values.
-StrCpy $INSTFLAGS "${INSTFLAGS}"
+StrCpy $INSTFLAGS ""
 StrCpy $INSTPROG "${INSTNAME}"
 StrCpy $INSTEXE "${INSTEXE}"
 StrCpy $INSTSHORTCUT "${SHORTCUT}"
@@ -629,9 +644,10 @@ SetShellVarContext all
 ; Make sure we're not running
 Call un.CloseSecondLife
 
-; Clean up registry keys
+; Clean up registry keys (these should all be !defines somewhere)
 DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG"
 DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG"
+DeleteRegKey HKEY_LOCAL_MACHINE "Software\Linden Research, Inc.\Installer Language" 
 
 ; Clean up shortcuts
 Delete "$SMPROGRAMS\$INSTSHORTCUT\*.*"
@@ -652,7 +668,7 @@ Call un.ProgramFiles
 
 SectionEnd 				; end of uninstall section
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; (From the NSIS wiki, DK)
 ; GetParameterValue
 ;
@@ -667,7 +683,7 @@ SectionEnd 				; end of uninstall section
 ; or:
 ; foo.exe /S "/L=1033" /D="C:\Program Files\Foo"
 ; gpv "/L=" "1033"
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
  !macro GetParameterValue SWITCH DEFAULT
    Push $0
@@ -770,7 +786,7 @@ Function un.GetProgramName
   !insertmacro GetParameterValue "/P=" "SecondLife"
 FunctionEnd
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; (From the NSIS documentation, JC)
 ; GetWindowsVersion
 ;
@@ -787,8 +803,7 @@ FunctionEnd
 ;   Call GetWindowsVersion
 ;   Pop $R0
 ;   ; at this point $R0 is "NT 4.0" or whatnot
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
- 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function GetWindowsVersion
  
    Push $R0
@@ -860,3 +875,61 @@ Function GetWindowsVersion
    Exch $R0
  
 FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;  Note: to add new languages, add a language file include to the list 
+;;  at the top of this file, add an entry to the menu and then add an 
+;;  entry to the language ID selector below
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function .onInit
+
+	; read the language from registry (ok if not there) and set langauge menu
+	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage"
+	StrCpy $LANGUAGE $0
+
+	Push ""
+	Push ${LANG_ENGLISH}
+	Push English
+#	Push ${LANG_GERMAN}
+#	Push German
+#	Push ${LANG_JAPANESE}
+#	Push Japanese
+	Push ${LANG_KOREAN}
+	Push Korean
+	Push A ; A means auto count languages for the auto count to work the first empty push (Push "") must remain
+	LangDLL::LangDialog "Installer Language" "Please select the language of the installer"
+	Pop $LANGUAGE
+	StrCmp $LANGUAGE "cancel" 0 +2
+		Abort
+
+	; save language in registry		
+	WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage" $LANGUAGE
+	
+	; generate language ID that will be used as a command line arg	
+	StrCmp $LANGUAGE "1042" 0 +3
+	StrCpy $LANGFLAGS " -set SystemLanguage ko"
+	Goto EndOfFunc
+#	StrCmp $LANGUAGE "1041" 0 +3
+#	StrCpy $LANGFLAGS " -set SystemLanguage ja"
+#	Goto EndOfFunc
+#	StrCmp $LANGUAGE "1031" 0 +3
+#	StrCpy $LANGFLAGS " -set SystemLanguage de"
+#	Goto EndOfFunc
+	StrCmp $LANGUAGE "1033" 0 +3
+	StrCpy $LANGFLAGS " -set SystemLanguage en-us"
+	Goto EndOfFunc
+	
+	EndOfFunc:
+
+FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function un.onInit
+
+	; read language from registry and set for ininstaller
+	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage"
+	StrCpy $LANGUAGE $0
+
+FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

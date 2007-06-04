@@ -23,7 +23,6 @@ class LLVOClouds : public LLAlphaObject
 {
 public:
 	LLVOClouds(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp );
-	virtual ~LLVOClouds();
 
 	// Initialize data that's only inited once per class.
 	static void initClass();
@@ -53,6 +52,8 @@ public:
 
 	void setCloudGroup(LLCloudGroup *cgp)		{ mCloudGroupp = cgp; }
 protected:
+	virtual ~LLVOClouds();
+
 	LLCloudGroup *mCloudGroupp;
 };
 

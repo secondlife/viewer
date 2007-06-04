@@ -350,21 +350,22 @@ S32 LLUICtrlFactory::saveToXML(LLView* viewp, const LLString& filename)
 //-----------------------------------------------------------------------------
 // buildPanel()
 //-----------------------------------------------------------------------------
-void LLUICtrlFactory::buildPanel(LLPanel* panelp, const LLString &filename,
+BOOL LLUICtrlFactory::buildPanel(LLPanel* panelp, const LLString &filename,
 									const LLCallbackMap::map_t* factory_map)
 {
+	BOOL didPost = FALSE;
 	LLXMLNodePtr root;
 
 	if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
 	{
-		return;
+		return didPost;
 	}
 
 	// root must be called panel
 	if( !root->hasName("panel" ) )
 	{
 		llwarns << "Root node should be named panel in : " << filename << llendl;
-		return;
+		return didPost;
 	}
 
 	if (factory_map)
@@ -372,7 +373,7 @@ void LLUICtrlFactory::buildPanel(LLPanel* panelp, const LLString &filename,
 		mFactoryStack.push_front(factory_map);
 	}
 
-	panelp->initPanelXML(root, NULL, this);
+	didPost = panelp->initPanelXML(root, NULL, this);
 	
 	if (LLUI::sShowXUINames)
 	{
@@ -386,6 +387,8 @@ void LLUICtrlFactory::buildPanel(LLPanel* panelp, const LLString &filename,
 	{
 		mFactoryStack.pop_front();
 	}
+
+	return didPost;
 }
 
 //-----------------------------------------------------------------------------

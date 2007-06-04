@@ -21,7 +21,6 @@ class LLVOGrass : public LLAlphaObject
 {
 public:
 	LLVOGrass(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
-	virtual ~LLVOGrass();
 
 	// Initialize data that's only inited once per class.
 	static void initClass();
@@ -83,6 +82,9 @@ public:
 	LLVector3		          mWind;
 	F32				          mBladeWindAngle;
 	F32				          mBWAOverlap;
+
+protected:
+	~LLVOGrass();
 
 private:
 	void updateSpecies();

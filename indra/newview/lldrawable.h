@@ -179,7 +179,7 @@ public:
 	static void cleanupDeadDrawables();
 
 protected:
-	virtual ~LLDrawable() { destroy(); }
+	~LLDrawable() { destroy(); }
 	void moveUpdatePipeline(BOOL moved);
 	void updatePartition();
 	BOOL updateMoveDamped();

@@ -38,8 +38,9 @@ public:
 
 	class Responder : public LLThreadSafeRefCount
 	{
+	protected:
+		~Responder();
 	public:
-		virtual ~Responder();
 		virtual void completed(S32 bytes) = 0;
 	};
 

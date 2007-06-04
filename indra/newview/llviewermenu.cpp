@@ -1408,6 +1408,8 @@ void init_server_menu(LLMenuGL* menu)
 	menu->createJumpKeys();
 }
 
+static std::vector<LLPointer<view_listener_t> > sMenus;
+
 //-----------------------------------------------------------------------------
 // cleanup_menus()
 //-----------------------------------------------------------------------------
@@ -1438,7 +1440,9 @@ void cleanup_menus()
 	gPopupMenuView = NULL;
 
 	delete gMenuHolder;
-	gMenuHolder = NULL; 
+	gMenuHolder = NULL;
+
+	sMenus.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -7529,199 +7533,205 @@ class LLToolsSelectTool : public view_listener_t
 	}
 };
 
+static void addMenu(view_listener_t *menu, const char *name)
+{
+	sMenus.push_back(menu);
+	menu->registerListener(gMenuHolder, name);
+}
+
 void initialize_menus()
 {
 	// File menu
 	init_menu_file();
 
 	// Edit menu
-	(new LLEditUndo())->registerListener(gMenuHolder, "Edit.Undo");
-	(new LLEditRedo())->registerListener(gMenuHolder, "Edit.Redo");
-	(new LLEditCut())->registerListener(gMenuHolder, "Edit.Cut");
-	(new LLEditCopy())->registerListener(gMenuHolder, "Edit.Copy");
-	(new LLEditPaste())->registerListener(gMenuHolder, "Edit.Paste");
-	(new LLEditDelete())->registerListener(gMenuHolder, "Edit.Delete");
-	(new LLEditSearch())->registerListener(gMenuHolder, "Edit.Search");
-	(new LLEditSelectAll())->registerListener(gMenuHolder, "Edit.SelectAll");
-	(new LLEditDeselect())->registerListener(gMenuHolder, "Edit.Deselect");
-	(new LLEditDuplicate())->registerListener(gMenuHolder, "Edit.Duplicate");
-	(new LLEditTakeOff())->registerListener(gMenuHolder, "Edit.TakeOff");
+	addMenu(new LLEditUndo(), "Edit.Undo");
+	addMenu(new LLEditRedo(), "Edit.Redo");
+	addMenu(new LLEditCut(), "Edit.Cut");
+	addMenu(new LLEditCopy(), "Edit.Copy");
+	addMenu(new LLEditPaste(), "Edit.Paste");
+	addMenu(new LLEditDelete(), "Edit.Delete");
+	addMenu(new LLEditSearch(), "Edit.Search");
+	addMenu(new LLEditSelectAll(), "Edit.SelectAll");
+	addMenu(new LLEditDeselect(), "Edit.Deselect");
+	addMenu(new LLEditDuplicate(), "Edit.Duplicate");
+	addMenu(new LLEditTakeOff(), "Edit.TakeOff");
 
-	(new LLEditEnableUndo())->registerListener(gMenuHolder, "Edit.EnableUndo");
-	(new LLEditEnableRedo())->registerListener(gMenuHolder, "Edit.EnableRedo");
-	(new LLEditEnableCut())->registerListener(gMenuHolder, "Edit.EnableCut");
-	(new LLEditEnableCopy())->registerListener(gMenuHolder, "Edit.EnableCopy");
-	(new LLEditEnablePaste())->registerListener(gMenuHolder, "Edit.EnablePaste");
-	(new LLEditEnableDelete())->registerListener(gMenuHolder, "Edit.EnableDelete");
-	(new LLEditEnableSelectAll())->registerListener(gMenuHolder, "Edit.EnableSelectAll");
-	(new LLEditEnableDeselect())->registerListener(gMenuHolder, "Edit.EnableDeselect");
-	(new LLEditEnableDuplicate())->registerListener(gMenuHolder, "Edit.EnableDuplicate");
-	(new LLEditEnableTakeOff())->registerListener(gMenuHolder, "Edit.EnableTakeOff");
-	(new LLEditEnableCustomizeAvatar())->registerListener(gMenuHolder, "Edit.EnableCustomizeAvatar");
+	addMenu(new LLEditEnableUndo(), "Edit.EnableUndo");
+	addMenu(new LLEditEnableRedo(), "Edit.EnableRedo");
+	addMenu(new LLEditEnableCut(), "Edit.EnableCut");
+	addMenu(new LLEditEnableCopy(), "Edit.EnableCopy");
+	addMenu(new LLEditEnablePaste(), "Edit.EnablePaste");
+	addMenu(new LLEditEnableDelete(), "Edit.EnableDelete");
+	addMenu(new LLEditEnableSelectAll(), "Edit.EnableSelectAll");
+	addMenu(new LLEditEnableDeselect(), "Edit.EnableDeselect");
+	addMenu(new LLEditEnableDuplicate(), "Edit.EnableDuplicate");
+	addMenu(new LLEditEnableTakeOff(), "Edit.EnableTakeOff");
+	addMenu(new LLEditEnableCustomizeAvatar(), "Edit.EnableCustomizeAvatar");
 
 	// View menu
-	(new LLViewMouselook())->registerListener(gMenuHolder, "View.Mouselook");
-	(new LLViewBuildMode())->registerListener(gMenuHolder, "View.BuildMode");
-	(new LLViewResetView())->registerListener(gMenuHolder, "View.ResetView");
-	(new LLViewLookAtLastChatter())->registerListener(gMenuHolder, "View.LookAtLastChatter");
-	(new LLViewShowHoverTips())->registerListener(gMenuHolder, "View.ShowHoverTips");
-	(new LLViewHighlightTransparent())->registerListener(gMenuHolder, "View.HighlightTransparent");
-	(new LLViewToggleBeacon())->registerListener(gMenuHolder, "View.ToggleBeacon");
-	(new LLViewToggleRenderType())->registerListener(gMenuHolder, "View.ToggleRenderType");
-	(new LLViewShowHUDAttachments())->registerListener(gMenuHolder, "View.ShowHUDAttachments");
-	(new LLViewZoomOut())->registerListener(gMenuHolder, "View.ZoomOut");
-	(new LLViewZoomIn())->registerListener(gMenuHolder, "View.ZoomIn");
-	(new LLViewZoomDefault())->registerListener(gMenuHolder, "View.ZoomDefault");
-	(new LLViewFullscreen())->registerListener(gMenuHolder, "View.Fullscreen");
-	(new LLViewDefaultUISize())->registerListener(gMenuHolder, "View.DefaultUISize");
+	addMenu(new LLViewMouselook(), "View.Mouselook");
+	addMenu(new LLViewBuildMode(), "View.BuildMode");
+	addMenu(new LLViewResetView(), "View.ResetView");
+	addMenu(new LLViewLookAtLastChatter(), "View.LookAtLastChatter");
+	addMenu(new LLViewShowHoverTips(), "View.ShowHoverTips");
+	addMenu(new LLViewHighlightTransparent(), "View.HighlightTransparent");
+	addMenu(new LLViewToggleBeacon(), "View.ToggleBeacon");
+	addMenu(new LLViewToggleRenderType(), "View.ToggleRenderType");
+	addMenu(new LLViewShowHUDAttachments(), "View.ShowHUDAttachments");
+	addMenu(new LLViewZoomOut(), "View.ZoomOut");
+	addMenu(new LLViewZoomIn(), "View.ZoomIn");
+	addMenu(new LLViewZoomDefault(), "View.ZoomDefault");
+	addMenu(new LLViewFullscreen(), "View.Fullscreen");
+	addMenu(new LLViewDefaultUISize(), "View.DefaultUISize");
 
-	(new LLViewEnableMouselook())->registerListener(gMenuHolder, "View.EnableMouselook");
-	(new LLViewEnableLastChatter())->registerListener(gMenuHolder, "View.EnableLastChatter");
+	addMenu(new LLViewEnableMouselook(), "View.EnableMouselook");
+	addMenu(new LLViewEnableLastChatter(), "View.EnableLastChatter");
 
-	(new LLViewCheckBuildMode())->registerListener(gMenuHolder, "View.CheckBuildMode");
-	(new LLViewCheckShowHoverTips())->registerListener(gMenuHolder, "View.CheckShowHoverTips");
-	(new LLViewCheckHighlightTransparent())->registerListener(gMenuHolder, "View.CheckHighlightTransparent");
-	(new LLViewCheckBeaconEnabled())->registerListener(gMenuHolder, "View.CheckBeaconEnabled");
-	(new LLViewCheckRenderType())->registerListener(gMenuHolder, "View.CheckRenderType");
-	(new LLViewCheckHUDAttachments())->registerListener(gMenuHolder, "View.CheckHUDAttachments");
+	addMenu(new LLViewCheckBuildMode(), "View.CheckBuildMode");
+	addMenu(new LLViewCheckShowHoverTips(), "View.CheckShowHoverTips");
+	addMenu(new LLViewCheckHighlightTransparent(), "View.CheckHighlightTransparent");
+	addMenu(new LLViewCheckBeaconEnabled(), "View.CheckBeaconEnabled");
+	addMenu(new LLViewCheckRenderType(), "View.CheckRenderType");
+	addMenu(new LLViewCheckHUDAttachments(), "View.CheckHUDAttachments");
 
 	// World menu
-	(new LLWorldChat())->registerListener(gMenuHolder, "World.Chat");
-	(new LLWorldStartGesture())->registerListener(gMenuHolder, "World.StartGesture");
-	(new LLWorldAlwaysRun())->registerListener(gMenuHolder, "World.AlwaysRun");
-	(new LLWorldFly())->registerListener(gMenuHolder, "World.Fly");
-	(new LLWorldCreateLandmark())->registerListener(gMenuHolder, "World.CreateLandmark");
-	(new LLWorldSetHomeLocation())->registerListener(gMenuHolder, "World.SetHomeLocation");
-	(new LLWorldTeleportHome())->registerListener(gMenuHolder, "World.TeleportHome");
-	(new LLWorldSetAway())->registerListener(gMenuHolder, "World.SetAway");
-	(new LLWorldSetBusy())->registerListener(gMenuHolder, "World.SetBusy");
+	addMenu(new LLWorldChat(), "World.Chat");
+	addMenu(new LLWorldStartGesture(), "World.StartGesture");
+	addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
+	addMenu(new LLWorldFly(), "World.Fly");
+	addMenu(new LLWorldCreateLandmark(), "World.CreateLandmark");
+	addMenu(new LLWorldSetHomeLocation(), "World.SetHomeLocation");
+	addMenu(new LLWorldTeleportHome(), "World.TeleportHome");
+	addMenu(new LLWorldSetAway(), "World.SetAway");
+	addMenu(new LLWorldSetBusy(), "World.SetBusy");
 
-	(new LLWorldEnableCreateLandmark())->registerListener(gMenuHolder, "World.EnableCreateLandmark");
-	(new LLWorldEnableSetHomeLocation())->registerListener(gMenuHolder, "World.EnableSetHomeLocation");
-	(new LLWorldEnableTeleportHome())->registerListener(gMenuHolder, "World.EnableTeleportHome");
-	(new LLWorldEnableBuyLand())->registerListener(gMenuHolder, "World.EnableBuyLand");
+	addMenu(new LLWorldEnableCreateLandmark(), "World.EnableCreateLandmark");
+	addMenu(new LLWorldEnableSetHomeLocation(), "World.EnableSetHomeLocation");
+	addMenu(new LLWorldEnableTeleportHome(), "World.EnableTeleportHome");
+	addMenu(new LLWorldEnableBuyLand(), "World.EnableBuyLand");
 
-	(new LLWorldCheckAlwaysRun())->registerListener(gMenuHolder, "World.CheckAlwaysRun");
+	addMenu(new LLWorldCheckAlwaysRun(), "World.CheckAlwaysRun");
 
-	(new LLWorldForceSun())->registerListener(gMenuHolder, "World.ForceSun");
+	addMenu(new LLWorldForceSun(), "World.ForceSun");
 
 	// Tools menu
-	(new LLToolsSelectTool())->registerListener(gMenuHolder, "Tools.SelectTool");
-	(new LLToolsSelectOnlyMyObjects())->registerListener(gMenuHolder, "Tools.SelectOnlyMyObjects");
-	(new LLToolsSelectOnlyMovableObjects())->registerListener(gMenuHolder, "Tools.SelectOnlyMovableObjects");
-	(new LLToolsSelectBySurrounding())->registerListener(gMenuHolder, "Tools.SelectBySurrounding");
-	(new LLToolsShowHiddenSelection())->registerListener(gMenuHolder, "Tools.ShowHiddenSelection");
-	(new LLToolsShowSelectionLightRadius())->registerListener(gMenuHolder, "Tools.ShowSelectionLightRadius");
-	(new LLToolsSnapObjectXY())->registerListener(gMenuHolder, "Tools.SnapObjectXY");
-	(new LLToolsUseSelectionForGrid())->registerListener(gMenuHolder, "Tools.UseSelectionForGrid");
-	(new LLToolsLink())->registerListener(gMenuHolder, "Tools.Link");
-	(new LLToolsUnlink())->registerListener(gMenuHolder, "Tools.Unlink");
-	(new LLToolsStopAllAnimations())->registerListener(gMenuHolder, "Tools.StopAllAnimations");
-	(new LLToolsLookAtSelection())->registerListener(gMenuHolder, "Tools.LookAtSelection");
-	(new LLToolsBuyOrTake())->registerListener(gMenuHolder, "Tools.BuyOrTake");
-	(new LLToolsTakeCopy())->registerListener(gMenuHolder, "Tools.TakeCopy");
-	(new LLToolsSaveToInventory())->registerListener(gMenuHolder, "Tools.SaveToInventory");
-	(new LLToolsSaveToObjectInventory())->registerListener(gMenuHolder, "Tools.SaveToObjectInventory");
-	(new LLToolsSelectedScriptAction())->registerListener(gMenuHolder, "Tools.SelectedScriptAction");
+	addMenu(new LLToolsSelectTool(), "Tools.SelectTool");
+	addMenu(new LLToolsSelectOnlyMyObjects(), "Tools.SelectOnlyMyObjects");
+	addMenu(new LLToolsSelectOnlyMovableObjects(), "Tools.SelectOnlyMovableObjects");
+	addMenu(new LLToolsSelectBySurrounding(), "Tools.SelectBySurrounding");
+	addMenu(new LLToolsShowHiddenSelection(), "Tools.ShowHiddenSelection");
+	addMenu(new LLToolsShowSelectionLightRadius(), "Tools.ShowSelectionLightRadius");
+	addMenu(new LLToolsSnapObjectXY(), "Tools.SnapObjectXY");
+	addMenu(new LLToolsUseSelectionForGrid(), "Tools.UseSelectionForGrid");
+	addMenu(new LLToolsLink(), "Tools.Link");
+	addMenu(new LLToolsUnlink(), "Tools.Unlink");
+	addMenu(new LLToolsStopAllAnimations(), "Tools.StopAllAnimations");
+	addMenu(new LLToolsLookAtSelection(), "Tools.LookAtSelection");
+	addMenu(new LLToolsBuyOrTake(), "Tools.BuyOrTake");
+	addMenu(new LLToolsTakeCopy(), "Tools.TakeCopy");
+	addMenu(new LLToolsSaveToInventory(), "Tools.SaveToInventory");
+	addMenu(new LLToolsSaveToObjectInventory(), "Tools.SaveToObjectInventory");
+	addMenu(new LLToolsSelectedScriptAction(), "Tools.SelectedScriptAction");
 
-	(new LLToolsEnableToolNotPie())->registerListener(gMenuHolder, "Tools.EnableToolNotPie");
-	(new LLToolsEnableLink())->registerListener(gMenuHolder, "Tools.EnableLink");
-	(new LLToolsEnableUnlink())->registerListener(gMenuHolder, "Tools.EnableUnlink");
-	(new LLToolsEnableBuyOrTake())->registerListener(gMenuHolder, "Tools.EnableBuyOrTake");
-	(new LLToolsEnableTakeCopy())->registerListener(gMenuHolder, "Tools.EnableTakeCopy");
-	(new LLToolsEnableSaveToInventory())->registerListener(gMenuHolder, "Tools.SaveToInventory");
-	(new LLToolsEnableSaveToObjectInventory())->registerListener(gMenuHolder, "Tools.SaveToObjectInventory");
+	addMenu(new LLToolsEnableToolNotPie(), "Tools.EnableToolNotPie");
+	addMenu(new LLToolsEnableLink(), "Tools.EnableLink");
+	addMenu(new LLToolsEnableUnlink(), "Tools.EnableUnlink");
+	addMenu(new LLToolsEnableBuyOrTake(), "Tools.EnableBuyOrTake");
+	addMenu(new LLToolsEnableTakeCopy(), "Tools.EnableTakeCopy");
+	addMenu(new LLToolsEnableSaveToInventory(), "Tools.SaveToInventory");
+	addMenu(new LLToolsEnableSaveToObjectInventory(), "Tools.SaveToObjectInventory");
 
-	/*(new LLToolsVisibleBuyObject())->registerListener(gMenuHolder, "Tools.VisibleBuyObject");
-	(new LLToolsVisibleTakeObject())->registerListener(gMenuHolder, "Tools.VisibleTakeObject");*/
+	/*addMenu(new LLToolsVisibleBuyObject(), "Tools.VisibleBuyObject");
+	addMenu(new LLToolsVisibleTakeObject(), "Tools.VisibleTakeObject");*/
 
 	// Help menu
-	(new LLHelpLiveHelp())->registerListener(gMenuHolder, "Help.LiveHelp");
-	(new LLHelpMOTD())->registerListener(gMenuHolder, "Help.MOTD");
+	addMenu(new LLHelpLiveHelp(), "Help.LiveHelp");
+	addMenu(new LLHelpMOTD(), "Help.MOTD");
 
 	// Self pie menu
-	(new LLSelfStandUp())->registerListener(gMenuHolder, "Self.StandUp");
-	(new LLSelfRemoveAllAttachments())->registerListener(gMenuHolder, "Self.RemoveAllAttachments");
+	addMenu(new LLSelfStandUp(), "Self.StandUp");
+	addMenu(new LLSelfRemoveAllAttachments(), "Self.RemoveAllAttachments");
 
-	(new LLSelfEnableStandUp())->registerListener(gMenuHolder, "Self.EnableStandUp");
-	(new LLSelfEnableRemoveAllAttachments())->registerListener(gMenuHolder, "Self.EnableRemoveAllAttachments");
+	addMenu(new LLSelfEnableStandUp(), "Self.EnableStandUp");
+	addMenu(new LLSelfEnableRemoveAllAttachments(), "Self.EnableRemoveAllAttachments");
 
 	 // Avatar pie menu
-	(new LLObjectMute())->registerListener(gMenuHolder, "Avatar.Mute");
-	(new LLAvatarAddFriend())->registerListener(gMenuHolder, "Avatar.AddFriend");
-	(new LLAvatarFreeze())->registerListener(gMenuHolder, "Avatar.Freeze");
-	(new LLAvatarDebug())->registerListener(gMenuHolder, "Avatar.Debug");
-	(new LLAvatarVisibleDebug())->registerListener(gMenuHolder, "Avatar.VisibleDebug");
-	(new LLAvatarEnableDebug())->registerListener(gMenuHolder, "Avatar.EnableDebug");
-	(new LLAvatarGiveCard())->registerListener(gMenuHolder, "Avatar.GiveCard");
-	(new LLAvatarEject())->registerListener(gMenuHolder, "Avatar.Eject");
-	(new LLAvatarSendIM())->registerListener(gMenuHolder, "Avatar.SendIM");
+	addMenu(new LLObjectMute(), "Avatar.Mute");
+	addMenu(new LLAvatarAddFriend(), "Avatar.AddFriend");
+	addMenu(new LLAvatarFreeze(), "Avatar.Freeze");
+	addMenu(new LLAvatarDebug(), "Avatar.Debug");
+	addMenu(new LLAvatarVisibleDebug(), "Avatar.VisibleDebug");
+	addMenu(new LLAvatarEnableDebug(), "Avatar.EnableDebug");
+	addMenu(new LLAvatarGiveCard(), "Avatar.GiveCard");
+	addMenu(new LLAvatarEject(), "Avatar.Eject");
+	addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
 	
-	(new LLObjectEnableMute())->registerListener(gMenuHolder, "Avatar.EnableMute");
-	(new LLAvatarEnableAddFriend())->registerListener(gMenuHolder, "Avatar.EnableAddFriend");
-	(new LLAvatarEnableFreezeEject())->registerListener(gMenuHolder, "Avatar.EnableFreezeEject");
+	addMenu(new LLObjectEnableMute(), "Avatar.EnableMute");
+	addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");
+	addMenu(new LLAvatarEnableFreezeEject(), "Avatar.EnableFreezeEject");
 
 	// Object pie menu
-	(new LLObjectOpen())->registerListener(gMenuHolder, "Object.Open");
-	(new LLObjectBuild())->registerListener(gMenuHolder, "Object.Build");
-	(new LLObjectTouch())->registerListener(gMenuHolder, "Object.Touch");
-	(new LLObjectSitOrStand())->registerListener(gMenuHolder, "Object.SitOrStand");
-	(new LLObjectDelete())->registerListener(gMenuHolder, "Object.Delete");
-	(new LLObjectAttachToAvatar())->registerListener(gMenuHolder, "Object.AttachToAvatar");
-	(new LLObjectReturn())->registerListener(gMenuHolder, "Object.Return");
-	(new LLObjectReportAbuse())->registerListener(gMenuHolder, "Object.ReportAbuse");
-	(new LLObjectMute())->registerListener(gMenuHolder, "Object.Mute");
-	(new LLObjectBuy())->registerListener(gMenuHolder, "Object.Buy");
-	(new LLObjectEdit())->registerListener(gMenuHolder, "Object.Edit");
-	(new LLObjectInspect())->registerListener(gMenuHolder, "Object.Inspect");
+	addMenu(new LLObjectOpen(), "Object.Open");
+	addMenu(new LLObjectBuild(), "Object.Build");
+	addMenu(new LLObjectTouch(), "Object.Touch");
+	addMenu(new LLObjectSitOrStand(), "Object.SitOrStand");
+	addMenu(new LLObjectDelete(), "Object.Delete");
+	addMenu(new LLObjectAttachToAvatar(), "Object.AttachToAvatar");
+	addMenu(new LLObjectReturn(), "Object.Return");
+	addMenu(new LLObjectReportAbuse(), "Object.ReportAbuse");
+	addMenu(new LLObjectMute(), "Object.Mute");
+	addMenu(new LLObjectBuy(), "Object.Buy");
+	addMenu(new LLObjectEdit(), "Object.Edit");
+	addMenu(new LLObjectInspect(), "Object.Inspect");
 
-	(new LLObjectEnableOpen())->registerListener(gMenuHolder, "Object.EnableOpen");
-	(new LLObjectEnableTouch())->registerListener(gMenuHolder, "Object.EnableTouch");
-	(new LLObjectEnableSitOrStand())->registerListener(gMenuHolder, "Object.EnableSitOrStand");
-	(new LLObjectEnableDelete())->registerListener(gMenuHolder, "Object.EnableDelete");
-	(new LLObjectEnableWear())->registerListener(gMenuHolder, "Object.EnableWear");
-	(new LLObjectEnableReturn())->registerListener(gMenuHolder, "Object.EnableReturn");
-	(new LLObjectEnableReportAbuse())->registerListener(gMenuHolder, "Object.EnableReportAbuse");
-	(new LLObjectEnableMute())->registerListener(gMenuHolder, "Object.EnableMute");
-	(new LLObjectEnableBuy())->registerListener(gMenuHolder, "Object.EnableBuy");
+	addMenu(new LLObjectEnableOpen(), "Object.EnableOpen");
+	addMenu(new LLObjectEnableTouch(), "Object.EnableTouch");
+	addMenu(new LLObjectEnableSitOrStand(), "Object.EnableSitOrStand");
+	addMenu(new LLObjectEnableDelete(), "Object.EnableDelete");
+	addMenu(new LLObjectEnableWear(), "Object.EnableWear");
+	addMenu(new LLObjectEnableReturn(), "Object.EnableReturn");
+	addMenu(new LLObjectEnableReportAbuse(), "Object.EnableReportAbuse");
+	addMenu(new LLObjectEnableMute(), "Object.EnableMute");
+	addMenu(new LLObjectEnableBuy(), "Object.EnableBuy");
 
-	/*(new LLObjectVisibleTouch())->registerListener(gMenuHolder, "Object.VisibleTouch");
-	(new LLObjectVisibleCustomTouch())->registerListener(gMenuHolder, "Object.VisibleCustomTouch");
-	(new LLObjectVisibleStandUp())->registerListener(gMenuHolder, "Object.VisibleStandUp");
-	(new LLObjectVisibleSitHere())->registerListener(gMenuHolder, "Object.VisibleSitHere");
-	(new LLObjectVisibleCustomSit())->registerListener(gMenuHolder, "Object.VisibleCustomSit");*/
+	/*addMenu(new LLObjectVisibleTouch(), "Object.VisibleTouch");
+	addMenu(new LLObjectVisibleCustomTouch(), "Object.VisibleCustomTouch");
+	addMenu(new LLObjectVisibleStandUp(), "Object.VisibleStandUp");
+	addMenu(new LLObjectVisibleSitHere(), "Object.VisibleSitHere");
+	addMenu(new LLObjectVisibleCustomSit(), "Object.VisibleCustomSit");*/
 
 	// Attachment pie menu
-	(new LLAttachmentDrop())->registerListener(gMenuHolder, "Attachment.Drop");
-	(new LLAttachmentDetach())->registerListener(gMenuHolder, "Attachment.Detach");
+	addMenu(new LLAttachmentDrop(), "Attachment.Drop");
+	addMenu(new LLAttachmentDetach(), "Attachment.Detach");
 
-	(new LLAttachmentEnableDrop())->registerListener(gMenuHolder, "Attachment.EnableDrop");
-	(new LLAttachmentEnableDetach())->registerListener(gMenuHolder, "Attachment.EnableDetach");
+	addMenu(new LLAttachmentEnableDrop(), "Attachment.EnableDrop");
+	addMenu(new LLAttachmentEnableDetach(), "Attachment.EnableDetach");
 
 	// Land pie menu
-	(new LLLandBuild())->registerListener(gMenuHolder, "Land.Build");
-	(new LLLandSit())->registerListener(gMenuHolder, "Land.Sit");
-	(new LLLandBuyPass())->registerListener(gMenuHolder, "Land.BuyPass");
-	(new LLLandEdit())->registerListener(gMenuHolder, "Land.Edit");
+	addMenu(new LLLandBuild(), "Land.Build");
+	addMenu(new LLLandSit(), "Land.Sit");
+	addMenu(new LLLandBuyPass(), "Land.BuyPass");
+	addMenu(new LLLandEdit(), "Land.Edit");
 
-	(new LLLandEnableBuyPass())->registerListener(gMenuHolder, "Land.EnableBuyPass");
+	addMenu(new LLLandEnableBuyPass(), "Land.EnableBuyPass");
 
 	// Generic actions
-	(new LLShowFloater())->registerListener(gMenuHolder, "ShowFloater");
-	(new LLPromptShowURL())->registerListener(gMenuHolder, "PromptShowURL");
-	(new LLPromptShowFile())->registerListener(gMenuHolder, "PromptShowFile");
-	(new LLShowAgentProfile())->registerListener(gMenuHolder, "ShowAgentProfile");
-	(new LLShowAgentGroups())->registerListener(gMenuHolder, "ShowAgentGroups");
-	(new LLToggleControl())->registerListener(gMenuHolder, "ToggleControl");
+	addMenu(new LLShowFloater(), "ShowFloater");
+	addMenu(new LLPromptShowURL(), "PromptShowURL");
+	addMenu(new LLPromptShowFile(), "PromptShowFile");
+	addMenu(new LLShowAgentProfile(), "ShowAgentProfile");
+	addMenu(new LLShowAgentGroups(), "ShowAgentGroups");
+	addMenu(new LLToggleControl(), "ToggleControl");
 
-	(new LLGoToObject())->registerListener(gMenuHolder, "GoToObject");
-	(new LLPayObject())->registerListener(gMenuHolder, "PayObject");
+	addMenu(new LLGoToObject(), "GoToObject");
+	addMenu(new LLPayObject(), "PayObject");
 
-	(new LLEnablePayObject())->registerListener(gMenuHolder, "EnablePayObject");
-	(new LLEnableEdit())->registerListener(gMenuHolder, "EnableEdit");
+	addMenu(new LLEnablePayObject(), "EnablePayObject");
+	addMenu(new LLEnableEdit(), "EnableEdit");
 
-	(new LLFloaterVisible())->registerListener(gMenuHolder, "FloaterVisible");
-	(new LLSomethingSelected())->registerListener(gMenuHolder, "SomethingSelected");
-	(new LLSomethingSelectedNoHUD())->registerListener(gMenuHolder, "SomethingSelectedNoHUD");
-	(new LLEditableSelected())->registerListener(gMenuHolder, "EditableSelected");
+	addMenu(new LLFloaterVisible(), "FloaterVisible");
+	addMenu(new LLSomethingSelected(), "SomethingSelected");
+	addMenu(new LLSomethingSelectedNoHUD(), "SomethingSelectedNoHUD");
+	addMenu(new LLEditableSelected(), "EditableSelected");
 }

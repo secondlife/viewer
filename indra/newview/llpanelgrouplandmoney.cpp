@@ -549,14 +549,14 @@ BOOL LLPanelGroupLandMoney::postBuild()
 	if ( no_permsp )
 	{
 		mImplementationp->mCantViewParcelsText = no_permsp->getText();
-		removeChild(no_permsp);
+		removeChild(no_permsp, TRUE);
 	}
 
 	no_permsp = (LLTextBox*) getChildByName("cant_view_group_accounting_text");
 	if ( no_permsp )
 	{
 		mImplementationp->mCantViewAccountsText = no_permsp->getText();
-		removeChild(no_permsp);
+		removeChild(no_permsp, TRUE);
 	}
 
 	

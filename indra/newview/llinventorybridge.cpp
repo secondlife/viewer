@@ -3455,10 +3455,13 @@ public:
 		 * Do nothing.  We only care about the destructor
 		 */
 	}
+
+protected:
 	~LLWearInventoryCategoryCallback()
 	{
 		wear_inventory_category_on_avatar(gInventory.getCategory(mCatID), mAppend);
 	}
+
 private:
 	LLUUID mCatID;
 	bool mAppend;

@@ -391,6 +391,7 @@ class Linux_i686Manifest(LinuxManifest):
                         self.end_prefix("res-sdl")
 
                 self.path("featuretable_linux.txt")
+                self.path("secondlife-i686.supp")
 
                 self.path("app_settings/mozilla-runtime-linux-i686")
 

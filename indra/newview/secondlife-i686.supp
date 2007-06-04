@@ -1,0 +1,175 @@
+# @file secondlife-i686.supp
+# @brief Valgrind suppressions for Linux i686 viewer.
+#
+# Copyright (c) 2000-$CurrentYear$, Linden Research, Inc.
+# $License$
+#
+# This is a Valgrind suppression file for use on the viewer.
+#
+# Hints for most successful use of valgrind:
+#
+# - If your distro comes with library packages that contain debug info
+#   (Fedora calls these debuginfo packages), install them.
+# - Inside the SConstruct script, disable linking against tcmalloc.
+#   Valgrind and tcmalloc don't get along.
+# - Delete the copy of libstdc++.so.6 that is bundled with the viewer
+#   (if you have one), so that the viewer will use the system's
+#   libstdc++.
+# - After you build the viewer, replace the stripped
+#   do-not-directly-run-secondlife-bin binary with an unstripped copy.
+
+# Mozilla noise.
+
+{
+   Cond:mozilla-runtime/*.so
+   Memcheck:Cond
+   obj:*/mozilla-runtime-*/*.so
+}
+
+{
+   Value4:mozilla-runtime/*.so
+   Memcheck:Value4
+   obj:*/mozilla-runtime-*/*.so
+}
+
+{
+   Cond:mozilla-runtime/*/*.so
+   Memcheck:Cond
+   obj:*/mozilla-runtime-*/*/*.so
+}
+
+{
+   Value4:mozilla-runtime/*/*.so
+   Memcheck:Value4
+   obj:*/mozilla-runtime-*/*/*.so
+}
+
+{
+   Cond:mozilla-runtime/libmozjs.so
+   Memcheck:Cond
+   obj:*/libmozjs.so
+}
+
+{
+   Cond:mozilla-runtime/libxul
+   Memcheck:Cond
+   obj:*/libxul.so
+}
+
+{
+   Value4:mozilla-runtime/libxul
+   Memcheck:Value4
+   obj:*/libxul.so
+}
+
+# libcurl badness.
+
+{
+   Cond:libcurl/inflate/Curl_unencode_gzip_write
+   Memcheck:Cond
+   fun:inflate
+   fun:inflate_stream
+   fun:Curl_unencode_gzip_write
+}
+{
+   Cond:libcurl/ares_mkquery/Curl_getaddrinfo
+   Memcheck:Cond
+   fun:ares_mkquery
+   fun:ares_query
+   fun:ares_search
+   fun:next_lookup
+   fun:Curl_getaddrinfo
+}
+
+# libdl business.
+
+{
+   Cond:libdl/_dl_relocate_object
+   Memcheck:Cond
+   fun:_dl_relocate_object
+}
+
+# X11 fun.
+
+{
+   Param:X11/_X11TransSocketWritev/writev/vector
+   Memcheck:Param
+   writev(vector[...])
+   fun:writev
+   fun:_X11TransSocketWritev
+}
+
+{
+   Param:X11/_X11TransWrite/write/buf
+   Memcheck:Param
+   write(buf)
+   obj:/lib/libc-2.6.so
+   fun:_X11TransWrite
+}
+
+# OpenSSL stuff.
+
+{
+   Value4:libcrypto
+   Memcheck:Value4
+   obj:*/libcrypto.so.0.9*
+}
+
+{
+   Cond:libcrypto
+   Memcheck:Cond
+   obj:*/libcrypto.so.0.9*
+}
+
+{
+   Value4:libssl
+   Memcheck:Value4
+   obj:*/libssl.so.0.9*
+}
+
+{
+   Cond:libcrypto
+   Memcheck:Cond
+   obj:*/libssl.so.0.9*
+}
+
+# NVIDIA driver brokenness.
+
+{
+   Addr4:NVIDIA/libGL
+   Memcheck:Addr4
+   obj:/usr/lib/libGL.so.1.0.*
+}
+
+{
+   Value4:NVIDIA/libGL
+   Memcheck:Value4
+   obj:/usr/lib/libGL.so.1.0.*
+}
+
+{
+   Cond:NVIDIA/libGL
+   Memcheck:Cond
+   obj:/usr/lib/libGL.so.1.0.*
+}
+
+{
+   Value4:NVIDIA/libGLcore
+   Memcheck:Value4
+   obj:/usr/lib/libGLcore.so.1.0.*
+}
+
+{
+   Cond:NVIDIA/libGLcore
+   Memcheck:Cond
+   obj:/usr/lib/libGLcore.so.1.0.*
+}
+
+{
+   Param:NVIDIA/ioctl
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   fun:_nv000130gl
+}
+

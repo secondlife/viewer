@@ -115,7 +115,7 @@ public:
 
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
-	void initPanelXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
+	BOOL initPanelXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 	void setPanelParameters(LLXMLNodePtr node, LLView *parentp);
 
 	// ** Wrappers for setting child properties by name ** -TomY

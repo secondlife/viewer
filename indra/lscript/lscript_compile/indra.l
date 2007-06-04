@@ -758,15 +758,8 @@ void comment()
 {
 	char c;
 
-#if LL_DARWIN
 	while ((c = yyinput()) != '\n' && c != 0 && c != EOF)
 		;
-#else
-	while ((c = yyinput()) != '\n' && c != 0)
-		;
-#endif		
-
-
 }
 
 void count()

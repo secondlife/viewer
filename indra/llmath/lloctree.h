@@ -37,7 +37,6 @@ public:
 	typedef LLTreeListener<T> BaseType;
 	typedef LLOctreeNode<T> oct_node;
 
-	virtual ~LLOctreeListener() { };
 	virtual void handleChildAddition(const oct_node* parent, oct_node* child) = 0;
 	virtual void handleChildRemoval(const oct_node* parent, const oct_node* child) = 0;
 };

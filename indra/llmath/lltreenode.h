@@ -37,7 +37,6 @@ template <class T>
 class LLTreeListener: public LLRefCount
 {
 public:
-	virtual ~LLTreeListener() { };
 	virtual void handleInsertion(const LLTreeNode<T>* node, T* data) = 0;
 	virtual void handleRemoval(const LLTreeNode<T>* node, T* data) = 0;
 	virtual void handleDestruction(const LLTreeNode<T>* node) = 0;

@@ -1697,7 +1697,7 @@ void LLSpatialPartition::processImagery(LLCamera* camera)
 				cube_map->initGL();
 			}
 
-			if (gPipeline.mCubeBuffer == NULL)
+			if (gPipeline.mCubeBuffer.isNull())
 			{
 				gPipeline.mCubeBuffer = new LLCubeMap();
 				gPipeline.mCubeBuffer->initGL();

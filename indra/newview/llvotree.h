@@ -19,6 +19,9 @@ class LLDrawPool;
 
 class LLVOTree : public LLViewerObject
 {
+protected:
+	~LLVOTree();
+
 public:
 	enum 
 	{
@@ -29,7 +32,6 @@ public:
 	eVertexDataMask;
 
 	LLVOTree(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
-	virtual ~LLVOTree();
 
 	// Initialize data that's only inited once per class.
 	static void initClass();

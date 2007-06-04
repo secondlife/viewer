@@ -33,6 +33,13 @@ export LL_GL_BASICEXT=x
 ##   LL_GL_BLACKLIST which solves your problems.
 #export LL_GL_BLACKLIST=abcdefghijklmno
 
+## - For advanced debugging cases, you can run the viewer under the
+##   control of another program, such as strace, gdb, or valgrind.  If
+##   you're building your own viewer, bear in mind that the executable
+##   in the bin directory will be stripped: you should replace it with
+##   an unstripped binary before you run.
+#export LL_WRAPPER='valgrind --log-file=secondlife.vg --leak-check=full --suppressions=/usr/lib/valgrind/glibc-2.5.supp --suppressions=secondlife-i686.supp'
+
 ## - Avoids an often-buggy X feature that doesn't really benefit us anyway.
 export SDL_VIDEO_X11_DGAMOUSE=0
 
@@ -41,7 +48,7 @@ export SDL_VIDEO_X11_DGAMOUSE=0
 
 RUN_PATH=`dirname "$0" || echo .`
 cd "${RUN_PATH}"
-LD_LIBRARY_PATH="`pwd`"/lib:"`pwd`"/app_settings/mozilla-runtime-linux-i686:"${LD_LIBRARY_PATH}" bin/do-not-directly-run-secondlife-bin `cat gridargs.dat` $@ | cat
+LD_LIBRARY_PATH="`pwd`"/lib:"`pwd`"/app_settings/mozilla-runtime-linux-i686:"${LD_LIBRARY_PATH}" $LL_WRAPPER bin/do-not-directly-run-secondlife-bin `cat gridargs.dat` $@ | cat
 
 echo
 echo '*********************************************************'

@@ -146,7 +146,6 @@ public:
 	} eSetStateMode;
 
 	LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part);
-	virtual ~LLSpatialGroup();
 
 	BOOL isDead()							{ return isState(DEAD); }
 	BOOL isState(U32 state) const			{ return mState & state ? TRUE : FALSE; }
@@ -190,6 +189,8 @@ public:
 	virtual void handleChildRemoval(const OctreeNode* parent, const OctreeNode* child);
 
 protected:
+	virtual ~LLSpatialGroup();
+
 	U32 mState;
 	S32 mLODHash;
 	static S32 sLODSeed;
@@ -323,11 +324,13 @@ public:
 // class for creating bridges between spatial partitions
 class LLSpatialBridge : public LLDrawable, public LLSpatialPartition
 {
+protected:
+	~LLSpatialBridge();
+
 public:
 	typedef std::vector<LLPointer<LLSpatialBridge> > bridge_vector_t;
 	
 	LLSpatialBridge(LLDrawable* root, U32 data_mask);
-	virtual ~LLSpatialBridge();
 	
 	virtual BOOL isSpatialBridge() const		{ return TRUE; }
 

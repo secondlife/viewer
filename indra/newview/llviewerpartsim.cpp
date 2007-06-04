@@ -83,7 +83,7 @@ LLViewerPart &LLViewerPart::operator=(const LLViewerPart &part)
 	return *this;
 }
 
-void LLViewerPart::init(LLViewerPartSource *sourcep, LLViewerImage *imagep, LLVPCallback cb)
+void LLViewerPart::init(LLPointer<LLViewerPartSource> sourcep, LLViewerImage *imagep, LLVPCallback cb)
 {
 	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mPartID = LLViewerPart::sNextPartID;
@@ -653,7 +653,7 @@ void LLViewerPartSim::updateSimulation()
 }
 
 
-void LLViewerPartSim::addPartSource(LLViewerPartSource *sourcep)
+void LLViewerPartSim::addPartSource(LLPointer<LLViewerPartSource> sourcep)
 {
 	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	if (!sourcep)

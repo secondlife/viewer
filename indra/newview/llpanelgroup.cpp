@@ -58,7 +58,7 @@ BOOL LLPanelGroupTab::postBuild()
 	if (txt)
 	{
 		mHelpText = txt->getText();
-		removeChild(txt);
+		removeChild(txt, TRUE);
 	}
 	return TRUE;
 }
@@ -265,13 +265,13 @@ BOOL LLPanelGroup::postBuild()
 	if (txt)
 	{
 		mDefaultNeedsApplyMesg = txt->getText();
-		removeChild(txt);
+		removeChild(txt, TRUE);
 	}
 	txt = (LLTextBox*)getChildByName("want_apply_text");
 	if (txt)
 	{
 		mWantApplyMesg = txt->getText();
-		removeChild(txt);
+		removeChild(txt, TRUE);
 	}
 
 	LLButton* button = (LLButton*) getChildByName("btn_ok");

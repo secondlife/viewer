@@ -343,7 +343,7 @@ public:
 	GLuint					mFramebuffer[2];
 
 	//dynamic cube map scratch space
-	LLCubeMap*				mCubeBuffer;
+	LLPointer<LLCubeMap>	mCubeBuffer;
 
 	//frambuffer object for rendering dynamic cube maps
 	GLuint					mCubeFrameBuffer;

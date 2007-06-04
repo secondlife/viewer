@@ -20,7 +20,7 @@ Jacek Antonelli - VWR-165, VWR-188
 Joghert LeSabre - VWR-64
 Kage Pixel - VWR-11
 Kunnis Basiat - VWR-82
-Nicholaz Beresford - VWR-793, VWR-794, VWR-802, VWR-803, VWR-804, VWR-805, VWR-808, VWR-809, VWR-810, VWR-823, VWR-870
+Nicholaz Beresford - VWR-793, VWR-794, VWR-802, VWR-803, VWR-804, VWR-805, VWR-808, VWR-809, VWR-810, VWR-823, VWR-869, VWR-870, VWR-871, VWR-908, VWR-966
 Paul Churchill - VWR-20
 Paula Innis - VWR-30
 Peekay Semyorka - VWR-7, VWR-19, VWR-49

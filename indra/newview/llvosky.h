@@ -504,7 +504,6 @@ public:
 	};
 	
 	LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
-	virtual ~LLVOSky();
 
 	// Initialize/delete data that's only inited once per class.
 	static void initClass();
@@ -667,6 +666,8 @@ public:
 	LLFace				*mFace[FACE_COUNT];
 
 protected:
+	~LLVOSky();
+
 	LLPointer<LLViewerImage> mSunTexturep;
 	LLPointer<LLViewerImage> mMoonTexturep;
 	LLPointer<LLViewerImage> mBloomTexturep;
@@ -716,7 +717,7 @@ protected:
 	LLColor3			mMoonDiffuse;
 	LLColor4U			mFadeColor;					// Color to fade in from	
 
-	LLCubeMap			*mCubeMap;					// Cube map for the environment
+	LLPointer<LLCubeMap>	mCubeMap;					// Cube map for the environment
 	S32					mDrawRefl;
 
 	LLFrameTimer		mUpdateTimer;

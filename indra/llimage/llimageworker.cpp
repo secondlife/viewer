@@ -30,7 +30,9 @@ void LLImageWorker::cleanupClass()
 
 //----------------------------------------------------------------------------
 
-LLImageWorker::LLImageWorker(LLImageFormatted* image, U32 priority, S32 discard, LLResponder* responder)
+LLImageWorker::LLImageWorker(LLImageFormatted* image, U32 priority,
+							 S32 discard,
+							 LLPointer<LLResponder> responder)
 	: LLWorkerClass(sWorkerThread, "Image"),
 	  mFormattedImage(image),
 	  mDecodedType(-1),

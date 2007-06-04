@@ -4262,7 +4262,8 @@ void LLFolderView::idle(void* user_data)
 	{
 		self->scrollToShowItem(self->mSelectedItems.back());
 		// continue scrolling until animated layout change is done
-		if (!self->needsArrange() || !self->isInVisibleChain())
+		if (self->getCompletedFilterGeneration() >= self->mFilter.getMinRequiredGeneration() &&
+			(!self->needsArrange() || !self->isInVisibleChain()))
 		{
 			self->mNeedsScroll = FALSE;
 		}

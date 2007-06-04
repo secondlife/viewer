@@ -219,8 +219,9 @@ private:
 // Pure virtual class
 class LLResponder : public LLThreadSafeRefCount
 {
-public:
+protected:
 	virtual ~LLResponder();
+public:
 	virtual void completed(bool success) = 0;
 };
 

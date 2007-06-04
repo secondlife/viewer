@@ -68,12 +68,12 @@ public:
 class LLSimpleListener : public LLEventListener
 {
 public:
-	virtual ~LLSimpleListener();
 	void clearDispatchers();
 	virtual bool handleAttach(LLEventDispatcher *dispatcher);
 	virtual bool handleDetach(LLEventDispatcher *dispatcher);
 
 protected:
+	~LLSimpleListener();
 	std::vector<LLEventDispatcher *> mDispatchers;
 };
 

@@ -332,7 +332,6 @@ public:
 	{
 		mTitle = title;
 	}
-	~GestureShowCallback() {}
 	void fire(const LLUUID &inv_item)
 	{
 		LLPreviewGesture::show(mTitle.c_str(), inv_item, LLUUID::null);

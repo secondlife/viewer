@@ -96,7 +96,7 @@ public:
 class LLViewerObject : public LLPrimitive, public LLRefCount
 {
 protected:
-	virtual ~LLViewerObject(); // use unref()
+	~LLViewerObject(); // use unref()
 
 	// TomY: Provide for a list of extra parameter structures, mapped by structure name
 	struct ExtraParameter

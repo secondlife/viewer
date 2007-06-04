@@ -296,6 +296,7 @@ BOOL LLFloaterPreference::postBuild()
 LLFloaterPreference::~LLFloaterPreference()
 {
 	sInstance = NULL;
+	delete mPreferenceCore;
 }
 
 

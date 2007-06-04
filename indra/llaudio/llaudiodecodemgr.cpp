@@ -53,7 +53,6 @@ public:
 	};
 	
 	LLVorbisDecodeState(const LLUUID &uuid, const LLString &out_filename);
-	virtual ~LLVorbisDecodeState();
 
 	BOOL initDecode();
 	BOOL decodeSection(); // Return TRUE if done.
@@ -65,7 +64,10 @@ public:
 	BOOL isValid() const				{ return mValid; }
 	BOOL isDone() const					{ return mDone; }
 	const LLUUID &getUUID() const		{ return mUUID; }
+
 protected:
+	virtual ~LLVorbisDecodeState();
+
 	BOOL mValid;
 	BOOL mDone;
 	LLAtomicS32 mBytesRead;

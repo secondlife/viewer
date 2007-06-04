@@ -259,7 +259,7 @@ BOOL LLPanelGroupNotices::postBuild()
 	if (txt)
 	{
 		mNoNoticesStr = txt->getText();
-		removeChild(txt);
+		removeChild(txt, TRUE);
 	}
 
 	mPanelCreateNotice = (LLPanel*) getChildByName("panel_create_new_notice",recurse);
@@ -274,7 +274,7 @@ BOOL LLPanelGroupNotices::postBuild()
 	target->setToolTip(dtv->getToolTip());
 
 	mPanelCreateNotice->addChild(target);
-	mPanelCreateNotice->removeChild(dtv);
+	mPanelCreateNotice->removeChild(dtv, TRUE);
 
 	arrangeNoticeView(VIEW_PAST_NOTICE);
 

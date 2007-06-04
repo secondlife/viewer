@@ -18,9 +18,10 @@
 class LLVOGround : public LLStaticViewerObject
 {
 protected:
+	~LLVOGround();
+
 public:
 	LLVOGround(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
-	virtual ~LLVOGround();
 
 	/*virtual*/ BOOL idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
 	

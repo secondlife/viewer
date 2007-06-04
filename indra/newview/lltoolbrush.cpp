@@ -397,7 +397,7 @@ void LLToolBrushLand::handleSelect()
 //	if (!mBrushSelected)
 	{
 		mLastShowParcelOwners = gSavedSettings.getBOOL("ShowParcelOwners");
-		gSavedSettings.setBOOL("ShowParcelOwners", TRUE);
+		gSavedSettings.setBOOL("ShowParcelOwners", mLastShowParcelOwners);
 		mBrushSelected = TRUE;
 	}
 }
@@ -410,6 +410,7 @@ void LLToolBrushLand::handleDeselect()
 		gEditMenuHandler = NULL;
 	}
 	gFloaterTools->setStatusText("");
+	mLastShowParcelOwners = gSavedSettings.getBOOL("ShowParcelOwners");
 	gSavedSettings.setBOOL("ShowParcelOwners", mLastShowParcelOwners);
 	gParcelMgr->setSelectionVisible(TRUE);
 	mBrushSelected = FALSE;

@@ -74,7 +74,7 @@ public:
 	};
 
 protected:
-	virtual ~LLXMLNode();
+	~LLXMLNode();
 
 public:
 	LLXMLNode();

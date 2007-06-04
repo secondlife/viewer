@@ -615,12 +615,14 @@ protected:
 class LLProfile
 {
 public:
-	LLProfile(const LLProfileParams &params) : mParams(params)
+	LLProfile(const LLProfileParams &params)
+		: mParams(params),
+		  mOpen(FALSE),
+		  mConcave(FALSE),
+		  mDirty(TRUE),
+		  mTotalOut(0),
+		  mTotal(2)
 	{
-		mTotal    = 2;
-		mTotalOut = 0;
-		mDirty    = TRUE;
-		mConcave = FALSE;
 	}
 
 	~LLProfile();
@@ -690,11 +692,13 @@ public:
 	};
 
 public:
-	LLPath(const LLPathParams &params) : mParams(params)
+	LLPath(const LLPathParams &params)
+		: mParams(params),
+		  mOpen(FALSE),
+		  mTotal(0),
+		  mDirty(TRUE),
+		  mStep(1)
 	{
-		mOpen      = FALSE;
-		mDirty     = TRUE;
-		mStep      = 1;
 	}
 
 	virtual ~LLPath();

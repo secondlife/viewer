@@ -68,9 +68,10 @@ public:
 
 		class Response : public LLRefCount
 		{
-		public:
+		protected:
 			virtual ~Response();
 
+		public:
 			virtual void result(const LLSD&) = 0;
 			virtual void status(S32 code, const std::string& message) = 0;
 
@@ -205,7 +206,6 @@ class LLSimpleResponse : public LLHTTPNode::Response
 {
 public:
 	static LLPointer<LLSimpleResponse> create();
-	~LLSimpleResponse();
 	
 	void result(const LLSD& result);
 	void status(S32 code, const std::string& message);
@@ -214,6 +214,9 @@ public:
 
 	S32 mCode;
 	std::string mMessage;
+
+protected:
+	~LLSimpleResponse();
 
 private:
 	LLSimpleResponse() {;} // Must be accessed through LLPointer.
