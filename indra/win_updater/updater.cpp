@@ -147,16 +147,6 @@ int WINAPI get_url_into_file(WCHAR *uri, char *path, int *cancelled)
 			fflush(logfile);
 		}
 #endif
-
-		if (!data[0])
-		{
-#if _DEBUG
-			fprintf(logfile,"InternetReadFile Returned NULL data, bytes_read = %d.\n",bytes_read);
-			fflush(logfile);
-#endif
-		// ...an error occurred
-			return FALSE;
-		}
 		
 #if _DEBUG
 		fprintf(logfile,"Reading Data, bytes_read = %d\n",bytes_read);
