@@ -47,7 +47,7 @@ LLPreviewTexture::LLPreviewTexture(const std::string& name,
 	mLastHeight(0),
 	mLastWidth(0)
 {
-	LLInventoryItem *item = getItem();
+	const LLInventoryItem *item = getItem();
 	if(item)
 	{
 		mImageID = item->getAssetUUID();
@@ -157,7 +157,7 @@ void LLPreviewTexture::init()
 
 	if (!mCopyToInv) 
 	{
-		LLInventoryItem* item = getItem();
+		const LLInventoryItem* item = getItem();
 		
 		if (item)
 		{

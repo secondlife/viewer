@@ -4538,11 +4538,7 @@ class LLToolsStopAllAnimations : public view_listener_t
 		
 		if (!avatarp) return true;
 		
-		LLVOAvatar::AnimSourceIterator anim_it = avatarp->mAnimationSources.begin();
-		for (;anim_it != avatarp->mAnimationSources.end(); ++anim_it)
-		{
-			avatarp->stopMotion( anim_it->second, TRUE );
-		}
+		avatarp->deactivateAllMotions();
 	
 		avatarp->processAnimationStateChanges();
 		return true;

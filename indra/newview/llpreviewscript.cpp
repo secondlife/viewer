@@ -1077,7 +1077,7 @@ LLPreviewLSL::LLPreviewLSL(const std::string& name, const LLRect& rect,
 	moveResizeHandleToFront();
 
 	
-	LLInventoryItem* item = getItem();	
+	const LLInventoryItem* item = getItem();	
 
 	childSetCommitCallback("desc", LLPreview::onText, this);
 	childSetText("desc", item->getDescription());
@@ -1131,7 +1131,7 @@ void LLPreviewLSL::loadAsset()
 	// *HACK: we poke into inventory to see if it's there, and if so,
 	// then it might be part of the inventory library. If it's in the
 	// library, then you can see the script, but not modify it.
-	LLInventoryItem* item = gInventory.getItem(mItemUUID);
+	const LLInventoryItem* item = gInventory.getItem(mItemUUID);
 	BOOL is_library = item
 		&& !gInventory.isObjectDescendentOf(mItemUUID,
 											gAgent.getInventoryRootID());
@@ -1258,7 +1258,7 @@ void LLPreviewLSL::saveIfNeeded()
 	fclose(fp);
 	fp = NULL;
 
-	LLInventoryItem *inv_item = getItem();
+	const LLInventoryItem *inv_item = getItem();
 	// save it out to asset server
 	std::string url = gAgent.getRegion()->getCapability("UpdateScriptAgentInventory");
 	if(inv_item)
@@ -1373,8 +1373,8 @@ void LLPreviewLSL::onSaveComplete(const LLUUID& asset_uuid, void* user_data, S32
 	{
 		if (info)
 		{
-			LLViewerInventoryItem* item;
-			item = (LLViewerInventoryItem*)gInventory.getItem(info->mItemUUID);
+			const LLViewerInventoryItem* item;
+			item = (const LLViewerInventoryItem*)gInventory.getItem(info->mItemUUID);
 			if(item)
 			{
 				LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);

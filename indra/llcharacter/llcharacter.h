@@ -150,6 +150,9 @@ public:
 	// no cached references to character joint data.  This is 
 	// useful if a character wants to rebuild it's skeleton.
 	virtual void flushAllMotions();
+	
+	// Flush only wipes active animations. 
+	virtual void deactivateAllMotions();
 
 	// dumps information for debugging
 	virtual void dumpCharacter( LLJoint *joint = NULL );

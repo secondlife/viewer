@@ -62,7 +62,7 @@ LLPreviewNotecard::LLPreviewNotecard(const std::string& name,
 									 const LLUUID& object_id,
 									 const LLUUID& asset_id,
 									 BOOL show_keep_discard,
-									 LLViewerInventoryItem* inv_item) :
+									 LLPointer<LLViewerInventoryItem> inv_item) :
 	LLPreview(name, rect, title, item_id, object_id, TRUE,
 			  PREVIEW_MIN_WIDTH,
 			  PREVIEW_MIN_HEIGHT,
@@ -86,7 +86,7 @@ LLPreviewNotecard::LLPreviewNotecard(const std::string& name,
 		
 		if( mAssetID.isNull() )
 		{
-			LLInventoryItem* item = getItem();
+			const LLInventoryItem* item = getItem();
 			if( item )
 			{
 				mAssetID = item->getAssetUUID();
@@ -103,7 +103,7 @@ LLPreviewNotecard::LLPreviewNotecard(const std::string& name,
 			
 	childSetVisible("lock", FALSE);	
 	
-	LLInventoryItem* item = getItem();
+	const LLInventoryItem* item = getItem();
 	
 	childSetCommitCallback("desc", LLPreview::onText, this);
 	if (item)
@@ -242,7 +242,7 @@ void LLPreviewNotecard::refreshFromInventory()
 void LLPreviewNotecard::loadAsset()
 {
 	// request the asset.
-	LLInventoryItem* item = getItem();
+	const LLInventoryItem* item = getItem();
 	LLViewerTextEditor* editor = LLViewerUICtrlFactory::getViewerTextEditorByName(this, "Notecard Editor");
 
 	if (!editor)
@@ -366,7 +366,7 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 
 			previewEditor->makePristine();
 
-			LLInventoryItem* item = preview->getItem();
+			const LLInventoryItem* item = preview->getItem();
 			BOOL modifiable = item && gAgent.allowOperation(PERM_MODIFY,
 								item->getPermissions(), GP_OBJECT_MANIPULATE);
 			preview->setEnabled(modifiable);
@@ -471,7 +471,7 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
 		file.setMaxSize(size);
 		file.write((U8*)buffer.c_str(), size);
 
-		LLInventoryItem* item = getItem();
+		const LLInventoryItem* item = getItem();
 		// save it out to database
 		if (item)
 		{			

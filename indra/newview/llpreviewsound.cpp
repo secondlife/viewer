@@ -39,7 +39,7 @@ LLPreviewSound::LLPreviewSound(const std::string& name, const LLRect& rect, cons
 	button = LLUICtrlFactory::getButtonByName(this, "Sound audition btn");
 	button->setSoundFlags(LLView::SILENT);
 
-	LLInventoryItem* item = getItem();
+	const LLInventoryItem* item = getItem();
 	
 	childSetCommitCallback("desc", LLPreview::onText, this);
 	childSetText("desc", item->getDescription());
@@ -65,7 +65,7 @@ LLPreviewSound::LLPreviewSound(const std::string& name, const LLRect& rect, cons
 void LLPreviewSound::playSound( void *userdata )
 {
 	LLPreviewSound* self = (LLPreviewSound*) userdata;
-	LLInventoryItem *item = self->getItem();
+	const LLInventoryItem *item = self->getItem();
 
 	if(item && gAudiop)
 	{
@@ -77,7 +77,7 @@ void LLPreviewSound::playSound( void *userdata )
 void LLPreviewSound::auditionSound( void *userdata )
 {
 	LLPreviewSound* self = (LLPreviewSound*) userdata;
-	LLInventoryItem *item = self->getItem();
+	const LLInventoryItem *item = self->getItem();
 
 	if(item && gAudiop)
 	{

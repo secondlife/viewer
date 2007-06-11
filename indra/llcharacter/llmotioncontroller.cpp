@@ -835,6 +835,23 @@ LLMotion *LLMotionController::findMotion(const LLUUID& id)
 	return mAllMotions[id];
 }
 
+//-----------------------------------------------------------------------------
+// deactivateAllMotions()
+//-----------------------------------------------------------------------------
+void LLMotionController::deactivateAllMotions()
+{
+	//They must all die, precious.
+	for (std::map<LLUUID, LLMotion*>::iterator iter = mAllMotions.begin();
+		 iter != mAllMotions.end(); iter++)
+	{
+		LLMotion* motionp = iter->second;
+		if (motionp) motionp->deactivate();
+	}
+
+	// delete all motion instances
+	deleteAllMotions();
+}
+
 
 //-----------------------------------------------------------------------------
 // flushAllMotions()

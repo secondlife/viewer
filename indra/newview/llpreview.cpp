@@ -50,7 +50,7 @@ LLPreview::LLPreview(const std::string& name) :
 	mAutoFocus = FALSE;
 }
 
-LLPreview::LLPreview(const std::string& name, const LLRect& rect, const std::string& title, const LLUUID& item_uuid, const LLUUID& object_uuid, BOOL allow_resize, S32 min_width, S32 min_height, LLViewerInventoryItem* inv_item )
+LLPreview::LLPreview(const std::string& name, const LLRect& rect, const std::string& title, const LLUUID& item_uuid, const LLUUID& object_uuid, BOOL allow_resize, S32 min_width, S32 min_height, LLPointer<LLViewerInventoryItem> inv_item )
 :	LLFloater(name, rect, title, allow_resize, min_width, min_height ),
 	mItemUUID(item_uuid),
 	mSourceID(LLUUID::null),
@@ -135,11 +135,11 @@ void LLPreview::setSourceID(const LLUUID& source_id)
 	sPreviewsBySource.insert(preview_multimap_t::value_type(mSourceID, mViewHandle));
 }
 
-LLViewerInventoryItem* LLPreview::getItem() const
+const LLViewerInventoryItem *LLPreview::getItem() const
 {
-	if(mItem != NULL)
+	if(mItem)
 		return mItem;
-	LLViewerInventoryItem* item = NULL;
+	const LLViewerInventoryItem *item = NULL;
 	if(mObjectUUID.isNull())
 	{
 		// it's an inventory item, so get the item.
@@ -160,7 +160,7 @@ LLViewerInventoryItem* LLPreview::getItem() const
 // Sub-classes should override this function if they allow editing
 void LLPreview::onCommit()
 {
-	LLViewerInventoryItem* item = getItem();
+	const LLViewerInventoryItem *item = getItem();
 	if(item)
 	{
 		if (!item->isComplete())
@@ -333,7 +333,7 @@ BOOL LLPreview::handleHover(S32 x, S32 y, MASK mask)
 	{
 		S32 screen_x;
 		S32 screen_y;
-		LLViewerInventoryItem *item = getItem();
+		const LLViewerInventoryItem *item = getItem();
 
 		localPointToScreen(x, y, &screen_x, &screen_y );
 		if(item
@@ -419,7 +419,7 @@ void LLPreview::onDiscardBtn(void* data)
 {
 	LLPreview* self = (LLPreview*)data;
 
-	LLViewerInventoryItem* item = self->getItem();
+	const LLViewerInventoryItem* item = self->getItem();
 	if (!item) return;
 
 	self->mForceClose = TRUE;
