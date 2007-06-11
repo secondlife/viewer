@@ -75,7 +75,11 @@ LLToolGrab::~LLToolGrab()
 // virtual
 void LLToolGrab::handleSelect()
 {
-	gFloaterTools->setStatusText("Drag to move objects, Ctrl to lift, Ctrl-Shift to spin");
+	if(gFloaterTools)
+	{
+		// viewer can crash during startup if we don't check.
+		gFloaterTools->setStatusText("Drag to move objects, Ctrl to lift, Ctrl-Shift to spin");
+	}
 	gGrabBtnVertical = FALSE;
 	gGrabBtnSpin = FALSE;
 }
