@@ -152,9 +152,6 @@ namespace LLError
 		
 	class NoClassInfo { };
 		// used to indicate no class info known for logging
-
-	void cleanupLogging();
-		// after this is called, no more logging is allowed
 }
 
 

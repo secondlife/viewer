@@ -228,7 +228,7 @@ namespace
 		LOG_CLASS(LogControlFile);
 	
 	public:
-		static LogControlFile *fromDirectory(const std::string& dir);
+		static LogControlFile& fromDirectory(const std::string& dir);
 		
 		virtual void loadFile();
 		
@@ -238,7 +238,7 @@ namespace
 			{ }
 	};
 
-	LogControlFile *LogControlFile::fromDirectory(const std::string& dir)
+	LogControlFile& LogControlFile::fromDirectory(const std::string& dir)
 	{
 		std::string dirBase = dir + "/";
 			// NB: We have no abstraction in llcommon  for the "proper"
@@ -254,7 +254,8 @@ namespace
 			
 			file = dirBase + "logcontrol.xml";
 		}
-		return new LogControlFile(file);
+		return * new LogControlFile(file);
+			// NB: This instance is never freed
 	}
 	
 	void LogControlFile::loadFile()
@@ -298,19 +299,14 @@ namespace
 		static Globals& get();
 			// return the one instance of the globals
 
-		static void Globals::cleanup();
-
 	private:
 		CallSiteVector callSites;
-		static Globals *sGlobals;
 
 		Globals()
 			:	messageStreamInUse(false)
 			{ }
 		
 	};
-
-	Globals *Globals::sGlobals;
 
 	void Globals::addCallSite(LLError::CallSite& site)
 	{
@@ -337,16 +333,8 @@ namespace
 		   is.
 		   See C++ FAQ Lite, sections 10.12 through 10.14
 		*/
-		if (sGlobals == NULL) {
-			sGlobals = new Globals;
-		}
-
-		return *sGlobals;
-	}
-
-	void Globals::cleanup()
-	{
-		delete sGlobals;
+		static Globals* globals = new Globals;		
+		return *globals;
 	}
 }
 
@@ -374,7 +362,6 @@ namespace LLError
 		int shouldLogCallCounter;
 		
 		static Settings& get();
-		static void cleanup();
 	
 		static void reset();
 		static Settings* saveAndReset();
@@ -411,16 +398,6 @@ namespace LLError
 		return *p;
 	}
 	
-	void Settings::cleanup()
-	{
-		Settings*& ptr = getPtr();
-		if (ptr)
-		{
-			delete ptr;
-			ptr = NULL;
-		}
-	}
-
 	void Settings::reset()
 	{
 		Globals::get().invalidateCallSites();
@@ -499,8 +476,6 @@ namespace
 	}
 	
 	
-	static LogControlFile *gLogControlFile;
-
 	void commonInit(const std::string& dir)
 	{
 		LLError::Settings::reset();
@@ -518,8 +493,8 @@ namespace
 		LLError::addRecorder(new RecordToWinDebug);
 #endif
 
-		gLogControlFile = LogControlFile::fromDirectory(dir);
-		gLogControlFile->addToEventTimer();
+		LogControlFile& e = LogControlFile::fromDirectory(dir);
+		e.addToEventTimer();
 	}
 }
 
@@ -543,15 +518,6 @@ namespace LLError
 		commonInit(dir);
 	}
 
-	void cleanupLogging(void)
-	{
-		delete gLogControlFile;
-		gLogControlFile = NULL;
-
-		Settings::cleanup();
-		Globals::cleanup();
-	}
-	
 	void setPrintLocation(bool print)
 	{
 		Settings& s = Settings::get();
