@@ -55,6 +55,7 @@ public:
 	void start();
 	void stop();
 	void reset();
+	void resetWithExpiry(F32 expiration);
 	void pause();
 	void unpause();
 	void setTimerExpirySec(F32 expiration);

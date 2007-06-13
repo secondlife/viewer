@@ -139,7 +139,7 @@ public:
 	// if styled text starts a line, you need to prepend a newline.
 	void 			appendStyledText(const LLString &new_text, bool allow_undo, 
 									 bool prepend_newline,
-									 const LLStyle &style);
+									 const LLStyle* style);
 
 	// Removes text from the end of document
 	// Does not change highlight or cursor position.

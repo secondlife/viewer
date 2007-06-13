@@ -18,6 +18,8 @@
 #include <boost/intrusive_ptr.hpp>
 
 #include "llassettype.h"
+#include "llbuffer.h"
+#include "lliopipe.h"
 
 extern const F32 HTTP_REQUEST_EXPIRY_SECS;
 
@@ -38,7 +40,11 @@ public:
 		virtual void error(U32 status, const std::string& reason);	// called with bad status codes
 		
 		virtual void result(const LLSD& content);
-			
+		
+		// Override point for clients that may want to use this class when the response is some other format besides LLSD
+		virtual void completedRaw(U32 status, const std::string& reason, const LLChannelDescriptors& channels,
+								const LLIOPipe::buffer_ptr_t& buffer);
+
 		virtual void completed(U32 status, const std::string& reason, const LLSD& content);
 			/**< The default implemetnation calls
 				either:

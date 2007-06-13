@@ -12,29 +12,37 @@
 
 #include "llfontgl.h"
 #include "llrect.h"
+#include "lldbstrings.h"
 #include "llerror.h"
 #include "llbutton.h"
+#include "llsdutil.h"
 #include "llstring.h"
 #include "linked_lists.h"
 #include "llvieweruictrlfactory.h"
 
 #include "llagent.h"
 #include "llcallingcard.h"
+#include "llchat.h"
 #include "llviewerwindow.h"
 #include "llresmgr.h"
+#include "llfloaterchat.h"
 #include "llfloaternewim.h"
+#include "llhttpclient.h"
 #include "llhttpnode.h"
 #include "llimpanel.h"
 #include "llresizebar.h"
 #include "lltabcontainer.h"
 #include "viewer.h"
 #include "llfloater.h"
+#include "llmutelist.h"
 #include "llresizehandle.h"
 #include "llkeyboard.h"
 #include "llui.h"
 #include "llviewermenu.h"
 #include "llcallingcard.h"
 #include "lltoolbar.h"
+#include "llviewermessage.h"
+#include "llviewerregion.h"
 
 const EInstantMessage GROUP_DIALOG = IM_SESSION_GROUP_START;
 const EInstantMessage DEFAULT_DIALOG = IM_NOTHING_SPECIAL;
@@ -129,11 +137,9 @@ BOOL LLFloaterIM::postBuild()
 		sErrorStringsMap["no_user_911"] =
 			childGetText("user_no_help");
 
-		sEventStringsMap["add"] = childGetText("add_session_event");;
+		sEventStringsMap["add"] = childGetText("add_session_event");
 		sEventStringsMap["message"] =
-			childGetText("message_session_event");;
-		sEventStringsMap["teleport"] =
-			childGetText("teleport_session_event");;
+			childGetText("message_session_event");
 
 		sForceCloseSessionMap["removed"] =
 			childGetText("removed_from_group");
@@ -357,10 +363,10 @@ void LLIMView::addMessage(
 		//if we have recently requsted to be dropped from a session
 		//but are still receiving messages from the session, don't make
 		//a new floater
-//		if ( mSessionsDropRequested.has(session_id.asString()) )
-//		{
-//			return ;
-//		}
+		if ( mSessionsDropRequested.has(session_id.asString()) )
+		{
+			return ;
+		}
 
 		const char* name = from;
 		if(session_name && (strlen(session_name)>1))
@@ -523,10 +529,10 @@ void LLIMView::removeSession(const LLUUID& session_id)
 		//mTabContainer->removeTabPanel(floater);
 	}
 
-//	if ( session_id.notNull() )
-//	{
-//		mSessionsDropRequested[session_id.asString()] = LLSD();
-//	}
+	if ( session_id.notNull() && floater->getDialogType() != IM_NOTHING_SPECIAL )
+	{
+		mSessionsDropRequested[session_id.asString()] = LLSD();
+	}
 }
 
 void LLIMView::refresh()
@@ -831,9 +837,10 @@ public:
 		desc.source(__FILE__, __LINE__);
 	}
 
-	virtual void post(ResponsePtr response,
-					  const LLSD& context,
-					  const LLSD& input) const
+	virtual void post(
+		ResponsePtr response,
+		const LLSD& context,
+		const LLSD& input) const
 	{
 		LLSD body;
 		LLUUID temp_session_id;
@@ -847,8 +854,9 @@ public:
 		if ( success )
 		{
 			session_id = body["session_id"].asUUID();
-			gIMView->updateFloaterSessionID(temp_session_id,
-											session_id);
+			gIMView->updateFloaterSessionID(
+				temp_session_id,
+				session_id);
 		}
 		else
 		{
@@ -863,11 +871,11 @@ public:
 					sErrorStringsMap[body["error"].asString()];
 				args["[RECIPIENT]"] = floater->getTitle();
 
-				gViewerWindow->alertXml("IMSessionStartError",
-										args,
-										onConfirmForceCloseError,
-										floater);
-
+				gViewerWindow->alertXml(
+					"IMSessionStartError",
+					args,
+					onConfirmForceCloseError,
+					floater);
 			}
 		}
 	}
@@ -970,18 +978,163 @@ public:
 	}
 };
 
+class LLViewerChatterBoxSessionAgentListUpdates : public LLHTTPNode
+{
+public:
+	virtual void post(
+		ResponsePtr responder,
+		const LLSD& context,
+		const LLSD& input) const
+	{
+	}
+};
+
+class LLViewerChatterBoxInvitation : public LLHTTPNode
+{
+public:
+	virtual void post(
+		ResponsePtr responder,
+		const LLSD& context,
+		const LLSD& input) const
+	{
+		if ( input["body"].has("instantmessage") )
+		{
+			LLSD message_params =
+				input["body"]["instantmessage"]["message_params"];
+
+			//this is just replicated code from process_improved_im
+			//and should really go in it's own function -jwolk
+			if (gNoRender)
+			{
+				return;
+			}
+
+			char buffer[DB_IM_MSG_BUF_SIZE * 2];  /* Flawfinder: ignore */
+			LLChat chat;
+
+			std::string message = message_params["message"].asString();
+			std::string name = message_params["from_name"].asString();
+			LLUUID from_id = message_params["from_id"].asUUID();
+			LLUUID session_id = message_params["id"].asUUID();
+			std::vector<U8> bin_bucket = message_params["data"]["binary_bucket"].asBinary();
+			U8 offline = (U8)message_params["offline"].asInteger();
+			
+			time_t timestamp =
+				(time_t) message_params["timestamp"].asInteger();
+
+			BOOL is_busy = gAgent.getBusy();
+			BOOL is_muted =  gMuteListp->isMuted(from_id, name);
+			BOOL is_linden = gMuteListp->isLinden(
+				name.c_str());
+			char separator_string[3]=": ";		/* Flawfinder: ignore */
+			int message_offset=0;
+
+			//Handle IRC styled /me messages.
+			if (!strncmp(message.c_str(), "/me ", 4) ||
+				!strncmp(message.c_str(), "/me'", 4))
+			{
+				strcpy(separator_string,"");	   /* Flawfinder: ignore */
+				message_offset = 3;
+			}
+			
+			chat.mMuted = is_muted && !is_linden;
+			chat.mFromID = from_id;
+			chat.mFromName = name;
+			if (!is_linden && is_busy)
+			{
+				return;
+			}
+
+			// standard message, not from system
+			char saved[MAX_STRING];		/* Flawfinder: ignore */
+			saved[0] = '\0';
+			if(offline == IM_OFFLINE)
+			{
+				char time_buf[TIME_STR_LENGTH]; /* Flawfinder: ignore */
+				snprintf(saved,		/* Flawfinder: ignore */
+						 MAX_STRING, 
+						 "(Saved %s) ", 
+						 formatted_time(timestamp, time_buf));
+			}
+			snprintf(
+				buffer,
+				sizeof(buffer),
+				"%s%s%s%s",
+				name.c_str(),
+				separator_string,
+				saved,
+				(message.c_str() + message_offset)); /*Flawfinder: ignore*/
+
+			BOOL is_this_agent = FALSE;
+			if(from_id == gAgentID)
+			{
+				from_id = LLUUID::null;
+				is_this_agent = TRUE;
+			}
+			gIMView->addMessage(
+				session_id,
+				from_id,
+				name.c_str(),
+				buffer,
+				(char*)&bin_bucket[0],
+				IM_SESSION_INVITE,
+				message_params["parent_estate_id"].asInteger(),
+				message_params["region_id"].asUUID(),
+				ll_vector3_from_sd(message_params["position"]));
+
+			snprintf(
+				buffer,
+				sizeof(buffer),
+				"IM: %s%s%s%s",
+				name.c_str(),
+				separator_string,
+				saved,
+				(message.c_str()+message_offset)); /* Flawfinder: ignore */
+			chat.mText = buffer;
+			LLFloaterChat::addChat(chat, TRUE, is_this_agent);
+
+			//if we succesfully accepted the invitation
+			//send a message back down
+
+			//TODO - When availble, have this response just be part
+			//of an automatic response system
+			std::string url = gAgent.getRegion()->getCapability(
+				"ChatSessionRequest");
+
+			if ( url != "" )
+			{
+				LLSD data;
+				data["method"] = "accept invitation";
+				data["session-id"] = input["body"]["session_id"];
+				LLHTTPClient::post(
+					url,
+					data,
+					NULL);
+			}
+		} //end if invitation has instant message
+	}
+};
+
 LLHTTPRegistration<LLViewerIMSessionStartReply>
    gHTTPRegistrationMessageImsessionstartreply(
-	   "/message/IMSessionStartReply");
+	   "/message/ChatterBoxSessionStartReply");
 
 LLHTTPRegistration<LLViewerIMSessionEventReply>
    gHTTPRegistrationMessageImsessioneventreply(
-	   "/message/IMSessionEventReply");
+	   "/message/ChatterBoxSessionEventReply");
 
 LLHTTPRegistration<LLViewerForceCloseIMSession>
     gHTTPRegistrationMessageForceCloseImSession(
-		"/message/ForceCloseIMSession");
+		"/message/ForceCloseChatterBoxSession");
 
 LLHTTPRegistration<LLViewerIMSessionDropReply>
     gHTTPRegistrationMessageImSessionDropReply(
-		"/message/IMSessionDropReply");
+		"/message/ChatterBoxSessionLeaveReply");
+
+LLHTTPRegistration<LLViewerChatterBoxSessionAgentListUpdates>
+    gHTTPRegistrationMessageChatterboxsessionagentlistupdates(
+	    "/message/ChatterBoxSessionAgentListUpdates");
+
+LLHTTPRegistration<LLViewerChatterBoxInvitation>
+    gHTTPRegistrationMessageChatterBoxInvitation(
+		"/message/ChatterBoxInvitation");

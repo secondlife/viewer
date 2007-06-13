@@ -97,6 +97,10 @@ public:
 		U32 length,
 		LLXMLNodePtr& node, 
 		LLXMLNode* defaults);
+	static bool parseStream(
+		std::istream& str,
+		LLXMLNodePtr& node, 
+		LLXMLNode* defaults);
 	static bool updateNode(
 	LLXMLNodePtr& node,
 	LLXMLNodePtr& update_node);

@@ -147,21 +147,39 @@ public:
 
 	// CREATORS
 	LLParcel();
-	LLParcel(	const LLUUID &owner_id,
-				BOOL modify, BOOL terraform, BOOL damage,
-				time_t claim_date, S32 claim_price, S32 rent_price, S32 area, S32 sim_object_limit, F32 parcel_object_bonus,
-				BOOL is_group_owned = FALSE);
+	LLParcel(
+		const LLUUID &owner_id,
+		BOOL modify,
+		BOOL terraform,
+		BOOL damage,
+		time_t claim_date,
+		S32 claim_price,
+		S32 rent_price,
+		S32 area,
+		S32 sim_object_limit,
+		F32 parcel_object_bonus,
+		BOOL is_group_owned = FALSE);
 	virtual ~LLParcel();
 
-	void	init(	const LLUUID &owner_id,
-					BOOL modify, BOOL terraform, BOOL damage,
-					time_t claim_date, S32 claim_price, S32 rent_price,
-					S32 area, S32 sim_object_limit, F32 parcel_object_bonus, BOOL is_group_owned = FALSE);
+	void init(
+		const LLUUID &owner_id,
+		BOOL modify,
+		BOOL terraform,
+		BOOL damage,
+		time_t claim_date,
+		S32 claim_price,
+		S32 rent_price,
+		S32 area,
+		S32 sim_object_limit,
+		F32 parcel_object_bonus,
+		BOOL is_group_owned = FALSE);
 
 	// TODO: make an actual copy constructor for this
-	void	overrideParcelFlags(U32 flags);
+	void overrideParcelFlags(U32 flags);
 	// if you specify an agent id here, the group id will be zeroed
-	void	overrideOwner(const LLUUID& owner_id, BOOL is_group_owned = FALSE);
+	void overrideOwner(
+		const LLUUID& owner_id,
+		BOOL is_group_owned = FALSE);
 	void overrideSaleTimerExpires(F32 secs_left) { mSaleTimerExpires.setTimerExpirySec(secs_left); }
 
 	// MANIPULATORS
@@ -191,7 +209,7 @@ public:
 
 	void setAuctionID(U32 auction_id) { mAuctionID = auction_id;}
 
-	void	setAllParcelFlags(U32 flags) { mParcelFlags = flags; }
+	void	setAllParcelFlags(U32 flags);
 	void	setParcelFlag(U32 flag, BOOL b);
 
 	void	setArea(S32 area, S32 sim_object_limit);
@@ -390,6 +408,10 @@ public:
 					{ return (mParcelFlags & PF_FOR_SALE) ? TRUE : FALSE; }
 	BOOL	getSoundLocal() const
 					{ return (mParcelFlags & PF_SOUND_LOCAL) ? TRUE : FALSE; }
+	BOOL	getVoiceEnabled() const
+					{ return (mParcelFlags & PF_ALLOW_VOICE_CHAT) ? TRUE : FALSE; }
+	BOOL	getVoiceUseEstateChannel() const
+					{ return (mParcelFlags & PF_USE_ESTATE_VOICE_CHAN) ? TRUE : FALSE; }
 	BOOL	getAllowPublish() const
 					{ return (mParcelFlags & PF_ALLOW_PUBLISH) ? TRUE : FALSE; }
 	BOOL	getMaturePublish() const

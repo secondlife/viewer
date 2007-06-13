@@ -526,7 +526,6 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 			{
 				if (motionp->isStopped() && mTime > motionp->getStopTime() + motionp->getEaseOutDuration())
 				{
-					posep->setWeight(0.f);
 					deactivateMotion(motionp);
 				}
 				continue;
@@ -553,7 +552,6 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 			}
 			else
 			{
-				posep->setWeight(0.f);
 				deactivateMotion(motionp);
 				continue;
 			}
@@ -804,6 +802,7 @@ BOOL LLMotionController::activateMotion(LLMotion *motion, F32 time)
 //-----------------------------------------------------------------------------
 BOOL LLMotionController::deactivateMotion(LLMotion *motion)
 {
+	motion->getPose()->setWeight(0.f);
 	motion->deactivate();
 	mActiveMotions.remove(motion);
 

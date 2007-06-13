@@ -2032,7 +2032,9 @@ void LLWindowSDL::gatherInput()
                 }
 
                 else if (event.button.button == SDL_BUTTON_MIDDLE)  // middle
-				    ;  // Middle mouse isn't handled right now in Second Life ... mCallbacks->handleMiddleMouseDown(this, openGlCoord, mask);
+				{
+				    mCallbacks->handleMiddleMouseDown(this, openGlCoord, mask);
+				}
                 else if (event.button.button == 4)  // mousewheel up...thanks to X11 for making SDL consider these "buttons".
 					mCallbacks->handleScrollWheel(this, -1);
                 else if (event.button.button == 5)  // mousewheel down...thanks to X11 for making SDL consider these "buttons".
@@ -2053,8 +2055,9 @@ void LLWindowSDL::gatherInput()
                 else if (event.button.button == SDL_BUTTON_RIGHT)  // right ... yes, it's 3, not 2, in SDL...
 				    mCallbacks->handleRightMouseUp(this, openGlCoord, mask);
                 else if (event.button.button == SDL_BUTTON_MIDDLE)  // middle
-				    ;  // UNUSED IN SECOND LIFE RIGHT NOW mCallbacks->handleMiddleMouseUp(this, openGlCoord, mask);
-
+				{
+					mCallbacks->handleMiddleMouseUp(this, openGlCoord, mask);
+				}
                 // don't handle mousewheel here...
 
                 break;

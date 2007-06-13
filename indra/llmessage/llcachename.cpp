@@ -623,6 +623,12 @@ void LLCacheName::dumpStats()
 			<< llendl;
 }
 
+//static 
+LLString LLCacheName::getDefaultName()
+{
+	return LLString(CN_WAITING);
+}
+
 void LLCacheName::Impl::processPendingAsks()
 {
 	sendRequest(_PREHASH_UUIDNameRequest, mAskNameQueue);

@@ -296,6 +296,11 @@ void LLParcel::setLocalID(S32 local_id)
 	mLocalID = local_id;
 }
 
+void LLParcel::setAllParcelFlags(U32 flags)
+{
+	mParcelFlags = flags;
+}
+
 void LLParcel::setParcelFlag(U32 flag, BOOL b)
 {
 	if (b)
@@ -692,6 +697,16 @@ BOOL LLParcel::importStream(std::istream& input_stream)
 			LLString::convertToU32(value, setting);
 			setParcelFlag(PF_ALLOW_GROUP_SCRIPTS, setting);
 		}
+		else if ("allow_voice_chat" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_ALLOW_VOICE_CHAT, setting);
+		}
+		else if ("use_estate_voice_chan" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_USE_ESTATE_VOICE_CHAN, setting);
+		}
 		else if ("allow_scripts" == keyword)
 		{
 			LLString::convertToU32(value, setting);
@@ -1084,6 +1099,8 @@ BOOL LLParcel::exportStream(std::ostream& output_stream)
 	output_stream << "\t\t sound_local	   " << (getSoundLocal() ? 1 : 0)  << "\n";
 	output_stream << "\t\t allow_scripts    " << (getAllowOtherScripts()  ? 1 : 0)  << "\n";
 	output_stream << "\t\t allow_group_scripts    " << (getAllowGroupScripts()  ? 1 : 0)  << "\n";
+	output_stream << "\t\t allow_voice_chat    " << (getVoiceEnabled() ? 1 : 0) << "\n";
+	output_stream << "\t\t use_estate_voice_chan   " << (getVoiceUseEstateChannel() ? 1 : 0) << "\n";
 	output_stream << "\t\t for_sale         " << (getForSale()       ? 1 : 0)  << "\n";
 	output_stream << "\t\t sell_w_objects   " << (getSellWithObjects()	? 1 : 0)  << "\n";
 	output_stream << "\t\t draw_distance    " << mDrawDistance  << "\n";

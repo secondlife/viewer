@@ -147,7 +147,7 @@ int WINAPI get_url_into_file(WCHAR *uri, char *path, int *cancelled)
 			fflush(logfile);
 		}
 #endif
-		
+
 #if _DEBUG
 		fprintf(logfile,"Reading Data, bytes_read = %d\n",bytes_read);
 		fflush(logfile);

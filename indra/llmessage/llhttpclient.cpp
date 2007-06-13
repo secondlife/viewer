@@ -50,6 +50,29 @@ void LLHTTPClient::Responder::result(const LLSD& content)
 {
 }
 
+// virtual 
+void LLHTTPClient::Responder::completedRaw(U32 status, const std::string& reason, const LLChannelDescriptors& channels,
+								const LLIOPipe::buffer_ptr_t& buffer)
+{
+	LLBufferStream istr(channels, buffer.get());
+	LLSD content;
+
+	if (200 <= status && status < 300)
+	{
+		LLSDSerialize::fromXML(content, istr);
+/*
+		const S32 parseError = -1;
+		if(LLSDSerialize::fromXML(content, istr) == parseError)
+		{
+			mStatus = 498;
+			mReason = "Client Parse Error";
+		}
+*/
+	}
+	
+	completed(status, reason, content);
+}
+
 // virtual
 void LLHTTPClient::Responder::completed(U32 status, const std::string& reason, const LLSD& content)
 {
@@ -88,25 +111,9 @@ namespace
 		virtual void complete(const LLChannelDescriptors& channels,
 								const buffer_ptr_t& buffer)
 		{
-			LLBufferStream istr(channels, buffer.get());
-			LLSD content;
-
-			if (200 <= mStatus && mStatus < 300)
-			{
-				LLSDSerialize::fromXML(content, istr);
-/*
-				const S32 parseError = -1;
-				if(LLSDSerialize::fromXML(content, istr) == parseError)
-				{
-					mStatus = 498;
-					mReason = "Client Parse Error";
-				}
-*/
-			}
-
 			if (mResponder.get())
 			{
-				mResponder->completed(mStatus, mReason, content);
+				mResponder->completedRaw(mStatus, mReason, channels, buffer);
 			}
 		}
 
@@ -223,15 +230,18 @@ namespace
 	LLPumpIO* theClientPump = NULL;
 }
 
-static void request(const std::string& url, LLURLRequest::ERequestAction method,
-	Injector* body_injector, LLHTTPClient::ResponderPtr responder, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS)
+static void request(
+	const std::string& url,
+	LLURLRequest::ERequestAction method,
+	Injector* body_injector,
+	LLHTTPClient::ResponderPtr responder,
+	const F32 timeout=HTTP_REQUEST_EXPIRY_SECS)
 {
 	if (!LLHTTPClient::hasPump())
 	{
 		responder->completed(U32_MAX, "No pump", LLSD());
 		return;
 	}
-
 	LLPumpIO::chain_t chain;
 
 	LLURLRequest *req = new LLURLRequest(method, url);
@@ -242,7 +252,8 @@ static void request(const std::string& url, LLURLRequest::ERequestAction method,
 	}
 	req->setCallback(new LLHTTPClientURLAdaptor(responder));
 
-	if (method == LLURLRequest::HTTP_POST  &&  gMessageSystem) {
+	if (method == LLURLRequest::HTTP_POST  &&  gMessageSystem)
+	{
 		req->addHeader(llformat("X-SecondLife-UDP-Listen-Port: %d",
 								gMessageSystem->mPort).c_str());
    	}

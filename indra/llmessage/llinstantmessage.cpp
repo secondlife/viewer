@@ -308,16 +308,44 @@ LLSD im_info_to_llsd(LLPointer<LLIMInfo> im_info)
 	param_message["parent_estate_id"] = (S32)im_info->mParentEstateID;
 	param_message["region_id"] = im_info->mRegionID;
 	param_message["position"] = ll_sd_from_vector3(im_info->mPosition);
-	if (im_info->mData) param_message["data"] = im_info->mData;
+	param_message["data"] = im_info->mData;
+	param_message["source"]= im_info->mSource;
+	param_message["ttl"] = im_info->mTTL;
+
 	LLSD param_agent;
 	param_agent["agent_id"] = im_info->mFromID;
 
 	LLSD params;
-	params.append(param_version);
-	params.append(param_message);
-	params.append(param_agent);
+	params["version_params"] = param_version;
+	params["message_params"] = param_message;
+	params["agent_params"] = param_agent;
 
 	return params;
+}
+
+LLPointer<LLIMInfo> llsd_to_im_info(const LLSD& im_info_sd)
+{
+	LLSD param_message = im_info_sd["message_params"];
+	LLSD param_agent = im_info_sd["agent_params"];
+
+	LLPointer<LLIMInfo> im_info = new LLIMInfo(
+		param_message["from_id"].asUUID(),
+		param_message["from_group"].asBoolean(),
+		param_message["to_id"].asUUID(),
+		(EInstantMessage) param_message["type"].asInteger(),
+		param_message["from_name"].asString(),
+		param_message["message"].asString(),
+		param_message["id"].asUUID(),
+		(U32) param_message["parent_estate_id"].asInteger(),
+		im_info->mRegionID = param_message["region_id"].asUUID(),
+		ll_vector3_from_sd(param_message["position"]),
+		param_message["data"],
+		(U8) param_message["offline"].asInteger(),
+		(U32) param_message["timestamp"].asInteger(),
+		(EIMSource)param_message["source"].asInteger(),
+		param_message["ttl"].asInteger());
+
+	return im_info;
 }
 
 LLPointer<LLIMInfo> LLIMInfo::clone()

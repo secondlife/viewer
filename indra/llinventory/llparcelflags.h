@@ -41,7 +41,8 @@ const U32 PF_ALLOW_GROUP_SCRIPTS		= 1 << 25;	// Allow scripts owned by group
 const U32 PF_CREATE_GROUP_OBJECTS		= 1 << 26;	// Allow object creation by group members or objects
 const U32 PF_ALLOW_ALL_OBJECT_ENTRY		= 1 << 27;	// Allow all objects to enter a parcel
 const U32 PF_ALLOW_GROUP_OBJECT_ENTRY	= 1 << 28;	// Only allow group (and owner) objects to enter the parcel
-
+const U32 PF_ALLOW_VOICE_CHAT			= 1 << 29;	// Allow residents to use voice chat on this parcel
+const U32 PF_USE_ESTATE_VOICE_CHAN      = 1 << 30;
 
 const U32 PF_RESERVED			= 1 << 31;
 
@@ -63,7 +64,9 @@ const U32 PF_DEFAULT =  PF_ALLOW_FLY
 						| PF_CREATE_GROUP_OBJECTS
 						| PF_USE_BAN_LIST
 						| PF_ALLOW_ALL_OBJECT_ENTRY
-						| PF_ALLOW_GROUP_OBJECT_ENTRY;
+						| PF_ALLOW_GROUP_OBJECT_ENTRY
+                        | PF_ALLOW_VOICE_CHAT
+                        | PF_USE_ESTATE_VOICE_CHAN;
 
 // Access list flags
 const U32 AL_ACCESS  = (1 << 0);

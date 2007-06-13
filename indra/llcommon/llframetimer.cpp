@@ -50,6 +50,12 @@ void LLFrameTimer::reset()
 	mExpiry = sFrameTime;
 }
 
+void LLFrameTimer::resetWithExpiry(F32 expiration)
+{
+	reset();
+	setTimerExpirySec(expiration);
+}
+
 // Don't combine pause/unpause with start/stop
 // Useage:
 //  LLFrameTime foo; // starts automatically

@@ -192,6 +192,10 @@ public:
 	static BOOL		getEditModeEnabled();
 	static LLMultiFloater*		getFloaterHost() {return sHostp; }
 
+	static void		show(LLFloater* floaterp);
+	static void		hide(LLFloater* floaterp);
+	static BOOL		visible(LLFloater* floaterp);
+
 	static LLFloater* getFloaterByHandle(LLViewHandle handle);
 
 protected:
@@ -258,7 +262,6 @@ protected:
 
 	std::vector<LLView*> mMinimizedHiddenChildren;
 };
-
 
 /////////////////////////////////////////////////////////////
 // LLFloaterView
@@ -334,8 +337,8 @@ public:
 	LLMultiFloater();
 	LLMultiFloater(LLTabContainerCommon::TabPosition tab_pos);
 	LLMultiFloater(const LLString& name);
-	LLMultiFloater(const LLString& name, const LLRect& rect, LLTabContainer::TabPosition tab_pos = LLTabContainer::TOP, BOOL auto_resize = FALSE);
-	LLMultiFloater(const LLString& name, const LLString& rect_control, LLTabContainer::TabPosition tab_pos = LLTabContainer::TOP, BOOL auto_resize = FALSE);
+	LLMultiFloater(const LLString& name, const LLRect& rect, LLTabContainer::TabPosition tab_pos = LLTabContainer::TOP, BOOL auto_resize = TRUE);
+	LLMultiFloater(const LLString& name, const LLString& rect_control, LLTabContainer::TabPosition tab_pos = LLTabContainer::TOP, BOOL auto_resize = TRUE);
 	virtual ~LLMultiFloater();
 
 	virtual BOOL postBuild();
@@ -395,4 +398,5 @@ protected:
 extern LLFloaterView* gFloaterView;
 
 #endif  // LL_FLOATER_H
+
 

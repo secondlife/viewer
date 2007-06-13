@@ -255,4 +255,95 @@ typedef enum e_widget_type
 	WIDGET_TYPE_COUNT
 } EWidgetType;
 
+// Manages generation of UI elements by LLSD, such that there is
+// only one instance per uniquely identified LLSD parameter
+// Class T is the instance type being managed, and INSTANCE_ADDAPTOR
+// wraps an instance of the class with handlers for show/hide semantics, etc.
+template <class T, class INSTANCE_ADAPTOR = T>
+class LLUIInstanceMgr
+{
+public:
+	LLUIInstanceMgr()
+	{
+	}
+
+ 	virtual ~LLUIInstanceMgr() 
+	{ 
+	}
+
+	// default show and hide methods
+	static T* showInstance(const LLSD& seed) 
+	{ 
+		T* instance = INSTANCE_ADAPTOR::getInstance(seed); 
+		INSTANCE_ADAPTOR::show(instance);
+		return instance;
+	}
+
+	static void hideInstance(const LLSD& seed) 
+	{ 
+		T* instance = INSTANCE_ADAPTOR::getInstance(seed); 
+		INSTANCE_ADAPTOR::hide(instance);
+	}
+
+	static void toggleInstance(const LLSD& seed)
+	{
+		if (!INSTANCE_ADAPTOR::instanceVisible(seed))
+		{
+			INSTANCE_ADAPTOR::showInstance(seed);
+		}
+		else
+		{
+			INSTANCE_ADAPTOR::hideInstance(seed);
+		}
+	}
+
+	static BOOL instanceVisible(const LLSD& seed)
+	{
+		T* instance = INSTANCE_ADAPTOR::findInstance(seed);
+		return instance != NULL && INSTANCE_ADAPTOR::visible(instance);
+	}
+
+	static T* getInstance(const LLSD& seed) 
+	{
+		T* instance = INSTANCE_ADAPTOR::findInstance(seed);
+		if (instance == NULL)
+		{
+			instance = INSTANCE_ADAPTOR::createInstance(seed);
+		}
+		return instance;
+	}
+};
+
+// Creates a UI singleton by ignoring the identifying parameter
+// and always generating the same instance via the LLUIInstanceMgr interface.
+// Note that since UI elements can be destroyed by their hierarchy, this singleton
+// pattern uses a static pointer to an instance that will be re-created as needed.
+template <class T, class INSTANCE_ADAPTOR = T>
+class LLUISingleton: public LLUIInstanceMgr<T, INSTANCE_ADAPTOR>
+{
+public:
+	// default constructor assumes T is derived from LLUISingleton (a true singleton)
+	LLUISingleton() : LLUIInstanceMgr<T, INSTANCE_ADAPTOR>() { sInstance = (T*)this; }
+	~LLUISingleton() { sInstance = NULL; }
+
+	static T* findInstance(const LLSD& seed)
+	{
+		return sInstance;
+	}
+
+	static T* createInstance(const LLSD& seed)
+	{
+		if (sInstance == NULL)
+		{
+			sInstance = new T(seed);
+		}
+		return sInstance;
+	}
+
+protected:
+	static T*	sInstance;
+};
+
+template <class T, class U> T* LLUISingleton<T,U>::sInstance = NULL;
+
 #endif

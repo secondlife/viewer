@@ -555,17 +555,20 @@ void LLFloater::close(bool app_quitting)
 		cleanupHandles();
 		gFocusMgr.clearLastFocusForGroup(this);
 
-		// Do this early, so UI controls will commit before the
-		// window is taken down.
-		releaseFocus();
-
-		// give focus to dependee floater if it exists, and we had focus first
-		if (isDependent())
+		if (hasFocus())
 		{
-			LLFloater* dependee = LLFloater::getFloaterByHandle(mDependeeHandle);
-			if (dependee && !dependee->isDead())
+			// Do this early, so UI controls will commit before the
+			// window is taken down.
+			releaseFocus();
+
+			// give focus to dependee floater if it exists, and we had focus first
+			if (isDependent())
 			{
-				dependee->setFocus(TRUE);
+				LLFloater* dependee = LLFloater::getFloaterByHandle(mDependeeHandle);
+				if (dependee && !dependee->isDead())
+				{
+					dependee->setFocus(TRUE);
+				}
 			}
 		}
 
@@ -1148,6 +1151,28 @@ void LLFloater::setEditModeEnabled(BOOL enable)
 BOOL LLFloater::getEditModeEnabled()
 {
 	return sEditModeEnabled;
+}
+
+//static 
+void LLFloater::show(LLFloater* floaterp)
+{
+	if (floaterp) floaterp->open();
+}
+
+//static 
+void LLFloater::hide(LLFloater* floaterp)
+{
+	if (floaterp) floaterp->close();
+}
+
+//static
+BOOL LLFloater::visible(LLFloater* floaterp)
+{
+	if (floaterp) 
+	{
+		return floaterp->isInVisibleChain();
+	}
+	return FALSE;
 }
 
 // static
@@ -2352,7 +2377,7 @@ void LLFloaterView::popVisibleAll(const skip_list_t& skip_list)
 LLMultiFloater::LLMultiFloater() :
 	mTabContainer(NULL),
 	mTabPos(LLTabContainerCommon::TOP),
-	mAutoResize(FALSE)
+	mAutoResize(TRUE)
 {
 
 }
@@ -2360,7 +2385,7 @@ LLMultiFloater::LLMultiFloater() :
 LLMultiFloater::LLMultiFloater(LLTabContainerCommon::TabPosition tab_pos) :
 	mTabContainer(NULL),
 	mTabPos(tab_pos),
-	mAutoResize(FALSE)
+	mAutoResize(TRUE)
 {
 
 }
@@ -2574,14 +2599,11 @@ void LLMultiFloater::addFloater(LLFloater* floaterp, BOOL select_added_floater, 
 	floaterp->setCanResize(FALSE);
 	floaterp->setCanDrag(FALSE);
 
-	S32 new_width = llmax(mRect.getWidth(), floaterp->getRect().getWidth()); 
-	S32 new_height = llmax(mRect.getHeight(), floaterp->getRect().getHeight() + LLFLOATER_HEADER_SIZE + TABCNTR_HEADER_HEIGHT); 
-
-	reshape(new_width, new_height);
-
 	//add the panel, add it to proper maps
 	mTabContainer->addTabPanel(floaterp, floaterp->getTitle(), FALSE, onTabSelected, this, 0, FALSE, insertion_point);
 	mFloaterDataMap[floaterp->getHandle()] = floater_data;
+
+	resizeToContents();
 
 	if ( select_added_floater )
 	{
@@ -2656,10 +2678,7 @@ void LLMultiFloater::removeFloater(LLFloater* floaterp)
 	floaterp->setBackgroundVisible(TRUE);
 	floaterp->setHost(NULL);
 
-	if (mAutoResize)
-	{
-		resizeToContents();
-	}
+	resizeToContents();
 
 	tabOpen((LLFloater*)mTabContainer->getCurrentPanel(), false);
 }
@@ -2709,7 +2728,8 @@ BOOL LLMultiFloater::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 		if (key == 'W')
 		{
 			LLFloater* floater = getActiveFloater();
-			if (floater && floater->canClose())
+			// is user closeable and is system closeable
+			if (floater && floater->canClose() && floater->isCloseable())
 			{
 				floater->close();
 			}
@@ -2828,10 +2848,17 @@ void LLMultiFloater::resizeToContents()
 
 	S32 cur_height = mRect.getHeight();
 
-	reshape(new_width, new_height);
+	if (mAutoResize)
+	{
+		reshape(new_width, new_height);
+	}
+	else
+	{
+		reshape(llmax(new_min_width, mRect.getWidth()), llmax(new_min_height, mRect.getHeight()));
+	}
 
 	// make sure upper left corner doesn't move
-	translate(0, cur_height - new_height);
+	translate(0, cur_height - mRect.getHeight());
 
 	// Try to keep whole view onscreen, don't allow partial offscreen.
 	gFloaterView->adjustToFitScreen(this, FALSE);

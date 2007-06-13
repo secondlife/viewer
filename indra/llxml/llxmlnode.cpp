@@ -617,6 +617,66 @@ bool LLXMLNode::parseBuffer(
 	return true;
 }
 
+// static
+bool LLXMLNode::parseStream(
+	std::istream& str,
+	LLXMLNodePtr& node, 
+	LLXMLNode* defaults)
+{
+	// Init
+	XML_Parser my_parser = XML_ParserCreate(NULL);
+	XML_SetElementHandler(my_parser, StartXMLNode, EndXMLNode);
+	XML_SetCharacterDataHandler(my_parser, XMLData);
+
+	// Create a root node
+	LLXMLNode *file_node_ptr = new LLXMLNode("XML", FALSE);
+	LLXMLNodePtr file_node = file_node_ptr;
+
+	file_node->mParser = &my_parser;
+
+	XML_SetUserData(my_parser, (void *)file_node_ptr);
+
+	const int BUFSIZE = 1024; 
+	U8* buffer = new U8[BUFSIZE];
+
+	while(str.good())
+	{
+		str.read((char*)buffer, BUFSIZE);
+		int count = str.gcount();
+		
+		if (XML_Parse(my_parser, (const char *)buffer, count, !str.good()) != XML_STATUS_OK)
+		{
+			llwarns << "Error parsing xml error code: "
+					<< XML_ErrorString(XML_GetErrorCode(my_parser))
+					<< " on lne " << XML_GetCurrentLineNumber(my_parser)
+					<< llendl;
+			break;
+		}
+	}
+	
+	delete [] buffer;
+
+	// Deinit
+	XML_ParserFree(my_parser);
+
+	if (!file_node->mChildren || file_node->mChildren->map.size() != 1)
+	{
+		llwarns << "Parse failure - wrong number of top-level nodes xml."
+				<< llendl;
+		node = new LLXMLNode();
+		return false;
+	}
+
+	LLXMLNode *return_node = file_node->mChildren->map.begin()->second;
+
+	return_node->setDefault(defaults);
+	return_node->updateDefault();
+
+	node = return_node;
+	return true;
+}
+
+
 BOOL LLXMLNode::isFullyDefault()
 {
 	if (mDefault.isNull())

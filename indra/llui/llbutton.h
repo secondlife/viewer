@@ -122,6 +122,10 @@ public:
 
 	void			setDisabledSelectedLabelColor( const LLColor4& c )	{ mDisabledSelectedLabelColor = c; }
 
+	void			setImageOverlay(const LLString &image_name, LLFontGL::HAlign alignment = LLFontGL::HCENTER);
+	LLPointer<LLImageGL> getImageOverlay() { return mImageOverlay; }
+	
+
 	virtual void	setValue(const LLSD& value );
 	virtual LLSD	getValue() const;
 
@@ -181,6 +185,9 @@ protected:
 	S32				mMouseDownFrame;
 	F32				mHeldDownDelay;		// seconds, after which held-down callbacks get called
 	S32				mHeldDownFrameDelay;	// frames, after which held-down callbacks get called
+
+	LLPointer<LLImageGL>	mImageOverlay;
+	LLFontGL::HAlign		mImageOverlayAlignment;
 
 	LLPointer<LLImageGL>	mImageUnselected;
 	LLUIString				mUnselectedLabel;

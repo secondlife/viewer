@@ -331,7 +331,7 @@ LLTextEditor::LLTextEditor(
 	mBorder = new LLViewBorder( "text ed border", LLRect(0, mRect.getHeight(), mRect.getWidth(), 0), LLViewBorder::BEVEL_IN, LLViewBorder::STYLE_LINE, UI_TEXTEDITOR_BORDER );
 	addChild( mBorder );
 
-	setText(default_text);
+	appendText(default_text, FALSE, FALSE);
 	
 	mParseHTML=FALSE;
 	mHTML="";
@@ -2630,7 +2630,8 @@ void LLTextEditor::drawSelectionBackground()
 		{
 			LLGLSNoTexture no_texture;
 			const LLColor4& color = mReadOnly ? mReadOnlyBgColor : mWriteableBgColor;
-			glColor3f( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2] );
+			F32 alpha = hasFocus() ? 1.f : 0.5f;
+			glColor4f( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], alpha );
 
 			if( selection_left_y == selection_right_y )
 			{
@@ -3357,6 +3358,14 @@ void LLTextEditor::appendColoredText(const LLString &new_text,
 	style.setVisible(true);
 	style.setColor(color);
 	style.setFontName(font_name);
+	appendStyledText(new_text, allow_undo, prepend_newline, &style);
+}
+
+void LLTextEditor::appendStyledText(const LLString &new_text, 
+									 bool allow_undo, 
+									 bool prepend_newline,
+									 const LLStyle* style)
+{
 	if(mParseHTML)
 	{
 
@@ -3367,10 +3376,13 @@ void LLTextEditor::appendColoredText(const LLString &new_text,
 			LLStyle html;
 			html.setVisible(true);
 			html.setColor(mLinkColor);
-			html.setFontName(font_name);
+			if (style)
+			{
+				html.setFontName(style->getFontString());
+			}
 			html.mUnderline = TRUE;
 
-			if (start > 0) appendText(text.substr(0,start),allow_undo, prepend_newline, &style);
+			if (start > 0) appendText(text.substr(0,start),allow_undo, prepend_newline, style);
 			html.setLinkHREF(text.substr(start,end-start));
 			appendText(text.substr(start, end-start),allow_undo, prepend_newline, &html);
 			if (end < (S32)text.length()) 
@@ -3383,20 +3395,12 @@ void LLTextEditor::appendColoredText(const LLString &new_text,
 				break;
 			}
 		}
-		if (end < (S32)text.length()) appendText(text,allow_undo, prepend_newline, &style);		
+		if (end < (S32)text.length()) appendText(text,allow_undo, prepend_newline, style);	
 	}
 	else
 	{
-		appendText(new_text, allow_undo, prepend_newline, &style);
+		appendText(new_text, allow_undo, prepend_newline, style);
 	}
-}
-
-void LLTextEditor::appendStyledText(const LLString &new_text, 
-									 bool allow_undo, 
-									 bool prepend_newline,
-									 const LLStyle &style)
-{
-	appendText(new_text, allow_undo, prepend_newline, &style);
 }
 
 // Appends new text to end of document

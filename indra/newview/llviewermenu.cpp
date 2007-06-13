@@ -3010,24 +3010,6 @@ class LLHelpMOTD : public view_listener_t
 	}
 };
 
-class LLHelpLiveHelp : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		// the session_id of a 911 session will always be this agent's session id
-		static LLUUID session_id(LLUUID::null);
-		if (session_id.isNull())
-		{
-			session_id.generate();
-		}
-		gIMView->setFloaterOpen(TRUE);
-		LLDynamicArray<LLUUID> members;
-		members.put(gAgent.getID());
-		gIMView->addSession("Help Request", IM_SESSION_911_START, session_id, members); //xui: translate
-		return true;
-	}
-};
-
 //
 // Major mode switching
 //
@@ -7642,7 +7624,6 @@ void initialize_menus()
 	addMenu(new LLToolsVisibleTakeObject(), "Tools.VisibleTakeObject");*/
 
 	// Help menu
-	addMenu(new LLHelpLiveHelp(), "Help.LiveHelp");
 	addMenu(new LLHelpMOTD(), "Help.MOTD");
 
 	// Self pie menu

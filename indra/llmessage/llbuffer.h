@@ -19,6 +19,7 @@
  */
 
 #include <list>
+#include <vector>
 
 /** 
  * @class LLChannelDescriptors

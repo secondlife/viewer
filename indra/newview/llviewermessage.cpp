@@ -1691,69 +1691,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	}
 	break;
 	
-	case IM_SESSION_911_SEND:
-	{
-		//this is just the same code as IM_SESSION_SEND for a bit
-		//I was too lazy to make this a function....sorry - jwolk
-		if (!is_linden && is_busy)
-		{
-			return;
-		}
-			
-		// standard message, not from system
-		char saved[MAX_STRING];		/* Flawfinder: ignore */
-		saved[0] = '\0';
-		if(offline == IM_OFFLINE)
-		{
-			char time_buf[TIME_STR_LENGTH];		/* Flawfinder: ignore */
-			snprintf(saved,		/* Flawfinder: ignore */
-					 MAX_STRING, 
-					 "(Saved %s) ", 
-					 formatted_time(timestamp, time_buf));
-		}
-	
-		snprintf(buffer, 		/* Flawfinder: ignore */
-				 sizeof(buffer),
-				 "%s%s%s%s",
-				 name,
-				 separator_string,
-				 saved,
-				 (message+message_offset));
-
-		BOOL is_this_agent = FALSE;
-		if(from_id == gAgentID)
-		{
-			from_id = LLUUID::null;
-			is_this_agent = TRUE;
-		}
-
-		gIMView->addMessage(
-			session_id,
-			from_id,
-			name,
-			buffer,
-			(char*)binary_bucket,
-			IM_SESSION_ADD,
-			parent_estate_id,
-			region_id,
-			position);
-
-		snprintf(buffer, sizeof(buffer), "IM: %s%s%s%s", name, separator_string, saved, (message+message_offset));		/* Flawfinder: ignore */
-		chat.mText = buffer;
-		LLFloaterChat::addChat(chat, TRUE, is_this_agent);
-
-		//ok, now we want to add a teleport button if we are receving
-		//a message from not ourself
-		LLFloaterIMPanel* panel =
-			gIMView->findFloaterBySession(session_id);
-
-		if (panel && !is_this_agent )
-		{
-			//don't add a teleport button for yourself
-			panel->addTeleportButton();
-		}
-		break;
-	}
 	case IM_SESSION_SEND:
 	{
 		if (!is_linden && is_busy)
@@ -1761,15 +1698,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			return;
 		}
 
-			// System messages, specifically "Foo Bar has left this session"
-			// are not shown unless you actually have that session open.
-			// Band-aid.  JC
-			if (offline == IM_ONLINE
-				&& chat.mFromName == SYSTEM_FROM
-				&& !gIMView->hasSession(session_id))
-			{
-				return;
-			}
+		// System messages, specifically "Foo Bar has left this session"
+		// are not shown unless you actually have that session open.
+		// Band-aid.  JC
+		if (offline == IM_ONLINE
+			&& chat.mFromName == SYSTEM_FROM
+			&& !gIMView->hasSession(session_id))
+		{
+			return;
+		}
 
 		// standard message, not from system
 		char saved[MAX_STRING];		/* Flawfinder: ignore */
@@ -1795,7 +1732,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			name,
 			buffer,
 			(char*)binary_bucket,
-			IM_SESSION_ADD,
+			IM_SESSION_INVITE,
 			parent_estate_id,
 			region_id,
 			position);

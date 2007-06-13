@@ -265,3 +265,16 @@ char* ll_print_sd(const LLSD& sd)
 	buffer[bufferSize - 1] = '\0';
 	return buffer;
 }
+
+char* ll_pretty_print_sd(const LLSD& sd)
+{
+	const U32 bufferSize = 10 * 1024;
+	static char buffer[bufferSize];
+	std::ostringstream stream;
+	//stream.rdbuf()->pubsetbuf(buffer, bufferSize);
+	stream << LLSDOStreamer<LLSDXMLFormatter>(sd, LLSDFormatter::OPTIONS_PRETTY);
+	stream << std::ends;
+	strncpy(buffer, stream.str().c_str(), bufferSize);
+	buffer[bufferSize - 1] = '\0';
+	return buffer;
+}

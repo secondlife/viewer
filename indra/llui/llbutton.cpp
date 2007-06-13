@@ -595,6 +595,56 @@ void LLButton::draw()
 			gl_rect_2d(0, mRect.getHeight(), mRect.getWidth(), 0, LLColor4::pink1, FALSE);
 		}
 
+		// draw overlay image
+		if (mImageOverlay.notNull())
+		{
+			const S32 IMG_PAD = 4;
+			// get max width and height (discard level 0)
+			S32 overlay_width = mImageOverlay->getWidth(0);
+			S32 overlay_height = mImageOverlay->getHeight(0);
+
+			F32 scale_factor = llmin((F32)mRect.getWidth() / (F32)overlay_width, (F32)mRect.getHeight() / (F32)overlay_height, 1.f);
+			overlay_width = llround((F32)overlay_width * scale_factor);
+			overlay_height = llround((F32)overlay_height * scale_factor);
+
+			S32 center_x = getLocalRect().getCenterX();
+			S32 center_y = getLocalRect().getCenterY();
+
+			switch(mImageOverlayAlignment)
+			{
+			case LLFontGL::LEFT:
+				gl_draw_scaled_image(
+					IMG_PAD, 
+					center_y - (overlay_height / 2), 
+					overlay_width, 
+					overlay_height, 
+					mImageOverlay,
+					LLColor4::white);
+				break;
+			case LLFontGL::HCENTER:
+				gl_draw_scaled_image(
+					center_x - (overlay_width / 2), 
+					center_y - (overlay_height / 2), 
+					overlay_width, 
+					overlay_height, 
+					mImageOverlay,
+					LLColor4::white);
+				break;
+			case LLFontGL::RIGHT:
+				gl_draw_scaled_image(
+					mRect.getWidth() - IMG_PAD - overlay_width, 
+					center_y - (overlay_height / 2), 
+					overlay_width, 
+					overlay_height, 
+					mImageOverlay,
+					LLColor4::white);
+				break;
+			default:
+				// draw nothing
+				break;
+			}
+		}
+
 		// Draw label
 		if( !label.empty() )
 		{
@@ -806,6 +856,21 @@ void LLButton::setHoverImages( const LLString& image_name, const LLString& selec
 	setImageHoverSelected(selected_name);
 }
 
+void LLButton::setImageOverlay(const LLString &image_name, LLFontGL::HAlign alignment)
+{
+	if (image_name.empty())
+	{
+		mImageOverlay = NULL;
+	}
+	else
+	{
+		LLUUID overlay_image_id = LLUI::findAssetUUIDByName(image_name);
+		mImageOverlay = LLUI::sImageProvider->getUIImageByID(overlay_image_id);
+		mImageOverlayAlignment = alignment;
+	}
+}
+
+
 void LLButton::onMouseCaptureLost()
 {
 	mMouseDownTimer.stop();
@@ -978,6 +1043,18 @@ LLView* LLButton::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *fa
 	LLString	image_disabled;
 	if (node->hasAttribute("image_disabled")) node->getAttributeString("image_disabled",image_disabled);
 
+	LLString	image_overlay;
+	node->getAttributeString("image_overlay", image_overlay);
+
+	LLFontGL::HAlign image_overlay_alignment = LLFontGL::HCENTER;
+	LLString image_overlay_alignment_string;
+	if (node->hasAttribute("image_overlay_alignment"))
+	{
+		node->getAttributeString("image_overlay_alignment", image_overlay_alignment_string);
+		image_overlay_alignment = LLFontGL::hAlignFromName(image_overlay_alignment_string);
+	}
+
+
 	LLButton *button = new LLButton(name, 
 			LLRect(),
 			image_unselected,
@@ -1000,6 +1077,7 @@ LLView* LLButton::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *fa
 	
 	if(image_disabled != LLString::null) button->setImageDisabled(image_disabled);
 	
+	if(image_overlay != LLString::null) button->setImageOverlay(image_overlay, image_overlay_alignment);
 
 	if (node->hasAttribute("halign"))
 	{

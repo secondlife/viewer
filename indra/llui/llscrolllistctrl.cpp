@@ -79,7 +79,7 @@ protected:
 // LLScrollListIcon
 //
 LLScrollListIcon::LLScrollListIcon(LLImageGL* icon, S32 width, LLUUID image_id) :
-mIcon(icon), mImageUUID(image_id.asString())
+mIcon(icon), mColor(LLColor4::white), mImageUUID(image_id.asString())
 {
 	if (width)
 	{
@@ -93,6 +93,16 @@ mIcon(icon), mImageUUID(image_id.asString())
 
 LLScrollListIcon::~LLScrollListIcon()
 {
+}
+
+void LLScrollListIcon::setColor(const LLColor4& color)
+{
+	mColor = color;
+}
+
+void LLScrollListIcon::drawToWidth(S32 width, const LLColor4& color, const LLColor4& highlight_color) const	
+{
+	gl_draw_image(0, 0, mIcon, mColor); 
 }
 
 //
@@ -186,6 +196,15 @@ LLScrollListText::~LLScrollListText()
 {
 	sCount--;
 	delete mColor;
+}
+
+void LLScrollListText::setColor(const LLColor4& color)
+{
+	if (!mColor)
+	{
+		mColor = new LLColor4();
+	}
+	*mColor = color;
 }
 
 void LLScrollListText::setText(const LLString& text)
@@ -2789,6 +2808,8 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& value, EAddPosition p
 		LLString fontname = (*itor)["font"].asString();
 		LLString fontstyle = (*itor)["font-style"].asString();
 		LLString type = (*itor)["type"].asString();
+		BOOL has_color = (*itor).has("color");
+		LLColor4 color = ((*itor)["color"]);
 
 		const LLFontGL *font = gResMgr->getRes(fontname);
 		if (!font)
@@ -2801,21 +2822,41 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& value, EAddPosition p
 		{
 			LLUUID image_id = value.asUUID();
 			LLImageGL* icon = LLUI::sImageProvider->getUIImageByID(image_id);
-			new_item->setColumn(index, new LLScrollListIcon(icon, width, image_id));
+			LLScrollListIcon* cell = new LLScrollListIcon(icon, width, image_id);
+			if (has_color)
+			{
+				cell->setColor(color);
+			}
+			new_item->setColumn(index, cell);
 		}
 		else if (type == "checkbox")
 		{
 			LLCheckBoxCtrl* ctrl = new LLCheckBoxCtrl(value.asString(),
 														LLRect(0, 0, width, width), "label");
-			new_item->setColumn(index, new LLScrollListCheck(ctrl,width));
+			LLScrollListCheck* cell = new LLScrollListCheck(ctrl,width);
+			if (has_color)
+			{
+				cell->setColor(color);
+			}
+			new_item->setColumn(index, cell);
 		}
 		else if (type == "separator")
 		{
-			new_item->setColumn(index, new LLScrollListSeparator(width));
+			LLScrollListSeparator* cell = new LLScrollListSeparator(width);
+			if (has_color)
+			{
+				cell->setColor(color);
+			}
+			new_item->setColumn(index, cell);
 		}
 		else
 		{
-			new_item->setColumn(index, new LLScrollListText(value.asString(), font, width, font_style, font_alignment));
+			LLScrollListText* cell = new LLScrollListText(value.asString(), font, width, font_style, font_alignment);
+			if (has_color)
+			{
+				cell->setColor(color);
+			}
+			new_item->setColumn(index, cell);
 			if (columnp->mHeader && !value.asString().empty())
 			{
 				columnp->mHeader->setHasResizableElement(TRUE);

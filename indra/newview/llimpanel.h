@@ -51,7 +51,7 @@ public:
 
 	// add target ids to the session. 
 	// Return TRUE if successful, otherwise FALSE.
-	BOOL addParticipants(const LLDynamicArray<LLUUID>& agent_ids);
+	BOOL inviteToSession(const LLDynamicArray<LLUUID>& agent_ids);
 
 	void addHistoryLine(const std::string &utf8msg, 
 						const LLColor4& color = LLColor4::white, 
@@ -78,10 +78,7 @@ public:
 
 	const LLUUID& getSessionID() const { return mSessionUUID; }
 	const LLUUID& getOtherParticipantID() const { return mOtherParticipantUUID; }
-
-	// HACK -- for enabling a teleport button for helpers
-	static void onTeleport(void* userdata);
-	void addTeleportButton();
+	const EInstantMessage getDialogType() const { return mDialog; }
 
 	void sessionInitReplyReceived(const LLUUID& im_session_id);
 

@@ -2052,7 +2052,54 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			break;
 
 		case WM_MBUTTONDOWN:
-			// Handle middle button click
+//		case WM_MBUTTONDBLCLK:
+			{
+				// Because we move the cursor position in tllviewerhe app, we need to query
+				// to find out where the cursor at the time the event is handled.
+				// If we don't do this, many clicks could get buffered up, and if the
+				// first click changes the cursor position, all subsequent clicks
+				// will occur at the wrong location.  JC
+				LLCoordWindow cursor_coord_window;
+				if (window_imp->mMousePositionModified)
+				{
+					window_imp->getCursorPosition(&cursor_coord_window);
+					window_imp->convertCoords(cursor_coord_window, &gl_coord);
+				}
+				else
+				{
+					window_imp->convertCoords(window_coord, &gl_coord);
+				}
+				MASK mask = gKeyboard->currentMask(TRUE);
+				if (window_imp->mCallbacks->handleMiddleMouseDown(window_imp, gl_coord, mask))
+				{
+					return 0;
+				}
+			}
+			break;
+
+		case WM_MBUTTONUP:
+			{
+				// Because we move the cursor position in tllviewerhe app, we need to query
+				// to find out where the cursor at the time the event is handled.
+				// If we don't do this, many clicks could get buffered up, and if the
+				// first click changes the cursor position, all subsequent clicks
+				// will occur at the wrong location.  JC
+				LLCoordWindow cursor_coord_window;
+				if (window_imp->mMousePositionModified)
+				{
+					window_imp->getCursorPosition(&cursor_coord_window);
+					window_imp->convertCoords(cursor_coord_window, &gl_coord);
+				}
+				else
+				{
+					window_imp->convertCoords(window_coord, &gl_coord);
+				}
+				MASK mask = gKeyboard->currentMask(TRUE);
+				if (window_imp->mCallbacks->handleMiddleMouseUp(window_imp, gl_coord, mask))
+				{
+					return 0;
+				}
+			}
 			break;
 
 		case WM_MOUSEWHEEL:

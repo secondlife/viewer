@@ -1283,7 +1283,9 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("SendUserReportWithScreenshot");
 	capabilityNames.append("RequestTextureDownload");
 	capabilityNames.append("UntrustedSimulatorMessage");
-	
+	capabilityNames.append("ParcelVoiceInfoRequest");
+	capabilityNames.append("ChatSessionRequest");
+
 	LLHTTPClient::post(url, capabilityNames, BaseCapabilitiesComplete::build(this));
 }
 

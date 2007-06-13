@@ -76,6 +76,8 @@ public:
 	virtual void handleQuit(LLWindow *window);
 	virtual BOOL handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
 	virtual BOOL handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
+	virtual BOOL handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
+	virtual BOOL handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
 	virtual BOOL handleActivate(LLWindow *window, BOOL activated);
 	virtual void handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask);
 	virtual void handleScrollWheel(LLWindow *window,  S32 clicks);

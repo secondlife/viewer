@@ -43,6 +43,7 @@ public:
 	virtual void			setWidth(S32 width) = 0;
 	virtual void			highlightText(S32 offset, S32 num_chars) {}
 	virtual BOOL			isText() = 0;
+	virtual void			setColor(const LLColor4&) = 0;
 
 	virtual BOOL	handleClick() { return FALSE; }
 	virtual	void	setEnabled(BOOL enable) { }
@@ -57,6 +58,7 @@ public:
 	virtual S32				getWidth() const {return mWidth;}
 	virtual S32				getHeight() const { return 5; };
 	virtual void			setWidth(S32 width) {mWidth = width; }
+	virtual void			setColor(const LLColor4&) {};
 	virtual BOOL			isText() { return FALSE; }
 
 protected:
@@ -77,6 +79,7 @@ public:
 	virtual const BOOL			getVisible() const  { return mVisible; }
 	virtual void	highlightText(S32 offset, S32 num_chars) {mHighlightOffset = offset; mHighlightCount = num_chars;}
 	void			setText(const LLString& text);
+	virtual void	setColor(const LLColor4&);
 	virtual BOOL	isText() { return TRUE; }
 
 private:
@@ -100,18 +103,20 @@ class LLScrollListIcon : public LLScrollListCell
 public:
 	LLScrollListIcon( LLImageGL* icon, S32 width = 0, LLUUID image_id = LLUUID::null);
 	/*virtual*/ ~LLScrollListIcon();
-	virtual void	drawToWidth(S32 width, const LLColor4& color, const LLColor4& highlight_color) const	{ gl_draw_image(0, 0, mIcon); }
+	virtual void	drawToWidth(S32 width, const LLColor4& color, const LLColor4& highlight_color) const;
 	virtual S32		getWidth() const			{ return mWidth; }
 	virtual S32		getHeight() const			{ return mIcon->getHeight(); }
 	virtual const LLString& getText() const { return mImageUUID; }
 	virtual const LLString& getTextLower() const { return mImageUUID; }
 	virtual void	setWidth(S32 width)			{ mWidth = width; }
+	virtual void	setColor(const LLColor4&);
 	virtual BOOL	isText() { return FALSE; }
 
 private:
 	LLPointer<LLImageGL> mIcon;
 	LLString mImageUUID;
 	S32 mWidth;
+	LLColor4 mColor;
 };
 
 class LLScrollListCheck : public LLScrollListCell
@@ -126,6 +131,7 @@ public:
 
 	virtual BOOL	handleClick();
 	virtual void	setEnabled(BOOL enable)		{ if (mCheckBox) mCheckBox->setEnabled(enable); }
+	virtual void	setColor(const LLColor4& color) {};
 
 	LLCheckBoxCtrl*	getCheckBox()				{ return mCheckBox; }
 	virtual BOOL	isText() { return FALSE; }

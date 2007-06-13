@@ -2927,17 +2927,19 @@ static LLHTTPNode& messageRootNode()
 }
 
 //static
-void LLMessageSystem::dispatch(const std::string& msg_name,
-								const LLSD& message)
+void LLMessageSystem::dispatch(
+	const std::string& msg_name,
+	const LLSD& message)
 {
 	LLPointer<LLSimpleResponse>	responsep =	LLSimpleResponse::create();
 	dispatch(msg_name, message, responsep);
 }
 
 //static
-void LLMessageSystem::dispatch(const std::string& msg_name,
-								const LLSD& message,
-							   LLHTTPNode::ResponsePtr responsep)
+void LLMessageSystem::dispatch(
+	const std::string& msg_name,
+	const LLSD& message,
+	LLHTTPNode::ResponsePtr responsep)
 {
 	if (msg_name.empty())
 	{

@@ -81,6 +81,8 @@ public:
 	void dump();		// Dumps the contents of the cache
 	void dumpStats();	// Dumps the sizes of the cache and associated queues.
 
+	static LLString getDefaultName();
+
 private:
 	class Impl;
 	Impl& impl;

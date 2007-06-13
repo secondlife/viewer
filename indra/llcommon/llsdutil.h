@@ -65,4 +65,7 @@ LLSD ll_binary_from_string(const LLSD& sd);
 // Serializes sd to static buffer and returns pointer, useful for gdb debugging.
 char* ll_print_sd(const LLSD& sd);
 
+// Serializes sd to static buffer and returns pointer, using "pretty printing" mode.
+char* ll_pretty_print_sd(const LLSD& sd);
+
 #endif // LL_LLSDUTIL_H
