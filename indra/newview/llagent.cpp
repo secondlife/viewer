@@ -4963,7 +4963,7 @@ BOOL LLAgent::allowOperation(PermissionBit op,
 							 const LLPermissions& perm,
 							 U64 group_proxy_power,
 							 U8 god_minimum)
- {
+{
 	// Check god level.
 	if (getGodLevel() >= god_minimum) return TRUE;
 

@@ -802,7 +802,7 @@ LLString LLItemBridge::getLabelSuffix() const
 	if(item) 
 	{
 		// it's a bit confusing to put nocopy/nomod/etc on calling cards.
-		if( LLAssetType::AT_CALLINGCARD != item->getType()
+		if(LLAssetType::AT_CALLINGCARD != item->getType()
 		   && item->getPermissions().getOwner() == gAgent.getID())
 		{
 			BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
@@ -814,32 +814,14 @@ LLString LLItemBridge::getLabelSuffix() const
 			const char* NO_MOD = " (no modify)";
 			const char* NO_XFER = " (no transfer)";
 			const char* scopy;
-			if(copy)
-			{
-				scopy = EMPTY;
-			}
-			else
-			{
-				scopy = NO_COPY;
-			};
+			if(copy) scopy = EMPTY;
+			else scopy = NO_COPY;
 			const char* smod;
-			if(mod)
-			{
-				smod = EMPTY;
-			}
-			else
-			{
-				smod = NO_MOD;
-			};
+			if(mod) smod = EMPTY;
+			else smod = NO_MOD;
 			const char* sxfer;
-			if(xfer)
-			{
-				sxfer = EMPTY;
-			}
-			else
-			{
-				sxfer = NO_XFER;
-			};
+			if(xfer) sxfer = EMPTY;
+			else sxfer = NO_XFER;
 			char buffer[MAX_STRING];		/*Flawfinder: ignore*/
 			snprintf(						/* Flawfinder: ignore */
 				buffer,
