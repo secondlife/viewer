@@ -31,6 +31,7 @@
 #include "llglheaders.h"
 
 const F32 SCROLL_STEP_TIME = 0.4f;
+const F32 SCROLL_DELAY_TIME = 0.5f;
 const S32 TAB_PADDING = 15;
 const S32 TABCNTR_TAB_MIN_WIDTH = 60;
 const S32 TABCNTR_TAB_MAX_WIDTH = 150;
@@ -61,6 +62,7 @@ LLTabContainerCommon::LLTabContainerCommon(
 	mLockedTabCount(0)
 { 
 	setMouseOpaque(FALSE);
+	mDragAndDropDelayTimer.stop();
 }
 
 
@@ -81,9 +83,11 @@ LLTabContainerCommon::LLTabContainerCommon(
 	mCallbackUserdata( callback_userdata ),
 	mTitleBox(NULL),
 	mTopBorderHeight(LLPANEL_BORDER_WIDTH),
-	mTabPosition(pos)
+	mTabPosition(pos),
+	mLockedTabCount(0)
 {
 	setMouseOpaque(FALSE);
+	mDragAndDropDelayTimer.stop();
 }
 
 
@@ -711,8 +715,8 @@ LLTabContainer::LLTabContainer(
 	: 
 	LLTabContainerCommon(name, rect, pos, close_callback, callback_userdata, bordered),
 	mLeftArrowBtn(NULL),
-	mRightArrowBtn(NULL),
 	mJumpLeftArrowBtn(NULL),
+	mRightArrowBtn(NULL),
 	mJumpRightArrowBtn(NULL),
 	mRightTabBtnOffset(0),
 	mMinTabWidth(TABCNTR_TAB_MIN_WIDTH),
@@ -729,8 +733,8 @@ LLTabContainer::LLTabContainer(
 	: 
 	LLTabContainerCommon(name, rect_control, pos, close_callback, callback_userdata, bordered),
 	mLeftArrowBtn(NULL),
-	mRightArrowBtn(NULL),
 	mJumpLeftArrowBtn(NULL),
+	mRightArrowBtn(NULL),
 	mJumpRightArrowBtn(NULL),
 	mRightTabBtnOffset(0),
 	mMinTabWidth(TABCNTR_TAB_MIN_WIDTH),
@@ -1556,43 +1560,48 @@ BOOL LLTabContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,	BOOL drop,	EDrag
 {
 	BOOL has_scroll_arrows = (mMaxScrollPos	> 0);
 
-	if (has_scroll_arrows)
+	if( mDragAndDropDelayTimer.getElapsedTimeF32() > SCROLL_DELAY_TIME )
 	{
-		if (mJumpLeftArrowBtn->getRect().pointInRect(x,	y))
-		{
-			S32	local_x	= x	- mJumpLeftArrowBtn->getRect().mLeft;
-			S32	local_y	= y	- mJumpLeftArrowBtn->getRect().mBottom;
-			mJumpLeftArrowBtn->handleHover(local_x,	local_y, mask);
-		}
-		if (mJumpRightArrowBtn->getRect().pointInRect(x,	y))
-		{
-			S32	local_x	= x	- mJumpRightArrowBtn->getRect().mLeft;
-			S32	local_y	= y	- mJumpRightArrowBtn->getRect().mBottom;
-			mJumpRightArrowBtn->handleHover(local_x,	local_y, mask);
-		}
-		if (mLeftArrowBtn->getRect().pointInRect(x,	y))
-		{
-			S32	local_x	= x	- mLeftArrowBtn->getRect().mLeft;
-			S32	local_y	= y	- mLeftArrowBtn->getRect().mBottom;
-			mLeftArrowBtn->handleHover(local_x,	local_y, mask);
-		}
-		else if	(mRightArrowBtn->getRect().pointInRect(x, y))
-		{
-			S32	local_x	= x	- mRightArrowBtn->getRect().mLeft;
-			S32	local_y	= y	- mRightArrowBtn->getRect().mBottom;
-			mRightArrowBtn->handleHover(local_x, local_y, mask);
-		}
-	}
 
-	for(tuple_list_t::iterator iter	= mTabList.begin();	iter !=	 mTabList.end(); ++iter)
-	{
-		LLTabTuple*	tuple =	*iter;
-		tuple->mButton->setVisible(	TRUE );
-		S32	local_x	= x	- tuple->mButton->getRect().mLeft;
-		S32	local_y	= y	- tuple->mButton->getRect().mBottom;
-		if (tuple->mButton->pointInView(local_x, local_y) &&  tuple->mButton->getEnabled() && !tuple->mTabPanel->getVisible())
+		if (has_scroll_arrows)
 		{
-			tuple->mButton->onCommit();
+			if (mJumpLeftArrowBtn->getRect().pointInRect(x,	y))
+			{
+				S32	local_x	= x	- mJumpLeftArrowBtn->getRect().mLeft;
+				S32	local_y	= y	- mJumpLeftArrowBtn->getRect().mBottom;
+				mJumpLeftArrowBtn->handleHover(local_x,	local_y, mask);
+			}
+			if (mJumpRightArrowBtn->getRect().pointInRect(x,	y))
+			{
+				S32	local_x	= x	- mJumpRightArrowBtn->getRect().mLeft;
+				S32	local_y	= y	- mJumpRightArrowBtn->getRect().mBottom;
+				mJumpRightArrowBtn->handleHover(local_x,	local_y, mask);
+			}
+			if (mLeftArrowBtn->getRect().pointInRect(x,	y))
+			{
+				S32	local_x	= x	- mLeftArrowBtn->getRect().mLeft;
+				S32	local_y	= y	- mLeftArrowBtn->getRect().mBottom;
+				mLeftArrowBtn->handleHover(local_x,	local_y, mask);
+			}
+			else if	(mRightArrowBtn->getRect().pointInRect(x, y))
+			{
+				S32	local_x	= x	- mRightArrowBtn->getRect().mLeft;
+				S32	local_y	= y	- mRightArrowBtn->getRect().mBottom;
+				mRightArrowBtn->handleHover(local_x, local_y, mask);
+			}
+		}
+
+		for(tuple_list_t::iterator iter	= mTabList.begin();	iter !=	 mTabList.end(); ++iter)
+		{
+			LLTabTuple*	tuple =	*iter;
+			tuple->mButton->setVisible(	TRUE );
+			S32	local_x	= x	- tuple->mButton->getRect().mLeft;
+			S32	local_y	= y	- tuple->mButton->getRect().mBottom;
+			if (tuple->mButton->pointInView(local_x, local_y) &&  tuple->mButton->getEnabled() && !tuple->mTabPanel->getVisible())
+			{
+				tuple->mButton->onCommit();
+				mDragAndDropDelayTimer.stop();
+			}
 		}
 	}
 

@@ -36,7 +36,7 @@ protected:
 	void requestVOInventory();
 
 private:
-	LLViewerObject* mListenerVObject;
+	LLPointer<LLViewerObject> mListenerVObject;
 };
 
 #endif

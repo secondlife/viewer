@@ -2502,6 +2502,7 @@ LLFolderView::LLFolderView( const LLString& name, LLViewerImage* root_folder_ico
 	mLastScrollItem( NULL ),
 	mNeedsAutoSelect( FALSE ),
 	mAutoSelectOverride(FALSE),
+	mNeedsAutoRename(FALSE),
 	mDebugFilters(FALSE),
 	mSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME),	// This gets overridden by a pref immediately
 	mFilter(name),
@@ -4933,4 +4934,40 @@ LLString LLInventoryFilter::getFilterText()
 		mFilterText += " - Since Logoff";
 	}
 	return mFilterText;
+}
+
+void LLInventoryFilter::toLLSD(LLSD& data)
+{
+	data["filter_types"] = (LLSD::Integer)getFilterTypes();
+	data["min_date"] = (LLSD::Integer)getMinDate();
+	data["max_date"] = (LLSD::Integer)getMaxDate();
+	data["hours_ago"] = (LLSD::Integer)getHoursAgo();
+	data["show_folder_state"] = (LLSD::Integer)getShowFolderState();
+	data["permissions"] = (LLSD::Integer)getFilterPermissions();
+	data["substring"] = (LLSD::String)getFilterSubString();
+	data["sort_order"] = (LLSD::Integer)getSortOrder();
+}
+
+void LLInventoryFilter::fromLLSD(LLSD& data)
+{
+	if(data.has("filter_types"))
+		setFilterTypes((U32)data["filter_types"].asInteger());
+
+	if(data.has("min_date") && data.has("max_date"))
+		setDateRange((U32)data["min_date"].asInteger(), (U32)data["max_date"].asInteger());
+
+	if(data.has("hours_ago"))
+		setHoursAgo((U32)data["hours_ago"].asInteger());
+
+	if(data.has("show_folder_state"))
+		setShowFolderState((EFolderShow)data["show_folder_state"].asInteger());
+
+	if(data.has("permissions"))
+		setFilterPermissions((PermissionMask)data["permissions"].asInteger());
+
+	if(data.has("substring"))
+		setFilterSubString(LLString(data["substring"].asString()));
+
+	if(data.has("sort_order"))
+		setSortOrder((U32)data["sort_order"].asInteger());
 }

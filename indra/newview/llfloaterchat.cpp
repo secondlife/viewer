@@ -130,12 +130,22 @@ void add_timestamped_line(LLViewerTextEditor* edit, const LLString& line, const 
 	edit->appendColoredText(line, false, prepend_newline, color);
 }
 
+void log_chat_text(const LLChat& chat)
+{
+		LLString histstr;
+		if (gSavedPerAccountSettings.getBOOL("LogChatTimestamp"))
+			histstr = LLLogChat::timestamp(gSavedPerAccountSettings.getBOOL("LogTimestampDate")) + chat.mText;
+		else
+			histstr = chat.mText;
+
+		LLLogChat::saveHistory("chat",histstr);
+}
 // static
 void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 {
 	if ( gSavedPerAccountSettings.getBOOL("LogChat") && log_to_file) 
 	{
-		LLLogChat::saveHistory("chat",chat.mText);
+		log_chat_text(chat);
 	}
 	
 	LLColor4 color = get_text_color(chat);
@@ -344,10 +354,14 @@ void LLFloaterChat::addChat(const LLChat& chat,
 		gConsole->addLine(chat.mText, size, text_color);
 	}
 
-	if( !from_instant_message || gSavedSettings.getBOOL("IMInChatHistory") )
-	{
+	if(from_instant_message && gSavedPerAccountSettings.getBOOL("LogChatIM"))
+		log_chat_text(chat);
+	
+	if(from_instant_message && gSavedSettings.getBOOL("IMInChatHistory"))
+		addChatHistory(chat,false);
+	
+	if(!from_instant_message)
 		addChatHistory(chat);
-	}
 }
 
 LLColor4 get_text_color(const LLChat& chat)
@@ -379,6 +393,10 @@ LLColor4 get_text_color(const LLChat& chat)
 			if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
 			{
 				text_color = gSavedSettings.getColor4("ScriptErrorColor");
+			}
+			else if ( chat.mChatType == CHAT_TYPE_OWNER )
+			{
+				text_color = gSavedSettings.getColor4("llOwnerSayChatColor");
 			}
 			else
 			{

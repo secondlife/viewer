@@ -375,9 +375,9 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectAndFamily(LLViewerObject* obj, 
 	root->resetRot();
 
 	// leave component mode
-	if (!gSavedSettings.getBOOL("SelectLinkedSet"))
+	if (gSavedSettings.getBOOL("EditLinkedParts"))
 	{
-		gSavedSettings.setBOOL("SelectLinkedSet", TRUE);
+		gSavedSettings.setBOOL("EditLinkedParts", FALSE);
 		promoteSelectionToRoot();
 	}
 
@@ -443,9 +443,9 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectAndFamily(const LLDynamicArray<
 	}
 
 	// leave component mode
-	if (!gSavedSettings.getBOOL("SelectLinkedSet"))
+	if (gSavedSettings.getBOOL("EditLinkedParts"))
 	{		
-		gSavedSettings.setBOOL("SelectLinkedSet", TRUE);
+		gSavedSettings.setBOOL("EditLinkedParts", FALSE);
 		promoteSelectionToRoot();
 	}
 
@@ -928,7 +928,7 @@ LLObjectSelectionHandle LLSelectMgr::selectHighlightedObjects()
 
 void LLSelectMgr::deselectHighlightedObjects()
 {
-	BOOL select_linked_set = gSavedSettings.getBOOL("SelectLinkedSet");
+	BOOL select_linked_set = !gSavedSettings.getBOOL("EditLinkedParts");
 	for (std::set<LLPointer<LLViewerObject> >::iterator iter = mRectSelectedObjects.begin();
 		 iter != mRectSelectedObjects.end(); iter++)
 	{
@@ -3229,7 +3229,7 @@ void LLSelectMgr::sendMultipleUpdate(U32 type)
 {
 	if (type == UPD_NONE) return;
 	// send individual updates when selecting textures or individual objects
-	ESendType send_type = (gSavedSettings.getBOOL("SelectLinkedSet") && !getTEMode()) ? SEND_ONLY_ROOTS : SEND_ROOTS_FIRST;
+	ESendType send_type = (!gSavedSettings.getBOOL("EditLinkedParts") && !getTEMode()) ? SEND_ONLY_ROOTS : SEND_ROOTS_FIRST;
 	if (send_type == SEND_ONLY_ROOTS)
 	{
 		// tell simulator to apply to whole linked sets
@@ -4486,7 +4486,7 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
 			LLString fullname(first_name);
 			fullname.append(" ");
 			fullname.append(last_name);
-			reporterp->setPickedObjectProperties(name, fullname.c_str());
+			reporterp->setPickedObjectProperties(name, fullname.c_str(), owner_id);
 		}
 	}
 
@@ -4649,7 +4649,7 @@ void LLSelectMgr::updateSilhouettes()
 		// persists from frame to frame to avoid regenerating object silhouettes
 		// mHighlightedObjects includes all siblings of rect selected objects
 
-		BOOL select_linked_set = gSavedSettings.getBOOL("SelectLinkedSet");
+		BOOL select_linked_set = !gSavedSettings.getBOOL("EditLinkedParts");
 
 		// generate list of roots from current object selection
 		for (std::set<LLPointer<LLViewerObject> >::iterator iter = mRectSelectedObjects.begin();
@@ -5599,7 +5599,7 @@ BOOL LLSelectMgr::canUndo()
 //-----------------------------------------------------------------------------
 void LLSelectMgr::undo()
 {
-	BOOL select_linked_set = gSavedSettings.getBOOL("SelectLinkedSet");
+	BOOL select_linked_set = !gSavedSettings.getBOOL("EditLinkedParts");
 	LLUUID group_id(gAgent.getGroupID());
 	sendListToRegions("Undo", packAgentAndSessionAndGroupID, packObjectID, &group_id, select_linked_set ? SEND_ONLY_ROOTS : SEND_CHILDREN_FIRST);
 }
@@ -5617,7 +5617,7 @@ BOOL LLSelectMgr::canRedo()
 //-----------------------------------------------------------------------------
 void LLSelectMgr::redo()
 {
-	BOOL select_linked_set = gSavedSettings.getBOOL("SelectLinkedSet");
+	BOOL select_linked_set = !gSavedSettings.getBOOL("EditLinkedParts");
 	LLUUID group_id(gAgent.getGroupID());
 	sendListToRegions("Redo", packAgentAndSessionAndGroupID, packObjectID, &group_id, select_linked_set ? SEND_ONLY_ROOTS : SEND_CHILDREN_FIRST);
 }
@@ -5794,7 +5794,7 @@ void LLObjectSelection::deleteAllNodes()
 
 LLSelectNode* LLObjectSelection::findNode(LLViewerObject* objectp)
 {
-	std::map<LLViewerObject*, LLSelectNode*>::iterator found_it = mSelectNodeMap.find(objectp);
+	std::map<LLPointer<LLViewerObject>, LLSelectNode*>::iterator found_it = mSelectNodeMap.find(objectp);
 	if (found_it != mSelectNodeMap.end())
 	{
 		return found_it->second;

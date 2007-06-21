@@ -19,7 +19,7 @@ namespace tut
 {
 	///var/tmp/babbage/dev/message-liberation/etc
 	static const char file_name[] = "/tmp/message.xml";
-	static const F32 refreshRate = 6.0*1000.0; // milliseconds
+	static const long refreshRateMillis = 6000;
 	
 	struct LLMessageConfigTestData {
 
@@ -45,7 +45,7 @@ namespace tut
 				LLSDSerialize::toPrettyXML(config, file);
 			}
 			file.close();
-			ms_sleep(refreshRate);
+			ms_sleep(refreshRateMillis);
 			LLFrameTimer::updateFrameTime();
 		}
 	};

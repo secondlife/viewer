@@ -35,13 +35,15 @@ const U32	SOUTHWEST	= 6;
 const U32	SOUTHEAST	= 7;
 const U32	MIDDLE		= 8;
 
-const U8 LL_SOUND_FLAG_NONE = 0x00;
-const U8 LL_SOUND_FLAG_LOOP = 0x01;
-const U8 LL_SOUND_FLAG_SYNC_MASTER = 0x02;
-const U8 LL_SOUND_FLAG_SYNC_SLAVE = 0x04;
-const U8 LL_SOUND_FLAG_SYNC_PENDING = 0x08;
-const U8 LL_SOUND_FLAG_SYNC_MASK = LL_SOUND_FLAG_SYNC_MASTER | LL_SOUND_FLAG_SYNC_SLAVE | LL_SOUND_FLAG_SYNC_PENDING;
-const U8 LL_SOUND_FLAG_QUEUE = 0x10;
+const U8	EAST_MASK		= 0x1<<EAST;
+const U8	NORTH_MASK		= 0x1<<NORTH;
+const U8	WEST_MASK		= 0x1<<WEST;
+const U8	SOUTH_MASK		= 0x1<<SOUTH;
+
+const U8	NORTHEAST_MASK	= NORTH_MASK | EAST_MASK;
+const U8	NORTHWEST_MASK	= NORTH_MASK | WEST_MASK;
+const U8	SOUTHWEST_MASK	= SOUTH_MASK | WEST_MASK;
+const U8	SOUTHEAST_MASK	= SOUTH_MASK | EAST_MASK;
 
 const U32 gDirOpposite[8] = {2, 3, 0, 1, 6, 7, 4, 5};
 const U32 gDirAdjacent[8][2] =  {
@@ -66,15 +68,6 @@ const S32 gDirAxes[8][2] = {
 							{-1,-1}, // sw
 							{ 1,-1}, // se
 							};
-
-const U8	EAST_MASK		= 1;
-const U8	NORTH_MASK		= 2;
-const U8	WEST_MASK		= 4;
-const U8	SOUTH_MASK		= 8;
-const U8	NORTHEAST_MASK	= NORTH_MASK | EAST_MASK;
-const U8	NORTHWEST_MASK	= NORTH_MASK | WEST_MASK;
-const U8	SOUTHWEST_MASK	= SOUTH_MASK | WEST_MASK;
-const U8	SOUTHEAST_MASK	= SOUTH_MASK | EAST_MASK;
 
 const S32 gDirMasks[8] = { 
 							EAST_MASK,
@@ -113,6 +106,14 @@ const U32 RIGHT_SIDE 	= 4;
 const U32 TOP_SIDE 		= 5;
 const U32 BOTTOM_SIDE 	= 6;
 
+const U8 LL_SOUND_FLAG_NONE =         0x0;
+const U8 LL_SOUND_FLAG_LOOP =         1<<0;
+const U8 LL_SOUND_FLAG_SYNC_MASTER =  1<<1;
+const U8 LL_SOUND_FLAG_SYNC_SLAVE =   1<<2;
+const U8 LL_SOUND_FLAG_SYNC_PENDING = 1<<3;
+const U8 LL_SOUND_FLAG_QUEUE =        1<<4;
+const U8 LL_SOUND_FLAG_STOP =         1<<5;
+const U8 LL_SOUND_FLAG_SYNC_MASK = LL_SOUND_FLAG_SYNC_MASTER | LL_SOUND_FLAG_SYNC_SLAVE | LL_SOUND_FLAG_SYNC_PENDING;
 
 //
 // *NOTE: These values may be used as hard-coded numbers in scanf() variants.

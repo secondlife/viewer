@@ -134,6 +134,22 @@ LLFrameTimer gThrottleTimer;
 const U32 OFFER_THROTTLE_MAX_COUNT=5; //number of items per time period
 const F32 OFFER_THROTTLE_TIME=10.f; //time period in seconds
 
+//script permissions
+const LLString SCRIPT_QUESTIONS[SCRIPT_PERMISSION_EOF] = 
+	{ 
+		"ScriptTakeMoney",
+		"ActOnControlInputs",
+		"RemapControlInputs",
+		"AnimateYourAvatar",
+		"AttachToYourAvatar",
+		"ReleaseOwnership",
+		"LinkAndDelink",
+		"AddAndRemoveJoints",
+		"ChangePermissions",
+		"TrackYourCamera",
+		"ControlYourCamera"
+	};
+
 struct LLFriendshipOffer
 {
 	LLUUID mFromID;
@@ -4223,8 +4239,8 @@ void process_economy_data(LLMessageSystem *msg, void** /*user_data*/)
 class LLScriptQuestionCBData
 {
 public:
-	LLScriptQuestionCBData(const LLUUID &taskid, const LLUUID &itemid, const LLHost &sender, S32 questions)
-		: mTaskID(taskid), mItemID(itemid), mSender(sender), mQuestions(questions)
+	LLScriptQuestionCBData(const LLUUID &taskid, const LLUUID &itemid, const LLHost &sender, S32 questions, const char *object_name, const char *owner_name)
+		: mTaskID(taskid), mItemID(itemid), mSender(sender), mQuestions(questions), mObjectName(object_name), mOwnerName(owner_name)
 	{
 	}
 
@@ -4232,17 +4248,105 @@ public:
 	LLUUID mItemID;
 	LLHost mSender;
 	S32	   mQuestions;
+	LLString mObjectName;
+	LLString mOwnerName;
 };
 
+void notify_cautioned_script_question(LLScriptQuestionCBData* cbdata, S32 orig_questions, BOOL granted)
+{
+	// only continue if at least some permissions were requested
+	if (orig_questions)
+	{
+		// "'[OBJECTNAME]', an object owned by '[OWNERNAME]', 
+		// located in [REGIONNAME] at [REGIONPOS], 
+		// has been <granted|denied> permission to: [PERMISSIONS]."
 
-void script_question_cb(S32 option, void* user_data)
+		LLUIString notice(LLNotifyBox::getTemplateMessage(granted ? "ScriptQuestionCautionChatGranted" : "ScriptQuestionCautionChatDenied"));
+
+		// always include the object name and owner name 
+		notice.setArg("[OBJECTNAME]", cbdata->mObjectName);
+		notice.setArg("[OWNERNAME]", cbdata->mOwnerName);
+
+		// try to lookup viewerobject that corresponds to the object that
+		// requested permissions (here, taskid->requesting object id)
+		BOOL foundpos = FALSE;
+		LLViewerObject* viewobj = gObjectList.findObject(cbdata->mTaskID);
+		if (viewobj)
+		{
+			// found the viewerobject, get it's position in its region
+			LLVector3 objpos(viewobj->getPosition());
+			
+			// try to lookup the name of the region the object is in
+			LLViewerRegion* viewregion = viewobj->getRegion();
+			if (viewregion)
+			{
+				// got the region, so include the region and 3d coordinates of the object
+				notice.setArg("[REGIONNAME]", viewregion->getName());				
+				LLString formatpos = llformat("%.1f, %.1f,%.1f", objpos[VX], objpos[VY], objpos[VZ]);
+				notice.setArg("[REGIONPOS]", formatpos);
+
+				foundpos = TRUE;
+			}
+		}
+
+		if (!foundpos)
+		{
+			// unable to determine location of the object
+			notice.setArg("[REGIONNAME]", "(unknown region)");
+			notice.setArg("[REGIONPOS]", "(unknown position)");
+		}
+
+		// check each permission that was requested, and list each 
+		// permission that has been flagged as a caution permission
+		BOOL caution = FALSE;
+		S32 count = 0;
+		LLString perms;
+		for (S32 i = 0; i < SCRIPT_PERMISSION_EOF; i++)
+		{
+			if ((orig_questions & LSCRIPTRunTimePermissionBits[i]) && LLNotifyBox::getTemplateIsCaution(SCRIPT_QUESTIONS[i]))
+			{
+				count++;
+				caution = TRUE;
+
+				// add a comma before the permission description if it is not the first permission
+				// added to the list or the last permission to check
+				if ((count > 1) && (i < SCRIPT_PERMISSION_EOF))
+				{
+					perms.append(", ");
+				}
+
+				perms.append(LLNotifyBox::getTemplateMessage(SCRIPT_QUESTIONS[i]));
+			}
+		}
+
+		notice.setArg("[PERMISSIONS]", perms);
+
+		// log a chat message as long as at least one requested permission
+		// is a caution permission
+		if (caution)
+		{
+			LLChat chat(notice.getString());
+			LLFloaterChat::addChat(chat, FALSE, FALSE);
+		}
+	}
+}
+
+void script_question_decline_cb(S32 option, void* user_data)
 {
 	LLMessageSystem *msg = gMessageSystem;
 	LLScriptQuestionCBData *cbdata = (LLScriptQuestionCBData *)user_data;
-	if (option != 0)
-	{
-		cbdata->mQuestions = 0;
-	}
+	
+	// remember the permissions requested so they can be checked
+	// when it comes time to log a chat message
+	S32 orig = cbdata->mQuestions;
+
+	// this callback will always decline all permissions requested
+	// (any question flags set in the ScriptAnswerYes message
+	// will be interpreted as having been granted, so clearing all
+	// the bits will deny every permission)
+	cbdata->mQuestions = 0;
+
+	// respond with the permissions denial
 	msg->newMessageFast(_PREHASH_ScriptAnswerYes);
 	msg->nextBlockFast(_PREHASH_AgentData);
 	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
@@ -4252,27 +4356,53 @@ void script_question_cb(S32 option, void* user_data)
 	msg->addUUIDFast(_PREHASH_ItemID, cbdata->mItemID);
 	msg->addS32Fast(_PREHASH_Questions, cbdata->mQuestions);
 	msg->sendReliable(cbdata->mSender);
+
+	// log a chat message, if appropriate
+	notify_cautioned_script_question(cbdata, orig, FALSE);
+
 	delete cbdata;
 }
 
+void script_question_cb(S32 option, void* user_data)
+{
+	LLMessageSystem *msg = gMessageSystem;
+	LLScriptQuestionCBData *cbdata = (LLScriptQuestionCBData *)user_data;
+	S32 orig = cbdata->mQuestions;
+
+	// check whether permissions were granted or denied
+	BOOL allowed = TRUE;
+	// the "yes/accept" button is the first button in the template, making it button 0
+	// if any other button was clicked, the permissions were denied
+	if (option != 0)
+	{
+		cbdata->mQuestions = 0;
+		allowed = FALSE;
+	}	
+
+	// reply with the permissions granted or denied
+	msg->newMessageFast(_PREHASH_ScriptAnswerYes);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->nextBlockFast(_PREHASH_Data);
+	msg->addUUIDFast(_PREHASH_TaskID, cbdata->mTaskID);
+	msg->addUUIDFast(_PREHASH_ItemID, cbdata->mItemID);
+	msg->addS32Fast(_PREHASH_Questions, cbdata->mQuestions);
+	msg->sendReliable(cbdata->mSender);
+
+	// only log a chat message if caution prompts are enabled
+	if (gSavedSettings.getBOOL("PermissionsCautionEnabled"))
+	{
+		// log a chat message, if appropriate
+		notify_cautioned_script_question(cbdata, orig, allowed);
+	}
+
+	delete cbdata;
+}
 
 void process_script_question(LLMessageSystem *msg, void **user_data)
 {
 	// XUI:translate owner name -> [FIRST] [LAST]
-	const LLString script_questions[SCRIPT_PERMISSION_EOF] = 
-	{ 
-		"ScriptTakeMoney",
-		"ActOnControlInputs",
-		"RemapControlInputs",
-		"AnimateYourAvatar",
-		"AttachToYourAvatar",
-		"ReleaseOwnership",
-		"LinkAndDelink",
-		"AddAndRemoveJoints",
-		"ChangePermissions",
-		"TrackYourCamera",
-		"ControlYourCamera"
-	};
 
 	LLHost sender = msg->getSender();
 
@@ -4282,7 +4412,9 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 	char object_name[255];		/* Flawfinder: ignore */
 	char owner_name[DB_FULL_NAME_BUF_SIZE];		/* Flawfinder: ignore */
 
+	// taskid -> object key of object requesting permissions
 	msg->getUUIDFast(_PREHASH_Data, _PREHASH_TaskID, taskid );
+	// itemid -> script asset key of script requesting permissions
 	msg->getUUIDFast(_PREHASH_Data, _PREHASH_ItemID, itemid );
 	msg->getStringFast(_PREHASH_Data, _PREHASH_ObjectName, 255, object_name);
 	msg->getStringFast(_PREHASH_Data, _PREHASH_ObjectOwner, DB_FULL_NAME_BUF_SIZE, owner_name);
@@ -4291,23 +4423,48 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 	LLString script_question;
 	if (questions)
 	{
+		BOOL caution = FALSE;
 		S32 count = 0;
 		LLString::format_map_t args;
 		args["[OBJECTNAME]"] = object_name;
 		args["[NAME]"] = owner_name;
+
+		// check the received permission flags against each permission
 		for (S32 i = 0; i < SCRIPT_PERMISSION_EOF; i++)
 		{
 			if (questions & LSCRIPTRunTimePermissionBits[i])
 			{
 				count++;
-				script_question += "    " + LLNotifyBox::getTemplateMessage(script_questions[i]) + "\n";
+				script_question += "    " + LLNotifyBox::getTemplateMessage(SCRIPT_QUESTIONS[i]) + "\n";
+
+				// check whether permission question should cause special caution dialog
+				caution |= LLNotifyBox::getTemplateIsCaution(SCRIPT_QUESTIONS[i]);
 			}
 		}
 		args["[QUESTIONS]"] = script_question;
 
-		LLScriptQuestionCBData *cbdata = new LLScriptQuestionCBData(taskid, itemid, sender, questions);
+		LLScriptQuestionCBData *cbdata = new LLScriptQuestionCBData(taskid, itemid, sender, questions, object_name, owner_name);
 
-		LLNotifyBox::showXml("ScriptQuestion", args, script_question_cb, cbdata);
+		// check whether cautions are even enabled or not
+		if (gSavedSettings.getBOOL("PermissionsCautionEnabled"))
+		{
+			if (caution)
+			{
+				// display the caution permissions prompt
+				LLNotifyBox::showXml("ScriptQuestionCaution", args, TRUE, script_question_cb, cbdata);
+			}
+			else
+			{
+				// display the permissions request normally
+				LLNotifyBox::showXml("ScriptQuestion", args, FALSE, script_question_cb, cbdata);
+			}
+		}
+		else
+		{
+			// fall back to default behavior if cautions are entirely disabled
+			LLNotifyBox::showXml("ScriptQuestion", args, FALSE, script_question_cb, cbdata);
+		}
+
 	}
 }
 

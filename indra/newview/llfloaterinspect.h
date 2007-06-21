@@ -1,10 +1,10 @@
 /** 
-* @file llfloaterfriends.h
+* @file llfloaterinspect.h
 * @author Cube
 * @date 2006-12-16
 * @brief Declaration of class for displaying object attributes
 *
-* Copyright (c) 2005-$CurrentYear$, Linden Research, Inc.
+* Copyright (c) 2006-$CurrentYear$, Linden Research, Inc.
 * $License$
 */
 

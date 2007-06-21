@@ -9,7 +9,7 @@
 #include "linden_common.h"
 #include "llhttpnode.h"
 
-#include "boost/tokenizer.hpp"
+#include <boost/tokenizer.hpp>
 
 #include "llstl.h"
 

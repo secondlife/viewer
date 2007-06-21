@@ -540,7 +540,7 @@ void LLManip::renderTickValue(const LLVector3& pos, F32 value, const char* suffi
 	LLGLEnable tex(GL_TEXTURE_2D);
 	if (fractional_portion != 0)
 	{
-		snprintf(fraction_string, sizeof(fraction_string), "%c%d%s", gResMgr->getDecimalPoint(), fractional_portion, suffix);			/* Flawfinder: ignore */
+		snprintf(fraction_string, sizeof(fraction_string), "%c%02d%s", gResMgr->getDecimalPoint(), fractional_portion, suffix);			/* Flawfinder: ignore */
 
 		gViewerWindow->setupViewport(1, -1);
 		hud_render_utf8text(val_string, render_pos, *big_fontp, LLFontGL::NORMAL, -1.f * big_fontp->getWidthF32(val_string), 3.f, shadow_color, hud_selection);

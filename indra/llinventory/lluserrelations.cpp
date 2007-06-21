@@ -1,5 +1,5 @@
 /** 
- * @file lluserrealations.cpp
+ * @file lluserrelations.cpp
  * @author Phoenix
  * @date 2006-10-12
  * @brief Implementation of a simple cache of user relations.

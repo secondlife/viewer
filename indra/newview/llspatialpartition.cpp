@@ -1504,7 +1504,7 @@ public:
 		for (LLSpatialGroup::element_iter i = group->getData().begin(); i != group->getData().end(); ++i)
 		{
 			LLDrawable* drawable = *i;
-			if (drawable->getVObj() && !group->mSpatialPartition->mRenderByGroup)
+			if (drawable->getVObj().notNull() && !group->mSpatialPartition->mRenderByGroup)
 			{
 				gPipeline.markRebuild(drawable, LLDrawable::REBUILD_ALL, TRUE);
 			}

@@ -196,7 +196,7 @@ BOOL	LLFloaterTools::postBuild()
 	mRadioSelectFace = LLUICtrlFactory::getCheckBoxByName(this,"radio select face");
 	childSetCommitCallback("radio select face",commit_select_tool,gToolFace);
 	mCheckSelectIndividual = LLUICtrlFactory::getCheckBoxByName(this,"checkbox edit linked parts");
-	childSetValue("checkbox edit linked parts",(BOOL)!gSavedSettings.getBOOL("SelectLinkedSet"));
+	childSetValue("checkbox edit linked parts",(BOOL)gSavedSettings.getBOOL("EditLinkedParts"));
 	childSetCommitCallback("checkbox edit linked parts",commit_select_component,this);
 	mCheckSnapToGrid = LLUICtrlFactory::getCheckBoxByName(this,"checkbox snap to grid");
 	childSetValue("checkbox snap to grid",(BOOL)gSavedSettings.getBOOL("SnapEnabled"));
@@ -436,7 +436,7 @@ void LLFloaterTools::draw()
 		mDirty = FALSE;
 	}
 
-	mCheckSelectIndividual->set(!gSavedSettings.getBOOL("SelectLinkedSet"));
+	//	mCheckSelectIndividual->set(gSavedSettings.getBOOL("EditLinkedParts"));
 	LLFloater::draw();
 }
 
@@ -547,7 +547,7 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	if (mCheckSelectIndividual)
 	{
 		mCheckSelectIndividual->setVisible(edit_visible);
-		mCheckSelectIndividual->set(!gSavedSettings.getBOOL("SelectLinkedSet"));
+		//mCheckSelectIndividual->set(gSavedSettings.getBOOL("EditLinkedParts"));
 	}
 
 	mRadioPosition	->set( tool == gToolTranslate );
@@ -726,7 +726,7 @@ void LLFloaterTools::onClose(bool app_quitting)
 	
 	// exit component selection mode
 	gSelectMgr->promoteSelectionToRoot();
-	gSavedSettings.setBOOL("SelectLinkedSet", TRUE);
+	gSavedSettings.setBOOL("EditLinkedParts", FALSE);
 
 	gViewerWindow->showCursor();
 
@@ -902,7 +902,7 @@ void commit_select_component(LLUICtrl *ctrl, void *data)
 	}
 
 	BOOL select_individuals = floaterp->mCheckSelectIndividual->get();
-	gSavedSettings.setBOOL("SelectLinkedSet", !select_individuals);
+	gSavedSettings.setBOOL("EditLinkedParts", select_individuals);
 	floaterp->dirty();
 
 	if (select_individuals)

@@ -51,6 +51,9 @@ public:
 
 	static BOOL iconsNearby();
 
+	BOOL getHidden() const { return mHidden; }
+	void setHidden( BOOL hide ) { mHidden = hide; }
+
 protected:
 	LLHUDIcon(const U8 type);
 	~LLHUDIcon();
@@ -64,6 +67,7 @@ private:
 	F32				mDistance;
 	S32				mPickID;
 	F32				mScale;
+	BOOL			mHidden;
 
 	typedef std::vector<LLPointer<LLHUDIcon> > icon_instance_t;
 	static icon_instance_t sIconInstances;

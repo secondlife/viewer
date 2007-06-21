@@ -401,7 +401,7 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 			continue;
 		}
 
-		LLAlphaObject* obj = (LLAlphaObject*) drawablep->getVObj();
+		LLAlphaObject* obj = (LLAlphaObject*) drawablep->getVObj().get();
 		obj->mDepth = 0.f;
 		
 		if (drawablep->isAnimating())

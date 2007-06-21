@@ -57,6 +57,9 @@ LLDebugVarMessageBox::LLDebugVarMessageBox(const std::string& title, EDebugVarTy
 		addChild(mSlider2);
 		addChild(mSlider3);
 		break;
+	default:
+		llwarns << "Unhandled var type " << var_type << llendl;
+		break;
 	}
 
 	mAnimateButton = new LLButton("Animate", LLRect(20, 45, 180, 25), "", onAnimateClicked, this);
@@ -165,10 +168,15 @@ void LLDebugVarMessageBox::slider_changed(LLUICtrl* ctrl, void* user_data)
 		*((S32*)msg_box->mVarData) = (S32)msg_box->mSlider1->getValue().asInteger();
 		break;
 	case VAR_TYPE_VEC3:
+	{
 		LLVector3* vec_p = (LLVector3*)msg_box->mVarData;
 		vec_p->setVec((F32)msg_box->mSlider1->getValue().asReal(), 
 			(F32)msg_box->mSlider2->getValue().asReal(), 
 			(F32)msg_box->mSlider3->getValue().asReal());
+		break;
+	}
+	default:
+		llwarns << "Unhandled var type " << msg_box->mVarType << llendl;
 		break;
 	}
 }
@@ -197,8 +205,13 @@ void LLDebugVarMessageBox::draw()
 		snprintf(text, sizeof(text), "%d", *((S32*)mVarData)); 		 	/* Flawfinder: ignore */
 		break;
 	case VAR_TYPE_VEC3:
+	{
 		LLVector3* vec_p = (LLVector3*)mVarData;
 		snprintf(text, sizeof(text), "%.3f %.3f %.3f", vec_p->mV[VX], vec_p->mV[VY], vec_p->mV[VZ]);	 	/* Flawfinder: ignore */
+		break;
+	}
+	default:
+		llwarns << "Unhandled var type " << mVarType << llendl;
 		break;
 	}
 	mText->setText(text);

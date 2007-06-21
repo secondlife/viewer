@@ -198,6 +198,10 @@ public:
 // return a platform-specific window reference (HWND on Windows, WindowRef on the Mac)
 	virtual void *getPlatformWindow() = 0;
 	
+	// control platform's Language Text Input mechanisms.
+	virtual void allowLanguageTextInput( BOOL b ) {};
+	virtual void setLanguageTextInput( LLCoordWindow pos ) {};
+
 protected:
 	LLWindow(BOOL fullscreen, U32 flags);
 	virtual ~LLWindow() {}
@@ -226,6 +230,15 @@ protected:
 	U32			mFlags;
 	F32			mJoyAxis[6]; 
 	U8			mJoyButtonState[16];
+	U16			mHighSurrogate;
+
+ 	// Handle a UTF-16 encoding unit received from keyboard.
+ 	// Converting the series of UTF-16 encoding units to UTF-32 data,
+ 	// this method passes the resulting UTF-32 data to mCallback's
+ 	// handleUnicodeChar.  The mask should be that to be passed to the
+ 	// callback.  This method uses mHighSurrogate as a dedicated work
+ 	// variable.
+	void handleUnicodeUTF16(U16 utf16, MASK mask);
 
 	friend class LLWindowManager;
 };

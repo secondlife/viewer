@@ -120,7 +120,7 @@ public:
 	const LLUUID&	getOwner() 			const	{ return mOwner; }
 
 	// return the group_id of the group associated with the
-	// object. group_id == owner_id if the object is group owned.
+	// object.
 	const LLUUID&	getGroup() 			const	{ return mGroup; }
 
 	// return the agent_id of the last agent owner. Only returns

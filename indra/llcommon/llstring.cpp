@@ -653,6 +653,26 @@ std::string mbcsstring_makeASCII(const std::string& wstr)
 	}
 	return out_str;
 }
+std::string utf8str_removeCRLF(const std::string& utf8str)
+{
+	if (0 == utf8str.length())
+	{
+		return std::string();
+	}
+	const char CR = 13;
+
+	std::string out;
+	out.reserve(utf8str.length());
+	const S32 len = (S32)utf8str.length();
+	for( S32 i = 0; i < len; i++ )
+	{
+		if( utf8str[i] != CR )
+		{
+			out.push_back(utf8str[i]);
+		}
+	}
+	return out;
+}
 
 #if LL_WINDOWS
 /* If the size of the passed in buffer is not large enough to hold the string,

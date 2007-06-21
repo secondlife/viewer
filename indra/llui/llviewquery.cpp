@@ -6,6 +6,8 @@
  * $License$
  */
 
+#include "linden_common.h"
+
 #include "llview.h"
 #include "lluictrl.h"
 #include "llviewquery.h"

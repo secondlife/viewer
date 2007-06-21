@@ -168,6 +168,55 @@ LLURI::LLURI(const std::string& escaped_str)
 	}
 }
 
+static BOOL isDefault(const std::string& scheme, U16 port)
+{
+	if (scheme == "http")
+		return port == 80;
+	if (scheme == "https")
+		return port == 443;
+	if (scheme == "ftp")
+		return port == 21;
+
+	return FALSE;
+}
+
+LLURI::LLURI(const std::string& scheme,
+			 const std::string& userName,
+			 const std::string& password,
+			 const std::string& hostName,
+			 U16 port,
+			 const std::string& escapedPath,
+			 const std::string& escapedQuery)
+	: mScheme(scheme),
+	  mEscapedPath(escapedPath),
+	  mEscapedQuery(escapedQuery)
+{
+	std::ostringstream auth;
+	std::ostringstream opaque;
+
+	opaque << "//";
+	
+	if (!userName.empty())
+	{
+		auth << escape(userName);
+		if (!password.empty())
+		{
+			auth << ':' << escape(password);
+		}
+		auth << '@';
+	}
+	auth << hostName;
+	if (!isDefault(scheme, port))
+	{
+		auth << ':' << port;
+	}
+	mEscapedAuthority = auth.str();
+
+	opaque << mEscapedAuthority << escapedPath << escapedQuery;
+
+	mEscapedOpaque = opaque.str();
+}
+
 LLURI::~LLURI()
 {
 }
@@ -425,6 +474,35 @@ std::string LLURI::hostName() const
 	std::string user, host, port;
 	findAuthorityParts(mEscapedAuthority, user, host, port);
 	return unescape(host);
+}
+
+std::string LLURI::userName() const
+{
+	std::string user, userPass, host, port;
+	findAuthorityParts(mEscapedAuthority, userPass, host, port);
+	std::string::size_type pos = userPass.find(':');
+	if (pos != std::string::npos)
+	{
+		user = userPass.substr(0, pos);
+	}
+	return unescape(user);
+}
+
+std::string LLURI::password() const
+{
+	std::string pass, userPass, host, port;
+	findAuthorityParts(mEscapedAuthority, userPass, host, port);
+	std::string::size_type pos = userPass.find(':');
+	if (pos != std::string::npos)
+	{
+		pass = userPass.substr(pos + 1);
+	}
+	return unescape(pass);
+}
+
+BOOL LLURI::defaultPort() const
+{
+	return isDefault(mScheme, hostPort());
 }
 
 U16 LLURI::hostPort() const

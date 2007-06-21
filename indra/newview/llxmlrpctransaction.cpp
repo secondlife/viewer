@@ -208,22 +208,22 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 
 		// tell curl about the settings
 		curl_easy_setopt(mCurl, CURLOPT_PROXY, mProxyAddress.c_str());
-		curl_easy_setopt(mCurl, CURLOPT_PROXYPORT, (long)port);
-		curl_easy_setopt(mCurl, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+		curl_easy_setopt(mCurl, CURLOPT_PROXYPORT, (long) port);
+		curl_easy_setopt(mCurl, CURLOPT_PROXYTYPE, (long) CURLPROXY_HTTP);
 	};
 
-//	curl_easy_setopt(mCurl, CURLOPT_VERBOSE, 1); // usefull for debugging
-	curl_easy_setopt(mCurl, CURLOPT_NOSIGNAL, 1);
+//	curl_easy_setopt(mCurl, CURLOPT_VERBOSE, 1L); // usefull for debugging
+	curl_easy_setopt(mCurl, CURLOPT_NOSIGNAL, 1L);
 	curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, &curlDownloadCallback);
 	curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, this);
 	curl_easy_setopt(mCurl, CURLOPT_ERRORBUFFER, &mCurlErrorBuffer);
 	curl_easy_setopt(mCurl, CURLOPT_CAINFO, gDirUtilp->getCAFile().c_str());
-	curl_easy_setopt(mCurl, CURLOPT_SSL_VERIFYPEER, gVerifySSLCert);
-	curl_easy_setopt(mCurl, CURLOPT_SSL_VERIFYHOST, gVerifySSLCert? 2 : 0);
+	curl_easy_setopt(mCurl, CURLOPT_SSL_VERIFYPEER, (long) gVerifySSLCert);
+	curl_easy_setopt(mCurl, CURLOPT_SSL_VERIFYHOST, gVerifySSLCert? 2L : 0L);
 
 	/* Setting the DNS cache timeout to -1 disables it completely.
 	   This might help with bug #503 */
-	curl_easy_setopt(mCurl, CURLOPT_DNS_CACHE_TIMEOUT, -1);
+	curl_easy_setopt(mCurl, CURLOPT_DNS_CACHE_TIMEOUT, -1L);
 
     mHeaders = curl_slist_append(mHeaders, "Content-Type: text/xml");
 	curl_easy_setopt(mCurl, CURLOPT_URL, mURI.c_str());
@@ -237,7 +237,7 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 	if (mRequestText)
 	{
 		curl_easy_setopt(mCurl, CURLOPT_POSTFIELDS, mRequestText);
-		curl_easy_setopt(mCurl, CURLOPT_POSTFIELDSIZE, mRequestTextSize);
+		curl_easy_setopt(mCurl, CURLOPT_POSTFIELDSIZE, (long) mRequestTextSize);
 	}
 	else
 	{

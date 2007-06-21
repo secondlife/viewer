@@ -144,56 +144,6 @@ void LLVertexBuffer::clientCopy(F64 max_time)
 
 //----------------------------------------------------------------------------
 
-// For debugging
-struct VTNC /// Simple
-{
-	F32 v1,v2,v3;
-	F32 n1,n2,n3;
-	F32 t1,t2;
-	U32 c;
-};
-static VTNC dbg_vtnc;
-
-struct VTUNCB // Simple + Bump
-{
-	F32 v1,v2,v3;
-	F32 n1,n2,n3;
-	F32 t1,t2;
-	F32 u1,u2;
-	F32 b1,b2,b3;
-	U32 c;
-};
-static VTUNCB dbg_vtuncb;
-
-struct VTUNC // Surfacepatch
-{
-	F32 v1,v2,v3;
-	F32 n1,n2,n3;
-	F32 t1,t2;
-	F32 u1,u2;
-	U32 c;
-};
-static VTUNC dbg_vtunc;
-
-struct VTNW /// Avatar
-{
-	F32 v1,v2,v3;
-	F32 n1,n2,n3;
-	F32 t1,t2;
-	F32 w;
-};
-static VTNW dbg_vtnw;
-
-struct VTNPAD /// Avatar Output
-{
-	F32 v1,v2,v3,p1;
-	F32 n1,n2,n3,p2;
-	F32 t1,t2,p3,p4;
-};
-static VTNPAD dbg_vtnpad;
-
-//----------------------------------------------------------------------------
-
 LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 	LLRefCount(),
 	mNumVerts(0), mNumIndices(0), mUsage(usage), mGLBuffer(0), mGLIndices(0), 

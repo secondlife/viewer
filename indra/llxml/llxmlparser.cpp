@@ -2,7 +2,7 @@
  * @file llxmlparser.cpp
  * @brief LLXmlParser implementation
  *
- * Copyright (c) 2002-$CurrentYear$`, Linden Research, Inc.
+ * Copyright (c) 2002-$CurrentYear$, Linden Research, Inc.
  * $License$
  */
 

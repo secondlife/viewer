@@ -5719,6 +5719,7 @@ void LLVOAvatar::requestLayerSetUpdate( LLVOAvatar::ELocTexIndex i )
 		break;
 
 
+	case LOCTEX_UPPER_JACKET:
 	case LOCTEX_LOWER_JACKET:
 		if( mUpperBodyLayerSet )
 		{
@@ -5729,6 +5730,10 @@ void LLVOAvatar::requestLayerSetUpdate( LLVOAvatar::ELocTexIndex i )
 		{
 			mLowerBodyLayerSet->requestUpdate();
 		}
+		break;
+
+	case LOCTEX_NUM_ENTRIES:
+		llerrs << "Bogus texture value " << i << llendl;
 		break;
 	}
 
@@ -7389,6 +7394,24 @@ void LLVOAvatar::setCachedBakedTexture( ETextureIndex te, const LLUUID& uuid )
 			mSkirtLayerSet->cancelUpload();
 		}
 		break;
+
+		case TEX_HEAD_BODYPAINT:
+		case TEX_UPPER_SHIRT:
+		case TEX_LOWER_PANTS:
+		case TEX_EYES_IRIS:
+		case TEX_HAIR:
+		case TEX_UPPER_BODYPAINT:
+		case TEX_LOWER_BODYPAINT:
+		case TEX_LOWER_SHOES:
+		case TEX_LOWER_SOCKS:
+		case TEX_UPPER_JACKET:
+		case TEX_LOWER_JACKET:
+		case TEX_UPPER_GLOVES:
+		case TEX_UPPER_UNDERSHIRT:
+		case TEX_LOWER_UNDERPANTS:
+		case TEX_SKIRT:
+		case TEX_NUM_ENTRIES:
+			break;
 	}
 }
 

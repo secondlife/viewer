@@ -1779,6 +1779,8 @@ void LLVolume::createVolumeFaces()
 // sculpt replaces generate() for sculpted surfaces
 void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level)
 {
+    U8 sculpt_type = mParams.getSculptType();
+
 	BOOL data_is_empty = FALSE;
 
 	if (sculpt_width == 0 || sculpt_height == 0 || sculpt_data == NULL)
@@ -1860,6 +1862,7 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 			line += sizeT;
 		}
 	}
+	
 	else
 	{
 		S32 line = 0;
@@ -1874,18 +1877,52 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 				U32 x = (U32) ((F32)t/(sizeT-1) * (F32) sculpt_width);
 				U32 y = (U32) ((F32)s/(sizeS-1) * (F32) sculpt_height);
 
-				if (y == sculpt_height)  // stitch bottom row
+				if (y == 0)  // top row stitching
 				{
-					y = sculpt_height - 1;
-					x = sculpt_width / 2;
+					// pinch?
+					if (sculpt_type == LL_SCULPT_TYPE_SPHERE)
+					{
+						x = sculpt_width / 2;
+					}
 				}
 
-				if (x == sculpt_width)   // stitch sides
-					x = 0;
+				if (y == sculpt_height)  // bottom row stitching
+				{
+					// wrap?
+					if (sculpt_type == LL_SCULPT_TYPE_TORUS)
+					{
+						y = 0;
+					}
+					else
+					{
+						y = sculpt_height - 1;
+					}
 
-				if (y == 0)  // stitch top row
-					x = sculpt_width / 2;
-			
+					// pinch?
+					if (sculpt_type == LL_SCULPT_TYPE_SPHERE)
+					{
+						x = sculpt_width / 2;
+					}
+				}
+
+				if (x == sculpt_width)   // side stitching
+				{
+					// wrap?
+					if ((sculpt_type == LL_SCULPT_TYPE_SPHERE) ||
+						(sculpt_type == LL_SCULPT_TYPE_TORUS) ||
+						(sculpt_type == LL_SCULPT_TYPE_CYLINDER))
+					{
+						x = 0;
+					}
+					
+					else
+					{
+						x = sculpt_width - 1;
+					}
+				}
+
+
+				
 				U32 index = (x + y * sculpt_width) * sculpt_components;
 				pt.mPos.mV[0] = sculpt_data[index  ] / 256.f - 0.5f;
 				pt.mPos.mV[1] = sculpt_data[index+1] / 256.f - 0.5f;
@@ -4595,82 +4632,130 @@ BOOL LLVolumeFace::createSide()
 		}
 	}
 
+	// adjust normals based on wrapping and stitching
+	
 	BOOL s_bottom_converges = ((mVertices[0].mPosition - mVertices[mNumS*(mNumT-2)].mPosition).magVecSquared() < 0.000001f);
 	BOOL s_top_converges = ((mVertices[mNumS-1].mPosition - mVertices[mNumS*(mNumT-2)+mNumS-1].mPosition).magVecSquared() < 0.000001f);
-	
-	if (mVolumep->getPath().isOpen() == FALSE) { //wrap normals on T
-		for (S32 i = 0; i < mNumS; i++) {
-			LLVector3 norm = mVertices[i].mNormal + mVertices[mNumS*(mNumT-1)+i].mNormal;
-			mVertices[i].mNormal = norm;
-			mVertices[mNumS*(mNumT-1)+i].mNormal = norm;
-		}
-	}
+	U8 sculpt_type = mVolumep->getParams().getSculptType();
 
-	if ((mVolumep->getProfile().isOpen() == FALSE) &&
-		!(s_bottom_converges))
+	if (sculpt_type == LL_SCULPT_TYPE_NONE)  // logic for non-sculpt volumes
+	{
+		if (mVolumep->getPath().isOpen() == FALSE)
+		{ //wrap normals on T
+			for (S32 i = 0; i < mNumS; i++)
+			{
+				LLVector3 norm = mVertices[i].mNormal + mVertices[mNumS*(mNumT-1)+i].mNormal;
+				mVertices[i].mNormal = norm;
+				mVertices[mNumS*(mNumT-1)+i].mNormal = norm;
+			}
+		}
+
+		if ((mVolumep->getProfile().isOpen() == FALSE) && !(s_bottom_converges))
 		{ //wrap normals on S
-			for (S32 i = 0; i < mNumT; i++) {
+			for (S32 i = 0; i < mNumT; i++)
+			{
 				LLVector3 norm = mVertices[mNumS*i].mNormal + mVertices[mNumS*i+mNumS-1].mNormal;
 				mVertices[mNumS * i].mNormal = norm;
 				mVertices[mNumS * i+mNumS-1].mNormal = norm;
 			}
 		}
 	
-	if (mVolumep->getPathType() == LL_PCODE_PATH_CIRCLE &&
-		((mVolumep->getProfileType() & LL_PCODE_PROFILE_MASK) == LL_PCODE_PROFILE_CIRCLE_HALF))
+		if (mVolumep->getPathType() == LL_PCODE_PATH_CIRCLE &&
+			((mVolumep->getProfileType() & LL_PCODE_PROFILE_MASK) == LL_PCODE_PROFILE_CIRCLE_HALF))
+		{
+			if (s_bottom_converges)
+			{ //all lower S have same normal
+				for (S32 i = 0; i < mNumT; i++)
+				{
+					mVertices[mNumS*i].mNormal = LLVector3(1,0,0);
+				}
+			}
+
+			if (s_top_converges)
+			{ //all upper S have same normal
+				for (S32 i = 0; i < mNumT; i++)
+				{
+					mVertices[mNumS*i+mNumS-1].mNormal = LLVector3(-1,0,0);
+				}
+			}
+		}
+	}
+	
+	else  // logic for sculpt volumes
 	{
-		if (s_bottom_converges)
-		{ //all lower S have same normal
-			for (S32 i = 0; i < mNumT; i++) {
-				mVertices[mNumS*i].mNormal = LLVector3(1,0,0);
+		BOOL average_poles = FALSE;
+		BOOL wrap_s = FALSE;
+		BOOL wrap_t = FALSE;
+
+		if (sculpt_type == LL_SCULPT_TYPE_SPHERE)
+			average_poles = TRUE;
+
+		if ((sculpt_type == LL_SCULPT_TYPE_SPHERE) ||
+			(sculpt_type == LL_SCULPT_TYPE_TORUS) ||
+			(sculpt_type == LL_SCULPT_TYPE_CYLINDER))
+			wrap_s = TRUE;
+
+		if (sculpt_type == LL_SCULPT_TYPE_TORUS)
+			wrap_t = TRUE;
+			
+		
+		if (average_poles)
+		{
+			// average normals for north pole
+		
+			LLVector3 average(0.0, 0.0, 0.0);
+			for (S32 i = 0; i < mNumS; i++)
+			{
+				average += mVertices[i].mNormal;
+			}
+
+			// set average
+			for (S32 i = 0; i < mNumS; i++)
+			{
+				mVertices[i].mNormal = average;
+			}
+
+			// average normals for south pole
+		
+			average = LLVector3(0.0, 0.0, 0.0);
+			for (S32 i = 0; i < mNumS; i++)
+			{
+				average += mVertices[i + mNumS * (mNumT - 1)].mNormal;
+			}
+
+			// set average
+			for (S32 i = 0; i < mNumS; i++)
+			{
+				mVertices[i + mNumS * (mNumT - 1)].mNormal = average;
+			}
+
+		}
+
+		
+		if (wrap_s)
+		{
+			for (S32 i = 0; i < mNumT; i++)
+			{
+				LLVector3 norm = mVertices[mNumS*i].mNormal + mVertices[mNumS*i+mNumS-1].mNormal;
+				mVertices[mNumS * i].mNormal = norm;
+				mVertices[mNumS * i+mNumS-1].mNormal = norm;
 			}
 		}
 
-		if (s_top_converges)
-		{ //all upper S have same normal
-			for (S32 i = 0; i < mNumT; i++) {
-				mVertices[mNumS*i+mNumS-1].mNormal = LLVector3(-1,0,0);
+
+		
+		if (wrap_t)
+		{
+			for (S32 i = 0; i < mNumS; i++)
+			{
+				LLVector3 norm = mVertices[i].mNormal + mVertices[mNumS*(mNumT-1)+i].mNormal;
+				mVertices[i].mNormal = norm;
+				mVertices[mNumS*(mNumT-1)+i].mNormal = norm;
 			}
+			
 		}
+
 	}
-
-	U8 sculpt_type = mVolumep->getParams().getSculptType();
-	
-	if (sculpt_type == LL_SCULPT_TYPE_SPHERE)
-	{
-		// average normals for north pole
-		
-		LLVector3 average(0.0, 0.0, 0.0);
-		for (S32 i = 0; i < mNumS; i++)
-		{
-			average += mVertices[i].mNormal;
-		}
-
-		// set average
-		for (S32 i = 0; i < mNumS; i++)
-		{
-			mVertices[i].mNormal = average;
-		}
-	}
-
-	
-	if (sculpt_type == LL_SCULPT_TYPE_SPHERE)
-	{
-		// average normals for south pole
-		
-		LLVector3 average(0.0, 0.0, 0.0);
-		for (S32 i = 0; i < mNumS; i++)
-		{
-			average += mVertices[i + mNumS * (mNumT - 1)].mNormal;
-		}
-
-		// set average
-		for (S32 i = 0; i < mNumS; i++)
-		{
-			mVertices[i + mNumS * (mNumT - 1)].mNormal = average;
-		}
-	}
-
 
 
 	//normalize normals and binormals here so the meshes that reference

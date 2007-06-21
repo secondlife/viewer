@@ -1085,7 +1085,8 @@ file_extensions[] =
 	{ "jpg", IMG_CODEC_JPEG },
 	{ "jpeg", IMG_CODEC_JPEG },
 	{ "mip", IMG_CODEC_DXT },
-	{ "dxt", IMG_CODEC_DXT }
+	{ "dxt", IMG_CODEC_DXT },
+	{ "png", IMG_CODEC_PNG }
 };
 #define NUM_FILE_EXTENSIONS sizeof(file_extensions)/sizeof(file_extensions[0])
 

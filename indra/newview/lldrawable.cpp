@@ -1304,7 +1304,7 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
 
 		if (parent)
 		{
-			av = (LLVOAvatar*) parent->getVObj();
+			av = (LLVOAvatar*) parent->getVObj().get();
 		
 			if (!av->isVisible())
 			{

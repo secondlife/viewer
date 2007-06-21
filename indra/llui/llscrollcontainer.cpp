@@ -272,7 +272,26 @@ BOOL LLScrollableContainerView::handleScrollWheel( S32 x, S32 y, S32 clicks )
 	// Opaque
 	return TRUE;
 }
+BOOL LLScrollableContainerView::needsToScroll(S32 x, S32 y, LLScrollableContainerView::SCROLL_ORIENTATION axis)
+{
+	if(mScrollbar[axis]->getVisible())
+	{
+		LLRect inner_rect_local( 0, mInnerRect.getHeight(), mInnerRect.getWidth(), 0 );
+		const S32 AUTOSCROLL_SIZE = 10;
+		if(mScrollbar[axis]->getVisible())
+		{
+			inner_rect_local.mRight -= SCROLLBAR_SIZE;
+			inner_rect_local.mTop += AUTOSCROLL_SIZE;
+			inner_rect_local.mBottom = inner_rect_local.mTop - AUTOSCROLL_SIZE;
+		}
+		if( inner_rect_local.pointInRect( x, y ) && (mScrollbar[axis]->getDocPos() > 0) )
+		{
+			return TRUE;
+		}
 
+	}
+	return FALSE;
+}
 BOOL LLScrollableContainerView::handleDragAndDrop(S32 x, S32 y, MASK mask,
 												  BOOL drop,
 												  EDragAndDropType cargo_type,

@@ -17,6 +17,7 @@
 #include <mapi.h>
 #include <process.h>	// for _spawn
 #include <shellapi.h>
+#include <Imm.h>
 
 // Require DirectInput version 8
 #define DIRECTINPUT_VERSION 0x0800
@@ -64,6 +65,98 @@ void show_window_creation_error(const char* title)
 //static
 BOOL LLWindowWin32::sIsClassRegistered = FALSE;
 
+BOOL	LLWindowWin32::sLanguageTextInputAllowed = TRUE; /* XXX */
+BOOL	LLWindowWin32::sWinIMEOpened = FALSE;
+HKL		LLWindowWin32::sWinInputLocale;
+DWORD	LLWindowWin32::sWinIMEConversionMode;
+DWORD	LLWindowWin32::sWinIMESentenceMode;
+
+// The following class LLWinImm delegates Windows IMM APIs.
+// We need this because some language versions of Windows,
+// e.g., US version of Windows XP, doesn't install IMM32.DLL
+// as a default, and we can't link against imm32.lib statically.
+// I believe DLL loading of this type is best suited to do
+// in a static initialization of a class.  What I'm not sure is
+// whether it follows the Linden Conding Standard... 
+// See http://wiki.secondlife.com/wiki/Coding_standards#Static_Members
+
+class LLWinImm
+{
+public:
+	static bool		isAvailable() { return sTheInstance.mHImmDll != NULL; }
+
+public:
+	// Wrappers for IMM API.
+	static BOOL		isIME(HKL hkl)															{ return sTheInstance.mImmIsIME(hkl); }
+	static HIMC		getContext(HWND hwnd)													{ return sTheInstance.mImmGetContext(hwnd); }
+	static BOOL		releaseContext(HWND hwnd, HIMC himc)									{ return sTheInstance.mImmReleaseContext(hwnd, himc); }
+	static BOOL		getOpenStatus(HIMC himc)												{ return sTheInstance.mImmGetOpenStatus(himc); }
+	static BOOL		setOpenStatus(HIMC himc, BOOL status)									{ return sTheInstance.mImmSetOpenStatus(himc, status); }
+	static BOOL		getConversionStatus(HIMC himc, LPDWORD conversion, LPDWORD sentence)	{ return sTheInstance.mImmGetConversionStatus(himc, conversion, sentence); }
+	static BOOL		setConversionStatus(HIMC himc, DWORD conversion, DWORD sentence)		{ return sTheInstance.mImmSetConversionStatus(himc, conversion, sentence); }
+
+private:
+	LLWinImm();
+	~LLWinImm();
+
+private:
+	// Pointers to IMM API.
+	BOOL	 	(WINAPI *mImmIsIME)(HKL);
+	HIMC		(WINAPI *mImmGetContext)(HWND);
+	BOOL		(WINAPI *mImmReleaseContext)(HWND, HIMC);
+	BOOL		(WINAPI *mImmGetOpenStatus)(HIMC);
+	BOOL		(WINAPI *mImmSetOpenStatus)(HIMC, BOOL);
+	BOOL		(WINAPI *mImmGetConversionStatus)(HIMC, LPDWORD, LPDWORD);
+	BOOL		(WINAPI *mImmSetConversionStatus)(HIMC, DWORD, DWORD);
+
+private:
+	HMODULE		mHImmDll;
+	static LLWinImm sTheInstance;
+};
+
+LLWinImm LLWinImm::sTheInstance;
+
+LLWinImm::LLWinImm()
+{
+	mHImmDll = LoadLibraryA("Imm32");
+	if (mHImmDll != NULL)
+	{
+		mImmIsIME               = (BOOL (WINAPI *)(HKL))                    GetProcAddress(mHImmDll, "ImmIsIME");
+		mImmGetContext          = (HIMC (WINAPI *)(HWND))                   GetProcAddress(mHImmDll, "ImmGetContext");
+		mImmReleaseContext      = (BOOL (WINAPI *)(HWND, HIMC))             GetProcAddress(mHImmDll, "ImmReleaseContext");
+		mImmGetOpenStatus       = (BOOL (WINAPI *)(HIMC))                   GetProcAddress(mHImmDll, "ImmGetOpenStatus");
+		mImmSetOpenStatus       = (BOOL (WINAPI *)(HIMC, BOOL))             GetProcAddress(mHImmDll, "ImmSetOpenStatus");
+		mImmGetConversionStatus = (BOOL (WINAPI *)(HIMC, LPDWORD, LPDWORD)) GetProcAddress(mHImmDll, "ImmGetConversionStatus");
+		mImmSetConversionStatus = (BOOL (WINAPI *)(HIMC, DWORD, DWORD))     GetProcAddress(mHImmDll, "ImmSetConversionStatus");
+		if (mImmIsIME == NULL ||
+			mImmGetContext == NULL ||
+			mImmReleaseContext == NULL ||
+			mImmGetOpenStatus == NULL ||
+			mImmSetOpenStatus == NULL ||
+			mImmGetConversionStatus == NULL ||
+			mImmSetConversionStatus == NULL)
+		{
+			// If any of the above API entires are not found, we can't use IMM API.  
+			// So, turn off the IMM support.  We should log some warning message in 
+			// the case, since it is very unusual; these APIs are available from 
+			// the beginning, and all versions of IMM32.DLL should have them all.  
+			// Unfortunately, this code may be executed before initialization of 
+			// the logging channel (llwarns), and we can't do it here...  Yes, this 
+			// is one of disadvantages to use static constraction to DLL loading. 
+			FreeLibrary(mHImmDll);
+			mHImmDll = NULL;
+		}
+	}
+}
+
+LLWinImm::~LLWinImm()
+{
+	if (mHImmDll != NULL)
+	{
+		FreeLibrary(mHImmDll);
+		mHImmDll = NULL;
+	}
+}
 
 
 LPDIRECTINPUT8       g_pDI              = NULL;         
@@ -90,6 +183,10 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 
 	// Initialize the keyboard
 	gKeyboard = new LLKeyboardWin32();
+
+	// Initialize (boot strap) the Language text input management,
+	// based on the system's (user's) default settings.
+	allowLanguageTextInput(FALSE);
 
 	GLuint			pixel_format;
 	WNDCLASS		wc;
@@ -327,7 +424,6 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 
 	if (!mWindowHandle)
 	{
-		DestroyWindow(mWindowHandle);
 		OSMessageBox("Window creation error", "Error", OSMB_OK);
 		return;
 	}
@@ -1906,6 +2002,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		case WM_CHAR:
 			// Should really use WM_UNICHAR eventually, but it requires a specific Windows version and I need
 			// to figure out how that works. - Doug
+			//
+			// ... Well, I don't think so.
+			// How it works is explained in Win32 API document, but WM_UNICHAR didn't work
+			// as specified at least on Windows XP SP1 Japanese version.  I have never used
+			// it since then, and I'm not sure whether it has been fixed now, but I don't think
+			// it is worth trying.  The good old WM_CHAR works just fine even for supplementary
+			// characters.  We just need to take care of surrogate pairs sent as two WM_CHAR's
+			// by ourselves.  It is not that tough.  -- Alissa Sabre @ SL
+			//
 			// llinfos << "WM_CHAR: " << w_param << llendl;
 			if (gDebugWindowProc)
 			{
@@ -1913,11 +2018,10 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 					<< " key " << S32(w_param) 
 					<< llendl;
 			}
-			if (window_imp->mCallbacks->handleUnicodeChar(w_param, gKeyboard->currentMask(FALSE)))
-			{
-				return 0;
-			}
-			break;
+			// Even if LLWindowCallbacks::handleUnicodeChar(llwchar, BOOL) returned FALSE,
+			// we *did* processed the event, so I believe we should not pass it to DefWindowProc...
+			window_imp->handleUnicodeUTF16((U16)w_param, gKeyboard->currentMask(FALSE));
+			return 0;
 
 		case WM_LBUTTONDOWN:
 			{
@@ -2951,7 +3055,7 @@ void spawn_web_browser(const char* escaped_url )
 	char reg_path_str[256];	/* Flawfinder: ignore */
 	snprintf(reg_path_str, sizeof(reg_path_str), "%s\\shell\\open\\command", gURLProtocolWhitelistHandler[i]);	/* Flawfinder: ignore */
 	WCHAR reg_path_wstr[256];
-	mbstowcs(reg_path_wstr, reg_path_str, 1024);
+	mbstowcs(reg_path_wstr, reg_path_str, sizeof(reg_path_wstr)/sizeof(reg_path_wstr[0]));
 
 	HKEY key;
 	WCHAR browser_open_wstr[1024];
@@ -3082,6 +3186,58 @@ void LLWindowWin32::bringToFront()
 void LLWindowWin32::focusClient()
 {
 	SetFocus ( mWindowHandle );
-};
+}
+
+void LLWindowWin32::allowLanguageTextInput(BOOL b)
+{
+	if (b == sLanguageTextInputAllowed || !LLWinImm::isAvailable())
+	{
+		/* Not actually allowing/disallowing.  Do nothing.  */
+		return;
+	}
+	sLanguageTextInputAllowed = b;
+
+	if (b)
+	{
+		/* Allowing: Restore the previous IME status, 
+		   so that the user has a feeling that the previous 
+		   text input continues naturally.  Be careful, however,
+		   the IME status is meaningful only during the user keeps 
+		   using same Input Locale (aka Keyboard Layout).  */
+		if (sWinIMEOpened && GetKeyboardLayout(0) == sWinInputLocale)
+		{
+			HIMC himc = LLWinImm::getContext(mWindowHandle);
+			LLWinImm::setOpenStatus(himc, TRUE);
+			LLWinImm::setConversionStatus(himc, sWinIMEConversionMode, sWinIMESentenceMode);
+			LLWinImm::releaseContext(mWindowHandle, himc);
+		}
+	}
+	else
+	{
+		/* Disallowing: Turn off the IME so that succeeding 
+		   key events bypass IME and come to us directly.
+		   However, do it after saving the current IME 
+		   status.  We need to restore the status when
+		   allowing language text input again.  */
+		sWinInputLocale = GetKeyboardLayout(0);
+		sWinIMEOpened = LLWinImm::isIME(sWinInputLocale);
+		if (sWinIMEOpened)
+		{
+			HIMC himc = LLWinImm::getContext(mWindowHandle);
+			sWinIMEOpened = LLWinImm::getOpenStatus(himc);
+			if (sWinIMEOpened)
+			{
+				LLWinImm::getConversionStatus(himc, &sWinIMEConversionMode, &sWinIMESentenceMode);
+
+				/* We need both ImmSetConversionStatus and ImmSetOpenStatus here
+				   to surely disable IME's keyboard hooking, because Some IME reacts 
+				   only on the former and some other on the latter...  */
+				LLWinImm::setConversionStatus(himc, IME_CMODE_NOCONVERSION, sWinIMESentenceMode);
+				LLWinImm::setOpenStatus(himc, FALSE);
+			}
+			LLWinImm::releaseContext(mWindowHandle, himc);
+		}
+	}
+}
 
 #endif // LL_WINDOWS

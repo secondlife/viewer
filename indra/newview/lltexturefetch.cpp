@@ -1,5 +1,5 @@
 /** 
- * @file lltexturecache.cpp
+ * @file lltexturefetch.cpp
  * @brief Object which fetches textures from the cache and/or network
  *
  * Copyright (c) 2000-$CurrentYear$, Linden Research, Inc.

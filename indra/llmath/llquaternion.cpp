@@ -1,5 +1,5 @@
 /** 
- * @file qmath.cpp
+ * @file llquaternion.cpp
  * @brief LLQuaternion class implementation.
  *
  * Copyright (c) 2000-$CurrentYear$, Linden Research, Inc.

@@ -594,7 +594,7 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 						tsize = tsizeh;
 						break;
 					case 4:
-						htonmemcpy(&tsizeb, &buffer[decode_pos], MVT_U32, 4);
+						htonmemcpy(&tsize, &buffer[decode_pos], MVT_U32, 4);
 						break;
 					default:
 						llerrs << "Attempting to read variable field with unknown size of " << data_size << llendl;

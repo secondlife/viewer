@@ -305,6 +305,8 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 				}
 				childSetText("object_name", object_owner);
 				childSetText("owner_name", object_owner);
+				childSetText("abuser_name_edit", object_owner);
+				mAbuserID = object_id;
 			}
 			else
 			{
@@ -556,10 +558,12 @@ LLFloaterReporter* LLFloaterReporter::createNewBugReporter()
 	
 
 
-void LLFloaterReporter::setPickedObjectProperties(const char *object_name, const char *owner_name)
+void LLFloaterReporter::setPickedObjectProperties(const char *object_name, const char *owner_name, const LLUUID owner_id)
 {
 	childSetText("object_name", object_name);
 	childSetText("owner_name", owner_name);
+	childSetText("abuser_name_edit", owner_name);
+	mAbuserID = owner_id;
 }
 
 

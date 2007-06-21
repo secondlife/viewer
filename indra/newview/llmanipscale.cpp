@@ -1202,7 +1202,7 @@ void LLManipScale::sendUpdates( BOOL send_position_update, BOOL send_scale_updat
 		mLastUpdateFlags = update_flags;
 
 		// enforce minimum update delay and don't stream updates on sub-object selections
-		if( elapsed_time > UPDATE_DELAY && gSavedSettings.getBOOL("SelectLinkedSet") )
+		if( elapsed_time > UPDATE_DELAY && !gSavedSettings.getBOOL("EditLinkedParts") )
 		{
 			gSelectMgr->sendMultipleUpdate( update_flags );
 			update_timer.reset();

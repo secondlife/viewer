@@ -8,6 +8,8 @@
  * $License$
  */
 
+#include "linden_common.h"
+
 #include "llcurl.h"
 
 #include <iomanip>

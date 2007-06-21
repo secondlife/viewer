@@ -541,6 +541,21 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 			return;
 		}
 	}
+ 	else if( LLString::compareInsensitive(ext.c_str(),".png") == 0 )
+ 	{
+ 		asset_type = LLAssetType::AT_TEXTURE;
+ 		if (!LLViewerImageList::createUploadFile(src_filename,
+ 												 filename,
+ 												 IMG_CODEC_PNG ))
+ 		{
+ 			sprintf(error_message, "Problem with file %s:\n\n%s\n",
+ 					src_filename.c_str(), LLImageBase::getLastError().c_str());
+ 			args["[FILE]"] = src_filename;
+ 			args["[ERROR]"] = LLImageBase::getLastError();
+ 			upload_error(error_message, "ProblemWithFile", filename, args);
+ 			return;
+ 		}
+ 	}
 	else if(LLString::compareInsensitive(ext.c_str(),".wav") == 0)
 	{
 		asset_type = LLAssetType::AT_SOUND;  // tag it as audio

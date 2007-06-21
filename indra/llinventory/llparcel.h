@@ -244,7 +244,6 @@ public:
 	BOOL	importStream(std::istream& input_stream);
 	BOOL	importAccessEntry(std::istream& input_stream, LLAccessEntry* entry);
 	BOOL	exportStream(std::ostream& output_stream);
-	virtual LLSD asLLSD() const;
 
 	void	packMessage(LLMessageSystem* msg);
 	void	unpackMessage(LLMessageSystem* msg);

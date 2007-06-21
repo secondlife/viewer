@@ -1367,7 +1367,7 @@ void integer_integer_operation(U8 *buffer, LSCRIPTOpCodesEnum opcode)
 		break;
 	case LOPC_DIV:
 		if (rside){
-			if( ( rside == -1 ) || ( rside == 0xffffffff ) )//	division by -1 can have funny results: multiplication is OK: SL-31252
+			if( ( rside == -1 ) || ( rside == (S32) 0xffffffff ) )//	division by -1 can have funny results: multiplication is OK: SL-31252
 			{
 				result = -1 * lside;
 			}

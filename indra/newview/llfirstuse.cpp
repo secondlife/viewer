@@ -40,6 +40,18 @@ void LLFirstUse::disableFirstUse()
 	}
 }
 
+// static
+void LLFirstUse::resetFirstUse()
+{
+	// Set all first-use warnings to disabled
+	for (std::set<LLString>::iterator iter = sConfigVariables.begin();
+		 iter != sConfigVariables.end(); ++iter)
+	{
+		gSavedSettings.setWarning(*iter, TRUE);
+	}
+}
+
+
 // Called whenever the viewer detects that your balance went up
 void LLFirstUse::useBalanceIncrease(S32 delta)
 {
@@ -194,3 +206,25 @@ void LLFirstUse::useFlexible()
 	}
 }
 
+// static
+void LLFirstUse::useDebugMenus()
+{
+	if (gSavedSettings.getWarning("FirstDebugMenus"))
+	{
+		gSavedSettings.setWarning("FirstDebugMenus", FALSE);
+
+		LLNotifyBox::showXml("FirstDebugMenus");
+	}
+}
+
+// static
+void LLFirstUse::useSculptedPrim()
+{
+	if (gSavedSettings.getWarning("FirstSculptedPrim"))
+	{
+		gSavedSettings.setWarning("FirstSculptedPrim", FALSE);
+
+		LLNotifyBox::showXml("FirstSculptedPrim");
+		
+	}
+}

@@ -22,7 +22,9 @@
 #include "indra_constants.h"
 
 #if LL_GTK
+extern "C" {
 # include "gtk/gtk.h"
+}
 #endif // LL_GTK
 
 #if LL_LINUX
@@ -1964,7 +1966,10 @@ void LLWindowSDL::gatherInput()
 			SDLReallyCaptureInput(TRUE);
 
                 if (event.key.keysym.unicode)
-		        mCallbacks->handleUnicodeChar(event.key.keysym.unicode, gKeyboard->currentMask(FALSE));
+				{
+					handleUnicodeUTF16(event.key.keysym.unicode,
+									   gKeyboard->currentMask(FALSE));
+				}
                 break;
 
             case SDL_KEYUP:

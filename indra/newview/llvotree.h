@@ -23,13 +23,12 @@ protected:
 	~LLVOTree();
 
 public:
-	enum 
+	enum
 	{
 		VERTEX_DATA_MASK =	(1 << LLVertexBuffer::TYPE_VERTEX) |
 							(1 << LLVertexBuffer::TYPE_NORMAL) |
 							(1 << LLVertexBuffer::TYPE_TEXCOORD)
-	}
-	eVertexDataMask;
+	};
 
 	LLVOTree(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 

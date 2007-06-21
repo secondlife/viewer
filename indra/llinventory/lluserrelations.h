@@ -1,5 +1,5 @@
 /** 
- * @file llluserrelations.h
+ * @file lluserrelations.h
  * @author Phoenix
  * @date 2006-10-12
  * @brief Declaration of a class for handling granted rights.

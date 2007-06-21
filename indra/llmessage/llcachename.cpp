@@ -46,132 +46,130 @@ LLCacheName* gCacheName = NULL;
 /// class LLCacheNameEntry
 /// ---------------------------------------------------------------------------
 
-namespace {
-	class LLCacheNameEntry
-	{
-	public:
-		LLCacheNameEntry();
+class LLCacheNameEntry
+{
+public:
+	LLCacheNameEntry();
 
-	public:
-		bool mIsGroup;
-		U32 mCreateTime;	// unix time_t
-		char mFirstName[DB_FIRST_NAME_BUF_SIZE]; /*Flawfinder: ignore*/
-		char mLastName[DB_LAST_NAME_BUF_SIZE]; /*Flawfinder: ignore*/
-		char mGroupName[DB_GROUP_NAME_BUF_SIZE]; /*Flawfinder: ignore*/
-	};
+public:
+	bool mIsGroup;
+	U32 mCreateTime;	// unix time_t
+	char mFirstName[DB_FIRST_NAME_BUF_SIZE]; /*Flawfinder: ignore*/
+	char mLastName[DB_LAST_NAME_BUF_SIZE]; /*Flawfinder: ignore*/
+	char mGroupName[DB_GROUP_NAME_BUF_SIZE]; /*Flawfinder: ignore*/
+};
 
-	LLCacheNameEntry::LLCacheNameEntry()
-	{
-		mFirstName[0] = '\0';
-		mLastName[0]  = '\0';
-		mGroupName[0] = '\0';
-	}
+LLCacheNameEntry::LLCacheNameEntry()
+{
+	mFirstName[0] = '\0';
+	mLastName[0]  = '\0';
+	mGroupName[0] = '\0';
+}
 
 
-	class PendingReply
-	{
-	public:
-		LLUUID				mID;
-		LLCacheNameCallback mCallback;
-		LLHost				mHost;
-		void*				mData;
-		PendingReply(const LLUUID& id, LLCacheNameCallback callback, void* data = NULL)
-			: mID(id), mCallback(callback), mData(data)
-		{ }
-
-		PendingReply(const LLUUID& id, const LLHost& host)
-			: mID(id), mCallback(0), mHost(host)
-		{ }
-
-		void done()			{ mID.setNull(); }
-		bool isDone() const	{ return mID.isNull() != FALSE; }
-	};
-
-	class ReplySender
-	{
-	public:
-		ReplySender(LLMessageSystem* msg);
-		~ReplySender();
-
-		void send(const LLUUID& id,
-			const LLCacheNameEntry& entry, const LLHost& host);
-
-	private:
-		void flush();
-
-		LLMessageSystem*	mMsg;
-		bool				mPending;
-		bool				mCurrIsGroup;
-		LLHost				mCurrHost;
-	};
-
-	ReplySender::ReplySender(LLMessageSystem* msg)
-		: mMsg(msg), mPending(false)
+class PendingReply
+{
+public:
+	LLUUID				mID;
+	LLCacheNameCallback mCallback;
+	LLHost				mHost;
+	void*				mData;
+	PendingReply(const LLUUID& id, LLCacheNameCallback callback, void* data = NULL)
+		: mID(id), mCallback(callback), mData(data)
 	{ }
 
-	ReplySender::~ReplySender()
+	PendingReply(const LLUUID& id, const LLHost& host)
+		: mID(id), mCallback(0), mHost(host)
+	{ }
+
+	void done()			{ mID.setNull(); }
+	bool isDone() const	{ return mID.isNull() != FALSE; }
+};
+
+class ReplySender
+{
+public:
+	ReplySender(LLMessageSystem* msg);
+	~ReplySender();
+
+	void send(const LLUUID& id,
+		const LLCacheNameEntry& entry, const LLHost& host);
+
+private:
+	void flush();
+
+	LLMessageSystem*	mMsg;
+	bool				mPending;
+	bool				mCurrIsGroup;
+	LLHost				mCurrHost;
+};
+
+ReplySender::ReplySender(LLMessageSystem* msg)
+	: mMsg(msg), mPending(false)
+{ }
+
+ReplySender::~ReplySender()
+{
+	flush();
+}
+
+void ReplySender::send(const LLUUID& id,
+	const LLCacheNameEntry& entry, const LLHost& host)
+{
+	if (mPending)
 	{
-		flush();
-	}
-
-	void ReplySender::send(const LLUUID& id,
-		const LLCacheNameEntry& entry, const LLHost& host)
-	{
-		if (mPending)
-		{
-			if (mCurrIsGroup != entry.mIsGroup
-			||  mCurrHost != host)
-			{
-				flush();
-			}
-		}
-
-		if (!mPending)
-		{
-			mPending = true;
-			mCurrIsGroup = entry.mIsGroup;
-			mCurrHost = host;
-
-			if(mCurrIsGroup)
-				mMsg->newMessageFast(_PREHASH_UUIDGroupNameReply);
-			else
-				mMsg->newMessageFast(_PREHASH_UUIDNameReply);
-		}
-
-		mMsg->nextBlockFast(_PREHASH_UUIDNameBlock);
-		mMsg->addUUIDFast(_PREHASH_ID, id);
-		if(mCurrIsGroup)
-		{
-			mMsg->addStringFast(_PREHASH_GroupName, entry.mGroupName);
-		}
-		else
-		{
-			mMsg->addStringFast(_PREHASH_FirstName,	entry.mFirstName);
-			mMsg->addStringFast(_PREHASH_LastName, entry.mLastName);
-		}
-
-		if(mMsg->isSendFullFast(_PREHASH_UUIDNameBlock))
+		if (mCurrIsGroup != entry.mIsGroup
+		||  mCurrHost != host)
 		{
 			flush();
 		}
 	}
 
-	void ReplySender::flush()
+	if (!mPending)
 	{
-		if (mPending)
-		{
-			mMsg->sendReliable(mCurrHost);
-			mPending = false;
-		}
+		mPending = true;
+		mCurrIsGroup = entry.mIsGroup;
+		mCurrHost = host;
+
+		if(mCurrIsGroup)
+			mMsg->newMessageFast(_PREHASH_UUIDGroupNameReply);
+		else
+			mMsg->newMessageFast(_PREHASH_UUIDNameReply);
 	}
 
+	mMsg->nextBlockFast(_PREHASH_UUIDNameBlock);
+	mMsg->addUUIDFast(_PREHASH_ID, id);
+	if(mCurrIsGroup)
+	{
+		mMsg->addStringFast(_PREHASH_GroupName, entry.mGroupName);
+	}
+	else
+	{
+		mMsg->addStringFast(_PREHASH_FirstName,	entry.mFirstName);
+		mMsg->addStringFast(_PREHASH_LastName, entry.mLastName);
+	}
 
-	typedef std::set<LLUUID>					AskQueue;
-	typedef std::vector<PendingReply>			ReplyQueue;
-	typedef std::map<LLUUID,U32>				PendingQueue;
-	typedef std::map<LLUUID, LLCacheNameEntry*> Cache;
-	typedef std::vector<LLCacheNameCallback>	Observers;
-};
+	if(mMsg->isSendFullFast(_PREHASH_UUIDNameBlock))
+	{
+		flush();
+	}
+}
+
+void ReplySender::flush()
+{
+	if (mPending)
+	{
+		mMsg->sendReliable(mCurrHost);
+		mPending = false;
+	}
+}
+
+
+typedef std::set<LLUUID>					AskQueue;
+typedef std::vector<PendingReply>			ReplyQueue;
+typedef std::map<LLUUID,U32>				PendingQueue;
+typedef std::map<LLUUID, LLCacheNameEntry*> Cache;
+typedef std::vector<LLCacheNameCallback>	Observers;
 
 class LLCacheName::Impl
 {

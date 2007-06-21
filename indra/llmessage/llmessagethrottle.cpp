@@ -6,6 +6,8 @@
  * $License$
  */
 
+#include "linden_common.h"
+
 #include "llhash.h"
 
 #include "llmessagethrottle.h"

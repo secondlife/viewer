@@ -6,6 +6,8 @@
  * $License$
  */
 
+#include "linden_common.h"
+
 #include <iostream>
 #include <string>
 

@@ -86,7 +86,7 @@ public:
 	// static
 	static void processRegionInfo(LLMessageSystem* msg);
 	
-	void setPickedObjectProperties(const char *object_name, const char *owner_name);
+	void setPickedObjectProperties(const char *object_name, const char *owner_name, const LLUUID owner_id);
 
 private:
 	void takeScreenshot();

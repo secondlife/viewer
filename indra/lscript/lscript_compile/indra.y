@@ -143,6 +143,8 @@
 %type <assignable>		simple_assignable
 %type <assignable>		simple_assignable_no_list
 %type <constant>		constant
+%type <ival>			integer_constant
+%type <fval>			fp_constant
 %type <assignable>		special_constant
 %type <assignable>		vector_constant
 %type <assignable>		quaternion_constant
@@ -352,22 +354,12 @@ simple_assignable_no_list
 	;
 
 constant
-	: INTEGER_CONSTANT																
+	: integer_constant
 	{
 		$$ = new LLScriptConstantInteger(gLine, gColumn, $1);
 		gAllocationManager->addAllocation($$);
 	}
-	| INTEGER_TRUE																	
-	{
-		$$ = new LLScriptConstantInteger(gLine, gColumn, $1);
-		gAllocationManager->addAllocation($$);
-	}
-	| INTEGER_FALSE																	
-	{
-		$$ = new LLScriptConstantInteger(gLine, gColumn, $1);
-		gAllocationManager->addAllocation($$);
-	}
-	| FP_CONSTANT																	
+	| fp_constant
 	{
 		$$ = new LLScriptConstantFloat(gLine, gColumn, $1);
 		gAllocationManager->addAllocation($$);
@@ -376,6 +368,36 @@ constant
 	{
 		$$ = new LLScriptConstantString(gLine, gColumn, $1);
 		gAllocationManager->addAllocation($$);
+	}
+	;
+
+fp_constant
+	: FP_CONSTANT
+	{
+		$$ = $1;
+	}
+	| '-' FP_CONSTANT
+	{
+		$$ = -$2;
+	}
+	;
+
+integer_constant
+	: INTEGER_CONSTANT
+	{
+		$$ = $1;
+	}
+	| INTEGER_TRUE
+	{
+		$$ = $1;
+	}
+	| INTEGER_FALSE
+	{
+		$$ = $1;
+	}
+	| '-' INTEGER_CONSTANT
+	{
+		$$ = -$2;
 	}
 	;
 

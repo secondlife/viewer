@@ -29,7 +29,7 @@ LLFilePicker LLFilePicker::sInstance;
 
 #if LL_WINDOWS
 #define SOUND_FILTER L"Sounds (*.wav)\0*.wav\0"
-#define IMAGE_FILTER L"Images (*.tga; *.bmp; *.jpg; *.jpeg)\0*.tga;*.bmp;*.jpg;*.jpeg\0"
+#define IMAGE_FILTER L"Images (*.tga; *.bmp; *.jpg; *.jpeg; *.png)\0*.tga;*.bmp;*.jpg;*.jpeg;*.png\0"
 #define ANIM_FILTER L"Animations (*.bvh)\0*.bvh\0"
 #ifdef _CORY_TESTING
 #define GEOMETRY_FILTER L"SL Geometry (*.slg)\0*.slg\0"
@@ -491,10 +491,12 @@ Boolean LLFilePicker::navOpenFilterProc(AEDesc *theItem, void *info, void *callB
 							if (fileInfo.filetype != 'JPEG' && fileInfo.filetype != 'JPG ' && 
 								fileInfo.filetype != 'BMP ' && fileInfo.filetype != 'TGA ' &&
 								fileInfo.filetype != 'BMPf' && fileInfo.filetype != 'TPIC' &&
+								fileInfo.filetype != 'PNG ' &&
 								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("jpeg"), kCFCompareCaseInsensitive) != kCFCompareEqualTo &&
 								CFStringCompare(fileInfo.extension, CFSTR("jpg"), kCFCompareCaseInsensitive) != kCFCompareEqualTo &&
 								CFStringCompare(fileInfo.extension, CFSTR("bmp"), kCFCompareCaseInsensitive) != kCFCompareEqualTo &&
-								CFStringCompare(fileInfo.extension, CFSTR("tga"), kCFCompareCaseInsensitive) != kCFCompareEqualTo))
+								CFStringCompare(fileInfo.extension, CFSTR("tga"), kCFCompareCaseInsensitive) != kCFCompareEqualTo &&
+								CFStringCompare(fileInfo.extension, CFSTR("png"), kCFCompareCaseInsensitive) != kCFCompareEqualTo))
 								)
 							{
 								result = false;
@@ -1149,7 +1151,7 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter )
 		case FFLOAD_ANIM:
 			caption += "Animations (*.bvh)"; break;
 		case FFLOAD_IMAGE:
-			caption += "Images (*.tga; *.bmp; *.jpg; *.jpeg)"; break;
+			caption += "Images (*.tga; *.bmp; *.jpg; *.jpeg; *.png)"; break;
 		default:;
 			break;
 		}

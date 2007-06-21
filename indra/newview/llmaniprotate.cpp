@@ -361,7 +361,7 @@ BOOL LLManipRotate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 		objectp;
 		objectp = mObjectSelection->getNextObject())
 	{
-		can_rotate = can_rotate && objectp->permMove() && (objectp->permModify() || gSavedSettings.getBOOL("SelectLinkedSet"));
+		can_rotate = can_rotate && objectp->permMove() && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
 	}
 
 	if (!can_rotate)

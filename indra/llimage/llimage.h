@@ -47,7 +47,8 @@ enum
 	IMG_CODEC_TGA  = 4,
 	IMG_CODEC_JPEG = 5,
 	IMG_CODEC_DXT  = 6,
-	IMG_CODEC_EOF  = 7
+	IMG_CODEC_PNG  = 7,
+	IMG_CODEC_EOF  = 8
 };
 
 //============================================================================

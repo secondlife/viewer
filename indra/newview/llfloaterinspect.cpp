@@ -2,7 +2,7 @@
  * @file llfloaterinspect.cpp
  * @brief Floater for object inspection tool
  *
- * Copyright (c) 2002-$CurrentYear$, Linden Research, Inc.
+ * Copyright (c) 2006-$CurrentYear$, Linden Research, Inc.
  * $License$
  */
 

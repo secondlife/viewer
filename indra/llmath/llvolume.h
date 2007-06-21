@@ -154,7 +154,7 @@ const LLFaceID	LL_FACE_OUTER_SIDE_3	= 0x1 << 8;
 const U8 LL_SCULPT_TYPE_NONE      = 0;
 const U8 LL_SCULPT_TYPE_SPHERE    = 1;
 const U8 LL_SCULPT_TYPE_TORUS     = 2;
-const U8 LL_SCULPT_TYPE_PLAIN     = 3;
+const U8 LL_SCULPT_TYPE_PLANE     = 3;
 const U8 LL_SCULPT_TYPE_CYLINDER  = 4;
 
 
@@ -840,9 +840,6 @@ public:
 	BOOL isUnique() const									{ return mUnique; }
 
 	S32 getSculptLevel() const                              { return mSculptLevel; }
-	void setSculptLevel(S32 level)                          { mSculptLevel = level; }
-
-	U8 getSculptType() const                                { return mSculptType; }
 	
 	S32 *getTriangleIndices(U32 &num_indices) const;
 	void generateSilhouetteVertices(std::vector<LLVector3> &vertices, std::vector<LLVector3> &normals, std::vector<S32> &segments, const LLVector3& view_vec,
@@ -888,7 +885,6 @@ protected:
 	BOOL mUnique;
 	F32 mDetail;
 	S32 mSculptLevel;
-	U8  mSculptType;
 	
 	LLVolumeParams mParams;
 	LLPath *mPathp;

@@ -42,7 +42,7 @@
 
 LLToolPie *gToolPie = NULL;
 
-LLViewerObject* LLToolPie::sClickActionObject = NULL;
+LLPointer<LLViewerObject> LLToolPie::sClickActionObject;
 LLHandle<LLObjectSelection> LLToolPie::sLeftClickSelection = NULL;
 U8 LLToolPie::sClickAction = 0;
 

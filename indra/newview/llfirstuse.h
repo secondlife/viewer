@@ -46,6 +46,10 @@ object or from inventory.
 11.  FIrst time you run the client on a system without QuickTime installed.
 
 12. First time you create a flexible object.
+
+13. First time you open the debug menus (ctrl-alt-shift D)
+
+14. First time you create/edit a sculpted prim.
 */
 
 class LLFirstUse
@@ -56,6 +60,7 @@ public:
 	
 	// Sets all controls back to show the dialogs.
 	static void disableFirstUse();
+	static void resetFirstUse();
 
 	// These methods are called each time the appropriate action is
 	// taken.  The functions themselves handle only showing the dialog
@@ -74,6 +79,8 @@ public:
 	static void useInventory();
 	static void useSandbox();
 	static void useFlexible();
+	static void useDebugMenus();
+	static void useSculptedPrim();
 
 protected:
 	static std::set<LLString> sConfigVariables;

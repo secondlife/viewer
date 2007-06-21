@@ -46,8 +46,8 @@ LLComboBox::LLComboBox(	const LLString& name, const LLRect &rect, const LLString
 	mAllowTextEntry(FALSE),
 	mMaxChars(20),
 	mTextEntryTentative(TRUE),
-	mPrearrangeCallback( NULL ),
 	mListPosition(BELOW),
+	mPrearrangeCallback( NULL ),
 	mTextEntryCallback( NULL )
 {
 	// For now, all comboboxes don't take keyboard focus when clicked.

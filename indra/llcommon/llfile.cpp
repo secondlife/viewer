@@ -9,6 +9,7 @@
  * $License$
  */
 
+#include "linden_common.h"
 #include "llfile.h"
 #include "llstring.h"
 #include "llerror.h"

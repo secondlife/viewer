@@ -30,7 +30,8 @@ typedef enum e_chat_type
 	CHAT_TYPE_START = 4,
 	CHAT_TYPE_STOP = 5,
 	CHAT_TYPE_DEBUG_MSG = 6,
-	CHAT_TYPE_REGION = 7
+	CHAT_TYPE_REGION = 7,
+	CHAT_TYPE_OWNER = 8
 } EChatType;
 
 typedef enum e_chat_audible_level

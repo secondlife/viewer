@@ -308,7 +308,7 @@ public:
 	
 	S32		getNumColumns() const				{ return mColumns.size(); }
 
-	LLScrollListCell *getColumn(const S32 i) const	{ if (i < (S32)mColumns.size()) { return mColumns[i]; } return NULL; }
+	LLScrollListCell *getColumn(const S32 i) const	{ if (0 <= i && i < (S32)mColumns.size()) { return mColumns[i]; } return NULL; }
 
 	virtual BOOL handleClick(S32 x, S32 y, MASK mask);
 

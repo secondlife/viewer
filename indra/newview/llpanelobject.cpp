@@ -47,6 +47,7 @@
 #include "pipeline.h"
 #include "viewer.h"
 #include "llvieweruictrlfactory.h"
+#include "llfirstuse.h"
 
 #include "lldrawpool.h"
 
@@ -236,32 +237,36 @@ BOOL	LLPanelObject::postBuild()
 
 	// Sculpt
 	mCtrlSculptTexture = LLUICtrlFactory::getTexturePickerByName(this,"sculpt texture control");
-	mCtrlSculptTexture->setDefaultImageAssetID(LLUUID(SCULPT_DEFAULT_TEXTURE));
-	mCtrlSculptTexture->setCommitCallback( LLPanelObject::onCommitSculpt );
-	mCtrlSculptTexture->setOnCancelCallback( LLPanelObject::onCancelSculpt );
-	mCtrlSculptTexture->setOnSelectCallback( LLPanelObject::onSelectSculpt );
-	mCtrlSculptTexture->setDropCallback(LLPanelObject::onDropSculpt);
-	mCtrlSculptTexture->setCallbackUserData( this );
-	// Don't allow (no copy) or (no transfer) textures to be selected during immediate mode
-	mCtrlSculptTexture->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-	// Allow any texture to be used during non-immediate mode.
-	mCtrlSculptTexture->setNonImmediateFilterPermMask(PERM_NONE);
-	LLAggregatePermissions texture_perms;
-	if (gSelectMgr->selectGetAggregateTexturePermissions(texture_perms))
+	if (mCtrlSculptTexture)
 	{
-		            BOOL can_copy =
-						texture_perms.getValue(PERM_COPY) == LLAggregatePermissions::AP_EMPTY ||
-						texture_perms.getValue(PERM_COPY) == LLAggregatePermissions::AP_ALL;
-					            BOOL can_transfer =
-									texture_perms.getValue(PERM_TRANSFER) == LLAggregatePermissions::AP_EMPTY ||
-									texture_perms.getValue(PERM_TRANSFER) == LLAggregatePermissions::AP_ALL;
-								mCtrlSculptTexture->setCanApplyImmediately(can_copy && can_transfer);
-	}
-	else
-	{
-		mCtrlSculptTexture->setCanApplyImmediately(FALSE);
+		mCtrlSculptTexture->setDefaultImageAssetID(LLUUID(SCULPT_DEFAULT_TEXTURE));
+		mCtrlSculptTexture->setCommitCallback( LLPanelObject::onCommitSculpt );
+		mCtrlSculptTexture->setOnCancelCallback( LLPanelObject::onCancelSculpt );
+		mCtrlSculptTexture->setOnSelectCallback( LLPanelObject::onSelectSculpt );
+		mCtrlSculptTexture->setDropCallback(LLPanelObject::onDropSculpt);
+		mCtrlSculptTexture->setCallbackUserData( this );
+		// Don't allow (no copy) or (no transfer) textures to be selected during immediate mode
+		mCtrlSculptTexture->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
+		// Allow any texture to be used during non-immediate mode.
+		mCtrlSculptTexture->setNonImmediateFilterPermMask(PERM_NONE);
+		LLAggregatePermissions texture_perms;
+		if (gSelectMgr->selectGetAggregateTexturePermissions(texture_perms))
+		{
+			BOOL can_copy =
+				texture_perms.getValue(PERM_COPY) == LLAggregatePermissions::AP_EMPTY ||
+				texture_perms.getValue(PERM_COPY) == LLAggregatePermissions::AP_ALL;
+			BOOL can_transfer =
+				texture_perms.getValue(PERM_TRANSFER) == LLAggregatePermissions::AP_EMPTY ||
+				texture_perms.getValue(PERM_TRANSFER) == LLAggregatePermissions::AP_ALL;
+			mCtrlSculptTexture->setCanApplyImmediately(can_copy && can_transfer);
+		}
+		else
+		{
+			mCtrlSculptTexture->setCanApplyImmediately(FALSE);
+		}
 	}
 
+	
 	// Start with everyone disabled
 	clearCtrls();
 
@@ -327,9 +332,9 @@ void LLPanelObject::getState( )
 	}
 
 	// can move or rotate only linked group with move permissions, or sub-object with move and modify perms
-	BOOL enable_move	= objectp->permMove() && !objectp->isAttachment() && (objectp->permModify() || gSavedSettings.getBOOL("SelectLinkedSet"));
+	BOOL enable_move	= objectp->permMove() && !objectp->isAttachment() && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
 	BOOL enable_scale	= objectp->permMove() && objectp->permModify();
-	BOOL enable_rotate	= objectp->permMove() && ( (objectp->permModify() && !objectp->isAttachment()) || gSavedSettings.getBOOL("SelectLinkedSet"));
+	BOOL enable_rotate	= objectp->permMove() && ( (objectp->permModify() && !objectp->isAttachment()) || !gSavedSettings.getBOOL("EditLinkedParts"));
 
 	LLVector3 vec;
 	if (enable_move)
@@ -618,6 +623,7 @@ void LLPanelObject::getState( )
 		if (objectp->getParameterEntryInUse(LLNetworkData::PARAMS_SCULPT))
 		{
 			selected_item = MI_SCULPT;
+			LLFirstUse::useSculptedPrim();
 		}
 
 		
@@ -1024,7 +1030,11 @@ void LLPanelObject::getState( )
 		{
 			mTextureCtrl->setTentative(FALSE);
 			mTextureCtrl->setEnabled(editable);
-			mTextureCtrl->setImageAssetID(sculpt_params->getSculptTexture());
+			if (editable)
+				mTextureCtrl->setImageAssetID(sculpt_params->getSculptTexture());
+			else
+				mTextureCtrl->setImageAssetID(LLUUID::null);
+				
 
 			if (mObject != objectp)  // we've just selected a new object, so save for undo
 				mSculptTextureRevert = sculpt_params->getSculptTexture();

@@ -1,8 +1,7 @@
-D			[-]?[0-9]
 N			[0-9]
 L			[a-zA-Z_]
 H			[a-fA-F0-9]
-E			[Ee][+-]?{D}+
+E			[Ee][+-]?{N}+
 FS			(f|F)
 %e 10000
 %n 4000
@@ -41,7 +40,7 @@ void parse_string();
 
 #define YYLMAX 16384
 #define YY_NEVER_INTERACTIVE 1 /* stops flex from calling isatty() */
-
+ 
 #if defined(__cplusplus)
 extern "C" { int yylex( void ); }
 extern "C" { int yyparse( void ); }
@@ -111,7 +110,7 @@ extern "C" { int yyerror(const char *fmt, ...); }
 
 
 0[xX]{H}+			{ count(); yylval.ival = strtoul(yytext, NULL, 0);  return(INTEGER_CONSTANT); }
-{D}+				{ count(); yylval.ival = strtoul(yytext, NULL, 10); return(INTEGER_CONSTANT); }
+{N}+				{ count(); yylval.ival = strtoul(yytext, NULL, 10); return(INTEGER_CONSTANT); }
 "TRUE"				{ count(); yylval.ival = 1; return(INTEGER_TRUE); }
 "FALSE"				{ count(); yylval.ival = 0; return(INTEGER_FALSE); }
 "STATUS_PHYSICS"		{ count(); yylval.ival = 0x1; return(INTEGER_CONSTANT); }
@@ -571,9 +570,9 @@ extern "C" { int yyerror(const char *fmt, ...); }
 
 {L}({L}|{N})*		{ count(); yylval.sval = new char[strlen(yytext) + 1]; strcpy(yylval.sval, yytext); return(IDENTIFIER); }
 
-{D}+{E}					{ count(); yylval.fval = (F32)atof(yytext); return(FP_CONSTANT); }
-{D}*"."{D}+({E})?{FS}?	{ count(); yylval.fval = (F32)atof(yytext); return(FP_CONSTANT); }
-{D}+"."{D}*({E})?{FS}?	{ count(); yylval.fval = (F32)atof(yytext); return(FP_CONSTANT); }
+{N}+{E}					{ count(); yylval.fval = (F32)atof(yytext); return(FP_CONSTANT); }
+{N}*"."{N}+({E})?{FS}?	{ count(); yylval.fval = (F32)atof(yytext); return(FP_CONSTANT); }
+{N}+"."{N}*({E})?{FS}?	{ count(); yylval.fval = (F32)atof(yytext); return(FP_CONSTANT); }
 
 L?\"(\\.|[^\\"])*\"	{ parse_string(); count(); return(STRING_CONSTANT); }
 
@@ -751,6 +750,10 @@ BOOL lscript_compile(char *filename, BOOL is_god_like = FALSE)
 
 S32 yywrap()
 {
+#ifdef FLEX_SCANNER
+	// get gcc to stop complaining about lack of use of yyunput
+	(void) yyunput;
+#endif
 	return(1);
 }
 

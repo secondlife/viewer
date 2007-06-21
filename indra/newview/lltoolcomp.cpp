@@ -101,7 +101,7 @@ BOOL LLToolComposite::isSelecting()
 
 void LLToolComposite::handleSelect()
 {
-	if (gSavedSettings.getBOOL("SelectLinkedSet"))
+	if (!gSavedSettings.getBOOL("EditLinkedParts"))
 	{
 		gSelectMgr->promoteSelectionToRoot();
 	}
@@ -142,7 +142,7 @@ void LLToolCompInspect::pickCallback(S32 x, S32 y, MASK mask)
 	if (!gToolInspect->mMouseDown)
 	{
 		// fast click on object, but mouse is already up...just do select
-		gToolInspect->mSelectRect->handleObjectSelection(hit_obj, mask, !gSavedSettings.getBOOL("SelectLinkedSet"), FALSE);
+		gToolInspect->mSelectRect->handleObjectSelection(hit_obj, mask, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
 		return;
 	}
 
@@ -216,7 +216,7 @@ void LLToolCompTranslate::pickCallback(S32 x, S32 y, MASK mask)
 	if (!gToolTranslate->mMouseDown)
 	{
 		// fast click on object, but mouse is already up...just do select
-		gToolTranslate->mSelectRect->handleObjectSelection(hit_obj, mask, !gSavedSettings.getBOOL("SelectLinkedSet"), FALSE);
+		gToolTranslate->mSelectRect->handleObjectSelection(hit_obj, mask, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
 		return;
 	}
 
@@ -230,7 +230,7 @@ void LLToolCompTranslate::pickCallback(S32 x, S32 y, MASK mask)
 		BOOL can_move = gToolTranslate->mManip->getSelection()->getObjectCount() != 0;
 		for (LLViewerObject* objectp = gToolTranslate->mManip->getSelection()->getFirstObject(); objectp; objectp = gToolTranslate->mManip->getSelection()->getNextObject())
 		{
-			can_move = can_move && objectp->permMove() && (objectp->permModify() || gSavedSettings.getBOOL("SelectLinkedSet"));
+			can_move = can_move && objectp->permMove() && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
 		}
 
 		if(	LLManip::LL_NO_PART != gToolTranslate->mManip->getHighlightedPart() && can_move)
@@ -344,7 +344,7 @@ void LLToolCompScale::pickCallback(S32 x, S32 y, MASK mask)
 	if (!gToolStretch->mMouseDown)
 	{
 		// fast click on object, but mouse is already up...just do select
-		gToolStretch->mSelectRect->handleObjectSelection(hit_obj, mask, !gSavedSettings.getBOOL("SelectLinkedSet"), FALSE);
+		gToolStretch->mSelectRect->handleObjectSelection(hit_obj, mask, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
 
 		return;
 	}
@@ -545,7 +545,7 @@ void LLToolCompRotate::pickCallback(S32 x, S32 y, MASK mask)
 	if (!gToolRotate->mMouseDown)
 	{
 		// fast click on object, but mouse is already up...just do select
-		gToolRotate->mSelectRect->handleObjectSelection(hit_obj, mask, !gSavedSettings.getBOOL("SelectLinkedSet"), FALSE);
+		gToolRotate->mSelectRect->handleObjectSelection(hit_obj, mask, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
 		return;
 	}
 	

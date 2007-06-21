@@ -378,7 +378,10 @@ S32 LLSDXMLParser::Impl::parse(std::istream& input, LLSD& data)
 	status = XML_ParseBuffer(mParser, 0, true);
 	if (status == XML_STATUS_ERROR && !mGracefullStop)
 	{
-		((char*) buffer)[count? count - 1 : 0] = '\0';
+		if (buffer)
+		{
+			((char*) buffer)[count ? count - 1 : 0] = '\0';
+		}
 		llinfos << "LLSDXMLParser::Impl::parse: XML_STATUS_ERROR parsing:" << (char*) buffer << llendl;
 		data = LLSD();
 		return -1;

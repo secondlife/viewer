@@ -73,7 +73,8 @@ LLHUDText::LLHUDText(const U8 type) :
 			mOffsetY(0),
 			mTextAlignment(ALIGN_TEXT_CENTER),
 			mVertAlignment(ALIGN_VERT_CENTER),
-			mLOD(0)
+			mLOD(0),
+			mHidden(FALSE)
 {
 	mColor = LLColor4(1.f, 1.f, 1.f, 1.f);
 	mDoFade = TRUE;
@@ -113,7 +114,7 @@ void LLHUDText::renderForSelect()
 
 void LLHUDText::renderText(BOOL for_select)
 {
-	if (!mVisible)
+	if (!mVisible || mHidden)
 	{
 		return;
 	}

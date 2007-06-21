@@ -1537,6 +1537,13 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 {
 	LLPanelLandObjects* self = LLFloaterLand::getCurrentPanelLandObjects();
 
+	if (!self)
+	{
+		llwarns << "Received message for nonexistent LLPanelLandObject"
+				<< llendl;
+		return;
+	}
+	
 	const LLFontGL* FONT = LLFontGL::sSansSerif;
 
 	// Extract all of the owners.

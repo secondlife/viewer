@@ -299,7 +299,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		{
 			return;
 		}
-		avatarp = (LLVOAvatar *)(facep->getDrawable()->getVObj());
+		avatarp = (LLVOAvatar *)facep->getDrawable()->getVObj().get();
 	}
 
     if (avatarp->isDead() || avatarp->mDrawable.isNull())
@@ -505,7 +505,7 @@ void LLDrawPoolAvatar::renderForSelect()
 	{
 		return;
 	}
-	LLVOAvatar *avatarp = (LLVOAvatar *)(facep->getDrawable()->getVObj());
+	LLVOAvatar *avatarp = (LLVOAvatar *)facep->getDrawable()->getVObj().get();
 
 	if (avatarp->isDead() || avatarp->mIsDummy || avatarp->mDrawable.isNull())
 	{

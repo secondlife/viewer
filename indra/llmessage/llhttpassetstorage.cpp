@@ -819,11 +819,12 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		if (curl_msg && curl_msg->msg == CURLMSG_DONE)
 		{
 			long curl_result = 0;
-			S32 xfer_result = 0;
+			S32 xfer_result = LL_ERR_NOERR;
 
 			LLHTTPAssetRequest *req = NULL;
 			curl_easy_getinfo(curl_msg->easy_handle, CURLINFO_PRIVATE, &req);
 								
+			// TODO: Throw curl_result at all callbacks.
 			curl_easy_getinfo(curl_msg->easy_handle, CURLINFO_HTTP_CODE, &curl_result);
 			if (RT_UPLOAD == req->mRequestType || RT_LOCALUPLOAD == req->mRequestType)
 			{

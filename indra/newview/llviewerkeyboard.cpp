@@ -101,11 +101,7 @@ void agent_slide_left( EKeystate s )
 
 	if( time < NUDGE_TIME || frame_count <= NUDGE_FRAMES)
 	{
-		if (frame_count == 0)
-		{
-			// only send nudge on first frame
-			gAgent.moveLeftNudge(1);
-		}
+		gAgent.moveLeftNudge(1);
 	}
 	else
 	{
@@ -122,11 +118,7 @@ void agent_slide_right( EKeystate s )
 
 	if( time < NUDGE_TIME || frame_count <= NUDGE_FRAMES)
 	{
-		if (frame_count == 0)
-		{
-			// only send nudge on first frame
-			gAgent.moveLeftNudge(-1);
-		}
+		gAgent.moveLeftNudge(-1);
 	}
 	else
 	{

@@ -2380,13 +2380,13 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 				case KEY_RIGHT:
 				case KEY_UP:
 					// let CTRL UP through for chat line history
-					if( MASK_CONTROL & mask )
+					if( MASK_CONTROL == mask )
 					{
 						break;
 					}
 				case KEY_DOWN:
 					// let CTRL DOWN through for chat line history
-					if( MASK_CONTROL & mask )
+					if( MASK_CONTROL == mask )
 					{
 						break;
 					}
@@ -3153,7 +3153,7 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 					BOOL moveable_object_selected = FALSE;
 					BOOL all_selected_objects_move = TRUE;
 					BOOL all_selected_objects_modify = TRUE;
-					BOOL selecting_linked_set = gSavedSettings.getBOOL("SelectLinkedSet");
+					BOOL selecting_linked_set = !gSavedSettings.getBOOL("EditLinkedParts");
 					for( object = gSelectMgr->getSelection()->getFirstObject(); object; object = gSelectMgr->getSelection()->getNextObject() )
 					{
 						BOOL this_object_movable = FALSE;
@@ -3512,6 +3512,18 @@ void LLViewerWindow::performPick()
 	objectp = gObjectList.getSelectedObject(name);
 	if (objectp)
 	{
+		LLViewerObject* parent = (LLViewerObject*)(objectp->getParent());
+		if (NULL == parent) {
+			// if you are the parent
+			parent = objectp;
+		}
+		std::vector<LLPointer<LLViewerObject>,std::allocator<LLPointer<LLViewerObject> > > children = parent->getChildren();
+		for( std::vector<LLPointer<LLViewerObject>,std::allocator<LLPointer<LLViewerObject> > >::iterator i= children.begin(); i!= children.end(); ++i )
+		{
+			//go through
+			LLViewerObject* foo = *i;
+			foo->getRotation();
+		}
 		if (objectp->mbCanSelect)
 		{
 			te_offset = (te_offset == 16) ? NO_FACE : te_offset;

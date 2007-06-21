@@ -278,7 +278,7 @@ BOOL LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 		objectp;
 		objectp = mObjectSelection->getNextObject())
 	{
-		can_move = can_move && objectp->permMove() && (objectp->permModify() || gSavedSettings.getBOOL("SelectLinkedSet"));
+		can_move = can_move && objectp->permMove() && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
 	}
 
 	if (!can_move)

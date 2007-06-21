@@ -95,8 +95,9 @@ public:
 	void setUseBubble(BOOL use_bubble) { mUseBubble = use_bubble; }
 	S32  getLOD() { return mLOD; }
 	BOOL getVisible() { return mVisible; }
+	BOOL getHidden() const { return mHidden; }
+	void setHidden( BOOL hide ) { mHidden = hide; }
 	void setOnHUDAttachment(BOOL on_hud) { mOnHUDAttachment = on_hud; }
-
 	static void renderAllHUD();
 	static void addPickable(std::set<LLViewerObject*> &pick_list);
 	static void reshape();
@@ -144,6 +145,7 @@ private:
 	ETextAlignment	mTextAlignment;
 	EVertAlignment	mVertAlignment;
 	S32				mLOD;
+	BOOL			mHidden;
 
 	static std::set<LLPointer<LLHUDText> > sTextObjects;
 	static std::vector<LLPointer<LLHUDText> > sVisibleTextObjects;

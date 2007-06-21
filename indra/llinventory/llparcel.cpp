@@ -1211,24 +1211,6 @@ BOOL LLParcel::exportStream(std::ostream& output_stream)
 	return TRUE;
 }
 
-// virtual
-LLSD LLParcel::asLLSD() const
-{
-	LLSD p;
-	p["parcel-id"] = getID();
-	p["name"] = getName();
-	p["desc"] = getDesc();
-	p["owner-id"] = getOwnerID();
-	p["group-id"] = getGroupID();
-	p["group-owned"] = (bool)getIsGroupOwned();
-	p["auction-id"] = (S32)getAuctionID();
-	p["snapshot-id"] = getSnapshotID();
-	p["authorized-buyer-id"] = getAuthorizedBuyerID();
-	p["sale-price"] = getSalePrice();
-	p["parcel-flags"] = (S32)getParcelFlags();
-	// NOTE: This list is incomplete, as this is used only for search. JC
-	return p;
-}
 
 // Assumes we are in a block "ParcelData"
 void LLParcel::packMessage(LLMessageSystem* msg)

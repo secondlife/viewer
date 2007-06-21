@@ -421,6 +421,8 @@ LLIOPipe::EStatus LLIOSocketWriter::process_impl(
 #if LL_WINDOWS
 			if (status == 730035)
 				break;
+#else
+			(void) status;
 #endif 
 			mLastWritten = segment.data() + len - 1;
 

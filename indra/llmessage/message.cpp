@@ -1321,7 +1321,7 @@ LLMessageSystem::~LLMessageSystem()
 	
 	if (!mbError)
 	{
-		end_net();
+		end_net(mSocket);
 	}
 	
 	delete mTemplateMessageReader;
@@ -1334,6 +1334,9 @@ LLMessageSystem::~LLMessageSystem()
 
 	delete mLLSDMessageReader;
 	mLLSDMessageReader = NULL;
+
+	delete mLLSDMessageBuilder;
+	mLLSDMessageBuilder = NULL;
 
 	delete mPollInfop;
 	mPollInfop = NULL;
@@ -4144,11 +4147,13 @@ void LLMessageSystem::dumpPacketToLog()
 	char line_buffer[256];		/* Flawfinder: ignore */
 	S32 i;
 	S32 cur_line_pos = 0;
-
 	S32 cur_line = 0;
+
 	for (i = 0; i < mTrueReceiveSize; i++)
 	{
-		snprintf(line_buffer + cur_line_pos*3, sizeof(line_buffer),"%02x ", mTrueReceiveBuffer[i]);	/* Flawfinder: ignore */
+		S32 offset = cur_line_pos * 3;
+		snprintf(line_buffer + offset, sizeof(line_buffer) - offset,
+				 "%02x ", mTrueReceiveBuffer[i]);	/* Flawfinder: ignore */
 		cur_line_pos++;
 		if (cur_line_pos >= 16)
 		{
@@ -4324,11 +4329,6 @@ std::string get_shared_secret()
 }
 
 typedef std::map<const char*, LLMessageBuilder*> BuilderMap;
-
-static void setBuilder(BuilderMap& map, const char* name, LLMessageBuilder* builder)
-{
-	map[gMessageStringTable.getString(name)] = builder;
-}
 
 void LLMessageSystem::newMessageFast(const char *name)
 {

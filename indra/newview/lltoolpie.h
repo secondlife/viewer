@@ -53,7 +53,7 @@ protected:
 	BOOL				mHitLand;
 	LLUUID				mHitObjectID;
 	BOOL				mMouseOutsideSlop;				// for this drag, has mouse moved outside slop region
-	static LLViewerObject* sClickActionObject;
+	static LLPointer<LLViewerObject> sClickActionObject;
 	static U8				sClickAction;
 	static LLHandle<LLObjectSelection> sLeftClickSelection;
 };

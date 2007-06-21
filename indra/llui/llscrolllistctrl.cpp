@@ -78,8 +78,10 @@ protected:
 //
 // LLScrollListIcon
 //
-LLScrollListIcon::LLScrollListIcon(LLImageGL* icon, S32 width, LLUUID image_id) :
-mIcon(icon), mColor(LLColor4::white), mImageUUID(image_id.asString())
+LLScrollListIcon::LLScrollListIcon(LLImageGL* icon, S32 width, LLUUID image_id)
+	: mIcon(icon),
+	  mImageUUID(image_id.asString()),
+	  mColor(LLColor4::white)
 {
 	if (width)
 	{
@@ -411,21 +413,20 @@ LLScrollListCtrl::LLScrollListCtrl(const LLString& name, const LLRect& rect,
 	mFgUnselectedColor( LLUI::sColorsGroup->getColor("ScrollUnselectedColor") ),
 	mFgDisabledColor( LLUI::sColorsGroup->getColor("ScrollDisabledColor") ),
 	mHighlightedColor( LLUI::sColorsGroup->getColor("ScrollHighlightedColor") ),
-	mHighlightedItem(-1),
 	mBorderThickness( 2 ),
 	mOnDoubleClickCallback( NULL ),
 	mOnMaximumSelectCallback( NULL ),
 	mOnSortChangedCallback( NULL ),
-	mDrewSelected(FALSE),
+	mHighlightedItem(-1),
 	mBorder(NULL),
-	mSearchColumn(0),
 	mDefaultColumn("SIMPLE"),
-
+	mSearchColumn(0),
 	mNumDynamicWidthColumns(0),
 	mTotalStaticColumnWidth(0),
 	mSortColumn(-1),
+	mSortAscending(TRUE),
 	mSorted(TRUE),
-	mSortAscending(TRUE)
+	mDrewSelected(FALSE)
 {
 	mItemListRect.setOriginAndSize(
 		mBorderThickness + LIST_BORDER_PAD,

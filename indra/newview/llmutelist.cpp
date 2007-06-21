@@ -356,8 +356,10 @@ BOOL LLMuteList::loadFromFile(const LLString& filename)
 		id_buffer[0] = '\0';
 		name_buffer[0] = '\0';
 		S32 type = 0;
+		U32 flags = 0;
 		sscanf(	/* Flawfinder: ignore */
-			buffer, " %d %254s %254[^|]", &type, id_buffer, name_buffer);
+			buffer, " %d %254s %254[^|]| %u\n", &type, id_buffer, name_buffer,
+			&flags);
 		LLUUID id = LLUUID(id_buffer);
 		LLMute mute(id, name_buffer, (LLMute::EType)type);
 		if (mute.mID.isNull()

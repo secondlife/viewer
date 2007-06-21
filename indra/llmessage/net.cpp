@@ -269,8 +269,12 @@ S32 start_net(S32& socket_out, int& nPort)
 	return 0;
 }
 
-void end_net()
+void end_net(S32& socket_out)
 {
+	if (socket_out < 0)
+	{
+		closesocket(socket_out);
+	}
 	WSACleanup();
 }
 
@@ -437,8 +441,12 @@ S32 start_net(S32& socket_out, int& nPort)
 	return 0;
 }
 
-void end_net()
+void end_net(S32& socket_out)
 {
+	if (socket_out < 0)
+	{
+		close(socket_out);
+	}
 }
 
 int receive_packet(int hSocket, char * receiveBuffer)

@@ -220,7 +220,7 @@ public:
 	const LLUUID	&getGroupID() const			{ return mGroupID; }
 	ECameraMode		getCameraMode() const		{ return mCameraMode; }
 	BOOL			getFocusOnAvatar() const	{ return mFocusOnAvatar; }
-	LLViewerObject*	getFocusObject() const		{ return mFocusObject; }
+	LLPointer<LLViewerObject>&	getFocusObject()		{ return mFocusObject; }
 	F32				getFocusObjectDist() const	{ return mFocusObjectDist; }
 	BOOL			inPrelude();
 	BOOL			canManageEstate() const;

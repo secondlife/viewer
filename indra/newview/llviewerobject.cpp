@@ -1551,7 +1551,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 								// Bad, we got a cycle somehow.
 								// Kill both the parent and the child, and
 								// set cache misses for both of them.
-								llwarns << "Attempting to recover from parenting cycle!" << llendl
+								llwarns << "Attempting to recover from parenting cycle!" << llendl;
 								llwarns << "Killing " << sent_parentp->getID() << " and " << getID() << llendl;
 								llwarns << "Adding to cache miss list" << llendl;
 								setParent(NULL);
@@ -1575,6 +1575,24 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 						sent_parentp->addChild(this);
 					}
 					
+					if( mPartSourcep.notNull() )
+					{
+						LLViewerPartSourceScript *partSourceScript = mPartSourcep.get();
+						partSourceScript->setSuspended( FALSE );
+					}
+
+					if( mText.notNull() )
+					{
+						LLHUDText *hudText = mText.get();
+						hudText->setHidden( FALSE );
+					}
+
+					if( mIcon.notNull() )
+					{
+						LLHUDIcon *hudIcon = mIcon.get();
+						hudIcon->setHidden( FALSE );
+					}
+
 					setChanged(MOVED | SILHOUETTE);
 				}
 				else
@@ -1589,6 +1607,23 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					U32 port = mesgsys->getSenderPort();
 					
 					gObjectList.orphanize(this, parent_id, ip, port);
+					if( mPartSourcep.notNull() )
+					{
+						LLViewerPartSourceScript *partSourceScript = mPartSourcep.get();
+						partSourceScript->setSuspended( TRUE );
+					}
+
+					if( mText.notNull() )
+					{
+						LLHUDText *hudText = mText.get();
+						hudText->setHidden( TRUE );
+					}
+
+					if( mIcon.notNull() )
+					{
+						LLHUDIcon *hudIcon = mIcon.get();
+						hudIcon->setHidden( TRUE );
+					}
 				}
 			}
 		}
@@ -1666,7 +1701,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 							// Bad, we got a cycle somehow.
 							// Kill both the parent and the child, and
 							// set cache misses for both of them.
-							llwarns << "Attempting to recover from parenting cycle!" << llendl
+							llwarns << "Attempting to recover from parenting cycle!" << llendl;
 							llwarns << "Killing " << sent_parentp->getID() << " and " << getID() << llendl;
 							llwarns << "Adding to cache miss list" << llendl;
 							setParent(NULL);
@@ -4128,7 +4163,11 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 	
 	if (audio_uuid.isNull())
 	{
-		if (mAudioSourcep && mAudioSourcep->isLoop() && !mAudioSourcep->hasPendingPreloads())
+		if (!mAudioSourcep)
+		{
+			return;
+		}
+		if (mAudioSourcep->isLoop() && !mAudioSourcep->hasPendingPreloads())
 		{
 			// We don't clear the sound if it's a loop, it'll go away on its own.
 			// At least, this appears to be how the scripts work.
@@ -4138,29 +4177,22 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 			gAudiop->cleanupAudioSource(mAudioSourcep);
 			mAudioSourcep = NULL;
 		}
-		else if (mAudioSourcep)
-		{
-			if (mAudioSourcep->isLoop())
-            {
-			    // Just shut off the sound
-			    mAudioSourcep->play(LLUUID::null);
-			}
+		else if (flags & LL_SOUND_FLAG_STOP)
+        {
+			// Just shut off the sound
+			mAudioSourcep->play(LLUUID::null);
 		}
 		return;
 	}
-	if (flags & LL_SOUND_FLAG_LOOP)
+	if (flags & LL_SOUND_FLAG_LOOP
+		&& mAudioSourcep && mAudioSourcep->isLoop() && mAudioSourcep->getCurrentData()
+		&& mAudioSourcep->getCurrentData()->getID() == audio_uuid)
 	{
-		if (mAudioSourcep && mAudioSourcep->isLoop() && mAudioSourcep->getCurrentData())
-		{
-			if (mAudioSourcep->getCurrentData()->getID() == audio_uuid)
-			{
-				//llinfos << "Already playing this sound on a loop, ignoring" << llendl;
-				return;
-			}
-		}
+		//llinfos << "Already playing this sound on a loop, ignoring" << llendl;
+		return;
 	}
 
-		// don't clean up before previous sound is done. Solves: SL-33486
+	// don't clean up before previous sound is done. Solves: SL-33486
 	if ( mAudioSourcep && mAudioSourcep->isDone() ) 
 	{
 		gAudiop->cleanupAudioSource(mAudioSourcep);
@@ -4171,11 +4203,16 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 
 	if (mAudioSourcep)
 	{
+		BOOL queue = flags & LL_SOUND_FLAG_QUEUE;
 		mAudioSourcep->setGain(gain);
-		mAudioSourcep->setLoop((flags & LL_SOUND_FLAG_LOOP) ? TRUE : FALSE);
-		mAudioSourcep->setSyncMaster((flags & LL_SOUND_FLAG_SYNC_MASTER) ? TRUE : FALSE);
-		mAudioSourcep->setSyncSlave((flags & LL_SOUND_FLAG_SYNC_SLAVE) ? TRUE : FALSE);
-		mAudioSourcep->setQueueSounds((flags & LL_SOUND_FLAG_QUEUE) ? TRUE : FALSE);
+		mAudioSourcep->setLoop(flags & LL_SOUND_FLAG_LOOP);
+		mAudioSourcep->setSyncMaster(flags & LL_SOUND_FLAG_SYNC_MASTER);
+		mAudioSourcep->setSyncSlave(flags & LL_SOUND_FLAG_SYNC_SLAVE);
+		mAudioSourcep->setQueueSounds(queue);
+		if(!queue) // stop any current sound first to avoid "farts of doom" (SL-1541) -MG
+		{
+			mAudioSourcep->play(LLUUID::null);
+		}
 		//llinfos << "Playing attached sound " << audio_uuid << llendl;
 		mAudioSourcep->play(audio_uuid);
 	}

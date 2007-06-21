@@ -1,8 +1,8 @@
-/**	
+/**
  * @file lleventpoll.cpp
- * @brief Implementation of	the	LLEventPoll	class.
+ * @brief Implementation of the LLEventPoll class.
  *
- * Copyright (c) 2006-$CurrentYear$, Linden	Research, Inc.
+ * Copyright (c) 2006-$CurrentYear$, Linden Research, Inc.
  * $License$
  */
 

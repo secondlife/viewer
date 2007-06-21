@@ -29,7 +29,7 @@
 
 #include <sstream>
 
-#include "boost/tokenizer.hpp"
+#include <boost/tokenizer.hpp>
 
 static const char HTTP_VERSION_STR[] = "HTTP/1.0";
 static const std::string CONTEXT_REQUEST("request");

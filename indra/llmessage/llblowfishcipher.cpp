@@ -1,5 +1,5 @@
 /** 
- * @file llblowcipher.cpp
+ * @file llblowfishcipher.cpp
  * @brief Wrapper around OpenSSL Blowfish encryption algorithm.
  *
  * We do not have OpenSSL headers or libraries on Windows, so this

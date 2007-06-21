@@ -209,7 +209,7 @@ LLHandle<LLObjectSelection> LLToolSelect::handleObjectSelection(LLViewerObject *
 
 BOOL LLToolSelect::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	mIgnoreGroup = !gSavedSettings.getBOOL("SelectLinkedSet");
+	mIgnoreGroup = gSavedSettings.getBOOL("EditLinkedParts");
 
 	LLViewerObject* object = gObjectList.findObject(mSelectObjectID);
 	LLToolSelect::handleObjectSelection(object, mask, mIgnoreGroup, FALSE);

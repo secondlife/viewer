@@ -466,15 +466,20 @@ void LLRenderPass::renderInvisible(U32 mask)
 	
 	std::vector<LLDrawInfo*>& draw_info = gPipeline.mRenderMap[LLRenderPass::PASS_INVISIBLE];
 
-	U32* indices_pointer = NULL;
 	for (std::vector<LLDrawInfo*>::iterator i = draw_info.begin(); i != draw_info.end(); ++i)
 	{
 		LLDrawInfo& params = **i;
-		params.mVertexBuffer->setBuffer(mask);
-		indices_pointer = (U32*) params.mVertexBuffer->getIndicesPointer();
-		glDrawRangeElements(GL_TRIANGLES, params.mStart, params.mEnd, params.mCount,
-							GL_UNSIGNED_INT, indices_pointer+params.mOffset);
-		gPipeline.mTrianglesDrawn += params.mCount/3;
+
+		if (params.mVertexBuffer)
+		{
+			params.mVertexBuffer->setBuffer(mask);
+			U32 *indices_pointer =
+				(U32 *) params.mVertexBuffer->getIndicesPointer();
+			glDrawRangeElements(GL_TRIANGLES, params.mStart, params.mEnd,
+								params.mCount, GL_UNSIGNED_INT,
+								indices_pointer + params.mOffset);
+			gPipeline.mTrianglesDrawn += params.mCount / 3;
+		}
 	}
 }
 

@@ -20,7 +20,7 @@ class LLHost;
 // Returns 0 on success, non-zero on error.
 // Sets socket handler/descriptor, changes nPort if port requested is unavailable.
 S32		start_net(S32& socket_out, int& nPort);								
-void	end_net();
+void	end_net(S32& socket_out);
 
 // returns size of packet or -1 in case of error
 S32		receive_packet(int hSocket, char * receiveBuffer);

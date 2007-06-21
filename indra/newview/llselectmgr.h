@@ -168,7 +168,7 @@ private:
 	LLPointer<LLViewerObject>					mPrimaryObject;
 	std::list<LLSelectNode*>::iterator			mCurrentNode;
 	S32											mCurrentTE;
-	std::map<LLViewerObject*, LLSelectNode*>	mSelectNodeMap;
+	std::map<LLPointer<LLViewerObject>, LLSelectNode*>	mSelectNodeMap;
 	ESelectType									mSelectType;
 };
 

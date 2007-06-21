@@ -1,5 +1,5 @@
 /** 
- * @file indra_constants.h
+ * @file llavatarconstants.h
  * @brief some useful short term constants for Indra
  *
  * Copyright (c) 2001-$CurrentYear$, Linden Research, Inc.

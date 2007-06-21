@@ -219,6 +219,10 @@ LLWindowMacOSX::LLWindowMacOSX(char *title, char *name, S32 x, S32 y, S32 width,
 	mNeedsResize = FALSE;
 	mOverrideAspectRatio = 0.f;
 	mMinimized = FALSE;
+	mTSMDocument = NULL; // Just in case.
+	mLanguageTextInputAllowed = FALSE;
+	mTSMScriptCode = 0;
+	mTSMLangCode = 0;
 	
 	// For reasons that aren't clear to me, LLTimers seem to be created in the "started" state.
 	// Since the started state of this one is used to track whether the NMRec has been installed, it wants to start out in the "stopped" state.
@@ -457,6 +461,29 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		InstallStandardEventHandler(GetWindowEventTarget(mWindow));
 		InstallWindowEventHandler (mWindow, mEventHandlerUPP, GetEventTypeCount (WindowHandlerEventList), WindowHandlerEventList, (void*)this, &mWindowHandlerRef); // add event handler
 
+	}
+
+	{
+		// Create and initialize our TSM document for language text input.
+		// If an error occured, we can do nothing better than simply ignore it.
+		// mTSMDocument will be kept NULL in case.
+		if (mTSMDocument)
+		{
+			DeactivateTSMDocument(mTSMDocument);
+			DeleteTSMDocument(mTSMDocument);
+			mTSMDocument = NULL;
+		}
+		static InterfaceTypeList types = { kUnicodeDocument };
+		OSErr err = NewTSMDocument(1, types, &mTSMDocument, 0);
+		if (err != noErr)
+		{
+			llwarns << "createContext: couldn't create a TSMDocument (" << err << ")" << llendl;
+		}
+		if (mTSMDocument)
+		{
+			UseInputWindow(mTSMDocument, TRUE);
+			ActivateTSMDocument(mTSMDocument);
+		}
 	}
 
 	if(mContext == NULL)
@@ -902,6 +929,15 @@ void LLWindowMacOSX::destroyContext()
 		llinfos << "destroyContext: removing window event handler" << llendl;
 		RemoveEventHandler(mWindowHandlerRef);
 		mWindowHandlerRef = NULL;
+	}
+
+	// Cleanup any TSM document we created.
+	if(mTSMDocument != NULL)
+	{
+		llinfos << "destroyContext: deleting TSM document" << llendl;
+		DeactivateTSMDocument(mTSMDocument);
+		DeleteTSMDocument(mTSMDocument);
+		mTSMDocument = NULL;
 	}
 
 	// Close the window
@@ -1509,7 +1545,7 @@ void LLWindowMacOSX::flashIcon(F32 seconds)
 		OSErr err;
 
 		mBounceTime = seconds;
-		memset(&mBounceRec, sizeof(mBounceRec), 0);
+		memset(&mBounceRec, 0, sizeof(mBounceRec));
 		mBounceRec.qType = nmType;
 		mBounceRec.nmMark = 1;
 		err = NMInstall(&mBounceRec);
@@ -2221,6 +2257,10 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 		switch(evtKind)
 		{		
 		case kEventWindowActivated:
+			if (mTSMDocument)
+			{
+				ActivateTSMDocument(mTSMDocument);
+			}
 			mCallbacks->handleFocus(this);
 			break;
 		case kEventWindowDeactivated:
@@ -2930,6 +2970,39 @@ static long getDictLong (CFDictionaryRef refDict, CFStringRef key)
 	if (!CFNumberGetValue(number_value, kCFNumberLongType, &int_value)) // or if cant convert it
 		return -1; // fail
 	return int_value; // otherwise return the long value
+}
+
+void LLWindowMacOSX::allowLanguageTextInput(BOOL b)
+{
+	ScriptLanguageRecord script_language;
+
+	if (b == mLanguageTextInputAllowed)
+	{
+		return;
+	}
+	mLanguageTextInputAllowed = b;
+	
+	if (b)
+	{
+		if (mTSMScriptCode != smRoman)
+		{
+			script_language.fScript = mTSMScriptCode;
+			script_language.fLanguage = mTSMLangCode;
+			SetTextServiceLanguage(&script_language);
+		}
+	}
+	else
+	{
+		GetTextServiceLanguage(&script_language);
+		mTSMScriptCode = script_language.fScript;
+		mTSMLangCode = script_language.fLanguage;
+		if (mTSMScriptCode != smRoman)
+		{
+			script_language.fScript = smRoman;
+			script_language.fLanguage = langEnglish;
+			SetTextServiceLanguage(&script_language);
+		}
+	}
 }
 
 #endif // LL_DARWIN

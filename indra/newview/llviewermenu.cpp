@@ -224,7 +224,7 @@ const LLString SAVE_INTO_TASK_INVENTORY("Save Object Back to Object Contents");
 
 #if LL_WINDOWS
 static const char* SOUND_EXTENSIONS = ".wav";
-static const char* IMAGE_EXTENSIONS = ".tga .bmp .jpg .jpeg";
+static const char* IMAGE_EXTENSIONS = ".tga .bmp .jpg .jpeg .png";
 static const char* ANIM_EXTENSIONS =  ".bvh";
 #ifdef _CORY_TESTING
 static const char* GEOMETRY_EXTENSIONS = ".slg";
@@ -1239,7 +1239,7 @@ void init_debug_avatar_menu(LLMenuGL* menu)
 
 	sub_menu = new LLMenuGL("Character Tests");
 	sub_menu->append(new LLMenuItemToggleGL("Go Away/AFK When Idle",
-		&gAllowAFK));
+		&gAllowIdleAFK));
 
 	sub_menu->append(new LLMenuItemCallGL("Appearance To XML", 
 		&LLVOAvatar::dumpArchetypeXML));
@@ -4130,7 +4130,7 @@ class LLToolsBuyOrTake : public view_listener_t
 		{
 			S32 total_price = selection_price();
 
-			if (total_price <= gStatusBar->getBalance())
+			if (total_price <= gStatusBar->getBalance() || total_price == 0)
 			{
 				handle_buy(NULL);
 			}
@@ -4422,7 +4422,7 @@ class LLToolsEnableLink : public view_listener_t
 		// user can modify at least one of the selected objects.
 
 		// in component mode, can't link
-		if (gSavedSettings.getBOOL("SelectLinkedSet"))
+		if (!gSavedSettings.getBOOL("EditLinkedParts"))
 		{
 			if(gSelectMgr->selectGetAllRootsValid() && gSelectMgr->getSelection()->getRootObjectCount() >= 2)
 			{
@@ -4822,6 +4822,12 @@ void show_debug_menus()
 	if ( gMenuBarView )
 	{
 		BOOL debug = gSavedSettings.getBOOL("UseDebugMenus");
+		
+		if(debug)
+		{
+			LLFirstUse::useDebugMenus();
+		}
+
 		gMenuBarView->setItemVisible(CLIENT_MENU_NAME, debug);
 		gMenuBarView->setItemEnabled(CLIENT_MENU_NAME, debug);
 		gMenuBarView->setItemVisible(SERVER_MENU_NAME, debug);
@@ -6907,6 +6913,23 @@ class LLToolsShowSelectionLightRadius : public view_listener_t
 	}
 };
 
+class LLToolsEditLinkedParts : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		BOOL select_individuals = gSavedSettings.getBOOL("EditLinkedParts");
+		if (select_individuals)
+		{
+			gSelectMgr->demoteSelectionToIndividuals();
+		}
+		else
+		{
+			gSelectMgr->promoteSelectionToRoot();
+		}
+		return true;
+	}
+};
+
 void reload_personal_settings_overrides(void *)
 {
 	llinfos << "Loading overrides from " << gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT,"overrides.xml") << llendl;
@@ -7600,6 +7623,7 @@ void initialize_menus()
 	addMenu(new LLToolsSelectBySurrounding(), "Tools.SelectBySurrounding");
 	addMenu(new LLToolsShowHiddenSelection(), "Tools.ShowHiddenSelection");
 	addMenu(new LLToolsShowSelectionLightRadius(), "Tools.ShowSelectionLightRadius");
+	addMenu(new LLToolsEditLinkedParts(), "Tools.EditLinkedParts");
 	addMenu(new LLToolsSnapObjectXY(), "Tools.SnapObjectXY");
 	addMenu(new LLToolsUseSelectionForGrid(), "Tools.UseSelectionForGrid");
 	addMenu(new LLToolsLink(), "Tools.Link");

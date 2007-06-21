@@ -484,7 +484,7 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 				}
 
 				// Figure out where the last block ended.
-				U32 loc = last_file_block->mLocation+last_file_block->mLength;
+				S32 loc = last_file_block->mLocation+last_file_block->mLength;
 
 				// Figure out how much space there is between where
 				// the last block ended and this block begins.
@@ -492,7 +492,7 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
     
 				// Check for more errors...  Seeing if the current
 				// entry and the last entry make sense together.
-				if (length < 0 || loc < 0 || loc > data_size)
+				if (length < 0 || loc < 0 || (U32)loc > data_size)
 				{
 					// Invalid VFS
 					unlockAndClose( mIndexFP );
@@ -1770,53 +1770,46 @@ void LLVFS::audit()
     
 	delete[] buffer;
 
-	if (vfs_corrupt)
+	if (!vfs_corrupt)
 	{
-		for (std::vector<LLVFSFileBlock*>::iterator iter = audit_blocks.begin();
-			 iter != audit_blocks.end(); ++iter)
+		for (fileblock_map::iterator it = mFileBlocks.begin(); it != mFileBlocks.end(); ++it)
 		{
-			delete *iter;
-		}
-		audit_blocks.clear();
-		return;
-	}
-	
-	for (fileblock_map::iterator it = mFileBlocks.begin(); it != mFileBlocks.end(); ++it)
-	{
-		LLVFSFileBlock* block = (*it).second;
+			LLVFSFileBlock* block = (*it).second;
 
-		if (block->mSize > 0)
-		{
-			if (! found_files.count(*block))
+			if (block->mSize > 0)
 			{
-				llwarns << "VFile " << block->mFileID << ":" << block->mFileType << " in memory, not on disk, loc " << block->mIndexLocation<< llendl;
-				fseek(mIndexFP, block->mIndexLocation, SEEK_SET);
-				U8 buf[LLVFSFileBlock::SERIAL_SIZE];
-				fread(buf, LLVFSFileBlock::SERIAL_SIZE, 1, mIndexFP);
+				if (! found_files.count(*block))
+				{
+					llwarns << "VFile " << block->mFileID << ":" << block->mFileType << " in memory, not on disk, loc " << block->mIndexLocation<< llendl;
+					fseek(mIndexFP, block->mIndexLocation, SEEK_SET);
+					U8 buf[LLVFSFileBlock::SERIAL_SIZE];
+					fread(buf, LLVFSFileBlock::SERIAL_SIZE, 1, mIndexFP);
     			
-				LLVFSFileBlock disk_block;
-				disk_block.deserialize(buf, block->mIndexLocation);
+					LLVFSFileBlock disk_block;
+					disk_block.deserialize(buf, block->mIndexLocation);
 				
-				llwarns << "Instead found " << disk_block.mFileID << ":" << block->mFileType << llendl;
-			}
-			else
-			{
-				block = found_files.find(*block)->second;
-				found_files.erase(*block);
-				delete block;
+					llwarns << "Instead found " << disk_block.mFileID << ":" << block->mFileType << llendl;
+				}
+				else
+				{
+					block = found_files.find(*block)->second;
+					found_files.erase(*block);
+				}
 			}
 		}
-	}
     
-	for (std::map<LLVFSFileSpecifier, LLVFSFileBlock*>::iterator iter = found_files.begin();
-		 iter != found_files.end(); iter++)
-	{
-		LLVFSFileBlock* block = iter->second;
-		llwarns << "VFile " << block->mFileID << ":" << block->mFileType << " szie:" << block->mSize << " leftover" << llendl;
-	}
+		for (std::map<LLVFSFileSpecifier, LLVFSFileBlock*>::iterator iter = found_files.begin();
+			 iter != found_files.end(); iter++)
+		{
+			LLVFSFileBlock* block = iter->second;
+			llwarns << "VFile " << block->mFileID << ":" << block->mFileType << " szie:" << block->mSize << " leftover" << llendl;
+		}
     
-	llinfos << "VFS: audit OK" << llendl;
-	// mutex released by LLMutexLock() destructor.
+		llinfos << "VFS: audit OK" << llendl;
+		// mutex released by LLMutexLock() destructor.
+	}
+
+	for_each(audit_blocks.begin(), audit_blocks.end(), DeletePointer());
 }
     
     

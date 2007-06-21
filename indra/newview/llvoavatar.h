@@ -236,8 +236,7 @@ public:
 							(1 << LLVertexBuffer::TYPE_TEXCOORD) |
 							(1 << LLVertexBuffer::TYPE_WEIGHT) |
 							(1 << LLVertexBuffer::TYPE_CLOTHWEIGHT)							
-	}
-	eVertexDataMask;
+	};
 
 	LLVOAvatar(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 	/*virtual*/ void markDead();

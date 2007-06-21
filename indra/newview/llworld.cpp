@@ -481,6 +481,8 @@ F32 LLWorld::resolveStepHeightGlobal(const LLVOAvatar* avatarp, const LLVector3d
 
 	land_intersection.mdV[VZ] = regionp->getLand().resolveHeightGlobal(point_a);
 	normalized_land_distance = (F32)(point_a.mdV[VZ] - land_intersection.mdV[VZ]) / segment_length;
+	intersection = land_intersection;
+	intersection_normal = resolveLandNormalGlobal(land_intersection);
 
 	if (avatarp && !avatarp->mFootPlane.isExactlyClear())
 	{
@@ -491,16 +493,12 @@ F32 LLWorld::resolveStepHeightGlobal(const LLVOAvatar* avatarp, const LLVector3d
 		norm_dist_from_plane = llclamp(norm_dist_from_plane / segment_length, 0.f, 1.f);
 		if (norm_dist_from_plane < normalized_land_distance)
 		{
+			// collided with object before land
 			normalized_land_distance = norm_dist_from_plane;
 			intersection = point_a;
 			intersection.mdV[VZ] -= norm_dist_from_plane * segment_length;
 			intersection_normal = foot_plane_normal;
 		}
-	}
-	else
-	{
-		intersection = land_intersection;
-		intersection_normal = resolveLandNormalGlobal(land_intersection);
 	}
 
 	return normalized_land_distance;

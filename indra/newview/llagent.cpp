@@ -1999,11 +1999,6 @@ void LLAgent::setAFK()
 		return;
 	}
 
-	if (!gAllowAFK)
-	{
-		return;
-	}
-
 	if (!gAgent.getRegion())
 	{
 		// Don't set AFK if we're not talking to a region yet.

@@ -13,6 +13,7 @@
 class LLLogChat
 {
 public:
+	static LLString timestamp(bool withdate = false);
 	static LLString makeLogFileName(LLString(filename));
 	static void saveHistory(LLString filename, LLString line);
 	static void loadHistory(LLString filename, void (*callback)(LLString,void*),void* userdata);

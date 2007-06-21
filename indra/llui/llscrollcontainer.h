@@ -15,6 +15,7 @@
 #endif
 #include "stdenums.h"
 #include "llcoord.h"
+#include "llscrollbar.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLScrollableContainerView
@@ -27,7 +28,6 @@
 // This class is a decorator class.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLScrollbar;
 class LLViewBorder;
 class LLUICtrlFactory;
 
@@ -35,6 +35,10 @@ class LLUICtrlFactory;
 class LLScrollableContainerView : public LLUICtrl
 {
 public:
+	// Note: vertical comes before horizontal because vertical
+	// scrollbars have priority for mouse and keyboard events.
+	enum SCROLL_ORIENTATION { VERTICAL, HORIZONTAL, SCROLLBAR_COUNT };
+
 	LLScrollableContainerView( const LLString& name, const LLRect& rect,
 							   LLView* scrolled_view, BOOL is_opaque = FALSE,
 							   const LLColor4& bg_color = LLColor4(0,0,0,0) );
@@ -68,6 +72,8 @@ public:
 	void			goToBottom();
 	S32				getBorderWidth();
 
+	BOOL			needsToScroll(S32 x, S32 y, SCROLL_ORIENTATION axis);
+
 	// LLView functionality
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent);
 	virtual BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
@@ -89,10 +95,6 @@ protected:
 	virtual void scrollHorizontal( S32 new_pos );
 	virtual void scrollVertical( S32 new_pos );
 	void updateScroll();
-
-	// Note: vertical comes before horizontal because vertical
-	// scrollbars have priority for mouse and keyboard events.
-	enum { VERTICAL, HORIZONTAL, SCROLLBAR_COUNT };
 
 	LLScrollbar* mScrollbar[SCROLLBAR_COUNT];
 	LLView*		mScrolledView;

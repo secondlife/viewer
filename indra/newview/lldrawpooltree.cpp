@@ -144,7 +144,7 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 		U32* indicesp = (U32*) face->mVertexBuffer->getIndicesPointer();
 
 		// Render each of the trees
-		LLVOTree *treep = (LLVOTree *)drawablep->getVObj();
+		LLVOTree *treep = (LLVOTree *)drawablep->getVObj().get();
 
 		LLColor4U color(255,255,255,255);
 

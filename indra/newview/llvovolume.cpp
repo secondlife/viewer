@@ -46,6 +46,7 @@
 const S32 MIN_QUIET_FRAMES_COALESCE = 30;
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
+const S32 SCULPT_REZ = 128;
 
 BOOL gAnimateTextures = TRUE;
 extern BOOL gHideSelectedObjects;
@@ -252,9 +253,9 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 void LLVOVolume::animateTextures()
 {
 	F32 off_s = 0.f, off_t = 0.f, scale_s = 1.f, scale_t = 1.f, rot = 0.f;
-	S32 result;
+	S32 result = mTextureAnimp->animateTextures(off_s, off_t, scale_s, scale_t, rot);
 	
-	if (result = mTextureAnimp->animateTextures(off_s, off_t, scale_s, scale_t, rot))
+	if (result)
 	{
 		if (!mTexAnimMode)
 		{
@@ -464,10 +465,11 @@ void LLVOVolume::updateTextures()
 		mSculptTexture = gImageList.getImage(id);
 		if (mSculptTexture.notNull())
 		{
-			mSculptTexture->addTextureStats(mPixelArea);
+			mSculptTexture->addTextureStats(SCULPT_REZ * SCULPT_REZ);
+			mSculptTexture->setBoostLevel(LLViewerImage::BOOST_SCULPTED);
 		}
 
-		S32 desired_discard = MAX_LOD - mLOD;
+		S32 desired_discard = 0; // lower discard levels have MUCH less resolution - (old=MAX_LOD - mLOD)
 		S32 current_discard = getVolume()->getSculptLevel();
 
 		if (desired_discard != current_discard)
@@ -681,7 +683,7 @@ void LLVOVolume::sculpt()
 	if (mSculptTexture.notNull())
 	{
 		S32 discard_level;
-		S32 desired_discard = MAX_LOD - mLOD;  // desired
+		S32 desired_discard = 0; // lower discard levels have MUCH less resolution 
 
 		discard_level = desired_discard;
 		
@@ -2190,7 +2192,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	{
 		LLDrawable* drawablep = *drawable_iter;
 		
-		if (drawablep->isDead())
+		if (drawablep->isDead() || drawablep->isState(LLDrawable::FORCE_INVISIBLE) )
 		{
 			continue;
 		}

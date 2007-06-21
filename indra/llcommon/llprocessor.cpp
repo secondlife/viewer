@@ -433,7 +433,7 @@ bool CProcessor::AnalyzeIntelProcessor()
 						case 3:			// Model = 8, Brand id = 3:  Pentium III Xeon (on-die L2 cache) processor model
                             			strncat(strCPUName, "Intel Pentium III Xeon (0.18 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 							break;
-						default:		// ...²
+						default:		// ...
 							strncat(strCPUName, "Intel Pentium III core (unknown model, 0.18 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 							break;
 					}
@@ -644,8 +644,8 @@ bool CProcessor::AnalyzeAMDProcessor()
 			mov dword ptr [tmp+44], edx
 		}
 		// And copy it to the brand id string
-		strncpy(CPUInfo.strBrandID, tmp,sizeof(CPUInfo.strBrandID-1));	/* Flawfinder: ignore */		
-		CPUInfo.strBrandID[sizeof(CPUInfo.strBrandID-1)]='\0';
+		strncpy(CPUInfo.strBrandID, tmp,sizeof(CPUInfo.strBrandID)-1);
+		CPUInfo.strBrandID[sizeof(CPUInfo.strBrandID)-1]='\0';
 	}
 	else
 	{
@@ -1260,17 +1260,17 @@ void CProcessor::DecodeProcessorConfiguration(unsigned int cfg)
 			CPUInfo._L1.Data.uiAssociativeWays = 4;
 			CPUInfo._L1.Data.uiLineSize = 64;
 			break;
-		case 0x70:		// cfg = 0x70:  trace L1 cache present, 12 KµOPs, 4 ways
+		case 0x70:		// cfg = 0x70:  trace L1 cache present, 12 KuOPs, 4 ways
 			CPUInfo._Trace.bPresent = true;
 			strcpy(CPUInfo._Trace.strSize, "12 K-micro-ops");	/* Flawfinder: ignore */
 			CPUInfo._Trace.uiAssociativeWays = 4;
 			break;
-		case 0x71:		// cfg = 0x71:  trace L1 cache present, 16 KµOPs, 4 ways
+		case 0x71:		// cfg = 0x71:  trace L1 cache present, 16 KuOPs, 4 ways
 			CPUInfo._Trace.bPresent = true;
 			strcpy(CPUInfo._Trace.strSize, "16 K-micro-ops");	/* Flawfinder: ignore */
 			CPUInfo._Trace.uiAssociativeWays = 4;
 			break;
-		case 0x72:		// cfg = 0x72:  trace L1 cache present, 32 KµOPs, 4 ways
+		case 0x72:		// cfg = 0x72:  trace L1 cache present, 32 KuOPs, 4 ways
 			CPUInfo._Trace.bPresent = true;
 			strcpy(CPUInfo._Trace.strSize, "32 K-micro-ops");	/* Flawfinder: ignore */
 			CPUInfo._Trace.uiAssociativeWays = 4;

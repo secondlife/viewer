@@ -1378,7 +1378,7 @@ void LLFace::enableLights() const
 	}
 	if (isState(LIGHT))
 	{
-		const LLVOVolume* vovolume = (const LLVOVolume*)(mDrawablep->getVObj());
+		const LLVOVolume* vovolume = (const LLVOVolume*)mDrawablep->getVObj();
 		gPipeline.setAmbient(vovolume->getLightColor());
 	}
 }

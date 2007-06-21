@@ -84,7 +84,7 @@ protected:
 	typedef std::vector<LLDrivenEntry> entry_list_t;
 	entry_list_t mDriven;
 	LLViewerVisualParam* mCurrentDistortionParam;
-	LLVOAvatar* mAvatarp;
+	LLPointer<LLVOAvatar> mAvatarp;
 };
 
 #endif  // LL_LLDRIVERPARAM_H

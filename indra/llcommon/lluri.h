@@ -28,6 +28,14 @@ class LLURI
 public:
   LLURI();
   LLURI(const std::string& escaped_str);
+  LLURI(const std::string& scheme,
+		const std::string& userName,
+		const std::string& password,
+		const std::string& hostName,
+		U16 hostPort,
+		const std::string& escapedPath,
+		const std::string& escapedQuery);
+	  
   // construct from escaped string, as would be transmitted on the net
 
   ~LLURI();
@@ -48,8 +56,6 @@ public:
 			 const U32& port,
 			 const LLSD& path,
 			 const LLSD& query);
-			 
-	  
   std::string asString() const;
   // the whole URI, escaped as needed
   
@@ -64,10 +70,15 @@ public:
   // for schemes that follow path like syntax (http, https, ftp)
   std::string authority() const;	// ex.: "host.com:80"
   std::string hostName() const;	// ex.: "host.com"
+  std::string userName() const;
+  std::string password() const;
   U16 hostPort() const;			// ex.: 80, will include implicit port
+  BOOL defaultPort() const;		// true if port is default for scheme
+  const std::string& escapedPath() const { return mEscapedPath; }
   std::string path() const;		// ex.: "/abc/def", includes leading slash
   //    LLSD pathArray() const;			// above decoded into an array of strings
   std::string query() const;		// ex.: "x=34", section after "?"
+  const std::string& escapedQuery() const { return mEscapedQuery; }
   LLSD queryMap() const;			// above decoded into a map
   static LLSD queryMap(std::string escaped_query_string);
   static std::string mapToQueryString(const LLSD& queryMap);

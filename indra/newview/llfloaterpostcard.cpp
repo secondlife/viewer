@@ -56,11 +56,11 @@ LLFloaterPostcard::LLFloaterPostcard(LLImageJPEG* jpeg, LLImageGL *img, const LL
 	mJPEGImage(jpeg),
 	mViewerImage(img),
 	mImageScale(img_scale),
-	mPosTakenGlobal(pos_taken_global)
+	mPosTakenGlobal(pos_taken_global),
+	mHasFirstMsgFocus(false)
 {
 	init();
 }
-
 
 void LLFloaterPostcard::init()
 {
@@ -108,23 +108,22 @@ BOOL LLFloaterPostcard::postBuild()
 	gAgent.buildFullname(name_string);
 	
 	childSetValue("name_form", LLSD(name_string));
-	
-	// XUI:translate
-	LLString msg("Postcard from ");
-	msg += gSecondLife;
-	childSetValue("subject_form", LLSD(msg));
 
 	LLTextEditor *MsgField = LLUICtrlFactory::getTextEditorByName(this, "msg_form");
 	if (MsgField)
 	{
-		MsgField->setText("Check this out!");
 		MsgField->setWordWrap(TRUE);
-	}
 
-	childSetFocus("to_form", TRUE);
+		// For the first time a user focusess to .the msg box, all text will be selected.
+		MsgField->setFocusChangedCallback(onMsgFormFocusRecieved);
+		MsgField->setCallbackUserData(this);
+	}
 	
+	childSetFocus("to_form", TRUE);
+
     return TRUE;
 }
+
 
 
 // static
@@ -247,46 +246,16 @@ void LLFloaterPostcard::onClickSend(void* data)
 			return;
 		}
 
+		LLString subject(self->childGetValue("subject_form").asString().c_str());
+		if(subject.empty() || !self->mHasFirstMsgFocus)
+		{
+			gViewerWindow->alertXml("PromptMissingSubjMsg", missingSubjMsgAlertCallback, self);
+			return;
+		}
+
 		if (self->mJPEGImage.notNull())
 		{
-			self->mTransactionID.generate();
-			self->mAssetID = self->mTransactionID.makeAssetID(gAgent.getSecureSessionID());
-			LLVFile::writeFile(self->mJPEGImage->getData(), self->mJPEGImage->getDataSize(), gVFS, self->mAssetID, LLAssetType::AT_IMAGE_JPEG);
-
-			// upload the image
-			std::string url = gAgent.getRegion()->getCapability("SendPostcard");
-			if(!url.empty())
-			{
-				llinfos << "Send Postcard via capability" << llendl;
-				LLSD body = LLSD::emptyMap();
-				// the capability already encodes: agent ID, region ID
-				body["pos-global"] = self->mPosTakenGlobal.getValue();
-				body["to"] = self->childGetValue("to_form").asString();
-				body["from"] = self->childGetValue("from_form").asString();
-				body["name"] = self->childGetValue("name_form").asString();
-				body["subject"] = self->childGetValue("subject_form").asString();
-				body["msg"] = self->childGetValue("msg_form").asString();
-				body["allow-publish"] = self->childGetValue("allow_publish_check").asBoolean();
-				body["mature-publish"] = self->childGetValue("mature_check").asBoolean();
-				LLHTTPClient::post(url, body, new LLSendPostcardResponder(body, self->mAssetID, LLAssetType::AT_IMAGE_JPEG));
-			} 
-			else
-			{
-				gAssetStorage->storeAssetData(self->mTransactionID, LLAssetType::AT_IMAGE_JPEG, &uploadCallback, (void *)self, FALSE);
-			}
-
-			LLUploadDialog::modalUploadDialog("Uploading...\n\nPostcard");
-
-			// don't destroy the window until the upload is done
-			// this way we keep the information in the form
-			self->setVisible(FALSE);
-
-			// also remove any dependency on another floater
-			// so that we can be sure to outlive it while we
-			// need to.
-			LLFloater* dependee = self->getDependee();
-			if (dependee)
-				dependee->removeDependentFloater(self);
+			self->sendPostcard();
 		}
 		else
 		{
@@ -354,4 +323,87 @@ void LLFloaterPostcard::updateUserInfo(const char *email)
 			instance->childSetValue("from_form", LLSD(email));
 		}
 	}
+}
+
+void LLFloaterPostcard::onMsgFormFocusRecieved(LLUICtrl* receiver, void* data)
+{
+	LLFloaterPostcard* self = (LLFloaterPostcard *)data;
+	if(self) 
+	{
+		LLTextEditor* msgForm = LLUICtrlFactory::getTextEditorByName(self, "msg_form");
+		if(msgForm && msgForm == receiver && msgForm->hasFocus() && !(self->mHasFirstMsgFocus))
+		{
+			self->mHasFirstMsgFocus = true;
+			msgForm->setText(LLString(""));
+		}
+	}
+}
+
+void LLFloaterPostcard::missingSubjMsgAlertCallback(S32 option, void* data)
+{
+	if(data)
+	{
+		LLFloaterPostcard* self = static_cast<LLFloaterPostcard*>(data);
+		if(0 == option)
+		{
+			// User clicked OK
+			if((self->childGetValue("subject_form").asString()).empty())
+			{
+				// Stuff the subject back into the form.
+				self->childSetValue("subject_form", self->childGetText("default_subject"));
+			}
+
+			if(!self->mHasFirstMsgFocus)
+			{
+				// The user never switched focus to the messagee window. 
+				// Using the default string.
+				// XUI: translate
+				self->childSetValue("msg_form", self->childGetText("default_message"));
+			}
+
+			self->sendPostcard();
+		}
+	}
+}
+
+void LLFloaterPostcard::sendPostcard()
+{
+	mTransactionID.generate();
+	mAssetID = mTransactionID.makeAssetID(gAgent.getSecureSessionID());
+	LLVFile::writeFile(mJPEGImage->getData(), mJPEGImage->getDataSize(), gVFS, mAssetID, LLAssetType::AT_IMAGE_JPEG);
+
+	// upload the image
+	std::string url = gAgent.getRegion()->getCapability("SendPostcard");
+	if(!url.empty())
+	{
+		llinfos << "Send Postcard via capability" << llendl;
+		LLSD body = LLSD::emptyMap();
+		// the capability already encodes: agent ID, region ID
+		body["pos-global"] = mPosTakenGlobal.getValue();
+		body["to"] = childGetValue("to_form").asString();
+		body["from"] = childGetValue("from_form").asString();
+		body["name"] = childGetValue("name_form").asString();
+		body["subject"] = childGetValue("subject_form").asString();
+		body["msg"] = childGetValue("msg_form").asString();
+		body["allow-publish"] = childGetValue("allow_publish_check").asBoolean();
+		body["mature-publish"] = childGetValue("mature_check").asBoolean();
+		LLHTTPClient::post(url, body, new LLSendPostcardResponder(body, mAssetID, LLAssetType::AT_IMAGE_JPEG));
+	} 
+	else
+	{
+		gAssetStorage->storeAssetData(mTransactionID, LLAssetType::AT_IMAGE_JPEG, &uploadCallback, (void *)this, FALSE);
+	}
+
+	LLUploadDialog::modalUploadDialog("Uploading...\n\nPostcard");
+
+	// don't destroy the window until the upload is done
+	// this way we keep the information in the form
+	setVisible(FALSE);
+
+	// also remove any dependency on another floater
+	// so that we can be sure to outlive it while we
+	// need to.
+	LLFloater* dependee = getDependee();
+	if (dependee)
+		dependee->removeDependentFloater(this);
 }

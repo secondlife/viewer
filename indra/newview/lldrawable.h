@@ -62,8 +62,8 @@ public:
 
 	const LLViewerRegion* getRegion()               const { return mVObjp->getRegion(); }
 	const LLTextureEntry* getTextureEntry(U8 which) const { return mVObjp->getTE(which); }
-	LLViewerObject* getVObj()							  { return mVObjp; }
-	const LLViewerObject* getVObj() const				  { return mVObjp; }
+	LLPointer<LLViewerObject>& getVObj()							  { return mVObjp; }
+	const LLViewerObject *getVObj()	const						  { return mVObjp; }
 	LLVOVolume*	getVOVolume() const; // cast mVObjp tp LLVOVolume if OK
 
 	const LLMatrix4&      getWorldMatrix() const		{ return mXform.getWorldMatrix(); }

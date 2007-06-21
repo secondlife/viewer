@@ -410,7 +410,6 @@ class Linux_i686Manifest(LinuxManifest):
                         self.path("libssl.so.0.9.7")
                         self.path("libexpat.so.1")
                         self.path("libstdc++.so.6")
-                        self.path("libelfio.so")
                         self.path("libuuid.so", "libuuid.so.1")
                         self.path("libSDL-1.2.so.0")
                         self.path("libtcmalloc.so.0")
@@ -422,7 +421,8 @@ class Linux_i686Manifest(LinuxManifest):
 class Linux_x86_64Manifest(LinuxManifest):
         def construct(self):
                 super(Linux_x86_64Manifest, self).construct()
-                self.path("secondlife-x86_64-bin-stripped","bin/secondlife-bin")
+                self.path("secondlife-x86_64-bin-stripped","bin/do-not-directly-run-secondlife-bin")
+                self.path("../linux_crash_logger/linux-crash-logger-x86_64-bin-stripped","linux-crash-logger.bin")
                 # TODO: I get the sense that this isn't fully fleshed out
                 if self.prefix("../../libraries/x86_64-linux/lib_release_client", "lib"):
                         self.path("libkdu_v42R.so")

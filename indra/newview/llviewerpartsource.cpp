@@ -27,6 +27,7 @@ LLViewerPartSource::LLViewerPartSource(const U32 type) :
 	mLastUpdateTime = 0.f;
 	mLastPartTime = 0.f;
 	mIsDead = FALSE;
+	mIsSuspended = FALSE;
 	static U32 id_seed = 0;
 	mID = ++id_seed;
 }
@@ -73,6 +74,9 @@ void LLViewerPartSourceScript::setDead()
 
 void LLViewerPartSourceScript::update(const F32 dt)
 {
+	if( mIsSuspended )
+		return;
+
 	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	F32 old_update_time = mLastUpdateTime;
 	mLastUpdateTime += dt;

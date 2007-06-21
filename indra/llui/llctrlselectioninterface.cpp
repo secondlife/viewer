@@ -5,6 +5,7 @@
  * Copyright (c) 2006-$CurrentYear$, Linden Research, Inc.
  * $License$
  */
+#include "linden_common.h"
 
 #include "llctrlselectioninterface.h"
 

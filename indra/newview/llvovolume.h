@@ -63,8 +63,7 @@ public:
 							(1 << LLVertexBuffer::TYPE_TEXCOORD) |
 							(1 << LLVertexBuffer::TYPE_TEXCOORD2) |
 							(1 << LLVertexBuffer::TYPE_COLOR)
-	}
-	eVertexDataMask;
+	};
 
 public:
 						LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);

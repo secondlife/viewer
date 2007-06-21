@@ -437,6 +437,9 @@ std::string utf8str_makeASCII(const std::string& utf8str);
 // Hack - used for evil notecards.
 std::string mbcsstring_makeASCII(const std::string& str); 
 
+std::string utf8str_removeCRLF(const std::string& utf8str);
+
+
 template <class T>
 std::ostream& operator<<(std::ostream &s, const LLStringBase<T> &str)
 {

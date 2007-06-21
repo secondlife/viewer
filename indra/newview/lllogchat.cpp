@@ -9,17 +9,39 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lllogchat.h"
-
+#include "viewer.h"
+	
 const S32 LOG_RECALL_SIZE = 2048;
 
 //static
 LLString LLLogChat::makeLogFileName(LLString filename)
 {
-	
 	filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS,filename.c_str());
 	filename += ".txt";
 	return filename;
 }
+
+LLString LLLogChat::timestamp(bool withdate)
+{
+	U32 utc_time;
+	utc_time = time_corrected();
+
+	// There's only one internal tm buffer.
+	struct tm* timep;
+
+	// Convert to Pacific, based on server's opinion of whether
+	// it's daylight savings time there.
+	timep = utc_to_pacific_time(utc_time, gPacificDaylightTime);
+
+	LLString text;
+	if (withdate)
+		text = llformat("[%d/%02d/%02d %d:%02d]  ", (timep->tm_year-100)+2000, timep->tm_mon+1, timep->tm_mday, timep->tm_hour, timep->tm_min);
+	else
+		text = llformat("[%d:%02d]  ", timep->tm_hour, timep->tm_min);
+
+	return text;
+}
+
 
 //static
 void LLLogChat::saveHistory(LLString filename, LLString line)

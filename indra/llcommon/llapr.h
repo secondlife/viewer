@@ -15,7 +15,7 @@
 #include <sys/param.h>  // Need PATH_MAX in APR headers...
 #endif
 
-#include "boost/noncopyable.hpp"
+#include <boost/noncopyable.hpp>
 
 #include "apr-1/apr_thread_proc.h"
 #include "apr-1/apr_thread_mutex.h"

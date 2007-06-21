@@ -59,7 +59,7 @@ public:
 
 	S32 getGroup() { return mGroup; }
 	S32 getPieSlice() { return mPieSlice; }
-	BOOL getAttachmentDirty() { return mAttachmentDirty && mAttachedObject; }
+	BOOL getAttachmentDirty() { return mAttachmentDirty && mAttachedObject.notNull(); }
 	LLViewerObject *getObject() { return mAttachedObject; }
 	S32	getNumObjects() { return (mAttachedObject ? 1 : 0); }
 	const LLUUID& getItemID() { return mItemID; }
@@ -79,7 +79,7 @@ protected:
 	
 protected:
 	LLJoint*		mJoint;
-	LLViewerObject*	mAttachedObject;
+	LLPointer<LLViewerObject>	mAttachedObject;
 	BOOL			mAttachmentDirty;	// does attachment drawable need to be fixed up?
 	BOOL			mVisibleInFirst;
 	LLVector3		mOriginalPos;

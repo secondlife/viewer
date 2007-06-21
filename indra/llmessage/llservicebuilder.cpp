@@ -6,6 +6,7 @@
 * $License$
 */
 
+#include "linden_common.h"
 #include "llapp.h"
 #include "llfile.h"
 #include "llservicebuilder.h"

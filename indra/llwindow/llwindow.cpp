@@ -221,7 +221,8 @@ LLWindow::LLWindow(BOOL fullscreen, U32 flags)
 	  mIsMouseClipping(FALSE),
 	  mSwapMethod(SWAP_METHOD_UNDEFINED),
 	  mHideCursorPermanent(FALSE),
-	  mFlags(flags)
+	  mFlags(flags),
+	  mHighSurrogate(0)
 {
 	for (U32 i = 0; i < 6; i++)
 	{
@@ -273,6 +274,53 @@ void LLWindow::setCallbacks(LLWindowCallbacks *callbacks)
 	if (gKeyboard)
 	{
 		gKeyboard->setCallbacks(callbacks);
+	}
+}
+
+#define UTF16_IS_HIGH_SURROGATE(U) ((U16)((U) - 0xD800) < 0x0400)
+#define UTF16_IS_LOW_SURROGATE(U)  ((U16)((U) - 0xDC00) < 0x0400)
+#define UTF16_SURROGATE_PAIR_TO_UTF32(H,L) (((H) << 10) + (L) - (0xD800 << 10) - 0xDC00 + 0x00010000)
+
+void LLWindow::handleUnicodeUTF16(U16 utf16, MASK mask)
+{
+	// Note that we could discard unpaired surrogates, but I'm
+	// following the Unicode Consortium's recommendation here;
+	// that is, to preserve those unpaired surrogates in UTF-32
+	// values.  _To_preserve_ means to pass to the callback in our
+	// context.
+
+	if (mHighSurrogate == 0)
+	{
+		if (UTF16_IS_HIGH_SURROGATE(utf16))
+		{
+			mHighSurrogate = utf16;
+		}
+		else
+		{
+			mCallbacks->handleUnicodeChar(utf16, mask);
+		}
+	}
+	else
+	{
+		if (UTF16_IS_LOW_SURROGATE(utf16))
+		{
+			/* A legal surrogate pair.  */			
+			mCallbacks->handleUnicodeChar(UTF16_SURROGATE_PAIR_TO_UTF32(mHighSurrogate, utf16), mask);
+			mHighSurrogate = 0;
+		}
+		else if (UTF16_IS_HIGH_SURROGATE(utf16))
+		{
+			/* Two consecutive high surrogates.  */
+			mCallbacks->handleUnicodeChar(mHighSurrogate, mask);
+			mHighSurrogate = utf16;
+		}
+		else
+		{
+			/* A non-low-surrogate preceeded by a high surrogate. */
+			mCallbacks->handleUnicodeChar(mHighSurrogate, mask);
+			mHighSurrogate = 0;
+			mCallbacks->handleUnicodeChar(utf16, mask);
+		}
 	}
 }
 
