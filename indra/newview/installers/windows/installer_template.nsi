@@ -37,9 +37,9 @@ XPStyle on                  ; add an XP manifest to the installer
 ;; (these files are in the same place as the nsi template but the python script generates a new nsi file in the 
 ;; application directory so we have to add a path to these include files)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#!include "installers\windows\lang_de.nsi"
+!include "installers\windows\lang_de.nsi"
 !include "installers\windows\lang_en-us.nsi"
-#!include "installers\windows\lang_ja.nsi"
+!include "installers\windows\lang_ja.nsi"
 !include "installers\windows\lang_ko.nsi"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -890,10 +890,10 @@ Function .onInit
 	Push ""
 	Push ${LANG_ENGLISH}
 	Push English
-#	Push ${LANG_GERMAN}
-#	Push German
-#	Push ${LANG_JAPANESE}
-#	Push Japanese
+	Push ${LANG_GERMAN}
+	Push German
+	Push ${LANG_JAPANESE}
+	Push Japanese
 	Push ${LANG_KOREAN}
 	Push Korean
 	Push A ; A means auto count languages for the auto count to work the first empty push (Push "") must remain
@@ -909,12 +909,15 @@ Function .onInit
 	StrCmp $LANGUAGE "1042" 0 +3
 	StrCpy $LANGFLAGS " -set SystemLanguage ko"
 	Goto EndOfFunc
-#	StrCmp $LANGUAGE "1041" 0 +3
-#	StrCpy $LANGFLAGS " -set SystemLanguage ja"
-#	Goto EndOfFunc
-#	StrCmp $LANGUAGE "1031" 0 +3
-#	StrCpy $LANGFLAGS " -set SystemLanguage de"
-#	Goto EndOfFunc
+
+	StrCmp $LANGUAGE "1041" 0 +3
+	StrCpy $LANGFLAGS " -set SystemLanguage ja"
+	Goto EndOfFunc
+
+	StrCmp $LANGUAGE "1031" 0 +3
+	StrCpy $LANGFLAGS " -set SystemLanguage de"
+	Goto EndOfFunc
+
 	StrCmp $LANGUAGE "1033" 0 +3
 	StrCpy $LANGFLAGS " -set SystemLanguage en-us"
 	Goto EndOfFunc
