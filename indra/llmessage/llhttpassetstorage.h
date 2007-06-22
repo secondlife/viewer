@@ -46,7 +46,9 @@ public:
 		bool temp_file = false,
 		bool is_priority = false,
 		bool store_local = false,
-		const LLUUID& requesting_agent_id = LLUUID::null);
+		const LLUUID& requesting_agent_id = LLUUID::null,
+		bool user_waiting=FALSE,
+		F64 timeout=LL_ASSET_STORAGE_TIMEOUT);
 
 	virtual void storeAssetData(
 		const char* filename,
@@ -55,7 +57,9 @@ public:
 		LLStoreAssetCallback callback,
 		void* user_data,
 		bool temp_file,
-		bool is_priority);
+		bool is_priority,
+		bool user_waiting=FALSE,
+		F64 timeout=LL_ASSET_STORAGE_TIMEOUT);
 
 	virtual LLSD getPendingDetails(ERequestType rt,
 	 				LLAssetType::EType asset_type,

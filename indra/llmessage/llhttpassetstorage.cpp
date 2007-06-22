@@ -408,14 +408,18 @@ void LLHTTPAssetStorage::storeAssetData(
 	bool temp_file,
 	bool is_priority,
 	bool store_local,
-	const LLUUID& requesting_agent_id)
+	const LLUUID& requesting_agent_id,
+	bool user_waiting,
+	F64 timeout)
 {
 	if (mVFS->getExists(uuid, type))
 	{
 		LLAssetRequest *req = new LLAssetRequest(uuid, type);
-		req->mUpCallback = callback;
-		req->mUserData = user_data;
+		req->mUpCallback    = callback;
+		req->mUserData      = user_data;
 		req->mRequestingAgentID = requesting_agent_id;
+		req->mIsUserWaiting = user_waiting;
+		req->mTimeout       = timeout;
 
 		// this will get picked up and transmitted in checkForTimeouts
 		if(store_local)
@@ -449,7 +453,9 @@ void LLHTTPAssetStorage::storeAssetData(
 	LLStoreAssetCallback callback,
 	void* user_data,
 	bool temp_file,
-	bool is_priority)
+	bool is_priority,
+	bool user_waiting,
+	F64 timeout)
 {
 	llinfos << "LLAssetStorage::storeAssetData (legacy)" << asset_id << ":" << LLAssetType::lookup(asset_type) << llendl;
 
@@ -489,7 +495,11 @@ void LLHTTPAssetStorage::storeAssetData(
 			legacyStoreDataCallback,
 			(void**)legacy,
 			temp_file,
-			is_priority);
+			is_priority,
+			false,
+			LLUUID::null,
+			user_waiting,
+			timeout);
 	}
 	else
 	{
@@ -588,7 +598,19 @@ bool LLHTTPAssetStorage::deletePendingRequest(LLAssetStorage::ERequestType rt,
 					// This request was found in the pending list.  Move it to the end!
 					LLAssetRequest* pending_req = *result;
 					pending->remove(pending_req);
-					pending->push_back(pending_req);
+
+					if (!pending_req->mIsUserWaiting)				//A user is waiting on this request.  Toss it.
+					{
+						pending->push_back(pending_req);
+					}
+					else
+					{
+						if (pending_req->mUpCallback)	//Clean up here rather than _callUploadCallbacks because this request is already cleared the req.
+						{
+							pending_req->mUpCallback(pending_req->getUUID(), pending_req->mUserData, -1);
+						}
+
+					}
 
 					llinfos << "Asset " << getRequestName(rt) << " request for "
 							<< asset_id << "." << LLAssetType::lookup(asset_type)
@@ -724,6 +746,14 @@ void LLHTTPAssetStorage::checkForTimeouts()
 
 		LLHTTPAssetRequest *new_req = new LLHTTPAssetRequest(this, req->getUUID(), 
 									req->getType(), RT_UPLOAD, tmp_url, mCurlMultiHandle);
+
+		if (req->mIsUserWaiting) //If a user is waiting on a realtime response, we want to perserve information across upload attempts.
+		{
+			new_req->mTime          = req->mTime;
+			new_req->mTimeout       = req->mTimeout;
+			new_req->mIsUserWaiting = req->mIsUserWaiting;
+		}
+
 		if (do_compress)
 		{
 			new_req->prepareCompressedUpload();
@@ -846,6 +876,12 @@ void LLHTTPAssetStorage::checkForTimeouts()
 				{
 					llwarns << "Re-requesting upload for " << req->getUUID() << ".  Received upload error to " << req->mURLBuffer <<
 						" with result " << curl_easy_strerror(curl_msg->data.result) << ", http result " << curl_result << llendl;
+
+					////HACK (probably) I am sick of this getting requeued and driving me mad.
+					//if (req->mIsUserWaiting)
+					//{
+					//	deletePendingRequest(RT_UPLOAD, req->getType(), req->getUUID());
+					//}
 				}
 				else
 				{
@@ -930,13 +966,22 @@ void LLHTTPAssetStorage::checkForTimeouts()
 
 void LLHTTPAssetStorage::bumpTimedOutUploads()
 {
+	bool user_waiting=FALSE;
+
+	F64 mt_secs = LLMessageSystem::getMessageTimeSeconds();
+
+	if (mPendingUploads.size())
+	{
+		request_list_t::iterator it = mPendingUploads.begin();
+		LLAssetRequest* req = *it;
+		user_waiting=req->mIsUserWaiting;
+	}
+
 	// No point bumping currently running uploads if there are no others in line.
-	if (!(mPendingUploads.size() > mRunningUploads.size())) 
+	if (!(mPendingUploads.size() > mRunningUploads.size()) && !user_waiting) 
 	{
 		return;
 	}
-
-	F64 mt_secs = LLMessageSystem::getMessageTimeSeconds();
 
 	// deletePendingRequest will modify the mRunningUploads list so we don't want to iterate over it.
 	request_list_t temp_running = mRunningUploads;
@@ -948,7 +993,7 @@ void LLHTTPAssetStorage::bumpTimedOutUploads()
 		//request_list_t::iterator curiter = iter++;
 		LLAssetRequest* req = *it;
 
-		if ( LL_ASSET_STORAGE_TIMEOUT < (mt_secs - req->mTime) )
+		if ( req->mTimeout < (mt_secs - req->mTime) )
 		{
 			llwarns << "Asset upload request timed out for "
 					<< req->getUUID() << "."

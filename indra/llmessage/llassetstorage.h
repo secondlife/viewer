@@ -75,6 +75,7 @@ public:
 
 	void setUUID(const LLUUID& id) { mUUID = id; }
 	void setType(LLAssetType::EType type) { mType = type; }
+	void setTimeout (F64 timeout) { mTimeout = timeout; }
 
 protected:
 	LLUUID	mUUID;
@@ -89,7 +90,9 @@ public:
 	LLHost  mHost;
 	BOOL	mIsTemp;
 	BOOL	mIsLocal;
+	BOOL	mIsUserWaiting;		// We don't want to try forever if a user is waiting for a result.
 	F64		mTime;				// Message system time
+	F64		mTimeout;			// Amount of time before timing out.
 	BOOL    mIsPriority;
 	BOOL	mDataSentInFirstPacket;
 	BOOL	mDataIsInVFS;
@@ -232,7 +235,9 @@ public:
 		void* user_data,
 		bool temp_file = false,
 		bool is_priority = false,
-		bool store_local = false);
+		bool store_local = false,
+		bool user_waiting= false,
+		F64 timeout=LL_ASSET_STORAGE_TIMEOUT);
 
 	/*
 	 * AssetID version
@@ -246,7 +251,9 @@ public:
 		bool temp_file = false,
 		bool is_priority = false,
 		bool store_local = false,
-		const LLUUID& requesting_agent_id = LLUUID::null);
+		const LLUUID& requesting_agent_id = LLUUID::null,
+		bool user_waiting= false,
+		F64 timeout=LL_ASSET_STORAGE_TIMEOUT);
 
 	virtual void checkForTimeouts();
 
@@ -340,7 +347,9 @@ public:
 		LLStoreAssetCallback callback,
 		void* user_data,
 		bool temp_file = false,
-		bool is_priority = false);
+		bool is_priority = false,
+		bool user_waiting = false,
+		F64 timeout  = LL_ASSET_STORAGE_TIMEOUT);
 
 	/*
 	 * TransactionID version
@@ -352,7 +361,9 @@ public:
 		LLStoreAssetCallback callback,
 		void *user_data,
 		bool temp_file = false,
-		bool is_priority = false);
+		bool is_priority = false,
+		bool user_waiting = false,
+		F64 timeout  = LL_ASSET_STORAGE_TIMEOUT);
 
 	static void legacyGetDataCallback(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType, void *user_data, S32 status);
 	static void legacyStoreDataCallback(const LLUUID &uuid, void *user_data, S32 status);
