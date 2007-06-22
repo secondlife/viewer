@@ -142,9 +142,9 @@ LLAssetRequest::LLAssetRequest(const LLUUID &uuid, const LLAssetType::EType type
 	mHost(),
 	mIsTemp( FALSE ),
 	mIsLocal(FALSE),
-	mIsPriority(FALSE),
 	mIsUserWaiting(FALSE),
 	mTimeout(LL_ASSET_STORAGE_TIMEOUT),
+	mIsPriority(FALSE),
 	mDataSentInFirstPacket(FALSE),
 	mDataIsInVFS( FALSE )
 {
