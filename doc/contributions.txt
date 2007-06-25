@@ -22,7 +22,6 @@ Ginko Bayliss - VWR-4
 Hikkoshi Sakai - VWR-429
 Hiro Sommambulist - VWR-66, VWR-97, VWR-100, VWR-105, VWR-108, VWR-118, VWR-132, VWR-136, VWR-143
 Jacek Antonelli - VWR-165, VWR-188, VWR-427, VWR-597
-Joannah Cramer - VWR-53
 Joghert LeSabre - VWR-64
 Kage Pixel - VWR-11
 Kunnis Basiat - VWR-82
