@@ -32,7 +32,9 @@ public:
 		void* user_data,
 		bool temp_file = false,
 		bool is_priority = false,
-		bool store_local = false);
+		bool store_local = false,
+		bool user_waiting=FALSE,
+		F64 timeout=LL_ASSET_STORAGE_TIMEOUT);
 	
 	virtual void storeAssetData(
 		const char* filename,
@@ -41,7 +43,9 @@ public:
 		LLStoreAssetCallback callback,
 		void* user_data,
 		bool temp_file = false,
-		bool is_priority = false);
+		bool is_priority = false,
+		bool user_waiting=FALSE,
+		F64 timeout=LL_ASSET_STORAGE_TIMEOUT);
 };
 
 #endif
