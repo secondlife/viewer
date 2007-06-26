@@ -36,7 +36,12 @@ protected:
 	void requestVOInventory();
 
 private:
-	LLPointer<LLViewerObject> mListenerVObject;
+	// LLViewerObject is normally wrapped by an LLPointer, but not in
+	// this case, because it's already sure to be kept alive by
+	// LLPointers held by other objects that have longer lifetimes
+	// than this one.  Plumbing correct LLPointer usage all the way
+	// down here has been deemed too much work for now.
+	LLViewerObject *mListenerVObject;
 };
 
 #endif
