@@ -107,6 +107,7 @@ public:
 	F32		getSelectionHeight() const	{ return F32(mEastNorth.mdV[VY] - mWestSouth.mdV[VY]); }
 	BOOL	getSelection(LLVector3d &min, LLVector3d &max) { min = mWestSouth; max = mEastNorth; return !selectionEmpty();}
 	LLViewerRegion* getSelectionRegion();
+	F32		getDwelling() const { return mSelectedDwell;}
 
 	void	getDisplayInfo(S32* area, S32* claim, S32* rent, BOOL* for_sale, F32* dwell);
 
