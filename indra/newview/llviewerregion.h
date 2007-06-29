@@ -212,9 +212,6 @@ public:
 
 	friend std::ostream& operator<<(std::ostream &s, const LLViewerRegion &region);
 
-	// used by LCD to get details for debug screen
-	U32 getNetDetailsForLCD();
-
 public:
 	struct CompareDistance
 	{
