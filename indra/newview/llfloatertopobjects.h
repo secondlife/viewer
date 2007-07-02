@@ -24,7 +24,7 @@ public:
 	static void handle_land_reply(LLMessageSystem* msg, void** data);
 	void handleReply(LLMessageSystem* msg, void** data);
 	
-	void clearList();
+	static void clearList();
 	void updateSelectionInfo();
 	virtual BOOL postBuild();
 

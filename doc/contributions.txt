@@ -5,7 +5,7 @@ received from them.  To see more about these contributions, visit
 http://jira.secondlife.com/ and enter the issue identifier.
 
 Able Whitman - VWR-650
-Alissa Sabre - VWR-81, VWR-83, VWR-171, VWR-251, VWR-414, VWR-415, VWR-459, VWR-606, VWR-652
+Alissa Sabre - VWR-81, VWR-83, VWR-171, VWR-251, VWR-414, VWR-415, VWR-459, VWR-606, VWR-652, VWR-1351, VWR-1410
 Argent Stonecutter - VWR-68
 Benja Kepler - VWR-746
 Blakar Ogre - VWR-881
@@ -17,15 +17,17 @@ Duckless Vandyke - VWR-383
 Dylan Haskell - VWR-72
 Dzonatas Sol - VWR-198, VWR-878
 Eddy Stryker - VWR-15, VWR-23
+Fremont Cunningham - VWR-1147
 Gigs Taggart - VWR-71, VWR-326, VWR-1217
 Ginko Bayliss - VWR-4
 Hikkoshi Sakai - VWR-429
 Hiro Sommambulist - VWR-66, VWR-97, VWR-100, VWR-105, VWR-108, VWR-118, VWR-132, VWR-136, VWR-143
+Iskar Ariantho - VWR-1223
 Jacek Antonelli - VWR-165, VWR-188, VWR-427, VWR-597
 Joghert LeSabre - VWR-64
 Kage Pixel - VWR-11
 Kunnis Basiat - VWR-82
-Nicholaz Beresford - VWR-132, VWR-176, VWR-793, VWR-794, VWR-802, VWR-803, VWR-804, VWR-805, VWR-808, VWR-809, VWR-810, VWR-823, VWR-869, VWR-870, VWR-871, VWR-873, VWR-908, VWR-966
+Nicholaz Beresford - VWR-132, VWR-176, VWR-793, VWR-794, VWR-802, VWR-803, VWR-804, VWR-805, VWR-808, VWR-809, VWR-810, VWR-823, VWR-869, VWR-870, VWR-871, VWR-873, VWR-908, VWR-966, VWR-1410, VWR-1418
 Paul Churchill - VWR-20
 Paula Innis - VWR-30, VWR-1049
 Peekay Semyorka - VWR-7, VWR-19, VWR-49, VWR-79
@@ -38,6 +40,7 @@ Still Defiant - VWR-207, VWR-446
 Strife Onizuka - SVC-9, VWR-74, VWR-85, VWR-148
 tenebrous pau - VWR-247
 TBBle Kurosawa - VWR-938, VWR-941, VWR-944
+Tharax Ferraris - VWR-605
 Zi Ree - VWR-671, VWR-682, VWR-1140
 Zipherius Turas - VWR-76, VWR-77
 

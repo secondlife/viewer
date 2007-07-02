@@ -606,7 +606,7 @@ void LLVolumeImplFlexible::onSetScale(const LLVector3& scale, BOOL damped)
 
 BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 {
-	LLVOVolume *volume = (LLVOVolume*)mVO.get();
+	LLVOVolume *volume = (LLVOVolume*)mVO;
 
 	if (volume->mDrawable.isNull()) // Not sure why this is happening, but it is...
 	{
@@ -722,7 +722,7 @@ void LLVolumeImplFlexible::updateRelativeXform()
 {
 	LLQuaternion delta_rot;
 	LLVector3 delta_pos, delta_scale;
-	LLVOVolume* vo = (LLVOVolume*) mVO.get();
+	LLVOVolume* vo = (LLVOVolume*) mVO;
 
 	//matrix from local space to parent relative/global space
 	delta_rot = vo->mDrawable->isSpatialRoot() ? LLQuaternion() : vo->mDrawable->getRotation();

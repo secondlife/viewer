@@ -340,7 +340,7 @@ BOOL LLMotionController::startMotion(const LLUUID &id, F32 start_offset)
 	{	
 		if (motion->isStopped()) // motion has been stopped
 		{
-			deactivateMotion(motion);
+			deactivateMotion(motion, false);
 		}
 		else if (mTime < motion->mSendStopTimestamp)	// motion is still active
 		{
@@ -376,7 +376,7 @@ BOOL LLMotionController::stopMotionLocally(const LLUUID &id, BOOL stop_immediate
 
 		if (stop_immediate)
 		{
-			deactivateMotion(motion);
+			deactivateMotion(motion, false);
 		}
 		return TRUE;
 	}
@@ -472,7 +472,7 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 		{
 			if (motionp->isStopped() && mTime > motionp->getStopTime() + motionp->getEaseOutDuration())
 			{
-				deactivateMotion(motionp);
+				deactivateMotion(motionp, false);
 			}
 			else if (motionp->isStopped() && mTime > motionp->getStopTime())
 			{
@@ -526,8 +526,7 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 			{
 				if (motionp->isStopped() && mTime > motionp->getStopTime() + motionp->getEaseOutDuration())
 				{
-					posep->setWeight(0.f);
-					deactivateMotion(motionp);
+					deactivateMotion(motionp, true);
 				}
 				continue;
 			}
@@ -553,8 +552,7 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 			}
 			else
 			{
-				posep->setWeight(0.f);
-				deactivateMotion(motionp);
+				deactivateMotion(motionp, true);
 				continue;
 			}
 		}
@@ -802,8 +800,15 @@ BOOL LLMotionController::activateMotion(LLMotion *motion, F32 time)
 //-----------------------------------------------------------------------------
 // deactivateMotion()
 //-----------------------------------------------------------------------------
-BOOL LLMotionController::deactivateMotion(LLMotion *motion)
+BOOL LLMotionController::deactivateMotion(LLMotion *motion, bool remove_weight)
 {
+	if( remove_weight )
+	{
+		// immediately remove pose weighting instead of letting it time out
+		LLPose *posep = motion->getPose();
+		posep->setWeight(0.f);
+	}
+	
 	motion->deactivate();
 	mActiveMotions.remove(motion);
 

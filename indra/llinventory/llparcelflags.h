@@ -44,7 +44,7 @@ const U32 PF_ALLOW_GROUP_OBJECT_ENTRY	= 1 << 28;	// Only allow group (and owner)
 const U32 PF_ALLOW_VOICE_CHAT			= 1 << 29;	// Allow residents to use voice chat on this parcel
 const U32 PF_USE_ESTATE_VOICE_CHAN      = 1 << 30;
 
-const U32 PF_RESERVED			= 1 << 31;
+const U32 PF_RESERVED			= 1U << 31;
 
 // If any of these are true the parcel is restricting access in some maner.
 const U32 PF_USE_RESTRICTED_ACCESS = PF_USE_ACCESS_GROUP

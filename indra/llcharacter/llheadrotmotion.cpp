@@ -418,6 +418,10 @@ BOOL LLEyeMotion::onUpdate(F32 time, U8* joint_mask)
 		up.setVec(eye_look_at % left);
 
 		target_eye_rot = LLQuaternion(eye_look_at, left, up);
+		// convert target rotation to head-local coordinates
+		target_eye_rot *= ~mHeadJoint->getWorldRotation();
+		// constrain target orientation to be in front of avatar's face
+		target_eye_rot.constrain(EYE_ROT_LIMIT_ANGLE);
 
 		// calculate vergence
 		F32 interocular_dist = (mLeftEyeState.getJoint()->getWorldPosition() - mRightEyeState.getJoint()->getWorldPosition()).magVec();
@@ -426,7 +430,7 @@ BOOL LLEyeMotion::onUpdate(F32 time, U8* joint_mask)
 	}
 	else
 	{
-		target_eye_rot = mHeadJoint->getWorldRotation();
+		target_eye_rot = LLQuaternion::DEFAULT;
 		vergence = 0.f;
 	}
 
@@ -468,18 +472,8 @@ BOOL LLEyeMotion::onUpdate(F32 time, U8* joint_mask)
 	vergence_quat.transQuat();
 	right_eye_rot = vergence_quat * eye_jitter_rot * right_eye_rot;
 
-	//set final eye rotations
-	// start with left
-	LLQuaternion tQw = mLeftEyeState.getJoint()->getParent()->getWorldRotation();
-	LLQuaternion tQh = left_eye_rot * ~tQw;
-	tQh.constrain(EYE_ROT_LIMIT_ANGLE);
-	mLeftEyeState.setRotation( tQh );
-
-	// now do right eye
-	tQw = mRightEyeState.getJoint()->getParent()->getWorldRotation();
-	tQh = right_eye_rot * ~tQw;
-	tQh.constrain(EYE_ROT_LIMIT_ANGLE);
-	mRightEyeState.setRotation( tQh );
+	mLeftEyeState.setRotation( left_eye_rot );
+	mRightEyeState.setRotation( right_eye_rot );
 
 	return TRUE;
 }

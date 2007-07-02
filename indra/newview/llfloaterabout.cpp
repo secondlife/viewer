@@ -62,9 +62,10 @@ LLFloaterAbout::LLFloaterAbout()
 
 	// Version string
 	LLString version = gSecondLife
-		+ llformat(" %d.%d.%d (%d) %s %s",
+		+ llformat(" %d.%d.%d (%d) %s %s (%s)",
 				   LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VIEWER_BUILD,
-				   __DATE__, __TIME__);
+				   __DATE__, __TIME__,
+				   gChannelName.c_str());
 	support.append(version);
 	support.append("\n\n");
 

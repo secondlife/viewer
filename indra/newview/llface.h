@@ -55,11 +55,11 @@ public:
 
 	const LLMatrix4& getWorldMatrix()	const	{ return mVObjp->getWorldMatrix(mXform); }
 	const LLMatrix4& getRenderMatrix() const;
-	const U32		getIndicesCount()	const	{ return mIndicesCount; };
-	const S32		getIndicesStart()	const	{ return mIndicesIndex; };
-	const S32		getGeomCount()		const	{ return mGeomCount; }		// vertex count for this face
-	const S32		getGeomIndex()		const	{ return mGeomIndex; }		// index into draw pool
-	const U32		getGeomStart()		const	{ return mGeomIndex; }		// index into draw pool
+	U32				getIndicesCount()	const	{ return mIndicesCount; };
+	S32				getIndicesStart()	const	{ return mIndicesIndex; };
+	S32				getGeomCount()		const	{ return mGeomCount; }		// vertex count for this face
+	S32				getGeomIndex()		const	{ return mGeomIndex; }		// index into draw pool
+	U32				getGeomStart()		const	{ return mGeomIndex; }		// index into draw pool
 	LLViewerImage*	getTexture()		const	{ return mTexture; }
 	void			setTexture(LLViewerImage* tex) { mTexture = tex; }
 	LLXformMatrix*	getXform()			const	{ return mXform; }

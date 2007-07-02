@@ -2294,7 +2294,7 @@ LLColor4 LLTexParamColor::getNetColor()
 {
 	llassert( getInfo()->mNumColors >= 1 );
 
-	F32 effective_weight = ( mAvatar.notNull() && (mAvatar->getSex() & getSex()) ) ? mCurWeight : getDefaultWeight();
+	F32 effective_weight = ( mAvatar && (mAvatar->getSex() & getSex()) ) ? mCurWeight : getDefaultWeight();
 
 	S32 index_last = getInfo()->mNumColors - 1;
 	F32 scaled_weight = effective_weight * index_last;

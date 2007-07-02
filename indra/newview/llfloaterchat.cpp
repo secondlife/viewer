@@ -167,22 +167,22 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 	// could flash the chat button in the status bar here. JC
 	if (!gFloaterChat) return;
 
-	LLViewerTextEditor*	HistoryEditor = (LLViewerTextEditor*)gFloaterChat->getChildByName("Chat History Editor");
-	LLViewerTextEditor*	HistoryEditorWithMute = (LLViewerTextEditor*)gFloaterChat->getChildByName("Chat History Editor with mute");
+	LLViewerTextEditor*	history_editor = (LLViewerTextEditor*)gFloaterChat->getChildByName("Chat History Editor");
+	LLViewerTextEditor*	history_editor_with_mute = (LLViewerTextEditor*)gFloaterChat->getChildByName("Chat History Editor with mute");
 
-	HistoryEditor->setParseHTML(TRUE);
-	HistoryEditorWithMute->setParseHTML(TRUE);
+	history_editor->setParseHTML(TRUE);
+	history_editor_with_mute->setParseHTML(TRUE);
 	
 	if (!chat.mMuted)
 	{
-		add_timestamped_line(HistoryEditor, chat.mText, color);
-		add_timestamped_line(HistoryEditorWithMute, chat.mText, color);
+		add_timestamped_line(history_editor, chat.mText, color);
+		add_timestamped_line(history_editor_with_mute, chat.mText, color);
 	}
 	else
 	{
 		// desaturate muted chat
 		LLColor4 muted_color = lerp(color, LLColor4::grey, 0.5f);
-		add_timestamped_line(HistoryEditorWithMute, chat.mText, color);
+		add_timestamped_line(history_editor_with_mute, chat.mText, color);
 	}
 
 	if (!chat.mMuted
@@ -191,17 +191,19 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 		&& chat.mFromID != gAgent.getID())
 	{
 			
-		LLComboBox*	ChatterCombo = LLUICtrlFactory::getComboBoxByName(gFloaterChat,"chatter combobox");
+		LLComboBox*	chatter_combo = LLUICtrlFactory::getComboBoxByName(gFloaterChat,"chatter combobox");
 		
-		if(!ChatterCombo)
-				return;
+		if(!chatter_combo)
+		{
+			return;
+		}
 
-		if (!ChatterCombo->setCurrentByID(chat.mFromID))
+		if (!chatter_combo->setCurrentByID(chat.mFromID))
 		{
 			// if we have too many items...
-			if (ChatterCombo->getItemCount() >= MAX_CHATTER_COUNT)
+			if (chatter_combo->getItemCount() >= MAX_CHATTER_COUNT)
 			{
-				ChatterCombo->remove(0);
+				chatter_combo->remove(0);
 			}
 			
 			LLMute mute(chat.mFromID, chat.mFromName);
@@ -214,8 +216,8 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 				mute.mType = LLMute::AGENT;
 			}
 			LLString item = mute.getDisplayName();
-			ChatterCombo->add(item, chat.mFromID);
-			ChatterCombo->setCurrentByIndex(ChatterCombo->getItemCount() - 1);
+			chatter_combo->add(item, chat.mFromID);
+			chatter_combo->setCurrentByIndex(chatter_combo->getItemCount() - 1);
 			gFloaterChat->childSetEnabled("Mute resident",TRUE);
 		}
 	}
@@ -226,11 +228,11 @@ void LLFloaterChat::setHistoryCursorAndScrollToEnd()
 {
 	if (gFloaterChat)
 	{
-		LLViewerTextEditor*	HistoryEditor = (LLViewerTextEditor*)gFloaterChat->getChildByName("Chat History Editor");
-		LLViewerTextEditor*	HistoryEditorWithMute = (LLViewerTextEditor*)gFloaterChat->getChildByName("Chat History Editor with mute");
+		LLViewerTextEditor*	history_editor = (LLViewerTextEditor*)gFloaterChat->getChildByName("Chat History Editor");
+		LLViewerTextEditor*	history_editor_with_mute = (LLViewerTextEditor*)gFloaterChat->getChildByName("Chat History Editor with mute");
 		
-		HistoryEditor->setCursorAndScrollToEnd();
-		HistoryEditorWithMute->setCursorAndScrollToEnd();
+		history_editor->setCursorAndScrollToEnd();
+		history_editor_with_mute->setCursorAndScrollToEnd();
 	}
 }
 
@@ -259,10 +261,10 @@ void LLFloaterChat::onClickMute(void *data)
 {
 	LLFloaterChat* self = (LLFloaterChat*)data;
 
-	LLComboBox*	ChatterCombo = LLUICtrlFactory::getComboBoxByName(self,"chatter combobox");
+	LLComboBox*	chatter_combo = LLUICtrlFactory::getComboBoxByName(self,"chatter combobox");
 
-	const LLString& name = ChatterCombo->getSimple();
-	LLUUID id = ChatterCombo->getCurrentID();
+	const LLString& name = chatter_combo->getSimple();
+	LLUUID id = chatter_combo->getCurrentID();
 
 	if (name.empty()) return;
 
@@ -308,24 +310,24 @@ void LLFloaterChat::onClickToggleShowMute(LLUICtrl* caller, void *data)
 
 	//LLCheckBoxCtrl*	
 	BOOL show_mute = LLUICtrlFactory::getCheckBoxByName(floater,"show mutes")->get();
-	LLViewerTextEditor*	HistoryEditor = (LLViewerTextEditor*)floater->getChildByName("Chat History Editor");
-	LLViewerTextEditor*	HistoryEditorWithMute = (LLViewerTextEditor*)floater->getChildByName("Chat History Editor with mute");
+	LLViewerTextEditor*	history_editor = (LLViewerTextEditor*)floater->getChildByName("Chat History Editor");
+	LLViewerTextEditor*	history_editor_with_mute = (LLViewerTextEditor*)floater->getChildByName("Chat History Editor with mute");
 
-	if (!HistoryEditor || !HistoryEditorWithMute)
+	if (!history_editor || !history_editor_with_mute)
 		return;
 
 	//BOOL show_mute = floater->mShowMuteCheckBox->get();
 	if (show_mute)
 	{
-		HistoryEditor->setVisible(FALSE);
-		HistoryEditorWithMute->setVisible(TRUE);
-		HistoryEditorWithMute->setCursorAndScrollToEnd();
+		history_editor->setVisible(FALSE);
+		history_editor_with_mute->setVisible(TRUE);
+		history_editor_with_mute->setCursorAndScrollToEnd();
 	}
 	else
 	{
-		HistoryEditor->setVisible(TRUE);
-		HistoryEditorWithMute->setVisible(FALSE);
-		HistoryEditor->setCursorAndScrollToEnd();
+		history_editor->setVisible(TRUE);
+		history_editor_with_mute->setVisible(FALSE);
+		history_editor->setCursorAndScrollToEnd();
 	}
 }
 

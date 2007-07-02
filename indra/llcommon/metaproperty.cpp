@@ -8,7 +8,10 @@
  * $License$
  */
 
+#include "linden_common.h" 
+
 #include "metaproperty.h"
+
 #include "metaclass.h"
 
 LLMetaProperty::LLMetaProperty(const std::string& name, const LLMetaClass& object_class) : 

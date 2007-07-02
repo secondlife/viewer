@@ -822,7 +822,7 @@ public:
 	U8 getPathType() const									{ return mPathp->mParams.getCurveType(); }
 	S32	getNumFaces() const									{ return (S32)mProfilep->mFaces.size(); }
 	S32 getNumVolumeFaces() const							{ return mNumVolumeFaces; }
-	const F32 getDetail() const								{ return mDetail; }
+	F32 getDetail() const								{ return mDetail; }
 	const LLVolumeParams & getParams() const				{ return mParams; }
 	LLVolumeParams getCopyOfParams() const					{ return mParams; }
 	const LLProfile& getProfile() const						{ return *mProfilep; }

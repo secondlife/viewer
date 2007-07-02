@@ -415,7 +415,7 @@ class LLFileQuit : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		app_request_quit();
+		app_user_quit();
 		return true;
 	}
 };

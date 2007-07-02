@@ -916,7 +916,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	BOOL is_static = mDrawablep->isStatic();
 	BOOL is_global = is_static;
 
-	if (-1 == index_offset)
+	if (index_offset == (U32) -1)
 	{
 		return TRUE;
 	}

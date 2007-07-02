@@ -280,8 +280,8 @@ public:
 
 	const LLVector3d	&getPositionGlobal();
 	const LLVector3		&getPositionAgent();
-	const S32			getRegionsVisited() const;
-	const F64			getDistanceTraveled() const;
+	S32					getRegionsVisited() const;
+	F64					getDistanceTraveled() const;
 
 	const LLVector3d	&getFocusGlobal() const	{ return mFocusGlobal; }
 	const LLVector3d	&getFocusTargetGlobal() const	{ return mFocusTargetGlobal; }

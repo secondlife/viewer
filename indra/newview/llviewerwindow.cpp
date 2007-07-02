@@ -1134,7 +1134,7 @@ BOOL LLViewerWindow::handleCloseRequest(LLWindow *window)
 {
 	// User has indicated they want to close, but we may need to ask
 	// about modified documents.
-	app_request_quit();
+	app_user_quit();
 	// Don't quit immediately
 	return FALSE;
 }

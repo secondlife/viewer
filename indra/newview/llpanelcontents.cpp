@@ -36,7 +36,6 @@
 #include "llviewerobject.h"
 #include "llviewerregion.h"
 #include "llresmgr.h"
-#include "lltexturetable.h"
 #include "llselectmgr.h"
 #include "llpreviewscript.h"
 #include "lltool.h"

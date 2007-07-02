@@ -320,14 +320,14 @@ public:
 	void 		setAcceleration(const F32 x, const F32 y, const F32 z)		{ mAcceleration.setVec(x,y,z); }
 #endif
 	
-	const LLPCode		getPCode() const			{ return mPrimitiveCode; }
+	LLPCode				getPCode() const			{ return mPrimitiveCode; }
 	const char *		getPCodeString() const		{ return pCodeToString(mPrimitiveCode); }
 	const LLVector3&	getAngularVelocity() const	{ return mAngularVelocity; }
 	const LLVector3&	getVelocity() const			{ return mVelocity; }
 	const LLVector3&	getAcceleration() const		{ return mAcceleration; }
-	const U8			getNumTEs() const			{ return mNumTEs; }
+	U8					getNumTEs() const			{ return mNumTEs; }
 
-	const U8			getMaterial() const			{ return mMaterial; }
+	U8					getMaterial() const			{ return mMaterial; }
 	
 	void				setVolumeType(const U8 code);
 	U8					getVolumeType();

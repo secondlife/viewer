@@ -73,6 +73,9 @@ protected:
 	static void onClickScripts(void*);
 	static void onClickBuyLand(void*);
 	static void onClickScriptDebug(void*);
+	
+	// simple method to setup the part that holds the date
+	void setupDate();
 
 protected:
 	LLTextBox	*mTextBalance;
@@ -101,6 +104,10 @@ protected:
 	S32				mSquareMetersCommitted;
 	LLFrameTimer*	mBalanceTimer;
 	LLFrameTimer*	mHealthTimer;
+	
+	static std::vector<std::string> sDays;
+	static std::vector<std::string> sMonths;
+	static const U32 LLStatusBar::MAX_DATE_STRING_LENGTH;
 };
 
 // *HACK: Status bar owns your cached money balance. JC

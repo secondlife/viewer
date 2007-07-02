@@ -31,7 +31,6 @@
 #include "lltextbox.h"
 #include "lltexturectrl.h"
 #include "lltextureentry.h"
-#include "lltexturetable.h"
 #include "lltooldraganddrop.h"
 #include "llui.h"
 #include "llviewercontrol.h"

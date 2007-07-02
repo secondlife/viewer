@@ -78,7 +78,7 @@ public:
 
 	const LLUUID& getSessionID() const { return mSessionUUID; }
 	const LLUUID& getOtherParticipantID() const { return mOtherParticipantUUID; }
-	const EInstantMessage getDialogType() const { return mDialog; }
+	EInstantMessage getDialogType() const { return mDialog; }
 
 	void sessionInitReplyReceived(const LLUUID& im_session_id);
 

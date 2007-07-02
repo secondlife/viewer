@@ -200,13 +200,39 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		text->setClickedCallback(onClickVersion);
 		text->setCallbackUserData(this);
 
-		// HACK
+		// HACK to move to the lower-right of the window
+		// replace/remove this logic when we have dynamic layouts
 		S32 right = getRect().mRight;
 		LLRect r = text->getRect();
 		const S32 PAD = 2;
 		r.setOriginAndSize( right - r.getWidth() - PAD, PAD, 
 			r.getWidth(), r.getHeight() );
 		text->setRect(r);
+	}
+
+	LLTextBox* channel_text = LLUICtrlFactory::getTextBoxByName(this, "channel_text");
+	if (channel_text)
+	{
+		channel_text->setText(gChannelName);
+		channel_text->setClickedCallback(onClickVersion);
+		channel_text->setCallbackUserData(this);
+
+		// HACK to move to the right of the window, above the version string,
+		// replace/remove this logic when we have dynamic layouts
+		S32 right = getRect().mRight;
+		LLRect r = channel_text->getRect();
+		const S32 PAD = 2;
+		S32 version_string_top = r.mTop;
+		if(text)
+		{
+			version_string_top = text->getRect().mTop;
+		}
+		r.setOriginAndSize( 
+			right - r.getWidth() - PAD,
+			version_string_top, 
+			r.getWidth(), 
+			r.getHeight());
+		channel_text->setRect(r);
 	}
 
 	// get the web browser control

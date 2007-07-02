@@ -162,7 +162,7 @@ protected:
 	void deleteAllMotions();
 	void addLoadedMotion(LLMotion *motion);
 	BOOL activateMotion(LLMotion *motion, F32 time);
-	BOOL deactivateMotion(LLMotion *motion);
+	BOOL deactivateMotion(LLMotion *motion, bool remove_weight);
 	void updateRegularMotions();
 	void updateAdditiveMotions();
 	void resetJointSignatures();

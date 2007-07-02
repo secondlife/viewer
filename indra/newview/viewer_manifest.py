@@ -412,8 +412,8 @@ class Linux_i686Manifest(LinuxManifest):
                         self.path("libstdc++.so.6")
                         self.path("libuuid.so", "libuuid.so.1")
                         self.path("libSDL-1.2.so.0")
-                        self.path("libtcmalloc.so.0")
-                        self.path("libstacktrace.so.0")
+                        #self.path("libtcmalloc.so.0")
+                        #self.path("libstacktrace.so.0")
                         self.path("libllkdu.so", "../bin/libllkdu.so") # llkdu goes in bin for some reason
                         self.end_prefix("lib")
 

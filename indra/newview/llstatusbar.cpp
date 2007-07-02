@@ -62,6 +62,7 @@ LLStatusBar *gStatusBar = NULL;
 S32 STATUS_BAR_HEIGHT = 0;
 extern S32 MENU_BAR_HEIGHT;
 
+
 // TODO: these values ought to be in the XML too
 const S32 MENU_PARCEL_SPACING = 1;	// Distance from right of menu item to parcel information
 const S32 SIM_STAT_WIDTH = 8;
@@ -75,6 +76,10 @@ const F32 ICON_FLASH_FREQUENCY	= 2.f;
 const S32 GRAPHIC_FUDGE = 4;
 const S32 TEXT_HEIGHT = 18;
 
+std::vector<std::string> LLStatusBar::sDays;
+std::vector<std::string> LLStatusBar::sMonths;
+const U32 LLStatusBar::MAX_DATE_STRING_LENGTH = 2000;
+
 LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
 :	LLPanel(name, LLRect(), FALSE),		// not mouse opaque
 	mBalance(0),
@@ -86,6 +91,10 @@ LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
 	mMouseOpaque = FALSE;
 	setIsChrome(TRUE);
 
+	// size of day of the weeks and year
+	sDays.reserve(7);
+	sMonths.reserve(12);
+
 	mBalanceTimer = new LLFrameTimer();
 	mHealthTimer = new LLFrameTimer();
 
@@ -93,6 +102,9 @@ LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
 
 	// status bar can never get a tab
 	setFocusRoot(FALSE);
+
+	// build date necessary data (must do after panel built)
+	setupDate();
 
 	mBtnScriptOut = LLUICtrlFactory::getButtonByName( this, "scriptout" );
 	mBtnHealth = LLUICtrlFactory::getButtonByName( this, "health" );
@@ -108,7 +120,7 @@ LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
 
 	mTextHealth = LLUICtrlFactory::getTextBoxByName( this, "HealthText" );
 	mTextTime = LLUICtrlFactory::getTextBoxByName( this, "TimeText" );
-
+	
 	S32 x = mRect.getWidth() - 2;
 	S32 y = 0;
 	LLRect r;
@@ -244,6 +256,14 @@ void LLStatusBar::refresh()
 	  << std::setfill('0') << std::setw(2) << min 
 	  << " " << am_pm << " " << tz;
 	mTextTime->setText(t.str().c_str());
+
+	// Year starts at 1900, set the tooltip to have the date
+	std::ostringstream date;
+	date	<< sDays[internal_time->tm_wday] << ", "
+			<< std::setfill('0') << std::setw(2) << internal_time->tm_mday << " "
+			<< sMonths[internal_time->tm_mon] << " "
+			<< internal_time->tm_year + 1900;
+	mTextTime->setToolTip(date.str().c_str());
 
 	LLRect r;
 	const S32 MENU_RIGHT = gMenuBarView->getRightmostMenuEdge();
@@ -622,6 +642,69 @@ void LLStatusBar::onClickBuyLand(void*)
 {
 	gParcelMgr->selectParcelAt(gAgent.getPositionGlobal());
 	gParcelMgr->startBuyLand();
+}
+
+// sets the static variables necessary for the date
+void LLStatusBar::setupDate()
+{
+	// fill the day array with what's in the xui
+	LLString day_list = childGetText("StatBarDaysOfWeek");
+	size_t length = day_list.size();
+	
+	// quick input check
+	if(length < MAX_DATE_STRING_LENGTH)
+	{
+		// tokenize it and put it in the array
+		LLString cur_word;
+		for(size_t i = 0; i < length; ++i)
+		{
+			if(day_list[i] == ':')
+			{
+				sDays.push_back(cur_word);
+				cur_word.clear();
+			}
+			else
+			{
+				cur_word.append(1, day_list.c_str()[i]);
+			}
+		}
+		sDays.push_back(cur_word);
+	}
+	
+	// fill the day array with what's in the xui	
+	LLString month_list = childGetText( "StatBarMonthsOfYear" );
+	length = month_list.size();
+	
+	// quick input check
+	if(length < MAX_DATE_STRING_LENGTH)
+	{
+		// tokenize it and put it in the array
+		LLString cur_word;
+		for(size_t i = 0; i < length; ++i)
+		{
+			if(month_list[i] == ':')
+			{
+				sMonths.push_back(cur_word);
+				cur_word.clear();
+			}
+			else
+			{
+				cur_word.append(1, month_list.c_str()[i]);
+			}
+		}
+		sMonths.push_back(cur_word);
+	}
+	
+	// make sure we have at least 7 days and 12 months
+	if(sDays.size() < 7)
+	{
+		sDays.resize(7);
+	}
+	
+	if(sMonths.size() < 12)
+	{
+		sMonths.resize(12);
+	}
 }
 
 BOOL can_afford_transaction(S32 cost)

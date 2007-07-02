@@ -419,6 +419,7 @@ LLView* LLTextBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *f
 		text,
 		font,
 		FALSE);
+		
 
 	LLFontGL::HAlign halign = LLView::selectFontHAlign(node);
 	text_box->setHAlign(halign);
@@ -430,6 +431,12 @@ LLView* LLTextBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *f
 	{
 		text_box->mFontStyle = LLFontGL::getStyleFromString(font_style);
 	}
+	
+	BOOL mouse_opaque;
+	if (node->getAttributeBOOL("mouse_opaque", mouse_opaque))
+	{
+		text_box->setMouseOpaque(mouse_opaque);
+	}	
 
 	if(node->hasAttribute("text_color"))
 	{

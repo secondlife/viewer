@@ -88,7 +88,7 @@ public:
 	virtual void			stopAnimating(BOOL set_by_user);
 
 	// Interface methods
-	const S32				getID() 			{ return mID; }
+	S32						getID() 			{ return mID; }
 	void					setID(S32 id) 		{ llassert(!mInfo); mID = id; }
 	
 	const LLString&			getName() const 			{ return mInfo->mName; }
@@ -100,7 +100,7 @@ public:
 	void					setMaxDisplayName(const char* s) { mInfo->mMaxName = s; }
 	void					setMinDisplayName(const char* s) { mInfo->mMinName = s; }
 
-	const EVisualParamGroup	getGroup() 			{ return mInfo->mGroup; }
+	EVisualParamGroup		getGroup() 			{ return mInfo->mGroup; }
 	F32						getMinWeight() 		{ return mInfo->mMinWeight; }
 	F32						getMaxWeight() 		{ return mInfo->mMaxWeight; }
 	F32						getDefaultWeight() 	{ return mInfo->mDefaultWeight; }

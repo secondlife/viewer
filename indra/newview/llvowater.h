@@ -12,9 +12,6 @@
 #include "llviewerobject.h"
 #include "llviewerimage.h"
 #include "v2math.h"
-#include "llfft.h"
-
-#include "llwaterpatch.h"
 
 const U32 N_RES	= 16; //32			// number of subdivisions of wave tile
 const U8  WAVE_STEP		= 8;

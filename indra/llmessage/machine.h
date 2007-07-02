@@ -42,8 +42,8 @@ public:
 
 	// get functions
 	EMachineType	getMachineType()	const { return mMachineType; }
-	const U32		getMachineIP()		const { return mHost.getAddress(); }
-	const S32		getMachinePort()	const { return mHost.getPort(); }
+	U32				getMachineIP()		const { return mHost.getAddress(); }
+	S32				getMachinePort()	const { return mHost.getPort(); }
 	const LLHost	&getMachineHost()	const { return mHost; }
 	// The control port is the listen port of the parent process that
 	// launched this machine. 0 means none or not known.

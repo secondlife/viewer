@@ -278,7 +278,7 @@ public:
 	const char*		getMusicURL() const			{ return mMusicURL.c_str(); }
 	const char*		getMediaURL() const			{ return mMediaURL.c_str(); }
 	const LLUUID&	getMediaID() const			{ return mMediaID; }
-	const U8		getMediaAutoScale() const	{ return mMediaAutoScale; }
+	U8				getMediaAutoScale() const	{ return mMediaAutoScale; }
 	S32				getLocalID() const			{ return mLocalID; }
 	const LLUUID&	getOwnerID() const			{ return mOwnerID; }
 	const LLUUID&	getGroupID() const			{ return mGroupID; }

@@ -8,7 +8,10 @@
  * $License$
  */
 
+#include "linden_common.h" 
+
 #include "metaclass.h"
+
 #include "metaproperty.h"
 #include "reflective.h"
 

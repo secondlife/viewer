@@ -32,7 +32,7 @@ public:
 		}
 	}
 
-	const U32 operator[](std::string str)
+	U32 operator[](std::string str)
 	{
 		std::map<const std::string, const U32>::iterator itor;
 		itor = mEnumMap.find(str);

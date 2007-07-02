@@ -350,19 +350,22 @@ void LLFloaterTopObjects::onDisableSelected(void* data)
 	sInstance->doToObjects(ACTION_DISABLE, false);
 }
 
+//static
 void LLFloaterTopObjects::clearList()
 {
-	LLCtrlListInterface *list = childGetListInterface("objects_list");
+	LLCtrlListInterface *list = sInstance->childGetListInterface("objects_list");
 	
 	if (list) 
 	{
 		list->operateOnAll(LLCtrlListInterface::OP_DELETE);
 	}
 
-	mObjectListData.clear();
-	mObjectListIDs.clear();
+	sInstance->mObjectListData.clear();
+	sInstance->mObjectListIDs.clear();
+	sInstance->mtotalScore = 0.f;
 }
 
+//static
 void LLFloaterTopObjects::onRefresh(void* data)
 {
 	U32 mode = STAT_REPORT_TOP_SCRIPTS;
@@ -376,8 +379,6 @@ void LLFloaterTopObjects::onRefresh(void* data)
 		filter = sInstance->mFilter;
 		sInstance->clearList();
 	}
-
-	sInstance->mtotalScore = 0.f;
 
 	LLMessageSystem *msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_LandStatRequest);

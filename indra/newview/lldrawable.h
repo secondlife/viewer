@@ -68,7 +68,7 @@ public:
 
 	const LLMatrix4&      getWorldMatrix() const		{ return mXform.getWorldMatrix(); }
 	const LLMatrix4&	  getRenderMatrix() const		{ return isRoot() ? getWorldMatrix() : getParent()->getWorldMatrix(); }
-	const void			  setPosition(LLVector3 v) const { }
+	void				  setPosition(LLVector3 v) const { }
 	const LLVector3&	  getPosition() const			{ return mXform.getPosition(); }
 	const LLVector3&      getWorldPosition() const		{ return mXform.getPositionW(); }
 	const LLVector3		  getPositionAgent() const;
@@ -76,14 +76,14 @@ public:
 	const LLVector3&	  getScale() const				{ return mCurrentScale; }
 	const LLQuaternion&   getWorldRotation() const		{ return mXform.getWorldRotation(); }
 	const LLQuaternion&   getRotation() const			{ return mXform.getRotation(); }
-	const F32             getIntensity() const			{ return llmin(mXform.getScale().mV[0], 4.f); }
-	const S32			  getLOD() const				{ return mVObjp ? mVObjp->getLOD() : 1; }
-	const F64			  getBinRadius() const			{ return mBinRadius; }
+	F32			          getIntensity() const			{ return llmin(mXform.getScale().mV[0], 4.f); }
+	S32					  getLOD() const				{ return mVObjp ? mVObjp->getLOD() : 1; }
+	F64					  getBinRadius() const			{ return mBinRadius; }
 	void  getMinMax(LLVector3& min,LLVector3& max) const { mXform.getMinMax(min,max); }
 	LLXformMatrix*		getXform() { return &mXform; }
 
-	const U32 			getState()           const { return mState; }
-	const BOOL          isState   (U32 bits) const { return ((mState & bits) != 0); }
+	U32					getState()           const { return mState; }
+	BOOL				isState   (U32 bits) const { return ((mState & bits) != 0); }
 	void                setState  (U32 bits)       { mState |= bits; }
 	void                clearState(U32 bits)       { mState &= ~bits; }
 

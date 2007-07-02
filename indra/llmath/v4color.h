@@ -73,7 +73,7 @@ class LLColor4
 		F32			magVec() const;				// Returns magnitude of LLColor4
 		F32			magVecSquared() const;		// Returns magnitude squared of LLColor4
 		F32			normVec();					// Normalizes and returns the magnitude of LLColor4
-		const BOOL		isOpaque() { return mV[VALPHA] == 1.f; }
+		BOOL		isOpaque() { return mV[VALPHA] == 1.f; }
 
 		F32 operator[](int idx) const { return mV[idx]; }
 		F32 &operator[](int idx) { return mV[idx]; }

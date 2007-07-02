@@ -64,7 +64,7 @@ public:
 	LLQuaternion	mQuat;
 	LLScriptLibData *mListp;
 
-	friend const bool operator<=(const LLScriptLibData &a, const LLScriptLibData &b)
+	friend bool operator<=(const LLScriptLibData &a, const LLScriptLibData &b)
 	{
 		if (a.mType == b.mType)
 		{
@@ -92,7 +92,7 @@ public:
 		return TRUE;
 	}
 
-	friend const bool operator==(const LLScriptLibData &a, const LLScriptLibData &b)
+	friend bool operator==(const LLScriptLibData &a, const LLScriptLibData &b)
 	{
 		if (a.mType == b.mType)
 		{

@@ -435,8 +435,8 @@ bool LLCompareByTabOrder::operator() (const LLView* const a, const LLView* const
 	if(b && b->isCtrl()) b_score--;
 	if(a_score == -2 && b_score == -2)
 	{
-		const LLUICtrl * const a_ctrl = static_cast<const LLUICtrl* const>(a);
-		const LLUICtrl * const b_ctrl = static_cast<const LLUICtrl* const>(b);
+		const LLUICtrl * const a_ctrl = static_cast<const LLUICtrl*>(a);
+		const LLUICtrl * const b_ctrl = static_cast<const LLUICtrl*>(b);
 		LLView::child_tab_order_const_iter_t a_found = mTabOrder.find(a_ctrl), b_found = mTabOrder.find(b_ctrl);
 		if(a_found != mTabOrder.end()) a_score--;
 		if(b_found != mTabOrder.end()) b_score--;

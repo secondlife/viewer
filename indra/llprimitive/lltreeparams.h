@@ -12,7 +12,7 @@
 /* for information about formulas associated with each type
  * check the Weber + Penn paper
  */
-typedef enum EShapeRatio { SR_CONICAL, SR_SPHERICAL, SR_HEMISPHERICAL, 
+enum EShapeRatio { SR_CONICAL, SR_SPHERICAL, SR_HEMISPHERICAL, 
 				SR_CYLINDRICAL, SR_TAPERED_CYLINDRICAL, SR_FLAME, 
 				SR_INVERSE_CONICAL, SR_TEND_FLAME, SR_ENVELOPE};
 

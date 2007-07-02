@@ -66,6 +66,9 @@ Intel 915GM						.*Intel.*915GM							0
 Intel 945G						.*Intel.*945G							0
 Intel 945GM						.*Intel.*945GM							0
 Intel 950						.*Intel.*950.*950						0
+Intel G965						.*Intel.*G965.*							0
+Intel GM965						.*Intel.*GM965.*						0
+Intel G33						.*Intel.*G33.*							0
 Intel Brookdale					.*Intel.*Brookdale.*					0
 Intel Montara					.*Intel.*Montara.*						0
 Intel Springdale				.*Intel.*Springdale.*					0

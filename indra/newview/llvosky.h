@@ -257,7 +257,7 @@ public:
 	void setHorizonVisibility(const F32 c = 1)			{ mHorizonVisibility = c; }
 	const F32& getVisibility() const					{ return mVisibility; }
 	void setVisibility(const F32 c = 1)					{ mVisibility = c; }
-	const F32 getHaloBrighness() const
+	F32 getHaloBrighness() const
 	{
 		return llmax(0.f, llmin(0.9f, mHorizonVisibility)) * mVisibility;
 	}

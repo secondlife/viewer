@@ -271,8 +271,9 @@ S32 start_net(S32& socket_out, int& nPort)
 
 void end_net(S32& socket_out)
 {
-	if (socket_out < 0)
+	if (socket_out >= 0)
 	{
+		shutdown(socket_out, SD_BOTH);
 		closesocket(socket_out);
 	}
 	WSACleanup();
@@ -443,7 +444,7 @@ S32 start_net(S32& socket_out, int& nPort)
 
 void end_net(S32& socket_out)
 {
-	if (socket_out < 0)
+	if (socket_out >= 0)
 	{
 		close(socket_out);
 	}

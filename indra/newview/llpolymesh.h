@@ -340,7 +340,8 @@ protected:
 	typedef LLAssocList<std::string, LLPolyMeshSharedData*> LLPolyMeshSharedDataTable; 
 	static LLPolyMeshSharedDataTable sGlobalSharedMeshList;
 
-	LLPointer<LLVOAvatar> mAvatarp;
+	// Backlink only; don't make this an LLPointer.
+	LLVOAvatar* mAvatarp;
 };
 
 //-----------------------------------------------------------------------------
@@ -406,7 +407,8 @@ protected:
 	joint_vec_map_t mJointScales;
 	joint_vec_map_t mJointOffsets;
 	LLVector3	mDefaultVec;
-	LLPointer<LLVOAvatar> mAvatar;
+	// Backlink only; don't make this an LLPointer.
+	LLVOAvatar *mAvatar;
 };
 
 #endif // LL_LLPOLYMESH_H

@@ -104,7 +104,7 @@ BOOL LLProgressView::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 		// Suck up all keystokes except CTRL-Q.
 		if( ('Q' == key) && (MASK_CONTROL == mask) )
 		{
-			app_request_quit();
+			app_user_quit();
 		}
 		return TRUE;
 	}

@@ -151,12 +151,12 @@ public:
 	BOOL getAttributeString(const LLString& name, LLString& value );
 
     const ValueType& getType() const { return mType; }
-    const U32 getLength() const { return mLength; }
-    const U32 getPrecision() const { return mPrecision; }
+    U32 getLength() const { return mLength; }
+    U32 getPrecision() const { return mPrecision; }
     const LLString& getValue() const { return mValue; }
 	LLString getTextContents() const;
     const LLStringTableEntry* getName() const { return mName; }
-	const BOOL hasName(LLString name) const { return mName == gStringTable.checkStringEntry(name); }
+	BOOL hasName(LLString name) const { return mName == gStringTable.checkStringEntry(name); }
     const LLString& getID() const { return mID; }
 
     U32 getChildCount() const;

@@ -172,13 +172,11 @@ void LLFloaterLand::show()
 	// (and hence we have the local id).
 	// gParcelMgr->sendParcelAccessListRequest(AL_ACCESS | AL_BAN | AL_RENTER);
 
-	// If we've already got the parcel data, fill the
-	// floater with it.
 	sInstance->mParcel = gParcelMgr->getFloatingParcelSelection();
-	if (sInstance->mParcel->getParcel())
-	{
-		sInstance->refresh();
-	}
+	
+	// Refresh even if not over a region so we don't get an
+	// uninitialized dialog. The dialog is 0-region aware.
+	sInstance->refresh();
 }
 
 //static

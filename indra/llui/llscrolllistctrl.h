@@ -39,7 +39,7 @@ public:
 	virtual S32				getHeight() const = 0;
 	virtual const LLString&	getText() const { return LLString::null; }
 	virtual const LLString&	getTextLower() const { return LLString::null; }
-	virtual const BOOL		getVisible() const { return TRUE; }
+	virtual BOOL			getVisible() const { return TRUE; }
 	virtual void			setWidth(S32 width) = 0;
 	virtual void			highlightText(S32 offset, S32 num_chars) {}
 	virtual BOOL			isText() = 0;
@@ -76,7 +76,7 @@ public:
 	virtual void	setWidth(S32 width)			{ mWidth = width; }
 	virtual S32		getHeight() const			{ return llround(mFont->getLineHeight()); }
 	virtual const LLString&		getText() const		{ return mText.getString(); }
-	virtual const BOOL			getVisible() const  { return mVisible; }
+	virtual BOOL	getVisible() const  { return mVisible; }
 	virtual void	highlightText(S32 offset, S32 num_chars) {mHighlightOffset = offset; mHighlightCount = num_chars;}
 	void			setText(const LLString& text);
 	virtual void	setColor(const LLColor4&);
