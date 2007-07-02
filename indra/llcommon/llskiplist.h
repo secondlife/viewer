@@ -8,11 +8,10 @@
 #ifndef LL_LLSKIPLIST_H
 #define LL_LLSKIPLIST_H
 
-#include "llerror.h"
-//#include "vmath.h"
+#include "llrand.h"
 
 // NOTA BENE: Insert first needs to be < NOT <=
-
+// Binary depth must be >= 2
 template <class DATA_TYPE, S32 BINARY_DEPTH = 10>
 class LLSkipList
 {
@@ -124,14 +123,11 @@ private:
 // Implementation
 //
 
+
+// Binary depth must be >= 2
 template <class DATA_TYPE, S32 BINARY_DEPTH>
 inline void LLSkipList<DATA_TYPE, BINARY_DEPTH>::init()
 {
-	if (BINARY_DEPTH < 2)
-	{
-		llerrs << "Trying to create skip list with too little depth, "
-			"must be 2 or greater" << llendl;
-	}
 	S32 i;
 	for (i = 0; i < BINARY_DEPTH; i++)
 	{

@@ -51,6 +51,7 @@ typedef struct ProcessorExtensions
 	bool FXSR_FastStreamingSIMD_ExtensionsSaveRestore;
 	bool SSE_StreamingSIMD_Extensions;
 	bool SSE2_StreamingSIMD2_Extensions;
+	bool Altivec_Extensions;
 	bool SS_SelfSnoop;
 	bool HT_HyperThreading;
 	unsigned int HT_HyterThreadingSiblings;

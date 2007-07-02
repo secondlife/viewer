@@ -960,6 +960,7 @@ extern BOOL gDebugClicks;
 extern BOOL gDebugWindowProc;
 extern BOOL gDebugTextEditorTips;
 extern BOOL gDebugSelectMgr;
+extern BOOL gVectorizePerfTest;
 
 void init_debug_ui_menu(LLMenuGL* menu)
 {
@@ -1168,6 +1169,8 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 										   &menu_check_control,
 										   (void*)"ShowDepthBuffer"));
 	sub_menu->append(new LLMenuItemToggleGL("Show Select Buffer", &gDebugSelect));
+
+	sub_menu->append(new LLMenuItemToggleGL("Vectorize Perf Test", &gVectorizePerfTest));
 
 	sub_menu = new LLMenuGL("Render Tests");
 

@@ -19,6 +19,7 @@
 #include "llfasttimer.h"
 
 #include "llagent.h"
+#include "llapr.h"
 #include "llbox.h"
 #include "lldrawable.h"
 #include "lldrawpoolavatar.h"
@@ -29,12 +30,18 @@
 #include "llglheaders.h"
 #include "lltexlayer.h"
 #include "llviewercamera.h"
+#include "llviewercontrol.h"
 #include "llviewerimagelist.h"
 #include "llviewerjointmesh.h"
 #include "llvoavatar.h"
 #include "llsky.h"
 #include "pipeline.h"
 #include "llglslshader.h"
+#include "llmath.h"
+#include "v4math.h"
+#include "m3math.h"
+#include "m4math.h"
+
 
 #if !LL_DARWIN && !LL_LINUX
 extern PFNGLWEIGHTPOINTERARBPROC glWeightPointerARB;
@@ -47,6 +54,7 @@ static LLPointer<LLVertexBuffer> sRenderBuffer = NULL;
 static const U32 sRenderMask = LLVertexBuffer::MAP_VERTEX |
 							   LLVertexBuffer::MAP_NORMAL |
 							   LLVertexBuffer::MAP_TEXCOORD;
+
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -99,6 +107,7 @@ BOOL LLSkinJoint::setupSkinJoint( LLViewerJoint *joint)
 
 	return TRUE;
 }
+
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -394,9 +403,9 @@ const S32 NUM_AXES = 3;
 // rotation Z 0-n
 // pivot parent 0-n -- child = n+1
 
-static LLMatrix4 gJointMat[32];
-static LLMatrix3 gJointRot[32];
-static LLVector4 gJointPivot[32];
+static LLMatrix4	gJointMatUnaligned[32];
+static LLMatrix3	gJointRotUnaligned[32];
+static LLVector4	gJointPivot[32];
 
 //-----------------------------------------------------------------------------
 // uploadJointMatrices()
@@ -417,8 +426,8 @@ void LLViewerJointMesh::uploadJointMatrices()
 		{
 			joint_mat *= LLDrawPoolAvatar::getModelView();
 		}
-		gJointMat[joint_num] = joint_mat;
-		gJointRot[joint_num] = joint_mat.getMat3();
+		gJointMatUnaligned[joint_num] = joint_mat;
+		gJointRotUnaligned[joint_num] = joint_mat.getMat3();
 	}
 
 	BOOL last_pivot_uploaded = FALSE;
@@ -455,8 +464,8 @@ void LLViewerJointMesh::uploadJointMatrices()
 	{
 		LLVector3 pivot;
 		pivot = LLVector3(gJointPivot[i]);
-		pivot = pivot * gJointRot[i];
-		gJointMat[i].translate(pivot);
+		pivot = pivot * gJointRotUnaligned[i];
+		gJointMatUnaligned[i].translate(pivot);
 	}
 
 	// upload matrices
@@ -467,11 +476,11 @@ void LLViewerJointMesh::uploadJointMatrices()
 
 		for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.count(); joint_num++)
 		{
-			gJointMat[joint_num].transpose();
+			gJointMatUnaligned[joint_num].transpose();
 
 			for (S32 axis = 0; axis < NUM_AXES; axis++)
 			{
-				F32* vector = gJointMat[joint_num].mMatrix[axis];
+				F32* vector = gJointMatUnaligned[joint_num].mMatrix[axis];
 				//glProgramLocalParameter4fvARB(GL_VERTEX_PROGRAM_ARB, LL_CHARACTER_MAX_JOINTS_PER_MESH * axis + joint_num+5, (GLfloat*)vector);
 				U32 offset = LL_CHARACTER_MAX_JOINTS_PER_MESH*axis+joint_num;
 				memcpy(mat+offset*4, vector, sizeof(GLfloat)*4);
@@ -883,21 +892,9 @@ BOOL LLViewerJointMesh::updateLOD(F32 pixel_area, BOOL activate)
 	return (valid != activate);
 }
 
-
-void LLViewerJointMesh::updateGeometry()
+// static
+void LLViewerJointMesh::updateGeometryOriginal(LLFace *mFace, LLPolyMesh *mMesh)
 {
-	if (!(mValid
-		  && mMesh
-		  && mFace
-		  && mMesh->hasWeights()
-		  && mFace->mVertexBuffer.notNull()
-		  && LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_AVATAR) == 0))
-	{
-		return;
-	}
-	
-	uploadJointMatrices();
-
 	LLStrider<LLVector3> o_vertices;
 	LLStrider<LLVector3> o_normals;
 
@@ -938,9 +935,9 @@ void LLViewerJointMesh::updateGeometry()
 		// No lerp required in this case.
 		if (w == 1.0f)
 		{
-			gBlendMat = gJointMat[joint+1];
+			gBlendMat = gJointMatUnaligned[joint+1];
 			o_vertices[bidx] = coords[index] * gBlendMat;
-			gBlendRotMat = gJointRot[joint+1];
+			gBlendRotMat = gJointRotUnaligned[joint+1];
 			o_normals[bidx] = normals[index] * gBlendRotMat;
 			continue;
 		}
@@ -948,8 +945,8 @@ void LLViewerJointMesh::updateGeometry()
 		// Try to keep all the accesses to the matrix data as close
 		// together as possible.  This function is a hot spot on the
 		// Mac. JC
-		LLMatrix4 &m0 = gJointMat[joint+1];
-		LLMatrix4 &m1 = gJointMat[joint+0];
+		LLMatrix4 &m0 = gJointMatUnaligned[joint+1];
+		LLMatrix4 &m1 = gJointMatUnaligned[joint+0];
 		
 		gBlendMat.mMatrix[VX][VX] = lerp(m1.mMatrix[VX][VX], m0.mMatrix[VX][VX], w);
 		gBlendMat.mMatrix[VX][VY] = lerp(m1.mMatrix[VX][VY], m0.mMatrix[VX][VY], w);
@@ -969,8 +966,8 @@ void LLViewerJointMesh::updateGeometry()
 
 		o_vertices[bidx] = coords[index] * gBlendMat;
 		
-		LLMatrix3 &n0 = gJointRot[joint+1];
-		LLMatrix3 &n1 = gJointRot[joint+0];
+		LLMatrix3 &n0 = gJointRotUnaligned[joint+1];
+		LLMatrix3 &n1 = gJointRotUnaligned[joint+0];
 		
 		gBlendRotMat.mMatrix[VX][VX] = lerp(n1.mMatrix[VX][VX], n0.mMatrix[VX][VX], w);
 		gBlendRotMat.mMatrix[VX][VY] = lerp(n1.mMatrix[VX][VY], n0.mMatrix[VX][VY], w);
@@ -985,6 +982,161 @@ void LLViewerJointMesh::updateGeometry()
 		gBlendRotMat.mMatrix[VZ][VZ] = lerp(n1.mMatrix[VZ][VZ], n0.mMatrix[VZ][VZ], w);
 		
 		o_normals[bidx] = normals[index] * gBlendRotMat;
+	}
+}
+
+const U32 UPDATE_GEOMETRY_CALL_MASK			= 0x1FFF; // 8K samples before overflow
+const U32 UPDATE_GEOMETRY_CALL_OVERFLOW		= ~UPDATE_GEOMETRY_CALL_MASK;
+static bool sUpdateGeometryCallPointer		= false;
+static F64 sUpdateGeometryGlobalTime		= 0.0 ;
+static F64 sUpdateGeometryElapsedTime		= 0.0 ;
+static F64 sUpdateGeometryElapsedTimeOff	= 0.0 ;
+static F64 sUpdateGeometryElapsedTimeOn		= 0.0 ;
+static F64 sUpdateGeometryRunAvgOff[10];
+static F64 sUpdateGeometryRunAvgOn[10];
+static U32 sUpdateGeometryRunCount			= 0 ;
+static U32 sUpdateGeometryCalls				= 0 ;
+static U32 sUpdateGeometryLastProcessor		= 0 ;
+void (*LLViewerJointMesh::sUpdateGeometryFunc)(LLFace* face, LLPolyMesh* mesh);
+
+void LLViewerJointMesh::updateGeometry()
+{
+	extern BOOL gVectorizePerfTest;
+	extern U32	gVectorizeProcessor;
+
+	if (!(mValid
+		  && mMesh
+		  && mFace
+		  && mMesh->hasWeights()
+		  && mFace->mVertexBuffer.notNull()
+		  && LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_AVATAR) == 0))
+	{
+		return;
+	}
+
+	if (!gVectorizePerfTest)
+	{
+		// Once we've measured performance, just run the specified
+		// code version.
+		if(sUpdateGeometryFunc == updateGeometryOriginal)
+			uploadJointMatrices();
+		sUpdateGeometryFunc(mFace, mMesh);
+	}
+	else
+	{
+		// At startup, measure the amount of time in skinning and choose
+		// the fastest one.
+		LLTimer ug_timer ;
+		
+		if (sUpdateGeometryCallPointer)
+		{
+			if(sUpdateGeometryFunc == updateGeometryOriginal)
+				uploadJointMatrices();
+			// call accelerated version for this processor
+			sUpdateGeometryFunc(mFace, mMesh);
+		}
+		else
+		{
+			uploadJointMatrices();
+			updateGeometryOriginal(mFace, mMesh);
+		}
+	
+		sUpdateGeometryElapsedTime += ug_timer.getElapsedTimeF64();
+		++sUpdateGeometryCalls;
+		if(0 != (sUpdateGeometryCalls & UPDATE_GEOMETRY_CALL_OVERFLOW))
+		{
+			F64 time_since_app_start = ug_timer.getElapsedSeconds();
+			if(sUpdateGeometryGlobalTime == 0.0 
+				|| sUpdateGeometryLastProcessor != gVectorizeProcessor)
+			{
+				sUpdateGeometryGlobalTime		= time_since_app_start;
+				sUpdateGeometryElapsedTime		= 0;
+				sUpdateGeometryCalls			= 0;
+				sUpdateGeometryRunCount			= 0;
+				sUpdateGeometryLastProcessor	= gVectorizeProcessor;
+				sUpdateGeometryCallPointer		= false;
+				return;
+			}
+			F64 percent_time_in_function = 
+				( sUpdateGeometryElapsedTime * 100.0 ) / ( time_since_app_start - sUpdateGeometryGlobalTime ) ;
+			sUpdateGeometryGlobalTime = time_since_app_start;
+			if (!sUpdateGeometryCallPointer)
+			{
+				// First set of run data is with vectorization off.
+				sUpdateGeometryCallPointer = true;
+				llinfos << "profile (avg of " << sUpdateGeometryCalls << " samples) = "
+					<< "vectorize off " << percent_time_in_function
+					<< "% of time with "
+					<< (sUpdateGeometryElapsedTime / (F64)sUpdateGeometryCalls)
+					<< " seconds per call "
+					<< llendl;
+				sUpdateGeometryRunAvgOff[sUpdateGeometryRunCount] = percent_time_in_function;
+				sUpdateGeometryElapsedTimeOff += sUpdateGeometryElapsedTime;
+				sUpdateGeometryCalls = 0;
+			}
+			else
+			{
+				// Second set of run data is with vectorization on.
+				sUpdateGeometryCallPointer = false;
+				llinfos << "profile (avg of " << sUpdateGeometryCalls << " samples) = "
+					<< "VEC on " << percent_time_in_function
+					<< "% of time with "
+					<< (sUpdateGeometryElapsedTime / (F64)sUpdateGeometryCalls)
+					<< " seconds per call "
+					<< llendl;
+				sUpdateGeometryRunAvgOn[sUpdateGeometryRunCount] = percent_time_in_function ;
+				sUpdateGeometryElapsedTimeOn += sUpdateGeometryElapsedTime;
+
+				sUpdateGeometryCalls = 0;
+				sUpdateGeometryRunCount++;
+				F64 a = 0.0, b = 0.0;
+				for(U32 i = 0; i<sUpdateGeometryRunCount; i++)
+				{
+					a += sUpdateGeometryRunAvgOff[i];
+					b += sUpdateGeometryRunAvgOn[i];
+				}
+				a /= sUpdateGeometryRunCount;
+				b /= sUpdateGeometryRunCount;
+				F64 perf_boost = ( sUpdateGeometryElapsedTimeOff - sUpdateGeometryElapsedTimeOn ) / sUpdateGeometryElapsedTimeOn;
+				llinfos << "run averages (" << (F64)sUpdateGeometryRunCount
+					<< "/10) vectorize off " << a
+					<< "% : vectorize type " << gVectorizeProcessor
+					<< " " << b
+					<< "% : performance boost " 
+					<< perf_boost * 100.0
+					<< "%"
+					<< llendl ;
+				if(sUpdateGeometryRunCount == 10)
+				{
+					// In case user runs test again, force reset of data on
+					// next run.
+					sUpdateGeometryGlobalTime = 0.0;
+
+					// We have data now on which version is faster.  Switch to that
+					// code and save the data for next run.
+					gVectorizePerfTest = FALSE;
+					gSavedSettings.setBOOL("VectorizePerfTest", FALSE);
+
+					if (perf_boost > 0.0)
+					{
+						llinfos << "Vectorization improves avatar skinning performance, "
+							<< "keeping on for future runs."
+							<< llendl;
+						gSavedSettings.setBOOL("VectorizeSkin", TRUE);
+					}
+					else
+					{
+						// SIMD decreases performance, fall back to original code
+						llinfos << "Vectorization decreases avatar skinning performance, "
+							<< "switching back to original code."
+							<< llendl;
+
+						gSavedSettings.setBOOL("VectorizeSkin", FALSE);
+					}
+				}
+			}
+			sUpdateGeometryElapsedTime = 0.0f;
+		}
 	}
 }
 

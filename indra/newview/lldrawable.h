@@ -26,6 +26,7 @@
 #include "llviewerobject.h"
 #include "llrect.h"
 
+class LLCamera;
 class LLDrawPool;
 class LLDrawable;
 class LLFace;
