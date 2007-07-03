@@ -19,11 +19,12 @@
 #include "llv4matrix3.h"
 #include "llv4matrix4.h"
 
-// *NOTE: SSE must be disabled for this module
-
-#if LL_VECTORIZE
-#error This module requires vectorization (i.e. SSE) mode to be disabled.
-#endif
+// *NOTE: This is the fallback code for vectorized joint mesh skinning.
+// For builds that must support non-SSE x86 code (Windows, perhaps Linux)
+// SSE code generation should be disabled for this file.
+//
+// For builds that run on processors that always have SSE (Mac),
+// SSE code generation can be enabled.  JC
 
 static LLV4Matrix4	sJointMat[32];
 
