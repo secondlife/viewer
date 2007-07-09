@@ -1,4 +1,9 @@
 #!/usr/bin/perl
+#
+# Test Perl Crypt::CBC Blowfish algorithm and initial parameter settings
+# for compatibility with OpenSSL's Blowfish algorithm/settings.
+#
+# Used by outbound LSL email (openssl C library) and mailglue (Perl library)
 use strict;
 use warnings;
 
