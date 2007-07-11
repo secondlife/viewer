@@ -1,8 +1,11 @@
 /** 
- * @file llviewerjointmesh.cpp
- * @brief LLV4 math class implementation with LLViewerJointMesh class
+ * @file llviewerjointmesh_vec.cpp
+ * @brief Compiler-generated vectorized joint skinning code, works well on
+ * Altivec processors (PowerPC Mac)
  *
- * Copyright (c) 2001-$CurrentYear$, Linden Research, Inc.
+ * *NOTE: See llv4math.h for notes on SSE/Altivec vector code.
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
  * $License$
  */
 
@@ -19,12 +22,8 @@
 #include "llv4matrix3.h"
 #include "llv4matrix4.h"
 
-// *NOTE: This is the fallback code for vectorized joint mesh skinning.
-// For builds that must support non-SSE x86 code (Windows, perhaps Linux)
-// SSE code generation should be disabled for this file.
-//
-// For builds that run on processors that always have SSE (Mac),
-// SSE code generation can be enabled.  JC
+// Generic vectorized code, uses compiler defaults, works well for Altivec
+// on PowerPC.
 
 static LLV4Matrix4	sJointMat[32];
 

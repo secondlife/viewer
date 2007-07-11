@@ -1,6 +1,9 @@
 /** 
- * @file llviewerjointmesh.cpp
- * @brief LLV4 class implementation with LLViewerJointMesh class
+ * @file llviewerjointmesh_sse.cpp
+ * @brief SSE vectorized joint skinning code, only used when video card does
+ * not support avatar vertex programs.
+ *
+ * *NOTE: Disabled on Windows builds. See llv4math.h for details.
  *
  * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
  * $License$
@@ -10,9 +13,7 @@
 // Header Files
 //-----------------------------------------------------------------------------
 
-// Do not use precompiled headers, because we need to build this file with
-// SSE support, but not the precompiled header file. JC
-#include "linden_common.h"
+#include "llviewerprecompiledheaders.h"
 
 #include "llviewerjointmesh.h"
 
@@ -27,7 +28,6 @@
 #include "llv4matrix4.h"
 #include "v3math.h"
 
-// *NOTE: SSE must be enabled for this module
 
 #if LL_VECTORIZE
 
@@ -88,7 +88,6 @@ void LLViewerJointMesh::updateGeometrySSE(LLFace *face, LLPolyMesh *mesh)
 void LLViewerJointMesh::updateGeometrySSE(LLFace *face, LLPolyMesh *mesh)
 {
 	LLViewerJointMesh::updateGeometryVectorized(face, mesh);
-	return;
 }
 
 #endif
