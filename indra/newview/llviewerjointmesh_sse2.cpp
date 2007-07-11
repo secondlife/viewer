@@ -38,8 +38,6 @@
 #if LL_VECTORIZE
 
 
-static LLV4Matrix4	sJointMat[32];
-
 inline void matrix_translate(LLV4Matrix4& m, const LLMatrix4* w, const LLVector3& j)
 {
 	m.mV[VX] = _mm_loadu_ps(w->mMatrix[VX]);
