@@ -449,8 +449,8 @@ public:
 	void sendDropAttachment();
 	void sendLink();
 	void sendDelink();
-	void sendHinge(U8 type);
-	void sendDehinge();
+	//void sendHinge(U8 type);
+	//void sendDehinge();
 	void sendSelect();
 
 	void requestObjectPropertiesFamily(LLViewerObject* object);	// asks sim for creator, permissions, resources, etc.

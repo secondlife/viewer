@@ -83,7 +83,11 @@ public:
 	std::string getIPandPort() const;
 
 	friend std::ostream& operator<< (std::ostream& os, const LLHost &hh);
-	friend std::istream& operator>> (std::istream& is, LLHost &hh);
+
+	// This operator is not well defined. does it expect a
+	// "192.168.1.1:80" notation or "int int" format? Phoenix 2007-05-18
+	//friend std::istream& operator>> (std::istream& is, LLHost &hh);
+
 	friend bool operator==( const LLHost &lhs, const LLHost &rhs );
 	friend bool operator!=( const LLHost &lhs, const LLHost &rhs );
 	friend bool operator<(const LLHost &lhs, const LLHost &rhs);

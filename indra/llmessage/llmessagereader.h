@@ -1,3 +1,11 @@
+/** 
+ * @file llmessagereader.h
+ * @brief Declaration of LLMessageReader class.
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
 #ifndef LL_LLMESSAGEREADER_H
 #define LL_LLMESSAGEREADER_H
 
@@ -45,6 +53,7 @@ class LLMessageReader
 
 	virtual void clearMessage() = 0;
 
+	/** Returns pointer to canonical (prehashed) string. */
 	virtual const char* getMessageName() const = 0;
 	virtual S32 getMessageSize() const = 0;
 

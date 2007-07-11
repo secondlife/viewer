@@ -5701,7 +5701,6 @@ void LLAgent::requestEnterGodMode()
 
 	// simulator and userserver need to know about your request
 	sendReliableMessage();
-	msg->sendReliable(gUserServer);
 }
 
 void LLAgent::requestLeaveGodMode()
@@ -5717,7 +5716,6 @@ void LLAgent::requestLeaveGodMode()
 
 	// simulator and userserver need to know about your request
 	sendReliableMessage();
-	msg->sendReliable(gUserServer);
 }
 
 // wearables

@@ -40,11 +40,13 @@ bool skip_to_end_of_next_keyword(const char* keyword, std::istream& input_stream
 //bool skip_to_start_of_next_keyword(const char* keyword, std::istream& input_stream);
 
 // characters are pulled out of input_stream and appended to output_string
+// returns result of input_stream.good() after characters are pulled
 bool get_word(std::string& output_string, std::istream& input_stream);
 bool get_line(std::string& output_string, std::istream& input_stream);
 
 // characters are pulled out of input_stream (up to a max of 'n')
 // and appended to output_string 
+// returns result of input_stream.good() after characters are pulled
 bool get_word(std::string& output_string, std::istream& input_stream, int n);
 bool get_line(std::string& output_string, std::istream& input_stream, int n);
 

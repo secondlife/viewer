@@ -114,7 +114,7 @@ namespace tut
 	void LLSDMessageBuilderTestObject::test<7>()
 		 // F32
 	{
-	  F32 outValue, inValue = 121.44;
+	  F32 outValue, inValue = 121.44f;
 	  LLSDMessageBuilder builder = defaultBuilder();
 	  builder.addF32("var", inValue);
 	  LLSDMessageReader reader = setReader(builder);

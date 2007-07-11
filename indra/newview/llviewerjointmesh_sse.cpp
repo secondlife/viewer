@@ -31,8 +31,6 @@
 
 #if LL_VECTORIZE
 
-static LLV4Matrix4	sJointMat[32];
-
 inline void matrix_translate(LLV4Matrix4& m, const LLMatrix4* w, const LLVector3& j)
 {
 	m.mV[VX] = _mm_loadu_ps(w->mMatrix[VX]);
@@ -47,6 +45,9 @@ inline void matrix_translate(LLV4Matrix4& m, const LLMatrix4* w, const LLVector3
 // static
 void LLViewerJointMesh::updateGeometrySSE(LLFace *face, LLPolyMesh *mesh)
 {
+	// This cannot be a file-level static because it will be initialized
+	// before main() using SSE code, which will crash on non-SSE processors.
+	static LLV4Matrix4	sJointMat[32];
 	LLDynamicArray<LLJointRenderData*>& joint_data = mesh->getReferenceMesh()->mJointRenderData;
 
 	//upload joint pivots/matrices

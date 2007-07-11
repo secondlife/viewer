@@ -31,6 +31,7 @@
 #include "llfloaterregioninfo.h"
 #include "llhttpnode.h"
 #include "llnetmap.h"
+#include "llstartup.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparceloverlay.h"
 #include "llvlmanager.h"
@@ -1156,6 +1157,10 @@ void LLViewerRegion::unpackRegionHandshake()
 	setBillableFactor(billable_factor);
 	setCacheID(cache_id);
 
+	LLUUID region_id;
+	msg->getUUID("RegionInfo2", "RegionID", region_id);
+	setRegionID(region_id);
+
 	LLVLComposition *compp = getComposition();
 	if (compp)
 	{
@@ -1232,6 +1237,11 @@ public:
     {
 		llinfos << "BaseCapabilitiesComplete::error "
 			<< statusNum << ": " << reason << llendl;
+		
+		if (STATE_SEED_GRANTED_WAIT == gStartupState)
+		{
+			gStartupState = STATE_SEED_CAP_GRANTED;
+		}
     }
 
     void result(const LLSD& content)
@@ -1242,6 +1252,11 @@ public:
 			mRegion->setCapability(iter->first, iter->second);
 			llinfos << "BaseCapabilitiesComplete::result got capability for " 
 				<< iter->first << llendl;
+		}
+		
+		if (STATE_SEED_GRANTED_WAIT == gStartupState)
+		{
+			gStartupState = STATE_SEED_CAP_GRANTED;
 		}
 	}
 
@@ -1259,6 +1274,11 @@ private:
 
 void LLViewerRegion::setSeedCapability(const std::string& url)
 {
+  if (getCapability("Seed") == url)
+    {
+      llwarns << "Ignoring duplicate seed capability" << llendl;
+      return;
+    }
 	delete mEventPoll;
 	mEventPoll = NULL;
 	
@@ -1286,15 +1306,10 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("ParcelVoiceInfoRequest");
 	capabilityNames.append("ChatSessionRequest");
 
+	llinfos << "posting to seed " << url << llendl;
+	
 	LLHTTPClient::post(url, capabilityNames, BaseCapabilitiesComplete::build(this));
 }
-
-static
-LLEventPoll* createViewerEventPoll(const std::string& url)
-{
-	return new LLEventPoll(url);
-}
-
 
 void LLViewerRegion::setCapability(const std::string& name, const std::string& url)
 {
@@ -1302,7 +1317,7 @@ void LLViewerRegion::setCapability(const std::string& name, const std::string& u
 	{
 		delete mEventPoll;
 		mEventPoll = NULL;
-		mEventPoll = createViewerEventPoll(url);
+		mEventPoll = new LLEventPoll(url, getHost());
 	}
 	else if(name == "UntrustedSimulatorMessage")
 	{
@@ -1326,14 +1341,15 @@ std::string LLViewerRegion::getCapability(const std::string& name) const
 
 void LLViewerRegion::logActiveCapabilities() const
 {
+	int count = 0;
 	CapabilityMap::const_iterator iter;
-	for (iter = mCapabilities.begin(); iter != mCapabilities.end(); iter++)
+	for (iter = mCapabilities.begin(); iter != mCapabilities.end(); iter++, count++)
 	{
 		if (!iter->second.empty())
 		{
-			// llinfos << "Active capability is " << iter->first << llendl;
 			llinfos << iter->first << " URL is " << iter->second << llendl;
 		}
 	}
+	llinfos << "Dumped " << count << " entries." << llendl;
 }
 

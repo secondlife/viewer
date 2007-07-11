@@ -1,3 +1,11 @@
+/** 
+ * @file llmsgvariabletype.h
+ * @brief Declaration of the EMsgVariableType enumeration.
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
 #ifndef LL_LLMSGVARIABLETYPE_H
 #define LL_LLMSGVARIABLETYPE_H
 

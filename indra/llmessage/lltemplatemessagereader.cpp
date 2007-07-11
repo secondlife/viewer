@@ -1,3 +1,11 @@
+/** 
+ * @file lltemplatemessagereader.cpp
+ * @brief LLTemplateMessageReader class implementation.
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
 #include "lltemplatemessagereader.h"
 
 #include "llfasttimer.h"
@@ -53,7 +61,7 @@ void LLTemplateMessageReader::getData(const char *blockname, const char *varname
 	char *bnamep = (char *)blockname + blocknum; // this works because it's just a hash.  The bnamep is never derefference
 	char *vnamep = (char *)varname; 
 
-	LLMsgData::msg_blk_data_map_t::iterator iter = mCurrentRMessageData->mMemberBlocks.find(bnamep);
+	LLMsgData::msg_blk_data_map_t::const_iterator iter = mCurrentRMessageData->mMemberBlocks.find(bnamep);
 
 	if (iter == mCurrentRMessageData->mMemberBlocks.end())
 	{
@@ -135,7 +143,7 @@ S32 LLTemplateMessageReader::getNumberOfBlocks(const char *blockname)
 
 	char *bnamep = (char *)blockname; 
 
-	LLMsgData::msg_blk_data_map_t::iterator iter = mCurrentRMessageData->mMemberBlocks.find(bnamep);
+	LLMsgData::msg_blk_data_map_t::const_iterator iter = mCurrentRMessageData->mMemberBlocks.find(bnamep);
 	
 	if (iter == mCurrentRMessageData->mMemberBlocks.end())
 	{
@@ -165,7 +173,7 @@ S32 LLTemplateMessageReader::getSize(const char *blockname, const char *varname)
 
 	char *bnamep = (char *)blockname; 
 
-	LLMsgData::msg_blk_data_map_t::iterator iter = mCurrentRMessageData->mMemberBlocks.find(bnamep);
+	LLMsgData::msg_blk_data_map_t::const_iterator iter = mCurrentRMessageData->mMemberBlocks.find(bnamep);
 	
 	if (iter == mCurrentRMessageData->mMemberBlocks.end())
 	{
@@ -214,7 +222,7 @@ S32 LLTemplateMessageReader::getSize(const char *blockname, S32 blocknum, const 
 	char *bnamep = (char *)blockname + blocknum; 
 	char *vnamep = (char *)varname; 
 
-	LLMsgData::msg_blk_data_map_t::iterator iter = mCurrentRMessageData->mMemberBlocks.find(bnamep);
+	LLMsgData::msg_blk_data_map_t::const_iterator iter = mCurrentRMessageData->mMemberBlocks.find(bnamep);
 	
 	if (iter == mCurrentRMessageData->mMemberBlocks.end())
 	{
@@ -497,16 +505,21 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 	llassert( !mCurrentRMessageData );
 	delete mCurrentRMessageData; // just to make sure
 
-	S32 decode_pos = LL_PACKET_ID_SIZE + (S32)(mCurrentRMessageTemplate->mFrequency);
+	// The offset tells us how may bytes to skip after the end of the
+	// message name.
+	U8 offset = buffer[PHL_OFFSET];
+	S32 decode_pos = LL_PACKET_ID_SIZE + (S32)(mCurrentRMessageTemplate->mFrequency) + offset;
 
 	// create base working data set
 	mCurrentRMessageData = new LLMsgData(mCurrentRMessageTemplate->mName);
 	
 	// loop through the template building the data structure as we go
-	for (LLMessageTemplate::message_block_map_t::iterator iter = mCurrentRMessageTemplate->mMemberBlocks.begin();
-		 iter != mCurrentRMessageTemplate->mMemberBlocks.end(); iter++)
+	LLMessageTemplate::message_block_map_t::const_iterator iter;
+	for(iter = mCurrentRMessageTemplate->mMemberBlocks.begin();
+		iter != mCurrentRMessageTemplate->mMemberBlocks.end();
+		++iter)
 	{
-		LLMessageBlock* mbci = iter->second;
+		LLMessageBlock* mbci = *iter;
 		U8	repeat_number;
 		S32	i;
 
@@ -528,11 +541,16 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 			// repeat number is a single byte
 			if (decode_pos >= mReceiveSize)
 			{
-				logRanOffEndOfPacket( sender );
-				return FALSE;
+				logRanOffEndOfPacket(sender);
+
+				// default to 0 repeats
+				repeat_number = 0;
 			}
-			repeat_number = buffer[decode_pos];
-			decode_pos++;
+			else
+			{
+				repeat_number = buffer[decode_pos];
+				decode_pos++;
+			}
 		}
 		else
 		{
@@ -561,10 +579,12 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 			mCurrentRMessageData->addBlock(cur_data_block);
 
 			// now read the variables
-			for (LLMessageBlock::message_variable_map_t::iterator iter = mbci->mMemberVariables.begin();
+			for (LLMessageBlock::message_variable_map_t::const_iterator iter = 
+					 mbci->mMemberVariables.begin();
 				 iter != mbci->mMemberVariables.end(); iter++)
 			{
-				LLMessageVariable& mvci = *(iter->second);
+				const LLMessageVariable& mvci = **iter;
+
 				// ok, build out the variables
 				// add variable block
 				cur_data_block->addVariable(mvci.getName(), mvci.getType());
@@ -580,34 +600,33 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 
 					if ((decode_pos + data_size) > mReceiveSize)
 					{
-						logRanOffEndOfPacket( sender );
-						return FALSE;
+						logRanOffEndOfPacket(sender);
+
+						// default to 0 length variable blocks
+						tsize = 0;
 					}
-					switch(data_size)
+					else
 					{
-					case 1:
-						htonmemcpy(&tsizeb, &buffer[decode_pos], MVT_U8, 1);
-						tsize = tsizeb;
-						break;
-					case 2:
-						htonmemcpy(&tsizeh, &buffer[decode_pos], MVT_U16, 2);
-						tsize = tsizeh;
-						break;
-					case 4:
-						htonmemcpy(&tsize, &buffer[decode_pos], MVT_U32, 4);
-						break;
-					default:
-						llerrs << "Attempting to read variable field with unknown size of " << data_size << llendl;
-						break;
-						
+						switch(data_size)
+						{
+						case 1:
+							htonmemcpy(&tsizeb, &buffer[decode_pos], MVT_U8, 1);
+							tsize = tsizeb;
+							break;
+						case 2:
+							htonmemcpy(&tsizeh, &buffer[decode_pos], MVT_U16, 2);
+							tsize = tsizeh;
+							break;
+						case 4:
+							htonmemcpy(&tsize, &buffer[decode_pos], MVT_U32, 4);
+							break;
+						default:
+							llerrs << "Attempting to read variable field with unknown size of " << data_size << llendl;
+							break;
+						}
 					}
 					decode_pos += data_size;
 
-					if ((decode_pos + (S32)tsize) > mReceiveSize)
-					{
-						logRanOffEndOfPacket( sender );
-						return FALSE;
-					}
 					cur_data_block->addData(mvci.getName(), &buffer[decode_pos], tsize, mvci.getType());
 					decode_pos += tsize;
 				}
@@ -615,14 +634,24 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 				{
 					// fixed!
 					// so, copy data pointer and set data size to fixed size
-
 					if ((decode_pos + mvci.getSize()) > mReceiveSize)
 					{
-						logRanOffEndOfPacket( sender );
-						return FALSE;
-					}
+						logRanOffEndOfPacket(sender);
 
-					cur_data_block->addData(mvci.getName(), &buffer[decode_pos], mvci.getSize(), mvci.getType());
+						// default to 0s.
+						U32 size = mvci.getSize();
+						std::vector<U8> data(size);
+						memset(&(data[0]), 0, size);
+						cur_data_block->addData(mvci.getName(), &(data[0]), 
+												size, mvci.getType());
+					}
+					else
+					{
+						cur_data_block->addData(mvci.getName(), 
+												&buffer[decode_pos], 
+												mvci.getSize(), 
+												mvci.getType());
+					}
 					decode_pos += mvci.getSize();
 				}
 			}
@@ -644,11 +673,6 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 			decode_timer.reset();
 		}
 
-		//	if( mCurrentRMessageTemplate->mName == _PREHASH_AgentToNewRegion )
-		//	{
-		//		VTResume();  // VTune
-		//	}
-
 		{
 			LLFastTimer t(LLFastTimer::FTM_PROCESS_MESSAGES);
 			if( !mCurrentRMessageTemplate->callHandlerFunc(gMessageSystem) )
@@ -656,11 +680,6 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 				llwarns << "Message from " << sender << " with no handler function received: " << mCurrentRMessageTemplate->mName << llendl;
 			}
 		}
-
-		//	if( mCurrentRMessageTemplate->mName == _PREHASH_AgentToNewRegion )
-		//	{
-		//		VTPause();	// VTune
-		//	}
 
 		if(LLMessageReader::getTimeDecodes() || gMessageSystem->getTimingCallback())
 		{
@@ -723,8 +742,12 @@ BOOL LLTemplateMessageReader::readMessage(const U8* buffer,
 //virtual 
 const char* LLTemplateMessageReader::getMessageName() const
 {
-	static char empty_string[] = "";
-	return mCurrentRMessageTemplate ? mCurrentRMessageTemplate->mName : empty_string;
+	if (!mCurrentRMessageTemplate)
+	{
+		llwarns << "no mCurrentRMessageTemplate" << llendl;
+		return "";
+	}
+	return mCurrentRMessageTemplate->mName;
 }
 
 //virtual 

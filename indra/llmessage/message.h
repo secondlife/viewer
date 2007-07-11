@@ -1,5 +1,5 @@
 /** 
- * @FILE message.h
+ * @file message.h
  * @brief LLMessageSystem class header file
  *
  * Copyright (c) 2001-$CurrentYear$, Linden Research, Inc.
@@ -30,10 +30,12 @@
 #include "lltimer.h"
 #include "llpacketring.h"
 #include "llhost.h"
+#include "llhttpclient.h"
 #include "llhttpnode.h"
 #include "llpacketack.h"
 #include "message_prehash.h"
 #include "llstl.h"
+#include "llmsgvariabletype.h"
 #include "llmsgvariabletype.h"
 
 const U32 MESSAGE_MAX_STRINGS_LENGTH = 64;
@@ -106,7 +108,16 @@ const U8 LL_RELIABLE_FLAG = 0x40;
 const U8 LL_RESENT_FLAG = 0x20;
 const U8 LL_ACK_FLAG = 0x10;
 
-const S32	LL_MINIMUM_VALID_PACKET_SIZE = LL_PACKET_ID_SIZE + 1;		// 4 bytes id + 1 byte message name (high)
+// 1 byte flags, 4 bytes sequence, 1 byte offset + 1 byte message name (high)
+const S32 LL_MINIMUM_VALID_PACKET_SIZE = LL_PACKET_ID_SIZE + 1;
+enum EPacketHeaderLayout
+{
+	PHL_FLAGS = 0,
+	PHL_PACKET_ID = 1,
+	PHL_OFFSET = 5,
+	PHL_NAME = 6
+};
+
 
 const S32 LL_DEFAULT_RELIABLE_RETRIES = 3;
 const F32 LL_MINIMUM_RELIABLE_TIMEOUT_SECONDS = 1.f;
@@ -135,8 +146,6 @@ class LLUUID;
 class LLMessageSystem;
 class LLPumpIO;
 
-// message data pieces are used to collect the data called for by the message template
-
 // message system exceptional condition handlers.
 enum EMessageException
 {
@@ -148,6 +157,7 @@ enum EMessageException
 typedef void (*msg_exception_callback)(LLMessageSystem*,void*,EMessageException);
 
 
+// message data pieces are used to collect the data called for by the message template
 class LLMsgData;
 class LLMsgBlkData;
 class LLMessageTemplate;
@@ -159,6 +169,8 @@ class LLSDMessageBuilder;
 class LLMessageReader;
 class LLTemplateMessageReader;
 class LLSDMessageReader;
+
+
 
 class LLUseCircuitCodeResponder
 {
@@ -184,7 +196,6 @@ class LLMessageSystem
 	// Set this flag to TRUE when you want *very* verbose logs.
 	BOOL mVerboseLog;
 
-	U32                                     mMessageFileChecksum;	
 	F32                                     mMessageFileVersionNumber;
 
 	typedef std::map<const char *, LLMessageTemplate*> message_template_name_map_t;
@@ -430,8 +441,11 @@ public:
 	void    forwardReliable(const LLHost &host);
 	void    forwardReliable(const U32 circuit_code);
 
+	LLHTTPClient::ResponderPtr createResponder(const std::string& name);
 	S32		sendMessage(const LLHost &host);
 	S32		sendMessage(const U32 circuit);
+	S32		sendMessage(const LLHost &host, const char* name,
+						const LLSD& message);
 
 	// BOOL	decodeData(const U8 *buffer, const LLHost &host);
 
@@ -508,6 +522,15 @@ public:
 	// The actual sending is done by reallySendDenyTrustedCircuit()
 	void	sendDenyTrustedCircuit(const LLHost &host);
 
+	/** Return false if host is unknown or untrusted */
+	bool isTrustedSender(const LLHost& host) const;
+
+	/** Return false true if name is unknown or untrusted */
+	bool isTrustedMessage(const std::string& name) const;
+
+	/** Return false true if name is unknown or trusted */
+	bool isUntrustedMessage(const std::string& name) const;
+
 private:
 	// A list of the circuits that need to be sent DenyTrustedCircuit messages.
 	typedef std::set<LLHost> host_set_t;
@@ -516,7 +539,6 @@ private:
 	// Really sends the DenyTrustedCircuit message to a given host
 	// related to sendDenyTrustedCircuit()
 	void	reallySendDenyTrustedCircuit(const LLHost &host);
-
 
 public:
 	// Use this to establish trust to and from a host.  This blocks
@@ -574,15 +596,6 @@ public:
 	void setMaxMessageTime(const F32 seconds);	// Max time to process messages before warning and dumping (neg to disable)
 	void setMaxMessageCounts(const S32 num);	// Max number of messages before dumping (neg to disable)
 	
-	// statics
-	static BOOL isTemplateConfirmed();
-	static BOOL doesTemplateMatch();
-	static void sendMessageTemplateChecksum(const LLHost&);
-	static void processMessageTemplateChecksumReply(LLMessageSystem *msg,
-													void** user_data);
-	static void sendSecureMessageTemplateChecksum(const LLHost&);
-	static void processSecureTemplateChecksumReply(LLMessageSystem *msg,
-													void** user_data);
 	static U64 getMessageTimeUsecs(const BOOL update = FALSE);	// Get the current message system time in microseconds
 	static F64 getMessageTimeSeconds(const BOOL update = FALSE); // Get the current message system time in seconds
 
@@ -593,6 +606,7 @@ public:
 	//static void processAssignCircuitCode(LLMessageSystem* msg, void**);
 	static void processAddCircuitCode(LLMessageSystem* msg, void**);
 	static void processUseCircuitCode(LLMessageSystem* msg, void**);
+	static void processError(LLMessageSystem* msg, void**);
 
 	// dispatch llsd message to http node tree
 	static void dispatch(const std::string& msg_name,
@@ -603,13 +617,33 @@ public:
 
 	void setMessageBans(const LLSD& trusted, const LLSD& untrusted);
 
+	/**
+	 * @brief send an error message to the host. This is a helper method.
+	 *
+	 * @param host Destination host.
+	 * @param agent_id Destination agent id (may be null)
+	 * @param code An HTTP status compatible error code.
+	 * @param token A specific short string based message
+	 * @param id The transactionid/uniqueid/sessionid whatever.
+	 * @param system The hierarchical path to the system (255 bytes)
+	 * @param message Human readable message (1200 bytes) 
+	 * @param data Extra info.
+	 * @return Returns value returned from sendReliable().
+	 */
+	S32 sendError(
+		const LLHost& host,
+		const LLUUID& agent_id,
+		S32 code,
+		const std::string& token,
+		const LLUUID& id,
+		const std::string& system,
+		const std::string& message,
+		const LLSD& data);
+
 	// Check UDP messages and pump http_pump to receive HTTP messages.
 	bool checkAllMessages(S64 frame_count, LLPumpIO* http_pump);
 	
 private:
-	// data used in those internal handlers
-	BOOL mTemplateConfirmed;
-	BOOL mTemplateMatches;
 
 	// The mCircuitCodes is a map from circuit codes to session
 	// ids. This allows us to verify sessions on connect.
@@ -619,7 +653,7 @@ private:
 	// Viewers need to track a process session in order to make sure
 	// that no one gives them a bad circuit code.
 	LLUUID mSessionID;
-
+	
 	void	addTemplate(LLMessageTemplate *templatep);
 	void		clearReceiveState();
 	BOOL		decodeTemplate( const U8* buffer, S32 buffer_size, LLMessageTemplate** msg_template );
@@ -690,6 +724,10 @@ private:
 	
 	bool callHandler(const char *name, bool trustedSource,
 					 LLMessageSystem* msg);
+
+
+	/** Find, create or revive circuit for host as needed */
+	LLCircuitData* findCircuit(const LLHost& host, bool resetPacketId);
 };
 
 

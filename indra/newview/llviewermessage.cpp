@@ -2318,82 +2318,6 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	}
 }
 
-/*
-void process_agent_to_new_region(LLMessageSystem *mesgsys, void **user_data)
-{
-// 	LLFastTimer t(LLFastTimer::FTM_TEMP8);
-	
-	U64 handle;
-	U32 ip;
-	U16 port;
-	LLUUID session_id;
-
-	// Actually, the agent itself should process this message.
-	// From a "AgentToNewRegion" message
-	mesgsys->getIPAddrFast(_PREHASH_RegionData, _PREHASH_IP, ip);
-	mesgsys->getIPPortFast(_PREHASH_RegionData, _PREHASH_Port, port);
-	mesgsys->getU64Fast(_PREHASH_RegionData, _PREHASH_Handle, handle);
-	mesgsys->getUUIDFast(_PREHASH_RegionData, _PREHASH_SessionID, session_id);
-
-	if (gAgent.getSessionID() != session_id)
-	{
-		llwarns << "Got AgentToNewRegion with invalid session ID, ignoring" << llendl;
-		return;
-	}
-
-	LLViewerRegion *regionp;
-
-	F32 x, y;
-	from_region_handle(handle, &x, &y);
-	regionp = gWorldp->getRegionFromHandle(handle);
-	if (!regionp)
-	{
-		if (gAgent.getRegion())
-		{
-			llwarns << "current region " << gAgent.getRegion()->getOriginGlobal() << llendl;
-		}
-
-		llwarns << "Agent being sent to invalid home region: " 
-			<< x << ":" << y 
-			<< " current pos " << gAgent.getPositionGlobal()
-			<< llendl;
-		do_disconnect("You were sent to an invalid region.");
-		return;
-
-	}
-
-	if (regionp == gAgent.getRegion())
-	{
-		llinfos << "Agent being sent to current home region, skipping." << llendl;
-		return;
-	}
-
-
-	llinfos << "AgentToNewRegion - being sent to " << x << ":" << y
-			<< ""
-
-	LLVector3 shift_vector = regionp->getPosRegionFromGlobal(gAgent.getRegion()->getOriginGlobal());
-
-	gAgent.setRegion(regionp);
-
-	gObjectList.shiftObjects(shift_vector);
-
-	llinfos << "Changing home region to " << x << ":" << y << llendl;
-
-	// send camera update to new region
-
-	send_agent_update(TRUE, TRUE);
-
-	// set our upstream asset provider to the new simulator
-	LLHost upstream(ip, port);
-	gAssetStorage->setUpstream(upstream);
-	gCacheName->setUpstream(upstream);
-
-	// Not needed, as simulator will always send request as it creates the new
-	// agent in the new region.
-	// send_current_avatar_info();
-}
-*/
 
 // Simulator we're on is informing the viewer that the agent
 // is starting to teleport (perhaps to another sim, perhaps to the 
@@ -3536,6 +3460,7 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 // This info is requested by the simulator when the agent first logs in
 // or when it moves into a simulator in which it did not already have
 // a child agent.
+/*
 void process_avatar_info_request(LLMessageSystem *mesgsys, void **user_data)
 {
 	llinfos << "process_avatar_info_request()" << llendl;
@@ -3543,7 +3468,7 @@ void process_avatar_info_request(LLMessageSystem *mesgsys, void **user_data)
 	// Send the avatar appearance (parameters and texture entry UUIDs)
 	gAgent.sendAgentSetAppearance();
 	send_agent_update(TRUE, TRUE);
-}
+}*/
 
 
 void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)

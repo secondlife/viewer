@@ -1,6 +1,11 @@
 #!/usr/bin/python
-# Get the python library directory in the path, so we don't have
-# to screw with PYTHONPATH or symbolic links. JC
+# @file setup-path.py
+# @brief Get the python library directory in the path, so we don't have
+# to screw with PYTHONPATH or symbolic links.
+#
+# Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+# $License$
+
 import sys
 from os.path import realpath, dirname, join
 

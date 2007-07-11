@@ -1,3 +1,11 @@
+/**
+ * @file llsdtraits.h
+ * @brief Unit test helpers
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
 #ifndef LLSDTRAITS_H
 #define LLSDTRAITS_H
 

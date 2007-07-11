@@ -1,3 +1,11 @@
+/** 
+ * @file llmessagetemplate.cpp
+ * @brief Implementation of message template classes.
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
 #include "linden_common.h"
 
 #include "llmessagetemplate.h"
@@ -94,7 +102,7 @@ std::ostream& operator<<(std::ostream& s, LLMessageBlock &msg)
 	for (LLMessageBlock::message_variable_map_t::iterator iter = msg.mMemberVariables.begin();
 		 iter != msg.mMemberVariables.end(); iter++)
 	{
-		LLMessageVariable& ci = *(iter->second);
+		LLMessageVariable& ci = *(*iter);
 		s << ci;
 	}
 
@@ -138,7 +146,7 @@ std::ostream& operator<<(std::ostream& s, LLMessageTemplate &msg)
 	for (LLMessageTemplate::message_block_map_t::iterator iter = msg.mMemberBlocks.begin();
 		 iter != msg.mMemberBlocks.end(); iter++)
 	{
-		LLMessageBlock* ci = iter->second;
+		LLMessageBlock* ci = *iter;
 		s << *ci;
 	}
 

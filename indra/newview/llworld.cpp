@@ -17,6 +17,7 @@
 #include "llviewercontrol.h"
 #include "lldrawpool.h"
 #include "llglheaders.h"
+#include "llhttpnode.h"
 #include "llregionhandle.h"
 #include "llsurface.h"
 #include "llviewercamera.h"
@@ -742,15 +743,6 @@ void LLWorld::printPacketsLost()
 					<< " packets lost: " << cdp->getPacketsLost() << llendl;
 		}
 	}
-	
-	llinfos << "UserServer:" << llendl;
-	llinfos << "-----------" << llendl;
-
-	cdp = gMessageSystem->mCircuitInfo.findCircuit(gUserServer);
-	if (cdp)
-	{
-		llinfos << gUserServer << " packets lost: " << cdp->getPacketsLost() << llendl;
-	}
 }
 
 void LLWorld::processCoarseUpdate(LLMessageSystem* msg, void** user_data)
@@ -1023,6 +1015,41 @@ void process_enable_simulator(LLMessageSystem *msg, void **user_data)
 	msg->sendReliable(sim);
 }
 
+class LLEstablishAgentCommunication : public LLHTTPNode
+{
+	LOG_CLASS(LLEstablishAgentCommunication);
+public:
+ 	virtual void describe(Description& desc) const
+	{
+		desc.shortInfo("seed capability info for a region");
+		desc.postAPI();
+		desc.input(
+			"{ seed-capability: ..., sim-ip: ..., sim-port }");
+		desc.source(__FILE__, __LINE__);
+	}
+
+	virtual void post(ResponsePtr response, const LLSD& context, const LLSD& input) const
+	{
+		if (!input["body"].has("agent-id") ||
+			!input["body"].has("sim-ip-and-port") ||
+			!input["body"].has("seed-capability"))
+		{
+			llwarns << "invalid parameters" << llendl;
+            return;
+		}
+
+		LLHost sim(input["body"]["sim-ip-and-port"].asString());
+	
+		LLViewerRegion* regionp = gWorldp->getRegion(sim);
+		if (!regionp)
+		{
+			llwarns << "Got EstablishAgentCommunication for unknown region "
+					<< sim << llendl;
+			return;
+		}
+		regionp->setSeedCapability(input["body"]["seed-capability"]);
+	}
+};
 
 // disable the circuit to this simulator
 // Called in response to "DisableSimulator" message.
@@ -1075,8 +1102,6 @@ void send_agent_pause()
 		gMessageSystem->sendReliable(regionp->getHost());
 	}
 
-	gMessageSystem->sendReliable(gUserServer);
-
 	gObjectList.mWasPaused = TRUE;
 }
 
@@ -1102,10 +1127,11 @@ void send_agent_resume()
 		gMessageSystem->sendReliable(regionp->getHost());
 	}
 
-	gMessageSystem->sendReliable(gUserServer);
-
 	// Reset the FPS counter to avoid an invalid fps
 	gViewerStats->mFPSStat.start();
 }
 
 
+LLHTTPRegistration<LLEstablishAgentCommunication>
+	gHTTPRegistrationEstablishAgentCommunication(
+							"/message/EstablishAgentCommunication");

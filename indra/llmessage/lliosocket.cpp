@@ -401,6 +401,7 @@ LLIOPipe::EStatus LLIOSocketWriter::process_impl(
 	PUMP_DEBUG;
 	apr_size_t len;
 	bool done = false;
+	apr_status_t status = APR_SUCCESS;
 	while(it != end)
 	{
 
@@ -408,9 +409,8 @@ LLIOPipe::EStatus LLIOSocketWriter::process_impl(
 		if((*it).isOnChannel(channels.in()))
 		{
 			PUMP_DEBUG;
-			// *FIX: check return code - sockets will fail (broken, etc.)
 			len = (apr_size_t)segment.size();
-			apr_status_t status = apr_socket_send(
+			status = apr_socket_send(
 				mDestination->getSocket(),
 				(const char*)segment.data(),
 				&len);
@@ -418,12 +418,12 @@ LLIOPipe::EStatus LLIOSocketWriter::process_impl(
 			// completed immediately' error from apr_socket_send.  In this
 			// case we break and the data will be sent the next time the chain
 			// is pumped.
-#if LL_WINDOWS
-			if (status == 730035)
+			if(APR_STATUS_IS_EAGAIN(status))
+			{
+				ll_apr_warn_status(status);
 				break;
-#else
-			(void) status;
-#endif 
+			}
+
 			mLastWritten = segment.data() + len - 1;
 
 			PUMP_DEBUG;

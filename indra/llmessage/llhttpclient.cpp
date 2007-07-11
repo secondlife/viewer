@@ -23,10 +23,7 @@
 #include <curl/curl.h>
 
 const F32 HTTP_REQUEST_EXPIRY_SECS = 60.0f;
-
 static std::string gCABundle;
-
-
 
 
 LLHTTPClient::Responder::Responder()

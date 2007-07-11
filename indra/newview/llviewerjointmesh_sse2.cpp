@@ -9,6 +9,10 @@
  * $License$
  */
 
+// Visual Studio required settings for this file:
+// Precompiled Headers OFF
+// Code Generation: SSE2
+
 //-----------------------------------------------------------------------------
 // Header Files
 //-----------------------------------------------------------------------------
@@ -50,6 +54,9 @@ inline void matrix_translate(LLV4Matrix4& m, const LLMatrix4* w, const LLVector3
 // static
 void LLViewerJointMesh::updateGeometrySSE2(LLFace *face, LLPolyMesh *mesh)
 {
+	// This cannot be a file-level static because it will be initialized
+	// before main() using SSE code, which will crash on non-SSE processors.
+	static LLV4Matrix4	sJointMat[32];
 	LLDynamicArray<LLJointRenderData*>& joint_data = mesh->getReferenceMesh()->mJointRenderData;
 
 	//upload joint pivots/matrices

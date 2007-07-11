@@ -1,6 +1,10 @@
-// llassetuploadresponders.h
-// Copyright 2006, Linden Research, Inc.
-// Processes responses received for asset upload requests.
+/**
+ * @file llassetuploadresponders.h
+ * @brief Processes responses received for asset upload requests.
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
 
 #ifndef LL_LLASSETUPLOADRESPONDER_H
 #define LL_LLASSETUPLOADRESPONDER_H

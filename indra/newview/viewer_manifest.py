@@ -20,6 +20,7 @@ class ViewerManifest(LLManifest):
                 super(ViewerManifest, self).construct()
                 self.exclude("*.svn*")
                 self.path(src="../../scripts/messages/message_template.msg", dst="app_settings/message_template.msg")
+                self.path(src="../../etc/message.xml", dst="app_settings/message.xml")
 
                 if self.prefix(src="app_settings"):
                         self.exclude("logcontrol.xml")

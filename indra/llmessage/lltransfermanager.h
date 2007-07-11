@@ -109,7 +109,6 @@ public:
 	static void processTransferInfo(LLMessageSystem *mesgsys, void **);
 	static void processTransferPacket(LLMessageSystem *mesgsys, void **);
 	static void processTransferAbort(LLMessageSystem *mesgsys, void **);
-	static void processTransferPriority(LLMessageSystem *mesgsys, void **);
 
 	static void reliablePacketCallback(void **, S32 result);
 

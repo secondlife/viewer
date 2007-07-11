@@ -10,6 +10,7 @@
 #include <tut/tut.h>
 #include "lltut.h"
 
+#include "message.h"
 #include "llsdmessagereader.h"
 #include "llsdutil.h"
 
@@ -21,7 +22,7 @@ namespace tut
 									const std::string& expected_name)
 		{
 			LLSDMessageReader msg;
-			msg.setMessage(msg_name, msg_data);
+			msg.setMessage(gMessageStringTable.getString(msg_name.c_str()), msg_data);
 			ensure_equals("Ensure name", std::string(msg.getMessageName()), 
 						  expected_name);
 		}
@@ -169,7 +170,7 @@ namespace tut
 	void LLSDMessageReaderTestObject::test<9>()
 		// F32
 	{
-		F32 outValue, inValue = 121.44;
+		F32 outValue, inValue = 121.44f;
 		LLSDMessageReader msg = testType(inValue);
 		msg.getF32("block", "var", outValue);
 		ensure_equals("Ensure F32", outValue, inValue);
@@ -297,4 +298,3 @@ namespace tut
 		ensure_equals("Ensure Binary", outValue, inValue);
 	}
 }
-

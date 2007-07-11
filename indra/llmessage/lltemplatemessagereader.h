@@ -1,3 +1,11 @@
+/** 
+ * @file lltemplatemessagereader.h
+ * @brief Declaration of LLTemplateMessageReader class.
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
 #ifndef LL_LLTEMPLATEMESSAGEREADER_H
 #define LL_LLTEMPLATEMESSAGEREADER_H
 

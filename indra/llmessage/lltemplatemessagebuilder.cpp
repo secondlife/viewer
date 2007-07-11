@@ -1,3 +1,11 @@
+/** 
+ * @file lltemplatemessagebuilder.cpp
+ * @brief LLTemplateMessageBuilder class implementation.
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
 #include "linden_common.h"
 
 #include "lltemplatemessagebuilder.h"
@@ -41,28 +49,30 @@ void LLTemplateMessageBuilder::newMessage(const char *name)
 	delete mCurrentSMessageData;
 	mCurrentSMessageData = NULL;
 
-	char *namep = (char *)name; 
-
+	char* namep = (char*)name; 
 	if (mMessageTemplates.count(namep) > 0)
 	{
 		mCurrentSMessageTemplate = mMessageTemplates[namep];
-		if (mCurrentSMessageData)
-		{
-			delete mCurrentSMessageData;
-		}
 		mCurrentSMessageData = new LLMsgData(namep);
 		mCurrentSMessageName = namep;
 		mCurrentSDataBlock = NULL;
 		mCurrentSBlockName = NULL;
 
 		// add at one of each block
-		LLMessageTemplate* msg_template = mMessageTemplates[namep];
-		for (LLMessageTemplate::message_block_map_t::iterator iter = msg_template->mMemberBlocks.begin();
-			 iter != msg_template->mMemberBlocks.end(); iter++)
+		const LLMessageTemplate* msg_template = mMessageTemplates[namep];
+
+		if (msg_template->getDeprecation() != MD_NOTDEPRECATED)
 		{
-			LLMessageBlock* ci = iter->second;
-			LLMsgBlkData	*tblockp;
-			tblockp = new LLMsgBlkData(ci->mName, 0);
+			llwarns << "Sending deprecated message " << namep << llendl;
+		}
+		
+		LLMessageTemplate::message_block_map_t::const_iterator iter;
+		for(iter = msg_template->mMemberBlocks.begin();
+			iter != msg_template->mMemberBlocks.end();
+			++iter)
+		{
+			LLMessageBlock* ci = *iter;
+			LLMsgBlkData* tblockp = new LLMsgBlkData(ci->mName, 0);
 			mCurrentSMessageData->addBlock(tblockp);
 		}
 	}
@@ -102,15 +112,13 @@ void LLTemplateMessageBuilder::nextBlock(const char* blockname)
 	}
 
 	// now, does this block exist?
-	LLMessageTemplate::message_block_map_t::iterator temp_iter = mCurrentSMessageTemplate->mMemberBlocks.find(bnamep);
-	if (temp_iter == mCurrentSMessageTemplate->mMemberBlocks.end())
+	const LLMessageBlock* template_data = mCurrentSMessageTemplate->getBlock(bnamep);
+	if (!template_data)
 	{
 		llerrs << "LLTemplateMessageBuilder::nextBlock " << bnamep
 			<< " not a block in " << mCurrentSMessageTemplate->mName << llendl;
 		return;
 	}
-	
-	LLMessageBlock* template_data = temp_iter->second;
 	
 	// ok, have we already set this block?
 	LLMsgBlkData* block_data = mCurrentSMessageData->mMemberBlocks[bnamep];
@@ -122,10 +130,10 @@ void LLTemplateMessageBuilder::nextBlock(const char* blockname)
 		mCurrentSBlockName = bnamep;
 
 		// add placeholders for each of the variables
-		for (LLMessageBlock::message_variable_map_t::iterator iter = template_data->mMemberVariables.begin();
+		for (LLMessageBlock::message_variable_map_t::const_iterator iter = template_data->mMemberVariables.begin();
 			 iter != template_data->mMemberVariables.end(); iter++)
 		{
-			LLMessageVariable& ci = *(iter->second);
+			LLMessageVariable& ci = **iter;
 			mCurrentSDataBlock->addVariable(ci.getName(), ci.getType());
 		}
 		return;
@@ -181,12 +189,12 @@ void LLTemplateMessageBuilder::nextBlock(const char* blockname)
 		mCurrentSMessageData->mMemberBlocks[nbnamep] = mCurrentSDataBlock;
 
 		// add placeholders for each of the variables
-		for (LLMessageBlock::message_variable_map_t::iterator
+		for (LLMessageBlock::message_variable_map_t::const_iterator
 				 iter = template_data->mMemberVariables.begin(),
 				 end = template_data->mMemberVariables.end();
 			 iter != end; iter++)
 		{
-			LLMessageVariable& ci = *(iter->second);
+			LLMessageVariable& ci = **iter;
 			mCurrentSDataBlock->addVariable(ci.getName(), ci.getType());
 		}
 		return;
@@ -211,12 +219,12 @@ BOOL LLTemplateMessageBuilder::removeLastBlock()
 				// Decrement the sent total by the size of the
 				// data in the message block that we're currently building.
 
-				LLMessageBlock* template_data = mCurrentSMessageTemplate->mMemberBlocks[mCurrentSBlockName];
+				const LLMessageBlock* template_data = mCurrentSMessageTemplate->getBlock(mCurrentSBlockName);
 				
-				for (LLMessageBlock::message_variable_map_t::iterator iter = template_data->mMemberVariables.begin();
+				for (LLMessageBlock::message_variable_map_t::const_iterator iter = template_data->mMemberVariables.begin();
 					 iter != template_data->mMemberVariables.end(); iter++)
 				{
-					LLMessageVariable& ci = *(iter->second);
+					LLMessageVariable& ci = **iter;
 					mCurrentSendTotal -= ci.getSize();
 				}
 
@@ -276,7 +284,7 @@ void LLTemplateMessageBuilder::addData(const char *varname, const void *data, EM
 	}
 
 	// kewl, add the data if it exists
-	LLMessageVariable* var_data = mCurrentSMessageTemplate->mMemberBlocks[mCurrentSBlockName]->mMemberVariables[vnamep];
+	const LLMessageVariable* var_data = mCurrentSMessageTemplate->getBlock(mCurrentSBlockName)->getVariable(vnamep);
 	if (!var_data || !var_data->getName())
 	{
 		llerrs << vnamep << " not a variable in block " << mCurrentSBlockName << " of " << mCurrentSMessageTemplate->mName << llendl;
@@ -336,7 +344,7 @@ void LLTemplateMessageBuilder::addData(const char *varname, const void *data, EM
 	}
 
 	// kewl, add the data if it exists
-	LLMessageVariable* var_data = mCurrentSMessageTemplate->mMemberBlocks[mCurrentSBlockName]->mMemberVariables[vnamep];
+	const LLMessageVariable* var_data = mCurrentSMessageTemplate->getBlock(mCurrentSBlockName)->getVariable(vnamep);
 	if (!var_data->getName())
 	{
 		llerrs << vnamep << " not a variable in block " << mCurrentSBlockName << " of " << mCurrentSMessageTemplate->mName << llendl;
@@ -484,7 +492,7 @@ static S32 zero_code(U8 **data, U32 *data_size)
 
 // skip the packet id field
 
-	for (U32 i=0;i<LL_PACKET_ID_SIZE;i++)
+	for (U32 ii = 0; ii < LL_PACKET_ID_SIZE ; ++ii)
 	{
 		count--;
 		*outptr++ = *inptr++;
@@ -571,7 +579,7 @@ BOOL LLTemplateMessageBuilder::isMessageFull(const char* blockname) const
 	char* bnamep = (char*)blockname;
 	S32 max;
 
-	LLMessageBlock* template_data = mCurrentSMessageTemplate->mMemberBlocks[bnamep];
+	const LLMessageBlock* template_data = mCurrentSMessageTemplate->getBlock(bnamep);
 	
 	switch(template_data->mType)
 	{
@@ -593,138 +601,59 @@ BOOL LLTemplateMessageBuilder::isMessageFull(const char* blockname) const
 	return FALSE;
 }
 
-
-// make sure that all the desired data is in place and then copy the data into MAX_BUFFER_SIZEd buffer
-U32 LLTemplateMessageBuilder::buildMessage(U8* buffer, U32 buffer_size)
+static S32 buildBlock(U8* buffer, S32 buffer_size, const LLMessageBlock* template_data, LLMsgData* message_data)
 {
-	// basic algorithm is to loop through the various pieces, building
-	// size and offset info if we encounter a -1 for mSize at any
-	// point that variable wasn't given data
-
-	// do we have a current message?
-	if (!mCurrentSMessageTemplate)
+	S32 result = 0;
+	LLMsgData::msg_blk_data_map_t::const_iterator block_iter = message_data->mMemberBlocks.find(template_data->mName);
+	const LLMsgBlkData* mbci = block_iter->second;
+		
+	// ok, if this is the first block of a repeating pack, set
+	// block_count and, if it's type MBT_VARIABLE encode a byte
+	// for how many there are
+	S32 block_count = mbci->mBlockNumber;
+	if (template_data->mType == MBT_VARIABLE)
 	{
-		llerrs << "newMessage not called prior to buildMessage" << llendl;
-		return 0;
-	}
-
-	// zero out some useful values
-
-	// leave room for circuit counter
-	U32 result = LL_PACKET_ID_SIZE;
-
-	// encode message number and adjust total_offset
-	if (mCurrentSMessageTemplate->mFrequency == MFT_HIGH)
-	{
-// old, endian-dependant way
-//		memcpy(&buffer[result], &mCurrentMessageTemplate->mMessageNumber, sizeof(U8));
-
-// new, independant way
-		buffer[result] = (U8)mCurrentSMessageTemplate->mMessageNumber;
-		result += sizeof(U8);
-	}
-	else if (mCurrentSMessageTemplate->mFrequency == MFT_MEDIUM)
-	{
-		U8 temp = 255;
-		memcpy(&buffer[result], &temp, sizeof(U8));  /*Flawfinder: ignore*/
-		result += sizeof(U8);
-
-		// mask off unsightly bits
-		temp = mCurrentSMessageTemplate->mMessageNumber & 255;
-		memcpy(&buffer[result], &temp, sizeof(U8));  /*Flawfinder: ignore*/
-		result += sizeof(U8);
-	}
-	else if (mCurrentSMessageTemplate->mFrequency == MFT_LOW)
-	{
-		U8 temp = 255;
-		U16  message_num;
-		memcpy(&buffer[result], &temp, sizeof(U8));  /*Flawfinder: ignore*/
-		result += sizeof(U8);
-		memcpy(&buffer[result], &temp, sizeof(U8));  /*Flawfinder: ignore*/
-		result += sizeof(U8);
-
-		// mask off unsightly bits
-		message_num = mCurrentSMessageTemplate->mMessageNumber & 0xFFFF;
-
-	    // convert to network byte order
-		message_num = htons(message_num);
-		memcpy(&buffer[result], &message_num, sizeof(U16)); /*Flawfinder: ignore*/
-		result += sizeof(U16);
-	}
-	else
-	{
-		llerrs << "unexpected message frequency in buildMessage" << llendl;
-		return 0;
-	}
-
-	// counting variables used to encode multiple block info
-	S32 block_count = 0;
-	U8  temp_block_number;
-
-	// loop through msg blocks to loop through variables,
-	// totalling up size data and copying into buffer
-	for (LLMsgData::msg_blk_data_map_t::iterator
-			 iter = mCurrentSMessageData->mMemberBlocks.begin(),
-			 end = mCurrentSMessageData->mMemberBlocks.end();
-		 iter != end; iter++)
-	{
-		LLMsgBlkData* mbci = iter->second;
-		// do we need to encode a block code?
-		if (block_count == 0)
+		// remember that mBlockNumber is a S32
+		U8 temp_block_number = (U8)mbci->mBlockNumber;
+		if ((S32)(result + sizeof(U8)) < MAX_BUFFER_SIZE)
 		{
-			block_count = mbci->mBlockNumber;
-
-			LLMessageBlock* template_data =
-				mCurrentSMessageTemplate->mMemberBlocks[mbci->mName];
-			
-			// ok, if this is the first block of a repeating pack, set
-			// block_count and, if it's type MBT_VARIABLE encode a byte
-			// for how many there are
-			if (template_data->mType == MBT_VARIABLE)
-			{
-				// remember that mBlockNumber is a S32
-				temp_block_number = (U8)mbci->mBlockNumber;
-				if ((S32)(result + sizeof(U8)) < MAX_BUFFER_SIZE)
-				{
-				    memcpy(&buffer[result], &temp_block_number, sizeof(U8));
-				    result += sizeof(U8);
-				}
-				else
-				{
-				    // Just reporting error is likely not enough. Need
-				    // to check how to abort or error out gracefully
-				    // from this function. XXXTBD
-				    llerrs << "buildMessage failed. Message excedding "
-						   << "sendBuffersize." << llendl;
-				}
-			}
-			else if (template_data->mType == MBT_MULTIPLE)
-			{
-				if (block_count != template_data->mNumber)
-				{
-					// nope!  need to fill it in all the way!
-					llerrs << "Block " << mbci->mName
-						<< " is type MBT_MULTIPLE but only has data for "
-						<< block_count << " out of its "
-						<< template_data->mNumber << " blocks" << llendl;
-				}
-			}
+			memcpy(&buffer[result], &temp_block_number, sizeof(U8));
+			result += sizeof(U8);
 		}
+		else
+		{
+			// Just reporting error is likely not enough. Need
+			// to check how to abort or error out gracefully
+			// from this function. XXXTBD
+			llerrs << "buildBlock failed. Message excedding "
+					<< "sendBuffersize." << llendl;
+		}
+	}
+	else if (template_data->mType == MBT_MULTIPLE)
+	{
+		if (block_count != template_data->mNumber)
+		{
+			// nope!  need to fill it in all the way!
+			llerrs << "Block " << mbci->mName
+				<< " is type MBT_MULTIPLE but only has data for "
+				<< block_count << " out of its "
+				<< template_data->mNumber << " blocks" << llendl;
+		}
+	}
 
-		// counting down multiple blocks
-		block_count--;
-
+	while(block_count > 0)
+	{
 		// now loop through the variables
-		for (LLMsgBlkData::msg_var_data_map_t::iterator iter = mbci->mMemberVarData.begin();
+		for (LLMsgBlkData::msg_var_data_map_t::const_iterator iter = mbci->mMemberVarData.begin();
 			 iter != mbci->mMemberVarData.end(); iter++)
 		{
-			LLMsgVarData& mvci = *iter;
+			const LLMsgVarData& mvci = *iter;
 			if (mvci.getSize() == -1)
 			{
 				// oops, this variable wasn't ever set!
 				llerrs << "The variable " << mvci.getName() << " in block "
 					<< mbci->mName << " of message "
-					<< mCurrentSMessageData->mName
+					<< template_data->mName
 					<< " wasn't set prior to buildMessage call" << llendl;
 			}
 			else
@@ -774,7 +703,7 @@ U32 LLTemplateMessageBuilder::buildMessage(U8* buffer, U32 buffer_size)
 					    // Just reporting error is likely not
 					    // enough. Need to check how to abort or error
 					    // out gracefully from this function. XXXTBD
-						llerrs << "LLMessageSystem::buildMessage failed. "
+						llerrs << "buildBlock failed. "
 							<< "Attempted to pack "
 							<< result + mvci.getSize()
 							<< " bytes into a buffer with size "
@@ -783,6 +712,94 @@ U32 LLTemplateMessageBuilder::buildMessage(U8* buffer, U32 buffer_size)
 				}
 			}
 		}
+
+		--block_count;
+		++block_iter;
+		if (block_iter != message_data->mMemberBlocks.end())
+		{
+			mbci = block_iter->second;
+		}
+	}
+
+	return result;
+}
+
+
+// make sure that all the desired data is in place and then copy the data into MAX_BUFFER_SIZEd buffer
+U32 LLTemplateMessageBuilder::buildMessage(
+	U8* buffer,
+	U32 buffer_size,
+	U8 offset_to_data)
+{
+	// basic algorithm is to loop through the various pieces, building
+	// size and offset info if we encounter a -1 for mSize at any
+	// point that variable wasn't given data
+
+	// do we have a current message?
+	if (!mCurrentSMessageTemplate)
+	{
+		llerrs << "newMessage not called prior to buildMessage" << llendl;
+		return 0;
+	}
+
+	// leave room for flags, packet sequence #, and data offset
+	// information.
+	buffer[PHL_OFFSET] = offset_to_data;
+	U32 result = LL_PACKET_ID_SIZE;
+
+	// encode message number and adjust total_offset
+	if (mCurrentSMessageTemplate->mFrequency == MFT_HIGH)
+	{
+// old, endian-dependant way
+//		memcpy(&buffer[result], &mCurrentMessageTemplate->mMessageNumber, sizeof(U8));
+
+// new, independant way
+		buffer[result] = (U8)mCurrentSMessageTemplate->mMessageNumber;
+		result += sizeof(U8);
+	}
+	else if (mCurrentSMessageTemplate->mFrequency == MFT_MEDIUM)
+	{
+		U8 temp = 255;
+		memcpy(&buffer[result], &temp, sizeof(U8));  /*Flawfinder: ignore*/
+		result += sizeof(U8);
+
+		// mask off unsightly bits
+		temp = mCurrentSMessageTemplate->mMessageNumber & 255;
+		memcpy(&buffer[result], &temp, sizeof(U8));  /*Flawfinder: ignore*/
+		result += sizeof(U8);
+	}
+	else if (mCurrentSMessageTemplate->mFrequency == MFT_LOW)
+	{
+		U8 temp = 255;
+		U16  message_num;
+		memcpy(&buffer[result], &temp, sizeof(U8));  /*Flawfinder: ignore*/
+		result += sizeof(U8);
+		memcpy(&buffer[result], &temp, sizeof(U8));  /*Flawfinder: ignore*/
+		result += sizeof(U8);
+
+		// mask off unsightly bits
+		message_num = mCurrentSMessageTemplate->mMessageNumber & 0xFFFF;
+
+	    // convert to network byte order
+		message_num = htons(message_num);
+		memcpy(&buffer[result], &message_num, sizeof(U16)); /*Flawfinder: ignore*/
+		result += sizeof(U16);
+	}
+	else
+	{
+		llerrs << "unexpected message frequency in buildMessage" << llendl;
+		return 0;
+	}
+
+	// fast forward through the offset and build the message
+	result += offset_to_data;
+	for(LLMessageTemplate::message_block_map_t::const_iterator
+			iter = mCurrentSMessageTemplate->mMemberBlocks.begin(),
+			end = mCurrentSMessageTemplate->mMemberBlocks.end();
+		 iter != end;
+		++iter)
+	{
+		result += buildBlock(buffer + result, buffer_size - result, *iter, mCurrentSMessageData);
 	}
 	mbSBuilt = TRUE;
 

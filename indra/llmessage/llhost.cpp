@@ -210,9 +210,9 @@ std::ostream& operator<< (std::ostream& os, const LLHost &hh)
 }
 
 
-std::istream& operator>> (std::istream& is, LLHost &rh)
-{
-	is >> rh.mIP;
-    is >> rh.mPort;
-    return is;
-}
+//std::istream& operator>> (std::istream& is, LLHost &rh)
+//{
+//	is >> rh.mIP;
+//    is >> rh.mPort;
+//    return is;
+//}

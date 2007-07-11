@@ -53,7 +53,7 @@ public:
 	virtual void	undo();
 	virtual BOOL	canUndo()	{ return TRUE; }
 
-	virtual void	redo();
+	//virtual void	redo();
 	virtual BOOL	canRedo()	{ return FALSE; }
 
 

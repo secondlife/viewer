@@ -1,6 +1,10 @@
-// llassetuploadresponders.cpp
-// Copyright 2006, Linden Research, Inc.
-// Processes responses received for asset upload requests.
+/**
+ * @file llassetuploadresponders.cpp
+ * @brief Processes responses received for asset upload requests.
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */ 
 
 #include "llviewerprecompiledheaders.h"
 

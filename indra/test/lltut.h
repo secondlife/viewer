@@ -8,12 +8,6 @@
  * $License$
  */
 
-/** 
- *
- * THOROUGH_DESCRIPTION
- *
- */
-
 #ifndef LL_LLTUT_H
 #define LL_LLTUT_H
 

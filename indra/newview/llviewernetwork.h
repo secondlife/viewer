@@ -39,8 +39,6 @@ struct LLUserServerData
 	const char* mHelperURI;
 };
 
-extern LLHost gUserServer;
-
 extern F32 gPacketDropPercentage;
 extern F32 gInBandwidth;
 extern F32 gOutBandwidth;

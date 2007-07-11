@@ -69,10 +69,11 @@ public:
 
 	virtual void copyToBuilder(LLMessageBuilder&) const;
 
-	void setMessage(const std::string& name, const LLSD& msg);
+	/** Expects a pointer to a canonical name string */
+	void setMessage(const char* name, const LLSD& msg);
 
 private:
-	std::string mMessageName;
+	const char* mMessageName; // Canonical (prehashed) string.
 	LLSD mMessage;
 };
 

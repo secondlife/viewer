@@ -1,3 +1,11 @@
+/** 
+ * @file llmessagetemplate.h
+ * @brief Declaration of the message template classes.
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
 #ifndef LL_LLMESSAGETEMPLATE_H
 #define LL_LLMESSAGETEMPLATE_H
 
@@ -123,7 +131,7 @@ public:
 		mName = name;
 	}
 
-	LLMessageVariable(char *name, const EMsgVariableType type, const S32 size) : mType(type), mSize(size) 
+	LLMessageVariable(const char *name, const EMsgVariableType type, const S32 size) : mType(type), mSize(size) 
 	{
 		mName = gMessageStringTable.getString(name); 
 	}
@@ -154,14 +162,14 @@ typedef enum e_message_block_type
 class LLMessageBlock
 {
 public:
-	LLMessageBlock(char *name, EMsgBlockType type, S32 number = 1) : mType(type), mNumber(number), mTotalSize(0) 
+	LLMessageBlock(const char *name, EMsgBlockType type, S32 number = 1) : mType(type), mNumber(number), mTotalSize(0) 
 	{ 
 		mName = gMessageStringTable.getString(name);
 	}
 
 	~LLMessageBlock()
 	{
-		for_each(mMemberVariables.begin(), mMemberVariables.end(), DeletePairedPointer());
+		for_each(mMemberVariables.begin(), mMemberVariables.end(), DeletePointer());
 	}
 
 	void addVariable(char *name, const EMsgVariableType type, const S32 size)
@@ -193,9 +201,15 @@ public:
 		return (mMemberVariables[name])->getSize();
 	}
 
+	const LLMessageVariable* getVariable(char* name) const
+	{
+		message_variable_map_t::const_iterator iter = mMemberVariables.find(name);
+		return iter != mMemberVariables.end()? *iter : NULL;
+	}
+
 	friend std::ostream&	 operator<<(std::ostream& s, LLMessageBlock &msg);
 
-	typedef std::map<const char *, LLMessageVariable*> message_variable_map_t;
+	typedef LLDynamicArrayIndexed<LLMessageVariable*, const char *, 8> message_variable_map_t;
 	message_variable_map_t 					mMemberVariables;
 	char									*mName;
 	EMsgBlockType							mType;
@@ -224,6 +238,13 @@ enum EMsgEncoding
 	ME_ZEROCODED
 };
 
+enum EMsgDeprecation
+{
+	MD_NOTDEPRECATED,
+	MD_UDPDEPRECATED,
+	MD_DEPRECATED
+};
+
 class LLMessageTemplate
 {
 public:
@@ -234,7 +255,8 @@ public:
 		mFrequency(freq),
 		mTrust(MT_NOTRUST),
 		mEncoding(ME_ZEROCODED),
-		mMessageNumber(message_number), 
+		mDeprecation(MD_NOTDEPRECATED),
+		mMessageNumber(message_number),
 		mTotalSize(0), 
 		mReceiveCount(0),
 		mReceiveBytes(0),
@@ -253,8 +275,8 @@ public:
 
 	~LLMessageTemplate()
 	{
-		for_each(mMemberBlocks.begin(), mMemberBlocks.end(), DeletePairedPointer());
-	}
+		for_each(mMemberBlocks.begin(), mMemberBlocks.end(), DeletePointer());
+}
 
 	void addBlock(LLMessageBlock *blockp)
 	{
@@ -289,7 +311,7 @@ public:
 		mTrust = t;
 	}
 
-	EMsgTrust getTrust(void)
+	EMsgTrust getTrust(void) const
 	{
 		return mTrust;
 	}
@@ -299,18 +321,28 @@ public:
 	{
 		mEncoding = e;
 	}
-	EMsgEncoding getEncoding()
+	EMsgEncoding getEncoding() const
 	{
 		return mEncoding;
 	}
 
+	void setDeprecation(EMsgDeprecation d)
+	{
+		mDeprecation = d;
+	}
+
+	EMsgDeprecation getDeprecation() const
+	{
+		return mDeprecation;
+	}
+	
 	void setHandlerFunc(void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data)
 	{
 		mHandlerFunc = handler_func;
 		mUserData = user_data;
 	}
 
-	BOOL callHandlerFunc(LLMessageSystem *msgsystem)
+	BOOL callHandlerFunc(LLMessageSystem *msgsystem) const
 	{
 		if (mHandlerFunc)
 		{
@@ -320,20 +352,27 @@ public:
 		return FALSE;
 	}
 
-	bool isBanned(bool trustedSource)
+	bool isBanned(bool trustedSource) const
 	{
 		return trustedSource ? mBanFromTrusted : mBanFromUntrusted;
 	}
 
 	friend std::ostream&	 operator<<(std::ostream& s, LLMessageTemplate &msg);
 
+	const LLMessageBlock* getBlock(char* name) const
+	{
+		message_block_map_t::const_iterator iter = mMemberBlocks.find(name);
+		return iter != mMemberBlocks.end()? *iter : NULL;
+	}
+
 public:
-	typedef std::map<char*, LLMessageBlock*> message_block_map_t;
+	typedef LLDynamicArrayIndexed<LLMessageBlock*, char*, 8> message_block_map_t;
 	message_block_map_t						mMemberBlocks;
 	char									*mName;
 	EMsgFrequency							mFrequency;
 	EMsgTrust								mTrust;
 	EMsgEncoding							mEncoding;
+	EMsgDeprecation							mDeprecation;
 	U32										mMessageNumber;
 	S32										mTotalSize;
 	U32										mReceiveCount;		// how many of this template have been received since last reset

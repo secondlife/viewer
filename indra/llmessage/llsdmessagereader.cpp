@@ -1,7 +1,18 @@
+/** 
+ * @file llsdmessagereader.cpp
+ * @brief LLSDMessageReader class implementation.
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
+#include "linden_common.h"
+
 #include "llsdmessagereader.h"
-#include "llsdutil.h"
+
 #include "llmessagebuilder.h"
 #include "llsdmessagebuilder.h"
+#include "llsdutil.h"
 
 LLSDMessageReader::LLSDMessageReader()
 {
@@ -15,11 +26,30 @@ LLSDMessageReader::~LLSDMessageReader()
 
 LLSD getLLSD(const LLSD& input, const char* block, const char* var, S32 blocknum)
 {
-	if(input[block].isArray())
+	// babbage: log error to llerrs if variable not found to mimic
+	// LLTemplateMessageReader::getData behaviour
+	if(NULL == block)
 	{
-		return input[block][blocknum][var];
+		llerrs << "NULL block name" << llendl;
+		return LLSD();
 	}
-	return LLSD();
+	if(NULL == var)
+	{
+		llerrs << "NULL var name" << llendl;
+		return LLSD();
+	}
+	if(! input[block].isArray())
+	{
+		llerrs << "block " << block << " not found" << llendl;
+		return LLSD();
+	}
+
+	LLSD result = input[block][blocknum][var]; 
+	if(result.isUndefined())
+	{
+		llerrs << "var " << var << " not found" << llendl;
+	}
+	return result;
 }
 
 //virtual 
@@ -167,8 +197,12 @@ void LLSDMessageReader::getIPPort(const char *block, const char *var,
 void LLSDMessageReader::getString(const char *block, const char *var, 
 						   S32 buffer_size, char *buffer, S32 blocknum)
 {
+	if(buffer_size <= 0)
+	{
+		llwarns << "buffer_size <= 0" << llendl;
+		return;
+	}
 	std::string data = getLLSD(mMessage, block, var, blocknum);
-	
 	S32 data_size = data.size();
 	if (data_size >= buffer_size)
 	{
@@ -241,7 +275,7 @@ void LLSDMessageReader::clearMessage()
 //virtual 
 const char* LLSDMessageReader::getMessageName() const
 {
-	return mMessageName.c_str();
+	return mMessageName;
 }
 
 // virtual 
@@ -256,7 +290,7 @@ void LLSDMessageReader::copyToBuilder(LLMessageBuilder& builder) const
 	builder.copyFromLLSD(mMessage);
 }
 
-void LLSDMessageReader::setMessage(const std::string& name, const LLSD& message)
+void LLSDMessageReader::setMessage(const char* name, const LLSD& message)
 {
 	mMessageName = name;
 	// TODO: Validate

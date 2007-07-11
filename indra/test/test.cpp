@@ -44,7 +44,8 @@ public:
 		mTotalTests(0),
 		mPassedTests(0),
 		mFailedTests(0),
-		mSkippedTests(0)
+		mSkippedTests(0),
+		mSkipedFailTests(0)
 	{
 	}
 
@@ -66,7 +67,7 @@ public:
 			break;
 		case tut::test_result::fail:
 			++mFailedTests;
-			out << "fail '" << tr.message << "'";
+			out << "fail";
 			break;
 		case tut::test_result::ex:
 			++mFailedTests;
@@ -84,12 +85,20 @@ public:
 			++mSkippedTests;
 			out << "skipped";
 			break;
+		case tut::test_result::skip_fail:
+			++mSkipedFailTests;
+			out << "skipped known failure";
+			break;
 		default:
 			++mFailedTests;
 			out << "unknown";
 		}
 		if(mVerboseMode || (tr.result != tut::test_result::ok))
 		{
+			if(!tr.message.empty())
+			{
+				out << ": '" << tr.message << "'";
+			}
 			std::cout << out.str() << std::endl;
 		}
 	}
@@ -98,11 +107,17 @@ public:
 	{
 		std::cout << std::endl;
 		std::cout << "Total Tests:   " << mTotalTests << std::endl;
-		std::cout << "Passed Tests : " << mPassedTests << std::endl;
+		std::cout << "Passed Tests: " << mPassedTests << std::endl;
 		
 		if (mSkippedTests > 0)
 		{
-			std::cout << "Skipped Tests : " << mSkippedTests << std::endl;
+			std::cout << "Skipped Tests: " << mSkippedTests << std::endl;
+		}
+
+		if (mSkipedFailTests > 0)
+		{
+			std::cout << "Skipped known failures: " << mSkipedFailTests
+				<< std::endl;
 		}
 
 		if(mFailedTests > 0)
@@ -117,10 +132,11 @@ public:
 
 protected:
 	bool mVerboseMode;
-	S32 mTotalTests;
-	S32 mPassedTests;
-	S32 mFailedTests;
-	S32 mSkippedTests;
+	int mTotalTests;
+	int mPassedTests;
+	int mFailedTests;
+	int mSkippedTests;
+	int mSkipedFailTests;
 };
 
 static const apr_getopt_option_t TEST_CL_OPTIONS[] =

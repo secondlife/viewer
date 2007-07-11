@@ -176,6 +176,10 @@ public:
 
 	LLSurface		&getLand() const			{ return *mLandp; }
 
+	// set and get the region id
+	const LLUUID& getRegionID() const { return mRegionID; }
+	void setRegionID(const LLUUID& region_id) { mRegionID = region_id; }
+
 	BOOL pointInRegionGlobal(const LLVector3d &point_global) const;
 	LLVector3	getPosRegionFromGlobal(const LLVector3d &point_global) const;
 	LLVector3	getPosRegionFromAgent(const LLVector3 &agent_pos) const;
@@ -249,6 +253,9 @@ protected:
 
 	U64			mHandle;
 	LLHost		mHost;
+
+	// The unique ID for this region.
+	LLUUID mRegionID;
 
 	F32			mTimeDilation;	// time dilation of physics simulation on simulator
 

@@ -581,34 +581,6 @@ void LLTransferManager::processTransferAbort(LLMessageSystem *msgp, void **)
 
 
 //static
-void LLTransferManager::processTransferPriority(LLMessageSystem *msgp, void **)
-{
-	//llinfos << "LLTransferManager::processTransferPacket" << llendl;
-
-	LLUUID transfer_id;
-	LLTransferChannelType channel_type;
-	F32 priority = 0.f;
-	msgp->getUUID("TransferInfo", "TransferID", transfer_id);
-	msgp->getS32("TransferInfo", "ChannelType", (S32 &)channel_type);
-	msgp->getF32("TransferInfo", "Priority", priority);
-
-	// Hmm, not a target.  Maybe it's a source.
-	LLTransferSourceChannel *tscp = gTransferManager.getSourceChannel(msgp->getSender(), channel_type);
-	if (tscp)
-	{
-		LLTransferSource *tsp = tscp->findTransferSource(transfer_id);
-		if (tsp)
-		{
-			tscp->updatePriority(tsp, priority);
-			return;
-		}
-	}
-
-	llwarns << "Couldn't find transfer " << transfer_id << " to set priority!" << llendl;
-}
-
-
-//static
 void LLTransferManager::reliablePacketCallback(void **user_data, S32 result)
 {
 	LLUUID *transfer_idp = (LLUUID *)user_data;

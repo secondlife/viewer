@@ -33,6 +33,9 @@ class LLHTTPSender
 	
 	/** @brief Clear sender for host. */
 	static void clearSender(const LLHost& host);
+
+	/** @brief Set default sender, takes ownership of sender. */
+	static void setDefaultSender(LLHTTPSender* sender);
 };
 
 #endif // LL_HTTP_SENDER_H

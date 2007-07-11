@@ -25,11 +25,10 @@
 // Generic vectorized code, uses compiler defaults, works well for Altivec
 // on PowerPC.
 
-static LLV4Matrix4	sJointMat[32];
-
 // static
 void LLViewerJointMesh::updateGeometryVectorized(LLFace *face, LLPolyMesh *mesh)
 {
+	static LLV4Matrix4	sJointMat[32];
 	LLDynamicArray<LLJointRenderData*>& joint_data = mesh->getReferenceMesh()->mJointRenderData;
 	S32 j, joint_num, joint_end = joint_data.count();
 	LLV4Vector3 pivot;

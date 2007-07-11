@@ -47,9 +47,12 @@
 #include "lltemplatemessagebuilder.h"
 #include "lltemplatemessagereader.h"
 #include "llmessagetemplate.h"
+#include "llmessagetemplateparser.h"
 #include "llsd.h"
 #include "llsdmessagebuilder.h"
 #include "llsdmessagereader.h"
+#include "llsdserialize.h"
+#include "llstring.h"
 #include "lltransfermanager.h"
 #include "lluuid.h"
 #include "llxfermanager.h"
@@ -80,220 +83,28 @@ public:
 	apr_pollfd_t mPollFD;
 };
 
-// Lets support a small subset of regular expressions here
-// Syntax is a string made up of:
-//	a	- checks against alphanumeric				([A-Za-z0-9])
-//	c	- checks against character					([A-Za-z])
-//	f	- checks against first variable character	([A-Za-z_])
-//	v	- checks against variable					([A-Za-z0-9_])
-//	s	- checks against sign of integer			([-0-9])
-//  d	- checks against integer digit				([0-9])
-//  *	- repeat last check
-
-// checks 'a'
-BOOL	b_return_alphanumeric_ok(char c)
-{
-	if (  (  (c < 'A')
-		   ||(c > 'Z'))
-		&&(  (c < 'a')
-		   ||(c > 'z'))
-		&&(  (c < '0')
-		   ||(c > '9')))
-	{
-		return FALSE;
-	}
-	return TRUE;
-}
-
-// checks 'c'
-BOOL	b_return_character_ok(char c)
-{
-	if (  (  (c < 'A')
-		   ||(c > 'Z'))
-		&&(  (c < 'a')
-		   ||(c > 'z')))
-	{
-		return FALSE;
-	}
-	return TRUE;
-}
-
-// checks 'f'
-BOOL	b_return_first_variable_ok(char c)
-{
-	if (  (  (c < 'A')
-		   ||(c > 'Z'))
-		&&(  (c < 'a')
-		   ||(c > 'z'))
-		&&(c != '_'))
-	{
-		return FALSE;
-	}
-	return TRUE;
-}
-
-// checks 'v'
-BOOL	b_return_variable_ok(char c)
-{
-	if (  (  (c < 'A')
-		   ||(c > 'Z'))
-		&&(  (c < 'a')
-		   ||(c > 'z'))
-		&&(  (c < '0')
-		   ||(c > '9'))
-		&&(c != '_'))
-	{
-		return FALSE;
-	}
-	return TRUE;
-}
-
-// checks 's'
-BOOL	b_return_signed_integer_ok(char c)
-{
-	if (  (  (c < '0')
-		   ||(c > '9'))
-		&&(c != '-'))
-	{
-		return FALSE;
-	}
-	return TRUE;
-}
-
-// checks 'd'
-BOOL	b_return_integer_ok(char c)
-{
-	if (  (c < '0')
-		||(c > '9'))
-	{
-		return FALSE;
-	}
-	return TRUE;
-}
-
-BOOL	(*gParseCheckCharacters[])(char c) =
-{
-	b_return_alphanumeric_ok,
-	b_return_character_ok,
-	b_return_first_variable_ok,
-	b_return_variable_ok,
-	b_return_signed_integer_ok,
-	b_return_integer_ok
-};
-
-S32 get_checker_number(char checker)
-{
-	switch(checker)
-	{
-	case 'a':
-		return 0;
-	case 'c':
-		return 1;
-	case 'f':
-		return 2;
-	case 'v':
-		return 3;
-	case 's':
-		return 4;
-	case 'd':
-		return 5;
-	case '*':
-		return 9999;
-	default:
-		return -1;
-	}
-}
-
-// check token based on passed simplified regular expression
-BOOL	b_check_token(char *token, char *regexp)
-{
-	S32 tptr, rptr = 0;
-	S32 current_checker, next_checker = 0;
-
-	current_checker = get_checker_number(regexp[rptr++]);
-
-	if (current_checker == -1)
-	{
-		llerrs << "Invalid regular expression value!" << llendl;
-		return FALSE;
-	}
-
-	if (current_checker == 9999)
-	{
-		llerrs << "Regular expression can't start with *!" << llendl;
-		return FALSE;
-	}
-
-	for (tptr = 0; token[tptr]; tptr++)
-	{
-		if (current_checker == -1)
-		{
-			llerrs << "Input exceeds regular expression!\nDid you forget a *?" << llendl;
-			return FALSE;
-		}
-
-		if (!gParseCheckCharacters[current_checker](token[tptr]))
-		{
-			return FALSE;
-		}
-		if (next_checker != 9999)
-		{
-			next_checker = get_checker_number(regexp[rptr++]);
-			if (next_checker != 9999)
-			{
-				current_checker = next_checker;
-			}
-		}
-	}
-	return TRUE;
-}
-
-// C variable can be made up of upper or lower case letters, underscores, or numbers, but can't start with a number
-BOOL	b_variable_ok(char *token)
-{
-	if (!b_check_token(token, "fv*"))
-	{
-		llerrs << "Token '" << token << "' isn't a variable!" << llendl;
-		return FALSE;
-	}
-	return TRUE;
-}
-
-// An integer is made up of the digits 0-9 and may be preceded by a '-'
-BOOL	b_integer_ok(char *token)
-{
-	if (!b_check_token(token, "sd*"))
-	{
-		llerrs << "Token isn't an integer!" << llendl;
-		return FALSE;
-	}
-	return TRUE;
-}
-
-// An integer is made up of the digits 0-9
-BOOL	b_positive_integer_ok(char *token)
-{
-	if (!b_check_token(token, "d*"))
-	{
-		llerrs << "Token isn't an integer!" << llendl;
-		return FALSE;
-	}
-	return TRUE;
-}
-
 namespace
 {
 	class LLFnPtrResponder : public LLHTTPClient::Responder
 	{
+		LOG_CLASS(LLFnPtrResponder);
 	public:
-		LLFnPtrResponder(void (*callback)(void **,S32), void **callbackData) :
+		LLFnPtrResponder(void (*callback)(void **,S32), void **callbackData, const std::string& name) :
 			mCallback(callback),
-			mCallbackData(callbackData)
+			mCallbackData(callbackData),
+			mMessageName(name)
 		{
 		}
 
 		virtual void error(U32 status, const std::string& reason)
 		{
+			// don't spam when agent communication disconnected already
+			if (status != 410)
+			{
+				llwarns << "error status " << status
+						<< " for message " << mMessageName
+						<< " reason " << reason << llendl;
+			}
 			// TODO: Map status in to useful error code.
 			if(NULL != mCallback) mCallback(mCallbackData, LL_ERR_TCP_TIMEOUT);
 		}
@@ -307,6 +118,7 @@ namespace
 
 		void (*mCallback)(void **,S32);    
 		void **mCallbackData;
+		std::string mMessageName;
 	};
 }
 
@@ -332,10 +144,28 @@ void LLTrustedMessageService::post(LLHTTPNode::ResponsePtr response,
 		["x-secondlife-udp-listen-port"];
 
 	LLSD message_data;
-	message_data["sender"] = senderIP + ":" + senderPort;
+	std::string sender = senderIP + ":" + senderPort;
+	message_data["sender"] = sender;
 	message_data["body"] = input;
 	
-	LLMessageSystem::dispatch(name, message_data, response);
+	// untrusted senders should not have access to the trusted message
+	// service, but this can happen in development, so check and warn
+	LLMessageConfig::SenderTrust trust =
+		LLMessageConfig::getSenderTrustedness(name);
+	if ((trust == LLMessageConfig::TRUSTED ||
+		 (trust == LLMessageConfig::NOT_SET &&
+		  gMessageSystem->isTrustedMessage(name)))
+		 && !gMessageSystem->isTrustedSender(LLHost(sender)))
+	{
+		llwarns << "trusted message POST to /trusted-message/" 
+				<< name << " from unknown or untrusted sender "
+				<< sender << llendl;
+		response->status(403, "Unknown or untrusted sender");
+	}
+	else
+	{
+		LLMessageSystem::dispatch(name, message_data, response);
+	}
 }
 
 class LLMessageHandlerBridge : public LLHTTPNode
@@ -352,14 +182,15 @@ void LLMessageHandlerBridge::post(LLHTTPNode::ResponsePtr response,
 							const LLSD& context, const LLSD& input) const
 {
 	std::string name = context["request"]["wildcard"]["message-name"];
-
+	char* namePtr = gMessageStringTable.getString(name.c_str());
+	
 	lldebugs << "Setting mLastSender " << input["sender"].asString() << llendl;
 	gMessageSystem->mLastSender = LLHost(input["sender"].asString());
 	gMessageSystem->mPacketsIn += 1;
-	gMessageSystem->mLLSDMessageReader->setMessage(name, input["body"]);
+	gMessageSystem->mLLSDMessageReader->setMessage(namePtr, input["body"]);
 	gMessageSystem->mMessageReader = gMessageSystem->mLLSDMessageReader;
 	
-	if(gMessageSystem->callHandler(name.c_str(), false, gMessageSystem))
+	if(gMessageSystem->callHandler(namePtr, false, gMessageSystem))
 	{
 		response->result(LLSD());
 	}
@@ -379,6 +210,12 @@ LLHTTPRegistration<LLTrustedMessageService>
 LLUseCircuitCodeResponder::~LLUseCircuitCodeResponder()
 {
 	// even abstract base classes need a concrete destructor
+}
+
+static const char* nullToEmpty(const char* s)
+{
+	static char emptyString[] = "";
+	return s? s : emptyString;
 }
 
 void LLMessageSystem::init()
@@ -420,7 +257,6 @@ void LLMessageSystem::init()
 	mIncomingCompressedSize = 0;
 	mCurrentRecvPacketID = 0;
 
-	mMessageFileChecksum = 0;
 	mMessageFileVersionNumber = 0.f;
 
 	mTimingCallback = NULL;
@@ -434,9 +270,7 @@ void LLMessageSystem::init()
 LLMessageSystem::LLMessageSystem(const char *filename, U32 port, 
 								 S32 version_major,
 								 S32 version_minor,
-								 S32 version_patch) :
-	mTemplateConfirmed(FALSE),
-	mTemplateMatches(FALSE)
+								 S32 version_patch)
 {
 	init();
 
@@ -509,6 +343,8 @@ LLMessageSystem::LLMessageSystem(const char *filename, U32 port,
 	mTrueReceiveSize = 0;
 }
 
+
+
 // Read file and build message templates
 void LLMessageSystem::loadTemplateFile(const char* filename)
 {
@@ -519,797 +355,23 @@ void LLMessageSystem::loadTemplateFile(const char* filename)
 		return;
 	}
 
-	char token[MAX_MESSAGE_INTERNAL_NAME_SIZE]; /* Flawfinder: ignore */ 
-
-	// state variables
-	BOOL				b_template_start = TRUE;
-	BOOL				b_template_end = FALSE;
-	BOOL				b_template = FALSE;
-	BOOL				b_block_start = FALSE;
-	BOOL				b_block_end = FALSE;
-	BOOL				b_block = FALSE;
-	BOOL				b_variable_start = FALSE;
-	BOOL				b_variable_end = FALSE;
-	BOOL				b_variable = FALSE;
-	//BOOL				b_in_comment_block = FALSE;		// not yet used
-
-	// working temp variables
-	LLMessageTemplate	*templatep = NULL;
-	char				template_name[MAX_MESSAGE_INTERNAL_NAME_SIZE];		/* Flawfinder: ignore */ 
-
-	LLMessageBlock		*blockp = NULL;
-	char				block_name[MAX_MESSAGE_INTERNAL_NAME_SIZE];		/* Flawfinder: ignore */ 
-
-	LLMessageVariable	var;
-	char				var_name[MAX_MESSAGE_INTERNAL_NAME_SIZE];		/* Flawfinder: ignore */ 
-	char				formatString[MAX_MESSAGE_INTERNAL_NAME_SIZE];		/* Flawfinder: ignore */
-
-	FILE* messagefilep = NULL;
-	mMessageFileChecksum = 0;
-	mMessageFileVersionNumber = 0.f;
-	S32 checksum_offset = 0;
-	char* checkp = NULL;
-
-	// scanf needs 1 byte more than width, thus the MAX_... -1.
-	snprintf(	/* Flawfinder: ignore */
-		formatString,
-		sizeof(formatString),
-		"%%%ds",
-		MAX_MESSAGE_INTERNAL_NAME_SIZE - 1);
-	messagefilep = LLFile::fopen(filename, "r");	/* Flawfinder: ignore */
-	if (messagefilep)
-	{
-//		mName = gMessageStringTable.getString(filename); 
-
-		fseek(messagefilep, 0L, SEEK_SET );
-		while(fscanf(messagefilep, formatString, token) != EOF)	/* Flawfinder: ignore */
-		{
-			// skip comments
-			if (token[0] == '/')
-			{
-				// skip to end of line
-				while (token[0] != 10)
-					fscanf(messagefilep, "%c", token);
-				continue;
-			}
-	
-			checkp = token;
-
-			while (*checkp)
-			{
-				mMessageFileChecksum += ((U32)*checkp++) << checksum_offset;
-				checksum_offset = (checksum_offset + 8) % 32;
-			}
-
-			// what are we looking for
-			if (!strcmp(token, "{"))
-			{
-				// is that a legit option?
-				if (b_template_start)
-				{
-					// yup!
-					b_template_start = FALSE;
-
-					// remember that it could be only a signal message, so name is all that it contains
-					b_template_end = TRUE;
-
-					// start working on it!
-					b_template = TRUE;
-				}
-				else if (b_block_start)
-				{
-					// yup!
-					b_block_start = FALSE;
-					b_template_end = FALSE;
-
-					// start working on it!
-					b_block = TRUE;
-				}
-				else if (b_variable_start)
-				{
-					// yup!
-					b_variable_start = FALSE;
-					b_block_end = FALSE;
-
-					// start working on it!
-					b_variable = TRUE;
-				}
-				else
-				{
-					llerrs << "Detcted unexpected token '" << token 
-						<< "' while parsing template." << llendl;
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-			}
-
-			if (!strcmp(token, "}"))
-			{
-				// is that a legit option?
-				if (b_template_end)
-				{
-					// yup!
-					b_template_end = FALSE;
-					b_template = FALSE;
-					b_block_start = FALSE;
-
-					// add data!
-					// we've gotten a complete variable! hooray!
-					// add it!
-					if (NULL == templatep)
-					{
-						llerrs << "Trying to addTemplate a NULL templatep during load." << llendl;
-						mbError = TRUE;
-						fclose(messagefilep);
-						return;
-					}
-					addTemplate(templatep);
-
-					//llinfos << "Read template: "templatep->mNametemp_str
-					//	<< llendl;
-
-					// look for next one!
-					b_template_start = TRUE;
-				}
-				else if (b_block_end)
-				{
-					// yup!
-					b_block_end = FALSE;
-					b_variable_start = FALSE;
-
-					// add data!
-					// we've gotten a complete variable! hooray!
-					// add it to template
-					if (NULL == templatep)
-					{
-						llerrs << "Trying to addBlock to NULL templatep during load." << llendl;
-						mbError = TRUE;
-						fclose(messagefilep);
-						return;
-					}
-					templatep->addBlock(blockp);
-
-					// start working on it!
-					b_template_end = TRUE;
-					b_block_start = TRUE;
-				}
-				else if (b_variable_end)
-				{
-					// yup!
-					b_variable_end = FALSE;
-
-					// add data!
-					// we've gotten a complete variable! hooray!
-					// add it to block
-					blockp->addVariable(var.getName(), var.getType(), var.getSize());
-
-					// start working on it!
-					b_variable_start = TRUE;
-					b_block_end = TRUE;
-				}
-				else
-				{
-					llerrs << "Detcted unexpected token '" << token 
-						<< "' while parsing template." << llendl;
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-			}
-
-			// now, are we looking to start a template?
-			if (b_template)
-			{
-
-				b_template = FALSE;
-
-				// name first
-				if (fscanf(messagefilep, formatString, template_name) == EOF)	/* Flawfinder: ignore */
-				{
-					// oops, file ended
-					llerrs << "Expected message template name, but file ended"
-						<< llendl;
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-
-				// debugging to help figure out busted templates
-				//llinfos << template_name << llendl;
-
-				// is name a legit C variable name
-				if (!b_variable_ok(template_name))
-				{
-					// nope!
-					llerrs << "Not legal message template name: "
-						<< template_name << llendl;
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-
-				checkp = template_name;
-				while (*checkp)
-				{
-					mMessageFileChecksum += ((U32)*checkp++) << checksum_offset;
-					checksum_offset = (checksum_offset + 8) % 32;
-				}
-
-				// ok, now get Frequency ("High", "Medium", or "Low")
-				if (fscanf(messagefilep, formatString, token) == EOF)	/* Flawfinder: ignore */
-				{
-					// oops, file ended
-					llerrs << "Expected message template frequency, found EOF."
-						<< llendl;
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-
-				checkp = token;
-				while (*checkp)
-				{
-					mMessageFileChecksum += ((U32)*checkp++) << checksum_offset;
-					checksum_offset = (checksum_offset + 8) % 32;
-				}
-
-				// which one is it?
-				if (!strcmp(token, "High"))
-				{
-					if (++mNumberHighFreqMessages == 255)
-					{
-						// oops, too many High Frequency messages!!
-						llerrs << "Message " << template_name
-							<< " exceeded 254 High frequency messages!"
-							<< llendl;
-						mbError = TRUE;
-						fclose(messagefilep);
-						return;
-					}
-					// ok, we can create a template!
-					// message number is just mNumberHighFreqMessages
-					templatep = new LLMessageTemplate(template_name, mNumberHighFreqMessages, MFT_HIGH);
-					//lldebugs << "Template " << template_name << " # "
-					//		 << std::hex << mNumberHighFreqMessages
-					//		 << std::dec << " high"
-					//		 << llendl;
-				}
-				else if (!strcmp(token, "Medium"))
-				{
-					if (++mNumberMediumFreqMessages == 255)
-					{
-						// oops, too many Medium Frequency messages!!
-						llerrs << "Message " << template_name
-							<< " exceeded 254 Medium frequency messages!"
-							<< llendl;
-						mbError = TRUE;
-						fclose(messagefilep);
-						return;
-					}
-					// ok, we can create a template!
-					// message number is ((255 << 8) | mNumberMediumFreqMessages)
-					templatep = new LLMessageTemplate(template_name, (255 << 8) | mNumberMediumFreqMessages, MFT_MEDIUM);
-					//lldebugs << "Template " << template_name << " # "
-					//		 << std::hex <<  mNumberMediumFreqMessages
-					//		 << std::dec << " medium"
-					//		 << llendl;
-				}
-				else if (!strcmp(token, "Low"))
-				{
-					if (++mNumberLowFreqMessages == 65535)
-					{
-						// oops, too many High Frequency messages!!
-						llerrs << "Message " << template_name
-							<< " exceeded 65534 Low frequency messages!"
-							<< llendl;
-						mbError = TRUE;
-						fclose(messagefilep);
-						return;
-					}
-					// ok, we can create a template!
-					// message number is ((255 << 24) | (255 << 16) | mNumberLowFreqMessages)
-					templatep = new LLMessageTemplate(template_name, (255 << 24) | (255 << 16) | mNumberLowFreqMessages, MFT_LOW);
-					//lldebugs << "Template " << template_name << " # "
-					//		 << std::hex << mNumberLowFreqMessages
-					//		 << std::dec << " low"
-					//		 << llendl;
-				}
-				else if (!strcmp(token, "Fixed"))
-				{
-					U32 message_num = 0;
-					if (fscanf(messagefilep, formatString, token) == EOF)	/* Flawfinder: ignore */
-					{
-						// oops, file ended
-						llerrs << "Expected message template number (fixed),"
-							<< " found EOF." << llendl;
-						mbError = TRUE;
-						fclose(messagefilep);
-						return;
-					}
-
-					checkp = token;
-					while (*checkp)
-					{
-						mMessageFileChecksum += ((U32)*checkp++) << checksum_offset;
-						checksum_offset = (checksum_offset + 8) % 32;
-					}
-					
-					message_num = strtoul(token,NULL,0);
-
-					// ok, we can create a template!
-					// message number is ((255 << 24) | (255 << 16) | mNumberLowFreqMessages)
-					templatep = new LLMessageTemplate(template_name, message_num, MFT_LOW);
-				}
-				else
-				{
-					// oops, bad frequency line
-					llerrs << "Bad frequency! " << token
-					   << " isn't High, Medium, or Low" << llendl
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-
-				// Now get trust ("Trusted", "NotTrusted")
-				if (fscanf(messagefilep, formatString, token) == EOF)	/* Flawfinder: ignore */
-				{
-					// File ended
-					llerrs << "Expected message template "
-						"trust, but file ended."
-					       << llendl;
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-				checkp = token;
-				while (*checkp)
-				{
-					mMessageFileChecksum += ((U32) *checkp++) << checksum_offset;
-					checksum_offset = (checksum_offset + 8) % 32;
-				}
-
-				if (strcmp(token, "Trusted") == 0)
-				{
-					if (NULL == templatep)
-					{
-						llerrs << "Trying to setTrust for NULL templatep during load." << llendl;
-						mbError = TRUE;
-						fclose(messagefilep);
-						return;
-					}
-					templatep->setTrust(MT_TRUST);
-				}
-				else if (strcmp(token, "NotTrusted") == 0)
-				{
-					if (NULL == templatep)
-					{
-						llerrs << "Trying to setTrust for NULL templatep during load." << llendl;
-						mbError = TRUE;
-						fclose(messagefilep);
-						return;
-					}
-					templatep->setTrust(MT_NOTRUST);
-				}
-				else
-				{
-					// bad trust token
-					llerrs << "bad trust: " << token
-					       << " isn't Trusted or NotTrusted"
-					       << llendl;
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-
-				// get encoding
-				if (fscanf(messagefilep, formatString, token) == EOF)	/* Flawfinder: ignore */
-				{
-					// File ended
-					llerrs << "Expected message encoding, but file ended."
-					       << llendl;
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-				checkp = token;
-				while(*checkp)
-				{
-					mMessageFileChecksum += ((U32) *checkp++) << checksum_offset;
-					checksum_offset = (checksum_offset + 8) % 32;
-				}
-
-				if(0 == strcmp(token, "Unencoded"))
-				{
-					if (NULL == templatep)
-					{
-						llerrs << "Trying to setEncoding for NULL templatep during load." << llendl;
-						mbError = TRUE;
-						fclose(messagefilep);
-						return;
-					}
-					templatep->setEncoding(ME_UNENCODED);
-				}
-				else if(0 == strcmp(token, "Zerocoded"))
-				{
-					if (NULL == templatep)
-					{
-						llerrs << "Trying to setEncoding for NULL templatep during load." << llendl;
-						mbError = TRUE;
-						fclose(messagefilep);
-						return;
-					}
-					templatep->setEncoding(ME_ZEROCODED);
-				}
-				else
-				{
-					// bad trust token
-					llerrs << "bad encoding: " << token
-						   << " isn't Unencoded or Zerocoded" << llendl;
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-
-				// ok, now we need to look for a block
-				b_block_start = TRUE;
-				continue;
-			}
-
-			// now, are we looking to start a template?
-			if (b_block)
-			{
-				b_block = FALSE;
-				// ok, need to pull header info
-
-				// name first
-				if (fscanf(messagefilep, formatString, block_name) == EOF)	/* Flawfinder: ignore */
-				{
-					// oops, file ended
-					llerrs << "Expected block name, but file ended" << llendl;
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-
-				checkp = block_name;
-				while (*checkp)
-				{
-					mMessageFileChecksum += ((U32)*checkp++) << checksum_offset;
-					checksum_offset = (checksum_offset + 8) % 32;
-				}
-
-				// is name a legit C variable name
-				if (!b_variable_ok(block_name))
-				{
-					// nope!
-					llerrs << block_name << "is not a legal block name"
-						<< llendl;
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-				
-				// now, block type ("Single", "Multiple", or "Variable")
-				if (fscanf(messagefilep, formatString, token) == EOF)	/* Flawfinder: ignore */
-				{
-					// oops, file ended
-					llerrs << "Expected block type, but file ended." << llendl;
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-
-				checkp = token;
-				while (*checkp)
-				{
-					mMessageFileChecksum += ((U32)*checkp++) << checksum_offset;
-					checksum_offset = (checksum_offset + 8) % 32;
-				}
-
-				// which one is it?
-				if (!strcmp(token, "Single"))
-				{
-					// ok, we can create a block
-					blockp = new LLMessageBlock(block_name, MBT_SINGLE);
-				}
-				else if (!strcmp(token, "Multiple"))
-				{
-					// need to get the number of repeats
-					if (fscanf(messagefilep, formatString, token) == EOF)	/* Flawfinder: ignore */
-					{
-						// oops, file ended
-						llerrs << "Expected block multiple count,"
-							" but file ended." << llendl;
-						mbError = TRUE;
-						fclose(messagefilep);
-						return;
-					}
-
-					checkp = token;
-					while (*checkp)
-					{
-						mMessageFileChecksum += ((U32)*checkp++) << checksum_offset;
-						checksum_offset = (checksum_offset + 8) % 32;
-					}
-
-					// is it a legal integer
-					if (!b_positive_integer_ok(token))
-					{
-						// nope!
-						llerrs << token << "is not a legal integer for"
-							" block multiple count" << llendl;
-						mbError = TRUE;
-						fclose(messagefilep);
-						return;
-					}
-					// ok, we can create a block
-					blockp = new LLMessageBlock(block_name, MBT_MULTIPLE, atoi(token));
-				}
-				else if (!strcmp(token, "Variable"))
-				{
-					// ok, we can create a block
-					blockp = new LLMessageBlock(block_name, MBT_VARIABLE);
-				}
-				else
-				{
-					// oops, bad block type
-					llerrs << "Bad block type! " << token
-					   << " isn't Single, Multiple, or Variable" << llendl;
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-				// ok, now we need to look for a variable
-				b_variable_start = TRUE;
-				continue;
-			}
-
-			// now, are we looking to start a template?
-			if (b_variable)
-			{
-				b_variable = FALSE;
-				// ok, need to pull header info
-
-				// name first
-				if (fscanf(messagefilep, formatString, var_name) == EOF)	/* Flawfinder: ignore */
-				{
-					// oops, file ended
-					llerrs << "Expected variable name, but file ended."
-						<< llendl;
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-
-				checkp = var_name;
-				while (*checkp)
-				{
-					mMessageFileChecksum += ((U32)*checkp++) << checksum_offset;
-					checksum_offset = (checksum_offset + 8) % 32;
-				}
-
-				// is name a legit C variable name
-				if (!b_variable_ok(var_name))
-				{
-					// nope!
-					llerrs << var_name << " is not a legal variable name"
-						<< llendl;
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-				
-				// now, variable type ("Fixed" or "Variable")
-				if (fscanf(messagefilep, formatString, token) == EOF)	/* Flawfinder: ignore */
-				{
-					// oops, file ended
-					llerrs << "Expected variable type, but file ended"
-						<< llendl;
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-
-				checkp = token;
-				while (*checkp)
-				{
-					mMessageFileChecksum += ((U32)*checkp++) << checksum_offset;
-					checksum_offset = (checksum_offset + 8) % 32;
-				}
-
-
-				// which one is it?
-				if (!strcmp(token, "U8"))
-				{
-					var = LLMessageVariable(var_name, MVT_U8, 1);					
-				}
-				else if (!strcmp(token, "U16"))
-				{
-					var = LLMessageVariable(var_name, MVT_U16, 2);					
-				}
-				else if (!strcmp(token, "U32"))
-				{
-					var = LLMessageVariable(var_name, MVT_U32, 4);					
-				}
-				else if (!strcmp(token, "U64"))
-				{
-					var = LLMessageVariable(var_name, MVT_U64, 8);					
-				}
-				else if (!strcmp(token, "S8"))
-				{
-					var = LLMessageVariable(var_name, MVT_S8, 1);					
-				}
-				else if (!strcmp(token, "S16"))
-				{
-					var = LLMessageVariable(var_name, MVT_S16, 2);					
-				}
-				else if (!strcmp(token, "S32"))
-				{
-					var = LLMessageVariable(var_name, MVT_S32, 4);					
-				}
-				else if (!strcmp(token, "S64"))
-				{
-					var = LLMessageVariable(var_name, MVT_S64, 8);					
-				}
-				else if (!strcmp(token, "F32"))
-				{
-					var = LLMessageVariable(var_name, MVT_F32, 4);					
-				}
-				else if (!strcmp(token, "F64"))
-				{
-					var =  LLMessageVariable(var_name, MVT_F64, 8);					
-				}
-				else if (!strcmp(token, "LLVector3"))
-				{
-					var = LLMessageVariable(var_name, MVT_LLVector3, 12);					
-				}
-				else if (!strcmp(token, "LLVector3d"))
-				{
-					var = LLMessageVariable(var_name, MVT_LLVector3d, 24);
-				}
-				else if (!strcmp(token, "LLVector4"))
-				{
-					var = LLMessageVariable(var_name, MVT_LLVector4, 16);					
-				}
-				else if (!strcmp(token, "LLQuaternion"))
-				{
-					var = LLMessageVariable(var_name, MVT_LLQuaternion, 12);
-				}
-				else if (!strcmp(token, "LLUUID"))
-				{
-					var = LLMessageVariable(var_name, MVT_LLUUID, 16);					
-				}
-				else if (!strcmp(token, "BOOL"))
-				{
-					var = LLMessageVariable(var_name, MVT_BOOL, 1);					
-				}
-				else if (!strcmp(token, "IPADDR"))
-				{
-					var = LLMessageVariable(var_name, MVT_IP_ADDR, 4);					
-				}
-				else if (!strcmp(token, "IPPORT"))
-				{
-					var = LLMessageVariable(var_name, MVT_IP_PORT, 2);					
-				}
-				else if (!strcmp(token, "Fixed"))
-				{
-					// need to get the variable size
-					if (fscanf(messagefilep, formatString, token) == EOF)	/* Flawfinder: ignore */
-					{
-						// oops, file ended
-						llerrs << "Expected variable size, but file ended"
-							<< llendl;
-						mbError = TRUE;
-						fclose(messagefilep);
-						return;
-					}
-
-					checkp = token;
-					while (*checkp)
-					{
-						mMessageFileChecksum += ((U32)*checkp++) << checksum_offset;
-						checksum_offset = (checksum_offset + 8) % 32;
-					}
-
-					// is it a legal integer
-					if (!b_positive_integer_ok(token))
-					{
-						// nope!
-						llerrs << token << " is not a legal integer for"
-							" variable size" << llendl;
-						mbError = TRUE;
-						fclose(messagefilep);
-						return;
-					}
-					// ok, we can create a block
-					var = LLMessageVariable(var_name, MVT_FIXED, atoi(token));
-				}
-				else if (!strcmp(token, "Variable"))
-				{
-					// need to get the variable size
-					if (fscanf(messagefilep, formatString, token) == EOF)	/* Flawfinder: ignore */
-					{
-						// oops, file ended
-						llerrs << "Expected variable size, but file ended"
-							<< llendl;
-						mbError = TRUE;
-						fclose(messagefilep);
-						return;
-					}
-
-					checkp = token;
-					while (*checkp)
-					{
-						mMessageFileChecksum += ((U32)*checkp++) << checksum_offset;
-						checksum_offset = (checksum_offset + 8) % 32;
-					}
-
-					// is it a legal integer
-					if (!b_positive_integer_ok(token))
-					{
-						// nope!
-						llerrs << token << "is not a legal integer"
-							" for variable size" << llendl;
-						mbError = TRUE;
-						fclose(messagefilep);
-						return;
-					}
-					// ok, we can create a block
-					var = LLMessageVariable(var_name, MVT_VARIABLE, atoi(token));
-				}
-				else
-				{
-					// oops, bad variable type
-					llerrs << "Bad variable type! " << token
-						<< " isn't Fixed or Variable" << llendl;
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-
-				// we got us a variable!
-				b_variable_end = TRUE;
-				continue;
-			}
-
-			// do we have a version number stuck in the file?
-			if (!strcmp(token, "version"))
-			{
-				// version number 
-				if (fscanf(messagefilep, formatString, token) == EOF)	/* Flawfinder: ignore */
-				{
-					// oops, file ended
-					llerrs << "Expected version number, but file ended" 
-						<< llendl;
-					mbError = TRUE;
-					fclose(messagefilep);
-					return;
-				}
-				
-				checkp = token;
-				while (*checkp)
-				{
-					mMessageFileChecksum += ((U32)*checkp++) << checksum_offset;
-					checksum_offset = (checksum_offset + 8) % 32;
-				}
-
-				mMessageFileVersionNumber = (F32)atof(token);
-				
-//				llinfos << "### Message template version " << mMessageFileVersionNumber << " ###" << llendl;
-				continue;
-   			}
-		}
-
-	    llinfos << "Message template checksum = " << std::hex << mMessageFileChecksum << std::dec << llendl;
-	}
-	else
+	LLString template_body;
+	if(!LLString::read(template_body, filename))
 	{
 		llwarns << "Failed to open template: " << filename << llendl;
 		mbError = TRUE;
 		return;
 	}
-	fclose(messagefilep);
+	
+	LLTemplateTokenizer tokens(template_body);
+	LLTemplateParser parsed(tokens);
+	mMessageFileVersionNumber = parsed.getVersion();
+	for(LLTemplateParser::message_iterator iter = parsed.getMessagesBegin();
+		iter != parsed.getMessagesEnd();
+		iter++)
+	{
+		addTemplate(*iter);
+	}
 }
 
 
@@ -1373,6 +435,94 @@ BOOL LLMessageSystem::poll(F32 seconds)
 	}
 }
 
+bool LLMessageSystem::isTrustedSender(const LLHost& host) const
+{
+	LLCircuitData* cdp = mCircuitInfo.findCircuit(host);
+	if(NULL == cdp)
+	{
+		return false;
+	}
+	return cdp->getTrusted();
+}
+
+static LLMessageSystem::message_template_name_map_t::const_iterator 
+findTemplate(const LLMessageSystem::message_template_name_map_t& templates, 
+			 std::string name)
+{
+	const char* namePrehash = gMessageStringTable.getString(name.c_str());
+	if(NULL == namePrehash) {return templates.end();}
+	return templates.find(namePrehash);
+}
+
+bool LLMessageSystem::isTrustedMessage(const std::string& name) const
+{
+	message_template_name_map_t::const_iterator iter = 
+		findTemplate(mMessageTemplates, name);
+	if(iter == mMessageTemplates.end()) {return false;}
+	return iter->second->getTrust() == MT_TRUST;
+}
+
+bool LLMessageSystem::isUntrustedMessage(const std::string& name) const
+{
+	message_template_name_map_t::const_iterator iter = 
+		findTemplate(mMessageTemplates, name);
+	if(iter == mMessageTemplates.end()) {return false;}
+	return iter->second->getTrust() == MT_NOTRUST;
+}
+
+LLCircuitData* LLMessageSystem::findCircuit(const LLHost& host,
+											bool resetPacketId)
+{
+	LLCircuitData* cdp = mCircuitInfo.findCircuit(host);
+	if (!cdp)
+	{
+		// This packet comes from a circuit we don't know about.
+		
+		// Are we rejecting off-circuit packets?
+		if (mbProtected)
+		{
+			// cdp is already NULL, so we don't need to unset it.
+		}
+		else
+		{
+			// nope, open the new circuit
+			cdp = mCircuitInfo.addCircuitData(host, mCurrentRecvPacketID);
+
+			if(resetPacketId)
+			{
+				// I added this - I think it's correct - DJS
+				// reset packet in ID
+				cdp->setPacketInID(mCurrentRecvPacketID);
+			}
+			// And claim the packet is on the circuit we just added.
+		}
+	}
+	else
+	{
+		// this is an old circuit. . . is it still alive?
+		if (!cdp->isAlive())
+		{
+			// nope. don't accept if we're protected
+			if (mbProtected)
+			{
+				// don't accept packets from unexpected sources
+				cdp = NULL;
+			}
+			else
+			{
+				// wake up the circuit
+				cdp->setAlive(TRUE);
+				
+				if(resetPacketId)
+				{
+					// reset packet in ID
+					cdp->setPacketInID(mCurrentRecvPacketID);
+				}
+			}
+		}
+	}
+	return cdp;
+}
 
 // Returns TRUE if a valid, on-circuit message has been received.
 BOOL LLMessageSystem::checkMessages( S64 frame_count )
@@ -1451,71 +601,12 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 			}
 
 			// process the message as normal
-
-			mIncomingCompressedSize = zeroCodeExpand(&buffer,&receive_size);
-			mCurrentRecvPacketID = buffer[1] + ((buffer[0] & 0x0f ) * 256);
-			if (sizeof(TPACKETID) == 4)
-			{
-				mCurrentRecvPacketID *= 256;
-				mCurrentRecvPacketID += buffer[2];
-				mCurrentRecvPacketID *= 256;
-				mCurrentRecvPacketID += buffer[3];
-			}
-
+			mIncomingCompressedSize = zeroCodeExpand(&buffer, &receive_size);
+			mCurrentRecvPacketID = ntohl(*((U32*)(&buffer[1])));
 			host = getSender();
-			//llinfos << host << ":" << mCurrentRecvPacketID << llendl;
 
-			// For testing the weird case we're having in the office where the first few packets
-			// on a connection get dropped
-			//if ((mCurrentRecvPacketID < 8) && !(buffer[0] & LL_RESENT_FLAG))
-			//{
-			//	llinfos << "Evil!  Dropping " << mCurrentRecvPacketID << " from " << host << " for fun!" << llendl;
-			//	continue;
-			//}
-
-			cdp = mCircuitInfo.findCircuit(host);
-			if (!cdp)
-			{
-				// This packet comes from a circuit we don't know about.
-
-				// Are we rejecting off-circuit packets?
-				if (mbProtected)
-				{
-					// cdp is already NULL, so we don't need to unset it.
-				}
-				else
-				{
-					// nope, open the new circuit
-					cdp = mCircuitInfo.addCircuitData(host, mCurrentRecvPacketID);
-
-					// I added this - I think it's correct - DJS
-					// reset packet in ID
-					cdp->setPacketInID(mCurrentRecvPacketID);
-
-					// And claim the packet is on the circuit we just added.
-				}
-			}
-			else
-			{
-				// this is an old circuit. . . is it still alive?
-				if (!cdp->isAlive())
-				{
-					// nope. don't accept if we're protected
-					if (mbProtected)
-					{
-						// don't accept packets from unexpected sources
-						cdp = NULL;
-					}
-					else
-					{
-						// wake up the circuit
-						cdp->setAlive(TRUE);
-
-						// reset packet in ID
-						cdp->setPacketInID(mCurrentRecvPacketID);
-					}
-				}
-			}
+			const bool resetPacketId = true;
+			cdp = findCircuit(host, resetPacketId);
 
 			// At this point, cdp is now a pointer to the circuit that
 			// this message came in on if it's valid, and NULL if the
@@ -1644,6 +735,10 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 
 			if (valid_packet)
 			{
+				// enable this for output of message names
+				//llinfos << "< \"" << mTemplateMessageReader->getMessageName()
+						//<< "\"" << llendl;
+
 				/* Code for dumping the complete contents of a message.  Keep for future use in optimizing messages.
 				if( 1 )
 				{
@@ -1748,9 +843,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 			{
 				if (mbProtected  && (!cdp))
 				{
-					llwarns << "Packet "
-							<< mTemplateMessageReader->getMessageName()
-							<< " from invalid circuit " << host << llendl;
+					llwarns << "Invalid Packet from invalid circuit " << host << llendl;
 					mOffCircuitPackets++;
 				}
 				else
@@ -2031,15 +1124,34 @@ S32 LLMessageSystem::flushReliable(const LLHost &host)
 	return send_bytes;
 }
 
-		
+LLHTTPClient::ResponderPtr LLMessageSystem::createResponder(const std::string& name)
+{
+	if(mSendReliable)
+	{
+		return new LLFnPtrResponder(mReliablePacketParams.mCallback,
+									mReliablePacketParams.mCallbackData,
+									name);
+	}
+	else
+	{
+		llwarns << "LLMessageSystem::sendMessage: Sending unreliable "
+				<< mMessageBuilder->getMessageName() << " message via HTTP"
+				<< llendl;
+		return new LLFnPtrResponder(NULL, NULL,
+									mMessageBuilder->getMessageName());
+	}
+}
+
 // This can be called from signal handlers,
 // so should should not use llinfos.
 S32 LLMessageSystem::sendMessage(const LLHost &host)
 {
 	if (! mMessageBuilder->isBuilt())
 	{
-		mSendSize = mMessageBuilder->buildMessage(mSendBuffer,
-												  MAX_BUFFER_SIZE);
+		mSendSize = mMessageBuilder->buildMessage(
+			mSendBuffer,
+			MAX_BUFFER_SIZE,
+			0);
 	}
 
 	if (!(host.isOk()))    // if port and ip are zero, don't bother trying to send the message
@@ -2068,6 +1180,7 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 		else
 		{
 			// nope, open the new circuit
+
 			cdp = mCircuitInfo.addCircuitData(host, 0);
 		}
 	}
@@ -2095,33 +1208,23 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 		LLSD message = mLLSDMessageBuilder->getMessage();
 		
 		const LLHTTPSender& sender = LLHTTPSender::getSender(host);
-		LLHTTPClient::ResponderPtr responder = NULL;
-		if(mSendReliable)
-		{
-			responder =
-				new LLFnPtrResponder(mReliablePacketParams.mCallback,
-									 mReliablePacketParams.mCallbackData);
-		}
-		else
-		{
-			llwarns << "LLMessageSystem::sendMessage: Sending unreliable " << mMessageBuilder->getMessageName() << " message via HTTP" << llendl;
-			responder = new LLFnPtrResponder(NULL, NULL);
-		}
 		sender.send(host, mLLSDMessageBuilder->getMessageName(),
-					message, responder);
+					message, createResponder(mLLSDMessageBuilder->getMessageName()));
 
 		mSendReliable = FALSE;
 		mReliablePacketParams.clear();
 		return 1;
 	}
 
-	memset(mSendBuffer,0,LL_PACKET_ID_SIZE); // zero out the packet ID field
+	// zero out the flags and packetid. Subtract 1 here so that we do
+	// not overwrite the offset if it was set set in buildMessage().
+	memset(mSendBuffer, 0, LL_PACKET_ID_SIZE - 1); 
 
 	// add the send id to the front of the message
 	cdp->nextPacketOutID();
 
 	// Packet ID size is always 4
-	*((S32*)&mSendBuffer[0]) = htonl(cdp->getPacketOutID());
+	*((S32*)&mSendBuffer[PHL_PACKET_ID]) = htonl(cdp->getPacketOutID());
 
 	// Compress the message, which will usually reduce its size.
 	U8 * buf_ptr = (U8 *)mSendBuffer;
@@ -2264,7 +1367,7 @@ void LLMessageSystem::logMsgFromInvalidCircuit( const LLHost& host, BOOL recv_re
 		char buffer[MAX_STRING];			/* Flawfinder: ignore */
 		snprintf(buffer, MAX_STRING, "\t%6d\t%6d\t%6d ", mMessageReader->getMessageSize(), (mIncomingCompressedSize ? mIncomingCompressedSize: mMessageReader->getMessageSize()), mCurrentRecvPacketID);		/* Flawfinder: ignore */
 		str << buffer
-			<< mMessageReader->getMessageName()
+			<< nullToEmpty(mMessageReader->getMessageName())
 			<< (recv_reliable ? " reliable" : "")
  			<< " REJECTED";
 		llinfos << str.str() << llendl;
@@ -2287,6 +1390,27 @@ void LLMessageSystem::logMsgFromInvalidCircuit( const LLHost& host, BOOL recv_re
 	}
 }
 
+S32 LLMessageSystem::sendMessage(const LLHost &host, const char* name,
+								  const LLSD& message)
+{
+	if (!(host.isOk()))
+	{
+		llwarns << "trying to send message to invalid host"	<< llendl;
+		return 0;
+	}
+	newMessage(name);	
+	if (mMessageBuilder != mLLSDMessageBuilder)
+	{
+		llwarns << "trying to send llsd message when builder is not LLSD!"
+				<< llendl;
+		return 0;
+	}
+
+	const LLHTTPSender& sender = LLHTTPSender::getSender(host);
+	sender.send(host, name, message, createResponder(name));
+	return 1;
+}
+
 void LLMessageSystem::logTrustedMsgFromUntrustedCircuit( const LLHost& host )
 {
 	// RequestTrustedCircuit is how we establish trust, so don't spam
@@ -2294,9 +1418,9 @@ void LLMessageSystem::logTrustedMsgFromUntrustedCircuit( const LLHost& host )
 	if (strcmp(mMessageReader->getMessageName(), "RequestTrustedCircuit"))
 	{
 		llwarns << "Received trusted message on untrusted circuit. "
-	   		<< "Will reply with deny. "
-			<< "Message: " << mMessageReader->getMessageName()
-			<< " Host: " << host << llendl;
+				<< "Will reply with deny. "
+				<< "Message: " << nullToEmpty(mMessageReader->getMessageName())
+				<< " Host: " << host << llendl;
 	}
 
 	if (mNumMessageCounts >= MAX_MESSAGE_COUNT_NUM)
@@ -2346,7 +1470,7 @@ void LLMessageSystem::logValidMsg(LLCircuitData *cdp, const LLHost& host, BOOL r
 		char buffer[MAX_STRING];			/* Flawfinder: ignore */
 		snprintf(buffer, MAX_STRING, "\t%6d\t%6d\t%6d ", mMessageReader->getMessageSize(), (mIncomingCompressedSize ? mIncomingCompressedSize : mMessageReader->getMessageSize()), mCurrentRecvPacketID);		/* Flawfinder: ignore */
 		str << buffer
-			<< mMessageReader->getMessageName()
+			<< nullToEmpty(mMessageReader->getMessageName())
 			<< (recv_reliable ? " reliable" : "")
 			<< (recv_resent ? " resent" : "")
 			<< (recv_acks ? " acks" : "");
@@ -2486,16 +1610,16 @@ void LLMessageSystem::disableCircuit(const LLHost &host)
 			llinfos << "Host " << LLHost(old_ip, old_port) << " circuit " << code << " removed from lookup table" << llendl;
 			gMessageSystem->mIPPortToCircuitCode.erase(ip_port);
 		}
+		mCircuitInfo.removeCircuitData(host);
 	}
 	else
 	{
 		// Sigh, since we can open circuits which don't have circuit
 		// codes, it's possible for this to happen...
 		
-		//llwarns << "Couldn't find circuit code for " << host << llendl;
+		llwarns << "Couldn't find circuit code for " << host << llendl;
 	}
 
-	mCircuitInfo.removeCircuitData(host);
 }
 
 
@@ -2917,6 +2041,30 @@ void LLMessageSystem::processUseCircuitCode(LLMessageSystem* msg,
 	}
 }
 
+// static
+void LLMessageSystem::processError(LLMessageSystem* msg, void**)
+{
+	char buffer[MTUBYTES];
+	S32 error_code = 0;
+	msg->getS32("Data", "Code", error_code);
+	std::string error_token;
+	msg->getString("Data", "Token", MTUBYTES, buffer);
+	error_token.assign(buffer);
+	LLUUID error_id;
+	msg->getUUID("Data", "ID", error_id);
+	std::string error_system;
+	msg->getString("Data", "System", MTUBYTES, buffer);
+	error_system.assign(buffer);
+	std::string error_message;
+	msg->getString("Data", "Message", MTUBYTES, buffer);
+	error_message.assign(buffer);
+
+	llwarns << "Message error from " << msg->getSender() << " - "
+		<< error_code << " " << error_token << " " << error_id << " \""
+		<< error_system << "\" \"" << error_message << "\"" << llendl;
+}
+
+
 static LLHTTPNode& messageRootNode()
 {
 	static LLHTTPNode root_node;
@@ -2944,10 +2092,13 @@ void LLMessageSystem::dispatch(
 	const LLSD& message,
 	LLHTTPNode::ResponsePtr responsep)
 {
-	if (msg_name.empty())
+	if ((gMessageSystem->mMessageTemplates.find
+			(gMessageStringTable.getString(msg_name.c_str())) ==
+				gMessageSystem->mMessageTemplates.end()) &&
+		!LLMessageConfig::isValidMessage(msg_name))
 	{
-		llwarns	<< "LLMessageService::dispatch called with no message name"
-				<< llendl;
+		llwarns << "Ignoring unknown message " << msg_name << llendl;
+		responsep->notFound("Invalid message name");
 		return;
 	}
 	
@@ -2960,6 +2111,9 @@ void LLMessageSystem::dispatch(
 				<< path << llendl;
 		return;
 	}
+	// enable this for output of message names
+	//llinfos << "< \"" << msg_name << "\"" << llendl;
+	//lldebugs << "data: " << LLSDXMLStreamer(message) << llendl;	   
 
 	handler->post(responsep, context, message);
 }
@@ -3024,6 +2178,56 @@ void LLMessageSystem::setMessageBans(
 	check_for_unrecognized_messages("untrusted", untrusted, mMessageTemplates);
 }
 
+S32 LLMessageSystem::sendError(
+	const LLHost& host,
+	const LLUUID& agent_id,
+	S32 code,
+	const std::string& token,
+	const LLUUID& id,
+	const std::string& system,
+	const std::string& message,
+	const LLSD& data)
+{
+	newMessage("Error");
+	nextBlockFast(_PREHASH_AgentData);
+	addUUIDFast(_PREHASH_AgentID, agent_id);
+	nextBlockFast(_PREHASH_Data);
+	addS32("Code", code);
+	addString("Token", token);
+	addUUID("ID", id);
+	addString("System", system);
+	std::string temp;
+	temp = message;
+	if(temp.size() > (size_t)MTUBYTES) temp.resize((size_t)MTUBYTES);
+	addString("Message", message);
+	LLPointer<LLSDBinaryFormatter> formatter = new LLSDBinaryFormatter;
+	std::ostringstream ostr;
+	formatter->format(data, ostr);
+	temp = ostr.str();
+	bool pack_data = true;
+	static const std::string ERROR_MESSAGE_NAME("Error");
+	if (LLMessageConfig::getMessageFlavor(ERROR_MESSAGE_NAME) ==
+		LLMessageConfig::TEMPLATE_FLAVOR)
+	{
+		S32 msg_size = temp.size() + mMessageBuilder->getMessageSize();
+		if(msg_size >= ETHERNET_MTU_BYTES)
+		{
+			pack_data = false;
+		}
+	}
+	if(pack_data)
+	{
+		addBinaryData("Data", (void*)temp.c_str(), temp.size());
+	}
+	else
+	{
+		llwarns << "Data and message were too large -- data removed."
+			<< llendl;
+		addBinaryData("Data", NULL, 0);
+	}
+	return sendReliable(host);
+}
+
 void	process_packet_ack(LLMessageSystem *msgsystem, void** /*user_data*/)
 {
 	TPACKETID packet_id;
@@ -3049,37 +2253,8 @@ void	process_packet_ack(LLMessageSystem *msgsystem, void** /*user_data*/)
 	}
 }
 
-void send_template_reply(LLMessageSystem* msg, const LLUUID& token)
-{
-	msg->newMessageFast(_PREHASH_TemplateChecksumReply);
-	msg->nextBlockFast(_PREHASH_DataBlock);
-	msg->addU32Fast(_PREHASH_Checksum, msg->mMessageFileChecksum);
-	msg->addU8Fast(_PREHASH_MajorVersion,  U8(msg->mSystemVersionMajor) );
-	msg->addU8Fast(_PREHASH_MinorVersion,  U8(msg->mSystemVersionMinor) );
-	msg->addU8Fast(_PREHASH_PatchVersion,  U8(msg->mSystemVersionPatch) );
-	msg->addU8Fast(_PREHASH_ServerVersion, U8(msg->mSystemVersionServer) );
-	msg->addU32Fast(_PREHASH_Flags, msg->mVersionFlags);
-	msg->nextBlockFast(_PREHASH_TokenBlock);
-	msg->addUUIDFast(_PREHASH_Token, token);
-	msg->sendMessage(msg->getSender());
-}
 
-void process_template_checksum_request(LLMessageSystem* msg, void**)
-{
-	llinfos << "Message template checksum request received from "
-			<< msg->getSender() << llendl;
-	send_template_reply(msg, LLUUID::null);
-}
-
-void process_secured_template_checksum_request(LLMessageSystem* msg, void**)
-{
-	llinfos << "Secured message template checksum request received from "
-			<< msg->getSender() << llendl;
-	LLUUID token;
-	msg->getUUIDFast(_PREHASH_TokenBlock, _PREHASH_Token, token);
-	send_template_reply(msg, token);
-}
-
+/*
 void process_log_messages(LLMessageSystem* msg, void**)
 {
 	U8 log_message;
@@ -3096,7 +2271,7 @@ void process_log_messages(LLMessageSystem* msg, void**)
 		llinfos << "Stopping logging via message" << llendl;
 		msg->stopLogging();
 	}
-}
+}*/
 
 // Make circuit trusted if the MD5 Digest matches, otherwise
 // notify remote end that they are not trusted.
@@ -3329,15 +2504,14 @@ BOOL start_messaging_system(
 	//gMessageSystem->setHandlerFuncFast(_PREHASH_AckAddCircuitCode,		ack_add_circuit_code,		NULL);
 	gMessageSystem->setHandlerFuncFast(_PREHASH_UseCircuitCode, LLMessageSystem::processUseCircuitCode, (void**)responder);
 	gMessageSystem->setHandlerFuncFast(_PREHASH_PacketAck,             process_packet_ack,	    NULL);
-	gMessageSystem->setHandlerFuncFast(_PREHASH_TemplateChecksumRequest,  process_template_checksum_request,	NULL);
-	gMessageSystem->setHandlerFuncFast(_PREHASH_SecuredTemplateChecksumRequest,  process_secured_template_checksum_request,	NULL);
-	gMessageSystem->setHandlerFuncFast(_PREHASH_LogMessages,			process_log_messages,	NULL);
+	//gMessageSystem->setHandlerFuncFast(_PREHASH_LogMessages,			process_log_messages,	NULL);
 	gMessageSystem->setHandlerFuncFast(_PREHASH_CreateTrustedCircuit,
 				       process_create_trusted_circuit,
 				       NULL);
 	gMessageSystem->setHandlerFuncFast(_PREHASH_DenyTrustedCircuit,
 				       process_deny_trusted_circuit,
 				       NULL);
+	gMessageSystem->setHandlerFunc("Error", LLMessageSystem::processError);
 
 	// We can hand this to the null_message_callback since it is a
 	// trusted message, so it will automatically be denied if it isn't
@@ -3451,11 +2625,11 @@ void LLMessageSystem::summarizeLogs(std::ostream& str)
 	snprintf(buffer, MAX_STRING, "%35s%10s%10s%10s%10s", "Message", "Count", "Time", "Max", "Avg");	/* Flawfinder: ignore */
 	str << buffer << std:: endl;	
 	F32 avg;
-	for (message_template_name_map_t::iterator iter = mMessageTemplates.begin(),
+	for (message_template_name_map_t::const_iterator iter = mMessageTemplates.begin(),
 			 end = mMessageTemplates.end();
 		 iter != end; iter++)
 	{
-		LLMessageTemplate* mt = iter->second;
+		const LLMessageTemplate* mt = iter->second;
 		if(mt->mTotalDecoded > 0)
 		{
 			avg = mt->mTotalDecodeTime / (F32)mt->mTotalDecoded;
@@ -3529,11 +2703,11 @@ void LLMessageSystem::dumpReceiveCounts()
 	if(mNumMessageCounts > 0)
 	{
 		llinfos << "Dump: " << mNumMessageCounts << " messages processed in " << mReceiveTime << " seconds" << llendl;
-		for (message_template_name_map_t::iterator iter = mMessageTemplates.begin(),
+		for (message_template_name_map_t::const_iterator iter = mMessageTemplates.begin(),
 				 end = mMessageTemplates.end();
 			 iter != end; iter++)
 		{
-			LLMessageTemplate* mt = iter->second;
+			const LLMessageTemplate* mt = iter->second;
 			if (mt->mReceiveCount > 0)
 			{
 				llinfos << "Num: " << std::setw(3) << mt->mReceiveCount << " Bytes: " << std::setw(6) << mt->mReceiveBytes
@@ -3581,8 +2755,10 @@ S32 LLMessageSystem::zeroCodeAdjustCurrentSendTotal()
 	
 	if (! mMessageBuilder->isBuilt())
 	{
-		mSendSize = mMessageBuilder->buildMessage(mSendBuffer,
-												  MAX_BUFFER_SIZE);
+		mSendSize = mMessageBuilder->buildMessage(
+			mSendBuffer,
+			MAX_BUFFER_SIZE,
+			0);
 	}
 	// TODO: babbage: remove this horror
 	mMessageBuilder->setBuilt(FALSE);
@@ -3596,7 +2772,7 @@ S32 LLMessageSystem::zeroCodeAdjustCurrentSendTotal()
 
 // skip the packet id field
 
-	for (U32 i=0;i<LL_PACKET_ID_SIZE;i++)
+	for (U32 ii = 0; ii < LL_PACKET_ID_SIZE; ++ii)
 	{
 		count--;
 		inptr++;
@@ -3647,19 +2823,20 @@ S32 LLMessageSystem::zeroCodeAdjustCurrentSendTotal()
 
 
 
-S32 LLMessageSystem::zeroCodeExpand(U8 **data, S32 *data_size)
+S32 LLMessageSystem::zeroCodeExpand(U8** data, S32* data_size)
 {
-
-	if ((*data_size ) < LL_PACKET_ID_SIZE)
+	if ((*data_size ) < LL_MINIMUM_VALID_PACKET_SIZE)
 	{
-		llwarns << "zeroCodeExpand() called with data_size of " << *data_size << llendl;
+		llwarns << "zeroCodeExpand() called with data_size of " << *data_size
+			<< llendl;
 	}
-	
+
 	mTotalBytesIn += *data_size;
 
-	if (!(*data[0] & LL_ZERO_CODE_FLAG)) // if we're not zero-coded, just go 'way
+	// if we're not zero-coded, simply return.
+	if (!(*data[0] & LL_ZERO_CODE_FLAG))
 	{
-		return(0);
+		return 0;
 	}
 
 	S32 in_size = *data_size;
@@ -3675,7 +2852,7 @@ S32 LLMessageSystem::zeroCodeExpand(U8 **data, S32 *data_size)
 
 // skip the packet id field
 
-	for (U32 i=0;i<LL_PACKET_ID_SIZE;i++)
+	for (U32 ii = 0; ii < LL_PACKET_ID_SIZE; ++ii)
 	{
 		count--;
 		*outptr++ = *inptr++;
@@ -3769,14 +2946,16 @@ bool LLMessageSystem::callHandler(const char *name,
 		bool trustedSource, LLMessageSystem* msg)
 {
 	name = gMessageStringTable.getString(name);
-	LLMessageTemplate* msg_template = mMessageTemplates[(char*)name];
-	if (!msg_template)
+	message_template_name_map_t::const_iterator iter;
+	iter = mMessageTemplates.find(name);
+	if(iter == mMessageTemplates.end())
 	{
 		llwarns << "LLMessageSystem::callHandler: unknown message " 
 			<< name << llendl;
 		return false;
 	}
-	
+
+	const LLMessageTemplate* msg_template = iter->second;
 	if (msg_template->isBanned(trustedSource))
 	{
 		llwarns << "LLMessageSystem::callHandler: banned message " 
@@ -3832,14 +3011,13 @@ BOOL LLMessageSystem::isCircuitCodeKnown(U32 code) const
 
 BOOL LLMessageSystem::isMessageFast(const char *msg)
 {
-	return(msg == mMessageReader->getMessageName());
+	return msg == mMessageReader->getMessageName();
 }
 
 
 char* LLMessageSystem::getMessageName()
 {
-	const char* name = mMessageReader->getMessageName();
-	return name[0] == '\0'? NULL : const_cast<char*>(name);
+	return const_cast<char*>(mMessageReader->getMessageName());
 }
 
 const LLUUID& LLMessageSystem::getSenderID() const
@@ -4168,120 +3346,6 @@ void LLMessageSystem::dumpPacketToLog()
 	}
 }
 
-//static
-BOOL LLMessageSystem::isTemplateConfirmed()
-{
-	return gMessageSystem->mTemplateConfirmed;
-}
-
-//static
-BOOL LLMessageSystem::doesTemplateMatch()
-{
-	if (!isTemplateConfirmed())
-	{
-		return FALSE;
-	}
-	return gMessageSystem->mTemplateMatches;
-}
-
-//static
-void LLMessageSystem::sendMessageTemplateChecksum(const LLHost &currentHost)
-{
-	gMessageSystem->mTemplateConfirmed = FALSE;
-	gMessageSystem->mTemplateMatches = FALSE;
-	gMessageSystem->newMessageFast(_PREHASH_TemplateChecksumRequest);
-	// Don't use ping-based retry
-	gMessageSystem->sendReliable(currentHost, 40, FALSE, 3, NULL, NULL);
-}
-
-//static
-void LLMessageSystem::processMessageTemplateChecksumReply(LLMessageSystem *msg,
-														  void** user_data)
-{
-	U32 remote_template_checksum = 0;
-	msg->getU32Fast(_PREHASH_DataBlock, _PREHASH_Checksum, remote_template_checksum);	
-	msg->mTemplateConfirmed = TRUE;
-	if ((remote_template_checksum) != msg->mMessageFileChecksum)
-	{
-		llwarns << "out of sync message template!" << llendl;
-		
-		msg->mTemplateMatches = FALSE;
-		msg->newMessageFast(_PREHASH_CloseCircuit);
-		msg->sendMessage(msg->getSender());
-		return;
-	}
-
-	msg->mTemplateMatches = TRUE;
-	llinfos << "According to " << msg->getSender()
-			<< " the message template is current!"
-			<< llendl;
-}
-
-//static
-void LLMessageSystem::sendSecureMessageTemplateChecksum(const LLHost& host)
-{
-	// generate an token for use during template checksum requests to
-	// prevent DOS attacks from injected bad template checksum replies.
-	LLUUID *template_tokenp = new LLUUID;
-	template_tokenp->generate();
-	lldebugs << "random token: " << *template_tokenp << llendl;
-
-	// register the handler for the reply while saving off template_token
-	gMessageSystem->setHandlerFuncFast(_PREHASH_TemplateChecksumReply,
-							LLMessageSystem::processSecureTemplateChecksumReply,
-							(void**)template_tokenp);
-
-	// send checksum request
-	gMessageSystem->mTemplateConfirmed = FALSE;
-	gMessageSystem->newMessageFast(_PREHASH_SecuredTemplateChecksumRequest);
-	gMessageSystem->nextBlockFast(_PREHASH_TokenBlock);
-	gMessageSystem->addUUIDFast(_PREHASH_Token, *template_tokenp);
-	gMessageSystem->sendReliable(host);
-}
-
-//static
-void LLMessageSystem::processSecureTemplateChecksumReply(LLMessageSystem *msg,
-														 void** user_data)
-{
-	// copy the token out into the stack and delete allocated memory
-	LLUUID template_token = *((LLUUID*)user_data);
-	delete user_data;
-
-	LLUUID received_token;
-	msg->getUUID("TokenBlock", "Token", received_token);
-
-	if(received_token != template_token)
-	{
-		llwarns << "Incorrect token in template checksum reply: "
-				<< received_token << llendl;
-		//return do_normal_idle;
-		return;
-	}
-
-	U32 remote_template_checksum = 0;
-	U8 major_version = 0;
-	U8 minor_version = 0;
-	U8 patch_version = 0;
-	U8 server_version = 0;
-	U32 flags = 0x0;
-	msg->getU32("DataBlock", "Checksum", remote_template_checksum);
-	msg->getU8 ("DataBlock", "MajorVersion", major_version);
-	msg->getU8 ("DataBlock", "MinorVersion", minor_version);
-	msg->getU8 ("DataBlock", "PatchVersion", patch_version);
-	msg->getU8 ("DataBlock", "ServerVersion", server_version);
-	msg->getU32("DataBlock", "Flags", flags);
-
-	msg->mTemplateConfirmed = TRUE;
-	if (remote_template_checksum != gMessageSystem->mMessageFileChecksum)
-	{
-		llinfos << "Message template out of sync" << llendl;
-		msg->mTemplateMatches = FALSE;
-	}
-	else
-	{
-		msg->mTemplateMatches = TRUE;
-	}
-}
 
 //static
 U64 LLMessageSystem::getMessageTimeUsecs(const BOOL update)
@@ -4332,13 +3396,31 @@ typedef std::map<const char*, LLMessageBuilder*> BuilderMap;
 
 void LLMessageSystem::newMessageFast(const char *name)
 {
-	if(LLMessageConfig::isMessageBuiltTemplate(name))
+	LLMessageConfig::Flavor message_flavor =
+		LLMessageConfig::getMessageFlavor(name);
+	LLMessageConfig::Flavor server_flavor =
+		LLMessageConfig::getServerDefaultFlavor();
+
+	if(message_flavor == LLMessageConfig::TEMPLATE_FLAVOR)
 	{
 		mMessageBuilder = mTemplateMessageBuilder;
 	}
-	else
+	else if (message_flavor == LLMessageConfig::LLSD_FLAVOR)
 	{
 		mMessageBuilder = mLLSDMessageBuilder;
+	}
+	// NO_FLAVOR
+	else
+	{
+		if (server_flavor == LLMessageConfig::LLSD_FLAVOR)
+		{
+			mMessageBuilder = mLLSDMessageBuilder;
+		}
+		// TEMPLATE_FLAVOR or NO_FLAVOR
+		else
+		{
+			mMessageBuilder = mTemplateMessageBuilder;
+		}
 	}
 	mSendReliable = FALSE;
 	mMessageBuilder->newMessage(name);
@@ -4802,6 +3884,10 @@ void LLMessageSystem::getIPPort(const char *block, const char *var, U16 &u,
 void LLMessageSystem::getStringFast(const char *block, const char *var, 
 									S32 buffer_size, char *s, S32 blocknum)
 {
+	if(buffer_size <= 0)
+	{
+		llwarns << "buffer_size <= 0" << llendl;
+	}
 	mMessageReader->getString(block, var, buffer_size, s, blocknum);
 }
 

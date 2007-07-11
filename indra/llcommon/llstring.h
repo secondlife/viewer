@@ -1054,9 +1054,6 @@ BOOL LLStringBase<T>::isHead( const std::basic_string<T>& string, const T* s )
 template<class T> 
 BOOL LLStringBase<T>::read(std::basic_string<T>& string, const char* filename)	 /*Flawfinder: ignore*/
 {
-#ifdef LL_LINUX
-    printf("STUBBED: LLStringBase<T>::read at %s:%d\n", __FILE__, __LINE__);
-#else
 	llifstream ifs(filename, llifstream::binary);
 	if (!ifs.is_open())
 	{
@@ -1071,7 +1068,6 @@ BOOL LLStringBase<T>::read(std::basic_string<T>& string, const char* filename)	 
 	string = oss.str();
 
 	ifs.close();
-#endif
 	return TRUE;
 }
 

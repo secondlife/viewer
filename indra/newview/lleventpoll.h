@@ -9,11 +9,13 @@
 #ifndef LL_LLEVENTPOLL_H
 #define LL_LLEVENTPOLL_H
 
+#include "llhttpclient.h"
+
 class LLEventPoll
 	///< implements the viewer side of server-to-viewer pushed events.
 {
 public:
-	LLEventPoll(const std::string& pollURL);
+	LLEventPoll(const std::string& pollURL, const LLHost& sender);
 		///< Start polling the URL.
 
 	virtual ~LLEventPoll();
@@ -21,8 +23,7 @@ public:
 
 
 private:
-	class Impl;
-	Impl& impl;
+	LLHTTPClient::ResponderPtr mImpl;
 };
 
 

@@ -169,16 +169,17 @@ public:
 
 	void reset() { mVector.resize(0); mIndexMap.resize(0); }
 	bool empty() const { return mVector.empty(); }
-	size_type size() const { return mVector.empty(); }
+	size_type size() const { return mVector.size(); }
 	
 	Type& operator[](const Key& k)
 	{
-		typename std::map<Key, U32>::iterator iter = mIndexMap.find(k);
+		typename std::map<Key, U32>::const_iterator iter = mIndexMap.find(k);
 		if (iter == mIndexMap.end())
 		{
 			U32 n = mVector.size();
 			mIndexMap[k] = n;
 			mVector.resize(n+1);
+			llassert(mVector.size() == mIndexMap.size());
 			return mVector[n];
 		}
 		else
@@ -186,7 +187,19 @@ public:
 			return mVector[iter->second];
 		}
 	}
-	
+
+	const_iterator find(const Key& k) const
+	{
+		typename std::map<Key, U32>::const_iterator iter = mIndexMap.find(k);
+		if(iter == mIndexMap.end())
+		{
+			return mVector.end();
+		}
+		else
+		{
+			return mVector.begin() + iter->second;
+		}
+	}
 };
 
 #endif

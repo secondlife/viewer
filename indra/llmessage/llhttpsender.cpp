@@ -20,6 +20,7 @@ namespace
 {
 	typedef std::map<LLHost, LLHTTPSender*> SenderMap;
 	static SenderMap senderMap;
+	static LLHTTPSender* defaultSender = new LLHTTPSender();
 }
 
 //virtual 
@@ -49,11 +50,10 @@ void LLHTTPSender::setSender(const LLHost& host, LLHTTPSender* sender)
 //static
 const LLHTTPSender& LLHTTPSender::getSender(const LLHost& host)
 {
-	static LLHTTPSender defaultSender;
 	SenderMap::const_iterator iter = senderMap.find(host);
 	if(iter == senderMap.end())
 	{
-		return defaultSender;
+		return *defaultSender;
 	}
 	return *(iter->second);
 }
@@ -67,4 +67,11 @@ void LLHTTPSender::clearSender(const LLHost& host)
 		delete iter->second;
 		senderMap.erase(iter);
 	}
+}
+
+//static 
+void LLHTTPSender::setDefaultSender(LLHTTPSender* sender)
+{
+	delete defaultSender;
+	defaultSender = sender;
 }

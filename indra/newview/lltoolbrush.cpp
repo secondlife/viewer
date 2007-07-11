@@ -548,6 +548,7 @@ void LLToolBrushLand::undo()
 }
 
 // static
+/*
 void LLToolBrushLand::redo()
 {
 	for(LLViewerRegion* regionp = mLastAffectedRegions.getFirstData();
@@ -560,7 +561,7 @@ void LLToolBrushLand::redo()
 		gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 		gMessageSystem->sendMessage(regionp->getHost());
 	}
-}
+}*/
 
 // static
 bool LLToolBrushLand::canTerraform(LLViewerRegion* regionp) const

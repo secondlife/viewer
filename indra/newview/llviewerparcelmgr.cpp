@@ -1038,7 +1038,9 @@ public:
 	
 	// for parcel buys
 	S32		mParcelID;
-	
+	S32		mPrice;
+	S32		mArea;
+
 	// for land claims
 	F32		mWest;
 	F32		mSouth;
@@ -1096,6 +1098,8 @@ LLViewerParcelMgr::ParcelBuyInfo* LLViewerParcelMgr::setupParcelBuy(
 	info->mIsClaim = is_claim;
 	info->mRemoveContribution = remove_contribution;
 	info->mHost = region->getHost();
+	info->mPrice = mCurrentParcel->getSalePrice();
+	info->mArea = mCurrentParcel->getArea();
 	
 	if (!is_claim)
 	{
@@ -1140,6 +1144,12 @@ void LLViewerParcelMgr::sendParcelBuy(ParcelBuyInfo* info)
 		msg->addF32("South", info->mSouth);
 		msg->addF32("East",  info->mEast);
 		msg->addF32("North", info->mNorth);
+	}
+	else // ParcelBuy
+	{
+		msg->nextBlock("ParcelData");
+		msg->addS32("Price",info->mPrice);
+		msg->addS32("Area",info->mArea);
 	}
 	msg->sendReliable(info->mHost);
 }

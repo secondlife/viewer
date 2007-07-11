@@ -30,6 +30,7 @@
 #include "llerrorcontrol.h"
 #include "llfiltersd2xmlrpc.h"
 #include "llfocusmgr.h"
+#include "llhttpsender.h"
 #include "imageids.h"
 #include "lllandmark.h"
 #include "llloginflags.h"
@@ -203,7 +204,6 @@ BOOL is_hex_string(U8* str, S32 len);
 void show_first_run_dialog();
 void first_run_dialog_callback(S32 option, void* userdata);
 void set_startup_status(const F32 frac, const char* string, const char* msg);
-void on_userserver_name_resolved( BOOL success, const LLString& host_name, U32 ip, void* userdata );
 void login_alert_status(S32 option, void* user_data);
 void update_app(BOOL mandatory, const std::string& message);
 void update_dialog_callback(S32 option, void *userdata);
@@ -216,7 +216,6 @@ void dialog_choose_gender_first_start();
 void callback_choose_gender(S32 option, void* userdata);
 void init_start_screen(S32 location_id);
 void release_start_screen();
-void process_connect_to_userserver(LLMessageSystem* msg, void**);
 void reset_login();
 
 //
@@ -226,6 +225,21 @@ void reset_login();
 //
 // local classes
 //
+
+namespace
+{
+	class LLNullHTTPSender : public LLHTTPSender
+	{
+		virtual void send(const LLHost& host, 
+						  const char* message, const LLSD& body, 
+						  LLHTTPClient::ResponderPtr response) const
+		{
+			llwarns << " attemped to send " << message << " to " << host
+					<< " with null sender" << llendl;
+		}
+	};
+}
+
 class LLGestureInventoryFetchObserver : public LLInventoryFetchObserver
 {
 public:
@@ -402,7 +416,7 @@ BOOL idle_startup()
 			    port = gSavedSettings.getU32("ConnectionPort");
 			  }
 
-			LLMessageConfig::initClass("viewer", gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
+			LLHTTPSender::setDefaultSender(new LLNullHTTPSender());
 			if(!start_messaging_system(
 				   message_template_path,
 				   port,
@@ -415,6 +429,7 @@ BOOL idle_startup()
 				std::string msg = llformat("Unable to start networking, error %d", gMessageSystem->getErrorCode());
 				app_early_exit(msg);
 			}
+			LLMessageConfig::initClass("viewer", gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
 		}
 		else
 		{
@@ -432,9 +447,13 @@ BOOL idle_startup()
 			msg->setExceptionFunc(MX_PACKET_TOO_SHORT,
 								  invalid_message_callback,
 								  NULL);
-			msg->setExceptionFunc(MX_RAN_OFF_END_OF_PACKET,
+
+			// running off end of a packet is now valid in the case
+			// when a reader has a newer message template than
+			// the sender
+			/*msg->setExceptionFunc(MX_RAN_OFF_END_OF_PACKET,
 								  invalid_message_callback,
-								  NULL);
+								  NULL);*/
 			msg->setExceptionFunc(MX_WROTE_PAST_BUFFER_SIZE,
 								  invalid_message_callback,
 								  NULL);
@@ -456,7 +475,7 @@ BOOL idle_startup()
 				gXferManager->setUseAckThrottling(TRUE);
 				gXferManager->setAckThrottleBPS(xfer_throttle_bps);
 			}
-			gAssetStorage = new LLViewerAssetStorage(msg, gXferManager, gVFS, gUserServer);
+			gAssetStorage = new LLViewerAssetStorage(msg, gXferManager, gVFS);
 
 			msg->mPacketRing.setDropPercentage(gPacketDropPercentage);
 			if (gInBandwidth != 0.f)
@@ -758,7 +777,6 @@ BOOL idle_startup()
 			gSavedSettings.setS32("ServerChoice", gUserServerChoice);
 			if (gUserServerChoice == USERSERVER_OTHER)
 			{
-				gUserServer.setHostByName( server_label.c_str() );
 				snprintf(gUserServerName, MAX_STRING, "%s", server_label.c_str());			/* Flawfinder: ignore */
 			}
 		}
@@ -825,231 +843,15 @@ BOOL idle_startup()
 		// color init must be after saved settings loaded
 		init_colors();
 
-		// Request userserver domain name
-		set_startup_status(0.05f, "Finding Server Domain Name...", NULL);
-
-		// We're prematurely switching out of this state because the
-		// userserver name resolver can potentiallly occur before reaching the end of the
-		// switch statement.  Also, if it's done at the bottom, sometimes we will
-		// skip the userserver resolved step (in the local cases) - djs 09/24/03
-		gStartupState++;
-		timeout.reset();
-
-		switch( gUserServerChoice )
-		{
-		case USERSERVER_AGNI:
-			gInProductionGrid = TRUE;
-		case USERSERVER_DMZ:
-		case USERSERVER_ADITI:
-		case USERSERVER_SIVA:
-		case USERSERVER_SHAKTI:
-		case USERSERVER_DURGA:
-		case USERSERVER_SOMA:
-		case USERSERVER_VAAK:
-		case USERSERVER_GANGA:
-		case USERSERVER_UMA:
-		{
-				const char* host_name = gUserServerDomainName[gUserServerChoice].mName;
-				snprintf(gUserServerName, MAX_STRING, "%s", host_name);		/* Flawfinder: ignore */
-				llinfos << "Resolving " <<
-					gUserServerDomainName[gUserServerChoice].mLabel <<
-					" userserver domain name " << host_name << llendl;
-
-				BOOL requested_domain_name = gAsyncHostByName.startRequest( host_name, on_userserver_name_resolved, NULL );
-				if( !requested_domain_name )
-				//BOOL resolved_domain_name = gUserServer.setHostByName( host_name );
-				//if( !resolved_domain_name )
-				{
-					llwarns << "setHostByName failed" << llendl;
-					
-					LLStringBase<char>::format_map_t args;
-					args["[HOST_NAME]"] = host_name;
-
-					gViewerWindow->alertXml("UnableToConnect", args, login_alert_done );
-					reset_login();
-					return FALSE;
-				}
-				break;
-			}
-
-		case USERSERVER_LOCAL:
-			llinfos << "Using local userserver" << llendl;
-			gUserServer.setAddress( LOOPBACK_ADDRESS_STRING );
-			gStartupState = STATE_USERSERVER_RESOLVED;
-			break;
-
-		case USERSERVER_OTHER:
-			llinfos << "Userserver set explicitly" << llendl;
-			gStartupState = STATE_USERSERVER_RESOLVED;
-			break;
-
-		case USERSERVER_NONE:
-		default:
-			llerrs << "No userserver IP address specified" << llendl;
-			break;
-		}
-		return do_normal_idle;
-	}
-
-	if (STATE_RESOLVING_USERSERVER == gStartupState)
-	{
-		// Don't do anything.  Wait for LL_WM_HOST_RESOLVED which is handled by LLAsyncHostByName,
-		// which calls on_userserver_name_resolved, which will push us to the next state.
-		if (timeout.getElapsedTimeF32() > TIMEOUT_SECONDS*3.f)
-		{
-			// Cancel the pending asynchostbyname request
-
-			gViewerWindow->alertXml("CanNotFindServer",
-				login_alert_status, NULL);
-
-			// Back up to login screen
-			reset_login();
-			gViewerStats->incStat(LLViewerStats::ST_LOGIN_TIMEOUT_COUNT);
-		}
-		ms_sleep(1);
-		return do_normal_idle;
-	}
-
-	if (STATE_USERSERVER_RESOLVED == gStartupState)
-	{
-		if (!gUserServer.isOk())
-		{
-			LLStringBase<char>::format_map_t args;
-			args["[IP_ADDRESS]"] = u32_to_ip_string( gUserServer.getAddress() );
-
-			gViewerWindow->alertXml("PleaseSelectServer", args, login_alert_done );
-
-			reset_login();
-			return FALSE;
-		}
-
-		write_debug("Userserver: ");
-		char tmp_str[256];		/* Flawfinder: ignore */
-		gUserServer.getIPString(tmp_str, 256);
-		write_debug(tmp_str);
-		write_debug("\n");
-
-		gStartupState++;
-	}
-
-	if (STATE_MESSAGE_TEMPLATE_SEND == gStartupState)
-	{
-		set_startup_status(0.10f, "Verifying protocol version...", NULL);
-
-		LLHost mt_host;
-		if (!gRunLocal)
-		{
-			// open up user server circuit (trusted)
-			gMessageSystem->enableCircuit(gUserServer, TRUE);
-			mt_host = gUserServer;
-		}
-		else
-		{
-			mt_host = gAgentSimHost;
-		}
-
-		llinfos << "Verifying message template..." << llendl;
-		LLMessageSystem::sendSecureMessageTemplateChecksum(mt_host);
-
-		timeout.reset();
-		gStartupState++;
-		return do_normal_idle;
-	}
-
-	if (STATE_MESSAGE_TEMPLATE_WAIT == gStartupState)
-	{
-		LLMessageSystem* msg = gMessageSystem;
-		while (msg->checkAllMessages(gFrameCount, gServicePump))
-		{
-			if (msg->isTemplateConfirmed())
-			{
-				BOOL update_available = FALSE;
-				BOOL mandatory = FALSE;
-
-				if (!LLMessageSystem::doesTemplateMatch())
-				{
-					// Mandatory update -- message template checksum doesn't match
-					update_available = TRUE;
-					mandatory = TRUE;
-				}
-
-				BOOL quit = FALSE;
-				if (update_available)
-				{
-					if (show_connect_box)
-					{
-						update_app(mandatory, "");
-						gStartupState = STATE_UPDATE_CHECK;
-						return FALSE;
-					}
-					else
-					{
-						quit = TRUE;
-					}
-				}
-
-				// Bail out and clean up circuit
-				if (quit)
-				{
-					msg->newMessageFast(_PREHASH_CloseCircuit);
-					msg->sendMessage( msg->getSender() );
-					app_force_quit(NULL);
-					return FALSE;
-				}
-
-				// If we get here, we've got a compatible message template
-				if (!mandatory)
-				{
-					llinfos << "Message template is current!" << llendl;
-				}
-				gStartupState = STATE_LOGIN_AUTH_INIT;
-				timeout.reset();
-				// unregister with the message system so it knows we're no longer expecting this message
-				msg->setHandlerFuncFast(_PREHASH_TemplateChecksumReply, NULL,	NULL);
-
-				msg->newMessageFast(_PREHASH_CloseCircuit);
-				msg->sendMessage(gUserServer);
-				msg->disableCircuit(gUserServer);
-				if (gRunLocal)
-				{
-					msg->enableCircuit(gAgentSimHost, TRUE);
-
-					// Don't use a session token, and generate a random user id
-					gAgentID.generate();
-					gAgentSessionID = LLUUID::null;
-
-					// Skip userserver queries.
-					gStartupState = STATE_WORLD_INIT;
-				}
-			}
-		}
-		gMessageSystem->processAcks();
-
-		if (timeout.getElapsedTimeF32() > TIMEOUT_SECONDS)
-		{
-			if (timeout_count > MAX_TIMEOUT_COUNT)
-			{
-				gViewerWindow->alertXml("SystemMayBeDown",
-					login_alert_status,
-					NULL);
-
-				// Back up to login screen
-				reset_login();
-				gViewerStats->incStat(LLViewerStats::ST_LOGIN_TIMEOUT_COUNT);
-			}
-			else
-			{
-				llinfos << "Resending on timeout" << llendl;
-				gStartupState--;
-				timeout_count++;
-			}
-		}
+		// skipping over STATE_UPDATE_CHECK because that just waits for input
+		gStartupState = STATE_LOGIN_AUTH_INIT;
 
 		return do_normal_idle;
 	}
 
 	if (STATE_UPDATE_CHECK == gStartupState)
 	{
+		// wait for user to give input via dialog box
 		return do_normal_idle;
 	}
 
@@ -1657,9 +1459,7 @@ BOOL idle_startup()
 		//
 		// Initialize classes w/graphics stuff.
 		//
-		gImageList.doPrefetchImages();
-		update_texture_fetch();
-		
+		gImageList.doPrefetchImages();		
 		LLSurface::initClasses();
 
 		LLFace::initClass();
@@ -1690,6 +1490,7 @@ BOOL idle_startup()
 			LLViewerRegion *regionp = gWorldp->getRegionFromHandle(first_sim_handle);
 			llinfos << "Adding initial simulator " << regionp->getOriginGlobal() << llendl;
 			
+			gStartupState = STATE_SEED_GRANTED_WAIT;
 			regionp->setSeedCapability(first_sim_seed_cap);
 			
 			// Set agent's initial region to be the one we just created.
@@ -1705,9 +1506,32 @@ BOOL idle_startup()
 			// VEFFECT: Login
 			gWorldp->addRegion(0, gAgentSimHost);
 			gAgent.setRegion(gWorldp->getRegionFromHandle(0));
+			
+			gStartupState = STATE_SEED_CAP_GRANTED;
 		}
 
 		display_startup();
+		return do_normal_idle;
+	}
+
+
+	//---------------------------------------------------------------------
+	// Wait for Seed Cap Grant
+	//---------------------------------------------------------------------
+	if(STATE_SEED_GRANTED_WAIT == gStartupState)
+	{
+		llinfos << "Waiting for seed grant ...." << llendl;
+		return do_normal_idle;
+	}
+
+
+	//---------------------------------------------------------------------
+	// Seed Capability Granted
+	// no newMessage calls should happen before this point
+	//---------------------------------------------------------------------
+	if (STATE_SEED_CAP_GRANTED == gStartupState)
+	{
+		update_texture_fetch();
 
 		// Initialize UI
 		if (!gNoRender)
@@ -2175,21 +1999,6 @@ BOOL idle_startup()
 		return do_normal_idle;
 	}
 
-	//---------------------------------------------------------------------
-	// Assert agent to userserver
-	//---------------------------------------------------------------------
-	if (STATE_CONNECT_USERSERVER == gStartupState)
-	{
-		LLMessageSystem* msg = gMessageSystem;
-		msg->enableCircuit(gUserServer, TRUE);
-		msg->newMessage("ConnectAgentToUserserver");
-		msg->nextBlockFast(_PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		msg->sendReliable(gUserServer);
-		gStartupState++;
-		return do_normal_idle;
-	}
 
 	//---------------------------------------------------------------------
 	// Misc
@@ -2314,9 +2123,6 @@ BOOL idle_startup()
 		msg->setHandlerFuncFast(_PREHASH_AttachedSound,				process_attached_sound);
 		msg->setHandlerFuncFast(_PREHASH_AttachedSoundGainChange,	process_attached_sound_gain_change);
 		//msg->setHandlerFuncFast(_PREHASH_AttachedSoundCutoffRadius,	process_attached_sound_cutoff_radius);
-		msg->setHandlerFunc(
-			"ConnectToUserserver",
-			process_connect_to_userserver);
 
 		llinfos << "Initialization complete" << llendl;
 		gInitializationComplete = TRUE;
@@ -2756,31 +2562,6 @@ void set_startup_status(const F32 frac, const char *string, const char* msg)
 	gViewerWindow->setProgressMessage(msg);
 }
 
-void on_userserver_name_resolved( BOOL success, const LLString& host_name, U32 ip, void* userdata )
-{
-	if( STATE_RESOLVING_USERSERVER != gStartupState )
-	{
-		llwarns << "Userserver name callback returned during invalid state!" << llendl;
-		return;
-	}
-
-	if( success )
-	{
-		gUserServer.setAddress( ip );
-		llinfos << "...Userserver resolved to " << gUserServer << llendl;
-		gStartupState = STATE_USERSERVER_RESOLVED;
-	}
-	else
-	{
-		llwarns << "setHostByName failed" << llendl;
-		
-		LLStringBase<char>::format_map_t args;
-		args["[HOST_NAME]"] = host_name;
-		gViewerWindow->alertXml("SetByHostFail", args, login_alert_done );
-		reset_login();
-	}
-}
-
 void login_alert_status(S32 option, void* user_data)
 {
 	if (0 == option)
@@ -2904,8 +2685,6 @@ void update_dialog_callback(S32 option, void *userdata)
 	LLURI update_url = LLURI::buildHTTP("secondlife.com", 80, "update.php", query_map);
 	
 #if LL_WINDOWS
-	char ip[MAX_STRING];		/* Flawfinder: ignore */
-
 	update_exe_path = gDirUtilp->getTempFilename();
 	if (update_exe_path.empty())
 	{
@@ -2932,7 +2711,6 @@ void update_dialog_callback(S32 option, void *userdata)
 		app_force_quit(NULL);
 		return;
 	}
-	u32_to_ip_string(gUserServer.getAddress(), ip);
 
 	// if a sim name was passed in via command line parameter (typically through a SLURL)
 	if ( LLURLSimString::sInstance.mSimString.length() )
@@ -3060,7 +2838,7 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFuncFast(_PREHASH_MeanCollisionAlert,             process_mean_collision_alert_message,  NULL);
 	msg->setHandlerFunc("ViewerFrozenMessage",             process_frozen_message);
 
-	msg->setHandlerFuncFast(_PREHASH_RequestAvatarInfo,		process_avatar_info_request);
+	//msg->setHandlerFuncFast(_PREHASH_RequestAvatarInfo,		process_avatar_info_request);
 	msg->setHandlerFuncFast(_PREHASH_NameValuePair,			process_name_value);
 	msg->setHandlerFuncFast(_PREHASH_RemoveNameValuePair,	process_remove_name_value);
 	msg->setHandlerFuncFast(_PREHASH_AvatarAnimation,		process_avatar_animation);
@@ -3922,19 +3700,6 @@ void release_start_screen()
 {
 	//llinfos << "Releasing bitmap..." << llendl;
 	gStartImageGL = NULL;
-}
-
-void process_connect_to_userserver(LLMessageSystem* msg, void**)
-{
-	// Sent unreliably since if we've become disconnected, the
-	// userserver will get back to us eventually. By sending reliable,
-	// we also may accidently induce two separate validations under
-	// conditions where the userserver is already lagged.
-	msg->newMessage("ConnectAgentToUserserver");
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->sendMessage(gUserServer);
 }
 
 bool LLStartUp::canGoFullscreen()

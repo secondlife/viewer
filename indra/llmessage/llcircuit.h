@@ -38,7 +38,11 @@ const F32 LL_AVERAGED_PING_MIN =  100;    // msec  // IW: increased to avoid ret
 const U32 INITIAL_PING_VALUE_MSEC = 1000; // initial value for the ping delay, or for ping delay for an unknown circuit
 
 const TPACKETID LL_MAX_OUT_PACKET_ID = 0x01000000;
-const U8 LL_PACKET_ID_SIZE = 4;
+
+// 0 - flags
+// [1,4] - packetid
+// 5 - data offset (after message name)
+const U8 LL_PACKET_ID_SIZE = 6;
 
 const S32 LL_MAX_RESENT_PACKETS_PER_FRAME = 100;
 const S32 LL_MAX_ACKED_PACKETS_PER_FRAME = 200;

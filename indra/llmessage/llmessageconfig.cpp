@@ -12,37 +12,44 @@
 #include "llfile.h"
 #include "lllivefile.h"
 #include "llsd.h"
+#include "llsdutil.h"
 #include "llsdserialize.h"
+#include "message.h"
 
 static const char messageConfigFileName[] = "message.xml";
 static const F32 messageConfigRefreshRate = 5.0; // seconds
+
 static std::string sServerName = "";
 static std::string sConfigDir = "";
 
+static std::string sServerDefault;
+static LLSD sMessages;
+
+
 class LLMessageConfigFile : public LLLiveFile
 {
-private:
+public:
 	LLMessageConfigFile()
-        : LLLiveFile(fileName(), messageConfigRefreshRate),
-		  mChanged(false)
+        : LLLiveFile(fileName(), messageConfigRefreshRate)
             { }
 
     static std::string fileName();
-    
-public:
+
+    LLSD mMessages;
+	std::string mServerDefault;
+	
 	static LLMessageConfigFile& instance();
 		// return the singleton configuration file
 
-protected:
 	/* virtual */ void loadFile();
 	void loadServerDefaults(const LLSD& data);
 	void loadMessages(const LLSD& data);
+	void loadCapBans(const LLSD& blacklist);
+	void loadMessageBans(const LLSD& blacklist);
+	bool isCapBanned(const std::string& cap_name) const;
 
 public:
-    bool mChanged;
-	
-	std::string mServerDefault;
-	LLSD mMessages;
+	LLSD mCapBans;
 };
 
 std::string LLMessageConfigFile::fileName()
@@ -82,26 +89,63 @@ void LLMessageConfigFile::loadFile()
     }
 	loadServerDefaults(data);
 	loadMessages(data);
+	loadCapBans(data);
+	loadMessageBans(data);
 }
 
 void LLMessageConfigFile::loadServerDefaults(const LLSD& data)
 {
 	mServerDefault = data["serverDefaults"][sServerName].asString();
-	lldebugs << "loading default " << mServerDefault << llendl;
 }
 
 void LLMessageConfigFile::loadMessages(const LLSD& data)
 {
-	LLPointer<LLSDXMLFormatter> formatter = new LLSDXMLFormatter;
-	std::ostringstream out;
-
 	mMessages = data["messages"];
+
+#ifdef DEBUG
+	std::ostringstream out;
+	LLSDXMLFormatter *formatter = new LLSDXMLFormatter;
 	formatter->format(mMessages, out);
-	lldebugs << "loading ... " << out.str()
+	llinfos << "loading ... " << out.str()
 			<< " LLMessageConfigFile::loadMessages loaded "
 			<< mMessages.size() << " messages" << llendl;
+#endif
 }
 
+void LLMessageConfigFile::loadCapBans(const LLSD& data)
+{
+    LLSD bans = data["capBans"];
+    if (!bans.isMap())
+    {
+        llinfos << "LLMessageConfigFile::loadCapBans: missing capBans section"
+            << llendl;
+        return;
+    }
+    
+	mCapBans = bans;
+    
+    llinfos << "LLMessageConfigFile::loadCapBans: "
+        << bans.size() << " ban tests" << llendl;
+}
+
+void LLMessageConfigFile::loadMessageBans(const LLSD& data)
+{
+    LLSD bans = data["messageBans"];
+    if (!bans.isMap())
+    {
+        llinfos << "LLMessageConfigFile::loadMessageBans: missing messageBans section"
+            << llendl;
+        return;
+    }
+    
+	gMessageSystem->setMessageBans(bans["trusted"], bans["untrusted"]);
+}
+
+bool LLMessageConfigFile::isCapBanned(const std::string& cap_name) const
+{
+	llinfos << "mCapBans is " << LLSDXMLStreamer(mCapBans) << llendl;
+    return mCapBans[cap_name];
+}
 
 //---------------------------------------------------------------
 // LLMessageConfig
@@ -114,98 +158,77 @@ void LLMessageConfig::initClass(const std::string& server_name,
 	sServerName = server_name;
 	sConfigDir = config_dir;
 	(void) LLMessageConfigFile::instance();
-	llinfos << "LLMessageConfig::intiClass config file "
+	llinfos << "LLMessageConfig::initClass config file "
 			<< config_dir << "/" << messageConfigFileName << llendl;
 }
 
 //static
-bool LLMessageConfig::isServerDefaultBuilderLLSD()
+void LLMessageConfig::useConfig(const LLSD& config)
 {
-	if (sServerName.empty())
-	{
-		llerrs << "LLMessageConfig::isServerDefaultBuilderLLSD() before"
-				<< " LLMessageConfig::initClass()" << llendl;
-	}
-	LLMessageConfigFile& file = LLMessageConfigFile::instance();
-	return (file.mServerDefault == "llsd");
+	LLMessageConfigFile &the_file = LLMessageConfigFile::instance();
+	the_file.loadServerDefaults(config);
+	the_file.loadMessages(config);
+	the_file.loadCapBans(config);
+	the_file.loadMessageBans(config);
+
 }
 
 //static
-bool LLMessageConfig::isServerDefaultBuilderTemplate()
+LLMessageConfig::Flavor LLMessageConfig::getServerDefaultFlavor()
 {
-	if (sServerName.empty())
-	{
-		llerrs << "LLMessageConfig::isServerDefaultBuilderTemplate() before"
-				<< " LLMessageConfig::initClass()" << llendl;
-	}
 	LLMessageConfigFile& file = LLMessageConfigFile::instance();
-	return (file.mServerDefault == "template");
+	if (file.mServerDefault == "llsd")
+	{
+		return LLSD_FLAVOR;
+	}
+	if (file.mServerDefault == "template")
+	{
+		return TEMPLATE_FLAVOR;
+	}
+	return NO_FLAVOR;
 }
 
 //static
-bool LLMessageConfig::isMessageBuiltLLSD(const std::string& msg_name)
+LLMessageConfig::Flavor LLMessageConfig::getMessageFlavor(const std::string& msg_name)
 {
-	if (sServerName.empty())
-	{
-		llerrs << "LLMessageConfig::isMessageBuiltLLSD(name) before"
-				<< " LLMessageConfig::initClass()" << llendl;
-	}
 	LLMessageConfigFile& file = LLMessageConfigFile::instance();
 	LLSD config = file.mMessages[msg_name];
-	if (!config.has("builder"))
+	if (config["flavor"].asString() == "llsd")
 	{
-		return isServerDefaultBuilderLLSD();
+		return LLSD_FLAVOR;
 	}
-	return (config["builder"].asString() == "llsd");
+	if (config["flavor"].asString() == "template")
+	{
+		return TEMPLATE_FLAVOR;
+	}
+	return NO_FLAVOR;
 }
 
 //static
-bool LLMessageConfig::isMessageBuiltTemplate(const std::string& msg_name)
+LLMessageConfig::SenderTrust LLMessageConfig::getSenderTrustedness(
+	const std::string& msg_name)
 {
-	if (sServerName.empty())
-	{
-		llerrs << "LLMessageConfig::isMessageBuiltTemplate(name) before"
-				<< " LLMessageConfig::initClass()" << llendl;
-	}
 	LLMessageConfigFile& file = LLMessageConfigFile::instance();
 	LLSD config = file.mMessages[msg_name];
-	if (!config.has("builder"))
+	if (config.has("trusted-sender"))
 	{
-		return isServerDefaultBuilderTemplate();
+		return config["trusted-sender"].asBoolean() ? TRUSTED : UNTRUSTED;
 	}
-	return (config["builder"].asString() == "template");
+	return NOT_SET;
 }
 
 //static
-bool LLMessageConfig::isMessageTrusted(const std::string& msg_name)
+bool LLMessageConfig::isValidMessage(const std::string& msg_name)
 {
 	if (sServerName.empty())
 	{
-		llerrs << "LLMessageConfig::isMessageTrusted(name) before"
-				<< " LLMessageConfig::initClass()" << llendl;
+		llerrs << "LLMessageConfig::initClass() not called" << llendl;
 	}
 	LLMessageConfigFile& file = LLMessageConfigFile::instance();
-	LLSD config = file.mMessages[msg_name];
-	if (!config.has("trusted-sender"))
-	{
-		return false;
-	}
-	return config["trusted-sender"].asBoolean();
+	return file.mMessages.has(msg_name);
 }
 
-//static
-bool LLMessageConfig::isValidUntrustedMessage(const std::string& msg_name)
+bool LLMessageConfig::isCapBanned(const std::string& cap_name)
 {
-	if (sServerName.empty())
-	{
-		llerrs << "LLMessageConfig::isMessageTrusted(name) before"
-				<< " LLMessageConfig::initClass()" << llendl;
-	}
-	LLMessageConfigFile& file = LLMessageConfigFile::instance();
-	LLSD config = file.mMessages[msg_name];
-	if (!config.has("trusted-sender"))
-	{
-		return false;
-	}
-	return !(config["trusted-sender"].asBoolean());
+	return LLMessageConfigFile::instance().isCapBanned(cap_name);
 }
