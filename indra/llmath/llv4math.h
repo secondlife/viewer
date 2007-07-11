@@ -65,18 +65,10 @@ typedef float	V4F32							__attribute__((vector_size(16)));
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-<<<<<<< .mine
-// Only VS2005 supports the _M_IX86_FP macro to indicate SSE compilation 
-// enabled.  We assume that if you are using Visual Studio, and you include
-// this file, you want SSE/vectorization code.
-//#if LL_MSVC && _M_IX86_FP
-#if LL_MSVC
-=======
 // Only vectorize if the entire Windows build uses SSE.
 // _M_IX86_FP is set when SSE code generation is turned on, and I have
 // confirmed this in VS2003, VS2003 SP1, and VS2005. JC
 #if LL_MSVC && _M_IX86_FP
->>>>>>> .r65110
 
 #define			LL_VECTORIZE					1
 
