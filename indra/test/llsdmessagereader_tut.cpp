@@ -8,6 +8,7 @@
  */
 
 #include <tut/tut.h>
+#include "linden_common.h"
 #include "lltut.h"
 
 #include "message.h"
