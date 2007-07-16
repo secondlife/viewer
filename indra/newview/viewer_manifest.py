@@ -12,7 +12,7 @@ import re
 import tarfile
 viewer_dir = os.path.dirname(__file__)
 # add llmanifest library to our path so we don't have to muck with PYTHONPATH
-sys.path.append(os.path.join(viewer_dir, '../lib/python/indra'))
+sys.path.append(os.path.join(viewer_dir, '../lib/python/indra/util'))
 from llmanifest import LLManifest, main, proper_windows_path, path_ancestors
 
 class ViewerManifest(LLManifest):

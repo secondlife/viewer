@@ -22,8 +22,8 @@ import os
 import sys
 import urllib
 
-from indra import compatibility
-from indra import llmessage
+from indra.ipc import compatibility
+from indra.ipc import llmessage
 
 def die(msg):
     print >>sys.stderr, msg
