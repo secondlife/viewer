@@ -15,6 +15,7 @@ Life itself - please see <http://www.secondlife.com/whatis/>.
    5.3. 'Shiny' and client performance
    5.4. Audio
    5.5. 'Alt' key for camera controls doesn't work
+   5.6. In-world movie playback
 6. Advanced Troubleshooting
    6.1. Audio
    6.2. OpenGL
@@ -57,6 +58,7 @@ Minimum requirements:
     * Video/Graphics Card:
           o nVidia GeForce 2, GeForce 4mx, or better
           o OR ATI Radeon 8500, 9250, or better
+          (nVidia cards are strongly recommended for the Linux client)
 
       **NOTE**: Second Life absolutely requires you to have recent, correctly-
       configured OpenGL 3D drivers for your hardware - the graphics drivers
@@ -76,6 +78,14 @@ unpacked it into - no installation step is required.
 
 Run ./secondlife from the installation directory to start Second Life.
 
+For in-world MOVIE PLAYBACK, you will need GStreamer 0.10 installed on your
+system.  This is optional - it is not required for general client
+functionality.  If you have GStreamer 0.10 installed, the selection of
+in-world movies you can successfully play will depend on the GStreamer
+plugins you have; if you cannot play a certain in-world movie then you are
+probably missing the appropriate GStreamer plugin on your system - you may
+be able to install it (see TROUBLESHOOTING).
+
 User data is stored in the hidden directory ~/.secondlife by default; you may
 override this location with the SECONDLIFE_USER_DIR environment variable if
 you wish.
@@ -93,10 +103,9 @@ the Alpha release of the Linux client.
   stability.  See PROBLEM 3 in the TROUBLESHOOTING section if you wish to
   turn these on to possibly enhance your experience.
 
-* MISC - The following user-visible features are not currently fully
-  implemented on the Linux client and are therefore known not to work properly
-  at this time:
-  * QuickTime movie playback and movie recording
+* MISC - The following features are not currently fully implemented on the
+  Linux client and are therefore known not to work properly:
+  * Movie recording
   * Full Unicode font rendering
   * Auto-updater
 
@@ -175,6 +184,13 @@ SOLUTION:- Some window managers eat the Alt key for their own purposes; you
    can configure your window manager to use a different key instead (for
    example, the 'Windows' key!) which will allow the Alt key to function
    properly with mouse actions in Second Life and other applications.
+
+PROBLEM 6:- In-world movie playback doesn't work for me.
+SOLUTION:- You need to have a working installation of GStreamer 0.10; this
+   is usually an optional package for most versions of Linux.  If you have
+   installed GStreamer 0.10 and you can play some movies but not others then
+   you need to install a wider selection of GStreamer plugins, either
+   from your vendor or an appropriate third party.
 
 
 6. ADVANCED TROUBLESHOOTING
