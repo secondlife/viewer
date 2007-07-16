@@ -6,7 +6,7 @@
 # Copyright (c) 2006-$CurrentYear$, Linden Research, Inc.
 # $License$
 
-from indra import llmanifest
+from indra.util import llmanifest
 import os.path
 import os
 import unittest
