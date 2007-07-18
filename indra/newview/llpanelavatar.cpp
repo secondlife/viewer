@@ -71,6 +71,7 @@ BOOL LLPanelAvatar::sAllowFirstLife = FALSE;
 // RN: move these to lldbstrings.h
 static const S32 DB_USER_FAVORITES_STR_LEN = 254;
 
+const char LOADING_MSG[] = "Loading...";
 static const char IM_DISABLED_TOOLTIP[] = "Instant Message (IM).\nDisabled because you do not have their card.";
 static const char IM_ENABLED_TOOLTIP[] = "Instant Message (IM)";
 static const S32 LEFT = HPAD;
@@ -810,7 +811,7 @@ void LLPanelAvatarNotes::refresh()
 
 void LLPanelAvatarNotes::clearControls()
 {
-	childSetText("notes edit", "Loading...");
+	childSetText("notes edit", LOADING_MSG);
 	childSetEnabled("notes edit", false);
 }
 
@@ -1251,6 +1252,8 @@ LLPanelAvatar::LLPanelAvatar(
 	mAvatarID( LLUUID::null ),	// mAvatarID is set with 'setAvatar' or 'setAvatarID'
 	mHaveProperties(FALSE),
 	mHaveStatistics(FALSE),
+	mHaveNotes(false),
+	mLastNotes(),
 	mAllowEdit(allow_edit)
 {
 
@@ -1440,6 +1443,8 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id, const LLString &name,
 
 		mPanelNotes->clearControls();
 		mPanelNotes->setDataRequested(false);
+		mHaveNotes = false;
+		mLastNotes.clear();
 
 		// Request just the first two pages of data.  The picks,
 		// classifieds, and notes will be requested when that panel
@@ -1451,8 +1456,8 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id, const LLString &name,
 			if (mAllowEdit)
 			{
 				// OK button disabled until properties data arrives
-				childSetVisible("OK",TRUE);
-				childSetEnabled("OK",TRUE);
+				childSetVisible("OK", true);
+				childSetEnabled("OK", false);
 				childSetVisible("Cancel",TRUE);
 				childSetEnabled("Cancel",TRUE);
 			}
@@ -1747,7 +1752,19 @@ void LLPanelAvatar::sendAvatarPropertiesRequest()
 void LLPanelAvatar::sendAvatarNotesUpdate()
 {
 	std::string notes = mPanelNotes->childGetValue("notes edit").asString();
-	
+
+	if (!mHaveNotes
+		&& (notes.empty() || notes == LOADING_MSG))
+	{
+		// no notes from server and no user updates
+		return;
+	}
+	if (notes == mLastNotes)
+	{
+		// Avatar notes unchanged
+		return;
+	}
+
 	LLMessageSystem *msg = gMessageSystem;
 
 	msg->newMessage("AvatarNotesUpdate");
@@ -2155,6 +2172,8 @@ void LLPanelAvatar::processAvatarNotesReply(LLMessageSystem *msg, void**)
 		msg->getString("Data", "Notes", DB_USER_NOTE_SIZE, text);
 		self->childSetValue("notes edit", text);
 		self->childSetEnabled("notes edit", true);
+		self->mHaveNotes = true;
+		self->mLastNotes = text;
 	}
 }
 

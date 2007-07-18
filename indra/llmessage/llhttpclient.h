@@ -59,7 +59,9 @@ public:
 	typedef boost::intrusive_ptr<Responder>	ResponderPtr;
 	
 	static void get(const std::string& url, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+	static void get(const std::string& url, ResponderPtr, const LLSD& headers, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void get(const std::string& url, const LLSD& query, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+	static void get(const std::string& url, const LLSD& query, ResponderPtr, const LLSD& headers, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void put(const std::string& url, const LLSD& body, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 		///< non-blocking
 	static void post(const std::string& url, const LLSD& body, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);

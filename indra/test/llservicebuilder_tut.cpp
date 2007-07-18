@@ -72,5 +72,22 @@ namespace tut
 		std::string test_url = mServiceBuilder.buildServiceURI("ServiceBuilderTest", data_map);
 		ensure_equals("Replacement URL Creation for Non-existant Service", test_url , "/agent/{$agent-id}/name");
 	}
+
+	template<> template<>
+	void ServiceBuilderTestObject::test<5>()
+	{
+		LLSD test_block;
+		test_block["service-builder"] = "/proc/{$proc}{%params}";
+		mServiceBuilder.createServiceDefinition("ServiceBuilderTest", test_block["service-builder"]);	
+		LLSD data_map;
+		data_map["proc"] = "do/something/useful";
+		data_map["params"]["estate_id"] = 1;
+		data_map["params"]["query"] = "public";
+		std::string test_url = mServiceBuilder.buildServiceURI("ServiceBuilderTest", data_map);
+		ensure_equals(
+			"two part URL Creation",
+			test_url ,
+			"/proc/do/something/useful?estate_id=1&query=public");
+	}
 }
 

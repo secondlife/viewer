@@ -303,15 +303,14 @@ public:
 	static void onClickCSR(		void *userdata);
 	static void onClickMute(	void *userdata);
 
+private:
+	void enableOKIfReady();
+
 	static void finishKick(S32 option, const LLString& text, void* userdata);
 	static void finishFreeze(S32 option, const LLString& text, void* userdata);
 	static void finishUnfreeze(S32 option, const LLString& text, void* userdata);
 
 	static void showProfileCallback(S32 option, void *userdata);
-
-	// Teen users are not allowed to see or enter data into the first life page,
-	// or their own about/interests text entry fields.
-	static BOOL sAllowFirstLife;
 
 	static	void*	createPanelAvatar(void*	data);
 	static	void*	createFloaterAvatarInfo(void*	data);
@@ -333,13 +332,20 @@ public:
 	LLPanelAvatarWeb*			mPanelWeb;
 
 	LLDropTarget* 				mDropTarget;
+
+	// Teen users are not allowed to see or enter data into the first life page,
+	// or their own about/interests text entry fields.
+	static BOOL sAllowFirstLife;
 	
-protected:
-	void						enableOKIfReady();
+private:
 	LLUUID						mAvatarID;			// for which avatar is this window?
 	BOOL						mIsFriend;			// Are we friends?
 	BOOL						mHaveProperties;
 	BOOL						mHaveStatistics;
+	// only update note if data received from database and
+	// note is changed from database version
+	bool						mHaveNotes;
+	std::string					mLastNotes;
 	LLTabContainerCommon*		mTab;
 	BOOL						mAllowEdit;
 

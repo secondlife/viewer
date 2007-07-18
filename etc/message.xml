@@ -243,7 +243,6 @@
 					<key>trusted-sender</key>
 					<boolean>false</boolean>
 				</map>
-
 				<!-- Simulator to simulator unreliable messages -->
 				<key>EdgeDataPacket</key>
 				<map>
@@ -323,6 +322,38 @@
 					<string>llsd</string>
 					<key>trusted-sender</key>
 					<boolean>true</boolean>
+				</map>
+				<key>avatarnotesrequest</key>
+				<map>
+                    <key>service_name</key><string>avatar-notes</string>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+				<key>avatarclassifiedsrequest</key>
+				<map>
+                    <key>service_name</key><string>avatar-classifieds</string>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+				<key>avatarpickrequest</key>
+				<map>
+                    <key>service_name</key><string>avatar-pick</string>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+				<key>pickinforequest</key>
+				<map>
+                    <key>service_name</key><string>pick-info</string>
+					<key>builder</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
 				</map>
 		  </map>
   	  	<key>capBans</key>

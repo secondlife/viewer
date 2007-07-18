@@ -89,7 +89,7 @@ std::string LLServiceBuilder::buildServiceURI(
 	const LLSD& option_map)
 {
 	std::string service_url = buildServiceURI(service_name);
-
+    
 	// Find the Service Name
 	if(!service_url.empty() && option_map.isMap())
 	{
@@ -108,6 +108,23 @@ std::string LLServiceBuilder::buildServiceURI(
 					find_pos,
 					variable_name.length(),
 					(*option_itr).second.asString());
+				continue;
+			}
+			variable_name.assign("{%");
+			variable_name.append((*option_itr).first);
+			variable_name.append("}");
+			find_pos = service_url.find(variable_name);
+			if(find_pos != std::string::npos)
+			{
+				std::string query_str = LLURI::mapToQueryString(
+					(*option_itr).second);
+				if(!query_str.empty())
+				{
+					service_url.replace(
+						find_pos,
+						variable_name.length(),
+						query_str);
+				}
 			}
 		}
 	}

@@ -232,6 +232,7 @@ static void request(
 	LLURLRequest::ERequestAction method,
 	Injector* body_injector,
 	LLHTTPClient::ResponderPtr responder,
+    const LLSD& headers,
 	const F32 timeout=HTTP_REQUEST_EXPIRY_SECS)
 {
 	if (!LLHTTPClient::hasPump())
@@ -243,6 +244,19 @@ static void request(
 
 	LLURLRequest *req = new LLURLRequest(method, url);
 	req->requestEncoding("");
+
+    if (headers.isMap())
+    {
+        LLSD::map_const_iterator iter = headers.beginMap();
+        LLSD::map_const_iterator end  = headers.endMap();
+
+        for (; iter != end; ++iter)
+        {
+            std::ostringstream header;
+            header << iter->first << ": " << iter->second.asString() ;
+            req->addHeader(header.str().c_str());
+        }
+    }
 	if (!gCABundle.empty())
 	{
 		req->checkRootCertificate(true, gCABundle.c_str());
@@ -267,17 +281,37 @@ static void request(
 	theClientPump->addChain(chain, timeout);
 }
 
-void LLHTTPClient::get(const std::string& url, ResponderPtr responder, const F32 timeout)
+static void request(
+	const std::string& url,
+	LLURLRequest::ERequestAction method,
+	Injector* body_injector,
+	LLHTTPClient::ResponderPtr responder,
+	const F32 timeout=HTTP_REQUEST_EXPIRY_SECS)
 {
-	request(url, LLURLRequest::HTTP_GET, NULL, responder, timeout);
+    request(url, method, body_injector, responder, LLSD(), timeout);
 }
 
-void LLHTTPClient::get(const std::string& url, const LLSD& query, ResponderPtr responder, const F32 timeout)
+void LLHTTPClient::get(const std::string& url, ResponderPtr responder, const LLSD& headers, const F32 timeout)
+{
+	request(url, LLURLRequest::HTTP_GET, NULL, responder, headers, timeout);
+}
+
+void LLHTTPClient::get(const std::string& url, ResponderPtr responder, const F32 timeout)
+{
+	get(url, responder, LLSD(), timeout);
+}
+
+void LLHTTPClient::get(const std::string& url, const LLSD& query, ResponderPtr responder, const LLSD& headers, const F32 timeout)
 {
 	LLURI uri;
 	
 	uri = LLURI::buildHTTP(url, LLSD::emptyArray(), query);
-	get(uri.asString(), responder, timeout);
+	get(uri.asString(), responder, headers, timeout);
+}
+
+void LLHTTPClient::get(const std::string& url, const LLSD& query, ResponderPtr responder, const F32 timeout)
+{
+	get(url, query, responder, LLSD(), timeout);
 }
 
 // A simple class for managing data returned from a curl http request.

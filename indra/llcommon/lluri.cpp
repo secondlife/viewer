@@ -275,9 +275,10 @@ LLURI LLURI::buildHTTP(const std::string& prefix,
 					   const LLSD& query)
 {
 	LLURI uri = buildHTTP(prefix, path);
-	uri.mEscapedQuery = mapToQueryString(query);
 	// break out and escape each query component
-	uri.mEscapedOpaque += "?" + uri.mEscapedQuery ;
+	uri.mEscapedQuery = mapToQueryString(query);
+	uri.mEscapedOpaque += uri.mEscapedQuery ;
+	uri.mEscapedQuery.erase(0,1); // trim the leading '?'
 	return uri;
 }
 
@@ -581,20 +582,30 @@ LLSD LLURI::queryMap(std::string escaped_query_string)
 std::string LLURI::mapToQueryString(const LLSD& queryMap)
 {
 	std::string query_string;
-
 	if (queryMap.isMap())
 	{
-		for (LLSD::map_const_iterator iter = queryMap.beginMap();
-			 iter != queryMap.endMap();
-			 iter++)
+		bool first_element = true;
+		LLSD::map_const_iterator iter = queryMap.beginMap();
+		LLSD::map_const_iterator end = queryMap.endMap();
+		std::ostringstream ostr;
+		for (; iter != end; ++iter)
 		{
-			query_string += escapeQueryVariable(iter->first) +
-				(iter->second.isUndefined() ? "" : "=" + escapeQueryValue(iter->second.asString())) + "&" ;
+			if(first_element)
+			{
+				ostr << "?";
+				first_element = false;
+			}
+			else
+			{
+				ostr << "&";
+			}
+			ostr << escapeQueryVariable(iter->first);
+			if(iter->second.isDefined())
+			{
+				ostr << "=" <<  escapeQueryValue(iter->second.asString());
+			}
 		}
-		//if (queryMap.size() > 0)
-		//{
-		//	query_string += "?" + query_string ;
-		//}
+		query_string = ostr.str();
 	}
 	return query_string;
 }

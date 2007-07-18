@@ -10,6 +10,7 @@
 #define LL_MESSAGECONFIG_H
 
 #include <string>
+#include "llsd.h"
 
 class LLSD;
 
@@ -30,5 +31,6 @@ public:
 	static SenderTrust getSenderTrustedness(const std::string& msg_name);
 	static bool isValidMessage(const std::string& msg_name);
 	static bool isCapBanned(const std::string& cap_name);
+	static LLSD getConfigForMessage(const std::string& msg_name);
 };
 #endif // LL_MESSAGECONFIG_H

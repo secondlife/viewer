@@ -38,34 +38,42 @@ public:
 	  
   // construct from escaped string, as would be transmitted on the net
 
-  ~LLURI();
+	~LLURI();
 
-  static LLURI buildHTTP(const std::string& prefix,
-			 const LLSD& path);
-  static LLURI buildHTTP(const std::string& prefix,
-			 const LLSD& path,
-			 const LLSD& query);
-	// prefix is either a full URL prefix of the form "http://example.com:8080",
-	// or it can be simply a host and optional port like "example.com" or 
-	// "example.com:8080", in these cases, the "http://" will be added
+	static LLURI buildHTTP(
+		const std::string& prefix,
+		const LLSD& path);
 
-  static LLURI buildHTTP(const std::string& host,
-			 const U32& port,
-			 const LLSD& path);
-  static LLURI buildHTTP(const std::string& host,
-			 const U32& port,
-			 const LLSD& path,
-			 const LLSD& query);
-  std::string asString() const;
-  // the whole URI, escaped as needed
+	static LLURI buildHTTP(
+		const std::string& prefix,
+		const LLSD& path,
+		const LLSD& query);
+	///< prefix is either a full URL prefix of the form
+	/// "http://example.com:8080", or it can be simply a host and
+	/// optional port like "example.com" or "example.com:8080", in
+	/// these cases, the "http://" will be added
+
+	static LLURI buildHTTP(
+		const std::string& host,
+		const U32& port,
+		const LLSD& path);
+	static LLURI buildHTTP(
+		const std::string& host,
+		const U32& port,
+		const LLSD& path,
+		const LLSD& query);
+
+	std::string asString() const;
+	///< the whole URI, escaped as needed
   
-  // Parts of a URI
-  // These functions return parts of the decoded URI.  The returned
-  // strings are un-escaped as needed
+	/** @name Parts of a URI */
+	//@{
+	// These functions return parts of the decoded URI.  The returned
+	// strings are un-escaped as needed
   
-  // for all schemes
-  std::string scheme() const;		// ex.: "http", note lack of colon
-  std::string opaque() const;		// everything after the colon
+	// for all schemes
+	std::string scheme() const;		///< ex.: "http", note lack of colon
+	std::string opaque() const;		///< everything after the colon
   
   // for schemes that follow path like syntax (http, https, ftp)
   std::string authority() const;	// ex.: "host.com:80"
@@ -81,27 +89,34 @@ public:
   const std::string& escapedQuery() const { return mEscapedQuery; }
   LLSD queryMap() const;			// above decoded into a map
   static LLSD queryMap(std::string escaped_query_string);
-  static std::string mapToQueryString(const LLSD& queryMap);
 
-  // Escaping Utilities
-  // Escape a string by urlencoding all the characters that aren't in the allowed string.
-  static std::string escape(const std::string& str);
-  static std::string escape(const std::string& str, const std::string & allowed); 
-  static std::string unescape(const std::string& str);
+	/**
+	 * @brief given a name value map, return a serialized query string.
+	 *
 
-	// Functions for building specific URIs for web services
-	// *NOTE: DEPRECATED. use the service builder instead.
-	//static LLURI buildBulkAgentNamesURI(LLApp* app);
-	//static LLURI buildAgentSessionURI(const LLUUID& agent_id, LLApp* app);
-	//static LLURI buildAgentLoginInfoURI(const LLUUID& agent_id, const std::string& dataserver);
-	//static LLURI buildAgentNameURI(const LLUUID& agent_id, LLApp* app);
+	 * @param query_map a map of name value. every value must be
+	 * representable as a string.
+	 * @return Returns an url query string of '?n1=v1&n2=v2&...'
+	 */
+	static std::string mapToQueryString(const LLSD& query_map);
+
+	/** @name Escaping Utilities */
+	//@{
+	// Escape a string by urlencoding all the characters that aren't
+	// in the allowed string.
+	static std::string escape(const std::string& str);
+	static std::string escape(
+		const std::string& str,
+		const std::string & allowed); 
+	static std::string unescape(const std::string& str);
+	//@}
 
 private:
-  std::string mScheme;
-  std::string mEscapedOpaque;
-  std::string mEscapedAuthority;
-  std::string mEscapedPath;
-  std::string mEscapedQuery;
+	std::string mScheme;
+	std::string mEscapedOpaque;
+	std::string mEscapedAuthority;
+	std::string mEscapedPath;
+	std::string mEscapedQuery;
 };
 
 #endif // LL_LLURI_H

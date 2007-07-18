@@ -232,3 +232,19 @@ bool LLMessageConfig::isCapBanned(const std::string& cap_name)
 {
 	return LLMessageConfigFile::instance().isCapBanned(cap_name);
 }
+
+// return the web-service path to use for a given
+// message. This entry *should* match the entry
+// in simulator.xml!
+LLSD LLMessageConfig::getConfigForMessage(const std::string& msg_name)
+{
+	if (sServerName.empty())
+	{
+		llerrs << "LLMessageConfig::isMessageTrusted(name) before"
+				<< " LLMessageConfig::initClass()" << llendl;
+	}
+	LLMessageConfigFile& file = LLMessageConfigFile::instance();
+	// LLSD for the CamelCase message name
+	LLSD config = file.mMessages[msg_name];
+	return config;
+}
