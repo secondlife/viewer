@@ -11,15 +11,18 @@ Benja Kepler - VWR-746
 Blakar Ogre - VWR-881
 blino Nakamura - VWR-17
 bushing Spatula - VWR-424, VWR-119
+Catherine Pfeffer - VWR-1282
 Dale Glass - VWR-120, VWR-560
 Drewan Keats - VWR-28, VWR-248, VWR-412
 Duckless Vandyke - VWR-383
 Dylan Haskell - VWR-72
-Dzonatas Sol - VWR-198, VWR-878
+Dzonatas Sol - VWR-198, VWR-878, VWR-1704, VWR-1705
 Eddy Stryker - VWR-15, VWR-23
+Fee Larsson - VWR-1314
 Fremont Cunningham - VWR-1147
 Gigs Taggart - VWR-71, VWR-326, VWR-1217
 Ginko Bayliss - VWR-4
+Grazer Kline - VWR-1092
 Hikkoshi Sakai - VWR-429
 Hiro Sommambulist - VWR-66, VWR-97, VWR-100, VWR-105, VWR-108, VWR-118, VWR-132, VWR-136, VWR-143
 Iskar Ariantho - VWR-1223
@@ -27,7 +30,8 @@ Jacek Antonelli - VWR-165, VWR-188, VWR-427, VWR-597
 Joghert LeSabre - VWR-64
 Kage Pixel - VWR-11
 Kunnis Basiat - VWR-82
-Nicholaz Beresford - VWR-132, VWR-176, VWR-793, VWR-794, VWR-802, VWR-803, VWR-804, VWR-805, VWR-808, VWR-809, VWR-810, VWR-823, VWR-869, VWR-870, VWR-871, VWR-873, VWR-908, VWR-966, VWR-1410, VWR-1418
+Nicholaz Beresford - VWR-132, VWR-176, VWR-364, VWR-691, VWR-793, VWR-794, VWR-802, VWR-803, VWR-804, VWR-805, VWR-808, VWR-809, VWR-810, VWR-823, VWR-856, VWR-869, VWR-870, VWR-871, VWR-873, VWR-908, VWR-966, VWR-1221, VWR-1270, VWR-1296, VWR-1410, VWR-1418, VWR-1453, VWR-1455, VWR-1470, VWR-1578, VWR-1626, VWR-1655, VWR-1698, VWR-1706, VWR-1723
+McCabe Maxsted - VWR-1318
 Paul Churchill - VWR-20
 Paula Innis - VWR-30, VWR-1049
 Peekay Semyorka - VWR-7, VWR-19, VWR-49, VWR-79
