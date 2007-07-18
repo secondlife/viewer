@@ -30,16 +30,17 @@ extern LLPipeline gPipeline;
 //-----------------------------------------------------------------------------
 // LLViewerJointAttachment()
 //-----------------------------------------------------------------------------
-LLViewerJointAttachment::LLViewerJointAttachment()
+LLViewerJointAttachment::LLViewerJointAttachment() :
+mJoint(NULL),
+mAttachedObject(NULL),
+mAttachmentDirty(FALSE),
+mVisibleInFirst(FALSE),
+mGroup(0),
+mIsHUDAttachment(FALSE),
+mPieSlice(-1)
 {
-	mJoint = NULL;
-	mAttachedObject = NULL;
-	mAttachmentDirty = FALSE;
-	mGroup = 0;
-	mUpdateXform = FALSE;
-	mIsHUDAttachment = FALSE;
 	mValid = FALSE;
-	mPieSlice = -1;
+	mUpdateXform = FALSE;
 }
 
 //-----------------------------------------------------------------------------

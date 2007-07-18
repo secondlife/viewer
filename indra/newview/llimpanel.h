@@ -105,7 +105,7 @@ private:
 	void setTyping(BOOL typing);
 
 	// Add the "User is typing..." indicator.
-	void addTypingIndicator(const LLIMInfo* im_info);
+	void addTypingIndicator(const std::string &name);
 
 	// Remove the "User is typing..." indicator.
 	void removeTypingIndicator();
@@ -144,6 +144,9 @@ private:
 
 	// Is other user currently typing?
 	BOOL mOtherTyping;
+
+	// name of other user who is currently typing
+	std::string mOtherTypingName;
 
 	// Where does the "User is typing..." line start?
 	S32 mTypingLineStartIndex;

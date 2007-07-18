@@ -301,89 +301,15 @@ void LLViewerRegion::sendReliableMessage()
 	gMessageSystem->sendReliable(mHost);
 }
 
-
-void LLViewerRegion::setAllowDamage(BOOL b)
+void LLViewerRegion::setFlags(BOOL b, U32 flags)
 {
 	if (b)
 	{
-		mRegionFlags |=  REGION_FLAGS_ALLOW_DAMAGE;
+		mRegionFlags |=  flags;
 	}
 	else
 	{
-		mRegionFlags &= ~REGION_FLAGS_ALLOW_DAMAGE;
-	}
-}
-
-
-void LLViewerRegion::setAllowLandmark(BOOL b)
-{
-	if (b)
-	{
-		mRegionFlags |=  REGION_FLAGS_ALLOW_LANDMARK;
-	}
-	else
-	{
-		mRegionFlags &= ~REGION_FLAGS_ALLOW_LANDMARK;
-	}
-}
-
-void LLViewerRegion::setAllowSetHome(BOOL b)
-{
-	if (b)
-	{
-		mRegionFlags |=  REGION_FLAGS_ALLOW_SET_HOME;
-	}
-	else
-	{
-		mRegionFlags &= ~REGION_FLAGS_ALLOW_SET_HOME;
-	}
-}
-
-void LLViewerRegion::setResetHomeOnTeleport(BOOL b)
-{
-	if (b)
-	{
-		mRegionFlags |=  REGION_FLAGS_RESET_HOME_ON_TELEPORT;
-	}
-	else
-	{
-		mRegionFlags &= ~REGION_FLAGS_RESET_HOME_ON_TELEPORT;
-	}
-}
-
-void LLViewerRegion::setSunFixed(BOOL b)
-{
-	if (b)
-	{
-		mRegionFlags |=  REGION_FLAGS_SUN_FIXED;
-	}
-	else
-	{
-		mRegionFlags &= ~REGION_FLAGS_SUN_FIXED;
-	}
-}
-
-void LLViewerRegion::setBlockFly(BOOL b)
-{
-	if (b)
-	{
-		mRegionFlags |= REGION_FLAGS_BLOCK_FLY;
-	}
-	else
-	{
-		mRegionFlags &= ~REGION_FLAGS_BLOCK_FLY;
-	}
-}
-
-void LLViewerRegion::setAllowDirectTeleport(BOOL b)
-{
-	if (b)
-	{
-		mRegionFlags |= REGION_FLAGS_ALLOW_DIRECT_TELEPORT;
-	}
-	else
-	{
-		mRegionFlags &= ~REGION_FLAGS_ALLOW_DIRECT_TELEPORT;
+		mRegionFlags &= ~flags;
 	}
 }
 

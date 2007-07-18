@@ -16,7 +16,11 @@
 
 extern "C"
 {
-#include "expat/expat.h"
+#ifdef LL_STANDALONE
+# include <expat.h>
+#else
+# include "expat/expat.h"
+#endif
 }
 
 /**

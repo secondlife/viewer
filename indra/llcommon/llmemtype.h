@@ -21,6 +21,7 @@ extern void ll_release (void *p);
 #define MEM_TRACK_TYPE (1 && MEM_TRACK_MEM)
 
 #if MEM_TRACK_TYPE
+#define MEM_DUMP_DATA 1
 #define MEM_TYPE_NEW(T) \
 static void* operator new(size_t s) { LLMemType mt(T); return ll_allocate(s); } \
 static void  operator delete(void* p) { ll_release(p); }
@@ -123,6 +124,7 @@ public:
 	static S32 sType[MTYPE_MAX_DEPTH];
 	static S32 sMemCount[MTYPE_NUM_TYPES];
 	static S32 sMaxMemCount[MTYPE_NUM_TYPES];
+	static S32 sNewCount[MTYPE_NUM_TYPES];
 	static S32 sOverheadMem;
 	static const char* sTypeDesc[MTYPE_NUM_TYPES];
 #endif

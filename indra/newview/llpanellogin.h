@@ -15,6 +15,7 @@
 #include "llmemory.h"
 #include "llviewerimage.h"
 #include "llstring.h"
+#include "llmd5.h"
 
 class LLTextBox;
 class LLLineEditor;

@@ -4183,7 +4183,7 @@ void LLVOAvatar::updateTextures(LLAgent &agent)
 	
 	if( render_avatar )
 	{
-		mShadowImagep->addTextureStats(mPixelArea, 1.f);
+		mShadowImagep->addTextureStats(mPixelArea);
 	}
 }
 
@@ -5790,7 +5790,7 @@ BOOL LLVOAvatar::attachObject(LLViewerObject *viewer_object)
 {
 	LLViewerJointAttachment* attachment = getTargetAttachmentPoint(viewer_object);
 
-	if (!attachment->addObject(viewer_object))
+	if (!attachment || !attachment->addObject(viewer_object))
 	{
 		return FALSE;
 	}

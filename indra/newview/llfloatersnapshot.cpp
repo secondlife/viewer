@@ -105,7 +105,7 @@ public:
 	void updateSnapshot(BOOL new_snapshot);
 	LLFloaterPostcard* savePostcard();
 	void saveTexture();
-	void saveLocal();
+	BOOL saveLocal();
 
 	static void onIdle( void* snapshot_preview );
 
@@ -678,9 +678,9 @@ void LLSnapshotLivePreview::saveTexture()
 	gViewerStats->incStat(LLViewerStats::ST_SNAPSHOT_COUNT );	
 }
 
-void LLSnapshotLivePreview::saveLocal()
+BOOL LLSnapshotLivePreview::saveLocal()
 {
-	gViewerWindow->saveImageNumbered(mRawImage);
+	return gViewerWindow->saveImageNumbered(mRawImage);
 }
 
 ///----------------------------------------------------------------------------
@@ -939,6 +939,8 @@ void LLFloaterSnapshot::Impl::onClickKeep(void* data)
 	
 	if (previewp)
 	{
+		BOOL succeeded = TRUE; // Only used for saveLocal for now
+
 		if (previewp->getSnapshotType() == LLSnapshotLivePreview::SNAPSHOT_POSTCARD)
 		{
 			LLFloaterPostcard* floater = previewp->savePostcard();
@@ -957,21 +959,24 @@ void LLFloaterSnapshot::Impl::onClickKeep(void* data)
 		}
 		else
 		{
-			previewp->saveLocal();
+			succeeded = previewp->saveLocal();
 		}
 
 		if (gSavedSettings.getBOOL("CloseSnapshotOnKeep"))
 		{
 			view->close();
-			// only plays sound and anim when keeping a snapshot, and closing the snapshot UI
-			gViewerWindow->playSnapshotAnimAndSound();
+			// only plays sound and anim when keeping a snapshot, and closing the snapshot UI,
+			// and only if the save succeeded (i.e. was not canceled)
+			if (succeeded)
+			{
+				gViewerWindow->playSnapshotAnimAndSound();
+			}
 		}
 		else
 		{
 			checkAutoSnapshot(previewp);
 		}
 	}
-
 }
 
 // static

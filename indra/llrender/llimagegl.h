@@ -116,7 +116,6 @@ public:
 	// Various GL/Rendering options
 	S32 mTextureMemory;
 	mutable F32  mLastBindTime;	// last time this was bound, by discard level
-	mutable F32  mLastBindAttempt;	// last time bindTexture was called on this texture
 
 private:
 	LLPointer<LLImageRaw> mSaveData; // used for destroyGL/restoreGL

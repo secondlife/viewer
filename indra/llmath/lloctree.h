@@ -75,34 +75,34 @@ public:
 		}
 	}
 
-	virtual ~LLOctreeNode()								{ BaseType::destroyListeners(); delete this->mState; }
+	~LLOctreeNode()								{ BaseType::destroyListeners(); delete this->mState; }
 
-	virtual const BaseType* getParent()	const			{ return mParent; }
-	virtual void setParent(BaseType* parent)			{ mParent = (oct_node*) parent; }
-	virtual const LLVector3d& getCenter() const			{ return mCenter; }
-	virtual const LLVector3d& getSize() const			{ return mSize; }
-	virtual void setCenter(LLVector3d center)			{ mCenter = center; }
-	virtual void setSize(LLVector3d size)				{ mSize = size; }
-    virtual bool balance()								{ return getOctState()->balance(); }
-	virtual void validate()								{ getOctState()->validate(); }
-	virtual U32 getChildCount()	const					{ return getOctState()->getChildCount(); }
-	virtual oct_node* getChild(U32 index)				{ return getOctState()->getChild(index); }
-	virtual const oct_node* getChild(U32 index) const	{ return getOctState()->getChild(index); }
-	virtual U32 getElementCount() const					{ return getOctState()->getElementCount(); }
-	virtual void removeByAddress(T* data)				{ getOctState()->removeByAddress(data); }
-	virtual bool hasLeafState()	const					{ return getOctState()->isLeaf(); }
-	virtual void destroy()								{ getOctState()->destroy(); }
-	virtual oct_node* getNodeAt(T* data)				{ return getNodeAt(data->getPositionGroup(), data->getBinRadius()); }
-	virtual oct_node* getNodeAt(const LLVector3d& pos, const F64& rad) { return getOctState()->getNodeAt(pos, rad); }
-	virtual U8 getOctant() const						{ return mOctant; }
-	virtual void setOctant(U8 octant)					{ mOctant = octant; }
-	virtual const oct_state* getOctState() const		{ return (const oct_state*) BaseType::mState; }
-	virtual oct_state* getOctState()	 				{ return (oct_state*) BaseType::mState; }
-	virtual const oct_node*	getOctParent() const		{ return (const oct_node*) getParent(); }
-	virtual oct_node* getOctParent() 					{ return (oct_node*) getParent(); }
-	virtual void deleteChild(oct_node* child)			{ getOctState()->deleteChild(child); }
+	inline const BaseType* getParent()	const			{ return mParent; }
+	inline void setParent(BaseType* parent)			{ mParent = (oct_node*) parent; }
+	inline const LLVector3d& getCenter() const			{ return mCenter; }
+	inline const LLVector3d& getSize() const			{ return mSize; }
+	inline void setCenter(LLVector3d center)			{ mCenter = center; }
+	inline void setSize(LLVector3d size)				{ mSize = size; }
+    inline bool balance()								{ return getOctState()->balance(); }
+	inline void validate()								{ getOctState()->validate(); }
+	inline U32 getChildCount()	const					{ return getOctState()->getChildCount(); }
+	inline oct_node* getChild(U32 index)				{ return getOctState()->getChild(index); }
+	inline const oct_node* getChild(U32 index) const	{ return getOctState()->getChild(index); }
+	inline U32 getElementCount() const					{ return getOctState()->getElementCount(); }
+	inline void removeByAddress(T* data)				{ getOctState()->removeByAddress(data); }
+	inline bool hasLeafState()	const					{ return getOctState()->isLeaf(); }
+	inline void destroy()								{ getOctState()->destroy(); }
+	inline oct_node* getNodeAt(T* data)				{ return getNodeAt(data->getPositionGroup(), data->getBinRadius()); }
+	inline oct_node* getNodeAt(const LLVector3d& pos, const F64& rad) { return getOctState()->getNodeAt(pos, rad); }
+	inline U8 getOctant() const						{ return mOctant; }
+	inline void setOctant(U8 octant)					{ mOctant = octant; }
+	inline const oct_state* getOctState() const		{ return (const oct_state*) BaseType::mState; }
+	inline oct_state* getOctState()	 				{ return (oct_state*) BaseType::mState; }
+	inline const oct_node*	getOctParent() const		{ return (const oct_node*) getParent(); }
+	inline oct_node* getOctParent() 					{ return (oct_node*) getParent(); }
+	inline void deleteChild(oct_node* child)			{ getOctState()->deleteChild(child); }
 
-	virtual U8 getOctant(const F64 pos[]) const	//get the octant pos is in
+	U8 getOctant(const F64 pos[]) const	//get the octant pos is in
 	{
 		U8 ret = 0;
 
@@ -122,17 +122,17 @@ public:
 		return ret;
 	}
 	
-	virtual bool isInside(const LLVector3d& pos, const F64& rad) const
+	inline bool isInside(const LLVector3d& pos, const F64& rad) const
 	{
 		return rad <= mSize.mdV[0]*2.0 && isInside(pos); 
 	}
 
-	virtual bool isInside(T* data) const			
+	inline bool isInside(T* data) const			
 	{ 
 		return isInside(data->getPositionGroup(), data->getBinRadius());
 	}
 
-	virtual bool isInside(const LLVector3d& pos) const
+	bool isInside(const LLVector3d& pos) const
 	{
 		const F64& x = pos.mdV[0];
 		const F64& y = pos.mdV[1];
@@ -148,7 +148,7 @@ public:
 		return true;
 	}
 	
-	virtual void updateMinMax()
+	void updateMinMax()
 	{
 		for (U32 i = 0; i < 3; i++)
 		{
@@ -158,12 +158,12 @@ public:
 		}
 	}
 
-	virtual oct_listener* getOctListener(U32 index) 
+	inline oct_listener* getOctListener(U32 index) 
 	{ 
 		return (oct_listener*) BaseType::getListener(index); 
 	}
 
-	bool contains(T* xform)
+	inline bool contains(T* xform)
 	{
 		return contains(xform->getBinRadius());
 	}

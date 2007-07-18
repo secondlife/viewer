@@ -1279,7 +1279,9 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 	else
 	{
 		mActive = FALSE;
-		gAgent.setAFK();
+		if (gAllowIdleAFK) {
+			gAgent.setAFK();
+		}
 		send_agent_pause();
 		if (mWindow->getFullscreen() && !mIgnoreActivate)
 		{

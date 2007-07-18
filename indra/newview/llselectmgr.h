@@ -219,7 +219,8 @@ public:
 	void updateEffects(); // Update HUD effects
 	void overrideObjectUpdates();
 
-	void setForceSelection(BOOL force) { mForceSelection = force; }
+	// Returns the previous value of mForceSelection
+	BOOL setForceSelection(BOOL force);
 
 	////////////////////////////////////////////////////////////////
 	// Selection methods
@@ -253,7 +254,7 @@ public:
 	////////////////////////////////////////////////////////////////
 
 	void deselectObjectOnly(LLViewerObject* object, BOOL send_to_sim = TRUE);
-	void deselectObjectAndFamily(LLViewerObject* object, BOOL send_to_sim = TRUE);
+	void deselectObjectAndFamily(LLViewerObject* object, BOOL send_to_sim = TRUE, BOOL include_entire_object = FALSE);
 
 	// Send deselect messages to simulator, then clear the list
 	void deselectAll();

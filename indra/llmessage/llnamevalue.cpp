@@ -102,6 +102,9 @@ void LLNameValue::baseInit()
 	
 	mSendto = NVS_NULL;
 	mStringSendto = NameValueSendtoStrings[NVS_NULL];
+
+	mNameValueCB = NULL;
+	mUserData = NULL;
 }
 
 void LLNameValue::init(const char *name, const char *data, const char *type, const char *nvclass, const char *nvsendto, TNameValueCallback nvcb, void **user_data)

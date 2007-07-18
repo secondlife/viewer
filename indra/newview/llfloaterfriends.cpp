@@ -71,6 +71,7 @@ LLFloaterFriends::LLFloaterFriends() :
 	gSavedSettings.setBOOL("ShowFriends", TRUE);
 	// Builds and adds to gFloaterView
 	gUICtrlFactory->buildFloater(this, "floater_friends.xml");
+	refreshUI();
 }
 
 LLFloaterFriends::~LLFloaterFriends()
@@ -196,7 +197,6 @@ BOOL LLFloaterFriends::postBuild()
 	childSetAction("remove_btn", onClickRemove, this);
 	childSetAction("close_btn", onClickClose, this);
 
-	refreshUI();
 	return TRUE;
 }
 

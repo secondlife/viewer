@@ -49,6 +49,7 @@ S32 LLMemType::sCurType = LLMemType::MTYPE_INIT;
 S32 LLMemType::sType[LLMemType::MTYPE_MAX_DEPTH];
 S32 LLMemType::sMemCount[LLMemType::MTYPE_NUM_TYPES] = { 0 };
 S32 LLMemType::sMaxMemCount[LLMemType::MTYPE_NUM_TYPES] = { 0 };
+S32 LLMemType::sNewCount[LLMemType::MTYPE_NUM_TYPES] = { 0 };
 S32 LLMemType::sOverheadMem = 0;
 
 const char* LLMemType::sTypeDesc[LLMemType::MTYPE_NUM_TYPES] =
@@ -113,7 +114,7 @@ void LLMemType::printMem()
 	{
 		if (sMemCount[i])
 		{
-			llinfos << llformat("MEM: % 20s %03d MB (%03d MB)",sTypeDesc[i],sMemCount[i]>>20,sMaxMemCount[i]>>20) << llendl;
+			llinfos << llformat("MEM: % 20s %03d MB (%03d MB) in %06d News",sTypeDesc[i],sMemCount[i]>>20,sMaxMemCount[i]>>20, sNewCount[i]) << llendl;
 		}
 		misc_mem -= sMemCount[i];
 	}
@@ -160,6 +161,7 @@ void* ll_allocate (size_t size)
 	{
 		LLMemType::sMaxMemCount[LLMemType::sCurType] = LLMemType::sMemCount[LLMemType::sCurType];
 	}
+	LLMemType::sNewCount[LLMemType::sCurType]++;
 #endif
 	return (void*)p;
 }
@@ -185,6 +187,7 @@ void ll_release (void *pin)
 #if MEM_TRACK_TYPE
 	LLMemType::sMemCount[type] -= size;
 	LLMemType::sOverheadMem -= 4;
+	LLMemType::sNewCount[type]--;
 #endif
 	LLMemType::sTotalMem -= size;
 	free(p);

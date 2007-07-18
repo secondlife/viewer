@@ -28,6 +28,9 @@ public:
 	// Operation never got necessary data, so expired	
 	virtual BOOL isExpired();
 
+	// ability to mark this operation as never expiring.
+	void SetNoExpireFlag(const BOOL flag);
+
 	// Send request to the dataserver
 	virtual void sendRequest() = 0;
 
@@ -47,6 +50,7 @@ protected:
 	LLUUID mAgentID;
 	LLUUID mTransactionID;
 	LLFrameTimer mTimer;
+	BOOL   mNoExpire;			// this is used for operations that expect an answer and will wait till it gets one. 
 };
 
 

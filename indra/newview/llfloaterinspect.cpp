@@ -54,18 +54,21 @@ BOOL LLFloaterInspect::isVisible()
 
 void LLFloaterInspect::show(void* ignored)
 {
-	if(sInstance)
+	// setForceSelection ensures that the pie menu does not deselect things when it 
+	// looses the focus (this can happen with "select own objects only" enabled
+	// VWR-1471
+	BOOL forcesel = gSelectMgr->setForceSelection(TRUE);
+
+	if (!sInstance)	// first use
 	{
-		sInstance->open();
-	}
-	else
-	{
-		LLFloaterInspect* self = new LLFloaterInspect;
-		self->open();
+		sInstance = new LLFloaterInspect;
 	}
 
-	sInstance->mObjectSelection = gSelectMgr->getSelection();
+	sInstance->open();
 	select_tool(gToolInspect);
+	gSelectMgr->setForceSelection(forcesel);	// restore previouis value
+
+	sInstance->mObjectSelection = gSelectMgr->getSelection();
 	sInstance->refresh();
 }
 

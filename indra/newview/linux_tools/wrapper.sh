@@ -48,6 +48,23 @@ export SDL_VIDEO_X11_DGAMOUSE=0
 
 RUN_PATH=`dirname "$0" || echo .`
 cd "${RUN_PATH}"
+if [ -n "$LL_TCMALLOC" ]; then
+    tcmalloc_libs='/usr/lib/libtcmalloc.so.0 /usr/lib/libstacktrace.so.0 /lib/libpthread.so.0'
+    all=1
+    for f in $tcmalloc_libs; do
+        if [ ! -f $f ]; then
+	    all=0
+	fi
+    done
+    if [ $all != 1 ]; then
+        echo 'Cannot use tcmalloc libraries: components missing' 1>&2
+    else
+	export LD_PRELOAD=$(echo $tcmalloc_libs | tr ' ' :)
+	if [ -z "$HEAPCHECK" -a -z "$HEAPPROFILE" ]; then
+	    export HEAPCHECK=${HEAPCHECK:-normal}
+	fi
+    fi
+fi
 LD_LIBRARY_PATH="`pwd`"/lib:"`pwd`"/app_settings/mozilla-runtime-linux-i686:"${LD_LIBRARY_PATH}" $LL_WRAPPER bin/do-not-directly-run-secondlife-bin `cat gridargs.dat` $@ | cat
 
 echo

@@ -415,7 +415,7 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 			drawablep->updateFaceSize(j);
 
 			LLFace* facep = drawablep->getFace(j);
-			if (!facep->hasGeometry())
+			if ( !facep || !facep->hasGeometry())
 			{
 				continue;
 			}

@@ -43,6 +43,7 @@
 #include "message.h"
 #include "sound_ids.h"
 #include "lltimer.h"
+#include "llmd5.h"
 
 #include "llagent.h"
 #include "llcallingcard.h"

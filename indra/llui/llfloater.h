@@ -261,6 +261,10 @@ protected:
 	static handle_map_t	sFloaterMap;
 
 	std::vector<LLView*> mMinimizedHiddenChildren;
+
+	BOOL			mHasBeenDraggedWhileMinimized;
+	S32				mPreviousMinimizedBottom;
+	S32				mPreviousMinimizedLeft;
 };
 
 /////////////////////////////////////////////////////////////

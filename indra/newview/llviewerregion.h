@@ -63,13 +63,14 @@ public:
 	void setOriginGlobal(const LLVector3d &origin);
 	void setAgentOffset(const LLVector3d &offset);
 
-	void setAllowDamage(BOOL b);
-	void setAllowLandmark(BOOL b);
-	void setAllowSetHome(BOOL b);
-	void setResetHomeOnTeleport(BOOL b);
-	void setSunFixed(BOOL b);
-	void setBlockFly(BOOL b);
-	void setAllowDirectTeleport(BOOL b);
+	void setAllowDamage(BOOL b) { setFlags(b, REGION_FLAGS_ALLOW_DAMAGE); }
+	void setAllowLandmark(BOOL b) { setFlags(b, REGION_FLAGS_ALLOW_LANDMARK); }
+	void setAllowSetHome(BOOL b) { setFlags(b, REGION_FLAGS_ALLOW_SET_HOME); }
+	void setResetHomeOnTeleport(BOOL b) { setFlags(b, REGION_FLAGS_RESET_HOME_ON_TELEPORT); }
+	void setSunFixed(BOOL b) { setFlags(b, REGION_FLAGS_SUN_FIXED); }
+	void setBlockFly(BOOL b) { setFlags(b, REGION_FLAGS_BLOCK_FLY); }
+	void setAllowDirectTeleport(BOOL b) { setFlags(b, REGION_FLAGS_ALLOW_DIRECT_TELEPORT); }
+
 
 	inline BOOL getAllowDamage()			const;
 	inline BOOL getAllowLandmark()			const;
@@ -228,6 +229,7 @@ public:
 protected:
 	void disconnectAllNeighbors();
 	void initStats();
+	void setFlags(BOOL b, U32 flags);
 
 public:
 	LLWind  mWind;

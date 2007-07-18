@@ -11,7 +11,11 @@
 #include "llsys.h"
 
 #include <iostream>
-#include <zlib/zlib.h>
+#ifdef LL_STANDALONE
+# include <zlib.h>
+#else
+# include "zlib/zlib.h"
+#endif
 
 #include "processor.h"
 

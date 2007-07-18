@@ -25,10 +25,20 @@
 
 #include "llfasttimer.h"
 
+
+
 LLMemoryView::LLMemoryView(const std::string& name, const LLRect& rect)
-:	LLView(name, rect, TRUE)
+:	LLView(name, rect, TRUE),
+mDelay(120)
 {
 	setVisible(FALSE);
+	mDumpTimer.reset();
+
+#ifdef MEM_DUMP_DATA
+	// clear out file.
+	FILE *dump = fopen("memusagedump.txt", "w");
+	fclose(dump);
+#endif
 }
 
 LLMemoryView::~LLMemoryView()
@@ -176,7 +186,7 @@ void LLMemoryView::draw()
 			peak += maxbytes;
 			S32 mbytes = bytes >> 20;
 
-			tdesc = llformat("%s [%4d MB]",mtv_display_table[i].desc,mbytes);
+			tdesc = llformat("%s [%4d MB] in %06d NEWS",mtv_display_table[i].desc,mbytes, LLMemType::sNewCount[tidx]);
 			LLFontGL::sMonospace->renderUTF8(tdesc, 0, x, y, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP);
 			
 			y -= (texth + 2);
@@ -219,7 +229,46 @@ void LLMemoryView::draw()
 		y -= (texth + 2);
 	}
 
+	dumpData();
+
 #endif
 	
 	LLView::draw();
+}
+
+void LLMemoryView::setDataDumpInterval(float delay)
+{
+	mDelay = delay;
+}
+
+void LLMemoryView::dumpData()
+{
+#if MEM_TRACK_TYPE && MEM_DUMP_DATA
+	if (mDelay && (mDumpTimer.getElapsedTimeF32() > mDelay ))
+	{
+		// reset timer
+		mDumpTimer.reset();
+		// append dump info to text file
+		FILE *dump = fopen("memusagedump.txt", "a");
+
+		if (dump)
+		{
+			// write out total memory usage
+			fprintf (dump, "Total memory in use = %09d (%03d MB)\n", LLMemType::sTotalMem, LLMemType::sTotalMem>>20);
+			fprintf (dump, "High Water Mark = %09d (%03d MB)\n\n", LLMemType::sMaxTotalMem, LLMemType::sMaxTotalMem>>20);
+			// dump out usage of 'new' for each memory type
+			for (S32 i=0; i<LLMemType::MTYPE_NUM_TYPES; i++)
+			{
+				if (LLMemType::sMemCount[i])
+				{
+					std::string outData = llformat("MEM: % 20s %09d %03d MB (%09d %03d MB) in %06d News", LLMemType::sTypeDesc[i], LLMemType::sMemCount[i], LLMemType::sMemCount[i]>>20, LLMemType::sMaxMemCount[i], LLMemType::sMaxMemCount[i]>>20, LLMemType::sNewCount[i]);
+					fprintf (dump, "%s\n", outData.c_str());
+				}
+			}
+			fprintf (dump, "\n\n");
+
+			fclose(dump);
+		}
+	}
+#endif
 }

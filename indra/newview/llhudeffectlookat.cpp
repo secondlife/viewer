@@ -422,12 +422,25 @@ void LLHUDEffectLookAt::update()
 	}
 }
 
+/**
+ * Initializes the mTargetPos member from the current mSourceObjec and mTargetObject
+ * (and possibly mTargetOffsetGlobal).
+ * When mTargetObject is another avatar, it sets mTargetPos to be their eyes.
+ * 
+ * Has the side-effect of also calling setAnimationData("LookAtPoint") with the new
+ * mTargetPos on the source object which is assumed to be an avatar.
+ */
 void LLHUDEffectLookAt::calcTargetPosition()
 {
-	LLViewerObject *targetObject = (LLViewerObject *)mTargetObject;
+	if (gNoRender)
+	{
+		return;
+	}
+
+	LLViewerObject *target_obj = (LLViewerObject *)mTargetObject;
 	LLVector3 local_offset;
 	
-	if (targetObject)
+	if (target_obj)
 	{
 		local_offset.setVec(mTargetOffsetGlobal);
 	}
@@ -436,20 +449,16 @@ void LLHUDEffectLookAt::calcTargetPosition()
 		local_offset = gAgent.getPosAgentFromGlobal(mTargetOffsetGlobal);
 	}
 
-	if (gNoRender)
-	{
-		return;
-	}
-	LLVector3 head_position = ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->mHeadp->getWorldPosition();
+	LLVOAvatar* source_avatar = (LLVOAvatar*)(LLViewerObject*)mSourceObject;
 
-	if (targetObject && targetObject->mDrawable.notNull())
+	if (target_obj && target_obj->mDrawable.notNull())
 	{
-		LLQuaternion objRot;
-		if (targetObject->isAvatar())
+		LLQuaternion target_rot;
+		if (target_obj->isAvatar())
 		{
-			LLVOAvatar *avatarp = (LLVOAvatar *)targetObject;
+			LLVOAvatar *target_av = (LLVOAvatar *)target_obj;
 
-			BOOL looking_at_self = ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->isSelf() && avatarp->isSelf();
+			BOOL looking_at_self = source_avatar->isSelf() && target_av->isSelf();
 
 			// if selecting self, stare forward
 			if (looking_at_self && mTargetOffsetGlobal.magVecSquared() < MIN_TARGET_OFFSET_SQUARED)
@@ -459,46 +468,46 @@ void LLHUDEffectLookAt::calcTargetPosition()
 				local_offset.setVec(mTargetOffsetGlobal);
 			}
 
-			mTargetPos = avatarp->mHeadp->getWorldPosition();
+			// look the other avatar in the eye. note: what happens if target is self? -MG
+			mTargetPos = target_av->mHeadp->getWorldPosition();
 			if (mTargetType == LOOKAT_TARGET_MOUSELOOK || mTargetType == LOOKAT_TARGET_FREELOOK)
 			{
 				// mouselook and freelook target offsets are absolute
-				objRot = LLQuaternion::DEFAULT;
+				target_rot = LLQuaternion::DEFAULT;
 			}
 			else if (looking_at_self && gAgent.cameraCustomizeAvatar())
 			{
 				// *NOTE: We have to do this because animation
 				// overrides do not set lookat behavior.
 				// *TODO: animation overrides for lookat behavior.
-				objRot = avatarp->mPelvisp->getWorldRotation();
+				target_rot = target_av->mPelvisp->getWorldRotation();
 			}
 			else
 			{
-				objRot = avatarp->mRoot.getWorldRotation();
+				target_rot = target_av->mRoot.getWorldRotation();
 			}
 		}
-		else
+		else // target obj is not an avatar
 		{
-			if (targetObject->mDrawable->getGeneration() == -1)
+			if (target_obj->mDrawable->getGeneration() == -1)
 			{
-				mTargetPos = targetObject->getPositionAgent();
-				objRot = targetObject->getWorldRotation();
+				mTargetPos = target_obj->getPositionAgent();
+				target_rot = target_obj->getWorldRotation();
 			}
 			else
 			{
-				mTargetPos = targetObject->getRenderPosition();
-				objRot = targetObject->getRenderRotation();
+				mTargetPos = target_obj->getRenderPosition();
+				target_rot = target_obj->getRenderRotation();
 			}
 		}
 
-		mTargetPos += (local_offset * objRot);
+		mTargetPos += (local_offset * target_rot);
 	}
-	else
+	else // no target obj or it's not drawable
 	{
 		mTargetPos = local_offset;
 	}
 
-	mTargetPos -= head_position;
-
-	((LLVOAvatar*)(LLViewerObject*)mSourceObject)->setAnimationData("LookAtPoint", (void *)&mTargetPos);
+	mTargetPos -= source_avatar->mHeadp->getWorldPosition();
+	source_avatar->setAnimationData("LookAtPoint", (void *)&mTargetPos);
 }

@@ -31,10 +31,12 @@ LLFloaterScriptDebug*	LLFloaterScriptDebug::sInstance = NULL;
 //
 // Member Functions
 //
-LLFloaterScriptDebug::LLFloaterScriptDebug() 
-: LLMultiFloater()
+LLFloaterScriptDebug::LLFloaterScriptDebug() : 
+	LLMultiFloater()
 {
-
+	// avoid resizing of the window to match 
+	// the initial size of the tabbed-childs, whenever a tab is opened or closed
+	mAutoResize = FALSE;
 }
 
 LLFloaterScriptDebug::~LLFloaterScriptDebug()
@@ -89,6 +91,9 @@ LLFloater* LLFloaterScriptDebug::addOutputWindow(const LLUUID &object_id)
 		floaterp = LLFloaterScriptDebugOutput::show(object_id);
 	}
 	LLFloater::setFloaterHost(NULL);
+
+	// Tabs sometimes overlap resize handle
+	sInstance->moveResizeHandleToFront();
 
 	return floaterp;
 }

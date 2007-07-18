@@ -76,7 +76,7 @@ namespace boost
 	
 	void intrusive_ptr_release(LLCurl::Responder* p)
 	{
-		if(0 == --p->mReferenceCount)
+		if(p && 0 == --p->mReferenceCount)
 		{
 			delete p;
 		}

@@ -2029,6 +2029,13 @@ void LLLiveLSLEditor::saveIfNeeded()
 		return;
 	}
 	LLString utf8text = mScriptEd->mEditor->getText();
+
+	// Special case for a completely empty script - stuff in one space so it can store properly.  See SL-46889
+	if ( utf8text.size() == 0 )
+	{
+		utf8text = " ";
+	}
+
 	fputs(utf8text.c_str(), fp);
 	fclose(fp);
 	fp = NULL;

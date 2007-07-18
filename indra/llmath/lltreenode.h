@@ -49,17 +49,17 @@ class LLTreeNode
 public:
 	LLTreeNode(LLTreeState<T>* state)				{ setState(state); }
 	virtual ~LLTreeNode();
-	virtual LLTreeState<T>* getState()				{ return mState; }
-	virtual const LLTreeState<T>* getState() const	{ return mState; }
+	LLTreeState<T>* getState()				{ return mState; }
+	const LLTreeState<T>* getState() const	{ return mState; }
 
-	virtual void setState(LLTreeState<T>* state);
-	virtual void insert(T* data);
-	virtual bool remove(T* data);
-	virtual void notifyRemoval(T* data);
-	virtual U32 getListenerCount()					{ return mListeners.size(); }
-	virtual LLTreeListener<T>* getListener(U32 index) const { return mListeners[index]; }
-	virtual void addListener(LLTreeListener<T>* listener) { mListeners.push_back(listener); }
-	virtual void removeListener(U32 index) { mListeners.erase(mListeners.begin()+index); }
+	void setState(LLTreeState<T>* state);
+	void insert(T* data);
+	bool remove(T* data);
+	void notifyRemoval(T* data);
+	inline U32 getListenerCount()					{ return mListeners.size(); }
+	inline LLTreeListener<T>* getListener(U32 index) const { return mListeners[index]; }
+	inline void addListener(LLTreeListener<T>* listener) { mListeners.push_back(listener); }
+	inline void removeListener(U32 index) { mListeners.erase(mListeners.begin()+index); }
 
 protected:
 	void destroyListeners()

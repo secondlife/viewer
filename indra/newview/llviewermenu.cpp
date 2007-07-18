@@ -715,7 +715,7 @@ void init_client_menu(LLMenuGL* menu)
 	
 	// neither of these works particularly well at the moment
 	/*menu->append(new LLMenuItemCallGL(  "Reload UI XML",	&reload_ui,	
-	  				NULL, NULL, 'R', MASK_ALT | MASK_CONTROL ) );*/
+	  				NULL, NULL) );*/
 	/*menu->append(new LLMenuItemCallGL("Reload settings/colors", 
 					&handle_reload_settings, NULL, NULL));*/
 	menu->append(new LLMenuItemCallGL("Reload personal setting overrides", 
@@ -873,7 +873,7 @@ void init_client_menu(LLMenuGL* menu)
 									   (void*)"LimitSelectDistance"));
 
 	menu->append(new LLMenuItemToggleGL("Disable Camera Constraints", 
-		&LLViewerCamera::sDisableCameraConstraints));
+		&LLViewerCamera::sDisableCameraConstraints, 'C', MASK_ALT | MASK_CONTROL ));
 
 	menu->append(new LLMenuItemCheckGL("Joystick Flycam", 
 		&handle_toggle_flycam,NULL,&check_flycam,NULL));
@@ -1075,39 +1075,39 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	sub_menu->append(new LLMenuItemCheckGL("UI",
 											&LLPipeline::toggleRenderDebugFeature, NULL,
 											&LLPipeline::toggleRenderDebugFeatureControl,
-											(void*)LLPipeline::RENDER_DEBUG_FEATURE_UI, '1', MASK_ALT|MASK_CONTROL));
+											(void*)LLPipeline::RENDER_DEBUG_FEATURE_UI, KEY_F1, MASK_ALT|MASK_CONTROL));
 	sub_menu->append(new LLMenuItemCheckGL("Selected",
 											&LLPipeline::toggleRenderDebugFeature, NULL,
 											&LLPipeline::toggleRenderDebugFeatureControl,
-											(void*)LLPipeline::RENDER_DEBUG_FEATURE_SELECTED, '2', MASK_ALT|MASK_CONTROL));
+											(void*)LLPipeline::RENDER_DEBUG_FEATURE_SELECTED, KEY_F2, MASK_ALT|MASK_CONTROL));
 	sub_menu->append(new LLMenuItemCheckGL("Highlighted",
 											&LLPipeline::toggleRenderDebugFeature, NULL,
 											&LLPipeline::toggleRenderDebugFeatureControl,
-											(void*)LLPipeline::RENDER_DEBUG_FEATURE_HIGHLIGHTED, '3', MASK_ALT|MASK_CONTROL));
+											(void*)LLPipeline::RENDER_DEBUG_FEATURE_HIGHLIGHTED, KEY_F3, MASK_ALT|MASK_CONTROL));
 	sub_menu->append(new LLMenuItemCheckGL("Dynamic Textures",
 											&LLPipeline::toggleRenderDebugFeature, NULL,
 											&LLPipeline::toggleRenderDebugFeatureControl,
-											(void*)LLPipeline::RENDER_DEBUG_FEATURE_DYNAMIC_TEXTURES, '4', MASK_ALT|MASK_CONTROL));
+											(void*)LLPipeline::RENDER_DEBUG_FEATURE_DYNAMIC_TEXTURES, KEY_F4, MASK_ALT|MASK_CONTROL));
 	sub_menu->append(new LLMenuItemCheckGL( "Foot Shadows", 
 											&LLPipeline::toggleRenderDebugFeature, NULL,
 											&LLPipeline::toggleRenderDebugFeatureControl,
-											(void*)LLPipeline::RENDER_DEBUG_FEATURE_FOOT_SHADOWS, '5', MASK_ALT|MASK_CONTROL));
+											(void*)LLPipeline::RENDER_DEBUG_FEATURE_FOOT_SHADOWS, KEY_F5, MASK_ALT|MASK_CONTROL));
 	sub_menu->append(new LLMenuItemCheckGL("Fog",
 											&LLPipeline::toggleRenderDebugFeature, NULL,
 											&LLPipeline::toggleRenderDebugFeatureControl,
-											(void*)LLPipeline::RENDER_DEBUG_FEATURE_FOG, '6', MASK_ALT|MASK_CONTROL));
+											(void*)LLPipeline::RENDER_DEBUG_FEATURE_FOG, KEY_F6, MASK_ALT|MASK_CONTROL));
 	sub_menu->append(new LLMenuItemCheckGL("Palletized Textures",
 											&LLPipeline::toggleRenderDebugFeature, NULL,
 											&LLPipeline::toggleRenderDebugFeatureControl,
-											(void*)LLPipeline::RENDER_DEBUG_FEATURE_PALETTE, '7', MASK_ALT|MASK_CONTROL));
+											(void*)LLPipeline::RENDER_DEBUG_FEATURE_PALETTE, KEY_F7, MASK_ALT|MASK_CONTROL));
 	sub_menu->append(new LLMenuItemCheckGL("Test FRInfo",
 											&LLPipeline::toggleRenderDebugFeature, NULL,
 											&LLPipeline::toggleRenderDebugFeatureControl,
-											(void*)LLPipeline::RENDER_DEBUG_FEATURE_FR_INFO, '8', MASK_ALT|MASK_CONTROL));
+											(void*)LLPipeline::RENDER_DEBUG_FEATURE_FR_INFO, KEY_F8, MASK_ALT|MASK_CONTROL));
 	sub_menu->append(new LLMenuItemCheckGL( "Flexible Objects", 
 											&LLPipeline::toggleRenderDebugFeature, NULL,
 											&LLPipeline::toggleRenderDebugFeatureControl,
-											(void*)LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE, '9', MASK_ALT|MASK_CONTROL));
+											(void*)LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE, KEY_F9, MASK_ALT|MASK_CONTROL));
 	sub_menu->createJumpKeys();
 
 	/////////////////////////////
@@ -1279,7 +1279,7 @@ void init_debug_avatar_menu(LLMenuGL* menu)
 	menu->append(new LLMenuItemToggleGL( "Display Agent Target", &LLAgent::sDebugDisplayTarget));
 	menu->append(new LLMenuItemToggleGL( "Debug Rotation", &gDebugAvatarRotation));
 	menu->append(new LLMenuItemCallGL("Dump Attachments", handle_dump_attachments));
-	menu->append(new LLMenuItemCallGL("Rebake Textures", handle_rebake_textures));
+	menu->append(new LLMenuItemCallGL("Rebake Textures", handle_rebake_textures, NULL, NULL, 'R', MASK_ALT | MASK_CONTROL ));
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	menu->append(new LLMenuItemCallGL("Debug Avatar Textures", handle_debug_avatar_textures, NULL, NULL, 'A', MASK_SHIFT|MASK_CONTROL|MASK_ALT));
 	menu->append(new LLMenuItemCallGL("Dump Local Textures", handle_dump_avatar_local_textures, NULL, NULL, 'M', MASK_SHIFT|MASK_ALT ));	
@@ -2322,10 +2322,11 @@ void handle_buy_object(LLSaleInfo sale_info)
 		return;
 	}
 
-	if(sale_info.getSalePrice() > gStatusBar->getBalance())
+	S32 price = sale_info.getSalePrice();
+	
+	if (price > 0 && price > gStatusBar->getBalance())
 	{
-		LLFloaterBuyCurrency::buyCurrency(
-			"This object costs", sale_info.getSalePrice());
+		LLFloaterBuyCurrency::buyCurrency("This object costs", price);
 		return;
 	}
 

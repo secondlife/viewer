@@ -1,11 +1,3 @@
-/** 
- * @file resource.h
- * @brief Resources for windows crash logger
- *
- * Copyright (c) 2003-$CurrentYear$, Linden Research, Inc.
- * $License$
- */
-
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
 // Used by win_crash_logger.rc

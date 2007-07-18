@@ -83,9 +83,9 @@ BOOL LLTextCmd::hasExtCharValue( llwchar value )
 }
 
 // Utility funcs
-S32 LLTextCmd::insert(LLTextEditor* editor, S32 pos, const LLWString &utf8str)
+S32 LLTextCmd::insert(LLTextEditor* editor, S32 pos, const LLWString &wstr)
 {
-	return editor->insertStringNoUndo( pos, utf8str );
+	return editor->insertStringNoUndo( pos, wstr );
 }
 S32 LLTextCmd::remove(LLTextEditor* editor, S32 pos, S32 length)
 {
@@ -102,29 +102,29 @@ class LLTextCmdInsert : public LLTextCmd
 {
 public:
 	LLTextCmdInsert(S32 pos, BOOL group_with_next, const LLWString &ws)
-		: LLTextCmd(pos, group_with_next), mString(ws)
+		: LLTextCmd(pos, group_with_next), mWString(ws)
 	{
 	}
 	virtual BOOL execute( LLTextEditor* editor, S32* delta )
 	{
-		*delta = insert(editor, mPos, mString );
-		LLWString::truncate(mString, *delta);
-		//mString = wstring_truncate(mString, *delta);
+		*delta = insert(editor, mPos, mWString );
+		LLWString::truncate(mWString, *delta);
+		//mWString = wstring_truncate(mWString, *delta);
 		return (*delta != 0);
 	}	
 	virtual S32 undo( LLTextEditor* editor )
 	{
-		remove(editor, mPos, mString.length() );
+		remove(editor, mPos, mWString.length() );
 		return mPos;
 	}
 	virtual S32 redo( LLTextEditor* editor )
 	{
-		insert(editor, mPos, mString );
-		return mPos + mString.length();
+		insert(editor, mPos, mWString );
+		return mPos + mWString.length();
 	}
 
 private:
-	LLWString mString;
+	LLWString mWString;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -133,7 +133,7 @@ class LLTextCmdAddChar : public LLTextCmd
 {
 public:
 	LLTextCmdAddChar( S32 pos, BOOL group_with_next, llwchar wc)
-		: LLTextCmd(pos, group_with_next), mString(1, wc), mBlockExtensions(FALSE)
+		: LLTextCmd(pos, group_with_next), mWString(1, wc), mBlockExtensions(FALSE)
 	{
 	}
 	virtual void blockExtensions()
@@ -142,13 +142,13 @@ public:
 	}
 	virtual BOOL canExtend(S32 pos)
 	{
-		return !mBlockExtensions && (pos == mPos + (S32)mString.length());
+		return !mBlockExtensions && (pos == mPos + (S32)mWString.length());
 	}
 	virtual BOOL execute( LLTextEditor* editor, S32* delta )
 	{
-		*delta = insert(editor, mPos, mString);
-		LLWString::truncate(mString, *delta);
-		//mString = wstring_truncate(mString, *delta);
+		*delta = insert(editor, mPos, mWString);
+		LLWString::truncate(mWString, *delta);
+		//mWString = wstring_truncate(mWString, *delta);
 		return (*delta != 0);
 	}
 	virtual BOOL extendAndExecute( LLTextEditor* editor, S32 pos, llwchar wc, S32* delta )	
@@ -159,23 +159,23 @@ public:
 		*delta = insert(editor, pos, ws);
 		if( *delta > 0 )
 		{
-			mString += wc;
+			mWString += wc;
 		}
 		return (*delta != 0);
 	}
 	virtual S32 undo( LLTextEditor* editor )
 	{
-		remove(editor, mPos, mString.length() );
+		remove(editor, mPos, mWString.length() );
 		return mPos;
 	}
 	virtual S32 redo( LLTextEditor* editor )
 	{
-		insert(editor, mPos, mString );
-		return mPos + mString.length();
+		insert(editor, mPos, mWString );
+		return mPos + mWString.length();
 	}
 
 private:
-	LLWString	mString;
+	LLWString	mWString;
 	BOOL		mBlockExtensions;
 
 };
@@ -222,14 +222,14 @@ public:
 	}
 	virtual BOOL execute( LLTextEditor* editor, S32* delta )
 	{ 
-		mString = editor->getWSubString(mPos, mLen);
+		mWString = editor->getWSubString(mPos, mLen);
 		*delta = remove(editor, mPos, mLen );
 		return (*delta != 0);
 	}
 	virtual S32 undo( LLTextEditor* editor )
 	{
-		insert(editor, mPos, mString );
-		return mPos + mString.length();
+		insert(editor, mPos, mWString );
+		return mPos + mWString.length();
 	}
 	virtual S32 redo( LLTextEditor* editor )
 	{
@@ -237,7 +237,7 @@ public:
 		return mPos;
 	}
 private:
-	LLWString	mString;
+	LLWString	mWString;
 	S32				mLen;
 };
 

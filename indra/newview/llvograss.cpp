@@ -316,16 +316,13 @@ void LLVOGrass::setPixelAreaAndAngle(LLAgent &agent)
 // BUG could speed this up by caching the relative_position and range calculations
 void LLVOGrass::updateTextures(LLAgent &agent)
 {
-	F32 texel_area_ratio = 1.f;
-	F32 cos_angle = 1.f;
-
 	if (getTEImage(0))
 	{
 		if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
 		{
 			setDebugText(llformat("%4.0f", fsqrtf(mPixelArea)));
 		}
-		getTEImage(0)->addTextureStats(mPixelArea, texel_area_ratio, cos_angle);
+		getTEImage(0)->addTextureStats(mPixelArea);
 	}
 }
 

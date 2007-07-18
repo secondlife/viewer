@@ -236,11 +236,10 @@ void LLFloaterIMPanel::init(const LLString& session_label)
 			mSessionStartMsgPos = 
 				mHistoryEditor->getText().length();
 
-			bool log_to_file = false;
 			addHistoryLine(
 				session_start,
 				LLColor4::grey,
-				log_to_file);
+				false);
 		}
 	}
 }
@@ -748,7 +747,17 @@ void LLFloaterIMPanel::sendMsg()
 					history_echo += ": ";
 				}
 				history_echo += utf8_text;
+
+				
+				BOOL other_was_typing = mOtherTyping;
+
 				addHistoryLine(history_echo);
+
+				if (other_was_typing) 
+				{
+					addTypingIndicator(mOtherTypingName);
+				}
+
 			}
 		}
 		else
@@ -850,7 +859,7 @@ void LLFloaterIMPanel::processIMTyping(const LLIMInfo* im_info, BOOL typing)
 	if (typing)
 	{
 		// other user started typing
-		addTypingIndicator(im_info);
+		addTypingIndicator(im_info->mName);
 	}
 	else
 	{
@@ -860,15 +869,18 @@ void LLFloaterIMPanel::processIMTyping(const LLIMInfo* im_info, BOOL typing)
 }
 
 
-void LLFloaterIMPanel::addTypingIndicator(const LLIMInfo* im_info)
+void LLFloaterIMPanel::addTypingIndicator(const std::string &name)
 {
-	mTypingLineStartIndex = mHistoryEditor->getText().length();
-
-	LLUIString typing_start = sTypingStartString;
-	typing_start.setArg("[NAME]", im_info->mName);
-	bool log_to_file = false;
-	addHistoryLine(typing_start, LLColor4::grey, log_to_file);
-	mOtherTyping = TRUE;
+	// we may have lost a "stop-typing" packet, don't add it twice
+	if (!mOtherTyping)
+	{
+		mTypingLineStartIndex = mHistoryEditor->getText().length();
+		LLUIString typing_start = sTypingStartString;
+		typing_start.setArg("[NAME]", name);
+		addHistoryLine(typing_start, LLColor4::grey, false);
+		mOtherTypingName = name;
+		mOtherTyping = TRUE;
+	}
 }
 
 

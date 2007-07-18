@@ -101,7 +101,11 @@ LLOverlayBar::LLOverlayBar(const std::string& name, const LLRect& rect)
 	
 	if ( gAudiop )
 	{
-		mMusicRemote->setVolume ( gSavedSettings.getF32 ( "AudioLevelMusic" ) );
+		//HACK / NOT HACK
+		//maintenance patch - bhear obsoletes this, do not merge (poppy)
+		F32 audioLevelMusic = gSavedSettings.getF32 ( "AudioLevelMusic" );
+		mMusicRemote->setVolume ( audioLevelMusic );
+		gAudiop->setInternetStreamGain ( audioLevelMusic );
 		mMusicRemote->setTransportState ( LLMediaRemoteCtrl::Stop, FALSE );
 	};
 

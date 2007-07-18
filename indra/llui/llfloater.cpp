@@ -347,18 +347,6 @@ void LLFloater::init(const LLString& title,
 			LLResizeHandle::LEFT_TOP );
 		addChild(mResizeHandle[3]);
 	}
-	else
-	{
-		mResizeBar[0]	= NULL;
-		mResizeBar[1]	= NULL;
-		mResizeBar[2]	= NULL;
-		mResizeBar[3]	= NULL;
-
-		mResizeHandle[0] = NULL;
-		mResizeHandle[1] = NULL;
-		mResizeHandle[2] = NULL;
-		mResizeHandle[3] = NULL;
-	}
 
 	// Close button.
 	if (close_btn)
@@ -371,6 +359,13 @@ void LLFloater::init(const LLString& title,
 	{
 		mButtonsEnabled[BUTTON_MINIMIZE] = TRUE;
 	}
+
+	// Keep track of whether this window has ever been dragged while it
+	// was minimized.  If it has, we'll remember its position for the
+	// next time it's minimized.
+	mHasBeenDraggedWhileMinimized = FALSE;
+	mPreviousMinimizedLeft = 0;
+	mPreviousMinimizedBottom = 0;
 
 	buildButtons();
 
@@ -737,6 +732,16 @@ void LLFloater::userSetShape(const LLRect& new_rect)
 			}
 		}
 	}
+	else
+	{
+		// If minimized, and origin has changed, set
+		// mHasBeenDraggedWhileMinimized to TRUE
+		if ((new_rect.mLeft != old_rect.mLeft) ||
+			(new_rect.mBottom != old_rect.mBottom))
+		{
+			mHasBeenDraggedWhileMinimized = TRUE;
+		}
+	}
 }
 
 void LLFloater::setMinimized(BOOL minimize)
@@ -749,9 +754,19 @@ void LLFloater::setMinimized(BOOL minimize)
 
 		reshape( MINIMIZED_WIDTH, LLFLOATER_HEADER_SIZE, TRUE);
 
-		S32 left, bottom;
-		gFloaterView->getMinimizePosition(&left, &bottom);
-		setOrigin( left, bottom );
+		// If the floater has been dragged while minimized in the
+		// past, then locate it at its previous minimized location.
+		// Otherwise, ask the view for a minimize position.
+		if (mHasBeenDraggedWhileMinimized)
+		{
+			setOrigin(mPreviousMinimizedLeft, mPreviousMinimizedBottom);
+		}
+		else
+		{
+			S32 left, bottom;
+			gFloaterView->getMinimizePosition(&left, &bottom);
+			setOrigin( left, bottom );
+		}
 
 		if (mButtonsEnabled[BUTTON_MINIMIZE])
 		{
@@ -804,6 +819,15 @@ void LLFloater::setMinimized(BOOL minimize)
 	}
 	else
 	{
+		// If this window has been dragged while minimized (at any time),
+		// remember its position for the next time it's minimized.
+		if (mHasBeenDraggedWhileMinimized)
+		{
+			const LLRect& currentRect = getRect();
+			mPreviousMinimizedLeft = currentRect.mLeft;
+			mPreviousMinimizedBottom = currentRect.mBottom;
+		}
+
 		reshape( mPreviousRect.getWidth(), mPreviousRect.getHeight(), TRUE );
 		setOrigin( mPreviousRect.mLeft, mPreviousRect.mBottom );
 
@@ -1020,7 +1044,6 @@ BOOL LLFloater::handleMouseDown(S32 x, S32 y, MASK mask)
 	if( mMinimized )
 	{
 		// Offer the click to the close button.
-		// Any other click = restore
 		if( mButtonsEnabled[BUTTON_CLOSE] )
 		{
 			S32 local_x = x - mButtons[BUTTON_CLOSE]->getRect().mLeft;
@@ -1034,9 +1057,22 @@ BOOL LLFloater::handleMouseDown(S32 x, S32 y, MASK mask)
 			}
 		}
 
-		// restore
-		bringToFront( x, y );
-		return TRUE;
+		// Offer the click to the restore button.
+		if( mButtonsEnabled[BUTTON_RESTORE] )
+		{
+			S32 local_x = x - mButtons[BUTTON_RESTORE]->getRect().mLeft;
+			S32 local_y = y - mButtons[BUTTON_RESTORE]->getRect().mBottom;
+
+			if (mButtons[BUTTON_RESTORE]->pointInView(local_x, local_y)
+				&& mButtons[BUTTON_RESTORE]->handleMouseDown(local_x, local_y, mask))
+			{
+				// restore button handled it, return
+				return TRUE;
+			}
+		}
+
+		// Otherwise pass to drag handle for movement
+		return mDragHandle->handleMouseDown(x, y, mask);
 	}
 	else
 	{
@@ -1448,30 +1484,14 @@ void	LLFloater::setCanResize(BOOL can_resize)
 {
 	if (mResizable && !can_resize)
 	{
-		removeChild(mResizeBar[0]);
-		removeChild(mResizeBar[1]);
-		removeChild(mResizeBar[2]);
-		removeChild(mResizeBar[3]);
-		removeChild(mResizeHandle[0]);
-		removeChild(mResizeHandle[1]);
-		removeChild(mResizeHandle[2]);
-		removeChild(mResizeHandle[3]);
-		delete mResizeBar[0];
-		delete mResizeBar[1];
-		delete mResizeBar[2];
-		delete mResizeBar[3];
-		delete mResizeHandle[0];
-		delete mResizeHandle[1];
-		delete mResizeHandle[2];
-		mResizeHandle[3] = NULL;
-		mResizeBar[0] = NULL;
-		mResizeBar[1] = NULL;
-		mResizeBar[2] = NULL;
-		mResizeBar[3] = NULL;
-		mResizeHandle[0] = NULL;
-		mResizeHandle[1] = NULL;
-		mResizeHandle[2] = NULL;
-		mResizeHandle[3] = NULL;
+		for (S32 i = 0; i < 4; i++) 
+		{
+			removeChild(mResizeBar[i], TRUE);
+			mResizeBar[i] = NULL; 
+
+			removeChild(mResizeHandle[i], TRUE);
+			mResizeHandle[i] = NULL;
+		}
 	}
 	else if (!mResizable && can_resize)
 	{

@@ -18,7 +18,11 @@
 #include "llvfile.h"
 #include "llvfs.h"
 
-#include "zlib/zlib.h"
+#ifdef LL_STANDALONE
+# include <zlib.h>
+#else
+# include "zlib/zlib.h"
+#endif
 
 const U32 MAX_RUNNING_REQUESTS = 1;
 const F32 MAX_PROCESSING_TIME = 0.005f;

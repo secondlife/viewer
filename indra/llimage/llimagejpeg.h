@@ -14,8 +14,13 @@
 #include "llimage.h"
 
 extern "C" {
-#include "jpeglib/jpeglib.h"
-#include "jpeglib/jerror.h"
+#ifdef LL_STANDALONE
+# include <jpeglib.h>
+# include <jerror.h>
+#else
+# include "jpeglib/jpeglib.h"
+# include "jpeglib/jerror.h"
+#endif
 }
 
 class LLImageJPEG : public LLImageFormatted

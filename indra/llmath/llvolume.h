@@ -763,7 +763,7 @@ public:
 		FLAT_MASK =		0x0100,
 		TOP_MASK =		0x0200,
 		BOTTOM_MASK =	0x0400
-	} TypeMask;
+	};
 	
 public:
 	S32 mID;

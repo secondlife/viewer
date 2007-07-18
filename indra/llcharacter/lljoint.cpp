@@ -465,39 +465,6 @@ void LLJoint::setSkinOffset( const LLVector3& offset )
 	mSkinOffset = offset;
 }
 
-//-----------------------------------------------------------------------------
-// setConstraintSilhouette()
-//-----------------------------------------------------------------------------
-void LLJoint::setConstraintSilhouette(LLDynamicArray<LLVector3>& silhouette)
-{
-	S32 i;
-
-	mConstraintSilhouette.reset();
-	for (i = 0; i < silhouette.count(); i++)
-	{
-		if (i % 2 == 1)
-		{
-			// skip normals
-			continue;
-		}
-		mConstraintSilhouette[i / 2] = silhouette[i];
-	}
-	LLQuaternion inv_parent_rotation = LLQuaternion::DEFAULT;
-
-	if (getParent())
-	{
-		inv_parent_rotation = ~getParent()->getWorldRotation();
-	}
-
-	for (i = 0; i < mConstraintSilhouette.count(); i++)
-	{
-		LLVector3 vert = mConstraintSilhouette[i];
-
-		vert -= getWorldPosition();
-		vert.normVec();
-		vert = vert * inv_parent_rotation;
-	}
-}
 
 //-----------------------------------------------------------------------------
 // clampRotation()

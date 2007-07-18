@@ -1565,6 +1565,11 @@ void LLWindowWin32::moveWindow( const LLCoordScreen& position, const LLCoordScre
 		}
 	}
 
+	// if the window was already maximized, MoveWindow seems to still set the maximized flag even if
+	// the window is smaller than maximized.
+	// So we're going to do a restore first (which is a ShowWindow call) (SL-44655).
+	ShowWindow(mWindowHandle, SW_RESTORE);
+	// NOW we can call MoveWindow
 	MoveWindow(mWindowHandle, position.mX, position.mY, size.mX, size.mY, TRUE);
 }
 
@@ -2268,6 +2273,13 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 						<< " rest " << S32(restored)
 						<< llendl;
 				}
+
+				// There's an odd behavior with WM_SIZE that I would call a bug. If 
+				// the window is maximized, and you call MoveWindow() with a size smaller
+				// than a maximized window, it ends up sending WM_SIZE with w_param set 
+				// to SIZE_MAXIMIZED -- which isn't true. So the logic below doesn't work.
+				// (SL-44655). Fixed it by calling ShowWindow(SW_RESTORE) first (see 
+				// LLWindowWin32::moveWindow in this file). 
 
 				// If we are now restored, but we weren't before, this
 				// means that the window was un-minimized.

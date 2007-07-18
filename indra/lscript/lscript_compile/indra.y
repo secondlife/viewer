@@ -15,6 +15,10 @@
     #define getenv getenv_workaround
     #endif
 
+    #ifdef LL_WINDOWS
+	#pragma warning( disable : 4065 )	// warning: switch statement contains 'default' but no 'case' labels
+	#endif
+
     #ifdef __cplusplus
     }
     #endif

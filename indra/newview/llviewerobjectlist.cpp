@@ -41,7 +41,11 @@
 #include "u64.h"
 #include "llviewerimagelist.h"
 #include "lldatapacker.h"
-#include <zlib/zlib.h>
+#ifdef LL_STANDALONE
+#include <zlib.h>
+#else
+#include "zlib/zlib.h"
+#endif
 #include "object_flags.h"
 
 extern BOOL gVelocityInterpolate;

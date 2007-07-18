@@ -110,10 +110,12 @@ const	char	CLOUD_LAYER_CODE				= '8';
 
 // keys
 // Bit masks for various keyboard modifier keys.
-const MASK MASK_NONE =		0x0000;
-const MASK MASK_CONTROL =	0x0001;
-const MASK MASK_ALT =		0x0002;
-const MASK MASK_SHIFT =		0x0004;
+const MASK MASK_NONE =			0x0000;
+const MASK MASK_CONTROL =		0x0001;		// Mapped to cmd on Macs
+const MASK MASK_ALT =			0x0002;
+const MASK MASK_SHIFT =			0x0004;
+const MASK MASK_NORMALKEYS =    0x0007;     // A real mask - only get the bits for normal modifier keys
+const MASK MASK_MAC_CONTROL =	0x0008;		// Un-mapped Ctrl key on Macs, not used on Windows
 
 // Special keys go into >128
 const KEY KEY_SPECIAL = 0x80;	// special keys start here

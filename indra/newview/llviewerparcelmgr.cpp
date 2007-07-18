@@ -160,8 +160,7 @@ LLViewerParcelMgr::~LLViewerParcelMgr()
 	delete[] mCollisionSegments;
 	mCollisionSegments = NULL;
 
-	// weird, this crashes if I use an array delete on it!
-	delete sPackedOverlay;
+	delete[] sPackedOverlay;
 	sPackedOverlay = NULL;
 
 	delete[] mAgentParcelOverlay;

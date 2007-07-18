@@ -21,7 +21,7 @@
 #include "llworld.h"
 #include "pipeline.h"
 
-const S32 MAX_PART_COUNT = 4096;
+const S32 MAX_PART_COUNT = 8192; // VWR-1105
 
 const F32 PART_SIM_BOX_SIDE = 16.f;
 const F32 PART_SIM_BOX_OFFSET = 0.5f*PART_SIM_BOX_SIDE;

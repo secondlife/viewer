@@ -107,7 +107,7 @@ protected:
 	
 	static std::vector<std::string> sDays;
 	static std::vector<std::string> sMonths;
-	static const U32 LLStatusBar::MAX_DATE_STRING_LENGTH;
+	static const U32 MAX_DATE_STRING_LENGTH;
 };
 
 // *HACK: Status bar owns your cached money balance. JC

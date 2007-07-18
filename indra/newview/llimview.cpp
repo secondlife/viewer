@@ -111,6 +111,11 @@ static LLUUID compute_session_id(EInstantMessage dialog,
 
 LLFloaterIM::LLFloaterIM() 
 {
+	// autoresize=false is necessary to avoid resizing of the IM window whenever 
+	// a session is opened or closed (it would otherwise resize the window to match
+	// the size of the im-sesssion when they were created.  This happens in 
+	// LLMultiFloater::resizeToContents() when called through LLMultiFloater::addFloater())
+	this->mAutoResize = FALSE;
 	gUICtrlFactory->buildFloater(this, "floater_im.xml");
 }
 
@@ -186,12 +191,16 @@ void LLFloaterIM::onClose(bool app_quitting)
 //virtual
 void LLFloaterIM::addFloater(LLFloater* floaterp, BOOL select_added_floater, LLTabContainer::eInsertionPoint insertion_point)
 {
+/*
+	Code removed via patch from VWR-1626
+
 	// this code is needed to fix the bug where new IMs received will resize the IM floater.
 	// SL-29075, SL-24556, and others
 	LLRect parent_rect = getRect();
 	S32 dheight = LLFLOATER_HEADER_SIZE + TABCNTR_HEADER_HEIGHT;
 	LLRect rect(0, parent_rect.getHeight()-dheight, parent_rect.getWidth(), 0);
 	floaterp->reshape(rect.getWidth(), rect.getHeight(), TRUE);
+*/
 	LLMultiFloater::addFloater(floaterp, select_added_floater, insertion_point);
 }
 

@@ -309,7 +309,7 @@ protected:
 	S32				append(const LLWString &wstr, const BOOL group_with_next_op);
 	
 	// direct operations
-	S32				insertStringNoUndo(S32 pos, const LLWString &utf8str); // returns num of chars actually inserted
+	S32				insertStringNoUndo(S32 pos, const LLWString &wstr); // returns num of chars actually inserted
 	S32 			removeStringNoUndo(S32 pos, S32 length);
 	S32				overwriteCharNoUndo(S32 pos, llwchar wc);
 	
@@ -475,7 +475,7 @@ public:
 	virtual BOOL	hasExtCharValue( llwchar value );
 
 	// Define these here so they can access LLTextEditor through the friend relationship
-	S32				insert(LLTextEditor* editor, S32 pos, const LLWString &utf8str);
+	S32				insert(LLTextEditor* editor, S32 pos, const LLWString &wstr);
 	S32 			remove(LLTextEditor* editor, S32 pos, S32 length);
 	S32				overwrite(LLTextEditor* editor, S32 pos, llwchar wc);
 	

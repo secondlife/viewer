@@ -280,7 +280,7 @@ bool CProcessor::AnalyzeIntelProcessor()
 			strcpy(CPUInfo.strFamily, "Intel Pentium");	/* Flawfinder: ignore */	
 			break;
 		case 6:			// Family = 6:  Pentium Pro (80686) processor family
-			strcpy(CPUInfo.strFamily, "Intel Pentium Pro");	/* Flawfinder: ignore */	
+			strcpy(CPUInfo.strFamily, "Intel Pentium Pro/2/3, Core");	/* Flawfinder: ignore */	
 			break;
 		case 15:		// Family = 15:  Extended family specific
 			// Masking the extended family
@@ -476,9 +476,17 @@ bool CProcessor::AnalyzeIntelProcessor()
 							break;
 					}
 					break;
+				case 0xE:		// Model = 0xE:  Intel Core Duo processor, Intel Core Solo processor, model E
+					strcpy(CPUInfo.strModel, "Intel Core Duo/Solo Processor");	 /*Flawfinder: ignore*/
+					strncat(strCPUName, "Intel Core Duo/Solo Processor", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
+					break;	
+				case 0xF:		// Model = 0xF:  Intel Core 2 Duo processor, model F
+					strcpy(CPUInfo.strModel, "Intel Core2 Duo Processor");	 /*Flawfinder: ignore*/
+					strncat(strCPUName, "Intel Core2 Duo Processor", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
+					break;	
 				default:		// *more bored*
-					strcpy(CPUInfo.strModel, "Unknown Intel Pentium Pro"); /*Flawfinder: ignore*/
-					strncat(strCPUName, "Intel Pentium Pro (Unknown model)", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
+					strcpy(CPUInfo.strModel, "Unknown Intel Pentium Pro/2/3, Core"); /*Flawfinder: ignore*/
+					strncat(strCPUName, "Intel Pentium Pro/2/3, Core (Unknown model)", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;
 			}
 			break;

@@ -386,15 +386,13 @@ void LLVOTree::setPixelAreaAndAngle(LLAgent &agent)
 
 void LLVOTree::updateTextures(LLAgent &agent)
 {
-	F32 texel_area_ratio = 1.f;
-	F32 cos_angle = 1.f;
 	if (mTreeImagep)
 	{
 		if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
 		{
 			setDebugText(llformat("%4.0f", fsqrtf(mPixelArea)));
 		}
-		mTreeImagep->addTextureStats(mPixelArea, texel_area_ratio, cos_angle);
+		mTreeImagep->addTextureStats(mPixelArea);
 	}
 
 }

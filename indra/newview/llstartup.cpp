@@ -763,12 +763,7 @@ BOOL idle_startup()
 		LLFile::mkdir(gDirUtilp->getChatLogsDir().c_str());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir().c_str());
 
-		
-#if LL_WINDOWS
-		if (gSavedSettings.getBOOL("UseDebugLogin") && show_connect_box)
-#else
 		if (show_connect_box)
-#endif
 		{
 			LLString server_label;
 			S32 domain_name_index;
@@ -779,10 +774,7 @@ BOOL idle_startup()
 			{
 				snprintf(gUserServerName, MAX_STRING, "%s", server_label.c_str());			/* Flawfinder: ignore */
 			}
-		}
 
-		if (show_connect_box)
-		{
 			LLString location;
 			LLPanelLogin::getLocation( location );
 			LLURLSimString::setString( location );
@@ -1139,8 +1131,10 @@ BOOL idle_startup()
 		case LLUserAuth::E_COULDNT_RESOLVE_HOST:
 		case LLUserAuth::E_SSL_PEER_CERTIFICATE:
 		case LLUserAuth::E_UNHANDLED_ERROR:
+		case LLUserAuth::E_SSL_CACERT:
+		case LLUserAuth::E_SSL_CONNECT_ERROR:
 		default:
-			if (auth_uri_num >= (int) auth_uris.size())
+			if (auth_uri_num >= (int) auth_uris.size() - 1)
 			{
 				emsg << "Unable to connect to " << gSecondLife << ".\n";
 				emsg << gUserAuthp->errorMessage();
@@ -1150,20 +1144,6 @@ BOOL idle_startup()
 				auth_desc = s.str();
 				gStartupState = STATE_LOGIN_AUTHENTICATE;
 				auth_uri_num++;
-				return do_normal_idle;
-			}
-			break;
-		case LLUserAuth::E_SSL_CACERT:
-		case LLUserAuth::E_SSL_CONNECT_ERROR:
-			if (auth_uri_num >= (int) auth_uris.size())
-			{
-				emsg << "Unable to establish a secure connection to the login server.\n";
-				emsg << gUserAuthp->errorMessage();
-			} else {
-				std::ostringstream s;
-				s << "Logging in (attempt " << (auth_uri_num + 1) << ").  ";
-				auth_desc = s.str();
-				gStartupState = STATE_LOGIN_AUTHENTICATE;
 				auth_uri_num++;
 				return do_normal_idle;
 			}
@@ -2342,9 +2322,15 @@ BOOL idle_startup()
 void login_show()
 {
 	llinfos << "Initializing Login Screen" << llendl;
-	
+
+#ifdef LL_RELEASE_FOR_DOWNLOAD
+	BOOL bUseDebugLogin = gSavedSettings.getBOOL("UseDebugLogin");
+#else
+	BOOL bUseDebugLogin = TRUE;
+#endif
+
 	LLPanelLogin::show(	gViewerWindow->getVirtualWindowRect(),
-						gSavedSettings.getBOOL("UseDebugLogin"),
+						bUseDebugLogin,
 						login_callback, NULL );
 
 	llinfos << "Decoding Images" << llendl;

@@ -81,14 +81,10 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,4,106,89,13
     LTEXT           "Sending crash reports is the best way to help us improve the quality of %s.",
                     IDC_STATIC_MOTIVATION,4,38,288,8
-    LTEXT           "If you continue to experience this problem, please try one of the following:",
+    LTEXT           "If you continue to experience this problem, please try:",
                     IDC_STATIC,4,57,251,8
-    LTEXT           "- Contact support by email at support@lindenlab.com",
-                    IDC_STATIC,4,67,179,8
-    LTEXT           "- If you can log-in, please contact Live Help by using menu Help > Live Help.",
-                    IDC_STATIC,4,87,249,8
-    LTEXT           "- Search the Second Life Knowledge Base at http://secondlife.com/knowledgebase/",
-                    IDC_STATIC,4,77,281,8,SS_NOTIFY
+    LTEXT           "- Contacting support by visiting http://www.secondlife.com/support",
+                    IDC_STATIC,4,67,231,8
 END
 
 IDD_PREVREPORTBOX DIALOG  100, 100, 232, 213

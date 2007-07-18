@@ -285,6 +285,12 @@ void LLViewerPartSourceScript::update(const F32 dt)
 				//llwarns << "Unknown source pattern " << (S32)mPartSysData.mPattern << llendl;
 			}
 
+			if (part->mFlags & LLPartData::LL_PART_FOLLOW_SRC_MASK ||	// SVC-193, VWR-717
+				part->mFlags & LLPartData::LL_PART_TARGET_LINEAR_MASK) 
+			{
+				mPartSysData.mBurstRadius = 0; 
+			}
+
 			gWorldPointer->mPartSim.addPart(part);
 		}
 

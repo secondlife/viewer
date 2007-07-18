@@ -22,7 +22,8 @@ LLUserOperationMgr* gUserOperationMgr = NULL;
 
 LLUserOperation::LLUserOperation(const LLUUID& agent_id)
 :	mAgentID(agent_id),
-	mTimer()
+	mTimer(),
+	mNoExpire(FALSE)
 {
 	mTransactionID.generate();
 }
@@ -31,14 +32,16 @@ LLUserOperation::LLUserOperation(const LLUUID& agent_id,
 								 const LLUUID& transaction_id) :
 	mAgentID(agent_id),
 	mTransactionID(transaction_id),
-	mTimer()
+	mTimer(),
+	mNoExpire(FALSE)
 {
 }
 
 // protected constructor which is used by base classes that determine
 // transaction, agent, et. after construction.
 LLUserOperation::LLUserOperation() :
-	mTimer()
+	mTimer(),
+	mNoExpire(FALSE)
 {
 }
 
@@ -46,11 +49,19 @@ LLUserOperation::~LLUserOperation()
 {
 }
 
+void LLUserOperation::SetNoExpireFlag(const BOOL flag)
+{
+	mNoExpire = flag;
+}
 
 BOOL LLUserOperation::isExpired()
 {
-	const F32 EXPIRE_TIME_SECS = 10.f;
-	return mTimer.getElapsedTimeF32() > EXPIRE_TIME_SECS;
+	if (!mNoExpire)
+	{
+		const F32 EXPIRE_TIME_SECS = 10.f;
+		return mTimer.getElapsedTimeF32() > EXPIRE_TIME_SECS;
+	}
+	return FALSE;
 }
 
 void LLUserOperation::expire()

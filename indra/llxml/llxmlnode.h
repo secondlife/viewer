@@ -10,7 +10,11 @@
 #define LL_LLXMLNODE_H
 
 #define XML_STATIC
+#ifdef LL_STANDALONE
+#include <expat.h>
+#else
 #include "expat/expat.h"
+#endif
 #include <map>
 
 #include "indra_constants.h"
