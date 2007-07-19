@@ -23,7 +23,25 @@ import sys
 import urllib
 
 from indra.ipc import compatibility
+from indra.ipc import tokenstream
 from indra.ipc import llmessage
+
+def getstatusall(command):
+    """ Like commands.getstatusoutput, but returns stdout and 
+    stderr separately(to get around "killed by signal 15" getting 
+    included as part of the file).  Also, works on Windows."""
+    (input, out, err) = os.popen3(command, 't')
+    status = input.close() # send no input to the command
+    output = out.read()
+    error = err.read()
+    status = out.close()
+    status = err.close() # the status comes from the *last* pipe that is closed
+    return status, output, error
+
+def getstatusoutput(command):
+    status, output, error = getstatusall(command)
+    return status, output
+
 
 def die(msg):
     print >>sys.stderr, msg
@@ -36,21 +54,6 @@ DEVELOPMENT_ACCEPTABLE = (
     compatibility.Same, compatibility.Newer,
     compatibility.Older, compatibility.Mixed)	
 
-def getstatusall(command):
-    """ Like commands.getstatusoutput, but returns stdout and 
-    stderr separately(to get around "killed by signal 15" getting 
-    included as part of the file).  Also, works on Windows."""
-    (input, out, err) = os.popen3(command, 't')
-    input.close() # send no input to the command
-    output = out.read()
-    error = err.read()
-    out.close()
-    status = err.close() # the status comes from the *last* pipe you close
-    return status, output, error
-
-def getstatusoutput(command):
-    status, output, error = getstatusall(command)
-    return status, output
 
 def compare(base, current, mode):
     """Compare the current template against the base template using the given
@@ -65,9 +68,18 @@ def compare(base, current, mode):
     Returns a tuple of (bool, Compatibility)
     Return True if they are compatible in this mode, False if not.
     """
-    base = llmessage.parseTemplateString(base)
-    current = llmessage.parseTemplateString(current)
+    try:
+        base = llmessage.parseTemplateString(base)
+    except tokenstream.ParseError, e:
+        print "Error parsing master message template -- this might be a network problem, try again"
+        raise e
 
+    try:
+        current = llmessage.parseTemplateString(current)
+    except tokenstream.ParseError, e:
+        print "Error parsing local message template"
+        raise e
+    
     compat = current.compatibleWithBase(base)
     if mode == 'production':
         acceptable = PRODUCTION_ACCEPTABLE
@@ -126,7 +138,7 @@ http://wiki.secondlife.com/wiki/Template_verifier.py
 
     # fetch the master from the url (default or supplied)
     if master is None:
-        master = urllib.urlopen(options.master_url).read()
+        master = ''.join(urllib.urlopen(options.master_url).readlines())
 
     # fetch the template for this build
     if current is None:
