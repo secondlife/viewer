@@ -94,8 +94,13 @@ def compare(base, current, mode):
     return False, compat
 
 def fetch(url):
-    # *FIX: this doesn't throw an exception for a 404, and oddly enough the sl.com 404 page actually gets parsed successfully
-    return ''.join(urllib.urlopen(url).readlines())   
+    if url.startswith('file://'):
+        # just open the file directly because urllib is dumb about these things
+        file_name = url[len('file://'):]
+        return open(file_name).read()
+    else:
+        # *FIX: this doesn't throw an exception for a 404, and oddly enough the sl.com 404 page actually gets parsed successfully
+        return ''.join(urllib.urlopen(url).readlines())   
 
 def cache_master(master_url):
     """Using the url for the master, updates the local cache, and returns an url to the local cache."""
