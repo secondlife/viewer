@@ -143,10 +143,14 @@ U32 nhpo2(U32 v)
 S32		LLPipeline::sCompiles = 0;
 
 BOOL	LLPipeline::sShowHUDAttachments = TRUE;
-BOOL	LLPipeline::sRenderPhysicalBeacons = FALSE;
+BOOL	LLPipeline::sRenderPhysicalBeacons = TRUE;
 BOOL	LLPipeline::sRenderScriptedBeacons = FALSE;
+BOOL	LLPipeline::sRenderScriptedTouchBeacons = TRUE;
 BOOL	LLPipeline::sRenderParticleBeacons = FALSE;
 BOOL	LLPipeline::sRenderSoundBeacons = FALSE;
+BOOL	LLPipeline::sRenderBeacons = FALSE;
+BOOL	LLPipeline::sRenderHighlight = TRUE;
+BOOL	LLPipeline::sRenderProcessBeacons = FALSE;
 BOOL	LLPipeline::sUseOcclusion = FALSE;
 BOOL	LLPipeline::sSkipUpdate = FALSE;
 BOOL	LLPipeline::sDynamicReflections = FALSE;
@@ -356,14 +360,22 @@ void LLPipeline::releaseGLBuffers()
 
 	if (mCubeFrameBuffer)
 	{
+#if !defined(__sparc)
 		glDeleteFramebuffersEXT(1, &mCubeFrameBuffer);
 		glDeleteRenderbuffersEXT(1, &mCubeDepth);
+#else
+#error Can we generalize this without a CPU architecture test?
+#endif
 		mCubeDepth = mCubeFrameBuffer = 0;
 	}
 
 	if (mFramebuffer[0])
 	{
+#if !defined(__sparc)
 		glDeleteFramebuffersEXT(2, mFramebuffer);
+#else
+#error Can we generalize this without a CPU architecture test?
+#endif
 		mFramebuffer[0] = mFramebuffer[1] = 0;
 	}
 }
@@ -1469,7 +1481,44 @@ void renderScriptedBeacons(LLDrawable* drawablep)
 		&& !vobj->getParent()
 		&& vobj->flagScripted())
 	{
-		gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", LLColor4(1.f, 0.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f), gSavedSettings.getS32("DebugBeaconLineWidth"));
+		if (gPipeline.sRenderBeacons)
+		{
+			gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", LLColor4(1.f, 0.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f), gSavedSettings.getS32("DebugBeaconLineWidth"));
+		}
+
+		if (gPipeline.sRenderHighlight)
+		{
+			S32 face_id;
+			for (face_id = 0; face_id < drawablep->getNumFaces(); face_id++)
+			{
+				gPipeline.mHighlightFaces.push_back(drawablep->getFace(face_id) );
+			}
+		}
+	}
+}
+
+void renderScriptedTouchBeacons(LLDrawable* drawablep)
+{
+	LLViewerObject *vobj = drawablep->getVObj();
+	if (vobj 
+		&& !vobj->isAvatar() 
+		&& !vobj->getParent()
+		&& vobj->flagScripted()
+		&& vobj->flagHandleTouch())
+	{
+		if (gPipeline.sRenderBeacons)
+		{
+			gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", LLColor4(1.f, 0.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f), gSavedSettings.getS32("DebugBeaconLineWidth"));
+		}
+
+		if (gPipeline.sRenderHighlight)
+		{
+			S32 face_id;
+			for (face_id = 0; face_id < drawablep->getNumFaces(); face_id++)
+			{
+				gPipeline.mHighlightFaces.push_back(drawablep->getFace(face_id) );
+			}
+		}
 	}
 }
 
@@ -1481,7 +1530,19 @@ void renderPhysicalBeacons(LLDrawable* drawablep)
 		&& !vobj->getParent()
 		&& vobj->usePhysics())
 	{
-		gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", LLColor4(0.f, 1.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f), gSavedSettings.getS32("DebugBeaconLineWidth"));
+		if (gPipeline.sRenderBeacons)
+		{
+			gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", LLColor4(0.f, 1.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f), gSavedSettings.getS32("DebugBeaconLineWidth"));
+		}
+
+		if (gPipeline.sRenderHighlight)
+		{
+			S32 face_id;
+			for (face_id = 0; face_id < drawablep->getNumFaces(); face_id++)
+			{
+				gPipeline.mHighlightFaces.push_back(drawablep->getFace(face_id) );
+			}
+		}
 	}
 }
 
@@ -1492,20 +1553,13 @@ void renderParticleBeacons(LLDrawable* drawablep)
 	if (vobj 
 		&& vobj->isParticleSource())
 	{
-		LLColor4 light_blue(0.5f, 0.5f, 1.f, 0.5f);
-		gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", light_blue, LLColor4(1.f, 1.f, 1.f, 0.5f), gSavedSettings.getS32("DebugBeaconLineWidth"));
-	}
-}
+		if (gPipeline.sRenderBeacons)
+		{
+			LLColor4 light_blue(0.5f, 0.5f, 1.f, 0.5f);
+			gObjectList.addDebugBeacon(vobj->getPositionAgent(), "", light_blue, LLColor4(1.f, 1.f, 1.f, 0.5f), gSavedSettings.getS32("DebugBeaconLineWidth"));
+		}
 
-void LLPipeline::highlightPhysical(LLDrawable* drawablep)
-{
-	LLMemType mt(LLMemType::MTYPE_PIPELINE);
-	LLViewerObject *vobj;
-	vobj = drawablep->getVObj();
-	if (vobj && !vobj->isAvatar())
-	{
-		if (!vobj->isAvatar() && 
-			(vobj->usePhysics() || vobj->flagHandleTouch()))
+		if (gPipeline.sRenderHighlight)
 		{
 			S32 face_id;
 			for (face_id = 0; face_id < drawablep->getNumFaces(); face_id++)
@@ -1679,42 +1733,49 @@ void LLPipeline::postSort(LLCamera& camera)
 	std::sort(mAlphaGroups.begin(), mAlphaGroups.end(), LLSpatialGroup::CompareDepthGreater());
 	std::sort(mAlphaGroupsPostWater.begin(), mAlphaGroupsPostWater.end(), LLSpatialGroup::CompareDepthGreater());
 
-	if (sRenderScriptedBeacons)
+	// only render if the flag is set. The flag is only set if the right key is pressed, we are in edit mode or the toggle is set in the menus
+	if (sRenderProcessBeacons)
 	{
-		// Only show the beacon on the root object.
-		forAllVisibleDrawables(renderScriptedBeacons);
-	}
-
-	if (sRenderPhysicalBeacons)
-	{
-		// Only show the beacon on the root object.
-		forAllVisibleDrawables(renderPhysicalBeacons);
-	}
-
-	if (sRenderParticleBeacons)
-	{
-		forAllVisibleDrawables(renderParticleBeacons);
-	}
-
-	// Draw physical objects in red.
-	if (gHUDManager->getShowPhysical())
-	{
-		forAllVisibleDrawables(highlightPhysical);
-	}
-
-	// If god mode, also show audio cues
-	if (sRenderSoundBeacons && gAudiop)
-	{
-		// Update all of our audio sources, clean up dead ones.
-		LLAudioEngine::source_map::iterator iter;
-		for (iter = gAudiop->mAllSources.begin(); iter != gAudiop->mAllSources.end(); ++iter)
+		if (sRenderScriptedTouchBeacons)
 		{
-			LLAudioSource *sourcep = iter->second;
+			// Only show the beacon on the root object.
+			forAllVisibleDrawables(renderScriptedTouchBeacons);
+		}
+		else
+		if (sRenderScriptedBeacons)
+		{
+			// Only show the beacon on the root object.
+			forAllVisibleDrawables(renderScriptedBeacons);
+		}
 
-			LLVector3d pos_global = sourcep->getPositionGlobal();
-			LLVector3 pos = gAgent.getPosAgentFromGlobal(pos_global);
-			//pos += LLVector3(0.f, 0.f, 0.2f);
-			gObjectList.addDebugBeacon(pos, "", LLColor4(1.f, 1.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f), gSavedSettings.getS32("DebugBeaconLineWidth"));
+		if (sRenderPhysicalBeacons)
+		{
+			// Only show the beacon on the root object.
+			forAllVisibleDrawables(renderPhysicalBeacons);
+		}
+
+		if (sRenderParticleBeacons)
+		{
+			forAllVisibleDrawables(renderParticleBeacons);
+		}
+
+		// If god mode, also show audio cues
+		if (sRenderSoundBeacons && gAudiop)
+		{
+			// Update all of our audio sources, clean up dead ones.
+			LLAudioEngine::source_map::iterator iter;
+			for (iter = gAudiop->mAllSources.begin(); iter != gAudiop->mAllSources.end(); ++iter)
+			{
+				LLAudioSource *sourcep = iter->second;
+
+				LLVector3d pos_global = sourcep->getPositionGlobal();
+				LLVector3 pos = gAgent.getPosAgentFromGlobal(pos_global);
+				if (gPipeline.sRenderBeacons)
+				{
+					//pos += LLVector3(0.f, 0.f, 0.2f);
+					gObjectList.addDebugBeacon(pos, "", LLColor4(1.f, 1.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f), gSavedSettings.getS32("DebugBeaconLineWidth"));
+				}
+			}
 		}
 	}
 
@@ -3428,6 +3489,12 @@ BOOL LLPipeline::toggleRenderDebugFeatureControl(void* data)
 }
 
 // static
+void LLPipeline::setRenderScriptedBeacons(BOOL val)
+{
+	sRenderScriptedBeacons = val;
+}
+
+// static
 void LLPipeline::toggleRenderScriptedBeacons(void*)
 {
 	sRenderScriptedBeacons = !sRenderScriptedBeacons;
@@ -3437,6 +3504,30 @@ void LLPipeline::toggleRenderScriptedBeacons(void*)
 BOOL LLPipeline::getRenderScriptedBeacons(void*)
 {
 	return sRenderScriptedBeacons;
+}
+
+// static
+void LLPipeline::setRenderScriptedTouchBeacons(BOOL val)
+{
+	sRenderScriptedTouchBeacons = val;
+}
+
+// static
+void LLPipeline::toggleRenderScriptedTouchBeacons(void*)
+{
+	sRenderScriptedTouchBeacons = !sRenderScriptedTouchBeacons;
+}
+
+// static
+BOOL LLPipeline::getRenderScriptedTouchBeacons(void*)
+{
+	return sRenderScriptedTouchBeacons;
+}
+
+// static
+void LLPipeline::setRenderPhysicalBeacons(BOOL val)
+{
+	sRenderPhysicalBeacons = val;
 }
 
 // static
@@ -3452,6 +3543,12 @@ BOOL LLPipeline::getRenderPhysicalBeacons(void*)
 }
 
 // static
+void LLPipeline::setRenderParticleBeacons(BOOL val)
+{
+	sRenderParticleBeacons = val;
+}
+
+// static
 void LLPipeline::toggleRenderParticleBeacons(void*)
 {
 	sRenderParticleBeacons = !sRenderParticleBeacons;
@@ -3464,6 +3561,12 @@ BOOL LLPipeline::getRenderParticleBeacons(void*)
 }
 
 // static
+void LLPipeline::setRenderSoundBeacons(BOOL val)
+{
+	sRenderSoundBeacons = val;
+}
+
+// static
 void LLPipeline::toggleRenderSoundBeacons(void*)
 {
 	sRenderSoundBeacons = !sRenderSoundBeacons;
@@ -3473,6 +3576,48 @@ void LLPipeline::toggleRenderSoundBeacons(void*)
 BOOL LLPipeline::getRenderSoundBeacons(void*)
 {
 	return sRenderSoundBeacons;
+}
+
+// static
+void LLPipeline::setRenderBeacons(BOOL val)
+{
+	sRenderBeacons = val;
+}
+
+// static
+void LLPipeline::toggleRenderBeacons(void*)
+{
+	sRenderBeacons = !sRenderBeacons;
+}
+
+// static
+BOOL LLPipeline::getRenderBeacons(void*)
+{
+	return sRenderBeacons;
+}
+
+// static
+void LLPipeline::setRenderHighlights(BOOL val)
+{
+	sRenderHighlight = val;
+}
+
+// static
+void LLPipeline::toggleRenderHighlights(void*)
+{
+	sRenderHighlight = !sRenderHighlight;
+}
+
+// static
+BOOL LLPipeline::getRenderHighlights(void*)
+{
+	return sRenderHighlight;
+}
+
+// static
+BOOL LLPipeline::getProcessBeacons(void* data)
+{
+	return sRenderProcessBeacons;
 }
 
 LLViewerObject* LLPipeline::pickObject(const LLVector3 &start, const LLVector3 &end, LLVector3 &collision)
@@ -3613,8 +3758,12 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, 
 	BOOL reattach = FALSE;
 	if (mCubeFrameBuffer == 0)
 	{
+#if !defined(__sparc)
 		glGenFramebuffersEXT(1, &mCubeFrameBuffer);
 		glGenRenderbuffersEXT(1, &mCubeDepth);
+#else
+#error Can we generalize this without a CPU architecture test?
+#endif
 		reattach = TRUE;
 	}
 
@@ -3685,6 +3834,7 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, 
 
 	if (reattach)
 	{
+#if !defined(__sparc)
 		glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, mCubeDepth);
 		GLint res_x, res_y;
 		glGetRenderbufferParameterivEXT(GL_RENDERBUFFER_EXT, GL_RENDERBUFFER_WIDTH_EXT, &res_x);
@@ -3696,15 +3846,22 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, 
 		}
 		
 		glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+#else
+#error Can we generalize this without a CPU architecture test?
+#endif
 	}
 
 	for (S32 i = 0; i < 6; i++)
 	{
+#if !defined(__sparc)
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mCubeFrameBuffer);
 		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
 									cube_face[i], cube_map->getGLName(), 0);
 		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
 										GL_RENDERBUFFER_EXT, mCubeDepth);		
+#else
+#error Can we generalize this without a CPU architecture test?
+#endif
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		gluPerspective(90.f, 1.f, 0.1f, 1024.f);
@@ -3724,7 +3881,11 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, 
 		gPipeline.renderGeom(cube_cam);
 	}
 
+#if !defined(__sparc)
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+#else
+#error Can we generalize this without a CPU architecture test?
+#endif
 
 	cube_cam.setOrigin(origin);
 	gPipeline.resetDrawOrders();
@@ -3933,10 +4094,14 @@ void LLPipeline::renderBloom(GLuint source, GLuint dest, GLuint buffer, U32 res,
 	LLGLDisable blend(GL_BLEND);
 	LLGLDisable cull(GL_CULL_FACE);
 
+#if !defined(__sparc)
 	if (mFramebuffer[0] == 0)
 	{
 		glGenFramebuffersEXT(2, mFramebuffer);
 	}
+#else
+#error Can we generalize this without a CPU architecture test?
+#endif
 
 	GLint viewport[4];
 	glGetIntegerv(GL_VIEWPORT, viewport);
@@ -3959,11 +4124,15 @@ void LLPipeline::renderBloom(GLuint source, GLuint dest, GLuint buffer, U32 res,
 
 	for (S32 i = 0; i < kernel; i++)
 	{
+#if !defined(__sparc)
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFramebuffer[i%2]);
 		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
 								GL_COLOR_ATTACHMENT0_EXT,
 								GL_TEXTURE_2D, 
 								i%2 == 0 ? buffer : dest, 0);
+#else
+#error Can we generalize this without a CPU architecture test?
+#endif
 		
 		glBindTexture(GL_TEXTURE_2D, i == 0 ? source : 
 									i%2==0 ? dest :
@@ -3990,7 +4159,11 @@ void LLPipeline::renderBloom(GLuint source, GLuint dest, GLuint buffer, U32 res,
 		
 	}
 
+#if !defined(__sparc)
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+#else
+#error Can we generalize this without a CPU architecture test?
+#endif
 	gGlowProgram.unbind();
 
 	glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);

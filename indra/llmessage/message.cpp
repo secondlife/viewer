@@ -385,6 +385,7 @@ LLMessageSystem::~LLMessageSystem()
 	{
 		end_net(mSocket);
 	}
+	mSocket = 0;
 	
 	delete mTemplateMessageReader;
 	mTemplateMessageReader = NULL;

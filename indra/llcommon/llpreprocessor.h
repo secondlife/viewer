@@ -42,6 +42,11 @@
         #ifndef LL_LIBXUL_ENABLED
                 #define LL_LIBXUL_ENABLED		1
         #endif // def LL_LIBXUL_ENABLED
+#elif LL_SOLARIS
+	#define LL_QUICKTIME_ENABLED    0
+	#ifndef LL_LIBXUL_ENABLED
+		#define LL_LIBXUL_ENABLED               0
+	#endif // def LL_LIBXUL_ENABLED
 #endif
 
 #if LL_LIBXUL_ENABLED && !defined(MOZILLA_INTERNAL_API)

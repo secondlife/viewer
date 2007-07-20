@@ -40,16 +40,25 @@ LLVOCacheEntry::LLVOCacheEntry()
 }
 
 
+static inline void checkedRead(FILE *fp, void *data, size_t nbytes)
+{
+	if (fread(data, 1, nbytes, fp) != nbytes)
+	{
+		llwarns << "Short read" << llendl;
+		memset(data, 0, nbytes);
+	}
+}
+
 LLVOCacheEntry::LLVOCacheEntry(FILE *fp)
 {
 	S32 size;
-	fread(&mLocalID, 1, sizeof(U32), fp);
-	fread(&mCRC, 1, sizeof(U32), fp);
-	fread(&mHitCount, 1, sizeof(S32), fp);
-	fread(&mDupeCount, 1, sizeof(S32), fp);
-	fread(&mCRCChangeCount, 1, sizeof(S32), fp);
+	checkedRead(fp, &mLocalID, sizeof(U32));
+	checkedRead(fp, &mCRC, sizeof(U32));
+	checkedRead(fp, &mHitCount, sizeof(S32));
+	checkedRead(fp, &mDupeCount, sizeof(S32));
+	checkedRead(fp, &mCRCChangeCount, sizeof(S32));
 
-	fread(&size, 1, sizeof(S32), fp);
+	checkedRead(fp, &size, sizeof(S32));
 
 	// Corruption in the cache entries
 	if ((size > 10000) || (size < 1))
@@ -65,7 +74,7 @@ LLVOCacheEntry::LLVOCacheEntry(FILE *fp)
 	}
 
 	mBuffer = new U8[size];
-	fread(mBuffer, 1, size, fp);
+	checkedRead(fp, mBuffer, size);
 	mDP.assignBuffer(mBuffer, size);
 }
 
@@ -121,14 +130,22 @@ void LLVOCacheEntry::dump() const
 		<< llendl;
 }
 
+static inline void checkedWrite(FILE *fp, const void *data, size_t nbytes)
+{
+	if (fwrite(data, 1, nbytes, fp) != nbytes)
+	{
+		llwarns << "Short write" << llendl;
+	}
+}
+
 void LLVOCacheEntry::writeToFile(FILE *fp) const
 {
-	fwrite(&mLocalID, 1, sizeof(U32), fp);
-	fwrite(&mCRC, 1, sizeof(U32), fp);
-	fwrite(&mHitCount, 1, sizeof(S32), fp);
-	fwrite(&mDupeCount, 1, sizeof(S32), fp);
-	fwrite(&mCRCChangeCount, 1, sizeof(S32), fp);
+	checkedWrite(fp, &mLocalID, sizeof(U32));
+	checkedWrite(fp, &mCRC, sizeof(U32));
+	checkedWrite(fp, &mHitCount, sizeof(S32));
+	checkedWrite(fp, &mDupeCount, sizeof(S32));
+	checkedWrite(fp, &mCRCChangeCount, sizeof(S32));
 	S32 size = mDP.getBufferSize();
-	fwrite(&size, 1, sizeof(S32), fp);
-	fwrite(mBuffer, 1, size, fp);
+	checkedWrite(fp, &size, sizeof(S32));
+	checkedWrite(fp, mBuffer, size);
 }

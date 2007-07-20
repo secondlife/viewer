@@ -3460,7 +3460,6 @@ void LLSelectMgr::deselectAll()
 	mLastSentSelectionCenterGlobal.clearVec();
 
 	updatePointAt();
-	gHUDManager->clearJoints();
 	updateSelectionCenter();
 }
 
@@ -5497,7 +5496,7 @@ void LLSelectMgr::updateSelectionCenter()
 		// have stuff selected
 		LLVector3d select_center;
 		// keep a list of jointed objects for showing the joint HUDEffects
-		gHUDManager->clearJoints();
+
 		LLDynamicArray < LLViewerObject *> jointed_objects;
 
 		for (object = mSelectedObjects->getFirstObject(); object; object = mSelectedObjects->getNextObject() )
@@ -5523,10 +5522,6 @@ void LLSelectMgr::updateSelectionCenter()
 		mSelectionCenterGlobal = gAgent.getPosGlobalFromAgent(bbox_center_agent);
 		mSelectionBBox = bbox;
 
-		if (jointed_objects.count())
-		{
-			gHUDManager->showJoints(&jointed_objects);
-		}
 	}
 	
 	if ( !(gAgentID == LLUUID::null) && gToolMgr) 

@@ -27,7 +27,9 @@ void LLWeb::loadURL(std::string url)
 void LLWeb::loadURLExternal(std::string url)
 {
 	std::string escaped_url = escapeURL(url);
+#if LL_LIBXUL_ENABLED
 	spawn_web_browser(escaped_url.c_str());
+#endif
 }
 
 

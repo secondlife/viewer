@@ -17,10 +17,11 @@ Drewan Keats - VWR-28, VWR-248, VWR-412
 Duckless Vandyke - VWR-383
 Dylan Haskell - VWR-72
 Dzonatas Sol - VWR-198, VWR-878, VWR-1704, VWR-1705
-Eddy Stryker - VWR-15, VWR-23
+Eddy Stryker - VWR-15, VWR-23, VWR-1468
+EponymousDylan Ra - VWR-1465
 Fee Larsson - VWR-1314
 Fremont Cunningham - VWR-1147
-Gigs Taggart - VWR-71, VWR-326, VWR-1217
+Gigs Taggart - VWR-71, VWR-326, VWR-1217, VWR-1434
 Ginko Bayliss - VWR-4
 Grazer Kline - VWR-1092
 Hikkoshi Sakai - VWR-429
@@ -43,8 +44,9 @@ Stevex Janus - VWR-1182
 Still Defiant - VWR-207, VWR-446
 Strife Onizuka - SVC-9, VWR-74, VWR-85, VWR-148
 tenebrous pau - VWR-247
-TBBle Kurosawa - VWR-938, VWR-941, VWR-944
+TBBle Kurosawa - VWR-938, VWR-941, VWR-944, VWR-945
 Tharax Ferraris - VWR-605
+Thraxis Epsilon - SVC-371
 Zi Ree - VWR-671, VWR-682, VWR-1140
 Zipherius Turas - VWR-76, VWR-77
 

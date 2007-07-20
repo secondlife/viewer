@@ -22,6 +22,8 @@
 #  else
 #    include <hashtable.h>
 #  endif
+#elif LL_SOLARIS
+#include <ext/hashtable.h>
 #else
 #error Please define your platform.
 #endif
@@ -33,7 +35,7 @@ template<class T> inline size_t llhash(T value)
 #elif ( (defined _STLPORT_VERSION) || ((LL_LINUX) && (__GNUC__ <= 2)) )
 	std::hash<T> H;
 	return H(value);
-#elif LL_DARWIN || LL_LINUX
+#elif LL_DARWIN || LL_LINUX || LL_SOLARIS
 	__gnu_cxx::hash<T> H;
 	return H(value);
 #else

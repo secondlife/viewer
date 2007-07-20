@@ -454,9 +454,9 @@ LLFileEncoder::LLFileEncoder(const char *form_name, const char *filename, bool i
 	S32 buf_size = stat_data.st_size;
 	FILE *fp = fopen(mFilename.c_str(), "rb");
 	U8 *buf = new U8[buf_size + 1];
-	fread(buf, 1, buf_size, fp);
+	size_t nread = fread(buf, 1, buf_size, fp);
 	fclose(fp);
-	buf[buf_size] = 0;
+	buf[nread] = 0;
 
 	mBuf = (char *)buf;
 	

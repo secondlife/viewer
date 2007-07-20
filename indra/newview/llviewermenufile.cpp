@@ -671,7 +671,10 @@ void upload_new_resource(const LLString& src_filename, std::string name,
                          S16     type_num;	 	
 
                          // read in and throw out most of the header except for the type	 	
-                         fread(buf, header_size, 1, in);	 	
+                         if (fread(buf, header_size, 1, in) != 1)
+						 {
+							 llwarns << "Short read" << llendl;
+						 }
                          memcpy(&type_num, buf + 16, sizeof(S16));		/* Flawfinder: ignore */	 	
                          asset_type = (LLAssetType::EType)type_num;	 	
                  }	 	
@@ -682,7 +685,10 @@ void upload_new_resource(const LLString& src_filename, std::string name,
                  {	 	
                          while((read = fread(buf, 1, 16384, in)))		/* Flawfinder: ignore */	 	
                          {	 	
-                                 fwrite(buf, 1, read, out);		/* Flawfinder: ignore */			 	
+							 if (fwrite(buf, 1, read, out) != read)
+							 {
+								 llwarns << "Short write" << llendl;
+							 }
                          }	 	
                          fclose(out);	 	
                  }	 	

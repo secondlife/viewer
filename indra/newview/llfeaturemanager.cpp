@@ -42,6 +42,8 @@ extern void write_debug(const std::string& str);
 const char FEATURE_TABLE_FILENAME[] = "featuretable_mac.txt";
 #elif LL_LINUX
 const char FEATURE_TABLE_FILENAME[] = "featuretable_linux.txt";
+#elif LL_SOLARIS
+const char FEATURE_TABLE_FILENAME[] = "featuretable_solaris.txt";
 #else
 const char FEATURE_TABLE_FILENAME[] = "featuretable.txt";
 #endif
@@ -385,7 +387,12 @@ void LLFeatureManager::initCPUFeatureMasks()
 		maskFeatures("RAM256MB");
 	}
 	
+#if LL_SOLARIS && defined(__sparc) 	//  even low MHz SPARCs are fast
+#error The 800 is hinky. Would something like a LL_MIN_MHZ make more sense here?
+	if (gSysCPU.getMhz() < 800)
+#else
 	if (gSysCPU.getMhz() < 1100)
+#endif
 	{
 		maskFeatures("CPUSlow");
 	}

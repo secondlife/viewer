@@ -269,7 +269,11 @@ S32 LLXfer_File::flush()
 
 		if (mFp)
 		{
-			fwrite(mBuffer,1,mBufferLength,mFp);
+			if (fwrite(mBuffer,1,mBufferLength,mFp) != mBufferLength)
+			{
+				llwarns << "Short write" << llendl;
+			}
+			
 //			llinfos << "******* wrote " << mBufferLength << " bytes of file xfer" << llendl;
 			fclose(mFp);
 			mFp = NULL;

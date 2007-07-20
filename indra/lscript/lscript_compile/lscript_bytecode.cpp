@@ -288,7 +288,10 @@ void LLScriptScriptCodeChunk::build(FILE *efp, FILE *bcfp)
 		set_register(mCompleteCode, LREG_TM, mTotalSize);
 
 
-		fwrite(mCompleteCode, 1, mTotalSize, bcfp);
+		if (fwrite(mCompleteCode, 1, mTotalSize, bcfp) != mTotalSize)
+		{
+			llwarns << "Short write" << llendl;
+		}
 	}
 	else
 	{

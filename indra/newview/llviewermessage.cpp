@@ -322,10 +322,15 @@ void export_complete()
 
 		FILE* fXML = LLFile::fopen(gExportedFile.c_str(), "rb");		/* Flawfinder: ignore */
 		fseek(fXML, 0, SEEK_END);
-		U32 length = ftell(fXML);
+		long length = ftell(fXML);
 		fseek(fXML, 0, SEEK_SET);
-		U8 *buffer = new U8[length];
-		fread(buffer, 1, length, fXML);
+		U8 *buffer = new U8[length + 1];
+		size_t nread = fread(buffer, 1, length, fXML);
+		if (nread < (size_t) length)
+		{
+			llwarns << "Short read" << llendl;
+		}
+		buffer[nread] = '\0';
 		fclose(fXML);
 
 		char *pos = (char *)buffer;
@@ -361,7 +366,10 @@ void export_complete()
 		}
 
 		FILE* fXMLOut = LLFile::fopen(gExportedFile.c_str(), "wb");		/* Flawfinder: ignore */
-		fwrite(buffer, 1, length, fXMLOut);
+		if (fwrite(buffer, 1, length, fXMLOut) != length)
+		{
+			llwarns << "Short write" << llendl;
+		}
 		fclose(fXMLOut);
 
 		delete [] buffer;
@@ -423,7 +431,10 @@ void exported_j2c_complete(const LLTSCode status, void *user_data)
 			S32 length = ftell(fIn);
 			fseek(fIn, 0, SEEK_SET);
 			U8 *buffer = ImageUtility->allocateData(length);
-			fread(buffer, 1, length, fIn);
+			if (fread(buffer, 1, length, fIn) != length)
+			{
+				llwarns << "Short read" << llendl;
+			}
 			fclose(fIn);
 			LLFile::remove(filename.c_str());
 
@@ -450,7 +461,10 @@ void exported_j2c_complete(const LLTSCode status, void *user_data)
 			strcpy(md5_hash_string, "00000000000000000000000000000000");		/* Flawfinder: ignore */
 			if (fOut)
 			{
-				fwrite(data, 1, data_size, fOut);
+				if (fwrite(data, 1, data_size, fOut) != data_size)
+				{
+					llwarns << "Short write" << llendl;
+				}
 				fseek(fOut, 0, SEEK_SET);
 				fclose(fOut);
 				fOut = LLFile::fopen(output_file.c_str(), "rb");		/* Flawfinder: ignore */

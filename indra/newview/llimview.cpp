@@ -536,11 +536,11 @@ void LLIMView::removeSession(const LLUUID& session_id)
 		mFloaters.erase(floater->getHandle());
 		mTalkFloater->removeFloater(floater);
 		//mTabContainer->removeTabPanel(floater);
-	}
-
-	if ( session_id.notNull() && floater->getDialogType() != IM_NOTHING_SPECIAL )
-	{
-		mSessionsDropRequested[session_id.asString()] = LLSD();
+		if(session_id.notNull()
+		   && (floater->getDialogType() != IM_NOTHING_SPECIAL))
+		{
+			mSessionsDropRequested[session_id.asString()] = LLSD();
+		}
 	}
 }
 

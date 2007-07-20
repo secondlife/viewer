@@ -2538,7 +2538,7 @@ void load_url_local_file(const char* file_name)
 		gAgent.changeCameraToDefault();
 	}
 
-#if LL_DARWIN || LL_LINUX
+#if LL_DARWIN || LL_LINUX || LL_SOLARIS
 	// MBW -- If the Mac client is in fullscreen mode, it needs to go windowed so the browser will be visible.
 	if(gViewerWindow->mWindow->getFullscreen())
 	{
@@ -7300,22 +7300,66 @@ class LLViewToggleBeacon : public view_listener_t
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		LLString beacon = userdata.asString();
-		if (beacon == "scripts")
+		if (beacon == "scriptsbeacon")
 		{
 			LLPipeline::toggleRenderScriptedBeacons(NULL);
+			gSavedSettings.setBOOL( "scriptsbeacon", LLPipeline::getRenderScriptedBeacons(NULL) );
+			// toggle the other one off if it's on
+			if (LLPipeline::getRenderScriptedBeacons(NULL) && LLPipeline::getRenderScriptedTouchBeacons(NULL))
+			{
+				LLPipeline::toggleRenderScriptedTouchBeacons(NULL);
+				gSavedSettings.setBOOL( "scripttouchbeacon", LLPipeline::getRenderScriptedTouchBeacons(NULL) );
+			}
 		}
-		else if (beacon == "physical")
+		else if (beacon == "physicalbeacon")
 		{
 			LLPipeline::toggleRenderPhysicalBeacons(NULL);
+			gSavedSettings.setBOOL( "physicalbeacon", LLPipeline::getRenderPhysicalBeacons(NULL) );
 		}
-		else if (beacon == "sounds")
+		else if (beacon == "soundsbeacon")
 		{
 			LLPipeline::toggleRenderSoundBeacons(NULL);
+			gSavedSettings.setBOOL( "soundsbeacon", LLPipeline::getRenderSoundBeacons(NULL) );
 		}
-		else if (beacon == "particles")
+		else if (beacon == "particlesbeacon")
 		{
 			LLPipeline::toggleRenderParticleBeacons(NULL);
+			gSavedSettings.setBOOL( "particlesbeacon", LLPipeline::getRenderParticleBeacons(NULL) );
 		}
+		else if (beacon == "scripttouchbeacon")
+		{
+			LLPipeline::toggleRenderScriptedTouchBeacons(NULL);
+			gSavedSettings.setBOOL( "scripttouchbeacon", LLPipeline::getRenderScriptedTouchBeacons(NULL) );
+			// toggle the other one off if it's on
+			if (LLPipeline::getRenderScriptedBeacons(NULL) && LLPipeline::getRenderScriptedTouchBeacons(NULL))
+			{
+				LLPipeline::toggleRenderScriptedBeacons(NULL);
+				gSavedSettings.setBOOL( "scriptsbeacon", LLPipeline::getRenderScriptedBeacons(NULL) );
+			}
+		}
+		else if (beacon == "renderbeacons")
+		{
+			LLPipeline::toggleRenderBeacons(NULL);
+			gSavedSettings.setBOOL( "renderbeacons", LLPipeline::getRenderBeacons(NULL) );
+			// toggle the other one on if it's not
+			if (!LLPipeline::getRenderBeacons(NULL) && !LLPipeline::getRenderHighlights(NULL))
+			{
+				LLPipeline::toggleRenderHighlights(NULL);
+				gSavedSettings.setBOOL( "renderhighlights", LLPipeline::getRenderHighlights(NULL) );
+			}
+		}
+		else if (beacon == "renderhighlights")
+		{
+			LLPipeline::toggleRenderHighlights(NULL);
+			gSavedSettings.setBOOL( "renderhighlights", LLPipeline::getRenderHighlights(NULL) );
+			// toggle the other one on if it's not
+			if (!LLPipeline::getRenderBeacons(NULL) && !LLPipeline::getRenderHighlights(NULL))
+			{
+				LLPipeline::toggleRenderBeacons(NULL);
+				gSavedSettings.setBOOL( "renderbeacons", LLPipeline::getRenderBeacons(NULL) );
+			}
+		}
+			
 		return true;
 	}
 };
@@ -7326,21 +7370,40 @@ class LLViewCheckBeaconEnabled : public view_listener_t
 	{
 		LLString beacon = userdata["data"].asString();
 		bool new_value = false;
-		if (beacon == "scripts")
+		if (beacon == "scriptsbeacon")
 		{
-			new_value = LLPipeline::getRenderScriptedBeacons(NULL);
+			new_value = gSavedSettings.getBOOL( "scriptsbeacon");
+			LLPipeline::setRenderScriptedBeacons(new_value);
 		}
-		else if (beacon == "physical")
+		else if (beacon == "physicalbeacon")
 		{
-			new_value = LLPipeline::getRenderPhysicalBeacons(NULL);
+			new_value = gSavedSettings.getBOOL( "physicalbeacon");
+			LLPipeline::setRenderPhysicalBeacons(new_value);
 		}
-		else if (beacon == "sounds")
+		else if (beacon == "soundsbeacon")
 		{
-			new_value = LLPipeline::getRenderSoundBeacons(NULL);
+			new_value = gSavedSettings.getBOOL( "soundsbeacon");
+			LLPipeline::setRenderSoundBeacons(new_value);
 		}
-		else if (beacon == "particles")
+		else if (beacon == "particlesbeacon")
 		{
-			new_value = LLPipeline::getRenderParticleBeacons(NULL);
+			new_value = gSavedSettings.getBOOL( "particlesbeacon");
+			LLPipeline::setRenderParticleBeacons(new_value);
+		}
+		else if (beacon == "scripttouchbeacon")
+		{
+			new_value = gSavedSettings.getBOOL( "scripttouchbeacon");
+			LLPipeline::setRenderScriptedTouchBeacons(new_value);
+		}
+		else if (beacon == "renderbeacons")
+		{
+			new_value = gSavedSettings.getBOOL( "renderbeacons");
+			LLPipeline::setRenderBeacons(new_value);
+		}
+		else if (beacon == "renderhighlights")
+		{
+			new_value = gSavedSettings.getBOOL( "renderhighlights");
+			LLPipeline::setRenderHighlights(new_value);
 		}
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;

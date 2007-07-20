@@ -38,8 +38,7 @@
 #include "m3math.h"
 #include "m4math.h"
 
-
-#if !LL_DARWIN && !LL_LINUX
+#if !LL_DARWIN && !LL_LINUX && !LL_SOLARIS
 extern PFNGLWEIGHTPOINTERARBPROC glWeightPointerARB;
 extern PFNGLWEIGHTFVARBPROC glWeightfvARB;
 extern PFNGLVERTEXBLENDARBPROC glVertexBlendARB;

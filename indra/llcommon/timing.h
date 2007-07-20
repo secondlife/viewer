@@ -11,7 +11,7 @@
 
 #include <time.h>
 
-#if LL_LINUX || LL_DARWIN
+#if LL_LINUX || LL_DARWIN || LL_SOLARIS
 #		include <sys/time.h>
 #endif
 

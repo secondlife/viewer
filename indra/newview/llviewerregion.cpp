@@ -182,8 +182,9 @@ void LLViewerRegion::loadCache()
 	}
 
 	U32 zero;
-	fread(&zero, 1, sizeof(U32), fp);
-	if (zero)
+	size_t nread;
+	nread = fread(&zero, sizeof(U32), 1, fp);
+	if (nread != 1 || zero)
 	{
 		// a non-zero value here means bad things!
 		// skip reading the cached values
@@ -193,8 +194,8 @@ void LLViewerRegion::loadCache()
 	}
 
 	U32 version;
-	fread(&version, 1, sizeof(U32), fp);
-	if (version != INDRA_OBJECT_CACHE_VERSION)
+	nread = fread(&version, sizeof(U32), 1, fp);
+	if (nread != 1 || version != INDRA_OBJECT_CACHE_VERSION)
 	{
 		// a version mismatch here means we've changed the binary format!
 		// skip reading the cached values
@@ -204,8 +205,8 @@ void LLViewerRegion::loadCache()
 	}
 
 	LLUUID cache_id;
-	fread(&cache_id.mData, UUID_BYTES, sizeof(U8), fp);
-	if (mCacheID != cache_id)
+	nread = fread(&cache_id.mData, 1, UUID_BYTES, fp);
+	if (nread != UUID_BYTES || mCacheID != cache_id)
 	{
 		llinfos << "Cache ID doesn't match for this region, discarding"
 			<< llendl;
@@ -214,7 +215,14 @@ void LLViewerRegion::loadCache()
 	}
 
 	S32 num_entries;
-	fread(&num_entries, 1, sizeof(S32), fp);
+	nread = fread(&num_entries, sizeof(S32), 1, fp);
+	if (nread != 1)
+	{
+		llinfos << "Short read, discarding" << llendl;
+		fclose(fp);
+		return;
+	}
+	
 	S32 i;
 	for (i = 0; i < num_entries; i++)
 	{
@@ -264,16 +272,28 @@ void LLViewerRegion::saveCache()
 
 	// write out zero to indicate a version cache file
 	U32 zero = 0;
-	fwrite(&zero, 1, sizeof(U32), fp);
+	if (fwrite(&zero, sizeof(U32), 1, fp) != 1)
+	{
+		llwarns << "Short write" << llendl;
+	}
 
 	// write out version number
 	U32 version = INDRA_OBJECT_CACHE_VERSION;
-	fwrite(&version, 1, sizeof(U32), fp);
+	if (fwrite(&version, sizeof(U32), 1, fp) != 1)
+	{
+		llwarns << "Short write" << llendl;
+	}
 
 	// write the cache id for this sim
-	fwrite(&mCacheID.mData, UUID_BYTES, sizeof(U8), fp);
+	if (fwrite(&mCacheID.mData, 1, UUID_BYTES, fp) != UUID_BYTES)
+	{
+		llwarns << "Short write" << llendl;
+	}
 
-	fwrite(&num_entries, 1, sizeof(S32), fp);
+	if (fwrite(&num_entries, sizeof(S32), 1, fp) != 1)
+	{
+		llwarns << "Short write" << llendl;
+	}
 
 	LLVOCacheEntry *entry;
 
@@ -643,14 +663,7 @@ void LLViewerRegion::calculateCenterGlobal()
 	mCenterGlobal = mOriginGlobal;
 	mCenterGlobal.mdV[VX] += 0.5 * mWidth;
 	mCenterGlobal.mdV[VY] += 0.5 * mWidth;
-	if (mLandp)
-	{
-		mCenterGlobal.mdV[VZ] = 0.5*mLandp->getMinZ() + mLandp->getMaxZ();
-	}
-	else
-	{
-		mCenterGlobal.mdV[VZ] = F64( getWaterHeight() );
-	}
+	mCenterGlobal.mdV[VZ] = 0.5*mLandp->getMinZ() + mLandp->getMaxZ();
 }
 
 void LLViewerRegion::calculateCameraDistance()
@@ -773,13 +786,23 @@ F32 LLViewerRegion::getLandHeightRegion(const LLVector3& region_pos)
 
 BOOL LLViewerRegion::isOwnedSelf(const LLVector3& pos)
 {
-	return mParcelOverlay->isOwnedSelf(pos);
+	if (mParcelOverlay)
+	{
+		return mParcelOverlay->isOwnedSelf(pos);
+	} else {
+		return FALSE;
+	}
 }
 
 // Owned by a group you belong to?  (officer or member)
 BOOL LLViewerRegion::isOwnedGroup(const LLVector3& pos)
 {
-	return mParcelOverlay->isOwnedGroup(pos);
+	if (mParcelOverlay)
+	{
+		return mParcelOverlay->isOwnedGroup(pos);
+	} else {
+		return FALSE;
+	}
 }
 
 void LLViewerRegion::updateCoarseLocations(LLMessageSystem* msg)

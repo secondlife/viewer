@@ -166,7 +166,7 @@ LLOSInfo::LLOSInfo() :
 	}
 #else
 	struct utsname un;
-	if(0==uname(&un))
+        if(uname(&un) != -1)
 	{
 		mOSString.append(un.sysname);
 		mOSString.append(" ");
@@ -239,10 +239,9 @@ U32 LLOSInfo::getProcessVirtualSizeKB()
 	FILE* status_filep = LLFile::fopen("/proc/self/status", "r");	/* Flawfinder: ignore */
 	S32 numRead = 0;		
 	char buff[STATUS_SIZE];		/* Flawfinder: ignore */
-	bzero(buff, STATUS_SIZE);
 
-	rewind(status_filep);
-	fread(buff, 1, STATUS_SIZE-2, status_filep);
+	size_t nbytes = fread(buff, 1, STATUS_SIZE-1, status_filep);
+	buff[nbytes] = '\0';
 
 	// All these guys return numbers in KB
 	char *memp = strstr(buff, "VmSize:");
@@ -251,6 +250,24 @@ U32 LLOSInfo::getProcessVirtualSizeKB()
 		numRead += sscanf(memp, "%*s %u", &virtual_size);
 	}
 	fclose(status_filep);
+#elif LL_SOLARIS
+	char proc_ps[LL_MAX_PATH];
+	sprintf(proc_ps, "/proc/%d/psinfo", (int)getpid());
+	int proc_fd = -1;
+	if((proc_fd = open(proc_ps, O_RDONLY)) == -1){
+		llwarns << "unable to open " << proc_ps << llendl;
+		return 0;
+	}
+	psinfo_t proc_psinfo;
+	if(read(proc_fd, &proc_psinfo, sizeof(psinfo_t)) != sizeof(psinfo_t)){
+		llwarns << "Unable to read " << proc_ps << llendl;
+		close(proc_fd);
+		return 0;
+	}
+
+	close(proc_fd);
+
+	virtual_size = proc_psinfo.pr_size;
 #endif
 	return virtual_size;
 }
@@ -267,10 +284,9 @@ U32 LLOSInfo::getProcessResidentSizeKB()
 	{
 		S32 numRead = 0;
 		char buff[STATUS_SIZE];		/* Flawfinder: ignore */
-		bzero(buff, STATUS_SIZE);
 
-		rewind(status_filep);
-		fread(buff, 1, STATUS_SIZE-2, status_filep);
+		size_t nbytes = fread(buff, 1, STATUS_SIZE-1, status_filep);
+		buff[nbytes] = '\0';
 
 		// All these guys return numbers in KB
 		char *memp = strstr(buff, "VmRSS:");
@@ -280,6 +296,24 @@ U32 LLOSInfo::getProcessResidentSizeKB()
 		}
 		fclose(status_filep);
 	}
+#elif LL_SOLARIS
+	char proc_ps[LL_MAX_PATH];
+	sprintf(proc_ps, "/proc/%d/psinfo", (int)getpid());
+	int proc_fd = -1;
+	if((proc_fd = open(proc_ps, O_RDONLY)) == -1){
+		llwarns << "unable to open " << proc_ps << llendl;
+		return 0;
+	}
+	psinfo_t proc_psinfo;
+	if(read(proc_fd, &proc_psinfo, sizeof(psinfo_t)) != sizeof(psinfo_t)){
+		llwarns << "Unable to read " << proc_ps << llendl;
+		close(proc_fd);
+		return 0;
+	}
+
+	close(proc_fd);
+
+	resident_size = proc_psinfo.pr_rssize;
 #endif
 	return resident_size;
 }
@@ -318,7 +352,7 @@ S32 LLCPUInfo::getMhz() const
 
 std::string LLCPUInfo::getCPUString() const
 {
-#if LL_WINDOWS || LL_DARWIN
+#if LL_WINDOWS || LL_DARWIN || LL_SOLARIS
 	std::ostringstream out;
 
 	CProcessor proc;
@@ -341,7 +375,7 @@ std::string LLCPUInfo::getCPUString() const
 
 void LLCPUInfo::stream(std::ostream& s) const
 {
-#if LL_WINDOWS || LL_DARWIN
+#if LL_WINDOWS || LL_DARWIN || LL_SOLARIS
 	// gather machine information.
 	char proc_buf[CPUINFO_BUFFER_SIZE];		/* Flawfinder: ignore */
 	CProcessor proc;
@@ -404,7 +438,8 @@ U32 LLMemoryInfo::getPhysicalMemory() const
 #elif LL_LINUX
 
 	return getpagesize() * get_phys_pages();
-
+#elif LL_SOLARIS
+	return getpagesize() * sysconf(_SC_PHYS_PAGES);
 #else
 	return 0;
 
@@ -438,7 +473,12 @@ void LLMemoryInfo::stream(std::ostream& s) const
 	{
 		s << "Unable to collect memory information";
 	}
-	
+#elif LL_SOLARIS
+        U64 phys = 0;
+
+        phys = (U64)(sysconf(_SC_PHYS_PAGES)) * (U64)(sysconf(_SC_PAGESIZE)/1024);
+
+        s << "Total Physical Kb:  " << phys << std::endl;
 #else
 	// *NOTE: This works on linux. What will it do on other systems?
 	FILE* meminfo = LLFile::fopen(MEMINFO_FILE,"r");		/* Flawfinder: ignore */
@@ -496,7 +536,11 @@ BOOL gunzip_file(const char *srcfile, const char *dstfile)
 	do
 	{
 		bytes = gzread(src, buffer, UNCOMPRESS_BUFFER_SIZE);
-		fwrite(buffer, sizeof(U8), bytes, dst);
+		size_t nwrit = fwrite(buffer, sizeof(U8), bytes, dst);
+		if (nwrit < (size_t) bytes)
+		{
+			llerrs << "Short write on " << tmpfile << llendl;
+		}
 	} while(gzeof(src) == 0);
 	fclose(dst); 
 	dst = NULL;	

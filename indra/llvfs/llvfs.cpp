@@ -15,6 +15,10 @@
 #include <map>
 #if LL_WINDOWS
 #include <share.h>
+#elif LL_SOLARIS
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
 #else
 #include <sys/file.h>
 #endif
@@ -359,13 +363,13 @@ LLVFS::LLVFS(const char *index_filename, const char *data_filename, const BOOL r
 		)
 	{	
 		U8 *buffer = new U8[fbuf.st_size];
-		fread(buffer, fbuf.st_size, 1, mIndexFP);
+		size_t nread = fread(buffer, 1, fbuf.st_size, mIndexFP);
     
 		U8 *tmp_ptr = buffer;
     
 		std::vector<LLVFSFileBlock*> files_by_loc;
 		
-		while (tmp_ptr < buffer + fbuf.st_size)
+		while (tmp_ptr < buffer + nread)
 		{
 			LLVFSFileBlock *block = new LLVFSFileBlock();
     
@@ -861,12 +865,18 @@ BOOL LLVFS::setMaxSize(const LLUUID &file_id, const LLAssetType::EType file_type
 						// move the file into the new block
 						U8 *buffer = new U8[block->mSize];
 						fseek(mDataFP, block->mLocation, SEEK_SET);
-						fread(buffer, block->mSize, 1, mDataFP);
-						fseek(mDataFP, free_block->mLocation, SEEK_SET);
-						fwrite(buffer, block->mSize, 1, mDataFP);
-						// fflush(mDataFP);
+						if (fread(buffer, block->mSize, 1, mDataFP) == 1)
+						{
+							fseek(mDataFP, free_block->mLocation, SEEK_SET);
+							if (fwrite(buffer, block->mSize, 1, mDataFP) != 1)
+							{
+								llwarns << "Short write" << llendl;
+							}
     
-						delete[] buffer;
+							delete[] buffer;
+						} else {
+							llwarns << "Short read" << llendl;
+						}
 					}
 				}
     
@@ -1466,7 +1476,7 @@ void LLVFS::sync(LLVFSFileBlock *block, BOOL remove)
 	}
 
     BOOL set_index_to_end = FALSE;
-	S32 seek_pos = block->mIndexLocation;
+	long seek_pos = block->mIndexLocation;
 		
 	if (-1 == seek_pos)
 	{
@@ -1514,7 +1524,11 @@ void LLVFS::sync(LLVFSFileBlock *block, BOOL remove)
 		fseek(mIndexFP, seek_pos, SEEK_SET);
 	}
 
-	fwrite(buffer, LLVFSFileBlock::SERIAL_SIZE, 1, mIndexFP);
+	if (fwrite(buffer, LLVFSFileBlock::SERIAL_SIZE, 1, mIndexFP) != 1)
+	{
+		llwarns << "Short write" << llendl;
+	}
+	
 	// fflush(mIndexFP);
 	
 	lockData();
@@ -1643,18 +1657,24 @@ void LLVFS::pokeFiles()
 	// only write data if we actually read 4 bytes
 	// otherwise we're writing garbage and screwing up the file
 	fseek(mDataFP, 0, SEEK_SET);
-	if (fread(&word, 1, 4, mDataFP) == 4)
+	if (fread(&word, sizeof(word), 1, mDataFP) == 1)
 	{
 		fseek(mDataFP, 0, SEEK_SET);
-		fwrite(&word, 1, 4, mDataFP);
+		if (fwrite(&word, sizeof(word), 1, mDataFP) != 1)
+		{
+			llwarns << "Could not write to data file" << llendl;
+		}
 		fflush(mDataFP);
 	}
 
 	fseek(mIndexFP, 0, SEEK_SET);
-	if (fread(&word, 1, 4, mIndexFP) == 4)
+	if (fread(&word, sizeof(word), 1, mIndexFP) == 1)
 	{
 		fseek(mIndexFP, 0, SEEK_SET);
-		fwrite(&word, 1, 4, mIndexFP);
+		if (fwrite(&word, sizeof(word), 1, mIndexFP) != 1)
+		{
+			llwarns << "Could not write to index file" << llendl;
+		}
 		fflush(mIndexFP);
 	}
 }
@@ -1689,21 +1709,26 @@ void LLVFS::audit()
 	fflush(mIndexFP);
 
 	fseek(mIndexFP, 0, SEEK_END);
-	S32 index_size = ftell(mIndexFP);
+	long index_size = ftell(mIndexFP);
 	fseek(mIndexFP, 0, SEEK_SET);
     
+	BOOL vfs_corrupt = FALSE;
+	
 	U8 *buffer = new U8[index_size];
-	fread(buffer, index_size, 1, mIndexFP);
+
+	if (fread(buffer, 1, index_size, mIndexFP) != index_size)
+	{
+		llwarns << "Index truncated" << llendl;
+		vfs_corrupt = TRUE;
+	}
     
 	U8 *tmp_ptr = buffer;
     
 	std::map<LLVFSFileSpecifier, LLVFSFileBlock*>	found_files;
 	U32 cur_time = (U32)time(NULL);
 
-	BOOL vfs_corrupt = FALSE;
-	
 	std::vector<LLVFSFileBlock*> audit_blocks;
-	while (tmp_ptr < buffer + index_size)
+	while (!vfs_corrupt && tmp_ptr < buffer + index_size)
 	{
 		LLVFSFileBlock *block = new LLVFSFileBlock();
 		audit_blocks.push_back(block);
@@ -1783,7 +1808,11 @@ void LLVFS::audit()
 					llwarns << "VFile " << block->mFileID << ":" << block->mFileType << " in memory, not on disk, loc " << block->mIndexLocation<< llendl;
 					fseek(mIndexFP, block->mIndexLocation, SEEK_SET);
 					U8 buf[LLVFSFileBlock::SERIAL_SIZE];
-					fread(buf, LLVFSFileBlock::SERIAL_SIZE, 1, mIndexFP);
+					if (fread(buf, LLVFSFileBlock::SERIAL_SIZE, 1, mIndexFP) != 1)
+					{
+						llwarns << "VFile " << block->mFileID
+								<< " gave short read" << llendl;
+					}
     			
 					LLVFSFileBlock disk_block;
 					disk_block.deserialize(buf, block->mIndexLocation);
@@ -2096,6 +2125,12 @@ FILE *LLVFS::openAndLock(const char *filename, const char *mode, BOOL read_lock)
 	int fd;
 	
 	// first test the lock in a non-destructive way
+#if LL_SOLARIS
+        struct flock fl;
+        fl.l_whence = SEEK_SET;
+        fl.l_start = 0;
+        fl.l_len = 1;
+#else // !LL_SOLARIS
 	if (strstr(mode, "w"))
 	{
 		fp = LLFile::fopen(filename, "rb");	/* Flawfinder: ignore */
@@ -2111,13 +2146,19 @@ FILE *LLVFS::openAndLock(const char *filename, const char *mode, BOOL read_lock)
 			fclose(fp);
 		}
 	}
+#endif // !LL_SOLARIS
 
 	// now actually open the file for use
 	fp = LLFile::fopen(filename, mode);	/* Flawfinder: ignore */
 	if (fp)
 	{
 		fd = fileno(fp);
+#if LL_SOLARIS
+                fl.l_type = read_lock ? F_RDLCK : F_WRLCK;
+                if (fcntl(fd, F_SETLK, &fl) == -1)
+#else
 		if (flock(fd, (read_lock ? LOCK_SH : LOCK_EX) | LOCK_NB) == -1)
+#endif
 		{
 			fclose(fp);
 			fp = NULL;
@@ -2145,7 +2186,14 @@ void LLVFS::unlockAndClose(FILE *fp)
 	  flock(fd, LOCK_UN);
 	  #endif
     */
-    
+#if LL_SOLARIS
+	        struct flock fl;
+		fl.l_whence = SEEK_SET;
+		fl.l_start = 0;
+		fl.l_len = 1;
+		fl.l_type = F_UNLCK;
+		fcntl(fileno(fp), F_SETLK, &fl);
+#endif
 		fclose(fp);
 	}
 }

@@ -575,7 +575,7 @@ void LLDrawPoolWater::shade()
 	glUniform1fARB(gWaterProgram.mUniform[LLShaderMgr::WATER_TIME], sTime);
 	glUniform3fvARB(gWaterProgram.mUniform[LLShaderMgr::WATER_SPECULAR], 1, light_diffuse.mV);
 	glUniform1fARB(gWaterProgram.mUniform[LLShaderMgr::WATER_SPECULAR_EXP], light_exp);
-	glUniform3fvARB(gWaterProgram.mUniform[LLShaderMgr::WATER_EYEVEC], 1, gCamera->getOrigin().mV);
+	glUniform3fvARB(gWaterProgram.mUniform[LLShaderMgr::WATER_EYEVEC], 1, (GLfloat *)(gCamera->getOrigin().mV));
 	glUniform2fvARB(gWaterProgram.mUniform[LLShaderMgr::WATER_WAVE_DIR1], 1, d1.mV);
 	glUniform2fvARB(gWaterProgram.mUniform[LLShaderMgr::WATER_WAVE_DIR2], 1, d2.mV);
 	glUniform3fvARB(gWaterProgram.mUniform[LLShaderMgr::WATER_LIGHT_DIR], 1, light_dir.mV);

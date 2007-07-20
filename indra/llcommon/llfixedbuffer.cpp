@@ -62,7 +62,7 @@ void LLFixedBuffer::setMaxLines(S32 max_lines)
 
 void LLFixedBuffer::removeExtraLines()
 {
-	while ((S32)mLines.size() > llmax(0, (S32)(mMaxLines - 1)))
+	while ((S32)mLines.size() > llmax((S32)0, (S32)(mMaxLines - 1)))
 	{
 		mLines.pop_front();
 		mAddTimes.pop_front();

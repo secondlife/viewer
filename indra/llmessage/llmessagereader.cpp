@@ -6,6 +6,7 @@
  * $License$
  */
 
+#include "linden_common.h"
 #include "llmessagereader.h"
 
 static BOOL sTimeDecodes = FALSE;

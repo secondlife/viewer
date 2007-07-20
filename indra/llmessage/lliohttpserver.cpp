@@ -33,6 +33,7 @@
 
 static const char HTTP_VERSION_STR[] = "HTTP/1.0";
 static const std::string CONTEXT_REQUEST("request");
+static const std::string CONTEXT_RESPONSE("response");
 static const std::string HTTP_VERB_GET("GET");
 static const std::string HTTP_VERB_PUT("PUT");
 static const std::string HTTP_VERB_POST("POST");
@@ -136,10 +137,7 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		LLBufferStream istr(channels, buffer.get());
 
 		static LLTimer timer;
-		if (sTimingCallback)
-		{
-			timer.reset();
-		}
+		timer.reset();
 
 		std::string verb = context[CONTEXT_REQUEST]["verb"];
 		if(verb == HTTP_VERB_GET)
@@ -169,6 +167,7 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		    mResponse->methodNotAllowed();
 		}
 
+		F32 delta = timer.getElapsedTimeF32();
 		if (sTimingCallback)
 		{
 			LLHTTPNode::Description desc;
@@ -177,16 +176,20 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 			std::string timing_name = info["description"];
 			timing_name += " ";
 			timing_name += verb;
-			F32 delta = timer.getElapsedTimeF32();
 			sTimingCallback(timing_name.c_str(), delta, sTimingCallbackData);
 		}
 
+		// Log all HTTP transactions.
+		llinfos << verb << " " << context[CONTEXT_REQUEST]["path"].asString()
+			<< " " << mStatusCode << " " <<  mStatusMessage << " " << delta
+			<< "s" << llendl;
+
 		// Log Internal Server Errors
-		if(mStatusCode == 500)
-		{
-			llwarns << "LLHTTPPipe::process_impl:500:Internal Server Error" 
-					<< llendl;
-		}
+		//if(mStatusCode == 500)
+		//{
+		//	llwarns << "LLHTTPPipe::process_impl:500:Internal Server Error" 
+		//			<< llendl;
+		//}
 	}
 
 	PUMP_DEBUG;
@@ -203,7 +206,7 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 
 		case STATE_GOOD_RESULT:
 		{
-			context["response"]["contentType"] = "application/xml";
+			context[CONTEXT_RESPONSE]["contentType"] = "application/xml";
 			LLBufferStream ostr(channels, buffer.get());
 			LLSDSerialize::toXML(mGoodResult, ostr);
 
@@ -212,9 +215,9 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 
 		case STATE_STATUS_RESULT:
 		{
-			context["response"]["contentType"] = "text/plain";
-			context["response"]["statusCode"] = mStatusCode;
-			context["response"]["statusMessage"] = mStatusMessage;
+			context[CONTEXT_RESPONSE]["contentType"] = "text/plain";
+			context[CONTEXT_RESPONSE]["statusCode"] = mStatusCode;
+			context[CONTEXT_RESPONSE]["statusMessage"] = mStatusMessage;
 			LLBufferStream ostr(channels, buffer.get());
 			ostr << mStatusMessage << std::ends;
 
@@ -351,9 +354,9 @@ LLIOPipe::EStatus LLHTTPResponseHeader::process_impl(
 		PUMP_DEBUG;
 		//mGotEOS = true;
 		std::ostringstream ostr;
-		std::string message = context["response"]["statusMessage"];
+		std::string message = context[CONTEXT_RESPONSE]["statusMessage"];
 		
-		int code = context["response"]["statusCode"];
+		int code = context[CONTEXT_RESPONSE]["statusCode"];
 		if (code < 200)
 		{
 			code = 200;
@@ -362,7 +365,7 @@ LLIOPipe::EStatus LLHTTPResponseHeader::process_impl(
 		
 		ostr << HTTP_VERSION_STR << " " << code << " " << message << "\r\n";
 		
-		std::string type = context["response"]["contentType"].asString();
+		std::string type = context[CONTEXT_RESPONSE]["contentType"].asString();
 		if (!type.empty())
 		{
 			ostr << "Content-Type: " << type << "\r\n";

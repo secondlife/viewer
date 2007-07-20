@@ -84,6 +84,8 @@ S32 LLWorkerThread::update(U32 max_time_ms)
 		}
 		delete *iter;
 	}
+    // delete and aborted entries mean there's still work to do
+	res += delete_list.size() + abort_list.size();
 	return res;
 }
 

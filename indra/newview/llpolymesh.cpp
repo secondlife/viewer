@@ -258,7 +258,10 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 	// Read a chunk
 	//-------------------------------------------------------------------------
 	char header[128];		/*Flawfinder: ignore*/
-	fread(header, sizeof(char), 128, fp);
+	if (fread(header, sizeof(char), 128, fp) != 128)
+	{
+		llwarns << "Short read" << llendl;
+	}
 
 	//-------------------------------------------------------------------------
 	// Check for proper binary header

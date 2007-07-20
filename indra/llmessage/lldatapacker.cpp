@@ -1875,7 +1875,10 @@ BOOL LLDataPackerAsciiFile::getValueStr(const char *name, char *out_value, S32 v
 	{
 		fpos_t last_pos;
 		fgetpos(mFP, &last_pos);
-		fgets(buffer, DP_BUFSIZE, mFP);
+		if (fgets(buffer, DP_BUFSIZE, mFP) == NULL)
+		{
+			buffer[0] = '\0';
+		}
 	
 		sscanf(buffer, "%511s %511[^\n]", keyword, value);	/* Flawfinder: ignore */
 	

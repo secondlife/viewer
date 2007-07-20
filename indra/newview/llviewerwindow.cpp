@@ -207,7 +207,9 @@ BOOL			gPickTransparent = TRUE;
 BOOL			gDebugFastUIRender = FALSE;
 
 BOOL			gbCapturing = FALSE;
+#if !LL_SOLARIS
 MovieMaker		gMovieMaker;
+#endif
 
 S32 CHAT_BAR_HEIGHT = 28; 
 S32 OVERLAY_BAR_HEIGHT = 20;
@@ -495,30 +497,40 @@ public:
 			ypos += y_inc;
 		}
 
-		if (LLPipeline::getRenderParticleBeacons(NULL))
+		// only display these messages if we are actually rendering beacons at this moment
+		if (LLPipeline::getRenderBeacons(NULL) && LLPipeline::getProcessBeacons(NULL))
 		{
-			addText(xpos, ypos, "Viewing particle beacons (blue)");
-			ypos += y_inc;
-		}
-		if (LLPipeline::toggleRenderTypeControlNegated((void*)LLPipeline::RENDER_TYPE_PARTICLES))
-		{
-			addText(xpos, ypos, "Hiding particles");
-			ypos += y_inc;
-		}
-		if (LLPipeline::getRenderPhysicalBeacons(NULL))
-		{
-			addText(xpos, ypos, "Viewing physical object beacons (green)");
-			ypos += y_inc;
-		}
-		if (LLPipeline::getRenderScriptedBeacons(NULL))
-		{
-			addText(xpos, ypos, "Viewing scripted object beacons (red)");
-			ypos += y_inc;
-		}
-		if (LLPipeline::getRenderSoundBeacons(NULL))
-		{
-			addText(xpos, ypos, "Viewing sound beacons (yellow)");
-			ypos += y_inc;
+			if (LLPipeline::getRenderParticleBeacons(NULL))
+			{
+				addText(xpos, ypos, "Viewing particle beacons (blue)");
+				ypos += y_inc;
+			}
+			if (LLPipeline::toggleRenderTypeControlNegated((void*)LLPipeline::RENDER_TYPE_PARTICLES))
+			{
+				addText(xpos, ypos, "Hiding particles");
+				ypos += y_inc;
+			}
+			if (LLPipeline::getRenderPhysicalBeacons(NULL))
+			{
+				addText(xpos, ypos, "Viewing physical object beacons (green)");
+				ypos += y_inc;
+			}
+			if (LLPipeline::getRenderScriptedBeacons(NULL))
+			{
+				addText(xpos, ypos, "Viewing scripted object beacons (red)");
+				ypos += y_inc;
+			}
+			else
+				if (LLPipeline::getRenderScriptedTouchBeacons(NULL))
+				{
+					addText(xpos, ypos, "Viewing scripted object with touch function beacons (red)");
+					ypos += y_inc;
+				}
+			if (LLPipeline::getRenderSoundBeacons(NULL))
+			{
+				addText(xpos, ypos, "Viewing sound beacons (yellow)");
+				ypos += y_inc;
+			}
 		}
 	}
 
@@ -1445,8 +1457,8 @@ LLViewerWindow::LLViewerWindow(
 	if (NULL == mWindow)
 	{
 		LLSplashScreen::update("Shutting down...");
-#if LL_LINUX
-		llwarns << "Unable to create window, be sure screen is set at 32-bit color and your graphics driver is configured correctly.  See README-linux.txt for further information."
+#if LL_LINUX || LL_SOLARIS
+		llwarns << "Unable to create window, be sure screen is set at 32-bit color and your graphics driver is configured correctly.  See README-linux.txt or README-solaris.txt for further information."
 				<< llendl;
 #else
 		llwarns << "Unable to create window, be sure screen is set at 32-bit color in Control Panels->Display->Settings"
@@ -2685,16 +2697,29 @@ BOOL LLViewerWindow::handlePerFrameHover()
 		}
 	}
 
+	gPipeline.sRenderProcessBeacons = FALSE;
+	KEY key = gKeyboard->currentKey();
+	if (((mask & MASK_CONTROL) && ('N' == key || 'n' == key)) || (gFloaterTools && gFloaterTools->getVisible()) || gSavedSettings.getBOOL("BeaconAlwaysOn"))
+	{
+		gPipeline.sRenderProcessBeacons = TRUE;
+	}
+
+/*
 	// Show joints while in edit mode and hold down alt key.
 	if (gHUDManager)
 	{
-		if (gSavedSettings.getBOOL("AltShowsPhysical")
+		BOOL menuOption = gSavedSettings.getBOOL("AltShowsPhysical");
+		if (menuOption
 			|| (gFloaterTools && gFloaterTools->getVisible()))
 		{
 			gHUDManager->toggleShowPhysical( mask & MASK_ALT );
 		}
+		else
+		{
+			gHUDManager->toggleShowPhysical( FALSE );
+		}
 	}
-
+*/
 	BOOL handled = FALSE;
 
 	BOOL handled_by_top_ctrl = FALSE;
@@ -4125,11 +4150,15 @@ void LLViewerWindow::saveMovieNumbered(void*)
 		S32 y = gViewerWindow->getWindowHeight();
 
 		gbCapturing = TRUE;
+#if !LL_SOLARIS
 		gMovieMaker.StartCapture((char *)filepath.c_str(), x, y);
+#endif
 	}
 	else
 	{
+#if !LL_SOLARIS
 		gMovieMaker.EndCapture();
+#endif
 		gbCapturing = FALSE;
 	}
 }

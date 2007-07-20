@@ -134,7 +134,6 @@ public:
 	void postSort(LLCamera& camera);
 	void forAllDrawables(LLSpatialGroup::sg_vector_t& groups, void (*func)(LLDrawable*));
 	void forAllVisibleDrawables(void (*func)(LLDrawable*));
-	static void highlightPhysical(LLDrawable* drawablep);
 
 	void renderObjects(U32 type, U32 mask, BOOL texture = TRUE);
 
@@ -187,17 +186,35 @@ public:
 	static BOOL toggleRenderDebugControl(void* data);
 	static BOOL toggleRenderDebugFeatureControl(void* data);
 
+	static void setRenderParticleBeacons(BOOL val);
 	static void toggleRenderParticleBeacons(void* data);
 	static BOOL getRenderParticleBeacons(void* data);
 
+	static void setRenderSoundBeacons(BOOL val);
 	static void toggleRenderSoundBeacons(void* data);
 	static BOOL getRenderSoundBeacons(void* data);
 
+	static void setRenderPhysicalBeacons(BOOL val);
 	static void toggleRenderPhysicalBeacons(void* data);
 	static BOOL getRenderPhysicalBeacons(void* data);
 
+	static void setRenderScriptedBeacons(BOOL val);
 	static void toggleRenderScriptedBeacons(void* data);
 	static BOOL getRenderScriptedBeacons(void* data);
+
+	static void setRenderScriptedTouchBeacons(BOOL val);
+	static void toggleRenderScriptedTouchBeacons(void* data);
+	static BOOL getRenderScriptedTouchBeacons(void* data);
+
+	static void setRenderBeacons(BOOL val);
+	static void toggleRenderBeacons(void* data);
+	static BOOL getRenderBeacons(void* data);
+
+	static void setRenderHighlights(BOOL val);
+	static void toggleRenderHighlights(void* data);
+	static BOOL getRenderHighlights(void* data);
+
+	static BOOL getProcessBeacons(void* data);
 
 private:
 	void initShaders(BOOL force);
@@ -474,8 +491,9 @@ protected:
 	LLDrawPool*					mBumpPool;
 	// Note: no need to keep an quick-lookup to avatar pools, since there's only one per avatar
 	
-
+public:
 	std::vector<LLFace*>		mHighlightFaces;	// highlight faces on physical objects
+protected:
 	std::vector<LLFace*>		mSelectedFaces;
 
 	LLPointer<LLViewerImage>	mFaceSelectImagep;
@@ -488,9 +506,14 @@ protected:
 	F32						mSunShadowFactor;
 	
 	static BOOL				sRenderPhysicalBeacons;
+	static BOOL				sRenderScriptedTouchBeacons;
 	static BOOL				sRenderScriptedBeacons;
 	static BOOL				sRenderParticleBeacons;
 	static BOOL				sRenderSoundBeacons;
+public:
+	static BOOL				sRenderBeacons;
+	static BOOL				sRenderHighlight;
+	static BOOL				sRenderProcessBeacons;
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);

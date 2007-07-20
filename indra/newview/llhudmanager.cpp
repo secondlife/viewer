@@ -30,7 +30,6 @@ LLColor4 LLHUDManager::sChildColor;
 
 LLHUDManager::LLHUDManager()
 {
-	mShowPhysical = FALSE;
 
 	LLHUDManager::sParentColor = gColors.getColor("FocusColor");
 	// rdw commented out since it's not used.  Also removed from colors_base.xml
@@ -39,109 +38,9 @@ LLHUDManager::LLHUDManager()
 
 LLHUDManager::~LLHUDManager()
 {
-	mHUDJoints.reset();
-	mHUDSelectedJoints.reset();
 	mHUDEffects.reset();
 }
 
-
-void LLHUDManager::toggleShowPhysical(const BOOL show_physical)
-{
-	if (show_physical == mShowPhysical)
-	{
-		return;
-	}
-
-	mShowPhysical = show_physical;
-	if (show_physical)
-	{
-		S32 i;
-		for (i = 0; i < gObjectList.getNumObjects(); i++)
-		{
-			LLViewerObject *vobjp = gObjectList.getObject(i);
-
-			if (vobjp && vobjp->isJointChild() && vobjp->getParent())
-			{
-				LLHUDConnector *connectorp = (LLHUDConnector *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_CONNECTOR);
-				connectorp->setTargets(vobjp, (LLViewerObject *)vobjp->getParent());
-				connectorp->setColors(LLColor4(1.f, 1.f, 1.f, 1.f), sChildColor, sParentColor);
-				EHavokJointType joint_type = vobjp->getJointType();
-				if (HJT_HINGE == joint_type)
-				{
-					connectorp->setLabel("Hinge");
-				}
-				else if (HJT_POINT == joint_type)
-				{
-					connectorp->setLabel("P2P");
-				}
-#if 0
-				else if (HJT_LPOINT == joint_type)
-				{
-					connectorp->setLabel("LP2P");
-				}
-#endif
-#if 0
-				else if (HJT_WHEEL == joint_type)
-				{
-					connectorp->setLabel("Wheel");
-				}
-#endif
-				mHUDJoints.put(connectorp);
-			}
-		}
-	}
-	else
-	{
-		mHUDJoints.reset();
-	}
-}
-
-void LLHUDManager::showJoints(LLDynamicArray < LLViewerObject* > *object_list)
-{
-	for (S32 i=0; i<object_list->count(); i++)
-	{
-		LLViewerObject *vobjp = object_list->get(i);
-		if (vobjp && vobjp->isJointChild() && vobjp->getParent())
-		{
-			LLHUDConnector *connectorp = (LLHUDConnector *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_CONNECTOR);
-			connectorp->setTargets(vobjp, (LLViewerObject *)vobjp->getParent());
-			connectorp->setColors(LLColor4(1.f, 1.f, 1.f, 1.f), sChildColor, sParentColor);
-
-			EHavokJointType joint_type = vobjp->getJointType();
-			if (HJT_HINGE == joint_type)
-			{
-				connectorp->setLabel("Hinge");
-			}
-			else if (HJT_POINT == joint_type)
-			{
-				connectorp->setLabel("P2P");
-			}
-#if 0
-			else if (HJT_LPOINT == joint_type)
-			{
-				connectorp->setLabel("LP2P");
-			}
-#endif
-#if 0
-			else if (HJT_WHEEL == joint_type)
-			{
-				connectorp->setLabel("Wheel");
-			}
-#endif
-			mHUDSelectedJoints.put(connectorp);
-		}
-	}
-}
-
-void LLHUDManager::clearJoints()
-{
-	mHUDSelectedJoints.reset();
-}
-
-BOOL LLHUDManager::getShowPhysical() const
-{
-	return mShowPhysical;
-}
 
 void LLHUDManager::updateEffects()
 {

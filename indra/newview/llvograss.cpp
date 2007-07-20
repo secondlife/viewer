@@ -419,7 +419,8 @@ void LLVOGrass::getGeometry(S32 idx,
 								LLStrider<U32>& indicesp)
 {
 	mPatch = mRegionp->getLand().resolvePatchRegion(getPositionRegion());
-	mLastPatchUpdateTime = mPatch->getLastUpdateTime();
+	if (mPatch)
+		mLastPatchUpdateTime = mPatch->getLastUpdateTime();
 	
 	LLVector3 position;
 	// Create random blades of grass with gaussian distribution

@@ -1139,11 +1139,12 @@ BOOL idle_startup()
 				emsg << "Unable to connect to " << gSecondLife << ".\n";
 				emsg << gUserAuthp->errorMessage();
 			} else {
+				auth_uri_num++;
 				std::ostringstream s;
-				s << "Logging in (attempt " << (auth_uri_num + 1) << ").  ";
+				s << "Previous login attempt failed. Logging in, attempt "
+				  << (auth_uri_num + 1) << ".  ";
 				auth_desc = s.str();
 				gStartupState = STATE_LOGIN_AUTHENTICATE;
-				auth_uri_num++;
 				auth_uri_num++;
 				return do_normal_idle;
 			}
@@ -2482,7 +2483,10 @@ void save_password_to_disk(const char* hashed_password)
 		LLXORCipher cipher(gMACAddress, 6);
 		cipher.encrypt(buffer, HASHED_LENGTH);
 
-		fwrite(buffer, HASHED_LENGTH, 1, fp);
+		if (fwrite(buffer, HASHED_LENGTH, 1, fp) != 1)
+		{
+			llwarns << "Short write" << llendl;
+		}
 
 		fclose(fp);
 	}

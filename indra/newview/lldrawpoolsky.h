@@ -37,7 +37,7 @@ public:
 	/*virtual*/ void render(S32 pass = 0);
 	/*virtual*/ void renderForSelect();
 	void setSkyTex(LLSkyTex* const st) { mSkyTex = st; }
-	void setSun(LLHeavenBody* sun) { mHB[0] = sun; }
+	void setSun(LLHeavenBody* sun_flag) { mHB[0] = sun_flag; }
 	void setMoon(LLHeavenBody* moon) { mHB[1] = moon; }
 
 	void renderSkyCubeFace(U8 side);

@@ -1,22 +1,26 @@
 /** 
- * @file lldir_linux.cpp
- * @brief Implementation of directory utilities for linux
+ * @file fmodwrapper.cpp
+ * @brief dummy source file for building a shared library to wrap libfmod.a
  *
- * Copyright (c) 2002-$CurrentYear$, Linden Research, Inc.
+ * Copyright (c) 2005-$CurrentYear$, Linden Research, Inc.
  * $License$
  */
 
 #include "linden_common.h"
 
-#include "lldir_linux.h"
+#include "lldir_solaris.h"
 #include "llerror.h"
 #include "llrand.h"
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/param.h>
 #include <unistd.h>
 #include <glob.h>
 #include <pwd.h>
-
+#include <sys/utsname.h>
+#define _STRUCTURED_PROC 1
+#include <sys/procfs.h>
 
 static std::string getCurrentUserHome(char* fallback)
 {
@@ -47,7 +51,7 @@ static std::string getCurrentUserHome(char* fallback)
 }
 
 
-LLDir_Linux::LLDir_Linux()
+LLDir_Solaris::LLDir_Solaris()
 {
 	mDirDelimiter = "/";
 	mCurrentDirIndex = -1;
@@ -55,63 +59,73 @@ LLDir_Linux::LLDir_Linux()
 	mDirp = NULL;
 
 	char tmp_str[LL_MAX_PATH];	/* Flawfinder: ignore */ 
-	if (getcwd(tmp_str, LL_MAX_PATH) == NULL)
-	{
-		strcpy(tmp_str, "/tmp");
-		llwarns << "Could not get current directory; changing to "
-				<< tmp_str << llendl;
-		if (chdir(tmp_str) == -1)
-		{
-			llerrs << "Could not change directory to " << tmp_str << llendl;
-		}
-	}
+	getcwd(tmp_str, LL_MAX_PATH);
 
 	mExecutableFilename = "";
 	mExecutablePathAndName = "";
-	mExecutableDir = tmp_str;
-	mWorkingDir = tmp_str;
-	mAppRODataDir = tmp_str;
+	mExecutableDir = strdup(tmp_str);
+	mWorkingDir = strdup(tmp_str);
+	mAppRODataDir = strdup(tmp_str);
 	mOSUserDir = getCurrentUserHome(tmp_str);
 	mOSUserAppDir = "";
 	mLindenUserDir = tmp_str;
 
-	char path [32];	/* Flawfinder: ignore */ 
+	char path [LL_MAX_PATH];	/* Flawfinder: ignore */ 
 
-	// *NOTE: /proc/%d/exe doesn't work on FreeBSD. But that's ok,
-	// because this is the linux implementation.
-
-	snprintf (path, sizeof(path), "/proc/%d/exe", (int) getpid ()); 
-	int rc = readlink (path, tmp_str, sizeof (tmp_str)-1);	/* Flawfinder: ignore */ 
-	if ( (rc != -1) && (rc <= ((int) sizeof (tmp_str)-1)) )
-	{
-		tmp_str[rc] = '\0'; //readlink() doesn't 0-terminate the buffer
-		mExecutablePathAndName = tmp_str;
-		char *path_end;
-		if ((path_end = strrchr(tmp_str,'/')))
-		{
-			*path_end = '\0';
-			mExecutableDir = tmp_str;
-			mWorkingDir = tmp_str;
-			mExecutableFilename = path_end+1;
-		}
-		else
-		{
-			mExecutableFilename = tmp_str;
-		}
+	sprintf(path, "/proc/%d/psinfo", (int)getpid());
+	int proc_fd = -1;
+	if((proc_fd = open(path, O_RDONLY)) == -1){
+		llwarns << "unable to open " << path << llendl;
+		return;
+	}
+	psinfo_t proc_psinfo;
+	if(read(proc_fd, &proc_psinfo, sizeof(psinfo_t)) != sizeof(psinfo_t)){
+		llwarns << "Unable to read " << path << llendl;
+		close(proc_fd);
+		return;
 	}
 
+	close(proc_fd);
+
+	mExecutableFilename = strdup(proc_psinfo.pr_fname);
+	llinfos << "mExecutableFilename = [" << mExecutableFilename << "]" << llendl;
+
+	sprintf(path, "/proc/%d/path/a.out", (int)getpid());
+
+	char execpath[LL_MAX_PATH];
+	if(readlink(path, execpath, LL_MAX_PATH) == -1){
+		llwarns << "Unable to read link from " << path << llendl;
+		return;
+	}
+
+	mExecutablePathAndName = strdup(execpath);
+	llinfos << "mExecutablePathAndName = [" << mExecutablePathAndName << "]" << llendl;
+
+			// plunk a null at last '/' to get exec dir
+	char *s = execpath + strlen(execpath) -1;
+	while(*s != '/' && s != execpath){
+		--s;
+	}
+	
+	if(s != execpath){
+		*s = (char)NULL;
+	
+		mExecutableDir = strdup(execpath);
+		llinfos << "mExecutableDir = [" << mExecutableDir << "]" << llendl;
+	}
+	
 	// *TODO: don't use /tmp, use $HOME/.secondlife/tmp or something.
 	mTempDir = "/tmp";
 }
 
-LLDir_Linux::~LLDir_Linux()
+LLDir_Solaris::~LLDir_Solaris()
 {
 }
 
 // Implementation
 
 
-void LLDir_Linux::initAppDirs(const std::string &app_name)
+void LLDir_Solaris::initAppDirs(const std::string &app_name)
 {
 	mAppName = app_name;
 
@@ -187,7 +201,7 @@ void LLDir_Linux::initAppDirs(const std::string &app_name)
 	mCAFile = getExpandedFilename(LL_PATH_APP_SETTINGS, "CA.pem");
 }
 
-U32 LLDir_Linux::countFilesInDir(const std::string &dirname, const std::string &mask)
+U32 LLDir_Solaris::countFilesInDir(const std::string &dirname, const std::string &mask)
 {
 	U32 file_count = 0;
 	glob_t g;
@@ -208,7 +222,7 @@ U32 LLDir_Linux::countFilesInDir(const std::string &dirname, const std::string &
 
 // get the next file in the directory
 // automatically wrap if we've hit the end
-BOOL LLDir_Linux::getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap)
+BOOL LLDir_Solaris::getNextFileInDir(const std::string &dirname, const std::string &mask, std::string &fname, BOOL wrap)
 {
 	glob_t g;
 	BOOL result = FALSE;
@@ -274,7 +288,7 @@ BOOL LLDir_Linux::getNextFileInDir(const std::string &dirname, const std::string
 
 // get a random file in the directory
 // automatically wrap if we've hit the end
-void LLDir_Linux::getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
+void LLDir_Solaris::getRandomFileInDir(const std::string &dirname, const std::string &mask, std::string &fname)
 {
 	S32 num_files;
 	S32 which_file;
@@ -314,19 +328,15 @@ void LLDir_Linux::getRandomFileInDir(const std::string &dirname, const std::stri
 	}
 }
 
-std::string LLDir_Linux::getCurPath()
+std::string LLDir_Solaris::getCurPath()
 {
 	char tmp_str[LL_MAX_PATH];	/* Flawfinder: ignore */ 
-	if (getcwd(tmp_str, LL_MAX_PATH) == NULL)
-	{
-		llwarns << "Could not get current directory" << llendl;
-		tmp_str[0] = '\0';
-	}
+	getcwd(tmp_str, LL_MAX_PATH);
 	return tmp_str;
 }
 
 
-BOOL LLDir_Linux::fileExists(const std::string &filename)
+BOOL LLDir_Solaris::fileExists(const std::string &filename)
 {
 	struct stat stat_data;
 	// Check the age of the file

@@ -30,11 +30,6 @@ public:
 	LLHUDManager();
 	~LLHUDManager();
 
-	void toggleShowPhysical(const BOOL show_physical);
-	void showJoints(LLDynamicArray < LLViewerObject* > *object_list);
-	void clearJoints();
-	BOOL getShowPhysical() const;
-
 	LLHUDEffect *createViewerEffect(const U8 type, BOOL send_to_sim = TRUE, BOOL originated_here = TRUE);
 
 	void updateEffects();
@@ -47,12 +42,7 @@ public:
 	static LLColor4 sChildColor;
 
 protected:
-	LLDynamicArrayPtr<LLPointer<LLHUDObject>				> mHUDJoints;
-	LLDynamicArrayPtr<LLPointer<LLHUDObject>				> mHUDSelectedJoints;
 	LLDynamicArrayPtr<LLPointer<LLHUDEffect>				> mHUDEffects;
-
-	// ALT held down this frame?
-	BOOL mShowPhysical;
 };
 
 extern LLHUDManager *gHUDManager;

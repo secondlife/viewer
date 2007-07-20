@@ -38,7 +38,7 @@
 #	include <windows.h>
 #endif
 
-#if !LL_DARWIN
+#if !LL_DARWIN && !LL_SOLARIS
 
 #ifdef PROCESSOR_FREQUENCY_MEASURE_AVAILABLE
 // We need the QueryPerformanceCounter and Sleep functions
@@ -1632,6 +1632,125 @@ const ProcessorInfo *CProcessor::GetCPUInfo()
 	return (&CPUInfo);
 }
 
+#elif LL_SOLARIS
+#include <kstat.h>
+
+// ======================
+// Class constructor:
+/////////////////////////
+CProcessor::CProcessor()
+{
+	uqwFrequency = 0;
+	strCPUName[0] = 0;
+	memset(&CPUInfo, 0, sizeof(CPUInfo));
+}
+
+// unsigned __int64 CProcessor::GetCPUFrequency(unsigned int uiMeasureMSecs)
+// =========================================================================
+// Function to query the current CPU frequency
+////////////////////////////////////////////////////////////////////////////
+F64 CProcessor::GetCPUFrequency(unsigned int /*uiMeasureMSecs*/)
+{
+	if(uqwFrequency == 0){
+		GetCPUInfo();
+	}
+
+	return uqwFrequency;
+}
+
+// const ProcessorInfo *CProcessor::GetCPUInfo()
+// =============================================
+// Calls all the other detection function to create an detailed
+// processor information
+///////////////////////////////////////////////////////////////
+const ProcessorInfo *CProcessor::GetCPUInfo()
+{
+					// In Solaris the CPU info is in the kstats
+					// try "psrinfo" or "kstat cpu_info" to see all
+					// that's available
+	int ncpus=0, i; 
+	kstat_ctl_t	*kc;
+	kstat_t 	*ks;
+	kstat_named_t   *ksinfo, *ksi;
+	kstat_t 	*CPU_stats_list;
+
+	kc = kstat_open();
+
+	if((int)kc == -1){
+		llwarns << "kstat_open(0 failed!" << llendl;
+		return (&CPUInfo);
+	}
+
+	for (ks = kc->kc_chain; ks != NULL; ks = ks->ks_next) {
+		if (strncmp(ks->ks_module, "cpu_info", 8) == 0 &&
+			strncmp(ks->ks_name, "cpu_info", 8) == 0)
+			ncpus++;
+	}
+	
+	if(ncpus < 1){
+		llwarns << "No cpus found in kstats!" << llendl;
+		return (&CPUInfo);
+	}
+
+	for (ks = kc->kc_chain; ks; ks = ks->ks_next) {
+		if (strncmp(ks->ks_module, "cpu_info", 8) == 0 
+		&&  strncmp(ks->ks_name, "cpu_info", 8) == 0 
+		&&  kstat_read(kc, ks, NULL) != -1){     
+			CPU_stats_list = ks;	// only looking at the first CPU
+			
+			break;
+		}
+	}
+
+	if(ncpus > 1)
+        	snprintf(strCPUName, sizeof(strCPUName), "%d x ", ncpus); 
+
+	kstat_read(kc, CPU_stats_list, NULL);
+	ksinfo = (kstat_named_t *)CPU_stats_list->ks_data;
+	for(i=0; i < (int)(CPU_stats_list->ks_ndata); ++i){ // Walk the kstats for this cpu gathering what we need
+		ksi = ksinfo++;
+		if(!strcmp(ksi->name, "brand")){
+			strncat(strCPUName, (char *)KSTAT_NAMED_STR_PTR(ksi),
+				sizeof(strCPUName)-strlen(strCPUName)-1);
+			strncat(CPUInfo.strFamily, (char *)KSTAT_NAMED_STR_PTR(ksi),
+				sizeof(CPUInfo.strFamily)-strlen(CPUInfo.strFamily)-1);
+			strncpy(CPUInfo.strBrandID, strCPUName,sizeof(CPUInfo.strBrandID)-1);
+			CPUInfo.strBrandID[sizeof(CPUInfo.strBrandID)-1]='\0';
+			// DEBUG llinfos << "CPU brand: " << strCPUName << llendl;
+			continue;
+		}
+
+		if(!strcmp(ksi->name, "clock_MHz")){
+#if defined(__sparc)
+			llinfos << "Raw kstat clock rate is: " << ksi->value.l << llendl;
+			uqwFrequency = (F64)(ksi->value.l * 1000000);
+#else
+			uqwFrequency = (F64)(ksi->value.i64 * 1000000);
+#endif
+			//DEBUG llinfos << "CPU frequency: " << uqwFrequency << llendl;
+			continue;
+		}
+
+#if defined(__i386)
+		if(!strcmp(ksi->name, "vendor_id")){
+			strncpy(CPUInfo.strVendor, (char *)KSTAT_NAMED_STR_PTR(ksi), sizeof(CPUInfo.strVendor)-1);
+			// DEBUG llinfos << "CPU vendor: " << CPUInfo.strVendor << llendl;
+			continue;
+		}
+#endif
+	}
+
+	kstat_close(kc);
+
+#if defined(__sparc)		// SPARC does not define a vendor string in kstat
+	strncpy(CPUInfo.strVendor, "Sun Microsystems, Inc.", sizeof(CPUInfo.strVendor)-1);
+#endif
+
+	// DEBUG llinfo << "The system has " << ncpus << " CPUs with a clock rate of " <<  uqwFrequency << "MHz." << llendl;
+	
+	return (&CPUInfo);
+}
+
 #else
 // LL_DARWIN
 
@@ -2006,6 +2125,7 @@ bool CProcessor::CPUInfoToText(char *strBuffer, unsigned int uiMaxLen)
 	{
 	  COPYADD("Processor Serial: Disabled\n");
 	}
+#if !LL_SOLARIS		//  NOTE: Why bother printing all this when it's irrelavent
 
 	COPYADD("\n\n// CPU Configuration\n////////////////////\n");
 	FORMATADD("L1 instruction cache:           %s\n", CPUInfo._L1.Instruction.strCache);
@@ -2062,7 +2182,7 @@ bool CProcessor::CPUInfoToText(char *strBuffer, unsigned int uiMaxLen)
 	BOOLADD("VME    Virtual 8086 Mode Enhancements:             ", CPUInfo._Ext.VME_Virtual8086ModeEnhancements);
 	BOOLADD("3DNow! Instructions:                               ", CPUInfo._Ext._3DNOW_InstructionExtensions);
 	BOOLADD("Enhanced 3DNow! Instructions:                      ", CPUInfo._Ext._E3DNOW_InstructionExtensions);
-
+#endif
 	// Yippie!!!
 	return true;
 }

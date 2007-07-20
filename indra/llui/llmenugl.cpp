@@ -2945,6 +2945,12 @@ BOOL LLMenuGL::handleKey( KEY key, MASK mask, BOOL called_from_parent )
 
 BOOL LLMenuGL::handleAcceleratorKey(KEY key, MASK mask)
 {
+	// don't handle if not enabled
+	if(!mEnabled)
+	{
+		return FALSE;
+	}
+
 	// Pass down even if not visible
 	item_list_t::iterator item_iter;
 	for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)

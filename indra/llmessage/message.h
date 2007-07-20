@@ -19,6 +19,10 @@
 #include <netinet/in.h>
 #endif
 
+#if LL_SOLARIS
+#include <netinet/in.h>
+#endif
+
 #if LL_WINDOWS
 #include "winsock2.h" // htons etc.
 #endif
@@ -184,14 +188,14 @@ public:
 class LLMessageSystem
 {
  private:
-	U8										mSendBuffer[MAX_BUFFER_SIZE];
-	S32										mSendSize;
+	U8					mSendBuffer[MAX_BUFFER_SIZE];
+	S32					mSendSize;
 
  public:
-	LLPacketRing							mPacketRing;
-	LLReliablePacketParams					mReliablePacketParams;
+	LLPacketRing				mPacketRing;
+	LLReliablePacketParams			mReliablePacketParams;
 
-	//LLLinkedList<LLPacketAck>				mAckList;
+	//LLLinkedList<LLPacketAck>		mAckList;
 
 	// Set this flag to TRUE when you want *very* verbose logs.
 	BOOL mVerboseLog;
@@ -202,36 +206,35 @@ class LLMessageSystem
 	typedef std::map<U32, LLMessageTemplate*> message_template_number_map_t;
 
 private:
-	message_template_name_map_t				mMessageTemplates;
-	message_template_number_map_t			mMessageNumbers;
+	message_template_name_map_t		mMessageTemplates;
+	message_template_number_map_t		mMessageNumbers;
 
 public:
-	S32										mSystemVersionMajor;
-	S32										mSystemVersionMinor;
-	S32										mSystemVersionPatch;
-	S32										mSystemVersionServer;
-	U32										mVersionFlags;
+	S32					mSystemVersionMajor;
+	S32					mSystemVersionMinor;
+	S32					mSystemVersionPatch;
+	S32					mSystemVersionServer;
+	U32					mVersionFlags;
 
+	BOOL					mbProtected;
 
-	BOOL									mbProtected;
+	U32					mNumberHighFreqMessages;
+	U32					mNumberMediumFreqMessages;
+	U32					mNumberLowFreqMessages;
+	S32					mPort;
+	S32					mSocket;
 
-	U32										mNumberHighFreqMessages;
-	U32										mNumberMediumFreqMessages;
-	U32										mNumberLowFreqMessages;
-	S32										mPort;
-	S32										mSocket;
+	U32					mPacketsIn;		    // total packets in, including compressed and uncompressed
+	U32					mPacketsOut;		    // total packets out, including compressed and uncompressed
 
-	U32										mPacketsIn;			// total packets in, including compressed and uncompressed
-	U32										mPacketsOut;		// total packets out, including compressed and uncompressed
-
-	U64										mBytesIn;			// total bytes in, including compressed and uncompressed
-	U64										mBytesOut;			// total bytes out, including compressed and uncompressed
+	U64					mBytesIn;		    // total bytes in, including compressed and uncompressed
+	U64					mBytesOut;		    // total bytes out, including compressed and uncompressed
 	
-	U32										mCompressedPacketsIn;		// total compressed packets in
-	U32										mCompressedPacketsOut;	    // total compressed packets out
+	U32					mCompressedPacketsIn;	    // total compressed packets in
+	U32					mCompressedPacketsOut;	    // total compressed packets out
 
-	U32										mReliablePacketsIn;		    // total reliable packets in
-	U32										mReliablePacketsOut;	    // total reliable packets out
+	U32					mReliablePacketsIn;	    // total reliable packets in
+	U32					mReliablePacketsOut;	    // total reliable packets out
 
 	U32                                     mDroppedPackets;            // total dropped packets in
 	U32                                     mResentPackets;             // total resent packets out
@@ -239,26 +242,26 @@ public:
 	U32                                     mOffCircuitPackets;         // total # of off-circuit packets rejected
 	U32                                     mInvalidOnCircuitPackets;   // total # of on-circuit but invalid packets rejected
 
-	S64										mUncompressedBytesIn;		// total uncompressed size of compressed packets in
-	S64										mUncompressedBytesOut;		// total uncompressed size of compressed packets out
-	S64										mCompressedBytesIn;			// total compressed size of compressed packets in
-	S64										mCompressedBytesOut;		// total compressed size of compressed packets out
-	S64										mTotalBytesIn;			    // total size of all uncompressed packets in
-	S64										mTotalBytesOut;				// total size of all uncompressed packets out
+	S64					mUncompressedBytesIn;	    // total uncompressed size of compressed packets in
+	S64					mUncompressedBytesOut;	    // total uncompressed size of compressed packets out
+	S64					mCompressedBytesIn;	    // total compressed size of compressed packets in
+	S64					mCompressedBytesOut;	    // total compressed size of compressed packets out
+	S64					mTotalBytesIn;		    // total size of all uncompressed packets in
+	S64					mTotalBytesOut;		    // total size of all uncompressed packets out
 
 	BOOL                                    mSendReliable;              // does the outgoing message require a pos ack?
 
-	LLCircuit								mCircuitInfo;
-	F64										mCircuitPrintTime;			// used to print circuit debug info every couple minutes
-	F32										mCircuitPrintFreq;			// seconds
+	LLCircuit 	 			mCircuitInfo;
+	F64					mCircuitPrintTime;	    // used to print circuit debug info every couple minutes
+	F32					mCircuitPrintFreq;	    // seconds
 
-	std::map<U64, U32>						mIPPortToCircuitCode;
-	std::map<U32, U64>						mCircuitCodeToIPPort;
-	U32										mOurCircuitCode;
-	S32										mSendPacketFailureCount;
-	S32										mUnackedListDepth;
-	S32										mUnackedListSize;
-	S32										mDSMaxListDepth;
+	std::map<U64, U32>			mIPPortToCircuitCode;
+	std::map<U32, U64>			mCircuitCodeToIPPort;
+	U32					mOurCircuitCode;
+	S32					mSendPacketFailureCount;
+	S32					mUnackedListDepth;
+	S32					mUnackedListSize;
+	S32					mDSMaxListDepth;
 
 public:
 	// Read file and build message templates
@@ -673,14 +676,14 @@ private:
 
 	LLMessagePollInfo						*mPollInfop;
 
-	U8										mEncodedRecvBuffer[MAX_BUFFER_SIZE];
-	U8										mTrueReceiveBuffer[MAX_BUFFER_SIZE];
-	S32										mTrueReceiveSize;
+	U8	mEncodedRecvBuffer[MAX_BUFFER_SIZE];
+	U8	mTrueReceiveBuffer[MAX_BUFFER_SIZE];
+	S32	mTrueReceiveSize;
 
 	// Must be valid during decode
 	
-	BOOL									mbError;
-	S32 mErrorCode;
+	BOOL	mbError;
+	S32	mErrorCode;
 
 	F64										mResendDumpTime; // The last time we dumped resends
 
@@ -754,6 +757,10 @@ void null_message_callback(LLMessageSystem *msg, void **data);
 //
 // Inlines
 //
+
+#if !defined( LL_BIG_ENDIAN ) && !defined( LL_LITTLE_ENDIAN )
+#error Unknown endianness for htonmemcpy. Did you miss a common include?
+#endif
 
 static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type, size_t n)
 {

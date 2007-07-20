@@ -17,11 +17,19 @@ LLScriptLSOParse::LLScriptLSOParse(FILE *fp)
 	U8  sizearray[4];
 	S32 filesize;
 	S32 pos = 0;
-	fread(&sizearray, 1, 4, fp);
-	filesize = bytestream2integer(sizearray, pos);
+	if (fread(&sizearray, 1, 4, fp) != 4)
+	{
+		llwarns << "Short read" << llendl;
+		filesize = 0;
+	} else {
+		filesize = bytestream2integer(sizearray, pos);
+	}
 	mRawData = new U8[filesize];
 	fseek(fp, 0, SEEK_SET);
-	fread(mRawData, 1, filesize, fp);
+	if (fread(mRawData, 1, filesize, fp) != filesize)
+	{
+		llwarns << "Short read" << llendl;
+	}
 
 	initOpCodePrinting();
 }

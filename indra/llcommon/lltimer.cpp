@@ -17,7 +17,7 @@
 #	include <winsock2.h>
 #	include <windows.h>
 #	include <time.h>
-#elif LL_LINUX
+#elif LL_LINUX || LL_SOLARIS
 #	include <time.h>
 #	include <sys/time.h>
 #	include <sched.h>
@@ -70,7 +70,7 @@ void llyield()
 {
 	SleepEx(0, TRUE); // Relinquishes time slice to any thread of equal priority, can be woken up by extended IO functions
 }
-#elif LL_LINUX
+#elif LL_LINUX || LL_SOLARIS
 void ms_sleep(long ms)
 {
 	struct timespec t;
@@ -130,7 +130,7 @@ F64 calc_clock_frequency(U32 uiMeasureMSecs)
 #endif // LL_WINDOWS
 
 
-#if LL_LINUX || LL_DARWIN
+#if LL_LINUX || LL_DARWIN || LL_SOLARIS
 // Both Linux and Mac use gettimeofday for accurate time
 F64 calc_clock_frequency(unsigned int uiMeasureMSecs)
 {
@@ -149,7 +149,7 @@ U64 get_clock_count()
 
 void update_clock_frequencies()
 {
-	gClockFrequency = calc_clock_frequency(50);
+	gClockFrequency = calc_clock_frequency(50U);
 	gClockFrequencyInv = 1.0/gClockFrequency;
 	gClocksToMicroseconds = gClockFrequencyInv * SEC_TO_MICROSEC;
 }

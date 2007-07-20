@@ -150,7 +150,11 @@ BOOL LLSaleInfo::importFile(FILE* fp, BOOL& has_perm_mask, U32& perm_mask)
 	valuestr[0] = '\0';
 	while(success && (!feof(fp)))
 	{
-		fgets(buffer, MAX_STRING, fp);
+		if (fgets(buffer, MAX_STRING, fp) == NULL)
+		{
+			buffer[0] = '\0';
+		}
+
 		sscanf(	/* Flawfinder: ignore */
 			buffer,
 			" %254s %254s",

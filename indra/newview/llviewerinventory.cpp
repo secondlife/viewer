@@ -440,7 +440,11 @@ bool LLViewerInventoryCategory::importFileLocal(FILE* fp)
 	valuestr[0] = '\0';
 	while(!feof(fp))
 	{
-		fgets(buffer, MAX_STRING, fp);
+		if (fgets(buffer, MAX_STRING, fp) == NULL)
+		{
+			buffer[0] = '\0';
+		}
+		
 		sscanf(	/* Flawfinder: ignore */
 			buffer, " %254s %254s", keyword, valuestr); 
 		if(0 == strcmp("{",keyword))

@@ -174,7 +174,6 @@ public:
 	ENameValueSendto			mSendto;
 
 	UNameValueReference			mNameValueReference;
-	S32							mNumberEntries;
 	LLStringTable				*mNVNameTable;
 	TNameValueCallback			mNameValueCB;
 	void						**mUserData;

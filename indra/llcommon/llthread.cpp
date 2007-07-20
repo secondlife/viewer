@@ -12,7 +12,7 @@
 
 #include "lltimer.h"
 
-#if LL_LINUX
+#if LL_LINUX || LL_SOLARIS
 #include <sched.h>
 #endif
 
@@ -206,7 +206,7 @@ void LLThread::setQuitting()
 // static
 void LLThread::yield()
 {
-#if LL_LINUX
+#if LL_LINUX || LL_SOLARIS
 	sched_yield(); // annoyingly, apr_thread_yield  is a noop on linux...
 #else
 	apr_thread_yield();

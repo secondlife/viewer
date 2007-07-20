@@ -1386,17 +1386,17 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 	const F32 camera_height = mCameraPosAgent.mV[2];
 	const F32 height_above_water = camera_height - water_height;
 
-	BOOL sun = FALSE;
+	BOOL sun_flag = FALSE;
 
 	if (mSun.isVisible())
 	{
 		if (mMoon.isVisible())
 		{
-			sun = look_at * mSun.getDirection() > 0;
+			sun_flag = look_at * mSun.getDirection() > 0;
 		}
 		else
 		{
-			sun = TRUE;
+			sun_flag = TRUE;
 		}
 	}
 	
@@ -1407,7 +1407,7 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 #else
 		BOOL render_ref = !(gPipeline.getVertexShaderLevel(LLPipeline::SHADER_ENVIRONMENT) >= LLDrawPoolWater::SHADER_LEVEL_RIPPLE);
 #endif
-		if (sun)
+		if (sun_flag)
 		{
 			setDrawRefl(0);
 			if (render_ref)

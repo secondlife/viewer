@@ -506,7 +506,11 @@ BOOL LLPermissions::importFile(FILE* fp)
 
 	while (!feof(fp))
 	{
-		fgets(buffer, BUFSIZE, fp);
+		if (fgets(buffer, BUFSIZE, fp) == NULL)
+		{
+			buffer[0] = '\0';
+		}
+		
 		sscanf( /* Flawfinder: ignore */
 			buffer,
 			" %255s %255s",

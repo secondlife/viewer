@@ -11,18 +11,18 @@
 #include <limits.h>
 #include <float.h>
 
-typedef signed char				S8;
+typedef signed char			S8;
 typedef unsigned char			U8;
 typedef signed short			S16;
 typedef unsigned short			U16;
-typedef signed int				S32;
+typedef signed int			S32;
 typedef unsigned int			U32;
 
 #if LL_WINDOWS
 // Windows wchar_t is 16-bit
-typedef U32						llwchar;
+typedef U32				llwchar;
 #else
-typedef wchar_t					llwchar;
+typedef wchar_t				llwchar;
 #endif
 
 #if LL_WINDOWS
@@ -33,20 +33,20 @@ typedef unsigned __int64		U64;
 #define U64L(a)					(a)
 #else
 typedef long long int			S64;
-typedef long long unsigned int	U64;
-#if LL_DARWIN || LL_LINUX
-#define S64L(a)					(a##LL)
-#define U64L(a)					(a##ULL)
+typedef long long unsigned int		U64;
+#if LL_DARWIN || LL_LINUX || LL_SOLARIS
+#define S64L(a)				(a##LL)
+#define U64L(a)				(a##ULL)
 #endif
 #endif
 
-typedef float			F32;
-typedef double			F64;
+typedef float				F32;
+typedef double				F64;
 
 typedef S32				BOOL;
 typedef U8				KEY;
 typedef U32				MASK;
-typedef U32             TPACKETID;
+typedef U32             		TPACKETID;
 
 // Use #define instead of consts to avoid conversion headaches
 #define S8_MAX		(SCHAR_MAX)
