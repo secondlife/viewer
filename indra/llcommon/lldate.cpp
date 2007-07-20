@@ -52,6 +52,54 @@ std::string LLDate::asString() const
 	return stream.str();
 }
 
+//@ brief Converts time in seconds since EPOCH
+//        to RFC 1123 compliant date format
+//        E.g. 1184797044.037586 == Wednesday, 18 Jul 2007 22:17:24 GMT
+//        in RFC 1123. HTTP dates are always in GMT and RFC 1123
+//        is one of the standards used and the prefered format
+std::string LLDate::asRFC1123() const
+{
+    std::ostringstream stream;
+    toHTTPDateStream(stream);
+    return stream.str();
+}
+
+void LLDate::toHTTPDateStream(std::ostream& s) const
+{
+    // http://apr.apache.org/docs/apr/0.9/group__apr__time.html
+    apr_time_t time = (apr_time_t)(mSecondsSinceEpoch * LL_APR_USEC_PER_SEC);
+
+    apr_time_exp_t exp_time ; //Apache time module
+
+    if (apr_time_exp_gmt(&exp_time, time) != APR_SUCCESS)
+    {
+        // Return Epoch UTC date
+        s << "Thursday, 01 Jan 1970 00:00:00 GMT" ;
+        return;
+    }
+
+    s << std::dec << std::setfill('0');
+#if( LL_WINDOWS || __GNUC__ > 2)
+    s << std::right ;
+#else
+    s.setf(ios::right);
+#endif    
+    std::string day = weekdays[exp_time.tm_wday];
+    std::string month = months[exp_time.tm_mon];
+
+    s << std::setw(day.length()) << (day)
+      << ", " << std::setw(2) << (exp_time.tm_mday)
+      << ' ' << std::setw(month.length()) << (month)
+      << ' ' << std::setw(4) << (exp_time.tm_year + 1900)
+	  << ' ' << std::setw(2) << (exp_time.tm_hour)
+	  << ':' << std::setw(2) << (exp_time.tm_min)
+	  << ':' << std::setw(2) << (exp_time.tm_sec)
+      << " GMT";
+
+    // RFC 1123 date does not use microseconds
+    llinfos << "Date in RFC 1123 format is " << s << llendl;
+}
+
 void LLDate::toStream(std::ostream& s) const
 {
 	apr_time_t time = (apr_time_t)(mSecondsSinceEpoch * LL_APR_USEC_PER_SEC);

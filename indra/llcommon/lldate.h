@@ -57,7 +57,9 @@ public:
 	 * @return A string representation of the date.
 	 */
 	std::string asString() const;
+	std::string asRFC1123() const;
 	void toStream(std::ostream&) const;
+	void toHTTPDateStream(std::ostream&) const;
 	/** 
 	 * @brief Set the date from an ISO-8601 string.
 	 *
@@ -98,5 +100,9 @@ std::ostream& operator<<(std::ostream& s, const LLDate& date);
 // Helper function to stream in a date
 std::istream& operator>>(std::istream& s, LLDate& date);
 
+
+const static std::string weekdays[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+
+const static std::string months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
 #endif // LL_LLDATE_H
