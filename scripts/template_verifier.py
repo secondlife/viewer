@@ -56,7 +56,15 @@ DEVELOPMENT_ACCEPTABLE = (
 
 MAX_MASTER_AGE = 60 * 60 * 4   # refresh master cache every 4 hours
 
-def compare(base, current, mode):
+def retry(times, function, *args, **kwargs):
+    for i in range(times):
+        try:
+            return function(*args, **kwargs)
+        except Exception, e:
+            if i == times - 1:
+                raise e  # we retried all the times we could
+
+def compare(base_parsed, current_parsed, mode):
     """Compare the current template against the base template using the given
     'mode' strictness:
 
@@ -70,20 +78,7 @@ def compare(base, current, mode):
     Return True if they are compatible in this mode, False if not.
     """
 
-    # catch this exception so we can print a message explaining which template is scr0d
-    try:
-        base = llmessage.parseTemplateString(base)
-    except tokenstream.ParseError, e:
-        print "Error parsing master message template -- this might be a network problem, try again"
-        raise e
-
-    try:
-        current = llmessage.parseTemplateString(current)
-    except tokenstream.ParseError, e:
-        print "Error parsing local message template"
-        raise e
-    
-    compat = current.compatibleWithBase(base)
+    compat = current_parsed.compatibleWithBase(base_parsed)
     if mode == 'production':
         acceptable = PRODUCTION_ACCEPTABLE
     else:
@@ -113,15 +108,25 @@ def cache_master(master_url):
         return master_cache_url  # our cache is fresh
     # new master doesn't exist or isn't fresh
     print "Refreshing master cache from %s" % master_url
-    try:
+    def get_and_test_master():
         new_master_contents = fetch(master_url)
+        llmessage.parseTemplateString(new_master_contents)
+        return new_master_contents
+    try:
+        new_master_contents = retry(3, get_and_test_master)
     except IOError, e:
         # the refresh failed, so we should just soldier on
         print "WARNING: unable to download new master, probably due to network error.  Your message template compatibility may be suspect."
+        print "Cause: %s" % e
         return master_cache_url
-    mc = open(master_cache, 'wb')
-    mc.write(new_master_contents)
-    mc.close()
+    try:
+        mc = open(master_cache, 'wb')
+        mc.write(new_master_contents)
+        mc.close()
+    except IOError, e:
+        print "WARNING: Unable to write master message template to %s, proceeding without cache." % master_cache
+        print "Cause: %s" % e
+        return master_url
     return master_cache_url
 
 def local_template_filename():
@@ -131,10 +136,11 @@ def local_template_filename():
     return os.path.join(d, 'messages', MESSAGE_TEMPLATE)
 
 def local_master_cache_filename():
-    """Returns the location of the master template cache relative to template_verifier.py
-    ./messages/master_message_template_cache.msg"""
-    d = os.path.dirname(os.path.realpath(__file__))
-    return os.path.join(d, 'messages', 'master_message_template_cache.msg')
+    """Returns the location of the master template cache (which is in the system tempdir)
+    <temp_dir>/master_message_template_cache.msg"""
+    import tempfile
+    d = tempfile.gettempdir()
+    return os.path.join(d, 'master_message_template_cache.msg')
 
 
 def run(sysargs):
@@ -165,7 +171,7 @@ http://wiki.secondlife.com/wiki/Template_verifier.py
     # both current and master supplied in positional params
     if len(args) == 2:
         master_filename, current_filename = args
-        print "base:", master_filename
+        print "master:", master_filename
         print "current:", current_filename
         master_url = 'file://%s' % master_filename
         current_url = 'file://%s' % current_filename
@@ -173,7 +179,7 @@ http://wiki.secondlife.com/wiki/Template_verifier.py
     elif len(args) == 1:
         master_url = None
         current_filename = args[0]
-        print "base: <master template from repository>"
+        print "master:", options.master_url 
         print "current:", current_filename
         current_url = 'file://%s' % current_filename
     # nothing specified, use defaults for everything
@@ -186,32 +192,36 @@ http://wiki.secondlife.com/wiki/Template_verifier.py
     if master_url is None:
         master_url = options.master_url
         
-    # fetch the template for this build
     if current_url is None:
         current_filename = local_template_filename()
-        print "base: <master template from repository>"
+        print "master:", options.master_url
         print "current:", current_filename
         current_url = 'file://%s' % current_filename
+
+    # retrieve the contents of the local template and check for syntax
+    current = fetch(current_url)
+    current_parsed = llmessage.parseTemplateString(current)
 
     if options.cache_master:
         # optionally return a url to a locally-cached master so we don't hit the network all the time
         master_url = cache_master(master_url)
 
-    current = fetch(current_url)
+    def parse_master_url():
+        master = fetch(master_url)
+        return llmessage.parseTemplateString(master)
     try:
-        master  = fetch(master_url)
-    except IOError, e:
+        master_parsed = retry(3, parse_master_url)
+    except (IOError, tokenstream.ParseError), e:
         if options.mode == 'production':
             raise e
         else:
-            print "WARNING: problems fetching the master from %s.  Syntax-checking the local template ONLY, no compatibility check is being run." % master_url
-            llmessage.parseTemplateString(current)
+            print "WARNING: problems retrieving the master from %s."  % master_url
+            print "Syntax-checking the local template ONLY, no compatibility check is being run."
+            print "Cause: %s\n\n" % e
             return 0
         
-
     acceptable, compat = compare(
-        master, current, options.mode)
-        
+        master_parsed, current_parsed, options.mode)
 
     def explain(header, compat):
         print header
