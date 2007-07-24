@@ -370,8 +370,8 @@ class LinuxManifest(ViewerManifest):
                 if(self.args.has_key('installer_name')):
                         installer_name = self.args['installer_name']
                 else:
-                        installer_name = '_'.join('SecondLife_', self.args.get('arch'), *self.args['version'])
-                        if grid != '':
+                        installer_name = '_'.join(['SecondLife', self.args.get('arch'), '_'.join(self.args['version'])])
+                        if not self.default_grid():
                                 installer_name += "_" + grid.upper()
 
                 # temporarily move directory tree so that it has the right name in the tarfile
