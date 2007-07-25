@@ -2,7 +2,7 @@
 @file webdav.py
 @brief Classes to make manipulation of a webdav store easier.
 
-Copyright (c) 2006-2007, Linden Research, Inc.
+Copyright (c) 2007, Linden Research, Inc.
 $License$
 """
 
