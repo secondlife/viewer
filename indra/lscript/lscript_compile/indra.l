@@ -227,6 +227,16 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "CHANGED_REGION"		{ count(); yylval.ival = 0x100; return(INTEGER_CONSTANT); }	
 "CHANGED_TELEPORT"		{ count(); yylval.ival = 0x200; return(INTEGER_CONSTANT); }	
 
+"OBJECT_UNKOWN_DETAIL"	{ count(); yylval.ival = OBJECT_UNKOWN_DETAIL; return(INTEGER_CONSTANT); }
+"OBJECT_NAME"			{ count(); yylval.ival = OBJECT_NAME; return(INTEGER_CONSTANT); }
+"OBJECT_DESC"			{ count(); yylval.ival = OBJECT_DESC; return(INTEGER_CONSTANT); }
+"OBJECT_POS"			{ count(); yylval.ival = OBJECT_POS; return(INTEGER_CONSTANT); }
+"OBJECT_ROT"			{ count(); yylval.ival = OBJECT_ROT; return(INTEGER_CONSTANT); }
+"OBJECT_VELOCITY"		{ count(); yylval.ival = OBJECT_VELOCITY; return(INTEGER_CONSTANT); }
+"OBJECT_OWNER"			{ count(); yylval.ival = OBJECT_OWNER; return(INTEGER_CONSTANT); }
+"OBJECT_GROUP"			{ count(); yylval.ival = OBJECT_GROUP; return(INTEGER_CONSTANT); }
+"OBJECT_CREATOR"		{ count(); yylval.ival = OBJECT_CREATOR; return(INTEGER_CONSTANT); }
+
 "TYPE_INTEGER"			{ count(); yylval.ival = LST_INTEGER; return(INTEGER_CONSTANT); }	
 "TYPE_FLOAT"			{ count(); yylval.ival = LST_FLOATINGPOINT; return(INTEGER_CONSTANT); }	
 "TYPE_STRING"			{ count(); yylval.ival = LST_STRING; return(INTEGER_CONSTANT); }	
