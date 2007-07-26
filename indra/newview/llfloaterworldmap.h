@@ -156,6 +156,7 @@ protected:
 	BOOL					mExactMatch;
 
 	BOOL					mIsClosing;
+	BOOL					mSetToUserPosition;
 
 	LLVector3d				mTrackedLocation;
 	LLTracker::ETrackingStatus mTrackedStatus;

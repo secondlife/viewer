@@ -757,7 +757,7 @@ BOOL lscript_compile(char *filename, BOOL is_god_like = FALSE)
 
 S32 yywrap()
 {
-#ifdef FLEX_SCANNER
+#if defined(FLEX_SCANNER) && !defined(LL_WINDOWS)
 	// get gcc to stop complaining about lack of use of yyunput
 	(void) yyunput;
 #endif

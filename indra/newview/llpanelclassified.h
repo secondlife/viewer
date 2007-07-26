@@ -95,8 +95,8 @@ protected:
 	BOOL mInFinder;
 	bool mDirty;
 	bool mForceClose;
-    LLUUID mClassifiedID;
-    LLUUID mRequestedID;
+	LLUUID mClassifiedID;
+	LLUUID mRequestedID;
 	LLUUID mCreatorID;
 	LLUUID mParcelID;
 	S32 mPriceForListing;
@@ -109,24 +109,25 @@ protected:
 	BOOL mPaidFor;
 
 	LLString mSimName;
-    LLVector3d mPosGlobal;
+	LLVector3d mPosGlobal;
 
-    LLTextureCtrl*	mSnapshotCtrl;
-    LLLineEditor*	mNameEditor;
+	// Values the user may change
+	LLTextureCtrl*	mSnapshotCtrl;
+	LLLineEditor*	mNameEditor;
 	LLLineEditor*	mDateEditor;
-    LLTextEditor*	mDescEditor;
-    LLLineEditor*	mLocationEditor;
+	LLTextEditor*	mDescEditor;
+	LLLineEditor*	mLocationEditor;
 	LLComboBox*		mCategoryCombo;
+	LLCheckBoxCtrl* mMatureCheck;
+	LLCheckBoxCtrl* mAutoRenewCheck;
 
 	LLButton*    mUpdateBtn;
-    LLButton*    mTeleportBtn;
-    LLButton*    mMapBtn;
+	LLButton*    mTeleportBtn;
+	LLButton*    mMapBtn;
 	LLButton*	 mProfileBtn;
 
 	LLTextBox*		mInfoText;
-	LLCheckBoxCtrl* mMatureCheck;
-	LLCheckBoxCtrl* mAutoRenewCheck;
-    LLButton*		mSetBtn;
+	LLButton*		mSetBtn;
 	LLTextBox*		mClickThroughText;
 
 	LLRect		mSnapshotSize;

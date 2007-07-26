@@ -107,6 +107,7 @@ public:
 	virtual void 	setRect(const LLRect& rect);
 	virtual BOOL	acceptsTextInput() const;
 	virtual void	onCommit();
+	virtual BOOL	isDirty()		{ return ( mText.getString() != mPrevText );	};		// Returns TRUE if the user has changed value at all
 
 	// assumes UTF8 text
 	virtual void	setValue(const LLSD& value );

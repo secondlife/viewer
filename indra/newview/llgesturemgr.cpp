@@ -186,6 +186,11 @@ void LLGestureManager::activateGestureWithAsset(const LLUUID& item_id,
 												BOOL inform_server,
 												BOOL deactivate_similar)
 {
+	if( !gAssetStorage )
+	{
+		llwarns << "LLGestureManager::activateGestureWithAsset without valid gAssetStorage" << llendl;
+		return;
+	}
 	// If gesture is already active, nothing to do.
 	if (isGestureActive(item_id))
 	{

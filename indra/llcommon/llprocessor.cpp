@@ -235,24 +235,24 @@ bool CProcessor::AnalyzeIntelProcessor()
 		/* 0x03 */ "0.13 micron Intel Celeron",
 		/* 0x04 */ "0.13 micron Intel Pentium III",
 		/* 0x05 */ "",
-		/* 0x06 */ "0.13 micron Intel Pentium III mobile",
-		/* 0x07 */ "0.13 micron Intel Celeron mobile",
+		/* 0x06 */ "0.13 micron Intel Pentium III Mobile",
+		/* 0x07 */ "0.13 micron Intel Celeron Mobile",
 		/* 0x08 */ "0.18 micron Intel Pentium 4",
 		/* 0x09 */ "0.13 micron Intel Pentium 4",
-		/* 0x0A */ "0.13 micron Intel Pentium 4",
+		/* 0x0A */ "0.13 micron Intel Celeron",
 		/* 0x0B */ "0.13 micron Intel Pentium 4 Xeon",
-		/* 0x0C */ "",
+		/* 0x0C */ "Intel Xeon MP",
 		/* 0x0D */ "",
 		/* 0x0E */ "0.18 micron Intel Pentium 4 Xeon",
-		/* 0x0F */ "",
+		/* 0x0F */ "Mobile Intel Celeron",
 		/* 0x10 */ "",
-		/* 0x11 */ "",
+		/* 0x11 */ "Mobile Genuine Intel",
 		/* 0x12 */ "Intel Celeron M",
-		/* 0x13 */ "mobile Intel Celeron",
+		/* 0x13 */ "Mobile Intel Celeron",
 		/* 0x14 */ "Intel Celeron",
-		/* 0x15 */ "mobile Intel",
+		/* 0x15 */ "Mobile Genuine Intel",
 		/* 0x16 */ "Intel Pentium M",
-		/* 0x17 */ "mobile Intel Celeron",
+		/* 0x17 */ "Mobile Intel Celeron",
 	};
 
 	// Only override the brand if we have it in the lookup table.  We should
@@ -427,16 +427,20 @@ bool CProcessor::AnalyzeIntelProcessor()
 						case 1:			// Model = 8, Brand id = 1:  Celeron (on-die L2 cache) processor model
 							strncat(strCPUName, "Intel Celeron (0.18 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 							break;
-                        			case 2:			// Model = 8, Brand id = 2:  Pentium III (on-die L2 cache) processor model (my current cpu :-))
+                        case 2:			// Model = 8, Brand id = 2:  Pentium III (on-die L2 cache) processor model (my current cpu :-))
 							strncat(strCPUName, "Intel Pentium III (0.18 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 							break;
 						case 3:			// Model = 8, Brand id = 3:  Pentium III Xeon (on-die L2 cache) processor model
-                            			strncat(strCPUName, "Intel Pentium III Xeon (0.18 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
+                            strncat(strCPUName, "Intel Pentium III Xeon (0.18 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 							break;
 						default:		// ...
 							strncat(strCPUName, "Intel Pentium III core (unknown model, 0.18 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 							break;
 					}
+					break;
+				case 9:		// Model = 9:  Intel Pentium M processor, Intel Celeron M processor, model 9
+					strcpy(CPUInfo.strModel, "Intel Pentium M Series Processor");	 /*Flawfinder: ignore*/
+					strncat(strCPUName, "Intel Pentium M Series Processor", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;
 				case 0xA:		// Model = 0xA:  Pentium III/Xeon/Celeron (1 or 2 MB on-die L2 cache) processor model
 					strcpy(CPUInfo.strModel, "Intel Pentium III/Celeron/Pentium III Xeon - internal L2 cache, 0.18 micron");	 /*Flawfinder: ignore*/
@@ -446,11 +450,11 @@ bool CProcessor::AnalyzeIntelProcessor()
 						case 1:			// Model = 0xA, Brand id = 1:  Celeron (1 or 2 MB on-die L2 cache (does it exist??)) processor model
 							strncat(strCPUName, "Intel Celeron (0.18 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 							break;
-                        			case 2:			// Model = 0xA, Brand id = 2:  Pentium III (1 or 2 MB on-die L2 cache (never seen...)) processor model
+                        case 2:			// Model = 0xA, Brand id = 2:  Pentium III (1 or 2 MB on-die L2 cache (never seen...)) processor model
 							strncat(strCPUName, "Intel Pentium III (0.18 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 							break;
 						case 3:			// Model = 0xA, Brand id = 3:  Pentium III Xeon (1 or 2 MB on-die L2 cache) processor model
-                            			strncat(strCPUName, "Intel Pentium III Xeon (0.18 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
+                            strncat(strCPUName, "Intel Pentium III Xeon (0.18 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 							break;
 						default:		// Getting bored of this............
 							strncat(strCPUName, "Intel Pentium III core (unknown model, 0.18 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
@@ -465,24 +469,28 @@ bool CProcessor::AnalyzeIntelProcessor()
 						case 3:			// Model = 0xB, Brand id = 3:  Celeron (Tualatin core) processor model
 							strncat(strCPUName, "Intel Celeron (Tualatin core, 0.13 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 							break;
-                        			case 4:			// Model = 0xB, Brand id = 4:  Pentium III (Tualatin core) processor model
+                        case 4:			// Model = 0xB, Brand id = 4:  Pentium III (Tualatin core) processor model
 							strncat(strCPUName, "Intel Pentium III (Tualatin core, 0.13 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 							break;
 						case 7:			// Model = 0xB, Brand id = 7:  Celeron mobile (Tualatin core) processor model
-                            			strncat(strCPUName, "Intel Celeron mobile (Tualatin core, 0.13 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
+                            strncat(strCPUName, "Intel Celeron mobile (Tualatin core, 0.13 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 							break;
 						default:		// *bored*
 							strncat(strCPUName, "Intel Pentium III Tualatin core (unknown model, 0.13 micron process) with internal L2 cache", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 							break;
 					}
 					break;
+				case 0xD:		// Model = 0xD:  Intel Pentium M processor, Intel Celeron M processor, model D
+					strcpy(CPUInfo.strModel, "Intel Pentium M Series Processor");	 /*Flawfinder: ignore*/
+					strncat(strCPUName, "Intel Pentium M Series Processor", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
+					break;
 				case 0xE:		// Model = 0xE:  Intel Core Duo processor, Intel Core Solo processor, model E
-					strcpy(CPUInfo.strModel, "Intel Core Duo/Solo Processor");	 /*Flawfinder: ignore*/
-					strncat(strCPUName, "Intel Core Duo/Solo Processor", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
+					strcpy(CPUInfo.strModel, "Intel Core Series Processor");	 /*Flawfinder: ignore*/
+					strncat(strCPUName, "Intel Core Series Processor", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;	
 				case 0xF:		// Model = 0xF:  Intel Core 2 Duo processor, model F
-					strcpy(CPUInfo.strModel, "Intel Core2 Duo Processor");	 /*Flawfinder: ignore*/
-					strncat(strCPUName, "Intel Core2 Duo Processor", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
+					strcpy(CPUInfo.strModel, "Intel Core 2 Series Processor");	 /*Flawfinder: ignore*/
+					strncat(strCPUName, "Intel Core 2 Series Processor", sizeof(strCPUName)-(strlen(strCPUName)-1)); /*Flawfinder: ignore*/
 					break;	
 				default:		// *more bored*
 					strcpy(CPUInfo.strModel, "Unknown Intel Pentium Pro/2/3, Core"); /*Flawfinder: ignore*/

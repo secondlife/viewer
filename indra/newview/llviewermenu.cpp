@@ -7431,7 +7431,7 @@ class LLViewCheckRenderType : public view_listener_t
 		bool new_value = false;
 		if (type == "particles")
 		{
-			new_value = LLPipeline::toggleRenderTypeControlNegated((void *)(S32)LLPipeline::RENDER_TYPE_PARTICLES);
+			new_value = LLPipeline::toggleRenderTypeControlNegated((void *)LLPipeline::RENDER_TYPE_PARTICLES);
 		}
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;

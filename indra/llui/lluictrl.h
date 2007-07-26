@@ -128,6 +128,9 @@ public:
 		}
 	};
 
+	// Returns TRUE if the user has modified this control.   Editable controls should override this.
+	virtual BOOL	 isDirty()			{ return FALSE;		};
+
 protected:
 	virtual void	onFocusReceived();
 	virtual void	onFocusLost();

@@ -17,7 +17,7 @@
 # include "zlib/zlib.h"
 #endif
 
-#include "processor.h"
+#include "llprocessor.h"
 
 #if LL_WINDOWS
 #	define WIN32_LEAN_AND_MEAN
@@ -28,6 +28,8 @@
 #	include <sys/utsname.h>
 #elif LL_LINUX
 #	include <sys/utsname.h>
+#	include <unistd.h>
+#	include <sys/sysinfo.h>
 const char MEMINFO_FILE[] = "/proc/meminfo";
 const char CPUINFO_FILE[] = "/proc/cpuinfo";
 #endif
@@ -236,7 +238,7 @@ U32 LLOSInfo::getProcessVirtualSizeKB()
 #if LL_WINDOWS
 #endif
 #if LL_LINUX
-	FILE* status_filep = LLFile::fopen("/proc/self/status", "r");	/* Flawfinder: ignore */
+	FILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
 	S32 numRead = 0;		
 	char buff[STATUS_SIZE];		/* Flawfinder: ignore */
 
@@ -279,7 +281,7 @@ U32 LLOSInfo::getProcessResidentSizeKB()
 #if LL_WINDOWS
 #endif
 #if LL_LINUX
-	FILE* status_filep = LLFile::fopen("/proc/self/status", "r");	/* Flawfinder: ignore */
+	FILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
 	if (status_filep != NULL)
 	{
 		S32 numRead = 0;
@@ -320,6 +322,7 @@ U32 LLOSInfo::getProcessResidentSizeKB()
 
 LLCPUInfo::LLCPUInfo()
 {
+	std::ostringstream out;
 	CProcessor proc;
 	const ProcessorInfo* info = proc.GetCPUInfo();
 	// proc.WriteInfoTextFile("procInfo.txt");
@@ -328,6 +331,63 @@ LLCPUInfo::LLCPUInfo()
 	mHasAltivec = info->_Ext.Altivec_Extensions;
 	mCPUMhz = (S32)(proc.GetCPUFrequency(50)/1000000.0);
 	mFamily.assign( info->strFamily );
+	mCPUString = "Unknown";
+
+#if LL_WINDOWS || LL_DARWIN || LL_SOLARIS
+	out << proc.strCPUName;
+	if (200 < mCPUMhz && mCPUMhz < 10000)           // *NOTE: cpu speed is often way wrong, do a sanity check
+	{
+		out << " (" << mCPUMhz << " MHz)";
+	}
+	mCPUString = out.str();
+	
+#elif LL_LINUX
+	std::map< LLString, LLString > cpuinfo;
+	FILE* cpuinfo_fp = LLFile::fopen(CPUINFO_FILE, "rb");
+	if(cpuinfo_fp)
+	{
+		char line[MAX_STRING];
+		memset(line, 0, MAX_STRING);
+		while(fgets(line, MAX_STRING, cpuinfo_fp))
+		{
+			// /proc/cpuinfo on Linux looks like:
+			// name\t*: value\n
+			char* tabspot = strchr( line, '\t' );
+			if (tabspot == NULL)
+				continue;
+			char* colspot = strchr( tabspot, ':' );
+			if (colspot == NULL)
+				continue;
+			char* spacespot = strchr( colspot, ' ' );
+			if (spacespot == NULL)
+				continue;
+			char* nlspot = strchr( line, '\n' );
+			if (nlspot == NULL)
+				nlspot = line + strlen( line ); // Fallback to terminating NUL
+			std::string linename( line, tabspot );
+			LLString llinename(linename);
+			LLString::toLower(llinename);
+			std::string lineval( spacespot + 1, nlspot );
+			cpuinfo[ llinename ] = lineval;
+		}
+		fclose(cpuinfo_fp);
+	}
+# if LL_X86
+	LLString flags = " " + cpuinfo["flags"] + " ";
+	LLString::toLower(flags);
+	mHasSSE = ( flags.find( " sse " ) != std::string::npos );
+	mHasSSE2 = ( flags.find( " sse2 " ) != std::string::npos );
+	
+	F64 mhz;
+	if (LLString::convertToF64(cpuinfo["cpu mhz"], mhz)
+	    && 200.0 < mhz && mhz < 10000.0)
+	{
+		mCPUMhz = (S32)llrint(mhz);
+	}
+	if (!cpuinfo["model name"].empty())
+		mCPUString = cpuinfo["model name"];
+# endif // LL_X86
+#endif // LL_LINUX
 }
 
 bool LLCPUInfo::hasAltivec() const
@@ -352,25 +412,7 @@ S32 LLCPUInfo::getMhz() const
 
 std::string LLCPUInfo::getCPUString() const
 {
-#if LL_WINDOWS || LL_DARWIN || LL_SOLARIS
-	std::ostringstream out;
-
-	CProcessor proc;
-	(void) proc.GetCPUInfo();
-	out << proc.strCPUName << " ";
-	
-	F32 freq = (F32)(proc.GetCPUFrequency(50) / 1000000.0);
-
-	// cpu speed is often way wrong, do a sanity check
-	if (200.f < freq && freq < 10000.f)
-	{
-		out << "(" << (S32)(freq) << " MHz)";
-	}
-
-	return out.str();
-#else
-	return "Can't get terse CPU information";
-#endif
+	return mCPUString;
 }
 
 void LLCPUInfo::stream(std::ostream& s) const
@@ -385,37 +427,40 @@ void LLCPUInfo::stream(std::ostream& s) const
 	}
 	else
 	{
-		s << "Unable to collect processor info";
+		s << "Unable to collect processor information" << std::endl;
 	}
 #else
 	// *NOTE: This works on linux. What will it do on other systems?
-	FILE* cpuinfo = LLFile::fopen(CPUINFO_FILE, "r");		/* Flawfinder: ignore */
+	FILE* cpuinfo = LLFile::fopen(CPUINFO_FILE, "rb");
 	if(cpuinfo)
 	{
-		char line[MAX_STRING];		/* Flawfinder: ignore */
+		char line[MAX_STRING];
 		memset(line, 0, MAX_STRING);
 		while(fgets(line, MAX_STRING, cpuinfo))
 		{
-			line[strlen(line)-1] = ' ';		 /*Flawfinder: ignore*/
+			line[strlen(line)-1] = ' ';
 			s << line;
 		}
 		fclose(cpuinfo);
+		s << std::endl;
 	}
 	else
 	{
-		s << "Unable to collect memory information";
+		s << "Unable to collect processor information" << std::endl;
 	}
 #endif
+	// These are interesting as they reflect our internal view of the
+	// CPU's attributes regardless of platform
+	s << "->mHasSSE:     " << (U32)mHasSSE << std::endl;
+	s << "->mHasSSE2:    " << (U32)mHasSSE2 << std::endl;
+	s << "->mHasAltivec: " << (U32)mHasAltivec << std::endl;
+	s << "->mCPUMhz:     " << mCPUMhz << std::endl;
+	s << "->mCPUString:  " << mCPUString << std::endl;
 }
 
 LLMemoryInfo::LLMemoryInfo()
 {
 }
-
-#if LL_LINUX
-#include <unistd.h>
-#include <sys/sysinfo.h>
-#endif
 
 U32 LLMemoryInfo::getPhysicalMemory() const
 {
@@ -481,7 +526,7 @@ void LLMemoryInfo::stream(std::ostream& s) const
         s << "Total Physical Kb:  " << phys << std::endl;
 #else
 	// *NOTE: This works on linux. What will it do on other systems?
-	FILE* meminfo = LLFile::fopen(MEMINFO_FILE,"r");		/* Flawfinder: ignore */
+	FILE* meminfo = LLFile::fopen(MEMINFO_FILE,"rb");
 	if(meminfo)
 	{
 		char line[MAX_STRING];		/* Flawfinder: ignore */

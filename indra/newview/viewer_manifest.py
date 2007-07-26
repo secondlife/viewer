@@ -414,6 +414,7 @@ class Linux_i686Manifest(LinuxManifest):
                         self.path("libuuid.so", "libuuid.so.1")
                         self.path("libSDL-1.2.so.0")
                         self.path("libELFIO.so")
+                        #self.path("libresolv.so") - don't bundle
                         #self.path("libtcmalloc.so.0") - bugged
                         #self.path("libstacktrace.so.0") - probably bugged
                         self.path("libllkdu.so", "../bin/libllkdu.so") # llkdu goes in bin for some reason

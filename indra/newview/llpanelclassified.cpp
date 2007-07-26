@@ -85,20 +85,20 @@ LLPanelClassified::LLPanelClassified(BOOL in_finder)
 	mPriceForListing(0),
 	mDataRequested(FALSE),
 	mPaidFor(FALSE),
-    mPosGlobal(),
-    mSnapshotCtrl(NULL),
-    mNameEditor(NULL),
-    mDescEditor(NULL),
-    mLocationEditor(NULL),
+	mPosGlobal(),
+	mSnapshotCtrl(NULL),
+	mNameEditor(NULL),
+	mDescEditor(NULL),
+	mLocationEditor(NULL),
 	mCategoryCombo(NULL),
-	mUpdateBtn(NULL),
-    mTeleportBtn(NULL),
-    mMapBtn(NULL),
-	mProfileBtn(NULL),
-	mInfoText(NULL),
 	mMatureCheck(NULL),
 	mAutoRenewCheck(NULL),
-    mSetBtn(NULL),
+	mUpdateBtn(NULL),
+	mTeleportBtn(NULL),
+	mMapBtn(NULL),
+	mProfileBtn(NULL),
+	mInfoText(NULL),
+	mSetBtn(NULL),
 	mClickThroughText(NULL)
 {
     sAllPanels.push_back(this);
@@ -825,6 +825,7 @@ void LLPanelClassified::onCommitAny(LLUICtrl* ctrl, void* data)
 void LLPanelClassified::onFocusReceived(LLUICtrl* ctrl, void* data)
 {
 	// allow the data to be saved
+	// Dave/Simon TODO: replace this with better isDirty() functionality
 	onCommitAny(ctrl, data);
 }
 

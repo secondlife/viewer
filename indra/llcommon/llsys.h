@@ -66,6 +66,7 @@ private:
 	bool mHasAltivec;
 	S32 mCPUMhz;
 	std::string mFamily;
+	std::string mCPUString;
 };
 
 class LLMemoryInfo

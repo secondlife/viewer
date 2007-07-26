@@ -1813,117 +1813,120 @@ void LLViewerWindow::initWorldUI()
 	S32 width = mRootView->getRect().getWidth();
 	LLRect full_window(0, height, width, 0);
 
-	LLRect bar_rect(-1, STATUS_BAR_HEIGHT, width+1, -1);
-	gToolBar = new LLToolBar("toolbar", bar_rect);
-
-	LLRect chat_bar_rect(-1,CHAT_BAR_HEIGHT, width+1, -1);
-	chat_bar_rect.translate(0, STATUS_BAR_HEIGHT-1);
-	gChatBar = new LLChatBar("chat", chat_bar_rect);
-
-	bar_rect.translate(0, STATUS_BAR_HEIGHT-1);
-	bar_rect.translate(0, CHAT_BAR_HEIGHT-1);
-	gOverlayBar = new LLOverlayBar("overlay", bar_rect);
-
-	// panel containing chatbar, toolbar, and overlay, over floaters
-	LLRect bottom_rect(-1, 2*STATUS_BAR_HEIGHT + CHAT_BAR_HEIGHT, width+1, -1);
-	gBottomPanel = new LLBottomPanel("bottom panel", bottom_rect);
-
-	// the order here is important
-	gBottomPanel->addChild(gChatBar);
-	gBottomPanel->addChild(gToolBar);
-	gBottomPanel->addChild(gOverlayBar);
-	mRootView->addChild(gBottomPanel);
-
-	// View for hover information
-	gHoverView = new LLHoverView("gHoverView", full_window);
-	gHoverView->setVisible(TRUE);
-	mRootView->addChild(gHoverView);
-
-	//
-	// Map
-	//
-	// TODO: Move instance management into class
-	gFloaterMap = new LLFloaterMap("Map");
-	gFloaterMap->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
-	gFloaterMap->setVisible( gSavedSettings.getBOOL("ShowMiniMap") );
-
-	// keep onscreen
-	gFloaterView->adjustToFitScreen(gFloaterMap, FALSE);
-
-	if (gSavedSettings.getBOOL("ShowCameraControls"))
+	if ( gToolBar == NULL )			// Don't re-enter if objects are alreay created
 	{
-		LLFloaterCamera::show(NULL);
+		LLRect bar_rect(-1, STATUS_BAR_HEIGHT, width+1, -1);
+		gToolBar = new LLToolBar("toolbar", bar_rect);
+
+		LLRect chat_bar_rect(-1,CHAT_BAR_HEIGHT, width+1, -1);
+		chat_bar_rect.translate(0, STATUS_BAR_HEIGHT-1);
+		gChatBar = new LLChatBar("chat", chat_bar_rect);
+
+		bar_rect.translate(0, STATUS_BAR_HEIGHT-1);
+		bar_rect.translate(0, CHAT_BAR_HEIGHT-1);
+		gOverlayBar = new LLOverlayBar("overlay", bar_rect);
+
+		// panel containing chatbar, toolbar, and overlay, over floaters
+		LLRect bottom_rect(-1, 2*STATUS_BAR_HEIGHT + CHAT_BAR_HEIGHT, width+1, -1);
+		gBottomPanel = new LLBottomPanel("bottom panel", bottom_rect);
+
+		// the order here is important
+		gBottomPanel->addChild(gChatBar);
+		gBottomPanel->addChild(gToolBar);
+		gBottomPanel->addChild(gOverlayBar);
+		mRootView->addChild(gBottomPanel);
+
+		// View for hover information
+		gHoverView = new LLHoverView("gHoverView", full_window);
+		gHoverView->setVisible(TRUE);
+		mRootView->addChild(gHoverView);
+
+		//
+		// Map
+		//
+		// TODO: Move instance management into class
+		gFloaterMap = new LLFloaterMap("Map");
+		gFloaterMap->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
+		gFloaterMap->setVisible( gSavedSettings.getBOOL("ShowMiniMap") );
+
+		// keep onscreen
+		gFloaterView->adjustToFitScreen(gFloaterMap, FALSE);
+
+		if (gSavedSettings.getBOOL("ShowCameraControls"))
+		{
+			LLFloaterCamera::show(NULL);
+		}
+		
+		if (gSavedSettings.getBOOL("ShowMovementControls"))
+		{
+			LLFloaterMove::show(NULL);
+		}
+		
+		// Must have one global chat floater so it can actually store
+		// the history.  JC
+		gFloaterChat = new LLFloaterChat();
+		gFloaterChat->setVisible( FALSE );
+
+		if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") ) gFloaterChat->loadHistory();
+
+		gIMView = new LLIMView("gIMView", LLRect() );
+		gIMView->setFollowsAll();
+		mRootView->addChild(gIMView);
+
+		LLRect morph_view_rect = full_window;
+		morph_view_rect.stretch( -STATUS_BAR_HEIGHT );
+		morph_view_rect.mTop = full_window.mTop - 32;
+		gMorphView = new LLMorphView("gMorphView", morph_view_rect );
+		mRootView->addChild(gMorphView);
+		gMorphView->setVisible(FALSE);
+
+		gFloaterMute = new LLFloaterMute();
+		gFloaterMute->setVisible(FALSE);
+
+		LLWorldMapView::initClass();
+
+		LLRect world_map_rect = gSavedSettings.getRect("FloaterWorldMapRect");
+		// if 0,0,0,0 then use fullscreen
+		if (world_map_rect.mTop == 0 
+			&& world_map_rect.mLeft == 0
+			&& world_map_rect.mRight == 0
+			&& world_map_rect.mBottom == 0)
+		{
+			world_map_rect.set(0, height-TOOL_BAR_HEIGHT, width, STATUS_BAR_HEIGHT);
+			world_map_rect.stretch(-4);
+			gSavedSettings.setRect("FloaterWorldMapRect", world_map_rect);
+		}
+		gFloaterWorldMap = new LLFloaterWorldMap();
+		gFloaterWorldMap->setVisible(FALSE);
+
+		//
+		// Tools for building
+		//
+
+		// Toolbox floater
+		init_menus();
+
+		gFloaterTools = new LLFloaterTools();
+		gFloaterTools->setVisible(FALSE);
+
+		// Status bar
+		S32 menu_bar_height = gMenuBarView->getRect().getHeight();
+		LLRect root_rect = gViewerWindow->getRootView()->getRect();
+		LLRect status_rect(0, root_rect.getHeight(), root_rect.getWidth(), root_rect.getHeight() - menu_bar_height);
+		gStatusBar = new LLStatusBar("status", status_rect);
+		gStatusBar->setFollows(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_TOP);
+
+		gStatusBar->reshape(root_rect.getWidth(), gStatusBar->getRect().getHeight(), TRUE);
+		gStatusBar->translate(0, root_rect.getHeight() - gStatusBar->getRect().getHeight());
+		// sync bg color with menu bar
+		gStatusBar->setBackgroundColor( gMenuBarView->getBackgroundColor() );
+
+
+		gViewerWindow->getRootView()->addChild(gStatusBar);
+
+		// menu holder appears on top to get first pass at all mouse events
+		gViewerWindow->getRootView()->sendChildToFront(gMenuHolder);
 	}
-	
-	if (gSavedSettings.getBOOL("ShowMovementControls"))
-	{
-		LLFloaterMove::show(NULL);
-	}
-	
-	// Must have one global chat floater so it can actually store
-	// the history.  JC
-	gFloaterChat = new LLFloaterChat();
-	gFloaterChat->setVisible( FALSE );
-
-	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") ) gFloaterChat->loadHistory();
-
-	gIMView = new LLIMView("gIMView", LLRect() );
-	gIMView->setFollowsAll();
-	mRootView->addChild(gIMView);
-
-	LLRect morph_view_rect = full_window;
-	morph_view_rect.stretch( -STATUS_BAR_HEIGHT );
-	morph_view_rect.mTop = full_window.mTop - 32;
-	gMorphView = new LLMorphView("gMorphView", morph_view_rect );
-	mRootView->addChild(gMorphView);
-	gMorphView->setVisible(FALSE);
-
-	gFloaterMute = new LLFloaterMute();
-	gFloaterMute->setVisible(FALSE);
-
-	LLWorldMapView::initClass();
-
-	LLRect world_map_rect = gSavedSettings.getRect("FloaterWorldMapRect");
-	// if 0,0,0,0 then use fullscreen
-	if (world_map_rect.mTop == 0 
-		&& world_map_rect.mLeft == 0
-		&& world_map_rect.mRight == 0
-		&& world_map_rect.mBottom == 0)
-	{
-		world_map_rect.set(0, height-TOOL_BAR_HEIGHT, width, STATUS_BAR_HEIGHT);
-		world_map_rect.stretch(-4);
-		gSavedSettings.setRect("FloaterWorldMapRect", world_map_rect);
-	}
-	gFloaterWorldMap = new LLFloaterWorldMap();
-	gFloaterWorldMap->setVisible(FALSE);
-
-	//
-	// Tools for building
-	//
-
-	// Toolbox floater
-	init_menus();
-
-	gFloaterTools = new LLFloaterTools();
-	gFloaterTools->setVisible(FALSE);
-
-	// Status bar
-	S32 menu_bar_height = gMenuBarView->getRect().getHeight();
-	LLRect root_rect = gViewerWindow->getRootView()->getRect();
-	LLRect status_rect(0, root_rect.getHeight(), root_rect.getWidth(), root_rect.getHeight() - menu_bar_height);
-	gStatusBar = new LLStatusBar("status", status_rect);
-	gStatusBar->setFollows(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_TOP);
-
-	gStatusBar->reshape(root_rect.getWidth(), gStatusBar->getRect().getHeight(), TRUE);
-	gStatusBar->translate(0, root_rect.getHeight() - gStatusBar->getRect().getHeight());
-	// sync bg color with menu bar
-	gStatusBar->setBackgroundColor( gMenuBarView->getBackgroundColor() );
-
-
-	gViewerWindow->getRootView()->addChild(gStatusBar);
-
-	// menu holder appears on top to get first pass at all mouse events
-	gViewerWindow->getRootView()->sendChildToFront(gMenuHolder);
 }
 
 
@@ -2143,6 +2146,23 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 		gViewerStats->setStat(LLViewerStats::ST_WINDOW_HEIGHT, (F64)height);
 	}
 }
+
+
+// Hide normal UI when a logon fails
+void LLViewerWindow::setNormalControlsVisible( BOOL visible )
+{
+	if ( gBottomPanel )
+		gBottomPanel->setVisible( visible );
+
+	if ( gMenuBarView )
+		gMenuBarView->setVisible( visible );
+
+	if ( gStatusBar )
+		gStatusBar->setVisible( visible );		
+}
+
+
+
 
 void LLViewerWindow::drawDebugText()
 {

@@ -202,7 +202,7 @@ class LLFileUploadImage : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		const char* filename = upload_pick((void *)(S32)LLFilePicker::FFLOAD_IMAGE);
+		const char* filename = upload_pick((void *)LLFilePicker::FFLOAD_IMAGE);
 		if (filename)
 		{
 			LLFloaterImagePreview* floaterp = new LLFloaterImagePreview(filename);
@@ -216,7 +216,7 @@ class LLFileUploadSound : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		const char* filename = upload_pick((void*)((S32)LLFilePicker::FFLOAD_WAV));
+		const char* filename = upload_pick((void*)LLFilePicker::FFLOAD_WAV);
 		if (filename)
 		{
 			LLFloaterNameDesc* floaterp = new LLFloaterNameDesc(filename);
@@ -230,7 +230,7 @@ class LLFileUploadAnim : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		const char* filename = upload_pick((void*)((S32)LLFilePicker::FFLOAD_ANIM));
+		const char* filename = upload_pick((void*)LLFilePicker::FFLOAD_ANIM);
 		if (filename)
 		{
 			LLFloaterAnimPreview* floaterp = new LLFloaterAnimPreview(filename);

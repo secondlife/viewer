@@ -191,6 +191,7 @@ static bool gGotUseCircuitCodeAck = false;
 LLString gInitialOutfit;
 LLString gInitialOutfitGender;	// "male" or "female"
 
+static bool gUseCircuitCallbackCalled = false;
 
 //
 // local function declaration
@@ -774,6 +775,15 @@ BOOL idle_startup()
 			{
 				snprintf(gUserServerName, MAX_STRING, "%s", server_label.c_str());			/* Flawfinder: ignore */
 			}
+
+			// Dave S temp reversion of SL-49082 fix - this code breaks command line urls.  I'll fix this with
+			// the control isDirty() functionality tomorrow.
+
+			//if ( userPickedServer )
+			//{	// User picked a grid from the popup, so clear the stored urls so they will be re-generated from gUserServerChoice
+			//	auth_uris.clear();
+			//	resetURIs();
+			//}
 
 			LLString location;
 			LLPanelLogin::getLocation( location );
@@ -1514,12 +1524,21 @@ BOOL idle_startup()
 	{
 		update_texture_fetch();
 
+		if ( gViewerWindow != NULL && gToolMgr != NULL )
+		{	// This isn't the first logon attempt, so show the UI
+			gViewerWindow->setNormalControlsVisible( TRUE );
+		}
+
 		// Initialize UI
 		if (!gNoRender)
 		{
 			// Initialize all our tools.  Must be done after saved settings loaded.
-			gToolMgr = new LLToolMgr();
-			gToolMgr->initTools();
+			if ( gToolMgr == NULL )
+			{
+				gToolMgr = new LLToolMgr();
+				gToolMgr->initTools();
+			}
+
 			// Quickly get something onscreen to look at.
 			gViewerWindow->initWorldUI();
 
@@ -1550,14 +1569,20 @@ BOOL idle_startup()
 
 		gXferManager->registerCallbacks(gMessageSystem);
 
-		gCacheName = new LLCacheName(gMessageSystem);
-		gCacheName->addObserver(callback_cache_name);
-
-		// Load stored cache if possible
-		load_name_cache();
+		if ( gCacheName == NULL )
+		{
+			gCacheName = new LLCacheName(gMessageSystem);
+			gCacheName->addObserver(callback_cache_name);
+	
+			// Load stored cache if possible
+			load_name_cache();
+		}
 
 		// Data storage for map of world.
-		gWorldMap = new LLWorldMap();
+		if ( gWorldMap == NULL )
+		{
+			gWorldMap = new LLWorldMap();
+		}
 
 		// register null callbacks for audio until the audio system is initialized
 		gMessageSystem->setHandlerFuncFast(_PREHASH_SoundTrigger, null_message_callback, NULL);
@@ -1639,6 +1664,9 @@ BOOL idle_startup()
 			{
 				llwarns << "Attempting to connect to simulator with a zero circuit code!" << llendl;
 			}
+
+			gUseCircuitCallbackCalled = FALSE;
+
 			msg->enableCircuit(first_sim, TRUE);
 			// now, use the circuit info to tell simulator about us!
 			llinfos << "viewer: UserLoginLocationReply() Enabling " << first_sim << " with code " << msg->mOurCircuitCode << llendl;
@@ -2780,10 +2808,9 @@ void use_circuit_callback(void**, S32 result)
 {
 	// bail if we're quitting.
 	if(gQuit) return;
-	static bool called = false;
-	if(!called)
+	if( !gUseCircuitCallbackCalled )
 	{
-		called = true;
+		gUseCircuitCallbackCalled = true;
 		if (result)
 		{
 			// Make sure user knows something bad happened. JC
@@ -3701,5 +3728,8 @@ void reset_login()
 {
 	gStartupState = STATE_LOGIN_SHOW;
 
-	// do cleanup here of in-world UI?
+	if ( gViewerWindow )
+	{	// Hide menus and normal buttons
+		gViewerWindow->setNormalControlsVisible( FALSE );
+	}
 }

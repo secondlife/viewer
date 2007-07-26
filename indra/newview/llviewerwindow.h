@@ -154,6 +154,9 @@ public:
 	BOOL			handleKey(KEY key, MASK mask);
 	void			handleScrollWheel	(S32 clicks);
 
+	// Hide normal UI when a logon fails, re-show everything when logon is attempted again
+	void			setNormalControlsVisible( BOOL visible );
+
 	// Handle the application becoming active (frontmost) or inactive
 	//BOOL			handleActivate(BOOL activate);
 

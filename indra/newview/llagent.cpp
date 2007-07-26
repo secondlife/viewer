@@ -6750,7 +6750,7 @@ void LLAgent::removeWearable( EWearableType type )
 		if( old_wearable->isDirty() )
 		{
 			// Bring up view-modal dialog: Save changes? Yes, No, Cancel
-			gViewerWindow->alertXml("WearableSave", LLAgent::onRemoveWearableDialog, (void*)(S32)type );
+			gViewerWindow->alertXml("WearableSave", LLAgent::onRemoveWearableDialog, (void*)type );
 			return;
 		}
 		else

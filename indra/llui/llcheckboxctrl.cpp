@@ -247,6 +247,18 @@ void LLCheckBoxCtrl::setControlName(const LLString& control_name, LLView* contex
 	mButton->setControlName(control_name, context);
 }
 
+
+// virtual		Returns TRUE if the user has modified this control.
+BOOL	 LLCheckBoxCtrl::isDirty()
+{
+	if ( mButton )
+	{
+		return mButton->isDirty();
+	}
+	return FALSE;		// Shouldn't get here
+}
+
+
 // virtual
 LLXMLNodePtr LLCheckBoxCtrl::getXML(bool save_children) const
 {

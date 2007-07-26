@@ -2453,6 +2453,10 @@ void LLPanelLandMedia::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	U8 media_auto_scale		= self->mMediaAutoScaleCheck->get();
 	LLUUID media_id			= self->mMediaTextureCtrl->getImageAssetID();
 
+	// Remove leading/trailing whitespace (common when copying/pasting)
+	LLString::trim(music_url);
+	LLString::trim(media_url);
+
 	// Push data into current parcel
 	parcel->setParcelFlag(PF_SOUND_LOCAL, sound_local);
 	parcel->setMusicURL(music_url.c_str());

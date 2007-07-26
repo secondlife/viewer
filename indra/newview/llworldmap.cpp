@@ -225,20 +225,25 @@ LLSimInfo* LLWorldMap::simInfoFromName(const LLString& sim_name)
 	return sim_info;
 }
 
-LLString LLWorldMap::simNameFromPosGlobal(const LLVector3d& pos_global)
+bool LLWorldMap::simNameFromPosGlobal(const LLVector3d& pos_global, LLString & outSimName )
 {
+	bool gotSimName = true;
+
 	U64 handle = to_region_handle(pos_global);
 
 	sim_info_map_t::iterator it = mSimInfoMap.find(handle);
 	if (it != mSimInfoMap.end())
 	{
 		LLSimInfo* info = (*it).second;
-		return info->mName.c_str();
+		outSimName = info->mName.c_str();
 	}
 	else
 	{
-		return "(unknown region)";
+		gotSimName = false;
+		outSimName = "(unknown region)";
 	}
+
+	return gotSimName;
 }
 
 void LLWorldMap::setCurrentLayer(S32 layer, bool request_layer)

@@ -159,6 +159,8 @@ LLFloaterWorldMap::LLFloaterWorldMap()
 	mCompletingRegionName(""),
 	mWaitingForTracker(FALSE),
 	mExactMatch(FALSE),
+	mIsClosing(FALSE),
+	mSetToUserPosition(TRUE),
 	mTrackedLocation(0,0,0),
 	mTrackedStatus(LLTracker::TRACKING_NOTHING)
 {
@@ -335,6 +337,9 @@ void LLFloaterWorldMap::show(void*, BOOL center_on_target)
 
 		gFloaterWorldMap->buildAvatarIDList();
 		gFloaterWorldMap->buildLandmarkIDLists();
+
+		// If nothing is being tracked, set flag so the user position will be found
+		gFloaterWorldMap->mSetToUserPosition = ( LLTracker::getTrackingStatus() == LLTracker::TRACKING_NOTHING );
 	}
 	
 	if (center_on_target)
@@ -497,7 +502,7 @@ void LLFloaterWorldMap::draw()
 	childSetEnabled("Teleport", (BOOL)tracking_status);
 // 	childSetEnabled("Clear", (BOOL)tracking_status);
 	childSetEnabled("Show Destination", (BOOL)tracking_status || gWorldMap->mIsTrackingUnknownLocation);
-	childSetEnabled("copy_slurl", (BOOL)tracking_status);
+	childSetEnabled("copy_slurl", (mSLURL.size() > 0) );
 
 	setMouseOpaque(TRUE);
 	mDragHandle->setMouseOpaque(TRUE);
@@ -641,7 +646,8 @@ void LLFloaterWorldMap::trackLocation(const LLVector3d& pos_global)
 		return;
 	}
 
-	LLString sim_name = gWorldMap->simNameFromPosGlobal( pos_global );
+	LLString sim_name;
+	gWorldMap->simNameFromPosGlobal( pos_global, sim_name );
 	F32 region_x = (F32)fmod( pos_global.mdV[VX], (F64)REGION_WIDTH_METERS );
 	F32 region_y = (F32)fmod( pos_global.mdV[VY], (F64)REGION_WIDTH_METERS );
 	LLString full_name = llformat("%s (%d, %d, %d)", 
@@ -662,15 +668,51 @@ void LLFloaterWorldMap::trackLocation(const LLVector3d& pos_global)
 
 void LLFloaterWorldMap::updateLocation()
 {
+	bool gotSimName;
+
+	LLTracker::ETrackingStatus status = LLTracker::getTrackingStatus();
+
 	// These values may get updated by a message, so need to check them every frame
 	// The fields may be changed by the user, so only update them if the data changes
 	LLVector3d pos_global = LLTracker::getTrackedPositionGlobal();
 	if (pos_global.isExactlyZero())
 	{
+		LLVector3d agentPos = gAgent.getPositionGlobal();
+
+		// Set to avatar's current postion if nothing is selected
+		if ( status == LLTracker::TRACKING_NOTHING && mSetToUserPosition )
+		{
+			// Make sure we know where we are before setting the current user position
+			LLString agent_sim_name;
+			gotSimName = gWorldMap->simNameFromPosGlobal( agentPos, agent_sim_name );
+			if ( gotSimName )
+			{
+				mSetToUserPosition = FALSE;
+
+				// Fill out the location field
+				childSetValue("location", agent_sim_name);
+
+				// Figure out where user is
+				LLVector3d agentPos = gAgent.getPositionGlobal();
+
+				S32 agent_x = llround( (F32)fmod( agentPos.mdV[VX], (F64)REGION_WIDTH_METERS ) );
+				S32 agent_y = llround( (F32)fmod( agentPos.mdV[VY], (F64)REGION_WIDTH_METERS ) );
+				S32 agent_z = llround( (F32)agentPos.mdV[VZ] );
+
+				childSetValue("spin x", LLSD(agent_x) );
+				childSetValue("spin y", LLSD(agent_y) );
+				childSetValue("spin z", LLSD(agent_z) );
+
+				// Set the current SLURL
+				mSLURL = LLWeb::escapeURL( llformat("http://slurl.com/secondlife/%s/%d/%d/%d", 
+								agent_sim_name.c_str(), agent_x, agent_y, agent_z) );
+			}
+		}
+
 		return; // invalid location
 	}
-	LLTracker::ETrackingStatus status = LLTracker::getTrackingStatus();
-	LLString sim_name = gWorldMap->simNameFromPosGlobal( pos_global );
+	LLString sim_name;
+	gotSimName = gWorldMap->simNameFromPosGlobal( pos_global, sim_name );
 	if ((status != LLTracker::TRACKING_NOTHING) &&
 		(status != mTrackedStatus || pos_global != mTrackedLocation || sim_name != mTrackedSimName))
 	{
@@ -697,8 +739,16 @@ void LLFloaterWorldMap::updateLocation()
 		childSetValue("spin y", LLSD(region_y) );
 		childSetValue("spin z", LLSD((F32)pos_global.mdV[VZ]) );
 
-		mSLURL = LLWeb::escapeURL(llformat("http://slurl.com/secondlife/%s/%d/%d/%d", 
-									sim_name.c_str(), llround(region_x), llround(region_y), llround((F32)pos_global.mdV[VZ])));
+		// simNameFromPosGlobal can fail, so don't give the user an invalid SLURL
+		if ( gotSimName )
+		{
+			mSLURL = LLWeb::escapeURL(llformat("http://slurl.com/secondlife/%s/%d/%d/%d", 
+										sim_name.c_str(), llround(region_x), llround(region_y), llround((F32)pos_global.mdV[VZ])));
+		}
+		else
+		{	// Empty SLURL will disable the "Copy SLURL to clipboard" button
+			mSLURL = "";
+		}
 	}
 }
 
@@ -1082,6 +1132,9 @@ void LLFloaterWorldMap::onLandmarkComboCommit( LLUICtrl* ctrl, void* userdata )
 	
 	self->trackLandmark( item_id);
 	onShowTargetBtn(self);
+
+	// Reset to user postion if nothing is tracked
+	self->mSetToUserPosition = ( LLTracker::getTrackingStatus() == LLTracker::TRACKING_NOTHING );
 }
 
 // static 
@@ -1132,6 +1185,10 @@ void LLFloaterWorldMap::onAvatarComboCommit( LLUICtrl* ctrl, void* userdata )
 		if (combo) name = combo->getSimple();
 		self->trackAvatar(new_avatar_id, name);
 		onShowTargetBtn(self);
+	}
+	else
+	{	// Reset to user postion if nothing is tracked
+		self->mSetToUserPosition = ( LLTracker::getTrackingStatus() == LLTracker::TRACKING_NOTHING );
 	}
 }
 
@@ -1188,6 +1245,8 @@ void LLFloaterWorldMap::onClearBtn(void* data)
 	self->mTrackedStatus = LLTracker::TRACKING_NOTHING;
 	LLTracker::stopTracking((void *)(intptr_t)TRUE);
 	gWorldMap->mIsTrackingUnknownLocation = FALSE;
+	self->mSLURL = "";  				// Clear the SLURL since it's invalid
+	self->mSetToUserPosition = TRUE;	// Revert back to the current user position
 }
 
 // static
@@ -1206,6 +1265,10 @@ void LLFloaterWorldMap::onShowTargetBtn(void* data)
 void LLFloaterWorldMap::onShowAgentBtn(void* data)
 {
 	LLWorldMapView::setPan( 0, 0, FALSE); // FALSE == animate
+
+	// Set flag so user's location will be displayed if not tracking anything else
+	LLFloaterWorldMap* self = (LLFloaterWorldMap*)data;
+	self->mSetToUserPosition = TRUE;	
 }
 
 // static

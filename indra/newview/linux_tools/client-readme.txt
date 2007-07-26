@@ -235,9 +235,8 @@ For problems and discussion concerning unofficial (not secondlife.com)
 releases, please contact your packager or the SLDev mailing list:
 <https://lists.secondlife.com/cgi-bin/mailman/listinfo/sldev>
 
-In-world help: Please use the 'Help' menu in the client for general
-non-Linux-specific Second Life help including live support from the fabulous
-'Help Request' team.
+In-world help: Please use the 'Help' menu in the client for various
+non-Linux-specific Second Life help options.
 
 In-world discussion: There is a 'Linux Client Users' group
 inside Second Life which is free to join.  You can find it by pressing
