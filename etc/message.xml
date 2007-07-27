@@ -300,14 +300,6 @@
 					<boolean>true</boolean>
 				</map>
 
-				<key>ChatterBoxSessionLeaveReply</key>
-				<map>
-					<key>flavor</key>
-					<string>llsd</string>
-					<key>trusted-sender</key>
-					<boolean>true</boolean>
-				</map>
-
 				<key>ChatterBoxSessionAgentListUpdates</key>
 				<map>
 					<key>flavor</key>
@@ -323,33 +315,67 @@
 					<key>trusted-sender</key>
 					<boolean>true</boolean>
 				</map>
+
+				<!-- Client to server -->
+				<key>ParcelVoiceInfoRequest</key>
+				<map>
+					<key>flavor</key>
+					<string>llsd</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
+				<!-- Server to client -->
+				<key>ParcelVoiceInfo</key>
+				<map>
+					<key>flavor</key>
+					<string>llsd</string>
+					<key>trusted-sender</key>
+					<boolean>true</boolean>
+				</map>
+
+				<key>ProvisionVoiceAccountRequest</key>
+				<map>
+					<key>flavor</key>
+					<string>llsd</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
 				<key>avatarnotesrequest</key>
 				<map>
-                    <key>service_name</key><string>avatar-notes</string>
+					<key>service_name</key>
+					<string>avatar-notes</string>
 					<key>builder</key>
 					<string>template</string>
 					<key>trusted-sender</key>
 					<boolean>false</boolean>
 				</map>
+
 				<key>avatarclassifiedsrequest</key>
 				<map>
-                    <key>service_name</key><string>avatar-classifieds</string>
+					<key>service_name</key>
+					<string>avatar-classifieds</string>
 					<key>builder</key>
 					<string>template</string>
 					<key>trusted-sender</key>
 					<boolean>false</boolean>
 				</map>
+
 				<key>avatarpickrequest</key>
 				<map>
-                    <key>service_name</key><string>avatar-pick</string>
+					<key>service_name</key>
+					<string>avatar-pick</string>
 					<key>builder</key>
 					<string>template</string>
 					<key>trusted-sender</key>
 					<boolean>false</boolean>
 				</map>
+
 				<key>pickinforequest</key>
 				<map>
-                    <key>service_name</key><string>pick-info</string>
+					<key>service_name</key>
+					<string>pick-info</string>
 					<key>builder</key>
 					<string>template</string>
 					<key>trusted-sender</key>
@@ -414,6 +440,15 @@
 
 			<key>SendPostcard3</key>
 			<boolean>true</boolean>
+
+			<key>ParcelVoiceInfoRequest</key>
+			<boolean>false</boolean>
+
+			<key>ChatSessionRequest</key>
+			<boolean>false</boolean>
+
+			<key>ProvisionVoiceAccountRequest</key>
+			<boolean>false</boolean>
 		</map>
 
 		<key>messageBans</key>
