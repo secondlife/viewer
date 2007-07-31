@@ -531,9 +531,9 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 			break;
 		}
 	}
-
 	mGrabMouseButtonDown = FALSE;
 	gToolMgr->clearTransientTool();
+	gAgent.setLookAt(LOOKAT_TARGET_CONVERSATION, obj); // maybe look at object/person clicked on
 	return LLTool::handleMouseUp(x, y, mask);
 }
 

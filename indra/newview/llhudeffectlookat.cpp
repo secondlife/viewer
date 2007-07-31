@@ -19,6 +19,10 @@
 #include "llselectmgr.h"
 #include "llglheaders.h"
 
+
+#include "llxmltree.h"
+
+
 BOOL LLHUDEffectLookAt::sDebugLookAt = FALSE;
 
 // packet layout
@@ -34,69 +38,179 @@ const F32 MAX_SENDS_PER_SEC = 4.f;
 const F32 MIN_DELTAPOS_FOR_UPDATE = 0.05f;
 const F32 MIN_TARGET_OFFSET_SQUARED = 0.0001f;
 
-// timeouts
+
 // can't use actual F32_MAX, because we add this to the current frametime
 const F32 MAX_TIMEOUT = F32_MAX / 2.f;
 
-const F32 LOOKAT_TIMEOUTS[LOOKAT_NUM_TARGETS] = 
+/**
+ * Simple data class holding values for a particular type of attention.
+ */
+class LLAttention
 {
-	MAX_TIMEOUT, //LOOKAT_TARGET_NONE
-	3.f, //LOOKAT_TARGET_IDLE
-	4.f, //LOOKAT_TARGET_AUTO_LISTEN
-	2.f, //LOOKAT_TARGET_FREELOOK
-	4.f, //LOOKAT_TARGET_RESPOND
-	1.f, //LOOKAT_TARGET_HOVER
-	MAX_TIMEOUT, //LOOKAT_TARGET_CONVERSATION
-	MAX_TIMEOUT, //LOOKAT_TARGET_SELECT
-	MAX_TIMEOUT, //LOOKAT_TARGET_FOCUS
-	MAX_TIMEOUT, //LOOKAT_TARGET_MOUSELOOK
-	0.f, //LOOKAT_TARGET_CLEAR
+public:
+	LLAttention(){}
+	LLAttention(F32 timeout, F32 priority, char *name, LLColor3 color) :
+	  mTimeout(timeout), mPriority(priority), mName(name), mColor(color)
+	{
+	}
+	F32 mTimeout, mPriority;
+	LLString mName;
+	LLColor3 mColor;
 };
 
-const S32 LOOKAT_PRIORITIES[LOOKAT_NUM_TARGETS] = 
+/**
+ * Simple data class holding a list of attentions, one for every type.
+ */
+class LLAttentionSet
 {
-	0, //LOOKAT_TARGET_NONE
-	1, //LOOKAT_TARGET_IDLE
-	3, //LOOKAT_TARGET_AUTO_LISTEN
-	2, //LOOKAT_TARGET_FREELOOK
-	3, //LOOKAT_TARGET_RESPOND
-	4, //LOOKAT_TARGET_HOVER
-	5, //LOOKAT_TARGET_CONVERSATION
-	6, //LOOKAT_TARGET_SELECT
-	6, //LOOKAT_TARGET_FOCUS
-	7, //LOOKAT_TARGET_MOUSELOOK
-	8, //LOOKAT_TARGET_CLEAR
+public:
+	LLAttentionSet(const LLAttention attentions[])
+	{
+		for(int i=0; i<LOOKAT_NUM_TARGETS; i++)
+		{
+			mAttentions[i] = attentions[i];
+		}
+	}
+	LLAttention mAttentions[LOOKAT_NUM_TARGETS];
+	LLAttention& operator[](int idx) { return mAttentions[idx]; }
 };
 
-const char *LOOKAT_STRINGS[] = 
-{
-	"None",			//LOOKAT_TARGET_NONE
-	"Idle",			//LOOKAT_TARGET_IDLE
-	"AutoListen",	//LOOKAT_TARGET_AUTO_LISTEN
-	"FreeLook",		//LOOKAT_TARGET_FREELOOK
-	"Respond",		//LOOKAT_TARGET_RESPOND
-	"Hover",		//LOOKAT_TARGET_HOVER
-	"Conversation", //LOOKAT_TARGET_CONVERSATION
-	"Select",		//LOOKAT_TARGET_SELECT
-	"Focus",		//LOOKAT_TARGET_FOCUS
-	"Mouselook",	//LOOKAT_TARGET_MOUSELOOK
-	"Clear",		//LOOKAT_TARGET_CLEAR
-};
+// Default attribute set data.
+// Used to initialize the global attribute set objects, one of which will be
+// refered to by the hud object at any given time.
+// Note that the values below are only the default values and that any or all of them
+// can be overwritten with customizing data from the XML file. The actual values below
+// are those that will give exactly the same look-at behavior as before the ability
+// to customize was added. - MG
+static const 
+	LLAttention 
+		BOY_ATTS[] = { // default set of masculine attentions
+			LLAttention(MAX_TIMEOUT, 0, "None",			 LLColor3(0.3f, 0.3f, 0.3f)), // LOOKAT_TARGET_NONE
+			LLAttention(3.f,         1, "Idle",		     LLColor3(0.5f, 0.5f, 0.5f)), // LOOKAT_TARGET_IDLE
+			LLAttention(4.f,         3, "AutoListen",	 LLColor3(0.5f, 0.5f, 0.5f)), // LOOKAT_TARGET_AUTO_LISTEN
+			LLAttention(2.f,         2, "FreeLook",		 LLColor3(0.5f, 0.5f, 0.9f)), // LOOKAT_TARGET_FREELOOK
+			LLAttention(4.f,         3, "Respond",	     LLColor3(0.0f, 0.0f, 0.0f)), // LOOKAT_TARGET_RESPOND
+			LLAttention(1.f,         4, "Hover",		 LLColor3(0.5f, 0.9f, 0.5f)), // LOOKAT_TARGET_HOVER
+			LLAttention(MAX_TIMEOUT, 0, "Conversation",  LLColor3(0.1f, 0.1f, 0.5f)), // LOOKAT_TARGET_CONVERSATION
+			LLAttention(MAX_TIMEOUT, 6, "Select",		 LLColor3(0.9f, 0.5f, 0.5f)), // LOOKAT_TARGET_SELECT
+			LLAttention(MAX_TIMEOUT, 6, "Focus",		 LLColor3(0.9f, 0.5f, 0.9f)), // LOOKAT_TARGET_FOCUS
+			LLAttention(MAX_TIMEOUT, 7, "Mouselook",	 LLColor3(0.9f, 0.9f, 0.5f)), // LOOKAT_TARGET_MOUSELOOK
+			LLAttention(0.f,         8, "Clear",		 LLColor3(1.0f, 1.0f, 1.0f)), // LOOKAT_TARGET_CLEAR
+		},																				
+		GIRL_ATTS[] = { // default set of feminine attentions													
+			LLAttention(MAX_TIMEOUT, 0, "None",			 LLColor3(0.3f, 0.3f, 0.3f)), // LOOKAT_TARGET_NONE
+			LLAttention(3.f,         1, "Idle",		     LLColor3(0.5f, 0.5f, 0.5f)), // LOOKAT_TARGET_IDLE
+			LLAttention(4.f,         3, "AutoListen",	 LLColor3(0.5f, 0.5f, 0.5f)), // LOOKAT_TARGET_AUTO_LISTEN
+			LLAttention(2.f,         2, "FreeLook",		 LLColor3(0.5f, 0.5f, 0.9f)), // LOOKAT_TARGET_FREELOOK
+			LLAttention(4.f,         3, "Respond",	     LLColor3(0.0f, 0.0f, 0.0f)), // LOOKAT_TARGET_RESPOND
+			LLAttention(1.f,         4, "Hover",		 LLColor3(0.5f, 0.9f, 0.5f)), // LOOKAT_TARGET_HOVER
+			LLAttention(MAX_TIMEOUT, 0, "Conversation",  LLColor3(0.1f, 0.1f, 0.5f)), // LOOKAT_TARGET_CONVERSATION
+			LLAttention(MAX_TIMEOUT, 6, "Select",		 LLColor3(0.9f, 0.5f, 0.5f)), // LOOKAT_TARGET_SELECT
+			LLAttention(MAX_TIMEOUT, 6, "Focus",		 LLColor3(0.9f, 0.5f, 0.9f)), // LOOKAT_TARGET_FOCUS
+			LLAttention(MAX_TIMEOUT, 7, "Mouselook",	 LLColor3(0.9f, 0.9f, 0.5f)), // LOOKAT_TARGET_MOUSELOOK
+			LLAttention(0.f,         8, "Clear",		 LLColor3(1.0f, 1.0f, 1.0f)), // LOOKAT_TARGET_CLEAR
+		};
 
-const LLColor3 LOOKAT_COLORS[LOOKAT_NUM_TARGETS] =
+static LLAttentionSet
+	gBoyAttentions(BOY_ATTS),
+	gGirlAttentions(GIRL_ATTS);
+
+
+static BOOL loadGender(LLXmlTreeNode* gender)
 {
-	LLColor3(0.3f, 0.3f, 0.3f), //LOOKAT_TARGET_NONE
-	LLColor3(0.5f, 0.5f, 0.5f), //LOOKAT_TARGET_IDLE
-	LLColor3(0.5f, 0.5f, 0.5f), //LOOKAT_TARGET_AUTO_LISTEN
-	LLColor3(0.5f, 0.5f, 0.9f), //LOOKAT_TARGET_FREELOOK
-	LLColor3(0.f, 0.f, 0.f),	//LOOKAT_TARGET_RESPOND
-	LLColor3(0.5f, 0.9f, 0.5f), //LOOKAT_TARGET_HOVER
-	LLColor3(0.1f, 0.1f, 0.5f),	//LOOKAT_TARGET_CONVERSATION
-	LLColor3(0.9f, 0.5f, 0.5f), //LOOKAT_TARGET_SELECT
-	LLColor3(0.9f, 0.5f, 0.9f), //LOOKAT_TARGET_FOCUS
-	LLColor3(0.9f, 0.9f, 0.5f), //LOOKAT_TARGET_MOUSELOOK
-	LLColor3(1.f, 1.f, 1.f),	//LOOKAT_TARGET_CLEAR
-};
+	if( !gender)
+	{
+		return FALSE;
+	}
+	LLString str;
+	gender->getAttributeString("name", str);
+	LLAttentionSet& attentions = (str.compare("Masculine") == 0) ? gBoyAttentions : gGirlAttentions;
+	for (LLXmlTreeNode* attention_node = gender->getChildByName( "param" );
+		 attention_node;
+		 attention_node = gender->getNextNamedChild())
+	{
+		attention_node->getAttributeString("attention", str);
+		LLAttention* attention;
+		if     (str == "idle")         attention = &attentions[LOOKAT_TARGET_IDLE];
+		else if(str == "auto_listen")  attention = &attentions[LOOKAT_TARGET_AUTO_LISTEN];
+		else if(str == "freelook")     attention = &attentions[LOOKAT_TARGET_FREELOOK];
+		else if(str == "respond")      attention = &attentions[LOOKAT_TARGET_RESPOND];
+		else if(str == "hover")        attention = &attentions[LOOKAT_TARGET_HOVER];
+		else if(str == "conversation") attention = &attentions[LOOKAT_TARGET_CONVERSATION];
+		else if(str == "select")       attention = &attentions[LOOKAT_TARGET_SELECT];
+		else if(str == "focus")        attention = &attentions[LOOKAT_TARGET_FOCUS];
+		else if(str == "mouselook")    attention = &attentions[LOOKAT_TARGET_MOUSELOOK];
+		else return FALSE;
+
+		F32 priority, timeout;
+		attention_node->getAttributeF32("priority", priority);
+		attention_node->getAttributeF32("timeout", timeout);
+		if(timeout < 0) timeout = MAX_TIMEOUT;
+		attention->mPriority = priority;
+		attention->mTimeout = timeout;
+	}	
+	return TRUE;
+}
+
+static BOOL loadAttentions()
+{
+	static BOOL first_time = TRUE;
+	if( ! first_time) 
+	{
+		return TRUE; // maybe not ideal but otherwise it can continue to fail forever.
+	}
+	first_time = FALSE;
+	
+	char filename[MAX_PATH]; /*Flawfinder: ignore*/
+	strncpy(filename,gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,"attentions.xml").c_str(), sizeof(filename) -1);		/*Flawfinder: ignore*/	
+        filename[sizeof(filename) -1] = '\0';
+	LLXmlTree xml_tree;
+	BOOL success = xml_tree.parseFile( filename, FALSE );
+	if( !success )
+	{
+		return FALSE;
+	}
+	LLXmlTreeNode* root = xml_tree.getRoot();
+	if( !root )
+	{
+		return FALSE;
+	}
+
+	//-------------------------------------------------------------------------
+	// <linden_attentions version="1.0"> (root)
+	//-------------------------------------------------------------------------
+	if( !root->hasName( "linden_attentions" ) )
+	{
+		llwarns << "Invalid linden_attentions file header: " << filename << llendl;
+		return FALSE;
+	}
+
+	LLString version;
+	static LLStdStringHandle version_string = LLXmlTree::addAttributeString("version");
+	if( !root->getFastAttributeString( version_string, version ) || (version != "1.0") )
+	{
+		llwarns << "Invalid linden_attentions file version: " << version << llendl;
+		return FALSE;
+	}
+
+	//-------------------------------------------------------------------------
+	// <gender>
+	//-------------------------------------------------------------------------
+	for (LLXmlTreeNode* child = root->getChildByName( "gender" );
+		 child;
+		 child = root->getNextNamedChild())
+	{
+		if( !loadGender( child ) )
+		{
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
+
+
 
 //-----------------------------------------------------------------------------
 // LLHUDEffectLookAt()
@@ -107,6 +221,10 @@ LLHUDEffectLookAt::LLHUDEffectLookAt(const U8 type) :
 	mLastSendTime(0.f)
 {
 	clearLookAtTarget();
+	// parse the default sets
+	loadAttentions();
+	// initialize current attention set. switches when avatar sex changes.
+	mAttentions = &gGirlAttentions;
 }
 
 //-----------------------------------------------------------------------------
@@ -260,7 +378,7 @@ BOOL LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
 	llassert(target_type < LOOKAT_NUM_TARGETS);
 
 	// must be same or higher priority than existing effect
-	if (LOOKAT_PRIORITIES[target_type] < LOOKAT_PRIORITIES[mTargetType])
+	if ((*mAttentions)[target_type].mPriority < (*mAttentions)[mTargetType].mPriority)
 	{
 		return FALSE;
 	}
@@ -268,8 +386,7 @@ BOOL LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
 	F32 current_time  = mTimer.getElapsedTimeF32();
 
 	// type of lookat behavior or target object has changed
-	BOOL lookAtChanged = (target_type != mTargetType) ||
-		(object != mTargetObject);
+	BOOL lookAtChanged = (target_type != mTargetType) || (object != mTargetObject);
 
 	// lookat position has moved a certain amount and we haven't just sent an update
 	lookAtChanged = lookAtChanged || (dist_vec(position, mLastSentOffsetGlobal) > MIN_DELTAPOS_FOR_UPDATE) && 
@@ -278,7 +395,8 @@ BOOL LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
 	if (lookAtChanged)
 	{
 		mLastSentOffsetGlobal = position;
-		setDuration(LOOKAT_TIMEOUTS[target_type]);
+		F32 timeout = (*mAttentions)[target_type].mTimeout;
+		setDuration(timeout);
 		setNeedsSendToSim(TRUE);
 	}
  
@@ -359,7 +477,7 @@ void LLHUDEffectLookAt::render()
 		glScalef(0.3f, 0.3f, 0.3f);
 		glBegin(GL_LINES);
 		{
-			LLColor3 color = LOOKAT_COLORS[mTargetType];
+			LLColor3 color = (*mAttentions)[mTargetType].mColor;
 			glColor3f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE]);
 			glVertex3f(-1.f, 0.f, 0.f);
 			glVertex3f(1.f, 0.f, 0.f);
@@ -392,6 +510,13 @@ void LLHUDEffectLookAt::update()
 		return;
 	}
 
+	// make sure the proper set of avatar attention are currently being used.
+	LLVOAvatar* source_avatar = (LLVOAvatar*)(LLViewerObject*)mSourceObject;
+	// for now the first cut will just switch on sex. future development could adjust 
+	// timeouts according to avatar age and/or other features. 
+	mAttentions = (source_avatar->getSex() == SEX_MALE) ? &gBoyAttentions : &gGirlAttentions;
+	//printf("updated to %s\n", (source_avatar->getSex() == SEX_MALE) ? "male" : "female");
+
 	F32 time = mTimer.getElapsedTimeF32();
 
 	// clear out the effect if time is up
@@ -418,7 +543,7 @@ void LLHUDEffectLookAt::update()
 
 	if (sDebugLookAt)
 	{
-		((LLVOAvatar*)(LLViewerObject*)mSourceObject)->addDebugText(LOOKAT_STRINGS[mTargetType]);
+		((LLVOAvatar*)(LLViewerObject*)mSourceObject)->addDebugText((*mAttentions)[mTargetType].mName);
 	}
 }
 

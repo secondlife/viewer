@@ -14,6 +14,7 @@
 
 class LLViewerObject;
 class LLVOAvatar;
+class LLAttentionSet;
 
 typedef enum e_lookat_type
 {
@@ -23,7 +24,7 @@ typedef enum e_lookat_type
 	LOOKAT_TARGET_FREELOOK,
 	LOOKAT_TARGET_RESPOND,
 	LOOKAT_TARGET_HOVER,
-	LOOKAT_TARGET_CONVERSATION,	// conversation mode deprecated
+	LOOKAT_TARGET_CONVERSATION,
 	LOOKAT_TARGET_SELECT,
 	LOOKAT_TARGET_FOCUS,
 	LOOKAT_TARGET_MOUSELOOK,
@@ -71,6 +72,7 @@ private:
 	LLFrameTimer				mTimer;
 	LLVector3					mTargetPos;
 	F32							mLastSendTime;
+	LLAttentionSet*				mAttentions;
 };
 
 #endif // LL_LLHUDEFFECTLOOKAT_H
