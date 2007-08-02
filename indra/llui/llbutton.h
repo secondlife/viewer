@@ -124,7 +124,7 @@ public:
 
 	void			setDisabledSelectedLabelColor( const LLColor4& c )	{ mDisabledSelectedLabelColor = c; }
 
-	void			setImageOverlay(const LLString &image_name, LLFontGL::HAlign alignment = LLFontGL::HCENTER);
+	void			setImageOverlay(const LLString &image_name, LLFontGL::HAlign alignment = LLFontGL::HCENTER, const LLColor4& color = LLColor4::white);
 	LLPointer<LLImageGL> getImageOverlay() { return mImageOverlay; }
 	
 
@@ -190,6 +190,7 @@ protected:
 
 	LLPointer<LLImageGL>	mImageOverlay;
 	LLFontGL::HAlign		mImageOverlayAlignment;
+	LLColor4				mImageOverlayColor;
 
 	LLPointer<LLImageGL>	mImageUnselected;
 	LLUIString				mUnselectedLabel;

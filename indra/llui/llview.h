@@ -359,7 +359,7 @@ public:
 	virtual void	draw();
 
 	void			drawDebugRect();
-	void			drawChild(LLView* childp, S32 x_offset = 0, S32 y_offset = 0);
+	void			drawChild(LLView* childp, S32 x_offset = 0, S32 y_offset = 0, BOOL force_draw = FALSE);
 
 	virtual const LLString&	getName() const;
 

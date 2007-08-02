@@ -32,6 +32,11 @@
 #include "llxmltree.h"
 #include "llwearable.h"
 
+//Ventrella
+//#include "llvoiceclient.h"
+#include "llvoicevisualizer.h"
+//End Ventrella
+
 const S32 VOAVATAR_SCRATCH_TEX_WIDTH = 512;
 const S32 VOAVATAR_SCRATCH_TEX_HEIGHT = 512;
 
@@ -927,6 +932,17 @@ protected:
 	LLTexLayerSet*	getLayerSet(ETextureIndex index) const;
 	LLHost			getObjectHost() const;
 	S32				getLocalDiscardLevel( S32 index);
+	
+//Ventrella
+	//-----------------------------------------------------------------------------------------------
+	// the Voice Visualizer is responsible for detecting the user's voice signal, and when the
+	// user speaks, it puts a voice symbol over the avatar's head, and triggering gesticulations
+	//-----------------------------------------------------------------------------------------------
+	private:
+	LLVoiceVisualizer * mVoiceVisualizer;
+	int					mCurrentGesticulationLevel;
+//End Ventrella
+	
 };
 
 #endif // LL_VO_AVATAR_H

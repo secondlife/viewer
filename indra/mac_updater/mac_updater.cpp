@@ -971,10 +971,12 @@ void *updatethreadproc(void*)
 			if(len < sizeof(temp)-1)
 			{
 				// End of file or error.
-				if(pclose(mounter) != 0)
+				int result = pclose(mounter);
+				if(result != 0)
 				{
-					llinfos << "Failed to mount disk image, exiting."<< llendl;
-					throw 0;
+					// NOTE: We used to abort here, but pclose() started returning 
+					// -1, possibly when the size of the DMG passed a certain point 
+					llinfos << "Unexpected result closing pipe: " << result << llendl; 
 				}
 				mounter = NULL;
 			}
@@ -1000,6 +1002,7 @@ void *updatethreadproc(void*)
 		else
 		{
 			llinfos << "Disk image device node not found!" << llendl;
+			throw 0; 
 		}
 		
 		// Get an FSRef to the new application on the disk image

@@ -11,7 +11,7 @@
 #ifndef LL_LLFLOATERFRIENDS_H
 #define LL_LLFLOATERFRIENDS_H
 
-#include "llfloater.h"
+#include "llpanel.h"
 #include "llstring.h"
 #include "lluuid.h"
 #include "lltimer.h"
@@ -20,24 +20,23 @@ class LLFriendObserver;
 
 
 /** 
- * @class LLFloaterFriends
+ * @class LLPanelFriends
  * @brief An instance of this class is used for displaying your friends
  * and gives you quick access to all agents which a user relationship.
  *
  * @sa LLFloater
  */
-class LLFloaterFriends : public LLFloater, public LLEventTimer
+class LLPanelFriends : public LLPanel, public LLEventTimer
 {
 public:
-	virtual ~LLFloaterFriends();
+	LLPanelFriends();
+	virtual ~LLPanelFriends();
 
 	/** 
 	 * @brief This method either creates or brings to the front the
 	 * current instantiation of this floater. There is only once since
 	 * you can currently only look at your local friends.
 	 */
-	static void show(void* ignored = NULL);
-
 	virtual void tick();
 
 	/** 
@@ -47,11 +46,6 @@ public:
 	void updateFriends(U32 changed_mask);
 
 	virtual BOOL postBuild();
-
-	static BOOL visible(void* unused = NULL);
-
-	// Toggles visibility of floater
-	static void toggle(void* unused = NULL);
 
 	// Show a dialog explaining what friendship entails, then request
 	// friendship. JC
@@ -75,19 +69,18 @@ private:
 	};
 
 	// protected members
-	LLFloaterFriends();
 
 	void reloadNames();
 	void refreshNames();
 	void refreshUI();
-	void refreshRightsChangeList(U8 state);
+	void refreshRightsChangeList();
 	void applyRightsToFriends(S32 flag, BOOL value);
 	void updateMenuState(S32 flag, BOOL value);
 	S32 getMenuState() { return mMenuState; }
 	void addFriend(const std::string& name, const LLUUID& agent_id);	
 
 	// return LLUUID::null if nothing is selected
-	static LLDynamicArray<LLUUID> getSelectedIDs();
+	LLDynamicArray<LLUUID> getSelectedIDs();
 
 	// callback methods
 	static void onSelectName(LLUICtrl* ctrl, void* user_data);
@@ -103,8 +96,6 @@ private:
 	static void onClickOfferTeleport(void* user_data);
 	static void onClickPay(void* user_data);
 
-	static void onClickClose(void* user_data);
-
 	static void onClickOnlineStatus(LLUICtrl* ctrl, void* user_data);
 	static void onClickMapStatus(LLUICtrl* ctrl, void* user_data);
 	static void onClickModifyStatus(LLUICtrl* ctrl, void* user_data);
@@ -113,9 +104,6 @@ private:
 	static void handleModifyRights(S32 option, void* user_data);
 
 private:
-	// static data
-	static LLFloaterFriends* sInstance;
-
 	// member data
 	LLFriendObserver* mObserver;
 	LLUUID mAddFriendID;

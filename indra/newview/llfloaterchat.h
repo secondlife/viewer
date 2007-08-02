@@ -24,17 +24,20 @@ class LLViewerTextEditor;
 class LLMessageSystem;
 class LLUUID;
 class LLCheckBoxCtrl;
+class LLPanelActiveSpeakers;
 
 class LLFloaterChat
-:	public LLFloater
+:	public LLFloater, public LLUISingleton<LLFloaterChat>
 {
 public:
-	LLFloaterChat();
+	LLFloaterChat(const LLSD& seed);
 	~LLFloaterChat();
 
-	void show();
-	virtual void onClose(bool app_quitting);
 	virtual void setVisible( BOOL b );
+	virtual void draw();
+	virtual BOOL postBuild();
+	virtual void onClose(bool app_quitting);
+	virtual void onVisibilityChange(BOOL cur_visibility);
 
 	static void setHistoryCursorAndScrollToEnd();
 	
@@ -45,17 +48,17 @@ public:
 	// Add chat to history alone.
 	static void addChatHistory(const LLChat& chat, bool log_to_file = true);
 	
-	static void toggle(void*);
-	static BOOL visible(void*);
-
 	static void onClickMute(void *data);
-	static void onClickChat(void *);
-	static void onCommitUserSelect(LLUICtrl* caller, void* data);
 	static void onClickToggleShowMute(LLUICtrl* caller, void *data);
+	static void onClickToggleActiveSpeakers(void* userdata);
 	static void chatFromLogFile(LLString line, void* userdata);
 	static void loadHistory();
-};
+	static void* createSpeakersPanel(void* data);
+	static void* createChatPanel(void* data);
+	static void hideInstance(const LLSD& id);
 
-extern LLFloaterChat* gFloaterChat;
+protected:
+	LLPanelActiveSpeakers* mPanel;
+};
 
 #endif

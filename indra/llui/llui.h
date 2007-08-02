@@ -16,6 +16,8 @@
 #include "llrect.h"
 #include "llcoord.h"
 #include "llhtmlhelp.h"
+#include "llgl.h"
+#include <stack>
 
 class LLColor4;
 class LLVector3;
@@ -123,7 +125,7 @@ extern BOOL gShowTextEditCursor;
 extern LLString gLanguage;
 
 class LLImageProviderInterface;
-typedef	void (*LLUIAudioCallback)(const LLUUID& uuid, F32 volume);
+typedef	void (*LLUIAudioCallback)(const LLUUID& uuid);
 
 class LLUI
 {
@@ -144,8 +146,8 @@ public:
 
 	//helper functions (should probably move free standing rendering helper functions here)
 	static LLString locateSkin(const LLString& filename);
-	static void setScissorRegionScreen(const LLRect& rect);
-	static void setScissorRegionLocal(const LLRect& rect); // works assuming LLUI::translate has been called
+	static void pushClipRect(const LLRect& rect);
+	static void popClipRect();
 	static void setCursorPositionScreen(S32 x, S32 y);
 	static void setCursorPositionLocal(LLView* viewp, S32 x, S32 y);
 	static void setScaleFactor(const LLVector2& scale_factor);
@@ -153,6 +155,11 @@ public:
 	static LLUUID findAssetUUIDByName(const LLString&	name);
 	static LLVector2 getWindowSize();
 	static void setHtmlHelp(LLHtmlHelp* html_help);
+
+private:
+	static void setScissorRegionScreen(const LLRect& rect);
+	static void setScissorRegionLocal(const LLRect& rect); // works assuming LLUI::translate has been called
+
 public:
 	static LLControlGroup* sConfigGroup;
 	static LLControlGroup* sColorsGroup;
@@ -163,6 +170,8 @@ public:
 	static LLWindow*		sWindow;
 	static BOOL             sShowXUINames;
 	static LLHtmlHelp*		sHtmlHelp;
+	static std::stack<LLRect> sClipRectStack;
+
 };
 
 // UI widgets
@@ -251,6 +260,7 @@ typedef enum e_widget_type
 	WIDGET_TYPE_TEXTURE_VIEW,
 	WIDGET_TYPE_MEMORY_VIEW,
 	WIDGET_TYPE_FRAME_STAT_VIEW,
+	WIDGET_TYPE_LAYOUT_STACK,
 	WIDGET_TYPE_DONTCARE,
 	WIDGET_TYPE_COUNT
 } EWidgetType;
@@ -272,38 +282,38 @@ public:
 	}
 
 	// default show and hide methods
-	static T* showInstance(const LLSD& seed) 
+	static T* showInstance(const LLSD& seed = LLSD()) 
 	{ 
 		T* instance = INSTANCE_ADAPTOR::getInstance(seed); 
 		INSTANCE_ADAPTOR::show(instance);
 		return instance;
 	}
 
-	static void hideInstance(const LLSD& seed) 
+	static void hideInstance(const LLSD& seed = LLSD()) 
 	{ 
 		T* instance = INSTANCE_ADAPTOR::getInstance(seed); 
 		INSTANCE_ADAPTOR::hide(instance);
 	}
 
-	static void toggleInstance(const LLSD& seed)
+	static void toggleInstance(const LLSD& seed = LLSD())
 	{
-		if (!INSTANCE_ADAPTOR::instanceVisible(seed))
-		{
-			INSTANCE_ADAPTOR::showInstance(seed);
-		}
-		else
+		if (INSTANCE_ADAPTOR::instanceVisible(seed))
 		{
 			INSTANCE_ADAPTOR::hideInstance(seed);
 		}
+		else
+		{
+			INSTANCE_ADAPTOR::showInstance(seed);
+		}
 	}
 
-	static BOOL instanceVisible(const LLSD& seed)
+	static BOOL instanceVisible(const LLSD& seed = LLSD())
 	{
 		T* instance = INSTANCE_ADAPTOR::findInstance(seed);
 		return instance != NULL && INSTANCE_ADAPTOR::visible(instance);
 	}
 
-	static T* getInstance(const LLSD& seed) 
+	static T* getInstance(const LLSD& seed = LLSD()) 
 	{
 		T* instance = INSTANCE_ADAPTOR::findInstance(seed);
 		if (instance == NULL)
@@ -312,6 +322,7 @@ public:
 		}
 		return instance;
 	}
+
 };
 
 // Creates a UI singleton by ignoring the identifying parameter
@@ -326,12 +337,12 @@ public:
 	LLUISingleton() : LLUIInstanceMgr<T, INSTANCE_ADAPTOR>() { sInstance = (T*)this; }
 	~LLUISingleton() { sInstance = NULL; }
 
-	static T* findInstance(const LLSD& seed)
+	static T* findInstance(const LLSD& seed = LLSD())
 	{
 		return sInstance;
 	}
 
-	static T* createInstance(const LLSD& seed)
+	static T* createInstance(const LLSD& seed = LLSD())
 	{
 		if (sInstance == NULL)
 		{
@@ -345,5 +356,25 @@ protected:
 };
 
 template <class T, class U> T* LLUISingleton<T,U>::sInstance = NULL;
+
+class LLClipRect
+{
+public:
+	LLClipRect(const LLRect& rect, BOOL enabled = TRUE);
+	virtual ~LLClipRect();
+protected:
+	LLGLState		mScissorState;
+	BOOL			mEnabled;
+};
+
+class LLLocalClipRect
+{
+public:
+	LLLocalClipRect(const LLRect& rect, BOOL enabled = TRUE);
+	virtual ~LLLocalClipRect();
+protected:
+	LLGLState		mScissorState;
+	BOOL			mEnabled;
+};
 
 #endif

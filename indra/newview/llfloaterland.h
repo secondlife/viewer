@@ -21,6 +21,7 @@ const F32 CACHE_REFRESH_TIME	= 2.5f;
 
 class LLTextBox;
 class LLCheckBoxCtrl;
+class LLRadioGroup;
 class LLComboBox;
 class LLButton;
 class LLNameListCtrl;
@@ -348,6 +349,7 @@ public:
 
 protected:
 	LLCheckBoxCtrl* mCheckSoundLocal;
+	LLRadioGroup*	mRadioVoiceChat;
 	LLLineEditor*	mMusicURLEdit;
 	LLLineEditor*	mMediaURLEdit;
 	LLTextureCtrl*	mMediaTextureCtrl;

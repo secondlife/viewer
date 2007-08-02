@@ -96,6 +96,12 @@
 
 //#include "vtune/vtuneapi.h"
 
+//Ventrella
+#include "llgesturemgr.h" //needed to trigger the voice gestculations
+#include "llvoicevisualizer.h" 
+#include "llvoiceclient.h"
+//end Ventrella
+
 // Direct imports, evil
 extern LLSky gSky;
 extern void set_avatar_character(void* charNameArg);
@@ -127,9 +133,7 @@ const F32 PELVIS_LAG_WALKING	= 0.4f;	// ...while walking
 const F32 PELVIS_LAG_MOUSELOOK = 0.15f;
 const F32 MOUSELOOK_PELVIS_FOLLOW_FACTOR = 0.5f;
 
-//Ventrella
 const F32 PELVIS_LAG_WHEN_FOLLOW_CAM_IS_ON = 0.0001f; // not zero! - something gets divided by this!
-//end Ventrella
 
 #define PELVIS_ROT_THRESHOLD_SLOW	60.0f	// amount of deviation allowed between
 #define PELVIS_ROT_THRESHOLD_FAST	2.0f	// the pelvis and the view direction
@@ -200,10 +204,6 @@ const S32 MAX_BUBBLE_CHAT_UTTERANCES = 12;
 const F32 CHAT_FADE_TIME = 8.0;
 const F32 BUBBLE_CHAT_TIME = CHAT_FADE_TIME * 3.f;
 const S32 MAX_BUBBLES = 7;
-
-
-const bool USING_VENTRELLA_AVATAR_MOTION_TEST = false;
-
 
 S32 LLVOAvatar::sMaxVisible = 50;
 
@@ -435,121 +435,16 @@ public:
 	// called after parameters have been set
 	// must return true to indicate success and be available for activation
 	virtual LLMotionInitStatus onInitialize(LLCharacter *character)
-	{
-		//Ventrella
-		// I'm replacing the code below because I need to change 
-		// the logic in order to add other body parts
-		/*
+	{		
 		mCharacter = character;
-
-		if (!mChestState.setJoint( character->getJoint("mChest")))
-		{
-			return STATUS_FAILURE;
-		}
-
-		mChestState.setUsage(LLJointState::ROT);
-
-		addJointState( &mChestState );
-		return STATUS_SUCCESS;
-		*/
-
-
 		bool success = true;
 
 		if ( !mChestState.setJoint( character->getJoint( "mChest" ) ) ) { success = false; }
-
-		if ( USING_VENTRELLA_AVATAR_MOTION_TEST )
-		{
-			if ( !mNeckState.setJoint			( character->getJoint( "mNeck"			)) ) { success = false; }
-
-			if ( !mCollarLeftState.setJoint		( character->getJoint( "mCollarLeft"	)) ) { success = false; }
-			if ( !mShoulderLeftState.setJoint	( character->getJoint( "mShoulderLeft"	)) ) { success = false; }
-			if ( !mElbowLeftState.setJoint		( character->getJoint( "mElbowLeft"		)) ) { success = false; }
-			if ( !mWristLeftState.setJoint		( character->getJoint( "mWristLeft"		)) ) { success = false; }
-
-			if ( !mCollarRightState.setJoint	( character->getJoint( "mCollarRight"	)) ) { success = false; }
-			if ( !mShoulderRightState.setJoint	( character->getJoint( "mShoulderRight"	)) ) { success = false; }
-			if ( !mElbowRightState.setJoint		( character->getJoint( "mElbowRight"	)) ) { success = false; }
-			if ( !mWristRightState.setJoint		( character->getJoint( "mWristRight"	)) ) { success = false; }
-
-			if ( !mHipLeftState.setJoint		( character->getJoint( "mHipLeft"		)) ) { success = false; }
-			if ( !mKneeLeftState.setJoint		( character->getJoint( "mKneeLeft"		)) ) { success = false; }
-			if ( !mAnkleLeftState.setJoint		( character->getJoint( "mAnkleLeft"		)) ) { success = false; }
-
-			if ( !mHipRightState.setJoint		( character->getJoint( "mHipRight"		)) ) { success = false; }
-			if ( !mKneeRightState.setJoint		( character->getJoint( "mKneeRight"		)) ) { success = false; }
-			if ( !mAnkleRightState.setJoint		( character->getJoint( "mAnkleRight"	)) ) { success = false; }
-		}
 
 		if ( success )
 		{
 			mChestState.setUsage(LLJointState::ROT);
 			addJointState( &mChestState );
-
-			if ( USING_VENTRELLA_AVATAR_MOTION_TEST )
-			{
-				//-------------------------------------------
-				// neck
-				//-------------------------------------------
-				mNeckState.setUsage(LLJointState::ROT);
-				addJointState( &mNeckState );
-
-				//-------------------------------------------
-				// left arm
-				//-------------------------------------------
-				mCollarLeftState.setUsage(LLJointState::ROT);
-				addJointState( &mCollarLeftState );
-
-				mShoulderLeftState.setUsage(LLJointState::ROT);
-				addJointState( &mShoulderLeftState );
-
-				mElbowLeftState.setUsage(LLJointState::ROT);
-				addJointState( &mElbowLeftState );
-
-				mWristLeftState.setUsage(LLJointState::ROT);
-				addJointState( &mWristLeftState );
-
-
-				//-------------------------------------------
-				// right arm
-				//-------------------------------------------
-				mCollarRightState.setUsage(LLJointState::ROT);
-				addJointState( &mCollarRightState );
-
-				mShoulderRightState.setUsage(LLJointState::ROT);
-				addJointState( &mShoulderRightState );
-
-				mElbowRightState.setUsage(LLJointState::ROT);
-				addJointState( &mElbowRightState );
-
-				mWristRightState.setUsage(LLJointState::ROT);
-				addJointState( &mWristRightState );
-
-				//-------------------------------------------
-				// left leg
-				//-------------------------------------------
-				mHipLeftState.setUsage(LLJointState::ROT);
-				addJointState( &mHipLeftState );
-
-				mKneeLeftState.setUsage(LLJointState::ROT);
-				addJointState( &mKneeLeftState );
-
-				mAnkleLeftState.setUsage(LLJointState::ROT);
-				addJointState( &mAnkleLeftState );
-
-
-				//-------------------------------------------
-				// right leg
-				//-------------------------------------------
-				mHipRightState.setUsage(LLJointState::ROT);
-				addJointState( &mHipRightState );
-
-				mKneeRightState.setUsage(LLJointState::ROT);
-				addJointState( &mKneeRightState );
-
-				mAnkleRightState.setUsage(LLJointState::ROT);
-				addJointState( &mAnkleRightState );
-			}
 		}
 
 		if ( success )
@@ -560,7 +455,6 @@ public:
 		{
 			return STATUS_FAILURE;
 		}
-		//end Ventrella
 	}
 
 	// called when a motion is activated
@@ -579,36 +473,8 @@ public:
 
 		mChestState.setRotation(LLQuaternion(breathe_amt, LLVector3(0.f, 1.f, 0.f)));
 
-		//Ventrella
-		if ( USING_VENTRELLA_AVATAR_MOTION_TEST )
-		{
-			F32 wave = ( sinf ( time * 2.0f ) * 0.5f );
-
-			mChestState.setRotation			( LLQuaternion( wave, LLVector3(  -1.0f,  0.0f,  0.0f ) ) );
-
-			mCollarLeftState.setRotation	( LLQuaternion( wave, LLVector3(  1.0f,  0.0f,  0.0f ) ) );
-			mShoulderLeftState.setRotation	( LLQuaternion( wave, LLVector3(  1.0f,  0.0f,  0.0f ) ) );
-			mElbowLeftState.setRotation		( LLQuaternion( wave, LLVector3(  0.0f,  0.0f,  1.0f ) ) );
-			mWristLeftState.setRotation		( LLQuaternion( wave, LLVector3(  1.0f,  0.0f,  0.0f ) ) );
-
-			mCollarRightState.setRotation	( LLQuaternion( wave, LLVector3( -1.0f,  0.0f,  0.0f ) ) );
-			mShoulderRightState.setRotation	( LLQuaternion( wave, LLVector3(  1.0f,  0.0f,  0.0f ) ) );
-			mElbowRightState.setRotation	( LLQuaternion( wave, LLVector3(  0.0f,  0.0f,  1.0f ) ) );
-			mWristRightState.setRotation	( LLQuaternion( wave, LLVector3(  1.0f,  0.0f,  0.0f ) ) );
-
-			mHipLeftState.setRotation		( LLQuaternion( wave, LLVector3(  0.0f,  1.0f,  0.0f ) ) );
-			mKneeLeftState.setRotation		( LLQuaternion( wave, LLVector3(  0.0f, -1.0f,  0.0f ) ) );
-			mAnkleLeftState.setRotation		( LLQuaternion( wave, LLVector3(  0.0f,  1.0f,  0.0f ) ) );
-
-			mHipRightState.setRotation		( LLQuaternion( wave, LLVector3(  0.0f,  1.0f,  0.0f ) ) );
-			mKneeRightState.setRotation		( LLQuaternion( wave, LLVector3(  0.0f, -1.0f,  0.0f ) ) );
-			mAnkleRightState.setRotation	( LLQuaternion( wave, LLVector3(  0.0f,  1.0f,  0.0f ) ) );
-		}
-		//end Ventrella
-
 		return TRUE;
 	}
-
 
 	// called when a motion is deactivated
 	virtual void onDeactivate() {}
@@ -617,26 +483,7 @@ public:
 	//-------------------------------------------------------------------------
 	// joint states to be animated
 	//-------------------------------------------------------------------------
-	LLJointState		mChestState;
-
-	//Ventrella
-	LLJointState	mNeckState;
-	LLJointState	mCollarLeftState;
-	LLJointState	mShoulderLeftState;
-	LLJointState	mElbowLeftState;
-	LLJointState	mWristLeftState;
-	LLJointState	mCollarRightState;
-	LLJointState	mShoulderRightState;
-	LLJointState	mElbowRightState;
-	LLJointState	mWristRightState;
-	LLJointState	mHipLeftState;
-	LLJointState	mKneeLeftState;
-	LLJointState	mAnkleLeftState;
-	LLJointState	mHipRightState;
-	LLJointState	mKneeRightState;
-	LLJointState	mAnkleRightState;
-	//end Ventrella
-
+	LLJointState		mChestState;	
 	F32					mBreatheRate;
 	LLCharacter*		mCharacter;
 };
@@ -799,6 +646,10 @@ LLVOAvatar::LLVOAvatar(
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	
 	//VTResume();  // VTune
+	
+	// mVoiceVisualizer is created by the hud effects manager and uses the HUD Effects pipeline
+	bool needsSendToSim = false; // currently, this HUD effect doesn't need to pack and unpack data to do its job
+	mVoiceVisualizer = ( LLVoiceVisualizer *)gHUDManager->createViewerEffect( LLHUDObject::LL_HUD_EFFECT_VOICE_VISUALIZER, needsSendToSim );
 
 	lldebugs << "LLVOAvatar Constructor (0x" << this << ") id:" << mID << llendl;
 
@@ -1049,9 +900,13 @@ LLVOAvatar::LLVOAvatar(
 	createMotion( ANIM_AGENT_CUSTOMIZE_DONE);
 
 	//VTPause();  // VTune
+	
+	//Ventrella
+	mVoiceVisualizer->setVoiceEnabled( gVoiceClient->getVoiceEnabled( mID ) );
+	mCurrentGesticulationLevel = 0;		
+	//END Ventrella
 }
 
-					
 //------------------------------------------------------------------------
 // LLVOAvatar::~LLVOAvatar()
 //------------------------------------------------------------------------
@@ -1122,6 +977,8 @@ void LLVOAvatar::markDead()
 		mNameText = NULL;
 		sNumVisibleChatBubbles--;
 	}
+
+	mVoiceVisualizer->markDead();
 
 	mBeam = NULL;
 	LLViewerObject::markDead();
@@ -2439,7 +2296,84 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 
 	updateCharacter(agent);
 	
+	//Ventrella
+	bool voiceEnabled = gVoiceClient->getVoiceEnabled( mID ) && gVoiceClient->inProximalChannel();
+	// disable voice visualizer when in mouselook
+	mVoiceVisualizer->setVoiceEnabled( voiceEnabled && !(mIsSelf && gAgent.cameraMouselook()) );
+	if ( voiceEnabled )
+	{		
+		//----------------------------------------------------------------
+		// Only do gesture triggering for your own avatar, and only when you're in a proximal channel.
+		//----------------------------------------------------------------
+		if( mIsSelf )
+		{
+			//----------------------------------------------------------------------------------------
+			// The following takes the voice signal and uses that to trigger gesticulations. 
+			//----------------------------------------------------------------------------------------
+			int lastGesticulationLevel = mCurrentGesticulationLevel;
+			mCurrentGesticulationLevel = mVoiceVisualizer->getCurrentGesticulationLevel();
+			
+			//---------------------------------------------------------------------------------------------------
+			// If "current gesticulation level" changes, we catch this, and trigger the new gesture
+			//---------------------------------------------------------------------------------------------------
+			if ( lastGesticulationLevel != mCurrentGesticulationLevel )
+			{
+				if ( mCurrentGesticulationLevel != VOICE_GESTICULATION_LEVEL_OFF )
+				{
+					LLString gestureString = "unInitialized";
+							if ( mCurrentGesticulationLevel == 0 )	{ gestureString = "/voicelevel1";	}
+					else	if ( mCurrentGesticulationLevel == 1 )	{ gestureString = "/voicelevel2";	}
+					else	if ( mCurrentGesticulationLevel == 2 )	{ gestureString = "/voicelevel3";	}
+					else	{ printf( "oops - CurrentGesticulationLevel can be only 0, 1, or 2\n" ); }
+					
+					// this is the call that Karl S. created for triggering gestures from within the code.
+					gGestureManager.triggerAndReviseString( gestureString );
+				}
+			}
+			
+		} //if( mIsSelf )
 
+		//-----------------------------------------------------------------------------------------------------------------
+		// If the avatar is speaking, then the voice amplitude signal is passed to the voice visualizer.
+		// Also, here we trigger voice visualizer start and stop speaking, so it can animate the voice symbol.
+		//
+		// Notice the calls to "gAwayTimer.reset()". This resets the timer that determines how long the avatar has been
+		// "away", so that the avatar doesn't lapse into away-mode (and slump over) while the user is still talking. 
+		//-----------------------------------------------------------------------------------------------------------------
+		if ( gVoiceClient->getIsSpeaking( mID ) )
+		{
+			if ( ! mVoiceVisualizer->getCurrentlySpeaking() )
+			{
+				mVoiceVisualizer->setStartSpeaking();
+				
+				//printf( "gAwayTimer.reset();\n" );
+			}
+
+			mVoiceVisualizer->setSpeakingAmplitude( gVoiceClient->getCurrentPower( mID ) );
+
+			if( mIsSelf )
+			{
+				gAgent.clearAFK();
+			}
+		}
+		else
+		{
+			if ( mVoiceVisualizer->getCurrentlySpeaking() )
+			{
+				mVoiceVisualizer->setStopSpeaking();
+			}
+		}
+
+		//--------------------------------------------------------------------------------------------
+		// here we get the approximate head position and set as sound source for the voice symbol
+		// (the following version uses a tweak of "mHeadOffset" which handle sitting vs. standing)
+		//--------------------------------------------------------------------------------------------
+		LLVector3 headOffset = LLVector3( 0.0f, 0.0f, mHeadOffset.mV[2] );
+		mVoiceVisualizer->setVoiceSourceWorldPosition( mRoot.getWorldPosition() + headOffset );
+
+	}//if ( voiceEnabled )
+	//End  Ventrella
+	
 		
 	if (LLVOAvatar::sJointDebug)
 	{
@@ -2448,7 +2382,6 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 
 	LLJoint::sNumUpdates = 0;
 	LLJoint::sNumTouches = 0;
-
 
 	if (gNoRender)
 	{
@@ -3252,14 +3185,7 @@ void LLVOAvatar::updateCharacter(LLAgent &agent)
 
 			LLVector3 pelvisDir( mRoot.getWorldMatrix().getFwdRow4().mV );
 			F32 pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, PELVIS_ROT_THRESHOLD_SLOW, PELVIS_ROT_THRESHOLD_FAST);
-			
-			//Ventrella
-			//if ( gAgent.getCameraMode() == CAMERA_MODE_FOLLOW )
-			//{
-			//	pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, 1.0f, 1.0f);
-			//}
-			//end Ventrella
-			
+						
 			if (self_in_mouselook)
 			{
 				pelvis_rot_threshold *= MOUSELOOK_PELVIS_FOLLOW_FACTOR;
@@ -3336,13 +3262,6 @@ void LLVOAvatar::updateCharacter(LLAgent &agent)
 			{
 				pelvis_lag_time = PELVIS_LAG_WALKING;
 			}
-
-			//Ventrella
-			//if ( gAgent.getCameraMode() == CAMERA_MODE_FOLLOW )
-			//{
-			//	pelvis_lag_time = PELVIS_LAG_WHEN_FOLLOW_CAM_IS_ON;
-			//}
-			//end Ventrella
 
 			F32 u = llclamp((deltaTime / pelvis_lag_time), 0.0f, 1.0f);	
 
@@ -3461,13 +3380,13 @@ void LLVOAvatar::updateCharacter(LLAgent &agent)
 //							AUDIO_STEP_LO_SPEED, AUDIO_STEP_HI_SPEED,
 //							AUDIO_STEP_LO_GAIN, AUDIO_STEP_HI_GAIN );
 
-			F32 gain = gSavedSettings.getF32("AudioLevelFootsteps");
+			F32 gain = .30f * gSavedSettings.getF32("AudioLevelAmbient");
 			LLUUID& step_sound_id = getStepSound();
 
 			LLVector3d foot_pos_global = gAgent.getPosGlobalFromAgent(foot_pos_agent);
 
 			if (gParcelMgr && gParcelMgr->canHearSound(foot_pos_global)
-				&& gMuteListp && !gMuteListp->isMuted(getID()))
+				&& gMuteListp && !gMuteListp->isMuted(getID(), LLMute::flagObjectSounds))
 			{
 				gAudiop->triggerSound(step_sound_id, getID(), gain, foot_pos_global);
 			}
@@ -3475,6 +3394,32 @@ void LLVOAvatar::updateCharacter(LLAgent &agent)
 	}
 
 	mRoot.updateWorldMatrixChildren();
+
+	// Send the speaker position to the spatialized voice system.
+	if(mIsSelf)
+	{
+		LLMatrix3 rot;
+		LLVector3d pos;
+#if 1
+		// character rotation (stable, shouldn't move with animations)
+		rot = mRoot.getWorldRotation().getMatrix3();
+#else	
+		// actual head rotation (moves with animations, probably a bit too much)
+		rot.setRows(
+				LLVector3::x_axis * mSkullp->getWorldRotation(), 
+				LLVector3::y_axis * mSkullp->getWorldRotation(),  
+				LLVector3::z_axis * mSkullp->getWorldRotation());		
+#endif
+	
+		pos = getPositionGlobal();
+		pos += LLVector3d(mHeadOffset);
+		
+		// MBW -- XXX -- Setting velocity to 0 for now.  May figure it out later...
+		gVoiceClient->setAvatarPosition(
+				pos,				// position
+				LLVector3::zero, 	// velocity
+				rot);				// rotation matrix
+	}
 
 	if (!mDebugText.size() && mText.notNull())
 	{
@@ -4398,18 +4343,20 @@ BOOL LLVOAvatar::processSingleAnimationStateChange( const LLUUID& anim_id, BOOL 
 			{
 				LLVector3d char_pos_global = gAgent.getPosGlobalFromAgent(getCharacterPosition());
 				if (gParcelMgr && gParcelMgr->canHearSound(char_pos_global)
-					&& gMuteListp && !gMuteListp->isMuted(getID()))
+					&& gMuteListp && !gMuteListp->isMuted(getID(), LLMute::flagObjectSounds))
 				{
 					// RN: uncomment this to play on typing sound at fixed volume once sound engine is fixed
 					// to support both spatialized and non-spatialized instances of the same sound
 					//if (mIsSelf)
 					//{
-					//	gAudiop->triggerSound(LLUUID(gSavedSettings.getString("UISndTyping")), 0.8f);
+					//  F32 volume = gain * gSavedSettings.getF32("AudioLevelUI")
+					//	gAudiop->triggerSound(LLUUID(gSavedSettings.getString("UISndTyping")), volume);
 					//}
 					//else
 					{
 						LLUUID sound_id = LLUUID(gSavedSettings.getString("UISndTyping"));
-						gAudiop->triggerSound(sound_id, getID(), 1.f, char_pos_global);
+						F32 volume = gSavedSettings.getF32("AudioLevelSFX");
+						gAudiop->triggerSound(sound_id, getID(), volume, char_pos_global);
 					}
 				}
 			}

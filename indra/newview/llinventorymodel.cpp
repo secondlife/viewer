@@ -1466,11 +1466,18 @@ bool LLInventoryModel::loadSkeleton(
 			{
 				LLViewerInventoryCategory* cat = categories[i];
 				cat_set_t::iterator cit = temp_cats.find(cat);
+				if (cit == temp_cats.end())
+				{
+					continue; // cache corruption?? not sure why this happens -SJB
+				}
 				LLViewerInventoryCategory* tcat = *cit;
 				
 				// we can safely ignore anything loaded from file, but
 				// not sent down in the skeleton.
-				if(cit == not_cached) continue;
+				if(cit == not_cached)
+				{
+					continue;
+				}
 				if(cat->getVersion() != tcat->getVersion())
 				{
 					// if the cached version does not match the server version,

@@ -274,6 +274,7 @@ S32 LLAvatarTracker::addBuddyList(const LLAvatarTracker::buddy_map_t& buds)
 					<< "]" << llendl;
 		}
 	}
+	notifyObservers();
 	
 	return new_buddy_count;
 }

@@ -14,6 +14,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloaterchat.h"
+#include "llfloateractivespeakers.h"
 #include "llfloaterscriptdebug.h"
 
 #include "llchat.h"
@@ -29,11 +30,13 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "llconsole.h"
+#include "llfloaterchatterbox.h"
 #include "llfloatermute.h"
 #include "llkeyboard.h"
 //#include "lllineeditor.h"
 #include "llmutelist.h"
 //#include "llresizehandle.h"
+#include "llchatbar.h"
 #include "llstatusbar.h"
 #include "llviewertexteditor.h"
 #include "llviewergesture.h"			// for triggering gestures
@@ -50,7 +53,6 @@
 //
 // Constants
 //
-const char FLOATER_TITLE[] = "Chat History";
 const F32 INSTANT_MSG_SIZE = 8.0f;
 const F32 CHAT_MSG_SIZE = 8.0f;
 const LLColor4 INSTANT_MSG_COLOR(1, 1, 1, 1);
@@ -60,25 +62,25 @@ const S32 MAX_CHATTER_COUNT = 16;
 //
 // Global statics
 //
-LLFloaterChat* gFloaterChat = NULL;
-
 LLColor4 get_text_color(const LLChat& chat);
 
 //
 // Member Functions
 //
-LLFloaterChat::LLFloaterChat()
-:	LLFloater("chat floater", "FloaterChatRect", FLOATER_TITLE, 
-			  RESIZE_YES, 440, 100, DRAG_ON_TOP, MINIMIZE_NO, CLOSE_YES)
+LLFloaterChat::LLFloaterChat(const LLSD& seed)
+:	LLFloater("chat floater", "FloaterChatRect", "", 
+			  RESIZE_YES, 440, 100, DRAG_ON_TOP, MINIMIZE_NO, CLOSE_YES),
+	mPanel(NULL)
 {
-	
-	gUICtrlFactory->buildFloater(this,"floater_chat_history.xml");
+	mFactoryMap["chat_panel"] = LLCallbackMap(createChatPanel, NULL);
+	mFactoryMap["active_speakers_panel"] = LLCallbackMap(createSpeakersPanel, NULL);
+	// do not automatically open singleton floaters (as result of getInstance())
+	BOOL no_open = FALSE;
+	gUICtrlFactory->buildFloater(this,"floater_chat_history.xml",&getFactoryMap(),no_open);
 
-	childSetAction("Mute resident",onClickMute,this);
-	childSetAction("Chat", onClickChat, this);
-	childSetCommitCallback("chatter combobox",onCommitUserSelect,this);
 	childSetCommitCallback("show mutes",onClickToggleShowMute,this); //show mutes
 	childSetVisible("Chat History Editor with mute",FALSE);
+	childSetAction("toggle_active_speakers_btn", onClickToggleActiveSpeakers, this);
 	setDefaultBtn("Chat");
 }
 
@@ -92,32 +94,52 @@ void LLFloaterChat::setVisible(BOOL visible)
 	LLFloater::setVisible( visible );
 
 	gSavedSettings.setBOOL("ShowChatHistory", visible);
-
-	// Hide the chat overlay when our history is visible.
-	gConsole->setVisible( !visible );
 }
 
+void LLFloaterChat::draw()
+{
+	// enable say and shout only when text available
+		
+	childSetValue("toggle_active_speakers_btn", childIsVisible("active_speakers_panel"));
+
+	LLChatBar* chat_barp = (LLChatBar*)getChildByName("chat_panel", TRUE);
+	if (chat_barp)
+	{
+		chat_barp->refresh();
+	}
+
+	mPanel->refreshSpeakers();
+	LLFloater::draw();
+}
+
+BOOL LLFloaterChat::postBuild()
+{
+	mPanel = (LLPanelActiveSpeakers*)LLUICtrlFactory::getPanelByName(this, "active_speakers_panel");
+
+	LLChatBar* chat_barp = (LLChatBar*)getChildByName("chat_panel", TRUE);
+	if (chat_barp)
+	{
+		chat_barp->setGestureCombo(LLUICtrlFactory::getComboBoxByName(this, "Gesture"));
+	}
+	return TRUE;
+}
 
 // public virtual
 void LLFloaterChat::onClose(bool app_quitting)
 {
-	LLFloater::setVisible( FALSE );
-
 	if (!app_quitting)
 	{
 		gSavedSettings.setBOOL("ShowChatHistory", FALSE);
 	}
-
-	// Hide the chat overlay when our history is visible.
-	gConsole->setVisible( TRUE );
+	setVisible(FALSE);
 }
 
-
-// public
-void LLFloaterChat::show()
+void LLFloaterChat::onVisibilityChange(BOOL new_visibility)
 {
-	open();		/*Flawfinder: ignore*/
+	// Hide the chat overlay when our history is visible.
+	gConsole->setVisible( !new_visibility );
 }
+
 
 void add_timestamped_line(LLViewerTextEditor* edit, const LLString& line, const LLColor4& color)
 {
@@ -142,7 +164,7 @@ void log_chat_text(const LLChat& chat)
 }
 // static
 void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
-{
+{	
 	if ( gSavedPerAccountSettings.getBOOL("LogChat") && log_to_file) 
 	{
 		log_chat_text(chat);
@@ -165,10 +187,9 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 	}
 	
 	// could flash the chat button in the status bar here. JC
-	if (!gFloaterChat) return;
-
-	LLViewerTextEditor*	history_editor = (LLViewerTextEditor*)gFloaterChat->getChildByName("Chat History Editor");
-	LLViewerTextEditor*	history_editor_with_mute = (LLViewerTextEditor*)gFloaterChat->getChildByName("Chat History Editor with mute");
+	LLFloaterChat* chat_floater = LLFloaterChat::getInstance(LLSD());
+	LLViewerTextEditor*	history_editor = (LLViewerTextEditor*)chat_floater->getChildByName("Chat History Editor", TRUE);
+	LLViewerTextEditor*	history_editor_with_mute = (LLViewerTextEditor*)chat_floater->getChildByName("Chat History Editor with mute", TRUE);
 
 	history_editor->setParseHTML(TRUE);
 	history_editor_with_mute->setParseHTML(TRUE);
@@ -184,77 +205,24 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 		LLColor4 muted_color = lerp(color, LLColor4::grey, 0.5f);
 		add_timestamped_line(history_editor_with_mute, chat.mText, color);
 	}
-
-	if (!chat.mMuted
-		&& chat.mSourceType != CHAT_SOURCE_SYSTEM
-		&& chat.mFromID.notNull()
-		&& chat.mFromID != gAgent.getID())
+	
+	// add objects as transient speakers that can be muted
+	if (chat.mSourceType == CHAT_SOURCE_OBJECT)
 	{
-			
-		LLComboBox*	chatter_combo = LLUICtrlFactory::getComboBoxByName(gFloaterChat,"chatter combobox");
-		
-		if(!chatter_combo)
-		{
-			return;
-		}
-
-		if (!chatter_combo->setCurrentByID(chat.mFromID))
-		{
-			// if we have too many items...
-			if (chatter_combo->getItemCount() >= MAX_CHATTER_COUNT)
-			{
-				chatter_combo->remove(0);
-			}
-			
-			LLMute mute(chat.mFromID, chat.mFromName);
-			if (chat.mSourceType == CHAT_SOURCE_OBJECT)
-			{
-				mute.mType = LLMute::OBJECT;
-			}
-			else if (chat.mSourceType == CHAT_SOURCE_AGENT)
-			{
-				mute.mType = LLMute::AGENT;
-			}
-			LLString item = mute.getDisplayName();
-			chatter_combo->add(item, chat.mFromID);
-			chatter_combo->setCurrentByIndex(chatter_combo->getItemCount() - 1);
-			gFloaterChat->childSetEnabled("Mute resident",TRUE);
-		}
+		chat_floater->mPanel->setSpeaker(chat.mFromID, chat.mFromName, LLSpeaker::STATUS_NOT_IN_CHANNEL, LLSpeaker::SPEAKER_OBJECT);
 	}
 }
 
 // static
 void LLFloaterChat::setHistoryCursorAndScrollToEnd()
 {
-	if (gFloaterChat)
-	{
-		LLViewerTextEditor*	history_editor = (LLViewerTextEditor*)gFloaterChat->getChildByName("Chat History Editor");
-		LLViewerTextEditor*	history_editor_with_mute = (LLViewerTextEditor*)gFloaterChat->getChildByName("Chat History Editor with mute");
-		
-		history_editor->setCursorAndScrollToEnd();
-		history_editor_with_mute->setCursorAndScrollToEnd();
-	}
+	LLViewerTextEditor*	history_editor = (LLViewerTextEditor*)LLFloaterChat::getInstance(LLSD())->getChildByName("Chat History Editor", TRUE);
+	LLViewerTextEditor*	history_editor_with_mute = (LLViewerTextEditor*)LLFloaterChat::getInstance(LLSD())->getChildByName("Chat History Editor with mute", TRUE);
+	
+	history_editor->setCursorAndScrollToEnd();
+	history_editor_with_mute->setCursorAndScrollToEnd();
 }
 
-
-// static
-void LLFloaterChat::toggle(void*)
-{
-	if (gFloaterChat->getVisible())
-	{
-		gFloaterChat->close();
-	}
-	else
-	{
-		gFloaterChat->show();
-	}
-}
-
-// static
-BOOL LLFloaterChat::visible(void*)
-{
-	return (gFloaterChat && gFloaterChat->getVisible());
-}
 
 //static 
 void LLFloaterChat::onClickMute(void *data)
@@ -279,30 +247,6 @@ void LLFloaterChat::onClickMute(void *data)
 }
 
 //static
-void LLFloaterChat::onClickChat(void*)
-{
-	// we need this function as a level of indirection because otherwise startChat would
-	// cast the data pointer to a character string, and dump garbage in the chat
-	LLChatBar::startChat(NULL);
-}
-
-//static 
-void LLFloaterChat::onCommitUserSelect(LLUICtrl* caller, void* data)
-{
-	LLFloaterChat* floater = (LLFloaterChat*)data;
-	LLComboBox* combo = (LLComboBox*)caller;
-
-	if (combo->getCurrentIndex() == -1)
-	{
-		floater->childSetEnabled("Mute resident",FALSE);
-	}
-	else
-	{
-		floater->childSetEnabled("Mute resident",TRUE);
-	}
-}
-
-//static
 void LLFloaterChat::onClickToggleShowMute(LLUICtrl* caller, void *data)
 {
 	LLFloaterChat* floater = (LLFloaterChat*)data;
@@ -310,8 +254,8 @@ void LLFloaterChat::onClickToggleShowMute(LLUICtrl* caller, void *data)
 
 	//LLCheckBoxCtrl*	
 	BOOL show_mute = LLUICtrlFactory::getCheckBoxByName(floater,"show mutes")->get();
-	LLViewerTextEditor*	history_editor = (LLViewerTextEditor*)floater->getChildByName("Chat History Editor");
-	LLViewerTextEditor*	history_editor_with_mute = (LLViewerTextEditor*)floater->getChildByName("Chat History Editor with mute");
+	LLViewerTextEditor*	history_editor = (LLViewerTextEditor*)floater->getChildByName("Chat History Editor", TRUE);
+	LLViewerTextEditor*	history_editor_with_mute = (LLViewerTextEditor*)floater->getChildByName("Chat History Editor with mute", TRUE);
 
 	if (!history_editor || !history_editor_with_mute)
 		return;
@@ -427,7 +371,7 @@ LLColor4 get_text_color(const LLChat& chat)
 //static
 void LLFloaterChat::loadHistory()
 {
-	LLLogChat::loadHistory("chat", &chatFromLogFile, (void *)gFloaterChat); 
+	LLLogChat::loadHistory("chat", &chatFromLogFile, (void *)LLFloaterChat::getInstance(LLSD())); 
 }
 
 //static
@@ -438,3 +382,40 @@ void LLFloaterChat::chatFromLogFile(LLString line, void* userdata)
 	chat.mText = line;
 	addChatHistory(chat,  FALSE);
 }
+
+//static
+void* LLFloaterChat::createSpeakersPanel(void* data)
+{
+	return new LLPanelActiveSpeakers(gLocalSpeakerMgr, TRUE);
+}
+
+//static
+void* LLFloaterChat::createChatPanel(void* data)
+{
+	LLChatBar* chatp = new LLChatBar("floating_chat_bar");
+	return chatp;
+}
+
+//static 
+void LLFloaterChat::hideInstance(const LLSD& id)
+{
+	LLFloaterChat* floaterp = LLFloaterChat::getInstance(LLSD());
+	// don't do anything when hosted in the chatterbox
+	if(floaterp->getHost())
+	{
+		LLFloaterChatterBox::hideInstance(LLSD());
+	}
+	else
+	{
+		LLUISingleton<LLFloaterChat>::hideInstance(id);
+	}
+}
+
+// static
+void LLFloaterChat::onClickToggleActiveSpeakers(void* userdata)
+{
+	LLFloaterChat* self = (LLFloaterChat*)userdata;
+
+	self->childSetVisible("active_speakers_panel", !self->childIsVisible("active_speakers_panel"));
+}
+

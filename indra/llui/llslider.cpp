@@ -30,6 +30,7 @@ LLSlider::LLSlider(
 	F32 min_value,
 	F32 max_value,
 	F32 increment,
+	BOOL volume,
 	const LLString& control_name)
 	:
 	LLUICtrl( name, rect, TRUE,	on_commit_callback, callback_userdata, 
@@ -39,6 +40,7 @@ LLSlider::LLSlider(
 	mMinValue( min_value ),
 	mMaxValue( max_value ),
 	mIncrement( increment ),
+	mVolumeSlider( volume ),
 	mMouseOffset( 0 ),
 	mDragStartThumbRect( 0, mRect.getHeight(), THUMB_WIDTH, 0 ),
 	mThumbRect( 0, mRect.getHeight(), THUMB_WIDTH, 0 ),
@@ -49,7 +51,7 @@ LLSlider::LLSlider(
 	mMouseDownCallback( NULL ),
 	mMouseUpCallback( NULL )
 {
-	// prperly handle setting the starting thumb rect
+	// properly handle setting the starting thumb rect
 	// do it this way to handle both the operating-on-settings
 	// and standalone ways of using this
 	setControlName(control_name, NULL);
@@ -74,13 +76,15 @@ void LLSlider::setValue(F32 value, BOOL from_event)
 	value -= mMinValue;
 	value += mIncrement/2.0001f;
 	value -= fmod(value, mIncrement);
-	mValue = mMinValue + value;
+	value += mMinValue;
 
-	if (!from_event)
+	if (!from_event && mValue != value)
 	{
-		setControlValue(mValue);
+		setControlValue(value);
 	}
-	
+
+	mValue = value;
+
 	F32 t = (mValue - mMinValue) / (mMaxValue - mMinValue);
 
 	S32 left_edge = THUMB_WIDTH/2;
@@ -90,6 +94,18 @@ void LLSlider::setValue(F32 value, BOOL from_event)
 	mThumbRect.mLeft = x - (THUMB_WIDTH/2);
 	mThumbRect.mRight = x + (THUMB_WIDTH/2);
 }
+
+void LLSlider::setValueAndCommit(F32 value)
+{
+	F32 old_value = mValue;
+	setValue(value);
+
+	if (mValue != old_value)
+	{
+		onCommit();
+	}
+}
+
 
 F32 LLSlider::getValueF32() const
 {
@@ -107,8 +123,7 @@ BOOL LLSlider::handleHover(S32 x, S32 y, MASK mask)
 		x = llclamp( x, left_edge, right_edge );
 
 		F32 t = F32(x - left_edge) / (right_edge - left_edge);
-		setValue(t * (mMaxValue - mMinValue) + mMinValue );
-		onCommit();
+		setValueAndCommit(t * (mMaxValue - mMinValue) + mMinValue );
 
 		getWindow()->setCursor(UI_CURSOR_ARROW);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (active)" << llendl;		
@@ -158,8 +173,7 @@ BOOL LLSlider::handleMouseDown(S32 x, S32 y, MASK mask)
 
 	if (MASK_CONTROL & mask) // if CTRL is modifying
 	{
-		setValue(mInitialValue);
-		onCommit();
+		setValueAndCommit(mInitialValue);
 	}
 	else
 	{
@@ -196,13 +210,11 @@ BOOL	LLSlider::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 			handled = TRUE;
 			break;
 		case KEY_LEFT:
-			setValue(getValueF32() - getIncrement());
-			onCommit();
+			setValueAndCommit(getValueF32() - getIncrement());
 			handled = TRUE;
 			break;
 		case KEY_RIGHT:
-			setValue(getValueF32() + getIncrement());
-			onCommit();
+			setValueAndCommit(getValueF32() + getIncrement());
 			handled = TRUE;
 			break;
 		default:
@@ -224,33 +236,93 @@ void LLSlider::draw()
 		LLRect rect(mDragStartThumbRect);
 
 		F32 opacity = mEnabled ? 1.f : 0.3f;
+		LLColor4 center_color = (mThumbCenterColor % opacity);
+		LLColor4 outline_color = (mThumbOutlineColor % opacity);
+		LLColor4 track_color = (mTrackColor % opacity);
 
+		LLImageGL* thumb_imagep = NULL;
+		
 		// Track
+		if (mVolumeSlider)
+		{
+			LLRect track(0, mRect.getHeight(), mRect.getWidth(), 0);
 
-		LLUUID thumb_image_id;
-		thumb_image_id.set(LLUI::sAssetsGroup->getString("rounded_square.tga"));
-		LLImageGL* thumb_imagep = LLUI::sImageProvider->getUIImageByID(thumb_image_id);
+			track.mBottom += 3;
+			track.mTop -= 1;
+			track.mRight -= 1;
 
-		S32 height_offset = (mRect.getHeight() - TRACK_HEIGHT) / 2;
-		LLRect track_rect(0, mRect.getHeight() - height_offset, mRect.getWidth(), height_offset );
+			gl_triangle_2d(track.mLeft, track.mBottom,
+						   track.mRight, track.mBottom,
+						   track.mRight, track.mTop,
+						   center_color,
+						   TRUE);
+			gl_triangle_2d(track.mLeft, track.mBottom,
+						   track.mRight, track.mBottom,
+						   track.mRight, track.mTop,
+						   outline_color,
+						   FALSE);
+		}
+		else
+		{
+			LLUUID thumb_image_id;
+			thumb_image_id.set(LLUI::sAssetsGroup->getString("rounded_square.tga"));
+			thumb_imagep = LLUI::sImageProvider->getUIImageByID(thumb_image_id);
 
-		track_rect.stretch(-1);
-		gl_draw_scaled_image_with_border(track_rect.mLeft, track_rect.mBottom, 16, 16, track_rect.getWidth(), track_rect.getHeight(),
-			thumb_imagep, mTrackColor % opacity);
-		//gl_rect_2d( track_rect, mThumbOutlineColor % opacity );
+			S32 height_offset = (mRect.getHeight() - TRACK_HEIGHT) / 2;
+			LLRect track_rect(0, mRect.getHeight() - height_offset, mRect.getWidth(), height_offset );
 
+			track_rect.stretch(-1);
+			gl_draw_scaled_image_with_border(track_rect.mLeft, track_rect.mBottom, 16, 16, track_rect.getWidth(), track_rect.getHeight(),
+											 thumb_imagep, track_color);
+		}
+
+		// Thumb
 		if (!thumb_imagep)
 		{
-			gl_rect_2d(mThumbRect, mThumbCenterColor, TRUE);
-			if (hasMouseCapture())
+			if (mVolumeSlider)
 			{
-				gl_rect_2d(mDragStartThumbRect, mThumbCenterColor % opacity, FALSE);
+				if (hasMouseCapture())
+				{
+					LLRect rect(mDragStartThumbRect);
+					gl_rect_2d( rect, outline_color );
+					rect.stretch(-1);
+					gl_rect_2d( rect, mThumbCenterColor % 0.3f );
+
+					if (hasFocus())
+					{
+						LLRect thumb_rect = mThumbRect;
+						thumb_rect.stretch(llround(lerp(1.f, 3.f, gFocusMgr.getFocusFlashAmt())));
+						gl_rect_2d(thumb_rect, gFocusMgr.getFocusColor());
+					}
+					gl_rect_2d( mThumbRect, mThumbOutlineColor );
+				}
+				else
+				{ 
+					if (hasFocus())
+					{
+						LLRect thumb_rect = mThumbRect;
+						thumb_rect.stretch(llround(lerp(1.f, 3.f, gFocusMgr.getFocusFlashAmt())));
+						gl_rect_2d(thumb_rect, gFocusMgr.getFocusColor());
+					}
+					LLRect rect(mThumbRect);
+					gl_rect_2d(rect, outline_color);
+					rect.stretch(-1);
+					gl_rect_2d( rect, center_color);
+				}
+			}
+			else
+			{
+				gl_rect_2d(mThumbRect, mThumbCenterColor, TRUE);
+				if (hasMouseCapture())
+				{
+					gl_rect_2d(mDragStartThumbRect, center_color, FALSE);
+				}
 			}
 		}
 		else if( hasMouseCapture() )
 		{
 			gl_draw_scaled_image_with_border(mDragStartThumbRect.mLeft, mDragStartThumbRect.mBottom, 16, 16, mDragStartThumbRect.getWidth(), mDragStartThumbRect.getHeight(), 
-				thumb_imagep, mThumbCenterColor % 0.3f, TRUE);
+											 thumb_imagep, mThumbCenterColor % 0.3f, TRUE);
 
 			if (hasFocus())
 			{
@@ -258,20 +330,12 @@ void LLSlider::draw()
 				LLRect highlight_rect = mThumbRect;
 				highlight_rect.stretch(llround(lerp(1.f, 3.f, lerp_amt)));
 				gl_draw_scaled_image_with_border(highlight_rect.mLeft, highlight_rect.mBottom, 16, 16, highlight_rect.getWidth(), highlight_rect.getHeight(),
-					thumb_imagep, gFocusMgr.getFocusColor());
+												 thumb_imagep, gFocusMgr.getFocusColor());
 			}
 
-
 			gl_draw_scaled_image_with_border(mThumbRect.mLeft, mThumbRect.mBottom, 16, 16, mThumbRect.getWidth(), mThumbRect.getHeight(), 
-				thumb_imagep, mThumbOutlineColor, TRUE);
+											 thumb_imagep, mThumbOutlineColor, TRUE);
 
-			//// Start Thumb
-			//gl_rect_2d( mDragStartThumbRect, mThumbOutlineColor % 0.3f );
-			//rect.stretch(-1);
-			//gl_rect_2d( rect, mThumbCenterColor % 0.3f );
-
-			//// Thumb
-			//gl_rect_2d( mThumbRect, mThumbOutlineColor );
 		}
 		else
 		{ 
@@ -281,22 +345,12 @@ void LLSlider::draw()
 				LLRect highlight_rect = mThumbRect;
 				highlight_rect.stretch(llround(lerp(1.f, 3.f, lerp_amt)));
 				gl_draw_scaled_image_with_border(highlight_rect.mLeft, highlight_rect.mBottom, 16, 16, highlight_rect.getWidth(), highlight_rect.getHeight(),
-					thumb_imagep, gFocusMgr.getFocusColor());
+												 thumb_imagep, gFocusMgr.getFocusColor());
 			}
 
 			gl_draw_scaled_image_with_border(mThumbRect.mLeft, mThumbRect.mBottom, 16, 16, mThumbRect.getWidth(), mThumbRect.getHeight(), 
-				thumb_imagep, mThumbCenterColor % opacity, TRUE);
-			//rect = mThumbRect;
-
-			//gl_rect_2d( mThumbRect, mThumbOutlineColor % opacity );
-			//  
-			//rect.stretch(-1);
-
-			//// Thumb
-			//gl_rect_2d( rect, mThumbCenterColor % opacity );
-
+											 thumb_imagep, center_color, TRUE);
 		}
-
 		LLUICtrl::draw();
 	}
 }
@@ -310,6 +364,7 @@ LLXMLNodePtr LLSlider::getXML(bool save_children) const
 	node->createChild("min_val", TRUE)->setFloatValue(getMinValue());
 	node->createChild("max_val", TRUE)->setFloatValue(getMaxValue());
 	node->createChild("increment", TRUE)->setFloatValue(getIncrement());
+	node->createChild("volume", TRUE)->setBoolValue(getVolumeSlider());
 
 	return node;
 }
@@ -336,6 +391,8 @@ LLView* LLSlider::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *fa
 	F32 increment = 0.1f;
 	node->getAttributeF32("increment", increment);
 
+	BOOL volume = node->hasName("volume_slider") ? TRUE : FALSE;
+	node->getAttributeBOOL("volume", volume);
 
 	LLSlider* slider = new LLSlider(name,
 							rect,
@@ -344,7 +401,8 @@ LLView* LLSlider::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *fa
 							initial_value,
 							min_value,
 							max_value,
-							increment);
+							increment,
+							volume);
 
 	slider->initFromXML(node, parent);
 

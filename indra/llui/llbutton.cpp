@@ -197,6 +197,9 @@ void LLButton::init(void (*click_callback)(void*), void *callback_data, const LL
 	mHighlightColor = (				LLUI::sColorsGroup->getColor( "ButtonUnselectedFgColor" ) );
 	mUnselectedBgColor = (				LLUI::sColorsGroup->getColor( "ButtonUnselectedBgColor" ) );
 	mSelectedBgColor = (				LLUI::sColorsGroup->getColor( "ButtonSelectedBgColor" ) );
+
+	mImageOverlayAlignment = LLFontGL::HCENTER;
+	mImageOverlayColor = LLColor4::white;
 }
 
 LLButton::~LLButton()
@@ -607,7 +610,7 @@ void LLButton::draw()
 		// draw overlay image
 		if (mImageOverlay.notNull())
 		{
-			const S32 IMG_PAD = 4;
+			const S32 IMG_PAD = 5;
 			// get max width and height (discard level 0)
 			S32 overlay_width = mImageOverlay->getWidth(0);
 			S32 overlay_height = mImageOverlay->getHeight(0);
@@ -628,7 +631,7 @@ void LLButton::draw()
 					overlay_width, 
 					overlay_height, 
 					mImageOverlay,
-					LLColor4::white);
+					mImageOverlayColor);
 				break;
 			case LLFontGL::HCENTER:
 				gl_draw_scaled_image(
@@ -637,7 +640,7 @@ void LLButton::draw()
 					overlay_width, 
 					overlay_height, 
 					mImageOverlay,
-					LLColor4::white);
+					mImageOverlayColor);
 				break;
 			case LLFontGL::RIGHT:
 				gl_draw_scaled_image(
@@ -646,7 +649,7 @@ void LLButton::draw()
 					overlay_width, 
 					overlay_height, 
 					mImageOverlay,
-					LLColor4::white);
+					mImageOverlayColor);
 				break;
 			default:
 				// draw nothing
@@ -866,7 +869,7 @@ void LLButton::setHoverImages( const LLString& image_name, const LLString& selec
 	setImageHoverSelected(selected_name);
 }
 
-void LLButton::setImageOverlay(const LLString &image_name, LLFontGL::HAlign alignment)
+void LLButton::setImageOverlay(const LLString &image_name, LLFontGL::HAlign alignment, const LLColor4& color)
 {
 	if (image_name.empty())
 	{
@@ -877,6 +880,7 @@ void LLButton::setImageOverlay(const LLString &image_name, LLFontGL::HAlign alig
 		LLUUID overlay_image_id = LLUI::findAssetUUIDByName(image_name);
 		mImageOverlay = LLUI::sImageProvider->getUIImageByID(overlay_image_id);
 		mImageOverlayAlignment = alignment;
+		mImageOverlayColor = color;
 	}
 }
 

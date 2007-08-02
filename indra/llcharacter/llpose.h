@@ -61,7 +61,7 @@ public:
 	S32 getNumJointStates() const;
 };
 
-const S32 JSB_NUM_JOINT_STATES = 4;
+const S32 JSB_NUM_JOINT_STATES = 6;
 
 class LLJointStateBlender
 {

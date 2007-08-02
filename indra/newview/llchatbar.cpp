@@ -27,6 +27,7 @@
 #include "llgesturemgr.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
+#include "llstatusbar.h"
 #include "lltextbox.h"
 #include "lluiconstants.h"
 #include "llviewergesture.h"			// for triggering gestures
@@ -50,15 +51,18 @@ const F32 AGENT_TYPING_TIMEOUT = 5.f;	// seconds
 
 LLChatBar *gChatBar = NULL;
 
-LLChatBarGestureObserver* LLChatBar::sObserver = NULL;
+// legacy calllback glue
+void toggleChatHistory(void* user_data);
 
 
 class LLChatBarGestureObserver : public LLGestureManagerObserver
 {
 public:
-	LLChatBarGestureObserver() {}
+	LLChatBarGestureObserver(LLChatBar* chat_barp) : mChatBar(chat_barp){}
 	virtual ~LLChatBarGestureObserver() {}
-	virtual void changed() { gChatBar->refreshGestures(); }
+	virtual void changed() { mChatBar->refreshGestures(); }
+private:
+	LLChatBar* mChatBar;
 };
 
 
@@ -66,12 +70,29 @@ public:
 // Functions
 //
 
-LLChatBar::LLChatBar(const std::string& name, const LLRect& rect)
+//inline constructor
+// for chat bars embedded in floaters, etc
+LLChatBar::LLChatBar(const std::string& name) 
+:	LLPanel(name, LLRect(), BORDER_NO),
+	mInputEditor(NULL),
+	mGestureLabelTimer(),
+	mLastSpecialChatChannel(0),
+	mIsBuilt(FALSE),
+	mDynamicLayout(FALSE),
+	mGestureCombo(NULL),
+	mObserver(NULL)
+{
+}
+
+LLChatBar::LLChatBar(const std::string& name, const LLRect& rect) 
 :	LLPanel(name, rect, BORDER_NO),
 	mInputEditor(NULL),
 	mGestureLabelTimer(),
 	mLastSpecialChatChannel(0),
-	mIsBuilt(FALSE)
+	mIsBuilt(FALSE),
+	mDynamicLayout(TRUE),
+	mGestureCombo(NULL),
+	mObserver(NULL)
 {
 	setIsChrome(TRUE);
 	
@@ -87,29 +108,6 @@ LLChatBar::LLChatBar(const std::string& name, const LLRect& rect)
 	// Start visible if we left the app while chatting.
 	setVisible( gSavedSettings.getBOOL("ChatVisible") );
 
-	mInputEditor = LLUICtrlFactory::getLineEditorByName(this, "Chat Editor");
-	if (mInputEditor)
-	{
-		mInputEditor->setCallbackUserData(this);
-		mInputEditor->setKeystrokeCallback(&onInputEditorKeystroke);
-		mInputEditor->setFocusLostCallback(&onInputEditorFocusLost);
-		mInputEditor->setFocusReceivedCallback( &onInputEditorGainFocus );
-		mInputEditor->setCommitOnFocusLost( FALSE );
-		mInputEditor->setRevertOnEsc( FALSE );
-		mInputEditor->setIgnoreTab(TRUE);
-		mInputEditor->setPassDelete(TRUE);
-		mInputEditor->setMaxTextLength(1023);
-		mInputEditor->setEnableLineHistory(TRUE);
-	}
-
-	// Build the list of gestures
-	refreshGestures();
-
-	sObserver = new LLChatBarGestureObserver;
-	gGestureManager.addObserver(sObserver);
-
-	mIsBuilt = TRUE;
-	
 	// Apply custom layout.
 	layout();
 
@@ -122,22 +120,42 @@ LLChatBar::LLChatBar(const std::string& name, const LLRect& rect)
 
 LLChatBar::~LLChatBar()
 {
-	delete sObserver;
-	sObserver = NULL;
+	delete mObserver;
+	mObserver = NULL;
 	// LLView destructor cleans up children
 }
 
 BOOL LLChatBar::postBuild()
 {
-	childSetAction("History", LLFloaterChat::toggle, this);
+	childSetAction("History", toggleChatHistory, this);
 	childSetAction("Say", onClickSay, this);
 	childSetAction("Shout", onClickShout, this);
-	childSetCommitCallback("Gesture", onCommitGesture, this);
-	LLButton * sayp = static_cast<LLButton*>(getChildByName("Say"));
+
+	// attempt to bind to an existing combo box named gesture
+	setGestureCombo(LLUICtrlFactory::getComboBoxByName(this, "Gesture"));
+
+	LLButton * sayp = static_cast<LLButton*>(getChildByName("Say", TRUE));
 	if(sayp)
 	{
 		setDefaultBtn(sayp);
 	}
+
+	mInputEditor = LLUICtrlFactory::getLineEditorByName(this, "Chat Editor");
+	if (mInputEditor)
+	{
+		mInputEditor->setCallbackUserData(this);
+		mInputEditor->setKeystrokeCallback(&onInputEditorKeystroke);
+		mInputEditor->setFocusLostCallback(&onInputEditorFocusLost);
+		mInputEditor->setFocusReceivedCallback( &onInputEditorGainFocus );
+		mInputEditor->setCommitOnFocusLost( FALSE );
+		mInputEditor->setRevertOnEsc( FALSE );
+		mInputEditor->setIgnoreTab(TRUE);
+		mInputEditor->setPassDelete(TRUE);
+
+		mInputEditor->setMaxTextLength(1023);
+	}
+
+	mIsBuilt = TRUE;
 
 	return TRUE;
 }
@@ -186,7 +204,8 @@ BOOL LLChatBar::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 				handled = TRUE;
 			}
 		}
-		else if ( KEY_ESCAPE == key )
+		// only do this in main chatbar
+		else if ( KEY_ESCAPE == key && gChatBar == this)
 		{
 			stopChat();
 
@@ -199,6 +218,8 @@ BOOL LLChatBar::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 
 void LLChatBar::layout()
 {
+	if (!mDynamicLayout) return;
+
 	S32 rect_width = mRect.getWidth();
 	S32 count = 9; // number of elements in LLToolBar
 	S32 pad = 4;
@@ -261,13 +282,16 @@ void LLChatBar::refresh()
 	// hide in mouselook, but keep previous visibility state
 	//BOOL mouselook = gAgent.cameraMouselook();
 	// call superclass setVisible so that we don't overwrite the saved setting
-	LLPanel::setVisible(gSavedSettings.getBOOL("ChatVisible"));
+	if (mDynamicLayout)
+	{
+		LLPanel::setVisible(gSavedSettings.getBOOL("ChatVisible"));
+	}
 
 	// HACK: Leave the name of the gesture in place for a few seconds.
 	const F32 SHOW_GESTURE_NAME_TIME = 2.f;
 	if (mGestureLabelTimer.getStarted() && mGestureLabelTimer.getElapsedTimeF32() > SHOW_GESTURE_NAME_TIME)
 	{
-		LLCtrlListInterface* gestures = childGetListInterface("Gesture");
+		LLCtrlListInterface* gestures = mGestureCombo ? mGestureCombo->getListInterface() : NULL;
 		if (gestures) gestures->selectFirstItem();
 		mGestureLabelTimer.stop();
 	}
@@ -277,6 +301,8 @@ void LLChatBar::refresh()
 		gAgent.stopTyping();
 	}
 
+	childSetValue("History", LLFloaterChat::instanceVisible(LLSD()));
+
 	childSetEnabled("Say", mInputEditor->getText().size() > 0);
 	childSetEnabled("Shout", mInputEditor->getText().size() > 0);
 
@@ -284,16 +310,18 @@ void LLChatBar::refresh()
 
 void LLChatBar::refreshGestures()
 {
-	LLCtrlListInterface* gestures = childGetListInterface("Gesture");
-	if (gestures)
+	LLCtrlListInterface* gestures = mGestureCombo ? mGestureCombo->getListInterface() : NULL;
+	if (mGestureCombo && gestures)
 	{
 		//store current selection so we can maintain it
-		LLString cur_gesture = childGetValue("Gesture").asString();
+		LLString cur_gesture = mGestureCombo->getValue().asString();
 		gestures->selectFirstItem();
-		LLString label = childGetValue("Gesture").asString();
+		LLString label = mGestureCombo->getValue().asString();;
 		// clear
 		gestures->clearRows();
-		// add gestures
+
+		// collect list of unique gestures
+		std::map <std::string, BOOL> unique;
 		LLGestureManager::item_map_t::iterator it;
 		for (it = gGestureManager.mActive.begin(); it != gGestureManager.mActive.end(); ++it)
 		{
@@ -302,10 +330,18 @@ void LLChatBar::refreshGestures()
 			{
 				if (!gesture->mTrigger.empty())
 				{
-					gestures->addSimpleElement(gesture->mTrigger);
+					unique[gesture->mTrigger] = TRUE;
 				}
 			}
 		}
+
+		// ad unique gestures
+		std::map <std::string, BOOL>::iterator it2;
+		for (it2 = unique.begin(); it2 != unique.end(); ++it2)
+		{
+			gestures->addSimpleElement((*it2).first);
+		}
+		
 		gestures->sortByColumn(0, TRUE);
 		// Insert label after sorting
 		gestures->addSimpleElement(label, ADD_TOP);
@@ -360,6 +396,23 @@ BOOL LLChatBar::inputEditorHasFocus()
 LLString LLChatBar::getCurrentChat()
 {
 	return mInputEditor ? mInputEditor->getText() : LLString::null;
+}
+
+void LLChatBar::setGestureCombo(LLComboBox* combo)
+{
+	mGestureCombo = combo;
+	if (mGestureCombo)
+	{
+		mGestureCombo->setCommitCallback(onCommitGesture);
+		mGestureCombo->setCallbackUserData(this);
+
+		// now register observer since we have a place to put the results
+		mObserver = new LLChatBarGestureObserver(this);
+		gGestureManager.addObserver(mObserver);
+
+		// refresh list from current active gestures
+		refreshGestures();
+	}
 }
 
 //-----------------------------------------------------------------------
@@ -453,13 +506,13 @@ void LLChatBar::sendChat( EChatType type )
 			sendChatFromViewer(utf8_revised_text, type, TRUE);
 		}
 	}
-	childSetValue("Chat Editor", LLSD(LLString::null));
+	childSetValue("Chat Editor", LLString::null);
 
 	gAgent.stopTyping();
 
 	// If the user wants to stop chatting on hitting return, lose focus
 	// and go out of chat mode.
-	if (gSavedSettings.getBOOL("CloseChatOnReturn"))
+	if (gChatBar == this && gSavedSettings.getBOOL("CloseChatOnReturn"))
 	{
 		stopChat();
 	}
@@ -684,7 +737,7 @@ void LLChatBar::sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL 
 void LLChatBar::onCommitGesture(LLUICtrl* ctrl, void* data)
 {
 	LLChatBar* self = (LLChatBar*)data;
-	LLCtrlListInterface* gestures = self->childGetListInterface("Gesture");
+	LLCtrlListInterface* gestures = self->mGestureCombo ? self->mGestureCombo->getListInterface() : NULL;
 	if (gestures)
 	{
 		S32 index = gestures->getFirstSelectedIndex();
@@ -708,6 +761,14 @@ void LLChatBar::onCommitGesture(LLUICtrl* ctrl, void* data)
 		}
 	}
 	self->mGestureLabelTimer.start();
-	// free focus back to chat bar
-	self->childSetFocus("Gesture", FALSE);
+	if (self->mGestureCombo != NULL)
+	{
+		// free focus back to chat bar
+		self->mGestureCombo->setFocus(FALSE);
+	}
+}
+
+void toggleChatHistory(void* user_data)
+{
+	LLFloaterChat::toggleInstance(LLSD());
 }

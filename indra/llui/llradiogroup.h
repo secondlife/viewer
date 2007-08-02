@@ -15,6 +15,7 @@
 
 #include "lluictrl.h"
 #include "llcheckboxctrl.h"
+#include "llctrlselectioninterface.h"
 
 class LLFontGL;
 
@@ -32,7 +33,7 @@ public:
 };
 
 class LLRadioGroup
-:	public LLUICtrl
+:	public LLUICtrl, public LLCtrlSelectionInterface
 {
 public:
 	// Build a radio group.  The number (0...n-1) of the currently selected
@@ -63,7 +64,6 @@ public:
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 	void setIndexEnabled(S32 index, BOOL enabled);
 	
-	S32 getItemCount() { return mRadioButtons.size(); }
 	// return the index value of the selected item
 	S32 getSelectedIndex() const;
 	
@@ -87,6 +87,23 @@ public:
 	// button.
 	static void onClickButton(LLUICtrl* radio, void* userdata);
 	
+	//========================================================================
+	LLCtrlSelectionInterface* getSelectionInterface()	{ return (LLCtrlSelectionInterface*)this; };
+
+	// LLCtrlSelectionInterface functions
+	/*virtual*/ S32		getItemCount() const  				{ return mRadioButtons.size(); }
+	/*virtual*/ BOOL	getCanSelect() const				{ return TRUE; }
+	/*virtual*/ BOOL	selectFirstItem()					{ return setSelectedIndex(0); }
+	/*virtual*/ BOOL	selectNthItem( S32 index )			{ return setSelectedIndex(index); }
+	/*virtual*/ S32		getFirstSelectedIndex()				{ return getSelectedIndex(); }
+	/*virtual*/ BOOL	setCurrentByID( const LLUUID& id );
+	/*virtual*/ LLUUID	getCurrentID();				// LLUUID::null if no items in menu
+	/*virtual*/ BOOL	setSelectedByValue(LLSD value, BOOL selected);
+	/*virtual*/ LLSD	getSimpleSelectedValue();
+	/*virtual*/ BOOL	isSelected(LLSD value);
+	/*virtual*/ BOOL	operateOnSelection(EOperation op);
+	/*virtual*/ BOOL	operateOnAll(EOperation op);
+
 protected:
 	// protected function shared by the two constructors.
 	void init(BOOL border);

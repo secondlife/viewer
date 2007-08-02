@@ -240,21 +240,6 @@ void LLColorSwatchCtrl::setEnabled( BOOL enabled )
 }
 
 
-//////////////////////////////////////////////////////////////////////////////
-// called when parent filters down a visibility changed message
-void LLColorSwatchCtrl::onVisibilityChange ( BOOL curVisibilityIn )
-{
-	// visibility changed - moved away to different tab for instance - cancel selection 
-	//if ( ! curVisibilityIn)
-	//{
-	//	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)LLFloater::getFloaterByHandle(mPickerHandle);
-	//	if (pickerp)
-	//	{
-	//		pickerp->cancelSelection();
-	//	}
-	//}
-}
-
 void LLColorSwatchCtrl::setValue(const LLSD& value)
 {
 	set(LLColor4(value), TRUE, TRUE);

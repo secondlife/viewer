@@ -68,8 +68,6 @@ public:
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
-	virtual void	onVisibilityChange ( BOOL curVisibilityIn );
-
 	static void		onColorChanged ( void* data, EColorPickOp pick_op = COLOR_CHANGE );
 
 protected:

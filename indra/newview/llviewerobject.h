@@ -544,8 +544,9 @@ protected:
 	U8* mData;
 
 	LLPointer<LLViewerPartSourceScript>		mPartSourcep;	// Particle source associated with this object.
-	LLAudioSourceVO *mAudioSourcep;
-
+	LLAudioSourceVO* mAudioSourcep;
+	F32				mAudioGain;
+	
 	F32				mAppAngle;	// Apparent visual arc in degrees
 	F32				mPixelArea; // Apparent area in pixels
 

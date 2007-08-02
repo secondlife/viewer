@@ -292,28 +292,32 @@ void LLFloater::init(const LLString& title,
 	{
 		// Resize bars (sides)
 		const S32 RESIZE_BAR_THICKNESS = 3;
-		mResizeBar[0] = new LLResizeBar( 
+		mResizeBar[LLResizeBar::LEFT] = new LLResizeBar( 
 			"resizebar_left",
+			this,
 			LLRect( 0, mRect.getHeight(), RESIZE_BAR_THICKNESS, 0), 
-			min_width, min_height, LLResizeBar::LEFT );
+			min_width, S32_MAX, LLResizeBar::LEFT );
 		addChild( mResizeBar[0] );
 
-		mResizeBar[1] = new LLResizeBar( 
+		mResizeBar[LLResizeBar::TOP] = new LLResizeBar( 
 			"resizebar_top",
+			this,
 			LLRect( 0, mRect.getHeight(), mRect.getWidth(), mRect.getHeight() - RESIZE_BAR_THICKNESS), 
-			min_width, min_height, LLResizeBar::TOP );
+			min_height, S32_MAX, LLResizeBar::TOP );
 		addChild( mResizeBar[1] );
 
-		mResizeBar[2] = new LLResizeBar( 
+		mResizeBar[LLResizeBar::RIGHT] = new LLResizeBar( 
 			"resizebar_right",
+			this,
 			LLRect( mRect.getWidth() - RESIZE_BAR_THICKNESS, mRect.getHeight(), mRect.getWidth(), 0), 
-			min_width, min_height, LLResizeBar::RIGHT );
+			min_width, S32_MAX, LLResizeBar::RIGHT );
 		addChild( mResizeBar[2] );
 
-		mResizeBar[3] = new LLResizeBar( 
+		mResizeBar[LLResizeBar::BOTTOM] = new LLResizeBar( 
 			"resizebar_bottom",
+			this,
 			LLRect( 0, RESIZE_BAR_THICKNESS, mRect.getWidth(), 0), 
-			min_width, min_height, LLResizeBar::BOTTOM );
+			min_height, S32_MAX, LLResizeBar::BOTTOM );
 		addChild( mResizeBar[3] );
 
 
@@ -601,7 +605,14 @@ void LLFloater::setResizeLimits( S32 min_width, S32 min_height )
 	{
 		if( mResizeBar[i] )
 		{
-			mResizeBar[i]->setResizeLimits( min_width, min_height );
+			if (i == LLResizeBar::LEFT || i == LLResizeBar::RIGHT)
+			{
+				mResizeBar[i]->setResizeLimits( min_width, S32_MAX );
+			}
+			else
+			{
+				mResizeBar[i]->setResizeLimits( min_height, S32_MAX );
+			}
 		}
 		if( mResizeHandle[i] )
 		{
@@ -652,6 +663,25 @@ const LLString& LLFloater::getTitle() const
 {
 	return mDragHandle ? mDragHandle->getTitle() : LLString::null;
 }
+
+void LLFloater::setShortTitle( const LLString& short_title )
+{
+	mShortTitle = short_title;
+}
+
+LLString LLFloater::getShortTitle()
+{
+	if (mShortTitle.empty())
+	{
+		return mDragHandle ? mDragHandle->getTitle() : LLString::null;
+	}
+	else
+	{
+		return mShortTitle;
+	}
+}
+
+
 
 BOOL LLFloater::canSnapTo(LLView* other_view)
 {
@@ -991,12 +1021,22 @@ void LLFloater::setHost(LLMultiFloater* host)
 	}
 }
 
-void LLFloater::moveResizeHandleToFront()
+void LLFloater::moveResizeHandlesToFront()
 {
-	// 0 is the bottom  right
-	if( mResizeHandle[0] )
+	for( S32 i = 0; i < 4; i++ )
 	{
-		sendChildToFront(mResizeHandle[0]);
+		if( mResizeBar[i] )
+		{
+			sendChildToFront(mResizeBar[i]);
+		}
+	}
+
+	for( S32 i = 0; i < 4; i++ )
+	{
+		if( mResizeHandle[i] )
+		{
+			sendChildToFront(mResizeHandle[i]);
+		}
 	}
 }
 
@@ -1193,6 +1233,10 @@ BOOL LLFloater::getEditModeEnabled()
 void LLFloater::show(LLFloater* floaterp)
 {
 	if (floaterp) floaterp->open();
+	if (floaterp->getHost())
+	{
+		floaterp->getHost()->open();
+	}
 }
 
 //static 
@@ -1206,7 +1250,7 @@ BOOL LLFloater::visible(LLFloater* floaterp)
 {
 	if (floaterp) 
 	{
-		return floaterp->isInVisibleChain();
+		return !floaterp->isMinimized() && floaterp->isInVisibleChain();
 	}
 	return FALSE;
 }
@@ -1233,12 +1277,15 @@ void LLFloater::onClickTearOff(void *userdata)
 		// reparent to floater view
 		gFloaterView->addChild(self);
 
-		new_rect.setLeftTopAndSize(host_floater->getRect().mLeft + 5, host_floater->getRect().mTop - LLFLOATER_HEADER_SIZE - 5, self->mRect.getWidth(), self->mRect.getHeight());
-
 		self->open();	/* Flawfinder: ignore */
-		self->setRect(new_rect);
+		
+		// only force position for floaters that don't have that data saved
+		if (self->mRectControl.empty())
+		{
+			new_rect.setLeftTopAndSize(host_floater->getRect().mLeft + 5, host_floater->getRect().mTop - LLFLOATER_HEADER_SIZE - 5, self->mRect.getWidth(), self->mRect.getHeight());
+			self->setRect(new_rect);
+		}
 		gFloaterView->adjustToFitScreen(self, FALSE);
-		self->setCanDrag(TRUE);
 		// give focus to new window to keep continuity for the user
 		self->setFocus(TRUE);
 	}
@@ -1248,6 +1295,8 @@ void LLFloater::onClickTearOff(void *userdata)
 		if (new_host)
 		{
 			new_host->showFloater(self);
+			// make sure host is visible
+			new_host->open();
 		}
 	}
 }
@@ -1499,26 +1548,30 @@ void	LLFloater::setCanResize(BOOL can_resize)
 		const S32 RESIZE_BAR_THICKNESS = 3;
 		mResizeBar[0] = new LLResizeBar( 
 			"resizebar_left",
+			this,
 			LLRect( 0, mRect.getHeight(), RESIZE_BAR_THICKNESS, 0), 
-			mMinWidth, mMinHeight, LLResizeBar::LEFT );
+			mMinWidth, S32_MAX, LLResizeBar::LEFT );
 		addChild( mResizeBar[0] );
 
 		mResizeBar[1] = new LLResizeBar( 
 			"resizebar_top",
+			this,
 			LLRect( 0, mRect.getHeight(), mRect.getWidth(), mRect.getHeight() - RESIZE_BAR_THICKNESS), 
-			mMinWidth, mMinHeight, LLResizeBar::TOP );
+			mMinHeight, S32_MAX, LLResizeBar::TOP );
 		addChild( mResizeBar[1] );
 
 		mResizeBar[2] = new LLResizeBar( 
 			"resizebar_right",
+			this,
 			LLRect( mRect.getWidth() - RESIZE_BAR_THICKNESS, mRect.getHeight(), mRect.getWidth(), 0), 
-			mMinWidth, mMinHeight, LLResizeBar::RIGHT );
+			mMinWidth, S32_MAX, LLResizeBar::RIGHT );
 		addChild( mResizeBar[2] );
 
 		mResizeBar[3] = new LLResizeBar( 
 			"resizebar_bottom",
+			this,
 			LLRect( 0, RESIZE_BAR_THICKNESS, mRect.getWidth(), 0), 
-			mMinWidth, mMinHeight, LLResizeBar::BOTTOM );
+			mMinHeight, S32_MAX, LLResizeBar::BOTTOM );
 		addChild( mResizeBar[3] );
 
 
@@ -1855,7 +1908,7 @@ LLRect LLFloaterView::findNeighboringPosition( LLFloater* reference_floater, LLF
 			sibling->getVisible() && 
 			expanded_base_rect.rectInRect(&sibling->getRect()))
 		{
-			base_rect |= sibling->getRect();
+			base_rect.unionWith(sibling->getRect());
 		}
 	}
 
@@ -2550,18 +2603,22 @@ BOOL LLMultiFloater::closeAllFloaters()
 	return TRUE; //else all tabs were successfully closed...
 }
 
-void LLMultiFloater::growToFit(LLFloater* floaterp, S32 width, S32 height)
+void LLMultiFloater::growToFit(S32 content_width, S32 content_height)
 {
-	floater_data_map_t::iterator found_data_it;
-	found_data_it = mFloaterDataMap.find(floaterp->getHandle());
-	if (found_data_it != mFloaterDataMap.end())
-	{
-		// store new width and height with this floater so that it will keep its size when detached
-		found_data_it->second.mWidth = width;
-		found_data_it->second.mHeight = height;
-	}
+	S32 new_width = llmax(mRect.getWidth(), content_width + LLPANEL_BORDER_WIDTH * 2);
+	S32 new_height = llmax(mRect.getHeight(), content_height + LLFLOATER_HEADER_SIZE + TABCNTR_HEADER_HEIGHT);
 
-	resizeToContents();
+	if (isMinimized())
+	{
+		mPreviousRect.setLeftTopAndSize(mPreviousRect.mLeft, mPreviousRect.mTop, new_width, new_height);
+	}
+	else
+	{
+		S32 old_height = mRect.getHeight();
+		reshape(new_width, new_height);
+		// keep top left corner in same position
+		translate(0, old_height - new_height);
+	}
 }
 
 /**
@@ -2618,12 +2675,18 @@ void LLMultiFloater::addFloater(LLFloater* floaterp, BOOL select_added_floater, 
 	floaterp->setCanMinimize(FALSE);
 	floaterp->setCanResize(FALSE);
 	floaterp->setCanDrag(FALSE);
+	floaterp->storeRectControl();
+
+	if (mAutoResize)
+	{
+		growToFit(floater_data.mWidth, floater_data.mHeight);
+	}
 
 	//add the panel, add it to proper maps
-	mTabContainer->addTabPanel(floaterp, floaterp->getTitle(), FALSE, onTabSelected, this, 0, FALSE, insertion_point);
+	mTabContainer->addTabPanel(floaterp, floaterp->getShortTitle(), FALSE, onTabSelected, this, 0, FALSE, insertion_point);
 	mFloaterDataMap[floaterp->getHandle()] = floater_data;
 
-	resizeToContents();
+	updateResizeLimits();
 
 	if ( select_added_floater )
 	{
@@ -2673,7 +2736,6 @@ void LLMultiFloater::showFloater(LLFloater* floaterp)
 	{
 		addFloater(floaterp, TRUE);
 	}
-	setVisibleAndFrontmost();
 }
 
 void LLMultiFloater::removeFloater(LLFloater* floaterp)
@@ -2696,9 +2758,11 @@ void LLMultiFloater::removeFloater(LLFloater* floaterp)
 	}
 	mTabContainer->removeTabPanel(floaterp);
 	floaterp->setBackgroundVisible(TRUE);
+	floaterp->setCanDrag(TRUE);
 	floaterp->setHost(NULL);
+	floaterp->applyRectControl();
 
-	resizeToContents();
+	updateResizeLimits();
 
 	tabOpen((LLFloater*)mTabContainer->getCurrentPanel(), false);
 }
@@ -2840,18 +2904,8 @@ BOOL LLMultiFloater::postBuild()
 	return FALSE;
 }
 
-void LLMultiFloater::resizeToContents()
+void LLMultiFloater::updateResizeLimits()
 {
-	// we're already in the middle of a reshape, don't interrupt it
-	floater_data_map_t::iterator floater_it;
-	S32 new_width = 0;
-	S32 new_height = 0;
-	for (floater_it = mFloaterDataMap.begin(); floater_it != mFloaterDataMap.end(); ++floater_it)
-	{
-		new_width = llmax(new_width, floater_it->second.mWidth + LLPANEL_BORDER_WIDTH * 2);
-		new_height = llmax(new_height, floater_it->second.mHeight + LLFLOATER_HEADER_SIZE + TABCNTR_HEADER_HEIGHT);
-	}	
-
 	S32 new_min_width = 0;
 	S32 new_min_height = 0;
 	S32 tab_idx;
@@ -2867,21 +2921,23 @@ void LLMultiFloater::resizeToContents()
 	setResizeLimits(new_min_width, new_min_height);
 
 	S32 cur_height = mRect.getHeight();
+	S32 new_width = llmax(mRect.getWidth(), new_min_width);
+	S32 new_height = llmax(mRect.getHeight(), new_min_height);
 
-	if (mAutoResize)
+	if (isMinimized())
 	{
-		reshape(new_width, new_height);
+		mPreviousRect.setLeftTopAndSize(mPreviousRect.mLeft, mPreviousRect.mTop, llmax(mPreviousRect.getWidth(), new_width), llmax(mPreviousRect.getHeight(), new_height));
 	}
 	else
 	{
-		reshape(llmax(new_min_width, mRect.getWidth()), llmax(new_min_height, mRect.getHeight()));
+		reshape(new_width, new_height);
+
+		// make sure upper left corner doesn't move
+		translate(0, cur_height - mRect.getHeight());
+
+		// Try to keep whole view onscreen, don't allow partial offscreen.
+		gFloaterView->adjustToFitScreen(this, FALSE);
 	}
-
-	// make sure upper left corner doesn't move
-	translate(0, cur_height - mRect.getHeight());
-
-	// Try to keep whole view onscreen, don't allow partial offscreen.
-	gFloaterView->adjustToFitScreen(this, FALSE);
 }
 
 // virtual
@@ -2937,6 +2993,7 @@ void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactor
 {
 	LLString name(getName());
 	LLString title(getTitle());
+	LLString short_title(getShortTitle());
 	LLString rect_control("");
 	BOOL resizable = isResizable();
 	S32 min_width = getMinWidth();
@@ -2948,6 +3005,7 @@ void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactor
 
 	node->getAttributeString("name", name);
 	node->getAttributeString("title", title);
+	node->getAttributeString("short_title", short_title);
 	node->getAttributeString("rect_control", rect_control);
 	node->getAttributeBOOL("can_resize", resizable);
 	node->getAttributeBOOL("can_minimize", minimizable);
@@ -2974,6 +3032,8 @@ void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactor
 			minimizable,
 			close_btn);
 
+	setShortTitle(short_title);
+
 	BOOL can_tear_off;
 	if (node->getAttributeBOOL("can_tear_off", can_tear_off))
 	{
@@ -2988,16 +3048,12 @@ void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactor
 		LLFloater::setFloaterHost((LLMultiFloater*) this);
 	}
 
-	LLXMLNodePtr child;
-	for (child = node->getFirstChild(); child.notNull(); child = child->getNextSibling())
-	{
-		factory->createWidget(this, child);
-	}
+	initChildrenXML(node, factory);
+
 	if (node->hasName("multi_floater"))
 	{
 		LLFloater::setFloaterHost(last_host);
 	}
-
 
 	BOOL result = postBuild();
 
@@ -3011,4 +3067,6 @@ void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactor
 	{
 		this->open();	/* Flawfinder: ignore */
 	}
+
+	moveResizeHandlesToFront();
 }

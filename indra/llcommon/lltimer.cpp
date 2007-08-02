@@ -492,7 +492,7 @@ void secondsToTimecodeString(F32 current_time, char *tcstring)
 std::list<LLEventTimer*> LLEventTimer::sActiveList;
 
 LLEventTimer::LLEventTimer(F32 period)
-: mTimer()
+: mEventTimer()
 {
 	mPeriod = period;
 	sActiveList.push_back(this);
@@ -508,9 +508,9 @@ void LLEventTimer::updateClass()
 	for (std::list<LLEventTimer*>::iterator iter = sActiveList.begin(); iter != sActiveList.end(); ) 
 	{
 		LLEventTimer* timer = *iter++;
-		F32 et = timer->mTimer.getElapsedTimeF32();
+		F32 et = timer->mEventTimer.getElapsedTimeF32();
 		if (et > timer->mPeriod) {
-			timer->mTimer.reset();
+			timer->mEventTimer.reset();
 			timer->tick();
 		}
 	}

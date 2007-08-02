@@ -10,6 +10,9 @@
 
 #include "lluistring.h"
 
+const LLString::format_map_t LLUIString::sNullArgs;
+
+
 // public
 
 LLUIString::LLUIString(const LLString& instring, const LLString::format_map_t& args)

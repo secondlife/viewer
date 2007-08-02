@@ -14,24 +14,26 @@
 #include "lloverlaybar.h"
 
 #include "audioengine.h"
-#include "llparcel.h"
-
 #include "llagent.h"
 #include "llbutton.h"
-#include "llviewercontrol.h"
+#include "llfocusmgr.h"
 #include "llimview.h"
-#include "lltextbox.h"
-#include "llvoavatar.h"
 #include "llmediaengine.h"
-#include "viewer.h"
+#include "llpanelaudiovolume.h"
+#include "llparcel.h"
+#include "lltextbox.h"
 #include "llui.h"
+#include "llviewercontrol.h"
+#include "llviewerimagelist.h"
 #include "llviewermenu.h"	// handle_reset_view()
 #include "llviewerparcelmgr.h"
-#include "llwebbrowserctrl.h"
 #include "llvieweruictrlfactory.h"
-#include "llviewerimagelist.h"
 #include "llviewerwindow.h"
-#include "llfocusmgr.h"
+#include "llvoiceclient.h"
+#include "llvoavatar.h"
+#include "llvoiceremotectrl.h"
+#include "llwebbrowserctrl.h"
+#include "viewer.h"
 
 //
 // Globals
@@ -47,38 +49,54 @@ extern S32 MENU_BAR_HEIGHT;
 
 
 //static
+void* LLOverlayBar::createMasterRemote(void* userdata)
+{
+	LLOverlayBar *self = (LLOverlayBar*)userdata;	
+	self->mMasterRemote =  new LLMediaRemoteCtrl ( "master_volume",
+												   "volume",
+												   LLRect(),
+												   "panel_master_volume.xml");
+	return self->mMasterRemote;
+}
+
 void* LLOverlayBar::createMediaRemote(void* userdata)
 {
-	
-	LLOverlayBar *self = (LLOverlayBar*)userdata;
-
-	
+	LLOverlayBar *self = (LLOverlayBar*)userdata;	
 	self->mMediaRemote =  new LLMediaRemoteCtrl ( "media_remote",
-											  "media",
-											  LLRect(),
-											  "panel_media_remote.xml");
+												  "media",
+												  LLRect(),
+												  "panel_media_remote.xml");
 	return self->mMediaRemote;
 }
 
-
-
 void* LLOverlayBar::createMusicRemote(void* userdata)
 {
-	
 	LLOverlayBar *self = (LLOverlayBar*)userdata;
-
 	self->mMusicRemote =  new LLMediaRemoteCtrl ( "music_remote",
-											  "music",
-											  LLRect(),
-											  "panel_music_remote.xml" );		
+												  "music",
+												  LLRect(),
+												  "panel_music_remote.xml" );		
 	return self->mMusicRemote;
+}
+
+void* LLOverlayBar::createVoiceRemote(void* userdata)
+{
+	LLOverlayBar *self = (LLOverlayBar*)userdata;	
+	self->mVoiceRemote = new LLVoiceRemoteCtrl("voice_remote");
+	return self->mVoiceRemote;
 }
 
 
 
 
 LLOverlayBar::LLOverlayBar(const std::string& name, const LLRect& rect)
-:	LLPanel(name, rect, FALSE)		// not bordered
+	:	LLPanel(name, rect, FALSE),		// not bordered
+		mMasterRemote(NULL),
+		mMusicRemote(NULL),
+		mMediaRemote(NULL),
+		mVoiceRemote(NULL),
+		mMediaState(STOPPED),
+		mMusicState(STOPPED)
 {
 	setMouseOpaque(FALSE);
 	setIsChrome(TRUE);
@@ -86,8 +104,10 @@ LLOverlayBar::LLOverlayBar(const std::string& name, const LLRect& rect)
 	isBuilt = FALSE;
 
 	LLCallbackMap::map_t factory_map;
+	factory_map["master_volume"] = LLCallbackMap(LLOverlayBar::createMasterRemote, this);
 	factory_map["media_remote"] = LLCallbackMap(LLOverlayBar::createMediaRemote, this);
 	factory_map["music_remote"] = LLCallbackMap(LLOverlayBar::createMusicRemote, this);
+	factory_map["voice_remote"] = LLCallbackMap(LLOverlayBar::createVoiceRemote, this);
 	
 	gUICtrlFactory->buildPanel(this, "panel_overlaybar.xml", &factory_map);
 	
@@ -97,34 +117,17 @@ LLOverlayBar::LLOverlayBar(const std::string& name, const LLRect& rect)
 	childSetAction("Mouselook",onClickMouselook,this);
 	childSetAction("Stand Up",onClickStandUp,this);
 
-	mMusicRemote->addObserver ( this );
-	
-	if ( gAudiop )
-	{
-		//HACK / NOT HACK
-		//maintenance patch - bhear obsoletes this, do not merge (poppy)
-		F32 audioLevelMusic = gSavedSettings.getF32 ( "AudioLevelMusic" );
-		mMusicRemote->setVolume ( audioLevelMusic );
-		gAudiop->setInternetStreamGain ( audioLevelMusic );
-		mMusicRemote->setTransportState ( LLMediaRemoteCtrl::Stop, FALSE );
-	};
-
 	mIsFocusRoot = TRUE;
-
-	mMediaRemote->addObserver ( this );
-	mMediaRemote->setVolume ( gSavedSettings.getF32 ( "MediaAudioVolume" ) );
-
 	isBuilt = true;
 
+	// make overlay bar conform to window size
+	setRect(rect);
 	layoutButtons();
 }
 
 LLOverlayBar::~LLOverlayBar()
 {
 	// LLView destructor cleans up children
-
-	mMusicRemote->remObserver ( this );
-	mMediaRemote->remObserver ( this );
 }
 
 EWidgetType LLOverlayBar::getWidgetType() const
@@ -148,20 +151,28 @@ void LLOverlayBar::reshape(S32 width, S32 height, BOOL called_from_parent)
 	}
 }
 
-
 void LLOverlayBar::layoutButtons()
 {
 	S32 width = mRect.getWidth();
-	if (width > 800) width = 800;
+	if (width > 1024) width = 1024;
 
 	S32 count = getChildCount();
 	const S32 PAD = gSavedSettings.getS32("StatusBarPad");
 
-	F32 segment_width = (F32)(width) / (F32)count;
+	const S32 num_media_controls = 3;
+	S32 media_remote_width = mMediaRemote ? mMediaRemote->getRect().getWidth() : 0;
+	S32 music_remote_width = mMusicRemote ? mMusicRemote->getRect().getWidth() : 0;
+	S32 voice_remote_width = mVoiceRemote ? mVoiceRemote->getRect().getWidth() : 0;
+	S32 master_remote_width = mMasterRemote ? mMasterRemote->getRect().getWidth() : 0;
+
+	// total reserved width for all media remotes
+	const S32 ENDPAD = 20;
+	S32 remote_total_width = media_remote_width + PAD + music_remote_width + PAD + voice_remote_width + PAD + master_remote_width + ENDPAD;
+
+	// calculate button widths
+	F32 segment_width = (F32)(width - remote_total_width) / (F32)(count - num_media_controls);
 
 	S32 btn_width = lltrunc(segment_width - PAD);
-
-	S32 remote_width = mMusicRemote->getRect().getWidth();
 
 	// Evenly space all views
 	LLRect r;
@@ -171,22 +182,47 @@ void LLOverlayBar::layoutButtons()
 	{
 		LLView *view = *child_iter;
 		r = view->getRect();
-		r.mLeft = (width) - llround((i+1)*segment_width);
+		r.mLeft = (width) - llround(remote_total_width + (i-num_media_controls+1)*segment_width);
 		r.mRight = r.mLeft + btn_width;
 		view->setRect(r);
 		i++;
 	}
 
 	// Fix up remotes to have constant width because they can't shrink
-	r = mMusicRemote->getRect();
-	r.mRight = r.mLeft + remote_width;
-	mMusicRemote->setRect(r);
-
-	r = mMediaRemote->getRect();
-	r.mLeft = mMusicRemote->getRect().mRight + PAD;
-	r.mRight = r.mLeft + remote_width;
-	mMediaRemote->setRect(r);
-
+	S32 right = mRect.getWidth() - remote_total_width - PAD;
+	if (mMediaRemote)
+	{
+		r = mMediaRemote->getRect();
+		r.mLeft = right + PAD;
+		right = r.mLeft + media_remote_width;
+		r.mRight = right;
+		mMediaRemote->setRect(r);
+	}
+	if (mMusicRemote)
+	{
+		r = mMusicRemote->getRect();
+		r.mLeft = right + PAD;
+		right = r.mLeft + music_remote_width;
+		r.mRight = right;
+		mMusicRemote->setRect(r);
+	}
+	if (mVoiceRemote)
+	{
+		r = mVoiceRemote->getRect();
+		r.mLeft = right + PAD;
+		right = r.mLeft + voice_remote_width;
+		r.mRight = right;
+		mVoiceRemote->setRect(r);
+	}
+	if (mMasterRemote)
+	{
+		r = mMasterRemote->getRect();
+		r.mLeft = right + PAD;
+		right = r.mLeft + master_remote_width;
+		r.mRight = right;
+		mMasterRemote->setRect(r);
+	}
+	
 	updateRect();
 }
 
@@ -266,7 +302,7 @@ void LLOverlayBar::draw()
 // Per-frame updates of visibility
 void LLOverlayBar::refresh()
 {
-	BOOL im_received = gIMView->getIMReceived();
+	BOOL im_received = gIMMgr->getIMReceived();
 	childSetVisible("IM Received", im_received);
 	childSetEnabled("IM Received", im_received);
 
@@ -297,10 +333,10 @@ void LLOverlayBar::refresh()
 		
 	}
 
-	if ( gAudiop )
+	if ( mMusicRemote && gAudiop )
 	{
 		LLParcel* parcel = gParcelMgr->getAgentParcel();
-		if (!parcel
+		if (!parcel 
 			|| !parcel->getMusicURL()
 			|| !parcel->getMusicURL()[0]
 			|| !gSavedSettings.getBOOL("AudioStreamingMusic"))
@@ -316,50 +352,29 @@ void LLOverlayBar::refresh()
 	}
 
 	// if there is a url and a texture and media is enabled and available and media streaming is on... (phew!)
-	if ( LLMediaEngine::getInstance () &&
-		 LLMediaEngine::getInstance ()->getUrl ().length () && 
-		 LLMediaEngine::getInstance ()->getImageUUID ().notNull () &&
-		 LLMediaEngine::getInstance ()->isEnabled () &&
-		 LLMediaEngine::getInstance ()->isAvailable () &&
-		 gSavedSettings.getBOOL ( "AudioStreamingVideo" ) )
+	if ( mMediaRemote )
 	{
-		// display remote control 
-		mMediaRemote->setVisible ( TRUE );
-		mMediaRemote->setEnabled ( TRUE );
-
-		if ( LLMediaEngine::getInstance ()->getMediaRenderer () )
+		if (LLMediaEngine::getInstance () &&
+			LLMediaEngine::getInstance ()->getUrl ().length () && 
+			LLMediaEngine::getInstance ()->getImageUUID ().notNull () &&
+			LLMediaEngine::getInstance ()->isEnabled () &&
+			LLMediaEngine::getInstance ()->isAvailable () &&
+			gSavedSettings.getBOOL ( "AudioStreamingVideo" ) )
 		{
-			if ( LLMediaEngine::getInstance ()->getMediaRenderer ()->isPlaying () ||
-				LLMediaEngine::getInstance ()->getMediaRenderer ()->isLooping () )
-			{
-				mMediaRemote->setTransportState ( LLMediaRemoteCtrl::Pause, TRUE );
-			}
-			else
-			if ( LLMediaEngine::getInstance ()->getMediaRenderer ()->isPaused () )
-			{
-				mMediaRemote->setTransportState ( LLMediaRemoteCtrl::Play, TRUE );
-			}
-			else
-			{
-				mMediaRemote->setTransportState ( LLMediaRemoteCtrl::Stop, TRUE );
-			};
-		};
+			// display remote control 
+			mMediaRemote->setVisible ( TRUE );
+			mMediaRemote->setEnabled ( TRUE );
+		}
+		else
+		{
+			mMediaRemote->setVisible ( FALSE );
+			mMediaRemote->setEnabled ( FALSE );
+		}
 	}
-	else
+	if (mVoiceRemote)
 	{
-		mMediaRemote->setVisible ( FALSE );
-		mMediaRemote->setEnabled ( FALSE );
-		mMediaRemote->setTransportState ( LLMediaRemoteCtrl::Stop, TRUE );
-	};
-
-	BOOL any_button = (childIsVisible("IM Received")
-					   || childIsVisible("Set Not Busy")
-					   || childIsVisible("Release Keys")
-					   || childIsVisible("Mouselook")
-					   || childIsVisible("Stand Up")
-					   || mMusicRemote->getVisible()
-					   || mMediaRemote->getVisible() );		   
-					   
+		mVoiceRemote->setVisible(LLVoiceClient::voiceEnabled());
+	}
 	
 	// turn off the whole bar in mouselook
 	if (gAgent.cameraMouselook())
@@ -368,8 +383,8 @@ void LLOverlayBar::refresh()
 	}
 	else
 	{
-		setVisible(any_button);
-	};
+		setVisible(TRUE);
+	}
 }
 
 //-----------------------------------------------------------------------
@@ -379,7 +394,7 @@ void LLOverlayBar::refresh()
 // static
 void LLOverlayBar::onClickIMReceived(void*)
 {
-	gIMView->setFloaterOpen(TRUE);
+	gIMMgr->setFloaterOpen(TRUE);
 }
 
 
@@ -415,134 +430,162 @@ void LLOverlayBar::onClickStandUp(void*)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-//
-void
-LLOverlayBar::
-onVolumeChange ( const LLMediaRemoteCtrlObserver::EventType& eventIn )
-{
-	LLUICtrl* control = eventIn.getControl ();
-	F32 value = eventIn.getValue ();
+// static media helpers
+// *TODO: Move this into an audio manager abstraction
 
-	if ( control == mMusicRemote )
+//static
+void LLOverlayBar::mediaPlay(void*)
+{
+	if (!gOverlayBar)
 	{
-		if (gAudiop)
-		{
-			gAudiop->setInternetStreamGain ( value );
-		};
-		gSavedSettings.setF32 ( "AudioLevelMusic", value );
+		return;
 	}
-	else
-	if ( control == mMediaRemote )
-	{
-		LLMediaEngine::getInstance ()->setVolume ( value );
-		gSavedSettings.setF32 ( "MediaAudioVolume", value );
-
-	};
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-void
-LLOverlayBar::
-onStopButtonPressed ( const LLMediaRemoteCtrlObserver::EventType& eventIn )
-{
-	LLUICtrl* control = eventIn.getControl ();
-
-	if ( control == mMusicRemote )
-	{
-		if ( gAudiop )
-		{
-			gAudiop->stopInternetStream ();
-		};
-		mMusicRemote->setTransportState ( LLMediaRemoteCtrl::Stop, FALSE );
-	}
-	else
-	if ( control == mMediaRemote )
-	{
-		LLMediaEngine::getInstance ()->stop ();
-		mMediaRemote->setTransportState ( LLMediaRemoteCtrl::Stop, TRUE );
-	};
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-void LLOverlayBar::onPlayButtonPressed( const LLMediaRemoteCtrlObserver::EventType& eventIn )
-{
-	LLUICtrl* control = eventIn.getControl ();
-
+	gOverlayBar->mMediaState = PLAYING; // desired state
 	LLParcel* parcel = gParcelMgr->getAgentParcel();
-	if ( control == mMusicRemote )
+	if (parcel)
 	{
-		if (gAudiop)
-		{
-			if ( parcel )
-			{
-				// this doesn't work properly when crossing parcel boundaries - even when the 
-				// stream is stopped, it doesn't return the right thing - commenting out for now.
-				//if ( gAudiop->isInternetStreamPlaying() == 0 )
-				//{
-					const char* music_url = parcel->getMusicURL();
-
-					gAudiop->startInternetStream(music_url);
-
-					mMusicRemote->setTransportState ( LLMediaRemoteCtrl::Play, FALSE );
-				//}
-			}
-		};
-
-		// CP: this is the old way of doing things (click play each time on a parcel to start stream)
-		//if (gAudiop)
-		//{
-		//	if (gAudiop->isInternetStreamPlaying() > 0)
-		//	{
-		//		gAudiop->pauseInternetStream ( 0 );
-		//	}
-		//	else
-		//	{
-		//		if (parcel)
-		//		{
-		//			const char* music_url = parcel->getMusicURL();
-		//			gAudiop->startInternetStream(music_url);
-		//		}
-		//	}
-		//};
-		//mMusicRemote->setTransportState ( LLMediaRemoteCtrl::Stop, FALSE );
+		LLString path("");
+		LLMediaEngine::getInstance()->convertImageAndLoadUrl( true, false, path );
 	}
-	else
-	if ( control == mMediaRemote )
+}
+//static
+void LLOverlayBar::mediaPause(void*)
+{
+	if (!gOverlayBar)
+	{
+		return;
+	}
+	gOverlayBar->mMediaState = PAUSED; // desired state
+	LLMediaEngine::getInstance()->pause();
+}
+//static
+void LLOverlayBar::mediaStop(void*)
+{
+	if (!gOverlayBar)
+	{
+		return;
+	}
+	gOverlayBar->mMediaState = STOPPED; // desired state
+	LLMediaEngine::getInstance()->stop();
+}
+
+//static
+void LLOverlayBar::musicPlay(void*)
+{
+	if (!gOverlayBar)
+	{
+		return;
+	}
+	gOverlayBar->mMusicState = PLAYING; // desired state
+	if (gAudiop)
 	{
 		LLParcel* parcel = gParcelMgr->getAgentParcel();
-		if (parcel)
+		if ( parcel )
 		{
-			LLString path( "" );
-			LLMediaEngine::getInstance ()->convertImageAndLoadUrl( true, false, path );
-			mMediaRemote->setTransportState ( LLMediaRemoteCtrl::Play, TRUE );
+			// this doesn't work properly when crossing parcel boundaries - even when the 
+			// stream is stopped, it doesn't return the right thing - commenting out for now.
+// 			if ( gAudiop->isInternetStreamPlaying() == 0 )
+			{
+				gAudiop->startInternetStream(parcel->getMusicURL());
+			}
 		}
-	};
+	}
+}
+//static
+void LLOverlayBar::musicPause(void*)
+{
+	if (!gOverlayBar)
+	{
+		return;
+	}
+	gOverlayBar->mMusicState = PAUSED; // desired state
+	if (gAudiop)
+	{
+		gAudiop->pauseInternetStream(1);
+	}
+}
+//static
+void LLOverlayBar::musicStop(void*)
+{
+	if (!gOverlayBar)
+	{
+		return;
+	}
+	gOverlayBar->mMusicState = STOPPED; // desired state
+	if (gAudiop)
+	{
+		gAudiop->stopInternetStream();
+	}
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-//
-void LLOverlayBar::onPauseButtonPressed( const LLMediaRemoteCtrlObserver::EventType& eventIn )
-{
-	LLUICtrl* control = eventIn.getControl ();
-
-	if ( control == mMusicRemote )
+//static
+void LLOverlayBar::enableMusicButtons(LLPanel* panel)
+{	
+	BOOL play_enabled = FALSE;
+	BOOL play_visible = TRUE;
+	BOOL pause_visible = FALSE;
+	BOOL stop_enabled = FALSE;
+	if ( gAudiop && gOverlayBar && gSavedSettings.getBOOL("AudioStreamingMusic"))
 	{
-		if (gAudiop)
+		play_enabled = TRUE;
+		S32 is_playing = gAudiop->isInternetStreamPlaying();
+		if (is_playing == 1)
 		{
-			gAudiop->pauseInternetStream ( 1 );
-		};
-		mMusicRemote->setTransportState ( LLMediaRemoteCtrl::Play, FALSE );
+			play_visible = FALSE;
+			pause_visible = TRUE;
+			stop_enabled = TRUE;
+		}
+		else if (is_playing == 2)
+		{
+			play_visible = TRUE;
+			pause_visible = FALSE;
+			stop_enabled = TRUE;
+		}
 	}
-	else
-	if ( control == mMediaRemote )
+	panel->childSetEnabled("music_play", play_enabled);
+	panel->childSetEnabled("music_pause", play_enabled);
+	panel->childSetVisible("music_play", play_visible);
+	panel->childSetVisible("music_pause", pause_visible);
+	panel->childSetEnabled("music_stop", stop_enabled);
+}
+
+//static
+void LLOverlayBar::enableMediaButtons(LLPanel* panel)
+{
+	// Media
+	BOOL play_enabled = FALSE;
+	BOOL play_visible = TRUE;
+	BOOL pause_visible = FALSE;
+	BOOL stop_enabled = FALSE;
+
+	if ( LLMediaEngine::getInstance() && gOverlayBar && gSavedSettings.getBOOL("AudioStreamingVideo") )
 	{
-		LLMediaEngine::getInstance ()->pause ();
-		mMediaRemote->setTransportState ( LLMediaRemoteCtrl::Pause, TRUE );
-	};
+		play_enabled = TRUE;
+		if (LLMediaEngine::getInstance()->getMediaRenderer())
+		{
+			if ( LLMediaEngine::getInstance()->getMediaRenderer()->isPlaying() ||
+				 LLMediaEngine::getInstance()->getMediaRenderer()->isLooping() )
+			{
+				play_visible = FALSE;
+				pause_visible = TRUE;
+				stop_enabled = TRUE;
+			}
+			else if ( LLMediaEngine::getInstance()->getMediaRenderer()->isPaused() )
+			{
+				play_visible = TRUE;
+				pause_visible = FALSE;
+				stop_enabled = TRUE;
+			}
+		}
+	}
+	panel->childSetEnabled("media_play", play_enabled);
+	panel->childSetEnabled("media_pause", play_enabled);
+	panel->childSetVisible("media_play", play_visible);
+	panel->childSetVisible("media_pause", pause_visible);
+	panel->childSetEnabled("media_stop", stop_enabled);
+}
+
+void LLOverlayBar::toggleAudioVolumeFloater(void* user_data)
+{
+	LLFloaterAudioVolume::toggleInstance(LLSD());
 }

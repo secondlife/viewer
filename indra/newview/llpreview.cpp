@@ -42,7 +42,8 @@ LLPreview::LLPreview(const std::string& name) :
 	mForceClose(FALSE),
 	mUserResized(FALSE),
 	mCloseAfterSave(FALSE),
-	mAssetStatus(PREVIEW_ASSET_UNLOADED)
+	mAssetStatus(PREVIEW_ASSET_UNLOADED),
+	mItem(NULL)
 {
 	// don't add to instance list, since ItemID is null
 	mAuxItem = new LLInventoryItem; // (LLPointer is auto-deleted)

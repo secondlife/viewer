@@ -50,10 +50,13 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerthrottle.h"
 #include "llvieweruictrlfactory.h"
+#include "llvoiceclient.h"	// for gVoiceClient
 
 #include "lltoolmgr.h"
 #include "llfocusmgr.h"
 #include "viewer.h"
+
+//#include "llfirstuse.h"
 
 //
 // Globals
@@ -75,6 +78,18 @@ const F32 ICON_TIMER_EXPIRY		= 3.f; // How long the balance and health icons sho
 const F32 ICON_FLASH_FREQUENCY	= 2.f;
 const S32 GRAPHIC_FUDGE = 4;
 const S32 TEXT_HEIGHT = 18;
+
+static void onClickParcelInfo(void*);
+static void onClickBalance(void*);
+static void onClickBuyCurrency(void*);
+static void onClickHealth(void*);
+static void onClickFly(void*);
+static void onClickPush(void*);
+static void onClickVoice(void*);
+static void onClickBuild(void*);
+static void onClickScripts(void*);
+static void onClickBuyLand(void*);
+static void onClickScriptDebug(void*);
 
 std::vector<std::string> LLStatusBar::sDays;
 std::vector<std::string> LLStatusBar::sMonths;
@@ -105,15 +120,6 @@ LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
 
 	// build date necessary data (must do after panel built)
 	setupDate();
-
-	mBtnScriptOut = LLUICtrlFactory::getButtonByName( this, "scriptout" );
-	mBtnHealth = LLUICtrlFactory::getButtonByName( this, "health" );
-	mBtnFly = LLUICtrlFactory::getButtonByName( this, "fly" );
-	mBtnBuild = LLUICtrlFactory::getButtonByName( this, "build" );
-	mBtnScripts = LLUICtrlFactory::getButtonByName( this, "scripts" );
-	mBtnPush = LLUICtrlFactory::getButtonByName( this, "restrictpush" );
-	mBtnBuyLand = LLUICtrlFactory::getButtonByName( this, "buyland" );
-	mBtnBuyCurrency = LLUICtrlFactory::getButtonByName( this, "buycurrency" );
 
 	mTextParcelName = LLUICtrlFactory::getTextBoxByName( this, "ParcelNameText" );
 	mTextBalance = LLUICtrlFactory::getTextBoxByName( this, "BalanceText" );
@@ -176,6 +182,7 @@ BOOL LLStatusBar::postBuild()
 	childSetAction("build", onClickBuild, this );
 	childSetAction("scripts", onClickScripts, this );
 	childSetAction("restrictpush", onClickPush, this );
+	childSetAction("status_voice", onClickVoice, this );
 
 	childSetActionTextbox("ParcelNameText", onClickParcelInfo );
 	childSetActionTextbox("BalanceText", onClickBalance );
@@ -285,13 +292,13 @@ void LLStatusBar::refresh()
 	{
 		childGetRect( "scriptout", buttonRect );
 		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
-		mBtnScriptOut->setRect(r);
-		mBtnScriptOut->setVisible(TRUE);
+		childSetRect("scriptout",r);
+		childSetVisible("scriptout", true);
 		x += buttonRect.getWidth();
 	}
 	else
 	{
-		mBtnScriptOut->setVisible(FALSE);
+		childSetVisible("scriptout", false);
 	}
 
 	if ((region && region->getAllowDamage()) ||
@@ -300,19 +307,19 @@ void LLStatusBar::refresh()
 		// set visibility based on flashing
 		if( mHealthTimer->hasExpired() )
 		{
-			mBtnHealth->setVisible( TRUE );
+			childSetVisible("health", true);
 		}
 		else
 		{
 			BOOL flash = S32(mHealthTimer->getElapsedSeconds() * ICON_FLASH_FREQUENCY) & 1;
-			mBtnHealth->setVisible( flash );
+			childSetVisible("health", flash);
 		}
 		mTextHealth->setVisible(TRUE);
 
 		// Health
 		childGetRect( "health", buttonRect );
 		r.setOriginAndSize( x, y-GRAPHIC_FUDGE, buttonRect.getWidth(), buttonRect.getHeight());
-		mBtnHealth->setRect(r);
+		childSetRect("health", r);
 		x += buttonRect.getWidth();
 
 		const S32 health_width = S32( LLFontGL::sSansSerifSmall->getWidth("100%") );
@@ -323,7 +330,7 @@ void LLStatusBar::refresh()
 	else
 	{
 		// invisible if region doesn't allow damage
-		mBtnHealth->setVisible(FALSE);
+		childSetVisible("health", false);
 		mTextHealth->setVisible(FALSE);
 	}
 
@@ -332,24 +339,24 @@ void LLStatusBar::refresh()
 	{
 		// No Fly Zone
 		childGetRect( "fly", buttonRect );
-		mBtnFly->setVisible(TRUE);
+		childSetVisible( "fly", true );
 		r.setOriginAndSize( x, y-GRAPHIC_FUDGE, buttonRect.getWidth(), buttonRect.getHeight());
-		mBtnFly->setRect(r);
+		childSetRect( "fly", r );
 		x += buttonRect.getWidth();
 	}
 	else
 	{
-		mBtnFly->setVisible(FALSE);
+		childSetVisible("fly", false);
 	}
 
 	BOOL no_build = parcel && !parcel->getAllowModify();
-	mBtnBuild->setVisible( no_build );
+	childSetVisible("build", no_build);
 	if (no_build)
 	{
 		childGetRect( "build", buttonRect );
 		// No Build Zone
 		r.setOriginAndSize( x, y-GRAPHIC_FUDGE, buttonRect.getWidth(), buttonRect.getHeight());
-		mBtnBuild->setRect(r);
+		childSetRect( "build", r );
 		x += buttonRect.getWidth();
 	}
 
@@ -361,37 +368,46 @@ void LLStatusBar::refresh()
 	{
 		no_scripts = TRUE;
 	}
-	mBtnScripts->setVisible( no_scripts );
+	childSetVisible("scripts", no_scripts);
 	if (no_scripts)
 	{
 		// No scripts
 		childGetRect( "scripts", buttonRect );
 		r.setOriginAndSize( x, y-GRAPHIC_FUDGE, buttonRect.getWidth(), buttonRect.getHeight());
-		mBtnScripts->setRect(r);
+		childSetRect( "scripts", r );
 		x += buttonRect.getWidth();
 	}
 
 	BOOL no_region_push = (region && region->getRestrictPushObject());
 	BOOL no_push = no_region_push || (parcel && parcel->getRestrictPushObject());
-	mBtnPush->setVisible( no_push );
+	childSetVisible("restrictpush", no_push);
 	if (no_push)
 	{
 		childGetRect( "restrictpush", buttonRect );
-		// No Push Zone
 		r.setOriginAndSize( x, y-GRAPHIC_FUDGE, buttonRect.getWidth(), buttonRect.getHeight());
-		mBtnPush->setRect(r);
+		childSetRect( "restrictpush", r );
+		x += buttonRect.getWidth();
+	}
+
+	BOOL have_voice = gVoiceClient->getAreaVoiceDisabled() ? FALSE : TRUE;
+	childSetVisible("status_voice", have_voice);
+	if (have_voice)
+	{
+		childGetRect( "status_voice", buttonRect );
+		r.setOriginAndSize( x, y-GRAPHIC_FUDGE, buttonRect.getWidth(), buttonRect.getHeight());
+		childSetRect( "status_voice", r );
 		x += buttonRect.getWidth();
 	}
 
 	BOOL canBuyLand = parcel
 		&& !parcel->isPublic()
 		&& gParcelMgr->canAgentBuyParcel(parcel, false);
-	mBtnBuyLand->setVisible(canBuyLand);
+	childSetVisible("buyland", canBuyLand);
 	if (canBuyLand)
 	{
 		childGetRect( "buyland", buttonRect );
 		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
-		mBtnBuyLand->setRect(r);
+		childSetRect( "buyland", r );
 		x += buttonRect.getWidth();
 	}
 
@@ -460,7 +476,7 @@ void LLStatusBar::setVisibleForMouselook(bool visible)
 	mTextTime->setVisible(visible);
 	mSGBandwidth->setVisible(visible);
 	mSGPacketLoss->setVisible(visible);
-	mBtnBuyCurrency->setVisible(visible);
+	childSetVisible("buycurrency", visible);
 	setBackgroundVisible(visible);
 }
 
@@ -569,58 +585,55 @@ S32 LLStatusBar::getSquareMetersLeft() const
 	return mSquareMetersCredit - mSquareMetersCommitted;
 }
 
-// static
-void LLStatusBar::onClickParcelInfo(void* data)
+static void onClickParcelInfo(void* data)
 {
 	gParcelMgr->selectParcelAt(gAgent.getPositionGlobal());
 
 	LLFloaterLand::show();
 }
 
-// static
-void LLStatusBar::onClickBalance(void* data)
+static void onClickBalance(void* data)
 {
 	LLFloaterBuyCurrency::buyCurrency();
 }
 
-// static
-void LLStatusBar::onClickBuyCurrency(void* data)
+static void onClickBuyCurrency(void* data)
 {
 	LLFloaterBuyCurrency::buyCurrency();
 }
 
-// static
-void LLStatusBar::onClickHealth(void* )
+static void onClickHealth(void* )
 {
 	LLNotifyBox::showXml("NotSafe");
 }
 
-// static
-void LLStatusBar::onClickScriptDebug(void*)
+static void onClickScriptDebug(void*)
 {
 	LLFloaterScriptDebug::show(LLUUID::null);
 }
 
-// static
-void LLStatusBar::onClickFly(void* )
+static void onClickFly(void* )
 {
 	LLNotifyBox::showXml("NoFly");
 }
 
-// static
-void LLStatusBar::onClickPush(void* )
+static void onClickPush(void* )
 {
 	LLNotifyBox::showXml("PushRestricted");
 }
 
-// static
-void LLStatusBar::onClickBuild(void*)
+static void onClickVoice(void* )
+{
+	LLNotifyBox::showXml("VoiceAvailablity");
+	//LLFirstUse::useVoice();
+}
+
+static void onClickBuild(void*)
 {
 	LLNotifyBox::showXml("NoBuild");
 }
 
-// static
-void LLStatusBar::onClickScripts(void*)
+static void onClickScripts(void*)
 {
 	LLViewerRegion* region = gAgent.getRegion();
 	if(region && region->getRegionFlags() & REGION_FLAGS_ESTATE_SKIP_SCRIPTS)
@@ -637,8 +650,7 @@ void LLStatusBar::onClickScripts(void*)
 	}
 }
 
-// static
-void LLStatusBar::onClickBuyLand(void*)
+static void onClickBuyLand(void*)
 {
 	gParcelMgr->selectParcelAt(gAgent.getPositionGlobal());
 	gParcelMgr->startBuyLand();

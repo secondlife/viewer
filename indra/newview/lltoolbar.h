@@ -47,9 +47,8 @@ public:
 	void refresh();
 
 	// callbacks
-	static void onClickIM(void*);
+	static void onClickCommunicate(void*);
 	static void onClickChat(void* data);
-	static void onClickFriends(void* data);
 	static void onClickAppearance(void* data);
 	static void onClickClothing(void* data);
 	static void onClickFly(void*);

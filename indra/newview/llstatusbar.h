@@ -61,19 +61,7 @@ public:
 	S32 getSquareMetersCommitted() const;
 	S32 getSquareMetersLeft() const;
 
-protected:
-	static void onClickParcelInfo(void*);
-	static void onClickBalance(void*);
-	static void onClickBuyCurrency(void*);
-	static void onClickRegionInfo(void*);
-	static void onClickHealth(void*);
-	static void onClickFly(void*);
-	static void onClickPush(void*);
-	static void onClickBuild(void*);
-	static void onClickScripts(void*);
-	static void onClickBuyLand(void*);
-	static void onClickScriptDebug(void*);
-	
+protected:	
 	// simple method to setup the part that holds the date
 	void setupDate();
 
@@ -81,15 +69,6 @@ protected:
 	LLTextBox	*mTextBalance;
 	LLTextBox	*mTextHealth;
 	LLTextBox	*mTextTime;
-
-	LLButton	*mBtnScriptOut;
-	LLButton	*mBtnHealth;
-	LLButton	*mBtnFly;
-	LLButton	*mBtnBuild;
-	LLButton	*mBtnScripts;
-	LLButton	*mBtnPush;
-	LLButton	*mBtnBuyLand;
-
 
 	LLTextBox*	mTextParcelName;
 

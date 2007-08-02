@@ -973,7 +973,7 @@ void LLFloaterAnimPreview::onBtnOK(void* userdata)
 		LLKeyframeDataCache::removeKeyframeData(floaterp->mMotionID);
 	}
 
-	floaterp->onClose(false);
+	floaterp->close(false);
 }
 
 //-----------------------------------------------------------------------------

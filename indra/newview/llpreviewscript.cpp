@@ -1074,9 +1074,6 @@ LLPreviewLSL::LLPreviewLSL(const std::string& name, const LLRect& rect,
 
 	gUICtrlFactory->buildFloater(this,"floater_script_preview.xml", &factory_map);
 
-	moveResizeHandleToFront();
-
-	
 	const LLInventoryItem* item = getItem();	
 
 	childSetCommitCallback("desc", LLPreview::onText, this);
@@ -1599,8 +1596,6 @@ LLLiveLSLEditor::LLLiveLSLEditor(const std::string& name,
 
 	LLCallbackMap::map_t factory_map;
 	factory_map["script ed panel"] = LLCallbackMap(LLLiveLSLEditor::createScriptEdPanel, this);
-
-	moveResizeHandleToFront();
 
 	gUICtrlFactory->buildFloater(this,"floater_live_lsleditor.xml", &factory_map);
 

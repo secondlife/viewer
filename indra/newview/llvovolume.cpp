@@ -780,6 +780,8 @@ BOOL LLVOVolume::updateLOD()
 		mLODChanged = TRUE;
 	}
 
+	lod_changed |= LLViewerObject::updateLOD();
+	
 	return lod_changed;
 }
 
@@ -1108,7 +1110,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	mSculptChanged = FALSE;
 	mFaceMappingChanged = FALSE;
 
-	return TRUE;
+	return LLViewerObject::updateGeometry(drawable);
 }
 
 void LLVOVolume::updateFaceSize(S32 idx)

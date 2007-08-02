@@ -1391,9 +1391,9 @@ void LLMenuItemBranchGL::updateBranchParent(LLView* parentp)
 	}
 }
 
-void LLMenuItemBranchGL::onVisibilityChange( BOOL curVisibilityIn )
+void LLMenuItemBranchGL::onVisibilityChange( BOOL new_visibility )
 {
-	if (curVisibilityIn == FALSE && mBranch->getVisible() && !mBranch->getTornOff())
+	if (new_visibility == FALSE && !mBranch->getTornOff())
 	{
 		mBranch->setVisible(FALSE);
 	}

@@ -33,25 +33,25 @@ LLDebugVarMessageBox::LLDebugVarMessageBox(const std::string& title, EDebugVarTy
 	switch(var_type)
 	{
 	case VAR_TYPE_F32:
-		mSlider1 = new LLSliderCtrl("slider 1", LLRect(20,130,190,110), title, NULL, 70, 130, TRUE, TRUE, NULL, NULL, *((F32*)var), -100.f, 100.f, 0.1f, NULL);
+	  mSlider1 = new LLSliderCtrl("slider 1", LLRect(20,130,190,110), title, NULL, 70, 130, TRUE, TRUE, FALSE, NULL, NULL, *((F32*)var), -100.f, 100.f, 0.1f, NULL);
 		mSlider1->setPrecision(3);
 		addChild(mSlider1);
 		mSlider2 = NULL;
 		mSlider3 = NULL;
 		break;
 	case VAR_TYPE_S32:
-		mSlider1 = new LLSliderCtrl("slider 1", LLRect(20,100,190,80), title, NULL, 70, 130, TRUE, TRUE, NULL, NULL, (F32)*((S32*)var), -255.f, 255.f, 1.f, NULL);
+		mSlider1 = new LLSliderCtrl("slider 1", LLRect(20,100,190,80), title, NULL, 70, 130, TRUE, TRUE, FALSE, NULL, NULL, (F32)*((S32*)var), -255.f, 255.f, 1.f, NULL);
 		mSlider1->setPrecision(0);
 		addChild(mSlider1);
 		mSlider2 = NULL;
 		mSlider3 = NULL;
 		break;
 	case VAR_TYPE_VEC3:
-		mSlider1 = new LLSliderCtrl("slider 1", LLRect(20,130,190,110), "x: ", NULL, 70, 130, TRUE, TRUE, NULL, NULL, ((LLVector3*)var)->mV[VX], -100.f, 100.f, 0.1f, NULL);
+		mSlider1 = new LLSliderCtrl("slider 1", LLRect(20,130,190,110), "x: ", NULL, 70, 130, TRUE, TRUE, FALSE, NULL, NULL, ((LLVector3*)var)->mV[VX], -100.f, 100.f, 0.1f, NULL);
 		mSlider1->setPrecision(3);
-		mSlider2 = new LLSliderCtrl("slider 2", LLRect(20,100,190,80), "y: ", NULL, 70, 130, TRUE, TRUE, NULL, NULL, ((LLVector3*)var)->mV[VY], -100.f, 100.f, 0.1f, NULL);
+		mSlider2 = new LLSliderCtrl("slider 2", LLRect(20,100,190,80), "y: ", NULL, 70, 130, TRUE, TRUE, FALSE, NULL, NULL, ((LLVector3*)var)->mV[VY], -100.f, 100.f, 0.1f, NULL);
 		mSlider2->setPrecision(3);
-		mSlider3 = new LLSliderCtrl("slider 3", LLRect(20,70,190,50), "z: ", NULL, 70, 130, TRUE, TRUE, NULL, NULL, ((LLVector3*)var)->mV[VZ], -100.f, 100.f, 0.1f, NULL);
+		mSlider3 = new LLSliderCtrl("slider 3", LLRect(20,70,190,50), "z: ", NULL, 70, 130, TRUE, TRUE, FALSE, NULL, NULL, ((LLVector3*)var)->mV[VZ], -100.f, 100.f, 0.1f, NULL);
 		mSlider3->setPrecision(3);
 		addChild(mSlider1);
 		addChild(mSlider2);

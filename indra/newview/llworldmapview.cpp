@@ -292,8 +292,7 @@ void LLWorldMapView::draw()
 	const S32 half_height = height / 2;
 	LLVector3d camera_global = gAgent.getCameraPositionGlobal();
 
-	LLGLEnable scissor_test(GL_SCISSOR_TEST);
-	LLUI::setScissorRegionLocal(LLRect(0, height, width, 0));
+	LLLocalClipRect clip(getLocalRect());
 	{
 		LLGLSNoTexture no_texture;
 	

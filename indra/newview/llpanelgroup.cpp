@@ -105,16 +105,7 @@ void LLPanelGroupTab::handleClickHelp()
 		LLAlertDialog* dialogp = gViewerWindow->alertXml("GenericAlert", args);
 		if (dialogp)
 		{
-			LLView* viewp = this;
-			LLFloater* root_floater = NULL;
-			while(viewp)
-			{
-				if(viewp->getWidgetType() == WIDGET_TYPE_FLOATER)
-				{
-					root_floater = (LLFloater*)viewp;
-				}
-				viewp = viewp->getParent();
-			}
+			LLFloater* root_floater = gFloaterView->getParentFloater(this);;
 			if (root_floater)
 			{
 				root_floater->addDependentFloater(dialogp);

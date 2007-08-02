@@ -8,15 +8,16 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llpreviewsound.h"
+#include "audioengine.h"
+#include "llagent.h"          // gAgent
 #include "llbutton.h"
-#include "llresmgr.h"
 #include "llinventory.h"
 #include "llinventoryview.h"
-#include "audioengine.h"
-#include "llviewermessage.h"  // send_guid_sound_trigger
-#include "llagent.h"          // gAgent
 #include "lllineeditor.h"
+#include "llpreviewsound.h"
+#include "llresmgr.h"
+#include "llviewercontrol.h"
+#include "llviewermessage.h"  // send_guid_sound_trigger
 #include "llvieweruictrlfactory.h"
 
 extern LLAudioEngine* gAudiop;
@@ -82,7 +83,7 @@ void LLPreviewSound::auditionSound( void *userdata )
 	if(item && gAudiop)
 	{
 		LLVector3d lpos_global = gAgent.getPositionGlobal();
-				
-		gAudiop->triggerSound(item->getAssetUUID(), gAgent.getID(), SOUND_GAIN, lpos_global);
+		F32 volume = SOUND_GAIN * gSavedSettings.getF32("AudioLevelSFX");
+		gAudiop->triggerSound(item->getAssetUUID(), gAgent.getID(), volume, lpos_global);
 	}
 }

@@ -193,47 +193,28 @@ public:
 		mBottom = llmin(mBottom, mTop);
 	}
 	
-	friend const LLRectBase& operator|=(LLRectBase &a, const LLRectBase &b)	// Return rect including a & b
+	void unionWith(const LLRectBase &other)
 	{
-		a.mLeft = llmin(a.mLeft, b.mLeft);
-		a.mRight = llmax(a.mRight, b.mRight);
-		a.mBottom = llmin(a.mBottom, b.mBottom);
-		a.mTop = llmax(a.mTop, b.mTop);
-		return a;
+		mLeft = llmin(mLeft, other.mLeft);
+		mRight = llmax(mRight, other.mRight);
+		mBottom = llmin(mBottom, other.mBottom);
+		mTop = llmax(mTop, other.mTop);
 	}
 
-	friend LLRectBase operator|(const LLRectBase &a, const LLRectBase &b)	// Return rect including a & b
+	void intersectWith(const LLRectBase &other)
 	{
-		LLRectBase<Type> result;
-		result.mLeft = llmin(a.mLeft, b.mLeft);
-		result.mRight = llmax(a.mRight, b.mRight);
-		result.mBottom = llmin(a.mBottom, b.mBottom);
-		result.mTop = llmax(a.mTop, b.mTop);
-		return result;
-	}
-
-	friend const LLRectBase& operator&=(LLRectBase &a, const LLRectBase &b)	// set a to rect where a intersects b
-	{
-		a.mLeft = llmax(a.mLeft, b.mLeft);
-		a.mRight = llmin(a.mRight, b.mRight);
-		a.mBottom = llmax(a.mBottom, b.mBottom);
-		a.mTop = llmin(a.mTop, b.mTop);
-		if (a.mLeft > a.mRight)
+		mLeft = llmax(mLeft, other.mLeft);
+		mRight = llmin(mRight, other.mRight);
+		mBottom = llmax(mBottom, other.mBottom);
+		mTop = llmin(mTop, other.mTop);
+		if (mLeft > mRight)
 		{
-			a.mLeft = a.mRight;
+			mLeft = mRight;
 		}
-		if (a.mBottom > a.mTop)
+		if (mBottom > mTop)
 		{
-			a.mBottom = a.mTop;
+			mBottom = mTop;
 		}
-		return a;
-	}
-
-	friend LLRectBase operator&(const LLRectBase &a, const LLRectBase &b)	// Return rect where a intersects b
-	{
-		LLRectBase result = a;
-		result &= b;
-		return result;
 	}
 
 	friend std::ostream &operator<<(std::ostream &s, const LLRectBase &rect)

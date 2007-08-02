@@ -169,11 +169,11 @@ BOOL LLMuteList::isLinden(const LLString& name) const
 }
 
 
-BOOL LLMuteList::add(const LLMute& mute)
+BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 {
-	// Can't mute Lindens
+	// Can't mute text from Lindens
 	if ((mute.mType == LLMute::AGENT || mute.mType == LLMute::BY_NAME)
-		&& isLinden(mute.mName))
+		&& isLinden(mute.mName) && (flags & LLMute::flagTextChat || flags == 0))
 	{
 		gViewerWindow->alertXml("MuteLinden");
 		return FALSE;
@@ -218,25 +218,59 @@ BOOL LLMuteList::add(const LLMute& mute)
 	}
 	else
 	{
-		std::pair<mute_set_t::iterator, bool> result = mMutes.insert(mute);
-		if (result.second)
+		// Need a local (non-const) copy to set up flags properly.
+		LLMute localmute = mute;
+		
+		// If an entry for the same entity is already in the list, remove it, saving flags as necessary.
+		mute_set_t::iterator it = mMutes.find(localmute);
+		if (it != mMutes.end())
 		{
-			llinfos << "Muting " << mute.mName << " id " << mute.mID << llendl;
-			updateAdd(mute);
-			notifyObservers();
-			//Kill all particle systems owned by muted task
-			if(mute.mType == LLMute::AGENT || mute.mType == LLMute::OBJECT)
-			{
-				gWorldPointer->mPartSim.cleanMutedParticles(mute.mID);
-			}
-
-			return TRUE;
+			// This mute is already in the list.  Save the existing entry's flags if that's warranted.
+			localmute.mFlags = it->mFlags;
+			
+			mMutes.erase(it);
+			// Don't need to call notifyObservers() here, since it will happen after the entry has been re-added below.
 		}
 		else
 		{
-			return FALSE;
+			// There was no entry in the list previously.  Fake things up by making it look like the previous entry had all properties unmuted.
+			localmute.mFlags = LLMute::flagAll;
+		}
+
+		if(flags)
+		{
+			// The user passed some combination of flags.  Make sure those flag bits are turned off (i.e. those properties will be muted).
+			localmute.mFlags &= (~flags);
+		}
+		else
+		{
+			// The user passed 0.  Make sure all flag bits are turned off (i.e. all properties will be muted).
+			localmute.mFlags = 0;
+		}
+		
+		// (re)add the mute entry.
+		{			
+			std::pair<mute_set_t::iterator, bool> result = mMutes.insert(localmute);
+			if (result.second)
+			{
+				llinfos << "Muting " << localmute.mName << " id " << localmute.mID << " flags " << localmute.mFlags << llendl;
+				updateAdd(mute);
+				notifyObservers();
+				if(!(localmute.mFlags & LLMute::flagParticles))
+				{
+					//Kill all particle systems owned by muted task
+					if(localmute.mType == LLMute::AGENT || localmute.mType == LLMute::OBJECT)
+					{
+						gWorldPointer->mPartSim.cleanMutedParticles(localmute.mID);
+					}
+				}
+				return TRUE;
+			}
 		}
 	}
+	
+	// If we were going to return success, we'd have done it by now.
+	return FALSE;
 }
 
 void LLMuteList::updateAdd(const LLMute& mute)
@@ -251,14 +285,14 @@ void LLMuteList::updateAdd(const LLMute& mute)
 	msg->addUUIDFast(_PREHASH_MuteID, mute.mID);
 	msg->addStringFast(_PREHASH_MuteName, mute.mName);
 	msg->addS32("MuteType", mute.mType);
-	msg->addU32("MuteFlags", 0x0);	// future
+	msg->addU32("MuteFlags", mute.mFlags);
 	gAgent.sendReliableMessage();
 
 	mIsLoaded = TRUE;
 }
 
 
-BOOL LLMuteList::remove(const LLMute& mute)
+BOOL LLMuteList::remove(const LLMute& mute, U32 flags)
 {
 	BOOL found = FALSE;
 	
@@ -266,8 +300,46 @@ BOOL LLMuteList::remove(const LLMute& mute)
 	mute_set_t::iterator it = mMutes.find(mute);
 	if (it != mMutes.end())
 	{
-		updateRemove(*it);
+		LLMute localmute = *it;
+		bool remove = true;
+		if(flags)
+		{
+			// If the user passed mute flags, we may only want to turn some flags on.
+			localmute.mFlags |= flags;
+			
+			if(localmute.mFlags == LLMute::flagAll)
+			{
+				// Every currently available mute property has been masked out.
+				// Remove the mute entry entirely.
+			}
+			else
+			{
+				// Only some of the properties are masked out.  Update the entry.
+				remove = false;
+			}
+		}
+		else
+		{
+			// The caller didn't pass any flags -- just remove the mute entry entirely.
+		}
+		
+		// Always remove the entry from the set -- it will be re-added with new flags if necessary.
 		mMutes.erase(it);
+
+		if(remove)
+		{
+			// The entry was actually removed.  Notify the server.
+			updateRemove(localmute);
+			llinfos << "Unmuting " << localmute.mName << " id " << localmute.mID << " flags " << localmute.mFlags << llendl;
+		}
+		else
+		{
+			// Flags were updated, the mute entry needs to be retransmitted to the server and re-added to the list.
+			mMutes.insert(localmute);
+			updateAdd(localmute);
+			llinfos << "Updating mute entry " << localmute.mName << " id " << localmute.mID << " flags " << localmute.mFlags << llendl;
+		}
+		
 		// Must be after erase.
 		notifyObservers();
 		found = TRUE;
@@ -361,7 +433,7 @@ BOOL LLMuteList::loadFromFile(const LLString& filename)
 			buffer, " %d %254s %254[^|]| %u\n", &type, id_buffer, name_buffer,
 			&flags);
 		LLUUID id = LLUUID(id_buffer);
-		LLMute mute(id, name_buffer, (LLMute::EType)type);
+		LLMute mute(id, name_buffer, (LLMute::EType)type, flags);
 		if (mute.mID.isNull()
 			|| mute.mType == LLMute::BY_NAME)
 		{
@@ -410,19 +482,27 @@ BOOL LLMuteList::saveToFile(const LLString& filename)
 	{
 		it->mID.toString(id_string);
 		const LLString& name = it->mName;
-		fprintf(fp, "%d %s %s|\n", (S32)it->mType, id_string, name.c_str());
+		fprintf(fp, "%d %s %s|%u\n", (S32)it->mType, id_string, name.c_str(), it->mFlags);
 	}
 	fclose(fp);
 	return TRUE;
 }
 
 
-BOOL LLMuteList::isMuted(const LLUUID& id, const LLString& name) const
+BOOL LLMuteList::isMuted(const LLUUID& id, const LLString& name, U32 flags) const
 {
 	// don't need name or type for lookup
 	LLMute mute(id);
 	mute_set_t::const_iterator mute_it = mMutes.find(mute);
-	if (mute_it != mMutes.end()) return TRUE;
+	if (mute_it != mMutes.end())
+	{
+		// If any of the flags the caller passed are set, this item isn't considered muted for this caller.
+		if(flags & mute_it->mFlags)
+		{
+			return FALSE;
+		}
+		return TRUE;
+	}
 
 	// empty names can't be legacy-muted
 	if (name.empty()) return FALSE;

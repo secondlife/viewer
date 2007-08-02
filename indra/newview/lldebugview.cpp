@@ -17,7 +17,6 @@
 #include "llconsole.h"
 #include "lltextureview.h"
 #include "llresmgr.h"
-#include "llaudiostatus.h"
 #include "imageids.h"
 #include "llvelocitybar.h"
 #include "llviewerwindow.h"
@@ -88,19 +87,6 @@ LLDebugView::LLDebugView(const std::string& name, const LLRect &rect)
 	// Default to off
 	mStatViewp->setVisible(FALSE);
 	addChild(mStatViewp);
-
-	//
-	// Audio debugging stuff
-	//
-	const S32 AUDIO_STATUS_LEFT = rect.getWidth()/2-100;
-	const S32 AUDIO_STATUS_WIDTH = 320;
-	const S32 AUDIO_STATUS_TOP  = (rect.getHeight()/2)+400;
-	const S32 AUDIO_STATUS_HEIGHT = 320;
-	r.setLeftTopAndSize( AUDIO_STATUS_LEFT, AUDIO_STATUS_TOP, AUDIO_STATUS_WIDTH, AUDIO_STATUS_HEIGHT );
-	LLAudiostatus*	gAudioStatus = new LLAudiostatus("AudioStatus", r);
-	gAudioStatus->setFollowsTop();
-	gAudioStatus->setFollowsRight();
-	addChild(gAudioStatus);
 
 	const S32 VELOCITY_LEFT = 10; // 370;
 	const S32 VELOCITY_WIDTH = 500;

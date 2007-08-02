@@ -26,6 +26,7 @@ public:
 		F32 min_value,
 		F32 max_value,
 		F32 increment,
+		BOOL volume,
 		const LLString& control_name = LLString::null );
 
 	virtual EWidgetType getWidgetType() const;
@@ -46,6 +47,7 @@ public:
 	F32				getMinValue() const		{ return mMinValue; }
 	F32				getMaxValue() const		{ return mMaxValue; }
 	F32				getIncrement() const	{ return mIncrement; }
+	BOOL			getVolumeSlider() const	{ return mVolumeSlider; }
 	void			setMinValue(F32 min_value) {mMinValue = min_value;}
 	void			setMaxValue(F32 max_value) {mMaxValue = max_value;}
 	void			setIncrement(F32 increment) {mIncrement = increment;}
@@ -59,12 +61,16 @@ public:
 	virtual void	draw();
 
 protected:
+	void			setValueAndCommit(F32 value);
+
+protected:
 	F32				mValue;
 	F32				mInitialValue;
 	F32				mMinValue;
 	F32				mMaxValue;
 	F32				mIncrement;
 
+	BOOL			mVolumeSlider;
 	S32				mMouseOffset;
 	LLRect			mDragStartThumbRect;
 

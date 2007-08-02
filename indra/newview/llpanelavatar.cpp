@@ -1398,6 +1398,7 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id, const LLString &name,
 	setOnlineStatus(online_status);
 	
 	BOOL own_avatar = (mAvatarID == gAgent.getID() );
+	BOOL avatar_is_friend = LLAvatarTracker::instance().getBuddyInfo(mAvatarID) != NULL;
 
 	mPanelSecondLife->enableControls(own_avatar && mAllowEdit);
 	mPanelWeb->enableControls(own_avatar && mAllowEdit);
@@ -1515,7 +1516,7 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id, const LLString &name,
 				childSetToolTip("Show on Map",childGetValue("ShowOnMapFriendOnline").asString());
 			}
 			childSetVisible("Add Friend...", true);
-			childSetEnabled("Add Friend...", true);
+			childSetEnabled("Add Friend...", !avatar_is_friend);
 			childSetVisible("Pay...",TRUE);
 			childSetEnabled("Pay...",FALSE);
 		}
@@ -1589,12 +1590,12 @@ void LLPanelAvatar::resetGroupList()
 void LLPanelAvatar::onClickIM(void* userdata)
 {
 	LLPanelAvatar* self = (LLPanelAvatar*) userdata;
-	gIMView->setFloaterOpen(TRUE);
+	gIMMgr->setFloaterOpen(TRUE);
 
 	std::string name;
 	LLNameEditor* nameedit = LLViewerUICtrlFactory::getNameEditorByName(self->mPanelSecondLife, "name");
 	if (nameedit) name = nameedit->getText();
-	gIMView->addSession(name, IM_NOTHING_SPECIAL, self->mAvatarID);
+	gIMMgr->addSession(name, IM_NOTHING_SPECIAL, self->mAvatarID);
 }
 
 
@@ -1624,7 +1625,7 @@ void LLPanelAvatar::onClickAddFriend(void* userdata)
 	LLNameEditor* name_edit = LLViewerUICtrlFactory::getNameEditorByName(self->mPanelSecondLife, "name");	
 	if (name_edit)
 	{
-		LLFloaterFriends::requestFriendshipDialog(self->getAvatarID(),
+		LLPanelFriends::requestFriendshipDialog(self->getAvatarID(),
 												  name_edit->getText());
 	}
 }

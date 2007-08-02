@@ -57,6 +57,8 @@ LLVector2		LLUI::sGLScaleFactor(1.f, 1.f);
 LLWindow*		LLUI::sWindow = NULL;
 LLHtmlHelp*		LLUI::sHtmlHelp = NULL;
 BOOL            LLUI::sShowXUINames = FALSE;
+std::stack<LLRect> LLUI::sClipRectStack;
+
 //
 // Functions
 //
@@ -90,7 +92,7 @@ void make_ui_sound(const LLString& name)
 			{
 				llinfos << "ui sound name: " << name << llendl;	
 			}
-			LLUI::sAudioCallback(uuid, LLUI::sConfigGroup->getF32("AudioLevelUI"));
+			LLUI::sAudioCallback(uuid);
 		}
 	}
 }
@@ -1790,4 +1792,60 @@ LLUUID			LLUI::findAssetUUIDByName(const LLString	&asset_name)
 void LLUI::setHtmlHelp(LLHtmlHelp* html_help)
 {
 	LLUI::sHtmlHelp = html_help;
+}
+
+//static 
+void LLUI::pushClipRect(const LLRect& rect)
+{
+	LLRect combined_clip_rect = rect;
+	if (!sClipRectStack.empty())
+	{
+		combined_clip_rect.intersectWith(sClipRectStack.top());
+	}
+	sClipRectStack.push(combined_clip_rect);
+	setScissorRegionScreen(combined_clip_rect);
+}
+
+//static 
+void LLUI::popClipRect()
+{
+	sClipRectStack.pop();
+	if (!sClipRectStack.empty())
+	{
+		setScissorRegionScreen(sClipRectStack.top());
+	}
+}
+
+LLClipRect::LLClipRect(const LLRect& rect, BOOL enabled) : mScissorState(GL_SCISSOR_TEST, enabled), mEnabled(enabled)
+{
+	if (mEnabled)
+	{
+		LLUI::pushClipRect(rect);
+	}
+}
+
+LLClipRect::~LLClipRect()
+{
+	if (mEnabled)
+	{
+		LLUI::popClipRect();
+	}
+}
+
+LLLocalClipRect::LLLocalClipRect(const LLRect &rect, BOOL enabled) : mScissorState(GL_SCISSOR_TEST, enabled), mEnabled(enabled)
+{
+	if (mEnabled)
+	{
+		LLRect scissor_rect = rect;
+		scissor_rect.translate(LLFontGL::sCurOrigin.mX, LLFontGL::sCurOrigin.mY);
+		LLUI::pushClipRect(scissor_rect);
+	}
+}
+
+LLLocalClipRect::~LLLocalClipRect()
+{
+	if (mEnabled)
+	{
+		LLUI::popClipRect();
+	}
 }

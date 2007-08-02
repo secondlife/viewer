@@ -83,7 +83,7 @@ void LLGestureManager::activateGesture(const LLUUID& item_id)
 	mDeactivateSimilarNames.clear();
 
 	const BOOL inform_server = TRUE;
-	const BOOL deactivate_similar = TRUE;
+	const BOOL deactivate_similar = FALSE; 
 	activateGestureWithAsset(item_id, asset_id, inform_server, deactivate_similar);
 }
 
@@ -403,7 +403,7 @@ void LLGestureManager::replaceGesture(const LLUUID& item_id, LLMultiGesture* new
 		LLLoadInfo* info = new LLLoadInfo;
 		info->mItemID = item_id;
 		info->mInformServer = TRUE;
-		info->mDeactivateSimilar = TRUE;
+		info->mDeactivateSimilar = FALSE;
 
 		const BOOL high_priority = TRUE;
 		gAssetStorage->getAssetData(asset_id,
@@ -474,6 +474,8 @@ BOOL LLGestureManager::triggerAndReviseString(const std::string &utf8str, std::s
 			LLString cur_token_lower = cur_token;
 			LLString::toLower(cur_token_lower);
 
+			// collect gestures that match
+			std::vector <LLMultiGesture *> matching;
 			item_map_t::iterator it;
 			for (it = mActive.begin(); it != mActive.end(); ++it)
 			{
@@ -481,16 +483,32 @@ BOOL LLGestureManager::triggerAndReviseString(const std::string &utf8str, std::s
 
 				// Gesture asset data might not have arrived yet
 				if (!gesture) continue;
-
+				
 				if (!stricmp(gesture->mTrigger.c_str(), cur_token_lower.c_str()))
 				{
+					matching.push_back(gesture);
+				}
+				
+				gesture = NULL;
+			}
+
+			
+			if (matching.size() > 0)
+			{
+				// choose one at random
+				{
+					S32 random = ll_rand(matching.size());
+
+					gesture = matching[random];
+					
 					playGesture(gesture);
 
 					if (!gesture->mReplaceText.empty())
 					{
 						if( !first_token )
 						{
-							revised_string->append( " " );
+							if (revised_string)
+								revised_string->append( " " );
 						}
 
 						// Don't muck with the user's capitalization if we don't have to.
@@ -499,30 +517,34 @@ BOOL LLGestureManager::triggerAndReviseString(const std::string &utf8str, std::s
 						LLString::toLower(output_lower);
 						if( cur_token_lower == output_lower )
 						{
-							revised_string->append( cur_token );
+							if (revised_string)
+								revised_string->append( cur_token );
 						}
 						else
 						{
-							revised_string->append( output );
+							if (revised_string)
+								revised_string->append( output );
 						}
 					}
 					found_gestures = TRUE;
-					break;
 				}
-				gesture = NULL;
 			}
 		}
-
-		if( !gesture )
+		
+		if(!gesture)
 		{
+			// This token doesn't match a gesture.  Pass it through to the output.
 			if( !first_token )
 			{
-				revised_string->append( " " );
+				if (revised_string)
+					revised_string->append( " " );
 			}
-			revised_string->append( cur_token );
+			if (revised_string)
+				revised_string->append( cur_token );
 		}
 
 		first_token = FALSE;
+		gesture = NULL;
 	}
 	return found_gestures;
 }
@@ -530,7 +552,10 @@ BOOL LLGestureManager::triggerAndReviseString(const std::string &utf8str, std::s
 
 BOOL LLGestureManager::triggerGesture(KEY key, MASK mask)
 {
+	std::vector <LLMultiGesture *> matching;
 	item_map_t::iterator it;
+
+	// collect matching gestures
 	for (it = mActive.begin(); it != mActive.end(); ++it)
 	{
 		LLMultiGesture* gesture = (*it).second;
@@ -541,9 +566,19 @@ BOOL LLGestureManager::triggerGesture(KEY key, MASK mask)
 		if (gesture->mKey == key
 			&& gesture->mMask == mask)
 		{
-			playGesture(gesture);
-			return TRUE;
+			matching.push_back(gesture);
 		}
+	}
+
+	// choose one and play it
+	if (matching.size() > 0)
+	{
+		U32 random = ll_rand(matching.size());
+		
+		LLMultiGesture* gesture = matching[random];
+			
+		playGesture(gesture);
+		return TRUE;
 	}
 	return FALSE;
 }

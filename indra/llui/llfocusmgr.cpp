@@ -132,8 +132,7 @@ void LLFocusMgr::setKeyboardFocus(LLUICtrl* new_focus, FocusLostCallback on_focu
 	
 	if (lock)
 	{
-		mLockedView = mKeyboardFocus; 
-		mKeyboardLockedFocusLostCallback = on_focus_lost; 
+		lockFocus();
 	}
 }
 
@@ -290,6 +289,12 @@ void LLFocusMgr::removeTopCtrlWithoutCallback( LLUICtrl* top_view )
 			mTopCtrlName = "none";
 		#endif
 	}
+}
+
+void LLFocusMgr::lockFocus()
+{
+	mLockedView = mKeyboardFocus; 
+	mKeyboardLockedFocusLostCallback = mKeyboardFocusLostCallback; 
 }
 
 void LLFocusMgr::unlockFocus()

@@ -1254,9 +1254,10 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("UntrustedSimulatorMessage");
 	capabilityNames.append("ParcelVoiceInfoRequest");
 	capabilityNames.append("ChatSessionRequest");
+	capabilityNames.append("ProvisionVoiceAccountRequest");
 
 	llinfos << "posting to seed " << url << llendl;
-	
+
 	LLHTTPClient::post(url, capabilityNames, BaseCapabilitiesComplete::build(this));
 }
 

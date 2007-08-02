@@ -93,7 +93,7 @@ LLFloater* LLFloaterScriptDebug::addOutputWindow(const LLUUID &object_id)
 	LLFloater::setFloaterHost(NULL);
 
 	// Tabs sometimes overlap resize handle
-	sInstance->moveResizeHandleToFront();
+	sInstance->moveResizeHandlesToFront();
 
 	return floaterp;
 }

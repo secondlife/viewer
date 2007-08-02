@@ -305,6 +305,10 @@ void LLView::moveChildToFrontOfTabGroup(LLUICtrl* child)
 
 void LLView::addChild(LLView* child, S32 tab_group)
 {
+	if (mParentView == child) 
+	{
+		llerrs << "Adding view " << child->getName() << " as child of itself" << llendl;
+	}
 	// remove from current parent
 	if (child->mParentView) 
 	{
@@ -328,6 +332,10 @@ void LLView::addChild(LLView* child, S32 tab_group)
 
 void LLView::addChildAtEnd(LLView* child, S32 tab_group)
 {
+	if (mParentView == child) 
+	{
+		llerrs << "Adding view " << child->getName() << " as child of itself" << llendl;
+	}
 	// remove from current parent
 	if (child->mParentView) 
 	{
@@ -732,18 +740,22 @@ void LLView::setEnabled(BOOL enabled)
 // virtual
 void LLView::setVisible(BOOL visible)
 {
-	if( !visible && (gFocusMgr.getTopCtrl() == this) )
-	{
-		gFocusMgr.setTopCtrl( NULL );
-	}
-
 	if ( mVisible != visible )
 	{
-		// tell all children of this view that the visibility may have changed
-		onVisibilityChange ( visible );
-	}
+		if( !visible && (gFocusMgr.getTopCtrl() == this) )
+		{
+			gFocusMgr.setTopCtrl( NULL );
+		}
 
-	mVisible = visible;
+		mVisible = visible;
+
+		// notify children of visibility change if root, or part of visible hierarchy
+		if (!getParent() || getParent()->isInVisibleChain())
+		{
+			// tell all children of this view that the visibility may have changed
+			onVisibilityChange( visible );
+		}
+	}
 }
 
 // virtual
@@ -758,7 +770,7 @@ BOOL LLView::setLabelArg(const LLString& key, const LLString& text)
 	return FALSE;
 }
 
-void LLView::onVisibilityChange ( BOOL curVisibilityIn )
+void LLView::onVisibilityChange ( BOOL new_visibility )
 {
 	for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 	{
@@ -766,7 +778,7 @@ void LLView::onVisibilityChange ( BOOL curVisibilityIn )
 		// only views that are themselves visible will have their overall visibility affected by their ancestors
 		if (viewp->getVisible())
 		{
-			viewp->onVisibilityChange ( curVisibilityIn );
+			viewp->onVisibilityChange ( new_visibility );
 		}
 	}
 }
@@ -1370,64 +1382,61 @@ LLView* LLView::childrenHandleRightMouseUp(S32 x, S32 y, MASK mask)
 
 void LLView::draw()
 {
-	if (getVisible())
+	if (sDebugRects)
 	{
-		if (sDebugRects)
-		{
-			drawDebugRect();
+		drawDebugRect();
 
-			// Check for bogus rectangle
-			if (mRect.mRight <= mRect.mLeft
-				|| mRect.mTop <= mRect.mBottom)
-			{
-				llwarns << "Bogus rectangle for " << getName() << " with " << mRect << llendl;
-			}
+		// Check for bogus rectangle
+		if (mRect.mRight <= mRect.mLeft
+			|| mRect.mTop <= mRect.mBottom)
+		{
+			llwarns << "Bogus rectangle for " << getName() << " with " << mRect << llendl;
 		}
+	}
 
-		LLRect rootRect = getRootView()->getRect();
-		LLRect screenRect;
+	LLRect rootRect = getRootView()->getRect();
+	LLRect screenRect;
 
-		// draw focused control on top of everything else
-		LLView* focus_view = gFocusMgr.getKeyboardFocus();
-		if (focus_view && focus_view->getParent() != this)
+	// draw focused control on top of everything else
+	LLView* focus_view = gFocusMgr.getKeyboardFocus();
+	if (focus_view && focus_view->getParent() != this)
+	{
+		focus_view = NULL;
+	}
+
+	for (child_list_reverse_iter_t child_iter = mChildList.rbegin(); child_iter != mChildList.rend(); ++child_iter)
+	{
+		LLView *viewp = *child_iter;
+		++sDepth;
+
+		if (viewp->getVisible() && viewp != focus_view)
 		{
-			focus_view = NULL;
-		}
-
-		for (child_list_reverse_iter_t child_iter = mChildList.rbegin(); child_iter != mChildList.rend(); ++child_iter)
-		{
-			LLView *viewp = *child_iter;
-			++sDepth;
-
-			if (viewp->getVisible() && viewp != focus_view)
+			// Only draw views that are within the root view
+			localRectToScreen(viewp->getRect(),&screenRect);
+			if ( rootRect.rectInRect(&screenRect) )
 			{
-				// Only draw views that are within the root view
-				localRectToScreen(viewp->getRect(),&screenRect);
-				if ( rootRect.rectInRect(&screenRect) )
+				glMatrixMode(GL_MODELVIEW);
+				LLUI::pushMatrix();
 				{
-					glMatrixMode(GL_MODELVIEW);
-					LLUI::pushMatrix();
-					{
-						LLUI::translate((F32)viewp->getRect().mLeft, (F32)viewp->getRect().mBottom, 0.f);
-						viewp->draw();
-					}
-					LLUI::popMatrix();
+					LLUI::translate((F32)viewp->getRect().mLeft, (F32)viewp->getRect().mBottom, 0.f);
+					viewp->draw();
 				}
+				LLUI::popMatrix();
 			}
-
-			--sDepth;
 		}
 
-		if (focus_view && focus_view->getVisible())
-		{
-			drawChild(focus_view);
-		}
+		--sDepth;
+	}
 
-		// HACK
-		if (sEditingUI && this == sEditingUIView)
-		{
-			drawDebugRect();
-		}
+	if (focus_view && focus_view->getVisible())
+	{
+		drawChild(focus_view);
+	}
+
+	// HACK
+	if (sEditingUI && this == sEditingUIView)
+	{
+		drawDebugRect();
 	}
 }
 
@@ -1480,13 +1489,13 @@ void LLView::drawDebugRect()
 	}
 }
 
-void LLView::drawChild(LLView* childp, S32 x_offset, S32 y_offset)
+void LLView::drawChild(LLView* childp, S32 x_offset, S32 y_offset, BOOL force_draw)
 {
 	if (childp && childp->getParent() == this)
 	{
 		++sDepth;
 
-		if (childp->getVisible())
+		if (childp->getVisible() || force_draw)
 		{
 			glMatrixMode(GL_MODELVIEW);
 			LLUI::pushMatrix();
@@ -1616,7 +1625,7 @@ void LLView::updateRect()
 			LLView* viewp = *child_it;
 			if (viewp->getVisible())
 			{
-				child_spanning_rect |=  viewp->mRect;
+				child_spanning_rect.unionWith(viewp->mRect);
 			}
 		}
 

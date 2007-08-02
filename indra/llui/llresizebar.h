@@ -17,7 +17,7 @@ class LLResizeBar : public LLView
 public:
 	enum Side { LEFT, TOP, RIGHT, BOTTOM };
 
-	LLResizeBar(const LLString& name, const LLRect& rect, S32 min_width, S32 min_height, Side side );
+	LLResizeBar(const LLString& name, LLView* resizing_view, const LLRect& rect, S32 min_size, S32 max_size, Side side );
 
 	virtual EWidgetType getWidgetType() const;
 	virtual LLString getWidgetTag() const;
@@ -27,7 +27,8 @@ public:
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 
-	void			setResizeLimits( S32 min_width, S32 min_height ) { mMinWidth = min_width; mMinHeight = min_height; }
+	void			setResizeLimits( S32 min_size, S32 max_size ) { mMinSize = min_size; mMaxSize = max_size; }
+	void			setEnableSnapping(BOOL enable) { mSnappingEnabled = enable; }
 
 protected:
 	S32				mDragLastScreenX;
@@ -35,9 +36,11 @@ protected:
 	S32				mLastMouseScreenX;
 	S32				mLastMouseScreenY;
 	LLCoordGL		mLastMouseDir;
-	S32				mMinWidth;
-	S32				mMinHeight;
+	S32				mMinSize;
+	S32				mMaxSize;
 	Side			mSide;
+	BOOL			mSnappingEnabled;
+	LLView*			mResizingView;
 };
 
 const S32 RESIZE_BAR_HEIGHT = 3;

@@ -1,5 +1,5 @@
 /** 
- * @file llimview.cpp
+ * @file LLIMMgr.cpp
  * @brief Container for Instant Messaging
  *
  * Copyright (c) 2001-$CurrentYear$, Linden Research, Inc.
@@ -12,9 +12,9 @@
 
 #include "llfontgl.h"
 #include "llrect.h"
-#include "lldbstrings.h"
 #include "llerror.h"
 #include "llbutton.h"
+#include "llhttpclient.h"
 #include "llsdutil.h"
 #include "llstring.h"
 #include "linked_lists.h"
@@ -26,8 +26,8 @@
 #include "llviewerwindow.h"
 #include "llresmgr.h"
 #include "llfloaterchat.h"
+#include "llfloaterchatterbox.h"
 #include "llfloaternewim.h"
-#include "llhttpclient.h"
 #include "llhttpnode.h"
 #include "llimpanel.h"
 #include "llresizebar.h"
@@ -42,7 +42,10 @@
 #include "llcallingcard.h"
 #include "lltoolbar.h"
 #include "llviewermessage.h"
+#include "llnotify.h"
 #include "llviewerregion.h"
+
+#include "llfirstuse.h"
 
 const EInstantMessage GROUP_DIALOG = IM_SESSION_GROUP_START;
 const EInstantMessage DEFAULT_DIALOG = IM_NOTHING_SPECIAL;
@@ -50,32 +53,37 @@ const EInstantMessage DEFAULT_DIALOG = IM_NOTHING_SPECIAL;
 //
 // Globals
 //
-LLIMView* gIMView = NULL;
+LLIMMgr* gIMMgr = NULL;
 
 //
 // Statics
 //
+//*FIXME: make these all either UIStrings or Strings
 static LLString sOnlyUserMessage;
-static LLString sOfflineMessage;
+static LLUIString sOfflineMessage;
 
 static std::map<std::string,LLString> sEventStringsMap;
 static std::map<std::string,LLString> sErrorStringsMap;
 static std::map<std::string,LLString> sForceCloseSessionMap;
+static LLUIString sInviteMessage;
 //
 // Helper Functions
 //
 
 // returns true if a should appear before b
-static BOOL group_dictionary_sort( LLGroupData* a, LLGroupData* b )
-{
-	return (LLString::compareDict( a->mName, b->mName ) < 0);
-}
+//static BOOL group_dictionary_sort( LLGroupData* a, LLGroupData* b )
+//{
+//	return (LLString::compareDict( a->mName, b->mName ) < 0);
+//}
 
 
 // the other_participant_id is either an agent_id, a group_id, or an inventory
 // folder item_id (collection of calling cards)
-static LLUUID compute_session_id(EInstantMessage dialog,
-								 const LLUUID& other_participant_id)
+
+// static
+LLUUID LLIMMgr::computeSessionID(
+	EInstantMessage dialog,
+	const LLUUID& other_participant_id)
 {
 	LLUUID session_id;
 	if (IM_SESSION_GROUP_START == dialog)
@@ -86,6 +94,11 @@ static LLUUID compute_session_id(EInstantMessage dialog,
 	else if (IM_SESSION_CONFERENCE_START == dialog)
 	{
 		session_id.generate();
+	}
+	else if (IM_SESSION_INVITE == dialog)
+	{
+		// use provided session id for invites
+		session_id = other_participant_id;
 	}
 	else
 	{
@@ -121,87 +134,25 @@ LLFloaterIM::LLFloaterIM()
 
 BOOL LLFloaterIM::postBuild()
 {
-	requires("only_user_message", WIDGET_TYPE_TEXT_BOX);
-	requires("offline_message", WIDGET_TYPE_TEXT_BOX);
-	requires("generic_request_error", WIDGET_TYPE_TEXT_BOX);
-	requires("insufficient_perms_error", WIDGET_TYPE_TEXT_BOX);
-	requires("generic_request_error", WIDGET_TYPE_TEXT_BOX);
-	requires("add_session_event", WIDGET_TYPE_TEXT_BOX);
-	requires("message_session_event", WIDGET_TYPE_TEXT_BOX);
-	requires("removed_from_group", WIDGET_TYPE_TEXT_BOX);
+	sOnlyUserMessage = getFormattedUIString("only_user_message");
+	sOfflineMessage = getUIString("offline_message");
 
-	if (checkRequirements())
-	{
-		sOnlyUserMessage = childGetText("only_user_message");
-		sOfflineMessage = childGetText("offline_message");
+	sErrorStringsMap["generic"] =
+		getFormattedUIString("generic_request_error");
+	sErrorStringsMap["unverified"] =
+		getFormattedUIString("insufficient_perms_error");
+	sErrorStringsMap["no_user_911"] =
+		getFormattedUIString("user_no_help");
 
-		sErrorStringsMap["generic"] =
-			childGetText("generic_request_error");
-		sErrorStringsMap["unverified"] =
-			childGetText("insufficient_perms_error");
-		sErrorStringsMap["no_user_911"] =
-			childGetText("user_no_help");
+	sEventStringsMap["add"] = childGetText("add_session_event");
+	sEventStringsMap["message"] =
+		getFormattedUIString("message_session_event");
 
-		sEventStringsMap["add"] = childGetText("add_session_event");
-		sEventStringsMap["message"] =
-			childGetText("message_session_event");
+	sForceCloseSessionMap["removed"] =
+		getFormattedUIString("removed_from_group");
 
-		sForceCloseSessionMap["removed"] =
-			childGetText("removed_from_group");
-
-		return TRUE;
-	}
-	return FALSE;
-}
-
-//// virtual
-//BOOL LLFloaterIM::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
-//{
-//	BOOL handled = FALSE;
-//	if (getEnabled()
-//		&& mask == (MASK_CONTROL|MASK_SHIFT))
-//	{
-//		if (key == 'W')
-//		{
-//			LLFloater* floater = getActiveFloater();
-//			if (floater)
-//			{
-//				if (mTabContainer->getTabCount() == 1)
-//				{
-//					// trying to close last tab, close
-//					// entire window.
-//					close();
-//					handled = TRUE;
-//				}
-//			}
-//		}
-//	}
-//	return handled || LLMultiFloater::handleKeyHere(key, mask, called_from_parent);
-//}
-
-void LLFloaterIM::onClose(bool app_quitting)
-{
-	if (!app_quitting)
-	{
-		gSavedSettings.setBOOL("ShowIM", FALSE);
-	}
-	setVisible(FALSE);
-}
-
-//virtual
-void LLFloaterIM::addFloater(LLFloater* floaterp, BOOL select_added_floater, LLTabContainer::eInsertionPoint insertion_point)
-{
-/*
-	Code removed via patch from VWR-1626
-
-	// this code is needed to fix the bug where new IMs received will resize the IM floater.
-	// SL-29075, SL-24556, and others
-	LLRect parent_rect = getRect();
-	S32 dheight = LLFLOATER_HEADER_SIZE + TABCNTR_HEADER_HEIGHT;
-	LLRect rect(0, parent_rect.getHeight()-dheight, parent_rect.getWidth(), 0);
-	floaterp->reshape(rect.getWidth(), rect.getHeight(), TRUE);
-*/
-	LLMultiFloater::addFloater(floaterp, select_added_floater, insertion_point);
+	sInviteMessage = getUIString("invite_message");
+	return TRUE;
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -213,7 +164,7 @@ void LLFloaterIM::addFloater(LLFloater* floaterp, BOOL select_added_floater, LLT
 class LLIMViewFriendObserver : public LLFriendObserver
 {
 public:
-	LLIMViewFriendObserver(LLIMView* tv) : mTV(tv) {}
+	LLIMViewFriendObserver(LLIMMgr* tv) : mTV(tv) {}
 	virtual ~LLIMViewFriendObserver() {}
 	virtual void changed(U32 mask)
 	{
@@ -223,7 +174,30 @@ public:
 		}
 	}
 protected:
-	LLIMView* mTV;
+	LLIMMgr* mTV;
+};
+
+
+class LLIMMgr::LLIMSessionInvite
+{
+public:
+	LLIMSessionInvite(const LLUUID& session_id, const LLString& session_name, const LLUUID& caller_id,const LLString& caller_name, EInstantMessage type, const LLString& session_handle, const LLString& notify_box) : 
+						mSessionID(session_id),
+						mSessionName(session_name),
+						mCallerID(caller_id),
+						mCallerName(caller_name),
+						mType(type),
+						mSessionHandle(session_handle),
+						mNotifyBox(notify_box)
+						{};
+
+	LLUUID		mSessionID;
+	LLString	mSessionName;
+	LLUUID		mCallerID;
+	LLString	mCallerName;
+	EInstantMessage mType;
+	LLString	mSessionHandle;
+	LLString	mNotifyBox;
 };
 
 
@@ -234,7 +208,7 @@ protected:
 // This is a helper function to determine what kind of im session
 // should be used for the given agent.
 // static
-EInstantMessage LLIMView::defaultIMTypeForAgent(const LLUUID& agent_id)
+EInstantMessage LLIMMgr::defaultIMTypeForAgent(const LLUUID& agent_id)
 {
 	EInstantMessage type = IM_NOTHING_SPECIAL;
 	if(is_agent_friend(agent_id))
@@ -248,20 +222,20 @@ EInstantMessage LLIMView::defaultIMTypeForAgent(const LLUUID& agent_id)
 }
 
 // static
-//void LLIMView::onPinButton(void*)
+//void LLIMMgr::onPinButton(void*)
 //{
 //	BOOL state = gSavedSettings.getBOOL( "PinTalkViewOpen" );
 //	gSavedSettings.setBOOL( "PinTalkViewOpen", !state );
 //}
 
 // static 
-void LLIMView::toggle(void*)
+void LLIMMgr::toggle(void*)
 {
 	static BOOL return_to_mouselook = FALSE;
 
 	// Hide the button and show the floater or vice versa.
-	llassert( gIMView );
-	BOOL old_state = gIMView->getFloaterOpen();
+	llassert( gIMMgr );
+	BOOL old_state = gIMMgr->getFloaterOpen();
 	
 	// If we're in mouselook and we triggered the Talk View, we want to talk.
 	if( gAgent.cameraMouselook() && old_state )
@@ -292,53 +266,39 @@ void LLIMView::toggle(void*)
 		return_to_mouselook = FALSE;
 	}
 
-	gIMView->setFloaterOpen( new_state );
+	gIMMgr->setFloaterOpen( new_state );
 }
 
 //
 // Member Functions
 //
 
-LLIMView::LLIMView(const std::string& name, const LLRect& rect) :
-	LLView(name, rect, FALSE),
+LLIMMgr::LLIMMgr() :
 	mFriendObserver(NULL),
 	mIMReceived(FALSE)
 {
-	gIMView = this;
 	mFriendObserver = new LLIMViewFriendObserver(this);
 	LLAvatarTracker::instance().addObserver(mFriendObserver);
 
-	mTalkFloater = new LLFloaterIM();
+	//*HACK: use floater to initialize string constants from xml file
+	// then delete it right away
+	LLFloaterIM* dummy_floater = new LLFloaterIM();
+	delete dummy_floater;
 
-	// New IM Panel
-	mNewIMFloater = new LLFloaterNewIM();
-	mTalkFloater->addFloater(mNewIMFloater, TRUE);
-
-	// Tabs sometimes overlap resize handle
-	mTalkFloater->moveResizeHandleToFront();
+	mPendingVoiceInvitations = LLSD::emptyMap();
 }
 
-LLIMView::~LLIMView()
+LLIMMgr::~LLIMMgr()
 {
 	LLAvatarTracker::instance().removeObserver(mFriendObserver);
 	delete mFriendObserver;
 	// Children all cleaned up by default view destructor.
 }
 
-EWidgetType LLIMView::getWidgetType() const
-{
-	return WIDGET_TYPE_TALK_VIEW;
-}
-
-LLString LLIMView::getWidgetTag() const
-{
-	return LL_TALK_VIEW_TAG;
-}
-
 // Add a message to a session. 
-void LLIMView::addMessage(
+void LLIMMgr::addMessage(
 	const LLUUID& session_id,
-	const LLUUID& other_participant_id,
+	const LLUUID& target_id,
 	const char* from,
 	const char* msg,
 	const char* session_name,
@@ -347,11 +307,30 @@ void LLIMView::addMessage(
 	const LLUUID& region_id,
 	const LLVector3& position)
 {
+	LLUUID other_participant_id = target_id;
+	bool is_from_system = target_id.isNull();
+
+	// don't process muted IMs
+	if (gMuteListp->isMuted(
+			other_participant_id,
+			LLMute::flagTextChat) && !gMuteListp->isLinden(from))
+	{
+		return;
+	}
+
+	//not sure why...but if it is from ourselves we set the target_id
+	//to be NULL
+	if( other_participant_id == gAgent.getID() )
+	{
+		other_participant_id = LLUUID::null;
+	}
+
 	LLFloaterIMPanel* floater;
 	LLUUID new_session_id = session_id;
 	if (new_session_id.isNull())
 	{
-		new_session_id = compute_session_id(dialog, other_participant_id);
+		//no session ID...compute new one
+		new_session_id = computeSessionID(dialog, other_participant_id);
 	}
 	floater = findFloaterBySession(new_session_id);
 	if (!floater)
@@ -363,20 +342,10 @@ void LLIMView::addMessage(
 				<< " by participant " << other_participant_id << llendl;
 		}
 	}
-	if(floater)
-	{
-		floater->addHistoryLine(msg);
-	}
-	else
-	{
-		//if we have recently requsted to be dropped from a session
-		//but are still receiving messages from the session, don't make
-		//a new floater
-		if ( mSessionsDropRequested.has(session_id.asString()) )
-		{
-			return ;
-		}
 
+	// create IM window as necessary
+	if(!floater)
+	{
 		const char* name = from;
 		if(session_name && (strlen(session_name)>1))
 		{
@@ -384,7 +353,12 @@ void LLIMView::addMessage(
 		}
 
 		
-		floater = createFloater(new_session_id, other_participant_id, name, dialog, FALSE);
+		floater = createFloater(
+			new_session_id,
+			other_participant_id,
+			name,
+			dialog,
+			FALSE);
 
 		// When we get a new IM, and if you are a god, display a bit
 		// of information about the source. This is to help liaisons
@@ -404,27 +378,41 @@ void LLIMView::addMessage(
 			//<< "*** region_id: " << region_id << std::endl
 			//<< "*** position: " << position << std::endl;
 
-			floater->addHistoryLine(bonus_info.str());
+			floater->addHistoryLine(bonus_info.str(), gSavedSettings.getColor4("SystemChatColor"));
 		}
 
-		floater->addHistoryLine(msg);
 		make_ui_sound("UISndNewIncomingIMSession");
 	}
 
-	if( !mTalkFloater->getVisible() && !floater->getVisible())
+	// now add message to floater
+	if ( is_from_system ) // chat came from system
+	{
+		floater->addHistoryLine(
+			other_participant_id,
+			msg,
+			gSavedSettings.getColor4("SystemChatColor"));
+	}
+	else
+	{
+		floater->addHistoryLine(other_participant_id, msg);
+	}
+
+	LLFloaterChatterBox* chat_floater = LLFloaterChatterBox::getInstance(LLSD());
+
+	if( !chat_floater->getVisible() && !floater->getVisible())
 	{
 		//if the IM window is not open and the floater is not visible (i.e. not torn off)
-		LLFloater* previouslyActiveFloater = mTalkFloater->getActiveFloater();
+		LLFloater* previouslyActiveFloater = chat_floater->getActiveFloater();
 
 		// select the newly added floater (or the floater with the new line added to it).
 		// it should be there.
-		mTalkFloater->selectFloater(floater);
+		chat_floater->selectFloater(floater);
 
 		//there was a previously unseen IM, make that old tab flashing
 		//it is assumed that the most recently unseen IM tab is the one current selected/active
 		if ( previouslyActiveFloater && getIMReceived() )
 		{
-			mTalkFloater->setFloaterFlashing(previouslyActiveFloater, TRUE);
+			chat_floater->setFloaterFlashing(previouslyActiveFloater, TRUE);
 		}
 
 		//notify of a new IM
@@ -432,37 +420,87 @@ void LLIMView::addMessage(
 	}
 }
 
-void LLIMView::notifyNewIM()
+void LLIMMgr::addSystemMessage(const LLUUID& session_id, const LLString& message_name, const LLString::format_map_t& args)
 {
-	if(!gIMView->getFloaterOpen())
+	LLUIString message;
+	
+	// null session id means near me (chat history)
+	if (session_id.isNull())
+	{
+		LLFloaterChat* floaterp = LLFloaterChat::getInstance();
+
+		message = floaterp->getUIString(message_name);
+		message.setArgList(args);
+
+		LLChat chat(message);
+		chat.mSourceType = CHAT_SOURCE_SYSTEM;
+		LLFloaterChat::getInstance()->addChatHistory(chat);
+	}
+	else // going to IM session
+	{
+		LLFloaterIMPanel* floaterp = findFloaterBySession(session_id);
+		if (floaterp)
+		{
+			message = floaterp->getUIString(message_name);
+			message.setArgList(args);
+
+			gIMMgr->addMessage(session_id, LLUUID::null, SYSTEM_FROM, message.getString().c_str());
+		}
+	}
+}
+
+void LLIMMgr::notifyNewIM()
+{
+	if(!gIMMgr->getFloaterOpen())
 	{
 		mIMReceived = TRUE;
 	}
 }
 
-BOOL LLIMView::getIMReceived() const
+void LLIMMgr::clearNewIMNotification()
+{
+	mIMReceived = FALSE;
+}
+
+BOOL LLIMMgr::getIMReceived() const
 {
 	return mIMReceived;
 }
 
 // This method returns TRUE if the local viewer has a session
 // currently open keyed to the uuid. 
-BOOL LLIMView::isIMSessionOpen(const LLUUID& uuid)
+BOOL LLIMMgr::isIMSessionOpen(const LLUUID& uuid)
 {
 	LLFloaterIMPanel* floater = findFloaterBySession(uuid);
 	if(floater) return TRUE;
 	return FALSE;
 }
 
+LLUUID LLIMMgr::addP2PSession(const std::string& name,
+							const LLUUID& other_participant_id,
+							const LLString& voice_session_handle)
+{
+	LLUUID session_id = addSession(name, IM_NOTHING_SPECIAL, other_participant_id);
+
+	LLFloaterIMPanel* floater = findFloaterBySession(session_id);
+	if(floater)
+	{
+		LLVoiceChannelP2P* voice_channelp = (LLVoiceChannelP2P*)floater->getVoiceChannel();
+		voice_channelp->setSessionHandle(voice_session_handle);
+	}
+
+	return session_id;
+}
+
 // This adds a session to the talk view. The name is the local name of
 // the session, dialog specifies the type of session. If the session
 // exists, it is brought forward.  Specifying id = NULL results in an
 // im session to everyone. Returns the uuid of the session.
-LLUUID LLIMView::addSession(const std::string& name,
+LLUUID LLIMMgr::addSession(const std::string& name,
 							EInstantMessage dialog,
 							const LLUUID& other_participant_id)
 {
-	LLUUID session_id = compute_session_id(dialog, other_participant_id);
+	LLUUID session_id = computeSessionID(dialog, other_participant_id);
 
 	LLFloaterIMPanel* floater = findFloaterBySession(session_id);
 	if(!floater)
@@ -478,7 +516,7 @@ LLUUID LLIMView::addSession(const std::string& name,
 								TRUE);
 
 		noteOfflineUsers(floater, ids);
-		mTalkFloater->showFloater(floater);
+		LLFloaterChatterBox::getInstance(LLSD())->showFloater(floater);
 	}
 	else
 	{
@@ -491,7 +529,7 @@ LLUUID LLIMView::addSession(const std::string& name,
 
 // Adds a session using the given session_id.  If the session already exists 
 // the dialog type is assumed correct. Returns the uuid of the session.
-LLUUID LLIMView::addSession(const std::string& name,
+LLUUID LLIMMgr::addSession(const std::string& name,
 							EInstantMessage dialog,
 							const LLUUID& other_participant_id,
 							const LLDynamicArray<LLUUID>& ids)
@@ -501,7 +539,7 @@ LLUUID LLIMView::addSession(const std::string& name,
 		return LLUUID::null;
 	}
 
-	LLUUID session_id = compute_session_id(dialog,
+	LLUUID session_id = computeSessionID(dialog,
 										   other_participant_id);
 
 	LLFloaterIMPanel* floater = findFloaterBySession(session_id);
@@ -520,7 +558,7 @@ LLUUID LLIMView::addSession(const std::string& name,
 
 		noteOfflineUsers(floater, ids);
 	}
-	mTalkFloater->showFloater(floater);
+	LLFloaterChatterBox::getInstance(LLSD())->showFloater(floater);
 	//mTabContainer->selectTabPanel(panel);
 	floater->setInputFocus(TRUE);
 	return floater->getSessionID();
@@ -528,134 +566,272 @@ LLUUID LLIMView::addSession(const std::string& name,
 
 // This removes the panel referenced by the uuid, and then restores
 // internal consistency. The internal pointer is not deleted.
-void LLIMView::removeSession(const LLUUID& session_id)
+void LLIMMgr::removeSession(const LLUUID& session_id)
 {
 	LLFloaterIMPanel* floater = findFloaterBySession(session_id);
 	if(floater)
 	{
 		mFloaters.erase(floater->getHandle());
-		mTalkFloater->removeFloater(floater);
+		LLFloaterChatterBox::getInstance(LLSD())->removeFloater(floater);
 		//mTabContainer->removeTabPanel(floater);
-		if(session_id.notNull()
-		   && (floater->getDialogType() != IM_NOTHING_SPECIAL))
+	}
+}
+
+void LLIMMgr::inviteToSession(
+	const LLUUID& session_id, 
+	const LLString& session_name, 
+	const LLUUID& caller_id, 
+	const LLString& caller_name,
+	EInstantMessage type,
+	const LLString& session_handle)
+{
+	//ignore voice invites from voice-muted residents
+	if (gMuteListp->isMuted(caller_id))
+	{
+		return;
+	}
+
+	LLString notify_box_type;
+
+	BOOL ad_hoc_invite = FALSE;
+	if(type == IM_SESSION_P2P_INVITE)
+	{
+		notify_box_type = "VoiceInviteP2P";
+	}
+	else if (gAgent.isInGroup(session_id))
+	{
+		notify_box_type = "VoiceInviteGroup";
+	}
+	else	
+	{
+		notify_box_type = "VoiceInviteAdHoc";
+		ad_hoc_invite = TRUE;
+	}
+
+	LLIMSessionInvite* invite = new LLIMSessionInvite(
+		session_id,
+		session_name,
+		caller_id,
+		caller_name,
+		type,
+		session_handle,
+		notify_box_type);
+	
+	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(session_id);
+	if (channelp && channelp->callStarted())
+	{
+		// you have already started a call to the other user, so just accept the invite
+		inviteUserResponse(0, invite);
+		return;
+	}
+
+	if (type == IM_SESSION_P2P_INVITE || ad_hoc_invite)
+	{
+		// is the inviter a friend?
+		if (LLAvatarTracker::instance().getBuddyInfo(caller_id) == NULL)
 		{
-			mSessionsDropRequested[session_id.asString()] = LLSD();
-		}
-	}
-}
-
-void LLIMView::refresh()
-{
-	S32 old_scroll_pos = mNewIMFloater->getScrollPos();
-	mNewIMFloater->clearAllTargets();
-
-	// build a list of groups.
-	LLLinkedList<LLGroupData> group_list( group_dictionary_sort );
-
-	LLGroupData* group;
-	S32 count = gAgent.mGroups.count();
-	S32 i;
-	// read/sort groups on the first pass.
-	for(i = 0; i < count; ++i)
-	{
-		group = &(gAgent.mGroups.get(i));
-		group_list.addDataSorted( group );
-	}
-
-	// add groups to the floater on the second pass.
-	for(group = group_list.getFirstData();
-		group;
-		group = group_list.getNextData())
-	{
-		mNewIMFloater->addGroup(group->mID, (void*)(&GROUP_DIALOG), TRUE, FALSE);
-	}
-
-	// build a set of buddies in the current buddy list.
-	LLCollectAllBuddies collector;
-	LLAvatarTracker::instance().applyFunctor(collector);
-	LLCollectAllBuddies::buddy_map_t::iterator it;
-	LLCollectAllBuddies::buddy_map_t::iterator end;
-	it = collector.mOnline.begin();
-	end = collector.mOnline.end();
-	for( ; it != end; ++it)
-	{
-		mNewIMFloater->addAgent((*it).second, (void*)(&DEFAULT_DIALOG), TRUE);
-	}
-	it = collector.mOffline.begin();
-	end = collector.mOffline.end();
-	for( ; it != end; ++it)
-	{
-		mNewIMFloater->addAgent((*it).second, (void*)(&DEFAULT_DIALOG), FALSE);
-	}
-
-	mNewIMFloater->setScrollPos( old_scroll_pos );
-}
-
-// JC - This used to set console visibility.  It doesn't any more.
-void LLIMView::setFloaterOpen(BOOL set_open)
-{
-	gSavedSettings.setBOOL("ShowIM", set_open);
-
-	//RN "visible" and "open" are considered synonomous for now
-	if (set_open)
-	{
-		mTalkFloater->open();		/*Flawfinder: ignore*/
-	}
-	else
-	{
-		mTalkFloater->close();
-	}
-
-	if( set_open )
-	{
-		// notifyNewIM();
-
-		// We're showing the IM, so mark view as non-pending
-		mIMReceived = FALSE;
-	}
-}
-
-
-BOOL LLIMView::getFloaterOpen()
-{
-	return mTalkFloater->getVisible();
-}
- 
-void LLIMView::pruneSessions()
-{
-	if(mNewIMFloater)
-	{
-		BOOL removed = TRUE;
-		LLFloaterIMPanel* floater = NULL;
-		while(removed)
-		{
-			removed = FALSE;
-			std::set<LLViewHandle>::iterator handle_it;
-			for(handle_it = mFloaters.begin();
-				handle_it != mFloaters.end();
-				++handle_it)
+			// if not, and we are ignoring voice invites from non-friends
+			// then silently decline
+			if (gSavedSettings.getBOOL("VoiceCallsFriendsOnly"))
 			{
-				floater = (LLFloaterIMPanel*)LLFloater::getFloaterByHandle(*handle_it);
-				if(floater && !mNewIMFloater->isUUIDAvailable(floater->getOtherParticipantID()))
-				{
-					// remove this floater
-					removed = TRUE;
-					mFloaters.erase(handle_it++);
-					floater->close();
-					break;
-				}
+				// invite not from a friend, so decline
+				inviteUserResponse(1, invite);
+				return;
 			}
 		}
 	}
+
+	if ( !mPendingVoiceInvitations.has(session_id.asString()) )
+	{
+		if (caller_name.empty())
+		{
+			gCacheName->getName(caller_id, onInviteNameLookup, invite);
+		}
+		else
+		{
+			LLString::format_map_t args;
+			args["[NAME]"] = caller_name;
+			args["[GROUP]"] = session_name;
+
+			LLNotifyBox::showXml(notify_box_type, 
+								 args, 
+								 inviteUserResponse, 
+								 (void*)invite);
+
+		}
+		mPendingVoiceInvitations[session_id.asString()] = LLSD();
+	}
+}
+
+//static 
+void LLIMMgr::onInviteNameLookup(const LLUUID& id, const char* first, const char* last, BOOL is_group, void* userdata)
+{
+	LLIMSessionInvite* invite = (LLIMSessionInvite*)userdata;
+
+	invite->mCallerName = llformat("%s %s", first, last);
+	invite->mSessionName = invite->mCallerName;
+
+	LLString::format_map_t args;
+	args["[NAME]"] = invite->mCallerName;
+
+	LLNotifyBox::showXml(invite->mNotifyBox,
+						args, 
+						inviteUserResponse, 
+						(void*)invite);
+}
+
+class LLViewerChatterBoxInvitationAcceptResponder :
+	public LLHTTPClient::Responder
+{
+public:
+	LLViewerChatterBoxInvitationAcceptResponder(
+		const LLUUID& session_id,
+		bool is_voice_invitation)
+	{
+		mSessionID = session_id;
+		mIsVoiceInvitiation = is_voice_invitation;
+	}
+
+	void result(const LLSD& content)
+	{
+		if ( gIMMgr)
+		{
+			LLFloaterIMPanel* floaterp =
+				gIMMgr->findFloaterBySession(mSessionID);
+
+			if (floaterp)
+			{
+				floaterp->setSpeakersList(content["agents"]);
+
+				if ( mIsVoiceInvitiation )
+				{
+					floaterp->requestAutoConnect();
+					LLFloaterIMPanel::onClickStartCall(floaterp);
+				}
+			}
+
+			if ( mIsVoiceInvitiation )
+			{
+				gIMMgr->clearPendingVoiceInviation(mSessionID);
+			}
+		}
+	}
+
+	void error(U32 statusNum, const std::string& reason)
+	{
+		//throw something back to the viewer here?
+		if ( gIMMgr && mIsVoiceInvitiation )
+		{
+			gIMMgr->clearPendingVoiceInviation(mSessionID);
+		}
+	}
+
+private:
+	LLUUID mSessionID;
+	bool mIsVoiceInvitiation;
+};
+
+//static
+void LLIMMgr::inviteUserResponse(S32 option, void* user_data)
+{
+	LLIMSessionInvite* invitep = (LLIMSessionInvite*)user_data;
+
+	switch(option) 
+	{
+	case 0: // accept
+		{
+			if (invitep->mType == IM_SESSION_P2P_INVITE)
+			{
+				// create a normal IM session
+				invitep->mSessionID = gIMMgr->addP2PSession(
+					invitep->mSessionName,
+					invitep->mCallerID,
+					invitep->mSessionHandle);
+
+				LLFloaterIMPanel* im_floater =
+					gIMMgr->findFloaterBySession(
+						invitep->mSessionID);
+				if (im_floater)
+				{
+					im_floater->requestAutoConnect();
+					LLFloaterIMPanel::onClickStartCall(im_floater);
+				}
+				
+				gIMMgr->clearPendingVoiceInviation(invitep->mSessionID);
+			}
+			else
+			{
+				gIMMgr->addSession(
+					invitep->mSessionName,
+					invitep->mType,
+					invitep->mSessionID);
+
+				std::string url = gAgent.getRegion()->getCapability(
+					"ChatSessionRequest");
+
+				LLSD data;
+				data["method"] = "accept invitation";
+				data["session-id"] = invitep->mSessionID;
+				LLHTTPClient::post(
+					url,
+					data,
+					new LLViewerChatterBoxInvitationAcceptResponder(
+						invitep->mSessionID,
+						true));
+			}
+		}
+		break;
+	case 2: // mute (also implies ignore, so this falls through to the "ignore" case below)
+		{
+			// mute the sender of this invite
+			if (!gMuteListp->isMuted(invitep->mCallerID))
+			{
+				LLMute mute(invitep->mCallerID, invitep->mCallerName, LLMute::AGENT);
+				gMuteListp->add(mute);
+			}
+		}
+	/* FALLTHROUGH */
+	
+	case 1: // ignore
+		{
+			if (invitep->mType == IM_SESSION_P2P_INVITE)
+			{
+				if(gVoiceClient)
+				{
+					gVoiceClient->declineInvite(invitep->mSessionHandle);
+				}
+			}
+		}
+		break;
+	}
+
+	delete invitep;
+}
+
+void LLIMMgr::refresh()
+{
+}
+
+void LLIMMgr::setFloaterOpen(BOOL set_open)
+{
+	if (set_open)
+	{
+		LLFloaterChatterBox::showInstance(LLSD());
+	}
+	else
+	{
+		LLFloaterChatterBox::hideInstance(LLSD());
+	}
 }
 
 
-void LLIMView::disconnectAllSessions()
+BOOL LLIMMgr::getFloaterOpen()
 {
-	if(mNewIMFloater)
-	{
-		mNewIMFloater->setEnabled(FALSE);
-	}
+	return LLFloaterChatterBox::instanceVisible(LLSD());
+}
+ 
+void LLIMMgr::disconnectAllSessions()
+{
 	LLFloaterIMPanel* floater = NULL;
 	std::set<LLViewHandle>::iterator handle_it;
 	for(handle_it = mFloaters.begin();
@@ -670,7 +846,7 @@ void LLIMView::disconnectAllSessions()
 		if (floater)
 		{
 			floater->setEnabled(FALSE);
-			floater->onClose(TRUE);
+			floater->close(TRUE);
 		}
 	}
 }
@@ -679,7 +855,7 @@ void LLIMView::disconnectAllSessions()
 // This method returns the im panel corresponding to the uuid
 // provided. The uuid can either be a session id or an agent
 // id. Returns NULL if there is no matching panel.
-LLFloaterIMPanel* LLIMView::findFloaterBySession(const LLUUID& session_id)
+LLFloaterIMPanel* LLIMMgr::findFloaterBySession(const LLUUID& session_id)
 {
 	LLFloaterIMPanel* rv = NULL;
 	std::set<LLViewHandle>::iterator handle_it;
@@ -698,9 +874,17 @@ LLFloaterIMPanel* LLIMView::findFloaterBySession(const LLUUID& session_id)
 }
 
 
-BOOL LLIMView::hasSession(const LLUUID& session_id)
+BOOL LLIMMgr::hasSession(const LLUUID& session_id)
 {
 	return (findFloaterBySession(session_id) != NULL);
+}
+
+void LLIMMgr::clearPendingVoiceInviation(const LLUUID& session_id)
+{
+	if ( mPendingVoiceInvitations.has(session_id.asString()) )
+	{
+		mPendingVoiceInvitations.erase(session_id.asString());
+	}
 }
 
 
@@ -708,7 +892,7 @@ BOOL LLIMView::hasSession(const LLUUID& session_id)
 // consistency. Returns the pointer, caller (the class instance since
 // it is a private method) is not responsible for deleting the
 // pointer.  Add the floater to this but do not select it.
-LLFloaterIMPanel* LLIMView::createFloater(
+LLFloaterIMPanel* LLIMMgr::createFloater(
 	const LLUUID& session_id,
 	const LLUUID& other_participant_id,
 	const std::string& session_label,
@@ -720,7 +904,7 @@ LLFloaterIMPanel* LLIMView::createFloater(
 		llwarns << "Creating LLFloaterIMPanel with null session ID" << llendl;
 	}
 
-	llinfos << "LLIMView::createFloater: from " << other_participant_id 
+	llinfos << "LLIMMgr::createFloater: from " << other_participant_id 
 			<< " in session " << session_id << llendl;
 	LLFloaterIMPanel* floater = new LLFloaterIMPanel(session_label,
 													 LLRect(),
@@ -729,12 +913,12 @@ LLFloaterIMPanel* LLIMView::createFloater(
 													 other_participant_id,
 													 dialog);
 	LLTabContainerCommon::eInsertionPoint i_pt = user_initiated ? LLTabContainerCommon::RIGHT_OF_CURRENT : LLTabContainerCommon::END;
-	mTalkFloater->addFloater(floater, FALSE, i_pt);
+	LLFloaterChatterBox::getInstance(LLSD())->addFloater(floater, FALSE, i_pt);
 	mFloaters.insert(floater->getHandle());
 	return floater;
 }
 
-LLFloaterIMPanel* LLIMView::createFloater(
+LLFloaterIMPanel* LLIMMgr::createFloater(
 	const LLUUID& session_id,
 	const LLUUID& other_participant_id,
 	const std::string& session_label,
@@ -747,7 +931,7 @@ LLFloaterIMPanel* LLIMView::createFloater(
 		llwarns << "Creating LLFloaterIMPanel with null session ID" << llendl;
 	}
 
-	llinfos << "LLIMView::createFloater: from " << other_participant_id 
+	llinfos << "LLIMMgr::createFloater: from " << other_participant_id 
 			<< " in session " << session_id << llendl;
 	LLFloaterIMPanel* floater = new LLFloaterIMPanel(session_label,
 													 LLRect(),
@@ -757,18 +941,18 @@ LLFloaterIMPanel* LLIMView::createFloater(
 													 ids,
 													 dialog);
 	LLTabContainerCommon::eInsertionPoint i_pt = user_initiated ? LLTabContainerCommon::RIGHT_OF_CURRENT : LLTabContainerCommon::END;
-	mTalkFloater->addFloater(floater, FALSE, i_pt);
+	LLFloaterChatterBox::getInstance(LLSD())->addFloater(floater, FALSE, i_pt);
 	mFloaters.insert(floater->getHandle());
 	return floater;
 }
 
-void LLIMView::noteOfflineUsers(LLFloaterIMPanel* floater,
+void LLIMMgr::noteOfflineUsers(LLFloaterIMPanel* floater,
 								  const LLDynamicArray<LLUUID>& ids)
 {
 	S32 count = ids.count();
 	if(count == 0)
 	{
-		floater->addHistoryLine(sOnlyUserMessage);
+		floater->addHistoryLine(sOnlyUserMessage, gSavedSettings.getColor4("SystemChatColor"));
 	}
 	else
 	{
@@ -785,25 +969,25 @@ void LLIMView::noteOfflineUsers(LLFloaterIMPanel* floater,
 				LLUIString offline = sOfflineMessage;
 				offline.setArg("[FIRST]", first);
 				offline.setArg("[LAST]", last);
-				floater->addHistoryLine(offline);
+				floater->addHistoryLine(offline, gSavedSettings.getColor4("SystemChatColor"));
 			}
 		}
 	}
 }
 
-void LLIMView::processIMTypingStart(const LLIMInfo* im_info)
+void LLIMMgr::processIMTypingStart(const LLIMInfo* im_info)
 {
 	processIMTypingCore(im_info, TRUE);
 }
 
-void LLIMView::processIMTypingStop(const LLIMInfo* im_info)
+void LLIMMgr::processIMTypingStop(const LLIMInfo* im_info)
 {
 	processIMTypingCore(im_info, FALSE);
 }
 
-void LLIMView::processIMTypingCore(const LLIMInfo* im_info, BOOL typing)
+void LLIMMgr::processIMTypingCore(const LLIMInfo* im_info, BOOL typing)
 {
-	LLUUID session_id = compute_session_id(im_info->mIMType, im_info->mFromID);
+	LLUUID session_id = computeSessionID(im_info->mIMType, im_info->mFromID);
 	LLFloaterIMPanel* floater = findFloaterBySession(session_id);
 	if (floater)
 	{
@@ -811,8 +995,9 @@ void LLIMView::processIMTypingCore(const LLIMInfo* im_info, BOOL typing)
 	}
 }
 
-void LLIMView::updateFloaterSessionID(const LLUUID& old_session_id,
-									  const LLUUID& new_session_id)
+void LLIMMgr::updateFloaterSessionID(
+	const LLUUID& old_session_id,
+	const LLUUID& new_session_id)
 {
 	LLFloaterIMPanel* floater = findFloaterBySession(old_session_id);
 	if (floater)
@@ -821,9 +1006,9 @@ void LLIMView::updateFloaterSessionID(const LLUUID& old_session_id,
 	}
 }
 
-void LLIMView::onDropRequestReplyReceived(const LLUUID& session_id)
-{
-	mSessionsDropRequested.erase(session_id.asString());
+LLFloaterChatterBox* LLIMMgr::getFloater()
+{ 
+	return LLFloaterChatterBox::getInstance(LLSD()); 
 }
 
 void onConfirmForceCloseError(S32 option, void* data)
@@ -831,25 +1016,24 @@ void onConfirmForceCloseError(S32 option, void* data)
 	//only 1 option really
 	LLFloaterIMPanel* floater = ((LLFloaterIMPanel*) data);
 
-	if ( floater ) floater->onClose(FALSE);
+	if ( floater ) floater->close(FALSE);
 }
 
-class LLViewerIMSessionStartReply : public LLHTTPNode
+class LLViewerChatterBoxSessionStartReply : public LLHTTPNode
 {
 public:
 	virtual void describe(Description& desc) const
 	{
-		desc.shortInfo("Used for receiving a reply to a request to initialize an IM session");
+		desc.shortInfo("Used for receiving a reply to a request to initialize an ChatterBox session");
 		desc.postAPI();
 		desc.input(
 			"{\"client_session_id\": UUID, \"session_id\": UUID, \"success\" boolean, \"reason\": string");
 		desc.source(__FILE__, __LINE__);
 	}
 
-	virtual void post(
-		ResponsePtr response,
-		const LLSD& context,
-		const LLSD& input) const
+	virtual void post(ResponsePtr response,
+					  const LLSD& context,
+					  const LLSD& input) const
 	{
 		LLSD body;
 		LLUUID temp_session_id;
@@ -863,16 +1047,21 @@ public:
 		if ( success )
 		{
 			session_id = body["session_id"].asUUID();
-			gIMView->updateFloaterSessionID(
+			gIMMgr->updateFloaterSessionID(
 				temp_session_id,
 				session_id);
+			LLFloaterIMPanel* floaterp = gIMMgr->findFloaterBySession(session_id);
+			if (floaterp)
+			{
+				floaterp->setSpeakersList(body["agents"]);
+			}
 		}
 		else
 		{
 			//throw an error dialog and close the temp session's
 			//floater
 			LLFloaterIMPanel* floater = 
-				gIMView->findFloaterBySession(temp_session_id);
+				gIMMgr->findFloaterBySession(temp_session_id);
 			if (floater)
 			{
 				LLString::format_map_t args;
@@ -880,22 +1069,22 @@ public:
 					sErrorStringsMap[body["error"].asString()];
 				args["[RECIPIENT]"] = floater->getTitle();
 
-				gViewerWindow->alertXml(
-					"IMSessionStartError",
-					args,
-					onConfirmForceCloseError,
-					floater);
+				gViewerWindow->alertXml("ChatterBoxSessionStartError",
+										args,
+										onConfirmForceCloseError,
+										floater);
+
 			}
 		}
 	}
 };
 
-class LLViewerIMSessionEventReply : public LLHTTPNode
+class LLViewerChatterBoxSessionEventReply : public LLHTTPNode
 {
 public:
 	virtual void describe(Description& desc) const
 	{
-		desc.shortInfo("Used for receiving a reply to a IM session event");
+		desc.shortInfo("Used for receiving a reply to a ChatterBox session event");
 		desc.postAPI();
 		desc.input(
 			"{\"event\": string, \"reason\": string, \"success\": boolean, \"session_id\": UUID");
@@ -917,7 +1106,7 @@ public:
 		{
 			//throw an error dialog
 			LLFloaterIMPanel* floater = 
-				gIMView->findFloaterBySession(session_id);
+				gIMMgr->findFloaterBySession(session_id);
 			if (floater)
 			{
 				LLString::format_map_t args;
@@ -927,14 +1116,14 @@ public:
 					sEventStringsMap[body["event"].asString()];
 				args["[RECIPIENT]"] = floater->getTitle();
 
-				gViewerWindow->alertXml("IMSessionEventError",
+				gViewerWindow->alertXml("ChatterBoxSessionEventError",
 										args);
 			}
 		}
 	}
 };
 
-class LLViewerForceCloseIMSession: public LLHTTPNode
+class LLViewerForceCloseChatterBoxSession: public LLHTTPNode
 {
 public:
 	virtual void post(ResponsePtr response,
@@ -948,7 +1137,7 @@ public:
 		reason = input["body"]["reason"].asString();
 
 		LLFloaterIMPanel* floater =
-			gIMView ->findFloaterBySession(session_id);
+			gIMMgr ->findFloaterBySession(session_id);
 
 		if ( floater )
 		{
@@ -957,33 +1146,11 @@ public:
 			args["[NAME]"] = floater->getTitle();
 			args["[REASON]"] = sForceCloseSessionMap[reason];
 
-			gViewerWindow->alertXml("ForceCloseIMSession",
+			gViewerWindow->alertXml("ForceCloseChatterBoxSession",
 									args,
 									onConfirmForceCloseError,
 									floater);
 		}
-	}
-};
-
-class LLViewerIMSessionDropReply : public LLHTTPNode
-{
-public:
-	virtual void post(ResponsePtr response,
-					  const LLSD& context,
-					  const LLSD& input) const
-	{
-		LLUUID session_id;
-		bool success;
-
-		success = input["body"]["success"].asBoolean();
-		session_id = input["body"]["session_id"].asUUID();
-
-		if ( !success )
-		{
-			//throw an error alert?
-		}
-
-		gIMView->onDropRequestReplyReceived(session_id);
 	}
 };
 
@@ -995,29 +1162,38 @@ public:
 		const LLSD& context,
 		const LLSD& input) const
 	{
+		LLFloaterIMPanel* floaterp = gIMMgr->findFloaterBySession(input["body"]["session_id"].asUUID());
+		if (floaterp)
+		{
+			floaterp->updateSpeakersList(input["body"]["updates"]);
+		}
 	}
 };
 
 class LLViewerChatterBoxInvitation : public LLHTTPNode
 {
 public:
+
 	virtual void post(
-		ResponsePtr responder,
+		ResponsePtr response,
 		const LLSD& context,
 		const LLSD& input) const
 	{
 		if ( input["body"].has("instantmessage") )
 		{
+			LLString capability = input["body"]["capabilities"]["call"].asString();
+
 			LLSD message_params =
 				input["body"]["instantmessage"]["message_params"];
 
+			//do something here to have the IM invite behave
+			//just like a normal IM
 			//this is just replicated code from process_improved_im
 			//and should really go in it's own function -jwolk
 			if (gNoRender)
 			{
 				return;
 			}
-
 			char buffer[DB_IM_MSG_BUF_SIZE * 2];  /* Flawfinder: ignore */
 			LLChat chat;
 
@@ -1032,7 +1208,11 @@ public:
 				(time_t) message_params["timestamp"].asInteger();
 
 			BOOL is_busy = gAgent.getBusy();
-			BOOL is_muted =  gMuteListp->isMuted(from_id, name);
+			BOOL is_muted = gMuteListp->isMuted(
+				from_id,
+				name.c_str(),
+				LLMute::flagTextChat);
+
 			BOOL is_linden = gMuteListp->isLinden(
 				name.c_str());
 			char separator_string[3]=": ";		/* Flawfinder: ignore */
@@ -1049,7 +1229,8 @@ public:
 			chat.mMuted = is_muted && !is_linden;
 			chat.mFromID = from_id;
 			chat.mFromName = name;
-			if (!is_linden && is_busy)
+
+			if (!is_linden && (is_busy || is_muted))
 			{
 				return;
 			}
@@ -1077,10 +1258,9 @@ public:
 			BOOL is_this_agent = FALSE;
 			if(from_id == gAgentID)
 			{
-				from_id = LLUUID::null;
 				is_this_agent = TRUE;
 			}
-			gIMView->addMessage(
+			gIMMgr->addMessage(
 				session_id,
 				from_id,
 				name.c_str(),
@@ -1102,11 +1282,7 @@ public:
 			chat.mText = buffer;
 			LLFloaterChat::addChat(chat, TRUE, is_this_agent);
 
-			//if we succesfully accepted the invitation
-			//send a message back down
-
-			//TODO - When availble, have this response just be part
-			//of an automatic response system
+			//K now we want to accept the invitation
 			std::string url = gAgent.getRegion()->getCapability(
 				"ChatSessionRequest");
 
@@ -1118,27 +1294,45 @@ public:
 				LLHTTPClient::post(
 					url,
 					data,
-					NULL);
+					new LLViewerChatterBoxInvitationAcceptResponder(
+						input["body"]["session_id"],
+						false));
 			}
 		} //end if invitation has instant message
+		else if ( input["body"].has("voice") )
+		{
+			if (gNoRender)
+			{
+				return;
+			}
+			
+			if(!LLVoiceClient::voiceEnabled())
+			{
+				// Don't display voice invites unless the user has voice enabled.
+				return;
+			}
+
+			gIMMgr->inviteToSession(
+				input["body"]["session_id"].asUUID(), 
+				input["body"]["session_name"].asString(), 
+				input["body"]["from_id"].asUUID(),
+				input["body"]["from_name"].asString(),
+				IM_SESSION_INVITE);
+		}
 	}
 };
 
-LLHTTPRegistration<LLViewerIMSessionStartReply>
-   gHTTPRegistrationMessageImsessionstartreply(
+LLHTTPRegistration<LLViewerChatterBoxSessionStartReply>
+   gHTTPRegistrationMessageChatterboxsessionstartreply(
 	   "/message/ChatterBoxSessionStartReply");
 
-LLHTTPRegistration<LLViewerIMSessionEventReply>
-   gHTTPRegistrationMessageImsessioneventreply(
+LLHTTPRegistration<LLViewerChatterBoxSessionEventReply>
+   gHTTPRegistrationMessageChatterboxsessioneventreply(
 	   "/message/ChatterBoxSessionEventReply");
 
-LLHTTPRegistration<LLViewerForceCloseIMSession>
-    gHTTPRegistrationMessageForceCloseImSession(
+LLHTTPRegistration<LLViewerForceCloseChatterBoxSession>
+    gHTTPRegistrationMessageForceclosechatterboxsession(
 		"/message/ForceCloseChatterBoxSession");
-
-LLHTTPRegistration<LLViewerIMSessionDropReply>
-    gHTTPRegistrationMessageImSessionDropReply(
-		"/message/ChatterBoxSessionLeaveReply");
 
 LLHTTPRegistration<LLViewerChatterBoxSessionAgentListUpdates>
     gHTTPRegistrationMessageChatterboxsessionagentlistupdates(

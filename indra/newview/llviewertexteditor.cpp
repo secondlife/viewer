@@ -1247,8 +1247,8 @@ void LLViewerTextEditor::openEmbeddedSound( LLInventoryItem* item )
 	const F32 SOUND_GAIN = 1.0f;
 	if(gAudiop)
 	{
-		gAudiop->triggerSound(
-			item->getAssetUUID(), gAgentID, SOUND_GAIN, lpos_global);
+		F32 volume = SOUND_GAIN * gSavedSettings.getF32("AudioLevelSFX");
+		gAudiop->triggerSound(item->getAssetUUID(), gAgentID, volume, lpos_global);
 	}
 	showCopyToInvDialog( item );
 }
@@ -1417,7 +1417,7 @@ LLView* LLViewerTextEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlF
 	LLViewerTextEditor* text_editor = new LLViewerTextEditor(name, 
 								rect,
 								max_text_length,
-								text,
+								"",
 								font,
 								allow_embedded_items);
 
@@ -1433,7 +1433,18 @@ LLView* LLViewerTextEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlF
 	node->getAttributeBOOL("hide_scrollbar",hide_scrollbar);
 	text_editor->setHideScrollbarForShortDocs(hide_scrollbar);
 
+	BOOL hide_border = !text_editor->mBorder->getVisible();
+	node->getAttributeBOOL("hide_border", hide_border);
+	text_editor->setBorderVisible(!hide_border);
+
+	BOOL parse_html = text_editor->mParseHTML;
+	node->getAttributeBOOL("allow_html", parse_html);
+	text_editor->setParseHTML(parse_html);
+
 	text_editor->initFromXML(node, parent);
+
+	// add text after all parameters have been set
+	text_editor->appendStyledText(text, FALSE, FALSE, NULL);
 
 	return text_editor;
 }

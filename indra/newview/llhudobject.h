@@ -68,7 +68,8 @@ public:
 		LL_HUD_EFFECT_SPIRAL,
 		LL_HUD_EFFECT_EDIT,
 		LL_HUD_EFFECT_LOOKAT,
-		LL_HUD_EFFECT_POINTAT
+		LL_HUD_EFFECT_POINTAT,
+		LL_HUD_EFFECT_VOICE_VISUALIZER	// Ventrella
 	};
 protected:
 	static void sortObjects();

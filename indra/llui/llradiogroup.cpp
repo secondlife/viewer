@@ -149,7 +149,7 @@ BOOL LLRadioGroup::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 {
 	BOOL handled = FALSE;
 	// do any of the tab buttons have keyboard focus?
-	if (getEnabled() && !called_from_parent)
+	if (getEnabled() && !called_from_parent && mask == MASK_NONE)
 	{
 		switch(key)
 		{
@@ -421,6 +421,69 @@ LLView* LLRadioGroup::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 	return radio_group;
 }
 
+// LLCtrlSelectionInterface functions
+BOOL	LLRadioGroup::setCurrentByID( const LLUUID& id )
+{
+	return FALSE;
+}
+
+LLUUID	LLRadioGroup::getCurrentID()
+{
+	return LLUUID::null;
+}
+
+BOOL	LLRadioGroup::setSelectedByValue(LLSD value, BOOL selected)
+{
+	S32 idx = 0;
+	std::string value_string = value.asString();
+	for (button_list_t::const_iterator iter = mRadioButtons.begin();
+		 iter != mRadioButtons.end(); ++iter)
+	{
+		if((*iter)->getName() == value_string)
+		{
+			setSelectedIndex(idx);
+			return TRUE;
+		}
+		idx++;
+	}
+
+	return FALSE;
+}
+
+LLSD	LLRadioGroup::getSimpleSelectedValue()
+{
+	return getValue();	
+}
+
+BOOL	LLRadioGroup::isSelected(LLSD value)
+{
+	S32 idx = 0;
+	std::string value_string = value.asString();
+	for (button_list_t::const_iterator iter = mRadioButtons.begin();
+		 iter != mRadioButtons.end(); ++iter)
+	{
+		if((*iter)->getName() == value_string)
+		{
+			if (idx == mSelectedIndex) 
+			{
+				return TRUE;
+			}
+		}
+		idx++;
+	}
+	return FALSE;
+}
+
+BOOL	LLRadioGroup::operateOnSelection(EOperation op)
+{
+	return FALSE;
+}
+
+BOOL	LLRadioGroup::operateOnAll(EOperation op)
+{
+	return FALSE;
+}
+
 
 LLRadioCtrl::LLRadioCtrl(const LLString& name, const LLRect& rect, const LLString& label,	
 						 const LLFontGL* font, void (*commit_callback)(LLUICtrl*, void*), void* callback_userdata) :
@@ -438,3 +501,4 @@ void LLRadioCtrl::setValue(const LLSD& value)
 	LLCheckBoxCtrl::setValue(value);
 	mButton->setTabStop(value.asBoolean());
 }
+

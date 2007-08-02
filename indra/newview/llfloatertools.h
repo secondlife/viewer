@@ -24,7 +24,6 @@ class LLPanelContents;
 class LLPanelFace;
 class LLPanelLandInfo;
 class LLComboBox;
-class LLVolumeSliderCtrl;
 class LLParcelSelection;
 class LLObjectSelection;
 
@@ -100,7 +99,6 @@ public:
 	LLCheckBoxCtrl	*mRadioOrbit;
 	LLCheckBoxCtrl	*mRadioZoom;
 	LLCheckBoxCtrl	*mRadioPan;
-	LLVolumeSliderCtrl *mSliderZoom;
 
 	// Move buttons
 	LLCheckBoxCtrl	*mRadioMove;

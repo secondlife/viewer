@@ -75,6 +75,8 @@ public:
 	void insert(S32 charidx, const LLWString& wchars);
 	void replace(S32 charidx, llwchar wc);
 	
+	static const LLString::format_map_t sNullArgs;
+
 private:
 	void format();	
 	

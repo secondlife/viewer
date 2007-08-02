@@ -69,7 +69,7 @@ const LLString LLUICtrlFactory::sUICtrlNames[WIDGET_TYPE_COUNT] =
 	LLString("web_browser"),	//WIDGET_TYPE_WEBBROWSER
 	LLString("slider"),		//WIDGET_TYPE_SLIDER, actually LLSliderCtrl
 	LLString("slider_bar"), //WIDGET_TYPE_SLIDER_BAR, actually LLSlider
-	LLString("volume_slider"),	//WIDGET_TYPE_VOLUME_SLIDER, actually LLVolumeSliderCtrl
+	LLString("volume_slider"),	//WIDGET_TYPE_VOLUME_SLIDER, actually LLSlider + "volume" param
 	LLString("spinner"),		//WIDGET_TYPE_SPINNER, actually LLSpinCtrl
 	LLString("text_editor"),	//WIDGET_TYPE_TEXT_EDITOR
 	LLString("texture_picker"),//WIDGET_TYPE_TEXTURE_PICKER
@@ -135,6 +135,7 @@ const LLString LLUICtrlFactory::sUICtrlNames[WIDGET_TYPE_COUNT] =
 	LLString("texture_view"), //WIDGET_TYPE_TEXTURE_VIEW
 	LLString("memory_view"), //WIDGET_TYPE_MEMORY_VIEW
 	LLString("frame_stat_view"), //WIDGET_TYPE_FRAME_STAT_VIEW
+	LLString("layout_stack"), //WIDGET_TYPE_LAYOUT_STACK
 	LLString("DONT_CARE"),	//WIDGET_TYPE_DONTCARE
 };
 
@@ -177,6 +178,7 @@ LLUICtrlFactory::LLUICtrlFactory()
 	LLUICtrlCreator<LLScrollListCtrl>::registerCreator(LL_SCROLL_LIST_CTRL_TAG, this);
 	LLUICtrlCreator<LLSliderCtrl>::registerCreator(LL_SLIDER_CTRL_TAG, this);
 	LLUICtrlCreator<LLSlider>::registerCreator(LL_SLIDER_TAG, this);
+	LLUICtrlCreator<LLSlider>::registerCreator(LL_VOLUME_SLIDER_CTRL_TAG, this);
 	LLUICtrlCreator<LLSpinCtrl>::registerCreator(LL_SPIN_CTRL_TAG, this);
 	LLUICtrlCreator<LLTextBox>::registerCreator(LL_TEXT_BOX_TAG, this);
 	LLUICtrlCreator<LLRadioGroup>::registerCreator(LL_RADIO_GROUP_TAG, this);
@@ -190,6 +192,7 @@ LLUICtrlFactory::LLUICtrlFactory()
 	LLUICtrlCreator<LLMenuGL>::registerCreator(LL_MENU_GL_TAG, this);
 	LLUICtrlCreator<LLMenuBarGL>::registerCreator(LL_MENU_BAR_GL_TAG, this);
 	LLUICtrlCreator<LLScrollingPanelList>::registerCreator(LL_SCROLLING_PANEL_LIST_TAG, this);
+	LLUICtrlCreator<LLLayoutStack>::registerCreator(LL_LAYOUT_STACK_TAG, this);
 
 	setupPaths();
 
@@ -743,6 +746,37 @@ LLMenuItemCallGL* LLUICtrlFactory::getMenuItemCallByName(LLPanel* panelp, const 
 LLScrollingPanelList* LLUICtrlFactory::getScrollingPanelList(LLPanel* panelp, const LLString& name)
 { 
 	return (LLScrollingPanelList*)panelp->getCtrlByNameAndType(name, WIDGET_TYPE_SCROLLING_PANEL_LIST); 
+}
+
+
+LLCtrlListInterface* LLUICtrlFactory::getListInterfaceByName(LLPanel* panelp, const LLString& name)
+{
+	LLView* viewp = panelp->getCtrlByNameAndType(name, WIDGET_TYPE_DONTCARE);
+	if (viewp && viewp->isCtrl())
+	{
+		return ((LLUICtrl*)viewp)->getListInterface();
+	}
+	return NULL;
+}
+
+LLCtrlSelectionInterface* LLUICtrlFactory::getSelectionInterfaceByName(LLPanel* panelp, const LLString& name)
+{
+	LLView* viewp = panelp->getCtrlByNameAndType(name, WIDGET_TYPE_DONTCARE);
+	if (viewp && viewp->isCtrl())
+	{
+		return ((LLUICtrl*)viewp)->getSelectionInterface();
+	}
+	return NULL;
+}
+
+LLCtrlScrollInterface* LLUICtrlFactory::getScrollInterfaceByName(LLPanel* panelp, const LLString& name)
+{
+	LLView* viewp = panelp->getCtrlByNameAndType(name, WIDGET_TYPE_DONTCARE);
+	if (viewp && viewp->isCtrl())
+	{
+		return ((LLUICtrl*)viewp)->getScrollInterface();
+	}
+	return NULL;
 }
 
 void LLUICtrlFactory::registerCreator(LLString ctrlname, creator_function_t function)

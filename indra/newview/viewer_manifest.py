@@ -69,25 +69,42 @@ class ViewerManifest(LLManifest):
                 self.path("lsl_guide.html")
                 self.path("gpu_table.txt")
 
+        def channel_unique(self):
+                return self.args['channel'].replace("Second Life", "").strip()
+        def channel_oneword(self):
+                return "".join(self.channel_unique().split())
+        def channel_lowerword(self):
+                return self.channel_oneword().lower()
+
         def flags_list(self):
                 """ Convenience function that returns the command-line flags for the grid"""
-                if(self.args['grid'] == ''):
-                        return ""
-                elif(self.args['grid'] == 'firstlook'):
-                        return '-settings settings_firstlook.xml'
-                else:
-                        return ("-settings settings_beta.xml --%(grid)s -helperuri http://preview-%(grid)s.secondlife.com/helpers/" % {'grid':self.args['grid']})
+                channel_flags = ''
+                grid_flags = ''
+                if not self.default_grid():
+                        if self.default_channel():
+                                # beta grid viewer
+                                channel_flags = '-settings settings_beta.xml'
+                        grid_flags = "--%(grid)s -helperuri http://preview-%(grid)s.secondlife.com/helpers/" % {'grid':self.args['grid']}
+                        
+                if not self.default_channel():
+                        # some channel on some grid
+                        channel_flags = '-settings settings_%s.xml -channel "%s"' % (self.channel_lowerword(), self.args['channel'])
+                return " ".join((grid_flags, channel_flags)).strip()
 
         def login_url(self):
                 """ Convenience function that returns the appropriate login url for the grid"""
                 if(self.args.get('login_url')):
                         return self.args['login_url']
                 else:
-                        if(self.args['grid'] == ''):
-                                return 'http://secondlife.com/app/login/'
-                        elif(self.args['grid'] == 'firstlook'):
-                                return 'http://secondlife.com/app/login/firstlook/'
+                        if(self.default_grid()):
+                                if(self.default_channel()):
+                                        # agni release
+                                        return 'http://secondlife.com/app/login/'
+                                else:
+                                        # first look (or other) on agni
+                                        return 'http://secondlife.com/app/login/%s/' % self.channel_lowerword()
                         else:
+                                # beta grid
                                 return 'http://secondlife.com/app/login/beta/'
 
         def replace_login_url(self):
@@ -97,14 +114,14 @@ class ViewerManifest(LLManifest):
 
 class WindowsManifest(ViewerManifest):
         def final_exe(self):
-                # *NOTE: these are the only two executable names that the crash reporter recognizes
-                if self.args['grid'] == '':
-                        return "SecondLife.exe"
-                elif self.args['grid'] == 'firstlook':
-                        return "SecondLifeFirstLook.exe"
+                if self.default_channel():
+                        if self.default_grid():
+                                return "SecondLife.exe"
+                        else:
+                                return "SecondLifePreview.exe"
                 else:
-                        return "SecondLifePreview.exe"
-                        # return "SecondLifePreview%s.exe" % (self.args['grid'], )
+                        return ''.join(self.args['channel'].split()) + '.exe'
+
 
         def construct(self):
                 super(WindowsManifest, self).construct()
@@ -152,6 +169,20 @@ class WindowsManifest(ViewerManifest):
                         self.path("plugins/*.*")
                         self.path("res/*.*")
                         self.path("res/*/*")
+                        self.end_prefix()
+
+                # Vivox runtimes
+                if self.prefix(src="vivox-runtime/i686-win32", dst=""):
+                        self.path("SLVoice.exe")
+                        self.path("SLVoiceAgent.exe")
+                        self.path("libeay32.dll")
+                        self.path("srtp.dll")
+                        self.path("ssleay32.dll")
+                        self.path("tntk.dll")
+                        self.path("alut.dll")
+                        self.path("vivoxsdk.dll")
+                        self.path("ortp.dll")
+                        self.path("wrap_oal.dll")
                         self.end_prefix()
 
                 # pull in the crash logger and updater from other projects
@@ -203,49 +234,75 @@ class WindowsManifest(ViewerManifest):
                 return result
 
         def package_finish(self):
-                version_vars_template = """
+                # a standard map of strings for replacing in the templates
+                substitution_strings = {
+                        'version' : '.'.join(self.args['version']),
+                        'version_short' : '.'.join(self.args['version'][:-1]),
+                        'version_dashes' : '-'.join(self.args['version']),
+                        'final_exe' : self.final_exe(),
+                        'grid':self.args['grid'],
+                        'grid_caps':self.args['grid'].upper(),
+                        # escape quotes becase NSIS doesn't handle them well
+                        'flags':self.flags_list().replace('"', '$\\"'),
+                        'channel':self.args['channel'],
+                        'channel_oneword':self.channel_oneword(),
+                        'channel_unique':self.channel_unique(),
+                        }
+
+                version_vars = """
                 !define INSTEXE  "%(final_exe)s"
                 !define VERSION "%(version_short)s"
                 !define VERSION_LONG "%(version)s"
                 !define VERSION_DASHES "%(version_dashes)s"
-                """
-                if(self.args['grid'] == ''):
-                        installer_file = "Second Life %(version_dashes)s Setup.exe"
-                        grid_vars_template = """
-                        OutFile "%(outfile)s"
-                        !define INSTFLAGS "%(flags)s"
-                        !define INSTNAME   "SecondLife"
-                        !define SHORTCUT   "Second Life"
-                        !define URLNAME   "secondlife"
-                        Caption "Second Life ${VERSION}"
-                        """
+                """ % substitution_strings
+                if self.default_channel():
+                        if self.default_grid():
+                                # release viewer
+                                installer_file = "Second Life %(version_dashes)s Setup.exe"
+                                grid_vars_template = """
+                                OutFile "%(installer_file)s"
+                                !define INSTFLAGS "%(flags)s"
+                                !define INSTNAME   "SecondLife"
+                                !define SHORTCUT   "Second Life"
+                                !define URLNAME   "secondlife"
+                                Caption "Second Life ${VERSION}"
+                                """
+                        else:
+                                # beta grid viewer
+                                installer_file = "Second Life %(version_dashes)s (%(grid_caps)s) Setup.exe"
+                                grid_vars_template = """
+                                OutFile "%(installer_file)s"
+                                !define INSTFLAGS "%(flags)s"
+                                !define INSTNAME   "SecondLife%(grid_caps)s"
+                                !define SHORTCUT   "Second Life (%(grid_caps)s)"
+                                !define URLNAME   "secondlife%(grid)s"
+                                !define UNINSTALL_SETTINGS 1
+                                Caption "Second Life %(grid)s ${VERSION}"
+                                """
                 else:
-                        installer_file = "Second Life %(version_dashes)s (%(grid_caps)s) Setup.exe"
+                        # some other channel on some grid
+                        installer_file = "Second Life %(version_dashes)s %(channel_unique)s Setup.exe"
                         grid_vars_template = """
-                        OutFile "%(outfile)s"
+                        OutFile "%(installer_file)s"
                         !define INSTFLAGS "%(flags)s"
-                        !define INSTNAME   "SecondLife%(grid_caps)s"
-                        !define SHORTCUT   "Second Life (%(grid_caps)s)"
-                        !define URLNAME   "secondlife%(grid)s"
+                        !define INSTNAME   "SecondLife%(channel_oneword)s"
+                        !define SHORTCUT   "%(channel)s"
+                        !define URLNAME   "secondlife"
                         !define UNINSTALL_SETTINGS 1
-                        Caption "Second Life %(grid)s ${VERSION}"
+                        Caption "%(channel)s ${VERSION}"
                         """
                 if(self.args.has_key('installer_name')):
                         installer_file = self.args['installer_name']
                 else:
-                        installer_file = installer_file % {'version_dashes' : '-'.join(self.args['version']),
-                                                                                           'grid_caps' : self.args['grid'].upper()}
-                tempfile = "../secondlife_setup.nsi"
-                # the following is an odd sort of double-string replacement
+                        installer_file = installer_file % substitution_strings
+                substitution_strings['installer_file'] = installer_file
+
+                tempfile = "../secondlife_setup_tmp.nsi"
+                # the following replaces strings in the nsi template
+                # it also does python-style % substitution
                 self.replace_in("installers/windows/installer_template.nsi", tempfile, {
-                        "%%VERSION%%":version_vars_template%{'version_short' : '.'.join(self.args['version'][:-1]),
-                                                                                                 'version' : '.'.join(self.args['version']),
-                                                                                                 'version_dashes' : '-'.join(self.args['version']),
-                                                                                                 'final_exe' : self.final_exe()},
-                        "%%GRID_VARS%%":grid_vars_template%{'grid':self.args['grid'],
-                                                                                                'grid_caps':self.args['grid'].upper(),
-                                                                                                'outfile':installer_file,
-                                                                                                'flags':self.flags_list()},
+                        "%%VERSION%%":version_vars,
+                        "%%GRID_VARS%%":grid_vars_template % substitution_strings,
                         "%%INSTALL_FILES%%":self.nsi_file_commands(True),
                         "%%DELETE_FILES%%":self.nsi_file_commands(False)})
 
@@ -307,16 +364,26 @@ class DarwinManifest(ViewerManifest):
 
 
         def package_finish(self):
+                channel_standin = 'Second Life'  # hah, our default channel is not usable on its own
+                if not self.default_channel():
+                        channel_standin = self.args['channel']
+                        
                 imagename="SecondLife_" + '_'.join(self.args['version'])
-                if(self.args['grid'] != ''):
-                        imagename = imagename + '_' + self.args['grid'].upper()
+                if self.default_channel():
+                        if not self.default_grid():
+                                # beta case
+                                imagename = imagename + '_' + self.args['grid'].upper()
+                else:
+                        # first look, etc
+                        imagename = imagename + '_' + self.channel_oneword().upper()
 
                 sparsename = imagename + ".sparseimage"
                 finalname = imagename + ".dmg"
                 # make sure we don't have stale files laying about
                 self.remove(sparsename, finalname)
 
-                self.run_command('hdiutil create "%(sparse)s" -volname "Second Life" -fs HFS+ -type SPARSE -megabytes 300' % {'sparse':sparsename})
+                self.run_command('hdiutil create "%(sparse)s" -volname "Second Life" -fs HFS+ -type SPARSE -megabytes 300' % {
+                        'sparse':sparsename})
 
                 # mount the image and get the name of the mount point and device node
                 hdi_output = self.run_command('hdiutil attach -private "' + sparsename + '"')
@@ -324,15 +391,17 @@ class DarwinManifest(ViewerManifest):
                 volpath = re.search('HFS\s+(.+)', hdi_output).group(1).strip()
 
                 # Copy everything in to the mounted .dmg
-                # TODO change name of .app once mac_updater can handle it.
-                for s,d in {
-                        self.get_dst_prefix():"Second Life.app",
-                        "lsl_guide.html":"Linden Scripting Language Guide.html",
-                        "releasenotes.txt":"Release Notes.txt",
-                        "installers/darwin/mac_image_hidden":".hidden",
-                        "installers/darwin/mac_image_background.tga":"background.tga",
-                        "installers/darwin/mac_image_DS_Store":".DS_Store"}.items():
+                if self.default_channel() and not self.default_grid():
+                        app_name = "Second Life " + self.args['grid']
+                else:
+                        app_name = channel_standin.strip()
                         
+                for s,d in {self.get_dst_prefix():app_name + ".app",
+                                        "lsl_guide.html":"Linden Scripting Language Guide.html",
+                                        "releasenotes.txt":"Release Notes.txt",
+                                        "installers/darwin/mac_image_hidden":".hidden",
+                                        "installers/darwin/mac_image_background.tga":"background.tga",
+                                        "installers/darwin/mac_image_DS_Store":".DS_Store"}.items():
                         print "Copying to dmg", s, d
                         self.copy_action(self.src_path_of(s), os.path.join(volpath, d))
 

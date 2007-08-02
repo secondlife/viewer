@@ -19,6 +19,8 @@
 #include "llviewercamera.h"
 //#include "imdebug.h"
 
+#include "llvoiceclient.h"	// for push-to-talk button handling
+
 #ifdef SABINRIG
 #include "cbw.h"
 #endif //SABINRIG
@@ -67,9 +69,11 @@
 #include "llfeaturemanager.h"
 #include "llfilepicker.h"
 #include "llfloater.h"
+#include "llfloateractivespeakers.h"
 #include "llfloaterbuildoptions.h"
 #include "llfloaterbuyland.h"
 #include "llfloaterchat.h"
+#include "llfloaterchatterbox.h"
 #include "llfloatercustomize.h"
 #include "llfloatereditui.h" // HACK JAMESDEBUG for ui editor
 #include "llfloaterland.h"
@@ -588,6 +592,7 @@ BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask
 	// Hide tooltips on mousedown
 	if( mToolTip )
 	{
+		mToolTipBlocked = TRUE;
 		mToolTip->setVisible( FALSE );
 	}
 
@@ -1088,6 +1093,21 @@ BOOL LLViewerWindow::handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK m
 	return TRUE;
 }
 
+BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
+{
+	gVoiceClient->middleMouseState(true);
+
+	// Always handled as far as the OS is concerned.
+	return TRUE;
+}
+
+BOOL LLViewerWindow::handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
+{
+	gVoiceClient->middleMouseState(false);
+
+	// Always handled as far as the OS is concerned.
+	return TRUE;
+}
 
 void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
@@ -1104,7 +1124,8 @@ void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask
 	LLCoordGL prev_saved_mouse_point = mCurrentMousePoint;
 	LLCoordGL mouse_point(x, y);
 	saveLastMouse(mouse_point);
-	BOOL mouse_actually_moved = (prev_saved_mouse_point.mX != mCurrentMousePoint.mX) || (prev_saved_mouse_point.mY != mCurrentMousePoint.mY);
+	BOOL mouse_actually_moved = !gFocusMgr.getMouseCapture() &&  // mouse is not currenty captured
+			((prev_saved_mouse_point.mX != mCurrentMousePoint.mX) || (prev_saved_mouse_point.mY != mCurrentMousePoint.mY)); // mouse moved from last recorded position
 
 	gMouseIdleTimer.reset();
 
@@ -1216,6 +1237,9 @@ void LLViewerWindow::handleFocusLost(LLWindow *window)
 
 BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 {
+	// Let the voice chat code check for its PTT key.  Note that this never affects event processing.
+	gVoiceClient->keyDown(key, mask);
+	
 	if (gAwayTimer.getElapsedTimeF32() > MIN_AFK_TIME)
 	{
 		gAgent.clearAFK();
@@ -1235,6 +1259,9 @@ BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 
 BOOL LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
 {
+	// Let the voice chat code check for its PTT key.  Note that this never affects event processing.
+	gVoiceClient->keyUp(key, mask);
+
 	return FALSE;
 }
 
@@ -1277,16 +1304,7 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 		}
 
 		// Unmute audio
-		if (!gSavedSettings.getBOOL("MuteAudio"))
-		{
-			if (gAudiop) gAudiop->setMuted(FALSE);
-			F32 volume = gSavedSettings.getF32("MediaAudioVolume");
-			if(LLMediaEngine::getInstance())
-			{
-				LLMediaEngine::getInstance()->setVolume(volume);
-				LLMediaEngine::updateClass(volume);
-			}
-		}
+		audio_update_volume();
 	}
 	else
 	{
@@ -1301,14 +1319,7 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 			stopGL();
 		}
 		// Mute audio
-		if (gSavedSettings.getBOOL("MuteWhenMinimized"))
-		{
-			llinfos << "Muting audio on minimize" << llendl;
-			if (gAudiop) gAudiop->setMuted(TRUE);
-			F32 volume = 0.f;
-			LLMediaEngine::getInstance()->setVolume(volume);
-			LLMediaEngine::updateClass(volume);
-		}
+		audio_update_volume();
 	}
 	return TRUE;
 }
@@ -1708,7 +1719,7 @@ void LLViewerWindow::initBase()
 	LLRect notify_rect = full_window;
 	//notify_rect.mTop -= 24;
 	notify_rect.mBottom += STATUS_BAR_HEIGHT;
-	gNotifyBoxView = new LLNotifyBoxView("notify", notify_rect, FALSE, FOLLOWS_ALL);
+	gNotifyBoxView = new LLNotifyBoxView("notify_container", notify_rect, FALSE, FOLLOWS_ALL);
 	mRootView->addChild(gNotifyBoxView, -2);
 
 	// Tooltips go above floaters
@@ -1862,16 +1873,12 @@ void LLViewerWindow::initWorldUI()
 			LLFloaterMove::show(NULL);
 		}
 		
-		// Must have one global chat floater so it can actually store
-		// the history.  JC
-		gFloaterChat = new LLFloaterChat();
-		gFloaterChat->setVisible( FALSE );
+		gIMMgr = LLIMMgr::getInstance();
 
-		if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") ) gFloaterChat->loadHistory();
-
-		gIMView = new LLIMView("gIMView", LLRect() );
-		gIMView->setFollowsAll();
-		mRootView->addChild(gIMView);
+		if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
+		{
+			LLFloaterChat::getInstance(LLSD())->loadHistory();
+		}
 
 		LLRect morph_view_rect = full_window;
 		morph_view_rect.stretch( -STATUS_BAR_HEIGHT );
@@ -1921,6 +1928,7 @@ void LLViewerWindow::initWorldUI()
 		// sync bg color with menu bar
 		gStatusBar->setBackgroundColor( gMenuBarView->getBackgroundColor() );
 
+		LLFloaterChatterBox::createInstance(LLSD());
 
 		gViewerWindow->getRootView()->addChild(gStatusBar);
 
@@ -1950,13 +1958,12 @@ LLViewerWindow::~LLViewerWindow()
 	gFloaterTools = NULL;
 	gStatusBar = NULL;
 	gFloaterCamera = NULL;
-	gIMView = NULL;
+	gIMMgr = NULL;
 	gHoverView = NULL;
 
 	gFloaterView		= NULL;
 	gMorphView			= NULL;
 
-	gFloaterChat = NULL;
 	gFloaterMute = NULL;
 
 	gFloaterMap	= NULL;

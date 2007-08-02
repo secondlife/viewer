@@ -53,7 +53,6 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
-#include "llvolumesliderctrl.h"
 #include "viewer.h"
 
 #include "llvieweruictrlfactory.h"
@@ -175,7 +174,6 @@ BOOL	LLFloaterTools::postBuild()
 	childSetAction("button land",LLFloaterTools::setEditTool, (void*)gToolParcel);
 	mTextStatus = LLUICtrlFactory::getTextBoxByName(this,"text status");
 	mRadioZoom = LLUICtrlFactory::getCheckBoxByName(this,"radio zoom");
-	mSliderZoom = LLViewerUICtrlFactory::getVolumeSliderByName(this,"slider zoom");
 	childSetCommitCallback("slider zoom",commit_slider_zoom,this);
 	mRadioOrbit = LLUICtrlFactory::getCheckBoxByName(this,"radio orbit");
 	childSetCommitCallback("radio orbit",commit_radio_orbit,this);
@@ -476,8 +474,8 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	mRadioZoom	->setVisible( focus_visible );
 	mRadioOrbit	->setVisible( focus_visible );
 	mRadioPan	->setVisible( focus_visible );
-	mSliderZoom ->setVisible( focus_visible );
-
+	childSetVisible("slider zoom", focus_visible);
+	
 	mRadioZoom	->set(	!gCameraBtnOrbit &&
 						!gCameraBtnPan &&
 						!(mask == MASK_ORBIT) &&
@@ -494,7 +492,7 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 						(mask == (MASK_PAN | MASK_ALT)) );
 
 	// multiply by correction factor because volume sliders go [0, 0.5]
-	mSliderZoom ->setValue( gAgent.getCameraZoomFraction() * 0.5f);
+	childSetValue( "slider zoom", gAgent.getCameraZoomFraction() * 0.5f);
 
 	// Move buttons
 	BOOL move_visible = (tool == gToolGrab);
@@ -833,9 +831,8 @@ void commit_radio_pan(LLUICtrl *, void*)
 
 void commit_slider_zoom(LLUICtrl *ctrl, void*)
 {
-	LLVolumeSliderCtrl* slider = (LLVolumeSliderCtrl*)ctrl;
 	// renormalize value, since max "volume" level is 0.5 for some reason
-	F32 zoom_level = (F32)slider->getValue().asReal() * 2.f; // / 0.5f;
+	F32 zoom_level = (F32)ctrl->getValue().asReal() * 2.f; // / 0.5f;
 	gAgent.setCameraZoomFraction(zoom_level);
 }
 

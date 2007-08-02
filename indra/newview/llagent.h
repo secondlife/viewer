@@ -170,7 +170,7 @@ public:
 	void			setObjectTracking(BOOL track) { mTrackFocusObject = track; }
 //	void			setLookingAtAvatar(BOOL looking);
 
-	void			heardChat(const LLChat& chat);
+	void			heardChat(const LLUUID& id);
 	void			lookAtLastChat();
 	LLUUID			getLastChatter() { return mLastChatterID; }
 	F32				getTypingTime() { return mTypingTimer.getElapsedTimeF32(); }

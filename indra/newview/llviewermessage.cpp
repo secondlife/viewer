@@ -51,6 +51,7 @@
 #include "llviewercontrol.h"
 #include "lldrawpool.h"
 #include "llfirstuse.h"
+#include "llfloateractivespeakers.h"
 #include "llfloaterbuycurrency.h"
 #include "llfloaterbuyland.h"
 #include "llfloaterchat.h"
@@ -1317,7 +1318,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	time_t timestamp = (time_t)t;
 
 	BOOL is_busy = gAgent.getBusy();
-	BOOL is_muted = gMuteListp->isMuted(from_id, name);
+	BOOL is_muted = gMuteListp->isMuted(from_id, name, LLMute::flagTextChat);
 	BOOL is_linden = gMuteListp->isLinden(name);
 	BOOL is_owned_by_me = FALSE;
 	
@@ -1368,7 +1369,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		{
 			// return a standard "busy" message, but only do it to online IM 
 			// (i.e. not other auto responses and not store-and-forward IM)
-			if (!gIMView->hasSession(session_id))
+			if (!gIMMgr->hasSession(session_id))
 			{
 				// if there is not a panel for this conversation (i.e. it is a new IM conversation
 				// initiated by the other party) then...
@@ -1393,14 +1394,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			snprintf(buffer, sizeof(buffer), "%s%s%s", name, separator_string, (message+message_offset));		/* Flawfinder: ignore */
 	
-			if(from_id == gAgentID)
-			{
-				from_id = LLUUID::null;
-			}
 			llinfos << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << llendl;
 
 			// add to IM panel, but do not bother the user
-			gIMView->addMessage(
+			gIMMgr->addMessage(
 				session_id,
 				from_id,
 				name,
@@ -1450,15 +1447,12 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 						formatted_time(timestamp, time_buf));
 			}
 			snprintf(buffer, sizeof(buffer), "%s%s%s%s", name, separator_string, saved,(message+message_offset));		/* Flawfinder: ignore */
-			if(from_id == gAgentID)
-			{
-				from_id = LLUUID::null;
-			}
+
 			llinfos << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << llendl;
 
 			if (!is_muted || is_linden)
 			{
-				gIMView->addMessage(
+				gIMMgr->addMessage(
 					session_id,
 					from_id,
 					name,
@@ -1489,14 +1483,14 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	case IM_TYPING_START:
 		{
 			LLPointer<LLIMInfo> im_info = new LLIMInfo(gMessageSystem);
-			gIMView->processIMTypingStart(im_info);
+			gIMMgr->processIMTypingStart(im_info);
 		}
 		break;
 
 	case IM_TYPING_STOP:
 		{
 			LLPointer<LLIMInfo> im_info = new LLIMInfo(gMessageSystem);
-			gIMView->processIMTypingStop(im_info);
+			gIMMgr->processIMTypingStop(im_info);
 		}
 		break;
 
@@ -1729,12 +1723,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			return;
 		}
 
-		// System messages, specifically "Foo Bar has left this session"
-		// are not shown unless you actually have that session open.
-		// Band-aid.  JC
-		if (offline == IM_ONLINE
-			&& chat.mFromName == SYSTEM_FROM
-			&& !gIMView->hasSession(session_id))
+		// Only show messages if we have a session open (which
+		// should happen after you get an "invitation"
+		if ( !gIMMgr->hasSession(session_id) )
 		{
 			return;
 		}
@@ -1754,10 +1745,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		BOOL is_this_agent = FALSE;
 		if(from_id == gAgentID)
 		{
-			from_id = LLUUID::null;
 			is_this_agent = TRUE;
 		}
-		gIMView->addMessage(
+		gIMMgr->addMessage(
 			session_id,
 			from_id,
 			name,
@@ -1808,7 +1798,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		else
 		{
 			// original code resumes
-			gIMView->addMessage(session_id, from_id, name, message);
+			gIMMgr->addMessage(session_id, from_id, name, message);
 		}
 		break;
 		
@@ -2074,7 +2064,7 @@ void process_offer_callingcard(LLMessageSystem* msg, void**)
 	if(!source_name.empty())
 	{
 		if (gAgent.getBusy() 
-			|| gMuteListp->isMuted(source_id, source_name))
+			|| gMuteListp->isMuted(source_id, source_name, LLMute::flagTextChat))
 		{
 			// automatically decline offer
 			callingcard_offer_callback(1, (void*)offerdata);
@@ -2150,7 +2140,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	BOOL is_linden = FALSE;
 	if (gMuteListp)
 	{
-		is_muted = gMuteListp->isMuted(from_id, from_name)
+		is_muted = gMuteListp->isMuted(from_id, from_name, LLMute::flagTextChat)
 				   || gMuteListp->isMuted(owner_id);
 		is_linden = gMuteListp->isLinden(from_name);
 	}
@@ -2174,16 +2164,15 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			gWorldPointer->mPartSim.addPartSource(psc);
 		}
 
-		// only pay attention to other people chatting
+		// record last audible utterance
 		if (is_audible
-			&& (is_linden || (!is_muted && !is_busy))
-			&& chatter != gAgent.getAvatarObject())
+			&& (is_linden || (!is_muted && !is_busy)))
 		{
-			gAgent.heardChat(chat);
-			if (ll_rand(2) == 0) 
+			if (chat.mChatType != CHAT_TYPE_START 
+				&& chat.mChatType != CHAT_TYPE_STOP)
 			{
-				gAgent.setLookAt(LOOKAT_TARGET_AUTO_LISTEN, chatter, LLVector3::zero);
-			}			
+				gAgent.heardChat(chat.mFromID);
+			}
 		}
 
 		is_owned_by_me = chatter->permYouOwner();
@@ -2214,6 +2203,8 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		// Look for the start of typing so we can put "..." in the bubbles.
 		if (CHAT_TYPE_START == chat.mChatType)
 		{
+			gLocalSpeakerMgr->setSpeakerTyping(from_id, TRUE);
+
 			// Might not have the avatar constructed yet, eg on login.
 			if (chatter && chatter->isAvatar())
 			{
@@ -2223,6 +2214,8 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		}
 		else if (CHAT_TYPE_STOP == chat.mChatType)
 		{
+			gLocalSpeakerMgr->setSpeakerTyping(from_id, FALSE);
+
 			// Might not have the avatar constructed yet, eg on login.
 			if (chatter && chatter->isAvatar())
 			{
@@ -2234,6 +2227,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		// We have a real utterance now, so can stop showing "..." and proceed.
 		if (chatter && chatter->isAvatar())
 		{
+			gLocalSpeakerMgr->setSpeakerTyping(from_id, FALSE);
 			((LLVOAvatar*)chatter)->stopTyping();
 
 			if (!is_muted && !is_busy)
@@ -2362,7 +2356,7 @@ void process_teleport_start(LLMessageSystem *msg, void**)
 		gTeleportDisplay = TRUE;
 		gAgent.setTeleportState( LLAgent::TELEPORT_START );
 		make_ui_sound("UISndTeleportOut");
-
+		
 		// Don't call LLFirstUse::useTeleport here because this could be
 		// due to being killed, which would send you home, not to a Telehub
 	}
@@ -2743,7 +2737,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	{
 		avatarp->mFootPlane.clearVec();
 	}
-
+	
 	// reset always run status
 	msg->newMessageFast(_PREHASH_SetAlwaysRun);
 	msg->nextBlockFast(_PREHASH_AgentData);
@@ -3207,7 +3201,7 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 	if (!gParcelMgr->canHearSound(pos_global)) return;
 
 	// Don't play sounds triggered by someone you muted.
-	if (gMuteListp->isMuted(owner_id)) return;
+	if (gMuteListp->isMuted(owner_id, LLMute::flagObjectSounds)) return;
 	
 	// Don't play sounds from an object you muted
 	if (gMuteListp->isMuted(object_id)) return;
@@ -3219,7 +3213,8 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 		return;
 	}
 
-	gAudiop->triggerSound(sound_id, owner_id, gain, pos_global);
+	F32 volume = gain * gSavedSettings.getF32("AudioLevelSFX");
+	gAudiop->triggerSound(sound_id, owner_id, volume, pos_global);
 }
 
 void process_preload_sound(LLMessageSystem *msg, void **user_data)
@@ -3241,7 +3236,7 @@ void process_preload_sound(LLMessageSystem *msg, void **user_data)
 	if (!objectp) return;
 
 	if (gMuteListp->isMuted(object_id)) return;
-	if (gMuteListp->isMuted(owner_id)) return;
+	if (gMuteListp->isMuted(owner_id, LLMute::flagObjectSounds)) return;
 	
 	LLAudioSource *sourcep = objectp->getAudioSource(owner_id);
 	if (!sourcep) return;
@@ -3279,7 +3274,7 @@ void process_attached_sound(LLMessageSystem *msg, void **user_data)
 	
 	if (gMuteListp->isMuted(object_id)) return;
 	
-	if (gMuteListp->isMuted(owner_id)) return;
+	if (gMuteListp->isMuted(owner_id, LLMute::flagObjectSounds)) return;
 
 	objectp->setAttachedSound(sound_id, owner_id, gain, flags);
 }

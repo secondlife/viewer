@@ -41,6 +41,7 @@
 #include "llface.h"
 #include "llfirstuse.h"
 #include "llfloater.h"
+#include "llfloateractivespeakers.h"
 #include "llfloateravatarinfo.h"
 #include "llfloaterbuildoptions.h"
 #include "llfloaterchat.h"
@@ -97,6 +98,7 @@
 #include "pipeline.h"
 #include "roles_constants.h"
 #include "viewer.h"
+#include "llvoiceclient.h"
 
 // Ventrella
 #include "llfollowcam.h"
@@ -326,7 +328,7 @@ LLAgent::LLAgent()
 	mEffectColor(0.f, 1.f, 1.f, 1.f),
 	mHaveHomePosition(FALSE),
 	mHomeRegionHandle( 0 ),
-	mNearChatRadius(10.f),
+	mNearChatRadius(CHAT_NORMAL_RADIUS / 2.f),
 	mGodLevel( GOD_NOT ),
 
 
@@ -2824,7 +2826,7 @@ void LLAgent::endAnimationUpdateUI()
 			gMorphView->setVisible(FALSE);
 		}
 
-		gIMView->setFloaterOpen( FALSE );
+		gIMMgr->setFloaterOpen( FALSE );
 		gConsole->setVisible( TRUE );
 
 		if (mAvatarObject)
@@ -3239,6 +3241,19 @@ void LLAgent::updateCamera()
 		setLookAt(LOOKAT_TARGET_FOCUS, NULL, mCameraPositionAgent);
 	}
 
+	// Send the camera position to the spatialized voice system.
+	if(gVoiceClient && getRegion())
+	{
+		LLMatrix3 rot;
+		rot.setRows(gCamera->getAtAxis(), gCamera->getLeftAxis (),  gCamera->getUpAxis());		
+
+		// MBW -- XXX -- Setting velocity to 0 for now.  May figure it out later...
+		gVoiceClient->setCameraPosition(
+				getRegion()->getPosGlobalFromRegion(gCamera->getOrigin()),// position
+				LLVector3::zero, 			// velocity
+				rot);						// rotation matrix
+	}
+
 	// update the travel distance stat
 	// this isn't directly related to the camera
 	// but this seemed like the best place to do this
@@ -3249,7 +3264,7 @@ void LLAgent::updateCamera()
 		mDistanceTraveled += delta.magVec();
 	}
 	mLastPositionGlobal = global_pos;
-
+	
 	if (LLVOAvatar::sVisibleInFirstPerson && mAvatarObject.notNull() && !mAvatarObject->mIsSitting && cameraMouselook())
 	{
 		LLVector3 head_pos = mAvatarObject->mHeadp->getWorldPosition() + 
@@ -4445,18 +4460,23 @@ void LLAgent::setFocusOnAvatar(BOOL focus_on_avatar, BOOL animate)
 //-----------------------------------------------------------------------------
 // heardChat()
 //-----------------------------------------------------------------------------
-void LLAgent::heardChat(const LLChat& chat)
+void LLAgent::heardChat(const LLUUID& id)
 {
-	if (chat.mChatType == CHAT_TYPE_START 
-		|| chat.mChatType == CHAT_TYPE_STOP)
-	{
-		return;
-	}
+	// log text and voice chat to speaker mgr
+	// for keeping track of active speakers, etc.
+	gLocalSpeakerMgr->speakerChatted(id);
 
-	mLastChatterID = chat.mFromID;
-	mChatTimer.reset();
+	// don't respond to your own voice
+	if (id == getID()) return;
 	
-	mNearChatRadius = CHAT_NORMAL_RADIUS / 2.f;
+	if (ll_rand(2) == 0) 
+	{
+		LLViewerObject *chatter = gObjectList.findObject(mLastChatterID);
+		setLookAt(LOOKAT_TARGET_AUTO_LISTEN, chatter, LLVector3::zero);
+	}			
+
+	mLastChatterID = id;
+	mChatTimer.reset();
 }
 
 //-----------------------------------------------------------------------------
@@ -5048,14 +5068,6 @@ void LLAgent::initOriginGlobal(const LLVector3d &origin_global)
 
 void update_group_floaters(const LLUUID& group_id)
 {
-	// *HACK: added to do a live update of the groups floater if it is
-	// open.
-	LLFloaterGroups* fg = LLFloaterGroups::getInstance(gAgent.getID());
-	if(fg)
-	{
-		fg->reset();
-	}
-
 	LLFloaterGroupInfo::refreshGroup(group_id);
 
 	// update avatar info
@@ -5065,10 +5077,10 @@ void update_group_floaters(const LLUUID& group_id)
 		fa->resetGroupList();
 	}
 
-	if (gIMView)
+	if (gIMMgr)
 	{
 		// update the talk view
-		gIMView->refresh();
+		gIMMgr->refresh();
 	}
 }
 
@@ -5159,6 +5171,7 @@ void LLAgent::processAgentGroupDataUpdate(LLMessageSystem *msg, void **)
 		if (need_floater_update)
 		{
 			update_group_floaters(group.mID);
+			gAgent.fireEvent(new LLEvent(&gAgent, "new group"), "");
 		}
 	}
 
@@ -5488,6 +5501,11 @@ bool LLAgent::teleportCore(bool is_local)
 		gAgent.setTeleportState( LLAgent::TELEPORT_START );
 	}
 	make_ui_sound("UISndTeleportOut");
+	
+	// MBW -- Let the voice client know a teleport has begun so it can leave the existing channel.
+	// This was breaking the case of teleporting within a single sim.  Backing it out for now.
+//	gVoiceClient->leaveChannel();
+	
 	return true;
 }
 

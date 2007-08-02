@@ -21,89 +21,80 @@
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #include "lluuid.h"
-#include "llmap.h"
-#include "llevent.h"
 #include "llfloater.h"
+#include <map>
 
 class LLUICtrl;
 class LLTextBox;
 class LLScrollListCtrl;
 class LLButton;
+class LLFloaterGroupPicker;
 
-class LLFloaterGroups : public LLFloater
+class LLFloaterGroupPicker : public LLFloater, public LLUIInstanceMgr<LLFloaterGroupPicker>
+{
+	friend class LLUIInstanceMgr<LLFloaterGroupPicker>;
+public:
+	~LLFloaterGroupPicker();
+	void setSelectCallback( void (*callback)(LLUUID, void*), 
+							void* userdata);
+	BOOL postBuild();
+
+protected:
+	LLFloaterGroupPicker(const LLSD& seed);
+	void ok();
+	static LLFloaterGroupPicker* findInstance(const LLSD& seed);
+	static LLFloaterGroupPicker* createInstance(const LLSD& seed);
+	static void onBtnOK(void* userdata);
+	static void onBtnCancel(void* userdata);
+
+protected:
+	LLUUID mID;
+	void (*mSelectCallback)(LLUUID id, void* userdata);
+	void* mCallbackUserdata;
+
+	typedef std::map<const LLUUID, LLFloaterGroupPicker*> instance_map_t;
+	static instance_map_t sInstances;
+};
+
+class LLPanelGroups : public LLPanel
 {
 public:
+	LLPanelGroups();
+	virtual ~LLPanelGroups();
+
 	//LLEventListener
 	/*virtual*/ bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
 	
-	enum EGroupDialog
-	{
-		AGENT_GROUPS,
-		CHOOSE_ONE
-	};
-	// Call this with an agent id and AGENT_GROUPS for an agent's
-	// groups, otherwise, call with an object id and SET_OBJECT_GROUP
-	// when modifying an object.
-	static LLFloaterGroups* show(const LLUUID& id, EGroupDialog type);
-
-	// Return the instance requested if it already exists. Otherwise,
-	// return NULL.
-	static LLFloaterGroups* getInstance(const LLUUID& id);
-
 	// clear the group list, and get a fresh set of info.
 	void reset();
-
-	void setOkCallback( void (*callback)(LLUUID, void*), 
-						void* userdata);
-
-	EGroupDialog getType() const { return mType; }
 
 protected:
 	// initialize based on the type
 	BOOL postBuild();
 
 	// highlight_id is a group id to highlight
-	void initAgentGroups(const LLUUID& highlight_id);
 	void enableButtons();
 
+	static void onGroupList(LLUICtrl* ctrl, void* userdata);
 	static void onBtnCreate(void* userdata);
 	static void onBtnActivate(void* userdata);
 	static void onBtnInfo(void* userdata);
+	static void onBtnIM(void* userdata);
 	static void onBtnLeave(void* userdata);
 	static void onBtnSearch(void* userdata);
 	static void onBtnVote(void* userdata);
-	static void onBtnOK(void* userdata);
-	static void onBtnCancel(void* userdata);
-	static void onGroupList(LLUICtrl* ctrl, void* userdata);
 	static void onDoubleClickGroup(void* userdata);
 
 	void create();
 	void activate();
 	void info();
+	void startIM();
 	void leave();
 	void search();
 	void callVote();
-	void ok();
-	void highlightGroupList(LLUICtrl*);
 
 	static void callbackLeaveGroup(S32 option, void* userdata);
 
-protected:
-	LLUUID mID;
-
-	EGroupDialog mType;
-
-	void (*mOKCallback)(LLUUID id, void* userdata);
-	void* mCallbackUserdata;
-
-protected:
-	static LLMap<const LLUUID, LLFloaterGroups*> sInstances;
-
-public:
-	// do not call these directly
-	LLFloaterGroups(const std::string& name, const LLRect& rect, const std::string& title,
-					const LLUUID& id);
-	virtual ~LLFloaterGroups();
 };
 
 

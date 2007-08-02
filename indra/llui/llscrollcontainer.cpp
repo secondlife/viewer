@@ -485,8 +485,7 @@ void LLScrollableContainerView::draw()
 				BOOL show_h_scrollbar = FALSE;
 				calcVisibleSize( mScrolledView->getRect(), &visible_width, &visible_height, &show_h_scrollbar, &show_v_scrollbar );
 
-				LLGLEnable scissor_test(GL_SCISSOR_TEST);
-				LLUI::setScissorRegionLocal(LLRect(mInnerRect.mLeft, 
+				LLLocalClipRect clip(LLRect(mInnerRect.mLeft, 
 						mInnerRect.mBottom + (show_h_scrollbar ? SCROLLBAR_SIZE : 0) + visible_height,
 						visible_width,
 						mInnerRect.mBottom + (show_h_scrollbar ? SCROLLBAR_SIZE : 0)

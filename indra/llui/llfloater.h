@@ -123,8 +123,10 @@ public:
 
 	void			setTitle( const LLString& title );
 	const LLString&		getTitle() const;
+	void			setShortTitle( const LLString& short_title );
+	LLString		getShortTitle();
 	virtual void	setMinimized(BOOL b);
-	void			moveResizeHandleToFront();
+	void			moveResizeHandlesToFront();
 	void			addDependentFloater(LLFloater* dependent, BOOL reposition = TRUE);
 	void			addDependentFloater(LLViewHandle dependent_handle, BOOL reposition = TRUE);
 	LLFloater*              getDependee() { return (LLFloater*)LLFloater::getFloaterByHandle(mDependeeHandle); }
@@ -222,6 +224,7 @@ protected:
 	LLRect			mPreviousRect;
 	BOOL			mForeground;
 	LLViewHandle	mDependeeHandle;
+	LLString		mShortTitle;
 
 	BOOL			mFirstLook;			// TRUE if the _next_ time this floater is visible will be the first time in the session that it is visible.
 
@@ -351,12 +354,11 @@ public:
 	/*virtual*/ void draw();
 	/*virtual*/ void setVisible(BOOL visible);
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
-
 	/*virtual*/ EWidgetType getWidgetType() const;
 	/*virtual*/ LLString getWidgetTag() const;
 
 	virtual void setCanResize(BOOL can_resize);
-	virtual void growToFit(LLFloater* floaterp, S32 width, S32 height);
+	virtual void growToFit(S32 content_width, S32 content_height);
 	virtual void addFloater(LLFloater* floaterp, BOOL select_added_floater, LLTabContainerCommon::eInsertionPoint insertion_point = LLTabContainerCommon::END);
 
 	virtual void showFloater(LLFloater* floaterp);
@@ -378,7 +380,7 @@ public:
 	void setTabContainer(LLTabContainerCommon* tab_container) { if (!mTabContainer) mTabContainer = tab_container; }
 	static void onTabSelected(void* userdata, bool);
 
-	virtual void resizeToContents();
+	virtual void updateResizeLimits();
 
 protected:
 	struct LLFloaterData

@@ -787,14 +787,24 @@ void LLPanelPermissions::onClickOwner(void *data)
 
 void LLPanelPermissions::onClickGroup(void* data)
 {
+	LLPanelPermissions* panelp = (LLPanelPermissions*)data;
 	LLUUID owner_id;
 	LLString name;
 	BOOL owners_identical = gSelectMgr->selectGetOwner(owner_id, name);
+	LLFloater* parent_floater = gFloaterView->getParentFloater(panelp);
+
 	if(owners_identical && (owner_id == gAgent.getID()))
 	{
-		LLFloaterGroups* fg;
-		fg = LLFloaterGroups::show(gAgent.getID(), LLFloaterGroups::CHOOSE_ONE);
-		fg->setOkCallback( cbGroupID, data );
+		LLFloaterGroupPicker* fg;
+		fg = LLFloaterGroupPicker::showInstance(LLSD(gAgent.getID()));
+		fg->setSelectCallback( cbGroupID, data );
+
+		if (parent_floater)
+		{
+			LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, fg);
+			fg->setOrigin(new_rect.mLeft, new_rect.mBottom);
+			parent_floater->addDependentFloater(fg);
+		}
 	}
 }
 

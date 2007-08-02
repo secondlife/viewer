@@ -911,8 +911,7 @@ void LLFastTimerView::draw()
 		//draw line graph history
 		{
 			LLGLSNoTexture no_texture;
-			LLGLEnable scissor(GL_SCISSOR_TEST);
-			LLUI::setScissorRegionLocal(graph_rect);
+			LLLocalClipRect clip(graph_rect);
 			
 			//normalize based on last frame's maximum
 			static U64 last_max = 0;

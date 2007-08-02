@@ -43,20 +43,18 @@
 class LLLocalFriendsObserver : public LLFriendObserver
 {
 public:
-	LLLocalFriendsObserver(LLFloaterFriends* floater) : mFloater(floater) {}
+	LLLocalFriendsObserver(LLPanelFriends* floater) : mFloater(floater) {}
 	virtual ~LLLocalFriendsObserver() { mFloater = NULL; }
 	virtual void changed(U32 mask)
 	{
 		mFloater->updateFriends(mask);
 	}
 protected:
-	LLFloaterFriends* mFloater;
+	LLPanelFriends* mFloater;
 };
 
-LLFloaterFriends* LLFloaterFriends::sInstance = NULL;
-
-LLFloaterFriends::LLFloaterFriends() :
-	LLFloater("Friends"),
+LLPanelFriends::LLPanelFriends() :
+	LLPanel(),
 	LLEventTimer(1000000),
 	mObserver(NULL),
 	mMenuState(0),
@@ -64,81 +62,38 @@ LLFloaterFriends::LLFloaterFriends() :
 	mAllowRightsChange(TRUE),
 	mNumRightsChanged(0)
 {
-	mTimer.stop();
-	sInstance = this;
+	mEventTimer.stop();
 	mObserver = new LLLocalFriendsObserver(this);
 	LLAvatarTracker::instance().addObserver(mObserver);
-	gSavedSettings.setBOOL("ShowFriends", TRUE);
-	// Builds and adds to gFloaterView
-	gUICtrlFactory->buildFloater(this, "floater_friends.xml");
-	refreshUI();
 }
 
-LLFloaterFriends::~LLFloaterFriends()
+LLPanelFriends::~LLPanelFriends()
 {
 	LLAvatarTracker::instance().removeObserver(mObserver);
 	delete mObserver;
-	sInstance = NULL;
-	gSavedSettings.setBOOL("ShowFriends", FALSE);
 }
 
-void LLFloaterFriends::tick()
+void LLPanelFriends::tick()
 {
-	mTimer.stop();
+	mEventTimer.stop();
 	mPeriod = 1000000;
 	mAllowRightsChange = TRUE;
 	updateFriends(LLFriendObserver::ADD);
 }
 
-// static
-void LLFloaterFriends::show(void*)
-{
-	if(sInstance)
-	{
-		sInstance->open();	/*Flawfinder: ignore*/
-	}
-	else
-	{
-		LLFloaterFriends* self = new LLFloaterFriends;
-		self->open(); /*Flawfinder: ignore*/
-	}
-}
-
-
-// static
-BOOL LLFloaterFriends::visible(void*)
-{
-	return sInstance && sInstance->getVisible();
-}
-
-
-// static
-void LLFloaterFriends::toggle(void*)
-{
-	if (sInstance)
-	{
-		sInstance->close();
-	}
-	else
-	{
-		show();
-	}
-}
-
-
-void LLFloaterFriends::updateFriends(U32 changed_mask)
+void LLPanelFriends::updateFriends(U32 changed_mask)
 {
 	LLUUID selected_id;
-	LLCtrlListInterface *friends_list = sInstance->childGetListInterface("friend_list");
+	LLCtrlListInterface *friends_list = childGetListInterface("friend_list");
 	if (!friends_list) return;
-	LLCtrlScrollInterface *friends_scroll = sInstance->childGetScrollInterface("friend_list");
+	LLCtrlScrollInterface *friends_scroll = childGetScrollInterface("friend_list");
 	if (!friends_scroll) return;
 	
 	// We kill the selection warning, otherwise we'll spam with warning popups
 	// if the maximum amount of friends are selected
 	mShowMaxSelectWarning = false;
 
-	LLDynamicArray<LLUUID> selected_friends = sInstance->getSelectedIDs();
+	LLDynamicArray<LLUUID> selected_friends = getSelectedIDs();
 	if(changed_mask & (LLFriendObserver::ADD | LLFriendObserver::REMOVE | LLFriendObserver::ONLINE))
 	{
 		refreshNames();
@@ -149,8 +104,8 @@ void LLFloaterFriends::updateFriends(U32 changed_mask)
 		if(mNumRightsChanged > 0)
 		{
 			mPeriod = RIGHTS_CHANGE_TIMEOUT;	
-			mTimer.start();
-			mTimer.reset();
+			mEventTimer.start();
+			mEventTimer.reset();
 			mAllowRightsChange = FALSE;
 		}
 		else
@@ -175,12 +130,12 @@ void LLFloaterFriends::updateFriends(U32 changed_mask)
 }
 
 // virtual
-BOOL LLFloaterFriends::postBuild()
+BOOL LLPanelFriends::postBuild()
 {
-	
 	mFriendsList = LLUICtrlFactory::getScrollListByName(this, "friend_list");
 	mFriendsList->setMaxSelectable(MAX_FRIEND_SELECT);
 	mFriendsList->setMaxiumumSelectCallback(onMaximumSelect);
+	mFriendsList->setCommitOnSelectionChange(TRUE);
 	childSetCommitCallback("friend_list", onSelectName, this);
 	childSetDoubleClickCallback("friend_list", onClickIM);
 
@@ -195,13 +150,17 @@ BOOL LLFloaterFriends::postBuild()
 	childSetAction("pay_btn", onClickPay, this);
 	childSetAction("add_btn", onClickAddFriend, this);
 	childSetAction("remove_btn", onClickRemove, this);
-	childSetAction("close_btn", onClickClose, this);
+
+	setDefaultBtn("im_btn");
+
+	updateFriends(LLFriendObserver::ADD);
+	refreshUI();
 
 	return TRUE;
 }
 
 
-void LLFloaterFriends::addFriend(const std::string& name, const LLUUID& agent_id)
+void LLPanelFriends::addFriend(const std::string& name, const LLUUID& agent_id)
 {
 	LLAvatarTracker& at = LLAvatarTracker::instance();
 	const LLRelationship* relationInfo = at.getBuddyInfo(agent_id);
@@ -255,17 +214,26 @@ void LLFloaterFriends::addFriend(const std::string& name, const LLUUID& agent_id
 	mFriendsList->addElement(element, ADD_BOTTOM);
 }
 
-void LLFloaterFriends::refreshRightsChangeList(U8 state)
+void LLPanelFriends::refreshRightsChangeList()
 {
 	LLDynamicArray<LLUUID> friends = getSelectedIDs();
-	const LLRelationship* friend_status = NULL;
-	if(friends.size() > 0) friend_status = LLAvatarTracker::instance().getBuddyInfo(friends[0]);
+	S32 num_selected = friends.size();
 
 	LLSD row;
-	bool can_change_visibility = false;
-	bool can_change_modify = false;
-	bool can_change_online_multiple = true;
-	bool can_change_map_multiple = true;
+	bool can_offer_teleport = num_selected >= 1;
+
+	// aggregate permissions over all selected friends
+	bool friends_see_online = true;
+	bool friends_see_on_map = true;
+	bool friends_modify_objects = true;
+
+	// do at least some of the friends selected have these rights?
+	bool some_friends_see_online = false;
+	bool some_friends_see_on_map = false;
+	bool some_friends_modify_objects = false;
+
+	bool selected_friends_online = true;
+
 	LLTextBox* processing_label = LLUICtrlFactory::getTextBoxByName(this, "process_rights_label");
 
 	if(!mAllowRightsChange)
@@ -273,7 +241,9 @@ void LLFloaterFriends::refreshRightsChangeList(U8 state)
 		if(processing_label)
 		{
 			processing_label->setVisible(true);
-			state = 0;
+			// ignore selection for now
+			friends.clear();
+			num_selected = 0;
 		}
 	}
 	else
@@ -284,82 +254,111 @@ void LLFloaterFriends::refreshRightsChangeList(U8 state)
 		}
 	}
 
-	if(state == 1)
+	const LLRelationship* friend_status = NULL;
+	for(LLDynamicArray<LLUUID>::iterator itr = friends.begin(); itr != friends.end(); ++itr)
 	{
-		if(friend_status && !friend_status->isOnline())
+		friend_status = LLAvatarTracker::instance().getBuddyInfo(*itr);
+		if (friend_status)
 		{
-			childSetEnabled("offer_teleport_btn", false);
-		}
-		can_change_visibility = true;
-		can_change_modify = true;		
-	}
-	else if (state == 2)
-	{
-		can_change_visibility = true;
-		can_change_modify = false;
-		for(LLDynamicArray<LLUUID>::iterator itr = friends.begin(); itr != friends.end(); ++itr)
-		{
-			friend_status = LLAvatarTracker::instance().getBuddyInfo(*itr);
+			bool can_see_online = friend_status->isRightGrantedTo(LLRelationship::GRANT_ONLINE_STATUS);
+			bool can_see_on_map = friend_status->isRightGrantedTo(LLRelationship::GRANT_MAP_LOCATION);
+			bool can_modify_objects = friend_status->isRightGrantedTo(LLRelationship::GRANT_MODIFY_OBJECTS);
+
+			// aggregate rights of this friend into total selection
+			friends_see_online &= can_see_online;
+			friends_see_on_map &= can_see_on_map;
+			friends_modify_objects &= can_modify_objects;
+
+			// can at least one of your selected friends do any of these?
+			some_friends_see_online |= can_see_online;
+			some_friends_see_on_map |= can_see_on_map;
+			some_friends_modify_objects |= can_modify_objects;
+
 			if(!friend_status->isOnline())
 			{
-				childSetEnabled("offer_teleport_btn", false);
-			}
-			if(!friend_status->isRightGrantedTo(LLRelationship::GRANT_ONLINE_STATUS))
-			{
-				can_change_online_multiple = false;
-				can_change_map_multiple = false;
-			}
-			else if(!friend_status->isRightGrantedTo(LLRelationship::GRANT_MAP_LOCATION))
-			{
-				can_change_map_multiple = false;
+				can_offer_teleport = false;
+				selected_friends_online = false;
 			}
 		}
-		
+		else // missing buddy info, don't allow any operations
+		{
+			can_offer_teleport = false;
+
+			friends_see_online = false;
+			friends_see_on_map = false;
+			friends_modify_objects = false;
+
+			some_friends_see_online = false;
+			some_friends_see_on_map = false;
+			some_friends_modify_objects = false;
+		}
 	}
 	
 
-	LLCheckboxCtrl* check;
+	// seeing a friend on the map requires seeing online status as a prerequisite
+	friends_see_on_map &= friends_see_online;
+
 	mMenuState = 0;
 
-	check = LLUICtrlFactory::getCheckBoxByName(this, "online_status_cb");
-	check->setEnabled(can_change_visibility);
-	check->set(FALSE);
-	if(!mAllowRightsChange) check->setVisible(FALSE);
-	else check->setVisible(TRUE);
-	if(friend_status)
-	{
-		check->set(friend_status->isRightGrantedTo(LLRelationship::GRANT_ONLINE_STATUS) && can_change_online_multiple);
-		if(friend_status->isRightGrantedTo(LLRelationship::GRANT_ONLINE_STATUS)) mMenuState |= LLRelationship::GRANT_ONLINE_STATUS;
-	}
-	
-	check = LLUICtrlFactory::getCheckBoxByName(this, "map_status_cb");
-	check->setEnabled(false);
-	check->set(FALSE);
-	if(!mAllowRightsChange) check->setVisible(FALSE);
-	else check->setVisible(TRUE);
-	if(friend_status)
-	{
-		check->setEnabled(friend_status->isRightGrantedTo(LLRelationship::GRANT_ONLINE_STATUS) && can_change_visibility && can_change_online_multiple);
-		check->set(friend_status->isRightGrantedTo(LLRelationship::GRANT_MAP_LOCATION) && can_change_map_multiple);
-		if(friend_status->isRightGrantedTo(LLRelationship::GRANT_MAP_LOCATION)) mMenuState |= LLRelationship::GRANT_MAP_LOCATION;
-	}
+	// make checkboxes visible after we have finished processing rights
+	childSetVisible("online_status_cb", mAllowRightsChange);
+	childSetVisible("map_status_cb", mAllowRightsChange);
+	childSetVisible("modify_status_cb", mAllowRightsChange);
 
-	check = LLUICtrlFactory::getCheckBoxByName(this, "modify_status_cb");
-	check->setEnabled(can_change_modify);
-	check->set(FALSE);
-	if(!mAllowRightsChange) check->setVisible(FALSE);
-	else check->setVisible(TRUE);
-	if(can_change_modify) 
+	if (num_selected == 0)  // nothing selected
 	{
-		if(friend_status)
+		childSetEnabled("im_btn", FALSE);
+		childSetEnabled("offer_teleport_btn", FALSE);
+
+		childSetEnabled("online_status_cb", FALSE);
+		childSetValue("online_status_cb", FALSE);
+		childSetTentative("online_status_cb", FALSE);
+
+		childSetEnabled("map_status_cb", FALSE);
+		childSetValue("map_status_cb", FALSE);
+		childSetTentative("map_status_cb", FALSE);
+
+		childSetEnabled("modify_status_cb", FALSE);
+		childSetValue("modify_status_cb", FALSE);
+		childSetTentative("modify_status_cb", FALSE);
+	}
+	else // we have at least one friend selected...
+	{
+		// only allow IMs to groups when everyone in the group is online
+		// to be consistent with context menus in inventory and because otherwise
+		// offline friends would be silently dropped from the session
+		childSetEnabled("im_btn", selected_friends_online || num_selected == 1);
+
+		childSetEnabled("offer_teleport_btn", can_offer_teleport);
+
+		childSetEnabled("online_status_cb", TRUE);
+		childSetValue("online_status_cb", some_friends_see_online);
+		childSetTentative("online_status_cb", some_friends_see_online != friends_see_online);
+		if (friends_see_online)
 		{
-			check->set(friend_status->isRightGrantedTo(LLRelationship::GRANT_MODIFY_OBJECTS));
-			if(friend_status->isRightGrantedTo(LLRelationship::GRANT_MODIFY_OBJECTS)) mMenuState |= LLRelationship::GRANT_MODIFY_OBJECTS;
+			mMenuState |= LLRelationship::GRANT_ONLINE_STATUS;
+		}
+
+		childSetEnabled("map_status_cb", TRUE);
+		childSetValue("map_status_cb", some_friends_see_on_map);
+		childSetTentative("map_status_cb", some_friends_see_on_map != friends_see_on_map);
+		if(friends_see_on_map) 
+		{
+			mMenuState |= LLRelationship::GRANT_MAP_LOCATION;
+		}
+
+		// for now, don't allow modify rights change for multiple select
+		childSetEnabled("modify_status_cb", num_selected == 1);
+		childSetValue("modify_status_cb", some_friends_modify_objects);
+		childSetTentative("modify_status_cb", some_friends_modify_objects != friends_modify_objects);
+		if(friends_modify_objects) 
+		{
+			mMenuState |= LLRelationship::GRANT_MODIFY_OBJECTS;
 		}
 	}
 }
 
-void LLFloaterFriends::refreshNames()
+void LLPanelFriends::refreshNames()
 {
 	LLDynamicArray<LLUUID> selected_ids = getSelectedIDs();	
 	S32 pos = mFriendsList->getScrollPos();	
@@ -389,7 +388,7 @@ void LLFloaterFriends::refreshNames()
 }
 
 
-void LLFloaterFriends::refreshUI()
+void LLPanelFriends::refreshUI()
 {	
 	BOOL single_selected = FALSE;
 	BOOL multiple_selected = FALSE;
@@ -423,40 +422,34 @@ void LLFloaterFriends::refreshUI()
 	childSetEnabled("im_btn", single_selected);
 	childSetEnabled("friend_rights", single_selected);
 
-	//Note: We reset this in refreshRightsChangeList since we already have to iterate
-	//through all selected friends there
-	childSetEnabled("offer_teleport_btn", single_selected);
-
-	refreshRightsChangeList((single_selected + multiple_selected));
+	refreshRightsChangeList();
 }
 
-// static
-LLDynamicArray<LLUUID> LLFloaterFriends::getSelectedIDs()
+LLDynamicArray<LLUUID> LLPanelFriends::getSelectedIDs()
 {
 	LLUUID selected_id;
 	LLDynamicArray<LLUUID> friend_ids;
-	if(sInstance)
+	std::vector<LLScrollListItem*> selected = mFriendsList->getAllSelected();
+	for(std::vector<LLScrollListItem*>::iterator itr = selected.begin(); itr != selected.end(); ++itr)
 	{
-		std::vector<LLScrollListItem*> selected = sInstance->mFriendsList->getAllSelected();
-		for(std::vector<LLScrollListItem*>::iterator itr = selected.begin(); itr != selected.end(); ++itr)
-		{
-			friend_ids.push_back((*itr)->getUUID());
-		}
+		friend_ids.push_back((*itr)->getUUID());
 	}
 	return friend_ids;
 }
 
 // static
-void LLFloaterFriends::onSelectName(LLUICtrl* ctrl, void* user_data)
+void LLPanelFriends::onSelectName(LLUICtrl* ctrl, void* user_data)
 {
-	if(sInstance)
+	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
+
+	if(panelp)
 	{
-		sInstance->refreshUI();
+		panelp->refreshUI();
 	}
 }
 
 //static
-void LLFloaterFriends::onMaximumSelect(void* user_data)
+void LLPanelFriends::onMaximumSelect(void* user_data)
 {
 	LLString::format_map_t args;
 	args["[MAX_SELECT]"] = llformat("%d", MAX_FRIEND_SELECT);
@@ -464,10 +457,12 @@ void LLFloaterFriends::onMaximumSelect(void* user_data)
 };
 
 // static
-void LLFloaterFriends::onClickProfile(void* user_data)
+void LLPanelFriends::onClickProfile(void* user_data)
 {
-	//llinfos << "LLFloaterFriends::onClickProfile()" << llendl;
-	LLDynamicArray<LLUUID> ids = getSelectedIDs();
+	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
+
+	//llinfos << "LLPanelFriends::onClickProfile()" << llendl;
+	LLDynamicArray<LLUUID> ids = panelp->getSelectedIDs();
 	if(ids.size() > 0)
 	{
 		LLUUID agent_id = ids[0];
@@ -478,10 +473,12 @@ void LLFloaterFriends::onClickProfile(void* user_data)
 }
 
 // static
-void LLFloaterFriends::onClickIM(void* user_data)
+void LLPanelFriends::onClickIM(void* user_data)
 {
-	//llinfos << "LLFloaterFriends::onClickIM()" << llendl;
-	LLDynamicArray<LLUUID> ids = getSelectedIDs();
+	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
+
+	//llinfos << "LLPanelFriends::onClickIM()" << llendl;
+	LLDynamicArray<LLUUID> ids = panelp->getSelectedIDs();
 	if(ids.size() > 0)
 	{
 		if(ids.size() == 1)
@@ -494,8 +491,8 @@ void LLFloaterFriends::onClickIM(void* user_data)
 			{
 				char buffer[MAX_STRING];	/* Flawfinder: ignore */
 				snprintf(buffer, MAX_STRING, "%s %s", first, last);	/* Flawfinder: ignore */
-				gIMView->setFloaterOpen(TRUE);
-				gIMView->addSession(
+				gIMMgr->setFloaterOpen(TRUE);
+				gIMMgr->addSession(
 					buffer,
 					IM_NOTHING_SPECIAL,
 					agent_id);
@@ -503,17 +500,18 @@ void LLFloaterFriends::onClickIM(void* user_data)
 		}
 		else
 		{
-			gIMView->setFloaterOpen(TRUE);
-			gIMView->addSession("Friends Conference",
+			gIMMgr->setFloaterOpen(TRUE);
+			gIMMgr->addSession("Friends Conference",
 								IM_SESSION_CONFERENCE_START,
 								ids[0],
 								ids);
 		}
+		make_ui_sound("UISndStartIM");
 	}
 }
 
 // static
-void LLFloaterFriends::requestFriendship(const LLUUID& target_id, const LLString& target_name)
+void LLPanelFriends::requestFriendship(const LLUUID& target_id, const LLString& target_name)
 {
 	// HACK: folder id stored as "message"
 	LLUUID calling_card_folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CALLINGCARD);
@@ -532,7 +530,7 @@ struct LLAddFriendData
 };
 
 // static
-void LLFloaterFriends::callbackAddFriend(S32 option, void* data)
+void LLPanelFriends::callbackAddFriend(S32 option, void* data)
 {
 	LLAddFriendData* add = (LLAddFriendData*)data;
 	if (option == 0)
@@ -543,7 +541,7 @@ void LLFloaterFriends::callbackAddFriend(S32 option, void* data)
 }
 
 // static
-void LLFloaterFriends::onPickAvatar(const std::vector<std::string>& names,
+void LLPanelFriends::onPickAvatar(const std::vector<std::string>& names,
 									const std::vector<LLUUID>& ids,
 									void* )
 {
@@ -553,7 +551,7 @@ void LLFloaterFriends::onPickAvatar(const std::vector<std::string>& names,
 }
 
 // static
-void LLFloaterFriends::requestFriendshipDialog(const LLUUID& id,
+void LLPanelFriends::requestFriendshipDialog(const LLUUID& id,
 											   const std::string& name)
 {
 	if(id == gAgentID)
@@ -573,16 +571,24 @@ void LLFloaterFriends::requestFriendshipDialog(const LLUUID& id,
 }
 
 // static
-void LLFloaterFriends::onClickAddFriend(void* user_data)
+void LLPanelFriends::onClickAddFriend(void* user_data)
 {
-	LLFloaterAvatarPicker::show(onPickAvatar, user_data, FALSE, TRUE);
+	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
+	LLFloater* root_floater = gFloaterView->getParentFloater(panelp);
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(onPickAvatar, user_data, FALSE, TRUE);
+	if (root_floater)
+	{
+		root_floater->addDependentFloater(picker);
+	}
 }
 
 // static
-void LLFloaterFriends::onClickRemove(void* user_data)
+void LLPanelFriends::onClickRemove(void* user_data)
 {
-	//llinfos << "LLFloaterFriends::onClickRemove()" << llendl;
-	LLDynamicArray<LLUUID> ids = getSelectedIDs();
+	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
+
+	//llinfos << "LLPanelFriends::onClickRemove()" << llendl;
+	LLDynamicArray<LLUUID> ids = panelp->getSelectedIDs();
 	LLStringBase<char>::format_map_t args;
 	if(ids.size() > 0)
 	{
@@ -610,9 +616,11 @@ void LLFloaterFriends::onClickRemove(void* user_data)
 }
 
 // static
-void LLFloaterFriends::onClickOfferTeleport(void*)
+void LLPanelFriends::onClickOfferTeleport(void* user_data)
 {
-	LLDynamicArray<LLUUID> ids = getSelectedIDs();
+	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
+
+	LLDynamicArray<LLUUID> ids = panelp->getSelectedIDs();
 	if(ids.size() > 0)
 	{	
 		handle_lure(ids);
@@ -620,43 +628,40 @@ void LLFloaterFriends::onClickOfferTeleport(void*)
 }
 
 // static
-void LLFloaterFriends::onClickPay(void*)
+void LLPanelFriends::onClickPay(void* user_data)
 {
-	LLDynamicArray<LLUUID> ids = getSelectedIDs();
+	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
+
+	LLDynamicArray<LLUUID> ids = panelp->getSelectedIDs();
 	if(ids.size() == 1)
 	{	
 		handle_pay_by_id(ids[0]);
 	}
 }
 
-// static
-void LLFloaterFriends::onClickClose(void* user_data)
+void LLPanelFriends::onClickOnlineStatus(LLUICtrl* ctrl, void* user_data)
 {
-	//llinfos << "LLFloaterFriends::onClickClose()" << llendl;
-	if(sInstance)
-	{
-		sInstance->onClose(false);
-	}
+	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
+
+	bool checked = ctrl->getValue();
+	panelp->updateMenuState(LLRelationship::GRANT_ONLINE_STATUS, checked);
+	panelp->applyRightsToFriends(LLRelationship::GRANT_ONLINE_STATUS, checked);
 }
 
-void LLFloaterFriends::onClickOnlineStatus(LLUICtrl* ctrl, void* user_data)
+void LLPanelFriends::onClickMapStatus(LLUICtrl* ctrl, void* user_data)
 {
+	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
 	bool checked = ctrl->getValue();
-	sInstance->updateMenuState(LLRelationship::GRANT_ONLINE_STATUS, checked);
-	sInstance->applyRightsToFriends(LLRelationship::GRANT_ONLINE_STATUS, checked);
+	panelp->updateMenuState(LLRelationship::GRANT_MAP_LOCATION, checked);
+	panelp->applyRightsToFriends(LLRelationship::GRANT_MAP_LOCATION, checked);
 }
 
-void LLFloaterFriends::onClickMapStatus(LLUICtrl* ctrl, void* user_data)
+void LLPanelFriends::onClickModifyStatus(LLUICtrl* ctrl, void* user_data)
 {
-	bool checked = ctrl->getValue();
-	sInstance->updateMenuState(LLRelationship::GRANT_MAP_LOCATION, checked);
-	sInstance->applyRightsToFriends(LLRelationship::GRANT_MAP_LOCATION, checked);
-}
+	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
 
-void LLFloaterFriends::onClickModifyStatus(LLUICtrl* ctrl, void* user_data)
-{
 	bool checked = ctrl->getValue();
-	LLDynamicArray<LLUUID> ids = getSelectedIDs();
+	LLDynamicArray<LLUUID> ids = panelp->getSelectedIDs();
 	LLStringBase<char>::format_map_t args;
 	if(ids.size() > 0)
 	{
@@ -670,33 +675,35 @@ void LLFloaterFriends::onClickModifyStatus(LLUICtrl* ctrl, void* user_data)
 				args["[FIRST_NAME]"] = first;
 				args["[LAST_NAME]"] = last;	
 			}
-			if(checked) gViewerWindow->alertXml("GrantModifyRights", args, handleModifyRights, NULL);
-			else gViewerWindow->alertXml("RevokeModifyRights", args, handleModifyRights, NULL);
+			if(checked) gViewerWindow->alertXml("GrantModifyRights", args, handleModifyRights, user_data);
+			else gViewerWindow->alertXml("RevokeModifyRights", args, handleModifyRights, user_data);
 		}
 		else return;
 	}
 }
 
-void LLFloaterFriends::handleModifyRights(S32 option, void* user_data)
+void LLPanelFriends::handleModifyRights(S32 option, void* user_data)
 {
-	if(sInstance)
+	LLPanelFriends* panelp = (LLPanelFriends*)user_data;
+
+	if(panelp)
 	{
 		if(!option)
 		{
-			sInstance->updateMenuState(LLRelationship::GRANT_MODIFY_OBJECTS, !((sInstance->getMenuState() & LLRelationship::GRANT_MODIFY_OBJECTS) != 0));
-			sInstance->applyRightsToFriends(LLRelationship::GRANT_MODIFY_OBJECTS, ((sInstance->getMenuState() & LLRelationship::GRANT_MODIFY_OBJECTS) != 0));
+			panelp->updateMenuState(LLRelationship::GRANT_MODIFY_OBJECTS, !((panelp->getMenuState() & LLRelationship::GRANT_MODIFY_OBJECTS) != 0));
+			panelp->applyRightsToFriends(LLRelationship::GRANT_MODIFY_OBJECTS, ((panelp->getMenuState() & LLRelationship::GRANT_MODIFY_OBJECTS) != 0));
 		}
-		sInstance->refreshUI();
+		panelp->refreshUI();
 	}
 }
 
-void LLFloaterFriends::updateMenuState(S32 flag, BOOL value)
+void LLPanelFriends::updateMenuState(S32 flag, BOOL value)
 {
 	if(value) mMenuState |= flag;
 	else mMenuState &= ~flag;
 }
 
-void LLFloaterFriends::applyRightsToFriends(S32 flag, BOOL value)
+void LLPanelFriends::applyRightsToFriends(S32 flag, BOOL value)
 {
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_GrantUserRights);
@@ -725,7 +732,7 @@ void LLFloaterFriends::applyRightsToFriends(S32 flag, BOOL value)
 
 
 // static
-void LLFloaterFriends::handleRemove(S32 option, void* user_data)
+void LLPanelFriends::handleRemove(S32 option, void* user_data)
 {
 	LLDynamicArray<LLUUID>* ids = static_cast<LLDynamicArray<LLUUID>*>(user_data);
 	for(LLDynamicArray<LLUUID>::iterator itr = ids->begin(); itr != ids->end(); ++itr)

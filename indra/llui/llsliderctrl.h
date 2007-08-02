@@ -40,6 +40,7 @@ public:
 		S32 text_left,
 		BOOL show_text,
 		BOOL can_edit_text,
+		BOOL volume,		 
 		void (*commit_callback)(LLUICtrl*, void*),
 		void* callback_userdata,
 		F32 initial_value, F32 min_value, F32 max_value, F32 increment,
@@ -104,7 +105,8 @@ private:
 	const LLFontGL*	mFont;
 	BOOL			mShowText;
 	BOOL			mCanEditText;
-
+	BOOL			mVolumeSlider;
+	
 	S32				mPrecision;
 	LLTextBox*		mLabelBox;
 	S32				mLabelWidth;

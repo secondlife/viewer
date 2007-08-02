@@ -24,6 +24,7 @@
 #include "llcombobox.h"
 #include "llviewercontrol.h"
 #include "llfloaterabout.h"
+#include "llfloatertest.h"
 #include "llfloaterpreference.h"
 #include "llfocusmgr.h"
 #include "lllineeditor.h"
@@ -404,23 +405,30 @@ BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 			return TRUE;
 		}
 
-		#if LL_LIBXUL_ENABLED
+		if (('T' == key) && (MASK_CONTROL == mask))
+		{
+			new LLFloaterSimple("floater_test.xml");
+			return TRUE;
+		}
+		
+#if LL_LIBXUL_ENABLED
 		if ( KEY_F1 == key )
 		{
 			llinfos << "Spawning HTML help window" << llendl;
 			gViewerHtmlHelp.show();
 			return TRUE;
-		};
-			#if ! LL_RELEASE_FOR_DOWNLOAD
-			if ( KEY_F2 == key )
-			{
-				llinfos << "Spawning floater TOS window" << llendl;
-				LLFloaterTOS* tos_dialog = LLFloaterTOS::show(LLFloaterTOS::TOS_TOS,"");
-				tos_dialog->startModal();
-				return TRUE;
-			};
-			#endif
-		#endif
+		}
+
+# if !LL_RELEASE_FOR_DOWNLOAD
+		if ( KEY_F2 == key )
+		{
+			llinfos << "Spawning floater TOS window" << llendl;
+			LLFloaterTOS* tos_dialog = LLFloaterTOS::show(LLFloaterTOS::TOS_TOS,"");
+			tos_dialog->startModal();
+			return TRUE;
+		}
+# endif
+#endif
 
 		if (!called_from_parent)
 		{

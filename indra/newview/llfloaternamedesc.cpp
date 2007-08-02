@@ -193,7 +193,7 @@ void LLFloaterNameDesc::onBtnOK( void* userdata )
 		fp->childGetValue("name_form").asString(), 
 		fp->childGetValue("description_form").asString(), 
 		bitrate, LLAssetType::AT_NONE, LLInventoryType::IT_NONE);
-	fp->onClose(false);
+	fp->close(false);
 }
 
 // static 
@@ -203,5 +203,5 @@ void LLFloaterNameDesc::onBtnOK( void* userdata )
 void LLFloaterNameDesc::onBtnCancel( void* userdata )
 {
 	LLFloaterNameDesc *fp =(LLFloaterNameDesc *)userdata;
-	fp->onClose(false);
+	fp->close(false);
 }

@@ -26,6 +26,7 @@
 #include "llvoavatar.h"
 #include "lltooldraganddrop.h"
 #include "llinventoryview.h"
+#include "llfloaterchatterbox.h"
 #include "llfloaterfriends.h"
 #include "llfloatersnapshot.h"
 #include "lltoolmgr.h"
@@ -94,14 +95,11 @@ LLToolBar::LLToolBar(const std::string& name, const LLRect& r)
 
 BOOL LLToolBar::postBuild()
 {
-	childSetAction("im_btn", onClickIM, this);
-	childSetControlName("im_btn", "ShowIM");
+	childSetAction("communicate_btn", onClickCommunicate, this);
+	childSetControlName("communicate_btn", "ShowCommunicate");
 
 	childSetAction("chat_btn", onClickChat, this);
 	childSetControlName("chat_btn", "ChatVisible");
-
-	childSetAction("friends_btn", onClickFriends, this);
-	childSetControlName("friends_btn", "ShowFriends");
 
 	childSetAction("appearance_btn", onClickAppearance, this);
 	childSetControlName("appearance_btn", "");
@@ -313,24 +311,9 @@ void LLToolBar::refresh()
 
 
 // static
-void LLToolBar::onClickIM(void* user_data)
+void LLToolBar::onClickCommunicate(void* user_data)
 {
-	if(gIMView->getFloaterOpen())
-	{
-		// this is if we want Ctrl-T to be simply a toggle
-		// gIMView->setFloaterOpen( FALSE );
-		// three-state behavior follows
-		if(gFocusMgr.childHasKeyboardFocus(gIMView->getFloater()))
-		{
-			gIMView->setFloaterOpen( FALSE );
-		} else {
-			gIMView->getFloater()->setFocus( TRUE );
-		}
-	}
-	else
-	{
-		gIMView->setFloaterOpen( TRUE );
-	}
+	LLFloaterChatterBox::toggleInstance(LLSD());
 }
 
 
@@ -339,14 +322,6 @@ void LLToolBar::onClickChat(void* user_data)
 {
 	handle_chat(NULL);
 }
-
-
-// static
-void LLToolBar::onClickFriends(void*)
-{
-	LLFloaterFriends::toggle();
-}
-
 
 // static
 void LLToolBar::onClickAppearance(void*)

@@ -255,9 +255,9 @@ void LLJointStateBlender::blendJointStates(BOOL apply_now)
 		joint_state_index < JSB_NUM_JOINT_STATES && mJointStates[joint_state_index] != NULL;
 		joint_state_index++)
 	{
-		U32 current_usage = mJointStates[joint_state_index]->getUsage();
-		F32 current_weight = mJointStates[joint_state_index]->getWeight();
 		LLJointState* jsp = mJointStates[joint_state_index];
+		U32 current_usage = jsp->getUsage();
+		F32 current_weight = jsp->getWeight();
 
 		if (current_weight == 0.f)
 		{
@@ -272,17 +272,14 @@ void LLJointStateBlender::blendJointStates(BOOL apply_now)
 
 				// add in pos for this jointstate modulated by weight
 				added_pos += jsp->getPosition() * (new_weight_sum - sum_weights[POS_WEIGHT]);
-				//sum_weights[POS_WEIGHT] = new_weight_sum;
 			}
 
-			// now do scale
 			if(current_usage & LLJointState::SCALE)
 			{
 				F32 new_weight_sum = llmin(1.f, current_weight + sum_weights[SCALE_WEIGHT]);
 
 				// add in scale for this jointstate modulated by weight
 				added_scale += jsp->getScale() * (new_weight_sum - sum_weights[SCALE_WEIGHT]);
-				//sum_weights[SCALE_WEIGHT] = new_weight_sum;
 			}
 
 			if (current_usage & LLJointState::ROT)
@@ -291,7 +288,6 @@ void LLJointStateBlender::blendJointStates(BOOL apply_now)
 
 				// add in rotation for this jointstate modulated by weight
 				added_rot = nlerp((new_weight_sum - sum_weights[ROT_WEIGHT]), added_rot, jsp->getRotation()) * added_rot;
-				//sum_weights[ROT_WEIGHT] = new_weight_sum;
 			}
 		}
 		else
@@ -306,13 +302,13 @@ void LLJointStateBlender::blendJointStates(BOOL apply_now)
 					F32 new_weight_sum = llmin(1.f, current_weight + sum_weights[POS_WEIGHT]);
 
 					// blend positions from both
-					blended_pos = lerp(mJointStates[joint_state_index]->getPosition(), blended_pos, sum_weights[POS_WEIGHT] / new_weight_sum);
+					blended_pos = lerp(jsp->getPosition(), blended_pos, sum_weights[POS_WEIGHT] / new_weight_sum);
 					sum_weights[POS_WEIGHT] = new_weight_sum;
 				} 
 				else
 				{
 					// copy position from current
-					blended_pos = mJointStates[joint_state_index]->getPosition();
+					blended_pos = jsp->getPosition();
 					sum_weights[POS_WEIGHT] = current_weight;
 				}
 			}
@@ -325,13 +321,13 @@ void LLJointStateBlender::blendJointStates(BOOL apply_now)
 					F32 new_weight_sum = llmin(1.f, current_weight + sum_weights[SCALE_WEIGHT]);
 
 					// blend scales from both
-					blended_scale = lerp(mJointStates[joint_state_index]->getScale(), blended_scale, sum_weights[SCALE_WEIGHT] / new_weight_sum);
+					blended_scale = lerp(jsp->getScale(), blended_scale, sum_weights[SCALE_WEIGHT] / new_weight_sum);
 					sum_weights[SCALE_WEIGHT] = new_weight_sum;
 				} 
 				else
 				{
 					// copy scale from current
-					blended_scale = mJointStates[joint_state_index]->getScale();
+					blended_scale = jsp->getScale();
 					sum_weights[SCALE_WEIGHT] = current_weight;
 				}
 			}
@@ -344,13 +340,13 @@ void LLJointStateBlender::blendJointStates(BOOL apply_now)
 					F32 new_weight_sum = llmin(1.f, current_weight + sum_weights[ROT_WEIGHT]);
 
 					// blend rotations from both
-					blended_rot = nlerp(sum_weights[ROT_WEIGHT] / new_weight_sum, mJointStates[joint_state_index]->getRotation(), blended_rot);
+					blended_rot = nlerp(sum_weights[ROT_WEIGHT] / new_weight_sum, jsp->getRotation(), blended_rot);
 					sum_weights[ROT_WEIGHT] = new_weight_sum;
 				} 
 				else
 				{
 					// copy rotation from current
-					blended_rot = mJointStates[joint_state_index]->getRotation();
+					blended_rot = jsp->getRotation();
 					sum_weights[ROT_WEIGHT] = current_weight;
 				}
 			}

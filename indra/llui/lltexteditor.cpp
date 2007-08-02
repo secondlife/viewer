@@ -2993,8 +2993,7 @@ void LLTextEditor::draw()
 	if( getVisible() )
 	{
 		{
-			LLGLEnable scissor_test(GL_SCISSOR_TEST);
-			LLUI::setScissorRegionLocal(LLRect(0, mRect.getHeight(), mRect.getWidth() - (mScrollbar->getVisible() ? SCROLLBAR_SIZE : 0), 0));
+			LLLocalClipRect clip(LLRect(0, mRect.getHeight(), mRect.getWidth() - (mScrollbar->getVisible() ? SCROLLBAR_SIZE : 0), 0));
 
 			bindEmbeddedChars( mGLFont );
 

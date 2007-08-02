@@ -159,16 +159,21 @@ public:
 	LLMotion *findMotion( const LLUUID& id );
 
 protected:
+	// internal operations act on motion instances directly
+	// as there can be duplicate motions per id during blending overlap
 	void deleteAllMotions();
 	void addLoadedMotion(LLMotion *motion);
-	BOOL activateMotion(LLMotion *motion, F32 time);
-	BOOL deactivateMotion(LLMotion *motion, bool remove_weight);
+	BOOL activateMotionInstance(LLMotion *motion, F32 time);
+	BOOL deactivateMotionInstance(LLMotion *motion);
+	void deprecateMotionInstance(LLMotion* motion);
+	BOOL stopMotionInstance(LLMotion *motion, BOOL stop_imemdiate);
+	void removeMotionInstance(LLMotion* motion);
 	void updateRegularMotions();
 	void updateAdditiveMotions();
 	void resetJointSignatures();
 	void updateMotionsByType(LLMotion::LLMotionBlendType motion_type);
-protected:
 
+protected:
 	F32					mTimeFactor;
 	static LLMotionRegistry	sRegistry;
 	LLPoseBlender		mPoseBlender;
@@ -183,11 +188,13 @@ protected:
 //	Once an animations is loaded, it will be initialized and put on the mLoadedMotions deque.
 //	Any animation that is currently playing also sits in the mActiveMotions list.
 
-	std::map<LLUUID, LLMotion*>	mAllMotions;
+	typedef std::map<LLUUID, LLMotion*> motion_map_t;
+	motion_map_t	mAllMotions;
 
 	motion_set_t		mLoadingMotions;
 	motion_list_t		mLoadedMotions;
 	motion_list_t		mActiveMotions;
+	motion_set_t		mDeprecatedMotions;
 	
 	LLFrameTimer		mTimer;
 	F32					mTime;

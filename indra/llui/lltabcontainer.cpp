@@ -50,6 +50,7 @@ LLTabContainerCommon::LLTabContainerCommon(
 	: 
 	LLPanel(name, rect, bordered),
 	mCurrentTabIdx(-1),
+	mTabsHidden(FALSE),
 	mScrolled(FALSE),
 	mScrollPos(0),
 	mScrollPosPixels(0),
@@ -75,6 +76,7 @@ LLTabContainerCommon::LLTabContainerCommon(
 	: 
 	LLPanel(name, rect_control, bordered),
 	mCurrentTabIdx(-1),
+	mTabsHidden(FALSE),
 	mScrolled(FALSE),
 	mScrollPos(0),
 	mScrollPosPixels(0),
@@ -127,11 +129,11 @@ void LLTabContainerCommon::addPlaceholder(LLPanel* child, const LLString& label)
 	addTabPanel(child, label, FALSE, NULL, NULL, 0, TRUE);
 }
 
-void LLTabContainerCommon::lockTabs()
+void LLTabContainerCommon::lockTabs(S32 num_tabs)
 {
-	// count current tabs and ensure no new tabs get
+	// count current tabs or use supplied value and ensure no new tabs get
 	// inserted between them
-	mLockedTabCount = getTabCount();
+	mLockedTabCount = num_tabs > 0 ? num_tabs : getTabCount();
 }
 
 void LLTabContainerCommon::removeTabPanel(LLPanel* child)
@@ -522,12 +524,12 @@ void LLTabContainerCommon::setTabPanelFlashing(LLPanel* child, BOOL state )
 	}
 }
 
-void LLTabContainerCommon::setTabImage(LLPanel* child, std::string img_name)
+void LLTabContainerCommon::setTabImage(LLPanel* child, std::string img_name, const LLColor4& color)
 {
 	LLTabTuple* tuple = getTabByPanel(child);
 	if( tuple )
 	{
-		tuple->mButton->setImageOverlay(img_name, LLFontGL::RIGHT);
+		tuple->mButton->setImageOverlay(img_name, LLFontGL::RIGHT, color);
 	}
 }
 
@@ -647,6 +649,8 @@ LLView* LLTabContainerCommon::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtr
 		}
 	}
 	
+	node->getAttributeBOOL("hide_tabs", tab_container->mTabsHidden);
+
 	tab_container->setPanelParameters(node, parent);
 
 	if (LLFloater::getFloaterHost())
@@ -1016,10 +1020,11 @@ void LLTabContainer::setPanelTitle(S32 index, const LLString& title)
 {
 	if (index >= 0 && index < (S32)mTabList.size())
 	{
-		LLButton* tab_button = mTabList[index]->mButton;
+		LLTabTuple* tuple = mTabList[index];
+		LLButton* tab_button = tuple->mButton;
 		const LLFontGL* fontp = gResMgr->getRes( LLFONT_SANSSERIF_SMALL );
 		mTotalTabWidth -= tab_button->getRect().getWidth();
-		tab_button->reshape(llclamp(fontp->getWidth(title) + TAB_PADDING, mMinTabWidth, mMaxTabWidth), tab_button->getRect().getHeight());
+		tab_button->reshape(llclamp(fontp->getWidth(title) + TAB_PADDING + tuple->mPadding, mMinTabWidth, mMaxTabWidth), tab_button->getRect().getHeight());
 		mTotalTabWidth += tab_button->getRect().getWidth();
 		tab_button->setLabelSelected(title);
 		tab_button->setLabelUnselected(title);
@@ -1225,63 +1230,60 @@ void LLTabContainer::draw()
 
 		LLPanel::draw();
 
-		// Show all the buttons
-		for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
+		// if tabs are hidden, don't draw them and leave them in the invisible state
+		if (!mTabsHidden)
 		{
-			LLTabTuple* tuple = *iter;
-			tuple->mButton->setVisible( TRUE );
-		}
-
-		// Draw some of the buttons...
-
-		LLGLEnable scissor_test(has_scroll_arrows ? GL_SCISSOR_TEST : GL_FALSE);
-		if( has_scroll_arrows )
-		{
-			// ...but clip them.
-			S32 x1 = mLeftArrowBtn->getRect().mRight;
-			S32 y1 = 0;
-			S32 x2 = mRightArrowBtn->getRect().mLeft;
-			S32 y2 = 1;
-			if (mTabList.size() > 0)
+			// Show all the buttons
+			for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
 			{
-				y2 = mTabList[0]->mButton->getRect().mTop;
+				LLTabTuple* tuple = *iter;
+				tuple->mButton->setVisible( TRUE );
 			}
-			LLUI::setScissorRegionLocal(LLRect(x1, y2, x2, y1));
-		}
 
-		S32 max_scroll_visible = mTabList.size() - mMaxScrollPos + mScrollPos;
-		S32 idx = 0;
-		for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
-		{
-			LLTabTuple* tuple = *iter;
-
-			tuple->mButton->translate( left - tuple->mButton->getRect().mLeft, 0 );
-			left += tuple->mButton->getRect().getWidth();
-
-			if( idx < mScrollPos )
+			// Draw some of the buttons...
+			LLRect clip_rect = getLocalRect();
+			if (has_scroll_arrows)
 			{
-				if( tuple->mButton->getFlashing() )
+				// ...but clip them.
+				clip_rect.mLeft = mLeftArrowBtn->getRect().mRight;
+				clip_rect.mRight = mRightArrowBtn->getRect().mLeft;
+			}
+			LLLocalClipRect clip(clip_rect);
+
+			S32 max_scroll_visible = mTabList.size() - mMaxScrollPos + mScrollPos;
+			S32 idx = 0;
+			for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
+			{
+				LLTabTuple* tuple = *iter;
+
+				tuple->mButton->translate( left - tuple->mButton->getRect().mLeft, 0 );
+				left += tuple->mButton->getRect().getWidth();
+
+				if( idx < mScrollPos )
 				{
-					mLeftArrowBtn->setFlashing( TRUE );
+					if( tuple->mButton->getFlashing() )
+					{
+						mLeftArrowBtn->setFlashing( TRUE );
+					}
 				}
-			}
-			else
-			if( max_scroll_visible < idx )
-			{
-				if( tuple->mButton->getFlashing() )
+				else
+				if( max_scroll_visible < idx )
 				{
-					mRightArrowBtn->setFlashing( TRUE );
+					if( tuple->mButton->getFlashing() )
+					{
+						mRightArrowBtn->setFlashing( TRUE );
+					}
 				}
-			}
 
-			LLUI::pushMatrix();
-			{
-				LLUI::translate((F32)tuple->mButton->getRect().mLeft, (F32)tuple->mButton->getRect().mBottom, 0.f);
-				tuple->mButton->draw();
+				LLUI::pushMatrix();
+				{
+					LLUI::translate((F32)tuple->mButton->getRect().mLeft, (F32)tuple->mButton->getRect().mBottom, 0.f);
+					tuple->mButton->draw();
+				}
+				LLUI::popMatrix();
+			
+				idx++;
 			}
-			LLUI::popMatrix();
-		
-			idx++;
 		}
 
 		mLeftArrowBtn->setFlashing(FALSE);
@@ -1608,12 +1610,12 @@ BOOL LLTabContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,	BOOL drop,	EDrag
 	return LLView::handleDragAndDrop(x,	y, mask, drop, type, cargo_data,  accept, tooltip);
 }
 
-void LLTabContainer::setTabImage(LLPanel* child, std::string image_name)
+void LLTabContainer::setTabImage(LLPanel* child, std::string image_name, const LLColor4& color)
 {
 	LLTabTuple* tuple = getTabByPanel(child);
 	if( tuple )
 	{
-		tuple->mButton->setImageOverlay(image_name, LLFontGL::RIGHT);
+		tuple->mButton->setImageOverlay(image_name, LLFontGL::RIGHT, color);
 
 		const LLFontGL* fontp = gResMgr->getRes( LLFONT_SANSSERIF_SMALL );
 		// remove current width from total tab strip width
@@ -1622,7 +1624,11 @@ void LLTabContainer::setTabImage(LLPanel* child, std::string image_name)
 		S32 image_overlay_width = tuple->mButton->getImageOverlay().notNull() ? 
 			tuple->mButton->getImageOverlay()->getWidth(0) :
 			0;
-		tuple->mButton->reshape(llclamp(fontp->getWidth(tuple->mButton->getLabelSelected()) + TAB_PADDING + image_overlay_width, mMinTabWidth, mMaxTabWidth), 
+
+		tuple->mPadding = image_overlay_width;
+
+		tuple->mButton->setRightHPad(tuple->mPadding + LLBUTTON_H_PAD);
+		tuple->mButton->reshape(llclamp(fontp->getWidth(tuple->mButton->getLabelSelected()) + TAB_PADDING + tuple->mPadding, mMinTabWidth, mMaxTabWidth), 
 								tuple->mButton->getRect().getHeight());
 		// add back in button width to total tab strip width
 		mTotalTabWidth += tuple->mButton->getRect().getWidth();

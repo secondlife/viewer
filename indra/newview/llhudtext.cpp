@@ -839,7 +839,8 @@ void LLHUDText::updateAll()
 				}
 				if (src_textp->mSoftScreenRect.rectInRect(&dst_textp->mSoftScreenRect))
 				{
-					LLRectf intersect_rect = src_textp->mSoftScreenRect & dst_textp->mSoftScreenRect;
+					LLRectf intersect_rect = src_textp->mSoftScreenRect;
+					intersect_rect.intersectWith(dst_textp->mSoftScreenRect);
 					intersect_rect.stretch(-BUFFER_SIZE * 0.5f);
 					
 					F32 src_center_x = src_textp->mSoftScreenRect.getCenterX();

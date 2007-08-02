@@ -15,6 +15,7 @@
 #include "llcallbackmap.h"
 #include "lluictrl.h"
 #include "llviewborder.h"
+#include "lluistring.h"
 #include "v4color.h"
 #include <list>
 #include <queue>
@@ -71,6 +72,8 @@ public:
 					LLViewBorder::EStyle border_style = LLViewBorder::STYLE_LINE,
 					S32 border_thickness = LLPANEL_BORDER_WIDTH );
 
+	void removeBorder();
+
 	virtual ~LLPanel();
 	virtual void	draw();	
 	virtual void 	refresh();	// called in setFocus()
@@ -97,6 +100,7 @@ public:
 	LLString		getLabel() const { return mLabel; }
 	
 	void            setRectControl(const LLString& rect_control) { mRectControl.assign(rect_control); }
+	void			storeRectControl();
 	
 	void			setBorderVisible( BOOL b );
 
@@ -116,7 +120,11 @@ public:
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 	BOOL initPanelXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
+	void initChildrenXML(LLXMLNodePtr node, LLUICtrlFactory* factory);
 	void setPanelParameters(LLXMLNodePtr node, LLView *parentp);
+
+	LLString getFormattedUIString(const LLString& name, const LLString::format_map_t& args = LLUIString::sNullArgs) const;
+	LLUIString getUIString(const LLString& name) const;
 
 	// ** Wrappers for setting child properties by name ** -TomY
 
@@ -196,6 +204,8 @@ public:
 	typedef std::queue<LLAlertInfo> alert_queue_t;
 	static alert_queue_t sAlertQueue;
 
+	typedef std::map<LLString, LLUIString> ui_string_map_t;
+
 private:
 	// common constructor
 	void init();
@@ -221,11 +231,59 @@ protected:
 	LLString		mLabel;
 	S32				mLastTabGroup;
 
+	ui_string_map_t	mUIStrings;
+
 	typedef std::map<LLString, EWidgetType> requirements_map_t;
 	requirements_map_t mRequirements;
 
 	typedef std::map<LLViewHandle, LLPanel*> panel_map_t;
 	static panel_map_t sPanelMap;
+};
+
+class LLLayoutStack : public LLView
+{
+public:
+	typedef enum e_layout_orientation
+	{
+		HORIZONTAL,
+		VERTICAL
+	} eLayoutOrientation;
+
+	LLLayoutStack(eLayoutOrientation orientation);
+	virtual ~LLLayoutStack();
+
+	/*virtual*/ void draw();
+	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
+	/*virtual*/ LLXMLNodePtr getXML(bool save_children = true) const;
+	/*virtual*/ void removeCtrl(LLUICtrl* ctrl);
+	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_LAYOUT_STACK; }
+	virtual LLString getWidgetTag() const { return LL_LAYOUT_STACK_TAG; }
+
+	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
+
+	S32 getMinWidth();
+	S32 getMinHeight();
+	
+	void addPanel(LLPanel* panel, S32 min_width, S32 min_height, BOOL auto_resize, S32 index = S32_MAX);
+	void removePanel(LLPanel* panel);
+	void updateLayout(BOOL force_resize = FALSE);
+
+protected:
+	struct LLEmbeddedPanel;
+
+	LLEmbeddedPanel* findEmbeddedPanel(LLPanel* panelp);
+	void calcMinExtents();
+	S32 getMinStackSize();
+	S32 getCurStackSize();
+
+protected:
+	eLayoutOrientation mOrientation;
+
+	typedef std::vector<LLEmbeddedPanel*> e_panel_list_t;
+	e_panel_list_t mPanels;
+
+	S32 mMinWidth;
+	S32 mMinHeight;
 };
 
 #endif

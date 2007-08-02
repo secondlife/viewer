@@ -34,9 +34,11 @@ protected:
 	LLTextEditor* mComment;
 };
 
+// These functions found in llcontroldef.cpp *TODO: clean this up!
 //setting variables are declared in this function
 void declare_settings();
 void fixup_settings();
+void settings_setup_listeners();
 
 // saved at end of session
 extern LLControlGroup gSavedSettings;

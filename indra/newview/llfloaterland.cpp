@@ -22,6 +22,7 @@
 #include "llfloateravatarpicker.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
+#include "llradiogroup.h"
 #include "llcombobox.h"
 #include "llfloaterauction.h"
 #include "llfloateravatarinfo.h"
@@ -89,6 +90,14 @@ static const char RAW_HTML[] = "Raw HTML";
 // constants used in callbacks below - syntactic sugar.
 static const BOOL BUY_GROUP_LAND = TRUE;
 static const BOOL BUY_PERSONAL_LAND = FALSE;
+
+// Values for the parcel voice settings radio group
+enum
+{
+	kRadioVoiceChatEstate = 0,
+	kRadioVoiceChatPrivate = 1,
+	kRadioVoiceChatDisable = 2
+};
 
 // Statics
 LLFloaterLand* LLFloaterLand::sInstance = NULL;
@@ -808,9 +817,20 @@ void LLPanelLandGeneral::draw()
 // static
 void LLPanelLandGeneral::onClickSetGroup(void* userdata)
 {
-	LLFloaterGroups* fg;
-	fg = LLFloaterGroups::show(gAgent.getID(), LLFloaterGroups::CHOOSE_ONE);
-	fg->setOkCallback( cbGroupID, userdata );
+	LLPanelLandGeneral* panelp = (LLPanelLandGeneral*)userdata;
+	LLFloaterGroupPicker* fg;
+
+	LLFloater* parent_floater = gFloaterView->getParentFloater(panelp);
+
+	fg = LLFloaterGroupPicker::showInstance(LLSD(gAgent.getID()));
+	fg->setSelectCallback( cbGroupID, userdata );
+
+	if (parent_floater)
+	{
+		LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, fg);
+		fg->setOrigin(new_rect.mLeft, new_rect.mBottom);
+		parent_floater->addDependentFloater(fg);
+	}
 }
 
 // static
@@ -2319,6 +2339,9 @@ BOOL LLPanelLandMedia::postBuild()
 	mCheckSoundLocal = LLUICtrlFactory::getCheckBoxByName(this, "check sound local");
 	childSetCommitCallback("check sound local", onCommitAny, this);
 
+	mRadioVoiceChat = LLUICtrlFactory::getRadioGroupByName(this, "parcel_voice_channel");
+	childSetCommitCallback("parcel_voice_channel", onCommitAny, this);
+
 	mMusicURLEdit = LLUICtrlFactory::getLineEditorByName(this, "music_url");
 	childSetCommitCallback("music_url", onCommitAny, this);
 
@@ -2362,6 +2385,9 @@ void LLPanelLandMedia::refresh()
 		mCheckSoundLocal->set(FALSE);
 		mCheckSoundLocal->setEnabled(FALSE);
 
+		mRadioVoiceChat->setSelectedIndex(kRadioVoiceChatEstate);
+		mRadioVoiceChat->setEnabled(FALSE);
+
 		mMusicURLEdit->setText("");
 		mMusicURLEdit->setEnabled(FALSE);
 
@@ -2388,6 +2414,20 @@ void LLPanelLandMedia::refresh()
 
 		mCheckSoundLocal->set( parcel->getSoundLocal() );
 		mCheckSoundLocal->setEnabled( can_change_media );
+
+		if(parcel->getVoiceEnabled())
+		{
+			if(parcel->getVoiceUseEstateChannel())
+				mRadioVoiceChat->setSelectedIndex(kRadioVoiceChatEstate);
+			else
+				mRadioVoiceChat->setSelectedIndex(kRadioVoiceChatPrivate);
+		}
+		else
+		{
+			mRadioVoiceChat->setSelectedIndex(kRadioVoiceChatDisable);
+		}
+
+		mRadioVoiceChat->setEnabled( can_change_media );
 
 		// don't display urls if you're not able to change it
 		// much requested change in forums so people can't 'steal' urls
@@ -2448,16 +2488,39 @@ void LLPanelLandMedia::onCommitAny(LLUICtrl *ctrl, void *userdata)
 
 	// Extract data from UI
 	BOOL sound_local		= self->mCheckSoundLocal->get();
+	int voice_setting		= self->mRadioVoiceChat->getSelectedIndex();
 	std::string music_url	= self->mMusicURLEdit->getText();
 	std::string media_url	= self->mMediaURLEdit->getText();
 	U8 media_auto_scale		= self->mMediaAutoScaleCheck->get();
 	LLUUID media_id			= self->mMediaTextureCtrl->getImageAssetID();
 
+	BOOL voice_enabled;
+	BOOL voice_estate_chan;
+	
+	switch(voice_setting)
+	{
+		default:
+		case kRadioVoiceChatEstate:
+			voice_enabled = TRUE;
+			voice_estate_chan = TRUE;
+		break;
+		case kRadioVoiceChatPrivate:
+			voice_enabled = TRUE;
+			voice_estate_chan = FALSE;
+		break;
+		case kRadioVoiceChatDisable:
+			voice_enabled = FALSE;
+			voice_estate_chan = FALSE;
+		break;
+	}
+	
 	// Remove leading/trailing whitespace (common when copying/pasting)
 	LLString::trim(music_url);
 	LLString::trim(media_url);
 
 	// Push data into current parcel
+	parcel->setParcelFlag(PF_ALLOW_VOICE_CHAT, voice_enabled);
+	parcel->setParcelFlag(PF_USE_ESTATE_VOICE_CHAN, voice_estate_chan);
 	parcel->setParcelFlag(PF_SOUND_LOCAL, sound_local);
 	parcel->setMusicURL(music_url.c_str());
 	parcel->setMediaURL(media_url.c_str());

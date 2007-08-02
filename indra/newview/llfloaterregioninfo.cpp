@@ -1410,11 +1410,21 @@ void LLPanelEstateInfo::addAllowedGroup(S32 option, void* user_data)
 {
 	if (option != 0) return;
 
-	LLFloaterGroups* widget;
-	widget = LLFloaterGroups::show(gAgent.getID(), LLFloaterGroups::CHOOSE_ONE);
+	LLPanelEstateInfo* panelp = (LLPanelEstateInfo*)user_data;
+
+	LLFloater* parent_floater = gFloaterView->getParentFloater(panelp);
+
+	LLFloaterGroupPicker* widget;
+	widget = LLFloaterGroupPicker::showInstance(LLSD(gAgent.getID()));
 	if (widget)
 	{
-		widget->setOkCallback(addAllowedGroup2, user_data);
+		widget->setSelectCallback(addAllowedGroup2, user_data);
+		if (parent_floater)
+		{
+			LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, widget);
+			widget->setOrigin(new_rect.mLeft, new_rect.mBottom);
+			parent_floater->addDependentFloater(widget);
+		}
 	}
 }
 
@@ -1910,6 +1920,7 @@ BOOL LLPanelEstateInfo::postBuild()
 	initCtrl("deny_anonymous");
 	initCtrl("deny_identified");
 	initCtrl("deny_transacted");
+	initCtrl("voice_chat_check");
 
 	initHelpBtn("estate_manager_help",			"HelpEstateEstateManager");
 	initHelpBtn("use_global_time_help",			"HelpEstateUseGlobalTime");
@@ -1919,6 +1930,7 @@ BOOL LLPanelEstateInfo::postBuild()
 	initHelpBtn("allow_resident_help",			"HelpEstateAllowResident");
 	initHelpBtn("allow_group_help",				"HelpEstateAllowGroup");
 	initHelpBtn("ban_resident_help",			"HelpEstateBanResident");
+	initHelpBtn("voice_chat_help", "HelpEstateVoiceChat");
 
 	// set up the use global time checkbox
 	childSetCommitCallback("use_global_time_check", onChangeUseGlobalTime, this);
@@ -2084,6 +2096,9 @@ void LLPanelEstateInfo::setEstateFlags(U32 flags)
 {
 	childSetValue("externally_visible_check", LLSD(flags & REGION_FLAGS_EXTERNALLY_VISIBLE ? TRUE : FALSE) );
 	childSetValue("fixed_sun_check", LLSD(flags & REGION_FLAGS_SUN_FIXED ? TRUE : FALSE) );
+	childSetValue(
+		"voice_chat_check",
+		LLSD(flags & REGION_FLAGS_ALLOW_VOICE ? TRUE : FALSE));
 	childSetValue("allow_direct_teleport", LLSD(flags & REGION_FLAGS_ALLOW_DIRECT_TELEPORT ? TRUE : FALSE) );
 	childSetValue("deny_anonymous", LLSD(flags & REGION_FLAGS_DENY_ANONYMOUS ? TRUE : FALSE) );
 	childSetValue("deny_identified", LLSD(flags & REGION_FLAGS_DENY_IDENTIFIED ? TRUE : FALSE) );
@@ -2098,6 +2113,11 @@ U32 LLPanelEstateInfo::computeEstateFlags()
 	if (childGetValue("externally_visible_check").asBoolean())
 	{
 		flags |= REGION_FLAGS_EXTERNALLY_VISIBLE;
+	}
+
+	if ( childGetValue("voice_chat_check").asBoolean() )
+	{
+		flags |= REGION_FLAGS_ALLOW_VOICE;
 	}
 	
 	if (childGetValue("allow_direct_teleport").asBoolean())

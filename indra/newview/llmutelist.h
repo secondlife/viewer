@@ -23,8 +23,22 @@ public:
 	// Legacy mutes are BY_NAME and have null UUID.
 	enum EType { BY_NAME = 0, AGENT = 1, OBJECT = 2, GROUP = 3, COUNT = 4 };
 	
-	LLMute(const LLUUID& id, const LLString& name = "", EType type = BY_NAME) 
-	: mID(id), mName(name), mType(type) { }
+	// Bits in the mute flags.  For backwards compatibility (since any mute list entries that were created before the flags existed
+	// will have a flags field of 0), some of the flags are "inverted".
+	// Note that it's possible, through flags, to completely disable an entry in the mute list.  The code should detect this case
+	// and remove the mute list entry instead.
+	enum 
+	{
+		flagTextChat		= 0x00000001,		// If set, don't mute user's text chat
+		flagVoiceChat		= 0x00000002,		// If set, don't mute user's voice chat
+		flagParticles		= 0x00000004,		// If set, don't mute user's particles
+		flagObjectSounds 	= 0x00000008,		// If set, mute user's object sounds
+		
+		flagAll				= 0x0000000F		// Mask of all currently defined flags
+	};
+	
+	LLMute(const LLUUID& id, const LLString& name = "", EType type = BY_NAME, U32 flags = 0) 
+	: mID(id), mName(name), mType(type),mFlags(flags) { }
 
 	// Returns name + suffix based on type
 	// For example:  "James Tester (resident)"
@@ -39,6 +53,7 @@ public:
 	LLUUID		mID;	// agent or object id
 	LLString	mName;	// agent or object name
 	EType		mType;	// needed for UI display of existing mutes
+	U32			mFlags;	// flags pertaining to this mute entry
 };
 
 class LLMuteList
@@ -50,14 +65,17 @@ public:
 	void addObserver(LLMuteListObserver* observer);
 	void removeObserver(LLMuteListObserver* observer);
 
-	// Add either a normal or a BY_NAME mute.
-	BOOL add(const LLMute& mute);
+	// Add either a normal or a BY_NAME mute, for any or all properties.
+	BOOL add(const LLMute& mute, U32 flags = 0);
 
-	// Remove both normal and legacy mutes.
-	BOOL remove(const LLMute& mute);
+	// Remove both normal and legacy mutes, for any or all properties.
+	BOOL remove(const LLMute& mute, U32 flags = 0);
 	
 	// Name is required to test against legacy text-only mutes.
-	BOOL isMuted(const LLUUID& id, const LLString& name = LLString::null) const;
+	BOOL isMuted(const LLUUID& id, const LLString& name = LLString::null, U32 flags = 0) const;
+	
+	// Alternate (convenience) form for places we don't need to pass the name, but do need flags
+	BOOL isMuted(const LLUUID& id, U32 flags) const { return isMuted(id, LLString::null, flags); };
 	
 	BOOL isLinden(const LLString& name) const;
 	

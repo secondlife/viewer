@@ -226,7 +226,7 @@ void LLNetMap::draw()
 		
 		{
 			LLGLSNoTexture no_texture;
-			LLUI::setScissorRegionLocal(LLRect(0, mRect.getHeight(), mRect.getWidth(), 0));
+			LLLocalClipRect clip(getLocalRect());
 
 			glMatrixMode(GL_MODELVIEW);
 

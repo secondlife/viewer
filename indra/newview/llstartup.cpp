@@ -65,6 +65,8 @@
 #include "lleventnotifier.h"
 #include "llface.h"
 #include "llfeaturemanager.h"
+#include "llfirstuse.h"
+#include "llfloateractivespeakers.h"
 #include "llfloaterchat.h"
 #include "llfloatergesture.h"
 #include "llfloaterland.h"
@@ -133,6 +135,7 @@
 #include "llfasttimerview.h"
 #include "llfloatermap.h"
 #include "llweb.h"
+#include "llvoiceclient.h"
 
 #if LL_LIBXUL_ENABLED
 #include "llmozlib.h"
@@ -1402,6 +1405,9 @@ BOOL idle_startup()
 				gAutoLogin = FALSE;
 				show_connect_box = TRUE;
 			}
+			
+			// Pass the user information to the voice chat server interface.
+			gVoiceClient->userAuthorized(firstname, lastname, gAgentID);
 		}
 		else
 		{
@@ -1700,14 +1706,7 @@ BOOL idle_startup()
 	{
 		if (gViewerWindow)
 		{
-			if (gSavedSettings.getBOOL("MuteAudio"))
-			{
-				LLMediaEngine::updateClass( 0.0f );
-			}
-			else
-			{
-				LLMediaEngine::updateClass( gSavedSettings.getF32( "MediaAudioVolume" ) );
-			}
+			audio_update_volume(true);
 		}
 
 		#if LL_QUICKTIME_ENABLED	// windows only right now but will be ported to mac 
@@ -2287,6 +2286,9 @@ BOOL idle_startup()
 		// On first start, ask user for gender
 		dialog_choose_gender_first_start();
 
+		// setup voice
+		LLFirstUse::useVoice();
+
 		// Start automatic replay if the flag is set.
 		if (gSavedSettings.getBOOL("StatsAutoRun"))
 		{
@@ -2314,7 +2316,7 @@ BOOL idle_startup()
 				}
 			}
 		}
-
+		
 		// Clean up the userauth stuff.
 		if (gUserAuthp)
 		{
@@ -2323,13 +2325,9 @@ BOOL idle_startup()
 		}
 
 		gStartupState++;
-		//RN: unmute audio now that we are entering world
-		//JC: But only if the user wants audio working.
-		if (gAudiop)
-		{
-			BOOL mute = gSavedSettings.getBOOL("MuteAudio");
-			gAudiop->setMuted(mute);
-		}
+
+		// Unmute audio if desired and setup volumes
+		audio_update_volume();
 
 		// reset keyboard focus to sane state of pointing at world
 		gFocusMgr.setKeyboardFocus(NULL, NULL);

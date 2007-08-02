@@ -361,8 +361,7 @@ void LLSnapshotLivePreview::draw()
 				F32 shine_interp = llmin(1.f, mShineAnimTimer.getElapsedTimeF32() / SHINE_TIME);
 				
 				// draw "shine" effect
-				LLGLEnable scissor_test(GL_SCISSOR_TEST);
-				LLUI::setScissorRegionLocal(LLRect(0, mRect.getHeight(), mRect.getWidth(), 0));
+				LLLocalClipRect clip(getLocalRect());
 				{
 					// draw diagonal stripe with gradient that passes over screen
 					S32 x1 = gViewerWindow->getWindowWidth() * llround((clamp_rescale(shine_interp, 0.f, 1.f, -1.f - SHINE_WIDTH, 1.f)));

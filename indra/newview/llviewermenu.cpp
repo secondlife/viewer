@@ -59,6 +59,8 @@
 #include "llfloater.h"
 #include "llfloaterabout.h"
 #include "llfloaterbuycurrency.h"
+#include "llfloateractivespeakers.h"
+#include "llfloateranimpreview.h"
 #include "llfloateravatarinfo.h"
 #include "llfloateravatartextures.h"
 #include "llfloaterbuildoptions.h"
@@ -71,6 +73,7 @@
 #include "llfloatercustomize.h"
 #include "llfloaterdirectory.h"
 #include "llfloatereditui.h"
+#include "llfloaterchatterbox.h"
 #include "llfloaterfriends.h"
 #include "llfloatergesture.h"
 #include "llfloatergodtools.h"
@@ -2454,7 +2457,7 @@ void set_god_level(U8 god_level)
 		U8 old_god_level = gAgent.getGodLevel();
 		gAgent.setGodLevel( god_level );
 		show_debug_menus();
-		gIMView->refresh();
+		gIMMgr->refresh();
 		gParcelMgr->notifyObservers();
 
 		// Some classifieds change visibility on god mode
@@ -2657,7 +2660,7 @@ void request_friendship(const LLUUID& dest_id)
 		}
 		if (!fullname.empty())
 		{
-			LLFloaterFriends::requestFriendship(dest_id, fullname);
+			LLPanelFriends::requestFriendship(dest_id, fullname);
 			LLNotifyBox::showXml("OfferedFriendship", args);
 		}
 		else
@@ -5355,7 +5358,7 @@ class LLShowFloater : public view_listener_t
 		}
 		else if (floater_name == "friends")
 		{
-			LLFloaterFriends::toggle(NULL);
+			LLFloaterMyFriends::toggleInstance(0);
 		}
 		else if (floater_name == "preferences")
 		{
@@ -5367,11 +5370,11 @@ class LLShowFloater : public view_listener_t
 		}
 		else if (floater_name == "chat history")
 		{
-			LLFloaterChat::toggle(NULL);
+			LLFloaterChat::toggleInstance(LLSD());
 		}
 		else if (floater_name == "im")
 		{
-			LLToolBar::onClickIM(NULL);
+			LLFloaterChatterBox::toggleInstance(LLSD());
 		}
 		else if (floater_name == "inventory")
 		{
@@ -5480,6 +5483,10 @@ class LLShowFloater : public view_listener_t
 		{
 			LLFloaterAbout::show(NULL);
 		}
+		else if (floater_name == "active speakers")
+		{
+			LLFloaterActiveSpeakers::toggleInstance(LLSD());
+		}
 		return true;
 	}
 };
@@ -5493,7 +5500,7 @@ class LLFloaterVisible : public view_listener_t
 		bool new_value = false;
 		if (floater_name == "friends")
 		{
-			new_value = LLFloaterFriends::visible(NULL);
+			new_value = LLFloaterMyFriends::instanceVisible(0);
 		}
 		else if (floater_name == "toolbar")
 		{
@@ -5505,7 +5512,7 @@ class LLFloaterVisible : public view_listener_t
 		}
 		else if (floater_name == "im")
 		{
-			new_value = gIMView && gIMView->mTalkFloater && gIMView->mTalkFloater->getVisible();
+			new_value = LLFloaterMyFriends::instanceVisible(0);
 		}
 		else if (floater_name == "mute list")
 		{
@@ -5522,6 +5529,10 @@ class LLFloaterVisible : public view_listener_t
 		else if (floater_name == "stat bar")
 		{
 			new_value = gDebugView->mStatViewp->getVisible();
+		}
+		else if (floater_name == "active speakers")
+		{
+			new_value = LLFloaterActiveSpeakers::instanceVisible(LLSD());
 		}
 		gMenuHolder->findControl(control_name)->setValue(new_value);
 		return true;
@@ -5639,19 +5650,7 @@ class LLShowAgentGroups : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		LLUUID agent_id;
-		if (userdata.asString() == "agent")
-		{
-			agent_id = gAgent.getID();
-		}
-		else
-		{
-			agent_id = userdata.asUUID();
-		}
-		if(agent_id.notNull())
-		{
-			LLFloaterGroups::show(agent_id, LLFloaterGroups::AGENT_GROUPS);
-		}
+		LLFloaterMyFriends::toggleInstance(1);
 		return true;
 	}
 };
@@ -6151,10 +6150,10 @@ class LLAvatarSendIM : public view_listener_t
 				name.append( last->getString() );
 			}
 
-			gIMView->setFloaterOpen(TRUE);
+			gIMMgr->setFloaterOpen(TRUE);
 			//EInstantMessage type = have_agent_callingcard(gLastHitObjectID)
 			//	? IM_SESSION_ADD : IM_SESSION_CARDLESS_START;
-			gIMView->addSession(name,
+			gIMMgr->addSession(name,
 								IM_NOTHING_SPECIAL,
 								avatar->getID());
 		}

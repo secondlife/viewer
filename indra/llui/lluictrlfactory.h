@@ -45,6 +45,9 @@ class LLWebBrowserCtrl;
 class LLViewBorder;
 class LLColorSwatchCtrl;
 class LLScrollingPanelList;
+class LLCtrlListInterface;
+class LLCtrlSelectionInterface;
+class LLCtrlScrollInterface;
 
 // Widget 
 
@@ -102,6 +105,11 @@ public:
 	static LLWebBrowserCtrl*	getWebBrowserCtrlByName(LLPanel* panelp, const LLString& name);
 	static LLMenuItemCallGL*	getMenuItemCallByName(LLPanel* panelp, const LLString& name);
 	static LLScrollingPanelList* getScrollingPanelList(LLPanel* panelp, const LLString& name);
+
+	// interface getters
+	static LLCtrlListInterface* getListInterfaceByName(LLPanel* panelp, const LLString& name);
+	static LLCtrlSelectionInterface* getSelectionInterfaceByName(LLPanel* panelp, const LLString& name);
+	static LLCtrlScrollInterface* getScrollInterfaceByName(LLPanel* panelp, const LLString& name);
 
 	LLPanel* createFactoryPanel(LLString name);
 

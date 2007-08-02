@@ -188,7 +188,12 @@ void LLFloaterAvatarPicker::onSelectionChange(const std::deque<LLFolderViewItem*
 	self->mAvatarIDs.clear();
 	self->mAvatarNames.clear();
 
-	self->childSetEnabled("Select", FALSE);
+	// if we have calling cards, disable select button until 
+	// the inventory picks a valid calling card
+	if (!items.empty())
+	{
+		self->childSetEnabled("Select", FALSE);
+	}
 
 	if (!self->mListNames)
 	{

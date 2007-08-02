@@ -2573,8 +2573,8 @@ void LLCallingCardBridge::performAction(LLFolderView* folder, LLInventoryModel* 
 		if (item && (item->getCreatorUUID() != gAgent.getID()) &&
 			(!item->getCreatorUUID().isNull()))
 		{
-			gIMView->setFloaterOpen(TRUE);
-			gIMView->addSession(item->getName(), IM_NOTHING_SPECIAL, item->getCreatorUUID());
+			gIMMgr->setFloaterOpen(TRUE);
+			gIMMgr->addSession(item->getName(), IM_NOTHING_SPECIAL, item->getCreatorUUID());
 		}
 	}
 	else if ("lure" == action)
@@ -2651,7 +2651,7 @@ void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		BOOL good_card = (item
 						  && (LLUUID::null != item->getCreatorUUID())
 						  && (item->getCreatorUUID() != gAgent.getID()));
-
+		BOOL user_online = (LLAvatarTracker::instance().isBuddyOnline(item->getCreatorUUID()));
 		items.push_back("Send Instant Message");
 		items.push_back("Offer Teleport...");
 		items.push_back("Conference Chat");
@@ -2659,6 +2659,9 @@ void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		if (!good_card)
 		{
 			disabled_items.push_back("Send Instant Message");
+		}
+		if (!good_card || !user_online)
+		{
 			disabled_items.push_back("Offer Teleport...");
 			disabled_items.push_back("Conference Chat");
 		}

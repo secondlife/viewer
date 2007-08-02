@@ -67,7 +67,7 @@ public:
 							 BOOL placeholder = FALSE,
 							 eInsertionPoint insertion_point = END) = 0;
 	virtual void		addPlaceholder(LLPanel* child, const LLString& label);
-	virtual void		lockTabs();
+	virtual void		lockTabs(S32 num_tabs = 0);
 
 	virtual void		enableTabButton(S32 which, BOOL enable);
 
@@ -94,7 +94,7 @@ public:
 
 	BOOL        getTabPanelFlashing(LLPanel* child);
 	void		setTabPanelFlashing(LLPanel* child, BOOL state);
-	virtual void setTabImage(LLPanel* child, std::string img_name);
+	virtual void setTabImage(LLPanel* child, std::string img_name, const LLColor4& color = LLColor4::white);
 	void		setTitle( const LLString& title );
 	const LLString getPanelTitle(S32 index);
 
@@ -135,7 +135,8 @@ protected:
 			mOnChangeCallback( cb ),
 			mUserData( userdata ),
 			mOldState(FALSE),
-			mPlaceholderText(placeholder)
+			mPlaceholderText(placeholder),
+			mPadding(0)
 			{}
 
 		LLTabContainerCommon*  mTabContainer;
@@ -145,11 +146,13 @@ protected:
 		void*			 mUserData;
 		BOOL			 mOldState;
 		LLTextBox*		 mPlaceholderText;
+		S32				 mPadding;
 	};
 
 	typedef std::vector<LLTabTuple*> tuple_list_t;
 	tuple_list_t					mTabList;
 	S32								mCurrentTabIdx;
+	BOOL							mTabsHidden;
 
 	BOOL							mScrolled;
 	LLFrameTimer					mScrollTimer;
@@ -208,7 +211,7 @@ public:
 	/*virtual*/ void removeTabPanel( LLPanel* child );
 
 	/*virtual*/ void		setPanelTitle(S32 index, const LLString& title);
-	/*virtual*/ void		setTabImage(LLPanel* child, std::string img_name);
+	/*virtual*/ void		setTabImage(LLPanel* child, std::string img_name, const LLColor4& color = LLColor4::white);
 	/*virtual*/ void		setRightTabBtnOffset( S32 offset );
 	 
 	/*virtual*/ void		setMinTabWidth(S32 width);

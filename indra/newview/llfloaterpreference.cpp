@@ -34,6 +34,7 @@
 #include "llpanelmsgs.h"
 #include "llpanelweb.h"
 #include "llprefschat.h"
+#include "llprefsvoice.h"
 #include "llprefsim.h"
 #include "llresizehandle.h"
 #include "llresmgr.h"
@@ -124,6 +125,10 @@ LLPreferenceCore::LLPreferenceCore(LLTabContainerCommon* tab_container, LLButton
 	mTabContainer->addTabPanel(mPrefsChat->getPanel(), mPrefsChat->getPanel()->getLabel(), FALSE, onTabChanged, mTabContainer);
 	mPrefsChat->getPanel()->setDefaultBtn(default_btn);
 
+	mPrefsVoice = new LLPrefsVoice();
+	mTabContainer->addTabPanel(mPrefsVoice, mPrefsVoice->getLabel(), FALSE, onTabChanged, mTabContainer);
+	mPrefsVoice->setDefaultBtn(default_btn);
+
 	mPrefsIM = new LLPrefsIM();
 	mTabContainer->addTabPanel(mPrefsIM->getPanel(), mPrefsIM->getPanel()->getLabel(), FALSE, onTabChanged, mTabContainer);
 	mPrefsIM->getPanel()->setDefaultBtn(default_btn);
@@ -205,8 +210,8 @@ void LLPreferenceCore::apply()
 	mDisplayPanel->apply();
 	mDisplayPanel2->apply();
 	mDisplayPanel3->apply();
-	mAudioPanel->apply();
 	mPrefsChat->apply();
+	mPrefsVoice->apply();
 	mPrefsIM->apply();
 	mMsgPanel->apply();
 	#if LL_LIBXUL_ENABLED
@@ -225,6 +230,7 @@ void LLPreferenceCore::cancel()
 	mDisplayPanel3->cancel();
 	mAudioPanel->cancel();
 	mPrefsChat->cancel();
+	mPrefsVoice->cancel();
 	mPrefsIM->cancel();
 	mMsgPanel->cancel();
 	#if LL_LIBXUL_ENABLED
@@ -368,7 +374,7 @@ void LLFloaterPreference::onBtnOK( void* userdata )
 	if (fp->canClose())
 	{
 		fp->apply();
-		fp->onClose(false);
+		fp->close(false);
 
 		gSavedSettings.saveToFile( gSettingsFileName, TRUE );
 		
