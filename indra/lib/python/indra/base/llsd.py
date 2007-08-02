@@ -788,8 +788,8 @@ def parse(something):
             return to_python(fromstring(something)[0])
         else:
             return LLSDNotationParser().parse(something)
-    except KeyError:
-        raise Exception('LLSD could not be parsed: %s' % (something,))
+    except KeyError, e:
+        raise Exception('LLSD could not be parsed: %s' % (e,))
 
 class LLSD(object):
     def __init__(self, thing=None):

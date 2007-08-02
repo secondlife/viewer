@@ -25,6 +25,18 @@ class UnknownDirective(Exception):
 class BadDirective(Exception):
     pass
 
+def format_value_for_path(value):
+    if type(value) in [list, tuple]:
+        # *NOTE: treat lists as unquoted path components so that the quoting
+        # doesn't get out-of-hand.  This is a workaround for the fact that
+        # russ always quotes, even if the data it's given is already quoted,
+        # and it's not safe to simply unquote a path directly, so if we want
+        # russ to substitute urls parts inside other url parts we always
+        # have to do so via lists of unquoted path components.
+        return '/'.join([urllib.quote(str(item)) for item in value])
+    else:
+        return urllib.quote(str(value))
+
 def format(format_str, context):
     """@brief Format format string according to rules for RUSS.
 @see https://osiris.lindenlab.com/mediawiki/index.php/Recursive_URL_Substitution_Syntax
@@ -50,6 +62,8 @@ def format(format_str, context):
                 #print "directive:", format_str[pos+1:pos+5]
                 if format_str[pos + 1] == '$':
                     value = context.get(format_str[pos + 2:end])
+                    if value is not None:
+                        value = format_value_for_path(value)
                 elif format_str[pos + 1] == '%':
                     value = _build_query_string(
                         context.get(format_str[pos + 2:end]))
