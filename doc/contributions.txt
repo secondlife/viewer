@@ -18,7 +18,7 @@ Dylan Haskell - VWR-72
 Dzonatas Sol - VWR-198, VWR-878, VWR-1704, VWR-1705, VWR-1729, VWR-975
 Eddy Stryker - VWR-15, VWR-23, VWR-1468
 EponymousDylan Ra - VWR-1465
-Fee Larsson - VWR-1314
+Feep Larsson - VWR-1314
 Fremont Cunningham - VWR-1147
 Gigs Taggart - VWR-71, VWR-326, VWR-1217, VWR-1434
 Ginko Bayliss - VWR-4
