@@ -19,6 +19,7 @@
 #include "llpumpio.h"
 #include "llsd.h"
 #include "llstring.h"
+#include "apr-1/apr_env.h"
 
 static const U32 HTTP_STATUS_PIPE_ERROR = 499;
 
@@ -180,6 +181,47 @@ void LLURLRequest::setCallback(LLURLRequestComplete* callback)
 
 	curl_easy_setopt(mDetail->mCurl, CURLOPT_HEADERFUNCTION, &headerCallback);
 	curl_easy_setopt(mDetail->mCurl, CURLOPT_WRITEHEADER, callback);
+}
+
+// Added to mitigate the effect of libcurl looking
+// for the ALL_PROXY and http_proxy env variables
+// and deciding to insert a Pragma: no-cache
+// header! The only usage of this method at the
+// time of this writing is in llhttpclient.cpp
+// in the request() method, where this method
+// is called with use_proxy = FALSE
+void LLURLRequest::useProxy(bool use_proxy)
+{
+    static char *env_proxy;
+
+    if (use_proxy && (env_proxy == NULL))
+    {
+        apr_status_t status;
+        apr_pool_t* pool;
+        apr_pool_create(&pool, NULL);
+        status = apr_env_get(&env_proxy, "ALL_PROXY", pool);
+        if (status != APR_SUCCESS)
+        {
+            status = apr_env_get(&env_proxy, "http_proxy", pool);
+        }
+        if (status != APR_SUCCESS)
+        {
+           use_proxy = FALSE;
+        }
+        apr_pool_destroy(pool);
+    }
+
+
+    lldebugs << "use_proxy = " << (use_proxy?'Y':'N') << ", env_proxy = " << env_proxy << llendl;
+
+    if (env_proxy && use_proxy)
+    {
+        curl_easy_setopt(mDetail->mCurl, CURLOPT_PROXY, env_proxy);
+    }
+    else
+    {
+        curl_easy_setopt(mDetail->mCurl, CURLOPT_PROXY, "");
+    }
 }
 
 // virtual

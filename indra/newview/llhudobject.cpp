@@ -135,6 +135,22 @@ LLHUDObject *LLHUDObject::addHUDObject(const U8 type)
 	case LL_HUD_CONNECTOR:
 		hud_objectp = new LLHUDConnector(type);
 		break;
+	default:
+		llwarns << "Unknown type of hud object:" << (U32) type << llendl;
+	}
+	if (hud_objectp)
+	{
+		sHUDObjects.push_back(hud_objectp);
+	}
+	return hud_objectp;
+}
+
+LLHUDEffect *LLHUDObject::addHUDEffect(const U8 type)
+{
+	LLHUDEffect *hud_objectp = NULL;
+	
+	switch (type)
+	{
 	case LL_HUD_EFFECT_BEAM:
 		hud_objectp = new LLHUDEffectSpiral(type);
 		((LLHUDEffectSpiral *)hud_objectp)->setDuration(0.7f);
@@ -213,7 +229,7 @@ LLHUDObject *LLHUDObject::addHUDObject(const U8 type)
 		hud_objectp = new LLHUDEffectPointAt(type);
 		break;
 	default:
-		llwarns << "Unknown type of hud object:" << (U32) type << llendl;
+		llwarns << "Unknown type of hud effect:" << (U32) type << llendl;
 	}
 
 	if (hud_objectp)

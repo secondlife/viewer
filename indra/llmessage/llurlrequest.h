@@ -154,6 +154,12 @@ public:
 
 	/* @name LLIOPipe virtual implementations
 	 */
+
+    /**
+     * @ brief Turn off (or on) the CURLOPT_PROXY header.
+     */
+    void useProxy(bool use_proxy);
+
 public:
 	/** 
 	 * @brief Give this pipe a chance to handle a generated error

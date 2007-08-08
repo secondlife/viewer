@@ -107,8 +107,8 @@ void LLHUDManager::cleanupEffects()
 
 LLHUDEffect *LLHUDManager::createViewerEffect(const U8 type, BOOL send_to_sim, BOOL originated_here)
 {
-	// Should assert that this is actually an LLHUDEffect
-	LLHUDEffect *hep = (LLHUDEffect *)LLHUDObject::addHUDObject(type);
+	// SJB: DO NOT USE addHUDObject!!! Not all LLHUDObjects are LLHUDEffects!
+	LLHUDEffect *hep = LLHUDObject::addHUDEffect(type);
 	if (!hep)
 	{
 		return NULL;
@@ -149,7 +149,6 @@ void LLHUDManager::processViewerEffect(LLMessageSystem *mesgsys, void **user_dat
 	{
 		effectp = NULL;
 		LLHUDEffect::getIDType(mesgsys, k, effect_id, effect_type);
-
 		S32 i;
 		for (i = 0; i < gHUDManager->mHUDEffects.count(); i++)
 		{

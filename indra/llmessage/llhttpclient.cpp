@@ -245,6 +245,7 @@ static void request(
 	LLURLRequest *req = new LLURLRequest(method, url);
 	req->requestEncoding("");
 
+    // Insert custom headers is the caller sent any
     if (headers.isMap())
     {
         LLSD::map_const_iterator iter = headers.beginMap();
@@ -253,7 +254,17 @@ static void request(
         for (; iter != end; ++iter)
         {
             std::ostringstream header;
+            //if the header is "Pragma" with no value
+            //the caller intends to force libcurl to drop
+            //the Pragma header it so gratuitously inserts
+            //Before inserting the header, force libcurl
+            //to not use the proxy (read: llurlrequest.cpp)
+            if ((iter->first == "Pragma") && (iter->second.asString() == ""))
+            {
+                req->useProxy(FALSE);
+            }
             header << iter->first << ": " << iter->second.asString() ;
+            llinfos << "header = " << header.str() << llendl;
             req->addHeader(header.str().c_str());
         }
     }
