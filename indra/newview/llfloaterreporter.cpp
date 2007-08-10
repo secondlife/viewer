@@ -21,7 +21,7 @@
 #include "llinventory.h"
 #include "llstring.h"
 #include "llsys.h"
-#include "llversion.h"
+#include "llversionviewer.h"
 #include "message.h"
 #include "v3math.h"
 

@@ -1255,6 +1255,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("ParcelVoiceInfoRequest");
 	capabilityNames.append("ChatSessionRequest");
 	capabilityNames.append("ProvisionVoiceAccountRequest");
+	capabilityNames.append("ServerReleaseNotes");
 
 	llinfos << "posting to seed " << url << llendl;
 

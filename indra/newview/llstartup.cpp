@@ -44,7 +44,7 @@
 #include "llsecondlifeurls.h"
 #include "llstring.h"
 #include "lluserrelations.h"
-#include "llversion.h"
+#include "llversionviewer.h"
 #include "llvfs.h"
 #include "llwindow.h"		// for shell_open
 #include "llxorcipher.h"	// saved password, MAC address

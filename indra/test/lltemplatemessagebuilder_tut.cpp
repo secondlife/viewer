@@ -16,7 +16,7 @@
 #include "llquaternion.h"
 #include "lltemplatemessagebuilder.h"
 #include "lltemplatemessagereader.h"
-#include "llversion.h"
+#include "llversionserver.h"
 #include "message_prehash.h"
 #include "u64.h"
 #include "v3dmath.h"

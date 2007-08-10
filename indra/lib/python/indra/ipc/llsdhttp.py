@@ -1,18 +1,22 @@
 """\
 @file llsdhttp.py
 @brief Functions to ease moving llsd over http
-
+ 
 Copyright (c) 2006-2007, Linden Research, Inc.
 $License$
 """
-
+ 
 import os.path
 import os
 import os
 import urlparse
 
+
+from eventlet import httpc as httputil
+
+
+
 from indra.base import llsd
-from indra.ipc import httputil
 LLSD = llsd.LLSD()
 
 
@@ -29,7 +33,7 @@ class ConnectionError(Exception):
 
     def __str__(self):
         return "%s(%r, %r, %r, %r, %r, %r, %r)" % (
-            type(self).__name__,
+            self.__class__.__name__,
             self.method, self.host, self.port,
             self.path, self.status, self.reason, self.body)
 

@@ -16,7 +16,7 @@
 #include "llmd5.h"
 #include "llsecondlifeurls.h"
 #include "llwindow.h"			// shell_open()
-#include "llversion.h"
+#include "llversionviewer.h"
 #include "v4color.h"
 
 #include "llbutton.h"

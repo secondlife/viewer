@@ -64,6 +64,7 @@
 #include "llfloatermute.h"
 #include "llfloaterpostcard.h"
 #include "llfloaterpreference.h"
+#include "llfloaterreleasemsg.h"
 #include "llfollowcam.h"
 #include "llgroupnotify.h"
 #include "llhudeffect.h"
@@ -2612,6 +2613,9 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	msg->getVector3Fast(_PREHASH_Data, _PREHASH_LookAt, look_at);
 	U64 region_handle;
 	msg->getU64Fast(_PREHASH_Data, _PREHASH_RegionHandle, region_handle);
+	
+	char version_channel_char[MAX_STRING];
+	msg->getString("SimData", "ChannelVersion", MAX_STRING, version_channel_char);
 
 	LLVOAvatar* avatarp = gAgent.getAvatarObject();
 	if (!avatarp)
@@ -2745,6 +2749,23 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 	msg->addBOOLFast(_PREHASH_AlwaysRun, gAgent.getAlwaysRun());
 	gAgent.sendReliableMessage();
+
+	
+	LLString version_channel = LLString(version_channel_char);
+
+	if (gLastVersionChannel != version_channel)
+	{
+		//show release message if not on initial login
+		if (!gLastVersionChannel.empty())
+		{ 
+			gLastVersionChannel = version_channel;
+			LLFloaterReleaseMsg::show();
+		}
+		else {
+			gLastVersionChannel = version_channel;
+		}
+	}
+	
 }
 
 void process_crossed_region(LLMessageSystem* msg, void**)

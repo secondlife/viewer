@@ -8,7 +8,8 @@ $License$
 
 import os
 
-from eventlet.pools import Pool, DeadProcess
+from eventlet.pools import Pool
+from eventlet.processes import DeadProcess
 from indra.ipc import saranwrap
 
 import MySQLdb

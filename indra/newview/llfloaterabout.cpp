@@ -21,7 +21,7 @@
 #include "llagent.h"
 #include "llviewerstats.h"
 #include "llviewerregion.h"
-#include "llversion.h"
+#include "llversionviewer.h"
 #include "llviewerbuild.h"
 #include "llvieweruictrlfactory.h"
 #include "viewer.h"	// for gViewerDigest
@@ -89,7 +89,9 @@ LLFloaterAbout::LLFloaterAbout()
 		support.append(" (");
 		gAgent.getRegion()->getHost().getString(buffer, MAX_STRING);
 		support.append(buffer);
-		support.append(")\n\n");
+		support.append(")\n");
+		support.append(gLastVersionChannel);
+		support.append("\n\n");
 	}
 
 	// CPU

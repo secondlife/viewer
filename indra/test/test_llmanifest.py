@@ -86,9 +86,13 @@ class TestLLManifest(unittest.TestCase):
 
     def testruncommand(self):
         self.assertEqual("Hello\n", self.m.run_command("echo Hello"))
-        def tmp_test():
+        def exit_1_test():
+            self.m.run_command("exit 1")
+        self.assertRaises(RuntimeError, exit_1_test)
+        def not_found_test():
             self.m.run_command("test_command_that_should_not_be_found")
-        self.assertRaises(RuntimeError, tmp_test)
+        self.assertRaises(RuntimeError, not_found_test)
+
 
     def testpathof(self):
         self.assertEqual(self.m.src_path_of("a"), "src/a")

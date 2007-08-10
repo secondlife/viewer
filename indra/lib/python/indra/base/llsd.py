@@ -180,8 +180,9 @@ class LLSDXMLFormatter(object):
             ''.join(["%s%s" % (self.elt('key', key), self.generate(value))
              for key, value in v.items()]))
 
+    typeof = type
     def generate(self, something):
-        t = type(something)
+        t = self.typeof(something)
         if self.type_map.has_key(t):
             return self.type_map[t](something)
         else:

@@ -1,4 +1,3 @@
-#!/usr/bin/python
 """\
 @file llmanifest.py
 @author Ryan Williams
@@ -57,7 +56,7 @@ def get_default_platform(dummy):
 
 def get_default_version(srctree):
     # look up llversion.h and parse out the version info
-    paths = [os.path.join(srctree, x, 'llversion.h') for x in ['llcommon', '../llcommon', '../../indra/llcommon.h']]
+    paths = [os.path.join(srctree, x, 'llversionviewer.h') for x in ['llcommon', '../llcommon', '../../indra/llcommon.h']]
     for p in paths:
         if os.path.exists(p):
             contents = open(p, 'r').read()
@@ -66,6 +65,16 @@ def get_default_version(srctree):
             patch = re.search("LL_VERSION_PATCH\s=\s([0-9]+)", contents).group(1)
             build = re.search("LL_VERSION_BUILD\s=\s([0-9]+)", contents).group(1)
             return major, minor, patch, build
+
+def get_channel(srctree):
+    # look up llversionserver.h and parse out the version info
+    paths = [os.path.join(srctree, x, 'llversionviewer.h') for x in ['llcommon', '../llcommon', '../../indra/llcommon.h']]
+    for p in paths:
+        if os.path.exists(p):
+            contents = open(p, 'r').read()
+            channel = re.search("LL_CHANNEL\s=\s\"([\w\s]+)\"", contents).group(1)
+            return channel
+    
 
 DEFAULT_CHANNEL = 'Second Life Release'
 
@@ -98,7 +107,7 @@ ARGUMENTS=[
          default=""),
     dict(name='channel',
          description="""The channel to use for updates.""",
-         default=DEFAULT_CHANNEL),
+         default=get_channel),
     dict(name='installer_name',
          description=""" The name of the file that the installer should be
         packaged up into. Only used on Linux at the moment.""",
@@ -302,7 +311,9 @@ class LLManifest(object):
         output = ''.join(lines)
         status = fd.close()
         if(status):
-            raise RuntimeError, "Command " + command + " returned non-zero status (" + str(status) + ")"
+            raise RuntimeError(
+                "Command %s returned non-zero status (%s) \noutput:\n%s"
+                % (command, status, output) )
         return output
 
     def created_path(self, path):

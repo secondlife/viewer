@@ -382,8 +382,9 @@ class DarwinManifest(ViewerManifest):
                 # make sure we don't have stale files laying about
                 self.remove(sparsename, finalname)
 
-                self.run_command('hdiutil create "%(sparse)s" -volname "Second Life" -fs HFS+ -type SPARSE -megabytes 300' % {
-                        'sparse':sparsename})
+                self.run_command('hdiutil create "%(sparse)s" -volname "%(channel)s" -fs HFS+ -type SPARSE -megabytes 300' % {
+                        'sparse':sparsename,
+                        'channel':channel_standin})
 
                 # mount the image and get the name of the mount point and device node
                 hdi_output = self.run_command('hdiutil attach -private "' + sparsename + '"')
@@ -439,9 +440,12 @@ class LinuxManifest(ViewerManifest):
                 if(self.args.has_key('installer_name')):
                         installer_name = self.args['installer_name']
                 else:
-                        installer_name = '_'.join(['SecondLife', self.args.get('arch'), '_'.join(self.args['version'])])
-                        if not self.default_grid():
-                                installer_name += "_" + grid.upper()
+                        installer_name = '_'.join('SecondLife_', self.args.get('arch'), *self.args['version'])
+                        if self.default_channel():
+                                if not self.default_grid():
+                                        installer_name += '_' + self.args['grid'].upper()
+                        else:
+                                installer_name += '_' + self.channel_oneword().upper()
 
                 # temporarily move directory tree so that it has the right name in the tarfile
                 self.run_command("mv %(dst)s %(inst)s" % {'dst':self.get_dst_prefix(),'inst':self.src_path_of(installer_name)})

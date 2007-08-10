@@ -5381,6 +5381,10 @@ version 2.0
 		{	RegionHandle	U64		}
 		{	Timestamp		U32	}
 	}
+	{
+		SimData			Single
+		{	ChannelVersion	Variable 2      }
+	}
 }
 
 

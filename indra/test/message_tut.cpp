@@ -12,7 +12,7 @@
 #include "lltut.h"
 
 #include "llapr.h"
-#include "llversion.h"
+#include "llversionserver.h"
 #include "message.h"
 #include "message_prehash.h"
 
