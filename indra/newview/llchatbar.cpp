@@ -153,6 +153,7 @@ BOOL LLChatBar::postBuild()
 		mInputEditor->setPassDelete(TRUE);
 
 		mInputEditor->setMaxTextLength(1023);
+		mInputEditor->setEnableLineHistory(TRUE);
 	}
 
 	mIsBuilt = TRUE;

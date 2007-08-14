@@ -33,6 +33,8 @@ class LLVoiceClientStatusObserver
 public:
 	typedef enum e_voice_status_type
 	{
+		// NOTE: when updating this enum, please also update the switch in
+		//  LLVoiceClientStatusObserver::status2string().
 		STATUS_LOGIN_RETRY,
 		STATUS_LOGGED_IN,
 		STATUS_JOINING,
