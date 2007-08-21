@@ -1138,7 +1138,7 @@ std::ostream& operator<<(std::ostream& s, LLCircuitData& circuit)
 	s << S32(circuit.mBytesInLastPeriod * 8.f / circuit.mLastPeriodLength / 1024.f);
 	s << "/";
 	s << S32(circuit.mBytesOutLastPeriod * 8.f / circuit.mLastPeriodLength / 1024.f);
-	s << " Peak Kbps: ";
+	s << " Peak kbps: ";
 	s << S32(circuit.mPeakBPSIn / 1024.f);
 	s << "/";
 	s << S32(circuit.mPeakBPSOut / 1024.f);

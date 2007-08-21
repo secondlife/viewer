@@ -21,7 +21,7 @@ typedef void (*LLTTVFCompleteCallback)(
 	S32 status,
 	const LLUUID& file_id,
 	LLAssetType::EType file_type,
-	void* user_data);
+	void* user_data, LLExtStat ext_status );
 
 class LLTransferTargetParamsVFile : public LLTransferTargetParams
 {

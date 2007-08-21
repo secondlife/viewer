@@ -38,7 +38,7 @@ public:
 
 	static void uploadCallback(const LLUUID& asset_id,
 							   void *user_data,
-							   S32 result);
+							   S32 result, LLExtStat ext_status);
 
 	static void updateUserInfo(const char *email);
 

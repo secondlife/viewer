@@ -97,6 +97,10 @@ you wish.
 These are the most commonly-encountered known issues which are specific to
 the Alpha release of the Linux client.
 
+* VOICE COMMUNICATION - this is not yet available in the Linux client.
+
+* STREAMING MOVIES - these are currently disabled while we work on some issues.
+
 * VISUAL EFFECTS AND PERFORMANCE - many Linux graphics drivers are not as
   robust as their counterparts for other operating systems, so some advanced
   Second Life graphical features have been DISABLED by default to aid

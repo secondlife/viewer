@@ -1399,7 +1399,7 @@ void LLPanelRequestTools::onClickRequest(void* data)
 	}
 }
 
-void terrain_download_done(void** data, S32 status)
+void terrain_download_done(void** data, S32 status, LLExtStat ext_status)
 {
 	LLNotifyBox::showXml("TerrainDownloaded");
 }

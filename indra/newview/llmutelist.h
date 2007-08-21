@@ -103,7 +103,7 @@ private:
 	static void processMuteListUpdate(LLMessageSystem* msg, void**);
 	static void processUseCachedMuteList(LLMessageSystem* msg, void**);
 
-	static void onFileMuteList(void** user_data, S32 code);
+	static void onFileMuteList(void** user_data, S32 code, LLExtStat ext_status);
 
 private:
 	struct compare_by_name

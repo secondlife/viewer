@@ -116,6 +116,7 @@ const MASK MASK_ALT =			0x0002;
 const MASK MASK_SHIFT =			0x0004;
 const MASK MASK_NORMALKEYS =    0x0007;     // A real mask - only get the bits for normal modifier keys
 const MASK MASK_MAC_CONTROL =	0x0008;		// Un-mapped Ctrl key on Macs, not used on Windows
+const MASK MASK_MODIFIERS =		MASK_CONTROL|MASK_ALT|MASK_SHIFT|MASK_MAC_CONTROL;
 
 // Special keys go into >128
 const KEY KEY_SPECIAL = 0x80;	// special keys start here

@@ -1352,6 +1352,7 @@ void LLVOAvatar::initClass()
 	if (!skeleton_node)
 	{
 		llerrs << "No skeleton in avatar configuration file: " << xmlFile << llendl;
+		return;
 	}
 	
 	LLString skeleton_file_name;

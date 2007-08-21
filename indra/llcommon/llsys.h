@@ -69,13 +69,31 @@ private:
 	std::string mCPUString;
 };
 
+//=============================================================================
+//
+//	CLASS		LLMemoryInfo
+
 class LLMemoryInfo
+
+/*!	@brief		Class to query the memory subsystem
+
+	@details
+		Here's how you use an LLMemoryInfo:
+		
+		LLMemoryInfo info;
+<br>	llinfos << info << llendl;
+*/
 {
 public:
-	LLMemoryInfo();
-	void stream(std::ostream& s) const;
+	LLMemoryInfo(); ///< Default constructor
+	void stream(std::ostream& s) const;	///< output text info to s
 
-	U32 getPhysicalMemory() const;
+	U32 getPhysicalMemoryKB() const; ///< Memory size in KiloBytes
+	
+	/*! Memory size in bytes, if total memory is >= 4GB then U32_MAX will
+	**  be returned.
+	*/
+	U32 getPhysicalMemoryClamped() const; ///< Memory size in clamped bytes
 };
 
 

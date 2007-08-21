@@ -271,6 +271,7 @@ LLScriptEdCore::LLScriptEdCore(
 	const LLViewHandle& floater_handle,
 	void (*load_callback)(void*),
 	void (*save_callback)(void*, BOOL),
+	void (*search_replace_callback) (void* userdata),
 	void* userdata,
 	S32 bottom_pad)
 	:
@@ -280,6 +281,7 @@ LLScriptEdCore::LLScriptEdCore(
 	mEditor( NULL ),
 	mLoadCallback( load_callback ),
 	mSaveCallback( save_callback ),
+	mSearchReplaceCallback( search_replace_callback ),
 	mUserdata( userdata ),
 	mForceClose( FALSE ),
 	mLastHelpToken(NULL),
@@ -1008,12 +1010,24 @@ BOOL LLScriptEdCore::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 {
 	if(getVisible() && getEnabled())
 	{
-		if(('S' == key) && (MASK_CONTROL == (mask & MASK_CONTROL)))
+		bool just_control = MASK_CONTROL == (mask & MASK_MODIFIERS);
+
+		if(('S' == key) && just_control)
 		{
 			if(mSaveCallback)
 			{
 				// don't close after saving
 				mSaveCallback(mUserdata, FALSE);
+			}
+	
+			return TRUE;
+		}
+
+		if(('F' == key) && just_control)
+		{
+			if(mSearchReplaceCallback)
+			{
+				mSearchReplaceCallback(mUserdata);
 			}
 	
 			return TRUE;
@@ -1051,6 +1065,7 @@ void* LLPreviewLSL::createScriptEdPanel(void* userdata)
 								   self->mViewHandle,
 								   LLPreviewLSL::onLoad,
 								   LLPreviewLSL::onSave,
+								   LLPreviewLSL::onSearchReplace,
 								   self,
 								   0);
 
@@ -1198,6 +1213,13 @@ void LLPreviewLSL::closeIfNeeded()
 void LLPreviewLSL::open()		/*Flawfinder: ignore*/
 {
 	LLFloater::open();		/*Flawfinder: ignore*/
+}
+
+void LLPreviewLSL::onSearchReplace(void* userdata)
+{
+	LLPreviewLSL* self = (LLPreviewLSL*)userdata;
+	LLScriptEdCore* sec = self->mScriptEd; 
+	LLFloaterScriptSearch::show(sec);
 }
 
 // static
@@ -1366,7 +1388,7 @@ void LLPreviewLSL::uploadAssetLegacy(const std::string& filename,
 
 
 // static
-void LLPreviewLSL::onSaveComplete(const LLUUID& asset_uuid, void* user_data, S32 status) // StoreAssetData callback (fixed)
+void LLPreviewLSL::onSaveComplete(const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
 	LLScriptSaveInfo* info = reinterpret_cast<LLScriptSaveInfo*>(user_data);
 	if(0 == status)
@@ -1415,7 +1437,7 @@ void LLPreviewLSL::onSaveComplete(const LLUUID& asset_uuid, void* user_data, S32
 }
 
 // static
-void LLPreviewLSL::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* user_data, S32 status) // StoreAssetData callback (fixed)
+void LLPreviewLSL::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
 	LLUUID* instance_uuid = (LLUUID*)user_data;
 	LLPreviewLSL* self = NULL;
@@ -1454,7 +1476,7 @@ void LLPreviewLSL::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* user_d
 
 // static
 void LLPreviewLSL::onLoadComplete( LLVFS *vfs, const LLUUID& asset_uuid, LLAssetType::EType type,
-								   void* user_data, S32 status)
+								   void* user_data, S32 status, LLExtStat ext_status)
 {
 	lldebugs << "LLPreviewLSL::onLoadComplete: got uuid " << asset_uuid
 		 << llendl;
@@ -1559,6 +1581,7 @@ void* LLLiveLSLEditor::createScriptEdPanel(void* userdata)
 								   self->mViewHandle,
 								   &LLLiveLSLEditor::onLoad,
 								   &LLLiveLSLEditor::onSave,
+								   &LLLiveLSLEditor::onSearchReplace,
 								   self,
 								   0);
 
@@ -1773,7 +1796,7 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 // static
 void LLLiveLSLEditor::onLoadComplete(LLVFS *vfs, const LLUUID& asset_id,
 									 LLAssetType::EType type,
-									 void* user_data, S32 status)
+									 void* user_data, S32 status, LLExtStat ext_status)
 {
 	lldebugs << "LLLiveLSLEditor::onLoadComplete: got uuid " << asset_id
 		 << llendl;
@@ -1954,6 +1977,15 @@ void LLLiveLSLEditor::draw()
 		}
 		LLFloater::draw();
 	}
+}
+
+
+void LLLiveLSLEditor::onSearchReplace(void* userdata)
+{
+	LLLiveLSLEditor* self = (LLLiveLSLEditor*)userdata;
+
+	LLScriptEdCore* sec = self->mScriptEd; 
+	LLFloaterScriptSearch::show(sec);
 }
 
 struct LLLiveLSLSaveData
@@ -2169,7 +2201,7 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 	runningCheckbox->setEnabled(TRUE);
 }
 
-void LLLiveLSLEditor::onSaveTextComplete(const LLUUID& asset_uuid, void* user_data, S32 status) // StoreAssetData callback (fixed)
+void LLLiveLSLEditor::onSaveTextComplete(const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
 	LLLiveLSLSaveData* data = (LLLiveLSLSaveData*)user_data;
 
@@ -2199,7 +2231,7 @@ void LLLiveLSLEditor::onSaveTextComplete(const LLUUID& asset_uuid, void* user_da
 }
 
 
-void LLLiveLSLEditor::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* user_data, S32 status) // StoreAssetData callback (fixed)
+void LLLiveLSLEditor::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
 	LLLiveLSLSaveData* data = (LLLiveLSLSaveData*)user_data;
 	if(!data)

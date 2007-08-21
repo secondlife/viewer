@@ -68,10 +68,14 @@
 void inc_busy_count()
 {
 // 	gViewerWindow->getWindow()->incBusyCount();
+//  check balance of these calls if this code is changed to ever actually
+//  *do* something!
 }
 void dec_busy_count()
 {
 // 	gViewerWindow->getWindow()->decBusyCount();
+//  check balance of these calls if this code is changed to ever actually
+//  *do* something!
 }
 
 // Function declarations
@@ -886,7 +890,7 @@ BOOL LLItemBridge::removeItem()
 		return FALSE;
 	}
 	// move it to the trash
-	LLPreview::hide(mUUID);
+	LLPreview::hide(mUUID, TRUE);
 	LLInventoryModel* model = mInventoryPanel->getModel();
 	if(!model) return FALSE;
 	LLUUID trash_id = model->findCategoryUUIDForType(LLAssetType::AT_TRASH);
@@ -1345,6 +1349,17 @@ protected:
 
 void LLRightClickInventoryFetchDescendentsObserver::done()
 {
+	// Avoid passing a NULL-ref as mCompleteFolders.front() down to
+	// gInventory.collectDescendents()
+	if( mCompleteFolders.empty() )
+	{
+		llwarns << "LLRightClickInventoryFetchDescendentsObserver::done with empty mCompleteFolders" << llendl;
+		dec_busy_count();
+		gInventory.removeObserver(this);
+		delete this;
+		return;
+	}
+
 	// What we do here is get the complete information on the items in
 	// the library, and set up an observer that will wait for that to
 	// happen.
@@ -1355,7 +1370,7 @@ void LLRightClickInventoryFetchDescendentsObserver::done()
 								  item_array,
 								  LLInventoryModel::EXCLUDE_TRASH);
 	S32 count = item_array.count();
-#if 0
+#if 0 // HACK/TODO: Why?
 	// This early causes a giant menu to get produced, and doesn't seem to be needed.
 	if(!count)
 	{
@@ -2899,7 +2914,6 @@ void LLGestureBridge::openItem()
 BOOL LLGestureBridge::removeItem()
 {
 	// Force close the preview window, if it exists
-	LLPreview::hide(mUUID);
 	gGestureManager.deactivateGesture(mUUID);
 	return LLItemBridge::removeItem();
 }
@@ -3438,13 +3452,27 @@ public:
 	{
 		/*
 		 * Do nothing.  We only care about the destructor
+		 *
+		 * The reason for this is that this callback is used in a hack where the
+		 * same callback is given to dozens of items, and the destructor is called
+		 * after the last item has fired the event and dereferenced it -- if all
+		 * the events actually fire!
 		 */
 	}
 
 protected:
 	~LLWearInventoryCategoryCallback()
 	{
-		wear_inventory_category_on_avatar(gInventory.getCategory(mCatID), mAppend);
+		// Is the destructor called by ordinary dereference, or because the app's shutting down?
+		// If the inventory callback manager goes away, we're shutting down, no longer want the callback.
+		if( LLInventoryCallbackManager::is_instantiated() )
+		{
+			wear_inventory_category_on_avatar(gInventory.getCategory(mCatID), mAppend);
+		}
+		else
+		{
+			llwarns << "Dropping unhandled LLWearInventoryCategoryCallback" << llendl;
+		}
 	}
 
 private:
@@ -4194,8 +4222,16 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		items.push_back("Restore Item");
 	}
 	else
-	{
+	{	// FWIW, it looks like SUPPRESS_OPEN_ITEM is not set anywhere
 		BOOL no_open = ((flags & SUPPRESS_OPEN_ITEM) == SUPPRESS_OPEN_ITEM);
+
+		// If we have clothing, don't add "Open" as it's the same action as "Wear"   SL-18976
+		LLViewerInventoryItem* item = getItem();
+		if( !no_open && item )
+		{
+			no_open = (item->getType() == LLAssetType::AT_CLOTHING);
+		}
+
 		if (!no_open)
 		{
 			items.push_back("Open");
@@ -4222,7 +4258,6 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 										 LLWearableBridge::canEditOnAvatar,
 										 (void*)this));*/
 
-		LLViewerInventoryItem* item = getItem();
 		if( item && (item->getType() == LLAssetType::AT_CLOTHING) )
 		{
 			items.push_back("Take Off");

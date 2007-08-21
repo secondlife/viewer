@@ -15,6 +15,7 @@
 #include "lldir.h"
 #include "lldynamictexture.h"
 #include "lldrawpoolalpha.h"
+#include "llfeaturemanager.h"
 #include "llframestats.h"
 #include "llgl.h"
 #include "llglheaders.h"
@@ -197,7 +198,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 	// Bail out if we're in the startup state and don't want to try to
 	// render the world.
 	//
-	if (gStartupState < STATE_STARTED)
+	if (LLStartUp::getStartupState() < STATE_STARTED)
 	{
 		display_startup();
 		return;
@@ -293,12 +294,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 				gViewerWindow->setProgressPercent(  arrival_fraction * 25.f + 75.f);
 				gViewerWindow->setProgressString(message);
 			}
-			break;
-
-		case LLAgent::TELEPORT_CANCELLING:
-			gViewerWindow->setProgressCancelButtonVisible(FALSE, "Cancel");
-			gViewerWindow->setProgressPercent(  100.f );
-			gViewerWindow->setProgressString("Canceling...");
 			break;
 
 		case LLAgent::TELEPORT_NONE:
@@ -410,7 +405,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 	}
 	else
 	{
-		LLPipeline::sUseOcclusion = gSavedSettings.getBOOL("UseOcclusion") && gGLManager.mHasOcclusionQuery;
+		LLPipeline::sUseOcclusion = gSavedSettings.getBOOL("UseOcclusion") && gGLManager.mHasOcclusionQuery && gFeatureManagerp->isFeatureAvailable("UseOcclusion");
 	}
 
 	stop_glerror();

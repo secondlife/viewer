@@ -39,7 +39,8 @@ LLCheckBoxCtrl::LLCheckBoxCtrl(const LLString& name, const LLRect& rect,
 	mTextEnabledColor( LLUI::sColorsGroup->getColor( "LabelTextColor" ) ),
 	mTextDisabledColor( LLUI::sColorsGroup->getColor( "LabelDisabledColor" ) ),
 	mRadioStyle( use_radio_style ),
-	mInitialValue( initial_value )
+	mInitialValue( initial_value ),
+	mSetValue( initial_value )
 {
 	if (font)
 	{
@@ -208,7 +209,8 @@ void LLCheckBoxCtrl::draw()
 //virtual
 void LLCheckBoxCtrl::setValue(const LLSD& value )
 {
-	mButton->setToggleState( value.asBoolean() );
+	mSetValue = value.asBoolean();
+	mButton->setToggleState( mSetValue );
 }
 
 //virtual
@@ -249,14 +251,25 @@ void LLCheckBoxCtrl::setControlName(const LLString& control_name, LLView* contex
 
 
 // virtual		Returns TRUE if the user has modified this control.
-BOOL	 LLCheckBoxCtrl::isDirty()
+BOOL	 LLCheckBoxCtrl::isDirty() const
 {
 	if ( mButton )
 	{
-		return mButton->isDirty();
+		return (mSetValue != mButton->getToggleState());
 	}
 	return FALSE;		// Shouldn't get here
 }
+
+
+// virtual			Clear dirty state
+void	LLCheckBoxCtrl::resetDirty()
+{
+	if ( mButton )
+	{
+		mSetValue = mButton->getToggleState();
+	}
+}
+
 
 
 // virtual

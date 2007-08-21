@@ -39,7 +39,7 @@ public:
 	virtual ~LLTransferSourceAsset();
 
 	static void responderCallback(LLVFS *vfs, const LLUUID& uuid, LLAssetType::EType type,
-								  void *user_data, S32 result);
+								  void *user_data, S32 result, LLExtStat ext_status );
 protected:
 	/*virtual*/ void initTransfer();
 	/*virtual*/ F32 updatePriority();

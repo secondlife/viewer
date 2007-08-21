@@ -334,6 +334,8 @@ LLTextEditor::LLTextEditor(
 
 	appendText(default_text, FALSE, FALSE);
 	
+	resetDirty();		// Update saved text state
+
 	mParseHTML=FALSE;
 	mHTML="";
 }
@@ -509,6 +511,8 @@ void LLTextEditor::setText(const LLString &utf8str)
 
 	updateLineStartList();
 	updateScrollFromCursor();
+
+	resetDirty();
 }
 
 void LLTextEditor::setWText(const LLWString &wtext)
@@ -525,6 +529,8 @@ void LLTextEditor::setWText(const LLWString &wtext)
 
 	updateLineStartList();
 	updateScrollFromCursor();
+
+	resetDirty();
 }
 
 void LLTextEditor::setValue(const LLSD& value)
@@ -3427,6 +3433,7 @@ void LLTextEditor::appendText(const LLString &new_text, bool allow_undo, bool pr
 	BOOL was_scrolled_to_bottom = (mScrollbar->getDocPos() == mScrollbar->getDocPosMax());
 	S32 selection_start = mSelectionStart;
 	S32 selection_end = mSelectionEnd;
+	BOOL was_selecting = mIsSelecting;
 	S32 cursor_pos = mCursorPos;
 	S32 old_length = getLength();
 	BOOL cursor_was_at_end = (mCursorPos == old_length);
@@ -3459,17 +3466,23 @@ void LLTextEditor::appendText(const LLString &new_text, bool allow_undo, bool pr
 	updateLineStartList(old_length);
 	
 	// Set the cursor and scroll position
-	// Maintain the scroll position unless the scroll was at the end of the doc 
-	//	  (in which case, move it to the new end of the doc)
-	if( was_scrolled_to_bottom )
+	// Maintain the scroll position unless the scroll was at the end of the doc (in which 
+	// case, move it to the new end of the doc) or unless the user was doing actively selecting
+	if( was_scrolled_to_bottom && !was_selecting )
 	{
+		if( selection_start != selection_end )
+		{
+			// maintain an existing non-active selection
+			mSelectionStart = selection_start;
+			mSelectionEnd = selection_end;
+		}	
 		endOfDoc();
 	}
 	else if( selection_start != selection_end )
 	{
 		mSelectionStart = selection_start;
-
 		mSelectionEnd = selection_end;
+		mIsSelecting = was_selecting;
 		setCursorPos(cursor_pos);
 	}
 	else if( cursor_was_at_end )
@@ -3606,6 +3619,11 @@ BOOL LLTextEditor::tryToRevertToPristineState()
 	return isPristine(); // TRUE => success
 }
 
+// virtual    Return TRUE if changes have been made
+BOOL LLTextEditor::isDirty() const
+{
+	return( mLastCmd != NULL || (mPristineCmd && (mPristineCmd != mLastCmd)) );
+}
 
 
 void LLTextEditor::updateTextRect()

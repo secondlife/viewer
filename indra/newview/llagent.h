@@ -509,8 +509,7 @@ public:
 		TELEPORT_REQUESTED = 2,		// Waiting for source simulator to respond
 		TELEPORT_MOVING = 3,		// Viewer has received destination location from source simulator
 		TELEPORT_START_ARRIVAL = 4,	// Transition to ARRIVING.  Viewer has received avatar update, etc., from destination simulator
-		TELEPORT_ARRIVING = 5,		// Make the user wait while content "pre-caches"
-		TELEPORT_CANCELLING = 6		// used only if user clicks "cancel" button
+		TELEPORT_ARRIVING = 5		// Make the user wait while content "pre-caches"
 	};
 
 	ETeleportState	getTeleportState() const			{ return mTeleportState; }

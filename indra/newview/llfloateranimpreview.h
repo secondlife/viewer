@@ -82,7 +82,7 @@ public:
 	static void onSaveComplete(const LLUUID& asset_uuid,
 									   LLAssetType::EType type,
 									   void* user_data,
-									   S32 status);
+									   S32 status, LLExtStat ext_status);
 protected:
 	void			draw();
 	void			resetMotion();

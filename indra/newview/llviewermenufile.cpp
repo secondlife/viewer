@@ -776,7 +776,7 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 	}
 }
 
-void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result) // StoreAssetData callback (fixed)
+void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
 	LLResourceData* data = (LLResourceData*)user_data;
 	//LLAssetType::EType pref_loc = data->mPreferredLocation;

@@ -1222,6 +1222,14 @@ void LLFloaterWorldMap::onLocationCommit( void* userdata )
 
 	LLString str = self->childGetValue("location").asString();
 
+	// Trim any leading and trailing spaces in the search target
+	LLString saved_str = str;
+	LLString::trim( str );
+	if ( str != saved_str )
+	{	// Set the value in the UI if any spaces were removed
+		self->childSetValue("location", str);
+	}
+
 	LLString::toLower(str);
 	gFloaterWorldMap->mCompletingRegionName = str;
 	gWorldMap->mIsTrackingCommit = TRUE;

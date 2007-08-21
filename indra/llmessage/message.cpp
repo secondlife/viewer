@@ -2114,7 +2114,7 @@ void LLMessageSystem::dispatch(
 	}
 	// enable this for output of message names
 	//llinfos << "< \"" << msg_name << "\"" << llendl;
-	//lldebugs << "data: " << LLSDXMLStreamer(message) << llendl;	   
+	//lldebugs << "data: " << LLSDNotationStreamer(message) << llendl;	   
 
 	handler->post(responsep, context, message);
 }

@@ -50,7 +50,6 @@ LLPanelGroupGeneral::LLPanelGroupGeneral(const std::string& name,
 	mFounderName(NULL),
 	mInsignia(NULL),
 	mEditCharter(NULL),
-	mEditName(NULL),
 	mBtnJoinGroup(NULL),
 	mListVisibleMembers(NULL),
 	mCtrlShowInGroupList(NULL),
@@ -236,7 +235,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 void LLPanelGroupGeneral::onCommitAny(LLUICtrl* ctrl, void* data)
 {
 	LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
-	self->mChanged = TRUE;
+	self->updateChanged();
 	self->notifyObservers();
 }
 
@@ -791,3 +790,22 @@ void LLPanelGroupGeneral::updateMembers()
 		mListVisibleMembers->setEnabled(FALSE);
 	}
 }
+
+
+void LLPanelGroupGeneral::updateChanged()
+{
+	mChanged = FALSE;
+	if ( mGroupNameEditor )
+		mChanged  = mGroupNameEditor->isDirty();
+	if ( mGroupName )
+		mChanged |= mGroupName->isDirty();
+	if ( mFounderName )
+		mChanged |= mFounderName->isDirty();
+	if ( mInsignia )
+		mChanged |= mInsignia->isDirty();
+	if ( mEditCharter )
+		mChanged |= mEditCharter->isDirty();
+//	if ( mCtrlReceiveNotices )			// "Receive group notices" is different, see onReceiveNotices()
+//		mChanged |= mCtrlReceiveNotices->isDirty();
+}
+

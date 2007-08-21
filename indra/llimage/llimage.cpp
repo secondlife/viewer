@@ -290,42 +290,15 @@ BOOL LLImageRaw::setSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height,
 	// Should do some simple bounds checking
 
 	U32 i;
-	U32 to_offset;
-	U32 from_offset;
-	if (!reverse_y)
+	for (i = 0; i < height; i++)
 	{
-		for (i = 0; i < height; i++)
-		{
-			to_offset = (y_pos + i)*getWidth() + x_pos;
-			if (stride != 0)
-			{
-				from_offset = i*stride;
-			}
-			else
-			{
-				from_offset = i*width*getComponents();
-			}
-			memcpy(getData() + to_offset*getComponents(),		/* Flawfinder: ignore */
-					data + from_offset, getComponents()*width);
-		}
+		const U32 row = reverse_y ? height - 1 - i : i;
+		const U32 from_offset = row * ((stride == 0) ? width*getComponents() : stride);
+		const U32 to_offset = (y_pos + i)*getWidth() + x_pos;
+		memcpy(getData() + to_offset*getComponents(),		/* Flawfinder: ignore */
+				data + from_offset, getComponents()*width);
 	}
-	else
-	{
-		for (i = 0; i < height; i++)
-		{
-			to_offset = (y_pos + i)*getWidth() + x_pos;
-			if (stride != 0)
-			{
-				from_offset = (height - 1 - i)*stride;
-			}
-			else
-			{
-				from_offset = (height - 1 - i)*width*getComponents();
-			}
-			memcpy(getData() + to_offset*getComponents(),		/* Flawfinder: ignore */
-					data + from_offset, getComponents()*width);
-		}
-	}
+
 	return TRUE;
 }
 

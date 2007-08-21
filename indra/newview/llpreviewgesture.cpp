@@ -246,7 +246,8 @@ BOOL LLPreviewGesture::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 // virtual
 BOOL LLPreviewGesture::canClose()
 {
-	if(!mDirty)
+
+	if(!mDirty || mForceClose)
 	{
 		return TRUE;
 	}
@@ -864,7 +865,7 @@ void LLPreviewGesture::loadAsset()
 void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
 									   const LLUUID& asset_uuid,
 									   LLAssetType::EType type,
-									   void* user_data, S32 status)
+									   void* user_data, S32 status, LLExtStat ext_status)
 {
 	LLUUID* item_idp = (LLUUID*)user_data;
 	LLPreview* preview = LLPreview::find(*item_idp);
@@ -1160,7 +1161,7 @@ void LLPreviewGesture::saveIfNeeded()
 // TODO: This is very similar to LLPreviewNotecard::onSaveComplete.
 // Could merge code.
 // static
-void LLPreviewGesture::onSaveComplete(const LLUUID& asset_uuid, void* user_data, S32 status) // StoreAssetData callback (fixed)
+void LLPreviewGesture::onSaveComplete(const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
 	LLSaveInfo* info = (LLSaveInfo*)user_data;
 	if (info && (status == 0))

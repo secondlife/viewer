@@ -478,7 +478,7 @@ public:
 		{
 			for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
 			{
-				for (std::vector<LLDrawInfo*>::iterator j = i->second.begin(); j != i->second.end(); ++j)
+				for (LLSpatialGroup::drawmap_elem_t::iterator j = i->second.begin(); j != i->second.end(); ++j) 
 				{
 					LLDrawInfo* params = *j;
 					if (mTextures.find(params->mTexture) != mTextures.end())
@@ -1631,10 +1631,10 @@ void LLPipeline::postSort(LLCamera& camera)
 		}
 		for (LLSpatialGroup::draw_map_t::iterator j = group->mDrawMap.begin(); j != group->mDrawMap.end(); ++j)
 		{
-			std::vector<LLDrawInfo*>& src_vec = j->second;
-			std::vector<LLDrawInfo*>& dest_vec = mRenderMap[j->first];
+			LLSpatialGroup::drawmap_elem_t& src_vec = j->second;	
+			LLSpatialGroup::drawmap_elem_t& dest_vec = mRenderMap[j->first];  
 
-			for (std::vector<LLDrawInfo*>::iterator k = src_vec.begin(); k != src_vec.end(); ++k)
+			for (LLSpatialGroup::drawmap_elem_t::iterator k = src_vec.begin(); k != src_vec.end(); ++k) 
 			{
 				dest_vec.push_back(*k);
 			}

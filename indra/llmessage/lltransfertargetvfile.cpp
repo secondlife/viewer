@@ -195,6 +195,7 @@ void LLTransferTargetVFile::completionCallback(const LLTSCode status)
 		mParams.mCompleteCallback(err_code,
 								  mParams.getAssetID(),
 								  mParams.getAssetType(),
-								  mParams.mUserDatap);
+								  mParams.mUserDatap,
+								  LL_EXSTAT_NONE);
 	}
 }

@@ -61,7 +61,7 @@ public:
 
 	static LLPreview* find(const LLUUID& item_uuid);
 	static LLPreview*	show(const LLUUID& item_uuid, BOOL take_focus = TRUE );
-	static void			hide(const LLUUID& item_uuid);
+	static void			hide(const LLUUID& item_uuid, BOOL no_saving = FALSE );
 	static void			rename(const LLUUID& item_uuid, const std::string& new_name);
 	static bool			save(const LLUUID& item_uuid, LLPointer<LLInventoryItem>* itemptr);
 

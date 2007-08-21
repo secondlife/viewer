@@ -68,7 +68,7 @@ void LLViewerAssetStorage::storeAssetData(
 				delete req;
 				if (callback)
 				{
-					callback(asset_id, user_data, LL_ERR_ASSET_REQUEST_FAILED);
+					callback(asset_id, user_data, LL_ERR_ASSET_REQUEST_FAILED, LL_EXSTAT_VFS_CORRUPT);
 				}
 				return;
 			}
@@ -97,7 +97,7 @@ void LLViewerAssetStorage::storeAssetData(
 					llwarns << "Probable corruption in VFS file, aborting store asset data" << llendl;
 					if (callback)
 					{
-						callback(asset_id, user_data,  LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE);
+						callback(asset_id, user_data, LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LL_EXSTAT_VFS_CORRUPT);
 					}
 					return;
 				}
@@ -122,7 +122,7 @@ void LLViewerAssetStorage::storeAssetData(
 			llwarns << "AssetStorage: attempt to upload non-existent vfile " << asset_id << ":" << LLAssetType::lookup(asset_type) << llendl;
 			if (callback)
 			{
-				callback(asset_id, user_data,  LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE);
+				callback(asset_id, user_data,  LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LL_EXSTAT_NONEXISTENT_FILE);
 			}
 		}
 	}
@@ -131,7 +131,7 @@ void LLViewerAssetStorage::storeAssetData(
 		llwarns << "Attempt to move asset store request upstream w/o valid upstream provider" << llendl;
 		if (callback)
 		{
-			callback(asset_id, user_data, LL_ERR_CIRCUIT_GONE);
+			callback(asset_id, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);
 		}
 	}
 }
@@ -200,7 +200,7 @@ void LLViewerAssetStorage::storeAssetData(
 	{
 		if (callback)
 		{
-			callback(asset_id, user_data, LL_ERR_CANNOT_OPEN_FILE);
+			callback(asset_id, user_data, LL_ERR_CANNOT_OPEN_FILE, LL_EXSTAT_BLOCKED_FILE);
 		}
 	}
 }

@@ -35,9 +35,9 @@
 ///----------------------------------------------------------------------------
 
 void auction_j2c_upload_done(const LLUUID& asset_id,
-							   void* user_data, S32 status);
+							   void* user_data, S32 status, LLExtStat ext_status);
 void auction_tga_upload_done(const LLUUID& asset_id,
-							   void* user_data, S32 status);
+							   void* user_data, S32 status, LLExtStat ext_status);
 
 ///----------------------------------------------------------------------------
 /// Class llfloaterauction
@@ -238,7 +238,7 @@ void LLFloaterAuction::onClickOK(void* data)
 /// Local function definitions
 ///----------------------------------------------------------------------------
 
-void auction_tga_upload_done(const LLUUID& asset_id, void* user_data, S32 status) // StoreAssetData callback (fixed)
+void auction_tga_upload_done(const LLUUID& asset_id, void* user_data, S32 status, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
 	LLString* name = (LLString*)(user_data);
 	llinfos << "Upload of asset '" << *name << "' " << asset_id
@@ -259,7 +259,7 @@ void auction_tga_upload_done(const LLUUID& asset_id, void* user_data, S32 status
 	}
 }
 
-void auction_j2c_upload_done(const LLUUID& asset_id, void* user_data, S32 status) // StoreAssetData callback (fixed)
+void auction_j2c_upload_done(const LLUUID& asset_id, void* user_data, S32 status, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
 	LLString* name = (LLString*)(user_data);
 	llinfos << "Upload of asset '" << *name << "' " << asset_id

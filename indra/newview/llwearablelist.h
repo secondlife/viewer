@@ -39,7 +39,7 @@ public:
 	LLWearable*			createNewWearable( EWearableType type );
 	
 	// Pseudo-private
-	static void	 	    processGetAssetReply(const char* filename, const LLAssetID& assetID, void* user_data, S32 status);
+	static void	 	    processGetAssetReply(const char* filename, const LLAssetID& assetID, void* user_data, S32 status, LLExtStat ext_status);
 
 protected:
 	LLPtrSkipMap< const LLUUID, LLWearable* > mList;

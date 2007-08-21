@@ -93,7 +93,7 @@ private:
 	BOOL decodeTemplate(const U8* buffer, S32 buffer_size,  // inputs
 						LLMessageTemplate** msg_template ); // outputs
 
-	void logRanOffEndOfPacket( const LLHost& host );
+	void logRanOffEndOfPacket( const LLHost& host, const S32 where, const S32 wanted );
 
 	BOOL decodeData(const U8* buffer, const LLHost& sender );
 

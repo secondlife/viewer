@@ -143,7 +143,7 @@ void LLMessageConfigFile::loadMessageBans(const LLSD& data)
 
 bool LLMessageConfigFile::isCapBanned(const std::string& cap_name) const
 {
-	llinfos << "mCapBans is " << LLSDXMLStreamer(mCapBans) << llendl;
+	lldebugs << "mCapBans is " << LLSDNotationStreamer(mCapBans) << llendl;
     return mCapBans[cap_name];
 }
 

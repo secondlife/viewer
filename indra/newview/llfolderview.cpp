@@ -699,7 +699,15 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 
 BOOL LLFolderViewItem::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
-	preview();
+	if (mListener->getInventoryType() == LLInventoryType::IT_LANDMARK) 
+	{
+		gFocusMgr.setKeyboardFocus(NULL, NULL); // release focus to main window so user can move with arrow keys
+		mListener->performAction(NULL, &gInventory, "teleport");
+	}
+	else
+	{
+		preview();
+	}
 	return TRUE;
 }
 
@@ -2508,6 +2516,7 @@ LLFolderView::LLFolderView( const LLString& name, LLViewerImage* root_folder_ico
 	mShowSelectionContext(FALSE),
 	mShowSingleSelection(FALSE),
 	mArrangeGeneration(0),
+	mUserData(NULL),
 	mSelectCallback(NULL),
 	mSelectionChanged(FALSE),
 	mMinWidth(0),
@@ -4234,72 +4243,88 @@ LLFolderViewItem* LLFolderView::getItemByID(const LLUUID& id)
 	return NULL;
 }
 
-//static
-void LLFolderView::idle(void* user_data)
+
+// Main idle routine
+void LLFolderView::doIdle()
 {
 	LLFastTimer t2(LLFastTimer::FTM_INVENTORY);
-	LLFolderView* self = (LLFolderView*)user_data;
 
 	BOOL debug_filters = gSavedSettings.getBOOL("DebugInventoryFilters");
-	if (debug_filters != self->getDebugFilters())
+	if (debug_filters != getDebugFilters())
 	{
-		self->mDebugFilters = debug_filters;
-		self->arrangeAll();
+		mDebugFilters = debug_filters;
+		arrangeAll();
 	}
 
-	self->mFilter.clearModified();
-	BOOL filter_modified_and_active = self->mCompletedFilterGeneration < self->mFilter.getCurrentGeneration() && 
-										self->mFilter.isNotDefault();
-	self->mNeedsAutoSelect = filter_modified_and_active &&
-							!(gFocusMgr.childHasKeyboardFocus(self) || gFocusMgr.getMouseCapture());
+	mFilter.clearModified();
+	BOOL filter_modified_and_active = mCompletedFilterGeneration < mFilter.getCurrentGeneration() && 
+										mFilter.isNotDefault();
+	mNeedsAutoSelect = filter_modified_and_active &&
+							!(gFocusMgr.childHasKeyboardFocus(this) || gFocusMgr.getMouseCapture());
 	
 	// filter to determine visiblity before arranging
-	self->filterFromRoot();
+	filterFromRoot();
 
 	// automatically show matching items, and select first one
 	// do this every frame until user puts keyboard focus into the inventory window
 	// signaling the end of the automatic update
 	// only do this when mNeedsFilter is set, meaning filtered items have
 	// potentially changed
-	if (self->mNeedsAutoSelect)
+	if (mNeedsAutoSelect)
 	{
 		LLFastTimer t3(LLFastTimer::FTM_AUTO_SELECT);
 		// select new item only if a filtered item not currently selected
-		LLFolderViewItem* selected_itemp = self->mSelectedItems.empty() ? NULL : self->mSelectedItems.back();
-		if ((!selected_itemp || !selected_itemp->getFiltered()) && !self->mAutoSelectOverride)
+		LLFolderViewItem* selected_itemp = mSelectedItems.empty() ? NULL : mSelectedItems.back();
+		if ((!selected_itemp || !selected_itemp->getFiltered()) && !mAutoSelectOverride)
 		{
 			// select first filtered item
 			LLSelectFirstFilteredItem filter;
-			self->applyFunctorRecursively(filter);
+			applyFunctorRecursively(filter);
 		}
-		self->scrollToShowSelection();
+		scrollToShowSelection();
 	}
 
-	self->sanitizeSelection();
+	BOOL is_visible = isInVisibleChain();
 
-	if( self->needsArrange() && self->isInVisibleChain())
+	if ( is_visible )
 	{
-		self->arrangeFromRoot();
-	}
-
-	if (self->mSelectedItems.size() && self->mNeedsScroll)
-	{
-		self->scrollToShowItem(self->mSelectedItems.back());
-		// continue scrolling until animated layout change is done
-		if (self->getCompletedFilterGeneration() >= self->mFilter.getMinRequiredGeneration() &&
-			(!self->needsArrange() || !self->isInVisibleChain()))
+		sanitizeSelection();
+		if( needsArrange() )
 		{
-			self->mNeedsScroll = FALSE;
+			arrangeFromRoot();
 		}
 	}
 
-	if (self->mSelectionChanged && self->mSelectCallback)
+	if (mSelectedItems.size() && mNeedsScroll)
+	{
+		scrollToShowItem(mSelectedItems.back());
+		// continue scrolling until animated layout change is done
+		if (getCompletedFilterGeneration() >= mFilter.getMinRequiredGeneration() &&
+			(!needsArrange() || !is_visible))
+		{
+			mNeedsScroll = FALSE;
+		}
+	}
+
+	if (mSelectionChanged && mSelectCallback)
 	{
 		//RN: we use keyboard focus as a proxy for user-explicit actions
-		self->mSelectCallback(self->mSelectedItems, gFocusMgr.childHasKeyboardFocus(self), self->mUserData);
+		mSelectCallback(mSelectedItems, gFocusMgr.childHasKeyboardFocus(this), mUserData);
 	}
-	self->mSelectionChanged = FALSE;
+	mSelectionChanged = FALSE;
 }
+
+
+//static
+void LLFolderView::idle(void* user_data)
+{
+	LLFolderView* self = (LLFolderView*)user_data;
+	if ( self )
+	{	// Do the real idle 
+		self->doIdle();
+	}
+}
+
 
 void LLFolderView::dumpSelectionInformation()
 {

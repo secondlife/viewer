@@ -103,7 +103,7 @@ S32 LLXfer_File::initializeRequest(U64 xfer_id,
 				   ELLPath remote_path,
 				   const LLHost& remote_host,
 				   BOOL delete_remote_on_completion,
-				   void (*callback)(void**,S32),
+				   void (*callback)(void**,S32,LLExtStat),
 				   void** user_data)
 {
  	S32 retval = 0;  // presume success

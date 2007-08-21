@@ -247,7 +247,17 @@ void LLFloaterTOS::onContinue( void* userdata )
 	{
 		gAcceptCriticalMessage = TRUE;
 	}
-	gStartupState++;
+
+	// Testing TOS dialog
+	#if ! LL_RELEASE_FOR_DOWNLOAD		
+	if ( LLStartUp::getStartupState() == STATE_LOGIN_WAIT )
+	{
+		LLStartUp::setStartupState( STATE_LOGIN_SHOW );
+	}
+	else 
+	#endif
+
+	LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );			// Go back and finish authentication
 	self->close(); // destroys this object
 }
 
@@ -257,7 +267,7 @@ void LLFloaterTOS::onCancel( void* userdata )
 	LLFloaterTOS* self = (LLFloaterTOS*) userdata;
 	llinfos << "User disagrees with TOS." << llendl;
 	gViewerWindow->alertXml("MustAgreeToLogIn", login_alert_done);
-	gStartupState = STATE_LOGIN_SHOW;
+	LLStartUp::setStartupState( STATE_LOGIN_SHOW );
 	self->mLoadCompleteCount = 0;  // reset counter for next time we come to TOS
 	self->close(); // destroys this object
 }

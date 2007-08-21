@@ -72,8 +72,8 @@ LLDrawPool *LLDrawPoolWater::instancePool()
 
 void LLDrawPoolWater::prerender()
 {
-	mVertexShaderLevel = gSavedSettings.getBOOL("RenderRippleWater") ?
-				LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_ENVIRONMENT) : 0;
+	mVertexShaderLevel = (gSavedSettings.getBOOL("RenderRippleWater") && gGLManager.mHasCubeMap && gFeatureManagerp->isFeatureAvailable("RenderCubeMap")) ?
+		LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_ENVIRONMENT) : 0;
 
 }
 
@@ -545,7 +545,7 @@ void LLDrawPoolWater::shade()
 	LLCubeMap* skyMap = gSky.mVOSkyp->getCubeMap();
 	
 	gWaterProgram.enableTexture(LLShaderMgr::ENVIRONMENT_MAP, GL_TEXTURE_CUBE_MAP_ARB);
-    skyMap->bind();
+	skyMap->bind();
 
 	//bind normal map
 	S32 bumpTex = gWaterProgram.enableTexture(LLShaderMgr::BUMP_MAP);

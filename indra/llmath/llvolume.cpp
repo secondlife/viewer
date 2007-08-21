@@ -441,6 +441,20 @@ F32 next_power_of_two(F32 value)
 	return pow(2.0f, power);
 }
 
+F32 nearest_power_of_two(F32 value)
+{
+	// nearest in the linear sense means closest w/r/t a "halfway" point.
+	// in the exponential sense, the "halfway" point isn't 1/2, it's 1/sqrt(2).
+
+	// our windows build hates the math.h defines, so do it here. -qarl
+	F32 const INVSQRT2 = 0.7071067812f;
+	
+	F32 answer = next_power_of_two(value * INVSQRT2);
+
+	// llwarns << value << " -> " << answer << llendl;
+	
+	return answer;
+}
 
 
 BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
@@ -585,7 +599,7 @@ BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
 			S32 sides = (S32)circle_detail;
 
 			if (is_sculpted)
-				sides = (S32)next_power_of_two((F32)sides);
+				sides = (S32)nearest_power_of_two((F32)sides - 1);
 			
 			genNGon(sides);
 			
@@ -1132,7 +1146,7 @@ BOOL LLPath::generate(F32 detail, S32 split, BOOL is_sculpted)
 			S32 sides = (S32)llfloor(llfloor((MIN_DETAIL_FACES * detail + twist_mag * 3.5f * (detail-0.5f))) * mParams.getRevolutions());
 
 			if (is_sculpted)
-				sides = (S32)next_power_of_two((F32)sides);
+				sides = (S32)nearest_power_of_two((F32)sides - 1);
 			
 			genNGon(sides);
 		}
@@ -1809,7 +1823,7 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 	sNumMeshPoints += mMesh.size();
 
 	S32 vertex_change = 0;
-	// first test to see if image has enough variation to create geometry
+	// first test to see if image has enough variation to create non-degenerate geometry
 	if (!data_is_empty)
 	{
 		S32 last_index = 0;
@@ -1835,12 +1849,13 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 
 				if (fabs((F32)(sculpt_data[index] - sculpt_data[last_index])) +
 					fabs((F32)(sculpt_data[index+1] - sculpt_data[last_index+1])) +
-					fabs((F32)(sculpt_data[index+2] - sculpt_data[last_index+2])) > 256 * 0.02)
+					fabs((F32)(sculpt_data[index+2] - sculpt_data[last_index+2])) > 0)
 					vertex_change++;
 
 				last_index = index;
 			}
-		if ((F32)vertex_change / sizeS / sizeT < 0.05) // less than 5%
+		
+		if ((F32)vertex_change / sizeS / sizeT < 0.02) // less than 2%
 			data_is_empty = TRUE;
 	}
 

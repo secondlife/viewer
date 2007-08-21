@@ -51,7 +51,7 @@ void sg_assert(BOOL expr)
 #endif
 }
 
-#if !LL_RELEASE_FOR_DOWNLOAD
+#if LL_DEBUG
 void validate_drawable(LLDrawable* drawablep)
 {
 	F64 rad = drawablep->getBinRadius();
@@ -133,10 +133,6 @@ LLSpatialGroup::~LLSpatialGroup()
 
 void LLSpatialGroup::clearDrawMap()
 {
-	for (LLSpatialGroup::draw_map_t::iterator i = mDrawMap.begin(); i != mDrawMap.end(); ++i)
-	{
-		std::for_each(i->second.begin(), i->second.end(), DeletePointer());
-	}
 	mDrawMap.clear();
 }
 
@@ -2303,7 +2299,7 @@ void pushVerts(LLSpatialGroup* group, U32 mask)
 
 	for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
 	{
-		for (std::vector<LLDrawInfo*>::iterator j = i->second.begin(); j != i->second.end(); ++j)
+		for (LLSpatialGroup::drawmap_elem_t::iterator j = i->second.begin(); j != i->second.end(); ++j) 
 		{
 			params = *j;
 			pushVerts(params, mask);
@@ -2331,7 +2327,7 @@ void pushVertsColorCoded(LLSpatialGroup* group, U32 mask)
 
 	for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
 	{
-		for (std::vector<LLDrawInfo*>::iterator j = i->second.begin(); j != i->second.end(); ++j)
+		for (LLSpatialGroup::drawmap_elem_t::iterator j = i->second.begin(); j != i->second.end(); ++j) 
 		{
 			params = *j;
 			glColor4f(colors[col].mV[0], colors[col].mV[1], colors[col].mV[2], 0.5f);
@@ -2682,8 +2678,8 @@ public:
 		
 		for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
 		{
-			std::vector<LLDrawInfo*>& draw_vec = i->second;
-			for (std::vector<LLDrawInfo*>::iterator j = draw_vec.begin(); j != draw_vec.end(); ++j)
+			LLSpatialGroup::drawmap_elem_t& draw_vec = i->second;	
+			for (LLSpatialGroup::drawmap_elem_t::iterator j = draw_vec.begin(); j != draw_vec.end(); ++j)	
 			{
 				LLDrawInfo* draw_info = *j;
 				if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_ANIM))
@@ -2867,6 +2863,11 @@ LLDrawInfo::LLDrawInfo(U32 start, U32 end, U32 count, U32 offset,
 	mPartSize(part_size),
 	mVSize(0.f)
 {
+}
+
+LLDrawInfo::~LLDrawInfo()	
+{
+
 }
 
 LLVertexBuffer* LLGeometryManager::createVertexBuffer(U32 type_mask, U32 usage)

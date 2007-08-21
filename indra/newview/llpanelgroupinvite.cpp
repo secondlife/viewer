@@ -16,6 +16,9 @@
 #include "llgroupmgr.h"
 #include "llnamelistctrl.h"
 #include "llspinctrl.h"
+#include "lltextbox.h"
+#include "llviewerobject.h"
+#include "llviewerobjectlist.h"
 #include "llvieweruictrlfactory.h"
 
 class LLPanelGroupInvite::impl
@@ -45,7 +48,9 @@ public:
 
 	LLNameListCtrl	*mInvitees;
 	LLComboBox      *mRoleNames;
-	LLButton		*mRemoveButton;
+	LLButton		*mOKButton;
+ 	LLButton		*mRemoveButton;
+	LLTextBox		*mGroupName;
 
 	void (*mCloseCallback)(void* data);
 
@@ -288,6 +293,8 @@ LLPanelGroupInvite::LLPanelGroupInvite(const std::string& name,
 	: LLPanel(name)
 {
 	mImplementation = new impl(group_id);
+	mPendingUpdate = FALSE;
+	mStoreSelected = LLUUID::null;
 
 	std::string panel_def_file;
 
@@ -309,29 +316,132 @@ void LLPanelGroupInvite::setCloseCallback(void (*close_callback)(void*),
 
 void LLPanelGroupInvite::clear()
 {
+	mStoreSelected = LLUUID::null;
 	mImplementation->mInvitees->deleteAllItems();
 	mImplementation->mRoleNames->clear();
 	mImplementation->mRoleNames->removeall();
+	mImplementation->mOKButton->setEnabled(FALSE);
 }
 
+void LLPanelGroupInvite::addUsers(std::vector<LLUUID>& agent_ids)
+{
+	std::vector<std::string> names;
+	for (S32 i = 0; i < (S32)agent_ids.size(); i++)
+	{
+		LLUUID agent_id = agent_ids[i];
+		LLViewerObject* dest = gObjectList.findObject(agent_id);
+		if(dest && dest->isAvatar())
+		{
+			LLString fullname;
+			LLString::format_map_t args;
+			LLNameValue* nvfirst = dest->getNVPair("FirstName");
+			LLNameValue* nvlast = dest->getNVPair("LastName");
+			if(nvfirst && nvlast)
+			{
+				args["[FIRST]"] = nvfirst->getString();
+				args["[LAST]"] = nvlast->getString();
+				fullname = nvfirst->getString();
+				fullname += " ";
+				fullname += nvlast->getString();
+			}
+			if (!fullname.empty())
+			{
+				names.push_back(fullname);
+			} 
+			else 
+			{
+				llwarns << "llPanelGroupInvite: Selected avatar has no name: " << dest->getID() << llendl;
+				names.push_back("(Unknown)");
+			}
+		}
+	}
+	mImplementation->addUsers(names, agent_ids);
+}
+
+void LLPanelGroupInvite::draw()
+{
+	LLPanel::draw();
+	if (mPendingUpdate)
+	{
+		updateLists();
+	}
+}
+ 
 void LLPanelGroupInvite::update()
 {
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mImplementation->mGroupID);
-
-	if (!gdatap || !gdatap->isRoleDataComplete())
+	mPendingUpdate = FALSE;
+	if (mImplementation->mGroupName) 
 	{
-		gGroupMgr->sendGroupRoleDataRequest(mImplementation->mGroupID);
+		mImplementation->mGroupName->setText("(loading...)");
 	}
+	if ( mImplementation->mRoleNames ) 
+	{
+		mStoreSelected = mImplementation->mRoleNames->getCurrentID();
+		mImplementation->mRoleNames->clear();
+		mImplementation->mRoleNames->removeall();
+		mImplementation->mRoleNames->add("(loading...)", LLUUID::null, ADD_BOTTOM);
+		mImplementation->mRoleNames->setCurrentByID(LLUUID::null);
+	}
+
+	updateLists();
+}
+
+void LLPanelGroupInvite::updateLists()
+{
+	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mImplementation->mGroupID);
+	BOOL waiting = FALSE;
+
+	if (gdatap) 
+	{
+		if (gdatap->isGroupPropertiesDataComplete()) 
+		{
+			if (mImplementation->mGroupName) 
+			{
+				mImplementation->mGroupName->setText(gdatap->mName);
+			}
+		} 
+		else 
+		{
+			waiting = TRUE;
+		}
+		if (gdatap->isRoleDataComplete() && gdatap->isMemberDataComplete()) 
+		{
+			if ( mImplementation->mRoleNames )
+			{
+				mImplementation->mRoleNames->clear();
+				mImplementation->mRoleNames->removeall();
+
+				//add the role names and select the everybody role by default
+				mImplementation->addRoleNames(gdatap);
+				mImplementation->mRoleNames->setCurrentByID(mStoreSelected);
+			}
+		} 
+		else 
+		{
+			waiting = TRUE;
+		}
+	} 
+	else 
+	{
+		waiting = TRUE;
+	}
+
+	if (waiting) 
+	{
+		if (!mPendingUpdate) 
+		{
+			gGroupMgr->sendGroupPropertiesRequest(mImplementation->mGroupID);
+			gGroupMgr->sendGroupMembersRequest(mImplementation->mGroupID);
+			gGroupMgr->sendGroupRoleDataRequest(mImplementation->mGroupID);
+		}
+		mPendingUpdate = TRUE;
+	} 
 	else
 	{
-		if ( mImplementation->mRoleNames )
+		mPendingUpdate = FALSE;
+		if (mImplementation->mOKButton && mImplementation->mRoleNames->getItemCount()) 
 		{
-			mImplementation->mRoleNames->clear();
-			mImplementation->mRoleNames->removeall();
-
-			//add the role names and select the everybody role by default
-			mImplementation->addRoleNames(gdatap);
-			mImplementation->mRoleNames->setCurrentByID(LLUUID::null);
+			mImplementation->mOKButton->setEnabled(TRUE);
 		}
 	}
 }
@@ -342,6 +452,7 @@ BOOL LLPanelGroupInvite::postBuild()
 
 	mImplementation->mRoleNames = (LLComboBox*) getChildByName("role_name",
 															   recurse);
+	mImplementation->mGroupName = (LLTextBox*) getChildByName("group_name_text", recurse);
 	mImplementation->mInvitees = 
 		(LLNameListCtrl*) getChildByName("invitee_list", recurse);
 	if ( mImplementation->mInvitees )
@@ -370,12 +481,15 @@ BOOL LLPanelGroupInvite::postBuild()
 		mImplementation->mRemoveButton->setEnabled(FALSE);
 	}
 
-	button = (LLButton*) getChildByName("ok_button", recurse);
-	if ( button )
-	{
-		button->setClickedCallback(impl::callbackClickOK);
-		button->setCallbackUserData(mImplementation);
-	}
+	mImplementation->mOKButton = 
+		(LLButton*) getChildByName("ok_button", recurse);
+	if ( mImplementation->mOKButton )
+ 	{
+		mImplementation->mOKButton->
+				setClickedCallback(impl::callbackClickOK);
+		mImplementation->mOKButton->setCallbackUserData(mImplementation);
+		mImplementation->mOKButton->setEnabled(FALSE);
+ 	}
 
 	button = (LLButton*) getChildByName("cancel_button", recurse);
 	if ( button )

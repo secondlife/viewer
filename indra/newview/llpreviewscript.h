@@ -47,6 +47,7 @@ public:
 		const LLViewHandle& floater_handle,
 		void (*load_callback)(void* userdata),
 		void (*save_callback)(void* userdata, BOOL close_after_save),
+		void (*search_replace_callback)(void* userdata),
 		void* userdata,
 		S32 bottom_pad = 0);	// pad below bottom row of buttons
 	~LLScriptEdCore();
@@ -110,6 +111,7 @@ private:
 	LLTextEditor*	mEditor;
 	void			(*mLoadCallback)(void* userdata);
 	void			(*mSaveCallback)(void* userdata, BOOL close_after_save);
+	void			(*mSearchReplaceCallback) (void* userdata);
 	void*			mUserdata;
 	LLComboBox		*mFunctions;
 	BOOL			mForceClose;
@@ -149,14 +151,15 @@ protected:
 							const LLUUID& item_id,
 							const LLTransactionID& tid);
 
+	static void onSearchReplace(void* userdata);
 	static void onLoad(void* userdata);
 	static void onSave(void* userdata, BOOL close_after_save);
 	
 	static void onLoadComplete(LLVFS *vfs, const LLUUID& uuid,
 							   LLAssetType::EType type,
-							   void* user_data, S32 status);
-	static void onSaveComplete(const LLUUID& uuid, void* user_data, S32 status);
-	static void onSaveBytecodeComplete(const LLUUID& asset_uuid, void* user_data, S32 status);
+							   void* user_data, S32 status, LLExtStat ext_status);
+	static void onSaveComplete(const LLUUID& uuid, void* user_data, S32 status, LLExtStat ext_status);
+	static void onSaveBytecodeComplete(const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status);
 	static LLPreviewLSL* getInstance(const LLUUID& uuid);
 
 	static void* createScriptEdPanel(void* userdata);
@@ -209,14 +212,15 @@ protected:
 						   const LLTransactionID& tid,
 						   BOOL is_running);
 
+	static void onSearchReplace(void* userdata);
 	static void onLoad(void* userdata);
 	static void onSave(void* userdata, BOOL close_after_save);
 
 	static void onLoadComplete(LLVFS *vfs, const LLUUID& asset_uuid,
 							   LLAssetType::EType type,
-							   void* user_data, S32 status);
-	static void onSaveTextComplete(const LLUUID& asset_uuid, void* user_data, S32 status);
-	static void onSaveBytecodeComplete(const LLUUID& asset_uuid, void* user_data, S32 status);
+							   void* user_data, S32 status, LLExtStat ext_status);
+	static void onSaveTextComplete(const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status);
+	static void onSaveBytecodeComplete(const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status);
 	static void onRunningCheckboxClicked(LLUICtrl*, void* userdata);
 	static void onReset(void* userdata);
 

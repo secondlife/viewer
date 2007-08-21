@@ -2418,7 +2418,7 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 								LLXferManager::HIGH_PRIORITY);
 }
 
-void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code)
+void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtStat ext_status)
 {
 	LLFilenameAndTask* ft = (LLFilenameAndTask*)user_data;
 	LLViewerObject* object = NULL;

@@ -26,6 +26,7 @@
 #elif LL_DARWIN
 #	include <sys/sysctl.h>
 #	include <sys/utsname.h>
+#	include <stdint.h>
 #elif LL_LINUX
 #	include <sys/utsname.h>
 #	include <unistd.h>
@@ -462,57 +463,97 @@ LLMemoryInfo::LLMemoryInfo()
 {
 }
 
-U32 LLMemoryInfo::getPhysicalMemory() const
+#if LL_WINDOWS
+static U32 LLMemoryAdjustKBResult(U32 inKB)
+{
+	// Moved this here from llfloaterabout.cpp
+
+	//! \bug
+	// For some reason, the reported amount of memory is always wrong.
+	// The original adjustment assumes it's always off by one meg, however
+	// errors of as much as 2520 KB have been observed in the value
+	// returned from the GetMemoryStatusEx function.  Here we keep the
+	// original adjustment from llfoaterabout.cpp until this can be
+	// fixed somehow.
+	inKB += 1024;
+
+	return inKB;
+}
+#endif
+
+U32 LLMemoryInfo::getPhysicalMemoryKB() const
 {
 #if LL_WINDOWS
-	MEMORYSTATUS state;
+	MEMORYSTATUSEX state;
 	state.dwLength = sizeof(state);
-	GlobalMemoryStatus(&state);
+	GlobalMemoryStatusEx(&state);
 
-	return (U32)state.dwTotalPhys;
+	return LLMemoryAdjustKBResult((U32)(state.ullTotalPhys >> 10));
 
 #elif LL_DARWIN
 	// This might work on Linux as well.  Someone check...
-	unsigned int phys = 0;
-	int mib[2] = { CTL_HW, HW_PHYSMEM };
+	uint64_t phys = 0;
+	int mib[2] = { CTL_HW, HW_MEMSIZE };
 
 	size_t len = sizeof(phys);	
 	sysctl(mib, 2, &phys, &len, NULL, 0);
 	
-	return phys;
-#elif LL_LINUX
+	return (U32)(phys >> 10);
 
-	return getpagesize() * get_phys_pages();
+#elif LL_LINUX
+	U64 phys = 0;
+	phys = (U64)(getpagesize()) * (U64)(get_phys_pages());
+	return (U32)(phys >> 10);
+
 #elif LL_SOLARIS
-	return getpagesize() * sysconf(_SC_PHYS_PAGES);
+	U64 phys = 0;
+	phys = (U64)(getpagesize()) * (U64)(sysconf(_SC_PHYS_PAGES));
+	return (U32)(phys >> 10);
+
 #else
 	return 0;
 
 #endif
 }
 
+U32 LLMemoryInfo::getPhysicalMemoryClamped() const
+{
+	// Return the total physical memory in bytes, but clamp it
+	// to no more than U32_MAX
+	
+	U32 phys_kb = getPhysicalMemoryKB();
+	if (phys_kb >= 4194304 /* 4GB in KB */)
+	{
+		return U32_MAX;
+	}
+	else
+	{
+		return phys_kb << 10;
+	}
+}
+
 void LLMemoryInfo::stream(std::ostream& s) const
 {
 #if LL_WINDOWS
-	MEMORYSTATUS state;
+	MEMORYSTATUSEX state;
 	state.dwLength = sizeof(state);
-	GlobalMemoryStatus(&state);
+	GlobalMemoryStatusEx(&state);
 
 	s << "Percent Memory use: " << (U32)state.dwMemoryLoad << '%' << std::endl;
-	s << "Total Physical Kb:  " << (U32)state.dwTotalPhys/1024 << std::endl;
-	s << "Avail Physical Kb:  " << (U32)state.dwAvailPhys/1024 << std::endl;
-	s << "Total page Kb:      " << (U32)state.dwTotalPageFile/1024 << std::endl;
-	s << "Avail page Kb:      " << (U32)state.dwAvailPageFile/1024 << std::endl;
-	s << "Total Virtual Kb:   " << (U32)state.dwTotalVirtual/1024 << std::endl;
-	s << "Avail Virtual Kb:   " << (U32)state.dwAvailVirtual/1024 << std::endl;
+	s << "Total Physical KB:  " << (U32)(state.ullTotalPhys/1024) << std::endl;
+	s << "Avail Physical KB:  " << (U32)(state.ullAvailPhys/1024) << std::endl;
+	s << "Total page KB:      " << (U32)(state.ullTotalPageFile/1024) << std::endl;
+	s << "Avail page KB:      " << (U32)(state.ullAvailPageFile/1024) << std::endl;
+	s << "Total Virtual KB:   " << (U32)(state.ullTotalVirtual/1024) << std::endl;
+	s << "Avail Virtual KB:   " << (U32)(state.ullAvailVirtual/1024) << std::endl;
 #elif LL_DARWIN
-	U64 phys = 0;
+	uint64_t phys = 0;
 
 	size_t len = sizeof(phys);	
 	
 	if(sysctlbyname("hw.memsize", &phys, &len, NULL, 0) == 0)
 	{
-		s << "Total Physical Kb:  " << phys/1024 << std::endl;
+		s << "Total Physical KB:  " << phys/1024 << std::endl;
 	}
 	else
 	{
@@ -523,7 +564,7 @@ void LLMemoryInfo::stream(std::ostream& s) const
 
         phys = (U64)(sysconf(_SC_PHYS_PAGES)) * (U64)(sysconf(_SC_PAGESIZE)/1024);
 
-        s << "Total Physical Kb:  " << phys << std::endl;
+        s << "Total Physical KB:  " << phys << std::endl;
 #else
 	// *NOTE: This works on linux. What will it do on other systems?
 	FILE* meminfo = LLFile::fopen(MEMINFO_FILE,"rb");

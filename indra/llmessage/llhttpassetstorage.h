@@ -108,7 +108,7 @@ public:
 
 protected:
 	void _queueDataRequest(const LLUUID& uuid, LLAssetType::EType type,
-						   void (*callback)(LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32),
+						   void (*callback)(LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
 						   void *user_data, BOOL duplicate, BOOL is_priority);
 
 private:

@@ -376,7 +376,7 @@ void LLXferManager::requestFile(const char* local_filename,
 								ELLPath remote_path,
 								const LLHost& remote_host,
 								BOOL delete_remote_on_completion,
-								void (*callback)(void**,S32),
+								void (*callback)(void**,S32,LLExtStat),
 								void** user_data,
 								BOOL is_priority,
 								BOOL use_big_packets)
@@ -433,7 +433,7 @@ void LLXferManager::requestFile(const char* remote_filename,
 								ELLPath remote_path,
 								const LLHost& remote_host,
 								BOOL delete_remote_on_completion,
-								void (*callback)(void*,S32,void**,S32),
+								void (*callback)(void*,S32,void**,S32,LLExtStat),
 								void** user_data,
 								BOOL is_priority)
 {
@@ -461,7 +461,7 @@ void LLXferManager::requestVFile(const LLUUID& local_id,
 								 const LLUUID& remote_id,
 								 LLAssetType::EType type, LLVFS* vfs,
 								 const LLHost& remote_host,
-								 void (*callback)(void**, S32),
+								 void (*callback)(void**,S32,LLExtStat),
 								 void** user_data,
 								 BOOL is_priority)
 {
@@ -1106,6 +1106,7 @@ void process_abort_xfer(LLMessageSystem *mesgsys, void **user_data)
 {
 	gXferManager->processAbort(mesgsys,user_data);
 }
+
 
 
 

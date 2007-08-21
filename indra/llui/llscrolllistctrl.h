@@ -440,7 +440,7 @@ public:
 	LLUUID				getStringUUIDSelectedItem();
 
 	LLScrollListItem*	getFirstSelected() const;
-	virtual S32			getFirstSelectedIndex();
+	virtual S32			getFirstSelectedIndex() const;
 	std::vector<LLScrollListItem*> getAllSelected() const;
 
 	LLScrollListItem*	getLastSelectedItem() const { return mLastSelected; }
@@ -494,6 +494,9 @@ public:
 	virtual void	setFocus( BOOL b );
 	virtual void	onFocusReceived();
 	virtual void	onFocusLost();
+
+	virtual BOOL	isDirty() const;
+	virtual void	resetDirty();		// Clear dirty state
 
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	virtual void	arrange(S32 max_width, S32 max_height);
@@ -637,6 +640,9 @@ protected:
 
 	std::map<LLString, LLScrollListColumn> mColumns;
 	std::vector<LLScrollListColumn*> mColumnsIndexed;
+
+	BOOL			mDirty;
+	S32				mOriginalSelection;
 
 public:
 	// HACK:  Did we draw one selected item this frame?

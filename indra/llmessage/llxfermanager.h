@@ -125,7 +125,7 @@ class LLXferManager
 							 ELLPath remote_path,
 							 const LLHost& remote_host,
  							 BOOL delete_remote_on_completion,
-							 void (*callback)(void**,S32), void** user_data,
+							 void (*callback)(void**,S32,LLExtStat), void** user_data,
 							 BOOL is_priority = FALSE,
 							 BOOL use_big_packets = FALSE);
 
@@ -134,7 +134,7 @@ class LLXferManager
 							 ELLPath remote_path,
 							 const LLHost &remote_host,
  							 BOOL delete_remote_on_completion,
-							 void (*callback)(void*, S32, void**, S32),
+							 void (*callback)(void*, S32, void**, S32, LLExtStat),
 							 void** user_data,
 							 BOOL is_priority = FALSE);
 
@@ -143,7 +143,7 @@ class LLXferManager
 	virtual void requestVFile(const LLUUID &local_id, const LLUUID& remote_id,
 							  LLAssetType::EType type, LLVFS* vfs,
 							  const LLHost& remote_host,
-							  void (*callback)(void**, S32), void** user_data,
+							  void (*callback)(void**,S32,LLExtStat), void** user_data,
 							  BOOL is_priority = FALSE);
 
 /*
@@ -183,5 +183,6 @@ void process_request_xfer (LLMessageSystem *mesgsys, void **user_data);
 void continue_file_receive(LLMessageSystem *mesgsys, void **user_data);
 void process_abort_xfer (LLMessageSystem *mesgsys, void **user_data);
 #endif
+
 
 

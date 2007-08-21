@@ -1232,10 +1232,13 @@ BOOL LLFloater::getEditModeEnabled()
 //static 
 void LLFloater::show(LLFloater* floaterp)
 {
-	if (floaterp) floaterp->open();
-	if (floaterp->getHost())
+	if (floaterp) 
 	{
-		floaterp->getHost()->open();
+		floaterp->open();
+		if (floaterp->getHost())
+		{
+			floaterp->getHost()->open();
+		}
 	}
 }
 

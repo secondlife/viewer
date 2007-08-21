@@ -26,13 +26,17 @@
 class LLSpatialPartition;
 class LLSpatialBridge;
 
-class LLDrawInfo
+class LLDrawInfo : public LLRefCount 
 {
+protected:
+	~LLDrawInfo();	
+	
 public:
 	LLDrawInfo(U32 start, U32 end, U32 count, U32 offset, 
 				LLViewerImage* image, LLVertexBuffer* buffer, 
 				BOOL fullbright = FALSE, U8 bump = 0, BOOL particle = FALSE, F32 part_size = 0);
 	
+
 	LLPointer<LLVertexBuffer> mVertexBuffer;
 	LLPointer<LLViewerImage> mTexture;
 	LLPointer<LLCubeMap> mReflectionMap;
@@ -58,18 +62,21 @@ public:
 
 	struct CompareTexturePtr
 	{
-		bool operator()(const LLDrawInfo* const& lhs, const LLDrawInfo* const& rhs)
+		bool operator()(const LLPointer<LLDrawInfo>& lhs, const LLPointer<LLDrawInfo>& rhs)	
 		{
-		
-			return lhs == NULL || rhs == NULL || lhs->mTexture > rhs->mTexture;
+			// sort by pointer, sort NULL down to the end
+			return lhs.get() != rhs.get() 
+						&& (lhs.isNull() || (rhs.notNull() && lhs->mTexture.get() > rhs->mTexture.get()));
 		}
 	};
 
 	struct CompareBump
 	{
-		bool operator()(const LLDrawInfo* const& lhs, const LLDrawInfo* const& rhs)
+		bool operator()(const LLPointer<LLDrawInfo>& lhs, const LLPointer<LLDrawInfo>& rhs) 
 		{
-			return lhs == NULL || rhs == NULL || lhs->mBump > rhs->mBump;
+			// sort by mBump value, sort NULL down to the end
+			return lhs.get() != rhs.get() 
+						&& (lhs.isNull() || (rhs.notNull() && lhs->mBump > rhs->mBump));
 		}
 	};
 };
@@ -82,7 +89,8 @@ public:
 	typedef std::vector<LLPointer<LLSpatialGroup> > sg_vector_t;
 	typedef std::set<LLPointer<LLSpatialGroup> > sg_set_t;
 	typedef std::vector<LLPointer<LLSpatialBridge> > bridge_list_t;
-	typedef std::map<U32, std::vector<LLDrawInfo*> > draw_map_t;
+	typedef std::vector<LLPointer<LLDrawInfo> > drawmap_elem_t; 
+	typedef std::map<U32, drawmap_elem_t > draw_map_t;	
 	typedef std::map<LLPointer<LLViewerImage>, LLPointer<LLVertexBuffer> > buffer_map_t;
 
 	typedef LLOctreeListener<LLDrawable>	BaseType;

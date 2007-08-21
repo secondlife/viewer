@@ -156,11 +156,7 @@ LLDir_Mac::LLDir_Mac()
 				FSRefToLLString(&tempRef, mTempDir);
 		}
 		
-		// Set the working dir to <bundle>/Contents/Resources
-		(void) chdir(mAppRODataDir.c_str());
-		
-		// Canonically, since we set it here...
-		mWorkingDir = mAppRODataDir;
+		mWorkingDir = getCurPath();
 				
 		CFRelease(executableURLRef);
 		executableURLRef = NULL;

@@ -458,7 +458,7 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 	buffer->getTexCoordStrider(texcoordsp);
 	buffer->getIndexStrider(indicesp);
 
-	std::vector<LLDrawInfo*>& draw_vec = group->mDrawMap[mRenderPass];
+	LLSpatialGroup::drawmap_elem_t& draw_vec = group->mDrawMap[mRenderPass];	
 
 	for (std::vector<LLFace*>::iterator i = mFaceList.begin(); i != mFaceList.end(); ++i)
 	{

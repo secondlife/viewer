@@ -19,7 +19,7 @@ class LLFloaterGroupInvite
 public:
 	virtual ~LLFloaterGroupInvite();
 
-	static void showForGroup(const LLUUID &group_id);
+	static void showForGroup(const LLUUID &group_id, std::vector<LLUUID> *agent_ids = NULL);
 
 protected:
 	LLFloaterGroupInvite(const std::string& name,

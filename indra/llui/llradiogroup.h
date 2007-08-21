@@ -95,7 +95,7 @@ public:
 	/*virtual*/ BOOL	getCanSelect() const				{ return TRUE; }
 	/*virtual*/ BOOL	selectFirstItem()					{ return setSelectedIndex(0); }
 	/*virtual*/ BOOL	selectNthItem( S32 index )			{ return setSelectedIndex(index); }
-	/*virtual*/ S32		getFirstSelectedIndex()				{ return getSelectedIndex(); }
+	/*virtual*/ S32		getFirstSelectedIndex() const		{ return getSelectedIndex(); }
 	/*virtual*/ BOOL	setCurrentByID( const LLUUID& id );
 	/*virtual*/ LLUUID	getCurrentID();				// LLUUID::null if no items in menu
 	/*virtual*/ BOOL	setSelectedByValue(LLSD value, BOOL selected);

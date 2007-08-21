@@ -623,6 +623,15 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 	volume->updateRelativeXform();
 	doFlexibleUpdate();
 	
+	// Object may have been rotated, which means it needs a rebuild.  See SL-47220
+	BOOL	rotated = FALSE;
+	LLQuaternion cur_rotation = getFrameRotation();
+	if ( cur_rotation != mLastFrameRotation )
+	{
+		mLastFrameRotation = cur_rotation;
+		rotated = TRUE;
+	}
+
 	if (volume->mLODChanged || volume->mFaceMappingChanged ||
 		volume->mVolumeChanged)
 	{
@@ -630,7 +639,7 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 		volume->mDrawable->setState(LLDrawable::REBUILD_VOLUME);
 	}
 
-	if (!mUpdated || volume->mFaceMappingChanged || volume->mVolumeChanged)
+	if (!mUpdated || volume->mFaceMappingChanged || volume->mVolumeChanged || rotated)
 	{
 		doFlexibleRebuild();
 		volume->genBBoxes(isVolumeGlobal());

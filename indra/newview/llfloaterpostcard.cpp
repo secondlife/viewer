@@ -271,7 +271,7 @@ void LLFloaterPostcard::onClickPublishHelp(void* data)
 }
 
 // static
-void LLFloaterPostcard::uploadCallback(const LLUUID& asset_id, void *user_data, S32 result) // StoreAssetData callback (fixed)
+void LLFloaterPostcard::uploadCallback(const LLUUID& asset_id, void *user_data, S32 result, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
 	LLFloaterPostcard *self = (LLFloaterPostcard *)user_data;
 	

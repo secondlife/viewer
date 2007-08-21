@@ -57,7 +57,8 @@ void LLLandmarkList::processGetAssetReply(
 	const LLUUID& uuid,
 	LLAssetType::EType type,
 	void* user_data,
-	S32 status)
+	S32 status, 
+	LLExtStat ext_status )
 {
 	if( status == 0 )
 	{

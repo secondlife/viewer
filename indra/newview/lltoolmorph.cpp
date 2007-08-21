@@ -133,6 +133,8 @@ void LLVisualParamHint::preRender(BOOL clear_depth)
 	avatarp->updateComposites();
 	avatarp->updateVisualParams();
 	avatarp->updateGeometry(avatarp->mDrawable);
+	avatarp->updateLOD();
+
 	LLDynamicTexture::preRender(clear_depth);
 }
 

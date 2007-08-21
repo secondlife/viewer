@@ -36,7 +36,7 @@ public:
 	virtual BOOL	selectFirstItem() = 0;
 	virtual BOOL	selectNthItem( S32 index ) = 0;
 
-	virtual S32		getFirstSelectedIndex() = 0;
+	virtual S32		getFirstSelectedIndex() const = 0;
 
 	// TomY TODO: Simply cast the UUIDs to LLSDs, using the selectByValue function
 	virtual BOOL	setCurrentByID( const LLUUID& id ) = 0;

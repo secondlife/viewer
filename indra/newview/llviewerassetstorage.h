@@ -17,8 +17,6 @@ class LLVFile;
 class LLViewerAssetStorage : public LLAssetStorage
 {
 public:
-	typedef void (*LLStoreAssetCallback)(const LLUUID &transaction_id, void *user_data, S32 status);
-
 	LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
 				   LLVFS *vfs, const LLHost &upstream_host);
 

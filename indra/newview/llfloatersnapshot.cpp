@@ -658,15 +658,17 @@ void LLSnapshotLivePreview::saveTexture()
 		LLVFile::writeFile(formatted->getData(), formatted->getDataSize(), gVFS, new_asset_id, LLAssetType::AT_TEXTURE);
 		std::string pos_string;
 		gAgent.buildLocationString(pos_string);
+		std::string who_took_it;
+		gAgent.buildFullname(who_took_it);
 		upload_new_resource(tid,	// tid
 							LLAssetType::AT_TEXTURE,
-							"Snapshot",
-							pos_string,
+							"Snapshot : " + pos_string,
+							"Taken by " + who_took_it + " at " + pos_string,
 							0,
 							LLAssetType::AT_SNAPSHOT_CATEGORY,
 							LLInventoryType::IT_SNAPSHOT,
 							PERM_ALL,
-							"Snapshot");
+							"Snapshot : " + pos_string);
 	}
 	else
 	{

@@ -44,6 +44,8 @@ protected:
 	static void onBtnAdd(void* userdata);
 	static void onBtnClose(void* userdata);
 	static void onList(LLUICtrl* ctrl, void* userdata);
+	
+		   void doSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action, void* data);
 	static void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action, void* data);
 
 	void find();

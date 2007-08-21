@@ -88,7 +88,7 @@ public:
 	static LLAssetType::EType typeToAssetType( EWearableType wearable_type );
 
 	void				saveNewAsset();
-	static void			onSaveNewAssetComplete( const LLUUID& asset_uuid, void* user_data, S32 status );
+	static void			onSaveNewAssetComplete( const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status );
 
 	BOOL				isMatchedToInventoryItem( LLViewerInventoryItem* item );
 

@@ -89,6 +89,7 @@ public:
 	virtual void	clear();
 	virtual void	setFocus( BOOL b );
 	virtual BOOL	acceptsTextInput() const;
+	virtual BOOL	isDirty() const;
 
 	// LLEditMenuHandler interface
 	virtual void	undo();

@@ -74,7 +74,7 @@ public:
 	static void onClickObjPicker	(void *userdata);
 	static void onClickSelectAbuser (void *userdata);
 	static void closePickTool	(void *userdata);
-	static void uploadDoneCallback(const LLUUID &uuid, void* user_data, S32 result);
+	static void uploadDoneCallback(const LLUUID &uuid, void* user_data, S32 result, LLExtStat ext_status);
 	static void addDescription(const LLString& description, LLMeanCollisionData *mcd = NULL);
 	static void setDescription(const LLString& description, LLMeanCollisionData *mcd = NULL);
 	

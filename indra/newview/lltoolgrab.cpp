@@ -783,9 +783,10 @@ void LLToolGrab::onMouseCaptureLost()
 			LLVector3 grab_point_agent = mGrabObject->getRenderPosition();
 
 			LLCoordGL gl_point;
-			gCamera->projectPosAgentToScreen(grab_point_agent, gl_point);
-
-			LLUI::setCursorPositionScreen(gl_point.mX, gl_point.mY);
+			if (gCamera->projectPosAgentToScreen(grab_point_agent, gl_point))
+			{
+				LLUI::setCursorPositionScreen(gl_point.mX, gl_point.mY);
+			}
 		}
 		else
 		{

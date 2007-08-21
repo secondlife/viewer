@@ -5655,10 +5655,10 @@ version 2.0
 
 // 
 // Inventory update messages 
-//
+// UDP DEPRECATED - Now a viewer capability.
 
 {
-	CopyInventoryFromNotecard Low 265 NotTrusted Zerocoded
+	CopyInventoryFromNotecard Low 265 NotTrusted Zerocoded UDPDeprecated
 	{
 		AgentData			Single
 		{	AgentID			LLUUID	}

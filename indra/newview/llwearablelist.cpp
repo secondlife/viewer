@@ -73,7 +73,7 @@ void LLWearableList::getAsset( const LLAssetID& assetID, const LLString& wearabl
 }
 
 // static
-void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID& uuid, void* userdata, S32 status )
+void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID& uuid, void* userdata, S32 status, LLExtStat ext_status )
 {
 	BOOL success = FALSE;
 	LLWearableArrivedData* data = (LLWearableArrivedData*) userdata;

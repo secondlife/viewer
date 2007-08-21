@@ -35,10 +35,10 @@ LLFloaterInspect::~LLFloaterInspect(void)
 	{
 		if(gToolMgr->getBaseTool() == gToolInspect)
 		{
-			select_tool(gToolNull);
+			gToolMgr->clearTransientTool();
 		}
 		// Switch back to basic toolset
-		gToolMgr->setCurrentToolset(gBasicToolset);
+		gToolMgr->setCurrentToolset(gBasicToolset);	
 	}
 	else
 	{
@@ -65,7 +65,7 @@ void LLFloaterInspect::show(void* ignored)
 	}
 
 	sInstance->open();
-	select_tool(gToolInspect);
+	gToolMgr->setTransientTool(gToolInspect);
 	gSelectMgr->setForceSelection(forcesel);	// restore previouis value
 
 	sInstance->mObjectSelection = gSelectMgr->getSelection();
@@ -236,7 +236,7 @@ void LLFloaterInspect::refresh()
 
 void LLFloaterInspect::onFocusReceived()
 {
-	select_tool(gToolInspect);
+	gToolMgr->setTransientTool(gToolInspect);
 }
 
 void LLFloaterInspect::dirty()

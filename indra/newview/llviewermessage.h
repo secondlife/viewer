@@ -160,7 +160,7 @@ void process_covenant_reply(LLMessageSystem* msg, void**);
 void onCovenantLoadComplete(LLVFS *vfs,
 							const LLUUID& asset_uuid,
 							LLAssetType::EType type,
-							void* user_data, S32 status);
+							void* user_data, S32 status, LLExtStat ext_status);
 void callbackCacheEstateOwnerName(
 		const LLUUID& id,
 		const char* first,
@@ -198,4 +198,5 @@ struct LLOfferInfo
 void process_feature_disabled_message(LLMessageSystem* msg, void**);
 
 #endif
+
 

@@ -329,7 +329,7 @@ BOOL LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 	if (!selected_object)
 	{
 		// somehow we lost the object!
-		llwarns << "Translate manip lost the object" << llendl;
+		llwarns << "Translate manip lost the object, no selected object" << llendl;
 		gViewerWindow->setCursor(UI_CURSOR_TOOLTRANSLATE);
 		return TRUE;
 	}
@@ -347,9 +347,12 @@ BOOL LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 	if (mManipPart >= LL_YZ_PLANE && mManipPart <= LL_XY_PLANE)
 	{
 		LLCoordGL mouse_pos;
-		gCamera->projectPosAgentToScreen(select_center_agent, mouse_pos);
-
-		if (gSavedSettings.getBOOL("SnapToMouseCursor"))
+		if (!gCamera->projectPosAgentToScreen(select_center_agent, mouse_pos))
+		{
+			// mouse_pos may be nonsense
+			llwarns << "Failed to project object center to screen" << llendl;
+		}
+		else if (gSavedSettings.getBOOL("SnapToMouseCursor"))
 		{
 			LLUI::setCursorPositionScreen(mouse_pos.mX, mouse_pos.mY);
 			x = mouse_pos.mX;
@@ -460,7 +463,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 	if (!selectNode)
 	{
 		// somehow we lost the object!
-		llwarns << "Translate manip lost the object" << llendl;
+		llwarns << "Translate manip lost the object, no selectNode" << llendl;
 		gViewerWindow->setCursor(UI_CURSOR_TOOLTRANSLATE);
 		return TRUE;
 	}
@@ -469,7 +472,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 	if (!object)
 	{
 		// somehow we lost the object!
-		llwarns << "Translate manip lost the object" << llendl;
+		llwarns << "Translate manip lost the object, no object in selectNode" << llendl;
 		gViewerWindow->setCursor(UI_CURSOR_TOOLTRANSLATE);
 		return TRUE;
 	}

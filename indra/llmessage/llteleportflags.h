@@ -25,6 +25,7 @@ const U32 TELEPORT_FLAGS_DISABLE_CANCEL		= 1 << 11;	// Used for llTeleportAgentH
 const U32 TELEPORT_FLAGS_VIA_REGION_ID  	= 1 << 12;
 const U32 TELEPORT_FLAGS_IS_FLYING			= 1 << 13;
 const U32 TELEPORT_FLAGS_SHOW_RESET_HOME	= 1 << 14;
+const U32 TELEPORT_FLAGS_FORCE_REDIRECT		= 1 << 15; // used to force a redirect to some random location - used when kicking someone from land.
 
 const U32 TELEPORT_FLAGS_MASK_VIA =   TELEPORT_FLAGS_VIA_LURE 
 									| TELEPORT_FLAGS_VIA_LANDMARK

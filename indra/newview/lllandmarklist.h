@@ -35,7 +35,8 @@ public:
 		const LLUUID& uuid,
 		LLAssetType::EType type,
 		void* user_data,
-		S32 status);
+		S32 status,
+		LLExtStat ext_status );
 
 protected:
 	typedef std::map<LLUUID, LLLandmark*> landmark_list_t;

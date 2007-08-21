@@ -73,6 +73,7 @@
 #include "llimpanel.h"
 #include "llinventorymodel.h"
 #include "llinventoryview.h"
+#include "llkeyframemotion.h" 
 #include "llmenugl.h"
 #include "llmutelist.h"
 #include "llnetmap.h"
@@ -554,6 +555,15 @@ void join_group_callback(S32 option, void* user_data)
 	LLJoinGroupData* data = (LLJoinGroupData*)user_data;
 	BOOL delete_context_data = TRUE;
 	bool accept_invite = false;
+
+	if (option == 2 && data && !data->mGroupID.isNull())
+	{
+		LLFloaterGroupInfo::showFromUUID(data->mGroupID);
+		LLString::format_map_t args;
+		args["[MESSAGE]"] = data->mMessage;
+		LLNotifyBox::showXml("JoinGroup", args, &join_group_callback, data);
+		return;
+	}
 	if(option == 0 && data && !data->mGroupID.isNull())
 	{
 		// check for promotion or demotion.
@@ -744,7 +754,7 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 		//llinfos << "Throttle Not Expired, Count: " << throttle_count << llendl;
 		// When downloading the initial inventory we get a lot of new items
 		// coming in and can't tell that from spam.  JC
-		if (gStartupState >= STATE_STARTED
+		if (LLStartUp::getStartupState() >= STATE_STARTED
 			&& throttle_count >= OFFER_THROTTLE_MAX_COUNT)
 		{
 			if (!throttle_logged)
@@ -2143,7 +2153,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	{
 		is_muted = gMuteListp->isMuted(from_id, from_name, LLMute::flagTextChat)
 				   || gMuteListp->isMuted(owner_id);
-		is_linden = gMuteListp->isLinden(from_name);
+		is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT && gMuteListp->isLinden(from_name);
 	}
 
 	BOOL is_audible = (CHAT_AUDIBLE_FULLY == chat.mAudible);
@@ -2300,16 +2310,16 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		}
 
 		// truth table:
-		// LINDEN	BUSY	MUTED	OWNED_BY_YOU			DISPLAY		STORE IN HISTORY
-		// F		F		F		F						Yes			Yes
-		// F		F		F		T						Yes			Yes
-		// F		F		T		F						No			No
-		// F		F		T		T						No			No
-		// F		T		F		F						No			Yes
-		// F		T		F		T						Yes			Yes
-		// F		T		T		F						No			No
-		// F		T		T		T						No			No
-		// T		*		*		*						Yes			Yes
+		// LINDEN	BUSY	MUTED	OWNED_BY_YOU	TASK		DISPLAY		STORE IN HISTORY
+		// F		F		F		F				*			Yes			Yes
+		// F		F		F		T				*			Yes			Yes
+		// F		F		T		F				*			No			No
+		// F		F		T		T				*			No			No
+		// F		T		F		F				*			No			Yes
+		// F		T		F		T				*			Yes			Yes
+		// F		T		T		F				*			No			No
+		// F		T		T		T				*			No			No
+		// T		*		*		*				F			Yes			Yes
 
 		chat.mMuted = is_muted && !is_linden;
 		
@@ -2408,46 +2418,102 @@ public:
 	{
 		LLIsType is_landmark(LLAssetType::AT_LANDMARK);
 		LLIsType is_card(LLAssetType::AT_CALLINGCARD);
-		LLInventoryModel::cat_array_t cats;
-		LLInventoryModel::item_array_t items;
+
+		LLInventoryModel::cat_array_t	card_cats;
+		LLInventoryModel::item_array_t	card_items;
+		LLInventoryModel::cat_array_t	land_cats;
+		LLInventoryModel::item_array_t	land_items;
+
 		folder_ref_t::iterator it = mCompleteFolders.begin();
 		folder_ref_t::iterator end = mCompleteFolders.end();
 		for(; it != end; ++it)
 		{
 			gInventory.collectDescendentsIf(
 				(*it),
-				cats,
-				items,
+				land_cats,
+				land_items,
 				LLInventoryModel::EXCLUDE_TRASH,
 				is_landmark);
 			gInventory.collectDescendentsIf(
 				(*it),
-				cats,
-				items,
+				card_cats,
+				card_items,
 				LLInventoryModel::EXCLUDE_TRASH,
 				is_card);
 		}
-		S32 count = items.count();
-		for(S32 i = 0; i < count; ++i)
-		{
-			LLString::format_map_t args;
-			args["[NAME]"] = items[i]->getName();
-			switch(items[i]->getType())
-			{
-			case LLAssetType::AT_LANDMARK:
-			  	LLNotifyBox::showXml("TeleportToLandmark",args);
-				break;
-			case LLAssetType::AT_CALLINGCARD:
-			  	LLNotifyBox::showXml("TeleportToPerson",args);
-				break;
-			default:
-				break;
-			}
+		LLString::format_map_t args;
+		if ( land_items.count() > 0 )
+		{	// Show notification that they can now teleport to landmarks.  Use a random landmark from the inventory
+			S32 random_land = ll_rand( land_items.count() - 1 );
+			args["[NAME]"] = land_items[random_land]->getName();
+			LLNotifyBox::showXml("TeleportToLandmark",args);
 		}
+		if ( card_items.count() > 0 )
+		{	// Show notification that they can now contact people.  Use a random calling card from the inventory
+			S32 random_card = ll_rand( card_items.count() - 1 );
+			args["[NAME]"] = card_items[random_card]->getName();
+			LLNotifyBox::showXml("TeleportToPerson",args);
+		}
+
 		gInventory.removeObserver(this);
 		delete this;
 	}
 };
+
+
+
+class LLPostTeleportNotifiers : public LLEventTimer 
+{
+public:
+	LLPostTeleportNotifiers();
+	virtual ~LLPostTeleportNotifiers();
+
+	//function to be called at the supplied frequency
+	virtual BOOL tick();
+};
+
+LLPostTeleportNotifiers::LLPostTeleportNotifiers() : LLEventTimer( 2.0 )
+{
+};
+
+LLPostTeleportNotifiers::~LLPostTeleportNotifiers()
+{
+}
+
+BOOL LLPostTeleportNotifiers::tick()
+{
+	BOOL all_done = FALSE;
+	if ( gAgent.getTeleportState() == LLAgent::TELEPORT_NONE )
+	{
+		// get callingcards and landmarks available to the user arriving.
+		LLInventoryFetchDescendentsObserver::folder_ref_t folders;
+		LLUUID folder_id;
+		folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CALLINGCARD);
+		if(folder_id.notNull()) 
+			folders.push_back(folder_id);
+		folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
+		if(folder_id.notNull()) 
+			folders.push_back(folder_id);
+		if(!folders.empty())
+		{
+			LLFetchInWelcomeArea* fetcher = new LLFetchInWelcomeArea;
+			fetcher->fetchDescendents(folders);
+			if(fetcher->isEverythingComplete())
+			{
+				fetcher->done();
+			}
+			else
+			{
+				gInventory.addObserver(fetcher);
+			}
+		}
+		all_done = TRUE;
+	}
+
+	return all_done;
+}
+
+
 
 // Teleport notification from the simulator
 // We're going to pretend to be a new agent
@@ -2494,26 +2560,9 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 	{
 		gAgent.setHomePosRegion(region_handle, pos);
 
-		// get callingcards and landmarks available to the user arriving.
-		LLInventoryFetchDescendentsObserver::folder_ref_t folders;
-		LLUUID folder_id;
-		folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_CALLINGCARD);
-		if(folder_id.notNull()) folders.push_back(folder_id);
-		folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
-		if(folder_id.notNull()) folders.push_back(folder_id);
-		if(!folders.empty())
-		{
-			LLFetchInWelcomeArea* fetcher = new LLFetchInWelcomeArea;
-			fetcher->fetchDescendents(folders);
-			if(fetcher->isEverythingComplete())
-			{
-				fetcher->done();
-			}
-			else
-			{
-				gInventory.addObserver(fetcher);
-			}
-		}
+		// Create a timer that will send notices when teleporting is all finished.  Since this is 
+		// based on the LLEventTimer class, it will be managed by that class and not orphaned or leaked.
+		new LLPostTeleportNotifiers();
 	}
 
 	LLHost sim_host(sim_ip, sim_port);
@@ -2645,6 +2694,8 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	}
 
 	llinfos << "Changing home region to " << x << ":" << y << llendl;
+
+	LLKeyframeDataCache::clear();
 
 	// set our upstream host the new simulator and shuffle things as
 	// appropriate.
@@ -4007,12 +4058,10 @@ void process_alert_core(const char* buffer, BOOL modal)
 	else if( !strcmp( buffer, "Home position set." ) )
 	{
 		// save the home location image to disk
-		char temp_str[LL_MAX_PATH];		/* Flawfinder: ignore */
-		strncpy(temp_str, gDirUtilp->getLindenUserDir().c_str(), LL_MAX_PATH -1);		/* Flawfinder: ignore */
-		temp_str[LL_MAX_PATH -1] = '\0';
-		strcat(temp_str, "/");		/* Flawfinder: ignore */	
-		strcat(temp_str,SCREEN_HOME_FILENAME);		/* Flawfinder: ignore */
-		gViewerWindow->saveSnapshot(temp_str, gViewerWindow->getWindowWidth(), gViewerWindow->getWindowHeight(), FALSE, FALSE);
+		LLString snap_filename = gDirUtilp->getLindenUserDir();
+		snap_filename += gDirUtilp->getDirDelimiter();
+		snap_filename += SCREEN_HOME_FILENAME;
+		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidth(), gViewerWindow->getWindowHeight(), FALSE, FALSE);
 	}
 
 	// Translate system messages here.
@@ -4563,7 +4612,16 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 	msg->getStringFast(_PREHASH_Info, _PREHASH_Reason, STD_STRING_BUF_SIZE, reason);
 
 	LLStringBase<char>::format_map_t args;
-	args["[REASON]"] = LLAgent::sTeleportErrorMessages[reason];
+	LLString big_reason = LLAgent::sTeleportErrorMessages[reason];
+	if ( big_reason.size() > 0 )
+	{	// Substitute verbose reason from the local map
+		args["[REASON]"] = big_reason;
+	}
+	else
+	{	// Nothing found in the map - use what the server returned
+		args["[REASON]"] = reason;
+	}
+
 	gViewerWindow->alertXml("CouldNotTeleportReason", args);
 
 	if( gAgent.getTeleportState() != LLAgent::TELEPORT_NONE )
@@ -5028,7 +5086,7 @@ void process_load_url(LLMessageSystem* msg, void**)
 }
 
 
-void callback_download_complete(void** data, S32 result)
+void callback_download_complete(void** data, S32 result, LLExtStat ext_status)
 {
 	LLString* filepath = (LLString*)data;
 	LLString::format_map_t args;
@@ -5165,7 +5223,7 @@ void callbackCacheEstateOwnerName(
 void onCovenantLoadComplete(LLVFS *vfs,
 					const LLUUID& asset_uuid,
 					LLAssetType::EType type,
-					void* user_data, S32 status)
+					void* user_data, S32 status, LLExtStat ext_status)
 {
 	llinfos << "onCovenantLoadComplete()" << llendl;
 	std::string covenant_text;

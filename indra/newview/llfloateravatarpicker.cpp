@@ -177,29 +177,33 @@ void LLFloaterAvatarPicker::onList(LLUICtrl* ctrl, void* userdata)
 	}
 }
 
+// static callback for inventory picker (select from calling cards)
 void LLFloaterAvatarPicker::onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action, void* data)
 {
 	LLFloaterAvatarPicker* self = (LLFloaterAvatarPicker*)data;
-	if (!self)
+	if (self)
+	{
+		self->doSelectionChange( items, user_action, data );
+	}
+}
+
+// Callback for inventory picker (select from calling cards)
+void LLFloaterAvatarPicker::doSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action, void* data)
+{
+	if (!mListNames)
 	{
 		return;
 	}
 
-	self->mAvatarIDs.clear();
-	self->mAvatarNames.clear();
-
-	// if we have calling cards, disable select button until 
-	// the inventory picks a valid calling card
-	if (!items.empty())
-	{
-		self->childSetEnabled("Select", FALSE);
+	std::vector<LLScrollListItem*> search_items = mListNames->getAllSelected();
+	if ( search_items.size() == 0 )
+	{	// Nothing selected in the search results
+		mAvatarIDs.clear();
+		mAvatarNames.clear();
+		childSetEnabled("Select", FALSE);
 	}
 
-	if (!self->mListNames)
-	{
-		return;
-	}
-	
+	BOOL	first_calling_card = TRUE;
 	std::deque<LLFolderViewItem*>::const_iterator item_it;
 	for (item_it = items.begin(); item_it != items.end(); ++item_it)
 	{
@@ -210,10 +214,18 @@ void LLFloaterAvatarPicker::onSelectionChange(const std::deque<LLFolderViewItem*
 
 			if (item)
 			{
-				self->mAvatarIDs.push_back(item->getCreatorUUID());
-				self->mAvatarNames.push_back(listenerp->getName());
-				self->childSetEnabled("Select", TRUE);
-				self->mListNames->deselectAllItems();
+				if ( first_calling_card )
+				{	// Have a calling card selected, so clear anything from the search panel
+					first_calling_card = FALSE;
+					mAvatarIDs.clear();
+					mAvatarNames.clear();
+					mListNames->deselectAllItems();
+				}
+
+				// Add calling card info to the selected avatars
+				mAvatarIDs.push_back(item->getCreatorUUID());
+				mAvatarNames.push_back(listenerp->getName());
+				childSetEnabled("Select", TRUE);
 			}
 		}
 	}

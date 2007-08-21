@@ -330,9 +330,9 @@ void LLDrawPoolBump::renderActive(U32 type, U32 mask, BOOL texture)
 
 void LLDrawPoolBump::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE)
 {					
-	std::vector<LLDrawInfo*>& draw_info = group->mDrawMap[type];
+	LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[type];	
 	
-	for (std::vector<LLDrawInfo*>::const_iterator k = draw_info.begin(); k != draw_info.end(); ++k)
+	for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k) 
 	{
 		LLDrawInfo& params = **k;
 		if (LLPipeline::sDynamicReflections)
@@ -879,9 +879,9 @@ void LLDrawPoolBump::renderBump(U32 type, U32 mask)
 	LLGLState::checkClientArrays(mask);
 #endif
 
-	std::vector<LLDrawInfo*>& draw_info = gPipeline.mRenderMap[type];
+	LLSpatialGroup::drawmap_elem_t& draw_info = gPipeline.mRenderMap[type];	
 
-	for (std::vector<LLDrawInfo*>::iterator i = draw_info.begin(); i != draw_info.end(); ++i)
+	for (LLSpatialGroup::drawmap_elem_t::iterator i = draw_info.begin(); i != draw_info.end(); ++i)	
 	{
 		LLDrawInfo& params = **i;
 
@@ -894,9 +894,9 @@ void LLDrawPoolBump::renderBump(U32 type, U32 mask)
 
 void LLDrawPoolBump::renderGroupBump(LLSpatialGroup* group, U32 type, U32 mask)
 {					
-	const std::vector<LLDrawInfo*>& draw_info = group->mDrawMap[type];
+	LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[type];	
 	
-	for (std::vector<LLDrawInfo*>::const_iterator k = draw_info.begin(); k != draw_info.end(); ++k)
+	for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k) 
 	{
 		LLDrawInfo& params = **k;
 		

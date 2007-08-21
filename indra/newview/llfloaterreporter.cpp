@@ -910,7 +910,7 @@ void LLFloaterReporter::uploadImage()
 
 
 // static
-void LLFloaterReporter::uploadDoneCallback(const LLUUID &uuid, void *user_data, S32 result) // StoreAssetData callback (fixed)
+void LLFloaterReporter::uploadDoneCallback(const LLUUID &uuid, void *user_data, S32 result, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
 	LLUploadDialog::modalUploadFinished();
 

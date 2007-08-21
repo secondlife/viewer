@@ -20,6 +20,7 @@
 #include "indra_constants.h"
 #include "llassetstorage.h"
 #include "llchat.h"
+#include "llfeaturemanager.h"
 #include "llfocusmgr.h"
 #include "llfontgl.h"
 #include "llinstantmessage.h"
@@ -78,6 +79,7 @@
 #include "llfloatergesture.h"
 #include "llfloatergodtools.h"
 #include "llfloatergroupinfo.h"
+#include "llfloatergroupinvite.h"
 #include "llfloatergroups.h"
 #include "llfloaterhtml.h"
 #include "llfloaterhtmlhelp.h"
@@ -391,7 +393,7 @@ void toggle_debug_menus(void*);
 void toggle_map( void* user_data );
 void export_info_callback(LLAssetInfo *info, void **user_data, S32 result);
 void export_data_callback(LLVFS *vfs, const LLUUID& uuid, LLAssetType::EType type, void **user_data, S32 result);
-void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result);
+void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExtStat ext_status);
 BOOL menu_check_build_tool( void* user_data );
 void handle_reload_settings(void*);
 void focus_here(void*);
@@ -1206,7 +1208,7 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 
 	LLMenuItemCheckGL* item;
 	item = new LLMenuItemCheckGL("Object-Object Occlusion", menu_toggle_control, NULL, menu_check_control, (void*)"UseOcclusion", 'O', MASK_CONTROL|MASK_SHIFT);
-	item->setEnabled(gGLManager.mHasOcclusionQuery);
+	item->setEnabled(gGLManager.mHasOcclusionQuery && gFeatureManagerp->isFeatureAvailable("UseOcclusion"));
 	menu->append(item);
 	
 	
@@ -5080,6 +5082,43 @@ class LLToolsLookAtSelection : public view_listener_t
 	}
 };
 
+void callback_invite_to_group(LLUUID group_id, void *user_data)
+{
+	std::vector<LLUUID> agent_ids;
+	agent_ids.push_back(*(LLUUID *)user_data);
+	
+	LLFloaterGroupInvite::showForGroup(group_id, &agent_ids);
+}
+
+void invite_to_group(const LLUUID& dest_id)
+{
+	LLViewerObject* dest = gObjectList.findObject(dest_id);
+	if(dest && dest->isAvatar())
+	{
+		LLFloaterGroupPicker* widget;
+		widget = LLFloaterGroupPicker::showInstance(LLSD(gAgent.getID()));
+		if (widget)
+		{
+			widget->center();
+			widget->setPowersMask(GP_MEMBER_INVITE);
+			widget->setSelectCallback(callback_invite_to_group, (void *)&dest_id);
+		}
+	}
+}
+
+class LLAvatarInviteToGroup : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLVOAvatar* avatar = find_avatar_from_object( gViewerWindow->lastObjectHit() );
+		if(avatar)
+		{
+			invite_to_group(avatar->getID());
+		}
+		return true;
+	}
+};
+
 class LLAvatarAddFriend : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -7414,7 +7453,7 @@ class LLViewToggleRenderType : public view_listener_t
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		LLString type = userdata.asString();
-		if (type == "particles")
+		if (type == "hideparticles")
 		{
 			LLPipeline::toggleRenderType(LLPipeline::RENDER_TYPE_PARTICLES);
 		}
@@ -7428,7 +7467,7 @@ class LLViewCheckRenderType : public view_listener_t
 	{
 		LLString type = userdata["data"].asString();
 		bool new_value = false;
-		if (type == "particles")
+		if (type == "hideparticles")
 		{
 			new_value = LLPipeline::toggleRenderTypeControlNegated((void *)LLPipeline::RENDER_TYPE_PARTICLES);
 		}
@@ -7730,6 +7769,7 @@ void initialize_menus()
 	addMenu(new LLAvatarDebug(), "Avatar.Debug");
 	addMenu(new LLAvatarVisibleDebug(), "Avatar.VisibleDebug");
 	addMenu(new LLAvatarEnableDebug(), "Avatar.EnableDebug");
+	addMenu(new LLAvatarInviteToGroup(), "Avatar.InviteToGroup");
 	addMenu(new LLAvatarGiveCard(), "Avatar.GiveCard");
 	addMenu(new LLAvatarEject(), "Avatar.Eject");
 	addMenu(new LLAvatarSendIM(), "Avatar.SendIM");

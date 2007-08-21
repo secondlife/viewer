@@ -249,7 +249,7 @@ void LLPanelClassified::apply()
 {
 	// Apply is used for automatically saving results, so only
 	// do that if there is a difference, and this is a save not create.
-	if (mDirty && mPaidFor)
+	if (checkDirty() && mPaidFor)
 	{
 		sendClassifiedInfoUpdate();
 	}
@@ -293,7 +293,8 @@ void LLPanelClassified::saveCallback(S32 option, void* data)
 
 BOOL LLPanelClassified::canClose()
 {
-	if (mForceClose || !mDirty) return TRUE;
+	if (mForceClose || !checkDirty()) 
+		return TRUE;
 
 	LLString::format_map_t args;
 	args["[NAME]"] = mNameEditor->getText();
@@ -656,7 +657,7 @@ void LLPanelClassified::refresh()
 		mSetBtn->setVisible(is_self);
 		mSetBtn->setEnabled(is_self);
 
-		mUpdateBtn->setEnabled(is_self && mDirty);
+		mUpdateBtn->setEnabled(is_self && checkDirty());
 		mUpdateBtn->setVisible(is_self);
 	}
 }
@@ -716,29 +717,44 @@ void LLPanelClassified::callbackGotPriceForListing(S32 option, LLString text, vo
 
 }
 
+
+// invoked from callbackConfirmPublish
+void LLPanelClassified::confirmPublish(S32 option)
+{
+	// Option 0 = publish
+	if (option != 0) return;
+
+	sendClassifiedInfoUpdate();
+
+	// Big hack - assume that top picks are always in a browser,
+	// and non-finder-classifieds are always in a tab container.
+	if (mInFinder)
+	{
+		// TODO: enable this
+		//LLPanelDirClassifieds* panel = (LLPanelDirClassifieds*)getParent();
+		//panel->renameClassified(mClassifiedID, mNameEditor->getText().c_str());
+	}
+	else
+	{
+		LLTabContainerVertical* tab = (LLTabContainerVertical*)getParent();
+		tab->setCurrentTabName(mNameEditor->getText());
+	}
+
+	// Tell all the widgets to reset their dirty state since the ad was just saved
+	mSnapshotCtrl->resetDirty();
+	mNameEditor->resetDirty();
+	mDescEditor->resetDirty();
+	mLocationEditor->resetDirty();
+	mCategoryCombo->resetDirty();
+	mMatureCheck->resetDirty();
+	mAutoRenewCheck->resetDirty();
+}
+
 // static
 void LLPanelClassified::callbackConfirmPublish(S32 option, void* data)
 {
 	LLPanelClassified* self = (LLPanelClassified*)data;
-
-	// Option 0 = publish
-	if (option != 0) return;
-
-	self->sendClassifiedInfoUpdate();
-
-	// Big hack - assume that top picks are always in a browser,
-	// and non-finder-classifieds are always in a tab container.
-	if (self->mInFinder)
-	{
-		// TODO: enable this
-		//LLPanelDirClassifieds* panel = (LLPanelDirClassifieds*)self->getParent();
-		//panel->renameClassified(self->mClassifiedID, self->mNameEditor->getText().c_str());
-	}
-	else
-	{
-		LLTabContainerVertical* tab = (LLTabContainerVertical*)self->getParent();
-		tab->setCurrentTabName(self->mNameEditor->getText());
-	}
+	self->confirmPublish(option);
 }
 
 // static
@@ -811,13 +827,27 @@ void LLPanelClassified::onClickSet(void* data)
 }
 
 
+BOOL LLPanelClassified::checkDirty()
+{
+	mDirty = FALSE;
+	if	( mSnapshotCtrl )			mDirty |= mSnapshotCtrl->isDirty();
+	if	( mNameEditor )				mDirty |= mNameEditor->isDirty();
+	if	( mDescEditor )				mDirty |= mDescEditor->isDirty();
+	if	( mLocationEditor )			mDirty |= mLocationEditor->isDirty();
+	if	( mCategoryCombo )			mDirty |= mCategoryCombo->isDirty();
+	if	( mMatureCheck )			mDirty |= mMatureCheck->isDirty();
+	if	( mAutoRenewCheck )			mDirty |= mAutoRenewCheck->isDirty();
+
+	return mDirty;
+}
+
 // static
 void LLPanelClassified::onCommitAny(LLUICtrl* ctrl, void* data)
 {
 	LLPanelClassified* self = (LLPanelClassified*)data;
 	if (self)
 	{
-		self->mDirty = true;
+		self->checkDirty();
 	}
 }
 
@@ -825,7 +855,6 @@ void LLPanelClassified::onCommitAny(LLUICtrl* ctrl, void* data)
 void LLPanelClassified::onFocusReceived(LLUICtrl* ctrl, void* data)
 {
 	// allow the data to be saved
-	// Dave/Simon TODO: replace this with better isDirty() functionality
 	onCommitAny(ctrl, data);
 }
 

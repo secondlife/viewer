@@ -449,12 +449,14 @@ LLDrawPool* LLRenderPass::instancePool()
 
 void LLRenderPass::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture)
 {					
-	std::vector<LLDrawInfo*>& draw_info = group->mDrawMap[type];
+	LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[type];
 	
-	for (std::vector<LLDrawInfo*>::const_iterator k = draw_info.begin(); k != draw_info.end(); ++k)
+	for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
 	{
-		LLDrawInfo& params = **k;
-		pushBatch(params, mask, texture);
+		LLDrawInfo *pparams = *k;
+		if (pparams) {
+			pushBatch(*pparams, mask, texture);
+		}
 	}
 }
 
@@ -464,14 +466,15 @@ void LLRenderPass::renderInvisible(U32 mask)
 	LLGLState::checkClientArrays(mask);
 #endif
 	
-	std::vector<LLDrawInfo*>& draw_info = gPipeline.mRenderMap[LLRenderPass::PASS_INVISIBLE];
+	LLSpatialGroup::drawmap_elem_t& draw_info = gPipeline.mRenderMap[LLRenderPass::PASS_INVISIBLE];	
 
-	for (std::vector<LLDrawInfo*>::iterator i = draw_info.begin(); i != draw_info.end(); ++i)
+	for (LLSpatialGroup::drawmap_elem_t::iterator i = draw_info.begin(); i != draw_info.end(); ++i)	
 	{
-		LLDrawInfo& params = **i;
+		
+ 		LLDrawInfo *pparams = *i;
+		if (pparams && pparams->mVertexBuffer.notNull()) {
+	 		LLDrawInfo &params = *pparams;
 
-		if (params.mVertexBuffer)
-		{
 			params.mVertexBuffer->setBuffer(mask);
 			U32 *indices_pointer =
 				(U32 *) params.mVertexBuffer->getIndicesPointer();
@@ -489,22 +492,19 @@ void LLRenderPass::renderTexture(U32 type, U32 mask)
 	LLGLState::checkClientArrays(mask);
 #endif
 
-	std::vector<LLDrawInfo*>& draw_info = gPipeline.mRenderMap[type];
+	LLSpatialGroup::drawmap_elem_t& draw_info = gPipeline.mRenderMap[type];	
 
-	for (std::vector<LLDrawInfo*>::iterator i = draw_info.begin(); i != draw_info.end(); ++i)
+	for (LLSpatialGroup::drawmap_elem_t::iterator i = draw_info.begin(); i != draw_info.end(); ++i)	
 	{
-		LLDrawInfo& params = **i;
-		pushBatch(params, mask, TRUE);
+		LLDrawInfo* pparams = *i;
+		if (pparams) {
+			pushBatch(*pparams, mask, TRUE);
+		}
 	}
 }
 
 void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 {
-	if (params.mVertexBuffer.isNull())
-	{
-		return;
-	}
-
 	if (texture)
 	{
 		if (params.mTexture.notNull())
@@ -522,12 +522,15 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 			LLImageGL::unbindTexture(0);
 		}
 	}
-	
-	params.mVertexBuffer->setBuffer(mask);
-	U32* indices_pointer = (U32*) params.mVertexBuffer->getIndicesPointer();
-	glDrawRangeElements(GL_TRIANGLES, params.mStart, params.mEnd, params.mCount,
-						GL_UNSIGNED_INT, indices_pointer+params.mOffset);
-	gPipeline.mTrianglesDrawn += params.mCount/3;
+
+	if (params.mVertexBuffer.notNull())
+	{
+		params.mVertexBuffer->setBuffer(mask);
+		U32* indices_pointer = (U32*) params.mVertexBuffer->getIndicesPointer();
+		glDrawRangeElements(GL_TRIANGLES, params.mStart, params.mEnd, params.mCount,
+							GL_UNSIGNED_INT, indices_pointer+params.mOffset);
+		gPipeline.mTrianglesDrawn += params.mCount/3;
+	}
 
 	if (params.mTextureMatrix && texture && params.mTexture.notNull())
 	{

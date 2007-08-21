@@ -113,12 +113,12 @@ protected:
 	// This is the callback for when each script arrives
 	static void scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 								LLAssetType::EType type,
-								void* user_data, S32 status);
+								void* user_data, S32 status, LLExtStat ext_status);
 
-	static void onSaveTextComplete(const LLUUID& asset_id, void* user_data, S32 status);
+	static void onSaveTextComplete(const LLUUID& asset_id, void* user_data, S32 status, LLExtStat ext_status);
 	static void onSaveBytecodeComplete(const LLUUID& asset_id,
 									   void* user_data,
-									   S32 status);
+									   S32 status, LLExtStat ext_status);
 
 	// compile the file given and save it out.
 	void compile(const char* filename, const LLUUID& asset_id);

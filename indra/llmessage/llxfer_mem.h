@@ -20,7 +20,7 @@ class LLXfer_Mem : public LLXfer
 {
  private:
  protected:
-	void (*mCallback)(void *, S32, void **,S32);	
+	void (*mCallback)(void *, S32, void **, S32, LLExtStat);	
 	char mRemoteFilename[LL_MAX_PATH];		/* Flawfinder : ignore */
 	ELLPath mRemotePath;
 	BOOL mDeleteRemoteOnCompletion;
@@ -45,7 +45,7 @@ class LLXfer_Mem : public LLXfer
 								  ELLPath remote_path,
 								  const LLHost& remote_host,
 								  BOOL delete_remote_on_completion,
-								  void (*callback)(void*,S32,void**,S32),
+								  void (*callback)(void*,S32,void**,S32,LLExtStat),
 								  void** user_data);
 	virtual S32 startDownload();
 
@@ -55,6 +55,7 @@ class LLXfer_Mem : public LLXfer
 };
 
 #endif
+
 
 
 

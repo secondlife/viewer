@@ -18,6 +18,7 @@
 #include "llfloatergroups.h"
 
 #include "message.h"
+#include "roles_constants.h"
 
 #include "llagent.h"
 #include "llbutton.h"
@@ -36,7 +37,7 @@
 std::map<const LLUUID, LLFloaterGroupPicker*> LLFloaterGroupPicker::sInstances;
 
 // helper functions
-void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id);
+void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id, U64 powers_mask = GP_ALL_POWERS);
 
 ///----------------------------------------------------------------------------
 /// Class LLFloaterGroupPicker
@@ -63,7 +64,8 @@ LLFloaterGroupPicker* LLFloaterGroupPicker::createInstance(const LLSD &seed)
 
 LLFloaterGroupPicker::LLFloaterGroupPicker(const LLSD& seed) : 
 	mSelectCallback(NULL),
-	mCallbackUserdata(NULL)
+	mCallbackUserdata(NULL),
+	mPowersMask(GP_ALL_POWERS)
 {
 	mID = seed.asUUID();
 	sInstances.insert(std::make_pair(mID, this));
@@ -81,9 +83,16 @@ void LLFloaterGroupPicker::setSelectCallback(void (*callback)(LLUUID, void*),
 	mCallbackUserdata = userdata;
 }
 
+void LLFloaterGroupPicker::setPowersMask(U64 powers_mask)
+{
+	mPowersMask = powers_mask;
+	postBuild();
+}
+
+
 BOOL LLFloaterGroupPicker::postBuild()
 {
-	init_group_list(LLUICtrlFactory::getScrollListByName(this, "group list"), gAgent.getGroupID());
+	init_group_list(LLUICtrlFactory::getScrollListByName(this, "group list"), gAgent.getGroupID(), mPowersMask);
 
 	childSetAction("OK", onBtnOK, this);
 
@@ -394,7 +403,7 @@ void LLPanelGroups::onGroupList(LLUICtrl* ctrl, void* userdata)
 	if(self) self->enableButtons();
 }
 
-void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id)
+void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id, U64 powers_mask)
 {
 	S32 count = gAgent.mGroups.count();
 	LLUUID id;
@@ -407,20 +416,22 @@ void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id)
 	{
 		id = gAgent.mGroups.get(i).mID;
 		LLGroupData* group_datap = &gAgent.mGroups.get(i);
-		LLString style = "NORMAL";
-		if(highlight_id == id)
-		{
-			style = "BOLD";
+		if ((group_datap->mPowers & powers_mask) != 0) {
+			LLString style = "NORMAL";
+			if(highlight_id == id)
+			{
+				style = "BOLD";
+			}
+
+			LLSD element;
+			element["id"] = id;
+			element["columns"][0]["column"] = "name";
+			element["columns"][0]["value"] = group_datap->mName;
+			element["columns"][0]["font"] = "SANSSERIF";
+			element["columns"][0]["font-style"] = style;
+
+			group_list->addElement(element, ADD_SORTED);
 		}
-
-		LLSD element;
-		element["id"] = id;
-		element["columns"][0]["column"] = "name";
-		element["columns"][0]["value"] = group_datap->mName;
-		element["columns"][0]["font"] = "SANSSERIF";
-		element["columns"][0]["font-style"] = style;
-
-		group_list->addElement(element, ADD_SORTED);
 	}
 
 	// add "none" to list at top

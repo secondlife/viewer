@@ -137,7 +137,7 @@ LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
 	LLString text = childGetText("bandwidth_tooltip") + " ";
 	LLUIString bandwidth_tooltip = text;	// get the text from XML until this widget is XML driven
 	mSGBandwidth->setLabel(bandwidth_tooltip.getString().c_str());
-	mSGBandwidth->setUnits("Kbps");
+	mSGBandwidth->setUnits("kbps");
 	mSGBandwidth->setPrecision(0);
 	addChild(mSGBandwidth);
 	x -= SIM_STAT_WIDTH + 2;

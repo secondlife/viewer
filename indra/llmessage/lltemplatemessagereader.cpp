@@ -482,12 +482,15 @@ BOOL LLTemplateMessageReader::decodeTemplate(
 	return(TRUE);
 }
 
-void LLTemplateMessageReader::logRanOffEndOfPacket( const LLHost& host )
+void LLTemplateMessageReader::logRanOffEndOfPacket( const LLHost& host, const S32 where, const S32 wanted )
 {
 	// we've run off the end of the packet!
 	llwarns << "Ran off end of packet " << mCurrentRMessageTemplate->mName
 //			<< " with id " << mCurrentRecvPacketID 
 			<< " from " << host
+			<< " trying to read " << wanted
+			<< " bytes at position " << where
+			<< " going past packet end at " << mReceiveSize
 			<< llendl;
 	if(gMessageSystem->mVerboseLog)
 	{
@@ -542,7 +545,7 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 			// repeat number is a single byte
 			if (decode_pos >= mReceiveSize)
 			{
-				logRanOffEndOfPacket(sender);
+				logRanOffEndOfPacket(sender, decode_pos, 1);
 
 				// default to 0 repeats
 				repeat_number = 0;
@@ -601,7 +604,7 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 
 					if ((decode_pos + data_size) > mReceiveSize)
 					{
-						logRanOffEndOfPacket(sender);
+						logRanOffEndOfPacket(sender, decode_pos, data_size);
 
 						// default to 0 length variable blocks
 						tsize = 0;
@@ -637,7 +640,7 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 					// so, copy data pointer and set data size to fixed size
 					if ((decode_pos + mvci.getSize()) > mReceiveSize)
 					{
-						logRanOffEndOfPacket(sender);
+						logRanOffEndOfPacket(sender, decode_pos, mvci.getSize());
 
 						// default to 0s.
 						U32 size = mvci.getSize();

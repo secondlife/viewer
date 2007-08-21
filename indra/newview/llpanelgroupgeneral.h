@@ -54,6 +54,7 @@ private:
     static void joinDlgCB(S32 which, void *userdata);
 
 	void updateMembers();
+	void updateChanged();
 
 	BOOL			mPendingMemberUpdate;
 	BOOL			mChanged;
@@ -68,7 +69,6 @@ private:
 	LLNameBox			*mFounderName;
 	LLTextureCtrl		*mInsignia;
 	LLTextEditor		*mEditCharter;
-	LLLineEditor		*mEditName;
 	LLButton			*mBtnJoinGroup;
 	LLButton			*mBtnInfo;
 

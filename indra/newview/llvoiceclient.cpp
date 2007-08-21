@@ -1319,7 +1319,7 @@ void LLVoiceClient::stateMachine()
 							CloseHandle(pinfo.hThread); // stops leaks - nothing else
 						}		
 						
-						delete args2;
+						delete[] args2;
 #else	// LL_WINDOWS
 						// This should be the same for mac and linux
 						{

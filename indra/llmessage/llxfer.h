@@ -47,7 +47,7 @@ class LLXfer
 
 	BOOL mWaitingForACK;
 
-	void (*mCallback)(void **,S32);	
+	void (*mCallback)(void **,S32,LLExtStat);	
 	void **mCallbackDataHandle;
 	S32 mCallbackResult;
 
@@ -92,6 +92,7 @@ class LLXfer
 };
 
 #endif
+
 
 
 

@@ -78,7 +78,7 @@ S32 LLXfer_VFile::initializeRequest(U64 xfer_id,
 									const LLUUID& remote_id,
 									LLAssetType::EType type,
 									const LLHost& remote_host,
-									void (*callback)(void**,S32),
+									void (*callback)(void**,S32,LLExtStat),
 									void** user_data)
 {
  	S32 retval = 0;  // presume success

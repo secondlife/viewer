@@ -172,7 +172,7 @@ BOOL LLMuteList::isLinden(const LLString& name) const
 BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 {
 	// Can't mute text from Lindens
-	if ((mute.mType == LLMute::AGENT || mute.mType == LLMute::BY_NAME)
+	if ((mute.mType == LLMute::AGENT)
 		&& isLinden(mute.mName) && (flags & LLMute::flagTextChat || flags == 0))
 	{
 		gViewerWindow->alertXml("MuteLinden");
@@ -593,7 +593,7 @@ void LLMuteList::processUseCachedMuteList(LLMessageSystem* msg, void**)
 	gMuteListp->loadFromFile(filename);
 }
 
-void LLMuteList::onFileMuteList(void** user_data, S32 error_code)
+void LLMuteList::onFileMuteList(void** user_data, S32 error_code, LLExtStat ext_status)
 {
 	llinfos << "LLMuteList::processMuteListFile()" << llendl;
 	if (!gMuteListp) return;

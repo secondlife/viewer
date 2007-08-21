@@ -34,6 +34,8 @@ RenderParticleCount	1	4096
 RenderRippleWater	1	1
 RenderTerrainDetail	1	2
 VertexShaderEnable	1	1
+UseOcclusion		1	1
+RenderCubeMap		1	1
 
 //
 // Class 0 Hardware (Unknown or just old)
@@ -107,6 +109,8 @@ RenderAvatarVP		0	0
 RenderLighting		1	0
 RenderParticleCount	1	1024
 RenderTerrainDetail 1	0
+RenderCubeMap		0	0
+UseOcclusion		0	0
 
 
 list low
@@ -145,6 +149,7 @@ RenderVBO			1	0
 RenderAniso			1	0
 RenderLighting		1	0
 RenderTerrainDetail	1	0
+RenderCubeMap		0	0
 
 list GeForce2
 RenderVBO			1	1
@@ -156,6 +161,7 @@ RenderTerrainDetail	1	0
 list GeForce3
 
 list ATI
+UseOcclusion		0	0
 
 list Radeon8500
 RenderLighting		1	0

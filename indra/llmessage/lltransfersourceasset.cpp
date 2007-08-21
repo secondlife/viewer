@@ -154,7 +154,7 @@ BOOL LLTransferSourceAsset::unpackParams(LLDataPacker &dp)
 
 
 void LLTransferSourceAsset::responderCallback(LLVFS *vfs, const LLUUID& uuid, LLAssetType::EType type,
-											  void *user_data, S32 result)
+											  void *user_data, S32 result, LLExtStat ext_status )
 {
 	LLUUID *tidp = ((LLUUID*) user_data);
 	LLUUID transfer_id = *(tidp);

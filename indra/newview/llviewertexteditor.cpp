@@ -35,6 +35,68 @@
 
 extern BOOL gPacificDaylightTime;
 
+///----------------------------------------------------------------------------
+/// Class LLEmbeddedNotecardOpener
+///----------------------------------------------------------------------------
+class LLEmbeddedNotecardOpener : public LLInventoryCallback
+{
+	LLViewerTextEditor* mTextEditor;
+
+public:
+	LLEmbeddedNotecardOpener()
+		: mTextEditor(NULL)
+	{
+	}
+
+	void setEditor(LLViewerTextEditor* e) {mTextEditor = e;}
+
+	// override
+	void fire(const LLUUID& inv_item)
+	{
+		if(!mTextEditor)
+		{
+			// The parent text editor may have vanished by now. 
+            // In that case just quit.
+			return;
+		}
+
+		LLInventoryItem* item = gInventory.getItem(inv_item);
+		if(!item)
+		{
+			llwarns << "Item add reported, but not found in inventory!: " << inv_item << llendl;
+		}
+		else
+		{
+			// See if we can bring an existing preview to the front
+			if(!LLPreview::show(item->getUUID(), true))
+			{
+				if(!gSavedSettings.getBOOL("ShowNewInventory"))
+				{
+					// There isn't one, so make a new preview
+					S32 left, top;
+					gFloaterView->getNewFloaterPosition(&left, &top);
+					LLRect rect = gSavedSettings.getRect("NotecardEditorRect");
+					rect.translate(left - rect.mLeft, top - rect.mTop);
+					LLPreviewNotecard* preview;
+					preview = new LLPreviewNotecard("preview notecard", 
+													rect, 
+													LLString("Embedded Note: ") + item->getName(),
+													item->getUUID(), 
+													LLUUID::null, 
+													item->getAssetUUID(),
+													true, 
+													(LLViewerInventoryItem*)item);
+					preview->setSourceID(LLUUID::null);
+					preview->setFocus(TRUE);
+
+					// Force to be entirely onscreen.
+					gFloaterView->adjustToFitScreen(preview, FALSE);
+				}
+			}
+		}
+	}
+};
+
 ////////////////////////////////////////////////////////////
 // LLEmbeddedItems
 //
@@ -477,14 +539,21 @@ LLViewerTextEditor::LLViewerTextEditor(const LLString& name,
 									   const LLFontGL* font,
 									   BOOL allow_embedded_items)
 	: LLTextEditor(name, rect, max_length, default_text, font, allow_embedded_items),
-	  mDragItemSaved(FALSE)
+	  mDragItemSaved(FALSE),
+	  mInventoryCallback(new LLEmbeddedNotecardOpener)
 {
 	mEmbeddedItemList = new LLEmbeddedItems(this);
+	mInventoryCallback->setEditor(this);
 }
 
 LLViewerTextEditor::~LLViewerTextEditor()
 {
 	delete mEmbeddedItemList;
+	
+	
+	// The inventory callback may still be in use by gInventoryCallbackManager...
+	// so set its reference to this to null.
+	mInventoryCallback->setEditor(NULL); 
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1259,22 +1328,14 @@ void LLViewerTextEditor::openEmbeddedLandmark( LLInventoryItem* item )
 	open_landmark((LLViewerInventoryItem*)item, "   preview landmark", FALSE, item->getUUID(), TRUE);
 }
 
-
 void LLViewerTextEditor::openEmbeddedNotecard( LLInventoryItem* item, BOOL saved )
 {
 	if (saved)
 	{
-		// Pop-up the notecard floater.
-		// Note: Previously would copy to inventory and rely on autodisplay to view.
-		// Now that autodisplay can be turned off, we need to make this case display always. 
-		// besides, there's no point adding to inventory -MG
-		open_notecard(
-			(LLViewerInventoryItem*)item,
-			LLString("Embedded Note: ") + item->getName(), // title
-			mObjectID,
-			FALSE, // show_keep_discard
-			LLUUID::null, // source_id
-			TRUE); // take_focus
+		// An LLInventoryItem needs to be in an inventory to be opened.
+		// This will give the item to the viewer's agent.
+		// The callback will attempt to open it if its not already opened.
+		copyInventory(item, gInventoryCallbacks.registerCB(mInventoryCallback));
 	}
 	else
 	{
@@ -1349,11 +1410,11 @@ bool LLViewerTextEditor::importStream(std::istream& str)
 	return success;
 }
 
-void LLViewerTextEditor::copyInventory(LLInventoryItem* item)
+void LLViewerTextEditor::copyInventory(const LLInventoryItem* item, U32 callback_id)
 {
 	copy_inventory_from_notecard(mObjectID,
 								 mNotecardInventoryID,
-								 item);
+								 item, callback_id);
 }
 
 bool LLViewerTextEditor::hasEmbeddedInventory()

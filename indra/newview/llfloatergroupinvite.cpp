@@ -87,7 +87,7 @@ LLFloaterGroupInvite::~LLFloaterGroupInvite()
 }
 
 // static
-void LLFloaterGroupInvite::showForGroup(const LLUUID& group_id)
+void LLFloaterGroupInvite::showForGroup(const LLUUID& group_id, std::vector<LLUUID> *agent_ids)
 {
 	// Make sure group_id isn't null
 	if (group_id.isNull())
@@ -110,6 +110,11 @@ void LLFloaterGroupInvite::showForGroup(const LLUUID& group_id)
 		impl::sInstances[group_id] = fgi;
 
 		fgi->mImpl->mInvitePanelp->clear();
+	}
+
+	if (agent_ids != NULL)
+	{
+		fgi->mImpl->mInvitePanelp->addUsers(*agent_ids);
 	}
 	
 	fgi->center();

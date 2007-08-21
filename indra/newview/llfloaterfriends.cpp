@@ -73,12 +73,13 @@ LLPanelFriends::~LLPanelFriends()
 	delete mObserver;
 }
 
-void LLPanelFriends::tick()
+BOOL LLPanelFriends::tick()
 {
 	mEventTimer.stop();
 	mPeriod = 1000000;
 	mAllowRightsChange = TRUE;
 	updateFriends(LLFriendObserver::ADD);
+	return FALSE;
 }
 
 void LLPanelFriends::updateFriends(U32 changed_mask)

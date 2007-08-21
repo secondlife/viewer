@@ -1285,7 +1285,7 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 		{
 			if (!gQuit)
 			{
-				if (gStartupState >= STATE_STARTED)
+				if (LLStartUp::getStartupState() >= STATE_STARTED)
 				{
 					// if we're in world, show a progress bar to hide reloading of textures
 					llinfos << "Restoring GL during activate" << llendl;
@@ -2726,27 +2726,11 @@ BOOL LLViewerWindow::handlePerFrameHover()
 
 	gPipeline.sRenderProcessBeacons = FALSE;
 	KEY key = gKeyboard->currentKey();
-	if (((mask & MASK_CONTROL) && ('N' == key || 'n' == key)) || (gFloaterTools && gFloaterTools->getVisible()) || gSavedSettings.getBOOL("BeaconAlwaysOn"))
+	if (((mask & MASK_CONTROL) && ('N' == key || 'n' == key)) || gSavedSettings.getBOOL("BeaconAlwaysOn"))
 	{
 		gPipeline.sRenderProcessBeacons = TRUE;
 	}
 
-/*
-	// Show joints while in edit mode and hold down alt key.
-	if (gHUDManager)
-	{
-		BOOL menuOption = gSavedSettings.getBOOL("AltShowsPhysical");
-		if (menuOption
-			|| (gFloaterTools && gFloaterTools->getVisible()))
-		{
-			gHUDManager->toggleShowPhysical( mask & MASK_ALT );
-		}
-		else
-		{
-			gHUDManager->toggleShowPhysical( FALSE );
-		}
-	}
-*/
 	BOOL handled = FALSE;
 
 	BOOL handled_by_top_ctrl = FALSE;

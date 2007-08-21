@@ -132,7 +132,9 @@ void LLImageJ2C::closeDSO()
 LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 							mMaxBytes(0),
 							mRawDiscardLevel(-1),
-							mRate(0.0f)
+							mRate(0.0f),
+							mReversible(FALSE)
+	
 {
 	//We assume here that if we wanted to destory via
 	//a dynamic library that the approriate open calls were made
@@ -252,7 +254,7 @@ BOOL LLImageJ2C::encode(const LLImageRaw *raw_imagep, F32 encode_time)
 BOOL LLImageJ2C::encode(const LLImageRaw *raw_imagep, const char* comment_text, F32 encode_time)
 {
 	LLMemType mt1((LLMemType::EMemType)mMemType);
-	return mImpl->encodeImpl(*this, *raw_imagep, comment_text, encode_time);
+	return mImpl->encodeImpl(*this, *raw_imagep, comment_text, encode_time, mReversible);
 }
 
 //static
@@ -321,11 +323,11 @@ void LLImageJ2C::setMaxBytes(S32 max_bytes)
 {
 	mMaxBytes = max_bytes;
 }
-// NOT USED
-// void LLImageJ2C::setReversible(const BOOL reversible)
-// {
-// 	mReversible = reversible;
-// }
+
+void LLImageJ2C::setReversible(const BOOL reversible)
+{
+ 	mReversible = reversible;
+}
 
 
 BOOL LLImageJ2C::loadAndValidate(const LLString &filename)

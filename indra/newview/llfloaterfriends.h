@@ -37,7 +37,7 @@ public:
 	 * current instantiation of this floater. There is only once since
 	 * you can currently only look at your local friends.
 	 */
-	virtual void tick();
+	virtual BOOL tick();
 
 	/** 
 	 * @brief This method is called in response to the LLAvatarTracker

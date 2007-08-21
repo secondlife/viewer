@@ -67,7 +67,7 @@ protected:
 	static void onLoadComplete(LLVFS *vfs,
 							   const LLUUID& asset_uuid,
 							   LLAssetType::EType type,
-							   void* user_data, S32 status);
+							   void* user_data, S32 status, LLExtStat ext_status);
 
 	void loadUIFromGesture(LLMultiGesture* gesture);
 
@@ -75,7 +75,7 @@ protected:
 
 	static void onSaveComplete(const LLUUID& asset_uuid,
 							   void* user_data,
-							   S32 status);
+							   S32 status, LLExtStat ext_status);
 
 	static void handleSaveChangesDialog(S32 option, void* userdata);
 

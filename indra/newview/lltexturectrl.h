@@ -67,6 +67,9 @@ public:
 	virtual void	setVisible( BOOL visible );
 	virtual void	setEnabled( BOOL enabled );
 
+	virtual BOOL	isDirty() const;
+	virtual void	resetDirty();
+
 	void			setValid(BOOL valid);
 
 	// LLUICtrl interface
@@ -149,6 +152,7 @@ private:
 	BOOL					 mNeedsRawImageData;
 	LLViewBorder*			 mBorder;
 	BOOL					 mValid;
+	BOOL					 mDirty;
 };
 
 // XUI HACK: When floaters converted, switch this file to lltexturepicker.h/cpp

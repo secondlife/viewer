@@ -199,9 +199,9 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask, std::vector<LLSpatialGroup*
 				last_part = part;
 			}
 
-			std::vector<LLDrawInfo*>& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA];
+			LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA];	
 
-			for (std::vector<LLDrawInfo*>::const_iterator k = draw_info.begin(); k != draw_info.end(); ++k)
+			for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
 			{
 				LLDrawInfo& params = **k;
 				
@@ -225,7 +225,7 @@ void LLDrawPoolAlpha::renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask
 {					
 	BOOL light_enabled = TRUE;
 
-	std::vector<LLDrawInfo*>& draw_info = group->mDrawMap[type];
+	LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[type];	
 	
 	U32 prim_type = GL_TRIANGLES;
 
@@ -252,7 +252,7 @@ void LLDrawPoolAlpha::renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask
 		glPointSize(width/(view*view));
 	}*/
 
-	for (std::vector<LLDrawInfo*>::const_iterator k = draw_info.begin(); k != draw_info.end(); ++k)
+	for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
 	{
 		LLDrawInfo& params = **k;
 		if (texture && params.mTexture.notNull())

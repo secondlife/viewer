@@ -201,7 +201,7 @@ public:
 	void					readBackAndUpload(U8* baked_bump_data);
 	static void				onTextureUploadComplete( const LLUUID& uuid,
 													 void* userdata,
-													 S32 result);
+													 S32 result, LLExtStat ext_status);
 	static void				dumpTotalByteCount();
 
 private:

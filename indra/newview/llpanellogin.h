@@ -49,7 +49,7 @@ public:
 	static void getFields(LLString &firstname, LLString &lastname,
 		LLString &password, BOOL &remember);
 
-	static void getServer(LLString &server, S32& domain_name);
+	static BOOL getServer(LLString &server, S32& domain_name);
 	static void getLocation(LLString &location);
 
 	static void close();

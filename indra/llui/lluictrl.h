@@ -129,7 +129,9 @@ public:
 	};
 
 	// Returns TRUE if the user has modified this control.   Editable controls should override this.
-	virtual BOOL	 isDirty()			{ return FALSE;		};
+	virtual BOOL	isDirty() const			{ return FALSE;		};
+	// Clear the dirty state
+	virtual void	resetDirty()			{};
 
 protected:
 	virtual void	onFocusReceived();

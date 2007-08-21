@@ -23,6 +23,9 @@
 
 #include "llinventoryview.h"
 
+#include "llviewerregion.h"
+#include "llviewerobjectlist.h"
+
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
@@ -531,13 +534,27 @@ void inventory_reliable_callback(void**, S32 status)
 	}
 }
 */
+LLInventoryCallbackManager *LLInventoryCallbackManager::sInstance = NULL;
+
 LLInventoryCallbackManager::LLInventoryCallbackManager() :
 	mLastCallback(0)
 {
+	if( sInstance != NULL )
+	{
+		llwarns << "LLInventoryCallbackManager::LLInventoryCallbackManager: unexpected multiple instances" << llendl;
+		return;
+	}
+	sInstance = this;
 }
 
 LLInventoryCallbackManager::~LLInventoryCallbackManager()
 {
+	if( sInstance != this )
+	{
+		llwarns << "LLInventoryCallbackManager::~LLInventoryCallbackManager: unexpected multiple instances" << llendl;
+		return;
+	}
+	sInstance = NULL;
 }
 
 U32 LLInventoryCallbackManager::registerCB(LLPointer<LLInventoryCallback> cb)
@@ -681,29 +698,56 @@ void move_inventory_item(
 	gAgent.sendReliableMessage();
 }
 
-void _copy_inventory_from_notecard_hdr(const LLUUID& object_id, const LLUUID& notecard_inv_id)
+class LLCopyInventoryFromNotecardResponder : public LLHTTPClient::Responder
 {
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessageFast(_PREHASH_CopyInventoryFromNotecard);
-	msg->nextBlock(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->nextBlock(_PREHASH_NotecardData);
-	msg->addUUIDFast(_PREHASH_NotecardItemID, notecard_inv_id);
-	msg->addUUIDFast(_PREHASH_ObjectID, object_id);
-}
+public:
+	//If we get back a normal response, handle it here
+	virtual void result(const LLSD& content)
+	{
+		// What do we do here?
+		llinfos << "CopyInventoryFromNotecard request successful." << llendl;
+	}
 
-void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecard_inv_id, const LLInventoryItem *src)
+	//If we get back an error (not found, etc...), handle it here
+	virtual void error(U32 status, const std::string& reason)
+	{
+		llinfos << "LLCopyInventoryFromNotecardResponder::error "
+			<< status << ": " << reason << llendl;
+	}
+};
+
+void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecard_inv_id, const LLInventoryItem *src, U32 callback_id)
 {
-	LLMessageSystem* msg = gMessageSystem;
-	/*
-	 * I was going to handle multiple inventory items here, but then I realized that
-	 * we are only handling one at a time.  Perhaps you can only select one at a 
-	 * time from the notecard?
-	 */
-	_copy_inventory_from_notecard_hdr(object_id, notecard_inv_id);
-	msg->nextBlockFast(_PREHASH_InventoryData);
-	msg->addUUIDFast(_PREHASH_ItemID, src->getUUID());
-	msg->addUUIDFast(_PREHASH_FolderID, gInventory.findCategoryUUIDForType(src->getType()));
-	gAgent.sendReliableMessage();
+	LLSD body;
+	LLViewerRegion* viewer_region = NULL;
+	if(object_id.notNull())
+	{
+		LLViewerObject* vo = gObjectList.findObject(object_id);
+		if(vo)
+		{
+			viewer_region = vo->getRegion();
+		}
+	}
+
+	// Fallback to the agents region if for some reason the 
+	// object isn't found in the viewer.
+	if(!viewer_region)
+	{
+		viewer_region = gAgent.getRegion();
+	}
+
+	if(viewer_region)
+	{
+		std::string url = viewer_region->getCapability("CopyInventoryFromNotecard");
+		if (!url.empty())
+		{
+			body["notecard-id"] = notecard_inv_id;
+			body["object-id"] = object_id;
+			body["item-id"] = src->getUUID();
+			body["folder-id"] = gInventory.findCategoryUUIDForType(src->getType());
+			body["callback-id"] = (LLSD::Integer)callback_id;
+
+			LLHTTPClient::post(url, body, new LLCopyInventoryFromNotecardResponder());
+		}
+	}
 }

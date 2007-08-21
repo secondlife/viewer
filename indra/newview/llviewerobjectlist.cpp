@@ -634,13 +634,33 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	
 	std::vector<LLViewerObject*> kill_list;
 	S32 num_active_objects = 0;
+	LLViewerObject *objectp = NULL;	
 	
+	// Make a copy of the list in case something in idleUpdate() messes with it
+	std::vector<LLViewerObject*> idle_list;
+	idle_list.reserve( mActiveObjects.size() );
+
+ 	for (std::set<LLPointer<LLViewerObject> >::iterator active_iter = mActiveObjects.begin();
+		active_iter != mActiveObjects.end(); active_iter++)
+	{
+		objectp = *active_iter;
+		if (objectp)
+		{
+			idle_list.push_back( objectp );
+		}
+		else
+		{	// There shouldn't be any NULL pointers in the list, but they have caused
+			// crashes before.  This may be idleUpdate() messing with the list.
+			llwarns << "LLViewerObjectList::update has a NULL objectp" << llendl;
+		}
+	}
+
 	if (gSavedSettings.getBOOL("FreezeTime"))
 	{
-		for (std::set<LLPointer<LLViewerObject> >::iterator iter = mActiveObjects.begin();
-			iter != mActiveObjects.end(); iter++)
+		for (std::vector<LLViewerObject*>::iterator iter = idle_list.begin();
+			iter != idle_list.end(); iter++)
 		{
-			LLViewerObject *objectp = *iter;
+			objectp = *iter;
 			if (objectp->getPCode() == LLViewerObject::LL_VO_CLOUDS ||
 				objectp->isAvatar())
 			{
@@ -650,10 +670,10 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	}
 	else
 	{
-		for (std::set<LLPointer<LLViewerObject> >::iterator iter = mActiveObjects.begin();
-			iter != mActiveObjects.end(); iter++)
+		for (std::vector<LLViewerObject*>::iterator idle_iter = idle_list.begin();
+			idle_iter != idle_list.end(); idle_iter++)
 		{
-			LLViewerObject *objectp = *iter;
+			objectp = *idle_iter;
 			if (!objectp->idleUpdate(agent, world, frame_time))
 			{
 				//  If Idle Update returns false, kill object!
@@ -664,10 +684,10 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 				num_active_objects++;
 			}
 		}
-		for (std::vector<LLViewerObject*>::iterator iter = kill_list.begin();
-			iter != kill_list.end(); iter++)
+		for (std::vector<LLViewerObject*>::iterator kill_iter = kill_list.begin();
+			kill_iter != kill_list.end(); kill_iter++)
 		{
-			LLViewerObject *objectp = *iter;
+			objectp = *kill_iter;
 			killObject(objectp);
 		}
 	}
@@ -1079,6 +1099,8 @@ U32 LLViewerObjectList::renderObjectsForSelect(LLCamera &camera, BOOL pick_parce
 			iter != pick_drawables.end(); iter++)
 		{
 			LLDrawable* drawablep = *iter;
+			if( !drawablep )
+				continue;
 
 			LLViewerObject* last_objectp = NULL;
 			for (S32 face_num = 0; face_num < drawablep->getNumFaces(); face_num++)

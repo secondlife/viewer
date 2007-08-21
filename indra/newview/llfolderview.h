@@ -839,7 +839,8 @@ public:
 	void removeItemID(const LLUUID& id);
 	LLFolderViewItem* getItemByID(const LLUUID& id);
 
-	static void idle(void* user_data);
+	void	doIdle();						// Real idle routine
+	static void idle(void* user_data);		// static glue to doIdle()
 
 	BOOL needsAutoSelect() { return mNeedsAutoSelect && !mAutoSelectOverride; }
 	BOOL needsAutoRename() { return mNeedsAutoRename; }

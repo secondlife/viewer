@@ -1187,9 +1187,9 @@ public:
 		llinfos << "BaseCapabilitiesComplete::error "
 			<< statusNum << ": " << reason << llendl;
 		
-		if (STATE_SEED_GRANTED_WAIT == gStartupState)
+		if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
 		{
-			gStartupState = STATE_SEED_CAP_GRANTED;
+			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
 		}
     }
 
@@ -1203,9 +1203,9 @@ public:
 				<< iter->first << llendl;
 		}
 		
-		if (STATE_SEED_GRANTED_WAIT == gStartupState)
+		if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
 		{
-			gStartupState = STATE_SEED_CAP_GRANTED;
+			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
 		}
 	}
 
@@ -1256,6 +1256,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("ChatSessionRequest");
 	capabilityNames.append("ProvisionVoiceAccountRequest");
 	capabilityNames.append("ServerReleaseNotes");
+	capabilityNames.append("CopyInventoryFromNotecard");
 
 	llinfos << "posting to seed " << url << llendl;
 

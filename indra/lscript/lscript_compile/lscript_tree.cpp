@@ -8937,8 +8937,12 @@ void LLScriptEventHandler::recurse(FILE *fp, S32 tabs, S32 tabsize, LSCRIPTCompi
 		{
 			entrycount = 0;
 			mStatement->recurse(fp, tabs, tabsize, pass, ptype, prunearg, scope, type, basetype, count, chunk, heap, stacksize, mScopeEntry, entrycount, NULL);
-			fprintf(fp, "Function Args: %s\n", mScopeEntry->mFunctionArgs.mString);
-			fprintf(fp, "Local List: %s\n", mScopeEntry->mLocals.mString);
+
+			const char *function_args = mScopeEntry->mFunctionArgs.mString;
+			fprintf(fp, "Function Args: %s\n", function_args?function_args:"");
+
+			const char *local_list = mScopeEntry->mLocals.mString;
+			fprintf(fp, "Local List: %s\n", local_list?local_list:"");
 		}
 		mStackSpace = (S32)count;
 		break;

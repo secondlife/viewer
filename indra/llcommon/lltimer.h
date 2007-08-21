@@ -122,11 +122,12 @@ void secondsToTimecodeString(F32 current_time, char *tcstring);
 class LLEventTimer 
 {
 public:
-	LLEventTimer(F32 period);	// period is the amount of time between each call to tick()
+	LLEventTimer(F32 period);	// period is the amount of time between each call to tick() in seconds
 	virtual ~LLEventTimer();
 
 	//function to be called at the supplied frequency
-	virtual void tick() = 0;
+	// Normally return FALSE; TRUE will delete the timer after the function returns.
+	virtual BOOL tick() = 0;
 
 	static void updateClass();
 

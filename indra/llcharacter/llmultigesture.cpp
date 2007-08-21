@@ -258,7 +258,7 @@ BOOL LLGestureStepAnimation::deserialize(LLDataPacker& dp)
 
 	// Apparently an earlier version of the gesture code added \r to the end
 	// of the animation names.  Get rid of it.  JC
-	if (mAnimName[mAnimName.length() - 1] == '\r')
+	if (!mAnimName.empty() && mAnimName[mAnimName.length() - 1] == '\r')
 	{
 		// chop the last character
 		mAnimName.resize(mAnimName.length() - 1);

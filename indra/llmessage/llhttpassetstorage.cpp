@@ -444,7 +444,7 @@ void LLHTTPAssetStorage::storeAssetData(
 		llwarns << "AssetStorage: attempt to upload non-existent vfile " << uuid << ":" << LLAssetType::lookup(type) << llendl;
 		if (callback)
 		{
-			callback(uuid, user_data,  LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE );
+			callback(uuid, user_data,  LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LL_EXSTAT_NONEXISTENT_FILE);
 		}
 	}
 }
@@ -509,7 +509,7 @@ void LLHTTPAssetStorage::storeAssetData(
 	{
 		if (callback)
 		{
-			callback(LLUUID::null, user_data, LL_ERR_CANNOT_OPEN_FILE);
+			callback(LLUUID::null, user_data, LL_ERR_CANNOT_OPEN_FILE, LL_EXSTAT_BLOCKED_FILE);
 		}
 	}
 	// Coverity CID-269 says there's a leak of 'legacy' here, but
@@ -611,7 +611,7 @@ bool LLHTTPAssetStorage::deletePendingRequest(LLAssetStorage::ERequestType rt,
 					{
 						if (pending_req->mUpCallback)	//Clean up here rather than _callUploadCallbacks because this request is already cleared the req.
 						{
-							pending_req->mUpCallback(pending_req->getUUID(), pending_req->mUserData, -1);
+							pending_req->mUpCallback(pending_req->getUUID(), pending_req->mUserData, -1, LL_EXSTAT_REQUEST_DROPPED);
 						}
 
 					}
@@ -637,7 +637,7 @@ bool LLHTTPAssetStorage::deletePendingRequest(LLAssetStorage::ERequestType rt,
 
 // internal requester, used by getAssetData in superclass
 void LLHTTPAssetStorage::_queueDataRequest(const LLUUID& uuid, LLAssetType::EType type,
-										  void (*callback)(LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32),
+										  void (*callback)(LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
 										  void *user_data, BOOL duplicate,
 										   BOOL is_priority)
 {
@@ -902,7 +902,7 @@ void LLHTTPAssetStorage::checkForTimeouts()
 				{
 					// shared upload finished callback
 					// in the base class, this is called from processUploadComplete
-					_callUploadCallbacks(req->getUUID(), req->getType(), (xfer_result == 0));
+					_callUploadCallbacks(req->getUUID(), req->getType(), (xfer_result == 0), LL_EXSTAT_CURL_RESULT | curl_result);
 					// Pending upload flag will get cleared when the request is deleted
 				}
 			}
@@ -944,7 +944,8 @@ void LLHTTPAssetStorage::checkForTimeouts()
 					xfer_result,
 					req->getUUID(),
 					req->getType(),
-					(void *)req);
+					(void *)req,
+					LL_EXSTAT_CURL_RESULT | curl_result);
 				// Pending download flag will get cleared when the request is deleted
 			}
 			else
@@ -1368,4 +1369,5 @@ void LLHTTPAssetStorage::clearTempAssetData()
 	llinfos << "TAT: Clearing temp asset data map" << llendl;
 	mTempAssets.clear();
 }
+
 

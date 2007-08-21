@@ -373,7 +373,7 @@ public:
 	LLVector3				mSunDir;
 
 	LLSpatialGroup::sg_vector_t mActiveGroups;
-	std::vector<LLDrawInfo*> mRenderMap[LLRenderPass::NUM_RENDER_TYPES];
+	LLSpatialGroup::drawmap_elem_t mRenderMap[LLRenderPass::NUM_RENDER_TYPES];	
 	std::vector<LLSpatialGroup* > mAlphaGroups;
 	std::vector<LLSpatialGroup* > mAlphaGroupsPostWater;
 	LLSpatialGroup::sg_vector_t mVisibleGroups;

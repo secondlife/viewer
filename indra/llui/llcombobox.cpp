@@ -227,6 +227,27 @@ void LLComboBox::onCommit()
 	LLUICtrl::onCommit();
 }
 
+// virtual
+BOOL LLComboBox::isDirty() const
+{
+	BOOL grubby = FALSE;
+	if ( mList )
+	{
+		grubby = mList->isDirty();
+	}
+	return grubby;
+}
+
+// virtual   Clear dirty state
+void	LLComboBox::resetDirty()
+{
+	if ( mList )
+	{
+		mList->resetDirty();
+	}
+}
+
+
 // add item "name" to menu
 void LLComboBox::add(const LLString& name, EAddPosition pos, BOOL enabled)
 {

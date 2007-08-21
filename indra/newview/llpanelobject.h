@@ -57,7 +57,9 @@ public:
 	static void     onCommitSculpt(        LLUICtrl* ctrl, void* userdata);
 	static void     onCancelSculpt(        LLUICtrl* ctrl, void* userdata);
 	static void     onSelectSculpt(        LLUICtrl* ctrl, void* userdata);
-	static BOOL     onDropSculpt(LLUICtrl* ctrl, LLInventoryItem* item, void* ud);
+	static BOOL     onDropSculpt(          LLUICtrl* ctrl, LLInventoryItem* item, void* ud);
+	static void     onCommitSculptType(    LLUICtrl *ctrl, void* userdata);
+		
 	
 protected:
 	void			getState();
@@ -143,6 +145,8 @@ protected:
 	LLCheckBoxCtrl	*mCheckCastShadows;
 
 	LLTextureCtrl   *mCtrlSculptTexture;
+	LLTextBox       *mLabelSculptType;
+	LLComboBox      *mCtrlSculptType;
 	
 	LLVector3		mCurEulerDegrees;		// to avoid sending rotation when not changed
 	BOOL			mIsPhysical;			// to avoid sending "physical" when not changed
@@ -152,6 +156,7 @@ protected:
 	S32				mSelectedType;			// So we know what selected type we last were
 
 	LLUUID          mSculptTextureRevert;   // so we can revert the sculpt texture on cancel
+	U8              mSculptTypeRevert;      // so we can revert the sculpt type on cancel
 	
 	LLPointer<LLViewerObject> mObject;
 	LLPointer<LLViewerObject> mRootObject;

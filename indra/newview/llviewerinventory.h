@@ -214,6 +214,9 @@ public:
 private:
 	std::map<U32, LLPointer<LLInventoryCallback> > mMap;
 	U32 mLastCallback;
+	static LLInventoryCallbackManager *sInstance;
+public:
+	static bool is_instantiated() { return sInstance != NULL; }
 };
 extern LLInventoryCallbackManager gInventoryCallbacks;
 
@@ -249,7 +252,8 @@ void move_inventory_item(
 
 void copy_inventory_from_notecard(const LLUUID& object_id,
 								  const LLUUID& notecard_inv_id,
-								  const LLInventoryItem *src);
+								  const LLInventoryItem *src,
+								  U32 callback_id = 0);
 
 
 #endif // LL_LLVIEWERINVENTORY_H

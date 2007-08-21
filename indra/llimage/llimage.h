@@ -96,7 +96,7 @@ public:
 
 	static void generateMip(const U8 *indata, U8* mipdata, int width, int height, S32 nchannels);
 	
-	// Function for calculating the download priority for textes
+	// Function for calculating the download priority for textures
 	// <= 0 priority means that there's no need for more data.
 	static F32 calc_download_priority(F32 virtual_size, F32 visible_area, S32 bytes_sent);
 

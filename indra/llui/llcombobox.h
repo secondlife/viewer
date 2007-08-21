@@ -68,6 +68,8 @@ public:
 	virtual void	clear();					// select nothing
 	virtual void	onCommit();
 	virtual BOOL	acceptsTextInput() const		{ return mAllowTextEntry; }
+	virtual BOOL	isDirty() const;			// Returns TRUE if the user has modified this control.
+	virtual void	resetDirty();				// Clear dirty state
 
 	virtual void	setFocus(BOOL b);
 
@@ -127,7 +129,7 @@ public:
 	virtual BOOL	getCanSelect() const				{ return TRUE; }
 	virtual BOOL	selectFirstItem()					{ return setCurrentByIndex(0); }
 	virtual BOOL	selectNthItem( S32 index )			{ return setCurrentByIndex(index); }
-	virtual S32		getFirstSelectedIndex()				{ return getCurrentIndex(); }
+	virtual S32		getFirstSelectedIndex() const		{ return getCurrentIndex(); }
 	virtual BOOL	setCurrentByID( const LLUUID& id );
 	virtual LLUUID	getCurrentID();				// LLUUID::null if no items in menu
 	virtual BOOL	setSelectedByValue(LLSD value, BOOL selected);

@@ -97,7 +97,7 @@ class LLVolumeImplFlexible : public LLVolumeInterface
 		LLVector3					mAnchorPosition;
 		LLVector3					mParentPosition;
 		LLQuaternion				mParentRotation;
-		LLQuaternion				mInitialAxisRotation;
+		LLQuaternion				mLastFrameRotation;
 		LLQuaternion				mLastSegmentRotation;
 		BOOL						mInitialized;
 		BOOL						mUpdated;

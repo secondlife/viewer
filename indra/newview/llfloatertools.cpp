@@ -380,13 +380,18 @@ LLFloaterTools::LLFloaterTools()
 	mSmallHeight = mLargeHeight;
 	if (mTab) mSmallHeight -= mTab->getRect().getHeight();
 	
-	gSavedSettings.setBOOL("ToolboxShowMore", TRUE); // force a toggle initially
-	showMore(FALSE);
+	// force a toggle initially. seems to be needed to correctly initialize 
+	// both "more" and "less" cases. it also seems to be important to begin
+	// with the user's preference first so that it's initial position will
+	// be correct (SL-51192) -MG
+	BOOL show_more = gSavedSettings.getBOOL("ToolboxShowMore"); // get user's preference
+	gSavedSettings.setBOOL("ToolboxShowMore", show_more); // sets up forced toggle below
+	showMore( !show_more ); // does the toggle
+	showMore(  show_more ); // reset the real user's preference
 }
 
 LLFloaterTools::~LLFloaterTools()
 {
-	showMore(FALSE);
 	// children automatically deleted
 }
 
@@ -757,23 +762,20 @@ void LLFloaterTools::showMore(BOOL show_more)
 	{
 		reshape( mRect.getWidth(), mLargeHeight, TRUE);
 		translate( 0, mSmallHeight - mLargeHeight );
-		childSetVisible("button less", true);
-		childSetVisible("button more", false);
 	}
 	else
 	{
 		reshape( mRect.getWidth(), mSmallHeight, TRUE);
 		translate( 0, mLargeHeight - mSmallHeight );
-		childSetVisible("button less", false);
-		childSetVisible("button more", true);
 	}
+	childSetVisible("button less",  show_more);
+	childSetVisible("button more", !show_more);
 }
 
 void LLFloaterTools::showPanel(EInfoPanel panel)
 {
 	llassert(panel >= 0 && panel < PANEL_COUNT);
 	mTab->selectTabByName(PANEL_NAMES[panel]);
-	showMore(TRUE);
 }
 
 void click_show_more(void *userdata)

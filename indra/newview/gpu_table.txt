@@ -25,6 +25,8 @@ ATI Mobility Radeon X1xxx		.*ATI.*Mobility.*X1.*					2
 ATI Mobility Radeon X3xx		.*ATI.*Mobility.*X3.*					1
 ATI Mobility Radeon X6xx		.*ATI.*Mobility.*X6.*					1
 ATI Mobility Radeon X7xx		.*ATI.*Mobility.*X7.*					1
+ATI Mobility Radeon Xxxx		.*ATI.*Mobility.*X.*					1
+ATI Mobility Radeon				.*ATI.*Mobility.*						0
 ATI Radeon OpenGL				.*ATI.*Radeon OpenGL.* 					3
 ATI Diamond X1xxx				.*ATI.*Diamond.*X1.*					3
 ATI FireGL 5xxx					.*ATI.*FireGL V5.*						3

@@ -59,6 +59,7 @@ protected:
 	S32 mMaxBytes; // Maximum number of bytes of data to use...
 	S8  mRawDiscardLevel;
 	F32 mRate;
+	BOOL mReversible;
 	LLImageJ2CImpl *mImpl;
 };
 
@@ -80,7 +81,8 @@ protected:
 	// true: decoding complete (even if it failed)
 	// false: time expired while decoding
 	virtual BOOL decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count) = 0;
-	virtual BOOL encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text, F32 encode_time=0.0) = 0;
+	virtual BOOL encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, const char* comment_text, F32 encode_time=0.0,
+							BOOL reversible=FALSE) = 0;
 
 	friend class LLImageJ2C;
 };

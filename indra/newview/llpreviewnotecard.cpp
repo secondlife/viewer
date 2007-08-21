@@ -329,7 +329,7 @@ void LLPreviewNotecard::loadAsset()
 void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 									   const LLUUID& asset_uuid,
 									   LLAssetType::EType type,
-									   void* user_data, S32 status)
+									   void* user_data, S32 status, LLExtStat ext_status)
 {
 	llinfos << "LLPreviewNotecard::onLoadComplete()" << llendl;
 	LLUUID* item_id = (LLUUID*)user_data;
@@ -517,7 +517,7 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
 }
 
 // static
-void LLPreviewNotecard::onSaveComplete(const LLUUID& asset_uuid, void* user_data, S32 status) // StoreAssetData callback (fixed)
+void LLPreviewNotecard::onSaveComplete(const LLUUID& asset_uuid, void* user_data, S32 status, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
 	LLSaveNotecardInfo* info = (LLSaveNotecardInfo*)user_data;
 	if(info && (0 == status))

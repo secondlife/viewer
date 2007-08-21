@@ -118,6 +118,8 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 		mSelectionEnd( 0 ),
 		mLastSelectionX(-1),
 		mLastSelectionY(-1),
+		mLastSelectionStart(-1),
+		mLastSelectionEnd(-1),
 		mPrevalidateFunc( prevalidate_func ),
 		mCursorColor(		LLUI::sColorsGroup->getColor( "TextCursorColor" ) ),
 		mFgColor(			LLUI::sColorsGroup->getColor( "TextFgColor" ) ),
@@ -226,6 +228,19 @@ void LLLineEditor::onCommit()
 	LLUICtrl::onCommit();
 	selectAll();
 }
+
+// virtual 
+BOOL	LLLineEditor::isDirty() const	
+{ 
+	return ( mText.getString() != mPrevText );	
+}
+
+// virtual 
+void	LLLineEditor::resetDirty()	
+{ 
+	mPrevText = mText.getString();	
+}
+
 
 // line history support
 void LLLineEditor::updateHistory()
@@ -448,8 +463,38 @@ BOOL LLLineEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 	}
 	else
 	{
-		// otherwise select everything
-		selectAll();
+		const LLWString& wtext = mText.getWString();
+
+		BOOL doSelectAll = TRUE;
+
+		// Select the word we're on
+		if( isPartOfWord( wtext[mCursorPos] ) )
+		{
+			S32 old_selection_start = mLastSelectionStart;
+			S32 old_selection_end = mLastSelectionEnd;
+
+			// Select word the cursor is over
+			while ((mCursorPos > 0) && isPartOfWord( wtext[mCursorPos-1] ))
+			{	// Find the start of the word
+				mCursorPos--;
+			}
+			startSelection();	
+
+			while ((mCursorPos < (S32)wtext.length()) && isPartOfWord( wtext[mCursorPos] ) )
+			{	// Find the end of the word
+				mCursorPos++;
+			}
+			mSelectionEnd = mCursorPos;
+
+			// If nothing changed, then the word was already selected.  Select the whole line.
+			doSelectAll = (old_selection_start == mSelectionStart) &&  
+						  (old_selection_end   == mSelectionEnd);
+		}
+		
+		if ( doSelectAll )
+		{	// Select everything
+			selectAll();
+		}
 	}
 
 	// We don't want handleMouseUp() to "finish" the selection (and thereby
@@ -476,6 +521,9 @@ BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 	}
 	else
 	{
+		mLastSelectionStart = -1;
+		mLastSelectionStart = -1;
+
 		setFocus( TRUE );
 
 		if (mask & MASK_SHIFT)
@@ -519,6 +567,10 @@ BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 		}
 		else
 		{
+			// Save selection for word/line selecting on double-click
+			mLastSelectionStart = mSelectionStart;
+			mLastSelectionEnd = mSelectionEnd;
+
 			// Move cursor and deselect for regular click
 			setCursorAtLocalPos( x );
 			deselect();

@@ -280,12 +280,18 @@ bool LLPreview::save( const LLUUID& item_uuid, LLPointer<LLInventoryItem>* itemp
 }
 
 // static
-void LLPreview::hide(const LLUUID& item_uuid)
+void LLPreview::hide(const LLUUID& item_uuid, BOOL no_saving /* = FALSE */ )
 {
 	preview_map_t::iterator found_it = LLPreview::sInstances.find(item_uuid);
 	if(found_it != LLPreview::sInstances.end())
 	{
 		LLPreview* instance = found_it->second;
+
+		if ( no_saving )
+		{
+			instance->mForceClose = TRUE;
+		}
+
 		instance->close();
 	}
 }
