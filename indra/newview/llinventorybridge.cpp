@@ -4229,7 +4229,8 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		LLViewerInventoryItem* item = getItem();
 		if( !no_open && item )
 		{
-			no_open = (item->getType() == LLAssetType::AT_CLOTHING);
+			no_open = (item->getType() == LLAssetType::AT_CLOTHING) ||
+					  (item->getType() == LLAssetType::AT_BODYPART);
 		}
 
 		if (!no_open)
