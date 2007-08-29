@@ -118,15 +118,18 @@ std::string LLServiceBuilder::buildServiceURI(
 			{
 				std::string query_str = LLURI::mapToQueryString(
 					(*option_itr).second);
-				if(!query_str.empty())
-				{
-					service_url.replace(
-						find_pos,
-						variable_name.length(),
-						query_str);
-				}
+				service_url.replace(
+					find_pos,
+					variable_name.length(),
+					query_str);
 			}
 		}
+	}
+
+	if (service_url.find('{') != std::string::npos)
+	{
+		llwarns << "Constructed a likely bogus service URL: " << service_url
+				<< llendl;
 	}
 
 	return service_url;

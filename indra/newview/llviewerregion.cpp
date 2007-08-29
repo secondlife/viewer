@@ -1254,6 +1254,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("UntrustedSimulatorMessage");
 	capabilityNames.append("ParcelVoiceInfoRequest");
 	capabilityNames.append("ChatSessionRequest");
+	capabilityNames.append("ViewerStats");
 	capabilityNames.append("ProvisionVoiceAccountRequest");
 	capabilityNames.append("ServerReleaseNotes");
 	capabilityNames.append("CopyInventoryFromNotecard");

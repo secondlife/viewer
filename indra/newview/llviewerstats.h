@@ -152,7 +152,7 @@ public:
 
 	void updateFrameStats(const F64 time_diff);
 	
-	void addToMessage() const;
+	void addToMessage(LLSD &body) const;
 
 	static const char *statTypeToText(EStatType type);
 
