@@ -407,6 +407,9 @@ public:
 	inline BOOL		flagCameraSource() const		{ return ((mFlags & FLAGS_CAMERA_SOURCE) != 0); }
 	inline BOOL		flagCameraDecoupled() const		{ return ((mFlags & FLAGS_CAMERA_DECOUPLED) != 0); }
 
+	bool getIncludeInSearch() const;
+	void setIncludeInSearch(bool include_in_search);
+
 	// Does "open" object menu item apply?
 	BOOL allowOpen() const;
 

@@ -53,12 +53,12 @@ LLPanelGroupGeneral::LLPanelGroupGeneral(const std::string& name,
 	mBtnJoinGroup(NULL),
 	mListVisibleMembers(NULL),
 	mCtrlShowInGroupList(NULL),
-	mCtrlPublishOnWeb(NULL),
 	mCtrlMature(NULL),
 	mCtrlOpenEnrollment(NULL),
 	mCtrlEnrollmentFee(NULL),
 	mSpinEnrollmentFee(NULL),
 	mCtrlReceiveNotices(NULL),
+	mCtrlListGroup(NULL),
 	mActiveTitleLabel(NULL),
 	mComboActiveTitle(NULL)
 {
@@ -133,13 +133,6 @@ BOOL LLPanelGroupGeneral::postBuild()
 		mCtrlShowInGroupList->setCallbackUserData(this);
 	}
 
-	mCtrlPublishOnWeb = (LLCheckBoxCtrl*) getChildByName("publish_on_web", recurse);
-	if (mCtrlPublishOnWeb)
-	{
-		mCtrlPublishOnWeb->setCommitCallback(onCommitAny);
-		mCtrlPublishOnWeb->setCallbackUserData(this);
-	}
-
 	mCtrlMature = (LLCheckBoxCtrl*) getChildByName("mature", recurse);
 	if (mCtrlMature)
 	{
@@ -170,20 +163,31 @@ BOOL LLPanelGroupGeneral::postBuild()
 	}
 
 	BOOL accept_notices = FALSE;
+	BOOL list_in_profile = FALSE;
 	LLGroupData data;
 	if(gAgent.getGroupData(mGroupID,data))
 	{
 		accept_notices = data.mAcceptNotices;
+		list_in_profile = data.mListInProfile;
 	}
 	mCtrlReceiveNotices = (LLCheckBoxCtrl*) getChildByName("receive_notices", recurse);
 	if (mCtrlReceiveNotices)
 	{
-		mCtrlReceiveNotices->setCommitCallback(onReceiveNotices);
+		mCtrlReceiveNotices->setCommitCallback(onCommitUserOnly);
 		mCtrlReceiveNotices->setCallbackUserData(this);
 		mCtrlReceiveNotices->set(accept_notices);
 		mCtrlReceiveNotices->setEnabled(data.mID.notNull());
 	}
 	
+	mCtrlListGroup = (LLCheckBoxCtrl*) getChildByName("list_groups_in_profile", recurse);
+	if (mCtrlListGroup)
+	{
+		mCtrlListGroup->setCommitCallback(onCommitUserOnly);
+		mCtrlListGroup->setCallbackUserData(this);
+		mCtrlListGroup->set(list_in_profile);
+		mCtrlListGroup->setEnabled(data.mID.notNull());
+	}
+
 	mActiveTitleLabel = (LLTextBox*) getChildByName("active_title_label", recurse);
 	
 	mComboActiveTitle = (LLComboBox*) getChildByName("active_title", recurse);
@@ -217,7 +221,6 @@ BOOL LLPanelGroupGeneral::postBuild()
 		mEditCharter->setEnabled(TRUE);
 
 		mCtrlShowInGroupList->setEnabled(TRUE);
-		mCtrlPublishOnWeb->setEnabled(TRUE);
 		mCtrlMature->setEnabled(TRUE);
 		mCtrlOpenEnrollment->setEnabled(TRUE);
 		mCtrlEnrollmentFee->setEnabled(TRUE);
@@ -238,6 +241,15 @@ void LLPanelGroupGeneral::onCommitAny(LLUICtrl* ctrl, void* data)
 	self->updateChanged();
 	self->notifyObservers();
 }
+
+// static
+void LLPanelGroupGeneral::onCommitUserOnly(LLUICtrl* ctrl, void* data)
+{
+	LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
+	self->mChanged = TRUE;
+	self->notifyObservers();
+}
+
 
 // static
 void LLPanelGroupGeneral::onCommitEnrollment(LLUICtrl* ctrl, void* data)
@@ -340,16 +352,6 @@ void LLPanelGroupGeneral::joinDlgCB(S32 which, void *userdata)
 }
 
 // static
-void LLPanelGroupGeneral::onReceiveNotices(LLUICtrl* ctrl, void* data)
-{
-	LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
-	LLCheckBoxCtrl* check = (LLCheckBoxCtrl*)ctrl;
-
-	if(!self) return;
-	gAgent.setGroupAcceptNotices(self->mGroupID, check->get());
-}
-
-// static
 void LLPanelGroupGeneral::openProfile(void* data)
 {
 	LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
@@ -406,88 +408,90 @@ void LLPanelGroupGeneral::draw()
 
 bool LLPanelGroupGeneral::apply(LLString& mesg)
 {
-	if (!mAllowEdit)
-	{
-		llwarns << "LLPanelGroupGeneral::apply() called with false mAllowEdit"
-				<< llendl;
-		return true;
-	}
+	BOOL has_power_in_group = gAgent.hasPowerInGroup(mGroupID,GP_GROUP_CHANGE_IDENTITY);
 
-	llinfos << "LLPanelGroupGeneral::apply" << llendl;
-	if (mGroupID.isNull())
+	if (has_power_in_group || mGroupID.isNull())
 	{
-		// Validate the group name length.
-		S32 group_name_len = mGroupNameEditor->getText().size();
-		if ( group_name_len < DB_GROUP_NAME_MIN_LEN 
-			|| group_name_len > DB_GROUP_NAME_STR_LEN)
+		llinfos << "LLPanelGroupGeneral::apply" << llendl;
+		if (mGroupID.isNull())
 		{
-			std::ostringstream temp_error;
-			temp_error << "A group name must be between " << DB_GROUP_NAME_MIN_LEN
-					   << " and " << DB_GROUP_NAME_STR_LEN << " characters.";
-			mesg = temp_error.str();
+			// Validate the group name length.
+			S32 group_name_len = mGroupNameEditor->getText().size();
+			if ( group_name_len < DB_GROUP_NAME_MIN_LEN 
+				|| group_name_len > DB_GROUP_NAME_STR_LEN)
+			{
+				std::ostringstream temp_error;
+				temp_error << "A group name must be between " << DB_GROUP_NAME_MIN_LEN
+					<< " and " << DB_GROUP_NAME_STR_LEN << " characters.";
+				mesg = temp_error.str();
+				return false;
+			}
+
+			LLString::format_map_t args;
+			args["[MESSAGE]"] = mConfirmGroupCreateStr;
+			gViewerWindow->alertXml("GenericAlertYesCancel", args,
+				createGroupCallback,this);
+
 			return false;
 		}
 
-		LLString::format_map_t args;
-		args["[MESSAGE]"] = mConfirmGroupCreateStr;
-		gViewerWindow->alertXml("GenericAlertYesCancel", args,
-								createGroupCallback,this);
+		LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
 
-        return false;
-	}
-
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
-
-	if (!gdatap)
-	{
-		mesg = "No group data found for group ";
-		mesg.append(mGroupID.asString());
-		return false;
-	}
-
-	bool can_change_ident = false;
-	bool can_change_member_opts = false;
-	can_change_ident = gAgent.hasPowerInGroup(mGroupID,GP_GROUP_CHANGE_IDENTITY);
-	can_change_member_opts = gAgent.hasPowerInGroup(mGroupID,GP_MEMBER_OPTIONS);
-
-	if (can_change_ident)
-	{
-		if (mCtrlPublishOnWeb) gdatap->mAllowPublish = mCtrlPublishOnWeb->get();
-		if (mEditCharter) gdatap->mCharter = mEditCharter->getText();
-		if (mInsignia) gdatap->mInsigniaID = mInsignia->getImageAssetID();
-		if (mCtrlMature)
+		if (!gdatap)
 		{
-			if (gAgent.mAccess > SIM_ACCESS_PG)
+			mesg = "No group data found for group ";
+			mesg.append(mGroupID.asString());
+			return false;
+		}
+		bool can_change_ident = false;
+		bool can_change_member_opts = false;
+		can_change_ident = gAgent.hasPowerInGroup(mGroupID,GP_GROUP_CHANGE_IDENTITY);
+		can_change_member_opts = gAgent.hasPowerInGroup(mGroupID,GP_MEMBER_OPTIONS);
+
+		if (can_change_ident)
+		{
+			if (mEditCharter) gdatap->mCharter = mEditCharter->getText();
+			if (mInsignia) gdatap->mInsigniaID = mInsignia->getImageAssetID();
+			if (mCtrlMature)
 			{
-				gdatap->mMaturePublish = mCtrlMature->get();
+				if (gAgent.mAccess > SIM_ACCESS_PG)
+				{
+					gdatap->mMaturePublish = mCtrlMature->get();
+				}
+				else
+				{
+					gdatap->mMaturePublish = FALSE;
+				}
 			}
-			else
+			if (mCtrlShowInGroupList) gdatap->mShowInList = mCtrlShowInGroupList->get();
+		}
+
+		if (can_change_member_opts)
+		{
+			if (mCtrlOpenEnrollment) gdatap->mOpenEnrollment = mCtrlOpenEnrollment->get();
+			if (mCtrlEnrollmentFee && mSpinEnrollmentFee)
 			{
-				gdatap->mMaturePublish = FALSE;
+				gdatap->mMembershipFee = (mCtrlEnrollmentFee->get()) ? 
+					(S32) mSpinEnrollmentFee->get() : 0;
 			}
 		}
-		if (mCtrlShowInGroupList) gdatap->mShowInList = mCtrlShowInGroupList->get();
-	}
 
-	if (can_change_member_opts)
-	{
-		if (mCtrlOpenEnrollment) gdatap->mOpenEnrollment = mCtrlOpenEnrollment->get();
-		if (mCtrlEnrollmentFee && mSpinEnrollmentFee)
+		if (can_change_ident || can_change_member_opts)
 		{
-			gdatap->mMembershipFee = (mCtrlEnrollmentFee->get()) ? 
-										 (S32) mSpinEnrollmentFee->get() : 0;
+			gGroupMgr->sendUpdateGroupInfo(mGroupID);
 		}
+		notifyObservers();
 	}
 
-	if (can_change_ident || can_change_member_opts)
-	{
-		gGroupMgr->sendUpdateGroupInfo(mGroupID);
-	}
+	BOOL receive_notices = false;
+	BOOL list_in_profile = false;
+	if (mCtrlReceiveNotices)
+		receive_notices = mCtrlReceiveNotices->get();
+	if (mCtrlListGroup) 
+		list_in_profile = mCtrlListGroup->get();
 
-	if (mCtrlReceiveNotices) gAgent.setGroupAcceptNotices(mGroupID, mCtrlReceiveNotices->get());
-
+	gAgent.setUserGroupFlags(mGroupID, receive_notices, list_in_profile);
 	mChanged = FALSE;
-	notifyObservers();
 
 	return true;
 }
@@ -521,7 +525,7 @@ void LLPanelGroupGeneral::createGroupCallback(S32 option, void* userdata)
 												self->mInsignia->getImageAssetID(),
 												enrollment_fee,
 												self->mCtrlOpenEnrollment->get(),
-												self->mCtrlPublishOnWeb->get(),
+												false,
 												self->mCtrlMature->get());
 
 		}
@@ -606,11 +610,6 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 	{
 		mCtrlShowInGroupList->set(gdatap->mShowInList);
 		mCtrlShowInGroupList->setEnabled(mAllowEdit && can_change_ident);
-	}
-	if (mCtrlPublishOnWeb) 
-	{
-		mCtrlPublishOnWeb->set(gdatap->mAllowPublish);
-		mCtrlPublishOnWeb->setEnabled(mAllowEdit && can_change_ident);
 	}
 	if (mCtrlMature)
 	{

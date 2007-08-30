@@ -1258,6 +1258,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("ProvisionVoiceAccountRequest");
 	capabilityNames.append("ServerReleaseNotes");
 	capabilityNames.append("CopyInventoryFromNotecard");
+	capabilityNames.append("DispatchRegionInfo");
 
 	llinfos << "posting to seed " << url << llendl;
 

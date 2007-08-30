@@ -28,6 +28,7 @@
 #include "llquaternion.h"
 #include "v3math.h"
 #include "v4math.h"
+#include "llsdutil.h"
 //#include "vmath.h"
 
 #include "imageids.h"
@@ -4808,7 +4809,7 @@ BOOL LLAgent::setGroupContribution(const LLUUID& group_id, S32 contribution)
 	return FALSE;
 }
 
-BOOL LLAgent::setGroupAcceptNotices(const LLUUID& group_id, BOOL accept_notices)
+BOOL LLAgent::setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOOL list_in_profile)
 {
 	S32 count = mGroups.count();
 	for(S32 i = 0; i < count; ++i)
@@ -4816,6 +4817,7 @@ BOOL LLAgent::setGroupAcceptNotices(const LLUUID& group_id, BOOL accept_notices)
 		if(mGroups.get(i).mID == group_id)
 		{
 			mGroups.get(i).mAcceptNotices = accept_notices;
+			mGroups.get(i).mListInProfile = list_in_profile;
 			LLMessageSystem* msg = gMessageSystem;
 			msg->newMessage("SetGroupAcceptNotices");
 			msg->nextBlock("AgentData");
@@ -4824,6 +4826,8 @@ BOOL LLAgent::setGroupAcceptNotices(const LLUUID& group_id, BOOL accept_notices)
 			msg->nextBlock("Data");
 			msg->addUUID("GroupID", group_id);
 			msg->addBOOL("AcceptNotices", accept_notices);
+			msg->nextBlock("NewData");
+			msg->addBOOL("ListInProfile", list_in_profile);
 			sendReliableMessage();
 			return TRUE;
 		}
@@ -5176,6 +5180,70 @@ void LLAgent::processAgentGroupDataUpdate(LLMessageSystem *msg, void **)
 	}
 
 }
+
+class LLAgentGroupDataUpdateViewerNode : public LLHTTPNode
+{
+	virtual void post(
+		LLHTTPNode::ResponsePtr response,
+		const LLSD& context,
+		const LLSD& input) const
+	{
+		LLSD body = input["body"];
+		if(body.has("body"))
+			body = body["body"];
+		LLUUID agent_id = body["AgentData"][0]["AgentID"].asUUID();
+
+		if (agent_id != gAgentID)
+		{
+			llwarns << "processAgentGroupDataUpdate for agent other than me" << llendl;
+			return;
+		}	
+
+		LLSD group_data = body["GroupData"];
+
+		LLSD::array_iterator iter_group =
+			group_data.beginArray();
+		LLSD::array_iterator end_group =
+			group_data.endArray();
+		int group_index = 0;
+		for(; iter_group != end_group; ++iter_group)
+		{
+
+			LLGroupData group;
+			S32 index = -1;
+			bool need_floater_update = false;
+
+			group.mID = (*iter_group)["GroupID"].asUUID();
+			group.mPowers = ll_U64_from_sd((*iter_group)["GroupPowers"]);
+			group.mAcceptNotices = (*iter_group)["AcceptNotices"].asBoolean();
+			group.mListInProfile = body["NewGroupData"][group_index]["ListInProfile"].asBoolean();
+			group.mInsigniaID = (*iter_group)["GroupInsigniaID"].asUUID();
+			group.mName = (*iter_group)["GroupName"].asString();
+			group.mContribution = (*iter_group)["Contribution"].asInteger();
+
+			group_index++;
+
+			if(group.mID.notNull())
+			{
+				need_floater_update = true;
+				// Remove the group if it already exists remove it and add the new data to pick up changes.
+				index = gAgent.mGroups.find(group);
+				if (index != -1)
+				{
+					gAgent.mGroups.remove(index);
+				}
+				gAgent.mGroups.put(group);
+			}
+			if (need_floater_update)
+			{
+				update_group_floaters(group.mID);
+			}
+		}
+	}
+};
+
+LLHTTPRegistration<LLAgentGroupDataUpdateViewerNode >
+	gHTTPRegistrationAgentGroupDataUpdateViewerNode ("/message/AgentGroupDataUpdate"); 
 
 // static
 void LLAgent::processAgentDataUpdate(LLMessageSystem *msg, void **)
@@ -7268,6 +7336,5 @@ void LLAgent::parseTeleportMessages(const LLString& xml_filename)
 		} //end for (all message in set)
 	}//end for (all message sets in xml file)
 }
-
 
 // EOF

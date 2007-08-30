@@ -334,6 +334,7 @@ public:
 	BOOL selectionGetFullbright(U8 *fullbright);// true if all selected tes have same
 	bool selectionGetMediaType(U8 *media_type);	// true if all selected tes have same
 	BOOL selectionGetClickAction(U8* action);
+	bool selectionGetIncludeInSearch(bool* include_in_search_out); // true if all selected objects have same
 
 	void selectionSetMaterial(U8 material);
 	void selectionSetImage(const LLUUID& imageid); // could be item or asset id
@@ -348,6 +349,7 @@ public:
 	void selectionSetFullbright( U8 fullbright );
 	void selectionSetMediaTypeAndURL( U8 media_type, const std::string& media_url );
 	void selectionSetClickAction(U8 action);
+	void selectionSetIncludeInSearch(bool include_in_search);
 
 	void selectionSetObjectPermissions(U8 perm_field, BOOL set, U32 perm_mask, BOOL override = FALSE);
 	void selectionSetObjectName(const LLString& name);
@@ -498,6 +500,7 @@ private:
 	static void packObjectIDAndRotation(	LLSelectNode* node, void *);
 	static void packObjectLocalID(LLSelectNode* node, void *);
 	static void packObjectClickAction(LLSelectNode* node, void* data);
+	static void packObjectIncludeInSearch(LLSelectNode* node, void* data);
 	static void packObjectName(LLSelectNode* node, void* user_data);
 	static void packObjectDescription(LLSelectNode* node, void* user_data);
 	static void packObjectCategory(LLSelectNode* node, void* user_data);

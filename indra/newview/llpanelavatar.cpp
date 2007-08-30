@@ -1836,11 +1836,6 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 		allow_publish = (flags & AVATAR_ALLOW_PUBLISH);
 		online = (flags & AVATAR_ONLINE);
 		
-		EOnlineStatus online_status = (online) ? ONLINE_STATUS_YES : ONLINE_STATUS_NO;
-
-		self->setOnlineStatus(online_status);
-
-		self->mPanelWeb->setWebURL(std::string(profile_url));
 		U8 caption_index = 0;
 		LLString caption_text;
 		charter_member_size = msg->getSize("PropertiesData", "CharterMember");
@@ -1855,12 +1850,6 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 			caption_text = caption;
 		}
 		
-		LLTextureCtrl*	image_ctrl = LLUICtrlFactory::getTexturePickerByName(self->mPanelSecondLife,"img");
-		if(image_ctrl)
-		{
-			image_ctrl->setImageAssetID(image_id);
-		}
-		self->childSetValue("about", about_text);
 
 		if(caption_text.empty())
 		{
@@ -1903,10 +1892,23 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 		
 		self->mPanelSecondLife->childSetValue("acct", caption_text);
 		self->mPanelSecondLife->childSetValue("born", born_on);
-		
+
+		EOnlineStatus online_status = (online) ? ONLINE_STATUS_YES : ONLINE_STATUS_NO;
+
+		self->setOnlineStatus(online_status);
+
+		self->mPanelWeb->setWebURL(std::string(profile_url));
+
+		LLTextureCtrl*	image_ctrl = LLUICtrlFactory::getTexturePickerByName(self->mPanelSecondLife,"img");
+		if(image_ctrl)
+		{
+			image_ctrl->setImageAssetID(image_id);
+		}
+		self->childSetValue("about", about_text);
+
 		self->mPanelSecondLife->setPartnerID(partner_id);
 		self->mPanelSecondLife->updatePartnerName();
-		
+
 		if (self->mPanelFirstLife)
 		{
 			// Teens don't get these

@@ -4671,6 +4671,23 @@ void LLViewerObject::markForUpdate(BOOL priority)
 	}
 }
 
+bool LLViewerObject::getIncludeInSearch() const
+{
+	return ((mFlags & FLAGS_INCLUDE_IN_SEARCH) != 0);
+}
+
+void LLViewerObject::setIncludeInSearch(bool include_in_search)
+{
+	if (include_in_search)
+	{
+		mFlags |= FLAGS_INCLUDE_IN_SEARCH;
+	}
+	else
+	{
+		mFlags &= ~FLAGS_INCLUDE_IN_SEARCH;
+	}
+}
+
 void LLViewerObject::setRegion(LLViewerRegion *regionp)
 {
 	llassert(regionp);

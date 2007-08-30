@@ -301,6 +301,7 @@ public:
 	static void onClickPublishHelp(void*);
 
 	virtual BOOL postBuild();
+	virtual void draw();
 
 protected:
 	LLCheckBoxCtrl*	mCheckEditObjects;

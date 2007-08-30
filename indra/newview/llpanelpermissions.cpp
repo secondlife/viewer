@@ -84,6 +84,8 @@ BOOL	LLPanelPermissions::postBuild()
 	this->childSetCommitCallback("checkbox next owner can copy",LLPanelPermissions::onCommitNextOwnerCopy,this);
 	this->childSetCommitCallback("checkbox next owner can transfer",LLPanelPermissions::onCommitNextOwnerTransfer,this);
 	this->childSetCommitCallback("clickaction",LLPanelPermissions::onCommitClickAction,this);
+	this->childSetCommitCallback("search_check",LLPanelPermissions::onCommitIncludeInSearch,this);
+	
 
 	LLTextBox*	LabelGroupNameRectProxy = gUICtrlFactory->getTextBoxByName(this,"Group Name Proxy");
 	if(LabelGroupNameRectProxy )
@@ -197,6 +199,10 @@ void LLPanelPermissions::refresh()
 		//checkbox for sale
 		childSetValue("checkbox for sale",FALSE);
 		childSetEnabled("checkbox for sale",false);
+
+		//checkbox include in search
+		childSetValue("search_check", FALSE);
+		childSetEnabled("search_check", false);
 		
 		LLRadioGroup*	RadioSaleType = gUICtrlFactory->getRadioGroupByName(this,"sale type");
 		if(RadioSaleType)
@@ -730,8 +736,15 @@ void LLPanelPermissions::refresh()
 		childSetTentative("checkbox for sale",false);
 	}
 
-	// Click action (touch, sit, buy)
+	// Check search status of objects
 	BOOL all_volume = gSelectMgr->selectionAllPCode( LL_PCODE_VOLUME );
+	bool include_in_search;
+	bool all_include_in_search = gSelectMgr->selectionGetIncludeInSearch(&include_in_search);
+	childSetEnabled("search_check", is_perm_modify && all_volume);
+	childSetValue("search_check", include_in_search);
+	childSetTentative("search_check", ! all_include_in_search);
+
+	// Click action (touch, sit, buy)
 	U8 click_action = 0;
 	if (gSelectMgr->selectionGetClickAction(&click_action))
 	{
@@ -1044,3 +1057,13 @@ void LLPanelPermissions::onCommitClickAction(LLUICtrl* ctrl, void*)
 	}
 	gSelectMgr->selectionSetClickAction(click_action);
 }
+
+// static
+void LLPanelPermissions::onCommitIncludeInSearch(LLUICtrl* ctrl, void*)
+{
+	LLCheckBoxCtrl* box = (LLCheckBoxCtrl*)ctrl;
+	llassert(box);
+
+	gSelectMgr->selectionSetIncludeInSearch(box->get());
+}
+

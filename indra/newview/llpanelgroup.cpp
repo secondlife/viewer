@@ -322,7 +322,7 @@ void LLPanelGroup::tabChanged()
 	if ( mApplyBtn )
 	{
 		LLString mesg;
-		mApplyBtn->setEnabled(mAllowEdit && mCurrentTab->needsApply(mesg));
+		mApplyBtn->setEnabled(mCurrentTab->needsApply(mesg));
 	}
 }
 

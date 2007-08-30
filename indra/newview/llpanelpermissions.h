@@ -75,6 +75,7 @@ protected:
 	void setAllSaleInfo();
 
 	static void	onCommitClickAction(LLUICtrl* ctrl, void*);
+	static void onCommitIncludeInSearch(LLUICtrl* ctrl, void*);
 
 protected:
 	LLNameBox*		mLabelGroupName;		// group name

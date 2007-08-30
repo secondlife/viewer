@@ -44,6 +44,7 @@ public:
 
 private:
 	static void onCommitAny(LLUICtrl* ctrl, void* data);
+	static void onCommitUserOnly(LLUICtrl* ctrl, void* data);
 	static void onCommitTitle(LLUICtrl* ctrl, void* data);
 	static void onCommitEnrollment(LLUICtrl* ctrl, void* data);
 	static void onClickJoin(void* userdata);
@@ -76,12 +77,12 @@ private:
 
 	// Options
 	LLCheckBoxCtrl	*mCtrlShowInGroupList;
-	LLCheckBoxCtrl	*mCtrlPublishOnWeb;
 	LLCheckBoxCtrl	*mCtrlMature;
 	LLCheckBoxCtrl	*mCtrlOpenEnrollment;
 	LLCheckBoxCtrl	*mCtrlEnrollmentFee;
 	LLSpinCtrl      *mSpinEnrollmentFee;
 	LLCheckBoxCtrl	*mCtrlReceiveNotices;
+	LLCheckBoxCtrl  *mCtrlListGroup;
 	LLTextBox       *mActiveTitleLabel;
 	LLComboBox		*mComboActiveTitle;
 

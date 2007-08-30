@@ -1957,10 +1957,6 @@ BOOL LLPanelLandOptions::postBuild()
 	mCategoryCombo = LLUICtrlFactory::getComboBoxByName(this, "land category");
 	childSetCommitCallback("land category", onCommitAny, this);
 
-	mAllowPublishCtrl = LLUICtrlFactory::getCheckBoxByName(this, "PublishCheck");
-	childSetCommitCallback("PublishCheck", onCommitAny, this);
-
-	
 	mMatureCtrl = LLUICtrlFactory::getCheckBoxByName(this, "MatureCheck");
 	childSetCommitCallback("MatureCheck", onCommitAny, this);
 	
@@ -1971,8 +1967,6 @@ BOOL LLPanelLandOptions::postBuild()
 	if (gAgent.mAccess < SIM_ACCESS_MATURE)
 	{
 		// Disable these buttons if they are PG (Teen) users
-		mAllowPublishCtrl->setVisible(FALSE);
-		mAllowPublishCtrl->setEnabled(FALSE);
 		mPublishHelpButton->setVisible(FALSE);
 		mPublishHelpButton->setEnabled(FALSE);
 		mMatureCtrl->setVisible(FALSE);
@@ -2094,7 +2088,6 @@ void LLPanelLandOptions::refresh()
 		mSetBtn->setEnabled(FALSE);
 		mClearBtn->setEnabled(FALSE);
 
-		mAllowPublishCtrl->setEnabled(FALSE);
 		mMatureCtrl->setEnabled(FALSE);
 		mPublishHelpButton->setEnabled(FALSE);
 	}
@@ -2135,11 +2128,6 @@ void LLPanelLandOptions::refresh()
 		mCheckOtherScripts	->set( parcel->getAllowOtherScripts() );
 		mCheckOtherScripts	->setEnabled( can_change_options );
 
-		BOOL can_change_identity = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, 
-														GP_LAND_CHANGE_IDENTITY);
-		mCheckShowDirectory	->set( parcel->getParcelFlag(PF_SHOW_DIRECTORY));
-		mCheckShowDirectory	->setEnabled( can_change_identity );
-
 		mPushRestrictionCtrl->set( parcel->getRestrictPushObject() );
 		if(parcel->getRegionPushOverride())
 		{
@@ -2152,6 +2140,9 @@ void LLPanelLandOptions::refresh()
 			mPushRestrictionCtrl->setLabel("Restrict Pushing");
 			mPushRestrictionCtrl->setEnabled(can_change_options);
 		}
+
+		BOOL can_change_identity = 
+			LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_CHANGE_IDENTITY);
 
 		// Set by string in case the order in UI doesn't match the order
 		// by index.
@@ -2186,8 +2177,6 @@ void LLPanelLandOptions::refresh()
 		mSetBtn->setEnabled( can_change_landing_point );
 		mClearBtn->setEnabled( can_change_landing_point );
 
-		mAllowPublishCtrl->set(parcel->getAllowPublish());
-		mAllowPublishCtrl->setEnabled( can_change_identity );
 		mMatureCtrl->set(parcel->getMaturePublish());
 		mMatureCtrl->setEnabled( can_change_identity );
 		mPublishHelpButton->setEnabled( can_change_identity );
@@ -2195,8 +2184,6 @@ void LLPanelLandOptions::refresh()
 		if (gAgent.mAccess < SIM_ACCESS_MATURE)
 		{
 			// Disable these buttons if they are PG (Teen) users
-			mAllowPublishCtrl->setVisible(FALSE);
-			mAllowPublishCtrl->setEnabled(FALSE);
 			mPublishHelpButton->setVisible(FALSE);
 			mPublishHelpButton->setEnabled(FALSE);
 			mMatureCtrl->setVisible(FALSE);
@@ -2205,7 +2192,39 @@ void LLPanelLandOptions::refresh()
 	}
 }
 
+// virtual
+void LLPanelLandOptions::draw()
+{
+	LLParcel *parcel = gParcelMgr->getFloatingParcelSelection()->getParcel();
+	
+	if(parcel)
+	{
+		LLViewerRegion* region;
+		region = gParcelMgr->getSelectionRegion();
+		llassert(region); // Region should never be null.
 
+		BOOL can_change_identity = region ? 
+			LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_CHANGE_IDENTITY) &&
+			! (region->getRegionFlags() & REGION_FLAGS_BLOCK_PARCEL_SEARCH) : false;
+
+		// There is a bug with this panel whereby the Show Directory bit can be 
+		// slammed off by the Region based on an override.  Since this data is cached
+		// locally the change will not reflect in the panel, which could cause confusion
+		// A workaround for this is to flip the bit off in the locally cached version
+		// when we detect a mismatch case.
+		if(! can_change_identity && parcel->getParcelFlag(PF_SHOW_DIRECTORY))
+		{
+			parcel->setParcelFlag(PF_SHOW_DIRECTORY, FALSE);
+		}
+		mCheckShowDirectory	->set(parcel->getParcelFlag(PF_SHOW_DIRECTORY));
+		mCheckShowDirectory	->setEnabled(can_change_identity);
+		mCategoryCombo->setEnabled(can_change_identity);
+	}
+
+	LLPanel::draw();
+
+
+}
 // static
 void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 {
@@ -2228,7 +2247,7 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	BOOL allow_landmark		= self->mCheckLandmark->get();
 	BOOL allow_group_scripts	= self->mCheckGroupScripts->get() || self->mCheckOtherScripts->get();
 	BOOL allow_other_scripts	= self->mCheckOtherScripts->get();
-	BOOL allow_publish		= self->mAllowPublishCtrl->get();
+	BOOL allow_publish		= FALSE;
 	BOOL mature_publish		= self->mMatureCtrl->get();
 	BOOL push_restriction	= self->mPushRestrictionCtrl->get();
 	BOOL show_directory		= self->mCheckShowDirectory->get();
@@ -2318,7 +2337,22 @@ void LLPanelLandOptions::onClickClear(void* userdata)
 // static
 void LLPanelLandOptions::onClickPublishHelp(void*)
 {
-	gViewerWindow->alertXml("ClickPublishHelpLand");
+	LLViewerRegion* region = gParcelMgr->getSelectionRegion();
+	LLParcel *parcel = gParcelMgr->getFloatingParcelSelection()->getParcel();
+	llassert(region); // Region should never be null.
+
+	bool can_change_identity = region && parcel ? 
+		LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_CHANGE_IDENTITY) &&
+		! (region->getRegionFlags() & REGION_FLAGS_BLOCK_PARCEL_SEARCH) : false;
+
+	if(! can_change_identity)
+	{
+		gViewerWindow->alertXml("ClickPublishHelpLandDisabled");
+	}
+	else
+	{
+		gViewerWindow->alertXml("ClickPublishHelpLand");
+	}
 }
 
 //---------------------------------------------------------------------------

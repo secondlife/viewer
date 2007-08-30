@@ -1997,6 +1997,43 @@ BOOL LLSelectMgr::selectionGetMaterial(U8 *out_material)
 	return identical;
 }
 
+
+bool LLSelectMgr::selectionGetIncludeInSearch(bool* include_in_search_out)
+{
+	LLViewerObject *object = mSelectedObjects->getFirstRootObject();
+	if (!object) return FALSE;
+
+	bool include_in_search = object->getIncludeInSearch();
+
+	bool identical = true;
+	for ( object = mSelectedObjects->getFirstRootObject(); object; object = mSelectedObjects->getNextRootObject() )
+	{
+		if ( include_in_search != object->getIncludeInSearch())
+		{
+			identical = false;
+			break;
+		}
+	}
+
+	*include_in_search_out = include_in_search;
+	return identical;
+}
+
+void LLSelectMgr::selectionSetIncludeInSearch(bool include_in_search)
+{
+	LLViewerObject* object = NULL;
+	for ( object = mSelectedObjects->getFirstRootObject(); object; object = mSelectedObjects->getNextRootObject() )
+	{
+		object->setIncludeInSearch(include_in_search);
+	}
+	sendListToRegions(
+		"ObjectIncludeInSearch",
+		packAgentAndSessionID,
+		packObjectIncludeInSearch, 
+		&include_in_search,
+		SEND_ONLY_ROOTS);
+}
+
 BOOL LLSelectMgr::selectionGetClickAction(U8 *out_action)
 {
 	LLViewerObject *object = mSelectedObjects->getFirstObject();
@@ -4020,6 +4057,13 @@ void LLSelectMgr::packObjectClickAction(LLSelectNode* node, void *user_data)
 	gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
 	gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, node->getObject()->getLocalID() );
 	gMessageSystem->addU8("ClickAction", node->getObject()->getClickAction());
+}
+
+void LLSelectMgr::packObjectIncludeInSearch(LLSelectNode* node, void *user_data)
+{
+	gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
+	gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, node->getObject()->getLocalID() );
+	gMessageSystem->addBOOL("IncludeInSearch", node->getObject()->getIncludeInSearch());
 }
 
 // static

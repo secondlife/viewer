@@ -181,6 +181,7 @@ LLFloaterRegionInfo::LLFloaterRegionInfo(const LLRect& rect) :
 	mInfoPanels.push_back((LLPanelRegionInfo*)panel);
 	gUICtrlFactory->buildPanel(panel, "panel_region_covenant.xml");
 	mTab->addTabPanel(panel, panel->getLabel(), FALSE);
+
 }
 
 LLFloaterRegionInfo::~LLFloaterRegionInfo()
@@ -214,6 +215,7 @@ void LLFloaterRegionInfo::show(LLViewerRegion* region)
 	msg->addUUID("AgentID", gAgent.getID());
 	msg->addUUID("SessionID", gAgent.getSessionID());
 	gAgent.sendReliableMessage();
+
 }
 
 // static
@@ -305,6 +307,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	panel->childSetValue("restrict_pushobject", (region_flags & REGION_FLAGS_RESTRICT_PUSHOBJECT) ? TRUE : FALSE );
 	panel->childSetValue("allow_land_resell_check", (region_flags & REGION_FLAGS_BLOCK_LAND_RESELL) ? FALSE : TRUE );
 	panel->childSetValue("allow_parcel_changes_check", (region_flags & REGION_FLAGS_ALLOW_PARCEL_CHANGES) ? TRUE : FALSE );
+	panel->childSetValue("block_parcel_search_check", (region_flags & REGION_FLAGS_BLOCK_PARCEL_SEARCH) ? TRUE : FALSE );
 	panel->childSetValue("agent_limit_spin", LLSD((F32)agent_limit) );
 	panel->childSetValue("object_bonus_spin", LLSD(object_bonus_factor) );
 	panel->childSetValue("access_combo", LLSD(LLViewerRegion::accessToString(sim_access)) );
@@ -537,6 +540,7 @@ BOOL LLPanelRegionGeneralInfo::postBuild()
 	initCtrl("object_bonus_spin");
 	initCtrl("access_combo");
 	initCtrl("restrict_pushobject");
+	initCtrl("block_parcel_search_check");
 
 	initHelpBtn("terraform_help",		"HelpRegionBlockTerraform");
 	initHelpBtn("fly_help",				"HelpRegionBlockFly");
@@ -547,6 +551,7 @@ BOOL LLPanelRegionGeneralInfo::postBuild()
 	initHelpBtn("restrict_pushobject_help",		"HelpRegionRestrictPushObject");
 	initHelpBtn("land_resell_help",	"HelpRegionLandResell");
 	initHelpBtn("parcel_changes_help", "HelpParcelChanges");
+	initHelpBtn("parcel_search_help", "HelpRegionSearch");
 
 	childSetAction("kick_btn", onClickKick, this);
 	childSetAction("kick_all_btn", onClickKickAll, this);
@@ -672,51 +677,77 @@ void LLPanelRegionGeneralInfo::onClickManageTelehub(void* data)
 // strings[6] = sim access (0 = unknown, 13 = PG, 21 = Mature)
 // strings[7] = restrict pushobject
 // strings[8] = 'Y' - allow parcel subdivide, 'N' - not
+// strings[9] = 'Y' - block parcel search, 'N' - allow
 BOOL LLPanelRegionGeneralInfo::sendUpdate()
 {
 	llinfos << "LLPanelRegionGeneralInfo::sendUpdate()" << llendl;
-	strings_t strings;
-	//integers_t integers;
-	char buffer[MAX_STRING];		/* Flawfinder: ignore*/
-	snprintf(buffer, MAX_STRING, "%s", (childGetValue("block_terraform_check").asBoolean() ? "Y" : "N"));			/* Flawfinder: ignore */
-	strings.push_back(strings_t::value_type(buffer));
-	
-	snprintf(buffer, MAX_STRING, "%s", (childGetValue("block_fly_check").asBoolean() ? "Y" : "N"));			/* Flawfinder: ignore */
-	strings.push_back(strings_t::value_type(buffer));
 
-	snprintf(buffer, MAX_STRING, "%s", (childGetValue("allow_damage_check").asBoolean() ? "Y" : "N"));			/* Flawfinder: ignore */
-	strings.push_back(strings_t::value_type(buffer));
-
-	snprintf(buffer, MAX_STRING, "%s", (childGetValue("allow_land_resell_check").asBoolean() ? "Y" : "N"));			/* Flawfinder: ignore */
-	strings.push_back(strings_t::value_type(buffer));
-
-	F32 value = (F32)childGetValue("agent_limit_spin").asReal();
-	snprintf(buffer, MAX_STRING, "%f", value);			/* Flawfinder: ignore */
-	strings.push_back(strings_t::value_type(buffer));
-
-	value = (F32)childGetValue("object_bonus_spin").asReal();
-	snprintf(buffer, MAX_STRING, "%f", value);			/* Flawfinder: ignore */
-	strings.push_back(strings_t::value_type(buffer));
-
-	U8 access = LLViewerRegion::stringToAccess(childGetValue("access_combo").asString().c_str());
-	snprintf(buffer, MAX_STRING, "%d", (S32)access);			/* Flawfinder: ignore */
-	strings.push_back(strings_t::value_type(buffer));
-
-	snprintf(buffer, MAX_STRING, "%s", (childGetValue("restrict_pushobject").asBoolean() ? "Y" : "N"));			/* Flawfinder: ignore */
-	strings.push_back(strings_t::value_type(buffer));
-
-	snprintf(buffer, MAX_STRING, "%s", (childGetValue("allow_parcel_changes_check").asBoolean() ? "Y" : "N"));			/* Flawfinder: ignore */
-	strings.push_back(strings_t::value_type(buffer));
-
-	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
-	sendEstateOwnerMessage(gMessageSystem, "setregioninfo", invoice, strings);
-
-	LLViewerRegion* region = gAgent.getRegion();
-	if (region
-		&& access != region->getSimAccess() )		/* Flawfinder: ignore */
+	// First try using a Cap.  If that fails use the old method.
+	LLSD body;
+	std::string url = gAgent.getRegion()->getCapability("DispatchRegionInfo");
+	if (!url.empty())
 	{
-		gViewerWindow->alertXml("RegionMaturityChange");
+		body["block_terraform"] = childGetValue("block_terraform_check");
+		body["block_fly"] = childGetValue("block_fly_check");
+		body["allow_damage"] = childGetValue("allow_damage_check");
+		body["allow_land_resell"] = childGetValue("allow_land_resell_check");
+		body["agent_limit"] = childGetValue("agent_limit_spin");
+		body["prim_bonus"] = childGetValue("object_bonus_spin");
+		body["sim_access"] = childGetValue("access_combo");
+		body["restrict_pushobject"] = childGetValue("restrict_pushobject");
+		body["allow_parcel_changes"] = childGetValue("allow_parcel_changes_check");
+		body["block_parcel_search"] = childGetValue("block_parcel_search_check");
+		LLHTTPClient::post(url, body, new LLHTTPClient::Responder());
 	}
+	else
+	{
+		strings_t strings;
+		char buffer[MAX_STRING];		/* Flawfinder: ignore*/
+
+		snprintf(buffer, MAX_STRING, "%s", (childGetValue("block_terraform_check").asBoolean() ? "Y" : "N"));			/* Flawfinder: ignore */
+		strings.push_back(strings_t::value_type(buffer));
+
+		snprintf(buffer, MAX_STRING, "%s", (childGetValue("block_fly_check").asBoolean() ? "Y" : "N"));			/* Flawfinder: ignore */
+		strings.push_back(strings_t::value_type(buffer));
+
+		snprintf(buffer, MAX_STRING, "%s", (childGetValue("allow_damage_check").asBoolean() ? "Y" : "N"));			/* Flawfinder: ignore */
+		strings.push_back(strings_t::value_type(buffer));
+
+		snprintf(buffer, MAX_STRING, "%s", (childGetValue("allow_land_resell_check").asBoolean() ? "Y" : "N"));			/* Flawfinder: ignore */
+		strings.push_back(strings_t::value_type(buffer));
+
+		F32 value = (F32)childGetValue("agent_limit_spin").asReal();
+		snprintf(buffer, MAX_STRING, "%f", value);			/* Flawfinder: ignore */
+		strings.push_back(strings_t::value_type(buffer));
+
+		value = (F32)childGetValue("object_bonus_spin").asReal();
+		snprintf(buffer, MAX_STRING, "%f", value);			/* Flawfinder: ignore */
+		strings.push_back(strings_t::value_type(buffer));
+
+		U8 access = LLViewerRegion::stringToAccess(childGetValue("access_combo").asString().c_str());
+		snprintf(buffer, MAX_STRING, "%d", (S32)access);			/* Flawfinder: ignore */
+		strings.push_back(strings_t::value_type(buffer));
+
+		snprintf(buffer, MAX_STRING, "%s", (childGetValue("restrict_pushobject").asBoolean() ? "Y" : "N"));			/* Flawfinder: ignore */
+		strings.push_back(strings_t::value_type(buffer));
+
+		snprintf(buffer, MAX_STRING, "%s", (childGetValue("allow_parcel_changes_check").asBoolean() ? "Y" : "N"));			/* Flawfinder: ignore */
+		strings.push_back(strings_t::value_type(buffer));
+
+		LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
+		sendEstateOwnerMessage(gMessageSystem, "setregioninfo", invoice, strings);
+
+		LLViewerRegion* region = gAgent.getRegion();
+		if (region
+			&& access != region->getSimAccess() )		/* Flawfinder: ignore */
+		{
+			gViewerWindow->alertXml("RegionMaturityChange");
+		}
+	}
+
+
+	//integers_t integers;
+
 
 	return TRUE;
 }

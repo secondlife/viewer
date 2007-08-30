@@ -195,6 +195,7 @@ LLGroupMgrGroupData::LLGroupMgrGroupData(const LLUUID& id) :
 	mOpenEnrollment(FALSE), 
 	mMembershipFee(0),
 	mAllowPublish(FALSE),
+	mListInProfile(FALSE),
 	mMaturePublish(FALSE),
 	mChanged(FALSE),
 	mMemberCount(0),
@@ -1240,6 +1241,7 @@ void LLGroupMgr::processCreateGroupReply(LLMessageSystem* msg, void ** data)
 		// This isn't actually too bad because real data will come down in 2 or 3 miliseconds and replace this.
 		LLGroupData gd;
 		gd.mAcceptNotices = TRUE;
+		gd.mListInProfile = TRUE;
 		gd.mContribution = 0;
 		gd.mID = group_id;
 		gd.mName = "new group";

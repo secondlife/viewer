@@ -78,6 +78,7 @@ struct LLGroupData
 	LLUUID mInsigniaID;
 	U64 mPowers;
 	BOOL mAcceptNotices;
+	BOOL mListInProfile;
 	S32 mContribution;
 	std::string mName;
 };
@@ -197,7 +198,7 @@ public:
 	// new contribution level. Returns true if the group id was found
 	// and contribution could be set.
 	BOOL setGroupContribution(const LLUUID& group_id, S32 contribution);
-	BOOL setGroupAcceptNotices(const LLUUID& group_id, BOOL accept_notices);
+	BOOL setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOOL list_in_profile);
 	void			setHideGroupTitle(BOOL hide)	{ mHideGroupTitle = hide; }
 
 	//
