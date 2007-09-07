@@ -254,7 +254,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 			if (result.second)
 			{
 				llinfos << "Muting " << localmute.mName << " id " << localmute.mID << " flags " << localmute.mFlags << llendl;
-				updateAdd(mute);
+				updateAdd(localmute);
 				notifyObservers();
 				if(!(localmute.mFlags & LLMute::flagParticles))
 				{

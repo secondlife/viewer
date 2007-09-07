@@ -2151,7 +2151,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	if (gMuteListp)
 	{
 		is_muted = gMuteListp->isMuted(from_id, from_name, LLMute::flagTextChat)
-				   || gMuteListp->isMuted(owner_id);
+				   || gMuteListp->isMuted(owner_id, LLMute::flagTextChat);
 		is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT && gMuteListp->isLinden(from_name);
 	}
 
