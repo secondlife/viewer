@@ -17,6 +17,10 @@
 #include "lldir.h"
 #include "llframetimer.h"
 
+#if LL_LINUX
+# include "llfilepicker.h"
+#endif
+
 //
 // Globals
 //
@@ -235,6 +239,56 @@ void LLDirPicker::reset()
 {
 	mLocked = FALSE;
 	mDir    = NULL;
+}
+
+#elif LL_LINUX
+
+LLDirPicker::LLDirPicker() 
+{
+	mFilePicker = new LLFilePicker();
+	reset();
+}
+
+LLDirPicker::~LLDirPicker()
+{
+	delete mFilePicker;
+}
+
+
+void LLDirPicker::reset()
+{
+	if (mFilePicker)
+		mFilePicker->reset();
+}
+
+BOOL LLDirPicker::getDir(LLString* filename)
+{
+	reset();
+	if (mFilePicker)
+	{
+		GtkWindow* picker = mFilePicker->buildFilePicker(false, true,
+								 "dirpicker");
+
+		if (picker)
+		{		   
+		   gtk_window_set_title(GTK_WINDOW(picker), "Choose Directory");
+		   gtk_widget_show_all(GTK_WIDGET(picker));
+		   gtk_main();
+		   return (NULL != mFilePicker->getFirstFile());
+		}
+	}
+	return FALSE;
+}
+
+LLString LLDirPicker::getDirName()
+{
+	if (mFilePicker)
+	{
+		const char* name = mFilePicker->getFirstFile();
+		if (name)
+			return name;
+	}
+	return "";
 }
 
 #else // not implemented

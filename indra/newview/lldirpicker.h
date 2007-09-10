@@ -33,6 +33,8 @@
 #include <commdlg.h>
 #endif
 
+class LLFilePicker;
+
 class LLDirPicker
 {
 public:
@@ -62,6 +64,11 @@ private:
 										 NavCBRecPtr callBackParms, void* callBackUD);
 	OSStatus	doNavChooseDialog();
 	
+#endif
+
+#if LL_LINUX
+	// On Linux we just implement LLDirPicker on top of LLFilePicker
+	LLFilePicker *mFilePicker;
 #endif
 
 	char mDirs[DIRNAME_BUFFER_SIZE]; /*Flawfinder: ignore*/

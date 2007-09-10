@@ -50,11 +50,16 @@
 typedef struct {
 	GtkWidget *win;
 	std::vector<LLString> fileVector;
+	std::string contextName;
 } StoreFilenamesStruct;
 #endif // LL_GTK
 
 class LLFilePicker
 {
+#ifdef LL_GTK
+	friend class LLDirPicker;
+	friend void chooser_responder(GtkWidget *, gint, gpointer);
+#endif // LL_GTK
 public:
 	// calling this before main() is undefined
 	static LLFilePicker& instance( void ) { return sInstance; }
@@ -146,9 +151,9 @@ private:
 
 #if LL_GTK
 	StoreFilenamesStruct mStoreFilenames;
-
-	GtkWindow* buildFilePicker(void);
 	U32 mNextFileIndex;
+	// we remember the last path that was accessed for a particular usage
+	static std::map <std::string, std::string> sContextToPathMap;
 #endif
 
 	char mFiles[FILENAME_BUFFER_SIZE];	/*Flawfinder: ignore*/
@@ -159,6 +164,12 @@ private:
 
 	static LLFilePicker sInstance;
 	
+protected:
+#if LL_GTK
+        GtkWindow* buildFilePicker(bool is_save, bool is_folder,
+				   std::string context = "generic");
+#endif
+
 public:
 	// don't call these directly please.
 	LLFilePicker();

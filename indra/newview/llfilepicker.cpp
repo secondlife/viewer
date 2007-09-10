@@ -9,8 +9,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfilepicker.h"
-//#include "viewer.h"
-//#include "llviewermessage.h"
 #include "llworld.h"
 #include "llviewerwindow.h"
 #include "llkeyboard.h"
@@ -937,6 +935,10 @@ void LLFilePicker::reset()
 #elif LL_LINUX
 
 # if LL_GTK
+// This caches the previously-accessed path for a given context of the file
+// chooser, for user convenience.
+std::map <std::string, std::string> LLFilePicker::sContextToPathMap;
+
 LLFilePicker::LLFilePicker() 
 {
 	reset();
@@ -946,51 +948,83 @@ LLFilePicker::~LLFilePicker()
 {
 }
 
-static void store_filenames(GtkWidget *widget, gpointer user_data) {
+
+static void add_to_sfs(gpointer data, gpointer user_data)
+{
 	StoreFilenamesStruct *sfs = (StoreFilenamesStruct*) user_data;
-	GtkWidget *win = sfs->win;
-
-	llinfos <<"store_filesnames: marker A" << llendl;
-
-	// get NULL-terminated list of strings allocated for us by GTK
-	gchar** string_list =
-		gtk_file_selection_get_selections(GTK_FILE_SELECTION(win));
-
-	llinfos <<"store_filesnames: marker B" << llendl;
-
-	int idx = 0;
-	while (string_list[idx])
-	{
-		// platform-string to utf8
-		gchar* filename_utf8 = g_filename_from_utf8(string_list[idx],
-							    -1, NULL,
-							    NULL,
-							    NULL);
-		sfs->fileVector.push_back(LLString(filename_utf8));
-		++idx;
-	}
-
-	llinfos <<"store_filesnames: marker C" << llendl;
-
-	g_strfreev(string_list);
-
-	llinfos <<"store_filesnames: marker D" << llendl;
-	
-	llinfos << sfs->fileVector.size() << " filename(s) selected:" << llendl;
-	U32 x;
-	for (x=0; x<sfs->fileVector.size(); ++x)
-		llinfos << x << ":" << sfs->fileVector[x] << llendl;
+	gchar* filename_utf8 = g_filename_to_utf8((gchar*)data,
+						  -1, NULL,
+						  NULL,
+						  NULL);
+	sfs->fileVector.push_back(LLString(filename_utf8));
+	g_free(filename_utf8);
 }
 
-GtkWindow* LLFilePicker::buildFilePicker(void)
+
+void chooser_responder(GtkWidget *widget,
+		       gint       response,
+		       gpointer user_data) {
+	StoreFilenamesStruct *sfs = (StoreFilenamesStruct*) user_data;
+
+	lldebugs << "GTK DIALOG RESPONSE " << response << llendl;
+
+	if (response == GTK_RESPONSE_ACCEPT)
+	{
+		GSList *file_list = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(widget));
+		g_slist_foreach(file_list, (GFunc)add_to_sfs, sfs);
+		g_slist_foreach(file_list, (GFunc)g_free, NULL);
+		g_slist_free (file_list);
+	}
+
+	// set the default path for this usage context.
+	LLFilePicker::sContextToPathMap[sfs->contextName] =
+		gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(widget));
+
+	gtk_widget_destroy(widget);
+	gtk_main_quit();
+}
+
+
+GtkWindow* LLFilePicker::buildFilePicker(bool is_save, bool is_folder,
+					 std::string context)
 {
 	if (ll_try_gtk_init() &&
 	    ! gViewerWindow->getWindow()->getFullscreen())
 	{
 		GtkWidget *win = NULL;
+		GtkFileChooserAction pickertype =
+			is_save?
+			(is_folder?
+			 GTK_FILE_CHOOSER_ACTION_CREATE_FOLDER :
+			 GTK_FILE_CHOOSER_ACTION_SAVE) :
+			(is_folder?
+			 GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER :
+			 GTK_FILE_CHOOSER_ACTION_OPEN);
 
-		win = gtk_file_selection_new(NULL);
+		win = gtk_file_chooser_dialog_new(NULL, NULL,
+						  pickertype,
+						  GTK_STOCK_CANCEL,
+						   GTK_RESPONSE_CANCEL,
+						  is_folder ?
+						  GTK_STOCK_APPLY :
+						  (is_save ? 
+						   GTK_STOCK_SAVE :
+						   GTK_STOCK_OPEN),
+						   GTK_RESPONSE_ACCEPT,
+						  NULL);
 		mStoreFilenames.win = win;
+		mStoreFilenames.contextName = context;
+
+		// get the default path for this usage context if it's been
+		// seen before.
+		std::map<std::string,std::string>::iterator
+			this_path = sContextToPathMap.find(context);
+		if (this_path != sContextToPathMap.end())
+		{
+			gtk_file_chooser_set_current_folder
+				(GTK_FILE_CHOOSER(win),
+				 this_path->second.c_str());
+		}
 
 #  if LL_X11
 		// Make GTK tell the window manager to associate this
@@ -1010,32 +1044,16 @@ GtkWindow* LLFilePicker::buildFilePicker(void)
 		}
 #  endif //LL_X11
 
-		g_signal_connect (G_OBJECT(win), "destroy",
-				  G_CALLBACK(gtk_main_quit), NULL);
-
-		// on 'ok', grab the file selection list
-		g_signal_connect (GTK_FILE_SELECTION(win)->ok_button,
-				  "clicked",
-				  G_CALLBACK(store_filenames),
+		g_signal_connect (GTK_FILE_CHOOSER(win),
+				  "response",
+				  G_CALLBACK(chooser_responder),
 				  &mStoreFilenames);
 
-		// both 'ok' and 'cancel' will end the dialog
-		g_signal_connect_swapped (G_OBJECT(GTK_FILE_SELECTION(win)->
-						   ok_button),
-					  "clicked",
-					  G_CALLBACK(gtk_widget_destroy),
-					  G_OBJECT(win));
-		g_signal_connect_swapped (G_OBJECT(GTK_FILE_SELECTION(win)->
-						   cancel_button),
-					  "clicked",
-					  G_CALLBACK(gtk_widget_destroy),
-					  G_OBJECT(win));
-
-		gtk_file_selection_show_fileop_buttons(GTK_FILE_SELECTION(win));
-		gtk_file_selection_set_select_multiple(GTK_FILE_SELECTION(win),
-						       FALSE);
-
 		gtk_window_set_modal(GTK_WINDOW(win), TRUE);
+
+		/* GTK 2.6: if (is_folder)
+			gtk_file_chooser_set_show_hidden(GTK_FILE_CHOOSER(win),
+			TRUE); */
 
 		return GTK_WINDOW(win);
 	}
@@ -1045,6 +1063,65 @@ GtkWindow* LLFilePicker::buildFilePicker(void)
 	}
 }
 
+static void add_common_filters_to_gtkchooser(GtkFileFilter *gfilter,
+					     GtkWindow *picker,
+					     std::string filtername)
+{	
+	gtk_file_filter_set_name(gfilter, filtername.c_str());
+	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(picker),
+				    gfilter);
+	GtkFileFilter *allfilter = gtk_file_filter_new();
+	gtk_file_filter_add_pattern(allfilter, "*");
+	gtk_file_filter_set_name(allfilter, "All Files");
+	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(picker), allfilter);
+	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(picker), gfilter);
+}
+
+static std::string add_simple_pattern_filter_to_gtkchooser(GtkWindow *picker,
+							   std::string pattern,
+							   std::string filtername)
+{
+	GtkFileFilter *gfilter = gtk_file_filter_new();
+	gtk_file_filter_add_pattern(gfilter, pattern.c_str());
+	add_common_filters_to_gtkchooser(gfilter, picker, filtername);
+	return filtername;
+}
+
+static std::string add_simple_mime_filter_to_gtkchooser(GtkWindow *picker,
+							std::string mime,
+							std::string filtername)
+{
+	GtkFileFilter *gfilter = gtk_file_filter_new();
+	gtk_file_filter_add_mime_type(gfilter, mime.c_str());
+	add_common_filters_to_gtkchooser(gfilter, picker, filtername);
+	return filtername;
+}
+
+static std::string add_wav_filter_to_gtkchooser(GtkWindow *picker)
+{
+	return add_simple_mime_filter_to_gtkchooser(picker,  "audio/x-wav",
+						    "Sounds (*.wav)");
+}
+
+static std::string add_bvh_filter_to_gtkchooser(GtkWindow *picker)
+{
+	return add_simple_pattern_filter_to_gtkchooser(picker,  "*.bvh",
+						       "Animations (*.bvh)");
+}
+
+static std::string add_imageload_filter_to_gtkchooser(GtkWindow *picker)
+{
+	GtkFileFilter *gfilter = gtk_file_filter_new();
+	gtk_file_filter_add_pattern(gfilter, "*.tga");
+	gtk_file_filter_add_mime_type(gfilter, "image/jpeg");
+	gtk_file_filter_add_mime_type(gfilter, "image/png");
+	gtk_file_filter_add_mime_type(gfilter, "image/bmp");
+	std::string filtername = "Images (*.tga; *.bmp; *.jpg; *.png)";
+	add_common_filters_to_gtkchooser(gfilter, picker, filtername);
+	return filtername;
+}
+
+
 BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const char* filename )
 {
 	BOOL rtn = FALSE;
@@ -1052,7 +1129,7 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const char* filename )
 	gViewerWindow->mWindow->beforeDialog();
 
 	reset();
-	GtkWindow* picker = buildFilePicker();
+	GtkWindow* picker = buildFilePicker(true, false, "savefile");
 
 	if (picker)
 	{
@@ -1062,36 +1139,45 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const char* filename )
 		switch (filter)
 		{
 		case FFSAVE_WAV:
-			caption += "Sounds (*.wav)";
-			suggest_ext += ".wav";
+			caption += add_wav_filter_to_gtkchooser(picker);
+			suggest_ext = ".wav";
 			break;
 		case FFSAVE_TGA:
-			caption += "Targa Images (*.tga)";
-			suggest_ext += ".tga";
+			caption += add_simple_pattern_filter_to_gtkchooser
+				(picker, "*.tga", "Targa Images (*.tga)");
+			suggest_ext = ".tga";
 			break;
 		case FFSAVE_BMP:
-			caption += "Bitmap Images (*.bmp)";
-			suggest_ext += ".bmp";
+			caption += add_simple_mime_filter_to_gtkchooser
+				(picker, "image/bmp", "Bitmap Images (*.bmp)");
+			suggest_ext = ".bmp";
 			break;
 		case FFSAVE_AVI:
-			caption += "AVI Movie File (*.avi)";
-			suggest_ext += ".avi";
+			caption += add_simple_mime_filter_to_gtkchooser
+				(picker, "video/x-msvideo",
+				 "AVI Movie File (*.avi)");
+			suggest_ext = ".avi";
 			break;
 		case FFSAVE_ANIM:
-			caption += "XAF Anim File (*.xaf)";
-			suggest_ext += ".xaf";
+			caption += add_simple_pattern_filter_to_gtkchooser
+				(picker, "*.xaf", "XAF Anim File (*.xaf)");
+			suggest_ext = ".xaf";
 			break;
 		case FFSAVE_XML:
-			caption += "XML File (*.xml)";
-			suggest_ext += ".xml";
+			caption += add_simple_pattern_filter_to_gtkchooser
+				(picker, "*.xml", "XML File (*.xml)");
+			suggest_ext = ".xml";
 			break;
 		case FFSAVE_RAW:
-			caption += "RAW File (*.raw)";
-			suggest_ext += ".raw";
+			caption += add_simple_pattern_filter_to_gtkchooser
+				(picker, "*.raw", "RAW File (*.raw)");
+			suggest_ext = ".raw";
 			break;
 		case FFSAVE_J2C:
-			caption += "Compressed Images (*.j2c)";
-			suggest_ext += ".j2c";
+			caption += add_simple_mime_filter_to_gtkchooser
+				(picker, "images/jp2",
+				 "Compressed Images (*.j2c)");
+			suggest_ext = ".j2c";
 			break;
 		default:;
 			break;
@@ -1103,27 +1189,19 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const char* filename )
 		{
 			suggest_name += suggest_ext;
 
-			gtk_file_selection_set_filename
-				(GTK_FILE_SELECTION(picker),
-				 g_filename_from_utf8(suggest_name.c_str(),
-						      -1, NULL,
-						      NULL,
-						      NULL));
-			gtk_editable_select_region(GTK_EDITABLE(GTK_FILE_SELECTION(picker)->selection_entry), 0, suggest_name.length() - suggest_ext.length() );
+			gtk_file_chooser_set_current_name
+				(GTK_FILE_CHOOSER(picker),
+				 suggest_name.c_str());
 		}
 		else
 		{
-			gtk_file_selection_set_filename
-				(GTK_FILE_SELECTION(picker),
-				 g_filename_from_utf8(filename,
-						      -1, NULL,
-						      NULL,
-						      NULL));
-			gtk_editable_select_region(GTK_EDITABLE(GTK_FILE_SELECTION(picker)->selection_entry), 0, -1 );
+			gtk_file_chooser_set_current_name
+				(GTK_FILE_CHOOSER(picker), filename);
 		}
 
 		gtk_widget_show_all(GTK_WIDGET(picker));
 		gtk_main();
+
 		rtn = (mStoreFilenames.fileVector.size() == 1);
 	}
 
@@ -1139,27 +1217,34 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter )
 	gViewerWindow->mWindow->beforeDialog();
 
 	reset();
-	GtkWindow* picker = buildFilePicker();
+	GtkWindow* picker = buildFilePicker(false, false, "openfile");
 
 	if (picker)
 	{
 		std::string caption = "Load ";
+		std::string filtername = "";
 		switch (filter)
 		{
 		case FFLOAD_WAV:
-			caption += "Sounds (*.wav)"; break;
+			filtername = add_wav_filter_to_gtkchooser(picker);
+			break;
 		case FFLOAD_ANIM:
-			caption += "Animations (*.bvh)"; break;
+			filtername = add_bvh_filter_to_gtkchooser(picker);
+			break;
 		case FFLOAD_IMAGE:
-			caption += "Images (*.tga; *.bmp; *.jpg; *.jpeg; *.png)"; break;
+			filtername = add_imageload_filter_to_gtkchooser(picker);
+			break;
 		default:;
 			break;
 		}
+
+		caption += filtername;
 		
 		gtk_window_set_title(GTK_WINDOW(picker), caption.c_str());
 
 		gtk_widget_show_all(GTK_WIDGET(picker));
 		gtk_main();
+
 		rtn = (mStoreFilenames.fileVector.size() == 1);
 	}
 
@@ -1175,12 +1260,12 @@ BOOL LLFilePicker::getMultipleOpenFiles( ELoadFilter filter )
 	gViewerWindow->mWindow->beforeDialog();
 
 	reset();
-	GtkWindow* picker = buildFilePicker();
+	GtkWindow* picker = buildFilePicker(false, false, "openfile");
 
 	if (picker)
 	{
-		gtk_file_selection_set_select_multiple(GTK_FILE_SELECTION(picker),
-						       TRUE);
+		gtk_file_chooser_set_select_multiple (GTK_FILE_CHOOSER(picker),
+						      TRUE);
 
 		gtk_window_set_title(GTK_WINDOW(picker), "Load Files");
 
@@ -1221,7 +1306,8 @@ const char* LLFilePicker::getDirname()
 		const char* fullpath = mStoreFilenames.fileVector[index].c_str();
 		const char* finalpart = NULL;
 		const char* thispart = fullpath;
-		// walk through the string looking for the final dirsep, i.e. /
+		// (Hmm, is the strstr of dirsep UTF-8-correct?  Yes, reckon.)
+		// Walk through the string looking for the final dirsep, i.e. /
 		do
 		{
 			thispart = strstr(thispart, dirsep);
