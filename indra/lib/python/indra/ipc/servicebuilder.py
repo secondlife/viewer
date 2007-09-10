@@ -17,6 +17,14 @@ try:
 except:
     pass
 
+# convenience method for when you can't be arsed to make your own object (i.e. all the time)
+_g_builder = None
+def build(name, context):
+    global _g_builder
+    if _g_builder is None:
+        _g_builder = ServiceBuilder()
+    _g_builder.buildServiceURL(name, context)
+
 class ServiceBuilder(object):
     def __init__(self, services_definition = services_config):
         """\

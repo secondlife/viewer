@@ -61,7 +61,7 @@ def format(format_str, context):
                 end = format_str.index('}', pos)
                 #print "directive:", format_str[pos+1:pos+5]
                 if format_str[pos + 1] == '$':
-                    value = context.get(format_str[pos + 2:end])
+                    value = context[format_str[pos + 2:end]]
                     if value is not None:
                         value = format_value_for_path(value)
                 elif format_str[pos + 1] == '%':
@@ -71,7 +71,7 @@ def format(format_str, context):
                     value = _fetch_url_directive(format_str[pos + 1:end])
                 else:
                     raise UnknownDirective, format_str[pos:end + 1]
-                if not value == None:
+                if value is not None:
                     format_str = format_str[:pos]+str(value)+format_str[end+1:]
                     substitutions += 1
 

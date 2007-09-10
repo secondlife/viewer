@@ -54,7 +54,7 @@ void LLHTTPClient::Responder::completedRaw(U32 status, const std::string& reason
 	LLBufferStream istr(channels, buffer.get());
 	LLSD content;
 
-	if (200 <= status && status < 300)
+	if (isGoodStatus(status))
 	{
 		LLSDSerialize::fromXML(content, istr);
 /*
@@ -73,7 +73,7 @@ void LLHTTPClient::Responder::completedRaw(U32 status, const std::string& reason
 // virtual
 void LLHTTPClient::Responder::completed(U32 status, const std::string& reason, const LLSD& content)
 {
-	if (200 <= status  &&  status < 300)
+	if(isGoodStatus(status))
 	{
 		result(content);
 	}

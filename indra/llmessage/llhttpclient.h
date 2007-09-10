@@ -37,6 +37,14 @@ public:
 		Responder();
 		virtual ~Responder();
 
+		/**
+		 * @brief return true if the status code indicates success.
+		 */
+		static bool isGoodStatus(U32 status)
+		{
+			return((200 <= status) && (status < 300));
+		}
+
 		virtual void error(U32 status, const std::string& reason);	// called with bad status codes
 		
 		virtual void result(const LLSD& content);

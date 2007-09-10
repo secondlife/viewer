@@ -89,8 +89,11 @@ class UUID(object):
 
     def __eq__(self, other):
         if isinstance(other, (str, unicode)):
-            other = UUID(other)
+            return other == str(self)
         return self._bits == getattr(other, '_bits', '')
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __le__(self, other):
         return self._bits <= other._bits

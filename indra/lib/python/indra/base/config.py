@@ -39,8 +39,8 @@ def update(xml_file):
     config_file.close()
     _g_config_dict.update(overrides)
 
-def get(key):
+def get(key, default = None):
     global _g_config_dict
     if _g_config_dict == None:
         load()
-    return _g_config_dict.get(key)
+    return _g_config_dict.get(key, default)
