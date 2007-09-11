@@ -9,10 +9,7 @@
 #ifndef LL_LLPANELPERMISSIONS_H
 #define LL_LLPANELPERMISSIONS_H
 
-#ifndef LL_LLPANEL_H
 #include "llpanel.h"
-#endif
-
 #include "lluuid.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

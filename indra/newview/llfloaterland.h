@@ -154,7 +154,7 @@ protected:
 	LLTextBox*		mLabelName;
 	LLLineEditor*	mEditName;
 	LLTextBox*		mLabelDesc;
-	LLLineEditor*	mEditDesc;
+	LLTextEditor*	mEditDesc;
 
 	LLTextBox*		mTextSalePending;
 

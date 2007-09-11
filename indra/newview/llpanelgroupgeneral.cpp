@@ -480,7 +480,6 @@ bool LLPanelGroupGeneral::apply(LLString& mesg)
 		{
 			gGroupMgr->sendUpdateGroupInfo(mGroupID);
 		}
-		notifyObservers();
 	}
 
 	BOOL receive_notices = false;
@@ -491,7 +490,9 @@ bool LLPanelGroupGeneral::apply(LLString& mesg)
 		list_in_profile = mCtrlListGroup->get();
 
 	gAgent.setUserGroupFlags(mGroupID, receive_notices, list_in_profile);
+
 	mChanged = FALSE;
+	notifyObservers();
 
 	return true;
 }
@@ -660,7 +661,6 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 		mCtrlReceiveNotices->setVisible(is_member);
 		if (is_member)
 		{
-			mCtrlReceiveNotices->set(agent_gdatap.mAcceptNotices);
 			mCtrlReceiveNotices->setEnabled(mAllowEdit);
 		}
 	}
@@ -804,6 +804,16 @@ void LLPanelGroupGeneral::updateChanged()
 		mChanged |= mInsignia->isDirty();
 	if ( mEditCharter )
 		mChanged |= mEditCharter->isDirty();
+	if ( mCtrlShowInGroupList)
+		mChanged |= mCtrlShowInGroupList->isDirty();
+	if ( mCtrlMature)
+		mChanged |= mCtrlMature->isDirty();
+	if ( mCtrlOpenEnrollment)
+		mChanged |= mCtrlOpenEnrollment->isDirty();
+	if ( mCtrlEnrollmentFee)
+		mChanged |= mCtrlEnrollmentFee->isDirty();
+	if ( mSpinEnrollmentFee)
+		mChanged |= mSpinEnrollmentFee->isDirty();
 //	if ( mCtrlReceiveNotices )			// "Receive group notices" is different, see onReceiveNotices()
 //		mChanged |= mCtrlReceiveNotices->isDirty();
 }

@@ -367,7 +367,8 @@ BOOL LLPanelLandGeneral::postBuild()
 	childSetUserData("Name", this);
 
 
-	mEditDesc = LLUICtrlFactory::getLineEditorByName(this, "Description");
+	mEditDesc = LLUICtrlFactory::getTextEditorByName(this, "Description");
+	mEditDesc->setCommitOnFocusLost(TRUE);
 	mEditDesc->setCommitCallback(onCommitAny);	
 	childSetPrevalidate("Description", LLLineEditor::prevalidatePrintableNotPipe);
 	childSetUserData("Description", this);

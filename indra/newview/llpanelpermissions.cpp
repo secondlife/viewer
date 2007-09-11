@@ -1,17 +1,12 @@
 /** 
  * @file llpanelpermissions.cpp
  * @brief LLPanelPermissions class implementation
+ * This class represents the panel in the build view for
+ * viewing/editing object names, owners, permissions, etc.
  *
  * Copyright (c) 2002-$CurrentYear$, Linden Research, Inc.
  * $License$
  */
-
-//*****************************************************************************
-//
-// This class represents the panel in the build view for
-// viewing/editing object names, owners, permissions, etc.
-//
-//*****************************************************************************
 
 #include "llviewerprecompiledheaders.h"
 
@@ -51,8 +46,13 @@
 ///----------------------------------------------------------------------------
 
 // Default constructor
+LLPanelPermissions::LLPanelPermissions(const std::string& title) :
+	LLPanel(title)
+{
+	setMouseOpaque(FALSE);
+}
 
-BOOL	LLPanelPermissions::postBuild()
+BOOL LLPanelPermissions::postBuild()
 {
 	this->childSetCommitCallback("Object Name",LLPanelPermissions::onCommitName,this);
 	this->childSetPrevalidate("Object Name",LLLineEditor::prevalidatePrintableNotPipe);
@@ -86,25 +86,21 @@ BOOL	LLPanelPermissions::postBuild()
 	this->childSetCommitCallback("clickaction",LLPanelPermissions::onCommitClickAction,this);
 	this->childSetCommitCallback("search_check",LLPanelPermissions::onCommitIncludeInSearch,this);
 	
-
-	LLTextBox*	LabelGroupNameRectProxy = gUICtrlFactory->getTextBoxByName(this,"Group Name Proxy");
-	if(LabelGroupNameRectProxy )
+	LLTextBox* group_rect_proxy = gUICtrlFactory->getTextBoxByName(this,"Group Name Proxy");
+	if(group_rect_proxy )
 	{
-		mLabelGroupName = new LLNameBox("Group Name",LabelGroupNameRectProxy->getRect());
+		mLabelGroupName = new LLNameBox("Group Name", group_rect_proxy->getRect());
 		addChild(mLabelGroupName);
-	}else
+	}
+	else
+	{
 		mLabelGroupName = NULL;
+	}
 
 	return TRUE;
 }
 
-LLPanelPermissions::LLPanelPermissions(const std::string& title) :
-	LLPanel(title)
-{
-	setMouseOpaque(FALSE);
-}
 
-// Destroys the object
 LLPanelPermissions::~LLPanelPermissions()
 {
 	// base class will take care of everything
@@ -113,7 +109,6 @@ LLPanelPermissions::~LLPanelPermissions()
 
 void LLPanelPermissions::refresh()
 {
-	
 	LLButton*	BtnDeedToGroup = gUICtrlFactory->getButtonByName(this,"button deed");
 	if(BtnDeedToGroup)
 	{	
