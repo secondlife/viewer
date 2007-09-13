@@ -20,7 +20,6 @@
 #include "llhandmotion.h"
 #include "lljointstate.h"
 #include "llmotion.h"
-#include "llmemory.h"
 #include "llptrskipmap.h"
 #include "llquaternion.h"
 #include "v3dmath.h"
@@ -132,7 +131,7 @@ public:
 	BOOL	serialize(LLDataPacker& dp) const;
 	BOOL	deserialize(LLDataPacker& dp);
 	void	writeCAL3D(apr_file_t* fp);
-	BOOL	isLoaded() { return mJointMotionList.notNull(); }
+	BOOL	isLoaded() { return mJointMotionList != NULL; }
 
 
 	// setters for modifying a keyframe animation
@@ -372,11 +371,8 @@ public:
 	//-------------------------------------------------------------------------
 	// JointMotionList
 	//-------------------------------------------------------------------------
-	class JointMotionList : public LLRefCount
+	class JointMotionList
 	{
-	protected:
-		~JointMotionList();
-
 	public:
 		U32						mNumJointMotions;
 		JointMotion*			mJointMotionArray;
@@ -394,6 +390,7 @@ public:
 		LLBBoxLocal				mPelvisBBox;
 	public:
 		JointMotionList();
+		~JointMotionList();
 		U32 dumpDiagInfo();
 	};
 
@@ -404,7 +401,7 @@ protected:
 	//-------------------------------------------------------------------------
 	// Member Data
 	//-------------------------------------------------------------------------
-	LLPointer<JointMotionList>		mJointMotionList;
+	JointMotionList*				mJointMotionList;
 	LLJointState*					mJointStates;
 	LLJoint*						mPelvisp;
 	LLCharacter*					mCharacter;
@@ -424,7 +421,7 @@ public:
 	LLKeyframeDataCache(){};
 	~LLKeyframeDataCache();
 
-	typedef std::map<LLUUID, LLPointer<class LLKeyframeMotion::JointMotionList> > keyframe_data_map_t; 
+	typedef std::map<LLUUID, class LLKeyframeMotion::JointMotionList*> keyframe_data_map_t; 
 	static keyframe_data_map_t sKeyframeDataMap;
 
 	static void addKeyframeData(const LLUUID& id, LLKeyframeMotion::JointMotionList*);
