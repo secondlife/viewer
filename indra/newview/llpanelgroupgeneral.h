@@ -64,7 +64,7 @@ private:
 	std::string		mConfirmGroupCreateStr;
 	LLUUID			mDefaultIconID;
 
-	// Group information
+	// Group information (include any updates in updateChanged)
 	LLLineEditor		*mGroupNameEditor;
 	LLTextBox			*mGroupName;
 	LLNameBox			*mFounderName;
@@ -75,7 +75,7 @@ private:
 
 	LLNameListCtrl	*mListVisibleMembers;
 
-	// Options
+	// Options (include any updates in updateChanged)
 	LLCheckBoxCtrl	*mCtrlShowInGroupList;
 	LLCheckBoxCtrl	*mCtrlMature;
 	LLCheckBoxCtrl	*mCtrlOpenEnrollment;

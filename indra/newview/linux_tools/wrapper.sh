@@ -38,6 +38,7 @@ export LL_GL_BASICEXT=x
 ##   you're building your own viewer, bear in mind that the executable
 ##   in the bin directory will be stripped: you should replace it with
 ##   an unstripped binary before you run.
+#export LL_WRAPPER='gdb --args'
 #export LL_WRAPPER='valgrind --smc-check=all --log-file=secondlife.vg --leak-check=full --suppressions=/usr/lib/valgrind/glibc-2.5.supp --suppressions=secondlife-i686.supp'
 
 ## - Avoids an often-buggy X feature that doesn't really benefit us anyway.
@@ -68,7 +69,12 @@ if [ -n "$LL_TCMALLOC" ]; then
 	fi
     fi
 fi
-LD_LIBRARY_PATH="`pwd`"/lib:"`pwd`"/app_settings/mozilla-runtime-linux-i686:"${LD_LIBRARY_PATH}" $LL_WRAPPER bin/do-not-directly-run-secondlife-bin `cat gridargs.dat` $@ | cat
+
+export SL_ENV='LD_LIBRARY_PATH="`pwd`"/lib:"`pwd`"/app_settings/mozilla-runtime-linux-i686:"${LD_LIBRARY_PATH}"'
+export SL_CMD='$LL_WRAPPER bin/do-not-directly-run-secondlife-bin'
+export SL_OPT="`cat gridargs.dat` $@"
+
+eval ${SL_ENV} ${SL_CMD} ${SL_OPT} || echo Unclean shutdown.
 
 echo
 echo '*********************************************************'

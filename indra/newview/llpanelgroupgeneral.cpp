@@ -160,6 +160,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 	{
 		mSpinEnrollmentFee->setCommitCallback(onCommitAny);
 		mSpinEnrollmentFee->setCallbackUserData(this);
+		mSpinEnrollmentFee->setPrecision(0);
 	}
 
 	BOOL accept_notices = FALSE;
@@ -473,6 +474,8 @@ bool LLPanelGroupGeneral::apply(LLString& mesg)
 			{
 				gdatap->mMembershipFee = (mCtrlEnrollmentFee->get()) ? 
 					(S32) mSpinEnrollmentFee->get() : 0;
+				// Set to the used value, and reset initial value used for isdirty check
+				mSpinEnrollmentFee->set( (F32)gdatap->mMembershipFee );
 			}
 		}
 
@@ -492,6 +495,8 @@ bool LLPanelGroupGeneral::apply(LLString& mesg)
 	gAgent.setUserGroupFlags(mGroupID, receive_notices, list_in_profile);
 
 	mChanged = FALSE;
+	notifyObservers();
+
 	notifyObservers();
 
 	return true;
@@ -792,28 +797,32 @@ void LLPanelGroupGeneral::updateMembers()
 
 void LLPanelGroupGeneral::updateChanged()
 {
-	mChanged = FALSE;
-	if ( mGroupNameEditor )
-		mChanged  = mGroupNameEditor->isDirty();
-	if ( mGroupName )
-		mChanged |= mGroupName->isDirty();
-	if ( mFounderName )
-		mChanged |= mFounderName->isDirty();
-	if ( mInsignia )
-		mChanged |= mInsignia->isDirty();
-	if ( mEditCharter )
-		mChanged |= mEditCharter->isDirty();
-	if ( mCtrlShowInGroupList)
-		mChanged |= mCtrlShowInGroupList->isDirty();
-	if ( mCtrlMature)
-		mChanged |= mCtrlMature->isDirty();
-	if ( mCtrlOpenEnrollment)
-		mChanged |= mCtrlOpenEnrollment->isDirty();
-	if ( mCtrlEnrollmentFee)
-		mChanged |= mCtrlEnrollmentFee->isDirty();
-	if ( mSpinEnrollmentFee)
-		mChanged |= mSpinEnrollmentFee->isDirty();
-//	if ( mCtrlReceiveNotices )			// "Receive group notices" is different, see onReceiveNotices()
-//		mChanged |= mCtrlReceiveNotices->isDirty();
-}
+	// List all the controls we want to check for changes...
+	LLUICtrl *check_list[] =
+	{
+		mGroupNameEditor,
+		mGroupName,
+		mFounderName,
+		mInsignia,
+		mEditCharter,
+		mCtrlShowInGroupList,
+		mCtrlMature,
+		mCtrlOpenEnrollment,
+		mCtrlEnrollmentFee,
+		mSpinEnrollmentFee,
+		mCtrlReceiveNotices,
+		mCtrlListGroup,
+		mComboActiveTitle
+	};
 
+	mChanged = FALSE;
+
+	for( int i= 0; i< sizeof(check_list)/sizeof(*check_list); i++ )
+	{
+		if( check_list[i] && check_list[i]->isDirty() )
+		{
+			mChanged = TRUE;
+			break;
+		}
+	}
+}

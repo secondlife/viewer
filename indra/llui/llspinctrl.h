@@ -56,7 +56,7 @@ public:
 	virtual void	setValue(const LLSD& value );
 	virtual LLSD	getValue() const;
 			F32		get() { return (F32)getValue().asReal(); }
-			void	set(F32 value) { setValue(value); }
+			void	set(F32 value) { setValue(value); mInitialValue = value; }
 
 	virtual void	setMinValue(LLSD min_value)	{ setMinValue((F32)min_value.asReal()); }
 	virtual void	setMaxValue(LLSD max_value)	{ setMaxValue((F32)max_value.asReal());  }
@@ -66,6 +66,8 @@ public:
 	virtual void    setEnabled( BOOL b );
 	virtual void	setFocus( BOOL b );
 	virtual void	clear();
+	virtual BOOL	isDirty() const;
+
 	virtual void	setPrecision(S32 precision);
 	virtual void	setMinValue(F32 min)			{ mMinValue = min; }
 	virtual void	setMaxValue(F32 max)			{ mMaxValue = max; }

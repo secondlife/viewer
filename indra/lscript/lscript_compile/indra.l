@@ -227,7 +227,7 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "CHANGED_REGION"		{ count(); yylval.ival = 0x100; return(INTEGER_CONSTANT); }	
 "CHANGED_TELEPORT"		{ count(); yylval.ival = 0x200; return(INTEGER_CONSTANT); }	
 
-"OBJECT_UNKOWN_DETAIL"	{ count(); yylval.ival = OBJECT_UNKOWN_DETAIL; return(INTEGER_CONSTANT); }
+"OBJECT_UNKNOWN_DETAIL"	{ count(); yylval.ival = OBJECT_UNKNOWN_DETAIL; return(INTEGER_CONSTANT); }
 "OBJECT_NAME"			{ count(); yylval.ival = OBJECT_NAME; return(INTEGER_CONSTANT); }
 "OBJECT_DESC"			{ count(); yylval.ival = OBJECT_DESC; return(INTEGER_CONSTANT); }
 "OBJECT_POS"			{ count(); yylval.ival = OBJECT_POS; return(INTEGER_CONSTANT); }

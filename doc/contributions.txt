@@ -191,6 +191,7 @@ Strife Onizuka
 	VWR-74
 	VWR-85
 	VWR-148
+	VWR-2265
 tenebrous pau
 	VWR-247
 TBBle Kurosawa

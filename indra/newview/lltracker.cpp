@@ -87,6 +87,15 @@ void LLTracker::stopTracking(void* userdata)
 // static virtual
 void LLTracker::drawHUDArrow()
 {
+	/* tracking autopilot destination has been disabled 
+	   -- 2004.01.09, Leviathan
+	// Draw dot for autopilot target
+	if (gAgent.getAutoPilot())
+	{
+		instance()->drawMarker( gAgent.getAutoPilotTargetGlobal(), gTrackColor );
+		return;
+	}
+	*/
 	switch (getTrackingStatus())
 	{ 
 	case TRACKING_AVATAR:
@@ -450,6 +459,7 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 	if (dist > 0.99f * gCamera->getFar())
 	{
 		color_frac = 0.4f;
+	//	pos_global = gAgent.getCameraPositionGlobal() + 0.99f*(gCamera->getFar()/dist)*to_vec;
 	}
 	else
 	{
@@ -474,6 +484,7 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 		
 		draw_shockwave(1024.f, gRenderStartTime.getElapsedTimeF32(), 32, fogged_color);
 
+		//glScalef(1.f, 1.f, 1000.f);
 		glColor4fv(fogged_color.mV);
 		const U32 BEACON_VERTS = 256;
 		const F32 step = 1024.0f/BEACON_VERTS;
@@ -523,30 +534,24 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 			glEnd();
 		}
 							
+		//gCylinder.render(1000);
 	glPopMatrix();
 
-	if (!gCamera || to_vec.magVec() > gCamera->getFar())
-	{
-		hud_textp->clearString();
-	}
-	else
-	{
-		char text[1024];		/* Flawfinder: ignore */
-		snprintf(text, sizeof(text), "%.0f m", to_vec.magVec());		/* Flawfinder: ignore */
+	char text[1024];		/* Flawfinder: ignore */
+	snprintf(text, sizeof(text), "%.0f m", to_vec.magVec());		/* Flawfinder: ignore */
 
-		LLWString wstr;
-		wstr += utf8str_to_wstring(label);
-		wstr += '\n';
-		wstr += utf8str_to_wstring(text);
+	LLWString wstr;
+	wstr += utf8str_to_wstring(label);
+	wstr += '\n';
+	wstr += utf8str_to_wstring(text);
 
-		hud_textp->setFont(LLFontGL::sSansSerif);
-		hud_textp->setZCompare(FALSE);
-		hud_textp->setColor(LLColor4(1.f, 1.f, 1.f, llmax(0.2f, llmin(1.f,(dist-FADE_DIST)/FADE_DIST))));
+	hud_textp->setFont(LLFontGL::sSansSerif);
+	hud_textp->setZCompare(FALSE);
+	hud_textp->setColor(LLColor4(1.f, 1.f, 1.f, llmax(0.2f, llmin(1.f,(dist-FADE_DIST)/FADE_DIST))));
 
-		hud_textp->setString(wstr);
-		hud_textp->setVertAlignment(LLHUDText::ALIGN_VERT_CENTER);
-		hud_textp->setPositionAgent(pos_agent);
-	}
+	hud_textp->setString(wstr);
+	hud_textp->setVertAlignment(LLHUDText::ALIGN_VERT_CENTER);
+	hud_textp->setPositionAgent(pos_agent);
 }
 
 
@@ -615,14 +620,6 @@ void LLTracker::drawMarker(const LLVector3d& pos_global, const LLColor4& color)
 {
 	if (!gCamera) 
 	{
-		return;
-	}
-
-	LLVector3d to_vec = pos_global - gAgent.getCameraPositionGlobal();
-	to_vec.mdV[2] = 0;
-
-	if (to_vec.magVec() > gCamera->getFar())
-	{	//only draw arrow if lateral distance to object is less than view distance.
 		return;
 	}
 

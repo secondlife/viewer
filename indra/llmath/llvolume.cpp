@@ -58,6 +58,11 @@ const F32 TAPER_MAX =  1.f;
 const F32 SKEW_MIN	= -0.95f;
 const F32 SKEW_MAX	=  0.95f;
 
+const S32 SCULPT_REZ_1 = 6;  // changed from 4 to 6 - 6 looks round whereas 4 looks square
+const S32 SCULPT_REZ_2 = 8;
+const S32 SCULPT_REZ_3 = 16;
+const S32 SCULPT_REZ_4 = 32;
+
 BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
 {    
 	LLVector3 test = (pt2-pt1)%(pt3-pt2);
@@ -435,25 +440,27 @@ LLProfile::Face* LLProfile::addHole(BOOL flat, F32 sides, F32 offset, F32 box_ho
 }
 
 
-F32 next_power_of_two(F32 value)
+S32 sculpt_sides(F32 detail)
 {
-	S32 power = (S32)llceil((F32)log((double)value)/(F32)log(2.0));
-	return pow(2.0f, power);
-}
 
-F32 nearest_power_of_two(F32 value)
-{
-	// nearest in the linear sense means closest w/r/t a "halfway" point.
-	// in the exponential sense, the "halfway" point isn't 1/2, it's 1/sqrt(2).
-
-	// our windows build hates the math.h defines, so do it here. -qarl
-	F32 const INVSQRT2 = 0.7071067812f;
+	// detail is usually one of: 1, 1.5, 2.5, 4.0.
 	
-	F32 answer = next_power_of_two(value * INVSQRT2);
-
-	// llwarns << value << " -> " << answer << llendl;
-	
-	return answer;
+	if (detail <= 1.0)
+	{
+		return SCULPT_REZ_1;
+	}
+	if (detail <= 2.0)
+	{
+		return SCULPT_REZ_2;
+	}
+	if (detail <= 3.0)
+	{
+		return SCULPT_REZ_3;
+	}
+	else
+	{
+		return SCULPT_REZ_4;
+	}
 }
 
 
@@ -599,7 +606,7 @@ BOOL LLProfile::generate(BOOL path_open,F32 detail, S32 split, BOOL is_sculpted)
 			S32 sides = (S32)circle_detail;
 
 			if (is_sculpted)
-				sides = (S32)nearest_power_of_two((F32)sides - 1);
+				sides = sculpt_sides(detail);
 			
 			genNGon(sides);
 			
@@ -1146,7 +1153,7 @@ BOOL LLPath::generate(F32 detail, S32 split, BOOL is_sculpted)
 			S32 sides = (S32)llfloor(llfloor((MIN_DETAIL_FACES * detail + twist_mag * 3.5f * (detail-0.5f))) * mParams.getRevolutions());
 
 			if (is_sculpted)
-				sides = (S32)nearest_power_of_two((F32)sides - 1);
+				sides = sculpt_sides(detail);
 			
 			genNGon(sides);
 		}

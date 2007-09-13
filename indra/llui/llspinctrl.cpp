@@ -527,3 +527,8 @@ LLView* LLSpinCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *
 
 	return spinner;
 }
+
+BOOL LLSpinCtrl::isDirty() const
+{
+	return( mValue != mInitialValue );
+}
