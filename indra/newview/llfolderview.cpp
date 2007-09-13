@@ -699,7 +699,15 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 
 BOOL LLFolderViewItem::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
-	preview();
+	if (mListener->getInventoryType() == LLInventoryType::IT_LANDMARK) 
+	{
+		gFocusMgr.setKeyboardFocus(NULL, NULL); // release focus to main window so user can move with arrow keys
+		mListener->performAction(NULL, &gInventory, "teleport");
+	}
+	else
+	{
+		preview();
+	}
 	return TRUE;
 }
 

@@ -73,6 +73,7 @@
 #include "llimpanel.h"
 #include "llinventorymodel.h"
 #include "llinventoryview.h"
+#include "llkeyframemotion.h" 
 #include "llmenugl.h"
 #include "llmutelist.h"
 #include "llnetmap.h"
@@ -2693,6 +2694,8 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	}
 
 	llinfos << "Changing home region to " << x << ":" << y << llendl;
+
+	LLKeyframeDataCache::clear();
 
 	// set our upstream host the new simulator and shuffle things as
 	// appropriate.

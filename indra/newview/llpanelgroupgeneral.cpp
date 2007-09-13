@@ -790,7 +790,6 @@ void LLPanelGroupGeneral::updateMembers()
 	}
 }
 
-
 void LLPanelGroupGeneral::updateChanged()
 {
 	mChanged = FALSE;

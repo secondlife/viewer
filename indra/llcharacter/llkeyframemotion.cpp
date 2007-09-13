@@ -1838,8 +1838,7 @@ void LLKeyframeMotion::setEaseOut(F32 ease_in)
 //-----------------------------------------------------------------------------
 void LLKeyframeMotion::flushKeyframeCache()
 {
-	// TODO: Make this safe to do
-// 	LLKeyframeDataCache::clear();
+	LLKeyframeDataCache::clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -2093,7 +2092,6 @@ void LLKeyframeDataCache::removeKeyframeData(const LLUUID& id)
 	keyframe_data_map_t::iterator found_data = sKeyframeDataMap.find(id);
 	if (found_data != sKeyframeDataMap.end())
 	{
-		delete found_data->second;
 		sKeyframeDataMap.erase(found_data);
 	}
 }
@@ -2124,7 +2122,6 @@ LLKeyframeDataCache::~LLKeyframeDataCache()
 //-----------------------------------------------------------------------------
 void LLKeyframeDataCache::clear()
 {
-	for_each(sKeyframeDataMap.begin(), sKeyframeDataMap.end(), DeletePairedPointer());
 	sKeyframeDataMap.clear();
 }
 

@@ -2005,10 +2005,10 @@ void LLWindowSDL::gatherInput()
 			SDLReallyCaptureInput(TRUE);
 
                 if (event.key.keysym.unicode)
-		{
-			handleUnicodeUTF16(event.key.keysym.unicode,
-					   gKeyboard->currentMask(FALSE));
-		}
+				{
+					handleUnicodeUTF16(event.key.keysym.unicode,
+									   gKeyboard->currentMask(FALSE));
+				}
                 break;
 
             case SDL_KEYUP:
