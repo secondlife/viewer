@@ -1135,9 +1135,11 @@ LLHTTPClient::ResponderPtr LLMessageSystem::createResponder(const std::string& n
 	}
 	else
 	{
-		llwarns << "LLMessageSystem::sendMessage: Sending unreliable "
-				<< mMessageBuilder->getMessageName() << " message via HTTP"
-				<< llendl;
+		// These messages aren't really unreliable, they just weren't
+		// explicitly sent as reliable, so they don't have a callback
+//		llwarns << "LLMessageSystem::sendMessage: Sending unreliable "
+//				<< mMessageBuilder->getMessageName() << " message via HTTP"
+//				<< llendl;
 		return new LLFnPtrResponder(NULL, NULL,
 									mMessageBuilder->getMessageName());
 	}

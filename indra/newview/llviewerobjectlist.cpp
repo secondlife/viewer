@@ -1439,6 +1439,10 @@ void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
  				childp->mDrawable->setState(LLDrawable::CLEAR_INVISIBLE);
 				childp->setDrawableParent(objectp->mDrawable); // LLViewerObjectList::findOrphans()
 			}
+
+			// Make certain particles, icon and HUD aren't hidden
+			childp->hideExtraDisplayItems( FALSE );
+
 			objectp->addChild(childp);
 			orphans_found = TRUE;
 		}

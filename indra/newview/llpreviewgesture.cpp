@@ -269,6 +269,12 @@ void LLPreviewGesture::onClose(bool app_quitting)
 }
 
 // virtual
+void LLPreviewGesture::onUpdateSucceeded()
+{
+	refresh();
+}
+
+// virtual
 void LLPreviewGesture::setMinimized(BOOL minimize)
 {
 	if (minimize != isMinimized())
@@ -1100,19 +1106,29 @@ void LLPreviewGesture::saveIfNeeded()
 		file.setMaxSize(size);
 		file.write((U8*)buffer, size);
 
+		BOOL delayedUpload = FALSE;
+
 		// Upload that asset to the database
-		const LLInventoryItem* item = getItem();
+		LLViewerInventoryItem* item = (LLViewerInventoryItem*) getItem();
 		if (item)
 		{
 			std::string agent_url = gAgent.getRegion()->getCapability("UpdateGestureAgentInventory");
 			std::string task_url = gAgent.getRegion()->getCapability("UpdateGestureTaskInventory");
 			if (mObjectUUID.isNull() && !agent_url.empty())
 			{
+				//need to disable the preview floater so item
+				//isn't re-saved before new asset arrives
+				//fake out refresh.
+				item->setComplete(FALSE);
+				refresh();				
+				item->setComplete(TRUE);
+
 				// Saving into agent inventory
 				LLSD body;
 				body["item_id"] = mItemUUID;
 				LLHTTPClient::post(agent_url, body,
 					new LLUpdateAgentInventoryResponder(body, asset_id, LLAssetType::AT_GESTURE));
+				delayedUpload = TRUE;
 			}
 			else if (!mObjectUUID.isNull() && !task_url.empty())
 			{
@@ -1133,7 +1149,7 @@ void LLPreviewGesture::saveIfNeeded()
 
 		// If this gesture is active, then we need to update the in-memory
 		// active map with the new pointer.
-		if (gGestureManager.isGestureActive(mItemUUID))
+		if (!delayedUpload && gGestureManager.isGestureActive(mItemUUID))
 		{
 			// gesture manager now owns the pointer
 			gGestureManager.replaceGesture(mItemUUID, gesture, asset_id);
@@ -1150,7 +1166,12 @@ void LLPreviewGesture::saveIfNeeded()
 		}
 
 		mDirty = FALSE;
-		refresh();
+		// refresh will be called when callback
+		// if triggered when delayedUpload
+		if(!delayedUpload)
+		{
+			refresh();
+		}
 	}
 
 	delete [] buffer;

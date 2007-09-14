@@ -23,6 +23,7 @@
 #endif
 
 #include "audiosettings.h"
+#include "llares.h"
 #include "llcachename.h"
 #include "llviewercontrol.h"
 #include "lldir.h"
@@ -53,7 +54,6 @@
 
 #include "llagent.h"
 #include "llagentpilot.h"
-#include "llasynchostbyname.h"
 #include "llfloateravatarpicker.h"
 #include "llcallbacklist.h"
 #include "llcallingcard.h"
@@ -269,6 +269,9 @@ void update_texture_fetch()
 	gImageList.updateImages(0.10f);
 }
 
+static std::vector<std::string> sAuthUris;
+static int sAuthUriNum = -1;
+
 // Returns FALSE to skip other idle processing. Should only return
 // TRUE when all initialization done.
 BOOL idle_startup()
@@ -287,8 +290,6 @@ BOOL idle_startup()
 	// auth/transform loop will do.
 	static F32 progress = 0.10f;
 
-	static std::vector<std::string> auth_uris;
-	static int auth_uri_num = -1;
 	static std::string auth_method;
 	static std::string auth_desc;
 	static std::string auth_message;
@@ -402,6 +403,11 @@ BOOL idle_startup()
 		// Load the throttle settings
 		gViewerThrottle.load();
 
+		if (ll_init_ares() == NULL)
+		{
+			llerrs << "Could not start address resolution system" << llendl;
+		}
+		
 		//
 		// Initialize messaging system
 		//
@@ -548,7 +554,10 @@ BOOL idle_startup()
 #endif // LL_LINUX
 
 		std::ostringstream codec;
-		codec << "[Second Life " << LL_VERSION_MAJOR << "." << LL_VERSION_MINOR << "." << LL_VERSION_PATCH << "." << LL_VERSION_BUILD << "]";
+		codec << "[Second Life ";
+		codec << "(" << gChannelName << ")";
+		codec << " - " << LL_VERSION_MAJOR << "." << LL_VERSION_MINOR << "." << LL_VERSION_PATCH << "." << LL_VERSION_BUILD;
+		codec << "]";
 		LLMozLib::getInstance()->setBrowserAgentId( codec.str() );
 		#endif
 
@@ -758,7 +767,7 @@ BOOL idle_startup()
 
 			if ( user_picked_server )
 			{	// User picked a grid from the popup, so clear the stored urls and they will be re-generated from gUserServerChoice
-				auth_uris.clear();
+				sAuthUris.clear();
 				resetURIs();
 			}
 
@@ -872,11 +881,11 @@ BOOL idle_startup()
 			gSavedSettings.setBOOL("UseDebugMenus", TRUE);
 			requested_options.push_back("god-connect");
 		}
-		if (auth_uris.empty())
+		if (sAuthUris.empty())
 		{
-			auth_uris = getLoginURIs();
+			sAuthUris = getLoginURIs();
 		}
-		auth_uri_num = 0;
+		sAuthUriNum = 0;
 		auth_method = "login_to_simulator";
 		auth_desc = "Logging in.  ";
 		auth_desc += gSecondLife;
@@ -919,7 +928,7 @@ BOOL idle_startup()
 		hashed_mac.hex_digest(hashed_mac_string);
 		
 		gUserAuthp->authenticate(
-			auth_uris[auth_uri_num].c_str(),
+			sAuthUris[sAuthUriNum].c_str(),
 			auth_method.c_str(),
 			firstname.c_str(),
 			lastname.c_str(),
@@ -1015,8 +1024,8 @@ BOOL idle_startup()
 			else if(login_response && (0 == strcmp(login_response, "indeterminate")))
 			{
 				llinfos << "Indeterminate login..." << llendl;
-				auth_uris = LLSRV::rewriteURI(gUserAuthp->getResponse("next_url"));
-				auth_uri_num = 0;
+				sAuthUris = LLSRV::rewriteURI(gUserAuthp->getResponse("next_url"));
+				sAuthUriNum = 0;
 				auth_method = gUserAuthp->getResponse("next_method");
 				auth_message = gUserAuthp->getResponse("message");
 				if(auth_method.substr(0, 5) == "login")
@@ -1121,18 +1130,18 @@ BOOL idle_startup()
 		case LLUserAuth::E_SSL_CACERT:
 		case LLUserAuth::E_SSL_CONNECT_ERROR:
 		default:
-			if (auth_uri_num >= (int) auth_uris.size() - 1)
+			if (sAuthUriNum >= (int) sAuthUris.size() - 1)
 			{
 				emsg << "Unable to connect to " << gSecondLife << ".\n";
 				emsg << gUserAuthp->errorMessage();
 			} else {
-				auth_uri_num++;
+				sAuthUriNum++;
 				std::ostringstream s;
 				s << "Previous login attempt failed. Logging in, attempt "
-				  << (auth_uri_num + 1) << ".  ";
+				  << (sAuthUriNum + 1) << ".  ";
 				auth_desc = s.str();
 				LLStartUp::setStartupState( STATE_LOGIN_AUTHENTICATE );
-				auth_uri_num++;
+				sAuthUriNum++;
 				return do_normal_idle;
 			}
 			break;

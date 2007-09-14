@@ -24,6 +24,7 @@
 #include "apr-1/apr_atomic.h"
 #include "llstring.h"
 
+extern apr_thread_mutex_t* gLogMutexp;
 
 /** 
  * @brief initialize the common apr constructs -- apr itself, the

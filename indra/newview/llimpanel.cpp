@@ -914,7 +914,7 @@ void LLFloaterIMPanel::init(const LLString& session_label)
 
 			session_start.setArg("[NAME]", getTitle());
 			mSessionStartMsgPos = 
-				mHistoryEditor->getText().length();
+				mHistoryEditor->getWText().length();
 
 			addHistoryLine(
 				session_start,
@@ -966,6 +966,7 @@ BOOL LLFloaterIMPanel::postBuild()
 		childSetAction("end_call_btn", onClickEndCall, this);
 		childSetAction("send_btn", onClickSend, this);
 		childSetAction("toggle_active_speakers_btn", onClickToggleActiveSpeakers, this);
+		childSetAction("offer_tp_btn", onClickOfferTeleport, this);
 
 		//LLButton* close_btn = LLUICtrlFactory::getButtonByName(this, "close_btn");
 		//close_btn->setClickedCallback(&LLFloaterIMPanel::onClickClose, this);
@@ -1058,6 +1059,13 @@ void LLFloaterIMPanel::draw()
 	childSetVisible("start_call_btn", mVoiceChannel->getState() < LLVoiceChannel::STATE_CALL_STARTED);
 	childSetEnabled("start_call_btn", enable_connect);
 	childSetEnabled("send_btn", !childGetValue("chat_editor").asString().empty());
+
+	const LLRelationship* info = NULL;
+	info = LLAvatarTracker::instance().getBuddyInfo(mOtherParticipantUUID);
+	if (info)
+	{
+		childSetEnabled("offer_tp_btn", info->isOnline());
+	}
 
 	if (mAutoConnect && enable_connect)
 	{
@@ -1385,6 +1393,13 @@ void LLFloaterIMPanel::onTabClick(void* userdata)
 	self->setInputFocus(TRUE);
 }
 
+// static
+void LLFloaterIMPanel::onClickOfferTeleport(void* userdata)
+{
+	LLFloaterIMPanel* self = (LLFloaterIMPanel*) userdata;
+
+	handle_lure(self->mOtherParticipantUUID);
+}
 
 // static
 void LLFloaterIMPanel::onClickProfile( void* userdata )
@@ -1646,7 +1661,7 @@ void LLFloaterIMPanel::sessionInitReplyReceived(const LLUUID& session_id)
 	//we assume the history editor hasn't moved at all since
 	//we added the starting session message
 	//so, we count how many characters to remove
-	S32 chars_to_remove = mHistoryEditor->getText().length() -
+	S32 chars_to_remove = mHistoryEditor->getWText().length() -
 		mSessionStartMsgPos;
 	mHistoryEditor->removeTextFromEnd(chars_to_remove);
 
@@ -1744,7 +1759,7 @@ void LLFloaterIMPanel::addTypingIndicator(const std::string &name)
 	// we may have lost a "stop-typing" packet, don't add it twice
 	if (!mOtherTyping)
 	{
-		mTypingLineStartIndex = mHistoryEditor->getText().length();
+		mTypingLineStartIndex = mHistoryEditor->getWText().length();
 		LLUIString typing_start = sTypingStartString;
 		typing_start.setArg("[NAME]", name);
 		addHistoryLine(typing_start, gSavedSettings.getColor4("SystemChatColor"), false);
@@ -1764,7 +1779,7 @@ void LLFloaterIMPanel::removeTypingIndicator(const LLIMInfo* im_info)
 		// Must do this first, otherwise addHistoryLine calls us again.
 		mOtherTyping = FALSE;
 
-		S32 chars_to_remove = mHistoryEditor->getText().length() - mTypingLineStartIndex;
+		S32 chars_to_remove = mHistoryEditor->getWText().length() - mTypingLineStartIndex;
 		mHistoryEditor->removeTextFromEnd(chars_to_remove);
 		if (im_info)
 		{

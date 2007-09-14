@@ -24,7 +24,7 @@ void ll_init_apr()
 		apr_pool_create(&gAPRPoolp, NULL);
 
 		// Initialize the logging mutex
-		apr_thread_mutex_create(&gLogMutexp, APR_THREAD_MUTEX_DEFAULT, gAPRPoolp);
+		apr_thread_mutex_create(&gLogMutexp, APR_THREAD_MUTEX_UNNESTED, gAPRPoolp);
 	}
 }
 

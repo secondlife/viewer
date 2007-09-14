@@ -1,32 +1,49 @@
 Linden Lab would like to acknowledge source code contributions from the
 following residents.   The Second Life resident name is given below,
 along with the issue identifier corresponding to the patches we've
-received from them.  To see more about these contributions, visit
-http://jira.secondlife.com/ and enter the issue identifier.
+received from them.  To see more about these contributions, visit the
+browsable version: http://wiki.secondlife.com/wiki/Source_contributions
 
 Able Whitman
 	VWR-650
 	VWR-1460
+	VWR-1691
+Alejandro Rosenthal
+	VWR-1184
 Alissa Sabre
 	VWR-81
 	VWR-83
+	VWR-109
+	VWR-157
 	VWR-171
+	VWR-177
+	VWR-213
 	VWR-251
+	VWR-286
 	VWR-414
 	VWR-415
 	VWR-459
 	VWR-606
 	VWR-652
+	VWR-738
+	VWR-1109
 	VWR-1351
+	VWR-1353
 	VWR-1410
+	VWR-2116
 Argent Stonecutter
 	VWR-68
 Benja Kepler
 	VWR-746
 Blakar Ogre
 	VWR-881
+	VWR-1612
+	VWR-1613
 blino Nakamura
 	VWR-17
+Boroondas Gupte
+	VWR-233
+	WEB-262
 bushing Spatula
 	VWR-119
 	VWR-424
@@ -35,16 +52,25 @@ Catherine Pfeffer
 Dale Glass
 	VWR-120
 	VWR-560
+	VWR-1358
+	VWR-2041
 Drewan Keats
 	VWR-28
 	VWR-248
 	VWR-412
+	VWR-638
+	VWR-660
 Dylan Haskell
 	VWR-72
 Dzonatas Sol
+	VWR-187
 	VWR-198
+	VWR-777
 	VWR-878
+	VWR-962
 	VWR-975
+	VWR-1061
+	VWR-1062
 	VWR-1704
 	VWR-1705
 	VWR-1729
@@ -53,15 +79,25 @@ Eddy Stryker
 	VWR-23
 	VWR-1468
 EponymousDylan Ra
+	VWR-1289
 	VWR-1465
+Farallon Greyskin
+	VWR-2036
 Feep Larsson
+	VWR-447
 	VWR-1314
 Fremont Cunningham
 	VWR-1147
 Gigs Taggart
+	SVC-493
+	VWR-38
 	VWR-71
+	VWR-101
+	VWR-166
+	VWR-234
 	VWR-326
 	VWR-493
+	VWR-1203
 	VWR-1217
 	VWR-1434
 	VWR-1987
@@ -71,10 +107,15 @@ Grazer Kline
 	VWR-1092
 Gudmund Shepherd
 	VWR-1594
+Hamncheese Omlet
+	VWR-333
+Henri Beauchamp
+	VWR-1406
 Hikkoshi Sakai
 	VWR-429
 Hiro Sommambulist
 	VWR-66
+	VWR-67
 	VWR-97
 	VWR-100
 	VWR-105
@@ -83,6 +124,8 @@ Hiro Sommambulist
 	VWR-132
 	VWR-136
 	VWR-143
+Hoze Menges
+	VWR-255
 Iskar Ariantho
 	VWR-1223
 Jacek Antonelli
@@ -96,9 +139,11 @@ Kage Pixel
 	VWR-11
 Kunnis Basiat
 	VWR-82
+	VWR-102
 Matthew Dowd
 	VWR-1344
 	VWR-1736
+	VWR-1737
 	VWR-1761
 McCabe Maxsted
 	VWR-1318
@@ -107,38 +152,51 @@ Mr Greggan
 Nicholaz Beresford
 	VWR-132
 	VWR-176
+	VWR-193
+	VWR-349
+	VWR-353
 	VWR-364
 	VWR-546
 	VWR-691
+	VWR-727
 	VWR-793
 	VWR-794
 	VWR-802
 	VWR-803
 	VWR-804
 	VWR-805
+	VWR-807
 	VWR-808
 	VWR-809
 	VWR-810
 	VWR-823
+	VWR-849
 	VWR-856
+	VWR-865
 	VWR-869
 	VWR-870
 	VWR-871
 	VWR-873
 	VWR-908
 	VWR-966
+	VWR-1105
 	VWR-1221
 	VWR-1230
 	VWR-1270
+	VWR-1294
 	VWR-1296
+	VWR-1354
 	VWR-1410
 	VWR-1418
+	VWR-1436
 	VWR-1453
 	VWR-1455
 	VWR-1470
+	VWR-1471
 	VWR-1566
 	VWR-1578
 	VWR-1626
+	VWR-1646
 	VWR-1655
 	VWR-1698
 	VWR-1706
@@ -151,6 +209,8 @@ Nicholaz Beresford
 	VWR-1872
 	VWR-1968
 	VWR-2152
+Nounouch Hapmouche
+	VWR-238
 Paul Churchill
 	VWR-20
 	VWR-493
@@ -158,9 +218,12 @@ Paul Churchill
 	VWR-1567
 	VWR-1647
 	VWR-1880
+	VWR-2072
 Paula Innis
 	VWR-30
+	VWR-293
 	VWR-1049
+	VWR-1562
 Peekay Semyorka
 	VWR-7
 	VWR-19
@@ -170,27 +233,42 @@ Renault Clio
 	VWR-1976
 Ryozu Kojima
 	VWR-287
+Seg Baphomet
+	VWR-1525
+	VWR-1585
+	VWR-1586
 SignpostMarv Martin
+	VWR-153
 	VWR-154
 	VWR-155
+	VWR-218
+	VWR-373
 Simon Nolan
 	VWR-409
 SpacedOut Frye
+	VWR-34
+	VWR-45
 	VWR-57
 	VWR-94
+	VWR-113
 	VWR-121
 	VWR-123
+	VWR-130
 	VWR-1823
 Stevex Janus
 	VWR-1182
 Still Defiant
 	VWR-207
+	VWR-227
 	VWR-446
 Strife Onizuka
 	SVC-9
+	VWR-14
 	VWR-74
 	VWR-85
 	VWR-148
+	WEB-164
+	VWR-183
 	VWR-2265
 tenebrous pau
 	VWR-247
@@ -200,6 +278,7 @@ TBBle Kurosawa
 	VWR-942
 	VWR-944
 	VWR-945
+	VWR-1891
 	VWR-1892
 Tharax Ferraris
 	VWR-605
@@ -207,10 +286,14 @@ Thraxis Epsilon
 	SVC-371
 	VWR-383
 Whoops Babii
+	VWR-631
 	VWR-1640
+Zarkonnen Decosta
+	VWR-253
 Zi Ree
 	VWR-671
 	VWR-682
+	VWR-684
 	VWR-1140
 Zipherius Turas
 	VWR-76

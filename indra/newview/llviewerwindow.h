@@ -365,7 +365,6 @@ void reset_viewer_state_on_sim(void);
 
 extern LLVelocityBar*	gVelocityBar;
 extern LLViewerWindow*	gViewerWindow;
-extern BOOL gQuietSnapshot;
 
 extern LLFrameTimer		gMouseIdleTimer;		// how long has it been since the mouse last moved?
 extern LLFrameTimer		gAwayTimer;				// tracks time before setting the avatar away state to true

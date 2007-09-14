@@ -2924,12 +2924,10 @@ BOOL LLFolderView::changeSelection(LLFolderViewItem* selection, BOOL selected)
 
 	if(selected && !on_list)
 	{
-		mNumDescendantsSelected++;
 		addToSelectionList(selection);
 	}
 	if(!selected && on_list)
 	{
-		mNumDescendantsSelected--;
 		removeFromSelectionList(selection);
 	}
 

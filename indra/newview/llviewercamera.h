@@ -83,7 +83,6 @@ protected:
 	S16					mZoomSubregion;
 
 public:
-	static BOOL sDisableCameraConstraints;
 	F64		mGLProjectionMatrix[16];
 	
 };

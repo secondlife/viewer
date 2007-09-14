@@ -748,9 +748,12 @@ void init_client_menu(LLMenuGL* menu)
 										NULL,
 										&menu_check_control,
 										(void*)"HighResSnapshot"));
-
-	menu->append(new LLMenuItemToggleGL("Quiet Snapshots to Disk",
-										&gQuietSnapshot));
+	
+	menu->append(new LLMenuItemCheckGL( "Quiet Snapshots to Disk",
+										&menu_toggle_control,
+										NULL,
+										&menu_check_control,
+										(void*)"QuietSnapshotsToDisk"));
 
 	menu->append(new LLMenuItemCheckGL( "Compress Snapshots to Disk",
 										&menu_toggle_control,
@@ -877,8 +880,11 @@ void init_client_menu(LLMenuGL* menu)
 									   &menu_check_control,
 									   (void*)"LimitSelectDistance"));
 
-	menu->append(new LLMenuItemToggleGL("Disable Camera Constraints", 
-		&LLViewerCamera::sDisableCameraConstraints, 'C', MASK_ALT | MASK_CONTROL ));
+	menu->append(new LLMenuItemCheckGL("Disable Camera Constraints", 
+									   &menu_toggle_control,
+									   NULL, 
+									   &menu_check_control,
+									   (void*)"DisableCameraConstraints"));
 
 	menu->append(new LLMenuItemCheckGL("Joystick Flycam", 
 		&handle_toggle_flycam,NULL,&check_flycam,NULL));

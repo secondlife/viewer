@@ -2689,6 +2689,7 @@ void spawn_web_browser(const char* escaped_url)
 	cmd += "launch_url.sh";
 	char* const argv[] = {(char*)cmd.c_str(), (char*)escaped_url, NULL};
 
+	fflush(NULL);
 	pid_t pid = fork();
 	if (pid == 0)
 	{ // child

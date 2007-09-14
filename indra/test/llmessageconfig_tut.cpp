@@ -15,6 +15,7 @@
 #include "lldir.h"
 #include "lltimer.h"
 #include "llframetimer.h"
+#include "llsdutil.h"
 
 namespace tut
 {
@@ -23,30 +24,30 @@ namespace tut
 
 		LLMessageConfigTestData()
 		{
+			LLUUID random;
+			random.generate();
 			// generate temp dir
-			mTestConfigDir = "/tmp/llmessage-config-test";
+			std::ostringstream oStr;
+			oStr << "/tmp/llmessage-config-test-" << random;
+			mTestConfigDir = oStr.str();
 			LLFile::mkdir(mTestConfigDir.c_str());
-
+			writeConfigFile(LLSD());
 			LLMessageConfig::initClass("simulator", mTestConfigDir);
 		}
 
 		~LLMessageConfigTestData()
 		{
 			// rm contents of temp dir
-			gDirUtilp->deleteFilesInDir(mTestConfigDir, "*");
+			int rmfile = LLFile::remove((mTestConfigDir + "/message.xml").c_str());
+			ensure_equals("rmfile value", rmfile, 0);
 			// rm temp dir
-			LLFile::rmdir(mTestConfigDir.c_str());
+			int rmdir = LLFile::rmdir(mTestConfigDir.c_str());
+			ensure_equals("rmdir value", rmdir, 0);
 		}
 
-		void reloadConfig(const LLSD& config)
-		{
-			LLMessageConfig::useConfig(config);
-		}
-		
 		void writeConfigFile(const LLSD& config)
 		{
-			std::string configFile = mTestConfigDir + "/message.xml";
-			llofstream file(configFile.c_str());
+			llofstream file((mTestConfigDir + "/message.xml").c_str());
 			if (file.is_open())
 			{
 				LLSDSerialize::toPrettyXML(config, file);
@@ -65,7 +66,7 @@ namespace tut
 	{
 		LLSD config;
 		config["serverDefaults"]["simulator"] = "template";
-		reloadConfig(config);
+		LLMessageConfig::useConfig(config);
 		ensure_equals("Ensure server default is not template",
 					  LLMessageConfig::getServerDefaultFlavor(),
 					  LLMessageConfig::TEMPLATE_FLAVOR);
@@ -79,7 +80,7 @@ namespace tut
 		config["serverDefaults"]["simulator"] = "template";
 		config["messages"]["msg1"]["flavor"] = "template";
 		config["messages"]["msg2"]["flavor"] = "llsd";
-		reloadConfig(config);
+		LLMessageConfig::useConfig(config);
 		ensure_equals("Ensure msg template flavor",
 					  LLMessageConfig::getMessageFlavor("msg1"),
 					  LLMessageConfig::TEMPLATE_FLAVOR);
@@ -95,7 +96,7 @@ namespace tut
 		LLSD config;
 		config["serverDefaults"]["simulator"] = "llsd";
 		config["messages"]["msg1"]["trusted-sender"] = true;
-		reloadConfig(config);
+		LLMessageConfig::useConfig(config);
 		ensure_equals("Ensure missing message gives no flavor",
 					  LLMessageConfig::getMessageFlavor("Test"),
 					  LLMessageConfig::NO_FLAVOR);
@@ -117,7 +118,7 @@ namespace tut
 		config["messages"]["msg1"]["trusted-sender"] = false;
 		config["messages"]["msg2"]["flavor"] = "llsd";
 		config["messages"]["msg2"]["trusted-sender"] = true;
-		reloadConfig(config);
+		LLMessageConfig::useConfig(config);
 		ensure_equals("Ensure untrusted is untrusted",
 					  LLMessageConfig::getSenderTrustedness("msg1"),
 					  LLMessageConfig::UNTRUSTED);
@@ -136,7 +137,7 @@ namespace tut
 		LLSD config;
 		config["serverDefaults"]["simulator"] = "template";
 		config["messages"]["msg1"]["flavor"] = "llsd";
-		reloadConfig(config);
+		LLMessageConfig::useConfig(config);
 		ensure_equals("Ensure msg1 exists, has llsd flavor",
 					  LLMessageConfig::getMessageFlavor("msg1"),
 					  LLMessageConfig::LLSD_FLAVOR);
@@ -151,7 +152,7 @@ namespace tut
 		LLSD config;
 		config["capBans"]["MapLayer"] = true;
 		config["capBans"]["MapLayerGod"] = false;
-		reloadConfig(config);
+		LLMessageConfig::useConfig(config);
 		ensure_equals("Ensure cap ban true MapLayer",
 					  LLMessageConfig::isCapBanned("MapLayer"),
 					  true);

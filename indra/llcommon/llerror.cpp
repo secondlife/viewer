@@ -14,7 +14,6 @@
 
 #include "llapp.h"
 #include "llapr.h"
-extern apr_thread_mutex_t *gLogMutexp;
 #include "llfile.h"
 #include "llfixedbuffer.h"
 #include "lllivefile.h"

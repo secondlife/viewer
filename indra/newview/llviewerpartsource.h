@@ -48,6 +48,8 @@ public:
 	static void updatePart(LLViewerPart &part, const F32 dt);
 	void setOwnerUUID(const LLUUID& owner_id) { mOwnerUUID = owner_id; }
 	LLUUID getOwnerUUID() const { return mOwnerUUID; }
+	U32	getID() const { return mID; }
+	LLUUID getImageUUID() const;
 
 	LLVector3	mPosAgent; // Location of the particle source
 	LLVector3	mTargetPosAgent; // Location of the target position
@@ -62,7 +64,8 @@ protected:
 	F32			mLastUpdateTime;
 	F32			mLastPartTime;
 	LLUUID		mOwnerUUID;
-	
+	LLPointer<LLViewerImage>	mImagep;
+
 	// Particle information
 	U32			mPartFlags; // Flags for the particle
 };
@@ -100,7 +103,6 @@ public:
 
 protected:
 	LLQuaternion				mRotation;			// Current rotation for particle source
-	LLPointer<LLViewerImage>	mImagep;			// Cached image pointer of the mPartSysData UUID
 	LLPointer<LLViewerObject>	mTargetObjectp;		// Target object for the particle source
 };
 
@@ -125,7 +127,6 @@ public:
 	static void updatePart(LLViewerPart &part, const F32 dt);
 	LLColor4 mColor;
 protected:
-	LLPointer<LLViewerImage>	mImagep;
 	LLVector3d mLKGSourcePosGlobal;
 };
 
@@ -151,7 +152,6 @@ public:
 	void setColor(const LLColor4 &color);
 
 	static void updatePart(LLViewerPart &part, const F32 dt);
-	LLPointer<LLViewerImage>	mImagep;
 	LLPointer<LLViewerObject>	mTargetObjectp;
 	LLVector3d		mLKGTargetPosGlobal;
 	LLColor4 mColor;
@@ -177,11 +177,9 @@ public:
 
 	void setSourceObject(LLViewerObject *objp);
 	void setColor(const LLColor4 &color);
-
 	static void updatePart(LLViewerPart &part, const F32 dt);
 	LLColor4 mColor;
 protected:
-	LLPointer<LLViewerImage>	mImagep;
 	LLVector3d mLKGSourcePosGlobal;
 };
 

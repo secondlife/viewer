@@ -321,8 +321,15 @@ size_t LLHTTPAssetRequest::readCompressedData(void* data, size_t size)
 			S32 to_read = llmin(COMPRESSED_INPUT_BUFFER_SIZE,
 							(S32)(mVFile->getSize() - mVFile->tell()));
 			
-			mVFile->read((U8*)mZInputBuffer, to_read); /*Flawfinder: ignore*/
-
+			if ( to_read > 0 )
+			{
+				mVFile->read((U8*)mZInputBuffer, to_read); /*Flawfinder: ignore*/
+			}
+			else
+			{
+				llwarns << "LLHTTPAssetRequest::readCompressedData has zero read length" << llendl;
+				break;
+			}
 			mZStream.next_in = (Bytef*)mZInputBuffer;
 			mZStream.avail_in = mVFile->getLastBytesRead();
 
@@ -332,7 +339,7 @@ size_t LLHTTPAssetRequest::readCompressedData(void* data, size_t size)
 		int r = deflate(&mZStream,
 					mZInputExhausted ? Z_FINISH : Z_NO_FLUSH);
 
-		if (r == Z_STREAM_END)
+		if (r == Z_STREAM_END || r < 0)
 		{
 			break;
 		}
@@ -345,15 +352,20 @@ size_t LLHTTPAssetRequest::readCompressedData(void* data, size_t size)
 size_t LLHTTPAssetRequest::curlCompressedUploadCallback(
 		void *data, size_t size, size_t nmemb, void *user_data)
 {
-	if (!gAssetStorage)
-	{
-		return 0;
-	}
-	CURL *curl_handle = (CURL *)user_data;
-	LLHTTPAssetRequest *req = NULL;
-	curl_easy_getinfo(curl_handle, CURLINFO_PRIVATE, &req);
+	size_t num_read = 0;
 
-	return req->readCompressedData(data, size * nmemb);
+	if (gAssetStorage)
+	{
+		CURL *curl_handle = (CURL *)user_data;
+		LLHTTPAssetRequest *req = NULL;
+		curl_easy_getinfo(curl_handle, CURLINFO_PRIVATE, &req);
+		if (req)
+		{
+			num_read = req->readCompressedData(data, size * nmemb);
+		}
+	}
+
+	return num_read;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -511,9 +523,8 @@ void LLHTTPAssetStorage::storeAssetData(
 		{
 			callback(LLUUID::null, user_data, LL_ERR_CANNOT_OPEN_FILE, LL_EXSTAT_BLOCKED_FILE);
 		}
+		delete legacy;
 	}
-	// Coverity CID-269 says there's a leak of 'legacy' here, but
-	// legacyStoreDataCallback() will delete it somewhere down the line.
 }
 
 // virtual

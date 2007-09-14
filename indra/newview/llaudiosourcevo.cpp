@@ -50,7 +50,23 @@ void LLAudioSourceVO::updateGain()
 	BOOL mute = FALSE;
 	if (gParcelMgr)
 	{
-		LLVector3d pos_global = mObjectp->getPositionGlobal();
+		LLVector3d pos_global;
+
+		if (mObjectp->isAttachment())
+		{
+			LLViewerObject* parent = mObjectp;
+			while (parent 
+				   && !parent->isAvatar())
+			{
+				parent = (LLViewerObject*)parent->getParent();
+			}
+			if (parent)
+				pos_global = parent->getPositionGlobal();
+		}
+		
+		else
+			pos_global = mObjectp->getPositionGlobal();
+		
 		if (!gParcelMgr->canHearSound(pos_global))
 		{
 			mute = TRUE;

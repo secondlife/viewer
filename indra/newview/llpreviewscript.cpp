@@ -1643,7 +1643,6 @@ LLLiveLSLEditor::LLLiveLSLEditor(const std::string& name,
 
 	
 	setTitle(title);
-
 }
 
 LLLiveLSLEditor::~LLLiveLSLEditor()
@@ -1695,9 +1694,8 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 		{
 			// HACK! we "know" that mItemID refers to a LLViewerInventoryItem...
 			LLViewerInventoryItem* item = (LLViewerInventoryItem*)object->getInventoryObject(mItemID);
-			if(item
-			   && (gAgent.allowOperation(PERM_COPY, item->getPermissions(),
-					   						GP_OBJECT_MANIPULATE)
+			if(item 
+				&& (gAgent.allowOperation(PERM_COPY, item->getPermissions(), GP_OBJECT_MANIPULATE)
 				   || gAgent.isGodlike()))
 			{
 				mItem = new LLViewerInventoryItem(item);
@@ -1706,12 +1704,10 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 
 			if(!gAgent.isGodlike()
 			   && (item
-				   && (!gAgent.allowOperation(PERM_COPY, item->getPermissions(),
-						   					GP_OBJECT_MANIPULATE)
-					   || !gAgent.allowOperation(PERM_MODIFY, 
-						   			item->getPermissions(), GP_OBJECT_MANIPULATE))))
-				   
+				   && (!gAgent.allowOperation(PERM_COPY, item->getPermissions(), GP_OBJECT_MANIPULATE)
+					   || !gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE))))
 			{
+				mItem = new LLViewerInventoryItem(item);
 				mScriptEd->mEditor->setText("You are not allowed to view this script.");
 				mScriptEd->mEditor->makePristine();
 				mScriptEd->mEditor->setEnabled(FALSE);
@@ -1768,6 +1764,20 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 						object->getRegion()->getPort());
 			gMessageSystem->sendReliable(host);
 			*/
+		}
+
+		// Initialization of the asset failed. Probably the result 
+		// of a bug somewhere else. Set up this editor in a no-go mode.
+		if(mItem.isNull())
+		{
+			// Set the inventory item to an incomplete item.
+			// This may be better than having a accessible null pointer around,
+			// though this newly allocated object will most likely be replaced.
+			mItem = new LLViewerInventoryItem();
+			mScriptEd->mEditor->setText("");
+			mScriptEd->mEditor->makePristine();
+			mScriptEd->mEditor->setEnabled(FALSE);
+			mAssetStatus = PREVIEW_ASSET_LOADED;
 		}
 	}
 	else
@@ -2012,6 +2022,14 @@ void LLLiveLSLEditor::saveIfNeeded()
 	LLViewerObject* object = gObjectList.findObject(mObjectID);
 	if(!object)
 	{
+		gViewerWindow->alertXml("SaveScriptFailObjectNotFound");
+		return;
+	}
+
+	if(mItem.isNull() || !mItem->isComplete())
+	{
+		// $NOTE: While the error message may not be exactly correct,
+		// it's pretty close.
 		gViewerWindow->alertXml("SaveScriptFailObjectNotFound");
 		return;
 	}
@@ -2277,6 +2295,11 @@ void LLLiveLSLEditor::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* use
 	std::string dst_filename = llformat("%s.lso", filepath.c_str());
 	LLFile::remove(dst_filename.c_str());
 	delete data;
+}
+
+void LLLiveLSLEditor::open()
+{
+	LLFloater::open();		/*Flawfinder: ignore*/
 }
 
 BOOL LLLiveLSLEditor::canClose()

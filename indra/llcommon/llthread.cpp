@@ -246,7 +246,7 @@ LLMutex::LLMutex(apr_pool_t *poolp) :
 		mIsLocalPool = TRUE;
 		apr_pool_create(&mAPRPoolp, NULL); // Create a subpool for this thread
 	}
-	apr_thread_mutex_create(&mAPRMutexp, APR_THREAD_MUTEX_DEFAULT, mAPRPoolp);
+	apr_thread_mutex_create(&mAPRMutexp, APR_THREAD_MUTEX_UNNESTED, mAPRPoolp);
 }
 
 

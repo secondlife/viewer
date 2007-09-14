@@ -727,6 +727,7 @@ BOOL LLImageTGA::decodeTruecolorRle32( LLImageRaw* raw_image, BOOL &alpha_opaque
 	U32* dst_pixels = (U32*) dst;
 
 	U8* src = getData() + mDataOffset;
+	U8* last_src = src + getDataSize();
 
 	U32 rgba;
 	U8* rgba_byte_p = (U8*) &rgba;
@@ -735,6 +736,10 @@ BOOL LLImageTGA::decodeTruecolorRle32( LLImageRaw* raw_image, BOOL &alpha_opaque
 	while( dst_pixels <= last_dst_pixel )
 	{
 		// Read RLE block header
+		
+		if (src >= last_src)
+			return FALSE;
+
 		U8 block_header_byte = *src;
 		src++;
 
@@ -742,6 +747,10 @@ BOOL LLImageTGA::decodeTruecolorRle32( LLImageRaw* raw_image, BOOL &alpha_opaque
 		if( block_header_byte & 0x80 )
 		{
 			// Encoded (duplicate-pixel) block
+
+			if (src + 3 >= last_src)
+				return FALSE;
+			
 			rgba_byte_p[0] = src[2];
 			rgba_byte_p[1] = src[1];
 			rgba_byte_p[2] = src[0];
@@ -766,6 +775,9 @@ BOOL LLImageTGA::decodeTruecolorRle32( LLImageRaw* raw_image, BOOL &alpha_opaque
 			// Unencoded block
 			do
 			{
+				if (src + 3 >= last_src)
+					return FALSE;
+				
 				((U8*)dst_pixels)[0] = src[2];
 				((U8*)dst_pixels)[1] = src[1];
 				((U8*)dst_pixels)[2] = src[0];
@@ -793,10 +805,16 @@ BOOL LLImageTGA::decodeTruecolorRle15( LLImageRaw* raw_image )
 	U8* dst = raw_image->getData();
 	U8* src = getData() + mDataOffset;
 
+	U8* last_src = src + getDataSize();
 	U8* last_dst = dst + getComponents() * (getHeight() * getWidth() - 1);
+
 	while( dst <= last_dst )
 	{
 		// Read RLE block header
+
+		if (src >= last_src)
+			return FALSE;
+
 		U8 block_header_byte = *src;
 		src++;
 
@@ -806,6 +824,9 @@ BOOL LLImageTGA::decodeTruecolorRle15( LLImageRaw* raw_image )
 			// Encoded (duplicate-pixel) block
 			do
 			{
+				if (src + 2 >= last_src)
+					return FALSE;
+				
 				decodeTruecolorPixel15( dst, src );   // slow
 				dst += 3;
 				block_pixel_count--;
@@ -818,6 +839,9 @@ BOOL LLImageTGA::decodeTruecolorRle15( LLImageRaw* raw_image )
 			// Unencoded block
 			do
 			{
+				if (src + 2 >= last_src)
+					return FALSE;
+
 				decodeTruecolorPixel15( dst, src );
 				dst += 3;
 				src += 2;
@@ -839,10 +863,16 @@ BOOL LLImageTGA::decodeTruecolorRle24( LLImageRaw* raw_image )
 	U8* dst = raw_image->getData();
 	U8* src = getData() + mDataOffset;
 
+	U8* last_src = src + getDataSize();
 	U8* last_dst = dst + getComponents() * (getHeight() * getWidth() - 1);
+
 	while( dst <= last_dst )
 	{
 		// Read RLE block header
+
+		if (src >= last_src)
+			return FALSE;
+	
 		U8 block_header_byte = *src;
 		src++;
 
@@ -852,6 +882,8 @@ BOOL LLImageTGA::decodeTruecolorRle24( LLImageRaw* raw_image )
 			// Encoded (duplicate-pixel) block
 			do
 			{
+				if (src + 2 >= last_src)
+					return FALSE;
 				dst[0] = src[2];
 				dst[1] = src[1];
 				dst[2] = src[0];
@@ -866,6 +898,9 @@ BOOL LLImageTGA::decodeTruecolorRle24( LLImageRaw* raw_image )
 			// Unencoded block
 			do
 			{
+				if (src + 2 >= last_src)
+					return FALSE;
+				
 				dst[0] = src[2];
 				dst[1] = src[1];
 				dst[2] = src[0];
@@ -888,16 +923,25 @@ BOOL LLImageTGA::decodeTruecolorRle8( LLImageRaw* raw_image )
 	U8* dst = raw_image->getData();
 	U8* src = getData() + mDataOffset;
 
+	U8* last_src = src + getDataSize();
 	U8* last_dst = dst + getHeight() * getWidth() - 1;
+	
 	while( dst <= last_dst )
 	{
 		// Read RLE block header
+
+		if (src >= last_src)
+			return FALSE;
+
 		U8 block_header_byte = *src;
 		src++;
 
 		U8 block_pixel_count = (block_header_byte & 0x7F) + 1;
 		if( block_header_byte & 0x80 )
 		{
+			if (src >= last_src)
+				return FALSE;
+			
 			// Encoded (duplicate-pixel) block
 			memset( dst, *src, block_pixel_count );
 			dst += block_pixel_count;
@@ -908,6 +952,9 @@ BOOL LLImageTGA::decodeTruecolorRle8( LLImageRaw* raw_image )
 			// Unencoded block
 			do
 			{
+				if (src >= last_src)
+					return FALSE;
+				
 				*dst = *src;
 				dst++;
 				src++;

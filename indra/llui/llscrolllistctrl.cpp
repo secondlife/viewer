@@ -600,6 +600,7 @@ std::vector<LLScrollListItem*> LLScrollListCtrl::getAllData() const
 
 void LLScrollListCtrl::reshape( S32 width, S32 height, BOOL called_from_parent )
 {
+	S32 old_height = mRect.getHeight();
 	LLUICtrl::reshape( width, height, called_from_parent );
 
 	S32 heading_size = (mDisplayColumnHeaders ? mHeadingHeight : 0);
@@ -611,9 +612,13 @@ void LLScrollListCtrl::reshape( S32 width, S32 height, BOOL called_from_parent )
 		mRect.getHeight() - 2*( mBorderThickness + LIST_BORDER_PAD ) - heading_size );
 
 	mPageLines = mLineHeight? mItemListRect.getHeight() / mLineHeight : 0;
+	if(old_height < height && getScrollPos() == mScrollbar->getDocPosMax())
+	{
+		setScrollPos(mScrollbar->getDocPosMax());
+	}
 	mScrollbar->setVisible(mPageLines < getItemCount());
 	mScrollbar->setPageSize( mPageLines );
-
+		
 	updateColumns();
 }
 
@@ -750,6 +755,7 @@ void LLScrollListCtrl::updateColumns()
 	mColumnsIndexed.resize(mColumns.size());
 
 	std::map<LLString, LLScrollListColumn>::iterator column_itor;
+	bool first_dynamic = true;
 	for (column_itor = mColumns.begin(); column_itor != mColumns.end(); ++column_itor)
 	{
 		LLScrollListColumn *column = &column_itor->second;
@@ -761,6 +767,11 @@ void LLScrollListCtrl::updateColumns()
 		else if (column->mDynamicWidth)
 		{
 			new_width = (mItemListRect.getWidth() - mTotalStaticColumnWidth) / mNumDynamicWidthColumns;
+			if(first_dynamic)
+			{
+				first_dynamic = false;
+				new_width += (mScrollbar->getVisible() ? 0 : SCROLLBAR_SIZE);
+			}
 		}
 
 		if (new_width != column->mWidth)
@@ -790,9 +801,10 @@ void LLScrollListCtrl::updateColumns()
 	LLColumnHeader* last_header = NULL;
 	for (column_ordered_it = mColumnsIndexed.begin(); column_ordered_it != mColumnsIndexed.end(); ++column_ordered_it)
 	{
-		if ((*column_ordered_it)->mWidth <= 0)
+		if ((*column_ordered_it)->mWidth < 0)
 		{
-			// skip hidden columns	
+			// skip hidden columns
+			continue;
 		}
 		LLScrollListColumn* column = *column_ordered_it;
 		
@@ -807,9 +819,8 @@ void LLScrollListCtrl::updateColumns()
 				right += mColumnPadding;
 			}
 			right = llmax(left, llmin(mItemListRect.getWidth(), right));
-
 			S32 header_width = right - left;
-
+			
 			last_header->reshape(header_width, mHeadingHeight);
 			last_header->translate(left - last_header->getRect().mLeft, top - last_header->getRect().mBottom);
 			last_header->setVisible(mDisplayColumnHeaders && header_width > 0);
@@ -818,12 +829,15 @@ void LLScrollListCtrl::updateColumns()
 	}
 
 	// expand last column header we encountered to full list width
+
 	if (last_header)
 	{
 		S32 header_strip_width = mItemListRect.getWidth() + (mScrollbar->getVisible() ? 0 : SCROLLBAR_SIZE);
 		S32 new_width = llmax(0, mItemListRect.mLeft + header_strip_width - last_header->getRect().mLeft);
 		last_header->reshape(new_width, last_header->getRect().getHeight());
+		last_header->setVisible(mDisplayColumnHeaders && new_width > 0);
 	}
+
 }
 
 void LLScrollListCtrl::setDisplayHeading(BOOL display)
@@ -1433,7 +1447,9 @@ void LLScrollListCtrl::drawItems()
 	LLGLSUIDefault gls_ui;
 	
 	{
-		LLLocalClipRect clip(mItemListRect);
+		LLRect clip_rect = mItemListRect;
+		if(!mScrollbar->getVisible()) clip_rect.mRight += SCROLLBAR_SIZE;
+		LLLocalClipRect clip(clip_rect);
 
 		S32 cur_x = x;
 		S32 cur_y = y;
@@ -1452,10 +1468,10 @@ void LLScrollListCtrl::drawItems()
 			item_rect.setOriginAndSize( 
 				cur_x, 
 				cur_y, 
-				mScrollbar->getVisible() ? mItemListRect.getWidth() : mItemListRect.getWidth() + mScrollbar->getRect().getWidth(),
+				mScrollbar->getVisible() ? mItemListRect.getWidth() : mItemListRect.getWidth() + SCROLLBAR_SIZE,
 				mLineHeight );
 
-			lldebugs << mItemListRect.getWidth() << llendl;
+			//llinfos << item_rect.getWidth() << llendl;
 
 			if (item->getSelected())
 			{
@@ -1503,22 +1519,31 @@ void LLScrollListCtrl::drawItems()
 					S32 cur_col = 0;
 					S32 dynamic_width = 0;
 					S32 dynamic_remainder = 0;
+					bool first_dynamic = true;
 					if(mNumDynamicWidthColumns > 0)
 					{
 						dynamic_width = (mItemListRect.getWidth() - mTotalStaticColumnWidth) / mNumDynamicWidthColumns;
 						dynamic_remainder = (mItemListRect.getWidth() - mTotalStaticColumnWidth) % mNumDynamicWidthColumns;
 					}
+
 					for (LLScrollListCell* cell = item->getColumn(0); cur_col < num_cols; cell = item->getColumn(++cur_col))
 					{
 						S32 cell_width = cell->getWidth();
+						
 						if(mColumnsIndexed.size() > (U32)cur_col && mColumnsIndexed[cur_col] && mColumnsIndexed[cur_col]->mDynamicWidth)
 						{							
 							cell_width = dynamic_width + (--dynamic_remainder ? 1 : 0);
+							if(first_dynamic)
+							{
+								cell_width += mScrollbar->getVisible() ? 0 : SCROLLBAR_SIZE;
+								first_dynamic = false;
+							}
 							cell->setWidth(cell_width);
 						}
 						// Two ways a cell could be hidden
 						if (cell_width < 0
 							|| !cell->getVisible()) continue;
+
 						LLUI::pushMatrix();
 						LLUI::translate((F32) cur_x, (F32) cur_y, 0.0f);
 						S32 space_left = mItemListRect.mRight - cur_x;

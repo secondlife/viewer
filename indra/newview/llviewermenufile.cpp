@@ -379,7 +379,7 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 									   gSavedSettings.getBOOL("RenderUIInSnapshot"),
 									   FALSE))
 		{
-			if (!gQuietSnapshot)
+			if (!gSavedSettings.getBOOL("QuietSnapshotsToDisk"))
 			{
 				gViewerWindow->playSnapshotAnimAndSound();
 			}

@@ -30,10 +30,10 @@ class LLMessageConfigFile : public LLLiveFile
 {
 public:
 	LLMessageConfigFile()
-        : LLLiveFile(fileName(), messageConfigRefreshRate)
+        : LLLiveFile(filename(), messageConfigRefreshRate)
             { }
 
-    static std::string fileName();
+    static std::string filename();
 
     LLSD mMessages;
 	std::string mServerDefault;
@@ -52,7 +52,7 @@ public:
 	LLSD mCapBans;
 };
 
-std::string LLMessageConfigFile::fileName()
+std::string LLMessageConfigFile::filename()
 {
     std::ostringstream ostr;
 	ostr << sConfigDir//gAppSimp->getOption("configdir").asString()
@@ -73,9 +73,10 @@ void LLMessageConfigFile::loadFile()
 	LLSD data;
     {
         llifstream file(filename().c_str());
+        
         if (file.is_open())
         {
-			llinfos << "Loading message.xml file at " << fileName() << llendl;
+			llinfos << "Loading message.xml file at " << filename() << llendl;
             LLSDSerialize::fromXML(data, file);
         }
 

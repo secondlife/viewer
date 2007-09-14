@@ -470,6 +470,11 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	{
 		return;
 	}
+
+	if ( isMinimized() )
+	{	// SL looks odd if we draw the tools while the window is minimized
+		return;
+	}
 	
 	// Focus buttons
 	BOOL focus_visible = (	tool == gToolCamera );

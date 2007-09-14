@@ -664,8 +664,9 @@ void LLPumpIO::initialize(apr_pool_t* pool)
 	LLMemType m1(LLMemType::MTYPE_IO_PUMP);
 	if(!pool) return;
 #if LL_THREADS_APR
-	apr_thread_mutex_create(&mChainsMutex, APR_THREAD_MUTEX_DEFAULT, pool);
-	apr_thread_mutex_create(&mCallbackMutex, APR_THREAD_MUTEX_DEFAULT, pool);
+	// SJB: Windows defaults to NESTED and OSX defaults to UNNESTED, so use UNNESTED explicitly.
+	apr_thread_mutex_create(&mChainsMutex, APR_THREAD_MUTEX_UNNESTED, pool);
+	apr_thread_mutex_create(&mCallbackMutex, APR_THREAD_MUTEX_UNNESTED, pool);
 #endif
 	mPool = pool;
 }

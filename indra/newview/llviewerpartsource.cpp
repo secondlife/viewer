@@ -47,7 +47,15 @@ void LLViewerPartSource::update(const F32 dt)
 	llerrs << "Creating default part source!" << llendl;
 }
 
-
+LLUUID LLViewerPartSource::getImageUUID() const
+{
+	LLViewerImage* imagep = mImagep;
+	if(imagep)
+	{
+		return imagep->getID();
+	}
+	return LLUUID::null;
+}
 
 LLViewerPartSourceScript::LLViewerPartSourceScript(LLViewerObject *source_objp) :
 	LLViewerPartSource(LL_PART_SOURCE_SCRIPT)

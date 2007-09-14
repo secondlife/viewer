@@ -160,84 +160,129 @@ BOOL LLXform::setParent(LLXform* parent)
 	return TRUE;
 }
 
+
+// Don't blow up on release versions
+#if LL_RELEASE_FOR_DOWNLOAD
+	#define llxformtrouble(msg, num)	llwarning(msg, num)
+#else
+	#define llxformtrouble(msg, num)	llerror(msg, num)
+#endif
+
+
 #ifdef CHECK_FOR_FINITE
 void LLXform::setPosition(const LLVector3& pos)			
 {
 	setChanged(TRANSLATED);
 	if (pos.isFinite())
+	{
 		mPosition = pos; 
+	}
 	else
-		llerror("Non Finite in LLXform::setPosition(LLVector3)", 0);
+	{
+		llxformtrouble("Non Finite in LLXform::setPosition(LLVector3)", 0);
+	}
 }
 
 void LLXform::setPosition(const F32 x, const F32 y, const F32 z)
 {
 	setChanged(TRANSLATED);
 	if (llfinite(x) && llfinite(y) && llfinite(z))
+	{
 		mPosition.setVec(x,y,z); 
+	}
 	else
-		llerror("Non Finite in LLXform::setPosition(F32,F32,F32)", 0);
+	{
+		llxformtrouble("Non Finite in LLXform::setPosition(F32,F32,F32)", 0);
+	}
 }
 
 void LLXform::setPositionX(const F32 x)
 { 
 	setChanged(TRANSLATED);
 	if (llfinite(x))
+	{
 		mPosition.mV[VX] = x; 
+	}
 	else
-		llerror("Non Finite in LLXform::setPositionX", 0);
+	{
+		llxformtrouble("Non Finite in LLXform::setPositionX", 0);
+	}
 }
 
 void LLXform::setPositionY(const F32 y)
 { 
 	setChanged(TRANSLATED);
 	if (llfinite(y))
+	{
 		mPosition.mV[VY] = y; 
+	}
 	else
-		llerror("Non Finite in LLXform::setPositionY", 0);
+	{
+		llxformtrouble("Non Finite in LLXform::setPositionY", 0);
+	}
 }
 
 void LLXform::setPositionZ(const F32 z)
 { 
 	setChanged(TRANSLATED);
 	if (llfinite(z))
+	{
 		mPosition.mV[VZ] = z; 
+	}
 	else
-		llerror("Non Finite in LLXform::setPositionZ", 0);
+	{
+		llxformtrouble("Non Finite in LLXform::setPositionZ", 0);
+	}
 }
 
 void LLXform::addPosition(const LLVector3& pos)
 { 
 	setChanged(TRANSLATED);
 	if (pos.isFinite())
+	{
 		mPosition += pos; 
+	}
 	else
-		llerror("Non Finite in LLXform::addPosition", 0);
+	{
+		llxformtrouble("Non Finite in LLXform::addPosition", 0);
+	}
 }
 
 void LLXform::setScale(const LLVector3& scale)
 { 
 	setChanged(SCALED);
 	if (scale.isFinite())
+	{
 		mScale = scale; 
+	}
 	else
-		llerror("Non Finite in LLXform::setScale", 0);
+	{
+		llxformtrouble("Non Finite in LLXform::setScale(LLVector)", 0);
+	}
 }
 void LLXform::setScale(const F32 x, const F32 y, const F32 z)
 { 
 	setChanged(SCALED);
 	if (llfinite(x) && llfinite(y) && llfinite(z))
+	{
 		mScale.setVec(x,y,z); 
+	}
 	else
-		llerror("Non Finite in LLXform::setScale", 0);
+	{
+		llxformtrouble("Non Finite in LLXform::setScale(F32,F32,F32)", 0);
+	}
 }
 void LLXform::setRotation(const LLQuaternion& rot)
 { 
 	setChanged(ROTATED);
 	if (rot.isFinite())
+	{
 		mRotation = rot; 
+	}
 	else
-		llerror("Non Finite in LLXform::setRotation", 0);
+	{
+		llxformtrouble("Non Finite in LLXform::setRotation(LLQuaternion)", 0);
+	}
 }
 void LLXform::setRotation(const F32 x, const F32 y, const F32 z) 
 { 
@@ -248,7 +293,7 @@ void LLXform::setRotation(const F32 x, const F32 y, const F32 z)
 	}
 	else
 	{
-		llerror("Non Finite in LLXform::setRotation", 0);
+		llxformtrouble("Non Finite in LLXform::setRotation(F32,F32,F32)", 0);
 	}
 }
 void LLXform::setRotation(const F32 x, const F32 y, const F32 z, const F32 s) 
@@ -260,7 +305,7 @@ void LLXform::setRotation(const F32 x, const F32 y, const F32 z, const F32 s)
 	}
 	else
 	{
-		llerror("Non Finite in LLXform::setRotation", 0);
+		llxformtrouble("Non Finite in LLXform::setRotation(F32,F32,F32,F32)", 0);
 	}
 }
 

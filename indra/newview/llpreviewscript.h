@@ -193,6 +193,9 @@ public:
 											bool is_script_running);
 	virtual void callbackLSLCompileFailed(const LLSD& compile_errors);
 
+	// Overide LLPreview::open() to avoid calling loadAsset twice.
+	/*virtual*/ void open();		/*Flawfinder: ignore*/
+
 protected:
 	virtual BOOL canClose();
 	void closeIfNeeded();

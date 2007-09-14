@@ -1273,9 +1273,9 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactor
 			child->getAttributeBOOL("auto_resize", auto_resize);
 
 			LLPanel* panelp = (LLPanel*)LLPanel::fromXML(child, layout_stackp, factory);
-			panelp->setFollowsNone();
 			if (panelp)
 			{
+				panelp->setFollowsNone();
 				layout_stackp->addPanel(panelp, min_width, min_height, auto_resize);
 			}
 		}

@@ -50,6 +50,7 @@ public:
 	// If you change a gesture, you need to build a new multigesture
 	// and call this method.
 	void replaceGesture(const LLUUID& item_id, LLMultiGesture* new_gesture, const LLUUID& asset_id);
+	void replaceGesture(const LLUUID& item_id, const LLUUID& asset_id);
 
 	// Load gesture into in-memory active form.
 	// Can be called even if the inventory item isn't loaded yet.

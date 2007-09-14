@@ -1838,7 +1838,7 @@ void LLAgent::cameraOrbitIn(const F32 meters)
 		if (new_distance > max_distance)
 		{
 			// Unless camera is unlocked
-			if (!LLViewerCamera::sDisableCameraConstraints)
+			if (!gSavedSettings.getBOOL("DisableCameraConstraints"))
 			{
 				return;
 			}
@@ -3754,7 +3754,7 @@ LLVector3d LLAgent::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 		camera_position_global = focusPosGlobal + mCameraFocusOffset;
 	}
 
-	if (!LLViewerCamera::sDisableCameraConstraints && !gAgent.isGodlike())
+	if (!gSavedSettings.getBOOL("DisableCameraConstraints") && !gAgent.isGodlike())
 	{
 		LLViewerRegion* regionp = gWorldPointer->getRegionFromPosGlobal(
 			camera_position_global);
@@ -3878,7 +3878,7 @@ F32 LLAgent::getCameraMinOffGround()
 	}
 	else
 	{
-		if (LLViewerCamera::sDisableCameraConstraints)
+		if (gSavedSettings.getBOOL("DisableCameraConstraints"))
 		{
 			return -1000.f;
 		}

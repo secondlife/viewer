@@ -87,6 +87,8 @@ public:
 	S32 getCount() const					{ return (S32) mParticles.size(); }
 	LLViewerRegion *getRegion() const		{ return mRegionp; }
 
+	void removeParticlesByID(const U32 source_id);
+	
 	LLPointer<LLVOPartGroup> mVOPartGroupp;
 
 	BOOL mUniformParticles;
@@ -106,9 +108,13 @@ protected:
 
 class LLViewerPartSim
 {
+
 public:
 	LLViewerPartSim();
 	virtual ~LLViewerPartSim();
+
+	typedef std::vector<LLViewerPartGroup *> group_list_t;
+	typedef std::vector<LLPointer<LLViewerPartSource> > source_list_t;
 
 	void shift(const LLVector3 &offset);
 
@@ -120,7 +126,11 @@ public:
 
 	BOOL shouldAddPart(); // Just decides whether this particle should be added or not (for particle count capping)
 	void addPart(LLViewerPart* part);
-	void cleanMutedParticles(const LLUUID& task_id);
+	void clearParticlesByID(const U32 system_id);
+	void clearParticlesByOwnerID(const LLUUID& task_id);
+	void removeLastCreatedSource();
+
+	const source_list_t* getParticleSystemList() const { return &mViewerPartSources; }
 
 	friend class LLViewerPartGroup;
 
@@ -138,8 +148,6 @@ protected:
 	LLViewerPartGroup *put(LLViewerPart* part);
 
 protected:
-	typedef std::vector<LLViewerPartGroup *> group_list_t;
-	typedef std::vector<LLPointer<LLViewerPartSource> > source_list_t;
 	group_list_t mViewerPartGroups;
 	source_list_t mViewerPartSources;
 	LLFrameTimer mSimulationTimer;

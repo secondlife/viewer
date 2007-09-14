@@ -625,6 +625,29 @@ BOOL LLViewerObject::setDrawableParent(LLDrawable* parentp)
 	return ret;
 }
 
+// Show or hide particles, icon and HUD
+void LLViewerObject::hideExtraDisplayItems( BOOL hidden )
+{
+	if( mPartSourcep.notNull() )
+	{
+		LLViewerPartSourceScript *partSourceScript = mPartSourcep.get();
+		partSourceScript->setSuspended( hidden );
+	}
+
+	if( mText.notNull() )
+	{
+		LLHUDText *hudText = mText.get();
+		hudText->setHidden( hidden );
+	}
+
+	if( mIcon.notNull() )
+	{
+		LLHUDIcon *hudIcon = mIcon.get();
+		hudIcon->setHidden( hidden );
+	}
+}
+
+
 U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					 void **user_data,
 					 U32 block_num,
@@ -1576,23 +1599,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 						sent_parentp->addChild(this);
 					}
 					
-					if( mPartSourcep.notNull() )
-					{
-						LLViewerPartSourceScript *partSourceScript = mPartSourcep.get();
-						partSourceScript->setSuspended( FALSE );
-					}
-
-					if( mText.notNull() )
-					{
-						LLHUDText *hudText = mText.get();
-						hudText->setHidden( FALSE );
-					}
-
-					if( mIcon.notNull() )
-					{
-						LLHUDIcon *hudIcon = mIcon.get();
-						hudIcon->setHidden( FALSE );
-					}
+					// Show particles, icon and HUD
+					hideExtraDisplayItems( FALSE );
 
 					setChanged(MOVED | SILHOUETTE);
 				}
@@ -1608,23 +1616,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					U32 port = mesgsys->getSenderPort();
 					
 					gObjectList.orphanize(this, parent_id, ip, port);
-					if( mPartSourcep.notNull() )
-					{
-						LLViewerPartSourceScript *partSourceScript = mPartSourcep.get();
-						partSourceScript->setSuspended( TRUE );
-					}
 
-					if( mText.notNull() )
-					{
-						LLHUDText *hudText = mText.get();
-						hudText->setHidden( TRUE );
-					}
-
-					if( mIcon.notNull() )
-					{
-						LLHUDIcon *hudIcon = mIcon.get();
-						hudIcon->setHidden( TRUE );
-					}
+					// Hide particles, icon and HUD
+					hideExtraDisplayItems( TRUE );
 				}
 			}
 		}

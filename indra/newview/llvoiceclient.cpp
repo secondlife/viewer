@@ -1361,7 +1361,7 @@ void LLVoiceClient::stateMachine()
 							sGatewayPID = id;
 						}
 #endif	// LL_WINDOWS
-						mDaemonHost = LLHost("127.0.0.1", 44124);				
+						mDaemonHost = LLHost(gSavedSettings.getString("VoiceHost").c_str(), gSavedSettings.getU32("VoicePort"));
 					}	
 					else
 					{
@@ -1374,7 +1374,7 @@ void LLVoiceClient::stateMachine()
 					// To do this, launch the gateway on a nearby host like this:
 					//  vivox-gw.exe -p tcp -i 0.0.0.0:44124
 					// and put that host's IP address here.
-					mDaemonHost = LLHost("127.0.0.1", 44124);
+					mDaemonHost = LLHost(gSavedSettings.getString("VoiceHost").c_str(), gSavedSettings.getU32("VoicePort"));
 				}
 
 				mUpdateTimer.start();

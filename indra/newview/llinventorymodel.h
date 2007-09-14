@@ -142,6 +142,11 @@ public:
 							  BOOL include_trash,
 							  LLInventoryCollectFunctor& add);
 
+	// This method will return false if this inventory model is in an usabel state.
+	// The inventory model usage is sensitive to the initial construction of the 
+	// model. 
+	bool isInventoryUsable();
+
 	//
 	// Mutators
 	//
@@ -407,6 +412,9 @@ protected:
 	static LLFrameTimer sFetchTimer;
 	static F32 sMinTimeBetweenFetches;
 	static F32 sMaxTimeBetweenFetches;
+
+	// This flag is used to handle an invalid inventory state.
+	bool mIsAgentInvUsable;
 
 public:
 	// *NOTE: DEBUG functionality
@@ -777,3 +785,4 @@ protected:
 
 
 #endif // LL_LLINVENTORYMODEL_H
+

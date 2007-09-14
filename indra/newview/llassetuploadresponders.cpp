@@ -21,6 +21,8 @@
 #include "llpermissionsflags.h"
 #include "llpreviewnotecard.h"
 #include "llpreviewscript.h"
+#include "llpreviewgesture.h"
+#include "llgesturemgr.h"
 #include "llscrolllistctrl.h"
 #include "lluploaddialog.h"
 #include "llviewerobject.h"
@@ -359,6 +361,27 @@ void LLUpdateAgentInventoryResponder::uploadComplete(const LLSD& content)
 						preview->callbackLSLCompileFailed(content["errors"]);
 					}
 				}
+			}
+			break;
+
+		case LLInventoryType::IT_GESTURE:
+			{
+				// If this gesture is active, then we need to update the in-memory
+				// active map with the new pointer.				
+				if (gGestureManager.isGestureActive(item_id))
+				{
+					LLUUID asset_id = new_item->getAssetUUID();
+					gGestureManager.replaceGesture(item_id, asset_id);
+					gInventory.notifyObservers();
+				}				
+
+				//gesture will have a new asset_id
+				LLPreviewGesture* previewp = (LLPreviewGesture*)LLPreview::find(item_id);
+				if(previewp)
+				{
+					previewp->onUpdateSucceeded();	
+				}			
+				
 			}
 			break;
 		case LLInventoryType::IT_WEARABLE:

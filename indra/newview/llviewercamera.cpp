@@ -25,8 +25,6 @@
 #include "llvovolume.h"
 #include "llworld.h"
 
-BOOL LLViewerCamera::sDisableCameraConstraints = FALSE;
-
 LLViewerCamera *gCamera = NULL;
 
 LLViewerCamera::LLViewerCamera() : LLCamera()

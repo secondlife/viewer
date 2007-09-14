@@ -33,6 +33,10 @@ export LL_GL_BASICEXT=x
 ##   LL_GL_BLACKLIST which solves your problems.
 #export LL_GL_BLACKLIST=abcdefghijklmno
 
+
+## Everything below this line is just for advanced troubleshooters.
+##-------------------------------------------------------------------
+
 ## - For advanced debugging cases, you can run the viewer under the
 ##   control of another program, such as strace, gdb, or valgrind.  If
 ##   you're building your own viewer, bear in mind that the executable
@@ -46,6 +50,12 @@ export SDL_VIDEO_X11_DGAMOUSE=0
 
 ## - Works around a problem with misconfigured 64-bit systems not finding GL
 export LIBGL_DRIVERS_PATH="${LIBGL_DRIVERS_PATH}":/usr/lib64/dri:/usr/lib32/dri:/usr/lib/dri
+
+## - The 'scim' GTK IM module widely crashes the viewer.  Avoid it.
+if [ "$GTK_IM_MODULE" = "scim" ]; then
+    export GTK_IM_MODULE=xim
+fi
+
 
 ## Nothing worth editing below this line.
 ##-------------------------------------------------------------------

@@ -1084,7 +1084,7 @@ void inventory_offer_callback(S32 button, void* user_data)
 		// Generates IM_INVENTORY_DECLINED, IM_TASK_INVENTORY_DECLINED,
 		// or IM_GROUP_NOTICE_INVENTORY_DECLINED
 	default:
-		// close button probably
+		// close button probably (or any of the fall-throughs from above)
 		msg->addU8Fast(_PREHASH_Dialog, (U8)(info->mIM + 2));
 		msg->addBinaryDataFast(_PREHASH_BinaryBucket, EMPTY_BINARY_BUCKET, EMPTY_BINARY_BUCKET_SIZE);
 		// send the message
@@ -1119,7 +1119,7 @@ void inventory_offer_callback(S32 button, void* user_data)
 			}
 			
 		}
-		if (busy || (!info->mFromGroup && !info->mFromObject))
+		if (busy &&	(!info->mFromGroup && !info->mFromObject))
 		{
 			busy_message(msg,info->mFromID);
 		}

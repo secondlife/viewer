@@ -395,5 +395,8 @@ public:
 
 //----------------------------------------------------------------------------
 
-#endif
+// Return the resident set size of the current process, in bytes.
+// Return value is zero if not known.
+U64 getCurrentRSS();
 
+#endif

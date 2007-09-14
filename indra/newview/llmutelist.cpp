@@ -261,7 +261,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 					//Kill all particle systems owned by muted task
 					if(localmute.mType == LLMute::AGENT || localmute.mType == LLMute::OBJECT)
 					{
-						gWorldPointer->mPartSim.cleanMutedParticles(localmute.mID);
+						gWorldPointer->mPartSim.clearParticlesByOwnerID(localmute.mID);
 					}
 				}
 				return TRUE;

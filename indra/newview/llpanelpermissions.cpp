@@ -594,7 +594,7 @@ void LLPanelPermissions::refresh()
 		{
 			childSetValue("checkbox share with group",TRUE);
 			childSetTentative("checkbox share with group",FALSE);
-			childSetEnabled("button deed",gAgent.hasPowerInGroup(group_id, GP_OBJECT_DEED) && (owner_mask_on & PERM_TRANSFER) && !group_owned);
+			childSetEnabled("button deed",gAgent.hasPowerInGroup(group_id, GP_OBJECT_DEED) && (owner_mask_on & PERM_TRANSFER) && !group_owned && can_transfer);
 		}
 		else if((group_mask_off & PERM_COPY) && (group_mask_off & PERM_MODIFY) && (group_mask_off & PERM_MOVE))
 		{
@@ -606,7 +606,7 @@ void LLPanelPermissions::refresh()
 		{
 			childSetValue("checkbox share with group",TRUE);
 			childSetTentative("checkbox share with group",true);
-			childSetEnabled("button deed",gAgent.hasPowerInGroup(group_id, GP_OBJECT_DEED) && (group_mask_on & PERM_MOVE) && (owner_mask_on & PERM_TRANSFER) && !group_owned);
+			childSetEnabled("button deed",gAgent.hasPowerInGroup(group_id, GP_OBJECT_DEED) && (group_mask_on & PERM_MOVE) && (owner_mask_on & PERM_TRANSFER) && !group_owned && can_transfer);
 		}
 	}			
 

@@ -8,6 +8,21 @@
 
 #include "linden_common.h"
 
+#if defined(LL_WINDOWS)
+# include <windows.h>
+# include <psapi.h>
+#elif defined(LL_DARWIN)
+# include <sys/types.h>
+# include <sys/sysctl.h>
+# include <mach/task.h>
+# include <mach/vm_map.h>
+# include <mach/mach_init.h>
+# include <mach/vm_region.h>
+# include <mach/mach_port.h>
+#elif defined(LL_LINUX)
+# include <unistd.h>
+#endif
+
 #include "llmemory.h"
 #include "llmemtype.h"
 
@@ -258,3 +273,131 @@ LLRefCount::~LLRefCount()
 	
 //----------------------------------------------------------------------------
 
+#if defined(LL_WINDOWS)
+
+U64 getCurrentRSS()
+{
+	HANDLE self = GetCurrentProcess();
+	PROCESS_MEMORY_COUNTERS counters;
+	
+	if (!GetProcessMemoryInfo(self, &counters, sizeof(counters)))
+	{
+		llwarns << "GetProcessMemoryInfo failed" << llendl;
+		return 0;
+	}
+
+	return counters.WorkingSetSize;
+}
+
+#elif defined(LL_DARWIN)
+
+static U32 getPageSize()
+{
+	int ctl[2] = { CTL_HW, HW_PAGESIZE };
+	int page_size;
+	size_t size = sizeof(page_size);
+
+	if (sysctl(ctl, 2, &page_size, &size, NULL, 0) == -1)
+	{
+		llwarns << "Couldn't get page size" << llendl;
+		return 0;
+	} else {
+		return page_size;
+	}
+}
+
+U64 getCurrentRSS()
+{
+	task_t task = mach_task_self();
+	vm_address_t addr = VM_MIN_ADDRESS;
+	vm_size_t size = 0;
+	U64 residentPages = 0;
+
+	while (true)
+	{
+		mach_msg_type_number_t bcount = VM_REGION_BASIC_INFO_COUNT;
+		vm_region_basic_info binfo;
+		mach_port_t bobj;
+		kern_return_t ret;
+		
+		addr += size;
+		
+		ret = vm_region(task, &addr, &size, VM_REGION_BASIC_INFO,
+						(vm_region_info_t) &binfo, &bcount, &bobj);
+		
+		if (ret != KERN_SUCCESS)
+		{
+			break;
+		}
+		
+		if (bobj != MACH_PORT_NULL)
+		{
+			mach_port_deallocate(task, bobj);
+		}
+		
+		mach_msg_type_number_t ecount = VM_REGION_EXTENDED_INFO_COUNT;
+		vm_region_extended_info einfo;
+		mach_port_t eobj;
+
+		ret = vm_region(task, &addr, &size, VM_REGION_EXTENDED_INFO,
+						(vm_region_info_t) &einfo, &ecount, &eobj);
+
+		if (ret != KERN_SUCCESS)
+		{
+			llwarns << "vm_region failed" << llendl;
+			return 0;
+		}
+		
+		if (eobj != MACH_PORT_NULL)
+		{
+			mach_port_deallocate(task, eobj);
+		}
+
+		residentPages += einfo.pages_resident;
+	}
+
+	return residentPages * getPageSize();
+}
+
+#elif defined(LL_LINUX)
+
+U64 getCurrentRSS()
+{
+	static const char statPath[] = "/proc/self/stat";
+	FILE *fp = fopen(statPath, "r");
+	U64 rss = 0;
+
+	if (fp == NULL)
+	{
+		llwarns << "couldn't open " << statPath << llendl;
+		goto bail;
+	}
+
+	// Eee-yew!	 See Documentation/filesystems/proc.txt in your
+	// nearest friendly kernel tree for details.
+	
+	{
+		int ret = fscanf(fp, "%*d (%*[^)]) %*c %*d %*d %*d %*d %*d %*d %*d "
+						 "%*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %Lu",
+						 &rss);
+		if (ret != 1)
+		{
+			llwarns << "couldn't parse contents of " << statPath << llendl;
+			rss = 0;
+		}
+	}
+	
+	fclose(fp);
+
+bail:
+	return rss;
+}
+
+#else
+
+U64 getCurrentRSS()
+{
+	return 0;
+}
+
+#endif

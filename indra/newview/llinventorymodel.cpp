@@ -152,7 +152,8 @@ LLInventoryModel gInventory;
 // Default constructor
 LLInventoryModel::LLInventoryModel() :
 	mModifyMask(LLInventoryObserver::ALL),
-	mLastItem(NULL)
+	mLastItem(NULL),
+	mIsAgentInvUsable(false)
 {
 }
 
@@ -269,13 +270,9 @@ void LLInventoryModel::getDirectDescendentsOf(const LLUUID& cat_id,
 LLUUID LLInventoryModel::findCategoryUUIDForType(LLAssetType::EType t)
 {
 	LLUUID rv = findCatUUID(t);
-	if(rv.isNull())
+	if(rv.isNull() && isInventoryUsable())
 	{
-		rv = gAgent.getInventoryRootID();
-		if(rv.notNull())
-		{
-			rv = createNewCategory(rv, t, NULL);
-		}
+		rv = createNewCategory(rv, t, NULL);
 	}
 	return rv;
 }
@@ -317,6 +314,12 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 										   const LLString& pname)
 {
 	LLUUID id;
+	if(!isInventoryUsable())
+	{
+		llwarns << "Inventory is broken." << llendl;
+		return id;
+	}
+
 	id.generate();
 	LLString name = pname;
 	if(!pname.empty())
@@ -450,6 +453,16 @@ void LLInventoryModel::appendPath(const LLUUID& id, LLString& path)
 	path.append(temp);
 }
 
+bool LLInventoryModel::isInventoryUsable()
+{
+	bool result = false;
+	if(gAgent.getInventoryRootID().notNull() && mIsAgentInvUsable)
+	{
+		result = true;
+	}
+	return result;	
+}
+
 // Calling this method with an inventory item will either change an
 // existing item with a matching item_id, or will add the item to the
 // current inventory.
@@ -460,6 +473,13 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 	{
 		return mask;
 	}
+
+	if(!isInventoryUsable())
+	{
+		llwarns << "Inventory is broken." << llendl;
+		return mask;
+	}
+
 	LLViewerInventoryItem* old_item = getItem(item->getUUID());
 	if(old_item)
 	{
@@ -568,6 +588,13 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
 	{
 		return;
 	}
+
+	if(!isInventoryUsable())
+	{
+		llwarns << "Inventory is broken." << llendl;
+		return;
+	}
+
 	LLViewerInventoryCategory* old_cat = getCategory(cat->getUUID());
 	if(old_cat)
 	{
@@ -625,6 +652,12 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
 void LLInventoryModel::moveObject(const LLUUID& object_id, const LLUUID& cat_id)
 {
 	lldebugs << "LLInventoryModel::moveObject()" << llendl;
+	if(!isInventoryUsable())
+	{
+		llwarns << "Inventory is broken." << llendl;
+		return;
+	}
+
 	if((object_id == cat_id) || !is_in_map(mCategoryMap, cat_id))
 	{
 		llwarns << "Could not move inventory object " << object_id << " to "
@@ -1066,7 +1099,7 @@ void LLInventoryModel::backgroundFetch(void*)
 			{
 				// finished with this category, remove from queue
 				sFetchQueue.pop_front();
-				
+
 				// add all children to queue
 				parent_cat_map_t::iterator cat_it = gInventory.mParentChildCategoryTree.find(cat->getUUID());
 				if (cat_it != gInventory.mParentChildCategoryTree.end())
@@ -1841,6 +1874,19 @@ void LLInventoryModel::buildParentChildMap()
 		if(!start_new_message)
 		{
 			gAgent.sendReliableMessage();
+		}
+	}
+
+	const LLUUID& agent_inv_root_id = gAgent.getInventoryRootID();
+	if (agent_inv_root_id.notNull())
+	{
+		cat_array_t* catsp = get_ptr_in_map(mParentChildCategoryTree, agent_inv_root_id);
+		if(catsp)
+		{
+			// 'My Inventory',
+			// root of the agent's inv found.
+			// The inv tree is built.
+			mIsAgentInvUsable = true;
 		}
 	}
 }
@@ -2674,7 +2720,6 @@ void LLInventoryModel::dumpInventory()
 	}
 	llinfos << "\n**********************\nEnd Inventory Dump" << llendl;
 }
-
 
 ///----------------------------------------------------------------------------
 /// LLInventoryCollectFunctor implementations

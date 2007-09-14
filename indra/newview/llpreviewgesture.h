@@ -44,6 +44,7 @@ public:
 	virtual BOOL canClose();
 	virtual void setMinimized(BOOL minimize);
 	virtual void onClose(bool app_quitting);
+	virtual void onUpdateSucceeded();
 	
 
 protected:
