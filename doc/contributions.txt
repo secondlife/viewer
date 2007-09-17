@@ -107,8 +107,6 @@ Grazer Kline
 	VWR-1092
 Gudmund Shepherd
 	VWR-1594
-Hamncheese Omlet
-	VWR-333
 Henri Beauchamp
 	VWR-1406
 Hikkoshi Sakai
@@ -218,7 +216,6 @@ Paul Churchill
 	VWR-1567
 	VWR-1647
 	VWR-1880
-	VWR-2072
 Paula Innis
 	VWR-30
 	VWR-293

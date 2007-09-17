@@ -966,7 +966,6 @@ BOOL LLFloaterIMPanel::postBuild()
 		childSetAction("end_call_btn", onClickEndCall, this);
 		childSetAction("send_btn", onClickSend, this);
 		childSetAction("toggle_active_speakers_btn", onClickToggleActiveSpeakers, this);
-		childSetAction("offer_tp_btn", onClickOfferTeleport, this);
 
 		//LLButton* close_btn = LLUICtrlFactory::getButtonByName(this, "close_btn");
 		//close_btn->setClickedCallback(&LLFloaterIMPanel::onClickClose, this);
@@ -1059,13 +1058,6 @@ void LLFloaterIMPanel::draw()
 	childSetVisible("start_call_btn", mVoiceChannel->getState() < LLVoiceChannel::STATE_CALL_STARTED);
 	childSetEnabled("start_call_btn", enable_connect);
 	childSetEnabled("send_btn", !childGetValue("chat_editor").asString().empty());
-
-	const LLRelationship* info = NULL;
-	info = LLAvatarTracker::instance().getBuddyInfo(mOtherParticipantUUID);
-	if (info)
-	{
-		childSetEnabled("offer_tp_btn", info->isOnline());
-	}
 
 	if (mAutoConnect && enable_connect)
 	{
@@ -1393,13 +1385,6 @@ void LLFloaterIMPanel::onTabClick(void* userdata)
 	self->setInputFocus(TRUE);
 }
 
-// static
-void LLFloaterIMPanel::onClickOfferTeleport(void* userdata)
-{
-	LLFloaterIMPanel* self = (LLFloaterIMPanel*) userdata;
-
-	handle_lure(self->mOtherParticipantUUID);
-}
 
 // static
 void LLFloaterIMPanel::onClickProfile( void* userdata )
