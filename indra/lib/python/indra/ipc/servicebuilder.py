@@ -23,7 +23,7 @@ def build(name, context):
     global _g_builder
     if _g_builder is None:
         _g_builder = ServiceBuilder()
-    _g_builder.buildServiceURL(name, context)
+    return _g_builder.buildServiceURL(name, context)
 
 class ServiceBuilder(object):
     def __init__(self, services_definition = services_config):

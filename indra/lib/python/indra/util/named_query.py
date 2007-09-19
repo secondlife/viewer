@@ -56,10 +56,14 @@ class ExpectationFailed(Exception):
         self.message = message
 
 class NamedQuery(object):
-    def __init__(self, filename):
+    def __init__(self, name, filename):
         self._stat_interval = 5000  # 5 seconds
+        self._name = name
         self._location = filename
         self.load_contents()
+
+    def name(self):
+        return self._name
 
     def get_modtime(self):
         return os.path.getmtime(self._location)
@@ -186,6 +190,6 @@ class NamedQueryManager(object):
         # new up/refresh a NamedQuery based on the name
         nq = self._cached_queries.get(name)
         if nq is None:
-            nq = NamedQuery(os.path.join(self._dir, name))
+            nq = NamedQuery(name, os.path.join(self._dir, name))
             self._cached_queries[name] = nq
         return nq

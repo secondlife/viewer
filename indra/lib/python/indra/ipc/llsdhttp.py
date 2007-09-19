@@ -8,7 +8,6 @@ $License$
  
 import os.path
 import os
-import os
 import urlparse
 
 
