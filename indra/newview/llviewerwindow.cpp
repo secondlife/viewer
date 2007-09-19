@@ -1800,6 +1800,8 @@ void LLViewerWindow::adjustRectanglesForFirstUse(const LLRect& window)
 
 	adjust_rect_top_right("FloaterMapRect", window);
 
+	adjust_rect_top_right("FloaterLagMeter", window);
+
 	adjust_rect_top_left("FloaterBuildOptionsRect", window);
 
 	// bottom-right

@@ -85,6 +85,7 @@
 #include "llfloaterhtmlhelp.h"
 #include "llfloaterhtmlfind.h"
 #include "llfloaterinspect.h"
+#include "llfloaterlagmeter.h"
 #include "llfloaterland.h"
 #include "llfloaterlandholdings.h"
 #include "llfloatermap.h"
@@ -5514,6 +5515,10 @@ class LLShowFloater : public view_listener_t
 				LLFloaterBump::show(NULL);
 			}
 		}
+		else if (floater_name == "lag meter")
+		{
+			LLFloaterLagMeter::show(NULL);
+		}
 		else if (floater_name == "bug reporter")
 		{
 			// Prevent menu from appearing in screen shot.
@@ -7760,6 +7765,7 @@ void initialize_menus()
 
 	// Help menu
 	addMenu(new LLHelpMOTD(), "Help.MOTD");
+	// most items use the ShowFloater method
 
 	// Self pie menu
 	addMenu(new LLSelfStandUp(), "Self.StandUp");
