@@ -3038,7 +3038,7 @@ version 2.0
 // and where someone you are tracking is located. They are -1 if not
 // applicable.
 {
-	CoarseLocationUpdate Medium 6 Trusted Unencoded
+	CoarseLocationUpdate Medium 6 Trusted Unencoded UDPDeprecated
 	{
 		Location	Variable
 		{	X		U8	}

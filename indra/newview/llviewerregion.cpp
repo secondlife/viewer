@@ -31,6 +31,7 @@
 #include "llfloaterregioninfo.h"
 #include "llhttpnode.h"
 #include "llnetmap.h"
+#include "llsdutil.h"
 #include "llstartup.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparceloverlay.h"
@@ -805,6 +806,88 @@ BOOL LLViewerRegion::isOwnedGroup(const LLVector3& pos)
 	}
 }
 
+// the new TCP coarse location handler node
+class CoarseLocationUpdate : public LLHTTPNode
+{
+public:
+	virtual void post(
+		ResponsePtr responder,
+		const LLSD& context,
+		const LLSD& input) const
+	{
+		LLHost host(input["sender"].asString());
+		LLViewerRegion* region = gWorldp->getRegion(host);
+		if( !region )
+		{
+			return;
+		}
+
+		S32 target_index = input["body"]["Index"][0]["Prey"].asInteger();
+		S32 you_index    = input["body"]["Index"][0]["You" ].asInteger();
+
+		LLDynamicArray<U32>* avatar_locs = &region->mMapAvatars;
+		LLDynamicArray<LLUUID>* avatar_ids = &region->mMapAvatarIDs;
+		avatar_locs->reset();
+		avatar_ids->reset();
+
+		//llinfos << "coarse locations agent[0] " << input["body"]["AgentData"][0]["AgentID"].asUUID() << llendl;
+		//llinfos << "my agent id = " << gAgent.getID() << llendl;
+		//llinfos << ll_pretty_print_sd(input) << llendl;
+
+		LLSD 
+			locs   = input["body"]["Location"],
+			agents = input["body"]["AgentData"];
+		LLSD::array_iterator 
+			locs_it = locs.beginArray(), 
+			agents_it = agents.beginArray();
+		BOOL has_agent_data = input["body"].has("AgentData");
+
+		for(int i=0; 
+			locs_it != locs.endArray(); 
+			i++, locs_it++, agents_it++)
+		{
+			U8 
+				x = locs_it->get("X").asInteger(),
+				y = locs_it->get("Y").asInteger(),
+				z = locs_it->get("Z").asInteger();
+			// treat the target specially for the map, and don't add you or the target
+			if(i == target_index)
+			{
+				LLVector3d global_pos(region->getOriginGlobal());
+				global_pos.mdV[VX] += (F64)x;
+				global_pos.mdV[VY] += (F64)y;
+				global_pos.mdV[VZ] += (F64)z * 4.0;
+				LLAvatarTracker::instance().setTrackedCoarseLocation(global_pos);
+			}
+			else if( i != you_index)
+			{
+				U32 loc = x << 16 | y << 8 | z; loc = loc;
+				U32 pos = 0x0;
+				pos |= x;
+				pos <<= 8;
+				pos |= y;
+				pos <<= 8;
+				pos |= z;
+				avatar_locs->put(pos);
+				//llinfos << "next pos: " << x << "," << y << "," << z << ": " << pos << llendl;
+				if(has_agent_data) // for backwards compatibility with old message format
+				{
+					LLUUID agent_id(agents_it->get("AgentID").asUUID());
+					//llinfos << "next agent: " << agent_id.asString() << llendl;
+					avatar_ids->put(agent_id);
+				}
+			}
+		}
+	}
+};
+
+// build the coarse location HTTP node under the "/message" URL
+LLHTTPRegistration<CoarseLocationUpdate>
+   gHTTPRegistrationCoarseLocationUpdate(
+	   "/message/CoarseLocationUpdate");
+
+
+// the deprecated coarse location handler
 void LLViewerRegion::updateCoarseLocations(LLMessageSystem* msg)
 {
 	//llinfos << "CoarseLocationUpdate" << llendl;

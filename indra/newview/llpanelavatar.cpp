@@ -446,7 +446,7 @@ BOOL LLPanelAvatarSecondLife::postBuild(void)
 	childSetVisible("online_unknown",FALSE);
 	childSetVisible("online_no",FALSE);
 
-	childSetAction("Show on Map", LLPanelAvatar::onClickTrack, getPanelAvatar());
+	childSetAction("Find on Map", LLPanelAvatar::onClickTrack, getPanelAvatar());
 	childSetAction("Instant Message...", LLPanelAvatar::onClickIM, getPanelAvatar());
 	
 	childSetAction("Add Friend...", LLPanelAvatar::onClickAddFriend, getPanelAvatar());
@@ -1475,8 +1475,8 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id, const LLString &name,
 			childSetEnabled("Offer Teleport...",FALSE);
 			childSetVisible("drop target",FALSE);
 			childSetEnabled("drop target",FALSE);
-			childSetVisible("Show on Map",FALSE);
-			childSetEnabled("Show on Map",FALSE);
+			childSetVisible("Find on Map",FALSE);
+			childSetEnabled("Find on Map",FALSE);
 			childSetVisible("Add Friend...",FALSE);
 			childSetEnabled("Add Friend...",FALSE);
 			childSetVisible("Pay...",FALSE);
@@ -1499,21 +1499,21 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id, const LLString &name,
 			childSetVisible("drop target",TRUE);
 			childSetEnabled("drop target",FALSE);
 
-			childSetVisible("Show on Map",TRUE);
+			childSetVisible("Find on Map",TRUE);
 			// Note: we don't always know online status, so always allow gods to try to track
 			BOOL enable_track = gAgent.isGodlike() || is_agent_mappable(mAvatarID);
-			childSetEnabled("Show on Map",enable_track);
+			childSetEnabled("Find on Map",enable_track);
 			if (!mIsFriend)
 			{
-				childSetToolTip("Show on Map",childGetValue("ShowOnMapNonFriend").asString());
+				childSetToolTip("Find on Map",childGetValue("ShowOnMapNonFriend").asString());
 			}
 			else if (ONLINE_STATUS_YES != online_status)
 			{
-				childSetToolTip("Show on Map",childGetValue("ShowOnMapFriendOffline").asString());
+				childSetToolTip("Find on Map",childGetValue("ShowOnMapFriendOffline").asString());
 			}
 			else
 			{
-				childSetToolTip("Show on Map",childGetValue("ShowOnMapFriendOnline").asString());
+				childSetToolTip("Find on Map",childGetValue("ShowOnMapFriendOnline").asString());
 			}
 			childSetVisible("Add Friend...", true);
 			childSetEnabled("Add Friend...", !avatar_is_friend);

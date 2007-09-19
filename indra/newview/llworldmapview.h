@@ -69,9 +69,10 @@ public:
 	virtual void	draw();
 	void			drawGenericItems(const LLWorldMap::item_info_list_t& items, LLPointer<LLViewerImage> image);
 	void			drawGenericItem(const LLItemInfo& item, LLPointer<LLViewerImage> image);
+	void			drawImage(const LLVector3d& global_pos, LLPointer<LLViewerImage> image, const LLColor4& color = LLColor4::white);
+	void			drawImageStack(const LLVector3d& global_pos, LLPointer<LLViewerImage> image, U32 count, F32 offset, const LLColor4& color);
 	void			drawAgents();
 	void			drawEvents();
-	void			drawDots();
 	void			drawFrustum();
 
 	static void		cleanupTextures();
@@ -122,6 +123,8 @@ public:
 	static LLPointer<LLViewerImage>	sAvatarYouSmallImage;
 	static LLPointer<LLViewerImage>	sAvatarSmallImage;
 	static LLPointer<LLViewerImage>	sAvatarLargeImage;
+	static LLPointer<LLViewerImage>	sAvatarAboveImage;
+	static LLPointer<LLViewerImage>	sAvatarBelowImage;
 	static LLPointer<LLViewerImage>	sTelehubImage;
 	static LLPointer<LLViewerImage>	sInfohubImage;
 	static LLPointer<LLViewerImage>	sHomeImage;

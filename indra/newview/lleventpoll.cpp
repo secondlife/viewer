@@ -151,7 +151,8 @@ namespace
 			llwarns << "LLEventPollResponder: id undefined" << llendl;
 		}
 		
-		llinfos  << "LLEventPollResponder::completed <" <<	mCount << "> " << events.size() << "events (id "
+		// was llinfos but now that CoarseRegionUpdate is TCP @ 1/second, it'd be too verbose for viewer logs. -MG
+		lldebugs  << "LLEventPollResponder::completed <" <<	mCount << "> " << events.size() << "events (id "
 				 <<	LLSDXMLStreamer(mAcknowledge) << ")" << llendl;
 		
 		LLSD::array_const_iterator i = events.beginArray();

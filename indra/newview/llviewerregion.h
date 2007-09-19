@@ -242,7 +242,13 @@ public:
 	LLStat	mPacketsStat;
 	LLStat	mPacketsLostStat;
 
+	// These arrays are maintained in parallel. Ideally they'd be combined into a
+	// single array of an aggrigate data type but for compatibility with the old
+	// messaging system in which the previous message only sends and parses the 
+	// positions stored in the first array so they're maintained separately until 
+	// we stop supporting the old CoarseLocationUpdate message.
 	LLDynamicArray<U32> mMapAvatars;
+	LLDynamicArray<LLUUID> mMapAvatarIDs;
 
 protected:
 	// The surfaces and other layers
@@ -367,4 +373,5 @@ inline BOOL LLViewerRegion::getRestrictPushObject() const
 }
 
 #endif
+
 

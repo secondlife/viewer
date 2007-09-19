@@ -32,6 +32,7 @@
 #include "llviewercamera.h"
 #include "llviewerimage.h"
 #include "llviewerimagelist.h"
+#include "llviewermenu.h"
 #include "llviewerparceloverlay.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
@@ -49,6 +50,8 @@ BOOL LLWorldMapView::sHandledLastClick = FALSE;
 LLPointer<LLViewerImage> LLWorldMapView::sAvatarYouSmallImage = NULL;
 LLPointer<LLViewerImage> LLWorldMapView::sAvatarSmallImage = NULL;
 LLPointer<LLViewerImage> LLWorldMapView::sAvatarLargeImage = NULL;
+LLPointer<LLViewerImage> LLWorldMapView::sAvatarAboveImage = NULL;
+LLPointer<LLViewerImage> LLWorldMapView::sAvatarBelowImage = NULL;
 
 LLPointer<LLViewerImage> LLWorldMapView::sTelehubImage = NULL;
 LLPointer<LLViewerImage> LLWorldMapView::sInfohubImage = NULL;
@@ -86,6 +89,12 @@ void LLWorldMapView::initClass()
 
 	image_id.set( gViewerArt.getString("map_avatar_16.tga") );
 	sAvatarLargeImage = gImageList.getImage( image_id, MIPMAP_FALSE, TRUE);
+
+	image_id.set( gViewerArt.getString("map_avatar_above_8.tga") );
+	sAvatarAboveImage = gImageList.getImage( image_id, MIPMAP_FALSE, TRUE);
+
+	image_id.set( gViewerArt.getString("map_avatar_below_8.tga") );
+	sAvatarBelowImage = gImageList.getImage( image_id, MIPMAP_FALSE, TRUE);
 
 	image_id.set( gViewerArt.getString("map_home.tga") );
 	sHomeImage = gImageList.getImage(image_id, MIPMAP_FALSE, TRUE);
@@ -127,6 +136,8 @@ void LLWorldMapView::cleanupClass()
 	sAvatarYouSmallImage = NULL;
 	sAvatarSmallImage = NULL;
 	sAvatarLargeImage = NULL;
+	sAvatarAboveImage = NULL;
+	sAvatarBelowImage = NULL;
 	sTelehubImage = NULL;
 	sInfohubImage = NULL;
 	sHomeImage = NULL;
@@ -254,17 +265,15 @@ void LLWorldMapView::setPan( S32 x, S32 y, BOOL snap )
 
 
 ///////////////////////////////////////////////////////////////////////////////////
+// HELPERS
 
-// dumb helper function
 BOOL is_agent_in_region(LLViewerRegion* region, LLSimInfo* info)
 {
-	if((region && info)
-	   && (info->mName == region->getName()))
-	{
-		return TRUE;
-	}
-	return FALSE;
+	return ((region && info) && (info->mName == region->getName()));
 }
+
+
+///////////////////////////////////////////////////////////////////////////////////
 
 void LLWorldMapView::draw()
 {
@@ -282,9 +291,6 @@ void LLWorldMapView::draw()
 	// animate pan if necessary
 	sPanX = lerp(sPanX, sTargetPanX, LLCriticalDamp::getInterpolant(0.1f));
 	sPanY = lerp(sPanY, sTargetPanY, LLCriticalDamp::getInterpolant(0.1f));
-
-	LLVector3d pos_global;
-	LLVector3 pos_map;
 
 	const S32 width = mRect.getWidth();
 	const S32 height = mRect.getHeight();
@@ -665,55 +671,23 @@ void LLWorldMapView::draw()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Infohubs
-	// Draw under avatar so you can find yourself.
 	if (gSavedSettings.getBOOL("MapShowInfohubs"))   //(gMapScale >= sThresholdB)
 	{
-		S32 infohub_icon_size = (S32)sInfohubImage->getWidth();
-		for (U32 infohub=0; infohub<gWorldMap->mInfohubs.size(); ++infohub)
-		{
-			LLItemInfo *infohub_info = &gWorldMap->mInfohubs[infohub];
-
-			pos_map = globalPosToView(infohub_info->mPosGlobal);
-			gl_draw_image(llround(pos_map.mV[VX])-infohub_icon_size/2,
-							llround(pos_map.mV[VY])-infohub_icon_size/2,
-							sInfohubImage,
-							LLColor4::white);
-		}
+		drawGenericItems(gWorldMap->mInfohubs, sInfohubImage);
 	}
 
 	// Telehubs
-	// Draw under avatar so you can find yourself.
 	if (gSavedSettings.getBOOL("MapShowTelehubs"))   //(gMapScale >= sThresholdB)
 	{
-		S32 telehub_icon_size = (S32)sTelehubImage->getWidth();
-		for (U32 telehub=0; telehub<gWorldMap->mTelehubs.size(); ++telehub)
-		{
-			LLItemInfo *telehub_info = &gWorldMap->mTelehubs[telehub];
-
-			pos_map = globalPosToView(telehub_info->mPosGlobal);
-			gl_draw_image(llround(pos_map.mV[VX])-telehub_icon_size/2,
-					llround(pos_map.mV[VY])-telehub_icon_size/2,
-					sTelehubImage,
-					LLColor4::white);
-		}
+		drawGenericItems(gWorldMap->mTelehubs, sTelehubImage);
 	}
 
-	// Home
-	// Always Draw
-	if (1)   //(gMapScale >= sThresholdB)
+	// Home Sweet Home
+	LLVector3d home;
+	if (gAgent.getHomePosGlobal(&home))
 	{
-		S32 home_icon_size = (S32)sHomeImage->getWidth();
-		if (gAgent.getHomePosGlobal(&pos_global))
-		{
-			pos_map = globalPosToView(pos_global);
-			gl_draw_image(llround(pos_map.mV[VX])-home_icon_size/2,
-						  llround(pos_map.mV[VY])-home_icon_size/2,
-						  sHomeImage,
-						  LLColor4::white);
-		}
+		drawImage(home, sHomeImage);
 	}
-
-	// Draw all these under the avatar, so you can find yourself
 
 	if (gSavedSettings.getBOOL("MapShowLandForSale"))
 	{
@@ -735,15 +709,11 @@ void LLWorldMapView::draw()
 		drawEvents();
 	}
 
-	// Your avatar.
-	// Draw avatar position, always, and underneath other avatars
-	pos_global = gAgent.getPositionGlobal();
-	pos_map = globalPosToView(pos_global);
-	gl_draw_image(llround(pos_map.mV[VX])-8,
-				  llround(pos_map.mV[VY])-8,
-				  sAvatarLargeImage,
-				  LLColor4::white);
+	// Now draw your avatar after all that other stuff.
+	LLVector3d pos_global = gAgent.getPositionGlobal();
+	drawImage(pos_global, sAvatarLargeImage);
 
+	LLVector3 pos_map = globalPosToView(pos_global);
 	if (!pointInView(llround(pos_map.mV[VX]), llround(pos_map.mV[VY])))
 	{
 		drawTracking(pos_global, 
@@ -754,16 +724,15 @@ void LLWorldMapView::draw()
 			llround(LLFontGL::sSansSerifSmall->getLineHeight())); // offset vertically by one line, to avoid overlap with target tracking
 	}
 
+	// Show your viewing angle
 	drawFrustum();
 
 	// Draw icons for the avatars in each region.
-	// Draw after avatar so you can see nearby people.
+	// Drawn after your avatar so you can see nearby people.
 	if (gSavedSettings.getBOOL("MapShowPeople"))
 	{
 		drawAgents();
 	}
-
-	//-----------------------------------------------------------------------
 
 	// Always draw tracking information
 	LLTracker::ETrackingStatus tracking_status = LLTracker::getTrackingStatus();
@@ -808,7 +777,8 @@ void LLWorldMapView::draw()
 	LLView::draw();
 
 	updateVisibleBlocks();
-}
+} // end draw()
+
 
 //virtual
 void LLWorldMapView::setVisible(BOOL visible)
@@ -848,29 +818,40 @@ void LLWorldMapView::drawGenericItems(const LLWorldMap::item_info_list_t& items,
 	LLWorldMap::item_info_list_t::const_iterator e;
 	for (e = items.begin(); e != items.end(); ++e)
 	{
-		const LLItemInfo& info = *e;
-
-		drawGenericItem(info, image);
+		drawGenericItem(*e, image);
 	}
 }
 
 void LLWorldMapView::drawGenericItem(const LLItemInfo& item, LLPointer<LLViewerImage> image)
 {
-	S32 half_width  = image->getWidth()/2;
-	S32 half_height = image->getHeight()/2;
-
-	LLVector3 pos_map = globalPosToView( item.mPosGlobal );
-	gl_draw_image(llround(pos_map.mV[VX]) - half_width,
-					llround(pos_map.mV[VY]) - half_height,
-					image,
-					LLColor4::white);				
+	drawImage(item.mPosGlobal, image);
 }
+
+
+void LLWorldMapView::drawImage(const LLVector3d& global_pos, LLPointer<LLViewerImage> image, const LLColor4& color)
+{
+	LLVector3 pos_map = globalPosToView( global_pos );
+	gl_draw_image(llround(pos_map.mV[VX] - image->getWidth() /2.f),
+				  llround(pos_map.mV[VY] - image->getHeight()/2.f),
+				  image,
+				  color);
+}
+
+void LLWorldMapView::drawImageStack(const LLVector3d& global_pos, LLPointer<LLViewerImage> image, U32 count, F32 offset, const LLColor4& color)
+{
+	LLVector3 pos_map = globalPosToView( global_pos );
+	for(U32 i=0; i<count; i++)
+	{
+		gl_draw_image(llround(pos_map.mV[VX] - image->getWidth() /2.f),
+					  llround(pos_map.mV[VY] - image->getHeight()/2.f + i*offset),
+					  image,
+					  color);
+	}
+}
+
 
 void LLWorldMapView::drawAgents()
 {
-	//S32 half_width  = sPopularImage->getWidth()/2;
-	//S32 half_height = sPopularImage->getHeight()/2;
-
 	F32 agents_scale = (gMapScale * 0.9f) / 256.f;
 
 	for (handle_list_t::iterator iter = mVisibleRegions.begin(); iter != mVisibleRegions.end(); ++iter)
@@ -881,32 +862,20 @@ void LLWorldMapView::drawAgents()
 		{
 			continue;
 		}
-		LLWorldMap::agent_list_map_t::iterator countsiter = gWorldMap->mAgentLocationsMap.find(handle);
-		if (siminfo && siminfo->mShowAgentLocations && countsiter != gWorldMap->mAgentLocationsMap.end())
+		LLWorldMap::agent_list_map_t::iterator counts_iter = gWorldMap->mAgentLocationsMap.find(handle);
+		if (siminfo && siminfo->mShowAgentLocations && counts_iter != gWorldMap->mAgentLocationsMap.end())
 		{
-			// Show Individual agents
-			LLWorldMap::item_info_list_t& agentcounts = countsiter->second;
+			// Show Individual agents (or little stacks where real agents are)
+			LLWorldMap::item_info_list_t& agentcounts = counts_iter->second;
 			S32 sim_agent_count = 0;
 			for (LLWorldMap::item_info_list_t::iterator iter = agentcounts.begin();
 				 iter != agentcounts.end(); ++iter)
 			{
 				const LLItemInfo& info = *iter;
-				LLVector3 pos_map = globalPosToView( info.mPosGlobal );
 				S32 agent_count = info.mExtra;
-				if (agent_count > 0)
-				{
-					sim_agent_count += agent_count;
-					F32 y = 0;
-					for (S32 cur_agent = 0; cur_agent < agent_count; cur_agent++)
-					{
-						gl_draw_image(llround(pos_map.mV[VX]) - 4,
-									  llround(pos_map.mV[VY] + y) - 4,
-									  sAvatarSmallImage,
-									  LLColor4::white );
-						// move up a bit
-						y += 3.f;
-					}
-				}
+				// Here's how we'd choose the color if info.mID were available but it's not being sent:
+				//LLColor4 color = (agent_count == 1 && is_agent_friend(info.mID)) ? gFriendMapColor : gAvatarMapColor;
+				drawImageStack(info.mPosGlobal, sAvatarSmallImage, agent_count, 3.f, gAvatarMapColor);
 			}
 			gWorldMap->mNumAgents[handle] = sim_agent_count; // override mNumAgents for this sim
 		}
@@ -916,24 +885,12 @@ void LLWorldMapView::drawAgents()
 			S32 num_agents = gWorldMap->mNumAgents[handle];
 			if (num_agents > 0)
 			{
-				LLVector3d region_pos = from_region_handle(handle);
-				region_pos[VX] += REGION_WIDTH_METERS * .5f;
-				region_pos[VY] += REGION_WIDTH_METERS * .5f;
-				LLVector3 pos_map = globalPosToView(region_pos);
+				LLVector3d region_center = from_region_handle(handle);
+				region_center[VX] += REGION_WIDTH_METERS / 2;
+				region_center[VY] += REGION_WIDTH_METERS / 2;
 				// Reduce the stack size as you zoom out - always display at lease one agent where there is one or more
 				S32 agent_count = (S32)(((num_agents-1) * agents_scale + (num_agents-1) * 0.1f)+.1f) + 1;
-				S32 y = 0;
-				S32 cur_agent;
-				for (cur_agent = 0; cur_agent < agent_count; cur_agent++)
-				{
-					gl_draw_image(
-						llround(pos_map.mV[VX]) - 4,
-						llround(pos_map.mV[VY]) + y - 4,
-						sAvatarSmallImage,
-						LLColor4::white );
-					// move up a bit
-					y += 3;
-				}
+				drawImageStack(region_center, sAvatarSmallImage, agent_count, 3.f, gAvatarMapColor);
 			}
 		}
 	}
@@ -942,95 +899,46 @@ void LLWorldMapView::drawAgents()
 
 void LLWorldMapView::drawEvents()
 {
-	BOOL show_mature = gSavedSettings.getBOOL("ShowMatureEvents");
+    BOOL show_mature = gSavedSettings.getBOOL("ShowMatureEvents");
 
-	// Non-selected events
-	// Draw under avatar so you can find yourself.
-	LLWorldMap::item_info_list_t::const_iterator e;
-	for (e = gWorldMap->mPGEvents.begin(); e != gWorldMap->mPGEvents.end(); ++e)
-	{
-		const LLItemInfo& event = *e;
+    // First the non-selected events
+    LLWorldMap::item_info_list_t::const_iterator e;
+    for (e = gWorldMap->mPGEvents.begin(); e != gWorldMap->mPGEvents.end(); ++e)
+    {
+        if (!e->mSelected)
+        {
+            drawGenericItem(*e, sEventImage);   
+        }
+    }
+    if (show_mature)
+    {
+        for (e = gWorldMap->mMatureEvents.begin(); e != gWorldMap->mMatureEvents.end(); ++e)
+        {
+            if (!e->mSelected)
+            {
+                drawGenericItem(*e, sEventMatureImage);       
+            }
+        }
+    }
 
-		// Draw, but without relative-Z icons
-		if (!event.mSelected)
-		{
-			LLVector3 pos_map = globalPosToView( event.mPosGlobal );
-			gl_draw_image(llround(pos_map.mV[VX]) - sEventImage->getWidth()/2,
-							llround(pos_map.mV[VY]) - sEventImage->getHeight()/2,
-							sEventImage,
-							LLColor4::white);				
-		}
-	}
-	if (show_mature)
-	{
-		for (e = gWorldMap->mMatureEvents.begin(); e != gWorldMap->mMatureEvents.end(); ++e)
-		{
-			const LLItemInfo& event = *e;
-
-			// Draw, but without relative-Z icons
-			if (!event.mSelected)
-			{
-				LLVector3 pos_map = globalPosToView( event.mPosGlobal );
-				gl_draw_image(llround(pos_map.mV[VX]) - sEventMatureImage->getWidth()/2,
-								llround(pos_map.mV[VY]) - sEventMatureImage->getHeight()/2,
-								sEventMatureImage,
-								LLColor4::white);				
-			}
-		}
-	}
-
-	// Selected events
-	// Draw under avatar so you can find yourself.
-	for (e = gWorldMap->mPGEvents.begin(); e != gWorldMap->mPGEvents.end(); ++e)
-	{
-		const LLItemInfo& event = *e;
-
-		// Draw, but without relative-Z icons
-		if (event.mSelected)
-		{
-			LLVector3 pos_map = globalPosToView( event.mPosGlobal );
-			gl_draw_image(llround(pos_map.mV[VX]) - sEventImage->getWidth()/2,
-							llround(pos_map.mV[VY]) - sEventImage->getHeight()/2,
-							sEventImage,
-							LLColor4::white);				
-
-			//drawIconName(
-			//	pos_map.mV[VX], 
-			//	pos_map.mV[VY], 
-			//	gEventColor,
-			//	event.mToolTip.c_str(), 
-			//	event.mName.c_str() );
-		}
-	}
-	if (show_mature)
-	{
-		for (e = gWorldMap->mMatureEvents.begin(); e != gWorldMap->mMatureEvents.end(); ++e)
-		{
-			const LLItemInfo& event = *e;
-
-			// Draw, but without relative-Z icons
-			if (event.mSelected)
-			{
-				LLVector3 pos_map = globalPosToView( event.mPosGlobal );
-				gl_draw_image(llround(pos_map.mV[VX]) - sEventMatureImage->getWidth()/2,
-								llround(pos_map.mV[VY]) - sEventMatureImage->getHeight()/2,
-								sEventMatureImage,
-								LLColor4::white);				
-
-				//drawIconName(
-				//	pos_map.mV[VX], 
-				//	pos_map.mV[VY], 
-				//	gEventColor,
-				//	event.mToolTip.c_str(), 
-				//	event.mName.c_str() );
-			}
-		}
-	}
-}
-
-void LLWorldMapView::drawDots()
-{
-
+    // Then the selected events
+    for (e = gWorldMap->mPGEvents.begin(); e != gWorldMap->mPGEvents.end(); ++e)
+    {
+        if (e->mSelected)
+        {
+            drawGenericItem(*e, sEventImage);
+        }
+    }
+    if (show_mature)
+    {
+        for (e = gWorldMap->mMatureEvents.begin(); e != gWorldMap->mMatureEvents.end(); ++e)
+        {
+            if (e->mSelected)
+            {
+                drawGenericItem(*e, sEventMatureImage);       
+            }
+        }
+    }
 }
 
 
@@ -1123,11 +1031,7 @@ void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& 
 	}
 	else
 	{
-		// Draw, but without relative Z
-		gl_draw_image(x - sTrackCircleImage->getWidth()/2, 
-					  y - sTrackCircleImage->getHeight()/2, 
-					  sTrackCircleImage, 
-					  color);
+		drawImage(pos_global, sTrackCircleImage, color);
 	}
 
 	// clamp text position to on-screen
@@ -1251,53 +1155,65 @@ BOOL LLWorldMapView::handleToolTip( S32 x, S32 y, LLString& msg, LLRect* sticky_
 
 // Pass relative Z of 0 to draw at same level.
 // static
+static void drawDot(F32 x_pixels, F32 y_pixels,
+			 const LLColor4& color,
+			 F32 relative_z,
+			 F32 dot_radius,
+			 LLPointer<LLViewerImage> dot_image)
+{
+	const F32 HEIGHT_THRESHOLD = 7.f;
+
+	if(-HEIGHT_THRESHOLD <= relative_z && relative_z <= HEIGHT_THRESHOLD)
+	{
+		gl_draw_image(	llround(x_pixels) - dot_image->getWidth()/2,
+						llround(y_pixels) - dot_image->getHeight()/2, 
+						dot_image, 
+						color);
+	}
+	else
+	{
+		F32 left =		x_pixels - dot_radius;
+		F32 right =		x_pixels + dot_radius;
+		F32 center = (left + right) * 0.5f;
+		F32 top =		y_pixels + dot_radius;
+		F32 bottom =	y_pixels - dot_radius;
+
+		LLGLSNoTexture gls_no_texture;
+		glColor4fv( color.mV );
+		LLUI::setLineWidth(1.5f);
+		F32 h_bar = relative_z > HEIGHT_THRESHOLD ? top : bottom; // horizontal bar Y
+		glBegin( GL_LINES );
+			glVertex2f(left, h_bar);
+			glVertex2f(right, h_bar);
+			glVertex2f(center, top);
+			glVertex2f(center, bottom);
+		glEnd();
+		LLUI::setLineWidth(1.0f);
+	}
+}
+
+// Pass relative Z of 0 to draw at same level.
+// static
 void LLWorldMapView::drawAvatar(F32 x_pixels, 
 								F32 y_pixels,
 								const LLColor4& color,
 								F32 relative_z,
 								F32 dot_radius)
-{	
-	F32 left =		x_pixels - dot_radius;
-	F32 right =		x_pixels + dot_radius;
-	F32 center = (left + right) * 0.5f;
-	F32 top =		y_pixels + dot_radius;
-	F32 bottom =	y_pixels - dot_radius;
-
+{
 	const F32 HEIGHT_THRESHOLD = 7.f;
-
-	if (relative_z > HEIGHT_THRESHOLD)
+	LLViewerImage* dot_image = sAvatarSmallImage;
+	if(relative_z < -HEIGHT_THRESHOLD) 
 	{
-		LLGLSNoTexture gls_no_texture;
-		glColor4fv( color.mV );
-		LLUI::setLineWidth(1.5f);
-		glBegin( GL_LINES );
-			glVertex2f(left, top);
-			glVertex2f(right, top);
-			glVertex2f(center, top);
-			glVertex2f(center, bottom);
-		glEnd();
-		LLUI::setLineWidth(1.0f);
+		dot_image = sAvatarBelowImage; 
 	}
-	else if (relative_z > -HEIGHT_THRESHOLD)
-	{
-		gl_draw_image(	llround(x_pixels) - sAvatarSmallImage->getWidth()/2, 
-						llround(y_pixels) - sAvatarSmallImage->getHeight()/2, 
-						sAvatarSmallImage, 
-						color);
+	else if(relative_z > HEIGHT_THRESHOLD) 
+	{ 
+		dot_image = sAvatarAboveImage;
 	}
-	else
-	{
-		LLGLSNoTexture gls_no_texture;
-		glColor4fv( color.mV );
-		LLUI::setLineWidth(1.5f);
-		glBegin( GL_LINES );
-			glVertex2f(center, top);
-			glVertex2f(center, bottom);
-			glVertex2f(left, bottom);
-			glVertex2f(right, bottom);
-		glEnd();
-		LLUI::setLineWidth(1.0f);
-	}
+	gl_draw_image(
+		llround(x_pixels) - dot_image->getWidth()/2,
+		llround(y_pixels) - dot_image->getHeight()/2, 
+		dot_image, color);
 }
 
 // Pass relative Z of 0 to draw at same level.
@@ -1307,48 +1223,8 @@ void LLWorldMapView::drawTrackingDot( F32 x_pixels,
 									  const LLColor4& color,
 									  F32 relative_z,
 									  F32 dot_radius)
-{	
-	F32 left =		x_pixels - dot_radius;
-	F32 right =		x_pixels + dot_radius;
-	F32 center = (left + right) * 0.5f;
-	F32 top =		y_pixels + dot_radius;
-	F32 bottom =	y_pixels - dot_radius;
-
-	const F32 HEIGHT_THRESHOLD = 7.f;
-
-	if (relative_z > HEIGHT_THRESHOLD)
-	{
-		LLGLSNoTexture gls_no_texture;
-		glColor4fv( color.mV );
-		LLUI::setLineWidth(1.5f);
-		glBegin( GL_LINES );
-			glVertex2f(left, top);
-			glVertex2f(right, top);
-			glVertex2f(center, top);
-			glVertex2f(center, bottom);
-		glEnd();
-		LLUI::setLineWidth(1.0f);
-	}
-	else if (relative_z > -HEIGHT_THRESHOLD)
-	{
-		gl_draw_image(	llround(x_pixels) - sAvatarSmallImage->getWidth()/2, 
-						llround(y_pixels) - sAvatarSmallImage->getHeight()/2, 
-						sTrackCircleImage, 
-						color);
-	}
-	else
-	{
-		LLGLSNoTexture gls_no_texture;
-		glColor4fv( color.mV );
-		LLUI::setLineWidth(1.5f);
-		glBegin( GL_LINES );
-			glVertex2f(center, top);
-			glVertex2f(center, bottom);
-			glVertex2f(left, bottom);
-			glVertex2f(right, bottom);
-		glEnd();
-		LLUI::setLineWidth(1.0f);
-	}
+{
+	drawDot(x_pixels, y_pixels, color, relative_z, dot_radius, sTrackCircleImage);
 }
 
 
