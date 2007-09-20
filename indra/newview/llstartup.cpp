@@ -2622,7 +2622,7 @@ void update_dialog_callback(S32 option, void *userdata)
 #if !LL_RELEASE_FOR_DOWNLOAD
 	if (option == 2)
 	{
-		LLStartUp::setStartupState( STATE_WORLD_INIT ); 
+		LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT ); 
 		return;
 	}
 #endif
@@ -2638,7 +2638,7 @@ void update_dialog_callback(S32 option, void *userdata)
 		}
 		else
 		{
-			LLStartUp::setStartupState( STATE_WORLD_INIT );
+			LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );
 		}
 		return;
 	}

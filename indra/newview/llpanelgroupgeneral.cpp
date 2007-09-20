@@ -497,8 +497,6 @@ bool LLPanelGroupGeneral::apply(LLString& mesg)
 	mChanged = FALSE;
 	notifyObservers();
 
-	notifyObservers();
-
 	return true;
 }
 
