@@ -405,10 +405,11 @@ void LLNetMap::draw()
 
 				pos_map = globalPosToView(pos_global);
 
-				LLUUID avatar_id = regionp->mMapAvatarIDs.get(i);
-				BOOL show_as_friend = 
-					//is_agent_mappable(avatar_id); // if we're only highlighting mappable friends
-					is_agent_friend(avatar_id); // if we're always highlighting friends
+				BOOL show_as_friend = FALSE;
+				if( i < regionp->mMapAvatarIDs.count())
+				{
+					show_as_friend = is_agent_friend(regionp->mMapAvatarIDs.get(i));
+				}
 				LLWorldMapView::drawAvatar(
 					pos_map.mV[VX], pos_map.mV[VY], 
 					show_as_friend ? gFriendMapColor : gAvatarMapColor, 
