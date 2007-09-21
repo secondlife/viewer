@@ -27,7 +27,7 @@ private:
 
 	static void onClickShrink(void * data);
 
-	bool mMinimized;
+	bool mShrunk;
 	S32 mMaxWidth, mMinWidth;
 
 	F32 mClientFrameTimeCritical;
@@ -38,6 +38,8 @@ private:
 
 	F32 mNetworkPacketLossCritical;
 	F32 mNetworkPacketLossWarning;
+	F32 mNetworkPingCritical;
+	F32 mNetworkPingWarning;
 	LLButton * mNetworkButton;
 	LLTextBox * mNetworkText;
 	LLTextBox * mNetworkCause;
