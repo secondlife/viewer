@@ -136,7 +136,8 @@ class LLSDXMLFormatter(object):
             list : self.ARRAY,
             tuple : self.ARRAY,
             types.GeneratorType : self.ARRAY,
-            dict : self.MAP
+            dict : self.MAP,
+            LLSD : self.LLSD
         }
 
     def elt(self, name, contents=None):
@@ -148,6 +149,8 @@ class LLSDXMLFormatter(object):
     def xml_esc(self, v):
         return v.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
 
+    def LLSD(self, v):
+        return self.generate(v.thing)
     def UNDEF(self, v):
         return self.elt('undef')
     def BOOLEAN(self, v):
@@ -212,9 +215,12 @@ class LLSDNotationFormatter(object):
             list : self.ARRAY,
             tuple : self.ARRAY,
             types.GeneratorType : self.ARRAY,
-            dict : self.MAP
+            dict : self.MAP,
+            LLSD : self.LLSD
         }
 
+    def LLSD(self, v):
+        return self.generate(v.thing)
     def UNDEF(self, v):
         return '!'
     def BOOLEAN(self, v):
@@ -739,6 +745,8 @@ def format_binary(something):
 def _format_binary_recurse(something):
     if something is None:
         return '!'
+    elif isinstance(something, LLSD):
+        return _format_binary_recurse(something.thing)
     elif isinstance(something, bool):
         if something:
             return '1'
@@ -807,3 +815,36 @@ class LLSD(object):
 
 undef = LLSD(None)
 
+# register converters for stacked, if stacked is available
+try:
+    from mulib import stacked
+except ImportError, e:
+    print "Not able to import stacked, skipping registering llsd converters."
+    pass  # don't bother with the converters
+else:
+    def llsd_convert_json(llsd_stuff, request):
+        callback = request.get_header('callback')
+        if callback is not None:
+            ## See Yahoo's ajax documentation for information about using this
+            ## callback style of programming
+            ## http://developer.yahoo.com/common/json.html#callbackparam
+            req.write("%s(%s)" % (callback, simplejson.dumps(llsd_stuff)))
+        else:
+            req.write(simplejson.dumps(llsd_stuff))
+
+    def llsd_convert_xml(llsd_stuff, request):
+        request.write(format_xml(llsd_stuff))
+
+    def llsd_convert_binary(llsd_stuff, request):
+        request.write(format_binary(llsd_stuff))
+
+    for typ in [LLSD, dict, list, tuple, str, int, float, bool, unicode, type(None)]:
+        stacked.add_producer(typ, llsd_convert_json, 'application/json')
+
+        stacked.add_producer(typ, llsd_convert_xml, 'application/llsd+xml')
+        stacked.add_producer(typ, llsd_convert_xml, 'application/xml')
+        stacked.add_producer(typ, llsd_convert_xml, 'text/xml')
+
+        stacked.add_producer(typ, llsd_convert_binary, 'application/llsd+binary')
+
+    stacked.add_producer(LLSD, llsd_convert_xml, '*/*')

@@ -258,11 +258,12 @@ def uuid_bits_to_uuid(bits):
 
 
 try:
-    from mulib import mu
+    from mulib import stacked
 except ImportError:
     print "Couldn't import mulib, not registering UUID converter"
 else:
-    def convertUUID(req, uuid):
-        return str(uuid)
+    def convertUUID(uuid, req):
+        req.write(str(uuid))
 
-    mu.registerConverter(UUID, convertUUID)
+    stacked.add_producer(UUID, convertUUID, "*/*")
+    stacked.add_producer(UUID, convertUUID, "text/html")

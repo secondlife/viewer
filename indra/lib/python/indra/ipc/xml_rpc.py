@@ -189,19 +189,19 @@ def handle(yielder):
     return result
 
 
-VALUE = mu.tagFactory('value')
-BOOLEAN = mu.tagFactory('boolean')
-INT = mu.tagFactory('int')
-STRUCT = mu.tagFactory('struct')
-MEMBER = mu.tagFactory('member')
-NAME = mu.tagFactory('name')
-ARRAY = mu.tagFactory('array')
-DATA = mu.tagFactory('data')
-STRING = mu.tagFactory('string')
-DOUBLE = mu.tagFactory('double')
-METHODRESPONSE = mu.tagFactory('methodResponse')
-PARAMS = mu.tagFactory('params')
-PARAM = mu.tagFactory('param')
+VALUE = mu.tag_factory('value')
+BOOLEAN = mu.tag_factory('boolean')
+INT = mu.tag_factory('int')
+STRUCT = mu.tag_factory('struct')
+MEMBER = mu.tag_factory('member')
+NAME = mu.tag_factory('name')
+ARRAY = mu.tag_factory('array')
+DATA = mu.tag_factory('data')
+STRING = mu.tag_factory('string')
+DOUBLE = mu.tag_factory('double')
+METHODRESPONSE = mu.tag_factory('methodResponse')
+PARAMS = mu.tag_factory('params')
+PARAM = mu.tag_factory('param')
 
 mu.inline_elements['string'] = True
 mu.inline_elements['boolean'] = True

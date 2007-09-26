@@ -11,15 +11,28 @@ from indra.base import config
 from indra.ipc import llsdhttp
 from indra.ipc import russ
 
+# *NOTE: agent presence relies on this variable existing and being current, it is a huge hack
 services_config = {}
 try:
     services_config = llsdhttp.get(config.get('services-config'))
 except:
     pass
 
-# convenience method for when you can't be arsed to make your own object (i.e. all the time)
 _g_builder = None
-def build(name, context):
+def build(name, context={}, **kwargs):
+    """ Convenience method for using a global, singleton, service builder.  Pass arguments either via a dict or via python keyword arguments, or both!
+
+    Example use:
+     > context = {'channel':'Second Life Release', 'version':'1.18.2.0'}
+     > servicebuilder.build('version-manager-version', context)
+       'http://int.util.vaak.lindenlab.com/channel/Second%20Life%20Release/1.18.2.0'
+     > servicebuilder.build('version-manager-version', channel='Second Life Release', version='1.18.2.0')
+       'http://int.util.vaak.lindenlab.com/channel/Second%20Life%20Release/1.18.2.0'
+     > servicebuilder.build('version-manager-version', context, version='1.18.1.2')
+       'http://int.util.vaak.lindenlab.com/channel/Second%20Life%20Release/1.18.1.2'
+    """
+    context = context.copy()  # shouldn't modify the caller's dictionary
+    context.update(kwargs)
     global _g_builder
     if _g_builder is None:
         _g_builder = ServiceBuilder()

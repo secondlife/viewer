@@ -27,16 +27,20 @@ def load(indra_xml_file=None):
         config_file.close()
         #print "loaded config from",indra_xml_file,"into",_g_config_dict
 
-def update(xml_file):
+def update(new_conf):
     """Load an XML file and apply its map as overrides or additions
     to the existing config.  The dataserver does this with indra.xml
     and dataserver.xml."""
     global _g_config_dict
     if _g_config_dict == None:
-        raise Exception("no config loaded before config.update()")
-    config_file = file(xml_file)
-    overrides = llsd.LLSD().parse(config_file.read())
-    config_file.close()
+        _g_config_dict = {}
+    if isinstance(new_conf, dict):
+        overrides = new_conf
+    else:
+        config_file = file(new_conf)
+        overrides = llsd.LLSD().parse(config_file.read())
+        config_file.close()
+        
     _g_config_dict.update(overrides)
 
 def get(key, default = None):
@@ -44,3 +48,7 @@ def get(key, default = None):
     if _g_config_dict == None:
         load()
     return _g_config_dict.get(key, default)
+
+def as_dict():
+    global _g_config_dict
+    return _g_config_dict
