@@ -74,7 +74,7 @@ re_map['indra/llcommon/llversionviewer.h'] = \
      ('const S32 LL_VERSION_BUILD = (\d+);',
       'const S32 LL_VERSION_BUILD = %(VER_BUILD)s;'),
      ('const char \* const LL_CHANNEL = "(.+)";',
-      'const char * const LL_CHANNEL = "%(CHANNEL)s";'))
+      'const char * const LL_CHANNEL = "%(VIEWER_CHANNEL)s";'))
 re_map['indra/llcommon/llversionserver.h'] = \
     (('const S32 LL_VERSION_MAJOR = (\d+);',
       'const S32 LL_VERSION_MAJOR = %(SERVER_VER_MAJOR)s;'),
@@ -122,16 +122,16 @@ def main():
                                ['version=', 'channel=', 'server_channel=', 'verbose', 'server', 'viewer', 'help'])
     update_server = False
     update_viewer = False
-    version_string = None
-    channel_string = None
-    server_channel_string = None
+    new_version = None
+    new_viewer_channel = None
+    new_server_channel = None
     for o,a in opts:
         if o in ('--version'):
-            version_string = a
+            new_version = a
         if o in ('--channel'):
-            channel_string = a
+            new_viewer_channel = a
         if o in ('--server_channel'):
-            server_channel_string = a
+            new_server_channel = a
         if o in ('--verbose'):
             verbose = True
         if o in ('--server'):
@@ -146,31 +146,49 @@ def main():
         update_server = True
         update_viewer = True
 
-    # Get channel from llversion*.h and update channel
-    CHANNEL = llversion.get_viewer_channel()
-    SERVER_CHANNEL = llversion.get_server_channel()
-    if channel_string != None:
-        CHANNEL = channel_string
-    if server_channel_string != None:
-        SERVER_CHANNEL = server_channel_string
+    # Get current channel/version from llversion*.h
+    try:
+        viewer_channel = llversion.get_viewer_channel()
+        viewer_version = llversion.get_viewer_version()
+    except IOError:
+        print "Viewer version file not present, skipping..."
+        viewer_channel = None
+        viewer_version = None
+        update_viewer = False
 
-    # Get version number from llversion*.h
-    viewer_version = llversion.get_viewer_version()
-    server_version = llversion.get_server_version()
+    try:
+        server_channel = llversion.get_server_channel()
+        server_version = llversion.get_server_version()
+    except IOError:
+        print "Server version file not present, skipping..."
+        server_channel = None
+        server_version = None
+        update_server = False
+
     if verbose:
         print "Source Path:", src_root
-        print "Current viewer version: '%(viewer_version)s'" % locals()
-        print "Current server version: '%(server_version)s'" % locals()
-    
-    if version_string:
-        m = version_re.match(version_string)
+        if viewer_channel != None:
+            print "Current viewer channel/version: '%(viewer_channel)s' / '%(viewer_version)s'" % locals()
+        if server_channel != None:          
+            print "Current server channel/version: '%(server_channel)s' / '%(server_version)s'" % locals()
+        print
+
+    # Determine new channel(s)
+    if new_viewer_channel != None:
+        viewer_channel = new_viewer_channel
+    if new_server_channel != None:
+        server_channel = new_server_channel
+
+    # Determine new version(s)
+    if new_version:
+        m = version_re.match(new_version)
         if not m:
             print "Invalid version string specified!"
             return -1
         if update_viewer:
-            viewer_version = version_string
+            viewer_version = new_version
         if update_server:
-            server_version = version_string
+            server_version = new_version
     else:
         # Assume we're updating just the build number
         cl = 'svn info "%s"' % src_root
@@ -193,41 +211,52 @@ def main():
             server_version = m.group(1)+"."+m.group(2)+"."+m.group(3)+"."+revision
 
     if verbose:
-        print "Setting viewer version: '%(viewer_version)s'" % locals()
-        print "Setting server version: '%(server_version)s'" % locals()
+        if update_viewer:
+            print "Setting viewer channel/version: '%(viewer_channel)s' / '%(viewer_version)s'" % locals()
+        if update_server:
+            print "Setting server channel/version: '%(server_channel)s' / '%(server_version)s'" % locals()
         print
 
     # split out version parts
-    m = version_re.match(viewer_version)
-    VER_MAJOR = m.group(1)
-    VER_MINOR = m.group(2)
-    VER_PATCH = m.group(3)
-    VER_BUILD = m.group(4)
+    if viewer_version != None:
+        m = version_re.match(viewer_version)
+        VER_MAJOR = m.group(1)
+        VER_MINOR = m.group(2)
+        VER_PATCH = m.group(3)
+        VER_BUILD = m.group(4)
 
-    m = version_re.match(server_version)
-    SERVER_VER_MAJOR = m.group(1)
-    SERVER_VER_MINOR = m.group(2)
-    SERVER_VER_PATCH = m.group(3)
-    SERVER_VER_BUILD = m.group(4)
+    if server_version != None:
+        m = version_re.match(server_version)
+        SERVER_VER_MAJOR = m.group(1)
+        SERVER_VER_MINOR = m.group(2)
+        SERVER_VER_PATCH = m.group(3)
+        SERVER_VER_BUILD = m.group(4)
+
+    # For readability and symmetry with version strings:
+    VIEWER_CHANNEL = viewer_channel
+    SERVER_CHANNEL = server_channel
 
     # Iterate through all of the files in the map, and apply the
     # substitution filters
     for filename in re_map.keys():
-        # Read the entire file into a string
-        full_fn = src_root + '/' + filename
-        file = open(full_fn,"r")
-        file_str = file.read()
-        file.close()
+        try:
+            # Read the entire file into a string
+            full_fn = src_root + '/' + filename
+            file = open(full_fn,"r")
+            file_str = file.read()
+            file.close()
 
-        if verbose:
-            print "Processing file:",filename
-        for rule in re_map[filename]:
-            repl = rule[1] % locals()
-            file_str = re.sub(rule[0], repl, file_str)
+            if verbose:
+                print "Processing file:",filename
+            for rule in re_map[filename]:
+                repl = rule[1] % locals()
+                file_str = re.sub(rule[0], repl, file_str)
 
-        file = open(full_fn,"w")
-        file.write(file_str)
-        file.close()
+            file = open(full_fn,"w")
+            file.write(file_str)
+            file.close()
+        except IOError:
+            print "File %(filename)s not present, skipping..." % locals()
     return 0
 
 main()
