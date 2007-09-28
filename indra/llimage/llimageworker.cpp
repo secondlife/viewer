@@ -79,10 +79,7 @@ bool LLImageWorker::doWork(S32 param)
 		}
 		else
 		{
-			S32 nc = param ? 1 : mFormattedImage->getComponents();
-			mDecodedImage = new LLImageRaw(mFormattedImage->getWidth(),
-										   mFormattedImage->getHeight(),
-										   nc);
+			mDecodedImage = new LLImageRaw(); // allow possibly smaller size set during decoding
 		}
 	}
 	if (!decoded)

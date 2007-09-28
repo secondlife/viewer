@@ -316,7 +316,7 @@ size_t LLHTTPAssetRequest::readCompressedData(void* data, size_t size)
 
 	while (mZStream.avail_out > 0)
 	{
-		if (mZStream.avail_in == 0  &&  !mZInputExhausted)
+		if (mZStream.avail_in == 0 && !mZInputExhausted)
 		{
 			S32 to_read = llmin(COMPRESSED_INPUT_BUFFER_SIZE,
 							(S32)(mVFile->getSize() - mVFile->tell()));
@@ -324,14 +324,9 @@ size_t LLHTTPAssetRequest::readCompressedData(void* data, size_t size)
 			if ( to_read > 0 )
 			{
 				mVFile->read((U8*)mZInputBuffer, to_read); /*Flawfinder: ignore*/
+				mZStream.next_in = (Bytef*)mZInputBuffer;
+				mZStream.avail_in = mVFile->getLastBytesRead();
 			}
-			else
-			{
-				llwarns << "LLHTTPAssetRequest::readCompressedData has zero read length" << llendl;
-				break;
-			}
-			mZStream.next_in = (Bytef*)mZInputBuffer;
-			mZStream.avail_in = mVFile->getLastBytesRead();
 
 			mZInputExhausted = mZStream.avail_in == 0;
 		}
@@ -339,8 +334,13 @@ size_t LLHTTPAssetRequest::readCompressedData(void* data, size_t size)
 		int r = deflate(&mZStream,
 					mZInputExhausted ? Z_FINISH : Z_NO_FLUSH);
 
-		if (r == Z_STREAM_END || r < 0)
+		if (r == Z_STREAM_END || r < 0 || mZInputExhausted)
 		{
+			if (r < 0)
+			{
+				llwarns << "LLHTTPAssetRequest::readCompressedData: deflate returned error code " 
+						<< (S32) r << llendl;
+			}
 			break;
 		}
 	}

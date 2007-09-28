@@ -306,7 +306,7 @@ LLUUID LLInventoryModel::findCatUUID(LLAssetType::EType preferred_type)
 }
 
 // Convenience function to create a new category. You could call
-// updateCatgory() with a newly generated UUID category, but this
+// updateCategory() with a newly generated UUID category, but this
 // version will take care of details like what the name should be
 // based on preferred type. Returns the UUID of the new category.
 LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,

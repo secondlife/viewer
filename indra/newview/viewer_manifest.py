@@ -140,6 +140,11 @@ class WindowsManifest(ViewerManifest):
                 # For using FMOD for sound... DJS
                 self.path("fmod.dll")
 
+                # For textures
+                if self.prefix(src="../../libraries/i686-win32/lib_release", dst=""):
+                        self.path("openjpeg.dll")
+                        self.end_prefix()
+
                 # Mozilla appears to force a dependency on these files so we need to ship it (CP)
                 self.path("msvcr71.dll")
                 self.path("msvcp71.dll")
@@ -482,6 +487,7 @@ class Linux_i686Manifest(LinuxManifest):
                         self.path("libuuid.so", "libuuid.so.1")
                         self.path("libSDL-1.2.so.0")
                         self.path("libELFIO.so")
+                        self.path("libopenjpeg.so.2")
                         #self.path("libtcmalloc.so.0") - bugged
                         #self.path("libstacktrace.so.0") - probably bugged
                         self.path("libllkdu.so", "../bin/libllkdu.so") # llkdu goes in bin for some reason

@@ -4783,19 +4783,17 @@ void LLSelectMgr::updateSilhouettes()
 			 iter != roots.end(); iter++)
 		{
 			LLViewerObject* objectp = *iter;
-			LLSelectNode* rect_select_node = new LLSelectNode(objectp, TRUE);
-			rect_select_node->selectAllTEs(TRUE);
+			LLSelectNode* rect_select_root_node = new LLSelectNode(objectp, TRUE);
+			rect_select_root_node->selectAllTEs(TRUE);
 
 			if (!canSelectObject(objectp))
 			{
 				continue;
 			}
 
-			mHighlightedObjects->addNode(rect_select_node);
-
 			if (!select_linked_set)
 			{
-				rect_select_node->mIndividualSelection = TRUE;
+				rect_select_root_node->mIndividualSelection = TRUE;
 			}
 			else
 			{
@@ -4808,11 +4806,14 @@ void LLSelectMgr::updateSilhouettes()
 						continue;
 					}
 
-					rect_select_node = new LLSelectNode(objectp->mChildList[i], TRUE);
+					LLSelectNode* rect_select_node = new LLSelectNode(objectp->mChildList[i], TRUE);
 					rect_select_node->selectAllTEs(TRUE);
-					mHighlightedObjects->addNode(rect_select_node);
+					mHighlightedObjects->addNodeAtEnd(rect_select_node);
 				}
 			}
+
+			// Add the root last, to preserve order for link operations.
+			mHighlightedObjects->addNodeAtEnd(rect_select_root_node);
 		}
 
 		num_sils_genned	= 0;

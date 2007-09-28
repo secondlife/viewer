@@ -84,7 +84,30 @@ export SL_ENV='LD_LIBRARY_PATH="`pwd`"/lib:"`pwd`"/app_settings/mozilla-runtime-
 export SL_CMD='$LL_WRAPPER bin/do-not-directly-run-secondlife-bin'
 export SL_OPT="`cat gridargs.dat` $@"
 
-eval ${SL_ENV} ${SL_CMD} ${SL_OPT} || echo Unclean shutdown.
+# Run the program
+eval ${SL_ENV} ${SL_CMD} ${SL_OPT} || LL_RUN_ERR=runerr
+
+# Handle any resulting errors
+if [ -n "$LL_RUN_ERR" ]; then
+	LL_RUN_ERR_MSG=""
+	if [ "$LL_RUN_ERR" = "runerr" ]; then
+		# generic error running the binary
+		echo '*** Unclean shutdown. ***'
+		if [ "`arch`" = "x86_64" ]; then
+			echo
+			cat << EOFMARKER
+You are running the Second Life Viewer on a x86_64 platform.  The
+most common problems when launching the Viewer (particularly
+'bin/do-not-directly-run-secondlife-bin: not found' and 'error while
+loading shared libraries') may be solved by installing your Linux
+distribution's 32-bit compatibility packages.
+For example, on Ubuntu and other Debian-based Linuxes you might run:
+$ sudo apt-get install ia32-libs ia32-libs-gtk ia32-libs-kde ia32-libs-sdl
+EOFMARKER
+		fi
+	fi
+fi
+	
 
 echo
 echo '*********************************************************'

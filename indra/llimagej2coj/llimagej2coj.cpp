@@ -10,7 +10,6 @@
 #include "llimagej2coj.h"
 
 // this is defined so that we get static linking.
-#define OPJ_STATIC
 #include "openjpeg/openjpeg.h"
 
 #include "lltimer.h"

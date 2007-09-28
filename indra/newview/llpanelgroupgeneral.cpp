@@ -495,7 +495,6 @@ bool LLPanelGroupGeneral::apply(LLString& mesg)
 	gAgent.setUserGroupFlags(mGroupID, receive_notices, list_in_profile);
 
 	mChanged = FALSE;
-	notifyObservers();
 
 	return true;
 }
@@ -810,6 +809,7 @@ void LLPanelGroupGeneral::updateChanged()
 		mSpinEnrollmentFee,
 		mCtrlReceiveNotices,
 		mCtrlListGroup,
+		mActiveTitleLabel,
 		mComboActiveTitle
 	};
 

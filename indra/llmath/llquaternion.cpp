@@ -87,23 +87,27 @@ void	LLQuaternion::quantize16(F32 lower, F32 upper)
 	F32 z = mQ[VZ];
 	F32 s = mQ[VS];
 
-	x = U16_to_F32(F32_to_U16(x, lower, upper), lower, upper);
-	y = U16_to_F32(F32_to_U16(y, lower, upper), lower, upper);
-	z = U16_to_F32(F32_to_U16(z, lower, upper), lower, upper);
-	s = U16_to_F32(F32_to_U16(s, lower, upper), lower, upper);
+	x = U16_to_F32(F32_to_U16_ROUND(x, lower, upper), lower, upper);
+	y = U16_to_F32(F32_to_U16_ROUND(y, lower, upper), lower, upper);
+	z = U16_to_F32(F32_to_U16_ROUND(z, lower, upper), lower, upper);
+	s = U16_to_F32(F32_to_U16_ROUND(s, lower, upper), lower, upper);
 
 	mQ[VX] = x;
 	mQ[VY] = y;
 	mQ[VZ] = z;
 	mQ[VS] = s;
+
+	normQuat();
 }
 
 void	LLQuaternion::quantize8(F32 lower, F32 upper)
 {
-	mQ[VX] = U8_to_F32(F32_to_U8(mQ[VX], lower, upper), lower, upper);
-	mQ[VY] = U8_to_F32(F32_to_U8(mQ[VY], lower, upper), lower, upper);
-	mQ[VZ] = U8_to_F32(F32_to_U8(mQ[VZ], lower, upper), lower, upper);
-	mQ[VS] = U8_to_F32(F32_to_U8(mQ[VS], lower, upper), lower, upper);
+	mQ[VX] = U8_to_F32(F32_to_U8_ROUND(mQ[VX], lower, upper), lower, upper);
+	mQ[VY] = U8_to_F32(F32_to_U8_ROUND(mQ[VY], lower, upper), lower, upper);
+	mQ[VZ] = U8_to_F32(F32_to_U8_ROUND(mQ[VZ], lower, upper), lower, upper);
+	mQ[VS] = U8_to_F32(F32_to_U8_ROUND(mQ[VS], lower, upper), lower, upper);
+
+	normQuat();
 }
 
 // LLVector3 Magnitude and Normalization Functions

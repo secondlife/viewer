@@ -200,7 +200,7 @@ public:
 	
 	// control platform's Language Text Input mechanisms.
 	virtual void allowLanguageTextInput( BOOL b ) {};
-	virtual void setLanguageTextInput( LLCoordWindow pos ) {};
+	virtual void setLanguageTextInput( const LLCoordGL & pos ) {};
 
 protected:
 	LLWindow(BOOL fullscreen, U32 flags);

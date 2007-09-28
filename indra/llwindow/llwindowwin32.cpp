@@ -65,11 +65,10 @@ void show_window_creation_error(const char* title)
 //static
 BOOL LLWindowWin32::sIsClassRegistered = FALSE;
 
-BOOL	LLWindowWin32::sLanguageTextInputAllowed = TRUE; /* XXX */
-BOOL	LLWindowWin32::sWinIMEOpened = FALSE;
-HKL		LLWindowWin32::sWinInputLocale;
-DWORD	LLWindowWin32::sWinIMEConversionMode;
-DWORD	LLWindowWin32::sWinIMESentenceMode;
+BOOL	LLWindowWin32::sLanguageTextInputAllowed = TRUE;
+HKL		LLWindowWin32::sWinInputLocale = 0;
+DWORD	LLWindowWin32::sWinIMEConversionMode = IME_CMODE_NATIVE;
+DWORD	LLWindowWin32::sWinIMESentenceMode = IME_SMODE_AUTOMATIC;
 
 // The following class LLWinImm delegates Windows IMM APIs.
 // We need this because some language versions of Windows,
@@ -87,13 +86,15 @@ public:
 
 public:
 	// Wrappers for IMM API.
-	static BOOL		isIME(HKL hkl)															{ return sTheInstance.mImmIsIME(hkl); }
-	static HIMC		getContext(HWND hwnd)													{ return sTheInstance.mImmGetContext(hwnd); }
-	static BOOL		releaseContext(HWND hwnd, HIMC himc)									{ return sTheInstance.mImmReleaseContext(hwnd, himc); }
-	static BOOL		getOpenStatus(HIMC himc)												{ return sTheInstance.mImmGetOpenStatus(himc); }
-	static BOOL		setOpenStatus(HIMC himc, BOOL status)									{ return sTheInstance.mImmSetOpenStatus(himc, status); }
-	static BOOL		getConversionStatus(HIMC himc, LPDWORD conversion, LPDWORD sentence)	{ return sTheInstance.mImmGetConversionStatus(himc, conversion, sentence); }
-	static BOOL		setConversionStatus(HIMC himc, DWORD conversion, DWORD sentence)		{ return sTheInstance.mImmSetConversionStatus(himc, conversion, sentence); }
+	static BOOL		isIME(HKL hkl);															
+	static HIMC		getContext(HWND hwnd);													
+	static BOOL		releaseContext(HWND hwnd, HIMC himc);
+	static BOOL		getOpenStatus(HIMC himc);												
+	static BOOL		setOpenStatus(HIMC himc, BOOL status);									
+	static BOOL		getConversionStatus(HIMC himc, LPDWORD conversion, LPDWORD sentence);	
+	static BOOL		setConversionStatus(HIMC himc, DWORD conversion, DWORD sentence);		
+	static BOOL		getCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form);					
+	static BOOL		setCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form);					
 
 private:
 	LLWinImm();
@@ -108,6 +109,8 @@ private:
 	BOOL		(WINAPI *mImmSetOpenStatus)(HIMC, BOOL);
 	BOOL		(WINAPI *mImmGetConversionStatus)(HIMC, LPDWORD, LPDWORD);
 	BOOL		(WINAPI *mImmSetConversionStatus)(HIMC, DWORD, DWORD);
+	BOOL		(WINAPI *mImmGetCompostitionWindow)(HIMC, LPCOMPOSITIONFORM);
+	BOOL		(WINAPI *mImmSetCompostitionWindow)(HIMC, LPCOMPOSITIONFORM);
 
 private:
 	HMODULE		mHImmDll;
@@ -116,8 +119,13 @@ private:
 
 LLWinImm LLWinImm::sTheInstance;
 
-LLWinImm::LLWinImm()
+LLWinImm::LLWinImm() : mHImmDll(NULL)
 {
+	// Check system metrics 
+	if ( !GetSystemMetrics( SM_DBCSENABLED ) )
+		return;
+	
+
 	mHImmDll = LoadLibraryA("Imm32");
 	if (mHImmDll != NULL)
 	{
@@ -128,13 +136,18 @@ LLWinImm::LLWinImm()
 		mImmSetOpenStatus       = (BOOL (WINAPI *)(HIMC, BOOL))             GetProcAddress(mHImmDll, "ImmSetOpenStatus");
 		mImmGetConversionStatus = (BOOL (WINAPI *)(HIMC, LPDWORD, LPDWORD)) GetProcAddress(mHImmDll, "ImmGetConversionStatus");
 		mImmSetConversionStatus = (BOOL (WINAPI *)(HIMC, DWORD, DWORD))     GetProcAddress(mHImmDll, "ImmSetConversionStatus");
+		mImmGetCompostitionWindow = (BOOL (WINAPI *)(HIMC, LPCOMPOSITIONFORM))   GetProcAddress(mHImmDll, "ImmGetCompositionWindow");
+		mImmSetCompostitionWindow = (BOOL (WINAPI *)(HIMC, LPCOMPOSITIONFORM))   GetProcAddress(mHImmDll, "ImmSetCompositionWindow");
+
 		if (mImmIsIME == NULL ||
 			mImmGetContext == NULL ||
 			mImmReleaseContext == NULL ||
 			mImmGetOpenStatus == NULL ||
 			mImmSetOpenStatus == NULL ||
 			mImmGetConversionStatus == NULL ||
-			mImmSetConversionStatus == NULL)
+			mImmSetConversionStatus == NULL ||
+			mImmGetCompostitionWindow == NULL ||
+			mImmSetCompostitionWindow == NULL)
 		{
 			// If any of the above API entires are not found, we can't use IMM API.  
 			// So, turn off the IMM support.  We should log some warning message in 
@@ -145,10 +158,96 @@ LLWinImm::LLWinImm()
 			// is one of disadvantages to use static constraction to DLL loading. 
 			FreeLibrary(mHImmDll);
 			mHImmDll = NULL;
+
+			// If we unload the library, make sure all the function pointers are cleared
+			mImmIsIME = NULL;
+			mImmGetContext = NULL;
+			mImmReleaseContext = NULL;
+			mImmGetOpenStatus = NULL;
+			mImmSetOpenStatus = NULL;
+			mImmGetConversionStatus = NULL;
+			mImmSetConversionStatus = NULL;
+			mImmGetCompostitionWindow = NULL;
+			mImmSetCompostitionWindow = NULL;
 		}
 	}
 }
 
+
+// static 
+BOOL	LLWinImm::isIME(HKL hkl)															
+{ 
+	if ( sTheInstance.mImmIsIME )
+		return sTheInstance.mImmIsIME(hkl); 
+	return FALSE;
+}
+
+// static 
+HIMC		LLWinImm::getContext(HWND hwnd)
+{
+	if ( sTheInstance.mImmGetContext )
+		return sTheInstance.mImmGetContext(hwnd); 
+	return 0;
+}
+
+//static 
+BOOL		LLWinImm::releaseContext(HWND hwnd, HIMC himc)
+{ 
+	if ( sTheInstance.mImmIsIME )
+		return sTheInstance.mImmReleaseContext(hwnd, himc); 
+	return FALSE;
+}
+
+// static 
+BOOL		LLWinImm::getOpenStatus(HIMC himc)
+{ 
+	if ( sTheInstance.mImmGetOpenStatus )
+		return sTheInstance.mImmGetOpenStatus(himc); 
+	return FALSE;
+}
+
+// static 
+BOOL		LLWinImm::setOpenStatus(HIMC himc, BOOL status)									
+{ 
+	if ( sTheInstance.mImmSetOpenStatus )
+		return sTheInstance.mImmSetOpenStatus(himc, status); 
+	return FALSE;
+}
+
+// static 
+BOOL		LLWinImm::getConversionStatus(HIMC himc, LPDWORD conversion, LPDWORD sentence)	
+{ 
+	if ( sTheInstance.mImmGetConversionStatus )
+		return sTheInstance.mImmGetConversionStatus(himc, conversion, sentence); 
+	return FALSE;
+}
+
+// static 
+BOOL		LLWinImm::setConversionStatus(HIMC himc, DWORD conversion, DWORD sentence)		
+{ 
+	if ( sTheInstance.mImmSetConversionStatus )
+		return sTheInstance.mImmSetConversionStatus(himc, conversion, sentence); 
+	return FALSE;
+}
+
+// static 
+BOOL		LLWinImm::getCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form)					
+{ 
+	if ( sTheInstance.mImmGetCompostitionWindow )
+		return sTheInstance.mImmGetCompostitionWindow(himc, form);	
+	return FALSE;
+}
+
+// static 
+BOOL		LLWinImm::setCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form)					
+{ 
+	if ( sTheInstance.mImmSetCompostitionWindow )
+		return sTheInstance.mImmSetCompostitionWindow(himc, form);	
+	return FALSE;
+}
+
+
+// ----------------------------------------------------------------------------------------
 LLWinImm::~LLWinImm()
 {
 	if (mHImmDll != NULL)
@@ -3202,53 +3301,74 @@ void LLWindowWin32::focusClient()
 
 void LLWindowWin32::allowLanguageTextInput(BOOL b)
 {
-	if (b == sLanguageTextInputAllowed || !LLWinImm::isAvailable())
+	if ( !LLWinImm::isAvailable() )
 	{
-		/* Not actually allowing/disallowing.  Do nothing.  */
 		return;
 	}
 	sLanguageTextInputAllowed = b;
 
 	if (b)
 	{
-		/* Allowing: Restore the previous IME status, 
-		   so that the user has a feeling that the previous 
-		   text input continues naturally.  Be careful, however,
-		   the IME status is meaningful only during the user keeps 
-		   using same Input Locale (aka Keyboard Layout).  */
-		if (sWinIMEOpened && GetKeyboardLayout(0) == sWinInputLocale)
+		// Allowing: Restore the previous IME status, so that the user has a feeling that the previous 
+		// text input continues naturally.  Be careful, however, the IME status is meaningful only during the user keeps 
+		// using same Input Locale (aka Keyboard Layout).
+		HIMC himc = LLWinImm::getContext(mWindowHandle);
+		LLWinImm::setOpenStatus(himc, TRUE);
+		if (GetKeyboardLayout(0) == sWinInputLocale && sWinIMEConversionMode != IME_CMODE_RESERVED)
 		{
-			HIMC himc = LLWinImm::getContext(mWindowHandle);
-			LLWinImm::setOpenStatus(himc, TRUE);
 			LLWinImm::setConversionStatus(himc, sWinIMEConversionMode, sWinIMESentenceMode);
-			LLWinImm::releaseContext(mWindowHandle, himc);
+			sWinIMEConversionMode = IME_CMODE_RESERVED;		// Set saved state so we won't do this repeatedly
 		}
+		LLWinImm::releaseContext(mWindowHandle, himc);
 	}
 	else
 	{
-		/* Disallowing: Turn off the IME so that succeeding 
-		   key events bypass IME and come to us directly.
-		   However, do it after saving the current IME 
-		   status.  We need to restore the status when
-		   allowing language text input again.  */
+		// Disallowing: Turn off the IME so that succeeding key events bypass IME and come to us directly.
+		// However, do it after saving the current IME  status.  We need to restore the status when
+		//   allowing language text input again.
 		sWinInputLocale = GetKeyboardLayout(0);
-		sWinIMEOpened = LLWinImm::isIME(sWinInputLocale);
-		if (sWinIMEOpened)
+		if ( LLWinImm::isIME(sWinInputLocale) )
 		{
 			HIMC himc = LLWinImm::getContext(mWindowHandle);
-			sWinIMEOpened = LLWinImm::getOpenStatus(himc);
-			if (sWinIMEOpened)
+			if ( LLWinImm::getOpenStatus(himc) )
 			{
 				LLWinImm::getConversionStatus(himc, &sWinIMEConversionMode, &sWinIMESentenceMode);
 
-				/* We need both ImmSetConversionStatus and ImmSetOpenStatus here
-				   to surely disable IME's keyboard hooking, because Some IME reacts 
-				   only on the former and some other on the latter...  */
+				// We need both ImmSetConversionStatus and ImmSetOpenStatus here to surely disable IME's 
+				// keyboard hooking, because Some IME reacts only on the former and some other on the latter...
 				LLWinImm::setConversionStatus(himc, IME_CMODE_NOCONVERSION, sWinIMESentenceMode);
 				LLWinImm::setOpenStatus(himc, FALSE);
 			}
 			LLWinImm::releaseContext(mWindowHandle, himc);
+ 		}
+	}
+
+}
+
+
+// Put the IME window at the right place (near current text input).   Point coordinates should be the top of the current text line.
+void LLWindowWin32::setLanguageTextInput( const LLCoordGL & position )
+{
+	if (sLanguageTextInputAllowed && LLWinImm::isAvailable())
+	{
+		HIMC himc = LLWinImm::getContext(mWindowHandle);
+
+		LLCoordWindow win_pos;
+		convertCoords( position, &win_pos );
+
+		if ( win_pos.mX >= 0 && win_pos.mY >= 0 )
+		{
+			COMPOSITIONFORM ime_form;
+			memset( &ime_form, 0, sizeof(ime_form) );
+			ime_form.dwStyle = CFS_POINT;
+			ime_form.ptCurrentPos.x = win_pos.mX;
+			ime_form.ptCurrentPos.y = win_pos.mY;
+
+			LLWinImm::setCompositionWindow( himc, &ime_form );
 		}
+
+		LLWinImm::releaseContext(mWindowHandle, himc);
+
 	}
 }
 

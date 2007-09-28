@@ -262,9 +262,11 @@ BOOL LLToolCamera::handleMouseUp(S32 x, S32 y, MASK mask)
 			{
 				LLCoordGL mouse_pos;
 				LLVector3 focus_pos = gAgent.getPosAgentFromGlobal(gAgent.getFocusGlobal());
-				gCamera->projectPosAgentToScreen(focus_pos, mouse_pos);
-
-				LLUI::setCursorPositionScreen(mouse_pos.mX, mouse_pos.mY);
+				BOOL success = gCamera->projectPosAgentToScreen(focus_pos, mouse_pos);
+				if (success)
+				{
+					LLUI::setCursorPositionScreen(mouse_pos.mX, mouse_pos.mY);
+				}
 			}
 			else if (mMouseSteering)
 			{

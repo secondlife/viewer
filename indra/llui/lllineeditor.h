@@ -256,6 +256,8 @@ protected:
 
 	S32			mBorderThickness;
 
+	LLCoordGL	mLastIMEPosition;		// Last screen position used for the IME editor
+
 	BOOL		mIgnoreArrowKeys;
 	BOOL		mIgnoreTab;
 	BOOL		mDrawAsterixes;

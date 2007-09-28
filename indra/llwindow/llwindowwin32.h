@@ -87,6 +87,7 @@ public:
 	/*virtual*/ void focusClient();
 
 	/*virtual*/ void allowLanguageTextInput(BOOL b);
+	/*virtual*/ void setLanguageTextInput( const LLCoordGL & pos );
 
 protected:
 	LLWindowWin32(
@@ -156,11 +157,10 @@ protected:
 	BOOL		mMousePositionModified;
 	BOOL		mInputProcessingPaused;
 
-	// The following five variables are for Language Text Input control.
+	// The following variables are for Language Text Input control.
 	// They are all static, since one context is shared by all LLWindowWin32
 	// instances.
 	static BOOL		sLanguageTextInputAllowed;
-	static BOOL		sWinIMEOpened;
 	static HKL		sWinInputLocale;
 	static DWORD	sWinIMEConversionMode;
 	static DWORD	sWinIMESentenceMode;

@@ -20,6 +20,18 @@ const U8 FIRSTVALIDCHAR = 54;
 const U8 MAXSTRINGVAL = U8MAX - FIRSTVALIDCHAR; //we don't allow newline or null 
 
 
+inline U16 F32_to_U16_ROUND(F32 val, F32 lower, F32 upper)
+{
+	val = llclamp(val, lower, upper);
+	// make sure that the value is positive and normalized to <0, 1>
+	val -= lower;
+	val /= (upper - lower);
+
+	// round the value.   Sreturn the U16
+	return (U16)(llround(val*U16MAX));
+}
+
+
 inline U16 F32_to_U16(F32 val, F32 lower, F32 upper)
 {
 	val = llclamp(val, lower, upper);
@@ -46,6 +58,19 @@ inline F32 U16_to_F32(U16 ival, F32 lower, F32 upper)
 
 	return val;
 }
+
+
+inline U8 F32_to_U8_ROUND(F32 val, F32 lower, F32 upper)
+{
+	val = llclamp(val, lower, upper);
+	// make sure that the value is positive and normalized to <0, 1>
+	val -= lower;
+	val /= (upper - lower);
+
+	// return the rounded U8
+	return (U8)(llround(val*U8MAX));
+}
+
 
 inline U8 F32_to_U8(F32 val, F32 lower, F32 upper)
 {

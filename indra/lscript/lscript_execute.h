@@ -359,6 +359,10 @@ public:
 	LLScriptEventData		mEventData;
 
 	static S64 sGlobalInstructionCount;
+
+private:
+	void		recordBoundaryError( const LLUUID &id );
+	void		setStateEventOpcoodeStartSafely( S32 state, LSCRIPTStateEventType event, const LLUUID &id );
 };
 
 #endif

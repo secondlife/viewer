@@ -761,9 +761,17 @@ inline S32 get_state_event_opcoode_start(U8 *stream, S32 state, LSCRIPTStateEven
 		major_version = LSL2_MAJOR_VERSION_TWO;
 		state_offset_offset = sr + LSCRIPTDataSize[LST_INTEGER] + LSCRIPTDataSize[LST_INTEGER]*3*state;
 	}
+	if ( state_offset_offset < 0 || state_offset_offset > TOP_OF_MEMORY )
+	{
+		return -1;
+	}
 
 	// get the actual position in memory of the desired state
 	S32 state_offset = sr + bytestream2integer(stream, state_offset_offset);
+	if ( state_offset < 0 || state_offset > TOP_OF_MEMORY )
+	{
+		return -1;
+	}
 
 	// save that value
 	S32 state_offset_base = state_offset;
@@ -773,17 +781,31 @@ inline S32 get_state_event_opcoode_start(U8 *stream, S32 state, LSCRIPTStateEven
 
 	// get the location of the event offset
 	S32 event_offset = event_jump_offset + LSCRIPTDataSize[LST_INTEGER]*2*get_event_handler_jump_position(get_event_register(stream, LREG_ER, major_version), event);
+	if ( event_offset < 0 || event_offset > TOP_OF_MEMORY )
+	{
+		return -1;
+	}
 
 	// now, jump to the event
 	S32 event_start = bytestream2integer(stream, event_offset);
+	if ( event_start < 0 || event_start > TOP_OF_MEMORY )
+	{
+		return -1;
+	}
 	event_start += event_jump_offset;
 
 	S32 event_start_original = event_start;
 
 	// now skip past the parameters
 	S32 opcode_offset = bytestream2integer(stream, event_start);
+	if ( opcode_offset < 0 || opcode_offset > TOP_OF_MEMORY )
+	{
+		return -1;
+	}
+
 	return opcode_offset + event_start_original;
 }
+
 
 inline U64 get_handled_events(U8 *stream, S32 state)
 {
@@ -809,6 +831,7 @@ inline U64 get_handled_events(U8 *stream, S32 state)
 	return retvalue;
 }
 
+// Returns -1 on error
 inline S32 get_event_stack_size(U8 *stream, S32 state, LSCRIPTStateEventType event)
 {
 	// get the start of the state table
@@ -829,21 +852,39 @@ inline S32 get_event_stack_size(U8 *stream, S32 state, LSCRIPTStateEventType eve
 		state_offset_offset = sr + LSCRIPTDataSize[LST_INTEGER] + LSCRIPTDataSize[LST_INTEGER]*3*state;
 	}
 
+	if ( state_offset_offset < 0 || state_offset_offset > TOP_OF_MEMORY )
+	{
+		return -1;
+	}
+
 	S32 state_offset = bytestream2integer(stream, state_offset_offset);
 	state_offset += sr;
 
 	state_offset_offset = state_offset;
+	if ( state_offset_offset < 0 || state_offset_offset > TOP_OF_MEMORY )
+	{
+		return -1;
+	}
 
 	// skip to jump table
 	S32 jump_table = bytestream2integer(stream, state_offset_offset);
 
 	jump_table += state_offset;
+	if ( jump_table < 0 || jump_table > TOP_OF_MEMORY )
+	{
+		return -1;
+	}
 
 	// get the position of the jump to the desired state
 	S32 stack_size_offset = jump_table + LSCRIPTDataSize[LST_INTEGER]*2*get_event_handler_jump_position(get_event_register(stream, LREG_ER, major_version), event) + LSCRIPTDataSize[LST_INTEGER];
 
 	// get the handled events
 	S32 stack_size = bytestream2integer(stream, stack_size_offset);
+	if ( stack_size < 0 || stack_size > TOP_OF_MEMORY )
+	{
+		return -1;
+	}
+
 	return stack_size;
 }
 

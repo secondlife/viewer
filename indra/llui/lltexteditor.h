@@ -414,6 +414,8 @@ protected:
 
 	BOOL			mParseHTML;
 	LLString		mHTML;
+
+	LLCoordGL		mLastIMEPosition;		// Last position of the IME editor
 };
 
 class LLTextSegment
