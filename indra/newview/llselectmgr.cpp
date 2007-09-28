@@ -4175,14 +4175,7 @@ void LLSelectMgr::sendListToRegions(const LLString& message_name,
 
 			while(node)
 			{
-				// look and see if this object is actually modifiable by the current agent, because if it's not, then there's little
-				// point in pushing it up to the server to be updated, since we couldn't change it anywa.
-				// That just results in errors on screen when this function gets called by other things, like pulling down a drop down menu
-				LLViewerObject* object = node->getObject();
-				if( object && (object->permModify() || gAgent.allowOperation(PERM_MODIFY, *node->mPermissions) || gAgent.allowOperation(PERM_MOVE, *node->mPermissions)))
-				{
-					nodes_to_send.push(node);
-				}
+				nodes_to_send.push(node);
 				node = mSelectedObjects->getNextRootNode();
 			}
 		}
