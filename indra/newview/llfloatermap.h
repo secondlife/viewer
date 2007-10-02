@@ -46,6 +46,4 @@ protected:
 
 extern LLFloaterMap *gFloaterMap;
 
-BOOL process_secondlife_url(LLString url);
-
 #endif  // LL_LLFLOATERMAP_H

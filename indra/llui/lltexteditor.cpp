@@ -58,7 +58,8 @@ const S32	SPACES_PER_TAB = 4;
 
 LLColor4 LLTextEditor::mLinkColor = LLColor4::blue;
 void (* LLTextEditor::mURLcallback)(const char*)              = NULL;
-BOOL (* LLTextEditor::mSecondlifeURLcallback)(LLString)   = NULL;
+bool (* LLTextEditor::mSecondlifeURLcallback)(const std::string&)   = NULL;
+bool (* LLTextEditor::mSecondlifeURLcallbackRightClick)(const std::string&)   = NULL;
 
 ///////////////////////////////////////////////////////////////////
 //virtuals

@@ -83,7 +83,6 @@
 #include "llfloatergroups.h"
 #include "llfloaterhtml.h"
 #include "llfloaterhtmlhelp.h"
-#include "llfloaterhtmlfind.h"
 #include "llfloaterinspect.h"
 #include "llfloaterlagmeter.h"
 #include "llfloaterland.h"
@@ -340,6 +339,7 @@ void toggle_show_xui_names(void *);
 BOOL check_show_xui_names(void *);
 
 // Debug UI
+void handle_slurl_test(void*);
 void handle_save_to_xml(void*);
 void handle_load_from_xml(void*);
 
@@ -976,6 +976,7 @@ extern BOOL gVectorizePerfTest;
 
 void init_debug_ui_menu(LLMenuGL* menu)
 {
+	menu->append(new LLMenuItemCallGL("SLURL Test", &handle_slurl_test));
 	menu->append(new LLMenuItemCallGL("Editable UI", &edit_ui));
 	menu->append(new LLMenuItemToggleGL("Async Keystrokes", &gHandleKeysAsync));
 	menu->append(new LLMenuItemCallGL( "Dump SelectMgr", &dump_select_mgr));
@@ -7280,6 +7281,11 @@ void handle_load_from_xml(void*)
 		LLFloater* floater = new LLFloater("sample_floater");
 		gUICtrlFactory->buildFloater(floater, filename);
 	}
+}
+
+void handle_slurl_test(void*)
+{
+	LLFloaterHtml::getInstance()->show("http://user.lindenlab.com/~james/slurl.html", "SLURL Test");
 }
 
 void handle_rebake_textures(void*)

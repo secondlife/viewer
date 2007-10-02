@@ -31,6 +31,7 @@
 #include "lltextbox.h"
 #include "llui.h"
 #include "lluiconstants.h"
+#include "llurlsimstring.h"
 #include "llviewerbuild.h"
 #include "llviewerimagelist.h"
 #include "llviewermenu.h"			// for handle_preferences()

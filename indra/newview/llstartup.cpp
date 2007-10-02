@@ -107,6 +107,8 @@
 #include "lltexturefetch.h"
 #include "lltoolmgr.h"
 #include "llui.h"
+#include "llurldispatcher.h"
+#include "llurlsimstring.h"
 #include "llurlwhitelist.h"
 #include "lluserauth.h"
 #include "llviewerassetstorage.h"
@@ -779,7 +781,7 @@ BOOL idle_startup()
 
 		//For HTML parsing in text boxes.
 		LLTextEditor::setLinkColor( gSavedSettings.getColor4("HTMLLinkColor") );
-		LLTextEditor::setURLCallbacks ( &LLWeb::loadURL, &process_secondlife_url );
+		LLTextEditor::setURLCallbacks ( &LLWeb::loadURL, &LLURLDispatcher::dispatch, &LLURLDispatcher::dispatch   );
 
 		//-------------------------------------------------
 		// Handle startup progress screen
@@ -2254,25 +2256,8 @@ BOOL idle_startup()
 			gAgentPilot.startPlayback();
 		}
 
-		// ok, if we've gotten this far and have a startup URL
-		if (LLURLSimString::sInstance.parse())
-		{
-			// kick off request for landmark to startup URL
-			if(gFloaterWorldMap)
-			{
-				LLVector3 pos = gAgent.getPositionAgent();
-				if( LLURLSimString::sInstance.mSimName != gAgent.getRegion()->getName()
-					|| LLURLSimString::sInstance.mX != llfloor(pos[VX])
-					|| LLURLSimString::sInstance.mY != llfloor(pos[VY]) )
-				{
-					LLFloaterWorldMap::show(NULL, TRUE);
-					gFloaterWorldMap->trackURL(LLURLSimString::sInstance.mSimName,
-											   LLURLSimString::sInstance.mX,
-											   LLURLSimString::sInstance.mY,
-											   LLURLSimString::sInstance.mZ);
-				}
-			}
-		}
+		// If we've got a startup URL, dispatch it
+		LLStartUp::dispatchURL();
 		
 		// Clean up the userauth stuff.
 		if (gUserAuthp)
@@ -3665,13 +3650,6 @@ void release_start_screen()
 }
 
 // static
-bool LLStartUp::canGoFullscreen()
-{
-	return LLStartUp::getStartupState() >= STATE_WORLD_INIT;
-}
-
-
-// static
 void LLStartUp::setStartupState( S32 state )
 {
 	llinfos << "Startup state changing from " << gStartupState << " to " << state << llendl;
@@ -3691,4 +3669,41 @@ void reset_login()
 	// Hide any other stuff
 	if ( gFloaterMap )
 		gFloaterMap->setVisible( FALSE );
+}
+
+//---------------------------------------------------------------------------
+
+std::string LLStartUp::sSLURLCommand;
+
+bool LLStartUp::canGoFullscreen()
+{
+	return gStartupState >= STATE_WORLD_INIT;
+}
+
+bool LLStartUp::dispatchURL()
+{
+	// ok, if we've gotten this far and have a startup URL
+	if (!sSLURLCommand.empty())
+	{
+		LLURLDispatcher::dispatch(sSLURLCommand);
+	}
+	else if (LLURLSimString::parse())
+	{
+		// If we started with a location, but we're already
+		// at that location, don't pop dialogs open.
+		LLVector3 pos = gAgent.getPositionAgent();
+		F32 dx = pos.mV[VX] - (F32)LLURLSimString::sInstance.mX;
+		F32 dy = pos.mV[VY] - (F32)LLURLSimString::sInstance.mY;
+		const F32 SLOP = 2.f;	// meters
+
+		if( LLURLSimString::sInstance.mSimName != gAgent.getRegion()->getName()
+			|| (dx*dx > SLOP*SLOP)
+			|| (dy*dy > SLOP*SLOP) )
+		{
+			std::string url = LLURLSimString::getURL();
+			LLURLDispatcher::dispatch(url);
+		}
+		return true;
+	}
+	return false;
 }

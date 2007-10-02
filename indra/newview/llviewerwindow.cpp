@@ -136,6 +136,7 @@
 #include "lltoolview.h"
 #include "llvieweruictrlfactory.h"
 #include "lluploaddialog.h"
+#include "llurldispatcher.h"		// SLURL from other app instance
 #include "llviewercamera.h"
 #include "llviewergesture.h"
 #include "llviewerimagelist.h"
@@ -1394,22 +1395,14 @@ void LLViewerWindow::handleWindowUnblock(LLWindow *window)
 
 void LLViewerWindow::handleDataCopy(LLWindow *window, S32 data_type, void *data)
 {
+	const S32 SLURL_MESSAGE_TYPE = 0;
 	switch (data_type)
 	{
-	case 0:
+	case SLURL_MESSAGE_TYPE:
 		// received URL
-		if (LLURLSimString::unpack_data(data))
+		std::string url = (const char*)data;
+		if (LLURLDispatcher::dispatch(url))
 		{
-			if(gFloaterWorldMap)
-			{
-				gFloaterWorldMap->trackURL(LLURLSimString::sInstance.mSimName,
-										   LLURLSimString::sInstance.mX,
-										   LLURLSimString::sInstance.mY,
-										   LLURLSimString::sInstance.mZ);
-
-				LLFloaterWorldMap::show(NULL, TRUE);
-			}
-
 			// bring window to foreground, as it has just been "launched" from a URL
 			mWindow->bringToFront();
 		}

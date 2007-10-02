@@ -194,9 +194,10 @@ public:
 
 	// Callbacks
 	static void		setLinkColor(LLColor4 color) { mLinkColor = color; }
-	static void		setURLCallbacks(	void (*callback1) (const char* url), 
-										BOOL (*callback2) (LLString url)      ) 
-										{ mURLcallback = callback1; mSecondlifeURLcallback = callback2;}
+	static void		setURLCallbacks(void (*callback1) (const char* url), 
+									bool (*callback2) (const std::string& url),      
+									bool (*callback3) (const std::string& url)	) 
+									{ mURLcallback = callback1; mSecondlifeURLcallback = callback2; mSecondlifeURLcallbackRightClick = callback3;}
 
 	void			setOnScrollEndCallback(void (*callback)(void*), void* userdata);
 
@@ -318,7 +319,8 @@ public:
 	LLKeywords		mKeywords;
 	static LLColor4 mLinkColor;
 	static void			(*mURLcallback) (const char* url);
-	static BOOL			(*mSecondlifeURLcallback) (LLString url);
+	static bool			(*mSecondlifeURLcallback) (const std::string& url);
+	static bool			(*mSecondlifeURLcallbackRightClick) (const std::string& url);
 protected:
 	LLWString		mWText;
 	mutable LLString mUTF8Text;

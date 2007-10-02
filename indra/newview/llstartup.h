@@ -64,6 +64,14 @@ public:
 	static void	setStartupState( S32 state );
 	static S32	getStartupState()				{ return gStartupState;		};
 
+	static bool dispatchURL();
+		// if we have a SLURL or sim string ("Ahern/123/45") that started
+		// the viewer, dispatch it
+
+	static std::string sSLURLCommand;
+		// *HACK: On startup, if we were passed a secondlife://app/do/foo
+		// command URL, store it for later processing.
+
 protected:
 	static S32 gStartupState;			// Do not set directly, use LLStartup::setStartupState
 };
