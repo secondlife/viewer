@@ -174,9 +174,9 @@ def main():
         print
 
     # Determine new channel(s)
-    if new_viewer_channel != None:
+    if new_viewer_channel != None and len(new_viewer_channel) > 0:
         viewer_channel = new_viewer_channel
-    if new_server_channel != None:
+    if new_server_channel != None and len(new_server_channel) > 0:
         server_channel = new_server_channel
 
     # Determine new version(s)
