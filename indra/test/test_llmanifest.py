@@ -1,10 +1,12 @@
 #!/usr/bin/python
-# @file test_llmanifest.py
-# @author Ryan Williams
-# @brief Test cases for LLManifest library.
-#
-# Copyright (c) 2006-$CurrentYear$, Linden Research, Inc.
-# $License$
+"""
+@file test_llmanifest.py
+@author Ryan Williams
+@brief Test cases for LLManifest library.
+
+Copyright (c) 2006-$CurrentYear$, Linden Research, Inc.
+$License$
+"""
 
 from indra.util import llmanifest
 import os.path

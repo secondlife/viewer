@@ -1,9 +1,11 @@
 #!/usr/bin/python
-# @file template_verifier.py
-# @brief Message template compatibility verifier.
-#
-# Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
-# $License$
+"""\
+@file template_verifier.py
+@brief Message template compatibility verifier.
+
+Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+$License$
+"""
 
 """template_verifier is a script which will compare the
 current repository message template with the "master" message template, accessible
