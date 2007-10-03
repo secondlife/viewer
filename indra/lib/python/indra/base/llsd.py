@@ -680,7 +680,7 @@ class LLSDNotationParser(object):
 
 
     def _parse_string_delim(self, delim):
-        """ string: "g'day" | 'have a "nice" day' """
+        """ string: "g'day 'un" | 'have a "nice" day' """
         list = []
         found_escape = False
         found_hex = False
@@ -838,9 +838,8 @@ undef = LLSD(None)
 # register converters for stacked, if stacked is available
 try:
     from mulib import stacked
-except ImportError, e:
+except:
     print "Not able to import stacked, skipping registering llsd converters."
-    pass  # don't bother with the converters
 else:
     def llsd_convert_json(llsd_stuff, request):
         callback = request.get_header('callback')

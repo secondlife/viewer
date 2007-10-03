@@ -279,7 +279,7 @@ def uuid_bits_to_uuid(bits):
 
 try:
     from mulib import stacked
-except ImportError:
+except:
     print "Couldn't import mulib, not registering UUID converter"
 else:
     def convertUUID(uuid, req):
