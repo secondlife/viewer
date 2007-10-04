@@ -9,11 +9,6 @@
 #ifndef LL_LLBVHLOADER_H
 #define LL_LLBVHLOADER_H
 
-#include <string>
-#include <vector>
-#include <map>
-#include <stdtypes.h>
-#include <stdio.h>
 #include "v3math.h"
 #include "m3math.h"
 #include "llmath.h"

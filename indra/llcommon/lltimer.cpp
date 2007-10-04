@@ -16,13 +16,10 @@
 #	define WIN32_LEAN_AND_MEAN
 #	include <winsock2.h>
 #	include <windows.h>
-#	include <time.h>
 #elif LL_LINUX || LL_SOLARIS
-#	include <time.h>
 #	include <sys/time.h>
 #	include <sched.h>
 #elif LL_DARWIN
-#	include <time.h>
 #	include <sys/time.h>
 #else 
 #	error "architecture not supported"

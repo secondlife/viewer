@@ -9,9 +9,6 @@
 #ifndef LL_LLPERMISSIONS_H
 #define LL_LLPERMISSIONS_H
 
-#include <stdio.h>
-#include <iostream>
-
 #include "llpermissionsflags.h"
 #include "llsd.h"
 #include "lluuid.h"

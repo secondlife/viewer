@@ -10,8 +10,8 @@
 #ifndef LL_MEAN_COLLISIONS_DATA_H
 #define LL_MEAN_COLLISIONS_DATA_H
 
-#include <time.h>
 #include "lldbstrings.h"
+#include "lluuid.h"
 
 const F32 MEAN_COLLISION_TIMEOUT = 5.f;
 const S32 MAX_MEAN_COLLISIONS = 5;

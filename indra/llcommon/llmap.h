@@ -9,10 +9,6 @@
 #ifndef LL_LLMAP_H
 #define LL_LLMAP_H
 
-#include <stdio.h>
-#include <utility>
-#include <map>
-
 // llmap uses the fast stl library code in a manner consistant with LLSkipMap, et. al. 
 
 template<class INDEX_TYPE, class MAPPED_TYPE> class LLMap

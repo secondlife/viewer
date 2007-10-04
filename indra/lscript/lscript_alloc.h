@@ -12,11 +12,8 @@
 // Under gcc 2.9, the manual is unclear if comments can appear above #ifndef
 // Under gcc 3, the manual explicitly states comments can appear above the #ifndef
 
-#include "stdtypes.h"
 #include "lscript_byteconvert.h"
 #include "lscript_library.h"
-#include "llrand.h"
-#include <stdio.h>
 
 void reset_hp_to_safe_spot(const U8 *buffer);
 

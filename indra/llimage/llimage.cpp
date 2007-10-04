@@ -8,18 +8,12 @@
 
 #include "linden_common.h"
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <algorithm>
-#include <iostream>
+#include "llimage.h"
 
 #include "llmath.h"
-#include "stdtypes.h"
 #include "v4coloru.h"
 #include "llmemtype.h"
 
-#include "llimage.h"
 #include "llimagebmp.h"
 #include "llimagetga.h"
 #include "llimagej2c.h"

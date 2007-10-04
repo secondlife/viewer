@@ -9,7 +9,8 @@
  */
  
 #include <tut/tut.h>
-#include <fstream>
+
+#include "linden_common.h"
 #include "llstreamtools.h"
 #include "lltut.h"
 

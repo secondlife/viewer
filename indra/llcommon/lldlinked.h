@@ -8,8 +8,6 @@
 #ifndef LL_LLDLINKED_H
 #define LL_LLDLINKED_H
 
-#include <stdlib.h>
-
 template <class Type> class LLDLinked
 {
 	LLDLinked* mNextp;

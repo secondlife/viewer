@@ -9,7 +9,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include <sstream>
-#include <time.h>
 
 #include "llfloaterland.h"
 

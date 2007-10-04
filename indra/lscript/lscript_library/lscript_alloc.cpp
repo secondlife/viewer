@@ -11,8 +11,8 @@
 // Under gcc 3, the manual explicitly states comments can appear above the #ifndef
 
 #include "linden_common.h"
-
 #include "lscript_alloc.h"
+#include "llrand.h"
 
 // supported data types
 

@@ -9,17 +9,6 @@
 #ifndef LL_LLSTRING_H
 #define LL_LLSTRING_H
 
-#include "stdtypes.h"
-#include "llerror.h"
-#include "llfile.h"
-#include <algorithm>
-#include <map>
-#include <stdio.h>
-#include <ctype.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <math.h>
-#include <stdarg.h> /* for vsnprintf */
 #if LL_LINUX || LL_SOLARIS
 #include <wctype.h>
 #include <wchar.h>
@@ -260,9 +249,6 @@ public:
 	 */
 	static void _makeASCII(std::basic_string<T>& string);
 
-	static BOOL	read(std::basic_string<T>& string, const char* filename);	 /*Flawfinder: ignore*/
-	static BOOL	write(std::basic_string<T>& string, const char* filename);
-
 	// Conversion to other data types
 	static BOOL	convertToBOOL(const std::basic_string<T>& string, BOOL& value);
 	static BOOL	convertToU8(const std::basic_string<T>& string, U8& value);
@@ -353,6 +339,16 @@ std::string ll_safe_string(const char* in);
  */
 U8 hex_as_nybble(char hex);
 
+/**
+ * @brief read the contents of a file into a string.
+ *
+ * Since this function has no concept of character encoding, most
+ * anything you do with this method ill-advised. Please avoid.
+ * @param str [out] The string which will have.
+ * @param filename The full name of the file to read.
+ * @return Returns true on success. If false, str is unmodified.
+ */
+bool _read_file_into_string(std::string& str, const char* filename);
 
 /**
  * Unicode support
@@ -913,8 +909,6 @@ void LLStringBase<T>::replaceNonstandardASCII( std::basic_string<T>& string, T r
 template<class T> 
 void LLStringBase<T>::replaceTabsWithSpaces( std::basic_string<T>& str, size_type spaces_per_tab )
 {
-	llassert( spaces_per_tab >= 0 );
-
 	const T TAB = '\t';
 	const T SPACE = ' ';
 
@@ -1017,11 +1011,10 @@ void LLStringBase<T>::copy( T* dst, const T* src, size_type dst_size )
 template<class T> 
 void LLStringBase<T>::copyInto(std::basic_string<T>& dst, const std::basic_string<T>& src, size_type offset)
 {
-	llassert( offset <= dst.length() );
-
-	// special case - append to end of string and avoid expensive (when strings are large) string manipulations
 	if ( offset == dst.length() )
 	{
+		// special case - append to end of string and avoid expensive
+		// (when strings are large) string manipulations
 		dst += src;
 	}
 	else
@@ -1048,48 +1041,6 @@ BOOL LLStringBase<T>::isHead( const std::basic_string<T>& string, const T* s )
 	{
 		return (strncmp( s, string.c_str(), string.size() ) == 0);
 	}
-}
-
-//static
-template<class T> 
-BOOL LLStringBase<T>::read(std::basic_string<T>& string, const char* filename)	 /*Flawfinder: ignore*/
-{
-	llifstream ifs(filename, llifstream::binary);
-	if (!ifs.is_open())
-	{
-		llinfos << "Unable to open file" << filename << llendl;
-		return FALSE;
-	}
-
-	std::basic_ostringstream<T> oss;
-
-	oss << ifs.rdbuf();
-
-	string = oss.str();
-
-	ifs.close();
-	return TRUE;
-}
-
-//static
-template<class T> 
-BOOL LLStringBase<T>::write(std::basic_string<T>& string, const char* filename)
-{
-#if LL_LINUX  || LL_SOLARIS
-    printf("STUBBED: LLStringBase<T>::write at %s:%d\n", __FILE__, __LINE__);
-#else
-	llofstream ofs(filename, llofstream::binary);
-	if (!ofs.is_open())
-	{
-		llinfos << "Unable to open file" << filename << llendl;
-		return FALSE;
-	}
-
-	ofs << string;
-
-	ofs.close();
-#endif
-	return TRUE;
 }
 
 template<class T> 

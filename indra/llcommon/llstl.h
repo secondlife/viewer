@@ -10,14 +10,8 @@
 #define LL_LLSTL_H
 
 #include <functional>
-#include <algorithm>
-#include <map>
-#include <vector>
 #include <set>
 #include <deque>
-
-#include <stdio.h>
-#include <stdarg.h>
 
 // Use to compare the first element only of a pair
 // e.g. typedef std::set<std::pair<int, Data*>, compare_pair<int, Data*> > some_pair_set_t; 

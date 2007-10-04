@@ -9,7 +9,6 @@
 #ifndef LL_LLIMAGE_H
 #define LL_LLIMAGE_H
 
-#include "stdtypes.h"
 #include "lluuid.h"
 #include "llstring.h"
 #include "llmemory.h"

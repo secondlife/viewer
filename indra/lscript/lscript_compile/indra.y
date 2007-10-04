@@ -1,7 +1,7 @@
 %{
-	#include "stdtypes.h"
+	#include "linden_common.h"
 	#include "lscript_tree.h"
-	
+
     #ifdef __cplusplus
     extern "C" {
     #endif
@@ -16,6 +16,7 @@
     #endif
 
     #ifdef LL_WINDOWS
+	#pragma warning (disable : 4702) // warning C4702: unreachable code
 	#pragma warning( disable : 4065 )	// warning: switch statement contains 'default' but no 'case' labels
 	#endif
 

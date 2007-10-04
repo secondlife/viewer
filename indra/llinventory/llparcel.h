@@ -8,10 +8,6 @@
 #ifndef LL_LLPARCEL_H
 #define LL_LLPARCEL_H
 
-#include <time.h>
-#include <iostream>
-
-#include "lldarray.h"
 #include "lluuid.h"
 #include "llparcelflags.h"
 #include "llpermissions.h"

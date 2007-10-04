@@ -18,7 +18,7 @@
  * -- Leviathan 20060113
 */
 
-#include <ctype.h>
+#include <cctype>
 
 __const unsigned short int *__ctype_b;
 __const __int32_t *__ctype_tolower;

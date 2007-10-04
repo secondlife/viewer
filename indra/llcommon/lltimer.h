@@ -10,11 +10,8 @@
 #define LL_TIMER_H
 
 #if LL_LINUX || LL_DARWIN
-#		include <time.h>
-#		include <sys/time.h>
+#include <sys/time.h>
 #endif
-
-#include <list>
 
 // units conversions
 #ifndef USEC_PER_SEC

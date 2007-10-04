@@ -9,8 +9,6 @@
 #ifndef LL_V2MATH_H
 #define LL_V2MATH_H
 
-#include <math.h>
-
 #include "llmath.h"
 
 class LLVector4;

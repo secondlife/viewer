@@ -10,13 +10,6 @@
 
 #include "llcachename.h"
 
-// system includes
-#include <string.h>		// strcpy
-#include <time.h>
-#include <algorithm>
-#include <functional>
-#include <map>
-
 // linden library includes
 #include "message.h"
 #include "llrand.h"

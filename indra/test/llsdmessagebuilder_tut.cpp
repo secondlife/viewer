@@ -8,8 +8,9 @@
  */
 
 #include <tut/tut.h>
-#include "lltut.h"
 
+#include "linden_common.h"
+#include "lltut.h"
 #include "llsdmessagebuilder.h"
 #include "llsdmessagereader.h"
 #include "llsdtraits.h"

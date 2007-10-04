@@ -12,7 +12,6 @@
 
 // system library includes
 #include <stdexcept>
-#include <stdio.h>
 
 #if LL_WINDOWS
 	#define WIN32_LEAN_AND_MEAN

@@ -11,6 +11,7 @@
 #if !LL_WINDOWS
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <errno.h>
 #else
 #include <direct.h>
 #endif

@@ -9,8 +9,6 @@
 #ifndef LL_LLPARTDATA_H
 #define LL_LLPARTDATA_H
 
-#include <stdio.h>
-
 #include "lluuid.h"
 #include "v3math.h"
 #include "v3dmath.h"

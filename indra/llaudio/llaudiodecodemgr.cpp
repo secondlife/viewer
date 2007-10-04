@@ -7,11 +7,6 @@
 
 #include "linden_common.h"
 
-#include <vector>
-#include <iterator>
-#include <algorithm>
-#include <stdio.h>
-
 #include "llaudiodecodemgr.h"
 
 #include "vorbisdecode.h"

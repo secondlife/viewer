@@ -8,11 +8,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-// system library includes
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
-
 #include "llviewerwindow.h"
 #include "llviewquery.h"
 #include "llxmltree.h"

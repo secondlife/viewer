@@ -11,23 +11,21 @@
 
 #include "llview.h"
 
-#include "llstring.h"
-#include "llrect.h"
-#include "llgl.h"
+#include <cassert>
+#include <boost/tokenizer.hpp>
+
 #include "llevent.h"
 #include "llfontgl.h"
 #include "llfocusmgr.h"
+#include "llgl.h"
 #include "llglheaders.h"
-#include "llwindow.h"
+#include "llrect.h"
 #include "llstl.h"
-#include "lluictrl.h"
 #include "llui.h"	// colors saved settings
+#include "lluictrl.h"
+#include "llwindow.h"
 #include "v3color.h"
-#include "llstl.h"
 
-#include <boost/tokenizer.hpp>
-
-#include <assert.h>
 
 BOOL	LLView::sDebugRects = FALSE;
 BOOL	LLView::sDebugKeys = FALSE;

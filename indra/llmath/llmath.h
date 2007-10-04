@@ -9,12 +9,6 @@
 #ifndef LLMATH_H
 #define LLMATH_H
 
-#include <cmath>
-#include <math.h>
-#include <stdlib.h>
-
-#include "lldefs.h"
-
 // work around for Windows & older gcc non-standard function names.
 #if LL_WINDOWS
 #define llisnan(val)	_isnan(val)

@@ -9,8 +9,6 @@
 #ifndef LL_LLVFS_H
 #define LL_LLVFS_H
 
-#include <stdio.h>
-#include <map>
 #include <deque>
 #include "lluuid.h"
 #include "linked_lists.h"

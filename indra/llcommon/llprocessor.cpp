@@ -28,9 +28,7 @@
 
 #include "processor.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <memory.h>
+#include <memory>
 
 #if LL_WINDOWS
 #	define WIN32_LEAN_AND_MEAN

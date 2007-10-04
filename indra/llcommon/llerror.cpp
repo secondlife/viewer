@@ -12,6 +12,19 @@
 #include "llerror.h"
 #include "llerrorcontrol.h"
 
+#include <cctype>
+#ifdef __GNUC__
+#include <cxxabi.h>
+#endif
+#include <sstream>
+#if !LL_WINDOWS
+#include <syslog.h>
+#endif
+#if LL_WINDOWS
+#include <windows.h>
+#endif
+#include <vector>
+
 #include "llapp.h"
 #include "llapr.h"
 #include "llfile.h"
@@ -21,24 +34,6 @@
 #include "llsdserialize.h"
 #include "llstl.h"
 
-#include <algorithm>
-#include <cctype>
-#include <map>
-#include <sstream>
-#if !LL_WINDOWS
-#include <stdio.h>
-#include <syslog.h>
-#endif
-#include <time.h>
-#if LL_WINDOWS
-#include <windows.h>
-#endif
-#include <vector>
-
-
-#ifdef __GNUC__
-#include <cxxabi.h>
-#endif
 
 namespace {
 #if !LL_WINDOWS

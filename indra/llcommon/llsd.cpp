@@ -9,9 +9,6 @@
 #include "linden_common.h"
 #include "llsd.h"
 
-#include <sstream>
-#include <math.h>
-
 #include "llerror.h"
 #include "../llmath/llmath.h"
 #include "llformat.h"

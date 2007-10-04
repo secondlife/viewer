@@ -9,11 +9,6 @@
 #ifndef LL_LLDATAPACKER_H 
 #define LL_LLDATAPACKER_H
 
-#include <stdio.h>
-#include <iostream>
-
-#include "llerror.h"
-
 class LLColor4;
 class LLColor4U;
 class LLVector2;

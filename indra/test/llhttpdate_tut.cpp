@@ -13,9 +13,6 @@
 #include "lldate.h"
 #include "llframetimer.h"
 
-#include <string>
-#include <time.h>
-
 namespace tut
 {
     struct httpdate_data

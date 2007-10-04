@@ -9,8 +9,6 @@
 #ifndef LL_LLXFER_MEM_H
 #define LL_LLXFER_MEM_H
 
-#include <stdio.h>
-
 #include "message.h"
 #include "lltimer.h"
 #include "llxfer.h"

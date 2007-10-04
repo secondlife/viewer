@@ -8,9 +8,7 @@
 
 #include "linden_common.h"
 
-#include <stdio.h>
 #include <sys/stat.h>
-#include <time.h>
 #include <set>
 #include <map>
 #if LL_WINDOWS

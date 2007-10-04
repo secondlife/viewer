@@ -7,9 +7,9 @@
  * $License$
  */
 
-#include <tut/tut.h>
-#include "lltut.h"
+#include "linden_common.h"
 #include "llmessageconfig.h"
+#include "lltut.h"
 #include "llsdserialize.h"
 #include "llfile.h"
 #include "lldir.h"

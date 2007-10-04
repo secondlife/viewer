@@ -8,8 +8,6 @@
 
 #include "linden_common.h"
 
-#include <time.h>
-
 #include "llinventory.h"
 
 #include "lldbstrings.h"

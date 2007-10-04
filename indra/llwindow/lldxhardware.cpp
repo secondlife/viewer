@@ -12,7 +12,6 @@
 
 #include "linden_common.h"
 
-#include <assert.h>
 #include <dxdiag.h>
 
 #include <boost/tokenizer.hpp>

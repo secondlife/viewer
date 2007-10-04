@@ -12,8 +12,6 @@
 
 #include "linden_common.h"
 
-#include <string.h>
-
 #include "llanimationstates.h"
 #include "llstring.h"
 

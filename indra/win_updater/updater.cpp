@@ -10,13 +10,10 @@
 // Usage: updater -url <url> [-name <window_title>] [-program <program_name>] [-silent]
 //
 
+#include "linden_common.h"
+
 #include <windows.h>
 #include <wininet.h>
-
-#include <stdio.h>
-#include <stdarg.h>
-#include "llpreprocessor.h"
-#include "llfile.h"
 
 #define BUFSIZE 8192
 

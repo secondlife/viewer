@@ -17,12 +17,6 @@
  * Attempts to mostly mirror the POSIX style IO functions.
  */
 
-#include <string>
-#include <stdio.h>
-#include <sys/stat.h>
-#include <fstream>
-#include "stdtypes.h"
-
 typedef FILE	LLFILE;
 
 #ifdef LL_WINDOWS
@@ -36,6 +30,7 @@ typedef FILE	LLFILE;
 // windows version of stat function and stat data structure are called _stat
 typedef struct _stat	llstat;
 #else
+#include <sys/stat.h>
 typedef struct stat		llstat;
 #endif
 

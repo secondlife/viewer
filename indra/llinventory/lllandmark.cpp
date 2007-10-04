@@ -9,10 +9,7 @@
 #include "linden_common.h"
 #include "lllandmark.h"
 
-#include <stdlib.h>
-#include <string.h>
 #include <errno.h>
-#include <stdio.h>  	// for sscanf() on linux
 
 #include "message.h"
 #include "llregionhandle.h"

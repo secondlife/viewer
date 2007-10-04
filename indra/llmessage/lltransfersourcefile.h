@@ -11,8 +11,6 @@
 
 #include "lltransfermanager.h"
 
-#include <stdio.h>
-
 class LLTransferSourceParamsFile : public LLTransferSourceParams
 {
 public:

@@ -8,8 +8,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include <time.h>
-
 #include "llpanelland.h"
 
 #include "llparcel.h"

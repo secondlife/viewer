@@ -9,13 +9,15 @@ FS			(f|F)
 %p 5000
 
 %{
-#include <stdio.h>
-#include "stdtypes.h"
+#include "linden_common.h"
+// Deal with the fact that lex/yacc generates unreachable code
+#ifdef LL_WINDOWS
+#pragma warning (disable : 4702) // warning C4702: unreachable code
+#endif	//	LL_WINDOWS
 #include "llmath.h"
 #include "lscript_tree.h"
 #include "lscript_typecheck.h"
 #include "lscript_resource.h"
-#include "llfile.h"
 #if LL_WINDOWS
 #include "ytab.h"
 #else

@@ -9,7 +9,6 @@
 #ifndef LL_LSCRIPT_EXECUTE_H
 #define LL_LSCRIPT_EXECUTE_H
 
-#include <stdio.h>
 #include "lscript_byteconvert.h"
 #include "linked_lists.h"
 #include "lscript_library.h"

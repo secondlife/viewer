@@ -9,8 +9,6 @@
 #ifndef LL_LLXFER_VFILE_H
 #define LL_LLXFER_VFILE_H
 
-#include <stdio.h>
-
 #include "llxfer.h"
 #include "llassetstorage.h"
 

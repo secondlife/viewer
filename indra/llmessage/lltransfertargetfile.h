@@ -11,8 +11,6 @@
 
 #include "lltransfermanager.h"
 
-#include <stdio.h>
-
 typedef void (*LLTTFCompleteCallback)(const LLTSCode status, void *user_data);
 
 class LLTransferTargetParamsFile : public LLTransferTargetParams

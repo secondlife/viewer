@@ -8,7 +8,7 @@
  * $License$
  */
  
-#include <tut/tut.h>
+#include "linden_common.h"
 #include "lltut.h"
 #include "llxorcipher.h"
 #include "llnullcipher.h"

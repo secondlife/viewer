@@ -9,8 +9,6 @@
 #ifndef LL_LLXFER_FILE_H
 #define LL_LLXFER_FILE_H
 
-#include <stdio.h>
-
 #include "llxfer.h"
 #include "lldir.h"
 

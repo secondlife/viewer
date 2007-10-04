@@ -9,9 +9,6 @@
 #ifndef LL_LLCACHENAME_H
 #define LL_LLCACHENAME_H
 
-// Forward declarations
-#include <stdio.h>
-
 class LLMessageSystem;
 class LLHost;
 class LLUUID;

@@ -35,6 +35,26 @@ U8 hex_as_nybble(char hex)
 }
 
 
+bool _read_file_into_string(std::string& str, const char* filename)
+{
+	llifstream ifs(filename, llifstream::binary);
+	if (!ifs.is_open())
+	{
+		llinfos << "Unable to open file" << filename << llendl;
+		return false;
+	}
+
+	std::ostringstream oss;
+
+	oss << ifs.rdbuf();
+	str = oss.str();
+	ifs.close();
+	return true;
+}
+
+
+
+
 // See http://www.unicode.org/Public/BETA/CVTUTF-1-2/ConvertUTF.c
 // for the Unicode implementation - this doesn't match because it was written before finding
 // it.

@@ -9,13 +9,9 @@
 #ifndef LL_LLNAMEVALUE_H
 #define LL_LLNAMEVALUE_H
 
-#include <iostream>
-#include <string.h>
-
 #include "string_table.h"
 #include "llskipmap.h"
 #include "llmath.h"
-//#include "vmath.h"
 #include "v3math.h"
 #include "lldbstrings.h"
 

@@ -6,8 +6,6 @@
  * $License$
  */
 
-#include <string.h>
-
 #include "linden_common.h"
 
 #include "lldatapacker.h"

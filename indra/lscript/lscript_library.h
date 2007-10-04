@@ -14,7 +14,6 @@
 #include "llquaternion.h"
 #include "lluuid.h"
 #include "lscript_byteconvert.h"
-#include <stdio.h>
 
 class LLScriptLibData;
 

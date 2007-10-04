@@ -7,7 +7,6 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include <string.h>
 #include "llurl.h"
 #include "llerror.h"
 

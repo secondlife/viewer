@@ -9,9 +9,6 @@
 #ifndef LL_LLSALEINFO_H
 #define LL_LLSALEINFO_H
 
-#include <stdio.h>
-#include <iostream>
-
 #include "llpermissionsflags.h"
 #include "llsd.h"
 #include "llxmlnode.h"

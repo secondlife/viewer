@@ -10,8 +10,6 @@
 
 #include "llassettype.h"
 
-#include <time.h>
-
 #include "llstring.h"
 #include "lltimer.h"
 

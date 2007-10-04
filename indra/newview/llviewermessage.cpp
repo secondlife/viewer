@@ -11,8 +11,6 @@
 #include "llviewermessage.h"
 
 #include <deque>
-#include <stdio.h>
-#include <string.h>
 
 #include "audioengine.h" 
 #include "audiosettings.h"

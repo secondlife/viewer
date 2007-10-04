@@ -9,10 +9,9 @@
 #ifndef LL_TIMING_H					
 #define LL_TIMING_H
 
-#include <time.h>
 
 #if LL_LINUX || LL_DARWIN || LL_SOLARIS
-#		include <sys/time.h>
+#include <sys/time.h>
 #endif
 
 

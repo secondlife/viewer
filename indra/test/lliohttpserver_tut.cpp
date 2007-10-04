@@ -7,9 +7,8 @@
  * $License$
  */
 
-#include <tut/tut.h>
+#include "linden_common.h"
 #include "lltut.h"
-
 #include "llbufferstream.h"
 #include "lliohttpserver.h"
 #include "llsdhttpserver.h"

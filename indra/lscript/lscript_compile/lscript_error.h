@@ -9,10 +9,7 @@
 #ifndef LL_LSCRIPT_ERROR_H
 #define LL_LSCRIPT_ERROR_H
 
-#include <stdio.h>
-#include "stdtypes.h"
 #include "lscript_scope.h"
-
 
 typedef enum e_lscript_compile_pass
 {

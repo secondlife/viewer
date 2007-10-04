@@ -18,10 +18,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #endif
-#include <stdio.h>
-#include <stdlib.h>
-#include <cstring>
-#include <time.h>
 #include <iomanip>
 #include <iterator>
 #include <sstream>
@@ -355,8 +351,8 @@ void LLMessageSystem::loadTemplateFile(const char* filename)
 		return;
 	}
 
-	LLString template_body;
-	if(!LLString::read(template_body, filename))
+	std::string template_body;
+	if(!_read_file_into_string(template_body, filename))
 	{
 		llwarns << "Failed to open template: " << filename << llendl;
 		mbError = TRUE;

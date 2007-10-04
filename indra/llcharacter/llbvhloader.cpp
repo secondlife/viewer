@@ -9,6 +9,9 @@
 #include "linden_common.h"
 
 #include "llbvhloader.h"
+
+#include <boost/tokenizer.hpp>
+
 #include "lldatapacker.h"
 #include "lldir.h"
 #include "llkeyframemotion.h"
@@ -16,11 +19,6 @@
 #include "llstl.h"
 #include "llapr.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
-#include <llquaternion.h>
-#include <boost/tokenizer.hpp>
 
 using namespace std;
 

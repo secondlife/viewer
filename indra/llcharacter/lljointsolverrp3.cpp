@@ -13,8 +13,6 @@
 
 #include "lljointsolverrp3.h"
 
-#include <math.h>
-
 #include "llmath.h"
 
 #define F_EPSILON 0.00001f

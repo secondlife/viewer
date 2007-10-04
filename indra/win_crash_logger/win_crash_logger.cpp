@@ -16,10 +16,7 @@
 #include "llcontrol.h"
 #include "resource.h"
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <direct.h>
-#include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <wininet.h>

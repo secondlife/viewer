@@ -9,8 +9,6 @@
 #ifndef LL_LLREGIONHANDLE_H
 #define LL_LLREGIONHANDLE_H
 
-#include <math.h>
-
 #include "indra_constants.h"
 #include "v3math.h"
 #include "v3dmath.h"

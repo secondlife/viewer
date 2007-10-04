@@ -11,7 +11,6 @@
 
 #include "lldir.h"
 
-#include <stdio.h>
 #include <dirent.h>
 
 class LLDir_Mac : public LLDir

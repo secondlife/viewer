@@ -9,8 +9,6 @@
 #ifndef LL_LSCRIPT_TREE_H
 #define LL_LSCRIPT_TREE_H
 
-#include <stdio.h>
-#include "stdtypes.h"
 #include "v3math.h"
 #include "llquaternion.h"
 #include "linked_lists.h"

@@ -7,7 +7,6 @@
  */
 
 #include "linden_common.h"
-#include <math.h>
 
 #include "llcriticaldamp.h"
 

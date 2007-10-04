@@ -9,8 +9,6 @@
 #ifndef LL_LLFASTTIMER_H
 #define LL_LLFASTTIMER_H
 
-#include "lltimer.h"
-
 #define FAST_TIMER_ON 1
 
 U64 get_cpu_clock_count();

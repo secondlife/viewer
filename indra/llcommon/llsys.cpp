@@ -24,10 +24,12 @@
 #	include <winsock2.h>
 #	include <windows.h>
 #elif LL_DARWIN
+#	include <errno.h>
 #	include <sys/sysctl.h>
 #	include <sys/utsname.h>
 #	include <stdint.h>
 #elif LL_LINUX
+#	include <errno.h>
 #	include <sys/utsname.h>
 #	include <unistd.h>
 #	include <sys/sysinfo.h>

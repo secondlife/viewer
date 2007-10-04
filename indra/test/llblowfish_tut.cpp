@@ -16,8 +16,6 @@
 
 #include "llblowfishcipher.h"
 
-#include <string>
-#include <stdio.h>
 #include "lluuid.h"
 
 namespace tut

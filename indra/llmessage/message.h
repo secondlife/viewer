@@ -10,8 +10,6 @@
 #define LL_MESSAGE_H
 
 #include <cstring>
-#include <stdio.h>
-#include <map>
 #include <set>
 
 #if LL_LINUX

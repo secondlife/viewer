@@ -11,7 +11,7 @@
 
 #include "llformat.h"
 
-#include <stdarg.h>
+#include <cstdarg>
 
 std::string llformat(const char *fmt, ...)
 {

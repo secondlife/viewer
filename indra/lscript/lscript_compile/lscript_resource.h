@@ -9,8 +9,6 @@
 #ifndef LL_LSCRIPT_RESOURCE_H
 #define LL_LSCRIPT_RESOURCE_H
 
-#include <stdio.h>
-#include "stdtypes.h"
 #include "lscript_scope.h"
 
 void init_temp_jumps();

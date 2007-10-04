@@ -10,8 +10,6 @@
 #ifndef LL_LLFORMAT_H
 #define LL_LLFORMAT_H
 
-#include <string>
-
 // Use as follows:
 // llinfos << llformat("Test:%d (%.2f %.2f)", idx, x, y) << llendl;
 //

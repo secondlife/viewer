@@ -13,23 +13,19 @@
 // the HUD or a dialog box or a button.  It can also contain sub-views
 // and child widgets
 
-#include <iosfwd>
-#include <list>
-
-#include "lluixmltags.h"
-#include "llrect.h"
+#include "llcoord.h"
+#include "llfontgl.h"
+#include "llmortician.h"
 #include "llmousehandler.h"
-#include "stdenums.h"
+#include "llnametable.h"
 #include "llsd.h"
 #include "llstring.h"
-#include "llnametable.h"
-#include "llcoord.h"
-#include "llmortician.h"
-#include "llxmlnode.h"
-#include "llfontgl.h"
-#include "llviewquery.h"
-
+#include "llrect.h"
 #include "llui.h"
+#include "lluixmltags.h"
+#include "llviewquery.h"
+#include "llxmlnode.h"
+#include "stdenums.h"
 
 class LLColor4;
 class LLWindow;
