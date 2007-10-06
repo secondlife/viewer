@@ -279,8 +279,9 @@ def uuid_bits_to_uuid(bits):
 
 try:
     from mulib import stacked
+    stacked.NoProducer()  # just to exercise stacked
 except:
-    print "Couldn't import mulib, not registering UUID converter"
+    print "Couldn't import mulib.stacked, not registering UUID converter"
 else:
     def convertUUID(uuid, req):
         req.write(str(uuid))

@@ -838,8 +838,9 @@ undef = LLSD(None)
 # register converters for stacked, if stacked is available
 try:
     from mulib import stacked
+    stacked.NoProducer()  # just to exercise stacked
 except:
-    print "Not able to import stacked, skipping registering llsd converters."
+    print "Couldn't import mulib.stacked, not registering LLSD converters"
 else:
     def llsd_convert_json(llsd_stuff, request):
         callback = request.get_header('callback')
