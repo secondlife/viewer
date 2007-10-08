@@ -47,7 +47,7 @@ def postFile(url, filename, verbose=False):
     f = open(filename)
     body = f.read()
     f.close()
-    llsd_body = llsd.parse(bodY)
+    llsd_body = llsd.parse(body)
     return post(url, llsd_body, verbose=verbose)
 
 
