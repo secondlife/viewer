@@ -120,8 +120,8 @@ void LLPanelLandInfo::refresh()
 		childSetVisible("label_area_price",false);
 		childSetVisible("label_area",false);
 
-		//mTextPrice->setText("");
-		childSetText("textbox price","");
+		//mTextPrice->setText(LLString::null);
+		childSetText("textbox price",LLString::null);
 
 		childSetEnabled("button buy land",FALSE);
 		childSetEnabled("button abandon land",FALSE);

@@ -57,7 +57,7 @@ public:
 	LLWearable*			createLegacyWearableFromAvatar( EWearableType type );
 
 	LLWearable*			createWearableMatchedToInventoryItem( LLWearable* old_wearable, LLViewerInventoryItem* item );
-	LLWearable*			createCopyFromAvatar( LLWearable* old_wearable, const std::string& new_name = "" );
+	LLWearable*			createCopyFromAvatar( LLWearable* old_wearable, const std::string& new_name = std::string() );
 	LLWearable*			createCopy( LLWearable* old_wearable );
 	LLWearable*			createNewWearable( EWearableType type );
 	

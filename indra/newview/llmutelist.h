@@ -60,7 +60,7 @@ public:
 		flagAll				= 0x0000000F		// Mask of all currently defined flags
 	};
 	
-	LLMute(const LLUUID& id, const LLString& name = "", EType type = BY_NAME, U32 flags = 0) 
+	LLMute(const LLUUID& id, const LLString& name = LLString(), EType type = BY_NAME, U32 flags = 0) 
 	: mID(id), mName(name), mType(type),mFlags(flags) { }
 
 	// Returns name + suffix based on type

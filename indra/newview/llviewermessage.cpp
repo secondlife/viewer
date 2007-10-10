@@ -989,7 +989,7 @@ void inventory_offer_callback(S32 button, void* user_data)
 		itemp = (LLViewerInventoryItem*)gInventory.getItem(info->mObjectID);
 	}
 
-	// XUI:translate
+	// *TODO:translate
 	LLString from_string; // Used in the pop-up.
 	LLString chatHistory_string;  // Used in chat history.
 	if (info->mFromObject == TRUE)
@@ -1225,7 +1225,7 @@ void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
 	}
 	else
 	{
-		// XUI:translate -> [FIRST] [LAST]
+		// *TODO:translate -> [FIRST] [LAST]
 		args["[NAME]"] = info->mFromName;
 		LLNotifyBox::showXml("UserGiveItem", args,
 							&inventory_offer_callback, (void*)info);
@@ -1329,7 +1329,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	S32 binary_bucket_size;
 	LLChat chat;
 
-	//XUI:translate - need to fix the full name to first/last
+	//*TODO:translate - need to fix the full name to first/last (maybe)
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, from_id);
 	msg->getBOOLFast(_PREHASH_MessageBlock, _PREHASH_FromGroup, from_group);
 	msg->getUUIDFast(_PREHASH_MessageBlock, _PREHASH_ToAgentID, to_id);
@@ -1379,7 +1379,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	case IM_CONSOLE_AND_CHAT_HISTORY:
 		// These are used for system messages, hence don't need the name,
 		// as it is always "Second Life".
-	  	// XUI:translate
+	  	// *TODO:translate
 		args["[MESSAGE]"] = message;
 
 		// Note: don't put the message in the IM history, even though was sent
@@ -1528,7 +1528,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	case IM_MESSAGEBOX:
 		{
 			// This is a block, modeless dialog.
-			//XUI:translate
+			//*TODO:translate
 			args["[MESSAGE]"] = message;
 			LLNotifyBox::showXml("SystemMessage", args);
 		}
@@ -1845,7 +1845,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			else
 			{
-				// XUI:translate -> [FIRST] [LAST]
+				// *TODO:translate -> [FIRST] [LAST] (maybe)
 				LLLureInfo* info = new LLLureInfo(from_id, session_id, FALSE);
 				args["[NAME]"] = name;
 				args["[MESSAGE]"] = message;
@@ -4026,7 +4026,7 @@ void process_money_balance_reply( LLMessageSystem* msg, void** )
 	{
 		// Make the user confirm the transaction, since they might
 		// have missed something during an event.
-		// XUI:translate
+		// *TODO:translate
 		LLString::format_map_t args;
 		args["[MESSAGE]"] = desc;
 		LLNotifyBox::showXml("SystemMessage", args);
@@ -4082,7 +4082,6 @@ void process_alert_core(const char* buffer, BOOL modal)
 		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidth(), gViewerWindow->getWindowHeight(), FALSE, FALSE);
 	}
 
-	// Translate system messages here.
 	const char ALERT_PREFIX[] = "ALERT: ";
 	const size_t ALERT_PREFIX_LEN = sizeof(ALERT_PREFIX) - 1;
 	if (!strncmp(buffer, ALERT_PREFIX, ALERT_PREFIX_LEN))
@@ -4113,21 +4112,21 @@ void process_alert_core(const char* buffer, BOOL modal)
 		}
 		else
 		{
-			//XUI:translate
+			// *TODO:translate
 			args["[MESSAGE]"] = text;
 			LLNotifyBox::showXml("SystemMessage", args);
 		}
 	}
 	else if (modal)
 	{
-		//XUI:translate
+		// *TODO:translate
 		LLString::format_map_t args;
 		args["[ERROR_MESSAGE]"] = buffer;
 		gViewerWindow->alertXml("ErrorMessage", args);
 	}
 	else
 	{
-		//XUI:translate
+		// *TODO:translate
 		LLString::format_map_t args;
 		args["[MESSAGE]"] = buffer;
 		LLNotifyBox::showXml("SystemMessageTip", args);
@@ -4428,7 +4427,7 @@ void script_question_cb(S32 option, void* user_data)
 
 void process_script_question(LLMessageSystem *msg, void **user_data)
 {
-	// XUI:translate owner name -> [FIRST] [LAST]
+	// *TODO:translate owner name -> [FIRST] [LAST]
 
 	LLHost sender = msg->getSender();
 

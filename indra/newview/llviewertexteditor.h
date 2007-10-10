@@ -50,7 +50,7 @@ public:
 	LLViewerTextEditor(const LLString& name,
 					   const LLRect& rect,
 					   S32 max_length,
-					   const LLString& default_text = "",
+					   const LLString& default_text = LLString(),
 					   const LLFontGL* glfont = NULL,
 					   BOOL allow_embedded_items = FALSE);
 

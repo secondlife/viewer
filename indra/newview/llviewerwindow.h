@@ -220,7 +220,7 @@ public:
 	BOOL			saveSnapshot(const LLString&  filename, S32 image_width, S32 image_height, BOOL show_ui = TRUE, BOOL do_rebuild = FALSE, ESnapshotType type = SNAPSHOT_TYPE_COLOR);
 	BOOL			rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, BOOL keep_window_aspect = TRUE, 
 								BOOL show_ui = TRUE, BOOL do_rebuild = FALSE, ESnapshotType type = SNAPSHOT_TYPE_COLOR );
-	BOOL		    saveImageNumbered(LLImageRaw *raw, const LLString& extension = "");
+	BOOL		    saveImageNumbered(LLImageRaw *raw, const LLString& extension = LLString());
 
 	void			playSnapshotAnimAndSound();
 	

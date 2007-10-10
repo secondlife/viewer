@@ -136,11 +136,11 @@ public:
 	// assumes UTF8 text
 	virtual void	setValue(const LLSD& value );
 	virtual LLSD	getValue() const;
-	virtual BOOL	setTextArg( const LLString& key, const LLString& text );
-	virtual BOOL	setLabelArg( const LLString& key, const LLString& text );
+	virtual BOOL	setTextArg( const LLString& key, const LLStringExplicit& text );
+	virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text );
 
-	void			setLabel(const LLString &new_label);
-	void			setText(const LLString &new_text);
+	void			setLabel(const LLStringExplicit &new_label);
+	void			setText(const LLStringExplicit &new_text);
 
 	const LLString& getText() const		{ return mText.getString(); }
 	const LLWString& getWText() const	{ return mText.getWString(); }
@@ -312,15 +312,15 @@ public:
 	virtual LLString getWidgetTag() const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
-	void setText(const LLString &new_text);
+	void setText(const LLStringExplicit &new_text);
 
 	void setSearchCallback(void (*search_callback)(const LLString& search_string, void* user_data), void* data) { mSearchCallback = search_callback; mCallbackUserData = data; }
 
 	// LLUICtrl interface
 	virtual void	setValue(const LLSD& value );
 	virtual LLSD	getValue() const;
-	virtual BOOL	setTextArg( const LLString& key, const LLString& text );
-	virtual BOOL	setLabelArg( const LLString& key, const LLString& text );
+	virtual BOOL	setTextArg( const LLString& key, const LLStringExplicit& text );
+	virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text );
 	virtual void	clear();
 
 

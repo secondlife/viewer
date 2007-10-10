@@ -320,12 +320,12 @@ void LLLineEditor::setBorderWidth(S32 left, S32 right)
 	mMaxHPixels = mRect.getWidth() - mMinHPixels - mBorderThickness - mBorderRight;
 }
 
-void LLLineEditor::setLabel(const LLString &new_label)
+void LLLineEditor::setLabel(const LLStringExplicit &new_label)
 {
 	mLabel = new_label;
 }
 
-void LLLineEditor::setText(const LLString &new_text)
+void LLLineEditor::setText(const LLStringExplicit &new_text)
 {
 	// If new text is identical, don't copy and don't move insertion point
 	if (mText.getString() == new_text)
@@ -2322,13 +2322,13 @@ LLSD LLLineEditor::getValue() const
 	return ret;
 }
 
-BOOL LLLineEditor::setTextArg( const LLString& key, const LLString& text )
+BOOL LLLineEditor::setTextArg( const LLString& key, const LLStringExplicit& text )
 {
 	mText.setArg(key, text);
 	return TRUE;
 }
 
-BOOL LLLineEditor::setLabelArg( const LLString& key, const LLString& text )
+BOOL LLLineEditor::setLabelArg( const LLString& key, const LLStringExplicit& text )
 {
 	mLabel.setArg(key, text);
 	return TRUE;
@@ -2353,8 +2353,7 @@ LLSearchEditor::LLSearchEditor(const LLString& name,
 			onSearchEdit,
 			NULL,
 			this);
-	// TODO: this should be translatable
-	mSearchEdit->setLabel("Type here to search");
+
 	mSearchEdit->setFollowsAll();
 	mSearchEdit->setSelectAllonFocusReceived(TRUE);
 
@@ -2409,13 +2408,13 @@ LLSD LLSearchEditor::getValue() const
 }
 
 //virtual
-BOOL LLSearchEditor::setTextArg( const LLString& key, const LLString& text )
+BOOL LLSearchEditor::setTextArg( const LLString& key, const LLStringExplicit& text )
 {
 	return mSearchEdit->setTextArg(key, text);
 }
 
 //virtual
-BOOL LLSearchEditor::setLabelArg( const LLString& key, const LLString& text )
+BOOL LLSearchEditor::setLabelArg( const LLString& key, const LLStringExplicit& text )
 {
 	return mSearchEdit->setLabelArg(key, text);
 }
@@ -2437,7 +2436,7 @@ void LLSearchEditor::draw()
 	LLUICtrl::draw();
 }
 
-void LLSearchEditor::setText(const LLString &new_text)
+void LLSearchEditor::setText(const LLStringExplicit &new_text)
 {
 	mSearchEdit->setText(new_text);
 }
@@ -2483,6 +2482,12 @@ LLView* LLSearchEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFacto
 								max_text_length,
 								NULL, NULL);
 
+	LLString label;
+	if(node->getAttributeString("label", label))
+	{
+		search_editor->mSearchEdit->setLabel(label);
+	}
+	
 	search_editor->setText(text);
 
 	search_editor->initFromXML(node, parent);

@@ -250,11 +250,7 @@ void LLToolCompTranslate::pickCallback(S32 x, S32 y, MASK mask)
 			gEditMenuHandler = gSelectMgr;
 		}
 
-		BOOL can_move = gToolTranslate->mManip->getSelection()->getObjectCount() != 0;
-		for (LLViewerObject* objectp = gToolTranslate->mManip->getSelection()->getFirstObject(); objectp; objectp = gToolTranslate->mManip->getSelection()->getNextObject())
-		{
-			can_move = can_move && objectp->permMove() && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
-		}
+		BOOL can_move = gToolTranslate->mManip->canAffectSelection();
 
 		if(	LLManip::LL_NO_PART != gToolTranslate->mManip->getHighlightedPart() && can_move)
 		{

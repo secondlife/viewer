@@ -52,12 +52,93 @@
 #include "llfloaterworldmap.h"
 #include "llviewermessage.h"
 
-const char LOADING_STRING[]  = "Computing...";
+////////////////////////////////////////////////////////////////////////////
+
+class LLGroupMoneyTabEventHandler
+{
+public:
+	LLGroupMoneyTabEventHandler(LLButton* earlier_button,
+								LLButton* later_button,
+								LLTextEditor* text_editor,
+								LLTabContainerCommon* tab_containerp,
+								LLPanel* panelp,
+								const LLString& loading_text,
+								const LLUUID& group_id,
+								S32 interval_length_days,
+								S32 max_interval_days);
+	virtual ~LLGroupMoneyTabEventHandler();
+
+	virtual void requestData(LLMessageSystem* msg);
+	virtual void processReply(LLMessageSystem* msg, void** data);
+
+	virtual void onClickEarlier();
+	virtual void onClickLater();
+	virtual void onClickTab();
+
+	static void clickEarlierCallback(void* data);
+	static void clickLaterCallback(void* data);
+	static void clickTabCallback(void* user_data, bool from_click);
+
+	static LLMap<LLUUID, LLGroupMoneyTabEventHandler*> sInstanceIDs;
+	static std::map<LLPanel*, LLGroupMoneyTabEventHandler*> sTabsToHandlers;
+protected:
+	class impl;
+	impl* mImplementationp;
+};
+
+class LLGroupMoneyDetailsTabEventHandler : public LLGroupMoneyTabEventHandler
+{
+public:
+	LLGroupMoneyDetailsTabEventHandler(LLButton* earlier_buttonp,
+									   LLButton* later_buttonp,
+									   LLTextEditor* text_editorp,
+									   LLTabContainerCommon* tab_containerp,
+									   LLPanel* panelp,
+									   const LLString& loading_text,
+									   const LLUUID& group_id);
+	virtual ~LLGroupMoneyDetailsTabEventHandler();
+
+	virtual void requestData(LLMessageSystem* msg);
+	virtual void processReply(LLMessageSystem* msg, void** data);
+};
+
+
+class LLGroupMoneySalesTabEventHandler : public LLGroupMoneyTabEventHandler
+{
+public:
+	LLGroupMoneySalesTabEventHandler(LLButton* earlier_buttonp,
+									 LLButton* later_buttonp,
+									 LLTextEditor* text_editorp,
+									 LLTabContainerCommon* tab_containerp,
+									 LLPanel* panelp,
+									 const LLString& loading_text,
+									 const LLUUID& group_id);
+	virtual ~LLGroupMoneySalesTabEventHandler();
+
+	virtual void requestData(LLMessageSystem* msg);
+	virtual void processReply(LLMessageSystem* msg, void** data);
+};
+
+class LLGroupMoneyPlanningTabEventHandler : public LLGroupMoneyTabEventHandler
+{
+public:
+	LLGroupMoneyPlanningTabEventHandler(LLTextEditor* text_editor,
+										LLTabContainerCommon* tab_containerp,
+										LLPanel* panelp,
+										const LLString& loading_text,
+										const LLUUID& group_id);
+	virtual ~LLGroupMoneyPlanningTabEventHandler();
+
+	virtual void requestData(LLMessageSystem* msg);
+	virtual void processReply(LLMessageSystem* msg, void** data);
+};
+
+////////////////////////////////////////////////////////////////////////////
 
 class LLPanelGroupLandMoney::impl
 {
 public:
-	impl(const LLUUID& group_id); //constructor
+	impl(LLPanelGroupLandMoney& panel, const LLUUID& group_id); //constructor
 	virtual ~impl();
 
 	void requestGroupLandInfo();
@@ -76,12 +157,10 @@ public:
 
 //member variables
 public:
-	LLTextBox *mTotalContributedLandp;
-	LLTextBox *mTotalLandInUsep;
-	LLTextBox *mLandAvailablep;
+	LLPanelGroupLandMoney& mPanel;
+	
 	LLTextBox* mGroupOverLimitTextp;
 	LLIconCtrl* mGroupOverLimitIconp;
-	LLTextBox* mYourContributionMaxTextp;
 
 	LLLineEditor* mYourContributionEditorp;
 
@@ -107,22 +186,19 @@ public:
 //*******************************************
 //** LLPanelGroupLandMoney::impl Functions **
 //*******************************************
-LLPanelGroupLandMoney::impl::impl(const LLUUID& group_id)
+LLPanelGroupLandMoney::impl::impl(LLPanelGroupLandMoney& panel, const LLUUID& group_id)
+	: mPanel(panel),
+	  mGroupID(group_id)
 {
-	mGroupID = group_id;
 	mTransID = LLUUID::null;
 
 	mBeenActivated = false;
 	mNeedsSendGroupLandRequest = true;
 	mNeedsApply = false;
 
-	mTotalLandInUsep = NULL;
-	mTotalContributedLandp = NULL;
-	mLandAvailablep = NULL;
 	mYourContributionEditorp = NULL;
 	mMapButtonp = NULL;
 	mGroupParcelsp = NULL;
-	mYourContributionMaxTextp = NULL;
 	mGroupOverLimitTextp = NULL;
 	mGroupOverLimitIconp = NULL;
 
@@ -230,9 +306,7 @@ int LLPanelGroupLandMoney::impl::getStoredContribution()
 // Fills in the text field with the contribution, contrib
 void LLPanelGroupLandMoney::impl::setYourContributionTextField(int contrib)
 {
-	char buffer[MAX_STRING];	/* Flawfinder: ignore*/
-	buffer[0] = '\0';
-	snprintf(buffer, sizeof(buffer), "%d", contrib);	/* Flawfinder: ignore*/
+	LLString buffer = llformat("%d", contrib);
 
 	if ( mYourContributionEditorp )
 	{
@@ -243,14 +317,7 @@ void LLPanelGroupLandMoney::impl::setYourContributionTextField(int contrib)
 
 void LLPanelGroupLandMoney::impl::setYourMaxContributionTextBox(int max)
 {
-	char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-	buffer[0] = '\0';
-
-	snprintf(buffer, sizeof(buffer), "(%d max)", max);			/* Flawfinder: ignore */
-	if ( mYourContributionMaxTextp )
-	{
-		mYourContributionMaxTextp->setText(buffer);
-	}
+	mPanel.childSetTextArg("your_contribution_max_value", "[AMOUNT]", llformat("%d", max));
 }
 
 //static
@@ -309,19 +376,18 @@ void LLPanelGroupLandMoney::impl::processGroupLand(LLMessageSystem* msg)
 		{
 			// special block which has total contribution
 			++first_block;
+			
 			S32 total_contribution;
 			msg->getS32("QueryData", "ActualArea", total_contribution, 0);
-			char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-			snprintf(buffer, sizeof(buffer), "%d sq. meters", total_contribution);			/* Flawfinder: ignore */
-			mTotalContributedLandp->setText(buffer);
+			mPanel.childSetTextArg("total_contributed_land_value", "[AREA]", llformat("%d", total_contribution));
+
 			S32 committed;
 			msg->getS32("QueryData", "BillableArea", committed, 0);
-			snprintf(buffer, sizeof(buffer), "%d sq. meters", committed);			/* Flawfinder: ignore */
-			mTotalLandInUsep->setText(buffer);
+			mPanel.childSetTextArg("total_land_in_use_value", "[AREA]", llformat("%d", committed));
+			
 			S32 available = total_contribution - committed;
-			snprintf(buffer, sizeof(buffer), "%d sq. meters", available);			/* Flawfinder: ignore */
-			mLandAvailablep->setText(buffer);
-			buffer[0] = '\0';
+			mPanel.childSetTextArg("land_available_value", "[AREA]", llformat("%d", available));
+
 			if ( mGroupOverLimitTextp && mGroupOverLimitIconp )
 			{
 				mGroupOverLimitIconp->setVisible(available < 0);
@@ -416,7 +482,7 @@ LLPanelGroupLandMoney::LLPanelGroupLandMoney(const std::string& name,
 											 const LLUUID& group_id) :
 	LLPanelGroupTab(name, group_id) 
 {
-	mImplementationp = new impl(group_id);
+	mImplementationp = new impl(*this, group_id);
 
 	//problem what if someone has both the group floater open and the finder
 	//open to the same group?  Some maps that map group ids to panels
@@ -538,18 +604,10 @@ BOOL LLPanelGroupLandMoney::postBuild()
 	
 	bool can_view = gAgent.isInGroup(mGroupID);
 
-	mImplementationp->mTotalLandInUsep = 
-		(LLTextBox*) getChildByName("total_land_in_use_value");
-	mImplementationp->mTotalContributedLandp = 
-		(LLTextBox*) getChildByName("total_contributed_land_value");
-	mImplementationp->mLandAvailablep = 
-		(LLTextBox*) getChildByName("land_available_value");
 	mImplementationp->mGroupOverLimitIconp = 
 		(LLIconCtrl*) getChildByName("group_over_limit_icon");
 	mImplementationp->mGroupOverLimitTextp = 
 		(LLTextBox*) getChildByName("group_over_limit_text");
-	mImplementationp->mYourContributionMaxTextp = 
-		(LLTextBox*) getChildByName("your_contribution_max_value");
 
 	mImplementationp->mYourContributionEditorp 
 		= (LLLineEditor*) getChildByName("your_contribution_line_editor");
@@ -636,7 +694,8 @@ BOOL LLPanelGroupLandMoney::postBuild()
 		}
 	}
 
-
+	LLString loading_text = childGetText("loading_txt");
+	
 	//pull out the widgets for the L$ details tab
 	earlierp = (LLButton*) getChildByName("earlier_details_button", true);
 	laterp = (LLButton*) getChildByName("later_details_button", true);
@@ -655,6 +714,7 @@ BOOL LLPanelGroupLandMoney::postBuild()
 												   textp,
 												   tabcp,
 												   panelp,
+												   loading_text,
 												   mGroupID);
 	}
 
@@ -671,6 +731,7 @@ BOOL LLPanelGroupLandMoney::postBuild()
 			new LLGroupMoneyPlanningTabEventHandler(textp,
 													tabcp,
 													panelp,
+													loading_text,
 													mGroupID);
 	}
 
@@ -692,6 +753,7 @@ BOOL LLPanelGroupLandMoney::postBuild()
 												 textp,
 												 tabcp,
 												 panelp,
+												 loading_text,
 												 mGroupID);
 	}
 
@@ -729,7 +791,8 @@ public:
 	impl(LLButton* earlier_buttonp,
 		 LLButton* later_buttonp,
 		 LLTextEditor* text_editorp,
-		 LLPanel* panelp,
+		 LLPanel* tabpanelp,
+		 const LLString& loading_text,
 		 const LLUUID& group_id,
 		 S32 interval_length_days,
 		 S32 max_interval_days);
@@ -745,7 +808,7 @@ public:
 	LLUUID mGroupID;
 	LLUUID mPanelID;
 
-	LLPanel* mPanelp;
+	LLPanel* mTabPanelp;
 
 	int mIntervalLength;
 	int mMaxInterval;
@@ -754,12 +817,15 @@ public:
 	LLTextEditor* mTextEditorp;
 	LLButton*     mEarlierButtonp;
 	LLButton*     mLaterButtonp;
+
+	LLString mLoadingText;
 };
 
 LLGroupMoneyTabEventHandler::impl::impl(LLButton* earlier_buttonp,
 										LLButton* later_buttonp,
 										LLTextEditor* text_editorp,
-										LLPanel* panelp,
+										LLPanel* tabpanelp,
+										const LLString& loading_text,
 										const LLUUID& group_id,
 										S32 interval_length_days,
 										S32 max_interval_days)
@@ -774,7 +840,9 @@ LLGroupMoneyTabEventHandler::impl::impl(LLButton* earlier_buttonp,
 	mTextEditorp = text_editorp;
 	mEarlierButtonp = earlier_buttonp;
 	mLaterButtonp = later_buttonp;
-	mPanelp = panelp;
+	mTabPanelp = tabpanelp;
+
+	mLoadingText = loading_text;
 }
 
 LLGroupMoneyTabEventHandler::impl::~impl()
@@ -806,6 +874,7 @@ void LLGroupMoneyTabEventHandler::impl::updateButtons()
 //*******************************************
 //** LLGroupMoneyTabEventHandler Functions **
 //*******************************************
+
 LLMap<LLUUID, LLGroupMoneyTabEventHandler*> LLGroupMoneyTabEventHandler::sInstanceIDs;
 std::map<LLPanel*, LLGroupMoneyTabEventHandler*> LLGroupMoneyTabEventHandler::sTabsToHandlers;
 
@@ -814,6 +883,7 @@ LLGroupMoneyTabEventHandler::LLGroupMoneyTabEventHandler(LLButton* earlier_butto
 														 LLTextEditor* text_editorp,
 														 LLTabContainerCommon* tab_containerp,
 														 LLPanel* panelp,
+														 const LLString& loading_text,
 														 const LLUUID& group_id,
 														 S32 interval_length_days,
 														 S32 max_interval_days)
@@ -822,28 +892,26 @@ LLGroupMoneyTabEventHandler::LLGroupMoneyTabEventHandler(LLButton* earlier_butto
 								later_buttonp,
 								text_editorp,
 								panelp,
+								loading_text,
 								group_id,
 								interval_length_days,
 								max_interval_days);
 
 	if ( earlier_buttonp )
 	{
-		earlier_buttonp->setClickedCallback(LLGroupMoneyTabEventHandler::clickEarlierCallback,
-											this);
+		earlier_buttonp->setClickedCallback(clickEarlierCallback, this);
 	}
 
 	if ( later_buttonp )
 	{
-		later_buttonp->setClickedCallback(LLGroupMoneyTabEventHandler::clickLaterCallback,
-										  this);
+		later_buttonp->setClickedCallback(clickLaterCallback, this);
 	}
 
 	mImplementationp->updateButtons();
 
 	if ( tab_containerp && panelp )
 	{
-		tab_containerp->setTabChangeCallback(panelp, 
-											LLGroupMoneyTabEventHandler::clickTabCallback);
+		tab_containerp->setTabChangeCallback(panelp, clickTabCallback);
 		tab_containerp->setTabUserData(panelp, this);
 	}
 
@@ -854,7 +922,7 @@ LLGroupMoneyTabEventHandler::LLGroupMoneyTabEventHandler(LLButton* earlier_butto
 LLGroupMoneyTabEventHandler::~LLGroupMoneyTabEventHandler()
 {
 	sInstanceIDs.removeData(mImplementationp->mPanelID);
-	sTabsToHandlers.erase(mImplementationp->mPanelp);
+	sTabsToHandlers.erase(mImplementationp->mTabPanelp);
 
 	delete mImplementationp;
 }
@@ -879,7 +947,7 @@ void LLGroupMoneyTabEventHandler::onClickEarlier()
 {
 	if ( mImplementationp->mTextEditorp) 
 	{
-		mImplementationp->mTextEditorp->setText(LOADING_STRING);
+		mImplementationp->mTextEditorp->setText(mImplementationp->mLoadingText);
 	}
 	mImplementationp->mCurrentInterval++;
 
@@ -892,7 +960,7 @@ void LLGroupMoneyTabEventHandler::onClickLater()
 {
 	if ( mImplementationp->mTextEditorp )
 	{
-		mImplementationp->mTextEditorp->setText(LOADING_STRING);
+		mImplementationp->mTextEditorp->setText(mImplementationp->mLoadingText);
 	}
 	mImplementationp->mCurrentInterval--;
 
@@ -932,12 +1000,14 @@ LLGroupMoneyDetailsTabEventHandler::LLGroupMoneyDetailsTabEventHandler(LLButton*
 																	   LLTextEditor* text_editorp,
 																	   LLTabContainerCommon* tab_containerp,
 																	   LLPanel* panelp,
+																	   const LLString& loading_text,
 																	   const LLUUID& group_id)
 	: LLGroupMoneyTabEventHandler(earlier_buttonp,
 								  later_buttonp,
 								  text_editorp,
 								  tab_containerp,
 								  panelp,
+								  loading_text,
 								  group_id,
 								  SUMMARY_INTERVAL,
 								  SUMMARY_MAX)
@@ -964,7 +1034,7 @@ void LLGroupMoneyDetailsTabEventHandler::requestData(LLMessageSystem* msg)
 
 	if ( mImplementationp->mTextEditorp )
 	{
-		mImplementationp->mTextEditorp->setText(LOADING_STRING);
+		mImplementationp->mTextEditorp->setText(mImplementationp->mLoadingText);
 	}
 
 	LLGroupMoneyTabEventHandler::requestData(msg);
@@ -1038,8 +1108,8 @@ void LLGroupMoneyDetailsTabEventHandler::processReply(LLMessageSystem* msg,
 }
 
 //static
-void LLGroupMoneyDetailsTabEventHandler::processGroupAccountDetailsReply(LLMessageSystem* msg, 
-																		 void** data)
+void LLPanelGroupLandMoney::processGroupAccountDetailsReply(LLMessageSystem* msg, 
+															void** data)
 {
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
@@ -1071,12 +1141,14 @@ LLGroupMoneySalesTabEventHandler::LLGroupMoneySalesTabEventHandler(LLButton* ear
 																   LLTextEditor* text_editorp,
 																   LLTabContainerCommon* tab_containerp,
 																   LLPanel* panelp,
+																   const LLString& loading_text,
 																   const LLUUID& group_id)
 	: LLGroupMoneyTabEventHandler(earlier_buttonp,
 								  later_buttonp,
 								  text_editorp,
 								  tab_containerp,
 								  panelp,
+								  loading_text,
 								  group_id,
 								  SUMMARY_INTERVAL,
 								  SUMMARY_MAX)
@@ -1103,7 +1175,7 @@ void LLGroupMoneySalesTabEventHandler::requestData(LLMessageSystem* msg)
 
 	if ( mImplementationp->mTextEditorp )
 	{
-		mImplementationp->mTextEditorp->setText(LOADING_STRING);
+		mImplementationp->mTextEditorp->setText(mImplementationp->mLoadingText);
 	}
 
 	LLGroupMoneyTabEventHandler::requestData(msg);
@@ -1141,7 +1213,7 @@ void LLGroupMoneySalesTabEventHandler::processReply(LLMessageSystem* msg,
 
 	// If this is the first packet, clear the text, don't append.
 	// Start with the date.
-	if (text == LOADING_STRING)
+	if (text == mImplementationp->mLoadingText)
 	{
 		text.clear();
 
@@ -1213,8 +1285,8 @@ void LLGroupMoneySalesTabEventHandler::processReply(LLMessageSystem* msg,
 }
 
 //static
-void LLGroupMoneySalesTabEventHandler::processGroupAccountTransactionsReply(LLMessageSystem* msg, 
-																			void** data)
+void LLPanelGroupLandMoney::processGroupAccountTransactionsReply(LLMessageSystem* msg, 
+																 void** data)
 {
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
@@ -1247,12 +1319,14 @@ void LLGroupMoneySalesTabEventHandler::processGroupAccountTransactionsReply(LLMe
 LLGroupMoneyPlanningTabEventHandler::LLGroupMoneyPlanningTabEventHandler(LLTextEditor* text_editorp,
 																		 LLTabContainerCommon* tab_containerp,
 																		 LLPanel* panelp,
+																		 const LLString& loading_text,
 																		 const LLUUID& group_id)
 	: LLGroupMoneyTabEventHandler(NULL,
 								  NULL,
 								  text_editorp,
 								  tab_containerp,
 								  panelp,
+								  loading_text,
 								  group_id,
 								  SUMMARY_INTERVAL,
 								  SUMMARY_MAX)
@@ -1279,7 +1353,7 @@ void LLGroupMoneyPlanningTabEventHandler::requestData(LLMessageSystem* msg)
 
 	if ( mImplementationp->mTextEditorp )
 	{
-		mImplementationp->mTextEditorp->setText(LOADING_STRING);
+		mImplementationp->mTextEditorp->setText(mImplementationp->mLoadingText);
 	}
 
 	LLGroupMoneyTabEventHandler::requestData(msg);
@@ -1382,8 +1456,8 @@ void LLGroupMoneyPlanningTabEventHandler::processReply(LLMessageSystem* msg,
 }
 
 //static
-void LLGroupMoneyPlanningTabEventHandler::processGroupAccountSummaryReply(LLMessageSystem* msg, 
-																		  void** data)
+void LLPanelGroupLandMoney::processGroupAccountSummaryReply(LLMessageSystem* msg, 
+															void** data)
 {
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );

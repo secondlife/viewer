@@ -170,7 +170,7 @@ void LLSliderCtrl::setValue(F32 v, BOOL from_event)
 	updateText();
 }
 
-BOOL LLSliderCtrl::setLabelArg( const LLString& key, const LLString& text )
+BOOL LLSliderCtrl::setLabelArg( const LLString& key, const LLStringExplicit& text )
 {
 	BOOL res = FALSE;
 	if (mLabelBox)
@@ -200,11 +200,11 @@ void LLSliderCtrl::clear()
 	setValue(0.0f);
 	if( mEditor )
 	{
-		mEditor->setText( "" );
+		mEditor->setText( LLString::null );
 	}
 	if( mTextBox )
 	{
-		mTextBox->setText( "" );
+		mTextBox->setText( LLString::null );
 	}
 
 }

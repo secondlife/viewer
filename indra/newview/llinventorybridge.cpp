@@ -112,13 +112,6 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, void* userdata);
 void move_task_inventory_callback(S32 option, void* user_data);
 void confirm_replace_attachment_rez(S32 option, void* user_data);
 
-// TomY XUI: translate
-const char* FIND_HINT = "Start typing to select an item by name";
-const char* NAME_SEARCH_DESC = "Find items whose name contains (leave blank for all):";
-const char* NEW_LSL_NAME = "New Script";
-const char* NEW_NOTECARD_NAME = "New Note";
-const char* NEW_GESTURE_NAME = "New Gesture";
-
 const char* ICON_NAME[ICON_NAME_COUNT] =
 {
 	"inv_item_texture.tga",

@@ -1660,6 +1660,52 @@ void LLPrimitive::setTextureList(LLTextureEntry *listp)
 
 //============================================================================
 
+// Moved from llselectmgr.cpp
+// BUG: Only works for boxes.
+// Face numbering for flex boxes as of 1.14.2
+
+// static
+bool LLPrimitive::getTESTAxes(const U8 face, U32* s_axis, U32* t_axis)
+{
+	if (face == 0)
+	{
+		*s_axis = VX; *t_axis = VY;
+		return true;
+	}
+	else if (face == 1)
+	{
+		*s_axis = VX; *t_axis = VZ;
+		return true;
+	}
+	else if (face == 2)
+	{
+		*s_axis = VY; *t_axis = VZ;
+		return true;
+	}
+	else if (face == 3)
+	{
+		*s_axis = VX; *t_axis = VZ;
+		return true;
+	}
+	else if (face == 4)
+	{
+		*s_axis = VY; *t_axis = VZ;
+		return true;
+	}
+	else if (face == 5)
+	{
+		*s_axis = VX; *t_axis = VY;
+		return true;
+	}
+	else
+	{
+		// unknown face
+		return false;
+	}
+}
+
+//============================================================================
+
 //static 
 BOOL LLNetworkData::isValid(U16 param_type, U32 size)
 {

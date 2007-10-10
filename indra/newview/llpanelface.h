@@ -57,11 +57,6 @@ public:
 	void			refresh();
 
 protected:
-	// Given a callback function that returns an F32, figures out
-	// if that F32 is the same for all selected faces.  "value"
-	// contains the identical value, or the first object's value.
-	BOOL			allFacesSameValue( F32 (get_face_value(LLViewerObject*, S32)), F32 *value);
-
 	void			getState();
 
 	void			sendTexture();			// applies and sends texture
@@ -91,17 +86,6 @@ protected:
 
 	static void		onClickApply(void*);
 	static void		onClickAutoFix(void*);
-
-	static F32		valueScaleS(LLViewerObject* object, S32 face);
-	static F32		valueScaleT(LLViewerObject* object, S32 face);
-	static F32		valueOffsetS(LLViewerObject* object, S32 face);
-	static F32		valueOffsetT(LLViewerObject* object, S32 face);
-	static F32		valueTexRotation(LLViewerObject* object, S32 face);
-	static F32		valueRepeatsPerMeter(LLViewerObject* object, S32 face);
-	static F32		valueBump(LLViewerObject* object, S32 face);
-	static F32		valueTexGen(LLViewerObject* object, S32 face);
-	static F32		valueShiny(LLViewerObject* object, S32 face);
-	static F32		valueFullbright(LLViewerObject* object, S32 face);
 };
 
 #endif

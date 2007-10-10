@@ -357,7 +357,7 @@ void LLFloaterPostcard::onMsgFormFocusRecieved(LLUICtrl* receiver, void* data)
 		if(msgForm && msgForm == receiver && msgForm->hasFocus() && !(self->mHasFirstMsgFocus))
 		{
 			self->mHasFirstMsgFocus = true;
-			msgForm->setText(LLString(""));
+			msgForm->setText(LLString::null);
 		}
 	}
 }
@@ -380,7 +380,6 @@ void LLFloaterPostcard::missingSubjMsgAlertCallback(S32 option, void* data)
 			{
 				// The user never switched focus to the messagee window. 
 				// Using the default string.
-				// XUI: translate
 				self->childSetValue("msg_form", self->childGetText("default_message"));
 			}
 

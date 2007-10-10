@@ -101,7 +101,7 @@ void LLToolGrab::handleSelect()
 	if(gFloaterTools)
 	{
 		// viewer can crash during startup if we don't check.
-		gFloaterTools->setStatusText("Drag to move objects, Ctrl to lift, Ctrl-Shift to spin");
+		gFloaterTools->setStatusText("grab");
 	}
 	gGrabBtnVertical = FALSE;
 	gGrabBtnSpin = FALSE;
@@ -114,7 +114,6 @@ void LLToolGrab::handleDeselect()
 		setMouseCapture( FALSE );
 	}
 
-	gFloaterTools->setStatusText("");
 }
 
 BOOL LLToolGrab::handleDoubleClick(S32 x, S32 y, MASK mask)

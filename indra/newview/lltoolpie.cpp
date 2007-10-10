@@ -310,12 +310,12 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 			LLString name = avatar->getFullname();
 			if (gMuteListp->isMuted(avatar->getID(), name))
 			{
-				gMenuHolder->childSetText("Avatar Mute", "Unmute");
+				gMenuHolder->childSetText("Avatar Mute", LLString("Unmute")); // *TODO:Translate
 				//gMutePieMenu->setLabel("Unmute");
 			}
 			else
 			{
-				gMenuHolder->childSetText("Avatar Mute", "Mute");
+				gMenuHolder->childSetText("Avatar Mute", LLString("Mute")); // *TODO:Translate
 				//gMutePieMenu->setLabel("Mute");
 			}
 
@@ -336,12 +336,12 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 			}
 			if (gMuteListp->isMuted(object->getID(), name))
 			{
-				gMenuHolder->childSetText("Object Mute", "Unmute");
+				gMenuHolder->childSetText("Object Mute", LLString("Unmute")); // *TODO:Translate
 				//gMuteObjectPieMenu->setLabel("Unmute");
 			}
 			else
 			{
-				gMenuHolder->childSetText("Object Mute", "Mute");
+				gMenuHolder->childSetText("Object Mute", LLString("Mute")); // *TODO:Translate
 				//gMuteObjectPieMenu->setLabel("Mute");
 			}
 			
@@ -674,4 +674,5 @@ void LLToolPie::render()
 {
 	return;
 }
+
 

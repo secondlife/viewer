@@ -157,7 +157,7 @@ void LLNameListCtrl::addGroupNameItem(LLScrollListItem* item, EAddPosition pos)
 	gCacheName->getGroupName(item->getUUID(), group_name);
 
 	LLScrollListCell* cell = (LLScrollListCell*)item->getColumn(mNameColumnIndex);
-	((LLScrollListText*)cell)->setText( group_name );
+	((LLScrollListText*)cell)->setText( LLString(group_name) );
 
 	addItem(item, pos);
 }
@@ -459,5 +459,6 @@ LLView* LLNameListCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFacto
 
 	return name_list;
 }
+
 
 

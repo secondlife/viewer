@@ -90,7 +90,7 @@ enum EBumpEffect
 class LLStandardBumpmap
 {
 public: 
-	LLStandardBumpmap() : mLabel("") {} 
+	LLStandardBumpmap() : mLabel() {} 
 	LLStandardBumpmap( const char* label ) : mLabel(label) {}
 	
 	LLString	mLabel;

@@ -232,7 +232,7 @@ void LLScrollListText::setColor(const LLColor4& color)
 	*mColor = color;
 }
 
-void LLScrollListText::setText(const LLString& text)
+void LLScrollListText::setText(const LLStringExplicit& text)
 {
 	mText = text;
 }

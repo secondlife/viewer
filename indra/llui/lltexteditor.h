@@ -231,7 +231,7 @@ public:
  	const LLString&	getText() const;
 	
 	// Non-undoable
-	void			setText(const LLString &utf8str);
+	void			setText(const LLStringExplicit &utf8str);
 	void			setWText(const LLWString &wtext);
 	
 	S32				getMaxLength() const 			{ return mMaxTextLength; }

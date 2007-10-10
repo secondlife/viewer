@@ -165,33 +165,33 @@ void LLPanelPermissions::refresh()
 	{
 		// ...nothing selected
 		childSetEnabled("perm_modify",false);
-		childSetText("perm_modify","");
+		childSetText("perm_modify",LLString::null);
 
 		childSetEnabled("Creator:",false);
-		childSetText("Creator Name","");
+		childSetText("Creator Name",LLString::null);
 		childSetEnabled("Creator Name",false);
 		childSetEnabled("button creator profile",false);
 
 		childSetEnabled("Owner:",false);
-		childSetText("Owner Name","");
+		childSetText("Owner Name",LLString::null);
 		childSetEnabled("Owner Name",false);
 		childSetEnabled("button owner profile",false);
 
 		childSetEnabled("Group:",false);
-		childSetText("Group Name","");
+		childSetText("Group Name",LLString::null);
 		childSetEnabled("Group Name",false);
 		childSetEnabled("button set group",false);
 
-		childSetText("Object Name","");
+		childSetText("Object Name",LLString::null);
 		childSetEnabled("Object Name",false);
 		childSetEnabled("Name:",false);
-		childSetText("Group Name","");
+		childSetText("Group Name",LLString::null);
 		childSetEnabled("Group Name",false);
 		childSetEnabled("Description:",false);
-		childSetText("Object Description","");
+		childSetText("Object Description",LLString::null);
 		childSetEnabled("Object Description",false);
  
-		childSetText("prim info","");
+		childSetText("prim info",LLString::null);
 		childSetEnabled("prim info",false);
 
 		childSetEnabled("Permissions:",false);
@@ -230,7 +230,7 @@ void LLPanelPermissions::refresh()
 		}
 		
 		childSetEnabled("Price:  L$",false);
-		childSetText("EdCost",false);
+		childSetText("EdCost",LLString::null);
 		childSetEnabled("EdCost",false);
 		
 		childSetEnabled("label click action",false);
@@ -421,7 +421,7 @@ void LLPanelPermissions::refresh()
 	if(!owners_identical)
 	{
 		childSetEnabled("Price:  L$",false);
-		childSetText("EdCost","");
+		childSetText("EdCost",LLString::null);
 		childSetEnabled("EdCost",false);
 	}
 	else if(self_owned || (group_owned && gAgent.hasPowerInGroup(group_id,GP_OBJECT_SET_SALE)))
@@ -453,7 +453,7 @@ void LLPanelPermissions::refresh()
 	{
 		// ...public object
 		childSetEnabled("Price:  L$",false);
-		childSetText("EdCost","");
+		childSetText("EdCost",LLString::null);
 		childSetEnabled("EdCost",false);
 	}
 
@@ -501,36 +501,35 @@ void LLPanelPermissions::refresh()
 	
 	if( gSavedSettings.getBOOL("DebugPermissions") )
 	{
-		char perm_string[10];		/*Flawfinder: ignore*/
+		std::string perm_string;
 		if (valid_base_perms)
 		{
-
-			strcpy(perm_string, "B: ");	/*Flawfinder: ignore*/
-			mask_to_string(base_mask_on, perm_string+3);
+			perm_string = "B: ";
+			perm_string += mask_to_string(base_mask_on);
 			childSetText("B:",perm_string);
 			childSetVisible("B:",true);
 			
-			strcpy(perm_string, "O: ");	/*Flawfinder: ignore*/
-			mask_to_string(owner_mask_on, perm_string+3);
+			perm_string = "O: ";
+			perm_string += mask_to_string(owner_mask_on);
 			childSetText("O:",perm_string);
 			childSetVisible("O:",true);
 			
-			strcpy(perm_string, "G: ");	/*Flawfinder: ignore*/
-			mask_to_string(group_mask_on, perm_string+3);
+			perm_string = "G: ";
+			perm_string += mask_to_string(group_mask_on);
 			childSetText("G:",perm_string);
 			childSetVisible("G:",true);
 			
-			strcpy(perm_string, "E: ");	/*Flawfinder: ignore*/
-			mask_to_string(everyone_mask_on, perm_string+3);
+			perm_string = "E: ";
+			perm_string += mask_to_string(everyone_mask_on);
 			childSetText("E:",perm_string);
 			childSetVisible("E:",true);
 			
-			strcpy(perm_string, "N: ");	/*Flawfinder: ignore*/
-			mask_to_string(next_owner_mask_on, perm_string+3);
+			perm_string = "N: ";
+			perm_string += mask_to_string(next_owner_mask_on);
 			childSetText("N:",perm_string);
 			childSetVisible("N:",true);
 		}
-		strcpy(perm_string, "F: ");	/*Flawfinder: ignore*/
+		perm_string = "F: ";
 		U32 flag_mask = 0x0;
 		if (objectp->permMove())
 			flag_mask |= PERM_MOVE;
@@ -540,7 +539,7 @@ void LLPanelPermissions::refresh()
 			flag_mask |= PERM_COPY;
 		if (objectp->permTransfer())
 			flag_mask |= PERM_TRANSFER;
-		mask_to_string(flag_mask, perm_string+3);
+		perm_string += mask_to_string(flag_mask);
 		childSetText("F:",perm_string);
 		childSetVisible("F:",true);
 	}
@@ -572,9 +571,8 @@ void LLPanelPermissions::refresh()
 
 	if (!has_change_perm_ability && !has_change_sale_ability && !root_selected)
 	{
-		// XUI:translate
 		// ...must select root to choose permissions
-		childSetValue("perm_modify", "Must select entire object to set permissions.");
+		childSetValue("perm_modify", childGetText("text modify warning"));
 	}
 
 	if (has_change_perm_ability)
@@ -1027,9 +1025,8 @@ void LLPanelPermissions::setAllSaleInfo()
 	}
 }
 
-class LLSelectionPayable : public LLSelectedObjectFunctor
+struct LLSelectionPayable : public LLSelectedObjectFunctor
 {
-public:
 	virtual bool apply(LLViewerObject* obj)
 	{
 		// can pay if you or your parent has money() event in script

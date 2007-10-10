@@ -385,7 +385,7 @@ void LLSpinCtrl::setPrecision(S32 precision)
 	updateEditor();
 }
 
-void LLSpinCtrl::setLabel(const LLString& label)
+void LLSpinCtrl::setLabel(const LLStringExplicit& label)
 {
 	if (mLabelBox)
 	{

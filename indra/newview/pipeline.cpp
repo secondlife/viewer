@@ -1813,15 +1813,18 @@ void LLPipeline::postSort(LLCamera& camera)
 	// Draw face highlights for selected faces.
 	if (gSelectMgr->getTEMode())
 	{
-		LLViewerObject *vobjp;
-		S32             te;
-		gSelectMgr->getSelection()->getFirstTE(&vobjp,&te);
-
-		while (vobjp)
+		struct f : public LLSelectedTEFunctor
 		{
-			mSelectedFaces.push_back(vobjp->mDrawable->getFace(te));
-			gSelectMgr->getSelection()->getNextTE(&vobjp,&te);
-		}
+			virtual bool apply(LLViewerObject* object, S32 te)
+			{
+				if (object->mDrawable)
+				{
+					gPipeline.mSelectedFaces.push_back(object->mDrawable->getFace(te));
+				}
+				return true;
+			}
+		} func;
+		gSelectMgr->getSelection()->applyToTEs(&func);
 	}
 }
 

@@ -60,7 +60,7 @@ public:
 	LLPanelGroup(const std::string& filename,
 				 const std::string& name,
 				 const LLUUID& group_id,
-				 const std::string& initial_tab_selected = "");
+				 const std::string& initial_tab_selected = std::string());
 	virtual ~LLPanelGroup();
 
 	virtual BOOL postBuild();

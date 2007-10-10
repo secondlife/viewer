@@ -445,7 +445,7 @@ class LLVoiceClient: public LLSingleton<LLVoiceClient>
 		// It initiates the call to the server that gets the parcel channel.
 		void parcelChanged();
 		
-		void switchChannel(std::string uri = "", bool spatial = true, bool noReconnect = false, std::string hash = "");
+	void switchChannel(std::string uri = std::string(), bool spatial = true, bool noReconnect = false, std::string hash = "");
 		void joinSession(std::string handle, std::string uri);
 		
 		std::string nameFromAvatar(LLVOAvatar *avatar);
@@ -524,5 +524,6 @@ class LLVoiceClient: public LLSingleton<LLVoiceClient>
 extern LLVoiceClient *gVoiceClient;
 
 #endif //LL_VOICE_CLIENT_H
+
 
 

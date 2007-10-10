@@ -126,7 +126,7 @@ void LLFloaterAuction::initialize()
 		}
 		else
 		{
-			childSetText("parcel_text", "");
+			childSetText("parcel_text", LLString::null);
 		}
 		mParcelID = -1;
 		childSetEnabled("snapshot_btn", false);

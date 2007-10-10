@@ -422,7 +422,7 @@ void LLPanelFriends::refreshUI()
 		single_selected = TRUE;
 		if(num_selected > 1)
 		{
-			childSetText("friend_name_label", "Multiple friends...");
+			childSetText("friend_name_label", childGetText("Multiple"));
 			multiple_selected = TRUE;		
 		}
 		else
@@ -432,7 +432,7 @@ void LLPanelFriends::refreshUI()
 	}
 	else
 	{
-		childSetText("friend_name_label", "");
+		childSetText("friend_name_label", LLString::null);
 	}
 
 

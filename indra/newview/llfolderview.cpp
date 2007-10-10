@@ -3193,18 +3193,18 @@ void LLFolderView::draw()
 
 	if (hasVisibleChildren() || getShowFolderState() == LLInventoryFilter::SHOW_ALL_FOLDERS)
 	{
-		setStatusText("");
+		mStatusText.clear();
 	}
 	else
 	{
 		if (gInventory.backgroundFetchActive() || mCompletedFilterGeneration < mFilter.getMinRequiredGeneration())
 		{
-			setStatusText("Searching...");
+			mStatusText = "Searching..."; // *TODO:translate
 			sFont->renderUTF8(mStatusText, 0, 2, 1, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL, S32_MAX, S32_MAX, NULL, FALSE );
 		}
 		else
 		{
-			setStatusText("No matching items found in inventory.");
+			mStatusText = "No matching items found in inventory."; // *TODO:translate
 			sFont->renderUTF8(mStatusText, 0, 2, 1, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL, S32_MAX, S32_MAX, NULL, FALSE );
 		}
 	}

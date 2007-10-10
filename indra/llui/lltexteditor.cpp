@@ -520,7 +520,7 @@ void LLTextEditor::truncate()
 	}
 }
 
-void LLTextEditor::setText(const LLString &utf8str)
+void LLTextEditor::setText(const LLStringExplicit &utf8str)
 {
 	// LLString::removeCRLF(utf8str);
 	mUTF8Text = utf8str_removeCRLF(utf8str);
@@ -3068,7 +3068,7 @@ void LLTextEditor::onTabInto()
 
 void LLTextEditor::clear()
 {
-	setText("");
+	setText(LLString::null);
 }
 
 // Start or stop the editor from accepting text-editing keystrokes
@@ -3949,7 +3949,7 @@ BOOL LLTextEditor::importBuffer(const LLString& buffer )
 	if( success )
 	{
 		// Actually set the text
-		setText( text );
+		setText( LLStringExplicit(text) );
 	}
 
 	delete[] text;

@@ -68,7 +68,7 @@ class LLButton
 {
 public:
 	// simple button with text label
-	LLButton(const LLString& name, const LLRect &rect, const LLString& control_name = "", 
+	LLButton(const LLString& name, const LLRect &rect, const LLString& control_name = LLString(), 
 			 void (*on_click)(void*) = NULL, void *data = NULL);
 
 	LLButton(const LLString& name, const LLRect& rect, 
@@ -152,12 +152,12 @@ public:
 	virtual void	setValue(const LLSD& value );
 	virtual LLSD	getValue() const;
 
-	void			setLabel( const LLString& label);
-	virtual BOOL	setLabelArg( const LLString& key, const LLString& text );
-	void			setLabelUnselected(const LLString& label);
-	void			setLabelSelected(const LLString& label);
-	void			setDisabledLabel(const LLString& disabled_label);
-	void			setDisabledSelectedLabel(const LLString& disabled_label);
+	void			setLabel( const LLStringExplicit& label);
+	virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text );
+	void			setLabelUnselected(const LLStringExplicit& label);
+	void			setLabelSelected(const LLStringExplicit& label);
+	void			setDisabledLabel(const LLStringExplicit& disabled_label);
+	void			setDisabledSelectedLabel(const LLStringExplicit& disabled_label);
 	void			setDisabledLabelColor( const LLColor4& c )		{ mDisabledLabelColor = c; }
 	
 	void			setFont(const LLFontGL *font)		
@@ -288,12 +288,12 @@ class LLSquareButton
 {
 public:
 	LLSquareButton(const LLString& name, const LLRect& rect, 
-		const LLString& label,
-		const LLFontGL *font = NULL,
-		const LLString& control_name = "",	
-		void (*click_callback)(void*) = NULL,
-		void *callback_data = NULL,
-		const LLString& selected_label = LLString::null );
+				   const LLString& label,
+				   const LLFontGL *font = NULL,
+				   const LLString& control_name = LLString(),	
+				   void (*click_callback)(void*) = NULL,
+				   void *callback_data = NULL,
+				   const LLString& selected_label = LLString::null );
 };
 
 // Helpful functions

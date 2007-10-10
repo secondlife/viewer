@@ -422,7 +422,7 @@ public:
 
 	void			propagate(const F32 dt);									// BUG: should roll into updateAgentPosition
 
-	void			startAutoPilotGlobal(const LLVector3d &pos_global, const std::string& behavior_name = "", const LLQuaternion *target_rotation = NULL, 
+	void			startAutoPilotGlobal(const LLVector3d &pos_global, const std::string& behavior_name = std::string(), const LLQuaternion *target_rotation = NULL, 
 									void (*finish_callback)(BOOL, void *) = NULL, void *callback_data = NULL, F32 stop_distance = 0.f, F32 rotation_threshold = 0.03f);
 
 	void 			startFollowPilot(const LLUUID &leader_id);

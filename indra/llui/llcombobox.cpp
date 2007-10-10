@@ -229,12 +229,12 @@ void LLComboBox::clear()
 { 
 	if (mTextEntry)
 	{
-		mTextEntry->setText("");
+		mTextEntry->setText(LLString::null);
 	}
-	mButton->setLabelSelected("");
-	mButton->setLabelUnselected("");
-	mButton->setDisabledLabel("");
-	mButton->setDisabledSelectedLabel("");
+	mButton->setLabelSelected(LLString::null);
+	mButton->setLabelUnselected(LLString::null);
+	mButton->setDisabledLabel(LLString::null);
+	mButton->setDisabledSelectedLabel(LLString::null);
 	mList->deselectAllItems();
 }
 
@@ -309,7 +309,7 @@ void LLComboBox::sortByName()
 
 // Choose an item with a given name in the menu.
 // Returns TRUE if the item was found.
-BOOL LLComboBox::setSimple(const LLString& name)
+BOOL LLComboBox::setSimple(const LLStringExplicit& name)
 {
 	BOOL found = mList->selectSimpleItem(name, FALSE);
 
@@ -371,7 +371,7 @@ LLSD LLComboBox::getValue() const
 	}
 }
 
-void LLComboBox::setLabel(const LLString& name)
+void LLComboBox::setLabel(const LLStringExplicit& name)
 {
 	if ( mAllowTextEntry )
 	{
@@ -803,7 +803,7 @@ void LLComboBox::setAllowTextEntry(BOOL allow, S32 max_chars, BOOL set_tentative
 
 		// clear label on button
 		LLString cur_label = mButton->getLabelSelected();
-		setLabel("");
+		setLabel(LLString::null);
 		if (!mTextEntry)
 		{
 			LLRect text_entry_rect(0, mRect.getHeight(), mRect.getWidth(), 0);
@@ -852,7 +852,7 @@ void LLComboBox::setAllowTextEntry(BOOL allow, S32 max_chars, BOOL set_tentative
 	mTextEntryTentative = set_tentative;	
 }
 
-void LLComboBox::setTextEntry(const LLString& text)
+void LLComboBox::setTextEntry(const LLStringExplicit& text)
 {
 	if (mTextEntry)
 	{

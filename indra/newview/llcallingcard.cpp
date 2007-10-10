@@ -681,7 +681,6 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 	}
 }
 
-// XUI:translate
 void LLAvatarTracker::formFriendship(const LLUUID& id)
 {
 	if(id.notNull())
@@ -848,4 +847,5 @@ bool LLCollectAllBuddies::operator()(const LLUUID& buddy_id, LLRelationship* bud
 	}
 	return true;
 }
+
 

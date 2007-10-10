@@ -128,11 +128,13 @@ public:
 
     /*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
     /*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual EManipPart	getHighlightedPart() { return LL_NO_PART; }
-	virtual void		highlightManipulators(S32 x, S32 y) {};
+	virtual void		highlightManipulators(S32 x, S32 y) = 0;
 	virtual void		handleSelect();
 	virtual void		handleDeselect();
+	virtual BOOL		canAffectSelection() = 0;
 
+	EManipPart			getHighlightedPart() { return mHighlightedPart; }
+	
 	LLHandle<LLObjectSelection> getSelection();
 
 protected:
@@ -152,6 +154,7 @@ protected:
 	LLFrameTimer		mHelpTextTimer;
 	BOOL				mInSnapRegime;
 	LLHandle<LLObjectSelection> mObjectSelection;
+	EManipPart			mHighlightedPart;
 
 	static F32			sHelpTextVisibleTime;
 	static F32			sHelpTextFadeTime;

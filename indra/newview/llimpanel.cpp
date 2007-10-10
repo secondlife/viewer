@@ -1637,7 +1637,7 @@ void LLFloaterIMPanel::sendMsg()
 
 		gViewerStats->incStat(LLViewerStats::ST_IM_COUNT);
 	}
-	mInputEditor->setText("");
+	mInputEditor->setText(LLString::null);
 
 	// Don't need to actually send the typing stop message, the other
 	// client will infer it from receiving the message.

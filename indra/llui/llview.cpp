@@ -786,7 +786,7 @@ void LLView::setHidden(BOOL hidden)
 }
 
 // virtual
-BOOL LLView::setLabelArg(const LLString& key, const LLString& text)
+BOOL LLView::setLabelArg(const LLString& key, const LLStringExplicit& text)
 {
 	return FALSE;
 }
@@ -1712,7 +1712,8 @@ BOOL LLView::hasChild(const LLString& childname, BOOL recurse) const
 //-----------------------------------------------------------------------------
 LLView* LLView::getChildByName(const LLString& name, BOOL recurse) const
 {
-	if(name.empty()) return NULL;
+	if(name.empty())
+		return NULL;
 	child_list_const_iter_t child_it;
 	// Look for direct children *first*
 	for ( child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
@@ -1725,7 +1726,7 @@ LLView* LLView::getChildByName(const LLString& name, BOOL recurse) const
 	}
 	if (recurse)
 	{
-		// Look inside the child as well.
+		// Look inside each child as well.
 		for ( child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 		{
 			LLView* childp = *child_it;

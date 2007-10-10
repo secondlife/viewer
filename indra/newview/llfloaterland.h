@@ -113,7 +113,6 @@ protected:
 	LLPanelLandAccess*		mPanelAccess;
 	LLPanelLandBan*			mPanelBan;
 	LLPanelLandCovenant*	mPanelCovenant;
-	LLPanelLandRenters*		mPanelRenters;
 
 	LLHandle<LLParcelSelection>	mParcel;
 

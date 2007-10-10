@@ -97,7 +97,7 @@ public:
 	void showMore(BOOL show_more);
 	void showPanel(EInfoPanel panel);
 
-	void setStatusText(const LLString& text);
+	void setStatusText(const std::string& text);
 	virtual void onFocusReceived();
 	static void setEditTool(void* data);
 	void saveLastTool();
@@ -191,6 +191,8 @@ private:
 	BOOL					mDirty;
 	S32						mSmallHeight;
 	S32						mLargeHeight;
+
+	std::map<std::string, std::string> mStatusText;
 };
 
 extern LLFloaterTools *gFloaterTools;

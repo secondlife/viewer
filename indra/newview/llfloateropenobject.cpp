@@ -67,7 +67,7 @@ LLFloaterOpenObject::LLFloaterOpenObject()
 
 	childSetAction("copy_to_inventory_button", onClickMoveToInventory, this);
 	childSetAction("copy_and_wear_button", onClickMoveAndWear, this);
-	childSetTextArg("object_name", "[DESC]", "Object");
+	childSetTextArg("object_name", "[DESC]", LLString("Object") ); // *Note: probably do not want to translate this
 }
 
 LLFloaterOpenObject::~LLFloaterOpenObject()

@@ -138,11 +138,8 @@ void LLPanelContents::getState(LLViewerObject *objectp )
 
 void LLPanelContents::refresh()
 {
-	LLViewerObject* object = gSelectMgr->getSelection()->getFirstRootObject();
-	if(!object)
-	{
-		object = gSelectMgr->getSelection()->getFirstObject();
-	}
+	const BOOL children_ok = TRUE;
+	LLViewerObject* object = gSelectMgr->getSelection()->getFirstRootObject(children_ok);
 
 	getState(object);
 	if (mPanelInventory)
@@ -160,11 +157,8 @@ void LLPanelContents::refresh()
 // static
 void LLPanelContents::onClickNewScript(void *userdata)
 {
-	LLViewerObject* object = gSelectMgr->getSelection()->getFirstRootObject();
-	if(!object)
-	{
-		object = gSelectMgr->getSelection()->getFirstObject();
-	}
+	const BOOL children_ok = TRUE;
+	LLViewerObject* object = gSelectMgr->getSelection()->getFirstRootObject(children_ok);
 	if(object)
 	{
 		LLPermissions perm;

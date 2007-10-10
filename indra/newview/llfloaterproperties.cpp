@@ -59,14 +59,6 @@
 #include "llvieweruictrlfactory.h"
 
 
-///----------------------------------------------------------------------------
-/// Local function declarations, constants, enums, and typedefs
-///----------------------------------------------------------------------------
-
-const char* YOU_CAN = "You can:";
-const char* OWNER_CAN = "Owner can: ";
-
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLPropertiesObserver
 //
@@ -302,22 +294,11 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 
 	childSetEnabled("LabelItemNameTitle",TRUE);
 	childSetEnabled("LabelItemName",is_modifiable);
-	const char EMPTY_STRING[1] = "";		/* Flawfinder: ignore */
-	const char* txt = EMPTY_STRING;
-	if(!item->getName().empty())
-	{
-		txt = item->getName().c_str();
-	}
-	childSetText("LabelItemName",txt);
+	childSetText("LabelItemName",item->getName());
 	childSetEnabled("LabelItemDescTitle",TRUE);
 	childSetEnabled("LabelItemDesc",is_modifiable);
 	childSetVisible("IconLocked",!is_modifiable);
-	txt = EMPTY_STRING;
-	if(!item->getDescription().empty())
-	{
-		txt = item->getDescription().c_str();
-	}
-	childSetText("LabelItemDesc",txt);
+	childSetText("LabelItemDesc",item->getDescription());
 
 	//////////////////
 	// CREATOR NAME //
@@ -344,7 +325,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 		childSetEnabled("BtnCreator",FALSE);
 		childSetEnabled("LabelCreatorTitle",FALSE);
 		childSetEnabled("LabelCreatorName",FALSE);
-		childSetText("LabelCreatorName","(unknown)"); // XUI:translate
+		childSetText("LabelCreatorName",childGetText("unknown"));
 	}
 
 	////////////////
@@ -376,20 +357,22 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 		childSetEnabled("BtnOwner",FALSE);
 		childSetEnabled("LabelOwnerTitle",FALSE);
 		childSetEnabled("LabelOwnerName",FALSE);
-		childSetText("LabelOwnerName","(public)"); // XUI:translate
+		childSetText("LabelOwnerName",childGetText("public"));
 	}
 	
 	//////////////////
 	// ACQUIRE DATE //
 	//////////////////
+
+	// *TODO: Localize / translate this
 	time_t time_utc = (time_t)item->getCreationDate();
 	if (0 == time_utc)
 	{
-		childSetText("LabelAcquiredDate","(unknown)");
+		childSetText("LabelAcquiredDate",childGetText("unknown"));
 	}
 	else
 	{
-		childSetText("LabelAcquiredDate", ctime(&time_utc) );
+		childSetText("LabelAcquiredDate", LLString(ctime(&time_utc)) );
 	}
 
 	///////////////////////
@@ -397,11 +380,11 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	///////////////////////
 	if(can_agent_manipulate)
 	{
-		childSetText("OwnerLabel",YOU_CAN);
+		childSetText("OwnerLabel",childGetText("you_can"));
 	}
 	else
 	{
-		childSetText("OwnerLabel",OWNER_CAN);
+		childSetText("OwnerLabel",childGetText("owner_can"));
 	}
 
 	U32 base_mask		= perm.getMaskBase();
@@ -436,30 +419,33 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 			overwrite_group		= flags & LLInventoryItem::II_FLAGS_OBJECT_PERM_OVERWRITE_GROUP;
 		}
 		
-		char perm_string[11];		/* Flawfinder: ignore */
+		std::string perm_string;
 
-		snprintf(perm_string, sizeof(perm_string), "B: ");			/* Flawfinder: ignore */
-		mask_to_string(base_mask, perm_string+3);
+		perm_string = "B: ";
+		perm_string += mask_to_string(base_mask);
 		childSetText("BaseMaskDebug",perm_string);
 		childSetVisible("BaseMaskDebug",TRUE);
 		
-		snprintf(perm_string, sizeof(perm_string), "O: ");			/* Flawfinder: ignore */
-		mask_to_string(owner_mask, perm_string+3);
+		perm_string = "O: ";
+		perm_string += mask_to_string(owner_mask);
 		childSetText("OwnerMaskDebug",perm_string);
 		childSetVisible("OwnerMaskDebug",TRUE);
 		
-		snprintf(perm_string, sizeof(perm_string), "G%s: ", overwrite_group ? "*" : "");			/* Flawfinder: ignore */
-		mask_to_string(group_mask, perm_string + (overwrite_group ? 4 : 3));
+		perm_string = "G";
+		perm_string += overwrite_group ? "*: " : ": ";
+		perm_string += perm_string += mask_to_string(group_mask);
 		childSetText("GroupMaskDebug",perm_string);
 		childSetVisible("GroupMaskDebug",TRUE);
 		
-		snprintf(perm_string, sizeof(perm_string), "E%s: ", overwrite_everyone ? "*" : "");			/* Flawfinder: ignore */
-		mask_to_string(everyone_mask, perm_string + (overwrite_everyone ? 4 : 3));
+		perm_string = "E";
+		perm_string += overwrite_everyone ? "*: " : ": ";
+		perm_string += mask_to_string(everyone_mask);
 		childSetText("EveryoneMaskDebug",perm_string);
 		childSetVisible("EveryoneMaskDebug",TRUE);
 		
-		snprintf(perm_string, sizeof(perm_string), "N%s: ", slam_perm ? "*" : "");			/* Flawfinder: ignore */
-		mask_to_string(next_owner_mask, perm_string + (slam_perm ? 4 : 3));
+		perm_string = "N";
+		perm_string += slam_perm ? "*: " : ": ";
+		perm_string += mask_to_string(next_owner_mask);
 		childSetText("NextMaskDebug",perm_string);
 		childSetVisible("NextMaskDebug",TRUE);
 	}
@@ -571,14 +557,14 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	if (is_for_sale)
 	{
 		radioSaleType->setSelectedIndex((S32)sale_info.getSaleType() - 1);
-		char numerical_price[MAX_STRING];		/* Flawfinder: ignore */
-		snprintf(numerical_price, MAX_STRING, "%d", sale_info.getSalePrice());			/* Flawfinder: ignore */
+		std::string numerical_price;
+		numerical_price = sale_info.getSalePrice();
 		childSetText("EditPrice",numerical_price);
 	}
 	else
 	{
 		radioSaleType->setSelectedIndex(-1);
-		childSetText("EditPrice","");
+		childSetText("EditPrice",LLString::null);
 	}
 }
 

@@ -242,7 +242,7 @@ LLSD LLCheckBoxCtrl::getValue() const
 	return mButton->getToggleState();
 }
 
-void LLCheckBoxCtrl::setLabel( const LLString& label )
+void LLCheckBoxCtrl::setLabel( const LLStringExplicit& label )
 {
 	mLabel->setText( label );
 	reshape(getRect().getWidth(), getRect().getHeight(), FALSE);
@@ -253,7 +253,7 @@ LLString LLCheckBoxCtrl::getLabel() const
 	return mLabel->getText();
 }
 
-BOOL LLCheckBoxCtrl::setLabelArg( const LLString& key, const LLString& text )
+BOOL LLCheckBoxCtrl::setLabelArg( const LLString& key, const LLStringExplicit& text )
 {
 	BOOL res = mLabel->setTextArg(key, text);
 	reshape(getRect().getWidth(), getRect().getHeight(), FALSE);

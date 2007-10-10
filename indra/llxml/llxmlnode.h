@@ -132,8 +132,8 @@ public:
 	LLXMLNodePtr& node,
 	LLXMLNodePtr& update_node);
 	static void writeHeaderToFile(FILE *fOut);
-    void writeToFile(FILE *fOut, LLString indent = "");
-    void writeToOstream(std::ostream& output_stream, const LLString& indent = "");
+    void writeToFile(FILE *fOut, LLString indent = LLString());
+    void writeToOstream(std::ostream& output_stream, const LLString& indent = LLString());
 
     // Utility
     void findName(const LLString& name, LLXMLNodeList &results);

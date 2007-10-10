@@ -962,7 +962,7 @@ LLSD LLPanel::childGetValue(const LLString& id) const
 	return LLSD();
 }
 
-BOOL LLPanel::childSetTextArg(const LLString& id, const LLString& key, const LLString& text)
+BOOL LLPanel::childSetTextArg(const LLString& id, const LLString& key, const LLStringExplicit& text)
 {
 	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);
 	if (child)
@@ -972,7 +972,7 @@ BOOL LLPanel::childSetTextArg(const LLString& id, const LLString& key, const LLS
 	return FALSE;
 }
 
-BOOL LLPanel::childSetLabelArg(const LLString& id, const LLString& key, const LLString& text)
+BOOL LLPanel::childSetLabelArg(const LLString& id, const LLString& key, const LLStringExplicit& text)
 {
 	LLView* child = getChildByName(id, true);
 	if (child)
@@ -1033,7 +1033,7 @@ void LLPanel::childSetTabChangeCallback(const LLString& id, const LLString& tabn
 	}
 }
 
-void LLPanel::childSetText(const LLString& id, const LLString& text)
+void LLPanel::childSetText(const LLString& id, const LLStringExplicit& text)
 {
 	childSetValue(id, LLSD(text));
 }
@@ -1106,7 +1106,7 @@ void LLPanel::childSetControlName(const LLString& id, const LLString& control_na
 LLView* LLPanel::getChildByName(const LLString& name, BOOL recurse) const
 {
 	LLView* view = LLUICtrl::getChildByName(name, recurse);
-	if (!view)
+	if (!view && !recurse)
 	{
 		childNotFound(name);
 	}

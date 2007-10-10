@@ -119,9 +119,9 @@ public:
 	const LLString&			getMaxDisplayName() const	{ return mInfo->mMaxName; }
 	const LLString&			getMinDisplayName() const	{ return mInfo->mMinName; }
 
-	void					setDisplayName(const char* s) 	 { mInfo->mDisplayName = s; }
-	void					setMaxDisplayName(const char* s) { mInfo->mMaxName = s; }
-	void					setMinDisplayName(const char* s) { mInfo->mMinName = s; }
+	void					setDisplayName(const LLString& s) 	 { mInfo->mDisplayName = s; }
+	void					setMaxDisplayName(const LLString& s) { mInfo->mMaxName = s; }
+	void					setMinDisplayName(const LLString& s) { mInfo->mMinName = s; }
 
 	EVisualParamGroup		getGroup() 			{ return mInfo->mGroup; }
 	F32						getMinWeight() 		{ return mInfo->mMinWeight; }

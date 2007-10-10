@@ -69,6 +69,7 @@ public:
 public:
 	LLUUID mGroupID;
 
+	LLString		mLoadingText;
 	LLNameListCtrl	*mInvitees;
 	LLComboBox      *mRoleNames;
 	LLButton		*mOKButton;
@@ -395,14 +396,14 @@ void LLPanelGroupInvite::update()
 	mPendingUpdate = FALSE;
 	if (mImplementation->mGroupName) 
 	{
-		mImplementation->mGroupName->setText("(loading...)");
+		mImplementation->mGroupName->setText(mImplementation->mLoadingText);
 	}
 	if ( mImplementation->mRoleNames ) 
 	{
 		mStoreSelected = mImplementation->mRoleNames->getCurrentID();
 		mImplementation->mRoleNames->clear();
 		mImplementation->mRoleNames->removeall();
-		mImplementation->mRoleNames->add("(loading...)", LLUUID::null, ADD_BOTTOM);
+		mImplementation->mRoleNames->add(mImplementation->mLoadingText, LLUUID::null, ADD_BOTTOM);
 		mImplementation->mRoleNames->setCurrentByID(LLUUID::null);
 	}
 
@@ -473,6 +474,7 @@ BOOL LLPanelGroupInvite::postBuild()
 {
 	BOOL recurse = TRUE;
 
+	mImplementation->mLoadingText = childGetText("loading");
 	mImplementation->mRoleNames = (LLComboBox*) getChildByName("role_name",
 															   recurse);
 	mImplementation->mGroupName = (LLTextBox*) getChildByName("group_name_text", recurse);

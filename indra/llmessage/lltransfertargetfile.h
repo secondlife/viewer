@@ -40,7 +40,7 @@ class LLTransferTargetParamsFile : public LLTransferTargetParams
 {
 public:
 	LLTransferTargetParamsFile() : LLTransferTargetParams(LLTTT_FILE) {}
-	void setFilename(const char *filename)			{ mFilename = filename; }
+	void setFilename(const LLString& filename)	{ mFilename = filename; }
 	void setCallback(LLTTFCompleteCallback cb, void *user_data)		{ mCompleteCallback = cb; mUserData = user_data; }
 
 	friend class LLTransferTargetFile;

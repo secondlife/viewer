@@ -338,18 +338,21 @@ LLTool* LLToolMgr::getCurrentTool()
 		cur_tool = mOverrideTool ? mOverrideTool : mBaseTool;
 	}
 
+	LLTool* prev_tool = mSelectedTool;
+	// Set the selected tool to avoid infinite recursion
+	mSelectedTool = cur_tool;
+	
 	//update tool selection status
-	if (mSelectedTool != cur_tool)
+	if (prev_tool != cur_tool)
 	{
-		if (mSelectedTool)
+		if (prev_tool)
 		{
-			mSelectedTool->handleDeselect();
+			prev_tool->handleDeselect();
 		}
 		if (cur_tool)
 		{
 			cur_tool->handleSelect();
 		}
-		mSelectedTool = cur_tool;
 	}
 
 	return mSelectedTool;

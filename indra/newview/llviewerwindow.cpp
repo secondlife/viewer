@@ -1218,6 +1218,10 @@ void LLViewerWindow::handleFocus(LLWindow *window)
 	{
 		gKeyboard->resetMaskKeys();
 	}
+
+	// resume foreground running timer
+	// since we artifically limit framerate when not frontmost
+	gForegroundTime.unpause();
 }
 
 // The top-level window has lost focus (e.g. via ALT-TAB)
@@ -1251,6 +1255,9 @@ void LLViewerWindow::handleFocusLost(LLWindow *window)
 	{
 		gKeyboard->resetKeys();
 	}
+
+	// pause timer that tracks total foreground running time
+	gForegroundTime.pause();
 }
 
 
@@ -1328,10 +1335,16 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 	else
 	{
 		mActive = FALSE;
-		if (gAllowIdleAFK) {
+		if (gAllowIdleAFK)
+		{
 			gAgent.setAFK();
 		}
+		
+		// SL-53351: Make sure we're not in mouselook when minimised, to prevent control issues
+		gAgent.changeCameraToDefault();
+		
 		send_agent_pause();
+		
 		if (mWindow->getFullscreen() && !mIgnoreActivate)
 		{
 			llinfos << "Stopping GL during deactivation" << llendl;
@@ -3099,7 +3112,6 @@ void LLViewerWindow::saveLastMouse(const LLCoordGL &point)
 //  render_hud_elements:	FALSE, FALSE, FALSE
 void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls, BOOL for_hud )
 {
-	LLViewerObject* object;
 	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
 
 	if (!for_hud && !for_gl_pick)
@@ -3155,34 +3167,41 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 				F32 zoom = gAgent.getAvatarObject()->mHUDCurZoom;
 				glScalef(zoom, zoom, zoom);
 			}
-			for( object = gSelectMgr->getSelection()->getFirstObject(); object; object = gSelectMgr->getSelection()->getNextObject() )
+
+			struct f : public LLSelectedObjectFunctor
 			{
-				LLDrawable* drawable = object->mDrawable;
-				if (drawable && drawable->isLight())
+				virtual bool apply(LLViewerObject* object)
 				{
-					LLVOVolume* vovolume = drawable->getVOVolume();
-					glPushMatrix();
+					LLDrawable* drawable = object->mDrawable;
+					if (drawable && drawable->isLight())
+					{
+						LLVOVolume* vovolume = drawable->getVOVolume();
+						glPushMatrix();
 
-					LLVector3 center = drawable->getPositionAgent();
-					glTranslatef(center[0], center[1], center[2]);
-					F32 scale = vovolume->getLightRadius();
-					glScalef(scale, scale, scale);
+						LLVector3 center = drawable->getPositionAgent();
+						glTranslatef(center[0], center[1], center[2]);
+						F32 scale = vovolume->getLightRadius();
+						glScalef(scale, scale, scale);
 
-					LLColor4 color(vovolume->getLightColor(), .5f);
-					glColor4fv(color.mV);
+						LLColor4 color(vovolume->getLightColor(), .5f);
+						glColor4fv(color.mV);
 					
-					F32 pixel_area = 100000.f;
-					// Render Outside
-					gSphere.render(pixel_area);
+						F32 pixel_area = 100000.f;
+						// Render Outside
+						gSphere.render(pixel_area);
 
-					// Render Inside
-					glCullFace(GL_FRONT);
-					gSphere.render(pixel_area);
-					glCullFace(GL_BACK);
+						// Render Inside
+						glCullFace(GL_FRONT);
+						gSphere.render(pixel_area);
+						glCullFace(GL_BACK);
 					
-					glPopMatrix();
+						glPopMatrix();
+					}
+					return true;
 				}
-			}
+			} func;
+			gSelectMgr->getSelection()->applyToObjects(&func);
+			
 			glPopMatrix();
 		}				
 		
@@ -3205,8 +3224,12 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 					BOOL all_selected_objects_move = TRUE;
 					BOOL all_selected_objects_modify = TRUE;
 					BOOL selecting_linked_set = !gSavedSettings.getBOOL("EditLinkedParts");
-					for( object = gSelectMgr->getSelection()->getFirstObject(); object; object = gSelectMgr->getSelection()->getNextObject() )
+
+					for (LLObjectSelection::iterator iter = gSelectMgr->getSelection()->begin();
+						 iter != gSelectMgr->getSelection()->end(); iter++)
 					{
+						LLSelectNode* nodep = *iter;
+						LLViewerObject* object = nodep->getObject();
 						BOOL this_object_movable = FALSE;
 						if (object->permMove() && (object->permModify() || selecting_linked_set))
 						{

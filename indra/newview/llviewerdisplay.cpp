@@ -242,6 +242,10 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 	LLVOAvatar::sRenderName = gSavedSettings.getS32("RenderName");
 	gPipeline.mBackfaceCull = TRUE;
 	gFrameCount++;
+	if (gFocusMgr.getAppHasFocus())
+	{
+		gForegroundFrameCount++;
+	}
 
 	//////////////////////////////////////////////////////////
 	//

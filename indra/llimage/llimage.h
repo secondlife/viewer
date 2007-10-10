@@ -114,7 +114,7 @@ protected:
 public:
 	static const LLString& getLastError() {return sLastErrorMessage;};
 	static void resetLastError() {sLastErrorMessage = LLString("No Error"); };
-	static BOOL setLastError(const LLString& message, const LLString& filename = ""); // returns FALSE
+	static BOOL setLastError(const LLString& message, const LLString& filename = LLString()); // returns FALSE
 
 	static void generateMip(const U8 *indata, U8* mipdata, int width, int height, S32 nchannels);
 	

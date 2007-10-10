@@ -132,7 +132,7 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 			else
 			{
 				LLString::format_map_t args;
-				// XUI:translate
+				// *TODO:translate
 				args["[TYPE]"] = LLAssetType::lookupHumanReadable(data->mAssetType);
 				if (data->mName.empty())
 				{
@@ -170,7 +170,7 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 		  case LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE:
 		  {
 			  LLString::format_map_t args;
-			  // XUI:translate
+			  // *TODO:translate
 			  args["[TYPE]"] = LLAssetType::lookupHumanReadable(data->mAssetType);
 			  if (data->mName.empty())
 			  {

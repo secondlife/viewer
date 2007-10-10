@@ -103,11 +103,8 @@ const char HELLO_LSL[] =
 	"}\n";
 const char HELP_LSL[] = "lsl_guide.html";
 
-const char DEFAULT_SCRIPT_NAME[] = "New Script";
-const char DEFAULT_SCRIPT_DESC[] = "(No Description)";
-
-const char ENABLED_RUNNING_CHECKBOX_LABEL[] = "Running";
-const char DISABLED_RUNNING_CHECKBOX_LABEL[] = "Public Objects cannot run scripts";
+const char DEFAULT_SCRIPT_NAME[] = "New Script"; // *TODO:Translate?
+const char DEFAULT_SCRIPT_DESC[] = "(No Description)"; // *TODO:Translate?
 
 // Description and header information
 
@@ -321,7 +318,6 @@ LLScriptEdCore::LLScriptEdCore(
 	mFunctions = LLUICtrlFactory::getComboBoxByName(this, "Insert...");
 	
 	childSetCommitCallback("Insert...", &LLScriptEdCore::onBtnInsertFunction, this);
-	mFunctions->setLabel("Insert...");
 
 	mEditor = LLViewerUICtrlFactory::getViewerTextEditorByName(this, "Script Editor");
 	mEditor->setReadOnlyBgColor(gColors.getColor( "ScriptBgReadOnlyColor" ) );
@@ -456,13 +452,13 @@ void LLScriptEdCore::draw()
 		S32 line = 0;
 		S32 column = 0;
 		mEditor->getCurrentLineAndColumn( &line, &column, FALSE );  // don't include wordwrap
-		char cursor_pos[STD_STRING_BUF_SIZE];		/*Flawfinder: ignore*/
-		snprintf( cursor_pos, STD_STRING_BUF_SIZE, "Line %d, Column %d", line, column );			/* Flawfinder: ignore */
+		std::string cursor_pos;
+		cursor_pos = llformat("Line %d, Column %d", line, column );
 		childSetText("line_col", cursor_pos);
 	}
 	else
 	{
-		childSetText("line_col", "");
+		childSetText("line_col", LLString::null);
 	}
 
 	updateDynamicHelp();
@@ -985,7 +981,7 @@ void LLScriptEdCore::handleReloadFromServerDialog( S32 option, void* userdata )
 	case 0: // "Yes"
 		if( self->mLoadCallback )
 		{
-			self->mEditor->setText( "Loading..." );
+			self->mEditor->setText( self->childGetText("loading") );
 			self->mLoadCallback( self->mUserdata );
 		}
 		break;
@@ -1199,7 +1195,7 @@ void LLPreviewLSL::loadAsset()
 		}
 		else
 		{
-			mScriptEd->mEditor->setText("You are not allowed to view this script.");
+			mScriptEd->mEditor->setText(mScriptEd->childGetText("can_not_view"));
 			mScriptEd->mEditor->makePristine();
 			mScriptEd->mEditor->setEnabled(FALSE);
 			mScriptEd->mFunctions->setEnabled(FALSE);
@@ -1210,7 +1206,7 @@ void LLPreviewLSL::loadAsset()
 	}
 	else
 	{
-		mScriptEd->mEditor->setText(HELLO_LSL);
+		mScriptEd->mEditor->setText(LLString(HELLO_LSL));
 		mAssetStatus = PREVIEW_ASSET_LOADED;
 	}
 }
@@ -1517,7 +1513,7 @@ void LLPreviewLSL::onLoadComplete( LLVFS *vfs, const LLUUID& asset_uuid, LLAsset
 
 			// put a EOS at the end
 			buffer[file_length] = 0;
-			preview->mScriptEd->mEditor->setText(buffer);
+			preview->mScriptEd->mEditor->setText(LLStringExplicit(buffer));
 			preview->mScriptEd->mEditor->makePristine();
 			delete [] buffer;
 			LLInventoryItem* item = gInventory.getItem(*item_uuid);
@@ -1731,7 +1727,7 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 					   || !gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE))))
 			{
 				mItem = new LLViewerInventoryItem(item);
-				mScriptEd->mEditor->setText("You are not allowed to view this script.");
+				mScriptEd->mEditor->setText(childGetText("not_allowed"));
 				mScriptEd->mEditor->makePristine();
 				mScriptEd->mEditor->setEnabled(FALSE);
 				mAssetStatus = PREVIEW_ASSET_LOADED;
@@ -1762,7 +1758,7 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 			}
 			else
 			{
-				mScriptEd->mEditor->setText("");
+				mScriptEd->mEditor->setText(LLString::null);
 				mScriptEd->mEditor->makePristine();
 				mAssetStatus = PREVIEW_ASSET_LOADED;
 			}
@@ -1797,7 +1793,7 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 			// This may be better than having a accessible null pointer around,
 			// though this newly allocated object will most likely be replaced.
 			mItem = new LLViewerInventoryItem();
-			mScriptEd->mEditor->setText("");
+			mScriptEd->mEditor->setText(LLString::null);
 			mScriptEd->mEditor->makePristine();
 			mScriptEd->mEditor->setEnabled(FALSE);
 			mAssetStatus = PREVIEW_ASSET_LOADED;
@@ -1805,8 +1801,8 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 	}
 	else
 	{
-		mScriptEd->mEditor->setText(HELLO_LSL);
-		//mScriptEd->mEditor->setText("");
+		mScriptEd->mEditor->setText(LLString(HELLO_LSL));
+		//mScriptEd->mEditor->setText(LLString::null);
 		//mScriptEd->mEditor->makePristine();
 		LLPermissions perm;
 		perm.init(gAgent.getID(), gAgent.getID(), LLUUID::null, gAgent.getGroupID());
@@ -1893,7 +1889,7 @@ void LLLiveLSLEditor::loadScriptText(const char* filename)
 		}
 		buffer[nread] = '\0';
 		fclose(file);
-		mScriptEd->mEditor->setText(buffer);
+		mScriptEd->mEditor->setText(LLStringExplicit(buffer));
 		mScriptEd->mEditor->makePristine();
 		delete[] buffer;
 	}
@@ -1918,7 +1914,7 @@ void LLLiveLSLEditor::loadScriptText(LLVFS *vfs, const LLUUID &uuid, LLAssetType
 
 	buffer[file_length] = '\0';
 
-	mScriptEd->mEditor->setText(buffer);
+	mScriptEd->mEditor->setText(LLStringExplicit(buffer));
 	mScriptEd->mEditor->makePristine();
 	delete[] buffer;
 
@@ -1985,12 +1981,12 @@ void LLLiveLSLEditor::draw()
 		{
 			if(object->permAnyOwner())
 			{
-				runningCheckbox->setLabel(ENABLED_RUNNING_CHECKBOX_LABEL);
+				runningCheckbox->setLabel(childGetText("script_running"));
 				runningCheckbox->setEnabled(TRUE);
 			}
 			else
 			{
-				runningCheckbox->setLabel(DISABLED_RUNNING_CHECKBOX_LABEL);
+				runningCheckbox->setLabel(childGetText("public_objects_can_not_run"));
 				runningCheckbox->setEnabled(FALSE);
 				// *FIX: Set it to false so that the ui is correct for
 				// a box that is released to public. It could be
@@ -2238,7 +2234,7 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 
 	// If we successfully saved it, then we should be able to check/uncheck the running box!
 	LLCheckBoxCtrl* runningCheckbox = LLUICtrlFactory::getCheckBoxByName(this, "running");
-	runningCheckbox->setLabel(ENABLED_RUNNING_CHECKBOX_LABEL);
+	runningCheckbox->setLabel(childGetText("script_running"));
 	runningCheckbox->setEnabled(TRUE);
 }
 

@@ -66,9 +66,10 @@ public:
 	virtual void	handleSelect();
 	virtual void	handleDeselect();
 
-	BOOL			handleMouseDownOnPart(S32 x, S32 y, MASK mask);
+	virtual BOOL	handleMouseDownOnPart(S32 x, S32 y, MASK mask);
 	virtual void	highlightManipulators(S32 x, S32 y);
-	EManipPart		getHighlightedPart() { return mHighlightedPart; }
+	virtual BOOL	canAffectSelection();
+	
 private:
 	void			updateHoverView();
 
@@ -111,7 +112,6 @@ private:
 	EManipPart			mManipPart;
 
 	BOOL				mSendUpdateOnMouseUp;
-	EManipPart			mHighlightedPart;
 
 	BOOL				mSmoothRotate;
 	BOOL				mCamEdgeOn;

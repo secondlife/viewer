@@ -148,12 +148,11 @@ BOOL LLToolPlacer::handleHover(S32 x, S32 y, MASK mask)
 
 void LLToolPlacer::handleSelect()
 {
-	gFloaterTools->setStatusText("Click in the world to create, shift-click to select");
+	gFloaterTools->setStatusText("place");
 }
 
 void LLToolPlacer::handleDeselect()
 {
-	gFloaterTools->setStatusText("");
 }
 
 //////////////////////////////////////////////////////

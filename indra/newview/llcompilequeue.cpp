@@ -59,13 +59,11 @@
 #include "llviewerstats.h"
 #include "llvieweruictrlfactory.h"
 
-// XUI:translate
-
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
 
-// XUI:translate
+// *TODO:Translate
 const char* COMPILE_QUEUE_TITLE = "Recompilation Progress";
 const char* COMPILE_START_STRING = "recompile";
 const char* RESET_QUEUE_TITLE = "Reset Progress";

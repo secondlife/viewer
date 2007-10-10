@@ -75,7 +75,7 @@ LLToolView::~LLToolView()
 	mContainList.deleteAllData();
 }
 
-//XUI: translate
+//*TODO:translate?
 void LLToolView::addTool(const LLString& icon_off, const LLString& icon_on, LLPanel* panel, LLTool* tool, LLView* hoverView, const char* label)
 {
 	llassert(tool);
@@ -194,4 +194,5 @@ void LLToolView::onClickToolButton(void* userdata)
 	// Switch to this one
 	gToolMgr->getCurrentToolset()->selectTool( clicked->mTool );
 }
+
 

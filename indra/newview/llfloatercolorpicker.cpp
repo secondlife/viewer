@@ -83,6 +83,7 @@ LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show_apply_immediate )
 	  mMouseDownInLumRegion	( FALSE ),
 	  mMouseDownInHueRegion	( FALSE ),
 	  mMouseDownInSwatch	( FALSE ),
+	  // *TODO: Specify this in XML
 	  mRGBViewerImageLeft	( 140 ),
 	  mRGBViewerImageTop	( 356 ),
 	  mRGBViewerImageWidth	( 256 ),
@@ -92,17 +93,19 @@ LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show_apply_immediate )
 	  mLumRegionWidth		( 16 ),
 	  mLumRegionHeight		( mRGBViewerImageHeight ),
 	  mLumMarkerSize		( 6 ),
+	  // *TODO: Specify this in XML
 	  mSwatchRegionLeft		( 12 ),
-	  mSwatchRegionTop		( 160 + 16 - 4 ),	// get help text baseline to line up with bottom of RGB viewer
-	  mSwatchRegionWidth	( 110 ),
+	  mSwatchRegionTop		( 190 ),
+	  mSwatchRegionWidth	( 116 ),
 	  mSwatchRegionHeight	( 60 ),
 	  mSwatchView			( NULL ),
+	  // *TODO: Specify this in XML
 	  numPaletteColumns		( 16 ),
 	  numPaletteRows		( 2 ),
 	  highlightEntry		( -1 ),
-	  mPaletteRegionLeft	( mSwatchRegionLeft - 1 ),
+	  mPaletteRegionLeft	( 11 ),
 	  mPaletteRegionTop		( 100 - 8 ),
-	  mPaletteRegionWidth	( mLumRegionLeft + mLumRegionWidth - mSwatchRegionLeft + 2 ),
+	  mPaletteRegionWidth	( mLumRegionLeft + mLumRegionWidth - 10 ),
 	  mPaletteRegionHeight	( 40 ),
 	  mSwatch				( swatch ),
 	  mActive				( TRUE ),

@@ -97,27 +97,28 @@ void LLFloaterInspect::show(void* ignored)
 
 void LLFloaterInspect::onClickCreatorProfile(void* ctrl)
 {
-	if(sInstance->mObjectList->getAllSelected().size() == 0) return;
+	if(sInstance->mObjectList->getAllSelected().size() == 0)
+	{
+		return;
+	}
 	LLScrollListItem* first_selected =
 		sInstance->mObjectList->getFirstSelected();
 
 	if (first_selected)
 	{
-		LLSelectNode* obj= sInstance->mObjectSelection->getFirstNode();
-		LLUUID obj_id, creator_id;
-		obj_id = first_selected->getUUID();
-		while(obj)
+		struct f : public LLSelectedNodeFunctor
 		{
-			if(obj_id == obj->getObject()->getID())
+			LLUUID obj_id;
+			f(const LLUUID& id) : obj_id(id) {}
+			virtual bool apply(LLSelectNode* node)
 			{
-				creator_id = obj->mPermissions->getCreator();
-				break;
+				return (obj_id == node->getObject()->getID());
 			}
-			obj = sInstance->mObjectSelection->getNextNode();
-		}
-		if(obj)
+		} func(first_selected->getUUID());
+		LLSelectNode* node = sInstance->mObjectSelection->getFirstNode(&func);
+		if(node)
 		{
-			LLFloaterAvatarInfo::showFromDirectory(creator_id);
+			LLFloaterAvatarInfo::showFromDirectory(node->mPermissions->getCreator());
 		}
 	}
 }
@@ -130,20 +131,20 @@ void LLFloaterInspect::onClickOwnerProfile(void* ctrl)
 
 	if (first_selected)
 	{
-		LLSelectNode* obj= sInstance->mObjectSelection->getFirstNode();
-		LLUUID obj_id, owner_id;
-		obj_id = first_selected->getUUID();
-		while(obj)
+		LLUUID selected_id = first_selected->getUUID();
+		struct f : public LLSelectedNodeFunctor
 		{
-			if(obj_id == obj->getObject()->getID())
+			LLUUID obj_id;
+			f(const LLUUID& id) : obj_id(id) {}
+			virtual bool apply(LLSelectNode* node)
 			{
-				owner_id = obj->mPermissions->getOwner();
-				break;
+				return (obj_id == node->getObject()->getID());
 			}
-			obj = sInstance->mObjectSelection->getNextNode();
-		}
-		if(obj)
+		} func(selected_id);
+		LLSelectNode* node = sInstance->mObjectSelection->getFirstNode(&func);
+		if(node)
 		{
+			const LLUUID& owner_id = node->mPermissions->getOwner();
 			LLFloaterAvatarInfo::showFromDirectory(owner_id);
 		}
 	}
@@ -204,10 +205,12 @@ void LLFloaterInspect::refresh()
 	}
 	mObjectList->operateOnAll(LLScrollListCtrl::OP_DELETE);
 	//List all transient objects, then all linked objects
-	LLSelectNode* obj = mObjectSelection->getFirstNode();
-	LLSD row;
-	while(obj)
+
+	for (LLObjectSelection::iterator iter = mObjectSelection->begin();
+		 iter != mObjectSelection->end(); iter++)
 	{
+		LLSelectNode* obj = *iter;
+		LLSD row;
 		char owner_first_name[MAX_STRING], owner_last_name[MAX_STRING];
 		char creator_first_name[MAX_STRING], creator_last_name[MAX_STRING];
 		char time[MAX_STRING];
@@ -243,7 +246,6 @@ void LLFloaterInspect::refresh()
 		row["columns"][3]["type"] = "text";
 		row["columns"][3]["value"] = time;
 		mObjectList->addElement(row, ADD_TOP);
-		obj = mObjectSelection->getNextNode();
 	}
 	if(selected_index > -1 && mObjectList->getItemIndex(selected_uuid) == selected_index)
 	{

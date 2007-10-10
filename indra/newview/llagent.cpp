@@ -2038,7 +2038,8 @@ void LLAgent::setAFK()
 		gAwayTimer.start();
 		if (gAFKMenu)
 		{
-			gAFKMenu->setLabel("Set Not Away");
+			//*TODO:Translate
+			gAFKMenu->setLabel(LLString("Set Not Away"));
 		}
 	}
 }
@@ -2061,7 +2062,8 @@ void LLAgent::clearAFK()
 		clearControlFlags(AGENT_CONTROL_AWAY);
 		if (gAFKMenu)
 		{
-			gAFKMenu->setLabel("Set Away");
+			//*TODO:Translate
+			gAFKMenu->setLabel(LLString("Set Away"));
 		}
 	}
 }
@@ -2083,7 +2085,8 @@ void LLAgent::setBusy()
 	mIsBusy = TRUE;
 	if (gBusyMenu)
 	{
-		gBusyMenu->setLabel("Set Not Busy");
+		//*TODO:Translate
+		gBusyMenu->setLabel(LLString("Set Not Busy"));
 	}
 	if (gFloaterMute)
 	{
@@ -2100,7 +2103,8 @@ void LLAgent::clearBusy()
 	sendAnimationRequest(ANIM_AGENT_BUSY, ANIM_REQUEST_STOP);
 	if (gBusyMenu)
 	{
-		gBusyMenu->setLabel("Set Busy");
+		//*TODO:Translate
+		gBusyMenu->setLabel(LLString("Set Busy"));
 	}
 	if (gFloaterMute)
 	{
@@ -4888,7 +4892,7 @@ void LLAgent::buildLocationString(std::string& str)
 
 	// create a defult name and description for the landmark
 	std::string buffer;
-	if( !strcmp("", gParcelMgr->getAgentParcelName()) )
+	if( gParcelMgr->getAgentParcelName().empty() )
 	{
 		// the parcel doesn't have a name
 		buffer = llformat("%.32s (%d, %d, %d)",
@@ -4899,7 +4903,7 @@ void LLAgent::buildLocationString(std::string& str)
 	{
 		// the parcel has a name, so include it in the landmark name
 		buffer = llformat("%.32s, %.32s (%d, %d, %d)",
-						  gParcelMgr->getAgentParcelName(),
+						  gParcelMgr->getAgentParcelName().c_str(),
 						  getRegion()->getName().c_str(),
 						  pos_x, pos_y, pos_z);
 	}

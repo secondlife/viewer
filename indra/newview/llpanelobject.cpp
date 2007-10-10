@@ -98,7 +98,7 @@ enum {
 	MI_HOLE_COUNT
 };
 
-//XUI:translate (depricated, so very low priority)
+//*TODO:translate (depricated, so very low priority)
 static const LLString LEGACY_FULLBRIGHT_DESC("Fullbright (Legacy)");
 
 BOOL	LLPanelObject::postBuild()
@@ -163,7 +163,7 @@ BOOL	LLPanelObject::postBuild()
 	mComboMaterial = gUICtrlFactory->getComboBoxByName(this,"material");
 	childSetCommitCallback("material",onCommitMaterial,this);
 	mComboMaterial->removeall();
-	// XUI:translate
+	// *TODO:translate
 	LLMaterialInfo *minfop;
 	for (minfop = LLMaterialTable::basic.mMaterialInfoList.getFirstData(); 
 		 minfop != NULL; 
@@ -509,8 +509,17 @@ void LLPanelObject::getState( )
 #endif
 	
 	// Update material part
-	U8 material_code;
-	BOOL material_same = gSelectMgr->selectionGetMaterial(&material_code);
+	// slightly inefficient - materials are unique per object, not per TE
+	U8 material_code = 0;
+	struct f : public LLSelectedTEGetFunctor<U8>
+	{
+		U8 get(LLViewerObject* object, S32 te)
+		{
+			return object->getMaterial();
+		}
+	} func;
+	bool material_same = gSelectMgr->getSelection()->getSelectedTEValue( &func, material_code );
+	
 	if (editable && single_volume && material_same)
 	{
 		mComboMaterial->setEnabled( TRUE );
@@ -529,7 +538,8 @@ void LLPanelObject::getState( )
 			{
 				mComboMaterial->remove(LEGACY_FULLBRIGHT_DESC);
 			}
-			mComboMaterial->setSimple(LLMaterialTable::basic.getName(material_code));
+			// *TODO:Translate
+			mComboMaterial->setSimple(LLString(LLMaterialTable::basic.getName(material_code)));
 		}
 	}
 	else

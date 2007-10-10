@@ -96,10 +96,10 @@ LLFloaterAbout::LLFloaterAbout()
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region)
 	{
-		//XUI:translate
 		const LLVector3d &pos = gAgent.getPositionGlobal();
-		LLString pos_text = llformat("You are at %.1f, %.1f, %.1f ", 
-			pos.mdV[VX], pos.mdV[VY], pos.mdV[VZ]);
+		LLUIString pos_text = childGetText("you_are_at");
+		pos_text.setArg("[POSITION]",
+						llformat("%.1f, %.1f, %.1f ", pos.mdV[VX], pos.mdV[VY], pos.mdV[VZ]));
 		support.append(pos_text);
 
 		LLString region_text = llformat("in %s located at ",
@@ -117,6 +117,10 @@ LLFloaterAbout::LLFloaterAbout()
 		support.append("\n\n");
 	}
 
+	//*NOTE: Do not translate text like GPU, Graphics Card, etc -
+	//  Most PC users that know what these mean will be used to the english versions,
+	//  and this info sometimes gets sent to support
+	
 	// CPU
 	support.append("CPU: ");
 	support.append( gSysCPU.getCPUString() );

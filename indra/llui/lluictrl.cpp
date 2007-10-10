@@ -99,13 +99,13 @@ void LLUICtrl::onCommit()
 }
 
 // virtual
-BOOL LLUICtrl::setTextArg( const LLString& key, const LLString& text ) 
+BOOL LLUICtrl::setTextArg( const LLString& key, const LLStringExplicit& text ) 
 { 
 	return FALSE; 
 }
 
 // virtual
-BOOL LLUICtrl::setLabelArg( const LLString& key, const LLString& text ) 
+BOOL LLUICtrl::setLabelArg( const LLString& key, const LLStringExplicit& text ) 
 { 
 	return FALSE; 
 }

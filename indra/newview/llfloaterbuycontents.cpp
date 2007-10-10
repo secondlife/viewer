@@ -238,20 +238,19 @@ void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
 		U32 next_owner_mask = inv_item->getPermissions().getMaskNextOwner();
 		LLString text = (*it)->getName();
 
-		// *TODO: Move into shared library function.
 		if (!(next_owner_mask & PERM_COPY))
 		{
-			text.append(" (no copy)");	// XUI:translate
+			text.append(childGetText("no_copy_text"));
 		}
 		if (!(next_owner_mask & PERM_MODIFY))
 		{
-			text.append(" (no modify)");	// XUI:translate
+			text.append(childGetText("no_modify_text"));
 		}
 		if (!(next_owner_mask & PERM_TRANSFER))
 		{
-			text.append(" (no transfer)");	// XUI:translate
+			text.append(childGetText("no_transfer_text"));
 		}
-
+		
 		row["columns"][1]["column"] = "text";
 		row["columns"][1]["value"] = text;
 		row["columns"][1]["font"] = "SANSSERIF";

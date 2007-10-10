@@ -294,8 +294,7 @@ BOOL LLFloaterAnimPreview::postBuild()
 			delete mAnimPreview;
 			mAnimPreview = NULL;
 			mMotionID.setNull();
-			// XUI:translate
-			childSetValue("bad_animation_text", LLSD("Failed to initialize motion."));
+			childSetValue("bad_animation_text", childGetText("failed_to_initialize"));
 			mEnabled = FALSE;
 		}
 	}
@@ -305,18 +304,16 @@ BOOL LLFloaterAnimPreview::postBuild()
 		{
 			if (loaderp->getDuration() > MAX_ANIM_DURATION)
 			{
-				char output_str[256];	/*Flawfinder: ignore*/
-
-				snprintf(output_str, sizeof(output_str), "Animation file is %.1f seconds in length.\n\nMaximum animation length is %.1f seconds.\n",	/* Flawfinder: ignore */
-					loaderp->getDuration(), MAX_ANIM_DURATION);
-				childSetValue("bad_animation_text", LLSD(output_str));
+				LLUIString out_str = childGetText("anim_too_long");
+				out_str.setArg("[LENGTH]", llformat("%.1f", loaderp->getDuration()));
+				out_str.setArg("[MAX_LENGTH]", llformat("%.1f", MAX_ANIM_DURATION));
+				childSetValue("bad_animation_text", out_str.getString());
 			}
 			else
 			{
-				char* status = loaderp->getStatus();
-				LLString error_string("Unable to read animation file.\n\n");
-				error_string += LLString(status);
-				childSetValue("bad_animation_text", LLSD(error_string));
+				LLUIString out_str = childGetText("failed_file_read");
+				out_str.setArg("[STATUS]", loaderp->getStatus()); // *TODO:Translate
+				childSetValue("bad_animation_text", out_str.getString());
 			}
 		}
 
@@ -1157,4 +1154,5 @@ void LLPreviewAnimation::pan(F32 right, F32 up)
 	mCameraOffset.mV[VY] = llclamp(mCameraOffset.mV[VY] + right * mCameraDistance / mCameraZoom, -1.f, 1.f);
 	mCameraOffset.mV[VZ] = llclamp(mCameraOffset.mV[VZ] + up * mCameraDistance / mCameraZoom, -1.f, 1.f);
 }
+
 

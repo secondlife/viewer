@@ -109,8 +109,6 @@ protected:
 	LLFloaterGodTools();
 	~LLFloaterGodTools();
 
-	void setStatusText(const std::string& text);
-
 	// When the floater is going away, reset any options that need to be 
 	// cleared.
 	void resetToolState();

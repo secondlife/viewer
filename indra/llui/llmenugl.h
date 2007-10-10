@@ -127,8 +127,8 @@ public:
 	LLString getLabel( void ) const { return mLabel.getString(); }
 
 	// change the label
-	void setLabel( const LLString& label );
-	virtual BOOL setLabelArg( const LLString& key, const LLString& text );
+	void setLabel( const LLStringExplicit& label );
+	virtual BOOL setLabelArg( const LLString& key, const LLStringExplicit& text );
 
 	// Get the parent menu for this item
 	virtual LLMenuGL*	getMenu();
@@ -443,7 +443,7 @@ public:
 
 	// return the name label
 	const LLString& getLabel( void ) const { return mLabel.getString(); }
-	void setLabel(const LLString& label) { mLabel = label; }
+	void setLabel(const LLStringExplicit& label) { mLabel = label; }
 
 	static void setDefaultBackgroundColor( const LLColor4& color );
 	void setBackgroundColor( const LLColor4& color );

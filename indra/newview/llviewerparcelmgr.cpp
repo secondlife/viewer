@@ -1252,7 +1252,7 @@ void LLViewerParcelMgr::makeLandmarkAtSelection()
 }
 */
 
-const char* LLViewerParcelMgr::getAgentParcelName() const
+const LLString& LLViewerParcelMgr::getAgentParcelName() const
 {
 	return mAgentParcel->getName();
 }

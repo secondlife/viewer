@@ -64,9 +64,9 @@ public:
 	virtual void	handleSelect();
 	virtual void	handleDeselect();
 
-	EManipPart		getHighlightedPart() { return mHighlightedPart; }
 	virtual void	highlightManipulators(S32 x, S32 y);
-	/*virtual*/ BOOL	handleMouseDownOnPart(S32 x, S32 y, MASK mask);
+	virtual BOOL	handleMouseDownOnPart(S32 x, S32 y, MASK mask);
+	virtual BOOL	canAffectSelection();
 
 protected:
 	enum EHandleType {
@@ -107,7 +107,6 @@ private:
 	LLTimer		mUpdateTimer;
 	LLLinkedList<ManipulatorHandle>		mProjectedManipulators;
 	LLVector4	mManipulatorVertices[18];
-	EManipPart	mHighlightedPart;
 	F32			mSnapOffsetMeters;
 	LLVector3	mSnapOffsetAxis;
 	LLQuaternion mGridRotation;

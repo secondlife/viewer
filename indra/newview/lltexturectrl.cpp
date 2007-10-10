@@ -344,13 +344,12 @@ void LLFloaterTexturePicker::updateImageStats()
 		//RN: have we received header data for this image?
 		if (mTexturep->getWidth(0) > 0 && mTexturep->getHeight(0) > 0)
 		{
-			std::ostringstream formatted_dims;
-			formatted_dims << llformat("Dimensions: %d x %d", mTexturep->getWidth(0),mTexturep->getHeight(0));
-			mResolutionLabel->setText(formatted_dims.str());
+			LLString formatted_dims = llformat("%d x %d", mTexturep->getWidth(0),mTexturep->getHeight(0));
+			mResolutionLabel->setTextArg("[DIMENSIONS]", formatted_dims);
 		}
 		else
 		{
-			mResolutionLabel->setText("Dimensions: unknown");
+			mResolutionLabel->setTextArg("[DIMENSIONS]", LLString("[? x ?]"));
 		}
 		if (gAgent.isGodlike())
 		{
@@ -1453,4 +1452,5 @@ BOOL LLToolTexEyedropper::handleHover(S32 x, S32 y, MASK mask)
 	gViewerWindow->getWindow()->setCursor(UI_CURSOR_CROSS);  // TODO: better cursor
 	return TRUE;
 }
+
 

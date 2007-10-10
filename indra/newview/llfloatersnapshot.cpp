@@ -1348,16 +1348,15 @@ void LLFloaterSnapshot::draw()
 				childSetEnabled("send_btn", previewp->getSnapshotUpToDate());
 			}
 			
-			//XUI:translate
 			if (previewp->getSnapshotUpToDate())
 			{
 				LLString bytes_string;
 				gResMgr->getIntegerString(bytes_string, previewp->getDataSize());
-				childSetTextArg("file_size_label", "[SIZE]", llformat("%s bytes", bytes_string.c_str()));
+				childSetTextArg("file_size_label", "[SIZE]", bytes_string);
 			}
 			else
 			{
-				childSetTextArg("file_size_label", "[SIZE]", "unknown");
+				childSetTextArg("file_size_label", "[SIZE]", childGetText("unknwon"));
 				childSetColor("file_size_label", gColors.getColor( "LabelTextColor" ));
 			}
 			childSetEnabled("upload_btn", previewp->getSnapshotUpToDate());
@@ -1366,7 +1365,7 @@ void LLFloaterSnapshot::draw()
 		}
 		else
 		{
-			childSetTextArg("file_size_label", "[SIZE]", "unknown");
+			childSetTextArg("file_size_label", "[SIZE]", LLString("???"));
 			childSetEnabled("upload_btn", FALSE);
 			childSetEnabled("send_btn", FALSE);
 			childSetEnabled("save_btn", FALSE);

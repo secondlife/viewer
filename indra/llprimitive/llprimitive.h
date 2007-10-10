@@ -362,7 +362,8 @@ public:
 	static const char *pCodeToString(const LLPCode pcode);
 	static LLPCode legacyToPCode(const U8 legacy);
 	static U8 pCodeToLegacy(const LLPCode pcode);
-
+	static bool getTESTAxes(const U8 face, U32* s_axis, U32* t_axis);
+	
 	inline static BOOL isPrimitive(const LLPCode pcode);
 	inline static BOOL isApp(const LLPCode pcode);
 

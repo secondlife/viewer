@@ -219,7 +219,7 @@ void LLToolSelectLand::render()
 
 void LLToolSelectLand::handleSelect()
 {
-	gFloaterTools->setStatusText("Click and drag to select land");
+	gFloaterTools->setStatusText("selectland");
 	mLastShowParcelOwners = gSavedSettings.getBOOL("ShowParcelOwners");
 	gSavedSettings.setBOOL("ShowParcelOwners", mLastShowParcelOwners);
 }
@@ -227,7 +227,6 @@ void LLToolSelectLand::handleSelect()
 
 void LLToolSelectLand::handleDeselect()
 {
-	gFloaterTools->setStatusText("");
 	mSelection = NULL;
 	mLastShowParcelOwners = gSavedSettings.getBOOL("ShowParcelOwners");
 	//gParcelMgr->deselectLand();

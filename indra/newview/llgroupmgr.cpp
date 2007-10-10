@@ -1277,7 +1277,7 @@ void LLGroupMgr::processCreateGroupReply(LLMessageSystem* msg, void ** data)
 	}
 	else
 	{
-		// XUI:translate
+		// *TODO:translate
 		LLString::format_map_t args;
 		args["[MESSAGE]"] = message;
 		gViewerWindow->alertXml("UnableToCreateGroup", args);
@@ -1852,4 +1852,5 @@ void LLGroupMgr::debugClearAllGroups(void*)
 	gGroupMgr->clearGroups();
 	LLGroupMgr::parseRoleActions("role_actions.xml");
 }
+
 

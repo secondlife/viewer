@@ -259,42 +259,25 @@ void LLParcel::overrideParcelFlags(U32 flags)
 	mParcelFlags = flags;
 }
 
-void set_std_string(const char* src, std::string& dest)
-{
-	if(src)
-	{
-		dest.assign(src);
-	}
-	else
-	{
-#if (LL_LINUX && __GNUC__ < 3)
-		dest.assign(std::string(""));
-#else
-		dest.clear();
-#endif
-	}
-}
-
-void LLParcel::setName(const char* name)
+void LLParcel::setName(const LLString& name)
 {
 	// The escaping here must match the escaping in the database
 	// abstraction layer.
-	set_std_string(name, mName);
+	mName = name;
 	LLStringFn::replace_nonprintable(mName, LL_UNKNOWN_CHAR);
 }
 
-void LLParcel::setDesc(const char* desc)
+void LLParcel::setDesc(const LLString& desc)
 {
 	// The escaping here must match the escaping in the database
 	// abstraction layer.
-	set_std_string(desc, mDesc);
+	mDesc = desc;
 	mDesc = rawstr_to_utf8(mDesc);
 }
 
-void LLParcel::setMusicURL(const char* url)
+void LLParcel::setMusicURL(const LLString& url)
 {
-	set_std_string(url, mMusicURL);
-
+	mMusicURL = url;
 	// The escaping here must match the escaping in the database
 	// abstraction layer.
 	// This should really filter the url in some way. Other than
@@ -302,10 +285,9 @@ void LLParcel::setMusicURL(const char* url)
 	LLStringFn::replace_nonprintable(mMusicURL, LL_UNKNOWN_CHAR);
 }
 
-void LLParcel::setMediaURL(const char* url)
+void LLParcel::setMediaURL(const LLString& url)
 {
-	set_std_string(url, mMediaURL);
-
+	mMediaURL = url;
 	// The escaping here must match the escaping in the database
 	// abstraction layer if it's ever added.
 	// This should really filter the url in some way. Other than
@@ -571,19 +553,19 @@ BOOL LLParcel::importStream(std::istream& input_stream)
 		}
 		else if ("name" == keyword)
 		{
-			setName( value.c_str() );
+			setName( value );
 		}
 		else if ("desc" == keyword)
 		{
-			setDesc( value.c_str() );
+			setDesc( value );
 		}
 		else if ("music_url" == keyword)
 		{
-			setMusicURL( value.c_str() );
+			setMusicURL( value );
 		}
 		else if ("media_url" == keyword)
 		{
-			setMediaURL( value.c_str() );
+			setMediaURL( value );
 		}
 		else if ("media_id" == keyword)
 		{
@@ -1837,4 +1819,5 @@ LLParcel::ECategory category_ui_string_to_category(const char* s)
 	// is a distinct option from "None" and "Other"
 	return LLParcel::C_ANY;
 }
+
 

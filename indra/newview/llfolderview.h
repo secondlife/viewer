@@ -484,8 +484,6 @@ public:
 	BOOL			isDescendantOf( const LLFolderViewFolder* potential_ancestor );
 	S32				getIndentation() { return mIndentation; }
 
-	virtual void setStatusText(const LLString& text) { mStatusText = text; }
-
 	virtual BOOL	potentiallyVisible(); // do we know for a fact that this item has been filtered out?
 
 	virtual BOOL	getFiltered();

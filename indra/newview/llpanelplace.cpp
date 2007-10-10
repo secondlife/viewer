@@ -156,7 +156,6 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 	F32		dwell;
 	S32		sale_price;
 	S32		auction_id;
-	char	buffer[256];		/*Flawfinder: ignore*/
 
 	msg->getUUID("AgentData", "AgentID", agent_id );
 	msg->getUUID("Data", "ParcelID", parcel_id);
@@ -191,29 +190,35 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 
 		self->mSnapshotCtrl->setImageAssetID(snapshot_id);
 
-		self->mNameEditor->setText(name);
+		self->mNameEditor->setText(LLString(name));
 
-		self->mDescEditor->setText(desc);
+		self->mDescEditor->setText(LLString(desc));
 
-		LLString info;
-		snprintf(buffer, sizeof(buffer), "Traffic: %.0f, Area: %d sq. m.", dwell, actual_area);			/* Flawfinder: ignore */
-		info.append(buffer);
+		LLString info_text;
+		LLUIString traffic = self->childGetText("traffic_text");
+		traffic.setArg("[TRAFFIC]", llformat("%.0f", dwell));
+		info_text = traffic;
+		LLUIString area = self->childGetText("area_text");
+		traffic.setArg("[AREA]", llformat("%d", actual_area));
+		info_text += area;
 		if (flags & DFQ_FOR_SALE)
 		{
-			snprintf(buffer, sizeof(buffer), ", For Sale for L$%d", sale_price);			/* Flawfinder: ignore */
-			info.append(buffer);
+			LLUIString forsale = self->childGetText("forsale_text");
+			traffic.setArg("[PRICE]", llformat("%d", sale_price));
+			info_text += forsale;
 		}
 		if (auction_id != 0)
 		{
-			snprintf(buffer, sizeof(buffer), ", Auction ID %010d", auction_id);			/* Flawfinder: ignore */
-			info.append(buffer);
+			LLUIString auction = self->childGetText("auction_text");
+			auction.setArg("[ID]", llformat("%010d", auction_id));
+			info_text += auction;
 		}
-		self->mInfoEditor->setText(info);
+		self->mInfoEditor->setText(info_text);
 
 		S32 region_x = llround(global_x) % REGION_WIDTH_UNITS;
 		S32 region_y = llround(global_y) % REGION_WIDTH_UNITS;
 		S32 region_z = llround(global_z);
-		
+
 		// HACK: Flag 0x1 == mature region, otherwise assume PG
 		const char* rating = LLViewerRegion::accessToString(SIM_ACCESS_PG);
 		if (flags & 0x1)
@@ -221,9 +226,9 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 			rating = LLViewerRegion::accessToString(SIM_ACCESS_MATURE);
 		}
 
-		snprintf(buffer, sizeof(buffer), "%s %d, %d, %d (%s)", 			/* Flawfinder: ignore */
-			sim_name, region_x, region_y, region_z, rating);
-		self->mLocationEditor->setText(buffer);
+		LLString location = llformat("%s %d, %d, %d (%s)", 
+									 sim_name, region_x, region_y, region_z, rating);
+		self->mLocationEditor->setText(location);
 
 		BOOL show_auction = (auction_id > 0);
 		self->mAuctionBtn->setVisible(show_auction);

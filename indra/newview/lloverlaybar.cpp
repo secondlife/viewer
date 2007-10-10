@@ -360,8 +360,7 @@ void LLOverlayBar::refresh()
 	{
 		LLParcel* parcel = gParcelMgr->getAgentParcel();
 		if (!parcel 
-			|| !parcel->getMusicURL()
-			|| !parcel->getMusicURL()[0]
+			|| parcel->getMusicURL().empty()
 			|| !gSavedSettings.getBOOL("AudioStreamingMusic"))
 		{
 			mMusicRemote->setVisible(FALSE);
@@ -509,7 +508,7 @@ void LLOverlayBar::musicPlay(void*)
 			// stream is stopped, it doesn't return the right thing - commenting out for now.
 // 			if ( gAudiop->isInternetStreamPlaying() == 0 )
 			{
-				gAudiop->startInternetStream(parcel->getMusicURL());
+				gAudiop->startInternetStream(parcel->getMusicURL().c_str());
 			}
 		}
 	}

@@ -94,17 +94,13 @@ void LLToolCamera::handleSelect()
 {
 	if (gFloaterTools)
 	{
-		gFloaterTools->setStatusText("Click and drag to change view");
+		gFloaterTools->setStatusText("camera");
 	}
 }
 
 // virtual
 void LLToolCamera::handleDeselect()
 {
-	if (gFloaterTools)
-	{
-		gFloaterTools->setStatusText("");
-	}
 //	gAgent.setLookingAtAvatar(FALSE);
 }
 

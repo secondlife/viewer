@@ -636,10 +636,12 @@ void init_menus()
 	// flash when an item is triggered (the flash occurs in the holder)
 	gViewerWindow->getRootView()->addChild(gMenuHolder);
 
-	gMenuHolder->childSetLabelArg("Upload Image", "[COST]", "10");
-	gMenuHolder->childSetLabelArg("Upload Sound", "[COST]", "10");
-	gMenuHolder->childSetLabelArg("Upload Animation", "[COST]", "10");
-	gMenuHolder->childSetLabelArg("Bulk Upload", "[COST]", "10");
+	// *TODO:Get the cost info from the server
+	const LLString upload_cost("10");
+	gMenuHolder->childSetLabelArg("Upload Image", "[COST]", upload_cost);
+	gMenuHolder->childSetLabelArg("Upload Sound", "[COST]", upload_cost);
+	gMenuHolder->childSetLabelArg("Upload Animation", "[COST]", upload_cost);
+	gMenuHolder->childSetLabelArg("Bulk Upload", "[COST]", upload_cost);
 
 	gAFKMenu = (LLMenuItemCallGL*)gMenuBarView->getChildByName("Set Away", TRUE);
 	gBusyMenu = (LLMenuItemCallGL*)gMenuBarView->getChildByName("Set Busy", TRUE);
@@ -3395,31 +3397,33 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 	}
 	//gInventoryView->setPanelOpen(TRUE);
 
-	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
-	LLViewerObject* object = NULL;
-	LLSelectNode* node = selection->getFirstRootNode();
-	if(!node) return;
-	object = node->getObject();
-	if(!object) return;
-	LLViewerRegion* region = object->getRegion();
-	char* error = NULL;
-
+	std::string error;
+	LLDynamicArray<LLViewerObject*> derez_objects;
+	
 	// Check conditions that we can't deal with, building a list of
 	// everything that we'll actually be derezzing.
-	LLDynamicArray<LLViewerObject*> derez_objects;
-	BOOL can_derez_current;
-	for( ; node != NULL; node = selection->getNextRootNode())
+	LLViewerRegion* first_region = NULL;
+	for (LLObjectSelection::valid_root_iterator iter = gSelectMgr->getSelection()->valid_root_begin();
+		 iter != gSelectMgr->getSelection()->valid_root_end(); iter++)
 	{
-		object = node->getObject();
-		if(!object || !node->mValid) continue;
-		if(object->getRegion() != region)
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		LLViewerRegion* region = object->getRegion();
+		if (!first_region)
 		{
-			// Derez doesn't work at all if the some of the objects
-			// are in regions besides the first object selected.
-
-			// ...crosses region boundaries
-			error = "AcquireErrorObjectSpan";
-			break;
+			first_region = region;
+		}
+		else
+		{
+			if(region != first_region)
+			{
+				// Derez doesn't work at all if the some of the objects
+				// are in regions besides the first object selected.
+				
+				// ...crosses region boundaries
+				error = "AcquireErrorObjectSpan";
+				break;
+			}
 		}
 		if (object->isAvatar())
 		{
@@ -3440,7 +3444,7 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 			*/
 			continue;
 		}
-		can_derez_current = FALSE;
+		BOOL can_derez_current = FALSE;
 		switch(dest)
 		{
 		case DRD_TAKE_INTO_AGENT_INVENTORY:
@@ -3484,7 +3488,7 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 		error = "AcquireErrorTooManyObjects";
 	}
 
-	if(!error && derez_objects.count() > 0)
+	if(error.empty() && derez_objects.count() > 0)
 	{
 		U8 d = (U8)dest;
 		LLUUID tid;
@@ -3513,7 +3517,7 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 				  && (objects_in_packet++ < MAX_ROOTS_PER_PACKET))
 
 			{
-				object = derez_objects.get(object_index++);
+				LLViewerObject* object = derez_objects.get(object_index++);
 				msg->nextBlockFast(_PREHASH_ObjectData);
 				msg->addU32Fast(_PREHASH_ObjectLocalID, object->getLocalID());
 				// VEFFECT: DerezObject
@@ -3521,7 +3525,7 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 				effectp->setPositionGlobal(object->getPositionGlobal());
 				effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 			}
-			msg->sendReliable(region->getHost());
+			msg->sendReliable(first_region->getHost());
 		}
 		make_ui_sound("UISndObjectRezOut");
 
@@ -3532,7 +3536,7 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 			gViewerWindow->getWindow()->incBusyCount();
 		}
 	}
-	else if(error)
+	else if(!error.empty())
 	{
 		gViewerWindow->alertXml(error);
 	}
@@ -3612,20 +3616,17 @@ class LLObjectEnableReturn : public view_listener_t
 				}
 				else
 				{
-					LLObjectSelectionHandle selection = gSelectMgr->getSelection();
-					LLViewerObject* obj = NULL;
-					for(obj = selection->getFirstRootObject();
-						obj;
-						obj = selection->getNextRootObject())
+					struct f : public LLSelectedObjectFunctor
 					{
-						if (obj->isOverAgentOwnedLand()
-							|| obj->isOverGroupOwnedLand()
-							|| obj->permModify())
+						virtual bool apply(LLViewerObject* obj)
 						{
-							new_value = true;
-							break;
+							return (obj->isOverAgentOwnedLand() ||
+									obj->isOverGroupOwnedLand() ||
+									obj->permModify());
 						}
-					}
+					} func;
+					const bool firstonly = true;
+					new_value = gSelectMgr->getSelection()->applyToRootObjects(&func, firstonly);
 				}
 			}
 		}
@@ -3641,373 +3642,25 @@ void force_take_copy(void*)
 	const LLUUID& category_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_OBJECT);
 	derez_objects(DRD_FORCE_TO_GOD_INVENTORY, category_id);
 }
-#ifdef _CORY_TESTING
-
-void force_export_copy(void*)
-{
-	LLViewerObject* object = NULL;
-	LLSelectNode* node = gSelectMgr->getSelection()->getFirstNode();
-	if(!node) return;
-	object = node->getObject();
-	if(!object) return;
-
-
-	LLString proposed_name;
-	proposed_name.append(node->mName);
-	proposed_name.append( ".slg" );
-
-	LLViewerRegion* region = object->getRegion();
-
-	// Check conditions that we can't deal with, building a list of
-	// everything that we'll actually be derezzing.
-	
-	std::vector<LLViewerObject*>		export_objects;
-	std::vector<std::string>			export_names;
-	std::vector<std::string>			export_descriptions;
-
-	S32 object_index = 0;
-
-	for( ; node != NULL; node = gSelectMgr->getSelection()->getNextNode())
-	{
-		object = node->getObject();
-		if(!object || !node->mValid)
-		{
-			// Clicked cancel
-			return;
-		}
-		if(object->getRegion() != region)
-		{
-			// Clicked cancel
-			return;
-		}
-		if (object->isAvatar())
-		{
-			continue;
-		}
-
-		if (object->getNVPair("AssetContainer"))
-		{
-			continue;
-		}
-		export_objects.push_back(node->getObject());
-		export_names.push_back(node->mName);
-		export_descriptions.push_back(node->mDescription);
-	}
-
-	if (export_objects.empty())
-	{
-		return;
-	}
-
-	// pick a save file
-	LLFilePicker& picker = LLFilePicker::instance();
-	if (!picker.getSaveFile(LLFilePicker::FFSAVE_GEOMETRY, proposed_name))
-	{
-		// Clicked cancel
-		return;
-	}
-
-	// Copy the directory + file name
-	char filepath[LL_MAX_PATH];		/* Flawfinder: ignore */
-	strncpy(filepath, picker.getFirstFile(), LL_MAX_PATH -1);		/* Flawfinder: ignore */
-	filepath[LL_MAX_PATH -1] = '\0';
-
-	apr_file_t* fp = ll_apr_file_open(filepath, LL_APR_W);
-
-	if (!fp)
-	{
-		return;
-	}
-
-	object = export_objects[object_index];
-	LLVector3 baseoffset = object->getPositionRegion();
-
-	apr_file_printf(fp, "<?xml version=\"1.0\" encoding=\"US-ASCII\" standalone=\"yes\"?>\n");
-	apr_file_printf(fp, "<LindenGeometry>\n");
-
-	while(object_index < export_objects.size())
-	{
-		apr_file_printf(fp, "<Object\n");
-		apr_file_printf(fp, "\tShape='%s'\n", export_names[object_index].c_str());
-		apr_file_printf(fp, "\tDescription='%s'\n", export_descriptions[object_index].c_str());
-
-		apr_file_printf(fp, "\tPCode='%d'\n", (U32)object->getPCode());
-		apr_file_printf(fp, "\tMaterial='%d'\n", object->getMaterial());
-		apr_file_printf(fp, "\tScale='%5f %5f %5f'\n", object->getScale().mV[VX], object->getScale().mV[VY], object->getScale().mV[VZ]);
-		LLVector3 delta = object->getPositionRegion() - baseoffset;
-		LLQuaternion rot = object->getRotationRegion();
-		apr_file_printf(fp, "\tOffset='%5f %5f %5f'\n", delta.mV[VX], delta.mV[VY], delta.mV[VZ]);
-		apr_file_printf(fp, "\tOrientation='%5f %5f %5f %5f'\n", rot.mQ[VX], rot.mQ[VY], rot.mQ[VZ], rot.mQ[VS]);
-		const LLProfileParams pparams = object->getVolume()->getProfile().mParams;
-		apr_file_printf(fp, "\tShapeProfile='%d %f %f %f'\n", pparams.getCurveType(), pparams.getBegin(), pparams.getEnd(), pparams.getHollow());
-		const LLPathParams paparams = object->getVolume()->getPath().mParams;
-		apr_file_printf(fp, "\tShapePath='%d %f %f %f %f %f %f %f %f %f %f %f %f %f'\n",
-								 paparams.getCurveType(), paparams.getBegin(), paparams.getEnd(), paparams.getTwist(), paparams.getTwistBegin(), paparams.getScaleX(), paparams.getScaleY(),
-								 paparams.getShearX(), paparams.getShearY(), paparams.getRadiusOffset(), paparams.getTaperX(), paparams.getTaperY(),
-								 paparams.getRevolutions(), paparams.getSkew());
-		S32 face, numfaces;
-		numfaces = object->getNumTEs();
-		apr_file_printf(fp, "\tNumberOfFaces='%d'>\n", numfaces);
-		for (face = 0; face < numfaces; face++)
-		{
-			const LLTextureEntry *te = object->getTE(face);
-			LLColor4 color = te->getColor();
-			apr_file_printf(fp, "\t<Face\n\t\tFaceColor='%d %5f %5f %5f %5f'\n", face, color.mV[VX], color.mV[VY], color.mV[VZ], color.mV[VW]);
-			
-			char texture[UUID_STR_LENGTH];		/* Flawfinder: ignore */
-			LLUUID texid = te->getID();
-			texid.toString(texture);
-			F32 sx, sy, ox, oy;
-			te->getScale(&sx, &sy);
-			te->getOffset(&ox, &oy);
-			
-			apr_file_printf(fp, "\t\tFace='%d %5f %5f %5f %5f %5f %d %s'\n\t/>\n", face, sx, sy, ox, oy, te->getRotation(), te->getBumpShinyFullbright(), texture);
-		}
-		apr_file_printf(fp, "</Object>\n");
-		object = export_objects[++object_index];
-	}
-
-	apr_file_printf(fp, "</LindenGeometry>\n");
-
-	fclose(fp);
-}
-
-void undo_find_local_contact_point(LLVector3 &contact,
-								   const LLVector3& surface_norm, 
-								   const LLQuaternion& rot, 
-								   const LLVector3& scale  )
-{
-	LLVector3 local_norm = surface_norm;
-	local_norm.rotVec( ~rot );
-
-	LLVector3 v[6]; 
-	v[0].mV[VX] = -1.f;
-	v[1].mV[VX] = 1.f;
-	
-	v[2].mV[VY] = -1.f;
-	v[3].mV[VY] = 1.f;
-
-	v[4].mV[VZ] = -1.f;
-	v[5].mV[VZ] = 1.f;
-
-	contact = v[0];
-	F32 cur_val = 0;
-
-	for( S32 i = 0; i < 6; i++ )
-	{
-		F32 val = v[i] * local_norm;
-		if( val < cur_val )
-		{
-			contact = v[i];
-			cur_val = val;
-		}
-	}
-
-	contact.mV[VX] *= 0.5f * scale.mV[VX];
-	contact.mV[VY] *= 0.5f * scale.mV[VY];
-	contact.mV[VZ] *= 0.5f * scale.mV[VZ];
-	contact.rotVec( rot );
-}
-
-
-
-void force_import_geometry(void*)
-{
-	LLFilePicker& picker = LLFilePicker::instance();
-	if (!picker.getOpenFile(LLFilePicker::FFLOAD_GEOMETRY))
-	{
-		llinfos << "Couldn't import objects from file" << llendl;
-		return;
-	}
-
-	char directory[LL_MAX_PATH];		/* Flawfinder: ignore */
-	strncpy(directory, picker.getFirstFile(), LL_MAX_PATH -1);		/* Flawfinder: ignore */
-	directory[LL_MAX_PATH -1] = '\0';
-
-	llinfos << "Loading LSG file " << directory << llendl;
-	LLXmlTree *xmlparser = new LLXmlTree();
-	xmlparser->parseFile(directory, TRUE);
-	LLXmlTreeNode	*root = xmlparser->getRoot();
-	if( !root )
-	{
-		return;
-	}
-	// header
-	if( !root->hasName( "LindenGeometry" ) )
-	{
-		llwarns << "Invalid LindenGeometry file header: " << directory << llendl;
-		return;
-	}
-	// objects
-	for (LLXmlTreeNode *child = root->getChildByName( "Object" );
-		 child;
-		 child = root->getNextNamedChild())
-	{
-		// get object data
-		// *NOTE: This buffer size is hard coded into scanf() below.
-		char name[255];		/* Flawfinder: ignore */			// Shape
-		char description[255];		/* Flawfinder: ignore */		// Description
-		U32	 material;			// Material
-		F32  sx, sy, sz;		// Scale
-		LLVector3 scale;
-		F32  ox, oy, oz;		// Offset
-		LLVector3 offset;
-		F32  rx, ry, rz, rs;	// Orientation
-		LLQuaternion rot;
-		U32	 curve;
-		F32  begin;
-		F32  end;
-		F32	 hollow;
-		F32	 twist;
-		F32	 scx, scy;
-		F32  shx, shy;
-		F32  twist_begin;
-		F32	 radius_offset;
-		F32  tx, ty;
-		F32	 revolutions;
-		F32	 skew;
-		S32  faces;
-		U32 pcode;
-		U32 flags = FLAGS_CREATE_SELECTED;
-
-		LLString attribute;
-
-		S32 count = 0;
-
-		child->getAttributeString("PCode", &attribute);
-		pcode = atoi(attribute.c_str());
-		child->getAttributeString("Shape", &attribute);
-		sscanf(	/* Flawfinder: ignore */
-			attribute.c_str(), "%254s", name);
-		child->getAttributeString("Description", &attribute);
-		sscanf(	/* Flawfinder: ignore */
-			attribute.c_str(), "%254s", description);
-		child->getAttributeString("Material", &attribute);
-		material = atoi(attribute.c_str());
-		child->getAttributeString("Scale", &attribute);
-		sscanf(attribute.c_str(), "%f %f %f", &sx, &sy, &sz);
-		scale.setVec(sx, sy, sz);
-		child->getAttributeString("Offset", &attribute);
-		sscanf(attribute.c_str(), "%f %f %f", &ox, &oy, &oz);
-		offset.setVec(ox, oy, oz);
-		child->getAttributeString("Orientation", &attribute);
-		sscanf(attribute.c_str(), "%f %f %f %f", &rx, &ry, &rz, &rs);
-		rot.mQ[VX] = rx;
-		rot.mQ[VY] = ry;
-		rot.mQ[VZ] = rz;
-		rot.mQ[VS] = rs;
-
-		child->getAttributeString("ShapeProfile", &attribute);
-		sscanf(attribute.c_str(), "%d %f %f %f", &curve, &begin, &end, &hollow);
-		LLProfileParams pparams(curve, begin, end, hollow);
-		child->getAttributeString("ShapePath", &attribute);
-		sscanf(attribute.c_str(), "%d %f %f %f %f %f %f %f %f %f %f %f %f %f", 
-			&curve, &begin, &end, &twist, &twist_begin, &scx, &scy, &shx, &shy, &radius_offset, &tx, &ty, &revolutions, &skew);
-		LLPathParams paparams(curve, begin, end, scx, scy, shx, shy, twist, twist_begin, radius_offset, tx, ty, revolutions, skew);
-		child->getAttributeString("NumberOfFaces", &attribute);
-		faces = atoi(attribute.c_str());
-
-
-
-		gMessageSystem->newMessageFast(_PREHASH_ObjectAdd);
-		gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		gMessageSystem->addUUIDFast(_PREHASH_GroupID, gAgent.getGroupID());
-
-		gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-		gMessageSystem->addU8Fast(_PREHASH_PCode,		pcode);
-		gMessageSystem->addU8Fast(_PREHASH_Material,	material);
-		gMessageSystem->addU32Fast(_PREHASH_AddFlags,	flags );
-		pparams.packMessage(gMessageSystem);
-		paparams.packMessage(gMessageSystem);
-
-		LLVector3 forward;
-		forward.setVec(3.f, 0.f, 1.f);
-		forward = forward * gAgent.getQuat();
-
-		LLVector3 start = gAgent.getPositionAgent() + forward;
-
-		start += offset;
-
-		// offset position to make up for error introduced by placement code
-		LLVector3 normal(0.f, 0.f, 1.f);
-		LLVector3 delta;
-
-		undo_find_local_contact_point(delta, normal, rot, scale);
-
-		start += delta;
-
-		gMessageSystem->addVector3Fast(_PREHASH_Scale,			scale );
-		gMessageSystem->addQuatFast(_PREHASH_Rotation,			rot );
-		gMessageSystem->addVector3Fast(_PREHASH_RayStart,		start );
-		gMessageSystem->addVector3Fast(_PREHASH_RayEnd,			start );
-		gMessageSystem->addBOOLFast(_PREHASH_BypassRaycast,		TRUE );
-		gMessageSystem->addBOOLFast(_PREHASH_RayEndIsIntersection,	FALSE );
-
-		U8 state = 0;
-		gMessageSystem->addU8Fast(_PREHASH_State, state);
-	
-		LLUUID ray_target_id;
-		gMessageSystem->addUUIDFast(_PREHASH_RayTargetID,			ray_target_id );
-	
-		/* Setting TE info through ObjectAdd is no longer supported.
-		LLPrimitive     temp_primitive;
-		temp_primitive.setNumTEs(faces);
-		for (LLXmlTreeNode *face = child->getChildByName( "Face" );
-			 face;
-			 face = child->getNextNamedChild())
-		{
-			// read the faces
-			U32 facenumber;
-			LLColor4 color;
-			// *NOTE: This buffer size is hard coded into scanf() below.
-			char texture[UUID_STR_LENGTH];
-			LLUUID texid;
-			texid.toString(texture);
-			F32 sx, sy, ox, oy, rot;
-			U8 bump;
-			LLTextureEntry te;
-
-			face->getAttributeString("FaceColor", &attribute);
-			sscanf(attribute, "%d %f %f %f %f", &facenumber, &color.mV[VX], &color.mV[VY], &color.mV[VZ], &color.mV[VW]);
-			face->getAttributeString("Face", &attribute);
-			sscanf(attribute, "%d %f %f %f %f %f %d %36s", &facenumber, &sx, &sy, &ox, &oy, &rot, &bump, texture);
-			texid.set(texture);
-			te.setColor(color);
-			te.setBumpShinyFullbright(bump);
-			te.setID(texid);
-			te.setRotation(rot);
-			te.setOffset(ox, oy);
-			te.setScale(sx, sy);
-
-			temp_primitive.setTE(facenumber, te);
-		}
-
-		temp_primitive.packTEMessage(gMessageSystem);
-		*/
-		gMessageSystem->sendReliable(gAgent.getRegionHost());
-	}
-
-}
-#endif
 
 void handle_take()
 {
 	// we want to use the folder this was derezzed from if it's
 	// available. Otherwise, derez to the normal place.
-	if(gSelectMgr->getSelection()->isEmpty()) return;
-	LLSelectNode* node = NULL;
-	LLViewerObject* object = NULL;
+	if(gSelectMgr->getSelection()->isEmpty())
+	{
+		return;
+	}
+	
 	BOOL you_own_everything = TRUE;
-
 	BOOL locked_but_takeable_object = FALSE;
 	LLUUID category_id;
-	for(node = gSelectMgr->getSelection()->getFirstRootNode();
-		node != NULL;
-		node = gSelectMgr->getSelection()->getNextRootNode())
+	
+	for (LLObjectSelection::root_iterator iter = gSelectMgr->getSelection()->root_begin();
+		 iter != gSelectMgr->getSelection()->root_end(); iter++)
 	{
-		object = node->getObject();
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
 		if(object)
 		{
 			if(!object->permYouOwner())
@@ -4016,11 +3669,8 @@ void handle_take()
 			}
 
 			if(!object->permMove())
-
 			{
-
 				locked_but_takeable_object = TRUE;
-
 			}
 		}
 		if(node->mFolderID.notNull())
@@ -4071,7 +3721,6 @@ void handle_take()
 	}
 	LLUUID* cat_id = new LLUUID(category_id);
 	if(locked_but_takeable_object ||
-
 	   !you_own_everything)
 	{
 		if(locked_but_takeable_object && you_own_everything)
@@ -4124,13 +3773,11 @@ BOOL enable_take()
 		return FALSE;
 	}
 
-	LLViewerObject* object = NULL;
-	for(LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
-		node != NULL;
-		node = gSelectMgr->getSelection()->getNextRootNode())
+	for (LLObjectSelection::valid_root_iterator iter = gSelectMgr->getSelection()->valid_root_begin();
+		 iter != gSelectMgr->getSelection()->valid_root_end(); iter++)
 	{
-		object = node->getObject();
-		if(!object || !node->mValid) continue;
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
 		if (object->isAvatar())
 		{
 			// ...don't acquire avatars
@@ -4240,12 +3887,11 @@ class LLToolsEnableBuyOrTake : public view_listener_t
 //                FALSE if selection is a 'take'
 BOOL is_selection_buy_not_take()
 {
-	LLViewerObject* obj = NULL;
-	for(LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
-		node != NULL;
-		node = gSelectMgr->getSelection()->getNextRootNode())
+	for (LLObjectSelection::root_iterator iter = gSelectMgr->getSelection()->root_begin();
+		 iter != gSelectMgr->getSelection()->root_end(); iter++)
 	{
-		obj = node->getObject();
+		LLSelectNode* node = *iter;
+		LLViewerObject* obj = node->getObject();
 		if(obj && !(obj->permYouOwner()) && (node->mSaleInfo.isForSale()))
 		{
 			// you do not own the object and it is for sale, thus,
@@ -4258,13 +3904,12 @@ BOOL is_selection_buy_not_take()
 
 S32 selection_price()
 {
-	LLViewerObject* obj = NULL;
 	S32 total_price = 0;
-	for(LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
-		node != NULL;
-		node = gSelectMgr->getSelection()->getNextRootNode())
+	for (LLObjectSelection::root_iterator iter = gSelectMgr->getSelection()->root_begin();
+		 iter != gSelectMgr->getSelection()->root_end(); iter++)
 	{
-		obj = node->getObject();
+		LLSelectNode* node = *iter;
+		LLViewerObject* obj = node->getObject();
 		if(obj && !(obj->permYouOwner()) && (node->mSaleInfo.isForSale()))
 		{
 			// you do not own the object and it is for sale.
@@ -4404,12 +4049,11 @@ class LLToolsSnapObjectXY : public view_listener_t
 	{
 		F64 snap_size = (F64)gSavedSettings.getF32("GridResolution");
 
-		LLViewerObject* obj;
-		LLObjectSelectionHandle selection = gSelectMgr->getSelection();
-		for (obj = selection->getFirstRootObject();
-			obj != NULL;
-			obj = selection->getNextRootObject())
+		for (LLObjectSelection::root_iterator iter = gSelectMgr->getSelection()->root_begin();
+			 iter != gSelectMgr->getSelection()->root_end(); iter++)
 		{
+			LLSelectNode* node = *iter;
+			LLViewerObject* obj = node->getObject();
 			if (obj->permModify())
 			{
 				LLVector3d pos_global = obj->getPositionGlobal();
@@ -4466,17 +4110,15 @@ class LLToolsEnableLink : public view_listener_t
 		{
 			if(gSelectMgr->selectGetAllRootsValid() && gSelectMgr->getSelection()->getRootObjectCount() >= 2)
 			{
-				LLObjectSelectionHandle selection = gSelectMgr->getSelection();
-				for(LLViewerObject* object = selection->getFirstRootObject();
-					object != NULL;
-					object = selection->getNextRootObject())
+				struct f : public LLSelectedObjectFunctor
 				{
-					if(object->permModify())
+					virtual bool apply(LLViewerObject* object)
 					{
-						new_value = true;
-						break;
+						return object->permModify();
 					}
-				}
+				} func;
+				const bool firstonly = true;
+				new_value = gSelectMgr->getSelection()->applyToRootObjects(&func, firstonly);
 			}
 		}
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
@@ -4914,7 +4556,6 @@ void handle_export_selected( void * )
 		return;
 	}
 	llinfos << "Exporting selected objects:" << llendl;
-	LLViewerObject *object = selection->getFirstRootObject();
 
 	gExporterRequestID.generate();
 	gExportDirectory = "";
@@ -4926,8 +4567,11 @@ void handle_export_selected( void * )
 	msg->addUUIDFast(_PREHASH_RequestID, gExporterRequestID);
 	msg->addS16Fast(_PREHASH_VolumeDetail, 4);
 
-	for (; object != NULL; object = selection->getNextRootObject())
+	for (LLObjectSelection::root_iterator iter = selection->root_begin();
+		 iter != selection->root_end(); iter++)
 	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
 		msg->nextBlockFast(_PREHASH_ObjectData);
 		msg->addUUIDFast(_PREHASH_ObjectID, object->getID());
 		llinfos << "Object: " << object->getID() << llendl;
@@ -5321,16 +4965,21 @@ void handle_force_unlock(void*)
 	gSelectMgr->sendOwner(LLUUID::null, LLUUID::null, TRUE);
 
 	// Second, lie to the viewer and mark it editable and unowned
-	LLViewerObject* object;
-	for (object = gSelectMgr->getSelection()->getFirstObject(); object; object = gSelectMgr->getSelection()->getNextObject() )
-	{
-		object->mFlags |= FLAGS_OBJECT_MOVE;
-		object->mFlags |= FLAGS_OBJECT_MODIFY;
-		object->mFlags |= FLAGS_OBJECT_COPY;
 
-		object->mFlags &= ~FLAGS_OBJECT_ANY_OWNER;
-		object->mFlags &= ~FLAGS_OBJECT_YOU_OWNER;
-	}
+	struct f : public LLSelectedObjectFunctor
+	{
+		virtual bool apply(LLViewerObject* object)
+		{
+			object->mFlags |= FLAGS_OBJECT_MOVE;
+			object->mFlags |= FLAGS_OBJECT_MODIFY;
+			object->mFlags |= FLAGS_OBJECT_COPY;
+
+			object->mFlags &= ~FLAGS_OBJECT_ANY_OWNER;
+			object->mFlags &= ~FLAGS_OBJECT_YOU_OWNER;
+			return true;
+		}
+	} func;
+	gSelectMgr->getSelection()->applyToObjects(&func);
 }
 
 // Fullscreen debug stuff
@@ -6169,11 +5818,16 @@ class LLAttachmentEnableDetach : public view_listener_t
 BOOL object_selected_and_point_valid(void *user_data)
 {
 	//LLViewerJointAttachment *attachment = (LLViewerJointAttachment *)user_data;
-	if (gSelectMgr == NULL) return FALSE;
-
-	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
-	for (LLViewerObject *object = selection->getFirstRootObject(); object; object = selection->getNextRootObject())
+	if (gSelectMgr == NULL)
 	{
+		return FALSE;
+	}
+	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+	for (LLObjectSelection::root_iterator iter = selection->root_begin();
+		 iter != selection->root_end(); iter++)
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
 		for (U32 child_num = 0; child_num < object->mChildList.size(); child_num++ )
 		{
 			if (object->mChildList[child_num]->isAvatar())
@@ -6245,12 +5899,68 @@ BOOL enable_activate(void*)
 	return FALSE;
 }
 
+namespace
+{
+	struct QueueObjects : public LLSelectedObjectFunctor
+	{
+		BOOL scripted;
+		BOOL modifiable;
+		LLFloaterScriptQueue* mQueue;
+		QueueObjects(LLFloaterScriptQueue* q) : mQueue(q), scripted(FALSE), modifiable(FALSE) {}
+		virtual bool apply(LLViewerObject* obj)
+		{
+			scripted = obj->flagScripted();
+			modifiable = obj->permModify();
+
+			if( scripted && modifiable )
+			{
+				mQueue->addObject(obj->getID());
+				return false;
+			}
+			else
+			{
+				return true; // fail: stop applying
+			}
+		}
+	};
+}
+
+void queue_actions(LLFloaterScriptQueue* q, const std::string& noscriptmsg, const std::string& nomodmsg)
+{
+	// Apply until an object fails
+	QueueObjects func(q);
+	const bool firstonly = true;
+	bool fail = gSelectMgr->getSelection()->applyToObjects(&func, firstonly);
+	if(fail)
+	{
+		if ( !func.scripted )
+		{
+			gViewerWindow->alertXml(noscriptmsg);
+		}
+		else if ( !func.modifiable )
+		{
+			gViewerWindow->alertXml(nomodmsg);
+		}
+		else
+		{
+			llerrs << "Bad logic." << llendl;
+		}
+	}
+	else
+	{
+		if (!q->start())
+		{
+			llwarns << "Unexpected script compile failure." << llendl;
+		}
+	}
+}
+
 class LLToolsSelectedScriptAction : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		LLString action = userdata.asString();
-		LLFloaterScriptQueue *queue = NULL;
+		LLFloaterScriptQueue* queue = NULL;
 		if (action == "compile")
 		{
 			queue = LLFloaterCompileQueue::create();
@@ -6267,35 +5977,13 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		{
 			queue = LLFloaterNotRunQueue::create();
 		}
-		if (!queue) return true;
-
-		BOOL scripted = FALSE;
-		BOOL modifiable = FALSE;
-
-		for(LLViewerObject* obj = gSelectMgr->getSelection()->getFirstObject();
-			obj;
-			obj = gSelectMgr->getSelection()->getNextObject())
+		if (!queue)
 		{
-			scripted = obj->flagScripted();
-			modifiable = obj->permModify();
-
-			if( scripted &&  modifiable )
-				queue->addObject(obj->getID());
-			else
-				break;
+			return true;
 		}
 
-		if(!queue->start())
-		{
-			if ( ! scripted )
-			{
-				gViewerWindow->alertXml("CannotRecompileSelectObjectsNoScripts");
-			}
-			else if ( ! modifiable )
-			{
-				gViewerWindow->alertXml("CannotRecompileSelectObjectsNoPermission");
-			}
-		}
+		queue_actions(queue, "CannotRecompileSelectObjectsNoScripts", "CannotRecompileSelectObjectsNoPermission");
+
 		return true;
 	}
 };
@@ -6303,109 +5991,28 @@ class LLToolsSelectedScriptAction : public view_listener_t
 void handle_reset_selection(void*)
 {
 	LLFloaterResetQueue* queue = LLFloaterResetQueue::create();
-
-	BOOL scripted = FALSE;
-	BOOL modifiable = FALSE;
-
-	for(LLViewerObject* obj = gSelectMgr->getSelection()->getFirstObject();
-		obj;
-		obj = gSelectMgr->getSelection()->getNextObject())
-	{
-		scripted = obj->flagScripted();
-		modifiable = obj->permModify();
-
-		if( scripted &&  modifiable )
-			queue->addObject(obj->getID());
-		else
-			break;
-	}
-
-	if(!queue->start())
-	{
-		if ( ! scripted )
-		{
-			gViewerWindow->alertXml("CannotResetSelectObjectsNoScripts");
-		}
-		else if ( ! modifiable )
-		{
-			gViewerWindow->alertXml("CannotResetSelectObjectsNoPermission");
-		}
-	}
+	queue_actions(queue, "CannotResetSelectObjectsNoScripts", "CannotResetSelectObjectsNoPermission");
 }
 
 void handle_set_run_selection(void*)
 {
 	LLFloaterRunQueue* queue = LLFloaterRunQueue::create();
-
-	BOOL scripted = FALSE;
-	BOOL modifiable = FALSE;
-
-	for(LLViewerObject* obj = gSelectMgr->getSelection()->getFirstObject();
-		obj;
-		obj = gSelectMgr->getSelection()->getNextObject())
-	{
-		scripted = obj->flagScripted();
-		modifiable = obj->permModify();
-
-		if( scripted &&  modifiable )
-			queue->addObject(obj->getID());
-		else
-			break;
-	}
-
-	if(!queue->start())
-	{
-		if ( ! scripted )
-		{
-			gViewerWindow->alertXml("CannotSetRunningSelectObjectsNoScripts");
-		}
-		else if ( ! modifiable )
-		{
-			gViewerWindow->alertXml("CannotSerRunningSelectObjectsNoPermission");
-		}
-	}
+	queue_actions(queue, "CannotSetRunningSelectObjectsNoScripts", "CannotSerRunningSelectObjectsNoPermission");
 }
 
 void handle_set_not_run_selection(void*)
 {
 	LLFloaterNotRunQueue* queue = LLFloaterNotRunQueue::create();
-
-	BOOL scripted = FALSE;
-	BOOL modifiable = FALSE;
-
-	for(LLViewerObject* obj = gSelectMgr->getSelection()->getFirstObject();
-		obj;
-		obj = gSelectMgr->getSelection()->getNextObject())
-	{
-		scripted = obj->flagScripted();
-		modifiable = obj->permModify();
-
-		if( scripted &&  modifiable )
-			queue->addObject(obj->getID());
-		else
-			break;
-	}
-
-	if(!queue->start())
-	{
-		if ( ! scripted )
-		{
-			gViewerWindow->alertXml("CannotSetRunningNotSelectObjectsNoScripts");
-		}
-		else if ( ! modifiable )
-		{
-			gViewerWindow->alertXml("CannotSerRunningNotSelectObjectsNoPermission");
-		}
-	}
+	queue_actions(queue, "CannotSetRunningNotSelectObjectsNoScripts", "CannotSerRunningNotSelectObjectsNoPermission");
 }
 
 void handle_selected_texture_info(void*)
 {
-	LLSelectNode* node = NULL;
-	for (node = gSelectMgr->getSelection()->getFirstNode(); node != NULL; node = gSelectMgr->getSelection()->getNextNode())
+	for (LLObjectSelection::valid_iterator iter = gSelectMgr->getSelection()->valid_begin();
+		 iter != gSelectMgr->getSelection()->valid_end(); iter++)
 	{
-		if (!node->mValid) continue;
-
+		LLSelectNode* node = *iter;
+		
 		std::string msg;
 		msg.assign("Texture info for: ");
 		msg.append(node->mName);
@@ -6625,51 +6232,52 @@ class LLToolsEnableTakeCopy : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = false;
+		bool all_valid = false;
 		if (gSelectMgr)
 		{
-			new_value = true;
+			all_valid = true;
 #ifndef HACKED_GODLIKE_VIEWER
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 			if (gInProductionGrid || !gAgent.isGodlike())
 # endif
 			{
-				LLObjectSelectionHandle selection = gSelectMgr->getSelection();
-				LLViewerObject* obj = selection->getFirstRootObject();
-				if(obj)
+				struct f : public LLSelectedObjectFunctor
 				{
-					for( ; obj; obj = selection->getNextRootObject())
+					virtual bool apply(LLViewerObject* obj)
 					{
-						if(!(obj->permCopy()) || obj->isAttachment())
-						{
-							new_value = false;
-						}
+						return (!obj->permCopy() || obj->isAttachment());
 					}
-				}
+				} func;
+				const bool firstonly = true;
+				bool any_invalid = gSelectMgr->getSelection()->applyToRootObjects(&func, firstonly);
+				all_valid = !any_invalid;
 			}
 #endif // HACKED_GODLIKE_VIEWER
 		}
 
-		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(all_valid);
 		return true;
 	}
 };
 
 BOOL enable_selection_you_own_all(void*)
 {
-	LLViewerObject *obj;
 	if (gSelectMgr)
 	{
-		LLObjectSelectionHandle selection = gSelectMgr->getSelection();
-		for (obj = selection->getFirstRootObject(); obj; obj = selection->getNextRootObject())
+		struct f : public LLSelectedObjectFunctor
 		{
-			if (!obj->permYouOwner())
+			virtual bool apply(LLViewerObject* obj)
 			{
-				return FALSE;
+				return (!obj->permYouOwner());
 			}
+		} func;
+		const bool firstonly = true;
+		bool no_perms = gSelectMgr->getSelection()->applyToRootObjects(&func, firstonly);
+		if (no_perms)
+		{
+			return FALSE;
 		}
 	}
-
 	return TRUE;
 }
 
@@ -6677,17 +6285,21 @@ BOOL enable_selection_you_own_one(void*)
 {
 	if (gSelectMgr)
 	{
-		LLObjectSelectionHandle selection = gSelectMgr->getSelection();
-		LLViewerObject *obj;
-		for (obj = selection->getFirstRootObject(); obj; obj = selection->getNextRootObject())
+		struct f : public LLSelectedObjectFunctor
 		{
-			if (obj->permYouOwner())
+			virtual bool apply(LLViewerObject* obj)
 			{
-				return TRUE;
+				return (obj->permYouOwner());
 			}
+		} func;
+		const bool firstonly = true;
+		bool any_perms = gSelectMgr->getSelection()->applyToRootObjects(&func, firstonly);
+		if (!any_perms)
+		{
+			return FALSE;
 		}
 	}
-	return FALSE;
+	return TRUE;
 }
 
 class LLHasAsset : public LLInventoryCollectFunctor
@@ -6718,13 +6330,13 @@ BOOL enable_save_into_inventory(void*)
 {
 	if(gSelectMgr)
 	{
+		// *TODO: clean this up
 		// find the last root
 		LLSelectNode* last_node = NULL;
-		for(LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
-			node != NULL;
-			node = gSelectMgr->getSelection()->getNextRootNode())
+		for (LLObjectSelection::root_iterator iter = gSelectMgr->getSelection()->root_begin();
+			 iter != gSelectMgr->getSelection()->root_end(); iter++)
 		{
-			last_node = node;
+			last_node = *iter;
 		}
 
 #ifdef HACKED_GODLIKE_VIEWER
@@ -7206,13 +6818,15 @@ class LLToolsUseSelectionForGrid : public view_listener_t
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
 		gSelectMgr->clearGridObjects();
-		LLObjectSelectionHandle selection = gSelectMgr->getSelection();
-		for (LLViewerObject* objectp = selection->getFirstRootObject();
-			objectp;
-			objectp = selection->getNextRootObject())
+		struct f : public LLSelectedObjectFunctor
+		{
+			virtual bool apply(LLViewerObject* objectp)
 			{
 				gSelectMgr->addGridObject(objectp);
+				return true;
 			}
+		} func;
+		gSelectMgr->getSelection()->applyToRootObjects(&func);
 		gSelectMgr->setGridMode(GRID_MODE_REF_OBJECT);
 		if (gFloaterTools)
 		{

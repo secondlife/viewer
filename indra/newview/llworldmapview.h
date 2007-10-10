@@ -104,7 +104,7 @@ public:
 	// the view area.
 	void			drawTracking( const LLVector3d& pos_global, 
 								  const LLColor4& color,
-								  BOOL draw_arrow = TRUE, LLString label = "", LLString tooltip = "", S32 vert_offset = 0);
+								  BOOL draw_arrow = TRUE, LLString label = LLString(), LLString tooltip = "", S32 vert_offset = 0);
 	static void		drawTrackingArrow(const LLRect& view_rect, S32 x, S32 y, 
 									  const LLColor4& color,
 									  S32 arrow_size = DEFAULT_TRACKING_ARROW_SIZE);

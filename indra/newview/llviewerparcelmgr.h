@@ -280,7 +280,7 @@ public:
 	void sendParcelRelease();
 
 	// accessors for mAgentParcel
-	const char *getAgentParcelName() const;
+	const LLString& getAgentParcelName() const;
 
 	// Create a landmark at the "appropriate" location for the
 	// currently selected parcel.

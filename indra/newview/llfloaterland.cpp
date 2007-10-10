@@ -72,42 +72,9 @@
 #include "llviewercontrol.h"
 #include "roles_constants.h"
 
-static const S32 EDIT_HEIGHT = 16;
-static const S32 LEFT = HPAD;
-static const S32 BOTTOM = VPAD;
-static const S32 RULER0  = LEFT;
-static const S32 RULER05 = RULER0 + 24;
-static const S32 RULER1  = RULER05 + 16;
-static const S32 RULER15 = RULER1 + 20;
-static const S32 RULER2  = RULER1 + 32;
-static const S32 RULER205= RULER2 + 32;
-static const S32 RULER20 = RULER2 + 64;
-static const S32 RULER21 = RULER20 + 16;
-static const S32 RULER22 = RULER21 + 32;
-static const S32 RULER225 = RULER20 + 64;
-static const S32 RULER23 = RULER22 + 64;
-static const S32 RULER24 = RULER23 + 26;
-static const S32 RULER3  = RULER2 + 102;
-static const S32 RULER4  = RULER3 + 8;
-static const S32 RULER5  = RULER4 + 50;
-static const S32 RULER6  = RULER5 + 52;
-static const S32 RULER7  = RULER6 + 24;
-static const S32 RIGHT  = LEFT + 278;
-static const S32 FAR_RIGHT  = LEFT + 324 + 40;
-
-static const char PRICE[] = "Price:";
-static const char NO_PRICE[] = "";
-static const char AREA[] = "Area:";
-
 static const char OWNER_ONLINE[] 	= "0";
 static const char OWNER_OFFLINE[]	= "1";
 static const char OWNER_GROUP[] 	= "2";
-
-static const char NEED_TIER_TO_MODIFY_STRING[] = "You must approve your purchase to modify this land.";
-
-static const char WEB_PAGE[] = "Web page";
-static const char QUICKTIME_MOVIE[] = "QuickTime movie";
-static const char RAW_HTML[] = "Raw HTML";
 
 // constants used in callbacks below - syntactic sugar.
 static const BOOL BUY_GROUP_LAND = TRUE;
@@ -508,12 +475,12 @@ void LLPanelLandGeneral::refresh()
 	{
 		// nothing selected, disable panel
 		mEditName->setEnabled(FALSE);
-		mEditName->setText("");
+		mEditName->setText(LLString::null);
 
 		mEditDesc->setEnabled(FALSE);
-		mEditDesc->setText("");
+		mEditDesc->setText(LLString::null);
 
-		mTextSalePending->setText("");
+		mTextSalePending->setText(LLString::null);
 		mTextSalePending->setEnabled(FALSE);
 
 		mBtnDeedToGroup->setEnabled(FALSE);
@@ -525,14 +492,13 @@ void LLPanelLandGeneral::refresh()
 		mCheckContributeWithDeed->set(FALSE);
 		mCheckContributeWithDeed->setEnabled(FALSE);
 
-		mTextOwner->setText("");
-		mBtnProfile->setLabelSelected("Profile...");
-		mBtnProfile->setLabelUnselected("Profile...");
+		mTextOwner->setText(LLString::null);
+		mBtnProfile->setLabel(childGetText("profile_text"));
 		mBtnProfile->setEnabled(FALSE);
 
-		mTextClaimDate->setText("");
-		mTextGroup->setText("");
-		mTextPrice->setText("");
+		mTextClaimDate->setText(LLString::null);
+		mTextGroup->setText(LLString::null);
+		mTextPrice->setText(LLString::null);
 
 		mSaleInfoForSale1->setVisible(FALSE);
 		mSaleInfoForSale2->setVisible(FALSE);
@@ -542,8 +508,8 @@ void LLPanelLandGeneral::refresh()
 		mBtnSellLand->setVisible(FALSE);
 		mBtnStopSellLand->setVisible(FALSE);
 
-		mTextPriceLabel->setText(NO_PRICE);
-		mTextDwell->setText("");
+		mTextPriceLabel->setText(LLString::null);
+		mTextDwell->setText(LLString::null);
 
 		mBtnBuyLand->setEnabled(FALSE);
 		mBtnBuyGroupLand->setEnabled(FALSE);
@@ -579,14 +545,14 @@ void LLPanelLandGeneral::refresh()
 		// Is it owned?
 		if (is_public)
 		{
-			mTextSalePending->setText("");
+			mTextSalePending->setText(LLString::null);
 			mTextSalePending->setEnabled(FALSE);
-			mTextOwner->setText("(public)");
+			mTextOwner->setText(childGetText("public_text"));
 			mTextOwner->setEnabled(FALSE);
 			mBtnProfile->setEnabled(FALSE);
-			mTextClaimDate->setText("");
+			mTextClaimDate->setText(LLString::null);
 			mTextClaimDate->setEnabled(FALSE);
-			mTextGroup->setText("(none)");
+			mTextGroup->setText(childGetText("none_text"));
 			mTextGroup->setEnabled(FALSE);
 			mBtnStartAuction->setEnabled(FALSE);
 		}
@@ -594,20 +560,19 @@ void LLPanelLandGeneral::refresh()
 		{
 			if(!is_leased && (owner_id == gAgent.getID()))
 			{
-				mTextSalePending->setText(NEED_TIER_TO_MODIFY_STRING);
+				mTextSalePending->setText(childGetText("need_tier_to_modify"));
 				mTextSalePending->setEnabled(TRUE);
 			}
 			else if(parcel->getAuctionID())
 			{
-				char auction_str[MAX_STRING];		/*Flawfinder: ignore*/
-				snprintf(auction_str, sizeof(auction_str), "Auction ID: %u", parcel->getAuctionID());		/* Flawfinder: ignore */
-				mTextSalePending->setText(auction_str);
+				mTextSalePending->setText(childGetText("auction_id_text"));
+				mTextSalePending->setTextArg("[ID]", llformat("%u", parcel->getAuctionID()));
 				mTextSalePending->setEnabled(TRUE);
 			}
 			else
 			{
 				// not the owner, or it is leased
-				mTextSalePending->setText("");
+				mTextSalePending->setText(LLString::null);
 				mTextSalePending->setEnabled(FALSE);
 			}
 			//refreshNames();
@@ -619,26 +584,25 @@ void LLPanelLandGeneral::refresh()
 			if (parcel->getGroupID().isNull())
 			{
 				// Not group owned, so "Profile"
-				mBtnProfile->setLabelSelected("Profile...");
-				mBtnProfile->setLabelUnselected("Profile...");
+				mBtnProfile->setLabel(childGetText("profile_text"));
 
-				mTextGroup->setText("(none)");
+				mTextGroup->setText(childGetText("none_text"));
 				mTextGroup->setEnabled(FALSE);
 			}
 			else
 			{
 				// Group owned, so "Info"
-				mBtnProfile->setLabelSelected("Info...");
-				mBtnProfile->setLabelUnselected("Info...");
+				mBtnProfile->setLabel(childGetText("info_text"));
 
 				//mTextGroup->setText("HIPPOS!");//parcel->getGroupName());
 				mTextGroup->setEnabled(TRUE);
 			}
 
 			// Display claim date
+			// *TODO:Localize (Time format may need Translating)
 			time_t claim_date = parcel->getClaimDate();
 			char time_buf[TIME_STR_LENGTH];		/*Flawfinder: ignore*/
-			mTextClaimDate->setText(formatted_time(claim_date, time_buf));
+			mTextClaimDate->setText(LLString(formatted_time(claim_date, time_buf)));
 			mTextClaimDate->setEnabled(is_leased);
 
 			BOOL enable_auction = (gAgent.getGodLevel() >= GOD_LIAISON)
@@ -727,8 +691,6 @@ void LLPanelLandGeneral::refresh()
 			gParcelMgr->canAgentBuyParcel(parcel, true));
 
 		// show pricing information
-		char price[64];		/*Flawfinder: ignore*/
-		const char* label = NULL;
 		S32 area;
 		S32 claim_price;
 		S32 rent_price;
@@ -740,14 +702,12 @@ void LLPanelLandGeneral::refresh()
 								   &dwell);
 
 		// Area
-		snprintf(price, sizeof(price), "%d sq. m.", area);			/* Flawfinder: ignore */
-		label = AREA;
+		LLUIString price = childGetText("area_size_text");
+		price.setArg("[AREA]", llformat("%d",area));	
+		mTextPriceLabel->setText(childGetText("area_text"));
+		mTextPrice->setText(price.getString());
 		
-		mTextPriceLabel->setText(label);
-		mTextPrice->setText(price);
-		
-		snprintf(price, sizeof(price), "%.0f", dwell); 			/* Flawfinder: ignore */
-		mTextDwell->setText(price);
+		mTextDwell->setText(llformat("%.0f", dwell));
 
 		if(region_owner)
 		{
@@ -775,15 +735,14 @@ void LLPanelLandGeneral::refreshNames()
 	LLParcel *parcel = mParcel->getParcel();
 	if (!parcel)
 	{
-		mTextOwner->setText("");
+		mTextOwner->setText(LLString::null);
 		return;
 	}
 
-	char buffer[MAX_STRING];		/*Flawfinder: ignore*/
+	LLString owner;
 	if (parcel->getIsGroupOwned())
 	{
-		buffer[0] = '\0';
-		strcat(buffer, "(Group Owned)");	/*Flawfinder: ignore*/
+		owner = childGetText("group_owned_text");
 	}
 	else
 	{
@@ -791,24 +750,23 @@ void LLPanelLandGeneral::refreshNames()
 		char owner_first[MAX_STRING];	/*Flawfinder: ignore*/
 		char owner_last[MAX_STRING];	/*Flawfinder: ignore*/
 		gCacheName->getName(parcel->getOwnerID(), owner_first, owner_last);
-		snprintf(buffer, sizeof(buffer), "%s %s", owner_first, owner_last); 		/* Flawfinder: ignore */
+		owner = llformat("%s %s", owner_first, owner_last);
 	}
 
 	if(LLParcel::OS_LEASE_PENDING == parcel->getOwnershipStatus())
 	{
-		strcat(buffer, " (Sale Pending)");	/*Flawfinder: ignore*/
+		owner += childGetText("sale_pending_text");
 	}
-	mTextOwner->setText(buffer);
+	mTextOwner->setText(owner);
 
+	LLString group;
 	if(!parcel->getGroupID().isNull())
 	{
+		char buffer[MAX_STRING];	/*Flawfinder: ignore*/
 		gCacheName->getGroupName(parcel->getGroupID(), buffer);
+		group = buffer;
 	}
-	else
-	{
-		buffer[0] = '\0';
-	}
-	mTextGroup->setText(buffer);
+	mTextGroup->setText(group);
 
 	const LLUUID& auth_buyer_id = parcel->getAuthorizedBuyerID();
 	if(auth_buyer_id.notNull())
@@ -955,7 +913,7 @@ void LLPanelLandGeneral::onClickBuyPass(void* data)
 	if (!parcel) return;
 
 	S32 pass_price = parcel->getPassPrice();
-	const char* parcel_name = parcel->getName();
+	LLString parcel_name = parcel->getName();
 	F32 pass_hours = parcel->getPassHours();
 
 	char cost[256], time[256];		/*Flawfinder: ignore*/
@@ -1071,8 +1029,8 @@ BOOL LLPanelLandObjects::postBuild()
 {
 	
 	mFirstReply = TRUE;
-	mParcelObjectBonus = LLUICtrlFactory::getTextBoxByName(this, "Simulator Primitive Bonus Factor: 1.00");
-	mSWTotalObjects = LLUICtrlFactory::getTextBoxByName(this, "0 out of 0 available");
+	mParcelObjectBonus = LLUICtrlFactory::getTextBoxByName(this, "parcel_object_bonus");
+	mSWTotalObjects = LLUICtrlFactory::getTextBoxByName(this, "objects_available");
 	mObjectContribution = LLUICtrlFactory::getTextBoxByName(this, "object_contrib_text");
 	mTotalObjects = LLUICtrlFactory::getTextBoxByName(this, "total_objects_text");
 	mOwnerObjects = LLUICtrlFactory::getTextBoxByName(this, "owner_objects_text");
@@ -1221,17 +1179,18 @@ void LLPanelLandObjects::refresh()
 
 	if (!parcel)
 	{
-		mSWTotalObjects->setText("0 out of 0 available");
-		mObjectContribution->setText("0");
-		mTotalObjects->setText("0");
-		mOwnerObjects->setText("0");
-		mGroupObjects->setText("0");
-		mOtherObjects->setText("0");
-		mSelectedObjects->setText("0");
+		mSWTotalObjects->setTextArg("[COUNT]", llformat("%d", 0));
+		mSWTotalObjects->setTextArg("[TOTAL]", llformat("%d", 0));
+		mSWTotalObjects->setTextArg("[AVAILABLE]", llformat("%d", 0));
+		mObjectContribution->setTextArg("[COUNT]", llformat("%d", 0));
+		mTotalObjects->setTextArg("[COUNT]", llformat("%d", 0));
+		mOwnerObjects->setTextArg("[COUNT]", llformat("%d", 0));
+		mGroupObjects->setTextArg("[COUNT]", llformat("%d", 0));
+		mOtherObjects->setTextArg("[COUNT]", llformat("%d", 0));
+		mSelectedObjects->setTextArg("[COUNT]", llformat("%d", 0));
 	}
 	else
 	{
-		char count[MAX_STRING];		/*Flawfinder: ignore*/
 		S32 sw_max = 0;
 		S32 sw_total = 0;
 		S32 max = 0;
@@ -1258,47 +1217,34 @@ void LLPanelLandObjects::refresh()
 
 		if (parcel_object_bonus != 1.0f)
 		{
-			snprintf(count, sizeof(count), "Region Object Bonus Factor: %.2f", 			/* Flawfinder: ignore */
-					parcel_object_bonus);
-			mParcelObjectBonus->setText(count);
+			mParcelObjectBonus->setVisible(TRUE);
+			mParcelObjectBonus->setTextArg("[BONUS]", llformat("%.2f", parcel_object_bonus));
 		}
 		else
 		{
-			mParcelObjectBonus->setText("");
+			mParcelObjectBonus->setVisible(FALSE);
 		}
 
 		if (sw_total > sw_max)
 		{
-			snprintf(count, sizeof(count), "%d out of %d (%d will be deleted)", 			/* Flawfinder: ignore */
-					sw_total, sw_max, sw_total - sw_max);
+			mSWTotalObjects->setText(childGetText("objects_deleted_text"));
+			mSWTotalObjects->setTextArg("[DELETED]", llformat("%d", sw_total - sw_max));
 		}
 		else
 		{
-			snprintf(count, sizeof(count), "%d out of %d (%d available)",  				/* Flawfinder: ignore */
-					sw_total, sw_max, sw_max - sw_total);
+			mSWTotalObjects->setText(childGetText("objects_available_text"));
+			mSWTotalObjects->setTextArg("[AVAILABLE]", llformat("%d", sw_max - sw_total));
 		}
-		mSWTotalObjects->setText(count);
+		mSWTotalObjects->setTextArg("[COUNT]", llformat("%d", sw_total));
+		mSWTotalObjects->setTextArg("[MAX]", llformat("%d", sw_max));
 
-		snprintf(count, sizeof(count),  "%d", max);	/* Flawfinder: ignore */
-		mObjectContribution->setText(count);
-
-		snprintf(count, sizeof(count), "%d", total);			/* Flawfinder: ignore */
-		mTotalObjects->setText(count);
-
-		snprintf(count, sizeof(count), "%d", owned);		/* Flawfinder: ignore */
-		mOwnerObjects->setText(count);
-
-		snprintf(count, sizeof(count), "%d", group);			/* Flawfinder: ignore */
-		mGroupObjects->setText(count);
-
-		snprintf(count, sizeof(count), "%d", other);			/* Flawfinder: ignore */
-		mOtherObjects->setText(count);
-
-		snprintf(count, sizeof(count), "%d", selected);		/* Flawfinder: ignore */
-		mSelectedObjects->setText(count);
-
-		snprintf(count, sizeof(count), "%d", mOtherTime);	/* Flawfinder: ignore */
-		mCleanOtherObjectsTime->setText(count);
+		mObjectContribution->setTextArg("[COUNT]", llformat("%d", max));
+		mTotalObjects->setTextArg("[COUNT]", llformat("%d", total));
+		mOwnerObjects->setTextArg("[COUNT]", llformat("%d", owned));
+		mGroupObjects->setTextArg("[COUNT]", llformat("%d", group));
+		mOtherObjects->setTextArg("[COUNT]", llformat("%d", other));
+		mSelectedObjects->setTextArg("[COUNT]", llformat("%d", selected));
+		mCleanOtherObjectsTime->setText(llformat("%d", mOtherTime));
 
 		BOOL can_return_owned = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_RETURN_GROUP_OWNED);
 		BOOL can_return_group_set = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_RETURN_GROUP_SET);
@@ -1488,7 +1434,6 @@ void LLPanelLandObjects::callbackReturnOwnerList(S32 option, void* userdata)
 				}
 				else
 				{
-					// XUI:translate NAME -> FIRST LAST
 					args["[NAME]"] = self->mSelectedName;
 					LLNotifyBox::showXml("OtherObjectsReturned2", args);
 				}
@@ -1633,7 +1578,7 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 			row->addColumn(OWNER_OFFLINE, FONT, self->mColWidth[1]);
 		}
 		// Placeholder for name.
-		row->addColumn("", FONT, self->mColWidth[2]);
+		row->addColumn(LLString::null, FONT, self->mColWidth[2]);
 
 		snprintf(object_count_str, sizeof(object_count_str), "%d", object_count); 		/* Flawfinder: ignore */
 		row->addColumn(object_count_str, FONT, self->mColWidth[3]);
@@ -2032,7 +1977,7 @@ BOOL LLPanelLandOptions::postBuild()
 	}
 
 
-	mLocationText = LLUICtrlFactory::getTextBoxByName(this, "Landing Point: (none)");
+	mLocationText = LLUICtrlFactory::getTextBoxByName(this, "landing_point");
 
 	mSetBtn = LLUICtrlFactory::getButtonByName(this, "Set");
 	mSetBtn->setClickedCallback(onClickSet, this);
@@ -2097,8 +2042,9 @@ void LLPanelLandOptions::refresh()
 		mPushRestrictionCtrl->set(FALSE);
 		mPushRestrictionCtrl->setEnabled(FALSE);
 
+		// *TODO:Translate
 		const char* none_string = LLParcel::getCategoryUIString(LLParcel::C_NONE);
-		mCategoryCombo->setSimple(none_string);
+		mCategoryCombo->setSimple(LLString(none_string));
 		mCategoryCombo->setEnabled(FALSE);
 
 		mLandingTypeCombo->setCurrentByIndex(0);
@@ -2107,7 +2053,7 @@ void LLPanelLandOptions::refresh()
 		mSnapshotCtrl->setImageAssetID(LLUUID::null);
 		mSnapshotCtrl->setEnabled(FALSE);
 
-		mLocationText->setText("Landing Point: (none)");
+		mLocationText->setTextArg("[LANDING]", childGetText("landing_point_none"));
 		mSetBtn->setEnabled(FALSE);
 		mClearBtn->setEnabled(FALSE);
 
@@ -2154,24 +2100,23 @@ void LLPanelLandOptions::refresh()
 		mPushRestrictionCtrl->set( parcel->getRestrictPushObject() );
 		if(parcel->getRegionPushOverride())
 		{
-			mPushRestrictionCtrl->setLabel("Restrict Pushing (Region Override)");
+			mPushRestrictionCtrl->setLabel(childGetText("push_restrict_region_text"));
 			mPushRestrictionCtrl->setEnabled(false);
 			mPushRestrictionCtrl->set(TRUE);
 		}
 		else
 		{
-			mPushRestrictionCtrl->setLabel("Restrict Pushing");
+			mPushRestrictionCtrl->setLabel(childGetText("push_restrict_text"));
 			mPushRestrictionCtrl->setEnabled(can_change_options);
 		}
 
 		BOOL can_change_identity = 
 			LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_CHANGE_IDENTITY);
-
-		// Set by string in case the order in UI doesn't match the order
-		// by index.
+		// Set by string in case the order in UI doesn't match the order by index.
+		// *TODO:Translate
 		LLParcel::ECategory cat = parcel->getCategory();
 		const char* category_string = LLParcel::getCategoryUIString(cat);
-		mCategoryCombo->setSimple(category_string);
+		mCategoryCombo->setSimple(LLString(category_string));
 		mCategoryCombo->setEnabled( can_change_identity );
 
 		BOOL can_change_landing_point = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, 
@@ -2185,16 +2130,14 @@ void LLPanelLandOptions::refresh()
 		LLVector3 pos = parcel->getUserLocation();
 		if (pos.isExactlyZero())
 		{
-			mLocationText->setText("Landing Point: (none)");
+			mLocationText->setTextArg("[LANDING]", childGetText("landing_point_none"));
 		}
 		else
 		{
-			char buffer[256];	/*Flawfinder: ignore*/
-			snprintf(buffer, sizeof(buffer), "Landing Point: %d, %d, %d",		/* Flawfinder: ignore */
-					llround(pos.mV[VX]),
-					llround(pos.mV[VY]),
-					llround(pos.mV[VZ]));
-			mLocationText->setText(buffer);
+			mLocationText->setTextArg("[LANDING]",llformat("%d, %d, %d",
+														   llround(pos.mV[VX]),
+														   llround(pos.mV[VY]),
+														   llround(pos.mV[VZ])));
 		}
 
 		mSetBtn->setEnabled( can_change_landing_point );
@@ -2445,10 +2388,10 @@ void LLPanelLandMedia::refresh()
 		mRadioVoiceChat->setSelectedIndex(kRadioVoiceChatEstate);
 		mRadioVoiceChat->setEnabled(FALSE);
 
-		mMusicURLEdit->setText("");
+		mMusicURLEdit->setText(LLString::null);
 		mMusicURLEdit->setEnabled(FALSE);
 
-		mMediaURLEdit->setText("");
+		mMediaURLEdit->setText(LLString::null);
 		mMediaURLEdit->setEnabled(FALSE);
 
 		mMediaAutoScaleCheck->set ( FALSE );
@@ -2664,24 +2607,20 @@ void LLPanelLandAccess::refresh()
 
 	if (parcel)
 	{
-		char label[256];	/*Flawfinder: ignore*/
-
 		// Display options
 		BOOL use_group = parcel->getParcelFlag(PF_USE_ACCESS_GROUP);
 		mCheckGroup->set( use_group );
 
 		char group_name[MAX_STRING];	/*Flawfinder: ignore*/
 		gCacheName->getGroupName(parcel->getGroupID(), group_name);
-		snprintf(label, sizeof(label), "Group: %s", group_name);		/* Flawfinder: ignore */
-		mCheckGroup->setLabel( label );
+		mCheckGroup->setLabelArg( "[GROUP]", LLString(group_name) );
 
 		S32 count = parcel->mAccessList.size();
 
 		BOOL use_list = parcel->getParcelFlag(PF_USE_ACCESS_LIST);
 		mCheckAccess->set( use_list );
-		snprintf(label, sizeof(label), "Avatars: (%d listed, %d max)",		/* Flawfinder: ignore */
-				count, PARCEL_MAX_ACCESS_LIST);
-		mCheckAccess->setLabel( label );
+		mCheckAccess->setLabelArg( "[LISTED]", llformat("%d",count));
+		mCheckAccess->setLabelArg( "[MAX]", llformat("%d",PARCEL_MAX_ACCESS_LIST));
 
 		access_map_const_iterator cit = parcel->mAccessList.begin();
 		access_map_const_iterator end = parcel->mAccessList.end();
@@ -2749,9 +2688,9 @@ void LLPanelLandAccess::refresh()
 	else
 	{
 		mCheckGroup->set(FALSE);
-		mCheckGroup->setLabel("Group:");
+		mCheckGroup->setLabelArg( "[GROUP]", LLString::null );
 		mCheckAccess->set(FALSE);
-		mCheckAccess->setLabel("Avatars:");
+		mCheckAccess->setLabelArg( "[LISTED]", llformat("%d",0));
 		mBtnAddAccess->setEnabled(FALSE);
 		mBtnRemoveAccess->setEnabled(FALSE);
 		mSpinPrice->set((F32)PARCEL_PASS_PRICE_DEFAULT);
@@ -2773,9 +2712,7 @@ void LLPanelLandAccess::refreshNames()
 	{
 		gCacheName->getGroupName(parcel->getGroupID(), group_name);
 	}
-	char label[MAX_STRING];		/*Flawfinder: ignore*/
-	snprintf(label, sizeof(label), "Group: %s", group_name);		/* Flawfinder: ignore */
-	mCheckGroup->setLabel(label);
+	mCheckGroup->setLabelArg("[GROUP]", LLString(group_name));
 }
 
 
@@ -2941,18 +2878,14 @@ void LLPanelLandBan::refresh()
 
 	if (parcel)
 	{
-		char label[256];	/*Flawfinder: ignore*/
-
 		// Display options
 
 		S32 count = parcel->mBanList.size();
 
 		BOOL use_ban = parcel->getParcelFlag(PF_USE_BAN_LIST);
 		mCheck->set( use_ban );
-
-		snprintf(label, sizeof(label), "Ban these avatars: (%d listed, %d max)",		/* Flawfinder: ignore */
-				count, PARCEL_MAX_ACCESS_LIST);
-		mCheck->setLabel( label );
+		mCheck->setLabelArg( "[LISTED]", llformat("%d",count));
+		mCheck->setLabelArg( "[MAX]", llformat("%d",PARCEL_MAX_ACCESS_LIST));
 
 		access_map_const_iterator cit = parcel->mBanList.begin();
 		access_map_const_iterator end = parcel->mBanList.end();
@@ -3031,7 +2964,7 @@ void LLPanelLandBan::refresh()
 	else
 	{
 		mCheck->set(FALSE);
-		mCheck->setLabel("Ban these avatars:");
+		mCheck->setLabelArg( "[LISTED]", llformat("%d",0));
 		mCheck->setEnabled(FALSE);
 		mBtnAdd->setEnabled(FALSE);
 		mBtnRemove->setEnabled(FALSE);
@@ -3122,82 +3055,6 @@ void LLPanelLandBan::onClickRemove(void* data)
 	gParcelMgr->sendParcelAccessListUpdate(AL_BAN);
 
 	self->refresh();
-}
-
-//---------------------------------------------------------------------------
-// LLPanelLandRenters
-//---------------------------------------------------------------------------
-LLPanelLandRenters::LLPanelLandRenters(LLParcelSelectionHandle& parcel)
-:	LLPanel("landrenters", LLRect(0,500,500,0)), mParcel(parcel)
-{
-	const S32 BTN_WIDTH = 64;
-
-	S32 x = LEFT;
-	S32 y = mRect.getHeight() - VPAD;
-
-	LLCheckBoxCtrl* check = NULL;
-	LLButton* btn = NULL;
-	LLNameListCtrl* list = NULL;
-
-	check = new LLCheckBoxCtrl("RentersCheck",
-							LLRect(RULER0, y, RIGHT, y-LINE),
-							"Rent space to these avatars:");
-	addChild(check);
-	mCheckRenters = check;
-
-	y -= VPAD + LINE;
-
-	const S32 ITEMS = 5;
-	const BOOL NO_MULTIPLE_SELECT = FALSE;
-
-	list = new LLNameListCtrl("RentersList",
-							LLRect(RULER05, y, RIGHT, y-LINE*ITEMS),
-							NULL, NULL,
-							NO_MULTIPLE_SELECT);
-	list->addSimpleItem("foo tester");
-	list->addSimpleItem("bar tester");
-	list->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT);
-	addChild(list);
-	mListRenters = list;
-
-	y -= VPAD + LINE*ITEMS;
-
-	x = RULER05;
-	btn = new LLButton("Add...",
-						LLRect(x, y, x+BTN_WIDTH, y-LINE),
-						"",
-						onClickAdd, this);
-	btn->setFont( LLFontGL::sSansSerifSmall );
-	btn->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT);
-	addChild(btn);
-	mBtnAddRenter = btn;
-
-	x += HPAD + BTN_WIDTH;
-
-	btn = new LLButton("Remove",
-						LLRect(x, y, x+BTN_WIDTH, y-LINE),
-						"",
-						onClickRemove, this);
-	btn->setFont( LLFontGL::sSansSerifSmall );
-	btn->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT);
-	addChild(btn);
-	mBtnRemoveRenter = btn;
-}
-
-LLPanelLandRenters::~LLPanelLandRenters()
-{ }
-
-void LLPanelLandRenters::refresh()
-{ }
-
-// static
-void LLPanelLandRenters::onClickAdd(void*)
-{
-}
-
-// static
-void LLPanelLandRenters::onClickRemove(void*)
-{
 }
 
 //---------------------------------------------------------------------------

@@ -101,7 +101,7 @@ public:
 	virtual const LLString&		getText() const		{ return mText.getString(); }
 	virtual BOOL	getVisible() const  { return mVisible; }
 	virtual void	highlightText(S32 offset, S32 num_chars) {mHighlightOffset = offset; mHighlightCount = num_chars;}
-	void			setText(const LLString& text);
+	void			setText(const LLStringExplicit& text);
 	virtual void	setColor(const LLColor4&);
 	virtual BOOL	isText() { return TRUE; }
 
@@ -169,10 +169,10 @@ class LLScrollListColumn
 public:
 	// Default constructor
 	LLScrollListColumn() : 
-		mName(""), 
-		mSortingColumn(""), 
-        	mSortAscending(TRUE), 
-		mLabel(""), 
+		mName(), 
+		mSortingColumn(), 
+		mSortAscending(TRUE), 
+		mLabel(), 
 		mWidth(-1), 
 		mRelWidth(-1.0), 
 		mDynamicWidth(FALSE), 

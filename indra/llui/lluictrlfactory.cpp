@@ -473,7 +473,7 @@ LLPieMenu *LLUICtrlFactory::buildPieMenu(const LLString &filename, LLView* paren
 	// root must be called panel
 	if( !root->hasName( LL_PIE_MENU_TAG ))
 	{
-		llwarns << "Root node should be named " LL_PIE_MENU_TAG " in : " << filename << llendl;
+		llwarns << "Root node should be named " << LL_PIE_MENU_TAG << " in : " << filename << llendl;
 		return NULL;
 	}
 
@@ -807,4 +807,5 @@ void LLUICtrlFactory::registerCreator(LLString ctrlname, creator_function_t func
 	LLString::toLower(ctrlname);
 	mCreatorFunctions[ctrlname] = function;
 }
+
 

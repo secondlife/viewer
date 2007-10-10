@@ -592,12 +592,15 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	}
 
 	// Selected
-	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
-	for (objectp = selection->getFirstRootObject(); objectp; objectp = selection->getNextRootObject())
+	struct f : public LLSelectedObjectFunctor
 	{
-		objectp->boostTexturePriority();
-	}
-
+		virtual bool apply(LLViewerObject* objectp)
+		{
+			objectp->boostTexturePriority();
+			return true;
+		}
+	} func;
+	gSelectMgr->getSelection()->applyToRootObjects(&func);
 
 	// Iterate through some of the objects and lazy update their texture priorities
 	for (i = mCurLazyUpdateIndex; i < max_value; i++)
@@ -1028,7 +1031,7 @@ void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 	for (S32 i = 0; i < mMapObjects.count(); i++)
 	{
 		LLViewerObject* objectp = mMapObjects[i];
-		if (objectp->isOrphaned() || objectp->isAttachment())
+		if (!objectp->getRegion() || objectp->isOrphaned() || objectp->isAttachment())
 		{
 			continue;
 		}

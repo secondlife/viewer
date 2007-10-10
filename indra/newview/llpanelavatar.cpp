@@ -87,36 +87,6 @@
 std::list<LLPanelAvatar*> LLPanelAvatar::sAllPanels;
 BOOL LLPanelAvatar::sAllowFirstLife = FALSE;
 
-//-----------------------------------------------------------------------------
-// Constants
-//-----------------------------------------------------------------------------
-
-// RN: move these to lldbstrings.h
-static const S32 DB_USER_FAVORITES_STR_LEN = 254;
-
-const char LOADING_MSG[] = "Loading...";
-static const char IM_DISABLED_TOOLTIP[] = "Instant Message (IM).\nDisabled because you do not have their card.";
-static const char IM_ENABLED_TOOLTIP[] = "Instant Message (IM)";
-static const S32 LEFT = HPAD;
-
-static const S32 RULER0 = 65;
-static const S32 RULER1 = RULER0 + 5;
-static const S32 RULER2 = RULER1 + 90;
-static const S32 RULER3 = RULER2 + 90;
-static const S32 RULER4 = RULER3 + 10;
-
-static const S32 PICT_WIDTH  = 180;
-static const S32 PICT_HEIGHT = 135;
-
-static const S32 RULER5  = RULER4 + 140;
-static const S32 WIDTH = RULER5 + 16;
-
-static const S32 MAX_CHARS = 254;
-
-static const LLColor4 WHITE(1,1,1,1);
-static const LLColor4 BLACK(0,0,0,1);
-static const LLColor4 CLEAR(0,0,0,0);
-
 extern void handle_lure(const LLUUID& invitee);
 extern void handle_pay_by_id(const LLUUID& payee);
 
@@ -317,8 +287,8 @@ void LLPanelAvatarSecondLife::updatePartnerName()
 		BOOL found = gCacheName->getName(mPartnerID, first, last);
 		if (found)
 		{
-			childSetTextArg("partner_edit", "[FIRST]", first);
-			childSetTextArg("partner_edit", "[LAST]", last);
+			childSetTextArg("partner_edit", "[FIRST]", LLString(first));
+			childSetTextArg("partner_edit", "[LAST]", LLString(last));
 		}
 	}
 }
@@ -339,8 +309,8 @@ void LLPanelAvatarSecondLife::clearControls()
 	childSetValue("born", "");
 	childSetValue("acct", "");
 
-	childSetTextArg("partner_edit", "[FIRST]", "");
-	childSetTextArg("partner_edit", "[LAST]", "");
+	childSetTextArg("partner_edit", "[FIRST]", LLString::null);
+	childSetTextArg("partner_edit", "[LAST]", LLString::null);
 
 	mPartnerID = LLUUID::null;
 	
@@ -376,7 +346,7 @@ void LLPanelAvatarSecondLife::enableControls(BOOL self)
 		// appears to reset the read only background color when
 		// setEnable is called, for some reason
 		LLTextEditor* about = LLUICtrlFactory::getTextEditorByName(this,"about");
-		if (about) about->setReadOnlyBgColor(CLEAR);
+		if (about) about->setReadOnlyBgColor(LLColor4::transparent);
 	}
 }
 
@@ -756,10 +726,10 @@ void LLPanelAvatarAdvanced::enableControls(BOOL self)
 		// This is because the LLTextEditor
 		// appears to reset the read only background color when
 		// setEnable is called, for some reason
-		if (mWantToEdit) mWantToEdit->setReadOnlyBgColor(CLEAR);
-		if (mSkillsEdit) mSkillsEdit->setReadOnlyBgColor(CLEAR);
+		if (mWantToEdit) mWantToEdit->setReadOnlyBgColor(LLColor4::transparent);
+		if (mSkillsEdit) mSkillsEdit->setReadOnlyBgColor(LLColor4::transparent);
 		LLLineEditor* languages_edit = (LLLineEditor*)getChildByName("languages_edit");
-		languages_edit->setReadOnlyBgColor(CLEAR);
+		languages_edit->setReadOnlyBgColor(LLColor4::transparent);
 	}
 }
 
@@ -834,7 +804,7 @@ void LLPanelAvatarNotes::refresh()
 
 void LLPanelAvatarNotes::clearControls()
 {
-	childSetText("notes edit", LOADING_MSG);
+	childSetText("notes edit", childGetText("Loading"));
 	childSetEnabled("notes edit", false);
 }
 
@@ -1515,7 +1485,6 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id, const LLString &name,
 
 			childSetVisible("Instant Message...",TRUE);
 			childSetEnabled("Instant Message...",FALSE);
-			childSetToolTip("Instant Message...",IM_ENABLED_TOOLTIP);
 			childSetVisible("Mute",TRUE);
 			childSetEnabled("Mute",FALSE);
 
@@ -1778,7 +1747,7 @@ void LLPanelAvatar::sendAvatarNotesUpdate()
 	std::string notes = mPanelNotes->childGetValue("notes edit").asString();
 
 	if (!mHaveNotes
-		&& (notes.empty() || notes == LOADING_MSG))
+		&& (notes.empty() || notes == childGetText("Loading")))
 	{
 		// no notes from server and no user updates
 		return;

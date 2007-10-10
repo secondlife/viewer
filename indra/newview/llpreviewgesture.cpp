@@ -69,6 +69,7 @@
 
 #include "llresmgr.h"
 
+// *TODO: Translate?
 const char NONE_LABEL[] = "---";
 const char SHIFT_LABEL[] = "Shift";
 const char CTRL_LABEL[] = "Ctrl";
@@ -761,17 +762,20 @@ void LLPreviewGesture::refresh()
 	mWaitTimeCheck->setVisible(FALSE);
 	mWaitTimeEditor->setVisible(FALSE);
 
+	LLString optionstext;
+	
 	if (have_step)
 	{
 		// figure out the type, show proper options, update text
 		LLGestureStep* step = (LLGestureStep*)step_item->getUserdata();
 		EStepType type = step->getType();
+
 		switch(type)
 		{
 		case STEP_ANIMATION:
 			{
 				LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
-				mOptionsText->setText("Animation to play:");
+				optionstext = childGetText("step_anim");
 				mAnimationCombo->setVisible(TRUE);
 				mAnimationRadio->setVisible(TRUE);
 				mAnimationRadio->setSelectedIndex((anim_step->mFlags & ANIM_FLAG_STOP) ? 1 : 0);
@@ -781,7 +785,7 @@ void LLPreviewGesture::refresh()
 		case STEP_SOUND:
 			{
 				LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
-				mOptionsText->setText("Sound to play:");
+				optionstext = childGetText("step_sound");
 				mSoundCombo->setVisible(TRUE);
 				mSoundCombo->setCurrentByID(sound_step->mSoundAssetID);
 				break;
@@ -789,7 +793,7 @@ void LLPreviewGesture::refresh()
 		case STEP_CHAT:
 			{
 				LLGestureStepChat* chat_step = (LLGestureStepChat*)step;
-				mOptionsText->setText("Chat to say:");
+				optionstext = childGetText("step_chat");
 				mChatEditor->setVisible(TRUE);
 				mChatEditor->setText(chat_step->mChatText);
 				break;
@@ -797,14 +801,13 @@ void LLPreviewGesture::refresh()
 		case STEP_WAIT:
 			{
 				LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
-				mOptionsText->setText("Wait:");
+				optionstext = childGetText("step_wait");
 				mWaitAnimCheck->setVisible(TRUE);
 				mWaitAnimCheck->set(wait_step->mFlags & WAIT_FLAG_ALL_ANIM);
 				mWaitTimeCheck->setVisible(TRUE);
 				mWaitTimeCheck->set(wait_step->mFlags & WAIT_FLAG_TIME);
 				mWaitTimeEditor->setVisible(TRUE);
-				char buffer[16];		/*Flawfinder: ignore*/
-				snprintf(buffer, sizeof(buffer),  "%.1f", (double)wait_step->mWaitSeconds);			/* Flawfinder: ignore */
+				std::string buffer = llformat("%.1f", (double)wait_step->mWaitSeconds);
 				mWaitTimeEditor->setText(buffer);
 				break;
 			}
@@ -812,11 +815,8 @@ void LLPreviewGesture::refresh()
 			break;
 		}
 	}
-	else
-	{
-		// no gesture
-		mOptionsText->setText("");
-	}
+	
+	mOptionsText->setText(optionstext);
 
 	BOOL active = gGestureManager.isGestureActive(mItemUUID);
 	mActiveCheck->set(active);
@@ -984,14 +984,14 @@ void LLPreviewGesture::loadUIFromGesture(LLMultiGesture* gesture)
 	switch (gesture->mMask)
 	{
 	default:
-	case MASK_NONE:
-		mModifierCombo->setSimple( NONE_LABEL );
+	  case MASK_NONE:
+		mModifierCombo->setSimple( LLString(NONE_LABEL) );
 		break;
-	case MASK_SHIFT:
-		mModifierCombo->setSimple( SHIFT_LABEL );
+	  case MASK_SHIFT:
+		mModifierCombo->setSimple( LLString(SHIFT_LABEL) );
 		break;
-	case MASK_CONTROL:
-		mModifierCombo->setSimple( CTRL_LABEL );
+	  case MASK_CONTROL:
+		mModifierCombo->setSimple( LLString(CTRL_LABEL) );
 		break;
 	}
 
@@ -1734,8 +1734,7 @@ void LLPreviewGesture::onClickPreview(void* data)
 		self->mPreviewGesture->mCallbackData = self;
 
 		// set the button title
-		self->mPreviewBtn->setLabelSelected("Stop");
-		self->mPreviewBtn->setLabelUnselected("Stop");
+		self->mPreviewBtn->setLabel(self->childGetText("stop_txt"));
 
 		// play it, and delete when done
 		gGestureManager.playGesture(self->mPreviewGesture);
@@ -1757,8 +1756,7 @@ void LLPreviewGesture::onDonePreview(LLMultiGesture* gesture, void* data)
 {
 	LLPreviewGesture* self = (LLPreviewGesture*)data;
 
-	self->mPreviewBtn->setLabelSelected("Preview");
-	self->mPreviewBtn->setLabelUnselected("Preview");
+	self->mPreviewBtn->setLabel(self->childGetText("preview_txt"));
 
 	delete self->mPreviewGesture;
 	self->mPreviewGesture = NULL;

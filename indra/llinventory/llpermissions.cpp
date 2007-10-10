@@ -1143,6 +1143,12 @@ void mask_to_string(U32 mask, char* str)
 	*str = '\0';
 }
 
+std::string mask_to_string(U32 mask)
+{
+	char str[16];
+	mask_to_string(mask, str);
+	return std::string(str);
+}
 
 ///----------------------------------------------------------------------------
 /// exported functions

@@ -545,8 +545,8 @@ void LLPanelGroupNotices::showNotice(const char* subject,
 {
 	arrangeNoticeView(VIEW_PAST_NOTICE);
 
-	if(mViewSubject) mViewSubject->setText(subject);
-	if(mViewMessage) mViewMessage->setText(message);
+	if(mViewSubject) mViewSubject->setText(LLString(subject));
+	if(mViewMessage) mViewMessage->setText(LLString(message));
 	
 	if (mInventoryOffer)
 	{

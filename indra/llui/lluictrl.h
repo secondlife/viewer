@@ -72,10 +72,10 @@ public:
 	virtual LLSD	getValue() const { return LLSD(); }
 
 	// Defaults to no-op
-	virtual BOOL	setTextArg( const LLString& key, const LLString& text );
+	virtual BOOL	setTextArg( const LLString& key, const LLStringExplicit& text );
 
 	// Defaults to no-op
-	virtual BOOL	setLabelArg( const LLString& key, const LLString& text );
+	virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text );
 
 	// Defaults to return NULL
 	virtual LLCtrlSelectionInterface* getSelectionInterface();

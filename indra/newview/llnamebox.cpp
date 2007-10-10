@@ -57,7 +57,7 @@ LLNameBox::LLNameBox(const std::string& name, const LLRect& rect, const LLUUID& 
 	}
 	else
 	{
-		setText("");
+		setText(LLString::null);
 	}
 }
 

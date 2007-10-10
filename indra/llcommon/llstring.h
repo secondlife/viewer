@@ -321,6 +321,18 @@ template<class T> LLStringBase<T> LLStringBase<T>::null;
 typedef LLStringBase<char> LLString;
 typedef LLStringBase<llwchar> LLWString;
 
+//@ Use this where we want to disallow input in the form of "foo"
+//  This is used to catch places where english text is embedded in the code
+//  instead of in a translatable XUI file.
+class LLStringExplicit : public LLString
+{
+public:
+	explicit LLStringExplicit(const char* s) : LLString(s) {}
+	LLStringExplicit(const LLString& s) : LLString(s) {}
+	LLStringExplicit(const std::string& s) : LLString(s) {}
+	LLStringExplicit(const std::string& s, size_type pos, size_type n = std::string::npos) : LLString(s, pos, n) {}
+};
+
 struct LLDictionaryLess
 {
 public:
@@ -336,7 +348,7 @@ public:
  */
 
 /**
- * @breif chop off the trailing characters in a string.
+ * @brief chop off the trailing characters in a string.
  *
  * This function works on bytes rather than glyphs, so this will
  * incorrectly truncate non-single byte strings.

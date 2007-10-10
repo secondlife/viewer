@@ -380,7 +380,7 @@ void LLCurrencyUIManager::Impl::updateUI()
 		{
 			if (!mZeroMessage.empty() && mUserCurrencyBuy == 0)
 			{
-				lindenAmount->setText("");
+				lindenAmount->setText(LLString::null);
 			}
 			else
 			{
@@ -459,20 +459,20 @@ bool LLCurrencyUIManager::process()
 	return changed;
 }
 
-void LLCurrencyUIManager::buy()
+void LLCurrencyUIManager::buy(const LLString& buy_msg)
 {
 	if (!canBuy())
 	{
 		return;
 	}
 
-	// XUI:translate
+	LLUIString msg = buy_msg;
+	msg.setArg("[LINDENS]", llformat("%d", impl.mUserCurrencyBuy));
+	msg.setArg("[USD]", llformat("%#.2f", impl.mSiteCurrencyEstimatedCost / 100.0));
 	LLConfirmationManager::confirm(impl.mSiteConfirm,
-		llformat("Buy L$ %d for approx. US$ %#.2f\n",
-			impl.mUserCurrencyBuy,
-			impl.mSiteCurrencyEstimatedCost / 100.0),
-		impl,
-		&LLCurrencyUIManager::Impl::startCurrencyBuy);
+								   msg,
+								   impl,
+								   &LLCurrencyUIManager::Impl::startCurrencyBuy);
 }
 
 
@@ -517,4 +517,5 @@ std::string LLCurrencyUIManager::errorURI()
 {
 	return impl.mErrorURI;
 }
+
 

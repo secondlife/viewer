@@ -451,6 +451,7 @@ std::string LLViewerRegion::regionFlagsToString(U32 flags)
 	return result;
 }
 
+// *TODO:Translate
 char* SIM_ACCESS_STR[] = { "Free Trial",
 						   "PG",
 						   "Mature",
@@ -1412,4 +1413,5 @@ void LLViewerRegion::logActiveCapabilities() const
 	}
 	llinfos << "Dumped " << count << " entries." << llendl;
 }
+
 

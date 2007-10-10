@@ -290,7 +290,7 @@ public:
 	virtual void	setHidden(BOOL hidden);		// Never show (replacement text)
 
 	// by default, does nothing and returns false
-	virtual BOOL	setLabelArg( const LLString& key, const LLString& text );
+	virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text );
 
 	virtual void	onVisibilityChange ( BOOL curVisibilityIn );
 

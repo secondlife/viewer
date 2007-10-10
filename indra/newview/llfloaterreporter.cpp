@@ -177,8 +177,8 @@ LLFloaterReporter::LLFloaterReporter(
 	setVisible(TRUE);
 
 	// Default text to be blank
-	childSetText("object_name", "");
-	childSetText("owner_name", "");
+	childSetText("object_name", LLString::null);
+	childSetText("owner_name", LLString::null);
 
 	childSetFocus("summary_edit");
 
@@ -461,8 +461,8 @@ void LLFloaterReporter::onClickObjPicker(void *userdata)
 	gToolObjPicker->setExitCallback(LLFloaterReporter::closePickTool, self);
 	gToolMgr->setTransientTool(gToolObjPicker);
 	self->mPicking = TRUE;
-	self->childSetText("object_name", "");
-	self->childSetText("owner_name", "");
+	self->childSetText("object_name", LLString::null);
+	self->childSetText("owner_name", LLString::null);
 	LLButton* pick_btn = LLUICtrlFactory::getButtonByName(self, "pick_btn");
 	if (pick_btn) pick_btn->setToggleState(TRUE);
 }
@@ -581,7 +581,7 @@ LLFloaterReporter* LLFloaterReporter::createNewBugReporter()
 	
 
 
-void LLFloaterReporter::setPickedObjectProperties(const char *object_name, const char *owner_name, const LLUUID owner_id)
+void LLFloaterReporter::setPickedObjectProperties(const LLString& object_name, const LLString& owner_name, const LLUUID owner_id)
 {
 	childSetText("object_name", object_name);
 	childSetText("owner_name", owner_name);

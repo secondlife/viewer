@@ -218,22 +218,22 @@ void LLDebugVarMessageBox::onClose(bool app_quitting)
 
 void LLDebugVarMessageBox::draw()
 {
-	char text[128];	 /*Flawfinder: ignore*/
+	LLString text;
 	switch(mVarType)
 	{
-	case VAR_TYPE_F32:
-		snprintf(text, sizeof(text), "%.3f", *((F32*)mVarData));		 	/* Flawfinder: ignore */
+	  case VAR_TYPE_F32:
+		text = llformat("%.3f", *((F32*)mVarData));
 		break;
-	case VAR_TYPE_S32:
-		snprintf(text, sizeof(text), "%d", *((S32*)mVarData)); 		 	/* Flawfinder: ignore */
+	  case VAR_TYPE_S32:
+		text = llformat("%d", *((S32*)mVarData));
 		break;
-	case VAR_TYPE_VEC3:
-	{
-		LLVector3* vec_p = (LLVector3*)mVarData;
-		snprintf(text, sizeof(text), "%.3f %.3f %.3f", vec_p->mV[VX], vec_p->mV[VY], vec_p->mV[VZ]);	 	/* Flawfinder: ignore */
-		break;
-	}
-	default:
+	  case VAR_TYPE_VEC3:
+	  {
+		  LLVector3* vec_p = (LLVector3*)mVarData;
+		  text= llformat("%.3f %.3f %.3f", vec_p->mV[VX], vec_p->mV[VY], vec_p->mV[VZ]);
+		  break;
+	  }
+	  default:
 		llwarns << "Unhandled var type " << mVarType << llendl;
 		break;
 	}

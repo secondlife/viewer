@@ -316,7 +316,7 @@ void LLFloaterBuyCurrencyUI::onClickBuy(void* data)
 	LLFloaterBuyCurrencyUI* self = LLFloaterBuyCurrencyUI::soleInstance(false);
 	if (self)
 	{
-		self->mManager.buy();
+		self->mManager.buy(self->childGetText("buy_currency"));
 		self->updateUI();
 		// JC: updateUI() doesn't get called again until progress is made
 		// with transaction processing, so the "Purchase" button would be
@@ -376,4 +376,5 @@ void LLFloaterBuyCurrency::buyCurrency(const std::string& name, S32 price)
 	ui->updateUI();
 	ui->open();
 }
+
 

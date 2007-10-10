@@ -94,7 +94,7 @@ public:
 	virtual void		setTentative(BOOL b)	{ mButton->setTentative(b); }
 	virtual BOOL		getTentative() const	{ return mButton->getTentative(); }
 
-	virtual BOOL		setLabelArg( const LLString& key, const LLString& text );
+	virtual BOOL		setLabelArg( const LLString& key, const LLStringExplicit& text );
 
 	virtual void		clear();
 	virtual void		onCommit();
@@ -105,7 +105,7 @@ public:
 	void				setEnabledColor( const LLColor4 &color ) { mTextEnabledColor = color; }
 	void				setDisabledColor( const LLColor4 &color ) { mTextDisabledColor = color; }
 
-	void				setLabel( const LLString& label );
+	void				setLabel( const LLStringExplicit& label );
 	LLString			getLabel() const;
 
 	virtual void		setControlName(const LLString& control_name, LLView* context);

@@ -129,11 +129,8 @@ void LLFloaterTelehub::draw()
 // Per-frame updates, because we don't have a selection manager observer.
 void LLFloaterTelehub::refresh()
 {
-	LLViewerObject* object = mObjectSelection->getFirstRootObject();
-	if(!object)
-	{
-		object = mObjectSelection->getFirstObject();
-	}
+	const BOOL children_ok = TRUE;
+	LLViewerObject* object = mObjectSelection->getFirstRootObject(children_ok);
 	
 	BOOL have_selection = (object != NULL);
 	BOOL all_volume = gSelectMgr->selectionAllPCode( LL_PCODE_VOLUME );

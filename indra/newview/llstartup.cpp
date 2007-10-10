@@ -409,7 +409,7 @@ BOOL idle_startup()
 		}
 		if (!xml_ok)
 		{
-			// XUI:translate (maybe - very unlikely error message)
+			// *TODO:translate (maybe - very unlikely error message)
 			// Note: alerts.xml may be invalid - if this gets translated it will need to be in the code
 			LLString bad_xui_msg = "An error occured while updating Second Life. Please download the latest version from www.secondlife.com.";
 			app_early_exit(bad_xui_msg);
@@ -537,7 +537,7 @@ BOOL idle_startup()
 		// LibXUL (Mozilla) initialization
 		//---------------------------------------------------------------------
 		#if LL_LIBXUL_ENABLED
-		set_startup_status(0.48f, "Initializing embedded web browser...", gAgent.mMOTD.c_str());
+		set_startup_status(0.58f, "Initializing embedded web browser...", gAgent.mMOTD.c_str());
 		display_startup();
 		llinfos << "Initializing embedded web browser..." << llendl;
 
@@ -1649,12 +1649,17 @@ BOOL idle_startup()
 			gSky.init(initial_sun_direction);
 		}
 
-		set_startup_status(0.45f, "Decoding UI images...", gAgent.mMOTD.c_str());
-		display_startup();
 		llinfos << "Decoding images..." << llendl;
 		// For all images pre-loaded into viewer cache, decode them.
 		// Need to do this AFTER we init the sky
-		gImageList.decodeAllImages(2.f);
+		const S32 DECODE_TIME_SEC = 2;
+		for (int i = 0; i < DECODE_TIME_SEC; i++)
+		{
+			F32 frac = (F32)i / (F32)DECODE_TIME_SEC;
+			set_startup_status(0.45f + frac*0.1f, "Decoding images...", gAgent.mMOTD.c_str());
+			display_startup();
+			gImageList.decodeAllImages(1.f);
+		}
 		LLStartUp::setStartupState( STATE_QUICKTIME_INIT );
 
 		// JC - Do this as late as possible to increase likelihood Purify
@@ -1704,7 +1709,7 @@ BOOL idle_startup()
 		{
 			// initialize quicktime libraries (fails gracefully if quicktime not installed ($QUICKTIME)
 			llinfos << "Initializing QuickTime...." << llendl;
-			set_startup_status(0.47f, "Initializing QuickTime...", gAgent.mMOTD.c_str());
+			set_startup_status(0.57f, "Initializing QuickTime...", gAgent.mMOTD.c_str());
 			display_startup();
 			#if LL_WINDOWS
 				// Only necessary/available on Windows.
@@ -1713,12 +1718,12 @@ BOOL idle_startup()
 					// quicktime init failed - turn off media engine support
 					LLMediaEngine::getInstance ()->setAvailable ( FALSE );
 					llinfos << "...not found - unable to initialize." << llendl;
-					set_startup_status(0.47f, "QuickTime not found - unable to initialize.", gAgent.mMOTD.c_str());
+					set_startup_status(0.57f, "QuickTime not found - unable to initialize.", gAgent.mMOTD.c_str());
 				}
 				else
 				{
 					llinfos << ".. initialized successfully." << llendl;
-					set_startup_status(0.47f, "QuickTime initialized successfully.", gAgent.mMOTD.c_str());
+					set_startup_status(0.57f, "QuickTime initialized successfully.", gAgent.mMOTD.c_str());
 				};
 			#endif
 			EnterMovies ();
@@ -1736,7 +1741,7 @@ BOOL idle_startup()
 	if(STATE_WORLD_WAIT == LLStartUp::getStartupState())
 	{
 		//llinfos << "Waiting for simulator ack...." << llendl;
-		set_startup_status(0.49f, "Waiting for region handshake...", gAgent.mMOTD.c_str());
+		set_startup_status(0.59f, "Waiting for region handshake...", gAgent.mMOTD.c_str());
 		if(gGotUseCircuitCodeAck)
 		{
 			LLStartUp::setStartupState( STATE_AGENT_SEND );
@@ -1755,7 +1760,7 @@ BOOL idle_startup()
 	if (STATE_AGENT_SEND == LLStartUp::getStartupState())
 	{
 		llinfos << "Connecting to region..." << llendl;
-		set_startup_status(0.50f, "Connecting to region...", gAgent.mMOTD.c_str());
+		set_startup_status(0.60f, "Connecting to region...", gAgent.mMOTD.c_str());
 		// register with the message system so it knows we're
 		// expecting this message
 		LLMessageSystem* msg = gMessageSystem;
@@ -2118,6 +2123,7 @@ BOOL idle_startup()
 		gInitializationComplete = TRUE;
 
 		gRenderStartTime.reset();
+		gForegroundTime.reset();
 
 		// HACK: Inform simulator of window size.
 		// Do this here so it's less likely to race with RegisterNewAgent.
@@ -2198,7 +2204,7 @@ BOOL idle_startup()
 		else
 		{
 			update_texture_fetch();
-			set_startup_status(0.50f + 0.50f * timeout_frac, "Precaching...",
+			set_startup_status(0.60f + 0.40f * timeout_frac, "Precaching...",
 							   gAgent.mMOTD.c_str());
 		}
 
@@ -2325,11 +2331,8 @@ void login_show()
 						bUseDebugLogin,
 						login_callback, NULL );
 
-	llinfos << "Decoding Images" << llendl;
+	// UI textures have been previously loaded in doPreloadImages()
 	
-	// Make sure all the UI textures are present and decoded.
-	gImageList.decodeAllImages(2.f);
-
 	llinfos << "Setting Servers" << llendl;
 	
 	if( USERSERVER_OTHER == gUserServerChoice )
@@ -2567,7 +2570,7 @@ void update_app(BOOL mandatory, const std::string& auth_msg)
 
 	std::ostringstream message;
 
-	//XUI:translate
+	//*TODO:translate
 	std::string msg;
 	if (!auth_msg.empty())
 	{
@@ -2909,11 +2912,11 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFuncFast(_PREHASH_GrantGodlikePowers, process_grant_godlike_powers);
 
 	msg->setHandlerFuncFast(_PREHASH_GroupAccountSummaryReply,
-							LLGroupMoneyPlanningTabEventHandler::processGroupAccountSummaryReply);
+							LLPanelGroupLandMoney::processGroupAccountSummaryReply);
 	msg->setHandlerFuncFast(_PREHASH_GroupAccountDetailsReply,
-							LLGroupMoneyDetailsTabEventHandler::processGroupAccountDetailsReply);
+							LLPanelGroupLandMoney::processGroupAccountDetailsReply);
 	msg->setHandlerFuncFast(_PREHASH_GroupAccountTransactionsReply,
-							LLGroupMoneySalesTabEventHandler::processGroupAccountTransactionsReply);
+							LLPanelGroupLandMoney::processGroupAccountTransactionsReply);
 
 	msg->setHandlerFuncFast(_PREHASH_UserInfoReply,
 		process_user_info_reply);
@@ -3598,7 +3601,6 @@ void callback_choose_gender(S32 option, void* userdata)
 	gAgent.setGenderChosen(TRUE);
 }
 
-// XUI:translate
 void dialog_choose_gender_first_start()
 {
 	if (!gNoRender

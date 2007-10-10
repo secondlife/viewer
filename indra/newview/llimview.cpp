@@ -167,7 +167,8 @@ BOOL LLFloaterIM::postBuild()
 	sErrorStringsMap["no_user_911"] =
 		getFormattedUIString("user_no_help");
 
-	sEventStringsMap["add"] = childGetText("add_session_event");
+	sEventStringsMap["add"] =
+		getFormattedUIString("add_session_event");
 	sEventStringsMap["message"] =
 		getFormattedUIString("message_session_event");
 
@@ -388,7 +389,7 @@ void LLIMMgr::addMessage(
 		// when answering questions.
 		if(gAgent.isGodlike())
 		{
-			// XUI:translate
+			// *TODO:translate (low priority, god ability)
 			std::ostringstream bonus_info;
 			bonus_info << "*** parent estate: "
 				<< parent_estate_id

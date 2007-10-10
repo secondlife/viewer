@@ -416,7 +416,7 @@ void LLToolBrushLand::handleSelect()
 {
 	gEditMenuHandler = this;
 
-	gFloaterTools->setStatusText("Click and hold to modify land");
+	gFloaterTools->setStatusText("modifyland");
 //	if (!mBrushSelected)
 	{
 		mLastShowParcelOwners = gSavedSettings.getBOOL("ShowParcelOwners");
@@ -432,7 +432,6 @@ void LLToolBrushLand::handleDeselect()
 	{
 		gEditMenuHandler = NULL;
 	}
-	gFloaterTools->setStatusText("");
 	mLastShowParcelOwners = gSavedSettings.getBOOL("ShowParcelOwners");
 	gSavedSettings.setBOOL("ShowParcelOwners", mLastShowParcelOwners);
 	gParcelMgr->setSelectionVisible(TRUE);

@@ -110,7 +110,7 @@ void LLManipRotate::handleSelect()
 {
 	// *FIX: put this in mouseDown?
 	gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
-	gFloaterTools->setStatusText("Drag colored bands to rotate object");
+	gFloaterTools->setStatusText("rotate");
 	LLManip::handleSelect();
 }
 
@@ -118,8 +118,6 @@ void LLManipRotate::handleDeselect()
 {
 	mHighlightedPart = LL_NO_PART;
 	mManipPart = LL_NO_PART;
-
-	gFloaterTools->setStatusText("");
 	LLManip::handleDeselect();
 }
 
@@ -379,14 +377,7 @@ BOOL LLManipRotate::handleMouseDown(S32 x, S32 y, MASK mask)
 // Assumes that one of the parts of the manipulator was hit.
 BOOL LLManipRotate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 {
-	BOOL can_rotate = mObjectSelection->getObjectCount() != 0;
-	for (LLViewerObject* objectp = mObjectSelection->getFirstObject();
-		objectp;
-		objectp = mObjectSelection->getNextObject())
-	{
-		can_rotate = can_rotate && objectp->permMove() && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
-	}
-
+	BOOL can_rotate = canAffectSelection();
 	if (!can_rotate)
 	{
 		return FALSE;
@@ -541,12 +532,11 @@ void LLManipRotate::drag( S32 x, S32 y )
 	BOOL damped = mSmoothRotate;
 	mSmoothRotate = FALSE;
 
-	LLViewerObject* object;
-	LLSelectNode* selectNode;
-
-	for( selectNode = mObjectSelection->getFirstNode(); selectNode != NULL; selectNode = mObjectSelection->getNextNode() )
+	for (LLObjectSelection::iterator iter = mObjectSelection->begin();
+		 iter != mObjectSelection->end(); iter++)
 	{
-		object = selectNode->getObject();
+		LLSelectNode* selectNode = *iter;
+		LLViewerObject* object = selectNode->getObject();
 
 		// have permission to move and object is root of selection or individually selected
 		if (object->permMove() && (object->isRootEdit() || selectNode->mIndividualSelection))
@@ -610,10 +600,12 @@ void LLManipRotate::drag( S32 x, S32 y )
 	}
 
 	// update positions
-	for( selectNode = mObjectSelection->getFirstNode(); selectNode != NULL; selectNode = mObjectSelection->getNextNode() )
+	for (LLObjectSelection::iterator iter = mObjectSelection->begin();
+		 iter != mObjectSelection->end(); iter++)
 	{
-		object = selectNode->getObject();
-		
+		LLSelectNode* selectNode = *iter;
+		LLViewerObject* object = selectNode->getObject();
+
 		// to avoid cumulative position changes we calculate the objects new position using its saved position
 		if (object && object->permMove())
 		{
@@ -711,10 +703,10 @@ void LLManipRotate::drag( S32 x, S32 y )
 	}
 
 	// store changes to override updates
-	for (LLSelectNode* selectNode = gSelectMgr->getSelection()->getFirstNode();
-		 selectNode != NULL;
-		 selectNode = gSelectMgr->getSelection()->getNextNode())
+	for (LLObjectSelection::iterator iter = gSelectMgr->getSelection()->begin();
+		 iter != gSelectMgr->getSelection()->end(); iter++)
 	{
+		LLSelectNode* selectNode = *iter;
 		LLViewerObject*cur = selectNode->getObject();
 		if( cur->permModify() && cur->permMove() && !cur->isAvatar())
 		{
@@ -1869,3 +1861,22 @@ S32 LLManipRotate::getObjectAxisClosestToMouse(LLVector3& object_axis)
 
 	return axis_index;
 }
+
+//virtual
+BOOL LLManipRotate::canAffectSelection()
+{
+	BOOL can_rotate = mObjectSelection->getObjectCount() != 0;
+	if (can_rotate)
+	{
+		struct f : public LLSelectedObjectFunctor
+		{
+			virtual bool apply(LLViewerObject* objectp)
+			{
+				return objectp->permMove() && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
+			}
+		} func;
+		can_rotate = mObjectSelection->applyToObjects(&func);
+	}
+	return can_rotate;
+}
+

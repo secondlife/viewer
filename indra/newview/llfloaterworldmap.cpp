@@ -262,7 +262,7 @@ BOOL LLFloaterWorldMap::postBuild()
 	mCurZoomVal = log(gMapScale)/log(2.f);
 	childSetValue("zoom slider", gMapScale);
 
-	setDefaultBtn("");
+	setDefaultBtn(NULL);
 
 	if ( gAgent.mAccess <= SIM_ACCESS_PG )
 	{
@@ -1226,7 +1226,7 @@ void LLFloaterWorldMap::updateSearchEnabled( LLUICtrl* ctrl, void* userdata )
 	}
 	else
 	{
-		self->setDefaultBtn("");
+		self->setDefaultBtn(NULL);
 	}
 }
 

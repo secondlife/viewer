@@ -59,92 +59,14 @@ public:
 	static void processPlacesReply(LLMessageSystem* msg, void**);
 
 	static LLMap<LLUUID, LLPanelGroupLandMoney*> sGroupIDs;
+
+	static void processGroupAccountDetailsReply(LLMessageSystem* msg,  void** data);
+	static void processGroupAccountTransactionsReply(LLMessageSystem* msg, void** data);
+	static void processGroupAccountSummaryReply(LLMessageSystem* msg, void** data);
+	
 protected:
 	class impl;
 	impl* mImplementationp;
-};
-
-class LLGroupMoneyTabEventHandler
-{
-public:
-	LLGroupMoneyTabEventHandler(LLButton* earlier_button,
-								LLButton* later_button,
-								LLTextEditor* text_editor,
-								LLTabContainerCommon* tab_containerp,
-								LLPanel* panelp,
-								const LLUUID& group_id,
-								S32 interval_length_days,
-								S32 max_interval_days);
-	virtual ~LLGroupMoneyTabEventHandler();
-
-	virtual void requestData(LLMessageSystem* msg);
-	virtual void processReply(LLMessageSystem* msg, void** data);
-
-	virtual void onClickEarlier();
-	virtual void onClickLater();
-	virtual void onClickTab();
-
-	static void clickEarlierCallback(void* data);
-	static void clickLaterCallback(void* data);
-	static void clickTabCallback(void* user_data, bool from_click);
-
-	static LLMap<LLUUID, LLGroupMoneyTabEventHandler*> sInstanceIDs;
-	static std::map<LLPanel*, LLGroupMoneyTabEventHandler*> sTabsToHandlers;
-protected:
-	class impl;
-	impl* mImplementationp;
-};
-
-class LLGroupMoneyDetailsTabEventHandler : public LLGroupMoneyTabEventHandler
-{
-public:
-	LLGroupMoneyDetailsTabEventHandler(LLButton* earlier_buttonp,
-									   LLButton* later_buttonp,
-									   LLTextEditor* text_editorp,
-									   LLTabContainerCommon* tab_containerp,
-									   LLPanel* panelp,
-									   const LLUUID& group_id);
-	virtual ~LLGroupMoneyDetailsTabEventHandler();
-
-	virtual void requestData(LLMessageSystem* msg);
-	virtual void processReply(LLMessageSystem* msg, void** data);
-
-	static void processGroupAccountDetailsReply(LLMessageSystem* msg, 
-												void** data);
-};
-
-class LLGroupMoneySalesTabEventHandler : public LLGroupMoneyTabEventHandler
-{
-public:
-	LLGroupMoneySalesTabEventHandler(LLButton* earlier_buttonp,
-									 LLButton* later_buttonp,
-									 LLTextEditor* text_editorp,
-									 LLTabContainerCommon* tab_containerp,
-									 LLPanel* panelp,
-									 const LLUUID& group_id);
-	virtual ~LLGroupMoneySalesTabEventHandler();
-
-	virtual void requestData(LLMessageSystem* msg);
-	virtual void processReply(LLMessageSystem* msg, void** data);
-
-	static void processGroupAccountTransactionsReply(LLMessageSystem* msg, 
-													 void** data);
-};
-
-class LLGroupMoneyPlanningTabEventHandler : public LLGroupMoneyTabEventHandler
-{
-public:
-	LLGroupMoneyPlanningTabEventHandler(LLTextEditor* text_editor,
-										LLTabContainerCommon* tab_containerp,
-										LLPanel* panelp,
-										const LLUUID& group_id);
-	virtual ~LLGroupMoneyPlanningTabEventHandler();
-
-	virtual void requestData(LLMessageSystem* msg);
-	virtual void processReply(LLMessageSystem* msg, void** data);
-
-	static void processGroupAccountSummaryReply(LLMessageSystem* msg,
-												void** data);
 };
 
 #endif // LL_PANEL_GROUP_LAND_MONEY_H

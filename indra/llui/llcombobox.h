@@ -105,7 +105,7 @@ public:
 	virtual LLSD	getValue() const;
 
 	void			setAllowTextEntry(BOOL allow, S32 max_chars = 50, BOOL make_tentative = TRUE);
-	void			setTextEntry(const LLString& text);
+	void			setTextEntry(const LLStringExplicit& text);
 
 	void			add(const LLString& name, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE);	// add item "name" to menu
 	void			add(const LLString& name, const LLUUID& id, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE);
@@ -117,7 +117,7 @@ public:
 	void			sortByName(); // Sort the entries in the combobox by name
 
 	// Select current item by name using selectSimpleItem.  Returns FALSE if not found.
-	BOOL			setSimple(const LLString& name);
+	BOOL			setSimple(const LLStringExplicit& name);
 	// Get name of current item. Returns an empty string if not found.
 	const LLString&	getSimple() const;
 	// Get contents of column x of selected row
@@ -125,7 +125,7 @@ public:
 
 	// Sets the label, which doesn't have to exist in the label.
 	// This is probably a UI abuse.
-	void			setLabel(const LLString& name);
+	void			setLabel(const LLStringExplicit& name);
 
 	BOOL			remove(const LLString& name);	// remove item "name", return TRUE if found and removed
 	

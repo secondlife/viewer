@@ -641,16 +641,20 @@ void LLTextureView::draw()
 #if 1
 			if (pri < HIGH_PRIORITY && gSelectMgr)
 			{
-				S32 te;
-				LLViewerObject *objectp;
-				LLObjectSelectionHandle selection = gSelectMgr->getSelection();
-				for (selection->getFirstTE(&objectp, &te); objectp; selection->getNextTE(&objectp, &te))
+				struct f : public LLSelectedTEFunctor
 				{
-					if (imagep == objectp->getTEImage(te))
+					LLViewerImage* mImage;
+					f(LLViewerImage* image) : mImage(image) {}
+					virtual bool apply(LLViewerObject* object, S32 te)
 					{
-						pri += 3*HIGH_PRIORITY;
-						break;
+						return (mImage == object->getTEImage(te));
 					}
+				} func(imagep);
+				const bool firstonly = true;
+				bool match = gSelectMgr->getSelection()->applyToTEs(&func, firstonly);
+				if (match)
+				{
+					pri += 3*HIGH_PRIORITY;
 				}
 			}
 #endif

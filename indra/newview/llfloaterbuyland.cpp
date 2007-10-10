@@ -1022,9 +1022,9 @@ void LLFloaterBuyLandUI::refreshUI()
 		}
 		else
 		{
-			childSetText("info_parcel", "(no parcel selected)");
-			childSetText("info_size", "");
-			childSetText("info_price", "");
+			childSetText("info_parcel", childGetText("no_parcel_selected"));
+			childSetText("info_size", LLString::null);
+			childSetText("info_price", LLString::null);
 		}
 		
 		childSetText("info_action",
@@ -1127,7 +1127,7 @@ void LLFloaterBuyLandUI::refreshUI()
 		
 		if (mIsForGroup)
 		{
-			childSetTextArg("insufficient_land_credits", "[GROUP]", gAgent.mGroupName);
+			childSetTextArg("insufficient_land_credits", "[GROUP]", LLString(gAgent.mGroupName));
 
 
 			message += childGetText("insufficient_land_credits");
@@ -1306,7 +1306,7 @@ void LLFloaterBuyLandUI::startBuyPreConfirm()
 	}
 
 	childSetTextArg("pay_to_for_land", "[AMOUNT]", llformat("%d", mParcelPrice));
-	childSetTextArg("pay_to_for_land", "[SELLER]", mParcelSellerName.c_str());
+	childSetTextArg("pay_to_for_land", "[SELLER]", mParcelSellerName);
 
 	action += childGetText("pay_to_for_land");
 		
@@ -1348,4 +1348,5 @@ void LLFloaterBuyLandUI::onClickErrorWeb(void* data)
 	LLWeb::loadURLExternal(self->mCannotBuyURI);
 	self->close();
 }
+
 

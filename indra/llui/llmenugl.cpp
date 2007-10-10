@@ -373,7 +373,7 @@ void LLMenuItemGL::setHighlightFGColor( const LLColor4& color )
 
 
 // change the label
-void LLMenuItemGL::setLabel( const LLString& label )
+void LLMenuItemGL::setLabel( const LLStringExplicit& label )
 {
 	mLabel = label;
 }
@@ -598,7 +598,7 @@ void LLMenuItemGL::draw( void )
 	mGotHover = FALSE;
 }
 
-BOOL LLMenuItemGL::setLabelArg( const LLString& key, const LLString& text )
+BOOL LLMenuItemGL::setLabelArg( const LLString& key, const LLStringExplicit& text )
 {
 	mLabel.setArg(key, text);
 	return TRUE;

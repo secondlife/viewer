@@ -96,7 +96,7 @@ public:
 	virtual void	setMaxValue(F32 max)			{ mMaxValue = max; }
 	virtual void	setIncrement(F32 inc)			{ mIncrement = inc; }
 
-	void			setLabel(const LLString& label);
+	void			setLabel(const LLStringExplicit& label);
 	void			setLabelColor(const LLColor4& c)			{ mTextEnabledColor = c; }
 	void			setDisabledLabelColor(const LLColor4& c)	{ mTextDisabledColor = c; }
 

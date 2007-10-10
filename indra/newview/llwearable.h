@@ -85,11 +85,11 @@ public:
 	EWearableType		getType() const							{ return mType; }
 	void				setType( EWearableType type )			{ mType = type; }
 
-	void				setName( const std::string& name )				{ mName = name; }
-	const std::string&	getName()								{ return mName; }
+	void				setName( const LLString& name )			{ mName = name; }
+	const LLString&		getName()								{ return mName; }
 
-	void				setDescription( const std::string& desc )		{ mDescription = desc; }
-	const std::string&	getDescription()						{ return mDescription; }
+	void				setDescription( const LLString& desc )	{ mDescription = desc; }
+	const LLString&		getDescription()						{ return mDescription; }
 
 	void				setPermissions( const LLPermissions& p ) { mPermissions = p; }
 	const LLPermissions& getPermissions()						{ return mPermissions; }
