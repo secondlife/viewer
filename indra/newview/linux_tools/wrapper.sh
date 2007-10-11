@@ -1,5 +1,4 @@
-#!/bin/sh
-# Script tested with: bash 1.14, bash 3.1.17, zsh 4.2.5, ksh 1993-12-28
+#!/bin/bash
 
 ## Here are some configuration options for Linux Client Alpha Testers.
 ## These options are for self-assisted troubleshooting during this alpha

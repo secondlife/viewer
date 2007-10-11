@@ -38,11 +38,13 @@
 
 typedef LLImageJ2CImpl* (*CreateLLImageJ2CFunction)();
 typedef void (*DestroyLLImageJ2CFunction)(LLImageJ2CImpl*);
+typedef const char* (*EngineInfoLLImageJ2CFunction)();
 
 //some "private static" variables so we only attempt to load
 //dynamic libaries once
 CreateLLImageJ2CFunction j2cimpl_create_func;
 DestroyLLImageJ2CFunction j2cimpl_destroy_func;
+EngineInfoLLImageJ2CFunction j2cimpl_engineinfo_func;
 apr_pool_t *j2cimpl_dso_memory_pool;
 apr_dso_handle_t *j2cimpl_dso_handle;
 
@@ -52,9 +54,10 @@ apr_dso_handle_t *j2cimpl_dso_handle;
 //function should ever be included
 LLImageJ2CImpl* fallbackCreateLLImageJ2CImpl();
 void fallbackDestroyLLImageJ2CImpl(LLImageJ2CImpl* impl);
+const char* fallbackEngineInfoLLImageJ2CImpl();
 
 //static
-//Loads the required "create" and "destroy" functions needed
+//Loads the required "create", "destroy" and "engineinfo" functions needed
 void LLImageJ2C::openDSO()
 {
 	//attempt to load a DSO and get some functions from it
@@ -73,8 +76,8 @@ void LLImageJ2C::openDSO()
 #endif
 
 	dso_path = gDirUtilp->findFile(dso_name,
-								   gDirUtilp->getAppRODataDir(),
-								   gDirUtilp->getExecutableDir());
+				       gDirUtilp->getAppRODataDir(),
+				       gDirUtilp->getExecutableDir());
 
 	j2cimpl_dso_handle      = NULL;
 	j2cimpl_dso_memory_pool = NULL;
@@ -92,6 +95,7 @@ void LLImageJ2C::openDSO()
 		//now we want to load the functions we're interested in
 		CreateLLImageJ2CFunction  create_func = NULL;
 		DestroyLLImageJ2CFunction dest_func = NULL;
+		EngineInfoLLImageJ2CFunction engineinfo_func = NULL;
 
 		rv = apr_dso_sym((apr_dso_handle_sym_t*)&create_func,
 						 j2cimpl_dso_handle,
@@ -103,13 +107,21 @@ void LLImageJ2C::openDSO()
 			//so lets check for a destruction function
 			rv = apr_dso_sym((apr_dso_handle_sym_t*)&dest_func,
 							 j2cimpl_dso_handle,
-							 "destroyLLImageJ2CKDU");
+						       "destroyLLImageJ2CKDU");
 			if ( rv == APR_SUCCESS )
 			{
-				//k, everything is loaded alright
-				j2cimpl_create_func  = create_func;
-				j2cimpl_destroy_func = dest_func;
-				all_functions_loaded = true;
+				//we've loaded the destroy function ok
+				rv = apr_dso_sym((apr_dso_handle_sym_t*)&engineinfo_func,
+						 j2cimpl_dso_handle,
+						 "engineInfoLLImageJ2CKDU");
+				if ( rv == APR_SUCCESS )
+				{
+					//ok, everything is loaded alright
+					j2cimpl_create_func  = create_func;
+					j2cimpl_destroy_func = dest_func;
+					j2cimpl_engineinfo_func = engineinfo_func;
+					all_functions_loaded = true;
+				}
 			}
 		}
 	}
@@ -152,6 +164,15 @@ void LLImageJ2C::closeDSO()
 	if (j2cimpl_dso_memory_pool) apr_pool_destroy(j2cimpl_dso_memory_pool);
 }
 
+//static
+std::string LLImageJ2C::getEngineInfo()
+{
+	if (!j2cimpl_engineinfo_func)
+		j2cimpl_engineinfo_func = fallbackEngineInfoLLImageJ2CImpl;
+
+	return j2cimpl_engineinfo_func();
+}
+
 LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 							mMaxBytes(0),
 							mRawDiscardLevel(-1),
@@ -159,7 +180,7 @@ LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 							mReversible(FALSE)
 	
 {
-	//We assume here that if we wanted to destory via
+	//We assume here that if we wanted to create via
 	//a dynamic library that the approriate open calls were made
 	//before any calls to this constructor.
 
@@ -178,7 +199,7 @@ LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 // virtual
 LLImageJ2C::~LLImageJ2C()
 {
-	//We assume here that if we wanted to destory via
+	//We assume here that if we wanted to destroy via
 	//a dynamic library that the approriate open calls were made
 	//before any calls to this destructor.
 

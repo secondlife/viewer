@@ -38,6 +38,12 @@
 #include "lltimer.h"
 #include "llmemory.h"
 
+const char* fallbackEngineInfoLLImageJ2CImpl()
+{
+	return (std::string("OpenJPEG: " OPENJPEG_VERSION ", Runtime: ")
+		+ opj_version()).c_str();
+}
+
 LLImageJ2CImpl* fallbackCreateLLImageJ2CImpl()
 {
 	return new LLImageJ2COJ();

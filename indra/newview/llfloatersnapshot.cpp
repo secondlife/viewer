@@ -1141,7 +1141,8 @@ void LLFloaterSnapshot::Impl::onCommitResolution(LLUICtrl* ctrl, void* data)
 		}
 		else if (width == -1 || height == -1)
 		{
-			// leave width and height when entering custom value				
+			// load last custom value
+			previewp->setSize(gSavedSettings.getS32("LastSnapshotWidth"), gSavedSettings.getS32("LastSnapshotHeight"));
 		}
 		else
 		{
@@ -1202,14 +1203,17 @@ void LLFloaterSnapshot::Impl::onCommitCustomResolution(LLUICtrl *ctrl, void* dat
 	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;		
 	if (view)
 	{
+		S32 w = llfloor((F32)view->childGetValue("snapshot_width").asReal());
+		S32 h = llfloor((F32)view->childGetValue("snapshot_height").asReal());
+
+		gSavedSettings.setS32("LastSnapshotWidth", w);
+		gSavedSettings.setS32("LastSnapshotHeight", h);
+
 		LLSnapshotLivePreview* previewp = getPreviewView(view);
 		if (previewp)
 		{
 			S32 curw,curh;
 			previewp->getSize(curw, curh);
-			
-			S32 w = llfloor((F32)view->childGetValue("snapshot_width").asReal());
-			S32 h = llfloor((F32)view->childGetValue("snapshot_height").asReal());
 			
 			if (w != curw || h != curh)
 			{
@@ -1294,8 +1298,8 @@ BOOL LLFloaterSnapshot::postBuild()
 	childSetValue("layer_types", "colors");
 	childSetEnabled("layer_types", FALSE);
 
-	childSetValue("snapshot_width", gViewerWindow->getWindowDisplayWidth());
-	childSetValue("snapshot_height", gViewerWindow->getWindowDisplayHeight());
+	childSetValue("snapshot_width", gSavedSettings.getS32("LastSnapshotWidth"));
+	childSetValue("snapshot_height", gSavedSettings.getS32("LastSnapshotHeight"));
 
 	childSetValue("freeze_frame_check", gSavedSettings.getBOOL("UseFreezeFrame"));
 	childSetCommitCallback("freeze_frame_check", Impl::onCommitFreezeFrame, this);

@@ -71,6 +71,7 @@ public:
 
 	static void openDSO();
 	static void closeDSO();
+	static std::string getEngineInfo();
 	
 protected:
 	friend class LLImageJ2CImpl;
