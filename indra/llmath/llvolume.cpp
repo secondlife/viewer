@@ -86,6 +86,8 @@ const S32 SCULPT_REZ_2 = 8;
 const S32 SCULPT_REZ_3 = 16;
 const S32 SCULPT_REZ_4 = 32;
 
+const F32 SCULPT_MIN_AREA = 0.005f;
+
 BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
 {    
 	LLVector3 test = (pt2-pt1)%(pt3-pt2);
@@ -1828,6 +1830,18 @@ void LLVolume::createVolumeFaces()
 }
 
 
+inline LLVector3 sculpt_rgb_to_vector(U8 r, U8 g, U8 b)
+{
+	// maps RGB values to vector values [0..255] -> [-0.5..0.5]
+	LLVector3 value;
+	value.mV[VX] = r / 256.f - 0.5f;
+	value.mV[VY] = g / 256.f - 0.5f;
+	value.mV[VZ] = b / 256.f - 0.5f;
+
+	return value;
+}
+
+
 // sculpt replaces generate() for sculpted surfaces
 void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level)
 {
@@ -1852,40 +1866,39 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 	mMesh.resize(sizeS * sizeT);
 	sNumMeshPoints += mMesh.size();
 
-	S32 vertex_change = 0;
+	F32 area = 0;
 	// first test to see if image has enough variation to create non-degenerate geometry
 	if (!data_is_empty)
 	{
-		S32 last_index = 0;
-		for (S32 s = 0; s < sizeS; s++)
-			for (S32 t = 0; t < sizeT; t++)
+		for (S32 s = 0; s < sizeS - 1; s++)
+			for (S32 t = 0; t < sizeT - 1; t++)
 			{
-				U32 x = (U32) ((F32)s/(sizeS-1) * (F32) sculpt_width);
-				U32 y = (U32) ((F32)t/(sizeT-1) * (F32) sculpt_height);
+				// first coordinate
+				U32 x = (U32) ((F32)s/(sizeS) * (F32) sculpt_width);
+				U32 y = (U32) ((F32)t/(sizeT) * (F32) sculpt_height);
 
-				if (y == sculpt_height)  // stitch bottom
-				{
-					y = sculpt_height - 1;
-					x = sculpt_width / 2;
-				}
+				// coordinate offset by 1
+				U32 x2 = (U32) ((F32)(s+1)/(sizeS) * (F32) sculpt_width);
+				U32 y2 = (U32) ((F32)(t+1)/(sizeT) * (F32) sculpt_height);
+					
+				// three points on a triagle - find the image indices first
+				U32 p1_index = (x + y * sculpt_width) * sculpt_components;
+				U32 p2_index = (x2 + y * sculpt_width) * sculpt_components;
+				U32 p3_index = (x + y2 * sculpt_width) * sculpt_components;
 
-				if (x == sculpt_width)   // stitch sides
-					x = 0;
+				// convert image data to vectors
+				LLVector3 p1 = sculpt_rgb_to_vector(sculpt_data[p1_index], sculpt_data[p1_index+1], sculpt_data[p1_index+2]);
+				LLVector3 p2 = sculpt_rgb_to_vector(sculpt_data[p2_index], sculpt_data[p2_index+1], sculpt_data[p2_index+2]);
+				LLVector3 p3 = sculpt_rgb_to_vector(sculpt_data[p3_index], sculpt_data[p3_index+1], sculpt_data[p3_index+2]);
 
-				if (y == 0)  // stitch top
-					x = sculpt_width / 2;
-
-				U32 index = (x + y * sculpt_width) * sculpt_components;
-
-				if (fabs((F32)(sculpt_data[index] - sculpt_data[last_index])) +
-					fabs((F32)(sculpt_data[index+1] - sculpt_data[last_index+1])) +
-					fabs((F32)(sculpt_data[index+2] - sculpt_data[last_index+2])) > 0)
-					vertex_change++;
-
-				last_index = index;
+				// compute the area of the parallelogram by taking the length of the cross product:
+				// (parallegram is an approximation of two triangles)
+				LLVector3 cross = (p1 - p2) % (p1 - p3);
+				// take length squared for efficiency (no sqrt)
+				area += cross.magVecSquared();
 			}
 		
-		if ((F32)vertex_change / sizeS / sizeT < 0.02) // less than 2%
+		if (area < SCULPT_MIN_AREA * SCULPT_MIN_AREA)
 			data_is_empty = TRUE;
 	}
 
@@ -1977,9 +1990,7 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 
 				
 				U32 index = (x + y * sculpt_width) * sculpt_components;
-				pt.mPos.mV[0] = sculpt_data[index  ] / 256.f - 0.5f;
-				pt.mPos.mV[1] = sculpt_data[index+1] / 256.f - 0.5f;
-				pt.mPos.mV[2] = sculpt_data[index+2] / 256.f - 0.5f;
+				pt.mPos = sculpt_rgb_to_vector(sculpt_data[index], sculpt_data[index+1], sculpt_data[index+2]);
 			}
 			line += sizeT;
 		}

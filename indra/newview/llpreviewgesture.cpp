@@ -151,6 +151,13 @@ LLPreviewGesture* LLPreviewGesture::show(const std::string& title, const LLUUID&
 		hostp->addFloater(self, TRUE);
 	}
 
+	// Start speculative download of sounds and animations
+	LLUUID animation_folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_ANIMATION);
+	gInventory.startBackgroundFetch(animation_folder_id);
+
+	LLUUID sound_folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_SOUND);
+	gInventory.startBackgroundFetch(sound_folder_id);
+
 	// this will call refresh when we have everything.
 	LLViewerInventoryItem* item = (LLViewerInventoryItem*)self->getItem();
 	if(item && !item->isComplete())
@@ -577,8 +584,10 @@ void LLPreviewGesture::addAnimations()
 	LLComboBox* combo = mAnimationCombo;
 
 	combo->removeall();
+	
+	LLString none_text = childGetText("none_text");
 
-	combo->add("-- None --", LLUUID::null);
+	combo->add(none_text, LLUUID::null);
 
 	// Add all the default (legacy) animations
 	S32 i;
@@ -628,6 +637,13 @@ void LLPreviewGesture::addAnimations()
 
 void LLPreviewGesture::addSounds()
 {
+	LLComboBox* combo = mSoundCombo;
+	combo->removeall();
+	
+	LLString none_text = childGetText("none_text");
+
+	combo->add(none_text, LLUUID::null);
+
 	// Get all inventory items that are sounds
 	LLViewerInventoryCategory::cat_array_t cats;
 	LLViewerInventoryItem::item_array_t items;
@@ -655,8 +671,6 @@ void LLPreviewGesture::addSounds()
 	std::sort(sounds.begin(), sounds.end(), SortItemPtrsByName());
 
 	// And load up the combobox
-	LLComboBox* combo = mSoundCombo;
-	combo->removeall();
 	std::vector<LLInventoryItem*>::iterator it;
 	for (it = sounds.begin(); it != sounds.end(); ++it)
 	{

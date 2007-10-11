@@ -602,7 +602,12 @@ public:
 
 	LLVector3d		getSelectionCenterGlobal() const	{ return mSelectionCenterGlobal; }
 	void			updateSelectionCenter();
-	void			updatePointAt();
+
+	void resetAgentHUDZoom();
+	void setAgentHUDZoom(F32 target_zoom, F32 current_zoom);
+	void getAgentHUDZoom(F32 &target_zoom, F32 &current_zoom) const;
+
+	void updatePointAt();
 
 	// Internal list maintenance functions. TODO: Make these private!
 	void remove(std::vector<LLViewerObject*>& objects);

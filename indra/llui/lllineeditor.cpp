@@ -1807,7 +1807,7 @@ BOOL LLLineEditor::prevalidateFloat(const LLWString &str)
 
 		for( ; i < len; i++ )
 		{
-			if( (decimal_point != trimmed[i] ) && !isdigit( trimmed[i] ) )
+			if( (decimal_point != trimmed[i] ) && !LLStringOps::isDigit( trimmed[i] ) )
 			{
 				success = FALSE;
 				break;
@@ -1862,7 +1862,7 @@ BOOL LLLineEditor::postvalidateFloat(const LLString &str)
 				}
 			}
 			else
-			if( isdigit( trimmed[i] ) )
+			if( LLStringOps::isDigit( trimmed[i] ) )
 			{
 				has_digit = TRUE;
 			}
@@ -1905,7 +1905,7 @@ BOOL LLLineEditor::prevalidateInt(const LLWString &str)
 
 		for( ; i < len; i++ )
 		{
-			if( !isdigit( trimmed[i] ) )
+			if( !LLStringOps::isDigit( trimmed[i] ) )
 			{
 				success = FALSE;
 				break;
@@ -1934,7 +1934,7 @@ BOOL LLLineEditor::prevalidatePositiveS32(const LLWString &str)
 		S32 i = 0;
 		while(success && (i < len))
 		{
-			if(!isdigit(trimmed[i++]))
+			if(!LLStringOps::isDigit(trimmed[i++]))
 			{
 				success = FALSE;
 			}
@@ -1968,7 +1968,7 @@ BOOL LLLineEditor::prevalidateNonNegativeS32(const LLWString &str)
 		S32 i = 0;
 		while(success && (i < len))
 		{
-			if(!isdigit(trimmed[i++]))
+			if(!LLStringOps::isDigit(trimmed[i++]))
 			{
 				success = FALSE;
 			}

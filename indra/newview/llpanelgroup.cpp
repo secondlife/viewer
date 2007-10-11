@@ -168,11 +168,11 @@ LLPanelGroup::LLPanelGroup(const std::string& filename,
 	mFactoryMap["roles_sub_tab"] = LLCallbackMap(LLPanelGroupRolesSubTab::createTab, &mID);
 	mFactoryMap["actions_sub_tab"] = LLCallbackMap(LLPanelGroupActionsSubTab::createTab, &mID);
 
+	gGroupMgr->addObserver(this);
+
 	// Pass on construction of this panel to the control factory.
 	gUICtrlFactory->buildPanel(this, filename, &getFactoryMap());
 	mFilename = filename;
-
-	gGroupMgr->addObserver(this);
 }
 
 LLPanelGroup::~LLPanelGroup()

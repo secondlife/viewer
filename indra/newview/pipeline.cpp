@@ -748,13 +748,7 @@ U32 LLPipeline::addObject(LLViewerObject *vobj)
 
 void LLPipeline::resetFrameStats()
 {
-	mCompilesStat.addValue(sCompiles);
-	mLightingChangesStat.addValue(mLightingChanges);
-	mGeometryChangesStat.addValue(mGeometryChanges);
 	mTrianglesDrawnStat.addValue(mTrianglesDrawn/1000.f);
-	mVerticesRelitStat.addValue(mVerticesRelit);
-	mNumVisibleFacesStat.addValue(mNumVisibleFaces);
-	mNumVisibleDrawablesStat.addValue((S32)mVisibleList.size());
 
 	mTrianglesDrawn = 0;
 	sCompiles        = 0;
@@ -855,8 +849,6 @@ void LLPipeline::updateMove()
 	{
 		return;
 	}
-
-	mMoveChangesStat.addValue((F32)mMovedList.size());
 
 	for (LLDrawable::drawable_set_t::iterator iter = mRetexturedList.begin();
 		 iter != mRetexturedList.end(); ++iter)

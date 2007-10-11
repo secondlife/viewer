@@ -147,6 +147,10 @@ protected:
 	U8					mBump;					// Bump map, shiny, and fullbright
 	U8					mMediaFlags;			// replace with web page, movie, etc.
 	F32                 mGlow;
+
+	// NOTE: when adding new data to this class, in addition to adding it to the serializers asLLSD/fromLLSD and the
+	// message packers (e.g. LLPrimitive::packTEMessage) you must also implement its copy in LLPrimitive::copyTEs()
+
 	
 };
 

@@ -64,6 +64,8 @@ LLDate::LLDate(const std::string& iso8601_date)
 {
 	if(!fromString(iso8601_date))
 	{
+		llwarns << "date " << iso8601_date << " failed to parse; "
+			<< "ZEROING IT OUT" << llendl;
 		mSecondsSinceEpoch = DATE_EPOCH;
 	}
 }
@@ -215,7 +217,7 @@ bool LLDate::fromStream(std::istream& s)
 		s >> fractional;
 		seconds_since_epoch += fractional;
 	}
-	s.get(); // skip the Z
+	c = s.get(); // skip the Z
 	if (c != 'Z') { return false; }
 
 	mSecondsSinceEpoch = seconds_since_epoch;

@@ -3272,7 +3272,6 @@ void LLSelectMgr::deselectAll()
 	mLastSentSelectionCenterGlobal.clearVec();
 
 	updatePointAt();
-	updateSelectionCenter();
 }
 
 void LLSelectMgr::deselectUnused()
@@ -5302,11 +5301,8 @@ void LLSelectMgr::updateSelectionCenter()
 		mShowSelection = FALSE;
 		mSelectionBBox = LLBBox(); 
 		mPauseRequest = NULL;
-		if (gAgent.getAvatarObject())
-		{
-			gAgent.getAvatarObject()->mHUDTargetZoom = 1.f;
-			gAgent.getAvatarObject()->mHUDCurZoom = 1.f;
-		}
+		resetAgentHUDZoom();
+
 	}
 	else
 	{
@@ -5602,6 +5598,33 @@ BOOL LLSelectMgr::setForceSelection(BOOL force)
 { 
 	std::swap(mForceSelection,force); 
 	return force; 
+}
+
+void LLSelectMgr::resetAgentHUDZoom()
+{
+	if (gAgent.getAvatarObject())
+	{
+		gAgent.getAvatarObject()->mHUDTargetZoom = 1.f;
+		gAgent.getAvatarObject()->mHUDCurZoom = 1.f;
+	}
+}
+
+void LLSelectMgr::getAgentHUDZoom(F32 &target_zoom, F32 &current_zoom) const
+{
+	if (gAgent.getAvatarObject())
+	{
+		target_zoom = gAgent.getAvatarObject()->mHUDTargetZoom;
+		current_zoom = gAgent.getAvatarObject()->mHUDCurZoom;
+	}
+}
+
+void LLSelectMgr::setAgentHUDZoom(F32 target_zoom, F32 current_zoom)
+{
+	if (gAgent.getAvatarObject())
+	{
+		gAgent.getAvatarObject()->mHUDTargetZoom = target_zoom;
+		gAgent.getAvatarObject()->mHUDCurZoom = current_zoom;
+	}
 }
 
 LLObjectSelection::LLObjectSelection() : 

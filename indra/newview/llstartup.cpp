@@ -1078,7 +1078,17 @@ BOOL idle_startup()
 				}
 				else if (message_response)
 				{
-					emsg << message_response;
+					// XUI: fix translation for strings returned during login
+					// We need a generic table for translations
+					LLString big_reason = LLAgent::sTeleportErrorMessages[ message_response ];
+					if ( big_reason.size() == 0 )
+					{
+						emsg << message_response;
+					}
+					else
+					{
+						emsg << big_reason;
+					}
 				}
 
 				if(reason_response && (0 == strcmp(reason_response, "tos")))
@@ -3098,67 +3108,6 @@ void init_stat_view()
 	stat_barp->mPerSec = TRUE;
 	stat_barp->mDisplayBar = FALSE;
 
-
-	// Pipeline statistics
-	LLStatView *pipeline_statviewp;
-	pipeline_statviewp = new LLStatView("pipeline stat view", "Pipeline", "", rect);
-	render_statviewp->addChildAtEnd(pipeline_statviewp);
-
-	stat_barp = pipeline_statviewp->addStat("Visible Drawables", &(gPipeline.mNumVisibleDrawablesStat));
-	stat_barp->setUnitLabel("");
-	stat_barp->mMinBar = 0.f;
-	stat_barp->mMaxBar = 10000.f;
-	stat_barp->mTickSpacing = 1000.f;
-	stat_barp->mLabelSpacing = 5000.f;
-	stat_barp->mPerSec = FALSE;
-
-	stat_barp = pipeline_statviewp->addStat("Visible Faces", &(gPipeline.mNumVisibleFacesStat));
-	stat_barp->setUnitLabel("");
-	stat_barp->mMinBar = 0.f;
-	stat_barp->mMaxBar = 40000.f;
-	stat_barp->mTickSpacing = 5000.f;
-	stat_barp->mLabelSpacing = 10000.f;
-	stat_barp->mPerSec = FALSE;
-
-	stat_barp = pipeline_statviewp->addStat("DirtyGeom", &(gPipeline.mGeometryChangesStat));
-	stat_barp->setUnitLabel("/fr");
-	stat_barp->mMinBar = 0.f;
-	stat_barp->mMaxBar = 1000.f;
-	stat_barp->mTickSpacing = 100.f;
-	stat_barp->mLabelSpacing = 500.f;
-	stat_barp->mPerSec = FALSE;
-
-	stat_barp = pipeline_statviewp->addStat("DirtyLight", &(gPipeline.mLightingChangesStat));
-	stat_barp->setUnitLabel("/fr");
-	stat_barp->mMinBar = 0.f;
-	stat_barp->mMaxBar = 1000.f;
-	stat_barp->mTickSpacing = 100.f;
-	stat_barp->mLabelSpacing = 500.f;
-	stat_barp->mPerSec = FALSE;
-
-	stat_barp = pipeline_statviewp->addStat("MoveList", &(gPipeline.mMoveChangesStat));
-	stat_barp->setUnitLabel("dr");
-	stat_barp->mMinBar = 0.f;
-	stat_barp->mMaxBar = 1000.f;
-	stat_barp->mTickSpacing = 100.f;
-	stat_barp->mLabelSpacing = 500.f;
-	stat_barp->mPerSec = FALSE;
-
-	stat_barp = pipeline_statviewp->addStat("Compiles", &(gPipeline.mCompilesStat));
-	stat_barp->setUnitLabel("/fr");
-	stat_barp->mMinBar = 0.f;
-	stat_barp->mMaxBar = 1000.f;
-	stat_barp->mTickSpacing = 100.f;
-	stat_barp->mLabelSpacing = 500.f;
-	stat_barp->mPerSec = FALSE;
-
-	stat_barp = pipeline_statviewp->addStat("Verts Relit", &(gPipeline.mVerticesRelitStat));
-	stat_barp->setUnitLabel("/fr");
-	stat_barp->mMinBar = 0.f;
-	stat_barp->mMaxBar = 40000.f;
-	stat_barp->mTickSpacing = 10000.f;
-	stat_barp->mLabelSpacing = 20000.f;
-	stat_barp->mPerSec = FALSE;
 
 	// Texture statistics
 	LLStatView *texture_statviewp;

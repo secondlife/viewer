@@ -349,19 +349,12 @@ public:
 	BOOL					 mBackfaceCull;
 	S32						 mTrianglesDrawn;
 	LLStat                   mTrianglesDrawnStat;
-	LLStat					 mCompilesStat;
 	S32						 mVerticesRelit;
-	LLStat					 mVerticesRelitStat;
 
 	S32						 mLightingChanges;
-	LLStat					 mLightingChangesStat;
 	S32						 mGeometryChanges;
-	LLStat					 mGeometryChangesStat;
-	LLStat					 mMoveChangesStat;
 
 	S32						 mNumVisibleFaces;
-	LLStat					 mNumVisibleFacesStat;
-	LLStat					 mNumVisibleDrawablesStat;
 
 	static S32				sCompiles;
 

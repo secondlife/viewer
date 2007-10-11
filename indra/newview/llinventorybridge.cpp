@@ -1784,8 +1784,14 @@ void LLFolderBridge::folderOptionsMenu()
 		checkFolderForContentsOfType(model, is_gesture) )
 	{
 		mItems.push_back("Folder Wearables Separator");
-		mItems.push_back("Add To Outfit");
-		mItems.push_back("Replace Outfit");
+
+		// Only enable add/replace outfit for non-default folders.
+		const LLInventoryCategory* category = model->getCategory(mUUID);
+		if (!category || (LLAssetType::AT_NONE == category->getPreferredType()))
+		{
+			mItems.push_back("Add To Outfit");
+			mItems.push_back("Replace Outfit");
+		}
 		mItems.push_back("Take Off Items");
 	}
 	hideContextEntries(*mMenu, mItems, disabled_items);

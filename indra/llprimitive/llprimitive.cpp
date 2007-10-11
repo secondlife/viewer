@@ -863,6 +863,7 @@ void LLPrimitive::copyTEs(const LLPrimitive *primitivep)
 		setTERotation(i, tep->getRotation());
 		setTEBumpShinyFullbright(i, tep->getBumpShinyFullbright());
 		setTEMediaTexGen(i, tep->getMediaTexGen());
+		setTEGlow(i, tep->getGlow());
 	}
 }
 

@@ -155,6 +155,11 @@ LLHandle<LLObjectSelection> LLToolSelect::handleObjectSelection(LLViewerObject *
 		}
 		else
 		{
+			// Save the current zoom values because deselect resets them.
+			F32 target_zoom;
+			F32 current_zoom;
+			gSelectMgr->getAgentHUDZoom(target_zoom, current_zoom);
+
 			// JC - Change behavior to make it easier to select children
 			// of linked sets. 9/3/2002
 			if( !already_selected || ignore_group)
@@ -171,6 +176,9 @@ LLHandle<LLObjectSelection> LLToolSelect::handleObjectSelection(LLViewerObject *
 			{
 				gSelectMgr->selectObjectAndFamily(object);
 			}
+
+			// restore the zoom to the previously stored values.
+			gSelectMgr->setAgentHUDZoom(target_zoom, current_zoom);
 		}
 
 		if (!gAgent.getFocusOnAvatar() &&										// if camera not glued to avatar

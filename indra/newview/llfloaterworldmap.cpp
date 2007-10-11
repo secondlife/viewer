@@ -298,20 +298,6 @@ void LLFloaterWorldMap::onClose(bool app_quitting)
 	setVisible(FALSE);
 }
 
-// Allow us to download landmarks quickly when map is shown
-class LLLandmarkFetchDescendentsObserver : public LLInventoryFetchDescendentsObserver
-{
-public:
-	virtual void done()
-	{
-		// We need to find landmarks in all folders, so get the main
-		// background download going.
-		gInventory.startBackgroundFetch();
-		gInventory.removeObserver(this);
-		delete this;
-	}
-};
-
 // static
 void LLFloaterWorldMap::show(void*, BOOL center_on_target)
 {
@@ -351,7 +337,6 @@ void LLFloaterWorldMap::show(void*, BOOL center_on_target)
 		LLFirstUse::useMap();
 
 		// Start speculative download of landmarks
-		LLInventoryFetchDescendentsObserver::folder_ref_t folders;
 		LLUUID landmark_folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
 		gInventory.startBackgroundFetch(landmark_folder_id);
 

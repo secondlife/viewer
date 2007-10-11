@@ -780,7 +780,10 @@ void LLGroupMgr::removeObserver(LLGroupMgrObserver* observer)
 			mObservers.erase(it);
 			break;
 		}
-		++it;
+		else
+		{
+			++it;
+		}
 	}
 }
 
@@ -1287,6 +1290,7 @@ void LLGroupMgr::processCreateGroupReply(LLMessageSystem* msg, void ** data)
 LLGroupMgrGroupData* LLGroupMgr::createGroupData(const LLUUID& id)
 {
 	LLGroupMgrGroupData* group_datap;
+
 	group_iter existing_group = gGroupMgr->mGroups.find(id);
 	if (existing_group == gGroupMgr->mGroups.end())
 	{
@@ -1320,7 +1324,6 @@ void LLGroupMgr::notifyObservers(LLGroupChange gc)
 
 void LLGroupMgr::addGroup(LLGroupMgrGroupData* group_datap)
 {
-	mGroups[group_datap->getID()] = group_datap;
 	if (mGroups.size() > MAX_CACHED_GROUPS)
 	{
 		// get rid of groups that aren't observed
@@ -1330,8 +1333,8 @@ void LLGroupMgr::addGroup(LLGroupMgrGroupData* group_datap)
 			if (oi == mObservers.end())
 			{
 				// not observed
-				LLGroupMgrGroupData* group_datap = gi->second;
-				delete group_datap;
+				LLGroupMgrGroupData* unobserved_groupp = gi->second;
+				delete unobserved_groupp;
 				mGroups.erase(gi++);
 			}
 			else
@@ -1340,6 +1343,7 @@ void LLGroupMgr::addGroup(LLGroupMgrGroupData* group_datap)
 			}
 		}
 	}
+	mGroups[group_datap->getID()] = group_datap;
 }
 
 
