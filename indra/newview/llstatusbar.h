@@ -47,6 +47,25 @@ class LLUUID;
 class LLFrameTimer;
 class LLStatGraph;
 
+// used by LCD screen
+class cLLRegionDetails
+{
+public:
+	LLString mRegionName;
+	char	*mParcelName;
+	char	*mAccesString;
+	S32		mX;
+	S32		mY;
+	S32		mZ;
+	S32		mArea;
+	BOOL	mForSale;
+	char	mOwner[MAX_STRING];
+	F32		mTraffic;
+	S32		mBalance;
+	LLString	mTime;
+	U32		mPing;
+};
+
 class LLStatusBar
 :	public LLPanel
 {
@@ -83,6 +102,7 @@ public:
 	S32 getSquareMetersCredit() const;
 	S32 getSquareMetersCommitted() const;
 	S32 getSquareMetersLeft() const;
+	cLLRegionDetails mRegionDetails;
 
 protected:	
 	// simple method to setup the part that holds the date

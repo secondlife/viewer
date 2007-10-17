@@ -464,6 +464,10 @@ void LLStatusBar::refresh()
 			pos_y -= pos_y % 2;
 		}
 
+		mRegionDetails.mTime = mTextTime->getText();
+		mRegionDetails.mBalance = mBalance;
+		mRegionDetails.mAccesString = (char *)region->getSimAccessString();
+		mRegionDetails.mPing = region->getNetDetailsForLCD();
 		if (parcel && !parcel->getName().empty())
 		{
 			location_name = region->getName()
@@ -471,6 +475,43 @@ void LLStatusBar::refresh()
 						   pos_x, pos_y, pos_z,
 						   region->getSimAccessString(),
 						   parcel->getName().c_str());
+
+			// keep these around for the LCD to use
+			mRegionDetails.mRegionName = region->getName();
+			mRegionDetails.mParcelName = (char *)parcel->getName().c_str();
+			mRegionDetails.mX = pos_x;
+			mRegionDetails.mY = pos_y;
+			mRegionDetails.mZ = pos_z;
+			mRegionDetails.mArea = parcel->getArea();
+			mRegionDetails.mForSale = parcel->getForSale();
+			mRegionDetails.mTraffic = gParcelMgr->getDwelling();
+			
+			if (parcel->isPublic())
+			{
+				snprintf(mRegionDetails.mOwner, MAX_STRING, "Public");
+			}
+			else
+			{
+				if (parcel->getIsGroupOwned())
+				{
+					if(!parcel->getGroupID().isNull())
+					{
+						gCacheName->getGroupName(parcel->getGroupID(), mRegionDetails.mOwner);
+					}
+					else
+					{
+						snprintf(mRegionDetails.mOwner, MAX_STRING, "Group Owned");
+					}
+				}
+				else
+				{
+					// Figure out the owner's name
+					char owner_first[MAX_STRING];	/*Flawfinder: ignore*/
+					char owner_last[MAX_STRING];	/*Flawfinder: ignore*/
+					gCacheName->getName(parcel->getOwnerID(), owner_first, owner_last);
+					snprintf(mRegionDetails.mOwner, MAX_STRING, "%s %s", owner_first, owner_last); 		/* Flawfinder: ignore */
+				}
+			}
 		}
 		else
 		{
@@ -478,12 +519,34 @@ void LLStatusBar::refresh()
 				+ llformat(" %d, %d, %d (%s)", 
 						   pos_x, pos_y, pos_z,
 						   region->getSimAccessString());
+			// keep these around for the LCD to use
+			mRegionDetails.mRegionName = region->getName();
+			mRegionDetails.mParcelName = "Unknown";
+			
+			mRegionDetails.mX = pos_x;
+			mRegionDetails.mY = pos_y;
+			mRegionDetails.mZ = pos_z;
+			mRegionDetails.mArea = 0;
+			mRegionDetails.mForSale = FALSE;
+			snprintf(mRegionDetails.mOwner, MAX_STRING, "Unknown");
+			mRegionDetails.mTraffic = 0.0f;
 		}
 	}
 	else
 	{
 		// no region
 		location_name = "(Unknown)";
+		// keep these around for the LCD to use
+		mRegionDetails.mRegionName = LLString("Unknown");
+		mRegionDetails.mParcelName = "Unknown";
+		mRegionDetails.mAccesString = "Unknown";
+		mRegionDetails.mX = 0;
+		mRegionDetails.mY = 0;
+		mRegionDetails.mZ = 0;
+		mRegionDetails.mArea = 0;
+		mRegionDetails.mForSale = FALSE;
+		snprintf(mRegionDetails.mOwner, MAX_STRING, "Unknown");
+		mRegionDetails.mTraffic = 0.0f;
 	}
 	mTextParcelName->setText(location_name);
 

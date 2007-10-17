@@ -176,7 +176,11 @@ const StatAttributes STAT_INFO[LLViewerStats::ST_COUNT] =
 	// ST_TEX_BAKES
 	StatAttributes("Texture Bakes", FALSE, FALSE),
 	// ST_TEX_REBAKES
-	StatAttributes("Texture Rebakes", FALSE, FALSE)
+	StatAttributes("Texture Rebakes", FALSE, FALSE),
+
+	// ST_LOGITECH_KEYBOARD
+	StatAttributes("Logitech LCD", FALSE, FALSE)
+
 };
 
 LLViewerStats::LLViewerStats()

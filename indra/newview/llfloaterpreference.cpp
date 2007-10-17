@@ -54,6 +54,7 @@
 #include "llpaneldebug.h"
 #include "llpanelgeneral.h"
 #include "llpanelinput.h"
+#include "llpanelLCD.h"
 #include "llpanelmsgs.h"
 #include "llpanelweb.h"
 #include "llprefschat.h"
@@ -79,6 +80,14 @@ const S32 PREF_CATEGORY_WIDTH = 150;
 const S32 PREF_FLOATER_MIN_HEIGHT = 2 * SCROLLBAR_SIZE + 2 * LLPANEL_BORDER_WIDTH + 96;
 
 LLFloaterPreference* LLFloaterPreference::sInstance = NULL;
+
+#if LL_WINDOWS
+// for Logitech LCD keyboards / speakers
+#ifndef LL_LOGITECH_LCD_H
+#include "lllogitechlcd.h"
+#endif
+extern llLCD	*gLcdScreen; 
+#endif
 
 // Must be done at run time, not compile time. JC
 S32 pref_min_width()
@@ -108,7 +117,8 @@ LLPreferenceCore::LLPreferenceCore(LLTabContainerCommon* tab_container, LLButton
 	mDisplayPanel(NULL),
 	mDisplayPanel2(NULL),
 	mAudioPanel(NULL),
-	mMsgPanel(NULL)
+	mMsgPanel(NULL),
+	mLCDPanel(NULL)
 {
 	mGeneralPanel = new LLPanelGeneral();
 	mTabContainer->addTabPanel(mGeneralPanel, mGeneralPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
@@ -155,6 +165,20 @@ LLPreferenceCore::LLPreferenceCore(LLTabContainerCommon* tab_container, LLButton
 	mPrefsIM = new LLPrefsIM();
 	mTabContainer->addTabPanel(mPrefsIM->getPanel(), mPrefsIM->getPanel()->getLabel(), FALSE, onTabChanged, mTabContainer);
 	mPrefsIM->getPanel()->setDefaultBtn(default_btn);
+
+#if LL_WINDOWS && LL_LCD_COMPILE
+
+	// only add this option if we actually have a logitech keyboard / speaker set
+	if (gLcdScreen->Enabled())
+	{
+		mLCDPanel = new LLPanelLCD();
+		mTabContainer->addTabPanel(mLCDPanel, mLCDPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
+		mLCDPanel->setDefaultBtn(default_btn);
+	}
+
+#else
+	mLCDPanel = NULL;
+#endif
 
 	mMsgPanel = new LLPanelMsgs();
 	mTabContainer->addTabPanel(mMsgPanel, mMsgPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
@@ -240,6 +264,14 @@ void LLPreferenceCore::apply()
 	#if LL_LIBXUL_ENABLED
 	mWebPanel->apply();
 	#endif
+#if LL_WINDOWS && LL_LCD_COMPILE
+	// only add this option if we actually have a logitech keyboard / speaker set
+	if (gLcdScreen->Enabled())
+	{
+		mLCDPanel->apply();
+	}
+#endif
+//	mWebPanel->apply();
 }
 
 
@@ -259,6 +291,14 @@ void LLPreferenceCore::cancel()
 	#if LL_LIBXUL_ENABLED
 	mWebPanel->cancel();
 	#endif
+#if LL_WINDOWS && LL_LCD_COMPILE
+	// only add this option if we actually have a logitech keyboard / speaker set
+	if (gLcdScreen->Enabled())
+	{
+		mLCDPanel->cancel();
+	}
+#endif
+//	mWebPanel->cancel();
 }
 
 // static

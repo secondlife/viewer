@@ -1,4 +1,43 @@
 ===========
+Logitech License
+===========
+
+End-User License Agreement for Logitech LCD SDK
+
+This End-User License Agreement for Logitech LCD SDK ( “Agreement”) is a legal agreement between you, either an individual or legal entity (“You” or “you”) and Logitech Inc. (“Logitech”) for use of the Logitech LCD software development kit, which includes computer software and related media and documentation (hereinafter “LCD SDK”). By using this LCD SDK, you are agreeing to be bound by the terms and conditions of this Agreement. If you do not agree to the terms and conditions of this Agreement, promptly return the LCD SDK and other items that are part of this product in their original package with your sales receipt to your point of purchase for a full refund, or if you have downloaded this software from a Logitech web site, then you must stop using the software and destroy any copies of the software in your possession or control.
+
+1 Grant of License and Restrictions. 
+This Agreement grants You the following rights provided that You comply with all terms and conditions of this Agreement.
+(a) Logitech grants You a limited, non-exclusive, nontransferable license to install and use an unlimited number of copies of the LCD SDK on computers . All other rights are reserved to Logitech.
+(b) You shall not reverse engineer, decompile or disassemble any portion of the LCD SDK, except and only to the extent that this limitation is expressly prohibited by applicable law.
+(c) At your option, you may provide reasonable feedback to Logitech, including but not limited to usability, bug reports and test results, with respect to the LCD SDK. All bug reports, test results and other feedback provided to Logitech by You shall be the property of Logitech and may be used by Logitech for any purpose.
+(d) In the event Logitech, in its sole discretion, elects to provide copies of the LCD SDK to more than one individual employed by You (if You are not a single individual), each such individual shall be entitled to exercise the rights granted in this Agreement and shall be bound by the terms and conditions herein.
+
+2 Updates. 
+Logitech is not obligated to provide technical support or updates to You for the LCD SDK provided to You pursuant to this Agreement. However, Logitech may, in its sole discretion, provide further pre-release versions, technical support, updates and/or supplements (“Updates”) to You, in which case such Updates shall be deemed to be included in the “LCD SDK” and shall be governed by this Agreement, unless other terms of use are provided in writing by Logitech with such Updates.
+
+3 Intellectual Property Rights. 
+The LCD SDK is licensed, not sold, to You for use only under the terms and conditions of this Agreement. Logitech and its suppliers retain title to the LCD SDK and all intellectual property rights therein. The LCD SDK is protected by intellectual property laws and international treaties, including U.S. copyright law and international copyright treaties. All rights not expressly granted by Logitech are reserved.
+
+4 Disclaimer of Warranty.
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, LOGITECH AND ITS SUPPLIERS PROVIDE THE LCD SDK AND OTHER LOGITECH PRODUCTS AND SERVICES (IF ANY) AS IS AND WITHOUT WARRANTY OF ANY KIND. LOGITECH AND ITS SUPPLIERS EXPRESSLY DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD-PARTY RIGHTS WITH RESPECT TO THE LCD SDK AND ANY WARRANTIES OF NON-INTERFERENCE OR ACCURACY OF INFORMATIONAL CONTENT. NO LOGITECH DEALER, AGENT, OR EMPLOYEE IS AUTHORIZED TO MAKE ANY MODIFICATION, EXTENSION, OR ADDITION TO THIS WARRANTY. Some jurisdictions do not allow limitations on how long an implied warranty lasts, so the above limitation may not apply to you.
+
+5 Limitation of Liability.
+IN NO EVENT WILL LOGITECH OR ITS SUPPLIERS BE LIABLE FOR ANY COSTS OF PROCUREMENT OF SUBSTITUTE PRODUCTS OR SERVICES, LOST PROFITS, LOSS OF INFORMATION OR DATA, OR ANY OTHER SPECIAL, INDIRECT, CONSEQUENTIAL, OR INCIDENTAL DAMAGES ARISING IN ANY WAY OUT OF THE SALE OF, USE OF, OR INABILITY TO USE THE LCD SDK OR ANY LOGITECH PRODUCT OR SERVICE, EVEN IF LOGITECH HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. IN NO CASE SHALL LOGITECH'S AND ITS SUPPLIERS’ TOTAL LIABILITY EXCEED THE ACTUAL MONEY PAID FOR THE LOGITECH PRODUCT OR SERVICE GIVING RISE TO THE LIABILITY. Some jurisdictions do not allow the exclusion or limitation of incidental or consequential damages, so the above limitation or exclusion may not apply to you. The above limitations will not apply in case of personal injury where and to the extent that applicable law requires such liability.
+
+6 U.S. Government Rights.
+Use, duplication, or disclosure of the software contained in the LCD SDK by the U.S. Government is subject to restrictions set forth in this Agreement and as provided in DFARS 227.7202-1(a) and 227.7202-3(a) (1995), DFARS 252.227-7013(c)(1)(ii) (OCT 1988) FAR 12.212(a) (1995), FAR 52.227-19, or FAR 52.227-14 (ALT III), as applicable. Logitech Inc. 6505 Kaiser Drive, Fremont, CA 94555.
+
+7 Export Law Assurances.
+You agree and certify that neither the LCD SDK nor any other technical data received from Logitech will be exported outside the United States except as authorized and as permitted by the laws and regulations of the United States. If you have rightfully obtained the LCD SDK outside of the United States, you agree that you will not re-export the LCD SDK nor any other technical data received from Logitech, except as permitted by the laws and regulations of the United States and the laws and regulations of the jurisdiction in which you obtained the LCD SDK.
+
+8 Termination:
+This Agreement is effective until terminated. Upon any violation of any of the provisions of this Agreement, rights to use the LCD SDK shall automatically terminate and the LCD SDK must be returned to Logitech or all copies of the LCD SDK destroyed. You may also terminate this Agreement at any time by destroying all copies of the LCD SDK in your possession or control. If Logitech makes a request via public announcement or press release to stop using the copies of the LCD SDK, you will comply immediately with this request. The provisions of paragraphs 3, 7, 8 and 12 will survive any termination of this Agreement.
+
+9 General Terms and Conditions.
+If You are an individual signing this Agreement on behalf of a company, then You represent that You have authority to execute this Agreement on behalf of such company. This Agreement will be governed by and construed in accordance with the laws of the United States and the State of California, without regard to or application of its choice of law rules or principles. If for any reason a court of competent jurisdiction finds any provision of this Agreement, or portion thereof, to be unenforceable, that provision of the Agreement shall be enforced to the maximum extent permissible so as to affect the intent of the parties, and the remainder of this Agreement shall continue in full force and effect. This Agreement constitutes the entire agreement between You and Logitech respect to the use of the LCD SDK and supersedes all prior or contemporaneous understandings, communications or agreements, written or oral, regarding such subject matter.
+
+===========
 APR License
 ===========
 
