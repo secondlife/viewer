@@ -3954,8 +3954,10 @@ void LLVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::EStatusTy
 	{
 		switch(mVivoxErrorStatusCode)
 		{
-			case 20713:		status = LLVoiceClientStatusObserver::ERROR_CHANNEL_FULL; 		break;
-			case 20714:		status = LLVoiceClientStatusObserver::ERROR_CHANNEL_LOCKED; 	break;
+		case 20713:		status = LLVoiceClientStatusObserver::ERROR_CHANNEL_FULL; 		break;
+		case 20714:		status = LLVoiceClientStatusObserver::ERROR_CHANNEL_LOCKED; 	break;
+		case 20715: status = LLVoiceClientStatusObserver::ERROR_NOT_AVAILABLE;
+			break;
 		}
 
 		// Reset the error code to make sure it won't be reused later by accident.

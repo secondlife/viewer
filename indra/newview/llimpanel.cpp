@@ -79,6 +79,7 @@
 const S32 LINE_HEIGHT = 16;
 const S32 MIN_WIDTH = 200;
 const S32 MIN_HEIGHT = 130;
+const U32 DEFAULT_RETRIES_COUNT = 3;
 
 //
 // Statics
@@ -502,6 +503,8 @@ void LLVoiceChannel::initClass()
 LLVoiceChannelGroup::LLVoiceChannelGroup(const LLUUID& session_id, const LLString& session_name) : 
 	LLVoiceChannel(session_id, session_name)
 {
+	mRetries = DEFAULT_RETRIES_COUNT;
+	mIsRetrying = FALSE;
 }
 
 LLVoiceChannelGroup::~LLVoiceChannelGroup()
@@ -548,18 +551,92 @@ void LLVoiceChannelGroup::getChannelInfo()
 	}
 }
 
+void LLVoiceChannelGroup::setChannelInfo(
+	const LLString& uri,
+	const LLString& credentials)
+{
+	setURI(uri);
+
+	mCredentials = credentials;
+
+	if (mState == STATE_NO_CHANNEL_INFO)
+	{
+		if(!mURI.empty() && !mCredentials.empty())
+		{
+			setState(STATE_READY);
+
+			// if we are supposed to be active, reconnect
+			// this will happen on initial connect, as we request credentials on first use
+			if (sCurrentVoiceChannel == this)
+			{
+				// just in case we got new channel info while active
+				// should move over to new channel
+				activate();
+			}
+		}
+		else
+		{
+			//*TODO: notify user
+			llwarns << "Received invalid credentials for channel " << mSessionName << llendl;
+			deactivate();
+		}
+	}
+	else if ( mIsRetrying )
+	{
+		// we have the channel info, just need to use it now
+		LLVoiceClient::getInstance()->setNonSpatialChannel(
+			mURI,
+			mCredentials);
+	}
+}
+
+void LLVoiceChannelGroup::handleStatusChange(EStatusType type)
+{
+	// status updates
+	switch(type)
+	{
+	case STATUS_JOINED:
+		mRetries = 3;
+		mIsRetrying = FALSE;
+	default:
+		break;
+	}
+
+	LLVoiceChannel::handleStatusChange(type);
+}
+
 void LLVoiceChannelGroup::handleError(EStatusType status)
 {
 	std::string notify;
 	switch(status)
 	{
-	  case ERROR_CHANNEL_LOCKED:
-	  case ERROR_CHANNEL_FULL:
+	case ERROR_CHANNEL_LOCKED:
+	case ERROR_CHANNEL_FULL:
 		notify = "VoiceChannelFull";
 		break;
-	  case ERROR_UNKNOWN:
+	case ERROR_NOT_AVAILABLE:
+		//clear URI and credentials
+		//set the state to be no info
+		//and activate
+		if ( mRetries > 0 )
+		{
+			mRetries--;
+			mIsRetrying = TRUE;
+			mIgnoreNextSessionLeave = TRUE;
+
+			getChannelInfo();
+			return;
+		}
+		else
+		{
+			notify = "VoiceChannelJoinFailed";
+			mRetries = DEFAULT_RETRIES_COUNT;
+			mIsRetrying = FALSE;
+		}
+
 		break;
-	  default:
+	case ERROR_UNKNOWN:
+	default:
 		break;
 	}
 
@@ -570,8 +647,25 @@ void LLVoiceChannelGroup::handleError(EStatusType status)
 		// echo to im window
 		gIMMgr->addMessage(mSessionID, LLUUID::null, SYSTEM_FROM, LLNotifyBox::getTemplateMessage(notify, mNotifyArgs).c_str());
 	}
-	
+
 	LLVoiceChannel::handleError(status);
+}
+
+void LLVoiceChannelGroup::setState(EState state)
+{
+	switch(state)
+	{
+	case STATE_RINGING:
+		if ( !mIsRetrying )
+		{
+			gIMMgr->addSystemMessage(mSessionID, "ringing", mNotifyArgs);
+		}
+
+		mState = state;
+		break;
+	default:
+		LLVoiceChannel::setState(state);
+	}
 }
 
 //
@@ -710,7 +804,7 @@ void LLVoiceChannelP2P::handleStatusChange(EStatusType type)
 		break;
 	}
 
-	LLVoiceChannelGroup::handleStatusChange(type);
+	LLVoiceChannel::handleStatusChange(type);
 }
 
 void LLVoiceChannelP2P::handleError(EStatusType type)
@@ -724,7 +818,7 @@ void LLVoiceChannelP2P::handleError(EStatusType type)
 		break;
 	}
 
-	LLVoiceChannelGroup::handleError(type);
+	LLVoiceChannel::handleError(type);
 }
 
 void LLVoiceChannelP2P::activate()

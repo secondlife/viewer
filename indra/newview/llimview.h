@@ -148,7 +148,13 @@ public:
 	static LLUUID computeSessionID(EInstantMessage dialog, const LLUUID& other_participant_id);
 
 	void clearPendingVoiceInviation(const LLUUID& session_id);
-	
+
+	LLSD getPendingAgentListUpdates(const LLUUID& session_id);
+	void addPendingAgentListUpdates(
+		const LLUUID& sessioN_id,
+		const LLSD& updates);
+	void clearPendingAgentListUpdates(const LLUUID& session_id);
+
 private:
 	class LLIMSessionInvite;
 
@@ -188,6 +194,7 @@ private:
 	BOOL mIMReceived;
 
 	LLSD mPendingVoiceInvitations;
+	LLSD mPendingAgentListUpdates;
 };
 
 

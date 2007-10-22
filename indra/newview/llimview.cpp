@@ -310,6 +310,7 @@ LLIMMgr::LLIMMgr() :
 	delete dummy_floater;
 
 	mPendingVoiceInvitations = LLSD::emptyMap();
+	mPendingAgentListUpdates = LLSD::emptyMap();
 }
 
 LLIMMgr::~LLIMMgr()
@@ -725,15 +726,41 @@ public:
 
 			if (floaterp)
 			{
+				//we've accepted our invitation
+				//and received a list of agents that were
+				//currently in the session when the reply was sent
+				//to us.  Now, it is possible that there were some agents
+				//to slip in/out between when that message was sent to us
+				//and now.
+
+				//the agent list updates we've received have been
+				//accurate from the time we were added to the session
+				//but unfortunately, our base that we are receiving here
+				//may not be the most up to date.  It was accurate at
+				//some point in time though.
 				floaterp->setSpeakersList(content["agents"]);
+
+				//we now have our base of users in the session
+				//that was accurate at some point, but maybe not now
+				//so now we apply all of the udpates we've received
+				//in case of race conditions
+
+				//reapplying a user entrance will do nothing
+				//reapplying a user leaving will not have the user
+				//in our base.  So it's all good
+				floaterp->updateSpeakersList(
+					gIMMgr->getPendingAgentListUpdates(mSessionID));
 
 				if ( mIsVoiceInvitiation )
 				{
 					floaterp->requestAutoConnect();
 					LLFloaterIMPanel::onClickStartCall(floaterp);
+					// always open IM window when connecting to voice
+					LLFloaterChatterBox::showInstance(TRUE);
 				}
 			}
 
+			gIMMgr->clearPendingAgentListUpdates(mSessionID);
 			if ( mIsVoiceInvitiation )
 			{
 				gIMMgr->clearPendingVoiceInviation(mSessionID);
@@ -779,6 +806,8 @@ void LLIMMgr::inviteUserResponse(S32 option, void* user_data)
 				{
 					im_floater->requestAutoConnect();
 					LLFloaterIMPanel::onClickStartCall(im_floater);
+					// always open IM window when connecting to voice
+					LLFloaterChatterBox::showInstance(TRUE);
 				}
 				
 				gIMMgr->clearPendingVoiceInviation(invitep->mSessionID);
@@ -911,6 +940,41 @@ void LLIMMgr::clearPendingVoiceInviation(const LLUUID& session_id)
 	}
 }
 
+LLSD LLIMMgr::getPendingAgentListUpdates(const LLUUID& session_id)
+{
+	if ( mPendingAgentListUpdates.has(session_id.asString()) )
+	{
+		return mPendingAgentListUpdates[session_id.asString()];
+	}
+	else
+	{
+		return LLSD();
+	}
+}
+
+void LLIMMgr::addPendingAgentListUpdates(
+	const LLUUID& session_id,
+	const LLSD& updates)
+{
+	LLSD::map_const_iterator iter;
+
+	for ( iter = updates.beginMap();
+		  iter != updates.endMap();
+		  iter++)
+	{
+		//we only want to include the last update for a given agent
+		mPendingAgentListUpdates[session_id.asString()][iter->first] =
+			iter->second;
+	}
+}
+
+void LLIMMgr::clearPendingAgentListUpdates(const LLUUID& session_id)
+{
+	if ( mPendingAgentListUpdates.has(session_id.asString()) )
+	{
+		mPendingAgentListUpdates.erase(session_id.asString());
+	}
+}
 
 // create a floater and update internal representation for
 // consistency. Returns the pointer, caller (the class instance since
@@ -1078,7 +1142,12 @@ public:
 			if (floaterp)
 			{
 				floaterp->setSpeakersList(body["agents"]);
+
+				//aply updates we've possibly received previously
+				floaterp->updateSpeakersList(
+					gIMMgr->getPendingAgentListUpdates(session_id));
 			}
+			gIMMgr->clearPendingAgentListUpdates(session_id);
 		}
 		else
 		{
@@ -1190,6 +1259,15 @@ public:
 		if (floaterp)
 		{
 			floaterp->updateSpeakersList(input["body"]["updates"]);
+		}
+		else
+		{
+			//we don't have a floater yet..something went wrong
+			//we are probably receiving an update here before
+			//a start or an acceptance of an invitation.  Race condition.
+			gIMMgr->addPendingAgentListUpdates(
+				input["body"]["session_id"].asUUID(),
+				input["body"]["updates"]);
 		}
 	}
 };

@@ -62,13 +62,15 @@ public:
 	LLVoiceChannel(const LLUUID& session_id, const LLString& session_name);
 	virtual ~LLVoiceChannel();
 
-	void setChannelInfo(const LLString& uri, const LLString& credentials);
 	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
 
 	virtual void handleStatusChange(EStatusType status);
 	virtual void handleError(EStatusType status);
 	virtual void deactivate();
 	virtual void activate();
+	virtual void setChannelInfo(
+		const LLString& uri,
+		const LLString& credentials);
 	virtual void getChannelInfo();
 	virtual BOOL isActive();
 	virtual BOOL callStarted();
@@ -82,7 +84,7 @@ public:
 	static void initClass();
 
 protected:
-	void setState(EState state);
+	virtual void setState(EState state);
 	void setURI(LLString uri);
 
 	LLString	mURI;
@@ -109,10 +111,21 @@ public:
 	LLVoiceChannelGroup(const LLUUID& session_id, const LLString& session_name);
 	virtual ~LLVoiceChannelGroup();
 
+	/*virtual*/ void handleStatusChange(EStatusType status);
 	/*virtual*/ void handleError(EStatusType status);
 	/*virtual*/ void activate();
 	/*virtual*/ void deactivate();
+	/*vritual*/ void setChannelInfo(
+		const LLString& uri,
+		const LLString& credentials);
 	/*virtual*/ void getChannelInfo();
+
+protected:
+	virtual void setState(EState state);
+
+private:
+	U32 mRetries;
+	BOOL mIsRetrying;
 };
 
 class LLVoiceChannelProximal : public LLVoiceChannel, public LLSingleton<LLVoiceChannelProximal>
