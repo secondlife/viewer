@@ -27,6 +27,7 @@ $/LicenseInfo$
 """
 
 import md5, random, socket, string, time, re
+import uuid
 
 def _int2binstr(i,l):
     s=''
@@ -187,14 +188,8 @@ class UUID(object):
         from c++ implementation for portability reasons.
         Returns self.
         """
-        newid = self.__class__.lastid
-        while newid == self.__class__.lastid:
-            now = long(time.time() * 1000)
-            newid = ("%016x" % now) + self.__class__.hexip
-            newid += ("%03x" % (self.__class__.rand.randrange(0,4095)))
-        self.__class__.lastid = newid
         m = md5.new()
-        m.update(newid)
+        m.update(uuid.uuid1().bytes)
         self._bits = m.digest()
         return self
 
