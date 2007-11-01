@@ -57,7 +57,7 @@
 #include "llspinctrl.h"
 #include "llstatgraph.h"
 #include "llstatusbar.h"
-#include "lltextbox.h"
+//#include "lltextbox.h"
 #include "llui.h"
 #include "llviewermenu.h"
 #include "llviewerparceloverlay.h"

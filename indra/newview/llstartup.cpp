@@ -817,7 +817,7 @@ BOOL idle_startup()
 		if (LLURLSimString::parse())
 		{
 			// a startup URL was specified
-			agent_location_id = START_LOCATION_ID_TELEHUB;
+			agent_location_id = START_LOCATION_ID_URL;
 
 			// doesn't really matter what location_which is, since
 			// agent_start_look_at will be overwritten when the
@@ -1243,11 +1243,11 @@ BOOL idle_startup()
 			text = gUserAuthp->getResponse("agent_access");
 			if(text && (text[0] == 'M'))
 			{
-				gAgent.mAccess = SIM_ACCESS_MATURE;
+				gAgent.setTeen(false);
 			}
 			else
 			{
-				gAgent.mAccess = SIM_ACCESS_PG;
+				gAgent.setTeen(true);
 			}
 
 			text = gUserAuthp->getResponse("start_location");
@@ -1505,6 +1505,7 @@ BOOL idle_startup()
 		
 		LLStartUp::setStartupState( STATE_SEED_GRANTED_WAIT );
 		regionp->setSeedCapability(first_sim_seed_cap);
+		llinfos << "Waiting for seed grant ...." << llendl;
 		
 		// Set agent's initial region to be the one we just created.
 		gAgent.setRegion(regionp);
@@ -1523,7 +1524,6 @@ BOOL idle_startup()
 	//---------------------------------------------------------------------
 	if(STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
 	{
-		llinfos << "Waiting for seed grant ...." << llendl;
 		return do_normal_idle;
 	}
 
@@ -1714,30 +1714,36 @@ BOOL idle_startup()
 		}
 
 		#if LL_QUICKTIME_ENABLED	// windows only right now but will be ported to mac 
-		if (gUseQuickTime
-			&& !gQuickTimeInitialized)
+		if (gUseQuickTime)
 		{
-			// initialize quicktime libraries (fails gracefully if quicktime not installed ($QUICKTIME)
-			llinfos << "Initializing QuickTime...." << llendl;
-			set_startup_status(0.57f, "Initializing QuickTime...", gAgent.mMOTD.c_str());
-			display_startup();
-			#if LL_WINDOWS
-				// Only necessary/available on Windows.
-				if ( InitializeQTML ( 0L ) != noErr )
-				{
-					// quicktime init failed - turn off media engine support
-					LLMediaEngine::getInstance ()->setAvailable ( FALSE );
-					llinfos << "...not found - unable to initialize." << llendl;
-					set_startup_status(0.57f, "QuickTime not found - unable to initialize.", gAgent.mMOTD.c_str());
-				}
-				else
-				{
-					llinfos << ".. initialized successfully." << llendl;
-					set_startup_status(0.57f, "QuickTime initialized successfully.", gAgent.mMOTD.c_str());
-				};
-			#endif
-			EnterMovies ();
-			gQuickTimeInitialized = true;
+			if(!gQuickTimeInitialized)
+			{
+				// initialize quicktime libraries (fails gracefully if quicktime not installed ($QUICKTIME)
+				llinfos << "Initializing QuickTime...." << llendl;
+				set_startup_status(0.57f, "Initializing QuickTime...", gAgent.mMOTD.c_str());
+				display_startup();
+				#if LL_WINDOWS
+					// Only necessary/available on Windows.
+					if ( InitializeQTML ( 0L ) != noErr )
+					{
+						// quicktime init failed - turn off media engine support
+						LLMediaEngine::getInstance ()->setAvailable ( FALSE );
+						llinfos << "...not found - unable to initialize." << llendl;
+						set_startup_status(0.57f, "QuickTime not found - unable to initialize.", gAgent.mMOTD.c_str());
+					}
+					else
+					{
+						llinfos << ".. initialized successfully." << llendl;
+						set_startup_status(0.57f, "QuickTime initialized successfully.", gAgent.mMOTD.c_str());
+					};
+				#endif
+				EnterMovies ();
+				gQuickTimeInitialized = true;
+			}
+		}
+		else
+		{
+			LLMediaEngine::getInstance()->setAvailable( FALSE );
 		}
 		#endif
 
@@ -2316,6 +2322,7 @@ BOOL idle_startup()
 #if 0 // sjb: enable for auto-enabling timer display 
 		gDebugView->mFastTimerView->setVisible(TRUE);
 #endif
+
 		return do_normal_idle;
 	}
 
@@ -3622,6 +3629,7 @@ void release_start_screen()
 	//llinfos << "Releasing bitmap..." << llendl;
 	gStartImageGL = NULL;
 }
+
 
 // static
 void LLStartUp::setStartupState( S32 state )

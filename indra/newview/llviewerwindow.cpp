@@ -32,9 +32,15 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llviewerwindow.h"
+
+// system library includes
+#include <stdio.h>
+#include <iostream>
+#include <fstream>
+
 #include "llviewquery.h"
 #include "llxmltree.h"
-#include "llviewercamera.h"
+//#include "llviewercamera.h"
 //#include "imdebug.h"
 
 #include "llvoiceclient.h"	// for push-to-talk button handling
@@ -1823,6 +1829,8 @@ void LLViewerWindow::adjustRectanglesForFirstUse(const LLRect& window)
 	adjust_rect_top_left("FloaterGestureRect", window);
 
 	adjust_rect_top_right("FloaterMapRect", window);
+	
+	adjust_rect_top_right("FloaterLagMeter", window);
 
 	adjust_rect_top_right("FloaterLagMeter", window);
 
@@ -2925,6 +2933,10 @@ BOOL LLViewerWindow::handlePerFrameHover()
 		{
 			gFloaterTools->setVisible(FALSE);
 		}
+		// In the future we may wish to hide the tools menu unless you
+		// are building. JC
+		//gMenuBarView->setItemVisible("Tools", gFloaterTools->getVisible());
+		//gMenuBarView->arrange();
 	}
 	if (gToolBar)
 	{

@@ -43,6 +43,7 @@ class LLLineEditor;
 class LLTextEditor;
 class LLTextureCtrl;
 class LLMessageSystem;
+class LLInventoryItem;
 
 class LLPanelPlace : public LLPanel
 {
@@ -52,11 +53,19 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 
-
+	void displayItemInfo(const LLInventoryItem* pItem);
 	void setParcelID(const LLUUID& parcel_id);
+	void setRegionID(const LLUUID& region_id) { mRegionID = region_id; }
+	void setSnapshot(const LLUUID& snapshot_id);
+	void setName(const std::string& name);
+	void setLocationString(const std::string& location);
+	void setErrorStatus(U32 status, const std::string& reason);
 
 	void sendParcelInfoRequest();
-
+	void displayParcelInfo(const LLVector3& pos_region,
+			const LLUUID& landmark_asset_id,
+			const LLUUID& region_id,
+			const LLVector3d& pos_global);
 	static void processParcelInfoReply(LLMessageSystem* msg, void**);
 
 protected:
@@ -71,16 +80,22 @@ protected:
 protected:
 	LLUUID			mParcelID;
 	LLUUID			mRequestedID;
+	LLUUID			mRegionID;
+	LLUUID			mLandmarkAssetID;
+	// Absolute position of the location for teleport, may not
+	// be available (hence zero)
 	LLVector3d		mPosGlobal;
+	// Region-local position for teleport, always available.
+	LLVector3		mPosRegion;
 	// Zero if this is not an auction
 	S32				mAuctionID;
 
 	LLTextureCtrl* mSnapshotCtrl;
 
-	LLLineEditor* mNameEditor;
+	LLTextBox* mNameEditor;
 	LLTextEditor* mDescEditor;
-	LLLineEditor* mInfoEditor;
-	LLLineEditor* mLocationEditor;
+	LLTextBox* mInfoEditor;
+	LLTextBox* mLocationEditor;
 
 	LLButton*	mTeleportBtn;
 	LLButton*	mMapBtn;

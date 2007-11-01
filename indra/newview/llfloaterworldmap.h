@@ -108,6 +108,9 @@ public:
 	// Catch changes in the sim list
 	void			updateSims(bool found_null_sim);
 
+	// teleport to the tracked item, if there is one
+	void			teleport();
+
 protected:
 	static void		onPanBtn( void* userdata );
 
@@ -123,7 +126,7 @@ protected:
 
 	static void		onClearBtn(void*);
 	static void		onFlyBtn(void*);
-	static void		onTeleportBtn(void*);
+	static void		onClickTeleportBtn(void*);
 	static void		onShowTargetBtn(void*);
 	static void		onShowAgentBtn(void*);
 	static void		onCopySLURL(void*);
@@ -135,9 +138,6 @@ protected:
 
 	// fly to the tracked item, if there is one
 	void			fly();
-
-	// teleport to the tracked item, if there is one
-	void			teleport();
 
 	void			buildLandmarkIDLists();
 	static void		onGoToLandmarkDialog(S32 option,void* userdata);

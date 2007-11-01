@@ -2489,6 +2489,9 @@ void LLMenuGL::cleanupSpilloverBranch()
 			mItems.erase(found_iter);
 		}
 
+		delete mSpilloverBranch;
+		mSpilloverBranch = NULL;
+
 		// pop off spillover items
 		while (mSpilloverMenu->getItemCount())
 		{
@@ -2601,6 +2604,8 @@ void LLMenuGL::createJumpKeys()
 // remove all items on the menu
 void LLMenuGL::empty( void )
 {
+	cleanupSpilloverBranch();
+
 	mItems.clear();
 
 	deleteAllChildren();
@@ -4239,11 +4244,14 @@ void LLMenuBarGL::arrange( void )
 	for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
 	{
 		LLMenuItemGL* item = *item_iter;
-		rect.mLeft = pos;
-		pos += item->getNominalWidth();
-		rect.mRight = pos;
-		item->setRect( rect );
-		item->buildDrawLabel();
+		if (item->getVisible())
+		{
+			rect.mLeft = pos;
+			pos += item->getNominalWidth();
+			rect.mRight = pos;
+			item->setRect( rect );
+			item->buildDrawLabel();
+		}
 	}
 	reshape(rect.mRight, rect.getHeight());
 }

@@ -247,8 +247,10 @@ char LLResMgr::getMonetaryThousandsSeparator() const
 
 
 // Sets output to a string of integers with monetary separators inserted according to the locale.
-void LLResMgr::getMonetaryString( LLString& output, S32 input ) const
+std::string LLResMgr::getMonetaryString( S32 input ) const
 {
+	std::string output;
+
 	LLLocale locale(LLLocale::USER_LOCALE);
 	struct lconv *conv = localeconv();
 	
@@ -295,7 +297,6 @@ void LLResMgr::getMonetaryString( LLString& output, S32 input ) const
 	LLString digits = llformat("%u", abs(input));
 	if( !grouping || !grouping[0] )
 	{
-		output.assign("L$");
 		if( negative_before )
 		{
 			output.append( negative_sign );
@@ -305,7 +306,7 @@ void LLResMgr::getMonetaryString( LLString& output, S32 input ) const
 		{
 			output.append( negative_sign );
 		}
-		return;
+		return output;
 	}
 
 	S32 groupings[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -367,7 +368,6 @@ void LLResMgr::getMonetaryString( LLString& output, S32 input ) const
 		forward_output[ output_pos - 1 - i ] = reversed_output[ i ];
 	}
 
-	output.assign("L$");
 	if( negative_before )
 	{
 		output.append( negative_sign );
@@ -377,6 +377,7 @@ void LLResMgr::getMonetaryString( LLString& output, S32 input ) const
 	{
 		output.append( negative_sign );
 	}
+	return output;
 }
 
 void LLResMgr::getIntegerString( LLString& output, S32 input ) const

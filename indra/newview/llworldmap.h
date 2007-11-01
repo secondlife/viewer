@@ -113,6 +113,8 @@ struct LLWorldMapLayer
 class LLWorldMap
 {
 public:
+	typedef void(*url_callback_t)(U64 region_handle, const std::string& url, const LLUUID& snapshot_id, bool teleport);
+
 	LLWorldMap();
 	~LLWorldMap();
 
@@ -147,6 +149,10 @@ public:
 	void sendMapLayerRequest();
 	void sendMapBlockRequest(U16 min_x, U16 min_y, U16 max_x, U16 max_y, bool return_nonexistent = false);
 	void sendNamedRegionRequest(std::string region_name);
+	void sendNamedRegionRequest(std::string region_name, 
+		url_callback_t callback,
+		const std::string& callback_url,
+		bool teleport);
 	void sendItemRequest(U32 type, U64 handle = 0);
 
 	static void processMapLayerReply(LLMessageSystem*, void**);
@@ -208,6 +214,12 @@ public:
 
 private:
 	LLTimer	mRequestTimer;
+
+	// search for named region for url processing
+	std::string mSLURLRegionName;
+	std::string mSLURL;
+	url_callback_t mSLURLCallback;
+	bool mSLURLTeleport;
 };
 
 extern LLWorldMap* gWorldMap;

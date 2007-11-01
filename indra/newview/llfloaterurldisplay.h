@@ -1,10 +1,10 @@
 /** 
- * @file llfloatermap.h
- * @brief The "mini-map" or radar in the upper right part of the screen.
+ * @file llfloaterurldisplay.h
+ * @brief LLFloaterURLDisplay class implementation
  *
- * $LicenseInfo:firstyear=2001&license=viewergpl$
+ * $LicenseInfo:firstyear=2006&license=viewergpl$
  * 
- * Copyright (c) 2001-2007, Linden Research, Inc.
+ * Copyright (c) 2006-2007, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -29,39 +29,33 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERMAP_H
-#define LL_LLFLOATERMAP_H
+#ifndef LL_LLFLOATERURLDISPLAY_H
+#define LL_LLFLOATERURLDISPLAY_H
 
 #include "llfloater.h"
+#include "v3math.h"
 
-class LLNetMap;
+class LLPanelPlace;
+class LLSD;
+class LLUUID;
 
-//
-// Classes
-//
-class LLFloaterMap
-:	public LLFloater
+class LLFloaterURLDisplay : public LLFloater, public LLUISingleton<LLFloaterURLDisplay>
 {
 public:
-	LLFloaterMap(const std::string& name);
-	virtual ~LLFloaterMap();
+	LLFloaterURLDisplay(const LLSD& sd);
+	virtual ~LLFloaterURLDisplay();
 
-	static void		toggle(void*);
+	void displayParcelInfo(U64 region_handle, const LLVector3& pos);
+	void setSnapshotDisplay(const LLUUID& snapshot_id);
+	void setName(const std::string& name);
+	void setLocationString(const std::string& name);
 
-	/*virtual*/ void	setVisible(BOOL visible);
-	/*virtual*/ void	draw();
-	/*virtual*/ void	onClose(bool app_quitting);
-	/*virtual*/ BOOL	canClose();
+	static void* createPlaceDetail(void* userdata);
 
-protected:
-	LLNetMap*		mMap;
+private:
+	LLVector3		mRegionPosition;
+	U64				mRegionHandle;
+	LLPanelPlace*	mPlacePanel;
 };
 
-
-//
-// Globals
-//
-
-extern LLFloaterMap *gFloaterMap;
-
-#endif  // LL_LLFLOATERMAP_H
+#endif // LL_LLFLOATERURLDISPLAY_H

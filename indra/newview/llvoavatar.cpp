@@ -271,6 +271,7 @@ LLUUID LLVOAvatar::sStepSounds[LL_MCODE_END] =
 };
 
 S32 LLVOAvatar::sRenderName = RENDER_NAME_ALWAYS;
+BOOL LLVOAvatar::sRenderGroupTitles = TRUE;
 S32 LLVOAvatar::sNumVisibleChatBubbles = 0;
 BOOL LLVOAvatar::sDebugInvisible = FALSE;
 BOOL LLVOAvatar::sShowAttachmentPoints = FALSE;
@@ -2704,7 +2705,15 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 				|| is_appearance != mNameAppearance)
 			{
 				char line[MAX_STRING];		/* Flawfinder: ignore */
-				if (title && title->getString() && title->getString()[0] != '\0')
+				if (!sRenderGroupTitles)
+				{
+					// If all group titles are turned off, stack first name
+					// on a line above last name
+					strncpy(line, firstname->getString(), MAX_STRING -1 );		/* Flawfinder: ignore */
+					line[MAX_STRING -1] = '\0';
+					strcat(line, "\n");
+				}
+				else if (title && title->getString() && title->getString()[0] != '\0')
 				{
 					strncpy(line, title->getString(), MAX_STRING -1 );		/* Flawfinder: ignore */
 					line[MAX_STRING -1] = '\0';

@@ -31,6 +31,9 @@
 #ifndef LL_LLPARCEL_H
 #define LL_LLPARCEL_H
 
+#include <time.h>
+#include <iostream>
+
 #include "lluuid.h"
 #include "llparcelflags.h"
 #include "llpermissions.h"
@@ -100,6 +103,7 @@ const U32 RT_LIST	= 0x1 << 4;
 const U32 RT_SELL	= 0x1 << 5;
 
 class LLMessageSystem;
+class LLSD;
 
 class LLAccessEntry
 {
@@ -603,8 +607,6 @@ public:
 	std::map<LLUUID,LLAccessEntry>	mBanList;
 	std::map<LLUUID,LLAccessEntry>	mTempBanList;
 	std::map<LLUUID,LLAccessEntry>	mTempAccessList;
-
-	//LLDynamicArray<LLAccessEntry>	mRenterList;
 };
 
 

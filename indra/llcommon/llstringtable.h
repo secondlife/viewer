@@ -47,8 +47,10 @@
 //# define STRING_TABLE_HASH_MAP 1
 #endif
 
-#if STRING_TABLE_HASH_MAP
+#if LL_WINDOWS
 #include <hash_map>
+#else
+#include <ext/hash_map>
 #endif
 
 const U32 MAX_STRINGS_LENGTH = 256;
@@ -99,7 +101,11 @@ public:
 	S32 mUniqueEntries;
 	
 #if STRING_TABLE_HASH_MAP
+#if LL_WINDOWS
 	typedef std::hash_multimap<U32, LLStringTableEntry *> string_hash_t;
+#else
+	typedef __gnu_cxx::hash_multimap<U32, LLStringTableEntry *> string_hash_t;
+#endif
 	string_hash_t mStringHash;
 #else
 	typedef std::list<LLStringTableEntry *> string_list_t;

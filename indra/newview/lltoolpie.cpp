@@ -605,7 +605,7 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 	{
 		if (object->isAvatar())
 		{
-			LLFloaterAvatarInfo::showFromAvatar(object);
+			LLFloaterAvatarInfo::showFromAvatar(object->getID());
 		}
 		else
 		{

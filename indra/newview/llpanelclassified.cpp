@@ -47,9 +47,11 @@
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llclassifiedflags.h"
+#include "llclassifiedstatsresponder.h"
 #include "llviewercontrol.h"
 #include "lllineeditor.h"
 #include "llfloateravatarinfo.h"
+#include "llfloaterclassified.h"
 #include "lltabcontainervertical.h"
 #include "lltextbox.h"
 #include "llcombobox.h"
@@ -62,6 +64,7 @@
 #include "llworldmap.h"
 #include "llfloaterworldmap.h"
 #include "llviewergenericmessage.h"	// send_generic_message
+#include "llviewerregion.h"
 #include "llviewerwindow.h"	// for window width, height
 #include "viewer.h"	// app_abort_quit()
 
@@ -98,9 +101,10 @@ static LLDispatchClassifiedClickThrough sClassifiedClickThrough;
 //static
 std::list<LLPanelClassified*> LLPanelClassified::sAllPanels;
 
-LLPanelClassified::LLPanelClassified(BOOL in_finder)
+LLPanelClassified::LLPanelClassified(BOOL in_finder, bool from_search)
 :	LLPanel("Classified Panel"),
 	mInFinder(in_finder),
+	mFromSearch(from_search),
 	mDirty(false),
 	mForceClose(false),
 	mLocationChanged(false),
@@ -225,7 +229,7 @@ BOOL LLPanelClassified::postBuild()
 	mMatureCheck = LLViewerUICtrlFactory::getCheckBoxByName(this, "classified_mature_check");
 	mMatureCheck->setCommitCallback(onCommitAny);
 	mMatureCheck->setCallbackUserData(this);
-	if (gAgent.mAccess < SIM_ACCESS_MATURE)
+	if (gAgent.isTeen())
 	{
 		// Teens don't get to set mature flag. JC
 		mMatureCheck->setVisible(FALSE);
@@ -364,7 +368,11 @@ void LLPanelClassified::setClassifiedID(const LLUUID& id)
 	mClassifiedID = id;
 }
 
-
+void LLPanelClassified::setClickThroughText(const std::string& text)
+{
+	if(mClickThroughText)
+		this->mClickThroughText->setText(text);
+}
 //static
 void LLPanelClassified::setClickThrough(const LLUUID& classified_id,
 										S32 teleport,
@@ -378,6 +386,16 @@ void LLPanelClassified::setClickThrough(const LLUUID& classified_id,
 		if (self->mClassifiedID != classified_id)
 		{
 			continue;
+		}
+
+		// We need to see if we should use the new stat table or the old.  
+		// If the SearchStatRequest capability exists, then the data will come
+		// from the new table.
+		std::string url = gAgent.getRegion()->getCapability("SearchStatRequest");
+
+		if (!url.empty())
+		{
+			return;
 		}
 
 		if (self->mClickThroughText)
@@ -421,6 +439,18 @@ void LLPanelClassified::sendClassifiedInfoRequest()
 
 		mDataRequested = TRUE;
 		mRequestedID = mClassifiedID;
+
+		// While we're at it let's get the stats from the new table if that
+		// capability exists.
+		std::string url = gAgent.getRegion()->getCapability("SearchStatRequest");
+		LLSD body;
+		body["classified_id"] = mClassifiedID;
+
+		if (!url.empty())
+		{
+			llinfos << "Classified stat request via capability" << llendl;
+			LLHTTPClient::post(url, body, new LLClassifiedStatsResponder(this->getHandle()));
+		}
 	}
 }
 
@@ -894,6 +924,19 @@ void LLPanelClassified::sendClassifiedClickMessage(const char* type)
 	strings.push_back(type);
 	LLUUID no_invoice;
 	send_generic_message("classifiedclick", strings, no_invoice);
+
+	// New classified click-through handling
+	LLSD body;
+	body["type"] = type;
+	body["from_search"] = mFromSearch;
+	body["classified_id"] = mClassifiedID;
+	std::string url = gAgent.getRegion()->getCapability("SearchStatTracking");
+
+	if (!url.empty())
+	{
+		llinfos << "LLPanelClassified::sendClassifiedClickMessage via capability" << llendl;
+		LLHTTPClient::post(url, body, new LLHTTPClient::Responder());
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

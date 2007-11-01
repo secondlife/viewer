@@ -355,7 +355,6 @@ BOOL LLPanelLandGeneral::postBuild()
 	childSetPrevalidate("Name", LLLineEditor::prevalidatePrintableNotPipe);
 	childSetUserData("Name", this);
 
-
 	mEditDesc = LLUICtrlFactory::getTextEditorByName(this, "Description");
 	mEditDesc->setCommitOnFocusLost(TRUE);
 	mEditDesc->setCommitCallback(onCommitAny);	
@@ -1865,13 +1864,11 @@ LLPanelLandOptions::LLPanelLandOptions(LLParcelSelectionHandle& parcel)
 	mLocationText(NULL),
 	mSetBtn(NULL),
 	mClearBtn(NULL),
-	mAllowPublishCtrl(NULL),
 	mMatureCtrl(NULL),
 	mPushRestrictionCtrl(NULL),
 	mPublishHelpButton(NULL),
 	mParcel(parcel)
 {
-
 }
 
 
@@ -1932,7 +1929,7 @@ BOOL LLPanelLandOptions::postBuild()
 	mPublishHelpButton->setClickedCallback(onClickPublishHelp, this);
 
 
-	if (gAgent.mAccess < SIM_ACCESS_MATURE)
+	if (gAgent.isTeen())
 	{
 		// Disable these buttons if they are PG (Teen) users
 		mPublishHelpButton->setVisible(FALSE);
@@ -2147,7 +2144,7 @@ void LLPanelLandOptions::refresh()
 		mMatureCtrl->setEnabled( can_change_identity );
 		mPublishHelpButton->setEnabled( can_change_identity );
 
-		if (gAgent.mAccess < SIM_ACCESS_MATURE)
+		if (gAgent.isTeen())
 		{
 			// Disable these buttons if they are PG (Teen) users
 			mPublishHelpButton->setVisible(FALSE);

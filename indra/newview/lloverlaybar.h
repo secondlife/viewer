@@ -33,13 +33,13 @@
 #define LL_LLOVERLAYBAR_H
 
 #include "llpanel.h"
-#include "llmediaremotectrl.h"
 
 // "Constants" loaded from settings.xml at start time
 extern S32 STATUS_BAR_HEIGHT;
 
 class LLButton;
 class LLLineEditor;
+class LLMediaRemoteCtrl;
 class LLMessageSystem;
 class LLTextBox;
 class LLTextEditor;
@@ -102,7 +102,7 @@ protected:
 	LLMediaRemoteCtrl*	mMusicRemote;
 	LLMediaRemoteCtrl*	mMediaRemote;
 	LLVoiceRemoteCtrl*	mVoiceRemote;
-	BOOL isBuilt;
+	bool mBuilt;	// dialog constructed yet?
 	enum { STOPPED=0, PLAYING=1, PAUSED=2 };
 	BOOL mMediaState;
 	BOOL mMusicState;

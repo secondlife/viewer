@@ -35,11 +35,10 @@
 // viewer includes
 #include "llagent.h"			// teleportViaLocation()
 #include "llcommandhandler.h"
-// *FIX: code in merge sl-search-8
-//#include "llfloaterurldisplay.h"
+#include "llfloaterurldisplay.h"
 #include "llfloaterdirectory.h"
 #include "llfloaterhtmlhelp.h"
-#include "llfloaterworldmap.h"
+//#include "llfloaterworldmap.h"
 #include "llpanellogin.h"
 #include "llstartup.h"			// gStartupState
 #include "llurlsimstring.h"
@@ -88,11 +87,10 @@ private:
 		// handles secondlife://Ahern/123/45/67/
 		// Returns true if handled.
 
-// *FIX: code in merge sl-search-8
-//	static void regionHandleCallback(U64 handle, const std::string& url,
-//		const LLUUID& snapshot_id, bool teleport);
-//		// Called by LLWorldMap when a region name has been resolved to a
-//		// location in-world, used by places-panel display.
+	static void regionHandleCallback(U64 handle, const std::string& url,
+		const LLUUID& snapshot_id, bool teleport);
+		// Called by LLWorldMap when a region name has been resolved to a
+		// location in-world, used by places-panel display.
 
 	static bool matchPrefix(const std::string& url, const std::string& prefix);
 	
@@ -196,7 +194,9 @@ bool LLURLDispatcherImpl::dispatchApp(const std::string& url, BOOL right_mouse)
 	std::map<std::string, std::string> args;
 	args["[SLURL]"] = url;
 	gViewerWindow->alertXml("BadURL", args);
-	return false;
+	// This was a SLURL with a /app prefix, and we "handled" it by displaying an error dialog,
+	// so return true.  It doesn't need to be parsed any further.
+	return true;
 }
 
 // static
@@ -226,13 +226,52 @@ bool LLURLDispatcherImpl::dispatchRegion(const std::string& url, BOOL right_mous
 	S32 y = 128;
 	S32 z = 0;
 	LLURLSimString::parse(sim_string, &region_name, &x, &y, &z);
-	if (gFloaterWorldMap)
-	{
-		llinfos << "Opening map to " << region_name << llendl;
-		gFloaterWorldMap->trackURL( region_name.c_str(), x, y, z );
-		LLFloaterWorldMap::show(NULL, TRUE);
-	}
+
+	LLFloaterURLDisplay* url_displayp = LLFloaterURLDisplay::getInstance(LLSD());
+	url_displayp->setName(region_name);
+
+	// Request a region handle by name
+	gWorldMap->sendNamedRegionRequest(region_name,
+		LLURLDispatcherImpl::regionHandleCallback,
+		url,
+		false);	// don't teleport
 	return true;
+}
+
+/*static*/
+void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const std::string& url, const LLUUID& snapshot_id, bool teleport)
+{
+	std::string sim_string = stripProtocol(url);
+	std::string region_name;
+	S32 x = 128;
+	S32 y = 128;
+	S32 z = 0;
+	LLURLSimString::parse(sim_string, &region_name, &x, &y, &z);
+
+	LLVector3 local_pos;
+	local_pos.mV[VX] = (F32)x;
+	local_pos.mV[VY] = (F32)y;
+	local_pos.mV[VZ] = (F32)z;
+
+	if (teleport)
+	{
+		LLVector3d global_pos = from_region_handle(region_handle);
+		global_pos += LLVector3d(local_pos);
+		gAgent.teleportViaLocation(global_pos);
+	}
+	else
+	{
+		// display informational floater, allow user to click teleport btn
+		LLFloaterURLDisplay* url_displayp = LLFloaterURLDisplay::getInstance(LLSD());
+
+		url_displayp->displayParcelInfo(region_handle, local_pos);
+		if(snapshot_id.notNull())
+		{
+			url_displayp->setSnapshotDisplay(snapshot_id);
+		}
+		std::string locationString = llformat("%s %d, %d, %d", region_name.c_str(), x, y, z);
+		url_displayp->setLocationString(locationString);
+	}
 }
 
 // static
@@ -266,38 +305,36 @@ std::string LLURLDispatcherImpl::stripProtocol(const std::string& url)
 	return stripped;
 }
 
-// *FIX: code in merge sl-search-8
-//
-////---------------------------------------------------------------------------
-//// Teleportation links are handled here because they are tightly coupled
-//// to URL parsing and sim-fragment parsing
-//class LLTeleportHandler : public LLCommandHandler
-//{
-//public:
-//	LLTeleportHandler() : LLCommandHandler("teleport") { }
-//	bool handle(const std::vector<std::string>& tokens)
-//	{
-//		// construct a "normal" SLURL, resolve the region to
-//		// a global position, and teleport to it
-//		if (tokens.size() < 1) return false;
-//
-//		// Region names may be %20 escaped.
-//		std::string region_name = LLURLSimString::unescapeRegionName(tokens[0]);
-//
-//		// build secondlife://De%20Haro/123/45/67 for use in callback
-//		std::string url = SLURL_SECONDLIFE_PREFIX;
-//		for (size_t i = 0; i < tokens.size(); ++i)
-//		{
-//			url += tokens[i] + "/";
-//		}
-//		gWorldMap->sendNamedRegionRequest(region_name,
-//			LLURLDispatcherImpl::regionHandleCallback,
-//			url,
-//			true);	// teleport
-//		return true;
-//	}
-//};
-//LLTeleportHandler gTeleportHandler;
+//---------------------------------------------------------------------------
+// Teleportation links are handled here because they are tightly coupled
+// to URL parsing and sim-fragment parsing
+class LLTeleportHandler : public LLCommandHandler
+{
+public:
+	LLTeleportHandler() : LLCommandHandler("teleport") { }
+	bool handle(const std::vector<std::string>& tokens)
+	{
+		// construct a "normal" SLURL, resolve the region to
+		// a global position, and teleport to it
+		if (tokens.size() < 1) return false;
+
+		// Region names may be %20 escaped.
+		std::string region_name = LLURLSimString::unescapeRegionName(tokens[0]);
+
+		// build secondlife://De%20Haro/123/45/67 for use in callback
+		std::string url = SLURL_SECONDLIFE_PREFIX;
+		for (size_t i = 0; i < tokens.size(); ++i)
+		{
+			url += tokens[i] + "/";
+		}
+		gWorldMap->sendNamedRegionRequest(region_name,
+			LLURLDispatcherImpl::regionHandleCallback,
+			url,
+			true);	// teleport
+		return true;
+	}
+};
+LLTeleportHandler gTeleportHandler;
 
 //---------------------------------------------------------------------------
 
@@ -323,4 +360,3 @@ bool LLURLDispatcher::dispatchRightClick(const std::string& url)
 {
 	return LLURLDispatcherImpl::dispatchRightClick(url);
 }
-

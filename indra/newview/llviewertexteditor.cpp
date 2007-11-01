@@ -53,8 +53,10 @@
 #include "llviewerimagelist.h"
 #include "llviewerwindow.h"
 #include "llviewerinventory.h"
+#include "llvieweruictrlfactory.h"
 #include "llnotecard.h"
 #include "llmemorystream.h"
+#include "llmenugl.h"
 
 extern BOOL gPacificDaylightTime;
 
@@ -567,6 +569,18 @@ LLViewerTextEditor::LLViewerTextEditor(const LLString& name,
 {
 	mEmbeddedItemList = new LLEmbeddedItems(this);
 	mInventoryCallback->setEditor(this);
+
+	// Build the right click menu
+	// make the popup menu available
+
+	LLMenuGL* menu = gUICtrlFactory->buildMenu("menu_slurl.xml", this);
+	if (!menu)
+	{
+		menu = new LLMenuGL("");
+	}
+	menu->setBackgroundColor(gColors.getColor("MenuPopupBgColor"));
+	// menu->setVisible(FALSE);
+	mPopupMenuHandle = menu->mViewHandle;
 }
 
 LLViewerTextEditor::~LLViewerTextEditor()
@@ -732,6 +746,7 @@ BOOL LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 				}
 				// assume we're starting a drag select
 				mIsSelecting = TRUE;
+
 			}
 			else
 			{
@@ -941,6 +956,42 @@ BOOL LLViewerTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
+BOOL LLViewerTextEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+
+
+	BOOL handled = childrenHandleRightMouseDown(x, y, mask) != NULL;
+
+	if(! handled)
+	{
+		LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
+		if( cur_segment )
+		{
+			if(cur_segment->getStyle().isLink())
+			{
+				handled = TRUE;
+				mHTML = cur_segment->getStyle().getLinkHREF();
+			}
+		}
+	}
+	LLMenuGL* menu = (LLMenuGL*)LLView::getViewByHandle(mPopupMenuHandle);
+	if(handled && menu && mParseHTML && mHTML.length() > 0)
+	{
+		menu->setVisible(TRUE);
+		menu->arrange();
+		menu->updateParent(LLMenuGL::sMenuContainer);
+		LLMenuGL::showPopup(this, menu, x, y);
+		mHTML = "";
+	}
+	else
+	{
+		if(menu && menu->getVisible())
+		{
+			menu->setVisible(FALSE);
+		}
+	}
+	return handled;
+}
 
 BOOL LLViewerTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 {

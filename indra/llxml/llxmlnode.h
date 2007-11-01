@@ -183,7 +183,8 @@ public:
     const LLString& getValue() const { return mValue; }
 	LLString getTextContents() const;
     const LLStringTableEntry* getName() const { return mName; }
-	BOOL hasName(LLString name) const { return mName == gStringTable.checkStringEntry(name); }
+	BOOL hasName(const char* name) const { return mName == gStringTable.checkStringEntry(name); }
+	BOOL hasName(LLString name) const { return mName == gStringTable.checkStringEntry(name.c_str()); }
     const LLString& getID() const { return mID; }
 
     U32 getChildCount() const;

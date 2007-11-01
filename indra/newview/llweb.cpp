@@ -36,7 +36,7 @@
 
 #include "llwindow.h"
 
-#include "llfloaterhtml.h"
+//#include "llfloaterhtml.h"
 #include "llviewercontrol.h"
 
 // static

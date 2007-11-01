@@ -621,7 +621,9 @@ void LLWorldMapView::draw()
 		}
 
 		// If this is mature, and you are not, draw a line across it
-		if (info->mAccess != SIM_ACCESS_DOWN && info->mAccess > gAgent.mAccess)
+		if (info->mAccess != SIM_ACCESS_DOWN
+			&& info->mAccess > SIM_ACCESS_PG
+			&& gAgent.isTeen())
 		{
 			glBlendFunc(GL_DST_ALPHA, GL_ZERO);
 			

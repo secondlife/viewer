@@ -238,11 +238,6 @@ protected:
 	on_disabled_callback	mOnDisabledCallback;
 
 public:
-
-
-	void setMenuCallback(menu_callback callback, void* data) { mCallback = callback;  mUserData = data; };
-	void setEnabledCallback(enabled_callback callback) { mEnabledCallback = callback; };
-
 	// normal constructor
 	LLMenuItemCallGL( const LLString& name,
  					  menu_callback clicked_cb, 
@@ -288,7 +283,13 @@ public:
 	void setEnabledControl(LLString enabled_control, LLView *context);
 	void setVisibleControl(LLString enabled_control, LLView *context);
 
-	virtual void setUserData(void *userdata)	{ mUserData = userdata; }
+	void setMenuCallback(menu_callback callback, void* data) { mCallback = callback;  mUserData = data; };
+	menu_callback getMenuCallback() const { return mCallback; }
+
+	void setEnabledCallback(enabled_callback callback) { mEnabledCallback = callback; };
+
+	void setUserData(void *userdata)	{ mUserData = userdata; }
+	void* getUserData() const { return mUserData; }
 
 	// called to rebuild the draw label
 	virtual void buildDrawLabel( void );

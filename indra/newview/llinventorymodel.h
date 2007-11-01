@@ -237,7 +237,10 @@ public:
 	// category is not necessarily only for that type. *NOTE: This
 	// will create a new inventory category on the fly if one does not
 	// exist.
-	LLUUID findCategoryUUIDForType(LLAssetType::EType preferred_type);
+
+	// SDK: Added flag to specify whether the folder should be created if not found.  This fixes the horrible
+	// multiple trash can bug.
+	LLUUID findCategoryUUIDForType(LLAssetType::EType preferred_type, bool create_folder = true);
 
 	// Call this method when it's time to update everyone on a new
 	// state, by default, the inventory model will not update

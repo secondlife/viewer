@@ -71,14 +71,12 @@ class LLStatusBar
 {
 public:
 	LLStatusBar(const std::string& name, const LLRect& rect );
-	~LLStatusBar();
-	virtual BOOL postBuild();
+	/*virtual*/ ~LLStatusBar();
 	
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
+	/*virtual*/ EWidgetType getWidgetType() const;
+	/*virtual*/ LLString getWidgetTag() const;
 
-	// OVERRIDES
-	virtual void draw();
+	/*virtual*/ void draw();
 
 	// MANIPULATORS
 	void		setBalance(S32 balance);
@@ -104,19 +102,19 @@ public:
 	S32 getSquareMetersLeft() const;
 	cLLRegionDetails mRegionDetails;
 
-protected:	
+private:
 	// simple method to setup the part that holds the date
 	void setupDate();
 
-protected:
+	static void onCommitSearch(LLUICtrl*, void* data);
+	static void onClickSearch(void* data);
+
+private:
 	LLTextBox	*mTextBalance;
 	LLTextBox	*mTextHealth;
 	LLTextBox	*mTextTime;
 
 	LLTextBox*	mTextParcelName;
-
-	LLStatGraph *mSGBandwidth;
-	LLStatGraph *mSGPacketLoss;
 
 	LLButton	*mBtnBuyCurrency;
 

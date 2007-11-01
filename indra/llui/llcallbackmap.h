@@ -29,10 +29,6 @@
  * $/LicenseInfo$
  */
 
-// llcallbackmap.h
-//
-// Copyright 2006, Linden Research, Inc.
-
 #ifndef LL_CALLBACK_MAP_H
 #define LL_CALLBACK_MAP_H
 

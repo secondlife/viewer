@@ -290,12 +290,16 @@ void LLInventoryModel::getDirectDescendentsOf(const LLUUID& cat_id,
 // specifies 'type' as what it defaults to containing. The category is
 // not necessarily only for that type. *NOTE: This will create a new
 // inventory category on the fly if one does not exist.
-LLUUID LLInventoryModel::findCategoryUUIDForType(LLAssetType::EType t)
+LLUUID LLInventoryModel::findCategoryUUIDForType(LLAssetType::EType t, bool create_folder)
 {
 	LLUUID rv = findCatUUID(t);
-	if(rv.isNull() && isInventoryUsable())
+	if(rv.isNull() && isInventoryUsable() && create_folder)
 	{
-		rv = createNewCategory(rv, t, NULL);
+		LLUUID root_id = gAgent.getInventoryRootID();
+		if(root_id.notNull())
+		{
+			rv = createNewCategory(root_id, t, NULL);
+		}
 	}
 	return rv;
 }

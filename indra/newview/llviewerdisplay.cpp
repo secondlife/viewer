@@ -240,6 +240,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 	LLImageGL::updateStats(gFrameTimeSeconds);
 
 	LLVOAvatar::sRenderName = gSavedSettings.getS32("RenderName");
+	LLVOAvatar::sRenderGroupTitles = gSavedSettings.getBOOL("RenderGroupTitleAll");
 	gPipeline.mBackfaceCull = TRUE;
 	gFrameCount++;
 	if (gFocusMgr.getAppHasFocus())

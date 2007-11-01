@@ -116,7 +116,7 @@ BOOL LLFloaterPostcard::postBuild()
 	childDisable("from_form");
 	childSetAction("publish_help_btn", onClickPublishHelp, this);
 
-	if (gAgent.mAccess < SIM_ACCESS_MATURE)
+	if (gAgent.isTeen())
 	{
 		// Disable these buttons if they are PG (Teen) users
 		childDisable("allow_publish_check");

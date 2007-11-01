@@ -2219,6 +2219,11 @@ LLView* LLLineEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 	{
 		line_editor->setHandleEditKeysDirectly(handle_edit_keys_directly);
 	}
+	BOOL commit_on_focus_lost = TRUE;
+	if (node->getAttributeBOOL("commit_on_focus_lost", commit_on_focus_lost))
+	{
+		line_editor->setCommitOnFocusLost(commit_on_focus_lost);
+	}
 	
 	line_editor->setColorParameters(node);
 	

@@ -1845,7 +1845,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	else if(isAgentInventory()) // do not allow creating in library
 	{
 			// only mature accounts can create undershirts/underwear
-			/*if (gAgent.mAccess >= SIM_ACCESS_MATURE)
+			/*if (!gAgent.isTeen())
 			{
 				sub_menu->append(new LLMenuItemCallGL("New Undershirt",
 													&createNewUndershirt,
@@ -2524,6 +2524,14 @@ void LLLandmarkBridge::performAction(LLFolderView* folder, LLInventoryModel* mod
 			}
 		}
 	}
+	if ("about" == action)
+	{
+		LLViewerInventoryItem* item = getItem();
+		if(item)
+		{
+			open_landmark(item, LLString("  ") + getPrefix() + item->getName(), FALSE);
+		}
+	}
 	else LLItemBridge::performAction(folder, model, action);
 }
 
@@ -2555,12 +2563,35 @@ void open_landmark(LLViewerInventoryItem* inv_item,
 	}
 }
 
+static void open_landmark_callback(S32 option, void* data)
+{
+	LLUUID* asset_idp = (LLUUID*)data;
+	if (option == 0)
+	{
+		// HACK: This is to demonstrate teleport on double click for landmarks
+		gAgent.teleportViaLandmark( *asset_idp );
+
+		// we now automatically track the landmark you're teleporting to
+		// because you'll probably arrive at a telehub instead
+		if( gFloaterWorldMap )
+		{
+			gFloaterWorldMap->trackLandmark( *asset_idp );
+		}
+	}
+	delete asset_idp;
+}
+
 void LLLandmarkBridge::openItem()
 {
 	LLViewerInventoryItem* item = getItem();
 	if( item )
 	{
-		open_landmark(item, LLString("  ") + getPrefix() + item->getName(), FALSE);
+		// Opening (double-clicking) a landmark immediately teleports,
+		// but warns you the first time.
+		// open_landmark(item, LLString("  ") + getPrefix() + item->getName(), FALSE);
+		LLUUID* asset_idp = new LLUUID(item->getAssetUUID());
+		LLAlertDialog::showXml("TeleportFromLandmark",
+			open_landmark_callback, (void*)asset_idp);
 	}
 }
 
@@ -4463,7 +4494,7 @@ void LLWearableBridge::onRemoveFromAvatarArrived(LLWearable* wearable,
 			EWearableType type = wearable->getType();
 	
 			if( !(type==WT_SHAPE || type==WT_SKIN || type==WT_HAIR ) ) //&&
-				//!((gAgent.mAccess >= SIM_ACCESS_MATURE) && ( type==WT_UNDERPANTS || type==WT_UNDERSHIRT )) )
+				//!((!gAgent.isTeen()) && ( type==WT_UNDERPANTS || type==WT_UNDERSHIRT )) )
 			{
 				gAgent.removeWearable( type );
 			}

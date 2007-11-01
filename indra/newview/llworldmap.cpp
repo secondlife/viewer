@@ -106,7 +106,11 @@ LLWorldMap::LLWorldMap() :
 	mNeighborMap(NULL),
 	mTelehubCoverageMap(NULL),
 	mNeighborMapWidth(0),
-	mNeighborMapHeight(0)
+	mNeighborMapHeight(0),
+	mSLURLRegionName(),
+	mSLURL(),
+	mSLURLCallback(0),
+	mSLURLTeleport(false)
 {
 	for (S32 map=0; map<MAP_SIM_IMAGE_TYPES; ++map)
 	{
@@ -398,6 +402,19 @@ void LLWorldMap::sendNamedRegionRequest(std::string region_name)
 	msg->addStringFast(_PREHASH_Name, region_name);
 	gAgent.sendReliableMessage();
 }
+// public
+void LLWorldMap::sendNamedRegionRequest(std::string region_name, 
+		url_callback_t callback,
+		const std::string& callback_url,
+		bool teleport)	// immediately teleport when result returned
+{
+	mSLURLRegionName = region_name;
+	mSLURL = callback_url;
+	mSLURLCallback = callback;
+	mSLURLTeleport = teleport;
+
+	sendNamedRegionRequest(region_name);
+}
 
 // public
 void LLWorldMap::sendMapBlockRequest(U16 min_x, U16 min_y, U16 max_x, U16 max_y, bool return_nonexistent)
@@ -532,6 +549,8 @@ void LLWorldMap::processMapBlockReply(LLMessageSystem* msg, void**)
 		U32 x_meters = x_regions * REGION_WIDTH_UNITS;
 		U32 y_meters = y_regions * REGION_WIDTH_UNITS;
 
+		U64 handle = to_region_handle(x_meters, y_meters);
+
 		if (access == 255)
 		{
 			// This region doesn't exist
@@ -547,13 +566,23 @@ void LLWorldMap::processMapBlockReply(LLMessageSystem* msg, void**)
 
 			found_null_sim = true;
 		}
+		else if(gWorldMap->mSLURLCallback != NULL)
+		{
+			// Server returns definitive capitalization, SLURL might
+			// not have that.
+			if (!stricmp(gWorldMap->mSLURLRegionName.c_str(), name))
+			{
+				gWorldMap->mSLURLCallback(handle, gWorldMap->mSLURL, image_id, gWorldMap->mSLURLTeleport);
+				gWorldMap->mSLURLCallback = NULL;
+				gWorldMap->mSLURLRegionName.clear();
+			}
+		}
 		else
 		{
 			adjust = gWorldMap->extendAABB(x_meters, 
 										y_meters, 
 										x_meters+REGION_WIDTH_UNITS,
 										y_meters+REGION_WIDTH_UNITS) || adjust;
-			U64 handle = to_region_handle(x_meters, y_meters);
 
 // 			llinfos << "Map sim " << name << " image layer " << agent_flags << " ID " << image_id.getString() << llendl;
 			
@@ -614,6 +643,7 @@ void LLWorldMap::processMapBlockReply(LLMessageSystem* msg, void**)
 			}
 		}
 	}
+
 	if(adjust) gFloaterWorldMap->adjustZoomSliderBounds();
 	gFloaterWorldMap->updateSims(found_null_sim);
 }

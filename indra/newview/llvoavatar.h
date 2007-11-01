@@ -831,6 +831,7 @@ public:
 	static LLUUID	sStepSoundOnLand;
 
 	static S32		sRenderName;
+	static BOOL		sRenderGroupTitles;
 	static S32		sNumVisibleChatBubbles;
 	static BOOL		sDebugInvisible;
 	static BOOL		sShowAttachmentPoints;

@@ -239,6 +239,8 @@ public:
 		
 	BOOL			isGodlike() const;
 	U8				getGodLevel() const;
+	bool isTeen() const;
+	void setTeen(bool teen);
 	BOOL			isGroupTitleHidden() const		{ return mHideGroupTitle; }
 	BOOL			isGroupMember() const		{ return !mGroupID.isNull(); }		// This is only used for building titles!
 	const LLUUID	&getGroupID() const			{ return mGroupID; }
@@ -666,8 +668,6 @@ public:
 
 	F32				mDrawDistance;
 
-	// Access or "maturity" level
-	U8				mAccess;	// SIM_ACCESS_MATURE or SIM_ACCESS_PG
 	U64				mGroupPowers;
 	BOOL			mHideGroupTitle;
 	char			mGroupTitle[DB_GROUP_TITLE_BUF_SIZE];	/*Flawfinder: ignore*/	// honorific, like "Sir"
@@ -703,6 +703,8 @@ public:
 	static std::map<LLString, LLString> sTeleportProgressMessages;
 
 private:
+	// Access or "maturity" level
+	U8				mAccess;	// SIM_ACCESS_MATURE or SIM_ACCESS_PG
 	ETeleportState	mTeleportState;
 	LLString		mTeleportMessage;
 

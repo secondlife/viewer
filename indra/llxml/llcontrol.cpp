@@ -536,7 +536,7 @@ void LLControlGroup::setVector3d(const LLString& name, const LLVector3d &val)
 void LLControlGroup::setRect(const LLString& name, const LLRect &val)
 {
 	LLControlBase* control = getControl(name);
-	
+
 	if (control && control->isType(TYPE_RECT))
 	{
 		control->set(val.getValue());

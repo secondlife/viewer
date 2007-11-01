@@ -38,6 +38,8 @@
 #include "llstreamtools.h"
 
 #include "llmath.h"
+#include "llsd.h"
+#include "llsdutil.h"
 #include "lltransactiontypes.h"
 #include "lltransactionflags.h"
 #include "message.h"

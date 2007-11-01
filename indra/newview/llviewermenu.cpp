@@ -138,6 +138,7 @@
 #include "llinventoryview.h"
 #include "llkeyboard.h"
 #include "llpanellogin.h"
+#include "llfloaterlandmark.h"
 #include "llmenucommands.h"
 #include "llmenugl.h"
 #include "llmorphview.h"
@@ -196,6 +197,9 @@
 
 #include "lltexlayer.h"
 
+void init_landmark_menu(LLMenuGL* menu);
+void clear_landmark_menu(LLMenuGL* menu);
+
 void init_client_menu(LLMenuGL* menu);
 void init_server_menu(LLMenuGL* menu);
 
@@ -244,6 +248,7 @@ LLPieMenu	*gPieAttachment = NULL;
 LLPieMenu	*gPieLand	= NULL;
 
 // local constants
+const LLString LANDMARK_MENU_NAME("Landmarks");
 const LLString CLIENT_MENU_NAME("Client");
 const LLString SERVER_MENU_NAME("Server");
 
@@ -273,6 +278,7 @@ LLPieMenu* gDetachPieMenu = NULL;
 LLPieMenu* gDetachScreenPieMenu = NULL;
 LLPieMenu* gDetachBodyPartPieMenus[8];
 
+LLMenuGL* gLandmarkMenu = NULL;
 LLMenuItemCallGL* gAFKMenu = NULL;
 LLMenuItemCallGL* gBusyMenu = NULL;
 
@@ -334,6 +340,9 @@ void handle_audio_status_2(void*);
 void handle_audio_status_3(void*);
 void handle_audio_status_4(void*);
 #endif
+void manage_landmarks(void*);
+void create_new_landmark(void*);
+void landmark_menu_action(void*);
 void reload_ui(void*);
 void handle_agent_stop_moving(void*);
 void print_packets_lost(void*);
@@ -362,6 +371,7 @@ void toggle_show_xui_names(void *);
 BOOL check_show_xui_names(void *);
 
 // Debug UI
+void handle_web_search_demo(void*);
 void handle_slurl_test(void*);
 void handle_save_to_xml(void*);
 void handle_load_from_xml(void*);
@@ -483,6 +493,54 @@ BOOL enable_have_card(void*);
 BOOL enable_detach(void*);
 BOOL enable_region_owner(void*);
 
+class LLLandmarkObserver : public LLInventoryObserver
+{
+public:
+	LLLandmarkObserver();
+	virtual ~LLLandmarkObserver();
+
+	virtual void changed(U32 mask)
+	{
+		// JAMESDEBUG disabled for now - slows down client or causes crashes
+		// in inventory code.
+		//
+		// Also, this may not be faster than just rebuilding the menu each time.
+		// I believe gInventory.getObject() is not fast.
+		//
+		//const std::set<LLUUID>& changed_ids = gInventory.getChangedIDs();
+		//std::set<LLUUID>::const_iterator id_it;
+		//BOOL need_to_rebuild_menu = FALSE;
+		//for(id_it = changed_ids.begin(); id_it != changed_ids.end(); ++id_it)
+		//{
+		//	LLInventoryObject* objectp = gInventory.getObject(*id_it);
+		//	if (objectp && (objectp->getType() == LLAssetType::AT_LANDMARK || objectp->getType() == LLAssetType::AT_CATEGORY))
+		//	{
+		//		need_to_rebuild_menu = TRUE;
+		//	}
+		//}
+		//if (need_to_rebuild_menu)
+		//{
+		//	init_landmark_menu(gLandmarkMenu);
+		//}
+	}
+};
+
+// For debugging only, I think the inventory observer doesn't get 
+// called if the inventory is loaded from cache.
+void build_landmark_menu(void*)
+{
+	init_landmark_menu(gLandmarkMenu);
+}
+
+LLLandmarkObserver::LLLandmarkObserver()
+{
+	gInventory.addObserver(this);
+}
+
+LLLandmarkObserver::~LLLandmarkObserver()
+{
+	gInventory.removeObserver(this);
+}
 
 class LLMenuParcelObserver : public LLParcelObserver
 {
@@ -493,6 +551,7 @@ public:
 };
 
 static LLMenuParcelObserver* gMenuParcelObserver = NULL;
+static LLLandmarkObserver* gLandmarkObserver = NULL;
 
 LLMenuParcelObserver::LLMenuParcelObserver()
 {
@@ -584,7 +643,7 @@ void init_menus()
 	gDetachScreenPieMenu = (LLPieMenu*)gMenuHolder->getChildByName("Object Detach HUD", true);
 	gDetachPieMenu = (LLPieMenu*)gMenuHolder->getChildByName("Object Detach", true);
 
-	if (gAgent.mAccess < SIM_ACCESS_MATURE)
+	if (gAgent.isTeen())
 	{
 		gMenuHolder->getChildByName("Self Underpants", TRUE)->setVisible(FALSE);
 		gMenuHolder->getChildByName("Self Undershirt", TRUE)->setVisible(FALSE);
@@ -648,7 +707,7 @@ void init_menus()
 	gAttachSubMenu = gMenuBarView->getChildMenuByName("Attach Object", TRUE);
 	gDetachSubMenu = gMenuBarView->getChildMenuByName("Detach Object", TRUE);
 
-	if (gAgent.mAccess < SIM_ACCESS_MATURE)
+	if (gAgent.isTeen())
 	{
 		gMenuBarView->getChildByName("Menu Underpants", TRUE)->setVisible(FALSE);
 		gMenuBarView->getChildByName("Menu Undershirt", TRUE)->setVisible(FALSE);
@@ -656,6 +715,18 @@ void init_menus()
 
 	// TomY TODO convert these two
 	LLMenuGL*menu;
+
+	// JAMESDEBUG - Maybe we don't want a global landmark menu
+	/*
+	menu = new LLMenuGL(LANDMARK_MENU_NAME);
+	// Defer init_landmark_menu() until inventory observer reports that we actually
+	// have inventory.  Otherwise findCategoryByUUID() will create an empty
+	// Landmarks folder in inventory. JC
+	gMenuBarView->appendMenu( menu );
+	menu->updateParent(LLMenuGL::sMenuContainer);
+	gLandmarkMenu = menu;
+	*/
+
 	menu = new LLMenuGL(CLIENT_MENU_NAME);
 	init_client_menu(menu);
 	gMenuBarView->appendMenu( menu );
@@ -671,10 +742,72 @@ void init_menus()
 	// Let land based option enable when parcel changes
 	gMenuParcelObserver = new LLMenuParcelObserver();
 
+	// Let landmarks menu update when landmarks are added/removed
+	gLandmarkObserver = new LLLandmarkObserver();
+
 	//
 	// Debug menu visiblity
 	//
 	show_debug_menus();
+}
+
+void init_landmark_menu(LLMenuGL* menu)
+{
+	if (!menu) return;
+
+	// clear existing menu, as we might be rebuilding as result of inventory update
+	clear_landmark_menu(menu);
+
+	menu->append(new LLMenuItemCallGL("Organize Landmarks", 
+			&manage_landmarks, NULL));
+	menu->append(new LLMenuItemCallGL("New Landmark...", 
+			&create_new_landmark, NULL));
+	menu->appendSeparator();
+	
+	// now collect all landmarks in inventory and build menu...
+	LLInventoryModel::cat_array_t* cats;
+	LLInventoryModel::item_array_t* items;
+	gInventory.getDirectDescendentsOf(gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK), cats, items);
+	if(items)
+	{
+		S32 count = items->count();
+		for(S32 i = 0; i < count; ++i)
+		{
+			LLInventoryItem* item = items->get(i);
+			LLString landmark_name = item->getName();
+			LLUUID* landmark_id_ptr = new LLUUID( item->getUUID() );
+			LLMenuItemCallGL* menu_item =
+				new LLMenuItemCallGL(landmark_name, landmark_menu_action, 
+					NULL, NULL,	landmark_id_ptr);
+			menu->append(menu_item);
+		}
+	}
+}
+
+void clear_landmark_menu(LLMenuGL* menu)
+{
+	if (!menu) return;
+
+	// We store the UUIDs of the landmark inventory items in the userdata
+	// field of the menus.  Therefore when we clean up the menu we need to
+	// delete that data.
+	const LLView::child_list_t* child_list = menu->getChildList();
+	LLView::child_list_const_iter_t it = child_list->begin();
+	for ( ; it != child_list->end(); ++it)
+	{
+		LLView* view = *it;
+		if (view->getWidgetType() == WIDGET_TYPE_MENU_ITEM_CALL)
+		{
+			LLMenuItemCallGL* menu_item = (LLMenuItemCallGL*)view;
+			if (menu_item->getMenuCallback() == landmark_menu_action)
+			{
+				void* user_data = menu_item->getUserData();
+				delete (LLUUID*)user_data;
+			}
+		}
+	}
+
+	menu->empty();
 }
 
 void init_client_menu(LLMenuGL* menu)
@@ -1010,7 +1143,7 @@ void init_debug_ui_menu(LLMenuGL* menu)
 	menu->append(new LLMenuItemCallGL( "Dump VolumeMgr",	&dump_volume_mgr, NULL, NULL));
 	menu->append(new LLMenuItemCallGL( "Print Selected Object Info",	&print_object_info, NULL, NULL, 'P', MASK_CONTROL|MASK_SHIFT ));
 	menu->append(new LLMenuItemCallGL( "Print Agent Info",			&print_agent_nvpairs, NULL, NULL, 'P', MASK_SHIFT ));
-	menu->append(new LLMenuItemCallGL( "Print Texture Memory Stats",  &output_statistics, NULL, NULL, 'M', MASK_SHIFT | MASK_ALT | MASK_CONTROL));
+	menu->append(new LLMenuItemCallGL( "Texture Memory Stats",  &output_statistics, NULL, NULL, 'M', MASK_SHIFT | MASK_ALT | MASK_CONTROL));
 	menu->append(new LLMenuItemCheckGL("Double-Click Auto-Pilot", 
 		menu_toggle_control, NULL, menu_check_control, 
 		(void*)"DoubleClickAutoPilot"));
@@ -1456,8 +1589,13 @@ static std::vector<LLPointer<view_listener_t> > sMenus;
 //-----------------------------------------------------------------------------
 void cleanup_menus()
 {
+	clear_landmark_menu(gLandmarkMenu);
+
 	delete gMenuParcelObserver;
 	gMenuParcelObserver = NULL;
+
+	delete gLandmarkObserver;
+	gLandmarkObserver = NULL;
 
 	delete gPieSelf;
 	gPieSelf = NULL;
@@ -2859,6 +2997,60 @@ void handle_audio_status_4(void*)
 	gSavedSettings.setS32("AudioInfoPage", page);	
 }
 #endif
+
+void manage_landmarks(void*)
+{
+	LLFloaterLandmark::showInstance(1);
+}
+
+void create_new_landmark(void*)
+{
+	// Note this is temporary cut and paste of legacy functionality.
+	// TODO: Make this spawn a floater allowing user customize before creating the inventory object
+
+	LLViewerRegion* agent_region = gAgent.getRegion();
+	if(!agent_region)
+	{
+		llwarns << "No agent region" << llendl;
+		return;
+	}
+	LLParcel* agent_parcel = gParcelMgr->getAgentParcel();
+	if (!agent_parcel)
+	{
+		llwarns << "No agent parcel" << llendl;
+		return;
+	}
+	if (!agent_parcel->getAllowLandmark()
+		&& !LLViewerParcelMgr::isParcelOwnedByAgent(agent_parcel, GP_LAND_ALLOW_LANDMARK))
+	{
+		gViewerWindow->alertXml("CannotCreateLandmarkNotOwner");
+		return;
+	}
+
+	LLUUID folder_id;
+	folder_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_LANDMARK);
+	std::string pos_string;
+	gAgent.buildLocationString(pos_string);
+
+	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
+		folder_id, LLTransactionID::tnull,
+		pos_string, pos_string, // name, desc
+		LLAssetType::AT_LANDMARK,
+		LLInventoryType::IT_LANDMARK,
+		NOT_WEARABLE, PERM_ALL, 
+		NULL);
+}
+
+void landmark_menu_action(void* userdata)
+{
+	LLUUID item_id = *(LLUUID*)userdata;
+
+	LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
+	if (itemp)
+	{
+		open_landmark(itemp, itemp->getName(), FALSE);
+	}
+}
 
 void reload_ui(void *)
 {
@@ -5160,7 +5352,7 @@ class LLShowFloater : public view_listener_t
 		else if (floater_name == "help f1")
 		{
 #if LL_LIBXUL_ENABLED
-			gViewerHtmlHelp.show();
+			gViewerHtmlHelp.show( gSavedSettings.getString("HelpHomeURL") );
 #endif
 		}
 		else if (floater_name == "help in-world")
@@ -5363,7 +5555,7 @@ class LLShowAgentProfile : public view_listener_t
 		LLVOAvatar* avatar = find_avatar_from_object(agent_id);
 		if (avatar)
 		{
-			LLFloaterAvatarInfo::showFromAvatar(avatar);
+			LLFloaterAvatarInfo::show(agent_id);
 		}
 		return true;
 	}
@@ -6080,18 +6272,11 @@ void handle_test_female(void*)
 
 void handle_toggle_pg(void*)
 {
-	if (gAgent.mAccess < SIM_ACCESS_MATURE)
-	{
-		gAgent.mAccess = SIM_ACCESS_MATURE;
-	}
-	else
-	{
-		gAgent.mAccess = SIM_ACCESS_PG;
-	}
+	gAgent.setTeen( !gAgent.isTeen() );
 
 	LLFloaterWorldMap::reloadIcons(NULL);
 
-	llinfos << "Access set to " << (S32)gAgent.mAccess << llendl;
+	llinfos << "PG status set to " << (S32)gAgent.isTeen() << llendl;
 }
 
 void handle_dump_attachments(void*)

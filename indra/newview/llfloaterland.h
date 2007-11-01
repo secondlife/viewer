@@ -42,17 +42,18 @@
 typedef std::set<LLUUID, lluuid_less> uuid_list_t;
 const F32 CACHE_REFRESH_TIME	= 2.5f;
 
-class LLTextBox;
+class LLButton;
 class LLCheckBoxCtrl;
 class LLRadioGroup;
 class LLComboBox;
-class LLButton;
 class LLNameListCtrl;
 class LLSpinCtrl;
 class LLLineEditor;
 class LLRadioGroup;
 class LLParcelSelectionObserver;
 class LLTabContainer;
+class LLTextBox;
+class LLTextEditor;
 class LLTextureCtrl;
 class LLViewerTextEditor;
 class LLParcelSelection;
@@ -347,7 +348,6 @@ protected:
 	LLButton*		mSetBtn;
 	LLButton*		mClearBtn;
 
-	LLCheckBoxCtrl		*mAllowPublishCtrl;
 	LLCheckBoxCtrl		*mMatureCtrl;
 	LLCheckBoxCtrl		*mPushRestrictionCtrl;
 	LLButton			*mPublishHelpButton;

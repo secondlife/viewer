@@ -468,6 +468,13 @@
 
 			<key>ProvisionVoiceAccountRequest</key>
 			<boolean>false</boolean>
+			
+			<key>RemoteParcelRequest</key>
+			<boolean>false</boolean>
+
+			<key>SearchStatTracking</key>
+			<boolean>false</boolean>
+
 		</map>
 
 		<key>messageBans</key>

@@ -903,6 +903,7 @@ BOOL LLAgent::canManageEstate() const
 {
 	return mRegionp && mRegionp->canManageEstate();
 }
+
 //-----------------------------------------------------------------------------
 // sendMessage()
 //-----------------------------------------------------------------------------
@@ -4709,6 +4710,22 @@ U8 LLAgent::getGodLevel() const
 #endif
 }
 
+bool LLAgent::isTeen() const
+{
+	return mAccess < SIM_ACCESS_MATURE;
+}
+
+void LLAgent::setTeen(bool teen)
+{
+	if (teen)
+	{
+		mAccess = SIM_ACCESS_PG;
+	}
+	else
+	{
+		mAccess = SIM_ACCESS_MATURE;
+	}
+}
 
 void LLAgent::buildFullname(std::string& name) const
 {
@@ -5628,7 +5645,7 @@ void LLAgent::teleportRequest(
 }
 
 // Landmark ID = LLUUID::null means teleport home
-void LLAgent::teleportViaLandmark(const LLUUID& landmark_id)
+void LLAgent::teleportViaLandmark(const LLUUID& landmark_asset_id)
 {
 	LLViewerRegion *regionp = getRegion();
 	if(regionp && teleportCore())
@@ -5638,7 +5655,7 @@ void LLAgent::teleportViaLandmark(const LLUUID& landmark_id)
 		msg->nextBlockFast(_PREHASH_Info);
 		msg->addUUIDFast(_PREHASH_AgentID, getID());
 		msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
-		msg->addUUIDFast(_PREHASH_LandmarkID, landmark_id);
+		msg->addUUIDFast(_PREHASH_LandmarkID, landmark_asset_id);
 		sendReliableMessage();
 	}
 }
@@ -6851,7 +6868,7 @@ void LLAgent::removeWearable( EWearableType type )
 {
 	LLWearable* old_wearable = mWearableEntry[ type ].mWearable;
 
-	if ( (gAgent.mAccess < SIM_ACCESS_MATURE)
+	if ( (gAgent.isTeen())
 		 && (type == WT_UNDERSHIRT || type == WT_UNDERPANTS))
 	{
 		// Can't take off underclothing in simple UI mode or on PG accounts
@@ -6986,8 +7003,8 @@ void LLAgent::setWearableOutfit(
 	wearables_to_remove[WT_SOCKS]		= remove;
 	wearables_to_remove[WT_JACKET]		= remove;
 	wearables_to_remove[WT_GLOVES]		= remove;
-	wearables_to_remove[WT_UNDERSHIRT]	= (gAgent.mAccess >= SIM_ACCESS_MATURE) & remove;
-	wearables_to_remove[WT_UNDERPANTS]	= (gAgent.mAccess >= SIM_ACCESS_MATURE) & remove;
+	wearables_to_remove[WT_UNDERSHIRT]	= (!gAgent.isTeen()) & remove;
+	wearables_to_remove[WT_UNDERPANTS]	= (!gAgent.isTeen()) & remove;
 	wearables_to_remove[WT_SKIRT]		= remove;
 
 	S32 count = wearables.count();
@@ -7225,7 +7242,7 @@ void LLAgent::userRemoveWearable( void* userdata )
 	EWearableType type = (EWearableType)(intptr_t)userdata;
 	
 	if( !(type==WT_SHAPE || type==WT_SKIN || type==WT_HAIR ) ) //&&
-		//!((gAgent.mAccess >= SIM_ACCESS_MATURE) && ( type==WT_UNDERPANTS || type==WT_UNDERSHIRT )) )
+		//!((!gAgent.isTeen()) && ( type==WT_UNDERPANTS || type==WT_UNDERSHIRT )) )
 	{
 		gAgent.removeWearable( type );
 	}

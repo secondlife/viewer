@@ -225,6 +225,7 @@ typedef enum e_widget_type
 	WIDGET_TYPE_PAD,	// used in XML for positioning, not a real widget
 	WIDGET_TYPE_RADIO_GROUP,
 	WIDGET_TYPE_ICON,
+	WIDGET_TYPE_LANDMARK_PICKER,
 	WIDGET_TYPE_LOCATE,	// used in XML for positioning, not a real widget
 	WIDGET_TYPE_VIEW_BORDER,	// decorative border
 	WIDGET_TYPE_PANEL,

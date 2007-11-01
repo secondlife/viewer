@@ -132,7 +132,7 @@ public:
 
 	char				getMonetaryDecimalPoint() const;	
 	char				getMonetaryThousandsSeparator() const;
-	void				getMonetaryString( LLString& output, S32 input ) const;
+	std::string			getMonetaryString( S32 input ) const;
 	void				getIntegerString( LLString& output, S32 input ) const;
 
 //	const char*			getRes( LLSTR_ID string_id ) const		{ return mStrings[ string_id ]; }

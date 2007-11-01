@@ -236,7 +236,7 @@ BOOL LLFloaterWorldMap::postBuild()
 	childSetKeystrokeCallback("location", (void (*)(LLLineEditor*,void*))updateSearchEnabled, NULL);
 	
 	childSetCommitCallback("search_results", onCommitSearchResult, this);
-	childSetDoubleClickCallback("search_results", onTeleportBtn);
+	childSetDoubleClickCallback("search_results", onClickTeleportBtn);
 	childSetCommitCallback("spin x", onCommitLocation, this);
 	childSetCommitCallback("spin y", onCommitLocation, this);
 	childSetCommitCallback("spin z", onCommitLocation, this);
@@ -252,7 +252,7 @@ BOOL LLFloaterWorldMap::postBuild()
 
 	childSetAction("Go Home", onGoHome, this);
 
-	childSetAction("Teleport", onTeleportBtn, this);
+	childSetAction("Teleport", onClickTeleportBtn, this);
 
 	childSetAction("Show Destination", onShowTargetBtn, this);
 	childSetAction("Show My Location", onShowAgentBtn, this);
@@ -264,7 +264,7 @@ BOOL LLFloaterWorldMap::postBuild()
 
 	setDefaultBtn(NULL);
 
-	if ( gAgent.mAccess <= SIM_ACCESS_PG )
+	if ( gAgent.isTeen() )
 	{
 		// Hide Mature Events controls
 		childHide("events_mature_icon");
@@ -1288,7 +1288,7 @@ void LLFloaterWorldMap::onShowAgentBtn(void* data)
 }
 
 // static
-void LLFloaterWorldMap::onTeleportBtn(void* data)
+void LLFloaterWorldMap::onClickTeleportBtn(void* data)
 {
 	LLFloaterWorldMap* self = (LLFloaterWorldMap*)data;
 	self->teleport();

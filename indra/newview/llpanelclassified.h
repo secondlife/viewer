@@ -57,7 +57,7 @@ class LLMessageSystem;
 class LLPanelClassified : public LLPanel
 {
 public:
-    LLPanelClassified(BOOL in_finder);
+    LLPanelClassified(BOOL in_finder, bool from_search = false);
     /*virtual*/ ~LLPanelClassified();
 
 	void reset();
@@ -79,6 +79,7 @@ public:
 	void initNewClassified();
 
 	void setClassifiedID(const LLUUID& id);
+	void setClickThroughText(const std::string& text);
 	static void setClickThrough(const LLUUID& classified_id,
 								S32 teleport, S32 map, S32 profile);
 
@@ -118,6 +119,7 @@ protected:
 
 protected:
 	BOOL mInFinder;
+	bool mFromSearch;
 	BOOL mDirty;
 	bool mForceClose;
 	bool mLocationChanged;

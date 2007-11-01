@@ -967,17 +967,6 @@ void LLTextEditor::endSelection()
 		mIsSelecting = FALSE;
 		mSelectionEnd = mCursorPos;
 	}
-	if (mParseHTML && mHTML.length() > 0)
-	{
-			//Special handling for slurls
-		if ( (mSecondlifeURLcallback!=NULL) && !(*mSecondlifeURLcallback)(mHTML) )
-		{
-			if (mURLcallback!=NULL) (*mURLcallback)(mHTML.c_str());
-
-			//load_url(url.c_str());
-		}
-		mHTML="";
-	}
 }
 
 BOOL LLTextEditor::selectionContainsLineBreaks()
@@ -1408,6 +1397,7 @@ BOOL LLTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 	if( hasMouseCapture()  )
 	{
 		gFocusMgr.setMouseCapture( NULL );
+		
 		handled = TRUE;
 	}
 
@@ -3814,6 +3804,22 @@ void LLTextEditor::findEmbeddedItemSegments()
 
 BOOL LLTextEditor::handleMouseUpOverSegment(S32 x, S32 y, MASK mask)
 {
+	if ( hasMouseCapture() )
+	{
+		// This mouse up was part of a click.
+		// Regardless of where the cursor is, see if we recently touched a link
+		// and launch it if we did.
+		if (mParseHTML && mHTML.length() > 0)
+		{
+				//Special handling for slurls
+			if ( (mSecondlifeURLcallback!=NULL) && !(*mSecondlifeURLcallback)(mHTML) )
+			{
+				if (mURLcallback!=NULL) (*mURLcallback)(mHTML.c_str());
+			}
+			mHTML="";
+		}
+	}
+
 	return FALSE;
 }
 
@@ -4242,6 +4248,12 @@ BOOL LLTextEditor::findHTML(const LLString &line, S32 *begin, S32 *end)
 		if (strpos < 0)
 		{
 			slurlID="secondlife://";
+			strpos = url.find(slurlID);
+		}
+	
+		if (strpos < 0)
+		{
+			slurlID="sl://";
 			strpos = url.find(slurlID);
 		}
 	

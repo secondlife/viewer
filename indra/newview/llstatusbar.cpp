@@ -48,6 +48,7 @@
 #include "llviewercontrol.h"
 #include "llfloaterbuycurrency.h"
 #include "llfloaterchat.h"
+#include "llfloaterdirectory.h"		// to spawn search
 #include "llfloaterland.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterscriptdebug.h"
@@ -150,38 +151,21 @@ LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
 	mTextHealth = LLUICtrlFactory::getTextBoxByName( this, "HealthText" );
 	mTextTime = LLUICtrlFactory::getTextBoxByName( this, "TimeText" );
 	
-	S32 x = mRect.getWidth() - 2;
-	S32 y = 0;
-	LLRect r;
-	r.set( x-SIM_STAT_WIDTH, y+MENU_BAR_HEIGHT-1, x, y+1);
-	mSGBandwidth = new LLStatGraph("BandwidthGraph", r);
-	mSGBandwidth->setFollows(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
-	mSGBandwidth->setStat(&gViewerStats->mKBitStat);
-	LLString text = childGetText("bandwidth_tooltip") + " ";
-	LLUIString bandwidth_tooltip = text;	// get the text from XML until this widget is XML driven
-	mSGBandwidth->setLabel(bandwidth_tooltip.getString().c_str());
-	mSGBandwidth->setUnits("kbps");
-	mSGBandwidth->setPrecision(0);
-	addChild(mSGBandwidth);
-	x -= SIM_STAT_WIDTH + 2;
+	childSetAction("scriptout", onClickScriptDebug, this);
+	childSetAction("health", onClickHealth, this);
+	childSetAction("fly", onClickFly, this);
+	childSetAction("buyland", onClickBuyLand, this );
+	childSetAction("buycurrency", onClickBuyCurrency, this );
+	childSetAction("build", onClickBuild, this );
+	childSetAction("scripts", onClickScripts, this );
+	childSetAction("restrictpush", onClickPush, this );
+	childSetAction("status_voice", onClickVoice, this );
 
-	r.set( x-SIM_STAT_WIDTH, y+MENU_BAR_HEIGHT-1, x, y+1);
-	mSGPacketLoss = new LLStatGraph("PacketLossPercent", r);
-	mSGPacketLoss->setFollows(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
-	mSGPacketLoss->setStat(&gViewerStats->mPacketsLostPercentStat);
-	text = childGetText("packet_loss_tooltip") + " ";
-	LLUIString packet_loss_tooltip = text;	// get the text from XML until this widget is XML driven
-	mSGPacketLoss->setLabel(packet_loss_tooltip.getString().c_str());
-	mSGPacketLoss->setUnits("%");
-	mSGPacketLoss->setMin(0.f);
-	mSGPacketLoss->setMax(5.f);
-	mSGPacketLoss->setThreshold(0, 0.5f);
-	mSGPacketLoss->setThreshold(1, 1.f);
-	mSGPacketLoss->setThreshold(2, 3.f);
-	mSGPacketLoss->setPrecision(1);
-	mSGPacketLoss->mPerSec = FALSE;
-	addChild(mSGPacketLoss);
+	childSetCommitCallback("search_editor", onCommitSearch, this);
+	childSetAction("search_btn", onClickSearch, this);
 
+	childSetActionTextbox("ParcelNameText", onClickParcelInfo );
+	childSetActionTextbox("BalanceText", onClickBalance );
 }
 
 LLStatusBar::~LLStatusBar()
@@ -195,29 +179,13 @@ LLStatusBar::~LLStatusBar()
 	// LLView destructor cleans up children
 }
 
-BOOL LLStatusBar::postBuild()
-{
-	childSetAction("scriptout", onClickScriptDebug, this);
-	childSetAction("health", onClickHealth, this);
-	childSetAction("fly", onClickFly, this);
-	childSetAction("buyland", onClickBuyLand, this );
-	childSetAction("buycurrency", onClickBuyCurrency, this );
-	childSetAction("build", onClickBuild, this );
-	childSetAction("scripts", onClickScripts, this );
-	childSetAction("restrictpush", onClickPush, this );
-	childSetAction("status_voice", onClickVoice, this );
-
-	childSetActionTextbox("ParcelNameText", onClickParcelInfo );
-	childSetActionTextbox("BalanceText", onClickBalance );
-
-	return TRUE;
-}
-
+//virtual
 EWidgetType LLStatusBar::getWidgetType() const
 {
 	return WIDGET_TYPE_STATUS_BAR;
 }
 
+//virtual
 LLString LLStatusBar::getWidgetTag() const
 {
 	return LL_STATUS_BAR_TAG;
@@ -245,13 +213,6 @@ void LLStatusBar::draw()
 // Per-frame updates of visibility
 void LLStatusBar::refresh()
 {
-	F32 bwtotal = gViewerThrottle.getMaxBandwidth() / 1000.f;
-	mSGBandwidth->setMin(0.f);
-	mSGBandwidth->setMax(bwtotal*1.25f);
-	mSGBandwidth->setThreshold(0, bwtotal*0.75f);
-	mSGBandwidth->setThreshold(1, bwtotal);
-	mSGBandwidth->setThreshold(2, bwtotal);
-
 	// *TODO: Localize / translate time
 	
 	// Get current UTC time, adjusted for the user's clock
@@ -562,9 +523,9 @@ void LLStatusBar::setVisibleForMouselook(bool visible)
 {
 	mTextBalance->setVisible(visible);
 	mTextTime->setVisible(visible);
-	mSGBandwidth->setVisible(visible);
-	mSGPacketLoss->setVisible(visible);
 	childSetVisible("buycurrency", visible);
+	childSetVisible("search_editor", visible);
+	childSetVisible("search_btn", visible);
 	setBackgroundVisible(visible);
 }
 
@@ -580,8 +541,9 @@ void LLStatusBar::creditBalance(S32 credit)
 
 void LLStatusBar::setBalance(S32 balance)
 {
-	LLString balance_str;
-	gResMgr->getMonetaryString( balance_str, balance );
+	LLString money_str = gResMgr->getMonetaryString( balance );
+	LLString balance_str = "L$";
+	balance_str += money_str;
 	mTextBalance->setText( balance_str );
 
 	if (mBalance && (fabs((F32)(mBalance - balance)) > gSavedSettings.getF32("UISndMoneyChangeThreshold")))
@@ -803,6 +765,21 @@ void LLStatusBar::setupDate()
 	{
 		sMonths.resize(12);
 	}
+}
+
+// static
+void LLStatusBar::onCommitSearch(LLUICtrl*, void* data)
+{
+	// committing is the same as clicking "search"
+	onClickSearch(data);
+}
+
+// static
+void LLStatusBar::onClickSearch(void* data)
+{
+	LLStatusBar* self = (LLStatusBar*)data;
+	LLString search_text = self->childGetText("search_editor");
+	LLFloaterDirectory::showFindAll(search_text);
 }
 
 BOOL can_afford_transaction(S32 cost)

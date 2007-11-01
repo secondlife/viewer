@@ -42,6 +42,7 @@
 #include "llfocusmgr.h"
 #include "llimview.h"
 #include "llmediaengine.h"
+#include "llmediaremotectrl.h"
 #include "llpanelaudiovolume.h"
 #include "llparcel.h"
 #include "lltextbox.h"
@@ -124,7 +125,7 @@ LLOverlayBar::LLOverlayBar(const std::string& name, const LLRect& rect)
 	setMouseOpaque(FALSE);
 	setIsChrome(TRUE);
 
-	isBuilt = FALSE;
+	mBuilt = false;
 
 	LLCallbackMap::map_t factory_map;
 	factory_map["master_volume"] = LLCallbackMap(LLOverlayBar::createMasterRemote, this);
@@ -141,7 +142,7 @@ LLOverlayBar::LLOverlayBar(const std::string& name, const LLRect& rect)
 	childSetAction("Stand Up",onClickStandUp,this);
 
 	mIsFocusRoot = TRUE;
-	isBuilt = true;
+	mBuilt = true;
 
 	// make overlay bar conform to window size
 	setRect(rect);
@@ -168,7 +169,7 @@ void LLOverlayBar::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLView::reshape(width, height, called_from_parent);
 
-	if (isBuilt) 
+	if (mBuilt) 
 	{
 		layoutButtons();
 	}
