@@ -557,14 +557,14 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	if (is_for_sale)
 	{
 		radioSaleType->setSelectedIndex((S32)sale_info.getSaleType() - 1);
-		std::string numerical_price;
+		S32 numerical_price;
 		numerical_price = sale_info.getSalePrice();
-		childSetText("EditPrice",numerical_price);
+		childSetText("EditPrice",llformat("%d",numerical_price));
 	}
 	else
 	{
 		radioSaleType->setSelectedIndex(-1);
-		childSetText("EditPrice",LLString::null);
+		childSetText("EditPrice",llformat("%d",0));
 	}
 }
 

@@ -456,15 +456,18 @@ BOOL LLManipRotate::handleMouseUp(S32 x, S32 y, MASK mask)
 	// first, perform normal processing in case this was a quick-click
 	handleHover(x, y, mask);
 
-	mManipPart = LL_NO_PART;
+	if( hasMouseCapture() )
+	{
+		mManipPart = LL_NO_PART;
 
-	// Might have missed last update due to timing.
-	gSelectMgr->sendMultipleUpdate( UPD_ROTATION | UPD_POSITION );
-	gSelectMgr->enableSilhouette(TRUE);
-	//gAgent.setObjectTracking(gSavedSettings.getBOOL("TrackFocusObject"));
+		// Might have missed last update due to timing.
+		gSelectMgr->sendMultipleUpdate( UPD_ROTATION | UPD_POSITION );
+		gSelectMgr->enableSilhouette(TRUE);
+		//gAgent.setObjectTracking(gSavedSettings.getBOOL("TrackFocusObject"));
 
-	gSelectMgr->updateSelectionCenter();
-	gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
+		gSelectMgr->updateSelectionCenter();
+		gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
+	}
 
 	return LLManip::handleMouseUp(x, y, mask);
 }

@@ -374,29 +374,32 @@ BOOL LLManipScale::handleMouseUp(S32 x, S32 y, MASK mask)
 	// first, perform normal processing in case this was a quick-click
 	handleHover(x, y, mask);
 
-	if( (LL_FACE_MIN <= (S32)mManipPart) 
-		&& ((S32)mManipPart <= LL_FACE_MAX) )
+	if( hasMouseCapture() )
 	{
-		sendUpdates(TRUE,TRUE,FALSE);
-	}
-	else
-	if( (LL_CORNER_MIN <= (S32)mManipPart) 
-		&& ((S32)mManipPart <= LL_CORNER_MAX) )
-	{
-		sendUpdates(TRUE,TRUE,TRUE);
-	}
-	
-	//send texture update
-	gSelectMgr->adjustTexturesByScale(TRUE, getStretchTextures());
-	
-	gSelectMgr->enableSilhouette(TRUE);
-	mManipPart = LL_NO_PART;
+		if( (LL_FACE_MIN <= (S32)mManipPart) 
+			&& ((S32)mManipPart <= LL_FACE_MAX) )
+		{
+			sendUpdates(TRUE,TRUE,FALSE);
+		}
+		else
+		if( (LL_CORNER_MIN <= (S32)mManipPart) 
+			&& ((S32)mManipPart <= LL_CORNER_MAX) )
+		{
+			sendUpdates(TRUE,TRUE,TRUE);
+		}
+		
+		//send texture update
+		gSelectMgr->adjustTexturesByScale(TRUE, getStretchTextures());
+		
+		gSelectMgr->enableSilhouette(TRUE);
+		mManipPart = LL_NO_PART;
 
-	// Might have missed last update due to UPDATE_DELAY timing
-	gSelectMgr->sendMultipleUpdate( mLastUpdateFlags );
-	
-	//gAgent.setObjectTracking(gSavedSettings.getBOOL("TrackFocusObject"));
-	gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
+		// Might have missed last update due to UPDATE_DELAY timing
+		gSelectMgr->sendMultipleUpdate( mLastUpdateFlags );
+		
+		//gAgent.setObjectTracking(gSavedSettings.getBOOL("TrackFocusObject"));
+		gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
+	}
 	return LLManip::handleMouseUp(x, y, mask);
 }
 

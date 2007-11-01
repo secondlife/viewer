@@ -573,7 +573,7 @@ bool LLPanelGroupLandMoney::apply(LLString& mesg)
 {
 	if (!mImplementationp->applyContribution() )
 	{
-		mesg.assign("Unable to set your land contribution.");
+		mesg.assign(getUIString("land_contrib_error")); 
 		return false;
 	}
 

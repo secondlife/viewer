@@ -1037,16 +1037,19 @@ BOOL LLManipTranslate::handleMouseUp(S32 x, S32 y, MASK mask)
 	// first, perform normal processing in case this was a quick-click
 	handleHover(x, y, mask);
 
-	// make sure arrow colors go back to normal
-	mManipPart = LL_NO_PART;
-	gSelectMgr->enableSilhouette(TRUE);
+	if(hasMouseCapture())
+	{
+		// make sure arrow colors go back to normal
+		mManipPart = LL_NO_PART;
+		gSelectMgr->enableSilhouette(TRUE);
 
-	// Might have missed last update due to UPDATE_DELAY timing.
-	gSelectMgr->sendMultipleUpdate( UPD_POSITION );
-	
-	mInSnapRegime = FALSE;
-	gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
-	//gAgent.setObjectTracking(gSavedSettings.getBOOL("TrackFocusObject"));
+		// Might have missed last update due to UPDATE_DELAY timing.
+		gSelectMgr->sendMultipleUpdate( UPD_POSITION );
+		
+		mInSnapRegime = FALSE;
+		gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
+		//gAgent.setObjectTracking(gSavedSettings.getBOOL("TrackFocusObject"));
+	}
 
 	return LLManip::handleMouseUp(x, y, mask);
 }

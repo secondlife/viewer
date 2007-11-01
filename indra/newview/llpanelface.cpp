@@ -480,7 +480,7 @@ void LLPanelFace::getState()
 			{
 				F32 get(LLViewerObject* object, S32 face)
 				{
-					return object->getTE(face)->mScaleS;
+					return object->getTE(face)->mScaleT;
 				}
 			} func;
 			identical = gSelectMgr->getSelection()->getSelectedTEValue( &func, scale_t );

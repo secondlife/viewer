@@ -1409,7 +1409,46 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	{
 		LLFirstUse::useSandbox();
 	}
+	// check if it cannot be copied, and mark as remove if it is -
+	// this will remove the object from inventory after rez. Only
+	// bother with this check if we would not normally remove from
+	// inventory.
+	if(!remove_from_inventory
+		&& !item->getPermissions().allowCopyBy(gAgent.getID()))
+	{
+		remove_from_inventory = TRUE;
+	}
 
+	// Limit raycast to a single object.  
+	// Speeds up server raycast + avoid problems with server ray
+	// hitting objects that were clipped by the near plane or culled
+	// on the viewer.
+	LLUUID ray_target_id;
+	if( raycast_target )
+	{
+		ray_target_id = raycast_target->getID();
+	}
+	else
+	{
+		ray_target_id.setNull();
+	}
+
+	// Check if it's in the trash.
+	bool is_in_trash = false;
+	LLUUID trash_id;
+	trash_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_TRASH);
+	if(gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
+	{
+		is_in_trash = true;
+		remove_from_inventory = TRUE;
+	}
+
+	LLUUID source_id = from_task_inventory ? mSourceID : LLUUID::null;
+
+	// Select the object only if we're editing.
+	BOOL rez_selected = gToolMgr->inEdit();
+
+	// Message packing code should be it's own uninterrupted block
 	LLMessageSystem* msg = gMessageSystem;
 	if (mSource == SOURCE_NOTECARD)
 	{
@@ -1430,55 +1469,13 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	// *FIX: We can probably compress this to a single byte, since I
 	// think folderid == mSourceID. This will be a later
 	// optimization.
-	if(from_task_inventory)
-	{
-		msg->addUUIDFast(_PREHASH_FromTaskID, mSourceID);
-	}
-	else
-	{
-		msg->addUUIDFast(_PREHASH_FromTaskID, LLUUID::null);
-	}
+	msg->addUUIDFast(_PREHASH_FromTaskID, source_id);
 	msg->addU8Fast(_PREHASH_BypassRaycast, (U8) bypass_sim_raycast);
 	msg->addVector3Fast(_PREHASH_RayStart, regionp->getPosRegionFromGlobal(mLastCameraPos));
 	msg->addVector3Fast(_PREHASH_RayEnd, regionp->getPosRegionFromGlobal(mLastHitPos));
-	// Limit raycast to a single object.  
-	// Speeds up server raycast + avoid problems with server ray
-	// hitting objects that were clipped by the near plane or culled
-	// on the viewer.
-	LLUUID ray_target_id;
-	if( raycast_target )
-	{
-		ray_target_id = raycast_target->getID();
-	}
-	else
-	{
-		ray_target_id.setNull();
-	}
 	msg->addUUIDFast(_PREHASH_RayTargetID, ray_target_id );
 	msg->addBOOLFast(_PREHASH_RayEndIsIntersection, FALSE);
-	// Select the object only if we're editing.
-	BOOL rez_selected = gToolMgr->inEdit();
 	msg->addBOOLFast(_PREHASH_RezSelected, rez_selected);
-
-	// check if it cannot be copied, and mark as remove if it is -
-	// this will remove the object from inventory after rez. Only
-	// bother with this check if we would not normally remove from
-	// inventory.
-	if(!remove_from_inventory
-	   && !item->getPermissions().allowCopyBy(gAgent.getID()))
-	{
-		remove_from_inventory = TRUE;
-	}
-
-	// Check if it's in the trash.
-	bool is_in_trash = false;
-	LLUUID trash_id;
-	trash_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_TRASH);
-	if(gInventory.isObjectDescendentOf(item->getUUID(), trash_id))
-	{
-		is_in_trash = true;
-		remove_from_inventory = TRUE;
-	}
 	msg->addBOOLFast(_PREHASH_RemoveItem, remove_from_inventory);
 
 	// deal with permissions slam logic

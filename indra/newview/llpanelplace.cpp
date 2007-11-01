@@ -247,21 +247,21 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 			self->mDescEditor->setText(desc_str);
 
 		LLString info_text;
-		LLUIString traffic = self->childGetText("traffic_text");
+		LLUIString traffic = self->getUIString("traffic_text");
 		traffic.setArg("[TRAFFIC]", llformat("%d ", (int)dwell));
 		info_text = traffic;
-		LLUIString area = self->childGetText("area_text");
-		area.setArg("[AREA]", llformat("%d ", actual_area));
+		LLUIString area = self->getUIString("area_text");
+		area.setArg("[AREA]", llformat("%d", actual_area));
 		info_text += area;
 		if (flags & DFQ_FOR_SALE)
 		{
-			LLUIString forsale = self->childGetText("forsale_text");
-			forsale.setArg("[PRICE]", llformat("%d ", sale_price));
+			LLUIString forsale = self->getUIString("forsale_text");
+			forsale.setArg("[PRICE]", llformat("%d", sale_price));
 			info_text += forsale;
 		}
 		if (auction_id != 0)
 		{
-			LLUIString auction = self->childGetText("auction_text");
+			LLUIString auction = self->getUIString("auction_text");
 			auction.setArg("[ID]", llformat("%010d ", auction_id));
 			info_text += auction;
 		}

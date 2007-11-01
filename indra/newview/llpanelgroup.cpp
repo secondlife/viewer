@@ -614,6 +614,12 @@ void LLPanelGroup::draw()
 		mRefreshTimer.stop();
 		childEnable("btn_refresh");
 	}
+	if (mCurrentTab)
+	{
+		LLString mesg;
+		childSetEnabled("btn_apply", mCurrentTab->needsApply(mesg));
+	}
+
 }
 
 void LLPanelGroup::refreshData()

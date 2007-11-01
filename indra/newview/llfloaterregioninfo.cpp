@@ -716,10 +716,11 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 		body["allow_land_resell"] = childGetValue("allow_land_resell_check");
 		body["agent_limit"] = childGetValue("agent_limit_spin");
 		body["prim_bonus"] = childGetValue("object_bonus_spin");
-		body["sim_access"] = childGetValue("access_combo");
+		body["sim_access"] = LLViewerRegion::stringToAccess(childGetValue("access_combo").asString().c_str());
 		body["restrict_pushobject"] = childGetValue("restrict_pushobject");
 		body["allow_parcel_changes"] = childGetValue("allow_parcel_changes_check");
 		body["block_parcel_search"] = childGetValue("block_parcel_search_check");
+
 		LLHTTPClient::post(url, body, new LLHTTPClient::Responder());
 	}
 	else

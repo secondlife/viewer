@@ -116,8 +116,10 @@ BOOL LLFloaterLandHoldings::postBuild()
 		element["columns"][0]["value"] = gAgent.mGroups.get(i).mName;
 		element["columns"][0]["font"] = "SANSSERIF";
 
+		LLUIString areastr = getUIString("area_string");
+		areastr.setArg("[AREA]", llformat("%d", gAgent.mGroups.get(i).mContribution));
 		element["columns"][1]["column"] = "area";
-		element["columns"][1]["value"] = llformat("%d sq. meters", gAgent.mGroups.get(i).mContribution);
+		element["columns"][1]["value"] = areastr;
 		element["columns"][1]["font"] = "SANSSERIF";
 
 		list->addElement(element, ADD_SORTED);
@@ -315,14 +317,7 @@ void LLFloaterLandHoldings::refreshAggregates()
 	S32 current_area = gStatusBar->getSquareMetersCommitted();
 	S32 available_area = gStatusBar->getSquareMetersLeft();
 
-	char buffer[MAX_STRING];		/* Flawfinder: ignore */
-
-	snprintf(buffer, MAX_STRING, "%d sq. meters", allowed_area);			/* Flawfinder: ignore */
-	childSetValue("allowed_text", LLSD(buffer));
-
-	snprintf(buffer, MAX_STRING, "%d sq. meters", current_area);			/* Flawfinder: ignore */
-	childSetValue("current_text", LLSD(buffer));
-
-	snprintf(buffer, MAX_STRING, "%d sq. meters", available_area);			/* Flawfinder: ignore */
-	childSetValue("available_text", LLSD(buffer));
+	childSetTextArg("allowed_text", "[AREA]", llformat("%d",allowed_area));
+	childSetTextArg("current_text", "[AREA]", llformat("%d",current_area));
+	childSetTextArg("available_text", "[AREA]", llformat("%d",available_area));
 }

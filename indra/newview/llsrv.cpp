@@ -51,6 +51,19 @@ std::vector<std::string> LLSRV::rewriteURI(const std::string& uri)
 	LLPointer<Responder> resp = new Responder;
 
 	gAres->rewriteURI(uri, resp);
-	gAres->processAll();
-	return resp->mUris;
+ 	gAres->processAll();
+
+	// It's been observed in deployment that c-ares can return control
+	// to us without firing all of our callbacks, in which case the
+	// returned vector will be empty, instead of a singleton as we
+	// might wish.
+
+	if (!resp->mUris.empty())
+	{
+		return resp->mUris;
+	}
+
+	std::vector<std::string> uris;
+	uris.push_back(uri);
+	return uris;
 }

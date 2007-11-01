@@ -1239,6 +1239,7 @@ BOOL LLMenuItemBranchGL::handleMouseUp(S32 x, S32 y, MASK mask)
 
 		doIt();
 		make_ui_sound("UISndClickRelease");
+		return TRUE;
 	}
 	return FALSE;
 }
@@ -1550,7 +1551,7 @@ public:
 
 	// LLView functionality
 	virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
-	virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask ) {return FALSE; }
+	virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask ); 
 	virtual void draw( void );
 	virtual BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
 	
@@ -1671,6 +1672,11 @@ BOOL LLMenuItemBranchDownGL::handleMouseDown( S32 x, S32 y, MASK mask )
 	LLMenuGL::setKeyboardMode(FALSE);
 	doIt();
 	make_ui_sound("UISndClick");
+	return TRUE;
+}
+
+BOOL LLMenuItemBranchDownGL::handleMouseUp( S32 x, S32 y, MASK mask )
+{
 	return TRUE;
 }
 

@@ -701,9 +701,12 @@ void LLPanelClassified::refresh()
 		//mEnabledCheck->setEnabled(is_self);
 		mMatureCheck->setEnabled(is_self);
 
-		mAutoRenewCheck->setEnabled(is_self);
-		mAutoRenewCheck->setVisible(is_self);
-
+		if (mAutoRenewCheck)
+		{
+			mAutoRenewCheck->setEnabled(is_self);
+			mAutoRenewCheck->setVisible(is_self);
+		}
+		
 		mClickThroughText->setEnabled(is_self);
 		mClickThroughText->setVisible(is_self);
 
@@ -801,7 +804,10 @@ void LLPanelClassified::confirmPublish(S32 option)
 	mLocationChanged = false;
 	mCategoryCombo->resetDirty();
 	mMatureCheck->resetDirty();
-	mAutoRenewCheck->resetDirty();
+	if (mAutoRenewCheck)
+	{
+		mAutoRenewCheck->resetDirty();
+	}
 }
 
 // static

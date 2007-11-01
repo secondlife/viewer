@@ -898,6 +898,7 @@ void LLWorldMapView::drawAgents()
 			{
 				const LLItemInfo& info = *iter;
 				S32 agent_count = info.mExtra;
+				sim_agent_count += info.mExtra;
 				// Here's how we'd choose the color if info.mID were available but it's not being sent:
 				//LLColor4 color = (agent_count == 1 && is_agent_friend(info.mID)) ? gFriendMapColor : gAvatarMapColor;
 				drawImageStack(info.mPosGlobal, sAvatarSmallImage, agent_count, 3.f, gAvatarMapColor);

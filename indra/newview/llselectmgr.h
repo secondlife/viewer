@@ -254,6 +254,18 @@ public:
 	valid_root_iterator valid_root_begin() { return valid_root_iterator(mList.begin(), mList.end()); }
 	valid_root_iterator valid_root_end() { return valid_root_iterator(mList.end(), mList.end()); }
 	
+	struct is_root_object
+	{
+		bool operator()(LLSelectNode* node)
+		{
+			LLViewerObject* object = node->getObject();
+			return (object != NULL) && (object->isRootEdit() || object->isJointChild());
+		}
+	};
+	typedef boost::filter_iterator<is_root_object, list_t::iterator > root_object_iterator;
+	root_object_iterator root_object_begin() { return root_object_iterator(mList.begin(), mList.end()); }
+	root_object_iterator root_object_end() { return root_object_iterator(mList.end(), mList.end()); }
+	
 public:
 	LLObjectSelection();
 

@@ -392,9 +392,7 @@ void LLPanelGroupGeneral::openProfile(void* data)
 
 bool LLPanelGroupGeneral::needsApply(LLString& mesg)
 { 
-	llinfos << "LLPanelGroupGeneral::needsApply(LLString& mesg)  " << mChanged << llendl;
-
-	mesg = "General group information has changed."; 
+	mesg = getUIString("group_info_unchanged");
 	return mChanged || mGroupID.isNull();
 }
 

@@ -2232,8 +2232,8 @@ BOOL LLSelectMgr::selectGetCreator(LLUUID& result_id, LLString& name)
 	BOOL identical = TRUE;
 	BOOL first = TRUE;
 	LLUUID first_id;
-	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+	for (LLObjectSelection::root_object_iterator iter = getSelection()->root_object_begin();
+		 iter != getSelection()->root_object_end(); iter++ )
 	{
 		LLSelectNode* node = *iter;	
 		if (!node->mValid)
@@ -2255,7 +2255,11 @@ BOOL LLSelectMgr::selectGetCreator(LLUUID& result_id, LLString& name)
 			}
 		}
 	}
-
+	if (first_id.isNull())
+	{
+		return FALSE;
+	}
+	
 	result_id = first_id;
 	
 	if (identical)
@@ -2286,8 +2290,8 @@ BOOL LLSelectMgr::selectGetOwner(LLUUID& result_id, LLString& name)
 	BOOL first = TRUE;
 	BOOL first_group_owned = FALSE;
 	LLUUID first_id;
-	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+	for (LLObjectSelection::root_object_iterator iter = getSelection()->root_object_begin();
+		 iter != getSelection()->root_object_end(); iter++ )
 	{
 		LLSelectNode* node = *iter;	
 		if (!node->mValid)
@@ -2311,6 +2315,10 @@ BOOL LLSelectMgr::selectGetOwner(LLUUID& result_id, LLString& name)
 				break;
 			}
 		}
+	}
+	if (first_id.isNull())
+	{
+		return FALSE;
 	}
 
 	result_id = first_id;
@@ -2354,8 +2362,8 @@ BOOL LLSelectMgr::selectGetLastOwner(LLUUID& result_id, LLString& name)
 	BOOL identical = TRUE;
 	BOOL first = TRUE;
 	LLUUID first_id;
-	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+	for (LLObjectSelection::root_object_iterator iter = getSelection()->root_object_begin();
+		 iter != getSelection()->root_object_end(); iter++ )
 	{
 		LLSelectNode* node = *iter;	
 		if (!node->mValid)
@@ -2376,6 +2384,10 @@ BOOL LLSelectMgr::selectGetLastOwner(LLUUID& result_id, LLString& name)
 				break;
 			}
 		}
+	}
+	if (first_id.isNull())
+	{
+		return FALSE;
 	}
 
 	result_id = first_id;
@@ -2415,8 +2427,8 @@ BOOL LLSelectMgr::selectGetGroup(LLUUID& result_id)
 	BOOL identical = TRUE;
 	BOOL first = TRUE;
 	LLUUID first_id;
-	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+	for (LLObjectSelection::root_object_iterator iter = getSelection()->root_object_begin();
+		 iter != getSelection()->root_object_end(); iter++ )
 	{
 		LLSelectNode* node = *iter;	
 		if (!node->mValid)
@@ -2438,6 +2450,10 @@ BOOL LLSelectMgr::selectGetGroup(LLUUID& result_id)
 			}
 		}
 	}
+	if (first_id.isNull())
+	{
+		return FALSE;
+	}
 	
 	result_id = first_id;
 
@@ -2452,8 +2468,8 @@ BOOL LLSelectMgr::selectGetGroup(LLUUID& result_id)
 BOOL LLSelectMgr::selectIsGroupOwned()
 {
 	BOOL found_one = FALSE;
-	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+	for (LLObjectSelection::root_object_iterator iter = getSelection()->root_object_begin();
+		 iter != getSelection()->root_object_end(); iter++ )
 	{
 		LLSelectNode* node = *iter;	
 		if (!node->mValid)
@@ -3965,14 +3981,8 @@ void LLSelectMgr::sendListToRegions(const LLString& message_name,
 		push_editable(std::queue<LLSelectNode*>& n) : nodes_to_send(n) {}
 		virtual bool apply(LLSelectNode* node)
 		{
-			// look and see if this object is actually modifiable by the current agent, because if it's not, then there's little
-			// point in pushing it up to the server to be updated, since we couldn't change it anyway.
-			// That just results in errors on screen when this function gets called by other things, like pulling down a drop down menu
-			LLViewerObject* object = node->getObject();
-			if( object && (object->permModify() || gAgent.allowOperation(PERM_MODIFY, *node->mPermissions) || gAgent.allowOperation(PERM_MOVE, *node->mPermissions)))
-			{
-				nodes_to_send.push(node);
-			}
+
+			nodes_to_send.push(node);
 			return true;
 		}
 	};

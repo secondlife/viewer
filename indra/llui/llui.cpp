@@ -67,7 +67,6 @@ const LLColor4 UI_VERTEX_COLOR(1.f, 1.f, 1.f, 1.f);
 BOOL gShowTextEditCursor = TRUE;
 
 // Language for UI construction
-LLString gLanguage = "english-usa";
 std::map<LLString, LLString> gTranslation;
 std::list<LLString> gUntranslated;
 
@@ -1515,104 +1514,6 @@ void gl_segmented_rect_3d_tex_top(const LLVector2& border_scale, const LLVector3
 	gl_segmented_rect_3d_tex(border_scale, border_width, border_height, width_vec, height_vec, ROUNDED_RECT_TOP);
 }
 
-#if 0 // No longer used
-void load_tr(const LLString& lang)
-{
-	LLString inname = "words." + lang + ".txt";
-	LLString filename = gDirUtilp->getExpandedFilename(LL_PATH_SKINS, inname.c_str());
-
-	llifstream file;
-	file.open(filename.c_str(), std::ios_base::binary);	/* Flawfinder: ignore */
-	if (!file)
-	{
-		llinfos << "No translation dictionary for: " << filename << llendl;
-		return;
-	}
-
-	llinfos << "Reading language translation dictionary: " << filename << llendl;
-
-	gTranslation.clear();
-	gUntranslated.clear();
-
-	const S32 MAX_LINE_LEN = 1024;
-	char buffer[MAX_LINE_LEN];	/* Flawfinder: ignore */
-	while (!file.eof())
-	{
-		file.getline(buffer, MAX_LINE_LEN);
-		LLString line(buffer);
-		S32 commentpos = line.find("//");
-		if (commentpos != LLString::npos)
-		{
-			line = line.substr(0, commentpos);
-		}
-		S32 offset = line.find('\t');
-		if (offset != LLString::npos)
-		{
-			LLString english = line.substr(0,offset);
-			LLString translation = line.substr(offset+1);
-			//llinfos << "TR: " << english << " = " << translation << llendl;
-			gTranslation[english] = translation;
-		}
-	}
-
-	file.close();
-}
-
-void init_tr(const LLString& language)
-{
-	if (!language.empty())
-	{
-		gLanguage = language;
-	}
-	load_tr(gLanguage);
-}
-
-void cleanup_tr()
-{
-	// Dump untranslated phrases to help with translation
-	if (gUntranslated.size() > 0)
-	{
-		LLString outname = "untranslated_" + gLanguage + ".txt";
-		LLString outfilename = gDirUtilp->getExpandedFilename(LL_PATH_SKINS, outname.c_str());
-		llofstream outfile;
-		outfile.open(outfilename.c_str());	/* Flawfinder: ignore */
-		if (!outfile)
-		{
-			return;
-		}
-		llinfos << "Writing untranslated words to: " << outfilename << llendl;
-		LLString outtext;
-		for (std::list<LLString>::iterator iter = gUntranslated.begin();
-			 iter != gUntranslated.end(); ++iter)
-		{
-			// output: english_phrase	english_phrase
-			outtext += *iter;
-			outtext += "\t";
-			outtext += *iter;
-			outtext += "\n";
-		}
-		outfile << outtext.c_str();
-		outfile.close();
-	}
-}
-
-LLString tr(const LLString& english_string)
-{
-	std::map<LLString, LLString>::iterator it = gTranslation.find(english_string);
-	if (it != gTranslation.end())
-	{
-		return it->second;
-	}
-	else
-	{
-		gUntranslated.push_back(english_string);
-		return english_string;
-	}
-}
-
-#endif
-
-
 class LLShowXUINamesListener: public LLSimpleListener
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -1643,12 +1544,10 @@ void LLUI::initClass(LLControlGroup* config,
 
 	LLUI::sShowXUINames = LLUI::sConfigGroup->getBOOL("ShowXUINames");
 	LLUI::sConfigGroup->getControl("ShowXUINames")->addListener(&show_xui_names_listener);
-// 	init_tr(language);
 }
 
 void LLUI::cleanupClass()
 {
-// 	cleanup_tr();
 }
 
 

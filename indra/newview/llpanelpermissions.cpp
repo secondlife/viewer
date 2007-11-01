@@ -756,7 +756,7 @@ void LLPanelPermissions::refresh()
 	BOOL all_volume = gSelectMgr->selectionAllPCode( LL_PCODE_VOLUME );
 	bool include_in_search;
 	bool all_include_in_search = gSelectMgr->selectionGetIncludeInSearch(&include_in_search);
-	childSetEnabled("search_check", is_perm_modify && all_volume);
+	childSetEnabled("search_check", has_change_sale_ability && all_volume);
 	childSetValue("search_check", include_in_search);
 	childSetTentative("search_check", ! all_include_in_search);
 
