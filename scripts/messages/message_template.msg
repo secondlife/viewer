@@ -5271,7 +5271,7 @@ version 2.0
 
 // ScriptRunningReply - response from simulator to message above
 {
-	ScriptRunningReply		Low	244 		NotTrusted Unencoded
+	ScriptRunningReply		Low	244 		NotTrusted Unencoded UDPDeprecated
 	{
 		Script				Single
 		{	ObjectID		LLUUID	}

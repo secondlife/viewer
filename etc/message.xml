@@ -399,6 +399,14 @@
 					<boolean>true</boolean>
 				</map>
 
+				<!-- UDPDeprecated Messages -->
+				<key>ScriptRunningReply</key>
+				<map>
+					<key>flavor</key>
+					<string>llsd</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
 
 		  </map>
   	  	<key>capBans</key>
