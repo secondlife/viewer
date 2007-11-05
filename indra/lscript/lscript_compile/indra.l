@@ -651,14 +651,6 @@ int yyerror(const char *fmt, ...)
 	return 0;
 }
 
-#define LL_MKS_YACC 1
-#if LL_WINDOWS && LL_MKS_YACC
-int yyinput(void)
-{
-	return input();
-}
-#endif
-
 //#define EMERGENCY_DEBUG_PRINTOUTS
 //#define EMIT_CIL_ASSEMBLER
 
@@ -685,11 +677,9 @@ BOOL lscript_compile(const char* src_filename, const char* dst_filename,
 		yyout = LLFile::fopen(err_filename, "w");
 
 		// Reset the lexer's internal buffering.
-#if LL_DARWIN || LL_LINUX || !LL_MKS_YACC
-	yyrestart(yyin);
-#else
-	yy_reset();
-#endif		
+
+	    yyrestart(yyin);
+
 		b_parse_ok = !yyparse();
 
 		if (b_parse_ok)
