@@ -57,7 +57,6 @@
 #include "llvoavatar.h"
 #include "llvoiceremotectrl.h"
 #include "llwebbrowserctrl.h"
-#include "viewer.h"
 
 //
 // Globals

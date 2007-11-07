@@ -84,7 +84,7 @@
 #include "llworldmapview.h"
 #include "llurl.h"
 #include "llvieweruictrlfactory.h"
-#include "viewer.h"
+#include "llappviewer.h"
 #include "llmapimagetype.h"
 #include "llweb.h"
 

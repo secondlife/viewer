@@ -48,6 +48,7 @@
 #include "llstat.h"
 #include "llviewerobject.h"
 #include "llrect.h"
+#include "llappviewer.h" // for gFrameTimeSeconds
 
 class LLCamera;
 class LLDrawPool;
@@ -58,8 +59,6 @@ class LLSpatialBridge;
 class LLSpatialPartition;
 class LLVOVolume;
 class LLViewerImage;
-
-extern F32 gFrameTimeSeconds;
 
 // Can have multiple silhouettes for each object
 const U32 SILHOUETTE_HIGHLIGHT = 0;

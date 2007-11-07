@@ -60,7 +60,6 @@
 #include "llviewermenufile.h"	// upload_new_resource()
 #include "llvoavatar.h"
 #include "pipeline.h"
-#include "viewer.h"
 #include "llvieweruictrlfactory.h"
 
 S32 LLFloaterAnimPreview::sUploadAmount = 10;

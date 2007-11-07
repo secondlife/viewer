@@ -52,7 +52,6 @@
 #include "llviewerobjectlist.h"
 #include "llviewermenufile.h"
 #include "llviewerwindow.h"
-#include "viewer.h"
 
 void dialog_refresh_all();
 

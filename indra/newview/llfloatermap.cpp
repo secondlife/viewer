@@ -63,7 +63,7 @@
 #include "llviewerparceloverlay.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
-#include "viewer.h"
+#include "llurlsimstring.h"
 
 #include "llglheaders.h"
 
@@ -178,7 +178,7 @@ void LLFloaterMap::onClose(bool app_quitting)
 
 BOOL LLFloaterMap::canClose()
 {
-	return !gQuit;
+	return !LLApp::isExiting();
 }
 
 

@@ -35,26 +35,26 @@
 
 class LLHost;
 
-enum EUserServerDomain
+enum EGridInfo
 {
-	USERSERVER_NONE,
-	USERSERVER_ADITI,
-	USERSERVER_AGNI,
-	USERSERVER_DMZ,
-	USERSERVER_SIVA,
-	USERSERVER_DURGA,
-	USERSERVER_SHAKTI,
-	USERSERVER_SOMA,
-	USERSERVER_GANGA,
-	USERSERVER_VAAK,
-	USERSERVER_UMA,
-	USERSERVER_LOCAL,
-	USERSERVER_OTHER, // IP address set via -user or other command line option
-	USERSERVER_COUNT
+	GRID_INFO_NONE,
+	GRID_INFO_ADITI,
+	GRID_INFO_AGNI,
+	GRID_INFO_DMZ,
+	GRID_INFO_SIVA,
+	GRID_INFO_DURGA,
+	GRID_INFO_SHAKTI,
+	GRID_INFO_SOMA,
+	GRID_INFO_GANGA,
+	GRID_INFO_VAAK,
+	GRID_INFO_UMA,
+	GRID_INFO_LOCAL,
+	GRID_INFO_OTHER, // IP address set via -user or other command line option
+	GRID_INFO_COUNT
 };
 
 
-struct LLUserServerData
+struct LLGridData
 {
 	const char* mLabel;
 	const char* mName;
@@ -65,9 +65,9 @@ struct LLUserServerData
 extern F32 gPacketDropPercentage;
 extern F32 gInBandwidth;
 extern F32 gOutBandwidth;
-extern EUserServerDomain gUserServerChoice;
-extern LLUserServerData gUserServerDomainName[];
-extern char gUserServerName[MAX_STRING];		/* Flawfinder: ignore */
+extern EGridInfo gGridChoice;
+extern LLGridData gGridInfo[];
+extern char gGridName[MAX_STRING];		/* Flawfinder: ignore */
 
 const S32 MAC_ADDRESS_BYTES = 6;
 extern unsigned char gMACAddress[MAC_ADDRESS_BYTES];		/* Flawfinder: ignore */

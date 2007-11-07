@@ -33,8 +33,13 @@
 #define LL_LLVIEWERDISPLAY_H
 
 void display_startup();
+void display_cleanup();
+
+void display(BOOL rebuild = TRUE, F32 zoom_factor = 1.f, int subfield = 0);
 
 extern BOOL gDisplaySwapBuffers;
-
+extern BOOL	gTeleportDisplay;
+extern LLFrameTimer	gTeleportDisplayTimer;
+extern BOOL			gForceRenderLandFence;
 
 #endif // LL_LLVIEWERDISPLAY_H

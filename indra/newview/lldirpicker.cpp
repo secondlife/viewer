@@ -32,7 +32,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lldirpicker.h"
-//#include "viewer.h"
 //#include "llviewermessage.h"
 #include "llworld.h"
 #include "llviewerwindow.h"

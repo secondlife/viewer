@@ -466,7 +466,7 @@ void LLAvatarTracker::findAgent()
 	msg->nextBlockFast(_PREHASH_AgentBlock);
 	msg->addUUIDFast(_PREHASH_Hunter, gAgentID);
 	msg->addUUIDFast(_PREHASH_Prey, mTrackingData->mAvatarID);
-	msg->addU32Fast(_PREHASH_SpaceIP, 0); // will get filled in by userserver
+	msg->addU32Fast(_PREHASH_SpaceIP, 0); // will get filled in by simulator
 	msg->nextBlockFast(_PREHASH_LocationBlock);
 	const F64 NO_LOCATION = 0.0;
 	msg->addF64Fast(_PREHASH_GlobalX, NO_LOCATION);

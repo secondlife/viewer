@@ -36,7 +36,7 @@
 #include "llregionhandle.h"
 #include "message.h"
 
-#include "viewer.h"	// for gPacificDaylightTime
+#include "llappviewer.h"	// for gPacificDaylightTime
 #include "llagent.h"
 #include "llmapresponders.h"
 #include "llviewercontrol.h"

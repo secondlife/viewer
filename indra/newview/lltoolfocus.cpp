@@ -55,7 +55,6 @@
 #include "llviewercamera.h"
 #include "llviewerobject.h"
 #include "llviewerwindow.h"
-#include "viewer.h"
 #include "llvoavatar.h"
 #include "llmorphview.h"
 

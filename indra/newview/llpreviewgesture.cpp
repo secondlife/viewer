@@ -65,7 +65,7 @@
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerwindow.h"		// busycount
-#include "viewer.h"			// gVFS
+#include "llappviewer.h"			// gVFS
 
 #include "llresmgr.h"
 
@@ -342,7 +342,7 @@ void LLPreviewGesture::handleSaveChangesDialog(S32 option, void* data)
 	case 2: // "Cancel"
 	default:
 		// If we were quitting, we didn't really mean it.
-		app_abort_quit();
+		LLAppViewer::instance()->abortQuit();
 		break;
 	}
 }

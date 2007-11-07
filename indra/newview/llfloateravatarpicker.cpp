@@ -42,7 +42,7 @@
 #include "llscrolllistctrl.h"
 #include "lltextbox.h"
 #include "llvieweruictrlfactory.h"
-#include "viewer.h"
+#include "llagent.h"
 
 const S32 MIN_WIDTH = 200;
 const S32 MIN_HEIGHT = 340;
@@ -265,13 +265,13 @@ void LLFloaterAvatarPicker::find()
 
 	msg->newMessage("AvatarPickerRequest");
 	msg->nextBlock("AgentData");
-	msg->addUUID("AgentID", agent_get_id());
-	msg->addUUID("SessionID", agent_get_session_id());
+	msg->addUUID("AgentID", gAgent.getID());
+	msg->addUUID("SessionID", gAgent.getSessionID());
 	msg->addUUID("QueryID", mQueryID);	// not used right now
 	msg->nextBlock("Data");
 	msg->addString("Name", text);
 
-	agent_send_reliable_message();
+	gAgent.sendReliableMessage();
 
 	if (mListNames)
 	{
@@ -309,7 +309,7 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 	msg->getUUID("AgentData", "QueryID", query_id);
 
 	// Not for us
-	if (agent_id != agent_get_id()) return;
+	if (agent_id != gAgent.getID()) return;
 
 	// Dialog already closed
 	LLFloaterAvatarPicker *self = sInstance;

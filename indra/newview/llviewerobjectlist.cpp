@@ -42,7 +42,6 @@
 #include "llvoavatar.h"
 #include "llviewerobject.h"
 #include "llviewerwindow.h"
-#include "viewer.h"
 #include "llnetmap.h"
 #include "llagent.h"
 #include "pipeline.h"
@@ -71,11 +70,9 @@
 #endif
 #include "object_flags.h"
 
-extern BOOL gVelocityInterpolate;
-extern BOOL gPingInterpolate;
+#include "llappviewer.h"
+
 extern F32 gMinObjectDistance;
-extern U32 gFrameCount;
-extern LLTimer gRenderStartTime;
 extern BOOL gAnimateTextures;
 
 void dialog_refresh_all();

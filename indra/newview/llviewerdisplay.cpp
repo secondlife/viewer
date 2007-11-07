@@ -62,7 +62,7 @@
 #include "llvograss.h"
 #include "llworld.h"
 #include "pipeline.h"
-#include "viewer.h"
+#include "llappviewer.h"
 #include "llstartup.h"
 #include "llfasttimer.h"
 #include "llfloatertools.h"
@@ -72,13 +72,10 @@
 #include "llviewerregion.h"
 #include "lldrawpoolwater.h"
 
-extern U32 gFrameCount;
 extern LLPointer<LLImageGL> gStartImageGL;
-extern LLPointer<LLImageGL> gDisconnectedImagep;
-extern BOOL gLogoutRequestSent;
-extern LLTimer gLogoutTimer;
-extern BOOL gHaveSavedSnapshot;
 extern BOOL gDisplaySwapBuffers;
+
+LLPointer<LLImageGL> gDisconnectedImagep = NULL;
 
 // used to toggle renderer back on after teleport
 const F32 TELEPORT_RENDER_DELAY = 20.f; // Max time a teleport is allowed to take before we raise the curtain
@@ -99,7 +96,7 @@ void render_ui_3d();
 void render_ui_2d();
 void render_disconnected_background();
 
-void process_keystrokes_async(); // in viewer.cpp
+void process_keystrokes_async();
 
 void display_startup()
 {
@@ -331,7 +328,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 			break;
 		}
 	}
-	else if(gLogoutRequestSent)
+    else if(LLAppViewer::instance()->logoutRequestSent())
 	{
 		F32 percent_done = gLogoutTimer.getElapsedTimeF32() * 100.f / gLogoutMaxTime;
 		if (percent_done > 100.f)
@@ -339,7 +336,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 			percent_done = 100.f;
 		}
 
-		if( gQuit )
+		if( LLApp::isExiting() )
 		{
 			percent_done = 100.f;
 		}
@@ -358,7 +355,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 		else
 		{
 
-			if( gQuit )
+			if( LLApp::isExiting() )
 			{
 				percent_done = 100.f;
 			}
@@ -554,7 +551,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield)
 	//	glPopMatrix();
 	//}
 
-	if (!(gLogoutRequestSent && gHaveSavedSnapshot) 
+	if (!(LLAppViewer::instance()->logoutRequestSent() && LLAppViewer::instance()->hasSavedFinalSnapshot()) 
 			&& !gRestoreGL
 			&& !gDisconnected)
 	{
@@ -745,6 +742,74 @@ void render_ui_and_swap()
 	}
 }
 
+void renderCoordinateAxes()
+{
+	LLGLSNoTexture gls_no_texture;
+	glBegin(GL_LINES);
+		glColor3f(1.0f, 0.0f, 0.0f);   // i direction = X-Axis = red
+		glVertex3f(0.0f, 0.0f, 0.0f);
+		glVertex3f(2.0f, 0.0f, 0.0f);
+		glVertex3f(3.0f, 0.0f, 0.0f);
+		glVertex3f(5.0f, 0.0f, 0.0f);
+		glVertex3f(6.0f, 0.0f, 0.0f);
+		glVertex3f(8.0f, 0.0f, 0.0f);
+		// Make an X
+		glVertex3f(11.0f, 1.0f, 1.0f);
+		glVertex3f(11.0f, -1.0f, -1.0f);
+		glVertex3f(11.0f, 1.0f, -1.0f);
+		glVertex3f(11.0f, -1.0f, 1.0f);
+
+		glColor3f(0.0f, 1.0f, 0.0f);   // j direction = Y-Axis = green
+		glVertex3f(0.0f, 0.0f, 0.0f);
+		glVertex3f(0.0f, 2.0f, 0.0f);
+		glVertex3f(0.0f, 3.0f, 0.0f);
+		glVertex3f(0.0f, 5.0f, 0.0f);
+		glVertex3f(0.0f, 6.0f, 0.0f);
+		glVertex3f(0.0f, 8.0f, 0.0f);
+		// Make a Y
+		glVertex3f(1.0f, 11.0f, 1.0f);
+		glVertex3f(0.0f, 11.0f, 0.0f);
+		glVertex3f(-1.0f, 11.0f, 1.0f);
+		glVertex3f(0.0f, 11.0f, 0.0f);
+		glVertex3f(0.0f, 11.0f, 0.0f);
+		glVertex3f(0.0f, 11.0f, -1.0f);
+
+		glColor3f(0.0f, 0.0f, 1.0f);   // Z-Axis = blue
+		glVertex3f(0.0f, 0.0f, 0.0f);
+		glVertex3f(0.0f, 0.0f, 2.0f);
+		glVertex3f(0.0f, 0.0f, 3.0f);
+		glVertex3f(0.0f, 0.0f, 5.0f);
+		glVertex3f(0.0f, 0.0f, 6.0f);
+		glVertex3f(0.0f, 0.0f, 8.0f);
+		// Make a Z
+		glVertex3f(-1.0f, 1.0f, 11.0f);
+		glVertex3f(1.0f, 1.0f, 11.0f);
+		glVertex3f(1.0f, 1.0f, 11.0f);
+		glVertex3f(-1.0f, -1.0f, 11.0f);
+		glVertex3f(-1.0f, -1.0f, 11.0f);
+		glVertex3f(1.0f, -1.0f, 11.0f);
+	glEnd();
+}
+
+
+void draw_axes() 
+{
+	LLGLSUIDefault gls_ui;
+	LLGLSNoTexture gls_no_texture;
+	// A vertical white line at origin
+	LLVector3 v = gAgent.getPositionAgent();
+	glBegin(GL_LINES);
+		glColor3f(1.0f, 1.0f, 1.0f); 
+		glVertex3f(0.0f, 0.0f, 0.0f);
+		glVertex3f(0.0f, 0.0f, 40.0f);
+	glEnd();
+	// Some coordinate axes
+	glPushMatrix();
+		glTranslatef( v.mV[VX], v.mV[VY], v.mV[VZ] );
+		renderCoordinateAxes();
+	glPopMatrix();
+}
+
 void render_ui_3d()
 {
 	LLGLSPipeline gls_pipeline;
@@ -841,73 +906,6 @@ void render_ui_2d()
 	LLFontGL::sCurOrigin.set(0, 0);
 }
 
-void renderCoordinateAxes()
-{
-	LLGLSNoTexture gls_no_texture;
-	glBegin(GL_LINES);
-		glColor3f(1.0f, 0.0f, 0.0f);   // i direction = X-Axis = red
-		glVertex3f(0.0f, 0.0f, 0.0f);
-		glVertex3f(2.0f, 0.0f, 0.0f);
-		glVertex3f(3.0f, 0.0f, 0.0f);
-		glVertex3f(5.0f, 0.0f, 0.0f);
-		glVertex3f(6.0f, 0.0f, 0.0f);
-		glVertex3f(8.0f, 0.0f, 0.0f);
-		// Make an X
-		glVertex3f(11.0f, 1.0f, 1.0f);
-		glVertex3f(11.0f, -1.0f, -1.0f);
-		glVertex3f(11.0f, 1.0f, -1.0f);
-		glVertex3f(11.0f, -1.0f, 1.0f);
-
-		glColor3f(0.0f, 1.0f, 0.0f);   // j direction = Y-Axis = green
-		glVertex3f(0.0f, 0.0f, 0.0f);
-		glVertex3f(0.0f, 2.0f, 0.0f);
-		glVertex3f(0.0f, 3.0f, 0.0f);
-		glVertex3f(0.0f, 5.0f, 0.0f);
-		glVertex3f(0.0f, 6.0f, 0.0f);
-		glVertex3f(0.0f, 8.0f, 0.0f);
-		// Make a Y
-		glVertex3f(1.0f, 11.0f, 1.0f);
-		glVertex3f(0.0f, 11.0f, 0.0f);
-		glVertex3f(-1.0f, 11.0f, 1.0f);
-		glVertex3f(0.0f, 11.0f, 0.0f);
-		glVertex3f(0.0f, 11.0f, 0.0f);
-		glVertex3f(0.0f, 11.0f, -1.0f);
-
-		glColor3f(0.0f, 0.0f, 1.0f);   // Z-Axis = blue
-		glVertex3f(0.0f, 0.0f, 0.0f);
-		glVertex3f(0.0f, 0.0f, 2.0f);
-		glVertex3f(0.0f, 0.0f, 3.0f);
-		glVertex3f(0.0f, 0.0f, 5.0f);
-		glVertex3f(0.0f, 0.0f, 6.0f);
-		glVertex3f(0.0f, 0.0f, 8.0f);
-		// Make a Z
-		glVertex3f(-1.0f, 1.0f, 11.0f);
-		glVertex3f(1.0f, 1.0f, 11.0f);
-		glVertex3f(1.0f, 1.0f, 11.0f);
-		glVertex3f(-1.0f, -1.0f, 11.0f);
-		glVertex3f(-1.0f, -1.0f, 11.0f);
-		glVertex3f(1.0f, -1.0f, 11.0f);
-	glEnd();
-}
-
-void draw_axes() 
-{
-	LLGLSUIDefault gls_ui;
-	LLGLSNoTexture gls_no_texture;
-	// A vertical white line at origin
-	LLVector3 v = gAgent.getPositionAgent();
-	glBegin(GL_LINES);
-		glColor3f(1.0f, 1.0f, 1.0f); 
-		glVertex3f(0.0f, 0.0f, 0.0f);
-		glVertex3f(0.0f, 0.0f, 40.0f);
-	glEnd();
-	// Some coordinate axes
-	glPushMatrix();
-		glTranslatef( v.mV[VX], v.mV[VY], v.mV[VZ] );
-		renderCoordinateAxes();
-	glPopMatrix();
-}
-
 
 void render_disconnected_background()
 {
@@ -983,4 +981,49 @@ void render_disconnected_background()
 		}
 		glPopMatrix();
 	}
+}
+
+void display_cleanup()
+{
+	gDisconnectedImagep = NULL;
+}
+
+void process_keystrokes_async()
+{
+#if LL_WINDOWS
+	MSG			msg;
+	// look through all input messages, leaving them in the event queue
+	while( PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE | PM_NOYIELD))
+	{
+		// on first mouse message, break out
+		if (msg.message >= WM_MOUSEFIRST && 
+			msg.message <= WM_MOUSELAST ||
+			msg.message == WM_QUIT)
+		{
+			break;
+		}
+
+		// this is a message we want to handle now, so remove it from the event queue
+		PeekMessage(&msg, NULL, msg.message, msg.message, PM_REMOVE | PM_NOYIELD);
+		//		if (msg.message == WM_KEYDOWN)
+		//		{
+		//			llinfos << "Process async key down " << (U32)msg.wParam << llendl;
+		//		}
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+
+	// Scan keyboard for movement keys.  Command keys and typing
+	// are handled by windows callbacks.  Don't do this until we're
+	// done initializing.  JC
+	if (gViewerWindow->mWindow->getVisible() 
+		&& gViewerWindow->getActive()
+		&& !gViewerWindow->mWindow->getMinimized()
+		&& LLStartUp::getStartupState() == STATE_STARTED
+		&& !gViewerWindow->getShowProgress()
+		&& !gFocusMgr.focusLocked())
+	{
+		gKeyboard->scanKeyboard();
+	}
+#endif
 }

@@ -49,7 +49,7 @@
 #include "llviewercontrol.h"
 #include "llviewerimagelist.h"
 #include "llviewerwindow.h"
-#include "viewer.h"
+#include "llappviewer.h"
 
 LLProgressView* LLProgressView::sInstance = NULL;
 
@@ -127,7 +127,7 @@ BOOL LLProgressView::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 		// Suck up all keystokes except CTRL-Q.
 		if( ('Q' == key) && (MASK_CONTROL == mask) )
 		{
-			app_user_quit();
+			LLAppViewer::instance()->userQuit();
 		}
 		return TRUE;
 	}
@@ -228,7 +228,7 @@ void LLProgressView::draw()
 	F32 alpha = 0.5f + 0.5f*0.5f*(1.f + (F32)sin(3.f*timer.getElapsedTimeF32()));
 	// background_color.mV[3] = background_color.mV[3]*alpha;
 
-	LLString top_line = gSecondLife;
+	LLString top_line = LLAppViewer::instance()->getSecondLifeTitle();
 
 	font->renderUTF8(top_line, 0,
 		line_x, line_one_y,
@@ -338,7 +338,7 @@ void LLProgressView::onCancelButtonClicked(void*)
 {
 	if (gAgent.getTeleportState() == LLAgent::TELEPORT_NONE)
 	{
-		app_request_quit();
+		LLAppViewer::instance()->requestQuit();
 	}
 	else
 	{

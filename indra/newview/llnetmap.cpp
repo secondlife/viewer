@@ -65,7 +65,7 @@
 #include "llvoavatar.h"
 #include "llworld.h"
 #include "llworldmapview.h"		// shared draw code
-#include "viewer.h"				// Only for constants!
+#include "llappviewer.h"				// Only for constants!
 
 #include "llglheaders.h"
 

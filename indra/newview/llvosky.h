@@ -69,6 +69,12 @@ const F32 fsigma	= (6.f + 3.f * sigma) / (6.f-7.f*sigma);
 const F64 Ndens		= 2.55e25;
 const F64 Ndens2	= Ndens*Ndens;
 
+// HACK: Allow server to change sun and moon IDs.
+// I can't figure out how to pass the appropriate
+// information into the LLVOSky constructor.  JC
+extern LLUUID gSunTextureID;
+extern LLUUID gMoonTextureID;
+
 
 LL_FORCE_INLINE LLColor3 color_div(const LLColor3 &col1, const LLColor3 &col2)
 {

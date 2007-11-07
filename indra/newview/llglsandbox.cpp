@@ -56,7 +56,6 @@
 #include "llviewerobjectlist.h"
 #include "lltoolselectrect.h"
 #include "llviewerwindow.h"
-#include "viewer.h"
 #include "llcompass.h"
 #include "llsurface.h"
 #include "llwind.h"

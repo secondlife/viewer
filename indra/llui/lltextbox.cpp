@@ -49,6 +49,9 @@ LLTextBox::LLTextBox(const LLString& name, const LLRect& rect, const LLString& t
 	mDisabledColor(		LLUI::sColorsGroup->getColor( "LabelDisabledColor" ) ),
 	mBackgroundColor(	LLUI::sColorsGroup->getColor( "DefaultBackgroundColor" ) ),
 	mBorderColor(		LLUI::sColorsGroup->getColor( "DefaultHighlightLight" ) ),
+	mHoverColor(		LLUI::sColorsGroup->getColor( "LabelSelectedColor" ) ),
+	mHoverActive( FALSE ),
+	mHasHover( FALSE ),
 	mBackgroundVisible( FALSE ),
 	mBorderVisible( FALSE ),
 	mFontStyle(LLFontGL::DROP_SHADOW_SOFT),
@@ -74,6 +77,9 @@ LLTextBox::LLTextBox(const LLString& name, const LLString& text, F32 max_width,
 	mDisabledColor(LLUI::sColorsGroup->getColor("LabelDisabledColor")),
 	mBackgroundColor(LLUI::sColorsGroup->getColor("DefaultBackgroundColor")),
 	mBorderColor(LLUI::sColorsGroup->getColor("DefaultHighlightLight")),
+	mHoverColor( LLUI::sColorsGroup->getColor( "LabelSelectedColor" ) ),
+	mHoverActive( FALSE ),
+	mHasHover( FALSE ),
 	mBackgroundVisible(FALSE),
 	mBorderVisible(FALSE),
 	mFontStyle(LLFontGL::DROP_SHADOW_SOFT),
@@ -159,6 +165,16 @@ BOOL LLTextBox::handleMouseUp(S32 x, S32 y, MASK mask)
 	}
 
 	return handled;
+}
+
+BOOL LLTextBox::handleHover(S32 x, S32 y, MASK mask)
+{
+	if(mHoverActive)
+	{
+		mHasHover = TRUE; // This should be set every frame during a hover.
+		return TRUE;
+	}
+	return FALSE;
 }
 
 void LLTextBox::setText(const LLStringExplicit& text)
@@ -334,7 +350,15 @@ void LLTextBox::draw()
 
 		if ( getEnabled() )
 		{
-			drawText( text_x, text_y, mTextColor );
+			if(mHasHover)
+			{
+				drawText( text_x, text_y, mHoverColor );
+			}
+			else
+			{
+				drawText( text_x, text_y, mTextColor );
+			}				
+
 		}
 		else
 		{
@@ -346,6 +370,8 @@ void LLTextBox::draw()
 			drawDebugRect();
 		}
 	}
+
+	mHasHover = FALSE; // This is reset every frame.
 }
 
 void LLTextBox::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -467,6 +493,21 @@ LLView* LLTextBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *f
 		LLUICtrlFactory::getAttributeColor(node, "text_color", color);
 		text_box->setColor(color);
 	}
+
+	if(node->hasAttribute("hover_color"))
+	{
+		LLColor4 color;
+		LLUICtrlFactory::getAttributeColor(node, "hover_color", color);
+		text_box->setHoverColor(color);
+		text_box->setHoverActive(true);
+	}
+
+	BOOL hover_active = FALSE;
+	if(node->getAttributeBOOL("hover", hover_active))
+	{
+		text_box->setHoverActive(hover_active);
+	}
+
 
 	return text_box;
 }

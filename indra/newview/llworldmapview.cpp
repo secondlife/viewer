@@ -61,7 +61,7 @@
 #include "llviewerwindow.h"
 #include "llworld.h"
 #include "llworldmap.h"
-#include "viewer.h"				// Only for constants!
+#include "llappviewer.h"				// Only for constants!
 
 #include "llglheaders.h"
 

@@ -55,7 +55,6 @@
 #include "llviewermessage.h"
 #include "llvoavatar.h"
 #include "llviewerstats.h"
-#include "viewer.h"
 
 LLGestureManager gGestureManager;
 

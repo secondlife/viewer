@@ -46,7 +46,6 @@
 #include "llviewerimagelist.h"
 #include "llviewerimage.h"
 #include "llviewerregion.h"
-#include "viewer.h"
 
 //////////////////////////////////////////////////////////////////////////////
 

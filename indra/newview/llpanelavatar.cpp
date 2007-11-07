@@ -69,6 +69,7 @@
 #include "lltooldraganddrop.h"
 #include "lluiconstants.h"
 #include "llvoavatar.h"
+#include "llviewercontrol.h"
 #include "llviewermenu.h"		// *FIX: for is_agent_friend()
 #include "llviewergenericmessage.h"	// send_generic_message
 #include "llviewerobjectlist.h"
@@ -76,7 +77,6 @@
 #include "llviewborder.h"
 #include "llweb.h"
 #include "llinventorymodel.h"
-#include "viewer.h"				// for gUserServer
 #include "roles_constants.h"
 
 #define	kArraySize( _kArray ) ( sizeof( (_kArray) ) / sizeof( _kArray[0] ) )

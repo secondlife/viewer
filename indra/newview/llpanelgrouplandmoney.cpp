@@ -1115,8 +1115,7 @@ void LLPanelGroupLandMoney::processGroupAccountDetailsReply(LLMessageSystem* msg
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
 	{
-		llwarns << "Got group L$ history reply for another agent!"
-			<< " Probably a userserver bug!" << llendl;
+		llwarns << "Got group L$ history reply for another agent!" << llendl;
 		return;
 	}
 
@@ -1292,8 +1291,7 @@ void LLPanelGroupLandMoney::processGroupAccountTransactionsReply(LLMessageSystem
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
 	{
-		llwarns << "Got group L$ history reply for another agent!"
-			<< " Probably a userserver bug!" << llendl;
+		llwarns << "Got group L$ history reply for another agent!" << llendl;
 		return;
 	}
 
@@ -1463,8 +1461,7 @@ void LLPanelGroupLandMoney::processGroupAccountSummaryReply(LLMessageSystem* msg
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
 	{
-		llwarns << "Got group L$ history reply for another agent!"
-			<< " Probably a userserver bug!" << llendl;
+		llwarns << "Got group L$ history reply for another agent!" << llendl;
 		return;
 	}
 

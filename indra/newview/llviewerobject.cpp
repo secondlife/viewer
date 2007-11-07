@@ -95,13 +95,12 @@
 #include "llworld.h"
 #include "llui.h"
 #include "pipeline.h"
-#include "viewer.h"
+#include "llappviewer.h"
 
 //#define DEBUG_UPDATE_TYPE
 
-extern BOOL		gVelocityInterpolate;
-extern BOOL		gPingInterpolate;
-extern U32		gFrameCount;
+BOOL gVelocityInterpolate = TRUE;
+BOOL gPingInterpolate = TRUE; 
 
 U32			LLViewerObject::sNumZombieObjects = 0;
 S32			LLViewerObject::sNumObjects = 0;

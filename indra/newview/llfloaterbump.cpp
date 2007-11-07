@@ -37,7 +37,7 @@
 #include "llscrolllistctrl.h"
 
 #include "llvieweruictrlfactory.h"
-#include "viewer.h"		// gPacificDaylightTime
+#include "llappviewer.h"		// gPacificDaylightTime
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs

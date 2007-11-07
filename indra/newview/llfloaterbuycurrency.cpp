@@ -43,7 +43,7 @@
 #include "llvieweruictrlfactory.h"
 #include "llweb.h"
 #include "llwindow.h"
-#include "viewer.h"
+#include "llappviewer.h"
 
 static const S32 STANDARD_BUY_AMOUNT = 1000;
 static const S32 MINIMUM_BALANCE_AMOUNT = 0;

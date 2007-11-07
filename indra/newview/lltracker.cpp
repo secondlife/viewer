@@ -45,7 +45,7 @@
 #include "v4color.h"
 
 // viewer includes
-#include "viewer.h"
+#include "llappviewer.h"
 #include "lltracker.h"
 #include "llagent.h"
 #include "llcallingcard.h"
@@ -62,6 +62,7 @@
 #include "llviewerinventory.h"
 #include "llworld.h"
 #include "llworldmapview.h"
+#include "llviewercontrol.h"
 
 const F32 DESTINATION_REACHED_RADIUS    = 3.0f;
 const F32 DESTINATION_VISITED_RADIUS    = 6.0f;

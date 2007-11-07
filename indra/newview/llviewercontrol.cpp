@@ -50,6 +50,10 @@
 #include "llspinctrl.h"
 #include "llcolorswatch.h"
 
+#ifdef TOGGLE_HACKED_GODLIKE_VIEWER
+BOOL 				gHackGodmode = FALSE;
+#endif
+
 LLFloaterSettingsDebug* LLFloaterSettingsDebug::sInstance = NULL;
 
 LLControlGroup gSavedSettings;	// saved at end of session

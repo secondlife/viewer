@@ -41,7 +41,7 @@
 #include "llviewerobjectlist.h"
 #include "llregionhandle.h"
 #include "llagent.h"
-#include "viewer.h"
+#include "llappviewer.h"
 #include "llworld.h"
 #include "llviewercontrol.h"
 #include "llviewerimage.h"
@@ -66,8 +66,6 @@ S32 LLSurface::sTextureSize = 256;
 S32 LLSurface::sTexelsUpdated = 0;
 F32 LLSurface::sTextureUpdateTime = 0.f;
 LLStat LLSurface::sTexelsUpdatedPerSecStat;
-
-extern void bad_network_handler();
 
 // ---------------- LLSurface:: Public Members ---------------
 
@@ -776,7 +774,7 @@ void LLSurface::decompressDCTPatch(LLBitPack &bitpack, LLGroupHeader *gopp, BOOL
 				<< " quant_wbits " << (S32)ph.quant_wbits
 				<< " patchids " << (S32)ph.patchids
 				<< llendl;
-			bad_network_handler();
+            LLAppViewer::instance()->badNetworkHandler();
 			return;
 		}
 

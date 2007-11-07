@@ -81,7 +81,7 @@
 #include "llselectmgr.h"
 #include "llviewerbuild.h"
 #include "llvieweruictrlfactory.h"
-#include "viewer.h"
+#include "llappviewer.h"
 
 #include "llassetuploadresponders.h"
 

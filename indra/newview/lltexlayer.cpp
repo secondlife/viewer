@@ -52,7 +52,6 @@
 #include "llxmltree.h"
 #include "pipeline.h"
 #include "v4coloru.h"
-#include "viewer.h"
 
 //#include "../tools/imdebug/imdebug.h"
 

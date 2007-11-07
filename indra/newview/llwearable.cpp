@@ -48,9 +48,6 @@
 #include "llvoavatar.h"
 #include "llwearable.h"
 
-//#include "viewer.h"
-//#include "llvfs.h"
-
 // static
 S32 LLWearable::sCurrentDefinitionVersion = 1;
 

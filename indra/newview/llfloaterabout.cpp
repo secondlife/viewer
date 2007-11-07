@@ -47,7 +47,7 @@
 #include "llversionviewer.h"
 #include "llviewerbuild.h"
 #include "llvieweruictrlfactory.h"
-#include "viewer.h"	// for gViewerDigest
+#include "llappviewer.h" 
 
 #if LL_LIBXUL_ENABLED
 #include "llmozlib.h"
@@ -57,7 +57,6 @@
 
 extern LLCPUInfo gSysCPU;
 extern LLMemoryInfo gSysMemory;
-extern LLOSInfo gSysOS;
 extern U32 gPacketsIn;
 
 ///----------------------------------------------------------------------------
@@ -78,13 +77,13 @@ LLFloaterAbout::LLFloaterAbout()
 
 	// Support for changing product name.
 	LLString title("About ");
-	title += gSecondLife;
+	title += LLAppViewer::instance()->getSecondLifeTitle();
 	setTitle(title);
 
 	LLString support;
 
 	// Version string
-	LLString version = gSecondLife
+	LLString version = LLAppViewer::instance()->getSecondLifeTitle()
 		+ llformat(" %d.%d.%d (%d) %s %s (%s)",
 				   LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VIEWER_BUILD,
 				   __DATE__, __TIME__,
@@ -133,7 +132,7 @@ LLFloaterAbout::LLFloaterAbout()
 	support.append(mem_text);
 
 	support.append("OS Version: ");
-	support.append( gSysOS.getOSString().c_str() );
+	support.append( LLAppViewer::instance()->getOSInfo().getOSString().c_str() );
 	support.append("\n");
 
 	support.append("Graphics Card Vendor: ");

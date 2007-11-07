@@ -38,7 +38,7 @@
 #include "llvfile.h"
 #include "lltextbox.h"
 #include "llviewertexteditor.h"
-#include "viewer.h"
+#include "llappviewer.h"
 #include "llstartup.h"
 #include "message.h"
 #include "llagent.h"

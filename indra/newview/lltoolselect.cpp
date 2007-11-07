@@ -49,7 +49,6 @@
 #include "llviewerwindow.h"
 #include "llvoavatar.h"
 #include "llworld.h"
-#include "viewer.h"				// for gFPSClamped, pie menus
 
 // Globals
 LLToolSelect		*gToolSelect = NULL;

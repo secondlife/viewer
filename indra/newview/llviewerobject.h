@@ -692,4 +692,7 @@ public:
 	virtual void updateDrawable(BOOL force_damped);
 };
 
+extern BOOL gVelocityInterpolate;
+extern BOOL gPingInterpolate;
+
 #endif

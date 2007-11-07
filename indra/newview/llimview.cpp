@@ -55,7 +55,7 @@
 #include "llimpanel.h"
 #include "llresizebar.h"
 #include "lltabcontainer.h"
-#include "viewer.h"
+#include "llviewercontrol.h"
 #include "llfloater.h"
 #include "llmutelist.h"
 #include "llresizehandle.h"

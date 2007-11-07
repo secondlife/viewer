@@ -161,6 +161,7 @@
 #include "llvieweruictrlfactory.h"
 #include "lluploaddialog.h"
 #include "llurldispatcher.h"		// SLURL from other app instance
+#include "llvieweraudio.h"
 #include "llviewercamera.h"
 #include "llviewergesture.h"
 #include "llviewerimagelist.h"
@@ -178,7 +179,9 @@
 #include "llworldmapview.h"
 #include "moviemaker.h"
 #include "pipeline.h"
-#include "viewer.h"
+#include "llappviewer.h"
+#include "llurlsimstring.h"
+#include "llviewerdisplay.h"
 
 #if LL_WINDOWS
 #include "llwindebug.h"
@@ -239,6 +242,12 @@ BOOL			gbCapturing = FALSE;
 #if !LL_SOLARIS
 MovieMaker		gMovieMaker;
 #endif
+
+// HUD display lines in lower right
+BOOL				gDisplayWindInfo = FALSE;
+BOOL				gDisplayCameraPos = FALSE;
+BOOL				gDisplayNearestWater = FALSE;
+BOOL				gDisplayFOV = FALSE;
 
 S32 CHAT_BAR_HEIGHT = 28; 
 S32 OVERLAY_BAR_HEIGHT = 20;
@@ -1192,14 +1201,14 @@ BOOL LLViewerWindow::handleCloseRequest(LLWindow *window)
 {
 	// User has indicated they want to close, but we may need to ask
 	// about modified documents.
-	app_user_quit();
+	LLAppViewer::instance()->userQuit();
 	// Don't quit immediately
 	return FALSE;
 }
 
 void LLViewerWindow::handleQuit(LLWindow *window)
 {
-	app_force_quit(NULL);
+	LLAppViewer::instance()->forceQuit();
 }
 
 void LLViewerWindow::handleResize(LLWindow *window,  S32 width,  S32 height)
@@ -1315,7 +1324,7 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 		gAgent.clearAFK();
 		if (mWindow->getFullscreen() && !mIgnoreActivate)
 		{
-			if (!gQuit)
+			if (!LLApp::isExiting() )
 			{
 				if (LLStartUp::getStartupState() >= STATE_STARTED)
 				{
@@ -1505,7 +1514,7 @@ LLViewerWindow::LLViewerWindow(
 		llwarns << "Unable to create window, be sure screen is set at 32-bit color in Control Panels->Display->Settings"
 				<< llendl;
 #endif
-		app_force_exit(1);
+        LLAppViewer::instance()->forceExit(1);
 	}
 	
 	// Get the real window rect the window was created with (since there are various OS-dependent reasons why
@@ -2107,7 +2116,7 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 	// reshape messages.  We don't care about these, and we
 	// don't want to send messages because the message system
 	// may have been destructed.
-	if (!gQuit)
+	if (!LLApp::isExiting())
 	{
 		if (gNoRender)
 		{
@@ -4715,9 +4724,9 @@ void LLViewerWindow::stopGL(BOOL save_state)
 		llinfos << "Shutting down GL..." << llendl;
 
 		// Pause texture decode threads (will get unpaused during main loop)
-		gTextureCache->pause();
-		gImageDecodeThread->pause();
-		gTextureFetch->pause();
+		LLAppViewer::getTextureCache()->pause();
+		LLAppViewer::getImageDecodeThread()->pause();
+		LLAppViewer::getTextureFetch()->pause();
 		
 		gSky.destroyGL();
 		stop_glerror();

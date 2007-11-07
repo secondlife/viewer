@@ -44,7 +44,7 @@
 #include "llviewermessage.h"
 #include "llvieweruictrlfactory.h"
 #include "llviewerwindow.h"
-#include "viewer.h"
+#include "llappviewer.h"
 
 // static
 void* LLPanelGroupTab::createTab(void* data)
@@ -530,7 +530,7 @@ void LLPanelGroup::handleNotifyCallback(S32 option)
 	default:
 		// Do nothing.  The user is canceling the action.
 		// If we were quitting, we didn't really mean it.
-		app_abort_quit();
+		LLAppViewer::instance()->abortQuit();
 		break;
 	}
 }

@@ -61,7 +61,6 @@
 #include "llfloatermute.h"
 #include "llviewergenericmessage.h"	// for gGenericDispatcher
 #include "llviewerwindow.h"
-#include "viewer.h"
 #include "llworld.h" //for particle system banning
 
 LLMuteList* gMuteListp = NULL;

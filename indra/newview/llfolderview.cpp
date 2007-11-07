@@ -66,7 +66,7 @@
 // We need these because some of the code below relies on things like
 // gAgent root folder. Remove them once the abstraction leak is fixed.
 #include "llagent.h"
-#include "viewer.h"
+#include "llappviewer.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs

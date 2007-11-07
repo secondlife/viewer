@@ -34,47 +34,47 @@
 
 #include "llviewernetwork.h"
 
-LLUserServerData gUserServerDomainName[USERSERVER_COUNT] = 
+LLGridData gGridInfo[GRID_INFO_COUNT] = 
 {
 	{ "None", "", "", ""},
 	{ "Aditi", 
-	  "userserver.aditi.lindenlab.com", 
+	  "util.aditi.lindenlab.com", 
 	  "https://login.aditi.lindenlab.com/cgi-bin/login.cgi",
 	  "http://aditi-secondlife.webdev.lindenlab.com/helpers/" },
 	{ "Agni", 
-	  "userserver.agni.lindenlab.com", 
+	  "util.agni.lindenlab.com", 
 	  "https://login.agni.lindenlab.com/cgi-bin/login.cgi",
 	  "https://secondlife.com/helpers/" },
 	{ "DMZ",  
-	  "userserver.dmz.lindenlab.com", 
+	  "util.dmz.lindenlab.com", 
 	  "https://login.dmz.lindenlab.com/cgi-bin/login.cgi",
 	  "http://dmz-secondlife.webdev.lindenlab.com/helpers/" },
 	{ "Siva", 
-	  "userserver.siva.lindenlab.com",
+	  "util.siva.lindenlab.com",
 	  "https://login.siva.lindenlab.com/cgi-bin/login.cgi",
 	  "http://siva-secondlife.webdev.lindenlab.com/helpers/" },
 	{ "Durga",
-	  "userserver.durga.lindenlab.com",
+	  "util.durga.lindenlab.com",
 	  "https://login.durga.lindenlab.com/cgi-bin/login.cgi",
 	  "http://durga-secondlife.webdev.lindenlab.com/helpers/" },
 	{ "Shakti",
-	  "userserver.shakti.lindenlab.com",
+	  "util.shakti.lindenlab.com",
 	  "https://login.shakti.lindenlab.com/cgi-bin/login.cgi",
 	  "http://shakti-secondlife.webdev.lindenlab.com/helpers/" },
 	{ "Soma",
-	  "userserver.soma.lindenlab.com",
+	  "util.soma.lindenlab.com",
 	  "https://login.soma.lindenlab.com/cgi-bin/login.cgi",
 	  "http://soma-secondlife.webdev.lindenlab.com/helpers/" },
 	{ "Ganga",
-	  "userserver.ganga.lindenlab.com",
+	  "util.ganga.lindenlab.com",
 	  "https://login.ganga.lindenlab.com/cgi-bin/login.cgi",
 	  "http://ganga-secondlife.webdev.lindenlab.com/helpers/" },
 	{ "Vaak",
-	  "userserver.vaak.lindenlab.com",
+	  "util.vaak.lindenlab.com",
 	  "https://login.vaak.lindenlab.com/cgi-bin/login.cgi",
 	  "http://vaak-secondlife.webdev.lindenlab.com/helpers/" },
 	{ "Uma",
-	  "userserver.uma.lindenlab.com",
+	  "util.uma.lindenlab.com",
 	  "https://login.uma.lindenlab.com/cgi-bin/login.cgi",
 	  "http://uma-secondlife.webdev.lindenlab.com/helpers/" },
 	{ "Local", 
@@ -89,10 +89,8 @@ LLUserServerData gUserServerDomainName[USERSERVER_COUNT] =
 
 // Use this to figure out which domain name and login URI to use.
 
-EUserServerDomain gUserServerChoice = USERSERVER_NONE;
-char gUserServerName[MAX_STRING];		/* Flawfinder: ignore */
-
-LLHost gUserServer;
+EGridInfo gGridChoice = GRID_INFO_NONE;
+char gGridName[MAX_STRING];		/* Flawfinder: ignore */
 
 F32 gPacketDropPercentage = 0.f;
 F32 gInBandwidth = 0.f;

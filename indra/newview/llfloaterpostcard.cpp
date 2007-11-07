@@ -60,7 +60,6 @@
 #include "llimagej2c.h"
 #include "llvfile.h"
 #include "llvfs.h"
-#include "viewer.h"
 
 #include "llassetuploadresponders.h"
 

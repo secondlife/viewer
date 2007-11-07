@@ -1,0 +1,215 @@
+/** 
+ * @file llvieweraudio.cpp
+ * @brief Audio functions moved from viewer.cpp
+ *
+ * Copyright (c) 2000-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
+#include "llviewerprecompiledheaders.h"
+
+#include "llvieweraudio.h"
+#include "audioengine.h"
+#include "llviewercontrol.h"
+#include "llmediaengine.h"
+#include "llagent.h"
+#include "llappviewer.h"
+#include "llvoiceclient.h"
+#include "llviewerwindow.h"
+#include "llviewercamera.h"
+
+/////////////////////////////////////////////////////////
+
+void init_audio() 
+{
+	if (!gAudiop) 
+	{
+		llwarns << "Failed to create an appropriate Audio Engine" << llendl;
+		return;
+	}
+	LLVector3d lpos_global = gAgent.getCameraPositionGlobal();
+	LLVector3 lpos_global_f;
+
+	lpos_global_f.setVec(lpos_global);
+					
+	gAudiop->setListener(lpos_global_f,
+						  LLVector3::zero,	// gCamera->getVelocity(),    // !!! BUG need to replace this with smoothed velocity!
+						  gCamera->getUpAxis(),
+						  gCamera->getAtAxis());
+
+// load up our initial set of sounds we'll want so they're in memory and ready to be played
+
+	BOOL mute_audio = gSavedSettings.getBOOL("MuteAudio");
+
+	if (!mute_audio && gPreloadSounds)
+	{
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndAlert")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndBadKeystroke")));
+		//gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndChatFromObject")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndClick")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndClickRelease")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndHealthReductionF")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndHealthReductionM")));
+		//gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndIncomingChat")));
+		//gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndIncomingIM")));
+		//gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndInvApplyToObject")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndInvalidOp")));
+		//gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndInventoryCopyToInv")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndMoneyChangeDown")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndMoneyChangeUp")));
+		//gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndObjectCopyToInv")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndObjectCreate")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndObjectDelete")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndObjectRezIn")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndObjectRezOut")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuAppear")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuHide")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuSliceHighlight0")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuSliceHighlight1")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuSliceHighlight2")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuSliceHighlight3")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuSliceHighlight4")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuSliceHighlight5")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuSliceHighlight6")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndPieMenuSliceHighlight7")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndSnapshot")));
+		//gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndStartAutopilot")));
+		//gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndStartFollowpilot")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndStartIM")));
+		//gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndStopAutopilot")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndTeleportOut")));
+		//gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndTextureApplyToObject")));
+		//gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndTextureCopyToInv")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndTyping")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndWindowClose")));
+		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndWindowOpen")));
+	}
+
+	audio_update_volume(true);
+}
+
+void audio_update_volume(bool force_update)
+{
+	F32 master_volume = gSavedSettings.getF32("AudioLevelMaster");
+	BOOL mute_audio = gSavedSettings.getBOOL("MuteAudio");
+	if (!gViewerWindow->getActive() && (gSavedSettings.getBOOL("MuteWhenMinimized")))
+	{
+		mute_audio = TRUE;
+	}
+	F32 mute_volume = mute_audio ? 0.0f : 1.0f;
+
+	// Sound Effects
+	if (gAudiop) 
+	{
+		gAudiop->setMasterGain ( master_volume );
+
+		gAudiop->setDopplerFactor(gSavedSettings.getF32("AudioLevelDoppler"));
+		gAudiop->setDistanceFactor(gSavedSettings.getF32("AudioLevelDistance")); 
+		gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelRolloff"));
+#ifdef kAUDIO_ENABLE_WIND
+		gAudiop->enableWind(!mute_audio);
+#endif
+
+		gAudiop->setMuted(mute_audio);
+		
+		if (force_update)
+		{
+			audio_update_wind(true);
+		}
+	}
+
+	// Streaming Music
+	if (gAudiop) 
+	{		
+		F32 music_volume = gSavedSettings.getF32("AudioLevelMusic");
+		music_volume = mute_volume * master_volume * (music_volume*music_volume);
+		gAudiop->setInternetStreamGain ( music_volume );
+	}
+
+	// Streaming Media
+	if(LLMediaEngine::getInstance())
+	{
+		F32 media_volume = gSavedSettings.getF32("AudioLevelMedia");
+		media_volume = mute_volume * master_volume * (media_volume*media_volume);
+		LLMediaEngine::getInstance()->setVolume(media_volume);
+	}
+
+	// Voice
+	if (gVoiceClient)
+	{
+		F32 voice_volume = gSavedSettings.getF32("AudioLevelVoice");
+		voice_volume = mute_volume * master_volume * voice_volume;
+		gVoiceClient->setVoiceVolume(voice_volume);
+		gVoiceClient->setMicGain(gSavedSettings.getF32("AudioLevelMic"));
+
+		if (!gViewerWindow->getActive() && (gSavedSettings.getBOOL("MuteWhenMinimized")))
+		{
+			gVoiceClient->setMuteMic(true);
+		}
+		else
+		{
+			gVoiceClient->setMuteMic(false);
+		}
+	}
+}
+
+void audio_update_listener()
+{
+	if (gAudiop)
+	{
+		// update listener position because agent has moved	
+		LLVector3d lpos_global = gAgent.getCameraPositionGlobal();		
+		LLVector3 lpos_global_f;
+		lpos_global_f.setVec(lpos_global);
+	
+		gAudiop->setListener(lpos_global_f,
+							 // gCameraVelocitySmoothed, 
+							 // LLVector3::zero,	
+							 gAgent.getVelocity(),    // !!! *TODO: need to replace this with smoothed velocity!
+							 gCamera->getUpAxis(),
+							 gCamera->getAtAxis());
+	}
+}
+
+void audio_update_wind(bool force_update)
+{
+#ifdef kAUDIO_ENABLE_WIND
+	//
+	//  Extract height above water to modulate filter by whether above/below water 
+	// 
+	LLViewerRegion* region = gAgent.getRegion();
+	if (region)
+	{
+		static F32 last_camera_water_height = -1000.f;
+		LLVector3 camera_pos = gAgent.getCameraPositionAgent();
+		F32 camera_water_height = camera_pos.mV[VZ] - region->getWaterHeight();
+		
+		//
+		//  Don't update rolloff factor unless water surface has been crossed
+		//
+		if (force_update || (last_camera_water_height * camera_water_height) < 0.f)
+		{
+			if (camera_water_height < 0.f)
+			{
+				gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelRolloff") * LL_ROLLOFF_MULTIPLIER_UNDER_WATER);
+			}
+			else 
+			{
+				gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelRolloff"));
+			}
+		}
+		// this line rotates the wind vector to be listener (agent) relative
+		// unfortunately we have to pre-translate to undo the translation that
+		// occurs in the transform call
+		gRelativeWindVec = gAgent.getFrameAgent().rotateToLocal(gWindVec - gAgent.getVelocity());
+
+		// don't use the setter setMaxWindGain() because we don't
+		// want to screw up the fade-in on startup by setting actual source gain
+		// outside the fade-in.
+		gAudiop->mMaxWindGain = gSavedSettings.getF32("AudioLevelAmbient");
+		
+		last_camera_water_height = camera_water_height;
+		gAudiop->updateWind(gRelativeWindVec, camera_water_height);
+	}
+#endif
+}

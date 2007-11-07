@@ -368,9 +368,6 @@ BOOL LLButton::handleMouseUp(S32 x, S32 y, MASK mask)
 				(*mClickedCallback)( mCallbackUserData );
 			}			
 		}
-
-		mMouseDownTimer.stop();
-		mMouseDownTimer.reset();
 	}
 
 	return TRUE;

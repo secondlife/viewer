@@ -47,7 +47,6 @@
 #include "roles_constants.h"
 #include "lltransactiontypes.h"
 #include "llstatusbar.h"
-#include "viewer.h"
 #include "lleconomy.h"
 #include "llviewerwindow.h"
 #include "llfloaterdirectory.h"
@@ -806,8 +805,7 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
 	{
-		llwarns << "Got group properties reply for another agent!"
-			<< " Probably a userserver bug!" << llendl;
+		llwarns << "Got group properties reply for another agent!" << llendl;
 		return;
 	}
 
@@ -895,8 +893,7 @@ void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
 	{
-		llwarns << "Got group properties reply for another agent!"
-			<< " Probably a userserver bug!" << llendl;
+		llwarns << "Got group properties reply for another agent!" << llendl;
 		return;
 	}
 
@@ -963,8 +960,7 @@ void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
 	{
-		llwarns << "Got group properties reply for another agent!"
-			<< " Probably a userserver bug!" << llendl;
+		llwarns << "Got group properties reply for another agent!" << llendl;
 		return;
 	}
 
@@ -1031,8 +1027,7 @@ void LLGroupMgr::processGroupRoleMembersReply(LLMessageSystem* msg, void** data)
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
 	{
-		llwarns << "Got group properties reply for another agent!"
-			<< " Probably a userserver bug!" << llendl;
+		llwarns << "Got group properties reply for another agent!" << llendl;
 		return;
 	}
 
@@ -1142,8 +1137,7 @@ void LLGroupMgr::processGroupTitlesReply(LLMessageSystem* msg, void** data)
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
 	{
-		llwarns << "Got group properties reply for another agent!"
-			<< " Probably a userserver bug!" << llendl;
+		llwarns << "Got group properties reply for another agent!" << llendl;
 		return;
 	}
 

@@ -41,7 +41,6 @@
 #include "llinventorymodel.h"
 #include "llnotify.h"
 #include "llimview.h"
-#include "viewer.h"
 #include "llgesturemgr.h"
 
 #include "llinventoryview.h"

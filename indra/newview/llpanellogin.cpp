@@ -61,7 +61,8 @@
 #include "llviewernetwork.h"
 #include "llviewerwindow.h"			// to link into child list
 #include "llnotify.h"
-#include "viewer.h"					// for gHideLinks
+#include "llappviewer.h"					// for gHideLinks
+#include "llurlsimstring.h"
 #include "llvieweruictrlfactory.h"
 #include "llhttpclient.h"
 #include "llweb.h"
@@ -71,6 +72,7 @@
 #include "llfloatertos.h"
 
 #include "llglheaders.h"
+
 
 const S32 BLACK_BORDER_HEIGHT = 160;
 const S32 MAX_PASSWORD = 16;
@@ -155,7 +157,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mLogoImage = gImageList.getImage("startup_logo.tga", LLUUID::null, MIPMAP_FALSE, TRUE);
 
 	gUICtrlFactory->buildPanel(this, "panel_login.xml");
-	setRect(rect);
+	//setRect(rect);
 	reshape(rect.getWidth(), rect.getHeight());
 
 	childSetPrevalidate("first_name_edit", LLLineEditor::prevalidatePrintableNoSpace);
@@ -214,26 +216,17 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	childSetAction("quit_btn", onClickQuit, this);
 
-	LLTextBox* text = LLUICtrlFactory::getTextBoxByName(this, "version_text");
-	if (text)
+	LLTextBox* version_text = LLUICtrlFactory::getTextBoxByName(this, "version_text");
+	if (version_text)
 	{
 		LLString version = llformat("%d.%d.%d (%d)",
 			LL_VERSION_MAJOR,
 			LL_VERSION_MINOR,
 			LL_VERSION_PATCH,
 			LL_VIEWER_BUILD );
-		text->setText(version);
-		text->setClickedCallback(onClickVersion);
-		text->setCallbackUserData(this);
-
-		// HACK to move to the lower-right of the window
-		// replace/remove this logic when we have dynamic layouts
-		S32 right = getRect().mRight;
-		LLRect r = text->getRect();
-		const S32 PAD = 2;
-		r.setOriginAndSize( right - r.getWidth() - PAD, PAD, 
-			r.getWidth(), r.getHeight() );
-		text->setRect(r);
+		version_text->setText(version);
+		version_text->setClickedCallback(onClickVersion);
+		version_text->setCallbackUserData(this);
 	}
 
 	LLTextBox* channel_text = LLUICtrlFactory::getTextBoxByName(this, "channel_text");
@@ -242,25 +235,14 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		channel_text->setText(gChannelName);
 		channel_text->setClickedCallback(onClickVersion);
 		channel_text->setCallbackUserData(this);
-
-		// HACK to move to the right of the window, above the version string,
-		// replace/remove this logic when we have dynamic layouts
-		S32 right = getRect().mRight;
-		LLRect r = channel_text->getRect();
-		const S32 PAD = 2;
-		S32 version_string_top = r.mTop;
-		if(text)
-		{
-			version_string_top = text->getRect().mTop;
-		}
-		r.setOriginAndSize( 
-			right - r.getWidth() - PAD,
-			version_string_top, 
-			r.getWidth(), 
-			r.getHeight());
-		channel_text->setRect(r);
 	}
 
+	LLTextBox* forgot_password_text = LLUICtrlFactory::getTextBoxByName(this, "forgot_password_text");
+	if (forgot_password_text)
+	{
+		forgot_password_text->setClickedCallback(onClickForgotPassword);
+	}
+    
 	// get the web browser control
 	#if LL_LIBXUL_ENABLED
 	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(this, "login_html");
@@ -635,15 +617,15 @@ BOOL LLPanelLogin::getServer(LLString &server, S32 &domain_name)
 			{
 				domain_name = combo->getValue().asInteger();
 
-				if ((S32)USERSERVER_OTHER == domain_name)
+				if ((S32)GRID_INFO_OTHER == domain_name)
 				{
-					server = gUserServerName;
+					server = gGridName;
 				}
 			}
 			else
 			{
 				// no valid selection, return other
-				domain_name = (S32)USERSERVER_OTHER;
+				domain_name = (S32)GRID_INFO_OTHER;
 				server = combo_val.asString();
 			}
 			user_picked = combo->isDirty();
@@ -740,7 +722,7 @@ void LLPanelLogin::onClickConnect(void *)
 			if (combo)
 			{
 				S32 selected_server = combo->getValue();
-				if (selected_server == USERSERVER_NONE)
+				if (selected_server == GRID_INFO_NONE)
 				{
 					LLString custom_server = combo->getValue().asString();
 					gSavedSettings.setString("CustomServer", custom_server);
@@ -807,6 +789,15 @@ void LLPanelLogin::onClickVersion(void*)
 {
 	LLFloaterAbout::show(NULL);
 }
+
+void LLPanelLogin::onClickForgotPassword(void*)
+{
+	if (sInstance )
+	{
+		LLWeb::loadURL(sInstance->childGetValue( "forgot_password_url" ).asString());
+	}
+}
+
 
 // static
 void LLPanelLogin::onPassKey(LLLineEditor* caller, void* user_data)

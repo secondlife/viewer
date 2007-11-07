@@ -61,7 +61,7 @@
 #include "llviewertexteditor.h"
 #include "llviewermessage.h"
 #include "llviewerstats.h"
-#include "viewer.h"
+#include "llviewercontrol.h"
 #include "llvieweruictrlfactory.h"
 #include "lllogchat.h"
 #include "llfloaterhtml.h"

@@ -41,7 +41,7 @@
 #include "llfloatervoicewizard.h"
 #include "llviewercontrol.h"
 #include "llui.h"
-#include "viewer.h"
+#include "llappviewer.h"
 
 // static
 std::set<LLString> LLFirstUse::sConfigVariables;

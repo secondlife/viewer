@@ -46,7 +46,6 @@
 #include "v4coloru.h"
 #include "llbutton.h"
 #include "llviewercontrol.h"
-#include "viewer.h"
 #include "llvieweruictrlfactory.h"
 #include "llviewerwindow.h"
 #include "llgl.h"

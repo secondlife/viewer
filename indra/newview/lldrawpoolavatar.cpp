@@ -45,13 +45,13 @@
 #include "noise.h"
 #include "pipeline.h"
 #include "llglslshader.h"
+#include "llappviewer.h"
 
 static U32 sDataMask = LLDrawPoolAvatar::VERTEX_DATA_MASK;
 static U32 sBufferUsage = GL_STREAM_DRAW_ARB;
 static U32 sShaderLevel = 0;
 static LLGLSLShader* sVertexProgram = NULL;
 
-extern F32 gFrameDTClamped;
 extern BOOL gUseGLPick;
 
 F32 CLOTHING_GRAVITY_EFFECT = 0.7f;

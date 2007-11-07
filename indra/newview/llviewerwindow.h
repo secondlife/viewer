@@ -416,4 +416,10 @@ extern BOOL				gPickTransparent;
 
 extern BOOL				gDebugFastUIRender;
 extern S32 CHAT_BAR_HEIGHT; 
+
+extern BOOL			gDisplayCameraPos;
+extern BOOL			gDisplayWindInfo;
+extern BOOL			gDisplayNearestWater;
+extern BOOL			gDisplayFOV;
+
 #endif

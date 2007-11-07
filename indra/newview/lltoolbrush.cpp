@@ -53,7 +53,7 @@
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llworld.h"
-#include "viewer.h"
+#include "llappviewer.h"
 #include "llparcel.h"
 
 #include "llglheaders.h"

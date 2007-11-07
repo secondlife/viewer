@@ -114,7 +114,7 @@
 #include "llworld.h"
 #include "pipeline.h"
 #include "llglslshader.h"
-#include "viewer.h"
+#include "llappviewer.h"
 #include "lscript_byteformat.h"
 
 //#include "vtune/vtuneapi.h"
@@ -1622,7 +1622,6 @@ BOOL LLVOAvatar::buildSkeleton(LLVOAvatarSkeletonInfo *info)
 // LLVOAvatar::buildCharacter()
 // Deferred initialization and rebuild of the avatar.
 //-----------------------------------------------------------------------------
-extern BOOL gPrintMessagesThisFrame;
 void LLVOAvatar::buildCharacter()
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
@@ -7439,7 +7438,7 @@ void LLVOAvatar::onCustomizeEnd()
 
 		avatar->updateMeshTextures();
 
-		if( !gQuit )
+		if( !LLApp::isExiting())
 		{
 			avatar->requestLayerSetUploads();
 		}

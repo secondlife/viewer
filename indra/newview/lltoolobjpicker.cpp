@@ -38,7 +38,6 @@
 #include "llagent.h"
 #include "llselectmgr.h"
 #include "llworld.h"
-#include "viewer.h"				// for gFPSClamped, pie menus
 #include "llviewercontrol.h"
 #include "llmenugl.h"
 #include "lltoolmgr.h"

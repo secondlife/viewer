@@ -36,10 +36,22 @@
 #include "../llmath/llmath.h"
 #include "llformat.h"
 
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+#define NAME_UNNAMED_NAMESPACE
+#endif
+
+#ifdef NAME_UNNAMED_NAMESPACE
+namespace LLSDUnnamedNamespace {
+#else
 namespace {
+#endif
 	class ImplMap;
 	class ImplArray;
 }
+
+#ifdef NAME_UNNAMED_NAMESPACE
+using namespace LLSDUnnamedNamespace;
+#endif
 
 class LLSD::Impl
 	/**< This class is the abstract base class of the implementation of LLSD
@@ -125,7 +137,11 @@ public:
 	static U32 sOutstandingCount;
 };
 
+#ifdef NAME_UNNAMED_NAMESPACE
+namespace LLSDUnnamedNamespace {
+#else
 namespace {
+#endif
 	template<LLSD::Type T, class Data, class DataRef = Data>
 	class ImplBase : public LLSD::Impl
 		///< This class handles most of the work for a subclass of Impl
@@ -632,7 +648,11 @@ U32 LLSD::Impl::sOutstandingCount = 0;
 
 
 
+#ifdef NAME_UNNAMED_NAMESPACE
+namespace LLSDUnnamedNamespace {
+#else
 namespace {
+#endif
 	inline LLSD::Impl& safe(LLSD::Impl* impl)
 		{ return LLSD::Impl::safe(impl); }
 		

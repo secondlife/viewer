@@ -91,11 +91,11 @@
 #include "llvotree.h"
 #include "llvopartgroup.h"
 #include "llworld.h"
-#include "viewer.h"
 #include "llcubemap.h"
 #include "lldebugmessagebox.h"
 #include "llglslshader.h"
 #include "llviewerjoystick.h"
+#include "llviewerdisplay.h"
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
@@ -134,6 +134,8 @@ BOOL	gAvatarBacklight = FALSE;
 S32		gTrivialAccepts = 0;
 
 BOOL	gRenderForSelect = FALSE;
+
+LLPipeline gPipeline;
 
 //----------------------------------------
 

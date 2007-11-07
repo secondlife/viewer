@@ -63,7 +63,6 @@
 #include "llvolume.h"
 #include "llworld.h"
 #include "object_flags.h"
-#include "viewer.h"
 
 LLToolDragAndDrop *gToolDragAndDrop = NULL;
 

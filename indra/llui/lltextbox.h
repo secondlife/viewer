@@ -66,11 +66,16 @@ public:
 
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
+	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 
 	void			setColor( const LLColor4& c )			{ mTextColor = c; }
 	void			setDisabledColor( const LLColor4& c)	{ mDisabledColor = c; }
 	void			setBackgroundColor( const LLColor4& c)	{ mBackgroundColor = c; }	
 	void			setBorderColor( const LLColor4& c)		{ mBorderColor = c; }	
+
+	void			setHoverColor( const LLColor4& c )		{ mHoverColor = c; }
+	void			setHoverActive( BOOL active )			{ mHoverActive = active; }
+
 	void			setText( const LLStringExplicit& text );
 	void			setWrappedText(const LLStringExplicit& text, F32 max_width = -1.0);
 						// default width means use existing control width
@@ -108,10 +113,12 @@ protected:
 	const LLFontGL*	mFontGL;
 	LLColor4		mTextColor;
 	LLColor4		mDisabledColor;
-
 	LLColor4		mBackgroundColor;
 	LLColor4		mBorderColor;
-	
+	LLColor4		mHoverColor;
+
+	BOOL			mHoverActive;	
+	BOOL			mHasHover;
 	BOOL			mBackgroundVisible;
 	BOOL			mBorderVisible;
 	

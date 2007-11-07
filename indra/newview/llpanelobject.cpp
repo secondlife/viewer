@@ -68,7 +68,7 @@
 #include "llvovolume.h"
 #include "llworld.h"
 #include "pipeline.h"
-#include "viewer.h"
+#include "llviewercontrol.h"
 #include "llvieweruictrlfactory.h"
 #include "llfirstuse.h"
 

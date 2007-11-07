@@ -49,7 +49,7 @@
 #include "llviewerobject.h"
 #include "llviewerimage.h"
 #include "llviewerimagelist.h"
-#include "viewer.h"
+#include "llappviewer.h"
 
 extern F32 texmem_lower_bound_scale;
 
@@ -145,7 +145,7 @@ void LLTextureBar::draw()
 	}
 
 	LLColor4 color;
-	if (mImagep->getID() == gTextureFetch->mDebugID)
+	if (mImagep->getID() == LLAppViewer::getTextureFetch()->mDebugID)
 	{
 		color = LLColor4::cyan2;
 	}
@@ -347,7 +347,7 @@ BOOL LLTextureBar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if ((mask & (MASK_CONTROL|MASK_SHIFT|MASK_ALT)) == MASK_ALT)
 	{
-		gTextureFetch->mDebugID = mImagep->getID();
+		LLAppViewer::getTextureFetch()->mDebugID = mImagep->getID();
 		return TRUE;
 	}
 	return LLView::handleMouseDown(x,y,mask);
@@ -469,9 +469,9 @@ void LLGLTexMemBar::draw()
 	
 	text = llformat("Textures: Count: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d IW:%d(%d) RAW:%d",
 					gImageList.getNumImages(),
-					gTextureFetch->getNumRequests(), gTextureFetch->getNumDeletes(),
-					gTextureFetch->mPacketCount, gTextureFetch->mBadPacketCount, 
-					gTextureCache->getNumReads(), gTextureCache->getNumWrites(),
+					LLAppViewer::getTextureFetch()->getNumRequests(), LLAppViewer::getTextureFetch()->getNumDeletes(),
+					LLAppViewer::getTextureFetch()->mPacketCount, LLAppViewer::getTextureFetch()->mBadPacketCount, 
+					LLAppViewer::getTextureCache()->getNumReads(), LLAppViewer::getTextureCache()->getNumWrites(),
 					LLLFSThread::sLocal->getPending(),
 					LLImageWorker::sCount, LLImageWorker::getWorkerThread()->getNumDeletes(),
 					LLImageRaw::sRawImageCount);
@@ -480,7 +480,7 @@ void LLGLTexMemBar::draw()
 									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 	
 	S32 dx1 = 0;
-	if (gTextureFetch->mDebugPause)
+	if (LLAppViewer::getTextureFetch()->mDebugPause)
 	{
 		LLFontGL::sMonospace->renderUTF8("!", 0, title_x1, line_height,
 										 text_color, LLFontGL::LEFT, LLFontGL::TOP);
@@ -781,7 +781,7 @@ BOOL LLTextureView::handleMouseDown(S32 x, S32 y, MASK mask)
 	}
 	if ((mask & (MASK_CONTROL|MASK_SHIFT|MASK_ALT)) == (MASK_CONTROL|MASK_SHIFT))
 	{
-		gTextureFetch->mDebugPause = !gTextureFetch->mDebugPause;
+		LLAppViewer::getTextureFetch()->mDebugPause = !LLAppViewer::getTextureFetch()->mDebugPause;
 		return TRUE;
 	}
 	if (mask & MASK_SHIFT)

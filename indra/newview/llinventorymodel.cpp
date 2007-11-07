@@ -47,7 +47,7 @@
 #include "llviewerinventory.h"
 #include "llviewermessage.h"
 #include "llviewerwindow.h"
-#include "viewer.h"
+#include "llappviewer.h"
 #include "lldbstrings.h"
 #include "llviewerstats.h"
 #include "llmutelist.h"

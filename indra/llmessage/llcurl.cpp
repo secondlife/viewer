@@ -367,6 +367,11 @@ LLCurl::getByteRange(const std::string& url, S32 offset, S32 length, ResponderPt
 	mainMulti()->getByteRange(url, offset, length, responder);
 }
 	
+void LLCurl::initClass()
+{
+    curl_global_init(CURL_GLOBAL_ALL);
+}
+
 void
 LLCurl::process()
 {

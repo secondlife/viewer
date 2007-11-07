@@ -65,7 +65,6 @@
 #include "lltoolmgr.h"
 #include "lltoolcomp.h"
 #include "llpanelinventory.h"
-#include "viewer.h"
 
 //
 // Imported globals

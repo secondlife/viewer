@@ -59,7 +59,6 @@
 #include "llviewerparcelmgr.h"
 #include "llvieweruictrlfactory.h"
 #include "llviewerwindow.h"
-#include "viewer.h"
 #include "lltoolgrab.h"
 
 #if LL_DARWIN

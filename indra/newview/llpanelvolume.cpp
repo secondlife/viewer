@@ -72,7 +72,6 @@
 #include "llvovolume.h"
 #include "llworld.h"
 #include "pipeline.h"
-#include "viewer.h"
 
 #include "lldrawpool.h"
 #include "llvieweruictrlfactory.h"

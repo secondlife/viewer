@@ -45,7 +45,6 @@
 #include "lltoolview.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
-#include "viewer.h"
 
 // Globals
 LLToolSelectLand *gToolParcel = NULL;

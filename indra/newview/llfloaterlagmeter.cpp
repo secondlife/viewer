@@ -37,7 +37,8 @@
 #include "llviewerstats.h"
 #include "llviewerimage.h"
 #include "llviewercontrol.h"
-#include "viewer.h"
+#include "llappviewer.h"
+
 #include "lltexturefetch.h"
 
 #include "llbutton.h"
@@ -189,7 +190,7 @@ void LLFloaterLagMeter::determineClient()
 		{
 			mClientCause->setText( childGetText("client_draw_distance_cause_msg") );
 		}
-		else if(gTextureFetch->getNumRequests() > 2)
+		else if(LLAppViewer::instance()->getTextureFetch()->getNumRequests() > 2)
 		{
 			mClientCause->setText( childGetText("client_texture_loading_cause_msg") );
 		}

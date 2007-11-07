@@ -34,7 +34,7 @@
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
 #include "llviewerjoystick.h"
-#include "viewer.h"
+#include "llappviewer.h"
 #include "llkeyboard.h"
 
 static LLQuaternion sFlycamRotation;

@@ -88,8 +88,9 @@ private:
 	static void newAccountAlertCallback(S32 option, void*);
 	static void onClickQuit(void*);
 	static void onClickVersion(void*);
+	static void onClickForgotPassword(void*);
 	static void onPassKey(LLLineEditor* caller, void* user_data);
-
+	
 private:
 	LLPointer<LLViewerImage> mLogoImage;
 

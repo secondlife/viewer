@@ -62,7 +62,6 @@
 #include "llviewerwindow.h"
 #include "llvoavatar.h"
 #include "pipeline.h"
-#include "viewer.h"
 
 //LLToolMorph *gToolMorph = NULL;
 

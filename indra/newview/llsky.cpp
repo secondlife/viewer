@@ -64,6 +64,7 @@ extern LLPipeline gPipeline;
 F32 azimuth_from_vector(const LLVector3 &v);
 F32 elevation_from_vector(const LLVector3 &v);
 
+LLSky				gSky;
 // ---------------- LLSky ----------------
 
 //////////////////////////////////////////////////////////////////////

@@ -37,10 +37,28 @@
 #include "message.h"
 #include "lltimer.h"
 
-LLViewerStats *gViewerStats = NULL;
+#include "llappviewer.h"
 
-extern U32 gFrameCount;
-extern LLTimer gRenderStartTime;
+#include "pipeline.h" 
+#include "llviewerobjectlist.h" 
+#include "llviewerimagelist.h" 
+#include "lltexlayer.h"
+#include "llsurface.h"
+#include "llvlmanager.h"
+#include "llagent.h"
+#include "llviewercontrol.h"
+#include "llfloatertools.h"
+#include "lldebugview.h"
+#include "llfasttimerview.h"
+#include "llviewerregion.h"
+#include "llfloaterhtmlhelp.h"
+#include "llworld.h"
+#include "llfeaturemanager.h"
+#if LL_WINDOWS && LL_LCD_COMPILE
+	#include "lllcd.h"
+#endif
+
+LLViewerStats *gViewerStats = NULL;
 
 class StatAttributes
 {
@@ -322,4 +340,400 @@ const char *LLViewerStats::statTypeToText(EStatType type)
 	{
 		return "Unknown statistic";
 	}
+}
+
+// *NOTE:Mani The following methods used to exist in viewer.cpp
+// Moving them here, but not merging them into LLViewerStats yet.
+void reset_statistics()
+{
+	gPipeline.resetFrameStats();	// Reset per-frame statistics.
+	if (LLSurface::sTextureUpdateTime)
+	{
+		LLSurface::sTexelsUpdatedPerSecStat.addValue(0.001f*(LLSurface::sTexelsUpdated / LLSurface::sTextureUpdateTime));
+		LLSurface::sTexelsUpdated = 0;
+		LLSurface::sTextureUpdateTime = 0.f;
+	}
+}
+
+
+void output_statistics(void*)
+{
+	llinfos << "Number of orphans: " << gObjectList.getOrphanCount() << llendl;
+	llinfos << "Number of dead objects: " << gObjectList.mNumDeadObjects << llendl;
+	llinfos << "Num images: " << gImageList.getNumImages() << llendl;
+	llinfos << "Texture usage: " << LLImageGL::sGlobalTextureMemory << llendl;
+	llinfos << "Texture working set: " << LLImageGL::sBoundTextureMemory << llendl;
+	llinfos << "Raw usage: " << LLImageRaw::sGlobalRawMemory << llendl;
+	llinfos << "Formatted usage: " << LLImageFormatted::sGlobalFormattedMemory << llendl;
+	llinfos << "Zombie Viewer Objects: " << LLViewerObject::getNumZombieObjects() << llendl;
+	llinfos << "Number of lights: " << gPipeline.getLightCount() << llendl;
+
+	llinfos << "Memory Usage:" << llendl;
+	llinfos << "--------------------------------" << llendl;
+	llinfos << "Pipeline:" << llendl;
+	llinfos << llendl;
+
+#if LL_SMARTHEAP
+	llinfos << "--------------------------------" << llendl;
+	{
+		llinfos << "sizeof(LLVOVolume) = " << sizeof(LLVOVolume) << llendl;
+
+		U32 total_pool_size = 0;
+		U32 total_used_size = 0;
+		MEM_POOL_INFO pool_info;
+		MEM_POOL_STATUS pool_status;
+		U32 pool_num = 0;
+		for(pool_status = MemPoolFirst( &pool_info, 1 ); 
+			pool_status != MEM_POOL_END; 
+			pool_status = MemPoolNext( &pool_info, 1 ) )
+		{
+			llinfos << "Pool #" << pool_num << llendl;
+			if( MEM_POOL_OK != pool_status )
+			{
+				llwarns << "Pool not ok" << llendl;
+				continue;
+			}
+
+			llinfos << "Pool blockSizeFS " << pool_info.blockSizeFS
+				<< " pageSize " << pool_info.pageSize
+				<< llendl;
+
+			U32 pool_count = MemPoolCount(pool_info.pool);
+			llinfos << "Blocks " << pool_count << llendl;
+
+			U32 pool_size = MemPoolSize( pool_info.pool );
+			if( pool_size == MEM_ERROR_RET )
+			{
+				llinfos << "MemPoolSize() failed (" << pool_num << ")" << llendl;
+			}
+			else
+			{
+				llinfos << "MemPool Size " << pool_size / 1024 << "K" << llendl;
+			}
+
+			total_pool_size += pool_size;
+
+			if( !MemPoolLock( pool_info.pool ) )
+			{
+				llinfos << "MemPoolLock failed (" << pool_num << ") " << llendl;
+				continue;
+			}
+
+			U32 used_size = 0; 
+			MEM_POOL_ENTRY entry;
+			entry.entry = NULL;
+			while( MemPoolWalk( pool_info.pool, &entry ) == MEM_POOL_OK )
+			{
+				if( entry.isInUse )
+				{
+					used_size += entry.size;
+				}
+			}
+
+			MemPoolUnlock( pool_info.pool );
+
+			llinfos << "MemPool Used " << used_size/1024 << "K" << llendl;
+			total_used_size += used_size;
+			pool_num++;
+		}
+		
+		llinfos << "Total Pool Size " << total_pool_size/1024 << "K" << llendl;
+		llinfos << "Total Used Size " << total_used_size/1024 << "K" << llendl;
+
+	}
+#endif
+
+	llinfos << "--------------------------------" << llendl;
+	llinfos << "Avatar Memory (partly overlaps with above stats):" << llendl;
+	gTexStaticImageList.dumpByteCount();
+	LLVOAvatar::dumpScratchTextureByteCount();
+	LLTexLayerSetBuffer::dumpTotalByteCount();
+	LLVOAvatar::dumpTotalLocalTextureByteCount();
+	LLTexLayerParamAlpha::dumpCacheByteCount();
+	LLVOAvatar::dumpBakedStatus();
+
+	llinfos << llendl;
+
+	llinfos << "Object counts:" << llendl;
+	S32 i;
+	S32 obj_counts[256];
+//	S32 app_angles[256];
+	for (i = 0; i < 256; i++)
+	{
+		obj_counts[i] = 0;
+	}
+	for (i = 0; i < gObjectList.getNumObjects(); i++)
+	{
+		LLViewerObject *objectp = gObjectList.getObject(i);
+		if (objectp)
+		{
+			obj_counts[objectp->getPCode()]++;
+		}
+	}
+	for (i = 0; i < 256; i++)
+	{
+		if (obj_counts[i])
+		{
+			llinfos << LLPrimitive::pCodeToString(i) << ":" << obj_counts[i] << llendl;
+		}
+	}
+}
+
+
+U32		gTotalLandIn = 0, gTotalLandOut = 0;
+U32		gTotalWaterIn = 0, gTotalWaterOut = 0;
+
+F32		gAveLandCompression = 0.f, gAveWaterCompression = 0.f;
+F32		gBestLandCompression = 1.f, gBestWaterCompression = 1.f;
+F32		gWorstLandCompression = 0.f, gWorstWaterCompression = 0.f;
+
+
+
+U32		gTotalWorldBytes = 0, gTotalObjectBytes = 0, gTotalTextureBytes = 0, gSimPingCount = 0;
+U32		gObjectBits = 0;
+F32		gAvgSimPing = 0.f;
+
+
+extern U32  gVisCompared;
+extern U32  gVisTested;
+
+std::map<S32,LLFrameTimer> gDebugTimers;
+
+void update_statistics(U32 frame_count)
+{
+	gTotalWorldBytes += gVLManager.getTotalBytes();
+	gTotalObjectBytes += gObjectBits / 8;
+	gTotalTextureBytes += LLViewerImageList::sTextureBits / 8;
+
+	// make sure we have a valid time delta for this frame
+	if (gFrameIntervalSeconds > 0.f)
+	{
+		if (gAgent.getCameraMode() == CAMERA_MODE_MOUSELOOK)
+		{
+			gViewerStats->incStat(LLViewerStats::ST_MOUSELOOK_SECONDS, gFrameIntervalSeconds);
+		}
+		else if (gAgent.getCameraMode() == CAMERA_MODE_CUSTOMIZE_AVATAR)
+		{
+			gViewerStats->incStat(LLViewerStats::ST_AVATAR_EDIT_SECONDS, gFrameIntervalSeconds);
+		}
+		else if (gFloaterTools && gFloaterTools->getVisible())
+		{
+			gViewerStats->incStat(LLViewerStats::ST_TOOLBOX_SECONDS, gFrameIntervalSeconds);
+		}
+	}
+	gViewerStats->setStat(LLViewerStats::ST_ENABLE_VBO, (F64)gSavedSettings.getBOOL("RenderVBOEnable"));
+	gViewerStats->setStat(LLViewerStats::ST_LIGHTING_DETAIL, (F64)gSavedSettings.getS32("RenderLightingDetail"));
+	gViewerStats->setStat(LLViewerStats::ST_DRAW_DIST, (F64)gSavedSettings.getF32("RenderFarClip"));
+	gViewerStats->setStat(LLViewerStats::ST_CHAT_BUBBLES, (F64)gSavedSettings.getBOOL("UseChatBubbles"));
+#if 0 // 1.9.2
+	gViewerStats->setStat(LLViewerStats::ST_SHADER_OBJECTS, (F64)gSavedSettings.getS32("VertexShaderLevelObject"));
+	gViewerStats->setStat(LLViewerStats::ST_SHADER_AVATAR, (F64)gSavedSettings.getBOOL("VertexShaderLevelAvatar"));
+	gViewerStats->setStat(LLViewerStats::ST_SHADER_ENVIRONMENT, (F64)gSavedSettings.getBOOL("VertexShaderLevelEnvironment"));
+#endif
+	gViewerStats->setStat(LLViewerStats::ST_FRAME_SECS, gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_FRAME));
+	F64 idle_secs = gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_IDLE);
+	F64 network_secs = gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_NETWORK);
+	gViewerStats->setStat(LLViewerStats::ST_UPDATE_SECS, idle_secs - network_secs);
+	gViewerStats->setStat(LLViewerStats::ST_NETWORK_SECS, network_secs);
+	gViewerStats->setStat(LLViewerStats::ST_IMAGE_SECS, gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_IMAGE_UPDATE));
+	gViewerStats->setStat(LLViewerStats::ST_REBUILD_SECS, gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_REBUILD));
+	gViewerStats->setStat(LLViewerStats::ST_RENDER_SECS, gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_RENDER_GEOMETRY));
+		
+	LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(gAgent.getRegion()->getHost());
+	if (cdp)
+	{
+		gViewerStats->mSimPingStat.addValue(cdp->getPingDelay());
+		gAvgSimPing = ((gAvgSimPing * (F32)gSimPingCount) + (F32)(cdp->getPingDelay())) / ((F32)gSimPingCount + 1);
+		gSimPingCount++;
+	}
+	else
+	{
+		gViewerStats->mSimPingStat.addValue(10000);
+	}
+
+	gViewerStats->mFPSStat.addValue(1);
+	F32 layer_bits = (F32)(gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits());
+	gViewerStats->mLayersKBitStat.addValue(layer_bits/1024.f);
+	gViewerStats->mObjectKBitStat.addValue(gObjectBits/1024.f);
+	gViewerStats->mTextureKBitStat.addValue(LLViewerImageList::sTextureBits/1024.f);
+	gViewerStats->mVFSPendingOperations.addValue(LLVFile::getVFSThread()->getPending());
+	gViewerStats->mAssetKBitStat.addValue(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
+	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
+
+	static S32 tex_bits_idle_count = 0;
+	if (LLViewerImageList::sTextureBits == 0)
+	{
+		if (++tex_bits_idle_count >= 30)
+			gDebugTimers[0].pause();
+	}
+	else
+	{
+		tex_bits_idle_count = 0;
+		gDebugTimers[0].unpause();
+	}
+	
+	gViewerStats->mTexturePacketsStat.addValue(LLViewerImageList::sTexturePackets);
+
+	// log when the LibXUL (aka Mozilla) widget is used and opened so we can monitor framerate changes
+	#if LL_LIBXUL_ENABLED
+	{
+		BOOL result = gViewerHtmlHelp.getFloaterOpened();
+		gViewerStats->setStat(LLViewerStats::ST_LIBXUL_WIDGET_USED, (F64)result);
+	}
+	#endif
+
+	{
+		static F32 visible_avatar_frames = 0.f;
+		static F32 avg_visible_avatars = 0;
+		F32 visible_avatars = (F32)LLVOAvatar::sNumVisibleAvatars;
+		if (visible_avatars > 0.f)
+		{
+			visible_avatar_frames = 1.f;
+			avg_visible_avatars = (avg_visible_avatars * (F32)(visible_avatar_frames - 1.f) + visible_avatars) / visible_avatar_frames;
+		}
+		gViewerStats->setStat(LLViewerStats::ST_VISIBLE_AVATARS, (F64)avg_visible_avatars);
+	}
+	gWorldp->updateNetStats();
+	gWorldp->requestCacheMisses();
+	
+	// Reset all of these values.
+	gVLManager.resetBitCounts();
+	gObjectBits = 0;
+//	gDecodedBits = 0;
+
+	LLViewerImageList::sTextureBits = 0;
+	LLViewerImageList::sTexturePackets = 0;
+
+#if LL_WINDOWS && LL_LCD_COMPILE
+	bool LCDenabled = gLcdScreen->Enabled();
+	gViewerStats->setStat(LLViewerStats::ST_LOGITECH_LCD, LCDenabled);
+#else
+	gViewerStats->setStat(LLViewerStats::ST_LOGITECH_LCD, false);
+#endif
+}
+
+class ViewerStatsResponder : public LLHTTPClient::Responder
+{
+public:
+    ViewerStatsResponder() { }
+
+    void error(U32 statusNum, const std::string& reason)
+    {
+		llinfos << "ViewerStatsResponder::error " << statusNum << " "
+				<< reason << llendl;
+    }
+
+    void result(const LLSD& content)
+    {
+		llinfos << "ViewerStatsResponder::result" << llendl;
+	}
+};
+
+/*
+ * The sim-side LLSD is in newsim/llagentinfo.cpp:forwardViewerStats.
+ *
+ * There's also a compatibility shim for the old fixed-format sim
+ * stats in newsim/llagentinfo.cpp:processViewerStats.
+ *
+ * If you move stats around here, make the corresponding changes in
+ * those locations, too.
+ */
+void send_stats()
+{
+	// IW 9/23/02 I elected not to move this into LLViewerStats
+	// because it depends on too many viewer.cpp globals.
+	// Someday we may want to merge all our stats into a central place
+	// but that day is not today.
+
+	// Only send stats if the agent is connected to a region.
+	if (!gAgent.getRegion() || gNoRender)
+	{
+		return;
+	}
+
+	LLSD body;
+	std::string url = gAgent.getRegion()->getCapability("ViewerStats");
+
+	if (url.empty()) {
+		llwarns << "Could not get ViewerStats capability" << llendl;
+		return;
+	}
+	
+	body["session_id"] = gAgentSessionID;
+	
+	LLSD &agent = body["agent"];
+	
+	time_t ltime;
+	time(&ltime);
+	F32 run_time = F32(LLFrameTimer::getElapsedSeconds());
+
+	agent["start_time"] = ltime - run_time;
+	agent["run_time"] = run_time;
+	// send fps only for time app spends in foreground
+	agent["fps"] = (F32)gForegroundFrameCount / gForegroundTime.getElapsedTimeF32();
+	agent["version"] = gCurrentVersion;
+	
+	agent["sim_fps"] = ((F32) gFrameCount - gSimFrames) /
+		(F32) (gRenderStartTime.getElapsedTimeF32() - gSimLastTime);
+
+	gSimLastTime = gRenderStartTime.getElapsedTimeF32();
+	gSimFrames   = (F32) gFrameCount;
+
+	agent["agents_in_view"] = LLVOAvatar::sNumVisibleAvatars;
+	agent["ping"] = gAvgSimPing;
+	agent["meters_traveled"] = gAgent.getDistanceTraveled();
+	agent["regions_visited"] = gAgent.getRegionsVisited();
+	agent["mem_use"] = getCurrentRSS() / 1024.0;
+
+	LLSD &system = body["system"];
+	
+	system["ram"] = (S32) gSysMemory.getPhysicalMemoryKB();
+	system["os"] = LLAppViewer::instance()->getOSInfo().getOSString();
+	system["cpu"] = gSysCPU.getCPUString();
+
+	std::string gpu_desc = llformat(
+		"%-6s Class %d ",
+		gGLManager.mGLVendorShort.substr(0,6).c_str(),
+		gFeatureManagerp->getGPUClass())
+		+ gFeatureManagerp->getGPUString();
+
+	system["gpu"] = gpu_desc;
+	system["gpu_class"] = gFeatureManagerp->getGPUClass();
+	system["gpu_vendor"] = gGLManager.mGLVendorShort;
+	system["gpu_version"] = gGLManager.mDriverVersionVendorString;
+
+	LLSD &download = body["downloads"];
+
+	download["world_kbytes"] = gTotalWorldBytes / 1024.0;
+	download["object_kbytes"] = gTotalObjectBytes / 1024.0;
+	download["texture_kbytes"] = gTotalTextureBytes / 1024.0;
+
+	LLSD &in = body["stats"]["net"]["in"];
+
+	in["kbytes"] = gMessageSystem->mTotalBytesIn / 1024.0;
+	in["packets"] = (S32) gMessageSystem->mPacketsIn;
+	in["compressed_packets"] = (S32) gMessageSystem->mCompressedPacketsIn;
+	in["savings"] = (gMessageSystem->mUncompressedBytesIn -
+					 gMessageSystem->mCompressedBytesIn) / 1024.0;
+	
+	LLSD &out = body["stats"]["net"]["out"];
+	
+	out["kbytes"] = gMessageSystem->mTotalBytesOut / 1024.0;
+	out["packets"] = (S32) gMessageSystem->mPacketsOut;
+	out["compressed_packets"] = (S32) gMessageSystem->mCompressedPacketsOut;
+	out["savings"] = (gMessageSystem->mUncompressedBytesOut -
+					  gMessageSystem->mCompressedBytesOut) / 1024.0;
+
+	LLSD &fail = body["stats"]["failures"];
+
+	fail["send_packet"] = (S32) gMessageSystem->mSendPacketFailureCount;
+	fail["dropped"] = (S32) gMessageSystem->mDroppedPackets;
+	fail["resent"] = (S32) gMessageSystem->mResentPackets;
+	fail["failed_resends"] = (S32) gMessageSystem->mFailedResendPackets;
+	fail["off_circuit"] = (S32) gMessageSystem->mOffCircuitPackets;
+	fail["invalid"] = (S32) gMessageSystem->mInvalidOnCircuitPackets;
+
+	gViewerStats->addToMessage(body);
+
+	LLHTTPClient::post(url, body, new ViewerStatsResponder());
 }

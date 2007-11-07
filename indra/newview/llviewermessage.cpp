@@ -129,8 +129,9 @@
 #include "llweb.h"
 #include "llworld.h"
 #include "pipeline.h"
-#include "viewer.h"
+#include "llappviewer.h"
 #include "llfloaterworldmap.h"
+#include "llviewerdisplay.h"
 
 #include <boost/tokenizer.hpp>
 
@@ -145,8 +146,6 @@ const F32 BIRD_AUDIBLE_RADIUS = 32.0f;
 const F32 SIT_DISTANCE_FROM_TARGET = 0.25f;
 static const F32 LOGOUT_REPLY_TIME = 3.f;	// Wait this long after LogoutReply before quitting.
 extern BOOL gDebugClicks;
-
-extern void bad_network_handler();
 
 // function prototypes
 void open_offer(const std::vector<LLUUID>& items, const std::string& from_name);
@@ -202,8 +201,8 @@ void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_MoneyTransferRequest);
 		msg->nextBlockFast(_PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, agent_get_id());
-		msg->addUUIDFast(_PREHASH_SessionID, agent_get_session_id());
+		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+        msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 		msg->nextBlockFast(_PREHASH_MoneyData);
 		msg->addUUIDFast(_PREHASH_SourceID, gAgent.getID() );
 		msg->addUUIDFast(_PREHASH_DestID, uuid);
@@ -241,7 +240,7 @@ void process_logout_reply(LLMessageSystem* msg, void**)
 	msg->getUUID("AgentData", "AgentID", agent_id);
 	LLUUID session_id;
 	msg->getUUID("AgentData", "SessionID", session_id);
-	if((agent_id != agent_get_id()) || (session_id != agent_get_session_id()))
+	if((agent_id != gAgent.getID()) || (session_id != gAgent.getSessionID()))
 	{
 		llwarns << "Bogus Logout Reply" << llendl;
 	}
@@ -278,7 +277,7 @@ void process_logout_reply(LLMessageSystem* msg, void**)
 		gInventory.accountForUpdate(parents);
 		gInventory.notifyObservers();
 	}
-	app_force_quit(NULL);
+    LLAppViewer::instance()->forceQuit();
 }
 
 void process_layer_data(LLMessageSystem *mesgsys, void **user_data)
@@ -782,7 +781,7 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 				// Use the name of the last item giver, who is probably the person
 				// spamming you. JC
 				std::ostringstream message;
-				message << gSecondLife;
+				message << LLAppViewer::instance()->getSecondLifeTitle();
 				if (!from_name.empty())
 				{
 					message << ": Items coming in too fast from " << from_name;
@@ -2708,7 +2707,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 			<< x << ":" << y 
 			<< " current pos " << gAgent.getPositionGlobal()
 			<< llendl;
-		do_disconnect("You were sent to an invalid region.");
+		LLAppViewer::instance()->forceDisconnect("You were sent to an invalid region.");
 		return;
 
 	}
@@ -2888,7 +2887,7 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 	}
 
 	// We have already requested to log out.  Don't send agent updates.
-	if(gLogoutRequestSent)
+	if(LLAppViewer::instance()->logoutRequestSent())
 	{
 		return;
 	}
@@ -3235,10 +3234,13 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 	F32 phase;
 	U64	space_time_usec;
 
+    U32 seconds_per_day;
+    U32 seconds_per_year;
+
 	// "SimulatorViewerTimeMessage"
 	mesgsys->getU64Fast(_PREHASH_TimeInfo, _PREHASH_UsecSinceStart, space_time_usec);
-	mesgsys->getU32Fast(_PREHASH_TimeInfo, _PREHASH_SecPerDay, gSecondsPerDay);
-	mesgsys->getU32Fast(_PREHASH_TimeInfo, _PREHASH_SecPerYear, gSecondsPerYear);
+	mesgsys->getU32Fast(_PREHASH_TimeInfo, _PREHASH_SecPerDay, seconds_per_day);
+	mesgsys->getU32Fast(_PREHASH_TimeInfo, _PREHASH_SecPerYear, seconds_per_year);
 
 	// This should eventually be moved to an "UpdateHeavenlyBodies" message
 	mesgsys->getF32Fast(_PREHASH_TimeInfo, _PREHASH_SunPhase, phase);
@@ -3923,7 +3925,7 @@ void process_kick_user(LLMessageSystem *msg, void** /*user_data*/)
 
 	msg->getStringFast(_PREHASH_UserInfo, _PREHASH_Reason, 2048, message);
 
-	do_disconnect(message);
+	LLAppViewer::instance()->forceDisconnect(message);
 }
 
 
@@ -5337,7 +5339,7 @@ void invalid_message_callback(LLMessageSystem* msg,
 								   void*,
 								   EMessageException exception)
 {
-	bad_network_handler();
+    LLAppViewer::instance()->badNetworkHandler();
 }
 
 // Please do not add more message handlers here. This file is huge.

@@ -32,7 +32,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lllogchat.h"
-#include "viewer.h"
+#include "llappviewer.h"
 	
 const S32 LOG_RECALL_SIZE = 2048;
 

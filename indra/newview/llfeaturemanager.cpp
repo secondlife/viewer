@@ -58,8 +58,6 @@
 //
 extern LLMemoryInfo gSysMemory;
 extern LLCPUInfo gSysCPU;
-extern void write_debug(const char *str);
-extern void write_debug(const std::string& str);
 
 #if LL_DARWIN
 const char FEATURE_TABLE_FILENAME[] = "featuretable_mac.txt";
@@ -492,8 +490,6 @@ void LLFeatureManager::initGraphicsFeatureMasks()
 		maskFeatures("safe");
 	}
 }
-
-extern LLOSInfo gSysOS;
 
 void LLFeatureManager::applyRecommendedFeatures()
 {

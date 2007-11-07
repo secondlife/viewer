@@ -52,7 +52,8 @@
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerwindow.h"
-#include "viewer.h"	// app_request_quit()
+#include "llappviewer.h"
+
 
 // linden libraries
 #include "llassetuploadresponders.h"
@@ -439,7 +440,7 @@ class LLFileQuit : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		app_user_quit();
+		LLAppViewer::instance()->userQuit();
 		return true;
 	}
 };

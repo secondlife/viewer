@@ -58,7 +58,7 @@
 #include "llmemorystream.h"
 #include "llmenugl.h"
 
-extern BOOL gPacificDaylightTime;
+#include "llappviewer.h" // for gPacificDaylightTime
 
 ///----------------------------------------------------------------------------
 /// Class LLEmbeddedNotecardOpener

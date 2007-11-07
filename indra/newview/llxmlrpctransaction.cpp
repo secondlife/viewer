@@ -39,7 +39,7 @@
 #include <curl/curl.h>
 #include <xmlrpc-epi/xmlrpc.h>
 
-#include "viewer.h"
+#include "llappviewer.h"
 
 LLXMLRPCValue LLXMLRPCValue::operator[](const char* id) const
 {

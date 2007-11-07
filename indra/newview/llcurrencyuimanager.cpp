@@ -44,8 +44,7 @@
 #include "lllineeditor.h"
 #include "llviewchildren.h"
 #include "llxmlrpctransaction.h"
-#include "viewer.h"
-
+#include "llappviewer.h"
 
 
 const F64 CURRENCY_ESTIMATE_FREQUENCY = 2.0;
@@ -239,7 +238,7 @@ void LLCurrencyUIManager::Impl::startTransaction(TransactionType type,
 	static std::string transactionURI;
 	if (transactionURI.empty())
 	{
-		transactionURI = getHelperURI() + "currency.php";
+		transactionURI = LLAppViewer::instance()->getHelperURI() + "currency.php";
 	}
 
 	delete mTransaction;

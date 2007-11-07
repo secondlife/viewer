@@ -55,7 +55,6 @@
 #include "llvoavatar.h"
 #include "llworld.h"		// for gWorldPointer
 #include "llresmgr.h"
-#include "viewer.h"			// for gFPS
 #include "pipeline.h"
 #include "llglheaders.h"
 

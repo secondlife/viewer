@@ -36,9 +36,9 @@
 
 // functions
 BOOL idle_startup();
-void cleanup_app();
 LLString load_password_from_disk();
 void release_start_screen();
+void login_alert_done(S32 option, void* user_data);
 
 // constants, variables,  & enumerations
 extern const char* SCREEN_HOME_FILENAME;

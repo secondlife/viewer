@@ -48,7 +48,6 @@
 // viewer
 #include "noise.h"
 #include "v4color.h"
-#include "viewer.h"
 #include "llagent.h"
 #include "llworld.h"
 

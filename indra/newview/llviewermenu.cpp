@@ -191,7 +191,7 @@
 #include "llworldmap.h"
 #include "object_flags.h"
 #include "pipeline.h"
-#include "viewer.h"
+#include "llappviewer.h"
 #include "roles_constants.h"
 #include "llviewerjoystick.h"
 
@@ -218,8 +218,6 @@ LLVOAvatar* find_avatar_from_object( const LLUUID& object_id );
 
 void handle_test_load_url(void*);
 
-extern void disconnect_viewer(void *);
-
 //
 // Evil hackish imported globals
 //
@@ -227,8 +225,6 @@ extern BOOL	gRenderLightGlows;
 extern BOOL gRenderAvatar;
 extern BOOL	gHideSelectedObjects;
 extern BOOL gShowOverlayTitle;
-extern BOOL gRandomizeFramerate;
-extern BOOL gPeriodicSlowFrame;
 extern BOOL gOcclusionCull;
 extern BOOL gAllowSelectAvatar;
 
@@ -408,10 +404,15 @@ void handle_claim_public_land(void*);
 void handle_god_request_havok(void *);
 void handle_god_request_avatar_geometry(void *);	// Hack for easy testing of new avatar geometry
 void reload_personal_settings_overrides(void *);
-void force_breakpoint(void *);
 void reload_vertex_shader(void *);
 void slow_mo_animations(void *);
 void handle_disconnect_viewer(void *);
+
+void force_error_breakpoint(void *);
+void force_error_llerror(void *);
+void force_error_bad_memory_access(void *);
+void force_error_infinite_loop(void *);
+void force_error_software_exception(void *);
 
 void handle_stopall(void*);
 //void handle_hinge(void*);
@@ -422,6 +423,7 @@ void handle_stopall(void*);
 BOOL enable_dehinge(void*);
 void handle_force_delete(void*);
 void print_object_info(void*);
+void print_agent_nvpairs(void*);
 void show_debug_menus();
 void toggle_debug_menus(void*);
 void toggle_map( void* user_data );
@@ -446,7 +448,6 @@ void handle_force_unlock(void*);
 void handle_selected_texture_info(void*);
 void handle_dump_image_list(void*);
 
-void handle_fullscreen_debug(void*);
 void handle_crash(void*);
 void handle_dump_followcam(void*);
 void handle_toggle_flycam(void*);
@@ -1061,16 +1062,18 @@ void init_client_menu(LLMenuGL* menu)
 										&menu_check_control,
 										(void*)"ShowConsoleWindow"));
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+	if(gQAMode && !gInProductionGrid)
 	{
 		LLMenuGL* sub = NULL;
 		sub = new LLMenuGL("Debugging");
-		sub->append(new LLMenuItemCallGL("Force Breakpoint", &force_breakpoint, NULL, NULL, 'B', MASK_CONTROL | MASK_ALT));
-		sub->append(new LLMenuItemCallGL("LLError And Crash", &handle_crash));
+        sub->append(new LLMenuItemCallGL("Force Breakpoint", &force_error_breakpoint, NULL, NULL, 'B', MASK_CONTROL | MASK_ALT));
+		sub->append(new LLMenuItemCallGL("Force LLError And Crash", &force_error_llerror));
+        sub->append(new LLMenuItemCallGL("Force Bad Memory Access", &force_error_bad_memory_access));
+		sub->append(new LLMenuItemCallGL("Force Infinite Loop", &force_error_infinite_loop));
+		// *NOTE:Mani this isn't handled yet... sub->append(new LLMenuItemCallGL("Force Software Exception", &force_error_unhandled_exception)); 
 		sub->createJumpKeys();
 		menu->appendMenu(sub);
 	}
-#endif	
 
 	// TomY Temporary menu item so we can test this floater
 	menu->append(new LLMenuItemCheckGL("Clothing...", 
@@ -2372,7 +2375,6 @@ void callback_leave_group(S32 option, void *userdata)
 		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 		msg->nextBlockFast(_PREHASH_GroupData);
 		msg->addUUIDFast(_PREHASH_GroupID, gAgent.mGroupID );
-		//msg->sendReliable( gUserServer );
 		gAgent.sendReliableMessage();
 	}
 }
@@ -4689,6 +4691,24 @@ void print_object_info(void*)
 	gSelectMgr->selectionDump();
 }
 
+void print_agent_nvpairs(void*)
+{
+	LLViewerObject *objectp;
+
+	llinfos << "Agent Name Value Pairs" << llendl;
+
+	objectp = gObjectList.findObject(gAgentID);
+	if (objectp)
+	{
+		objectp->printNameValuePairs();
+	}
+	else
+	{
+		llinfos << "Can't find agent object" << llendl;
+	}
+
+	llinfos << "Camera at " << gAgent.getCameraPositionGlobal() << llendl;
+}
 
 void show_debug_menus()
 {
@@ -5172,18 +5192,6 @@ void handle_force_unlock(void*)
 		}
 	} func;
 	gSelectMgr->getSelection()->applyToObjects(&func);
-}
-
-// Fullscreen debug stuff
-void handle_fullscreen_debug(void*)
-{
-	llinfos << "Width " << gViewerWindow->getWindowWidth() << " Height " << gViewerWindow->getWindowHeight() << llendl;
-	llinfos << "mouse_x_from_center(100) " << mouse_x_from_center(100) << " y " << mouse_y_from_center(100) << llendl;
-}
-
-void handle_crash(void*)
-{
-	llerrs << "This is an llerror" << llendl;
 }
 
 class LLWorldForceSun : public view_listener_t
@@ -6811,13 +6819,6 @@ void reload_personal_settings_overrides(void *)
 	gSavedSettings.loadFromFile(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT,"overrides.xml"));
 }
 
-void force_breakpoint(void *)
-{
-#if LL_WINDOWS // Forcing a breakpoint
-	DebugBreak();
-#endif
-}
-
 void reload_vertex_shader(void *)
 {
 	//THIS WOULD BE AN AWESOME PLACE TO RELOAD SHADERS... just a thought	- DaveP
@@ -6994,9 +6995,33 @@ void handle_disconnect_viewer(void *)
 
 	snprintf(message, sizeof(message), "Testing viewer disconnect");		/* Flawfinder: ignore */
 
-	do_disconnect(message);
+	LLAppViewer::instance()->forceDisconnect(message);
 }
 
+void force_error_breakpoint(void *)
+{
+    LLAppViewer::instance()->forceErrorBreakpoint();
+}
+
+void force_error_llerror(void *)
+{
+    LLAppViewer::instance()->forceErrorLLError();
+}
+
+void force_error_bad_memory_access(void *)
+{
+    LLAppViewer::instance()->forceErrorBadMemoryAccess();
+}
+
+void force_error_infinite_loop(void *)
+{
+    LLAppViewer::instance()->forceErrorInifiniteLoop();
+}
+
+void force_error_software_exception(void *)
+{
+    LLAppViewer::instance()->forceErrorSoftwareException();
+}
 
 class LLToolsUseSelectionForGrid : public view_listener_t
 {

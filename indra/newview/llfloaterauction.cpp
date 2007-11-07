@@ -50,7 +50,8 @@
 #include "llviewerregion.h"
 #include "llvieweruictrlfactory.h"
 #include "llviewerwindow.h"
-#include "viewer.h"
+#include "llviewerdisplay.h"
+#include "llviewercontrol.h"
 #include "llui.h"
 
 ///----------------------------------------------------------------------------

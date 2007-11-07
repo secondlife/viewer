@@ -42,12 +42,12 @@
 #include "expat/expat.h"
 #include "llcallbacklist.h"
 #include "llviewerregion.h"
-#include "llviewernetwork.h"		// for gUserServerChoice
+#include "llviewernetwork.h"		// for gGridChoice
 #include "llfloateractivespeakers.h"	// for LLSpeakerMgr
 #include "llbase64.h"
 #include "llviewercontrol.h"
 #include "llkeyboard.h"
-#include "viewer.h"	// for gDisconnected, gDisableVoice
+#include "llappviewer.h"	// for gDisconnected, gDisableVoice
 #include "llmutelist.h"  // to check for muted avatars
 #include "llagent.h"
 #include "llcachename.h"
@@ -1052,10 +1052,10 @@ void LLVoiceClient::userAuthorized(const std::string& firstName, const std::stri
 
 	llinfos << "name \"" << mAccountDisplayName << "\" , ID " << agentID << llendl;
 
-	std::string userserver = gUserServerName;
-	LLString::toLower(userserver);
-	if((gUserServerChoice == USERSERVER_AGNI) || 
-		((gUserServerChoice == USERSERVER_OTHER) && (userserver.find("agni") != std::string::npos)))
+	std::string gridname = gGridName;
+	LLString::toLower(gridname);
+	if((gGridChoice == GRID_INFO_AGNI) || 
+		((gGridChoice == GRID_INFO_OTHER) && (gridname.find("agni") != std::string::npos)))
 	{
 		sConnectingToAgni = true;
 	}

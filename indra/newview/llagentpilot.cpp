@@ -38,7 +38,7 @@
 #include "llagentpilot.h"
 #include "llagent.h"
 #include "llframestats.h"
-#include "viewer.h"
+#include "llappviewer.h"
 #include "llviewercontrol.h"
 
 LLAgentPilot gAgentPilot;
@@ -221,7 +221,7 @@ void LLAgentPilot::updateTarget()
 						else if (mQuitAfterRuns)
 						{
 							llinfos << "Done with all runs, quitting viewer!" << llendl;
-							app_force_quit(NULL);
+							LLAppViewer::instance()->forceQuit();
 						}
 						else
 						{

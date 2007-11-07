@@ -63,7 +63,6 @@
 #include "llvocache.h"
 #include "llvoclouds.h"
 #include "llworld.h"
-#include "viewer.h"
 
 // Viewer object cache version, change if object update
 // format changes. JC

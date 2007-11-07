@@ -53,7 +53,6 @@
 #include "llviewerregion.h"
 #include "llworld.h"
 #include "pipeline.h"
-#include "viewer.h"		// for gSunTextureID
 
 const S32 NUM_TILES_X = 8;
 const S32 NUM_TILES_Y = 4;
@@ -71,6 +70,10 @@ const LLVector2 TEX00 = LLVector2(0.f, 0.f);
 const LLVector2 TEX01 = LLVector2(0.f, 1.f);
 const LLVector2 TEX10 = LLVector2(1.f, 0.f);
 const LLVector2 TEX11 = LLVector2(1.f, 1.f);
+
+// Exported globals
+LLUUID gSunTextureID = IMG_SUN;
+LLUUID gMoonTextureID = IMG_MOON;
 
 //static 
 LLColor3 LLHaze::sAirScaSeaLevel;

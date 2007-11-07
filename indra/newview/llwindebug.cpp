@@ -37,12 +37,8 @@
 #include "llviewercontrol.h"
 #include "lldir.h"
 
-// From viewer.h
-extern BOOL gInProductionGrid;
+#include "llappviewer.h"
 
-extern void (*gCrashCallback)(void);
-extern void write_debug(const char *str);
-extern void write_debug(const std::string &str);
 
 // based on dbghelp.h
 typedef BOOL (WINAPI *MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hFile, MINIDUMP_TYPE DumpType,
@@ -123,7 +119,7 @@ BOOL LLWinDebug::setupExceptionHandler()
 			msg += local_dll_name;
 			msg += "!\n";
 
-			write_debug(msg.c_str());
+			LLAppViewer::instance()->writeDebug(msg.c_str());
 
 			ok = FALSE;
 		}
@@ -133,7 +129,7 @@ BOOL LLWinDebug::setupExceptionHandler()
 
 			if (!f_mdwp)
 			{
-				write_debug("No MiniDumpWriteDump!\n");
+				LLAppViewer::instance()->writeDebug("No MiniDumpWriteDump!\n");
 				FreeLibrary(hDll);
 				hDll = NULL;
 				ok = FALSE;
@@ -143,25 +139,29 @@ BOOL LLWinDebug::setupExceptionHandler()
 		gEmergencyMemoryReserve.reserve();
 	}
 
-	LPTOP_LEVEL_EXCEPTION_FILTER prev_filter;
-	prev_filter = SetUnhandledExceptionFilter(LLWinDebug::handleException);
+	// *REMOVE: LLApp now handles the exception handing. 
+	//            LLAppViewerWin32 calls SetUnhandledExceptionFilter()
 
-	if (s_first_run)
-	{
-		// We're fine, this is the first run.
-		s_first_run = FALSE;
-		return ok;
-	}
-	if (!prev_filter)
-	{
-		llwarns << "Our exception handler (" << (void *)LLWinDebug::handleException << ") replaced with NULL!" << llendl;
-		ok = FALSE;
-	}
-	if (prev_filter != LLWinDebug::handleException)
-	{
-		llwarns << "Our exception handler (" << (void *)LLWinDebug::handleException << ") replaced with " << prev_filter << "!" << llendl;
-		ok = FALSE;
-	}
+	//LPTOP_LEVEL_EXCEPTION_FILTER prev_filter;
+	//prev_filter = SetUnhandledExceptionFilter(LLWinDebug::handleException);
+
+	//if (s_first_run)
+	//{
+	//	// We're fine, this is the first run.
+	//	s_first_run = FALSE;
+	//	return ok;
+	//}
+	//if (!prev_filter)
+	//{
+	//	llwarns << "Our exception handler (" << (void *)LLWinDebug::handleException << ") replaced with NULL!" << llendl;
+	//	ok = FALSE;
+	//}
+	//if (prev_filter != LLWinDebug::handleException)
+	//{
+	//	llwarns << "Our exception handler (" << (void *)LLWinDebug::handleException << ") replaced with " << prev_filter << "!" << llendl;
+	//	ok = FALSE;
+	//}
+
 	return ok;
 #else
 	// Internal builds don't mess with exception handling.
@@ -173,11 +173,11 @@ void LLWinDebug::writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMAT
 {
 	if(f_mdwp == NULL) 
 	{
-		write_debug("No way to generate a minidump, no MiniDumpWriteDump function!\n");
+		LLAppViewer::instance()->writeDebug("No way to generate a minidump, no MiniDumpWriteDump function!\n");
 	}
 	else if(gDirUtilp == NULL)
 	{
-		write_debug("No way to generate a minidump, no gDirUtilp!\n");
+		LLAppViewer::instance()->writeDebug("No way to generate a minidump, no gDirUtilp!\n");
 	}
 	else
 	{
@@ -212,6 +212,8 @@ void LLWinDebug::writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMAT
 // static
 LONG LLWinDebug::handleException(struct _EXCEPTION_POINTERS *exception_infop)
 {
+	// *NOTE:Mani - This method is no longer the initial exception handler.
+	// It is called from viewer_windows_exception_handler() and other places.
 
 	// 
 	// Let go of a bunch of reserved memory to give library calls etc
@@ -254,15 +256,6 @@ LONG LLWinDebug::handleException(struct _EXCEPTION_POINTERS *exception_infop)
 		// We're calling this due to a network error, not due to an actual exception.
 		// It doesn't realy matter what we return.
 		return EXCEPTION_CONTINUE_SEARCH;
-	}
-
-	//
-	// Call the newview crash callback, which will spawn the crash
-	// reporter.  It may or may not spawn a dialog.
-	//
-	if (gCrashCallback)
-	{
-		gCrashCallback();
 	}
 
 	//

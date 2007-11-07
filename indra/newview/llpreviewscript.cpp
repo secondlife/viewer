@@ -72,7 +72,6 @@
 #include "llscrolllistctrl.h"
 #include "lltextbox.h"
 #include "llslider.h"
-#include "viewer.h"
 #include "lldir.h"
 #include "llcombobox.h"
 //#include "llfloaterchat.h"
@@ -83,7 +82,8 @@
 #include "llwebbrowserctrl.h"
 #include "lluictrlfactory.h"
 
-#include "viewer.h"
+#include "llviewercontrol.h"
+#include "llappviewer.h"
 
 #include "llpanelinventory.h"
 
@@ -629,7 +629,7 @@ void LLScriptEdCore::handleSaveChangesDialog( S32 option, void* userdata )
 	case 2: // "Cancel"
 	default:
 		// If we were quitting, we didn't really mean it.
-		app_abort_quit();
+        LLAppViewer::instance()->abortQuit();
 		break;
 	}
 }

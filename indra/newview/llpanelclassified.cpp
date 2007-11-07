@@ -66,7 +66,7 @@
 #include "llviewergenericmessage.h"	// send_generic_message
 #include "llviewerregion.h"
 #include "llviewerwindow.h"	// for window width, height
-#include "viewer.h"	// app_abort_quit()
+#include "llappviewer.h"	// abortQuit()
 
 const S32 MINIMUM_PRICE_FOR_LISTING = 50;	// L$
 
@@ -314,7 +314,7 @@ void LLPanelClassified::saveCallback(S32 option, void* data)
 
 		case 2: // Cancel
 		default:
-			app_abort_quit();
+            LLAppViewer::instance()->abortQuit();
 			break;
 	}
 }

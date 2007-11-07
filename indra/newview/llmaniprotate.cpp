@@ -60,7 +60,6 @@
 #include "llviewerwindow.h"
 #include "llworld.h"
 #include "pipeline.h"
-#include "viewer.h"
 #include "lldrawable.h"
 #include "llglheaders.h"
 
@@ -512,8 +511,6 @@ LLVector3 LLManipRotate::projectToSphere( F32 x, F32 y, BOOL* on_sphere )
     }
 	return LLVector3( x, y, z );
 }
-
-extern U32 gFrameCount;
 
 // Freeform rotation
 void LLManipRotate::drag( S32 x, S32 y )

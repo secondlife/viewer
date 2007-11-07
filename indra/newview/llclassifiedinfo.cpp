@@ -32,7 +32,6 @@
 #include "llviewerprecompiledheaders.h"
 #include "llclassifiedinfo.h"
 
-#include "viewer.h"	// for gPacificDaylightTime
 #include "lluuid.h"
 
 LLClassifiedInfo::cat_map LLClassifiedInfo::sCategories;

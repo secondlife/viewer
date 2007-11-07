@@ -62,7 +62,7 @@
 #include "llwindow.h"
 #include "llworld.h"
 #include "llxmlrpctransaction.h"
-#include "viewer.h"
+#include "llappviewer.h"
 #include "roles_constants.h"
 
 // NOTE: This is duplicated in lldatamoney.cpp ...
@@ -847,7 +847,7 @@ void LLFloaterBuyLandUI::startTransaction(TransactionType type,
 	static std::string transaction_uri;
 	if (transaction_uri.empty())
 	{
-		transaction_uri = getHelperURI() + "landtool.php";
+		transaction_uri = LLAppViewer::instance()->getHelperURI() + "landtool.php";
 	}
 	
 	const char* method;

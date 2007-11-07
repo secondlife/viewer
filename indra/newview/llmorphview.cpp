@@ -49,7 +49,6 @@
 #include "llvoavatar.h"
 #include "llviewerwindow.h"
 #include "pipeline.h"
-#include "viewer.h"
 
 LLMorphView *gMorphView = NULL;
 

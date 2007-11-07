@@ -112,6 +112,7 @@
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerwindow.h"
+#include "llviewerdisplay.h"
 #include "llvoavatar.h"
 #include "llvoground.h"
 #include "llvosky.h"
@@ -121,7 +122,8 @@
 #include "llworldmap.h"
 #include "pipeline.h"
 #include "roles_constants.h"
-#include "viewer.h"
+#include "llviewercontrol.h"
+#include "llappviewer.h"
 #include "llvoiceclient.h"
 
 // Ventrella
@@ -130,7 +132,6 @@
 
 extern LLMenuBarGL* gMenuBarView;
 extern U8 gLastPickAlpha;
-extern F32 gFrameDTClamped;
 
 //drone wandering constants
 const F32 MAX_WANDER_TIME = 20.f;						// seconds
@@ -221,6 +222,9 @@ const LLUUID BAKED_TEXTURE_HASH[BAKED_TEXTURE_COUNT] =
 	LLUUID("b2cf28af-b840-1071-3c6a-78085d8128b5"),
 	LLUUID("ea800387-ea1a-14e0-56cb-24f2022f969a")
 };
+
+// The agent instance.
+LLAgent gAgent;
 
 //
 // Statics
@@ -2545,8 +2549,8 @@ void LLAgent::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 		LLVector3 headLookAxis;
 		LLCoordFrame frameCamera = *((LLCoordFrame*)gCamera);
 
-		F32 x_from_center = mouse_x_from_center( mouse_x );	// range from -0.5 to 0.5
-		F32 y_from_center = mouse_y_from_center( mouse_y );	// range from -0.5 to 0.5
+		F32 x_from_center = ((F32) mouse_x / (F32) gViewerWindow->getWindowWidth() ) - 0.5f;
+		F32 y_from_center = ((F32) mouse_y / (F32) gViewerWindow->getWindowHeight() ) - 0.5f;
 
 		if (cameraMouselook())
 		{
@@ -2811,7 +2815,7 @@ void LLAgent::endAnimationUpdateUI()
 
 		// HACK: If we're quitting, and we were in customize avatar, don't
 		// let the mini-map go visible again. JC
-		if (!gQuitRequested)
+        if (!LLAppViewer::instance()->quitRequested())
 		{
 			gFloaterMap->popVisible();
 		}
@@ -5828,7 +5832,7 @@ void LLAgent::requestEnterGodMode()
 	msg->addBOOLFast(_PREHASH_Godlike, TRUE);
 	msg->addUUIDFast(_PREHASH_Token, LLUUID::null);
 
-	// simulator and userserver need to know about your request
+	// simulators need to know about your request
 	sendReliableMessage();
 }
 
@@ -5843,7 +5847,7 @@ void LLAgent::requestLeaveGodMode()
 	msg->addBOOLFast(_PREHASH_Godlike, FALSE);
 	msg->addUUIDFast(_PREHASH_Token, LLUUID::null);
 
-	// simulator and userserver need to know about your request
+	// simulator needs to know about your request
 	sendReliableMessage();
 }
 

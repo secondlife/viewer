@@ -78,7 +78,7 @@
 
 #include "lltoolmgr.h"
 #include "llfocusmgr.h"
-#include "viewer.h"
+#include "llappviewer.h"
 
 //#include "llfirstuse.h"
 

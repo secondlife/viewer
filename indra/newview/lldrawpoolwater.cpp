@@ -50,7 +50,6 @@
 #include "llvowater.h"
 #include "llworld.h"
 #include "pipeline.h"
-#include "viewer.h"			// gSunTextureID, gMoonTextureID
 #include "llglslshader.h"
 
 const LLUUID WATER_TEST("2bfd3884-7e27-69b9-ba3a-3e673f680004");

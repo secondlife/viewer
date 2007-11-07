@@ -130,8 +130,9 @@ public:
 	static void get(const std::string& url, ResponderPtr);
 	static void getByteRange(const std::string& url, S32 offset, S32 length, ResponderPtr responder);
 	
+    static void initClass(); // *NOTE:Mani - not thread safe!
 	static void process();
-	static void cleanup();
+	static void cleanup(); // *NOTE:Mani - not thread safe!
 };
 
 namespace boost

@@ -51,7 +51,6 @@
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "llviewercontrol.h"
-#include "viewer.h"
 #include "llvieweruictrlfactory.h"
 #include "llviewerstats.h"
 #include "llviewercamera.h"

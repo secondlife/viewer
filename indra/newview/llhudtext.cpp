@@ -48,7 +48,6 @@
 #include "llviewerobject.h"
 #include "llvovolume.h"
 #include "llviewerwindow.h"
-#include "viewer.h"
 #include "llstatusbar.h"
 #include "llmenugl.h"
 #include "pipeline.h"

@@ -41,7 +41,6 @@
 #include "llfontgl.h"
 #include "llmemtype.h"
 
-#include "viewer.h"
 #include "llui.h"
 #include "llviewercontrol.h"
 #include "llstat.h"

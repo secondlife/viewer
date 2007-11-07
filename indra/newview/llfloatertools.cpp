@@ -76,7 +76,6 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
-#include "viewer.h"
 
 #include "llvieweruictrlfactory.h"
 
@@ -752,7 +751,7 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 BOOL LLFloaterTools::canClose()
 {
 	// don't close when quitting, so camera will stay put
-	return !gQuit;
+	return !LLApp::isExiting();
 }
 
 // virtual

@@ -78,7 +78,6 @@
 #include "llviewerwindow.h"
 #include "llwearable.h"
 #include "llwearablelist.h"
-#include "viewer.h"
 #include "llviewermessage.h" 
 #include "llviewerregion.h"
 #include "lltabcontainer.h"

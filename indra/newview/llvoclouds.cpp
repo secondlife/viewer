@@ -49,7 +49,9 @@
 #include "llvosky.h"
 #include "llworld.h"
 #include "pipeline.h"
-#include "viewer.h"
+
+LLUUID gCloudTextureID = IMG_CLOUD_POOF;
+
 
 LLVOClouds::LLVOClouds(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 :	LLAlphaObject(id, LL_VO_CLOUDS, regionp)

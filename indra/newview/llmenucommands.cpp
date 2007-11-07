@@ -67,7 +67,6 @@
 #include "llviewerwindow.h"
 #include "llworld.h"
 #include "llworldmap.h"
-#include "viewer.h"
 #include "llfocusmgr.h"
 
 void handle_track_avatar(const LLUUID& agent_id, const std::string& name)
