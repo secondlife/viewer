@@ -107,7 +107,6 @@
 #include "llvosky.h"
 #include "llworld.h"
 #include "pipeline.h"
-#include "viewer.h"
 
 /////////////////// From llfloater.cpp
 #include "llbutton.h"
