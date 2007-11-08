@@ -1894,11 +1894,10 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 				// compute the area of the parallelogram by taking the length of the cross product:
 				// (parallegram is an approximation of two triangles)
 				LLVector3 cross = (p1 - p2) % (p1 - p3);
-				// take length squared for efficiency (no sqrt)
-				area += cross.magVecSquared();
+				area += cross.magVec();
 			}
 		
-		if (area < SCULPT_MIN_AREA * SCULPT_MIN_AREA)
+		if (area < SCULPT_MIN_AREA)
 			data_is_empty = TRUE;
 	}
 

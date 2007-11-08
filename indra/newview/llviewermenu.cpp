@@ -7132,7 +7132,7 @@ void handle_load_from_xml(void*)
 
 void handle_slurl_test(void*)
 {
-	LLFloaterHtml::getInstance()->show("http://user.lindenlab.com/~james/slurl.html", "SLURL Test");
+	LLFloaterHtml::getInstance()->show("http://secondlife.com/app/search/slurls.html", "SLURL Test");
 }
 
 void handle_rebake_textures(void*)
