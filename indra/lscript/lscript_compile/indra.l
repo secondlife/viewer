@@ -678,7 +678,7 @@ BOOL lscript_compile(const char* src_filename, const char* dst_filename,
 
 		// Reset the lexer's internal buffering.
 
-
+	    yyrestart(yyin);
 
 		b_parse_ok = !yyparse();
 
