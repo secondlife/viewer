@@ -376,6 +376,7 @@ struct llsd_select_string : public std::unary_function<LLSD, LLSD::String>
 	}
 };
 
+std::ostream& operator<<(std::ostream& s, const LLSD& llsd);
 
 /** QUESTIONS & TO DOS
 	- Would Binary be more convenient as usigned char* buffer semantics?

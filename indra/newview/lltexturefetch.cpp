@@ -1294,11 +1294,21 @@ bool LLTextureFetch::createRequest(const LLUUID& id, const LLHost& host, F32 pri
 			return false;
 		}
 	}
-	// If the requester knows the dimentions of the image,
-	// this will calculate how much data we need without having to parse the header
+
 	S32 desired_size;
-	if (w*h*c > 0)
+	if ((discard == 0) && worker && worker->mFileSize)
 	{
+		// if we want the entire image, and we know its size, then get it all
+		// (calcDataSizeJ2C() below makes assumptions about how the image
+		// was compressed - this code ensures that when we request the entire image,
+		// we really do get it.)
+		desired_size = worker->mFileSize;
+	}
+	else if (w*h*c > 0)
+	{
+		// If the requester knows the dimentions of the image,
+		// this will calculate how much data we need without having to parse the header
+
 		desired_size = LLImageJ2C::calcDataSizeJ2C(w, h, c, discard);
 	}
 	else

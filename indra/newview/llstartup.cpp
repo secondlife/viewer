@@ -2162,17 +2162,17 @@ BOOL idle_startup()
 				if (url_ok)
 				{
 					args["[TYPE]"] = "desired";
-					args["[HELP]"] = " ";
+					args["[HELP]"] = "";
 				}
 				else if (gSavedSettings.getBOOL("LoginLastLocation"))
 				{
 					args["[TYPE]"] = "last";
-					args["[HELP]"] = " \n ";
+					args["[HELP]"] = "";
 				}
 				else
 				{
 					args["[TYPE]"] = "home";
-					args["[HELP]"] = " \nYou may want to set a new home location.\n ";
+					args["[HELP]"] = "\nYou may want to set a new home location.";
 				}
 				gViewerWindow->alertXml("AvatarMoved", args);
 			}

@@ -187,6 +187,7 @@ protected:
 	static HKL		sWinInputLocale;
 	static DWORD	sWinIMEConversionMode;
 	static DWORD	sWinIMESentenceMode;
+	static LLCoordWindow sWinIMEWindowPosition;
 
 	friend class LLWindowManager;
 };

@@ -92,6 +92,7 @@ BOOL	LLWindowWin32::sLanguageTextInputAllowed = TRUE;
 HKL		LLWindowWin32::sWinInputLocale = 0;
 DWORD	LLWindowWin32::sWinIMEConversionMode = IME_CMODE_NATIVE;
 DWORD	LLWindowWin32::sWinIMESentenceMode = IME_SMODE_AUTOMATIC;
+LLCoordWindow LLWindowWin32::sWinIMEWindowPosition(-1,-1);
 
 // The following class LLWinImm delegates Windows IMM APIs.
 // We need this because some language versions of Windows,
@@ -3372,14 +3373,15 @@ void LLWindowWin32::allowLanguageTextInput(BOOL b)
 // Put the IME window at the right place (near current text input).   Point coordinates should be the top of the current text line.
 void LLWindowWin32::setLanguageTextInput( const LLCoordGL & position )
 {
-	if (sLanguageTextInputAllowed && LLWinImm::isAvailable())
-	{
+	if ( LLWinImm::isAvailable() )
+	{		
 		HIMC himc = LLWinImm::getContext(mWindowHandle);
 
 		LLCoordWindow win_pos;
 		convertCoords( position, &win_pos );
 
-		if ( win_pos.mX >= 0 && win_pos.mY >= 0 )
+		if ( win_pos.mX >= 0 && win_pos.mY >= 0 && 
+			(win_pos.mX >= 0 != sWinIMEWindowPosition.mX ) || (win_pos.mY >= 0 != sWinIMEWindowPosition.mY ) )
 		{
 			COMPOSITIONFORM ime_form;
 			memset( &ime_form, 0, sizeof(ime_form) );
@@ -3388,10 +3390,27 @@ void LLWindowWin32::setLanguageTextInput( const LLCoordGL & position )
 			ime_form.ptCurrentPos.y = win_pos.mY;
 
 			LLWinImm::setCompositionWindow( himc, &ime_form );
+
+			sWinIMEWindowPosition.set( win_pos.mX, win_pos.mY );
+		}
+
+		// Input not allowed, make sure it's set to alpha numeric mode
+		if ( !sLanguageTextInputAllowed )
+
+		{
+			if ( LLWinImm::getOpenStatus(himc) )
+			{
+				DWORD conversion_mode = 0;
+				DWORD sentence_mode = 0;
+				LLWinImm::getConversionStatus(himc, &conversion_mode, &sentence_mode);
+				if ( conversion_mode != IME_CMODE_ALPHANUMERIC )
+				{	// Set to no-conversion mode instead of turning it off
+					LLWinImm::setConversionStatus(himc, IME_CMODE_ALPHANUMERIC, IME_SMODE_NONE );
+				}
+			}
 		}
 
 		LLWinImm::releaseContext(mWindowHandle, himc);
-
 	}
 }
 

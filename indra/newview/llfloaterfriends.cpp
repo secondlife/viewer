@@ -61,19 +61,43 @@
 //Maximum number of people you can select to do an operation on at once.
 #define MAX_FRIEND_SELECT 20
 #define RIGHTS_CHANGE_TIMEOUT 5.0
+#define OBSERVER_TIMEOUT 0.5
 
 // simple class to observe the calling cards.
-class LLLocalFriendsObserver : public LLFriendObserver
+class LLLocalFriendsObserver : public LLFriendObserver, public LLEventTimer
 {
-public:
-	LLLocalFriendsObserver(LLPanelFriends* floater) : mFloater(floater) {}
-	virtual ~LLLocalFriendsObserver() { mFloater = NULL; }
+public: 
+	LLLocalFriendsObserver(LLPanelFriends* floater) : mFloater(floater), LLEventTimer(OBSERVER_TIMEOUT)
+	{
+		mEventTimer.stop();
+	}
+	virtual ~LLLocalFriendsObserver()
+	{
+		mFloater = NULL;
+	}
 	virtual void changed(U32 mask)
 	{
-		mFloater->updateFriends(mask);
+		// events can arrive quickly in bulk - we need not process EVERY one of them -
+		// so we wait a short while to let others pile-in, and process them in aggregate.
+		mEventTimer.start();
+		mEventTimer.reset();
+
+		// save-up all the mask-bits which have come-in
+		mMask |= mask;
 	}
+	virtual BOOL tick()
+	{
+		mFloater->updateFriends(mMask);
+
+		mEventTimer.stop();
+		mMask = 0;
+
+		return FALSE;
+	}
+	
 protected:
 	LLPanelFriends* mFloater;
+	U32 mMask;
 };
 
 LLPanelFriends::LLPanelFriends() :

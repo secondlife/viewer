@@ -158,8 +158,7 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 		mHandleEditKeysDirectly( FALSE ),
 		mSelectAllonFocusReceived( FALSE ),
 		mPassDelete(FALSE),
-		mReadOnly(FALSE),
-		mLastIMEPosition( -1, -1 )
+		mReadOnly(FALSE)
 {
 	llassert( max_length_bytes > 0 );
 
@@ -1638,12 +1637,7 @@ void LLLineEditor::draw()
 				S32 pixels_after_scroll = findPixelNearestPos();	// RCalculcate for IME position
 				LLRect screen_pos = getScreenRect();
 				LLCoordGL ime_pos( screen_pos.mLeft + pixels_after_scroll, screen_pos.mTop - UI_LINEEDITOR_V_PAD );
-				if ( ime_pos.mX != mLastIMEPosition.mX || ime_pos.mY != mLastIMEPosition.mY )
-				{
-					mLastIMEPosition.mX = ime_pos.mX;
-					mLastIMEPosition.mY = ime_pos.mY;
-					getWindow()->setLanguageTextInput( ime_pos );
-				}
+				getWindow()->setLanguageTextInput( ime_pos );
 			}
 		}
 

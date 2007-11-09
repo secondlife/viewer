@@ -141,6 +141,8 @@ public:
 	// default position behind the avatar.
 	void			unlockView();
 
+	void            onAppFocusGained();
+
 	void			sendMessage();						// Send message to this agent's region.
 	void			sendReliableMessage();
 

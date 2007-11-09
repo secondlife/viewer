@@ -70,6 +70,8 @@ public:
 	void			onAppFocusGained();
 	void			onAppFocusLost();
 
+	void            clearSavedTool();
+
 protected:
 	friend class LLToolset;  // to allow access to setCurrentTool();
 	void			setCurrentTool(LLTool* tool);

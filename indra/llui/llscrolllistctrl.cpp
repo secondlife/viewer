@@ -701,7 +701,7 @@ BOOL LLScrollListCtrl::addItem( LLScrollListItem* item, EAddPosition pos )
 			break;
 		}
 	
-		updateLineHeight();
+		updateLineHeightInsert(item);
 		mPageLines = mLineHeight ? mItemListRect.getHeight() / mLineHeight : 0;
 		BOOL scrollbar_visible = mPageLines < getItemCount();
 		
@@ -753,12 +753,11 @@ void LLScrollListCtrl::updateMaxContentWidth(LLScrollListItem* added_item)
 	}
 }
 
+const S32 SCROLL_LIST_ROW_PAD = 2;
 
 // Line height is the max height of all the cells in all the items.
 void LLScrollListCtrl::updateLineHeight()
 {
-	const S32 ROW_PAD = 2;
-
 	mLineHeight = 0;
 	item_list::iterator iter;
 	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
@@ -768,10 +767,22 @@ void LLScrollListCtrl::updateLineHeight()
 		S32 i = 0;
 		for (const LLScrollListCell* cell = itemp->getColumn(i); i < num_cols; cell = itemp->getColumn(++i))
 		{
-			mLineHeight = llmax( mLineHeight, cell->getHeight() + ROW_PAD );
+			mLineHeight = llmax( mLineHeight, cell->getHeight() + SCROLL_LIST_ROW_PAD );
 		}
 	}
 }
+
+// when the only change to line height is from an insert, we needn't scan the entire list
+void LLScrollListCtrl::updateLineHeightInsert(LLScrollListItem* itemp)
+{
+	S32 num_cols = itemp->getNumColumns();
+	S32 i = 0;
+	for (const LLScrollListCell* cell = itemp->getColumn(i); i < num_cols; cell = itemp->getColumn(++i))
+	{
+		mLineHeight = llmax( mLineHeight, cell->getHeight() + SCROLL_LIST_ROW_PAD );
+	}
+}
+
 
 void LLScrollListCtrl::updateColumns()
 {

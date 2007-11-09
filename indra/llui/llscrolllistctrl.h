@@ -589,6 +589,7 @@ protected:
 	void			selectNextItem(BOOL extend_selection);
 	void			drawItems();
 	void			updateLineHeight();
+	void            updateLineHeightInsert(LLScrollListItem* item);
 	void			reportInvalidInput();
 	BOOL			isRepeatedChars(const LLWString& string) const;
 	void			selectItem(LLScrollListItem* itemp, BOOL single_select = TRUE);

@@ -47,6 +47,7 @@
 //
 #if LL_WINDOWS
 LONG WINAPI default_windows_exception_handler(struct _EXCEPTION_POINTERS *exception_infop);
+BOOL ConsoleCtrlHandler(DWORD fdwCtrlType);
 #else
 #include <unistd.h> // for fork()
 void setup_signals();
@@ -219,6 +220,11 @@ void LLApp::setupErrorHandling()
 	// Disable this until the viewer gets ported so server crashes can be JIT debugged.
 	//LPTOP_LEVEL_EXCEPTION_FILTER prev_filter;
 	//prev_filter = SetUnhandledExceptionFilter(default_windows_exception_handler);
+
+	// This sets a callback to handle w32 signals to the console window.
+	// The viewer shouldn't be affected, sicne its a windowed app.
+	SetConsoleCtrlHandler( (PHANDLER_ROUTINE) ConsoleCtrlHandler, TRUE);
+
 #else
 	//
 	// Start up signal handling.
@@ -398,6 +404,34 @@ LONG WINAPI default_windows_exception_handler(struct _EXCEPTION_POINTERS *except
 	retval = EXCEPTION_EXECUTE_HANDLER;	
 	return retval;
 }
+
+// Win32 doesn't support signals. This is used instead.
+BOOL ConsoleCtrlHandler(DWORD fdwCtrlType) 
+{ 
+	switch (fdwCtrlType) 
+	{ 
+ 		case CTRL_BREAK_EVENT: 
+		case CTRL_LOGOFF_EVENT: 
+		case CTRL_SHUTDOWN_EVENT: 
+		case CTRL_CLOSE_EVENT: // From end task or the window close button.
+		case CTRL_C_EVENT:  // from CTRL-C on the keyboard
+			// Just set our state to quitting, not error
+			if (LLApp::isQuitting() || LLApp::isError())
+			{
+				// We're already trying to die, just ignore this signal
+				if (LLApp::sLogInSignal)
+				{
+					llinfos << "Signal handler - Already trying to quit, ignoring signal!" << llendl;
+				}
+				return TRUE;
+			}
+			LLApp::setQuitting();
+			return TRUE; 
+	
+		default: 
+			return FALSE; 
+	} 
+} 
 
 #else //!LL_WINDOWS
 void LLApp::setChildCallback(pid_t pid, LLAppChildCallback callback)

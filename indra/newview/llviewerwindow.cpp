@@ -1221,6 +1221,8 @@ void LLViewerWindow::handleFocus(LLWindow *window)
 {
 	gFocusMgr.setAppHasFocus(TRUE);
 	LLModalDialog::onAppFocusGained();
+
+	gAgent.onAppFocusGained();
 	if (gToolMgr)
 	{
 		gToolMgr->onAppFocusGained();

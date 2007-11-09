@@ -348,6 +348,16 @@ class LLFileCloseWindow : public view_listener_t
 	}
 };
 
+class LLFileEnableCloseAllWindows : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		bool open_children = gFloaterView->allChildrenClosed();
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(!open_children);
+		return true;
+	}
+};
+
 class LLFileCloseAllWindows : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -1036,6 +1046,7 @@ void init_menu_file()
 	(new LLFileCloseWindow())->registerListener(gMenuHolder, "File.CloseWindow");
 	(new LLFileCloseAllWindows())->registerListener(gMenuHolder, "File.CloseAllWindows");
 	(new LLFileEnableCloseWindow())->registerListener(gMenuHolder, "File.EnableCloseWindow");
+	(new LLFileEnableCloseAllWindows())->registerListener(gMenuHolder, "File.EnableCloseAllWindows");
 	(new LLFileSaveTexture())->registerListener(gMenuHolder, "File.SaveTexture");
 	(new LLFileTakeSnapshot())->registerListener(gMenuHolder, "File.TakeSnapshot");
 	(new LLFileTakeSnapshotToDisk())->registerListener(gMenuHolder, "File.TakeSnapshotToDisk");

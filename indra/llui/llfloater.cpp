@@ -2220,7 +2220,6 @@ BOOL LLFloaterView::allChildrenClosed()
 {
 	// see if there are any visible floaters (some floaters "close"
 	// by setting themselves invisible)
-	S32 visible_count = 0;
 	for (child_list_const_iter_t it = getChildList()->begin(); it != getChildList()->end(); ++it)
 	{
 		LLView* viewp = *it;
@@ -2228,11 +2227,10 @@ BOOL LLFloaterView::allChildrenClosed()
 
 		if (floaterp->getVisible() && floaterp->canClose())
 		{
-			visible_count++;
+			return false;
 		}
 	}
-
-	return (visible_count == 0);
+	return true;
 }
 
 

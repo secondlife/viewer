@@ -428,6 +428,11 @@ void LLToolMgr::onAppFocusGained()
 	updateToolStatus();
 }
 
+void LLToolMgr::clearSavedTool()
+{
+	mSavedTool = NULL;
+}
+
 /////////////////////////////////////////////////////
 // LLToolset
 

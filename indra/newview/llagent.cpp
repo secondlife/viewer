@@ -527,6 +527,21 @@ void LLAgent::resetView(BOOL reset_camera)
 	}
 }
 
+// Handle any actions that need to be performed when the main app gains focus
+// (such as through alt-tab).
+//-----------------------------------------------------------------------------
+// onAppFocusGained()
+//-----------------------------------------------------------------------------
+void LLAgent::onAppFocusGained()
+{
+	if (CAMERA_MODE_MOUSELOOK == mCameraMode)
+	{
+		changeCameraToDefault();
+		gToolMgr->clearSavedTool();
+	}
+}
+
+
 void LLAgent::ageChat()
 {
 	if (mAvatarObject)

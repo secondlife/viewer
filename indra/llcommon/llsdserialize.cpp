@@ -1641,4 +1641,9 @@ void serialize_string(const std::string& value, std::ostream& str)
 	}
 }
 
+std::ostream& operator<<(std::ostream& s, const LLSD& llsd)
+{
+	s << LLSDNotationStreamer(llsd);
+	return s;
+}
 
