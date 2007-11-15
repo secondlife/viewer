@@ -61,6 +61,10 @@ fi
 
 RUN_PATH=`dirname "$0" || echo .`
 cd "${RUN_PATH}"
+
+# Re-register the secondlife:// protocol handler every launch, for now.
+./register_secondlifeprotocol.sh
+
 if [ -n "$LL_TCMALLOC" ]; then
     tcmalloc_libs='/usr/lib/libtcmalloc.so.0 /usr/lib/libstacktrace.so.0 /lib/libpthread.so.0'
     all=1

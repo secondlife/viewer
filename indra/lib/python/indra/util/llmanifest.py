@@ -38,6 +38,7 @@ import re
 import shutil
 import sys
 import tarfile
+import errno
 
 def path_ancestors(path):
     path = os.path.normpath(path)
@@ -463,6 +464,12 @@ class LLManifest(object):
                 return
             # only copy if it's not excluded
             if(self.includes(src, dst)):
+                try:
+                    os.unlink(dst)
+                except OSError, err:
+                    if err.errno != errno.ENOENT:
+                        raise
+
                 shutil.copy2(src, dst)
 
     def ccopytree(self, src, dst):

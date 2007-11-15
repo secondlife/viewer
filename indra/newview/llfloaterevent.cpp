@@ -34,14 +34,14 @@ class LLEventHandler : public LLCommandHandler
 {
 public:
 	LLEventHandler() : LLCommandHandler("event") { }
-	bool handle(const std::vector<std::string>& tokens)
+	bool handle(const LLSD& tokens, const LLSD& queryMap)
 	{
 		if (tokens.size() < 2)
 		{
 			return false;
 		}
-		U32 event_id = atoi(tokens[0].c_str());
-		if (tokens[1] == "about")
+		U32 event_id = tokens[0].asInteger();
+		if (tokens[1].asString() == "about")
 		{
 			LLFloaterEventInfo::show(event_id);
 			return true;
