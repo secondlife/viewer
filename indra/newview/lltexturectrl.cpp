@@ -1037,19 +1037,21 @@ void LLTextureCtrl::setVisible( BOOL visible )
 
 void LLTextureCtrl::setEnabled( BOOL enabled )
 {
+	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)LLFloater::getFloaterByHandle(mFloaterHandle);
 	if( enabled )
 	{
-		setToolTip( "Click to choose a picture" );
+		LLString tooltip;
+		if (floaterp) tooltip = floaterp->getUIString("choose_picture");
+		setToolTip( tooltip );
 	}
 	else
 	{
-		setToolTip( "" );
+		setToolTip( LLString() );
 		// *TODO: would be better to keep floater open and show
 		// disabled state.
 		closeFloater();
 	}
 
-	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)LLFloater::getFloaterByHandle(mFloaterHandle);
 	if( floaterp )
 	{
 		floaterp->setActive(enabled);

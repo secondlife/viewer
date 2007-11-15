@@ -49,6 +49,7 @@ const U32 AVATAR_MATURE_PUBLISH			= 0x1 << 1;	// profile is "mature"
 const U32 AVATAR_IDENTIFIED				= 0x1 << 2;	// whether avatar has provided payment info
 const U32 AVATAR_TRANSACTED				= 0x1 << 3;	// whether avatar has actively used payment info
 const U32 AVATAR_ONLINE					= 0x1 << 4; // the online status of this avatar, if known.
+const U32 AVATAR_AGEVERIFIED			= 0x1 << 5;	// whether avatar has been age-verified
 
 static const std::string VISIBILITY_DEFAULT("default");
 static const std::string VISIBILITY_HIDDEN("hidden");

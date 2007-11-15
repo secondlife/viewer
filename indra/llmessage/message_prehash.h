@@ -1369,6 +1369,8 @@ extern char * _PREHASH_AvatarNotesReply;
 extern char * _PREHASH_CacheID;
 extern char * _PREHASH_OwnerMask;
 extern char * _PREHASH_TransferInventoryAck;
+extern char * _PREHASH_RegionDenyAgeUnverified;
+extern char * _PREHASH_AgeVerificationBlock;
 
 
 void init_prehash_data();

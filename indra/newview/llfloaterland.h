@@ -112,7 +112,6 @@ protected:
 	LLPanelLandOptions*		mPanelOptions;
 	LLPanelLandMedia*		mPanelMedia;
 	LLPanelLandAccess*		mPanelAccess;
-	LLPanelLandBan*			mPanelBan;
 	LLPanelLandCovenant*	mPanelCovenant;
 
 	LLHandle<LLParcelSelection>	mParcel;
@@ -392,92 +391,27 @@ public:
 	LLPanelLandAccess(LLHandle<LLParcelSelection>& parcelp);
 	virtual ~LLPanelLandAccess();
 	void refresh();
+	void refresh_ui();
 	void refreshNames();
 	virtual void draw();
 
-	void addAvatar(LLUUID id);
-
 	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
-	static void onClickAdd(void*);
-	static void onClickRemove(void*);
-	static void callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata);
-	static void onAccessLevelChange(LLUICtrl* ctrl, void* userdata);
+	static void onClickAddAccess(void*);
+	static void callbackAvatarCBAccess(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata);
+	static void onClickRemoveAccess(void*);
+	static void onClickAddBanned(void*);
+	static void callbackAvatarCBBanned(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata);
+	static void onClickRemoveBanned(void*);
 
 	virtual BOOL postBuild();
 
 protected:
-	LLTextBox*			mLabelTitle;
-
-	LLCheckBoxCtrl*		mCheckGroup;
-
-	LLCheckBoxCtrl*		mCheckAccess;
 	LLNameListCtrl*		mListAccess;
-	LLButton*			mBtnAddAccess;
-	LLButton*			mBtnRemoveAccess;
-
-	LLCheckBoxCtrl*		mCheckPass;
-	LLSpinCtrl*			mSpinPrice;
-	LLSpinCtrl*			mSpinHours;
-
-	LLCheckBoxCtrl*		mCheckIdentified;
-	LLCheckBoxCtrl*		mCheckTransacted;
-	LLRadioGroup*		mCheckStatusLevel;
+	LLNameListCtrl*		mListBanned;
 
 	LLHandle<LLParcelSelection>&	mParcel;
 };
 
-
-class LLPanelLandBan
-:	public LLPanel
-{
-public:
-	LLPanelLandBan(LLHandle<LLParcelSelection>& parcelp);
-	virtual ~LLPanelLandBan();
-	void refresh();
-
-	void addAvatar(LLUUID id);
-
-	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
-	static void onClickAdd(void*);
-	static void onClickRemove(void*);
-	static void callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata);
-
-	virtual BOOL postBuild();
-
-protected:
-	LLTextBox*			mLabelTitle;
-
-	LLCheckBoxCtrl*		mCheck;
-	LLNameListCtrl*		mList;
-	LLButton*			mBtnAdd;
-	LLButton*			mBtnRemove;
-	LLCheckBoxCtrl*		mCheckDenyAnonymous;
-	LLCheckBoxCtrl*		mCheckDenyIdentified;
-	LLCheckBoxCtrl*		mCheckDenyTransacted;
-
-	LLHandle<LLParcelSelection>&	mParcel;
-};
-
-
-class LLPanelLandRenters
-:	public LLPanel
-{
-public:
-	LLPanelLandRenters(LLHandle<LLParcelSelection>& parcelp);
-	virtual ~LLPanelLandRenters();
-	void refresh();
-
-	static void onClickAdd(void*);
-	static void onClickRemove(void*);
-
-protected:
-	LLCheckBoxCtrl*		mCheckRenters;
-	LLNameListCtrl*		mListRenters;
-	LLButton*			mBtnAddRenter;
-	LLButton*			mBtnRemoveRenter;
-
-	LLHandle<LLParcelSelection>&	mParcel;
-};
 
 class LLPanelLandCovenant
 :	public LLPanel

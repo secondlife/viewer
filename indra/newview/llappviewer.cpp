@@ -1137,6 +1137,7 @@ bool LLAppViewer::init()
 					ui_audio_callback,
 					&LLUI::sGLScaleFactor);
 
+	LLWeb::initClass();			  // do this after LLUI
 	gUICtrlFactory->setupPaths(); // update paths with correct language set
 	
 	/////////////////////////////////////////////////

@@ -224,9 +224,15 @@ void LLView::setMouseOpaque(BOOL b)
 	mMouseOpaque = b;
 }
 
-void LLView::setToolTip(const LLString& msg)
+void LLView::setToolTip(const LLStringExplicit& msg)
 {
 	mToolTipMsg = msg;
+}
+
+BOOL LLView::setToolTipArg(const LLStringExplicit& key, const LLStringExplicit& text)
+{
+	mToolTipMsg.setArg(key, text);
+	return TRUE;
 }
 
 // virtual
@@ -288,7 +294,7 @@ void LLView::setSpanChildren( BOOL span_children )
 
 const LLString& LLView::getToolTip()
 {
-	return mToolTipMsg;
+	return mToolTipMsg.getString();
 }
 
 // virtual
@@ -883,17 +889,13 @@ BOOL LLView::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_scre
 			}
 		}
 
-		if (LLUI::sShowXUINames && (mToolTipMsg.find(".xml", 0) == LLString::npos) && 
+		tool_tip = mToolTipMsg.getString();
+		if (LLUI::sShowXUINames && (tool_tip.find(".xml", 0) == LLString::npos) && 
 			(mName.find("Drag", 0) == LLString::npos))
 		{
 			tool_tip = getShowNamesToolTip();
 		}
-		else
-		{
-			tool_tip = mToolTipMsg;
-		}
 		
-
 
 		BOOL showNamesTextBox = LLUI::sShowXUINames && (getWidgetType() == WIDGET_TYPE_TEXT_BOX);
 

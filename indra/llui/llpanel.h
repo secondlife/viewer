@@ -194,6 +194,7 @@ public:
 	// Not implemented for all types, defaults to noop, returns FALSE if not applicaple
 	BOOL childSetTextArg(const LLString& id, const LLString& key, const LLStringExplicit& text);
 	BOOL childSetLabelArg(const LLString& id, const LLString& key, const LLStringExplicit& text);
+	BOOL childSetToolTipArg(const LLString& id, const LLString& key, const LLStringExplicit& text);
 	
 	// LLSlider / LLSpinCtrl
 	void childSetMinValue(const LLString& id, LLSD min_value);

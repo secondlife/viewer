@@ -4064,18 +4064,18 @@ void process_alert_message(LLMessageSystem *msgsystem, void **user_data)
 	process_alert_core(buffer, modal);
 }
 
-void process_alert_core(const char* buffer, BOOL modal)
+void process_alert_core(const std::string& message, BOOL modal)
 {
 	// make sure the cursor is back to the usual default since the
 	// alert is probably due to some kind of error.
 	gViewerWindow->getWindow()->resetBusyCount();
 
-	// HACK -- handle callbacks for specific alerts 
-	if( !strcmp( buffer, "You died and have been teleported to your home location" ) )
+	// HACK -- handle callbacks for specific alerts
+	if ( message == "You died and have been teleported to your home location")
 	{
 		gViewerStats->incStat(LLViewerStats::ST_KILLED_COUNT);
 	}
-	else if( !strcmp( buffer, "Home position set." ) )
+	else if( message == "Home position set." )
 	{
 		// save the home location image to disk
 		LLString snap_filename = gDirUtilp->getLindenUserDir();
@@ -4084,19 +4084,26 @@ void process_alert_core(const char* buffer, BOOL modal)
 		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidth(), gViewerWindow->getWindowHeight(), FALSE, FALSE);
 	}
 
-	const char ALERT_PREFIX[] = "ALERT: ";
-	const size_t ALERT_PREFIX_LEN = sizeof(ALERT_PREFIX) - 1;
-	if (!strncmp(buffer, ALERT_PREFIX, ALERT_PREFIX_LEN))
+	const std::string ALERT_PREFIX("ALERT: ");
+	const std::string NOTIFY_PREFIX("NOTIFY: ");
+	if (message.find(ALERT_PREFIX) == 0)
 	{
 		// Allow the server to spawn a named alert so that server alerts can be
-		// translated out of English. JC
-		std::string alert_name(buffer + ALERT_PREFIX_LEN);
+		// translated out of English.
+		std::string alert_name(message.substr(ALERT_PREFIX.length()));
 		LLAlertDialog::showXml(alert_name);
 	}
-	else if (buffer[0] == '/')
+	else if (message.find(NOTIFY_PREFIX) == 0)
+	{
+		// Allow the server to spawn a named notification so that server notifications can be
+		// translated out of English.
+		std::string notify_name(message.substr(NOTIFY_PREFIX.length()));
+		LLNotifyBox::showXml(notify_name);
+	}
+	else if (message[0] == '/')
 	{
 		// System message is important, show in upper-right box not tip
-		LLString text(buffer+1);
+		LLString text(message.substr(1));
 		LLString::format_map_t args;
 		if (text.substr(0,17) == "RESTART_X_MINUTES")
 		{
@@ -4123,14 +4130,14 @@ void process_alert_core(const char* buffer, BOOL modal)
 	{
 		// *TODO:translate
 		LLString::format_map_t args;
-		args["[ERROR_MESSAGE]"] = buffer;
+		args["[ERROR_MESSAGE]"] = message;
 		gViewerWindow->alertXml("ErrorMessage", args);
 	}
 	else
 	{
 		// *TODO:translate
 		LLString::format_map_t args;
-		args["[MESSAGE]"] = buffer;
+		args["[MESSAGE]"] = message;
 		LLNotifyBox::showXml("SystemMessageTip", args);
 	}
 }

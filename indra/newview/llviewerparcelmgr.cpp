@@ -1398,8 +1398,9 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 	F32		parcel_prim_bonus = 1.f;
 	BOOL	region_push_override = false;
 	BOOL	region_deny_anonymous_override = false;
-	BOOL	region_deny_identified_override = false;
-	BOOL	region_deny_transacted_override = false;
+	BOOL	region_deny_identified_override = false; // Deprecated
+	BOOL	region_deny_transacted_override = false; // Deprecated
+	BOOL	region_deny_age_unverified_override = false;
 
 	S32		other_clean_time = 0;
 
@@ -1474,8 +1475,9 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 	msg->getF32Fast(_PREHASH_ParcelData, _PREHASH_ParcelPrimBonus, parcel_prim_bonus );
 	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionPushOverride, region_push_override );
 	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyAnonymous, region_deny_anonymous_override );
-	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyIdentified, region_deny_identified_override );
-	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyTransacted, region_deny_transacted_override );
+	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyIdentified, region_deny_identified_override ); // Deprecated
+	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyTransacted, region_deny_transacted_override ); // Deprecated
+	msg->getBOOLFast(_PREHASH_AgeVerificationBlock, _PREHASH_RegionDenyAgeUnverified, region_deny_age_unverified_override );
 
 	msg->getS32("ParcelData", "OtherCleanTime", other_clean_time );
 
@@ -1505,8 +1507,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 		parcel->setCleanOtherTime(other_clean_time);
 		parcel->setRegionPushOverride(region_push_override);
 		parcel->setRegionDenyAnonymousOverride(region_deny_anonymous_override);
-		parcel->setRegionDenyIdentifiedOverride(region_deny_identified_override);
-		parcel->setRegionDenyTransactedOverride(region_deny_transacted_override);
+		parcel->setRegionDenyAgeUnverifiedOverride(region_deny_age_unverified_override);
 		parcel->unpackMessage(msg);
 
 		if (parcel == gParcelMgr->mAgentParcel)

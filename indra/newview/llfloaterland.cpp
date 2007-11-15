@@ -239,7 +239,6 @@ LLFloaterLand::LLFloaterLand()
 	factory_map["land_options_panel"] = LLCallbackMap(createPanelLandOptions, this);
 	factory_map["land_media_panel"] =	LLCallbackMap(createPanelLandMedia, this);
 	factory_map["land_access_panel"] =	LLCallbackMap(createPanelLandAccess, this);
-	factory_map["land_ban_panel"] =		LLCallbackMap(createPanelLandBan, this);
 
 	gUICtrlFactory->buildFloater(this, "floater_about_land.xml", &factory_map);
 
@@ -271,7 +270,6 @@ void LLFloaterLand::refresh()
 	mPanelOptions->refresh();
 	mPanelMedia->refresh();
 	mPanelAccess->refresh();
-	mPanelBan->refresh();
 }
 
 
@@ -325,15 +323,6 @@ void* LLFloaterLand::createPanelLandAccess(void* data)
 	self->mPanelAccess = new LLPanelLandAccess(self->mParcel);
 	return self->mPanelAccess;
 }
-
-// static
-void* LLFloaterLand::createPanelLandBan(void* data)
-{
-	LLFloaterLand* self = (LLFloaterLand*)data;
-	self->mPanelBan = new LLPanelLandBan(self->mParcel);
-	return self->mPanelBan;
-}
-
 
 //---------------------------------------------------------------------------
 // LLPanelLandGeneral
@@ -2558,35 +2547,27 @@ LLPanelLandAccess::LLPanelLandAccess(LLParcelSelectionHandle& parcel)
 
 BOOL LLPanelLandAccess::postBuild()
 {
-
-	
-	mCheckGroup = LLUICtrlFactory::getCheckBoxByName(this, "GroupCheck");
+	childSetCommitCallback("public_access", onCommitAny, this);
+	childSetCommitCallback("limit_payment", onCommitAny, this);
+	childSetCommitCallback("limit_age_verified", onCommitAny, this);
 	childSetCommitCallback("GroupCheck", onCommitAny, this);
-	
-	mCheckAccess = LLUICtrlFactory::getCheckBoxByName(this, "AccessCheck");
-	childSetCommitCallback("AccessCheck", onCommitAny, this);
-
-	mListAccess = LLUICtrlFactory::getNameListByName(this, "AccessList");
-	mListAccess->sortByColumn(0, TRUE); // ascending
-
-	mBtnAddAccess = LLUICtrlFactory::getButtonByName(this, "Add...");
-
-	mBtnAddAccess->setClickedCallback(onClickAdd, this);
-
-	mBtnRemoveAccess = LLUICtrlFactory::getButtonByName(this, "Remove");
-
-	mBtnRemoveAccess->setClickedCallback(onClickRemove, this);
-	
-	mCheckPass = LLUICtrlFactory::getCheckBoxByName(this, "PassCheck");
 	childSetCommitCallback("PassCheck", onCommitAny, this);
-
-	
-	mSpinPrice = LLUICtrlFactory::getSpinnerByName(this, "PriceSpin");
+	childSetCommitCallback("pass_combo", onCommitAny, this);
 	childSetCommitCallback("PriceSpin", onCommitAny, this);
-	
-	mSpinHours = LLUICtrlFactory::getSpinnerByName(this, "HoursSpin");
 	childSetCommitCallback("HoursSpin", onCommitAny, this);
 
+	childSetAction("add_allowed", onClickAddAccess, this);
+	childSetAction("remove_allowed", onClickRemoveAccess, this);
+	childSetAction("add_banned", onClickAddBanned, this);
+	childSetAction("remove_banned", onClickRemoveBanned, this);
+	
+	mListAccess = LLUICtrlFactory::getNameListByName(this, "AccessList");
+	if (mListAccess)
+		mListAccess->sortByColumn(0, TRUE); // ascending
+
+	mListBanned = LLUICtrlFactory::getNameListByName(this, "BannedList");
+	if (mListBanned)
+		mListBanned->sortByColumn(0, TRUE); // ascending
 
 	return TRUE;
 }
@@ -2598,106 +2579,241 @@ LLPanelLandAccess::~LLPanelLandAccess()
 
 void LLPanelLandAccess::refresh()
 {
-	mListAccess->deleteAllItems();
-
+	if (mListAccess)
+		mListAccess->deleteAllItems();
+	if (mListBanned)
+		mListBanned->deleteAllItems();
+	
 	LLParcel *parcel = mParcel->getParcel();
-
+	
+	// Display options
 	if (parcel)
 	{
-		// Display options
+		BOOL use_access_list = parcel->getParcelFlag(PF_USE_ACCESS_LIST);
 		BOOL use_group = parcel->getParcelFlag(PF_USE_ACCESS_GROUP);
-		mCheckGroup->set( use_group );
+		BOOL public_access = !use_access_list && !use_group;
+		
+		childSetValue("public_access", public_access );
+		childSetValue("GroupCheck", use_group );
 
 		char group_name[MAX_STRING];	/*Flawfinder: ignore*/
 		gCacheName->getGroupName(parcel->getGroupID(), group_name);
-		mCheckGroup->setLabelArg( "[GROUP]", LLString(group_name) );
-
-		S32 count = parcel->mAccessList.size();
-
-		BOOL use_list = parcel->getParcelFlag(PF_USE_ACCESS_LIST);
-		mCheckAccess->set( use_list );
-		mCheckAccess->setLabelArg( "[LISTED]", llformat("%d",count));
-		mCheckAccess->setLabelArg( "[MAX]", llformat("%d",PARCEL_MAX_ACCESS_LIST));
-
-		access_map_const_iterator cit = parcel->mAccessList.begin();
-		access_map_const_iterator end = parcel->mAccessList.end();
-
-		for (; cit != end; ++cit)
+		childSetLabelArg("GroupCheck", "[GROUP]", LLString(group_name) );
+		
+		// Allow list
 		{
-			const LLAccessEntry& entry = (*cit).second;
-			LLString suffix;
-			if (entry.mTime != 0)
+			S32 count = parcel->mAccessList.size();
+			childSetToolTipArg("AccessList", "[LISTED]", llformat("%d",count));
+			childSetToolTipArg("AccessList", "[MAX]", llformat("%d",PARCEL_MAX_ACCESS_LIST));
+
+			// *TODO: Translate
+			for (access_map_const_iterator cit = parcel->mAccessList.begin();
+				 cit != parcel->mAccessList.end(); ++cit)
 			{
-				S32 now = time(NULL);
-				S32 seconds = entry.mTime - now;
-				if (seconds < 0) seconds = 0;
-				suffix.assign(" (");
-				if (seconds >= 120)
+				const LLAccessEntry& entry = (*cit).second;
+				LLString suffix;
+				if (entry.mTime != 0)
 				{
-					char buf[30];	/*Flawfinder: ignore*/
-					snprintf(buf, sizeof(buf), "%d minutes", (seconds/60));		/* Flawfinder: ignore */
-					suffix.append(buf);
+					S32 now = time(NULL);
+					S32 seconds = entry.mTime - now;
+					if (seconds < 0) seconds = 0;
+					suffix.assign(" (");
+					if (seconds >= 120)
+					{
+						std::string buf = llformat("%d minutes", (seconds/60));
+						suffix.append(buf);
+					}
+					else if (seconds >= 60)
+					{
+						suffix.append("1 minute");
+					}
+					else
+					{
+						std::string buf = llformat("%d seconds", seconds);
+						suffix.append(buf);
+					}
+					suffix.append(" remaining)");
 				}
-				else if (seconds >= 60)
-				{
-					suffix.append("1 minute");
-				}
-				else
-				{
-					char buf[30];		/*Flawfinder: ignore*/
-					snprintf(buf, sizeof(buf), "%d seconds", seconds);		/* Flawfinder: ignore */
-					suffix.append(buf);
-				}
-				suffix.append(" remaining)");
+				if (mListAccess)
+					mListAccess->addNameItem(entry.mID, ADD_SORTED, TRUE, suffix);
 			}
-			mListAccess->addNameItem(entry.mID, ADD_SORTED, TRUE, suffix);
 		}
 		
-		BOOL can_manage_allowed = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_MANAGE_ALLOWED);
+		// Ban List
+		{
+			S32 count = parcel->mBanList.size();
 
-		BOOL enable_add = can_manage_allowed && (count < PARCEL_MAX_ACCESS_LIST);
-		mBtnAddAccess->setEnabled(enable_add);
+			childSetToolTipArg("BannedList", "[LISTED]", llformat("%d",count));
+			childSetToolTipArg("BannedList", "[MAX]", llformat("%d",PARCEL_MAX_ACCESS_LIST));
 
-		BOOL enable_remove = can_manage_allowed && (count > 0);
-		mBtnRemoveAccess->setEnabled(enable_remove);
+			for (access_map_const_iterator cit = parcel->mBanList.begin();
+				 cit != parcel->mBanList.end(); ++cit)
+			{
+				const LLAccessEntry& entry = (*cit).second;
+				LLString suffix;
+				if (entry.mTime != 0)
+				{
+					S32 now = time(NULL);
+					S32 seconds = entry.mTime - now;
+					if (seconds < 0) seconds = 0;
+					suffix.assign(" (");
+					if (seconds >= 120)
+					{
+						std::string buf = llformat("%d minutes", (seconds/60));
+						suffix.append(buf);
+					}
+					else if (seconds >= 60)
+					{
+						suffix.append("1 minute");
+					}
+					else
+					{
+						std::string buf = llformat("%d seconds", seconds);
+						suffix.append(buf);
+					}
+					suffix.append(" remaining)");
+				}
+				mListBanned->addNameItem(entry.mID, ADD_SORTED, TRUE, suffix);
+			}
+		}
 
-		// Can only sell passes when limiting the access.
-		BOOL can_manage_passes = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_MANAGE_PASSES);
-		mCheckPass->setEnabled( (use_group || use_list) && can_manage_passes );
-
+		if(parcel->getRegionDenyAnonymousOverride())
+		{
+			childSetValue("limit_payment", TRUE);
+		}
+		else
+		{
+			childSetValue("limit_payment", (parcel->getParcelFlag(PF_DENY_ANONYMOUS)));
+		}
+		if(parcel->getRegionDenyAgeUnverifiedOverride())
+		{
+			childSetValue("limit_age_verified", TRUE);
+		}
+		else
+		{
+			childSetValue("limit_age_verified", (parcel->getParcelFlag(PF_DENY_AGEUNVERIFIED)));
+		}
+		
 		BOOL use_pass = parcel->getParcelFlag(PF_USE_PASS_LIST);
-		mCheckPass->set( use_pass );
-
-		BOOL enable_pass = can_manage_passes && use_pass;
-		mSpinPrice->setEnabled( enable_pass );
-		mSpinHours->setEnabled( enable_pass );
-
+		childSetValue("PassCheck",  use_pass );
+		LLCtrlSelectionInterface* passcombo = childGetSelectionInterface("pass_combo");
+		if (passcombo)
+		{
+			if (public_access || !use_pass || !use_group)
+			{
+				passcombo->selectByValue("anyone");
+			}
+		}
+		
 		S32 pass_price = parcel->getPassPrice();
-		mSpinPrice->set( F32(pass_price) );
+		childSetValue( "PriceSpin", (F32)pass_price );
 
 		F32 pass_hours = parcel->getPassHours();
-		mSpinHours->set( pass_hours );
-
-		mCheckGroup->setEnabled( can_manage_allowed );
-		mCheckAccess->setEnabled( can_manage_allowed );
-
+		childSetValue( "HoursSpin", pass_hours );
 	}
 	else
 	{
-		mCheckGroup->set(FALSE);
-		mCheckGroup->setLabelArg( "[GROUP]", LLString::null );
-		mCheckAccess->set(FALSE);
-		mCheckAccess->setLabelArg( "[LISTED]", llformat("%d",0));
-		mBtnAddAccess->setEnabled(FALSE);
-		mBtnRemoveAccess->setEnabled(FALSE);
-		mSpinPrice->set((F32)PARCEL_PASS_PRICE_DEFAULT);
-		mSpinPrice->setEnabled(FALSE);
-		mSpinHours->set( PARCEL_PASS_HOURS_DEFAULT );
-		mSpinHours->setEnabled(FALSE);
-		mCheckGroup->setEnabled(FALSE);
-		mCheckAccess->setEnabled(FALSE);
+		childSetValue("public_access", FALSE);
+		childSetValue("limit_payment", FALSE);
+		childSetValue("limit_age_verified", FALSE);
+		childSetValue("GroupCheck", FALSE);
+		childSetLabelArg("GroupCheck", "[GROUP]", LLString::null );
+		childSetValue("PassCheck", FALSE);
+		childSetValue("PriceSpin", (F32)PARCEL_PASS_PRICE_DEFAULT);
+		childSetValue( "HoursSpin", PARCEL_PASS_HOURS_DEFAULT );
+		childSetToolTipArg("AccessList", "[LISTED]", llformat("%d",0));
+		childSetToolTipArg("AccessList", "[MAX]", llformat("%d",0));
+		childSetToolTipArg("BannedList", "[LISTED]", llformat("%d",0));
+		childSetToolTipArg("BannedList", "[MAX]", llformat("%d",0));
+	}	
+}
+
+void LLPanelLandAccess::refresh_ui()
+{
+	childSetEnabled("public_access", FALSE);
+	childSetEnabled("limit_payment", FALSE);
+	childSetEnabled("limit_age_verified", FALSE);
+	childSetEnabled("GroupCheck", FALSE);
+	childSetEnabled("PassCheck", FALSE);
+	childSetEnabled("pass_combo", FALSE);
+	childSetEnabled("PriceSpin", FALSE);
+	childSetEnabled("HoursSpin", FALSE);
+	childSetEnabled("AccessList", FALSE);
+	childSetEnabled("BannedList", FALSE);
+	
+	LLParcel *parcel = mParcel->getParcel();
+	if (parcel)
+	{
+		BOOL can_manage_allowed = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_MANAGE_ALLOWED);
+		BOOL can_manage_banned = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_MANAGE_BANNED);
+	
+		childSetEnabled("public_access", can_manage_allowed);
+		BOOL public_access = childGetValue("public_access").asBoolean();
+		if (public_access)
+		{
+			bool override = false;
+			if(parcel->getRegionDenyAnonymousOverride())
+			{
+				override = true;
+				childSetEnabled("limit_payment", FALSE);
+			}
+			else
+			{
+				childSetEnabled("limit_payment", can_manage_allowed);
+			}
+			if(parcel->getRegionDenyAgeUnverifiedOverride())
+			{
+				override = true;
+				childSetEnabled("limit_age_verified", FALSE);
+			}
+			else
+			{
+				childSetEnabled("limit_age_verified", can_manage_allowed);
+			}
+			if (override)
+			{
+				childSetToolTip("Only Allow", getUIString("estate_override"));
+			}
+			else
+			{
+				childSetToolTip("Only Allow", LLString());
+			}
+			childSetEnabled("GroupCheck", FALSE);
+			childSetEnabled("PassCheck", FALSE);
+			childSetEnabled("pass_combo", FALSE);
+			childSetEnabled("AccessList", FALSE);
+		}
+		else
+		{
+			childSetEnabled("limit_payment", FALSE);
+			childSetEnabled("limit_age_verified", FALSE);
+			char group_name[MAX_STRING];	/*Flawfinder: ignore*/
+			if (gCacheName->getGroupName(parcel->getGroupID(), group_name))
+			{			
+				childSetEnabled("GroupCheck", can_manage_allowed);
+			}
+			BOOL group_access = childGetValue("GroupCheck").asBoolean();
+			BOOL sell_passes = childGetValue("PassCheck").asBoolean();
+			childSetEnabled("PassCheck", can_manage_allowed);
+			if (sell_passes)
+			{
+				childSetEnabled("pass_combo", group_access && can_manage_allowed);
+				childSetEnabled("PriceSpin", can_manage_allowed);
+				childSetEnabled("HoursSpin", can_manage_allowed);
+			}
+		}
+		childSetEnabled("AccessList", can_manage_allowed);
+		S32 allowed_list_count = parcel->mAccessList.size();
+		childSetEnabled("add_allowed", can_manage_allowed && allowed_list_count < PARCEL_MAX_ACCESS_LIST);
+		childSetEnabled("remove_allowed", can_manage_allowed && allowed_list_count > 0);
+		
+		childSetEnabled("BannedList", can_manage_banned);
+		S32 banned_list_count = parcel->mBanList.size();
+		childSetEnabled("add_banned", can_manage_banned && banned_list_count < PARCEL_MAX_ACCESS_LIST);
+		childSetEnabled("remove_banned", can_manage_banned && banned_list_count > 0);
 	}
 }
+		
 
 // public
 void LLPanelLandAccess::refreshNames()
@@ -2709,22 +2825,18 @@ void LLPanelLandAccess::refreshNames()
 	{
 		gCacheName->getGroupName(parcel->getGroupID(), group_name);
 	}
-	mCheckGroup->setLabelArg("[GROUP]", LLString(group_name));
+	childSetLabelArg("GroupCheck", "[GROUP]", LLString(group_name));
 }
 
 
 // virtual
 void LLPanelLandAccess::draw()
 {
+	refresh_ui();
 	refreshNames();
 	LLPanel::draw();
 }
 
-
-void LLPanelLandAccess::onAccessLevelChange(LLUICtrl*, void *userdata)
-{
-	LLPanelLandAccess::onCommitAny(NULL, userdata);
-}
 
 // static
 void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
@@ -2738,27 +2850,53 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	}
 
 	// Extract data from UI
-	BOOL use_access_group	= self->mCheckGroup->get();
-	BOOL use_access_list	= self->mCheckAccess->get();
-	BOOL use_pass_list		= self->mCheckPass->get();
-	
-
-
-	// Must be limiting access to sell passes
-	if (!use_access_group && !use_access_list)
+	BOOL public_access = self->childGetValue("public_access").asBoolean();
+	BOOL limit_payment = FALSE, limit_age_verified = FALSE;
+	BOOL use_access_group = FALSE;
+	BOOL use_access_list = FALSE;
+	BOOL use_pass_list = FALSE;
+	if (public_access)
 	{
-		use_pass_list = FALSE;
+		use_access_list = FALSE;
+		limit_payment = self->childGetValue("limit_payment").asBoolean();
+		limit_age_verified = self->childGetValue("limit_age_verified").asBoolean();
+	}
+	else
+	{
+		use_access_list = TRUE;
+		use_access_group = self->childGetValue("GroupCheck").asBoolean();
+		use_pass_list = self->childGetValue("PassCheck").asBoolean();
+		if (use_access_group)
+		{
+			char group_name[MAX_STRING];	/*Flawfinder: ignore*/
+			if (!gCacheName->getGroupName(parcel->getGroupID(), group_name))
+			{
+				use_access_group = FALSE;
+			}
+			if (use_pass_list)
+			{
+				LLCtrlSelectionInterface* passcombo = self->childGetSelectionInterface("pass_combo");
+				if (passcombo)
+				{
+					if (passcombo->getSimpleSelectedValue().asString() == "group")
+					{
+						use_access_list = FALSE;
+					}
+				}
+			}
+		}
 	}
 
-	S32 pass_price = llfloor(self->mSpinPrice->get());
-	F32 pass_hours = self->mSpinHours->get();
-
-	// Validate extracted data
+	S32 pass_price = llfloor((F32)self->childGetValue("PriceSpin").asReal());
+	F32 pass_hours = (F32)self->childGetValue("HoursSpin").asReal();
 
 	// Push data into current parcel
 	parcel->setParcelFlag(PF_USE_ACCESS_GROUP,	use_access_group);
 	parcel->setParcelFlag(PF_USE_ACCESS_LIST,	use_access_list);
 	parcel->setParcelFlag(PF_USE_PASS_LIST,		use_pass_list);
+	parcel->setParcelFlag(PF_USE_BAN_LIST,		TRUE);
+	parcel->setParcelFlag(PF_DENY_ANONYMOUS, 	limit_payment);
+	parcel->setParcelFlag(PF_DENY_AGEUNVERIFIED, limit_age_verified);
 
 	parcel->setPassPrice( pass_price );
 	parcel->setPassHours( pass_hours );
@@ -2771,287 +2909,100 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 }
 
 // static
-void LLPanelLandAccess::onClickAdd(void* data)
+void LLPanelLandAccess::onClickAddAccess(void* data)
 {
 	LLPanelLandAccess* panelp = (LLPanelLandAccess*)data;
-	gFloaterView->getParentFloater(panelp)->addDependentFloater(LLFloaterAvatarPicker::show(callbackAvatarID, data) );
-}
-
-// static
-void LLPanelLandAccess::callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata)
-{
-	LLPanelLandAccess* self = (LLPanelLandAccess*)userdata;
-	if (names.empty() || ids.empty()) return;
-	self->addAvatar(ids[0]);
-}
-
-
-void LLPanelLandAccess::addAvatar(LLUUID id)
-{
-	LLParcel* parcel = mParcel->getParcel();
-	if (!parcel) return;
-
-	parcel->addToAccessList(id, 0);
-
-	gParcelMgr->sendParcelAccessListUpdate(AL_ACCESS);
-
-	refresh();
-}
-
-
-// static
-void LLPanelLandAccess::onClickRemove(void* data)
-{
-	LLPanelLandAccess* self = (LLPanelLandAccess*)data;
-	if (!self) return;
-
-	LLScrollListItem* item = self->mListAccess->getFirstSelected();
-	if (!item) return;
-
-	LLParcel* parcel = self->mParcel->getParcel();
-	if (!parcel) return;
-
-	const LLUUID& agent_id = item->getUUID();
-
-	parcel->removeFromAccessList(agent_id);
-
-	gParcelMgr->sendParcelAccessListUpdate(AL_ACCESS);
-
-	self->refresh();
-}
-
-
-
-//---------------------------------------------------------------------------
-// LLPanelLandBan
-//---------------------------------------------------------------------------
-LLPanelLandBan::LLPanelLandBan(LLParcelSelectionHandle& parcel)
-:	LLPanel("land_ban_panel"), mParcel(parcel)
-{
-
-}
-
-
-
-BOOL LLPanelLandBan::postBuild()
-{
-
-	mCheck = LLUICtrlFactory::getCheckBoxByName(this, "LandBanCheck");
-	childSetCommitCallback("LandBanCheck", onCommitAny, this);
-	
-	mList = LLUICtrlFactory::getNameListByName(this, "LandBanList");
-	mList->sortByColumn(0, TRUE); // ascending
-
-	mBtnAdd = LLUICtrlFactory::getButtonByName(this, "Add...");
-	
-	mBtnAdd->setClickedCallback(onClickAdd, this);
-
-	mBtnRemove = LLUICtrlFactory::getButtonByName(this, "Remove");
-	
-	mBtnRemove->setClickedCallback(onClickRemove, this);
-
-	mCheckDenyAnonymous = LLUICtrlFactory::getCheckBoxByName(this, "DenyAnonymousCheck");
-	childSetCommitCallback("DenyAnonymousCheck", onCommitAny, this);
-
-	mCheckDenyIdentified = LLUICtrlFactory::getCheckBoxByName(this, "DenyIdentifiedCheck");
-	childSetCommitCallback("DenyIdentifiedCheck", onCommitAny, this);
-
-	mCheckDenyTransacted = LLUICtrlFactory::getCheckBoxByName(this, "DenyTransactedCheck");
-	childSetCommitCallback("DenyTransactedCheck", onCommitAny, this);
-
-	return TRUE;
-
-}
-
-
-LLPanelLandBan::~LLPanelLandBan()
-{ }
-
-void LLPanelLandBan::refresh()
-{
-	mList->deleteAllItems();
-
-	LLParcel *parcel = mParcel->getParcel();
-
-	if (parcel)
+	if (panelp)
 	{
-		// Display options
+		gFloaterView->getParentFloater(panelp)->addDependentFloater(LLFloaterAvatarPicker::show(callbackAvatarCBAccess, data) );
+	}
+}
 
-		S32 count = parcel->mBanList.size();
-
-		BOOL use_ban = parcel->getParcelFlag(PF_USE_BAN_LIST);
-		mCheck->set( use_ban );
-		mCheck->setLabelArg( "[LISTED]", llformat("%d",count));
-		mCheck->setLabelArg( "[MAX]", llformat("%d",PARCEL_MAX_ACCESS_LIST));
-
-		access_map_const_iterator cit = parcel->mBanList.begin();
-		access_map_const_iterator end = parcel->mBanList.end();
-		for ( ; cit != end; ++cit)
+// static
+void LLPanelLandAccess::callbackAvatarCBAccess(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata)
+{
+	LLPanelLandAccess* panelp = (LLPanelLandAccess*)userdata;
+	if (!names.empty() && !ids.empty())
+	{
+		LLUUID id = ids[0];
+		LLParcel* parcel = panelp->mParcel->getParcel();
+		if (parcel)
 		{
-			const LLAccessEntry& entry = (*cit).second;
-			LLString suffix;
-			if (entry.mTime != 0)
+			parcel->addToAccessList(id, 0);
+			gParcelMgr->sendParcelAccessListUpdate(AL_ACCESS);
+			panelp->refresh();
+		}
+	}
+}
+
+// static
+void LLPanelLandAccess::onClickRemoveAccess(void* data)
+{
+	LLPanelLandAccess* panelp = (LLPanelLandAccess*)data;
+	if (panelp && panelp->mListAccess)
+	{
+		LLParcel* parcel = panelp->mParcel->getParcel();
+		if (parcel)
+		{
+			std::vector<LLScrollListItem*> names = panelp->mListAccess->getAllSelected();
+			for (std::vector<LLScrollListItem*>::iterator iter = names.begin();
+				 iter != names.end(); )
 			{
-				S32 now = time(NULL);
-				S32 seconds = entry.mTime - now;
-				if (seconds < 0) seconds = 0;
-				suffix.assign(" (");
-				if (seconds >= 120)
-				{
-					char buf[30];		/*Flawfinder: ignore*/
-					snprintf(buf, sizeof(buf), "%d minutes", (seconds/60));		/* Flawfinder: ignore */
-					suffix.append(buf);
-				}
-				else if (seconds >= 60)
-				{
-					suffix.append("1 minute");
-				}
-				else
-				{
-					char buf[30];	/*Flawfinder: ignore*/
-					snprintf(buf, sizeof(buf), "%d seconds", seconds);		/* Flawfinder: ignore */
-					suffix.append(buf);
-				}
-				suffix.append(" remaining)");
+				LLScrollListItem* item = *iter++;
+				const LLUUID& agent_id = item->getUUID();
+				parcel->removeFromAccessList(agent_id);
 			}
-			mList->addNameItem(entry.mID, ADD_SORTED, TRUE, suffix);
+			gParcelMgr->sendParcelAccessListUpdate(AL_ACCESS);
+			panelp->refresh();
 		}
-
-		BOOL can_manage_banned = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_MANAGE_BANNED);
-		mCheck->setEnabled( can_manage_banned );
-		mCheckDenyAnonymous->setEnabled( FALSE );
-		mCheckDenyIdentified->setEnabled( FALSE );
-		mCheckDenyTransacted->setEnabled( FALSE );
-
-		if(parcel->getRegionDenyAnonymousOverride())
-		{
-			mCheckDenyAnonymous->set(TRUE);
-		}
-		else if(can_manage_banned)
-		{
-			mCheckDenyAnonymous->setEnabled(TRUE);
-			mCheckDenyAnonymous->set(parcel->getParcelFlag(PF_DENY_ANONYMOUS));
-		}
-		if(parcel->getRegionDenyIdentifiedOverride())
-		{
-			mCheckDenyIdentified->set(TRUE);
-		}
-		else if(can_manage_banned)
-		{
-			mCheckDenyIdentified->setEnabled(TRUE);
-			mCheckDenyIdentified->set(parcel->getParcelFlag(PF_DENY_IDENTIFIED));
-		}
-		if(parcel->getRegionDenyTransactedOverride())
-		{
-			mCheckDenyTransacted->set(TRUE);
-		}
-		else if(can_manage_banned)
-		{
-			mCheckDenyTransacted->setEnabled(TRUE);
-			mCheckDenyTransacted->set(parcel->getParcelFlag(PF_DENY_TRANSACTED));
-		}
-
-
-		BOOL enable_add = can_manage_banned && (count < PARCEL_MAX_ACCESS_LIST);
-		mBtnAdd->setEnabled(enable_add);
-
-		BOOL enable_remove = can_manage_banned && (count > 0);
-		mBtnRemove->setEnabled(enable_remove);
 	}
-	else
+}
+
+// static
+void LLPanelLandAccess::onClickAddBanned(void* data)
+{
+	LLPanelLandAccess* panelp = (LLPanelLandAccess*)data;
+	gFloaterView->getParentFloater(panelp)->addDependentFloater(LLFloaterAvatarPicker::show(callbackAvatarCBBanned, data) );
+}
+
+// static
+void LLPanelLandAccess::callbackAvatarCBBanned(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata)
+{
+	LLPanelLandAccess* panelp = (LLPanelLandAccess*)userdata;
+	if (!names.empty() && !ids.empty())
 	{
-		mCheck->set(FALSE);
-		mCheck->setLabelArg( "[LISTED]", llformat("%d",0));
-		mCheck->setEnabled(FALSE);
-		mBtnAdd->setEnabled(FALSE);
-		mBtnRemove->setEnabled(FALSE);
-		mCheckDenyAnonymous->set(FALSE);
-		mCheckDenyAnonymous->setEnabled(FALSE);
-		mCheckDenyIdentified->set(FALSE);
-		mCheckDenyIdentified->setEnabled(FALSE);
-		mCheckDenyTransacted->set(FALSE);
-		mCheckDenyTransacted->setEnabled(FALSE);
+		LLUUID id = ids[0];
+		LLParcel* parcel = panelp->mParcel->getParcel();
+		if (parcel)
+		{
+			parcel->addToBanList(id, 0);
+			gParcelMgr->sendParcelAccessListUpdate(AL_BAN);
+			panelp->refresh();
+		}
 	}
 }
 
 // static
-void LLPanelLandBan::onCommitAny(LLUICtrl *ctrl, void *userdata)
+void LLPanelLandAccess::onClickRemoveBanned(void* data)
 {
-	LLPanelLandBan *self = (LLPanelLandBan*)userdata;
-
-	LLParcel* parcel = self->mParcel->getParcel();
-	if (!parcel)
+	LLPanelLandAccess* panelp = (LLPanelLandAccess*)data;
+	if (panelp && panelp->mListBanned)
 	{
-		return;
+		LLParcel* parcel = panelp->mParcel->getParcel();
+		if (parcel)
+		{
+			std::vector<LLScrollListItem*> names = panelp->mListBanned->getAllSelected();
+			for (std::vector<LLScrollListItem*>::iterator iter = names.begin();
+				 iter != names.end(); )
+			{
+				LLScrollListItem* item = *iter++;
+				const LLUUID& agent_id = item->getUUID();
+				parcel->removeFromBanList(agent_id);
+			}
+			gParcelMgr->sendParcelAccessListUpdate(AL_BAN);
+			panelp->refresh();
+		}
 	}
-
-	// Extract data from UI
-	BOOL use_ban_list = self->mCheck->get();
-	BOOL deny_access_anonymous = self->mCheckDenyAnonymous->get();
-	BOOL deny_access_identified = self->mCheckDenyIdentified->get();
-	BOOL deny_access_transacted = self->mCheckDenyTransacted->get();	
-
-	// Push data into current parcel
-	parcel->setParcelFlag(PF_USE_BAN_LIST,		use_ban_list);
-	parcel->setParcelFlag(PF_DENY_ANONYMOUS, deny_access_anonymous);
-	parcel->setParcelFlag(PF_DENY_IDENTIFIED, deny_access_identified);
-	parcel->setParcelFlag(PF_DENY_TRANSACTED, deny_access_transacted);
-
-	// Send current parcel data upstream to server
-	gParcelMgr->sendParcelPropertiesUpdate( parcel );
-
-	// Might have changed properties, so let's redraw!
-	self->refresh();
-}
-
-// static
-void LLPanelLandBan::onClickAdd(void* data)
-{
-	LLPanelLandBan* panelp = (LLPanelLandBan*)data;
-	gFloaterView->getParentFloater(panelp)->addDependentFloater(LLFloaterAvatarPicker::show(callbackAvatarID, data) );
-}
-
-// static
-void LLPanelLandBan::callbackAvatarID(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata)
-{
-	LLPanelLandBan* self = (LLPanelLandBan*)userdata;
-	if (names.empty() || ids.empty()) return;
-	self->addAvatar(ids[0]);
-}
-
-
-void LLPanelLandBan::addAvatar(LLUUID id)
-{
-	LLParcel* parcel = mParcel->getParcel();
-	if (!parcel) return;
-
-	parcel->addToBanList(id, 0);
-
-	gParcelMgr->sendParcelAccessListUpdate(AL_BAN);
-
-	refresh();
-}
-
-
-// static
-void LLPanelLandBan::onClickRemove(void* data)
-{
-	LLPanelLandBan* self = (LLPanelLandBan*)data;
-	if (!self) return;
-
-	LLScrollListItem* item = self->mList->getFirstSelected();
-	if (!item) return;
-
-	LLParcel* parcel = self->mParcel->getParcel();
-	if (!parcel) return;
-
-	const LLUUID& agent_id = item->getUUID();
-
-	parcel->removeFromBanList(agent_id);
-
-	gParcelMgr->sendParcelAccessListUpdate(AL_BAN);
-
-	self->refresh();
 }
 
 //---------------------------------------------------------------------------

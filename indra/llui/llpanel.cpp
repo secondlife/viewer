@@ -982,6 +982,16 @@ BOOL LLPanel::childSetLabelArg(const LLString& id, const LLString& key, const LL
 	return FALSE;
 }
 
+BOOL LLPanel::childSetToolTipArg(const LLString& id, const LLString& key, const LLStringExplicit& text)
+{
+	LLView* child = getChildByName(id, true);
+	if (child)
+	{
+		return child->setToolTipArg(key, text);
+	}
+	return FALSE;
+}
+
 void LLPanel::childSetMinValue(const LLString& id, LLSD min_value)
 {
 	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);

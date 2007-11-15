@@ -253,8 +253,7 @@ public:
 	void	setForSale(BOOL b)		{ setParcelFlag(PF_FOR_SALE, b); }
 	void	setSoundOnly(BOOL b)	{ setParcelFlag(PF_SOUND_LOCAL, b); }
 	void	setDenyAnonymous(BOOL b) { setParcelFlag(PF_DENY_ANONYMOUS, b); }
-	void	setDenyIdentified(BOOL b) { setParcelFlag(PF_DENY_IDENTIFIED, b); }
-	void	setDenyTransacted(BOOL b) { setParcelFlag(PF_DENY_TRANSACTED, b); }
+	void	setDenyAgeUnverified(BOOL b) { setParcelFlag(PF_DENY_AGEUNVERIFIED, b); }
 	void	setRestrictPushObject(BOOL b) { setParcelFlag(PF_RESTRICT_PUSHOBJECT, b); }
 
 	void	setDrawDistance(F32 dist)	{ mDrawDistance = dist; }
@@ -444,10 +443,8 @@ public:
 					{ return mRegionPushOverride; }
 	BOOL	getRegionDenyAnonymousOverride() const
 					{ return mRegionDenyAnonymousOverride; }
-	BOOL	getRegionDenyIdentifiedOverride() const
-					{ return mRegionDenyIdentifiedOverride; }
-	BOOL	getRegionDenyTransactedOverride() const
-					{ return mRegionDenyTransactedOverride; }
+	BOOL	getRegionDenyAgeUnverifiedOverride() const
+					{ return mRegionDenyAgeUnverifiedOverride; }
 
 	F32		getDrawDistance() const			{ return mDrawDistance; }
 	S32		getSalePrice() const			{ return mSalePrice; }
@@ -471,7 +468,11 @@ public:
 	BOOL	allowTerraformBy(const LLUUID &agent_id) const;
 
 	// Returns 0 if access is OK, otherwise a BA_ return code above.
-	S32	 blockAccess(const LLUUID& agent_id, const LLUUID& group_id, const BOOL is_agent_identified, const BOOL is_agent_transacted) const;
+	S32	 blockAccess(const LLUUID& agent_id, 
+			const LLUUID& group_id, 
+			const BOOL is_agent_identified, 
+			const BOOL is_agent_transacted,
+			const BOOL is_agent_ageverified) const;
 
 	// Only checks if the agent is explicitly banned from this parcel
 	BOOL isAgentBanned(const LLUUID& agent_id) const;
@@ -480,7 +481,8 @@ public:
 									const LLUUID& agent_id,
 									const std::vector<LLUUID>& group_ids,
 									const BOOL is_agent_identified,
-									const BOOL is_agent_transacted);
+									const BOOL is_agent_transacted,
+									const BOOL is_agent_ageverified);
 
 	bool	operator==(const LLParcel &rhs) const;
 
@@ -524,8 +526,7 @@ public:
 	void	setCleanOtherTime(S32 time)					{ mCleanOtherTime = time; }
 	void	setRegionPushOverride(BOOL override) {mRegionPushOverride = override; }
 	void	setRegionDenyAnonymousOverride(BOOL override)	{ mRegionDenyAnonymousOverride = override; }
-	void	setRegionDenyIdentifiedOverride(BOOL override)	{ mRegionDenyIdentifiedOverride = override; }
-	void	setRegionDenyTransactedOverride(BOOL override)	{ mRegionDenyTransactedOverride = override; }
+	void	setRegionDenyAgeUnverifiedOverride(BOOL override)	{ mRegionDenyAgeUnverifiedOverride = override; }
 
 	// Accessors for parcel sellWithObjects
 	void	setPreviousOwnerID(LLUUID prev_owner)	{ mPreviousOwnerID = prev_owner; }
@@ -594,8 +595,7 @@ protected:
 	S32					mCleanOtherTime;
 	BOOL				mRegionPushOverride;
 	BOOL				mRegionDenyAnonymousOverride;
-	BOOL				mRegionDenyIdentifiedOverride;
-	BOOL				mRegionDenyTransactedOverride;
+	BOOL				mRegionDenyAgeUnverifiedOverride;
 
 
 public:

@@ -40,14 +40,20 @@
 #include "llviewercontrol.h"
 
 // static
-void LLWeb::loadURL(std::string url)
+void LLWeb::initClass()
+{
+	LLAlertDialog::setURLLoader(&sAlertURLLoader);
+}
+
+// static
+void LLWeb::loadURL(const std::string& url)
 {
 	loadURLExternal(url);
 }
 
 
 // static
-void LLWeb::loadURLExternal(std::string url)
+void LLWeb::loadURLExternal(const std::string& url)
 {
 	std::string escaped_url = escapeURL(url);
 #if LL_LIBXUL_ENABLED
@@ -57,7 +63,7 @@ void LLWeb::loadURLExternal(std::string url)
 
 
 // static
-std::string LLWeb::escapeURL(std::string url)
+std::string LLWeb::escapeURL(const std::string& url)
 {
 	// The CURL curl_escape() function escapes colons, slashes,
 	// and all characters but A-Z and 0-9.  Do a cheesy mini-escape.
@@ -81,3 +87,12 @@ std::string LLWeb::escapeURL(std::string url)
 	}
 	return escaped_url;
 }
+
+// virtual
+void LLWeb::URLLoader::load(const std::string& url)
+{
+	loadURL(url);
+}
+
+// static
+LLWeb::URLLoader LLWeb::sAlertURLLoader;

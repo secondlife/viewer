@@ -4349,6 +4349,10 @@ version 2.0
 		{	RegionDenyIdentified	BOOL		}
 		{	RegionDenyTransacted	BOOL		}
 	}
+	{
+		AgeVerificationBlock Single
+		{   RegionDenyAgeUnverified BOOL    }
+	}
 }
 
 // ParcelPropertiesUpdate

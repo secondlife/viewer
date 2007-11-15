@@ -34,21 +34,31 @@
 #define LL_LLWEB_H
 
 #include <string>
+#include "llalertdialog.h"
 
 class LLWeb
 {
 public:
+	static void initClass();
+	
 	// Loads unescaped url in either internal web browser or external
 	// browser, depending on user settings.
-	static void loadURL(std::string url);
+	static void loadURL(const std::string& url);
 	
 	static void loadURL(const char* url) { loadURL( std::string(url) ); }
 
 	// Loads unescaped url in external browser.
-	static void loadURLExternal(std::string url);
+	static void loadURLExternal(const std::string& url);
 
 	// Returns escaped (eg, " " to "%20") url
-	static std::string escapeURL(std::string url);
+	static std::string escapeURL(const std::string& url);
+
+	class URLLoader : public LLAlertDialog::URLLoader
+	{
+		virtual void load(const std::string& url);
+	};
+
+	static URLLoader sAlertURLLoader;
 };
 
 #endif

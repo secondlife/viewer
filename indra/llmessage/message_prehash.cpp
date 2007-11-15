@@ -1369,6 +1369,9 @@ char * _PREHASH_AvatarNotesReply;
 char * _PREHASH_CacheID;
 char * _PREHASH_OwnerMask;
 char * _PREHASH_TransferInventoryAck;
+char * _PREHASH_RegionDenyAgeUnverified;
+char * _PREHASH_AgeVerificationBlock;
+
 
 void init_prehash_data()
 {
@@ -2702,4 +2705,6 @@ void init_prehash_data()
 	_PREHASH_CacheID = gMessageStringTable.getString("CacheID");
 	_PREHASH_OwnerMask = gMessageStringTable.getString("OwnerMask");
 	_PREHASH_TransferInventoryAck = gMessageStringTable.getString("TransferInventoryAck");
+	_PREHASH_RegionDenyAgeUnverified = gMessageStringTable.getString("RegionDenyAgeUnverified");
+	_PREHASH_AgeVerificationBlock = gMessageStringTable.getString("AgeVerificationBlock");
 }

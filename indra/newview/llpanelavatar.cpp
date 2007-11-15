@@ -1788,6 +1788,7 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 	//BOOL	mature = FALSE;
 	BOOL	identified = FALSE;
 	BOOL	transacted = FALSE;
+	BOOL	age_verified = FALSE;
 	BOOL	online = FALSE;
 	char	profile_url[DB_USER_PROFILE_URL_BUF_SIZE];		/*Flawfinder: ignore*/
 
@@ -1825,6 +1826,7 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 		
 		identified = (flags & AVATAR_IDENTIFIED);
 		transacted = (flags & AVATAR_TRANSACTED);
+		age_verified = (flags & AVATAR_AGEVERIFIED);
 		allow_publish = (flags & AVATAR_ALLOW_PUBLISH);
 		online = (flags & AVATAR_ONLINE);
 		
@@ -1874,6 +1876,12 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 					payment_text = "NoPaymentInfoOnFile";
 				}
 				args["[PAYMENTINFO]"] = self->mPanelSecondLife->childGetValue(payment_text).asString();
+				LLString age_text = "NotAgeVerified";
+				if(age_verified)
+				{
+					age_text = "AgeVerified";
+				}
+				args["[PAYMENTINFO]"] += self->mPanelSecondLife->childGetValue(age_text).asString();
 			}
 			else
 			{

@@ -408,6 +408,15 @@ void LLFloaterRegionInfo::refreshFromRegion(LLViewerRegion* region)
 			region));
 }
 
+// public
+void LLFloaterRegionInfo::refresh()
+{
+	for(info_panels_t::iterator iter = mInfoPanels.begin();
+		iter != mInfoPanels.end(); ++iter)
+	{
+		(*iter)->refresh();
+	}
+}
 
 
 ///----------------------------------------------------------------------------
@@ -447,6 +456,7 @@ void LLPanelRegionInfo::onChangeAnything(LLUICtrl* ctrl, void* user_data)
 	if(panel)
 	{
 		panel->enableButton("apply_btn");
+		panel->refresh();
 	}
 }
 
@@ -455,6 +465,7 @@ BOOL LLPanelRegionInfo::postBuild()
 {
 	childSetAction("apply_btn", onBtnSet, this);
 	childDisable("apply_btn");
+	refresh();
 	return TRUE;
 }
 
@@ -716,6 +727,8 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 		body["allow_land_resell"] = childGetValue("allow_land_resell_check");
 		body["agent_limit"] = childGetValue("agent_limit_spin");
 		body["prim_bonus"] = childGetValue("object_bonus_spin");
+		// the combo box stores strings "Mature" and "PG", but we have to convert back to a number, 
+		// because the sim doesn't know from strings for this stuff
 		body["sim_access"] = LLViewerRegion::stringToAccess(childGetValue("access_combo").asString().c_str());
 		body["restrict_pushobject"] = childGetValue("restrict_pushobject");
 		body["allow_parcel_changes"] = childGetValue("allow_parcel_changes_check");
@@ -1907,6 +1920,7 @@ bool LLPanelEstateInfo::refreshFromRegion(LLViewerRegion* region)
 	BOOL owner = (region && (region->getOwner() == gAgent.getID()));
 	BOOL manager = (region && region->isEstateManager());
 	setCtrlsEnabled(god || owner || manager);
+	
 	childDisable("apply_btn");
 	childSetEnabled("add_allowed_avatar_btn",		god || owner || manager);
 	childSetEnabled("remove_allowed_avatar_btn",	god || owner || manager);
@@ -1942,8 +1956,7 @@ bool LLPanelEstateInfo::refreshFromRegion(LLViewerRegion* region)
 
 	sendEstateOwnerMessage(gMessageSystem, "getinfo", invoice, strings);
 
-	
-
+	refresh();
 
 	return rv;
 }
@@ -1974,9 +1987,8 @@ BOOL LLPanelEstateInfo::postBuild()
 	initCtrl("use_global_time_check");
 	initCtrl("fixed_sun_check");
 	initCtrl("allow_direct_teleport");
-	initCtrl("deny_anonymous");
-	initCtrl("deny_identified");
-	initCtrl("deny_transacted");
+	initCtrl("limit_payment");
+	initCtrl("limit_age_verified");
 	initCtrl("voice_chat_check");
 
 	initHelpBtn("estate_manager_help",			"HelpEstateEstateManager");
@@ -2043,6 +2055,19 @@ BOOL LLPanelEstateInfo::postBuild()
 	return LLPanelRegionInfo::postBuild();
 }
 
+void LLPanelEstateInfo::refresh()
+{
+	bool public_access = childGetValue("externally_visible_check").asBoolean();
+	childSetEnabled("Only Allow", public_access);
+	childSetEnabled("limit_payment", public_access);
+	childSetEnabled("limit_age_verified", public_access);
+	// if this is set to false, then the limit fields are meaningless and should be turned off
+	if (public_access == false)
+	{
+		childSetValue("limit_payment", false);
+		childSetValue("limit_age_verified", false);
+	}
+}
 
 BOOL LLPanelEstateInfo::sendUpdate()
 {
@@ -2157,10 +2182,11 @@ void LLPanelEstateInfo::setEstateFlags(U32 flags)
 		"voice_chat_check",
 		LLSD(flags & REGION_FLAGS_ALLOW_VOICE ? TRUE : FALSE));
 	childSetValue("allow_direct_teleport", LLSD(flags & REGION_FLAGS_ALLOW_DIRECT_TELEPORT ? TRUE : FALSE) );
-	childSetValue("deny_anonymous", LLSD(flags & REGION_FLAGS_DENY_ANONYMOUS ? TRUE : FALSE) );
-	childSetValue("deny_identified", LLSD(flags & REGION_FLAGS_DENY_IDENTIFIED ? TRUE : FALSE) );
-	childSetValue("deny_transacted", LLSD(flags & REGION_FLAGS_DENY_TRANSACTED ? TRUE : FALSE) );
+	childSetValue("limit_payment", LLSD(flags & REGION_FLAGS_DENY_ANONYMOUS ? TRUE : FALSE) );
+	childSetValue("limit_age_verified", LLSD(flags & REGION_FLAGS_DENY_AGEUNVERIFIED ? TRUE : FALSE) );
 	childSetVisible("abuse_email_text", flags & REGION_FLAGS_ABUSE_EMAIL_TO_ESTATE_OWNER);
+
+	refresh();
 }
 
 U32 LLPanelEstateInfo::computeEstateFlags()
@@ -2187,20 +2213,16 @@ U32 LLPanelEstateInfo::computeEstateFlags()
 		flags |= REGION_FLAGS_SUN_FIXED;
 	}
 	
-	if (childGetValue("deny_anonymous").asBoolean())
+	if (childGetValue("limit_payment").asBoolean())
 	{
 		flags |= REGION_FLAGS_DENY_ANONYMOUS;
 	}
 	
-	if (childGetValue("deny_identified").asBoolean())
+	if (childGetValue("limit_age_verified").asBoolean())
 	{
-		flags |= REGION_FLAGS_DENY_IDENTIFIED;
+		flags |= REGION_FLAGS_DENY_AGEUNVERIFIED;
 	}
 
-	if (childGetValue("deny_transacted").asBoolean())
-	{
-		flags |= REGION_FLAGS_DENY_TRANSACTED;
-	}
 	
 	return flags;
 }

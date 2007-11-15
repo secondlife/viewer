@@ -58,16 +58,20 @@ const U32 PF_URL_WEB_PAGE				= 1 << 19;	// The "media URL" is an HTML page
 const U32 PF_URL_RAW_HTML				= 1 << 20;	// The "media URL" is a raw HTML string like <H1>Foo</H1>
 const U32 PF_RESTRICT_PUSHOBJECT		= 1 << 21;	// Restrict push object to either on agent or on scripts owned by parcel owner
 const U32 PF_DENY_ANONYMOUS				= 1 << 22;	// Deny all non identified/transacted accounts
-const U32 PF_DENY_IDENTIFIED			= 1 << 23;	// Deny identified accounts
-const U32 PF_DENY_TRANSACTED			= 1 << 24;	// Deny identified accounts
+// const U32 PF_DENY_IDENTIFIED			= 1 << 23;	// Deny identified accounts
+// const U32 PF_DENY_TRANSACTED			= 1 << 24;	// Deny identified accounts
 const U32 PF_ALLOW_GROUP_SCRIPTS		= 1 << 25;	// Allow scripts owned by group
 const U32 PF_CREATE_GROUP_OBJECTS		= 1 << 26;	// Allow object creation by group members or objects
 const U32 PF_ALLOW_ALL_OBJECT_ENTRY		= 1 << 27;	// Allow all objects to enter a parcel
 const U32 PF_ALLOW_GROUP_OBJECT_ENTRY	= 1 << 28;	// Only allow group (and owner) objects to enter the parcel
 const U32 PF_ALLOW_VOICE_CHAT			= 1 << 29;	// Allow residents to use voice chat on this parcel
 const U32 PF_USE_ESTATE_VOICE_CHAN      = 1 << 30;
+const U32 PF_DENY_AGEUNVERIFIED         = 1 << 31;  // Prevent residents who aren't age-verified 
+// NOTE: At one point we have used all of the bits.
+// We have deprecated two of them in 1.19.0 which *could* be reused,
+// but only after we are certain there are no simstates using those bits.
 
-const U32 PF_RESERVED			= 1U << 31;
+//const U32 PF_RESERVED			= 1U << 31;
 
 // If any of these are true the parcel is restricting access in some maner.
 const U32 PF_USE_RESTRICTED_ACCESS = PF_USE_ACCESS_GROUP
@@ -75,8 +79,7 @@ const U32 PF_USE_RESTRICTED_ACCESS = PF_USE_ACCESS_GROUP
 										| PF_USE_BAN_LIST
 										| PF_USE_PASS_LIST
 										| PF_DENY_ANONYMOUS
-										| PF_DENY_IDENTIFIED
-										| PF_DENY_TRANSACTED;
+										| PF_DENY_AGEUNVERIFIED;
 const U32 PF_NONE = 0x00000000;
 const U32 PF_ALL  = 0x7FFFFFFF;
 const U32 PF_DEFAULT =  PF_ALLOW_FLY
@@ -104,6 +107,7 @@ const S32 BA_NOT_IN_GROUP = 1;
 const S32 BA_NOT_ON_LIST = 2;
 const S32 BA_BANNED = 3;
 const S32 BA_NO_ACCESS_LEVEL = 4;
+const S32 BA_NOT_AGE_VERIFIED = 5;
 
 // ParcelRelease flags
 const U32 PR_NONE		= 0x0;

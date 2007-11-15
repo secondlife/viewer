@@ -256,7 +256,7 @@ void LLStatusBar::refresh()
 			<< std::setfill('0') << std::setw(2) << internal_time->tm_mday << " "
 			<< sMonths[internal_time->tm_mon] << " "
 			<< internal_time->tm_year + 1900;
-	mTextTime->setToolTip(date.str().c_str());
+	mTextTime->setToolTip(date.str());
 
 	LLRect r;
 	const S32 MENU_RIGHT = gMenuBarView->getRightmostMenuEdge();

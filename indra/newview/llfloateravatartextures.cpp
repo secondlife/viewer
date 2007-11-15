@@ -110,7 +110,7 @@ static void update_texture_ctrl(LLVOAvatar* avatarp,
 	if (id == IMG_DEFAULT_AVATAR)
 	{
 		ctrl->setImageAssetID(LLUUID::null);
-		ctrl->setToolTip("IMG_DEFAULT_AVATAR");
+		ctrl->setToolTip(LLString("IMG_DEFAULT_AVATAR"));
 	}
 	else
 	{

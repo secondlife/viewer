@@ -79,6 +79,9 @@ public:
 	static LLPanelEstateInfo* getPanelEstate();
 	static LLPanelEstateCovenant* getPanelCovenant();
 
+	// from LLPanel
+	virtual void refresh();
+	
 protected:
 	LLFloaterRegionInfo(const LLRect& rect);
 	void refreshFromRegion(LLViewerRegion* region);
@@ -294,6 +297,7 @@ public:
 	// LLPanel
 	virtual BOOL postBuild();
 	virtual void updateChild(LLUICtrl* child_ctrl);
+	virtual void refresh();
 	
 	U32 computeEstateFlags();
 	void setEstateFlags(U32 flags);

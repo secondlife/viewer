@@ -45,6 +45,7 @@
 #include "llstring.h"
 #include "llrect.h"
 #include "llui.h"
+#include "lluistring.h"
 #include "lluixmltags.h"
 #include "llviewquery.h"
 #include "llxmlnode.h"
@@ -154,7 +155,7 @@ protected:
 	BOOL		mEnabled;		// Enabled means "accepts input that has an effect on the state of the application."
 								// A disabled view, for example, may still have a scrollbar that responds to mouse events.
 	BOOL		mMouseOpaque;	// Opaque views handle all mouse events that are over their rect.
-	LLString	mToolTipMsg;	// isNull() is true if none.
+	LLUIString	mToolTipMsg;	// isNull() is true if none.
 
 	U8          mSoundFlags;
 	BOOL		mSaveToXML;
@@ -214,7 +215,8 @@ public:
 	// MANIPULATORS
 	//
 	void		setMouseOpaque( BOOL b );
-	void		setToolTip( const LLString& msg );
+	void		setToolTip( const LLStringExplicit& msg );
+	BOOL		setToolTipArg( const LLStringExplicit& key, const LLStringExplicit& text );
 
 	virtual void setRect(const LLRect &rect);
 	void		setFollows(U32 flags);

@@ -110,7 +110,7 @@ void process_adjust_balance(LLMessageSystem* msg_system, void**);
 
 void process_alert_message(LLMessageSystem* msg, void**);
 void process_agent_alert_message(LLMessageSystem* msgsystem, void** user_data);
-void process_alert_core(const char* buffer, BOOL modal);
+void process_alert_core(const std::string& message, BOOL modal);
 
 // "Mean" or player-vs-player abuse
 void handle_show_mean_events(void *);
