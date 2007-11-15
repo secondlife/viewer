@@ -48,6 +48,9 @@
 // library includes
 #include "llsd.h"
 
+// system includes
+#include <boost/tokenizer.hpp>
+
 const std::string SLURL_SL_HELP_PREFIX		= "secondlife://app.";
 const std::string SLURL_SL_PREFIX			= "sl://";
 const std::string SLURL_SECONDLIFE_PREFIX	= "secondlife://";
@@ -108,9 +111,9 @@ bool LLURLDispatcherImpl::isSLURL(const std::string& url)
 
 // static
 bool LLURLDispatcherImpl::isSLURLCommand(const std::string& url)
-{ 
+{
 	if (matchPrefix(url, SLURL_SL_PREFIX + SLURL_APP_TOKEN)
-		|| matchPrefix(url, SLURL_SECONDLIFE_PREFIX + "/" + SLURL_APP_TOKEN)
+		|| matchPrefix(url, SLURL_SECONDLIFE_PREFIX + SLURL_APP_TOKEN)
 		|| matchPrefix(url, SLURL_SLURL_PREFIX + SLURL_APP_TOKEN) )
 	{
 		return true;
@@ -125,11 +128,6 @@ bool LLURLDispatcherImpl::dispatchCore(const std::string& url, bool right_mouse)
 	if (dispatchHelp(url, right_mouse)) return true;
 	if (dispatchApp(url, right_mouse)) return true;
 	if (dispatchRegion(url, right_mouse)) return true;
-	
-	// Inform the user we can't handle this
-	std::map<std::string, std::string> args;
-	args["[SLURL]"] = url;
-	gViewerWindow->alertXml("BadURL", args);
 	return false;
 }
 
@@ -164,14 +162,41 @@ bool LLURLDispatcherImpl::dispatchApp(const std::string& url, BOOL right_mouse)
 	{
 		return false;
 	}
+	std::string s = stripProtocol(url);
 
-	LLURI uri(url);
-	LLSD pathArray = uri.pathArray();
-	pathArray.erase(0); // erase "app"
-	std::string cmd = pathArray.get(0);
-	pathArray.erase(0); // erase "cmd"
-	bool handled = LLCommandDispatcher::dispatch(cmd, pathArray, uri.queryMap());
-	return handled;
+	// At this point, "secondlife://app/foo/bar/baz/" should be left
+	// as: 	"app/foo/bar/baz/"
+	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+	boost::char_separator<char> sep("/", "", boost::drop_empty_tokens);
+	tokenizer tokens(s, sep);
+	tokenizer::iterator it = tokens.begin();
+	tokenizer::iterator end = tokens.end();
+
+	// Build parameter list suitable for LLDispatcher dispatch
+	if (it == end) return false;
+	if (*it != "app") return false;
+	++it;
+
+	if (it == end) return false;
+	std::string cmd = *it;
+	++it;
+
+	std::vector<std::string> params;
+	for ( ; it != end; ++it)
+	{
+		params.push_back(*it);
+	}
+
+	bool handled = LLCommandDispatcher::dispatch(cmd, params);
+	if (handled) return true;
+
+	// Inform the user we can't handle this
+	std::map<std::string, std::string> args;
+	args["[SLURL]"] = url;
+	gViewerWindow->alertXml("BadURL", args);
+	// This was a SLURL with a /app prefix, and we "handled" it by displaying an error dialog,
+	// so return true.  It doesn't need to be parsed any further.
+	return true;
 }
 
 // static
@@ -184,14 +209,14 @@ bool LLURLDispatcherImpl::dispatchRegion(const std::string& url, BOOL right_mous
 
 	// Before we're logged in, need to update the startup screen
 	// to tell the user where they are going.
-	if (LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)
+	if (LLStartUp::getStartupState() < STATE_CLEANUP)
 	{
 		// Parse it and stash in globals, it will be dispatched in
 		// STATE_CLEANUP.
 		LLURLSimString::setString(url);
 		// We're at the login screen, so make sure user can see
 		// the login location box to know where they are going.
-		LLPanelLogin::loadLoginPage();
+		LLPanelLogin::refreshLocation( true );
 		return true;
 	}
 
@@ -287,7 +312,7 @@ class LLTeleportHandler : public LLCommandHandler
 {
 public:
 	LLTeleportHandler() : LLCommandHandler("teleport") { }
-	bool handle(const LLSD& tokens, const LLSD& queryMap)
+	bool handle(const std::vector<std::string>& tokens)
 	{
 		// construct a "normal" SLURL, resolve the region to
 		// a global position, and teleport to it
@@ -298,9 +323,9 @@ public:
 
 		// build secondlife://De%20Haro/123/45/67 for use in callback
 		std::string url = SLURL_SECONDLIFE_PREFIX;
-		for (int i = 0; i < tokens.size(); ++i)
+		for (size_t i = 0; i < tokens.size(); ++i)
 		{
-			url += tokens[i].asString() + "/";
+			url += tokens[i] + "/";
 		}
 		gWorldMap->sendNamedRegionRequest(region_name,
 			LLURLDispatcherImpl::regionHandleCallback,

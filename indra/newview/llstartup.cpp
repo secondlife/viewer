@@ -329,7 +329,6 @@ BOOL idle_startup()
 	static std::string auth_message;
 	static LLString firstname;
 	static LLString lastname;
-	static LLUUID web_login_key;
 	static LLString password;
 	static std::vector<const char*> requested_options;
 
@@ -349,6 +348,7 @@ BOOL idle_startup()
 	static S32  location_which = START_LOCATION_ID_LAST;
 
 	static BOOL show_connect_box = TRUE;
+	static BOOL remember_password = TRUE;
 
 	static BOOL stipend_since_login = FALSE;
 
@@ -634,34 +634,28 @@ BOOL idle_startup()
 		//
 		// Log on to system
 		//
-		if ((!gLoginHandler.mFirstName.empty() &&
-			 !gLoginHandler.mLastName.empty() &&
-			 !gLoginHandler.mWebLoginKey.isNull())		
-			|| gLoginHandler.parseDirectLogin(LLStartUp::sSLURLCommand) )
-		{
-			firstname = gLoginHandler.mFirstName;
-			lastname = gLoginHandler.mLastName;
-			web_login_key = gLoginHandler.mWebLoginKey;
-
-			show_connect_box = FALSE;
-		}
-		else if( !gCmdLineFirstName.empty() 
+		if( !gCmdLineFirstName.empty() 
 			&& !gCmdLineLastName.empty() 
 			&& !gCmdLinePassword.empty())
 		{
 			firstname = gCmdLineFirstName;
 			lastname = gCmdLineLastName;
 
-			show_connect_box = TRUE;
-			gAutoLogin = TRUE;
+			LLMD5 pass((unsigned char*)gCmdLinePassword.c_str());
+			char md5pass[33];		/* Flawfinder: ignore */
+			pass.hex_digest(md5pass);
+			password = md5pass;
+
+			remember_password = gSavedSettings.getBOOL("RememberPassword");
+			show_connect_box = FALSE;
 		}
 		else if (gAutoLogin || gSavedSettings.getBOOL("AutoLogin"))
 		{
 			firstname = gSavedSettings.getString("FirstName");
 			lastname = gSavedSettings.getString("LastName");
 			password = load_password_from_disk();
-			gSavedSettings.setBOOL("RememberPassword", TRUE);
-			show_connect_box = TRUE;
+			remember_password = TRUE;
+			show_connect_box = FALSE;
 		}
 		else
 		{
@@ -670,6 +664,7 @@ BOOL idle_startup()
 			firstname = gSavedSettings.getString("FirstName");
 			lastname = gSavedSettings.getString("LastName");
 			password = load_password_from_disk();
+			remember_password = gSavedSettings.getBOOL("RememberPassword");
 			show_connect_box = TRUE;
 		}
 
@@ -679,8 +674,7 @@ BOOL idle_startup()
 	}
 
 	if (STATE_LOGIN_SHOW == LLStartUp::getStartupState())
-	{		
-
+	{
 		llinfos << "Initializing Window" << llendl;
 		
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_ARROW);
@@ -701,6 +695,8 @@ BOOL idle_startup()
 			// Show the login dialog
 			login_show();
 
+			// connect dialog is already shown, so fill in the names
+			LLPanelLogin::setFields( firstname, lastname, password, remember_password );
 			LLPanelLogin::giveFocus();
 
 			gSavedSettings.setBOOL("FirstRunThisInstall", FALSE);
@@ -712,31 +708,6 @@ BOOL idle_startup()
 			// skip directly to message template verification
 			LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
 		}
-		
-		// Create selection manager
-		// Must be done before menus created, because many enabled callbacks
-		// require its existance.
-		gSelectMgr = new LLSelectMgr();
-		gParcelMgr = new LLViewerParcelMgr();
-		gHUDManager = new LLHUDManager();
-		gMuteListp = new LLMuteList();
-
-		// Initialize UI
-		if (!gNoRender)
-		{
-			// Initialize all our tools.  Must be done after saved settings loaded.
-			if ( gToolMgr == NULL )
-			{
-				gToolMgr = new LLToolMgr();
-				gToolMgr->initTools();
-			}
-
-			// Quickly get something onscreen to look at.
-			gViewerWindow->initWorldUI();
-		}
-		
-		gViewerWindow->setNormalControlsVisible( FALSE );	
-		gLoginMenuBarView->setVisible( TRUE );
 
 		timeout.reset();
 		return do_normal_idle;
@@ -754,16 +725,11 @@ BOOL idle_startup()
 
 	if (STATE_LOGIN_CLEANUP == LLStartUp::getStartupState())
 	{
-		//reset the values that could have come in from a slurl
-		if (!gLoginHandler.mWebLoginKey.isNull())
-		{
-			firstname = gLoginHandler.mFirstName;
-			lastname = gLoginHandler.mLastName;
-			web_login_key = gLoginHandler.mWebLoginKey;
-		}
-				
 		if (show_connect_box)
 		{
+			// Load all the name information out of the login view
+			LLPanelLogin::getFields(firstname, lastname, password, remember_password);
+
 			// HACK: Try to make not jump on login
 			gKeyboard->resetKeys();
 		}
@@ -823,6 +789,25 @@ BOOL idle_startup()
 
 		if (show_connect_box)
 		{
+			LLString server_label;
+			S32 domain_name_index;
+			BOOL user_picked_server = LLPanelLogin::getServer( server_label, domain_name_index );
+			gGridChoice = (EGridInfo) domain_name_index;
+			gSavedSettings.setS32("ServerChoice", gGridChoice);
+			if (gGridChoice == GRID_INFO_OTHER)
+			{
+				snprintf(gGridName, MAX_STRING, "%s", server_label.c_str());			/* Flawfinder: ignore */
+			}
+
+			if ( user_picked_server )
+			{	// User picked a grid from the popup, so clear the stored urls and they will be re-generated from gGridChoice
+				sAuthUris.clear();
+                LLAppViewer::instance()->resetURIs();
+			}
+
+			LLString location;
+			LLPanelLogin::getLocation( location );
+			LLURLSimString::setString( location );
 			LLPanelLogin::close();
 		}
 
@@ -955,12 +940,11 @@ BOOL idle_startup()
 			// a startup URL was specified
 			std::stringstream unescaped_start;
 			unescaped_start << "uri:" 
-							<< LLURLSimString::sInstance.mSimName << "&" 
-							<< LLURLSimString::sInstance.mX << "&" 
-							<< LLURLSimString::sInstance.mY << "&" 
-							<< LLURLSimString::sInstance.mZ;
+				<< LLURLSimString::sInstance.mSimName << "&" 
+				<< LLURLSimString::sInstance.mX << "&" 
+				<< LLURLSimString::sInstance.mY << "&" 
+				<< LLURLSimString::sInstance.mZ;
 			start << xml_escape_string(unescaped_start.str().c_str());
-			
 		}
 		else if (gSavedSettings.getBOOL("LoginLastLocation"))
 		{
@@ -976,13 +960,13 @@ BOOL idle_startup()
 		hashed_mac.update( gMACAddress, MAC_ADDRESS_BYTES );
 		hashed_mac.finalize();
 		hashed_mac.hex_digest(hashed_mac_string);
-
+		
 		gUserAuthp->authenticate(
 			sAuthUris[sAuthUriNum].c_str(),
 			auth_method.c_str(),
 			firstname.c_str(),
 			lastname.c_str(),
-			web_login_key,
+			password.c_str(),
 			start.str().c_str(),
 			gSkipOptionalUpdate,
 			gAcceptTOS,
@@ -992,7 +976,6 @@ BOOL idle_startup()
 			requested_options,
 			hashed_mac_string,
 			LLAppViewer::instance()->getSerialNumber());
-
 		// reset globals
 		gAcceptTOS = FALSE;
 		gAcceptCriticalMessage = FALSE;
@@ -1254,7 +1237,15 @@ BOOL idle_startup()
 			if(text) lastname.assign(text);
 			gSavedSettings.setString("FirstName", firstname);
 			gSavedSettings.setString("LastName", lastname);
-			
+			if (remember_password)
+			{
+				save_password_to_disk(password.c_str());
+			}
+			else
+			{
+				save_password_to_disk(NULL);
+			}
+			gSavedSettings.setBOOL("RememberPassword", remember_password);
 			gSavedSettings.setBOOL("LoginLastLocation", gSavedSettings.getBOOL("LoginLastLocation"));
 
 			text = gUserAuthp->getResponse("agent_access");
@@ -1480,6 +1471,14 @@ BOOL idle_startup()
 		// type the name/password again if we crash.
 		gSavedSettings.saveToFile(gSettingsFileName, TRUE);
 
+		// Create selection manager
+		// Must be done before menus created, because many enabled callbacks
+		// require its existance.
+		gSelectMgr = new LLSelectMgr();
+		gParcelMgr = new LLViewerParcelMgr();
+		gHUDManager = new LLHUDManager();
+		gMuteListp = new LLMuteList();
+
 		//
 		// Initialize classes w/graphics stuff.
 		//
@@ -1548,11 +1547,21 @@ BOOL idle_startup()
 		if ( gViewerWindow != NULL && gToolMgr != NULL )
 		{	// This isn't the first logon attempt, so show the UI
 			gViewerWindow->setNormalControlsVisible( TRUE );
-		}	
-		gLoginMenuBarView->setVisible( FALSE );
+		}
 
+		// Initialize UI
 		if (!gNoRender)
 		{
+			// Initialize all our tools.  Must be done after saved settings loaded.
+			if ( gToolMgr == NULL )
+			{
+				gToolMgr = new LLToolMgr();
+				gToolMgr->initTools();
+			}
+
+			// Quickly get something onscreen to look at.
+			gViewerWindow->initWorldUI();
+
 			// Move the progress view in front of the UI
 			gViewerWindow->moveProgressViewToFront();
 
@@ -2335,12 +2344,68 @@ void login_show()
 	// UI textures have been previously loaded in doPreloadImages()
 	
 	llinfos << "Setting Servers" << llendl;
+	
+	if( GRID_INFO_OTHER == gGridChoice )
+	{
+		LLPanelLogin::addServer( gGridName, GRID_INFO_OTHER );
+	}
+	else
+	{
+		LLPanelLogin::addServer( gGridInfo[gGridChoice].mLabel, gGridChoice );
+	}
+
+	// Arg!  We hate loops!
+	LLPanelLogin::addServer( gGridInfo[GRID_INFO_DMZ].mLabel,	GRID_INFO_DMZ );
+	LLPanelLogin::addServer( gGridInfo[GRID_INFO_LOCAL].mLabel,	GRID_INFO_LOCAL );
+	LLPanelLogin::addServer( gGridInfo[GRID_INFO_AGNI].mLabel,	GRID_INFO_AGNI );
+	LLPanelLogin::addServer( gGridInfo[GRID_INFO_ADITI].mLabel,	GRID_INFO_ADITI );
+	LLPanelLogin::addServer( gGridInfo[GRID_INFO_SIVA].mLabel,	GRID_INFO_SIVA );
+	LLPanelLogin::addServer( gGridInfo[GRID_INFO_DURGA].mLabel,	GRID_INFO_DURGA );
+	LLPanelLogin::addServer( gGridInfo[GRID_INFO_SHAKTI].mLabel,	GRID_INFO_SHAKTI );
+	LLPanelLogin::addServer( gGridInfo[GRID_INFO_GANGA].mLabel,	GRID_INFO_GANGA );
+	LLPanelLogin::addServer( gGridInfo[GRID_INFO_UMA].mLabel,	GRID_INFO_UMA );
+	LLPanelLogin::addServer( gGridInfo[GRID_INFO_SOMA].mLabel,	GRID_INFO_SOMA );
+	LLPanelLogin::addServer( gGridInfo[GRID_INFO_VAAK].mLabel,	GRID_INFO_VAAK );
 }
 
 // Callback for when login screen is closed.  Option 0 = connect, option 1 = quit.
 void login_callback(S32 option, void *userdata)
 {
+	const S32 CONNECT_OPTION = 0;
+	const S32 QUIT_OPTION = 1;
 
+	if (CONNECT_OPTION == option)
+	{
+		LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
+		return;
+	}
+	else if (QUIT_OPTION == option)
+	{
+		// Make sure we don't save the password if the user is trying to clear it.
+		LLString first, last, password;
+		BOOL remember = TRUE;
+		LLPanelLogin::getFields(first, last, password, remember);
+		if (!remember)
+		{
+			// turn off the setting and write out to disk
+			gSavedSettings.setBOOL("RememberPassword", FALSE);
+			gSavedSettings.saveToFile(gSettingsFileName, TRUE);
+
+			// stomp the saved password on disk
+			save_password_to_disk(NULL);
+		}
+
+		LLPanelLogin::close();
+
+		// Next iteration through main loop should shut down the app cleanly.
+		LLAppViewer::instance()->userQuit(); // gQuit = TRUE;
+
+		return;
+	}
+	else
+	{
+		llwarns << "Unknown login button clicked" << llendl;
+	}
 }
 
 LLString load_password_from_disk()
@@ -3580,7 +3645,6 @@ void reset_login()
 	if ( gViewerWindow )
 	{	// Hide menus and normal buttons
 		gViewerWindow->setNormalControlsVisible( FALSE );
-		gLoginMenuBarView->setVisible( TRUE );
 	}
 
 	// Hide any other stuff

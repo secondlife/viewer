@@ -141,7 +141,6 @@ extern LLMenuBarGL*		gMenuBarView;
 //extern LLView*			gMenuBarHolder;
 extern LLMenuGL*		gPopupMenuView;
 extern LLViewerMenuHolderGL*	gMenuHolder;
-extern LLMenuBarGL*		gLoginMenuBarView;
 
 // Pie menus
 extern LLPieMenu	*gPieSelf;

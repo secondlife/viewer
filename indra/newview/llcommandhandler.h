@@ -44,7 +44,7 @@ public:
 	LLFooHandler() : LLCommandHandler("foo") { }
 
     // Your code here
-	bool handle(const LLSD& tokens, const LLSD& queryMap)
+	bool handle(const std::vector<std::string>& tokens)
 	{
 		if (tokens.size() < 1) return false;
 		LLUUID id( tokens[0] );
@@ -65,8 +65,7 @@ public:
 		
 	virtual ~LLCommandHandler();
 
-	virtual bool handle(const LLSD& params,
-						const LLSD& queryMap) = 0;
+	virtual bool handle(const std::vector<std::string>& params) = 0;
 		// Execute the command with a provided (possibly empty)
 		// list of parameters.
 		// Return true if you did something, false if the parameters
@@ -77,9 +76,7 @@ public:
 class LLCommandDispatcher
 {
 public:
-	static bool dispatch(const std::string& cmd,
-						 const LLSD& params,
-						 const LLSD& queryMap);
+	static bool dispatch(const std::string& cmd, const std::vector<std::string>& params);
 		// Execute a command registered via the above mechanism,
 		// passing string parameters.
 		// Returns true if command was found and executed correctly.

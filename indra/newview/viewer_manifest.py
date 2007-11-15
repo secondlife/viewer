@@ -450,8 +450,6 @@ class LinuxManifest(ViewerManifest):
                 if self.prefix("linux_tools", ""):
                         self.path("client-readme.txt","README-linux.txt")
                         self.path("wrapper.sh","secondlife")
-                        self.path("handle_secondlifeprotocol.sh")
-                        self.path("register_secondlifeprotocol.sh")
                         self.path("unicode.ttf","unicode.ttf")
                         self.end_prefix("linux_tools")
 

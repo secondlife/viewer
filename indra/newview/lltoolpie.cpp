@@ -85,8 +85,6 @@ LLToolPie::LLToolPie()
 
 BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (!gCamera) return FALSE;
-
 	//left mouse down always picks transparent
 	gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, leftMouseCallback, 
 											  TRUE, TRUE);

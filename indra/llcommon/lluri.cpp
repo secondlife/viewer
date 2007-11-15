@@ -40,8 +40,6 @@
   
 #include "../llmath/lluuid.h"
 
-// system includes
-#include <boost/tokenizer.hpp>
 
 // static
 std::string LLURI::escape(const std::string& str, const std::string & allowed)
@@ -132,7 +130,7 @@ LLURI::LLURI()
 
 LLURI::LLURI(const std::string& escaped_str)
 {
-	std::string::size_type delim_pos;
+	std::string::size_type delim_pos, delim_pos2;
 	delim_pos = escaped_str.find(':');
 	std::string temp;
 	if (delim_pos == std::string::npos)
@@ -146,39 +144,13 @@ LLURI::LLURI(const std::string& escaped_str)
 		mEscapedOpaque = escaped_str.substr(delim_pos+1);
 	}
 
-	parseAuthorityAndPathUsingOpaque();
-
-	delim_pos = mEscapedPath.find('?');
-	if (delim_pos != std::string::npos)
-	{
-		mEscapedQuery = mEscapedPath.substr(delim_pos+1);
-		mEscapedPath = mEscapedPath.substr(0,delim_pos);
-	}
-}
-
-static BOOL isDefault(const std::string& scheme, U16 port)
-{
-	if (scheme == "http")
-		return port == 80;
-	if (scheme == "https")
-		return port == 443;
-	if (scheme == "ftp")
-		return port == 21;
-
-	return FALSE;
-}
-
-void LLURI::parseAuthorityAndPathUsingOpaque()
-{
-	if (mScheme == "http" || mScheme == "https" ||
-		mScheme == "ftp" || mScheme == "secondlife" )
+	if (mScheme == "http" || mScheme == "https" || mScheme == "ftp")
 	{
 		if (mEscapedOpaque.substr(0,2) != "//")
 		{
 			return;
 		}
-
-		std::string::size_type delim_pos, delim_pos2;
+		
 		delim_pos = mEscapedOpaque.find('/', 2);
 		delim_pos2 = mEscapedOpaque.find('?', 2);
 		// no path, no query
@@ -210,10 +182,25 @@ void LLURI::parseAuthorityAndPathUsingOpaque()
 			mEscapedPath = mEscapedOpaque.substr(delim_pos);
 		}
 	}
-	else if (mScheme == "about")
+
+	delim_pos = mEscapedPath.find('?');
+	if (delim_pos != std::string::npos)
 	{
-		mEscapedPath = mEscapedOpaque;
+		mEscapedQuery = mEscapedPath.substr(delim_pos+1);
+		mEscapedPath = mEscapedPath.substr(0,delim_pos);
 	}
+}
+
+static BOOL isDefault(const std::string& scheme, U16 port)
+{
+	if (scheme == "http")
+		return port == 80;
+	if (scheme == "https")
+		return port == 443;
+	if (scheme == "ftp")
+		return port == 21;
+
+	return FALSE;
 }
 
 LLURI::LLURI(const std::string& scheme,
@@ -451,22 +438,6 @@ U16 LLURI::hostPort() const
 std::string LLURI::path() const
 {
 	return unescape(mEscapedPath);
-}
-
-LLSD LLURI::pathArray() const
-{
-	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-	boost::char_separator<char> sep("/", "", boost::drop_empty_tokens);
-	tokenizer tokens(mEscapedPath, sep);
-	tokenizer::iterator it = tokens.begin();
-	tokenizer::iterator end = tokens.end();
-
-	LLSD params;
-	for ( ; it != end; ++it)
-	{
-		params.append(*it);
-	}
-	return params;
 }
 
 std::string LLURI::query() const
