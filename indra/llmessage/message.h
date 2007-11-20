@@ -529,7 +529,7 @@ public:
 	bool isMatchingDigestForWindow(const char* digest, const S32 window) const;
 
 	void	showCircuitInfo();
-	LLString getCircuitInfoString();
+	void getCircuitInfo(LLSD& info) const;
 
 	U32 getOurCircuitCode();
 	

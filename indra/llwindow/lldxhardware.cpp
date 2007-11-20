@@ -411,6 +411,7 @@ BOOL LLDXHardware::getInfo(BOOL vram_only)
 			}
 
 			std::string device_name = get_string(device_containerp, L"szDescription");
+
 			std::string device_id = get_string(device_containerp, L"szDeviceID");
 
 			LLDXDevice *dxdevicep = new LLDXDevice;
@@ -451,6 +452,8 @@ BOOL LLDXHardware::getInfo(BOOL vram_only)
 			}
 
 
+
+
 			// Now, iterate through the related drivers
 			hr = device_containerp->GetChildContainer(L"Drivers", &driver_containerp);
 			if (FAILED(hr) || !driver_containerp)
@@ -468,6 +471,7 @@ BOOL LLDXHardware::getInfo(BOOL vram_only)
 			S32 file_num = 0;
 			for (file_num = 0; file_num < (S32)num_files; file_num++ )
 			{
+
 				hr = driver_containerp->EnumChildContainerNames(file_num, wszContainer, 256);
 				if (FAILED(hr))
 				{
@@ -520,6 +524,104 @@ LCleanup:
     CoUninitialize();
     
     return ok;
+}
+
+LLSD LLDXHardware::getDisplayInfo()
+{
+	LLTimer hw_timer;
+    HRESULT       hr;
+	LLSD ret;
+    CoInitialize(NULL);
+
+    IDxDiagProvider *dx_diag_providerp = NULL;
+    IDxDiagContainer *dx_diag_rootp = NULL;
+	IDxDiagContainer *devices_containerp = NULL;
+	IDxDiagContainer *device_containerp = NULL;
+	IDxDiagContainer *file_containerp = NULL;
+	IDxDiagContainer *driver_containerp = NULL;
+
+    // CoCreate a IDxDiagProvider*
+	llinfos << "CoCreateInstance IID_IDxDiagProvider" << llendl;
+    hr = CoCreateInstance(CLSID_DxDiagProvider,
+                          NULL,
+                          CLSCTX_INPROC_SERVER,
+                          IID_IDxDiagProvider,
+                          (LPVOID*) &dx_diag_providerp);
+
+	if (FAILED(hr))
+	{
+		llwarns << "No DXDiag provider found!  DirectX 9 not installed!" << llendl;
+		gWriteDebug("No DXDiag provider found!  DirectX 9 not installed!\n");
+		goto LCleanup;
+	}
+    if (SUCCEEDED(hr)) // if FAILED(hr) then dx9 is not installed
+    {
+        // Fill out a DXDIAG_INIT_PARAMS struct and pass it to IDxDiagContainer::Initialize
+        // Passing in TRUE for bAllowWHQLChecks, allows dxdiag to check if drivers are 
+        // digital signed as logo'd by WHQL which may connect via internet to update 
+        // WHQL certificates.    
+        DXDIAG_INIT_PARAMS dx_diag_init_params;
+        ZeroMemory(&dx_diag_init_params, sizeof(DXDIAG_INIT_PARAMS));
+
+        dx_diag_init_params.dwSize                  = sizeof(DXDIAG_INIT_PARAMS);
+        dx_diag_init_params.dwDxDiagHeaderVersion   = DXDIAG_DX9_SDK_VERSION;
+        dx_diag_init_params.bAllowWHQLChecks        = TRUE;
+        dx_diag_init_params.pReserved               = NULL;
+
+		llinfos << "dx_diag_providerp->Initialize" << llendl;
+        hr = dx_diag_providerp->Initialize(&dx_diag_init_params);
+        if(FAILED(hr))
+		{
+            goto LCleanup;
+		}
+
+		llinfos << "dx_diag_providerp->GetRootContainer" << llendl;
+        hr = dx_diag_providerp->GetRootContainer( &dx_diag_rootp );
+        if(FAILED(hr) || !dx_diag_rootp)
+		{
+            goto LCleanup;
+		}
+
+		HRESULT hr;
+
+		// Get display driver information
+		llinfos << "dx_diag_rootp->GetChildContainer" << llendl;
+		hr = dx_diag_rootp->GetChildContainer(L"DxDiag_DisplayDevices", &devices_containerp);
+		if(FAILED(hr) || !devices_containerp)
+		{
+            goto LCleanup;
+		}
+
+		// Get device 0
+		llinfos << "devices_containerp->GetChildContainer" << llendl;
+		hr = devices_containerp->GetChildContainer(L"0", &device_containerp);
+		if(FAILED(hr) || !device_containerp)
+		{
+            goto LCleanup;
+		}
+		
+		// Get the English VRAM string
+		std::string ram_str = get_string(device_containerp, L"szDisplayMemoryEnglish");
+
+
+		// Dump the string as an int into the structure
+		char *stopstring;
+		ret["VRAM"] = strtol(ram_str.c_str(), &stopstring, 10);
+		std::string device_name = get_string(device_containerp, L"szDescription");
+		ret["DeviceName"] = device_name;
+		std::string device_driver=  get_string(device_containerp, L"szDriverVersion");
+		ret["DriverVersion"] = device_driver;
+	}
+LCleanup:
+	SAFE_RELEASE(file_containerp);
+	SAFE_RELEASE(driver_containerp);
+	SAFE_RELEASE(device_containerp);
+	SAFE_RELEASE(devices_containerp);
+    SAFE_RELEASE(dx_diag_rootp);
+    SAFE_RELEASE(dx_diag_providerp);
+    
+    CoUninitialize();
+	return ret;
 }
 
 void LLDXHardware::setWriteDebugFunc(void (*func)(const char*))

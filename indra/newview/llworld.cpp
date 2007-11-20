@@ -972,16 +972,16 @@ void LLWorld::requestCacheMisses()
 	}
 }
 
-LLString LLWorld::getInfoString()
+void LLWorld::getInfo(LLSD& info)
 {
-	LLString info_string("World Info:\n");
+	LLSD region_info;
 	for (region_list_t::iterator iter = mRegionList.begin();
 		 iter != mRegionList.end(); ++iter)
-	{
+	{	
 		LLViewerRegion* regionp = *iter;
-		info_string += regionp->getInfoString();
+		regionp->getInfo(region_info);
+		info["World"].append(region_info);
 	}
-	return info_string;
 }
 
 void LLWorld::disconnectRegions()

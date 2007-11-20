@@ -1170,13 +1170,11 @@ std::ostream& operator<<(std::ostream& s, LLCircuitData& circuit)
 	return s;
 }
 
-const LLString LLCircuitData::getInfoString() const
+void LLCircuitData::getInfo(LLSD& info) const
 {
-	std::ostringstream info;
-	info << "Circuit: " << mHost << std::endl
-		 << (mbAlive ? "Alive" : "Not Alive") << std::endl
-		 << "Age: " << mExistenceTimer.getElapsedTimeF32() << std::endl;
-	return LLString(info.str());
+	info["Host"] = mHost.getIPandPort();
+	info["Alive"] = mbAlive;
+	info["Age"] = mExistenceTimer.getElapsedTimeF32();
 }
 
 void LLCircuitData::dumpResendCountAndReset()
@@ -1200,17 +1198,16 @@ std::ostream& operator<<(std::ostream& s, LLCircuit &circuit)
 	return s;
 }
 
-const LLString LLCircuit::getInfoString() const
+void LLCircuit::getInfo(LLSD& info) const
 {
-	std::ostringstream info;
-	info << "Circuit Info:" << std::endl;
 	LLCircuit::circuit_data_map::const_iterator end = mCircuitData.end();
 	LLCircuit::circuit_data_map::const_iterator it;
+	LLSD circuit_info;
 	for(it = mCircuitData.begin(); it != end; ++it)
 	{
-		info << (*it).second->getInfoString() << std::endl;
+		(*it).second->getInfo(circuit_info);
+		info["Circuits"].append(circuit_info);
 	}
-	return LLString(info.str());
 }
 
 void LLCircuit::getCircuitRange(

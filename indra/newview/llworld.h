@@ -142,7 +142,7 @@ public:
 	void setSpaceTimeUSec(const U64 space_time_usec);
 	U64 getSpaceTimeUSec() const;
 
-	LLString getInfoString();
+	void getInfo(LLSD& info);
 
 public:
 	typedef std::list<LLViewerRegion*> region_list_t;

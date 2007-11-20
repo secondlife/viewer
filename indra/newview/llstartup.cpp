@@ -773,12 +773,11 @@ BOOL idle_startup()
 			gSavedSettings.setString("FirstName", firstname);
 			gSavedSettings.setString("LastName", lastname);
 
+
+			
+
 			llinfos << "Attempting login as: " << firstname << " " << lastname << llendl;
-			LLAppViewer::instance()->writeDebug("Attempting login as: ");
-			LLAppViewer::instance()->writeDebug(firstname);
-			LLAppViewer::instance()->writeDebug(" ");
-			LLAppViewer::instance()->writeDebug(lastname);
-			LLAppViewer::instance()->writeDebug("\n");
+			gDebugInfo["LoginName"] = firstname + " " + lastname;	
 		}
 
 		// create necessary directories
@@ -826,6 +825,7 @@ BOOL idle_startup()
 			LLPanelLogin::close();
 		}
 
+		
 		//For HTML parsing in text boxes.
 		LLTextEditor::setLinkColor( gSavedSettings.getColor4("HTMLLinkColor") );
 		LLTextEditor::setURLCallbacks ( &LLWeb::loadURL, &LLURLDispatcher::dispatch, &LLURLDispatcher::dispatch   );
@@ -895,6 +895,8 @@ BOOL idle_startup()
 	if(STATE_LOGIN_AUTH_INIT == LLStartUp::getStartupState())
 	{
 //#define LL_MINIMIAL_REQUESTED_OPTIONS
+		gDebugInfo["GridUtilHost"] = gGridInfo[gGridChoice].mName;
+
 		lldebugs << "STATE_LOGIN_AUTH_INIT" << llendl;
 		if (!gUserAuthp)
 		{
@@ -932,6 +934,7 @@ BOOL idle_startup()
 		}
 		LLAppViewer::instance()->getLoginURIs();
 		sAuthUris = LLAppViewer::instance()->getLoginURIs();
+
 		sAuthUriNum = 0;
 		auth_method = "login_to_simulator";
 		auth_desc = "Logging in.  ";
@@ -1226,15 +1229,11 @@ BOOL idle_startup()
 			const char* text;
 			text = gUserAuthp->getResponse("agent_id");
 			if(text) gAgentID.set(text);
-			LLAppViewer::instance()->writeDebug("AgentID: ");
-			LLAppViewer::instance()->writeDebug(text);
-			LLAppViewer::instance()->writeDebug("\n");
+			gDebugInfo["AgentID"] = text;
 			
 			text = gUserAuthp->getResponse("session_id");
 			if(text) gAgentSessionID.set(text);
-			LLAppViewer::instance()->writeDebug("SessionID: ");
-			LLAppViewer::instance()->writeDebug(text);
-			LLAppViewer::instance()->writeDebug("\n");
+			gDebugInfo["SessionID"] = text;
 			
 			text = gUserAuthp->getResponse("secure_session_id");
 			if(text) gAgent.mSecureSessionID.set(text);

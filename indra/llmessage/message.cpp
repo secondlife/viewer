@@ -1562,12 +1562,9 @@ U32 LLMessageSystem::getOurCircuitCode()
 	return mOurCircuitCode;
 }
 
-LLString LLMessageSystem::getCircuitInfoString()
+void LLMessageSystem::getCircuitInfo(LLSD& info) const
 {
-	LLString info_string;
-
-	info_string += mCircuitInfo.getInfoString();
-	return info_string;
+	mCircuitInfo.getInfo(info);
 }
 
 // returns whether the given host is on a trusted circuit

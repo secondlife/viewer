@@ -1,10 +1,10 @@
 /** 
- * @file macutil_Prefix.h
- * @brief Precompiled prefix file
+ * @file llcrashloggerlinux.h
+ * @brief Linux crash logger definition
  *
- * $LicenseInfo:firstyear=2005&license=viewergpl$
+ * $LicenseInfo:firstyear=2003&license=viewergpl$
  * 
- * Copyright (c) 2005-2007, Linden Research, Inc.
+ * Copyright (c) 2003-2007, Linden Research, Inc.
  * 
  * Second Life Viewer Source Code
  * The source code in this file ("Source Code") is provided by Linden Lab
@@ -29,16 +29,21 @@
  * $/LicenseInfo$
  */
 
-/*
- *
- *  Precompiled prefix file used for
- *		AutoUpdater
- *		crashreporter
- *
- */
+#ifndef LLCRASHLOGGERLINUX_H
+#define LLCRASHLOGGERLINUX_H
 
-#include <Carbon/Carbon.h>
+#include "linden_common.h"
+#include "llcrashlogger.h"
+#include "llstring.h"
 
-#undef check
-#undef verify
-#undef require
+class LLCrashLoggerLinux : public LLCrashLogger
+{
+public:
+	LLCrashLoggerLinux(void);
+	~LLCrashLoggerLinux(void);
+	virtual bool mainLoop();
+	virtual void updateApplication(LLString message = "");
+	virtual void gatherPlatformSpecificFiles();
+};
+
+#endif

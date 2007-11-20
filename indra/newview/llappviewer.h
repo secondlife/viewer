@@ -68,9 +68,6 @@ public:
 	// This version stores the argc and argv for later usage, make sure the params passed in last as long as this class.
 	bool tempStoreCommandOptions(int argc, char** argv);
 
-	// write string to "debug_info.log", used for crash reporting.
-	void writeDebug(const char *str); 
-	void writeDebug(const std::string& str) { writeDebug(str.c_str()); };
 	void closeDebug();
 
 	const LLOSInfo& getOSInfo() const { return mSysOSInfo; }
@@ -165,8 +162,6 @@ private:
 	FILE *mMarkerFile; // A file created to indicate the app is running.
 	bool mLastExecFroze; // Set on init if the marker file was found.
 
-	FILE* mDebugFile; // output stream written to via writeDebug()
-
 	LLOSInfo mSysOSInfo; 
 	S32 mCrashBehavior;
 	bool mReportedCrash;
@@ -202,6 +197,7 @@ extern BOOL gProbeHardware;
 extern LLString gDisabledMessage; // llstartup
 extern BOOL gHideLinks; // used by llpanellogin, lllfloaterbuycurrency, llstartup
 extern BOOL gInProductionGrid; 
+extern LLSD gDebugInfo;
 
 extern BOOL	gAllowIdleAFK;
 extern F32 gAFKTimeout;

@@ -322,9 +322,16 @@ bool LLAppViewerWin32::initWindow()
 	return LLAppViewer::initWindow();
 }
 
-void write_debug_callback(const char* str)
+void write_debug_dx(const char* str)
 {
-	LLAppViewer::instance()->writeDebug(str);
+	LLString value = gDebugInfo["DXInfo"].asString();
+	value += str;
+	gDebugInfo["DXInfo"] = value;
+}
+
+void write_debug_dx(const std::string& str)
+{
+	write_debug_dx(str.c_str());
 }
 
 bool LLAppViewerWin32::initHardwareTest()
@@ -340,7 +347,7 @@ bool LLAppViewerWin32::initHardwareTest()
 		LLSplashScreen::update("Detecting hardware...");
 
 		llinfos << "Attempting to poll DirectX for hardware info" << llendl;
-		gDXHardware.setWriteDebugFunc(write_debug_callback);
+		gDXHardware.setWriteDebugFunc(write_debug_dx);
 		BOOL probe_ok = gDXHardware.getInfo(vram_only);
 
 		if (!probe_ok

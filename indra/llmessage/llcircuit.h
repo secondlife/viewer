@@ -75,6 +75,7 @@ const S32 LL_MAX_ACKED_PACKETS_PER_FRAME = 200;
 //
 class LLMessageSystem;
 class LLEncodedDatagramService;
+class LLSD;
 
 //
 // Classes
@@ -158,7 +159,7 @@ public:
 	//
 	void					checkPeriodTime();		// Reset per-period counters if necessary.
 	friend std::ostream&	operator<<(std::ostream& s, LLCircuitData &circuit);
-	const LLString getInfoString() const;
+	void getInfo(LLSD& info) const;
 
 	friend class LLCircuit;
 	friend class LLMessageSystem;
@@ -304,7 +305,7 @@ public:
 	void sendAcks();
 
 	friend std::ostream& operator<<(std::ostream& s, LLCircuit &circuit);
-	const LLString getInfoString() const;
+	void getInfo(LLSD& info) const;
 
 	void			dumpResends();
 

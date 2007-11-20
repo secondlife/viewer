@@ -106,6 +106,8 @@
 #include "llcontainerview.h"
 #include "llhoverview.h"
 
+#include "llsdserialize.h"
+
 #if LL_WINDOWS && LL_LCD_COMPILE
 	#include "lllcd.h"
 #endif
@@ -266,6 +268,8 @@ BOOL gAcceptCriticalMessage = FALSE;
 
 LLUUID				gViewerDigest;	// MD5 digest of the viewer's executable file.
 BOOL gLastExecFroze = FALSE;
+
+LLSD gDebugInfo;
 
 U32	gFrameCount = 0;
 U32 gForegroundFrameCount = 0; // number of frames that app window was in foreground
@@ -915,7 +919,6 @@ LLTextureFetch* LLAppViewer::sTextureFetch = NULL;
 LLAppViewer::LLAppViewer() : 
 	mMarkerFile(NULL),
 	mLastExecFroze(false),
-	mDebugFile(NULL),
 	mCrashBehavior(CRASH_BEHAVIOR_ASK),
 	mReportedCrash(false),
 	mNumSessions(0),
@@ -1220,7 +1223,7 @@ bool LLAppViewer::init()
 		CreateLCDDebugWindows();
 	#endif
 
-	writeDebug(gGLManager.getGLInfoString());
+	gGLManager.getGLInfo(gDebugInfo);
 	llinfos << gGLManager.getGLInfoString() << llendl;
 
 	//load key settings
@@ -2351,30 +2354,13 @@ bool LLAppViewer::initWindow()
 	return true;
 }
 
-void LLAppViewer::writeDebug(const char *str)
-{
-	if (!mDebugFile)
-	{
-		std::string debug_filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"debug_info.log");
-		llinfos << "Opening debug file " << debug_filename << llendl;
-		mDebugFile = LLFile::fopen(debug_filename.c_str(), "w");		/* Flawfinder: ignore */
-        if (!mDebugFile)
-        {
-		    llinfos << "Opening debug file " << debug_filename << " failed. Using stderr." << llendl;
-            mDebugFile = stderr;
-        }
-	}
-	fputs(str, mDebugFile);
-	fflush(mDebugFile);
-}
-
 void LLAppViewer::closeDebug()
 {
-	if (mDebugFile)
-	{
-		fclose(mDebugFile);
-	}
-	mDebugFile = NULL;
+	std::string debug_filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"debug_info.log");
+	llinfos << "Opening debug file " << debug_filename << llendl;
+	std::ofstream out_file(debug_filename.c_str());
+	LLSDSerialize::toPrettyXML(gDebugInfo, out_file);
+	out_file.close();
 }
 
 void LLAppViewer::cleanupSavedSettings()
@@ -2443,23 +2429,22 @@ void LLAppViewer::removeCacheFiles(const char* file_mask)
 
 void LLAppViewer::writeSystemInfo()
 {
-	writeDebug("SL Log: ");
-	writeDebug(LLError::logFileName());
-	writeDebug("\n");
+	gDebugInfo["SLLog"] = LLError::logFileName();
 
-	std::string tmp_str = gSecondLife
-		+ llformat(" version %d.%d.%d build %d",
-				   LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VERSION_BUILD);
-	writeDebug(tmp_str.c_str());
-	writeDebug("\n");
-	writeDebug(gSysCPU.getCPUString());
-	writeDebug("\n");
+	gDebugInfo["ClientInfo"]["Name"] = gSecondLife;
+	gDebugInfo["ClientInfo"]["MajorVersion"] = LL_VERSION_MAJOR;
+	gDebugInfo["ClientInfo"]["MinorVersion"] = LL_VERSION_MINOR;
+	gDebugInfo["ClientInfo"]["PatchVersion"] = LL_VERSION_PATCH;
+	gDebugInfo["ClientInfo"]["BuildVersion"] = LL_VERSION_BUILD;
+
+	gDebugInfo["CPUInfo"]["CPUFamily"] = gSysCPU.getFamily();
+	gDebugInfo["CPUInfo"]["CPUMhz"] = gSysCPU.getMhz();
+	gDebugInfo["CPUInfo"]["CPUAltivec"] = gSysCPU.hasAltivec();
+	gDebugInfo["CPUInfo"]["CPUSSE"] = gSysCPU.hasSSE();
+	gDebugInfo["CPUInfo"]["CPUSSE2"] = gSysCPU.hasSSE2();
 	
-	tmp_str = llformat("RAM: %u KB\n", gSysMemory.getPhysicalMemoryKB());
-	writeDebug(tmp_str.c_str());
-	writeDebug("OS: ");
-	writeDebug(getOSInfo().getOSString().c_str());
-	writeDebug("\n");
+	gDebugInfo["RAMInfo"] = llformat("%u", gSysMemory.getPhysicalMemoryKB());
+	gDebugInfo["OSInfo"] = mSysOSInfo.getOSString().c_str();
 
 	// Dump some debugging info
 	llinfos << gSecondLife << " version "
@@ -2498,16 +2483,11 @@ void LLAppViewer::handleViewerCrash()
 	}
 	pApp->mReportedCrash = TRUE;
 
-	BOOL do_crash_report = FALSE;
-
-	do_crash_report = TRUE;
-
-	pApp->writeDebug("Viewer exe: ");
-	pApp->writeDebug(gDirUtilp->getExecutablePathAndName().c_str());
-	pApp->writeDebug("\n");
-	pApp->writeDebug("Cur path: ");
-	pApp->writeDebug(gDirUtilp->getCurPath().c_str());
-	pApp->writeDebug("\n\n");
+	gDebugInfo["SettingsFilename"] = gSettingsFileName;
+	gDebugInfo["CAFilename"] = gDirUtilp->getCAFile();
+	gDebugInfo["ViewerExePath"] = gDirUtilp->getExecutablePathAndName().c_str();
+	gDebugInfo["CurrentPath"] = gDirUtilp->getCurPath().c_str();
+	gDebugInfo["CurrentSimHost"] = gAgent.getRegionHost().getHostName();
 
 	if (gMessageSystem && gDirUtilp)
 	{
@@ -2517,26 +2497,23 @@ void LLAppViewer::handleViewerCrash()
 		if(file.good())
 		{
 			gMessageSystem->summarizeLogs(file);
+			file.close();
 		}
 	}
 
 	if (gMessageSystem)
 	{
-		pApp->writeDebug(gMessageSystem->getCircuitInfoString());
+		gMessageSystem->getCircuitInfo(gDebugInfo["CircuitInfo"]);
 		gMessageSystem->stopLogging();
 	}
-	pApp->writeDebug("\n");
 	if (gWorldp)
 	{
-		pApp->writeDebug(gWorldp->getInfoString());
+		gWorldp->getInfo(gDebugInfo);
 	}
 
 	// Close the debug file
 	pApp->closeDebug();
 	LLError::logToFile("");
-
-	// Close the SecondLife.log
-	//pApp->removeMarkerFile();
 
 	// Call to pure virtual, handled by platform specifc llappviewer instance.
 	pApp->handleCrashReporting(); 

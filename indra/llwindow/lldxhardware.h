@@ -36,6 +36,7 @@
 
 #include "stdtypes.h"
 #include "llstring.h"
+#include "llsd.h"
 
 class LLVersion
 {
@@ -92,6 +93,8 @@ public:
 	BOOL getInfo(BOOL vram_only);
 
 	S32 getVRAM() const { return mVRAM; }
+
+	LLSD getDisplayInfo();
 
 	// Find a particular device that matches the following specs.
 	// Empty strings indicate that you don't care.

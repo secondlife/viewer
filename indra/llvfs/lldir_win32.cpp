@@ -42,7 +42,6 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <errno.h>
 
 // Utility stuff to get versions of the sh
 #define PACKVERSION(major,minor) MAKELONG(minor,major)

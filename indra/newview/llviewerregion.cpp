@@ -964,27 +964,15 @@ void LLViewerRegion::updateCoarseLocations(LLMessageSystem* msg)
 	}
 }
 
-LLString LLViewerRegion::getInfoString()
+void LLViewerRegion::getInfo(LLSD& info)
 {
-	char tmp_buf[256];		/* Flawfinder: ignore */
-	LLString info;
-	
-	info = "Region: ";
-	getHost().getString(tmp_buf, 256);
-	info += tmp_buf;
-	info += ":";
-	info += getName();
-	info += "\n";
-
+	info["Region"]["Host"] = getHost().getIPandPort();
+	info["Region"]["Name"] = getName();
 	U32 x, y;
 	from_region_handle(getHandle(), &x, &y);
-	snprintf(tmp_buf, sizeof(tmp_buf), "%d:%d", x, y);		/* Flawfinder: ignore */
-	info += "Handle:";
-	info += tmp_buf;
-	info += "\n";
-	return info;
+	info["Region"]["Handle"]["x"] = (LLSD::Integer)x;
+	info["Region"]["Handle"]["y"] = (LLSD::Integer)y;
 }
-
 
 void LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp)
 {

@@ -223,7 +223,7 @@ public:
 
 	F32 getLandHeightRegion(const LLVector3& region_pos);
 
-	LLString getInfoString();
+	void getInfo(LLSD& info);
 
 	// handle a full update message
 	void cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp);
