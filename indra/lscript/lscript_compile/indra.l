@@ -19,7 +19,7 @@ FS			(f|F)
 #include "lscript_typecheck.h"
 #include "lscript_resource.h"
 #if LL_WINDOWS
-#include "ytab.hpp"
+#include "ytab.h"
 #else
 #include "indra.y.h"
 #endif
