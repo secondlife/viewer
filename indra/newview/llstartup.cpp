@@ -930,10 +930,8 @@ BOOL idle_startup()
 			gSavedSettings.setBOOL("UseDebugMenus", TRUE);
 			requested_options.push_back("god-connect");
 		}
-		if (sAuthUris.empty())
-		{
-			sAuthUris = LLAppViewer::instance()->getLoginURIs();
-		}
+		LLAppViewer::instance()->getLoginURIs();
+		sAuthUris = LLAppViewer::instance()->getLoginURIs();
 		sAuthUriNum = 0;
 		auth_method = "login_to_simulator";
 		auth_desc = "Logging in.  ";
