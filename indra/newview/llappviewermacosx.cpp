@@ -42,6 +42,7 @@
 #include "llmd5.h"
 #include "llurlsimstring.h"
 #include "llfloaterworldmap.h"
+#include "llurldispatcher.h"
 #include <Carbon/Carbon.h>
 
 
@@ -170,24 +171,8 @@ OSErr AEGURLHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn)
 	
 	if(result == noErr)
 	{
-		// Got the URL out of the event.
-		// secondlife://
-
-		// Parse it and stash in globals.
-		LLURLSimString::setString(buffer);
-		
-		if(gFloaterWorldMap != NULL)
-		{
-			// If the viewer's already logged in, pass it along directly.
-			if (LLURLSimString::parse())
-			{
-				gFloaterWorldMap->trackURL(LLURLSimString::sInstance.mSimName,
-										   LLURLSimString::sInstance.mX,
-										   LLURLSimString::sInstance.mY,
-										   LLURLSimString::sInstance.mZ);
-				LLFloaterWorldMap::show(NULL, TRUE);
-			}
-		}
+		std::string url = buffer;
+		LLURLDispatcher::dispatch(url);
 	}
 	
 	return(result);

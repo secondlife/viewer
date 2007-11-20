@@ -58,6 +58,7 @@
 #include "llviewerobjectlist.h"
 #include "llworldmap.h"
 #include "llmutelist.h"
+#include "llurldispatcher.h"
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
@@ -801,25 +802,22 @@ int parse_args(int argc, char **argv)
 		}
 		// some programs don't respect the command line options in protocol handlers (I'm looking at you, Opera)
 		// so this allows us to parse the URL straight off the command line without a "-url" paramater
-		else if (!argument.compare(0, std::string( "secondlife://" ).length(), std::string("secondlife://")))
+		else if (LLURLDispatcher::isSLURL(argv[j])
+				 || !strcmp(argv[j], "-url") && (++j < argc)) 
 		{
+			std::string slurl = argv[j];
+			if (LLURLDispatcher::isSLURLCommand(slurl))
+			{
+				LLStartUp::sSLURLCommand = slurl;
+			}
+			else
+			{
+				LLURLSimString::setString(slurl);
+			}
 			// *NOTE: After setting the url, bail. What can happen is
 			// that someone can use IE (or potentially other browsers)
 			// and do the rough equivalent of command injection and
 			// steal passwords. Phoenix. SL-55321
-			LLURLSimString::setString(argv[j]);
-			gArgs += argv[j];
-			return 0;
-		}
-		else if (!strcmp(argv[j], "-url") && (++j < argc)) 
-		{
-			// *NOTE: After setting the url, bail. What can happen is
-			// that someone can use IE (or potentially other browsers)
-			// and do the rough equivalent of command injection and
-			// steal passwords. Phoenix. SL-55321
-			LLURLSimString::setString(argv[j]);
-			gArgs += argv[j];
-			return 0;
 		}
 		else if (!strcmp(argv[j], "-ignorepixeldepth"))
 		{
@@ -982,7 +980,8 @@ bool LLAppViewer::init()
 	gSettingsFileName = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, DEFAULT_SETTINGS_FILE);
 	gOldSettingsFileName = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, LEGACY_DEFAULT_SETTINGS_FILE);
 
-    initConfiguration();
+    if (!initConfiguration())
+		return false;
 
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
@@ -2071,7 +2070,7 @@ bool LLAppViewer::initConfiguration()
 			if (send_url_to_other_instance(slurl))
 			{
 				// successfully handed off URL to existing instance, exit
-				return 1;
+				return false;
 			}
 		}
 		
@@ -2089,7 +2088,7 @@ bool LLAppViewer::initConfiguration()
 				msg.str().c_str(),
 				NULL,
 				OSMB_OK);
-			return 1;
+			return false;
 		}
 
 		initMarkerFile();

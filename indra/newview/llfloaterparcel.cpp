@@ -29,7 +29,7 @@ class LLParcelHandler : public LLCommandHandler
 {
 public:
 	LLParcelHandler() : LLCommandHandler("parcel") { }
-	bool handle(const std::vector<std::string>& params)
+	bool handle(const LLSD& params, const LLSD& queryMap)
 	{
 		if (params.size() < 2)
 		{
@@ -40,7 +40,7 @@ public:
 		{
 			return false;
 		}
-		if (params[1] == "about")
+		if (params[1].asString() == "about")
 		{
 			LLFloaterParcelInfo::show(parcel_id);
 			return true;

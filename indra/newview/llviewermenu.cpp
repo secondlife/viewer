@@ -235,6 +235,7 @@ extern BOOL gAllowSelectAvatar;
 LLMenuBarGL		*gMenuBarView = NULL;
 LLViewerMenuHolderGL	*gMenuHolder = NULL;
 LLMenuGL		*gPopupMenuView = NULL;
+LLMenuBarGL		*gLoginMenuBarView = NULL;
 
 // Pie menus
 LLPieMenu	*gPieSelf	= NULL;
@@ -750,6 +751,15 @@ void init_menus()
 	// Debug menu visiblity
 	//
 	show_debug_menus();
+
+	gLoginMenuBarView = (LLMenuBarGL*)gUICtrlFactory->buildMenu("menu_login.xml", gMenuHolder);
+	LLRect menuBarRect = gLoginMenuBarView->getRect();
+	gLoginMenuBarView->setRect(LLRect(menuBarRect.mLeft, menuBarRect.mTop, gViewerWindow->getRootView()->getRect().getWidth() - menuBarRect.mLeft,  menuBarRect.mBottom));
+
+	gLoginMenuBarView->setBackgroundColor( color );
+
+	gMenuHolder->addChild(gLoginMenuBarView);
+	
 }
 
 void init_landmark_menu(LLMenuGL* menu)

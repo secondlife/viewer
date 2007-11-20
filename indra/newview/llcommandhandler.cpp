@@ -46,7 +46,7 @@ class LLCommandHandlerRegistry
 public:
 	static LLCommandHandlerRegistry& instance();
 	void add(const char* cmd, LLCommandHandler* handler);
-	bool dispatch(const std::string& cmd, const std::vector<std::string>& params);
+	bool dispatch(const std::string& cmd, const LLSD& params, const LLSD& queryMap);
 
 private:
 	std::map<std::string, LLCommandHandler*> mMap;
@@ -68,13 +68,14 @@ void LLCommandHandlerRegistry::add(const char* cmd, LLCommandHandler* handler)
 }
 
 bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
-										const std::vector<std::string>& params)
+										const LLSD& params,
+										const LLSD& queryMap)
 {
 	std::map<std::string, LLCommandHandler*>::iterator it = mMap.find(cmd);
 	if (it == mMap.end()) return false;
 	LLCommandHandler* handler = it->second;
 	if (!handler) return false;
-	return handler->handle(params);
+	return handler->handle(params, queryMap);
 }
 
 //---------------------------------------------------------------------------
@@ -97,7 +98,7 @@ LLCommandHandler::~LLCommandHandler()
 //---------------------------------------------------------------------------
 
 // static
-bool LLCommandDispatcher::dispatch(const std::string& cmd, const std::vector<std::string>& params)
+bool LLCommandDispatcher::dispatch(const std::string& cmd, const LLSD& params, const LLSD& queryMap)
 {
-	return LLCommandHandlerRegistry::instance().dispatch(cmd, params);
+	return LLCommandHandlerRegistry::instance().dispatch(cmd, params, queryMap);
 }

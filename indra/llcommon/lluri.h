@@ -107,7 +107,7 @@ public:
   BOOL defaultPort() const;		// true if port is default for scheme
   const std::string& escapedPath() const { return mEscapedPath; }
   std::string path() const;		// ex.: "/abc/def", includes leading slash
-  //    LLSD pathArray() const;			// above decoded into an array of strings
+  LLSD pathArray() const;			// above decoded into an array of strings
   std::string query() const;		// ex.: "x=34", section after "?"
   const std::string& escapedQuery() const { return mEscapedQuery; }
   LLSD queryMap() const;			// above decoded into a map
@@ -135,6 +135,11 @@ public:
 	//@}
 
 private:
+	 // only "http", "https", "ftp", and "secondlife" schemes are parsed
+	 // secondlife scheme parses authority as "" and includes it as part of
+	 // the path.  See lluri_tut.cpp
+	 // i.e. secondlife://app/login has mAuthority = "" and mPath = "/app/login"
+	void parseAuthorityAndPathUsingOpaque();
 	std::string mScheme;
 	std::string mEscapedOpaque;
 	std::string mEscapedAuthority;

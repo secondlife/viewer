@@ -47,13 +47,16 @@
 #include "llspinctrl.h"
 #include "message.h"
 
+#include "llcommandhandler.h"
 #include "llfloaterabout.h"
+#include "llfloaterpreference.h"
 #include "llpanelnetwork.h"
 #include "llpanelaudioprefs.h"
 #include "llpaneldisplay.h"
 #include "llpaneldebug.h"
 #include "llpanelgeneral.h"
 #include "llpanelinput.h"
+#include "llpanellogin.h"
 #include "llpanelLCD.h"
 #include "llpanelmsgs.h"
 #include "llpanelweb.h"
@@ -71,6 +74,13 @@
 #include "llkeyboard.h"
 #include "llscrollcontainer.h"
 
+#if LL_WINDOWS
+// for Logitech LCD keyboards / speakers
+#ifndef LL_LOGITECH_LCD_H
+#include "lllogitechlcd.h"
+#endif
+extern llLCD	*gLcdScreen; 
+#endif
 
 const S32 PREF_BORDER = 4;
 const S32 PREF_PAD = 5;
@@ -81,13 +91,20 @@ const S32 PREF_FLOATER_MIN_HEIGHT = 2 * SCROLLBAR_SIZE + 2 * LLPANEL_BORDER_WIDT
 
 LLFloaterPreference* LLFloaterPreference::sInstance = NULL;
 
-#if LL_WINDOWS
-// for Logitech LCD keyboards / speakers
-#ifndef LL_LOGITECH_LCD_H
-#include "lllogitechlcd.h"
-#endif
-extern llLCD	*gLcdScreen; 
-#endif
+
+class LLPreferencesHandler : public LLCommandHandler
+{
+public:
+	LLPreferencesHandler() : LLCommandHandler("preferences") { }
+	bool handle(const LLSD& tokens, const LLSD& queryMap)
+	{
+		LLFloaterPreference::show(NULL);
+		return true;
+	}
+};
+
+LLPreferencesHandler gPreferencesHandler;
+
 
 // Must be done at run time, not compile time. JC
 S32 pref_min_width()
@@ -410,6 +427,8 @@ void LLFloaterPreference::show(void*)
 		gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 		gAgent.sendReliableMessage();
 	}
+
+	LLPanelLogin::setAlwaysRefresh(true);
 }
 
 
@@ -423,6 +442,9 @@ void LLFloaterPreference::onClickAbout(void*)
 // static 
 void LLFloaterPreference::onBtnOK( void* userdata )
 {
+	//refresh splash page if we're displaying it
+	LLPanelLogin::loadLoginPage();
+
 	LLFloaterPreference *fp =(LLFloaterPreference *)userdata;
 	// commit any outstanding text entry
 	if (fp->hasFocus())
@@ -466,6 +488,16 @@ void LLFloaterPreference::onBtnApply( void* userdata )
 		}
 	}
 	fp->apply();
+
+	//refresh splash page if we're displaying it
+	LLPanelLogin::loadLoginPage();
+}
+
+
+void LLFloaterPreference::onClose(bool app_quitting)
+{
+	LLPanelLogin::setAlwaysRefresh(false);
+	LLFloater::onClose(app_quitting);
 }
 
 

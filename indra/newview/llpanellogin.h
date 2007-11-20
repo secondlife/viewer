@@ -33,7 +33,7 @@
 #define LL_LLPANELLOGIN_H
 
 #include "llpanel.h"
-
+#include "llcommandhandler.h"
 #include "lldbstrings.h"
 #include "llmemory.h"
 #include "llviewerimage.h"
@@ -46,6 +46,22 @@ class LLCheckBoxCtrl;
 class LLButton;
 class LLComboBox;
 
+
+class LLLoginHandler : public LLCommandHandler
+{
+ public:
+	LLLoginHandler() : LLCommandHandler("login") { }
+	bool handle(const LLSD& tokens, const LLSD& queryMap);
+	bool parseDirectLogin(std::string url);
+	void parse(const LLSD& queryMap);
+
+	LLUUID mWebLoginKey;
+	LLString mFirstName;
+	LLString mLastName;
+};
+
+extern LLLoginHandler gLoginHandler;
+
 class LLPanelLogin
 :	public LLPanel
 {
@@ -57,39 +73,22 @@ public:
 
 	virtual BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
 	virtual void draw();
-	virtual void setFocus( BOOL b );
 
 	static void show(const LLRect &rect, BOOL show_server, 
 		void (*callback)(S32 option, void* user_data), 
 		void* callback_data);
 
-	static void setFields(const std::string& firstname, const std::string& lastname, 
-		const std::string& password, BOOL remember);
-
-	static void addServer(const char *server, S32 domain_name);
-	static void refreshLocation( bool force_visible );
-
-	static void getFields(LLString &firstname, LLString &lastname,
-		LLString &password, BOOL &remember);
-
-	static BOOL getServer(LLString &server, S32& domain_name);
-	static void getLocation(LLString &location);
-
 	static void close();
 
 	void setSiteIsAlive( bool alive );
 
-	static void	giveFocus();
-	static void mungePassword(LLUICtrl* caller, void* user_data);
-	
+	static void loadLoginPage();	
+	static void giveFocus();
+	static void setAlwaysRefresh(bool refresh); 
+
 private:
-	static void onClickConnect(void*);
-	static void onClickNewAccount(void*);
-	static void newAccountAlertCallback(S32 option, void*);
 	static void onClickQuit(void*);
 	static void onClickVersion(void*);
-	static void onClickForgotPassword(void*);
-	static void onPassKey(LLLineEditor* caller, void* user_data);
 	
 private:
 	LLPointer<LLViewerImage> mLogoImage;
@@ -97,11 +96,7 @@ private:
 	void			(*mCallback)(S32 option, void *userdata);
 	void*			mCallbackData;
 
-	std::string mIncomingPassword;
-	std::string mMungedPassword;
-
 	static LLPanelLogin* sInstance;
-	static BOOL		sCapslockDidNotification;
 	BOOL			mHtmlAvailable;
 };
 

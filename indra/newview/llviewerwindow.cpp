@@ -31,6 +31,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llpanellogin.h"
 #include "llviewerwindow.h"
 
 // system library includes
@@ -105,6 +106,7 @@
 #include "llfloatermap.h"
 #include "llfloatermute.h"
 #include "llfloaternamedesc.h"
+#include "llfloaterpreference.h"
 #include "llfloatersnapshot.h"
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
@@ -2842,7 +2844,7 @@ BOOL LLViewerWindow::handlePerFrameHover()
 	// *NOTE: sometimes tools handle the mouse as a captor, so this
 	// logic is a little confusing
 	LLTool *tool = NULL;
-	if (gToolMgr && gHoverView)
+	if (gToolMgr && gHoverView && gCamera)
 	{
 		tool = gToolMgr->getCurrentTool();
 
@@ -2915,8 +2917,8 @@ BOOL LLViewerWindow::handlePerFrameHover()
 			mToolTip->setVisible( TRUE );
 		}
 	}		
-
-	if (tool != gToolNull  && tool != gToolInspect && tool != gToolDragAndDrop && !gSavedSettings.getBOOL("FreezeTime"))
+	
+	if (tool && tool != gToolNull  && tool != gToolInspect && tool != gToolDragAndDrop && !gSavedSettings.getBOOL("FreezeTime"))
 	{ 
 		LLMouseHandler *captor = gFocusMgr.getMouseCapture();
 		// With the null, inspect, or drag and drop tool, don't muck
