@@ -1421,6 +1421,7 @@ void LLMenuItemBranchGL::onVisibilityChange( BOOL new_visibility )
 	{
 		mBranch->setVisible(FALSE);
 	}
+	LLMenuItemGL::onVisibilityChange(new_visibility);
 }
 
 BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )

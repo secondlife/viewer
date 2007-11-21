@@ -31,6 +31,9 @@ Alissa Sabre
 	VWR-1353
 	VWR-1410
 	VWR-2116
+	VWR-2826
+Angus Boyd
+	VWR-592
 Argent Stonecutter
 	VWR-68
 Benja Kepler
@@ -149,6 +152,8 @@ Matthew Dowd
 	VWR-1761
 McCabe Maxsted
 	VWR-1318
+Michelle2 Zenovka
+	VWR-2834
 Mr Greggan
 	VWR-445
 Nicholaz Beresford

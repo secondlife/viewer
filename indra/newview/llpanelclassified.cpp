@@ -91,7 +91,8 @@ public:
 		S32 profile_clicks = atoi(strings[3].c_str());
 		LLPanelClassified::setClickThrough(classified_id, teleport_clicks,
 										   map_clicks,
-										   profile_clicks);
+										   profile_clicks,
+										   false);
 		return true;
 	}
 };
@@ -127,7 +128,14 @@ LLPanelClassified::LLPanelClassified(BOOL in_finder, bool from_search)
 	mProfileBtn(NULL),
 	mInfoText(NULL),
 	mSetBtn(NULL),
-	mClickThroughText(NULL)
+	mClickThroughText(NULL),
+	mTeleportClicksOld(0),
+	mMapClicksOld(0),
+	mProfileClicksOld(0),
+	mTeleportClicksNew(0),
+	mMapClicksNew(0),
+	mProfileClicksNew(0)
+
 {
     sAllPanels.push_back(this);
 
@@ -368,16 +376,12 @@ void LLPanelClassified::setClassifiedID(const LLUUID& id)
 	mClassifiedID = id;
 }
 
-void LLPanelClassified::setClickThroughText(const std::string& text)
-{
-	if(mClickThroughText)
-		this->mClickThroughText->setText(text);
-}
 //static
 void LLPanelClassified::setClickThrough(const LLUUID& classified_id,
 										S32 teleport,
 										S32 map,
-										S32 profile)
+										S32 profile,
+										bool from_new_table)
 {
 	for (panel_list_t::iterator iter = sAllPanels.begin(); iter != sAllPanels.end(); ++iter)
 	{
@@ -388,22 +392,29 @@ void LLPanelClassified::setClickThrough(const LLUUID& classified_id,
 			continue;
 		}
 
-		// We need to see if we should use the new stat table or the old.  
-		// If the SearchStatRequest capability exists, then the data will come
-		// from the new table.
-		std::string url = gAgent.getRegion()->getCapability("SearchStatRequest");
+		// We need to check to see if the data came from the new stat_table 
+		// or the old classified table. We also need to cache the data from 
+		// the two separate sources so as to display the aggregate totals.
 
-		if (!url.empty())
+		if (from_new_table)
 		{
-			return;
+			self->mTeleportClicksNew = teleport;
+			self->mMapClicksNew = map;
+			self->mProfileClicksNew = profile;
+		}
+		else
+		{
+			self->mTeleportClicksOld = teleport;
+			self->mMapClicksOld = map;
+			self->mProfileClicksOld = profile;
 		}
 
 		if (self->mClickThroughText)
 		{
 			std::string msg = llformat("Clicks: %d teleport, %d map, %d profile",
-									teleport,
-									map,
-									profile);
+									self->mTeleportClicksNew + self->mTeleportClicksOld,
+									self->mMapClicksNew + self->mMapClicksOld,
+									self->mProfileClicksNew + self->mProfileClicksOld);
 			self->mClickThroughText->setText(msg);
 		}
 	}
@@ -449,7 +460,7 @@ void LLPanelClassified::sendClassifiedInfoRequest()
 		if (!url.empty())
 		{
 			llinfos << "Classified stat request via capability" << llendl;
-			LLHTTPClient::post(url, body, new LLClassifiedStatsResponder(this->getHandle()));
+			LLHTTPClient::post(url, body, new LLClassifiedStatsResponder(this->getHandle(), mClassifiedID));
 		}
 	}
 }
@@ -929,7 +940,6 @@ void LLPanelClassified::sendClassifiedClickMessage(const char* type)
 	strings.push_back(mClassifiedID.asString());
 	strings.push_back(type);
 	LLUUID no_invoice;
-	send_generic_message("classifiedclick", strings, no_invoice);
 
 	// New classified click-through handling
 	LLSD body;
@@ -938,10 +948,15 @@ void LLPanelClassified::sendClassifiedClickMessage(const char* type)
 	body["classified_id"] = mClassifiedID;
 	std::string url = gAgent.getRegion()->getCapability("SearchStatTracking");
 
+	// If the capability exists send to the new database, otherwise send to the old one.
 	if (!url.empty())
 	{
 		llinfos << "LLPanelClassified::sendClassifiedClickMessage via capability" << llendl;
 		LLHTTPClient::post(url, body, new LLHTTPClient::Responder());
+	}
+	else
+	{
+		send_generic_message("classifiedclick", strings, no_invoice);
 	}
 }
 

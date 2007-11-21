@@ -18,6 +18,11 @@ def usage():
 Options:
   --version
    Specify the version string to replace current version.
+  --skip-on-branch
+   Specify a regular expression against which the current branch
+   is matched. If it matches, then leave version strings alone.
+   Use this to avoid changing version strings on release candidate
+   builds.
   --server
    Update llversionserver.h only with new version
   --viewer
@@ -33,6 +38,9 @@ Options:
 Common Uses:
    # Update server and viewer build numbers to the current SVN revision:
    update_version_files.py
+
+   # Update build numbers unless we are on a release branch:
+   update_version_files.py --skip-on-branch='^Branch_'
 
    # Update server and viewer version numbers explicitly:
    update_version_files.py --version=1.18.1.6     
@@ -109,8 +117,9 @@ re_map['indra/newview/English.lproj/InfoPlist.strings'] = \
       'CFBundleGetInfoString = "Second Life version %(VER_MAJOR)s.%(VER_MINOR)s.%(VER_PATCH)s.%(VER_BUILD)s'))
 
 
-version_re = re.compile('(\d+).(\d+).(\d+).(\d+)')
-svn_re = re.compile('Last Changed Rev: (\d+)')
+version_re      = re.compile('(\d+).(\d+).(\d+).(\d+)')
+svn_branch_re   = re.compile('^URL:\s+\S+/([^/\s]+)$', re.MULTILINE)
+svn_revision_re = re.compile('^Last Changed Rev: (\d+)$', re.MULTILINE)
 
 def main():
     script_path = os.path.dirname(__file__)
@@ -119,15 +128,25 @@ def main():
 
     opts, args = getopt.getopt(sys.argv[1:],
                                "",
-                               ['version=', 'channel=', 'server_channel=', 'verbose', 'server', 'viewer', 'help'])
+                               ['version=',
+                                'channel=',
+                                'server_channel=',
+                                'skip-on-branch=',
+                                'verbose',
+                                'server',
+                                'viewer',
+                                'help'])
     update_server = False
     update_viewer = False
     new_version = None
     new_viewer_channel = None
     new_server_channel = None
+    skip_on_branch_re = None
     for o,a in opts:
         if o in ('--version'):
             new_version = a
+        if o in ('--skip-on-branch'):
+            skip_on_branch_re = re.compile(a)
         if o in ('--channel'):
             new_viewer_channel = a
         if o in ('--server_channel'):
@@ -193,16 +212,23 @@ def main():
         # Assume we're updating just the build number
         cl = 'svn info "%s"' % src_root
         status, output = _getstatusoutput(cl)
-        #print
-        #print "svn info output:"
-        #print "----------------"
-        #print output
-        m = svn_re.search(output)
-        if not m:
+        if verbose:
+            print
+            print "svn info output:"
+            print "----------------"
+            print output
+
+        branch_match = svn_branch_re.search(output)
+        revision_match = svn_revision_re.search(output)
+        if not branch_match or not revision_match:
             print "Failed to execute svn info, output follows:"
             print output
             return -1
-        revision = m.group(1)
+        branch = branch_match.group(1)
+        revision = revision_match.group(1)
+        if skip_on_branch_re and skip_on_branch_re.match(branch):
+            print "Release Candidate Build, leaving version files untouched."
+            return 0
         if update_viewer:
             m = version_re.match(viewer_version)
             viewer_version = m.group(1)+"."+m.group(2)+"."+m.group(3)+"."+revision

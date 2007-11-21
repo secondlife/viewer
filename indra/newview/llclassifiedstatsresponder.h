@@ -11,11 +11,12 @@
 
 #include "llhttpclient.h"
 #include "llview.h"
+#include "lluuid.h"
 
 class LLClassifiedStatsResponder : public LLHTTPClient::Responder
 {
 public:
-	LLClassifiedStatsResponder(LLViewHandle classified_panel_handle);
+	LLClassifiedStatsResponder(LLViewHandle classified_panel_handle, LLUUID classified_id);
 	//If we get back a normal response, handle it here
 	virtual void result(const LLSD& content);
 	//If we get back an error (not found, etc...), handle it here
@@ -23,6 +24,7 @@ public:
 
 protected:
 	LLViewHandle mClassifiedPanelHandle;
+	LLUUID mClassifiedID;
 };
 
 #endif // LL_LLCLASSIFIEDSTATSRESPONDER_H

@@ -53,11 +53,17 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 
-	void displayItemInfo(const LLInventoryItem* pItem);
+	void resetLocation();
+		// Ignore all old location information, useful if you are 
+		// recycling an existing dialog and need to clear it.
+
 	void setParcelID(const LLUUID& parcel_id);
+		// Sends a request for data about the given parcel, which will
+		// only update the location if there is none already available.
+
+	void displayItemInfo(const LLInventoryItem* pItem);
 	void setRegionID(const LLUUID& region_id) { mRegionID = region_id; }
 	void setSnapshot(const LLUUID& snapshot_id);
-	void setName(const std::string& name);
 	void setLocationString(const std::string& location);
 	void setErrorStatus(U32 status, const std::string& reason);
 

@@ -5573,7 +5573,7 @@ class LLShowAgentProfile : public view_listener_t
 		LLVOAvatar* avatar = find_avatar_from_object(agent_id);
 		if (avatar)
 		{
-			LLFloaterAvatarInfo::show(agent_id);
+			LLFloaterAvatarInfo::show( avatar->getID() );
 		}
 		return true;
 	}

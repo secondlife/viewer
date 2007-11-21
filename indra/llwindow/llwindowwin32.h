@@ -184,6 +184,7 @@ protected:
 	// They are all static, since one context is shared by all LLWindowWin32
 	// instances.
 	static BOOL		sLanguageTextInputAllowed;
+	static BOOL		sWinIMEOpened;
 	static HKL		sWinInputLocale;
 	static DWORD	sWinIMEConversionMode;
 	static DWORD	sWinIMESentenceMode;

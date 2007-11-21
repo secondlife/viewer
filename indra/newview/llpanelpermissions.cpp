@@ -741,17 +741,17 @@ void LLPanelPermissions::refresh()
 		}
 	}
 
-	if (is_for_sale)
-	{
-		childSetValue("checkbox for sale",TRUE);
-		childSetTentative("checkbox for sale",!can_transfer || (!can_copy && sale_type == LLSaleInfo::FS_COPY));
-	}
-	else
-	{
-		childSetValue("checkbox for sale",FALSE);
-		childSetTentative("checkbox for sale",false);
-	}
+	childSetValue("checkbox for sale", is_for_sale);
 
+	// HACK: There are some old objects in world that are set for sale,
+	// but are no-transfer.  We need to let users turn for-sale off, but only
+	// if for-sale is set.
+	bool cannot_actually_sell = !can_transfer || (!can_copy && sale_type == LLSaleInfo::FS_COPY);
+	if (is_for_sale && has_change_sale_ability && cannot_actually_sell)
+	{
+		childSetEnabled("checkbox for sale", true);
+	}
+		
 	// Check search status of objects
 	BOOL all_volume = gSelectMgr->selectionAllPCode( LL_PCODE_VOLUME );
 	bool include_in_search;

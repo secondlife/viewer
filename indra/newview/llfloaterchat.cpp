@@ -164,6 +164,7 @@ void LLFloaterChat::onVisibilityChange(BOOL new_visibility)
 {
 	// Hide the chat overlay when our history is visible.
 	gConsole->setVisible( !new_visibility );
+	LLFloater::onVisibilityChange(new_visibility);
 }
 
 

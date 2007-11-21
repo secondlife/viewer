@@ -81,7 +81,7 @@ public:
 	void setClassifiedID(const LLUUID& id);
 	void setClickThroughText(const std::string& text);
 	static void setClickThrough(const LLUUID& classified_id,
-								S32 teleport, S32 map, S32 profile);
+								S32 teleport, S32 map, S32 profile, bool from_new_table);
 
 	// check that the title is valid (E.G. starts with a number or letter)
 	BOOL titleIsValid();
@@ -128,6 +128,14 @@ protected:
 	LLUUID mCreatorID;
 	LLUUID mParcelID;
 	S32 mPriceForListing;
+
+	// Needed for stat tracking
+	S32 mTeleportClicksOld;
+	S32 mMapClicksOld;
+	S32 mProfileClicksOld;
+	S32 mTeleportClicksNew;
+	S32 mMapClicksNew;
+	S32 mProfileClicksNew;
 
 	// Data will be requested on first draw
 	BOOL mDataRequested;

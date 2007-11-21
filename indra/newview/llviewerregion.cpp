@@ -870,7 +870,7 @@ public:
 
 		for(int i=0; 
 			locs_it != locs.endArray(); 
-			i++, locs_it++, agents_it++)
+			i++, locs_it++)
 		{
 			U8 
 				x = locs_it->get("X").asInteger(),
@@ -902,6 +902,10 @@ public:
 					//llinfos << "next agent: " << agent_id.asString() << llendl;
 					avatar_ids->put(agent_id);
 				}
+			}
+			if (has_agent_data)
+			{
+				agents_it++;
 			}
 		}
 	}

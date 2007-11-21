@@ -2816,6 +2816,9 @@ void LLTextEditor::drawCursor()
 				// Make sure the IME is in the right place
 				LLRect screen_pos = getScreenRect();
 				LLCoordGL ime_pos( screen_pos.mLeft + llfloor(cursor_left), screen_pos.mBottom + llfloor(cursor_top) );
+
+				ime_pos.mX = (S32) (ime_pos.mX * LLUI::sGLScaleFactor.mV[VX]);
+				ime_pos.mY = (S32) (ime_pos.mY * LLUI::sGLScaleFactor.mV[VY]);
 				getWindow()->setLanguageTextInput( ime_pos );
 			}
 		}

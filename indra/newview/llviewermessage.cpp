@@ -132,6 +132,7 @@
 #include "llappviewer.h"
 #include "llfloaterworldmap.h"
 #include "llviewerdisplay.h"
+#include "llkeythrottle.h"
 
 #include <boost/tokenizer.hpp>
 
@@ -145,6 +146,12 @@
 const F32 BIRD_AUDIBLE_RADIUS = 32.0f;
 const F32 SIT_DISTANCE_FROM_TARGET = 0.25f;
 static const F32 LOGOUT_REPLY_TIME = 3.f;	// Wait this long after LogoutReply before quitting.
+
+// Determine how quickly residents' scripts can issue question dialogs
+// Allow bursts of up to 5 dialogs in 10 seconds. 10*2=20 seconds recovery if throttle kicks in
+static const U32 LLREQUEST_PERMISSION_THROTTLE_LIMIT	= 5;     // requests
+static const F32 LLREQUEST_PERMISSION_THROTTLE_INTERVAL	= 10.0f; // seconds
+
 extern BOOL gDebugClicks;
 
 // function prototypes
@@ -4456,6 +4463,27 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 
 	// don't display permission requests if this object is muted - JS.
 	if (gMuteListp->isMuted(taskid)) return;
+
+	// throttle excessive requests from any specific user's scripts
+	LLString throttle_owner_name = owner_name;
+	typedef LLKeyThrottle<LLString> LLStringThrottle;
+	static LLStringThrottle question_throttle( LLREQUEST_PERMISSION_THROTTLE_LIMIT, LLREQUEST_PERMISSION_THROTTLE_INTERVAL );
+
+	switch (question_throttle.noteAction(throttle_owner_name))
+	{
+		case LLStringThrottle::THROTTLE_NEWLY_BLOCKED:
+			llinfos << "process_script_question throttled"
+					<< " owner_name:" << owner_name
+					<< llendl;
+			// Fall through
+
+		case LLStringThrottle::THROTTLE_BLOCKED:
+			// Escape altogether until we recover
+			return;
+
+		case LLStringThrottle::THROTTLE_OK:
+			break;
+	}
 
 	LLString script_question;
 	if (questions)

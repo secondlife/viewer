@@ -1637,6 +1637,9 @@ void LLLineEditor::draw()
 				S32 pixels_after_scroll = findPixelNearestPos();	// RCalculcate for IME position
 				LLRect screen_pos = getScreenRect();
 				LLCoordGL ime_pos( screen_pos.mLeft + pixels_after_scroll, screen_pos.mTop - UI_LINEEDITOR_V_PAD );
+
+				ime_pos.mX = (S32) (ime_pos.mX * LLUI::sGLScaleFactor.mV[VX]);
+				ime_pos.mY = (S32) (ime_pos.mY * LLUI::sGLScaleFactor.mV[VY]);
 				getWindow()->setLanguageTextInput( ime_pos );
 			}
 		}

@@ -2954,6 +2954,7 @@ void LLAgent::endAnimationUpdateUI()
 	// Don't let this be called more than once if the camera
 	// mode hasn't changed.  --JC
 	mLastCameraMode = mCameraMode;
+
 }
 
 
@@ -4214,15 +4215,22 @@ void LLAgent::changeCameraToCustomizeAvatar(BOOL animate)
 	if (animate && !mAvatarObject.isNull())
 	{
 		sendAnimationRequest(ANIM_AGENT_CUSTOMIZE, ANIM_REQUEST_START);
+		mAvatarObject->startMotion(ANIM_AGENT_CUSTOMIZE);
 		LLMotion* turn_motion = mAvatarObject->findMotion(ANIM_AGENT_CUSTOMIZE);
+
 		if (turn_motion)
 		{
 			mAnimationDuration = turn_motion->getDuration() + CUSTOMIZE_AVATAR_CAMERA_ANIM_SLOP;
+
 		}
 		else
 		{
 			mAnimationDuration = gSavedSettings.getF32("ZoomTime");
 		}
+
+
+
+
 		gAgent.setFocusGlobal(LLVector3d::zero);
 	}
 	else

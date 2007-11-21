@@ -797,6 +797,7 @@ BOOL LLView::setLabelArg(const LLString& key, const LLStringExplicit& text)
 	return FALSE;
 }
 
+// virtual
 void LLView::onVisibilityChange ( BOOL new_visibility )
 {
 	for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)

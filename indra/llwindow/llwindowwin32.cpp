@@ -89,6 +89,7 @@ void show_window_creation_error(const char* title)
 BOOL LLWindowWin32::sIsClassRegistered = FALSE;
 
 BOOL	LLWindowWin32::sLanguageTextInputAllowed = TRUE;
+BOOL	LLWindowWin32::sWinIMEOpened = FALSE;
 HKL		LLWindowWin32::sWinInputLocale = 0;
 DWORD	LLWindowWin32::sWinIMEConversionMode = IME_CMODE_NATIVE;
 DWORD	LLWindowWin32::sWinIMESentenceMode = IME_SMODE_AUTOMATIC;
@@ -3325,7 +3326,7 @@ void LLWindowWin32::focusClient()
 
 void LLWindowWin32::allowLanguageTextInput(BOOL b)
 {
-	if ( !LLWinImm::isAvailable() )
+	if (b == sLanguageTextInputAllowed || !LLWinImm::isAvailable())
 	{
 		return;
 	}
@@ -3336,14 +3337,13 @@ void LLWindowWin32::allowLanguageTextInput(BOOL b)
 		// Allowing: Restore the previous IME status, so that the user has a feeling that the previous 
 		// text input continues naturally.  Be careful, however, the IME status is meaningful only during the user keeps 
 		// using same Input Locale (aka Keyboard Layout).
-		HIMC himc = LLWinImm::getContext(mWindowHandle);
-		LLWinImm::setOpenStatus(himc, TRUE);
-		if (GetKeyboardLayout(0) == sWinInputLocale && sWinIMEConversionMode != IME_CMODE_RESERVED)
+		if (sWinIMEOpened && GetKeyboardLayout(0) == sWinInputLocale)
 		{
+			HIMC himc = LLWinImm::getContext(mWindowHandle);
+			LLWinImm::setOpenStatus(himc, TRUE);
 			LLWinImm::setConversionStatus(himc, sWinIMEConversionMode, sWinIMESentenceMode);
-			sWinIMEConversionMode = IME_CMODE_RESERVED;		// Set saved state so we won't do this repeatedly
+			LLWinImm::releaseContext(mWindowHandle, himc);
 		}
-		LLWinImm::releaseContext(mWindowHandle, himc);
 	}
 	else
 	{
@@ -3351,10 +3351,12 @@ void LLWindowWin32::allowLanguageTextInput(BOOL b)
 		// However, do it after saving the current IME  status.  We need to restore the status when
 		//   allowing language text input again.
 		sWinInputLocale = GetKeyboardLayout(0);
-		if ( LLWinImm::isIME(sWinInputLocale) )
+		sWinIMEOpened = LLWinImm::isIME(sWinInputLocale);
+		if (sWinIMEOpened)
 		{
 			HIMC himc = LLWinImm::getContext(mWindowHandle);
-			if ( LLWinImm::getOpenStatus(himc) )
+			sWinIMEOpened = LLWinImm::getOpenStatus(himc);
+			if (sWinIMEOpened)
 			{
 				LLWinImm::getConversionStatus(himc, &sWinIMEConversionMode, &sWinIMESentenceMode);
 
