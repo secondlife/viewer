@@ -1548,6 +1548,8 @@ BOOL idle_startup()
 		}	
 		gLoginMenuBarView->setVisible( FALSE );
 
+		gFloaterMap->setVisible( gSavedSettings.getBOOL("ShowMiniMap") );
+
 		if (!gNoRender)
 		{
 			// Move the progress view in front of the UI

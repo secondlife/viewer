@@ -1905,7 +1905,6 @@ void LLViewerWindow::initWorldUI()
 		// TODO: Move instance management into class
 		gFloaterMap = new LLFloaterMap("Map");
 		gFloaterMap->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
-		gFloaterMap->setVisible( gSavedSettings.getBOOL("ShowMiniMap") );
 
 		// keep onscreen
 		gFloaterView->adjustToFitScreen(gFloaterMap, FALSE);
