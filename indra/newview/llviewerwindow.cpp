@@ -2205,13 +2205,22 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 {
 	if ( gBottomPanel )
+	{
 		gBottomPanel->setVisible( visible );
+		gBottomPanel->setEnabled( visible );
+	}
 
 	if ( gMenuBarView )
+	{
 		gMenuBarView->setVisible( visible );
-
+		gMenuBarView->setEnabled( visible );
+	}
+	
 	if ( gStatusBar )
-		gStatusBar->setVisible( visible );		
+	{
+		gStatusBar->setVisible( visible );	
+		gStatusBar->setEnabled( visible );	
+	}
 }
 
 
