@@ -255,7 +255,7 @@
 				<key>CoarseLocationUpdate</key>
 				<map>
 				    <key>flavor</key>
-					<string>llsd</string>
+					<string>template</string>
 					<key>trusted-sender</key>
 					<boolean>true</boolean>
 				</map>

@@ -277,7 +277,11 @@ def _ifconfig_getnode():
     import os
     for dir in ['', '/sbin/', '/usr/sbin']:
         try:
-            pipe = os.popen(os.path.join(dir, 'ifconfig'))
+            path = os.path.join(dir, 'ifconfig')
+            if os.path.exists(path):
+                pipe = os.popen(path)
+            else:
+                continue
         except IOError:
             continue
         for line in pipe:
