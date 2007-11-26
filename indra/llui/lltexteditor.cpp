@@ -4196,7 +4196,7 @@ BOOL LLTextEditor::findHTML(const LLString &line, S32 *begin, S32 *end)
 		m2 = line.substr(*begin,(m1 - *begin)).find("http");
 		m3 = line.substr(*begin,(m1 - *begin)).find("secondlife");
 	
-		LLString badneighbors=".,<>/?';\"][}{=-+_)(*&^%$#@!~`\t\r\n\\";
+		LLString badneighbors=".,<>?';\"][}{=-+_)(*&^%$#@!~`\t\r\n\\";
 	
 		if (m2 >= 0 || m3>=0)
 		{
