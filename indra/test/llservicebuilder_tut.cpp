@@ -113,5 +113,66 @@ namespace tut
 			test_url ,
 			"/proc/do/something/useful?estate_id=1&query=public");
 	}
+
+	template<> template<>
+	void ServiceBuilderTestObject::test<6>()
+	{
+		LLSD test_block;
+		test_block["service-builder"] = "Which way to the {${$baz}}?";
+		mServiceBuilder.createServiceDefinition(
+			"ServiceBuilderTest",
+			test_block["service-builder"]);	
+
+		LLSD data_map;
+		data_map["foo"] = "bar";
+		data_map["baz"] = "foo";
+		std::string test_url = mServiceBuilder.buildServiceURI(
+			"ServiceBuilderTest",
+			data_map);
+		ensure_equals(
+			"recursive url creation",
+			test_url ,
+			"Which way to the bar?");
+	}
+
+	template<> template<>
+	void ServiceBuilderTestObject::test<7>()
+	{
+		LLSD test_block;
+		test_block["service-builder"] = "Which way to the {$foo}?";
+		mServiceBuilder.createServiceDefinition(
+			"ServiceBuilderTest",
+			test_block["service-builder"]);	
+
+		LLSD data_map;
+		data_map["baz"] = "foo";
+		std::string test_url = mServiceBuilder.buildServiceURI(
+			"ServiceBuilderTest",
+			data_map);
+		ensure_equals(
+			"fails to do replacement",
+			test_url ,
+			"Which way to the {$foo}?");
+	}
+
+	template<> template<>
+	void ServiceBuilderTestObject::test<8>()
+	{
+		LLSD test_block;
+		test_block["service-builder"] = "/proc/{$proc}{%params}";
+		mServiceBuilder.createServiceDefinition(
+			"ServiceBuilderTest",
+			test_block["service-builder"]);	
+		LLSD data_map;
+		data_map["proc"] = "do/something/useful";
+		data_map["params"] = LLSD();
+		std::string test_url = mServiceBuilder.buildServiceURI(
+			"ServiceBuilderTest",
+			data_map);
+		ensure_equals(
+			"strip params",
+			test_url ,
+			"/proc/do/something/useful");
+	}
 }
 

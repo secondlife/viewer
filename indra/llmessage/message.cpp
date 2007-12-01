@@ -1100,6 +1100,17 @@ void LLMessageSystem::forwardReliable(const U32 circuit_code)
 	sendReliable(findHost(circuit_code));
 }
 
+S32 LLMessageSystem::forwardReliable(	const LLHost &host, 
+										S32 retries, 
+										BOOL ping_based_timeout,
+										F32 timeout, 
+										void (*callback)(void **,S32), 
+										void ** callback_data)
+{
+	copyMessageRtoS();
+	return sendReliable(host, retries, ping_based_timeout, timeout, callback, callback_data);
+}
+
 S32 LLMessageSystem::flushSemiReliable(const LLHost &host, void (*callback)(void **,S32), void ** callback_data)
 {
 	F32 timeout; 

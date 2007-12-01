@@ -362,7 +362,7 @@
 					<boolean>false</boolean>
 				</map>
 
-				<key>avatarpickrequest</key>
+				<key>avatarpicksrequest</key>
 				<map>
 					<key>service_name</key>
 					<string>avatar-pick</string>

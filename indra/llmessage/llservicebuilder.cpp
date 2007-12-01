@@ -116,6 +116,104 @@ std::string LLServiceBuilder::buildServiceURI(
 	// Find the Service Name
 	if(!service_url.empty() && option_map.isMap())
 	{
+		// throw in a ridiculously large limiter to make sure we don't
+		// loop forever with bad input.
+		int iterations = 100;
+		bool keep_looping = true;
+		while(keep_looping)
+		{
+			if(0 == --iterations)
+			{
+				keep_looping = false;
+			}
+
+			int depth = 0;
+			int deepest = 0;
+			bool find_match = false;
+			std::string::iterator iter(service_url.begin());
+			std::string::iterator end(service_url.end());
+			std::string::iterator deepest_node(service_url.end());
+			std::string::iterator deepest_node_end(service_url.end());
+			for(; iter != end; ++iter)
+			{
+				switch(*iter)
+				{
+				case '{':
+					++depth;
+					if(depth > deepest)
+					{
+						deepest = depth;
+						deepest_node = iter;
+						find_match = true;
+					}
+					break;
+				case '}':
+					--depth;
+					if(find_match)
+					{
+						deepest_node_end = iter;
+						find_match = false;
+					}
+					break;
+				default:
+					break;
+				}
+			}
+			if((deepest_node == end) || (deepest_node_end == end))
+			{
+				break;
+			}
+
+			// *NOTE: since the c++ implementation only understands
+			// params and straight string substitution, so it's a
+			// known distance of 2 to skip the directive.
+			std::string key(deepest_node + 2, deepest_node_end);
+			LLSD value = option_map[key];
+			switch(*(deepest_node + 1))
+			{
+			case '$':
+				if(value.isDefined())
+				{
+					service_url.replace(
+						deepest_node,
+						deepest_node_end + 1,
+						value.asString());
+				}
+				else
+				{
+					llinfos << "Unknown key: " << key << llendl;
+					keep_looping = false;
+				}
+				break;
+			case '%':
+				{
+					std::string query_str = LLURI::mapToQueryString(value);
+					service_url.replace(
+						deepest_node,
+						deepest_node_end + 1,
+						query_str);
+				}
+				break;
+			default:
+				llinfos << "Unknown directive: " << *(deepest_node + 1)
+					<< llendl;
+				keep_looping = false;
+				break;
+			}
+		}
+	}
+	if (service_url.find('{') != std::string::npos)
+	{
+		llwarns << "Constructed a likely bogus service URL: " << service_url
+			<< llendl;
+	}
+	return service_url;
+}
+
+
+
+// Old, not as good implementation. Phoenix 2007-10-15
+#if 0
 		// Do brace replacements - NOT CURRENTLY RECURSIVE
 		for(LLSD::map_const_iterator option_itr = option_map.beginMap();
 			option_itr != option_map.endMap();
@@ -157,3 +255,4 @@ std::string LLServiceBuilder::buildServiceURI(
 
 	return service_url;
 }
+#endif

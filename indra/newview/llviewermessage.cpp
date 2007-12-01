@@ -3398,29 +3398,6 @@ void process_attached_sound_gain_change(LLMessageSystem *mesgsys, void **user_da
 	objectp->adjustAudioGain(gain);
 }
 
-/* Unused July 2006
-void process_attached_sound_cutoff_radius(LLMessageSystem *mesgsys, void **user_data)
-{
-	F32 radius = 0;
-	LLUUID object_guid;
-	LLViewerObject *objectp = NULL;
-
-	mesgsys->getUUIDFast(_PREHASH_DataBlock, _PREHASH_ObjectID, object_guid);
-
-	if (!((objectp = gObjectList.findObject(object_guid))))
-	{
-		// we don't know about this object, just bail
-		return;
-	}
-
-	mesgsys->getF32Fast(_PREHASH_DataBlock, _PREHASH_Radius, radius);
-
-	if (gAudiop)
-	{
-//		gAudiop->attachToObject(sound_guid, object_guid, gain, priority, flags);
-	}
-}
-*/
 
 void process_health_message(LLMessageSystem *mesgsys, void **user_data)
 {
@@ -3565,19 +3542,6 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 	}
 }
 
-
-// This info is requested by the simulator when the agent first logs in
-// or when it moves into a simulator in which it did not already have
-// a child agent.
-/*
-void process_avatar_info_request(LLMessageSystem *mesgsys, void **user_data)
-{
-	llinfos << "process_avatar_info_request()" << llendl;
-
-	// Send the avatar appearance (parameters and texture entry UUIDs)
-	gAgent.sendAgentSetAppearance();
-	send_agent_update(TRUE, TRUE);
-}*/
 
 
 void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)

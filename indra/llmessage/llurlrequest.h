@@ -42,6 +42,7 @@
 #include <string>
 #include "lliopipe.h"
 #include "llchainio.h"
+#include "llerror.h"
 
 class LLURLRequestDetail;
 
@@ -62,6 +63,7 @@ class LLURLRequestComplete;
  */
 class LLURLRequest : public LLIOPipe
 {
+	LOG_CLASS(LLURLRequest);
 public:
 	/** 
 	 * @brief This enumeration is for specifying the type of request.

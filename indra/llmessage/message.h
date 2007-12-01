@@ -464,6 +464,13 @@ public:
 	void    forwardMessage(const LLHost &host);
 	void    forwardReliable(const LLHost &host);
 	void    forwardReliable(const U32 circuit_code);
+	S32 forwardReliable(
+		const LLHost &host, 
+		S32 retries, 
+		BOOL ping_based_timeout,
+		F32 timeout, 
+		void (*callback)(void **,S32), 
+		void ** callback_data);
 
 	LLHTTPClient::ResponderPtr createResponder(const std::string& name);
 	S32		sendMessage(const LLHost &host);

@@ -480,6 +480,7 @@ bool LLURLRequest::configure()
 				mDetail->mHeaders);
 		}
 		curl_easy_setopt(mDetail->mCurl, CURLOPT_URL, mDetail->mURL);
+		lldebugs << "URL: " << mDetail->mURL << llendl;
 		curl_multi_add_handle(mDetail->mCurlMulti, mDetail->mCurl);
 		mDetail->mNeedToRemoveEasyHandle = true;
 	}

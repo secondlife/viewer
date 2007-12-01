@@ -331,6 +331,16 @@ public:
 		static U32 allocationCount();	///< how many Impls have been made
 		static U32 outstandingCount();	///< how many Impls are still alive
 	//@}
+
+private:
+	/** @name Debugging Interface */
+	//@{
+		/// Returns XML version of llsd -- only to be called from debugger
+		static const char *dumpXML(const LLSD &llsd);
+
+		/// Returns Notation version of llsd -- only to be called from debugger
+		static const char *dump(const LLSD &llsd);
+	//@}
 };
 
 struct llsd_select_bool : public std::unary_function<LLSD, LLSD::Boolean>

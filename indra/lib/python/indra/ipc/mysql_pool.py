@@ -97,7 +97,7 @@ class ConnectionPool(Pool):
         except (AttributeError, DeadProcess), e:
             conn = self.create()
         # TODO figure out if we're still connected to the database
-        if conn:
+        if conn is not None:
             Pool.put(self, conn)
         else:
             self.current_size -= 1

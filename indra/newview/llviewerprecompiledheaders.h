@@ -180,7 +180,6 @@
 #include "llinstantmessage.h"
 #include "llinvite.h"
 //#include "llloginflags.h"
-#include "lllogtextmessage.h"
 #include "llmail.h"
 #include "llmessagethrottle.h"
 #include "llnamevalue.h"

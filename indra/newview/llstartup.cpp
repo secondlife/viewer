@@ -2117,7 +2117,6 @@ BOOL idle_startup()
 		msg->setHandlerFuncFast(_PREHASH_PreloadSound,				process_preload_sound);
 		msg->setHandlerFuncFast(_PREHASH_AttachedSound,				process_attached_sound);
 		msg->setHandlerFuncFast(_PREHASH_AttachedSoundGainChange,	process_attached_sound_gain_change);
-		//msg->setHandlerFuncFast(_PREHASH_AttachedSoundCutoffRadius,	process_attached_sound_cutoff_radius);
 
 		llinfos << "Initialization complete" << llendl;
 
@@ -2771,7 +2770,6 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFuncFast(_PREHASH_MeanCollisionAlert,             process_mean_collision_alert_message,  NULL);
 	msg->setHandlerFunc("ViewerFrozenMessage",             process_frozen_message);
 
-	//msg->setHandlerFuncFast(_PREHASH_RequestAvatarInfo,		process_avatar_info_request);
 	msg->setHandlerFuncFast(_PREHASH_NameValuePair,			process_name_value);
 	msg->setHandlerFuncFast(_PREHASH_RemoveNameValuePair,	process_remove_name_value);
 	msg->setHandlerFuncFast(_PREHASH_AvatarAnimation,		process_avatar_animation);
