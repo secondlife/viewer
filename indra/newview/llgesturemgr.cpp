@@ -1006,14 +1006,20 @@ void LLGestureManager::onLoadComplete(LLVFS *vfs,
 			gViewerStats->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
 		}
 
+		// Get missing gesture's name. Use UUID if name can't be found.
+		LLStringBase<char>::format_map_t args;
+		LLInventoryItem *item = gInventory.getItem( item_id );
+		args["[NAME]"] = item ? item->getName() : LLString( item_id.asString() );
+
+
 		if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 			LL_ERR_FILE_EMPTY == status)
 		{
-			LLNotifyBox::showXml("GestureMissing");
+			LLNotifyBox::showXml("GestureMissing", args);
 		}
 		else
 		{
-			LLNotifyBox::showXml("UnableToLoadGesture");
+			LLNotifyBox::showXml("UnableToLoadGesture", args);
 		}
 
 		llwarns << "Problem loading gesture: " << status << llendl;

@@ -105,7 +105,6 @@
 #include "llfloatergroupinvite.h"
 #include "llfloatergroups.h"
 #include "llfloaterhtml.h"
-#include "llfloaterhtmlhelp.h"
 #include "llfloaterinspect.h"
 #include "llfloaterlagmeter.h"
 #include "llfloaterland.h"

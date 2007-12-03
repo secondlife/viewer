@@ -51,7 +51,7 @@
 #include "lldebugview.h"
 #include "llfasttimerview.h"
 #include "llviewerregion.h"
-#include "llfloaterhtmlhelp.h"
+#include "llfloaterhtml.h"
 #include "llworld.h"
 #include "llfeaturemanager.h"
 #if LL_WINDOWS && LL_LCD_COMPILE
@@ -186,7 +186,7 @@ const StatAttributes STAT_INFO[LLViewerStats::ST_COUNT] =
 	// ST_CROSSING_MAX
 	StatAttributes("CROSSING_MAX", FALSE, FALSE),
 	// ST_LIBXUL_WIDGET_USED
-	StatAttributes("LibXUL Widget used", FALSE, FALSE),
+	StatAttributes("LibXUL Widget used", FALSE, FALSE), // Unused
 	// ST_WINDOW_WIDTH
 	StatAttributes("Window width", FALSE, FALSE),
 	// ST_WINDOW_HEIGHT
@@ -573,14 +573,6 @@ void update_statistics(U32 frame_count)
 	}
 	
 	gViewerStats->mTexturePacketsStat.addValue(LLViewerImageList::sTexturePackets);
-
-	// log when the LibXUL (aka Mozilla) widget is used and opened so we can monitor framerate changes
-	#if LL_LIBXUL_ENABLED
-	{
-		BOOL result = gViewerHtmlHelp.getFloaterOpened();
-		gViewerStats->setStat(LLViewerStats::ST_LIBXUL_WIDGET_USED, (F64)result);
-	}
-	#endif
 
 	{
 		static F32 visible_avatar_frames = 0.f;
