@@ -282,11 +282,8 @@ bool LLUICtrlFactory::getLayeredXMLNode(const LLString &filename, LLXMLNodePtr& 
 	
 	if (!LLXMLNode::parseFile(mXUIPaths.front() + filename, root, NULL))
 	{	
-		if (!LLXMLNode::parseFile(filename, root, NULL))
-		{
-			llwarns << "Problem reading UI description file: " << mXUIPaths.front() + filename << llendl;
-			return FALSE;
-		}
+		llwarns << "Problem reading UI description file: " << mXUIPaths.front() + filename << llendl;
+		return FALSE;
 	}
 
 	LLXMLNodePtr updateRoot;

@@ -76,7 +76,6 @@
 #include "lltracker.h"
 #include "llui.h"
 #include "lluiconstants.h"
-#include "llurldispatcher.h"
 #include "llviewercamera.h"
 #include "llviewermenu.h"
 #include "llviewerregion.h"
@@ -713,7 +712,8 @@ void LLFloaterWorldMap::updateLocation()
 				childSetValue("spin z", LLSD(agent_z) );
 
 				// Set the current SLURL
-				mSLURL = LLURLDispatcher::buildSLURL(agent_sim_name, agent_x, agent_y, agent_z);
+				mSLURL = LLWeb::escapeURL( llformat("http://slurl.com/secondlife/%s/%d/%d/%d", 
+								agent_sim_name.c_str(), agent_x, agent_y, agent_z) );
 			}
 		}
 
@@ -750,7 +750,8 @@ void LLFloaterWorldMap::updateLocation()
 		// simNameFromPosGlobal can fail, so don't give the user an invalid SLURL
 		if ( gotSimName )
 		{
-			mSLURL = LLURLDispatcher::buildSLURL(sim_name, llround(region_x), llround(region_y), llround((F32)pos_global.mdV[VZ]));
+			mSLURL = LLWeb::escapeURL(llformat("http://slurl.com/secondlife/%s/%d/%d/%d", 
+										sim_name.c_str(), llround(region_x), llround(region_y), llround((F32)pos_global.mdV[VZ])));
 		}
 		else
 		{	// Empty SLURL will disable the "Copy SLURL to clipboard" button

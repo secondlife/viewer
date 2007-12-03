@@ -37,12 +37,12 @@
 #include "llcommandhandler.h"
 #include "llfloaterurldisplay.h"
 #include "llfloaterdirectory.h"
-#include "llfloaterhtml.h"
+#include "llfloaterhtmlhelp.h"
+//#include "llfloaterworldmap.h"
 #include "llpanellogin.h"
 #include "llstartup.h"			// gStartupState
 #include "llurlsimstring.h"
 #include "llviewerwindow.h"		// alertXml()
-#include "llweb.h"
 #include "llworldmap.h"
 
 // library includes
@@ -339,12 +339,4 @@ bool LLURLDispatcher::dispatch(const std::string& url)
 bool LLURLDispatcher::dispatchRightClick(const std::string& url)
 {
 	return LLURLDispatcherImpl::dispatchRightClick(url);
-}
-
-// static
-std::string LLURLDispatcher::buildSLURL(const std::string& regionname, S32 x, S32 y, S32 z)
-{
-	std::string slurl = SLURL_SLURL_PREFIX + regionname + llformat("/%d/%d/%d",x,y,z); 
-	slurl = LLWeb::escapeURL( slurl );
-	return slurl;
 }

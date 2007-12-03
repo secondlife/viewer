@@ -131,7 +131,12 @@ LLFloaterReporter::LLFloaterReporter(
 		gUICtrlFactory->buildFloater(this, "floater_report_abuse.xml");
 	}
 
-	childSetText("abuse_location_edit", gAgent.getSLURL() );
+	LLViewerRegion *regionp = gAgent.getRegion();
+	if (regionp)
+	{
+		childSetText("sim_field", regionp->getName() );
+		childSetText("abuse_location_edit", regionp->getName() );
+	}
 
 	LLButton* pick_btn = LLUICtrlFactory::getButtonByName(this, "pick_btn");
 	if (pick_btn)
@@ -158,7 +163,6 @@ LLFloaterReporter::LLFloaterReporter(
 
 	// convert the position to a string
 	LLVector3d pos = gAgent.getPositionGlobal();
-	LLViewerRegion *regionp = gAgent.getRegion();
 	if (regionp)
 	{
 		pos -= regionp->getOriginGlobal();

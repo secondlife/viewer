@@ -71,7 +71,7 @@
 #include "llweb.h"
 #include "llwebbrowserctrl.h"
 
-#include "llfloaterhtml.h"
+#include "llfloaterhtmlhelp.h"
 #include "llfloatertos.h"
 
 #include "llglheaders.h"
