@@ -390,13 +390,6 @@ void LLPanelPlace::onClickTeleport(void* data)
 void LLPanelPlace::onClickMap(void* data)
 {
 	LLPanelPlace* self = (LLPanelPlace*)data;
-	LLView* parent_viewp = self->getParent();
-	if (parent_viewp->getWidgetType() == WIDGET_TYPE_FLOATER)
-	{
-		LLFloater* parent_floaterp = (LLFloater*)parent_viewp;
-		parent_floaterp->close();
-	}
-
 	if (!self->mPosGlobal.isExactlyZero())
 	{
 		gFloaterWorldMap->trackLocation(self->mPosGlobal);
