@@ -596,15 +596,9 @@ void upload_new_resource(const LLString& src_filename, std::string name,
 		asset_type = LLAssetType::AT_SOUND;  // tag it as audio
 		S32 encode_result = 0;
 
-		S32 bitrate = 128;
+		llinfos << "Attempting to encode wav as an ogg file" << llendl;
 
-		if (compression_info)
-		{
-			bitrate = compression_info;
-		}
-		llinfos << "Attempting to encode wav as an ogg file at " << bitrate << "kbps" << llendl;
-
-		encode_result = encode_vorbis_file_at(src_filename.c_str(), filename.c_str(), bitrate*1000);
+		encode_result = encode_vorbis_file(src_filename.c_str(), filename.c_str());
 		
 		if (LLVORBISENC_NOERR != encode_result)
 		{

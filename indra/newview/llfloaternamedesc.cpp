@@ -140,13 +140,6 @@ BOOL LLFloaterNameDesc::postBuild()
 
 	y -= llfloor(PREVIEW_LINE_HEIGHT * 1.2f);
 
-	if (mIsAudio)
-	{
-		LLSD bitrate = gSavedSettings.getS32("AudioDefaultBitrate");
-		
-		childSetValue("bitrate", bitrate);
-	}
-
 	// Cancel button
 	childSetAction("cancel_btn", onBtnCancel, this);
 
@@ -206,16 +199,10 @@ void LLFloaterNameDesc::onBtnOK( void* userdata )
 
 	fp->childDisable("ok_btn"); // don't allow inadvertent extra uploads
 	
-	S32 bitrate = 0;
-
-	if (fp->mIsAudio)
-	{
-		bitrate = fp->childGetValue("bitrate").asInteger();
-	}
 	upload_new_resource(fp->mFilenameAndPath, // file
 		fp->childGetValue("name_form").asString(), 
 		fp->childGetValue("description_form").asString(), 
-		bitrate, LLAssetType::AT_NONE, LLInventoryType::IT_NONE);
+		0, LLAssetType::AT_NONE, LLInventoryType::IT_NONE);
 	fp->close(false);
 }
 

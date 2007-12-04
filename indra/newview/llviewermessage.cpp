@@ -2732,9 +2732,9 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	gViewerThrottle.sendToSim();
 	gViewerWindow->sendShapeToSim();
 
-	bool is_teleport = false;
+	bool is_teleport = gAgent.getTeleportState() == LLAgent::TELEPORT_MOVING;
 
-	if( gAgent.getTeleportState() == LLAgent::TELEPORT_MOVING )
+	if( is_teleport )
 	{
 		// Force the camera back onto the agent, don't animate. JC
 		gAgent.setFocusOnAvatar(TRUE, FALSE);
@@ -2749,15 +2749,20 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 
 		if (avatarp)
 		{
+			// Chat the "back" SLURL. (DEV-4907)
+			LLChat chat("Teleport completed from " + gAgent.getTeleportSourceSLURL());
+			chat.mSourceType = CHAT_SOURCE_SYSTEM;
+ 			LLFloaterChat::addChatHistory(chat);
+
+			// Set the new position
 			avatarp->setPositionAgent(agent_pos);
 			avatarp->clearChat();
 			avatarp->slamPosition();
 		}
-
-		is_teleport = true;
 	}
 	else
 	{
+		// This is likely just the initial logging in phase.
 		gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 	}
 

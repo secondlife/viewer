@@ -102,6 +102,7 @@
 #include "lltoolpie.h"
 #include "lltoolview.h"
 #include "llui.h"			// for make_ui_sound
+#include "llurldispatcher.h"
 #include "llviewercamera.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"
@@ -904,6 +905,24 @@ const LLHost& LLAgent::getRegionHost() const
 	}
 }
 
+//-----------------------------------------------------------------------------
+// getSLURL()
+// returns empty() if getRegion() == NULL
+//-----------------------------------------------------------------------------
+std::string LLAgent::getSLURL() const
+{
+	std::string slurl;
+	LLViewerRegion *regionp = getRegion();
+	if (regionp)
+	{
+		LLVector3d agentPos = getPositionGlobal();
+		S32 x = llround( (F32)fmod( agentPos.mdV[VX], (F64)REGION_WIDTH_METERS ) );
+		S32 y = llround( (F32)fmod( agentPos.mdV[VY], (F64)REGION_WIDTH_METERS ) );
+		S32 z = llround( (F32)agentPos.mdV[VZ] );
+		slurl = LLURLDispatcher::buildSLURL(regionp->getName(), x, y, z);
+	}
+	return slurl;
+}
 
 //-----------------------------------------------------------------------------
 // inPrelude()
@@ -1021,7 +1040,7 @@ void LLAgent::slamLookAt(const LLVector3 &look_at)
 //-----------------------------------------------------------------------------
 // getPositionGlobal()
 //-----------------------------------------------------------------------------
-const LLVector3d &LLAgent::getPositionGlobal() 
+const LLVector3d &LLAgent::getPositionGlobal() const
 {
 	if (!mAvatarObject.isNull() && !mAvatarObject->mDrawable.isNull())
 	{
@@ -5782,6 +5801,11 @@ void LLAgent::setTeleportState(ETeleportState state)
 	if (mTeleportState > TELEPORT_NONE && gSavedSettings.getBOOL("FreezeTime"))
 	{
 		LLFloaterSnapshot::hide(0);
+	}
+	if (mTeleportState == TELEPORT_MOVING)
+	{
+		// We're outa here. Save "back" slurl.
+		mTeleportSourceSLURL = getSLURL();
 	}
 }
 
