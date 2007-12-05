@@ -636,8 +636,10 @@ void LLPumpIO::pump(const S32& poll_timeout)
 						llwarns << "Removing pipe "
 							<< (*run_chain).mChainLinks[0].mPipe
 							<< " '"
+#if LL_DEBUG_PIPE_TYPE_IN_PUMP
 							<< typeid(
 								*((*run_chain).mChainLinks[0].mPipe)).name()
+#endif
 							<< "' because: "
 							<< events_2_string(poll->rtnevents)
 							<< llendl;
