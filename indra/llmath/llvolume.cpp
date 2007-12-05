@@ -86,7 +86,7 @@ const S32 SCULPT_REZ_2 = 8;
 const S32 SCULPT_REZ_3 = 16;
 const S32 SCULPT_REZ_4 = 32;
 
-const F32 SCULPT_MIN_AREA = 0.005f;
+const F32 SCULPT_MIN_AREA = 0.002f;
 
 BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
 {    
@@ -1834,9 +1834,9 @@ inline LLVector3 sculpt_rgb_to_vector(U8 r, U8 g, U8 b)
 {
 	// maps RGB values to vector values [0..255] -> [-0.5..0.5]
 	LLVector3 value;
-	value.mV[VX] = r / 256.f - 0.5f;
-	value.mV[VY] = g / 256.f - 0.5f;
-	value.mV[VZ] = b / 256.f - 0.5f;
+	value.mV[VX] = r / 255.f - 0.5f;
+	value.mV[VY] = g / 255.f - 0.5f;
+	value.mV[VZ] = b / 255.f - 0.5f;
 
 	return value;
 }

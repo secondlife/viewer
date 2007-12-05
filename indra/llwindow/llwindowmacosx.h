@@ -111,8 +111,10 @@ public:
 	/*virtual*/ void *getPlatformWindow();
 	/*virtual*/ void bringToFront() {};
 	
-	/*virtual*/ void allowLanguageTextInput(BOOL b);
-	
+	/*virtual*/ void allowLanguageTextInput(LLPreeditor *preeditor, BOOL b);
+	/*virtual*/ void updateLanguageTextInputArea(const LLCoordGL& caret, const LLRect& bounds);
+	/*virtual*/ void interruptLanguageTextInput();
+
 protected:
 	LLWindowMacOSX(
 		char *title, char *name, int x, int y, int width, int height, U32 flags,
@@ -193,6 +195,7 @@ protected:
 	BOOL		mLanguageTextInputAllowed;
 	ScriptCode	mTSMScriptCode;
 	LangCode	mTSMLangCode;
+	LLPreeditor*	mPreeditor;
 
 	friend class LLWindowManager;
 };

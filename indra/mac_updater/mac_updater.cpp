@@ -496,14 +496,13 @@ bool isDirWritable(FSRef &dir)
 	// This is kinda lame, but will pretty much always give the right answer.
 	
 	OSStatus err = noErr;
-	char temp[PATH_MAX];		/* Flawfinder: ignore */
+	char temp[PATH_MAX] = "";		/* Flawfinder: ignore */
 
 	err = FSRefMakePath(&dir, (UInt8*)temp, sizeof(temp));
 
 	if(err == noErr)
 	{
-		temp[0] = '\0';
-		strncat(temp, "/.test_XXXXXX", sizeof(temp) - 1);
+		strncat(temp, "/.test_XXXXXX", (sizeof(temp) - strlen(temp)) - 1);
 		
 		if(mkdtemp(temp) != NULL)
 		{
@@ -557,8 +556,8 @@ static std::string HFSUniStr255_to_utf8str(const HFSUniStr255* src)
 
 int restoreObject(const char* aside, const char* target, const char* path, const char* object)
 {
-	char source[PATH_MAX];		/* Flawfinder: ignore */
-	char dest[PATH_MAX];		/* Flawfinder: ignore */
+	char source[PATH_MAX] = "";		/* Flawfinder: ignore */
+	char dest[PATH_MAX] = "";		/* Flawfinder: ignore */
 	snprintf(source, sizeof(source), "%s/%s/%s", aside, path, object);		
 	snprintf(dest, sizeof(dest), "%s/%s", target, path);		
 	FSRef sourceRef;
@@ -592,7 +591,7 @@ int restoreObject(const char* aside, const char* target, const char* path, const
 // Replace any mention of "Second Life" with the product name.
 void filterFile(const char* filename)
 {
-	char temp[PATH_MAX];		/* Flawfinder: ignore */
+	char temp[PATH_MAX] = "";		/* Flawfinder: ignore */
 	// First copy the target's version, so we can run it through sed.
 	snprintf(temp, sizeof(temp), "cp '%s' '%s.tmp'", filename, filename);		
 	system(temp);		/* Flawfinder: ignore */
@@ -724,13 +723,13 @@ void *updatethreadproc(void*)
 {
 	char tempDir[PATH_MAX] = "";		/* Flawfinder: ignore */
 	FSRef tempDirRef;
-	char temp[PATH_MAX];	/* Flawfinder: ignore */
+	char temp[PATH_MAX] = "";	/* Flawfinder: ignore */
 	// *NOTE: This buffer length is used in a scanf() below.
 	char deviceNode[1024] = "";	/* Flawfinder: ignore */
 	FILE *downloadFile = NULL;
 	OSStatus err;
 	ProcessSerialNumber psn;
-	char target[PATH_MAX];		/* Flawfinder: ignore */
+	char target[PATH_MAX] = "";		/* Flawfinder: ignore */
 	FSRef targetRef;
 	FSRef targetParentRef;
 	FSVolumeRefNum targetVol;
@@ -907,14 +906,14 @@ void *updatethreadproc(void*)
 		if(err != noErr)
 			throw 0;
 		
-		temp[0] = '\0';
-		strncat(temp, "/SecondLifeUpdate_XXXXXX", sizeof(temp) - 1);
+		strncat(temp, "/SecondLifeUpdate_XXXXXX", (sizeof(temp) - strlen(temp)) - 1);
 		if(mkdtemp(temp) == NULL)
 		{
 			throw 0;
 		}
 		
-		strcpy(tempDir, temp);		/* Flawfinder: ignore */
+		strncpy(tempDir, temp, sizeof(tempDir));
+		temp[sizeof(tempDir) - 1] = '\0';
 		
 		llinfos << "tempDir is " << tempDir << llendl;
 

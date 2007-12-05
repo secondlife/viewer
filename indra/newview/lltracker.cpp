@@ -639,6 +639,10 @@ void LLTracker::stopTrackingLocation(BOOL clear_ui)
 	mTrackingLocationType = LOCATION_NOTHING;
 }
 
+void LLTracker::clearFocus()
+{
+	instance()->mTrackingStatus = TRACKING_NOTHING;
+}
 
 void LLTracker::drawMarker(const LLVector3d& pos_global, const LLColor4& color)
 {

@@ -128,6 +128,8 @@ protected:
 
 	static void onErrorList(LLUICtrl*, void* user_data);
 
+ 	virtual const char *getTitleName() const { return "Script"; }
+
 private:
 	LLString		mSampleText;
 	std::string		mHelpFile;
@@ -189,6 +191,8 @@ protected:
 
 
 protected:
+
+ 	virtual const char *getTitleName() const { return "Script"; }
 	LLScriptEdCore* mScriptEd;
 	// Can safely close only after both text and bytecode are uploaded
 	S32 mPendingUploads;

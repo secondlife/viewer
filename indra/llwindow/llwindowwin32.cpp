@@ -57,6 +57,8 @@
 
 #include "indra_constants.h"
 
+#include "llpreeditor.h"
+
 // culled from winuser.h
 #ifndef WM_MOUSEWHEEL /* Added to be compatible with later SDK's */
 const S32	WM_MOUSEWHEEL = 0x020A;
@@ -112,6 +114,7 @@ public:
 public:
 	// Wrappers for IMM API.
 	static BOOL		isIME(HKL hkl);															
+	static HWND		getDefaultIMEWnd(HWND hwnd);
 	static HIMC		getContext(HWND hwnd);													
 	static BOOL		releaseContext(HWND hwnd, HIMC himc);
 	static BOOL		getOpenStatus(HIMC himc);												
@@ -120,6 +123,11 @@ public:
 	static BOOL		setConversionStatus(HIMC himc, DWORD conversion, DWORD sentence);		
 	static BOOL		getCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form);					
 	static BOOL		setCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form);					
+	static LONG		getCompositionString(HIMC himc, DWORD index, LPVOID data, DWORD length);
+	static BOOL		setCompositionString(HIMC himc, DWORD index, LPVOID pComp, DWORD compLength, LPVOID pRead, DWORD readLength);
+	static BOOL		setCompositionFont(HIMC himc, LPLOGFONTW logfont);
+	static BOOL		setCandidateWindow(HIMC himc, LPCANDIDATEFORM candidate_form);
+	static BOOL		notifyIME(HIMC himc, DWORD action, DWORD index, DWORD value);
 
 private:
 	LLWinImm();
@@ -128,6 +136,7 @@ private:
 private:
 	// Pointers to IMM API.
 	BOOL	 	(WINAPI *mImmIsIME)(HKL);
+	HWND		(WINAPI *mImmGetDefaultIMEWnd)(HWND);
 	HIMC		(WINAPI *mImmGetContext)(HWND);
 	BOOL		(WINAPI *mImmReleaseContext)(HWND, HIMC);
 	BOOL		(WINAPI *mImmGetOpenStatus)(HIMC);
@@ -136,6 +145,11 @@ private:
 	BOOL		(WINAPI *mImmSetConversionStatus)(HIMC, DWORD, DWORD);
 	BOOL		(WINAPI *mImmGetCompostitionWindow)(HIMC, LPCOMPOSITIONFORM);
 	BOOL		(WINAPI *mImmSetCompostitionWindow)(HIMC, LPCOMPOSITIONFORM);
+	LONG		(WINAPI *mImmGetCompositionString)(HIMC, DWORD, LPVOID, DWORD);
+	BOOL		(WINAPI *mImmSetCompositionString)(HIMC, DWORD, LPVOID, DWORD, LPVOID, DWORD);
+	BOOL		(WINAPI *mImmSetCompositionFont)(HIMC, LPLOGFONTW);
+	BOOL		(WINAPI *mImmSetCandidateWindow)(HIMC, LPCANDIDATEFORM);
+	BOOL		(WINAPI *mImmNotifyIME)(HIMC, DWORD, DWORD, DWORD);
 
 private:
 	HMODULE		mHImmDll;
@@ -155,6 +169,7 @@ LLWinImm::LLWinImm() : mHImmDll(NULL)
 	if (mHImmDll != NULL)
 	{
 		mImmIsIME               = (BOOL (WINAPI *)(HKL))                    GetProcAddress(mHImmDll, "ImmIsIME");
+		mImmGetDefaultIMEWnd	= (HWND (WINAPI *)(HWND))					GetProcAddress(mHImmDll, "ImmGetDefaultIMEWnd");
 		mImmGetContext          = (HIMC (WINAPI *)(HWND))                   GetProcAddress(mHImmDll, "ImmGetContext");
 		mImmReleaseContext      = (BOOL (WINAPI *)(HWND, HIMC))             GetProcAddress(mHImmDll, "ImmReleaseContext");
 		mImmGetOpenStatus       = (BOOL (WINAPI *)(HIMC))                   GetProcAddress(mHImmDll, "ImmGetOpenStatus");
@@ -163,8 +178,14 @@ LLWinImm::LLWinImm() : mHImmDll(NULL)
 		mImmSetConversionStatus = (BOOL (WINAPI *)(HIMC, DWORD, DWORD))     GetProcAddress(mHImmDll, "ImmSetConversionStatus");
 		mImmGetCompostitionWindow = (BOOL (WINAPI *)(HIMC, LPCOMPOSITIONFORM))   GetProcAddress(mHImmDll, "ImmGetCompositionWindow");
 		mImmSetCompostitionWindow = (BOOL (WINAPI *)(HIMC, LPCOMPOSITIONFORM))   GetProcAddress(mHImmDll, "ImmSetCompositionWindow");
+		mImmGetCompositionString= (LONG (WINAPI *)(HIMC, DWORD, LPVOID, DWORD))					GetProcAddress(mHImmDll, "ImmGetCompositionStringW");
+		mImmSetCompositionString= (BOOL (WINAPI *)(HIMC, DWORD, LPVOID, DWORD, LPVOID, DWORD))	GetProcAddress(mHImmDll, "ImmSetCompositionStringW");
+		mImmSetCompositionFont  = (BOOL (WINAPI *)(HIMC, LPLOGFONTW))		GetProcAddress(mHImmDll, "ImmSetCompositionFontW");
+		mImmSetCandidateWindow  = (BOOL (WINAPI *)(HIMC, LPCANDIDATEFORM))  GetProcAddress(mHImmDll, "ImmSetCandidateWindow");
+		mImmNotifyIME			= (BOOL (WINAPI *)(HIMC, DWORD, DWORD, DWORD))	GetProcAddress(mHImmDll, "ImmNotifyIME");
 
 		if (mImmIsIME == NULL ||
+			mImmGetDefaultIMEWnd == NULL ||
 			mImmGetContext == NULL ||
 			mImmReleaseContext == NULL ||
 			mImmGetOpenStatus == NULL ||
@@ -172,7 +193,12 @@ LLWinImm::LLWinImm() : mHImmDll(NULL)
 			mImmGetConversionStatus == NULL ||
 			mImmSetConversionStatus == NULL ||
 			mImmGetCompostitionWindow == NULL ||
-			mImmSetCompostitionWindow == NULL)
+			mImmSetCompostitionWindow == NULL ||
+			mImmGetCompositionString == NULL ||
+			mImmSetCompositionString == NULL ||
+			mImmSetCompositionFont == NULL ||
+			mImmSetCandidateWindow == NULL ||
+			mImmNotifyIME == NULL)
 		{
 			// If any of the above API entires are not found, we can't use IMM API.  
 			// So, turn off the IMM support.  We should log some warning message in 
@@ -186,6 +212,7 @@ LLWinImm::LLWinImm() : mHImmDll(NULL)
 
 			// If we unload the library, make sure all the function pointers are cleared
 			mImmIsIME = NULL;
+			mImmGetDefaultIMEWnd = NULL;
 			mImmGetContext = NULL;
 			mImmReleaseContext = NULL;
 			mImmGetOpenStatus = NULL;
@@ -194,6 +221,11 @@ LLWinImm::LLWinImm() : mHImmDll(NULL)
 			mImmSetConversionStatus = NULL;
 			mImmGetCompostitionWindow = NULL;
 			mImmSetCompostitionWindow = NULL;
+			mImmGetCompositionString = NULL;
+			mImmSetCompositionString = NULL;
+			mImmSetCompositionFont = NULL;
+			mImmSetCandidateWindow = NULL;
+			mImmNotifyIME = NULL;
 		}
 	}
 }
@@ -272,6 +304,50 @@ BOOL		LLWinImm::setCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form)
 }
 
 
+// static 
+LONG		LLWinImm::getCompositionString(HIMC himc, DWORD index, LPVOID data, DWORD length)					
+{ 
+	if ( sTheInstance.mImmGetCompositionString )
+		return sTheInstance.mImmGetCompositionString(himc, index, data, length);	
+	return FALSE;
+}
+
+
+// static 
+BOOL		LLWinImm::setCompositionString(HIMC himc, DWORD index, LPVOID pComp, DWORD compLength, LPVOID pRead, DWORD readLength)					
+{ 
+	if ( sTheInstance.mImmSetCompositionString )
+		return sTheInstance.mImmSetCompositionString(himc, index, pComp, compLength, pRead, readLength);	
+	return FALSE;
+}
+
+// static 
+BOOL		LLWinImm::setCompositionFont(HIMC himc, LPLOGFONTW pFont)					
+{ 
+	if ( sTheInstance.mImmSetCompositionFont )
+		return sTheInstance.mImmSetCompositionFont(himc, pFont);	
+	return FALSE;
+}
+
+// static 
+BOOL		LLWinImm::setCandidateWindow(HIMC himc, LPCANDIDATEFORM form)					
+{ 
+	if ( sTheInstance.mImmSetCandidateWindow )
+		return sTheInstance.mImmSetCandidateWindow(himc, form);	
+	return FALSE;
+}
+
+// static 
+BOOL		LLWinImm::notifyIME(HIMC himc, DWORD action, DWORD index, DWORD value)					
+{ 
+	if ( sTheInstance.mImmNotifyIME )
+		return sTheInstance.mImmNotifyIME(himc, action, index, value);	
+	return FALSE;
+}
+
+
+
+
 // ----------------------------------------------------------------------------------------
 LLWinImm::~LLWinImm()
 {
@@ -304,13 +380,14 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 	mNativeAspectRatio = 0.f;
 	mMousePositionModified = FALSE;
 	mInputProcessingPaused = FALSE;
+	mPreeditor = NULL;
 
 	// Initialize the keyboard
 	gKeyboard = new LLKeyboardWin32();
 
 	// Initialize (boot strap) the Language text input management,
 	// based on the system's (user's) default settings.
-	allowLanguageTextInput(FALSE);
+	allowLanguageTextInput(mPreeditor, FALSE);
 
 	GLuint			pixel_format;
 	WNDCLASS		wc;
@@ -937,6 +1014,10 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 	//start with arrow cursor
 	initCursors();
 	setCursor( UI_CURSOR_ARROW );
+
+	// Initialize (boot strap) the Language text input management,
+	// based on the system's (or user's) default settings.
+	allowLanguageTextInput(NULL, FALSE);
 
 	// Direct Input
 	HRESULT hr;
@@ -2035,6 +2116,11 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 				BOOL minimized = BOOL(HIWORD(w_param));
 
+				if (!activating && LLWinImm::isAvailable() && window_imp->mPreeditor)
+				{
+					window_imp->interruptLanguageTextInput();
+				}
+
 				// JC - I'm not sure why, but if we don't report that we handled the 
 				// WM_ACTIVATE message, the WM_ACTIVATEAPP messages don't work 
 				// properly when we run fullscreen.
@@ -2127,6 +2213,47 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			// pass on to windows
 			break;
 
+		case WM_IME_SETCONTEXT:
+			if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+			{
+				l_param &= ~ISC_SHOWUICOMPOSITIONWINDOW;
+				// Invoke DefWinProc with the modified LPARAM.
+			}
+			break;
+
+		case WM_IME_STARTCOMPOSITION:
+			if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+			{
+				window_imp->handleStartCompositionMessage();
+				return 0;
+			}
+			break;
+
+		case WM_IME_ENDCOMPOSITION:
+			if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+			{
+				return 0;
+			}
+			break;
+
+		case WM_IME_COMPOSITION:
+			if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+			{
+				window_imp->handleCompositionMessage(l_param);
+				return 0;
+			}
+			break;
+
+		case WM_IME_REQUEST:
+			if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+			{
+				LRESULT result = 0;
+				if (window_imp->handleImeRequests(w_param, l_param, &result))
+				{
+					return result;
+				}
+			}
+			break;
 
 		case WM_CHAR:
 			// Should really use WM_UNICHAR eventually, but it requires a specific Windows version and I need
@@ -2154,6 +2281,11 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 		case WM_LBUTTONDOWN:
 			{
+				if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+				{
+					window_imp->interruptLanguageTextInput();
+				}
+
 				// Because we move the cursor position in the app, we need to query
 				// to find out where the cursor at the time the event is handled.
 				// If we don't do this, many clicks could get buffered up, and if the
@@ -2236,6 +2368,11 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		case WM_RBUTTONDBLCLK:
 		case WM_RBUTTONDOWN:
 			{
+				if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+				{
+					window_imp->interruptLanguageTextInput();
+				}
+
 				// Because we move the cursor position in tllviewerhe app, we need to query
 				// to find out where the cursor at the time the event is handled.
 				// If we don't do this, many clicks could get buffered up, and if the
@@ -2287,6 +2424,11 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		case WM_MBUTTONDOWN:
 //		case WM_MBUTTONDBLCLK:
 			{
+				if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+				{
+					window_imp->interruptLanguageTextInput();
+				}
+
 				// Because we move the cursor position in tllviewerhe app, we need to query
 				// to find out where the cursor at the time the event is handled.
 				// If we don't do this, many clicks could get buffered up, and if the
@@ -3324,15 +3466,37 @@ void LLWindowWin32::focusClient()
 	SetFocus ( mWindowHandle );
 }
 
-void LLWindowWin32::allowLanguageTextInput(BOOL b)
+void LLWindowWin32::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
 {
 	if (b == sLanguageTextInputAllowed || !LLWinImm::isAvailable())
 	{
 		return;
 	}
+
+	if (preeditor != mPreeditor && !b)
+	{
+		// This condition may occur with a call to
+		// setEnabled(BOOL) from LLTextEditor or LLLineEditor
+		// when the control is not focused.
+		// We need to silently ignore the case so that
+		// the language input status of the focused control
+		// is not disturbed.
+		return;
+	}
+
+	// Take care of old and new preeditors.
+	if (preeditor != mPreeditor || !b)
+	{
+		if (sLanguageTextInputAllowed)
+		{
+			interruptLanguageTextInput();
+		}
+		mPreeditor = (b ? preeditor : NULL);
+	}
+
 	sLanguageTextInputAllowed = b;
 
-	if (b)
+	if ( sLanguageTextInputAllowed )
 	{
 		// Allowing: Restore the previous IME status, so that the user has a feeling that the previous 
 		// text input continues naturally.  Be careful, however, the IME status is meaningful only during the user keeps 
@@ -3368,7 +3532,24 @@ void LLWindowWin32::allowLanguageTextInput(BOOL b)
 			LLWinImm::releaseContext(mWindowHandle, himc);
  		}
 	}
+}
 
+void LLWindowWin32::fillCandidateForm(const LLCoordGL& caret, const LLRect& bounds, 
+		CANDIDATEFORM *form)
+{
+	LLCoordWindow caret_coord, top_left, bottom_right;
+	convertCoords(caret, &caret_coord);
+	convertCoords(LLCoordGL(bounds.mLeft, bounds.mTop), &top_left);
+	convertCoords(LLCoordGL(bounds.mRight, bounds.mBottom), &bottom_right);
+
+	memset(form, 0, sizeof(CANDIDATEFORM));
+	form->dwStyle = CFS_EXCLUDE;
+	form->ptCurrentPos.x = caret_coord.mX;
+	form->ptCurrentPos.y = caret_coord.mY;
+	form->rcArea.left   = top_left.mX;
+	form->rcArea.top    = top_left.mY;
+	form->rcArea.right  = bottom_right.mX;
+	form->rcArea.bottom = bottom_right.mY;
 }
 
 
@@ -3415,5 +3596,456 @@ void LLWindowWin32::setLanguageTextInput( const LLCoordGL & position )
 		LLWinImm::releaseContext(mWindowHandle, himc);
 	}
 }
+
+
+void LLWindowWin32::fillCharPosition(const LLCoordGL& caret, const LLRect& bounds, const LLRect& control,
+		IMECHARPOSITION *char_position)
+{
+	LLCoordScreen caret_coord, top_left, bottom_right;
+	convertCoords(caret, &caret_coord);
+	convertCoords(LLCoordGL(bounds.mLeft, bounds.mTop), &top_left);
+	convertCoords(LLCoordGL(bounds.mRight, bounds.mBottom), &bottom_right);
+
+	char_position->pt.x = caret_coord.mX;
+	char_position->pt.y = top_left.mY;	// Windows wants the coordinate of upper left corner of a character...
+	char_position->cLineHeight = bottom_right.mY - top_left.mY;
+	char_position->rcDocument.left   = top_left.mX;
+	char_position->rcDocument.top    = top_left.mY;
+	char_position->rcDocument.right  = bottom_right.mX;
+	char_position->rcDocument.bottom = bottom_right.mY;
+}
+
+void LLWindowWin32::fillCompositionLogfont(LOGFONT *logfont)
+{
+	// Our font is a list of FreeType recognized font files that may
+	// not have a corresponding ones in Windows' fonts.  Hence, we
+	// can't simply tell Windows which font we are using.  We will
+	// notify a _standard_ font for a current input locale instead.
+	// We use a hard-coded knowledge about the Windows' standard
+	// configuration to do so...
+
+	memset(logfont, 0, sizeof(LOGFONT));
+
+	const WORD lang_id = LOWORD(GetKeyboardLayout(0));
+	switch (PRIMARYLANGID(lang_id))
+	{
+	case LANG_CHINESE:
+		// We need to identify one of two Chinese fonts.
+		switch (SUBLANGID(lang_id))
+		{
+		case SUBLANG_CHINESE_SIMPLIFIED:
+		case SUBLANG_CHINESE_SINGAPORE:
+			logfont->lfCharSet = GB2312_CHARSET;
+			lstrcpy(logfont->lfFaceName, TEXT("SimHei"));
+			break;
+		case SUBLANG_CHINESE_TRADITIONAL:
+		case SUBLANG_CHINESE_HONGKONG:
+		case SUBLANG_CHINESE_MACAU:
+		default:
+			logfont->lfCharSet = CHINESEBIG5_CHARSET;
+			lstrcpy(logfont->lfFaceName, TEXT("MingLiU"));
+			break;			
+		}
+		break;
+	case LANG_JAPANESE:
+		logfont->lfCharSet = SHIFTJIS_CHARSET;
+		lstrcpy(logfont->lfFaceName, TEXT("MS Gothic"));
+		break;		
+	case LANG_KOREAN:
+		logfont->lfCharSet = HANGUL_CHARSET;
+		lstrcpy(logfont->lfFaceName, TEXT("Gulim"));
+		break;
+	default:
+		logfont->lfCharSet = ANSI_CHARSET;
+		lstrcpy(logfont->lfFaceName, TEXT("Tahoma"));
+		break;
+	}
+							
+	logfont->lfHeight = mPreeditor->getPreeditFontSize();
+	logfont->lfWeight = FW_NORMAL;
+}	
+
+U32 LLWindowWin32::fillReconvertString(const LLWString &text,
+	S32 focus, S32 focus_length, RECONVERTSTRING *reconvert_string)
+{
+	const llutf16string text_utf16 = wstring_to_utf16str(text);
+	const DWORD required_size = sizeof(RECONVERTSTRING) + (text_utf16.length() + 1) * sizeof(WCHAR);
+	if (reconvert_string && reconvert_string->dwSize >= required_size)
+	{
+		const DWORD focus_utf16_at = wstring_utf16_length(text, 0, focus);
+		const DWORD focus_utf16_length = wstring_utf16_length(text, focus, focus_length);
+
+		reconvert_string->dwVersion = 0;
+		reconvert_string->dwStrLen = text_utf16.length();
+		reconvert_string->dwStrOffset = sizeof(RECONVERTSTRING);
+		reconvert_string->dwCompStrLen = focus_utf16_length;
+		reconvert_string->dwCompStrOffset = focus_utf16_at * sizeof(WCHAR);
+		reconvert_string->dwTargetStrLen = 0;
+		reconvert_string->dwTargetStrOffset = focus_utf16_at * sizeof(WCHAR);
+
+		const LPWSTR text = (LPWSTR)((BYTE *)reconvert_string + sizeof(RECONVERTSTRING));
+		memcpy(text, text_utf16.c_str(), (text_utf16.length() + 1) * sizeof(WCHAR));
+	}
+	return required_size;
+}
+
+void LLWindowWin32::updateLanguageTextInputArea()
+{
+	if (!mPreeditor || !LLWinImm::isAvailable())
+	{
+		return;
+	}
+
+	LLCoordGL caret_coord;
+	LLRect preedit_bounds;
+	if (mPreeditor->getPreeditLocation(-1, &caret_coord, &preedit_bounds, NULL))
+	{
+		mLanguageTextInputPointGL = caret_coord;
+		mLanguageTextInputAreaGL = preedit_bounds;
+
+		CANDIDATEFORM candidate_form;
+		fillCandidateForm(caret_coord, preedit_bounds, &candidate_form);
+
+		HIMC himc = LLWinImm::getContext(mWindowHandle);
+		// Win32 document says there may be up to 4 candidate windows.
+		// This magic number 4 appears only in the document, and
+		// there are no constant/macro for the value...
+		for (int i = 3; i >= 0; --i)
+		{
+			candidate_form.dwIndex = i;
+			LLWinImm::setCandidateWindow(himc, &candidate_form);
+		}
+		LLWinImm::releaseContext(mWindowHandle, himc);
+	}
+}
+
+void LLWindowWin32::interruptLanguageTextInput()
+{
+	if (mPreeditor)
+	{
+		if (LLWinImm::isAvailable())
+		{
+			HIMC himc = LLWinImm::getContext(mWindowHandle);
+			LLWinImm::notifyIME(himc, NI_COMPOSITIONSTR, CPS_COMPLETE, 0);
+			LLWinImm::releaseContext(mWindowHandle, himc);
+		}
+		mPreeditor->resetPreedit();
+	}
+}
+
+void LLWindowWin32::handleStartCompositionMessage()
+{
+	// Let IME know the font to use in feedback UI.
+	LOGFONT logfont;
+	fillCompositionLogfont(&logfont);
+	HIMC himc = LLWinImm::getContext(mWindowHandle);
+	LLWinImm::setCompositionFont(himc, &logfont);
+	LLWinImm::releaseContext(mWindowHandle, himc);
+}
+
+// Handle WM_IME_COMPOSITION message.
+
+void LLWindowWin32::handleCompositionMessage(const U32 indexes)
+{
+	BOOL needs_update = FALSE;
+	LLWString result_string;
+	LLWString preedit_string;
+	S32 preedit_string_utf16_length = 0;
+	LLPreeditor::segment_lengths_t preedit_segment_lengths;
+	LLPreeditor::standouts_t preedit_standouts;
+
+	// Step I: Receive details of preedits from IME.
+
+	HIMC himc = LLWinImm::getContext(mWindowHandle);
+
+	if (indexes & GCS_RESULTSTR)
+	{
+		LONG size = LLWinImm::getCompositionString(himc, GCS_RESULTSTR, NULL, 0);
+		if (size >= 0)
+		{
+			const LPWSTR data = new WCHAR[size / sizeof(WCHAR) + 1];
+			size = LLWinImm::getCompositionString(himc, GCS_RESULTSTR, data, size);
+			if (size > 0)
+			{
+				result_string = utf16str_to_wstring(llutf16string(data, size / sizeof(WCHAR)));
+			}
+			delete[] data;
+			needs_update = TRUE;
+		}
+	}
+	
+	if (indexes & GCS_COMPSTR)
+	{
+		LONG size = LLWinImm::getCompositionString(himc, GCS_COMPSTR, NULL, 0);
+		if (size >= 0)
+		{
+			const LPWSTR data = new WCHAR[size / sizeof(WCHAR) + 1];
+			size = LLWinImm::getCompositionString(himc, GCS_COMPSTR, data, size);
+			if (size > 0)
+			{
+				preedit_string_utf16_length = size / sizeof(WCHAR);
+				preedit_string = utf16str_to_wstring(llutf16string(data, size / sizeof(WCHAR)));
+			}
+			delete[] data;
+			needs_update = TRUE;
+		}
+	}
+
+	if ((indexes & GCS_COMPCLAUSE) && preedit_string.length() > 0)
+	{
+		LONG size = LLWinImm::getCompositionString(himc, GCS_COMPCLAUSE, NULL, 0);
+		if (size > 0)
+		{
+			const LPDWORD data = new DWORD[size / sizeof(DWORD)];
+			size = LLWinImm::getCompositionString(himc, GCS_COMPCLAUSE, data, size);
+			if (size >= sizeof(DWORD) * 2
+				&& data[0] == 0 && data[size / sizeof(DWORD) - 1] == preedit_string_utf16_length)
+			{
+				preedit_segment_lengths.resize(size / sizeof(DWORD) - 1);
+				S32 offset = 0;
+				for (U32 i = 0; i < preedit_segment_lengths.size(); i++)
+				{
+					const S32 length = wstring_wstring_length_from_utf16_length(preedit_string, offset, data[i + 1] - data[i]);
+					preedit_segment_lengths[i] = length;
+					offset += length;
+				}
+			}
+			delete[] data;
+		}
+	}
+
+	if ((indexes & GCS_COMPATTR) && preedit_segment_lengths.size() > 1)
+	{
+		LONG size = LLWinImm::getCompositionString(himc, GCS_COMPATTR, NULL, 0);
+		if (size > 0)
+		{
+			const LPBYTE data = new BYTE[size / sizeof(BYTE)];
+			size = LLWinImm::getCompositionString(himc, GCS_COMPATTR, data, size);
+			if (size == preedit_string_utf16_length)
+			{
+				preedit_standouts.assign(preedit_segment_lengths.size(), FALSE);
+				S32 offset = 0;
+				for (U32 i = 0; i < preedit_segment_lengths.size(); i++)
+				{
+					if (ATTR_TARGET_CONVERTED == data[offset] || ATTR_TARGET_NOTCONVERTED == data[offset])
+					{
+						preedit_standouts[i] = TRUE;
+					}
+					offset += wstring_utf16_length(preedit_string, offset, preedit_segment_lengths[i]);
+				}
+			}
+			delete[] data;
+		}
+	}
+
+	S32 caret_position = preedit_string.length();
+	if (indexes & GCS_CURSORPOS)
+	{
+		const S32 caret_position_utf16 = LLWinImm::getCompositionString(himc, GCS_CURSORPOS, NULL, 0);
+		if (caret_position_utf16 >= 0 && caret_position <= preedit_string_utf16_length)
+		{
+			caret_position = wstring_wstring_length_from_utf16_length(preedit_string, 0, caret_position_utf16);
+		}
+	}
+
+	if (indexes == 0)
+	{
+		// I'm not sure this condition really happens, but
+		// Windows SDK document says it is an indication
+		// of "reset everything."
+		needs_update = TRUE;
+	}
+
+	LLWinImm::releaseContext(mWindowHandle, himc);
+
+	// Step II: Update the active preeditor.
+
+	if (needs_update)
+	{
+		mPreeditor->resetPreedit();
+
+		if (result_string.length() > 0)
+		{
+			for (LLWString::const_iterator i = result_string.begin(); i != result_string.end(); i++)
+			{
+				mPreeditor->handleUnicodeCharHere(*i, FALSE);
+			}
+		}
+
+		if (preedit_string.length() > 0)
+		{
+			if (preedit_segment_lengths.size() == 0)
+			{
+				preedit_segment_lengths.assign(1, preedit_string.length());
+			}
+			if (preedit_standouts.size() == 0)
+			{
+				preedit_standouts.assign(preedit_segment_lengths.size(), FALSE);
+			}
+			mPreeditor->updatePreedit(preedit_string, preedit_segment_lengths, preedit_standouts, caret_position);
+		}
+
+		// Some IME doesn't query char position after WM_IME_COMPOSITION,
+		// so we need to update them actively.
+		updateLanguageTextInputArea();
+	}
+}
+
+// Given a text and a focus range, find_context finds and returns a
+// surrounding context of the focused subtext.  A variable pointed
+// to by offset receives the offset in llwchars of the beginning of
+// the returned context string in the given wtext.
+
+static LLWString find_context(const LLWString & wtext, S32 focus, S32 focus_length, S32 *offset)
+{
+	static const S32 CONTEXT_EXCESS = 30;	// This value is by experiences.
+
+	const S32 e = llmin((S32) wtext.length(), focus + focus_length + CONTEXT_EXCESS);
+	S32 end = focus + focus_length;
+	while (end < e && '\n' != wtext[end])
+	{
+		end++;
+	}
+
+	const S32 s = llmax(0, focus - CONTEXT_EXCESS);
+	S32 start = focus;
+	while (start > s && '\n' != wtext[start - 1])
+	{
+		--start;
+	}
+
+	*offset = start;
+	return wtext.substr(start, end - start);
+}
+
+// Handle WM_IME_REQUEST message.
+// If it handled the message, returns TRUE.  Otherwise, FALSE.
+// When it handled the message, the value to be returned from
+// the Window Procedure is set to *result.
+
+BOOL LLWindowWin32::handleImeRequests(U32 request, U32 param, LRESULT *result)
+{
+	if ( mPreeditor )
+	{
+		switch (request)
+		{
+			case IMR_CANDIDATEWINDOW:		// http://msdn2.microsoft.com/en-us/library/ms776080.aspx
+			{
+				LLCoordGL caret_coord;
+				LLRect preedit_bounds;
+				mPreeditor->getPreeditLocation(-1, &caret_coord, &preedit_bounds, NULL);
+				
+				CANDIDATEFORM *const form = (CANDIDATEFORM *)param;
+				DWORD const dwIndex = form->dwIndex;
+				fillCandidateForm(caret_coord, preedit_bounds, form);
+				form->dwIndex = dwIndex;
+
+				*result = 1;
+				return TRUE;
+			}
+			case IMR_QUERYCHARPOSITION:
+			{
+				IMECHARPOSITION *const char_position = (IMECHARPOSITION *)param;
+
+				// char_position->dwCharPos counts in number of
+				// WCHARs, i.e., UTF-16 encoding units, so we can't simply pass the
+				// number to getPreeditLocation.  
+
+				const LLWString & wtext = mPreeditor->getWText();
+				S32 preedit, preedit_length;
+				mPreeditor->getPreeditRange(&preedit, &preedit_length);
+				LLCoordGL caret_coord;
+				LLRect preedit_bounds, text_control;
+				const S32 position = wstring_wstring_length_from_utf16_length(wtext, preedit, char_position->dwCharPos);
+
+				if (!mPreeditor->getPreeditLocation(position, &caret_coord, &preedit_bounds, &text_control))
+				{
+					llwarns << "*** IMR_QUERYCHARPOSITON called but getPreeditLocation failed." << llendl;
+					return FALSE;
+				}
+				fillCharPosition(caret_coord, preedit_bounds, text_control, char_position);
+
+				*result = 1;
+				return TRUE;
+			}
+			case IMR_COMPOSITIONFONT:
+			{
+				fillCompositionLogfont((LOGFONT *)param);
+
+				*result = 1;
+				return TRUE;
+			}
+			case IMR_RECONVERTSTRING:
+			{
+				mPreeditor->resetPreedit();
+				const LLWString & wtext = mPreeditor->getWText();
+				S32 select, select_length;
+				mPreeditor->getSelectionRange(&select, &select_length);
+
+				S32 context_offset;
+				const LLWString context = find_context(wtext, select, select_length, &context_offset);
+
+				RECONVERTSTRING * const reconvert_string = (RECONVERTSTRING *)param;
+				const U32 size = fillReconvertString(context, select - context_offset, select_length, reconvert_string);
+				if (reconvert_string)
+				{
+					if (select_length == 0)
+					{
+						// Let the IME to decide the reconversion range, and
+						// adjust the reconvert_string structure accordingly.
+						HIMC himc = LLWinImm::getContext(mWindowHandle);
+						const BOOL adjusted = LLWinImm::setCompositionString(himc,
+									SCS_QUERYRECONVERTSTRING, reconvert_string, size, NULL, 0);
+						LLWinImm::releaseContext(mWindowHandle, himc);
+						if (adjusted)
+						{
+							const llutf16string & text_utf16 = wstring_to_utf16str(context);
+							const S32 new_preedit_start = reconvert_string->dwCompStrOffset / sizeof(WCHAR);
+							const S32 new_preedit_end = new_preedit_start + reconvert_string->dwCompStrLen;
+							select = utf16str_wstring_length(text_utf16, new_preedit_start);
+							select_length = utf16str_wstring_length(text_utf16, new_preedit_end) - select;
+							select += context_offset;
+						}
+					}
+					mPreeditor->markAsPreedit(select, select_length);
+				}
+
+				*result = size;
+				return TRUE;
+			}
+			case IMR_CONFIRMRECONVERTSTRING:
+			{
+				*result = FALSE;
+				return TRUE;
+			}
+			case IMR_DOCUMENTFEED:
+			{
+				const LLWString & wtext = mPreeditor->getWText();
+				S32 preedit, preedit_length;
+				mPreeditor->getPreeditRange(&preedit, &preedit_length);
+				
+				S32 context_offset;
+				LLWString context = find_context(wtext, preedit, preedit_length, &context_offset);
+				preedit -= context_offset;
+				if (preedit_length)
+				{
+					// IMR_DOCUMENTFEED may be called when we have an active preedit.
+					// We should pass the context string *excluding* the preedit string.
+					// Otherwise, some IME are confused.
+					context.erase(preedit, preedit_length);
+				}
+				
+				RECONVERTSTRING *reconvert_string = (RECONVERTSTRING *)param;
+				*result = fillReconvertString(context, preedit, 0, reconvert_string);
+				return TRUE;
+			}
+			default:
+				return FALSE;
+		}
+	}
+
+	return FALSE;
+}
+
 
 #endif // LL_WINDOWS

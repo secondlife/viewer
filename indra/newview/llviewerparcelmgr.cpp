@@ -66,6 +66,7 @@
 #include "llworld.h"
 #include "lloverlaybar.h"
 #include "roles_constants.h"
+#include "llweb.h"
 
 const F32 PARCEL_COLLISION_DRAW_SECS = 1.f;
 
@@ -1720,6 +1721,10 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 				std::string mediaUrl = std::string ( parcel->getMediaURL () );
 				LLString::trim(mediaUrl);
 
+				// clean spaces and whatnot 
+				mediaUrl = LLWeb::escapeURL(mediaUrl);
+
+				
 				// something changed
 				LLMediaEngine* me = LLMediaEngine::getInstance();
 				if (  ( me->getUrl () != mediaUrl )
@@ -1837,6 +1842,10 @@ void prepare_video(const LLParcel *parcel)
 	{
 		mediaUrl = std::string ( parcel->getMediaURL () );
 	}
+
+	// clean spaces and whatnot 
+	mediaUrl = LLWeb::escapeURL(mediaUrl);
+	
 	LLMediaEngine::getInstance ()->setUrl ( mediaUrl );
 	LLMediaEngine::getInstance ()->setImageUUID ( parcel->getMediaID () );
 	LLMediaEngine::getInstance ()->setAutoScaled ( parcel->getMediaAutoScale () ? TRUE : FALSE );  // (U8 instead of BOOL for future expansion)

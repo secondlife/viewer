@@ -3681,7 +3681,7 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 	// SL-51858: Key presses are not being passed to the Popup menu.
 	// A proper fix is non-trivial so instead just close the menu.
 	LLMenuGL* menu = (LLMenuGL*)LLView::getViewByHandle(mPopupMenuHandle);
-	if (menu->isOpen())
+	if (menu && menu->isOpen())
 	{
 		LLMenuGL::sMenuContainer->hideMenus();
 	}
@@ -3921,6 +3921,14 @@ BOOL LLFolderView::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_pare
 	BOOL handled = FALSE;
 	if (gFocusMgr.childHasKeyboardFocus(getRoot()))
 	{
+		// SL-51858: Key presses are not being passed to the Popup menu.
+		// A proper fix is non-trivial so instead just close the menu.
+		LLMenuGL* menu = (LLMenuGL*)LLView::getViewByHandle(mPopupMenuHandle);
+		if (menu && menu->isOpen())
+		{
+			LLMenuGL::sMenuContainer->hideMenus();
+		}
+
 		//do text search
 		if (mSearchTimer.getElapsedTimeF32() > gSavedSettings.getF32("TypeAheadTimeout"))
 		{

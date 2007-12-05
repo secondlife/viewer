@@ -2719,6 +2719,7 @@ void LLCallingCardBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 						  && (LLUUID::null != item->getCreatorUUID())
 						  && (item->getCreatorUUID() != gAgent.getID()));
 		BOOL user_online = (LLAvatarTracker::instance().isBuddyOnline(item->getCreatorUUID()));
+		items.push_back("Send Instant Message Separator");
 		items.push_back("Send Instant Message");
 		items.push_back("Offer Teleport...");
 		items.push_back("Conference Chat");
@@ -4294,21 +4295,24 @@ void LLWearableBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		getClipboardEntries(true, items, disabled_items, flags);
 
 		items.push_back("Wearable Separator");
+		
 		items.push_back("Wearable Wear");
 		items.push_back("Wearable Edit");
+
+
 		if ((flags & FIRST_SELECTED_ITEM) == 0)
 		{
 			disabled_items.push_back("Wearable Edit");
 		}
-		/*menu.appendSeparator();
-		menu.append(new LLMenuItemCallGL("Wear",
-										 LLWearableBridge::onWearOnAvatar,
-										 LLWearableBridge::canWearOnAvatar,
-										 (void*)this));
-		menu.append(new LLMenuItemCallGL("Edit",
-										 LLWearableBridge::onEditOnAvatar,
-										 LLWearableBridge::canEditOnAvatar,
-										 (void*)this));*/
+		//menu.appendSeparator();
+		//menu.append(new LLMenuItemCallGL("Wear",
+		//								 LLWearableBridge::onWearOnAvatar,
+		//								 LLWearableBridge::canWearOnAvatar,
+		//								 (void*)this));
+		//menu.append(new LLMenuItemCallGL("Edit",
+		//								 LLWearableBridge::onEditOnAvatar,
+		//								 LLWearableBridge::canEditOnAvatar,
+		//								 (void*)this));
 
 		if( item && (item->getType() == LLAssetType::AT_CLOTHING) )
 		{

@@ -82,7 +82,8 @@ public:
 	static ETrackingLocationType getTrackedLocationType() { return instance()->mTrackingLocationType; }
 	static BOOL isTracking(void*) { return (BOOL) instance()->mTrackingStatus; }
 	static void stopTracking(void*);
-
+	static void clearFocus();
+	
 	static const LLUUID& getTrackedLandmarkAssetID() { return instance()->mTrackedLandmarkAssetID; }
 	static const LLUUID& getTrackedLandmarkItemID()	 { return instance()->mTrackedLandmarkItemID; }
 

@@ -54,7 +54,8 @@ public:
 					  const LLUUID& asset_id = LLUUID::null,
 					  BOOL show_keep_discard = FALSE,
 					  LLPointer<LLViewerInventoryItem> inv_item = NULL);
-
+	virtual ~LLPreviewNotecard();
+	
 	// llpreview	
 	virtual bool saveItem(LLPointer<LLInventoryItem>* itemptr);
 
@@ -101,6 +102,8 @@ protected:
 							   S32 status, LLExtStat ext_status);
 
 	static void handleSaveChangesDialog(S32 option, void* userdata);
+
+	virtual const char *getTitleName() const { return "Note"; }
 
 protected:
 	LLViewerTextEditor* mEditor;

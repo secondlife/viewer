@@ -174,6 +174,10 @@ public:
 	static void setLineWidth(F32 width);
 	static LLUUID findAssetUUIDByName(const LLString&	name);
 	static LLVector2 getWindowSize();
+	static void screenPointToGL(S32 screen_x, S32 screen_y, S32 *gl_x, S32 *gl_y);
+	static void glPointToScreen(S32 gl_x, S32 gl_y, S32 *screen_x, S32 *screen_y);
+	static void screenRectToGL(const LLRect& screen, LLRect *gl);
+	static void glRectToScreen(const LLRect& gl, LLRect *screen);
 	static void setHtmlHelp(LLHtmlHelp* html_help);
 
 private:

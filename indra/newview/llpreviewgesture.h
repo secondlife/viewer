@@ -137,6 +137,8 @@ protected:
 
 	static void onDonePreview(LLMultiGesture* gesture, void* data);
 
+	virtual const char *getTitleName() const { return "Gesture"; }
+
 protected:
 	// LLPreview contains mDescEditor
 	LLLineEditor*	mTriggerEditor;

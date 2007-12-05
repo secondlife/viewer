@@ -53,6 +53,8 @@
 #include "lluistring.h"
 #include "llviewborder.h"
 
+#include "llpreeditor.h"
+
 class LLFontGL;
 class LLLineEditorRollback;
 class LLButton;
@@ -63,7 +65,7 @@ typedef BOOL (*LLLinePrevalidateFunc)(const LLWString &wstr);
 // Classes
 //
 class LLLineEditor
-: public LLUICtrl, public LLEditMenuHandler
+: public LLUICtrl, public LLEditMenuHandler, protected LLPreeditor
 {
 	friend class LLLineEditorRollback;
 
@@ -120,6 +122,7 @@ public:
 	// view overrides
 	virtual void	draw();
 	virtual void	reshape(S32 width,S32 height,BOOL called_from_parent=TRUE);
+	virtual void	onFocusReceived();
 	virtual void	onFocusLost();
 	virtual void	setEnabled(BOOL enabled);
 
@@ -146,7 +149,7 @@ public:
 	const LLWString& getWText() const	{ return mText.getWString(); }
 	S32				getLength() const	{ return mText.length(); }
 
-	S32				getCursor()		{ return mCursorPos; }
+	S32				getCursor()	const	{ return mCursorPos; }
 	void			setCursor( S32 pos );
 	void			setCursorToEnd();
 
@@ -177,13 +180,13 @@ public:
 	void			setIgnoreTab(BOOL b)			{ mIgnoreTab = b; }
 	void			setPassDelete(BOOL b)			{ mPassDelete = b; }
 
-	void			setDrawAsterixes(BOOL b)		{ mDrawAsterixes = b; }
+	void			setDrawAsterixes(BOOL b);
 
 	// get the cursor position of the beginning/end of the prev/next word in the text
 	S32				prevWordPos(S32 cursorPos) const;
 	S32				nextWordPos(S32 cursorPos) const;
 
-	BOOL			hasSelection() { return (mSelectionStart != mSelectionEnd); }
+	BOOL			hasSelection() const { return (mSelectionStart != mSelectionEnd); }
 	void			startSelection();
 	void			endSelection();
 	void			extendSelection(S32 new_cursor_pos);
@@ -199,7 +202,7 @@ public:
 
 	static BOOL		isPartOfWord(llwchar c);
 	// Prevalidation controls which keystrokes can affect the editor
-	void			setPrevalidate( BOOL (*func)(const LLWString &) ) { mPrevalidateFunc = func; }
+	void			setPrevalidate( BOOL (*func)(const LLWString &) );
 	static BOOL		prevalidateFloat(const LLWString &str );
 	static BOOL		prevalidateInt(const LLWString &str );
 	static BOOL		prevalidatePositiveS32(const LLWString &str);
@@ -221,13 +224,26 @@ protected:
 	void			addChar(const llwchar c);
 	void			setCursorAtLocalPos(S32 local_mouse_x);
 
-	S32				findPixelNearestPos(S32 cursor_offset = 0);
+	S32				findPixelNearestPos(S32 cursor_offset = 0) const;
 	void			reportBadKeystroke();
 
 	BOOL			handleSpecialKey(KEY key, MASK mask);
 	BOOL			handleSelectionKey(KEY key, MASK mask);
 	BOOL			handleControlKey(KEY key, MASK mask);
 	S32				handleCommitKey(KEY key, MASK mask);
+
+protected:
+	void			updateAllowingLanguageInput();
+	BOOL			hasPreeditString() const;
+	// Implementation (overrides) of LLPreeditor
+	virtual void	resetPreedit();
+	virtual void	updatePreedit(const LLWString &preedit_string,
+						const segment_lengths_t &preedit_segment_lengths, const standouts_t &preedit_standouts, S32 caret_position);
+	virtual void	markAsPreedit(S32 position, S32 length);
+	virtual void	getPreeditRange(S32 *position, S32 *length) const;
+	virtual void	getSelectionRange(S32 *position, S32 *length) const;
+	virtual BOOL	getPreeditLocation(S32 query_position, LLCoordGL *coord, LLRect *bounds, LLRect *control) const;
+	virtual S32		getPreeditFontSize() const;
 
 protected:
 	LLUIString		mText;					// The string being edited.
@@ -241,8 +257,7 @@ protected:
 
 	LLViewBorder* mBorder;
 	const LLFontGL*	mGLFont;
-	S32			mMaxLengthChars;			// Max number of characters
-	S32			mMaxLengthBytes;			// Max length of the UTF8 string.
+	S32			mMaxLengthBytes;			// Max length of the UTF8 string in bytes
 	S32			mCursorPos;					// I-beam is just after the mCursorPos-th character.
 	S32			mScrollHPos;				// Horizontal offset from the start of mText.  Used for scrolling.
 	LLFrameTimer mScrollTimer;
@@ -288,6 +303,11 @@ protected:
 	BOOL		mPassDelete;
 
 	BOOL		mReadOnly;
+
+	LLWString	mPreeditWString;
+	LLWString	mPreeditOverwrittenWString;
+	std::vector<S32> mPreeditPositions;
+	LLPreeditor::standouts_t mPreeditStandouts;
 };
 
 

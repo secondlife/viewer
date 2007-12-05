@@ -38,6 +38,7 @@
 #include "lluuid.h"
 #include "llviewerinventory.h"
 #include "lltabcontainer.h"
+#include "llinventorymodel.h"
 #include <map>
 
 class LLLineEditor;
@@ -61,7 +62,7 @@ protected:
 	static std::map<LLUUID, LLViewHandle> sAutoOpenPreviewHandles;
 };
 
-class LLPreview : public LLFloater
+class LLPreview : public LLFloater, LLInventoryObserver
 {
 public:
 	typedef enum e_asset_status
@@ -116,6 +117,10 @@ public:
 	void setNotecardInfo(const LLUUID& notecard_inv_id, const LLUUID& object_id)
 	{ mNotecardInventoryID = notecard_inv_id; mObjectID = object_id; }
 
+	// llview
+	virtual void draw();
+	void refreshFromItem(const LLInventoryItem* item);
+	
 protected:
 	virtual void onCommit();
 
@@ -124,7 +129,11 @@ protected:
 	static void onText(LLUICtrl*, void* userdata);
 	static void onRadio(LLUICtrl*, void* userdata);
 	
-
+	// for LLInventoryObserver 
+	virtual void changed(U32 mask);	
+	BOOL mDirty;
+	virtual const char *getTitleName() const { return "Preview"; }
+	
 protected:
 	LLUUID mItemUUID;
 	LLUUID	mSourceID;

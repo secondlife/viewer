@@ -41,6 +41,7 @@
 #define BUFSIZE 8192
 
 int  gTotalBytesRead = 0;
+DWORD gTotalBytes = -1;
 HWND gWindow = NULL;
 WCHAR gProgress[256];
 char* gUpdateURL;
@@ -129,6 +130,9 @@ int WINAPI get_url_into_file(WCHAR *uri, char *path, int *cancelled)
 		return success;
 	}
 
+	DWORD sizeof_total_bytes = sizeof(gTotalBytes);
+	HttpQueryInfo(hdownload, HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER, &gTotalBytes, &sizeof_total_bytes, NULL);
+	
 	DWORD total_bytes = 0;
 	success = InternetQueryDataAvailable(hdownload, &total_bytes, 0, 0);
 	if (success == FALSE)
@@ -187,7 +191,11 @@ int WINAPI get_url_into_file(WCHAR *uri, char *path, int *cancelled)
 
 			gTotalBytesRead += int(bytes_read);
 
-			wsprintf(gProgress, L"Downloaded: %dK", gTotalBytesRead / 1024);
+			if (gTotalBytes != -1)
+				wsprintf(gProgress, L"Downloaded: %d%%", 100 * gTotalBytesRead / gTotalBytes);
+			else
+				wsprintf(gProgress, L"Downloaded: %dK", gTotalBytesRead / 1024);
+
 		}
 
 #if _DEBUG

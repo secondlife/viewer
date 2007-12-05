@@ -3994,7 +3994,11 @@ void LLSelectMgr::sendListToRegions(const LLString& message_name,
 	switch(send_type)
 	{
 	  case SEND_ONLY_ROOTS:
-		getSelection()->applyToRootNodes(&pusheditable);
+		  if(message_name == "ObjectBuy")
+			getSelection()->applyToRootNodes(&pushroots);
+		  else
+			getSelection()->applyToRootNodes(&pusheditable);
+		  
 		break;
 	  case SEND_INDIVIDUALS:
 		getSelection()->applyToNodes(&pushall);
@@ -6062,23 +6066,19 @@ LLViewerObject* LLObjectSelection::getFirstDeleteableObject()
 		bool apply(LLSelectNode* node)
 		{
 			LLViewerObject* obj = node->getObject();
-			// you can delete an object if permissions allow it, you are
-			// the owner, you are an officer in the group that owns the
-			// object, or you are not the owner but it is on land you own
-			// or land owned by your group. (whew!)
+			// you can delete an object if you are the owner
+			// or you have permission to modify it.
 			if(    (obj->permModify()) 
 				|| (obj->permYouOwner())
 				|| (!obj->permAnyOwner())			// public
-				|| (obj->isOverAgentOwnedLand())
-				|| (obj->isOverGroupOwnedLand())
 				)
 			{
 				if( !obj->isAttachment() )
 				{
-					return TRUE;
+					return true;
 				}
 			}
-			return true;
+			return false;
 		}
 	} func;
 	LLSelectNode* node = getFirstNode(&func);

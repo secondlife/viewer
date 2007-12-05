@@ -72,6 +72,15 @@ const S32   SCROLL_INCREMENT_DEL = 4;	// make space for baskspacing
 const F32   AUTO_SCROLL_TIME = 0.05f;
 const F32	LABEL_HPAD = 5.f;
 
+const F32	PREEDIT_MARKER_BRIGHTNESS = 0.4f;
+const S32	PREEDIT_MARKER_GAP = 1;
+const S32	PREEDIT_MARKER_POSITION = 2;
+const S32	PREEDIT_MARKER_THICKNESS = 1;
+const F32	PREEDIT_STANDOUT_BRIGHTNESS = 0.6f;
+const S32	PREEDIT_STANDOUT_GAP = 1;
+const S32	PREEDIT_STANDOUT_POSITION = 2;
+const S32	PREEDIT_STANDOUT_THICKNESS = 2;
+
 // This is a friend class of and is only used by LLLineEditor
 class LLLineEditorRollback
 {
@@ -127,7 +136,6 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 						   S32 border_thickness)
 	:
 		LLUICtrl( name, rect, TRUE, commit_callback, userdata, FOLLOWS_TOP | FOLLOWS_LEFT ),
-		mMaxLengthChars(max_length_bytes),
 		mMaxLengthBytes(max_length_bytes),
 		mCursorPos( 0 ),
 		mScrollHPos( 0 ),
@@ -223,12 +231,19 @@ LLString LLLineEditor::getWidgetTag() const
 	return LL_LINE_EDITOR_TAG;
 }
 
+void LLLineEditor::onFocusReceived()
+{
+	LLUICtrl::onFocusReceived();
+	updateAllowingLanguageInput();
+}
+
 void LLLineEditor::onFocusLost()
 {
-	// Need to notify early when loosing focus.
-	getWindow()->allowLanguageTextInput(FALSE);
-
-	LLUICtrl::onFocusLost();
+	// The call to updateAllowLanguageInput()
+	// when loosing the keyboard focus *may*
+	// indirectly invoke handleUnicodeCharHere(), 
+	// so it must be called before onCommit.
+	updateAllowingLanguageInput();
 
 	if( mCommitOnFocusLost && mText.getString() != mPrevText) 
 	{
@@ -241,6 +256,8 @@ void LLLineEditor::onFocusLost()
 	}
 
 	getWindow()->showCursorFromMouseMove();
+
+	LLUICtrl::onFocusLost();
 }
 
 void LLLineEditor::onCommit()
@@ -301,6 +318,7 @@ void LLLineEditor::setEnabled(BOOL enabled)
 {
 	mReadOnly = !enabled;
 	setTabStop(!mReadOnly);
+	updateAllowingLanguageInput();
 }
 
 
@@ -308,7 +326,6 @@ void LLLineEditor::setMaxTextLength(S32 max_text_length)
 {
 	S32 max_len = llmax(0, max_text_length);
 	mMaxLengthBytes = max_len;
-	mMaxLengthChars = max_len;
 } 
 
 void LLLineEditor::setBorderWidth(S32 left, S32 right)
@@ -337,13 +354,13 @@ void LLLineEditor::setText(const LLStringExplicit &new_text)
 	BOOL allSelected = (len > 0) && (( mSelectionStart == 0 && mSelectionEnd == len ) 
 		|| ( mSelectionStart == len && mSelectionEnd == 0 ));
 
+	// Do safe truncation so we don't split multi-byte characters
 	LLString truncated_utf8 = new_text;
 	if (truncated_utf8.size() > (U32)mMaxLengthBytes)
-	{
-		utf8str_truncate(truncated_utf8, mMaxLengthBytes);
+	{	
+		truncated_utf8 = utf8str_truncate(new_text, mMaxLengthBytes);
 	}
 	mText.assign(truncated_utf8);
-	mText.truncate(mMaxLengthChars);
 
 	if (allSelected)
 	{
@@ -735,17 +752,12 @@ void LLLineEditor::addChar(const llwchar uni_char)
 		mText.erase(getCursor(), 1);
 	}
 
-	S32 length_chars = mText.length();
-	S32 cur_bytes = mText.getString().size();;
+	S32 cur_bytes = mText.getString().size();
 	S32 new_bytes = wchar_utf8_length(new_c);
 
 	BOOL allow_char = TRUE;
 
-	// Inserting character
-	if (length_chars == mMaxLengthChars)
-	{
-		allow_char = FALSE;
-	}
+	// Check byte length limit
 	if ((new_bytes + cur_bytes) > mMaxLengthBytes)
 	{
 		allow_char = FALSE;
@@ -792,6 +804,12 @@ void LLLineEditor::setSelection(S32 start, S32 end)
 	mSelectionStart = llclamp(end, 0, len);
 	mSelectionEnd = llclamp(start, 0, len);
 	setCursor(start);
+}
+
+void LLLineEditor::setDrawAsterixes(BOOL b)
+{
+	mDrawAsterixes = b;
+	updateAllowingLanguageInput();
 }
 
 S32 LLLineEditor::prevWordPos(S32 cursorPos) const
@@ -1022,13 +1040,11 @@ void LLLineEditor::paste()
 
 			// Insert the string
 
-			//check to see that the size isn't going to be larger than the
-			//max number of characters or bytes
+			// Check to see that the size isn't going to be larger than the max number of bytes
 			U32 available_bytes = mMaxLengthBytes - wstring_utf8_length(mText);
-			size_t available_chars = mMaxLengthChars - mText.length();
 
 			if ( available_bytes < (U32) wstring_utf8_length(clean_string) )
-			{
+			{	// Doesn't all fit
 				llwchar current_symbol = clean_string[0];
 				U32 wchars_that_fit = 0;
 				U32 total_bytes = wchar_utf8_length(current_symbol);
@@ -1043,20 +1059,13 @@ void LLLineEditor::paste()
 					current_symbol = clean_string[++wchars_that_fit];
 					total_bytes += wchar_utf8_length(current_symbol);
 				}
-
+				// Truncate the clean string at the limit of what will fit
 				clean_string = clean_string.substr(0, wchars_that_fit);
-				reportBadKeystroke();
-			}
-			else if (available_chars < clean_string.length())
-			{
-				// We can't insert all the characters.  Insert as many as possible
-				// but make a noise to alert the user. JC
-				clean_string = clean_string.substr(0, available_chars);
 				reportBadKeystroke();
 			}
 
 			mText.insert(getCursor(), clean_string);
-			setCursor(llmin(mMaxLengthChars, getCursor() + (S32)clean_string.length()));
+			setCursor( getCursor() + (S32)clean_string.length() );
 			deselect();
 
 			// Validate new string and rollback the if needed.
@@ -1523,6 +1532,41 @@ void LLLineEditor::draw()
 	}
 	LLColor4 label_color = mTentativeFgColor;
 
+	if (hasPreeditString())
+	{
+		// Draw preedit markers.  This needs to be before drawing letters.
+		for (U32 i = 0; i < mPreeditStandouts.size(); i++)
+		{
+			const S32 preedit_left = mPreeditPositions[i];
+			const S32 preedit_right = mPreeditPositions[i + 1];
+			if (preedit_right > mScrollHPos)
+			{
+				S32 preedit_pixels_left = findPixelNearestPos(llmax(preedit_left, mScrollHPos) - getCursor());
+				S32 preedit_pixels_right = llmin(findPixelNearestPos(preedit_right - getCursor()), background.mRight);
+				if (preedit_pixels_left >= background.mRight)
+				{
+					break;
+				}
+				if (mPreeditStandouts[i])
+				{
+					gl_rect_2d(preedit_pixels_left + PREEDIT_STANDOUT_GAP,
+						background.mBottom + PREEDIT_STANDOUT_POSITION,
+						preedit_pixels_right - PREEDIT_STANDOUT_GAP - 1,
+						background.mBottom + PREEDIT_STANDOUT_POSITION - PREEDIT_STANDOUT_THICKNESS,
+						(text_color * PREEDIT_STANDOUT_BRIGHTNESS + bg_color * (1 - PREEDIT_STANDOUT_BRIGHTNESS)).setAlpha(1.0f));
+				}
+				else
+				{
+					gl_rect_2d(preedit_pixels_left + PREEDIT_MARKER_GAP,
+						background.mBottom + PREEDIT_MARKER_POSITION,
+						preedit_pixels_right - PREEDIT_MARKER_GAP - 1,
+						background.mBottom + PREEDIT_MARKER_POSITION - PREEDIT_MARKER_THICKNESS,
+						(text_color * PREEDIT_MARKER_BRIGHTNESS + bg_color * (1 - PREEDIT_MARKER_BRIGHTNESS)).setAlpha(1.0f));
+				}
+			}
+		}
+	}
+
 	S32 rendered_text = 0;
 	F32 rendered_pixels_right = (F32)mMinHPixels;
 	F32 text_bottom = (F32)background.mBottom + (F32)UI_LINEEDITOR_V_PAD;
@@ -1677,7 +1721,7 @@ void LLLineEditor::draw()
 
 
 // Returns the local screen space X coordinate associated with the text cursor position.
-S32 LLLineEditor::findPixelNearestPos(const S32 cursor_offset)
+S32 LLLineEditor::findPixelNearestPos(const S32 cursor_offset) const
 {
 	S32 dpos = getCursor() - mScrollHPos + cursor_offset;
 	S32 result = mGLFont->getWidth(mText.getWString().c_str(), mScrollHPos, dpos) + mMinHPixels;
@@ -1715,7 +1759,7 @@ void LLLineEditor::setFocus( BOOL new_state )
 
 	if (!new_state)
 	{
-		getWindow()->allowLanguageTextInput(FALSE);
+		getWindow()->allowLanguageTextInput(this, FALSE);
 	}
 
 
@@ -1757,7 +1801,7 @@ void LLLineEditor::setFocus( BOOL new_state )
 		// fine on 1.15.0.2, since all prevalidate func reject any
 		// non-ASCII characters.  I'm not sure on future versions,
 		// however.
-		getWindow()->allowLanguageTextInput(mPrevalidateFunc == NULL);
+		getWindow()->allowLanguageTextInput(this, mPrevalidateFunc == NULL);
 	}
 }
 
@@ -1774,6 +1818,12 @@ void LLLineEditor::setRect(const LLRect& rect)
 				rect.getWidth()-1, rect.getHeight()-1);
 		mBorder->setRect(border_rect);
 	}
+}
+
+void LLLineEditor::setPrevalidate(BOOL (*func)(const LLWString &))
+{
+	mPrevalidateFunc = func;
+	updateAllowingLanguageInput();
 }
 
 // Limits what characters can be used to [1234567890.-] with [-] only valid in the first position.
@@ -2335,6 +2385,239 @@ BOOL LLLineEditor::setLabelArg( const LLString& key, const LLStringExplicit& tex
 	mLabel.setArg(key, text);
 	return TRUE;
 }
+
+
+void LLLineEditor::updateAllowingLanguageInput()
+{
+	// Allow Language Text Input only when this LineEditor has
+	// no prevalidate function attached (as long as other criteria
+	// common to LLTextEditor).  This criterion works
+	// fine on 1.15.0.2, since all prevalidate func reject any
+	// non-ASCII characters.  I'm not sure on future versions,
+	// however...
+	if (hasFocus() && !mReadOnly && !mDrawAsterixes && mPrevalidateFunc == NULL)
+	{
+		getWindow()->allowLanguageTextInput(this, TRUE);
+	}
+	else
+	{
+		getWindow()->allowLanguageTextInput(this, FALSE);
+	}
+}
+
+BOOL LLLineEditor::hasPreeditString() const
+{
+	return (mPreeditPositions.size() > 1);
+}
+
+void LLLineEditor::resetPreedit()
+{
+	if (hasPreeditString())
+	{
+		const S32 preedit_pos = mPreeditPositions.front();
+		mText.erase(preedit_pos, mPreeditPositions.back() - preedit_pos);
+		mText.insert(preedit_pos, mPreeditOverwrittenWString);
+		setCursor(preedit_pos);
+		
+		mPreeditWString.clear();
+		mPreeditOverwrittenWString.clear();
+		mPreeditPositions.clear();
+
+		mKeystrokeTimer.reset();
+		if (mKeystrokeCallback)
+		{
+			mKeystrokeCallback(this, mCallbackUserData);
+		}
+	}
+}
+
+void LLLineEditor::updatePreedit(const LLWString &preedit_string,
+		const segment_lengths_t &preedit_segment_lengths, const standouts_t &preedit_standouts, S32 caret_position)
+{
+	// Just in case.
+	if (mReadOnly)
+	{
+		return;
+	}
+
+	if (hasSelection())
+	{
+		if (hasPreeditString())
+		{
+			llwarns << "Preedit and selection!" << llendl;
+			deselect();
+		}
+		else
+		{
+			deleteSelection();
+		}
+	}
+
+	S32 insert_preedit_at = getCursor();
+	if (hasPreeditString())
+	{
+		insert_preedit_at = mPreeditPositions.front();
+		//mText.replace(insert_preedit_at, mPreeditPositions.back() - insert_preedit_at, mPreeditOverwrittenWString);
+		mText.erase(insert_preedit_at, mPreeditPositions.back() - insert_preedit_at);
+		mText.insert(insert_preedit_at, mPreeditOverwrittenWString);
+	}
+
+	mPreeditWString = preedit_string;
+	mPreeditPositions.resize(preedit_segment_lengths.size() + 1);
+	S32 position = insert_preedit_at;
+	for (segment_lengths_t::size_type i = 0; i < preedit_segment_lengths.size(); i++)
+	{
+		mPreeditPositions[i] = position;
+		position += preedit_segment_lengths[i];
+	}
+	mPreeditPositions.back() = position;
+	if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode())
+	{
+		mPreeditOverwrittenWString.assign( LLWString( mText, insert_preedit_at, mPreeditWString.length() ) );
+		mText.erase(insert_preedit_at, mPreeditWString.length());
+	}
+	else
+	{
+		mPreeditOverwrittenWString.clear();
+	}
+	mText.insert(insert_preedit_at, mPreeditWString);
+
+	mPreeditStandouts = preedit_standouts;
+
+	setCursor(position);
+	setCursor(mPreeditPositions.front() + caret_position);
+
+	// Update of the preedit should be caused by some key strokes.
+	mKeystrokeTimer.reset();
+	if( mKeystrokeCallback )
+	{
+		mKeystrokeCallback( this, mCallbackUserData );
+	}
+}
+
+BOOL LLLineEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect *bounds, LLRect *control) const
+{
+	if (control)
+	{
+		LLRect control_rect_screen;
+		localRectToScreen(mRect, &control_rect_screen);
+		LLUI::screenRectToGL(control_rect_screen, control);
+	}
+
+	S32 preedit_left_column, preedit_right_column;
+	if (hasPreeditString())
+	{
+		preedit_left_column = mPreeditPositions.front();
+		preedit_right_column = mPreeditPositions.back();
+	}
+	else
+	{
+		preedit_left_column = preedit_right_column = getCursor();
+	}
+	if (preedit_right_column < mScrollHPos)
+	{
+		// This should not occure...
+		return FALSE;
+	}
+
+	const S32 query = (query_offset >= 0 ? preedit_left_column + query_offset : getCursor());
+	if (query < mScrollHPos || query < preedit_left_column || query > preedit_right_column)
+	{
+		return FALSE;
+	}
+
+	if (coord)
+	{
+		S32 query_local = findPixelNearestPos(query - getCursor());
+		S32 query_screen_x, query_screen_y;
+		localPointToScreen(query_local, mRect.getHeight() / 2, &query_screen_x, &query_screen_y);
+		LLUI::screenPointToGL(query_screen_x, query_screen_y, &coord->mX, &coord->mY);
+	}
+
+	if (bounds)
+	{
+		S32 preedit_left_local = findPixelNearestPos(llmax(preedit_left_column, mScrollHPos) - getCursor());
+		S32 preedit_right_local = llmin(findPixelNearestPos(preedit_right_column - getCursor()), mRect.getWidth() - mBorderThickness);
+		if (preedit_left_local > preedit_right_local)
+		{
+			// Is this condition possible?
+			preedit_right_local = preedit_left_local;
+		}
+
+		LLRect preedit_rect_local(preedit_left_local, mRect.getHeight(), preedit_right_local, 0);
+		LLRect preedit_rect_screen;
+		localRectToScreen(preedit_rect_local, &preedit_rect_screen);
+		LLUI::screenRectToGL(preedit_rect_screen, bounds);
+	}
+
+	return TRUE;
+}
+
+void LLLineEditor::getPreeditRange(S32 *position, S32 *length) const
+{
+	if (hasPreeditString())
+	{
+		*position = mPreeditPositions.front();
+		*length = mPreeditPositions.back() - mPreeditPositions.front();
+	}
+	else
+	{
+		*position = mCursorPos;
+		*length = 0;
+	}
+}
+
+void LLLineEditor::getSelectionRange(S32 *position, S32 *length) const
+{
+	if (hasSelection())
+	{
+		*position = llmin(mSelectionStart, mSelectionEnd);
+		*length = llabs(mSelectionStart - mSelectionEnd);
+	}
+	else
+	{
+		*position = mCursorPos;
+		*length = 0;
+	}
+}
+
+void LLLineEditor::markAsPreedit(S32 position, S32 length)
+{
+	deselect();
+	setCursor(position);
+	if (hasPreeditString())
+	{
+		llwarns << "markAsPreedit invoked when hasPreeditString is true." << llendl;
+	}
+	mPreeditWString.assign( LLWString( mText.getWString(), position, length ) );
+	if (length > 0)
+	{
+		mPreeditPositions.resize(2);
+		mPreeditPositions[0] = position;
+		mPreeditPositions[1] = position + length;
+		mPreeditStandouts.resize(1);
+		mPreeditStandouts[0] = FALSE;
+	}
+	else
+	{
+		mPreeditPositions.clear();
+		mPreeditStandouts.clear();
+	}
+	if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode())
+	{
+		mPreeditOverwrittenWString = mPreeditWString;
+	}
+	else
+	{
+		mPreeditOverwrittenWString.clear();
+	}
+}
+
+S32 LLLineEditor::getPreeditFontSize() const
+{
+	return llround(mGLFont->getLineHeight() * LLUI::sGLScaleFactor.mV[VY]);
+}
+
 
 LLSearchEditor::LLSearchEditor(const LLString& name, 
 		const LLRect& rect,

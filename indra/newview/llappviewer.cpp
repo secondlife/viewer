@@ -1530,6 +1530,9 @@ bool LLAppViewer::cleanup()
 	delete gGlobalEconomy;
 	gGlobalEconomy = NULL;
 
+	delete gActiveChannelSpeakerMgr;
+	gActiveChannelSpeakerMgr = NULL;
+
 	delete gLocalSpeakerMgr;
 	gLocalSpeakerMgr = NULL;
 
@@ -3015,7 +3018,7 @@ const std::vector<std::string>& LLAppViewer::getLoginURIs() const
 	if (gLoginURIs.empty())
 	{
 		// not specified on the command line, use value from table
-		gLoginURIs = LLSRV::rewriteURI(gGridInfo[gGridChoice].mLoginURI);
+		gLoginURIs.push_back(gGridInfo[gGridChoice].mLoginURI);
 	}
 	return gLoginURIs;
 }

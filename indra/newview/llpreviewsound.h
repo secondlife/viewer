@@ -44,6 +44,9 @@ public:
 	static void playSound( void* userdata );
 	static void auditionSound( void* userdata );
 
+protected:
+	virtual const char *getTitleName() const { return "Sound"; }
+
 };
 
 #endif  // LL_LLPREVIEWSOUND_H

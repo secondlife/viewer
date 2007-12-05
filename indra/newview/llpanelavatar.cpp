@@ -365,6 +365,7 @@ void LLPanelAvatarSecondLife::onDoubleClickGroup(void* data)
 	if(group_list)
 	{
 		LLScrollListItem* item = group_list->getFirstSelected();
+		
 		if(item && item->getUUID().notNull())
 		{
 			llinfos << "Show group info " << item->getUUID() << llendl;
@@ -1565,6 +1566,8 @@ void LLPanelAvatar::resetGroupList()
 				group_string += group_data.mName;
 
 				LLSD row;
+
+				row["id"] = id ;
 				row["columns"][0]["value"] = group_string;
 				row["columns"][0]["font"] = "SANSSERIF_SMALL";
 				row["columns"][0]["width"] = 0;
@@ -2010,8 +2013,7 @@ void LLPanelAvatar::processAvatarGroupsReply(LLMessageSystem *msg, void**)
 				LLString group_string;
 				if (group_id.notNull())
 				{
-					group_string.assign("Member of ");
-					group_string.append(group_name);
+					group_string.assign(group_name);
 				}
 				else
 				{

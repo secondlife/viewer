@@ -2446,6 +2446,10 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 			return TRUE;
 		}
 
+		//if quit from menu, turn off the Keyboardmode for the menu.
+		if(LLMenuGL::getKeyboardMode())
+			LLMenuGL::setKeyboardMode(FALSE);
+
 		// *TODO: get this to play well with mouselook and hidden
 		// cursor modes, etc, and re-enable.
 		//if (gFocusMgr.getMouseCapture())

@@ -81,6 +81,8 @@ class LLSplashScreen;
 
 class LLWindow;
 
+class LLPreeditor;
+
 class LLWindowCallbacks
 {
 public:
@@ -222,8 +224,10 @@ public:
 	virtual void *getPlatformWindow() = 0;
 	
 	// control platform's Language Text Input mechanisms.
-	virtual void allowLanguageTextInput( BOOL b ) {};
+	virtual void allowLanguageTextInput(LLPreeditor *preeditor, BOOL b) {}
 	virtual void setLanguageTextInput( const LLCoordGL & pos ) {};
+	virtual void updateLanguageTextInputArea() {}
+	virtual void interruptLanguageTextInput() {}
 
 protected:
 	LLWindow(BOOL fullscreen, U32 flags);

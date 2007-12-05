@@ -1045,7 +1045,8 @@ BOOL LLPanelLandObjects::postBuild()
 	
 	mSelectedObjects = LLUICtrlFactory::getTextBoxByName(this, "selected_objects_text");
 	mCleanOtherObjectsTime = LLUICtrlFactory::getLineEditorByName(this, "clean other time");
-	mCleanOtherObjectsTime->setFocusLostCallback(onLostFocus);	
+	mCleanOtherObjectsTime->setFocusLostCallback(onLostFocus);
+	mCleanOtherObjectsTime->setCommitCallback(onCommitClean);
 	childSetPrevalidate("clean other time", LLLineEditor::prevalidateNonNegativeS32);
 	childSetUserData("clean other time", this);
 	
@@ -1817,6 +1818,12 @@ void LLPanelLandObjects::onClickReturnOtherObjects(void* userdata)
 
 // static
 void LLPanelLandObjects::onLostFocus(LLUICtrl *caller, void* user_data)
+{
+	onCommitClean(caller, user_data);
+}
+
+// static
+void LLPanelLandObjects::onCommitClean(LLUICtrl *caller, void* user_data)
 {
 	LLPanelLandObjects	*lop = (LLPanelLandObjects *)user_data;
 	LLParcel* parcel = lop->mParcel->getParcel();

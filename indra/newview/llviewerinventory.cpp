@@ -104,14 +104,9 @@ LLViewerInventoryItem::LLViewerInventoryItem(const LLViewerInventoryItem* other)
 }
 
 LLViewerInventoryItem::LLViewerInventoryItem(const LLInventoryItem *other) :
-	LLInventoryItem(other)
+	LLInventoryItem(other),
+	mIsComplete(TRUE)
 {
-	LLInventoryItem::copy(other);
-	if (!mIsComplete)
-	{
-		llwarns << "LLViewerInventoryItem copy constructor for incomplete item"
-			<< mUUID << llendl;
-	}
 }
 
 

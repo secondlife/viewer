@@ -6053,12 +6053,39 @@ BOOL object_selected_and_point_valid(void *user_data)
 		(selection->getFirstRootObject()->getNVPair("AssetContainer") == NULL);
 }
 
+
+BOOL object_is_wearable()
+{
+	if (!object_selected_and_point_valid(NULL))
+	{
+		return FALSE;
+	}
+	if (sitting_on_selection())
+	{
+		return FALSE;
+	}
+	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+	for (LLObjectSelection::valid_root_iterator iter = gSelectMgr->getSelection()->valid_root_begin();
+		 iter != gSelectMgr->getSelection()->valid_root_end(); iter++)
+	{
+		LLSelectNode* node = *iter;		
+		if (node->mPermissions->getOwner() == gAgent.getID())
+		{
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+
 // Also for seeing if object can be attached.  See above.
 class LLObjectEnableWear : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		return object_selected_and_point_valid(NULL);
+		bool is_wearable = object_selected_and_point_valid(NULL);
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(is_wearable);
+		return TRUE;
 	}
 };
 

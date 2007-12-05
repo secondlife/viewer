@@ -80,6 +80,8 @@ protected:
 	void				init();
 	void				updateAspectRatio();
 
+	virtual const char *getTitleName() const { return "Texture"; }
+	
 protected:
 	LLUUID						mImageID;
 	LLPointer<LLViewerImage>		mImage;

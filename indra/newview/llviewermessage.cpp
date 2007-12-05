@@ -131,6 +131,7 @@
 #include "pipeline.h"
 #include "llappviewer.h"
 #include "llfloaterworldmap.h"
+#include "llkeythrottle.h"
 #include "llviewerdisplay.h"
 #include "llkeythrottle.h"
 
@@ -4407,6 +4408,10 @@ void script_question_cb(S32 option, void* user_data)
 		notify_cautioned_script_question(cbdata, orig, allowed);
 	}
 
+	if ( option == 2 )
+	{
+		gMuteListp->add(LLMute(cbdata->mItemID, cbdata->mObjectName, LLMute::OBJECT));
+	}
 	delete cbdata;
 }
 

@@ -867,6 +867,12 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 				llinfos << "Received null group member data." << llendl;
 			}
 		}
+
+		//if group members are loaded while titles are missing, load the titles.
+		if(group_datap->mTitles.size() < 1)
+		{
+			gGroupMgr->sendGroupTitlesRequest(group_id);
+		}
 	}
 
 	if (group_datap->mMembers.size() ==  (U32)group_datap->mMemberCount)

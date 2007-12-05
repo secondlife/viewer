@@ -18,6 +18,7 @@ Alissa Sabre
 	VWR-171
 	VWR-177
 	VWR-213
+	VWR-250
 	VWR-251
 	VWR-286
 	VWR-414
@@ -55,6 +56,7 @@ Catherine Pfeffer
 Dale Glass
 	VWR-120
 	VWR-560
+	VWR-2502
 	VWR-1358
 	VWR-2041
 Drewan Keats
@@ -91,6 +93,8 @@ Feep Larsson
 	VWR-1314
 Fremont Cunningham
 	VWR-1147
+Gudmund Shepherd
+	VWR-1873
 Gigs Taggart
 	SVC-493
 	VWR-38
@@ -106,6 +110,7 @@ Gigs Taggart
 	VWR-1434
 	VWR-1987
 	VWR-2065
+	VWR-2502
 Ginko Bayliss
 	VWR-4
 Grazer Kline
@@ -216,7 +221,9 @@ Nicholaz Beresford
 	VWR-1872
 	VWR-1968
 	VWR-2046
+	VWR-2142
 	VWR-2152
+	VWR-2614
 Nounouch Hapmouche
 	VWR-238
 Paul Churchill

@@ -174,7 +174,7 @@ BOOL LLTextBox::handleHover(S32 x, S32 y, MASK mask)
 		mHasHover = TRUE; // This should be set every frame during a hover.
 		return TRUE;
 	}
-	return FALSE;
+	return LLView::handleHover(x,y,mask);
 }
 
 void LLTextBox::setText(const LLStringExplicit& text)

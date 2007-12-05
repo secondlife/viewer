@@ -1204,6 +1204,7 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 		// if the asset is already in the object's inventory 
 		// then it can always be added to a side.
 		// This saves some work if the task's inventory is already loaded
+		// and ensures that the texture item is only added once.
 		return TRUE;
 	}
 
@@ -1241,7 +1242,10 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 				return FALSE;
 			}
 		}
-		hit_obj->updateInventory(new_item, TASK_INVENTORY_ASSET_KEY, true);
+		// Add the texture item to the target object's inventory.
+		hit_obj->updateInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
+ 		// TODO: Check to see if adding the item was successful; if not, then
+		// we should return false here.
 	}
 	else if(!item->getPermissions().allowOperationBy(PERM_TRANSFER,
 													 gAgent.getID()))
@@ -1253,8 +1257,10 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 		}
 		// *FIX: may want to make sure agent can paint hit_obj.
 
-		// make sure the object has the texture in it's inventory.
-		hit_obj->updateInventory(new_item, TASK_INVENTORY_ASSET_KEY, true);
+		// Add the texture item to the target object's inventory.
+		hit_obj->updateInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
+ 		// TODO: Check to see if adding the item was successful; if not, then
+		// we should return false here.
 	}
 	return TRUE;
 }

@@ -28,6 +28,7 @@ $/LicenseInfo$
 """
 
 import commands
+import errno
 import filecmp
 import fnmatch
 import getopt

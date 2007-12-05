@@ -62,6 +62,8 @@
 #include "llviewergenericmessage.h"	// for gGenericDispatcher
 #include "llviewerwindow.h"
 #include "llworld.h" //for particle system banning
+#include "llviewerobject.h" 
+#include "llviewerobjectlist.h"
 
 LLMuteList* gMuteListp = NULL;
 
@@ -513,8 +515,21 @@ BOOL LLMuteList::saveToFile(const LLString& filename)
 
 BOOL LLMuteList::isMuted(const LLUUID& id, const LLString& name, U32 flags) const
 {
+	LLUUID id_to_check = id;
+	
+	// for objects, check for muting on their parent prim
+	LLViewerObject *objectp = gObjectList.findObject(id);
+	if ((objectp) && (!objectp->isAvatar()))
+	{
+		LLViewerObject *parentp = (LLViewerObject *)objectp->getParent();
+		if (parentp)
+		{
+			id_to_check = parentp->getID();
+		}
+	}
+	
 	// don't need name or type for lookup
-	LLMute mute(id);
+	LLMute mute(id_to_check);
 	mute_set_t::const_iterator mute_it = mMutes.find(mute);
 	if (mute_it != mMutes.end())
 	{

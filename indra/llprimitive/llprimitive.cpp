@@ -41,6 +41,7 @@
 #include "llvolumemgr.h"
 #include "llstring.h"
 #include "lldatapacker.h"
+#include "llsdutil.h"
 
 /**
  * exported constants
@@ -1795,6 +1796,47 @@ void LLLightParams::copy(const LLNetworkData& data)
 	mFalloff = param->mFalloff;
 }
 
+LLSD LLLightParams::asLLSD() const
+{
+	LLSD sd;
+	
+	sd["color"] = ll_sd_from_color4(getColor());
+	sd["radius"] = getRadius();
+	sd["falloff"] = getFalloff();
+	sd["cutoff"] = getCutoff();
+		
+	return sd;
+}
+
+bool LLLightParams::fromLLSD(LLSD& sd)
+{
+	const char *w;
+	w = "color";
+	if (sd.has(w))
+	{
+		setColor( ll_color4_from_sd(sd["color"]) );
+	} else goto fail;
+	w = "radius";
+	if (sd.has(w))
+	{
+		setRadius( (F32)sd[w].asReal() );
+	} else goto fail;
+	w = "falloff";
+	if (sd.has(w))
+	{
+		setFalloff( (F32)sd[w].asReal() );
+	} else goto fail;
+	w = "cutoff";
+	if (sd.has(w))
+	{
+		setCutoff( (F32)sd[w].asReal() );
+	} else goto fail;
+	
+	return true;
+ fail:
+	return false;
+}
+
 //============================================================================
 
 LLFlexibleObjectData::LLFlexibleObjectData()
@@ -1876,6 +1918,59 @@ void LLFlexibleObjectData::copy(const LLNetworkData& data)
 	//mRenderingCollisionSphere = flex_data->mRenderingCollisionSphere;
 }
 
+LLSD LLFlexibleObjectData::asLLSD() const
+{
+	LLSD sd;
+
+	sd["air_friction"] = getAirFriction();
+	sd["gravity"] = getGravity();
+	sd["simulate_lod"] = getSimulateLOD();
+	sd["tension"] = getTension();
+	sd["user_force"] = getUserForce().getValue();
+	sd["wind_sensitivity"] = getWindSensitivity();
+	
+	return sd;
+}
+
+bool LLFlexibleObjectData::fromLLSD(LLSD& sd)
+{
+	const char *w;
+	w = "air_friction";
+	if (sd.has(w))
+	{
+		setAirFriction( (F32)sd[w].asReal() );
+	} else goto fail;
+	w = "gravity";
+	if (sd.has(w))
+	{
+		setGravity( (F32)sd[w].asReal() );
+	} else goto fail;
+	w = "simulate_lod";
+	if (sd.has(w))
+	{
+		setSimulateLOD( sd[w].asInteger() );
+	} else goto fail;
+	w = "tension";
+	if (sd.has(w))
+	{
+		setTension( (F32)sd[w].asReal() );
+	} else goto fail;
+	w = "user_force";
+	if (sd.has(w))
+	{
+		LLVector3 user_force = ll_vector3_from_sd(sd[w], 0);
+		setUserForce( user_force );
+	} else goto fail;
+	w = "wind_sensitivity";
+	if (sd.has(w))
+	{
+		setWindSensitivity( (F32)sd[w].asReal() );
+	} else goto fail;
+	
+	return true;
+ fail:
+	return false;
+}
 
 //============================================================================
 
@@ -1925,5 +2020,36 @@ void LLSculptParams::copy(const LLNetworkData& data)
 	const LLSculptParams *param = (LLSculptParams*)&data;
 	mSculptTexture = param->mSculptTexture;
 	mSculptType = param->mSculptType;
+}
+
+
+
+LLSD LLSculptParams::asLLSD() const
+{
+	LLSD sd;
+	
+	sd["texture"] = mSculptTexture;
+	sd["type"] = mSculptType;
+		
+	return sd;
+}
+
+bool LLSculptParams::fromLLSD(LLSD& sd)
+{
+	const char *w;
+	w = "texture";
+	if (sd.has(w))
+	{
+		setSculptTexture( sd[w] );
+	} else goto fail;
+	w = "type";
+	if (sd.has(w))
+	{
+		setSculptType( (U8)sd[w].asInteger() );
+	} else goto fail;
+	
+	return true;
+ fail:
+	return false;
 }
 

@@ -1696,6 +1696,34 @@ LLVector2 LLUI::getWindowSize()
 }
 
 //static
+void LLUI::screenPointToGL(S32 screen_x, S32 screen_y, S32 *gl_x, S32 *gl_y)
+{
+	*gl_x = llround((F32)screen_x * sGLScaleFactor.mV[VX]);
+	*gl_y = llround((F32)screen_y * sGLScaleFactor.mV[VY]);
+}
+
+//static
+void LLUI::glPointToScreen(S32 gl_x, S32 gl_y, S32 *screen_x, S32 *screen_y)
+{
+	*screen_x = llround((F32)gl_x / sGLScaleFactor.mV[VX]);
+	*screen_y = llround((F32)gl_y / sGLScaleFactor.mV[VY]);
+}
+
+//static
+void LLUI::screenRectToGL(const LLRect& screen, LLRect *gl)
+{
+	screenPointToGL(screen.mLeft, screen.mTop, &gl->mLeft, &gl->mTop);
+	screenPointToGL(screen.mRight, screen.mBottom, &gl->mRight, &gl->mBottom);
+}
+
+//static
+void LLUI::glRectToScreen(const LLRect& gl, LLRect *screen)
+{
+	glPointToScreen(gl.mLeft, gl.mTop, &screen->mLeft, &screen->mTop);
+	glPointToScreen(gl.mRight, gl.mBottom, &screen->mRight, &screen->mBottom);
+}
+
+//static
 LLUUID			LLUI::findAssetUUIDByName(const LLString	&asset_name)
 {
 	if(asset_name == LLString::null) return LLUUID::null;

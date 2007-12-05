@@ -632,7 +632,7 @@ public:
 };
 
 LLMenuItemSeparatorGL::LLMenuItemSeparatorGL( const LLString &name ) :
-	LLMenuItemGL( SEPARATOR_NAME, SEPARATOR_LABEL )
+	LLMenuItemGL( name, SEPARATOR_LABEL )
 {
 }
 
@@ -2832,7 +2832,7 @@ LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, BOOL skip_disa
 	while(1)
 	{
 		// skip separators and disabled items
-		if ((*next_item_iter)->getEnabled() && (*next_item_iter)->getName() != SEPARATOR_NAME)
+		if ((*next_item_iter)->getEnabled() && (*next_item_iter)->getType() != SEPARATOR_NAME)
 		{
 			if (cur_item)
 			{

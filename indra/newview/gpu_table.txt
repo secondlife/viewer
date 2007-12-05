@@ -49,6 +49,9 @@ ATI Radeon X1600				.*ATI.*Radeon X16.*						3
 ATI Radeon X1700				.*ATI.*Radeon X17.*						3
 ATI Radeon X1800				.*ATI.*Radeon X18.*						3
 ATI Radeon X1900				.*ATI.*Radeon X19.*						3
+ATI Radeon X2400				.*ATI.*Radeon X24.*						3
+ATI Radeon X2600				.*ATI.*Radeon X26.*						3
+ATI Radeon X2900				.*ATI.*Radeon X29.*						3
 ATI Radeon X300					.*ATI.*Radeon X3.*						2
 ATI Radeon X400					.*ATI.*Radeon X4.*						2
 ATI Radeon X500					.*ATI.*Radeon X5.*						2

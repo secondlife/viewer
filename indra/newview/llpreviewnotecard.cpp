@@ -148,6 +148,10 @@ LLPreviewNotecard::LLPreviewNotecard(const std::string& name,
 	gAgent.changeCameraToDefault();
 }
 
+LLPreviewNotecard::~LLPreviewNotecard()
+{
+}
+
 BOOL LLPreviewNotecard::postBuild()
 {
 	LLViewerTextEditor *ed = (LLViewerTextEditor *)gUICtrlFactory->getTextEditorByName(this, "Notecard Editor");
@@ -213,7 +217,7 @@ BOOL LLPreviewNotecard::handleKeyHere(KEY key, MASK mask,
 			return TRUE;
 		}
 	}
-	return FALSE;
+	return LLPreview::handleKeyHere(key, mask, called_from_parent);
 }
 
 // virtual

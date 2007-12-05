@@ -433,6 +433,15 @@ S32 wchar_utf8_length(const llwchar wc);
 
 std::string utf8str_tolower(const std::string& utf8str);
 
+// Length in llwchar (UTF-32) of the first len units (16 bits) of the given UTF-16 string.
+S32 utf16str_wstring_length(const llutf16string &utf16str, S32 len);
+
+// Length in utf16string (UTF-16) of wlen wchars beginning at woffset.
+S32 wstring_utf16_length(const LLWString & wstr, S32 woffset, S32 wlen);
+
+// Length in wstring (i.e., llwchar count) of a part of a wstring specified by utf16 length (i.e., utf16 units.)
+S32 wstring_wstring_length_from_utf16_length(const LLWString & wstr, S32 woffset, S32 utf16_length, BOOL *unaligned = NULL);
+
 /**
  * @brief Properly truncate a utf8 string to a maximum byte count.
  * 

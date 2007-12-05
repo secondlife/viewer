@@ -492,7 +492,14 @@ void LLFloaterSellLandUI::doSellLand(void *userdata)
 		args["[SALE_PRICE]"] = llformat("%d",sale_price);
 		args["[NAME]"] = authorizedBuyerName;
 
-		gViewerWindow->alertXml("ConfirmLandSaleChange", args, onConfirmSale, self);
+		if (sell_to_anyone)
+		{
+			gViewerWindow->alertXml("ConfirmLandSaleToAnyoneChange", args, onConfirmSale, self);
+		}
+		else
+		{
+			gViewerWindow->alertXml("ConfirmLandSaleChange", args, onConfirmSale, self);
+		}
 	}
 	else
 	{

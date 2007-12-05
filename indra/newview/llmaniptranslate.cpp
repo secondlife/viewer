@@ -2132,15 +2132,12 @@ void LLManipTranslate::renderTranslationHandles()
 				LLVector3 arrow_axis;
 				getManipAxis(first_object, which_arrow[face], arrow_axis);
 
-				if (fabs(angle_between(camera_axis, arrow_axis) - F_PI_BY_TWO) < F_PI_BY_TWO - HANDLE_HIDE_ANGLE)
-				{
-					renderArrow(which_arrow[face],
-								mManipPart,
-								(face >= 3) ? -mConeSize : mConeSize,
-								(face >= 3) ? -mArrowLengthMeters : mArrowLengthMeters,
-								mConeSize,
-								FALSE);
-				}
+				renderArrow(which_arrow[face],
+							mManipPart,
+							(face >= 3) ? -mConeSize : mConeSize,
+							(face >= 3) ? -mArrowLengthMeters : mArrowLengthMeters,
+							mConeSize,
+							FALSE);
 			}
 		}
 	}

@@ -10,7 +10,7 @@
  * The source code in this file ("Source Code") is provided by Linden Lab
  * to you under the terms of the GNU General Public License, version 2.0
  * ("GPL"), unless you have obtained a separate licensing agreement
- * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * ("Other License"), formally executed by you and Linden Lab.	Terms of
  * the GPL can be found in doc/GPL-license.txt in this distribution, or
  * online at http://secondlife.com/developers/opensource/gplv2
  * 
@@ -90,16 +90,16 @@ public:
 	void			trackLocation(const LLVector3d& pos);
 	void			trackEvent(const LLItemInfo &event_info);
 	void			trackGenericItem(const LLItemInfo &item);
-	void 			trackURL(const LLString& region_name, S32 x_coord, S32 y_coord, S32 z_coord);
+	void			trackURL(const LLString& region_name, S32 x_coord, S32 y_coord, S32 z_coord);
 
 	static const LLUUID& getHomeID() { return sHomeID; }
 
 	// A z_attenuation of 0.0f collapses the distance into the X-Y plane
-	F32 			getDistanceToDestination(const LLVector3d& pos_global, F32 z_attenuation = 0.5f) const;
+	F32			getDistanceToDestination(const LLVector3d& pos_global, F32 z_attenuation = 0.5f) const;
 
-	void 			clearLocationSelection(BOOL clear_ui = FALSE);
-	void 			clearAvatarSelection(BOOL clear_ui = FALSE);
-	void 			clearLandmarkSelection(BOOL clear_ui = FALSE);
+	void			clearLocationSelection(BOOL clear_ui = FALSE);
+	void			clearAvatarSelection(BOOL clear_ui = FALSE);
+	void			clearLandmarkSelection(BOOL clear_ui = FALSE);
 
 	// Adjust the maximally zoomed out limit of the zoom slider so you can
 	// see the whole world, plus a little.
@@ -118,11 +118,14 @@ protected:
 
 	static void		onLandmarkComboPrearrange( LLUICtrl* ctrl, void* data );
 	static void		onLandmarkComboCommit( LLUICtrl* ctrl, void* data );
-	
+
 	static void		onAvatarComboPrearrange( LLUICtrl* ctrl, void* data );
 	static void		onAvatarComboCommit( LLUICtrl* ctrl, void* data );
 
 	static void		onCommitBackground(void* data, bool from_click);
+
+	static void		onComboTextEntry( LLLineEditor* ctrl, void* data );
+	static void		onSearchTextEntry( LLLineEditor* ctrl, void* data );
 
 	static void		onClearBtn(void*);
 	static void		onFlyBtn(void*);
@@ -143,7 +146,7 @@ protected:
 	static void		onGoToLandmarkDialog(S32 option,void* userdata);
 	void			flyToLandmark();
 	void			teleportToLandmark();
-	void 			setLandmarkVisited();
+	void			setLandmarkVisited();
 
 	void			buildAvatarIDList();
 	void			flyToAvatar();
@@ -154,7 +157,7 @@ protected:
 	static void		onCommitLocation( LLUICtrl* ctrl, void* userdata );
 	static void		onCommitSearchResult( LLUICtrl* ctrl, void* userdata );
 
-	void 			cacheLandmarkPosition();
+	void			cacheLandmarkPosition();
 
 protected:
 	LLTabContainerCommon*	mTabs;
@@ -165,7 +168,7 @@ protected:
 
 	LLDynamicArray<LLUUID>	mLandmarkAssetIDList;
 	LLDynamicArray<LLUUID>	mLandmarkItemIDList;
-	BOOL 					mHasLandmarkPosition;
+	BOOL					mHasLandmarkPosition;
 
 	static const LLUUID	sHomeID;
 

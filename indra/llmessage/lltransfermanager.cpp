@@ -106,10 +106,15 @@ void LLTransferManager::cleanup()
 
 void LLTransferManager::updateTransfers()
 {
-	host_tc_map::iterator iter;
-	for (iter = mTransferConnections.begin(); iter != mTransferConnections.end(); iter++)
+	host_tc_map::iterator iter,cur;
+
+	iter = mTransferConnections.begin();
+
+	while (iter !=mTransferConnections.end())
 	{
-		iter->second->updateTransfers();
+		cur = iter;
+		iter++;
+		cur->second->updateTransfers();
 	}
 }
 
@@ -571,7 +576,6 @@ void LLTransferManager::processTransferAbort(LLMessageSystem *msgp, void **)
 	msgp->getUUID("TransferInfo", "TransferID", transfer_id);
 	msgp->getS32("TransferInfo", "ChannelType", (S32 &)channel_type);
 
-
 	// See if it's a target that we're trying to abort
 	// Find the transfer associated with this packet.
 	LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(msgp->getSender(), channel_type);
@@ -651,10 +655,14 @@ LLTransferConnection::~LLTransferConnection()
 void LLTransferConnection::updateTransfers()
 {
 	// Do stuff for source transfers (basically, send data out).
-	tsc_iter iter;
-	for (iter = mTransferSourceChannels.begin(); iter != mTransferSourceChannels.end(); iter++)
+	tsc_iter iter, cur;
+	iter = mTransferSourceChannels.begin();
+
+	while (iter !=mTransferSourceChannels.end())
 	{
-		(*iter)->updateTransfers();
+		cur = iter;
+		iter++;
+		(*cur)->updateTransfers();
 	}
 
 	// Do stuff for target transfers
@@ -768,14 +776,16 @@ void LLTransferSourceChannel::updateTransfers()
 		return;
 	}
 
-	LLPriQueueMap<LLTransferSource *>::pqm_iter iter;
-
+	LLPriQueueMap<LLTransferSource *>::pqm_iter iter, next;
 
 	BOOL done = FALSE;
 	for (iter = mTransferSources.mMap.begin(); (iter != mTransferSources.mMap.end()) && !done;)
 	{
 		//llinfos << "LLTransferSourceChannel::updateTransfers()" << llendl;
-		// Do stuff.
+		// Do stuff. 
+		next = iter;
+		next++;
+
 		LLTransferSource *tsp = iter->second;
 		U8 *datap = NULL;
 		S32 data_size = 0;
@@ -793,11 +803,12 @@ void LLTransferSourceChannel::updateTransfers()
 			// We don't have any data, but we're not done, just go on.
 			// This will presumably be used for streaming or async transfers that
 			// are stalled waiting for data from another source.
-			iter++;
+			iter=next;
 			continue;
 		}
 
 		LLUUID *cb_uuid = new LLUUID(tsp->getID());
+		LLUUID transaction_id = tsp->getID();
 
 		// Send the data now, even if it's an error.
 		// The status code will tell the other end what to do.
@@ -822,7 +833,17 @@ void LLTransferSourceChannel::updateTransfers()
 			delete[] datap;
 			datap = NULL;
 		}
-		
+
+		if (findTransferSource(transaction_id) == NULL)
+		{
+			//Warning!  In the case of an aborted transfer, the sendReliable call above calls 
+			//AbortTransfer which in turn calls deleteTransfer which means that somewhere way 
+			//down the chain our current iter can get invalidated resulting in an infrequent
+			//sim crash.  This check gets us to a valid transfer source in this event.
+			iter=next;
+			continue;
+		}
+
 		// Update the packet counter
 		tsp->setLastPacketID(packet_id);
 
@@ -839,7 +860,8 @@ void LLTransferSourceChannel::updateTransfers()
 			tsp->completionCallback(status);
 			delete tsp;
 			
-			mTransferSources.mMap.erase(iter++);
+			mTransferSources.mMap.erase(iter);
+			iter = next;
 			break;
 		default:
 			llerrs << "Unknown transfer error code!" << llendl;
@@ -876,23 +898,20 @@ LLTransferSource *LLTransferSourceChannel::findTransferSource(const LLUUID &tran
 
 BOOL LLTransferSourceChannel::deleteTransfer(LLTransferSource *tsp)
 {
+
 	LLPriQueueMap<LLTransferSource *>::pqm_iter iter;
 	for (iter = mTransferSources.mMap.begin(); iter != mTransferSources.mMap.end(); iter++)
 	{
 		if (iter->second == tsp)
 		{
-			break;
+			delete tsp;
+			mTransferSources.mMap.erase(iter);
+			return TRUE;
 		}
 	}
 
-	if (iter == mTransferSources.mMap.end())
-	{
-		llerrs << "Unable to find transfer source to delete!" << llendl;
-		return FALSE;
-	}
-	mTransferSources.mMap.erase(iter);
-	delete tsp;
-	return TRUE;
+	llerrs << "Unable to find transfer source to delete!" << llendl;
+	return FALSE;
 }
 
 
@@ -1000,18 +1019,14 @@ BOOL LLTransferTargetChannel::deleteTransfer(LLTransferTarget *ttp)
 	{
 		if (*iter == ttp)
 		{
-			break;
+			delete ttp;
+			mTransferTargets.erase(iter);
+			return TRUE;
 		}
 	}
 
-	if (iter == mTransferTargets.end())
-	{
-		llerrs << "Unable to find transfer target to delete!" << llendl;
-		return FALSE;
-	}
-	mTransferTargets.erase(iter);
-	delete ttp;
-	return TRUE;
+	llerrs << "Unable to find transfer target to delete!" << llendl;
+	return FALSE;
 }
 
 
@@ -1072,7 +1087,7 @@ void LLTransferSource::sendTransferStatus(LLTSCode status)
 void LLTransferSource::abortTransfer()
 {
 	// Send a message down, call the completion callback
-	llinfos << "Aborting transfer " << getID() << " to " << mChannelp->getHost() << llendl;
+	llinfos << "LLTransferSource::Aborting transfer " << getID() << " to " << mChannelp->getHost() << llendl;
 	gMessageSystem->newMessage("TransferAbort");
 	gMessageSystem->nextBlock("TransferInfo");
 	gMessageSystem->addUUID("TransferID", getID());
@@ -1204,7 +1219,7 @@ LLTransferTarget::~LLTransferTarget()
 void LLTransferTarget::abortTransfer()
 {
 	// Send a message up, call the completion callback
-	llinfos << "Aborting transfer " << getID() << " from " << mChannelp->getHost() << llendl;
+	llinfos << "LLTransferTarget::Aborting transfer " << getID() << " from " << mChannelp->getHost() << llendl;
 	gMessageSystem->newMessage("TransferAbort");
 	gMessageSystem->nextBlock("TransferInfo");
 	gMessageSystem->addUUID("TransferID", getID());

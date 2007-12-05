@@ -239,6 +239,84 @@ LLWString utf16str_to_wstring(const llutf16string &utf16str)
 	return utf16str_to_wstring(utf16str, len);
 }
 
+// Length in llwchar (UTF-32) of the first len units (16 bits) of the given UTF-16 string.
+S32 utf16str_wstring_length(const llutf16string &utf16str, const S32 utf16_len)
+{
+	S32 surrogate_pairs = 0;
+	// ... craziness to make gcc happy (llutf16string.c_str() is tweaked on linux):
+	const U16 *const utf16_chars = &(*(utf16str.begin()));
+	S32 i = 0;
+	while (i < utf16_len)
+	{
+		const U16 c = utf16_chars[i++];
+		if (c >= 0xD800 && c <= 0xDBFF)		// See http://en.wikipedia.org/wiki/UTF-16
+		{   // Have first byte of a surrogate pair
+			if (i >= utf16_len)
+			{
+				break;
+			}
+			const U16 d = utf16_chars[i];
+			if (d >= 0xDC00 && d <= 0xDFFF)
+			{   // Have valid second byte of a surrogate pair
+				surrogate_pairs++;
+				i++;
+			}
+		}
+	}
+	return utf16_len - surrogate_pairs;
+}
+
+// Length in utf16string (UTF-16) of wlen wchars beginning at woffset.
+S32 wstring_utf16_length(const LLWString &wstr, const S32 woffset, const S32 wlen)
+{
+	const S32 end = llmin((S32)wstr.length(), woffset + wlen);
+	if (end < woffset)
+	{
+		return 0;
+	}
+	else
+	{
+		S32 length = end - woffset;
+		for (S32 i = woffset; i < end; i++)
+		{
+			if (wstr[i] >= 0x10000)
+			{
+				length++;
+			}
+		}
+		return length;
+	}
+}
+
+// Given a wstring and an offset in it, returns the length as wstring (i.e.,
+// number of llwchars) of the longest substring that starts at the offset
+// and whose equivalent utf-16 string does not exceeds the given utf16_length.
+S32 wstring_wstring_length_from_utf16_length(const LLWString & wstr, const S32 woffset, const S32 utf16_length, BOOL *unaligned)
+{
+	const S32 end = wstr.length();
+	BOOL u = FALSE;
+	S32 n = woffset + utf16_length;
+	S32 i = woffset;
+	while (i < end)
+	{
+		if (wstr[i] >= 0x10000)
+		{
+			--n;
+		}
+		if (i >= n)
+		{
+			u = (i > n);
+			break;
+		}
+		i++;
+	}
+	if (unaligned)
+	{
+		*unaligned = u;
+	}
+	return i - woffset;
+}
+
 S32 wchar_utf8_length(const llwchar wc)
 {
 	if (wc < 0x80)

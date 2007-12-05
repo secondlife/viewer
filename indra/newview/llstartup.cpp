@@ -932,9 +932,15 @@ BOOL idle_startup()
 			gSavedSettings.setBOOL("UseDebugMenus", TRUE);
 			requested_options.push_back("god-connect");
 		}
-		LLAppViewer::instance()->getLoginURIs();
-		sAuthUris = LLAppViewer::instance()->getLoginURIs();
-
+		const std::vector<std::string>& uris = LLAppViewer::instance()->getLoginURIs();
+		std::vector<std::string>::const_iterator iter, end;
+		for (iter = uris.begin(), end = uris.end(); iter != end; ++iter)
+		{
+			std::vector<std::string> rewritten;
+			rewritten = LLSRV::rewriteURI(*iter);
+			sAuthUris.insert(sAuthUris.end(),
+							 rewritten.begin(), rewritten.end());
+		}
 		sAuthUriNum = 0;
 		auth_method = "login_to_simulator";
 		auth_desc = "Logging in.  ";
@@ -2161,7 +2167,7 @@ BOOL idle_startup()
 				else
 				{
 					args["[TYPE]"] = "home";
-					args["[HELP]"] = "\nYou may want to set a new home location.";
+					args["[HELP]"] = "You may want to set a new home location.";
 				}
 				gViewerWindow->alertXml("AvatarMoved", args);
 			}

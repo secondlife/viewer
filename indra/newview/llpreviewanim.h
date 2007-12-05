@@ -50,7 +50,8 @@ public:
 
 protected:
 	virtual void onClose(bool app_quitting);
-
+	virtual const char *getTitleName() const { return "Animation"; }
+	
 	LLAnimPauseRequest	mPauseRequest;
 	LLUUID		mItemID;
 	LLString	mTitle;

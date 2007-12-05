@@ -109,8 +109,10 @@ public:
 	/*virtual*/ void bringToFront();
 	/*virtual*/ void focusClient();
 
-	/*virtual*/ void allowLanguageTextInput(BOOL b);
+	/*virtual*/ void allowLanguageTextInput(LLPreeditor *preeditor, BOOL b);
 	/*virtual*/ void setLanguageTextInput( const LLCoordGL & pos );
+	/*virtual*/ void updateLanguageTextInputArea();
+	/*virtual*/ void interruptLanguageTextInput();
 
 protected:
 	LLWindowWin32(
@@ -139,6 +141,14 @@ protected:
 
 	BOOL	shouldPostQuit() { return mPostQuit; }
 
+	void	fillCompositionForm(const LLRect& bounds, COMPOSITIONFORM *form);
+	void	fillCandidateForm(const LLCoordGL& caret, const LLRect& bounds, CANDIDATEFORM *form);
+	void	fillCharPosition(const LLCoordGL& caret, const LLRect& bounds, const LLRect& control, IMECHARPOSITION *char_position);
+	void	fillCompositionLogfont(LOGFONT *logfont);
+	U32		fillReconvertString(const LLWString &text, S32 focus, S32 focus_length, RECONVERTSTRING *reconvert_string);
+	void	handleStartCompositionMessage();
+	void	handleCompositionMessage(U32 indexes);
+	BOOL	handleImeRequests(U32 request, U32 param, LRESULT *result);
 
 protected:
 	//
@@ -189,6 +199,10 @@ protected:
 	static DWORD	sWinIMEConversionMode;
 	static DWORD	sWinIMESentenceMode;
 	static LLCoordWindow sWinIMEWindowPosition;
+	LLCoordGL		mLanguageTextInputPointGL;
+	LLRect			mLanguageTextInputAreaGL;
+
+	LLPreeditor		*mPreeditor;
 
 	friend class LLWindowManager;
 };

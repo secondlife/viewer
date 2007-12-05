@@ -286,7 +286,7 @@ void LLPreviewTexture::draw()
 						LLFontGL::DROP_SHADOW);
 				}
 			}
-		}
+		} 
 	}
 }
 

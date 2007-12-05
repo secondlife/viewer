@@ -372,10 +372,14 @@ void LLFeatureManager::loadGPUClass()
 		
 		char* ex = strtok(expr, ".*");
 		char* rnd = (char*) renderer.c_str();
-		
+
 		while (ex != NULL && rnd != NULL)
 		{
 			rnd = strstr(rnd, ex);
+			if (rnd != NULL)
+			{
+				rnd += strlen(ex);
+			}
 			ex = strtok(NULL, ".*");
 		}
 		

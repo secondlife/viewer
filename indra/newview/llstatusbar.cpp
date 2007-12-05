@@ -375,7 +375,7 @@ void LLStatusBar::refresh()
 		x += buttonRect.getWidth();
 	}
 
-	BOOL have_voice = gVoiceClient->getAreaVoiceDisabled() ? FALSE : TRUE;
+	BOOL have_voice = parcel && parcel->getVoiceEnabled(); 
 	childSetVisible("status_voice", have_voice);
 	if (have_voice)
 	{

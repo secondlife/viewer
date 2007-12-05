@@ -48,6 +48,7 @@
 #include "indra_constants.h"
 
 #include "llwindowmacosx-objc.h"
+#include "llpreeditor.h"
 
 extern BOOL gDebugWindowProc;
 
@@ -172,8 +173,22 @@ static EventTypeSpec WindowHandlerEventList[] =
 	{ kEventClassKeyboard, kEventRawKeyModifiersChanged },
 
 	// Text input events
-	{ kEventClassTextInput, kEventTextInputUnicodeForKeyEvent }
+	{ kEventClassTextInput, kEventTextInputUnicodeForKeyEvent },
+	{ kEventClassTextInput, kEventTextInputUpdateActiveInputArea },
+	{ kEventClassTextInput, kEventTextInputOffsetToPos },
+	{ kEventClassTextInput, kEventTextInputPosToOffset },
+	{ kEventClassTextInput, kEventTextInputShowHideBottomWindow },
+	{ kEventClassTextInput, kEventTextInputGetSelectedText },
+	{ kEventClassTextInput, kEventTextInputFilterText },
 
+	// TSM Document Access events (advanced input method support)
+	{ kEventClassTSMDocumentAccess, kEventTSMDocumentAccessGetLength },
+	{ kEventClassTSMDocumentAccess, kEventTSMDocumentAccessGetSelectedRange },
+	{ kEventClassTSMDocumentAccess, kEventTSMDocumentAccessGetCharacters },
+	{ kEventClassTSMDocumentAccess, kEventTSMDocumentAccessGetFont },
+	{ kEventClassTSMDocumentAccess, kEventTSMDocumentAccessGetGlyphInfo },
+	{ kEventClassTSMDocumentAccess, kEventTSMDocumentAccessLockDocument },
+	{ kEventClassTSMDocumentAccess, kEventTSMDocumentAccessUnlockDocument }
 };
 
 static EventTypeSpec GlobalHandlerEventList[] =
@@ -195,7 +210,22 @@ static EventTypeSpec GlobalHandlerEventList[] =
 	{ kEventClassKeyboard, kEventRawKeyModifiersChanged },
 
 	// Text input events
-	{ kEventClassTextInput, kEventTextInputUnicodeForKeyEvent }
+	{ kEventClassTextInput, kEventTextInputUpdateActiveInputArea },
+	{ kEventClassTextInput, kEventTextInputUnicodeForKeyEvent },
+	{ kEventClassTextInput, kEventTextInputOffsetToPos },
+	{ kEventClassTextInput, kEventTextInputPosToOffset },
+	{ kEventClassTextInput, kEventTextInputShowHideBottomWindow },
+	{ kEventClassTextInput, kEventTextInputGetSelectedText },
+	{ kEventClassTextInput, kEventTextInputFilterText },
+
+	// TSM Document Access events (advanced input method support)
+	{ kEventClassTSMDocumentAccess, kEventTSMDocumentAccessGetLength },
+	{ kEventClassTSMDocumentAccess, kEventTSMDocumentAccessGetSelectedRange },
+	{ kEventClassTSMDocumentAccess, kEventTSMDocumentAccessGetCharacters },
+	{ kEventClassTSMDocumentAccess, kEventTSMDocumentAccessGetFont },
+	{ kEventClassTSMDocumentAccess, kEventTSMDocumentAccessGetGlyphInfo },
+	{ kEventClassTSMDocumentAccess, kEventTSMDocumentAccessLockDocument },
+	{ kEventClassTSMDocumentAccess, kEventTSMDocumentAccessUnlockDocument }
 };
 
 static EventTypeSpec CommandHandlerEventList[] =
@@ -246,6 +276,7 @@ LLWindowMacOSX::LLWindowMacOSX(char *title, char *name, S32 x, S32 y, S32 width,
 	mLanguageTextInputAllowed = FALSE;
 	mTSMScriptCode = 0;
 	mTSMLangCode = 0;
+	mPreeditor = NULL;
 	
 	// For reasons that aren't clear to me, LLTimers seem to be created in the "started" state.
 	// Since the started state of this one is used to track whether the NMRec has been installed, it wants to start out in the "stopped" state.
@@ -497,15 +528,16 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 			mTSMDocument = NULL;
 		}
 		static InterfaceTypeList types = { kUnicodeDocument };
-		OSErr err = NewTSMDocument(1, types, &mTSMDocument, 0);
+		err = NewTSMDocument(1, types, &mTSMDocument, 0);
 		if (err != noErr)
 		{
 			llwarns << "createContext: couldn't create a TSMDocument (" << err << ")" << llendl;
 		}
 		if (mTSMDocument)
 		{
-			UseInputWindow(mTSMDocument, TRUE);
 			ActivateTSMDocument(mTSMDocument);
+			UseInputWindow(mTSMDocument, FALSE);
+			allowLanguageTextInput(NULL, FALSE);
 		}
 	}
 
@@ -1949,6 +1981,141 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 		{
 			switch (evtKind)
 			{
+			case kEventTextInputUpdateActiveInputArea:
+				{
+					EventParamType param_type;
+
+					long fix_len;
+					UInt32 text_len;
+					if (mPreeditor
+						&& (result = GetEventParameter(event, kEventParamTextInputSendFixLen,
+										typeLongInteger, &param_type, sizeof(fix_len), NULL, &fix_len)) == noErr
+						&& typeLongInteger == param_type 
+						&& (result = GetEventParameter(event, kEventParamTextInputSendText,
+										typeUnicodeText, &param_type, 0, &text_len, NULL)) == noErr
+						&& typeUnicodeText == param_type)
+					{
+						// Handle an optional (but essential to facilitate TSMDA) ReplaceRange param.
+						CFRange range;
+						if (GetEventParameter(event, kEventParamTextInputSendReplaceRange,
+								typeCFRange, &param_type, sizeof(range), NULL, &range) == noErr
+							&& typeCFRange == param_type)
+						{
+							// Although the spec. is unclear, replace range should
+							// not present when there is an active preedit.  We just
+							// ignore the case.  markAsPreedit will detect the case and warn it.
+							const LLWString & text = mPreeditor->getWText();
+							const S32 location = wstring_wstring_length_from_utf16_length(text, 0, range.location);
+							const S32 length = wstring_wstring_length_from_utf16_length(text, location, range.length);
+							mPreeditor->markAsPreedit(location, length);
+						}
+						mPreeditor->resetPreedit();
+						
+						// Receive the text from input method.
+						U16 *const text = new U16[text_len / sizeof(U16)];
+						GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText, NULL, text_len, NULL, text);
+						if (fix_len < 0)
+						{
+							// Do we still need this?  Seems obsolete...
+							fix_len = text_len;
+						}
+						const LLWString fix_string
+								= utf16str_to_wstring(llutf16string(text, fix_len / sizeof(U16)));
+						const LLWString preedit_string
+								= utf16str_to_wstring(llutf16string(text + fix_len / sizeof(U16), (text_len - fix_len) / sizeof(U16)));
+						delete[] text;
+
+						// Handle fixed (comitted) string.
+						if (fix_string.length() > 0)
+						{
+							for (LLWString::const_iterator i = fix_string.begin(); i != fix_string.end(); i++)
+							{
+								mPreeditor->handleUnicodeCharHere(*i, FALSE);
+							}
+						}
+
+						// Receive the segment info and caret position.
+						LLPreeditor::segment_lengths_t preedit_segment_lengths;
+						LLPreeditor::standouts_t preedit_standouts;
+						S32 caret_position = preedit_string.length();
+						UInt32 text_range_array_size;
+						if (GetEventParameter(event, kEventParamTextInputSendHiliteRng, typeTextRangeArray,
+								&param_type, 0, &text_range_array_size, NULL) == noErr
+							&& typeTextRangeArray == param_type
+							&& text_range_array_size > sizeof(TextRangeArray))
+						{
+							// TextRangeArray is a variable-length struct.
+							TextRangeArray * const text_range_array = (TextRangeArray *) new char[text_range_array_size];
+							GetEventParameter(event, kEventParamTextInputSendHiliteRng, typeTextRangeArray,
+									NULL, text_range_array_size, NULL, text_range_array);
+
+							// WARNING: We assume ranges are in ascending order, 
+							// although the condition is undocumented.  It seems
+							// OK to assume this.  I also assumed
+							// the ranges are contiguous in previous versions, but I
+							// have heard a rumore that older versions os ATOK may 
+							// return ranges with some _gap_.  I don't know whether
+							// it is true, but I'm preparing my code for the case.
+
+							const S32 ranges = text_range_array->fNumOfRanges;
+							preedit_segment_lengths.reserve(ranges);
+							preedit_standouts.reserve(ranges);
+
+							S32 last_bytes = 0;
+							S32 last_utf32 = 0;
+							for (S32 i = 0; i < ranges; i++)
+							{
+								const TextRange &range = text_range_array->fRange[i];
+								if (range.fStart > last_bytes)
+								{
+									const S32 length_utf16 = (range.fStart - last_bytes) / sizeof(U16);
+									const S32 length_utf32 = wstring_wstring_length_from_utf16_length(preedit_string, last_utf32, length_utf16);
+									preedit_segment_lengths.push_back(length_utf32);
+									preedit_standouts.push_back(FALSE);
+									last_utf32 += length_utf32;
+								}
+								if (range.fEnd > range.fStart)
+								{
+									const S32 length_utf16 = (range.fEnd - range.fStart) / sizeof(U16);
+									const S32 length_utf32 = wstring_wstring_length_from_utf16_length(preedit_string, last_utf32, length_utf16);
+									preedit_segment_lengths.push_back(length_utf32);
+									preedit_standouts.push_back(
+										kTSMHiliteSelectedRawText == range.fHiliteStyle
+										|| kTSMHiliteSelectedConvertedText ==  range.fHiliteStyle
+										|| kTSMHiliteSelectedText == range.fHiliteStyle);
+									last_utf32 += length_utf32;
+								}
+								if (kTSMHiliteCaretPosition == range.fHiliteStyle)
+								{
+									caret_position = last_utf32;
+								}
+								last_bytes = range.fEnd;
+							}
+							if (preedit_string.length() > last_utf32)
+							{
+								preedit_segment_lengths.push_back(preedit_string.length() - last_utf32);
+								preedit_standouts.push_back(FALSE);
+							}
+
+							delete[] (char *) text_range_array;
+						}
+
+						// Handle preedit string.
+						if (preedit_string.length() > 0)
+						{
+							if (preedit_segment_lengths.size() == 0)
+							{
+								preedit_segment_lengths.push_back(preedit_string.length());
+								preedit_standouts.push_back(FALSE);
+							}
+							mPreeditor->updatePreedit(preedit_string, preedit_segment_lengths, preedit_standouts, caret_position);
+						}
+
+						result = noErr;
+					}
+				}
+				break;
+				
 			case kEventTextInputUnicodeForKeyEvent:
 				{
 					UInt32 modifiers = 0;
@@ -2019,6 +2186,63 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 					}
 
 					result = err;
+				}
+				break;
+				
+			case kEventTextInputOffsetToPos:
+				{
+					EventParamType param_type;
+					long offset;
+					if (mPreeditor
+						&& GetEventParameter(event, kEventParamTextInputSendTextOffset, typeLongInteger,
+								&param_type, sizeof(offset), NULL, &offset) == noErr
+						&& typeLongInteger == param_type)
+					{
+						S32 preedit, preedit_length;
+						mPreeditor->getPreeditRange(&preedit, &preedit_length);
+						const LLWString & text = mPreeditor->getWText();
+						 
+						LLCoordGL caret_coord;
+						LLRect preedit_bounds;
+						if (0 <= offset
+							&& mPreeditor->getPreeditLocation(wstring_wstring_length_from_utf16_length(text, preedit, offset / sizeof(U16)),
+															  &caret_coord, &preedit_bounds, NULL))
+						{
+							LLCoordGL caret_base_coord(caret_coord.mX, preedit_bounds.mBottom);
+							LLCoordScreen caret_base_coord_screen;
+							convertCoords(caret_base_coord, &caret_base_coord_screen);
+							Point qd_point;
+							qd_point.h = caret_base_coord_screen.mX;
+							qd_point.v = caret_base_coord_screen.mY;
+							SetEventParameter(event, kEventParamTextInputReplyPoint, typeQDPoint, sizeof(qd_point), &qd_point);
+							
+							short line_height = (short) preedit_bounds.getHeight();
+							SetEventParameter(event, kEventParamTextInputReplyLineHeight, typeShortInteger, sizeof(line_height), &line_height);
+							
+							result = noErr;
+						}
+						else
+						{
+							result = errOffsetInvalid;
+						}
+					}
+				}
+				break;
+
+			case kEventTextInputGetSelectedText:
+				{
+					if (mPreeditor)
+					{
+						S32 selection, selection_length;
+						mPreeditor->getSelectionRange(&selection, &selection_length);
+						if (selection_length)
+						{
+							const LLWString text = mPreeditor->getWText().substr(selection, selection_length);
+							const llutf16string text_utf16 = wstring_to_utf16str(text);
+							result = SetEventParameter(event, kEventParamTextInputReplyText, typeUnicodeText,
+										text_utf16.length() * sizeof(U16), text_utf16.c_str());
+						}
+					}
 				}
 				break;
 			}
@@ -2194,6 +2418,13 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 				switch (evtKind)
 				{
 				case kEventMouseDown:
+					if (mLanguageTextInputAllowed)
+					{
+						// We need to interrupt before handling mouse events,
+						// so that the fixed string from IM are delivered to
+						// the currently focused UI component.
+						interruptLanguageTextInput();
+					}
 					switch(button)
 					{
 					case kEventMouseButtonPrimary:
@@ -2287,6 +2518,10 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 			mCallbacks->handleFocus(this);
 			break;
 		case kEventWindowDeactivated:
+			if (mTSMDocument)
+			{
+				DeactivateTSMDocument(mTSMDocument);
+			}
 			mCallbacks->handleFocusLost(this);
 			break;
 		case kEventWindowBoundsChanging:
@@ -2359,6 +2594,109 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 			//					BringToFront(mWindow);
 			//					result = noErr;
 			break;
+		
+		}
+		break;
+
+	case kEventClassTSMDocumentAccess:
+		if (mPreeditor)
+		{
+			switch(evtKind)
+			{		
+
+			case kEventTSMDocumentAccessGetLength:
+				{
+					// Return the number of UTF-16 units in the text, excluding those for preedit.
+
+					S32 preedit, preedit_length;
+					mPreeditor->getPreeditRange(&preedit, &preedit_length);
+					const LLWString & text = mPreeditor->getWText();
+					const CFIndex length = wstring_utf16_length(text, 0, preedit)
+						+ wstring_utf16_length(text, preedit + preedit_length, text.length());
+					result = SetEventParameter(event, kEventParamTSMDocAccessCharacterCount, typeCFIndex, sizeof(length), &length);
+				}
+				break;
+
+			case kEventTSMDocumentAccessGetSelectedRange:
+				{
+					// Return the selected range, excluding preedit.
+					// In our preeditor, preedit and selection are exclusive, so,
+					// when it has a preedit, there is no selection and the 
+					// insertion point is on the preedit that corrupses into the
+					// beginning of the preedit when the preedit was removed.
+
+					S32 preedit, preedit_length;
+					mPreeditor->getPreeditRange(&preedit, &preedit_length);
+					const LLWString & text = mPreeditor->getWText();
+					
+					CFRange range;
+					if (preedit_length)
+					{
+						range.location = wstring_utf16_length(text, 0, preedit);
+						range.length = 0;
+					}
+					else
+					{
+						S32 selection, selection_length;
+						mPreeditor->getSelectionRange(&selection, &selection_length);
+						range.location = wstring_utf16_length(text, 0, selection);
+						range.length = wstring_utf16_length(text, selection, selection_length);
+					}
+
+					result = SetEventParameter(event, kEventParamTSMDocAccessReplyCharacterRange, typeCFRange, sizeof(range), &range);
+				}
+				break;
+
+			case kEventTSMDocumentAccessGetCharacters:
+				{
+					UniChar *target_pointer;
+					CFRange range;
+					EventParamType param_type;
+					if ((result = GetEventParameter(event, kEventParamTSMDocAccessSendCharacterRange,
+										typeCFRange, &param_type, sizeof(range), NULL, &range)) == noErr
+						&& typeCFRange == param_type
+						&& (result = GetEventParameter(event, kEventParamTSMDocAccessSendCharactersPtr,
+										typePtr, &param_type, sizeof(target_pointer), NULL, &target_pointer)) == noErr
+						&& typePtr == param_type)
+					{
+						S32 preedit, preedit_length;
+						mPreeditor->getPreeditRange(&preedit, &preedit_length);
+						const LLWString & text = mPreeditor->getWText();
+
+						// The GetCharacters event of TSMDA has a fundamental flaw;
+						// An input method need to decide the starting offset and length
+						// *before* it actually see the contents, so it is impossible
+						// to guarantee the character-aligned access.  The event reply
+						// has no way to indicate a condition something like "Request
+						// was not fulfilled due to unaligned access.  Please retry."
+						// Any error sent back to the input method stops use of TSMDA
+						// entirely during the session...
+						// We need to simulate very strictly the behaviour as if the
+						// underlying *text engine* holds the contents in UTF-16.
+						// I guess this is the reason why Apple repeats saying "all
+						// text handling application should use UTF-16."  They are
+						// trying to _fix_ the flaw by changing the appliations...
+						// ... or, domination of UTF-16 in the industry may be a part
+						// of the company vision, and Apple is trying to force third
+						// party developers to obey their vision.  Remember that use
+						// of 16 bits per _a_character_ was one of the very fundamental
+						// Unicode design policy on its early days (during late 80s)
+						// and the original Unicode design was by two Apple employees...
+
+						const llutf16string text_utf16
+							= wstring_to_utf16str(text, preedit)
+							+ wstring_to_utf16str(text.substr(preedit + preedit_length));
+
+						llassert_always(sizeof(U16) == sizeof(UniChar));
+						llassert(0 <= range.location && 0 <= range.length && range.location + range.length <= text_utf16.length());
+						memcpy(target_pointer, text_utf16.c_str() + range.location, range.length * sizeof(UniChar));
+
+						// Note that result has already been set above.
+					}					
+				}
+				break;
+
+			}
 		}
 		break;
 	}
@@ -2995,9 +3333,33 @@ static long getDictLong (CFDictionaryRef refDict, CFStringRef key)
 	return int_value; // otherwise return the long value
 }
 
-void LLWindowMacOSX::allowLanguageTextInput(BOOL b)
+void LLWindowMacOSX::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
 {
 	ScriptLanguageRecord script_language;
+
+	if (preeditor != mPreeditor && !b)
+	{
+		// This condition may occur by a call to
+		// setEnabled(BOOL) against LLTextEditor or LLLineEditor
+		// when the control is not focused.
+		// We need to silently ignore the case so that
+		// the language input status of the focused control
+		// is not disturbed.
+		return;
+	}
+
+	// Take care of old and new preeditors.
+	if (preeditor != mPreeditor || !b)
+	{
+		// We need to interrupt before updating mPreeditor,
+		// so that the fix string from input method goes to
+		// the old preeditor.
+		if (mLanguageTextInputAllowed)
+		{
+			interruptLanguageTextInput();
+		}
+		mPreeditor = (b ? preeditor : NULL);
+	}
 
 	if (b == mLanguageTextInputAllowed)
 	{
@@ -3025,6 +3387,14 @@ void LLWindowMacOSX::allowLanguageTextInput(BOOL b)
 			script_language.fLanguage = langEnglish;
 			SetTextServiceLanguage(&script_language);
 		}
+	}
+}
+
+void LLWindowMacOSX::interruptLanguageTextInput()
+{
+	if (mTSMDocument)
+	{
+		FixTSMDocument(mTSMDocument);
 	}
 }
 

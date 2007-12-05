@@ -141,7 +141,13 @@ public:
 	/*virtual*/ BOOL unpack(LLDataPacker &dp);
 	/*virtual*/ bool operator==(const LLNetworkData& data) const;
 	/*virtual*/ void copy(const LLNetworkData& data);
+	// LLSD implementations here are provided by Eddy Stryker.
+	// NOTE: there are currently unused in protocols
+	LLSD asLLSD() const;
+	operator LLSD() const { return asLLSD(); }
+	bool fromLLSD(LLSD& sd);
 
+	
 	void setColor(const LLColor4& color)	{ mColor = color; mColor.clamp(); }
 	void setRadius(F32 radius)				{ mRadius = llclamp(radius, LIGHT_MIN_RADIUS, LIGHT_MAX_RADIUS); }
 	void setFalloff(F32 falloff)			{ mFalloff = llclamp(falloff, LIGHT_MIN_FALLOFF, LIGHT_MAX_FALLOFF); }
@@ -229,6 +235,9 @@ public:
 	BOOL unpack(LLDataPacker &dp);
 	bool operator==(const LLNetworkData& data) const;
 	void copy(const LLNetworkData& data);
+	LLSD asLLSD() const;
+	operator LLSD() const { return asLLSD(); }
+	bool fromLLSD(LLSD& sd);
 };// end of attributes structure
 
 
@@ -245,6 +254,9 @@ public:
 	/*virtual*/ BOOL unpack(LLDataPacker &dp);
 	/*virtual*/ bool operator==(const LLNetworkData& data) const;
 	/*virtual*/ void copy(const LLNetworkData& data);
+	LLSD asLLSD() const;
+	operator LLSD() const { return asLLSD(); }
+	bool fromLLSD(LLSD& sd);
 
 	void setSculptTexture(const LLUUID& id) { mSculptTexture = id; }
 	LLUUID getSculptTexture()               { return mSculptTexture; }

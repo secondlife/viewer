@@ -808,17 +808,21 @@ void LLPanelClassified::confirmPublish(S32 option)
 	}
 
 	// Tell all the widgets to reset their dirty state since the ad was just saved
-	mSnapshotCtrl->resetDirty();
-	mNameEditor->resetDirty();
-	mDescEditor->resetDirty();
-	mLocationEditor->resetDirty();
+	if (mSnapshotCtrl)
+		mSnapshotCtrl->resetDirty();
+	if (mNameEditor)
+		mNameEditor->resetDirty();
+	if (mDescEditor)
+		mDescEditor->resetDirty();
+	if (mLocationEditor)
+		mLocationEditor->resetDirty();
 	mLocationChanged = false;
-	mCategoryCombo->resetDirty();
-	mMatureCheck->resetDirty();
+	if (mCategoryCombo)
+		mCategoryCombo->resetDirty();
+	if (mMatureCheck)
+		mMatureCheck->resetDirty();
 	if (mAutoRenewCheck)
-	{
 		mAutoRenewCheck->resetDirty();
-	}
 }
 
 // static
