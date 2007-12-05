@@ -51,6 +51,7 @@ static const std::string STATUS_ERROR_NAMES[LLIOPipe::STATUS_ERROR_COUNT] =
 	std::string("STATUS_NOT_IMPLEMENTED"),
 	std::string("STATUS_PRECONDITION_NOT_MET"),
 	std::string("STATUS_NO_CONNECTION"),
+	std::string("STATUS_LOST_CONNECTION"),
 	std::string("STATUS_EXPIRED"),
 };
 

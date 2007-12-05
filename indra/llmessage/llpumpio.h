@@ -424,6 +424,20 @@ protected:
 	 * @return Retuns true if someone handled the error
 	 */
 	bool handleChainError(LLChainInfo& chain, LLIOPipe::EStatus error);
+
+public:
+	/** 
+	 * @brief Return number of running chains.
+	 *
+	 * *NOTE: This is only used in debugging and not considered
+	 * efficient or safe enough for production use.
+	 */
+	running_chains_t::size_type runningChains() const
+	{
+		return mRunningChains.size();
+	}
+
+
 };
 
 

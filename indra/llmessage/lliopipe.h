@@ -148,11 +148,14 @@ public:
 		// This means we could not connect to a remote host.
 		STATUS_NO_CONNECTION = -4,
 
-		// This means we could not connect to a remote host.
-		STATUS_EXPIRED = -5,
+		// The connection was lost.
+		STATUS_LOST_CONNECTION = -5,
+
+		// The totoal process time has exceeded the timeout.
+		STATUS_EXPIRED = -6,
 
 		// Keep track of the count of codes here.
-		STATUS_ERROR_COUNT = 5,
+		STATUS_ERROR_COUNT = 6,
 	};
 
 	/** 

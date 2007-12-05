@@ -1080,7 +1080,7 @@ namespace tut
 			mPool,
 			mSocket,
 			factory);
-		server->setResponseTimeout(SHORT_CHAIN_EXPIRY_SECS + 2.0f);
+		server->setResponseTimeout(SHORT_CHAIN_EXPIRY_SECS + 1.80f);
 		chain.push_back(LLIOPipe::ptr_t(server));
 		mPump->addChain(chain, NEVER_CHAIN_EXPIRY_SECS);
 
@@ -1107,6 +1107,68 @@ namespace tut
 		// never read it. pump for a bit
 		F32 elapsed = pump_loop(mPump, SHORT_CHAIN_EXPIRY_SECS + 3.0f);
 		ensure("Did not take too long", (elapsed < DEFAULT_CHAIN_EXPIRY_SECS));
+	}
+
+	template<> template<>
+	void fitness_test_object::test<5>()
+	{
+		// Set up the server
+		LLPumpIO::chain_t chain;
+		typedef LLCloneIOFactory<LLIOSleeper> sleeper_t;
+		sleeper_t* sleeper = new sleeper_t(new LLIOSleeper);
+		boost::shared_ptr<LLChainIOFactory> factory(sleeper);
+		LLIOServerSocket* server = new LLIOServerSocket(
+			mPool,
+			mSocket,
+			factory);
+		server->setResponseTimeout(1.0);
+		chain.push_back(LLIOPipe::ptr_t(server));
+		mPump->addChain(chain, NEVER_CHAIN_EXPIRY_SECS);
+		// We need to tickle the pump a little to set up the listen()
+		pump_loop(mPump, 0.1f);
+		U32 count = mPump->runningChains();
+		ensure_equals("server chain onboard", count, 1);
+		lldebugs << "** Server is up." << llendl;
+
+		// Set up the client
+		LLSocket::ptr_t client = LLSocket::create(mPool, LLSocket::STREAM_TCP);
+		LLHost server_host("127.0.0.1", SERVER_LISTEN_PORT);
+		bool connected = client->blockingConnect(server_host);
+		ensure("Connected to server", connected);
+		lldebugs << "connected" << llendl;
+		F32 elapsed = pump_loop(mPump,0.1f);
+		count = mPump->runningChains();
+		ensure_equals("server chain onboard", count, 2);
+		lldebugs << "** Client is connected." << llendl;
+
+		// We have connected, since the socket reader does not block,
+		// the first call to read data will return EAGAIN, so we need
+		// to write something.
+		chain.clear();
+		chain.push_back(LLIOPipe::ptr_t(new LLPipeStringInjector("hi")));
+		chain.push_back(LLIOPipe::ptr_t(new LLIOSocketWriter(client)));
+		chain.push_back(LLIOPipe::ptr_t(new LLIONull));
+		mPump->addChain(chain, 0.2);
+		chain.clear();
+
+		// pump for a bit and make sure all 3 chains are running
+		elapsed = pump_loop(mPump,0.1f);
+		count = mPump->runningChains();
+		ensure_equals("client chain onboard", count, 3);
+		lldebugs << "** request should have been sent." << llendl;
+
+		// pump for long enough the the client socket closes, and the
+		// server socket should not be closed yet.
+		elapsed = pump_loop(mPump,0.2f);
+		count = mPump->runningChains();
+		ensure_equals("client chain timed out ", count, 2);
+		lldebugs << "** client chain should be closed." << llendl;
+
+		// At this point, the socket should be closed by the timeout
+		elapsed = pump_loop(mPump,1.0f);
+		count = mPump->runningChains();
+		ensure_equals("accepted socked close", count, 1);
+		lldebugs << "** Sleeper should have timed out.." << llendl;
 	}
 }
 

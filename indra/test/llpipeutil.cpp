@@ -164,3 +164,25 @@ LLIOPipe::EStatus LLIONull::process_impl(
 {
 	return STATUS_OK;
 }
+
+// virtual
+LLIOPipe::EStatus LLIOSleeper::process_impl(
+	const LLChannelDescriptors& channels,
+	buffer_ptr_t& buffer,
+	bool& eos,
+	LLSD& context,
+	LLPumpIO* pump)
+{
+	if(!mRespond)
+	{
+		lldebugs << "LLIOSleeper::process_impl() sleeping." << llendl;
+		mRespond = true;
+		static const F64 SLEEP_TIME = 2.0;
+		pump->sleepChain(SLEEP_TIME);
+		return STATUS_BREAK;
+	}
+	lldebugs << "LLIOSleeper::process_impl() responding." << llendl;
+	LLBufferStream ostr(channels, buffer.get());
+	ostr << "huh? sorry, I was sleeping." << std::endl;
+	return STATUS_DONE;
+}

@@ -170,6 +170,7 @@ static const apr_getopt_option_t TEST_CL_OPTIONS[] =
 	{"group", 'g', 1, "Run test group specified by option argument."},
 	{"skip", 's', 1, "Skip test number specified by option argument. Only works when a specific group is being tested"},
 	{"wait", 'w', 0, "Wait for input before exit."},
+	{"debug", 'd', 0, "Emit full debug logs."},
 	{0, 0, 0, 0}
 };
 
@@ -224,7 +225,8 @@ int main(int argc, char **argv)
 	LLError::initForApplication(".");
 	LLError::setFatalFunction(wouldHaveCrashed);
 	LLError::setDefaultLevel(LLError::LEVEL_ERROR);
-		// *FIX: should come from error config file
+		//< *TODO: should come from error config file. Note that we
+		// have a command line option that sets this to debug.
 	
 #ifdef CTYPE_WORKAROUND
 	ctype_workaround();
@@ -285,6 +287,11 @@ int main(int argc, char **argv)
 			break;
 		case 'w':
 			wait_at_exit = true;
+			break;
+		case 'd':
+			// *TODO: should come from error config file. We set it to
+			// ERROR by default, so this allows full debug levels.
+			LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
 			break;
 		default:
 			stream_usage(std::cerr, argv[0]);

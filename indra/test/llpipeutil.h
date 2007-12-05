@@ -145,4 +145,24 @@ protected:
 		LLPumpIO* pump);
 };
 
+/**
+ * @brief Pipe that sleeps, and then responds later.
+ */
+class LLIOSleeper : public LLIOPipe
+{
+public:
+	LLIOSleeper() : mRespond(false) {}
+	  
+protected:
+    virtual EStatus process_impl(
+		const LLChannelDescriptors& channels,
+		buffer_ptr_t& buffer,
+		bool& eos,
+		LLSD& context,
+		LLPumpIO* pump);
+private:
+	bool mRespond;
+
+};
+
 #endif // LL_LLPIPEUTIL_H
