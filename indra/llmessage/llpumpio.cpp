@@ -305,7 +305,7 @@ bool LLPumpIO::setConditional(LLIOPipe* pipe, const apr_pollfd_t* poll)
 	if(!pipe) return false;
 	ll_debug_poll_fd("Set conditional", poll);
 
-	lldebugs << "Setting conditionals (" << events_2_string(poll->reqevents)
+	lldebugs << "Setting conditionals (" << (poll ? events_2_string(poll->reqevents) :"null")
 		 << ") "
 #if LL_DEBUG_PIPE_TYPE_IN_PUMP
 		 << "on pipe " << typeid(*pipe).name() 
