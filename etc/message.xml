@@ -408,6 +408,22 @@
 					<boolean>false</boolean>
 				</map>
 
+				<key>StartGroupProposal</key>
+				<map>
+					<key>flavor</key>
+					<string>llsd</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+				
+				<key>GroupProposalBallot</key>
+				<map>
+					<key>flavor</key>
+					<string>llsd</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
 		  </map>
   	  	<key>capBans</key>
     	<map>

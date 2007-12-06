@@ -7708,7 +7708,7 @@ version 2.0
 // viewer -> simulator -> dataserver
 // reliable
 {
-	StartGroupProposal Low 363 NotTrusted Zerocoded
+	StartGroupProposal Low 363 NotTrusted Zerocoded UDPDeprecated
 	{
 		AgentData		Single
 		{	AgentID		LLUUID	}
@@ -7728,7 +7728,7 @@ version 2.0
 // viewer -> simulator -> dataserver
 // reliable
 {
-	GroupProposalBallot Low 364 NotTrusted Unencoded
+	GroupProposalBallot Low 364 NotTrusted Unencoded UDPDeprecated
 	{
 		AgentData		Single
 		{	AgentID		LLUUID			}
