@@ -106,7 +106,7 @@ void LLMotion::fadeIn()
 //-----------------------------------------------------------------------------
 // addJointState()
 //-----------------------------------------------------------------------------
-void LLMotion::addJointState(LLJointState* jointState)
+void LLMotion::addJointState(const LLPointer<LLJointState>& jointState)
 {
 	mPose.addJointState(jointState);
 	S32 priority = jointState->getPriority();

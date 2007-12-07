@@ -862,14 +862,6 @@ void LLPolyMesh::dumpDiagInfo()
 	llinfos << buf << llendl;
 	llinfos << "-----------------------------------------------------" << llendl;
 }
- 
-//-----------------------------------------------------------------------------
-// getCoords()
-//-----------------------------------------------------------------------------
-const LLVector3	*LLPolyMesh::getCoords() const
-{
-	return mCoords;
-}
 
 //-----------------------------------------------------------------------------
 // getWritableCoords()
@@ -982,14 +974,6 @@ void	LLPolyMesh::deleteAllMorphData()
 	if (!mSharedData) return;
 
 	mSharedData->mMorphData.deleteAllData();
-}
-
-//-----------------------------------------------------------------------------
-// getWeights()
-//-----------------------------------------------------------------------------
-const F32*	LLPolyMesh::getWeights() const
-{ 
-	return mSharedData->mWeights;
 }
 
 //-----------------------------------------------------------------------------

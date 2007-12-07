@@ -311,7 +311,13 @@ class LLBodyNoiseMotion :
 {
 public:
 	// Constructor
-	LLBodyNoiseMotion(const LLUUID &id) : LLMotion(id) {mName = "body_noise";}
+	LLBodyNoiseMotion(const LLUUID &id)
+		: LLMotion(id)
+	{
+		mName = "body_noise";
+
+		mTorsoState = new LLJointState;
+	}
 
 	// Destructor
 	virtual ~LLBodyNoiseMotion() { }
@@ -354,14 +360,14 @@ public:
 	// must return true to indicate success and be available for activation
 	virtual LLMotionInitStatus onInitialize(LLCharacter *character)
 	{
-		if( !mTorsoState.setJoint( character->getJoint("mTorso") ))
+		if( !mTorsoState->setJoint( character->getJoint("mTorso") ))
 		{
 			return STATUS_FAILURE;
 		}
 
-		mTorsoState.setUsage(LLJointState::ROT);
+		mTorsoState->setUsage(LLJointState::ROT);
 
-		addJointState( &mTorsoState );
+		addJointState( mTorsoState );
 		return STATUS_SUCCESS;
 	}
 
@@ -388,7 +394,7 @@ public:
 		F32 ry = TORSO_NOISE_AMOUNT * DEG_TO_RAD * noiseY / 0.42f;
 		LLQuaternion tQn;
 		tQn.setQuat( rx, ry, 0.0f );
-		mTorsoState.setRotation( tQn );
+		mTorsoState->setRotation( tQn );
 
 		return TRUE;
 	}
@@ -400,7 +406,7 @@ public:
 	//-------------------------------------------------------------------------
 	// joint states to be animated
 	//-------------------------------------------------------------------------
-	LLJointState		mTorsoState;
+	LLPointer<LLJointState> mTorsoState;
 };
 
 //-----------------------------------------------------------------------------
@@ -417,6 +423,8 @@ public:
 		mCharacter(NULL)
 	{
 		mName = "breathe_rot";
+
+		mChestState = new LLJointState;
 	}
 
 	// Destructor
@@ -463,12 +471,12 @@ public:
 		mCharacter = character;
 		bool success = true;
 
-		if ( !mChestState.setJoint( character->getJoint( "mChest" ) ) ) { success = false; }
+		if ( !mChestState->setJoint( character->getJoint( "mChest" ) ) ) { success = false; }
 
 		if ( success )
 		{
-			mChestState.setUsage(LLJointState::ROT);
-			addJointState( &mChestState );
+			mChestState->setUsage(LLJointState::ROT);
+			addJointState( mChestState );
 		}
 
 		if ( success )
@@ -495,7 +503,7 @@ public:
 
 		F32 breathe_amt = (sinf(mBreatheRate * time) * BREATHE_ROT_MOTION_STRENGTH);
 
-		mChestState.setRotation(LLQuaternion(breathe_amt, LLVector3(0.f, 1.f, 0.f)));
+		mChestState->setRotation(LLQuaternion(breathe_amt, LLVector3(0.f, 1.f, 0.f)));
 
 		return TRUE;
 	}
@@ -507,7 +515,7 @@ public:
 	//-------------------------------------------------------------------------
 	// joint states to be animated
 	//-------------------------------------------------------------------------
-	LLJointState		mChestState;	
+	LLPointer<LLJointState> mChestState;
 	F32					mBreatheRate;
 	LLCharacter*		mCharacter;
 };
@@ -520,7 +528,13 @@ class LLPelvisFixMotion :
 {
 public:
 	// Constructor
-	LLPelvisFixMotion(const LLUUID &id) : LLMotion(id), mCharacter(NULL) {mName = "pelvis_fix";}
+	LLPelvisFixMotion(const LLUUID &id)
+		: LLMotion(id), mCharacter(NULL)
+	{
+		mName = "pelvis_fix";
+
+		mPelvisState = new LLJointState;
+	}
 
 	// Destructor
 	virtual ~LLPelvisFixMotion() { }
@@ -565,14 +579,14 @@ public:
 	{
 		mCharacter = character;
 
-		if (!mPelvisState.setJoint( character->getJoint("mPelvis")))
+		if (!mPelvisState->setJoint( character->getJoint("mPelvis")))
 		{
 			return STATUS_FAILURE;
 		}
 
-		mPelvisState.setUsage(LLJointState::POS);
+		mPelvisState->setUsage(LLJointState::POS);
 
-		addJointState( &mPelvisState );
+		addJointState( mPelvisState );
 		return STATUS_SUCCESS;
 	}
 
@@ -586,7 +600,7 @@ public:
 	// must return FALSE when the motion is completed.
 	virtual BOOL onUpdate(F32 time, U8* joint_mask)
 	{
-		mPelvisState.setPosition(LLVector3::zero);
+		mPelvisState->setPosition(LLVector3::zero);
 
 		return TRUE;
 	}
@@ -598,7 +612,7 @@ public:
 	//-------------------------------------------------------------------------
 	// joint states to be animated
 	//-------------------------------------------------------------------------
-	LLJointState		mPelvisState;
+	LLPointer<LLJointState> mPelvisState;
 	LLCharacter*		mCharacter;
 };
 

@@ -61,7 +61,6 @@ BOOL LLKeyframeMotionParam::sortFunc(ParameterizedMotion *new_motion, Parameteri
 //-----------------------------------------------------------------------------
 LLKeyframeMotionParam::LLKeyframeMotionParam( const LLUUID &id) : LLMotion(id)
 {
-	mJointStates = NULL;
 	mDefaultKeyframeMotion = NULL;
 	mCharacter = NULL;
 

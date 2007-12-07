@@ -70,7 +70,6 @@ const S32	MAX_NUM_RESOLUTIONS = 32;
 void show_window_creation_error(const char* title)
 {
 	llwarns << title << llendl;
-	shell_open( "help/window_creation_error.html");
 	/*
 	OSMessageBox(
 	"Second Life is unable to run because it can't set up your display.\n"
@@ -735,7 +734,6 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 			if (check_for_card(RENDERER, CARD_LIST[i]))
 			{
 				close();
-				shell_open( "help/unsupported_card.html" );
 				return FALSE;
 			}
 		}
@@ -3200,46 +3198,6 @@ void spawn_web_browser(const char* escaped_url)
 	}
 }
 
-void shell_open( const char* file_path )
-{
-	OSStatus			result = noErr;
-
-	llinfos << "Opening " << file_path << llendl;
-	CFURLRef	urlRef = NULL;
-
-	CFStringRef	stringRef = CFStringCreateWithCString(NULL, file_path, kCFStringEncodingUTF8);
-	if (stringRef)
-	{
-		// This will succeed if the string is a full URL, including the http://
-		// Note that URLs specified this way need to be properly percent-escaped.
-		urlRef = CFURLCreateWithString(NULL, stringRef, NULL);
-
-		if(urlRef == NULL)
-		{
-			// This will succeed if the string is a full or partial posix path.
-			// This will work even if the path contains characters that would need to be percent-escaped
-			// in the URL (such as spaces).
-			urlRef = CFURLCreateWithFileSystemPath(NULL, stringRef, kCFURLPOSIXPathStyle, false);
-		}
-
-		CFRelease(stringRef);
-	}
-
-	if (urlRef)
-	{
-		result = LSOpenCFURLRef(urlRef, NULL);
-
-		if (result != noErr)
-		{
-			llinfos << "Error " << result << " on open." << llendl;
-		}
-		CFRelease(urlRef);
-	}
-	else
-	{
-		llinfos << "Error: couldn't create URL." << llendl;
-	}
-}
 
 BOOL LLWindowMacOSX::dialog_color_picker ( F32 *r, F32 *g, F32 *b)
 {

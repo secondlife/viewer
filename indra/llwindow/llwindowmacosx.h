@@ -218,6 +218,5 @@ private:
 S32 OSMessageBoxMacOSX(const char* text, const char* caption, U32 type);
 
 void load_url_external(const char* url);
-void shell_open( const char* file_path );
 
 #endif //LL_LLWINDOWMACOSX_H

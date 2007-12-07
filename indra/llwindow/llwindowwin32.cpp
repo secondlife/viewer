@@ -84,7 +84,6 @@ LLW32MsgCallback gAsyncMsgCallback = NULL;
 void show_window_creation_error(const char* title)
 {
 	llwarns << title << llendl;
-	shell_open( "help/window_creation_error.html");
 }
 
 //static
@@ -3398,24 +3397,6 @@ void spawn_web_browser(const char* escaped_url )
 	}
 }
 
-void shell_open( const char* file_path )
-{
-	llinfos << "Opening " << file_path << llendl;
-
-	WCHAR wstr[1024];
-	mbstowcs(wstr, file_path, 1024);
-
-	HWND our_window = NULL;
-	int retval = (int) ShellExecute(our_window, L"open", wstr, NULL, NULL, SW_SHOWNORMAL);	/* Flawfinder: ignore */
-	if (retval > 32)
-	{
-		llinfos << "ShellExecute success with " << retval << llendl;
-	}
-	else
-	{
-		llinfos << "ShellExecute failure with " << retval << llendl;
-	}
-}
 
 BOOL LLWindowWin32::dialog_color_picker ( F32 *r, F32 *g, F32 *b )
 {

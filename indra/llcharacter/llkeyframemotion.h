@@ -73,6 +73,11 @@ public:
 	// Destructor
 	virtual ~LLKeyframeMotion();
 
+private:
+	// private helper functions to wrap some asserts
+	LLPointer<LLJointState>& getJointState(U32 index);
+	LLJoint* getJoint(U32 index);
+	
 public:
 	//-------------------------------------------------------------------------
 	// functions to support MotionController and MotionRegistry
@@ -388,7 +393,7 @@ public:
 		U32				mUsage;
 		LLJoint::JointPriority	mPriority;
 
-		void update(LLJointState *joint_state, F32 time, F32 duration);
+		void update(LLJointState* joint_state, F32 time, F32 duration);
 	};
 	
 	//-------------------------------------------------------------------------
@@ -397,8 +402,7 @@ public:
 	class JointMotionList
 	{
 	public:
-		U32						mNumJointMotions;
-		JointMotion*			mJointMotionArray;
+		std::vector<JointMotion*> mJointMotionArray;
 		F32						mDuration;
 		BOOL					mLoop;
 		F32						mLoopInPoint;
@@ -415,6 +419,8 @@ public:
 		JointMotionList();
 		~JointMotionList();
 		U32 dumpDiagInfo();
+		JointMotion* getJointMotion(U32 index) const { llassert(index < mJointMotionArray.size()); return mJointMotionArray[index]; }
+		U32 getNumJointMotions() const { return mJointMotionArray.size(); }
 	};
 
 
@@ -425,7 +431,7 @@ protected:
 	// Member Data
 	//-------------------------------------------------------------------------
 	JointMotionList*				mJointMotionList;
-	LLJointState*					mJointStates;
+	std::vector<LLPointer<LLJointState> > mJointStates;
 	LLJoint*						mPelvisp;
 	LLCharacter*					mCharacter;
 	std::string						mEmoteName;

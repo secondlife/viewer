@@ -115,7 +115,7 @@ public:
 	void touch(U32 flags = ALL_DIRTY);
 
 	// get/set name
-	const std::string &getName() { return mName; }
+	const std::string& getName() const { return mName; }
 	void setName( const std::string &name ) { mName = name; }
 
 	// getParent
@@ -175,7 +175,7 @@ public:
 
 	virtual BOOL isAnimatable() { return TRUE; }
 
-	S32 getJointNum() { return mJointNum; }
+	S32 getJointNum() const { return mJointNum; }
 	void setJointNum(S32 joint_num) { mJointNum = joint_num; }
 };
 #endif // LL_LLJOINT_H

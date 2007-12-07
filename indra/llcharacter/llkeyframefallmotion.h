@@ -75,7 +75,7 @@ protected:
 	//-------------------------------------------------------------------------
 	LLCharacter*	mCharacter;
 	F32				mVelocityZ;
-	LLJointState*	mPelvisStatep;
+	LLPointer<LLJointState>	mPelvisState;
 	LLQuaternion	mRotationToGroundNormal;
 };
 

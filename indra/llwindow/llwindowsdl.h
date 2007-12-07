@@ -37,6 +37,7 @@
 #include "llwindow.h"
 
 #include "SDL/SDL.h"
+#include "SDL/SDL_endian.h"
 
 #if LL_X11
 // get X11-specific headers for use in low-level stuff like copy-and-paste support
@@ -222,7 +223,6 @@ public:
 S32 OSMessageBoxSDL(const char* text, const char* caption, U32 type);
 
 void load_url_external(const char* url);
-void shell_open( const char* file_path );
 
 #if LL_GTK
 // Lazily initialize and check the runtime GTK version for goodness.

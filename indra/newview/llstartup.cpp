@@ -70,7 +70,6 @@
 #include "lluserrelations.h"
 #include "llversionviewer.h"
 #include "llvfs.h"
-#include "llwindow.h"		// for shell_open
 #include "llxorcipher.h"	// saved password, MAC address
 #include "message.h"
 #include "v3math.h"

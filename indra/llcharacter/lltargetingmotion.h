@@ -111,7 +111,7 @@ public:
 public:
 
 	LLCharacter			*mCharacter;
-	LLJointState		mTorsoState;
+	LLPointer<LLJointState>	mTorsoState;
 	LLJoint*			mPelvisJoint;
 	LLJoint*			mTorsoJoint;
 	LLJoint*			mRightHandJoint;

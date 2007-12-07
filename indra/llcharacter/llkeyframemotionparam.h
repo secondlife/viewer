@@ -145,7 +145,6 @@ protected:
 
 	typedef LLLinkedList < ParameterizedMotion >	motion_list_t;
 	LLAssocList <std::string, motion_list_t* > mParameterizedMotions;
-	LLJointState*		mJointStates;
 	LLMotion*			mDefaultKeyframeMotion;
 	LLCharacter*		mCharacter;
 	LLPoseBlender		mPoseBlender;

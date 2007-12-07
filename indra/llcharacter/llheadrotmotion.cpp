@@ -82,6 +82,10 @@ LLHeadRotMotion::LLHeadRotMotion(const LLUUID &id) :
 	mHeadJoint(NULL)
 {
 	mName = "head_rot";
+
+	mTorsoState = new LLJointState;
+	mNeckState = new LLJointState;
+	mHeadState = new LLJointState;
 }
 
 
@@ -130,34 +134,34 @@ LLMotion::LLMotionInitStatus LLHeadRotMotion::onInitialize(LLCharacter *characte
 		return STATUS_FAILURE;
 	}
 
-	mTorsoState.setJoint( character->getJoint("mTorso") );
-	if ( ! mTorsoState.getJoint() )
+	mTorsoState->setJoint( character->getJoint("mTorso") );
+	if ( ! mTorsoState->getJoint() )
 	{
 		llinfos << getName() << ": Can't get torso joint." << llendl;
 		return STATUS_FAILURE;
 	}
 
-	mNeckState.setJoint( character->getJoint("mNeck") );
-	if ( ! mNeckState.getJoint() )
+	mNeckState->setJoint( character->getJoint("mNeck") );
+	if ( ! mNeckState->getJoint() )
 	{
 		llinfos << getName() << ": Can't get neck joint." << llendl;
 		return STATUS_FAILURE;
 	}
 
-	mHeadState.setJoint( character->getJoint("mHead") );
-	if ( ! mHeadState.getJoint() )
+	mHeadState->setJoint( character->getJoint("mHead") );
+	if ( ! mHeadState->getJoint() )
 	{
 		llinfos << getName() << ": Can't get head joint." << llendl;
 		return STATUS_FAILURE;
 	}
 
-	mTorsoState.setUsage(LLJointState::ROT);
-	mNeckState.setUsage(LLJointState::ROT);
-	mHeadState.setUsage(LLJointState::ROT);
+	mTorsoState->setUsage(LLJointState::ROT);
+	mNeckState->setUsage(LLJointState::ROT);
+	mHeadState->setUsage(LLJointState::ROT);
 
-	addJointState( &mTorsoState );
-	addJointState( &mNeckState );
-	addJointState( &mHeadState );
+	addJointState( mTorsoState );
+	addJointState( mNeckState );
+	addJointState( mHeadState );
 
 	mLastHeadRot.loadIdentity();
 
@@ -240,16 +244,16 @@ BOOL LLHeadRotMotion::onUpdate(F32 time, U8* joint_mask)
 	// Set torso target rotation such that it lags behind the head rotation
 	// by a fixed amount.
 	LLQuaternion torso_rot_local = nlerp(TORSO_LAG, LLQuaternion::DEFAULT, head_rot_local );
-	mTorsoState.setRotation( nlerp(torso_slerp_amt, mTorsoState.getRotation(), torso_rot_local) );
+	mTorsoState->setRotation( nlerp(torso_slerp_amt, mTorsoState->getRotation(), torso_rot_local) );
 
 	head_rot_local = nlerp(head_slerp_amt, mLastHeadRot, head_rot_local);
 	mLastHeadRot = head_rot_local;
 
 	// Set the head rotation.
-	LLQuaternion torsoRotLocal =  mNeckState.getJoint()->getParent()->getWorldRotation() * currentInvRootRotWorld;
+	LLQuaternion torsoRotLocal =  mNeckState->getJoint()->getParent()->getWorldRotation() * currentInvRootRotWorld;
 	head_rot_local = head_rot_local * ~torsoRotLocal;
-	mNeckState.setRotation( nlerp(NECK_LAG, LLQuaternion::DEFAULT, head_rot_local) );
-	mHeadState.setRotation( nlerp(1.f - NECK_LAG, LLQuaternion::DEFAULT, head_rot_local));
+	mNeckState->setRotation( nlerp(NECK_LAG, LLQuaternion::DEFAULT, head_rot_local) );
+	mHeadState->setRotation( nlerp(1.f - NECK_LAG, LLQuaternion::DEFAULT, head_rot_local));
 
 	return TRUE;
 }
@@ -284,6 +288,9 @@ LLEyeMotion::LLEyeMotion(const LLUUID &id) : LLMotion(id)
 	mHeadJoint = NULL;
 
 	mName = "eye_rot";
+
+	mLeftEyeState = new LLJointState;
+	mRightEyeState = new LLJointState;
 }
 
 
@@ -309,25 +316,25 @@ LLMotion::LLMotionInitStatus LLEyeMotion::onInitialize(LLCharacter *character)
 		return STATUS_FAILURE;
 	}
 
-	mLeftEyeState.setJoint( character->getJoint("mEyeLeft") );
-	if ( ! mLeftEyeState.getJoint() )
+	mLeftEyeState->setJoint( character->getJoint("mEyeLeft") );
+	if ( ! mLeftEyeState->getJoint() )
 	{
 		llinfos << getName() << ": Can't get left eyeball joint." << llendl;
 		return STATUS_FAILURE;
 	}
 
-	mRightEyeState.setJoint( character->getJoint("mEyeRight") );
-	if ( ! mRightEyeState.getJoint() )
+	mRightEyeState->setJoint( character->getJoint("mEyeRight") );
+	if ( ! mRightEyeState->getJoint() )
 	{
 		llinfos << getName() << ": Can't get Right eyeball joint." << llendl;
 		return STATUS_FAILURE;
 	}
 
-	mLeftEyeState.setUsage(LLJointState::ROT);
-	mRightEyeState.setUsage(LLJointState::ROT);
+	mLeftEyeState->setUsage(LLJointState::ROT);
+	mRightEyeState->setUsage(LLJointState::ROT);
 
-	addJointState( &mLeftEyeState );
-	addJointState( &mRightEyeState );
+	addJointState( mLeftEyeState );
+	addJointState( mRightEyeState );
 
 	return STATUS_SUCCESS;
 }
@@ -443,11 +450,15 @@ BOOL LLEyeMotion::onUpdate(F32 time, U8* joint_mask)
 		target_eye_rot = LLQuaternion(eye_look_at, left, up);
 		// convert target rotation to head-local coordinates
 		target_eye_rot *= ~mHeadJoint->getWorldRotation();
+		// eliminate any Euler roll - we're lucky that roll is applied last.
+		F32 roll, pitch, yaw;
+		target_eye_rot.getEulerAngles(&roll, &pitch, &yaw);
+		target_eye_rot.setQuat(0.0f, pitch, yaw);
 		// constrain target orientation to be in front of avatar's face
 		target_eye_rot.constrain(EYE_ROT_LIMIT_ANGLE);
 
 		// calculate vergence
-		F32 interocular_dist = (mLeftEyeState.getJoint()->getWorldPosition() - mRightEyeState.getJoint()->getWorldPosition()).magVec();
+		F32 interocular_dist = (mLeftEyeState->getJoint()->getWorldPosition() - mRightEyeState->getJoint()->getWorldPosition()).magVec();
 		vergence = -atan2((interocular_dist / 2.f), lookAtDistance);
 		llclamp(vergence, -F_PI_BY_TWO, 0.f);
 	}
@@ -495,8 +506,8 @@ BOOL LLEyeMotion::onUpdate(F32 time, U8* joint_mask)
 	vergence_quat.transQuat();
 	right_eye_rot = vergence_quat * eye_jitter_rot * right_eye_rot;
 
-	mLeftEyeState.setRotation( left_eye_rot );
-	mRightEyeState.setRotation( right_eye_rot );
+	mLeftEyeState->setRotation( left_eye_rot );
+	mRightEyeState->setRotation( right_eye_rot );
 
 	return TRUE;
 }
@@ -507,13 +518,13 @@ BOOL LLEyeMotion::onUpdate(F32 time, U8* joint_mask)
 //-----------------------------------------------------------------------------
 void LLEyeMotion::onDeactivate()
 {
-	LLJoint* joint = mLeftEyeState.getJoint();
+	LLJoint* joint = mLeftEyeState->getJoint();
 	if (joint)
 	{
 		joint->setRotation(LLQuaternion::DEFAULT);
 	}
 
-	joint = mRightEyeState.getJoint();
+	joint = mRightEyeState->getJoint();
 	if (joint)
 	{
 		joint->setRotation(LLQuaternion::DEFAULT);

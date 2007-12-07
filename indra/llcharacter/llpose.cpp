@@ -54,7 +54,7 @@ LLPose::~LLPose()
 //-----------------------------------------------------------------------------
 // getFirstJointState()
 //-----------------------------------------------------------------------------
-LLJointState *LLPose::getFirstJointState()
+LLJointState* LLPose::getFirstJointState()
 {
 	mListIter = mJointMap.begin();
 	if (mListIter == mJointMap.end())
@@ -86,7 +86,7 @@ LLJointState *LLPose::getNextJointState()
 //-----------------------------------------------------------------------------
 // addJointState()
 //-----------------------------------------------------------------------------
-BOOL LLPose::addJointState(LLJointState *jointState)
+BOOL LLPose::addJointState(const LLPointer<LLJointState>& jointState)
 {
 	if (mJointMap.find(jointState->getJoint()->getName()) == mJointMap.end())
 	{
@@ -98,7 +98,7 @@ BOOL LLPose::addJointState(LLJointState *jointState)
 //-----------------------------------------------------------------------------
 // removeJointState()
 //-----------------------------------------------------------------------------
-BOOL LLPose::removeJointState(LLJointState *jointState)
+BOOL LLPose::removeJointState(const LLPointer<LLJointState>& jointState)
 {
 	mJointMap.erase(jointState->getJoint()->getName());
 	return TRUE;
@@ -199,7 +199,7 @@ LLJointStateBlender::~LLJointStateBlender()
 //-----------------------------------------------------------------------------
 // addJointState()
 //-----------------------------------------------------------------------------
-BOOL LLJointStateBlender::addJointState(LLJointState *joint_state, S32 priority, BOOL additive_blend)
+BOOL LLJointStateBlender::addJointState(const LLPointer<LLJointState>& joint_state, S32 priority, BOOL additive_blend)
 {
 	llassert(joint_state);
 
@@ -209,7 +209,7 @@ BOOL LLJointStateBlender::addJointState(LLJointState *joint_state, S32 priority,
 
 	for(S32 i = 0; i < JSB_NUM_JOINT_STATES; i++)
 	{
-		if (NULL == mJointStates[i])
+		if (mJointStates[i].isNull())
 		{
 			mJointStates[i] = joint_state;
 			mPriorities[i] = priority;
@@ -246,7 +246,7 @@ void LLJointStateBlender::blendJointStates(BOOL apply_now)
 	// we need at least one joint to blend
 	// if there is one, it will be in slot zero according to insertion logic
 	// instead of resetting joint state to default, just leave it unchanged from last frame
-	if (NULL == mJointStates[0])
+	if (mJointStates[0].isNull())
 	{
 		return;
 	}
@@ -275,7 +275,7 @@ void LLJointStateBlender::blendJointStates(BOOL apply_now)
 	sum_weights[SCALE_WEIGHT] = 0.f;
 
 	for(S32 joint_state_index = 0; 
-		joint_state_index < JSB_NUM_JOINT_STATES && mJointStates[joint_state_index] != NULL;
+		joint_state_index < JSB_NUM_JOINT_STATES && mJointStates[joint_state_index].notNull();
 		joint_state_index++)
 	{
 		LLJointState* jsp = mJointStates[joint_state_index];
@@ -468,7 +468,7 @@ BOOL LLPoseBlender::addMotion(LLMotion* motion)
 {
 	LLPose* pose = motion->getPose();
 
-	for(LLJointState *jsp = pose->getFirstJointState(); jsp; jsp = pose->getNextJointState())
+	for(LLJointState* jsp = pose->getFirstJointState(); jsp; jsp = pose->getNextJointState())
 	{
 		LLJoint *jointp = jsp->getJoint();
 		LLJointStateBlender* joint_blender;

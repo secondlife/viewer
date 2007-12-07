@@ -3667,6 +3667,11 @@ void LLPipeline::clearRenderMap()
 
 void LLPipeline::resetVertexBuffers(LLDrawable* drawable)
 {
+	if (!drawable)
+	{
+		return;
+	}
+
 	for (S32 i = 0; i < drawable->getNumFaces(); i++)
 	{
 		LLFace* facep = drawable->getFace(i);

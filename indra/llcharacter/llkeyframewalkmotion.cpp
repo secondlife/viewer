@@ -143,6 +143,8 @@ LLWalkAdjustMotion::LLWalkAdjustMotion(const LLUUID &id) : LLMotion(id)
 {
 	mLastTime = 0.f;
 	mName = "walk_adjust";
+
+	mPelvisState = new LLJointState;
 }
 
 //-----------------------------------------------------------------------------
@@ -155,15 +157,15 @@ LLMotion::LLMotionInitStatus LLWalkAdjustMotion::onInitialize(LLCharacter *chara
 	mRightAnkleJoint = mCharacter->getJoint("mAnkleRight");
 
 	mPelvisJoint = mCharacter->getJoint("mPelvis");
-	mPelvisState.setJoint( mPelvisJoint );
+	mPelvisState->setJoint( mPelvisJoint );
 	if ( !mPelvisJoint )
 	{
 		llwarns << getName() << ": Can't get pelvis joint." << llendl;
 		return STATUS_FAILURE;
 	}
 
-	mPelvisState.setUsage(LLJointState::POS);
-	addJointState( &mPelvisState );
+	mPelvisState->setUsage(LLJointState::POS);
+	addJointState( mPelvisState );
 
 	return STATUS_SUCCESS;
 }
@@ -178,7 +180,7 @@ BOOL LLWalkAdjustMotion::onActivate()
 	mAnimSpeed = 0.f;
 	mAvgSpeed = 0.f;
 	mRelativeDir = 1.f;
-	mPelvisState.setPosition(LLVector3::zero);
+	mPelvisState->setPosition(LLVector3::zero);
 	// store ankle positions for next frame
 	mLastLeftAnklePos = mCharacter->getPosGlobalFromAgent(mLeftAnkleJoint->getWorldPosition());
 	mLastRightAnklePos = mCharacter->getPosGlobalFromAgent(mRightAnkleJoint->getWorldPosition());
@@ -271,7 +273,7 @@ BOOL LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 
 	// calculate ideal pelvis offset so that foot is glued to ground and damp towards it
 	// the amount of foot slippage this frame + the offset applied last frame
-	mPelvisOffset = mPelvisState.getPosition() + lerp(LLVector3::zero, footCorrection, LLCriticalDamp::getInterpolant(0.2f));
+	mPelvisOffset = mPelvisState->getPosition() + lerp(LLVector3::zero, footCorrection, LLCriticalDamp::getInterpolant(0.2f));
 
 	// pelvis drift (along walk direction)
 	mAvgCorrection = lerp(mAvgCorrection, footCorrection.mV[VX] * mRelativeDir, LLCriticalDamp::getInterpolant(0.1f));
@@ -319,7 +321,7 @@ BOOL LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 	F32 drift_comp_max = llclamp(speed, 0.f, DRIFT_COMP_MAX_SPEED) / DRIFT_COMP_MAX_SPEED;
 	drift_comp_max *= DRIFT_COMP_MAX_TOTAL;
 
-	LLVector3 currentPelvisPos = mPelvisState.getJoint()->getPosition();
+	LLVector3 currentPelvisPos = mPelvisState->getJoint()->getPosition();
 
 	// NB: this is an ADDITIVE amount that is accumulated every frame, so clamping it alone won't do the trick
 	// must clamp with absolute position of pelvis in mind
@@ -328,7 +330,7 @@ BOOL LLWalkAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 	mPelvisOffset.mV[VZ] = 0.f;
 
 	// set position
-	mPelvisState.setPosition(mPelvisOffset);
+	mPelvisState->setPosition(mPelvisOffset);
 
 	mCharacter->setAnimationData("Pelvis Offset", &mPelvisOffset);
 
@@ -344,6 +346,17 @@ void LLWalkAdjustMotion::onDeactivate()
 }
 
 //-----------------------------------------------------------------------------
+// LLFlyAdjustMotion::LLFlyAdjustMotion()
+//-----------------------------------------------------------------------------
+LLFlyAdjustMotion::LLFlyAdjustMotion(const LLUUID &id)
+	: LLMotion(id)
+{
+	mName = "fly_adjust";
+
+	mPelvisState = new LLJointState;
+}
+
+//-----------------------------------------------------------------------------
 // LLFlyAdjustMotion::onInitialize()
 //-----------------------------------------------------------------------------
 LLMotion::LLMotionInitStatus LLFlyAdjustMotion::onInitialize(LLCharacter *character)
@@ -351,15 +364,15 @@ LLMotion::LLMotionInitStatus LLFlyAdjustMotion::onInitialize(LLCharacter *charac
 	mCharacter = character;
 
 	LLJoint* pelvisJoint = mCharacter->getJoint("mPelvis");
-	mPelvisState.setJoint( pelvisJoint );
+	mPelvisState->setJoint( pelvisJoint );
 	if ( !pelvisJoint )
 	{
 		llwarns << getName() << ": Can't get pelvis joint." << llendl;
 		return STATUS_FAILURE;
 	}
 
-	mPelvisState.setUsage(LLJointState::POS | LLJointState::ROT);
-	addJointState( &mPelvisState );
+	mPelvisState->setUsage(LLJointState::POS | LLJointState::ROT);
+	addJointState( mPelvisState );
 
 	return STATUS_SUCCESS;
 }
@@ -369,8 +382,8 @@ LLMotion::LLMotionInitStatus LLFlyAdjustMotion::onInitialize(LLCharacter *charac
 //-----------------------------------------------------------------------------
 BOOL LLFlyAdjustMotion::onActivate()
 {
-	mPelvisState.setPosition(LLVector3::zero);
-	mPelvisState.setRotation(LLQuaternion::DEFAULT);
+	mPelvisState->setPosition(LLVector3::zero);
+	mPelvisState->setRotation(LLQuaternion::DEFAULT);
 	mRoll = 0.f;
 	return TRUE;
 }
@@ -392,11 +405,11 @@ BOOL LLFlyAdjustMotion::onUpdate(F32 time, U8* joint_mask)
 //	llinfos << mRoll << llendl;
 
 	LLQuaternion roll(mRoll, LLVector3(0.f, 0.f, 1.f));
-	mPelvisState.setRotation(roll);
+	mPelvisState->setRotation(roll);
 
 //	F32 lerp_amt = LLCriticalDamp::getInterpolant(0.2f);
 //	
-//	LLVector3 pelvis_correction = mPelvisState.getPosition() - lerp(LLVector3::zero, mPelvisState.getJoint()->getPosition() + mPelvisState.getPosition(), lerp_amt);
-//	mPelvisState.setPosition(pelvis_correction);
+//	LLVector3 pelvis_correction = mPelvisState->getPosition() - lerp(LLVector3::zero, mPelvisState->getJoint()->getPosition() + mPelvisState->getPosition(), lerp_amt);
+//	mPelvisState->setPosition(pelvis_correction);
 	return TRUE;
 }

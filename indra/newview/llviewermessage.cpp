@@ -59,7 +59,6 @@
 #include "llteleportflags.h"
 #include "lltracker.h"
 #include "lltransactionflags.h"
-#include "llwindow.h"			// shell_open()
 #include "llxfermanager.h"
 #include "message.h"
 #include "sound_ids.h"
@@ -1199,7 +1198,22 @@ void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
 
 	LLString::format_map_t args;
 	args["[OBJECTNAME]"] = info->mDesc;
-	args["[OBJECTTYPE]"] = LLAssetType::lookupHumanReadable(info->mType);
+	// must protect against a NULL return from lookupHumanReadable()
+	const char* typestr = LLAssetType::lookupHumanReadable(info->mType);
+	if (typestr)
+	{
+		args["[OBJECTTYPE]"] = typestr;
+	}
+	else
+	{
+		llwarns << "LLAssetType::lookupHumanReadable() returned NULL - probably bad asset type: " << info->mType << llendl;
+		args["[OBJECTTYPE]"] = "";
+
+		// This seems safest, rather than propagating bogosity
+		llwarns << "Forcing an inventory-decline for probably-bad asset type." << llendl;
+		inventory_offer_callback(IOR_DECLINE, info);
+		return;
+	}
 
 	// Name cache callbacks don't store userdata, so can't save
 	// off the LLOfferInfo.  Argh.  JC

@@ -567,7 +567,15 @@ void LLDrawPoolWater::shade()
 	LLCubeMap* skyMap = gSky.mVOSkyp->getCubeMap();
 	
 	gWaterProgram.enableTexture(LLShaderMgr::ENVIRONMENT_MAP, GL_TEXTURE_CUBE_MAP_ARB);
-	skyMap->bind();
+
+	if (skyMap)
+	{
+		skyMap->bind();
+	}
+	else
+	{
+		llwarns << "NULL gSky.mVOSkyp->getCubeMap(), not binding." << llendl;
+	}
 
 	//bind normal map
 	S32 bumpTex = gWaterProgram.enableTexture(LLShaderMgr::BUMP_MAP);

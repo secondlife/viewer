@@ -79,6 +79,7 @@ Dzonatas Sol
 	VWR-1704
 	VWR-1705
 	VWR-1729
+	VWR-1812
 Eddy Stryker
 	VWR-15
 	VWR-23
@@ -224,6 +225,9 @@ Nicholaz Beresford
 	VWR-2142
 	VWR-2152
 	VWR-2614
+	VWR-2411
+	VWR-2412
+	VWR-2684
 Nounouch Hapmouche
 	VWR-238
 Paul Churchill

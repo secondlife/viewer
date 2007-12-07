@@ -355,9 +355,6 @@ extern const char* gURLProtocolWhitelistHandler[];
 // Loads a URL with the user's default browser
 void spawn_web_browser(const char* escaped_url);
 
-// Opens a file with ShellExecute. Security risk!
-void shell_open(const char* file_path);
-
 void simpleEscapeString ( std::string& stringIn  );
 
 #endif // _LL_window_h_

@@ -55,6 +55,8 @@ LLTargetingMotion::LLTargetingMotion(const LLUUID &id) : LLMotion(id)
 {
 	mCharacter = NULL;
 	mName = "targeting";
+
+	mTorsoState = new LLJointState;
 }
 
 
@@ -87,11 +89,11 @@ LLMotion::LLMotionInitStatus LLTargetingMotion::onInitialize(LLCharacter *charac
 		return STATUS_FAILURE;
 	}
 
-	mTorsoState.setJoint( mTorsoJoint );
+	mTorsoState->setJoint( mTorsoJoint );
 
 	// add joint states to the pose
-	mTorsoState.setUsage(LLJointState::ROT);
-	addJointState( &mTorsoState );
+	mTorsoState->setUsage(LLJointState::ROT);
+	addJointState( mTorsoState );
 
 	return STATUS_SUCCESS;
 }
@@ -127,7 +129,7 @@ BOOL LLTargetingMotion::onUpdate(F32 time, U8* joint_mask)
 	}
 	
 	//LLVector3 target_plane_normal = LLVector3(1.f, 0.f, 0.f) * mPelvisJoint->getWorldRotation();
-	//LLVector3 torso_dir = LLVector3(1.f, 0.f, 0.f) * (mTorsoJoint->getWorldRotation() * mTorsoState.getRotation());
+	//LLVector3 torso_dir = LLVector3(1.f, 0.f, 0.f) * (mTorsoJoint->getWorldRotation() * mTorsoState->getRotation());
 
 	LLVector3 skyward(0.f, 0.f, 1.f);
 	LLVector3 left(skyward % target);
@@ -151,14 +153,14 @@ BOOL LLTargetingMotion::onUpdate(F32 time, U8* joint_mask)
 	new_torso_rot = new_torso_rot * ~cur_torso_rot;
 
 	// slerp from current additive rotation to ideal additive rotation
-	new_torso_rot = nlerp(slerp_amt, mTorsoState.getRotation(), new_torso_rot);
+	new_torso_rot = nlerp(slerp_amt, mTorsoState->getRotation(), new_torso_rot);
 
 	// constraint overall torso rotation
 	LLQuaternion total_rot = new_torso_rot * mTorsoJoint->getRotation();
 	total_rot.constrain(F_PI_BY_TWO * 0.8f);
 	new_torso_rot = total_rot * ~mTorsoJoint->getRotation();
 
-	mTorsoState.setRotation(new_torso_rot);
+	mTorsoState->setRotation(new_torso_rot);
 
 	return result;
 }

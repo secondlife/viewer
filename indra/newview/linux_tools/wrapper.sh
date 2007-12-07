@@ -59,7 +59,8 @@ fi
 ## Nothing worth editing below this line.
 ##-------------------------------------------------------------------
 
-RUN_PATH=`dirname "$0" || echo .`
+SCRIPTSRC=`readlink -f "$0" || echo "$0"`
+RUN_PATH=`dirname "${SCRIPTSRC}" || echo .`
 cd "${RUN_PATH}"
 
 # Re-register the secondlife:// protocol handler every launch, for now.

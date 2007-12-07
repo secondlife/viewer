@@ -1194,6 +1194,13 @@ struct LLLayoutStack::LLEmbeddedPanel
 		}
 	}
 
+	~LLEmbeddedPanel()
+	{
+		// probably not necessary, but...
+		delete mResizeBar;
+		mResizeBar = NULL;
+	}
+
 	LLPanel* mPanel;
 	S32 mMinWidth;
 	S32 mMinHeight;
@@ -1212,6 +1219,7 @@ LLLayoutStack::LLLayoutStack(eLayoutOrientation orientation) :
 
 LLLayoutStack::~LLLayoutStack()
 {
+	std::for_each(mPanels.begin(), mPanels.end(), DeletePointer());
 }
 
 void LLLayoutStack::draw()

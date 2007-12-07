@@ -117,9 +117,9 @@ public:
 	LLJoint				*mRootJoint;
 	LLJoint				*mPelvisJoint;
 
-	LLJointState		mTorsoState;
-	LLJointState		mNeckState;
-	LLJointState		mHeadState;
+	LLPointer<LLJointState> mTorsoState;
+	LLPointer<LLJointState> mNeckState;
+	LLPointer<LLJointState> mHeadState;
 
 	LLQuaternion		mLastHeadRot;
 };
@@ -196,8 +196,8 @@ public:
 	LLCharacter			*mCharacter;
 
 	LLJoint				*mHeadJoint;
-	LLJointState		mLeftEyeState;
-	LLJointState		mRightEyeState;
+	LLPointer<LLJointState> mLeftEyeState;
+	LLPointer<LLJointState> mRightEyeState;
 
 	LLFrameTimer		mEyeJitterTimer;
 	F32					mEyeJitterTime;

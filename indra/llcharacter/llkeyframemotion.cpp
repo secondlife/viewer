@@ -71,24 +71,22 @@ static F32 MAX_CONSTRAINTS = 10;
 // JointMotionList
 //-----------------------------------------------------------------------------
 LLKeyframeMotion::JointMotionList::JointMotionList()
-	: mNumJointMotions(0),
-	  mJointMotionArray(NULL)
 {
 }
 
 LLKeyframeMotion::JointMotionList::~JointMotionList()
 {
 	for_each(mConstraints.begin(), mConstraints.end(), DeletePointer());
-	delete [] mJointMotionArray;
+	for_each(mJointMotionArray.begin(), mJointMotionArray.end(), DeletePointer());
 }
 
 U32 LLKeyframeMotion::JointMotionList::dumpDiagInfo()
 {
 	S32	total_size = sizeof(JointMotionList);
 
-	for (U32 i = 0; i < mNumJointMotions; i++)
+	for (U32 i = 0; i < getNumJointMotions(); i++)
 	{
-		LLKeyframeMotion::JointMotion* joint_motion_p = &mJointMotionArray[i];
+		LLKeyframeMotion::JointMotion* joint_motion_p = mJointMotionArray[i];
 
 		llinfos << "\tJoint " << joint_motion_p->mJointName << llendl;
 		if (joint_motion_p->mUsage & LLJointState::SCALE)
@@ -385,10 +383,10 @@ void LLKeyframeMotion::JointMotion::update(LLJointState* joint_state, F32 time, 
 {
 	// this value being 0 is the cause of https://jira.lindenlab.com/browse/SL-22678 but I haven't 
 	// managed to get a stack to see how it got here. Testing for 0 here will stop the crash.
-	if ( joint_state == 0 )
+	if ( joint_state == NULL )
 	{
 		return;
-	};
+	}
 
 	U32 usage = joint_state->getUsage();
 
@@ -431,7 +429,6 @@ void LLKeyframeMotion::JointMotion::update(LLJointState* joint_state, F32 time, 
 LLKeyframeMotion::LLKeyframeMotion(const LLUUID &id) 
 	: LLMotion(id),
 		mJointMotionList(NULL),
-		mJointStates(NULL),
 		mPelvisp(NULL),
 		mLastSkeletonSerialNum(0),
 		mLastUpdateTime(0.f),
@@ -448,10 +445,6 @@ LLKeyframeMotion::LLKeyframeMotion(const LLUUID &id)
 //-----------------------------------------------------------------------------
 LLKeyframeMotion::~LLKeyframeMotion()
 {
-	if (mJointStates)
-	{
-		delete [] mJointStates;
-	}
 	for_each(mConstraints.begin(), mConstraints.end(), DeletePointer());
 }
 
@@ -461,6 +454,26 @@ LLKeyframeMotion::~LLKeyframeMotion()
 LLMotion *LLKeyframeMotion::create(const LLUUID &id)
 {
 	return new LLKeyframeMotion(id);
+}
+
+//-----------------------------------------------------------------------------
+// getJointState()
+//-----------------------------------------------------------------------------
+LLPointer<LLJointState>& LLKeyframeMotion::getJointState(U32 index)
+{
+	llassert_always (index < (S32)mJointStates.size());
+	return mJointStates[index];
+}
+
+//-----------------------------------------------------------------------------
+// getJoin()
+//-----------------------------------------------------------------------------
+LLJoint* LLKeyframeMotion::getJoint(U32 index)
+{
+	llassert_always (index < (S32)mJointStates.size());
+	LLJoint* joint = mJointStates[index]->getJoint();
+	llassert_always (joint);
+	return joint;
 }
 
 //-----------------------------------------------------------------------------
@@ -506,17 +519,20 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
 		// motion already existed in cache, so grab it
 		mJointMotionList = joint_motion_list;
 
+		mJointStates.reserve(mJointMotionList->getNumJointMotions());
+		
 		// don't forget to allocate joint states
-		mJointStates = new LLJointState[mJointMotionList->mNumJointMotions];
-
 		// set up joint states to point to character joints
-		for(U32 i = 0; i < mJointMotionList->mNumJointMotions; i++)
+		for(U32 i = 0; i < mJointMotionList->getNumJointMotions(); i++)
 		{
-			if (LLJoint *jointp = mCharacter->getJoint(mJointMotionList->mJointMotionArray[i].mJointName))
+			JointMotion* joint_motion = mJointMotionList->getJointMotion(i);
+			if (LLJoint *joint = mCharacter->getJoint(joint_motion->mJointName))
 			{
-				mJointStates[i].setJoint(jointp);
-				mJointStates[i].setUsage(mJointMotionList->mJointMotionArray[i].mUsage);
-				mJointStates[i].setPriority(joint_motion_list->mJointMotionArray[i].mPriority);
+				LLPointer<LLJointState> joint_state = new LLJointState;
+				mJointStates.push_back(joint_state);
+				joint_state->setJoint(joint);
+				joint_state->setUsage(joint_motion->mUsage);
+				joint_state->setPriority(joint_motion->mPriority);
 			}
 		}
 		mAssetStatus = ASSET_LOADED;
@@ -587,11 +603,12 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
 BOOL LLKeyframeMotion::setupPose()
 {
 	// add all valid joint states to the pose
-	for (U32 jm=0; jm<mJointMotionList->mNumJointMotions; jm++)
+	for (U32 jm=0; jm<mJointMotionList->getNumJointMotions(); jm++)
 	{
-		if ( mJointStates[jm].getJoint() )
+		LLPointer<LLJointState> joint_state = getJointState(jm);
+		if ( joint_state->getJoint() )
 		{
-			addJointState( &mJointStates[jm] );
+			addJointState( joint_state );
 		}
 	}
 
@@ -692,13 +709,12 @@ BOOL LLKeyframeMotion::onUpdate(F32 time, U8* joint_mask)
 //-----------------------------------------------------------------------------
 void LLKeyframeMotion::applyKeyframes(F32 time)
 {
-	U32 i;
-	for (i=0; i<mJointMotionList->mNumJointMotions; i++)
+	llassert_always (mJointMotionList->getNumJointMotions() <= mJointStates.size());
+	for (U32 i=0; i<mJointMotionList->getNumJointMotions(); i++)
 	{
-		mJointMotionList->mJointMotionArray[i].update(
-			&mJointStates[i], 
-			time, 
-			mJointMotionList->mDuration );
+		mJointMotionList->getJointMotion(i)->update(mJointStates[i],
+													  time, 
+													  mJointMotionList->mDuration );
 	}
 
 	LLJoint::JointPriority* pose_priority = (LLJoint::JointPriority* )mCharacter->getAnimationData("Hand Pose Priority");
@@ -793,7 +809,7 @@ void LLKeyframeMotion::initializeConstraint(JointConstraint* constraint)
 
 	S32 joint_num;
 	LLVector3 source_pos = mCharacter->getVolumePos(shared_data->mSourceConstraintVolume, shared_data->mSourceConstraintOffset);
-	LLJoint* cur_joint = mJointStates[shared_data->mJointStateIndices[0]].getJoint();
+	LLJoint* cur_joint = getJoint(shared_data->mJointStateIndices[0]);
 
 	F32 source_pos_offset = dist_vec(source_pos, cur_joint->getWorldPosition());
 
@@ -802,7 +818,7 @@ void LLKeyframeMotion::initializeConstraint(JointConstraint* constraint)
 	// grab joint lengths
 	for (joint_num = 1; joint_num < shared_data->mChainLength; joint_num++)
 	{
-		cur_joint = mJointStates[shared_data->mJointStateIndices[joint_num]].getJoint();
+		cur_joint = getJointState(shared_data->mJointStateIndices[joint_num])->getJoint();
 		if (!cur_joint)
 		{
 			return;
@@ -844,7 +860,7 @@ void LLKeyframeMotion::activateConstraint(JointConstraint* constraint)
 
 	for (joint_num = 1; joint_num < shared_data->mChainLength; joint_num++)
 	{
-		LLJoint* cur_joint = mJointStates[shared_data->mJointStateIndices[joint_num]].getJoint();
+		LLJoint* cur_joint = getJoint(shared_data->mJointStateIndices[joint_num]);
 		constraint->mPositions[joint_num] = (cur_joint->getWorldPosition() - mPelvisp->getWorldPosition()) * ~mPelvisp->getWorldRotation();
 	}
 
@@ -884,7 +900,6 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 	LLVector3		velocities[MAX_CHAIN_LENGTH - 1];
 	LLQuaternion	old_rots[MAX_CHAIN_LENGTH];
 	S32				joint_num;
-	LLJoint*		cur_joint;
 
 	if (time < shared_data->mEaseInStartTime)
 	{
@@ -905,7 +920,7 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 		activateConstraint(constraint);
 	}
 
-	LLJoint* root_joint = mJointStates[shared_data->mJointStateIndices[shared_data->mChainLength]].getJoint();
+	LLJoint* root_joint = getJoint(shared_data->mJointStateIndices[shared_data->mChainLength]);
 	LLVector3 root_pos = root_joint->getWorldPosition();
 //	LLQuaternion root_rot = 
 	root_joint->getParent()->getWorldRotation();
@@ -916,14 +931,14 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 	//apply underlying keyframe animation to get nominal "kinematic" joint positions
 	for (joint_num = 0; joint_num <= shared_data->mChainLength; joint_num++)
 	{
-		cur_joint = mJointStates[shared_data->mJointStateIndices[joint_num]].getJoint();
+		LLJoint* cur_joint = getJoint(shared_data->mJointStateIndices[joint_num]);
 		if (joint_mask[cur_joint->getJointNum()] >= (0xff >> (7 - getPriority())))
 		{
 			// skip constraint
 			return;
 		}
 		old_rots[joint_num] = cur_joint->getRotation();
-		cur_joint->setRotation(mJointStates[shared_data->mJointStateIndices[joint_num]].getRotation());
+		cur_joint->setRotation(getJointState(shared_data->mJointStateIndices[joint_num])->getRotation());
 	}
 
 
@@ -1007,7 +1022,7 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 
 	if (shared_data->mChainLength)
 	{
-		LLQuaternion end_rot = mJointStates[shared_data->mJointStateIndices[0]].getJoint()->getWorldRotation();
+		LLQuaternion end_rot = getJoint(shared_data->mJointStateIndices[0])->getWorldRotation();
 
 		// slam start and end of chain to the proper positions (rest of chain stays put)
 		positions[0] = lerp(keyframe_source_pos, target_pos, weight);
@@ -1016,7 +1031,7 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 		// grab keyframe-specified positions of joints	
 		for (joint_num = 1; joint_num < shared_data->mChainLength; joint_num++)
 		{
-			LLVector3 kinematic_position = mJointStates[shared_data->mJointStateIndices[joint_num]].getJoint()->getWorldPosition() + 
+			LLVector3 kinematic_position = getJoint(shared_data->mJointStateIndices[joint_num])->getWorldPosition() + 
 				(source_to_target * constraint->mJointLengthFractions[joint_num]);
 
 			// convert intermediate joint positions to world coordinates
@@ -1061,9 +1076,9 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 
 		for (joint_num = shared_data->mChainLength; joint_num > 0; joint_num--)
 		{
-			LLQuaternion parent_rot = mJointStates[shared_data->mJointStateIndices[joint_num]].getJoint()->getParent()->getWorldRotation();
-			cur_joint = mJointStates[shared_data->mJointStateIndices[joint_num]].getJoint();
-			LLJoint* child_joint = mJointStates[shared_data->mJointStateIndices[joint_num - 1]].getJoint();
+			LLJoint* cur_joint = getJoint(shared_data->mJointStateIndices[joint_num]);
+			LLJoint* child_joint = getJoint(shared_data->mJointStateIndices[joint_num - 1]);
+			LLQuaternion parent_rot = cur_joint->getParent()->getWorldRotation();
 
 			LLQuaternion cur_rot = cur_joint->getWorldRotation();
 			LLQuaternion fixup_rot;
@@ -1088,25 +1103,25 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 
 			if (weight != 1.f)
 			{
-				LLQuaternion cur_rot = mJointStates[shared_data->mJointStateIndices[joint_num]].getRotation();
+				LLQuaternion cur_rot = getJointState(shared_data->mJointStateIndices[joint_num])->getRotation();
 				target_rot = nlerp(weight, cur_rot, target_rot);
 			}
 
-			mJointStates[shared_data->mJointStateIndices[joint_num]].setRotation(target_rot);
+			getJointState(shared_data->mJointStateIndices[joint_num])->setRotation(target_rot);
 			cur_joint->setRotation(target_rot);
 		}
 
-		LLJoint* end_joint = mJointStates[shared_data->mJointStateIndices[0]].getJoint();
+		LLJoint* end_joint = getJoint(shared_data->mJointStateIndices[0]);
 		LLQuaternion end_local_rot = end_rot * ~end_joint->getParent()->getWorldRotation();
 
 		if (weight == 1.f)
 		{
-			mJointStates[shared_data->mJointStateIndices[0]].setRotation(end_local_rot);
+			getJointState(shared_data->mJointStateIndices[0])->setRotation(end_local_rot);
 		}
 		else
 		{
-			LLQuaternion cur_rot = mJointStates[shared_data->mJointStateIndices[0]].getRotation();
-			mJointStates[shared_data->mJointStateIndices[0]].setRotation(nlerp(weight, cur_rot, end_local_rot));
+			LLQuaternion cur_rot = getJointState(shared_data->mJointStateIndices[0])->getRotation();
+			getJointState(shared_data->mJointStateIndices[0])->setRotation(nlerp(weight, cur_rot, end_local_rot));
 		}
 
 		// save simulated positions in pelvis-space and calculate total fixup distance
@@ -1124,17 +1139,17 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 		//reset old joint rots
 		for (joint_num = 0; joint_num <= shared_data->mChainLength; joint_num++)
 		{
-			mJointStates[shared_data->mJointStateIndices[joint_num]].getJoint()->setRotation(old_rots[joint_num]);
+			getJoint(shared_data->mJointStateIndices[joint_num])->setRotation(old_rots[joint_num]);
 		}
 	}
 	// simple positional constraint (pelvis only)
-	else if (mJointStates[shared_data->mJointStateIndices[0]].getUsage() & LLJointState::POS)
+	else if (getJointState(shared_data->mJointStateIndices[0])->getUsage() & LLJointState::POS)
 	{
 		LLVector3 delta = source_to_target * weight;
-		LLJointState* current_joint_statep = &mJointStates[shared_data->mJointStateIndices[0]];
-		LLQuaternion parent_rot = current_joint_statep->getJoint()->getParent()->getWorldRotation();
+		LLPointer<LLJointState> current_joint_state = getJointState(shared_data->mJointStateIndices[0]);
+		LLQuaternion parent_rot = current_joint_state->getJoint()->getParent()->getWorldRotation();
 		delta = delta * ~parent_rot;
-		current_joint_statep->setPosition(current_joint_statep->getJoint()->getPosition() + delta);
+		current_joint_state->setPosition(current_joint_state->getJoint()->getPosition() + delta);
 	}
 }
 
@@ -1145,7 +1160,6 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 {
 	BOOL old_version = FALSE;
 	mJointMotionList = new LLKeyframeMotion::JointMotionList;
-	mJointMotionList->mNumJointMotions = 0;
 
 	//-------------------------------------------------------------------------
 	// get base priority
@@ -1261,40 +1275,38 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 	//-------------------------------------------------------------------------
 	// get number of joint motions
 	//-------------------------------------------------------------------------
-	if (!dp.unpackU32(mJointMotionList->mNumJointMotions, "num_joints"))
+	U32 num_motions = 0;
+	if (!dp.unpackU32(num_motions, "num_joints"))
 	{
 		llwarns << "can't read number of joints" << llendl;
 		return FALSE;
 	}
 
-	if (mJointMotionList->mNumJointMotions == 0)
+	if (num_motions == 0)
 	{
 		llwarns << "no joints in animation" << llendl;
 		return FALSE;
 	}
-	else if (mJointMotionList->mNumJointMotions > LL_CHARACTER_MAX_JOINTS)
+	else if (num_motions > LL_CHARACTER_MAX_JOINTS)
 	{
 		llwarns << "too many joints in animation" << llendl;
 		return FALSE;
 	}
 
-	mJointMotionList->mJointMotionArray = new JointMotion[mJointMotionList->mNumJointMotions];
-	mJointStates = new LLJointState[mJointMotionList->mNumJointMotions];
-
-	if (!mJointMotionList->mJointMotionArray)
-	{
-		mJointMotionList->mDuration = 0.0f;
-		mJointMotionList->mEaseInDuration = 0.0f;
-		mJointMotionList->mEaseOutDuration = 0.0f;
-		return FALSE;
-	}
+	mJointMotionList->mJointMotionArray.clear();
+	mJointMotionList->mJointMotionArray.reserve(num_motions);
+	mJointStates.clear();
+	mJointStates.reserve(num_motions);
 
 	//-------------------------------------------------------------------------
 	// initialize joint motions
 	//-------------------------------------------------------------------------
-	S32 k;
-	for(U32 i=0; i<mJointMotionList->mNumJointMotions; ++i)
+
+	for(U32 i=0; i<num_motions; ++i)
 	{
+		JointMotion* joint_motion = new JointMotion;		
+		mJointMotionList->mJointMotionArray.push_back(joint_motion);
+		
 		std::string joint_name;
 		if (!dp.unpackString(joint_name, "joint_name"))
 		{
@@ -1316,9 +1328,12 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			//return FALSE;
 		}
 
-		mJointMotionList->mJointMotionArray[i].mJointName = joint_name;
-		mJointStates[i].setJoint( joint );
-		mJointStates[i].setUsage( 0 );
+		joint_motion->mJointName = joint_name;
+		
+		LLPointer<LLJointState> joint_state = new LLJointState;
+		mJointStates.push_back(joint_state);
+		joint_state->setJoint( joint );
+		joint_state->setUsage( 0 );
 
 		//---------------------------------------------------------------------
 		// get joint priority
@@ -1330,36 +1345,36 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			return FALSE;
 		}
 		
-		mJointMotionList->mJointMotionArray[i].mPriority = (LLJoint::JointPriority)joint_priority;
+		joint_motion->mPriority = (LLJoint::JointPriority)joint_priority;
 		if (joint_priority != LLJoint::USE_MOTION_PRIORITY &&
 			joint_priority > mJointMotionList->mMaxPriority)
 		{
 			mJointMotionList->mMaxPriority = (LLJoint::JointPriority)joint_priority;
 		}
 
-		mJointStates[i].setPriority((LLJoint::JointPriority)joint_priority);
+		joint_state->setPriority((LLJoint::JointPriority)joint_priority);
 
 		//---------------------------------------------------------------------
 		// scan rotation curve header
 		//---------------------------------------------------------------------
-		if (!dp.unpackS32(mJointMotionList->mJointMotionArray[i].mRotationCurve.mNumKeys, "num_rot_keys"))
+		if (!dp.unpackS32(joint_motion->mRotationCurve.mNumKeys, "num_rot_keys"))
 		{
 			llwarns << "can't read number of rotation keys" << llendl;
 			return FALSE;
 		}
 
-		mJointMotionList->mJointMotionArray[i].mRotationCurve.mInterpolationType = IT_LINEAR;
-		if (mJointMotionList->mJointMotionArray[i].mRotationCurve.mNumKeys != 0)
+		joint_motion->mRotationCurve.mInterpolationType = IT_LINEAR;
+		if (joint_motion->mRotationCurve.mNumKeys != 0)
 		{
-			mJointStates[i].setUsage(mJointStates[i].getUsage() | LLJointState::ROT );
+			joint_state->setUsage(joint_state->getUsage() | LLJointState::ROT );
 		}
 
 		//---------------------------------------------------------------------
 		// scan rotation curve keys
 		//---------------------------------------------------------------------
-		RotationCurve *rCurve = &mJointMotionList->mJointMotionArray[i].mRotationCurve;
+		RotationCurve *rCurve = &joint_motion->mRotationCurve;
 
-		for (k = 0; k < mJointMotionList->mJointMotionArray[i].mRotationCurve.mNumKeys; k++)
+		for (S32 k = 0; k < joint_motion->mRotationCurve.mNumKeys; k++)
 		{
 			F32 time;
 			U16 time_short;
@@ -1424,24 +1439,24 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 		//---------------------------------------------------------------------
 		// scan position curve header
 		//---------------------------------------------------------------------
-		if (!dp.unpackS32(mJointMotionList->mJointMotionArray[i].mPositionCurve.mNumKeys, "num_pos_keys"))
+		if (!dp.unpackS32(joint_motion->mPositionCurve.mNumKeys, "num_pos_keys"))
 		{
 			llwarns << "can't read number of position keys" << llendl;
 			return FALSE;
 		}
 
-		mJointMotionList->mJointMotionArray[i].mPositionCurve.mInterpolationType = IT_LINEAR;
-		if (mJointMotionList->mJointMotionArray[i].mPositionCurve.mNumKeys != 0)
+		joint_motion->mPositionCurve.mInterpolationType = IT_LINEAR;
+		if (joint_motion->mPositionCurve.mNumKeys != 0)
 		{
-			mJointStates[i].setUsage(mJointStates[i].getUsage() | LLJointState::POS );
+			joint_state->setUsage(joint_state->getUsage() | LLJointState::POS );
 		}
 
 		//---------------------------------------------------------------------
 		// scan position curve keys
 		//---------------------------------------------------------------------
-		PositionCurve *pCurve = &mJointMotionList->mJointMotionArray[i].mPositionCurve;
-		BOOL is_pelvis = mJointMotionList->mJointMotionArray[i].mJointName == "mPelvis";
-		for (k = 0; k < mJointMotionList->mJointMotionArray[i].mPositionCurve.mNumKeys; k++)
+		PositionCurve *pCurve = &joint_motion->mPositionCurve;
+		BOOL is_pelvis = joint_motion->mJointName == "mPelvis";
+		for (S32 k = 0; k < joint_motion->mPositionCurve.mNumKeys; k++)
 		{
 			U16 time_short;
 			PositionKey* pos_key = new PositionKey;
@@ -1501,7 +1516,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			}
 		}
 
-		mJointMotionList->mJointMotionArray[i].mUsage = mJointStates[i].getUsage();
+		joint_motion->mUsage = joint_state->getUsage();
 	}
 
 	//-------------------------------------------------------------------------
@@ -1655,9 +1670,9 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				}
 				joint = parent;
 				constraintp->mJointStateIndices[i] = -1;
-				for (U32 j = 0; j < mJointMotionList->mNumJointMotions; j++)
+				for (U32 j = 0; j < mJointMotionList->getNumJointMotions(); j++)
 				{
-					if(mJointStates[j].getJoint() == joint)
+					if(getJoint(j) == joint)
 					{
 						constraintp->mJointStateIndices[i] = (S32)j;
 						break;
@@ -1695,11 +1710,11 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 	success &= dp.packF32(mJointMotionList->mEaseInDuration, "ease_in_duration");
 	success &= dp.packF32(mJointMotionList->mEaseOutDuration, "ease_out_duration");
 	success &= dp.packU32(mJointMotionList->mHandPose, "hand_pose");
-	success &= dp.packU32(mJointMotionList->mNumJointMotions, "num_joints");
+	success &= dp.packU32(mJointMotionList->getNumJointMotions(), "num_joints");
 
-	for (U32 i = 0; i < mJointMotionList->mNumJointMotions; i++)
+	for (U32 i = 0; i < mJointMotionList->getNumJointMotions(); i++)
 	{
-		JointMotion* joint_motionp = &mJointMotionList->mJointMotionArray[i];
+		JointMotion* joint_motionp = mJointMotionList->getJointMotion(i);
 		success &= dp.packString(joint_motionp->mJointName.c_str(), "joint_name");
 		success &= dp.packS32(joint_motionp->mPriority, "joint_priority");
 		success &= dp.packS32(joint_motionp->mRotationCurve.mNumKeys, "num_rot_keys");
@@ -1806,13 +1821,14 @@ void LLKeyframeMotion::setPriority(S32 priority)
 		mJointMotionList->mBasePriority = (LLJoint::JointPriority)priority;
 		mJointMotionList->mMaxPriority = mJointMotionList->mBasePriority;
 
-		for (U32 i = 0; i < mJointMotionList->mNumJointMotions; i++)
+		for (U32 i = 0; i < mJointMotionList->getNumJointMotions(); i++)
 		{
-			mJointMotionList->mJointMotionArray[i].mPriority = (LLJoint::JointPriority)llclamp(
-				(S32)mJointMotionList->mJointMotionArray[i].mPriority + priority_delta,
+			JointMotion* joint_motion = mJointMotionList->getJointMotion(i);			
+			joint_motion->mPriority = (LLJoint::JointPriority)llclamp(
+				(S32)joint_motion->mPriority + priority_delta,
 				(S32)LLJoint::LOW_PRIORITY, 
 				(S32)LLJoint::HIGHEST_PRIORITY);
-			mJointStates[i].setPriority(mJointMotionList->mJointMotionArray[i].mPriority);
+			getJointState(i)->setPriority(joint_motion->mPriority);
 		}
 	}
 }
@@ -1888,11 +1904,13 @@ void LLKeyframeMotion::setLoopIn(F32 in_point)
 		mJointMotionList->mLoopInPoint = in_point; 
 		
 		// set up loop keys
-		for (U32 i = 0; i < mJointMotionList->mNumJointMotions; i++)
+		for (U32 i = 0; i < mJointMotionList->getNumJointMotions(); i++)
 		{
-			PositionCurve* pos_curve = &mJointMotionList->mJointMotionArray[i].mPositionCurve;
-			RotationCurve* rot_curve = &mJointMotionList->mJointMotionArray[i].mRotationCurve;
-			ScaleCurve* scale_curve = &mJointMotionList->mJointMotionArray[i].mScaleCurve;
+			JointMotion* joint_motion = mJointMotionList->getJointMotion(i);
+			
+			PositionCurve* pos_curve = &joint_motion->mPositionCurve;
+			RotationCurve* rot_curve = &joint_motion->mRotationCurve;
+			ScaleCurve* scale_curve = &joint_motion->mScaleCurve;
 			
 			pos_curve->mLoopInKey.mTime = mJointMotionList->mLoopInPoint;
 			rot_curve->mLoopInKey.mTime = mJointMotionList->mLoopInPoint;
@@ -1915,11 +1933,13 @@ void LLKeyframeMotion::setLoopOut(F32 out_point)
 		mJointMotionList->mLoopOutPoint = out_point; 
 		
 		// set up loop keys
-		for (U32 i = 0; i < mJointMotionList->mNumJointMotions; i++)
+		for (U32 i = 0; i < mJointMotionList->getNumJointMotions(); i++)
 		{
-			PositionCurve* pos_curve = &mJointMotionList->mJointMotionArray[i].mPositionCurve;
-			RotationCurve* rot_curve = &mJointMotionList->mJointMotionArray[i].mRotationCurve;
-			ScaleCurve* scale_curve = &mJointMotionList->mJointMotionArray[i].mScaleCurve;
+			JointMotion* joint_motion = mJointMotionList->getJointMotion(i);
+			
+			PositionCurve* pos_curve = &joint_motion->mPositionCurve;
+			RotationCurve* rot_curve = &joint_motion->mRotationCurve;
+			ScaleCurve* scale_curve = &joint_motion->mScaleCurve;
 			
 			pos_curve->mLoopOutKey.mTime = mJointMotionList->mLoopOutPoint;
 			rot_curve->mLoopOutKey.mTime = mJointMotionList->mLoopOutPoint;
@@ -2020,10 +2040,10 @@ void LLKeyframeMotion::writeCAL3D(apr_file_t* fp)
 //			</TRACK>
 //	</ANIMATION>
 
-	apr_file_printf(fp, "<ANIMATION VERSION=\"1000\" DURATION=\"%.5f\" NUMTRACKS=\"%d\">\n",  getDuration(), mJointMotionList->mNumJointMotions);
-	for (U32 joint_index = 0; joint_index < mJointMotionList->mNumJointMotions; joint_index++)
+	apr_file_printf(fp, "<ANIMATION VERSION=\"1000\" DURATION=\"%.5f\" NUMTRACKS=\"%d\">\n",  getDuration(), mJointMotionList->getNumJointMotions());
+	for (U32 joint_index = 0; joint_index < mJointMotionList->getNumJointMotions(); joint_index++)
 	{
-		JointMotion* joint_motionp = &mJointMotionList->mJointMotionArray[joint_index];
+		JointMotion* joint_motionp = mJointMotionList->getJointMotion(joint_index);
 		LLJoint* animated_joint = mCharacter->getJoint(joint_motionp->mJointName);
 		S32 joint_num = animated_joint->mJointNum + 1;
 

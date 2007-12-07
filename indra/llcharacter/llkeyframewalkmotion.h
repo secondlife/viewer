@@ -123,7 +123,7 @@ public:
 	LLCharacter		*mCharacter;
 	LLJoint*		mLeftAnkleJoint;
 	LLJoint*		mRightAnkleJoint;
-	LLJointState	mPelvisState;
+	LLPointer<LLJointState>	mPelvisState;
 	LLJoint*		mPelvisJoint;
 	LLVector3d		mLastLeftAnklePos;
 	LLVector3d		mLastRightAnklePos;
@@ -141,7 +141,7 @@ class LLFlyAdjustMotion : public LLMotion
 {
 public:
 	// Constructor
-	LLFlyAdjustMotion(const LLUUID &id) : LLMotion(id) {mName = "fly_adjust";}
+	LLFlyAdjustMotion(const LLUUID &id);
 
 public:
 	//-------------------------------------------------------------------------
@@ -173,7 +173,7 @@ protected:
 	// Member Data
 	//-------------------------------------------------------------------------
 	LLCharacter		*mCharacter;
-	LLJointState	mPelvisState;
+	LLPointer<LLJointState>	mPelvisState;
 	F32				mRoll;
 };
 

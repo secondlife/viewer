@@ -34,8 +34,8 @@
 
 const S32 LL_VERSION_MAJOR = 1;
 const S32 LL_VERSION_MINOR = 18;
-const S32 LL_VERSION_PATCH = 5;
-const S32 LL_VERSION_BUILD = 3;
+const S32 LL_VERSION_PATCH = 6;
+const S32 LL_VERSION_BUILD = 0;
 
 const char * const LL_CHANNEL = "Second Life Release";
 

@@ -2230,11 +2230,11 @@ static SDL_Cursor *makeSDLCursorFromBMP(const char *filename, int hotx, int hoty
 						   bmpsurface->w,
 						   bmpsurface->h,
 						   32,
-						   0xFFU,
-						   0xFF00U,
-						   0xFF0000U,
-						   0xFF000000U);
-		SDL_FillRect(cursurface, NULL, 0x00000000U);
+						   SDL_SwapLE32(0xFFU),
+						   SDL_SwapLE32(0xFF00U),
+						   SDL_SwapLE32(0xFF0000U),
+						   SDL_SwapLE32(0xFF000000U));
+		SDL_FillRect(cursurface, NULL, SDL_SwapLE32(0x00000000U));
 
 		// Blit the cursor pixel data onto a 32-bit RGBA surface so we
 		// only have to cope with processing one type of pixel format.
@@ -2253,13 +2253,13 @@ static SDL_Cursor *makeSDLCursorFromBMP(const char *filename, int hotx, int hoty
 			// is inferred by color-keying against 200,200,200
 			for (i=0; i<cursurface->h; ++i) {
 				for (j=0; j<cursurface->w; ++j) {
-					unsigned char *pixelp =
-						((unsigned char *)cursurface->pixels)
+					U8 *pixelp =
+						((U8*)cursurface->pixels)
 						+ cursurface->pitch * i
 						+ j*cursurface->format->BytesPerPixel;
-					unsigned char srcred = pixelp[0];
-					unsigned char srcgreen = pixelp[1];
-					unsigned char srcblue = pixelp[2];
+					U8 srcred = pixelp[0];
+					U8 srcgreen = pixelp[1];
+					U8 srcblue = pixelp[2];
 					BOOL mask_bit = (srcred != 200)
 						|| (srcgreen != 200)
 						|| (srcblue != 200);
@@ -2741,11 +2741,6 @@ void spawn_web_browser(const char* escaped_url)
 	llinfos << "spawn_web_browser returning." << llendl;
 }
 
-void shell_open( const char* file_path )
-{
-	// *TODO: This function is deprecated and should probably go away.
-	llwarns << "Deprecated shell_open(): " << file_path << llendl;
-}
 
 void *LLWindowSDL::getPlatformWindow()
 {

@@ -221,7 +221,7 @@
 #include "indra_constants.h"		// for key and mask constants
 #include "llfontgl.h"
 #include "v4color.h"
-#include "llwindow_impl.h"			// shell_open()
+#include "llwindow_impl.h"
 
 #include "llbutton.h"
 #include "llcheckboxctrl.h"

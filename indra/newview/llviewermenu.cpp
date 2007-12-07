@@ -60,7 +60,6 @@
 #include "lltimer.h"
 #include "llvfile.h"
 #include "llvolumemgr.h"
-#include "llwindow.h"	// for shell_open()
 
 // newview includes
 #include "llagent.h"

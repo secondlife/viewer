@@ -50,15 +50,18 @@ Please enjoy!
 
 Minimum requirements:
     * Internet Connection: Cable or DSL
-    * Computer Processor: 800MHz Pentium III or Athlon, or better
-    * Computer Memory: 256MB or better (strongly recommend more!)
+    * Computer Processor: 800MHz Pentium III or Athlon or better
+      (recommended: 1.5GHz or more)
+    * Computer Memory: 512MB (recommended: 768MB or more)
     * Linux Operating System: A reasonably modern 32-bit Linux environment
           is required.  If you are running a 64-bit Linux distribution then
           you will need its 32-bit compatibility environment installed.
     * Video/Graphics Card:
-          o nVidia GeForce 2, GeForce 4mx, or better
+          o nVidia GeForce 2, GeForce 4mx, or better (recommend one of the
+            following: 6700, 6800, 7600, 7800, 7900, 8400, 8500, 8600,
+            8800, Go 7400, Go 7600, Go 7800, Go 7900)
           o OR ATI Radeon 8500, 9250, or better
-          (nVidia cards are strongly recommended for the Linux client)
+          (nVidia cards are recommended for the Linux client)
 
       **NOTE**: Second Life absolutely requires you to have recent, correctly-
       configured OpenGL 3D drivers for your hardware - the graphics drivers

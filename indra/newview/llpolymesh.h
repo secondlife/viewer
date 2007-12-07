@@ -224,7 +224,9 @@ public:
 	}
 
 	// Get coords
-	const LLVector3	*getCoords() const;
+	const LLVector3	*getCoords() const{
+		return mCoords;
+	}
 
 	// non const version
 	LLVector3 *getWritableCoords();
@@ -273,7 +275,10 @@ public:
 	}
 
 	// Get weights
-	const F32		*getWeights() const;
+	const F32 *getWeights() const {
+		llassert (mSharedData);
+		return mSharedData->mWeights;
+	}
 
 	F32			*getWritableWeights() const;
 

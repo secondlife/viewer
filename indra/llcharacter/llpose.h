@@ -52,7 +52,7 @@ class LLPose
 {
 	friend class LLPoseBlender;
 protected:
-	typedef std::map<std::string, LLJointState*> joint_map;
+	typedef std::map<std::string, LLPointer<LLJointState> > joint_map;
 	typedef joint_map::iterator joint_map_iterator;
 	typedef joint_map::value_type joint_map_value_type;
 	
@@ -61,19 +61,19 @@ protected:
 	joint_map_iterator			mListIter;
 public:
 	// Iterate through jointStates
-	LLJointState *getFirstJointState();
-	LLJointState *getNextJointState();
-	LLJointState *findJointState(LLJoint *joint);
-	LLJointState *findJointState(const std::string &name);
+	LLJointState* getFirstJointState();
+	LLJointState* getNextJointState();
+	LLJointState* findJointState(LLJoint *joint);
+	LLJointState* findJointState(const std::string &name);
 public:
 	// Constructor
 	LLPose() : mWeight(0.f) {}
 	// Destructor
 	~LLPose();
 	// add a joint state in this pose
-	BOOL addJointState(LLJointState *jointState);
+	BOOL addJointState(const LLPointer<LLJointState>& jointState);
 	// remove a joint state from this pose
-	BOOL removeJointState(LLJointState *jointState);
+	BOOL removeJointState(const LLPointer<LLJointState>& jointState);
 	// removes all joint states from this pose
 	BOOL removeAllJointStates();
 	// set weight for all joint states in this pose
@@ -89,14 +89,14 @@ const S32 JSB_NUM_JOINT_STATES = 6;
 class LLJointStateBlender
 {
 protected:
-	LLJointState*	mJointStates[JSB_NUM_JOINT_STATES];
+	LLPointer<LLJointState>	mJointStates[JSB_NUM_JOINT_STATES];
 	S32				mPriorities[JSB_NUM_JOINT_STATES];
 	BOOL			mAdditiveBlends[JSB_NUM_JOINT_STATES];
 public:
 	LLJointStateBlender();
 	~LLJointStateBlender();
 	void blendJointStates(BOOL apply_now = TRUE);
-	BOOL addJointState(LLJointState *joint_state, S32 priority, BOOL additive_blend);
+	BOOL addJointState(const LLPointer<LLJointState>& joint_state, S32 priority, BOOL additive_blend);
 	void interpolate(F32 u);
 	void clear();
 	void resetCachedJoint();

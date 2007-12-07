@@ -78,15 +78,15 @@ public:
 
 	BOOL				mFlipFeet;
 
-	LLJointState		*mPelvisState;
+	LLPointer<LLJointState>	mPelvisState;
 
-	LLJointState		*mHipLeftState;
-	LLJointState		*mKneeLeftState;
-	LLJointState		*mAnkleLeftState;
+	LLPointer<LLJointState>	mHipLeftState;
+	LLPointer<LLJointState>	mKneeLeftState;
+	LLPointer<LLJointState>	mAnkleLeftState;
 
-	LLJointState		*mHipRightState;
-	LLJointState		*mKneeRightState;
-	LLJointState		*mAnkleRightState;
+	LLPointer<LLJointState>	mHipRightState;
+	LLPointer<LLJointState>	mKneeRightState;
+	LLPointer<LLJointState>	mAnkleRightState;
 
 	LLJoint				mPelvisJoint;
 

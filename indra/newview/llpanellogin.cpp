@@ -38,7 +38,6 @@
 #include "llfontgl.h"
 #include "llmd5.h"
 #include "llsecondlifeurls.h"
-#include "llwindow.h"			// shell_open()
 #include "llversionviewer.h"
 #include "v4color.h"
 

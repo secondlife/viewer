@@ -116,11 +116,11 @@ public:
 	LLCharacter			*mCharacter;
 	LLVector3			mWristOffset;
 
-	LLJointState		mParentState;
-	LLJointState		mShoulderState;
-	LLJointState		mElbowState;
-	LLJointState		mWristState;
-	LLJointState		mTorsoState;
+	LLPointer<LLJointState> mParentState;
+	LLPointer<LLJointState> mShoulderState;
+	LLPointer<LLJointState> mElbowState;
+	LLPointer<LLJointState> mWristState;
+	LLPointer<LLJointState> mTorsoState;
 
 	LLJoint				mParentJoint;
 	LLJoint				mShoulderJoint;
