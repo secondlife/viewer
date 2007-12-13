@@ -121,7 +121,7 @@ public:
 	LLJoint::JointPriority getPriority() const	{ return mPriority; }
 	void setPriority( LLJoint::JointPriority priority ) { mPriority = priority; }
 
-private:
+protected:
 	// Destructor
 	virtual ~LLJointState()
 	{
