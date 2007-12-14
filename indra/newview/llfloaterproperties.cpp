@@ -867,6 +867,12 @@ void LLFloaterProperties::updateSaleInfo()
 		&& item->isComplete())
 	{
 		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
+
+		// Force an update on the sale price.
+		U32 flags = new_item->getFlags();
+		flags |= LLInventoryItem::II_FLAGS_OBJECT_SLAM_SALE;
+		new_item->setFlags(flags);
+
 		new_item->setSaleInfo(sale_info);
 		if(mObjectID.isNull())
 		{

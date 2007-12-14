@@ -150,6 +150,9 @@ public:
 		// track attachment points.
 		II_FLAGS_OBJECT_SLAM_PERM = 0x100,
 
+		// flag to indicate that the object sale information has been changed.
+		II_FLAGS_OBJECT_SLAM_SALE = 0x1000,
+
 		// These flags specify which permissions masks to overwrite
 		// upon rez.  Normally, if no permissions slam (above) or
 		// overwrite flags are set, the asset's permissions are
