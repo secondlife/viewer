@@ -453,7 +453,7 @@ S32 wstring_wstring_length_from_utf16_length(const LLWString & wstr, S32 woffset
  * happens in the middle of a glyph. If max_len is longer than the
  * string passed in, the return value == utf8str.
  * @param utf8str A valid utf8 string to truncate.
- * @param max_len The maximum number of bytes in the returne
+ * @param max_len The maximum number of bytes in the return value.
  * @return Returns a valid utf8 string with byte count <= max_len.
  */
 std::string utf8str_truncate(const std::string& utf8str, const S32 max_len);
