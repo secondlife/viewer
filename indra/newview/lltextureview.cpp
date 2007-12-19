@@ -373,7 +373,6 @@ public:
 	{
 		S32 line_height = (S32)(LLFontGL::sMonospace->getLineHeight() + .5f);
 		setRect(LLRect(0,0,100,line_height * 4));
-		updateRect();
 	}
 
 	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_TEX_MEM_BAR; };

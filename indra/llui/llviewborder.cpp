@@ -84,7 +84,7 @@ void LLViewBorder::setColorsExtended( const LLColor4& shadow_light, const LLColo
 
 void LLViewBorder::setTexture( const LLUUID &image_id )
 {
-	mTexture = LLUI::sImageProvider->getUIImageByID(image_id);
+	mTexture = LLUI::sImageProvider->getImageByID(image_id);
 }
 
 

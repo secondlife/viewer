@@ -37,9 +37,14 @@
 
 void LLQuerySorter::operator() (LLView * parent, viewList_t &children) const {}
 
-filterResult_t LLNoLeavesFilter::operator() (const LLView* const view, const viewList_t & children) const 
+filterResult_t LLLeavesFilter::operator() (const LLView* const view, const viewList_t & children) const 
 {
-	return filterResult_t(!(view->getChildList()->size() == 0), TRUE);
+	return filterResult_t(children.empty(), TRUE);
+}
+
+filterResult_t LLRootsFilter::operator() (const LLView* const view, const viewList_t & children) const 
+{
+	return filterResult_t(TRUE, FALSE);
 }
 
 filterResult_t LLVisibleFilter::operator() (const LLView* const view, const viewList_t & children) const 
@@ -55,6 +60,16 @@ filterResult_t LLTabStopFilter::operator() (const LLView* const view, const view
 	return filterResult_t(view->isCtrl() && static_cast<const LLUICtrl*>(view)->hasTabStop(),
 						view->canFocusChildren());
 }
+
+filterResult_t LLCtrlFilter::operator() (const LLView* const view, const viewList_t & children) const 
+{
+	return filterResult_t(view->isCtrl(),TRUE);
+}
+
+filterResult_t LLWidgetTypeFilter::operator() (const LLView* const view, const viewList_t & children) const
+{
+	return filterResult_t(view->getWidgetType() == mType, TRUE);
+} 
 
 // LLViewQuery
 
@@ -73,45 +88,53 @@ const LLViewQuery::filterList_t & LLViewQuery::getPostFilters() const { return m
 void LLViewQuery::setSorter(const LLQuerySorter* sorterp) { mSorterp = sorterp; }
 const LLQuerySorter* LLViewQuery::getSorter() const { return mSorterp; }
 
-viewList_t LLViewQuery::run(LLView * view) const
+viewList_t LLViewQuery::run(LLView* view) const
 {
 	viewList_t result;
 
-	filterResult_t pre = runFilters(view, viewList_t(), mPreFilters);
+	// prefilter gets immediate children of view
+	filterResult_t pre = runFilters(view, *view->getChildList(), mPreFilters);
 	if(!pre.first && !pre.second)
 	{
-		// skip post filters completely if we're not including ourselves or the children
+		// not including ourselves or the children
+		// nothing more to do
 		return result;
 	}
+
+	viewList_t filtered_children;
+	filterResult_t post(TRUE, TRUE);
 	if(pre.second)
 	{
 		// run filters on children
-		viewList_t filtered_children;
 		filterChildren(view, filtered_children);
-		filterResult_t post = runFilters(view, filtered_children, mPostFilters);
-		if(pre.first && post.first)
+		// only run post filters if this element passed pre filters
+		// so if you failed to pass the pre filter, you can't filter out children in post
+		if (pre.first)
 		{
-			result.push_back(view);
-		}
-		if(post.second)
-		{
-			result.insert(result.end(), filtered_children.begin(), filtered_children.end());
+			post = runFilters(view, filtered_children, mPostFilters);
 		}
 	}
-	else 
+
+	if(pre.first && post.first) 
 	{
-		if(pre.first) 
-		{
-			result.push_back(view);
-		}
+		result.push_back(view);
 	}
+
+	if(pre.second && post.second)
+	{
+		result.insert(result.end(), filtered_children.begin(), filtered_children.end());
+	}
+
 	return result;
 }
 
 void LLViewQuery::filterChildren(LLView * view, viewList_t & filtered_children) const
 {
 	LLView::child_list_t views(*(view->getChildList()));
-	(*mSorterp)(view, views); // sort the children per the sorter
+	if (mSorterp)
+	{
+		(*mSorterp)(view, views); // sort the children per the sorter
+	}
 	for(LLView::child_list_iter_t iter = views.begin();
 			iter != views.end();
 			iter++)

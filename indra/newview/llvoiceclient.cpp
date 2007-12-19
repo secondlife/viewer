@@ -43,7 +43,6 @@
 #include "llcallbacklist.h"
 #include "llviewerregion.h"
 #include "llviewernetwork.h"		// for gGridChoice
-#include "llfloateractivespeakers.h"	// for LLSpeakerMgr
 #include "llbase64.h"
 #include "llviewercontrol.h"
 #include "llkeyboard.h"
@@ -532,7 +531,7 @@ void LLVivoxProtocolParser::CharData(const char *buffer, int length)
 
 void LLVivoxProtocolParser::processResponse(std::string tag)
 {
-//	llinfos << tag << llendl;
+	//llinfos << tag << llendl;
 
 	if (isEvent)
 	{
@@ -768,7 +767,7 @@ static HANDLE sGatewayHandle = 0;
 static bool isGatewayRunning()
 {
 	bool result = false;
-	if(sGatewayHandle != 0)
+	if(sGatewayHandle != 0)		
 	{
 		DWORD waitresult = WaitForSingleObject(sGatewayHandle, 0);
 		if(waitresult != WAIT_OBJECT_0)
@@ -854,7 +853,7 @@ LLVoiceClient::LLVoiceClient()
 	setPTTKey(keyString);
 	mPTTIsToggle = gSavedSettings.getBOOL("PushToTalkToggle");
 	mEarLocation = gSavedSettings.getS32("VoiceEarLocation");
-	setVoiceVolume(gSavedSettings.getF32("AudioLevelVoice"));
+	setVoiceVolume(gSavedSettings.getBOOL("MuteVoice") ? 0.f : gSavedSettings.getF32("AudioLevelVoice"));
 	std::string captureDevice = gSavedSettings.getString("VoiceInputAudioDevice");
 	setCaptureDevice(captureDevice);
 	std::string renderDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
@@ -876,7 +875,6 @@ LLVoiceClient::LLVoiceClient()
 	mTuningMicVolumeDirty = true;
 	mTuningSpeakerVolume = 0;
 	mTuningSpeakerVolumeDirty = true;
-	mTuningCaptureRunning = false;
 					
 	//  gMuteListp isn't set up at this point, so we defer this until later.
 //	gMuteListp->addObserver(&mutelist_listener);
@@ -1138,14 +1136,15 @@ const char *LLVoiceClient::state2string(LLVoiceClient::state inState)
 		CASE(stateConnectorStart);
 		CASE(stateConnectorStarting);
 		CASE(stateConnectorStarted);
-		CASE(stateMicTuningNoLogin);
 		CASE(stateLoginRetry);
 		CASE(stateLoginRetryWait);
 		CASE(stateNeedsLogin);
 		CASE(stateLoggingIn);
 		CASE(stateLoggedIn);
 		CASE(stateNoChannel);
-		CASE(stateMicTuningLoggedIn);
+		CASE(stateMicTuningStart);
+		CASE(stateMicTuningRunning);
+		CASE(stateMicTuningStop);
 		CASE(stateSessionCreate);
 		CASE(stateSessionConnect);
 		CASE(stateJoiningSession);
@@ -1164,6 +1163,7 @@ const char *LLVoiceClient::state2string(LLVoiceClient::state inState)
 		CASE(stateJoinSessionFailed);
 		CASE(stateJoinSessionFailedWaiting);
 		CASE(stateJail);
+		CASE(stateMicTuningNoLogin);
 	}
 
 #undef CASE
@@ -1483,7 +1483,8 @@ void LLVoiceClient::stateMachine()
 			}
 			else if(mTuningMode)
 			{
-				setState(stateMicTuningNoLogin);
+				mTuningExitState = stateConnectorStart;
+				setState(stateMicTuningStart);
 			}
 		break;
 		
@@ -1515,24 +1516,63 @@ void LLVoiceClient::stateMachine()
 			}
 		break;
 				
-		case stateMicTuningNoLogin:
-		case stateMicTuningLoggedIn:
-		{
-			// Both of these behave essentially the same.  The only difference is where the exit transition goes to.
-			if(mTuningMode && mVoiceEnabled && !mSessionTerminateRequested)
-			{	
-				if(!mTuningCaptureRunning)
+		case stateMicTuningStart:
+			if(mUpdateTimer.hasExpired())
+			{
+				if(mCaptureDeviceDirty || mRenderDeviceDirty)
+				{
+					// These can't be changed while in tuning mode.  Set them before starting.
+					std::ostringstream stream;
+
+					if(mCaptureDeviceDirty)
+					{
+						buildSetCaptureDevice(stream);
+					}
+
+					if(mRenderDeviceDirty)
+					{
+						buildSetRenderDevice(stream);
+					}
+
+					mCaptureDeviceDirty = false;
+					mRenderDeviceDirty = false;
+
+					if(!stream.str().empty())
+					{
+						writeString(stream.str());
+					}				
+
+					// This will come around again in the same state and start the capture, after the timer expires.
+					mUpdateTimer.start();
+					mUpdateTimer.setTimerExpirySec(UPDATE_THROTTLE_SECONDS);
+				}
+				else
 				{
 					// duration parameter is currently unused, per Mike S.
 					tuningCaptureStartSendMessage(10000);
+
+					setState(stateMicTuningRunning);
 				}
-				
-				if(mTuningMicVolumeDirty || mTuningSpeakerVolumeDirty || mCaptureDeviceDirty || mRenderDeviceDirty)
+			}
+			
+		break;
+		
+		case stateMicTuningRunning:
+			if(!mTuningMode || !mVoiceEnabled || mSessionTerminateRequested || mCaptureDeviceDirty || mRenderDeviceDirty)
+			{
+				// All of these conditions make us leave tuning mode.
+				setState(stateMicTuningStop);
+			}
+			else
+			{
+				// process mic/speaker volume changes
+				if(mTuningMicVolumeDirty || mTuningSpeakerVolumeDirty)
 				{
 					std::ostringstream stream;
 					
 					if(mTuningMicVolumeDirty)
 					{
+						llinfos << "setting tuning mic level to " << mTuningMicVolume << llendl;
 						stream
 						<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.SetMicLevel.1\">"
 						<< "<Level>" << mTuningMicVolume << "</Level>"
@@ -1547,20 +1587,8 @@ void LLVoiceClient::stateMachine()
 						<< "</Request>\n\n\n";
 					}
 					
-					if(mCaptureDeviceDirty)
-					{
-						buildSetCaptureDevice(stream);
-					}
-	
-					if(mRenderDeviceDirty)
-					{
-						buildSetRenderDevice(stream);
-					}
-					
 					mTuningMicVolumeDirty = false;
 					mTuningSpeakerVolumeDirty = false;
-					mCaptureDeviceDirty = false;
-					mRenderDeviceDirty = false;
 
 					if(!stream.str().empty())
 					{
@@ -1568,23 +1596,19 @@ void LLVoiceClient::stateMachine()
 					}
 				}
 			}
-			else
-			{
-				// transition out of mic tuning
-				if(mTuningCaptureRunning)
-				{
-					tuningCaptureStopSendMessage();
-				}
-				
-				if(getState() == stateMicTuningNoLogin)
-				{
-					setState(stateConnectorStart);
-				}
-				else
-				{
-					setState(stateNoChannel);
-				}
-			}
+		break;
+		
+		case stateMicTuningStop:
+		{
+			// transition out of mic tuning
+			tuningCaptureStopSendMessage();
+			
+			setState(mTuningExitState);
+			
+			// if we exited just to change devices, this will keep us from re-entering too fast.
+			mUpdateTimer.start();
+			mUpdateTimer.setTimerExpirySec(UPDATE_THROTTLE_SECONDS);
+			
 		}
 		break;
 								
@@ -1654,7 +1678,8 @@ void LLVoiceClient::stateMachine()
 			}
 			else if(mTuningMode)
 			{
-				setState(stateMicTuningLoggedIn);
+				mTuningExitState = stateNoChannel;
+				setState(stateMicTuningStart);
 			}
 			else if(!mNextSessionHandle.empty())
 			{
@@ -1879,6 +1904,12 @@ void LLVoiceClient::stateMachine()
 		
 		case stateJail:
 			// We have given up.  Do nothing.
+		break;
+
+	        case stateMicTuningNoLogin:
+			// *TODO: Implement me.
+			llwarns << "stateMicTuningNoLogin not handled"
+				<< llendl;
 		break;
 	}
 
@@ -2183,9 +2214,9 @@ bool LLVoiceClient::inTuningMode()
 	bool result = false;
 	switch(getState())
 	{
-	case stateMicTuningNoLogin:
-	case stateMicTuningLoggedIn:
+	case stateMicTuningRunning:
 		result = true;
+		break;
 	default:
 		break;
 	}
@@ -2193,10 +2224,7 @@ bool LLVoiceClient::inTuningMode()
 }
 
 void LLVoiceClient::tuningRenderStartSendMessage(const std::string& name, bool loop)
-{
-	if(!inTuningMode())
-		return;
-		
+{		
 	mTuningAudioFile = name;
 	std::ostringstream stream;
 	stream
@@ -2210,9 +2238,6 @@ void LLVoiceClient::tuningRenderStartSendMessage(const std::string& name, bool l
 
 void LLVoiceClient::tuningRenderStopSendMessage()
 {
-	if(!inTuningMode())
-		return;
-
 	std::ostringstream stream;
 	stream
 	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.RenderAudioStop.1\">"
@@ -2224,9 +2249,8 @@ void LLVoiceClient::tuningRenderStopSendMessage()
 
 void LLVoiceClient::tuningCaptureStartSendMessage(int duration)
 {
-	if(!inTuningMode())
-		return;
-
+	llinfos << "sending CaptureAudioStart" << llendl;
+	
 	std::ostringstream stream;
 	stream
 	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.CaptureAudioStart.1\">"
@@ -2234,15 +2258,12 @@ void LLVoiceClient::tuningCaptureStartSendMessage(int duration)
 	<< "</Request>\n\n\n";
 	
 	writeString(stream.str());
-	
-	mTuningCaptureRunning = true;
 }
 
 void LLVoiceClient::tuningCaptureStopSendMessage()
 {
-	if(!inTuningMode())
-		return;
-
+	llinfos << "sending CaptureAudioStop" << llendl;
+	
 	std::ostringstream stream;
 	stream
 	<< "<Request requestId=\"" << mCommandCookie++ << "\" action=\"Aux.CaptureAudioStop.1\">"
@@ -2250,7 +2271,7 @@ void LLVoiceClient::tuningCaptureStopSendMessage()
 	
 	writeString(stream.str());
 
-	mTuningCaptureRunning = false;
+	mTuningEnergy = 0.0f;
 }
 
 void LLVoiceClient::tuningSetMicVolume(float volume)
@@ -2914,12 +2935,16 @@ void LLVoiceClient::sessionNewEvent(
 				LLUUID caller_id;
 				if(IDFromName(nameString, caller_id))
 				{
-					gIMMgr->inviteToSession(LLIMMgr::computeSessionID(IM_SESSION_P2P_INVITE, caller_id),
-											LLString::null,
-											caller_id, 
-											LLString::null, 
-											IM_SESSION_P2P_INVITE, 
-											eventSessionHandle);
+					gIMMgr->inviteToSession(
+						LLIMMgr::computeSessionID(
+							IM_SESSION_P2P_INVITE,
+							caller_id),
+						LLString::null,
+						caller_id, 
+						LLString::null, 
+						IM_SESSION_P2P_INVITE, 
+						LLIMMgr::INVITATION_TYPE_VOICE,
+						eventSessionHandle);
 				}
 				else
 				{
@@ -2985,6 +3010,7 @@ void LLVoiceClient::participantPropertiesEvent(
 	{
 		participant->mPTT = !isLocallyMuted;
 		participant->mIsSpeaking = isSpeaking;
+		participant->mIsModeratorMuted = isModeratorMuted;
 		if (isSpeaking)
 		{
 			participant->mSpeakingTimeout.reset();
@@ -3022,7 +3048,7 @@ void LLVoiceClient::muteListChanged()
 /////////////////////////////
 // Managing list of participants
 LLVoiceClient::participantState::participantState(const std::string &uri) : 
-	 mURI(uri), mPTT(false), mIsSpeaking(false), mPower(0.0), mServiceType(serviceTypeUnknown),
+	 mURI(uri), mPTT(false), mIsSpeaking(false), mIsModeratorMuted(false), mPower(0.0), mServiceType(serviceTypeUnknown),
 	 mOnMuteList(false), mUserVolume(100), mVolumeDirty(false), mAvatarIDValid(false)
 {
 }
@@ -3265,6 +3291,7 @@ void LLVoiceClient::switchChannel(
 		{
 			// Leave any channel we may be in
 			llinfos << "leaving channel" << llendl;
+			notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED);
 		}
 		else
 		{
@@ -3781,6 +3808,19 @@ BOOL LLVoiceClient::getIsSpeaking(const LLUUID& id)
 			participant->mIsSpeaking = FALSE;
 		}
 		result = participant->mIsSpeaking;
+	}
+	
+	return result;
+}
+
+BOOL LLVoiceClient::getIsModeratorMuted(const LLUUID& id)
+{
+	BOOL result = FALSE;
+
+	participantState *participant = findParticipantByID(id);
+	if(participant)
+	{
+		result = participant->mIsModeratorMuted;
 	}
 	
 	return result;

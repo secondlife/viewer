@@ -252,7 +252,6 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		if(view)
 		{
 			LLUICtrl* focus_ctrl = gFocusMgr.getKeyboardFocus();
-			LLFocusMgr::FocusLostCallback callback = gFocusMgr.getFocusCallback();
 
 			view->getPanel()->setSelection(content["new_inventory_item"].asUUID(), TAKE_FOCUS_NO);
 			if((LLAssetType::AT_TEXTURE == asset_type)
@@ -262,7 +261,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 			}
 			//LLInventoryView::dumpSelectionInformation((void*)view);
 			// restore keyboard focus
-			gFocusMgr.setKeyboardFocus(focus_ctrl, callback);
+			gFocusMgr.setKeyboardFocus(focus_ctrl);
 		}
 	}
 	else

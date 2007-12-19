@@ -128,7 +128,11 @@ LLFloater::handle_map_t	LLFloater::sFloaterMap;
 
 LLFloaterView* gFloaterView = NULL;
 
-LLFloater::LLFloater() 
+LLFloater::LLFloater() :
+	//FIXME: we should initialize *all* member variables here
+	mResizable(FALSE),
+	mDragOnLeft(FALSE)
+
 {
 	// automatically take focus when opened
 	mAutoFocus = TRUE;
@@ -215,9 +219,14 @@ void LLFloater::init(const LLString& title,
 	}
 	mButtonScale = 1.f;
 
-	LLPanel::deleteAllChildren();
+	BOOL need_border = mBorder != NULL;
+
+	// this will delete mBorder too
+	deleteAllChildren();
+	// make sure we don't have a pointer to an old, deleted border	
+	mBorder = NULL;
 	//sjb: HACK! we had a border which was just deleted, so re-create it
-	if (mBorder != NULL)
+	if (need_border)
 	{
 		addBorder();
 	}
@@ -609,7 +618,7 @@ void LLFloater::releaseFocus()
 
 	if( gFocusMgr.childHasKeyboardFocus( this ) )
 	{
-		gFocusMgr.setKeyboardFocus(NULL, NULL);
+		gFocusMgr.setKeyboardFocus(NULL);
 	}
 
 	if( gFocusMgr.childHasMouseCapture( this ) )
@@ -1023,13 +1032,10 @@ void LLFloater::setHost(LLMultiFloater* host)
 		{
 			mButtonsEnabled[BUTTON_TEAR_OFF] = TRUE;
 		}
-
-		mIsFocusRoot = FALSE;
 	}
 	else if (!mHostHandle.isDead() && !host)
 	{
 		mButtonScale = 1.f;
-		mIsFocusRoot = TRUE;
 		//mButtonsEnabled[BUTTON_TEAR_OFF] = FALSE;
 	}
 	updateButtons();
@@ -1257,6 +1263,7 @@ void LLFloater::show(LLFloater* floaterp)
 {
 	if (floaterp) 
 	{
+		gFocusMgr.triggerFocusFlash();
 		floaterp->open();
 		if (floaterp->getHost())
 		{
@@ -2594,9 +2601,9 @@ void LLMultiFloater::draw()
 		for (S32 i = 0; i < mTabContainer->getTabCount(); i++)
 		{
 			LLFloater* floaterp = (LLFloater*)mTabContainer->getPanelByIndex(i);
-			if (floaterp->getTitle() != mTabContainer->getPanelTitle(i))
+			if (floaterp->getShortTitle() != mTabContainer->getPanelTitle(i))
 			{
-				mTabContainer->setPanelTitle(i, floaterp->getTitle());
+				mTabContainer->setPanelTitle(i, floaterp->getShortTitle());
 			}
 		}
 		LLFloater::draw();
@@ -2714,7 +2721,7 @@ void LLMultiFloater::addFloater(LLFloater* floaterp, BOOL select_added_floater, 
 
 	if ( select_added_floater )
 	{
-		mTabContainer->selectLastTab();
+		mTabContainer->selectTabPanel(floaterp);
 	}
 
 	floaterp->setHost(this);
@@ -2959,8 +2966,9 @@ void LLMultiFloater::updateResizeLimits()
 		// make sure upper left corner doesn't move
 		translate(0, cur_height - mRect.getHeight());
 
-		// Try to keep whole view onscreen, don't allow partial offscreen.
-		gFloaterView->adjustToFitScreen(this, FALSE);
+		// make sure this window is visible on screen when it has been modified
+		// (tab added, etc)
+		gFloaterView->adjustToFitScreen(this, TRUE);
 	}
 }
 

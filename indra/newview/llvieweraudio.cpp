@@ -122,8 +122,10 @@ void audio_update_volume(bool force_update)
 	if (gAudiop) 
 	{		
 		F32 music_volume = gSavedSettings.getF32("AudioLevelMusic");
+		BOOL music_muted = gSavedSettings.getBOOL("MuteMusic");
 		music_volume = mute_volume * master_volume * (music_volume*music_volume);
-		gAudiop->setInternetStreamGain ( music_volume );
+		gAudiop->setInternetStreamGain ( music_muted ? 0.f : music_volume );
+	
 	}
 
 	// Streaming Media
@@ -131,7 +133,8 @@ void audio_update_volume(bool force_update)
 	{
 		F32 media_volume = gSavedSettings.getF32("AudioLevelMedia");
 		media_volume = mute_volume * master_volume * (media_volume*media_volume);
-		LLMediaEngine::getInstance()->setVolume(media_volume);
+		BOOL media_muted = gSavedSettings.getBOOL("MuteMedia");
+		LLMediaEngine::getInstance()->setVolume(media_muted ? 0.f : media_volume);
 	}
 
 	// Voice
@@ -139,8 +142,9 @@ void audio_update_volume(bool force_update)
 	{
 		F32 voice_volume = gSavedSettings.getF32("AudioLevelVoice");
 		voice_volume = mute_volume * master_volume * voice_volume;
-		gVoiceClient->setVoiceVolume(voice_volume);
-		gVoiceClient->setMicGain(gSavedSettings.getF32("AudioLevelMic"));
+		BOOL voice_mute = gSavedSettings.getBOOL("MuteVoice");
+		gVoiceClient->setVoiceVolume(voice_mute ? 0.f : voice_volume);
+		gVoiceClient->setMicGain(voice_mute ? 0.f : gSavedSettings.getF32("AudioLevelMic"));
 
 		if (!gViewerWindow->getActive() && (gSavedSettings.getBOOL("MuteWhenMinimized")))
 		{
@@ -206,7 +210,7 @@ void audio_update_wind(bool force_update)
 		// don't use the setter setMaxWindGain() because we don't
 		// want to screw up the fade-in on startup by setting actual source gain
 		// outside the fade-in.
-		gAudiop->mMaxWindGain = gSavedSettings.getF32("AudioLevelAmbient");
+		gAudiop->mMaxWindGain = gSavedSettings.getBOOL("MuteAmbient") ? 0.f : gSavedSettings.getF32("AudioLevelAmbient");
 		
 		last_camera_water_height = camera_water_height;
 		gAudiop->updateWind(gRelativeWindVec, camera_water_height);

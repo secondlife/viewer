@@ -888,10 +888,8 @@ void open_offer(const std::vector<LLUUID>& items, const std::string& from_name)
 		//highlight item
 
 		LLUICtrl* focus_ctrl = gFocusMgr.getKeyboardFocus();
-		LLFocusMgr::FocusLostCallback callback;
-		callback = gFocusMgr.getFocusCallback();
 		view->getPanel()->setSelection(item->getUUID(), TAKE_FOCUS_NO);
-		gFocusMgr.setKeyboardFocus(focus_ctrl, callback);
+		gFocusMgr.setKeyboardFocus(focus_ctrl);
 	}
 }
 
@@ -920,7 +918,7 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 	LLMute mute(blocked_id, from_name, type);
 	if (gMuteListp->add(mute))
 	{
-		gFloaterMute->show();
+		LLFloaterMute::showInstance();
 		gFloaterMute->selectMute(blocked_id);
 	}
 
@@ -2192,9 +2190,13 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	BOOL is_linden = FALSE;
 	if (gMuteListp)
 	{
-		is_muted = gMuteListp->isMuted(from_id, from_name, LLMute::flagTextChat)
-				   || gMuteListp->isMuted(owner_id, LLMute::flagTextChat);
-		is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT && gMuteListp->isLinden(from_name);
+		is_muted = gMuteListp->isMuted(
+			from_id,
+			from_name,
+			LLMute::flagTextChat) 
+			|| gMuteListp->isMuted(owner_id, LLMute::flagTextChat);
+		is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
+			gMuteListp->isLinden(from_name);
 	}
 
 	BOOL is_audible = (CHAT_AUDIBLE_FULLY == chat.mAudible);
@@ -2235,7 +2237,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		BOOL visible_in_chat_bubble = FALSE;
 		std::string verb;
 
-		color.setVec(1,1,1,1);
+		color.setVec(1.f,1.f,1.f,1.f);
 		msg->getStringFast(_PREHASH_ChatData, _PREHASH_Message, DB_CHAT_MSG_BUF_SIZE, mesg);
 
 		BOOL ircstyle = FALSE;
@@ -3332,7 +3334,7 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 		return;
 	}
 
-	F32 volume = gain * gSavedSettings.getF32("AudioLevelSFX");
+	F32 volume = gSavedSettings.getBOOL("MuteSounds") ? 0.f : (gain * gSavedSettings.getF32("AudioLevelSFX"));
 	gAudiop->triggerSound(sound_id, owner_id, volume, pos_global);
 }
 

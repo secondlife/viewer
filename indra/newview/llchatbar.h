@@ -49,16 +49,11 @@ class LLChatBar
 {
 public:
 	// constructor for inline chat-bars (e.g. hosted in chat history window)
-	LLChatBar(const std::string& name);
-	LLChatBar(const std::string& name, const LLRect& rect);
+	LLChatBar();
 	~LLChatBar();
 	virtual BOOL postBuild();
 
-	virtual void reshape(S32 width, S32 height, BOOL called_from_parent);
 	virtual BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
-
-	// Adjust buttons and input field for width
-	void		layout();
 
 	void		refresh();
 	void		refreshGestures();
@@ -86,20 +81,18 @@ public:
 	LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
 
 	// callbacks
-	static void	onClickSay( void* userdata );
-	static void	onClickShout( void* userdata );
+	static void	onClickSay( LLUICtrl*, void* userdata );
 
 	static void	onTabClick( void* userdata );
 	static void	onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
-	static void	onInputEditorFocusLost(LLUICtrl* caller,void* userdata);
-	static void	onInputEditorGainFocus(LLUICtrl* caller,void* userdata);
+	static void	onInputEditorFocusLost(LLFocusableElement* caller,void* userdata);
+	static void	onInputEditorGainFocus(LLFocusableElement* caller,void* userdata);
 
 	static void onCommitGesture(LLUICtrl* ctrl, void* data);
 
 	static void startChat(void*);
 	static void stopChat();
 
-	/*virtual*/ void setVisible(BOOL visible);
 protected:
 	void sendChat(EChatType type);
 	void updateChat();
@@ -113,7 +106,6 @@ protected:
 	S32				mLastSpecialChatChannel;
 
 	BOOL			mIsBuilt;
-	BOOL			mDynamicLayout;
 	LLComboBox*		mGestureCombo;
 
 	LLChatBarGestureObserver* mObserver;

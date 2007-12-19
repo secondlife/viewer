@@ -183,7 +183,15 @@ template <class LLDATATYPE>
 inline LLDATATYPE llmax(const LLDATATYPE& d1, const LLDATATYPE& d2, const LLDATATYPE& d3)
 {
 	LLDATATYPE r = llmax(d1,d2);
-	return (r > d3 ? r : d3);
+	return llmax(r, d3);
+}
+
+template <class LLDATATYPE> 
+inline LLDATATYPE llmax(const LLDATATYPE& d1, const LLDATATYPE& d2, const LLDATATYPE& d3, const LLDATATYPE& d4)
+{
+	LLDATATYPE r1 = llmax(d1,d2);
+	LLDATATYPE r2 = llmax(d3,d4);
+	return llmax(r1, r2);
 }
 
 template <class LLDATATYPE> 
@@ -197,6 +205,14 @@ inline LLDATATYPE llmin(const LLDATATYPE& d1, const LLDATATYPE& d2, const LLDATA
 {
 	LLDATATYPE r = llmin(d1,d2);
 	return (r < d3 ? r : d3);
+}
+
+template <class LLDATATYPE> 
+inline LLDATATYPE llmin(const LLDATATYPE& d1, const LLDATATYPE& d2, const LLDATATYPE& d3, const LLDATATYPE& d4)
+{
+	LLDATATYPE r1 = llmin(d1,d2);
+	LLDATATYPE r2 = llmin(d3,d4);
+	return llmin(r1, r2);
 }
 
 template <class LLDATATYPE> 

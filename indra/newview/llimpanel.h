@@ -74,14 +74,20 @@ public:
 	virtual void getChannelInfo();
 	virtual BOOL isActive();
 	virtual BOOL callStarted();
+
+	const LLUUID getSessionID() { return mSessionID; }
 	EState getState() { return mState; }
 
 	void updateSessionID(const LLUUID& new_session_id);
+	const LLString::format_map_t& getNotifyArgs() { return mNotifyArgs; }
 
 	static LLVoiceChannel* getChannelByID(const LLUUID& session_id);
 	static LLVoiceChannel* getChannelByURI(LLString uri);
 	static LLVoiceChannel* getCurrentVoiceChannel() { return sCurrentVoiceChannel; }
 	static void initClass();
+	
+	static void suspend();
+	static void resume();
 
 protected:
 	virtual void setState(EState state);
@@ -103,13 +109,14 @@ protected:
 	static voice_channel_map_uri_t sVoiceChannelURIMap;
 
 	static LLVoiceChannel* sCurrentVoiceChannel;
+	static LLVoiceChannel* sSuspendedVoiceChannel;
+	static BOOL sSuspended;
 };
 
 class LLVoiceChannelGroup : public LLVoiceChannel
 {
 public:
 	LLVoiceChannelGroup(const LLUUID& session_id, const LLString& session_name);
-	virtual ~LLVoiceChannelGroup();
 
 	/*virtual*/ void handleStatusChange(EStatusType status);
 	/*virtual*/ void handleError(EStatusType status);
@@ -132,8 +139,7 @@ class LLVoiceChannelProximal : public LLVoiceChannel, public LLSingleton<LLVoice
 {
 public:
 	LLVoiceChannelProximal();
-	virtual ~LLVoiceChannelProximal();
-	
+
 	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
 	/*virtual*/ void handleStatusChange(EStatusType status);
 	/*virtual*/ void handleError(EStatusType status);
@@ -147,7 +153,6 @@ class LLVoiceChannelP2P : public LLVoiceChannelGroup
 {
 public:
 	LLVoiceChannelP2P(const LLUUID& session_id, const LLString& session_name, const LLUUID& other_user_id);
-	virtual ~LLVoiceChannelP2P();
 
 	/*virtual*/ void handleStatusChange(EStatusType status);
 	/*virtual*/ void handleError(EStatusType status);
@@ -156,9 +161,13 @@ public:
 
 	void setSessionHandle(const LLString& handle);
 
+protected:
+	virtual void setState(EState state);
+
 private:
 	LLString	mSessionHandle;
 	LLUUID		mOtherUserID;
+	BOOL		mReceivedCall;
 };
 
 class LLFloaterIMPanel : public LLFloater
@@ -170,15 +179,11 @@ public:
 	// the default. For example, if you open a session though a
 	// calling card, a new session id will be generated, but the
 	// target_id will be the agent referenced by the calling card.
-	LLFloaterIMPanel(const std::string& name,
-					 const LLRect& rect,
-					 const std::string& session_label,
+	LLFloaterIMPanel(const std::string& session_label,
 					 const LLUUID& session_id,
 					 const LLUUID& target_id,
 					 EInstantMessage dialog);
-	LLFloaterIMPanel(const std::string& name,
-					 const LLRect& rect,
-					 const std::string& session_label,
+	LLFloaterIMPanel(const std::string& session_label,
 					 const LLUUID& session_id,
 					 const LLUUID& target_id,
 					 const LLDynamicArray<LLUUID>& ids,
@@ -189,8 +194,8 @@ public:
 
 	// Check typing timeout timer.
 	/*virtual*/ void draw();
-
 	/*virtual*/ void onClose(bool app_quitting = FALSE);
+	/*virtual*/ void onVisibilityChange(BOOL new_visibility);
 
 	// add target ids to the session. 
 	// Return TRUE if successful, otherwise FALSE.
@@ -209,14 +214,16 @@ public:
 	void selectNone();
 	void setVisible(BOOL b);
 
+	S32 getNumUnreadMessages() { return mNumUnreadMessages; }
+
 	BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
 						   BOOL drop, EDragAndDropType cargo_type,
 						   void *cargo_data, EAcceptance *accept,
 						   LLString& tooltip_msg);
 
-	static void		onInputEditorFocusReceived( LLUICtrl* caller, void* userdata );
-	static void		onInputEditorFocusLost(LLUICtrl* caller, void* userdata);
+	static void		onInputEditorFocusReceived( LLFocusableElement* caller, void* userdata );
+	static void		onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
 	static void		onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
 	static void		onCommitChat(LLUICtrl* caller, void* userdata);
 	static void		onTabClick( void* userdata );
@@ -229,16 +236,17 @@ public:
 	static void		onClickSend( void* userdata );
 	static void		onClickToggleActiveSpeakers( void* userdata );
 	static void*	createSpeakersPanel(void* data);
+	static void		onKickSpeaker(void* user_data);
 
 	//callbacks for P2P muting and volume control
-	static void onClickMuteVoice(LLUICtrl* source, void* user_data);
+	static void onClickMuteVoice(void* user_data);
 	static void onVolumeChange(LLUICtrl* source, void* user_data);
 
 	const LLUUID& getSessionID() const { return mSessionUUID; }
 	const LLUUID& getOtherParticipantID() const { return mOtherParticipantUUID; }
-	void updateSpeakersList(LLSD speaker_updates);
-	void setSpeakersListFromMap(LLSD speaker_list);
-	void setSpeakersList(LLSD speaker_list);
+	void updateSpeakersList(const LLSD& speaker_updates);
+	void processSessionUpdate(const LLSD& update);
+	void setSpeakers(const LLSD& speaker_list);
 	LLVoiceChannel* getVoiceChannel() { return mVoiceChannel; }
 	EInstantMessage getDialogType() const { return mDialog; }
 
@@ -249,6 +257,15 @@ public:
 	// Handle other participant in the session typing.
 	void processIMTyping(const LLIMInfo* im_info, BOOL typing);
 	static void chatFromLogFile(LLString line, void* userdata);
+
+	//show error statuses to the user
+	void showSessionStartError(const std::string& error_string);
+	void showSessionEventError(
+		const std::string& event_string,
+		const std::string& error_string);
+	void showSessionForceClose(const std::string& reason);
+
+	static void onConfirmForceCloseError(S32 option, void* data);
 
 private:
 	// called by constructors
@@ -289,6 +306,7 @@ private:
 	//   911 ==> Gaurdian_Angel_Group_ID ^ gAgent.getID()
 	LLUUID mSessionUUID;
 
+	LLString mSessionLabel;
 	LLVoiceChannel*	mVoiceChannel;
 
 	BOOL mSessionInitialized;
@@ -318,6 +336,8 @@ private:
 	// Where does the "Starting session..." line start?
 	S32 mSessionStartMsgPos;
 	
+	S32 mNumUnreadMessages;
+
 	BOOL mSentTypingState;
 
 	BOOL mShowSpeakersOnConnect;

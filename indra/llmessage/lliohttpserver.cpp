@@ -723,7 +723,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 		const LLHTTPNode* node = mRootNode.traverse(mPath, context);
 		if(node)
 		{
- 			llinfos << "LLHTTPResponder::process_impl found node for "
+ 			lldebugs << "LLHTTPResponder::process_impl found node for "
 				<< mAbsPathAndQuery << llendl;
 
   			// Copy everything after mLast read to the out.

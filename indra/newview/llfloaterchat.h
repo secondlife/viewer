@@ -82,6 +82,7 @@ public:
 
 protected:
 	LLPanelActiveSpeakers* mPanel;
+	BOOL mScrolledToEnd;
 };
 
 #endif

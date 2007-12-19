@@ -156,7 +156,12 @@ void LLTabContainerCommon::lockTabs(S32 num_tabs)
 {
 	// count current tabs or use supplied value and ensure no new tabs get
 	// inserted between them
-	mLockedTabCount = num_tabs > 0 ? num_tabs : getTabCount();
+	mLockedTabCount = num_tabs > 0 ? llmin(getTabCount(), num_tabs) : getTabCount();
+}
+
+void LLTabContainerCommon::unlockTabs()
+{
+	mLockedTabCount = 0;
 }
 
 void LLTabContainerCommon::removeTabPanel(LLPanel* child)
@@ -557,7 +562,7 @@ void LLTabContainerCommon::setTabImage(LLPanel* child, std::string img_name, con
 }
 
 void LLTabContainerCommon::setTitle(const LLString& title)
-{
+{	
 	if (mTitleBox)
 	{
 		mTitleBox->setText( title );
@@ -721,6 +726,14 @@ void LLTabContainerCommon::insertTuple(LLTabTuple * tuple, eInsertionPoint inser
 		// insert the new tab in the front of the list
 		mTabList.insert(mTabList.begin() + mLockedTabCount, tuple);
 		break;
+	case LEFT_OF_CURRENT:
+		// insert the new tab before the current tab (but not before mLockedTabCount)
+		{
+		tuple_list_t::iterator current_iter = mTabList.begin() + llmax(mLockedTabCount, mCurrentTabIdx);
+		mTabList.insert(current_iter, tuple);
+		}
+		break;
+
 	case RIGHT_OF_CURRENT:
 		// insert the new tab after the current tab (but not before mLockedTabCount)
 		{
@@ -946,14 +959,14 @@ void LLTabContainer::addTabPanel(LLPanel* child,
 	if( LLTabContainer::TOP == mTabPosition )
 	{
 		btn_rect.setLeftTopAndSize( 0, mRect.getHeight() - mTopBorderHeight + tab_fudge, button_width, TABCNTR_TAB_HEIGHT );
-		tab_img = "UIImgBtnTabTopOutUUID";
-		tab_selected_img = "UIImgBtnTabTopInUUID";
+		tab_img = "tab_top_blue.tga";
+		tab_selected_img = "tab_top_selected_blue.tga";
 	}
 	else
 	{
 		btn_rect.setOriginAndSize( 0, 0 + tab_fudge, button_width, TABCNTR_TAB_HEIGHT );
-		tab_img = "UIImgBtnTabBottomOutUUID";
-		tab_selected_img = "UIImgBtnTabBottomInUUID";
+		tab_img = "tab_bottom_blue.tga";
+		tab_selected_img = "tab_bottom_selected_blue.tga";
 	}
 
 	if (placeholder)
@@ -979,7 +992,7 @@ void LLTabContainer::addTabPanel(LLPanel* child,
 		LLButton* btn = new LLButton(
 			LLString(child->getName()) + " tab",
 			btn_rect, 
-			tab_img, tab_selected_img, "",
+			"", "", "",
 			&LLTabContainer::onTabBtn, NULL, // set userdata below
 			font,
 			trimmed_label, trimmed_label );
@@ -987,7 +1000,7 @@ void LLTabContainer::addTabPanel(LLPanel* child,
 		btn->setVisible( FALSE );
 		btn->setToolTip( tooltip );
 		btn->setScaleImage(TRUE);
-		btn->setFixedBorder(14, 14);
+		btn->setImages(tab_img, tab_selected_img);
 
 		// Try to squeeze in a bit more text
 		btn->setLeftHPad( 4 );
@@ -1139,7 +1152,7 @@ BOOL LLTabContainer::selectTab(S32 which)
 
 	//if( gFocusMgr.childHasKeyboardFocus( this ) )
 	//{
-	//	gFocusMgr.setKeyboardFocus( NULL, NULL );
+	//	gFocusMgr.setKeyboardFocus( NULL );
 	//}
 
 	LLTabTuple* selected_tuple = mTabList[which];
@@ -1370,7 +1383,7 @@ BOOL LLTabContainer::handleMouseDown( S32 x, S32 y, MASK mask )
 		{
 			LLButton* tab_button = mTabList[getCurrentPanelIndex()]->mButton;
 			gFocusMgr.setMouseCapture(this);
-			gFocusMgr.setKeyboardFocus(tab_button, NULL);
+			gFocusMgr.setKeyboardFocus(tab_button);
 		}
 	}
 	return handled;
@@ -1475,7 +1488,7 @@ BOOL LLTabContainer::handleMouseUp( S32 x, S32 y, MASK mask )
 BOOL LLTabContainer::handleToolTip( S32 x, S32 y, LLString& msg, LLRect* sticky_rect )
 {
 	BOOL handled = LLPanel::handleToolTip( x, y, msg, sticky_rect );
-	if (!handled && mTabList.size() > 0 && getVisible() && pointInView( x, y ) ) 
+	if (!handled && mTabList.size() > 0) 
 	{
 		LLTabTuple* firsttuple = mTabList[0];
 
@@ -1645,12 +1658,12 @@ void LLTabContainer::setTabImage(LLPanel* child, std::string image_name, const L
 		mTotalTabWidth -= tuple->mButton->getRect().getWidth();
 
 		S32 image_overlay_width = tuple->mButton->getImageOverlay().notNull() ? 
-			tuple->mButton->getImageOverlay()->getWidth(0) :
+			tuple->mButton->getImageOverlay()->getImage()->getWidth(0) :
 			0;
 
 		tuple->mPadding = image_overlay_width;
 
-		tuple->mButton->setRightHPad(tuple->mPadding + LLBUTTON_H_PAD);
+		tuple->mButton->setRightHPad(6);
 		tuple->mButton->reshape(llclamp(fontp->getWidth(tuple->mButton->getLabelSelected()) + TAB_PADDING + tuple->mPadding, mMinTabWidth, mMaxTabWidth), 
 								tuple->mButton->getRect().getHeight());
 		// add back in button width to total tab strip width

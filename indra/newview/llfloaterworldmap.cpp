@@ -234,7 +234,7 @@ BOOL LLFloaterWorldMap::postBuild()
 
 	childSetAction("DoSearch", onLocationCommit, this);
 
-	childSetFocusChangedCallback("location", updateSearchEnabled);
+	childSetFocusChangedCallback("location", onLocationFocusChanged, this);
 
 	LLLineEditor *location_editor = LLUICtrlFactory::getLineEditorByName(this, "location");
 	if (location_editor)
@@ -1219,6 +1219,12 @@ void LLFloaterWorldMap::onAvatarComboCommit( LLUICtrl* ctrl, void* userdata )
 	{	// Reset to user postion if nothing is tracked
 		self->mSetToUserPosition = ( LLTracker::getTrackingStatus() == LLTracker::TRACKING_NOTHING );
 	}
+}
+
+//static 
+void LLFloaterWorldMap::onLocationFocusChanged( LLFocusableElement* focus, void* userdata )
+{
+	updateSearchEnabled((LLUICtrl*)focus, userdata);
 }
 
 // static 

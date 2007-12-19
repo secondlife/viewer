@@ -164,9 +164,15 @@ void LLFloaterChat::onVisibilityChange(BOOL new_visibility)
 {
 	// Hide the chat overlay when our history is visible.
 	gConsole->setVisible( !new_visibility );
+
+	// stop chat history tab from flashing when it appears
+	if (new_visibility)
+	{
+		LLFloaterChatterBox::getInstance()->setFloaterFlashing(this, FALSE);
+	}
+
 	LLFloater::onVisibilityChange(new_visibility);
 }
-
 
 void add_timestamped_line(LLViewerTextEditor* edit, const LLString& line, const LLColor4& color)
 {
@@ -238,6 +244,12 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 	{
 		chat_floater->mPanel->setSpeaker(chat.mFromID, chat.mFromName, LLSpeaker::STATUS_NOT_IN_CHANNEL, LLSpeaker::SPEAKER_OBJECT);
 	}
+
+	// start tab flashing on incoming text from other users (ignoring system text, etc)
+	if (!chat_floater->isInVisibleChain() && chat.mSourceType == CHAT_SOURCE_AGENT)
+	{
+		LLFloaterChatterBox::getInstance()->setFloaterFlashing(chat_floater, TRUE);
+	}
 }
 
 // static
@@ -246,8 +258,14 @@ void LLFloaterChat::setHistoryCursorAndScrollToEnd()
 	LLViewerTextEditor*	history_editor = (LLViewerTextEditor*)LLFloaterChat::getInstance(LLSD())->getChildByName("Chat History Editor", TRUE);
 	LLViewerTextEditor*	history_editor_with_mute = (LLViewerTextEditor*)LLFloaterChat::getInstance(LLSD())->getChildByName("Chat History Editor with mute", TRUE);
 	
-	history_editor->setCursorAndScrollToEnd();
-	history_editor_with_mute->setCursorAndScrollToEnd();
+	if (history_editor) 
+	{
+		history_editor->setCursorAndScrollToEnd();
+	}
+	if (history_editor_with_mute)
+	{
+		 history_editor_with_mute->setCursorAndScrollToEnd();
+	}
 }
 
 
@@ -269,7 +287,7 @@ void LLFloaterChat::onClickMute(void *data)
 	
 	if (gFloaterMute)
 	{
-		gFloaterMute->show();
+		LLFloaterMute::showInstance();
 	}
 }
 
@@ -433,7 +451,7 @@ void* LLFloaterChat::createSpeakersPanel(void* data)
 //static
 void* LLFloaterChat::createChatPanel(void* data)
 {
-	LLChatBar* chatp = new LLChatBar("floating_chat_bar");
+	LLChatBar* chatp = new LLChatBar();
 	return chatp;
 }
 
@@ -441,7 +459,7 @@ void* LLFloaterChat::createChatPanel(void* data)
 void LLFloaterChat::hideInstance(const LLSD& id)
 {
 	LLFloaterChat* floaterp = LLFloaterChat::getInstance(LLSD());
-	// don't do anything when hosted in the chatterbox
+
 	if(floaterp->getHost())
 	{
 		LLFloaterChatterBox::hideInstance(LLSD());

@@ -88,6 +88,9 @@ public:
 	void				setDocPos( S32 pos );
 	S32					getDocPos()				{ return mDocPos; }
 
+	BOOL				isAtBeginning();
+	BOOL				isAtEnd();
+
 	// How many "lines" of the "document" is can appear on a page.
 	void				setPageSize( S32 page_size );
 	S32					getPageSize()			{ return mPageSize; }

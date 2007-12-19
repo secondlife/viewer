@@ -63,6 +63,7 @@ public:
 		STATUS_JOINING,
 		STATUS_JOINED,
 		STATUS_LEFT_CHANNEL,
+		STATUS_VOICE_DISABLED,
 		BEGIN_ERROR_STATUS,
 		ERROR_CHANNEL_FULL,
 		ERROR_CHANNEL_LOCKED,
@@ -139,6 +140,7 @@ class LLVoiceClient: public LLSingleton<LLVoiceClient>
 		void tuningStart();
 		void tuningStop();
 		bool inTuningMode();
+		bool inTuningStates();
 		
 		void tuningRenderStartSendMessage(const std::string& name, bool loop);
 		void tuningRenderStopSendMessage();
@@ -218,6 +220,7 @@ class LLVoiceClient: public LLSingleton<LLVoiceClient>
 		// Accessors for data related to nearby speakers
 		BOOL getVoiceEnabled(const LLUUID& id);		// true if we've received data for this avatar
 		BOOL getIsSpeaking(const LLUUID& id);
+		BOOL getIsModeratorMuted(const LLUUID& id);
 		F32 getCurrentPower(const LLUUID& id);		// "power" is related to "amplitude" in a defined way.  I'm just not sure what the formula is...
 		BOOL getPTTPressed(const LLUUID& id);			// This is the inverse of the "locally muted" property.
 		BOOL getOnMuteList(const LLUUID& id);
@@ -242,6 +245,7 @@ class LLVoiceClient: public LLSingleton<LLVoiceClient>
 			std::string mDisplayName;
 			bool mPTT;
 			bool mIsSpeaking;
+			bool mIsModeratorMuted;
 			LLFrameTimer mSpeakingTimeout;
 			F32	mLastSpokeTimestamp;
 			F32 mPower;
@@ -316,7 +320,9 @@ class LLVoiceClient: public LLSingleton<LLVoiceClient>
 			stateLoggingIn,				// waiting for account handle
 			stateLoggedIn,				// account handle received
 			stateNoChannel,				// 
-			stateMicTuningLoggedIn,		// mic tuning for a logged in user
+			stateMicTuningStart,
+			stateMicTuningRunning,		
+			stateMicTuningStop,
 			stateSessionCreate,			// need to send Session.Create command
 			stateSessionConnect,		// need to send Session.Connect command
 			stateJoiningSession,		// waiting for session handle
@@ -387,7 +393,7 @@ class LLVoiceClient: public LLSingleton<LLVoiceClient>
 		bool mTuningMicVolumeDirty;
 		int mTuningSpeakerVolume;
 		bool mTuningSpeakerVolumeDirty;
-		bool mTuningCaptureRunning;
+		state mTuningExitState;					// state to return to when we leave tuning mode.
 		
 		std::string mSpatialSessionURI;
 		

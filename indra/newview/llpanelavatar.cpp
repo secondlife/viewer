@@ -1638,7 +1638,7 @@ void LLPanelAvatar::onClickMute(void *userdata)
 	if (name_edit)
 	{
 		std::string agent_name = name_edit->getText();
-		gFloaterMute->show();
+		LLFloaterMute::showInstance();
 		
 		if (gMuteListp->isMuted(agent_id))
 		{

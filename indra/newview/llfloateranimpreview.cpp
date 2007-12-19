@@ -155,7 +155,6 @@ BOOL LLFloaterAnimPreview::postBuild()
 	mPlayButton->setDisabledImages("","");
 
 	mPlayButton->setScaleImage(TRUE);
-	mPlayButton->setFixedBorder(0, 0);
 
 	mStopButton = LLViewerUICtrlFactory::getButtonByName(this, "stop_btn");
 	if (!mStopButton)
@@ -170,7 +169,6 @@ BOOL LLFloaterAnimPreview::postBuild()
 	mStopButton->setDisabledImages("","");
 
 	mStopButton->setScaleImage(TRUE);
-	mStopButton->setFixedBorder(0, 0);
 
 	r.set(r.mRight + PREVIEW_HPAD, y, getRect().getWidth() - PREVIEW_HPAD, y - BTN_HEIGHT);
 	childSetCommitCallback("playback_slider", onSliderMove, this);

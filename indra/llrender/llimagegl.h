@@ -196,14 +196,4 @@ public:
 #endif
 };
 
-//RN: maybe this needs to moved elsewhere?
-class LLImageProviderInterface
-{
-public:
-	LLImageProviderInterface() {};
-	virtual ~LLImageProviderInterface() {};
-
-	virtual LLImageGL* getUIImageByID(const LLUUID& id, BOOL clamped = TRUE) = 0;
-};
-
 #endif // LL_LLIMAGEGL_H

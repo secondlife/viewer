@@ -46,7 +46,6 @@
 #include "llagent.h"
 #include "llcallingcard.h"
 #include "llchat.h"
-#include "llviewerwindow.h"
 #include "llresmgr.h"
 #include "llfloaterchat.h"
 #include "llfloaterchatterbox.h"
@@ -65,6 +64,7 @@
 #include "llcallingcard.h"
 #include "lltoolbar.h"
 #include "llviewermessage.h"
+#include "llviewerwindow.h"
 #include "llnotify.h"
 #include "llviewerregion.h"
 
@@ -84,11 +84,12 @@ LLIMMgr* gIMMgr = NULL;
 //*FIXME: make these all either UIStrings or Strings
 static LLString sOnlyUserMessage;
 static LLUIString sOfflineMessage;
-
-static std::map<std::string,LLString> sEventStringsMap;
-static std::map<std::string,LLString> sErrorStringsMap;
-static std::map<std::string,LLString> sForceCloseSessionMap;
 static LLUIString sInviteMessage;
+
+std::map<std::string,LLString> LLFloaterIM::sEventStringsMap;
+std::map<std::string,LLString> LLFloaterIM::sErrorStringsMap;
+std::map<std::string,LLString> LLFloaterIM::sForceCloseSessionMap;
+
 //
 // Helper Functions
 //
@@ -160,22 +161,54 @@ BOOL LLFloaterIM::postBuild()
 	sOnlyUserMessage = getFormattedUIString("only_user_message");
 	sOfflineMessage = getUIString("offline_message");
 
-	sErrorStringsMap["generic"] =
-		getFormattedUIString("generic_request_error");
-	sErrorStringsMap["unverified"] =
-		getFormattedUIString("insufficient_perms_error");
-	sErrorStringsMap["no_user_911"] =
-		getFormattedUIString("user_no_help");
-
-	sEventStringsMap["add"] =
-		getFormattedUIString("add_session_event");
-	sEventStringsMap["message"] =
-		getFormattedUIString("message_session_event");
-
-	sForceCloseSessionMap["removed"] =
-		getFormattedUIString("removed_from_group");
-
 	sInviteMessage = getUIString("invite_message");
+
+	if ( sErrorStringsMap.find("generic") == sErrorStringsMap.end() )
+	{
+		sErrorStringsMap["generic"] =
+			getFormattedUIString("generic_request_error");
+	}
+
+	if ( sErrorStringsMap.find("unverified") ==
+		 sErrorStringsMap.end() )
+	{
+		sErrorStringsMap["unverified"] =
+			getFormattedUIString("insufficient_perms_error");
+	}
+
+	if ( sErrorStringsMap.end() ==
+		 sErrorStringsMap.find("does not exist") )
+	{
+		sErrorStringsMap["does not exist"] =
+			getFormattedUIString("session_does_not_exist_error");
+	}
+
+	if ( sEventStringsMap.end() == sEventStringsMap.find("add") )
+	{
+		sEventStringsMap["add"] =
+			getFormattedUIString("add_session_event");
+	}
+
+	if ( sEventStringsMap.end() == sEventStringsMap.find("message") )
+	{
+		sEventStringsMap["message"] =
+			getFormattedUIString("message_session_event");
+	}
+
+	if ( sForceCloseSessionMap.end() ==
+		 sForceCloseSessionMap.find("removed") )
+	{
+		sForceCloseSessionMap["removed"] =
+			getFormattedUIString("removed_from_group");
+	}
+
+	if ( sForceCloseSessionMap.end() ==
+		 sForceCloseSessionMap.find("no ability") )
+	{
+		sForceCloseSessionMap["no ability"] =
+			getFormattedUIString("close_on_no_ability");
+	}
+
 	return TRUE;
 }
 
@@ -205,21 +238,31 @@ protected:
 class LLIMMgr::LLIMSessionInvite
 {
 public:
-	LLIMSessionInvite(const LLUUID& session_id, const LLString& session_name, const LLUUID& caller_id,const LLString& caller_name, EInstantMessage type, const LLString& session_handle, const LLString& notify_box) : 
-						mSessionID(session_id),
-						mSessionName(session_name),
-						mCallerID(caller_id),
-						mCallerName(caller_name),
-						mType(type),
-						mSessionHandle(session_handle),
-						mNotifyBox(notify_box)
-						{};
+	LLIMSessionInvite(
+		const LLUUID& session_id,
+		const LLString& session_name,
+		const LLUUID& caller_id,
+		const LLString& caller_name,
+		EInstantMessage type,
+		EInvitationType inv_type,
+		const LLString& session_handle,
+		const LLString& notify_box) : 
+		mSessionID(session_id),
+		mSessionName(session_name),
+		mCallerID(caller_id),
+		mCallerName(caller_name),
+		mType(type),
+		mInvType(inv_type),
+		mSessionHandle(session_handle),
+		mNotifyBox(notify_box)
+	{};
 
 	LLUUID		mSessionID;
 	LLString	mSessionName;
 	LLUUID		mCallerID;
 	LLString	mCallerName;
 	EInstantMessage mType;
+	EInvitationType mInvType;
 	LLString	mSessionHandle;
 	LLString	mNotifyBox;
 };
@@ -309,7 +352,7 @@ LLIMMgr::LLIMMgr() :
 	LLFloaterIM* dummy_floater = new LLFloaterIM();
 	delete dummy_floater;
 
-	mPendingVoiceInvitations = LLSD::emptyMap();
+	mPendingInvitations = LLSD::emptyMap();
 	mPendingAgentListUpdates = LLSD::emptyMap();
 }
 
@@ -413,7 +456,6 @@ void LLIMMgr::addMessage(
 	if ( is_from_system ) // chat came from system
 	{
 		floater->addHistoryLine(
-			other_participant_id,
 			msg,
 			gSavedSettings.getColor4("SystemChatColor"));
 	}
@@ -521,9 +563,10 @@ LLUUID LLIMMgr::addP2PSession(const std::string& name,
 // the session, dialog specifies the type of session. If the session
 // exists, it is brought forward.  Specifying id = NULL results in an
 // im session to everyone. Returns the uuid of the session.
-LLUUID LLIMMgr::addSession(const std::string& name,
-							EInstantMessage dialog,
-							const LLUUID& other_participant_id)
+LLUUID LLIMMgr::addSession(
+	const std::string& name,
+	EInstantMessage dialog,
+	const LLUUID& other_participant_id)
 {
 	LLUUID session_id = computeSessionID(dialog, other_participant_id);
 
@@ -533,15 +576,16 @@ LLUUID LLIMMgr::addSession(const std::string& name,
 		LLDynamicArray<LLUUID> ids;
 		ids.put(other_participant_id);
 
-		floater = createFloater(session_id,
-								other_participant_id,
-								name,
-								ids,
-								dialog,
-								TRUE);
+		floater = createFloater(
+			session_id,
+			other_participant_id,
+			name,
+			ids,
+			dialog,
+			TRUE);
 
 		noteOfflineUsers(floater, ids);
-		LLFloaterChatterBox::getInstance(LLSD())->showFloater(floater);
+		LLFloaterChatterBox::showInstance(session_id);
 	}
 	else
 	{
@@ -554,36 +598,43 @@ LLUUID LLIMMgr::addSession(const std::string& name,
 
 // Adds a session using the given session_id.  If the session already exists 
 // the dialog type is assumed correct. Returns the uuid of the session.
-LLUUID LLIMMgr::addSession(const std::string& name,
-							EInstantMessage dialog,
-							const LLUUID& other_participant_id,
-							const LLDynamicArray<LLUUID>& ids)
+LLUUID LLIMMgr::addSession(
+	const std::string& name,
+	EInstantMessage dialog,
+	const LLUUID& other_participant_id,
+	const LLDynamicArray<LLUUID>& ids)
 {
 	if (0 == ids.getLength())
 	{
 		return LLUUID::null;
 	}
 
-	LLUUID session_id = computeSessionID(dialog,
-										   other_participant_id);
+	LLUUID session_id = computeSessionID(
+		dialog,
+		other_participant_id);
 
 	LLFloaterIMPanel* floater = findFloaterBySession(session_id);
 	if(!floater)
 	{
 		// On creation, use the first element of ids as the
 		// "other_participant_id"
-		floater = createFloater(session_id,
-								other_participant_id,
-								name,
-								ids,
-								dialog,
-								TRUE);
+		floater = createFloater(
+			session_id,
+			other_participant_id,
+			name,
+			ids,
+			dialog,
+			TRUE);
 
 		if ( !floater ) return LLUUID::null;
 
 		noteOfflineUsers(floater, ids);
+		LLFloaterChatterBox::showInstance(session_id);
 	}
-	LLFloaterChatterBox::getInstance(LLSD())->showFloater(floater);
+	else
+	{
+		floater->open();
+	}
 	//mTabContainer->selectTabPanel(panel);
 	floater->setInputFocus(TRUE);
 	return floater->getSessionID();
@@ -599,6 +650,9 @@ void LLIMMgr::removeSession(const LLUUID& session_id)
 		mFloaters.erase(floater->getHandle());
 		LLFloaterChatterBox::getInstance(LLSD())->removeFloater(floater);
 		//mTabContainer->removeTabPanel(floater);
+
+		clearPendingInviation(session_id);
+		clearPendingAgentListUpdates(session_id);
 	}
 }
 
@@ -608,9 +662,10 @@ void LLIMMgr::inviteToSession(
 	const LLUUID& caller_id, 
 	const LLString& caller_name,
 	EInstantMessage type,
+	EInvitationType inv_type,
 	const LLString& session_handle)
 {
-	//ignore voice invites from voice-muted residents
+	//ignore invites from muted residents
 	if (gMuteListp->isMuted(caller_id))
 	{
 		return;
@@ -621,15 +676,24 @@ void LLIMMgr::inviteToSession(
 	BOOL ad_hoc_invite = FALSE;
 	if(type == IM_SESSION_P2P_INVITE)
 	{
+		//P2P is different...they only have voice invitations
 		notify_box_type = "VoiceInviteP2P";
 	}
-	else if (gAgent.isInGroup(session_id))
+	else if ( gAgent.isInGroup(session_id) )
 	{
+		//only really old school groups have voice invitations
 		notify_box_type = "VoiceInviteGroup";
 	}
-	else	
+	else if ( inv_type == INVITATION_TYPE_VOICE )
 	{
+		//else it's an ad-hoc
+		//and a voice ad-hoc
 		notify_box_type = "VoiceInviteAdHoc";
+		ad_hoc_invite = TRUE;
+	}
+	else if ( inv_type == INVITATION_TYPE_IMMEDIATE )
+	{
+		notify_box_type = "InviteAdHoc";
 		ad_hoc_invite = TRUE;
 	}
 
@@ -639,6 +703,7 @@ void LLIMMgr::inviteToSession(
 		caller_id,
 		caller_name,
 		type,
+		inv_type,
 		session_handle,
 		notify_box_type);
 	
@@ -666,7 +731,7 @@ void LLIMMgr::inviteToSession(
 		}
 	}
 
-	if ( !mPendingVoiceInvitations.has(session_id.asString()) )
+	if ( !mPendingInvitations.has(session_id.asString()) )
 	{
 		if (caller_name.empty())
 		{
@@ -684,7 +749,7 @@ void LLIMMgr::inviteToSession(
 								 (void*)invite);
 
 		}
-		mPendingVoiceInvitations[session_id.asString()] = LLSD();
+		mPendingInvitations[session_id.asString()] = LLSD();
 	}
 }
 
@@ -699,10 +764,11 @@ void LLIMMgr::onInviteNameLookup(const LLUUID& id, const char* first, const char
 	LLString::format_map_t args;
 	args["[NAME]"] = invite->mCallerName;
 
-	LLNotifyBox::showXml(invite->mNotifyBox,
-						args, 
-						inviteUserResponse, 
-						(void*)invite);
+	LLNotifyBox::showXml(
+		invite->mNotifyBox,
+		args, 
+		inviteUserResponse, 
+		(void*)invite);
 }
 
 class LLViewerChatterBoxInvitationAcceptResponder :
@@ -711,10 +777,10 @@ class LLViewerChatterBoxInvitationAcceptResponder :
 public:
 	LLViewerChatterBoxInvitationAcceptResponder(
 		const LLUUID& session_id,
-		bool is_voice_invitation)
+		LLIMMgr::EInvitationType invitation_type)
 	{
 		mSessionID = session_id;
-		mIsVoiceInvitiation = is_voice_invitation;
+		mInvitiationType = invitation_type;
 	}
 
 	void result(const LLSD& content)
@@ -738,48 +804,67 @@ public:
 				//but unfortunately, our base that we are receiving here
 				//may not be the most up to date.  It was accurate at
 				//some point in time though.
-				floaterp->setSpeakersList(content["agents"]);
+				floaterp->setSpeakers(content);
 
 				//we now have our base of users in the session
 				//that was accurate at some point, but maybe not now
 				//so now we apply all of the udpates we've received
 				//in case of race conditions
-
-				//reapplying a user entrance will do nothing
-				//reapplying a user leaving will not have the user
-				//in our base.  So it's all good
 				floaterp->updateSpeakersList(
 					gIMMgr->getPendingAgentListUpdates(mSessionID));
 
-				if ( mIsVoiceInvitiation )
+				if ( mInvitiationType == LLIMMgr::INVITATION_TYPE_VOICE )
 				{
 					floaterp->requestAutoConnect();
 					LLFloaterIMPanel::onClickStartCall(floaterp);
 					// always open IM window when connecting to voice
 					LLFloaterChatterBox::showInstance(TRUE);
 				}
+				else if ( mInvitiationType == LLIMMgr::INVITATION_TYPE_IMMEDIATE )
+				{
+					LLFloaterChatterBox::showInstance(TRUE);
+				}
 			}
 
 			gIMMgr->clearPendingAgentListUpdates(mSessionID);
-			if ( mIsVoiceInvitiation )
-			{
-				gIMMgr->clearPendingVoiceInviation(mSessionID);
-			}
+			gIMMgr->clearPendingInviation(mSessionID);
 		}
 	}
 
 	void error(U32 statusNum, const std::string& reason)
 	{
+		
 		//throw something back to the viewer here?
-		if ( gIMMgr && mIsVoiceInvitiation )
+		if ( gIMMgr )
 		{
-			gIMMgr->clearPendingVoiceInviation(mSessionID);
+			gIMMgr->clearPendingAgentListUpdates(mSessionID);
+			gIMMgr->clearPendingInviation(mSessionID);
+
+			LLFloaterIMPanel* floaterp =
+				gIMMgr->findFloaterBySession(mSessionID);
+
+			if (floaterp)
+			{
+				std::string error_string;
+
+				if ( 404 == statusNum )
+				{
+					error_string = "does not exist";
+				}
+				else
+				{
+					error_string = "generic_request_error";
+				}
+
+				floaterp->showSessionStartError(
+					error_string);
+			}
 		}
 	}
 
 private:
 	LLUUID mSessionID;
-	bool mIsVoiceInvitiation;
+	LLIMMgr::EInvitationType mInvitiationType;
 };
 
 //static
@@ -807,10 +892,11 @@ void LLIMMgr::inviteUserResponse(S32 option, void* user_data)
 					im_floater->requestAutoConnect();
 					LLFloaterIMPanel::onClickStartCall(im_floater);
 					// always open IM window when connecting to voice
-					LLFloaterChatterBox::showInstance(TRUE);
+					LLFloaterChatterBox::showInstance(invitep->mSessionID);
 				}
-				
-				gIMMgr->clearPendingVoiceInviation(invitep->mSessionID);
+
+				gIMMgr->clearPendingAgentListUpdates(invitep->mSessionID);
+				gIMMgr->clearPendingInviation(invitep->mSessionID);
 			}
 			else
 			{
@@ -830,34 +916,50 @@ void LLIMMgr::inviteUserResponse(S32 option, void* user_data)
 					data,
 					new LLViewerChatterBoxInvitationAcceptResponder(
 						invitep->mSessionID,
-						true));
+						invitep->mInvType));
 			}
 		}
 		break;
 	case 2: // mute (also implies ignore, so this falls through to the "ignore" case below)
+	{
+		// mute the sender of this invite
+		if (!gMuteListp->isMuted(invitep->mCallerID))
 		{
-			// mute the sender of this invite
-			if (!gMuteListp->isMuted(invitep->mCallerID))
-			{
-				LLMute mute(invitep->mCallerID, invitep->mCallerName, LLMute::AGENT);
-				gMuteListp->add(mute);
-			}
+			LLMute mute(invitep->mCallerID, invitep->mCallerName, LLMute::AGENT);
+			gMuteListp->add(mute);
 		}
+	}
 	/* FALLTHROUGH */
 	
-	case 1: // ignore
+	case 1: // decline
+	{
+		if (invitep->mType == IM_SESSION_P2P_INVITE)
 		{
-			if (invitep->mType == IM_SESSION_P2P_INVITE)
+			if(gVoiceClient)
 			{
-				if(gVoiceClient)
-				{
-					gVoiceClient->declineInvite(invitep->mSessionHandle);
-				}
+				gVoiceClient->declineInvite(invitep->mSessionHandle);
 			}
 		}
-		break;
+		else
+		{
+			std::string url = gAgent.getRegion()->getCapability(
+				"ChatSessionRequest");
+
+			LLSD data;
+			data["method"] = "decline invitation";
+			data["session-id"] = invitep->mSessionID;
+			LLHTTPClient::post(
+				url,
+				data,
+				NULL);				
+		}
 	}
 
+	gIMMgr->clearPendingAgentListUpdates(invitep->mSessionID);
+	gIMMgr->clearPendingInviation(invitep->mSessionID);
+	break;
+	}
+	
 	delete invitep;
 }
 
@@ -869,11 +971,11 @@ void LLIMMgr::setFloaterOpen(BOOL set_open)
 {
 	if (set_open)
 	{
-		LLFloaterChatterBox::showInstance(LLSD());
+		LLFloaterChatterBox::showInstance();
 	}
 	else
 	{
-		LLFloaterChatterBox::hideInstance(LLSD());
+		LLFloaterChatterBox::hideInstance();
 	}
 }
 
@@ -932,11 +1034,11 @@ BOOL LLIMMgr::hasSession(const LLUUID& session_id)
 	return (findFloaterBySession(session_id) != NULL);
 }
 
-void LLIMMgr::clearPendingVoiceInviation(const LLUUID& session_id)
+void LLIMMgr::clearPendingInviation(const LLUUID& session_id)
 {
-	if ( mPendingVoiceInvitations.has(session_id.asString()) )
+	if ( mPendingInvitations.has(session_id.asString()) )
 	{
-		mPendingVoiceInvitations.erase(session_id.asString());
+		mPendingInvitations.erase(session_id.asString());
 	}
 }
 
@@ -958,13 +1060,57 @@ void LLIMMgr::addPendingAgentListUpdates(
 {
 	LLSD::map_const_iterator iter;
 
-	for ( iter = updates.beginMap();
-		  iter != updates.endMap();
-		  iter++)
+	if ( !mPendingAgentListUpdates.has(session_id.asString()) )
 	{
-		//we only want to include the last update for a given agent
-		mPendingAgentListUpdates[session_id.asString()][iter->first] =
-			iter->second;
+		//this is a new agent list update for this session
+		mPendingAgentListUpdates[session_id.asString()] = LLSD::emptyMap();
+	}
+
+	if (
+		updates.has("agent_updates") &&
+		updates["agent_updates"].isMap() &&
+		updates.has("updates") &&
+		updates["updates"].isMap() )
+	{
+		//new school update
+		LLSD update_types = LLSD::emptyArray();
+		LLSD::array_iterator array_iter;
+
+		update_types.append("agent_updates");
+		update_types.append("updates");
+
+		for (
+			array_iter = update_types.beginArray();
+			array_iter != update_types.endArray();
+			++array_iter)
+		{
+			//we only want to include the last update for a given agent
+			for (
+				iter = updates[array_iter->asString()].beginMap();
+				iter != updates[array_iter->asString()].endMap();
+				++iter)
+			{
+				mPendingAgentListUpdates[session_id.asString()][array_iter->asString()][iter->first] =
+					iter->second;
+			}
+		}
+	}
+	else if (
+		updates.has("updates") &&
+		updates["updates"].isMap() )
+	{
+		//old school update where the SD contained just mappings
+		//of agent_id -> "LEAVE"/"ENTER"
+
+		//only want to keep last update for each agent
+		for (
+			iter = updates["updates"].beginMap();
+			iter != updates["updates"].endMap();
+			++iter)
+		{
+			mPendingAgentListUpdates[session_id.asString()]["updates"][iter->first] =
+				iter->second;
+		}
 	}
 }
 
@@ -995,8 +1141,6 @@ LLFloaterIMPanel* LLIMMgr::createFloater(
 	llinfos << "LLIMMgr::createFloater: from " << other_participant_id 
 			<< " in session " << session_id << llendl;
 	LLFloaterIMPanel* floater = new LLFloaterIMPanel(session_label,
-													 LLRect(),
-													 session_label,
 													 session_id,
 													 other_participant_id,
 													 dialog);
@@ -1022,8 +1166,6 @@ LLFloaterIMPanel* LLIMMgr::createFloater(
 	llinfos << "LLIMMgr::createFloater: from " << other_participant_id 
 			<< " in session " << session_id << llendl;
 	LLFloaterIMPanel* floater = new LLFloaterIMPanel(session_label,
-													 LLRect(),
-													 session_label,
 													 session_id,
 													 other_participant_id,
 													 ids,
@@ -1034,8 +1176,9 @@ LLFloaterIMPanel* LLIMMgr::createFloater(
 	return floater;
 }
 
-void LLIMMgr::noteOfflineUsers(LLFloaterIMPanel* floater,
-								  const LLDynamicArray<LLUUID>& ids)
+void LLIMMgr::noteOfflineUsers(
+	LLFloaterIMPanel* floater,
+	const LLDynamicArray<LLUUID>& ids)
 {
 	S32 count = ids.count();
 	if(count == 0)
@@ -1099,14 +1242,6 @@ LLFloaterChatterBox* LLIMMgr::getFloater()
 	return LLFloaterChatterBox::getInstance(LLSD()); 
 }
 
-void onConfirmForceCloseError(S32 option, void* data)
-{
-	//only 1 option really
-	LLFloaterIMPanel* floater = ((LLFloaterIMPanel*) data);
-
-	if ( floater ) floater->close(FALSE);
-}
-
 class LLViewerChatterBoxSessionStartReply : public LLHTTPNode
 {
 public:
@@ -1141,7 +1276,16 @@ public:
 			LLFloaterIMPanel* floaterp = gIMMgr->findFloaterBySession(session_id);
 			if (floaterp)
 			{
-				floaterp->setSpeakersList(body["agents"]);
+				floaterp->setSpeakers(body);
+
+				//apply updates we've possibly received previously
+				floaterp->updateSpeakersList(
+					gIMMgr->getPendingAgentListUpdates(session_id));
+
+				if ( body.has("session_info") )
+				{
+					floaterp->processSessionUpdate(body["session_info"]);
+				}
 
 				//aply updates we've possibly received previously
 				floaterp->updateSpeakersList(
@@ -1155,20 +1299,14 @@ public:
 			//floater
 			LLFloaterIMPanel* floater = 
 				gIMMgr->findFloaterBySession(temp_session_id);
-			if (floater)
+
+			if ( floater )
 			{
-				LLString::format_map_t args;
-				args["[REASON]"] =
-					sErrorStringsMap[body["error"].asString()];
-				args["[RECIPIENT]"] = floater->getTitle();
-
-				gViewerWindow->alertXml("ChatterBoxSessionStartError",
-										args,
-										onConfirmForceCloseError,
-										floater);
-
+				floater->showSessionStartError(body["error"].asString());
 			}
 		}
+
+		gIMMgr->clearPendingAgentListUpdates(session_id);
 	}
 };
 
@@ -1200,17 +1338,12 @@ public:
 			//throw an error dialog
 			LLFloaterIMPanel* floater = 
 				gIMMgr->findFloaterBySession(session_id);
+
 			if (floater)
 			{
-				LLString::format_map_t args;
-				args["[REASON]"] = 
-					sErrorStringsMap[body["error"].asString()];
-				args["[EVENT]"] =
-					sEventStringsMap[body["event"].asString()];
-				args["[RECIPIENT]"] = floater->getTitle();
-
-				gViewerWindow->alertXml("ChatterBoxSessionEventError",
-										args);
+				floater->showSessionEventError(
+					body["event"].asString(),
+					body["error"].asString());
 			}
 		}
 	}
@@ -1234,15 +1367,7 @@ public:
 
 		if ( floater )
 		{
-			LLString::format_map_t args;
-
-			args["[NAME]"] = floater->getTitle();
-			args["[REASON]"] = sForceCloseSessionMap[reason];
-
-			gViewerWindow->alertXml("ForceCloseChatterBoxSession",
-									args,
-									onConfirmForceCloseError,
-									floater);
+			floater->showSessionForceClose(reason);
 		}
 	}
 };
@@ -1258,7 +1383,8 @@ public:
 		LLFloaterIMPanel* floaterp = gIMMgr->findFloaterBySession(input["body"]["session_id"].asUUID());
 		if (floaterp)
 		{
-			floaterp->updateSpeakersList(input["body"]["updates"]);
+			floaterp->updateSpeakersList(
+				input["body"]);
 		}
 		else
 		{
@@ -1267,10 +1393,27 @@ public:
 			//a start or an acceptance of an invitation.  Race condition.
 			gIMMgr->addPendingAgentListUpdates(
 				input["body"]["session_id"].asUUID(),
-				input["body"]["updates"]);
+				input["body"]);
 		}
 	}
 };
+
+class LLViewerChatterBoxSessionUpdate : public LLHTTPNode
+{
+public:
+	virtual void post(
+		ResponsePtr responder,
+		const LLSD& context,
+		const LLSD& input) const
+	{
+		LLFloaterIMPanel* floaterp = gIMMgr->findFloaterBySession(input["body"]["session_id"].asUUID());
+		if (floaterp)
+		{
+			floaterp->processSessionUpdate(input["body"]["info"]);
+		}
+	}
+};
+
 
 class LLViewerChatterBoxInvitation : public LLHTTPNode
 {
@@ -1281,6 +1424,8 @@ public:
 		const LLSD& context,
 		const LLSD& input) const
 	{
+		//for backwards compatiblity reasons...we need to still
+		//check for 'text' or 'voice' invitations...bleh
 		if ( input["body"].has("instantmessage") )
 		{
 			LLString capability = input["body"]["capabilities"]["call"].asString();
@@ -1397,8 +1542,8 @@ public:
 					url,
 					data,
 					new LLViewerChatterBoxInvitationAcceptResponder(
-						input["body"]["session_id"],
-						false));
+						input["body"]["session_id"].asUUID(),
+						LLIMMgr::INVITATION_TYPE_INSTANT_MESSAGE));
 			}
 		} //end if invitation has instant message
 		else if ( input["body"].has("voice") )
@@ -1419,7 +1564,18 @@ public:
 				input["body"]["session_name"].asString(), 
 				input["body"]["from_id"].asUUID(),
 				input["body"]["from_name"].asString(),
-				IM_SESSION_INVITE);
+				IM_SESSION_INVITE,
+				LLIMMgr::INVITATION_TYPE_VOICE);
+		}
+		else if ( input["body"].has("immediate") )
+		{
+			gIMMgr->inviteToSession(
+				input["body"]["session_id"].asUUID(), 
+				input["body"]["session_name"].asString(), 
+				input["body"]["from_id"].asUUID(),
+				input["body"]["from_name"].asString(),
+				IM_SESSION_INVITE,
+				LLIMMgr::INVITATION_TYPE_IMMEDIATE);
 		}
 	}
 };
@@ -1439,6 +1595,10 @@ LLHTTPRegistration<LLViewerForceCloseChatterBoxSession>
 LLHTTPRegistration<LLViewerChatterBoxSessionAgentListUpdates>
     gHTTPRegistrationMessageChatterboxsessionagentlistupdates(
 	    "/message/ChatterBoxSessionAgentListUpdates");
+
+LLHTTPRegistration<LLViewerChatterBoxSessionUpdate>
+    gHTTPRegistrationMessageChatterBoxSessionUpdate(
+	    "/message/ChatterBoxSessionUpdate");
 
 LLHTTPRegistration<LLViewerChatterBoxInvitation>
     gHTTPRegistrationMessageChatterBoxInvitation(

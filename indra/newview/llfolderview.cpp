@@ -94,7 +94,7 @@ void copy_selected_item(void* user_data);
 void open_selected_items(void* user_data);
 void properties_selected_items(void* user_data);
 void paste_items(void* user_data);
-void renamer_focus_lost( LLUICtrl* handler, void* user_data );
+void renamer_focus_lost( LLFocusableElement* handler, void* user_data );
 
 ///----------------------------------------------------------------------------
 /// Class LLFolderViewItem
@@ -693,7 +693,7 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 					// Release keyboard focus, so that if stuff is dropped into the
 					// world, pressing the delete key won't blow away the inventory
 					// item.
-					gViewerWindow->setKeyboardFocus(NULL, NULL);
+					gViewerWindow->setKeyboardFocus(NULL);
 
 					return gToolDragAndDrop->handleHover( x, y, mask );
 				}
@@ -3164,7 +3164,7 @@ void LLFolderView::draw()
 	}
 	if(gViewerWindow->hasKeyboardFocus(this) && !getVisible())
 	{
-		gViewerWindow->setKeyboardFocus( NULL, NULL );
+		gViewerWindow->setKeyboardFocus( NULL );
 	}
 
 	// while dragging, update selection rendering to reflect single/multi drag status
@@ -3656,7 +3656,7 @@ void LLFolderView::startRenamingSelectedItem( void )
 		mRenamer->setVisible( TRUE );
 		// set focus will fail unless item is visible
 		mRenamer->setFocus( TRUE );
-		mRenamer->setFocusLostCallback(renamer_focus_lost);
+		mRenamer->setLostTopCallback(onRenamerLost);
 		gViewerWindow->setTopCtrl( mRenamer );
 	}
 }
@@ -3730,7 +3730,7 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 			{
 				if( gViewerWindow->childHasKeyboardFocus( this ) )
 				{
-					gViewerWindow->setKeyboardFocus( NULL, NULL );
+					gViewerWindow->setKeyboardFocus( NULL );
 				}
 			}
 			mSearchString.clear();
@@ -4438,12 +4438,10 @@ bool LLInventorySort::operator()(LLFolderViewItem* a, LLFolderViewItem* b)
 	}
 }
 
-void renamer_focus_lost( LLUICtrl* ctrl, void* userdata)
+//static 
+void LLFolderView::onRenamerLost( LLUICtrl* renamer, void* user_data)
 {
-	if( ctrl ) 
-	{
-		ctrl->setVisible( FALSE );
-	}
+	renamer->setVisible(FALSE);
 }
 
 void delete_selected_item(void* user_data)

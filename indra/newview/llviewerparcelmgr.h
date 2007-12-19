@@ -134,8 +134,6 @@ public:
 
 	void	getDisplayInfo(S32* area, S32* claim, S32* rent, BOOL* for_sale, F32* dwell);
 
-	void	getPrimInfo(S32 &sw_max, S32 &sw_total, S32 &max, S32 &total, S32 &owner, S32 &group, S32 &other, S32& selected, F32 &parcel_object_bonus, S32 &other_clean);
-
 	// Returns selected area
 	S32 getSelectedArea() const;
 

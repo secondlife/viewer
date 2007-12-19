@@ -63,6 +63,7 @@
 #include "llviewerstats.h"
 #include "llviewercontrol.h"
 #include "llvieweruictrlfactory.h"
+#include "llviewerwindow.h"
 #include "lllogchat.h"
 #include "llfloaterhtml.h"
 #include "llweb.h"
@@ -92,10 +93,14 @@ static LLString sSessionStartString = "Starting session with [NAME] please wait.
 LLVoiceChannel::voice_channel_map_t LLVoiceChannel::sVoiceChannelMap;
 LLVoiceChannel::voice_channel_map_uri_t LLVoiceChannel::sVoiceChannelURIMap;
 LLVoiceChannel* LLVoiceChannel::sCurrentVoiceChannel = NULL;
+LLVoiceChannel* LLVoiceChannel::sSuspendedVoiceChannel = NULL;
 
-void session_starter_helper(const LLUUID& temp_session_id,
-							const LLUUID& other_participant_id,
-							EInstantMessage im_type)
+BOOL LLVoiceChannel::sSuspended = FALSE;
+
+void session_starter_helper(
+	const LLUUID& temp_session_id,
+	const LLUUID& other_participant_id,
+	EInstantMessage im_type)
 {
 	LLMessageSystem *msg = gMessageSystem;
 
@@ -122,47 +127,111 @@ void session_starter_helper(const LLUUID& temp_session_id,
 	msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
 }
 
+void start_deprecated_conference_chat(
+	const LLUUID& temp_session_id,
+	const LLUUID& creator_id,
+	const LLUUID& other_participant_id,
+	const LLSD& agents_to_invite)
+{
+	U8* bucket;
+	U8* pos;
+	S32 count;
+	S32 bucket_size;
+
+	// *FIX: this could suffer from endian issues
+	count = agents_to_invite.size();
+	bucket_size = UUID_BYTES * count;
+	bucket = new U8[bucket_size];
+	pos = bucket;
+
+	for(S32 i = 0; i < count; ++i)
+	{
+		LLUUID agent_id = agents_to_invite[i].asUUID();
+		
+		memcpy(pos, &agent_id, UUID_BYTES);
+		pos += UUID_BYTES;
+	}
+
+	session_starter_helper(
+		temp_session_id,
+		other_participant_id,
+		IM_SESSION_CONFERENCE_START);
+
+	gMessageSystem->addBinaryDataFast(
+		_PREHASH_BinaryBucket,
+		bucket,
+		bucket_size);
+
+	gAgent.sendReliableMessage();
+ 
+	delete[] bucket;
+}
+
+class LLStartConferenceChatResponder : public LLHTTPClient::Responder
+{
+public:
+	LLStartConferenceChatResponder(
+		const LLUUID& temp_session_id,
+		const LLUUID& creator_id,
+		const LLUUID& other_participant_id,
+		const LLSD& agents_to_invite)
+	{
+		mTempSessionID = temp_session_id;
+		mCreatorID = creator_id;
+		mOtherParticipantID = other_participant_id;
+		mAgents = agents_to_invite;
+	}
+
+	virtual void error(U32 statusNum, const std::string& reason)
+	{
+		//try an "old school" way.
+		if ( statusNum == 400 )
+		{
+			start_deprecated_conference_chat(
+				mTempSessionID,
+				mCreatorID,
+				mOtherParticipantID,
+				mAgents);
+		}
+
+		//else throw an error back to the client?
+		//in theory we should have just have these error strings
+		//etc. set up in this file as opposed to the IMMgr,
+		//but the error string were unneeded here previously
+		//and it is not worth the effort switching over all
+		//the possible different language translations
+	}
+
+private:
+	LLUUID mTempSessionID;
+	LLUUID mCreatorID;
+	LLUUID mOtherParticipantID;
+
+	LLSD mAgents;
+};
+
 // Returns true if any messages were sent, false otherwise.
 // Is sort of equivalent to "does the server need to do anything?"
-bool send_start_session_messages(const LLUUID& temp_session_id,
-								 const LLUUID& other_participant_id,
-								 const LLDynamicArray<LLUUID>& ids,
-								 EInstantMessage dialog)
+bool send_start_session_messages(
+	const LLUUID& temp_session_id,
+	const LLUUID& other_participant_id,
+	const LLDynamicArray<LLUUID>& ids,
+	EInstantMessage dialog)
 {
-	if ( (dialog == IM_SESSION_GROUP_START) ||
-		 (dialog == IM_SESSION_CONFERENCE_START) )
+	if ( dialog == IM_SESSION_GROUP_START )
 	{
-		S32 count = ids.size();
-		S32 bucket_size = UUID_BYTES * count;
-		U8* bucket;
-		U8* pos;
-
-		session_starter_helper(temp_session_id,
-							   other_participant_id,
-							   dialog);
+		session_starter_helper(
+			temp_session_id,
+			other_participant_id,
+			dialog);
 
 		switch(dialog)
 		{
 		case IM_SESSION_GROUP_START:
-			gMessageSystem->addBinaryDataFast(_PREHASH_BinaryBucket,
-											  EMPTY_BINARY_BUCKET,
-											  EMPTY_BINARY_BUCKET_SIZE);
-			break;
-		case IM_SESSION_CONFERENCE_START:
-			bucket = new U8[bucket_size];
-			pos = bucket;
-
-			// *FIX: this could suffer from endian issues
-			for(S32 i = 0; i < count; ++i)
-			{
-				memcpy(pos, &(ids.get(i)), UUID_BYTES);
-				pos += UUID_BYTES;
-			}
-			gMessageSystem->addBinaryDataFast(_PREHASH_BinaryBucket,
-											  bucket,
-											  bucket_size);
-			delete[] bucket;
-
+			gMessageSystem->addBinaryDataFast(
+				_PREHASH_BinaryBucket,
+				EMPTY_BINARY_BUCKET,
+				EMPTY_BINARY_BUCKET_SIZE);
 			break;
 		default:
 			break;
@@ -170,6 +239,44 @@ bool send_start_session_messages(const LLUUID& temp_session_id,
 		gAgent.sendReliableMessage();
 
 		return true;
+	}
+	else if ( dialog == IM_SESSION_CONFERENCE_START )
+	{
+		LLSD agents;
+		for (int i = 0; i < (S32) ids.size(); i++)
+		{
+			agents.append(ids.get(i));
+		}
+
+		//we have a new way of starting conference calls now
+		LLViewerRegion* region = gAgent.getRegion();
+		if (region)
+		{
+			std::string url = region->getCapability(
+				"ChatSessionRequest");
+			LLSD data;
+			data["method"] = "start conference";
+			data["session-id"] = temp_session_id;
+
+			data["params"] = agents;
+
+			LLHTTPClient::post(
+				url,
+				data,
+				new LLStartConferenceChatResponder(
+					temp_session_id,
+					gAgent.getID(),
+					other_participant_id,
+					data["params"]));
+		}
+		else
+		{
+			start_deprecated_conference_chat(
+				temp_session_id,
+				gAgent.getID(),
+				other_participant_id,
+				agents);
+		}
 	}
 
 	return false;
@@ -194,8 +301,20 @@ void LLVoiceCallCapResponder::error(U32 status, const std::string& reason)
 		<< status << ": " << reason << ")"
 		<< llendl;
 	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(mSessionID);
-	if (channelp)
+	if ( channelp )
 	{
+		if ( 403 == status )
+		{
+			LLNotifyBox::showXml(
+				"VoiceNotAllowed",
+				channelp->getNotifyArgs());
+		}
+		else
+		{
+			LLNotifyBox::showXml(
+				"VoiceCallGenericError",
+				channelp->getNotifyArgs());
+		}
 		channelp->deactivate();
 	}
 }
@@ -242,10 +361,6 @@ LLVoiceChannel::LLVoiceChannel(const LLUUID& session_id, const LLString& session
 
 LLVoiceChannel::~LLVoiceChannel()
 {
-	// CANNOT do this here, since it will crash on quit in the LLVoiceChannelProximal singleton destructor.
-	// Do it in all other subclass destructors instead.
-	// deactivate();
-	
 	// Don't use LLVoiceClient::getInstance() here -- this can get called during atexit() time and that singleton MAY have already been destroyed.
 	if(gVoiceClient)
 	{
@@ -266,7 +381,19 @@ void LLVoiceChannel::setChannelInfo(
 
 	if (mState == STATE_NO_CHANNEL_INFO)
 	{
-		if(!mURI.empty() && !mCredentials.empty())
+		if (mURI.empty())
+		{
+			LLNotifyBox::showXml("VoiceChannelJoinFailed", mNotifyArgs);
+			llwarns << "Received empty URI for channel " << mSessionName << llendl;
+			deactivate();
+		}
+		else if (mCredentials.empty())
+		{
+			LLNotifyBox::showXml("VoiceChannelJoinFailed", mNotifyArgs);
+			llwarns << "Received empty credentials for channel " << mSessionName << llendl;
+			deactivate();
+		}
+		else
 		{
 			setState(STATE_READY);
 
@@ -278,12 +405,6 @@ void LLVoiceChannel::setChannelInfo(
 				// should move over to new channel
 				activate();
 			}
-		}
-		else
-		{
-			//*TODO: notify user
-			llwarns << "Received invalid credentials for channel " << mSessionName << llendl;
-			deactivate();
 		}
 	}
 }
@@ -325,7 +446,7 @@ void LLVoiceChannel::handleStatusChange(EStatusType type)
 		}
 		break;
 	case STATUS_LEFT_CHANNEL:
-		if (callStarted() && !mIgnoreNextSessionLeave)
+		if (callStarted() && !mIgnoreNextSessionLeave && !sSuspended)
 		{
 			// if forceably removed from channel
 			// update the UI and revert to default channel
@@ -496,6 +617,38 @@ void LLVoiceChannel::initClass()
 	sCurrentVoiceChannel = LLVoiceChannelProximal::getInstance();
 }
 
+
+//static 
+void LLVoiceChannel::suspend()
+{
+	if (!sSuspended)
+	{
+		sSuspendedVoiceChannel = sCurrentVoiceChannel;
+		sSuspended = TRUE;
+	}
+}
+
+//static 
+void LLVoiceChannel::resume()
+{
+	if (sSuspended)
+	{
+		if (gVoiceClient->voiceEnabled())
+		{
+			if (sSuspendedVoiceChannel)
+			{
+				sSuspendedVoiceChannel->activate();
+			}
+			else
+			{
+				LLVoiceChannelProximal::getInstance()->activate();
+			}
+		}
+		sSuspended = FALSE;
+	}
+}
+
+
 //
 // LLVoiceChannelGroup
 //
@@ -505,11 +658,6 @@ LLVoiceChannelGroup::LLVoiceChannelGroup(const LLUUID& session_id, const LLStrin
 {
 	mRetries = DEFAULT_RETRIES_COUNT;
 	mIsRetrying = FALSE;
-}
-
-LLVoiceChannelGroup::~LLVoiceChannelGroup()
-{
-	deactivate();
 }
 
 void LLVoiceChannelGroup::deactivate()
@@ -635,6 +783,7 @@ void LLVoiceChannelGroup::handleError(EStatusType status)
 		}
 
 		break;
+
 	case ERROR_UNKNOWN:
 	default:
 		break;
@@ -675,11 +824,6 @@ LLVoiceChannelProximal::LLVoiceChannelProximal() :
 	LLVoiceChannel(LLUUID::null, LLString::null)
 {
 	activate();
-}
-
-LLVoiceChannelProximal::~LLVoiceChannelProximal()
-{
-	// DO NOT call deactivate() here, since this will only happen at atexit() time.	
 }
 
 BOOL LLVoiceChannelProximal::isActive()
@@ -725,6 +869,9 @@ void LLVoiceChannelProximal::handleStatusChange(EStatusType status)
 	case STATUS_LEFT_CHANNEL:
 		// do not notify user when leaving proximal channel
 		return;
+	case STATUS_VOICE_DISABLED:
+		 gIMMgr->addSystemMessage(LLUUID::null, "unavailable", mNotifyArgs);
+		return;
 	default:
 		break;
 	}
@@ -762,20 +909,17 @@ void LLVoiceChannelProximal::deactivate()
 	}
 }
 
+
 //
 // LLVoiceChannelP2P
 //
 LLVoiceChannelP2P::LLVoiceChannelP2P(const LLUUID& session_id, const LLString& session_name, const LLUUID& other_user_id) : 
 		LLVoiceChannelGroup(session_id, session_name), 
-		mOtherUserID(other_user_id)
+		mOtherUserID(other_user_id),
+		mReceivedCall(FALSE)
 {
 	// make sure URI reflects encoded version of other user's agent id
 	setURI(LLVoiceClient::getInstance()->sipURIFromID(other_user_id));
-}
-
-LLVoiceChannelP2P::~LLVoiceChannelP2P() 
-{
-	deactivate();
 }
 
 void LLVoiceChannelP2P::handleStatusChange(EStatusType type)
@@ -784,7 +928,7 @@ void LLVoiceChannelP2P::handleStatusChange(EStatusType type)
 	switch(type)
 	{
 	case STATUS_LEFT_CHANNEL:
-		if (callStarted() && !mIgnoreNextSessionLeave)
+		if (callStarted() && !mIgnoreNextSessionLeave && !sSuspended)
 		{
 			if (mState == STATE_RINGING)
 			{
@@ -832,6 +976,7 @@ void LLVoiceChannelP2P::activate()
 		// no session handle yet, we're starting the call
 		if (mSessionHandle.empty())
 		{
+			mReceivedCall = FALSE;
 			LLVoiceClient::getInstance()->callUser(mOtherUserID);
 		}
 		// otherwise answering the call
@@ -879,24 +1024,37 @@ void LLVoiceChannelP2P::setSessionHandle(const LLString& handle)
 	mSessionHandle = handle;
 	// The URI of a p2p session should always be the other end's SIP URI.
 	setURI(LLVoiceClient::getInstance()->sipURIFromID(mOtherUserID));
-	
+	mReceivedCall = TRUE;
+
 	if (needs_activate)
 	{
 		activate();
 	}
 }
 
+void LLVoiceChannelP2P::setState(EState state)
+{
+	// you only "answer" voice invites in p2p mode
+	// so provide a special purpose message here
+	if (mReceivedCall && state == STATE_RINGING)
+	{
+		gIMMgr->addSystemMessage(mSessionID, "answering", mNotifyArgs);
+		mState = state;
+		return;
+	}
+	LLVoiceChannel::setState(state);
+}
+
+
 //
 // LLFloaterIMPanel
 //
 LLFloaterIMPanel::LLFloaterIMPanel(
-	const std::string& name,
-	const LLRect& rect,
 	const std::string& session_label,
 	const LLUUID& session_id,
 	const LLUUID& other_participant_id,
 	EInstantMessage dialog) :
-	LLFloater(name, rect, session_label),
+	LLFloater(session_label, LLRect(), session_label),
 	mInputEditor(NULL),
 	mHistoryEditor(NULL),
 	mSessionUUID(session_id),
@@ -909,6 +1067,7 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 	mOtherTyping(FALSE),
 	mTypingLineStartIndex(0),
 	mSentTypingState(TRUE),
+	mNumUnreadMessages(0),
 	mShowSpeakersOnConnect(TRUE),
 	mAutoConnect(FALSE),
 	mSpeakerPanel(NULL),
@@ -919,14 +1078,12 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 }
 
 LLFloaterIMPanel::LLFloaterIMPanel(
-	const std::string& name,
-	const LLRect& rect,
 	const std::string& session_label,
 	const LLUUID& session_id,
 	const LLUUID& other_participant_id,
 	const LLDynamicArray<LLUUID>& ids,
 	EInstantMessage dialog) :
-	LLFloater(name, rect, session_label),
+	LLFloater(session_label, LLRect(), session_label),
 	mInputEditor(NULL),
 	mHistoryEditor(NULL),
 	mSessionUUID(session_id),
@@ -952,13 +1109,15 @@ LLFloaterIMPanel::LLFloaterIMPanel(
 
 void LLFloaterIMPanel::init(const LLString& session_label)
 {
+	mSessionLabel = session_label;
+
 	LLString xml_filename;
 	switch(mDialog)
 	{
 	case IM_SESSION_GROUP_START:
 		mFactoryMap["active_speakers_panel"] = LLCallbackMap(createSpeakersPanel, this);
 		xml_filename = "floater_instant_message_group.xml";
-		mVoiceChannel = new LLVoiceChannelGroup(mSessionUUID, session_label);
+		mVoiceChannel = new LLVoiceChannelGroup(mSessionUUID, mSessionLabel);
 		break;
 	case IM_SESSION_INVITE:
 		mFactoryMap["active_speakers_panel"] = LLCallbackMap(createSpeakersPanel, this);
@@ -970,21 +1129,21 @@ void LLFloaterIMPanel::init(const LLString& session_label)
 		{
 			xml_filename = "floater_instant_message_ad_hoc.xml";
 		}
-		mVoiceChannel = new LLVoiceChannelGroup(mSessionUUID, session_label);
+		mVoiceChannel = new LLVoiceChannelGroup(mSessionUUID, mSessionLabel);
 		break;
 	case IM_SESSION_P2P_INVITE:
 		xml_filename = "floater_instant_message.xml";
-		mVoiceChannel = new LLVoiceChannelP2P(mSessionUUID, session_label, mOtherParticipantUUID);
+		mVoiceChannel = new LLVoiceChannelP2P(mSessionUUID, mSessionLabel, mOtherParticipantUUID);
 		break;
 	case IM_SESSION_CONFERENCE_START:
 		mFactoryMap["active_speakers_panel"] = LLCallbackMap(createSpeakersPanel, this);
 		xml_filename = "floater_instant_message_ad_hoc.xml";
-		mVoiceChannel = new LLVoiceChannelGroup(mSessionUUID, session_label);
+		mVoiceChannel = new LLVoiceChannelGroup(mSessionUUID, mSessionLabel);
 		break;
 	// just received text from another user
 	case IM_NOTHING_SPECIAL:
 		xml_filename = "floater_instant_message.xml";
-		mVoiceChannel = new LLVoiceChannelP2P(mSessionUUID, session_label, mOtherParticipantUUID);
+		mVoiceChannel = new LLVoiceChannelP2P(mSessionUUID, mSessionLabel, mOtherParticipantUUID);
 		break;
 	default:
 		llwarns << "Unknown session type" << llendl;
@@ -999,15 +1158,14 @@ void LLFloaterIMPanel::init(const LLString& session_label)
 								&getFactoryMap(),
 								FALSE);
 
-	setLabel(session_label);
-	setTitle(session_label);
+	setTitle(mSessionLabel);
 	mInputEditor->setMaxTextLength(1023);
 	// enable line history support for instant message bar
 	mInputEditor->setEnableLineHistory(TRUE);
 
 	if ( gSavedPerAccountSettings.getBOOL("LogShowHistory") )
 	{
-		LLLogChat::loadHistory(session_label,
+		LLLogChat::loadHistory(mSessionLabel,
 				       &chatFromLogFile,
 				       (void *)this);
 	}
@@ -1060,16 +1218,12 @@ BOOL LLFloaterIMPanel::postBuild()
 {
 	requires("chat_editor", WIDGET_TYPE_LINE_EDITOR);
 	requires("im_history", WIDGET_TYPE_TEXT_EDITOR);
-	requires("live_help_dialog", WIDGET_TYPE_TEXT_BOX);
-	requires("title_string", WIDGET_TYPE_TEXT_BOX);
-	requires("typing_start_string", WIDGET_TYPE_TEXT_BOX);
-	requires("session_start_string", WIDGET_TYPE_TEXT_BOX);
 
 	if (checkRequirements())
 	{
 		mInputEditor = LLUICtrlFactory::getLineEditorByName(this, "chat_editor");
-		mInputEditor->setFocusReceivedCallback( onInputEditorFocusReceived );
-		mInputEditor->setFocusLostCallback( onInputEditorFocusLost );
+		mInputEditor->setFocusReceivedCallback( onInputEditorFocusReceived, this );
+		mInputEditor->setFocusLostCallback( onInputEditorFocusLost, this );
 		mInputEditor->setKeystrokeCallback( onInputEditorKeystroke );
 		mInputEditor->setCommitCallback( onCommitChat );
 		mInputEditor->setCallbackUserData(this);
@@ -1084,6 +1238,7 @@ BOOL LLFloaterIMPanel::postBuild()
 		childSetAction("send_btn", onClickSend, this);
 		childSetAction("toggle_active_speakers_btn", onClickToggleActiveSpeakers, this);
 
+		childSetAction("moderator_kick_speaker", onKickSpeaker, this);
 		//LLButton* close_btn = LLUICtrlFactory::getButtonByName(this, "close_btn");
 		//close_btn->setClickedCallback(&LLFloaterIMPanel::onClickClose, this);
 
@@ -1094,17 +1249,11 @@ BOOL LLFloaterIMPanel::postBuild()
 		{
 			childSetEnabled("profile_btn", FALSE);
 		}
-		LLTextBox* title = LLUICtrlFactory::getTextBoxByName(this, "title_string");
-		sTitleString = title->getText();
-		
-		LLTextBox* typing_start = LLUICtrlFactory::getTextBoxByName(this, "typing_start_string");
-				
-		sTypingStartString = typing_start->getText();
 
-		LLTextBox* session_start = LLUICtrlFactory::getTextBoxByName(
-			this,
-			"session_start_string");
-		sSessionStartString = session_start->getText();
+		sTitleString = getFormattedUIString("title_string");
+		sTypingStartString = getFormattedUIString("typing_start_string");
+		sSessionStartString = getFormattedUIString("session_start_string");
+
 		if (mSpeakerPanel)
 		{
 			mSpeakerPanel->refreshSpeakers();
@@ -1112,7 +1261,7 @@ BOOL LLFloaterIMPanel::postBuild()
 
 		if (mDialog == IM_NOTHING_SPECIAL)
 		{
-			childSetCommitCallback("mute_btn", onClickMuteVoice, this);
+			childSetAction("mute_btn", onClickMuteVoice, this);
 			childSetCommitCallback("speaker_volume", onVolumeChange, this);
 		}
 
@@ -1131,7 +1280,7 @@ void* LLFloaterIMPanel::createSpeakersPanel(void* data)
 }
 
 //static 
-void LLFloaterIMPanel::onClickMuteVoice(LLUICtrl* source, void* user_data)
+void LLFloaterIMPanel::onClickMuteVoice(void* user_data)
 {
 	LLFloaterIMPanel* floaterp = (LLFloaterIMPanel*)user_data;
 	if (floaterp)
@@ -1171,10 +1320,22 @@ void LLFloaterIMPanel::draw()
 					  && LLVoiceClient::voiceEnabled();
 
 	// hide/show start call and end call buttons
-	childSetVisible("end_call_btn", mVoiceChannel->getState() >= LLVoiceChannel::STATE_CALL_STARTED);
-	childSetVisible("start_call_btn", mVoiceChannel->getState() < LLVoiceChannel::STATE_CALL_STARTED);
+	childSetVisible("end_call_btn", LLVoiceClient::voiceEnabled() && mVoiceChannel->getState() >= LLVoiceChannel::STATE_CALL_STARTED);
+	childSetVisible("start_call_btn", LLVoiceClient::voiceEnabled() && mVoiceChannel->getState() < LLVoiceChannel::STATE_CALL_STARTED);
 	childSetEnabled("start_call_btn", enable_connect);
 	childSetEnabled("send_btn", !childGetValue("chat_editor").asString().empty());
+	
+	LLPointer<LLSpeaker> self_speaker = mSpeakers->findSpeaker(gAgent.getID());
+	if (self_speaker.notNull() && self_speaker->mModeratorMutedText)
+	{
+		mInputEditor->setEnabled(FALSE);
+		mInputEditor->setLabel(getFormattedUIString("muted_text_label"));
+	}
+	else
+	{
+		mInputEditor->setEnabled(TRUE);
+		mInputEditor->setLabel(getFormattedUIString("default_text_label"));
+	}
 
 	if (mAutoConnect && enable_connect)
 	{
@@ -1215,11 +1376,11 @@ void LLFloaterIMPanel::draw()
 	else
 	{
 		// refresh volume and mute checkbox
-		childSetEnabled("speaker_volume", mVoiceChannel->isActive());
+		childSetVisible("speaker_volume", LLVoiceClient::voiceEnabled() && mVoiceChannel->isActive());
 		childSetValue("speaker_volume", gVoiceClient->getUserVolume(mOtherParticipantUUID));
 
 		childSetValue("mute_btn", gMuteListp->isMuted(mOtherParticipantUUID, LLMute::flagVoiceChat));
-		childSetEnabled("mute_btn", mVoiceChannel->isActive());
+		childSetVisible("mute_btn", LLVoiceClient::voiceEnabled() && mVoiceChannel->isActive());
 	}
 	LLFloater::draw();
 }
@@ -1235,13 +1396,54 @@ public:
 	void error(U32 statusNum, const std::string& reason)
 	{
 		llinfos << "Error inviting all agents to session" << llendl;
-
 		//throw something back to the viewer here?
 	}
 
 private:
 	LLUUID mSessionID;
 };
+
+class LLSessionImmediateInviteResponder : public LLHTTPClient::Responder
+{
+public:
+	LLSessionImmediateInviteResponder(
+		const LLUUID& session_id,
+		const std::string& chat_req_url,
+		const LLSD& post_data)
+	{
+		mSessionID = session_id;
+		mURL = chat_req_url;
+		mPostData = post_data;
+	}
+
+	void error(U32 statusNum, const std::string& reason)
+	{		
+		if ( statusNum == 400 )
+		{
+			//hrm 400 indicates invalid parameters...more
+			//than likely the method doesn't exist
+			//so try a soon to be deprecated old school way of doing this
+			mPostData["method"] = "invite";
+
+			LLHTTPClient::post(
+				mURL,
+				mPostData,
+				new LLSessionInviteResponder(mSessionID));
+		}
+		else
+		{
+			//throw something back to the viewer here?
+			llinfos << "Error inviting all agents to session" << llendl;
+		}
+	}
+
+private:
+	LLUUID mSessionID;
+	LLSD mPostData;
+
+	std::string mURL;
+};
+
 
 BOOL LLFloaterIMPanel::inviteToSession(const LLDynamicArray<LLUUID>& ids)
 {
@@ -1267,12 +1469,15 @@ BOOL LLFloaterIMPanel::inviteToSession(const LLDynamicArray<LLUUID>& ids)
 			data["params"].append(ids.get(i));
 		}
 
-		data["method"] = "invite";
+		data["method"] = "immediate invite";
 		data["session-id"] = mSessionUUID;
 		LLHTTPClient::post(
 			url,
 			data,
-			new LLSessionInviteResponder(mSessionUUID));
+			new LLSessionImmediateInviteResponder(
+				mSessionUUID,
+				url,
+				data));
 		
 	}
 	else
@@ -1289,6 +1494,15 @@ BOOL LLFloaterIMPanel::inviteToSession(const LLDynamicArray<LLUUID>& ids)
 
 void LLFloaterIMPanel::addHistoryLine(const LLUUID& source, const std::string &utf8msg, const LLColor4& color, bool log_to_file)
 {
+	// start tab flashing when receiving im for background session from user
+	LLMultiFloater* hostp = getHost();
+	if( !isInVisibleChain() 
+		&& hostp 
+		&& source != gAgent.getID())
+	{
+		hostp->setFloaterFlashing(this, TRUE);
+	}
+
 	addHistoryLine(utf8msg, color, log_to_file);
 	mSpeakers->speakerChatted(source);
 	mSpeakers->setSpeakerTyping(source, FALSE);
@@ -1296,14 +1510,6 @@ void LLFloaterIMPanel::addHistoryLine(const LLUUID& source, const std::string &u
 
 void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4& color, bool log_to_file)
 {
-	LLMultiFloater* hostp = getHost();
-	if( !getVisible() && hostp && log_to_file)
-	{
-		// Only flash for logged ("real") messages
-		LLTabContainer* parent = (LLTabContainer*) getParent();
-		parent->setTabPanelFlashing( this, TRUE );
-	}
-
 	// Now we're adding the actual line of text, so erase the 
 	// "Foo is typing..." text segment, and the optional timestamp
 	// if it was present. JC
@@ -1330,6 +1536,11 @@ void LLFloaterIMPanel::addHistoryLine(const std::string &utf8msg, const LLColor4
 
 		LLLogChat::saveHistory(getTitle(),histstr);
 	}
+
+	if (!isInVisibleChain())
+	{
+		mNumUnreadMessages++;
+	}
 }
 
 
@@ -1340,10 +1551,7 @@ void LLFloaterIMPanel::setVisible(BOOL b)
 	LLMultiFloater* hostp = getHost();
 	if( b && hostp )
 	{
-		LLTabContainer* parent = (LLTabContainer*) getParent();
-
-		// When this tab is displayed, you can stop flashing.
-		parent->setTabPanelFlashing( this, FALSE );
+		hostp->setFloaterFlashing(this, FALSE);
 
 		/* Don't change containing floater title - leave it "Instant Message" JC
 		LLUIString title = sTitleString;
@@ -1392,7 +1600,7 @@ BOOL LLFloaterIMPanel::handleKeyHere( KEY key, MASK mask, BOOL called_from_paren
 		else if ( KEY_ESCAPE == key )
 		{
 			handled = TRUE;
-			gFocusMgr.setKeyboardFocus(NULL, NULL);
+			gFocusMgr.setKeyboardFocus(NULL);
 
 			// Close talk panel with escape
 			if( !gSavedSettings.getBOOL("PinTalkViewOpen") )
@@ -1573,14 +1781,14 @@ void LLFloaterIMPanel::onCommitChat(LLUICtrl* caller, void* userdata)
 }
 
 // static
-void LLFloaterIMPanel::onInputEditorFocusReceived( LLUICtrl* caller, void* userdata )
+void LLFloaterIMPanel::onInputEditorFocusReceived( LLFocusableElement* caller, void* userdata )
 {
 	LLFloaterIMPanel* self= (LLFloaterIMPanel*) userdata;
 	self->mHistoryEditor->setCursorAndScrollToEnd();
 }
 
 // static
-void LLFloaterIMPanel::onInputEditorFocusLost(LLUICtrl* caller, void* userdata)
+void LLFloaterIMPanel::onInputEditorFocusLost(LLFocusableElement* caller, void* userdata)
 {
 	LLFloaterIMPanel* self = (LLFloaterIMPanel*) userdata;
 	self->setTyping(FALSE);
@@ -1626,6 +1834,14 @@ void LLFloaterIMPanel::onClose(bool app_quitting)
 	gIMMgr->removeSession(mSessionUUID);
 
 	destroy();
+}
+
+void LLFloaterIMPanel::onVisibilityChange(BOOL new_visibility)
+{
+	if (new_visibility)
+	{
+		mNumUnreadMessages = 0;
+	}
 }
 
 void deliver_message(const std::string& utf8_text,
@@ -1739,19 +1955,37 @@ void LLFloaterIMPanel::sendMsg()
 	mSentTypingState = TRUE;
 }
 
-void LLFloaterIMPanel::updateSpeakersList(LLSD speaker_updates)
-{ 
-	mSpeakers->processSpeakerListUpdate(speaker_updates); 
+void LLFloaterIMPanel::updateSpeakersList(const LLSD& speaker_updates)
+{
+	mSpeakers->updateSpeakers(speaker_updates); 
 }
 
-void LLFloaterIMPanel::setSpeakersListFromMap(LLSD speaker_map)
+void LLFloaterIMPanel::processSessionUpdate(const LLSD& session_update)
 {
-	mSpeakers->processSpeakerMap(speaker_map);
+	if (
+		session_update.has("moderated_mode") &&
+		session_update["moderated_mode"].has("voice") )
+	{
+		BOOL voice_moderated = session_update["moderated_mode"]["voice"];
+
+		if (voice_moderated)
+		{
+			setTitle(mSessionLabel + LLString(" ") + getFormattedUIString("moderated_chat_label"));
+		}
+		else
+		{
+			setTitle(mSessionLabel);
+		}
+
+
+		//update the speakers dropdown too
+		mSpeakerPanel->setVoiceModerationCtrlMode(voice_moderated);
+	}
 }
 
-void LLFloaterIMPanel::setSpeakersList(LLSD speaker_list)
+void LLFloaterIMPanel::setSpeakers(const LLSD& speaker_list)
 {
-	mSpeakers->processSpeakerList(speaker_list);
+	mSpeakers->setSpeakers(speaker_list);
 }
 
 void LLFloaterIMPanel::sessionInitReplyReceived(const LLUUID& session_id)
@@ -1897,5 +2131,77 @@ void LLFloaterIMPanel::chatFromLogFile(LLString line, void* userdata)
 	
 	//self->addHistoryLine(line, LLColor4::grey, FALSE);
 	self->mHistoryEditor->appendColoredText(line, false, true, LLColor4::grey);
+}
+
+void LLFloaterIMPanel::showSessionStartError(
+	const std::string& error_string)
+{
+	//the error strings etc. should be really be static and local
+	//to this file instead of in the LLFloaterIM
+	//but they were in llimview.cpp first and unfortunately
+	//some translations into non English languages already occurred
+	//thus making it a tad harder to change over to a
+	//"correct" solution.  The best solution
+	//would be to store all of the misc. strings into
+	//their own XML file which would be read in by any LLIMPanel
+	//post build function instead of repeating the same info
+	//in the group, adhoc and normal IM xml files.
+	LLString::format_map_t args;
+	args["[REASON]"] =
+		LLFloaterIM::sErrorStringsMap[error_string];
+	args["[RECIPIENT]"] = getTitle();
+
+	gViewerWindow->alertXml(
+		"ChatterBoxSessionStartError",
+		args,
+		onConfirmForceCloseError,
+		this);
+}
+
+void LLFloaterIMPanel::showSessionEventError(
+	const std::string& event_string,
+	const std::string& error_string)
+{
+	LLString::format_map_t args;
+	args["[REASON]"] = 
+		LLFloaterIM::sErrorStringsMap[error_string];
+	args["[EVENT]"] =
+		LLFloaterIM::sEventStringsMap[event_string];
+	args["[RECIPIENT]"] = getTitle();
+
+	gViewerWindow->alertXml(
+		"ChatterBoxSessionEventError",
+		args);
+}
+
+void LLFloaterIMPanel::showSessionForceClose(
+	const std::string& reason_string)
+{
+	LLString::format_map_t args;
+
+	args["[NAME]"] = getTitle();
+	args["[REASON]"] = LLFloaterIM::sForceCloseSessionMap[reason_string];
+
+	gViewerWindow->alertXml(
+		"ForceCloseChatterBoxSession",
+		args,
+		LLFloaterIMPanel::onConfirmForceCloseError,
+		this);
 
 }
+
+//static 
+void LLFloaterIMPanel::onKickSpeaker(void* user_data)
+{
+
+}
+
+void LLFloaterIMPanel::onConfirmForceCloseError(S32 option, void* data)
+{
+	//only 1 option really
+	LLFloaterIMPanel* floater = ((LLFloaterIMPanel*) data);
+
+	if ( floater ) floater->close(FALSE);
+}
+
+

@@ -50,7 +50,7 @@ public:
 	void onClose(bool app_quitting);
 
 	// override LLUISingleton behavior
-	static LLFloaterMyFriends* showInstance(const LLSD& id);
+	static LLFloaterMyFriends* showInstance(const LLSD& id = LLSD());
 	static void hideInstance(const LLSD& id);
 	static BOOL instanceVisible(const LLSD& id);
 
@@ -77,7 +77,7 @@ public:
 								BOOL select_added_floater, 
 								LLTabContainerCommon::eInsertionPoint insertion_point = LLTabContainerCommon::END);
 
-	static LLFloaterChatterBox* showInstance(const LLSD& seed);
+	static LLFloaterChatterBox* showInstance(const LLSD& seed = LLSD());
 	static BOOL instanceVisible(const LLSD& seed);
 
 	static LLFloater* getCurrentVoiceFloater();

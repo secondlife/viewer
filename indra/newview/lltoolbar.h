@@ -47,7 +47,7 @@ class LLToolBar
 :	public LLPanel
 {
 public:
-	LLToolBar(const std::string& name, const LLRect& rect );
+	LLToolBar();
 	~LLToolBar();
 
 	/*virtual*/ BOOL postBuild();
@@ -70,7 +70,7 @@ public:
 	void refresh();
 
 	// callbacks
-	static void onClickCommunicate(void*);
+	static void onClickCommunicate(LLUICtrl*, void*);
 	static void onClickChat(void* data);
 	static void onClickAppearance(void* data);
 	static void onClickClothing(void* data);
@@ -86,8 +86,13 @@ public:
 	static F32 sInventoryAutoOpenTime;
 
 private:
+	void updateCommunicateList();
+
+
+private:
 	BOOL		mInventoryAutoOpen;
 	LLFrameTimer mInventoryAutoOpenTimer;
+	S32			mNumUnreadIMs;
 #if LL_DARWIN
 	LLFakeResizeHandle *mResizeHandle;
 #endif // LL_DARWIN

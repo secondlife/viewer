@@ -47,11 +47,53 @@
 
 const U32 MAX_STRING_LENGTH = 10;
 
-LLUICtrl::LLUICtrl() :
-	mCommitCallback(NULL),
-	mFocusLostCallback(NULL),
+LLFocusableElement::LLFocusableElement()
+:	mFocusLostCallback(NULL),
 	mFocusReceivedCallback(NULL),
 	mFocusChangedCallback(NULL),
+	mFocusCallbackUserData(NULL)
+{
+}
+
+void LLFocusableElement::onFocusReceived()
+{
+	if( mFocusReceivedCallback )
+	{
+		mFocusReceivedCallback( this, mFocusCallbackUserData );
+	}
+	if( mFocusChangedCallback )
+	{
+		mFocusChangedCallback( this, mFocusCallbackUserData );
+	}
+}
+
+void LLFocusableElement::onFocusLost()
+{
+	if( mFocusLostCallback )
+	{
+		mFocusLostCallback( this, mFocusCallbackUserData );
+	}
+
+	if( mFocusChangedCallback )
+	{
+		mFocusChangedCallback( this, mFocusCallbackUserData );
+	}
+}
+
+BOOL LLFocusableElement::hasFocus() const
+{
+	return FALSE;
+}
+
+void LLFocusableElement::setFocus(BOOL b)
+{
+}
+
+
+
+LLUICtrl::LLUICtrl() :
+	mCommitCallback(NULL),
+	mLostTopCallback(NULL),
 	mValidateCallback(NULL),
 	mCallbackUserData(NULL),
 	mTentative(FALSE),
@@ -68,9 +110,7 @@ LLUICtrl::LLUICtrl(const LLString& name, const LLRect& rect, BOOL mouse_opaque,
 	// of buttons in the UI. JC 7/20/2002
 	LLView( name, rect, mouse_opaque, reshape ),
 	mCommitCallback( on_commit_callback) ,
-	mFocusLostCallback( NULL ),
-	mFocusReceivedCallback( NULL ),
-	mFocusChangedCallback( NULL ),
+	mLostTopCallback( NULL ),
 	mValidateCallback( NULL ),
 	mCallbackUserData( callback_userdata ),
 	mTentative( FALSE ),
@@ -128,6 +168,86 @@ LLCtrlScrollInterface* LLUICtrl::getScrollInterface()
 	return NULL; 
 }
 
+BOOL LLUICtrl::hasFocus() const
+{
+	return (gFocusMgr.childHasKeyboardFocus(this));
+}
+
+void LLUICtrl::setFocus(BOOL b)
+{
+	// focus NEVER goes to ui ctrls that are disabled!
+	if (!mEnabled)
+	{
+		return;
+	}
+	if( b )
+	{
+		if (!hasFocus())
+		{
+			gFocusMgr.setKeyboardFocus( this );
+		}
+	}
+	else
+	{
+		if( gFocusMgr.childHasKeyboardFocus(this))
+		{
+			gFocusMgr.setKeyboardFocus( NULL );
+		}
+	}
+}
+
+void LLUICtrl::onFocusReceived()
+{
+	// trigger callbacks
+	LLFocusableElement::onFocusReceived();
+
+	// find first view in hierarchy above new focus that is a LLUICtrl
+	LLView* viewp = getParent();
+	LLUICtrl* last_focus = gFocusMgr.getLastKeyboardFocus();
+
+	while (viewp && !viewp->isCtrl()) 
+	{
+		viewp = viewp->getParent();
+	}
+
+	// and if it has newly gained focus, call onFocusReceived()
+	LLUICtrl* ctrlp = static_cast<LLUICtrl*>(viewp);
+	if (ctrlp && (!last_focus || !last_focus->hasAncestor(ctrlp)))
+	{
+		ctrlp->onFocusReceived();
+	}
+}
+
+void LLUICtrl::onFocusLost()
+{
+	// trigger callbacks
+	LLFocusableElement::onFocusLost();
+
+	// find first view in hierarchy above old focus that is a LLUICtrl
+	LLView* viewp = getParent();
+	while (viewp && !viewp->isCtrl()) 
+	{
+		viewp = viewp->getParent();
+	}
+
+	// and if it has just lost focus, call onFocusReceived()
+	LLUICtrl* ctrlp = static_cast<LLUICtrl*>(viewp);
+	// hasFocus() includes any descendants
+	if (ctrlp && !ctrlp->hasFocus())
+	{
+		ctrlp->onFocusLost();
+	}
+}
+
+void LLUICtrl::onLostTop()
+{
+	if (mLostTopCallback)
+	{
+		mLostTopCallback(this, mCallbackUserData);
+	}
+}
+
+
 // virtual
 void LLUICtrl::setTabStop( BOOL b )	
 { 
@@ -168,67 +288,6 @@ BOOL LLUICtrl::getIsChrome() const
 	return mIsChrome; 
 }
 
-void LLUICtrl::onFocusReceived()
-{
-	if( mFocusReceivedCallback )
-	{
-		mFocusReceivedCallback( this, mCallbackUserData );
-	}
-	if( mFocusChangedCallback )
-	{
-		mFocusChangedCallback( this, mCallbackUserData );
-	}
-}
-
-void LLUICtrl::onFocusLost()
-{
-	if( mFocusLostCallback )
-	{
-		mFocusLostCallback( this, mCallbackUserData );
-	}
-
-	if( mFocusChangedCallback )
-	{
-		mFocusChangedCallback( this, mCallbackUserData );
-	}
-}
-
-BOOL LLUICtrl::hasFocus() const
-{
-	return (gFocusMgr.childHasKeyboardFocus(this));
-}
-
-void LLUICtrl::setFocus(BOOL b)
-{
-	// focus NEVER goes to ui ctrls that are disabled!
-	if (!mEnabled)
-	{
-		return;
-	}
-	if( b )
-	{
-		if (!hasFocus())
-		{
-			gFocusMgr.setKeyboardFocus( this, &LLUICtrl::onFocusLostCallback );
-			onFocusReceived();
-		}
-	}
-	else
-	{
-		if( gFocusMgr.childHasKeyboardFocus(this))
-		{
-			gFocusMgr.setKeyboardFocus( NULL, NULL );
-			onFocusLost();
-		}
-	}
-}
-
-// static
-void LLUICtrl::onFocusLostCallback( LLUICtrl* old_focus )
-{
-	old_focus->onFocusLost();
-}
-
 // this comparator uses the crazy disambiguating logic of LLCompareByTabOrder,
 // but to switch up the order so that children that have the default tab group come first
 // and those that are prior to the default tab group come last
@@ -261,6 +320,7 @@ public:
 		children.sort(CompareByDefaultTabGroup(parent->getCtrlOrder(), parent->getDefaultTabGroup()));
 	}
 };
+
 
 BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields)
 {

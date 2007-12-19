@@ -1607,7 +1607,7 @@ void LLPreviewGesture::onClickAdd(void* data)
 	if (!library_item) return;
 
 	const LLScrollListCell* library_cell = library_item->getColumn(0);
-	const std::string& library_text = library_cell->getText();
+	const std::string& library_text = library_cell->getValue().asString();
 
 	self->addStep(library_text);
 

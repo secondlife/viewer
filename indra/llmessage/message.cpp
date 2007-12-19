@@ -705,21 +705,28 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 			// But we don't want to acknowledge UseCircuitCode until the circuit is
 			// available, which is why the acknowledgement test is done above.  JC
 
-			valid_packet = mTemplateMessageReader->validateMessage(buffer, 
-														   receive_size,
-														   host);
+			valid_packet = mTemplateMessageReader->validateMessage(
+				buffer,
+				receive_size,
+				host);
 
 			// UseCircuitCode is allowed in even from an invalid circuit, so that
 			// we can toss circuits around.
-			if(valid_packet && !cdp && 
-			   (mTemplateMessageReader->getMessageName() != _PREHASH_UseCircuitCode))
+			if(
+				valid_packet &&
+				!cdp && 
+				(mTemplateMessageReader->getMessageName() !=
+				 _PREHASH_UseCircuitCode))
 			{
 				logMsgFromInvalidCircuit( host, recv_reliable );
 				clearReceiveState();
 				valid_packet = FALSE;
 			}
 
-			if(valid_packet && cdp && !cdp->getTrusted() && 
+			if(
+				valid_packet &&
+				cdp &&
+				!cdp->getTrusted() && 
 				mTemplateMessageReader->isTrusted())
 			{
 				logTrustedMsgFromUntrustedCircuit( host );
@@ -729,8 +736,9 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 				valid_packet = FALSE;
 			}
 
-			if (valid_packet
-			&& mTemplateMessageReader->isBanned(cdp && cdp->getTrusted()))
+			if (
+				valid_packet &&
+				mTemplateMessageReader->isBanned(cdp && cdp->getTrusted()))
 			{
 				llwarns << "LLMessageSystem::checkMessages "
 					<< "received banned message "
@@ -1159,9 +1167,10 @@ LLHTTPClient::ResponderPtr LLMessageSystem::createResponder(const std::string& n
 {
 	if(mSendReliable)
 	{
-		return new LLFnPtrResponder(mReliablePacketParams.mCallback,
-									mReliablePacketParams.mCallbackData,
-									name);
+		return new LLFnPtrResponder(
+			mReliablePacketParams.mCallback,
+			mReliablePacketParams.mCallbackData,
+			name);
 	}
 	else
 	{
@@ -1170,8 +1179,10 @@ LLHTTPClient::ResponderPtr LLMessageSystem::createResponder(const std::string& n
 //		llwarns << "LLMessageSystem::sendMessage: Sending unreliable "
 //				<< mMessageBuilder->getMessageName() << " message via HTTP"
 //				<< llendl;
-		return new LLFnPtrResponder(NULL, NULL,
-									mMessageBuilder->getMessageName());
+		return new LLFnPtrResponder(
+			NULL,
+			NULL,
+			mMessageBuilder->getMessageName());
 	}
 }
 
@@ -1241,8 +1252,11 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
 		LLSD message = mLLSDMessageBuilder->getMessage();
 		
 		const LLHTTPSender& sender = LLHTTPSender::getSender(host);
-		sender.send(host, mLLSDMessageBuilder->getMessageName(),
-					message, createResponder(mLLSDMessageBuilder->getMessageName()));
+		sender.send(
+			host,
+			mLLSDMessageBuilder->getMessageName(),
+			message,
+			createResponder(mLLSDMessageBuilder->getMessageName()));
 
 		mSendReliable = FALSE;
 		mReliablePacketParams.clear();
@@ -1423,8 +1437,10 @@ void LLMessageSystem::logMsgFromInvalidCircuit( const LLHost& host, BOOL recv_re
 	}
 }
 
-S32 LLMessageSystem::sendMessage(const LLHost &host, const char* name,
-								  const LLSD& message)
+S32 LLMessageSystem::sendMessage(
+	const LLHost &host,
+	const char* name,
+	const LLSD& message)
 {
 	if (!(host.isOk()))
 	{

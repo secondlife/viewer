@@ -100,7 +100,6 @@ const LLColor4 SIM_WARN_COLOR(1.f, 1.f, 0.f, 1.f);
 const LLColor4 SIM_FULL_COLOR(1.f, 0.f, 0.f, 1.f);
 const F32 ICON_TIMER_EXPIRY		= 3.f; // How long the balance and health icons should flash after a change.
 const F32 ICON_FLASH_FREQUENCY	= 2.f;
-const S32 GRAPHIC_FUDGE = 4;
 const S32 TEXT_HEIGHT = 18;
 
 static void onClickParcelInfo(void*);
@@ -153,13 +152,13 @@ LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
 	
 	childSetAction("scriptout", onClickScriptDebug, this);
 	childSetAction("health", onClickHealth, this);
-	childSetAction("fly", onClickFly, this);
+	childSetAction("no_fly", onClickFly, this);
 	childSetAction("buyland", onClickBuyLand, this );
 	childSetAction("buycurrency", onClickBuyCurrency, this );
-	childSetAction("build", onClickBuild, this );
-	childSetAction("scripts", onClickScripts, this );
+	childSetAction("no_build", onClickBuild, this );
+	childSetAction("no_scripts", onClickScripts, this );
 	childSetAction("restrictpush", onClickPush, this );
-	childSetAction("status_voice", onClickVoice, this );
+	childSetAction("status_no_voice", onClickVoice, this );
 
 	childSetCommitCallback("search_editor", onCommitSearch, this);
 	childSetAction("search_btn", onClickSearch, this);
@@ -304,7 +303,7 @@ void LLStatusBar::refresh()
 
 		// Health
 		childGetRect( "health", buttonRect );
-		r.setOriginAndSize( x, y-GRAPHIC_FUDGE, buttonRect.getWidth(), buttonRect.getHeight());
+		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
 		childSetRect("health", r);
 		x += buttonRect.getWidth();
 
@@ -324,26 +323,31 @@ void LLStatusBar::refresh()
 		(parcel && !parcel->getAllowFly()) )
 	{
 		// No Fly Zone
-		childGetRect( "fly", buttonRect );
-		childSetVisible( "fly", true );
-		r.setOriginAndSize( x, y-GRAPHIC_FUDGE, buttonRect.getWidth(), buttonRect.getHeight());
-		childSetRect( "fly", r );
+		childGetRect( "no_fly", buttonRect );
+		childSetVisible( "no_fly", true );
+		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
+		childSetRect( "no_fly", r );
 		x += buttonRect.getWidth();
 	}
 	else
 	{
-		childSetVisible("fly", false);
+		// Fly Zone
+		childSetVisible("no_fly", false);
 	}
 
 	BOOL no_build = parcel && !parcel->getAllowModify();
-	childSetVisible("build", no_build);
 	if (no_build)
 	{
-		childGetRect( "build", buttonRect );
+		childSetVisible("no_build", TRUE);
+		childGetRect( "no_build", buttonRect );
 		// No Build Zone
-		r.setOriginAndSize( x, y-GRAPHIC_FUDGE, buttonRect.getWidth(), buttonRect.getHeight());
-		childSetRect( "build", r );
+		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
+		childSetRect( "no_build", r );
 		x += buttonRect.getWidth();
+	}
+	else
+	{
+		childSetVisible("no_build", FALSE);
 	}
 
 	BOOL no_scripts = FALSE;
@@ -354,35 +358,56 @@ void LLStatusBar::refresh()
 	{
 		no_scripts = TRUE;
 	}
-	childSetVisible("scripts", no_scripts);
 	if (no_scripts)
 	{
 		// No scripts
-		childGetRect( "scripts", buttonRect );
-		r.setOriginAndSize( x, y-GRAPHIC_FUDGE, buttonRect.getWidth(), buttonRect.getHeight());
-		childSetRect( "scripts", r );
+		childSetVisible("no_scripts", TRUE);
+		childGetRect( "no_scripts", buttonRect );
+		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
+		childSetRect( "no_scripts", r );
 		x += buttonRect.getWidth();
+	}
+	else
+	{
+		// Yes scripts
+		childSetVisible("no_scripts", FALSE);
 	}
 
 	BOOL no_region_push = (region && region->getRestrictPushObject());
 	BOOL no_push = no_region_push || (parcel && parcel->getRestrictPushObject());
-	childSetVisible("restrictpush", no_push);
 	if (no_push)
 	{
+		childSetVisible("restrictpush", TRUE);
 		childGetRect( "restrictpush", buttonRect );
-		r.setOriginAndSize( x, y-GRAPHIC_FUDGE, buttonRect.getWidth(), buttonRect.getHeight());
+		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
 		childSetRect( "restrictpush", r );
 		x += buttonRect.getWidth();
 	}
-
-	BOOL have_voice = parcel && parcel->getVoiceEnabled(); 
-	childSetVisible("status_voice", have_voice);
-	if (have_voice)
+	else
 	{
-		childGetRect( "status_voice", buttonRect );
-		r.setOriginAndSize( x, y-GRAPHIC_FUDGE, buttonRect.getWidth(), buttonRect.getHeight());
-		childSetRect( "status_voice", r );
-		x += buttonRect.getWidth();
+		childSetVisible("restrictpush", FALSE);
+	}
+
+	BOOL voice_enabled = gVoiceClient->voiceEnabled();
+	BOOL have_voice = parcel && parcel->getVoiceEnabled(); 
+	if (!voice_enabled)
+	{
+		childSetVisible("status_no_voice", FALSE);
+	}
+	else
+	{
+		if (have_voice)
+		{
+			childSetVisible("status_no_voice", FALSE);
+		}
+		else if (!have_voice)
+		{
+			childSetVisible("status_no_voice", TRUE);
+			childGetRect( "status_no_voice", buttonRect );
+			r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
+			childSetRect( "status_no_voice", r );
+			x += buttonRect.getWidth();
+		}
 	}
 
 	BOOL canBuyLand = parcel
@@ -512,7 +537,7 @@ void LLStatusBar::refresh()
 	mTextParcelName->setText(location_name);
 
 	// Adjust region name and parcel name
-	x += 4;
+	x += 8;
 
 	const S32 PARCEL_RIGHT =  llmin(mTextTime->getRect().mLeft, mTextParcelName->getTextPixelWidth() + x + 5);
 	r.set(x+4, mRect.getHeight() - 2, PARCEL_RIGHT, 0);
@@ -672,8 +697,7 @@ static void onClickPush(void* )
 
 static void onClickVoice(void* )
 {
-	LLNotifyBox::showXml("VoiceAvailablity");
-	//LLFirstUse::useVoice();
+	LLNotifyBox::showXml("NoVoice");
 }
 
 static void onClickBuild(void*)
@@ -708,7 +732,7 @@ static void onClickBuyLand(void*)
 void LLStatusBar::setupDate()
 {
 	// fill the day array with what's in the xui
-	LLString day_list = childGetText("StatBarDaysOfWeek");
+	LLString day_list = getFormattedUIString("StatBarDaysOfWeek");
 	size_t length = day_list.size();
 	
 	// quick input check
@@ -732,7 +756,7 @@ void LLStatusBar::setupDate()
 	}
 	
 	// fill the day array with what's in the xui	
-	LLString month_list = childGetText( "StatBarMonthsOfYear" );
+	LLString month_list = getFormattedUIString( "StatBarMonthsOfYear" );
 	length = month_list.size();
 	
 	// quick input check

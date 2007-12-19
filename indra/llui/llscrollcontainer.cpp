@@ -394,33 +394,29 @@ BOOL LLScrollableContainerView::handleDragAndDrop(S32 x, S32 y, MASK mask,
 
 BOOL LLScrollableContainerView::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect)
 {
-	if( getVisible() && pointInView(x,y) )
+	S32 local_x, local_y;
+	for( S32 i = 0; i < SCROLLBAR_COUNT; i++ )
 	{
-		S32 local_x, local_y;
-		for( S32 i = 0; i < SCROLLBAR_COUNT; i++ )
+		local_x = x - mScrollbar[i]->getRect().mLeft;
+		local_y = y - mScrollbar[i]->getRect().mBottom;
+		if( mScrollbar[i]->handleToolTip(local_x, local_y, msg, sticky_rect) )
 		{
-			local_x = x - mScrollbar[i]->getRect().mLeft;
-			local_y = y - mScrollbar[i]->getRect().mBottom;
-			if( mScrollbar[i]->handleToolTip(local_x, local_y, msg, sticky_rect) )
-			{
-				return TRUE;
-			}
+			return TRUE;
 		}
-		// Handle 'child' view.
-		if( mScrolledView )
-		{
-			local_x = x - mScrolledView->getRect().mLeft;
-			local_y = y - mScrolledView->getRect().mBottom;
-			if( mScrolledView->handleToolTip(local_x, local_y, msg, sticky_rect) )
-			{
-				return TRUE;
-			}
-		}
-
-		// Opaque
-		return TRUE;
 	}
-	return FALSE;
+	// Handle 'child' view.
+	if( mScrolledView )
+	{
+		local_x = x - mScrolledView->getRect().mLeft;
+		local_y = y - mScrolledView->getRect().mBottom;
+		if( mScrolledView->handleToolTip(local_x, local_y, msg, sticky_rect) )
+		{
+			return TRUE;
+		}
+	}
+
+	// Opaque
+	return TRUE;
 }
 
 void LLScrollableContainerView::calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar )

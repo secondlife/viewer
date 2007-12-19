@@ -41,9 +41,6 @@
 #include "llcontrol.h"
 #include "llimagegl.h"
 
-const S32 THUMB_WIDTH = 8;
-const S32 TRACK_HEIGHT = 6;
-
 LLSlider::LLSlider( 
 	const LLString& name,
 	const LLRect& rect,
@@ -65,20 +62,24 @@ LLSlider::LLSlider(
 	mIncrement( increment ),
 	mVolumeSlider( volume ),
 	mMouseOffset( 0 ),
-	mDragStartThumbRect( 0, mRect.getHeight(), THUMB_WIDTH, 0 ),
-	mThumbRect( 0, mRect.getHeight(), THUMB_WIDTH, 0 ),
 	mTrackColor(		LLUI::sColorsGroup->getColor( "SliderTrackColor" ) ),
 	mThumbOutlineColor(	LLUI::sColorsGroup->getColor( "SliderThumbOutlineColor" ) ),
 	mThumbCenterColor(	LLUI::sColorsGroup->getColor( "SliderThumbCenterColor" ) ),
-	mDisabledThumbColor(LLUI::sColorsGroup->getColor( "SliderDisabledThumbColor" ) ),
 	mMouseDownCallback( NULL ),
 	mMouseUpCallback( NULL )
 {
+	mThumbImage = LLUI::sImageProvider->getImageByID(LLUUID(LLUI::sAssetsGroup->getString("icn_slide-thumb_dark.tga")));
+	mTrackImage = LLUI::sImageProvider->getImageByID(LLUUID(LLUI::sAssetsGroup->getString("icn_slide-groove_dark.tga")));
+	mTrackHighlightImage = LLUI::sImageProvider->getImageByID(LLUUID(LLUI::sAssetsGroup->getString("icn_slide-highlight.tga")));
+
 	// properly handle setting the starting thumb rect
 	// do it this way to handle both the operating-on-settings
 	// and standalone ways of using this
 	setControlName(control_name, NULL);
 	setValue(getValueF32());
+
+	updateThumbRect();
+	mDragStartThumbRect = mThumbRect;
 }
 
 EWidgetType LLSlider::getWidgetType() const
@@ -107,16 +108,25 @@ void LLSlider::setValue(F32 value, BOOL from_event)
 	}
 
 	mValue = value;
+	updateThumbRect();
+}
 
+void LLSlider::updateThumbRect()
+{
 	F32 t = (mValue - mMinValue) / (mMaxValue - mMinValue);
 
-	S32 left_edge = THUMB_WIDTH/2;
-	S32 right_edge = mRect.getWidth() - (THUMB_WIDTH/2);
+	S32 thumb_width = mThumbImage->getWidth();
+	S32 thumb_height = mThumbImage->getHeight();
+	S32 left_edge = (thumb_width / 2);
+	S32 right_edge = mRect.getWidth() - (thumb_width / 2);
 
 	S32 x = left_edge + S32( t * (right_edge - left_edge) );
-	mThumbRect.mLeft = x - (THUMB_WIDTH/2);
-	mThumbRect.mRight = x + (THUMB_WIDTH/2);
+	mThumbRect.mLeft = x - (thumb_width / 2);
+	mThumbRect.mRight = mThumbRect.mLeft + thumb_width;
+	mThumbRect.mBottom = getLocalRect().getCenterY() - (thumb_height / 2);
+	mThumbRect.mTop = mThumbRect.mBottom + thumb_height;
 }
+
 
 void LLSlider::setValueAndCommit(F32 value)
 {
@@ -139,8 +149,9 @@ BOOL LLSlider::handleHover(S32 x, S32 y, MASK mask)
 {
 	if( hasMouseCapture() )
 	{
-		S32 left_edge = THUMB_WIDTH/2;
-		S32 right_edge = mRect.getWidth() - (THUMB_WIDTH/2);
+		S32 thumb_half_width = mThumbImage->getWidth()/2;
+		S32 left_edge = thumb_half_width;
+		S32 right_edge = mRect.getWidth() - (thumb_half_width);
 
 		x += mMouseOffset;
 		x = llclamp( x, left_edge, right_edge );
@@ -203,7 +214,7 @@ BOOL LLSlider::handleMouseDown(S32 x, S32 y, MASK mask)
 		// Find the offset of the actual mouse location from the center of the thumb.
 		if (mThumbRect.pointInRect(x,y))
 		{
-			mMouseOffset = (mThumbRect.mLeft + THUMB_WIDTH/2) - x;
+			mMouseOffset = (mThumbRect.mLeft + mThumbImage->getWidth()/2) - x;
 		}
 		else
 		{
@@ -251,6 +262,9 @@ void LLSlider::draw()
 {
 	if( getVisible() )
 	{
+		// since thumb image might still be decoding, need thumb to accomodate image size
+		updateThumbRect();
+
 		// Draw background and thumb.
 
 		// drawing solids requires texturing be disabled
@@ -260,104 +274,37 @@ void LLSlider::draw()
 
 		F32 opacity = mEnabled ? 1.f : 0.3f;
 		LLColor4 center_color = (mThumbCenterColor % opacity);
-		LLColor4 outline_color = (mThumbOutlineColor % opacity);
 		LLColor4 track_color = (mTrackColor % opacity);
 
-		LLImageGL* thumb_imagep = NULL;
-		
 		// Track
-		if (mVolumeSlider)
-		{
-			LLRect track(0, mRect.getHeight(), mRect.getWidth(), 0);
+		LLRect track_rect(mThumbImage->getWidth() / 2, 
+							getLocalRect().getCenterY() + (mTrackImage->getHeight() / 2), 
+							mRect.getWidth() - mThumbImage->getWidth() / 2, 
+							getLocalRect().getCenterY() - (mTrackImage->getHeight() / 2) );
 
-			track.mBottom += 3;
-			track.mTop -= 1;
-			track.mRight -= 1;
+		gl_draw_scaled_image_with_border(track_rect.mLeft, track_rect.mBottom, 3, 3, track_rect.getWidth(), track_rect.getHeight(),
+											mTrackImage, track_color);
+		gl_draw_scaled_image_with_border(track_rect.mLeft, track_rect.mBottom, 3, 3, mThumbRect.mLeft, track_rect.getHeight(),
+											mTrackHighlightImage, track_color);
 
-			gl_triangle_2d(track.mLeft, track.mBottom,
-						   track.mRight, track.mBottom,
-						   track.mRight, track.mTop,
-						   center_color,
-						   TRUE);
-			gl_triangle_2d(track.mLeft, track.mBottom,
-						   track.mRight, track.mBottom,
-						   track.mRight, track.mTop,
-						   outline_color,
-						   FALSE);
-		}
-		else
-		{
-			LLUUID thumb_image_id;
-			thumb_image_id.set(LLUI::sAssetsGroup->getString("rounded_square.tga"));
-			thumb_imagep = LLUI::sImageProvider->getUIImageByID(thumb_image_id);
-
-			S32 height_offset = (mRect.getHeight() - TRACK_HEIGHT) / 2;
-			LLRect track_rect(0, mRect.getHeight() - height_offset, mRect.getWidth(), height_offset );
-
-			track_rect.stretch(-1);
-			gl_draw_scaled_image_with_border(track_rect.mLeft, track_rect.mBottom, 16, 16, track_rect.getWidth(), track_rect.getHeight(),
-											 thumb_imagep, track_color);
-		}
 
 		// Thumb
-		if (!thumb_imagep)
+		if( hasMouseCapture() )
 		{
-			if (mVolumeSlider)
-			{
-				if (hasMouseCapture())
-				{
-					LLRect rect(mDragStartThumbRect);
-					gl_rect_2d( rect, outline_color );
-					rect.stretch(-1);
-					gl_rect_2d( rect, mThumbCenterColor % 0.3f );
-
-					if (hasFocus())
-					{
-						LLRect thumb_rect = mThumbRect;
-						thumb_rect.stretch(llround(lerp(1.f, 3.f, gFocusMgr.getFocusFlashAmt())));
-						gl_rect_2d(thumb_rect, gFocusMgr.getFocusColor());
-					}
-					gl_rect_2d( mThumbRect, mThumbOutlineColor );
-				}
-				else
-				{ 
-					if (hasFocus())
-					{
-						LLRect thumb_rect = mThumbRect;
-						thumb_rect.stretch(llround(lerp(1.f, 3.f, gFocusMgr.getFocusFlashAmt())));
-						gl_rect_2d(thumb_rect, gFocusMgr.getFocusColor());
-					}
-					LLRect rect(mThumbRect);
-					gl_rect_2d(rect, outline_color);
-					rect.stretch(-1);
-					gl_rect_2d( rect, center_color);
-				}
-			}
-			else
-			{
-				gl_rect_2d(mThumbRect, mThumbCenterColor, TRUE);
-				if (hasMouseCapture())
-				{
-					gl_rect_2d(mDragStartThumbRect, center_color, FALSE);
-				}
-			}
-		}
-		else if( hasMouseCapture() )
-		{
-			gl_draw_scaled_image_with_border(mDragStartThumbRect.mLeft, mDragStartThumbRect.mBottom, 16, 16, mDragStartThumbRect.getWidth(), mDragStartThumbRect.getHeight(), 
-											 thumb_imagep, mThumbCenterColor % 0.3f, TRUE);
+			gl_draw_scaled_image(mDragStartThumbRect.mLeft, mDragStartThumbRect.mBottom, mDragStartThumbRect.getWidth(), mDragStartThumbRect.getHeight(), 
+											 mThumbImage, mThumbCenterColor % 0.3f);
 
 			if (hasFocus())
 			{
 				F32 lerp_amt = gFocusMgr.getFocusFlashAmt();
 				LLRect highlight_rect = mThumbRect;
 				highlight_rect.stretch(llround(lerp(1.f, 3.f, lerp_amt)));
-				gl_draw_scaled_image_with_border(highlight_rect.mLeft, highlight_rect.mBottom, 16, 16, highlight_rect.getWidth(), highlight_rect.getHeight(),
-												 thumb_imagep, gFocusMgr.getFocusColor());
+				gl_draw_scaled_image_with_border(highlight_rect.mLeft, highlight_rect.mBottom, 0, 0, highlight_rect.getWidth(), highlight_rect.getHeight(),
+												 mThumbImage, gFocusMgr.getFocusColor(), TRUE);
 			}
 
-			gl_draw_scaled_image_with_border(mThumbRect.mLeft, mThumbRect.mBottom, 16, 16, mThumbRect.getWidth(), mThumbRect.getHeight(), 
-											 thumb_imagep, mThumbOutlineColor, TRUE);
+			gl_draw_scaled_image(mThumbRect.mLeft, mThumbRect.mBottom, mThumbRect.getWidth(), mThumbRect.getHeight(), 
+											 mThumbImage, mThumbOutlineColor);
 
 		}
 		else
@@ -367,12 +314,12 @@ void LLSlider::draw()
 				F32 lerp_amt = gFocusMgr.getFocusFlashAmt();
 				LLRect highlight_rect = mThumbRect;
 				highlight_rect.stretch(llround(lerp(1.f, 3.f, lerp_amt)));
-				gl_draw_scaled_image_with_border(highlight_rect.mLeft, highlight_rect.mBottom, 16, 16, highlight_rect.getWidth(), highlight_rect.getHeight(),
-												 thumb_imagep, gFocusMgr.getFocusColor());
+				gl_draw_scaled_image_with_border(highlight_rect.mLeft, highlight_rect.mBottom, 0, 0, highlight_rect.getWidth(), highlight_rect.getHeight(),
+												 mThumbImage, gFocusMgr.getFocusColor(), TRUE);
 			}
 
-			gl_draw_scaled_image_with_border(mThumbRect.mLeft, mThumbRect.mBottom, 16, 16, mThumbRect.getWidth(), mThumbRect.getHeight(), 
-											 thumb_imagep, center_color, TRUE);
+			gl_draw_scaled_image(mThumbRect.mLeft, mThumbRect.mBottom, mThumbRect.getWidth(), mThumbRect.getHeight(), 
+											 mThumbImage, center_color);
 		}
 		LLUICtrl::draw();
 	}

@@ -88,18 +88,11 @@ void LLIconCtrl::draw()
 {
 	if( getVisible() ) 
 	{
-		// Border
-		BOOL has_image = !mImageID.isNull();
-
-		if( has_image )
+		if( mImagep.notNull() )
 		{
-			if( mImagep.notNull() )
-			{
-				gl_draw_scaled_image(0, 0, 
-									 mRect.getWidth(), mRect.getHeight(), 
-									 mImagep,
-									 mColor );
-			}
+			mImagep->draw(0, 0, 
+							mRect.getWidth(), mRect.getHeight(), 
+							mColor );
 		}
 
 		LLUICtrl::draw();
@@ -154,6 +147,7 @@ LLView* LLIconCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *
 	LLUICtrlFactory::getAttributeColor(node,"color", color);
 
 	LLIconCtrl* icon = new LLIconCtrl(name, rect, image_id);
+
 	icon->setColor(color);
 
 	icon->initFromXML(node, parent);

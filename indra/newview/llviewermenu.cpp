@@ -2103,7 +2103,7 @@ class LLObjectMute : public view_listener_t
 		else
 		{
 			gMuteListp->add(mute);
-			gFloaterMute->show();
+			LLFloaterMute::showInstance();
 		}
 		
 		return true;
@@ -5309,7 +5309,7 @@ class LLShowFloater : public view_listener_t
 		}
 		else if (floater_name == "mute list")
 		{
-			LLFloaterMute::toggle(NULL);
+			LLFloaterMute::toggleInstance();
 		}
 		else if (floater_name == "camera controls")
 		{
@@ -5355,7 +5355,7 @@ class LLShowFloater : public view_listener_t
 		}
 		else if (floater_name == "about region")
 		{
-			LLFloaterRegionInfo::show((void *)NULL);
+			LLFloaterRegionInfo::showInstance();
 		}
 		else if (floater_name == "grid options")
 		{
@@ -5447,7 +5447,7 @@ class LLFloaterVisible : public view_listener_t
 		}
 		else if (floater_name == "mute list")
 		{
-			new_value = LLFloaterMute::visible(NULL);
+			new_value = LLFloaterMute::instanceVisible();
 		}
 		else if (floater_name == "camera controls")
 		{
@@ -6963,13 +6963,12 @@ void handle_grab_texture(void* data)
 			if(view)
 			{
 				LLUICtrl* focus_ctrl = gFocusMgr.getKeyboardFocus();
-				LLFocusMgr::FocusLostCallback callback = gFocusMgr.getFocusCallback();
 
 				view->getPanel()->setSelection(item_id, TAKE_FOCUS_NO);
 				view->getPanel()->openSelected();
 				//LLInventoryView::dumpSelectionInformation((void*)view);
 				// restore keyboard focus
-				gFocusMgr.setKeyboardFocus(focus_ctrl, callback);
+				gFocusMgr.setKeyboardFocus(focus_ctrl);
 			}
 		}
 		else

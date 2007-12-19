@@ -163,6 +163,7 @@ inline LLColor3::LLColor3(F32 r, F32 g, F32 b)
 	mV[VZ] = b;
 }
 
+
 inline LLColor3::LLColor3(const F32 *vec)
 {
 	mV[VX] = vec[VX];

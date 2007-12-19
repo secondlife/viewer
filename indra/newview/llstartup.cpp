@@ -2304,7 +2304,7 @@ BOOL idle_startup()
 		audio_update_volume();
 
 		// reset keyboard focus to sane state of pointing at world
-		gFocusMgr.setKeyboardFocus(NULL, NULL);
+		gFocusMgr.setKeyboardFocus(NULL);
 
 #if 0 // sjb: enable for auto-enabling timer display 
 		gDebugView->mFastTimerView->setVisible(TRUE);

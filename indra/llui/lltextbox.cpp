@@ -56,6 +56,7 @@ LLTextBox::LLTextBox(const LLString& name, const LLRect& rect, const LLString& t
 	mBorderVisible( FALSE ),
 	mFontStyle(LLFontGL::DROP_SHADOW_SOFT),
 	mBorderDropShadowVisible( FALSE ),
+	mUseEllipses( FALSE ),
 	mHPad(0),
 	mVPad(0),
 	mHAlign( LLFontGL::LEFT ),
@@ -84,6 +85,7 @@ LLTextBox::LLTextBox(const LLString& name, const LLString& text, F32 max_width,
 	mBorderVisible(FALSE),
 	mFontStyle(LLFontGL::DROP_SHADOW_SOFT),
 	mBorderDropShadowVisible(FALSE),
+	mUseEllipses( FALSE ),
 	mHPad(0),
 	mVPad(0),
 	mHAlign(LLFontGL::LEFT),
@@ -393,7 +395,7 @@ void LLTextBox::drawText( S32 x, S32 y, const LLColor4& color )
 			mFontGL->render(mText.getWString(), cur_pos, (F32)x, (F32)y, color,
 							mHAlign, mVAlign,
 							mFontStyle,
-							line_length, mRect.getWidth(), NULL, TRUE );
+							line_length, mRect.getWidth(), NULL, TRUE, mUseEllipses );
 			cur_pos += line_length + 1;
 			y -= llfloor(mFontGL->getLineHeight());
 		}
@@ -403,7 +405,7 @@ void LLTextBox::drawText( S32 x, S32 y, const LLColor4& color )
 		mFontGL->render(mText.getWString(), 0, (F32)x, (F32)y, color,
 						mHAlign, mVAlign, 
 						mFontStyle,
-						S32_MAX, mRect.getWidth(), NULL, TRUE);
+						S32_MAX, mRect.getWidth(), NULL, TRUE, mUseEllipses);
 	}
 }
 
@@ -481,7 +483,7 @@ LLView* LLTextBox::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *f
 		text_box->mFontStyle = LLFontGL::getStyleFromString(font_style);
 	}
 	
-	BOOL mouse_opaque;
+	BOOL mouse_opaque = text_box->getMouseOpaque();
 	if (node->getAttributeBOOL("mouse_opaque", mouse_opaque))
 	{
 		text_box->setMouseOpaque(mouse_opaque);

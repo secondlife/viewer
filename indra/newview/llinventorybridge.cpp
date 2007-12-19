@@ -3165,7 +3165,7 @@ void LLObjectBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 				std::string(),
 				cb);
 		}
-		gFocusMgr.setKeyboardFocus(NULL, NULL);
+		gFocusMgr.setKeyboardFocus(NULL);
 	}
 	else if ("detach" == action)
 	{

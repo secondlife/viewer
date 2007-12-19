@@ -36,6 +36,7 @@
 #include "v4color.h"
 
 class LLUICtrlFactory;
+class LLImageGL;
 
 class LLSlider : public LLUICtrl
 {
@@ -85,6 +86,7 @@ public:
 
 protected:
 	void			setValueAndCommit(F32 value);
+	void			updateThumbRect();
 
 protected:
 	F32				mValue;
@@ -97,11 +99,14 @@ protected:
 	S32				mMouseOffset;
 	LLRect			mDragStartThumbRect;
 
+	LLImageGL*		mThumbImage;
+	LLImageGL*		mTrackImage;
+	LLImageGL*		mTrackHighlightImage;
+
 	LLRect			mThumbRect;
 	LLColor4		mTrackColor;
 	LLColor4		mThumbOutlineColor;
 	LLColor4		mThumbCenterColor;
-	LLColor4		mDisabledThumbColor;
 	
 	void			(*mMouseDownCallback)(LLUICtrl* ctrl, void* userdata);
 	void			(*mMouseUpCallback)(LLUICtrl* ctrl, void* userdata);

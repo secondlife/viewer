@@ -86,9 +86,15 @@ LLFloaterMyFriends* LLFloaterMyFriends::showInstance(const LLSD& id)
 //static 
 void LLFloaterMyFriends::hideInstance(const LLSD& id)
 {
-	if(instanceVisible(id))
+	LLFloaterMyFriends* floaterp = LLFloaterMyFriends::getInstance();
+
+	if(floaterp->getHost())
 	{
-		LLFloaterChatterBox::hideInstance(LLSD());
+		LLFloaterChatterBox::hideInstance();
+	}
+	else
+	{
+		LLUISingleton<LLFloaterMyFriends>::hideInstance(id);
 	}
 }
 
@@ -124,10 +130,23 @@ LLFloaterChatterBox::LLFloaterChatterBox(const LLSD& seed) :
 	mAutoResize = FALSE;
 
 	gUICtrlFactory->buildFloater(this, "floater_chatterbox.xml", NULL, FALSE);
-	addFloater(LLFloaterMyFriends::getInstance(0), TRUE);
+	if (gSavedSettings.getBOOL("ContactsTornOff"))
+	{
+		LLFloaterMyFriends* floater_contacts = LLFloaterMyFriends::getInstance(0);
+		// add then remove to set up relationship for re-attach
+		addFloater(floater_contacts, FALSE);
+		removeFloater(floater_contacts);
+		// reparent to floater view
+		gFloaterView->addChild(floater_contacts);
+	}
+	else
+	{
+		addFloater(LLFloaterMyFriends::getInstance(0), TRUE);
+	}
+
 	if (gSavedSettings.getBOOL("ChatHistoryTornOff"))
 	{
-		LLFloaterChat* floater_chat = LLFloaterChat::getInstance(LLSD());
+		LLFloaterChat* floater_chat = LLFloaterChat::getInstance();
 		// add then remove to set up relationship for re-attach
 		addFloater(floater_chat, FALSE);
 		removeFloater(floater_chat);
@@ -217,7 +236,7 @@ void LLFloaterChatterBox::draw()
 
 	mActiveVoiceFloater = current_active_floater;
 
-	LLFloater::draw();
+	LLMultiFloater::draw();
 }
 
 void LLFloaterChatterBox::onOpen()
@@ -236,8 +255,15 @@ void LLFloaterChatterBox::removeFloater(LLFloater* floaterp)
 	if (floaterp->getName() == "chat floater")
 	{
 		// only my friends floater now locked
-		mTabContainer->lockTabs(1);
+		mTabContainer->lockTabs(mTabContainer->getNumLockedTabs() - 1);
 		gSavedSettings.setBOOL("ChatHistoryTornOff", TRUE);
+		floaterp->setCanClose(TRUE);
+	}
+	else if (floaterp->getName() == "floater_my_friends")
+	{
+		// only chat floater now locked
+		mTabContainer->lockTabs(mTabContainer->getNumLockedTabs() - 1);
+		gSavedSettings.setBOOL("ContactsTornOff", TRUE);
 		floaterp->setCanClose(TRUE);
 	}
 	LLMultiFloater::removeFloater(floaterp);
@@ -247,17 +273,41 @@ void LLFloaterChatterBox::addFloater(LLFloater* floaterp,
 									BOOL select_added_floater, 
 									LLTabContainerCommon::eInsertionPoint insertion_point)
 {
+	S32 num_locked_tabs = mTabContainer->getNumLockedTabs();
+
+	// already here
+	if (floaterp->getHost() == this) return;
+
 	// make sure my friends and chat history both locked when re-attaching chat history
 	if (floaterp->getName() == "chat floater")
 	{
-		// select my friends tab
-		mTabContainer->selectFirstTab();
-		// add chat history to the right of the my friends tab
-		//*TODO: respect select_added_floater so that we don't leave first tab selected
-		LLMultiFloater::addFloater(floaterp, select_added_floater, LLTabContainer::RIGHT_OF_CURRENT);
+		mTabContainer->unlockTabs();
+		// add chat history as second tab if contact window is present, first tab otherwise
+		if (getChildByName("floater_my_friends", TRUE))
+		{
+			// assuming contacts window is first tab, select it
+			mTabContainer->selectFirstTab();
+			// and add ourselves after
+			LLMultiFloater::addFloater(floaterp, select_added_floater, LLTabContainer::RIGHT_OF_CURRENT);
+		}
+		else
+		{
+			LLMultiFloater::addFloater(floaterp, select_added_floater, LLTabContainer::START);
+		}
+		
 		// make sure first two tabs are now locked
-		mTabContainer->lockTabs(2);
+		mTabContainer->lockTabs(num_locked_tabs + 1);
 		gSavedSettings.setBOOL("ChatHistoryTornOff", FALSE);
+		floaterp->setCanClose(FALSE);
+	}
+	else if (floaterp->getName() == "floater_my_friends")
+	{
+		mTabContainer->unlockTabs();
+		// add contacts window as first tab
+		LLMultiFloater::addFloater(floaterp, select_added_floater, LLTabContainer::START);
+		// make sure first two tabs are now locked
+		mTabContainer->lockTabs(num_locked_tabs + 1);
+		gSavedSettings.setBOOL("ContactsTornOff", FALSE);
 		floaterp->setCanClose(FALSE);
 	}
 	else
@@ -276,24 +326,27 @@ void LLFloaterChatterBox::addFloater(LLFloater* floaterp,
 //static 
 LLFloaterChatterBox* LLFloaterChatterBox::showInstance(const LLSD& seed)
 {
-	LLFloaterChatterBox* floater = LLUISingleton<LLFloaterChatterBox>::showInstance(seed);
+	LLFloaterChatterBox* chatterbox_floater = LLUISingleton<LLFloaterChatterBox>::showInstance(seed);
 
 	// if TRUE, show tab for active voice channel, otherwise, just show last tab
-	if (seed.asBoolean())
+	LLFloater* floater_to_show = NULL;
+	LLUUID session_id = seed.asUUID();
+	if (session_id.notNull())
 	{
-		LLFloater* floater_to_show = getCurrentVoiceFloater();
-		if (floater_to_show)
-		{
-			floater_to_show->open();
-		}
-		else
-		{
-			// just open chatterbox if there is no active voice window
-			LLUISingleton<LLFloaterChatterBox>::getInstance(seed)->open();
-		}
+		floater_to_show = gIMMgr->findFloaterBySession(session_id);
+	}
+
+	if (floater_to_show)
+	{
+		floater_to_show->open();
+	}
+	else
+	{
+		// just open chatterbox to the last selected tab
+		chatterbox_floater->open();
 	}
 	
-	return floater;
+	return chatterbox_floater;
 }
 
 //static

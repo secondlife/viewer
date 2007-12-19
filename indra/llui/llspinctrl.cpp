@@ -128,7 +128,7 @@ LLSpinCtrl::LLSpinCtrl(	const LLString& name, const LLRect& rect, const LLString
 		&LLLineEditor::prevalidateFloat );
 	mEditor->setFollowsLeft();
 	mEditor->setFollowsBottom();
-	mEditor->setFocusReceivedCallback( &LLSpinCtrl::onEditorGainFocus );
+	mEditor->setFocusReceivedCallback( &LLSpinCtrl::onEditorGainFocus, this );
 	//RN: this seems to be a BAD IDEA, as it makes the editor behavior different when it has focus
 	// than when it doesn't.  Instead, if you always have to double click to select all the text, 
 	// it's easier to understand
@@ -137,7 +137,7 @@ LLSpinCtrl::LLSpinCtrl(	const LLString& name, const LLRect& rect, const LLString
 	addChild(mEditor);
 
 	updateEditor();
-	setSpanChildren( TRUE );
+	setUseBoundingRect( TRUE );
 }
 
 LLSpinCtrl::~LLSpinCtrl()
@@ -230,7 +230,7 @@ void LLSpinCtrl::onDownBtn( void *userdata )
 }
 
 // static
-void LLSpinCtrl::onEditorGainFocus( LLUICtrl* caller, void *userdata )
+void LLSpinCtrl::onEditorGainFocus( LLFocusableElement* caller, void *userdata )
 {
 	LLSpinCtrl* self = (LLSpinCtrl*) userdata;
 	llassert( caller == self->mEditor );

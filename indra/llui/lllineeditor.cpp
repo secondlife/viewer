@@ -128,7 +128,7 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 						   S32 max_length_bytes,
 						   void (*commit_callback)(LLUICtrl* caller, void* user_data ),
 						   void (*keystroke_callback)(LLLineEditor* caller, void* user_data ),
-						   void (*focus_lost_callback)(LLUICtrl* caller, void* user_data ),
+						   void (*focus_lost_callback)(LLFocusableElement* caller, void* user_data ),
 						   void* userdata,
 						   LLLinePrevalidateFunc prevalidate_func,
 						   LLViewBorder::EBevel border_bevel,
@@ -351,10 +351,14 @@ void LLLineEditor::setText(const LLStringExplicit &new_text)
 
 	// Check to see if entire field is selected.
 	S32 len = mText.length();
-	BOOL allSelected = (len > 0) && (( mSelectionStart == 0 && mSelectionEnd == len ) 
-		|| ( mSelectionStart == len && mSelectionEnd == 0 ));
+	BOOL all_selected = (len > 0)
+		&& (( mSelectionStart == 0 && mSelectionEnd == len ) 
+			|| ( mSelectionStart == len && mSelectionEnd == 0 ));
 
 	// Do safe truncation so we don't split multi-byte characters
+	// also consider entire string selected when mSelectAllonFocusReceived is set on an empty, focused line editor
+	all_selected = all_selected || (len == 0 && hasFocus() && mSelectAllonFocusReceived);
+
 	LLString truncated_utf8 = new_text;
 	if (truncated_utf8.size() > (U32)mMaxLengthBytes)
 	{	
@@ -362,7 +366,7 @@ void LLLineEditor::setText(const LLStringExplicit &new_text)
 	}
 	mText.assign(truncated_utf8);
 
-	if (allSelected)
+	if (all_selected)
 	{
 		// ...keep whole thing selected
 		selectAll();

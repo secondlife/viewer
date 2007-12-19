@@ -73,7 +73,7 @@ protected:
 	LLColor4		mColor;
 	LLString		mImageName;
 	LLUUID			mImageID;
-	LLPointer<LLImageGL>	mImagep;
+	LLPointer<LLUIImage>	mImagep;
 };
 
 #endif

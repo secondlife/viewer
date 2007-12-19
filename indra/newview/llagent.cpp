@@ -2880,7 +2880,7 @@ void LLAgent::endAnimationUpdateUI()
 		mCameraLag.clearVec();
 
 		// JC - Added for always chat in third person option
-		gFocusMgr.setKeyboardFocus(NULL, NULL);
+		gFocusMgr.setKeyboardFocus(NULL);
 
 		gToolMgr->setCurrentToolset(gMouselookToolset);
 
@@ -4004,7 +4004,7 @@ void LLAgent::changeCameraToMouselook(BOOL animate)
 
 	if( mCameraMode != CAMERA_MODE_MOUSELOOK )
 	{
-		gViewerWindow->setKeyboardFocus( NULL, NULL );
+		gViewerWindow->setKeyboardFocus( NULL );
 		
 		mLastCameraMode = mCameraMode;
 		mCameraMode = CAMERA_MODE_MOUSELOOK;
@@ -4225,7 +4225,7 @@ void LLAgent::changeCameraToCustomizeAvatar(BOOL animate)
 			mbFlagsDirty = TRUE;
 		}
 
-		gViewerWindow->setKeyboardFocus( NULL, NULL );
+		gViewerWindow->setKeyboardFocus( NULL );
 		gViewerWindow->setMouseCapture( NULL );
 
 		LLVOAvatar::onCustomizeStart();
@@ -5224,6 +5224,102 @@ void LLAgent::processAgentDropGroup(LLMessageSystem *msg, void **)
 		llwarns << "processAgentDropGroup, agent is not part of group " << group_id << llendl;
 	}
 }
+
+class LLAgentDropGroupViewerNode : public LLHTTPNode
+{
+	virtual void post(
+		LLHTTPNode::ResponsePtr response,
+		const LLSD& context,
+		const LLSD& input) const
+	{
+
+		if (
+			!input.isMap() ||
+			!input.has("body") )
+		{
+			//what to do with badly formed message?
+			response->status(400);
+			response->result(LLSD("Invalid message parameters"));
+		}
+
+		LLSD body = input["body"];
+		if ( body.has("body") ) 
+		{
+			//stupid message system doubles up the "body"s
+			body = body["body"];
+		}
+
+		if (
+			body.has("AgentData") &&
+			body["AgentData"].isArray() &&
+			body["AgentData"][0].isMap() )
+		{
+			llinfos << "VALID DROP GROUP" << llendl;
+
+			//there is only one set of data in the AgentData block
+			LLSD agent_data = body["AgentData"][0];
+			LLUUID agent_id;
+			LLUUID group_id;
+
+			agent_id = agent_data["AgentID"].asUUID();
+			group_id = agent_data["GroupID"].asUUID();
+
+			if (agent_id != gAgentID)
+			{
+				llwarns
+					<< "AgentDropGroup for agent other than me" << llendl;
+
+				response->notFound();
+				return;
+			}
+
+			// Remove the group if it already exists remove it
+			// and add the new data to pick up changes.
+			LLGroupData gd;
+			gd.mID = group_id;
+			S32 index = gAgent.mGroups.find(gd);
+			if (index != -1)
+			{
+				gAgent.mGroups.remove(index);
+				if (gAgent.getGroupID() == group_id)
+				{
+					gAgent.mGroupID.setNull();
+					gAgent.mGroupPowers = 0;
+					gAgent.mGroupName[0] = '\0';
+					gAgent.mGroupTitle[0] = '\0';
+				}
+		
+				// refresh all group information
+				gAgent.sendAgentDataUpdateRequest();
+
+				gGroupMgr->clearGroupData(group_id);
+				// close the floater for this group, if any.
+				LLFloaterGroupInfo::closeGroup(group_id);
+				// refresh the group panel of the search window,
+				//if necessary.
+				LLFloaterDirectory::refreshGroup(group_id);
+			}
+			else
+			{
+				llwarns
+					<< "AgentDropGroup, agent is not part of group "
+					<< group_id << llendl;
+			}
+
+			response->result(LLSD());
+		}
+		else
+		{
+			//what to do with badly formed message?
+			response->status(400);
+			response->result(LLSD("Invalid message parameters"));
+		}
+	}
+};
+
+LLHTTPRegistration<LLAgentDropGroupViewerNode>
+	gHTTPRegistrationAgentDropGroupViewerNode(
+		"/message/AgentDropGroup");
 
 // static
 void LLAgent::processAgentGroupDataUpdate(LLMessageSystem *msg, void **)

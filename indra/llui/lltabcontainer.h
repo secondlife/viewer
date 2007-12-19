@@ -54,6 +54,7 @@ public:
 	{
 		START,
 		END,
+		LEFT_OF_CURRENT,
 		RIGHT_OF_CURRENT
 	} eInsertionPoint;
 
@@ -91,6 +92,8 @@ public:
 							 eInsertionPoint insertion_point = END) = 0;
 	virtual void		addPlaceholder(LLPanel* child, const LLString& label);
 	virtual void		lockTabs(S32 num_tabs = 0);
+	virtual void		unlockTabs();
+	S32					getNumLockedTabs() { return mLockedTabCount; }
 
 	virtual void		enableTabButton(S32 which, BOOL enable);
 

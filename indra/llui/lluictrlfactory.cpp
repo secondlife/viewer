@@ -173,7 +173,7 @@ std::vector<LLString> LLUICtrlFactory::mXUIPaths;
 class LLUICtrlLocate : public LLUICtrl
 {
 public:
-	LLUICtrlLocate() : LLUICtrl("locate", LLRect(0,0,0,0), FALSE, NULL, NULL) {}
+	LLUICtrlLocate() : LLUICtrl("locate", LLRect(0,0,0,0), FALSE, NULL, NULL) { setTabStop(FALSE); }
 	virtual void draw() { }
 
 	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_LOCATE; }
@@ -181,7 +181,11 @@ public:
 
 	static LLView *fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 	{
+		LLString name("pad");
+		node->getAttributeString("name", name);
+
 		LLUICtrlLocate *new_ctrl = new LLUICtrlLocate();
+		new_ctrl->setName(name);
 		new_ctrl->initFromXML(node, parent);
 		return new_ctrl;
 	}
@@ -196,6 +200,7 @@ LLUICtrlFactory::LLUICtrlFactory()
 	LLUICtrlCreator<LLButton>::registerCreator(LL_BUTTON_TAG, this);
 	LLUICtrlCreator<LLCheckBoxCtrl>::registerCreator(LL_CHECK_BOX_CTRL_TAG, this);
 	LLUICtrlCreator<LLComboBox>::registerCreator(LL_COMBO_BOX_TAG, this);
+	LLUICtrlCreator<LLFlyoutButton>::registerCreator(LL_FLYOUT_BUTTON_TAG, this);
 	LLUICtrlCreator<LLLineEditor>::registerCreator(LL_LINE_EDITOR_TAG, this);
 	LLUICtrlCreator<LLSearchEditor>::registerCreator(LL_SEARCH_EDITOR_TAG, this);
 	LLUICtrlCreator<LLScrollListCtrl>::registerCreator(LL_SCROLL_LIST_CTRL_TAG, this);

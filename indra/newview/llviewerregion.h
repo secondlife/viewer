@@ -109,6 +109,8 @@ public:
 	void setWaterHeight(F32 water_level);
 	F32 getWaterHeight() const;
 
+	BOOL isVoiceEnabled() const;
+
 	void setBillableFactor(F32 billable_factor) { mBillableFactor = billable_factor; }
 	F32 getBillableFactor() 		const 	{ return mBillableFactor; }
 

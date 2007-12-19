@@ -185,7 +185,7 @@ public:
 	// Handle the application becoming active (frontmost) or inactive
 	//BOOL			handleActivate(BOOL activate);
 
-	void			setKeyboardFocus(LLUICtrl* new_focus,void (*on_focus_lost)(LLUICtrl* old_focus));		// new_focus = NULL to release the focus.
+	void			setKeyboardFocus(LLUICtrl* new_focus);		// new_focus = NULL to release the focus.
 	LLUICtrl*		getKeyboardFocus();	
 	BOOL			hasKeyboardFocus( const LLUICtrl* possible_focus ) const;
 	BOOL			childHasKeyboardFocus( const LLView* parent ) const;
@@ -363,10 +363,15 @@ protected:
 class LLBottomPanel : public LLPanel
 {
 public:
-	LLBottomPanel(const LLString& name, const LLRect& rect);
+	LLBottomPanel(const LLRect& rect);
 	void setFocusIndicator(LLView * indicator);
 	LLView * getFocusIndicator() { return mIndicator; }
 	/*virtual*/ void draw();
+
+	static void* createHUD(void* data);
+	static void* createOverlayBar(void* data);
+	static void* createToolBar(void* data);
+
 protected:
 	LLView * mIndicator;
 };

@@ -59,9 +59,6 @@ S32 BTN_HEIGHT		= 0;
 S32 BTN_GRID		= 12;
 S32 BORDER_SIZE = 1;
 
-// static
-LLFrameTimer	LLButton::sFlashingTimer;
-
 LLButton::LLButton(	const LLString& name, const LLRect& rect, const LLString& control_name, void (*click_callback)(void*), void *callback_data)
 :	LLUICtrl(name, rect, TRUE, NULL, NULL),
 	mClickedCallback( click_callback ),
@@ -79,6 +76,7 @@ LLButton::LLButton(	const LLString& name, const LLRect& rect, const LLString& co
 	mImageDisabled( NULL ),
 	mImageDisabledSelected( NULL ),
 	mToggleState( FALSE ),
+	mIsToggle( FALSE ),
 	mScaleImage( TRUE ),
 	mDropShadowedText( TRUE ),
 	mBorderEnabled( FALSE ),
@@ -86,8 +84,6 @@ LLButton::LLButton(	const LLString& name, const LLRect& rect, const LLString& co
 	mHAlign( LLFontGL::HCENTER ),
 	mLeftHPad( LLBUTTON_H_PAD ),
 	mRightHPad( LLBUTTON_H_PAD ),
-	mFixedWidth( 16 ),
-	mFixedHeight( 16 ),
 	mHoverGlowStrength(0.15f),
 	mCurGlowStrength(0.f),
 	mNeedsHighlight(FALSE),
@@ -134,6 +130,7 @@ LLButton::LLButton(const LLString& name, const LLRect& rect,
 	mImageDisabled( NULL ),
 	mImageDisabledSelected( NULL ),
 	mToggleState( FALSE ),
+	mIsToggle( FALSE ),
 	mScaleImage( TRUE ),
 	mDropShadowedText( TRUE ),
 	mBorderEnabled( FALSE ),
@@ -141,8 +138,6 @@ LLButton::LLButton(const LLString& name, const LLRect& rect,
 	mHAlign( LLFontGL::HCENTER ),
 	mLeftHPad( LLBUTTON_H_PAD ), 
 	mRightHPad( LLBUTTON_H_PAD ),
-	mFixedWidth( 16 ),
-	mFixedHeight( 16 ),
 	mHoverGlowStrength(0.25f),
 	mCurGlowStrength(0.f),
 	mNeedsHighlight(FALSE),
@@ -158,15 +153,11 @@ LLButton::LLButton(const LLString& name, const LLRect& rect,
 
 	if( unselected_image_name != "" )
 	{
+		// user-specified image - don't use fixed borders unless requested
 		setImageUnselected(unselected_image_name);
 		setImageDisabled(unselected_image_name);
 		
 		mDisabledImageColor.mV[VALPHA] = 0.5f;
-		mImageDisabled = mImageUnselected;
-		mDisabledImageColor.mV[VALPHA] = 0.5f;
-		// user-specified image - don't use fixed borders unless requested
-		mFixedWidth = 0;
-		mFixedHeight = 0;
 		mScaleImage = FALSE;
 	}
 	else
@@ -177,13 +168,11 @@ LLButton::LLButton(const LLString& name, const LLRect& rect,
 
 	if( selected_image_name != "" )
 	{
+		// user-specified image - don't use fixed borders unless requested
 		setImageSelected(selected_image_name);
 		setImageDisabledSelected(selected_image_name);
 
 		mDisabledImageColor.mV[VALPHA] = 0.5f;
-		// user-specified image - don't use fixed borders unless requested
-		mFixedWidth = 0;
-		mFixedHeight = 0;
 		mScaleImage = FALSE;
 	}
 	else
@@ -273,6 +262,12 @@ void LLButton::onCommit()
 		make_ui_sound("UISndClickRelease");
 	}
 
+	if (mIsToggle)
+	{
+		toggleState();
+	}
+
+	// do this last, as it can result in destroying this button
 	if (mClickedCallback)
 	{
 		(*mClickedCallback)( mCallbackUserData );
@@ -286,6 +281,11 @@ BOOL LLButton::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent)
 	BOOL handled = FALSE;
 	if( getVisible() && mEnabled && !called_from_parent && ' ' == uni_char && !gKeyboard->getKeyRepeated(' '))
 	{
+		if (mIsToggle)
+		{
+			toggleState();
+		}
+
 		if (mClickedCallback)
 		{
 			(*mClickedCallback)( mCallbackUserData );
@@ -302,11 +302,17 @@ BOOL LLButton::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent )
 	{
 		if( mCommitOnReturn && KEY_RETURN == key && mask == MASK_NONE && !gKeyboard->getKeyRepeated(key))
 		{
+			if (mIsToggle)
+			{
+				toggleState();
+			}
+
+			handled = TRUE;
+
 			if (mClickedCallback)
 			{
 				(*mClickedCallback)( mCallbackUserData );
 			}
-			handled = TRUE;
 		}
 	}
 	return handled;
@@ -354,6 +360,9 @@ BOOL LLButton::handleMouseUp(S32 x, S32 y, MASK mask)
 			(*mMouseUpCallback)(mCallbackUserData);
 		}
 
+		mMouseDownTimer.stop();
+		mMouseDownTimer.reset();
+
 		// DO THIS AT THE VERY END to allow the button to be destroyed as a result of being clicked.
 		// If mouseup in the widget, it's been clicked
 		if (pointInView(x, y))
@@ -361,6 +370,11 @@ BOOL LLButton::handleMouseUp(S32 x, S32 y, MASK mask)
 			if (mSoundFlags & MOUSE_UP)
 			{
 				make_ui_sound("UISndClickRelease");
+			}
+
+			if (mIsToggle)
+			{
+				toggleState();
 			}
 
 			if (mClickedCallback)
@@ -422,8 +436,10 @@ void LLButton::draw()
 		BOOL flash = FALSE;
 		if( mFlashing )
 		{
-			F32 elapsed = LLButton::sFlashingTimer.getElapsedTimeF32();
-			flash = S32(elapsed * 2) & 1;
+			F32 elapsed = mFlashingTimer.getElapsedTimeF32();
+			S32 flash_count = S32(elapsed * LLUI::sConfigGroup->getF32("ButtonFlashRate") * 2.f);
+			// flash on or off?
+			flash = (flash_count % 2 == 0) || flash_count > (F32)LLUI::sConfigGroup->getS32("ButtonFlashCount");
 		}
 
 		BOOL pressed_by_keyboard = FALSE;
@@ -443,24 +459,14 @@ void LLButton::draw()
 		cursor_pos_gl.mY = llround((F32)cursor_pos_gl.mY / LLUI::sGLScaleFactor.mV[VY]);
 		screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &local_mouse_x, &local_mouse_y);
 
-		BOOL pressed = pressed_by_keyboard || (hasMouseCapture() && pointInView(local_mouse_x, local_mouse_y));
-
-		BOOL display_state = FALSE;
-		if( pressed )
-		{
-			mImagep = mImageSelected;
-			// show the resulting state after releasing the mouse button while it is down
-			display_state = mToggleState ? FALSE : TRUE;
-		}
-		else
-		{
-			display_state = mToggleState || flash;
-		}
+		BOOL pressed = pressed_by_keyboard 
+						|| (hasMouseCapture() && pointInView(local_mouse_x, local_mouse_y)) 
+						|| mToggleState;
 		
 		BOOL use_glow_effect = FALSE;
-		if ( mNeedsHighlight )
+		if ( mNeedsHighlight || flash )
 		{
-			if (display_state)
+			if (pressed)
 			{
 				if (mImageHoverSelected)
 				{
@@ -485,7 +491,7 @@ void LLButton::draw()
 				}
 			}
 		}
-		else if ( display_state )
+		else if ( pressed )
 		{
 			mImagep = mImageSelected;
 		}
@@ -499,11 +505,11 @@ void LLButton::draw()
 		//   enabled and tentative
 		// or
 		//   disabled but checked
-		if (!mImageDisabledSelected.isNull() && ( (mEnabled && mTentative) || (!mEnabled && display_state ) ) )
+		if (!mImageDisabledSelected.isNull() && ( (mEnabled && mTentative) || (!mEnabled && pressed ) ) )
 		{
 			mImagep = mImageDisabledSelected;
 		}
-		else if (!mImageDisabled.isNull() && !mEnabled && !display_state)
+		else if (!mImageDisabled.isNull() && !mEnabled && !pressed)
 		{
 			mImagep = mImageDisabled;
 		}
@@ -516,33 +522,34 @@ void LLButton::draw()
 		// Figure out appropriate color for the text
 		LLColor4 label_color;
 
+		// label changes when button state changes, not when pressed
 		if ( mEnabled )
 		{
-			if ( !display_state )
+			if ( mToggleState )
 			{
-				label_color = mUnselectedLabelColor;
+				label_color = mSelectedLabelColor;
 			}
 			else
 			{
-				label_color = mSelectedLabelColor;
+				label_color = mUnselectedLabelColor;
 			}
 		}
 		else
 		{
-			if ( !display_state )
+			if ( mToggleState )
 			{
-				label_color = mDisabledLabelColor;
+				label_color = mDisabledSelectedLabelColor;
 			}
 			else
 			{
-				label_color = mDisabledSelectedLabelColor;
+				label_color = mDisabledLabelColor;
 			}
 		}
 
 		// Unselected label assignments
 		LLWString label;
 
-		if( display_state )
+		if( mToggleState )
 		{
 			if( mEnabled || mDisabledSelectedLabel.empty() )
 			{
@@ -591,24 +598,22 @@ void LLButton::draw()
 		// Otherwise draw basic rectangular button.
 		if( mImagep.notNull() && !mScaleImage)
 		{
-			gl_draw_image( 0, 0, mImagep, mEnabled ? mImageColor : mDisabledImageColor );
+			mImagep->draw(0, 0, mEnabled ? mImageColor : mDisabledImageColor );
 			if (mCurGlowStrength > 0.01f)
 			{
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-				gl_draw_scaled_image_with_border(0, 0, 0, 0, mImagep->getWidth(), mImagep->getHeight(), mImagep, LLColor4(1.f, 1.f, 1.f, mCurGlowStrength), TRUE);
+				mImagep->drawSolid(0, 0, LLColor4(1.f, 1.f, 1.f, mCurGlowStrength));
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			}
 		}
 		else
 		if ( mImagep.notNull() && mScaleImage)
 		{
-			gl_draw_scaled_image_with_border(0, 0, mFixedWidth, mFixedHeight, mRect.getWidth(), mRect.getHeight(), 
-											mImagep, mEnabled ? mImageColor : mDisabledImageColor  );
+			mImagep->draw(0, 0, mRect.getWidth(), mRect.getHeight(), mEnabled ? mImageColor : mDisabledImageColor  );
 			if (mCurGlowStrength > 0.01f)
 			{
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-				gl_draw_scaled_image_with_border(0, 0, mFixedWidth, mFixedHeight, mRect.getWidth(), mRect.getHeight(), 
-											mImagep, LLColor4(1.f, 1.f, 1.f, mCurGlowStrength), TRUE);
+				mImagep->drawSolid(0, 0, mRect.getWidth(), mRect.getHeight(), LLColor4(1.f, 1.f, 1.f, mCurGlowStrength));
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			}
 		}
@@ -620,13 +625,17 @@ void LLButton::draw()
 			gl_rect_2d(0, mRect.getHeight(), mRect.getWidth(), 0, LLColor4::pink1, FALSE);
 		}
 
+		// let overlay image and text play well together
+		S32 text_left = mLeftHPad;
+		S32 text_right = mRect.getWidth() - mRightHPad;
+		S32 text_width = mRect.getWidth() - mLeftHPad - mRightHPad;
+
 		// draw overlay image
 		if (mImageOverlay.notNull())
 		{
-			const S32 IMG_PAD = 5;
 			// get max width and height (discard level 0)
-			S32 overlay_width = mImageOverlay->getWidth(0);
-			S32 overlay_height = mImageOverlay->getHeight(0);
+			S32 overlay_width = mImageOverlay->getWidth();
+			S32 overlay_height = mImageOverlay->getHeight();
 
 			F32 scale_factor = llmin((F32)mRect.getWidth() / (F32)overlay_width, (F32)mRect.getHeight() / (F32)overlay_height, 1.f);
 			overlay_width = llround((F32)overlay_width * scale_factor);
@@ -635,34 +644,49 @@ void LLButton::draw()
 			S32 center_x = getLocalRect().getCenterX();
 			S32 center_y = getLocalRect().getCenterY();
 
+			//FUGLY HACK FOR "DEPRESSED" BUTTONS
+			if (pressed)
+			{
+				center_y--;
+				center_x++;
+			}
+
+			// fade out overlay images on disabled buttons
+			LLColor4 overlay_color = mImageOverlayColor;
+			if (!getEnabled())
+			{
+				overlay_color.mV[VALPHA] = 0.5f;
+			}
+
 			switch(mImageOverlayAlignment)
 			{
 			case LLFontGL::LEFT:
-				gl_draw_scaled_image(
-					IMG_PAD, 
+				text_left += overlay_width + 1;
+				text_width -= overlay_width + 1;
+				mImageOverlay->draw(
+					mLeftHPad, 
 					center_y - (overlay_height / 2), 
 					overlay_width, 
 					overlay_height, 
-					mImageOverlay,
-					mImageOverlayColor);
+					overlay_color);
 				break;
 			case LLFontGL::HCENTER:
-				gl_draw_scaled_image(
+				mImageOverlay->draw(
 					center_x - (overlay_width / 2), 
 					center_y - (overlay_height / 2), 
 					overlay_width, 
 					overlay_height, 
-					mImageOverlay,
-					mImageOverlayColor);
+					overlay_color);
 				break;
 			case LLFontGL::RIGHT:
-				gl_draw_scaled_image(
-					mRect.getWidth() - IMG_PAD - overlay_width, 
+				text_right -= overlay_width + 1;				
+				text_width -= overlay_width + 1;
+				mImageOverlay->draw(
+					mRect.getWidth() - mRightHPad - overlay_width, 
 					center_y - (overlay_height / 2), 
 					overlay_width, 
 					overlay_height, 
-					mImageOverlay,
-					mImageOverlayColor);
+					overlay_color);
 				break;
 			default:
 				// draw nothing
@@ -673,28 +697,26 @@ void LLButton::draw()
 		// Draw label
 		if( !label.empty() )
 		{
-			S32 drawable_width = mRect.getWidth() - mLeftHPad - mRightHPad;
-
 			LLWString::trim(label);
 
 			S32 x;
 			switch( mHAlign )
 			{
 			case LLFontGL::RIGHT:
-				x = mRect.getWidth() - mRightHPad;
+				x = text_right;
 				break;
 			case LLFontGL::HCENTER:
 				x = mRect.getWidth() / 2;
 				break;
 			case LLFontGL::LEFT:
 			default:
-				x = mLeftHPad;
+				x = text_left;
 				break;
 			}
 
 			S32 y_offset = 2 + (mRect.getHeight() - 20)/2;
 		
-			if (pressed || display_state)
+			if (pressed)
 			{
 				y_offset--;
 				x++;
@@ -704,7 +726,7 @@ void LLButton::draw()
 				label_color,
 				mHAlign, LLFontGL::BOTTOM,
 				mDropShadowedText ? LLFontGL::DROP_SHADOW_SOFT : LLFontGL::NORMAL,
-				U32_MAX, drawable_width,
+				U32_MAX, text_width,
 				NULL, FALSE, FALSE);
 		}
 
@@ -733,13 +755,11 @@ void LLButton::drawBorder(const LLColor4& color, S32 size)
 
 	if (mScaleImage)
 	{
-		gl_draw_scaled_image_with_border(left, bottom, mFixedWidth, mFixedHeight, right-left, top-bottom, 
-								mImagep, color, TRUE );
+		mImagep->drawSolid(left, bottom, right-left, top-bottom, color);
 	}
 	else
 	{
-		gl_draw_scaled_image_with_border(left, bottom, 0, 0, mImagep->getWidth() + size * 2, 
-								mImagep->getHeight() + size * 2, mImagep, color, TRUE );
+		mImagep->drawSolid(left, bottom, mImagep->getWidth() + size * 2, mImagep->getHeight() + size * 2, color);
 	}
 }
 
@@ -763,6 +783,22 @@ void LLButton::setToggleState(BOOL b)
 	}
 }
 
+void LLButton::setFlashing( BOOL b )	
+{ 
+	if (b != mFlashing)
+	{
+		mFlashing = b; 
+		mFlashingTimer.reset();
+	}
+}
+
+
+BOOL LLButton::toggleState()			
+{ 
+	setToggleState( !mToggleState ); 
+	return mToggleState; 
+}
+
 void LLButton::setValue(const LLSD& value )
 {
 	mToggleState = value.asBoolean();
@@ -770,7 +806,7 @@ void LLButton::setValue(const LLSD& value )
 
 LLSD LLButton::getValue() const
 {
-	return mToggleState;
+	return mToggleState == TRUE;
 }
 
 void LLButton::setLabel( const LLStringExplicit& label )
@@ -807,10 +843,9 @@ void LLButton::setDisabledSelectedLabel( const LLStringExplicit& label )
 	mDisabledSelectedLabel = label;
 }
 
-void LLButton::setImageUnselectedID( const LLUUID &image_id )
-{	
-	mImageUnselectedName = "";
-	mImageUnselected = LLUI::sImageProvider->getUIImageByID(image_id);
+void LLButton::setImageUnselected(LLPointer<LLUIImage> image)
+{
+	mImageUnselected = image;
 }
 
 void LLButton::setImages( const LLString &image_name, const LLString &selected_name )
@@ -820,10 +855,9 @@ void LLButton::setImages( const LLString &image_name, const LLString &selected_n
 
 }
 
-void LLButton::setImageSelectedID( const LLUUID &image_id )
+void LLButton::setImageSelected(LLPointer<LLUIImage> image)
 {
-	mImageSelectedName = "";
-	mImageSelected = LLUI::sImageProvider->getUIImageByID(image_id);
+	mImageSelected = image;
 }
 
 void LLButton::setImageColor(const LLColor4& c)		
@@ -831,19 +865,22 @@ void LLButton::setImageColor(const LLColor4& c)
 	mImageColor = c; 
 }
 
-
-void LLButton::setImageDisabledID( const LLUUID &image_id )
+void LLButton::setColor(const LLColor4& color)
 {
-	mImageDisabledName = "";
-	mImageDisabled = LLUI::sImageProvider->getUIImageByID(image_id);
+	setImageColor(color);
+}
+
+
+void LLButton::setImageDisabled(LLPointer<LLUIImage> image)
+{
+	mImageDisabled = image;
 	mDisabledImageColor = mImageColor;
 	mDisabledImageColor.mV[VALPHA] *= 0.5f;
 }
 
-void LLButton::setImageDisabledSelectedID( const LLUUID &image_id )
-{	
-	mImageDisabledSelectedName = "";
-	mImageDisabledSelected = LLUI::sImageProvider->getUIImageByID(image_id);
+void LLButton::setImageDisabledSelected(LLPointer<LLUIImage> image)
+{
+	mImageDisabledSelected = image;
 	mDisabledImageColor = mImageColor;
 	mDisabledImageColor.mV[VALPHA] *= 0.5f;
 }
@@ -855,11 +892,9 @@ void LLButton::setDisabledImages( const LLString &image_name, const LLString &se
 	mDisabledImageColor = c;
 }
 
-
-void LLButton::setImageHoverSelectedID( const LLUUID& image_id )
+void LLButton::setImageHoverSelected(LLPointer<LLUIImage> image)
 {
-	mImageHoverSelectedName = "";
-	mImageHoverSelected = LLUI::sImageProvider->getUIImageByID(image_id);
+	mImageHoverSelected = image;
 }
 
 void LLButton::setDisabledImages( const LLString &image_name, const LLString &selected_name)
@@ -869,10 +904,9 @@ void LLButton::setDisabledImages( const LLString &image_name, const LLString &se
 	setDisabledImages( image_name, selected_name, clr );
 }
 
-void LLButton::setImageHoverUnselectedID( const LLUUID& image_id )
+void LLButton::setImageHoverUnselected(LLPointer<LLUIImage> image)
 {
-	mImageHoverUnselectedName = "";
-	mImageHoverUnselected = LLUI::sImageProvider->getUIImageByID(image_id);
+	mImageHoverUnselected = image;
 }
 
 void LLButton::setHoverImages( const LLString& image_name, const LLString& selected_name )
@@ -889,8 +923,7 @@ void LLButton::setImageOverlay(const LLString &image_name, LLFontGL::HAlign alig
 	}
 	else
 	{
-		LLUUID overlay_image_id = LLUI::findAssetUUIDByName(image_name);
-		mImageOverlay = LLUI::sImageProvider->getUIImageByID(overlay_image_id);
+		mImageOverlay = LLUI::getUIImageByName(image_name);
 		mImageOverlayAlignment = alignment;
 		mImageOverlayColor = color;
 	}
@@ -901,34 +934,6 @@ void LLButton::onMouseCaptureLost()
 {
 	mMouseDownTimer.stop();
 	mMouseDownTimer.reset();
-}
-
-//-------------------------------------------------------------------------
-// LLSquareButton
-//-------------------------------------------------------------------------
-LLSquareButton::LLSquareButton(const LLString& name, const LLRect& rect, 
-		const LLString& label,
-		const LLFontGL *font,
-		const LLString& control_name,	
-		void (*click_callback)(void*),
-		void *callback_data,
-		const LLString& selected_label )
-:	LLButton(name, rect, "","", 
-			control_name, 
-			click_callback, callback_data,
-			font,
-			label, 
-			(selected_label.empty() ? label : selected_label) )
-{ 
-	setImageUnselected("square_btn_32x128.tga");
-	//	mImageUnselected = LLUI::sImageProvider->getUIImageByID(LLUUID(LLUI::sAssetsGroup->getString("square_btn_32x128.tga")));
-	setImageSelected("square_btn_selected_32x128.tga");
-	//	mImageSelectedImage = LLUI::sImageProvider->getUIImageByID(LLUUID(LLUI::sAssetsGroup->getString("square_btn_selected_32x128.tga")));
-	setImageDisabled("square_btn_32x128.tga");
-	//mDisabledImage = LLUI::sImageProvider->getUIImageByID(LLUUID(LLUI::sAssetsGroup->getString("square_btn_32x128.tga")));
-	setImageDisabledSelected("square_btn_selected_32x128.tga");
-	//mDisabledSelectedImage = LLUI::sImageProvider->getUIImageByID(LLUUID(LLUI::sAssetsGroup->getString("square_btn_selected_32x128.tga")));
-	mImageColor = LLUI::sColorsGroup->getColor("ButtonColor");
 }
 
 //-------------------------------------------------------------------------
@@ -951,37 +956,37 @@ S32 round_up(S32 grid, S32 value)
 
 void			LLButton::setImageUnselected(const LLString &image_name)
 {	
-	setImageUnselectedID(LLUI::findAssetUUIDByName(image_name));
+	setImageUnselected(LLUI::getUIImageByName(image_name));
 	mImageUnselectedName = image_name;
 }
 
 void			LLButton::setImageSelected(const LLString &image_name)
 {	
-	setImageSelectedID(LLUI::findAssetUUIDByName(image_name));
+	setImageSelected(LLUI::getUIImageByName(image_name));
 	mImageSelectedName = image_name;
 }
 
 void			LLButton::setImageHoverSelected(const LLString &image_name)
 {
-	setImageHoverSelectedID(LLUI::findAssetUUIDByName(image_name));
+	setImageHoverSelected(LLUI::getUIImageByName(image_name));
 	mImageHoverSelectedName = image_name;
 }
 
 void			LLButton::setImageHoverUnselected(const LLString &image_name)
 {
-	setImageHoverUnselectedID(LLUI::findAssetUUIDByName(image_name));
+	setImageHoverUnselected(LLUI::getUIImageByName(image_name));
 	mImageHoverUnselectedName = image_name;
 }
 
 void			LLButton::setImageDisabled(const LLString &image_name)
 {
-	setImageDisabledID(LLUI::findAssetUUIDByName(image_name));
+	setImageDisabled(LLUI::getUIImageByName(image_name));
 	mImageDisabledName = image_name;
 }
 
 void			LLButton::setImageDisabledSelected(const LLString &image_name)
 {
-	setImageDisabledSelectedID(LLUI::findAssetUUIDByName(image_name));
+	setImageDisabledSelected(LLUI::getUIImageByName(image_name));
 	mImageDisabledSelectedName = image_name;
 }
 
@@ -1009,8 +1014,6 @@ LLXMLNodePtr LLButton::getXML(bool save_children) const
 	node->createChild("label_selected", TRUE)->setStringValue(getLabelSelected());
 	node->createChild("font", TRUE)->setStringValue(LLFontGL::nameFromFont(mGLFont));
 	node->createChild("halign", TRUE)->setStringValue(LLFontGL::nameFromHAlign(mHAlign));
-	node->createChild("border_width", TRUE)->setIntValue(mFixedWidth);
-	node->createChild("border_height", TRUE)->setIntValue(mFixedHeight);
 
 	addImageAttributeToXML(node,mImageUnselectedName,mImageUnselectedID,"image_unselected");
 	addImageAttributeToXML(node,mImageSelectedName,mImageSelectedID,"image_selected");
@@ -1092,8 +1095,12 @@ LLView* LLButton::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *fa
 			label,
 			label_selected);
 
-	node->getAttributeS32("border_width", button->mFixedWidth);
-	node->getAttributeS32("border_height", button->mFixedHeight);
+	node->getAttributeS32("pad_right", button->mRightHPad);
+	node->getAttributeS32("pad_left", button->mLeftHPad);
+
+	BOOL is_toggle = button->getIsToggle();
+	node->getAttributeBOOL("toggle", is_toggle);
+	button->setIsToggle(is_toggle);
 
 	if(image_hover_selected != LLString::null) button->setImageHoverSelected(image_hover_selected);
 	

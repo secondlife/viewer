@@ -93,51 +93,20 @@ private:
 // Functions
 //
 
-//inline constructor
-// for chat bars embedded in floaters, etc
-LLChatBar::LLChatBar(const std::string& name) 
-:	LLPanel(name, LLRect(), BORDER_NO),
+LLChatBar::LLChatBar() 
+:	LLPanel("", LLRect(), BORDER_NO),
 	mInputEditor(NULL),
 	mGestureLabelTimer(),
 	mLastSpecialChatChannel(0),
 	mIsBuilt(FALSE),
-	mDynamicLayout(FALSE),
-	mGestureCombo(NULL),
-	mObserver(NULL)
-{
-}
-
-LLChatBar::LLChatBar(const std::string& name, const LLRect& rect) 
-:	LLPanel(name, rect, BORDER_NO),
-	mInputEditor(NULL),
-	mGestureLabelTimer(),
-	mLastSpecialChatChannel(0),
-	mIsBuilt(FALSE),
-	mDynamicLayout(TRUE),
 	mGestureCombo(NULL),
 	mObserver(NULL)
 {
 	setIsChrome(TRUE);
 	
-	gUICtrlFactory->buildPanel(this,"panel_chat_bar.xml");
-	
-	mIsFocusRoot = TRUE;
-
-	setRect(rect); // override xml rect
-	
-	setBackgroundOpaque(TRUE);
-	setBackgroundVisible(TRUE);
-
-	// Start visible if we left the app while chatting.
-	setVisible( gSavedSettings.getBOOL("ChatVisible") );
-
-	// Apply custom layout.
-	layout();
-
-#if !LL_RELEASE_FOR_DOWNLOAD
+	#if !LL_RELEASE_FOR_DOWNLOAD
 	childDisplayNotFound();
 #endif
-	
 }
 
 
@@ -151,25 +120,18 @@ LLChatBar::~LLChatBar()
 BOOL LLChatBar::postBuild()
 {
 	childSetAction("History", toggleChatHistory, this);
-	childSetAction("Say", onClickSay, this);
-	childSetAction("Shout", onClickShout, this);
+	childSetCommitCallback("Say", onClickSay, this);
 
 	// attempt to bind to an existing combo box named gesture
 	setGestureCombo(LLUICtrlFactory::getComboBoxByName(this, "Gesture"));
-
-	LLButton * sayp = static_cast<LLButton*>(getChildByName("Say", TRUE));
-	if(sayp)
-	{
-		setDefaultBtn(sayp);
-	}
 
 	mInputEditor = LLUICtrlFactory::getLineEditorByName(this, "Chat Editor");
 	if (mInputEditor)
 	{
 		mInputEditor->setCallbackUserData(this);
 		mInputEditor->setKeystrokeCallback(&onInputEditorKeystroke);
-		mInputEditor->setFocusLostCallback(&onInputEditorFocusLost);
-		mInputEditor->setFocusReceivedCallback( &onInputEditorGainFocus );
+		mInputEditor->setFocusLostCallback(&onInputEditorFocusLost, this);
+		mInputEditor->setFocusReceivedCallback( &onInputEditorGainFocus, this );
 		mInputEditor->setCommitOnFocusLost( FALSE );
 		mInputEditor->setRevertOnEsc( FALSE );
 		mInputEditor->setIgnoreTab(TRUE);
@@ -189,16 +151,6 @@ BOOL LLChatBar::postBuild()
 //-----------------------------------------------------------------------
 
 // virtual
-void LLChatBar::reshape(S32 width, S32 height, BOOL called_from_parent)
-{
-	LLPanel::reshape(width, height, called_from_parent);
-	if (mIsBuilt)
-	{
-		layout();
-	}
-}
-
-// virtual
 BOOL LLChatBar::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 {
 	BOOL handled = FALSE;
@@ -208,13 +160,6 @@ BOOL LLChatBar::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 		// ALT-RETURN is reserved for windowed/fullscreen toggle
 		if( KEY_RETURN == key )
 		{
-			//if (childGetValue("Chat Editor").asString().empty())
-			//{
-			//	// no text, just close chat bar
-			//	stopChat();
-			//	return TRUE;
-			//}
-
 			if (mask == MASK_CONTROL)
 			{
 				// shout
@@ -239,78 +184,8 @@ BOOL LLChatBar::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 	return handled;
 }
 
-
-void LLChatBar::layout()
-{
-	if (!mDynamicLayout) return;
-
-	S32 rect_width = mRect.getWidth();
-	S32 count = 9; // number of elements in LLToolBar
-	S32 pad = 4;
-
-	LLRect gesture_rect;
-	S32 gesture_width = 0;
-	if (childGetRect("Gesture", gesture_rect))
-	{
-		gesture_width = gesture_rect.getWidth();
-	}
-	F32 segment_width = (F32)(rect_width - (pad + gesture_width)) / (F32)count;
-
-	S32 btn_width = lltrunc(segment_width-pad);
-
-	S32 x = 0;
-	S32 y = 1;
-	LLRect r;
-
-	x = llround(0 * segment_width);
-	r.setOriginAndSize(x, y, btn_width, BTN_HEIGHT);
-	childSetRect("History", r);
-
-	x = llround(1 * segment_width);
-	// Hack this one up so it looks nice.
-	if (mInputEditor)
-	{
-		r.setOriginAndSize(x, y+2, llfloor(6*segment_width-pad), 18);
-		mInputEditor->reshape(r.getWidth(), r.getHeight(), TRUE);
-		mInputEditor->setRect(r);
-	}
-	
-	x = llround(7 * segment_width);
-	r.setOriginAndSize(x, y, btn_width, BTN_HEIGHT);
-	childSetRect("Say", r);
-
-	x = llround(8 * segment_width);
-	r.setOriginAndSize(x, y, btn_width, BTN_HEIGHT);
-	childSetRect("Shout", r);
-
-	x = rect_width - (pad + gesture_width);
-	r.setOriginAndSize(x, y, gesture_width, BTN_HEIGHT);
-	childSetRect("Gesture", r);
-}
-
-
 void LLChatBar::refresh()
 {
-	//BOOL chat_mode = gSavedSettings.getBOOL("ChatVisible");
-
-	//// Grab focus when no one else has it, and we're in chat mode.
-	//if (!gFocusMgr.getKeyboardFocus()
-	//	&& chat_mode)
-	//{
-	//	childSetFocus("Chat Editor", TRUE);
-	//}
-
-	// Only show this view when user wants to be chatting
-	//setVisible(chat_mode);
-
-	// hide in mouselook, but keep previous visibility state
-	//BOOL mouselook = gAgent.cameraMouselook();
-	// call superclass setVisible so that we don't overwrite the saved setting
-	if (mDynamicLayout)
-	{
-		LLPanel::setVisible(gSavedSettings.getBOOL("ChatVisible"));
-	}
-
 	// HACK: Leave the name of the gesture in place for a few seconds.
 	const F32 SHOW_GESTURE_NAME_TIME = 2.f;
 	if (mGestureLabelTimer.getStarted() && mGestureLabelTimer.getElapsedTimeF32() > SHOW_GESTURE_NAME_TIME)
@@ -584,12 +459,7 @@ void LLChatBar::stopChat()
 
 	// hide chat bar so it doesn't grab focus back
 	gChatBar->setVisible(FALSE);
-}
-
-void LLChatBar::setVisible(BOOL visible)
-{
-	gSavedSettings.setBOOL("ChatVisible", visible);
-	LLPanel::setVisible(visible);
+	gSavedSettings.setBOOL("ChatVisible", FALSE);
 }
 
 // static
@@ -663,30 +533,30 @@ void LLChatBar::onInputEditorKeystroke( LLLineEditor* caller, void* userdata )
 }
 
 // static
-void LLChatBar::onInputEditorFocusLost( LLUICtrl* caller, void* userdata)
+void LLChatBar::onInputEditorFocusLost( LLFocusableElement* caller, void* userdata)
 {
 	// stop typing animation
 	gAgent.stopTyping();
 }
 
 // static
-void LLChatBar::onInputEditorGainFocus( LLUICtrl* caller, void* userdata )
+void LLChatBar::onInputEditorGainFocus( LLFocusableElement* caller, void* userdata )
 {
 	LLFloaterChat::setHistoryCursorAndScrollToEnd();
 }
 
 // static
-void LLChatBar::onClickSay( void* userdata )
+void LLChatBar::onClickSay( LLUICtrl* ctrl, void* userdata )
 {
 	LLChatBar* self = (LLChatBar*) userdata;
-	self->sendChat( CHAT_TYPE_NORMAL );
-}
-
-// static
-void LLChatBar::onClickShout( void* userdata )
-{
-	LLChatBar *self = (LLChatBar *)userdata;
-	self->sendChat( CHAT_TYPE_SHOUT );
+	if (ctrl->getValue().asString() == "shout")
+	{
+		self->sendChat( CHAT_TYPE_SHOUT );
+	}
+	else
+	{
+		self->sendChat( CHAT_TYPE_NORMAL );
+	}
 }
 
 void LLChatBar::sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate)

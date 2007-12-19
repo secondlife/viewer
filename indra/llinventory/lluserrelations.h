@@ -142,8 +142,18 @@ public:
 	 */
 	S32 getRightsGrantedFrom() const;
 
-	void setRightsTo(S32 to_agent) { mGrantToAgent = to_agent; }
-	void setRightsFrom(S32 from_agent) { mGrantFromAgent = from_agent; }
+	void setRightsTo(S32 to_agent) { mGrantToAgent = to_agent; mChangeSerialNum++; }
+	void setRightsFrom(S32 from_agent) { mGrantFromAgent = from_agent; mChangeSerialNum++;}
+
+	/**
+	 * @brief Get the change count for this agent
+	 *
+	 * Every change to rights will increment the serial number
+	 * allowing listeners to determine when a relationship value is actually new
+	 *
+	 * @return change serial number for relationship
+	 */
+	S32 getChangeSerialNum() const { return mChangeSerialNum; }
 
 	/**
 	 * @brief Grant a set of rights.
@@ -171,6 +181,7 @@ public:
 protected:
 	S32 mGrantToAgent;
 	S32 mGrantFromAgent;
+	S32 mChangeSerialNum;
 	bool mIsOnline;
 };
 

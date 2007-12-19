@@ -54,7 +54,7 @@ class LLOverlayBar
 :	public LLPanel
 {
 public:
-	LLOverlayBar(const std::string& name, const LLRect& rect );
+	LLOverlayBar();
 	~LLOverlayBar();
 
 	virtual EWidgetType getWidgetType() const;
@@ -63,6 +63,7 @@ public:
 	/*virtual*/ void refresh();
 	/*virtual*/ void draw();
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
+	/*virtual*/ BOOL postBuild();
 
 	void layoutButtons();
 
@@ -79,27 +80,16 @@ public:
 
 	//static media helper functions
 	static void mediaPlay(void*);
-	static void mediaPause(void*);
-	static void mediaStop(void*);
-	
 	static void musicPlay(void*);
-	static void musicPause(void*);
-	static void musicStop(void*);
 
-	static void toggleAudioVolumeFloater(void*);
-	
-	static void enableMediaButtons(LLPanel* panel);
-	static void enableMusicButtons(LLPanel* panel);
-	
 protected:	
-	static void* createMasterRemote(void* userdata);
-	static void* createMusicRemote(void* userdata);
 	static void* createMediaRemote(void* userdata);
 	static void* createVoiceRemote(void* userdata);
+	static void* createChatBar(void* userdata);
+
+	void enableMediaButtons();
 
 protected:
-	LLMediaRemoteCtrl*	mMasterRemote;
-	LLMediaRemoteCtrl*	mMusicRemote;
 	LLMediaRemoteCtrl*	mMediaRemote;
 	LLVoiceRemoteCtrl*	mVoiceRemote;
 	bool mBuilt;	// dialog constructed yet?

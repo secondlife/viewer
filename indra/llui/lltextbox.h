@@ -79,6 +79,7 @@ public:
 	void			setText( const LLStringExplicit& text );
 	void			setWrappedText(const LLStringExplicit& text, F32 max_width = -1.0);
 						// default width means use existing control width
+	void			setUseEllipses( BOOL use_ellipses )		{ mUseEllipses = use_ellipses; }
 	
 	void			setBackgroundVisible(BOOL visible)		{ mBackgroundVisible = visible; }
 	void			setBorderVisible(BOOL visible)			{ mBorderVisible = visible; }
@@ -124,6 +125,7 @@ protected:
 	
 	U8				mFontStyle; // style bit flags for font
 	BOOL			mBorderDropShadowVisible;
+	BOOL			mUseEllipses;
 
 	S32				mHPad;
 	S32				mVPad;

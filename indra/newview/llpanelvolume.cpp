@@ -171,7 +171,7 @@ void LLPanelVolume::getState( )
 		//forfeit focus
 		if (gFocusMgr.childHasKeyboardFocus(this))
 		{
-			gFocusMgr.setKeyboardFocus(NULL, NULL);
+			gFocusMgr.setKeyboardFocus(NULL);
 		}
 
 		// Disable all text input fields

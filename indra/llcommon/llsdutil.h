@@ -91,4 +91,14 @@ char* ll_print_sd(const LLSD& sd);
 // Serializes sd to static buffer and returns pointer, using "pretty printing" mode.
 char* ll_pretty_print_sd(const LLSD& sd);
 
+//compares the structure of an LLSD to a template LLSD and stores the
+//"valid" values in a 3rd LLSD. Default values
+//are pulled from the template.  Ordering of arrays matters
+//Returns false if the test is of same type but values differ in type
+//Otherwise, returns true
+BOOL compare_llsd_with_template(
+	const LLSD& llsd_to_test,
+	const LLSD& template_llsd,
+	LLSD& resultant_llsd);
+
 #endif // LL_LLSDUTIL_H

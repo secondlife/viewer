@@ -113,7 +113,7 @@ public:
 	virtual void	draw();
 
 	static void		onEditorCommit(LLUICtrl* caller, void* userdata);
-	static void		onEditorGainFocus(LLUICtrl* caller, void *userdata);
+	static void		onEditorGainFocus(LLFocusableElement* caller, void *userdata);
 	static void		onEditorChangeFocus(LLUICtrl* caller, S32 direction, void *userdata);
 
 	static void		onUpBtn(void *userdata);

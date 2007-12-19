@@ -230,7 +230,7 @@ void LLStyle::setImage(const LLString& src)
 	}
 	else
 	{
-		mImagep = LLUI::sImageProvider->getUIImageByID(LLUUID(src));
+		mImagep = LLUI::sImageProvider->getImageByID(LLUUID(src));
 	}
 }
 

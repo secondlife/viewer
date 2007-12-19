@@ -60,6 +60,11 @@
 #include "llvieweruictrlfactory.h"
 #include "llviewerwindow.h"
 #include "lltoolgrab.h"
+#include "llcombobox.h"
+#include "llfloaterchat.h"
+#include "llfloatermute.h"
+#include "llimpanel.h"
+#include "llscrolllistctrl.h"
 
 #if LL_DARWIN
 
@@ -100,24 +105,20 @@ F32	LLToolBar::sInventoryAutoOpenTime = 1.f;
 // Functions
 //
 
-LLToolBar::LLToolBar(const std::string& name, const LLRect& r)
-:	LLPanel(name, r, BORDER_NO)
+LLToolBar::LLToolBar()
+:	LLPanel()
 #if LL_DARWIN
 	, mResizeHandle(NULL)
 #endif // LL_DARWIN
 {
 	setIsChrome(TRUE);
-	setFollows(	FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_BOTTOM );
-
-	gUICtrlFactory->buildPanel(this, "panel_toolbar.xml");
-	mIsFocusRoot = TRUE;
-
+	setFocusRoot(TRUE);
 }
 
 
 BOOL LLToolBar::postBuild()
 {
-	childSetAction("communicate_btn", onClickCommunicate, this);
+	childSetCommitCallback("communicate_btn", onClickCommunicate, this);
 	childSetControlName("communicate_btn", "ShowCommunicate");
 
 	childSetAction("chat_btn", onClickChat, this);
@@ -270,29 +271,47 @@ void LLToolBar::layoutButtons()
 	}
 #endif // LL_DARWIN
 
+	LLButton* chat_button = LLUICtrlFactory::getButtonByName(this, "chat_btn");
+	if (chat_button)
+	{
+		width -= chat_button->getRect().getWidth() + pad;
+	}
+
 	// We actually want to extend "pad" pixels off the right edge of the    
 	// screen, such that the rightmost button is aligned.                   
-	F32 segment_width = (F32)(width + pad) / (F32)count;                    
-	S32 btn_width = lltrunc(segment_width - pad);                           
+	S32 segment_width = llround((F32)(width) / ((F32)count - 1.f));
+	S32 btn_width = segment_width - pad;
 	
 	// Evenly space all views
 	S32 height = -1;
 	S32 i = count - 1;
-	for (child_list_const_iter_t child_iter = getChildList()->begin();
-		 child_iter != getChildList()->end(); ++child_iter)
+	S32 x = pad;
+	for (child_list_const_reverse_iter_t child_iter = getChildList()->rbegin();
+		 child_iter != getChildList()->rend(); ++child_iter)
 	{
 		LLView *btn_view = *child_iter;
-		if(btn_view->getWidgetType() == WIDGET_TYPE_BUTTON)
+		if(btn_view->getWidgetType() == WIDGET_TYPE_BUTTON || btn_view->getWidgetType() == WIDGET_TYPE_FLYOUT_BUTTON)
 		{
 			if (height < 0)
 			{
 				height = btn_view->getRect().getHeight();
 			}
-			S32 x = llround(i*segment_width);                               
-			S32 y = 0;                                                      
-			LLRect r;                                                               
-			r.setOriginAndSize(x, y, btn_width, height);                    
-			btn_view->setRect(r);                                           
+
+			LLRect r;
+
+			if (btn_view->getName() == "chat_btn")
+			{
+				r.setOriginAndSize(x, 0, btn_view->getRect().getWidth(), height);
+				x += btn_view->getRect().getWidth() + pad;
+			}
+			else
+			{
+				r.setOriginAndSize(x, 0, btn_width, height);
+				x += segment_width;
+			}
+
+			btn_view->setOrigin(r.mLeft, r.mBottom);
+			btn_view->reshape(r.getWidth(), r.getHeight());
 			i--;                                                            
 		}
 	}                                                                       
@@ -321,6 +340,7 @@ void LLToolBar::refresh()
 
 	childSetEnabled("build_btn", gParcelMgr->agentCanBuild() );
 
+
 	// Check to see if we're in build mode
 	BOOL build_mode = gToolMgr->inEdit();
 	// And not just clicking on a scripted object
@@ -329,13 +349,135 @@ void LLToolBar::refresh()
 		build_mode = FALSE;
 	}
 	gSavedSettings.setBOOL("BuildBtnState", build_mode);
+
+	updateCommunicateList();
+}
+
+void LLToolBar::updateCommunicateList()
+{
+	LLFlyoutButton* communicate_button = (LLFlyoutButton*)getChildByName("communicate_btn", TRUE);
+	if (communicate_button)
+	{
+		LLSD selected = communicate_button->getValue();
+
+		communicate_button->removeall();
+
+		LLFloater* frontmost_floater = LLFloaterChatterBox::getInstance()->getActiveFloater();
+		LLScrollListItem* itemp = NULL;
+
+		itemp = communicate_button->add(LLFloaterMyFriends::getInstance()->getShortTitle(), LLSD("contacts"), ADD_TOP);
+		if (LLFloaterMyFriends::getInstance() == frontmost_floater)
+		{
+			((LLScrollListText*)itemp->getColumn(0))->setFontStyle(LLFontGL::BOLD);
+			// make sure current tab is selected in list
+			if (selected.isUndefined())
+			{
+				selected = itemp->getValue();
+			}
+		}
+		itemp = communicate_button->add(LLFloaterChat::getInstance()->getShortTitle(), LLSD("local chat"), ADD_TOP);
+		if (LLFloaterChat::getInstance() == frontmost_floater)
+		{
+			((LLScrollListText*)itemp->getColumn(0))->setFontStyle(LLFontGL::BOLD);
+			if (selected.isUndefined())
+			{
+				selected = itemp->getValue();
+			}
+		}
+		communicate_button->addSeparator(ADD_TOP);
+		communicate_button->add(getUIString("Redock Windows"), LLSD("redock"), ADD_TOP);
+		communicate_button->addSeparator(ADD_TOP);
+		communicate_button->add(LLFloaterMute::getInstance()->getShortTitle(), LLSD("mute list"), ADD_TOP);
+		
+		std::set<LLViewHandle>::const_iterator floater_handle_it;
+
+		if (gIMMgr->getIMFloaterHandles().size() > 0)
+		{
+			communicate_button->addSeparator(ADD_TOP);
+		}
+
+		for(floater_handle_it = gIMMgr->getIMFloaterHandles().begin(); floater_handle_it != gIMMgr->getIMFloaterHandles().end(); ++floater_handle_it)
+		{
+			LLFloaterIMPanel* im_floaterp = (LLFloaterIMPanel*)LLFloater::getFloaterByHandle(*floater_handle_it);
+			if (im_floaterp)
+			{
+				LLString floater_title = im_floaterp->getNumUnreadMessages() > 0 ? "*" : "";
+				floater_title.append(im_floaterp->getShortTitle());
+				itemp = communicate_button->add(floater_title, im_floaterp->getSessionID(), ADD_TOP);
+				if (im_floaterp  == frontmost_floater)
+				{
+					((LLScrollListText*)itemp->getColumn(0))->setFontStyle(LLFontGL::BOLD);
+					if (selected.isUndefined())
+					{
+						selected = itemp->getValue();
+					}
+				}
+			}
+		}
+
+		communicate_button->setToggleState(gSavedSettings.getBOOL("ShowCommunicate"));
+		communicate_button->setValue(selected);
+	}
 }
 
 
 // static
-void LLToolBar::onClickCommunicate(void* user_data)
+void LLToolBar::onClickCommunicate(LLUICtrl* ctrl, void* user_data)
 {
-	LLFloaterChatterBox::toggleInstance(LLSD());
+	LLToolBar* toolbar = (LLToolBar*)user_data;
+	LLFlyoutButton* communicate_button = (LLFlyoutButton*)toolbar->getChildByName("communicate_btn", TRUE);
+	
+	LLSD selected_option = communicate_button->getValue();
+    
+	if (selected_option.asString() == "contacts")
+	{
+		LLFloaterMyFriends::showInstance();
+	}
+	else if (selected_option.asString() == "local chat")
+	{
+		LLFloaterChat::showInstance();
+	}
+	else if (selected_option.asString() == "redock")
+	{
+		LLFloaterChatterBox::getInstance()->addFloater(LLFloaterMyFriends::getInstance(), FALSE);
+		LLFloaterChatterBox::getInstance()->addFloater(LLFloaterChat::getInstance(), FALSE);
+		LLUUID session_to_show;
+		
+		std::set<LLViewHandle>::const_iterator floater_handle_it;
+		for(floater_handle_it = gIMMgr->getIMFloaterHandles().begin(); floater_handle_it != gIMMgr->getIMFloaterHandles().end(); ++floater_handle_it)
+		{
+			LLFloater* im_floaterp = LLFloater::getFloaterByHandle(*floater_handle_it);
+			if (im_floaterp)
+			{
+				if (im_floaterp->isFrontmost())
+				{
+					session_to_show = ((LLFloaterIMPanel*)im_floaterp)->getSessionID();
+				}
+				LLFloaterChatterBox::getInstance()->addFloater(im_floaterp, FALSE);
+			}
+		}
+
+		LLFloaterChatterBox::showInstance(session_to_show);
+	}
+	else if (selected_option.asString() == "mute list")
+	{
+		LLFloaterMute::showInstance();
+	}
+	else if (selected_option.isUndefined()) // user just clicked the communicate button, treat as toggle
+	{
+		if (LLFloaterChatterBox::getInstance()->getFloaterCount() == 0)
+		{
+			LLFloaterMyFriends::toggleInstance();
+		}
+		else
+		{
+			LLFloaterChatterBox::toggleInstance();
+		}
+	}
+	else // otherwise selection_option is a specific IM session id
+	{
+		LLFloaterChatterBox::showInstance(selected_option);
+	}
 }
 
 

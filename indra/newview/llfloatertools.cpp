@@ -942,7 +942,7 @@ void commit_select_component(LLUICtrl *ctrl, void *data)
 	//forfeit focus
 	if (gFocusMgr.childHasKeyboardFocus(floaterp))
 	{
-		gFocusMgr.setKeyboardFocus(NULL, NULL);
+		gFocusMgr.setKeyboardFocus(NULL);
 	}
 
 	BOOL select_individuals = floaterp->mCheckSelectIndividual->get();
@@ -992,4 +992,5 @@ void LLFloaterTools::setEditTool(void* tool_pointer)
 void LLFloaterTools::onFocusReceived()
 {
 	gToolMgr->setCurrentToolset(gBasicToolset);
+	LLFloater::onFocusReceived();
 }

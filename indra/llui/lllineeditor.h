@@ -77,7 +77,7 @@ public:
 				 S32 max_length_bytes = 254,
 				 void (*commit_callback)(LLUICtrl* caller, void* user_data) = NULL,
 				 void (*keystroke_callback)(LLLineEditor* caller, void* user_data) = NULL,
-				 void (*focus_lost_callback)(LLUICtrl* caller, void* user_data) = NULL,
+				 void (*focus_lost_callback)(LLFocusableElement* caller, void* user_data) = NULL,
 				 void* userdata = NULL,
 				 LLLinePrevalidateFunc prevalidate_func = NULL,
 				 LLViewBorder::EBevel border_bevel = LLViewBorder::BEVEL_IN,

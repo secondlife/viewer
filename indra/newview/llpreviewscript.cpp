@@ -960,7 +960,7 @@ void LLScriptEdCore::onErrorList(LLUICtrl*, void* user_data)
 		S32 row = 0;
 		S32 column = 0;
 		const LLScrollListCell* cell = item->getColumn(0);
-		LLString line(cell->getText());
+		LLString line(cell->getValue().asString());
 		line.erase(0, 1);
 		LLString::replaceChar(line, ',',' ');
 		LLString::replaceChar(line, ')',' ');

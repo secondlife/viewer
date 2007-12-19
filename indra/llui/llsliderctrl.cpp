@@ -125,7 +125,7 @@ LLSliderCtrl::LLSliderCtrl(const LLString& name, const LLRect& rect,
 				&LLLineEditor::prevalidateFloat );
 			mEditor->setFollowsLeft();
 			mEditor->setFollowsBottom();
-			mEditor->setFocusReceivedCallback( &LLSliderCtrl::onEditorGainFocus );
+			mEditor->setFocusReceivedCallback( &LLSliderCtrl::onEditorGainFocus, this );
 			mEditor->setIgnoreTab(TRUE);
 			// don't do this, as selecting the entire text is single clicking in some cases
 			// and double clicking in others
@@ -150,7 +150,7 @@ LLSliderCtrl::~LLSliderCtrl()
 }
 
 // static
-void LLSliderCtrl::onEditorGainFocus( LLUICtrl* caller, void *userdata )
+void LLSliderCtrl::onEditorGainFocus( LLFocusableElement* caller, void *userdata )
 {
 	LLSliderCtrl* self = (LLSliderCtrl*) userdata;
 	llassert( caller == self->mEditor );

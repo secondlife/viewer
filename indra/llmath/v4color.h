@@ -260,6 +260,7 @@ inline LLColor4::LLColor4(U32 clr)
 	mV[VW] = (clr>>24) * (1.0f/255.0f);
 }
 
+
 inline LLColor4::LLColor4(const F32 *vec)
 {
 	mV[VX] = vec[VX];

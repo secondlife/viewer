@@ -4514,7 +4514,7 @@ BOOL LLMenuHolderGL::hideMenus()
 	}
 	//if (gFocusMgr.childHasKeyboardFocus(this))
 	//{
-	//	gFocusMgr.setKeyboardFocus(NULL, NULL);
+	//	gFocusMgr.setKeyboardFocus(NULL);
 	//}
 
 	return menu_visible;
@@ -4599,6 +4599,7 @@ void LLTearOffMenu::onFocusReceived()
 			break;
 		}
 	}
+	LLFloater::onFocusReceived();
 }
 
 void LLTearOffMenu::onFocusLost()

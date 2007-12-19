@@ -8178,7 +8178,7 @@ version 2.0
 // dataserver -> userserver
 // reliable
 {
-	AgentDropGroup Low 390 Trusted Zerocoded
+	AgentDropGroup Low 390 Trusted Zerocoded UDPDeprecated
 	{
 		AgentData			Single
 		{	AgentID				LLUUID	}

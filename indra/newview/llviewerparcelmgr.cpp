@@ -266,23 +266,6 @@ void LLViewerParcelMgr::getDisplayInfo(S32* area_out, S32* claim_out,
 	*dwell_out = dwell;
 }
 
-void LLViewerParcelMgr::getPrimInfo(S32 &sw_max, S32 &sw_total, S32 &max, S32 &total, S32 &owner, S32 &group, S32 &other, S32& selected, F32 &parcel_object_bonus, S32 &other_clean)
-{
-	if (mSelected && mCurrentParcel)
-	{
-		sw_max = mCurrentParcel->getSimWideMaxPrimCapacity();
-		sw_total = mCurrentParcel->getSimWidePrimCount();
-		max = llround(mCurrentParcel->getMaxPrimCapacity()*mCurrentParcel->getParcelPrimBonus());
-		total = mCurrentParcel->getPrimCount();
-		owner = mCurrentParcel->getOwnerPrimCount();
-		group = mCurrentParcel->getGroupPrimCount();
-		other = mCurrentParcel->getOtherPrimCount();
-		selected = mCurrentParcel->getSelectedPrimCount();
-		parcel_object_bonus = mCurrentParcel->getParcelPrimBonus();
-		other_clean = mCurrentParcel->getCleanOtherTime();
-	}
-}
-
 S32 LLViewerParcelMgr::getSelectedArea() const
 {
 	S32 rv = 0;

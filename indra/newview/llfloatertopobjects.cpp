@@ -257,8 +257,8 @@ void LLFloaterTopObjects::updateSelectionInfo()
 	std::string object_id_string = object_id.asString();
 
 	childSetValue("id_editor", LLSD(object_id_string));
-	childSetValue("object_name_editor", list->getFirstSelected()->getColumn(1)->getText());
-	childSetValue("owner_name_editor", list->getFirstSelected()->getColumn(2)->getText());
+	childSetValue("object_name_editor", list->getFirstSelected()->getColumn(1)->getValue().asString());
+	childSetValue("owner_name_editor", list->getFirstSelected()->getColumn(2)->getValue().asString());
 }
 
 // static
@@ -451,8 +451,8 @@ void LLFloaterTopObjects::showBeacon()
 	LLScrollListItem* first_selected = list->getFirstSelected();
 	if (!first_selected) return;
 
-	LLString name = first_selected->getColumn(1)->getText();
-	LLString pos_string =  first_selected->getColumn(3)->getText();
+	LLString name = first_selected->getColumn(1)->getValue().asString();
+	LLString pos_string =  first_selected->getColumn(3)->getValue().asString();
 
 	F32 x, y, z;
 	S32 matched = sscanf(pos_string.c_str(), "<%g,%g,%g>", &x, &y, &z);

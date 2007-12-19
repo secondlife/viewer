@@ -55,17 +55,16 @@
 // Globals
 S32 LLCOMBOBOX_HEIGHT = 0;
 S32 LLCOMBOBOX_WIDTH = 0;
- 
+S32 MAX_COMBO_WIDTH = 500;
+
 LLComboBox::LLComboBox(	const LLString& name, const LLRect &rect, const LLString& label,
 	void (*commit_callback)(LLUICtrl*,void*),
 	void *callback_userdata
 	)
 :	LLUICtrl(name, rect, TRUE, commit_callback, callback_userdata, 
 			 FOLLOWS_LEFT | FOLLOWS_TOP),
-	mDrawArrow(TRUE),
 	mTextEntry(NULL),
 	mArrowImage(NULL),
-	mArrowImageWidth(8),
 	mAllowTextEntry(FALSE),
 	mMaxChars(20),
 	mTextEntryTentative(TRUE),
@@ -73,55 +72,43 @@ LLComboBox::LLComboBox(	const LLString& name, const LLRect &rect, const LLString
 	mPrearrangeCallback( NULL ),
 	mTextEntryCallback( NULL )
 {
-	// For now, all comboboxes don't take keyboard focus when clicked.
-	// This might change if it is part of a modal dialog.
-	// mKeyboardFocusOnClick = FALSE;
-
-	// Revert to standard behavior.  When this control's parent is hidden, it needs to
-	// hide this ctrl--which won't just happen automatically since when LLComboBox is 
-	// showing its list, it's also set to TopCtrl.  When keyboard focus is cleared all
-	// controls (including this one) know that they are no longer editing.
-	mKeyboardFocusOnClick = TRUE;
-
-	LLRect r;
-	r.setOriginAndSize(0, 0, rect.getWidth(), rect.getHeight());
-
 	// Always use text box 
 	// Text label button
-	mButton = new LLSquareButton("comboxbox button",
-								 r, label, NULL, LLString::null,
+	mButton = new LLButton("comboxbox button",
+								 LLRect(), label, NULL, LLString::null,
 								 NULL, this);
+	mButton->setImageUnselected("square_btn_32x128.tga");
+	mButton->setImageSelected("square_btn_selected_32x128.tga");
+	mButton->setImageDisabled("square_btn_32x128.tga");
+	mButton->setImageDisabledSelected("square_btn_selected_32x128.tga");
+	mButton->setScaleImage(TRUE);
+
 	mButton->setMouseDownCallback(onButtonDown);
 	mButton->setFont(LLFontGL::sSansSerifSmall);
 	mButton->setFollows(FOLLOWS_LEFT | FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
 	mButton->setHAlign( LLFontGL::LEFT );
-
-	const S32 ARROW_WIDTH = 16;
-	mButton->setRightHPad( ARROW_WIDTH );
+	mButton->setRightHPad(2);
 	addChild(mButton);
-
-	// Default size, will be set by arrange() call in button callback. 
-	S32 list_width = mRect.getWidth() + SCROLLBAR_SIZE;
-	r.setOriginAndSize(0, 16, list_width, 220);
 
 	// disallow multiple selection
 	mList = new LLScrollListCtrl(
-		"ComboBox", r, 
+		"ComboBox", LLRect(), 
 		&LLComboBox::onItemSelected, this, FALSE);
 	mList->setVisible(FALSE);
 	mList->setBgWriteableColor( LLColor4(1,1,1,1) );
 	mList->setCommitOnKeyboardMovement(FALSE);
-	mList->setFocusChangedCallback(onListFocusChanged);
 	addChild(mList);
 
 	LLRect border_rect(0, mRect.getHeight(), mRect.getWidth(), 0);
 	mBorder = new LLViewBorder( "combo border", border_rect );
 	addChild( mBorder );
-	mBorder->setFollows(FOLLOWS_LEFT|FOLLOWS_RIGHT|FOLLOWS_TOP|FOLLOWS_BOTTOM);
+	mBorder->setFollowsAll();
 
 	LLUUID arrow_image_id( LLUI::sAssetsGroup->getString("combobox_arrow.tga") );
-	mArrowImage = LLUI::sImageProvider->getUIImageByID(arrow_image_id);
-	mArrowImageWidth = llmax(8,mArrowImage->getWidth(0)); // In case image hasn't loaded yet
+	mArrowImage = LLUI::sImageProvider->getImageByID(arrow_image_id);
+	mButton->setImageOverlay("combobox_arrow.tga", LLFontGL::RIGHT);
+
+	updateLayout();
 }
 
 
@@ -155,7 +142,7 @@ LLXMLNodePtr LLComboBox::getXML(bool save_children) const
 			LLSD value = item->getValue();
 			item_node->createChild("value", TRUE)->setStringValue(value.asString());
 			item_node->createChild("enabled", TRUE)->setBoolValue(item->getEnabled());
-			item_node->setStringValue(cell->getText());
+			item_node->setStringValue(cell->getValue().asString());
 		}
 	}
 
@@ -272,34 +259,42 @@ void	LLComboBox::resetDirty()
 
 
 // add item "name" to menu
-void LLComboBox::add(const LLString& name, EAddPosition pos, BOOL enabled)
+LLScrollListItem* LLComboBox::add(const LLString& name, EAddPosition pos, BOOL enabled)
 {
-	mList->addSimpleItem(name, pos, enabled);
+	LLScrollListItem* item = mList->addSimpleItem(name, pos, enabled);
 	mList->selectFirstItem();
+	return item;
 }
 
 // add item "name" with a unique id to menu
-void LLComboBox::add(const LLString& name, const LLUUID& id, EAddPosition pos, BOOL enabled )
+LLScrollListItem* LLComboBox::add(const LLString& name, const LLUUID& id, EAddPosition pos, BOOL enabled )
 {
-	mList->addSimpleItem(name, LLSD(id), pos, enabled);
+	LLScrollListItem* item = mList->addSimpleItem(name, LLSD(id), pos, enabled);
 	mList->selectFirstItem();
+	return item;
 }
 
 // add item "name" with attached userdata
-void LLComboBox::add(const LLString& name, void* userdata, EAddPosition pos, BOOL enabled )
+LLScrollListItem* LLComboBox::add(const LLString& name, void* userdata, EAddPosition pos, BOOL enabled )
 {
 	LLScrollListItem* item = mList->addSimpleItem(name, pos, enabled);
 	item->setUserdata( userdata );
 	mList->selectFirstItem();
+	return item;
 }
 
 // add item "name" with attached generic data
-void LLComboBox::add(const LLString& name, LLSD value, EAddPosition pos, BOOL enabled )
+LLScrollListItem* LLComboBox::add(const LLString& name, LLSD value, EAddPosition pos, BOOL enabled )
 {
-	mList->addSimpleItem(name, value, pos, enabled);
+	LLScrollListItem* item = mList->addSimpleItem(name, value, pos, enabled);
 	mList->selectFirstItem();
+	return item;
 }
 
+LLScrollListItem* LLComboBox::addSeparator(EAddPosition pos)
+{
+	return mList->addSeparator(pos);
+}
 
 void LLComboBox::sortByName()
 {
@@ -335,9 +330,9 @@ void LLComboBox::setValue(const LLSD& value)
 	}
 }
 
-const LLString& LLComboBox::getSimple() const
+const LLString LLComboBox::getSimple() const
 {
-	const LLString& res = mList->getSimpleSelectedItem();
+	const LLString res = mList->getSimpleSelectedItem();
 	if (res.empty() && mAllowTextEntry)
 	{
 		return mTextEntry->getText();
@@ -348,7 +343,7 @@ const LLString& LLComboBox::getSimple() const
 	}
 }
 
-const LLString& LLComboBox::getSimpleSelectedItem(S32 column) const
+const LLString LLComboBox::getSimpleSelectedItem(S32 column) const
 {
 	return mList->getSimpleSelectedItem(column);
 }
@@ -373,7 +368,7 @@ LLSD LLComboBox::getValue() const
 
 void LLComboBox::setLabel(const LLStringExplicit& name)
 {
-	if ( mAllowTextEntry )
+	if ( mTextEntry )
 	{
 		mTextEntry->setText(name);
 		if (mList->selectSimpleItem(name, FALSE))
@@ -385,7 +380,8 @@ void LLComboBox::setLabel(const LLStringExplicit& name)
 			mTextEntry->setTentative(mTextEntryTentative);
 		}
 	}
-	else
+	
+	if (!mAllowTextEntry)
 	{
 		mButton->setLabelUnselected(name);
 		mButton->setLabelSelected(name);
@@ -433,16 +429,21 @@ void LLComboBox::onFocusLost()
 	LLUICtrl::onFocusLost();
 }
 
+void LLComboBox::onLostTop()
+{
+	hideList();
+}
+
+
 void LLComboBox::setButtonVisible(BOOL visible)
 {
 	mButton->setVisible(visible);
-	mDrawArrow = visible;
 	if (mTextEntry)
 	{
 		LLRect text_entry_rect(0, mRect.getHeight(), mRect.getWidth(), 0);
 		if (visible)
 		{
-			text_entry_rect.mRight -= mArrowImageWidth + 2 * LLUI::sConfigGroup->getS32("DropShadowButton");
+			text_entry_rect.mRight -= llmax(8,mArrowImage->getWidth(0)) + 2 * LLUI::sConfigGroup->getS32("DropShadowButton");
 		}
 		//mTextEntry->setRect(text_entry_rect);
 		mTextEntry->reshape(text_entry_rect.getWidth(), text_entry_rect.getHeight(), TRUE);
@@ -457,22 +458,8 @@ void LLComboBox::draw()
 
 		mButton->setEnabled(mEnabled /*&& !mList->isEmpty()*/);
 
-		// Draw children
+		// Draw children normally
 		LLUICtrl::draw();
-
-		if (mDrawArrow)
-		{
-			// Paste the graphic on the right edge
-			if (!mArrowImage.isNull())
-			{
-				S32 arrow_height = llmin(mRect.getHeight(), mArrowImage->getHeight());
-				S32 arrow_width = llround((F32)mArrowImage->getWidth() * ((F32)arrow_height / (F32)mArrowImage->getHeight()));
-
-				S32 left = mRect.getWidth() - mArrowImage->getWidth() - LLUI::sConfigGroup->getS32("DropShadowButton");
-
-				gl_draw_scaled_image( left, 0, arrow_width, arrow_height, mArrowImage, LLColor4::white);
-			}
-		}
 	}
 }
 
@@ -497,6 +484,67 @@ S32 LLComboBox::getCurrentIndex() const
 }
 
 
+void LLComboBox::updateLayout()
+{
+	LLRect rect = getLocalRect();
+	if (mAllowTextEntry)
+	{
+		S32 shadow_size = LLUI::sConfigGroup->getS32("DropShadowButton");
+		mButton->setRect(LLRect( mRect.getWidth() - llmax(8,mArrowImage->getWidth(0)) - 2 * shadow_size,
+								rect.mTop, rect.mRight, rect.mBottom));
+		mButton->setTabStop(FALSE);
+
+		if (!mTextEntry)
+		{
+			LLRect text_entry_rect(0, mRect.getHeight(), mRect.getWidth(), 0);
+			text_entry_rect.mRight -= llmax(8,mArrowImage->getWidth(0)) + 2 * LLUI::sConfigGroup->getS32("DropShadowButton");
+			// clear label on button
+			LLString cur_label = mButton->getLabelSelected();
+			mTextEntry = new LLLineEditor("combo_text_entry",
+										text_entry_rect,
+										"",
+										LLFontGL::sSansSerifSmall,
+										mMaxChars,
+										onTextCommit,
+										onTextEntry,
+										NULL,
+										this,
+										NULL,		// prevalidate func
+										LLViewBorder::BEVEL_NONE,
+										LLViewBorder::STYLE_LINE,
+										0);	// no border
+			mTextEntry->setSelectAllonFocusReceived(TRUE);
+			mTextEntry->setHandleEditKeysDirectly(TRUE);
+			mTextEntry->setCommitOnFocusLost(FALSE);
+			mTextEntry->setText(cur_label);
+			mTextEntry->setIgnoreTab(TRUE);
+			mTextEntry->setFollowsAll();
+			addChild(mTextEntry);
+		}
+		else
+		{
+			mTextEntry->setVisible(TRUE);
+			mTextEntry->setMaxTextLength(mMaxChars);
+		}
+
+		// clear label on button
+		setLabel(LLString::null);
+
+		mButton->setFollows(FOLLOWS_BOTTOM | FOLLOWS_TOP | FOLLOWS_RIGHT);
+	}
+	else if (!mAllowTextEntry)
+	{
+		mButton->setRect(rect);
+		mButton->setTabStop(TRUE);
+
+		if (mTextEntry)
+		{
+			mTextEntry->setVisible(FALSE);
+		}
+		mButton->setFollowsAll();
+	}
+}
+
 void* LLComboBox::getCurrentUserdata()
 {
 	LLScrollListItem* item = mList->getFirstSelected();
@@ -514,7 +562,7 @@ void LLComboBox::showList()
 	LLCoordWindow window_size;
 	getWindow()->getSize(&window_size);
 	//HACK: shouldn't have to know about scale here
-	mList->arrange( 192, llfloor((F32)window_size.mY / LLUI::sGLScaleFactor.mV[VY]) - 50 );
+	mList->fitContents( 192, llfloor((F32)window_size.mY / LLUI::sGLScaleFactor.mV[VY]) - 50 );
 
 	// Make sure that we can see the whole list
 	LLRect root_view_local;
@@ -523,7 +571,9 @@ void LLComboBox::showList()
 	
 	LLRect rect = mList->getRect();
 
-	S32 list_width = mRect.getWidth() + SCROLLBAR_SIZE;
+	S32 min_width = mRect.getWidth();
+	S32 max_width = llmax(min_width, MAX_COMBO_WIDTH);
+	S32 list_width = llclamp(mList->getMaxContentWidth(), min_width, max_width);
 
 	if (mListPosition == BELOW)
 	{
@@ -583,12 +633,6 @@ void LLComboBox::showList()
 		mList->translate(0, -y);
 	}
 
-	// pass mouse capture on to list if button is depressed
-	if (mButton->hasMouseCapture())
-	{
-		gFocusMgr.setMouseCapture(mList);
-	}
-	
 	// NB: this call will trigger the focuslost callback which will hide the list, so do it first
 	// before finally showing the list
 
@@ -604,23 +648,28 @@ void LLComboBox::showList()
 	mButton->setToggleState(TRUE);
 	mList->setVisible(TRUE);
 	
-	gFocusMgr.setTopCtrl(mList);
+	setUseBoundingRect(TRUE);
+	gFocusMgr.setTopCtrl(this);
 }
 
 void LLComboBox::hideList()
 {
+	//*HACK: store the original value explicitly somewhere, not just in label
+	LLString orig_selection = mAllowTextEntry ? mTextEntry->getText() : mButton->getLabelSelected();
+
+	// assert selection in list
+	mList->selectSimpleItem(orig_selection, FALSE);
+
 	mButton->setToggleState(FALSE);
 	mList->setVisible(FALSE);
 	mList->highlightNthItem(-1);
 
-	if( gFocusMgr.getTopCtrl() == mList )
+	setUseBoundingRect(FALSE);
+	if( gFocusMgr.getTopCtrl() == this )
 	{
 		gFocusMgr.setTopCtrl(NULL);
 	}
-
-	//mList->setFocus(FALSE);
 }
-
 
 //------------------------------------------------------------------
 // static functions
@@ -650,21 +699,20 @@ void LLComboBox::onButtonDown(void *userdata)
 			self->showList();
 		}
 
-		if (self->mKeyboardFocusOnClick && !self->hasFocus())
+		self->setFocus( TRUE );
+
+		// pass mouse capture on to list if button is depressed
+		if (self->mButton->hasMouseCapture())
 		{
-			self->setFocus( TRUE );
+			gFocusMgr.setMouseCapture(self->mList);
 		}
 	}
 	else
 	{
-		// hide and release keyboard focus
 		self->hideList();
-
-		self->onCommit();
 	}
+
 }
-
-
 
 // static
 void LLComboBox::onItemSelected(LLUICtrl* item, void *userdata)
@@ -672,7 +720,7 @@ void LLComboBox::onItemSelected(LLUICtrl* item, void *userdata)
 	// Note: item is the LLScrollListCtrl
 	LLComboBox *self = (LLComboBox *) userdata;
 
-	const LLString& name = self->mList->getSimpleSelectedItem();
+	const LLString name = self->mList->getSimpleSelectedItem();
 
 	S32 cur_id = self->getCurrentIndex();
 	if (cur_id != -1)
@@ -681,40 +729,24 @@ void LLComboBox::onItemSelected(LLUICtrl* item, void *userdata)
 
 		if (self->mAllowTextEntry)
 		{
-			gFocusMgr.setKeyboardFocus(self->mTextEntry, NULL);
+			gFocusMgr.setKeyboardFocus(self->mTextEntry);
 			self->mTextEntry->selectAll();
 		}
 	}
 	else
 	{
 		// invalid selection, just restore existing value
-		self->mList->selectSimpleItem(self->mButton->getLabelSelected());
+		LLString orig_selection = self->mAllowTextEntry ? self->mTextEntry->getText() : self->mButton->getLabelSelected();
+
+		self->mList->selectSimpleItem(orig_selection);
 	}
 	self->onCommit();
 
 	self->hideList();
 }
 
-// static
-void LLComboBox::onListFocusChanged(LLUICtrl* list, void* user_data)
-{
-	LLComboBox *self = (LLComboBox *) list->getParent();
-	// user not manipulating list or clicking on drop down button
-	if (!self->mList->hasFocus() && !self->mButton->hasMouseCapture())
-	{
-		//*HACK: store the original value explicitly somewhere, not just in label
-		LLString orig_selection = self->mAllowTextEntry ? self->mTextEntry->getText() : self->mButton->getLabelSelected();
-
-		self->hideList();
-
-		// reassert original selection
-		self->mList->selectSimpleItem(orig_selection, FALSE);
-	}
-}
-
 BOOL LLComboBox::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen)
 {
-
     LLString tool_tip;
 
 	if (LLUI::sShowXUINames)
@@ -726,23 +758,19 @@ BOOL LLComboBox::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_
 		tool_tip = mToolTipMsg;
 	}
 
-	if( getVisible() && pointInView( x, y ) ) 
+	if( !tool_tip.empty() )
 	{
-		if( !tool_tip.empty() )
-		{
-			msg = tool_tip;
+		msg = tool_tip;
 
-			// Convert rect local to screen coordinates
-			localPointToScreen( 
-				0, 0, 
-				&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
-			localPointToScreen(
-				mRect.getWidth(), mRect.getHeight(),
-				&(sticky_rect_screen->mRight), &(sticky_rect_screen->mTop) );
-		}
-		return TRUE;
+		// Convert rect local to screen coordinates
+		localPointToScreen( 
+			0, 0, 
+			&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
+		localPointToScreen(
+			mRect.getWidth(), mRect.getHeight(),
+			&(sticky_rect_screen->mRight), &(sticky_rect_screen->mTop) );
 	}
-	return FALSE;
+	return TRUE;
 }
 
 BOOL LLComboBox::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
@@ -793,63 +821,11 @@ BOOL LLComboBox::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent
 
 void LLComboBox::setAllowTextEntry(BOOL allow, S32 max_chars, BOOL set_tentative)
 {
-	LLRect rect( 0, mRect.getHeight(), mRect.getWidth(), 0);
-	if (allow && !mAllowTextEntry)
-	{
-		S32 shadow_size = LLUI::sConfigGroup->getS32("DropShadowButton");
-		mButton->setRect(LLRect( mRect.getWidth() - mArrowImageWidth - 2 * shadow_size,
-								rect.mTop, rect.mRight, rect.mBottom));
-		mButton->setTabStop(FALSE);
-
-		// clear label on button
-		LLString cur_label = mButton->getLabelSelected();
-		setLabel(LLString::null);
-		if (!mTextEntry)
-		{
-			LLRect text_entry_rect(0, mRect.getHeight(), mRect.getWidth(), 0);
-			text_entry_rect.mRight -= mArrowImageWidth + 2 * LLUI::sConfigGroup->getS32("DropShadowButton");
-			mTextEntry = new LLLineEditor("combo_text_entry",
-										text_entry_rect,
-										"",
-										LLFontGL::sSansSerifSmall,
-										max_chars,
-										onTextCommit,
-										onTextEntry,
-										NULL,
-										this,
-										NULL,		// prevalidate func
-										LLViewBorder::BEVEL_NONE,
-										LLViewBorder::STYLE_LINE,
-										0);	// no border
-			mTextEntry->setSelectAllonFocusReceived(TRUE);
-			mTextEntry->setHandleEditKeysDirectly(TRUE);
-			mTextEntry->setCommitOnFocusLost(FALSE);
-			mTextEntry->setText(cur_label);
-			mTextEntry->setIgnoreTab(TRUE);
-			mTextEntry->setFollowsAll();
-			addChild(mTextEntry);
-			mMaxChars = max_chars;
-		}
-		else
-		{
-			mTextEntry->setVisible(TRUE);
-		}
-
-		mButton->setFollows(FOLLOWS_BOTTOM | FOLLOWS_TOP | FOLLOWS_RIGHT);
-	}
-	else if (!allow && mAllowTextEntry)
-	{
-		mButton->setRect(rect);
-		mButton->setTabStop(TRUE);
-
-		if (mTextEntry)
-		{
-			mTextEntry->setVisible(FALSE);
-		}
-		mButton->setFollowsAll();
-	}
 	mAllowTextEntry = allow;
-	mTextEntryTentative = set_tentative;	
+	mTextEntryTentative = set_tentative;
+	mMaxChars = max_chars;
+
+	updateLayout();
 }
 
 void LLComboBox::setTextEntry(const LLStringExplicit& text)
@@ -993,6 +969,10 @@ void LLComboBox::setFocus(BOOL b)
 	if (b)
 	{
 		mList->clearSearchString();
+		if (mList->getVisible())
+		{
+			mList->setFocus(TRUE);
+		}
 	}
 }
 
@@ -1097,3 +1077,155 @@ BOOL LLComboBox::operateOnAll(EOperation op)
 	}
 	return FALSE;
 }
+
+
+
+//
+// LLFlyoutButton
+//
+
+const S32 FLYOUT_BUTTON_ARROW_WIDTH = 24;
+
+LLFlyoutButton::LLFlyoutButton(
+		const LLString& name, 
+		const LLRect &rect,
+		const LLString& label,
+		void (*commit_callback)(LLUICtrl*, void*) ,
+		void *callback_userdata)
+:		LLComboBox(name, rect, LLString::null, commit_callback, callback_userdata),
+		mToggleState(FALSE),
+		mActionButton(NULL)
+{
+	// Always use text box 
+	// Text label button
+	mActionButton = new LLButton("flyout_button_main",
+								 LLRect(), label, NULL, LLString::null,
+								 NULL, this);
+	mActionButton->setScaleImage(TRUE);
+
+	mActionButton->setClickedCallback(onActionButtonClick);
+	mActionButton->setFollowsAll();
+	mActionButton->setHAlign( LLFontGL::HCENTER );
+	mActionButton->setLabel(label);
+	addChild(mActionButton);
+
+	mActionButtonImage = LLUI::getUIImageByName("flyout_btn_left.tga");
+	mExpanderButtonImage = LLUI::getUIImageByName("flyout_btn_right.tga");
+	mActionButtonImageSelected = LLUI::getUIImageByName("flyout_btn_left_selected.tga");
+	mExpanderButtonImageSelected = LLUI::getUIImageByName("flyout_btn_right_selected.tga");
+
+	mActionButton->setImageSelected(mActionButtonImageSelected);
+	mActionButton->setImageUnselected(mActionButtonImage);
+	mActionButton->setImageDisabled(LLPointer<LLUIImage>(NULL));
+	mActionButton->setImageDisabledSelected(LLPointer<LLUIImage>(NULL));
+
+	mButton->setImageSelected(mExpanderButtonImageSelected);
+	mButton->setImageUnselected(mExpanderButtonImage);
+	mButton->setImageDisabled(LLPointer<LLUIImage>(NULL));
+	mButton->setImageDisabledSelected(LLPointer<LLUIImage>(NULL));
+	mButton->setRightHPad(6);
+
+	mBorder->setVisible(FALSE);
+
+	updateLayout();
+}
+
+//static 
+LLView* LLFlyoutButton::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
+{
+	LLString name = "flyout_button";
+	node->getAttributeString("name", name);
+
+	LLString label("");
+	node->getAttributeString("label", label);
+
+	LLRect rect;
+	createRect(node, rect, parent, LLRect());
+
+	LLUICtrlCallback callback = NULL;
+
+	LLFlyoutButton* flyout_button = new LLFlyoutButton(name,
+							rect, 
+							label,
+							callback,
+							NULL);
+
+	LLString list_position;
+	node->getAttributeString("list_position", list_position);
+	if (list_position == "below")
+	{
+		flyout_button->mListPosition = BELOW;
+	}
+	else if (list_position == "above")
+	{
+		flyout_button->mListPosition = ABOVE;
+	}
+	
+
+	flyout_button->initFromXML(node, parent);
+
+	LLXMLNodePtr child;
+	for (child = node->getFirstChild(); child.notNull(); child = child->getNextSibling())
+	{
+		if (child->hasName("flyout_button_item"))
+		{
+			LLString label = child->getTextContents();
+
+			LLString value = label;
+			child->getAttributeString("value", value);
+
+			flyout_button->add(label, LLSD(value) );
+		}
+	}
+
+	flyout_button->updateLayout();
+
+	return flyout_button;
+}
+
+void LLFlyoutButton::updateLayout()
+{
+	LLComboBox::updateLayout();
+
+	mButton->setOrigin(mRect.getWidth() - FLYOUT_BUTTON_ARROW_WIDTH, 0);
+	mButton->reshape(FLYOUT_BUTTON_ARROW_WIDTH, mRect.getHeight());
+	mButton->setFollows(FOLLOWS_RIGHT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
+	mButton->setTabStop(FALSE);
+	mButton->setImageOverlay(mListPosition == BELOW ? "down_arrow.tga" : "up_arrow.tga", LLFontGL::RIGHT);
+
+	mActionButton->setOrigin(0, 0);
+	mActionButton->reshape(mRect.getWidth() - FLYOUT_BUTTON_ARROW_WIDTH, mRect.getHeight());
+}
+
+//static 
+void LLFlyoutButton::onActionButtonClick(void *user_data)
+{
+	LLFlyoutButton* buttonp = (LLFlyoutButton*)user_data;
+	// remember last list selection?
+	buttonp->mList->deselect();
+	buttonp->onCommit();
+}
+
+void LLFlyoutButton::draw()
+{
+	mActionButton->setToggleState(mToggleState);
+	mButton->setToggleState(mToggleState);
+
+	//FIXME: this should be an attribute of comboboxes, whether they have a distinct label or
+	// the label reflects the last selected item, for now we have to manually remove the label
+	mButton->setLabel(LLString::null);
+	LLComboBox::draw();	
+}
+
+void LLFlyoutButton::setEnabled(BOOL enabled)
+{
+	mActionButton->setEnabled(enabled);
+	LLComboBox::setEnabled(enabled);
+}
+
+
+void LLFlyoutButton::setToggleState(BOOL state)
+{
+	mToggleState = state;
+}
+

@@ -53,8 +53,31 @@ class LLCtrlScrollInterface;
 typedef void (*LLUICtrlCallback)(LLUICtrl* ctrl, void* userdata);
 typedef BOOL (*LLUICtrlValidate)(LLUICtrl* ctrl, void* userdata);
 
+class LLFocusableElement
+{
+	friend class LLFocusMgr; // allow access to focus change handlers
+public:
+	LLFocusableElement();
+	virtual ~LLFocusableElement() {};
+
+	virtual void	setFocus( BOOL b );
+	virtual BOOL	hasFocus() const;
+
+	void			setFocusLostCallback(void (*cb)(LLFocusableElement* caller, void*), void* user_data = NULL) { mFocusLostCallback = cb; mFocusCallbackUserData = user_data; }
+	void			setFocusReceivedCallback( void (*cb)(LLFocusableElement*, void*), void* user_data = NULL)	{ mFocusReceivedCallback = cb; mFocusCallbackUserData = user_data; }
+	void			setFocusChangedCallback( void (*cb)(LLFocusableElement*, void*), void* user_data = NULL )		{ mFocusChangedCallback = cb; mFocusCallbackUserData = user_data; }
+
+protected:
+	virtual void	onFocusReceived();
+	virtual void	onFocusLost();
+	void			(*mFocusLostCallback)( LLFocusableElement* caller, void* userdata );
+	void			(*mFocusReceivedCallback)( LLFocusableElement* ctrl, void* userdata );
+	void			(*mFocusChangedCallback)( LLFocusableElement* ctrl, void* userdata );
+	void*			mFocusCallbackUserData;
+};
+
 class LLUICtrl
-: public LLView
+: public LLView, public LLFocusableElement
 {
 public:
 	LLUICtrl();
@@ -84,6 +107,11 @@ public:
 
 	virtual void	setFocus( BOOL b );
 	virtual BOOL	hasFocus() const;
+
+	virtual void	onFocusReceived();
+	virtual void	onFocusLost();
+
+	virtual void	onLostTop();	// called when registered as top ctrl and user clicks elsewhere
 
 	virtual void	setTabStop( BOOL b );
 	virtual BOOL	hasTabStop() const;
@@ -115,6 +143,7 @@ public:
 	
 	void			setCommitCallback( void (*cb)(LLUICtrl*, void*) )		{ mCommitCallback = cb; }
 	void			setValidateBeforeCommit( BOOL(*cb)(LLUICtrl*, void*) )	{ mValidateCallback = cb; }
+	void			setLostTopCallback( void (*cb)(LLUICtrl*, void*) )		{ mLostTopCallback = cb; }
 
 	// Defaults to no-op!
 	virtual	void	setDoubleClickCallback( void (*cb)(void*) );
@@ -126,22 +155,7 @@ public:
 	virtual void	setMinValue(LLSD min_value);
 	virtual void	setMaxValue(LLSD max_value);
 
-	// In general, only LLPanel uses these.
-	void			setFocusLostCallback(void (*cb)(LLUICtrl* caller, void* user_data)) { mFocusLostCallback = cb; }
-	void			setFocusReceivedCallback( void (*cb)(LLUICtrl*, void*) )	{ mFocusReceivedCallback = cb; }
-	void			setFocusChangedCallback( void (*cb)(LLUICtrl*, void*) )		{ mFocusChangedCallback = cb; }
-
-	static void		onFocusLostCallback(LLUICtrl* old_focus);
-
 	/*virtual*/ BOOL focusFirstItem(BOOL prefer_text_fields = FALSE );
-
-	class LLTabStopPostFilter : public LLQueryFilter, public LLSingleton<LLTabStopPostFilter>
-	{
-		/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const 
-		{
-			return filterResult_t(view->isCtrl() && static_cast<const LLUICtrl *>(view)->hasTabStop() && children.size() == 0, TRUE);
-		}
-	};
 
 	class LLTextInputFilter : public LLQueryFilter, public LLSingleton<LLTextInputFilter>
 	{
@@ -157,16 +171,9 @@ public:
 	virtual void	resetDirty()			{};
 
 protected:
-	virtual void	onFocusReceived();
-	virtual void	onFocusLost();
-	void			onChangeFocus( S32 direction );
-
-protected:
 
 	void			(*mCommitCallback)( LLUICtrl* ctrl, void* userdata );
-	void			(*mFocusLostCallback)( LLUICtrl* caller, void* userdata );
-	void			(*mFocusReceivedCallback)( LLUICtrl* ctrl, void* userdata );
-	void			(*mFocusChangedCallback)( LLUICtrl* ctrl, void* userdata );
+	void			(*mLostTopCallback)( LLUICtrl* ctrl, void* userdata );
 	BOOL			(*mValidateCallback)( LLUICtrl* ctrl, void* userdata );
 
 	void*			mCallbackUserData;

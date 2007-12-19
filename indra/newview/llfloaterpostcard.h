@@ -65,7 +65,7 @@ public:
 
 	static void updateUserInfo(const char *email);
 
-	static void onMsgFormFocusRecieved(LLUICtrl* receiver, void* data);
+	static void onMsgFormFocusRecieved(LLFocusableElement* receiver, void* data);
 	static void missingSubjMsgAlertCallback(S32 option, void* data);
 
 	void sendPostcard();

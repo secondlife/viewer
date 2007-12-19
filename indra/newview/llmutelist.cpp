@@ -52,10 +52,11 @@
 #include <boost/tokenizer.hpp>
 
 #include "llcrc.h"
+#include "lldir.h"
 #include "lldispatcher.h"
+#include "llsdserialize.h"
 #include "llxfermanager.h"
 #include "message.h"
-#include "lldir.h"
 
 #include "llagent.h"
 #include "llfloatermute.h"
@@ -66,6 +67,9 @@
 #include "llviewerobjectlist.h"
 
 LLMuteList* gMuteListp = NULL;
+
+std::map<LLUUID, F32> LLMuteList::sUserVolumeSettings;
+
 
 // "emptymutelist"
 class LLDispatchEmptyMuteList : public LLDispatchHandler
@@ -168,6 +172,24 @@ LLMuteList::LLMuteList() :
 	msg->setHandlerFuncFast(_PREHASH_UseCachedMuteList, processUseCachedMuteList);
 
 	gGenericDispatcher.addHandler("emptymutelist", &sDispatchEmptyMuteList);
+
+	// load per-resident voice volume information
+	// conceptually, this is part of the mute list information, although it is only stored locally
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "volume_settings.xml");
+
+	LLSD settings_llsd;
+	llifstream file;
+	file.open(filename.c_str());
+	if (file.is_open())
+	{
+		LLSDSerialize::fromXML(settings_llsd, file);
+	}
+
+	for (LLSD::map_const_iterator iter = settings_llsd.beginMap();
+		 iter != settings_llsd.endMap(); ++iter)
+	{
+		sUserVolumeSettings.insert(std::make_pair(LLUUID(iter->first), (F32)iter->second.asReal()));
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -175,6 +197,17 @@ LLMuteList::LLMuteList() :
 //-----------------------------------------------------------------------------
 LLMuteList::~LLMuteList()
 {
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "volume_settings.xml");
+	LLSD settings_llsd;
+
+	for(user_volume_map_t::iterator iter = sUserVolumeSettings.begin(); iter != sUserVolumeSettings.end(); ++iter)
+	{
+		settings_llsd[iter->first.asString()] = iter->second;
+	}
+
+	llofstream file;
+	file.open(filename.c_str());
+	LLSDSerialize::toPrettyXML(settings_llsd, file);
 }
 
 BOOL LLMuteList::isLinden(const LLString& name) const
@@ -586,6 +619,25 @@ void LLMuteList::cache(const LLUUID& agent_id)
 		snprintf(filename, sizeof(filename), "%s.cached_mute", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,agent_id_string).c_str());			/* Flawfinder: ignore */
 		saveToFile(filename);
 	}
+}
+
+void LLMuteList::setSavedResidentVolume(const LLUUID& id, F32 volume)
+{
+	// store new value in volume settings file
+	sUserVolumeSettings[id] = volume;
+}
+
+F32 LLMuteList::getSavedResidentVolume(const LLUUID& id)
+{
+	const F32 DEFAULT_VOLUME = 0.5f;
+	
+	user_volume_map_t::iterator found_it = sUserVolumeSettings.find(id);
+	if (found_it != sUserVolumeSettings.end())
+	{
+		return found_it->second;
+	}
+	//FIXME: assumes default, should get this from somewhere
+	return DEFAULT_VOLUME;
 }
 
 

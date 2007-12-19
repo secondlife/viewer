@@ -111,7 +111,7 @@ protected:
 	static void onClickProfile(void* data);
     static void onClickSet(void* data);
 
-	static void onFocusReceived(LLUICtrl* ctrl, void* data);
+	static void onFocusReceived(LLFocusableElement* ctrl, void* data);
 	static void onCommitAny(LLUICtrl* ctrl, void* data);
 
 	void sendClassifiedClickMessage(const char* type);

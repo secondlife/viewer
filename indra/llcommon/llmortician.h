@@ -50,6 +50,8 @@ private:
 	static BOOL sDestroyImmediate;
 
 	BOOL mIsDead;
+
+	static std::list<LLMortician*> sGraveyard;
 };
 
 #endif

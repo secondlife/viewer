@@ -1117,11 +1117,6 @@ LLVector3d LLWorldMapView::viewPosToGlobal( S32 x, S32 y )
 
 BOOL LLWorldMapView::handleToolTip( S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen )
 {
-	if( !getVisible() || !pointInView( x, y ) )
-	{
-		return FALSE;
-	}
-
 	LLVector3d pos_global = viewPosToGlobal(x, y);
 
 	LLSimInfo* info = gWorldMap->simInfoFromPosGlobal(pos_global);

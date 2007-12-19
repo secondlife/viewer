@@ -41,6 +41,7 @@ const LLRelationship LLRelationship::DEFAULT_RELATIONSHIP = LLRelationship(GRANT
 LLRelationship::LLRelationship() :
 	mGrantToAgent(0),
 	mGrantFromAgent(0),
+	mChangeSerialNum(0),
 	mIsOnline(false)
 {
 }
@@ -48,6 +49,7 @@ LLRelationship::LLRelationship() :
 LLRelationship::LLRelationship(S32 grant_to, S32 grant_from, bool is_online) :
 	mGrantToAgent(grant_to),
 	mGrantFromAgent(grant_from),
+	mChangeSerialNum(0),
 	mIsOnline(is_online)
 {
 }
@@ -60,6 +62,7 @@ bool LLRelationship::isOnline() const
 void LLRelationship::online(bool is_online)
 {
 	mIsOnline = is_online;
+	mChangeSerialNum++;
 }
 
 bool LLRelationship::isRightGrantedTo(S32 rights) const
@@ -86,12 +89,14 @@ void LLRelationship::grantRights(S32 to_agent, S32 from_agent)
 {
 	mGrantToAgent |= to_agent;
 	mGrantFromAgent |= from_agent;
+	mChangeSerialNum++;
 }
 
 void LLRelationship::revokeRights(S32 to_agent, S32 from_agent)
 {
 	mGrantToAgent &= ~to_agent;
 	mGrantFromAgent &= ~from_agent;
+	mChangeSerialNum++;
 }
 
 

@@ -435,7 +435,7 @@ class DarwinManifest(ViewerManifest):
                         self.copy_action(self.src_path_of(s), os.path.join(volpath, d))
 
                 # Unmount the image
-                self.run_command('hdiutil detach "' + devfile + '"')
+                self.run_command('hdiutil detach -force "' + devfile + '"')
 
                 print "Converting temp disk image to final disk image"
                 self.run_command('hdiutil convert "%(sparse)s" -format UDZO -imagekey zlib-level=9 -o "%(final)s"' % {'sparse':sparsename, 'final':finalname})

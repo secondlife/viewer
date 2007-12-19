@@ -2606,7 +2606,7 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 	//	}
 	//
 	//	// restore keyboard focus
-	//	gFocusMgr.setKeyboardFocus(focus_view, callback);
+	//	gFocusMgr.setKeyboardFocus(focus_view);
 	//}
 }
 

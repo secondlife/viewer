@@ -60,7 +60,7 @@ LLResizeHandle::LLResizeHandle( const LLString& name, const LLRect& rect, S32 mi
 	if( RIGHT_BOTTOM == mCorner)
 	{
 		LLUUID image_id(LLUI::sConfigGroup->getString("UIImgResizeBottomRightUUID"));
-		mImage = LLUI::sImageProvider->getUIImageByID(image_id);
+		mImage = LLUI::sImageProvider->getImageByID(image_id);
 	}
 
 	switch( mCorner )

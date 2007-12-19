@@ -124,6 +124,8 @@ public:
 	// called when a motion is deactivated
 	virtual void onDeactivate();
 
+	virtual BOOL canDeprecate() { return FALSE; }
+
 	static LLString getHandPoseName(eHandPose pose);
 	static eHandPose getHandPose(LLString posename);
 

@@ -66,6 +66,7 @@ public:
 	virtual void draw();
 
 private:
+	static void onFocusEdit(LLFocusableElement* ctrl, void* data);
 	static void onCommitAny(LLUICtrl* ctrl, void* data);
 	static void onCommitUserOnly(LLUICtrl* ctrl, void* data);
 	static void onCommitTitle(LLUICtrl* ctrl, void* data);

@@ -3426,7 +3426,7 @@ void LLVOAvatar::updateCharacter(LLAgent &agent)
 //							AUDIO_STEP_LO_SPEED, AUDIO_STEP_HI_SPEED,
 //							AUDIO_STEP_LO_GAIN, AUDIO_STEP_HI_GAIN );
 
-			F32 gain = .30f * gSavedSettings.getF32("AudioLevelAmbient");
+			F32 gain = gSavedSettings.getBOOL("MuteAmbient") ? 0.f : (.30f * gSavedSettings.getF32("AudioLevelAmbient"));
 			LLUUID& step_sound_id = getStepSound();
 
 			LLVector3d foot_pos_global = gAgent.getPosGlobalFromAgent(foot_pos_agent);
@@ -4401,7 +4401,7 @@ BOOL LLVOAvatar::processSingleAnimationStateChange( const LLUUID& anim_id, BOOL 
 					//else
 					{
 						LLUUID sound_id = LLUUID(gSavedSettings.getString("UISndTyping"));
-						F32 volume = gSavedSettings.getF32("AudioLevelSFX");
+						F32 volume = gSavedSettings.getBOOL("MuteSounds") ? 0.f : gSavedSettings.getF32("AudioLevelSFX");
 						gAudiop->triggerSound(sound_id, getID(), volume, char_pos_global);
 					}
 				}

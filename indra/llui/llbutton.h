@@ -114,11 +114,13 @@ public:
 
 	F32				getHeldDownTime() const								{ return mMouseDownTimer.getElapsedTimeF32(); }
 
-	BOOL			toggleState()			{ setToggleState( !mToggleState ); return mToggleState; }
+	BOOL			getIsToggle() const { return mIsToggle; }
+	void			setIsToggle(BOOL is_toggle) { mIsToggle = is_toggle; }
+	BOOL			toggleState();
 	BOOL			getToggleState() const	{ return mToggleState; }
 	void			setToggleState(BOOL b);
 
-	void			setFlashing( BOOL b )	{ mFlashing = b; }
+	void			setFlashing( BOOL b );
 	BOOL			getFlashing() const		{ return mFlashing; }
 
 	void			setHAlign( LLFontGL::HAlign align )		{ mHAlign = align; }
@@ -128,14 +130,11 @@ public:
 	const LLString	getLabelUnselected() const { return wstring_to_utf8str(mUnselectedLabel); }
 	const LLString	getLabelSelected() const { return wstring_to_utf8str(mSelectedLabel); }
 
-
-	// HACK to allow images to be freed when the caller knows he's done with it.
-	LLImageGL*		getImageUnselected() const							{ return mImageUnselected; }
-
 	void			setImageColor(const LLString& color_control);
-	void			setImages(const LLString &image_name, const LLString &selected_name);
 	void			setImageColor(const LLColor4& c);
-	
+	virtual void	setColor(const LLColor4& c);
+
+	void			setImages(const LLString &image_name, const LLString &selected_name);
 	void			setDisabledImages(const LLString &image_name, const LLString &selected_name);
 	void			setDisabledImages(const LLString &image_name, const LLString &selected_name, const LLColor4& c);
 	
@@ -146,7 +145,7 @@ public:
 	void			setDisabledSelectedLabelColor( const LLColor4& c )	{ mDisabledSelectedLabelColor = c; }
 
 	void			setImageOverlay(const LLString &image_name, LLFontGL::HAlign alignment = LLFontGL::HCENTER, const LLColor4& color = LLColor4::white);
-	LLPointer<LLImageGL> getImageOverlay() { return mImageOverlay; }
+	LLPointer<LLUIImage> getImageOverlay() { return mImageOverlay; }
 	
 
 	virtual void	setValue(const LLSD& value );
@@ -170,16 +169,8 @@ public:
 
 	static void		onHeldDown(void *userdata);  // to be called by gIdleCallbacks
 
-	void			setFixedBorder(S32 width, S32 height) { mFixedWidth = width; mFixedHeight = height; }
 	void			setHoverGlowStrength(F32 strength) { mHoverGlowStrength = strength; }
 
-private:
-	void			setImageUnselectedID(const LLUUID &image_id);
-	void			setImageSelectedID(const LLUUID &image_id);
-	void			setImageHoverSelectedID(const LLUUID &image_id);
-	void			setImageHoverUnselectedID(const LLUUID &image_id);
-	void			setImageDisabledID(const LLUUID &image_id);
-	void			setImageDisabledSelectedID(const LLUUID &image_id);
 public:
 	void			setImageUnselected(const LLString &image_name);
 	void			setImageSelected(const LLString &image_name);
@@ -187,6 +178,14 @@ public:
 	void			setImageHoverUnselected(const LLString &image_name);
 	void			setImageDisabled(const LLString &image_name);
 	void			setImageDisabledSelected(const LLString &image_name);
+
+	void			setImageUnselected(LLPointer<LLUIImage> image);
+	void			setImageSelected(LLPointer<LLUIImage> image);
+	void			setImageHoverSelected(LLPointer<LLUIImage> image);
+	void			setImageHoverUnselected(LLPointer<LLUIImage> image);
+	void			setImageDisabled(LLPointer<LLUIImage> image);
+	void			setImageDisabledSelected(LLPointer<LLUIImage> image);
+
 	void			setCommitOnReturn(BOOL commit) { mCommitOnReturn = commit; }
 	BOOL			getCommitOnReturn() { return mCommitOnReturn; }
 
@@ -209,27 +208,27 @@ protected:
 	F32				mHeldDownDelay;		// seconds, after which held-down callbacks get called
 	S32				mHeldDownFrameDelay;	// frames, after which held-down callbacks get called
 
-	LLPointer<LLImageGL>	mImageOverlay;
+	LLPointer<LLUIImage>	mImageOverlay;
 	LLFontGL::HAlign		mImageOverlayAlignment;
 	LLColor4				mImageOverlayColor;
 
-	LLPointer<LLImageGL>	mImageUnselected;
+	LLPointer<LLUIImage>	mImageUnselected;
 	LLUIString				mUnselectedLabel;
 	LLColor4				mUnselectedLabelColor;
 
-	LLPointer<LLImageGL>	mImageSelected;
+	LLPointer<LLUIImage>	mImageSelected;
 	LLUIString				mSelectedLabel;
 	LLColor4				mSelectedLabelColor;
 
-	LLPointer<LLImageGL>	mImageHoverSelected;
+	LLPointer<LLUIImage>	mImageHoverSelected;
 
-	LLPointer<LLImageGL>	mImageHoverUnselected;
+	LLPointer<LLUIImage>	mImageHoverUnselected;
 
-	LLPointer<LLImageGL>	mImageDisabled;
+	LLPointer<LLUIImage>	mImageDisabled;
 	LLUIString				mDisabledLabel;
 	LLColor4				mDisabledLabelColor;
 
-	LLPointer<LLImageGL>	mImageDisabledSelected;
+	LLPointer<LLUIImage>	mImageDisabledSelected;
 	LLUIString				mDisabledSelectedLabel;
 	LLColor4				mDisabledSelectedLabelColor;
 
@@ -254,6 +253,7 @@ protected:
 	LLColor4		mImageColor;
 	LLColor4		mDisabledImageColor;
 
+	BOOL			mIsToggle;
 	BOOL			mToggleState;
 	BOOL			mScaleImage;
 
@@ -267,9 +267,6 @@ protected:
 	S32				mLeftHPad;
 	S32				mRightHPad;
 
-	S32				mFixedWidth;
-	S32				mFixedHeight;
-
 	F32				mHoverGlowStrength;
 	F32				mCurGlowStrength;
 
@@ -278,22 +275,9 @@ protected:
 
 	LLString		mHelpURL;
 
-	LLPointer<LLImageGL> mImagep;
+	LLPointer<LLUIImage> mImagep;
 
-	static LLFrameTimer	sFlashingTimer;
-};
-
-class LLSquareButton
-:	public LLButton
-{
-public:
-	LLSquareButton(const LLString& name, const LLRect& rect, 
-				   const LLString& label,
-				   const LLFontGL *font = NULL,
-				   const LLString& control_name = LLString(),	
-				   void (*click_callback)(void*) = NULL,
-				   void *callback_data = NULL,
-				   const LLString& selected_label = LLString::null );
+	LLFrameTimer	mFlashingTimer;
 };
 
 // Helpful functions

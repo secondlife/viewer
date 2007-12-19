@@ -114,8 +114,8 @@ BOOL LLPanelGroupGeneral::postBuild()
 	if(mEditCharter)
 	{
 		mEditCharter->setCommitCallback(onCommitAny);
-		mEditCharter->setFocusReceivedCallback(onCommitAny);
-		mEditCharter->setFocusChangedCallback(onCommitAny);
+		mEditCharter->setFocusReceivedCallback(onFocusEdit, this);
+		mEditCharter->setFocusChangedCallback(onFocusEdit, this);
 		mEditCharter->setCallbackUserData(this);
 	}
 
@@ -256,6 +256,14 @@ BOOL LLPanelGroupGeneral::postBuild()
 	}
 
 	return LLPanelGroupTab::postBuild();
+}
+
+// static
+void LLPanelGroupGeneral::onFocusEdit(LLFocusableElement* ctrl, void* data)
+{
+	LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
+	self->mChanged = TRUE;
+	self->notifyObservers();
 }
 
 // static

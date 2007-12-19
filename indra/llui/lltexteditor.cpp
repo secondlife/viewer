@@ -310,9 +310,9 @@ LLTextEditor::LLTextEditor(
 	mWordWrap( FALSE ),
 	mTabToNextField( TRUE ),
 	mCommitOnFocusLost( FALSE ),
-	mTakesFocus( TRUE ),
 	mHideScrollbarForShortDocs( FALSE ),
 	mTakesNonScrollClicks( TRUE ),
+	mTrackBottom( TRUE ),
 	mAllowEmbeddedItems( allow_embedded_items ),
 	mAcceptCallingCardNames(FALSE),
 	mHandleEditKeysDirectly( FALSE ),
@@ -1141,46 +1141,42 @@ void LLTextEditor::selectAll()
 
 BOOL LLTextEditor::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen)
 {
-	if (pointInView(x, y) && getVisible())
+	for ( child_list_const_iter_t child_it = getChildList()->begin();
+			child_it != getChildList()->end(); ++child_it)
 	{
-		for ( child_list_const_iter_t child_it = getChildList()->begin();
-			  child_it != getChildList()->end(); ++child_it)
-		{
-			LLView* viewp = *child_it;
-			S32 local_x = x - viewp->getRect().mLeft;
-			S32 local_y = y - viewp->getRect().mBottom;
-			if( viewp->handleToolTip(local_x, local_y, msg, sticky_rect_screen ) )
-			{
-				return TRUE;
-			}
-		}
-
-		if( mSegments.empty() )
+		LLView* viewp = *child_it;
+		S32 local_x = x - viewp->getRect().mLeft;
+		S32 local_y = y - viewp->getRect().mBottom;
+		if( viewp->handleToolTip(local_x, local_y, msg, sticky_rect_screen ) )
 		{
 			return TRUE;
 		}
+	}
 
-		LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
-		if( cur_segment )
-		{
-			BOOL has_tool_tip = FALSE;
-			has_tool_tip = cur_segment->getToolTip( msg );
-
-			if( has_tool_tip )
-			{
-				// Just use a slop area around the cursor
-				// Convert rect local to screen coordinates
-				S32 SLOP = 8;
-				localPointToScreen( 
-					x - SLOP, y - SLOP, 
-					&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
-				sticky_rect_screen->mRight = sticky_rect_screen->mLeft + 2 * SLOP;
-				sticky_rect_screen->mTop = sticky_rect_screen->mBottom + 2 * SLOP;
-			}
-		}
+	if( mSegments.empty() )
+	{
 		return TRUE;
 	}
-	return FALSE;
+
+	LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
+	if( cur_segment )
+	{
+		BOOL has_tool_tip = FALSE;
+		has_tool_tip = cur_segment->getToolTip( msg );
+
+		if( has_tool_tip )
+		{
+			// Just use a slop area around the cursor
+			// Convert rect local to screen coordinates
+			S32 SLOP = 8;
+			localPointToScreen( 
+				x - SLOP, y - SLOP, 
+				&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
+			sticky_rect_screen->mRight = sticky_rect_screen->mLeft + 2 * SLOP;
+			sticky_rect_screen->mTop = sticky_rect_screen->mBottom + 2 * SLOP;
+		}
+	}
+	return TRUE;
 }
 
 BOOL LLTextEditor::handleScrollWheel(S32 x, S32 y, S32 clicks)
@@ -1263,7 +1259,7 @@ BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 		handled = TRUE;
 	}
 
-	if (mTakesFocus)
+	if (hasTabStop())
 	{
 		setFocus( TRUE );
 		handled = TRUE;
@@ -1436,11 +1432,6 @@ BOOL LLTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 	if( !handled && mTakesNonScrollClicks)
 	{
-		if (mTakesFocus)
-		{
-			setFocus( TRUE );
-		}
-		
 		setCursorAtLocalPos( x, y, FALSE );
 		deselect();
 
@@ -3160,6 +3151,9 @@ void LLTextEditor::draw()
 		}
 		LLView::draw();  // Draw children (scrollbar and border)
 	}
+	
+	// remember if we are supposed to be at the bottom of the buffer
+	mScrolledToBottom = isScrolledToBottom();
 }
 
 void LLTextEditor::reportBadKeystroke()
@@ -3328,6 +3322,17 @@ void LLTextEditor::changeLine( S32 delta )
 	unbindEmbeddedChars( mGLFont );
 }
 
+BOOL LLTextEditor::isScrolledToTop() 
+{ 
+	return mScrollbar->isAtBeginning(); 
+}
+
+BOOL LLTextEditor::isScrolledToBottom() 
+{ 
+	return mScrollbar->isAtEnd(); 
+}
+
+
 void LLTextEditor::startOfLine()
 {
 	S32 line, offset;
@@ -3447,6 +3452,13 @@ void LLTextEditor::updateScrollFromCursor()
 void LLTextEditor::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLView::reshape( width, height, called_from_parent );
+
+	// if scrolled to bottom, stay at bottom
+	// unless user is editing text
+	if (mScrolledToBottom && mTrackBottom && !hasFocus())
+	{
+		endOfDoc();
+	}
 
 	updateTextRect();
 
@@ -4233,6 +4245,8 @@ void LLTextEditor::setTextEditorParameters(LLXMLNodePtr node)
 	BOOL word_wrap = FALSE;
 	node->getAttributeBOOL("word_wrap", word_wrap);
 	setWordWrap(word_wrap);
+
+	node->getAttributeBOOL("track_bottom", mTrackBottom);
 
 	LLColor4 color;
 	if (LLUICtrlFactory::getAttributeColor(node,"cursor_color", color)) 

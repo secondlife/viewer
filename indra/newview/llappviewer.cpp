@@ -425,7 +425,7 @@ static void ui_audio_callback(const LLUUID& uuid)
 {
 	if (gAudiop)
 	{
-		F32 volume = gSavedSettings.getF32("AudioLevelUI");
+		F32 volume = gSavedSettings.getBOOL("MuteUI") ? 0.f : gSavedSettings.getF32("AudioLevelUI");
 		gAudiop->triggerSound(uuid, gAgent.getID(), volume);
 	}
 }

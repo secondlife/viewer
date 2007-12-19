@@ -238,7 +238,7 @@ void LLPanelGroupLandMoney::impl::onMapButton()
 
 	F32 global_x = 0.f;
 	F32 global_y = 0.f;
-	sscanf(cellp->getText().c_str(), "%f %f", &global_x, &global_y);
+	sscanf(cellp->getValue().asString().c_str(), "%f %f", &global_x, &global_y);
 
 	// Hack: Use the agent's z-height
 	F64 global_z = gAgent.getPositionGlobal().mdV[VZ];

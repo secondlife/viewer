@@ -284,6 +284,14 @@
 					<boolean>true</boolean>
 				</map>
 
+				<key>AgentDropGroup</key>
+				<map>
+				    <key>flavor</key>
+				    <string>llsd</string>
+				    <key>trusted-sender</key>
+				    <boolean>true</boolean>
+				</map>
+
 				<key>ChatterBoxSessionStartReply</key>
 				<map>
 					<key>flavor</key>
@@ -315,7 +323,15 @@
 					<key>trusted-sender</key>
 					<boolean>true</boolean>
 				</map>
-
+				
+				<key>ChatterBoxSessionUpdate</key>
+				<map>
+					<key>flavor</key>
+					<string>llsd</string>
+					<key>trusted-sender</key>
+					<boolean>true</boolean>
+				</map>
+				
 				<key>ChatterBoxInvitation</key>
 				<map>
 					<key>flavor</key>

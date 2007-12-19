@@ -189,12 +189,15 @@ void LLFloaterAvatarPicker::onList(LLUICtrl* ctrl, void* userdata)
 		return;
 	}
 	
-	std::vector<LLScrollListItem*> items = self->mListNames->getAllSelected();
-	for (std::vector<LLScrollListItem*>::iterator iter = items.begin();
-		 iter != items.end(); ++iter)
+	std::vector<LLScrollListItem*> items =
+		self->mListNames->getAllSelected();
+	for (
+		std::vector<LLScrollListItem*>::iterator iter = items.begin();
+		iter != items.end();
+		++iter)
 	{
 		LLScrollListItem* item = *iter;
-		self->mAvatarNames.push_back(item->getColumn(0)->getText());
+		self->mAvatarNames.push_back(item->getColumn(0)->getValue().asString());
 		self->mAvatarIDs.push_back(item->getUUID());
 		self->childSetEnabled("Select", TRUE);
 	}
@@ -225,8 +228,8 @@ void LLFloaterAvatarPicker::doSelectionChange(const std::deque<LLFolderViewItem*
 		mAvatarNames.clear();
 		childSetEnabled("Select", FALSE);
 	}
+	BOOL first_calling_card = TRUE;
 
-	BOOL	first_calling_card = TRUE;
 	std::deque<LLFolderViewItem*>::const_iterator item_it;
 	for (item_it = items.begin(); item_it != items.end(); ++item_it)
 	{

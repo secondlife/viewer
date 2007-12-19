@@ -607,26 +607,26 @@ void LLJoystickCameraRotate::draw()
 	{
 		LLGLSUIDefault gls_ui;
 
-		gl_draw_image( 0, 0, mImageUnselected );
+		mImageUnselected->draw( 0, 0 );
 
 		if( mInTop )
 		{
-			drawRotatedImage( mImageSelected, 0 );
+			drawRotatedImage( mImageSelected->getImage(), 0 );
 		}
 
 		if( mInRight )
 		{
-			drawRotatedImage( mImageSelected, 1 );
+			drawRotatedImage( mImageSelected->getImage(), 1 );
 		}
 
 		if( mInBottom )
 		{
-			drawRotatedImage( mImageSelected, 2 );
+			drawRotatedImage( mImageSelected->getImage(), 2 );
 		}
 
 		if( mInLeft )
 		{
-			drawRotatedImage( mImageSelected, 3 );
+			drawRotatedImage( mImageSelected->getImage(), 3 );
 		}
 
 		if (sDebugRects)
@@ -801,7 +801,7 @@ void LLJoystickCameraZoom::draw()
 		}
 		else
 		{
-			gl_draw_image( 0, 0, mImageUnselected );
+			mImageUnselected->draw( 0, 0 );
 		}
 
 		if (sDebugRects)

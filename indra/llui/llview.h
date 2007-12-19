@@ -50,6 +50,7 @@
 #include "llviewquery.h"
 #include "llxmlnode.h"
 #include "stdenums.h"
+#include "lluistring.h"
 
 class LLColor4;
 class LLWindow;
@@ -146,6 +147,7 @@ protected:
 	LLString	mName;
 	// location in pixels, relative to surrounding structure, bottom,left=0,0
 	LLRect		mRect;
+	LLRect		mBoundingRect;
 	
 	U32			mReshapeFlags;
 
@@ -161,11 +163,11 @@ protected:
 	BOOL		mSaveToXML;
 
 	BOOL		mIsFocusRoot;
+	BOOL		mUseBoundingRect; // hit test against bounding rectangle that includes all child elements
 
 public:
 	LLViewHandle mViewHandle;
 	BOOL		mLastVisible;
-	BOOL		mSpanChildren;
 
 private:
 	BOOL		mVisible;
@@ -217,6 +219,7 @@ public:
 	void		setMouseOpaque( BOOL b );
 	void		setToolTip( const LLStringExplicit& msg );
 	BOOL		setToolTipArg( const LLStringExplicit& key, const LLStringExplicit& text );
+	void		setToolTipArgs( const LLString::format_map_t& args );
 
 	virtual void setRect(const LLRect &rect);
 	void		setFollows(U32 flags);
@@ -231,13 +234,15 @@ public:
 
 	void        setSoundFlags(U8 flags);
 	void		setName(LLString name);
-	void		setSpanChildren( BOOL span_children );
+	void		setUseBoundingRect( BOOL use_bounding_rect );
+	BOOL		getUseBoundingRect();
 
 	const LLString& getToolTip();
 
 	void		sendChildToFront(LLView* child);
 	void		sendChildToBack(LLView* child);
 	void		moveChildToFrontOfTabGroup(LLUICtrl* child);
+	void		moveChildToBackOfTabGroup(LLUICtrl* child);
 
 	void		addChild(LLView* view, S32 tab_group = 0);
 	void		addChildAtEnd(LLView* view,  S32 tab_group = 0);
@@ -264,7 +269,7 @@ public:
 	{
 		/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const 
 		{
-			return filterResult_t(view->isCtrl() && view->isFocusRoot(), !view->isFocusRoot());
+			return filterResult_t(view->isCtrl() && view->isFocusRoot(), TRUE);
 		}
 	};
 
@@ -312,20 +317,22 @@ public:
 	BOOL		followsAll() const				{ return mReshapeFlags & FOLLOWS_ALL; }
 
 	const LLRect&	getRect() const				{ return mRect; }
+	const LLRect&	getBoundingRect() const		{ return mBoundingRect; }
+	const LLRect	getLocalBoundingRect() const;
 	const LLRect	getScreenRect() const;
 	const LLRect	getLocalRect() const;
 	virtual const LLRect getSnapRect() const	{ return mRect; }
 	virtual const LLRect getLocalSnapRect() const;
 
 	virtual LLRect getRequiredRect();		// Get required size for this object. 0 for width/height means don't care.
-	virtual void updateRect();				// apply procedural updates to own rectangle
+	void updateBoundingRect();
 
 	LLView*		getRootView();
 	LLView*		getParent() const				{ return mParentView; }
 	LLView*		getFirstChild() 				{ return (mChildList.empty()) ? NULL : *(mChildList.begin()); }
 	S32			getChildCount()	const			{ return (S32)mChildList.size(); }
 	template<class _Pr3> void sortChildren(_Pr3 _Pred) { mChildList.sort(_Pred); }
-	BOOL		hasAncestor(LLView* parentp);
+	BOOL		hasAncestor(const LLView* parentp);
 
 	BOOL		hasChild(const LLString& childname, BOOL recurse = FALSE) const;
 
@@ -390,6 +397,7 @@ public:
 
 	static U32 createRect(LLXMLNodePtr node, LLRect &rect, LLView* parent_view, const LLRect &required_rect = LLRect());
 	virtual void initFromXML(LLXMLNodePtr node, LLView* parent);
+	void parseFollowsFlags(LLXMLNodePtr node);
 
 	static LLFontGL* selectFont(LLXMLNodePtr node);
 	static LLFontGL::HAlign selectFontHAlign(LLXMLNodePtr node);
@@ -428,12 +436,16 @@ public:
 	BOOL			getVisible() const			{ return mVisible && !mHidden; }
 	U8              getSoundFlags() const       { return mSoundFlags; }
 
-	// Default to no action
-	virtual void	onFocusLost();
-	virtual void	onFocusReceived();
+	typedef enum e_hit_test_type
+	{
+		HIT_TEST_USE_BOUNDING_RECT,
+		HIT_TEST_IGNORE_BOUNDING_RECT
+	}EHitTestType;
 
-	BOOL			parentPointInView(S32 x, S32 y) const { return mRect.pointInRect( x, y ); }
-	BOOL			pointInView(S32 x, S32 y) const { return mRect.localPointInRect( x, y ); }
+	BOOL			parentPointInView(S32 x, S32 y, EHitTestType type = HIT_TEST_USE_BOUNDING_RECT) const;
+	BOOL			pointInView(S32 x, S32 y, EHitTestType type = HIT_TEST_USE_BOUNDING_RECT) const;
+	BOOL			blockMouseEvent(S32 x, S32 y) const;
+
 	virtual void	screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const;
 	virtual void	localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const;
 	virtual BOOL	localPointToOtherView( S32 x, S32 y, S32 *other_x, S32 *other_y, LLView* other_view);

@@ -173,7 +173,7 @@ public:
 	// LLUICtrl
 	void childSetFocus(const LLString& id, BOOL focus = TRUE);
 	BOOL childHasFocus(const LLString& id);
-	void childSetFocusChangedCallback(const LLString& id, void (*cb)(LLUICtrl*, void*));
+	void childSetFocusChangedCallback(const LLString& id, void (*cb)(LLFocusableElement*, void*), void* user_data = NULL);
 	
 	void childSetCommitCallback(const LLString& id, void (*cb)(LLUICtrl*, void*), void* userdata = NULL );
 	void childSetDoubleClickCallback(const LLString& id, void (*cb)(void*), void* userdata = NULL );
@@ -277,9 +277,9 @@ public:
 	virtual ~LLLayoutStack();
 
 	/*virtual*/ void draw();
-	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
 	/*virtual*/ LLXMLNodePtr getXML(bool save_children = true) const;
 	/*virtual*/ void removeCtrl(LLUICtrl* ctrl);
+
 	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_LAYOUT_STACK; }
 	virtual LLString getWidgetTag() const { return LL_LAYOUT_STACK_TAG; }
 
@@ -288,7 +288,7 @@ public:
 	S32 getMinWidth();
 	S32 getMinHeight();
 	
-	void addPanel(LLPanel* panel, S32 min_width, S32 min_height, BOOL auto_resize, S32 index = S32_MAX);
+	void addPanel(LLPanel* panel, S32 min_width, S32 min_height, BOOL auto_resize, BOOL user_resize, S32 index = S32_MAX);
 	void removePanel(LLPanel* panel);
 	void updateLayout(BOOL force_resize = FALSE);
 
@@ -299,6 +299,8 @@ protected:
 	void calcMinExtents();
 	S32 getMinStackSize();
 	S32 getCurStackSize();
+	S32 getDefaultHeight(S32 cur_height);
+	S32 getDefaultWidth(S32 cur_width);
 
 protected:
 	eLayoutOrientation mOrientation;
@@ -308,6 +310,7 @@ protected:
 
 	S32 mMinWidth;
 	S32 mMinHeight;
+	S32 mPanelSpacing;
 };
 
 #endif

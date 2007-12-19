@@ -366,6 +366,11 @@ F32 LLViewerRegion::getWaterHeight() const
 	return mLandp->getWaterHeight();
 }
 
+BOOL LLViewerRegion::isVoiceEnabled() const
+{
+	return (getRegionFlags() & REGION_FLAGS_ALLOW_VOICE);
+}
+
 void LLViewerRegion::setRegionFlags(U32 flags)
 {
 	mRegionFlags = flags;

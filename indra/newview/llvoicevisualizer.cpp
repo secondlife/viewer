@@ -111,7 +111,7 @@ LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
 	for (int i=0; i<NUM_VOICE_SYMBOL_WAVES; i++)
 	{
 		mSoundSymbol.mWaveFadeOutStartTime	[i] = mCurrentTime;
-		mSoundSymbol.mTexture				[i] = gImageList.getUIImageByID(sound_level_img[i]);
+		mSoundSymbol.mTexture				[i] = gImageList.getImageByID(sound_level_img[i]);
 		mSoundSymbol.mWaveActive			[i] = false;
 		mSoundSymbol.mWaveOpacity			[i] = 1.0f;
 		mSoundSymbol.mWaveExpansion			[i] = 1.0f;

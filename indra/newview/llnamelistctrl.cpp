@@ -224,7 +224,7 @@ LLScrollListItem* LLNameListCtrl::addElement(const LLSD& value, EAddPosition pos
 	LLScrollListCell* cell = (LLScrollListCell*)item->getColumn(mNameColumnIndex);
 	((LLScrollListText*)cell)->setText( fullname );
 
-	updateMaxContentWidth(item);
+	calcMaxContentWidth(item);
 
 	// this column is resizable
 	LLScrollListColumn* columnp = getColumn(mNameColumnIndex);
@@ -277,7 +277,7 @@ void LLNameListCtrl::refresh(const LLUUID& id, const char* first,
 			cell = (LLScrollListCell*)item->getColumn(mNameColumnIndex);
 
 			((LLScrollListText*)cell)->setText( fullname );
-			updateMaxContentWidth(item);
+			calcMaxContentWidth(item);
 		}
 	}
 }

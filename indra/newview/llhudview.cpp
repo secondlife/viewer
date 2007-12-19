@@ -52,8 +52,8 @@ LLHUDView *gHUDView = NULL;
 
 const S32 HUD_ARROW_SIZE = 32;
 
-LLHUDView::LLHUDView(const std::string& name, const LLRect& rect)
-:	LLView(name, rect, FALSE)
+LLHUDView::LLHUDView()
+:	LLPanel()
 { }
 
 LLHUDView::~LLHUDView()

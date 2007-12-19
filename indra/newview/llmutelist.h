@@ -112,6 +112,9 @@ public:
 	// call this method on logout to save everything.
 	void cache(const LLUUID& agent_id);
 
+	void setSavedResidentVolume(const LLUUID& id, F32 volume);
+	F32 getSavedResidentVolume(const LLUUID& id);
+
 private:
 	BOOL loadFromFile(const LLString& filename);
 	BOOL saveToFile(const LLString& filename);
@@ -155,6 +158,9 @@ private:
 	BOOL mIsLoaded;
 
 	friend class LLDispatchEmptyMuteList;
+
+	typedef std::map<LLUUID, F32> user_volume_map_t; 
+	static user_volume_map_t sUserVolumeSettings;
 };
 
 class LLMuteListObserver

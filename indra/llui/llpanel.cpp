@@ -64,7 +64,6 @@ LLPanel::panel_map_t LLPanel::sPanelMap;
 LLPanel::alert_queue_t LLPanel::sAlertQueue;
 
 const S32 RESIZE_BAR_OVERLAP = 1;
-const S32 PANEL_STACK_GAP = RESIZE_BAR_HEIGHT;
 
 void LLPanel::init()
 {
@@ -88,6 +87,7 @@ LLPanel::LLPanel()
 : mRectControl()
 {
 	init();
+	setName("panel");
 }
 
 LLPanel::LLPanel(const LLString& name)
@@ -124,6 +124,7 @@ LLPanel::LLPanel(const LLString& name, const LLString& rect_control, BOOL border
 void LLPanel::addBorder(LLViewBorder::EBevel border_bevel,
 						LLViewBorder::EStyle border_style, S32 border_thickness)
 {
+	removeBorder();
 	mBorder = new LLViewBorder( "panel border", 
 								LLRect(0, mRect.getHeight(), mRect.getWidth(), 0), 
 								border_bevel, border_style, border_thickness );
@@ -361,12 +362,6 @@ BOOL LLPanel::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 {
 	BOOL handled = FALSE;
 
-	if( getVisible() && getEnabled() && gFocusMgr.childHasKeyboardFocus(this) && KEY_ESCAPE == key )
-	{
-		gFocusMgr.setKeyboardFocus(NULL, NULL);
-		return TRUE;
-	}
-
 	if( getVisible() && getEnabled() && 
 		gFocusMgr.childHasKeyboardFocus(this) && !called_from_parent )
 	{
@@ -472,7 +467,7 @@ void LLPanel::setFocus(BOOL b)
 	{
 		if( this == gFocusMgr.getKeyboardFocus() )
 		{
-			gFocusMgr.setKeyboardFocus( NULL, NULL );
+			gFocusMgr.setKeyboardFocus( NULL );
 		}
 		else
 		{
@@ -595,7 +590,8 @@ LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLUICtrlFactory *fac
 	{
 		LLRect rect;
 		createRect(node, rect, parent, LLRect());
-		panelp = new LLPanel(name, rect);
+		// create a new panel without a border, by default
+		panelp = new LLPanel(name, rect, FALSE);
 		panelp->initPanelXML(node, parent, factory);
 		// preserve panel's width and height, but override the location
 		const LLRect& panelrect = panelp->getRect();
@@ -608,12 +604,13 @@ LLView* LLPanel::fromXML(LLXMLNodePtr node, LLView* parent, LLUICtrlFactory *fac
 	{
 		panelp->initPanelXML(node, parent, factory);
 	}
+
 	return panelp;
 }
 
 BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 {
-	LLString name("panel");
+	LLString name = getName();
 	node->getAttributeString("name", name);
 	setName(name);
 
@@ -628,13 +625,15 @@ BOOL LLPanel::initPanelXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *f
 
 	if (!xml_filename.empty())
 	{
-		// Preserve postion of embedded panel but allow panel to dictate width/height
-		LLRect rect(getRect());
 		didPost = factory->buildPanel(this, xml_filename, NULL);
-		S32 w = getRect().getWidth();
-		S32 h = getRect().getHeight();
-		rect.setLeftTopAndSize(rect.mLeft, rect.mTop, w, h);
-		setRect(rect);
+
+		LLRect new_rect = getRect();
+		// override rectangle with embedding parameters as provided
+		createRect(node, new_rect, parent);
+		setOrigin(new_rect.mLeft, new_rect.mBottom);
+		reshape(new_rect.getWidth(), new_rect.getHeight());
+		// optionally override follows flags from including nodes
+		parseFollowsFlags(node);
 	}
 	else
 	{
@@ -678,7 +677,7 @@ void LLPanel::setPanelParameters(LLXMLNodePtr node, LLView* parent)
 	initFromXML(node, parent);
 
 	/////// Border attributes ///////
-	BOOL border = FALSE;
+	BOOL border = mBorder != NULL;
 	node->getAttributeBOOL("border", border);
 	if (border)
 	{
@@ -706,24 +705,24 @@ void LLPanel::setPanelParameters(LLXMLNodePtr node, LLView* parent)
 	}
 
 	/////// Background attributes ///////
-	BOOL background_visible = FALSE;
+	BOOL background_visible = mBgVisible;
 	node->getAttributeBOOL("background_visible", background_visible);
 	setBackgroundVisible(background_visible);
 	
-	BOOL background_opaque = FALSE;
+	BOOL background_opaque = mBgOpaque;
 	node->getAttributeBOOL("background_opaque", background_opaque);
 	setBackgroundOpaque(background_opaque);
 
 	LLColor4 color;
-	color = LLUI::sColorsGroup->getColor( "FocusBackgroundColor" );
+	color = mBgColorOpaque;
 	LLUICtrlFactory::getAttributeColor(node,"bg_opaque_color", color);
 	setBackgroundColor(color);
 
-	color = LLUI::sColorsGroup->getColor( "DefaultBackgroundColor" );
+	color = mBgColorAlpha;
 	LLUICtrlFactory::getAttributeColor(node,"bg_alpha_color", color);
 	setTransparentColor(color);
 
-	LLString label;
+	LLString label = getLabel();
 	node->getAttributeString("label", label);
 	setLabel(label);
 }
@@ -853,12 +852,12 @@ BOOL LLPanel::childHasFocus(const LLString& id)
 }
 
 
-void LLPanel::childSetFocusChangedCallback(const LLString& id, void (*cb)(LLUICtrl*, void*))
+void LLPanel::childSetFocusChangedCallback(const LLString& id, void (*cb)(LLFocusableElement*, void*), void* user_data)
 {
 	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);
 	if (child)
 	{
-		child->setFocusChangedCallback(cb);
+		child->setFocusChangedCallback(cb, user_data);
 	}
 }
 
@@ -1165,11 +1164,12 @@ void LLPanel::storeRectControl()
 //
 struct LLLayoutStack::LLEmbeddedPanel
 {
-	LLEmbeddedPanel(LLPanel* panelp, eLayoutOrientation orientation, S32 min_width, S32 min_height, BOOL auto_resize) : 
+	LLEmbeddedPanel(LLPanel* panelp, eLayoutOrientation orientation, S32 min_width, S32 min_height, BOOL auto_resize, BOOL user_resize) : 
 			mPanel(panelp), 
 			mMinWidth(min_width), 
 			mMinHeight(min_height),
 			mAutoResize(auto_resize),
+			mUserResize(user_resize),
 			mOrientation(orientation),
 			mVisibleAmt(1.f) // default to fully visible
 	{
@@ -1205,6 +1205,7 @@ struct LLLayoutStack::LLEmbeddedPanel
 	S32 mMinWidth;
 	S32 mMinHeight;
 	BOOL mAutoResize;
+	BOOL mUserResize;
 	LLResizeBar* mResizeBar;
 	eLayoutOrientation mOrientation;
 	F32 mVisibleAmt;
@@ -1213,7 +1214,8 @@ struct LLLayoutStack::LLEmbeddedPanel
 LLLayoutStack::LLLayoutStack(eLayoutOrientation orientation) : 
 		mOrientation(orientation),
 		mMinWidth(0),
-		mMinHeight(0)
+		mMinHeight(0),
+		mPanelSpacing(RESIZE_BAR_HEIGHT)
 {
 }
 
@@ -1226,24 +1228,26 @@ void LLLayoutStack::draw()
 {
 	updateLayout();
 	{
-		// clip if outside nominal bounds
-		LLLocalClipRect clip(getLocalRect(), mRect.getWidth() > mMinWidth || mRect.getHeight() > mMinHeight);
 		e_panel_list_t::iterator panel_it;
 		for (panel_it = mPanels.begin(); panel_it != mPanels.end(); ++panel_it)
 		{
+			// clip to layout rectangle, not bounding rectangle
 			LLRect clip_rect = (*panel_it)->mPanel->getRect();
 			// scale clipping rectangle by visible amount
 			if (mOrientation == HORIZONTAL)
 			{
-				clip_rect.mRight = clip_rect.mLeft + llround(clip_rect.getWidth() * (*panel_it)->mVisibleAmt);
+				clip_rect.mRight = clip_rect.mLeft + llround((F32)clip_rect.getWidth() * (*panel_it)->mVisibleAmt);
 			}
 			else
 			{
-				clip_rect.mBottom = clip_rect.mTop - llround(clip_rect.getHeight() * (*panel_it)->mVisibleAmt);
+				clip_rect.mBottom = clip_rect.mTop - llround((F32)clip_rect.getHeight() * (*panel_it)->mVisibleAmt);
 			}
-			LLLocalClipRect clip(clip_rect, (*panel_it)->mVisibleAmt < 1.f);
+
+			LLPanel* panelp = (*panel_it)->mPanel;
+
+			LLLocalClipRect clip(clip_rect);
 			// only force drawing invisible children if visible amount is non-zero
-			drawChild((*panel_it)->mPanel, 0, 0, (*panel_it)->mVisibleAmt > 0.f);
+			drawChild(panelp, 0, 0, !clip_rect.isNull());
 		}
 	}
 }
@@ -1258,15 +1262,11 @@ void LLLayoutStack::removeCtrl(LLUICtrl* ctrl)
 		delete embedded_panelp;
 	}
 
+	// need to update resizebars
+
 	calcMinExtents();
 
 	LLView::removeCtrl(ctrl);
-}
-
-void LLLayoutStack::reshape(S32 width, S32 height, BOOL called_from_parent)
-{
-	LLView::reshape(width, height, called_from_parent);
-	//updateLayout();
 }
 
 LLXMLNodePtr LLLayoutStack::getXML(bool save_children) const
@@ -1298,6 +1298,14 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactor
 
 	LLLayoutStack* layout_stackp = new LLLayoutStack(orientation);
 
+	node->getAttributeS32("border_size", layout_stackp->mPanelSpacing);
+	// don't allow negative spacing values
+	layout_stackp->mPanelSpacing = llmax(layout_stackp->mPanelSpacing, 0);
+
+	LLString name("stack");
+	node->getAttributeString("name", name);
+
+	layout_stackp->setName(name);
 	layout_stackp->initFromXML(node, parent);
 
 	LLXMLNodePtr child;
@@ -1308,16 +1316,18 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactor
 			S32 min_width = 0;
 			S32 min_height = 0;
 			BOOL auto_resize = TRUE;
+			BOOL user_resize = TRUE;
 
 			child->getAttributeS32("min_width", min_width);
 			child->getAttributeS32("min_height", min_height);
 			child->getAttributeBOOL("auto_resize", auto_resize);
+			child->getAttributeBOOL("user_resize", user_resize);
 
 			LLPanel* panelp = (LLPanel*)LLPanel::fromXML(child, layout_stackp, factory);
 			if (panelp)
 			{
 				panelp->setFollowsNone();
-				layout_stackp->addPanel(panelp, min_width, min_height, auto_resize);
+				layout_stackp->addPanel(panelp, min_width, min_height, auto_resize, user_resize);
 			}
 		}
 	}
@@ -1335,11 +1345,36 @@ S32 LLLayoutStack::getMinHeight()
 	return mMinHeight;
 }
 
-void LLLayoutStack::addPanel(LLPanel* panel, S32 min_width, S32 min_height, BOOL auto_resize, S32 index)
+S32 LLLayoutStack::getDefaultHeight(S32 cur_height)
 {
-	LLEmbeddedPanel* embedded_panel = new LLEmbeddedPanel(panel, mOrientation, min_width, min_height, auto_resize);
+	// if we are spanning our children (crude upward propagation of size)
+	// then don't enforce our size on our children
+	if (mOrientation == HORIZONTAL)
+	{
+		cur_height = llmax(mMinHeight, mRect.getHeight());
+	}
+
+	return cur_height;
+}
+
+S32 LLLayoutStack::getDefaultWidth(S32 cur_width)
+{
+	// if we are spanning our children (crude upward propagation of size)
+	// then don't enforce our size on our children
+	if (mOrientation == VERTICAL)
+	{
+		cur_width = llmax(mMinWidth, mRect.getWidth());
+	}
+
+	return cur_width;
+}
+
+void LLLayoutStack::addPanel(LLPanel* panel, S32 min_width, S32 min_height, BOOL auto_resize, BOOL user_resize, S32 index)
+{
+	LLEmbeddedPanel* embedded_panel = new LLEmbeddedPanel(panel, mOrientation, min_width, min_height, auto_resize, user_resize);
 	
 	mPanels.insert(mPanels.begin() + llclamp(index, 0, (S32)mPanels.size()), embedded_panel);
+	
 	addChild(panel);
 	addChild(embedded_panel->mResizeBar);
 
@@ -1347,29 +1382,15 @@ void LLLayoutStack::addPanel(LLPanel* panel, S32 min_width, S32 min_height, BOOL
 	// with a bit of overlap
 	for (e_panel_list_t::iterator panel_it = mPanels.begin(); panel_it != mPanels.end(); ++panel_it)
 	{
-		e_panel_list_t::iterator next_it = panel_it;
-		++next_it;
-
 		LLResizeBar* resize_barp = (*panel_it)->mResizeBar;
 		sendChildToFront(resize_barp);
-		// last resize bar is disabled, since its not between any two panels
-		if ( next_it == mPanels.end() )
-		{
-			resize_barp->setEnabled(FALSE);
-		}
-		else
-		{
-			resize_barp->setEnabled(TRUE);
-		}
 	}
 
-	//updateLayout();
 }
 
 void LLLayoutStack::removePanel(LLPanel* panel)
 {
 	removeChild(panel);
-	//updateLayout();
 }
 
 void LLLayoutStack::updateLayout(BOOL force_resize)
@@ -1377,11 +1398,11 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 	calcMinExtents();
 
 	// calculate current extents
-	S32 cur_width = 0;
-	S32 cur_height = 0;
+	S32 total_width = 0;
+	S32 total_height = 0;
 
 	const F32 ANIM_OPEN_TIME = 0.02f;
-	const F32 ANIM_CLOSE_TIME = 0.02f;
+	const F32 ANIM_CLOSE_TIME = 0.03f;
 
 	e_panel_list_t::iterator panel_it;
 	for (panel_it = mPanels.begin(); panel_it != mPanels.end();	++panel_it)
@@ -1403,23 +1424,22 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 				(*panel_it)->mVisibleAmt = 0.f;
 			}
 		}
+
 		if (mOrientation == HORIZONTAL)
 		{
- 			// all panels get expanded to max of all the minimum dimensions
-			cur_height = llmax(mMinHeight, panelp->getRect().getHeight());
-        	cur_width += llround(panelp->getRect().getWidth() * (*panel_it)->mVisibleAmt);
-			if (panel_it != mPanels.end())
+        	total_width += llround(panelp->getRect().getWidth() * (*panel_it)->mVisibleAmt);
+        	// want n-1 panel gaps for n panels
+			if (panel_it != mPanels.begin())
 			{
-				cur_width += PANEL_STACK_GAP;
+				total_width += mPanelSpacing;
 			}
 		}
 		else //VERTICAL
 		{
-            cur_width = llmax(mMinWidth, panelp->getRect().getWidth());
-			cur_height += llround(panelp->getRect().getHeight() * (*panel_it)->mVisibleAmt);
-			if (panel_it != mPanels.end())
+			total_height += llround(panelp->getRect().getHeight() * (*panel_it)->mVisibleAmt);
+			if (panel_it != mPanels.begin())
 			{
-				cur_height += PANEL_STACK_GAP;
+				total_height += mPanelSpacing;
 			}
 		}
 	}
@@ -1465,11 +1485,11 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 	S32 pixels_to_distribute;
 	if (mOrientation == HORIZONTAL)
 	{
-		pixels_to_distribute = mRect.getWidth() - cur_width;
+		pixels_to_distribute = mRect.getWidth() - total_width;
 	}
 	else //VERTICAL
 	{
-		pixels_to_distribute = mRect.getHeight() - cur_height;
+		pixels_to_distribute = mRect.getHeight() - total_height;
 	}
 
 	S32 cur_x = 0;
@@ -1482,7 +1502,7 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 		S32 cur_width = panelp->getRect().getWidth();
 		S32 cur_height = panelp->getRect().getHeight();
 		S32 new_width = llmax((*panel_it)->mMinWidth, cur_width);
-		S32 new_height = llmax((*panel_it)->mMinHeight, cur_height);
+		S32 new_height = llmax((*panel_it)->mMinHeight, cur_height); 
 
 		S32 delta_size = 0;
 
@@ -1502,11 +1522,11 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 					// grow all elements equally
 					delta_size = llround((F32)pixels_to_distribute / (F32)num_resizable_panels);
 				}
-				new_width = llmax((*panel_it)->mMinWidth, panelp->getRect().getWidth() + delta_size);
+				new_width = llmax((*panel_it)->mMinWidth, cur_width + delta_size);
 			}
 			else
 			{
-				new_width = llmax(mMinWidth, mRect.getWidth());
+				new_width = getDefaultWidth(new_width);
 			}
 
 			if (mOrientation == VERTICAL)
@@ -1520,22 +1540,22 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 				{
 					delta_size = llround((F32)pixels_to_distribute / (F32)num_resizable_panels);
 				}
-				new_height = llmax((*panel_it)->mMinHeight, panelp->getRect().getHeight() + delta_size);
+				new_height = llmax((*panel_it)->mMinHeight, cur_height + delta_size);
 			}
 			else
 			{
-				new_height = llmax(mMinHeight, mRect.getHeight());
+				new_height = getDefaultHeight(new_height);
 			}
 		}
-		else // don't resize
+		else
 		{
 			if (mOrientation == HORIZONTAL)
 			{
-				new_height = llmax(mMinHeight, mRect.getHeight());
+				new_height = getDefaultHeight(new_height);
 			}
 			else // VERTICAL
 			{
-				new_width = llmax(mMinWidth, mRect.getWidth());
+				new_width = getDefaultWidth(new_width);
 			}
 		}
 
@@ -1550,22 +1570,22 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 		if (mOrientation == HORIZONTAL)
 		{
 			resize_bar_rect.mLeft = panel_rect.mRight - RESIZE_BAR_OVERLAP;
-			resize_bar_rect.mRight = panel_rect.mRight + PANEL_STACK_GAP + RESIZE_BAR_OVERLAP;
+			resize_bar_rect.mRight = panel_rect.mRight + mPanelSpacing + RESIZE_BAR_OVERLAP;
 		}
 		else
 		{
 			resize_bar_rect.mTop = panel_rect.mBottom + RESIZE_BAR_OVERLAP;
-			resize_bar_rect.mBottom = panel_rect.mBottom - PANEL_STACK_GAP - RESIZE_BAR_OVERLAP;
+			resize_bar_rect.mBottom = panel_rect.mBottom - mPanelSpacing - RESIZE_BAR_OVERLAP;
 		}
 		(*panel_it)->mResizeBar->setRect(resize_bar_rect);
 
 		if (mOrientation == HORIZONTAL)
 		{
-			cur_x += llround(new_width * (*panel_it)->mVisibleAmt) + PANEL_STACK_GAP;
+			cur_x += llround(new_width * (*panel_it)->mVisibleAmt) + mPanelSpacing;
 		}
 		else //VERTICAL
 		{
-			cur_y -= llround(new_height * (*panel_it)->mVisibleAmt) + PANEL_STACK_GAP;
+			cur_y -= llround(new_height * (*panel_it)->mVisibleAmt) + mPanelSpacing;
 		}
 	}
 
@@ -1577,29 +1597,38 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 
 		if (mOrientation == HORIZONTAL)
 		{
-			(*panel_it)->mResizeBar->setResizeLimits((*panel_it)->mMinWidth, (*panel_it)->mMinWidth + shrink_headroom_total);
+			(*panel_it)->mResizeBar->setResizeLimits(
+				(*panel_it)->mMinWidth, 
+				(*panel_it)->mMinWidth + shrink_headroom_total);
 		}
 		else //VERTICAL
 		{
-			(*panel_it)->mResizeBar->setResizeLimits((*panel_it)->mMinHeight, (*panel_it)->mMinHeight + shrink_headroom_total);
+			(*panel_it)->mResizeBar->setResizeLimits(
+				(*panel_it)->mMinHeight, 
+				(*panel_it)->mMinHeight + shrink_headroom_total);
 		}
-		// hide resize bars for invisible panels
-		(*panel_it)->mResizeBar->setVisible(panelp->getVisible());
-		if (panelp->getVisible())
+
+		// toggle resize bars based on panel visibility, resizability, etc
+		BOOL resize_bar_enabled = panelp->getVisible() && (*panel_it)->mUserResize;
+		(*panel_it)->mResizeBar->setVisible(resize_bar_enabled);
+
+		if (resize_bar_enabled)
 		{
 			last_resize_bar = (*panel_it)->mResizeBar;
 		}
 	}
 
 	// hide last resize bar as there is nothing past it
+	// resize bars need to be in between two resizable panels
 	if (last_resize_bar)
 	{
 		last_resize_bar->setVisible(FALSE);
 	}
 
 	// not enough room to fit existing contents
-	if (!force_resize && 
-		((cur_y != -PANEL_STACK_GAP) || (cur_x != mRect.getWidth() + PANEL_STACK_GAP)))
+	if (!force_resize 
+		&& ((cur_y != -mPanelSpacing) 
+			|| (cur_x != mRect.getWidth() + mPanelSpacing)))
 	{
 		// do another layout pass with all stacked elements contributing
 		// even those that don't usually resize
@@ -1631,20 +1660,22 @@ void LLLayoutStack::calcMinExtents()
 	{
 		if (mOrientation == HORIZONTAL)
 		{
-			mMinHeight = llmax(mMinHeight, (*panel_it)->mMinHeight);
+			mMinHeight = llmax(	mMinHeight, 
+								(*panel_it)->mMinHeight);
             mMinWidth += (*panel_it)->mMinWidth;
 			if (panel_it != mPanels.begin())
 			{
-				mMinWidth += PANEL_STACK_GAP;
+				mMinWidth += mPanelSpacing;
 			}
 		}
 		else //VERTICAL
 		{
-            mMinWidth = llmax(mMinWidth, (*panel_it)->mMinWidth);
+	        mMinWidth = llmax(	mMinWidth, 
+								(*panel_it)->mMinWidth);
 			mMinHeight += (*panel_it)->mMinHeight;
 			if (panel_it != mPanels.begin())
 			{
-				mMinHeight += PANEL_STACK_GAP;
+				mMinHeight += mPanelSpacing;
 			}
 		}
 	}

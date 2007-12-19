@@ -58,14 +58,15 @@ class LLPanelRegionTerrainInfo;
 class LLPanelEstateInfo;
 class LLPanelEstateCovenant;
 
-class LLFloaterRegionInfo : public LLFloater
+class LLFloaterRegionInfo : public LLFloater, public LLUISingleton<LLFloaterRegionInfo>
 {
+	friend class LLUISingleton<LLFloaterRegionInfo>;
 public:
 	~LLFloaterRegionInfo();
 
-	static void show(LLViewerRegion* region);
-	static void show(void*);
-	static LLFloaterRegionInfo* getInstance();
+	/*virtual*/ void onOpen();
+	/*virtual*/ BOOL postBuild();
+
 	static void processEstateOwnerRequest(LLMessageSystem* msg, void**);
 
 	// get and process region info if necessary.
@@ -82,15 +83,14 @@ public:
 	// from LLPanel
 	virtual void refresh();
 	
+	void requestRegionInfo();
+
 protected:
-	LLFloaterRegionInfo(const LLRect& rect);
+	LLFloaterRegionInfo(const LLSD& seed);
 	void refreshFromRegion(LLViewerRegion* region);
 
-	// static data
-	static LLFloaterRegionInfo* sInstance;
-
 	// member data
-	LLTabContainer* mTab;
+	LLTabContainerCommon* mTab;
 	typedef std::vector<LLPanelRegionInfo*> info_panels_t;
 	info_panels_t mInfoPanels;
 	//static S32 sRequestSerial;	// serial # of last EstateOwnerRequest

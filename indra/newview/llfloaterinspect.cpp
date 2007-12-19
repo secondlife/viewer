@@ -262,6 +262,7 @@ void LLFloaterInspect::refresh()
 void LLFloaterInspect::onFocusReceived()
 {
 	gToolMgr->setTransientTool(gToolInspect);
+	LLFloater::onFocusReceived();
 }
 
 void LLFloaterInspect::dirty()

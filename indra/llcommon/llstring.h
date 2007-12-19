@@ -299,6 +299,10 @@ public:
 	// a.k.a. strdictcmp()
 	static S32		compareDict(const std::basic_string<T>& a, const std::basic_string<T>& b);
 
+	// Case *in*sensitive comparison with good handling of numbers.  Does not use current locale.
+	// a.k.a. strdictcmp()
+	static S32		compareDictInsensitive(const std::basic_string<T>& a, const std::basic_string<T>& b);
+
 	// Puts compareDict() in a form appropriate for LL container classes to use for sorting.
 	static BOOL		precedesDict( const std::basic_string<T>& a, const std::basic_string<T>& b );
 
@@ -310,7 +314,7 @@ public:
 	// Copies src into dst at a given offset.  
 	static void		copyInto(std::basic_string<T>& dst, const std::basic_string<T>& src, size_type offset);
 	
-#ifdef _DEBUG
+#ifdef _DEBUG	
 	static void		testHarness();
 #endif
 
@@ -675,6 +679,39 @@ S32 LLStringBase<T>::compareDict(const std::basic_string<T>& astr, const std::ba
 		cb = *(b++);
 	}
 	if( ca==cb ) ca += bias;
+	return ca-cb;
+}
+
+template<class T>
+S32 LLStringBase<T>::compareDictInsensitive(const std::basic_string<T>& astr, const std::basic_string<T>& bstr)
+{
+	const T* a = astr.c_str();
+	const T* b = bstr.c_str();
+	T ca, cb;
+	S32 ai, bi, cnt = 0;
+
+	ca = *(a++);
+	cb = *(b++);
+	while( ca && cb ){
+		if( LLStringOps::isUpper(ca) ){ ca = LLStringOps::toLower(ca); }
+		if( LLStringOps::isUpper(cb) ){ cb = LLStringOps::toLower(cb); }
+		if( LLStringOps::isDigit(ca) ){
+			if( cnt-->0 ){
+				if( cb!=ca ) break;
+			}else{
+				if( !LLStringOps::isDigit(cb) ) break;
+				for(ai=0; LLStringOps::isDigit(a[ai]); ai++);
+				for(bi=0; LLStringOps::isDigit(b[bi]); bi++);
+				if( ai<bi ){ ca=0; break; }
+				if( bi<ai ){ cb=0; break; }
+				if( ca!=cb ) break;
+				cnt = ai;
+			}
+		}else if( ca!=cb ){   break;
+		}
+		ca = *(a++);
+		cb = *(b++);
+	}
 	return ca-cb;
 }
 

@@ -287,7 +287,7 @@ void LLModalDialog::onAppFocusLost()
 
 		if( gFocusMgr.childHasKeyboardFocus( instance ) )
 		{
-			gFocusMgr.setKeyboardFocus( NULL, NULL );
+			gFocusMgr.setKeyboardFocus( NULL );
 		}
 	}
 }

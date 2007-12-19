@@ -215,7 +215,12 @@ public:
 		mLeft = llmin(mLeft, mRight);
 		mBottom = llmin(mBottom, mTop);
 	}
-	
+
+	bool isNull() const
+	{
+		return mLeft == mRight || mBottom == mTop;
+	}
+
 	void unionWith(const LLRectBase &other)
 	{
 		mLeft = llmin(mLeft, other.mLeft);

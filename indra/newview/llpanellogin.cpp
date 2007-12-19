@@ -496,7 +496,7 @@ void LLPanelLogin::show(const LLRect &rect,
 						void (*callback)(S32 option, void* user_data),
 						void* callback_data)
 {
-	new LLPanelLogin(rect, show_server, callback, callback_data);
+	new LLPanelLogin(rect, show_server, callback, callback_data); 
 
 	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(sInstance, "login_html");
 	

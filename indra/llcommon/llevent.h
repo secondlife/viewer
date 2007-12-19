@@ -179,7 +179,7 @@ public:
 		if (mDispatcher.notNull()) mDispatcher->removeListener(listener);
 	}
 	// Notifies the dispatcher of an event being fired.
-	void fireEvent(LLPointer<LLEvent> event, LLSD filter);
+	void fireEvent(LLPointer<LLEvent> event, LLSD filter = LLSD());
 
 protected:
 	LLPointer<LLEventDispatcher> mDispatcher;

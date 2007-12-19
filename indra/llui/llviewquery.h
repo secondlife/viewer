@@ -35,6 +35,7 @@
 #include <list>	
 
 #include "llmemory.h"
+#include "llui.h"
 
 class LLView;
 
@@ -42,33 +43,58 @@ typedef std::list<LLView *>			viewList_t;
 typedef std::pair<BOOL, BOOL>		filterResult_t;
 
 // Abstract base class for all filters.
-class LLQueryFilter : public LLRefCount
+class LLQueryFilter
 {
 public:
+	virtual ~LLQueryFilter() {};
 	virtual filterResult_t operator() (const LLView* const view, const viewList_t & children) const =0;
 };
 
-class LLQuerySorter : public LLRefCount
+class LLQuerySorter
 {
 public:
+	virtual ~LLQuerySorter() {};
 	virtual void operator() (LLView * parent, viewList_t &children) const;
 };
 
-class LLNoLeavesFilter : public LLQueryFilter, public LLSingleton<LLNoLeavesFilter>
+class LLLeavesFilter : public LLQueryFilter, public LLSingleton<LLLeavesFilter>
 {
 	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const;
 };
+
+class LLRootsFilter : public LLQueryFilter, public LLSingleton<LLRootsFilter>
+{
+	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const;
+};
+
 class LLVisibleFilter : public LLQueryFilter, public LLSingleton<LLVisibleFilter>
 {
 	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const;
 };
+
 class LLEnabledFilter : public LLQueryFilter, public LLSingleton<LLEnabledFilter>
 {
 	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const;
 };
+
 class LLTabStopFilter : public LLQueryFilter, public LLSingleton<LLTabStopFilter>
 {
 	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const;
+};
+
+class LLCtrlFilter : public LLQueryFilter, public LLSingleton<LLCtrlFilter>
+{
+	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const;
+};
+
+class LLWidgetTypeFilter : public LLQueryFilter
+{
+public:
+	LLWidgetTypeFilter(EWidgetType type) : mType(type) {};
+private:
+	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const;
+
+	EWidgetType mType;
 };
 
 // Algorithm for flattening

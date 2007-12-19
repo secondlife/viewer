@@ -301,3 +301,123 @@ char* ll_pretty_print_sd(const LLSD& sd)
 	buffer[bufferSize - 1] = '\0';
 	return buffer;
 }
+
+//compares the structure of an LLSD to a template LLSD and stores the
+//"valid" values in a 3rd LLSD.  Default values are stored in the template
+//
+//If the llsd to test has a specific key to a map and the values
+//are not of the same type, false is returned or if the LLSDs are not
+//of the same value.  Ordering of arrays matters
+//Otherwise, returns true
+BOOL compare_llsd_with_template(
+	const LLSD& llsd_to_test,
+	const LLSD& template_llsd,
+	LLSD& resultant_llsd)
+{
+	if (
+		llsd_to_test.isUndefined() &&
+		template_llsd.isDefined() )
+	{
+		resultant_llsd = template_llsd;
+		return TRUE;
+	}
+	else if ( llsd_to_test.type() != template_llsd.type() )
+	{
+		resultant_llsd = LLSD();
+		return FALSE;
+	}
+
+	if ( llsd_to_test.isArray() )
+	{
+		//they are both arrays
+		//we loop over all the items in the template
+		//verifying that the to_test has a subset (in the same order)
+		//any shortcoming in the testing_llsd are just taken
+		//to be the rest of the template
+		LLSD data;
+		LLSD::array_const_iterator test_iter;
+		LLSD::array_const_iterator template_iter;
+
+		resultant_llsd = LLSD::emptyArray();
+		test_iter = llsd_to_test.beginArray();
+
+		for (
+			template_iter = template_llsd.beginArray();
+			(template_iter != template_llsd.endArray() &&
+			 test_iter != llsd_to_test.endArray());
+			++template_iter)
+		{
+			if ( !compare_llsd_with_template(
+					 *test_iter,
+					 *template_iter,
+					 data) )
+			{
+				resultant_llsd = LLSD();
+				return FALSE;
+			}
+			else
+			{
+				resultant_llsd.append(data);
+			}
+
+			++test_iter;
+		}
+
+		//so either the test or the template ended
+		//we do another loop now to the end of the template
+		//grabbing the default values
+		for (;
+			 template_iter != template_llsd.endArray();
+			 ++template_iter)
+		{
+			resultant_llsd.append(*template_iter);
+		}
+	}
+	else if ( llsd_to_test.isMap() )
+	{
+		//now we loop over the keys of the two maps
+		//any excess is taken from the template
+		//excess is ignored in the test
+		LLSD value;
+		LLSD::map_const_iterator template_iter;
+
+		resultant_llsd = LLSD::emptyMap();
+		for (
+			template_iter = template_llsd.beginMap();
+			template_iter != template_llsd.endMap();
+			++template_iter)
+		{
+			if ( llsd_to_test.has(template_iter->first) )
+			{
+				//the test LLSD has the same key
+				if ( !compare_llsd_with_template(
+						 llsd_to_test[template_iter->first],
+						 template_iter->second,
+						 value) )
+				{
+					resultant_llsd = LLSD();
+					return FALSE;
+				}
+				else
+				{
+					resultant_llsd[template_iter->first] = value;
+				}
+			}
+			else
+			{
+				//test llsd doesn't have it...take the
+				//template as default value
+				resultant_llsd[template_iter->first] =
+					template_iter->second;
+			}
+		}
+	}
+	else
+	{
+		//of same type...take the test llsd's value
+		resultant_llsd = llsd_to_test;
+	}
+
+
+	return TRUE;
+}

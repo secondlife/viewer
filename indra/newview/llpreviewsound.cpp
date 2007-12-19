@@ -106,7 +106,7 @@ void LLPreviewSound::auditionSound( void *userdata )
 	if(item && gAudiop)
 	{
 		LLVector3d lpos_global = gAgent.getPositionGlobal();
-		F32 volume = SOUND_GAIN * gSavedSettings.getF32("AudioLevelSFX");
+		F32 volume = gSavedSettings.getBOOL("MuteSounds") ? 0.f : SOUND_GAIN * gSavedSettings.getF32("AudioLevelSFX");
 		gAudiop->triggerSound(item->getAssetUUID(), gAgent.getID(), volume, lpos_global);
 	}
 }

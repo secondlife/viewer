@@ -790,7 +790,6 @@ void LLPanelGroupSubTab::buildActionCategory(LLScrollListCtrl* ctrl,
 			{
 				row["columns"][column_index]["column"] = "checkbox";
 				row["columns"][column_index]["type"] = "checkbox";
-				row["columns"][column_index]["value"] = (*ra_it)->mName;
 				check_box_index = column_index;
 				++column_index;
 			}
@@ -1058,7 +1057,7 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 					if (mi == gdatap->mMembers.end()) continue;
 					LLGroupMemberData* member_data = (*mi).second;
 					// Is the member an owner?
-					if ( member_data->isInRole(gdatap->mOwnerRole) )
+					if ( member_data && member_data->isInRole(gdatap->mOwnerRole) )
 					{
 						// Can't remove other owners.
 						cb_enable = FALSE;
@@ -1870,7 +1869,7 @@ BOOL LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
 	mRoleDescription->setCommitOnFocusLost(TRUE);
 	mRoleDescription->setCallbackUserData(this);
 	mRoleDescription->setCommitCallback(onDescriptionCommit);
-	mRoleDescription->setFocusReceivedCallback(onDescriptionCommit);
+	mRoleDescription->setFocusReceivedCallback(onDescriptionFocus, this);
 
 	setFooterEnabled(FALSE);
 
@@ -2320,6 +2319,16 @@ void LLPanelGroupRolesSubTab::addActionCB(S32 option, void* data)
 
 // static
 void LLPanelGroupRolesSubTab::onPropertiesKey(LLLineEditor* ctrl, void* user_data)
+{
+	LLPanelGroupRolesSubTab* self = static_cast<LLPanelGroupRolesSubTab*>(user_data);
+	if (!self) return;
+
+	self->mHasRoleChange = TRUE;
+	self->notifyObservers();
+}
+
+// static 
+void LLPanelGroupRolesSubTab::onDescriptionFocus(LLFocusableElement* ctrl, void* user_data)
 {
 	LLPanelGroupRolesSubTab* self = static_cast<LLPanelGroupRolesSubTab*>(user_data);
 	if (!self) return;

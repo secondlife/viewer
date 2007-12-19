@@ -41,14 +41,15 @@
 #include "llhtmlhelp.h"
 #include "llgl.h"
 #include <stack>
+#include "llimagegl.h"
 
 class LLColor4;
 class LLVector3;
 class LLVector2;
-class LLImageGL;
 class LLUUID;
 class LLWindow;
 class LLView;
+class LLUIImage;
 
 // UI colors
 extern const LLColor4 UI_VERTEX_COLOR;
@@ -83,13 +84,14 @@ void gl_washer_2d(F32 outer_radius, F32 inner_radius, S32 steps, const LLColor4&
 void gl_washer_segment_2d(F32 outer_radius, F32 inner_radius, F32 start_radians, F32 end_radians, S32 steps, const LLColor4& inner_color, const LLColor4& outer_color);
 void gl_washer_spokes_2d(F32 outer_radius, F32 inner_radius, S32 count, const LLColor4& inner_color, const LLColor4& outer_color);
 
-void gl_draw_image(S32 x, S32 y, LLImageGL* image, const LLColor4& color = UI_VERTEX_COLOR);
-void gl_draw_scaled_image(S32 x, S32 y, S32 width, S32 height, LLImageGL* image, const LLColor4& color = UI_VERTEX_COLOR);
-void gl_draw_rotated_image(S32 x, S32 y, F32 degrees, LLImageGL* image, const LLColor4& color = UI_VERTEX_COLOR);
-void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degrees,LLImageGL* image, const LLColor4& color = UI_VERTEX_COLOR);
-void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 border_width, S32 border_height, S32 width, S32 height, LLImageGL* image, const LLColor4 &color, BOOL solid_color = FALSE);
+void gl_draw_image(S32 x, S32 y, LLImageGL* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
+void gl_draw_scaled_image(S32 x, S32 y, S32 width, S32 height, LLImageGL* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
+void gl_draw_rotated_image(S32 x, S32 y, F32 degrees, LLImageGL* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
+void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degrees,LLImageGL* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
+void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 border_width, S32 border_height, S32 width, S32 height, LLImageGL* image, const LLColor4 &color, BOOL solid_color = FALSE, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
+void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLImageGL* image, const LLColor4 &color, BOOL solid_color = FALSE, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f), const LLRectf& scale_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
 // Flip vertical, used for LLFloaterHTML
-void gl_draw_scaled_image_inverted(S32 x, S32 y, S32 width, S32 height, LLImageGL* image, const LLColor4& color = UI_VERTEX_COLOR);
+void gl_draw_scaled_image_inverted(S32 x, S32 y, S32 width, S32 height, LLImageGL* image, const LLColor4& color = UI_VERTEX_COLOR, const LLRectf& uv_rect = LLRectf(0.f, 1.f, 1.f, 0.f));
 
 void gl_rect_2d_xor(S32 left, S32 top, S32 right, S32 bottom);
 void gl_stippled_line_3d( const LLVector3& start, const LLVector3& end, const LLColor4& color, F32 phase = 0.f ); 
@@ -166,23 +168,18 @@ public:
 
 	//helper functions (should probably move free standing rendering helper functions here)
 	static LLString locateSkin(const LLString& filename);
-	static void pushClipRect(const LLRect& rect);
-	static void popClipRect();
 	static void setCursorPositionScreen(S32 x, S32 y);
 	static void setCursorPositionLocal(LLView* viewp, S32 x, S32 y);
 	static void setScaleFactor(const LLVector2& scale_factor);
 	static void setLineWidth(F32 width);
 	static LLUUID findAssetUUIDByName(const LLString&	name);
+	static LLUIImage* getUIImageByName(const LLString& name);
 	static LLVector2 getWindowSize();
 	static void screenPointToGL(S32 screen_x, S32 screen_y, S32 *gl_x, S32 *gl_y);
 	static void glPointToScreen(S32 gl_x, S32 gl_y, S32 *screen_x, S32 *screen_y);
 	static void screenRectToGL(const LLRect& screen, LLRect *gl);
 	static void glRectToScreen(const LLRect& gl, LLRect *screen);
 	static void setHtmlHelp(LLHtmlHelp* html_help);
-
-private:
-	static void setScissorRegionScreen(const LLRect& rect);
-	static void setScissorRegionLocal(const LLRect& rect); // works assuming LLUI::translate has been called
 
 public:
 	static LLControlGroup* sConfigGroup;
@@ -194,7 +191,6 @@ public:
 	static LLWindow*		sWindow;
 	static BOOL             sShowXUINames;
 	static LLHtmlHelp*		sHtmlHelp;
-	static std::stack<LLRect> sClipRectStack;
 
 };
 
@@ -286,6 +282,7 @@ typedef enum e_widget_type
 	WIDGET_TYPE_MEMORY_VIEW,
 	WIDGET_TYPE_FRAME_STAT_VIEW,
 	WIDGET_TYPE_LAYOUT_STACK,
+	WIDGET_TYPE_FLYOUT_BUTTON,
 	WIDGET_TYPE_DONTCARE,
 	WIDGET_TYPE_COUNT
 } EWidgetType;
@@ -382,24 +379,65 @@ protected:
 
 template <class T, class U> T* LLUISingleton<T,U>::sInstance = NULL;
 
-class LLClipRect
+class LLScreenClipRect
 {
 public:
-	LLClipRect(const LLRect& rect, BOOL enabled = TRUE);
-	virtual ~LLClipRect();
-protected:
+	LLScreenClipRect(const LLRect& rect, BOOL enabled = TRUE);
+	virtual ~LLScreenClipRect();
+
+private:
+	static void pushClipRect(const LLRect& rect);
+	static void popClipRect();
+	static void updateScissorRegion();
+
+private:
 	LLGLState		mScissorState;
 	BOOL			mEnabled;
+
+	static std::stack<LLRect> sClipRectStack;
 };
 
-class LLLocalClipRect
+class LLLocalClipRect : public LLScreenClipRect
 {
 public:
 	LLLocalClipRect(const LLRect& rect, BOOL enabled = TRUE);
-	virtual ~LLLocalClipRect();
+};
+
+class LLUIImage : public LLRefCount
+{
+public:
+	LLUIImage(LLPointer<LLImageGL> image);
+
+	void setClipRegion(const LLRectf& region);
+	void setScaleRegion(const LLRectf& region);
+
+	LLPointer<LLImageGL> getImage() { return mImage; }
+
+	void draw(S32 x, S32 y, const LLColor4& color = UI_VERTEX_COLOR);
+	void draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color = UI_VERTEX_COLOR);
+	void drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& color);
+	void drawSolid(S32 x, S32 y, const LLColor4& color);
+
+	S32 getWidth();
+	S32 getHeight();
+
 protected:
-	LLGLState		mScissorState;
-	BOOL			mEnabled;
+	LLRectf				mScaleRegion;
+	LLRectf				mClipRegion;
+	LLPointer<LLImageGL> mImage;
+	BOOL				mUniformScaling;
+	BOOL				mNoClip;
+};
+
+//RN: maybe this needs to moved elsewhere?
+class LLImageProviderInterface
+{
+public:
+	LLImageProviderInterface() {};
+	virtual ~LLImageProviderInterface() {};
+
+	virtual LLUIImage* getUIImageByID(const LLUUID& id, BOOL clamped = TRUE) = 0;
+	virtual LLImageGL* getImageByID(const LLUUID& id, BOOL clamped = TRUE) = 0;
 };
 
 #endif

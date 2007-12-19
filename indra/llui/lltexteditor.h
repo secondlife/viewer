@@ -206,12 +206,12 @@ public:
 	void			setTabToNextField(BOOL b)				{ mTabToNextField = b; }
 	void			setCommitOnFocusLost(BOOL b)			{ mCommitOnFocusLost = b; }
 
-	// If takes focus, will take keyboard focus on click.
-	void			setTakesFocus(BOOL b)					{ mTakesFocus = b; }
-
 	// Hack to handle Notecards
 	virtual BOOL	importBuffer(const LLString& buffer );
 	virtual BOOL	exportBuffer(LLString& buffer );
+
+	// If takes focus, will take keyboard focus on click.
+	void			setTakesFocus(BOOL b)					{ mTakesFocus = b; }
 
 	void			setSourceID(const LLUUID& id) 			{ mSourceID = id; }
 	void 			setAcceptCallingCardNames(BOOL enable)	{ mAcceptCallingCardNames = enable; }
@@ -244,7 +244,10 @@ public:
 	void			startOfLine();
 	void			endOfLine();
 	void			endOfDoc();
-	
+
+	BOOL			isScrolledToTop();
+	BOOL			isScrolledToBottom();
+
 	// Getters
 	const LLWString& getWText() const;
 	llwchar			getWChar(S32 pos);
@@ -439,6 +442,8 @@ protected:
 	BOOL			mTakesFocus;
 	BOOL			mHideScrollbarForShortDocs;
 	BOOL			mTakesNonScrollClicks;
+	BOOL			mTrackBottom;			// if true, keeps scroll position at bottom during resize
+	BOOL			mScrolledToBottom;
 
 	BOOL			mAllowEmbeddedItems;
 

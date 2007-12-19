@@ -870,7 +870,7 @@ void LLPanelFace::onClickApply(void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	
-	gFocusMgr.setKeyboardFocus( NULL, NULL );
+	gFocusMgr.setKeyboardFocus( NULL );
 
 	//F32 repeats_per_meter = self->mCtrlRepeatsPerMeter->get();
 	F32 repeats_per_meter = (F32)self->childGetValue( "rptctrl" ).asReal();//self->mCtrlRepeatsPerMeter->get();

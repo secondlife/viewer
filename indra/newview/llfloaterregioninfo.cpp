@@ -161,50 +161,55 @@ bool estate_dispatch_initialized = false;
 /// LLFloaterRegionInfo
 ///----------------------------------------------------------------------------
 
-LLFloaterRegionInfo* LLFloaterRegionInfo::sInstance = NULL;
 //S32 LLFloaterRegionInfo::sRequestSerial = 0;
 LLUUID LLFloaterRegionInfo::sRequestInvoice;
 
-LLFloaterRegionInfo::LLFloaterRegionInfo(const LLRect& rect) :
-	LLFloater("regioninfo", rect, "Region/Estate")
+LLFloaterRegionInfo::LLFloaterRegionInfo(const LLSD& seed)
 {
-	LLRect tr(0, rect.getHeight() - LLFLOATER_HEADER_SIZE, rect.getWidth(), 0);
-	mTab = new LLTabContainer("tab", tr, LLTabContainer::TOP, NULL,NULL,"");
-	mTab->setBorderVisible(FALSE);
-	addChild(mTab);
+	gUICtrlFactory->buildFloater(this, "floater_region_info.xml", NULL, FALSE);
+}
+
+BOOL LLFloaterRegionInfo::postBuild()
+{
+	mTab = gUICtrlFactory->getTabContainerByName(this, "region_panels");
 
 	// contruct the panels
-	LLPanel* panel;
+	LLPanelRegionInfo* panel;
 	panel = new LLPanelRegionGeneralInfo;
-	mInfoPanels.push_back((LLPanelRegionInfo*)panel);
+	mInfoPanels.push_back(panel);
 	gUICtrlFactory->buildPanel(panel, "panel_region_general.xml");
 	mTab->addTabPanel(panel, panel->getLabel(), TRUE);
 
 	panel = new LLPanelRegionDebugInfo;
-	mInfoPanels.push_back((LLPanelRegionInfo*)panel);
+	mInfoPanels.push_back(panel);
 	gUICtrlFactory->buildPanel(panel, "panel_region_debug.xml");
 	mTab->addTabPanel(panel, panel->getLabel(), FALSE);
 
 	panel = new LLPanelRegionTextureInfo;
-	mInfoPanels.push_back((LLPanelRegionInfo*)panel);
+	mInfoPanels.push_back(panel);
 	gUICtrlFactory->buildPanel(panel, "panel_region_texture.xml");
 	mTab->addTabPanel(panel, panel->getLabel(), FALSE);
 
 	panel = new LLPanelRegionTerrainInfo;
-	mInfoPanels.push_back((LLPanelRegionInfo*)panel);
+	mInfoPanels.push_back(panel);
 	gUICtrlFactory->buildPanel(panel, "panel_region_terrain.xml");
 	mTab->addTabPanel(panel, panel->getLabel(), FALSE);
 
 	panel = new LLPanelEstateInfo;
-	mInfoPanels.push_back((LLPanelRegionInfo*)panel);
+	mInfoPanels.push_back(panel);
 	gUICtrlFactory->buildPanel(panel, "panel_region_estate.xml");
 	mTab->addTabPanel(panel, panel->getLabel(), FALSE);
 
 	panel = new LLPanelEstateCovenant;
-	mInfoPanels.push_back((LLPanelRegionInfo*)panel);
+	mInfoPanels.push_back(panel);
 	gUICtrlFactory->buildPanel(panel, "panel_region_covenant.xml");
 	mTab->addTabPanel(panel, panel->getLabel(), FALSE);
 
+	gMessageSystem->setHandlerFunc(
+		"EstateOwnerMessage", 
+		&processEstateOwnerRequest);
+
+	return TRUE;
 }
 
 LLFloaterRegionInfo::~LLFloaterRegionInfo()
@@ -212,23 +217,20 @@ LLFloaterRegionInfo::~LLFloaterRegionInfo()
 	sInstance = NULL;
 }
 
-// static
-void LLFloaterRegionInfo::show(LLViewerRegion* region)
+void LLFloaterRegionInfo::onOpen()
 {
-	if (!sInstance)
-	{
-		LLRect rect = gSavedSettings.getRect("FloaterRegionInfo");
-		S32 left, top;
-		gFloaterView->getNewFloaterPosition(&left, &top);
-		rect.translate(left,top);
-		sInstance = new LLFloaterRegionInfo(rect);
-		gMessageSystem->setHandlerFunc(
-			"EstateOwnerMessage", 
-			&processEstateOwnerRequest);
-	}
-	sInstance->open();		/* Flawfinder: ignore*/
-	sInstance->refreshFromRegion(region);
+	LLRect rect = gSavedSettings.getRect("FloaterRegionInfo");
+	S32 left, top;
+	gFloaterView->getNewFloaterPosition(&left, &top);
+	rect.translate(left,top);
 
+	requestRegionInfo();
+	refreshFromRegion(gAgent.getRegion());
+	LLFloater::onOpen();
+}
+
+void LLFloaterRegionInfo::requestRegionInfo()
+{
 	// Must allow anyone to request the RegionInfo data
 	// so non-owners/non-gods can see the values. 
 	// Therefore can't use an EstateOwnerMessage JC
@@ -242,18 +244,6 @@ void LLFloaterRegionInfo::show(LLViewerRegion* region)
 }
 
 // static
-void LLFloaterRegionInfo::show(void*)
-{
-	show(gAgent.getRegion());
-}
-
-// static
-LLFloaterRegionInfo* LLFloaterRegionInfo::getInstance()
-{
-	return sInstance;
-}
-
-// static
 void LLFloaterRegionInfo::processEstateOwnerRequest(LLMessageSystem* msg,void**)
 {
 	static LLDispatcher dispatch;
@@ -264,7 +254,7 @@ void LLFloaterRegionInfo::processEstateOwnerRequest(LLMessageSystem* msg,void**)
 		LLPanelEstateInfo::initDispatch(dispatch);
 	}
 
-	LLTabContainerCommon* tab = LLUICtrlFactory::getTabContainerByName(sInstance, "tab");
+	LLTabContainerCommon* tab = LLUICtrlFactory::getTabContainerByName(sInstance, "region_panels");
 	if (!tab) return;
 
 	LLPanelEstateInfo* panel = (LLPanelEstateInfo*)LLUICtrlFactory::getPanelByName(tab, "Estate");
@@ -293,7 +283,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 
 	llinfos << "LLFloaterRegionInfo::processRegionInfo" << llendl;
 	if(!sInstance) return;
-	LLTabContainerCommon* tab = LLUICtrlFactory::getTabContainerByName(sInstance, "tab");
+	LLTabContainerCommon* tab = LLUICtrlFactory::getTabContainerByName(sInstance, "region_panels");
 	if(!tab) return;
 
 	// extract message
@@ -376,7 +366,7 @@ LLPanelEstateInfo* LLFloaterRegionInfo::getPanelEstate()
 {
 	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
 	if (!floater) return NULL;
-	LLTabContainerCommon* tab = LLUICtrlFactory::getTabContainerByName(floater, "tab");
+	LLTabContainerCommon* tab = LLUICtrlFactory::getTabContainerByName(floater, "region_panels");
 	if (!tab) return NULL;
 	LLPanelEstateInfo* panel = (LLPanelEstateInfo*)LLUICtrlFactory::getPanelByName(tab,"Estate");
 	return panel;
@@ -387,7 +377,7 @@ LLPanelEstateCovenant* LLFloaterRegionInfo::getPanelCovenant()
 {
 	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
 	if (!floater) return NULL;
-	LLTabContainerCommon* tab = LLUICtrlFactory::getTabContainerByName(floater, "tab");
+	LLTabContainerCommon* tab = LLUICtrlFactory::getTabContainerByName(floater, "region_panels");
 	if (!tab) return NULL;
 	LLPanelEstateCovenant* panel = (LLPanelEstateCovenant*)LLUICtrlFactory::getPanelByName(tab, "Covenant");
 	return panel;
@@ -1241,7 +1231,7 @@ BOOL LLPanelRegionTerrainInfo::sendUpdate()
 	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
 	if (!floater) return true;
 
-	LLTabContainerCommon* tab = LLUICtrlFactory::getTabContainerByName(floater, "tab");
+	LLTabContainerCommon* tab = LLUICtrlFactory::getTabContainerByName(floater, "region_panels");
 	if (!tab) return true;
 
 	LLPanelEstateInfo* panel = (LLPanelEstateInfo*)LLUICtrlFactory::getPanelByName(tab, "Estate");
@@ -2803,7 +2793,7 @@ bool LLDispatchSetEstateOwner::operator()(
 	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
 	if (!floater) return true;
 
-	LLTabContainer* tab = (LLTabContainer*)(floater->getChildByName("tab"));
+	LLTabContainer* tab = (LLTabContainer*)(floater->getChildByName("region_panels"));
 	if (!tab) return true;
 
 	LLPanelEstateInfo* panel = (LLPanelEstateInfo*)(tab->getChildByName("Estate"));

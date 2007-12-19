@@ -1045,8 +1045,10 @@ BOOL LLPanelLandObjects::postBuild()
 	
 	mSelectedObjects = LLUICtrlFactory::getTextBoxByName(this, "selected_objects_text");
 	mCleanOtherObjectsTime = LLUICtrlFactory::getLineEditorByName(this, "clean other time");
-	mCleanOtherObjectsTime->setFocusLostCallback(onLostFocus);
+
+	mCleanOtherObjectsTime->setFocusLostCallback(onLostFocus, this);
 	mCleanOtherObjectsTime->setCommitCallback(onCommitClean);
+
 	childSetPrevalidate("clean other time", LLLineEditor::prevalidateNonNegativeS32);
 	childSetUserData("clean other time", this);
 	
@@ -1135,7 +1137,7 @@ void LLPanelLandObjects::onDoubleClickOwner(void *userdata)
 			return;
 		}
 		// Is this a group?
-		BOOL is_group = cell->getText() == OWNER_GROUP;
+		BOOL is_group = cell->getValue().asString() == OWNER_GROUP;
 		if (is_group)
 		{
 			LLFloaterGroupInfo::showFromUUID(owner_id);
@@ -1180,19 +1182,16 @@ void LLPanelLandObjects::refresh()
 	}
 	else
 	{
-		S32 sw_max = 0;
-		S32 sw_total = 0;
-		S32 max = 0;
-		S32 total = 0;
-		S32 owned = 0;
-		S32 group = 0;
-		S32 other = 0;
-		S32 selected = 0;
-		F32 parcel_object_bonus = 0.f;
-
-		gParcelMgr->getPrimInfo(sw_max, sw_total, 
-								  max, total, owned, group, other, selected,
-								  parcel_object_bonus, mOtherTime);
+		S32 sw_max = parcel->getSimWideMaxPrimCapacity();
+		S32 sw_total = parcel->getSimWidePrimCount();
+		S32 max = llround(parcel->getMaxPrimCapacity() * parcel->getParcelPrimBonus());
+		S32 total = parcel->getPrimCount();
+		S32 owned = parcel->getOwnerPrimCount();
+		S32 group = parcel->getGroupPrimCount();
+		S32 other = parcel->getOtherPrimCount();
+		S32 selected = parcel->getSelectedPrimCount();
+		F32 parcel_object_bonus = parcel->getParcelPrimBonus();
+		mOtherTime = parcel->getCleanOtherTime();
 
 		// Can't have more than region max tasks, regardless of parcel
 		// object bonus factor.
@@ -1442,14 +1441,6 @@ void LLPanelLandObjects::onClickReturnOwnerList(void* userdata)
 {
 	LLPanelLandObjects	*self = (LLPanelLandObjects *)userdata;
 
-	S32 sw_max, sw_total;
-	S32 max, total;
-	S32 owned, group, other, selected;
-	F32 parcel_object_bonus;
-	S32 other_time;
-
-	gParcelMgr->getPrimInfo(sw_max, sw_total, max, total, owned, group, other, selected, parcel_object_bonus, other_time);
-
 	LLParcel* parcelp = self->mParcel->getParcel();
 	if (!parcelp) return;
 
@@ -1632,11 +1623,11 @@ void LLPanelLandObjects::onCommitList(LLUICtrl* ctrl, void* data)
 			return;
 		}
 		// Is this a group?
-		self->mSelectedIsGroup = cell->getText() == OWNER_GROUP;
+		self->mSelectedIsGroup = cell->getValue().asString() == OWNER_GROUP;
 		cell = item->getColumn(2);
-		self->mSelectedName = cell->getText();
+		self->mSelectedName = cell->getValue().asString();
 		cell = item->getColumn(3);
-		self->mSelectedCount = atoi(cell->getText().c_str());
+		self->mSelectedCount = atoi(cell->getValue().asString().c_str());
 
 		// Set the selection, and enable the return button.
 		self->mSelectedOwners.clear();
@@ -1700,17 +1691,13 @@ void LLPanelLandObjects::onClickShowOtherObjects(void* userdata)
 // static
 void LLPanelLandObjects::onClickReturnOwnerObjects(void* userdata)
 {
-	S32 sw_max=0, sw_total=0;
-	S32 max=0, total=0;
-	S32 owned=0, group=0, other=0, selected=0;
-	F32 parcel_object_bonus=0;
-	S32 other_time=0;
-
-	gParcelMgr->getPrimInfo(sw_max, sw_total, max, total, owned, group, other, selected, parcel_object_bonus, other_time);
+	S32 owned = 0;
 
 	LLPanelLandObjects* panelp = (LLPanelLandObjects*)userdata;
 	LLParcel* parcel = panelp->mParcel->getParcel();
 	if (!parcel) return;
+
+	owned = parcel->getOwnerPrimCount();
 
 	send_parcel_select_objects(parcel->getLocalID(), RT_OWNER);
 
@@ -1739,14 +1726,6 @@ void LLPanelLandObjects::onClickReturnOwnerObjects(void* userdata)
 // static
 void LLPanelLandObjects::onClickReturnGroupObjects(void* userdata)
 {
-	S32 sw_max=0, sw_total=0;
-	S32 max=0, total=0;
-	S32 owned=0, group=0, other=0, selected=0;
-	F32 parcel_object_bonus=0;
-	S32 other_time=0;
-	
-	gParcelMgr->getPrimInfo(sw_max, sw_total, max, total, owned, group, other, selected, parcel_object_bonus, other_time);
-
 	LLPanelLandObjects* panelp = (LLPanelLandObjects*)userdata;
 	LLParcel* parcel = panelp->mParcel->getParcel();
 	if (!parcel) return;
@@ -1758,7 +1737,7 @@ void LLPanelLandObjects::onClickReturnGroupObjects(void* userdata)
 	
 	LLStringBase<char>::format_map_t args;
 	args["[NAME]"] = group_name;
-	args["[N]"] = llformat("%d",group);
+	args["[N]"] = llformat("%d", parcel->getGroupPrimCount());
 
 	// create and show confirmation textbox
 	gViewerWindow->alertXml("ReturnObjectsDeededToGroup", args, callbackReturnGroupObjects, userdata);
@@ -1767,17 +1746,13 @@ void LLPanelLandObjects::onClickReturnGroupObjects(void* userdata)
 // static
 void LLPanelLandObjects::onClickReturnOtherObjects(void* userdata)
 {
-	S32 sw_max=0, sw_total=0;
-	S32 max=0, total=0;
-	S32 owned=0, group=0, other=0, selected=0;
-	F32 parcel_object_bonus=0;
-	S32 other_time=0;
-
-	gParcelMgr->getPrimInfo(sw_max, sw_total, max, total, owned, group, other, selected, parcel_object_bonus, other_time);
+	S32 other = 0;
 
 	LLPanelLandObjects* panelp = (LLPanelLandObjects*)userdata;
 	LLParcel* parcel = panelp->mParcel->getParcel();
 	if (!parcel) return;
+	
+	other = parcel->getOtherPrimCount();
 
 	send_parcel_select_objects(parcel->getLocalID(), RT_OTHER);
 
@@ -1817,9 +1792,9 @@ void LLPanelLandObjects::onClickReturnOtherObjects(void* userdata)
 }
 
 // static
-void LLPanelLandObjects::onLostFocus(LLUICtrl *caller, void* user_data)
+void LLPanelLandObjects::onLostFocus(LLFocusableElement* caller, void* user_data)
 {
-	onCommitClean(caller, user_data);
+	onCommitClean((LLUICtrl*)caller, user_data);
 }
 
 // static
@@ -2408,6 +2383,13 @@ void LLPanelLandMedia::refresh()
 		mCheckSoundLocal->set( parcel->getSoundLocal() );
 		mCheckSoundLocal->setEnabled( can_change_media );
 
+		LLViewerRegion* selection_region = gParcelMgr->getSelectionRegion();
+		BOOL region_allows_voice = FALSE;
+		if (selection_region)
+		{
+			region_allows_voice = selection_region->isVoiceEnabled();
+		}
+
 		if(parcel->getVoiceEnabled())
 		{
 			if(parcel->getVoiceUseEstateChannel())
@@ -2420,7 +2402,7 @@ void LLPanelLandMedia::refresh()
 			mRadioVoiceChat->setSelectedIndex(kRadioVoiceChatDisable);
 		}
 
-		mRadioVoiceChat->setEnabled( can_change_media );
+		mRadioVoiceChat->setEnabled( can_change_media && region_allows_voice );
 
 		// don't display urls if you're not able to change it
 		// much requested change in forums so people can't 'steal' urls
@@ -2535,7 +2517,7 @@ void LLPanelLandMedia::onClickStopMedia ( void* data )
 void LLPanelLandMedia::onClickStartMedia ( void* data )
 {
 	// force a commit
-	gFocusMgr.setKeyboardFocus ( NULL, NULL );
+	gFocusMgr.setKeyboardFocus ( NULL );
 
 	// force a reload
 	LLMediaEngine::getInstance ()->convertImageAndLoadUrl ( true, false, std::string());
