@@ -35,7 +35,7 @@
 const S32 LL_VERSION_MAJOR = 1;
 const S32 LL_VERSION_MINOR = 18;
 const S32 LL_VERSION_PATCH = 6;
-const S32 LL_VERSION_BUILD = 74522;
+const S32 LL_VERSION_BUILD = 76205;
 
 const char * const LL_CHANNEL = "Second Life Server";
 
