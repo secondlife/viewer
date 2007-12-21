@@ -1829,7 +1829,7 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 		
 		identified = (flags & AVATAR_IDENTIFIED);
 		transacted = (flags & AVATAR_TRANSACTED);
-		age_verified = (flags & AVATAR_AGEVERIFIED);
+		age_verified = (flags & AVATAR_AGEVERIFIED); // Not currently getting set in dataserver/lldataavatar.cpp for privacy considerations
 		allow_publish = (flags & AVATAR_ALLOW_PUBLISH);
 		online = (flags & AVATAR_ONLINE);
 		

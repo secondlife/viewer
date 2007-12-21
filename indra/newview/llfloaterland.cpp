@@ -2580,7 +2580,7 @@ void LLPanelLandAccess::refresh()
 	{
 		BOOL use_access_list = parcel->getParcelFlag(PF_USE_ACCESS_LIST);
 		BOOL use_group = parcel->getParcelFlag(PF_USE_ACCESS_GROUP);
-		BOOL public_access = !use_access_list && !use_group;
+		BOOL public_access = !use_access_list;
 		
 		childSetValue("public_access", public_access );
 		childSetValue("GroupCheck", use_group );
@@ -2767,7 +2767,6 @@ void LLPanelLandAccess::refresh_ui()
 			{
 				childSetToolTip("Only Allow", LLString());
 			}
-			childSetEnabled("GroupCheck", TRUE); // Should always be an option (overrides age, payment restrictions)
 			childSetEnabled("PassCheck", FALSE);
 			childSetEnabled("pass_combo", FALSE);
 			childSetEnabled("AccessList", FALSE);
@@ -2776,11 +2775,6 @@ void LLPanelLandAccess::refresh_ui()
 		{
 			childSetEnabled("limit_payment", FALSE);
 			childSetEnabled("limit_age_verified", FALSE);
-			char group_name[MAX_STRING];	/*Flawfinder: ignore*/
-			if (gCacheName->getGroupName(parcel->getGroupID(), group_name))
-			{			
-				childSetEnabled("GroupCheck", can_manage_allowed);
-			}
 			BOOL group_access = childGetValue("GroupCheck").asBoolean();
 			BOOL sell_passes = childGetValue("PassCheck").asBoolean();
 			childSetEnabled("PassCheck", can_manage_allowed);
@@ -2791,6 +2785,13 @@ void LLPanelLandAccess::refresh_ui()
 				childSetEnabled("HoursSpin", can_manage_allowed);
 			}
 		}
+
+		char group_name[MAX_STRING];	/*Flawfinder: ignore*/
+		if (gCacheName->getGroupName(parcel->getGroupID(), group_name))
+		{			
+			childSetEnabled("GroupCheck", can_manage_allowed);
+		}
+		
 		childSetEnabled("AccessList", can_manage_allowed);
 		S32 allowed_list_count = parcel->mAccessList.size();
 		childSetEnabled("add_allowed", can_manage_allowed && allowed_list_count < PARCEL_MAX_ACCESS_LIST);
@@ -2840,10 +2841,21 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 
 	// Extract data from UI
 	BOOL public_access = self->childGetValue("public_access").asBoolean();
+
+	BOOL use_access_group = self->childGetValue("GroupCheck").asBoolean();
+	if (use_access_group)
+	{
+		char group_name[MAX_STRING];	/*Flawfinder: ignore*/
+		if (!gCacheName->getGroupName(parcel->getGroupID(), group_name))
+		{
+			use_access_group = FALSE;
+		}
+	}
+		
 	BOOL limit_payment = FALSE, limit_age_verified = FALSE;
-	BOOL use_access_group = FALSE;
 	BOOL use_access_list = FALSE;
 	BOOL use_pass_list = FALSE;
+	
 	if (public_access)
 	{
 		use_access_list = FALSE;
@@ -2853,24 +2865,15 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	else
 	{
 		use_access_list = TRUE;
-		use_access_group = self->childGetValue("GroupCheck").asBoolean();
 		use_pass_list = self->childGetValue("PassCheck").asBoolean();
-		if (use_access_group)
+		if (use_access_group && use_pass_list)
 		{
-			char group_name[MAX_STRING];	/*Flawfinder: ignore*/
-			if (!gCacheName->getGroupName(parcel->getGroupID(), group_name))
+			LLCtrlSelectionInterface* passcombo = self->childGetSelectionInterface("pass_combo");
+			if (passcombo)
 			{
-				use_access_group = FALSE;
-			}
-			if (use_pass_list)
-			{
-				LLCtrlSelectionInterface* passcombo = self->childGetSelectionInterface("pass_combo");
-				if (passcombo)
+				if (passcombo->getSimpleSelectedValue().asString() == "group")
 				{
-					if (passcombo->getSimpleSelectedValue().asString() == "group")
-					{
-						use_access_list = FALSE;
-					}
+					use_access_list = FALSE;
 				}
 			}
 		}
