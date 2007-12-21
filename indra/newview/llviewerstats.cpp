@@ -47,6 +47,7 @@
 #include "llvlmanager.h"
 #include "llagent.h"
 #include "llviewercontrol.h"
+#include "llfloaterdirectory.h"
 #include "llfloatertools.h"
 #include "lldebugview.h"
 #include "llfasttimerview.h"
@@ -660,10 +661,27 @@ void send_stats()
 	F32 run_time = F32(LLFrameTimer::getElapsedSeconds());
 
 	agent["start_time"] = ltime - run_time;
-	agent["run_time"] = run_time;
+
+	// The first stat set must have a 0 run time if it doesn't actually
+	// contain useful data in terms of FPS, etc.  We use half the
+	// SEND_STATS_PERIOD seconds as the point at which these statistics become
+	// valid.  Data warehouse uses a 0 value here to easily discard these
+	// records with non-useful FPS values etc.
+	if (run_time < (SEND_STATS_PERIOD / 2))
+	{
+		agent["run_time"] = 0.0f;
+	}
+	else
+	{
+		agent["run_time"] = run_time;
+	}
+
 	// send fps only for time app spends in foreground
 	agent["fps"] = (F32)gForegroundFrameCount / gForegroundTime.getElapsedTimeF32();
 	agent["version"] = gCurrentVersion;
+	LLString language(gSavedSettings.getString("Language"));
+	if(language == "default") language = gSavedSettings.getString("SystemLanguage");	
+	agent["language"] = language;
 	
 	agent["sim_fps"] = ((F32) gFrameCount - gSimFrames) /
 		(F32) (gRenderStartTime.getElapsedTimeF32() - gSimLastTime);
@@ -680,7 +698,7 @@ void send_stats()
 	LLSD &system = body["system"];
 	
 	system["ram"] = (S32) gSysMemory.getPhysicalMemoryKB();
-	system["os"] = LLAppViewer::instance()->getOSInfo().getOSString();
+	system["os"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
 	system["cpu"] = gSysCPU.getCPUString();
 
 	std::string gpu_desc = llformat(
@@ -725,6 +743,17 @@ void send_stats()
 	fail["off_circuit"] = (S32) gMessageSystem->mOffCircuitPackets;
 	fail["invalid"] = (S32) gMessageSystem->mInvalidOnCircuitPackets;
 
+	// Misc stats, two strings and two ints
+	// These are not expecticed to persist across multiple releases
+	// Comment any changes with your name and the expected release revision
+	// If the current revision is recent, ping the previous author before overriding
+	LLSD &misc = body["stats"]["misc"];
+
+	// misc["string_1"] = 
+	// misc["string_2"] = 
+	misc["int_1"] = LLFloaterDirectory::sOldSearchCount; // Steve: 1.18.6
+	misc["int_2"] = LLFloaterDirectory::sNewSearchCount; // Steve: 1.18.6
+	
 	gViewerStats->addToMessage(body);
 
 	LLHTTPClient::post(url, body, new ViewerStatsResponder());

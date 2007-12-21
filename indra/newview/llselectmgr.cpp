@@ -5829,7 +5829,8 @@ bool LLObjectSelection::applyToTEs(LLSelectedTEFunctor* func, bool firstonly)
 		iterator nextiter = iter++;
 		LLSelectNode* node = *nextiter;
 		LLViewerObject* object = (*nextiter)->getObject();
-		for (S32 te = 0; te < object->getNumTEs(); ++te)
+		S32 num_tes = llmin((S32)object->getNumTEs(), (S32)object->getNumFaces()); // avatars have TEs but no faces
+		for (S32 te = 0; te < num_tes; ++te)
 		{
 			if (node->isTESelected(te))
 			{

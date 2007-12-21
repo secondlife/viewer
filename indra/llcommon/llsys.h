@@ -51,6 +51,7 @@ public:
 	void stream(std::ostream& s) const;
 
 	const std::string& getOSString() const;
+	const std::string& getOSStringSimple() const;
 
 	S32 mMajorVer;
 	S32 mMinorVer;
@@ -64,6 +65,7 @@ public:
 	static U32 getProcessResidentSizeKB();
 private:
 	std::string mOSString;
+	std::string mOSStringSimple;
 };
 
 

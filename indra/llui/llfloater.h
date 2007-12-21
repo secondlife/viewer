@@ -286,7 +286,7 @@ protected:
 	typedef std::map<LLViewHandle, LLFloater*>::iterator handle_map_iter_t;
 	static handle_map_t	sFloaterMap;
 
-	std::vector<LLView*> mMinimizedHiddenChildren;
+	std::vector<LLViewHandle> mMinimizedHiddenChildren;
 
 	BOOL			mHasBeenDraggedWhileMinimized;
 	S32				mPreviousMinimizedBottom;
@@ -427,5 +427,6 @@ protected:
 extern LLFloaterView* gFloaterView;
 
 #endif  // LL_FLOATER_H
+
 
 

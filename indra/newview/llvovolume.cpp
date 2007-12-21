@@ -723,6 +723,7 @@ void LLVOVolume::sculpt()
 
 		
 		S32 current_discard = getVolume()->getSculptLevel();
+		llassert_always(current_discard >= -2 && current_discard <= max_discard);
 		if (current_discard == discard_level)  // no work to do here
 			return;
 		
@@ -756,7 +757,7 @@ BOOL LLVOVolume::calcLOD()
 
 	S32 cur_detail = 0;
 	
-	F32 radius = mVolumep->mLODScaleBias.scaledVec(getScale()).magVec();
+	F32 radius = getVolume()->mLODScaleBias.scaledVec(getScale()).magVec();
 	F32 distance = mDrawable->mDistanceWRTCamera;
 	distance *= sDistanceFactor;
 			

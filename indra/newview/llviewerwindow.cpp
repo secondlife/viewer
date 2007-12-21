@@ -1849,16 +1849,6 @@ void LLViewerWindow::initWorldUI()
 
 		// keep onscreen
 		gFloaterView->adjustToFitScreen(gFloaterMap, FALSE);
-
-		if (gSavedSettings.getBOOL("ShowCameraControls"))
-		{
-			LLFloaterCamera::show(NULL);
-		}
-		
-		if (gSavedSettings.getBOOL("ShowMovementControls"))
-		{
-			LLFloaterMove::show(NULL);
-		}
 		
 		gIMMgr = LLIMMgr::getInstance();
 
@@ -2154,8 +2144,12 @@ void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 	{
 		gMenuBarView->setVisible( visible );
 		gMenuBarView->setEnabled( visible );
+
+		// ...and set the menu color appropriately.
+		setMenuBackgroundColor(gAgent.getGodLevel() > GOD_NOT, 
+			LLAppViewer::instance()->isInProductionGrid());
 	}
-	
+        
 	if ( gStatusBar )
 	{
 		gStatusBar->setVisible( visible );	
@@ -2163,8 +2157,38 @@ void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 	}
 }
 
+void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
+{
+   	LLString::format_map_t args;
+    LLColor4 new_bg_color;
 
+    if(god_mode && LLAppViewer::instance()->isInProductionGrid())
+    {
+        new_bg_color = gColors.getColor( "MenuBarGodBgColor" );
+    }
+    else if(god_mode && !LLAppViewer::instance()->isInProductionGrid())
+    {
+        new_bg_color = gColors.getColor( "MenuNonProductionGodBgColor" );
+    }
+    else if(!god_mode && !LLAppViewer::instance()->isInProductionGrid())
+    {
+        new_bg_color = gColors.getColor( "MenuNonProductionBgColor" );
+    }
+    else 
+    {
+        new_bg_color = gColors.getColor( "MenuBarBgColor" );
+    }
 
+    if(gMenuBarView)
+    {
+        gMenuBarView->setBackgroundColor( new_bg_color );
+    }
+
+    if(gStatusBar)
+    {
+        gStatusBar->setBackgroundColor( new_bg_color );
+    }
+}
 
 void LLViewerWindow::drawDebugText()
 {
@@ -2369,6 +2393,18 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		toggle_debug_menus(NULL);
 	}
 
+		// Explicit hack for debug menu.
+	if ((mask == (MASK_SHIFT | MASK_CONTROL)) &&
+		('G' == key || 'g' == key))
+	{
+		if  (LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)  //on splash page
+		{
+			BOOL visible = ! gSavedSettings.getBOOL("ForceShowGrid");
+			gSavedSettings.setBOOL("ForceShowGrid", visible);
+			LLPanelLogin::loadLoginPage();
+		}
+	}
+
 	// Example "bug" for bug reporter web page
 	if ((MASK_SHIFT & mask) 
 		&& (MASK_ALT & mask)
@@ -2407,6 +2443,11 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 
 	// let menus handle navigation keys
 	if (gMenuBarView && gMenuBarView->handleKey(key, mask, TRUE))
+	{
+		return TRUE;
+	}
+	// let menus handle navigation keys
+	if (gLoginMenuBarView && gLoginMenuBarView->handleKey(key, mask, TRUE))
 	{
 		return TRUE;
 	}
@@ -2512,6 +2553,12 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	
 	// give menus a chance to handle keys
 	if (gMenuBarView && gMenuBarView->handleAcceleratorKey(key, mask))
+	{
+		return TRUE;
+	}
+	
+	// give menus a chance to handle keys
+	if (gLoginMenuBarView && gLoginMenuBarView->handleAcceleratorKey(key, mask))
 	{
 		return TRUE;
 	}

@@ -39,6 +39,7 @@
 #include "llviewerimage.h"
 #include "llstring.h"
 #include "llmd5.h"
+#include "llwebbrowserctrl.h"
 
 class LLTextBox;
 class LLLineEditor;
@@ -64,6 +65,9 @@ extern LLLoginHandler gLoginHandler;
 
 class LLPanelLogin
 :	public LLPanel
+#if LL_LIBXUL_ENABLED
+	, public LLWebBrowserCtrlObserver
+#endif
 {
 public:
 	LLPanelLogin(const LLRect &rect, BOOL show_server, 
@@ -89,6 +93,11 @@ public:
 private:
 	static void onClickQuit(void*);
 	static void onClickVersion(void*);
+
+#if LL_LIBXUL_ENABLED
+	// browser observer impls
+	virtual void onNavigateComplete( const EventType& eventIn );
+#endif
 	
 private:
 	LLPointer<LLViewerImage> mLogoImage;

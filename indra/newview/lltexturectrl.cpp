@@ -351,12 +351,6 @@ void LLFloaterTexturePicker::updateImageStats()
 		{
 			mResolutionLabel->setTextArg("[DIMENSIONS]", LLString("[? x ?]"));
 		}
-		if (gAgent.isGodlike())
-		{
-			LLString tstring = "Pick: ";
-			tstring.append(mTexturep->getID().asString());
-			setTitle(tstring);
-		}
 	}
 }
 

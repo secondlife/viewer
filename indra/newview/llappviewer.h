@@ -101,6 +101,8 @@ public:
     const std::vector<std::string>& getLoginURIs() const;
     const std::string& getHelperURI() const;
     void resetURIs() const;
+    void setLoginPage(const std::string& login_page);
+    const std::string& getLoginPage();
 
     void forceDisconnect(const LLString& msg); // Force disconnection, with a message to the user.
     void badNetworkHandler(); // Cause a crash state due to bad network packet.
@@ -110,6 +112,8 @@ public:
 
     void loadNameCache();
     void saveNameCache();
+
+    bool isInProductionGrid();
 
     // LLAppViewer testing helpers.
     // *NOTE: These will potentially crash the viewer. Only for debugging.
@@ -169,7 +173,7 @@ private:
 	// Thread objects.
 	static LLTextureCache* sTextureCache; 
 	static LLWorkerThread* sImageDecodeThread; 
-	static LLTextureFetch* sTextureFetch; 
+	static LLTextureFetch* sTextureFetch;
 
 	S32 mNumSessions;
 
@@ -196,7 +200,6 @@ extern BOOL gHandleKeysAsync; // gSavedSettings used by llviewerdisplay.cpp & ll
 extern BOOL gProbeHardware;
 extern LLString gDisabledMessage; // llstartup
 extern BOOL gHideLinks; // used by llpanellogin, lllfloaterbuycurrency, llstartup
-extern BOOL gInProductionGrid; 
 extern LLSD gDebugInfo;
 
 extern BOOL	gAllowIdleAFK;

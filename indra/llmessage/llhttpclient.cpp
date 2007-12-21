@@ -325,6 +325,11 @@ static void request(
     request(url, method, body_injector, responder, LLSD(), timeout);
 }
 
+void LLHTTPClient::head(const std::string& url, ResponderPtr responder, const F32 timeout)
+{
+	request(url, LLURLRequest::HTTP_HEAD, NULL, responder, timeout);
+}
+
 void LLHTTPClient::get(const std::string& url, ResponderPtr responder, const LLSD& headers, const F32 timeout)
 {
 	request(url, LLURLRequest::HTTP_GET, NULL, responder, headers, timeout);

@@ -101,6 +101,7 @@ public:
 
 	static void callbackGotPriceForListing(S32 option, LLString text, void* data);
 	static void callbackConfirmPublish(S32 option, void* data);
+	static void sendClassifiedClickMessage(const LLUUID& classified_id, const char* type, bool from_search);
 
 protected:
 	static void saveCallback(S32 option, void* data);
@@ -114,7 +115,6 @@ protected:
 	static void onFocusReceived(LLFocusableElement* ctrl, void* data);
 	static void onCommitAny(LLUICtrl* ctrl, void* data);
 
-	void sendClassifiedClickMessage(const char* type);
 	BOOL checkDirty();		// Update and return mDirty
 
 protected:

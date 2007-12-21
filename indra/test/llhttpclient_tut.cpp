@@ -341,6 +341,14 @@ namespace tut
 		ensure_equals("echoed result matches", body.size(), expected.size());
 	}
 
+	template<> template<>
+	void HTTPClientTestObject::test<8>()
+	{
+		LLHTTPClient::head("http://www.secondlife.com/", newResult());
+		runThePump();
+		ensureStatusOK();
+		ensure("result object wasn't destroyed", mResultDeleted);
+	}
 }
 
 #endif	// !LL_WINDOWS

@@ -324,6 +324,14 @@ std::string LLDir::getExpandedFilename(ELLPath location, const std::string& subd
 		prefix += "skins";
 		break;
 
+	case LL_PATH_HTML:
+		prefix = getAppRODataDir();
+		prefix += mDirDelimiter;
+		prefix += "skins";
+		prefix += mDirDelimiter;
+		prefix += "html";
+		break;
+
 	case LL_PATH_MOZILLA_PROFILE:
 		prefix = getOSUserAppDir();
 		prefix += mDirDelimiter;

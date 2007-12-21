@@ -1879,16 +1879,15 @@ void LLPanelAvatar::processAvatarPropertiesReply(LLMessageSystem *msg, void**)
 					payment_text = "NoPaymentInfoOnFile";
 				}
 				args["[PAYMENTINFO]"] = self->mPanelSecondLife->childGetValue(payment_text).asString();
-				LLString age_text = "NotAgeVerified";
-				if(age_verified)
-				{
-					age_text = "AgeVerified";
-				}
-				args["[PAYMENTINFO]"] += self->mPanelSecondLife->childGetValue(age_text).asString();
+				LLString age_text = age_verified ? "AgeVerified" : "NotAgeVerified";
+				// Do not display age verification status at this time
+				//args["[AGEVERIFICATION]"] = self->mPanelSecondLife->childGetValue(age_text).asString();
+				args["[AGEVERIFICATION]"] = " ";
 			}
 			else
 			{
 				args["[PAYMENTINFO]"] = " ";
+				args["[AGEVERIFICATION]"] = " ";
 			}
 			LLString::format(caption_text, args);
 		}

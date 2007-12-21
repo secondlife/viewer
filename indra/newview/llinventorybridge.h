@@ -383,6 +383,7 @@ class LLLandmarkBridge : public LLItemBridge
 {
 	friend class LLInvFVBridge;
 public:
+	static const LLString& prefix() { return sPrefix; }
 	virtual const LLString& getPrefix() { return sPrefix; }
 	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, LLString action);
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);

@@ -116,7 +116,8 @@ OSStatus dialogHandler(EventHandlerCallRef handler, EventRef event, void *userda
 					{
 						// Make sure the string is terminated.
 						buffer[size] = 0;
-						//setUserText(buffer);
+						gUserNotes = buffer;
+
 						llinfos << buffer << llendl;
 					}
 					
@@ -152,6 +153,8 @@ bool LLCrashLoggerMac::init(void)
 {	
 	bool ok = LLCrashLogger::init();
 	if(!ok) return false;
+	if(mCrashBehavior != CRASH_BEHAVIOR_ASK) return true;
+	
 	// Real UI...
 	OSStatus err;
 	
@@ -215,6 +218,7 @@ void LLCrashLoggerMac::gatherPlatformSpecificFiles()
 		{
 			struct stat dw_stat;
 			LLString mBuf;
+			bool isLeopard = false;
 			// Try the 10.3 path first...
 			LLString dw_file_name = LLString(path) + LLString("/CrashReporter/Second Life.crash.log");
 			int res = stat(dw_file_name.c_str(), &dw_stat);
@@ -225,7 +229,27 @@ void LLCrashLoggerMac::gatherPlatformSpecificFiles()
 				dw_file_name = LLString(path) + LLString("/Second Life.crash.log");
 				res = stat(dw_file_name.c_str(), &dw_stat);
 			}
-				
+	
+			if(res)
+			{
+				//10.5: Like 10.3+, except it puts the crash time in the file instead of dividing it up
+				//using asterisks. Get a directory listing, search for files starting with second life,
+				//use the last one found.
+				LLString old_file_name, current_file_name, pathname, mask;
+				pathname = LLString(path) + LLString("/CrashReporter/");
+				mask = "Second Life*";
+				while(gDirUtilp->getNextFileInDir(pathname, mask, current_file_name, false))
+				{
+					old_file_name = current_file_name;
+				}
+				if(old_file_name != "")
+				{
+					dw_file_name = pathname + old_file_name;
+					res=stat(dw_file_name.c_str(), &dw_stat);
+					isLeopard = true;
+				}
+			}
+			
 			if (!res)
 			{
 				std::ifstream fp(dw_file_name.c_str());
@@ -234,29 +258,32 @@ void LLCrashLoggerMac::gatherPlatformSpecificFiles()
 				str << fp.rdbuf();
 				mBuf = str.str();
 				
-				// Crash logs consist of a number of entries, one per crash.
-				// Each entry is preceeded by "**********" on a line by itself.
-				// We want only the most recent (i.e. last) one.
-				const char *sep = "**********";
-				const char *start = mBuf.c_str();
-				const char *cur = start;
-				const char *temp = strstr(cur, sep);
-				
-				while(temp != NULL)
+				if(!isLeopard)
 				{
-					// Skip past the marker we just found
-					cur = temp + strlen(sep);		/* Flawfinder: ignore */
-					
-					// and try to find another
-					temp = strstr(cur, sep);
-				}
+					// Crash logs consist of a number of entries, one per crash.
+					// Each entry is preceeded by "**********" on a line by itself.
+					// We want only the most recent (i.e. last) one.
+					const char *sep = "**********";
+					const char *start = mBuf.c_str();
+					const char *cur = start;
+					const char *temp = strstr(cur, sep);
 				
-				// If there's more than one entry in the log file, strip all but the last one.
-				if(cur != start)
-				{
-					mBuf.erase(0, cur - start);
+					while(temp != NULL)
+					{
+						// Skip past the marker we just found
+						cur = temp + strlen(sep);		/* Flawfinder: ignore */
+						
+						// and try to find another
+						temp = strstr(cur, sep);
+					}
+				
+					// If there's more than one entry in the log file, strip all but the last one.
+					if(cur != start)
+					{
+						mBuf.erase(0, cur - start);
+					}
 				}
-				mDebugLog["CrashInfo"] = mBuf;
+				mCrashInfo["CrashLog"] = mBuf;
 			}
 			else
 			{
@@ -270,9 +297,13 @@ bool LLCrashLoggerMac::mainLoop()
 {
 	OSStatus err = noErr;
 				
-	if(err == noErr)
+	if(err == noErr && mCrashBehavior == CRASH_BEHAVIOR_ASK)
 	{
 		RunAppModalLoopForWindow(gWindow);
+	}
+	else if (mCrashBehavior == CRASH_BEHAVIOR_ALWAYS_SEND)
+	{
+		gSendReport = true;
 	}
 	
 	if(gRememberChoice)
@@ -283,6 +314,7 @@ bool LLCrashLoggerMac::mainLoop()
 	
 	if(gSendReport)
 	{
+		setUserText(gUserNotes);
 		sendCrashLogs();
 	}		
 	

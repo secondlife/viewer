@@ -753,9 +753,9 @@ BOOL LLTemplateMessageReader::validateMessage(const U8* buffer,
 	if(result)
 	{
 		mCurrentRMessageTemplate->mReceiveCount++;
-		lldebugst(LLERR_MESSAGE) << "MessageRecvd:" 
-								 << mCurrentRMessageTemplate->mName 
-								 << " from " << sender << llendl;
+		//lldebugs << "MessageRecvd:" 
+		//						 << mCurrentRMessageTemplate->mName 
+		//						 << " from " << sender << llendl;
 	}
 	return result;
 }

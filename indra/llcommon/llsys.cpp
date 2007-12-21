@@ -65,8 +65,7 @@ static const S32 CPUINFO_BUFFER_SIZE = 16383;
 LLCPUInfo gSysCPU;
 
 LLOSInfo::LLOSInfo() :
-	mMajorVer(0), mMinorVer(0), mBuild(0),
-	mOSString("")
+	mMajorVer(0), mMinorVer(0), mBuild(0)
 {
 
 #if LL_WINDOWS
@@ -94,27 +93,28 @@ LLOSInfo::LLOSInfo() :
 			// Test for the product.
 			if(osvi.dwMajorVersion <= 4)
 			{
-				mOSString = "Microsoft Windows NT ";
+				mOSStringSimple = "Microsoft Windows NT ";
 			}
 			else if(osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0)
 			{
-				mOSString = "Microsoft Windows 2000 ";
+				mOSStringSimple = "Microsoft Windows 2000 ";
 			}
 			else if(osvi.dwMajorVersion ==5 && osvi.dwMinorVersion == 1)
 			{
-				mOSString = "Microsoft Windows XP ";
+				mOSStringSimple = "Microsoft Windows XP ";
 			}
 			else if(osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2)
 			{
 				 if(osvi.wProductType == VER_NT_WORKSTATION)
-					mOSString = "Microsoft Windows XP x64 Edition ";
-				 else mOSString = "Microsoft Windows Server 2003 ";
+					mOSStringSimple = "Microsoft Windows XP x64 Edition ";
+				 else
+					 mOSStringSimple = "Microsoft Windows Server 2003 ";
 			}
 			else if(osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 0)
 			{
 				 if(osvi.wProductType == VER_NT_WORKSTATION)
-					mOSString = "Microsoft Windows Vista ";
-				 else mOSString = "Microsoft Windows Vista Server ";
+					mOSStringSimple = "Microsoft Windows Vista ";
+				 else mOSStringSimple = "Microsoft Windows Vista Server ";
 			}
 			else   // Use the registry on early versions of Windows NT.
 			{
@@ -129,15 +129,15 @@ LLOSInfo::LLOSInfo() :
 				RegCloseKey( hKey );
 				if ( lstrcmpi( L"WINNT", szProductType) == 0 )
 				{
-					mOSString += "Professional ";
+					mOSStringSimple += "Professional ";
 				}
 				else if ( lstrcmpi( L"LANMANNT", szProductType) == 0 )
 				{
-					mOSString += "Server ";
+					mOSStringSimple += "Server ";
 				}
 				else if ( lstrcmpi( L"SERVERNT", szProductType) == 0 )
 				{
-					mOSString += "Advanced Server ";
+					mOSStringSimple += "Advanced Server ";
 				}
 			}
 
@@ -164,7 +164,7 @@ LLOSInfo::LLOSInfo() :
 					csdversion.c_str(),
 					(osvi.dwBuildNumber & 0xffff));	 
 			}
-			mOSString += tmp;
+			mOSString = mOSStringSimple + tmp;
 		}
 		break;
 
@@ -172,41 +172,65 @@ LLOSInfo::LLOSInfo() :
 		// Test for the Windows 95 product family.
 		if(osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 0)
 		{
-			mOSString = "Microsoft Windows 95 ";
+			mOSStringSimple = "Microsoft Windows 95 ";
 			if ( osvi.szCSDVersion[1] == 'C' || osvi.szCSDVersion[1] == 'B' )
 			{
-                mOSString += "OSR2 ";
+                mOSStringSimple += "OSR2 ";
 			}
 		} 
 		if(osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 10)
 		{
-			mOSString = "Microsoft Windows 98 ";
+			mOSStringSimple = "Microsoft Windows 98 ";
 			if ( osvi.szCSDVersion[1] == 'A' )
 			{
-                mOSString += "SE ";
+                mOSStringSimple += "SE ";
 			}
 		} 
 		if(osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 90)
 		{
-			mOSString = "Microsoft Windows Millennium Edition ";
-		} 
+			mOSStringSimple = "Microsoft Windows Millennium Edition ";
+		}
+		mOSString = mOSStringSimple;
 		break;
 	}
 #else
 	struct utsname un;
-        if(uname(&un) != -1)
+	if(uname(&un) != -1)
 	{
-		mOSString.append(un.sysname);
-		mOSString.append(" ");
-		mOSString.append(un.release);
+		mOSStringSimple.append(un.sysname);
+		mOSStringSimple.append(" ");
+		mOSStringSimple.append(un.release);
+
+		mOSString = mOSStringSimple;
 		mOSString.append(" ");
 		mOSString.append(un.version);
 		mOSString.append(" ");
 		mOSString.append(un.machine);
+
+		// Simplify 'Simple'
+		std::string ostype = mOSStringSimple.substr(0, mOSStringSimple.find_first_of(" ", 0));
+		if (ostype == "Darwin")
+		{
+			// Only care about major Darwin versions, truncate at first '.'
+			S32 idx1 = mOSStringSimple.find_first_of(".", 0);
+			std::string simple = mOSStringSimple.substr(0, idx1);
+			if (simple.length() > 0)
+				mOSStringSimple = simple;
+		}
+		else if (ostype == "Linux")
+		{
+			// Only care about major and minor Linux versions, truncate at second '.'
+			S32 idx1 = mOSStringSimple.find_first_of(".", 0);
+			S32 idx2 = (idx1 != std::string::npos) ? mOSStringSimple.find_first_of(".", idx1+1) : std::string::npos;
+			std::string simple = mOSStringSimple.substr(0, idx2);
+			if (simple.length() > 0)
+				mOSStringSimple = simple;
+		}
 	}
 	else
 	{
-		mOSString.append("Unable to collect OS info");
+		mOSStringSimple.append("Unable to collect OS info");
+		mOSString = mOSStringSimple;
 	}
 #endif
 
@@ -253,6 +277,11 @@ void LLOSInfo::stream(std::ostream& s) const
 const std::string& LLOSInfo::getOSString() const
 {
 	return mOSString;
+}
+
+const std::string& LLOSInfo::getOSStringSimple() const
+{
+	return mOSStringSimple;
 }
 
 const S32 STATUS_SIZE = 8192;

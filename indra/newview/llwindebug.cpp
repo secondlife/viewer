@@ -35,7 +35,6 @@
 
 #include <tchar.h>
 #include <tlhelp32.h>
-#include <atlbase.h>
 #include "llappviewer.h"
 #include "llwindebug.h"
 #include "llviewercontrol.h"
@@ -56,11 +55,11 @@ LLSD Block for Windows Dump Information
     <string></string>
     <key>Module</key>
     <string></string>
-    <key>Date Modified</key>
+    <key>DateModified</key>
     <string></string>
-    <key>Exception Code</key>
+    <key>ExceptionCode</key>
     <string></string>
-    <key>Exception Read/Write Address</key>
+    <key>ExceptionRead/WriteAddress</key>
     <string></string>
     <key>Instruction</key>
     <string></string>
@@ -75,11 +74,11 @@ LLSD Block for Windows Dump Information
     <array>
       <!-- One map per stack frame -->
       <map>
-	<key>Module Name</key>
+	<key>ModuleName</key>
 	<string></string>
-	<key>Module Base Address</key>
+	<key>ModuleBaseAddress</key>
 	<string></string>
-	<key>Module Offset Address</key>
+	<key>ModuleOffsetAddress</key>
 	<string></string>
 	<key>Parameters</key>
 	<array>
@@ -93,8 +92,6 @@ LLSD Block for Windows Dump Information
 
 */
 
-// From viewer.h
-extern BOOL gInProductionGrid;
 
 extern void (*gCrashCallback)(void);
 
@@ -123,6 +120,9 @@ MODULE32_NEST	Module32Next_;
 #define	DUMP_SIZE_MAX	8000	//max size of our dump
 #define	CALL_TRACE_MAX	((DUMP_SIZE_MAX - 2000) / (MAX_PATH + 40))	//max number of traced calls
 #define	NL				L"\r\n"	//new line
+
+//Windows Call Stack Construction idea from 
+//http://www.codeproject.com/tools/minidump.asp
 
 //****************************************************************************************
 BOOL WINAPI Get_Module_By_Ret_Addr(PBYTE Ret_Addr, LPWSTR Module_Name, PBYTE & Module_Addr)
@@ -168,9 +168,6 @@ void WINAPI Get_Call_Stack(PEXCEPTION_POINTERS pException, LLSD& info)
 // pException can be either GetExceptionInformation() or NULL.
 // If pException = NULL - get current call stack.
 {	
-
-	USES_CONVERSION;
-
 	LPWSTR	Module_Name = new WCHAR[MAX_PATH];
 	PBYTE	Module_Addr = 0;
 	
@@ -210,9 +207,9 @@ void WINAPI Get_Call_Stack(PEXCEPTION_POINTERS pException, LLSD& info)
 		if (Get_Module_By_Ret_Addr(Ebp->Ret_Addr, Module_Name, Module_Addr))
 		{
 			// Save module's address and full path.
-			info["Call Stack"][i]["Module Name"] = W2A(Module_Name);
-			info["Call Stack"][i]["Module Address"] = (int)Module_Addr;
-			info["Call Stack"][i]["Call Offset"] = (int)(Ebp->Ret_Addr - Module_Addr);
+			info["CallStack"][i]["ModuleName"] = ll_convert_wide_to_string(Module_Name);
+			info["CallStack"][i]["ModuleAddress"] = (int)Module_Addr;
+			info["CallStack"][i]["CallOffset"] = (int)(Ebp->Ret_Addr - Module_Addr);
 
 			LLSD params;
 			// Save 5 params of the call. We don't know the real number of params.
@@ -225,9 +222,9 @@ void WINAPI Get_Call_Stack(PEXCEPTION_POINTERS pException, LLSD& info)
 					params[j] = (int)Ebp->Param[j];
 				}
 			}
-			info["Call Stack"][i]["Parameters"] = params;
+			info["CallStack"][i]["Parameters"] = params;
 		}
-		info["Call Stack"][i]["Return Address"] = (int)Ebp->Ret_Addr;			
+		info["CallStack"][i]["ReturnAddress"] = (int)Ebp->Ret_Addr;			
 	}
 } //Get_Call_Stack
 
@@ -257,12 +254,10 @@ LLSD WINAPI Get_Exception_Info(PEXCEPTION_POINTERS pException)
 //*************************************************************
 // Allocate Str[DUMP_SIZE_MAX] and return Str with dump, if !pException - just return call stack in Str.
 {
-	USES_CONVERSION;
-
 	LLSD info;
 	LPWSTR		Str;
 	int			Str_Len;
-	int			i;
+//	int			i;
 	LPWSTR		Module_Name = new WCHAR[MAX_PATH];
 	PBYTE		Module_Addr;
 	HANDLE		hFile;
@@ -276,10 +271,9 @@ LLSD WINAPI Get_Exception_Info(PEXCEPTION_POINTERS pException)
 		return NULL;
 	
 	Get_Version_Str(info);
-
 	
 	GetModuleFileName(NULL, Str, MAX_PATH);
-	info["Process"] = W2A(Str);
+	info["Process"] = ll_convert_wide_to_string(Str);
 
 	// If exception occurred.
 	if (pException)
@@ -290,7 +284,7 @@ LLSD WINAPI Get_Exception_Info(PEXCEPTION_POINTERS pException)
 		// If module with E.ExceptionAddress found - save its path and date.
 		if (Get_Module_By_Ret_Addr((PBYTE)E.ExceptionAddress, Module_Name, Module_Addr))
 		{
-			info["Module"] = W2A(Module_Name);
+			info["Module"] = ll_convert_wide_to_string(Module_Name);
 
 			if ((hFile = CreateFile(Module_Name, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
 				FILE_ATTRIBUTE_NORMAL, NULL)) != INVALID_HANDLE_VALUE)
@@ -300,17 +294,17 @@ LLSD WINAPI Get_Exception_Info(PEXCEPTION_POINTERS pException)
 					FileTimeToLocalFileTime(&Last_Write_Time, &Local_File_Time);
 					FileTimeToSystemTime(&Local_File_Time, &T);
 
-					info["Date Modified"] = llformat("%02d/%02d/%d", T.wMonth, T.wDay, T.wYear);
+					info["DateModified"] = llformat("%02d/%02d/%d", T.wMonth, T.wDay, T.wYear);
 				}
 				CloseHandle(hFile);
 			}
 		}
 		else
 		{
-			info["Exception Addr"] = (int)E.ExceptionAddress;
+			info["ExceptionAddr"] = (int)E.ExceptionAddress;
 		}
 		
-		info["Exception Code"] = (int)E.ExceptionCode;
+		info["ExceptionCode"] = (int)E.ExceptionCode;
 		
 		/*
 		//TODO: Fix this
@@ -326,11 +320,12 @@ LLSD WINAPI Get_Exception_Info(PEXCEPTION_POINTERS pException)
 
 		
 		// Save instruction that caused exception.
-		Str_Len = 0;
+		/*
+		LLString str;
 		for (i = 0; i < 16; i++)
-			Str_Len += wsprintf(Str + Str_Len, L" %02X", PBYTE(E.ExceptionAddress)[i]);
-		info["Instruction"] = W2A(Str);
-
+			str += llformat(" %02X", PBYTE(E.ExceptionAddress)[i]);
+		info["Instruction"] = str;
+		*/
 		LLSD registers;
 		registers["EAX"] = (int)C.Eax;
 		registers["EBX"] = (int)C.Ebx;
@@ -347,10 +342,6 @@ LLSD WINAPI Get_Exception_Info(PEXCEPTION_POINTERS pException)
 	
 	// Save call stack info.
 	Get_Call_Stack(pException, info);
-
-	if (Str[0] == NL[0])
-		lstrcpy(Str, Str + sizeof(NL) - 1);
-	
 
 	return info;
 } //Get_Exception_Info

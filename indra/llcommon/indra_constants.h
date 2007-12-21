@@ -336,7 +336,7 @@ const U32 MAP_ITEM_CLASSIFIED = 0x08;
 
 // Crash reporter behavior
 const char* const CRASH_SETTINGS_FILE = "crash_settings.xml";
-const char* const CRASH_BEHAVIOR_SETTING = "CrashBehavior";
+const char* const CRASH_BEHAVIOR_SETTING = "CrashLogBehavior";
 const S32 CRASH_BEHAVIOR_ASK = 0;
 const S32 CRASH_BEHAVIOR_ALWAYS_SEND = 1;
 const S32 CRASH_BEHAVIOR_NEVER_SEND = 2;

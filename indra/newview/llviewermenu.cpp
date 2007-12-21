@@ -677,7 +677,7 @@ void init_menus()
 	gPopupMenuView->setBackgroundColor( color );
 
 	// If we are not in production, use a different color to make it apparent.
-	if (gInProductionGrid)
+	if (LLAppViewer::instance()->isInProductionGrid())
 	{
 		color = gColors.getColor( "MenuBarBgColor" );
 	}
@@ -694,6 +694,9 @@ void init_menus()
 	// menu holder appears on top of menu bar so you can see the menu title
 	// flash when an item is triggered (the flash occurs in the holder)
 	gViewerWindow->getRootView()->addChild(gMenuHolder);
+   
+    gViewerWindow->setMenuBackgroundColor(false, 
+        LLAppViewer::instance()->isInProductionGrid());
 
 	// *TODO:Get the cost info from the server
 	const LLString upload_cost("10");
@@ -944,7 +947,7 @@ void init_client_menu(LLMenuGL* menu)
 
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-	if (!gInProductionGrid)
+	if (!LLAppViewer::instance()->isInProductionGrid())
 	{
 		menu->append(new LLMenuItemCheckGL("Hacked Godmode",
 										   &handle_toggle_hacked_godmode,
@@ -1070,7 +1073,7 @@ void init_client_menu(LLMenuGL* menu)
 										&menu_check_control,
 										(void*)"ShowConsoleWindow"));
 
-	if(gQAMode && !gInProductionGrid)
+	if(gQAMode)
 	{
 		LLMenuGL* sub = NULL;
 		sub = new LLMenuGL("Debugging");
@@ -2637,53 +2640,40 @@ void handle_leave_god_mode(void*)
 
 void set_god_level(U8 god_level)
 {
-		U8 old_god_level = gAgent.getGodLevel();
-		gAgent.setGodLevel( god_level );
-		show_debug_menus();
-		gIMMgr->refresh();
-		gParcelMgr->notifyObservers();
+	U8 old_god_level = gAgent.getGodLevel();
+	gAgent.setGodLevel( god_level );
+	show_debug_menus();
+	gIMMgr->refresh();
+	gParcelMgr->notifyObservers();
 
-		// Some classifieds change visibility on god mode
-		LLFloaterDirectory::requestClassifieds();
+	// Some classifieds change visibility on god mode
+	LLFloaterDirectory::requestClassifieds();
 
-		// God mode changes sim visibility
-		gWorldMap->reset();
-		gWorldMap->setCurrentLayer(0);
+	// God mode changes sim visibility
+	gWorldMap->reset();
+	gWorldMap->setCurrentLayer(0);
 
-		// inventory in items may change in god mode
-		gObjectList.dirtyAllObjectInventory();
+	// inventory in items may change in god mode
+	gObjectList.dirtyAllObjectInventory();
 
-		LLString::format_map_t args;
-		if(god_level > GOD_NOT)
-		{
-			args["[LEVEL]"] = llformat("%d",(S32)god_level);
-			if (gInProductionGrid)
-			{
-				gMenuBarView->setBackgroundColor( gColors.getColor( "MenuBarGodBgColor" ) );
-				gStatusBar->setBackgroundColor( gColors.getColor( "MenuBarGodBgColor" ) );
-			}
-			else
-			{
-				gMenuBarView->setBackgroundColor( gColors.getColor( "MenuNonProductionGodBgColor" ) );
-				gStatusBar->setBackgroundColor( gColors.getColor( "MenuNonProductionGodBgColor" ) );
-			}
-			LLNotifyBox::showXml("EnteringGodMode", args);
-		}
-		else
-		{
-			args["[LEVEL]"] = llformat("%d",(S32)old_god_level);
-			if (gInProductionGrid)
-			{
-				gMenuBarView->setBackgroundColor( gColors.getColor( "MenuBarBgColor" ) );
-				gStatusBar->setBackgroundColor( gColors.getColor( "MenuBarBgColor" ) );
-			}
-			else
-			{
-				gMenuBarView->setBackgroundColor( gColors.getColor( "MenuNonProductionBgColor" ) );
-				gStatusBar->setBackgroundColor( gColors.getColor( "MenuNonProductionBgColor" ) );
-			}
-			LLNotifyBox::showXml("LeavingGodMode", args);
-		}
+    if(gViewerWindow)
+    {
+        gViewerWindow->setMenuBackgroundColor(god_level > GOD_NOT,
+            LLAppViewer::instance()->isInProductionGrid());
+    }
+
+    LLString::format_map_t args;
+	if(god_level > GOD_NOT)
+	{
+		args["[LEVEL]"] = llformat("%d",(S32)god_level);
+		LLNotifyBox::showXml("EnteringGodMode", args);
+	}
+	else
+	{
+		args["[LEVEL]"] = llformat("%d",(S32)old_god_level);
+		LLNotifyBox::showXml("LeavingGodMode", args);
+	}
+
 }
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
@@ -3990,7 +3980,8 @@ BOOL enable_take()
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!gInProductionGrid && gAgent.isGodlike())
+		if (!LLAppViewer::instance()->isInProductionGrid() 
+            && gAgent.isGodlike())
 		{
 			return TRUE;
 		}
@@ -4549,7 +4540,8 @@ class LLObjectEnableDelete : public view_listener_t
 			TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-			(!gInProductionGrid && gAgent.isGodlike()) ||
+			(!LLAppViewer::instance()->isInProductionGrid()
+             && gAgent.isGodlike()) ||
 # endif
 			(gSelectMgr && gSelectMgr->canDoDelete());
 #endif
@@ -6276,13 +6268,7 @@ void handle_selected_texture_info(void*)
 			S32 height = img->getHeight();
 			S32 width = img->getWidth();
 			S32 components = img->getComponents();
-			std::string image_id_string;
-			if (gAgent.isGodlike())
-			{
-				image_id_string = image_id.asString() + " ";
-			}
-			msg = llformat("%s%dx%d %s on face ",
-								image_id_string.c_str(),
+			msg = llformat("%dx%d %s on face ",
 								width,
 								height,
 								(components == 4 ? "alpha" : "opaque"));
@@ -6466,7 +6452,8 @@ class LLToolsEnableTakeCopy : public view_listener_t
 			all_valid = true;
 #ifndef HACKED_GODLIKE_VIEWER
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-			if (gInProductionGrid || !gAgent.isGodlike())
+			if (LLAppViewer::instance()->isInProductionGrid()
+                || !gAgent.isGodlike())
 # endif
 			{
 				struct f : public LLSelectedObjectFunctor
@@ -6571,7 +6558,8 @@ BOOL enable_save_into_inventory(void*)
 		return TRUE;
 #else
 # ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-		if (!gInProductionGrid && gAgent.isGodlike())
+		if (!LLAppViewer::instance()->isInProductionGrid()
+            && gAgent.isGodlike())
 		{
 			return TRUE;
 		}

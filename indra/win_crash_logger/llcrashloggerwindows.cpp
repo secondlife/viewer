@@ -48,6 +48,7 @@
 #include "llsdserialize.h"
 
 #define MAX_LOADSTRING 100
+#define MAX_STRING 2048
 const char* const SETTINGS_FILE_HEADER = "version";
 const S32 SETTINGS_FILE_VERSION = 101;
 
@@ -58,12 +59,33 @@ HINSTANCE hInst= NULL;					// current instance
 TCHAR szTitle[MAX_LOADSTRING];				/* Flawfinder: ignore */		// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];		/* Flawfinder: ignore */		// The title bar text
 
+LLString gProductName;
 HWND gHwndReport = NULL;	// Send/Don't Send dialog
 HWND gHwndProgress = NULL;	// Progress window
 HCURSOR gCursorArrow = NULL;
 HCURSOR gCursorWait = NULL;
 BOOL gFirstDialog = TRUE;	// Are we currently handling the Send/Don't Send dialog?
 std::stringstream gDXInfo;
+bool gSendLogs = false;
+
+
+//Conversion from char* to wchar*
+//Replacement for ATL macros, doesn't allocate memory
+//For more info see: http://www.codeguru.com/forum/showthread.php?t=337247
+void ConvertLPCSTRToLPWSTR (const char* pCstring, WCHAR* outStr)
+{
+    if (pCstring != NULL)
+    {
+        int nInputStrLen = strlen (pCstring);
+        // Double NULL Termination
+        int nOutputStrLen = MultiByteToWideChar(CP_ACP, 0, pCstring, nInputStrLen, NULL, 0) + 2;
+        if (outStr)
+        {
+            memset (outStr, 0x00, sizeof (WCHAR)*nOutputStrLen);
+            MultiByteToWideChar (CP_ACP, 0, pCstring, nInputStrLen, outStr, nInputStrLen);
+        }
+    }
+}
 
 void write_debug(const char *str)
 {
@@ -116,27 +138,30 @@ void sleep_and_pump_messages( U32 seconds )
 // Include product name in the window caption.
 void LLCrashLoggerWindows::ProcessCaption(HWND hWnd)
 {
-	TCHAR templateText[1024];		/* Flawfinder: ignore */
-	TCHAR finalText[2048];		/* Flawfinder: ignore */
+	TCHAR templateText[MAX_STRING];		/* Flawfinder: ignore */
+	TCHAR header[MAX_STRING];
+	std::string final;
 	GetWindowText(hWnd, templateText, sizeof(templateText));
-	swprintf(finalText, sizeof(CA2T(mProductName.c_str())), templateText, CA2T(mProductName.c_str()));		/* Flawfinder: ignore */
-	SetWindowText(hWnd, finalText);
+	final = llformat(ll_convert_wide_to_string(templateText).c_str(), gProductName.c_str());
+	ConvertLPCSTRToLPWSTR(final.c_str(), header);
+	SetWindowText(hWnd, header);
 }
 
 
 // Include product name in the diaog item text.
 void LLCrashLoggerWindows::ProcessDlgItemText(HWND hWnd, int nIDDlgItem)
 {
-	TCHAR templateText[1024];		/* Flawfinder: ignore */
-	TCHAR finalText[2048];		/* Flawfinder: ignore */
+	TCHAR templateText[MAX_STRING];		/* Flawfinder: ignore */
+	TCHAR header[MAX_STRING];
+	std::string final;
 	GetDlgItemText(hWnd, nIDDlgItem, templateText, sizeof(templateText));
-	swprintf(finalText, sizeof(CA2T(mProductName.c_str())), templateText, CA2T(mProductName.c_str()));		/* Flawfinder: ignore */
-	SetDlgItemText(hWnd, nIDDlgItem, finalText);
+	final = llformat(ll_convert_wide_to_string(templateText).c_str(), gProductName.c_str());
+	ConvertLPCSTRToLPWSTR(final.c_str(), header);
+	SetDlgItemText(hWnd, nIDDlgItem, header);
 }
 
 bool handle_button_click(WORD button_id)
 {
-	USES_CONVERSION;
 	// Is this something other than Send or Don't Send?
 	if (button_id != IDOK
 		&& button_id != IDCANCEL)
@@ -166,13 +191,14 @@ bool handle_button_click(WORD button_id)
 	// Send the crash report if requested
 	if (button_id == IDOK)
 	{
+		gSendLogs = TRUE;
 		WCHAR wbuffer[20000];
 		GetDlgItemText(gHwndReport, // handle to dialog box
 						IDC_EDIT1,  // control identifier
 						wbuffer, // pointer to buffer for text
 						20000 // maximum size of string
 						);
-		LLString user_text(T2CA(wbuffer));
+		LLString user_text(ll_convert_wide_to_string(wbuffer));
 		// Activate and show the window.
 		ShowWindow(gHwndProgress, SW_SHOW); 
 		// Try doing this second to make the progress window go frontmost.
@@ -276,11 +302,10 @@ void LLCrashLoggerWindows::gatherPlatformSpecificFiles()
 bool LLCrashLoggerWindows::mainLoop()
 {	
 
-	USES_CONVERSION;
-
 	// Note: parent hwnd is 0 (the desktop).  No dlg proc.  See Petzold (5th ed) HexCalc example, Chapter 11, p529
 	// win_crash_logger.rc has been edited by hand.
 	// Dialogs defined with CLASS "WIN_CRASH_LOGGER" (must be same as szWindowClass)
+	gProductName = mProductName;
 
 	gHwndProgress = CreateDialog(hInst, MAKEINTRESOURCE(IDD_PROGRESS), 0, NULL);
 	ProcessCaption(gHwndProgress);
@@ -294,22 +319,23 @@ bool LLCrashLoggerWindows::mainLoop()
 	else if (mCrashBehavior == CRASH_BEHAVIOR_ASK)
 	{
 		gHwndReport = CreateDialog(hInst, MAKEINTRESOURCE(IDD_PREVREPORTBOX), 0, NULL);
-
+		LRESULT result = SendDlgItemMessage(gHwndReport, IDC_CHECK_AUTO, BM_SETCHECK, 1, 0);
 		// Include the product name in the caption and various dialog items.
 		ProcessCaption(gHwndReport);
 		ProcessDlgItemText(gHwndReport, IDC_STATIC_MSG);
 
 		// Update the header to include whether or not we crashed on the last run.
-		TCHAR header[2048];
-		CA2T product(mProductName.c_str());
+		std::string headerStr;
+		TCHAR header[MAX_STRING];
 		if (mCrashInPreviousExec)
 		{
-			swprintf(header, _T("%s appears to have crashed or frozen the last time it ran."), product);		/* Flawfinder: ignore */
+			headerStr = llformat("%s appears to have crashed or frozen the last time it ran.", mProductName.c_str());
 		}
 		else
 		{
-			swprintf(header, _T("%s appears to have crashed."), product);		/* Flawfinder: ignore */
+			headerStr = llformat("%s appears to have crashed.", mProductName.c_str());
 		}
+		ConvertLPCSTRToLPWSTR(headerStr.c_str(), header);
 		SetDlgItemText(gHwndReport, IDC_STATIC_HEADER, header);		
 		ShowWindow(gHwndReport, SW_SHOW );
 		
@@ -338,11 +364,15 @@ void LLCrashLoggerWindows::updateApplication(LLString message)
 
 bool LLCrashLoggerWindows::cleanup()
 {
-	if(mSentCrashLogs) show_progress("Done");
-	else show_progress("Could not connect to servers, logs not sent");
-	sleep_and_pump_messages(3);
-
+	if(gSendLogs)
+	{
+		if(mSentCrashLogs) show_progress("Done");
+		else show_progress("Could not connect to servers, logs not sent");
+		sleep_and_pump_messages(3);
+	}
 	PostQuitMessage(0);
 	return true;
 }
+
+
 

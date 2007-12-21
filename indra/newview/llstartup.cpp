@@ -48,6 +48,7 @@
 #include "audiosettings.h"
 #include "llares.h"
 #include "llcachename.h"
+#include "llcameraview.h"
 #include "llviewercontrol.h"
 #include "lldir.h"
 #include "lleconomy.h"
@@ -61,6 +62,7 @@
 #include "llmd5.h"
 #include "llmemorystream.h"
 #include "llmessageconfig.h"
+#include "llmoveview.h"
 #include "llregionhandle.h"
 #include "llsd.h"
 #include "llsdserialize.h"
@@ -592,6 +594,7 @@ BOOL idle_startup()
 		codec << " - " << LL_VERSION_MAJOR << "." << LL_VERSION_MINOR << "." << LL_VERSION_PATCH << "." << LL_VERSION_BUILD;
 		codec << "]";
 		LLMozLib::getInstance()->setBrowserAgentId( codec.str() );
+		LLMozLib::getInstance()->enableProxy( gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort") ); 
 		#endif
 
 		//-------------------------------------------------
@@ -736,6 +739,7 @@ BOOL idle_startup()
 		
 		gViewerWindow->setNormalControlsVisible( FALSE );	
 		gLoginMenuBarView->setVisible( TRUE );
+		gLoginMenuBarView->setEnabled( TRUE );
 
 		timeout.reset();
 		return do_normal_idle;
@@ -1009,6 +1013,10 @@ BOOL idle_startup()
 	if(STATE_LOGIN_NO_DATA_YET == LLStartUp::getStartupState())
 	{
 		//lldebugs << "STATE_LOGIN_NO_DATA_YET" << llendl;
+		// If we get here we have gotten past the potential stall
+		// in curl, so take "may appear frozen" out of progress bar. JC
+		auth_desc = "Logging in...";
+		set_startup_status(progress, auth_desc.c_str(), auth_message.c_str());
 		if (!gUserAuthp)
 		{
 			llerrs << "No userauth in STATE_LOGIN_NO_DATA_YET!" << llendl;
@@ -1552,8 +1560,18 @@ BOOL idle_startup()
 			gViewerWindow->setNormalControlsVisible( TRUE );
 		}	
 		gLoginMenuBarView->setVisible( FALSE );
+		gLoginMenuBarView->setEnabled( FALSE );
 
 		gFloaterMap->setVisible( gSavedSettings.getBOOL("ShowMiniMap") );
+
+		if (gSavedSettings.getBOOL("ShowCameraControls"))
+		{
+			LLFloaterCamera::show(NULL);
+		}
+		if (gSavedSettings.getBOOL("ShowMovementControls"))
+		{
+			LLFloaterMove::show(NULL);
+		}
 
 		if (!gNoRender)
 		{
@@ -1736,10 +1754,33 @@ BOOL idle_startup()
 					}
 					else
 					{
-						llinfos << ".. initialized successfully." << llendl;
-						set_startup_status(0.57f, "QuickTime initialized successfully.", gAgent.mMOTD.c_str());
+						//llinfos << "######### QuickTime version (hex) is " << std::hex << LLMediaEngine::getInstance()->getQuickTimeVersion() << llendl;
+						//llinfos << "######### QuickTime version is " << std::dec << LLMediaEngine::getInstance()->getQuickTimeVersion() << llendl;
+						if ( LLMediaEngine::getInstance()->getQuickTimeVersion() < LL_MIN_QUICKTIME_VERSION )
+						{
+							// turn off QuickTime if version is less than required
+							LLMediaEngine::getInstance ()->setAvailable ( FALSE );
+
+							// display a message here explaining why we disabled QuickTime
+							gViewerWindow->alertXml("QuickTimeOutOfDate");
+						}
+						else
+						{
+							llinfos << ".. initialized successfully." << llendl;
+							set_startup_status(0.57f, "QuickTime initialized successfully.", gAgent.mMOTD.c_str());
+						};
 					};
+				#elif LL_DARWIN
+					if ( LLMediaEngine::getInstance()->getQuickTimeVersion() < LL_MIN_QUICKTIME_VERSION )
+					{
+						// turn off QuickTime if version is less than required
+						LLMediaEngine::getInstance ()->setAvailable ( FALSE );
+
+						// display a message here explaining why we disabled QuickTime
+						gViewerWindow->alertXml("QuickTimeOutOfDate");
+					}
 				#endif
+
 				EnterMovies ();
 				gQuickTimeInitialized = true;
 			}
@@ -3583,6 +3624,7 @@ void reset_login()
 	{	// Hide menus and normal buttons
 		gViewerWindow->setNormalControlsVisible( FALSE );
 		gLoginMenuBarView->setVisible( TRUE );
+		gLoginMenuBarView->setEnabled( TRUE );
 	}
 
 	// Hide any other stuff

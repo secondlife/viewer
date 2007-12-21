@@ -2767,7 +2767,7 @@ void LLPanelLandAccess::refresh_ui()
 			{
 				childSetToolTip("Only Allow", LLString());
 			}
-			childSetEnabled("GroupCheck", FALSE);
+			childSetEnabled("GroupCheck", TRUE); // Should always be an option (overrides age, payment restrictions)
 			childSetEnabled("PassCheck", FALSE);
 			childSetEnabled("pass_combo", FALSE);
 			childSetEnabled("AccessList", FALSE);

@@ -323,6 +323,7 @@ protected:
 	static LLColor4				sHighlightFgColor;
 	static LLColor4				sFilterBGColor;
 	static LLColor4				sFilterTextColor;
+	static LLColor4				sLoadingMessageTextColor;
 
 	LLString					mLabel;
 	LLString					mSearchableLabel;
@@ -349,6 +350,8 @@ protected:
 	BOOL						mDragAndDropTarget;
 	LLPointer<LLViewerImage>	mArrowImage;
 	LLPointer<LLViewerImage>	mBoxImage;
+	BOOL                            mIsLoading;
+	LLTimer                         mTimeSinceRequestStart;
 	
 	// This function clears the currently selected item, and records
 	// the specified selected item appropriately for display and use

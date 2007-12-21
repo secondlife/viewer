@@ -108,6 +108,7 @@ LLColor4 LLFolderViewItem::sHighlightBgColor;
 LLColor4 LLFolderViewItem::sHighlightFgColor;
 LLColor4 LLFolderViewItem::sFilterBGColor;
 LLColor4 LLFolderViewItem::sFilterTextColor;
+LLColor4 LLFolderViewItem::sLoadingMessageTextColor;
 
 // Default constructor
 LLFolderViewItem::LLFolderViewItem( const LLString& name, LLViewerImage* icon,
@@ -132,7 +133,8 @@ LLFolderViewItem::LLFolderViewItem( const LLString& name, LLViewerImage* icon,
 	mStringMatchOffset(LLString::npos),
 	mControlLabelRotation(0.f),
 	mRoot( root ),
-	mDragAndDropTarget(FALSE)
+	mDragAndDropTarget(FALSE),
+	mIsLoading(FALSE)
 {
 	setIcon(icon);
 	if( !LLFolderViewItem::sFont )
@@ -151,6 +153,7 @@ LLFolderViewItem::LLFolderViewItem( const LLString& name, LLViewerImage* icon,
 	LLFolderViewItem::sHighlightFgColor = gColors.getColor( "MenuItemHighlightFgColor" );
 	LLFolderViewItem::sFilterBGColor = gColors.getColor( "FilterBackgroundColor" );
 	LLFolderViewItem::sFilterTextColor = gColors.getColor( "FilterTextColor" );
+	LLFolderViewItem::sLoadingMessageTextColor = gColors.getColor( "FolderViewLoadingMessageTextColor" );
 
 	mArrowImage = gImageList.getImage(LLUUID(gViewerArt.getString("folder_arrow.tga")), MIPMAP_FALSE, TRUE); 
 	mBoxImage = gImageList.getImage(LLUUID(gViewerArt.getString("rounded_square.tga")), MIPMAP_FALSE, TRUE);
@@ -930,6 +933,14 @@ void LLFolderViewItem::draw()
 			sSmallFont->renderUTF8(mStatusText, 0, text_left, y, filter_color,
 							LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL,
 							S32_MAX, S32_MAX, &right_x, FALSE );
+			text_left = right_x;
+		}
+
+
+		if ( mIsLoading && mTimeSinceRequestStart.getElapsedTimeF32() >= gSavedSettings.getF32("FolderLoadingMessageWaitTime") )
+		{
+			sFont->renderUTF8( "Loading... ", 0, text_left, y, sLoadingMessageTextColor,
+						LLFontGL::LEFT, LLFontGL::BOTTOM, mLabelStyle, S32_MAX, S32_MAX, &right_x, FALSE);
 			text_left = right_x;
 		}
 
@@ -2196,6 +2207,24 @@ void LLFolderViewFolder::draw()
 	{
 		mControlLabelRotation = lerp(mControlLabelRotation, 0.f, LLCriticalDamp::getInterpolant(0.025f));
 	}
+
+	bool possibly_has_children = false;
+	bool up_to_date = mListener && mListener->isUpToDate();
+	if(!up_to_date && mListener && mListener->hasChildren()) // we know we have children but haven't fetched them (doesn't obey filter)
+	{
+		possibly_has_children = true;
+	}
+	
+	
+	BOOL loading = ( mIsOpen && possibly_has_children && !up_to_date );
+	
+	if ( loading && !mIsLoading )
+	{
+		// Measure how long we've been in the loading state
+		mTimeSinceRequestStart.reset();
+	}
+	
+	mIsLoading = loading;
 
 	LLFolderViewItem::draw();
 

@@ -51,9 +51,6 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
-#include <tchar.h>
-#include <atlbase.h>
-
 
 // Local Header Files
 

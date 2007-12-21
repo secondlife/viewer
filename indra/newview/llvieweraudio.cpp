@@ -8,15 +8,16 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llvieweraudio.h"
 #include "audioengine.h"
-#include "llviewercontrol.h"
-#include "llmediaengine.h"
+#include "audiosettings.h"
 #include "llagent.h"
 #include "llappviewer.h"
-#include "llvoiceclient.h"
-#include "llviewerwindow.h"
+#include "llmediaengine.h"
+#include "llvieweraudio.h"
 #include "llviewercamera.h"
+#include "llviewercontrol.h"
+#include "llviewerwindow.h"
+#include "llvoiceclient.h"
 
 /////////////////////////////////////////////////////////
 
@@ -210,7 +211,10 @@ void audio_update_wind(bool force_update)
 		// don't use the setter setMaxWindGain() because we don't
 		// want to screw up the fade-in on startup by setting actual source gain
 		// outside the fade-in.
-		gAudiop->mMaxWindGain = gSavedSettings.getBOOL("MuteAmbient") ? 0.f : gSavedSettings.getF32("AudioLevelAmbient");
+		F32 ambient_volume = gSavedSettings.getF32("AudioLevelAmbient");
+		gAudiop->mMaxWindGain = gSavedSettings.getBOOL("MuteAmbient") 
+			? 0.f 
+			: ambient_volume * ambient_volume;
 		
 		last_camera_water_height = camera_water_height;
 		gAudiop->updateWind(gRelativeWindVec, camera_water_height);

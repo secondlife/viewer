@@ -1659,6 +1659,8 @@ LLVolume::~LLVolume()
 
 BOOL LLVolume::generate()
 {
+	llassert_always(mProfilep);
+	
 	//Added 10.03.05 Dave Parks
 	// Split is a parameter to LLProfile::generate that tesselates edges on the profile 
 	// to prevent lighting and texture interpolation errors on triangles that are 
@@ -1702,41 +1704,38 @@ BOOL LLVolume::generate()
 		mMesh.resize(mProfilep->mProfile.size() * mPathp->mPath.size());
 		sNumMeshPoints += mMesh.size();
 
-		S32 s = 0, t=0;
 		S32 sizeS = mPathp->mPath.size();
 		S32 sizeT = mProfilep->mProfile.size();
-		S32 line  = 0;
 
 		//generate vertex positions
 
 		// Run along the path.
-		while (s < sizeS)
+		for (S32 s = 0; s < sizeS; ++s)
 		{
 			LLVector2  scale = mPathp->mPath[s].mScale;
 			LLQuaternion rot = mPathp->mPath[s].mRot;
 
-			t = 0;
 			// Run along the profile.
-			while (t < sizeT)
+			for (S32 t = 0; t < sizeT; ++t)
 			{
-				S32 i = t + line;
-				Point& pt = mMesh[i];
+				S32 m = s*sizeT + t;
+				Point& pt = mMesh[m];
 				
 				pt.mPos.mV[0] = mProfilep->mProfile[t].mV[0] * scale.mV[0];
 				pt.mPos.mV[1] = mProfilep->mProfile[t].mV[1] * scale.mV[1];
 				pt.mPos.mV[2] = 0.0f;
 				pt.mPos       = pt.mPos * rot;
 				pt.mPos      += mPathp->mPath[s].mPos;
-				t++;
 			}
-			line += sizeT;
-			s++;
 		}
 
-		for (S32 i = 0; i < (S32)mProfilep->mFaces.size(); i++)
+		for (std::vector<LLProfile::Face>::iterator iter = mProfilep->mFaces.begin();
+			 iter != mProfilep->mFaces.end(); ++iter)
 		{
-			mFaceMask |= mProfilep->mFaces[i].mFaceID;
+			LLFaceID id = iter->mFaceID;
+			mFaceMask |= id;
 		}
+		
 		return TRUE;
 	}
 	return FALSE;
@@ -1857,7 +1856,6 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 
 	mPathp->generate(mDetail, 0, TRUE);
 	mProfilep->generate(mPathp->isOpen(), mDetail, 0, TRUE);
-
 	
 	S32 sizeS = mPathp->mPath.size();
 	S32 sizeT = mProfilep->mProfile.size();
@@ -1871,6 +1869,7 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 	if (!data_is_empty)
 	{
 		for (S32 s = 0; s < sizeS - 1; s++)
+		{
 			for (S32 t = 0; t < sizeT - 1; t++)
 			{
 				// first coordinate
@@ -1896,7 +1895,7 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 				LLVector3 cross = (p1 - p2) % (p1 - p3);
 				area += cross.magVec();
 			}
-		
+		}
 		if (area < SCULPT_MIN_AREA)
 			data_is_empty = TRUE;
 	}
@@ -1926,8 +1925,7 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 			}
 			line += sizeT;
 		}
-	}
-	
+	}	
 	else
 	{
 		S32 line = 0;
@@ -1986,8 +1984,6 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 					}
 				}
 
-
-				
 				U32 index = (x + y * sculpt_width) * sculpt_components;
 				pt.mPos = sculpt_rgb_to_vector(sculpt_data[index], sculpt_data[index+1], sculpt_data[index+2]);
 			}

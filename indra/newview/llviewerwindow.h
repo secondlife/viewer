@@ -181,6 +181,7 @@ public:
 
 	// Hide normal UI when a logon fails, re-show everything when logon is attempted again
 	void			setNormalControlsVisible( BOOL visible );
+    void            setMenuBackgroundColor(bool god_mode = false, bool dev_grid = false);
 
 	// Handle the application becoming active (frontmost) or inactive
 	//BOOL			handleActivate(BOOL activate);

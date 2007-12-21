@@ -37,6 +37,7 @@
 #include "llinventory.h"
 #include "llinventorymodel.h"
 #include "llinventoryview.h"
+#include "llinventorybridge.h"	// for landmark prefix string
 
 #include "llviewertexteditor.h"
 
@@ -1391,7 +1392,9 @@ void LLViewerTextEditor::openEmbeddedSound( LLInventoryItem* item )
 
 void LLViewerTextEditor::openEmbeddedLandmark( LLInventoryItem* item )
 {
-	open_landmark((LLViewerInventoryItem*)item, "   preview landmark", FALSE, item->getUUID(), TRUE);
+	LLString title =
+		LLString("  ") + LLLandmarkBridge::prefix()	+ item->getName();
+	open_landmark((LLViewerInventoryItem*)item, title, FALSE, item->getUUID(), TRUE);
 }
 
 void LLViewerTextEditor::openEmbeddedNotecard( LLInventoryItem* item, BOOL saved )

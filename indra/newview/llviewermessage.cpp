@@ -279,11 +279,6 @@ void process_logout_reply(LLMessageSystem* msg, void**)
 			llinfos << "process_logout_reply item not found: " << item_id << llendl;
 		}
 	}
-	if(!parents.empty())
-	{
-		gInventory.accountForUpdate(parents);
-		gInventory.notifyObservers();
-	}
     LLAppViewer::instance()->forceQuit();
 }
 
@@ -1348,7 +1343,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	S32 binary_bucket_size;
 	LLChat chat;
 
-	//*TODO:translate - need to fix the full name to first/last (maybe)
+	// *TODO:translate - need to fix the full name to first/last (maybe)
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, from_id);
 	msg->getBOOLFast(_PREHASH_MessageBlock, _PREHASH_FromGroup, from_group);
 	msg->getUUIDFast(_PREHASH_MessageBlock, _PREHASH_ToAgentID, to_id);
@@ -1885,6 +1880,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 	case IM_GOTO_URL:
 		{
+			// n.b. this is for URLs sent by the system, not for
+			// URLs sent by scripts (i.e. llLoadURL)
 			if (binary_bucket_size <= 0)
 			{
 				llwarns << "bad binary_bucket_size: "
@@ -5081,7 +5078,7 @@ void callback_load_url_name(const LLUUID& id, const char* first, const char* las
 				owner_name += last;
 			}
 
-			// TODO: Talk to james about using an id instead of a name for this.
+			// For legacy name-only mutes.
 			if (gMuteListp->isMuted(LLUUID::null, owner_name))
 			{
 				delete infop;
@@ -5116,8 +5113,12 @@ void process_load_url(LLMessageSystem* msg, void**)
 	// URL is safety checked in load_url above
 
 	// Check if object or owner is muted
-	if (gMuteListp->isMuted(infop->mObjectID, infop->mObjectName))
+	if (gMuteListp &&
+	    (gMuteListp->isMuted(infop->mObjectID, infop->mObjectName) ||
+	     gMuteListp->isMuted(infop->mOwnerID))
+	    )
 	{
+		llinfos<<"Ignoring load_url from muted object/owner."<<llendl;
 		delete infop;
 		infop = NULL;
 		return;

@@ -494,7 +494,37 @@ std::ostream& operator<<(std::ostream &s, const LLStringBase<T> &str)
 std::ostream& operator<<(std::ostream &s, const LLWString &wstr);
 
 #if LL_WINDOWS
-int safe_snprintf(char *str, size_t size, const char *format, ...);
+/* @name Windows string helpers
+ */
+//@{
+
+/**
+ * @brief Implementation the expected snprintf interface.
+ *
+ * If the size of the passed in buffer is not large enough to hold the string,
+ * two bad things happen:
+ * 1. resulting formatted string is NOT null terminated
+ * 2. Depending on the platform, the return value could be a) the required
+ *    size of the buffer to copy the entire formatted string or b) -1.
+ *    On Windows with VS.Net 2003, it returns -1 e.g. 
+ *
+ * safe_snprintf always adds a NULL terminator so that the caller does not
+ * need to check for return value or need to add the NULL terminator.
+ * It does not, however change the return value - to let the caller know
+ * that the passed in buffer size was not large enough to hold the
+ * formatted string.
+ *
+ */
+int safe_snprintf(char* str, size_t size, const char* format, ...);
+
+/**
+ * @brief Convert a wide string to std::string
+ *
+ * This replaces the unsafe W2A macro from ATL.
+ */
+std::string ll_convert_wide_to_string(const wchar_t* in);
+
+//@}
 #endif // LL_WINDOWS
 
 /**

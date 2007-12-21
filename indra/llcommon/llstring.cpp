@@ -34,6 +34,13 @@
 #include "llstring.h"
 #include "llerror.h"
 
+#if LL_WINDOWS
+#define WIN32_LEAN_AND_MEAN
+#include <winsock2.h>
+#include <windows.h>
+#include <winnls.h> // for WideCharToMultiByte
+#endif
+
 std::string ll_safe_string(const char* in)
 {
 	if(in) return std::string(in);
@@ -796,19 +803,7 @@ std::string utf8str_removeCRLF(const std::string& utf8str)
 }
 
 #if LL_WINDOWS
-/* If the size of the passed in buffer is not large enough to hold the string,
- * two bad things happen:
- * 1. resulting formatted string is NOT null terminated
- * 2. Depending on the platform, the return value could be a) the required
- *    size of the buffer to copy the entire formatted string or b) -1.
- *    On Windows with VS.Net 2003, it returns -1 e.g. 
- *
- * safe_snprintf always adds a NULL terminator so that the caller does not
- * need to check for return value or need to add the NULL terminator.
- * It does not, however change the return value - to let the caller know
- * that the passed in buffer size was not large enough to hold the formatted string.
- *
- */
+// documentation moved to header. Phoenix 2007-11-27
 int safe_snprintf(char *str, size_t size, const char *format, ...)
 {
 	va_list args;
@@ -819,6 +814,43 @@ int safe_snprintf(char *str, size_t size, const char *format, ...)
 	
 	str[size-1] = '\0'; // always null terminate
 	return num_written;
+}
+
+std::string ll_convert_wide_to_string(const wchar_t* in)
+{
+	std::string out;
+	if(in)
+	{
+		int len_in = wcslen(in);
+		int len_out = WideCharToMultiByte(
+			CP_ACP,
+			0,
+			in,
+			len_in,
+			NULL,
+			0,
+			0,
+			0);
+		// We will need two more bytes for the double NULL ending
+		// created in WideCharToMultiByte().
+		char* pout = new char [len_out + 2];
+		memset(pout, 0, len_out + 2);
+		if(pout)
+		{
+			WideCharToMultiByte(
+				CP_ACP,
+				0,
+				in,
+				len_in,
+				pout,
+				len_out,
+				0,
+				0);
+			out.assign(pout);
+			delete[] pout;
+		}
+	}
+	return out;
 }
 #endif // LL_WINDOWS
 

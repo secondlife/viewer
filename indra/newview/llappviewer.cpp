@@ -108,22 +108,6 @@
 
 #include "llsdserialize.h"
 
-#if LL_WINDOWS && LL_LCD_COMPILE
-	#include "lllcd.h"
-#endif
-
-#if LL_QUICKTIME_ENABLED
-	#if LL_DARWIN
-		#include <QuickTime/QuickTime.h>
-	#else
-		// quicktime specific includes
-		#include "MacTypes.h"
-		#include "QTML.h"
-		#include "Movies.h"
-		#include "FixMath.h"
-	#endif
-#endif
-
 #include "llworld.h"
 #include "llhudeffecttrail.h"
 #include "llvectorperfoptions.h"
@@ -179,6 +163,28 @@ static char** gTempArgV;
 #include "llviewernetwork.h"
 // extern EGridInfo gGridChoice;
 
+
+////// Windows-specific includes to the bottom - nasty defines in these pollute the preprocessor
+//
+#if LL_WINDOWS && LL_LCD_COMPILE
+	#include "lllcd.h"
+#endif
+//
+#if LL_QUICKTIME_ENABLED
+	#if LL_DARWIN
+		#include <QuickTime/QuickTime.h>
+	#else
+		// quicktime specific includes
+		#include "MacTypes.h"
+		#include "QTML.h"
+		#include "Movies.h"
+		#include "FixMath.h"
+	#endif
+#endif
+//
+//////
+
+
 //----------------------------------------------------------------------------
 // viewer.cpp - these are only used in viewer, should be easily moved.
 extern void disable_win_error_reporting();
@@ -226,7 +232,6 @@ extern BOOL gPeriodicSlowFrame;
 void UnloadGStreamer();
 #endif
 
-extern void send_stats();
 ////////////////////////////////////////////////////////////
 // All from the last globals push...
 bool gVerifySSLCert = true;
@@ -245,8 +250,6 @@ F32 gSimFrames;
 LLString gDisabledMessage; // Set in LLAppViewer::initConfiguration used in idle_startup
 
 BOOL gHideLinks = FALSE; // Set in LLAppViewer::initConfiguration, used externally
-
-BOOL gInProductionGrid	= FALSE; 
 
 BOOL				gAllowIdleAFK = TRUE;
 F32					gAFKTimeout = DEFAULT_AFK_TIMEOUT;
@@ -366,6 +369,7 @@ static LLString gWindowTitle;
 	static char sWindowClass[] = "Second Life";
 #endif
 
+std::string gLoginPage;
 std::vector<std::string> gLoginURIs;
 static std::string gHelperURI;
 
@@ -374,6 +378,7 @@ static const char USAGE[] = "\n"
 "options:\n"
 " -login <first> <last> <password>     log in as a user\n"
 " -autologin                           log in as last saved user\n"
+" -loginpage <URL>                     login authentication page to use\n"
 " -loginuri <URI>                      login server and CGI script to use\n"
 " -helperuri <URI>                     helper web CGI prefix to use\n"
 " -settings <filename>                 specify the filename of a\n"
@@ -623,6 +628,41 @@ int parse_args(int argc, char **argv)
 			gGridChoice = GRID_INFO_UMA;
 			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
 		}
+		else if (!strcmp(argv[j], "--mohini"))
+		{
+			gGridChoice = GRID_INFO_MOHINI;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
+		else if (!strcmp(argv[j], "--yami"))
+		{
+			gGridChoice = GRID_INFO_YAMI;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
+		else if (!strcmp(argv[j], "--nandi"))
+		{
+			gGridChoice = GRID_INFO_NANDI;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
+		else if (!strcmp(argv[j], "--mitra"))
+		{
+			gGridChoice = GRID_INFO_MITRA;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
+		else if (!strcmp(argv[j], "--radha"))
+		{
+			gGridChoice = GRID_INFO_RADHA;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
+		else if (!strcmp(argv[j], "--ravi"))
+		{
+			gGridChoice = GRID_INFO_RAVI;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
+		else if (!strcmp(argv[j], "--aruna"))
+		{
+			gGridChoice = GRID_INFO_ARUNA;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
 		else if (!strcmp(argv[j], "-user") && (++j < argc)) 
 		{
 			if (!strcmp(argv[j], "-"))
@@ -637,6 +677,10 @@ int parse_args(int argc, char **argv)
 				LLString::trim(ip_string);
 				snprintf(gGridName, MAX_STRING, "%s", ip_string.c_str());		// Flawfinder: ignore
 			}
+		}
+		else if (!strcmp(argv[j], "-loginpage") && (++j < argc))
+		{
+			LLAppViewer::instance()->setLoginPage(utf8str_trim(argv[j]));
 		}
 		else if (!strcmp(argv[j], "-loginuri") && (++j < argc))
 		{
@@ -998,7 +1042,7 @@ bool LLAppViewer::init()
 	writeSystemInfo();
 
 	// Build a string representing the current version number.
-	gCurrentVersion = llformat("%d.%d.%d", LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH );
+        gCurrentVersion = llformat("%s %d.%d.%d.%d", gChannelName.c_str(), LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VERSION_BUILD );
 	
 	//
 	// Load the feature tables
@@ -1864,6 +1908,34 @@ bool LLAppViewer::initEarlyConfiguration()
 		{
 			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_UMA].mName);
 		}
+		else if (!strcmp(argv[j], "--mohini"))
+		{
+			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_MOHINI].mName);
+		}
+		else if (!strcmp(argv[j], "--yami"))
+		{
+			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_YAMI].mName);
+		}
+		else if (!strcmp(argv[j], "--nandi"))
+		{
+			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_NANDI].mName);
+		}
+		else if (!strcmp(argv[j], "--mitra"))
+		{
+			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_MITRA].mName);
+		}
+		else if (!strcmp(argv[j], "--radha"))
+		{
+			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_RADHA].mName);
+		}
+		else if (!strcmp(argv[j], "--ravi"))
+		{
+			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_RAVI].mName);
+		}
+		else if (!strcmp(argv[j], "--aruna"))
+		{
+			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_ARUNA].mName);
+		}
 		else if (!strcmp(argv[j], "-user") && (++j < argc))
 		{
 			if (!strcmp(argv[j], "-"))
@@ -2290,11 +2362,6 @@ bool LLAppViewer::doConfigFromCommandLine()
 		removeMarkerFile();
 		return false;
 	}
-	
-	if (!strcmp(gGridName, gGridInfo[GRID_INFO_AGNI].mName))
-	{
-		gInProductionGrid = TRUE;
-	}
 
 	return true;
 }
@@ -2447,14 +2514,12 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["CPUInfo"]["CPUSSE2"] = gSysCPU.hasSSE2();
 	
 	gDebugInfo["RAMInfo"] = llformat("%u", gSysMemory.getPhysicalMemoryKB());
-	gDebugInfo["OSInfo"] = mSysOSInfo.getOSString().c_str();
+	gDebugInfo["OSInfo"] = getOSInfo().getOSStringSimple();
 
 	// Dump some debugging info
-	llinfos << gSecondLife << " version "
-		<< LL_VERSION_MAJOR << "."
-		<< LL_VERSION_MINOR << "."
-		<< LL_VERSION_PATCH
-		<< llendl;
+	llinfos << gSecondLife
+			<< " version " << LL_VERSION_MAJOR << "." << LL_VERSION_MINOR << "." << LL_VERSION_PATCH
+			<< llendl;
 
 	// Dump the local time and time zone
 	time_t now;
@@ -2466,6 +2531,7 @@ void LLAppViewer::writeSystemInfo()
 	// query some system information
 	llinfos << "CPU info:\n" << gSysCPU << llendl;
 	llinfos << "Memory info:\n" << gSysMemory << llendl;
+	llinfos << "OS: " << getOSInfo().getOSStringSimple() << llendl;
 	llinfos << "OS info: " << getOSInfo() << llendl;
 }
 
@@ -2539,7 +2605,7 @@ bool LLAppViewer::anotherInstanceRunning()
 	llinfos << "Checking marker file for lock..." << llendl;
 
 	// If file doesn't exist, we create it
-	// If file does exist, try to get writing privilages
+	// If file does exist, try to get writing privileges
 	FILE* fMarker = LLFile::fopen(marker_file.c_str(), "rb");		// Flawfinder: ignore
 	if (fMarker != NULL)
 	{
@@ -2554,7 +2620,7 @@ bool LLAppViewer::anotherInstanceRunning()
 
 		// *FIX:Mani - rather than have this exception here, 
 		// LLFile::fopen() have consistent behavior across platforms?
-#if LL_DARWIN
+#if LL_DARWIN || LL_LINUX || LL_SOLARIS
 		// Try to lock it. On Mac, this is the only way to test if it's actually locked.
 		if (flock(fileno(fMarker), LOCK_EX | LOCK_NB) == -1)
 		{
@@ -2600,7 +2666,7 @@ void LLAppViewer::initMarkerFile()
 			llinfos << "Marker file is locked." << llendl;
 			return;
 		}
-#if LL_DARWIN
+#if LL_DARWIN || LL_LINUX || LL_SOLARIS
 		// Try to lock it. On Mac, this is the only way to test if it's actually locked.
 		if (flock(fileno(fMarker), LOCK_EX | LOCK_NB) == -1)
 		{
@@ -3043,6 +3109,17 @@ void LLAppViewer::setHelperURI(const std::string& uri)
     gHelperURI = uri;
 }
 
+void LLAppViewer::setLoginPage(const std::string& login_page)
+{
+	gLoginPage = login_page;
+}
+
+const std::string& LLAppViewer::getLoginPage()
+{
+	return gLoginPage;
+}
+
+
 // Callback from a dialog indicating user was logged out.  
 void finish_disconnect(S32 option, void* userdata)
 {
@@ -3171,6 +3248,28 @@ void LLAppViewer::saveNameCache()
 	}
 }
 
+bool LLAppViewer::isInProductionGrid()
+{
+    return (GRID_INFO_AGNI == gGridChoice);
+}
+
+
+/*!	@brief		This class is an LLFrameTimer that can be created with
+				an elapsed time that starts counting up from the given value
+				rather than 0.0.
+				
+				Otherwise it behaves the same way as LLFrameTimer.
+*/
+class LLFrameStatsTimer : public LLFrameTimer
+{
+public:
+	LLFrameStatsTimer(F64 elapsed_already = 0.0)
+		: LLFrameTimer()
+		{
+			mStartTime -= elapsed_already;
+		}
+};
+
 ///////////////////////////////////////////////////////
 // idle()
 //
@@ -3278,12 +3377,15 @@ void LLAppViewer::idle()
 	//
 
 	{
-		static LLFrameTimer	viewer_stats_timer;
+		// Initialize the viewer_stats_timer with an already elapsed time
+		// of SEND_STATS_PERIOD so that the initial stats report will
+		// be sent immediately.
+		static LLFrameStatsTimer viewer_stats_timer(SEND_STATS_PERIOD);
 		reset_statistics();
 
 		// Update session stats every large chunk of time
 		// *FIX: (???) SAMANTHA
-		if (viewer_stats_timer.getElapsedTimeF32() >= 300.f && !gDisconnected)
+		if (viewer_stats_timer.getElapsedTimeF32() >= SEND_STATS_PERIOD && !gDisconnected)
 		{
 			llinfos << "Transmitting sessions stats" << llendl;
 			send_stats();

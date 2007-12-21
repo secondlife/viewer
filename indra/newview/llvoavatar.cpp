@@ -3426,7 +3426,10 @@ void LLVOAvatar::updateCharacter(LLAgent &agent)
 //							AUDIO_STEP_LO_SPEED, AUDIO_STEP_HI_SPEED,
 //							AUDIO_STEP_LO_GAIN, AUDIO_STEP_HI_GAIN );
 
-			F32 gain = gSavedSettings.getBOOL("MuteAmbient") ? 0.f : (.30f * gSavedSettings.getF32("AudioLevelAmbient"));
+			F32 ambient_volume = gSavedSettings.getF32("AudioLevelAmbient");
+			F32 gain = gSavedSettings.getBOOL("MuteAmbient") 
+				? 0.f 
+				: (.50f * ambient_volume * ambient_volume);
 			LLUUID& step_sound_id = getStepSound();
 
 			LLVector3d foot_pos_global = gAgent.getPosGlobalFromAgent(foot_pos_agent);
