@@ -57,7 +57,9 @@ std::string LLURI::escape(const std::string& str, const std::string & allowed)
 		  {
 		    ostr << "%"
 			 << std::uppercase << std::hex << std::setw(2) << std::setfill('0')
-			 << static_cast<U32>(c);
+			 // VWR-4010 Cannot cast to U32 because sign-extension on 
+			 // chars > 128 will result in FFFFFFC3 instead of F3.
+			 << static_cast<S32>(static_cast<U8>(c));
 		  }
 		else
 		  {
