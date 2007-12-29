@@ -770,6 +770,7 @@ void LLWorld::printPacketsLost()
 
 void LLWorld::processCoarseUpdate(LLMessageSystem* msg, void** user_data)
 {
+	if(!gWorldp) return;
 	LLViewerRegion* region = gWorldp->getRegion(msg->getSender());
 	if( region )
 	{
@@ -1026,6 +1027,7 @@ void process_enable_simulator(LLMessageSystem *msg, void **user_data)
 
 	// Viewer trusts the simulator.
 	msg->enableCircuit(sim, TRUE);
+	if(!gWorldp) return;
 	gWorldp->addRegion(handle, sim);
 
 	// give the simulator a message it can use to get ip and port
@@ -1063,6 +1065,7 @@ public:
 
 		LLHost sim(input["body"]["sim-ip-and-port"].asString());
 	
+		if(!gWorldp) return;
 		LLViewerRegion* regionp = gWorldp->getRegion(sim);
 		if (!regionp)
 		{
@@ -1081,6 +1084,7 @@ void process_disable_simulator(LLMessageSystem *mesgsys, void **user_data)
 	LLHost host = mesgsys->getSender();
 
 	//llinfos << "Disabling simulator with message from " << host << llendl;
+	if(!gWorldp) return;
 	gWorldp->removeRegion(host);
 
 	mesgsys->disableCircuit(host);
@@ -1090,6 +1094,7 @@ void process_disable_simulator(LLMessageSystem *mesgsys, void **user_data)
 void process_region_handshake(LLMessageSystem* msg, void** user_data)
 {
 	LLHost host = msg->getSender();
+	if(!gWorldp) return;
 	LLViewerRegion* regionp = gWorldp->getRegion(host);
 	if (!regionp)
 	{

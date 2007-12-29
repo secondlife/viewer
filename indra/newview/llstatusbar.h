@@ -48,9 +48,21 @@ class LLFrameTimer;
 class LLStatGraph;
 
 // used by LCD screen
-class cLLRegionDetails
+class LLRegionDetails
 {
 public:
+	LLRegionDetails()
+	{
+		mRegionName = LLString("Unknown");
+		mParcelName = "Unknown";
+		mAccesString = "Unknown";
+		mX = 0;
+		mY = 0;
+		mZ = 0;
+		mArea = 0;
+		mForSale = FALSE;
+		snprintf(mOwner, MAX_STRING, "Unknown");
+	}
 	LLString mRegionName;
 	char	*mParcelName;
 	char	*mAccesString;
@@ -100,7 +112,7 @@ public:
 	S32 getSquareMetersCredit() const;
 	S32 getSquareMetersCommitted() const;
 	S32 getSquareMetersLeft() const;
-	cLLRegionDetails mRegionDetails;
+	LLRegionDetails mRegionDetails;
 
 private:
 	// simple method to setup the part that holds the date

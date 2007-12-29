@@ -107,8 +107,8 @@ F64 U64_to_F64(const U64 value)
 U64	llstrtou64(const char* str, char** end, S32 base)
 {
 #ifdef LL_WINDOWS
-				return _strtoui64(str,end,base);
+	return _strtoui64(str,end,base);
 #else
-				return strtoull(str,end,base);
+	return strtoull(str,end,base);
 #endif
 }

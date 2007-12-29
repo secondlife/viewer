@@ -21,11 +21,16 @@
 #include <map>
 
 
+// forward declaration so LLKeyThrottleImpl can befriend it
+template <class T> class LLKeyThrottle;
+
+
 // Implementation utility class - use LLKeyThrottle, not this
 template <class T>
 class LLKeyThrottleImpl
 {
-public:
+	friend class LLKeyThrottle<T>;
+protected:
 	struct Entry {
 		U32		count;
 		BOOL	blocked;
@@ -47,7 +52,9 @@ public:
 		// currMap started counting at this time
 		// prevMap covers the previous interval
 	
-	LLKeyThrottleImpl() : prevMap(0), currMap(0) { }
+	LLKeyThrottleImpl() : prevMap(0), currMap(0),
+			      countLimit(0), interval_usec(0),
+			      start_usec(0) { };
 
 	static U64 getTime()
 	{

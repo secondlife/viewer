@@ -187,6 +187,7 @@ public:
 
 	void 			setCursorColor(const LLColor4& c)			{ mCursorColor = c; }
 	void 			setFgColor( const LLColor4& c )				{ mFgColor = c; }
+	void			setTextDefaultColor( const LLColor4& c )				{ mDefaultColor = c; }
 	void 			setReadOnlyFgColor( const LLColor4& c )		{ mReadOnlyFgColor = c; }
 	void 			setWriteableBgColor( const LLColor4& c )	{ mWriteableBgColor = c; }
 	void 			setReadOnlyBgColor( const LLColor4& c )		{ mReadOnlyBgColor = c; }
@@ -429,6 +430,7 @@ protected:
 	LLColor4		mCursorColor;
 
 	LLColor4		mFgColor;
+	LLColor4		mDefaultColor;
 	LLColor4		mReadOnlyFgColor;
 	LLColor4		mWriteableBgColor;
 	LLColor4		mReadOnlyBgColor;

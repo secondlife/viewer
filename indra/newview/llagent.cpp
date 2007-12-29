@@ -305,7 +305,7 @@ LLAgent::LLAgent()
 
 	mbAlwaysRun(FALSE),
 	mShowAvatar(TRUE),
-
+	
 	mCameraAnimating( FALSE ),
 	mAnimationCameraStartGlobal(),
 	mAnimationFocusStartGlobal(),
@@ -410,6 +410,8 @@ LLAgent::LLAgent()
 	mCameraUpVector = LLVector3::z_axis;// default is straight up 
 	mFollowCam.setMaxCameraDistantFromSubject( MAX_CAMERA_DISTANCE_FROM_AGENT );
 	//end ventrella
+
+	mCustomAnim = FALSE ;
 }
 
 // Requires gSavedSettings to be initialized.
@@ -2861,8 +2863,14 @@ void LLAgent::endAnimationUpdateUI()
 
 		if (mAvatarObject)
 		{
-			sendAnimationRequest(ANIM_AGENT_CUSTOMIZE, ANIM_REQUEST_STOP);
-			sendAnimationRequest(ANIM_AGENT_CUSTOMIZE_DONE, ANIM_REQUEST_START);
+			if(mCustomAnim)
+			{
+				sendAnimationRequest(ANIM_AGENT_CUSTOMIZE, ANIM_REQUEST_STOP);
+				sendAnimationRequest(ANIM_AGENT_CUSTOMIZE_DONE, ANIM_REQUEST_START);
+
+				mCustomAnim = FALSE ;
+			}
+			
 		}
 		setLookAt(LOOKAT_TARGET_CLEAR);
 	}
@@ -4188,7 +4196,7 @@ void LLAgent::changeCameraToThirdPerson(BOOL animate)
 //-----------------------------------------------------------------------------
 // changeCameraToCustomizeAvatar()
 //-----------------------------------------------------------------------------
-void LLAgent::changeCameraToCustomizeAvatar(BOOL animate)
+void LLAgent::changeCameraToCustomizeAvatar(BOOL avatar_animate, BOOL camera_animate)
 {
 	setControlFlags(AGENT_CONTROL_STAND_UP); // force stand up
 	gViewerWindow->getWindow()->resetBusyCount();
@@ -4203,16 +4211,16 @@ void LLAgent::changeCameraToCustomizeAvatar(BOOL animate)
 	gSavedSettings.setBOOL("ThirdPersonBtnState", FALSE);
 	gSavedSettings.setBOOL("BuildBtnState", FALSE);
 
-	if (animate)
+	if (camera_animate)
 	{
 		startCameraAnimation();
 	}
 
 	// Remove any pitch from the avatar
-	LLVector3 at = mFrameAgent.getAtAxis();
-	at.mV[VZ] = 0.f;
-	at.normVec();
-	gAgent.resetAxes(at);
+	//LLVector3 at = mFrameAgent.getAtAxis();
+	//at.mV[VZ] = 0.f;
+	//at.normVec();
+	//gAgent.resetAxes(at);
 
 	if( mCameraMode != CAMERA_MODE_CUSTOMIZE_AVATAR )
 	{
@@ -4231,22 +4239,31 @@ void LLAgent::changeCameraToCustomizeAvatar(BOOL animate)
 		LLVOAvatar::onCustomizeStart();
 	}
 
-	if (animate && !mAvatarObject.isNull())
+	if (!mAvatarObject.isNull())
 	{
-		sendAnimationRequest(ANIM_AGENT_CUSTOMIZE, ANIM_REQUEST_START);
-		mAvatarObject->startMotion(ANIM_AGENT_CUSTOMIZE);
-		LLMotion* turn_motion = mAvatarObject->findMotion(ANIM_AGENT_CUSTOMIZE);
-
-		if (turn_motion)
+		if(avatar_animate)
 		{
-			mAnimationDuration = turn_motion->getDuration() + CUSTOMIZE_AVATAR_CAMERA_ANIM_SLOP;
+				// Remove any pitch from the avatar
+			LLVector3 at = mFrameAgent.getAtAxis();
+			at.mV[VZ] = 0.f;
+			at.normVec();
+			gAgent.resetAxes(at);
 
-		}
-		else
-		{
-			mAnimationDuration = gSavedSettings.getF32("ZoomTime");
-		}
+			sendAnimationRequest(ANIM_AGENT_CUSTOMIZE, ANIM_REQUEST_START);
+			mCustomAnim = TRUE ;
+			mAvatarObject->startMotion(ANIM_AGENT_CUSTOMIZE);
+			LLMotion* turn_motion = mAvatarObject->findMotion(ANIM_AGENT_CUSTOMIZE);
 
+			if (turn_motion)
+			{
+				mAnimationDuration = turn_motion->getDuration() + CUSTOMIZE_AVATAR_CAMERA_ANIM_SLOP;
+
+			}
+			else
+			{
+				mAnimationDuration = gSavedSettings.getF32("ZoomTime");
+			}
+		}
 
 
 

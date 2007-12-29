@@ -2378,7 +2378,12 @@ BOOL LLPanelEstateInfo::checkRemovalButton(std::string name)
 	}
 	else if (name == "estate_manager_name_list")
 	{
-		btn_name = "remove_estate_manager_btn";
+		//ONLY OWNER CAN ADD /DELET ESTATE MANAGER
+		LLViewerRegion* region = gAgent.getRegion();
+		if (region && (region->getOwner() == gAgent.getID()))
+		{
+			btn_name = "remove_estate_manager_btn";
+		}
 	}
 
 	// enable the remove button if something is selected

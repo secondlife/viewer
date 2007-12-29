@@ -84,7 +84,7 @@ public:
 	BOOL		loadFromFile(const LLString& filename);
 	BOOL		isLoaded()	{ return mLoaded; }
 
-	void		findSegments(std::vector<LLTextSegment *> *seg_list, const LLWString& text );
+	void		findSegments(std::vector<LLTextSegment *> *seg_list, const LLWString& text, const LLColor4 &defaultColor );
 
 #ifdef _DEBUG
 	void		dump();
@@ -98,7 +98,7 @@ public:
 
 private:
 	LLColor3	readColor(const LLString& s);
-	void		insertSegment(std::vector<LLTextSegment *> *seg_list, LLTextSegment* new_segment, S32 text_len);
+	void		insertSegment(std::vector<LLTextSegment *> *seg_list, LLTextSegment* new_segment, S32 text_len, const LLColor4 &defaultColor);
 
 private:
 	BOOL						 mLoaded;

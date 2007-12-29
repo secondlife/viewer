@@ -1036,12 +1036,15 @@ F32 LLDrawable::getVisibilityRadius() const
 	}
 	else if (isLight())
 	{
-		return llmax(getRadius(), getVOVolume()->getLightRadius());
+		const LLVOVolume *vov = getVOVolume();
+		if (vov)
+		{
+			return llmax(getRadius(), vov->getLightRadius());
+		} else {
+			// llwarns ?
+		}
 	}
-	else
-	{
-		return getRadius();
-	}
+	return getRadius();
 }
 
 void LLDrawable::updateUVMinMax()

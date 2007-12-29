@@ -119,6 +119,7 @@ public:
 	static void onClickPublishHelp(void *userdata);
 	static void onClickPartnerHelp(void *userdata);
 	static void onClickPartnerHelpLoadURL(S32 option, void* userdata);
+	static void onClickPartnerInfo(void *userdata);
 
 	// Clear out the controls anticipating new network data.
 	void clearControls();

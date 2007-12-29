@@ -1199,6 +1199,16 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 		return TRUE;
 	}
 
+	// In case the inventory has not been updated (e.g. due to some recent operation
+	// causing a dirty inventory), stall the user while fetching the inventory.
+	if (hit_obj->isInventoryDirty())
+	{
+		hit_obj->fetchInventoryFromServer();
+		LLString::format_map_t args;
+		args["[ERROR_MESSAGE]"] = "Unable to add texture.\nPlease wait a few seconds and try again.";
+		gViewerWindow->alertXml("ErrorMessage", args);
+		return FALSE;
+	}
 	if (hit_obj->getInventoryItemByAsset(item->getAssetUUID()))
 	{
 		// if the asset is already in the object's inventory 
@@ -1259,6 +1269,8 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 
 		// Add the texture item to the target object's inventory.
 		hit_obj->updateInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
+		// Force the object to update its refetch its inventory so it has this texture.
+		hit_obj->fetchInventoryFromServer();
  		// TODO: Check to see if adding the item was successful; if not, then
 		// we should return false here.
 	}

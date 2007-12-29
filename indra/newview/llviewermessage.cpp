@@ -284,6 +284,7 @@ void process_logout_reply(LLMessageSystem* msg, void**)
 
 void process_layer_data(LLMessageSystem *mesgsys, void **user_data)
 {
+	if(!gWorldp) return;
 	LLViewerRegion *regionp = gWorldp->getRegion(mesgsys->getSender());
 
 	if (!regionp || gNoRender)
@@ -2609,6 +2610,7 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 
 	// Viewer trusts the simulator.
 	gMessageSystem->enableCircuit(sim_host, TRUE);
+	if(!gWorldp) return;
 	LLViewerRegion* regionp =  gWorldp->addRegion(region_handle, sim_host);
 
 /*
@@ -2716,6 +2718,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 
 	F32 x, y;
 	from_region_handle(region_handle, &x, &y);
+	if(!gWorldp) return;
 	LLViewerRegion* regionp = gWorldp->getRegionFromHandle(region_handle);
 	if (!regionp)
 	{
@@ -2889,6 +2892,7 @@ void process_crossed_region(LLMessageSystem* msg, void**)
 
 	send_complete_agent_movement(sim_host);
 
+	if(!gWorldp) return;
 	LLViewerRegion* regionp = gWorldp->addRegion(region_handle, sim_host);
 	regionp->setSeedCapability(std::string(seedCap));
 }
@@ -3273,6 +3277,7 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 	mesgsys->getVector3Fast(_PREHASH_TimeInfo, _PREHASH_SunDirection, sun_direction);
 	mesgsys->getVector3Fast(_PREHASH_TimeInfo, _PREHASH_SunAngVelocity, sun_ang_velocity);
 
+	if(!gWorldp) return;
 	gWorldp->setSpaceTimeUSec(space_time_usec);
 
 	//lldebugs << "time_synch() - " << sun_direction << ", " << sun_ang_velocity

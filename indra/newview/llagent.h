@@ -183,7 +183,7 @@ public:
 	void			changeCameraToDefault();
 	void			changeCameraToMouselook(BOOL animate = TRUE);
 	void			changeCameraToThirdPerson(BOOL animate = TRUE);
-	void			changeCameraToCustomizeAvatar(BOOL animate = TRUE);			// trigger transition animation
+	void			changeCameraToCustomizeAvatar(BOOL avatar_animate = TRUE, BOOL camera_animate = TRUE);			// trigger transition animation
 	// Ventrella
 	void			changeCameraToFollow(BOOL animate = TRUE);
 	//end Ventrella
@@ -735,6 +735,7 @@ private:
 	ECameraMode		mLastCameraMode;
 	BOOL			mViewsPushed;					// keep track of whether or not we have pushed views.
 
+	BOOL            mCustomAnim ;                   //current animation is ANIM_AGENT_CUSTOMIZE ?
 	BOOL			mbAlwaysRun;					// should the avatar run rather than walk
 	BOOL			mShowAvatar;					// should we render the avatar?
 	BOOL			mCameraAnimating;				// camera is transitioning from one mode to another

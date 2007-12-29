@@ -1355,7 +1355,11 @@ BOOL LLViewerTextEditor::openEmbeddedItem(LLInventoryItem* item, BOOL saved)
 void LLViewerTextEditor::openEmbeddedTexture( LLInventoryItem* item )
 {
 	// See if we can bring an existing preview to the front
-	if( !LLPreview::show( item->getUUID() ) )
+	// *NOTE:  Just for embedded Texture , we should use getAssetUUID(), 
+	// not getUUID(), because LLPreviewTexture pass in AssetUUID into 
+	// LLPreview constructor ItemUUID parameter.
+
+	if( !LLPreview::show( item->getAssetUUID() ) )
 	{
 		// There isn't one, so make a new preview
 		if(item)

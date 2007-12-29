@@ -119,6 +119,7 @@ NVIDIA GeForce Go 6800			.*NVIDIA.*GeForce Go 68.*				2
 NVIDIA GeForce Go 7300			.*NVIDIA.*GeForce Go 73.*				3
 NVIDIA GeForce Go 7400			.*NVIDIA.*GeForce Go 74.*				3
 NVIDIA GeForce Go 7600			.*NVIDIA.*GeForce Go 76.*				3
+NVIDIA GeForce Go 7700			.*NVIDIA.*GeForce Go 77.*				3
 NVIDIA GeForce Go 7800			.*NVIDIA.*GeForce Go 78.*				3
 NVIDIA GeForce Go 7900			.*NVIDIA.*GeForce Go 79.*				3
 NVIDIA GeForce Go 6				.*GeForce Go 6.*						2

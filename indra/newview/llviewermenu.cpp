@@ -5272,7 +5272,7 @@ class LLShowFloater : public view_listener_t
 		{
 			if (gAgent.getWearablesLoaded())
 			{
-				gAgent.changeCameraToCustomizeAvatar();
+				gAgent.changeCameraToCustomizeAvatar(gSavedSettings.getBOOL("AppearanceCameraMovement"));
 			}
 		}
 		else if (floater_name == "friends")

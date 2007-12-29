@@ -290,6 +290,7 @@ void LLPanelAvatarSecondLife::updatePartnerName()
 			childSetTextArg("partner_edit", "[FIRST]", LLString(first));
 			childSetTextArg("partner_edit", "[LAST]", LLString(last));
 		}
+		childSetEnabled("partner_info", TRUE);
 	}
 }
 
@@ -394,6 +395,16 @@ void LLPanelAvatarSecondLife::onClickPartnerHelpLoadURL(S32 option, void* userda
     LLWeb::loadURL("http://secondlife.com/partner");
 }
 
+// static
+void LLPanelAvatarSecondLife::onClickPartnerInfo(void *data)
+{
+	LLPanelAvatarSecondLife* self = (LLPanelAvatarSecondLife*) data;
+	if (self->mPartnerID.notNull())
+	{
+		LLFloaterAvatarInfo::showFromProfile(self->mPartnerID,
+											 self->getScreenRect());
+	}
+}
 
 //-----------------------------------------------------------------------------
 // LLPanelAvatarFirstLife()
@@ -421,6 +432,8 @@ BOOL LLPanelAvatarSecondLife::postBuild(void)
 	childSetEnabled("born", FALSE);
 	childSetEnabled("partner_edit", FALSE);
 	childSetAction("partner_help",onClickPartnerHelp,this);
+	childSetAction("partner_info", onClickPartnerInfo, this);
+	childSetEnabled("partner_info", mPartnerID.notNull());
 	
 	childSetAction("?",onClickPublishHelp,this);
 	BOOL own_avatar = (getPanelAvatar()->getAvatarID() == gAgent.getID() );

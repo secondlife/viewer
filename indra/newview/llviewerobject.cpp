@@ -2343,8 +2343,19 @@ void LLViewerObject::requestInventory()
 		doInventoryCallback();
 	}
 	// throw away duplicate requests
-	else if (! mInventoryPending)
+	else
 	{
+		fetchInventoryFromServer();
+	}
+}
+
+void LLViewerObject::fetchInventoryFromServer()
+{
+	if (!mInventoryPending)
+	{
+		delete mInventory;
+		mInventory = NULL;
+		mInventoryDirty = FALSE;
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_RequestTaskInventory);
 		msg->nextBlockFast(_PREHASH_AgentData);
@@ -2631,6 +2642,9 @@ LLInventoryObject* LLViewerObject::getInventoryRoot()
 
 LLViewerInventoryItem* LLViewerObject::getInventoryItemByAsset(const LLUUID& asset_id)
 {
+	if (mInventoryDirty)
+		llwarns << "Peforming inventory lookup for object " << mID << " that has dirty inventory!" << llendl;
+
 	LLViewerInventoryItem* rv = NULL;
 	if(mInventory)
 	{

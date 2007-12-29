@@ -47,7 +47,7 @@
 
 #include "llviewerregion.h"
 #include "llviewerobjectlist.h"
-
+#include "llpreviewgesture.h"
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
@@ -641,6 +641,26 @@ void ActivateGestureCallback::fire(const LLUUID& inv_item)
 		return;
 
 	gGestureManager.activateGesture(inv_item);
+}
+
+void CreateGestureCallback::fire(const LLUUID& inv_item)
+{
+	if (inv_item.isNull())
+		return;
+
+	gGestureManager.activateGesture(inv_item);
+	
+	LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+	if (!item) return;
+    gInventory.updateItem(item);
+    gInventory.notifyObservers();
+
+	if(!LLPreview::show(inv_item,FALSE))
+	{
+		LLPreviewGesture* preview = LLPreviewGesture::show(LLString("Gesture: ") + item->getName(), inv_item,  LLUUID::null);
+		// Force to be entirely onscreen.
+		gFloaterView->adjustToFitScreen(preview, FALSE);
+	}
 }
 
 LLInventoryCallbackManager gInventoryCallbacks;

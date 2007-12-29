@@ -233,7 +233,7 @@ LLColor3 LLKeywords::readColor( const LLString& s )
 
 // Walk through a string, applying the rules specified by the keyword token list and
 // create a list of color segments.
-void LLKeywords::findSegments(std::vector<LLTextSegment *>* seg_list, const LLWString& wtext)
+void LLKeywords::findSegments(std::vector<LLTextSegment *>* seg_list, const LLWString& wtext, const LLColor4 &defaultColor)
 {
 	std::for_each(seg_list->begin(), seg_list->end(), DeletePointer());
 	seg_list->clear();
@@ -245,7 +245,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegment *>* seg_list, const LLWS
 	
 	S32 text_len = wtext.size();
 
-	seg_list->push_back( new LLTextSegment( LLColor3(0,0,0), 0, text_len ) );
+	seg_list->push_back( new LLTextSegment( LLColor3(defaultColor), 0, text_len ) ); 
 
 	const llwchar* base = wtext.c_str();
 	const llwchar* cur = base;
@@ -299,7 +299,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegment *>* seg_list, const LLWS
 						//llinfos << "Seg: [" << (char*)LLString( base, seg_start, seg_end-seg_start) << "]" << llendl;
 						LLTextSegment* text_segment = new LLTextSegment( cur_token->getColor(), seg_start, seg_end );
 						text_segment->setToken( cur_token );
-						insertSegment( seg_list, text_segment, text_len);
+						insertSegment( seg_list, text_segment, text_len, defaultColor);
 						line_done = TRUE; // to break out of second loop.
 						break;
 					}
@@ -409,7 +409,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegment *>* seg_list, const LLWS
 					//llinfos << "Seg: [" << (char*)LLString( base, seg_start, seg_end-seg_start ) << "]" << llendl;
 					LLTextSegment* text_segment = new LLTextSegment( cur_delimiter->getColor(), seg_start, seg_end );
 					text_segment->setToken( cur_delimiter );
-					insertSegment( seg_list, text_segment, text_len);
+					insertSegment( seg_list, text_segment, text_len, defaultColor);
 
 					// Note: we don't increment cur, since the end of one delimited seg may be immediately
 					// followed by the start of another one.
@@ -442,7 +442,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegment *>* seg_list, const LLWS
 
 						LLTextSegment* text_segment = new LLTextSegment( cur_token->getColor(), seg_start, seg_end );
 						text_segment->setToken( cur_token );
-						insertSegment( seg_list, text_segment, text_len);
+						insertSegment( seg_list, text_segment, text_len, defaultColor);
 					}
 					cur += seg_len; 
 					continue;
@@ -457,7 +457,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegment *>* seg_list, const LLWS
 	}
 }
 
-void LLKeywords::insertSegment(std::vector<LLTextSegment*>* seg_list, LLTextSegment* new_segment, S32 text_len )
+void LLKeywords::insertSegment(std::vector<LLTextSegment*>* seg_list, LLTextSegment* new_segment, S32 text_len, const LLColor4 &defaultColor )
 {
 	LLTextSegment* last = seg_list->back();
 	S32 new_seg_end = new_segment->getEnd();
@@ -475,7 +475,7 @@ void LLKeywords::insertSegment(std::vector<LLTextSegment*>* seg_list, LLTextSegm
 
 	if( new_seg_end < text_len )
 	{
-		seg_list->push_back( new LLTextSegment( LLColor3(0,0,0), new_seg_end, text_len ) );
+		seg_list->push_back( new LLTextSegment( defaultColor, new_seg_end, text_len ) );
 	}
 }
 

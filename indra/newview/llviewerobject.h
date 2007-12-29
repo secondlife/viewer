@@ -373,6 +373,7 @@ public:
 	BOOL isInventoryPending() { return mInventoryPending; }
 	void clearInventoryListeners();
 	void requestInventory();
+	void fetchInventoryFromServer();
 	static void processTaskInv(LLMessageSystem* msg, void** user_data);
 	void removeInventory(const LLUUID& item_id);
 

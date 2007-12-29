@@ -62,6 +62,9 @@ const char AMD_AGP_URL[] =
 const char VIA_URL[] = 
 	"http://secondlife.com/support/";
 
+const char SUPPORT_URL[] = 
+    "http://secondlife.com/support/";
+
 const char INTEL_CHIPSET_URL[] = 
 	"http://secondlife.com/support/";
 

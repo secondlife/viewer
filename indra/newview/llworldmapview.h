@@ -52,13 +52,6 @@ class LLCoordGL;
 class LLViewerImage;
 class LLTextBox;
 
-#define SIM_NULL_MAP_SCALE 2 // width in pixels, where we start drawing "null" sims
-#define SIM_MAP_AGENT_SCALE 20 // width in pixels, where we start drawing agents
-#define SIM_MAP_SCALE 90 // width in pixels, where we start drawing sim tiles
-
-// Updates for agent locations.
-#define AGENTS_UPDATE_TIME 60.0 // in seconds
-
 
 class LLWorldMapView : public LLPanel
 {

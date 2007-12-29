@@ -40,8 +40,10 @@
 
 const char* fallbackEngineInfoLLImageJ2CImpl()
 {
-	return (std::string("OpenJPEG: " OPENJPEG_VERSION ", Runtime: ")
-		+ opj_version()).c_str();
+	static std::string version_string =
+		std::string("OpenJPEG: " OPENJPEG_VERSION ", Runtime: ")
+		+ opj_version();
+	return version_string.c_str();
 }
 
 LLImageJ2CImpl* fallbackCreateLLImageJ2CImpl()
@@ -183,14 +185,24 @@ BOOL LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decod
 	for (S32 comp = first_channel, dest=0; comp < first_channel + channels;
 		comp++, dest++)
 	{
-		S32 offset = dest;
-		for (S32 y = (height - 1); y >= 0; y--)
+		if (image->comps[comp].data)
 		{
-			for (S32 x = 0; x < width; x++)
+			S32 offset = dest;
+			for (S32 y = (height - 1); y >= 0; y--)
 			{
-				rawp[offset] = image->comps[comp].data[y*comp_width + x];
-				offset += channels;
+				for (S32 x = 0; x < width; x++)
+				{
+					rawp[offset] = image->comps[comp].data[y*comp_width + x];
+					offset += channels;
+				}
 			}
+		}
+		else // Some rare OpenJPEG versions have this bug.
+		{
+			fprintf(stderr, "ERROR -> decodeImpl: failed to decode image! (NULL comp data - OpenJPEG bug)\n");
+			opj_image_destroy(image);
+
+			return TRUE; // done
 		}
 	}
 
@@ -219,10 +231,29 @@ BOOL LLImageJ2COJ::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, con
 
 	/* set encoding parameters to default values */
 	opj_set_default_encoder_parameters(&parameters);
-	parameters.tcp_rates[0] = 0;
-	parameters.tcp_numlayers++;
-	parameters.cp_disto_alloc = 1;
 	parameters.cod_format = 0;
+	parameters.cp_disto_alloc = 1;
+
+	if (reversible)
+	{
+		parameters.tcp_numlayers = 1;
+		parameters.tcp_rates[0] = 0.0f;
+	}
+	else
+	{
+		parameters.tcp_numlayers = 5;
+                parameters.tcp_rates[0] = 1920.0f;
+                parameters.tcp_rates[1] = 480.0f;
+                parameters.tcp_rates[2] = 120.0f;
+                parameters.tcp_rates[3] = 30.0f;
+		parameters.tcp_rates[4] = 10.0f;
+		parameters.irreversible = 1;
+		if (raw_image.getComponents() >= 3)
+		{
+			parameters.tcp_mct = 1;
+		}
+	}
+
 	if (!comment_text)
 	{
 		parameters.cp_comment = "";
@@ -298,7 +329,7 @@ BOOL LLImageJ2COJ::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, con
 	cio = opj_cio_open((opj_common_ptr)cinfo, NULL, 0);
 
 	/* encode the image */
-	bool bSuccess = opj_encode(cinfo, cio, image, parameters.index);
+	bool bSuccess = opj_encode(cinfo, cio, image, NULL);
 	if (!bSuccess)
 	{
 		opj_cio_close(cio);

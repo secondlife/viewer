@@ -1263,7 +1263,7 @@ bool LLAppViewer::init()
 	#if LL_WINDOWS && LL_LCD_COMPILE
 		// start up an LCD window on a logitech keyboard, if there is one
 		HINSTANCE hInstance = GetModuleHandle(NULL);
-		gLcdScreen = new llLCD(hInstance);
+		gLcdScreen = new LLLCD(hInstance);
 		CreateLCDDebugWindows();
 	#endif
 

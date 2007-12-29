@@ -57,6 +57,9 @@ extern const char DIRECTX_9_URL[];
 // Out of date VIA chipset
 extern const char VIA_URL[];
 
+// Support URL
+extern const char SUPPORT_URL[];
+
 // Linden Blogs page
 extern const char BLOGS_URL[];
 

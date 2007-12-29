@@ -846,6 +846,7 @@ public:
 		const LLSD& context,
 		const LLSD& input) const
 	{
+		if(!gWorldp) return;
 		LLHost host(input["sender"].asString());
 		LLViewerRegion* region = gWorldp->getRegion(host);
 		if( !region )

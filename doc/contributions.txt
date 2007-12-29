@@ -85,6 +85,7 @@ Eddy Stryker
 	VWR-15
 	VWR-23
 	VWR-1468
+	VWR-1475
 EponymousDylan Ra
 	VWR-1289
 	VWR-1465
@@ -156,12 +157,14 @@ march Korda
 	SVC-1020
 Matthew Dowd
 	VWR-1344
+	VWR-1651
 	VWR-1736
 	VWR-1737
 	VWR-1761
 McCabe Maxsted
 	VWR-1318
 Michelle2 Zenovka
+	VWR-2652
 	VWR-2834
 Mr Greggan
 	VWR-445
@@ -255,9 +258,11 @@ Renault Clio
 Ryozu Kojima
 	VWR-287
 Seg Baphomet
+	VWR-1475
 	VWR-1525
 	VWR-1585
 	VWR-1586
+	VWR-3206
 SignpostMarv Martin
 	VWR-153
 	VWR-154
@@ -319,3 +324,5 @@ Zi Ree
 Zipherius Turas
 	VWR-76
 	VWR-77
+Kerutsen Sellery
+        VWR-1350

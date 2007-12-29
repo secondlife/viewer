@@ -302,6 +302,7 @@ LLTextEditor::LLTextEditor(
 	mOnScrollEndData( NULL ),
 	mCursorColor(		LLUI::sColorsGroup->getColor( "TextCursorColor" ) ),
 	mFgColor(			LLUI::sColorsGroup->getColor( "TextFgColor" ) ),
+	mDefaultColor(		LLUI::sColorsGroup->getColor( "TextDefaultColor" ) ),
 	mReadOnlyFgColor(	LLUI::sColorsGroup->getColor( "TextFgReadOnlyColor" ) ),
 	mWriteableBgColor(	LLUI::sColorsGroup->getColor( "TextBgWriteableColor" ) ),
 	mReadOnlyBgColor(	LLUI::sColorsGroup->getColor( "TextBgReadOnlyColor" ) ),
@@ -3799,7 +3800,7 @@ void LLTextEditor::loadKeywords(const LLString& filename,
 			mKeywords.addToken(LLKeywordToken::WORD, name.c_str(), color, tooltips.get(i) );
 		}
 
-		mKeywords.findSegments( &mSegments, mWText );
+		mKeywords.findSegments( &mSegments, mWText, mDefaultColor );
 
 		llassert( mSegments.front()->getStart() == 0 );
 		llassert( mSegments.back()->getEnd() == getLength() );
@@ -3811,7 +3812,7 @@ void LLTextEditor::updateSegments()
 	if (mKeywords.isLoaded())
 	{
 		// HACK:  No non-ascii keywords for now
-		mKeywords.findSegments(&mSegments, mWText);
+		mKeywords.findSegments(&mSegments, mWText, mDefaultColor);
 	}
 	else if (mAllowEmbeddedItems)
 	{
@@ -4192,6 +4193,7 @@ LLXMLNodePtr LLTextEditor::getXML(bool save_children) const
 
 	addColorXML(node, mCursorColor, "cursor_color", "TextCursorColor");
 	addColorXML(node, mFgColor, "text_color", "TextFgColor");
+	addColorXML(node, mDefaultColor, "text_default_color", "TextDefaultColor");
 	addColorXML(node, mReadOnlyFgColor, "text_readonly_color", "TextFgReadOnlyColor");
 	addColorXML(node, mReadOnlyBgColor, "bg_readonly_color", "TextBgReadOnlyColor");
 	addColorXML(node, mWriteableBgColor, "bg_writeable_color", "TextBgWriteableColor");

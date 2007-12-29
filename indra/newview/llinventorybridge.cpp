@@ -211,6 +211,45 @@ void LLInvFVBridge::showProperties()
 
 void LLInvFVBridge::removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batch)
 {
+	// Deactivate gestures when moving them into Trash
+	LLInvFVBridge* bridge;
+	LLInventoryModel* model = mInventoryPanel->getModel();
+	LLViewerInventoryItem* item = NULL;
+	LLViewerInventoryCategory* cat = NULL;
+	LLInventoryModel::cat_array_t	descendent_categories;
+	LLInventoryModel::item_array_t	descendent_items;
+	S32 count = batch.count();
+	S32 i,j;
+	for(i = 0; i < count; ++i)
+	{	
+		bridge = (LLInvFVBridge*)(batch.get(i));
+		if(!bridge || !bridge->isItemRemovable()) continue;
+		item = (LLViewerInventoryItem*)model->getItem(bridge->getUUID());
+		if (item)
+		{
+			if(LLAssetType::AT_GESTURE == item->getType())
+			{
+				gGestureManager.deactivateGesture(item->getUUID());
+			}
+		}
+	}
+	for(i = 0; i < count; ++i)
+	{		
+		bridge = (LLInvFVBridge*)(batch.get(i));
+		if(!bridge || !bridge->isItemRemovable()) continue;
+		cat = (LLViewerInventoryCategory*)model->getCategory(bridge->getUUID());
+		if (cat)
+		{
+			gInventory.collectDescendents( cat->getUUID(), descendent_categories, descendent_items, FALSE );
+			for (j=0; j<descendent_items.count(); j++)
+			{
+				if(LLAssetType::AT_GESTURE == descendent_items[j]->getType())
+				{
+					gGestureManager.deactivateGesture(descendent_items[j]->getUUID());
+				}
+			}
+		}
+	}
 	removeBatchNoCheck(batch);
 }
 

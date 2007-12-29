@@ -100,6 +100,16 @@ S32 LLWorldMapView::sTrackingArrowY = 0;
 F32 LLWorldMapView::sPixelsPerMeter = 1.f;
 F32 CONE_SIZE = 0.6f;
 
+
+#define SIM_NULL_MAP_SCALE 1 // width in pixels, where we start drawing "null" sims
+#define SIM_MAP_AGENT_SCALE 2 // width in pixels, where we start drawing agents
+#define SIM_MAP_SCALE 1 // width in pixels, where we start drawing sim tiles
+
+// Updates for agent locations.
+#define AGENTS_UPDATE_TIME 60.0 // in seconds
+
+
+
 void LLWorldMapView::initClass()
 {
 	LLUUID image_id;
@@ -458,7 +468,7 @@ void LLWorldMapView::draw()
 		LLViewerImage* simimage = info->mCurrentImage;
 		LLViewerImage* overlayimage = info->mOverlayImage;
 
-		if (gMapScale < 8.f)
+		if (gMapScale < SIM_MAP_SCALE)
 		{
 			simimage->setBoostLevel(0);
 			if (overlayimage) overlayimage->setBoostLevel(0);

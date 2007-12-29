@@ -122,6 +122,7 @@
 #include "llpanelgroupnotices.h"
 #include "llpreview.h"
 #include "llpreviewscript.h"
+#include "llsecondlifeurls.h"
 #include "llselectmgr.h"
 #include "llsky.h"
 #include "llsrv.h"
@@ -153,6 +154,7 @@
 #include "llviewerwindow.h"
 #include "llvoavatar.h"
 #include "llvoclouds.h"
+#include "llweb.h"
 #include "llworld.h"
 #include "llworldmap.h"
 #include "llxfermanager.h"
@@ -166,7 +168,6 @@
 #include "llnamelistctrl.h"
 #include "llnamebox.h"
 #include "llnameeditor.h"
-#include "llurlsimstring.h"
 
 #if LL_LIBXUL_ENABLED
 #include "llmozlib.h"
@@ -2537,17 +2538,22 @@ void set_startup_status(const F32 frac, const char *string, const char* msg)
 
 void login_alert_status(S32 option, void* user_data)
 {
-	if (0 == option)
-	{
-		// OK button
-	}
-	else if (1 == option)
-	{
-		// Help button
-		std::string help_path;
-		help_path = gDirUtilp->getExpandedFilename(LL_PATH_HELP, "unable_to_connect.html");
-		load_url_local_file(help_path.c_str() );
-	}
+    // Buttons
+    switch( option )
+    {
+        case 0:     // OK
+            break;
+        case 1:     // Help
+            LLWeb::loadURL( SUPPORT_URL );
+            break;
+        case 2:     // Teleport
+            // Restart the login process, starting at our home locaton
+            LLURLSimString::setString(LLURLSimString::sLocationStringHome);
+            LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
+            break;
+        default:
+            llwarns << "Missing case in login_alert_status switch" << llendl;
+    }
 
 	LLPanelLogin::giveFocus();
 }

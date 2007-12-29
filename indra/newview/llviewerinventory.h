@@ -223,6 +223,12 @@ public:
 	void fire(const LLUUID& inv_item);
 };
 
+class CreateGestureCallback : public LLInventoryCallback
+{
+public:
+	void fire(const LLUUID& inv_item);
+};
+
 // misc functions
 //void inventory_reliable_callback(void**, S32 status);
 

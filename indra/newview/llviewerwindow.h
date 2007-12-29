@@ -382,7 +382,7 @@ void toggle_flying(void*);
 void toggle_first_person();
 void toggle_build(void*);
 void reset_viewer_state_on_sim(void);
-
+void update_saved_window_size(const LLString& control,S32 delta_width, S32 delta_height);
 //
 // Constants
 //

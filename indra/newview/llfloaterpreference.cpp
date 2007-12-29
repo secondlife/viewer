@@ -79,7 +79,7 @@
 #ifndef LL_LOGITECH_LCD_H
 #include "lllogitechlcd.h"
 #endif
-extern llLCD	*gLcdScreen; 
+extern LLLCD	*gLcdScreen; 
 #endif
 
 const S32 PREF_BORDER = 4;

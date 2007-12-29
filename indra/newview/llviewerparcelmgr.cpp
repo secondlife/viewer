@@ -687,6 +687,7 @@ F32 LLViewerParcelMgr::agentDrawDistance() const
 
 BOOL LLViewerParcelMgr::isOwnedAt(const LLVector3d& pos_global) const
 {
+	if (!gWorldp) return FALSE;
 	LLViewerRegion* region = gWorldp->getRegionFromPosGlobal( pos_global );
 	if (!region) return FALSE;
 
@@ -700,6 +701,7 @@ BOOL LLViewerParcelMgr::isOwnedAt(const LLVector3d& pos_global) const
 
 BOOL LLViewerParcelMgr::isOwnedSelfAt(const LLVector3d& pos_global) const
 {
+	if (!gWorldp) return FALSE;
 	LLViewerRegion* region = gWorldp->getRegionFromPosGlobal( pos_global );
 	if (!region) return FALSE;
 
@@ -713,6 +715,7 @@ BOOL LLViewerParcelMgr::isOwnedSelfAt(const LLVector3d& pos_global) const
 
 BOOL LLViewerParcelMgr::isOwnedOtherAt(const LLVector3d& pos_global) const
 {
+	if (!gWorldp) return FALSE;
 	LLViewerRegion* region = gWorldp->getRegionFromPosGlobal( pos_global );
 	if (!region) return FALSE;
 
@@ -726,6 +729,7 @@ BOOL LLViewerParcelMgr::isOwnedOtherAt(const LLVector3d& pos_global) const
 
 BOOL LLViewerParcelMgr::isSoundLocal(const LLVector3d& pos_global) const
 {
+	if (!gWorldp) return FALSE;
 	LLViewerRegion* region = gWorldp->getRegionFromPosGlobal( pos_global );
 	if (!region) return FALSE;
 
@@ -769,6 +773,7 @@ BOOL LLViewerParcelMgr::canHearSound(const LLVector3d &pos_global) const
 
 BOOL LLViewerParcelMgr::inAgentParcel(const LLVector3d &pos_global) const
 {
+	if (!gWorldp) return FALSE;
 	LLViewerRegion* region = gWorldp->getRegionFromPosGlobal(pos_global);
 	if (region != gAgent.getRegion())
 	{
@@ -826,7 +831,8 @@ void LLViewerParcelMgr::render()
 	{
 		// Rendering is done in agent-coordinates, so need to supply
 		// an appropriate offset to the render code.
-		LLViewerRegion *regionp = gWorldp->getRegionFromPosGlobal( mWestSouth );
+		if (!gWorldp) return;
+		LLViewerRegion* regionp = gWorldp->getRegionFromPosGlobal(mWestSouth);
 		if (!regionp) return;
 
 		renderHighlightSegments(mHighlightSegments, regionp);
@@ -858,6 +864,7 @@ void LLViewerParcelMgr::sendParcelAccessListRequest(U32 flags)
 		return;
 	}
 
+	if(!gWorldp) return;
 	LLViewerRegion *region = gWorldp->getRegionFromPosGlobal( mWestSouth );
 	if (!region) return;
 
@@ -893,6 +900,7 @@ void LLViewerParcelMgr::sendParcelDwellRequest()
 		return;
 	}
 
+	if(!gWorldp) return;
 	LLViewerRegion *region = gWorldp->getRegionFromPosGlobal( mWestSouth );
 	if (!region) return;
 
@@ -925,6 +933,7 @@ void LLViewerParcelMgr::sendParcelGodForceOwner(const LLUUID& owner_id)
 	east_north_region_check.mdV[VX] -= 0.5;
 	east_north_region_check.mdV[VY] -= 0.5;
 
+	if(!gWorldp) return;
 	LLViewerRegion *region = gWorldp->getRegionFromPosGlobal( mWestSouth );
 	if (!region)
 	{
@@ -981,7 +990,8 @@ void LLViewerParcelMgr::sendParcelGodForceToContent()
 		gViewerWindow->alertXml("CannotContentifyNothingSelected");
 		return;
 	}
-	LLViewerRegion *region = gWorldp->getRegionFromPosGlobal( mWestSouth );
+	if(!gWorldp) return;
+	LLViewerRegion* region = gWorldp->getRegionFromPosGlobal( mWestSouth );
 	if (!region)
 	{
 		gViewerWindow->alertXml("CannotContentifyNoRegion");
@@ -1006,6 +1016,7 @@ void LLViewerParcelMgr::sendParcelRelease()
 		return;
 	}
 
+	if(!gWorldp) return;
 	LLViewerRegion *region = gWorldp->getRegionFromPosGlobal( mWestSouth );
 	if (!region)
 	{
@@ -1068,6 +1079,7 @@ LLViewerParcelMgr::ParcelBuyInfo* LLViewerParcelMgr::setupParcelBuy(
 		return NULL;
 	}
 
+	if(!gWorldp) return NULL;
 	LLViewerRegion *region = gWorldp->getRegionFromPosGlobal( mWestSouth );
 	if (!region)
 	{
@@ -1178,6 +1190,7 @@ void LLViewerParcelMgr::sendParcelDeed(const LLUUID& group_id)
 		gViewerWindow->alertXml("CannotDeedLandNoGroup");
 		return;
 	}
+	if(!gWorldp) return;
 	LLViewerRegion *region = gWorldp->getRegionFromPosGlobal( mWestSouth );
 	if (!region)
 	{
@@ -1245,7 +1258,7 @@ const LLString& LLViewerParcelMgr::getAgentParcelName() const
 void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel)
 {
 	if (!parcel) return;
-
+	if(!gWorldp) return;
 	LLViewerRegion *region = gWorldp->getRegionFromPosGlobal( mWestSouth );
 	if (!region) return;
 
@@ -1271,7 +1284,8 @@ void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel)
 
 void LLViewerParcelMgr::requestHoverParcelProperties(const LLVector3d& pos)
 {
-	LLViewerRegion *region = gWorldp->getRegionFromPosGlobal( pos );
+	if(!gWorldp) return;
+	LLViewerRegion* region = gWorldp->getRegionFromPosGlobal( pos );
 	if (!region)
 	{
 		return;
@@ -1519,7 +1533,8 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 							(request_result == PARCEL_RESULT_MULTIPLE);
 
 		// Select the whole parcel
-		LLViewerRegion *region = gWorldp->getRegion( msg->getSender() );
+		if(!gWorldp) return;
+		LLViewerRegion* region = gWorldp->getRegion( msg->getSender() );
 		if (region)
 		{
 			if (!snap_selection)
@@ -1975,7 +1990,8 @@ void LLViewerParcelMgr::sendParcelAccessListUpdate(U32 which)
 		return;
 	}
 
-	LLViewerRegion *region = gWorldp->getRegionFromPosGlobal( mWestSouth );
+	if(!gWorldp) return;
+	LLViewerRegion* region = gWorldp->getRegionFromPosGlobal( mWestSouth );
 	if (!region) return;
 
 	LLMessageSystem* msg = gMessageSystem;
@@ -2166,6 +2182,7 @@ void LLViewerParcelMgr::startReleaseLand()
 	}
 
 	LLVector3d parcel_center = (mWestSouth + mEastNorth) / 2.0;
+	if(!gWorldp) return;
 	LLViewerRegion* region = gWorldp->getRegionFromPosGlobal(parcel_center);
 	if (!region)
 	{
@@ -2270,6 +2287,7 @@ void LLViewerParcelMgr::callbackDivideLand(S32 option, void* data)
 	LLViewerParcelMgr* self = (LLViewerParcelMgr*)data;
 
 	LLVector3d parcel_center = (self->mWestSouth + self->mEastNorth) / 2.0;
+	if(!gWorldp) return;
 	LLViewerRegion* region = gWorldp->getRegionFromPosGlobal(parcel_center);
 	if (!region)
 	{
@@ -2328,6 +2346,7 @@ void LLViewerParcelMgr::callbackJoinLand(S32 option, void* data)
 	LLViewerParcelMgr* self = (LLViewerParcelMgr*)data;
 
 	LLVector3d parcel_center = (self->mWestSouth + self->mEastNorth) / 2.0;
+	if(!gWorldp) return;
 	LLViewerRegion* region = gWorldp->getRegionFromPosGlobal(parcel_center);
 	if (!region)
 	{
@@ -2376,6 +2395,7 @@ void LLViewerParcelMgr::startDeedLandToGroup()
 	}
 
 	LLVector3d parcel_center = (mWestSouth + mEastNorth) / 2.0;
+	if(!gWorldp) return;
 	LLViewerRegion* region = gWorldp->getRegionFromPosGlobal(parcel_center);
 	if (!region)
 	{

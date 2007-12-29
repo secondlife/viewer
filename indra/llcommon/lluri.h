@@ -125,12 +125,52 @@ public:
 
 	/** @name Escaping Utilities */
 	//@{
-	// Escape a string by urlencoding all the characters that aren't
-	// in the allowed string.
+	/**
+	 * @brief Escape a raw url with a reasonable set of allowed characters.
+	 *
+	 * The default set was chosen to match HTTP urls and general
+     *  guidelines for naming resources. Passing in a raw url does not
+     *  produce well defined results because you really need to know
+     *  which segments are path parts because path parts are supposed
+     *  to be escaped individually. The default set chosen is:
+	 *
+	 *  ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+	 *  0123456789
+	 *  -._~
+	 *  :@!$'()*+,=/?&#;
+	 *
+	 * *NOTE: This API is basically broken because it does not
+     *  allow you to specify significant path characters. For example,
+     *  if the filename actually contained a /, then you cannot use
+     *  this function to generate the serialized url for that
+     *  resource.
+	 *
+	 * @param str The raw URI to escape.
+	 * @return Returns the escaped uri or an empty string.
+	 */
 	static std::string escape(const std::string& str);
+
+	/**
+	 * @brief Escape a string with a specified set of allowed characters.
+	 *
+	 * Escape a string by urlencoding all the characters that aren't
+	 * in the allowed string.
+	 * @param str The raw URI to escape.
+	 * @param allowed Character array of allowed characters
+	 * @param is_allowed_sorted Optimization hint if allowed array is sorted.
+	 * @return Returns the escaped uri or an empty string.
+	 */
 	static std::string escape(
 		const std::string& str,
-		const std::string & allowed); 
+		const std::string& allowed,
+		bool is_allowed_sorted = false);
+
+	/**
+	 * @brief unescape an escaped URI string.
+	 *
+	 * @param str The escped URI to unescape.
+	 * @return Returns the unescaped uri or an empty string.
+	 */
 	static std::string unescape(const std::string& str);
 	//@}
 

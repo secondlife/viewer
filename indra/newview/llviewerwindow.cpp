@@ -1781,6 +1781,22 @@ void adjust_rect_bottom_center(const LLString& control, const LLRect& window)
 	}
 }
 
+
+void update_saved_window_size(const LLString& control,S32 delta_width, S32 delta_height)
+{
+	if (delta_width || delta_height )
+	{
+		LLRect mXMLRect = gSavedSettings.getRect(control);
+		//hard code it all follows the right and top
+		mXMLRect.mRight += delta_width;
+		mXMLRect.mTop += delta_height;
+		mXMLRect.mLeft = llmax (0, mXMLRect.mLeft+delta_width);
+		mXMLRect.mBottom = llmax(0,mXMLRect.mBottom+delta_height);
+		gSavedSettings.setRect(control,mXMLRect);
+	}
+}
+
+
 // Many rectangles can't be placed until we know the screen size.
 // These rectangles have their bottom-left corner as 0,0
 void LLViewerWindow::adjustRectanglesForFirstUse(const LLRect& window)
@@ -2059,7 +2075,7 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 		glViewport(0, 0, width, height );
 
 		if (height > 0 && gCamera)
-		{
+		{ 
 			gCamera->setViewHeightInPixels( height );
 			if (mWindow->getFullscreen())
 			{
@@ -2072,6 +2088,9 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 			}
 		}
 
+		// changes in window's width and hight
+		S32 delta_width  = width - mWindowRect.getWidth();
+		S32 delta_height = height - mWindowRect.getHeight();
 		// update our window rectangle
 		mWindowRect.mRight = mWindowRect.mLeft + width;
 		mWindowRect.mTop = mWindowRect.mBottom + height;
@@ -2122,6 +2141,12 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 			{
 				gSavedSettings.setS32("WindowWidth", window_size.mX);
 				gSavedSettings.setS32("WindowHeight", window_size.mY);
+				if (!gFloaterMap)
+				{					
+					update_saved_window_size("FloaterWorldMapRect",delta_width, delta_height);	
+					update_saved_window_size("FloaterMapRect",delta_width, delta_height);		
+				}
+				
 			}
 		}
 
