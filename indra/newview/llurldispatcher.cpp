@@ -38,6 +38,7 @@
 #include "llfloaterurldisplay.h"
 #include "llfloaterdirectory.h"
 #include "llfloaterhtml.h"
+#include "llfloaterworldmap.h"
 #include "llpanellogin.h"
 #include "llstartup.h"			// gStartupState
 #include "llurlsimstring.h"
@@ -238,11 +239,16 @@ void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const std::str
 		LLVector3d global_pos = from_region_handle(region_handle);
 		global_pos += LLVector3d(local_pos);
 		gAgent.teleportViaLocation(global_pos);
+		if(gFloaterWorldMap)
+		{
+			gFloaterWorldMap->trackLocation(global_pos);
+		}
 	}
 	else
 	{
 		// display informational floater, allow user to click teleport btn
 		LLFloaterURLDisplay* url_displayp = LLFloaterURLDisplay::getInstance(LLSD());
+
 
 		url_displayp->displayParcelInfo(region_handle, local_pos);
 		if(snapshot_id.notNull())

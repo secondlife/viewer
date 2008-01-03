@@ -230,6 +230,9 @@ bool LLCrashLogger::sendCrashLogs()
 		updateApplication("Sending logs...");
 	}
 
+	//util.* servers no longer have a public interface, so there's no alternate server anymore.
+	//leaving this in if we decide we need another alternate server for crash report receiving.
+	/*	
 	if(!gSent)
 	{
 		gBreak = false;
@@ -240,6 +243,8 @@ bool LLCrashLogger::sendCrashLogs()
 			updateApplication("Sending logs to Alternate Server...");
 		}
 	}
+	*/
+
 	mSentCrashLogs = gSent;
 
 	return true;

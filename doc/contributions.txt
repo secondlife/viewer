@@ -257,6 +257,8 @@ Renault Clio
 	VWR-1976
 Ryozu Kojima
 	VWR-287
+Scrippy Scofield
+	VWR-3748
 Seg Baphomet
 	VWR-1475
 	VWR-1525

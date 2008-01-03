@@ -80,12 +80,11 @@ class ViewerManifest(LLManifest):
                         self.path('words.*.txt')
 
                         # Local HTML files (e.g. loading screen)
-                        if self.prefix("html/*"):
-                                self.path("*.html")
-                                self.path("*.gif")
-                                self.path("*.jpg")
-                                self.path("*.css")
-                                self.end_prefix("html/*")
+                        if self.prefix(src="html"):
+                                self.path("*.png")
+                                self.path("*/*/*.html")
+                                self.path("*/*/*.gif")
+                                self.end_prefix("html")
                         self.end_prefix("skins")
 
                 self.path("releasenotes.txt")

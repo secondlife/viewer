@@ -1475,7 +1475,11 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyAnonymous, region_deny_anonymous_override );
 	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyIdentified, region_deny_identified_override ); // Deprecated
 	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyTransacted, region_deny_transacted_override ); // Deprecated
-	msg->getBOOLFast(_PREHASH_AgeVerificationBlock, _PREHASH_RegionDenyAgeUnverified, region_deny_age_unverified_override );
+	if (msg->getNumberOfBlocksFast(_PREHASH_AgeVerificationBlock))
+	{
+		// this block was added later and may not be on older sims, so we have to test its existence first
+		msg->getBOOLFast(_PREHASH_AgeVerificationBlock, _PREHASH_RegionDenyAgeUnverified, region_deny_age_unverified_override );
+	}
 
 	msg->getS32("ParcelData", "OtherCleanTime", other_clean_time );
 

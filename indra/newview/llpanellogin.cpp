@@ -526,6 +526,7 @@ void LLPanelLogin::show(const LLRect &rect,
 {
 	new LLPanelLogin(rect, show_server, callback, callback_data); 
 
+#if LL_LIBXUL_ENABLED
 	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(sInstance, "login_html");
 	
 	if (!web_browser) return;
@@ -538,6 +539,7 @@ void LLPanelLogin::show(const LLRect &rect,
 
 	// Make sure that focus always goes here (and use the latest sInstance that was just created)
 	gFocusMgr.setDefaultKeyboardFocus(web_browser);
+#endif
 }
 
 
@@ -560,12 +562,14 @@ void LLPanelLogin::setAlwaysRefresh(bool refresh)
 {
 	if (LLStartUp::getStartupState() >= STATE_LOGIN_CLEANUP) return;
 
+#if LL_LIBXUL_ENABLED
 	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(sInstance, "login_html");
 
 	if (web_browser)
 	{
 		web_browser->setAlwaysRefresh(refresh);
 	}
+#endif
 }
 
 
@@ -575,8 +579,6 @@ void LLPanelLogin::loadLoginPage()
 	if (!sInstance) return;
 
 	LLURLSimString::sInstance.parse();
-
-	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(sInstance, "login_html");
 
 	std::ostringstream oStr;
 
@@ -689,8 +691,12 @@ void LLPanelLogin::loadLoginPage()
 		oStr << "&show_grid=TRUE";
 #endif
 	
+#if LL_LIBXUL_ENABLED
+	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(sInstance, "login_html");
+	
 	// navigate to the "real" page 
 	web_browser->navigateTo( oStr.str() );
+#endif
 }
 
 #if LL_LIBXUL_ENABLED
