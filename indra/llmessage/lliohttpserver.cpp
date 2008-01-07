@@ -827,7 +827,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 		}
 		else
 		{
-			llinfos << "LLHTTPResponder::process_impl didn't find a node for "
+			llwarns << "LLHTTPResponder::process_impl didn't find a node for "
 				<< mAbsPathAndQuery << llendl;
 			LLBufferStream str(channels, buffer.get());
 			mState = STATE_SHORT_CIRCUIT;
