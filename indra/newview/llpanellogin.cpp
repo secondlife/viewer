@@ -85,6 +85,25 @@ const S32 MAX_PASSWORD = 16;
 LLPanelLogin *LLPanelLogin::sInstance = NULL;
 
 
+class LLLoginRefreshHandler : public LLCommandHandler
+{
+public:
+	LLLoginRefreshHandler() : LLCommandHandler("login_refresh") { }
+	bool handle(const LLSD& tokens, const LLSD& queryMap)
+	{	
+#if LL_LIBXUL_ENABLED
+		if (LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)
+		{
+			LLPanelLogin::loadLoginPage();
+		}	
+#endif
+		return true;
+	}
+};
+
+LLLoginRefreshHandler gLoginRefreshHandler;
+
+
 //parses the input url and returns true if afterwards
 //a web-login-key, firstname and lastname  is set
 bool LLLoginHandler::parseDirectLogin(std::string url)

@@ -777,9 +777,6 @@ BOOL idle_startup()
 			gSavedSettings.setString("FirstName", firstname);
 			gSavedSettings.setString("LastName", lastname);
 
-
-			
-
 			llinfos << "Attempting login as: " << firstname << " " << lastname << llendl;
 			gDebugInfo["LoginName"] = firstname + " " + lastname;	
 		}
@@ -899,7 +896,7 @@ BOOL idle_startup()
 	if(STATE_LOGIN_AUTH_INIT == LLStartUp::getStartupState())
 	{
 //#define LL_MINIMIAL_REQUESTED_OPTIONS
-		gDebugInfo["GridUtilHost"] = gGridInfo[gGridChoice].mName;
+		gDebugInfo["GridName"] = gGridInfo[gGridChoice].mLabel;
 
 		lldebugs << "STATE_LOGIN_AUTH_INIT" << llendl;
 		if (!gUserAuthp)
@@ -1486,6 +1483,7 @@ BOOL idle_startup()
 
 		// Finish agent initialization.  (Requires gSavedSettings, builds camera)
 		gAgent.init();
+		set_underclothes_menu_options();
 
 		// Since we connected, save off the settings so the user doesn't have to
 		// type the name/password again if we crash.

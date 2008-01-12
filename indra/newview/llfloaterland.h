@@ -395,6 +395,7 @@ public:
 	void refreshNames();
 	virtual void draw();
 
+	static void onCommitPublicAccess(LLUICtrl* ctrl, void *userdata);
 	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
 	static void onClickAddAccess(void*);
 	static void callbackAvatarCBAccess(const std::vector<std::string>& names, const std::vector<LLUUID>& ids, void* userdata);
