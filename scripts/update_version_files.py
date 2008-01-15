@@ -61,6 +61,9 @@ Common Uses:
 def _getstatusoutput(cmd):
     """Return Win32 (status, output) of executing cmd
 in a shell."""
+    if os.path.sep != "/":
+        # stupid #%#$$ windows
+        cmd = 'cmd.exe /c "'+cmd+'"'
     pipe = os.popen(cmd, 'r')
     text = pipe.read()
     sts = pipe.close()
