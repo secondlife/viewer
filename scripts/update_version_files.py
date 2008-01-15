@@ -11,6 +11,9 @@ if exists(setup_path):
 import getopt, sys, os, re, commands
 from indra.util import llversion
 
+svn = os.path.expandvars("${SVN}")
+if not svn: svn = "svn"
+
 def usage():
     print "Usage:"
     print sys.argv[0] + """ [options]
@@ -213,7 +216,7 @@ def main():
             server_version = new_version
     else:
         # Assume we're updating just the build number
-        cl = 'svn info "%s"' % src_root
+        cl = '%s info "%s"' % (svn, src_root)
         status, output = _getstatusoutput(cl)
         if verbose:
             print
