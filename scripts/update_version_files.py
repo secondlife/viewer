@@ -12,7 +12,7 @@ import getopt, sys, os, re, commands
 from indra.util import llversion
 
 svn = os.path.expandvars("${SVN}")
-if not svn: svn = "svn"
+if not svn or svn == "${SVN}": svn = "svn"
 
 def usage():
     print "Usage:"
