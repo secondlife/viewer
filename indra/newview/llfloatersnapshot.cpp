@@ -1123,7 +1123,7 @@ void LLFloaterSnapshot::Impl::onCommitResolution(LLUICtrl* ctrl, void* data)
 	combo = LLUICtrlFactory::getComboBoxByName(view, "local_size_combo");
 	gSavedSettings.setS32("SnapshotLocalLastResolution", combo->getCurrentIndex());
 
-	std::string sdstring = combobox->getSimpleSelectedValue();
+	std::string sdstring = combobox->getSelectedValue();
 	LLSD sdres;
 	std::stringstream sstream(sdstring);
 	LLSDSerialize::fromNotation(sdres, sstream);

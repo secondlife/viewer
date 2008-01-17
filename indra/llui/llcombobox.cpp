@@ -261,7 +261,8 @@ void	LLComboBox::resetDirty()
 // add item "name" to menu
 LLScrollListItem* LLComboBox::add(const LLString& name, EAddPosition pos, BOOL enabled)
 {
-	LLScrollListItem* item = mList->addSimpleItem(name, pos, enabled);
+	LLScrollListItem* item = mList->addSimpleElement(name, pos);
+	item->setEnabled(enabled);
 	mList->selectFirstItem();
 	return item;
 }
@@ -269,7 +270,8 @@ LLScrollListItem* LLComboBox::add(const LLString& name, EAddPosition pos, BOOL e
 // add item "name" with a unique id to menu
 LLScrollListItem* LLComboBox::add(const LLString& name, const LLUUID& id, EAddPosition pos, BOOL enabled )
 {
-	LLScrollListItem* item = mList->addSimpleItem(name, LLSD(id), pos, enabled);
+	LLScrollListItem* item = mList->addSimpleElement(name, pos, id);
+	item->setEnabled(enabled);
 	mList->selectFirstItem();
 	return item;
 }
@@ -277,7 +279,8 @@ LLScrollListItem* LLComboBox::add(const LLString& name, const LLUUID& id, EAddPo
 // add item "name" with attached userdata
 LLScrollListItem* LLComboBox::add(const LLString& name, void* userdata, EAddPosition pos, BOOL enabled )
 {
-	LLScrollListItem* item = mList->addSimpleItem(name, pos, enabled);
+	LLScrollListItem* item = mList->addSimpleElement(name, pos);
+	item->setEnabled(enabled);
 	item->setUserdata( userdata );
 	mList->selectFirstItem();
 	return item;
@@ -286,7 +289,8 @@ LLScrollListItem* LLComboBox::add(const LLString& name, void* userdata, EAddPosi
 // add item "name" with attached generic data
 LLScrollListItem* LLComboBox::add(const LLString& name, LLSD value, EAddPosition pos, BOOL enabled )
 {
-	LLScrollListItem* item = mList->addSimpleItem(name, value, pos, enabled);
+	LLScrollListItem* item = mList->addSimpleElement(name, pos, value);
+	item->setEnabled(enabled);
 	mList->selectFirstItem();
 	return item;
 }
@@ -306,7 +310,7 @@ void LLComboBox::sortByName()
 // Returns TRUE if the item was found.
 BOOL LLComboBox::setSimple(const LLStringExplicit& name)
 {
-	BOOL found = mList->selectSimpleItem(name, FALSE);
+	BOOL found = mList->selectItemByLabel(name, FALSE);
 
 	if (found)
 	{
@@ -325,14 +329,14 @@ void LLComboBox::setValue(const LLSD& value)
 		LLScrollListItem* item = mList->getFirstSelected();
 		if (item)
 		{
-			setLabel( mList->getSimpleSelectedItem() );
+			setLabel( mList->getSelectedItemLabel() );
 		}
 	}
 }
 
 const LLString LLComboBox::getSimple() const
 {
-	const LLString res = mList->getSimpleSelectedItem();
+	const LLString res = mList->getSelectedItemLabel();
 	if (res.empty() && mAllowTextEntry)
 	{
 		return mTextEntry->getText();
@@ -343,9 +347,9 @@ const LLString LLComboBox::getSimple() const
 	}
 }
 
-const LLString LLComboBox::getSimpleSelectedItem(S32 column) const
+const LLString LLComboBox::getSelectedItemLabel(S32 column) const
 {
-	return mList->getSimpleSelectedItem(column);
+	return mList->getSelectedItemLabel(column);
 }
 
 // virtual
@@ -371,7 +375,7 @@ void LLComboBox::setLabel(const LLStringExplicit& name)
 	if ( mTextEntry )
 	{
 		mTextEntry->setText(name);
-		if (mList->selectSimpleItem(name, FALSE))
+		if (mList->selectItemByLabel(name, FALSE))
 		{
 			mTextEntry->setTentative(FALSE);
 		}
@@ -393,7 +397,7 @@ void LLComboBox::setLabel(const LLStringExplicit& name)
 
 BOOL LLComboBox::remove(const LLString& name)
 {
-	BOOL found = mList->selectSimpleItem(name);
+	BOOL found = mList->selectItemByLabel(name);
 
 	if (found)
 	{
@@ -468,7 +472,7 @@ BOOL LLComboBox::setCurrentByIndex( S32 index )
 	BOOL found = mList->selectNthItem( index );
 	if (found)
 	{
-		setLabel(mList->getSimpleSelectedItem());
+		setLabel(mList->getSelectedItemLabel());
 	}
 	return found;
 }
@@ -658,7 +662,7 @@ void LLComboBox::hideList()
 	LLString orig_selection = mAllowTextEntry ? mTextEntry->getText() : mButton->getLabelSelected();
 
 	// assert selection in list
-	mList->selectSimpleItem(orig_selection, FALSE);
+	mList->selectItemByLabel(orig_selection, FALSE);
 
 	mButton->setToggleState(FALSE);
 	mList->setVisible(FALSE);
@@ -720,7 +724,7 @@ void LLComboBox::onItemSelected(LLUICtrl* item, void *userdata)
 	// Note: item is the LLScrollListCtrl
 	LLComboBox *self = (LLComboBox *) userdata;
 
-	const LLString name = self->mList->getSimpleSelectedItem();
+	const LLString name = self->mList->getSelectedItemLabel();
 
 	S32 cur_id = self->getCurrentIndex();
 	if (cur_id != -1)
@@ -738,7 +742,7 @@ void LLComboBox::onItemSelected(LLUICtrl* item, void *userdata)
 		// invalid selection, just restore existing value
 		LLString orig_selection = self->mAllowTextEntry ? self->mTextEntry->getText() : self->mButton->getLabelSelected();
 
-		self->mList->selectSimpleItem(orig_selection);
+		self->mList->selectItemByLabel(orig_selection);
 	}
 	self->onCommit();
 
@@ -851,7 +855,7 @@ void LLComboBox::onTextEntry(LLLineEditor* line_editor, void* user_data)
 	if (key == KEY_BACKSPACE || 
 		key == KEY_DELETE)
 	{
-		if (self->mList->selectSimpleItem(line_editor->getText(), FALSE))
+		if (self->mList->selectItemByLabel(line_editor->getText(), FALSE))
 		{
 			line_editor->setTentative(FALSE);
 		}
@@ -931,11 +935,11 @@ void LLComboBox::updateSelection()
 		}
 	}
 
-	if (mList->selectSimpleItem(full_string, FALSE))
+	if (mList->selectItemByLabel(full_string, FALSE))
 	{
 		mTextEntry->setTentative(FALSE);
 	}
-	else if (!mList->selectSimpleItemByPrefix(left_wstring, FALSE))
+	else if (!mList->selectItemByPrefix(left_wstring, FALSE))
 	{
 		mList->deselectAllItems();
 		mTextEntry->setText(wstring_to_utf8str(user_wstring));
@@ -943,7 +947,7 @@ void LLComboBox::updateSelection()
 	}
 	else
 	{
-		LLWString selected_item = utf8str_to_wstring(mList->getSimpleSelectedItem());
+		LLWString selected_item = utf8str_to_wstring(mList->getSelectedItemLabel());
 		LLWString wtext = left_wstring + selected_item.substr(left_wstring.size(), selected_item.size());
 		mTextEntry->setText(wstring_to_utf8str(wtext));
 		mTextEntry->setSelection(left_wstring.size(), mTextEntry->getWText().size());
@@ -1028,7 +1032,7 @@ BOOL LLComboBox::setCurrentByID(const LLUUID& id)
 
 	if (found)
 	{
-		setLabel(mList->getSimpleSelectedItem());
+		setLabel(mList->getSelectedItemLabel());
 	}
 
 	return found;
@@ -1043,14 +1047,14 @@ BOOL LLComboBox::setSelectedByValue(LLSD value, BOOL selected)
 	BOOL found = mList->setSelectedByValue(value, selected);
 	if (found)
 	{
-		setLabel(mList->getSimpleSelectedItem());
+		setLabel(mList->getSelectedItemLabel());
 	}
 	return found;
 }
 
-LLSD LLComboBox::getSimpleSelectedValue()
+LLSD LLComboBox::getSelectedValue()
 {
-	return mList->getSimpleSelectedValue();
+	return mList->getSelectedValue();
 }
 
 BOOL LLComboBox::isSelected(LLSD value)

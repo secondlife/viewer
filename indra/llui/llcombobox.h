@@ -118,12 +118,12 @@ public:
 
 	void			sortByName(); // Sort the entries in the combobox by name
 
-	// Select current item by name using selectSimpleItem.  Returns FALSE if not found.
+	// Select current item by name using selectItemByLabel.  Returns FALSE if not found.
 	BOOL			setSimple(const LLStringExplicit& name);
 	// Get name of current item. Returns an empty string if not found.
 	const LLString	getSimple() const;
 	// Get contents of column x of selected row
-	const LLString getSimpleSelectedItem(S32 column = 0) const;
+	const LLString getSelectedItemLabel(S32 column = 0) const;
 
 	// Sets the label, which doesn't have to exist in the label.
 	// This is probably a UI abuse.
@@ -160,7 +160,7 @@ public:
 	virtual BOOL	setCurrentByID( const LLUUID& id );
 	virtual LLUUID	getCurrentID();				// LLUUID::null if no items in menu
 	virtual BOOL	setSelectedByValue(LLSD value, BOOL selected);
-	virtual LLSD	getSimpleSelectedValue();
+	virtual LLSD	getSelectedValue();
 	virtual BOOL	isSelected(LLSD value);
 	virtual BOOL	operateOnSelection(EOperation op);
 	virtual BOOL	operateOnAll(EOperation op);

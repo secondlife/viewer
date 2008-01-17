@@ -639,7 +639,7 @@ void LLChatBar::onCommitGesture(LLUICtrl* ctrl, void* data)
 		{
 			return;
 		}
-		const std::string& trigger = gestures->getSimpleSelectedValue().asString();
+		const std::string& trigger = gestures->getSelectedValue().asString();
 
 		// pretend the user chatted the trigger string, to invoke
 		// substitution and logging.

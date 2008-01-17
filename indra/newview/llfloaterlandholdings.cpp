@@ -256,7 +256,7 @@ void LLFloaterLandHoldings::buttonCore(S32 which)
 	S32 index = list->getFirstSelectedIndex();
 	if (index < 0) return;
 
-	LLString location = list->getSimpleSelectedItem(3);
+	LLString location = list->getSelectedItemLabel(3);
 
 	F32 global_x = 0.f;
 	F32 global_y = 0.f;

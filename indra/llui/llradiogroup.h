@@ -122,7 +122,7 @@ public:
 	/*virtual*/ BOOL	setCurrentByID( const LLUUID& id );
 	/*virtual*/ LLUUID	getCurrentID();				// LLUUID::null if no items in menu
 	/*virtual*/ BOOL	setSelectedByValue(LLSD value, BOOL selected);
-	/*virtual*/ LLSD	getSimpleSelectedValue();
+	/*virtual*/ LLSD	getSelectedValue();
 	/*virtual*/ BOOL	isSelected(LLSD value);
 	/*virtual*/ BOOL	operateOnSelection(EOperation op);
 	/*virtual*/ BOOL	operateOnAll(EOperation op);

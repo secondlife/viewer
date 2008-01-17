@@ -665,7 +665,7 @@ LLSD LLFloaterReporter::gatherReport()
 	LLComboBox* combo = LLUICtrlFactory::getComboBoxByName(this, "category_combo");
 	if (combo)
 	{
-		category_name = combo->getSimpleSelectedItem(); // want label, not value
+		category_name = combo->getSelectedItemLabel(); // want label, not value
 	}
 
 #if LL_WINDOWS

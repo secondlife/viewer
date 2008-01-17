@@ -1069,44 +1069,8 @@ BOOL LLPanelLandObjects::postBuild()
 	image_id.set( gViewerArt.getString("icon_group.tga") );
 	mIconGroup = gImageList.getImage(image_id, MIPMAP_FALSE, TRUE);
 
-	mCurrentSortColumn = 3; // sort by number of objects by default.
-	mCurrentSortAscending = FALSE;
-
-	// Column widths for various columns
-	const S32 SORTER_WIDTH		= 308;
-	const S32 DESC_BTN_WIDTH	= 64;
-	const S32 ICON_WIDTH		= 24;
-	mColWidth[0] = ICON_WIDTH;	// type icon
-	mColWidth[1] = -1;	// hidden type code
-	mColWidth[2] = SORTER_WIDTH - mColWidth[0] - DESC_BTN_WIDTH;
-	mColWidth[3] = DESC_BTN_WIDTH;			// info
-	mColWidth[4] = -1;						// type data 1
-	mColWidth[5] = -1;
-	mColWidth[6] = -1;	// type data 3
-	mColWidth[7] = -1;	// type data 4
-	mColWidth[8] = -1;	// type data 5
-
-	// Adjust description for other widths
-	S32 sum = 0;
-	for (S32 i = 0; i < 8; i++)
-	{
-		if (mColWidth[i] > 0)
-		{
-			sum += mColWidth[i];
-		}
-	}
-	mColWidth[8] = mRect.getWidth() - HPAD - sum - HPAD - HPAD;
-
-	mBtnType = LLUICtrlFactory::getButtonByName(this, "Type");
-	mBtnType->setClickedCallback(onClickType, this);
-
-	mBtnName = LLUICtrlFactory::getButtonByName(this, "Name");
-	mBtnName->setClickedCallback(onClickName, this);
-
-	mBtnDescription = LLUICtrlFactory::getButtonByName(this, "Count");
-	mBtnDescription->setClickedCallback(onClickDesc, this);
-	
 	mOwnerList = LLUICtrlFactory::getNameListByName(this, "owner list");
+	mOwnerList->sortByColumn(3, FALSE);
 	childSetCommitCallback("owner list", onCommitList, this);
 	mOwnerList->setDoubleClickCallback(onDoubleClickOwner);
 
@@ -1483,7 +1447,7 @@ void LLPanelLandObjects::onClickRefresh(void* userdata)
 
 	// ready the list for results
 	self->mOwnerList->deleteAllItems();
-	self->mOwnerList->addSimpleItem("Searching...");
+	self->mOwnerList->addCommentText("Searching...");
 	self->mOwnerList->setEnabled(FALSE);
 	self->mFirstReply = TRUE;
 
@@ -1544,24 +1508,24 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 		LLScrollListItem *row = new LLScrollListItem( TRUE, NULL, owner_id);
 		if (is_group_owned)
 		{
-			row->addColumn(self->mIconGroup, self->mColWidth[0]);
-			row->addColumn(OWNER_GROUP, FONT, self->mColWidth[1]);
+			row->addColumn(self->mIconGroup.notNull() ? self->mIconGroup->getID() : LLUUID::null);
+			row->addColumn(OWNER_GROUP, FONT);
 		}
 		else if (is_online)
 		{
-			row->addColumn(self->mIconAvatarOnline, self->mColWidth[0]);
-			row->addColumn(OWNER_ONLINE, FONT, self->mColWidth[1]);
+			row->addColumn(self->mIconAvatarOnline.notNull() ? self->mIconAvatarOnline->getID() : LLUUID::null);
+			row->addColumn(OWNER_ONLINE, FONT);
 		}
 		else  // offline
 		{
-			row->addColumn(self->mIconAvatarOffline, self->mColWidth[0]);
-			row->addColumn(OWNER_OFFLINE, FONT, self->mColWidth[1]);
+			row->addColumn(self->mIconAvatarOffline.notNull() ? self->mIconAvatarOffline->getID() : LLUUID::null);
+			row->addColumn(OWNER_OFFLINE, FONT);
 		}
 		// Placeholder for name.
-		row->addColumn(LLString::null, FONT, self->mColWidth[2]);
+		row->addColumn(LLString::null, FONT);
 
 		snprintf(object_count_str, sizeof(object_count_str), "%d", object_count); 		/* Flawfinder: ignore */
-		row->addColumn(object_count_str, FONT, self->mColWidth[3]);
+		row->addColumn(object_count_str, FONT);
 
 		if (is_group_owned)
 		{
@@ -1575,32 +1539,15 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 		lldebugs << "object owner " << owner_id << " (" << (is_group_owned ? "group" : "agent")
 				<< ") owns " << object_count << " objects." << llendl;
 	}
-	self->mOwnerList->sortByColumn(self->mCurrentSortColumn, self->mCurrentSortAscending);
-
 	// check for no results
 	if (0 == self->mOwnerList->getItemCount())
 	{
-		self->mOwnerList->addSimpleItem("None found.");
+		self->mOwnerList->addCommentText("None found.");
 	}
 	else
 	{
 		self->mOwnerList->setEnabled(TRUE);
 	}
-}
-
-void LLPanelLandObjects::sortBtnCore(S32 column)
-{
-	if (column == (S32)mCurrentSortColumn)  // is this already our sorted column?
-	{
-		mCurrentSortAscending = !mCurrentSortAscending;
-	}
-	else  // default to ascending first time a column is clicked
-	{
-		mCurrentSortColumn = column;
-		mCurrentSortAscending = TRUE;
-	}
-
-	mOwnerList->sortByColumn(column, mCurrentSortAscending);
 }
 
 // static
@@ -1637,28 +1584,6 @@ void LLPanelLandObjects::onCommitList(LLUICtrl* ctrl, void* data)
 		// Highlight this user's objects
 		clickShowCore(self, RT_LIST, &(self->mSelectedOwners));
 	}
-}
-
-// static
-void LLPanelLandObjects::onClickType(void* userdata)
-{
-	// Sort on hidden type column
-	LLPanelLandObjects* self = (LLPanelLandObjects*)userdata;
-	self->sortBtnCore(1);
-}
-
-// static
-void LLPanelLandObjects::onClickDesc(void* userdata)
-{
-	LLPanelLandObjects* self = (LLPanelLandObjects*)userdata;
-	self->sortBtnCore(3);
-}
-
-// static
-void LLPanelLandObjects::onClickName(void* userdata)
-{
-	LLPanelLandObjects* self = (LLPanelLandObjects*)userdata;
-	self->sortBtnCore(2);
 }
 
 // static
@@ -2893,7 +2818,7 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 			LLCtrlSelectionInterface* passcombo = self->childGetSelectionInterface("pass_combo");
 			if (passcombo)
 			{
-				if (passcombo->getSimpleSelectedValue().asString() == "group")
+				if (passcombo->getSelectedValue().asString() == "group")
 				{
 					use_access_list = FALSE;
 				}

@@ -305,7 +305,7 @@ void LLFloaterTelehub::unpackTelehubInfo(LLMessageSystem* msg)
 									mSpawnPointPos[i].mV[VX],
 									mSpawnPointPos[i].mV[VY],
 									mSpawnPointPos[i].mV[VZ]);
-			list->addSimpleItem(pos);
+			list->addSimpleElement(pos);
 		}
 		list->selectNthItem(mNumSpawn - 1);
 	}

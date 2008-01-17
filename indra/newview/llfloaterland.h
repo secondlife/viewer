@@ -250,9 +250,6 @@ public:
 	static void onClickReturnOtherObjects(void*);
 	static void onClickReturnOwnerList(void*);
 	static void onClickRefresh(void*);
-	static void onClickType(void*);
-	static void onClickName(void*);
-	static void onClickDesc(void*);
 
 	static void onDoubleClickOwner(void*);	
 
@@ -264,7 +261,6 @@ public:
 	virtual BOOL postBuild();
 
 protected:
-	void sortBtnCore(S32 column);
 
 	LLTextBox		*mParcelObjectBonus;
 	LLTextBox		*mSWTotalObjects;
@@ -284,18 +280,11 @@ protected:
 	S32				mOtherTime;
 	LLButton		*mBtnRefresh;
 	LLButton		*mBtnReturnOwnerList;
-	LLButton        *mBtnType;			// column 0
-	LLButton        *mBtnName;			// column 2
-	LLButton        *mBtnDescription;	// column 3
 	LLNameListCtrl	*mOwnerList;
 
 	LLPointer<LLViewerImage>	mIconAvatarOnline;
 	LLPointer<LLViewerImage>	mIconAvatarOffline;
 	LLPointer<LLViewerImage>	mIconGroup;
-
-	U32             mCurrentSortColumn;
-	BOOL            mCurrentSortAscending;
-	S32             mColWidth[12];
 
 	BOOL			mFirstReply;
 

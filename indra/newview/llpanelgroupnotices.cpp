@@ -473,7 +473,7 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		if (1 == count && id.isNull())
 		{
 			// Only one entry, the dummy entry.
-			mNoticesList->addSimpleItem(mNoNoticesStr,ADD_BOTTOM,FALSE);
+			mNoticesList->addCommentText(mNoNoticesStr);
 			mNoticesList->setEnabled(FALSE);
 			return;
 		}

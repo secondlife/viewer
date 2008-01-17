@@ -2010,7 +2010,7 @@ void LLPanelAvatar::processAvatarGroupsReply(LLMessageSystem *msg, void**)
 		S32 group_count = msg->getNumberOfBlocksFast(_PREHASH_GroupData);
 		if (0 == group_count)
 		{
-			if(group_list) group_list->addSimpleItem("None");
+			if(group_list) group_list->addCommentText("None");
 		}
 		else
 		{

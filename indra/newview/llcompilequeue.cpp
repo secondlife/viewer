@@ -203,7 +203,7 @@ BOOL LLFloaterScriptQueue::start()
 	snprintf(buffer, sizeof(buffer), "Starting %s of %d items.", mStartString, mObjectIDs.count()); 		/* Flawfinder: ignore */
 	
 	LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(this, "queue output");
-	list->addSimpleItem(buffer);
+	list->addCommentText(buffer);
 
 	return nextObject();
 }
@@ -241,7 +241,7 @@ BOOL LLFloaterScriptQueue::nextObject()
 		mDone = TRUE;
 		char buffer[MAX_STRING];		/*Flawfinder: ignore*/
 		snprintf(buffer, sizeof(buffer), "Done.");				/* Flawfinder: ignore */
-		list->addSimpleItem(buffer);
+		list->addCommentText(buffer);
 		childSetEnabled("close",TRUE);
 	}
 	return successful_start;
@@ -444,7 +444,7 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 	if(queue) 
 	{
 		LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(queue, "queue output");
-		list->addSimpleItem(buffer);
+		list->addCommentText(buffer);
 	}
 	delete data;
 }
@@ -625,7 +625,7 @@ void LLFloaterResetQueue::handleInventory(LLViewerObject* viewer_obj,
 				LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(this, "queue output");
 				char buffer[MAX_STRING];		 /*Flawfinder: ignore*/
 				snprintf(buffer, sizeof(buffer), "Resetting '%s'.", item->getName().c_str());		 	/* Flawfinder: ignore */
-				list->addSimpleItem(buffer);
+				list->addCommentText(buffer);
 				LLMessageSystem* msg = gMessageSystem;
 				msg->newMessageFast(_PREHASH_ScriptReset);
 				msg->nextBlockFast(_PREHASH_AgentData);
@@ -688,7 +688,7 @@ void LLFloaterRunQueue::handleInventory(LLViewerObject* viewer_obj,
 				LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(this, "queue output");
 				char buffer[MAX_STRING];  	/*Flawfinder: ignore*/
 				snprintf(buffer, sizeof(buffer), "Running '%s'.", item->getName().c_str());		 	/* Flawfinder: ignore */
-				list->addSimpleItem(buffer);
+				list->addCommentText(buffer);
 
 				LLMessageSystem* msg = gMessageSystem;
 				msg->newMessageFast(_PREHASH_SetScriptRunning);
@@ -753,7 +753,7 @@ void LLFloaterNotRunQueue::handleInventory(LLViewerObject* viewer_obj,
 				LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(this, "queue output");
 				char buffer[MAX_STRING];		 /*Flawfinder: ignore*/
 				snprintf(buffer, sizeof(buffer), "Not running '%s'.", item->getName().c_str());	 	/* Flawfinder: ignore */
-				list->addSimpleItem(buffer);
+				list->addCommentText(buffer);
 	
 				LLMessageSystem* msg = gMessageSystem;
 				msg->newMessageFast(_PREHASH_SetScriptRunning);

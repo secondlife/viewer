@@ -117,7 +117,5 @@ echo
 echo '*********************************************************'
 echo 'This is an ALPHA release of the Second Life linux client.'
 echo 'Thank you for testing!'
-echo 'You can visit the Linux Client Alpha Testers forum at:'
-echo 'http://forums.secondlife.com/forumdisplay.php?forumid=263'
 echo 'Please see README-linux.txt before reporting problems.'
 echo

@@ -1134,8 +1134,8 @@ LLPreviewLSL::LLPreviewLSL(const std::string& name, const LLRect& rect,
 void LLPreviewLSL::callbackLSLCompileSucceeded()
 {
 	llinfos << "LSL Bytecode saved" << llendl;
-	mScriptEd->mErrorList->addSimpleItem("Compile successful!");
-	mScriptEd->mErrorList->addSimpleItem("Save complete.");
+	mScriptEd->mErrorList->addCommentText("Compile successful!");
+	mScriptEd->mErrorList->addCommentText("Save complete.");
 	closeIfNeeded();
 }
 
@@ -1681,8 +1681,8 @@ void LLLiveLSLEditor::callbackLSLCompileSucceeded(const LLUUID& task_id,
 												  bool is_script_running)
 {
 	lldebugs << "LSL Bytecode saved" << llendl;
-	mScriptEd->mErrorList->addSimpleItem("Compile successful!");
-	mScriptEd->mErrorList->addSimpleItem("Save complete.");
+	mScriptEd->mErrorList->addCommentText("Compile successful!");
+	mScriptEd->mErrorList->addCommentText("Save complete.");
 	closeIfNeeded();
 }
 
@@ -2207,7 +2207,7 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 	else
 	{
 		llinfos << "Compile worked!" << llendl;
-		mScriptEd->mErrorList->addSimpleItem("Compile successful, saving...");
+		mScriptEd->mErrorList->addCommentText("Compile successful, saving...");
 		if(gAssetStorage)
 		{
 			llinfos << "LLLiveLSLEditor::saveAsset "
@@ -2281,7 +2281,7 @@ void LLLiveLSLEditor::onSaveBytecodeComplete(const LLUUID& asset_uuid, void* use
 		if(self)
 		{
 			// Tell the user that the compile worked.
-			self->mScriptEd->mErrorList->addSimpleItem("Save complete.");
+			self->mScriptEd->mErrorList->addCommentText("Save complete.");
 			// close the window if this completes both uploads
 			self->getWindow()->decBusyCount();
 			self->mPendingUploads--;

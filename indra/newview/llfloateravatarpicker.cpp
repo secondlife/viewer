@@ -112,7 +112,7 @@ BOOL LLFloaterAvatarPicker::postBuild()
 
 	if (mListNames)
 	{
-		mListNames->addSimpleElement("No results");
+		mListNames->addCommentText("No results");
 	}
 
 	mInventoryPanel = (LLInventoryPanel*)this->getCtrlByNameAndType("Inventory Panel", WIDGET_TYPE_INVENTORY_PANEL);
@@ -279,7 +279,7 @@ void LLFloaterAvatarPicker::find()
 	if (mListNames)
 	{
 		mListNames->deleteAllItems();	
-		mListNames->addSimpleElement("Searching...");
+		mListNames->addCommentText("Searching...");
 	}
 	
 	childSetEnabled("Select", FALSE);

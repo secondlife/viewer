@@ -448,6 +448,7 @@ class LinuxManifest(ViewerManifest):
                 self.path("res/ll_icon.ico","secondlife.ico")
                 if self.prefix("linux_tools", ""):
                         self.path("client-readme.txt","README-linux.txt")
+                        self.path("client-readme-voice.txt","README-linux-voice.txt")
                         self.path("wrapper.sh","secondlife")
                         self.path("handle_secondlifeprotocol.sh")
                         self.path("register_secondlifeprotocol.sh")
@@ -517,6 +518,16 @@ class Linux_i686Manifest(LinuxManifest):
                         self.path("libllkdu.so", "../bin/libllkdu.so") # llkdu goes in bin for some reason
                         self.end_prefix("lib")
 
+                # Vivox runtimes
+                if self.prefix(src="vivox-runtime/i686-linux", dst=""):
+                        self.path("SLVoice")
+                        self.end_prefix()
+                if self.prefix(src="vivox-runtime/i686-linux", dst="lib"):
+                        self.path("libopenal.so.1")
+                        self.path("libortp.so")
+                        self.path("libvivoxsdk.so")
+                        self.path("libalut.so")
+                        self.end_prefix("lib")
 
 class Linux_x86_64Manifest(LinuxManifest):
         def construct(self):

@@ -473,7 +473,7 @@ BOOL	LLRadioGroup::setSelectedByValue(LLSD value, BOOL selected)
 	return FALSE;
 }
 
-LLSD	LLRadioGroup::getSimpleSelectedValue()
+LLSD	LLRadioGroup::getSelectedValue()
 {
 	return getValue();	
 }

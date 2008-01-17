@@ -1681,7 +1681,7 @@ void LLPanelGroupMembersSubTab::update(LLGroupChange gc)
 			retrieved << "Retrieving role member mappings...";
 		}
 		mMembersList->setEnabled(FALSE);
-		mMembersList->addSimpleItem(retrieved.str());
+		mMembersList->addCommentText(retrieved.str());
 	}
 }
 
@@ -1761,7 +1761,7 @@ void LLPanelGroupMembersSubTab::updateMembers()
 		else
 		{
 			mMembersList->setEnabled(FALSE);
-			mMembersList->addSimpleItem("No match.");
+			mMembersList->addCommentText("No match.");
 		}
 	}
 	else
@@ -2674,7 +2674,7 @@ void LLPanelGroupActionsSubTab::handleActionSelect()
 			if (!rmd) continue;
 			if ((rmd->getRoleData().mRolePowers & power_mask) == power_mask)
 			{
-				mActionRoles->addSimpleItem(rmd->getRoleData().mRoleName);
+				mActionRoles->addSimpleElement(rmd->getRoleData().mRoleName);
 			}
 		}
 	}

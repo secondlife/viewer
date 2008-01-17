@@ -68,7 +68,7 @@ public:
 			BOOL	selectByValue(LLSD value);
 			BOOL	deselectByValue(LLSD value);
 	virtual BOOL	setSelectedByValue(LLSD value, BOOL selected) = 0;
-	virtual LLSD	getSimpleSelectedValue() = 0;
+	virtual LLSD	getSelectedValue() = 0;
 
 	virtual BOOL	isSelected(LLSD value) = 0;
 

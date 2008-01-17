@@ -56,22 +56,26 @@ class LLResizeBar;
 class LLScrollListCell
 {
 public:
+	LLScrollListCell(S32 width = 0) : mWidth(width) {};
 	virtual ~LLScrollListCell() {};
-	virtual void			drawToWidth(S32 width, const LLColor4& color, const LLColor4& highlight_color) const = 0;		// truncate to given width, if possible
-	virtual S32				getWidth() const = 0;
+	virtual void			draw(const LLColor4& color, const LLColor4& highlight_color) const = 0;		// truncate to given width, if possible
+	virtual S32				getWidth() const {return mWidth;}
 	virtual S32				getContentWidth() const { return 0; }
 	virtual S32				getHeight() const = 0;
 	virtual const LLSD		getValue() const { return LLString::null; }
 	virtual void			setValue(LLSD value) { }
 	virtual BOOL			getVisible() const { return TRUE; }
-	virtual void			setWidth(S32 width) = 0;
+	virtual void			setWidth(S32 width) { mWidth = width; }
 	virtual void			highlightText(S32 offset, S32 num_chars) {}
 	virtual BOOL			isText() = 0;
-	virtual void			setColor(const LLColor4&) = 0;
+	virtual void			setColor(const LLColor4&) {}
 	virtual void			onCommit() {};
 
 	virtual BOOL	handleClick() { return FALSE; }
 	virtual	void	setEnabled(BOOL enable) { }
+
+protected:
+	S32 mWidth;
 };
 
 class LLScrollListSeparator : public LLScrollListCell
@@ -79,15 +83,9 @@ class LLScrollListSeparator : public LLScrollListCell
 public:
 	LLScrollListSeparator(S32 width);
 	virtual ~LLScrollListSeparator() {};
-	virtual void			drawToWidth(S32 width, const LLColor4& color, const LLColor4& highlight_color) const;		// truncate to given width, if possible
-	virtual S32				getWidth() const {return mWidth;}
+	virtual void			draw(const LLColor4& color, const LLColor4& highlight_color) const;		// truncate to given width, if possible
 	virtual S32				getHeight() const { return 5; };
-	virtual void			setWidth(S32 width) {mWidth = width; }
-	virtual void			setColor(const LLColor4&) {};
 	virtual BOOL			isText() { return FALSE; }
-
-protected:
-	S32 mWidth;
 };
 
 class LLScrollListText : public LLScrollListCell
@@ -96,10 +94,8 @@ public:
 	LLScrollListText( const LLString& text, const LLFontGL* font, S32 width = 0, U8 font_style = LLFontGL::NORMAL, LLFontGL::HAlign font_alignment = LLFontGL::LEFT, LLColor4& color = LLColor4::black, BOOL use_color = FALSE, BOOL visible = TRUE);
 	/*virtual*/ ~LLScrollListText();
 
-	virtual void    drawToWidth(S32 width, const LLColor4& color, const LLColor4& highlight_color) const;
-	virtual S32		getWidth() const			{ return mWidth; }
+	virtual void    draw(const LLColor4& color, const LLColor4& highlight_color) const;
 	virtual S32		getContentWidth() const;
-	virtual void	setWidth(S32 width)			{ mWidth = width; }
 	virtual S32		getHeight() const			{ return llround(mFont->getLineHeight()); }
 	virtual const LLSD		getValue() const		{ return LLSD(mText.getString()); }
 	virtual BOOL	getVisible() const  { return mVisible; }
@@ -117,7 +113,6 @@ private:
 	LLColor4*		mColor;
 	U8				mFontStyle;
 	LLFontGL::HAlign mFontAlignment;
-	S32				mWidth;
 	BOOL			mVisible;
 	S32				mHighlightCount;
 	S32				mHighlightOffset;
@@ -130,13 +125,13 @@ private:
 class LLScrollListIcon : public LLScrollListCell
 {
 public:
-	LLScrollListIcon( LLImageGL* icon, S32 width = 0, LLUUID image_id = LLUUID::null);
+	LLScrollListIcon( const LLUUID& icon_id, S32 width = 0);
 	/*virtual*/ ~LLScrollListIcon();
-	virtual void	drawToWidth(S32 width, const LLColor4& color, const LLColor4& highlight_color) const;
-	virtual S32		getWidth() const			{ return mWidth; }
+	virtual void	draw(const LLColor4& color, const LLColor4& highlight_color) const;
+	virtual S32		getWidth() const;
 	virtual S32		getHeight() const			{ return mIcon ? mIcon->getHeight() : 0; }
+	// used as sort criterion
 	virtual const LLSD		getValue() const { return LLSD(mImageUUID); }
-	virtual void	setWidth(S32 width)			{ mWidth = width; }
 	virtual void	setColor(const LLColor4&);
 	virtual BOOL	isText() { return FALSE; }
 	virtual void	setValue(LLSD value);
@@ -144,7 +139,6 @@ public:
 private:
 	LLPointer<LLImageGL> mIcon;
 	LLUUID mImageUUID;
-	S32 mWidth;
 	LLColor4 mColor;
 };
 
@@ -153,24 +147,20 @@ class LLScrollListCheck : public LLScrollListCell
 public:
 	LLScrollListCheck( LLCheckBoxCtrl* check_box, S32 width = 0);
 	/*virtual*/ ~LLScrollListCheck();
-	virtual void	drawToWidth(S32 width, const LLColor4& color, const LLColor4& highlight_color) const;
-	virtual S32		getWidth() const			{ return mWidth; }
+	virtual void	draw(const LLColor4& color, const LLColor4& highlight_color) const;
 	virtual S32		getHeight() const			{ return 0; } 
-	virtual void	setWidth(S32 width)			{ mWidth = width; }
 	virtual const LLSD	getValue() const { return mCheckBox->getValue(); }
 	virtual void	setValue(LLSD value) { mCheckBox->setValue(value); }
 	virtual void	onCommit() { mCheckBox->onCommit(); }
 
 	virtual BOOL	handleClick();
 	virtual void	setEnabled(BOOL enable)		{ mCheckBox->setEnabled(enable); }
-	virtual void	setColor(const LLColor4& color) {};
 
 	LLCheckBoxCtrl*	getCheckBox()				{ return mCheckBox; }
 	virtual BOOL	isText() { return FALSE; }
 
 private:
 	LLCheckBoxCtrl* mCheckBox;
-	S32 mWidth;
 };
 
 class LLScrollListColumn
@@ -329,8 +319,8 @@ public:
 	void	addColumn( const LLString& text, const LLFontGL* font, S32 width = 0 , U8 font_style = LLFontGL::NORMAL, LLFontGL::HAlign font_alignment = LLFontGL::LEFT, BOOL visible = TRUE)
 				{ mColumns.push_back( new LLScrollListText(text, font, width, font_style, font_alignment, LLColor4::black, FALSE, visible) ); }
 
-	void	addColumn( LLImageGL* icon, S32 width = 0 )
-				{ mColumns.push_back( new LLScrollListIcon(icon, width) ); }
+	void	addColumn( const LLUUID& icon_id, S32 width = 0 )
+				{ mColumns.push_back( new LLScrollListIcon(icon_id, width) ); }
 
 	void	addColumn( LLCheckBoxCtrl* check, S32 width = 0 )
 				{ mColumns.push_back( new LLScrollListCheck(check,width) ); }
@@ -345,6 +335,8 @@ public:
 
 	LLString getContentsCSV();
 
+	virtual void draw(const LLRect& rect, const LLColor4& fg_color, const LLColor4& bg_color, const LLColor4& highlight_color, S32 column_padding);
+
 private:
 	BOOL	mSelected;
 	BOOL	mEnabled;
@@ -353,6 +345,23 @@ private:
 	std::vector<LLScrollListCell *> mColumns;
 };
 
+class LLScrollListItemComment : public LLScrollListItem
+{
+public:
+	LLScrollListItemComment(const LLString& comment_string, const LLColor4& color);
+
+	/*virtual*/ void draw(const LLRect& rect, const LLColor4& fg_color, const LLColor4& bg_color, const LLColor4& highlight_color, S32 column_padding);
+private:
+	LLColor4 mColor;
+};
+
+class LLScrollListItemSeparator : public LLScrollListItem
+{
+public:
+	LLScrollListItemSeparator();
+
+	/*virtual*/ void draw(const LLRect& rect, const LLColor4& fg_color, const LLColor4& bg_color, const LLColor4& highlight_color, S32 column_padding);
+};
 
 class LLScrollListCtrl : public LLUICtrl, public LLEditMenuHandler, 
 	public LLCtrlListInterface, public LLCtrlScrollInterface
@@ -397,7 +406,6 @@ public:
 	virtual LLScrollListItem* addElement(const LLSD& value, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
 	// Simple add element. Takes a single array of:
 	// [ "value" => value, "font" => font, "font-style" => style ]
-	virtual LLScrollListItem* addSimpleElement(const LLString& value, EAddPosition pos = ADD_BOTTOM, const LLSD& id = LLSD());
 	virtual void clearRows(); // clears all elements
 	virtual void sortByColumn(LLString name, BOOL ascending);
 
@@ -453,20 +461,21 @@ public:
 	S32				getItemIndex( LLScrollListItem* item );
 	S32				getItemIndex( LLUUID& item_id );
 
-	// "Simple" interface: use this when you're creating a list that contains only unique strings, only
-	// one of which can be selected at a time.
-	LLScrollListItem* addSimpleItem( const LLString& item_text, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE );
-	// Add an item with an associated LLSD
-	LLScrollListItem* addSimpleItem(const LLString& item_text, LLSD sd, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE, S32 column_width = 0 );
+	LLScrollListItem* addCommentText( const LLString& comment_text, EAddPosition pos = ADD_BOTTOM);
 	LLScrollListItem* addSeparator(EAddPosition pos);
 
-	BOOL			selectSimpleItem( const LLString& item, BOOL case_sensitive = TRUE );		// FALSE if item not found
-	BOOL			selectSimpleItemByPrefix(const LLString& target, BOOL case_sensitive);
-	BOOL			selectSimpleItemByPrefix(const LLWString& target, BOOL case_sensitive);
-	const LLString	getSimpleSelectedItem(S32 column = 0) const;
-	LLSD			getSimpleSelectedValue();
+	// "Simple" interface: use this when you're creating a list that contains only unique strings, only
+	// one of which can be selected at a time.
+	virtual LLScrollListItem* addSimpleElement(const LLString& value, EAddPosition pos = ADD_BOTTOM, const LLSD& id = LLSD());
 
-	// DEPRECATED: Use LLSD versions of addSimpleItem() and getSimpleSelectedValue().
+
+	BOOL			selectItemByLabel( const LLString& item, BOOL case_sensitive = TRUE );		// FALSE if item not found
+	BOOL			selectItemByPrefix(const LLString& target, BOOL case_sensitive = TRUE);
+	BOOL			selectItemByPrefix(const LLWString& target, BOOL case_sensitive = TRUE);
+	const LLString	getSelectedItemLabel(S32 column = 0) const;
+	LLSD			getSelectedValue();
+
+	// DEPRECATED: Use LLSD versions of addCommentText() and getSelectedValue().
 	// "StringUUID" interface: use this when you're creating a list that contains non-unique strings each of which
 	// has an associated, unique UUID, and only one of which can be selected at a time.
 	LLScrollListItem*	addStringUUIDItem(const LLString& item_text, const LLUUID& id, EAddPosition pos = ADD_BOTTOM, BOOL enabled = TRUE, S32 column_width = 0);
@@ -604,7 +613,7 @@ protected:
 	// to the caller to delete the item)
 
 	// returns FALSE if item faile to be added to list, does NOT delete 'item'
-	BOOL			addItem( LLScrollListItem* item, EAddPosition pos = ADD_BOTTOM );
+	BOOL			addItem( LLScrollListItem* item, EAddPosition pos = ADD_BOTTOM, BOOL requires_column = TRUE );
 	void			selectPrevItem(BOOL extend_selection);
 	void			selectNextItem(BOOL extend_selection);
 	void			drawItems();
@@ -636,7 +645,6 @@ protected:
 	BOOL			mNeedsScroll;
 	BOOL			mCanSelect;
 	BOOL			mDisplayColumnHeaders;
-	BOOL			mCollapseEmptyColumns;
 
 	typedef std::deque<LLScrollListItem *> item_list;
 	item_list		mItemList;
@@ -672,16 +680,10 @@ protected:
 	LLWString		mSearchString;
 	LLFrameTimer	mSearchTimer;
 	
-	LLString		mDefaultColumnName;
-
 	S32				mSearchColumn;
 	S32				mNumDynamicWidthColumns;
 	S32				mTotalStaticColumnWidth;
 
-	S32				mSortColumn;
-	S32				mSecondarySortColumn;
-	BOOL			mSecondarySortAscending;
-	BOOL			mSortAscending;
 	BOOL			mSorted;
 	
 	std::map<LLString, LLScrollListColumn> mColumns;

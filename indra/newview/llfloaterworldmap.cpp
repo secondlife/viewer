@@ -1569,11 +1569,11 @@ void LLFloaterWorldMap::updateSims(bool found_null_sim)
 		return;
 	}
 
-	LLCtrlListInterface *list = childGetListInterface("search_results");
+	LLScrollListCtrl *list = gUICtrlFactory->getScrollListByName(this, "search_results");
 	if (!list) return;
 	list->operateOnAll(LLCtrlListInterface::OP_DELETE);
 
-	LLSD selected_value = list->getSimpleSelectedValue();
+	LLSD selected_value = list->getSelectedValue();
 
 	S32 name_length = mCompletingRegionName.length();
 
@@ -1628,7 +1628,7 @@ void LLFloaterWorldMap::updateSims(bool found_null_sim)
 	}
 	else
 	{
-		list->addSimpleElement("None found.");
+		list->addCommentText("None found.");
 		list->operateOnAll(LLCtrlListInterface::OP_DESELECT);
 	}
 }
@@ -1659,7 +1659,7 @@ void LLFloaterWorldMap::onCommitSearchResult(LLUICtrl*, void* userdata)
 	LLCtrlListInterface *list = self->childGetListInterface("search_results");
 	if (!list) return;
 
-	LLSD selected_value = list->getSimpleSelectedValue();
+	LLSD selected_value = list->getSelectedValue();
 	LLString sim_name = selected_value.asString();
 	if (sim_name.empty())
 	{
