@@ -198,8 +198,8 @@ static EGridInfo GridDefaultChoice = GRID_INFO_AGNI;
 static EGridInfo GridDefaultChoice = GRID_INFO_ADITI;
 #endif
 #else
-// Default userserver for development builds is dmz
-static EGridInfo GridDefaultChoice = GRID_INFO_DMZ;
+// Default userserver for development builds is none
+static EGridInfo GridDefaultChoice = GRID_INFO_NONE;
 #endif
 
 #if LL_WINDOWS
@@ -588,29 +588,14 @@ int parse_args(int argc, char **argv)
 			gGridChoice = GRID_INFO_AGNI;
 			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[gGridChoice].mName);		// Flawfinder: ignore
 		}
-		else if (!strcmp(argv[j], "--dmz"))
+		else if (!strcmp(argv[j], "--aruna"))
 		{
-			gGridChoice = GRID_INFO_DMZ;
-			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[gGridChoice].mName);		// Flawfinder: ignore
-		}
-		else if (!strcmp(argv[j], "--siva"))
-		{
-			gGridChoice = GRID_INFO_SIVA;
-			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[gGridChoice].mName);		// Flawfinder: ignore
-		}
-		else if (!strcmp(argv[j], "--shakti"))
-		{
-			gGridChoice = GRID_INFO_SHAKTI;
-			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[gGridChoice].mName);		// Flawfinder: ignore
+			gGridChoice = GRID_INFO_ARUNA;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
 		}
 		else if (!strcmp(argv[j], "--durga"))
 		{
 			gGridChoice = GRID_INFO_DURGA;
-			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[gGridChoice].mName);		// Flawfinder: ignore
-		}
-		else if (!strcmp(argv[j], "--soma"))
-		{
-			gGridChoice = GRID_INFO_SOMA;
 			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[gGridChoice].mName);		// Flawfinder: ignore
 		}
 		else if (!strcmp(argv[j], "--ganga"))
@@ -618,14 +603,9 @@ int parse_args(int argc, char **argv)
 			gGridChoice = GRID_INFO_GANGA;
 			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
 		}
-		else if (!strcmp(argv[j], "--vaak"))
+		else if (!strcmp(argv[j], "--mitra"))
 		{
-			gGridChoice = GRID_INFO_VAAK;
-			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
-		}
-		else if (!strcmp(argv[j], "--uma"))
-		{
-			gGridChoice = GRID_INFO_UMA;
+			gGridChoice = GRID_INFO_MITRA;
 			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
 		}
 		else if (!strcmp(argv[j], "--mohini"))
@@ -633,19 +613,9 @@ int parse_args(int argc, char **argv)
 			gGridChoice = GRID_INFO_MOHINI;
 			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
 		}
-		else if (!strcmp(argv[j], "--yami"))
-		{
-			gGridChoice = GRID_INFO_YAMI;
-			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
-		}
 		else if (!strcmp(argv[j], "--nandi"))
 		{
 			gGridChoice = GRID_INFO_NANDI;
-			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
-		}
-		else if (!strcmp(argv[j], "--mitra"))
-		{
-			gGridChoice = GRID_INFO_MITRA;
 			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
 		}
 		else if (!strcmp(argv[j], "--radha"))
@@ -658,9 +628,34 @@ int parse_args(int argc, char **argv)
 			gGridChoice = GRID_INFO_RAVI;
 			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
 		}
-		else if (!strcmp(argv[j], "--aruna"))
+		else if (!strcmp(argv[j], "--siva"))
 		{
-			gGridChoice = GRID_INFO_ARUNA;
+			gGridChoice = GRID_INFO_SIVA;
+			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[gGridChoice].mName);		// Flawfinder: ignore
+		}
+		else if (!strcmp(argv[j], "--shakti"))
+		{
+			gGridChoice = GRID_INFO_SHAKTI;
+			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[gGridChoice].mName);		// Flawfinder: ignore
+		}
+		else if (!strcmp(argv[j], "--soma"))
+		{
+			gGridChoice = GRID_INFO_SOMA;
+			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[gGridChoice].mName);		// Flawfinder: ignore
+		}
+		else if (!strcmp(argv[j], "--uma"))
+		{
+			gGridChoice = GRID_INFO_UMA;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
+		else if (!strcmp(argv[j], "--vaak"))
+		{
+			gGridChoice = GRID_INFO_VAAK;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
+		else if (!strcmp(argv[j], "--yami"))
+		{
+			gGridChoice = GRID_INFO_YAMI;
 			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
 		}
 		else if (!strcmp(argv[j], "-user") && (++j < argc)) 
@@ -1875,10 +1870,6 @@ bool LLAppViewer::initEarlyConfiguration()
 		else if (!strcmp(argv[j], "--agni"))
 		{
 			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[GRID_INFO_AGNI].mName);		// Flawfinder: ignore
-		}
-		else if (!strcmp(argv[j], "--dmz"))
-		{
-			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[GRID_INFO_DMZ].mName);		// Flawfinder: ignore
 		}
 		else if (!strcmp(argv[j], "--siva"))
 		{

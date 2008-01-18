@@ -2426,7 +2426,9 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 		{
 			BOOL visible = ! gSavedSettings.getBOOL("ForceShowGrid");
 			gSavedSettings.setBOOL("ForceShowGrid", visible);
-			LLPanelLogin::loadLoginPage();
+
+			// Initialize visibility (and don't force visibility - use prefs)
+			LLPanelLogin::refreshLocation( false );
 		}
 	}
 

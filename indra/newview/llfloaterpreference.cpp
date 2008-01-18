@@ -442,8 +442,7 @@ void LLFloaterPreference::onClickAbout(void*)
 // static 
 void LLFloaterPreference::onBtnOK( void* userdata )
 {
-	//refresh splash page if we're displaying it
-	LLPanelLogin::loadLoginPage();
+	LLPanelLogin::refreshLocation( false );
 
 	LLFloaterPreference *fp =(LLFloaterPreference *)userdata;
 	// commit any outstanding text entry
@@ -489,8 +488,7 @@ void LLFloaterPreference::onBtnApply( void* userdata )
 	}
 	fp->apply();
 
-	//refresh splash page if we're displaying it
-	LLPanelLogin::loadLoginPage();
+	LLPanelLogin::refreshLocation( false );
 }
 
 

@@ -197,7 +197,8 @@ bool LLURLDispatcherImpl::dispatchRegion(const std::string& url, BOOL right_mous
 		LLURLSimString::setString(url);
 		// We're at the login screen, so make sure user can see
 		// the login location box to know where they are going.
-		LLPanelLogin::loadLoginPage();
+		
+		LLPanelLogin::refreshLocation( true );
 		return true;
 	}
 
