@@ -1095,9 +1095,11 @@ void LLPanelObject::getState( )
 			{
 				mLabelSculptType->setEnabled(TRUE);
 			}
-
-			
 		}
+	}
+	else
+	{
+		mSculptTextureRevert = LLUUID::null;
 	}
 
 	
