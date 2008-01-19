@@ -402,9 +402,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		combo->setCommitCallback( &LLPanelGeneral::set_start_location );
 	}
 	
-	// Specific servers added later.
-	childSetVisible("server_combo", show_server);
-
 	childSetAction("new_account_btn", onClickNewAccount, this);
 	childSetVisible("new_account_btn", !gHideLinks);
 
@@ -879,8 +876,12 @@ void LLPanelLogin::refreshLocation( bool force_visible )
 	sInstance->childSetVisible("start_location_combo", show_start);
 	sInstance->childSetVisible("start_location_text", show_start);
 
-	BOOL show_server = ! gSavedSettings.getBOOL("ForceShowGrid");
+#if LL_RELEASE_FOR_DOWNLOAD
+	BOOL show_server = gSavedSettings.getBOOL("ForceShowGrid");
 	sInstance->childSetVisible("server_combo", show_server);
+#else
+	sInstance->childSetVisible("server_combo", TRUE);
+#endif
 
 #endif
 }
