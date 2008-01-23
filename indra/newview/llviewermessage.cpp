@@ -50,6 +50,7 @@
 #include "llfloaterimport.h"
 #include "llfocusmgr.h"
 #include "llfollowcamparams.h"
+#include "llfloaterreleasemsg.h"
 #include "llinstantmessage.h"
 #include "llquantize.h"
 #include "llregionflags.h"
@@ -2847,21 +2848,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	msg->addBOOLFast(_PREHASH_AlwaysRun, gAgent.getAlwaysRun());
 	gAgent.sendReliableMessage();
 
-	
-	LLString version_channel = LLString(version_channel_char);
-
-	if (gLastVersionChannel != version_channel)
-	{
-		//show release message if not on initial login
-		if (!gLastVersionChannel.empty())
-		{ 
-			gLastVersionChannel = version_channel;
-			LLFloaterReleaseMsg::show();
-		}
-		else {
-			gLastVersionChannel = version_channel;
-		}
-	}
+	LLFloaterReleaseMsg::displayMessage(version_channel_char);
 	
 }
 

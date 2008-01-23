@@ -50,6 +50,7 @@
 #include "lldir.h"
 #include "lleventpoll.h"
 #include "llfloatergodtools.h"
+#include "llfloaterreleasemsg.h"
 #include "llfloaterreporter.h"
 #include "llfloaterregioninfo.h"
 #include "llhttpnode.h"
@@ -1308,6 +1309,13 @@ public:
 			mRegion->setCapability(iter->first, iter->second);
 			llinfos << "BaseCapabilitiesComplete::result got capability for " 
 				<< iter->first << llendl;
+
+			/* HACK we're waiting for the ServerReleaseNotes */
+			if ((iter->first == "ServerReleaseNotes") && (LLFloaterReleaseMsg::sDisplayMessage))
+			{
+				LLFloaterReleaseMsg::show();
+				LLFloaterReleaseMsg::sDisplayMessage = false;
+			}
 		}
 		
 		if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
