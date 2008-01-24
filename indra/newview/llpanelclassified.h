@@ -101,7 +101,7 @@ public:
 
 	static void callbackGotPriceForListing(S32 option, LLString text, void* data);
 	static void callbackConfirmPublish(S32 option, void* data);
-	static void sendClassifiedClickMessage(const LLUUID& classified_id, const char* type, bool from_search);
+	void sendClassifiedClickMessage(const char* type);
 
 protected:
 	static void saveCallback(S32 option, void* data);
@@ -119,7 +119,7 @@ protected:
 
 protected:
 	BOOL mInFinder;
-	bool mFromSearch;
+	bool mFromSearch;		// from web-based "All" search sidebar
 	BOOL mDirty;
 	bool mForceClose;
 	bool mLocationChanged;

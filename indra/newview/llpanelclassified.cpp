@@ -104,6 +104,9 @@ public:
 static LLDispatchClassifiedClickThrough sClassifiedClickThrough;
 
 
+/* Re-expose this if we need to have classified ad HTML detail
+   pages.  JC
+
 // We need to count classified teleport clicks from the search HTML detail pages,
 // so we need have a teleport that also sends a click count message.
 class LLClassifiedTeleportHandler : public LLCommandHandler
@@ -139,7 +142,7 @@ public:
 };
 // Creating the object registers with the dispatcher.
 LLClassifiedTeleportHandler gClassifiedTeleportHandler;
-
+*/
 
 LLPanelClassified::LLPanelClassified(BOOL in_finder, bool from_search)
 :	LLPanel("Classified Panel"),
@@ -881,7 +884,7 @@ void LLPanelClassified::onClickTeleport(void* data)
         gAgent.teleportViaLocation(self->mPosGlobal);
         gFloaterWorldMap->trackLocation(self->mPosGlobal);
 
-		sendClassifiedClickMessage(self->mClassifiedID, "teleport", self->mFromSearch);
+		self->sendClassifiedClickMessage("teleport");
     }
 }
 
@@ -893,7 +896,7 @@ void LLPanelClassified::onClickMap(void* data)
 	gFloaterWorldMap->trackLocation(self->mPosGlobal);
 	LLFloaterWorldMap::show(NULL, TRUE);
 
-	sendClassifiedClickMessage(self->mClassifiedID, "map", self->mFromSearch);
+	self->sendClassifiedClickMessage("map");
 }
 
 // static
@@ -901,7 +904,7 @@ void LLPanelClassified::onClickProfile(void* data)
 {
 	LLPanelClassified* self = (LLPanelClassified*)data;
 	LLFloaterAvatarInfo::showFromDirectory(self->mCreatorID);
-	sendClassifiedClickMessage(self->mClassifiedID, "profile", self->mFromSearch);
+	self->sendClassifiedClickMessage("profile");
 }
 
 // static
@@ -975,35 +978,21 @@ void LLPanelClassified::onFocusReceived(LLFocusableElement* ctrl, void* data)
 }
 
 
-// static
-void LLPanelClassified::sendClassifiedClickMessage(const LLUUID& classified_id,
-												   const char* type,
-												   bool from_search)
+void LLPanelClassified::sendClassifiedClickMessage(const char* type)
 {
 	// You're allowed to click on your own ads to reassure yourself
 	// that the system is working.
-	std::vector<std::string> strings;
-	strings.push_back(classified_id.asString());
-	strings.push_back(type);
-	LLUUID no_invoice;
-
-	// New classified click-through handling
 	LLSD body;
 	body["type"] = type;
-	body["from_search"] = from_search;
-	body["classified_id"] = classified_id;
-	std::string url = gAgent.getRegion()->getCapability("SearchStatTracking");
+	body["from_search"] = mFromSearch;
+	body["classified_id"] = mClassifiedID;
+	body["parcel_id"] = mParcelID;
+	body["dest_pos_global"] = mPosGlobal.getValue();
+	body["region_name"] = mSimName;
 
-	// If the capability exists send to the new database, otherwise send to the old one.
-	if (!url.empty())
-	{
-		llinfos << "LLPanelClassified::sendClassifiedClickMessage via capability" << llendl;
-		LLHTTPClient::post(url, body, new LLHTTPClient::Responder());
-	}
-	else
-	{
-		send_generic_message("classifiedclick", strings, no_invoice);
-	}
+	std::string url = gAgent.getRegion()->getCapability("SearchStatTracking");
+	llinfos << "LLPanelClassified::sendClassifiedClickMessage via capability" << llendl;
+	LLHTTPClient::post(url, body, new LLHTTPClient::Responder());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
