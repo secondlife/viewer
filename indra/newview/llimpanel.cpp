@@ -305,6 +305,7 @@ void LLVoiceCallCapResponder::error(U32 status, const std::string& reason)
 	{
 		if ( 403 == status )
 		{
+			//403 == no ability
 			LLNotifyBox::showXml(
 				"VoiceNotAllowed",
 				channelp->getNotifyArgs());
@@ -1403,48 +1404,6 @@ private:
 	LLUUID mSessionID;
 };
 
-class LLSessionImmediateInviteResponder : public LLHTTPClient::Responder
-{
-public:
-	LLSessionImmediateInviteResponder(
-		const LLUUID& session_id,
-		const std::string& chat_req_url,
-		const LLSD& post_data)
-	{
-		mSessionID = session_id;
-		mURL = chat_req_url;
-		mPostData = post_data;
-	}
-
-	void error(U32 statusNum, const std::string& reason)
-	{		
-		if ( statusNum == 400 )
-		{
-			//hrm 400 indicates invalid parameters...more
-			//than likely the method doesn't exist
-			//so try a soon to be deprecated old school way of doing this
-			mPostData["method"] = "invite";
-
-			LLHTTPClient::post(
-				mURL,
-				mPostData,
-				new LLSessionInviteResponder(mSessionID));
-		}
-		else
-		{
-			//throw something back to the viewer here?
-			llinfos << "Error inviting all agents to session" << llendl;
-		}
-	}
-
-private:
-	LLUUID mSessionID;
-	LLSD mPostData;
-
-	std::string mURL;
-};
-
-
 BOOL LLFloaterIMPanel::inviteToSession(const LLDynamicArray<LLUUID>& ids)
 {
 	LLViewerRegion* region = gAgent.getRegion();
@@ -1469,16 +1428,13 @@ BOOL LLFloaterIMPanel::inviteToSession(const LLDynamicArray<LLUUID>& ids)
 			data["params"].append(ids.get(i));
 		}
 
-		data["method"] = "immediate invite";
+		data["method"] = "invite";
 		data["session-id"] = mSessionUUID;
 		LLHTTPClient::post(
 			url,
 			data,
-			new LLSessionImmediateInviteResponder(
-				mSessionUUID,
-				url,
-				data));
-		
+			new LLSessionInviteResponder(
+				mSessionUUID));		
 	}
 	else
 	{
@@ -2155,7 +2111,7 @@ void LLFloaterIMPanel::showSessionStartError(
 		"ChatterBoxSessionStartError",
 		args,
 		onConfirmForceCloseError,
-		this);
+		new LLUUID(mSessionUUID));
 }
 
 void LLFloaterIMPanel::showSessionEventError(
@@ -2163,7 +2119,7 @@ void LLFloaterIMPanel::showSessionEventError(
 	const std::string& error_string)
 {
 	LLString::format_map_t args;
-	args["[REASON]"] = 
+	args["[REASON]"] =
 		LLFloaterIM::sErrorStringsMap[error_string];
 	args["[EVENT]"] =
 		LLFloaterIM::sEventStringsMap[event_string];
@@ -2199,9 +2155,15 @@ void LLFloaterIMPanel::onKickSpeaker(void* user_data)
 void LLFloaterIMPanel::onConfirmForceCloseError(S32 option, void* data)
 {
 	//only 1 option really
-	LLFloaterIMPanel* floater = ((LLFloaterIMPanel*) data);
+	LLUUID session_id = *((LLUUID*) data);
 
-	if ( floater ) floater->close(FALSE);
+	if ( gIMMgr )
+	{
+		LLFloaterIMPanel* floaterp = gIMMgr->findFloaterBySession(
+			session_id);
+
+		if ( floaterp ) floaterp->close(FALSE);
+	}
 }
 
 

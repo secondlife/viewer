@@ -534,6 +534,11 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
 				joint_state->setUsage(joint_motion->mUsage);
 				joint_state->setPriority(joint_motion->mPriority);
 			}
+			else
+			{
+				// add dummy joint state with no associated joint
+				mJointStates.push_back(new LLJointState);
+			}
 		}
 		mAssetStatus = ASSET_LOADED;
 		setupPose();

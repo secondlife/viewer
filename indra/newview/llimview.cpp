@@ -177,6 +177,27 @@ BOOL LLFloaterIM::postBuild()
 	}
 
 	if ( sErrorStringsMap.end() ==
+		 sErrorStringsMap.find("no_ability") )
+	{
+		sErrorStringsMap["no_ability"] =
+			getFormattedUIString("no_ability_error");
+	}
+
+	if ( sErrorStringsMap.end() ==
+		 sErrorStringsMap.find("muted") )
+	{
+		sErrorStringsMap["muted"] =
+			getFormattedUIString("muted_error");
+	}
+
+	if ( sErrorStringsMap.end() ==
+		 sErrorStringsMap.find("not_a_moderator") )
+	{
+		sErrorStringsMap["not_a_moderator"] =
+			getFormattedUIString("not_a_mod_error");
+	}
+
+	if ( sErrorStringsMap.end() ==
 		 sErrorStringsMap.find("does not exist") )
 	{
 		sErrorStringsMap["does not exist"] =
@@ -193,6 +214,13 @@ BOOL LLFloaterIM::postBuild()
 	{
 		sEventStringsMap["message"] =
 			getFormattedUIString("message_session_event");
+	}
+
+
+	if ( sEventStringsMap.end() == sEventStringsMap.find("mute") )
+	{
+		sEventStringsMap["mute"] = getFormattedUIString(
+			"mute_agent_event");
 	}
 
 	if ( sForceCloseSessionMap.end() ==
@@ -832,8 +860,7 @@ public:
 	}
 
 	void error(U32 statusNum, const std::string& reason)
-	{
-		
+	{		
 		//throw something back to the viewer here?
 		if ( gIMMgr )
 		{
@@ -843,7 +870,7 @@ public:
 			LLFloaterIMPanel* floaterp =
 				gIMMgr->findFloaterBySession(mSessionID);
 
-			if (floaterp)
+			if ( floaterp )
 			{
 				std::string error_string;
 
@@ -853,7 +880,7 @@ public:
 				}
 				else
 				{
-					error_string = "generic_request_error";
+					error_string = "generic";
 				}
 
 				floaterp->showSessionStartError(
@@ -1428,8 +1455,6 @@ public:
 		//check for 'text' or 'voice' invitations...bleh
 		if ( input["body"].has("instantmessage") )
 		{
-			LLString capability = input["body"]["capabilities"]["call"].asString();
-
 			LLSD message_params =
 				input["body"]["instantmessage"]["message_params"];
 
@@ -1537,12 +1562,12 @@ public:
 			{
 				LLSD data;
 				data["method"] = "accept invitation";
-				data["session-id"] = input["body"]["session_id"];
+				data["session-id"] = session_id;
 				LLHTTPClient::post(
 					url,
 					data,
 					new LLViewerChatterBoxInvitationAcceptResponder(
-						input["body"]["session_id"].asUUID(),
+						session_id,
 						LLIMMgr::INVITATION_TYPE_INSTANT_MESSAGE));
 			}
 		} //end if invitation has instant message

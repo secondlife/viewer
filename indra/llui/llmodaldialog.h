@@ -47,6 +47,8 @@ public:
 	LLModalDialog( const LLString& title, S32 width, S32 height, BOOL modal = true );
 	/*virtual*/ ~LLModalDialog();
 
+	/*virtual*/ void	open();	/* Flawfinder: ignore */
+	
 	/*virtual*/ void 	reshape(S32 width, S32 height, BOOL called_from_parent = 1);
 	
 	/*virtual*/ void	startModal();

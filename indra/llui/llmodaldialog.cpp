@@ -70,6 +70,16 @@ LLModalDialog::~LLModalDialog()
 	}
 }
 
+// virtual
+void LLModalDialog::open()	/* Flawfinder: ignore */
+{
+	// SJB: Hack! Make sure we don't ever host a modal dialog
+	LLMultiFloater* thost = LLFloater::sHostp;
+	LLFloater::sHostp = NULL;
+	LLFloater::open();
+	LLFloater::sHostp = thost;
+}
+
 void LLModalDialog::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLFloater::reshape(width, height, called_from_parent);

@@ -3230,7 +3230,6 @@ void LLVoiceClient::parcelChanged()
 
 		std::string url = gAgent.getRegion()->getCapability("ParcelVoiceInfoRequest");
 		LLSD data;
-		data["method"] = "call";
 		LLHTTPClient::post(
 			url,
 			data,
@@ -3996,7 +3995,14 @@ void LLVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::EStatusTy
 		{
 		case 20713:		status = LLVoiceClientStatusObserver::ERROR_CHANNEL_FULL; 		break;
 		case 20714:		status = LLVoiceClientStatusObserver::ERROR_CHANNEL_LOCKED; 	break;
-		case 20715: status = LLVoiceClientStatusObserver::ERROR_NOT_AVAILABLE;
+		case 20715:
+			//invalid channel, we may be using a set of poorly cached
+			//info
+			status = LLVoiceClientStatusObserver::ERROR_NOT_AVAILABLE;
+			break;
+		case 1009:
+			//invalid username and password
+			status = LLVoiceClientStatusObserver::ERROR_NOT_AVAILABLE;
 			break;
 		}
 
