@@ -1364,7 +1364,7 @@ LLScrollListItem* LLScrollListCtrl::addCommentText(const LLString& comment_text,
 	{
 		// simple items have their LLSD data set to their label
 		// always draw comment text with "enabled" color
-		item = new LLScrollListItemComment( comment_text, mFgSelectedColor );
+		item = new LLScrollListItemComment( comment_text, mFgUnselectedColor );
 		addItem( item, pos, FALSE );
 	}
 	return item;
@@ -1664,11 +1664,12 @@ void LLScrollListCtrl::drawItems()
 
 			if( mScrollLines <= line && line < mScrollLines + num_page_lines )
 			{
-				fg_color = (item->getEnabled() ? mFgSelectedColor : mFgDisabledColor);
+				fg_color = (item->getEnabled() ? mFgUnselectedColor : mFgDisabledColor);
 				if( item->getSelected() && mCanSelect)
 				{
 					// Draw background of selected item
 					bg_color = mBgSelectedColor;
+					fg_color = mFgSelectedColor;
 				}
 				else if (mHighlightedItem == line && mCanSelect)
 				{

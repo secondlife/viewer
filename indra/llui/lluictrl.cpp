@@ -285,7 +285,26 @@ void LLUICtrl::setIsChrome(BOOL is_chrome)
 // virtual
 BOOL LLUICtrl::getIsChrome() const
 { 
-	return mIsChrome; 
+	// am I or any of my ancestors flagged as "chrome"?
+	if (mIsChrome) return TRUE;
+
+	LLView* parent_ctrl = getParent();
+	while(parent_ctrl)
+	{
+		if(parent_ctrl->isCtrl())
+		{
+			break;	
+		}
+		parent_ctrl = parent_ctrl->getParent();
+	}
+	
+	if(parent_ctrl)
+	{
+		// recurse into parent_ctrl and ask if it is in a chrome subtree
+		return ((LLUICtrl*)parent_ctrl)->getIsChrome();
+	}
+
+	return FALSE;
 }
 
 // this comparator uses the crazy disambiguating logic of LLCompareByTabOrder,

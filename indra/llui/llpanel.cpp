@@ -340,11 +340,6 @@ void LLPanel::addCtrl( LLUICtrl* ctrl, S32 tab_group)
 	mLastTabGroup = tab_group;
 
 	LLView::addCtrl(ctrl, tab_group);
-	// propagate chrome to children only if they have not been flagged as chrome
-	if (!ctrl->getIsChrome())
-	{
-		ctrl->setIsChrome(getIsChrome());
-	}
 }
 
 void LLPanel::addCtrlAtEnd( LLUICtrl* ctrl, S32 tab_group)
@@ -352,10 +347,6 @@ void LLPanel::addCtrlAtEnd( LLUICtrl* ctrl, S32 tab_group)
 	mLastTabGroup = tab_group;
 
 	LLView::addCtrlAtEnd(ctrl, tab_group);
-	if (!ctrl->getIsChrome())
-	{
-		ctrl->setIsChrome(getIsChrome());
-	}
 }
 
 BOOL LLPanel::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
