@@ -91,7 +91,8 @@ BOOL LLPanelLogin::sCapslockDidNotification = FALSE;
 class LLLoginRefreshHandler : public LLCommandHandler
 {
 public:
-	LLLoginRefreshHandler() : LLCommandHandler("login_refresh") { }
+	// don't allow from external browsers
+	LLLoginRefreshHandler() : LLCommandHandler("login_refresh", false) { }
 	bool handle(const LLSD& tokens, const LLSD& queryMap)
 	{	
 #if LL_LIBXUL_ENABLED
@@ -401,15 +402,10 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 		combo->setCommitCallback( &LLPanelGeneral::set_start_location );
 	}
-	
-	childSetAction("new_account_btn", onClickNewAccount, this);
-	childSetVisible("new_account_btn", !gHideLinks);
 
 	childSetAction("connect_btn", onClickConnect, this);
 
 	setDefaultBtn("connect_btn");
-
-	childSetAction("preferences_btn", LLFloaterPreference::show, this);
 
 	childSetAction("quit_btn", onClickQuit, this);
 
@@ -446,6 +442,9 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(this, "login_html");
 	if ( web_browser )
 	{
+		// Need to handle login secondlife:///app/ URLs
+		web_browser->setOpenAppSLURLs( true );
+
 		// observe browser events
 		web_browser->addObserver( this );
 
@@ -504,6 +503,17 @@ void LLPanelLogin::setSiteIsAlive( bool alive )
 	else
 	// the site is not available (missing page, server down, other badness)
 	{
+#if !USE_VIEWER_AUTH
+		if ( web_browser )
+		{
+			// hide browser control (revealing default one)
+			web_browser->setVisible( FALSE );
+
+			// mark as unavailable
+			mHtmlAvailable = FALSE;
+		}
+#else
+
 		if ( web_browser )
 		{	
 			web_browser->navigateToLocalPage( "loading-error" , "index.html" );
@@ -511,7 +521,9 @@ void LLPanelLogin::setSiteIsAlive( bool alive )
 			// mark as available
 			mHtmlAvailable = TRUE;
 		}
+#endif
 	}
+
 #else
 	mHtmlAvailable = FALSE;
 #endif

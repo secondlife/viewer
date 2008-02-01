@@ -51,7 +51,8 @@ LLMap< const LLUUID, LLFloaterParcelInfo* > gPlaceInfoInstances;
 class LLParcelHandler : public LLCommandHandler
 {
 public:
-	LLParcelHandler() : LLCommandHandler("parcel") { }
+	// don't allow from external browsers
+	LLParcelHandler() : LLCommandHandler("parcel", false) { }
 	bool handle(const LLSD& params, const LLSD& queryMap)
 	{
 		if (params.size() < 2)

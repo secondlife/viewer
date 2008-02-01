@@ -48,6 +48,18 @@ LLFloaterURLDisplay::LLFloaterURLDisplay(const LLSD& sd)
 	mFactoryMap["place_details_panel"] = LLCallbackMap(LLFloaterURLDisplay::createPlaceDetail, this);
 	gUICtrlFactory->buildFloater(this, "floater_preview_url.xml", &getFactoryMap());
 	this->setVisible(false);
+
+	// If positioned at 0,0 the teleport button is behind the toolbar.
+	LLRect r = getRect();
+	if (r.mBottom == 0 && r.mLeft == 0)
+	{
+		// first use, center it
+		center();
+	}
+	else
+	{
+		gFloaterView->adjustToFitScreen(this, FALSE);
+	}
 }
 
 LLFloaterURLDisplay::~LLFloaterURLDisplay()

@@ -40,16 +40,21 @@
 //---------------------------------------------------------------------------
 // Underlying registry for command handlers, not directly accessible.
 //---------------------------------------------------------------------------
+struct LLCommandHandlerInfo
+{
+	bool mAllowFromExternalBrowser;
+	LLCommandHandler* mHandler;	// safe, all of these are static objects
+};
 
 class LLCommandHandlerRegistry
 {
 public:
 	static LLCommandHandlerRegistry& instance();
-	void add(const char* cmd, LLCommandHandler* handler);
-	bool dispatch(const std::string& cmd, const LLSD& params, const LLSD& queryMap);
+	void add(const char* cmd, bool allow_from_external_browser, LLCommandHandler* handler);
+	bool dispatch(const std::string& cmd, bool from_external_browser, const LLSD& params, const LLSD& queryMap);
 
 private:
-	std::map<std::string, LLCommandHandler*> mMap;
+	std::map<std::string, LLCommandHandlerInfo> mMap;
 };
 
 // static 
@@ -62,29 +67,40 @@ LLCommandHandlerRegistry& LLCommandHandlerRegistry::instance()
 	return instance;
 }
 
-void LLCommandHandlerRegistry::add(const char* cmd, LLCommandHandler* handler)
+void LLCommandHandlerRegistry::add(const char* cmd, bool allow_from_external_browser, LLCommandHandler* handler)
 {
-	mMap[cmd] = handler;
+	LLCommandHandlerInfo info;
+	info.mAllowFromExternalBrowser = allow_from_external_browser;
+	info.mHandler = handler;
+
+	mMap[cmd] = info;
 }
 
 bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
+										bool from_external_browser,
 										const LLSD& params,
 										const LLSD& queryMap)
 {
-	std::map<std::string, LLCommandHandler*>::iterator it = mMap.find(cmd);
+	std::map<std::string, LLCommandHandlerInfo>::iterator it = mMap.find(cmd);
 	if (it == mMap.end()) return false;
-	LLCommandHandler* handler = it->second;
-	if (!handler) return false;
-	return handler->handle(params, queryMap);
+	const LLCommandHandlerInfo& info = it->second;
+	if (from_external_browser && !info.mAllowFromExternalBrowser)
+	{
+		// block request from external browser, but report as
+		// "handled" because it was well formatted.
+		return true;
+	}
+	if (!info.mHandler) return false;
+	return info.mHandler->handle(params, queryMap);
 }
 
 //---------------------------------------------------------------------------
 // Automatic registration of commands, runs before main()
 //---------------------------------------------------------------------------
 
-LLCommandHandler::LLCommandHandler(const char* cmd)
+LLCommandHandler::LLCommandHandler(const char* cmd, bool allow_from_external_browser)
 {
-	LLCommandHandlerRegistry::instance().add(cmd, this);
+	LLCommandHandlerRegistry::instance().add(cmd, allow_from_external_browser, this);
 }
 
 LLCommandHandler::~LLCommandHandler()
@@ -98,7 +114,10 @@ LLCommandHandler::~LLCommandHandler()
 //---------------------------------------------------------------------------
 
 // static
-bool LLCommandDispatcher::dispatch(const std::string& cmd, const LLSD& params, const LLSD& queryMap)
+bool LLCommandDispatcher::dispatch(const std::string& cmd,
+								   bool from_external_browser,
+								   const LLSD& params, const LLSD& queryMap)
 {
-	return LLCommandHandlerRegistry::instance().dispatch(cmd, params, queryMap);
+	return LLCommandHandlerRegistry::instance().dispatch(
+		cmd, from_external_browser, params, queryMap);
 }

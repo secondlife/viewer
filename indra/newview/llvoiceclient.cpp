@@ -29,10 +29,10 @@
  * $/LicenseInfo$
  */
 
-#include <boost/tokenizer.hpp>
-
 #include "llviewerprecompiledheaders.h"
 #include "llvoiceclient.h"
+
+#include <boost/tokenizer.hpp>
 
 #include "llsdutil.h"
 

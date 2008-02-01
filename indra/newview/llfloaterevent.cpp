@@ -54,7 +54,8 @@ LLMap< U32, LLFloaterEventInfo* > gEventInfoInstances;
 class LLEventHandler : public LLCommandHandler
 {
 public:
-	LLEventHandler() : LLCommandHandler("event") { }
+	// don't allow from external browsers
+	LLEventHandler() : LLCommandHandler("event", false) { }
 	bool handle(const LLSD& tokens, const LLSD& queryMap)
 	{
 		if (tokens.size() < 2)

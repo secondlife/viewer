@@ -266,7 +266,7 @@ const S32 PICK_DIAMETER = 2 * PICK_HALF_WIDTH+1;
 
 const F32 MIN_DISPLAY_SCALE = 0.85f;
 
-const S32 CONSOLE_BOTTOM_PAD = 20;
+const S32 CONSOLE_BOTTOM_PAD = 40;
 
 #ifdef SABINRIG
 /// ALL RIG STUFF
@@ -1417,7 +1417,8 @@ void LLViewerWindow::handleDataCopy(LLWindow *window, S32 data_type, void *data)
 	case SLURL_MESSAGE_TYPE:
 		// received URL
 		std::string url = (const char*)data;
-		if (LLURLDispatcher::dispatch(url))
+		const bool from_external_browser = true;
+		if (LLURLDispatcher::dispatch(url, from_external_browser))
 		{
 			// bring window to foreground, as it has just been "launched" from a URL
 			mWindow->bringToFront();
@@ -3019,9 +3020,19 @@ BOOL LLViewerWindow::handlePerFrameHover()
 			gFloaterView->setRect(floater_rect);
 		}
 
-		if (gOverlayBar->getVisible())
+		// snap floaters to top of chat bar/button strip
+		LLView* chatbar_and_buttons = gOverlayBar->getChildByName("chatbar_and_buttons", TRUE);
+		if (chatbar_and_buttons)
 		{
-			gFloaterView->setSnapOffsetBottom(gHUDView->getRect().mBottom);
+			// convert top/left corner of chatbar/buttons container to gFloaterView-relative coordinates
+			S32 top, left;
+			chatbar_and_buttons->localPointToOtherView(
+												chatbar_and_buttons->getLocalBoundingRect().mLeft, 
+												chatbar_and_buttons->getLocalBoundingRect().mTop,
+												&left,
+												&top,
+												gFloaterView);
+			gFloaterView->setSnapOffsetBottom(top);
 		}
 		else
 		{

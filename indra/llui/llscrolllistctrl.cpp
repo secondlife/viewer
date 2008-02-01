@@ -1669,7 +1669,7 @@ void LLScrollListCtrl::drawItems()
 				{
 					// Draw background of selected item
 					bg_color = mBgSelectedColor;
-					fg_color = mFgSelectedColor;
+					fg_color = (item->getEnabled() ? mFgSelectedColor : mFgDisabledColor);
 				}
 				else if (mHighlightedItem == line && mCanSelect)
 				{
@@ -1979,33 +1979,38 @@ BOOL LLScrollListCtrl::handleClick(S32 x, S32 y, MASK mask)
 	LLScrollListCell* hit_cell = hit_item->getColumn(column_index);
 	if (!hit_cell) return FALSE;
 
-	// select item (thus deselecting any currently selected item)
-	// only if item is not already selected
-	if (!hit_item->getSelected())
-	{
-		selectItemAt(x, y, mask);
-		gFocusMgr.setMouseCapture(this);
-		mNeedsScroll = TRUE;
-	}
-
+	// if cell handled click directly (i.e. clicked on an embedded checkbox)
 	if (hit_cell->handleClick())
 	{
-		// propagate value of this cell to other selected items
-		// and commit the respective widgets
-		LLSD item_value = hit_cell->getValue();
-		for (item_list::iterator iter = mItemList.begin(); iter != mItemList.end(); iter++)
+		// if item not currently selected, select it
+		if (!hit_item->getSelected())
 		{
-			LLScrollListItem* item = *iter;
-			if (item->getSelected())
-			{
-				LLScrollListCell* cellp = item->getColumn(column_index);
-				cellp->setValue(item_value);
-				cellp->onCommit();
-			}
+			selectItemAt(x, y, mask);
+			gFocusMgr.setMouseCapture(this);
+			mNeedsScroll = TRUE;
 		}
-		//FIXME: find a better way to signal cell changes
-		onCommit();
-		return  TRUE;
+		// otherwise we already have this item selected
+		// so propagate state of cell to rest of selected column
+		else
+		{
+			// propagate value of this cell to other selected items
+			// and commit the respective widgets
+			LLSD item_value = hit_cell->getValue();
+			for (item_list::iterator iter = mItemList.begin(); iter != mItemList.end(); iter++)
+			{
+				LLScrollListItem* item = *iter;
+				if (item->getSelected())
+				{
+					LLScrollListCell* cellp = item->getColumn(column_index);
+					cellp->setValue(item_value);
+					cellp->onCommit();
+				}
+			}
+			//FIXME: find a better way to signal cell changes
+			onCommit();
+		}
+		// eat click (e.g. do not trigger double click callback)
+		return TRUE;
 	}
 	else
 	{
@@ -2013,7 +2018,7 @@ BOOL LLScrollListCtrl::handleClick(S32 x, S32 y, MASK mask)
 		selectItemAt(x, y, mask);
 		gFocusMgr.setMouseCapture(this);
 		mNeedsScroll = TRUE;
-		// do not stop click processing (click callback, etc)
+		// do not eat click (allow double click callback)
 		return FALSE;
 	}
 }

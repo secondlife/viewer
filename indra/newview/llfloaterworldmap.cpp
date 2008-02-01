@@ -272,14 +272,6 @@ BOOL LLFloaterWorldMap::postBuild()
 
 	setDefaultBtn(NULL);
 
-	if ( gAgent.isTeen() )
-	{
-		// Hide Mature Events controls
-		childHide("events_mature_icon");
-		childHide("events_mature_label");
-		childHide("event_mature_chk");
-	}
-
 	mZoomTimer.stop();
 
 	return TRUE;
@@ -459,6 +451,11 @@ void LLFloaterWorldMap::draw()
 	{
 		return;
 	}
+
+	// Hide/Show Mature Events controls
+	childSetVisible("events_mature_icon", !gAgent.isTeen());
+	childSetVisible("events_mature_label", !gAgent.isTeen());
+	childSetVisible("event_mature_chk", !gAgent.isTeen());
 
 	// On orientation island, users don't have a home location yet, so don't
 	// let them teleport "home".  It dumps them in an often-crowed welcome

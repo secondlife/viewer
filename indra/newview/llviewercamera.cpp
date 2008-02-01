@@ -29,10 +29,10 @@
  * $/LicenseInfo$
  */
 
-#include <iomanip> // for setprecision
 #include "llviewerprecompiledheaders.h"
-
 #include "llviewercamera.h"
+
+#include <iomanip> // for setprecision
 
 #include "llquaternion.h"
 

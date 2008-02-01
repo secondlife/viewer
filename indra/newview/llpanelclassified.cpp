@@ -112,9 +112,8 @@ static LLDispatchClassifiedClickThrough sClassifiedClickThrough;
 class LLClassifiedTeleportHandler : public LLCommandHandler
 {
 public:
-    // Inform the system you handle commands starting
-	// with "foo"
-	LLClassifiedTeleportHandler() : LLCommandHandler("classifiedteleport") { }
+	// don't allow from external browsers because it moves you immediately
+	LLClassifiedTeleportHandler() : LLCommandHandler("classifiedteleport", false) { }
 
 	bool handle(const LLSD& tokens, const LLSD& queryMap)
 	{
@@ -137,7 +136,8 @@ public:
 		const bool from_search = true;
 		LLPanelClassified::sendClassifiedClickMessage(classified_id, "teleport", from_search);
 		// Invoke teleport
-		return LLURLDispatcher::dispatch(url);
+		const bool from_external_browser = false;
+		return LLURLDispatcher::dispatch(url, from_external_browser);
 	}
 };
 // Creating the object registers with the dispatcher.

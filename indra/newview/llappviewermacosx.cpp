@@ -172,7 +172,8 @@ OSErr AEGURLHandler(const AppleEvent *messagein, AppleEvent *reply, long refIn)
 	if(result == noErr)
 	{
 		std::string url = buffer;
-		LLURLDispatcher::dispatch(url);
+		const bool from_external_browser = true;
+		LLURLDispatcher::dispatch(url, from_external_browser);
 	}
 	
 	return(result);

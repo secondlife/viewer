@@ -40,18 +40,21 @@ public:
 	static bool isSLURLCommand(const std::string& url);
 		// Is this a special secondlife://app/ URL?
 
-	static bool dispatch(const std::string& url);
+	static bool dispatch(const std::string& url, bool from_external_browser);
 		// At startup time and on clicks in internal web browsers,
 		// teleport, open map, or run requested command.
 		// Handles:
 		//   secondlife://RegionName/123/45/67/
-		//   secondlife://app/agent/3d6181b0-6a4b-97ef-18d8-722652995cf1/show
+		//   secondlife:///app/agent/3d6181b0-6a4b-97ef-18d8-722652995cf1/show
 		//   sl://app/foo/bar
 		// Returns true if someone handled the URL.
+
 	static bool dispatchRightClick(const std::string& url);
 
-		//   builds: http://slurl.com/secondlife/RegionName/x/y/z/
+	static bool dispatchFromTextEditor(const std::string& url);
+
 	static std::string buildSLURL(const std::string& regionname, S32 x, S32 y, S32 z);
+		//   builds: http://slurl.com/secondlife/RegionName/x/y/z/
 };
 
 #endif

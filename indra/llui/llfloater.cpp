@@ -2252,7 +2252,8 @@ void LLFloaterView::refresh()
 		LLFloater* floaterp = (LLFloater*)*child_it;
 		if( floaterp->getVisible() )
 		{
-			adjustToFitScreen(floaterp, TRUE);
+			// minimized floaters are kept fully onscreen
+			adjustToFitScreen(floaterp, !floaterp->isMinimized());
 		}
 	}
 }

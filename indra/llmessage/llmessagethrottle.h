@@ -50,8 +50,8 @@ public:
 	LLMessageThrottleEntry(const size_t hash, const U64 entry_time)
 		: mHash(hash), mEntryTime(entry_time) {}
 
-	size_t	getHash()	{ return mHash; }
-	U64	getEntryTime()	{ return mEntryTime; }
+	size_t	getHash() const { return mHash; }
+	U64		getEntryTime() const { return mEntryTime; }
 protected:
 	size_t	mHash;
 	U64		mEntryTime;

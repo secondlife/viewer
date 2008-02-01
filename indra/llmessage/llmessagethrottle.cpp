@@ -37,8 +37,18 @@
 #include "llframetimer.h"
 
 // This is used for the stl search_n function.
+#if _MSC_VER >= 1500 // VC9 has a bug in search_n
+struct eq_message_throttle_entry : public std::binary_function< LLMessageThrottleEntry, LLMessageThrottleEntry, bool >
+{
+	bool operator()(const LLMessageThrottleEntry& a, const LLMessageThrottleEntry& b) const
+	{
+		return a.getHash() == b.getHash();
+	}
+};
+#else
 bool eq_message_throttle_entry(LLMessageThrottleEntry a, LLMessageThrottleEntry b)
-		{ return a.getHash() == b.getHash(); }
+ 		{ return a.getHash() == b.getHash(); }
+#endif
 
 const U64 SEC_TO_USEC = 1000000;
 		
@@ -113,9 +123,14 @@ BOOL LLMessageThrottle::addViewerAlert(const LLUUID& to, const char* mesg)
 	LLMessageThrottleEntry entry(hash, LLFrameTimer::getTotalTime());
 
 	// Check if this message is already in the list.
-	message_list_iterator_t found = std::search_n(message_list->begin(), message_list->end(),
-												  1, entry, eq_message_throttle_entry);
-
+#if _MSC_VER >= 1500 // VC9 has a bug in search_n
+	// SJB: This *should* work but has not been tested yet *TODO: Test!
+	message_list_iterator_t found = std::find_if(message_list->begin(), message_list->end(),
+												 std::bind2nd(eq_message_throttle_entry(), entry));
+#else
+ 	message_list_iterator_t found = std::search_n(message_list->begin(), message_list->end(),
+ 												  1, entry, eq_message_throttle_entry);
+#endif
 	if (found == message_list->end())
 	{
 		// This message was not found.  Add it to the list.
@@ -142,9 +157,15 @@ BOOL LLMessageThrottle::addAgentAlert(const LLUUID& agent, const LLUUID& task, c
 	LLMessageThrottleEntry entry(hash, LLFrameTimer::getTotalTime());
 
 	// Check if this message is already in the list.
+#if _MSC_VER >= 1500 // VC9 has a bug in search_n
+	// SJB: This *should* work but has not been tested yet *TODO: Test!
+	message_list_iterator_t found = std::find_if(message_list->begin(), message_list->end(),
+												 std::bind2nd(eq_message_throttle_entry(), entry));
+#else
 	message_list_iterator_t found = std::search_n(message_list->begin(), message_list->end(),
 												  1, entry, eq_message_throttle_entry);
-
+#endif
+	
 	if (found == message_list->end())
 	{
 		// This message was not found.  Add it to the list.

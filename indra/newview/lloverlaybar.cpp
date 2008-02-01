@@ -193,15 +193,6 @@ void LLOverlayBar::layoutButtons()
 	}
 }
 
-void LLOverlayBar::draw()
-{
-	childSetVisible("chat_bar", gSavedSettings.getBOOL("ChatVisible"));
-
-	// draw children on top
-	LLPanel::draw();
-}
-
-
 // Per-frame updates of visibility
 void LLOverlayBar::refresh()
 {
@@ -266,8 +257,6 @@ void LLOverlayBar::refresh()
 		buttons_changed = TRUE;
 	}
 
-	// update "remotes"
-	childSetVisible("voice_remote_container", LLVoiceClient::voiceEnabled());
 	enableMediaButtons();
 
 	moveChildToBackOfTabGroup(mMediaRemote);
@@ -276,12 +265,20 @@ void LLOverlayBar::refresh()
 	// turn off the whole bar in mouselook
 	if (gAgent.cameraMouselook())
 	{
-		setVisible(FALSE);
+		childSetVisible("media_remote_container", FALSE);
+		childSetVisible("voice_remote_container", FALSE);
+		childSetVisible("state_buttons", FALSE);
 	}
 	else
 	{
-		setVisible(TRUE);
+		// update "remotes"
+		childSetVisible("media_remote_container", TRUE);
+		childSetVisible("voice_remote_container", LLVoiceClient::voiceEnabled());
+		childSetVisible("state_buttons", TRUE);
 	}
+
+	// always let user toggle into and out of chatbar
+	childSetVisible("chat_bar", gSavedSettings.getBOOL("ChatVisible"));
 
 	if (buttons_changed)
 	{

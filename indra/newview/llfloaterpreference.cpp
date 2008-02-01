@@ -95,7 +95,8 @@ LLFloaterPreference* LLFloaterPreference::sInstance = NULL;
 class LLPreferencesHandler : public LLCommandHandler
 {
 public:
-	LLPreferencesHandler() : LLCommandHandler("preferences") { }
+	// don't allow from external browsers
+	LLPreferencesHandler() : LLCommandHandler("preferences", false) { }
 	bool handle(const LLSD& tokens, const LLSD& queryMap)
 	{
 		LLFloaterPreference::show(NULL);

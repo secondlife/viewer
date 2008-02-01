@@ -61,7 +61,6 @@ public:
 	virtual LLString getWidgetTag() const;
 
 	/*virtual*/ void refresh();
-	/*virtual*/ void draw();
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
 	/*virtual*/ BOOL postBuild();
 

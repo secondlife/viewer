@@ -5372,13 +5372,17 @@ class LLShowFloater : public view_listener_t
 		else if (floater_name == "help in-world")
 		{
 #if LL_LIBXUL_ENABLED
-			LLFloaterHtml::getInstance()->show( "in-world_help" );
+			const bool open_app_slurls = true;
+			LLFloaterHtml::getInstance()->show( 
+				"in-world_help", open_app_slurls );
 #endif
 		}
 		else if (floater_name == "help additional")
 		{
 #if LL_LIBXUL_ENABLED
-			LLFloaterHtml::getInstance()->show( "additional_help" );
+			const bool open_app_slurls = true;
+			LLFloaterHtml::getInstance()->show( 
+				"additional_help", open_app_slurls );
 #endif
 		}
 		else if (floater_name == "complaint reporter")
@@ -7169,7 +7173,8 @@ void handle_load_from_xml(void*)
 
 void handle_slurl_test(void*)
 {
-	LLFloaterHtml::getInstance()->show("http://secondlife.com/app/search/slurls.html", "SLURL Test");
+	LLFloaterHtml::getInstance()->show(
+		"http://secondlife.com/app/search/slurls.html", "SLURL Test", true);
 }
 
 void handle_rebake_textures(void*)

@@ -63,23 +63,24 @@ public:
 
 	static bool isSLURLCommand(const std::string& url);
 
-	static bool dispatch(const std::string& url);
-		// returns true if handled
+	static bool dispatch(const std::string& url, bool from_external_browser);
+		// returns true if handled or explicitly blocked.
 
 	static bool dispatchRightClick(const std::string& url);
 
 private:
-	static bool dispatchCore(const std::string& url, bool right_mouse);
+	static bool dispatchCore(const std::string& url, 
+		bool from_external_browser, bool right_mouse);
 		// handles both left and right click
 
 	static bool dispatchHelp(const std::string& url, BOOL right_mouse);
 		// Handles sl://app.floater.html.help by showing Help floater.
 		// Returns true if handled.
 
-	static bool dispatchApp(const std::string& url, BOOL right_mouse);
-		// Handles secondlife://app/agent/<agent_id>/about and similar
+	static bool dispatchApp(const std::string& url, bool from_external_browser, BOOL right_mouse);
+		// Handles secondlife:///app/agent/<agent_id>/about and similar
 		// by showing panel in Search floater.
-		// Returns true if handled.
+		// Returns true if handled or explicitly blocked.
 
 	static bool dispatchRegion(const std::string& url, BOOL right_mouse);
 		// handles secondlife://Ahern/123/45/67/
@@ -120,11 +121,11 @@ bool LLURLDispatcherImpl::isSLURLCommand(const std::string& url)
 }
 
 // static
-bool LLURLDispatcherImpl::dispatchCore(const std::string& url, bool right_mouse)
+bool LLURLDispatcherImpl::dispatchCore(const std::string& url, bool from_external_browser, bool right_mouse)
 {
 	if (url.empty()) return false;
 	if (dispatchHelp(url, right_mouse)) return true;
-	if (dispatchApp(url, right_mouse)) return true;
+	if (dispatchApp(url, from_external_browser, right_mouse)) return true;
 	if (dispatchRegion(url, right_mouse)) return true;
 
 	/*
@@ -138,17 +139,20 @@ bool LLURLDispatcherImpl::dispatchCore(const std::string& url, bool right_mouse)
 }
 
 // static
-bool LLURLDispatcherImpl::dispatch(const std::string& url)
+bool LLURLDispatcherImpl::dispatch(const std::string& url, bool from_external_browser)
 {
 	llinfos << "url: " << url << llendl;
-	return dispatchCore(url, false);	// not right click
+	const bool right_click = false;
+	return dispatchCore(url, from_external_browser, right_click);
 }
 
 // static
 bool LLURLDispatcherImpl::dispatchRightClick(const std::string& url)
 {
 	llinfos << "url: " << url << llendl;
-	return dispatchCore(url, true);	// yes right click
+	const bool from_external_browser = false;
+	const bool right_click = true;
+	return dispatchCore(url, from_external_browser, right_click);
 }
 // static
 bool LLURLDispatcherImpl::dispatchHelp(const std::string& url, BOOL right_mouse)
@@ -164,7 +168,9 @@ bool LLURLDispatcherImpl::dispatchHelp(const std::string& url, BOOL right_mouse)
 }
 
 // static
-bool LLURLDispatcherImpl::dispatchApp(const std::string& url, BOOL right_mouse)
+bool LLURLDispatcherImpl::dispatchApp(const std::string& url, 
+									  bool from_external_browser,
+									  BOOL right_mouse)
 {
 	if (!isSLURL(url))
 	{
@@ -176,7 +182,8 @@ bool LLURLDispatcherImpl::dispatchApp(const std::string& url, BOOL right_mouse)
 	pathArray.erase(0); // erase "app"
 	std::string cmd = pathArray.get(0);
 	pathArray.erase(0); // erase "cmd"
-	bool handled = LLCommandDispatcher::dispatch(cmd, pathArray, uri.queryMap());
+	bool handled = LLCommandDispatcher::dispatch(
+			cmd, from_external_browser, pathArray, uri.queryMap());
 	return handled;
 }
 
@@ -298,7 +305,9 @@ std::string LLURLDispatcherImpl::stripProtocol(const std::string& url)
 class LLTeleportHandler : public LLCommandHandler
 {
 public:
-	LLTeleportHandler() : LLCommandHandler("teleport") { }
+	// not allowed from outside the app
+	LLTeleportHandler() : LLCommandHandler("teleport", false) { }
+
 	bool handle(const LLSD& tokens, const LLSD& queryMap)
 	{
 		// construct a "normal" SLURL, resolve the region to
@@ -338,14 +347,22 @@ bool LLURLDispatcher::isSLURLCommand(const std::string& url)
 }
 
 // static
-bool LLURLDispatcher::dispatch(const std::string& url)
+bool LLURLDispatcher::dispatch(const std::string& url, bool from_external_browser)
 {
-	return LLURLDispatcherImpl::dispatch(url);
+	return LLURLDispatcherImpl::dispatch(url, from_external_browser);
 }
 // static
 bool LLURLDispatcher::dispatchRightClick(const std::string& url)
 {
 	return LLURLDispatcherImpl::dispatchRightClick(url);
+}
+
+// static
+bool LLURLDispatcher::dispatchFromTextEditor(const std::string& url)
+{
+	// text editors are by definition internal to our code
+	const bool from_external_browser = false;
+	return LLURLDispatcherImpl::dispatch(url, from_external_browser);
 }
 
 // static

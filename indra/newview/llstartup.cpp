@@ -888,7 +888,9 @@ BOOL idle_startup()
 		
 		//For HTML parsing in text boxes.
 		LLTextEditor::setLinkColor( gSavedSettings.getColor4("HTMLLinkColor") );
-		LLTextEditor::setURLCallbacks ( &LLWeb::loadURL, &LLURLDispatcher::dispatch, &LLURLDispatcher::dispatch   );
+		LLTextEditor::setURLCallbacks ( &LLWeb::loadURL,
+				&LLURLDispatcher::dispatchFromTextEditor,
+				&LLURLDispatcher::dispatchFromTextEditor   );
 
 		//-------------------------------------------------
 		// Handle startup progress screen
@@ -1825,8 +1827,8 @@ BOOL idle_startup()
 					}
 					else
 					{
-						//llinfos << "######### QuickTime version (hex) is " << std::hex << LLMediaEngine::getInstance()->getQuickTimeVersion() << llendl;
-						//llinfos << "######### QuickTime version is " << std::dec << LLMediaEngine::getInstance()->getQuickTimeVersion() << llendl;
+						llinfos << "QUICKTIME> QuickTime version (hex) is " << std::hex << LLMediaEngine::getInstance()->getQuickTimeVersion() << llendl;
+						llinfos << "QUICKTIME> QuickTime version is " << std::dec << LLMediaEngine::getInstance()->getQuickTimeVersion() << llendl;
 						if ( LLMediaEngine::getInstance()->getQuickTimeVersion() < LL_MIN_QUICKTIME_VERSION )
 						{
 							// turn off QuickTime if version is less than required
@@ -1842,6 +1844,8 @@ BOOL idle_startup()
 						};
 					};
 				#elif LL_DARWIN
+					llinfos << "QUICKTIME> QuickTime version (hex) is " << std::hex << LLMediaEngine::getInstance()->getQuickTimeVersion() << llendl;
+					llinfos << "QUICKTIME> QuickTime version is " << std::dec << LLMediaEngine::getInstance()->getQuickTimeVersion() << llendl;
 					if ( LLMediaEngine::getInstance()->getQuickTimeVersion() < LL_MIN_QUICKTIME_VERSION )
 					{
 						// turn off QuickTime if version is less than required
@@ -3791,7 +3795,8 @@ bool LLStartUp::dispatchURL()
 	// ok, if we've gotten this far and have a startup URL
 	if (!sSLURLCommand.empty())
 	{
-		LLURLDispatcher::dispatch(sSLURLCommand);
+		const bool from_external_browser = true;
+		LLURLDispatcher::dispatch(sSLURLCommand, from_external_browser);
 	}
 	else if (LLURLSimString::parse())
 	{
@@ -3807,7 +3812,8 @@ bool LLStartUp::dispatchURL()
 			|| (dy*dy > SLOP*SLOP) )
 		{
 			std::string url = LLURLSimString::getURL();
-			LLURLDispatcher::dispatch(url);
+			const bool from_external_browser = true;
+			LLURLDispatcher::dispatch(url, from_external_browser);
 		}
 		return true;
 	}

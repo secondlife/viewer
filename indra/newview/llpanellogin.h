@@ -51,7 +51,8 @@ class LLComboBox;
 class LLLoginHandler : public LLCommandHandler
 {
  public:
-	LLLoginHandler() : LLCommandHandler("login") { }
+	// allow from external browsers
+	LLLoginHandler() : LLCommandHandler("login", true) { }
 	bool handle(const LLSD& tokens, const LLSD& queryMap);
 	bool parseDirectLogin(std::string url);
 	void parse(const LLSD& queryMap);
