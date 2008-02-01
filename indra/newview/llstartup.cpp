@@ -2412,8 +2412,13 @@ BOOL idle_startup()
 
 		LLStartUp::setStartupState( STATE_STARTED );
 
-		// Unmute audio if desired and setup volumes
+		// Unmute audio if desired and setup volumes.
+		// Unmute audio if desired and setup volumes.
+		// This is a not-uncommon crash site, so surround it with
+		// llinfos output to aid diagnosis.
+		llinfos << "Doing first audio_update_volume..." << llendl;
 		audio_update_volume();
+		llinfos << "Done first audio_update_volume." << llendl;
 
 		// reset keyboard focus to sane state of pointing at world
 		gFocusMgr.setKeyboardFocus(NULL);

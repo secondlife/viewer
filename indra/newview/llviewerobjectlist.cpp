@@ -1157,11 +1157,11 @@ U32 LLViewerObjectList::renderObjectsForSelect(LLCamera &camera, BOOL pick_parce
 		LLVOAvatar* avatarp = gAgent.getAvatarObject();
 		if (avatarp)
 		{
-			LLViewerJointAttachment* attachmentp;
-			for (attachmentp = avatarp->mAttachmentPoints.getFirstData();
-				attachmentp;
-				attachmentp = avatarp->mAttachmentPoints.getNextData())
+			for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
+				 iter != avatarp->mAttachmentPoints.end(); )
 			{
+				LLVOAvatar::attachment_map_t::iterator curiter = iter++;
+				LLViewerJointAttachment* attachmentp = curiter->second;
 				if (attachmentp->getIsHUDAttachment())
 				{
 					LLViewerObject* objectp = attachmentp->getObject();

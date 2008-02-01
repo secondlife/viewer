@@ -986,7 +986,8 @@ LLVOAvatar::~LLVOAvatar()
 	delete mSkirtLayerSet;
 	mSkirtLayerSet = NULL;
 
-	mAttachmentPoints.deleteAllData();
+	std::for_each(mAttachmentPoints.begin(), mAttachmentPoints.end(), DeletePairedPointer());
+	mAttachmentPoints.clear();
 
 	delete mTexSkinColor;
 	mTexSkinColor = NULL;
@@ -996,6 +997,7 @@ LLVOAvatar::~LLVOAvatar()
 	mTexEyeColor = NULL;
 
 	std::for_each(mMeshes.begin(), mMeshes.end(), DeletePairedPointer());
+	mMeshes.clear();
 	
 	mDead = TRUE;
 	
@@ -1832,17 +1834,18 @@ void LLVOAvatar::buildCharacter()
 			else
 			{
 				BOOL attachment_found = FALSE;
-				for (LLViewerJointAttachment* attachment = mAttachmentPoints.getFirstData(); 
-					attachment;
-					attachment = mAttachmentPoints.getNextData())
+				for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+					 iter != mAttachmentPoints.end(); )
 				{
+					attachment_map_t::iterator curiter = iter++;
+					LLViewerJointAttachment* attachment = curiter->second;
 					if (attachment->getGroup() == i)
 					{
 						LLMenuItemCallGL* item;
 						item = new LLMenuItemCallGL(attachment->getName(), 
-							NULL, 
-							object_selected_and_point_valid);
-						item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", mAttachmentPoints.reverseLookup(attachment));
+													NULL, 
+													object_selected_and_point_valid);
+						item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", curiter->first);
 						
 						gAttachPieMenu->append(item);
 
@@ -1865,10 +1868,11 @@ void LLVOAvatar::buildCharacter()
 			else
 			{
 				BOOL attachment_found = FALSE;
-				for (LLViewerJointAttachment* attachment = mAttachmentPoints.getFirstData(); 
-					attachment;
-					attachment = mAttachmentPoints.getNextData())
+				for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+					 iter != mAttachmentPoints.end(); )
 				{
+					attachment_map_t::iterator curiter = iter++;
+					LLViewerJointAttachment* attachment = curiter->second;
 					if (attachment->getGroup() == i)
 					{
 						gDetachPieMenu->append(new LLMenuItemCallGL(attachment->getName(), 
@@ -1887,17 +1891,18 @@ void LLVOAvatar::buildCharacter()
 		}
 
 		// add screen attachments
-		for (LLViewerJointAttachment* attachment = mAttachmentPoints.getFirstData(); 
-			attachment;
-			attachment = mAttachmentPoints.getNextData())
+		for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+			 iter != mAttachmentPoints.end(); )
 		{
+			attachment_map_t::iterator curiter = iter++;
+			LLViewerJointAttachment* attachment = curiter->second;
 			if (attachment->getGroup() == 8)
 			{
 				LLMenuItemCallGL* item;
 				item = new LLMenuItemCallGL(attachment->getName(), 
-					NULL, 
-					object_selected_and_point_valid);
-				item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", mAttachmentPoints.reverseLookup(attachment));
+											NULL, 
+											object_selected_and_point_valid);
+				item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", curiter->first);
 				gAttachScreenPieMenu->append(item);
 				gDetachScreenPieMenu->append(new LLMenuItemCallGL(attachment->getName(), 
 							&handle_detach_from_avatar, object_attached, attachment));
@@ -1906,17 +1911,19 @@ void LLVOAvatar::buildCharacter()
 
 		for (S32 pass = 0; pass < 2; pass++)
 		{
-			for (LLViewerJointAttachment* attachment = mAttachmentPoints.getFirstData(); 
-				attachment;
-				attachment = mAttachmentPoints.getNextData())
+			for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+				 iter != mAttachmentPoints.end(); )
 			{
+				attachment_map_t::iterator curiter = iter++;
+				LLViewerJointAttachment* attachment = curiter->second;
 				if (attachment->getIsHUDAttachment() != (pass == 1))
 				{
 					continue;
 				}
 				LLMenuItemCallGL* item = new LLMenuItemCallGL(attachment->getName(), 
-					NULL, &object_selected_and_point_valid, &attach_label, attachment);
-				item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", mAttachmentPoints.reverseLookup(attachment));
+															  NULL, &object_selected_and_point_valid,
+															  &attach_label, attachment);
+				item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", curiter->first);
 				gAttachSubMenu->append(item);
 
 				gDetachSubMenu->append(new LLMenuItemCallGL(attachment->getName(), 
@@ -1939,26 +1946,29 @@ void LLVOAvatar::buildCharacter()
 				continue;
 			}
 
-			std::multimap<S32, LLViewerJointAttachment*> attachment_pie_menu_map;
+			std::multimap<S32, S32> attachment_pie_menu_map;
 
 			// gather up all attachment points assigned to this group, and throw into map sorted by pie slice number
-			for (LLViewerJointAttachment* attachment = mAttachmentPoints.getFirstData(); 
-				attachment;
-				attachment = mAttachmentPoints.getNextData())
+			for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+				 iter != mAttachmentPoints.end(); )
 			{
+				attachment_map_t::iterator curiter = iter++;
+				LLViewerJointAttachment* attachment = curiter->second;
 				if(attachment->getGroup() == group)
 				{
 					// use multimap to provide a partial order off of the pie slice key
-					attachment_pie_menu_map.insert(std::pair<S32, LLViewerJointAttachment*>(attachment->getPieSlice(), attachment));
+					S32 pie_index = attachment->getPieSlice();
+					attachment_pie_menu_map.insert(std::make_pair(pie_index, curiter->first));
 				}
 			}
 
 			// add in requested order to pie menu, inserting separators as necessary
-			std::multimap<S32, LLViewerJointAttachment*>::iterator attach_it;
 			S32 cur_pie_slice = 0;
-			for (attach_it = attachment_pie_menu_map.begin(); attach_it != attachment_pie_menu_map.end(); ++attach_it)
+			for (std::multimap<S32, S32>::iterator attach_it = attachment_pie_menu_map.begin();
+				 attach_it != attachment_pie_menu_map.end(); ++attach_it)
 			{
 				S32 requested_pie_slice = attach_it->first;
+				S32 attach_index = attach_it->second;
 				while (cur_pie_slice < requested_pie_slice)
 				{
 					gAttachBodyPartPieMenus[group]->appendSeparator();
@@ -1966,16 +1976,18 @@ void LLVOAvatar::buildCharacter()
 					cur_pie_slice++;
 				}
 
-				LLViewerJointAttachment* attachment = attach_it->second;
-
-				LLMenuItemCallGL* item = new LLMenuItemCallGL(attachment->getName(), 
-					NULL, object_selected_and_point_valid);
-				gAttachBodyPartPieMenus[group]->append(item);
-				item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", mAttachmentPoints.reverseLookup(attachment));
-				gDetachBodyPartPieMenus[group]->append(new LLMenuItemCallGL(attachment->getName(), 
-					&handle_detach_from_avatar, object_attached, attachment));
-
-				cur_pie_slice++;
+				LLViewerJointAttachment* attachment = get_if_there(mAttachmentPoints, attach_index, (LLViewerJointAttachment*)NULL);
+				if (attachment)
+				{
+					LLMenuItemCallGL* item = new LLMenuItemCallGL(attachment->getName(), 
+																  NULL, object_selected_and_point_valid);
+					gAttachBodyPartPieMenus[group]->append(item);
+					item->addListener(gMenuHolder->getListenerByName("Object.AttachToAvatar"), "on_click", attach_index);
+					gDetachBodyPartPieMenus[group]->append(new LLMenuItemCallGL(attachment->getName(), 
+																				&handle_detach_from_avatar,
+																				object_attached, attachment));
+					cur_pie_slice++;
+				}
 			}
 		}
 	}
@@ -2015,13 +2027,14 @@ void LLVOAvatar::releaseMeshData()
 		facep->setSize(0, 0);
 	}
 	
-	for (LLViewerJointAttachment *attachmentPoint = mAttachmentPoints.getFirstData();
-		attachmentPoint;
-		attachmentPoint = mAttachmentPoints.getNextData())
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+		 iter != mAttachmentPoints.end(); )
 	{
-		if (!attachmentPoint->getIsHUDAttachment())
+		attachment_map_t::iterator curiter = iter++;
+		LLViewerJointAttachment* attachment = curiter->second;
+		if (!attachment->getIsHUDAttachment())
 		{
-			attachmentPoint->setAttachmentVisibility(FALSE);
+			attachment->setAttachmentVisibility(FALSE);
 		}
 	}
 	mMeshValid = FALSE;
@@ -2044,13 +2057,14 @@ void LLVOAvatar::restoreMeshData()
 	}
 	else
 	{
-		for (LLViewerJointAttachment *attachmentPoint = mAttachmentPoints.getFirstData();
-			attachmentPoint;
-			attachmentPoint = mAttachmentPoints.getNextData())
+		for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+			 iter != mAttachmentPoints.end(); )
 		{
-			if (!attachmentPoint->getIsHUDAttachment())
+			attachment_map_t::iterator curiter = iter++;
+			LLViewerJointAttachment* attachment = curiter->second;
+			if (!attachment->getIsHUDAttachment())
 			{
-				attachmentPoint->setAttachmentVisibility(TRUE);
+				attachment->setAttachmentVisibility(TRUE);
 			}
 		}
 	}
@@ -2435,10 +2449,11 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 	// update attachments positions
 	{
 		LLFastTimer t(LLFastTimer::FTM_ATTACHMENT_UPDATE);
-		for(LLViewerJointAttachment *attachment = mAttachmentPoints.getFirstData();
-			attachment;
-			attachment = mAttachmentPoints.getNextData())
+		for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+			 iter != mAttachmentPoints.end(); )
 		{
+			attachment_map_t::iterator curiter = iter++;
+			LLViewerJointAttachment* attachment = curiter->second;
 			LLViewerObject *attached_object = attachment->getObject();
 
 			BOOL visibleAttachment = isVisible() || !(attached_object && attached_object->mDrawable->getSpatialBridge()
@@ -3593,10 +3608,11 @@ void LLVOAvatar::updateVisibility(BOOL force_invisible)
 			llinfos << "PA: " << getPositionAgent() << llendl;
 			/*llinfos << "SPA: " << sel_pos_agent << llendl;
 			llinfos << "WPA: " << wrist_right_pos_agent << llendl;*/
-			for (LLViewerJointAttachment* attachment = mAttachmentPoints.getFirstData(); 
-				attachment;
-				attachment = mAttachmentPoints.getNextData())
+			for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+				 iter != mAttachmentPoints.end(); )
 			{
+				attachment_map_t::iterator curiter = iter++;
+				LLViewerJointAttachment* attachment = curiter->second;
 				if (attachment->getObject())
 				{
 					if(attachment->getObject()->mDrawable->isVisible())
@@ -5103,7 +5119,7 @@ BOOL LLVOAvatar::loadSkeletonNode ()
 				delete attachment;
 				continue;
 			}
-			if (mAttachmentPoints.checkData(attachmentID))
+			if (mAttachmentPoints.find(attachmentID) != mAttachmentPoints.end())
 			{
 				llwarns << "Attachment point redefined with id " << attachmentID << " on attachment point " << info->mName << llendl;
 				delete attachment;
@@ -5768,7 +5784,7 @@ LLViewerJointAttachment* LLVOAvatar::getTargetAttachmentPoint(LLViewerObject* vi
 {
 	S32 attachmentID = ATTACHMENT_ID_FROM_STATE(viewer_object->getState());
 
-	LLViewerJointAttachment* attachment = mAttachmentPoints.getIfThere(attachmentID);
+	LLViewerJointAttachment* attachment = get_if_there(mAttachmentPoints, attachmentID, (LLViewerJointAttachment*)NULL);
 
 	if (!attachment)
 	{
@@ -5813,27 +5829,29 @@ BOOL LLVOAvatar::attachObject(LLViewerObject *viewer_object)
 //-----------------------------------------------------------------------------
 void LLVOAvatar::lazyAttach()
 {
-	for(LLViewerJointAttachment* attachment = mAttachmentPoints.getFirstData();
-		attachment;
-		attachment = mAttachmentPoints.getNextData())
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+		 iter != mAttachmentPoints.end(); )
+	{
+		attachment_map_t::iterator curiter = iter++;
+		LLViewerJointAttachment* attachment = curiter->second;
+		if (attachment->getAttachmentDirty())
 		{
-			if (attachment->getAttachmentDirty())
+			attachment->lazyAttach();
+			if (mIsSelf)
 			{
-				attachment->lazyAttach();
-				if (mIsSelf)
-				{
-					updateAttachmentVisibility(gAgent.getCameraMode());
-				}
+				updateAttachmentVisibility(gAgent.getCameraMode());
 			}
 		}
+	}
 }
 
 void LLVOAvatar::resetHUDAttachments()
 {
-	for(LLViewerJointAttachment* attachment = mAttachmentPoints.getFirstData();
-		attachment;
-		attachment = mAttachmentPoints.getNextData())
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+		 iter != mAttachmentPoints.end(); )
 	{
+		attachment_map_t::iterator curiter = iter++;
+		LLViewerJointAttachment* attachment = curiter->second;
 		if (attachment->getIsHUDAttachment())
 		{
 			LLViewerObject* obj = attachment->getObject();
@@ -5850,10 +5868,11 @@ void LLVOAvatar::resetHUDAttachments()
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
 {
-	for(LLViewerJointAttachment* attachment = mAttachmentPoints.getFirstData();
-		attachment;
-		attachment = mAttachmentPoints.getNextData())
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+		 iter != mAttachmentPoints.end(); )
 	{
+		attachment_map_t::iterator curiter = iter++;
+		LLViewerJointAttachment* attachment = curiter->second;
 		// only one object per attachment point for now
 		if (attachment->getObject() == viewer_object)
 		{
@@ -5862,7 +5881,7 @@ BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
 			if (mIsSelf)
 			{
 				// the simulator should automatically handle
-				// permissiosn revokation
+				// permission revocation
 
 				stopMotionFromSource(viewer_object->getID());
 				LLFollowCamMgr::setCameraActive(viewer_object->getID(), FALSE);
@@ -5871,7 +5890,7 @@ BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
 				{
 					LLViewerObject* child_objectp = viewer_object->mChildList[i];
 					// the simulator should automatically handle
-					// permissions revokation
+					// permissions revocation
 
 					stopMotionFromSource(child_objectp->getID());
 					LLFollowCamMgr::setCameraActive(child_objectp->getID(), FALSE);
@@ -6025,11 +6044,12 @@ LLVOAvatar* LLVOAvatar::findAvatarFromAttachment( LLViewerObject* obj )
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::isWearingAttachment( const LLUUID& inv_item_id )
 {
-	for (LLViewerJointAttachment *attachment_point = mAttachmentPoints.getFirstData();
-		attachment_point;
-		attachment_point = mAttachmentPoints.getNextData())
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+		 iter != mAttachmentPoints.end(); )
 	{
-		if( attachment_point->getItemID() == inv_item_id )
+		attachment_map_t::iterator curiter = iter++;
+		LLViewerJointAttachment* attachment = curiter->second;
+		if( attachment->getItemID() == inv_item_id )
 		{
 			return TRUE;
 		}
@@ -6042,13 +6062,14 @@ BOOL LLVOAvatar::isWearingAttachment( const LLUUID& inv_item_id )
 //-----------------------------------------------------------------------------
 LLViewerObject* LLVOAvatar::getWornAttachment( const LLUUID& inv_item_id )
 {
-	for (LLViewerJointAttachment *attachment_point = mAttachmentPoints.getFirstData();
-		attachment_point;
-		attachment_point = mAttachmentPoints.getNextData())
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+		 iter != mAttachmentPoints.end(); )
 	{
-		if( attachment_point->getItemID() == inv_item_id )
+		attachment_map_t::iterator curiter = iter++;
+		LLViewerJointAttachment* attachment = curiter->second;
+		if( attachment->getItemID() == inv_item_id )
 		{
-			return attachment_point->getObject();
+			return attachment->getObject();
 		}
 	}
 	return NULL;
@@ -6056,13 +6077,14 @@ LLViewerObject* LLVOAvatar::getWornAttachment( const LLUUID& inv_item_id )
 
 const LLString LLVOAvatar::getAttachedPointName(const LLUUID& inv_item_id)
 {
-	for (LLViewerJointAttachment *attachment_point = mAttachmentPoints.getFirstData();
-		attachment_point;
-		attachment_point = mAttachmentPoints.getNextData())
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+		 iter != mAttachmentPoints.end(); )
 	{
-		if( attachment_point->getItemID() == inv_item_id )
+		attachment_map_t::iterator curiter = iter++;
+		LLViewerJointAttachment* attachment = curiter->second;
+		if( attachment->getItemID() == inv_item_id )
 		{
-			return (LLString)attachment_point->getName();
+			return (LLString)attachment->getName();
 		}
 	}
 
@@ -7617,30 +7639,31 @@ void LLVOAvatar::dumpAvatarTEs( const char* context )
 //-----------------------------------------------------------------------------
 void LLVOAvatar::updateAttachmentVisibility(U32 camera_mode)
 {
-	for (LLViewerJointAttachment *attachmentPoint = mAttachmentPoints.getFirstData();
-		attachmentPoint;
-		attachmentPoint = mAttachmentPoints.getNextData())
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+		 iter != mAttachmentPoints.end(); )
 	{
-		if (attachmentPoint->getIsHUDAttachment())
+		attachment_map_t::iterator curiter = iter++;
+		LLViewerJointAttachment* attachment = curiter->second;
+		if (attachment->getIsHUDAttachment())
 		{
-			attachmentPoint->setAttachmentVisibility(TRUE);
+			attachment->setAttachmentVisibility(TRUE);
 		}
 		else
 		{
 			switch (camera_mode)
 			{
 			case CAMERA_MODE_MOUSELOOK:
-				if (LLVOAvatar::sVisibleInFirstPerson && attachmentPoint->getVisibleInFirstPerson())
+				if (LLVOAvatar::sVisibleInFirstPerson && attachment->getVisibleInFirstPerson())
 				{
-					attachmentPoint->setAttachmentVisibility(TRUE);
+					attachment->setAttachmentVisibility(TRUE);
 				}
 				else
 				{
-					attachmentPoint->setAttachmentVisibility(FALSE);
+					attachment->setAttachmentVisibility(FALSE);
 				}
 				break;
 			default:
-				attachmentPoint->setAttachmentVisibility(TRUE);
+				attachment->setAttachmentVisibility(TRUE);
 				break;
 			}
 		}
@@ -7789,39 +7812,45 @@ BOOL LLVOAvatar::isWearingWearableType( EWearableType type )
 //-----------------------------------------------------------------------------
 void LLVOAvatar::clampAttachmentPositions()
 {
-	if (isDead()) return;
-	for(LLViewerJointAttachment *attachment = mAttachmentPoints.getFirstData();
-		attachment;
-		attachment = mAttachmentPoints.getNextData())
+	if (isDead())
+	{
+		return;
+	}
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+		 iter != mAttachmentPoints.end(); )
+	{
+		attachment_map_t::iterator curiter = iter++;
+		LLViewerJointAttachment* attachment = curiter->second;
+		if (attachment)
 		{
-			if (attachment)
-			{
-				attachment->clampObjectPosition();
-			}
+			attachment->clampObjectPosition();
 		}
+	}
 }
 
 BOOL LLVOAvatar::hasHUDAttachment()
 {
-	for(LLViewerJointAttachment *attachment = mAttachmentPoints.getFirstData();
-		attachment;
-		attachment = mAttachmentPoints.getNextData())
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+		 iter != mAttachmentPoints.end(); )
+	{
+		attachment_map_t::iterator curiter = iter++;
+		LLViewerJointAttachment* attachment = curiter->second;
+		if (attachment->getIsHUDAttachment() && attachment->getObject())
 		{
-			if (attachment->getIsHUDAttachment() && attachment->getObject())
-			{
-				return TRUE;
-			}
+			return TRUE;
 		}
+	}
 	return FALSE;
 }
 
 LLBBox LLVOAvatar::getHUDBBox()
 {
 	LLBBox bbox;
-	for(LLViewerJointAttachment *attachment = mAttachmentPoints.getFirstData();
-	attachment;
-	attachment = mAttachmentPoints.getNextData())
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+		 iter != mAttachmentPoints.end(); )
 	{
+		attachment_map_t::iterator curiter = iter++;
+		LLViewerJointAttachment* attachment = curiter->second;
 		if (attachment->getIsHUDAttachment() && attachment->getObject())
 		{
 			LLViewerObject* hud_object = attachment->getObject();
@@ -9237,48 +9266,50 @@ void LLVOAvatar::writeCAL3D(std::string& path, std::string& file_base)
 	std::multimap<LLUUID, LLMaterialExportInfo*> material_map;
 
 	S32 num_attachment_objects = 0;
-	for(LLViewerJointAttachment *attachment = mAttachmentPoints.getFirstData();
-		attachment;
-		attachment = mAttachmentPoints.getNextData())
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+		 iter != mAttachmentPoints.end(); )
+	{
+		attachment_map_t::iterator curiter = iter++;
+		LLViewerJointAttachment* attachment = curiter->second;
+		LLViewerObject *attached_object = attachment->getObject();
+		if (attached_object && !attached_object->isDead() && attached_object->mDrawable.notNull() &&
+			attached_object->getPCode() == LL_PCODE_VOLUME)
 		{
-			LLViewerObject *attached_object = attachment->getObject();
-			if (attached_object && !attached_object->isDead() && attached_object->mDrawable.notNull() &&
-				attached_object->getPCode() == LL_PCODE_VOLUME)
+			num_attachment_objects += attached_object->mDrawable->getNumFaces(); 
+			for (U32 i = 0; i < attached_object->mChildList.size(); i++)
 			{
-				num_attachment_objects += attached_object->mDrawable->getNumFaces(); 
-				for (U32 i = 0; i < attached_object->mChildList.size(); i++)
-				{
-					LLViewerObject* child_object = attached_object->mChildList[i];
-					num_attachment_objects += child_object->mDrawable->getNumFaces();
-				}
+				LLViewerObject* child_object = attached_object->mChildList[i];
+				num_attachment_objects += child_object->mDrawable->getNumFaces();
 			}
 		}
+	}
 
 	apr_file_printf(fp, "<MESH VERSION=\"1000\" NUMSUBMESH=\"%d\">\n", num_attachment_objects);
 
 	S32 material_index = 6;
 	S32 texture_index = 6;
-	for(LLViewerJointAttachment *attachment = mAttachmentPoints.getFirstData();
-		attachment;
-		attachment = mAttachmentPoints.getNextData())
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+		 iter != mAttachmentPoints.end(); )
+	{
+		attachment_map_t::iterator curiter = iter++;
+		LLViewerJointAttachment* attachment = curiter->second;
+		LLViewerObject *attached_object = attachment->getObject();
+		if (attached_object && !attached_object->isDead() && attached_object->getPCode() == LL_PCODE_VOLUME)
 		{
-			LLViewerObject *attached_object = attachment->getObject();
-			if (attached_object && !attached_object->isDead() && attached_object->getPCode() == LL_PCODE_VOLUME)
+			LLVOVolume* attached_volume = (LLVOVolume*)attached_object;
+			LLVector3 pos = attachment->getPosition();
+			LLJoint* cur_joint = attachment->getParent();
+			while (cur_joint)
 			{
-				LLVOVolume* attached_volume = (LLVOVolume*)attached_object;
-				LLVector3 pos = attachment->getPosition();
-				LLJoint* cur_joint = attachment->getParent();
-				while (cur_joint)
-				{
-					pos += cur_joint->getSkinOffset();
-					cur_joint = (LLViewerJoint*)cur_joint->getParent();
-				}
-				pos *= 100.f;
-				S32 attached_joint_num = attachment->getParent()->mJointNum;
-				LLQuaternion rot = attachment->getRotation();
-				attached_volume->writeCAL3D(fp, path, file_base, attached_joint_num, pos, rot, material_index, texture_index, material_map);
+				pos += cur_joint->getSkinOffset();
+				cur_joint = (LLViewerJoint*)cur_joint->getParent();
 			}
+			pos *= 100.f;
+			S32 attached_joint_num = attachment->getParent()->mJointNum;
+			LLQuaternion rot = attachment->getRotation();
+			attached_volume->writeCAL3D(fp, path, file_base, attached_joint_num, pos, rot, material_index, texture_index, material_map);
 		}
+	}
 	apr_file_printf(fp, "</MESH>\n");
 	apr_file_close(fp);
 
@@ -9378,7 +9409,7 @@ void LLVOAvatar::writeCAL3D(std::string& path, std::string& file_base)
 // warning: order(N) not order(1)
 S32 LLVOAvatar::getAttachmentCount()
 {
-	S32 count = mAttachmentPoints.getLength();
+	S32 count = mAttachmentPoints.size();
 	return count;
 }
 

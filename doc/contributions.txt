@@ -52,6 +52,8 @@ Boroondas Gupte
 bushing Spatula
 	VWR-119
 	VWR-424
+Carjay McGinnis
+	VWR-3737
 Catherine Pfeffer
 	VWR-1282
 Dale Glass
@@ -166,6 +168,8 @@ McCabe Maxsted
 Michelle2 Zenovka
 	VWR-2652
 	VWR-2834
+Mm Alder
+	VWR-3777
 Mr Greggan
 	VWR-445
 Nicholaz Beresford
@@ -175,6 +179,7 @@ Nicholaz Beresford
 	VWR-349
 	VWR-353
 	VWR-364
+	VWR-374
 	VWR-546
 	VWR-691
 	VWR-727

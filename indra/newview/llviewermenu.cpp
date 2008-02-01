@@ -2009,11 +2009,12 @@ class LLSelfEnableRemoveAllAttachments : public view_listener_t
 		if (gAgent.getAvatarObject())
 		{
 			LLVOAvatar* avatarp = gAgent.getAvatarObject();
-			for (LLViewerJointAttachment* attachmentp = avatarp->mAttachmentPoints.getFirstData();
-				attachmentp;
-				attachmentp = avatarp->mAttachmentPoints.getNextData())
+			for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
+				 iter != avatarp->mAttachmentPoints.end(); )
 			{
-				if (attachmentp->getObject())
+				LLVOAvatar::attachment_map_t::iterator curiter = iter++;
+				LLViewerJointAttachment* attachment = curiter->second;
+				if (attachment->getObject())
 				{
 					new_value = true;
 					break;
@@ -5695,9 +5696,9 @@ private:
 		if (selectedObject)
 		{
 			S32 index = userdata.asInteger();
-			LLViewerJointAttachment* attachment_point = index > 0 ?
-				gAgent.getAvatarObject()->mAttachmentPoints[index] :
-				NULL;
+			LLViewerJointAttachment* attachment_point = NULL;
+			if (index > 0)
+				attachment_point = get_if_there(gAgent.getAvatarObject()->mAttachmentPoints, index, (LLViewerJointAttachment*)NULL);
 			confirm_replace_attachment(0, attachment_point);
 		}
 		return true;
@@ -5715,10 +5716,18 @@ void near_attach_object(BOOL success, void *user_data)
 	{
 		LLViewerJointAttachment *attachment = (LLViewerJointAttachment *)user_data;
 		
-		U8 attachment_id;
+		U8 attachment_id = 0;
 		if (attachment)
 		{
-			attachment_id = gAgent.getAvatarObject()->mAttachmentPoints.reverseLookup(attachment);
+			for (LLVOAvatar::attachment_map_t::iterator iter = gAgent.getAvatarObject()->mAttachmentPoints.begin();
+				 iter != gAgent.getAvatarObject()->mAttachmentPoints.end(); ++iter)
+			{
+				if (iter->second == attachment)
+				{
+					attachment_id = iter->first;
+					break;
+				}
+			}
 		}
 		else
 		{
@@ -5954,7 +5963,7 @@ class LLAttachmentEnableDrop : public view_listener_t
 		if ( object )
 		{
     		S32 attachmentID  = ATTACHMENT_ID_FROM_STATE(object->getState());
-  				attachment_pt = gAgent.getAvatarObject()->mAttachmentPoints.getIfThere(attachmentID);
+			attachment_pt = get_if_there(gAgent.getAvatarObject()->mAttachmentPoints, attachmentID, (LLViewerJointAttachment*)NULL);
 
 			if ( attachment_pt )
 			{
@@ -6322,11 +6331,12 @@ void handle_dump_attachments(void*)
 		return;
 	}
 
-	for( LLViewerJointAttachment* attachment = avatar->mAttachmentPoints.getFirstData();
-		attachment;
-		attachment = avatar->mAttachmentPoints.getNextData() )
+	for (LLVOAvatar::attachment_map_t::iterator iter = avatar->mAttachmentPoints.begin(); 
+		 iter != avatar->mAttachmentPoints.end(); )
 	{
-		S32 key = avatar->mAttachmentPoints.getCurrentKeyWithoutIncrement();
+		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
+		LLViewerJointAttachment* attachment = curiter->second;
+		S32 key = curiter->first;
 		BOOL visible = (attachment->getObject() != NULL &&
 						attachment->getObject()->mDrawable.notNull() && 
 						!attachment->getObject()->mDrawable->isRenderType(0));

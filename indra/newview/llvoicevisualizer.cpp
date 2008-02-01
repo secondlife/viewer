@@ -451,6 +451,7 @@ void LLVoiceVisualizer::markDead()
 	mVoiceEnabled			= false;
 	mSoundSymbol.mActive	= false;
 
+	LLHUDEffect::markDead();
 }//------------------------------------------------------------------
 
 

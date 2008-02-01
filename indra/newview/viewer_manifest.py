@@ -445,7 +445,7 @@ class LinuxManifest(ViewerManifest):
         def construct(self):
                 super(LinuxManifest, self).construct()
                 self.path("licenses-linux.txt","licenses.txt")
-                self.path("res/ll_icon.ico","secondlife.ico")
+                #self.path("res/ll_icon.ico","secondlife.ico")
                 if self.prefix("linux_tools", ""):
                         self.path("client-readme.txt","README-linux.txt")
                         self.path("client-readme-voice.txt","README-linux-voice.txt")
@@ -495,7 +495,7 @@ class Linux_i686Manifest(LinuxManifest):
                         self.end_prefix("res-sdl")
 
                 self.path("featuretable_linux.txt")
-                self.path("secondlife-i686.supp")
+                #self.path("secondlife-i686.supp")
 
                 self.path("app_settings/mozilla-runtime-linux-i686")
 

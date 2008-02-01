@@ -174,7 +174,20 @@ BOOL LLViewerJointAttachment::addObject(LLViewerObject* object)
 	if (mAttachedObject)
 	{
 		llwarns << "Attempted to attach object where an attachment already exists!" << llendl;
-		return FALSE;
+		
+		if (mAttachedObject == object) {
+			llinfos << "(same object re-attached)" << llendl;
+			removeObject(mAttachedObject);
+			// Pass through anyway to let setupDrawable()
+			// re-connect object to the joint correctly
+		}
+		else {
+			llinfos << "(objects differ, removing existing object)" << llendl;
+			// Rather hacky, but no-one can think of something
+			// better to do for this case.
+			gObjectList.killObject(mAttachedObject);
+			// Proceed with new object attachment
+		}
 	}
 	mAttachedObject = object;
 	

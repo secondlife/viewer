@@ -3273,8 +3273,20 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 {
 	LLAttachmentRezAction* rez_action = new LLAttachmentRezAction;
 	rez_action->mItemID = item->getUUID();
-	rez_action->mAttachPt = gAgent.getAvatarObject()->mAttachmentPoints.reverseLookup(attachment);
-
+	S32 attach_pt = 0;
+	if (gAgent.getAvatarObject() && attachment)
+	{
+		for (LLVOAvatar::attachment_map_t::iterator iter = gAgent.getAvatarObject()->mAttachmentPoints.begin();
+			 iter != gAgent.getAvatarObject()->mAttachmentPoints.end(); ++iter)
+		{
+			if (iter->second == attachment)
+			{
+				rez_action->mAttachPt = iter->first;
+				break;
+			}
+		}
+	}
+	rez_action->mAttachPt = attach_pt;
 	if (attachment && attachment->getObject())
 	{
 		gViewerWindow->alertXml("ReplaceAttachment", confirm_replace_attachment_rez, (void*)rez_action);
@@ -3365,10 +3377,11 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 					attach_hud_menu && (attach_hud_menu->getChildCount() == 0) &&
 					avatarp)
 				{
-					for (LLViewerJointAttachment* attachment = avatarp->mAttachmentPoints.getFirstData(); 
-						attachment;
-						attachment = gAgent.getAvatarObject()->mAttachmentPoints.getNextData())
+					for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
+						 iter != avatarp->mAttachmentPoints.end(); )
 					{
+						LLVOAvatar::attachment_map_t::iterator curiter = iter++;
+						LLViewerJointAttachment* attachment = curiter->second;
 						LLMenuItemCallGL *new_item;
 						if (attachment->getIsHUDAttachment())
 						{

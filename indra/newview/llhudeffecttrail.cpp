@@ -84,7 +84,7 @@ void LLHUDEffectSpiral::markDead()
 		mPartSourcep->setDead();
 		mPartSourcep = NULL;
 	}
-	LLHUDObject::markDead();
+	LLHUDEffect::markDead();
 }
 
 void LLHUDEffectSpiral::packData(LLMessageSystem *mesgsys)

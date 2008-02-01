@@ -3373,10 +3373,11 @@ void LLAgent::updateCamera()
 
 		mAvatarObject->mRoot.updateWorldMatrixChildren();
 
-		for(LLViewerJointAttachment *attachment = mAvatarObject->mAttachmentPoints.getFirstData();
-			attachment;
-			attachment = mAvatarObject->mAttachmentPoints.getNextData())
+		for (LLVOAvatar::attachment_map_t::iterator iter = mAvatarObject->mAttachmentPoints.begin(); 
+			 iter != mAvatarObject->mAttachmentPoints.end(); )
 		{
+			LLVOAvatar::attachment_map_t::iterator curiter = iter++;
+			LLViewerJointAttachment* attachment = curiter->second;
 			LLViewerObject *attached_object = attachment->getObject();
 			if (attached_object && !attached_object->isDead() && attached_object->mDrawable.notNull())
 			{
@@ -5749,6 +5750,19 @@ bool LLAgent::teleportCore(bool is_local)
 		return false;
 	}
 
+	// Stop all animation before actual teleporting 
+	LLVOAvatar* avatarp = gAgent.getAvatarObject();
+	if (avatarp)
+	{
+		for ( LLVOAvatar::AnimIterator anim_it= avatarp->mPlayingAnimations.begin()
+			; anim_it != avatarp->mPlayingAnimations.end()
+			; anim_it++)
+		{
+			avatarp->stopMotion(anim_it->first);
+		}
+		avatarp->processAnimationStateChanges();
+	}
+
 	// Don't call LLFirstUse::useTeleport because we don't know
 	// yet if the teleport will succeed.  Look in 
 	// process_teleport_location_reply
@@ -6830,11 +6844,10 @@ void LLAgent::makeNewOutfit(
 	{
 		BOOL msg_started = FALSE;
 		LLMessageSystem* msg = gMessageSystem;
-		S32 i;
-		for( i = 0; i < attachments_to_include.count(); i++ )
+		for( S32 i = 0; i < attachments_to_include.count(); i++ )
 		{
 			S32 attachment_pt = attachments_to_include[i];
-			LLViewerJointAttachment* attachment = mAvatarObject->mAttachmentPoints.getIfThere( attachment_pt );
+			LLViewerJointAttachment* attachment = get_if_there(mAvatarObject->mAttachmentPoints, attachment_pt, (LLViewerJointAttachment*)NULL );
 			if(!attachment) continue;
 			LLViewerObject* attached_object = attachment->getObject();
 			if(!attached_object) continue;
@@ -7454,11 +7467,11 @@ void LLAgent::userRemoveAllAttachments( void* userdata )
 	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
 	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 
-	LLViewerJointAttachment* attachment;
-	for (attachment = avatarp->mAttachmentPoints.getFirstData();
-		 attachment;
-		 attachment = avatarp->mAttachmentPoints.getNextData())
+	for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
+		 iter != avatarp->mAttachmentPoints.end(); )
 	{
+		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
+		LLViewerJointAttachment* attachment = curiter->second;
 		LLViewerObject* objectp = attachment->getObject();
 		if (objectp)
 		{

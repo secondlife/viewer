@@ -845,7 +845,8 @@ public:
 	static S32 sScratchTexBytes;
 
 	// map of attachment points, by ID
-	LLPtrSkipMap<S32, LLViewerJointAttachment*> mAttachmentPoints;
+	typedef std::map<S32, LLViewerJointAttachment*> attachment_map_t;
+	attachment_map_t mAttachmentPoints;
 
 	// xml parse tree of avatar config file
 	static LLXmlTree sXMLTree;

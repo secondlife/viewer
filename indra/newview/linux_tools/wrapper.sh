@@ -61,10 +61,16 @@ fi
 
 SCRIPTSRC=`readlink -f "$0" || echo "$0"`
 RUN_PATH=`dirname "${SCRIPTSRC}" || echo .`
+echo "Running from ${RUN_PATH}"
 cd "${RUN_PATH}"
 
 # Re-register the secondlife:// protocol handler every launch, for now.
 ./register_secondlifeprotocol.sh
+## Before we mess with LD_LIBRARY_PATH, save the old one to restore for
+##  subprocesses that care.
+if [ "${LD_LIBRARY_PATH+isset}" = "isset" ]; then
+    export SAVED_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
+fi
 
 if [ -n "$LL_TCMALLOC" ]; then
     tcmalloc_libs='/usr/lib/libtcmalloc.so.0 /usr/lib/libstacktrace.so.0 /lib/libpthread.so.0'

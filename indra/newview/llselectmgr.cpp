@@ -612,6 +612,10 @@ void LLSelectMgr::deselectObjectAndFamily(LLViewerObject* object, BOOL send_to_s
 		msg->addU32Fast(_PREHASH_ObjectLocalID, (objects[i])->getLocalID());
 		select_count++;
 
+		// Zap the angular velocity, as the sim will set it to zero
+		objects[i]->setAngularVelocity( 0,0,0 );
+		objects[i]->setVelocity( 0,0,0 );
+
 		if(msg->isSendFull(NULL) || select_count >= MAX_OBJECTS_PER_PACKET)
 		{
 			msg->sendReliable(regionp->getHost() );
@@ -634,6 +638,10 @@ void LLSelectMgr::deselectObjectOnly(LLViewerObject* object, BOOL send_to_sim)
 	// bail if nothing selected or if object wasn't selected in the first place
 	if (!object) return;
 	if (!object->isSelected() ) return;
+
+	// Zap the angular velocity, as the sim will set it to zero
+	object->setAngularVelocity( 0,0,0 );
+	object->setVelocity( 0,0,0 );
 
 	if (send_to_sim)
 	{
@@ -3276,6 +3284,15 @@ void LLSelectMgr::deselectAll()
 		return;
 	}
 
+	// Zap the angular velocity, as the sim will set it to zero
+	for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
+		 iter != mSelectedObjects->end(); iter++ )
+	{
+		LLViewerObject *objectp = (*iter)->getObject();
+		objectp->setAngularVelocity( 0,0,0 );
+		objectp->setVelocity( 0,0,0 );
+	}
+
 	sendListToRegions(
 		"ObjectDeselect",
 		packAgentAndSessionID,
@@ -3429,7 +3446,7 @@ void LLSelectMgr::sendAttach(U8 attachment_point)
 	BOOL build_mode = gToolMgr->inEdit();
 	// Special case: Attach to default location for this object.
 	if (0 == attachment_point ||
-		gAgent.getAvatarObject()->mAttachmentPoints.getIfThere(attachment_point))
+		get_if_there(gAgent.getAvatarObject()->mAttachmentPoints, (S32)attachment_point, (LLViewerJointAttachment*)NULL))
 	{
 		sendListToRegions(
 			"ObjectAttach",

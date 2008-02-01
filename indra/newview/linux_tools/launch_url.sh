@@ -17,8 +17,14 @@
 URL="$1"
 
 if [ -z "$URL" ]; then
-    echo Usage: $0 URL
+    echo "Usage: $0 URL"
     exit
+fi
+
+# restore LD_LIBRARY_PATH from SAVED_LD_LIBRARY_PATH if it exists
+if [ "${SAVED_LD_LIBRARY_PATH+isset}" = "isset" ]; then
+    export LD_LIBRARY_PATH="${SAVED_LD_LIBRARY_PATH}"
+    echo "$0: Restored library path to '${SAVED_LD_LIBRARY_PATH}'"
 fi
 
 # if $BROWSER is defined, use it.
@@ -37,8 +43,8 @@ if [ ! -z "$XBROWSER" ]; then
 	$XBROWSER "$URL" &
 	exit
     fi
-    echo "Couldn't find the browser specified by \$BROWSER ($BROWSER)"
-    echo "Trying some others..."
+    echo "$0: Couldn't find the browser specified by \$BROWSER ($BROWSER)"
+    echo "$0: Trying some others..."
 fi
 
 # else kfmclient
@@ -81,6 +87,6 @@ if which netscape >/dev/null; then
     exit
 fi
 
-echo 'Failed to find a known browser.  Please consider setting the $BROWSER environment variable.'
+echo '$0: Failed to find a known browser.  Please consider setting the $BROWSER environment variable.'
 
 # end.
