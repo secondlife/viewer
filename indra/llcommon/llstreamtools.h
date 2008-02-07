@@ -114,7 +114,12 @@ void get_keyword_and_value(std::string& keyword,
 // continue to read from the stream until you really can't
 // read anymore or until we hit the count.  Some istream
 // implimentations have a max that they will read.
-std::istream& fullread(std::istream& str, char *buf, std::streamsize requested);
+// Returns the number of bytes read.
+std::streamsize fullread(
+	std::istream& istr,
+	char* buf,
+	std::streamsize requested);
+
 
 std::istream& operator>>(std::istream& str, const char *tocheck);
 

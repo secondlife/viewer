@@ -634,7 +634,7 @@ namespace tut
 		ensure_equals("size of buffer", count, total_size);
 		LLBufferStream istr(ch, &mBuffer);
 		LLSD data;
-		count = LLSDSerialize::fromNotation(data, istr);
+		count = LLSDSerialize::fromNotation(data, istr, total_size);
 		ensure("sd parsed", data.isDefined());
 
 		for(S32 j = 0; j < 3; ++j)
@@ -699,7 +699,7 @@ namespace tut
 		ensure_equals("size of buffer", count, total_size);
 		LLBufferStream istr(ch, &mBuffer);
 		LLSD data;
-		count = LLSDSerialize::fromNotation(data, istr);
+		count = LLSDSerialize::fromNotation(data, istr, total_size);
 		ensure("sd parsed", data.isDefined());
 	}
 
@@ -735,7 +735,10 @@ namespace tut
 		ch = mBuffer.nextChannel();
 		LLBufferStream istr(ch, &mBuffer);
 		LLSD data;
-		S32 count = LLSDSerialize::fromNotation(data, istr);
+		S32 count = LLSDSerialize::fromNotation(
+			data,
+			istr,
+			mBuffer.count(ch.in()));
 		ensure("parsed something", (count > 0));
 		ensure("sd parsed", data.isDefined());
 		ensure_equals("sd type", data.type(), LLSD::TypeMap);
@@ -780,7 +783,7 @@ namespace tut
 		std::istringstream istr;
 		istr.str(val);
 		LLSD sd;
-		S32 count = LLSDSerialize::fromNotation(sd, istr);
+		S32 count = LLSDSerialize::fromNotation(sd, istr, val.size());
 		ensure_equals("parser error return value", count, -1);
 		ensure("data undefined", sd.isUndefined());
 	}
@@ -792,7 +795,7 @@ namespace tut
 		std::istringstream istr;
 		istr.str(val);
 		LLSD sd;
-		S32 count = LLSDSerialize::fromNotation(sd, istr);
+		S32 count = LLSDSerialize::fromNotation(sd, istr, val.size());
 		ensure_equals("parser error return value", count, -1);
 		ensure("data undefined", sd.isUndefined());
 	}
@@ -1324,7 +1327,10 @@ namespace tut
 				  << "}]";
 
 		LLSD request;
-		S32 count = LLSDSerialize::fromNotation(request, stream);
+		S32 count = LLSDSerialize::fromNotation(
+			request,
+			stream,
+			stream.str().size());
 		ensure("parsed something", (count > 0));
 
 		pump_loop(request);
@@ -1425,7 +1431,10 @@ namespace tut
 		LLChannelDescriptors read_channel = buffer.nextChannel();
 		LLBufferStream read_stream(read_channel, &buffer);
 		LLSD request;
-		S32 count = LLSDSerialize::fromNotation(request, read_stream);
+		S32 count = LLSDSerialize::fromNotation(
+			request,
+			read_stream,
+			buffer.count(read_channel.in()));
 		ensure("parsed something", (count > 0));
 		ensure("deserialized", request.isDefined());
 
@@ -1487,7 +1496,10 @@ namespace tut
 		str << "{'message':'" << LLSDNotationFormatter::escapeString(message)
 			<< "'}";
 		LLSD request;
-		S32 count = LLSDSerialize::fromNotation(request, str);
+		S32 count = LLSDSerialize::fromNotation(
+			request,
+			str,
+			str.str().size());
 		ensure_equals("parse count", count, 2);
 		ensure_equals("request type", request.type(), LLSD::TypeMap);
 		pump_loop(request);
@@ -1510,7 +1522,7 @@ namespace tut
 		std::istringstream istr;
 		istr.str(val);
 		LLSD sd;
-		LLSDSerialize::fromNotation(sd, istr);
+		LLSDSerialize::fromNotation(sd, istr, val.size());
 		pump_loop(sd);
 		ensure("valid response", mResponse.isDefined());
 		ensure_equals("parsed type", mResponse.type(), LLSD::TypeMap);

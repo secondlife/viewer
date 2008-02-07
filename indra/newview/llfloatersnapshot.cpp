@@ -1126,7 +1126,7 @@ void LLFloaterSnapshot::Impl::onCommitResolution(LLUICtrl* ctrl, void* data)
 	std::string sdstring = combobox->getSelectedValue();
 	LLSD sdres;
 	std::stringstream sstream(sdstring);
-	LLSDSerialize::fromNotation(sdres, sstream);
+	LLSDSerialize::fromNotation(sdres, sstream, sdstring.size());
 		
 	S32 width = sdres[0];
 	S32 height = sdres[1];

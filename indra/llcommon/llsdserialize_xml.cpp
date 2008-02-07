@@ -305,6 +305,7 @@ private:
 	XML_Parser	mParser;
 
 	LLSD mResult;
+	S32 mParseCount;
 	
 	bool mInLLSDElement;
 	bool mGracefullStop;
@@ -411,12 +412,12 @@ S32 LLSDXMLParser::Impl::parse(std::istream& input, LLSD& data)
 		}
 		llinfos << "LLSDXMLParser::Impl::parse: XML_STATUS_ERROR parsing:" << (char*) buffer << llendl;
 		data = LLSD();
-		return -1;
+		return LLSDParser::PARSE_FAILURE;
 	}
 
 	clear_eol(input);
 	data = mResult;
-	return 1;
+	return mParseCount;
 }
 
 void LLSDXMLParser::Impl::reset()
@@ -428,6 +429,7 @@ void LLSDXMLParser::Impl::reset()
 	}
 
 	mResult.clear();
+	mParseCount = 0;
 
 	mInLLSDElement = false;
 	mDepth = 0;
@@ -472,7 +474,7 @@ LLSDXMLParser::Impl::findAttribute(const XML_Char* name, const XML_Char** pairs)
 	return NULL;
 }
 
-void LLSDXMLParser::Impl::parsePart(const char *buf, int len)
+void LLSDXMLParser::Impl::parsePart(const char* buf, int len)
 {
 	void * buffer = XML_GetBuffer(mParser, len);
 	if (buffer != NULL && buf != NULL)
@@ -486,7 +488,7 @@ void LLSDXMLParser::Impl::parsePart(const char *buf, int len)
 
 void LLSDXMLParser::Impl::startElementHandler(const XML_Char* name, const XML_Char** attributes)
 {
-	mDepth += 1;
+	++mDepth;
 	if (mSkipping)
 	{
 		return;
@@ -554,6 +556,7 @@ void LLSDXMLParser::Impl::startElementHandler(const XML_Char* name, const XML_Ch
 		return startSkipping();
 	}
 
+	++mParseCount;
 	switch (element)
 	{
 		case ELEMENT_MAP:
@@ -572,7 +575,7 @@ void LLSDXMLParser::Impl::startElementHandler(const XML_Char* name, const XML_Ch
 
 void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
 {
-	mDepth -= 1;
+	--mDepth;
 	if (mSkipping)
 	{
 		if (mDepth < mSkipThrough)
@@ -715,10 +718,10 @@ LLSDXMLParser::Impl::Element LLSDXMLParser::Impl::readElement(const XML_Char* na
 
 
 
-
-
-LLSDXMLParser::LLSDXMLParser()
-	: impl(* new Impl)
+/**
+ * LLSDXMLParser
+ */
+LLSDXMLParser::LLSDXMLParser() : impl(* new Impl)
 {
 }
 
@@ -733,7 +736,7 @@ void LLSDXMLParser::parsePart(const char *buf, int len)
 }
 
 // virtual
-S32 LLSDXMLParser::parse(std::istream& input, LLSD& data) const
+S32 LLSDXMLParser::doParse(std::istream& input, LLSD& data) const
 {
 	return impl.parse(input, data);	
 }

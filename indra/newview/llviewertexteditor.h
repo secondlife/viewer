@@ -107,15 +107,16 @@ protected:
 
 	BOOL			getEmbeddedItemToolTipAtPos(S32 pos, LLWString &wmsg);
 	BOOL			openEmbeddedItemAtPos( S32 pos );
-	BOOL			openEmbeddedItem(LLInventoryItem* item, BOOL saved);
+	BOOL			openEmbeddedItem(LLInventoryItem* item);
 
 	S32				insertEmbeddedItem(S32 pos, LLInventoryItem* item);
 
 	void			openEmbeddedTexture( LLInventoryItem* item );
 	void			openEmbeddedSound( LLInventoryItem* item );
 	void			openEmbeddedLandmark( LLInventoryItem* item );
-	void			openEmbeddedNotecard( LLInventoryItem* item, BOOL saved );
+	void			openEmbeddedNotecard( LLInventoryItem* item);
 	void			showCopyToInvDialog( LLInventoryItem* item );
+	void			showUnsavedAlertDialog( LLInventoryItem* item );
 
 	static void		onCopyToInvDialog( S32 option, void* userdata );
 	static void		onNotecardDialog( S32 option, void* userdata );

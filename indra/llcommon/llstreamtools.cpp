@@ -538,23 +538,32 @@ void get_keyword_and_value(std::string& keyword,
 	}
 }
 
-std::istream& fullread(std::istream& str, char *buf, std::streamsize requested)
+std::streamsize fullread(
+	std::istream& istr,
+	char* buf,
+	std::streamsize requested)
 {
 	std::streamsize got;
 	std::streamsize total = 0;
 
-	str.read(buf, requested);	 /*Flawfinder: ignore*/
-	got = str.gcount();
+	istr.read(buf, requested);	 /*Flawfinder: ignore*/
+	got = istr.gcount();
 	total += got;
-	while (got && total < requested)
+	while(got && total < requested)
 	{
-		if (str.fail())
-			str.clear();
-		str.read(buf + total, requested - total);	 /*Flawfinder: ignore*/
-		got = str.gcount();
+		if(istr.fail())
+		{
+			// If bad is true, not much we can doo -- it implies loss
+			// of stream integrity. Bail in that case, and otherwise
+			// clear and attempt to continue.
+			if(istr.bad()) return total;
+			istr.clear();
+		}
+		istr.read(buf + total, requested - total);	 /*Flawfinder: ignore*/
+		got = istr.gcount();
 		total += got;
 	}
-	return str;
+	return total;
 }
 
 std::istream& operator>>(std::istream& str, const char *tocheck)

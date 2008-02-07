@@ -40,7 +40,7 @@
 
 /** 
  * @class LLSDParser
- * @brief Abstract base class for simple LLSD parsers.
+ * @brief Abstract base class for LLSD parsers.
  */
 class LLSDParser : public LLRefCount
 {
@@ -51,6 +51,14 @@ protected:
 	virtual ~LLSDParser();
 
 public:
+	/** 
+	 * @brief Anonymous enum to indicate parsing failure.
+	 */
+	enum
+	{
+		PARSE_FAILURE = -1
+	};
+
 	/** 
 	 * @brief Constructor
 	 */
@@ -67,12 +75,122 @@ public:
 	 * caller.
 	 * @param istr The input stream.
 	 * @param data[out] The newly parse structured data.
-	 * @return Returns The number of LLSD objects parsed into data.
+	 * @param max_bytes The maximum number of bytes that will be in
+	 * the stream. Pass in LLSDSerialize::SIZE_UNLIMITED (-1) to set no
+	 * byte limit.
+	 * @return Returns the number of LLSD objects parsed into
+	 * data. Returns PARSE_FAILURE (-1) on parse failure.
 	 */
-	virtual S32 parse(std::istream& istr, LLSD& data) const = 0;
+	S32 parse(std::istream& istr, LLSD& data, S32 max_bytes);
 
 protected:
+	/** 
+	 * @brief Pure virtual base for doing the parse.
+	 *
+	 * This method parses the istream for a structured data. This
+	 * method assumes that the istream is a complete llsd object --
+	 * for example an opened and closed map with an arbitrary nesting
+	 * of elements. This method will return after reading one data
+	 * object, allowing continued reading from the stream by the
+	 * caller.
+	 * @param istr The input stream.
+	 * @param data[out] The newly parse structured data.
+	 * @return Returns the number of LLSD objects parsed into
+	 * data. Returns PARSE_FAILURE (-1) on parse failure.
+	 */
+	virtual S32 doParse(std::istream& istr, LLSD& data) const = 0;
 
+	/* @name Simple istream helper methods 
+	 *
+	 * These helper methods exist to help correctly use the
+	 * mMaxBytesLeft without really thinking about it for most simple
+	 * operations. Use of the streamtools in llstreamtools.h will
+	 * require custom wrapping.
+	 */
+	//@{
+	/** 
+	 * @brief get a byte off the stream
+	 *
+	 * @param istr The istream to work with.
+	 * @return returns the next character.
+	 */
+	int get(std::istream& istr) const;
+	
+	/** 
+	 * @brief get several bytes off the stream into a buffer.
+	 *
+	 * @param istr The istream to work with.
+	 * @param s The buffer to get into
+	 * @param n Extract maximum of n-1 bytes and null temrinate.
+	 * @param delim Delimiter to get until found.
+	 * @return Returns istr.
+	 */
+	std::istream& get(
+		std::istream& istr,
+		char* s,
+		std::streamsize n,
+		char delim) const;
+
+	/** 
+	 * @brief get several bytes off the stream into a streambuf
+	 *
+	 * @param istr The istream to work with.
+	 * @param sb The streambuf to read into
+	 * @param delim Delimiter to get until found.
+	 * @return Returns istr.
+	 */
+	std::istream& get(
+		std::istream& istr,
+		std::streambuf& sb,
+		char delim) const;
+
+	/** 
+	 * @brief ignore the next byte on the istream
+	 *
+	 * @param istr The istream to work with.
+	 * @return Returns istr.
+	 */
+	std::istream& ignore(std::istream& istr) const;
+
+	/** 
+	 * @brief put the last character retrieved back on the stream
+	 *
+	 * @param istr The istream to work with.
+	 * @param c The character to put back
+	 * @return Returns istr.
+	 */
+	std::istream& putback(std::istream& istr, char c) const;
+
+	/** 
+	 * @brief read a block of n characters into a buffer
+	 *
+	 * @param istr The istream to work with.
+	 * @param s The buffer to read into
+	 * @param n The number of bytes to read.
+	 * @return Returns istr.
+	 */
+	std::istream& read(std::istream& istr, char* s, std::streamsize n) const;
+	//@}
+
+protected:
+	/**
+	 * @brief Accunt for bytes read outside of the istream helpers.
+	 *
+	 * Conceptually const since it only modifies mutable members.
+	 * @param bytes The number of bytes read.
+	 */
+	void account(S32 bytes) const;
+
+protected:
+	/**
+	 * @brief boolean to set if byte counts should be checked during parsing.
+	 */
+	bool mCheckLimits;
+
+	/**
+	 * @brief The maximum number of bytes left to be parsed.
+	 */
+	mutable S32 mMaxBytesLeft;
 };
 
 /** 
@@ -91,8 +209,9 @@ public:
 	/** 
 	 * @brief Constructor
 	 */
-	LLSDNotationParser() {}
+	LLSDNotationParser();
 
+protected:
 	/** 
 	 * @brief Call this method to parse a stream for LLSD.
 	 *
@@ -105,21 +224,9 @@ public:
 	 * @param istr The input stream.
 	 * @param data[out] The newly parse structured data. Undefined on failure.
 	 * @return Returns the number of LLSD objects parsed into
-	 * data. Returns -1 on parse failure.
+	 * data. Returns PARSE_FAILURE (-1) on parse failure.
 	 */
-	virtual S32 parse(std::istream& istr, LLSD& data) const;
-
-	/** 
-	 * @brief Simple notation parse.
-	 *
-	 * This simplified parser cannot not distinguish between a failed
-	 * parse and a parse which yields a single undefined LLSD. You can
-	 * use this if error checking will be implicit in the use of the
-	 * results of the parse.
-	 * @param istr The input stream.
-	 * @return Returns the parsed LLSD object.
-	 */
-	static LLSD parse(std::istream& istr);
+	virtual S32 doParse(std::istream& istr, LLSD& data) const;
 
 private:
 	/** 
@@ -145,16 +252,18 @@ private:
 	 *
 	 * @param istr The input stream.
 	 * @param data[out] The data to assign.
+	 * @return Retuns true if a complete string was parsed.
 	 */
-	void parseString(std::istream& istr, LLSD& data) const;
+	bool parseString(std::istream& istr, LLSD& data) const;
 
 	/** 
 	 * @brief Parse binary data from the stream.
 	 *
 	 * @param istr The input stream.
 	 * @param data[out] The data to assign.
+	 * @return Retuns true if a complete blob was parsed.
 	 */
-	void parseBinary(std::istream& istr, LLSD& data) const;
+	bool parseBinary(std::istream& istr, LLSD& data) const;
 };
 
 /** 
@@ -175,6 +284,7 @@ public:
 	 */
 	LLSDXMLParser();
 
+protected:
 	/** 
 	 * @brief Call this method to parse a stream for LLSD.
 	 *
@@ -186,15 +296,16 @@ public:
 	 * caller.
 	 * @param istr The input stream.
 	 * @param data[out] The newly parse structured data.
-	 * @return Returns the number of LLSD objects parsed into data.
+	 * @return Returns the number of LLSD objects parsed into
+	 * data. Returns PARSE_FAILURE (-1) on parse failure.
 	 */
-	virtual S32 parse(std::istream& istr, LLSD& data) const;
+	virtual S32 doParse(std::istream& istr, LLSD& data) const;
 
 private:
 	class Impl;
 	Impl& impl;
 
-	void parsePart(const char *buf, int len);
+	void parsePart(const char* buf, int len);
 	friend class LLSDSerialize;
 };
 
@@ -216,6 +327,7 @@ public:
 	 */
 	LLSDBinaryParser();
 
+protected:
 	/** 
 	 * @brief Call this method to parse a stream for LLSD.
 	 *
@@ -227,21 +339,10 @@ public:
 	 * caller.
 	 * @param istr The input stream.
 	 * @param data[out] The newly parse structured data.
-	 * @return Returns the number of LLSD objects parsed into data.
+	 * @return Returns the number of LLSD objects parsed into
+	 * data. Returns -1 on parse failure.
 	 */
-	virtual S32 parse(std::istream& istr, LLSD& data) const;
-
-	/** 
-	 * @brief Simple notation parse.
-	 *
-	 * This simplified parser cannot not distinguish between a failed
-	 * parse and a parse which yields a single undefined LLSD. You can
-	 * use this if error checking will be implicit in the use of the
-	 * results of the parse.
-	 * @param istr The input stream.
-	 * @return Returns the parsed LLSD object.
-	 */
-	static LLSD parse(std::istream& istr);
+	virtual S32 doParse(std::istream& istr, LLSD& data) const;
 
 private:
 	/** 
@@ -267,8 +368,9 @@ private:
 	 *
 	 * @param istr The input stream.
 	 * @param value[out] The string to assign.
+	 * @return Retuns true if a complete string was parsed.
 	 */
-	void parseString(std::istream& istr, std::string& value) const;
+	bool parseString(std::istream& istr, std::string& value) const;
 };
 
 
@@ -544,7 +646,7 @@ typedef LLSDOStreamer<LLSDXMLFormatter>			LLSDXMLStreamer;
 
 /** 
  * @class LLSDSerialize
- * @Serializer / deserializer for the various LLSD formats
+ * @brief Serializer / deserializer for the various LLSD formats
  */
 class LLSDSerialize
 {
@@ -554,12 +656,32 @@ public:
 		LLSD_BINARY, LLSD_XML
 	};
 
+	/**
+	 * @brief anonymouse enumeration for useful max_bytes constants.
+	 */
+	enum
+	{
+		// Setting an unlimited size is discouraged and should only be
+		// used when reading cin or another stream source which does
+		// not provide access to size.
+		SIZE_UNLIMITED = -1,
+	};
+
 	/*
 	 * Generic in/outs
 	 */
 	static void serialize(const LLSD& sd, std::ostream& str, ELLSD_Serialize,
 		U32 options = LLSDFormatter::OPTIONS_NONE);
-	static bool deserialize(LLSD& sd, std::istream& str);
+
+	/**
+	 * @breif Examine a stream, and parse 1 sd object out based on contents.
+	 *
+	 * @param sd [out] The data found on the stream
+	 * @param str The incoming stream
+	 * @param max_bytes the maximum number of bytes to parse
+	 * @return Returns true if the stream appears to contain valid data
+	 */
+	static bool deserialize(LLSD& sd, std::istream& str, S32 max_bytes);
 
 	/*
 	 * Notation Methods
@@ -569,10 +691,17 @@ public:
 		LLPointer<LLSDNotationFormatter> f = new LLSDNotationFormatter;
 		return f->format(sd, str, LLSDFormatter::OPTIONS_NONE);
 	}
-	static S32 fromNotation(LLSD& sd, std::istream& str)
+	static S32 fromNotation(LLSD& sd, std::istream& str, S32 max_bytes)
 	{
 		LLPointer<LLSDNotationParser> p = new LLSDNotationParser;
-		return p->parse(str, sd);
+		return p->parse(str, sd, max_bytes);
+	}
+	static LLSD fromNotation(std::istream& str, S32 max_bytes)
+	{
+		LLPointer<LLSDNotationParser> p = new LLSDNotationParser;
+		LLSD sd;
+		(void)p->parse(str, sd, max_bytes);
+		return sd;
 	}
 	
 	/*
@@ -588,10 +717,13 @@ public:
 		LLPointer<LLSDXMLFormatter> f = new LLSDXMLFormatter;
 		return f->format(sd, str, LLSDFormatter::OPTIONS_PRETTY);
 	}
+
 	static S32 fromXML(LLSD& sd, std::istream& str)
 	{
+		// no need for max_bytes since xml formatting is not
+		// subvertable by bad sizes.
 		LLPointer<LLSDXMLParser> p = new LLSDXMLParser;
-		return p->parse(str, sd);
+		return p->parse(str, sd, LLSDSerialize::SIZE_UNLIMITED);
 	}
 
 	/*
@@ -602,14 +734,18 @@ public:
 		LLPointer<LLSDBinaryFormatter> f = new LLSDBinaryFormatter;
 		return f->format(sd, str, LLSDFormatter::OPTIONS_NONE);
 	}
-	static S32 fromBinary(LLSD& sd, std::istream& str)
+	static S32 fromBinary(LLSD& sd, std::istream& str, S32 max_bytes)
 	{
 		LLPointer<LLSDBinaryParser> p = new LLSDBinaryParser;
-		return p->parse(str, sd);
+		return p->parse(str, sd, max_bytes);
 	}
-private:
-	static const char *LLSDBinaryHeader;
-	static const char *LLSDXMLHeader;
+	static LLSD fromBinary(std::istream& str, S32 max_bytes)
+	{
+		LLPointer<LLSDBinaryParser> p = new LLSDBinaryParser;
+		LLSD sd;
+		(void)p->parse(str, sd, max_bytes);
+		return sd;
+	}
 };
 
 #endif // LL_LLSDSERIALIZE_H

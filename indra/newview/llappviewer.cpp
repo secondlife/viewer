@@ -390,7 +390,6 @@ static const char USAGE[] = "\n"
 " -set <variable> <value>              specify the value of a particular\n"
 "                                        configuration variable that\n"
 "                                        overrides all other settings\n"
-" -user <user_server_ip>               specify userserver in dotted quad\n"
 #if !LL_RELEASE_FOR_DOWNLOAD
 " -sim <simulator_ip>                  specify the simulator ip address\n"
 #endif
@@ -657,21 +656,6 @@ int parse_args(int argc, char **argv)
 		{
 			gGridChoice = GRID_INFO_YAMI;
 			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
-		}
-		else if (!strcmp(argv[j], "-user") && (++j < argc)) 
-		{
-			if (!strcmp(argv[j], "-"))
-			{
-				gGridChoice = GRID_INFO_LOCAL;
-				snprintf(gGridName, MAX_STRING, "%s", LOOPBACK_ADDRESS_STRING);		// Flawfinder: ignore
-			}
-			else
-			{
-				gGridChoice = GRID_INFO_OTHER;
-				ip_string.assign( argv[j] );
-				LLString::trim(ip_string);
-				snprintf(gGridName, MAX_STRING, "%s", ip_string.c_str());		// Flawfinder: ignore
-			}
 		}
 		else if (!strcmp(argv[j], "-loginpage") && (++j < argc))
 		{
@@ -1926,17 +1910,6 @@ bool LLAppViewer::initEarlyConfiguration()
 		else if (!strcmp(argv[j], "--aruna"))
 		{
 			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_ARUNA].mName);
-		}
-		else if (!strcmp(argv[j], "-user") && (++j < argc))
-		{
-			if (!strcmp(argv[j], "-"))
-			{
-				snprintf(gGridName, MAX_STRING, "%s", LOOPBACK_ADDRESS_STRING);		// Flawfinder: ignore 
-			}
-			else
-			{
-				snprintf(gGridName, MAX_STRING, "%s", argv[j]);		// Flawfinder: ignore 
-			}
 		}
 		else if (!strcmp(argv[j], "-multiple"))
 		{

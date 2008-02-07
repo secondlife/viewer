@@ -468,6 +468,7 @@ void LLPreview::onBtnCopyToInv(void* userdata)
 				cb);
 		}
 	}
+	self->close();
 }
 
 // static

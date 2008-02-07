@@ -117,8 +117,10 @@ void LLCrashLogger::gatherFiles()
 	updateApplication("Gathering logs...");
 
 	// Figure out the filename of the debug log
-	LLString db_file_name = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"debug_info.log").c_str();
-	std::ifstream debug_log_file(db_file_name.c_str());
+	std::string db_file_name = gDirUtilp->getExpandedFilename(
+		LL_PATH_LOGS,
+		"debug_info.log");
+	llifstream debug_log_file(db_file_name.c_str());
 
 	// Look for it in the debug_info.log file
 	if (debug_log_file.is_open())

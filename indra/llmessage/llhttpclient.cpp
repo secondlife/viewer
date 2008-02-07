@@ -71,8 +71,11 @@ void LLHTTPClient::Responder::result(const LLSD& content)
 }
 
 // virtual 
-void LLHTTPClient::Responder::completedRaw(U32 status, const std::string& reason, const LLChannelDescriptors& channels,
-								const LLIOPipe::buffer_ptr_t& buffer)
+void LLHTTPClient::Responder::completedRaw(
+	U32 status,
+	const std::string& reason,
+	const LLChannelDescriptors& channels,
+	const LLIOPipe::buffer_ptr_t& buffer)
 {
 	LLBufferStream istr(channels, buffer.get());
 	LLSD content;
@@ -94,7 +97,10 @@ void LLHTTPClient::Responder::completedRaw(U32 status, const std::string& reason
 }
 
 // virtual
-void LLHTTPClient::Responder::completed(U32 status, const std::string& reason, const LLSD& content)
+void LLHTTPClient::Responder::completed(
+	U32 status,
+	const std::string& reason,
+	const LLSD& content)
 {
 	if(isGoodStatus(status))
 	{

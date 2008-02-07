@@ -291,3 +291,30 @@ llofstream::~llofstream()
 
 #endif // #if USE_LLFILESTREAMS
 
+/************** helper functions ********************************/
+
+std::streamsize llifstream_size(llifstream& ifstr)
+{
+	if(!ifstr.is_open()) return 0;
+	std::streampos pos_old = ifstr.tellg();
+	ifstr.seekg(0, ios_base::beg);
+	std::streampos pos_beg = ifstr.tellg();
+	ifstr.seekg(0, ios_base::end);
+	std::streampos pos_end = ifstr.tellg();
+	ifstr.seekg(pos_old, ios_base::beg);
+	return pos_end - pos_beg;
+}
+
+std::streamsize llofstream_size(llofstream& ofstr)
+{
+	if(!ofstr.is_open()) return 0;
+	std::streampos pos_old = ofstr.tellp();
+	ofstr.seekp(0, ios_base::beg);
+	std::streampos pos_beg = ofstr.tellp();
+	ofstr.seekp(0, ios_base::end);
+	std::streampos pos_end = ofstr.tellp();
+	ofstr.seekp(pos_old, ios_base::beg);
+	return pos_end - pos_beg;
+}
+
+

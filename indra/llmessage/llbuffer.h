@@ -411,6 +411,18 @@ public:
 	S32 countAfter(S32 channel, U8* start) const;
 
 	/** 
+	 * @brief Count all bytes on channel.
+	 *
+	 * Helper method which just calls countAfter().
+	 * @param channel The channel to count.
+	 * @return Returns the number of bytes in the channel.
+	 */
+	S32 count(S32 channel) const
+	{
+		return countAfter(channel, NULL);
+	}
+
+	/** 
 	 * @brief Read bytes in the buffer array on the specified channel
 	 *
 	 * You should prefer iterating over segments is possible since

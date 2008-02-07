@@ -1377,8 +1377,13 @@ BOOL idle_startup()
 			const char* look_at_str = gUserAuthp->getResponse("look_at");
 			if (look_at_str)
 			{
-				LLMemoryStream mstr((U8*)look_at_str, strlen(look_at_str));		/* Flawfinder: ignore */
-				LLSD sd = LLSDNotationParser::parse(mstr);
+#if !LL_WINDOWS && !LL_DARWIN
+				size_t len = strnlen(look_at_str, MAX_STRING);
+#else
+				size_t len = strlen(look_at_str);
+#endif
+				LLMemoryStream mstr((U8*)look_at_str, len);
+				LLSD sd = LLSDSerialize::fromNotation(mstr, len);
 				agent_start_look_at = ll_vector3_from_sd(sd);
 			}
 
@@ -1399,8 +1404,13 @@ BOOL idle_startup()
 			const char* home_location = gUserAuthp->getResponse("home");
 			if(home_location)
 			{
-				LLMemoryStream mstr((U8*)home_location, strlen(home_location));		/* Flawfinder: ignore */
-				LLSD sd = LLSDNotationParser::parse(mstr);
+#if !LL_WINDOWS && !LL_DARWIN
+				size_t len = strnlen(home_location, MAX_STRING);
+#else
+				size_t len = strlen(home_location);
+#endif
+				LLMemoryStream mstr((U8*)home_location, len);
+				LLSD sd = LLSDSerialize::fromNotation(mstr, len);
 				S32 region_x = sd["region_handle"][0].asInteger();
 				S32 region_y = sd["region_handle"][1].asInteger();
 				U64 region_handle = to_region_handle(region_x, region_y);

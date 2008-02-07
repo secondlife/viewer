@@ -182,7 +182,10 @@ LLIOPipe::EStatus LLSDRPCServer::process_impl(
 		PUMP_DEBUG;
 		LLBufferStream istr(channels, buffer.get());
 		mRequest.clear();
-		LLSDSerialize::fromNotation(mRequest, istr);
+		LLSDSerialize::fromNotation(
+			mRequest,
+			istr,
+			buffer->count(channels.in()));
 
 		// { 'method':'...', 'parameter': ... }
 		method_name = mRequest[LLSDRPC_METHOD_SD_NAME].asString();

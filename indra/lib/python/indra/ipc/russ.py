@@ -136,7 +136,15 @@ def _build_query_string(query_dict):
     @returns Returns an urlencoded query string including leading '?'.
     """
     if query_dict:
-        return '?' + urllib.urlencode(query_dict)
+        keys = query_dict.keys()
+        keys.sort()
+        def stringize(value):
+            if type(value) in (str,unicode):
+                return value
+            else:
+                return str(value)
+        query_list = [urllib.quote(str(key)) + '=' + urllib.quote(stringize(query_dict[key])) for key in keys]
+        return '?' + '&'.join(query_list)
     else:
         return ''
 

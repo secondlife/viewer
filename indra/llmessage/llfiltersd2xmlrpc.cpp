@@ -336,7 +336,7 @@ LLIOPipe::EStatus LLFilterSD2XMLRPCResponse::process_impl(
 	LLBufferStream stream(channels, buffer.get());
 	stream << XML_HEADER << XMLRPC_METHOD_RESPONSE_HEADER;
 	LLSD sd;
-	LLSDSerialize::fromNotation(sd, stream);
+	LLSDSerialize::fromNotation(sd, stream, buffer->count(channels.in()));
 
 	PUMP_DEBUG;
 	LLIOPipe::EStatus rv = STATUS_ERROR;
@@ -408,7 +408,7 @@ LLIOPipe::EStatus LLFilterSD2XMLRPCRequest::process_impl(
 	// See if we can parse it
 	LLBufferStream stream(channels, buffer.get());
 	LLSD sd;
-	LLSDSerialize::fromNotation(sd, stream);
+	LLSDSerialize::fromNotation(sd, stream, buffer->count(channels.in()));
 	if(stream.fail())
 	{
 		llinfos << "STREAM FAILURE reading structure data." << llendl;

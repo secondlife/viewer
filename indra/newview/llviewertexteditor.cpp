@@ -942,7 +942,13 @@ BOOL LLViewerTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 			S32 dy = y - mMouseDownY;
 			if (-2 < dx && dx < 2 && -2 < dy && dy < 2)
 			{
-				openEmbeddedItem(mDragItem, mDragItemSaved);
+				if(mDragItemSaved)
+				{
+					openEmbeddedItem(mDragItem);
+				}else
+				{
+					showUnsavedAlertDialog(mDragItem);
+				}
 			}
 		}
 		mDragItem = NULL;
@@ -1311,15 +1317,23 @@ BOOL LLViewerTextEditor::openEmbeddedItemAtPos(S32 pos)
 		if( item )
 		{
 			BOOL saved = LLEmbeddedItems::getEmbeddedItemSaved( mWText[pos] );
-			return openEmbeddedItem(item, saved);
+			if (saved)
+			{
+				return openEmbeddedItem(item); 
+			}
+			else
+			{
+				showUnsavedAlertDialog(item);
+			}
 		}
 	}
 	return FALSE;
 }
 
 
-BOOL LLViewerTextEditor::openEmbeddedItem(LLInventoryItem* item, BOOL saved)
+BOOL LLViewerTextEditor::openEmbeddedItem(LLInventoryItem* item)
 {
+
 	switch( item->getType() )
 	{
 	case LLAssetType::AT_TEXTURE:
@@ -1329,15 +1343,15 @@ BOOL LLViewerTextEditor::openEmbeddedItem(LLInventoryItem* item, BOOL saved)
 	case LLAssetType::AT_SOUND:
 		openEmbeddedSound( item );
 		return TRUE;
-	
+
 	case LLAssetType::AT_NOTECARD:
-	    openEmbeddedNotecard( item, saved );
+		openEmbeddedNotecard( item );
 		return TRUE;
 
 	case LLAssetType::AT_LANDMARK:
 		openEmbeddedLandmark( item );
 		return TRUE;
-		
+
 	case LLAssetType::AT_LSL_TEXT:
 	case LLAssetType::AT_CLOTHING:
 	case LLAssetType::AT_OBJECT:
@@ -1345,10 +1359,11 @@ BOOL LLViewerTextEditor::openEmbeddedItem(LLInventoryItem* item, BOOL saved)
 	case LLAssetType::AT_ANIMATION:
 	case LLAssetType::AT_GESTURE:
 		showCopyToInvDialog( item );
-		return TRUE;	
+		return TRUE;
 	default:
 		return FALSE;
 	}
+
 }
 
 
@@ -1401,23 +1416,30 @@ void LLViewerTextEditor::openEmbeddedLandmark( LLInventoryItem* item )
 	open_landmark((LLViewerInventoryItem*)item, title, FALSE, item->getUUID(), TRUE);
 }
 
-void LLViewerTextEditor::openEmbeddedNotecard( LLInventoryItem* item, BOOL saved )
+void LLViewerTextEditor::openEmbeddedNotecard( LLInventoryItem* item )
 {
-	if (saved)
-	{
+	//if (saved)
+	//{
 		// An LLInventoryItem needs to be in an inventory to be opened.
 		// This will give the item to the viewer's agent.
 		// The callback will attempt to open it if its not already opened.
-		copyInventory(item, gInventoryCallbacks.registerCB(mInventoryCallback));
-	}
-	else
-	{
-		LLNotecardCopyInfo *info = new LLNotecardCopyInfo(this, item);
-		gViewerWindow->alertXml("ConfirmNotecardSave",		
-								LLViewerTextEditor::onNotecardDialog, (void*)info);
-	}
+	copyInventory(item, gInventoryCallbacks.registerCB(mInventoryCallback));
+
+	//}
+	//else
+	//{
+	//	LLNotecardCopyInfo *info = new LLNotecardCopyInfo(this, item);
+	//	gViewerWindow->alertXml("ConfirmNotecardSave",		
+	//							LLViewerTextEditor::onNotecardDialog, (void*)info);
+	//}
 }
 
+void LLViewerTextEditor::showUnsavedAlertDialog( LLInventoryItem* item )
+{
+	LLNotecardCopyInfo *info = new LLNotecardCopyInfo(this, item);
+	gViewerWindow->alertXml( "ConfirmNotecardSave",
+		LLViewerTextEditor::onNotecardDialog, (void*)info);
+}
 // static
 void LLViewerTextEditor::onNotecardDialog( S32 option, void* userdata )
 {

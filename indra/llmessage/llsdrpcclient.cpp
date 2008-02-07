@@ -221,7 +221,7 @@ LLIOPipe::EStatus LLSDRPCClient::process_impl(
 		//		 << llendl;
 		LLBufferStream resp(channels, buffer.get());
 		LLSD sd;
-		LLSDSerialize::fromNotation(sd, resp);
+		LLSDSerialize::fromNotation(sd, resp, buffer->count(channels.in()));
 		LLSDRPCResponse* response = (LLSDRPCResponse*)mResponse.get();
 		if (!response)
 		{

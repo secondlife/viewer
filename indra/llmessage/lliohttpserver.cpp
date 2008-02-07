@@ -156,7 +156,9 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 			// assume deferred unless mResponse does otherwise
 		mResponse = Response::create(this);
 
-		// TODO: Babbage: Parameterize parser?
+		// *TODO: Babbage: Parameterize parser?
+		// *TODO: We should look at content-type and do the right
+		// thing. Phoenix 2007-12-31
 		LLBufferStream istr(channels, buffer.get());
 
 		static LLTimer timer;
@@ -171,14 +173,12 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		{
 			LLSD input;
 			LLSDSerialize::fromXML(input, istr);
-
 			mNode.put(LLHTTPNode::ResponsePtr(mResponse), context, input);
 		}
 		else if(verb == HTTP_VERB_POST)
 		{
 			LLSD input;
 			LLSDSerialize::fromXML(input, istr);
-
 			mNode.post(LLHTTPNode::ResponsePtr(mResponse), context, input);
 		}
 		else if(verb == HTTP_VERB_DELETE)

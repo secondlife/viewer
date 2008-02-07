@@ -168,5 +168,14 @@ private:
 
 #endif
 
+/**
+ * @breif filesize helpers.
+ *
+ * The file size helpers are not considered particularly efficient,
+ * and should only be used for config files and the like -- not in a
+ * loop.
+ */
+std::streamsize llifstream_size(llifstream& fstr);
+std::streamsize llofstream_size(llofstream& fstr);
 
 #endif // not LL_LLFILE_H

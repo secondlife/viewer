@@ -1194,8 +1194,8 @@ void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
 	LLString::format_map_t args;
 	args["[OBJECTNAME]"] = info->mDesc;
 	// must protect against a NULL return from lookupHumanReadable()
-	const char* typestr = LLAssetType::lookupHumanReadable(info->mType);
-	if (typestr)
+	std::string typestr = ll_safe_string(LLAssetType::lookupHumanReadable(info->mType));
+	if (!typestr.empty())
 	{
 		args["[OBJECTTYPE]"] = typestr;
 	}

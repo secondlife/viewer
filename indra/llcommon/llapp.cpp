@@ -166,7 +166,16 @@ bool LLApp::parseCommandOptions(int argc, char** argv)
 			// we found another option after this one or we have
 			// reached the end. simply record that this option was
 			// found and continue.
-			commands[name] = true;
+			int flag = name.compare("logfile");
+			if (0 == flag)
+			{
+				commands[name] = "log";
+			}
+			else
+			{
+				commands[name] = true;
+			}
+			
 			continue;
 		}
 		++ii;
