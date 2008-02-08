@@ -113,25 +113,12 @@ BOOL LLFloaterPostcard::postBuild()
 	childSetAction("send_btn", onClickSend, this);
 
 	childDisable("from_form");
-	childSetAction("publish_help_btn", onClickPublishHelp, this);
 
-	if (gAgent.isTeen())
-	{
-		// Disable these buttons if they are PG (Teen) users
-		childDisable("allow_publish_check");
-		childHide("allow_publish_check");
-		childDisable("publish_help_btn");
-		childHide("publish_help_btn");
-		childDisable("mature_check");
-		childHide("mature_check");
-	}
-	
-	LLString name_string;
+	std::string name_string;
 	gAgent.buildFullname(name_string);
-	
 	childSetValue("name_form", LLSD(name_string));
 
-	LLTextEditor *MsgField = LLUICtrlFactory::getTextEditorByName(this, "msg_form");
+	LLTextEditor* MsgField = LLUICtrlFactory::getTextEditorByName(this, "msg_form");
 	if (MsgField)
 	{
 		MsgField->setWordWrap(TRUE);
@@ -252,8 +239,8 @@ void LLFloaterPostcard::onClickSend(void* data)
 	{
 		LLFloaterPostcard *self = (LLFloaterPostcard *)data;
 
-		LLString from(self->childGetValue("from_form").asString().c_str());
-		LLString to(self->childGetValue("to_form").asString().c_str());
+		std::string from(self->childGetValue("from_form").asString());
+		std::string to(self->childGetValue("to_form").asString());
 
 		if (to.empty() || to.find('@') == std::string::npos)
 		{
@@ -267,7 +254,7 @@ void LLFloaterPostcard::onClickSend(void* data)
 			return;
 		}
 
-		LLString subject(self->childGetValue("subject_form").asString().c_str());
+		std::string subject(self->childGetValue("subject_form").asString());
 		if(subject.empty() || !self->mHasFirstMsgFocus)
 		{
 			gViewerWindow->alertXml("PromptMissingSubjMsg", missingSubjMsgAlertCallback, self);
@@ -283,12 +270,6 @@ void LLFloaterPostcard::onClickSend(void* data)
 			gViewerWindow->alertXml("ErrorProcessingSnapshot");
 		}
 	}
-}
-
-// static
-void LLFloaterPostcard::onClickPublishHelp(void* data)
-{
-	gViewerWindow->alertXml("ClickPublishHelpPostcard");
 }
 
 // static
@@ -321,8 +302,8 @@ void LLFloaterPostcard::uploadCallback(const LLUUID& asset_id, void *user_data, 
 		msg->addString("Name", self->childGetValue("name_form").asString());
 		msg->addString("Subject", self->childGetValue("subject_form").asString());
 		msg->addString("Msg", self->childGetValue("msg_form").asString());
-		msg->addBOOL("AllowPublish", self->childGetValue("allow_publish_check").asBoolean());
-		msg->addBOOL("MaturePublish", self->childGetValue("mature_check").asBoolean());
+		msg->addBOOL("AllowPublish", FALSE);
+		msg->addBOOL("MaturePublish", FALSE);
 		gAgent.sendReliableMessage();
 	}
 
@@ -405,8 +386,6 @@ void LLFloaterPostcard::sendPostcard()
 		body["name"] = childGetValue("name_form").asString();
 		body["subject"] = childGetValue("subject_form").asString();
 		body["msg"] = childGetValue("msg_form").asString();
-		body["allow-publish"] = childGetValue("allow_publish_check").asBoolean();
-		body["mature-publish"] = childGetValue("mature_check").asBoolean();
 		LLHTTPClient::post(url, body, new LLSendPostcardResponder(body, mAssetID, LLAssetType::AT_IMAGE_JPEG));
 	} 
 	else

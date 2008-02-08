@@ -57,7 +57,6 @@ public:
 
 	static void onClickCancel(void* data);
 	static void onClickSend(void* data);
-	static void onClickPublishHelp(void *data);
 
 	static void uploadCallback(const LLUUID& asset_id,
 							   void *user_data,

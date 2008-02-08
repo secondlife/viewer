@@ -132,14 +132,13 @@ void LLHost::getHostName(char *buf, S32 len) const
 	}
 }
 
-LLString LLHost::getHostName() const
+std::string LLHost::getHostName() const
 {
-	hostent *he;
-
+	hostent* he;
 	if (INVALID_HOST_IP_ADDRESS == mIP)
 	{
 		llwarns << "LLHost::getHostName() : Invalid IP address" << llendl;
-		return "";
+		return std::string();
 	}
 	he = gethostbyaddr((char *)&mIP, sizeof(mIP), AF_INET);
 	if (!he)
@@ -151,12 +150,11 @@ LLString LLHost::getHostName() const
 		llwarns << "LLHost::getHostName() : Couldn't find host name for address " << mIP << ", Error: " 
 			<< h_errno << llendl;
 #endif
-		return "";
+		return std::string();
 	}
 	else
 	{
-		LLString hostname = he->h_name;
-		return hostname;
+		return ll_safe_string(he->h_name);
 	}
 }
 

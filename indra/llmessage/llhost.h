@@ -38,8 +38,6 @@
 
 #include "net.h"
 
-#include "llstring.h"
-
 const U32 INVALID_PORT = 0;
 const U32 INVALID_HOST_IP_ADDRESS = 0x0;
 
@@ -102,7 +100,7 @@ public:
 	void	getIPString(char* buffer, S32 length) const;	// writes IP into buffer
 	std::string getIPString() const;
 	void    getHostName(char *buf, S32 len) const;
-	LLString getHostName() const;
+	std::string getHostName() const;
 	std::string getIPandPort() const;
 
 	friend std::ostream& operator<< (std::ostream& os, const LLHost &hh);

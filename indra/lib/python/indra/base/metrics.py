@@ -31,12 +31,23 @@ $/LicenseInfo$
 import sys
 from indra.base import llsd
 
-def log(location, stats, file=None):
-    "Write a standard llmetrics log"
-    metrics = {'location':location, 'stats':stats}
-    if file is None:
+_sequence_id = 0
+
+def record_metrics(table, stats, dest=None):
+    "Write a standard metrics log"
+    _log("LLMETRICS", table, stats, dest)
+
+def record_event(table, data, dest=None):
+    "Write a standard logmessage log"
+    _log("LLLOGMESSAGE", table, data, dest)
+
+def _log(header, table, data, dest):
+    if dest is None:
         # do this check here in case sys.stdout changes at some
         # point. as a default parameter, it will never be
         # re-evaluated.
-        file = sys.stdout
-    print >>file, "LLMETRICS:", llsd.format_notation(metrics)
+        dest = sys.stdout
+    global _sequence_id
+    print >>dest, header, "(" + str(_sequence_id) + ")",
+    print >>dest, table, llsd.format_notation(data)
+    _sequence_id += 1
