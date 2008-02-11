@@ -145,9 +145,20 @@ def cache_master(master_url):
         print "Cause: %s" % e
         return master_cache_url
     try:
-        mc = open(master_cache, 'wb')
+        tmpname = '%s.%d' % (master_cache, os.getpid())
+        mc = open(tmpname, 'wb')
         mc.write(new_master_contents)
         mc.close()
+        try:
+            os.rename(tmpname, master_cache)
+        except OSError:
+            # We can't rename atomically on top of an existing file on
+            # Windows.  Unlinking the existing file will fail if the
+            # file is being held open by a process, but there's only
+            # so much working around a lame I/O API one can take in
+            # a single day.
+            os.unlink(master_cache)
+            os.rename(tmpname, master_cache)
     except IOError, e:
         print "WARNING: Unable to write master message template to %s, proceeding without cache." % master_cache
         print "Cause: %s" % e
@@ -160,12 +171,22 @@ def local_template_filename():
     d = os.path.dirname(os.path.realpath(__file__))
     return os.path.join(d, 'messages', MESSAGE_TEMPLATE)
 
+def getuser():
+    try:
+        # Unix-only.
+        import getpass
+        return getpass.getuser()
+    except ImportError:
+        import win32api
+        return win32api.GetUserName()
+
 def local_master_cache_filename():
     """Returns the location of the master template cache (which is in the system tempdir)
     <temp_dir>/master_message_template_cache.msg"""
     import tempfile
     d = tempfile.gettempdir()
-    return os.path.join(d, 'master_message_template_cache.msg')
+    user = getuser()
+    return os.path.join(d, 'master_message_template_cache.%s.msg' % user)
 
 
 def run(sysargs):
