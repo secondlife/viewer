@@ -235,7 +235,7 @@ void LLURLRequest::useProxy(bool use_proxy)
     }
 
 
-    lldebugs << "use_proxy = " << (use_proxy?'Y':'N') << ", env_proxy = " << env_proxy << llendl;
+    lldebugs << "use_proxy = " << (use_proxy?'Y':'N') << ", env_proxy = " << (env_proxy ? env_proxy : "(null)") << llendl;
 
     if (env_proxy && use_proxy)
     {
