@@ -106,12 +106,12 @@ class ViewerManifest(LLManifest):
                         if self.default_channel():
                                 # beta grid viewer
                                 channel_flags = '-settings settings_beta.xml'
-                        grid_flags = "--%(grid)s -helperuri http://preview-%(grid)s.secondlife.com/helpers/" % {'grid':self.args['grid']}
+                        grid_flags = "-helperuri http://preview-%(grid)s.secondlife.com/helpers/ -loginuri https://login.%(grid)s.lindenlab.com/cgi-bin/login.cgi" % {'grid':self.args['grid']}
                         
                 if not self.default_channel():
                         # some channel on some grid
                         channel_flags = '-settings settings_%s.xml -channel "%s"' % (self.channel_lowerword(), self.args['channel'])
-                return " ".join((grid_flags, channel_flags)).strip()
+                return " ".join((channel_flags, grid_flags)).strip()
 
         def login_url(self):
                 """ Convenience function that returns the appropriate login url for the grid"""
