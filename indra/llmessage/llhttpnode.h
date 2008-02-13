@@ -176,7 +176,7 @@ public:
 
 	/* @name Description system
 		The Description object contains information about a service.
-		All subclasses of LLHTTPNode should override description() and use
+		All subclasses of LLHTTPNode should override describe() and use
 		the methods of the Description class to set the various properties.
 	 */
 	//@{

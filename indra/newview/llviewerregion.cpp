@@ -1353,6 +1353,7 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("ChatSessionRequest");
 	capabilityNames.append("CopyInventoryFromNotecard");
 	capabilityNames.append("DispatchRegionInfo");
+	capabilityNames.append("EstateChangeInfo");
 	capabilityNames.append("EventQueueGet");
 	capabilityNames.append("GroupProposalBallot");
 	capabilityNames.append("MapLayer");

@@ -229,6 +229,7 @@ void LLFloaterRegionInfo::onOpen()
 	LLFloater::onOpen();
 }
 
+// static
 void LLFloaterRegionInfo::requestRegionInfo()
 {
 	// Must allow anyone to request the RegionInfo data
@@ -359,6 +360,8 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	panel->childSetEnabled("fixed_sun_check", allow_modify && !use_estate_sun);
 	panel->childSetValue("sun_hour_slider", LLSD(sun_hour));
 	panel->childSetEnabled("sun_hour_slider", allow_modify && !use_estate_sun);
+
+	sInstance->refreshFromRegion( gAgent.getRegion() );
 }
 
 // static
@@ -450,6 +453,15 @@ void LLPanelRegionInfo::onChangeAnything(LLUICtrl* ctrl, void* user_data)
 	}
 }
 
+// static
+// Enables set button on change to line editor
+void LLPanelRegionInfo::onChangeText(LLLineEditor* caller, void* user_data)
+{
+	// reuse the previous method
+	onChangeAnything(0, user_data);
+}
+
+
 // virtual
 BOOL LLPanelRegionInfo::postBuild()
 {
@@ -517,6 +529,12 @@ void LLPanelRegionInfo::disableButton(const char* btn_name)
 void LLPanelRegionInfo::initCtrl(const char* name)
 {
 	childSetCommitCallback(name, onChangeAnything, this);
+}
+
+void LLPanelRegionInfo::initTextCtrl(const char* name)
+{
+	childSetCommitCallback(name, onChangeAnything, this);
+	childSetKeystrokeCallback("abuse_email_address", onChangeText, this);
 }
 
 void LLPanelRegionInfo::initHelpBtn(const char* name, const char* xml_alert)
@@ -1920,6 +1938,7 @@ bool LLPanelEstateInfo::refreshFromRegion(LLViewerRegion* region)
 	childSetEnabled("remove_banned_avatar_btn",		god || owner || manager);
 	childSetEnabled("message_estate_btn",			god || owner || manager);
 	childSetEnabled("kick_user_from_estate_btn",	god || owner || manager);
+	childSetEnabled("abuse_email_address", 			god || owner || manager);
 
 	// estate managers can't add estate managers
 	childSetEnabled("add_estate_manager_btn",		god || owner);
@@ -1980,6 +1999,7 @@ BOOL LLPanelEstateInfo::postBuild()
 	initCtrl("limit_payment");
 	initCtrl("limit_age_verified");
 	initCtrl("voice_chat_check");
+	initTextCtrl("abuse_email_address");
 
 	initHelpBtn("estate_manager_help",			"HelpEstateEstateManager");
 	initHelpBtn("use_global_time_help",			"HelpEstateUseGlobalTime");
@@ -1989,7 +2009,8 @@ BOOL LLPanelEstateInfo::postBuild()
 	initHelpBtn("allow_resident_help",			"HelpEstateAllowResident");
 	initHelpBtn("allow_group_help",				"HelpEstateAllowGroup");
 	initHelpBtn("ban_resident_help",			"HelpEstateBanResident");
-	initHelpBtn("voice_chat_help", "HelpEstateVoiceChat");
+	initHelpBtn("abuse_email_address_help",         "HelpEstateAbuseEmailAddress");
+	initHelpBtn("voice_chat_help",                  "HelpEstateVoiceChat");
 
 	// set up the use global time checkbox
 	childSetCommitCallback("use_global_time_check", onChangeUseGlobalTime, this);
@@ -2086,8 +2107,19 @@ void LLPanelEstateInfo::callbackChangeLindenEstate(S32 option, void* data)
 	{
 	case 0:
 		// send the update
-		LLFloaterRegionInfo::nextInvoice();
-		self->commitEstateInfo();
+		if (!self->commitEstateInfoCaps())
+		{
+			// the caps method failed, try the old way
+			LLFloaterRegionInfo::nextInvoice();
+			self->commitEstateInfoDataserver();
+		}
+		// we don't want to do this because we'll get it automatically from the sim
+		// after the spaceserver processes it
+//		else
+//		{
+//			// caps method does not automatically send this info
+//			LLFloaterRegionInfo::requestRegionInfo();
+//		}
 		break;
 	case 1:
 	default:
@@ -2125,12 +2157,75 @@ void LLPanelEstateInfo::getEstateOwner()
 }
 */
 
+class LLEstateChangeInfoResponder : public LLHTTPClient::Responder
+{
+public:
+	LLEstateChangeInfoResponder(void* userdata) : mpPanel((LLPanelEstateInfo*)userdata) {};
+	
+	// if we get a normal response, handle it here
+	virtual void result(const LLSD& content)
+	{
+	    // refresh the panel from the database
+		mpPanel->refresh();
+	}
+	
+	// if we get an error response
+	virtual void error(U32 status, const std::string& reason)
+	{
+		llinfos << "LLEstateChangeInfoResponder::error "
+			<< status << ": " << reason << llendl;
+	}
+private:
+	LLPanelEstateInfo* mpPanel;
+};
+
+// tries to send estate info using a cap; returns true if it succeeded
+bool LLPanelEstateInfo::commitEstateInfoCaps()
+{
+	std::string url = gAgent.getRegion()->getCapability("EstateChangeInfo");
+	
+	if (url.empty())
+	{
+		// whoops, couldn't find the cap, so bail out
+		return false;
+	}
+	
+	LLSD body;
+	body["estate_name"] = getEstateName();
+
+	body["is_externally_visible"] = childGetValue("externally_visible_check").asBoolean();
+	body["allow_direct_teleport"] = childGetValue("allow_direct_teleport").asBoolean();
+	body["is_sun_fixed"         ] = childGetValue("fixed_sun_check").asBoolean();
+	body["deny_anonymous"       ] = childGetValue("limit_payment").asBoolean();
+	body["deny_age_unverified"  ] = childGetValue("limit_age_verified").asBoolean();
+	body["allow_voice_chat"     ] = childGetValue("voice_chat_check").asBoolean();
+	body["invoice"              ] = LLFloaterRegionInfo::getLastInvoice();
+
+	// block fly is in estate database but not in estate UI, so we're not supporting it
+	//body["block_fly"            ] = childGetValue("").asBoolean();
+
+	F32 sun_hour = getSunHour();
+	if (childGetValue("use_global_time_check").asBoolean())
+	{
+		sun_hour = 0.f;			// 0 = global time
+	}
+	body["sun_hour"] = sun_hour;
+
+	body["owner_abuse_email"] = childGetValue("abuse_email_address").asString();
+
+	// we use a responder so that we can re-get the data after committing to the database
+	LLHTTPClient::post(url, body, new LLEstateChangeInfoResponder((void*)this));
+    return true;
+}
+
+/* This is the old way of doing things, is deprecated, and should be 
+   deleted when the dataserver model can be removed */
 // key = "estatechangeinfo"
 // strings[0] = str(estate_id) (added by simulator before relay - not here)
 // strings[1] = estate_name
 // strings[2] = str(estate_flags)
 // strings[3] = str((S32)(sun_hour * 1024.f))
-void LLPanelEstateInfo::commitEstateInfo()
+void LLPanelEstateInfo::commitEstateInfoDataserver()
 {
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessage("EstateOwnerMessage");
@@ -2174,7 +2269,6 @@ void LLPanelEstateInfo::setEstateFlags(U32 flags)
 	childSetValue("allow_direct_teleport", LLSD(flags & REGION_FLAGS_ALLOW_DIRECT_TELEPORT ? TRUE : FALSE) );
 	childSetValue("limit_payment", LLSD(flags & REGION_FLAGS_DENY_ANONYMOUS ? TRUE : FALSE) );
 	childSetValue("limit_age_verified", LLSD(flags & REGION_FLAGS_DENY_AGEUNVERIFIED ? TRUE : FALSE) );
-	childSetVisible("abuse_email_text", flags & REGION_FLAGS_ABUSE_EMAIL_TO_ESTATE_OWNER);
 
 	refresh();
 }
@@ -2275,6 +2369,16 @@ const std::string LLPanelEstateInfo::getOwnerName() const
 void LLPanelEstateInfo::setOwnerName(const std::string& name)
 {
 	childSetValue("estate_owner", LLSD(name));
+}
+
+const std::string LLPanelEstateInfo::getAbuseEmailAddress() const
+{
+	return childGetValue("abuse_email_address").asString();
+}
+
+void LLPanelEstateInfo::setAbuseEmailAddress(const std::string& address)
+{
+	childSetValue("abuse_email_address", LLSD(address));
 }
 
 void LLPanelEstateInfo::setAccessAllowedEnabled(bool enable_agent,
@@ -2821,6 +2925,7 @@ bool LLDispatchSetEstateOwner::operator()(
 // strings[6] = str(covenant_id)
 // strings[7] = str(covenant_timestamp)
 // strings[8] = str(send_to_agent_only)
+// strings[9] = str(abuse_email_addr)
 bool LLDispatchEstateUpdateInfo::operator()(
 		const LLDispatcher* dispatcher,
 		const std::string& key,
@@ -2836,6 +2941,15 @@ bool LLDispatchEstateUpdateInfo::operator()(
 	std::string estate_name = strings[0].c_str();
 	panel->setEstateName(estate_name);
 
+	if (strings.size() > 9)
+	{
+		std::string abuse_email = strings[9].c_str();
+		panel->setAbuseEmailAddress(abuse_email);
+	}
+	else
+	{
+		panel->setAbuseEmailAddress("@ Old Server @");
+	}
 
 	LLViewerRegion* regionp = gAgent.getRegion();
 

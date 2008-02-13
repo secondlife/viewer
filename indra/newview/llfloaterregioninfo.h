@@ -83,7 +83,7 @@ public:
 	// from LLPanel
 	virtual void refresh();
 	
-	void requestRegionInfo();
+	static void requestRegionInfo();
 
 protected:
 	LLFloaterRegionInfo(const LLSD& seed);
@@ -106,6 +106,7 @@ public:
 	static void onBtnSet(void* user_data);
 	static void onChangeChildCtrl(LLUICtrl* ctrl, void* user_data);
 	static void onChangeAnything(LLUICtrl* ctrl, void* user_data);
+	static void onChangeText(LLLineEditor* caller, void* user_data);
 	
 	virtual bool refreshFromRegion(LLViewerRegion* region);
 	virtual bool estateUpdate(LLMessageSystem* msg) { return true; }
@@ -118,6 +119,7 @@ public:
 	
 protected:
 	void initCtrl(const char* name);
+	void initTextCtrl(const char* name);
 	void initHelpBtn(const char* name, const char* xml_alert);
 
 	// Callback for all help buttons, data is name of XML alert to show.
@@ -320,6 +322,9 @@ public:
 	const std::string getOwnerName() const;
 	void setOwnerName(const std::string& name);
 
+	const std::string getAbuseEmailAddress() const;
+	void setAbuseEmailAddress(const std::string& address);
+
 	// If visible from mainland, allowed agent and allowed groups
 	// are ignored, so must disable UI.
 	void setAccessAllowedEnabled(bool enable_agent, bool enable_group, bool enable_ban);
@@ -338,7 +343,8 @@ protected:
 	// confirmation dialog callback
 	static void callbackChangeLindenEstate(S32 opt, void* data);
 
-	void commitEstateInfo();
+	void commitEstateInfoDataserver();
+	bool commitEstateInfoCaps();
 	void commitEstateAccess();
 	void commitEstateManagers();
 	
