@@ -131,10 +131,12 @@ S32 lsa_heap_add_data(U8 *buffer, LLScriptLibData *data, S32 heapsize, BOOL b_de
 		size = 4;
 		break;
 	case LST_KEY:
-		size = (S32)strlen(data->mKey) + 1;			/*Flawfinder: ignore*/
+	        // NOTE: babbage: defensive as some library calls set data to NULL
+	        size = data->mKey ? (S32)strlen(data->mKey) + 1 : 1; /*Flawfinder: ignore*/
 		break;
 	case LST_STRING:
-		size = (S32)strlen(data->mString) + 1;		/*Flawfinder: ignore*/ 
+                // NOTE: babbage: defensive as some library calls set data to NULL
+            	size = data->mString ? (S32)strlen(data->mString) + 1 : 1; /*Flawfinder: ignore*/
 		break;
 	case LST_LIST:
 		//	list data		4 bytes of number of entries followed by number of pointer
@@ -294,10 +296,10 @@ void lsa_insert_data(U8 *buffer, S32 &offset, LLScriptLibData *data, LLScriptAll
 			float2bytestream(buffer, offset, data->mFP);
 			break;
 		case LST_KEY:
-			char2bytestream(buffer, offset, data->mKey);
+		        char2bytestream(buffer, offset, data->mKey ? data->mKey : "");
 			break;
 		case LST_STRING:
-			char2bytestream(buffer, offset, data->mString);
+		        char2bytestream(buffer, offset, data->mString ? data->mString : "");
 			break;
 		case LST_VECTOR:
 			vector2bytestream(buffer, offset, data->mVec);

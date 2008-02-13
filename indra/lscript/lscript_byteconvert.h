@@ -168,7 +168,7 @@ inline void bytestream2char(char *buffer, const U8 *stream, S32 &offset)
 		;
 }
 
-inline void char2bytestream(U8 *stream, S32 &offset, char *buffer)
+inline void char2bytestream(U8 *stream, S32 &offset, const char *buffer)
 {
 	while ((*(stream + offset++) = *buffer++))
 		;
