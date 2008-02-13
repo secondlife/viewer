@@ -34,12 +34,13 @@
 #include "llcachename.h"
 
 // linden library includes
-#include "message.h"
-#include "llrand.h"
 #include "lldbstrings.h"
 #include "llframetimer.h"
 #include "llhost.h"
+#include "llrand.h"
+#include "llsdserialize.h"
 #include "lluuid.h"
+#include "message.h"
 
 // Constants
 const char* CN_WAITING = "(waiting)";
@@ -47,6 +48,14 @@ const char* CN_NOBODY = "(nobody)";
 const char* CN_NONE = "(none)";
 const char* CN_HIPPOS = "(hippos)";
 const F32 HIPPO_PROBABILITY = 0.01f;
+
+// llsd serialization constants
+static const std::string AGENTS("agents");
+static const std::string GROUPS("groups");
+static const std::string CTIME("ctime");
+static const std::string FIRST("first");
+static const std::string LAST("last");
+static const std::string NAME("name");
 
 // We track name requests in flight for up to this long.
 // We won't re-request a name during this time
@@ -392,41 +401,100 @@ void LLCacheName::importFile(FILE* fp)
 	llinfos << "LLCacheName loaded " << count << " names" << llendl;
 }
 
-
-void LLCacheName::exportFile(FILE* fp)
+bool LLCacheName::importFile(std::istream& istr)
 {
-	fprintf(fp, "version\t%d\n", CN_FILE_VERSION);
+	LLSD data;
+	if(LLSDSerialize::fromXML(data, istr) < 1)
+		return false;
 
-	for (Cache::iterator iter = impl.mCache.begin(),
-			 end = impl.mCache.end();
-		 iter != end; iter++)
+	// We'll expire entries more than a week old
+	U32 now = (U32)time(NULL);
+	const U32 SECS_PER_DAY = 60 * 60 * 24;
+	U32 delete_before_time = now - (7 * SECS_PER_DAY);
+
+	// iterate over the agents
+	S32 count = 0;
+	LLSD agents = data[AGENTS];
+	LLSD::map_iterator iter = agents.beginMap();
+	LLSD::map_iterator end = agents.endMap();
+	for( ; iter != end; ++iter)
 	{
-		LLCacheNameEntry* entry = iter->second;
+		LLUUID id((*iter).first);
+		LLSD agent = (*iter).second;
+		U32 ctime = (U32)agent[CTIME].asInteger();
+		if(ctime < delete_before_time) continue;
+
+		LLCacheNameEntry* entry = new LLCacheNameEntry();
+		entry->mIsGroup = false;
+		entry->mCreateTime = ctime;
+		std::string first = agent[FIRST].asString();
+		first.copy(entry->mFirstName, DB_FIRST_NAME_BUF_SIZE, 0);
+		entry->mFirstName[llmin(first.size(),(std::string::size_type)DB_FIRST_NAME_BUF_SIZE-1)] = '\0';
+		std::string last = agent[LAST].asString();
+		last.copy(entry->mLastName, DB_LAST_NAME_BUF_SIZE, 0);
+		entry->mLastName[llmin(last.size(),(std::string::size_type)DB_LAST_NAME_BUF_SIZE-1)] = '\0';
+		impl.mCache[id] = entry;
+		++count;
+	}
+	llinfos << "LLCacheName loaded " << count << " agent names" << llendl;
+
+	count = 0;
+	LLSD groups = data[GROUPS];
+	iter = groups.beginMap();
+	end = groups.endMap();
+	for( ; iter != end; ++iter)
+	{
+		LLUUID id((*iter).first);
+		LLSD group = (*iter).second;
+		U32 ctime = (U32)group[CTIME].asInteger();
+		if(ctime < delete_before_time) continue;
+
+		LLCacheNameEntry* entry = new LLCacheNameEntry();
+		entry->mIsGroup = true;
+		entry->mCreateTime = ctime;
+		std::string name = group[NAME].asString();
+		name.copy(entry->mGroupName, DB_GROUP_NAME_BUF_SIZE, 0);
+		entry->mGroupName[llmin(name.size(), (std::string::size_type)DB_GROUP_NAME_BUF_SIZE-1)] = '\0';
+		impl.mCache[id] = entry;
+		++count;
+	}
+	llinfos << "LLCacheName loaded " << count << " group names" << llendl;
+	return true;
+}
+
+void LLCacheName::exportFile(std::ostream& ostr)
+{
+	LLSD data;
+	Cache::iterator iter = impl.mCache.begin();
+	Cache::iterator end = impl.mCache.end();
+	for( ; iter != end; ++iter)
+	{
 		// Only write entries for which we have valid data.
-		// HACK: Only write agent names.  This makes the reader easier.
-		if (   entry->mFirstName[0]
-			&& entry->mLastName[0])
+		LLCacheNameEntry* entry = iter->second;
+		if(!entry
+		   || (NULL != strchr(entry->mFirstName, '?'))
+		   || (NULL != strchr(entry->mGroupName, '?')))
 		{
-			LLUUID id = iter->first;
+			continue;
+		}
 
-			// Trivial XOR encoding
-			S32 i;
-			for (i = 0; i < UUID_BYTES; i++)
-			{
-				id.mData[i] ^= 0x33;
-			}
-
-			char id_string[UUID_STR_SIZE]; /*Flawfinder:ignore*/
-			id.toString(id_string);
-
-			// ...not a group name
-			fprintf(fp, "%s\t%u\t%s\t%s\n", 
-					id_string, 
-					entry->mCreateTime,
-					entry->mFirstName, 
-					entry->mLastName);
+		// store it
+		LLUUID id = iter->first;
+		std::string id_str = id.asString();
+		if(entry->mFirstName[0] && entry->mLastName[0])
+		{
+			data[AGENTS][id_str][FIRST] = entry->mFirstName;
+			data[AGENTS][id_str][LAST] = entry->mLastName;
+			data[AGENTS][id_str][CTIME] = (S32)entry->mCreateTime;
+		}
+		else if(entry->mIsGroup && entry->mGroupName[0])
+		{
+			data[GROUPS][id_str][NAME] = entry->mGroupName;
+			data[GROUPS][id_str][CTIME] = (S32)entry->mCreateTime;
 		}
 	}
+
+	LLSDSerialize::toPrettyXML(data, ostr);
 }
 
 
@@ -883,7 +951,4 @@ void LLCacheName::Impl::handleUUIDGroupNameReply(LLMessageSystem* msg, void** us
 {
 	((LLCacheName::Impl*)userData)->processUUIDReply(msg, true);
 }
-
-
-
 

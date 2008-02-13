@@ -451,7 +451,7 @@ void LLHTTPAssetStorage::storeAssetData(
 	bool user_waiting,
 	F64 timeout)
 {
-	if (mVFS->getExists(uuid, type))
+	if (mVFS->getExists(uuid, type)) // VFS treats nonexistant and zero-length identically
 	{
 		LLAssetRequest *req = new LLAssetRequest(uuid, type);
 		req->mUpCallback    = callback;
@@ -459,6 +459,19 @@ void LLHTTPAssetStorage::storeAssetData(
 		req->mRequestingAgentID = requesting_agent_id;
 		req->mIsUserWaiting = user_waiting;
 		req->mTimeout       = timeout;
+
+		// LLAssetStorage metric: Successful Request
+		S32 size = mVFS->getSize(uuid, type);
+		const char *message;
+		if( store_local )
+		{
+			message = "Added to local upload queue";
+		}
+		else
+		{
+			message = "Added to upload queue";
+		}
+		reportMetric( uuid, type, NULL, requesting_agent_id, size, MR_OKAY, __FILE__, __LINE__, message );
 
 		// this will get picked up and transmitted in checkForTimeouts
 		if(store_local)
@@ -479,6 +492,8 @@ void LLHTTPAssetStorage::storeAssetData(
 		llwarns << "AssetStorage: attempt to upload non-existent vfile " << uuid << ":" << LLAssetType::lookup(type) << llendl;
 		if (callback)
 		{
+			// LLAssetStorage metric: Zero size VFS
+			reportMetric( uuid, type, NULL, requesting_agent_id, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (VFS - can't tell which)" );
 			callback(uuid, user_data,  LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LL_EXSTAT_NONEXISTENT_FILE);
 		}
 	}
@@ -504,13 +519,17 @@ void LLHTTPAssetStorage::storeAssetData(
 	legacy->mUserData = user_data;
 
 	FILE *fp = LLFile::fopen(filename, "rb"); /*Flawfinder: ignore*/
+	S32 size = 0;
 	if (fp)
 	{
-		LLVFile file(mVFS, asset_id, asset_type, LLVFile::WRITE);
-
 		fseek(fp, 0, SEEK_END);
-		S32 size = ftell(fp);
+		size = ftell(fp);
 		fseek(fp, 0, SEEK_SET);
+	}
+
+	if( size )
+	{
+		LLVFile file(mVFS, asset_id, asset_type, LLVFile::WRITE);
 
 		file.setMaxSize(size);
 
@@ -528,6 +547,7 @@ void LLHTTPAssetStorage::storeAssetData(
 			LLFile::remove(filename);
 		}
 		
+		// LLAssetStorage metric: Success not needed; handled in the overloaded method here:
 		storeAssetData(
 			asset_id,
 			asset_type,
@@ -540,8 +560,19 @@ void LLHTTPAssetStorage::storeAssetData(
 			user_waiting,
 			timeout);
 	}
-	else
+	else // !size
 	{
+		if( fp )
+		{
+			// LLAssetStorage metric: Zero size
+			reportMetric( asset_id, asset_type, filename, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file was zero length" );
+			fclose( fp );
+		}
+		else
+		{
+			// LLAssetStorage metric: Missing File
+			reportMetric( asset_id, asset_type, filename, LLUUID::null, 0, MR_FILE_NONEXIST, __FILE__, __LINE__, "The file didn't exist" );
+		}
 		if (callback)
 		{
 			callback(LLUUID::null, user_data, LL_ERR_CANNOT_OPEN_FILE, LL_EXSTAT_BLOCKED_FILE);
@@ -827,7 +858,16 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		}
 		else
 		{
-			llinfos << "Requesting PUT " << new_req->mURLBuffer << llendl;
+			// Get the uncompressed file size.
+			LLVFile file(mVFS,new_req->getUUID(),new_req->getType());
+			S32 size = file.getSize();
+			llinfos << "Requesting PUT " << new_req->mURLBuffer << ", asset size: " << size << " bytes" << llendl;
+			if (size == 0)
+			{
+				llwarns << "Rejecting zero size PUT request!" << llendl;
+				new_req->cleanupCurlHandle();
+				deletePendingRequest(RT_UPLOAD, new_req->getType(), new_req->getUUID());				
+			}
 		}
 		// Pending upload will have been flagged by the request
 	}
@@ -867,8 +907,19 @@ void LLHTTPAssetStorage::checkForTimeouts()
 		}
 		else
 		{
+			// Get the uncompressed file size.
+			S32 size = file.getSize();
+
 			llinfos << "TAT: LLHTTPAssetStorage::checkForTimeouts() : pending local!"
-				<< " Requesting PUT " << new_req->mURLBuffer << llendl;
+				<< " Requesting PUT " << new_req->mURLBuffer << ", asset size: " << size << " bytes" << llendl;
+			if (size == 0)
+			{
+				
+				llwarns << "Rejecting zero size PUT request!" << llendl;
+				new_req->cleanupCurlHandle();
+				deletePendingRequest(RT_UPLOAD, new_req->getType(), new_req->getUUID());				
+			}
+
 		}
 		// Pending upload will have been flagged by the request
 	}
@@ -1403,5 +1454,3 @@ void LLHTTPAssetStorage::clearTempAssetData()
 	llinfos << "TAT: Clearing temp asset data map" << llendl;
 	mTempAssets.clear();
 }
-
-

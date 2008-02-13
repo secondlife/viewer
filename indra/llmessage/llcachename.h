@@ -63,9 +63,12 @@ public:
 
 	void cancelCallback(const LLUUID& id, LLCacheNameCallback callback, void* user_data = NULL);
 
-	// storing cache on disk; for viewer, in name.cache
+	// janky old format. Remove after a while. Phoenix. 2008-01-30
 	void importFile(FILE* fp);
-	void exportFile(FILE* fp);
+
+	// storing cache on disk; for viewer, in name.cache
+	bool importFile(std::istream& istr);
+	void exportFile(std::ostream& ostr);
 
 	// If available, copies the first and last name into the strings provided.
 	// first must be at least DB_FIRST_NAME_BUF_SIZE characters.
@@ -104,6 +107,7 @@ public:
 	static LLString getDefaultName();
 
 private:
+
 	class Impl;
 	Impl& impl;
 };

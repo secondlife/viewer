@@ -3190,6 +3190,14 @@ void LLAppViewer::loadNameCache()
 
 	std::string name_cache;
 	name_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "name.cache");
+	llifstream cache_file(name_cache.c_str());
+	if(cache_file.is_open())
+	{
+		if(gCacheName->importFile(cache_file)) return;
+	}
+
+	// Try to load from the legacy format. This should go away after a
+	// while. Phoenix 2008-01-30
 	FILE* name_cache_fp = LLFile::fopen(name_cache.c_str(), "r");		// Flawfinder: ignore
 	if (name_cache_fp)
 	{
@@ -3204,11 +3212,10 @@ void LLAppViewer::saveNameCache()
 
 	std::string name_cache;
 	name_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "name.cache");
-	FILE* name_cache_fp = LLFile::fopen(name_cache.c_str(), "w");		// Flawfinder: ignore
-	if (name_cache_fp)
+	llofstream cache_file(name_cache.c_str());
+	if(cache_file.is_open())
 	{
-		gCacheName->exportFile(name_cache_fp);
-		fclose(name_cache_fp);
+		gCacheName->exportFile(cache_file);
 	}
 }
 

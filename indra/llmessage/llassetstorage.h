@@ -420,6 +420,32 @@ private:
 			   LLXferManager *xfer,
 			   LLVFS *vfs,
 			   const LLHost &upstream_host);
+
+protected:
+	enum EMetricResult
+	{
+		// Static valued enums for #dw readability - please copy this
+		// declaration to them on updates -- source in llassetstorage.h
+		MR_INVALID			= -1,	// Makes no sense
+		MR_OKAY				= 0,	// Success - no metric normally
+		MR_ZERO_SIZE		= 1,	// Zero size asset
+		MR_BAD_FUNCTION		= 2,	// Tried to use a virtual base (PROGRAMMER ERROR)
+		MR_FILE_NONEXIST	= 3,	// Old format store call - source file does not exist
+		MR_NO_FILENAME		= 4,	// Old format store call - source filename is NULL/0-length
+		MR_NO_UPSTREAM		= 5,	// Upstream provider is missing
+		MR_VFS_CORRUPTION	= 6		// VFS is corrupt - too-large or mismatched stated/returned sizes
+	};
+
+	static class LLMetrics *metric_recipient;
+
+	static void reportMetric( const LLUUID& asset_id, const LLAssetType::EType asset_type, const char *filename,
+					   const LLUUID& agent_id, S32 asset_size, EMetricResult result,
+					   const char *file, const S32 line, const char *message ); 
+public:
+	static void setMetricRecipient( LLMetrics *recip )
+	{
+		metric_recipient = recip;
+	}
 };
 
 ////////////////////////////////////////////////////////////////////////

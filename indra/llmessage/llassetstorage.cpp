@@ -53,7 +53,10 @@
 #include "lltransfersourceasset.h"
 #include "lltransfertargetvfile.h" // For debugging
 
+#include "llmetrics.h"
+
 LLAssetStorage *gAssetStorage = NULL;
+LLMetrics *LLAssetStorage::metric_recipient = NULL;
 
 const LLUUID CATEGORIZE_LOST_AND_FOUND_ID("00000000-0000-0000-0000-000000000010");
 
@@ -1279,6 +1282,8 @@ void LLAssetStorage::storeAssetData(
 	F64 timeout)
 {
 	llwarns << "storeAssetData: wrong version called" << llendl;
+	// LLAssetStorage metric: Virtual base call
+	reportMetric( LLUUID::null, asset_type, NULL, LLUUID::null, 0, MR_BAD_FUNCTION, __FILE__, __LINE__, "Illegal call to base: LLAssetStorage::storeAssetData 1" );
 }
 
 // virtual
@@ -1296,6 +1301,8 @@ void LLAssetStorage::storeAssetData(
 	F64 timeout)
 {
 	llwarns << "storeAssetData: wrong version called" << llendl;
+	// LLAssetStorage metric: Virtual base call
+	reportMetric( asset_id, asset_type, NULL, requesting_agent_id, 0, MR_BAD_FUNCTION, __FILE__, __LINE__, "Illegal call to base: LLAssetStorage::storeAssetData 2" );
 }
 
 // virtual
@@ -1312,6 +1319,8 @@ void LLAssetStorage::storeAssetData(
 	F64 timeout)
 {
 	llwarns << "storeAssetData: wrong version called" << llendl;
+	// LLAssetStorage metric: Virtual base call
+	reportMetric( asset_id, asset_type, NULL, LLUUID::null, 0, MR_BAD_FUNCTION, __FILE__, __LINE__, "Illegal call to base: LLAssetStorage::storeAssetData 3" );
 }
 
 // virtual
@@ -1328,6 +1337,8 @@ void LLAssetStorage::storeAssetData(
 	F64 timeout)
 {
 	llwarns << "storeAssetData: wrong version called" << llendl;
+	// LLAssetStorage metric: Virtual base call
+	reportMetric( LLUUID::null, asset_type, NULL, LLUUID::null, 0, MR_BAD_FUNCTION, __FILE__, __LINE__, "Illegal call to base: LLAssetStorage::storeAssetData 4" );
 }
 
 // static
@@ -1372,3 +1383,51 @@ void LLAssetStorage::dumpTempAssetData(const LLUUID& avatar_id) const
 // virtual
 void LLAssetStorage::clearTempAssetData() 
 { }
+
+// static
+void LLAssetStorage::reportMetric( const LLUUID& asset_id, const LLAssetType::EType asset_type, const char *filename,
+								   const LLUUID& agent_id, S32 asset_size, EMetricResult result,
+								   const char *file, const S32 line, const char *message )
+{
+	if( !metric_recipient )
+	{
+		llinfos << "Couldn't store LLAssetStoreage::reportMetric - no metrics_recipient" << llendl;
+		return;
+	}
+
+	filename = filename ? filename : "";
+	file = file ? file : "";
+
+	// Create revised message - message = "message :: file:line"
+	std::string new_message; //( message );
+	new_message = message; // << " " << file << " " << line;
+	new_message += " :: ";
+	new_message += filename;
+	char line_string[16];
+	sprintf( line_string, ":%d", line );
+	new_message += line_string;
+	message = new_message.c_str();
+
+	// Change always_report to true if debugging... do not check it in this way
+	static bool always_report = false;
+	const char *metric_name = "LLAssetStorage::Metrics";
+
+	bool success = result == MR_OKAY;
+
+	if( (!success) || always_report )
+	{
+		LLSD stats;
+		stats["asset_id"] = asset_id;
+		stats["asset_type"] = asset_type;
+		stats["filename"] = filename? filename : "";
+		stats["agent_id"] = agent_id;
+		stats["asset_size"] = (S32)asset_size;
+		stats["result"] = (S32)result;
+
+		metric_recipient->recordEventDetails( metric_name, message, success, stats);
+	}
+	else
+	{
+		metric_recipient->recordEvent(metric_name, message, success);
+	}
+}

@@ -87,6 +87,8 @@ void LLViewerAssetStorage::storeAssetData(
 			{
 				// This can happen if there's a bug in our code or if the VFS has been corrupted.
 				llwarns << "LLViewerAssetStorage::storeAssetData()  Data _should_ already be in the VFS, but it's not! " << asset_id << llendl;
+				// LLAssetStorage metric: Zero size VFS
+				reportMetric( asset_id, asset_type, NULL, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (VFS - can't tell which)" );
 
 				delete req;
 				if (callback)
@@ -95,13 +97,21 @@ void LLViewerAssetStorage::storeAssetData(
 				}
 				return;
 			}
-			else if(is_priority)
-			{
-				mPendingUploads.push_front(req);
-			}
 			else
 			{
-				mPendingUploads.push_back(req);
+				// LLAssetStorage metric: Successful Request
+				S32 size = mVFS->getSize(asset_id, asset_type);
+				const char *message = "Added to upload queue";
+				reportMetric( asset_id, asset_type, NULL, LLUUID::null, size, MR_OKAY, __FILE__, __LINE__, message );
+
+				if(is_priority)
+				{
+					mPendingUploads.push_front(req);
+				}
+				else
+				{
+					mPendingUploads.push_back(req);
+				}
 			}
 
 			// Read the data from the VFS if it'll fit in this packet.
@@ -118,6 +128,10 @@ void LLViewerAssetStorage::storeAssetData(
 				else
 				{
 					llwarns << "Probable corruption in VFS file, aborting store asset data" << llendl;
+
+					// LLAssetStorage metric: VFS corrupt - bogus size
+					reportMetric( asset_id, asset_type, NULL, LLUUID::null, asset_size, MR_VFS_CORRUPTION, __FILE__, __LINE__, "VFS corruption" );
+
 					if (callback)
 					{
 						callback(asset_id, user_data, LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LL_EXSTAT_VFS_CORRUPT);
@@ -143,6 +157,8 @@ void LLViewerAssetStorage::storeAssetData(
 		else
 		{
 			llwarns << "AssetStorage: attempt to upload non-existent vfile " << asset_id << ":" << LLAssetType::lookup(asset_type) << llendl;
+			// LLAssetStorage metric: Zero size VFS
+			reportMetric( asset_id, asset_type, NULL, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (VFS - can't tell which)" );
 			if (callback)
 			{
 				callback(asset_id, user_data,  LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LL_EXSTAT_NONEXISTENT_FILE);
@@ -152,6 +168,8 @@ void LLViewerAssetStorage::storeAssetData(
 	else
 	{
 		llwarns << "Attempt to move asset store request upstream w/o valid upstream provider" << llendl;
+		// LLAssetStorage metric: Upstream provider dead
+		reportMetric( asset_id, asset_type, NULL, LLUUID::null, 0, MR_NO_UPSTREAM, __FILE__, __LINE__, "No upstream provider" );
 		if (callback)
 		{
 			callback(asset_id, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);
@@ -170,8 +188,10 @@ void LLViewerAssetStorage::storeAssetData(
 	bool user_waiting,
 	F64 timeout)
 {
-	if(!filename)
+if(!filename)
 	{
+		// LLAssetStorage metric: no filename
+		reportMetric( LLUUID::null, asset_type, "", LLUUID::null, 0, MR_VFS_CORRUPTION, __FILE__, __LINE__, "Filename missing" );
 		llerrs << "No filename specified" << llendl;
 		return;
 	}
@@ -181,8 +201,15 @@ void LLViewerAssetStorage::storeAssetData(
 
 	llinfos << "ASSET_ID: " << asset_id << llendl;
 
+	S32 size = 0;
 	FILE* fp = LLFile::fopen(filename, "rb");
 	if (fp)
+	{
+		fseek(fp, 0, SEEK_END);
+		size = ftell(fp);
+		fseek(fp, 0, SEEK_SET);
+	}
+	if( size )
 	{
 		LLLegacyAssetRequest *legacy = new LLLegacyAssetRequest;
 		
@@ -190,10 +217,6 @@ void LLViewerAssetStorage::storeAssetData(
 		legacy->mUserData = user_data;
 
 		LLVFile file(mVFS, asset_id, asset_type, LLVFile::WRITE);
-
-		fseek(fp, 0, SEEK_END);
-		S32 size = ftell(fp);
-		fseek(fp, 0, SEEK_SET);
 
 		file.setMaxSize(size);
 
@@ -210,7 +233,9 @@ void LLViewerAssetStorage::storeAssetData(
 		{
 			LLFile::remove(filename);
 		}
-		
+
+		// LLAssetStorage metric: Success not needed; handled in the overloaded method here:
+
 		LLViewerAssetStorage::storeAssetData(
 			tid,
 			asset_type,
@@ -219,8 +244,18 @@ void LLViewerAssetStorage::storeAssetData(
 			temp_file,
 			is_priority);
 	}
-	else
+	else // size == 0 (but previous block changes size)
 	{
+		if( fp )
+		{
+			// LLAssetStorage metric: Zero size
+			reportMetric( asset_id, asset_type, filename, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file was zero length" );
+		}
+		else
+		{
+			// LLAssetStorage metric: Missing File
+			reportMetric( asset_id, asset_type, filename, LLUUID::null, 0, MR_FILE_NONEXIST, __FILE__, __LINE__, "The file didn't exist" );
+		}
 		if (callback)
 		{
 			callback(asset_id, user_data, LL_ERR_CANNOT_OPEN_FILE, LL_EXSTAT_BLOCKED_FILE);
