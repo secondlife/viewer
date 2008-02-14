@@ -36,11 +36,12 @@
 #include "lldarray.h"
 #include "llframetimer.h"
 #include "llmemory.h"
-#include "llviewerimage.h"
+#include "llparcelselection.h"
 
 class LLUUID;
 class LLMessageSystem;
 class LLParcel;
+class LLViewerImage;
 class LLViewerRegion;
 
 // Constants for sendLandOwner
@@ -72,49 +73,6 @@ public:
 	virtual void changed() = 0;
 };
 
-class LLParcelSelection : public LLRefCount
-{
-	friend class LLViewerParcelMgr;
-
-protected:
-	~LLParcelSelection();
-
-public:
-	LLParcelSelection(LLParcel* parcel);
-	LLParcelSelection();
-
-	// this can return NULL at any time, as parcel selection
-	// might have been invalidated.
-	LLParcel* getParcel() { return mParcel; }
-
-	// Return the number of grid units that are owned by you within
-	// the selection (computed by server).
-	S32 getSelfCount() const { return mSelectedSelfCount; }
-
-	// Returns area that will actually be claimed in meters squared.
-	S32		getClaimableArea() const;
-	bool	hasOthersSelected() const;
-
-	// Does the selection have multiple land owners in it?
-	BOOL	getMultipleOwners() const;
-
-	// Is the entire parcel selected, or just a part?
-	BOOL	getWholeParcelSelected() const;
-
-protected:
-	void setParcel(LLParcel* parcel) { mParcel = parcel; }
-
-protected:
-
-	LLParcel*	mParcel;
-	BOOL		mSelectedMultipleOwners;
-	BOOL		mWholeParcelSelected;
-	S32			mSelectedSelfCount;
-	S32			mSelectedOtherCount;
-	S32			mSelectedPublicCount;
-};
-
-typedef LLHandle<LLParcelSelection> LLParcelSelectionHandle;
 
 class LLViewerParcelMgr
 {
@@ -231,7 +189,7 @@ public:
 	// containing the southwest corner of the selection.
 	// If want_reply_to_update, simulator will send back a ParcelProperties
 	// message.
-	void	sendParcelPropertiesUpdate(LLParcel* parcel);
+	void	sendParcelPropertiesUpdate(LLParcel* parcel, bool use_agent_region = false);
 
 	// Takes an Access List flag, like AL_ACCESS or AL_BAN
 	void	sendParcelAccessListUpdate(U32 which);
@@ -300,7 +258,7 @@ public:
 	static BOOL isParcelOwnedByAgent(const LLParcel* parcelp, U64 group_proxy_power);
 	static BOOL isParcelModifiableByAgent(const LLParcel* parcelp, U64 group_proxy_power);
 
-protected:
+private:
 	static void releaseAlertCB(S32 option, void *data);
 
 	// If the user is claiming land and the current selection 
@@ -322,6 +280,8 @@ protected:
 	static void callbackJoinLand(S32 option, void* data);
 
 	//void	finishClaim(BOOL user_to_user_sale, U32 join);
+	LLViewerImage* getBlockedImage() const;
+	LLViewerImage* getPassImage() const;
 
 private:
 	BOOL						mSelected;
@@ -367,8 +327,6 @@ private:
 	LLFrameTimer				mCollisionTimer;
 	LLUUID						mBlockedImageID;
 	LLUUID						mPassImageID;
-	LLPointer<LLViewerImage> 	mBlockedImage;
-	LLPointer<LLViewerImage> 	mPassImage;
 
 	// Media
 	S32 						mMediaParcelId;

@@ -116,7 +116,7 @@ namespace tut
 			LLTimer timer;
 			timer.setTimerExpirySec(timeout);
 
-			while(!mSawCompleted && !timer.hasExpired())
+			while(!mSawCompleted && !mSawCompletedHeader && !timer.hasExpired())
 			{
 				if (mServerPump)
 				{
@@ -167,13 +167,19 @@ namespace tut
 		{
 			return mResult;
 		}
+		LLSD getHeader()
+		{
+			return mHeader;
+		}
 	
 	protected:
 		bool mSawError;
 		U32 mStatus;
 		std::string mReason;
 		bool mSawCompleted;
+		bool mSawCompletedHeader;
 		LLSD mResult;
+		LLSD mHeader;
 		bool mResultDeleted;
 
 		class Result : public LLHTTPClient::Responder
@@ -216,6 +222,14 @@ namespace tut
 				mClient.mSawCompleted = true;
 			}
 
+			virtual void completedHeader(
+				U32 status, const std::string& reason,
+				const LLSD& content)
+			{
+				mClient.mHeader = content;
+				mClient.mSawCompletedHeader = true;
+			}
+
 		private:
 			HTTPClientTestData& mClient;
 		};
@@ -228,7 +242,9 @@ namespace tut
 			mSawError = false;
 			mStatus = 0;
 			mSawCompleted = false;
+			mSawCompletedHeader = false;
 			mResult.clear();
+			mHeader.clear();
 			mResultDeleted = false;
 			
 			return Result::build(*this);
@@ -344,9 +360,19 @@ namespace tut
 		LLSD body = result["body"];
 		ensure_equals("echoed result matches", body.size(), expected.size());
 	}
-
 	template<> template<>
-	void HTTPClientTestObject::test<8>()
+		void HTTPClientTestObject::test<8>()
+	{
+		// This is testing for the presence of the Header in the returned results
+		// from an HTTP::get call.
+		LLHTTPClient::get("http://www.secondlife.com/", newResult());
+		runThePump();
+		ensureStatusOK();
+		LLSD header = getHeader();
+		ensure_equals("got a header", header.emptyMap().asBoolean(), FALSE);
+	}
+	template<> template<>
+	void HTTPClientTestObject::test<9>()
 	{
 		LLHTTPClient::head("http://www.secondlife.com/", newResult());
 		runThePump();

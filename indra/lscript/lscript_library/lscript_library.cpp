@@ -29,7 +29,15 @@
  * $/LicenseInfo$
  */
 
-// *WARNING*
+
+//  ##      ##    ###    ########  ##    ## #### ##    ##  ######   #### ####
+//  ##  ##  ##   ## ##   ##     ## ###   ##  ##  ###   ## ##    ##  #### ####
+//  ##  ##  ##  ##   ##  ##     ## ####  ##  ##  ####  ## ##        #### ####
+//  ##  ##  ## ##     ## ########  ## ## ##  ##  ## ## ## ##   ####  ##   ##
+//  ##  ##  ## ######### ##   ##   ##  ####  ##  ##  #### ##    ##
+//  ##  ##  ## ##     ## ##    ##  ##   ###  ##  ##   ### ##    ##  #### ####
+//   ###  ###  ##     ## ##     ## ##    ## #### ##    ##  ######   #### #### 
+//
 // When adding functions, they <b>MUST</b> be appended to the end of
 // the init() method. The init() associates the name with a number,
 // which is then serialized into the bytecode. Inserting a new
@@ -430,6 +438,8 @@ void LLScriptLibrary::init()
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llRegionSay", NULL, "is", "llRegionSay(integer channel, string msg)\nbroadcasts msg to entire region on channel (not 0.)"));
 
 	addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llGetObjectDetails", "l", "kl", "list llGetObjectDetails(key id, list params)\nGets the object details specified in params for the object with key id.\nDetails are OBJECT_NAME, _DESC, _POS, _ROT, _VELOCITY, _OWNER, _GROUP, _CREATOR."));
+
+		addFunction(new LLScriptLibraryFunction(10.f, 0.f, dummy_func, "llSetClickAction", NULL, "i", "llSetClickAction(integer action)\nSets the action performed when a prim is clicked upon."));
 
 	// energy, sleep, dummy_func, name, return type, parameters, help text, gods-only
 

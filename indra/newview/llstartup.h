@@ -46,6 +46,7 @@ extern const char* SCREEN_LAST_FILENAME;
 
 enum EStartupState{
 	STATE_FIRST,					// Initial startup
+	STATE_MEDIA_INIT,               // Initialzie media library
 	STATE_LOGIN_SHOW,				// Show login screen
 	STATE_LOGIN_WAIT,				// Wait for user input at login screen
 	STATE_LOGIN_CLEANUP,			// Get rid of login screen and start login
@@ -58,7 +59,6 @@ enum EStartupState{
 	STATE_WORLD_INIT,				// Start building the world
 	STATE_SEED_GRANTED_WAIT,		// Wait for seed cap grant
 	STATE_SEED_CAP_GRANTED,			// Have seed cap grant 
-	STATE_QUICKTIME_INIT,			// Initialzie QT
 	STATE_WORLD_WAIT,				// Waiting for simulator
 	STATE_AGENT_SEND,				// Connect to a region
 	STATE_AGENT_WAIT,				// Wait for region
@@ -72,8 +72,6 @@ enum EStartupState{
 
 // exported symbols
 extern BOOL gAgentMovementCompleted;
-extern bool gUseQuickTime;
-extern bool gQuickTimeInitialized;
 extern LLPointer<LLImageGL> gStartImageGL;
 
 class LLStartUp

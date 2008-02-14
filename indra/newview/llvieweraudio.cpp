@@ -35,12 +35,12 @@
 #include "audiosettings.h"
 #include "llagent.h"
 #include "llappviewer.h"
-#include "llmediaengine.h"
 #include "llvieweraudio.h"
 #include "llviewercamera.h"
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
 #include "llvoiceclient.h"
+#include "llviewermedia.h"
 
 /////////////////////////////////////////////////////////
 
@@ -153,13 +153,10 @@ void audio_update_volume(bool force_update)
 	}
 
 	// Streaming Media
-	if(LLMediaEngine::getInstance())
-	{
-		F32 media_volume = gSavedSettings.getF32("AudioLevelMedia");
-		media_volume = mute_volume * master_volume * (media_volume*media_volume);
-		BOOL media_muted = gSavedSettings.getBOOL("MuteMedia");
-		LLMediaEngine::getInstance()->setVolume(media_muted ? 0.f : media_volume);
-	}
+	F32 media_volume = gSavedSettings.getF32("AudioLevelMedia");
+	BOOL media_muted = gSavedSettings.getBOOL("MuteMedia");
+	media_volume = mute_volume * master_volume * (media_volume*media_volume);
+	LLViewerMedia::setVolume( media_muted ? 0.0f : media_volume );
 
 	// Voice
 	if (gVoiceClient)

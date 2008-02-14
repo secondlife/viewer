@@ -137,9 +137,7 @@ private:
 // WARNING!  The order of the inheritance here matters!!  Do not change.  - KLW
 class LLPanelAvatarWeb : 
 	public LLPanelAvatarTab
-#if LL_LIBXUL_ENABLED
 	, public LLWebBrowserCtrlObserver
-#endif
 {
 public:
 	LLPanelAvatarWeb(const std::string& name, const LLRect& rect, LLPanelAvatar* panel_avatar);
@@ -157,11 +155,9 @@ public:
 	static void onCommitURL(LLUICtrl* ctrl, void* data);
 	static void onClickWebProfileHelp(void *);
 
-#if LL_LIBXUL_ENABLED
 	// browser observer impls
 	virtual void onStatusTextChange( const EventType& eventIn );
 	virtual void onLocationChange( const EventType& eventIn );
-#endif
 
 private:
 	std::string			mURL;

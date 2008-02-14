@@ -1,0 +1,129 @@
+/**
+ * @file llviewerparcelmediaautoplay.cpp
+ * @author Karl Stiefvater
+ * @brief timer to automatically play media in a parcel
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
+#include "llviewerprecompiledheaders.h"
+#include "llviewerparcelmediaautoplay.h"
+#include "llviewerparcelmedia.h"
+#include "llviewercontrol.h"
+#include "llviewermedia.h"
+#include "llparcel.h"
+#include "llviewerparcelmgr.h"
+#include "lluuid.h"
+#include "message.h"
+#include "llviewerimagelist.h"         // for texture stats
+#include "llagent.h"
+
+const F32 AUTOPLAY_TIME  = 5;          // how many seconds before we autoplay
+const F32 AUTOPLAY_SIZE  = 24*24;      // how big the texture must be (pixel area) before we autoplay
+const F32 AUTOPLAY_SPEED = 0.1f;        // how slow should the agent be moving to autoplay
+
+LLViewerParcelMediaAutoPlay::LLViewerParcelMediaAutoPlay() :
+	LLEventTimer(1),
+	mPlayed(FALSE),
+	mTimeInParcel(0)
+{
+}
+
+static LLViewerParcelMediaAutoPlay *sAutoPlay = NULL;
+
+// static
+void LLViewerParcelMediaAutoPlay::initClass()
+{
+	if (!sAutoPlay)
+		sAutoPlay = new LLViewerParcelMediaAutoPlay;
+}
+
+// static
+void LLViewerParcelMediaAutoPlay::cleanupClass()
+{
+	if (sAutoPlay)
+		delete sAutoPlay;
+}
+
+// static
+void LLViewerParcelMediaAutoPlay::playStarted()
+{
+	if (sAutoPlay)
+	{
+		sAutoPlay->mPlayed = TRUE;
+	}
+}
+
+BOOL LLViewerParcelMediaAutoPlay::tick()
+{
+	LLParcel *this_parcel = NULL;
+	std::string this_media_url;
+	LLUUID this_media_texture_id;
+	S32 this_parcel_id = 0;
+	
+	if (gParcelMgr)
+	{
+		this_parcel = gParcelMgr->getAgentParcel();
+	}
+
+	if (this_parcel)
+	{
+		this_media_url = std::string(this_parcel->getMediaURL());
+
+		this_media_texture_id = this_parcel->getMediaID();
+
+		this_parcel_id = this_parcel->getLocalID();
+	}
+
+	if (this_parcel_id != mLastParcelID)
+	{
+		// we've entered a new parcel
+		mPlayed    = FALSE;                   // we haven't autoplayed yet
+		mTimeInParcel = 0;                    // reset our timer
+		mLastParcelID = this_parcel_id;
+	}
+
+	mTimeInParcel += mPeriod;                 // increase mTimeInParcel by the amount of time between ticks
+
+	if ((!mPlayed) &&                         // if we've never played
+		(mTimeInParcel > AUTOPLAY_TIME) &&    // and if we've been here for so many seconds
+		(this_media_url.size() != 0) &&       // and if the parcel has media
+		(!LLViewerMedia::isMediaPlaying()))   // and if the media is not already playing
+	{
+		if (this_media_texture_id.notNull())  // and if the media texture is good
+		{
+			LLViewerImage *image = gImageList.getImage(this_media_texture_id, FALSE);
+
+			F32 image_size = 0;
+			
+			if (image)
+			{
+				image_size = image->mMaxVirtualSize;
+			}
+
+			if (gAgent.getVelocity().magVec() < AUTOPLAY_SPEED) // and if the agent is stopped (slow enough)
+			{
+				if (image_size > AUTOPLAY_SIZE)    // and if the target texture is big enough on screen
+				{
+					if (this_parcel)
+					{
+						if (gSavedSettings.getBOOL("ParcelMediaAutoPlayEnable"))
+						{
+							// and last but not least, only play when autoplay is enabled
+							LLViewerParcelMedia::play(this_parcel);
+						}
+					}
+
+					mPlayed = TRUE;
+				}
+			}
+		}
+	}
+
+	
+	return FALSE; // continue ticking forever please.
+}
+		
+ 
+	

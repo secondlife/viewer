@@ -8714,6 +8714,14 @@ version 2.0
 		{	MediaID			LLUUID			}
 		{	MediaAutoScale	U8				}
 	}
+	{
+		DataBlockExtended Single
+		{   MediaType       Variable    1   }
+		{   MediaDesc       Variable    1   }
+		{   MediaWidth      S32             }
+		{   MediaHeight     S32             }
+		{   MediaLoop       U8              }
+	}
 }
 
 // LandStatRequest

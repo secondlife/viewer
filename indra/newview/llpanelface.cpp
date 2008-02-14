@@ -57,10 +57,9 @@
 #include "lltooldraganddrop.h"
 #include "llui.h"
 #include "llviewercontrol.h"
+#include "llviewermedia.h"
 #include "llviewerobject.h"
 #include "llviewerstats.h"
-#include "llmediaengine.h"
-
 #include "llvieweruictrlfactory.h"
 
 //
@@ -374,14 +373,19 @@ void LLPanelFace::getState()
 		childSetEnabled("button align",FALSE);
 		//mBtnAutoFix->setEnabled ( FALSE );
 		
-		if ( LLMediaEngine::getInstance()->getMediaRenderer () )
-			if ( LLMediaEngine::getInstance()->getMediaRenderer ()->isLoaded () )
-			{	
-				childSetEnabled("textbox autofix",editable);
-				//mLabelTexAutoFix->setEnabled ( editable );
-				childSetEnabled("button align",editable);
-				//mBtnAutoFix->setEnabled ( editable );
-			}
+		if(LLViewerMedia::hasMedia())
+		{
+			childSetEnabled("textbox autofix",editable);
+			childSetEnabled("button align",editable);
+		}
+		//if ( LLMediaEngine::getInstance()->getMediaRenderer () )
+		//	if ( LLMediaEngine::getInstance()->getMediaRenderer ()->isLoaded () )
+		//	{	
+		//		
+		//		//mLabelTexAutoFix->setEnabled ( editable );
+		//		
+		//		//mBtnAutoFix->setEnabled ( editable );
+		//	}
 		childSetEnabled("button apply",editable);
 
 		bool identical;
@@ -884,27 +888,25 @@ struct LLPanelFaceSetMediaFunctor : public LLSelectedTEFunctor
 	virtual bool apply(LLViewerObject* object, S32 te)
 	{
 		// only do this if it's a media texture
-		if ( object->getTE ( te )->getID() ==  LLMediaEngine::getInstance()->getImageUUID () )
+		if ( object->getTE ( te )->getID() == LLViewerMedia::getMediaTextureID() )
 		{
-			// make sure we're valid
-			if ( LLMediaEngine::getInstance()->getMediaRenderer() )
+			S32 media_width, media_height;
+			S32 texture_width, texture_height;
+			if ( LLViewerMedia::getMediaSize( &media_width, &media_height )
+				&& LLViewerMedia::getTextureSize( &texture_width, &texture_height ) )
 			{
-				// calculate correct scaling based on media dimensions and next-power-of-2 texture dimensions
-				F32 scaleS = (F32)LLMediaEngine::getInstance()->getMediaRenderer()->getMediaWidth() / 
-								(F32)LLMediaEngine::getInstance()->getMediaRenderer()->getTextureWidth();
-
-				F32 scaleT = (F32)LLMediaEngine::getInstance()->getMediaRenderer()->getMediaHeight() /
-								(F32)LLMediaEngine::getInstance()->getMediaRenderer()->getTextureHeight();
+				F32 scale_s = (F32)media_width / (F32)texture_width;
+				F32 scale_t = (F32)media_height / (F32)texture_height;
 
 				// set scale and adjust offset
-				object->setTEScaleS( te, scaleS );
-				object->setTEScaleT( te, scaleT );	// don't need to flip Y anymore since QT does this for us now.
-				object->setTEOffsetS( te, -( 1.0f - scaleS ) / 2.0f );
-				object->setTEOffsetT( te, -( 1.0f - scaleT ) / 2.0f );
+				object->setTEScaleS( te, scale_s );
+				object->setTEScaleT( te, scale_t );	// don't need to flip Y anymore since QT does this for us now.
+				object->setTEOffsetS( te, -( 1.0f - scale_s ) / 2.0f );
+				object->setTEOffsetT( te, -( 1.0f - scale_t ) / 2.0f );
 			}
 		}
 		return true;
-	}
+	};
 };
 
 void LLPanelFace::onClickAutoFix(void* userdata)

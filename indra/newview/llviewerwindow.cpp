@@ -60,7 +60,6 @@
 #include "linked_lists.h"
 #include "llassetstorage.h"
 #include "llfontgl.h"
-#include "llmediaengine.h"		// mute on minimize
 #include "llrect.h"
 #include "llsky.h"
 #include "llstring.h"

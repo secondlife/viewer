@@ -120,6 +120,7 @@ private:
 
 	static void onCommitSearch(LLUICtrl*, void* data);
 	static void onClickSearch(void* data);
+	static void onClickStatGraph(void* data);
 
 private:
 	LLTextBox	*mTextBalance;
@@ -127,6 +128,9 @@ private:
 	LLTextBox	*mTextTime;
 
 	LLTextBox*	mTextParcelName;
+
+	LLStatGraph *mSGBandwidth;
+	LLStatGraph *mSGPacketLoss;
 
 	LLButton	*mBtnBuyCurrency;
 

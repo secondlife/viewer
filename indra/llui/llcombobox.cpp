@@ -640,12 +640,6 @@ void LLComboBox::showList()
 	// NB: this call will trigger the focuslost callback which will hide the list, so do it first
 	// before finally showing the list
 
-	if (!mList->getFirstSelected())
-	{
-		// if nothing is selected, select the first item
-		// so that the callback is not immediately triggered on setFocus()
-		mList->selectFirstItem();
-	}
 	mList->setFocus(TRUE);
 
 	// Show the list and push the button down
@@ -714,7 +708,7 @@ void LLComboBox::onButtonDown(void *userdata)
 	else
 	{
 		self->hideList();
-	}
+	} 
 
 }
 
@@ -737,29 +731,34 @@ void LLComboBox::onItemSelected(LLUICtrl* item, void *userdata)
 			self->mTextEntry->selectAll();
 		}
 	}
-	else
-	{
-		// invalid selection, just restore existing value
-		LLString orig_selection = self->mAllowTextEntry ? self->mTextEntry->getText() : self->mButton->getLabelSelected();
 
-		self->mList->selectItemByLabel(orig_selection);
-	}
-	self->onCommit();
-
+	// hiding the list reasserts the old value stored in the text editor/dropdown button
 	self->hideList();
+
+	// commit does the reverse, asserting the value in the list
+	self->onCommit();
 }
 
 BOOL LLComboBox::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_screen)
 {
     LLString tool_tip;
 
+	if(LLUICtrl::handleToolTip(x, y, msg, sticky_rect_screen))
+	{
+		return TRUE;
+	}
+	
 	if (LLUI::sShowXUINames)
 	{
 		tool_tip = getShowNamesToolTip();
 	}
-	else
+	else if (!mToolTipMsg.empty())
 	{
 		tool_tip = mToolTipMsg;
+	}
+	else
+	{
+		tool_tip = getValue().asString();
 	}
 
 	if( !tool_tip.empty() )

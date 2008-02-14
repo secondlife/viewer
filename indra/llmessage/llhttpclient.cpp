@@ -38,6 +38,7 @@
 #include "llurlrequest.h"
 #include "llbufferstream.h"
 #include "llsdserialize.h"
+#include "llsdutil.h"
 #include "llvfile.h"
 #include "llvfs.h"
 #include "lluri.h"
@@ -112,7 +113,11 @@ void LLHTTPClient::Responder::completed(
 	}
 }
 
+// virtual
+void LLHTTPClient::Responder::completedHeader(U32 status, const std::string& reason, const LLSD& content)
+{
 
+}
 namespace
 {
 	class LLHTTPClientURLAdaptor : public LLURLRequestComplete
@@ -140,13 +145,19 @@ namespace
 			if (mResponder.get())
 			{
 				mResponder->completedRaw(mStatus, mReason, channels, buffer);
+				mResponder->completedHeader(mStatus, mReason, mHeaderOutput);
 			}
+		}
+		virtual void header(const std::string& header, const std::string& value)
+		{
+			mHeaderOutput[header] = value;
 		}
 
 	private:
 		LLHTTPClient::ResponderPtr mResponder;
 		U32 mStatus;
 		std::string mReason;
+		LLSD mHeaderOutput;
 	};
 	
 	class Injector : public LLIOPipe
@@ -340,10 +351,17 @@ void LLHTTPClient::get(const std::string& url, ResponderPtr responder, const LLS
 {
 	request(url, LLURLRequest::HTTP_GET, NULL, responder, headers, timeout);
 }
-
+void LLHTTPClient::getHeaderOnly(const std::string& url, ResponderPtr responder, const LLSD& headers, const F32 timeout)
+{
+	request(url, LLURLRequest::HTTP_HEAD, NULL, responder, headers, timeout);
+}
 void LLHTTPClient::get(const std::string& url, ResponderPtr responder, const F32 timeout)
 {
 	get(url, responder, LLSD(), timeout);
+}
+void LLHTTPClient::getHeaderOnly(const std::string& url, ResponderPtr responder, const F32 timeout)
+{
+	getHeaderOnly(url, responder, LLSD(), timeout);
 }
 
 void LLHTTPClient::get(const std::string& url, const LLSD& query, ResponderPtr responder, const LLSD& headers, const F32 timeout)

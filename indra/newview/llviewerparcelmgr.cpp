@@ -38,7 +38,6 @@
 #include "indra_constants.h"
 #include "llcachename.h"
 #include "llgl.h"
-#include "llmediaengine.h"
 #include "llparcel.h"
 #include "llsecondlifeurls.h"
 #include "message.h"
@@ -55,14 +54,16 @@
 #include "llfloatersellland.h"
 #include "llfloatertools.h"
 #include "llnotify.h"
+#include "llparcelselection.h"
 #include "llresmgr.h"
 #include "llstatusbar.h"
 #include "llui.h"
+#include "llviewerimage.h"
 #include "llviewerimagelist.h"
 #include "llviewermenu.h"
+#include "llviewerparcelmedia.h"
 #include "llviewerparceloverlay.h"
 #include "llviewerregion.h"
-//#include "llwebbrowserctrl.h"
 #include "llworld.h"
 #include "lloverlaybar.h"
 #include "roles_constants.h"
@@ -78,11 +79,8 @@ U8* LLViewerParcelMgr::sPackedOverlay = NULL;
 
 LLUUID gCurrentMovieID = LLUUID::null;
 
-static LLParcelSelection* get_null_parcel_selection();
-template<> 
-	const LLHandle<LLParcelSelection>::NullFunc 
-		LLHandle<LLParcelSelection>::sNullFunc = get_null_parcel_selection;
-
+LLPointer<LLViewerImage> sBlockedImage;
+LLPointer<LLViewerImage> sPassImage;
 
 // Local functions
 void optionally_start_music(const LLString& music_url);
@@ -141,10 +139,10 @@ LLViewerParcelMgr::LLViewerParcelMgr()
 	resetSegments(mCollisionSegments);
 
 	mBlockedImageID.set(gViewerArt.getString("noentrylines.tga"));
-	mBlockedImage = gImageList.getImage(mBlockedImageID, TRUE, TRUE);
+	sBlockedImage = gImageList.getImage(mBlockedImageID, TRUE, TRUE);
 
 	mPassImageID.set(gViewerArt.getString("noentrypasslines.tga"));
-	mPassImage = gImageList.getImage(mPassImageID, TRUE, TRUE);
+	sPassImage = gImageList.getImage(mPassImageID, TRUE, TRUE);
 
 	S32 overlay_size = mParcelsPerEdge * mParcelsPerEdge / PARCEL_OVERLAY_CHUNKS;
 	sPackedOverlay = new U8[overlay_size];
@@ -189,6 +187,9 @@ LLViewerParcelMgr::~LLViewerParcelMgr()
 
 	delete[] mAgentParcelOverlay;
 	mAgentParcelOverlay = NULL;
+
+	sBlockedImage = NULL;
+	sPassImage = NULL;
 }
 
 void LLViewerParcelMgr::dump()
@@ -1255,30 +1256,45 @@ const LLString& LLViewerParcelMgr::getAgentParcelName() const
 }
 
 
-void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel)
+void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel, bool use_agent_region)
 {
 	if (!parcel) return;
 	if(!gWorldp) return;
-	LLViewerRegion *region = gWorldp->getRegionFromPosGlobal( mWestSouth );
+	LLViewerRegion *region = use_agent_region ? gAgent.getRegion() : gWorldp->getRegionFromPosGlobal( mWestSouth );
 	if (!region) return;
 
-	LLMessageSystem *msg = gMessageSystem;
+	LLSD body;
+	std::string url = gAgent.getRegion()->getCapability("ParcelPropertiesUpdate");
+	if (!url.empty())
+	{
+		parcel->packMessage(body);
 
-	msg->newMessageFast(_PREHASH_ParcelPropertiesUpdate);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID,	gAgent.getID() );
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->nextBlockFast(_PREHASH_ParcelData);
-	msg->addS32Fast(_PREHASH_LocalID, parcel->getLocalID() );
+		llinfos << "Sending parcel properties update via capability to:" << url << llendl;
 
-	U32 flags = 0x0;
-	// request new properties update from simulator
-	flags |= 0x01;
-	msg->addU32("Flags", flags);
+		LLHTTPClient::post(url, body, new LLHTTPClient::Responder());
+	}
+	else
+	{
+		LLMessageSystem *msg = gMessageSystem;
 
-	parcel->packMessage(msg);
+		msg->newMessageFast(_PREHASH_ParcelPropertiesUpdate);
+		msg->nextBlockFast(_PREHASH_AgentData);
+		msg->addUUIDFast(_PREHASH_AgentID,	gAgent.getID() );
+		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+		msg->nextBlockFast(_PREHASH_ParcelData);
+		msg->addS32Fast(_PREHASH_LocalID, parcel->getLocalID() );
 
-	msg->sendReliable( region->getHost() );
+		U32 flags = 0x0;
+		// request new properties update from simulator
+		flags |= 0x01;
+		msg->addU32("Flags", flags);
+
+		parcel->packMessage(msg);
+
+		msg->sendReliable( region->getHost() );
+	}
+
+
 }
 
 
@@ -1362,7 +1378,6 @@ void LLViewerParcelMgr::processParcelOverlay(LLMessageSystem *msg, void **user)
 		region->mParcelOverlay->uncompressLandOverlay( sequence_id, sPackedOverlay );
 	}
 }
-
 
 // static
 void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **user)
@@ -1657,19 +1672,6 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 	}
 	else
 	{
-		// It's the agent parcel
-		BOOL new_parcel = parcel ? FALSE : TRUE;
-		if (parcel)
-		{
-			S32 parcelid = parcel->getLocalID();
-			U64 regionid = gAgent.getRegion()->getHandle();
-			if (parcelid != gParcelMgr->mMediaParcelId || regionid != gParcelMgr->mMediaRegionId)
-			{
-				gParcelMgr->mMediaParcelId = parcelid;
-				gParcelMgr->mMediaRegionId = regionid;
-				new_parcel = TRUE;
-			}
-		}
 		// look for music.
 		if (gAudiop)
 		{
@@ -1714,75 +1716,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 		}//if gAudiop
 
 		// now check for video
-		if (LLMediaEngine::getInstance ()->isAvailable ())
-		{
-			// we have a player
-			if (parcel)
-			{
-				// we're in a parcel
-				std::string mediaUrl = std::string ( parcel->getMediaURL () );
-				LLString::trim(mediaUrl);
-
-				// clean spaces and whatnot 
-				mediaUrl = LLWeb::escapeURL(mediaUrl);
-
-				
-				// something changed
-				LLMediaEngine* me = LLMediaEngine::getInstance();
-				if (  ( me->getUrl () != mediaUrl )
-					|| ( me->getImageUUID () != parcel->getMediaID () ) 
-					|| ( me->isAutoScaled () != parcel->getMediaAutoScale () ) )
-				{
-					BOOL video_was_playing = FALSE;
-					LLMediaBase* renderer = me->getMediaRenderer();
-					if (renderer && (renderer->isPlaying() || renderer->isLooping()))
-					{
-						video_was_playing = TRUE;
-					}
-
-					stop_video();
-
-					if ( !mediaUrl.empty () )
-					{
-						// Someone has "changed the channel", changing the URL of a video
-						// you were already watching.  Do we want to automatically start playing? JC
-						if (!new_parcel
-							&& gSavedSettings.getBOOL("AudioStreamingVideo")
-							&& video_was_playing)
-						{
-							start_video(parcel);
-						}
-						else
-						{
-							// "Prepare" the media engine, but don't auto-play. JC
-							optionally_prepare_video(parcel);
-						}
-					}
-				}
-			}
-			else
-			{
-				stop_video();
-			}
-		}
-		else
-		{
-			// no audio player, do a first use dialog if their is media here
-			if (parcel)
-			{
-				std::string mediaUrl = std::string ( parcel->getMediaURL () );
-				if (!mediaUrl.empty ())
-				{
-					if (gSavedSettings.getWarning("QuickTimeInstalled"))
-					{
-						gSavedSettings.setWarning("QuickTimeInstalled", FALSE);
-
-						LLNotifyBox::showXml("NoQuickTime" );
-					};
-				}
-			}
-		}
-
+		LLViewerParcelMedia::update( parcel );
 	};
 }
 
@@ -1830,94 +1764,6 @@ void callback_start_music(S32 option, void* data)
 
 	delete music_url;
 	music_url = NULL;
-}
-
-void prepare_video(const LLParcel *parcel)
-{
-	std::string mediaUrl;
-	if (parcel->getParcelFlag(PF_URL_RAW_HTML))
-	{
-		mediaUrl = std::string("data:");
-		mediaUrl.append(parcel->getMediaURL());
-	}
-	else
-	{
-		mediaUrl = std::string ( parcel->getMediaURL () );
-	}
-
-	// clean spaces and whatnot 
-	mediaUrl = LLWeb::escapeURL(mediaUrl);
-	
-	LLMediaEngine::getInstance ()->setUrl ( mediaUrl );
-	LLMediaEngine::getInstance ()->setImageUUID ( parcel->getMediaID () );
-	LLMediaEngine::getInstance ()->setAutoScaled ( parcel->getMediaAutoScale () ? TRUE : FALSE );  // (U8 instead of BOOL for future expansion)
-}
-
-void start_video(const LLParcel *parcel)
-{
-	prepare_video(parcel);
-	std::string path( "" );
-	LLMediaEngine::getInstance ()->convertImageAndLoadUrl ( true, false, path);
-}
-
-void stop_video()
-{
-	// set up remote control so stop is selected
-	LLMediaEngine::getInstance ()->stop ();
-	if (gOverlayBar)
-	{
-		gOverlayBar->refresh ();
-	}
-
-	if (LLMediaEngine::getInstance ()->isLoaded())
-	{
-		LLMediaEngine::getInstance ()->unload ();
-
-		gImageList.updateMovieImage(LLUUID::null, FALSE);
-		gCurrentMovieID.setNull();
-	}
-
-	LLMediaEngine::getInstance ()->setUrl ( "" );
-	LLMediaEngine::getInstance ()->setImageUUID ( LLUUID::null );
-	
-}
-
-void optionally_prepare_video(const LLParcel *parcelp)
-{
-	if (gSavedSettings.getWarning("FirstStreamingVideo"))
-	{
-		gViewerWindow->alertXml("ParcelCanPlayMedia",
-			callback_prepare_video,
-			(void*)parcelp);
-	}
-	else
-	{
-		llinfos << "Entering parcel " << parcelp->getLocalID() << " with video " <<  parcelp->getMediaURL() << llendl;
-		prepare_video(parcelp);
-	}
-}
-
-
-void callback_prepare_video(S32 option, void* data)
-{
-	const LLParcel *parcelp = (const LLParcel *)data;
-
-	if (0 == option)
-	{
-		gSavedSettings.setBOOL("AudioStreamingVideo", TRUE);
-		llinfos << "Starting parcel video " <<  parcelp->getMediaURL() << " on parcel " << parcelp->getLocalID() << llendl;
-		gMessageSystem->setHandlerFunc("ParcelMediaCommandMessage", LLMediaEngine::process_parcel_media);
-		gMessageSystem->setHandlerFunc ( "ParcelMediaUpdate", LLMediaEngine::process_parcel_media_update );
-		prepare_video(parcelp);
-	}
-	else
-	{
-		gMessageSystem->setHandlerFunc("ParcelMediaCommandMessage", null_message_callback);
-		gMessageSystem->setHandlerFunc ( "ParcelMediaUpdate", null_message_callback );
-		gSavedSettings.setBOOL("AudioStreamingVideo", FALSE);
-	}
-
-	gSavedSettings.setWarning("FirstStreamingVideo", FALSE);
 }
 
 // static
@@ -2548,71 +2394,20 @@ void sanitize_corners(const LLVector3d &corner1,
 	east_north_top.mdV[VZ] = llmax( corner1.mdV[VZ], corner2.mdV[VZ] );
 }
 
-//
-// LLParcelSelection
-//
-LLParcelSelection::LLParcelSelection() : 
-	mParcel(NULL),
-	mSelectedMultipleOwners(FALSE),
-	mWholeParcelSelected(FALSE),
-	mSelectedSelfCount(0),
-	mSelectedOtherCount(0),
-	mSelectedPublicCount(0)
-{
-}
-
-LLParcelSelection::LLParcelSelection(LLParcel* parcel)  : 
-	mParcel(parcel),
-	mSelectedMultipleOwners(FALSE),
-	mWholeParcelSelected(FALSE),
-	mSelectedSelfCount(0),
-	mSelectedOtherCount(0),
-	mSelectedPublicCount(0)
-{
-}
-
-LLParcelSelection::~LLParcelSelection()
-{
-}
-
-BOOL LLParcelSelection::getMultipleOwners() const
-{
-	return mSelectedMultipleOwners;
-}
-
-
-BOOL LLParcelSelection::getWholeParcelSelected() const
-{
-	return mWholeParcelSelected;
-}
-
-
-S32 LLParcelSelection::getClaimableArea() const
-{
-	const S32 UNIT_AREA = S32( PARCEL_GRID_STEP_METERS * PARCEL_GRID_STEP_METERS );
-	return mSelectedPublicCount * UNIT_AREA;
-}
-
-bool LLParcelSelection::hasOthersSelected() const
-{
-	return mSelectedOtherCount != 0;
-}
-
-static LLPointer<LLParcelSelection> sNullSelection;
-
-LLParcelSelection* get_null_parcel_selection()
-{
-	if (sNullSelection.isNull())
-	{
-		sNullSelection = new LLParcelSelection;
-	}
-	
-	return sNullSelection;
-}
 
 void LLViewerParcelMgr::cleanupGlobals()
 {
 	delete gParcelMgr;
 	gParcelMgr = NULL;
-	sNullSelection = NULL;
+	LLParcelSelection::sNullSelection = NULL;
+}
+
+LLViewerImage* LLViewerParcelMgr::getBlockedImage() const
+{
+	return sBlockedImage;
+}
+
+LLViewerImage* LLViewerParcelMgr::getPassImage() const
+{
+	return sPassImage;
 }

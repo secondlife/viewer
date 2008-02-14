@@ -211,8 +211,15 @@ public:
 	void setDesc(const LLString& desc);
 	void setMusicURL(const LLString& url);
 	void setMediaURL(const LLString& url);
+	void setMediaType(const char* type);
+	void setMediaDesc(const char* desc);
 	void	setMediaID(const LLUUID& id) { mMediaID = id; }
 	void	setMediaAutoScale ( U8 flagIn ) { mMediaAutoScale = flagIn; }
+	void    setMediaLoop (U8 loop) { mMediaLoop = loop; }
+	void	setObscureMedia( U8 flagIn ) { mObscureMedia = flagIn; }
+	void	setObscureMusic( U8 flagIn ) { mObscureMusic = flagIn; }
+	void setMediaWidth(S32 width);
+	void setMediaHeight(S32 height);
 	virtual void	setLocalID(S32 local_id);
 
 	// blow away all the extra crap lurking in parcels, including urls, access lists, etc
@@ -268,6 +275,7 @@ public:
 	BOOL	exportStream(std::ostream& output_stream);
 
 	void	packMessage(LLMessageSystem* msg);
+	void	packMessage(LLSD& msg);
 	void	unpackMessage(LLMessageSystem* msg);
 
 	void	packAccessEntries(LLMessageSystem* msg,
@@ -299,8 +307,15 @@ public:
 	const LLString&	getDesc() const			{ return mDesc; }
 	const LLString&	getMusicURL() const		{ return mMusicURL; }
 	const LLString&	getMediaURL() const		{ return mMediaURL; }
+	const char*		getMediaDesc() const		{ return mMediaDesc.c_str(); }
+	const char*		getMediaType() const		{ return mMediaType.c_str(); }
 	const LLUUID&	getMediaID() const			{ return mMediaID; }
+	S32				getMediaWidth() const		{ return mMediaWidth; }
+	S32				getMediaHeight() const		{ return mMediaHeight; }
 	U8				getMediaAutoScale() const	{ return mMediaAutoScale; }
+	U8              getMediaLoop() const        { return mMediaLoop; }
+	U8				getObscureMedia() const		{ return mObscureMedia; }
+	U8				getObscureMusic() const		{ return mObscureMusic; }
 	S32				getLocalID() const			{ return mLocalID; }
 	const LLUUID&	getOwnerID() const			{ return mOwnerID; }
 	const LLUUID&	getGroupID() const			{ return mGroupID; }
@@ -576,7 +591,14 @@ protected:
 	LLString 			mDesc;
 	LLString 			mMusicURL;
 	LLString 			mMediaURL;
+	std::string mMediaDesc;
+	std::string mMediaType;
+	S32					mMediaWidth;
+	S32					mMediaHeight;
 	U8					mMediaAutoScale;
+	U8                  mMediaLoop;
+	U8					mObscureMedia;
+	U8					mObscureMusic;
 	LLUUID				mMediaID;
 	S32					mPassPrice;
 	F32					mPassHours;

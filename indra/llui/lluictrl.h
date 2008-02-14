@@ -155,7 +155,7 @@ public:
 	virtual void	setMinValue(LLSD min_value);
 	virtual void	setMaxValue(LLSD max_value);
 
-	/*virtual*/ BOOL focusFirstItem(BOOL prefer_text_fields = FALSE );
+	/*virtual*/ BOOL focusFirstItem(BOOL prefer_text_fields = FALSE, BOOL focus_flash = TRUE );
 
 	class LLTextInputFilter : public LLQueryFilter, public LLSingleton<LLTextInputFilter>
 	{

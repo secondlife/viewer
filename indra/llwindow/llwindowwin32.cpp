@@ -1907,6 +1907,9 @@ void LLWindowWin32::initCursors()
 	mCursor[UI_CURSOR_TOOLBUY] = loadColorCursor(TEXT("TOOLBUY"));
 	mCursor[UI_CURSOR_TOOLPAY] = loadColorCursor(TEXT("TOOLPAY"));
 	mCursor[UI_CURSOR_TOOLOPEN] = loadColorCursor(TEXT("TOOLOPEN"));
+	mCursor[UI_CURSOR_TOOLPLAY] = loadColorCursor(TEXT("TOOLPLAY"));
+	mCursor[UI_CURSOR_TOOLPAUSE] = loadColorCursor(TEXT("TOOLPAUSE"));
+	mCursor[UI_CURSOR_TOOLMEDIAOPEN] = loadColorCursor(TEXT("TOOLMEDIAOPEN"));
 
 	// Note: custom cursors that are not found make LoadCursor() return NULL.
 	for( S32 i = 0; i < UI_CURSOR_COUNT; i++ )

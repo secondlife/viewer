@@ -36,6 +36,7 @@ FS			(f|F)
 #include "llparcelflags.h"
 #include "llregionflags.h"
 #include "lscript_http.h"
+#include "llclickaction.h"
 
 void count();
 void comment();
@@ -522,6 +523,10 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "PARCEL_MEDIA_COMMAND_AGENT"	{ count(); yylval.ival = PARCEL_MEDIA_COMMAND_AGENT; return(INTEGER_CONSTANT); }
 "PARCEL_MEDIA_COMMAND_UNLOAD"	{ count(); yylval.ival = PARCEL_MEDIA_COMMAND_UNLOAD; return(INTEGER_CONSTANT); }
 "PARCEL_MEDIA_COMMAND_AUTO_ALIGN"	{ count(); yylval.ival = PARCEL_MEDIA_COMMAND_AUTO_ALIGN; return(INTEGER_CONSTANT); }
+"PARCEL_MEDIA_COMMAND_TYPE"     { count(); yylval.ival = PARCEL_MEDIA_COMMAND_TYPE; return(INTEGER_CONSTANT); }
+"PARCEL_MEDIA_COMMAND_SIZE"     { count(); yylval.ival = PARCEL_MEDIA_COMMAND_SIZE; return(INTEGER_CONSTANT); }
+"PARCEL_MEDIA_COMMAND_DESC"     { count(); yylval.ival = PARCEL_MEDIA_COMMAND_DESC; return(INTEGER_CONSTANT); }
+"PARCEL_MEDIA_COMMAND_LOOP_SET" { count(); yylval.ival = PARCEL_MEDIA_COMMAND_LOOP_SET; return(INTEGER_CONSTANT); }
 
 "LIST_STAT_MAX"			{ count(); yylval.ival = LIST_STAT_MAX; return(INTEGER_CONSTANT); }
 "LIST_STAT_MIN"			{ count(); yylval.ival = LIST_STAT_MIN; return(INTEGER_CONSTANT); }
@@ -586,6 +591,15 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "STRING_TRIM_HEAD"	{ count(); yylval.ival = STRING_TRIM_HEAD; return(INTEGER_CONSTANT); }
 "STRING_TRIM_TAIL"	{ count(); yylval.ival = STRING_TRIM_TAIL; return(INTEGER_CONSTANT); }
 "STRING_TRIM"	{ count(); yylval.ival = STRING_TRIM; return(INTEGER_CONSTANT); }
+
+"CLICK_ACTION_NONE"       { count(); yylval.ival = CLICK_ACTION_NONE; return(INTEGER_CONSTANT); }
+"CLICK_ACTION_TOUCH"      { count(); yylval.ival = CLICK_ACTION_TOUCH; return(INTEGER_CONSTANT); }
+"CLICK_ACTION_SIT"        { count(); yylval.ival = CLICK_ACTION_SIT; return(INTEGER_CONSTANT); }
+"CLICK_ACTION_BUY"        { count(); yylval.ival = CLICK_ACTION_BUY; return(INTEGER_CONSTANT); }
+"CLICK_ACTION_PAY"        { count(); yylval.ival = CLICK_ACTION_PAY; return(INTEGER_CONSTANT); }
+"CLICK_ACTION_OPEN"       { count(); yylval.ival = CLICK_ACTION_OPEN; return(INTEGER_CONSTANT); }
+"CLICK_ACTION_PLAY"       { count(); yylval.ival = CLICK_ACTION_PLAY; return(INTEGER_CONSTANT); }
+"CLICK_ACTION_OPEN_MEDIA" { count(); yylval.ival = CLICK_ACTION_OPEN_MEDIA; return(INTEGER_CONSTANT); }
 
 {L}({L}|{N})*		{ count(); yylval.sval = new char[strlen(yytext) + 1]; strcpy(yylval.sval, yytext); return(IDENTIFIER); }
 

@@ -1381,6 +1381,8 @@ LLScrollListItem* LLScrollListCtrl::addSeparator(EAddPosition pos)
 // Returns false if item not found.
 BOOL LLScrollListCtrl::selectItemByLabel(const LLString& label, BOOL case_sensitive)
 {
+	// ensure that no stale items are selected, even if we don't find a match
+	deselectAllItems(TRUE);
 	//RN: assume no empty items
 	if (label.empty())
 	{
@@ -1762,10 +1764,9 @@ BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky
 	{
 		LLScrollListCell* hit_cell = hit_item->getColumn(column_index);
 		if (!hit_cell) return FALSE;
-		S32 cell_required_width = hit_cell->getContentWidth();
+		//S32 cell_required_width = hit_cell->getContentWidth();
 		if (hit_cell 
-			&& hit_cell->isText() 
-			&& cell_required_width > columnp->mWidth)
+			&& hit_cell->isText())
 		{
 
 			S32 rect_left = getColumnOffsetFromIndex(column_index) + mItemListRect.mLeft;
@@ -1781,8 +1782,8 @@ BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky
 				&(sticky_rect_screen->mRight), &(sticky_rect_screen->mTop) );
 
 			msg = hit_cell->getValue().asString();
-			handled = TRUE;
 		}
+		handled = TRUE;
 	}
 
 	// otherwise, look for a tooltip associated with this column

@@ -285,8 +285,6 @@ void LLUICtrl::setIsChrome(BOOL is_chrome)
 // virtual
 BOOL LLUICtrl::getIsChrome() const
 { 
-	// am I or any of my ancestors flagged as "chrome"?
-	if (mIsChrome) return TRUE;
 
 	LLView* parent_ctrl = getParent();
 	while(parent_ctrl)
@@ -300,11 +298,12 @@ BOOL LLUICtrl::getIsChrome() const
 	
 	if(parent_ctrl)
 	{
-		// recurse into parent_ctrl and ask if it is in a chrome subtree
-		return ((LLUICtrl*)parent_ctrl)->getIsChrome();
+		return mIsChrome || ((LLUICtrl*)parent_ctrl)->getIsChrome();
 	}
-
-	return FALSE;
+	else
+	{
+		return mIsChrome ; 
+	}
 }
 
 // this comparator uses the crazy disambiguating logic of LLCompareByTabOrder,
@@ -341,7 +340,7 @@ public:
 };
 
 
-BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields)
+BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
 {
 	// try to select default tab group child
 	LLCtrlQuery query = LLView::getTabOrderQuery();
@@ -355,7 +354,10 @@ BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields)
 		{
 			ctrl->setFocus(TRUE);
 			ctrl->onTabInto();  
-			gFocusMgr.triggerFocusFlash();
+			if(focus_flash)
+			{
+				gFocusMgr.triggerFocusFlash();
+			}
 		}
 		return TRUE;
 	}	

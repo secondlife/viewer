@@ -116,7 +116,9 @@ BOOL ll_try_gtk_init(void)
 	if (!tried_gtk_init)
 	{
 		tried_gtk_init = TRUE;
+#if LL_GSTREAMER_ENABLED
 		if (!g_thread_supported ()) g_thread_init (NULL);
+#endif // LL_GSTREAMER_ENABLED
 		maybe_lock_display();
 		gtk_is_good = gtk_init_check(NULL, NULL);
 		maybe_unlock_display();
@@ -1985,7 +1987,7 @@ void LLWindowSDL::gatherInput()
     static Uint32 lastRightDown = 0;
     SDL_Event event;
 
-#if LL_GTK && LL_LIBXUL_ENABLED
+#if LL_GTK && LL_LLMOZLIB_ENABLED
     // Pump GTK events so embedded Gecko doesn't starve.
     if (ll_try_gtk_init())
     {
@@ -2004,7 +2006,7 @@ void LLWindowSDL::gatherInput()
 
 	    setlocale(LC_ALL, saved_locale.c_str() );
     }
-#endif // LL_GTK && LL_LIBXUL_ENABLED
+#endif // LL_GTK && LL_LLMOZLIB_ENABLED
 
     // Handle all outstanding SDL events
     while (SDL_PollEvent(&event))
@@ -2358,6 +2360,9 @@ void LLWindowSDL::initCursors()
 	mSDLCursors[UI_CURSOR_TOOLBUY] = makeSDLCursorFromBMP("toolbuy.BMP",0,0);
 	mSDLCursors[UI_CURSOR_TOOLPAY] = makeSDLCursorFromBMP("toolpay.BMP",0,0);
 	mSDLCursors[UI_CURSOR_TOOLOPEN] = makeSDLCursorFromBMP("toolopen.BMP",0,0);
+	mSDLCursors[UI_CURSOR_TOOLPLAY] = makeSDLCursorFromBMP("toolplay.BMP",0,0);
+	mSDLCursors[UI_CURSOR_TOOLPAUSE] = makeSDLCursorFromBMP("toolpause.BMP",0,0);
+	mSDLCursors[UI_CURSOR_TOOLMEDIAOPEN] = makeSDLCursorFromBMP("toolmediaopen.BMP",0,0);
 	mSDLCursors[UI_CURSOR_PIPETTE] = makeSDLCursorFromBMP("lltoolpipette.BMP",2,28);
 }
 
@@ -2744,20 +2749,27 @@ void spawn_web_browser(const char* escaped_url)
 
 void *LLWindowSDL::getPlatformWindow()
 {
-#if LL_GTK && LL_LIBXUL_ENABLED
+#if LL_GTK && LL_LLMOZLIB_ENABLED
 	if (ll_try_gtk_init())
 	{
 		maybe_lock_display();
-		GtkWidget *win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
-		// show the hidden-widget while debugging (needs mozlib change)
-		//gtk_widget_show_all(GTK_WIDGET(win));
-
-		gtk_widget_realize(GTK_WIDGET(win));
+		GtkWidget *owin = gtk_window_new(GTK_WINDOW_POPUP);
+		// Why a layout widget?  A MozContainer would be ideal, but
+		// it involves exposing Mozilla headers to mozlib-using apps.
+		// A layout widget with a GtkWindow parent has the desired
+		// properties of being plain GTK, having a window, and being
+		// derived from a GtkContainer.
+		GtkWidget *rtnw = gtk_layout_new(NULL, NULL);
+		gtk_container_add(GTK_CONTAINER(owin), rtnw);
+		gtk_widget_realize(rtnw);
+		GTK_WIDGET_UNSET_FLAGS(GTK_WIDGET(rtnw), GTK_NO_WINDOW);
+		
 		maybe_unlock_display();
-		return win;
+		
+		return rtnw;
 	}
-#endif // LL_GTK && LL_LIBXUL_ENABLED
+#endif // LL_GTK && LL_LLMOZLIB_ENABLED
 	// Unixoid mozilla really needs GTK.
 	return NULL;
 }

@@ -42,7 +42,6 @@
 #include "llchatbar.h"
 #include "llfocusmgr.h"
 #include "llimview.h"
-#include "llmediaengine.h"
 #include "llmediaremotectrl.h"
 #include "llpanelaudiovolume.h"
 #include "llparcel.h"
@@ -50,7 +49,10 @@
 #include "llui.h"
 #include "llviewercontrol.h"
 #include "llviewerimagelist.h"
+#include "llviewermedia.h"
 #include "llviewermenu.h"	// handle_reset_view()
+#include "llviewermedia.h"
+#include "llviewerparcelmedia.h"
 #include "llviewerparcelmgr.h"
 #include "llvieweruictrlfactory.h"
 #include "llviewerwindow.h"
@@ -97,7 +99,6 @@ LLOverlayBar::LLOverlayBar()
 	:	LLPanel(),
 		mMediaRemote(NULL),
 		mVoiceRemote(NULL),
-		mMediaState(STOPPED),
 		mMusicState(STOPPED)
 {
 	setMouseOpaque(FALSE);
@@ -220,7 +221,7 @@ void LLOverlayBar::refresh()
 
 	BOOL controls_grabbed = gAgent.anyControlGrabbed();
 	button = LLUICtrlFactory::getButtonByName(this, "Release Keys");
-	
+
 	if (button && button->getVisible() != controls_grabbed)
 	{
 		button->setVisible(controls_grabbed);
@@ -231,7 +232,7 @@ void LLOverlayBar::refresh()
 
 	BOOL mouselook_grabbed;
 	mouselook_grabbed = gAgent.isControlGrabbed(CONTROL_ML_LBUTTON_DOWN_INDEX)
-						|| gAgent.isControlGrabbed(CONTROL_ML_LBUTTON_UP_INDEX);
+		|| gAgent.isControlGrabbed(CONTROL_ML_LBUTTON_UP_INDEX);
 	button = LLUICtrlFactory::getButtonByName(this, "Mouselook");
 
 	if (button && button->getVisible() != mouselook_grabbed)
@@ -257,7 +258,6 @@ void LLOverlayBar::refresh()
 		buttons_changed = TRUE;
 	}
 
-	enableMediaButtons();
 
 	moveChildToBackOfTabGroup(mMediaRemote);
 	moveChildToBackOfTabGroup(mVoiceRemote);
@@ -340,24 +340,40 @@ void LLOverlayBar::mediaPlay(void*)
 		return;
 	}
 
-	if (gOverlayBar->mMediaState != PLAYING)
+	
+	if (LLViewerMedia::isMediaPaused())
 	{
-		gOverlayBar->mMediaState = PLAYING; // desired state
-		LLParcel* parcel = gParcelMgr->getAgentParcel();
-		if (parcel)
-		{
-			LLString path("");
-			LLMediaEngine::getInstance()->convertImageAndLoadUrl( true, false, path );
-		}
+		LLViewerParcelMedia::start();
+	}
+	else if(LLViewerMedia::isMediaPlaying())
+	{
+		LLViewerParcelMedia::pause();
 	}
 	else
 	{
-		gOverlayBar->mMediaState = PAUSED; // desired state
-		LLMediaEngine::getInstance()->pause();
+		LLParcel* parcel = gParcelMgr->getAgentParcel();
+		if (parcel)
+		{
+			LLViewerParcelMedia::play(parcel);
+		}
 	}
+}
 
-	//gOverlayBar->mMediaState = STOPPED; // desired state
-	//LLMediaEngine::getInstance()->stop();
+//static
+void LLOverlayBar::mediaPause(void*)
+{
+
+	LLViewerParcelMedia::pause();
+}
+
+//static
+void LLOverlayBar::mediaStop(void*)
+{
+	if (!gOverlayBar)
+	{
+		return;
+	}
+	LLViewerParcelMedia::stop();
 }
 
 //static
@@ -399,42 +415,6 @@ void LLOverlayBar::musicPlay(void*)
 		if (gAudiop)
 		{
 			gAudiop->stopInternetStream();
-		}
-	}
-}
-
-void LLOverlayBar::enableMediaButtons()
-{
-	if (mMediaRemote)
-	{
-		// Music
-		LLParcel* parcel = gParcelMgr->getAgentParcel();
-		if (parcel 
-			&& gAudiop
-			&& !parcel->getMusicURL().empty()
-			&& gSavedSettings.getBOOL("AudioStreamingMusic"))
-		{
-			mMediaRemote->childSetEnabled("music_play", TRUE);
-		}
-		else
-		{
-			mMediaRemote->childSetEnabled("music_play", FALSE);
-		}
-
-		// Media
-		// if there is a url and a texture and media is enabled and available and media streaming is on... (phew!)
-		if (LLMediaEngine::getInstance() 
-			&& LLMediaEngine::getInstance()->getUrl ().length () 
-			&& LLMediaEngine::getInstance()->getImageUUID ().notNull () 
-			&& LLMediaEngine::getInstance()->isEnabled () 
-			&& LLMediaEngine::getInstance()->isAvailable () 
-			&& gSavedSettings.getBOOL ( "AudioStreamingVideo" ) )
-		{
-			mMediaRemote->childSetEnabled("media_play", TRUE);
-		}
-		else
-		{
-			mMediaRemote->childSetEnabled("media_play", FALSE);	
 		}
 	}
 }

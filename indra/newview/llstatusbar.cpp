@@ -49,6 +49,7 @@
 #include "llfloaterbuycurrency.h"
 #include "llfloaterchat.h"
 #include "llfloaterdirectory.h"		// to spawn search
+#include "llfloaterlagmeter.h"
 #include "llfloaterland.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterscriptdebug.h"
@@ -163,8 +164,49 @@ LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
 	childSetCommitCallback("search_editor", onCommitSearch, this);
 	childSetAction("search_btn", onClickSearch, this);
 
+	childSetVisible("search_editor", gSavedSettings.getBOOL("ShowSearchBar"));
+	childSetVisible("search_btn", gSavedSettings.getBOOL("ShowSearchBar"));
+
 	childSetActionTextbox("ParcelNameText", onClickParcelInfo );
 	childSetActionTextbox("BalanceText", onClickBalance );
+
+	// Adding Net Stat Graph
+	S32 x = mRect.getWidth() - 2;
+	S32 y = 0;
+	LLRect r;
+	r.set( x-SIM_STAT_WIDTH, y+MENU_BAR_HEIGHT-1, x, y+1);
+	mSGBandwidth = new LLStatGraph("BandwidthGraph", r);
+	mSGBandwidth->setFollows(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
+	mSGBandwidth->setStat(&gViewerStats->mKBitStat);
+	LLString text = childGetText("bandwidth_tooltip") + " ";
+	LLUIString bandwidth_tooltip = text;	// get the text from XML until this widget is XML driven
+	mSGBandwidth->setLabel(bandwidth_tooltip.getString().c_str());
+	mSGBandwidth->setUnits("Kbps");
+	mSGBandwidth->setPrecision(0);
+	mSGBandwidth->setMouseOpaque(FALSE);
+	addChild(mSGBandwidth);
+	x -= SIM_STAT_WIDTH + 2;
+
+	r.set( x-SIM_STAT_WIDTH, y+MENU_BAR_HEIGHT-1, x, y+1);
+	mSGPacketLoss = new LLStatGraph("PacketLossPercent", r);
+	mSGPacketLoss->setFollows(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
+	mSGPacketLoss->setStat(&gViewerStats->mPacketsLostPercentStat);
+	text = childGetText("packet_loss_tooltip") + " ";
+	LLUIString packet_loss_tooltip = text;	// get the text from XML until this widget is XML driven
+	mSGPacketLoss->setLabel(packet_loss_tooltip.getString().c_str());
+	mSGPacketLoss->setUnits("%");
+	mSGPacketLoss->setMin(0.f);
+	mSGPacketLoss->setMax(5.f);
+	mSGPacketLoss->setThreshold(0, 0.5f);
+	mSGPacketLoss->setThreshold(1, 1.f);
+	mSGPacketLoss->setThreshold(2, 3.f);
+	mSGPacketLoss->setPrecision(1);
+	mSGPacketLoss->setMouseOpaque(FALSE);
+	mSGPacketLoss->mPerSec = FALSE;
+	addChild(mSGPacketLoss);
+
+	childSetActionTextbox("stat_btn", onClickStatGraph);
+
 }
 
 LLStatusBar::~LLStatusBar()
@@ -212,6 +254,14 @@ void LLStatusBar::draw()
 // Per-frame updates of visibility
 void LLStatusBar::refresh()
 {
+	// Adding Net Stat Meter back in
+	F32 bwtotal = gViewerThrottle.getMaxBandwidth() / 1000.f;
+	mSGBandwidth->setMin(0.f);
+	mSGBandwidth->setMax(bwtotal*1.25f);
+	mSGBandwidth->setThreshold(0, bwtotal*0.75f);
+	mSGBandwidth->setThreshold(1, bwtotal);
+	mSGBandwidth->setThreshold(2, bwtotal);
+
 	// *TODO: Localize / translate time
 	
 	// Get current UTC time, adjusted for the user's clock
@@ -262,6 +312,8 @@ void LLStatusBar::refresh()
 	S32 x = MENU_RIGHT + MENU_PARCEL_SPACING;
 	S32 y = 0;
 	
+	bool search_visible = gSavedSettings.getBOOL("ShowSearchBar");
+
 	// reshape menu bar to its content's width
 	if (MENU_RIGHT != gMenuBarView->getRect().getWidth())
 	{
@@ -534,7 +586,55 @@ void LLStatusBar::refresh()
 		snprintf(mRegionDetails.mOwner, MAX_STRING, "Unknown");
 		mRegionDetails.mTraffic = 0.0f;
 	}
+
 	mTextParcelName->setText(location_name);
+
+
+
+	// x = right edge
+	// loop through: stat graphs, search btn, search text editor, money, buy money, clock
+	// adjust rect
+	// finally adjust parcel name rect
+
+	S32 new_right = getRect().getWidth();
+	if (search_visible)
+	{
+		childGetRect("search_btn", r);
+		r.translate( new_right - r.mRight, 0);
+		childSetRect("search_btn", r);
+		new_right -= r.getWidth();
+
+		childGetRect("search_editor", r);
+		r.translate( new_right - r.mRight, 0);
+		childSetRect("search_editor", r);
+		new_right -= r.getWidth() + 6;
+
+	}
+	else
+	{
+		childGetRect("stat_btn", r);
+		r.translate( new_right - r.mRight, 0);
+		childSetRect("stat_btn", r);
+		new_right -= r.getWidth() + 6;
+	}
+
+	// Set rects of money, buy money, time
+	childGetRect("BalanceText", r);
+	r.translate( new_right - r.mRight, 0);
+	childSetRect("BalanceText", r);
+	new_right -= r.getWidth() - 18;
+
+	childGetRect("buycurrency", r);
+	r.translate( new_right - r.mRight, 0);
+	childSetRect("buycurrency", r);
+	new_right -= r.getWidth() + 6;
+
+	childGetRect("TimeText", r);
+	// mTextTime->getTextPixelWidth();
+	r.translate( new_right - r.mRight, 0);
+	childSetRect("TimeText", r);
+	// new_right -= r.getWidth() + MENU_PARCEL_SPACING;
+
 
 	// Adjust region name and parcel name
 	x += 8;
@@ -542,6 +642,13 @@ void LLStatusBar::refresh()
 	const S32 PARCEL_RIGHT =  llmin(mTextTime->getRect().mLeft, mTextParcelName->getTextPixelWidth() + x + 5);
 	r.set(x+4, mRect.getHeight() - 2, PARCEL_RIGHT, 0);
 	mTextParcelName->setRect(r);
+
+	// Set search bar visibility
+	childSetVisible("search_editor", search_visible);
+	childSetVisible("search_btn", search_visible);
+	mSGBandwidth->setVisible(! search_visible);
+	mSGPacketLoss->setVisible(! search_visible);
+	childSetEnabled("stat_btn", ! search_visible);
 }
 
 void LLStatusBar::setVisibleForMouselook(bool visible)
@@ -551,6 +658,8 @@ void LLStatusBar::setVisibleForMouselook(bool visible)
 	childSetVisible("buycurrency", visible);
 	childSetVisible("search_editor", visible);
 	childSetVisible("search_btn", visible);
+	mSGBandwidth->setVisible(visible);
+	mSGPacketLoss->setVisible(visible);
 	setBackgroundVisible(visible);
 }
 
@@ -662,7 +771,7 @@ static void onClickParcelInfo(void* data)
 {
 	gParcelMgr->selectParcelAt(gAgent.getPositionGlobal());
 
-	LLFloaterLand::show();
+	LLFloaterLand::showInstance();
 }
 
 static void onClickBalance(void* data)
@@ -804,6 +913,12 @@ void LLStatusBar::onClickSearch(void* data)
 	LLStatusBar* self = (LLStatusBar*)data;
 	LLString search_text = self->childGetText("search_editor");
 	LLFloaterDirectory::showFindAll(search_text);
+}
+
+// static
+void LLStatusBar::onClickStatGraph(void* data)
+{
+	LLFloaterLagMeter::show(data);
 }
 
 BOOL can_afford_transaction(S32 cost)

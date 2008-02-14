@@ -471,14 +471,12 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 	LLFloater* help_floater = LLFloater::getFloaterByHandle(mLiveHelpHandle);
 	if (!help_floater) return;
 
-#if LL_LIBXUL_ENABLED
 	// update back and forward buttons
 	LLButton* fwd_button = LLUICtrlFactory::getButtonByName(help_floater, "fwd_btn");
 	LLButton* back_button = LLUICtrlFactory::getButtonByName(help_floater, "back_btn");
 	LLWebBrowserCtrl* browser = LLUICtrlFactory::getWebBrowserCtrlByName(help_floater, "lsl_guide_html");
 	back_button->setEnabled(browser->canNavigateBack());
 	fwd_button->setEnabled(browser->canNavigateForward());
-#endif // LL_LIBXUL_ENABLED
 
 	if (!immediate && !gSavedSettings.getBOOL("ScriptHelpFollowsCursor"))
 	{
@@ -546,9 +544,9 @@ void LLScriptEdCore::setHelpPage(const LLString& help_string)
 	url_string.setArg("[LSL_STRING]", help_string);
 
 	addHelpItemToHistory(help_string);
-#if LL_LIBXUL_ENABLED
+
 	web_browser->navigateTo(url_string);
-#endif // LL_LIBXUL_ENABLED
+
 }
 
 void LLScriptEdCore::addHelpItemToHistory(const LLString& help_string)
@@ -680,10 +678,8 @@ void LLScriptEdCore::onBtnDynamicHelp(void* userdata)
 	live_help_floater->childSetAction("back_btn", onClickBack, userdata);
 	live_help_floater->childSetAction("fwd_btn", onClickForward, userdata);
 
-#if LL_LIBXUL_ENABLED
 	LLWebBrowserCtrl* browser = LLUICtrlFactory::getWebBrowserCtrlByName(live_help_floater, "lsl_guide_html");
 	browser->setAlwaysRefresh(TRUE);
-#endif // LL_LIBXUL_ENABLED
 
 	LLComboBox* help_combo = LLUICtrlFactory::getComboBoxByName(live_help_floater, "history_combo");
 	LLKeywordToken *token;
@@ -707,7 +703,6 @@ void LLScriptEdCore::onBtnDynamicHelp(void* userdata)
 //static 
 void LLScriptEdCore::onClickBack(void* userdata)
 {
-#if LL_LIBXUL_ENABLED
 	LLScriptEdCore* corep = (LLScriptEdCore*)userdata;
 	LLFloater* live_help_floater = LLFloater::getFloaterByHandle(corep->mLiveHelpHandle);
 	if (live_help_floater)
@@ -718,13 +713,11 @@ void LLScriptEdCore::onClickBack(void* userdata)
 			browserp->navigateBack();
 		}
 	}
-#endif // LL_LIBXUL_ENABLED
 }
 
 //static 
 void LLScriptEdCore::onClickForward(void* userdata)
 {
-#if LL_LIBXUL_ENABLED
 	LLScriptEdCore* corep = (LLScriptEdCore*)userdata;
 	LLFloater* live_help_floater = LLFloater::getFloaterByHandle(corep->mLiveHelpHandle);
 	if (live_help_floater)
@@ -735,7 +728,6 @@ void LLScriptEdCore::onClickForward(void* userdata)
 			browserp->navigateForward();
 		}
 	}
-#endif // LL_LIBXUL_ENABLED
 }
 
 // static
@@ -772,13 +764,11 @@ void LLScriptEdCore::onHelpComboCommit(LLUICtrl* ctrl, void* userdata)
 
 		corep->addHelpItemToHistory(help_string);
 
-#if LL_LIBXUL_ENABLED
 		LLWebBrowserCtrl* web_browser = gUICtrlFactory->getWebBrowserCtrlByName(live_help_floater, "lsl_guide_html");
 		LLUIString url_string = gSavedSettings.getString("LSLHelpURL");
 		url_string.setArg("[APP_DIRECTORY]", gDirUtilp->getWorkingDir());
 		url_string.setArg("[LSL_STRING]", help_string);
 		web_browser->navigateTo(url_string);
-#endif // LL_LIBXUL_ENABLED
 	}
 }
 

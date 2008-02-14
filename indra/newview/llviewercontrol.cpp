@@ -261,7 +261,6 @@ void LLFloaterSettingsDebug::updateControl(LLControlBase* controlp)
 	spinner4->setVisible(FALSE);
 	color_swatch->setVisible(FALSE);
 	childSetVisible("val_text", FALSE);
-	childSetVisible("boolean_combo", FALSE);
 	mComment->setText(LLString::null);
 
 	if (controlp)
@@ -299,6 +298,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlBase* controlp)
 		  case TYPE_U32:
 			spinner1->setVisible(TRUE);
 			spinner1->setLabel(LLString("value")); // Debug, don't translate
+			childSetVisible("boolean_combo", FALSE);
 			if (!spinner1->hasFocus())
 			{
 				spinner1->setValue(sd);
@@ -311,6 +311,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlBase* controlp)
 		  case TYPE_S32:
 			spinner1->setVisible(TRUE);
 			spinner1->setLabel(LLString("value")); // Debug, don't translate
+			childSetVisible("boolean_combo", FALSE);
 			if (!spinner1->hasFocus())
 			{
 				spinner1->setValue(sd);
@@ -323,6 +324,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlBase* controlp)
 		  case TYPE_F32:
 			spinner1->setVisible(TRUE);
 			spinner1->setLabel(LLString("value")); // Debug, don't translate
+			childSetVisible("boolean_combo", FALSE);
 			if (!spinner1->hasFocus())
 			{
 				spinner1->setPrecision(3);
@@ -346,6 +348,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlBase* controlp)
 			break;
 		  case TYPE_STRING:
 			childSetVisible("val_text", TRUE);
+			childSetVisible("boolean_combo", FALSE);
 			if (!childHasFocus("val_text"))
 			{
 				childSetValue("val_text", sd);
@@ -353,6 +356,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlBase* controlp)
 			break;
 		  case TYPE_VEC3:
 		  {
+			childSetVisible("boolean_combo", FALSE);
 			LLVector3 v;
 			v.setValue(sd);
 			spinner1->setVisible(TRUE);
@@ -380,6 +384,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlBase* controlp)
 		  }
 		  case TYPE_VEC3D:
 		  {
+			childSetVisible("boolean_combo", FALSE);
 			LLVector3d v;
 			v.setValue(sd);
 			spinner1->setVisible(TRUE);
@@ -407,6 +412,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlBase* controlp)
 		  }
 		  case TYPE_RECT:
 		  {
+			childSetVisible("boolean_combo", FALSE);
 			LLRect r;
 			r.setValue(sd);
 			spinner1->setVisible(TRUE);
@@ -457,6 +463,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlBase* controlp)
 		  }
 		  case TYPE_COL4:
 		  {
+			childSetVisible("boolean_combo", FALSE);
 			LLColor4 clr;
 			clr.setValue(sd);
 			color_swatch->setVisible(TRUE);
@@ -478,6 +485,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlBase* controlp)
 		  }
 		  case TYPE_COL3:
 		  {
+			childSetVisible("boolean_combo", FALSE);
 			LLColor3 clr;
 			clr.setValue(sd);
 			color_swatch->setVisible(TRUE);
@@ -486,6 +494,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlBase* controlp)
 		  }
 		  case TYPE_COL4U:
 		  {
+			childSetVisible("boolean_combo", FALSE);
 			LLColor4U clr;
 			clr.setValue(sd);
 			color_swatch->setVisible(TRUE);

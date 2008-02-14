@@ -35,6 +35,7 @@
 
 #include "indra_constants.h"
 #include "llclickaction.h"
+#include "llmediabase.h"	// for status codes
 #include "llparcel.h"
 
 #include "llagent.h"
@@ -54,14 +55,17 @@
 #include "lltoolmgr.h"
 #include "lltoolselect.h"
 #include "llviewercamera.h"
+#include "llviewerparcelmedia.h"
 #include "llviewermenu.h"
-#include "llviewerobject.h"
 #include "llviewerobjectlist.h"
+#include "llviewerobject.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
+#include "llviewermedia.h"
 #include "llvoavatar.h"
 #include "llworld.h"
 #include "llui.h"
+#include "llweb.h"
 
 LLToolPie *gToolPie = NULL;
 
@@ -72,6 +76,11 @@ U8 LLToolPie::sClickAction = 0;
 extern void handle_buy(void*);
 
 extern BOOL gDebugClicks;
+
+static void handle_click_action_play();
+static void handle_click_action_open_media(LLPointer<LLViewerObject> objectp);
+static ECursorType cursor_from_parcel_media(U8 click_action);
+
 
 LLToolPie::LLToolPie()
 :	LLTool("Select"),
@@ -87,6 +96,7 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (!gCamera) return FALSE;
 
+	gPickFaces = TRUE;
 	//left mouse down always picks transparent
 	gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, leftMouseCallback, 
 											  TRUE, TRUE);
@@ -137,7 +147,7 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 			else
 			{
 				// not selling passes, get info
-				LLFloaterLand::show();
+				LLFloaterLand::showInstance();
 			}
 		}
 
@@ -210,6 +220,13 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 				sClickActionObject = parent;
 				sLeftClickSelection = LLToolSelect::handleObjectSelection(parent, MASK_NONE, FALSE, TRUE);
 			}
+			return TRUE;
+		case CLICK_ACTION_PLAY:
+			handle_click_action_play();
+			return TRUE;
+		case CLICK_ACTION_OPEN_MEDIA:
+			// sClickActionObject = object;
+			handle_click_action_open_media(object);
 			return TRUE;
 		}
 	}
@@ -411,6 +428,47 @@ U8 final_click_action(LLViewerObject* obj)
 	return click_action;
 }
 
+ECursorType cursor_from_object(LLViewerObject* object)
+{
+	LLViewerObject* parent = NULL;
+	if (object)
+	{
+		parent = object->getRootEdit();
+	}
+	U8 click_action = final_click_action(object);
+	ECursorType cursor = UI_CURSOR_ARROW;
+	switch(click_action)
+	{
+	case CLICK_ACTION_SIT:
+		cursor = UI_CURSOR_TOOLSIT;
+		break;
+	case CLICK_ACTION_BUY:
+		cursor = UI_CURSOR_TOOLBUY;
+		break;
+	case CLICK_ACTION_OPEN:
+		// Open always opens the parent.
+		if (parent && parent->allowOpen())
+		{
+			cursor = UI_CURSOR_TOOLOPEN;
+		}
+		break;
+	case CLICK_ACTION_PAY:	
+		if ((object && object->flagTakesMoney())
+			|| (parent && parent->flagTakesMoney()))
+		{
+			cursor = UI_CURSOR_TOOLPAY;
+		}
+		break;
+	case CLICK_ACTION_PLAY:
+	case CLICK_ACTION_OPEN_MEDIA: 
+		cursor = cursor_from_parcel_media(click_action);
+		break;
+	default:
+		break;
+	}
+	return cursor;
+}
+
 // When we get object properties after left-clicking on an object
 // with left-click = buy, if it's the same object, do the buy.
 // static
@@ -486,28 +544,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 
 	if (object && useClickAction(FALSE, mask, object, parent))
 	{
-		U8 click_action = final_click_action(object);
-		ECursorType cursor = UI_CURSOR_ARROW;
-		switch(click_action)
-		{
-		default: break;
-		case CLICK_ACTION_SIT:	cursor = UI_CURSOR_TOOLSIT; break;
-		case CLICK_ACTION_BUY:	cursor = UI_CURSOR_TOOLBUY; break;
-		case CLICK_ACTION_OPEN:
-			// Open always opens the parent.
-			if (parent && parent->allowOpen())
-			{
-				cursor = UI_CURSOR_TOOLOPEN;
-			}
-			break;
-		case CLICK_ACTION_PAY:	
-			if ((object && object->flagTakesMoney())
-				|| (parent && parent->flagTakesMoney()))
-			{
-				cursor = UI_CURSOR_TOOLPAY;
-			}
-			break;
-		}
+		ECursorType cursor = cursor_from_object(object);
 		gViewerWindow->getWindow()->setCursor(cursor);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLToolPie (inactive)" << llendl;
 	}
@@ -677,4 +714,95 @@ void LLToolPie::render()
 	return;
 }
 
+static void handle_click_action_play()
+{
+	LLParcel* parcel = gParcelMgr->getAgentParcel();
+	if (!parcel) return;
 
+	LLMediaBase::EStatus status = LLViewerParcelMedia::getStatus();
+	switch(status)
+	{
+		case LLMediaBase::STATUS_STARTED:
+			LLViewerParcelMedia::pause();
+			break;
+
+		case LLMediaBase::STATUS_PAUSED:
+			LLViewerParcelMedia::start();
+			break;
+
+		default:
+			LLViewerParcelMedia::play(parcel);
+			break;
+	}
+}
+
+static void handle_click_action_open_media(LLPointer<LLViewerObject> objectp)
+{
+	//FIXME: how do we handle object in different parcel than us?
+	LLParcel* parcel = gParcelMgr->getAgentParcel();
+	if (!parcel) return;
+
+	// did we hit an object?
+	if (objectp.isNull()) return;
+
+	// did we hit a valid face on the object?
+	if( gLastHitObjectFace < 0 || gLastHitObjectFace >= objectp->getNumTEs() ) return;
+		
+	// is media playing on this face?
+	if (!LLViewerMedia::isActiveMediaTexture(objectp->getTE(gLastHitObjectFace)->getID()))
+	{
+		handle_click_action_play();
+		return;
+	}
+
+	std::string media_url = std::string ( parcel->getMediaURL () );
+	std::string media_type = std::string ( parcel->getMediaType() );
+	LLString::trim(media_url);
+
+	// Get the scheme, see if that is handled as well.
+	LLURI uri(media_url);
+	std::string media_scheme = uri.scheme() != "" ? uri.scheme() : "http";
+
+	// HACK: This is directly referencing an impl name.  BAD!
+	// This can be removed when we have a truly generic media browser that only 
+	// builds an impl based on the type of url it is passed.
+
+	if(	LLMediaManager::getInstance()->supportsMediaType( "LLMediaImplLLMozLib", media_scheme, media_type ) )
+	{
+		LLWeb::loadURL(media_url);
+	}
+}
+
+static ECursorType cursor_from_parcel_media(U8 click_action)
+{
+	// HACK: This is directly referencing an impl name.  BAD!
+	// This can be removed when we have a truly generic media browser that only 
+	// builds an impl based on the type of url it is passed.
+	
+	//FIXME: how do we handle object in different parcel than us?
+	ECursorType open_cursor = UI_CURSOR_ARROW;
+	LLParcel* parcel = gParcelMgr->getAgentParcel();
+	if (!parcel) return open_cursor;
+
+	std::string media_url = std::string ( parcel->getMediaURL () );
+	std::string media_type = std::string ( parcel->getMediaType() );
+	LLString::trim(media_url);
+
+	// Get the scheme, see if that is handled as well.
+	LLURI uri(media_url);
+	std::string media_scheme = uri.scheme() != "" ? uri.scheme() : "http";
+
+	if(	LLMediaManager::getInstance()->supportsMediaType( "LLMediaImplLLMozLib", media_scheme, media_type ) )
+	{
+		open_cursor = UI_CURSOR_TOOLMEDIAOPEN;
+	}
+
+	LLMediaBase::EStatus status = LLViewerParcelMedia::getStatus();
+	switch(status)
+	{
+		case LLMediaBase::STATUS_STARTED:
+			return click_action == CLICK_ACTION_PLAY ? UI_CURSOR_TOOLPAUSE : open_cursor;
+		default:
+			return UI_CURSOR_TOOLPLAY;
+	}
+}

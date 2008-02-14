@@ -253,5 +253,5 @@ void LLPanelLandInfo::onClickAbout(void*)
 		gParcelMgr->selectParcelInRectangle();
 	}
 
-	LLFloaterLand::show();
+	LLFloaterLand::showInstance();
 }

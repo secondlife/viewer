@@ -357,6 +357,14 @@
 					<key>trusted-sender</key>
 					<boolean>true</boolean>
 				</map>
+				
+				<key>ParcelProperties</key>
+				<map>
+					<key>flavor</key>
+					<string>llsd</string>
+					<key>trusted-sender</key>
+					<boolean>true</boolean>
+				</map>
 
 				<key>avatarnotesrequest</key>
 				<map>
@@ -514,7 +522,10 @@
 
 			<key>SearchStatTracking</key>
 			<boolean>false</boolean>
-
+			
+			<key>ParcelPropertiesUpdate</key>
+			<boolean>false</boolean>
+		
 		</map>
 
 		<key>messageBans</key>

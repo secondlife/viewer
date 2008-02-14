@@ -150,11 +150,9 @@ LLPreferenceCore::LLPreferenceCore(LLTabContainerCommon* tab_container, LLButton
 	mTabContainer->addTabPanel(mNetworkPanel, mNetworkPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
 	mNetworkPanel->setDefaultBtn(default_btn);
 
-	#if LL_LIBXUL_ENABLED
 	mWebPanel = new LLPanelWeb();
 	mTabContainer->addTabPanel(mWebPanel, mWebPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
 	mWebPanel->setDefaultBtn(default_btn);
-	#endif
 
 	mDisplayPanel = new LLPanelDisplay();
 	mTabContainer->addTabPanel(mDisplayPanel, mDisplayPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
@@ -257,13 +255,11 @@ LLPreferenceCore::~LLPreferenceCore()
 		delete mMsgPanel;
 		mMsgPanel = NULL;
 	}
-	#if LL_LIBXUL_ENABLED
 	if (mWebPanel)
 	{
 		delete mWebPanel;
 		mWebPanel = NULL;
 	}
-	#endif
 }
 
 
@@ -279,9 +275,7 @@ void LLPreferenceCore::apply()
 	mPrefsVoice->apply();
 	mPrefsIM->apply();
 	mMsgPanel->apply();
-	#if LL_LIBXUL_ENABLED
 	mWebPanel->apply();
-	#endif
 #if LL_WINDOWS && LL_LCD_COMPILE
 	// only add this option if we actually have a logitech keyboard / speaker set
 	if (gLcdScreen->Enabled())
@@ -306,9 +300,7 @@ void LLPreferenceCore::cancel()
 	mPrefsVoice->cancel();
 	mPrefsIM->cancel();
 	mMsgPanel->cancel();
-	#if LL_LIBXUL_ENABLED
 	mWebPanel->cancel();
-	#endif
 #if LL_WINDOWS && LL_LCD_COMPILE
 	// only add this option if we actually have a logitech keyboard / speaker set
 	if (gLcdScreen->Enabled())

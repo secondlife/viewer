@@ -42,6 +42,7 @@
 #include "llsdutil.h"
 #include "lltransactiontypes.h"
 #include "lltransactionflags.h"
+#include "llsdutil.h"
 #include "message.h"
 #include "u64.h"
 
@@ -170,73 +171,80 @@ void LLParcel::init(const LLUUID &owner_id,
                     S32 rent_price_per_meter, S32 area, S32 sim_object_limit, F32 parcel_object_bonus,
                     BOOL is_group_owned)
 {
-    mID.setNull();
-    mOwnerID		 = owner_id;
-    mGroupOwned		 = is_group_owned;
-    mClaimDate		 = claim_date;
-    mClaimPricePerMeter = claim_price_per_meter;
-    mRentPricePerMeter = rent_price_per_meter;
-    mArea			 = area;
-    mDiscountRate	 = 1.0f;
-    mDrawDistance	 = 512.f;
-    
-    mUserLookAt.setVec(0.0f, 0.f, 0.f);
-    // Default to using the parcel's landing point, if any.
-    mLandingType = L_LANDING_POINT;
-    
-    // *FIX: if owner_id != null, should be owned or sale pending,
-    // investigate init callers.
-    mStatus = OS_NONE;
-    mCategory = C_NONE;
-    mAuthBuyerID.setNull();
-    //mBuyerID.setNull();
-    //mJoinNeighbors = 0x0;
-    mSaleTimerExpires.setTimerExpirySec(0);
-    mSaleTimerExpires.stop();
-    mGraceExtension = 0;
-    //mExpireAction = STEA_REVERT;
-    mRecordTransaction = FALSE;
-    
-    mAuctionID = 0;
-    mInEscrow = false;
-    
-    mParcelFlags = PF_DEFAULT;
-    setParcelFlag(PF_CREATE_OBJECTS,	 modify);
-    setParcelFlag(PF_ALLOW_TERRAFORM, terraform);
-    setParcelFlag(PF_ALLOW_DAMAGE,			 damage);
-    
-    mSalePrice		 = 10000;
-    setName(NULL);
-    setDesc(NULL);
-    setMusicURL(NULL);
-    setMediaURL(NULL);
-    mMediaID.setNull();
-    mMediaAutoScale = 0;
-    
-    mGroupID.setNull();
-    
-    mPassPrice = PARCEL_PASS_PRICE_DEFAULT;
-    mPassHours = PARCEL_PASS_HOURS_DEFAULT;
-    
-    mAABBMin.setVec(SOME_BIG_NUMBER, SOME_BIG_NUMBER, SOME_BIG_NUMBER);
-    mAABBMax.setVec(SOME_BIG_NEG_NUMBER, SOME_BIG_NEG_NUMBER, SOME_BIG_NEG_NUMBER);
-    
-    mLocalID = 0;
-    
-    //mSimWidePrimCorrection = 0;
-    setMaxPrimCapacity((S32)(sim_object_limit * area / (F32)(REGION_WIDTH_METERS * REGION_WIDTH_METERS)));
-    setSimWideMaxPrimCapacity(0);
-    setSimWidePrimCount(0);
-    setOwnerPrimCount(0);
-    setGroupPrimCount(0);
-    setOtherPrimCount(0);
-    setSelectedPrimCount(0);
-    setTempPrimCount(0);
-    setCleanOtherTime(0);
-    setParcelPrimBonus(parcel_object_bonus);
-    
-    setPreviousOwnerID(LLUUID::null);
-    setPreviouslyGroupOwned(FALSE);
+	mID.setNull();
+	mOwnerID			= owner_id;
+	mGroupOwned			= is_group_owned;
+	mClaimDate			= claim_date;
+	mClaimPricePerMeter	= claim_price_per_meter;
+	mRentPricePerMeter	= rent_price_per_meter;
+	mArea				= area;
+	mDiscountRate		= 1.0f;
+	mDrawDistance		= 512.f;
+
+	mUserLookAt.setVec(0.0f, 0.f, 0.f);
+	// Default to using the parcel's landing point, if any.
+	mLandingType = L_LANDING_POINT;
+
+	// *FIX: if owner_id != null, should be owned or sale pending,
+	// investigate init callers.
+	mStatus = OS_NONE;
+	mCategory = C_NONE;
+	mAuthBuyerID.setNull();
+	//mBuyerID.setNull();
+	//mJoinNeighbors = 0x0;
+	mSaleTimerExpires.setTimerExpirySec(0);
+	mSaleTimerExpires.stop();
+	mGraceExtension = 0;
+	//mExpireAction = STEA_REVERT;
+	mRecordTransaction = FALSE;
+
+	mAuctionID = 0;
+	mInEscrow = false;
+
+	mParcelFlags = PF_DEFAULT;
+	setParcelFlag(PF_CREATE_OBJECTS,  modify);
+	setParcelFlag(PF_ALLOW_TERRAFORM, terraform);
+	setParcelFlag(PF_ALLOW_DAMAGE,    damage);
+
+	mSalePrice			= 10000;
+	setName(NULL);
+	setDesc(NULL);
+	setMusicURL(NULL);
+	setMediaURL(NULL);
+	setMediaDesc(NULL);
+	setMediaType(NULL);
+	mMediaID.setNull();
+	mMediaAutoScale = 0;
+	mMediaLoop = TRUE;
+	mObscureMedia = 0;
+	mObscureMusic = 0;
+	mMediaWidth = 0;
+	mMediaHeight = 0;
+
+	mGroupID.setNull();
+
+	mPassPrice = PARCEL_PASS_PRICE_DEFAULT;
+	mPassHours = PARCEL_PASS_HOURS_DEFAULT;
+
+	mAABBMin.setVec(SOME_BIG_NUMBER, SOME_BIG_NUMBER, SOME_BIG_NUMBER);
+	mAABBMax.setVec(SOME_BIG_NEG_NUMBER, SOME_BIG_NEG_NUMBER, SOME_BIG_NEG_NUMBER);
+
+	mLocalID = 0;
+
+	//mSimWidePrimCorrection = 0;
+	setMaxPrimCapacity((S32)(sim_object_limit * area / (F32)(REGION_WIDTH_METERS * REGION_WIDTH_METERS)));
+	setSimWideMaxPrimCapacity(0);
+	setSimWidePrimCount(0);
+	setOwnerPrimCount(0);
+	setGroupPrimCount(0);
+	setOtherPrimCount(0);
+	setSelectedPrimCount(0);
+	setTempPrimCount(0);
+	setCleanOtherTime(0);
+	setParcelPrimBonus(parcel_object_bonus);
+
+	setPreviousOwnerID(LLUUID::null);
+	setPreviouslyGroupOwned(FALSE);
 }
 
 void LLParcel::overrideOwner(const LLUUID& owner_id, BOOL is_group_owned)
@@ -260,7 +268,21 @@ void LLParcel::overrideParcelFlags(U32 flags)
 {
     mParcelFlags = flags;
 }
-
+void set_std_string(const char* src, std::string& dest)
+{
+	if(src)
+	{
+		dest.assign(src);
+	}
+	else
+	{
+#if (LL_LINUX && __GNUC__ < 3)
+		dest.assign(std::string(""));
+#else
+		dest.clear();
+#endif
+	}
+}
 void LLParcel::setName(const LLString& name)
 {
     // The escaping here must match the escaping in the database
@@ -297,6 +319,28 @@ void LLParcel::setMediaURL(const LLString& url)
     LLStringFn::replace_nonprintable(mMediaURL, LL_UNKNOWN_CHAR);
 }
 
+void LLParcel::setMediaDesc(const char* desc)
+{
+	// The escaping here must match the escaping in the database
+	// abstraction layer.
+	set_std_string(desc, mMediaDesc);
+	mMediaDesc = rawstr_to_utf8(mMediaDesc);
+}
+void LLParcel::setMediaType(const char* type)
+{
+	// The escaping here must match the escaping in the database
+	// abstraction layer.
+	set_std_string(type, mMediaType);
+	mMediaType = rawstr_to_utf8(mMediaType);
+}
+void LLParcel::setMediaWidth(S32 width)
+{
+	mMediaWidth = width;
+}
+void LLParcel::setMediaHeight(S32 height)
+{
+	mMediaHeight = height;
+}
 // virtual
 void LLParcel::setLocalID(S32 local_id)
 {
@@ -512,338 +556,367 @@ void LLParcel::setDiscountRate(F32 rate)
 // WARNING: Area will be wrong until you calculate it.
 BOOL LLParcel::importStream(std::istream& input_stream)
 {
-    U32 setting;
-    S32 secs_until_revert = 0;
-    
-    skip_to_end_of_next_keyword("{", input_stream);
-    if (!input_stream.good()) 
-    {
-        llwarns << "LLParcel::importStream() - bad input_stream" << llendl;
-        return FALSE;
-    }
-    
-    while (input_stream.good())
-    {
-        skip_comments_and_emptyspace(input_stream);
-        LLString line, keyword, value;
-        get_line(line, input_stream, MAX_STRING);
-        get_keyword_and_value(keyword, value, line);
-        
-        if ("}" == keyword)
-        {
-            break;
-        }
-        else if ("parcel_id" == keyword)
-        {
-            mID.set(value.c_str());
-        }
-        else if ("status" == keyword)
-        {
-            mStatus = ownership_string_to_status(value.c_str());
-        }
-        else if ("category" == keyword)
-        {
-            mCategory = category_string_to_category(value.c_str());
-        }
-        else if ("local_id" == keyword)
-        {
-            LLString::convertToS32(value, mLocalID);
-        }
-        else if ("name" == keyword)
-        {
-            setName( value );
-        }
-        else if ("desc" == keyword)
-        {
-            setDesc( value );
-        }
-        else if ("music_url" == keyword)
-        {
-            setMusicURL( value );
-        }
-        else if ("media_url" == keyword)
-        {
-            setMediaURL( value );
-        }
-        else if ("media_id" == keyword)
-        {
-            mMediaID.set( value.c_str() );
-        }
-        else if ("media_auto_scale" == keyword)
-        {
-            LLString::convertToU8(value, mMediaAutoScale);
-        }
-        else if ("owner_id" == keyword)
-        {
-            mOwnerID.set( value.c_str() );
-        }
-        else if ("group_owned" == keyword)
-        {
-            LLString::convertToBOOL(value, mGroupOwned);
-        }
-        else if ("clean_other_time" == keyword)
-        {
-            S32 time;
-            LLString::convertToS32(value, time);
-            setCleanOtherTime(time);
-        }
-        else if ("auth_buyer_id" == keyword)
-        {
-            mAuthBuyerID.set(value.c_str());
-        }
-        else if ("snapshot_id" == keyword)
-        {
-            mSnapshotID.set(value.c_str());
-        }
-        else if ("user_location" == keyword)
-        {
-            sscanf(value.c_str(), "%f %f %f",
-                   &mUserLocation.mV[VX],
-                   &mUserLocation.mV[VY],
-                   &mUserLocation.mV[VZ]);
-        }
-        else if ("user_look_at" == keyword)
-        {
-            sscanf(value.c_str(), "%f %f %f",
-                   &mUserLookAt.mV[VX],
-                   &mUserLookAt.mV[VY],
-                   &mUserLookAt.mV[VZ]);
-        }
-        else if ("landing_type" == keyword)
-        {
-            S32 landing_type = 0;
-            LLString::convertToS32(value, landing_type);
-            mLandingType = (ELandingType) landing_type;
-        }
-        else if ("join_neighbors" == keyword)
-        {
-            llinfos << "found deprecated keyword join_neighbors" << llendl;
-        }
-        else if ("revert_sale" == keyword)
-        {
-            LLString::convertToS32(value, secs_until_revert);
-            if (secs_until_revert > 0)
-            {
-                mSaleTimerExpires.start();
-                mSaleTimerExpires.setTimerExpirySec((F32)secs_until_revert);
-            }
-        }
-        else if("extended_grace" == keyword)
-        {
-            LLString::convertToS32(value, mGraceExtension);
-        }
-        else if ("user_list_type" == keyword)
-        {
-            // deprecated
-        }
-        else if("auction_id" == keyword)
-        {
-            LLString::convertToU32(value, mAuctionID);
-        }
-        else if ("allow_modify" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_CREATE_OBJECTS, setting);
-        }
-        else if ("allow_group_modify" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_CREATE_GROUP_OBJECTS, setting);
-        }
-        else if ("allow_all_object_entry" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_ALLOW_ALL_OBJECT_ENTRY, setting);
-        }
-        else if ("allow_group_object_entry" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_ALLOW_GROUP_OBJECT_ENTRY, setting);
-        }
-        else if ("allow_deed_to_group" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_ALLOW_DEED_TO_GROUP, setting);
-        }
-        else if("contribute_with_deed" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_CONTRIBUTE_WITH_DEED, setting);
-        }
-        else if ("allow_terraform" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_ALLOW_TERRAFORM, setting);
-        }
-        else if ("allow_damage" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_ALLOW_DAMAGE, setting);
-        }
-        else if ("allow_fly" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_ALLOW_FLY, setting);
-        }
-        else if ("allow_landmark" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_ALLOW_LANDMARK, setting);
-        }
-        else if ("sound_local" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_SOUND_LOCAL, setting);
-        }
-        else if ("allow_group_scripts" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_ALLOW_GROUP_SCRIPTS, setting);
-        }
-        else if ("allow_voice_chat" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_ALLOW_VOICE_CHAT, setting);
-        }
-        else if ("use_estate_voice_chan" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_USE_ESTATE_VOICE_CHAN, setting);
-        }
-        else if ("allow_scripts" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_ALLOW_OTHER_SCRIPTS, setting);
-        }
-        else if ("for_sale" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_FOR_SALE, setting);
-        }
-        else if ("sell_w_objects" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_SELL_PARCEL_OBJECTS, setting);
-        }
-        else if ("use_pass_list" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_USE_PASS_LIST, setting);
-        }
-        else if ("show_directory" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_SHOW_DIRECTORY, setting);
-        }
-        else if ("allow_publish" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_ALLOW_PUBLISH, setting);
-        }
-        else if ("mature_publish" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_MATURE_PUBLISH, setting);
-        }
-        else if ("claim_date" == keyword)
-        {
-            // BUG: This will fail when time rolls over in 2038.
-            S32 time;
-            LLString::convertToS32(value, time);
-            mClaimDate = time;
-        }
-        else if ("claim_price" == keyword)
-        {
-            LLString::convertToS32(value, mClaimPricePerMeter);
-        }
-        else if ("rent_price" == keyword)
-        {
-            LLString::convertToS32(value, mRentPricePerMeter);
-        }
-        else if ("discount_rate" == keyword)
-        {
-            LLString::convertToF32(value, mDiscountRate);
-        }
-        else if ("draw_distance" == keyword)
-        {
-            LLString::convertToF32(value, mDrawDistance);
-        }
-        else if ("sale_price" == keyword)
-        {
-            LLString::convertToS32(value, mSalePrice);
-        }
-        else if ("pass_price" == keyword)
-        {
-            LLString::convertToS32(value, mPassPrice);
-        }
-        else if ("pass_hours" == keyword)
-        {
-            LLString::convertToF32(value, mPassHours);
-        }
-        else if ("box" == keyword)
-        {
-            // deprecated
-        }
-        else if ("aabb_min" == keyword)
-        {
-            sscanf(value.c_str(), "%f %f %f", 
-                   &mAABBMin.mV[VX], &mAABBMin.mV[VY], &mAABBMin.mV[VZ]);
-        }
-        else if ("use_access_group" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_USE_ACCESS_GROUP, setting);
-        }
-        else if ("use_access_list" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_USE_ACCESS_LIST, setting);
-        }
-        else if ("use_ban_list" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_USE_BAN_LIST, setting);
-        }
-        else if ("group_name" == keyword)
-        {
-            llinfos << "found deprecated keyword group_name" << llendl;
-        }
-        else if ("group_id" == keyword)
-        {
-            mGroupID.set( value.c_str() );
-        }
-        // TODO: DEPRECATED FLAG
-        // Flag removed from simstate files in 1.11.1
-        // Keep if statement until we have guarenteed this flag
-        // no longer exists anywhere in simstate files.
-        else if ("require_identified" == keyword)
-        {
-// 			LLString::convertToU32(value, setting);
-// 			setParcelFlag(PF_DENY_ANONYMOUS, setting);
-        }
-        // TODO: DEPRECATED FLAG
-        // Flag removed from simstate files in 1.11.1
-        // Keep if statement until we have guarenteed this flag
-        // no longer exists anywhere in simstate files.
-        else if ("require_transacted" == keyword)
-        {
-// 			LLString::convertToU32(value, setting);
-// 			setParcelFlag(PF_DENY_ANONYMOUS, setting);
-// 			setParcelFlag(PF_DENY_IDENTIFIED, setting);
-        }
-        else if ("restrict_pushobject" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_RESTRICT_PUSHOBJECT, setting);
-        }
-        else if ("deny_anonymous" == keyword)
-        {
-            LLString::convertToU32(value, setting);
-            setParcelFlag(PF_DENY_ANONYMOUS, setting);
-        }
-        // TODO: DEPRECATED FLAG
-        // Keep if statement until we have guarenteed this flag
-        // no longer exists anywhere in simstate files.
+	U32 setting;
+	S32 secs_until_revert = 0;
+
+	skip_to_end_of_next_keyword("{", input_stream);
+	if (!input_stream.good()) 
+	{
+		llwarns << "LLParcel::importStream() - bad input_stream" << llendl;
+		return FALSE;
+	}
+
+	while (input_stream.good())
+	{
+		skip_comments_and_emptyspace(input_stream);
+		LLString line, keyword, value;
+		get_line(line, input_stream, MAX_STRING);
+		get_keyword_and_value(keyword, value, line);
+
+		if ("}" == keyword)
+		{
+			break;
+		}
+		else if ("parcel_id" == keyword)
+		{
+			mID.set(value.c_str());
+		}
+		else if ("status" == keyword)
+		{
+			mStatus = ownership_string_to_status(value.c_str());
+		}
+		else if ("category" == keyword)
+		{
+			mCategory = category_string_to_category(value.c_str());
+		}
+		else if ("local_id" == keyword)
+		{
+			LLString::convertToS32(value, mLocalID);
+		}
+		else if ("name" == keyword)
+		{
+			setName( value );
+		}
+		else if ("desc" == keyword)
+		{
+			setDesc( value );
+		}
+		else if ("music_url" == keyword)
+		{
+			setMusicURL( value );
+		}
+		else if ("media_url" == keyword)
+		{
+			setMediaURL( value );
+		}
+		else if ("media_desc" == keyword)
+		{
+			setMediaDesc( value.c_str() );
+		}
+		else if ("media_type" == keyword)
+		{
+			setMediaType( value.c_str() );
+		}
+		else if ("media_width" == keyword)
+		{
+			S32 width;
+			LLString::convertToS32(value, width);
+			setMediaWidth( width );
+		}
+		else if ("media_height" == keyword)
+		{
+			S32 height;
+			LLString::convertToS32(value, height);
+			setMediaHeight( height );
+		}
+		else if ("media_id" == keyword)
+		{
+			mMediaID.set( value.c_str() );
+		}
+		else if ("media_auto_scale" == keyword)
+		{
+			LLString::convertToU8(value, mMediaAutoScale);
+		}
+		else if ("media_loop" == keyword)
+		{
+			LLString::convertToU8(value, mMediaLoop);
+		}
+		else if ("obscure_media" == keyword)
+		{
+			LLString::convertToU8(value, mObscureMedia);
+		}		
+		else if ("obscure_music" == keyword)
+		{
+			LLString::convertToU8(value, mObscureMusic);
+		}		
+		else if ("owner_id" == keyword)
+		{
+			mOwnerID.set( value.c_str() );
+		}
+		else if ("group_owned" == keyword)
+		{
+			LLString::convertToBOOL(value, mGroupOwned);
+		}
+		else if ("clean_other_time" == keyword)
+		{
+			S32 time;
+			LLString::convertToS32(value, time);
+			setCleanOtherTime(time);
+		}
+		else if ("auth_buyer_id" == keyword)
+		{
+			mAuthBuyerID.set(value.c_str());
+		}
+		else if ("snapshot_id" == keyword)
+		{
+			mSnapshotID.set(value.c_str());
+		}
+		else if ("user_location" == keyword)
+		{
+			sscanf(value.c_str(), "%f %f %f",
+				&mUserLocation.mV[VX],
+				&mUserLocation.mV[VY],
+				&mUserLocation.mV[VZ]);
+		}
+		else if ("user_look_at" == keyword)
+		{
+			sscanf(value.c_str(), "%f %f %f",
+				&mUserLookAt.mV[VX],
+				&mUserLookAt.mV[VY],
+				&mUserLookAt.mV[VZ]);
+		}
+		else if ("landing_type" == keyword)
+		{
+			S32 landing_type = 0;
+			LLString::convertToS32(value, landing_type);
+			mLandingType = (ELandingType) landing_type;
+		}
+		else if ("join_neighbors" == keyword)
+		{
+			llinfos << "found deprecated keyword join_neighbors" << llendl;
+		}
+		else if ("revert_sale" == keyword)
+		{
+			LLString::convertToS32(value, secs_until_revert);
+			if (secs_until_revert > 0)
+			{
+				mSaleTimerExpires.start();
+				mSaleTimerExpires.setTimerExpirySec((F32)secs_until_revert);
+			}
+		}
+		else if("extended_grace" == keyword)
+		{
+			LLString::convertToS32(value, mGraceExtension);
+		}
+		else if ("user_list_type" == keyword)
+		{
+			// deprecated
+		}
+		else if("auction_id" == keyword)
+		{
+			LLString::convertToU32(value, mAuctionID);
+		}
+		else if ("allow_modify" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_CREATE_OBJECTS, setting);
+		}
+		else if ("allow_group_modify" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_CREATE_GROUP_OBJECTS, setting);
+		}
+		else if ("allow_all_object_entry" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_ALLOW_ALL_OBJECT_ENTRY, setting);
+		}
+		else if ("allow_group_object_entry" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_ALLOW_GROUP_OBJECT_ENTRY, setting);
+		}
+		else if ("allow_deed_to_group" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_ALLOW_DEED_TO_GROUP, setting);
+		}
+		else if("contribute_with_deed" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_CONTRIBUTE_WITH_DEED, setting);
+		}
+		else if ("allow_terraform" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_ALLOW_TERRAFORM, setting);
+		}
+		else if ("allow_damage" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_ALLOW_DAMAGE, setting);
+		}
+		else if ("allow_fly" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_ALLOW_FLY, setting);
+		}
+		else if ("allow_landmark" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_ALLOW_LANDMARK, setting);
+		}
+		else if ("sound_local" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_SOUND_LOCAL, setting);
+		}
+		else if ("allow_group_scripts" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_ALLOW_GROUP_SCRIPTS, setting);
+		}
+		else if ("allow_voice_chat" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_ALLOW_VOICE_CHAT, setting);
+		}
+		else if ("use_estate_voice_chan" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_USE_ESTATE_VOICE_CHAN, setting);
+		}
+		else if ("allow_scripts" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_ALLOW_OTHER_SCRIPTS, setting);
+		}
+		else if ("for_sale" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_FOR_SALE, setting);
+		}
+		else if ("sell_w_objects" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_SELL_PARCEL_OBJECTS, setting);
+		}
+		else if ("use_pass_list" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_USE_PASS_LIST, setting);
+		}
+		else if ("show_directory" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_SHOW_DIRECTORY, setting);
+		}
+		else if ("allow_publish" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_ALLOW_PUBLISH, setting);
+		}
+		else if ("mature_publish" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_MATURE_PUBLISH, setting);
+		}
+		else if ("claim_date" == keyword)
+		{
+			// BUG: This will fail when time rolls over in 2038.
+			S32 time;
+			LLString::convertToS32(value, time);
+			mClaimDate = time;
+		}
+		else if ("claim_price" == keyword)
+		{
+			LLString::convertToS32(value, mClaimPricePerMeter);
+		}
+		else if ("rent_price" == keyword)
+		{
+			LLString::convertToS32(value, mRentPricePerMeter);
+		}
+		else if ("discount_rate" == keyword)
+		{
+			LLString::convertToF32(value, mDiscountRate);
+		}
+		else if ("draw_distance" == keyword)
+		{
+			LLString::convertToF32(value, mDrawDistance);
+		}
+		else if ("sale_price" == keyword)
+		{
+			LLString::convertToS32(value, mSalePrice);
+		}
+		else if ("pass_price" == keyword)
+		{
+			LLString::convertToS32(value, mPassPrice);
+		}
+		else if ("pass_hours" == keyword)
+		{
+			LLString::convertToF32(value, mPassHours);
+		}
+		else if ("box" == keyword)
+		{
+			// deprecated
+		}
+		else if ("aabb_min" == keyword)
+		{
+			sscanf(value.c_str(), "%f %f %f", 
+				&mAABBMin.mV[VX], &mAABBMin.mV[VY], &mAABBMin.mV[VZ]);
+		}
+		else if ("use_access_group" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_USE_ACCESS_GROUP, setting);
+		}
+		else if ("use_access_list" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_USE_ACCESS_LIST, setting);
+		}
+		else if ("use_ban_list" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_USE_BAN_LIST, setting);
+		}
+		else if ("group_name" == keyword)
+		{
+			llinfos << "found deprecated keyword group_name" << llendl;
+		}
+		else if ("group_id" == keyword)
+		{
+			mGroupID.set( value.c_str() );
+		}
+		// TODO: DEPRECATED FLAG
+		// Flag removed from simstate files in 1.11.1
+		// Remove at some point where we have guarenteed this flag
+		// no longer exists anywhere in simstate files.
+		else if ("require_identified" == keyword)
+		{
+			// LLString::convertToU32(value, setting);
+			// setParcelFlag(PF_DENY_ANONYMOUS, setting);
+		}
+		// TODO: DEPRECATED FLAG
+		// Flag removed from simstate files in 1.11.1
+		// Remove at some point where we have guarenteed this flag
+		// no longer exists anywhere in simstate files.
+		else if ("require_transacted" == keyword)
+		{
+			// LLString::convertToU32(value, setting);
+			// setParcelFlag(PF_DENY_ANONYMOUS, setting);
+			// setParcelFlag(PF_DENY_IDENTIFIED, setting);
+		}
+		else if ("restrict_pushobject" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_RESTRICT_PUSHOBJECT, setting);
+		}
+		else if ("deny_anonymous" == keyword)
+		{
+			LLString::convertToU32(value, setting);
+			setParcelFlag(PF_DENY_ANONYMOUS, setting);
+		}
 		else if ("deny_identified" == keyword)
 		{
 // 			LLString::convertToU32(value, setting);
@@ -1018,211 +1091,223 @@ BOOL LLParcel::importAccessEntry(std::istream& input_stream, LLAccessEntry* entr
 
 BOOL LLParcel::exportStream(std::ostream& output_stream)
 {
-    S32 setting;
-    char id_string[MAX_STRING]; /* Flawfinder: ignore */
-    
-    std::ios::fmtflags old_flags = output_stream.flags();
-    output_stream.setf(std::ios::showpoint);
-    output_stream << "\t{\n";
-    
-    mID.toString(id_string);
-    output_stream << "\t\t parcel_id							 " << id_string << "\n";
-    output_stream << "\t\t status										 " << ownership_status_to_string(mStatus) << "\n";
-    output_stream << "\t\t category								 " << category_to_string(mCategory) << "\n";
-    
-    output_stream << "\t\t local_id								 " << mLocalID	 << "\n";
-    
-    const char* name = (mName.empty() ? "" : mName.c_str() );
-    output_stream << "\t\t name												 " << name << "\n";
-    
-    const char* desc = (mDesc.empty() ? "" : mDesc.c_str() );
-    output_stream << "\t\t desc												 " << desc << "\n";
-    
-    const char* music_url = (mMusicURL.empty() ? "" : mMusicURL.c_str() );
-    output_stream << "\t\t music_url							 " << music_url << "\n";
-    
-    const char* media_url = (mMediaURL.empty() ? "" : mMediaURL.c_str() );
-    output_stream << "\t\t media_url							 " << media_url << "\n";
-    
-    output_stream << "\t\t media_auto_scale " << (mMediaAutoScale ? 1 : 0)	 << "\n";
-    
-    mMediaID.toString(id_string);
-    output_stream << "\t\t media_id								 " << id_string	 << "\n";
-    
-    mOwnerID.toString(id_string);
-    output_stream << "\t\t owner_id								 " << id_string	 << "\n";
-    output_stream << "\t\t group_owned			 " << (mGroupOwned ? 1 : 0)	 << "\n";
-    output_stream << "\t\t clean_other_time " << getCleanOtherTime() << "\n";
-    
-    if(!mAuthBuyerID.isNull())
-    {
-        mAuthBuyerID.toString(id_string);
-        output_stream << "\t\t auth_buyer_id			 " << id_string << "\n";
-    }
-    if (!mSnapshotID.isNull())
-    {
-        mSnapshotID.toString(id_string);
-        output_stream << "\t\t snapshot_id					 " << id_string << "\n";
-    }
-    if (!mUserLocation.isExactlyZero())
-    {
-        output_stream << "\t\t user_location " 
-        << (F64)mUserLocation.mV[VX]
-        << " " << (F64)mUserLocation.mV[VY]
-        << " " << (F64)mUserLocation.mV[VZ] << "\n";
-        output_stream << "\t\t user_look_at " 
-            << (F64)mUserLookAt.mV[VX]
-            << " " << (F64)mUserLookAt.mV[VY]
-            << " " << (F64)mUserLookAt.mV[VZ] << "\n";
-    }
-    output_stream << "\t\t landing_type " << mLandingType << "\n";
-    //if(mJoinNeighbors)
-    //{
-    // output_stream << "\t\t join_neighbors " << mJoinNeighbors << "\n";
-    //}
-        if(mSaleTimerExpires.getStarted())
-        {
-            S32 dt_sec = (S32) mSaleTimerExpires.getRemainingTimeF32()+60; // Add a minute to prevent race conditions
-            output_stream << "\t\t revert_sale					 " << dt_sec << "\n";
-            //output_stream << "\t\t revert_action			 " << revert_action_to_string(mExpireAction) << "\n";
-            output_stream << "\t\t extended_grace		 " << mGraceExtension << "\n";
-        }
-        
-        if(0 != mAuctionID)
-        {
-            output_stream << "\t\t auction_id						 " << mAuctionID << "\n";
-        }
-        
-        output_stream << "\t\t allow_modify				 " << getAllowModify()	 << "\n";
-        output_stream << "\t\t allow_group_modify				 " << getAllowGroupModify()	 << "\n";
-        output_stream << "\t\t allow_all_object_entry				 " << getAllowAllObjectEntry()	 << "\n";
-        output_stream << "\t\t allow_group_object_entry				 " << getAllowGroupObjectEntry()	 << "\n";
-        output_stream << "\t\t allow_terraform	 " << getAllowTerraform()	 << "\n";
-        output_stream << "\t\t allow_deed_to_group " << getAllowDeedToGroup()	 << "\n";
-        output_stream << "\t\t contribute_with_deed " << getContributeWithDeed() << "\n";
-        output_stream << "\t\t allow_damage				 " << getAllowDamage()	 << "\n";
-        output_stream << "\t\t claim_date						 " << (S32)mClaimDate	 << "\n";
-        output_stream << "\t\t claim_price					 " << mClaimPricePerMeter	 << "\n";
-        output_stream << "\t\t rent_price						 " << mRentPricePerMeter	 << "\n";
-        output_stream << "\t\t discount_rate			 " << mDiscountRate	 << "\n";
-        output_stream << "\t\t allow_fly							 " << (getAllowFly()					 ? 1 : 0)	 << "\n";
-        output_stream << "\t\t allow_landmark		 " << (getAllowLandmark() ? 1 : 0)	 << "\n";
-        output_stream << "\t\t sound_local			 " << (getSoundLocal() ? 1 : 0)	 << "\n";
-        output_stream << "\t\t allow_scripts			 " << (getAllowOtherScripts()	 ? 1 : 0)	 << "\n";
-        output_stream << "\t\t allow_group_scripts			 " << (getAllowGroupScripts()	 ? 1 : 0)	 << "\n";
-        output_stream << "\t\t allow_voice_chat			 " << (getVoiceEnabled() ? 1 : 0) << "\n";
-        output_stream << "\t\t use_estate_voice_chan		 " << (getVoiceUseEstateChannel() ? 1 : 0) << "\n";
-        output_stream << "\t\t for_sale								 " << (getForSale()						 ? 1 : 0)	 << "\n";
-        output_stream << "\t\t sell_w_objects		 " << (getSellWithObjects() ? 1 : 0)	 << "\n";
-        output_stream << "\t\t draw_distance			 " << mDrawDistance	 << "\n";
-        output_stream << "\t\t sale_price						 " << mSalePrice	 << "\n";
-        
-        setting = (getParcelFlag(PF_USE_ACCESS_GROUP) ? 1 : 0);
-        output_stream << "\t\t use_access_group " << setting	 << "\n";
-        
-        setting = (getParcelFlag(PF_USE_ACCESS_LIST) ? 1 : 0);
-        output_stream << "\t\t use_access_list	 " << setting	 << "\n";
-        
-        setting = (getParcelFlag(PF_USE_BAN_LIST) ? 1 : 0);
-        output_stream << "\t\t use_ban_list				 " << setting	 << "\n";
-        
-        mGroupID.toString(id_string);
-        output_stream << "\t\t group_id	 " << id_string	 << "\n";
-        
-        //const char* group_name
-        // = (mGroupName.isEmpty() ? "" : mGroupName.c_str() );
-        //output_stream << "\t\t group_name " << group_name << "\n";
-        
-        setting = (getParcelFlag(PF_USE_PASS_LIST) ? 1 : 0);
-        output_stream << "\t\t use_pass_list			 " << setting	 << "\n";
-        
-        output_stream << "\t\t pass_price						 " << mPassPrice	 << "\n";
-        output_stream << "\t\t pass_hours						 " << mPassHours	 << "\n";
-        
-        setting = (getParcelFlag(PF_SHOW_DIRECTORY) ? 1 : 0);
-        output_stream << "\t\t show_directory		 " << setting	 << "\n";
-        
-        setting = (getParcelFlag(PF_ALLOW_PUBLISH) ? 1 : 0);
-        output_stream << "\t\t allow_publish				 " << setting	 << "\n";
-        
-        setting = (getParcelFlag(PF_MATURE_PUBLISH) ? 1 : 0);
-        output_stream << "\t\t mature_publish				 " << setting	 << "\n";
-        
-        setting = (getParcelFlag(PF_DENY_ANONYMOUS) ? 1 : 0);
-        output_stream << "\t\t deny_anonymous				 " << setting	 << "\n";
-        
-// 		setting = (getParcelFlag(PF_DENY_IDENTIFIED) ? 1 : 0);
-// 		output_stream << "\t\t deny_identified				 " << setting	 << "\n";
-		
-// 		setting = (getParcelFlag(PF_DENY_TRANSACTED) ? 1 : 0);
-// 		output_stream << "\t\t deny_transacted				 " << setting	 << "\n";
-        
-        setting = (getParcelFlag(PF_DENY_AGEUNVERIFIED) ? 1 : 0);
-        output_stream << "\t\t deny_age_unverified			 " << setting  << "\n";
-        
-        setting = (getParcelFlag(PF_RESTRICT_PUSHOBJECT) ? 1 : 0);
-        output_stream << "\t\t restrict_pushobject " << setting	 << "\n";
-        
-        output_stream << "\t\t aabb_min								 " 
-            << mAABBMin.mV[VX]
-            << " " << mAABBMin.mV[VY]
-            << " " << mAABBMin.mV[VZ] << "\n";
-        
-        if (!mAccessList.empty())
-        {
-            output_stream << "\t\t access_list " << mAccessList.size()	 << "\n";
-            access_map_const_iterator cit = mAccessList.begin();
-            access_map_const_iterator end = mAccessList.end();
-            
-            for ( ; cit != end; ++cit)
-            {
-                output_stream << "\t\t{\n";
-                const LLAccessEntry& entry = (*cit).second;
-                entry.mID.toString(id_string);
-                output_stream << "\t\t\tid " << id_string << "\n";
-                output_stream << "\t\t\ttime " << entry.mTime	 << "\n";
-                output_stream << "\t\t\tflags " << entry.mFlags	 << "\n";
-                output_stream << "\t\t}\n";
-            }
-        }
-        
-        if (!mBanList.empty())
-        {
-            output_stream << "\t\t ban_list " << mBanList.size()	 << "\n";
-            access_map_const_iterator cit = mBanList.begin();
-            access_map_const_iterator end = mBanList.end();
-            
-            for ( ; cit != end; ++cit)
-            {
-                output_stream << "\t\t{\n";
-                const LLAccessEntry& entry = (*cit).second;
-                entry.mID.toString(id_string);
-                output_stream << "\t\t\tid " << id_string << "\n";
-                output_stream << "\t\t\ttime " << entry.mTime	 << "\n";
-                output_stream << "\t\t\tflags " << entry.mFlags	 << "\n";
-                output_stream << "\t\t}\n";
-            }
-        }
-        
-        /*if (mRenterList.count() > 0)
-        {
-            output_stream << "\t\t renter_list " << mRenterList.count()	 << "\n";
-            for (i = 0; i < mRenterList.count(); i++)
-            {
-                output_stream << "\t\t{\n";
-                const LLAccessEntry& entry = mRenterList.get(i);
-                entry.mID.toString(id_string);
-                output_stream << "\t\t\tid " << id_string << "\n";
-                output_stream << "\t\t\ttime " << entry.mTime	 << "\n";
-                output_stream << "\t\t\tflags " << entry.mFlags	 << "\n";
-                output_stream << "\t\t}\n";
-            }
-        }*/
-        
-        output_stream << "\t}\n";
-        output_stream.flags(old_flags);
-        
-        return TRUE;
+	S32 setting;
+	char id_string[MAX_STRING];	/* Flawfinder: ignore */
+
+	std::ios::fmtflags old_flags = output_stream.flags();
+	output_stream.setf(std::ios::showpoint);
+	output_stream << "\t{\n";
+
+	mID.toString(id_string);
+	output_stream << "\t\t parcel_id        " << id_string << "\n";
+	output_stream << "\t\t status           " << ownership_status_to_string(mStatus) << "\n";
+	output_stream << "\t\t category         " << category_to_string(mCategory) << "\n";
+
+	output_stream << "\t\t local_id         " << mLocalID  << "\n";
+
+	const char* name = (mName.empty() ? "" : mName.c_str() );
+	output_stream << "\t\t name             " << name << "\n";
+
+	const char* desc = (mDesc.empty() ? "" : mDesc.c_str() );
+	output_stream << "\t\t desc             " << desc << "\n";
+
+	const char* music_url = (mMusicURL.empty() ? "" : mMusicURL.c_str() );
+	output_stream << "\t\t music_url        " << music_url << "\n";
+
+	const char* media_url = (mMediaURL.empty() ? "" : mMediaURL.c_str() );
+	output_stream << "\t\t media_url        " << media_url << "\n";
+
+	const char* media_type = (mMediaType.empty() ? "" : mMediaType.c_str() );
+	output_stream << "\t\t media_type             " << media_type << "\n";
+
+	const char* media_desc = (mMediaDesc.empty() ? "" : mMediaDesc.c_str() );
+	output_stream << "\t\t media_desc             " << media_desc << "\n";
+
+	output_stream << "\t\t media_auto_scale " << (mMediaAutoScale ? 1 : 0)  << "\n";
+	output_stream << "\t\t media_loop " << (mMediaLoop ? 1 : 0)  << "\n";
+	output_stream << "\t\t obscure_media " << (mObscureMedia ? 1 : 0)  << "\n";
+	output_stream << "\t\t obscure_music " << (mObscureMusic ? 1 : 0)  << "\n";
+
+	mMediaID.toString(id_string);
+	output_stream << "\t\t media_id         " << id_string  << "\n";
+
+	output_stream << "\t\t media_width     " << mMediaWidth  << "\n";
+	output_stream << "\t\t media_height     " << mMediaHeight  << "\n";
+
+	mOwnerID.toString(id_string);
+	output_stream << "\t\t owner_id         " << id_string  << "\n";
+	output_stream << "\t\t group_owned	   " << (mGroupOwned ? 1 : 0)  << "\n";
+	output_stream << "\t\t clean_other_time " << getCleanOtherTime() << "\n";
+
+	if(!mAuthBuyerID.isNull())
+	{
+		mAuthBuyerID.toString(id_string);
+		output_stream << "\t\t auth_buyer_id    " << id_string << "\n";
+	}
+	if (!mSnapshotID.isNull())
+	{
+		mSnapshotID.toString(id_string);
+		output_stream << "\t\t snapshot_id      " << id_string << "\n";
+	}
+	if (!mUserLocation.isExactlyZero())
+	{
+		output_stream << "\t\t user_location " 
+			<< (F64)mUserLocation.mV[VX]
+			<< " " << (F64)mUserLocation.mV[VY]
+			<< " " << (F64)mUserLocation.mV[VZ] << "\n";
+		output_stream << "\t\t user_look_at " 
+			<< (F64)mUserLookAt.mV[VX]
+			<< " " << (F64)mUserLookAt.mV[VY]
+			<< " " << (F64)mUserLookAt.mV[VZ] << "\n";
+	}
+	output_stream << "\t\t landing_type " << mLandingType << "\n";
+	//if(mJoinNeighbors)
+	//{
+	//	output_stream << "\t\t join_neighbors " << mJoinNeighbors << "\n";
+	//}
+	if(mSaleTimerExpires.getStarted())
+	{
+		S32 dt_sec = (S32) mSaleTimerExpires.getRemainingTimeF32()+60; // Add a minute to prevent race conditions
+		output_stream << "\t\t revert_sale      " << dt_sec << "\n";
+		//output_stream << "\t\t revert_action    " << revert_action_to_string(mExpireAction) << "\n";
+		output_stream << "\t\t extended_grace   " << mGraceExtension << "\n";
+	}
+
+	if(0 != mAuctionID)
+	{
+		output_stream << "\t\t auction_id       " << mAuctionID << "\n";
+	}
+
+	output_stream << "\t\t allow_modify     " << getAllowModify()  << "\n";
+	output_stream << "\t\t allow_group_modify     " << getAllowGroupModify()  << "\n";
+	output_stream << "\t\t allow_all_object_entry     " << getAllowAllObjectEntry()  << "\n";
+	output_stream << "\t\t allow_group_object_entry     " << getAllowGroupObjectEntry()  << "\n";
+	output_stream << "\t\t allow_terraform  " << getAllowTerraform()  << "\n";
+	output_stream << "\t\t allow_deed_to_group " << getAllowDeedToGroup()  << "\n";
+	output_stream << "\t\t contribute_with_deed " << getContributeWithDeed() << "\n";
+	output_stream << "\t\t allow_damage     " << getAllowDamage()  << "\n";
+	output_stream << "\t\t claim_date       " << (S32)mClaimDate  << "\n";
+	output_stream << "\t\t claim_price      " << mClaimPricePerMeter  << "\n";
+	output_stream << "\t\t rent_price       " << mRentPricePerMeter  << "\n";
+	output_stream << "\t\t discount_rate    " << mDiscountRate  << "\n";
+	output_stream << "\t\t allow_fly        " << (getAllowFly()      ? 1 : 0)  << "\n";
+	output_stream << "\t\t allow_landmark   " << (getAllowLandmark() ? 1 : 0)  << "\n";
+	output_stream << "\t\t sound_local	   " << (getSoundLocal() ? 1 : 0)  << "\n";
+	output_stream << "\t\t allow_scripts    " << (getAllowOtherScripts()  ? 1 : 0)  << "\n";
+	output_stream << "\t\t allow_group_scripts    " << (getAllowGroupScripts()  ? 1 : 0)  << "\n";
+	output_stream << "\t\t allow_voice_chat    " << (getVoiceEnabled() ? 1 : 0) << "\n";
+	output_stream << "\t\t use_estate_voice_chan   " << (getVoiceUseEstateChannel() ? 1 : 0) << "\n";
+	output_stream << "\t\t for_sale         " << (getForSale()       ? 1 : 0)  << "\n";
+	output_stream << "\t\t sell_w_objects   " << (getSellWithObjects()	? 1 : 0)  << "\n";
+	output_stream << "\t\t draw_distance    " << mDrawDistance  << "\n";
+	output_stream << "\t\t sale_price       " << mSalePrice  << "\n";
+
+	setting = (getParcelFlag(PF_USE_ACCESS_GROUP) ? 1 : 0);
+	output_stream << "\t\t use_access_group " << setting  << "\n";
+
+	setting = (getParcelFlag(PF_USE_ACCESS_LIST) ? 1 : 0);
+	output_stream << "\t\t use_access_list  " << setting  << "\n";
+
+	setting = (getParcelFlag(PF_USE_BAN_LIST) ? 1 : 0);
+	output_stream << "\t\t use_ban_list     " << setting  << "\n";
+
+	mGroupID.toString(id_string);
+	output_stream << "\t\t group_id  " << id_string  << "\n";
+
+	//const char* group_name
+	//	= (mGroupName.isEmpty() ? "" : mGroupName.c_str() );
+	//output_stream << "\t\t group_name " << group_name << "\n";
+
+	setting = (getParcelFlag(PF_USE_PASS_LIST) ? 1 : 0);
+	output_stream << "\t\t use_pass_list    " << setting  << "\n";
+
+	output_stream << "\t\t pass_price       " << mPassPrice  << "\n";
+	output_stream << "\t\t pass_hours       " << mPassHours  << "\n";
+
+	setting = (getParcelFlag(PF_SHOW_DIRECTORY) ? 1 : 0);
+	output_stream << "\t\t show_directory   " << setting  << "\n";
+
+	setting = (getParcelFlag(PF_ALLOW_PUBLISH) ? 1 : 0);
+	output_stream << "\t\t allow_publish     " << setting  << "\n";
+
+	setting = (getParcelFlag(PF_MATURE_PUBLISH) ? 1 : 0);
+	output_stream << "\t\t mature_publish     " << setting  << "\n";
+
+	setting = (getParcelFlag(PF_DENY_ANONYMOUS) ? 1 : 0);
+	output_stream << "\t\t deny_anonymous     " << setting  << "\n";
+
+//	setting = (getParcelFlag(PF_DENY_IDENTIFIED) ? 1 : 0);
+//	output_stream << "\t\t deny_identified     " << setting  << "\n";
+
+//	setting = (getParcelFlag(PF_DENY_TRANSACTED) ? 1 : 0);
+//	output_stream << "\t\t deny_transacted     " << setting  << "\n";
+
+	setting = (getParcelFlag(PF_DENY_AGEUNVERIFIED) ? 1 : 0);
+	output_stream << "\t\t deny_age_unverified			 " << setting  << "\n";
+
+	setting = (getParcelFlag(PF_RESTRICT_PUSHOBJECT) ? 1 : 0);
+	output_stream << "\t\t restrict_pushobject " << setting  << "\n";
+
+	output_stream << "\t\t aabb_min         " 
+		<< mAABBMin.mV[VX]
+		<< " " << mAABBMin.mV[VY]
+		<< " " << mAABBMin.mV[VZ] << "\n";
+
+	if (!mAccessList.empty())
+	{
+		output_stream << "\t\t access_list " << mAccessList.size()  << "\n";
+		access_map_const_iterator cit = mAccessList.begin();
+		access_map_const_iterator end = mAccessList.end();
+
+		for ( ; cit != end; ++cit)
+		{
+			output_stream << "\t\t{\n";
+			const LLAccessEntry& entry = (*cit).second;
+			entry.mID.toString(id_string);
+			output_stream << "\t\t\tid " << id_string << "\n";
+			output_stream << "\t\t\ttime " << entry.mTime  << "\n";
+			output_stream << "\t\t\tflags " << entry.mFlags  << "\n";
+			output_stream << "\t\t}\n";
+		}
+	}
+
+	if (!mBanList.empty())
+	{
+		output_stream << "\t\t ban_list " << mBanList.size()  << "\n";
+		access_map_const_iterator cit = mBanList.begin();
+		access_map_const_iterator end = mBanList.end();
+
+		for ( ; cit != end; ++cit)
+		{
+			output_stream << "\t\t{\n";
+			const LLAccessEntry& entry = (*cit).second;
+			entry.mID.toString(id_string);
+			output_stream << "\t\t\tid " << id_string << "\n";
+			output_stream << "\t\t\ttime " << entry.mTime  << "\n";
+			output_stream << "\t\t\tflags " << entry.mFlags  << "\n";
+			output_stream << "\t\t}\n";
+		}
+	}
+
+	/*if (mRenterList.count() > 0)
+	{
+		output_stream << "\t\t renter_list " << mRenterList.count()  << "\n";
+		for (i = 0; i < mRenterList.count(); i++)
+		{
+			output_stream << "\t\t{\n";
+			const LLAccessEntry& entry = mRenterList.get(i);
+			entry.mID.toString(id_string);
+			output_stream << "\t\t\tid " << id_string << "\n";
+			output_stream << "\t\t\ttime " << entry.mTime  << "\n";
+			output_stream << "\t\t\tflags " << entry.mFlags  << "\n";
+			output_stream << "\t\t}\n";
+		}
+	}*/
+
+	output_stream << "\t}\n";
+	output_stream.flags(old_flags);
+
+	return TRUE;
 }
 
 
@@ -1246,6 +1331,37 @@ void LLParcel::packMessage(LLMessageSystem* msg)
     msg->addVector3Fast(_PREHASH_UserLocation, mUserLocation);
     msg->addVector3Fast(_PREHASH_UserLookAt, mUserLookAt);
     msg->addU8Fast(	 _PREHASH_LandingType, (U8)mLandingType);
+}
+
+// Assumes we are in a block "ParcelData"
+void LLParcel::packMessage(LLSD& msg)
+{
+	msg["local_id"] = getLocalID();
+	msg["flags"] = ll_sd_from_U32(getParcelFlags());
+	msg["sale_price"] = getSalePrice();
+	msg["name"] = getName();
+	msg["description"] = getDesc();
+	msg["music_url"] = getMusicURL();
+	msg["media_url"] = getMediaURL();
+	msg["media_desc"] = getMediaDesc();
+	msg["media_type"] = getMediaType();
+	msg["media_width"] = getMediaWidth();
+	msg["media_height"] = getMediaHeight();
+	msg["auto_scale"] = getMediaAutoScale();
+	msg["media_loop"] = getMediaLoop();
+	msg["obscure_media"] = getObscureMedia();
+	msg["obscure_music"] = getObscureMusic();
+	msg["media_id"] = getMediaID();
+	msg["group_id"] = getGroupID();
+	msg["pass_price"] = mPassPrice;
+	msg["pass_hours"] = mPassHours;
+	msg["category"] = (U8)mCategory;
+	msg["auth_buyer_id"] = mAuthBuyerID;
+	msg["snapshot_id"] = mSnapshotID;
+	msg["snapshot_id"] = mSnapshotID;
+	msg["user_location"] = ll_sd_from_vector3(mUserLocation);
+	msg["user_look_at"] = ll_sd_from_vector3(mUserLookAt);
+	msg["landing_type"] = (U8)mLandingType;
 }
 
 
@@ -1281,8 +1397,30 @@ void LLParcel::unpackMessage(LLMessageSystem* msg)
     U8 landing_type;
     msg->getU8Fast(	 _PREHASH_ParcelData,_PREHASH_LandingType, landing_type);
     mLandingType = (ELandingType)landing_type;
-}
 
+	// New Media Data
+	// Note: the message has been converted to TCP
+	if(msg->getNumberOfBlocks("MediaData") > 0)
+	{
+		msg->getString("MediaData", "MediaDesc", 256, buffer);
+		setMediaDesc(buffer);
+		msg->getString("MediaData", "MediaType", 256, buffer);
+		setMediaType(buffer);
+		msg->getS32("MediaData", "MediaWidth", mMediaWidth);
+		msg->getS32("MediaData", "MediaHeight", mMediaHeight);
+		msg->getU8 ( "MediaData", "MediaLoop", mMediaLoop );
+		msg->getU8 ( "MediaData", "ObscureMedia", mObscureMedia );
+		msg->getU8 ( "MediaData", "ObscureMusic", mObscureMusic );
+	}
+	else
+	{
+		setMediaType("video/vnd.secondlife.qt.legacy");
+		setMediaDesc("No Description available without Server Upgrade");
+		mMediaLoop = true;
+		mObscureMedia = true;
+		mObscureMusic = true;
+	}
+}
 
 void LLParcel::packAccessEntries(LLMessageSystem* msg,
 								 const std::map<LLUUID,LLAccessEntry>& list)
@@ -1702,27 +1840,34 @@ BOOL LLParcel::isBuyerAuthorized(const LLUUID& buyer_id) const
 
 void LLParcel::clearParcel()
 {
-    overrideParcelFlags(PF_DEFAULT);
-    setName(NULL);
-    setDesc(NULL);
-    setMusicURL(NULL);
-    setMediaURL(NULL);
-    setMediaID(LLUUID::null);
-    setMediaAutoScale(0);
-    setInEscrow(FALSE);
-    setAuthorizedBuyerID(LLUUID::null);
-    setCategory(C_NONE);
-    setSnapshotID(LLUUID::null);
-    setUserLocation(LLVector3::zero);
-    setUserLookAt(LLVector3::x_axis);
-    setLandingType(L_LANDING_POINT);
-    setAuctionID(0);
-    setGroupID(LLUUID::null);
-    setPassPrice(0);
-    setPassHours(0.f);
-    mAccessList.clear();
-    mBanList.clear();
-    //mRenterList.reset();
+	overrideParcelFlags(PF_DEFAULT);
+	setName(NULL);
+	setDesc(NULL);
+	setMediaURL(NULL);
+	setMediaType(NULL);
+	setMediaID(LLUUID::null);
+    setMediaDesc(NULL);
+	setMediaAutoScale(0);
+	setMediaLoop(TRUE);
+	mObscureMedia = 0;
+	mObscureMusic = 0;
+	mMediaWidth = 0;
+	mMediaHeight = 0;
+	setMusicURL(NULL);
+	setInEscrow(FALSE);
+	setAuthorizedBuyerID(LLUUID::null);
+	setCategory(C_NONE);
+	setSnapshotID(LLUUID::null);
+	setUserLocation(LLVector3::zero);
+	setUserLookAt(LLVector3::x_axis);
+	setLandingType(L_LANDING_POINT);
+	setAuctionID(0);
+	setGroupID(LLUUID::null);
+	setPassPrice(0);
+	setPassHours(0.f);
+	mAccessList.clear();
+	mBanList.clear();
+	//mRenterList.reset();
 }
 
 void LLParcel::dump()
@@ -1826,6 +1971,3 @@ LLParcel::ECategory category_ui_string_to_category(const char* s)
     // is a distinct option from "None" and "Other"
     return LLParcel::C_ANY;
 }
-
-
-

@@ -686,7 +686,7 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
 		return FALSE;
 	}
 	
-	if (x_pos == 0 && y_pos == 0 && width == getWidth() && height == getHeight())
+	if (x_pos == 0 && y_pos == 0 && width == getWidth() && height == getHeight() && data_width == width && data_height == height)
 	{
 		setImage(datap, FALSE);
 	}

@@ -156,8 +156,6 @@ public:
 	// Return codes for processUpdateMessage
 	enum { MEDIA_URL_REMOVED = 0x1, MEDIA_URL_ADDED = 0x2, MEDIA_URL_UPDATED = 0x4 };
 
-	enum { CLICK_ACTION_TOUCH = 0, CLICK_ACTION_SIT = 1, CLICK_ACTION_BUY = 2 };
-
 	virtual U32		processUpdateMessage(LLMessageSystem *mesgsys,
 										void **user_data,
 										U32 block_num,

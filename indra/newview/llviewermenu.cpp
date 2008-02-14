@@ -104,6 +104,7 @@
 #include "llfloatergroupinvite.h"
 #include "llfloatergroups.h"
 #include "llfloaterhtml.h"
+#include "llfloaterhtmlhelp.h"
 #include "llfloaterinspect.h"
 #include "llfloaterlagmeter.h"
 #include "llfloaterland.h"
@@ -5340,7 +5341,7 @@ class LLShowFloater : public view_listener_t
 				gParcelMgr->selectParcelAt(gAgent.getPositionGlobal());
 			}
 
-			LLFloaterLand::show();
+			LLFloaterLand::showInstance();
 		}
 		else if (floater_name == "buy land")
 		{
@@ -5365,25 +5366,19 @@ class LLShowFloater : public view_listener_t
 		}
 		else if (floater_name == "help f1")
 		{
-#if LL_LIBXUL_ENABLED
 			gViewerHtmlHelp.show( gSavedSettings.getString("HelpHomeURL") );
-#endif
 		}
 		else if (floater_name == "help in-world")
 		{
-#if LL_LIBXUL_ENABLED
 			const bool open_app_slurls = true;
 			LLFloaterHtml::getInstance()->show( 
 				"in-world_help", open_app_slurls );
-#endif
 		}
 		else if (floater_name == "help additional")
 		{
-#if LL_LIBXUL_ENABLED
 			const bool open_app_slurls = true;
 			LLFloaterHtml::getInstance()->show( 
 				"additional_help", open_app_slurls );
-#endif
 		}
 		else if (floater_name == "complaint reporter")
 		{

@@ -851,11 +851,11 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 	
 	if (use_pass && (mCollisionBanned == BA_NOT_ON_LIST))
 	{
-		LLViewerImage::bindTexture(mPassImage);
+		LLViewerImage::bindTexture( getPassImage() );
 	}
 	else
 	{
-		LLViewerImage::bindTexture(mBlockedImage);
+		LLViewerImage::bindTexture( getBlockedImage() );
 	}
 
 	glBegin(GL_QUADS);

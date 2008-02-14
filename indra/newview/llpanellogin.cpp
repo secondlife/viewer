@@ -71,7 +71,8 @@
 #include "llwebbrowserctrl.h"
 
 #include "llfloaterhtml.h"
-//#include "llfloaterhtmlhelp.h"
+
+#include "llfloaterhtmlhelp.h"
 #include "llfloatertos.h"
 
 #include "llglheaders.h"
@@ -95,12 +96,10 @@ public:
 	LLLoginRefreshHandler() : LLCommandHandler("login_refresh", false) { }
 	bool handle(const LLSD& tokens, const LLSD& queryMap)
 	{	
-#if LL_LIBXUL_ENABLED
 		if (LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)
 		{
 			LLPanelLogin::loadLoginPage();
 		}	
-#endif
 		return true;
 	}
 };
@@ -438,7 +437,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 #endif    
 	
 	// get the web browser control
-	#if LL_LIBXUL_ENABLED
 	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(this, "login_html");
 	if ( web_browser )
 	{
@@ -475,9 +473,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
  		}
  		LLHTTPClient::head( login_page, gResponsePtr );
 	};
-	#else
-		mHtmlAvailable = FALSE;
-	#endif
 
 #if !USE_VIEWER_AUTH
 	// Initialize visibility (and don't force visibility - use prefs)
@@ -487,7 +482,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 void LLPanelLogin::setSiteIsAlive( bool alive )
 {
-#if LL_LIBXUL_ENABLED
 	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(this, "login_html");
 	// if the contents of the site was retrieved
 	if ( alive )
@@ -523,10 +517,6 @@ void LLPanelLogin::setSiteIsAlive( bool alive )
 		}
 #endif
 	}
-
-#else
-	mHtmlAvailable = FALSE;
-#endif
 }
 
 void LLPanelLogin::mungePassword(LLUICtrl* caller, void* user_data)
@@ -620,7 +610,6 @@ BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 			return TRUE;
 		}
 		
-#if LL_LIBXUL_ENABLED
 		if ( KEY_F1 == key )
 		{
 			llinfos << "Spawning HTML help window" << llendl;
@@ -636,7 +625,6 @@ BOOL LLPanelLogin::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 			tos_dialog->startModal();
 			return TRUE;
 		}
-# endif
 #endif
 
 		if (!called_from_parent)
@@ -917,14 +905,12 @@ void LLPanelLogin::setAlwaysRefresh(bool refresh)
 {
 	if (LLStartUp::getStartupState() >= STATE_LOGIN_CLEANUP) return;
 
-#if LL_LIBXUL_ENABLED
 	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(sInstance, "login_html");
 
 	if (web_browser)
 	{
 		web_browser->setAlwaysRefresh(refresh);
 	}
-#endif
 }
 
 
@@ -1050,15 +1036,12 @@ void LLPanelLogin::loadLoginPage()
 #endif
 #endif
 	
-#if LL_LIBXUL_ENABLED
 	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(sInstance, "login_html");
 	
 	// navigate to the "real" page 
 	web_browser->navigateTo( oStr.str() );
-#endif
 }
 
-#if LL_LIBXUL_ENABLED
 void LLPanelLogin::onNavigateComplete( const EventType& eventIn )
 {
 	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(sInstance, "login_html");
@@ -1074,7 +1057,6 @@ void LLPanelLogin::onNavigateComplete( const EventType& eventIn )
 		//web_browser->handleKey(KEY_TAB, MASK_NONE, false);
 	}
 }
-#endif
 
 //---------------------------------------------------------------------------
 // Protected methods

@@ -52,33 +52,6 @@
 #define LL_FORCE_INLINE __forceinline
 #endif
 
-// Per-OS feature switches.
-
-#if LL_DARWIN
-	#define LL_QUICKTIME_ENABLED	1
-	#define LL_LIBXUL_ENABLED		1
-#elif LL_WINDOWS
-	#define LL_QUICKTIME_ENABLED	1
-	#define LL_LIBXUL_ENABLED		1
-#elif LL_LINUX
-	#define LL_QUICKTIME_ENABLED	0
-        #ifndef LL_LIBXUL_ENABLED
-                #define LL_LIBXUL_ENABLED		1
-        #endif // def LL_LIBXUL_ENABLED
-#elif LL_SOLARIS
-	#define LL_QUICKTIME_ENABLED    0
-	#ifndef LL_LIBXUL_ENABLED
-		#define LL_LIBXUL_ENABLED               0
-	#endif // def LL_LIBXUL_ENABLED
-#endif
-
-#if LL_LIBXUL_ENABLED && !defined(MOZILLA_INTERNAL_API)
-	// Without this, nsTAString.h errors out with:
-	// "Cannot use internal string classes without MOZILLA_INTERNAL_API defined. Use the frozen header nsStringAPI.h instead."
-	// It might be worth our while to figure out if we can use the frozen apis at some point...
-	#define MOZILLA_INTERNAL_API 1
-#endif
-
 // Figure out differences between compilers
 #if defined(__GNUC__)
 	#define GCC_VERSION (__GNUC__ * 10000 \

@@ -47,6 +47,7 @@
 #include "llpumpio.h"
 #include "llfloateractivespeakers.h"
 #include "llimpanel.h"
+#include "llmimetypes.h"
 #include "llstartup.h"
 #include "llfocusmgr.h"
 #include "llviewerjoystick.h"
@@ -59,6 +60,7 @@
 #include "llworldmap.h"
 #include "llmutelist.h"
 #include "llurldispatcher.h"
+#include "llurlhistory.h"
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
@@ -76,7 +78,6 @@
 
 
 #include "llnotify.h"
-#include "llmediaengine.h"
 #include "llviewerkeyboard.h"
 #include "lllfsthread.h"
 #include "llworkerthread.h"
@@ -97,7 +98,6 @@
 #include "llviewermenu.h"
 #include "llselectmgr.h"
 #include "lltracker.h"
-#include "llmozlib.h"
 #include "llviewerparcelmgr.h"
 #include "llworldmapview.h"
 
@@ -169,21 +169,6 @@ static char** gTempArgV;
 #if LL_WINDOWS && LL_LCD_COMPILE
 	#include "lllcd.h"
 #endif
-//
-#if LL_QUICKTIME_ENABLED
-	#if LL_DARWIN
-		#include <QuickTime/QuickTime.h>
-	#else
-		// quicktime specific includes
-		#include "MacTypes.h"
-		#include "QTML.h"
-		#include "Movies.h"
-		#include "FixMath.h"
-	#endif
-#endif
-//
-//////
-
 
 //----------------------------------------------------------------------------
 // viewer.cpp - these are only used in viewer, should be easily moved.
@@ -228,10 +213,6 @@ extern BOOL gbCapturing;
 extern BOOL gRandomizeFramerate;
 extern BOOL gPeriodicSlowFrame;
 
-#if LL_GSTREAMER_ENABLED
-void UnloadGStreamer();
-#endif
-
 ////////////////////////////////////////////////////////////
 // All from the last globals push...
 bool gVerifySSLCert = true;
@@ -257,6 +238,7 @@ BOOL				gShowObjectUpdates = FALSE;
 BOOL gLogMessages = FALSE;
 std::string gChannelName = LL_CHANNEL;
 BOOL gUseAudio = TRUE;
+BOOL gUseQuickTime = TRUE;
 LLString gCmdLineFirstName;
 LLString gCmdLineLastName;
 LLString gCmdLinePassword;
@@ -1174,6 +1156,9 @@ bool LLAppViewer::init()
 
 	LLAgent::parseTeleportMessages("teleport_strings.xml");
 
+	// load MIME type -> media impl mappings
+	LLMIMETypes::parseMIMETypes( "mime_types.xml" ); 
+
 	mCrashBehavior = gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING);
 
 	LLVectorPerformanceOptions::initClass();
@@ -1574,32 +1559,6 @@ bool LLAppViewer::cleanup()
 	llwarns << "Hack, skipping audio engine cleanup" << llendflush;
 #endif
 
-
-	// moved to main application shutdown for now because it's non-trivial and only needs to be done once
-	// (even though it goes against the media framework design)
-
-	LLMediaEngine::cleanupClass();
-	
-#if LL_QUICKTIME_ENABLED
-	if (gQuickTimeInitialized)
-	{
-		// clean up media stuff
-		llinfos << "Cleaning up QuickTime" << llendl;
-		ExitMovies ();
-		#if LL_WINDOWS
-			// Only necessary/available on Windows.
-			TerminateQTML ();
-		#endif
-	}
-	llinfos << "Quicktime cleaned up" << llendflush;
-#endif
-
-#if LL_GSTREAMER_ENABLED
-	llinfos << "Cleaning up GStreamer" << llendl;
-	UnloadGStreamer();
-	llinfos << "GStreamer cleaned up" << llendflush;	
-#endif
-
 	llinfos << "Cleaning up feature manager" << llendflush;
 	delete gFeatureManagerp;
 	gFeatureManagerp = NULL;
@@ -1661,18 +1620,12 @@ bool LLAppViewer::cleanup()
 		
 	LLTracker::cleanupInstance();
 	
-#if LL_LIBXUL_ENABLED
-	// this must be done after floater cleanup (delete gViewerWindow) since 
-	// floaters  potentially need the manager to destroy their contents.
-	LLMozLib::getInstance()->reset();
-#endif
-
 	// *FIX: This is handled in LLAppViewerWin32::cleanup().
 	// I'm keeping the comment to remember its order in cleanup,
 	// in case of unforseen dependency.
-//#if LL_WINDOWS
-//	gDXHardware.cleanup();
-//#endif // LL_WINDOWS
+	//#if LL_WINDOWS
+	//	gDXHardware.cleanup();
+	//#endif // LL_WINDOWS
 
 #if LL_WINDOWS && LL_LCD_COMPILE
 	// shut down the LCD window on a logitech keyboard, if there is one
@@ -1728,6 +1681,9 @@ bool LLAppViewer::cleanup()
 	gViewerArt.cleanup();
 	gColors.cleanup();
 	gCrashSettings.cleanup();
+
+	// Save URL history file
+	LLURLHistory::saveFile("url_history.xml");
 
 	if (gMuteListp)
 	{
@@ -2368,8 +2324,6 @@ bool LLAppViewer::initWindow()
 	LLAlertDialog::parseAlerts("alerts.xml");
 	LLNotifyBox::parseNotify("notify.xml");
 
-	LLMediaEngine::initClass();
-	
 	//
 	// Clean up the feature manager lookup table - settings were updated
 	// in the LLViewerWindow constructor

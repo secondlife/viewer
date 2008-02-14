@@ -429,12 +429,10 @@ bool LLURLRequest::configure()
 	switch(mAction)
 	{
 	case HTTP_HEAD:
+		// These are in addition to the HTTP_GET options.
 		curl_easy_setopt(mDetail->mCurl, CURLOPT_HEADER, 1);
 		curl_easy_setopt(mDetail->mCurl, CURLOPT_NOBODY, 1);
-		curl_easy_setopt(mDetail->mCurl, CURLOPT_FOLLOWLOCATION, 1);
-		rv = true;
-		break;
-
+		
 	case HTTP_GET:
 		curl_easy_setopt(mDetail->mCurl, CURLOPT_HTTPGET, 1);
 		curl_easy_setopt(mDetail->mCurl, CURLOPT_FOLLOWLOCATION, 1);

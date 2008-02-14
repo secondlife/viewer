@@ -48,12 +48,9 @@
 #include "llviewerbuild.h"
 #include "llvieweruictrlfactory.h"
 #include "llappviewer.h" 
-
-#if LL_LIBXUL_ENABLED
-#include "llmozlib.h"
-#endif // LL_LIBXUL_ENABLED
-
 #include "llglheaders.h"
+#include "llmediamanager.h"
+
 
 extern LLCPUInfo gSysCPU;
 extern LLMemoryInfo gSysMemory;
@@ -147,11 +144,18 @@ LLFloaterAbout::LLFloaterAbout()
 	support.append( (const char*) glGetString(GL_VERSION) );
 	support.append("\n");
 
-#if LL_LIBXUL_ENABLED
-	support.append("LLMozLib Version: ");
-	support.append( (const char*) LLMozLib::getInstance()->getVersion().c_str() );
-	support.append("\n");
-#endif // LL_LIBXUL_ENABLED
+	LLMediaManager *mgr = LLMediaManager::getInstance();
+	if (mgr)
+	{
+		LLMediaBase *media_source = mgr->createSourceFromMimeType("http", "text/html");
+		if (media_source)
+		{
+			support.append("LLMozLib Version: ");
+			support.append((const char*) media_source->getVersion().c_str());
+			support.append("\n");
+			mgr->destroySource(media_source);
+		}
+	}
 
 	if (gViewerStats
 		&& gPacketsIn > 0)

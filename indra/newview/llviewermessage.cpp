@@ -5039,7 +5039,7 @@ void callback_load_url(S32 option, void* data)
 
 	if (0 == option)
 	{
-		LLWeb::loadURL(infop->mUrl);  
+		LLWeb::loadURL(infop->mUrl);
 	}
 
 	delete infop;

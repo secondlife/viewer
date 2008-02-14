@@ -145,7 +145,6 @@ BOOL LLFloaterTOS::postBuild()
 		return TRUE;
 	}
 
-#if LL_LIBXUL_ENABLED
 	// disable Agree to TOS radio button until the page has fully loaded
 	LLRadioGroup* tos_agreement = LLUICtrlFactory::getRadioGroupByName(this, "tos_agreement");
 	if ( tos_agreement )
@@ -172,18 +171,6 @@ BOOL LLFloaterTOS::postBuild()
 		gResponsePtr = LLIamHere::build( this );
 		LLHTTPClient::get( childGetValue( "real_url" ).asString(), gResponsePtr );
 	};
-#else
-	LLTextEditor *Editor = LLUICtrlFactory::getTextEditorByName(this, "tos_text");
-	if (Editor)
-	{
-		Editor->setHandleEditKeysDirectly( TRUE );
-		Editor->setEnabled( FALSE );
-		Editor->setReadOnlyFgColor(LLColor4::white);
-		Editor->setWordWrap(TRUE);
-		Editor->setFocus(TRUE);
-	}
-	childSetValue("tos_text", LLSD(mMessage));	
-#endif
 
 	return TRUE;
 }
@@ -193,7 +180,6 @@ void LLFloaterTOS::setSiteIsAlive( bool alive )
 	// only do this for TOS pages
 	if ( mType == TOS_TOS )
 	{
-#if LL_LIBXUL_ENABLED
 		LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(this, "tos_html");
 		// if the contents of the site was retrieved
 		if ( alive )
@@ -220,20 +206,17 @@ void LLFloaterTOS::setSiteIsAlive( bool alive )
 				web_browser->setVisible( FALSE );
 			};
 		};
-#endif // LL_LIBXUL_ENABLED
 	};
 }
 
 LLFloaterTOS::~LLFloaterTOS()
 {
-#if LL_LIBXUL_ENABLED
 	// stop obsaerving events
 	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(this, "tos_html");
 	if ( web_browser )
 	{
 		web_browser->addObserver( this );		
 	};
-#endif // LL_LIBXUL_ENABLED
 
 	// tell the responder we're not here anymore
 	if ( gResponsePtr )

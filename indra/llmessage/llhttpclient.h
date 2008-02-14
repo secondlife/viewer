@@ -89,7 +89,11 @@ public:
 				* result(), or
 				* error() 
 			*/
-			
+
+		// Override to handle parsing of the header only.  Note: this is the only place where the contents
+		// of the header can be parsed.  In the ::completed call above only the body is contained in the LLSD.
+		virtual void completedHeader(U32 status, const std::string& reason, const LLSD& content);
+
 	public: /* but not really -- don't touch this */
 		U32 mReferenceCount;
 	};
@@ -102,7 +106,10 @@ public:
 	static void get(const std::string& url, const LLSD& query, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void get(const std::string& url, const LLSD& query, ResponderPtr, const LLSD& headers, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void put(const std::string& url, const LLSD& body, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
-		///< non-blocking
+	static void getHeaderOnly(const std::string& url, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+	static void getHeaderOnly(const std::string& url, ResponderPtr, const LLSD& headers, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+
+	///< non-blocking
 	static void post(const std::string& url, const LLSD& body, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void post(const std::string& url, const U8* data, S32 size, ResponderPtr responder, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void postFile(const std::string& url, const std::string& filename, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);

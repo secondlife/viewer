@@ -495,7 +495,6 @@ BOOL LLPanelAvatarWeb::postBuild(void)
 
 	childSetControlName("auto_load","AutoLoadWebProfiles");
 
-#if LL_LIBXUL_ENABLED
 	mWebBrowser = (LLWebBrowserCtrl*)getChildByName("profile_html");
 
 	// links open in internally 
@@ -503,7 +502,6 @@ BOOL LLPanelAvatarWeb::postBuild(void)
 
 	// observe browser events
 	mWebBrowser->addObserver( this );
-#endif // LL_LIBXUL_ENABLED
 
 	return TRUE;
 }
@@ -563,13 +561,11 @@ LLPanelAvatarWeb::LLPanelAvatarWeb(const std::string& name, const LLRect& rect,
 
 LLPanelAvatarWeb::~LLPanelAvatarWeb()
 {
-#if LL_LIBXUL_ENABLED
 	// stop observing browser events
 	if  ( mWebBrowser )
 	{
 		mWebBrowser->remObserver( this );
 	};
-#endif
 }
 
 void LLPanelAvatarWeb::enableControls(BOOL self)
@@ -606,12 +602,6 @@ void LLPanelAvatarWeb::setWebURL(std::string url)
 		childSetVisible("profile_html",false);
 	}
 	
-#if !LL_LIBXUL_ENABLED
-	childSetVisible("load",false);
-	childSetVisible("profile_html",false);
-	childSetVisible("status_text",false);
-#endif
-
 }
 
 // static
@@ -627,18 +617,13 @@ void LLPanelAvatarWeb::onCommitURL(LLUICtrl* ctrl, void* data)
 // static
 void LLPanelAvatarWeb::onClickWebProfileHelp(void *)
 {
-#if LL_LIBXUL_ENABLED
 	gViewerWindow->alertXml("ClickWebProfileHelpAvatar");
-#else
-	gViewerWindow->alertXml("ClickWebProfileNoWebHelpAvatar");
-#endif
 }
 
 void LLPanelAvatarWeb::load(std::string url)
 {
 	bool have_url = (!url.empty());
 
-#if LL_LIBXUL_ENABLED
 	if (have_url)
 	{
 		llinfos << "Loading " << url << llendl;
@@ -658,9 +643,6 @@ void LLPanelAvatarWeb::load(std::string url)
 	childSetEnabled("home",use_home);
 	childSetEnabled("open",have_url);
 	
-#else
-	childSetEnabled("open",have_url);
-#endif
 }
 
 void LLPanelAvatarWeb::load()
@@ -692,7 +674,6 @@ void LLPanelAvatarWeb::onClickOpen(void* data)
 	}
 }
 
-#if LL_LIBXUL_ENABLED
 void LLPanelAvatarWeb::onStatusTextChange( const EventType& eventIn )
 {
 	childSetText("status_text", eventIn.getStringValue() );
@@ -702,7 +683,6 @@ void LLPanelAvatarWeb::onLocationChange( const EventType& eventIn )
 {
 	childSetText("url_edit", eventIn.getStringValue() );
 }
-#endif
 
 
 //-----------------------------------------------------------------------------

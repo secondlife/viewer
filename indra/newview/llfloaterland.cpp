@@ -31,8 +31,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include <sstream>
-
 #include "llfloaterland.h"
 
 #include "llcachename.h"
@@ -53,6 +51,7 @@
 #include "lllineeditor.h"
 #include "llnamelistctrl.h"
 #include "llnotify.h"
+#include "llpanellandmedia.h"
 #include "llradiogroup.h"
 #include "llscrolllistctrl.h"
 #include "llselectmgr.h"
@@ -68,9 +67,38 @@
 #include "llviewerstats.h"
 #include "llviewertexteditor.h"
 #include "llviewerwindow.h"
-#include "llmediaengine.h"
 #include "llviewercontrol.h"
 #include "roles_constants.h"
+
+#include <sstream>
+#include <time.h>
+
+static const S32 EDIT_HEIGHT = 16;
+static const S32 LEFT = HPAD;
+static const S32 BOTTOM = VPAD;
+static const S32 RULER0  = LEFT;
+static const S32 RULER05 = RULER0 + 24;
+static const S32 RULER1  = RULER05 + 16;
+static const S32 RULER15 = RULER1 + 20;
+static const S32 RULER2  = RULER1 + 32;
+static const S32 RULER205= RULER2 + 32;
+static const S32 RULER20 = RULER2 + 64;
+static const S32 RULER21 = RULER20 + 16;
+static const S32 RULER22 = RULER21 + 32;
+static const S32 RULER225 = RULER20 + 64;
+static const S32 RULER23 = RULER22 + 64;
+static const S32 RULER24 = RULER23 + 26;
+static const S32 RULER3  = RULER2 + 102;
+static const S32 RULER4  = RULER3 + 8;
+static const S32 RULER5  = RULER4 + 50;
+static const S32 RULER6  = RULER5 + 52;
+static const S32 RULER7  = RULER6 + 24;
+static const S32 RIGHT  = LEFT + 278;
+static const S32 FAR_RIGHT  = LEFT + 324 + 40;
+
+static const char PRICE[] = "Price:";
+static const char NO_PRICE[] = "";
+static const char AREA[] = "Area:";
 
 static const char OWNER_ONLINE[] 	= "0";
 static const char OWNER_OFFLINE[]	= "1";
@@ -80,16 +108,7 @@ static const char OWNER_GROUP[] 	= "2";
 static const BOOL BUY_GROUP_LAND = TRUE;
 static const BOOL BUY_PERSONAL_LAND = FALSE;
 
-// Values for the parcel voice settings radio group
-enum
-{
-	kRadioVoiceChatEstate = 0,
-	kRadioVoiceChatPrivate = 1,
-	kRadioVoiceChatDisable = 2
-};
-
 // Statics
-LLFloaterLand* LLFloaterLand::sInstance = NULL;
 LLParcelSelectionObserver* LLFloaterLand::sObserver = NULL;
 S32 LLFloaterLand::sLastTab = 0;
 
@@ -150,63 +169,41 @@ void send_parcel_select_objects(S32 parcel_local_id, S32 return_type,
 }
 
 
-// static
-void LLFloaterLand::show()
-{
-	if (!sInstance)
-	{
-		sInstance = new LLFloaterLand();
-
-		// Select tab from last view
-		sInstance->mTabLand->selectTab(sLastTab);
-
-		sObserver = new LLParcelSelectionObserver();
-		gParcelMgr->addObserver( sObserver );
-	}
-
-	sInstance->open();	/*Flawfinder: ignore*/
-
-	// Done automatically when the selected parcel's properties arrive
-	// (and hence we have the local id).
-	// gParcelMgr->sendParcelAccessListRequest(AL_ACCESS | AL_BAN | AL_RENTER);
-
-	sInstance->mParcel = gParcelMgr->getFloatingParcelSelection();
-	
-	// Refresh even if not over a region so we don't get an
-	// uninitialized dialog. The dialog is 0-region aware.
-	sInstance->refresh();
-}
-
 //static
 LLPanelLandObjects* LLFloaterLand::getCurrentPanelLandObjects()
 {
-	if (!sInstance)
-	{
-		return NULL;
-	}
-
-	return sInstance->mPanelObjects;
+	return LLFloaterLand::getInstance()->mPanelObjects;
 }
 
 //static
 LLPanelLandCovenant* LLFloaterLand::getCurrentPanelLandCovenant()
 {
-	if (!sInstance)
-	{
-		return NULL;
-	}
-
-	return sInstance->mPanelCovenant;
+	return LLFloaterLand::getInstance()->mPanelCovenant;
 }
 
 // static
 void LLFloaterLand::refreshAll()
 {
-	if (sInstance)
-	{
-		sInstance->refresh();
-	}
+	LLFloaterLand::getInstance()->refresh();
 }
+
+void LLFloaterLand::onOpen()
+{
+	// Select tab from last view
+	mTabLand->selectTab(sLastTab);
+
+
+	// Done automatically when the selected parcel's properties arrive
+	// (and hence we have the local id).
+	// gParcelMgr->sendParcelAccessListRequest(AL_ACCESS | AL_BAN | AL_RENTER);
+
+	mParcel = gParcelMgr->getFloatingParcelSelection();
+	
+	// Refresh even if not over a region so we don't get an
+	// uninitialized dialog. The dialog is 0-region aware.
+	refresh();
+}
+
 
 // virtual
 void LLFloaterLand::onClose(bool app_quitting)
@@ -225,7 +222,7 @@ void LLFloaterLand::onClose(bool app_quitting)
 }
 
 
-LLFloaterLand::LLFloaterLand()
+LLFloaterLand::LLFloaterLand(const LLSD& seed)
 :	LLFloater("floaterland", "FloaterLandRect5", "About Land")
 {
 
@@ -242,7 +239,12 @@ LLFloaterLand::LLFloaterLand()
 
 	gUICtrlFactory->buildFloater(this, "floater_about_land.xml", &factory_map);
 
+	sObserver = new LLParcelSelectionObserver();
+	gParcelMgr->addObserver( sObserver );
+}
 
+BOOL LLFloaterLand::postBuild()
+{
 	LLTabContainerCommon* tab = LLUICtrlFactory::getTabContainerByName(this, "landtab");
 
 	mTabLand = (LLTabContainer*) tab;
@@ -252,15 +254,15 @@ LLFloaterLand::LLFloaterLand()
 	{
 		tab->selectTab(sLastTab);
 	}
+
+	return TRUE;
 }
 
 
 // virtual
 LLFloaterLand::~LLFloaterLand()
 {
-	sInstance = NULL;
 }
-
 
 // public
 void LLFloaterLand::refresh()
@@ -2214,239 +2216,7 @@ void LLPanelLandOptions::onClickPublishHelp(void*)
 	}
 }
 
-//---------------------------------------------------------------------------
-// LLPanelLandMedia
-//---------------------------------------------------------------------------
 
-LLPanelLandMedia::LLPanelLandMedia(LLParcelSelectionHandle& parcel)
-:	LLPanel("land_media_panel"), mParcel(parcel)
-{
-}
-
-
-
-
-BOOL LLPanelLandMedia::postBuild()
-{
-		
-	mCheckSoundLocal = LLUICtrlFactory::getCheckBoxByName(this, "check sound local");
-	childSetCommitCallback("check sound local", onCommitAny, this);
-
-	mRadioVoiceChat = LLUICtrlFactory::getRadioGroupByName(this, "parcel_voice_channel");
-	childSetCommitCallback("parcel_voice_channel", onCommitAny, this);
-
-	mMusicURLEdit = LLUICtrlFactory::getLineEditorByName(this, "music_url");
-	childSetCommitCallback("music_url", onCommitAny, this);
-
-
-	mMediaTextureCtrl = LLUICtrlFactory::getTexturePickerByName(this, "media texture");
-	if (mMediaTextureCtrl)
-	{
-		mMediaTextureCtrl->setCommitCallback( onCommitAny );
-		mMediaTextureCtrl->setCallbackUserData( this );
-		mMediaTextureCtrl->setAllowNoTexture ( TRUE );
-		mMediaTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-		mMediaTextureCtrl->setNonImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-	}
-	else
-	{
-		llwarns << "LLUICtrlFactory::getTexturePickerByName() returned NULL for 'media texure'" << llendl;
-	}
-		
-	mMediaAutoScaleCheck = LLUICtrlFactory::getCheckBoxByName(this, "media_auto_scale");
-	childSetCommitCallback("media_auto_scale", onCommitAny, this);
-
-	mMediaURLEdit = LLUICtrlFactory::getLineEditorByName(this, "media_url");
-	childSetCommitCallback("media_url", onCommitAny, this);
-	
-	return TRUE;
-}
-
-
-// virtual
-LLPanelLandMedia::~LLPanelLandMedia()
-{ }
-
-
-// public
-void LLPanelLandMedia::refresh()
-{
-	LLParcel *parcel = mParcel->getParcel();
-
-	if (!parcel)
-	{
-		mCheckSoundLocal->set(FALSE);
-		mCheckSoundLocal->setEnabled(FALSE);
-
-		mRadioVoiceChat->setSelectedIndex(kRadioVoiceChatEstate);
-		mRadioVoiceChat->setEnabled(FALSE);
-
-		mMusicURLEdit->setText(LLString::null);
-		mMusicURLEdit->setEnabled(FALSE);
-
-		mMediaURLEdit->setText(LLString::null);
-		mMediaURLEdit->setEnabled(FALSE);
-
-		mMediaAutoScaleCheck->set ( FALSE );
-		mMediaAutoScaleCheck->setEnabled(FALSE);
-
-		mMediaTextureCtrl->clear();
-		mMediaTextureCtrl->setEnabled(FALSE);
-
-		#if 0
-		mMediaStopButton->setEnabled ( FALSE );
-		mMediaStartButton->setEnabled ( FALSE );
-		#endif
-	}
-	else
-	{
-		// something selected, hooray!
-
-		// Display options
-		BOOL can_change_media = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_CHANGE_MEDIA);
-
-		mCheckSoundLocal->set( parcel->getSoundLocal() );
-		mCheckSoundLocal->setEnabled( can_change_media );
-
-		LLViewerRegion* selection_region = gParcelMgr->getSelectionRegion();
-		BOOL region_allows_voice = FALSE;
-		if (selection_region)
-		{
-			region_allows_voice = selection_region->isVoiceEnabled();
-		}
-
-		if(parcel->getVoiceEnabled())
-		{
-			if(parcel->getVoiceUseEstateChannel())
-				mRadioVoiceChat->setSelectedIndex(kRadioVoiceChatEstate);
-			else
-				mRadioVoiceChat->setSelectedIndex(kRadioVoiceChatPrivate);
-		}
-		else
-		{
-			mRadioVoiceChat->setSelectedIndex(kRadioVoiceChatDisable);
-		}
-
-		mRadioVoiceChat->setEnabled( can_change_media && region_allows_voice );
-
-		// don't display urls if you're not able to change it
-		// much requested change in forums so people can't 'steal' urls
-		// NOTE: bug#2009 means this is still vunerable - however, bug 
-		// should be closed since this bug opens up major security issues elsewhere.
-		if ( can_change_media )
-		{
-			mMusicURLEdit->setDrawAsterixes ( FALSE );
-			mMediaURLEdit->setDrawAsterixes ( FALSE );
-		}
-		else
-		{
-				mMusicURLEdit->setDrawAsterixes ( TRUE );
-				mMediaURLEdit->setDrawAsterixes ( TRUE );
-			}
-
-		mMusicURLEdit->setText(parcel->getMusicURL());
-		mMusicURLEdit->setEnabled( can_change_media );
-
-		mMediaURLEdit->setText(parcel->getMediaURL());
-		mMediaURLEdit->setEnabled( can_change_media );
-
-		mMediaAutoScaleCheck->set ( parcel->getMediaAutoScale () );
-		mMediaAutoScaleCheck->setEnabled ( can_change_media );
-
-		LLUUID tmp = parcel->getMediaID();
-		mMediaTextureCtrl->setImageAssetID ( parcel->getMediaID() );
-		mMediaTextureCtrl->setEnabled( can_change_media );
-
-		#if 0
-		// there is a media url and a media texture selected
-		if ( ( ! ( std::string ( parcel->getMediaURL() ).empty () ) ) && ( ! ( parcel->getMediaID ().isNull () ) ) )
-		{
-			// turn on transport controls if allowed for this parcel
-			mMediaStopButton->setEnabled ( editable );
-			mMediaStartButton->setEnabled ( editable );
-		}
-		else
-		{
-			// no media url or no media texture
-			mMediaStopButton->setEnabled ( FALSE );
-			mMediaStartButton->setEnabled ( FALSE );
-		};
-		#endif
-	}
-}
-
-// static
-void LLPanelLandMedia::onCommitAny(LLUICtrl *ctrl, void *userdata)
-{
-	LLPanelLandMedia *self = (LLPanelLandMedia *)userdata;
-
-	LLParcel* parcel = self->mParcel->getParcel();
-	if (!parcel)
-	{
-		return;
-	}
-
-	// Extract data from UI
-	BOOL sound_local		= self->mCheckSoundLocal->get();
-	int voice_setting		= self->mRadioVoiceChat->getSelectedIndex();
-	std::string music_url	= self->mMusicURLEdit->getText();
-	std::string media_url	= self->mMediaURLEdit->getText();
-	U8 media_auto_scale		= self->mMediaAutoScaleCheck->get();
-	LLUUID media_id			= self->mMediaTextureCtrl->getImageAssetID();
-
-	BOOL voice_enabled;
-	BOOL voice_estate_chan;
-	
-	switch(voice_setting)
-	{
-		default:
-		case kRadioVoiceChatEstate:
-			voice_enabled = TRUE;
-			voice_estate_chan = TRUE;
-		break;
-		case kRadioVoiceChatPrivate:
-			voice_enabled = TRUE;
-			voice_estate_chan = FALSE;
-		break;
-		case kRadioVoiceChatDisable:
-			voice_enabled = FALSE;
-			voice_estate_chan = FALSE;
-		break;
-	}
-	
-	// Remove leading/trailing whitespace (common when copying/pasting)
-	LLString::trim(music_url);
-	LLString::trim(media_url);
-
-	// Push data into current parcel
-	parcel->setParcelFlag(PF_ALLOW_VOICE_CHAT, voice_enabled);
-	parcel->setParcelFlag(PF_USE_ESTATE_VOICE_CHAN, voice_estate_chan);
-	parcel->setParcelFlag(PF_SOUND_LOCAL, sound_local);
-	parcel->setMusicURL(music_url.c_str());
-	parcel->setMediaURL(media_url.c_str());
-	parcel->setMediaID(media_id);
-	parcel->setMediaAutoScale ( media_auto_scale );
-
-	// Send current parcel data upstream to server
-	gParcelMgr->sendParcelPropertiesUpdate( parcel );
-
-	// Might have changed properties, so let's redraw!
-	self->refresh();
-}
-
-void LLPanelLandMedia::onClickStopMedia ( void* data )
-{
-	LLMediaEngine::getInstance ()->stop ();
-}
-
-void LLPanelLandMedia::onClickStartMedia ( void* data )
-{
-	// force a commit
-	gFocusMgr.setKeyboardFocus ( NULL );
-
-	// force a reload
-	LLMediaEngine::getInstance ()->convertImageAndLoadUrl ( true, false, std::string());
-}
 
 //---------------------------------------------------------------------------
 // LLPanelLandAccess

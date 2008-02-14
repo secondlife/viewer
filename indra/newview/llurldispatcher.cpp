@@ -39,6 +39,7 @@
 #include "llfloaterdirectory.h"
 #include "llfloaterhtml.h"
 #include "llfloaterworldmap.h"
+#include "llfloaterhtmlhelp.h"
 #include "llpanellogin.h"
 #include "llstartup.h"			// gStartupState
 #include "llurlsimstring.h"
@@ -159,9 +160,7 @@ bool LLURLDispatcherImpl::dispatchHelp(const std::string& url, BOOL right_mouse)
 {
 	if (matchPrefix(url, SLURL_SL_HELP_PREFIX))
 	{
-#if LL_LIBXUL_ENABLED
 		gViewerHtmlHelp.show();
-#endif // LL_LIBXUL_ENABLED
 		return true;
 	}
 	return false;

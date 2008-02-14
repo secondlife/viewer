@@ -36,8 +36,8 @@
 
 #include "llwindow.h"
 
-//#include "llfloaterhtml.h"
 #include "llviewercontrol.h"
+#include "llfloaterhtmlhelp.h"
 
 // static
 void LLWeb::initClass()
@@ -48,7 +48,14 @@ void LLWeb::initClass()
 // static
 void LLWeb::loadURL(const std::string& url)
 {
-	loadURLExternal(url);
+	if (gSavedSettings.getBOOL("UseExternalBrowser"))
+	{
+		loadURLExternal(url);
+	}
+	else
+	{
+		LLFloaterMediaBrowser::showInstance(url);
+	}
 }
 
 
@@ -56,9 +63,7 @@ void LLWeb::loadURL(const std::string& url)
 void LLWeb::loadURLExternal(const std::string& url)
 {
 	std::string escaped_url = escapeURL(url);
-#if LL_LIBXUL_ENABLED
 	spawn_web_browser(escaped_url.c_str());
-#endif
 }
 
 

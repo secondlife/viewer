@@ -64,11 +64,9 @@ class LLLoginHandler : public LLCommandHandler
 
 extern LLLoginHandler gLoginHandler;
 
-class LLPanelLogin
-:	public LLPanel
-#if LL_LIBXUL_ENABLED
-	, public LLWebBrowserCtrlObserver
-#endif
+class LLPanelLogin:	
+	public LLPanel,
+	public LLWebBrowserCtrlObserver
 {
 public:
 	LLPanelLogin(const LLRect &rect, BOOL show_server, 
@@ -111,11 +109,7 @@ private:
 	static void newAccountAlertCallback(S32 option, void*);
 	static void onClickQuit(void*);
 	static void onClickVersion(void*);
-
-#if LL_LIBXUL_ENABLED
-	// browser observer impls
 	virtual void onNavigateComplete( const EventType& eventIn );
-#endif
 	static void onClickForgotPassword(void*);
 	static void onPassKey(LLLineEditor* caller, void* user_data);
 	

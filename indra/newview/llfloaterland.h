@@ -68,13 +68,9 @@ class LLPanelLandRenters;
 class LLPanelLandCovenant;
 
 class LLFloaterLand
-:	public LLFloater
+:	public LLFloater, public LLUISingleton<LLFloaterLand>
 {
 public:
-	// Call show() to open a land floater.
-	// Will query the viewer parcel manager to see what is selected.
-	static void show();
-	static BOOL floaterVisible() { return sInstance && sInstance->getVisible(); }
 	static void refreshAll();
 
 	static LLPanelLandObjects* getCurrentPanelLandObjects();
@@ -82,11 +78,15 @@ public:
 
 	// Destroys itself on close.
 	virtual void onClose(bool app_quitting);
+	virtual void onOpen();
+	virtual BOOL postBuild();
 
 protected:
+	friend class LLUISingleton<LLFloaterLand>;
+
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
-	LLFloaterLand();
+	LLFloaterLand(const LLSD& seed);
 	virtual ~LLFloaterLand();
 
 	void refresh();
@@ -102,7 +102,6 @@ protected:
 
 
 protected:
-	static LLFloaterLand* sInstance;
 	static LLParcelSelectionObserver* sObserver;
 	static S32 sLastTab;
 
@@ -342,35 +341,6 @@ protected:
 
 	LLHandle<LLParcelSelection>&	mParcel;
 };
-
-
-class LLPanelLandMedia
-:	public LLPanel
-{
-public:
-	LLPanelLandMedia(LLHandle<LLParcelSelection>& parcelp);
-	virtual ~LLPanelLandMedia();
-	void refresh();
-
-	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
-	static void onClickStopMedia ( void* data );
-	static void onClickStartMedia ( void* data );
-
-	virtual BOOL postBuild();
-
-protected:
-	LLCheckBoxCtrl* mCheckSoundLocal;
-	LLRadioGroup*	mRadioVoiceChat;
-	LLLineEditor*	mMusicURLEdit;
-	LLLineEditor*	mMediaURLEdit;
-	LLTextureCtrl*	mMediaTextureCtrl;
-	LLCheckBoxCtrl*	mMediaAutoScaleCheck;
-	//LLButton*		mMediaStopButton;
-	//LLButton*		mMediaStartButton;
-
-	LLHandle<LLParcelSelection>&	mParcel;
-};
-
 
 
 class LLPanelLandAccess

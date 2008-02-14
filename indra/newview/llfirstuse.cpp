@@ -264,3 +264,14 @@ void LLFirstUse::useVoice()
 		LLFloaterVoiceWizard::showInstance();
 	}
 }
+
+// static 
+void LLFirstUse::useMedia()
+{
+	if (gSavedSettings.getWarning("FirstMedia"))
+	{
+		gSavedSettings.setWarning("FirstMedia", FALSE);
+
+		LLNotifyBox::showXml("FirstMedia");
+	}
+}

@@ -245,7 +245,9 @@ void LLRadioGroup::draw()
 		radio->setValue( selected );
 		if (take_focus && selected && !gFocusMgr.childHasKeyboardFocus(radio))
 		{
-			radio->focusFirstItem();
+			// don't flash keyboard focus when navigating via keyboard
+			BOOL DONT_FLASH = FALSE;
+			radio->focusFirstItem(FALSE, DONT_FLASH);
 		}
 		current_button++;
 	}
