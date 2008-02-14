@@ -37,7 +37,7 @@ from os.path import realpath, dirname, join
 # Walk back to checkout base directory
 dir = dirname(dirname(realpath(__file__)))
 # Walk in to libraries directory
-dir = join(join(join(dir, 'indra'), 'lib'), 'python')
+dir = join(dir, 'indra', 'lib', 'python')
 
 if dir not in sys.path:
     sys.path.insert(0, dir)
