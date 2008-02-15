@@ -47,6 +47,25 @@ def load(indra_xml_file=None):
         config_file.close()
         #print "loaded config from",indra_xml_file,"into",_g_config_dict
 
+def dump(indra_xml_file, indra_cfg={}, update_in_mem=False):
+    '''
+    Dump config contents into a file
+    Kindof reverse of load.
+    Optionally takes a new config to dump.
+    Does NOT update global config unless requested.
+    '''
+    global _g_config_dict
+    if not indra_cfg:
+        indra_cfg = _g_config_dict
+    if not indra_cfg:
+        return
+    config_file = open(indra_xml_file, 'w')
+    _config_xml = llsd.format_xml(indra_cfg)
+    config_file.write(_config_xml)
+    config_file.close()
+    if update_in_mem:
+        update(indra_cfg)
+
 def update(new_conf):
     """Load an XML file and apply its map as overrides or additions
     to the existing config.  The dataserver does this with indra.xml
@@ -68,6 +87,12 @@ def get(key, default = None):
     if _g_config_dict == None:
         load()
     return _g_config_dict.get(key, default)
+
+def set(key, newval):
+    global _g_config_dict
+    if _g_config_dict == None:
+        load()
+    _g_config_dict[key] = newval
 
 def as_dict():
     global _g_config_dict

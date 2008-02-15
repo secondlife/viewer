@@ -227,16 +227,31 @@ def printTranslatedMemory(four_hex_uints):
     uuid.setFromMemoryDump(four_hex_uints)
     print uuid.toString()
 
-def isPossiblyID(id_str):
+def isUUID(id_str):
     """
-    This function returns 1 if the string passed has some uuid-like
-    characteristics. Otherwise returns 0.
+    This function returns:
+    - 1 if the string passed is a UUID
+    - 0 is the string passed is not a UUID
+    - None if it neither of the if's below is satisfied
     """
     if not id_str or len(id_str) <  5 or len(id_str) > 36:
         return 0
 
     if isinstance(id_str, UUID) or UUID.uuid_regex.match(id_str):
         return 1
+
+    return None
+
+def isPossiblyID(id_str):
+    """
+    This function returns 1 if the string passed has some uuid-like
+    characteristics. Otherwise returns 0.
+    """
+
+    is_uuid = isUUID(id_str)
+    if is_uuid is not None:
+        return is_uuid
+
     # build a string which matches every character.
     hex_wildcard = r"[0-9a-fA-F]"
     chars = len(id_str)

@@ -64,12 +64,13 @@ connection pools keyed on host,databasename"""
         else:
             return self._credentials.get('default', None)
 
-    def get(self, host, dbname):
-        key = (host, dbname)
+    def get(self, host, dbname, port=3306):
+        key = (host, dbname, port)
         if key not in self._databases:
             new_kwargs = self._kwargs.copy()
             new_kwargs['db'] = dbname
             new_kwargs['host'] = host
+            new_kwargs['port'] = port
             new_kwargs.update(self.credentials_for(host))
             dbpool = ConnectionPool(self._min_size, self._max_size, *self._args, **new_kwargs)
             self._databases[key] = dbpool

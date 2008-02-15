@@ -495,9 +495,51 @@ class _RewriteQueryForArray(object):
         if type(value) in (list,tuple):
             rv = []
             for idx in range(len(value)):
-                new_key = "_" + key + "_" + str(idx)
-                self.new_params[new_key] = value[idx]
-                rv.append("%(" + new_key + ")s")
+                # if the value@idx is array-like, we are
+                # probably dealing with a VALUES
+                new_key = "_%s_%s"%(key, str(idx))
+                val_item = value[idx]
+                if type(val_item) in (list, tuple, dict):
+                    if type(val_item) is dict:
+                        # this is because in Python, the order of 
+                        # key, value retrieval from the dict is not
+                        # guaranteed to match what the input intended
+                        # and for VALUES, order is important.
+                        # TODO: Implemented ordered dict in LLSD parser?
+                        raise ExpectationFailed('Only lists/tuples allowed,\
+                                received dict')
+                    values_keys = []
+                    for value_idx, item in enumerate(val_item):
+                        # we want a key of the format :
+                        # key_#replacement_#value_row_#value_col
+                        # ugh... so if we are replacing 10 rows in user_note, 
+                        # the first values clause would read (for @:user_notes) :-
+                        # ( :_user_notes_0_1_1,  :_user_notes_0_1_2, :_user_notes_0_1_3 )
+                        # the input LLSD for VALUES will look like:
+                        # <llsd>...
+                        # <map>
+                        #  <key>user_notes</key>
+                        #      <array>
+                        #      <array> <!-- row 1 for VALUES -->
+                        #          <string>...</string>
+                        #          <string>...</string>
+                        #          <string>...</string>
+                        #      </array>
+                        # ...
+                        #      </array>
+                        # </map>
+                        # ... </llsd>
+                        values_key = "%s_%s"%(new_key, value_idx)
+                        self.new_params[values_key] = item
+                        values_keys.append("%%(%s)s"%values_key)
+                    # now collapse all these new place holders enclosed in ()
+                    # from [':_key_0_1_1', ':_key_0_1_2', ':_key_0_1_3,...] 
+                    # rv will have [ '(:_key_0_1_1, :_key_0_1_2, :_key_0_1_3)', ]
+                    # which is flattened a few lines below join(rv)
+                    rv.append('(%s)' % ','.join(values_keys))
+                else:
+                    self.new_params[new_key] = val_item
+                    rv.append("%%(%s)s"%new_key)
             return ','.join(rv)
         else:
             # not something that can be expanded, so just drop the
