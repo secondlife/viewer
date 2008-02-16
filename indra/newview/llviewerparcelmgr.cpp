@@ -56,6 +56,7 @@
 #include "llnotify.h"
 #include "llparcelselection.h"
 #include "llresmgr.h"
+#include "llsdutil.h"
 #include "llstatusbar.h"
 #include "llui.h"
 #include "llviewerimage.h"
@@ -1267,6 +1268,9 @@ void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel, bool use_ag
 	std::string url = gAgent.getRegion()->getCapability("ParcelPropertiesUpdate");
 	if (!url.empty())
 	{
+		U32 message_flags = 0x01;
+		// request new properties update from simulator
+		body["flags"] = ll_sd_from_U32(message_flags);
 		parcel->packMessage(body);
 
 		llinfos << "Sending parcel properties update via capability to:" << url << llendl;
@@ -1284,10 +1288,8 @@ void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel, bool use_ag
 		msg->nextBlockFast(_PREHASH_ParcelData);
 		msg->addS32Fast(_PREHASH_LocalID, parcel->getLocalID() );
 
-		U32 flags = 0x0;
-		// request new properties update from simulator
-		flags |= 0x01;
-		msg->addU32("Flags", flags);
+		U32 message_flags = 0x01;
+		msg->addU32("Flags", message_flags);
 
 		parcel->packMessage(msg);
 

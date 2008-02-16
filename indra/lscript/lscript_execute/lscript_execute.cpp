@@ -1333,7 +1333,7 @@ BOOL run_pushargs(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 	S32 size = toffset - offset;
 	char *arg = new char[size];
 	offset++;
-	safe_instruction_bytestream2char(arg, buffer, offset);
+	safe_instruction_bytestream2char(arg, buffer, offset, size);
 	if (b_print)
 		printf("%s\n", arg);
 	S32 address = lsa_heap_add_data(buffer, new LLScriptLibData(arg), get_max_heap_size(buffer), TRUE);
@@ -2753,7 +2753,7 @@ BOOL run_jumpif(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 				safe_heap_bytestream_count_char(buffer, toffset);
 				S32 size = toffset - string;
 				char *sdata = new char[size];
-				bytestream2char(sdata, buffer, string);
+				bytestream2char(sdata, buffer, string, size);
 				if (strlen(sdata))		/*Flawfinder: ignore*/
 				{
 					offset += arg;
@@ -2781,7 +2781,7 @@ BOOL run_jumpif(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 				safe_heap_bytestream_count_char(buffer, toffset);
 				S32 size = toffset - string;
 				char *sdata = new char[size];
-				bytestream2char(sdata, buffer, string);
+				bytestream2char(sdata, buffer, string, size);
 				if (strlen(sdata))		/*Flawfinder: ignore*/
 				{
 					LLUUID id;
@@ -2880,7 +2880,7 @@ BOOL run_jumpnif(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 				safe_heap_bytestream_count_char(buffer, toffset);
 				S32 size = toffset - string;
 				char *sdata = new char[size];
-				bytestream2char(sdata, buffer, string);
+				bytestream2char(sdata, buffer, string, size);
 				if (!strlen(sdata))		/*Flawfinder: ignore*/
 				{
 					offset += arg;
@@ -2908,7 +2908,7 @@ BOOL run_jumpnif(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 				safe_heap_bytestream_count_char(buffer, toffset);
 				S32 size = toffset - string;
 				char *sdata = new char[size];
-				bytestream2char(sdata, buffer, string);
+				bytestream2char(sdata, buffer, string, size);
 				if (strlen(sdata))		/*Flawfinder: ignore*/
 				{
 					LLUUID id;
@@ -3182,7 +3182,7 @@ BOOL run_cast(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 							safe_heap_bytestream_count_char(buffer, toffset);
 							S32 size = toffset - string;
 							char *arg = new char[size];
-							bytestream2char(arg, buffer, string);
+							bytestream2char(arg, buffer, string, size);
 							// S32 length = strlen(arg);
 							S32 dest;
 							S32 base;
@@ -3225,7 +3225,7 @@ BOOL run_cast(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 							safe_heap_bytestream_count_char(buffer, toffset);
 							S32 size = toffset - string;
 							char *arg = new char[size];
-							bytestream2char(arg, buffer, string);
+							bytestream2char(arg, buffer, string, size);
 							F32 dest = (F32)atof(arg);
 
 
@@ -3265,7 +3265,7 @@ BOOL run_cast(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 							safe_heap_bytestream_count_char(buffer, toffset);
 							S32 size = toffset - string;
 							char *arg = new char[size];
-							bytestream2char(arg, buffer, string);
+							bytestream2char(arg, buffer, string, size);
 							LLVector3 vec;
 							S32 num = sscanf(arg, "<%f, %f, %f>", &vec.mV[VX], &vec.mV[VY], &vec.mV[VZ]);
 							if (num != 3)
@@ -3295,7 +3295,7 @@ BOOL run_cast(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 							safe_heap_bytestream_count_char(buffer, toffset);
 							S32 size = toffset - string;
 							char *arg = new char[size];
-							bytestream2char(arg, buffer, string);
+							bytestream2char(arg, buffer, string, size);
 							LLQuaternion quat;
 							S32 num = sscanf(arg, "<%f, %f, %f, %f>", &quat.mQ[VX], &quat.mQ[VY], &quat.mQ[VZ], &quat.mQ[VW]);
 							if (num != 4)
@@ -3496,7 +3496,7 @@ void lscript_stacktol_pop_variable(LLScriptLibData *data, U8 *buffer, char type)
 				safe_heap_bytestream_count_char(buffer, toffset);
 				S32 size = toffset - string;
 				data->mKey = new char[size];
-				bytestream2char(data->mKey, buffer, string);
+				bytestream2char(data->mKey, buffer, string, size);
 			}
 			lsa_decrease_ref_count(buffer, base_address);
 		}
@@ -3523,7 +3523,7 @@ void lscript_stacktol_pop_variable(LLScriptLibData *data, U8 *buffer, char type)
 				safe_heap_bytestream_count_char(buffer, toffset);
 				S32 size = toffset - string;
 				data->mString = new char[size];
-				bytestream2char(data->mString, buffer, string);
+				bytestream2char(data->mString, buffer, string, size);
 			}
 			lsa_decrease_ref_count(buffer, base_address);
 		}
@@ -3623,7 +3623,7 @@ BOOL run_print(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 					safe_heap_bytestream_count_char(buffer, toffset);
 					S32 size = toffset - string;
 					char *arg = new char[size];
-					bytestream2char(arg, buffer, string);
+					bytestream2char(arg, buffer, string, size);
 					printf("%s\n", arg);
 					delete [] arg;
 				}
@@ -3787,7 +3787,7 @@ void lscript_pop_variable(LLScriptLibData *data, U8 *buffer, char type)
 				safe_heap_bytestream_count_char(buffer, toffset);
 				S32 size = toffset - string;
 				data->mKey = new char[size];
-				bytestream2char(data->mKey, buffer, string);
+				bytestream2char(data->mKey, buffer, string, size);
 			}
 			lsa_decrease_ref_count(buffer, base_address);
 		}
@@ -3814,7 +3814,7 @@ void lscript_pop_variable(LLScriptLibData *data, U8 *buffer, char type)
 				safe_heap_bytestream_count_char(buffer, toffset);
 				S32 size = toffset - string;
 				data->mString = new char[size];
-				bytestream2char(data->mString, buffer, string);
+				bytestream2char(data->mString, buffer, string, size);
 			}
 			lsa_decrease_ref_count(buffer, base_address);
 		}

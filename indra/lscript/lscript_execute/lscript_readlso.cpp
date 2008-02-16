@@ -155,7 +155,7 @@ void LLScriptLSOParse::printGlobals(FILE *fp)
 		type = *(mRawData + global_v_offset++);
 
 		// set name
-		bytestream2char(name, mRawData, global_v_offset);
+		bytestream2char(name, mRawData, global_v_offset, sizeof(name));
 
 		switch(type)
 		{
@@ -261,7 +261,7 @@ void LLScriptLSOParse::printGlobalFunctions(FILE *fp)
 		// where do the opcodes start
 		opcode_start = bytestream2integer(mRawData, function_offset);
 		opcode_start += orig_function_offset;
-		bytestream2char(name, mRawData, function_offset);
+		bytestream2char(name, mRawData, function_offset, sizeof(name));
 		// get return type
 		type = *(mRawData + function_offset++);
 		fprintf(fp, "[Function #%d] [0x%X] %s\n", function_number, orig_function_offset, name);
@@ -272,7 +272,7 @@ void LLScriptLSOParse::printGlobalFunctions(FILE *fp)
 		S32 pcount = 0;
 		while (type)
 		{
-			bytestream2char(name, mRawData, function_offset);
+			bytestream2char(name, mRawData, function_offset, sizeof(name));
 			fprintf(fp, "\tParameter #%d: %s %s\n", pcount++, LSCRIPTTypeNames[type], name);
 			type = *(mRawData + function_offset++);
 		}
@@ -336,7 +336,7 @@ void LLScriptLSOParse::printStates(FILE *fp)
 		state_info_offset += state_offset;
 		fprintf(fp, "[0x%X] ", state_info_offset);
 		state_info_offset += LSCRIPTDataSize[LST_INTEGER];
-		bytestream2char(name, mRawData, state_info_offset);
+		bytestream2char(name, mRawData, state_info_offset, sizeof(name));
 		fprintf(fp, "%s\n", name);
 
 		event_jump_table = state_info_offset;
@@ -385,243 +385,243 @@ void LLScriptLSOParse::printStates(FILE *fp)
 					switch(j)
 					{
 					case LSTT_STATE_ENTRY:	// LSTT_STATE_ENTRY
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
 						break;
 					case LSTT_STATE_EXIT:	// LSTT_STATE_EXIT
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
 						break;
 					case LSTT_TOUCH_START:	// LSTT_TOUCH_START
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tkey %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tvector %s\n", name);
 						break;
 					case LSTT_TOUCH:	// LSTT_TOUCH
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tkey %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tvector %s\n", name);
 						break;
 					case LSTT_TOUCH_END:	// LSTT_TOUCH_END
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tkey %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tvector %s\n", name);
 						break;
 					case LSTT_COLLISION_START:	// LSTT_COLLISION_START
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tkey %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tvector %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tvector %s\n", name);
 						break;
 					case LSTT_COLLISION:	// LSTT_COLLISION
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tkey %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tvector %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tvector %s\n", name);
 						break;
 					case LSTT_COLLISION_END:	// LSTT_COLLISION_END
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tkey %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tvector %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tvector %s\n", name);
 						break;
 					case LSTT_LAND_COLLISION_START:	// LSTT_LAND_COLLISION_START
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tvector %s\n", name);
 						break;
 					case LSTT_LAND_COLLISION:	// LSTT_LAND_COLLISION
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tvector %s\n", name);
 						break;
 					case LSTT_LAND_COLLISION_END:	// LSTT_LAND_COLLISION_END
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tvector %s\n", name);
 						break;
 					case LSTT_INVENTORY:	// LSTT_INVENTORY
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tinteger %s\n", name);
 						break;
 					case LSTT_ATTACH:	// LSTT_ATTACH
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tkey %s\n", name);
 						break;
 					case LSTT_DATASERVER:	// LSTT_DATASERVER
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tkey %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tstring %s\n", name);
 						break;
 					case LSTT_TIMER:	// LSTT_TIMER
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
 						break;
 					case LSTT_MOVING_START:	// LSTT_MOVING_START
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
 						break;
 					case LSTT_MOVING_END:	// LSTT_MOVING_END
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
 						break;
 					case LSTT_CHAT:	// LSTT_CHAT
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tinteger %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tkey %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tstring %s\n", name);
 						break;
 					case LSTT_OBJECT_REZ:	// LSTT_OBJECT_REZ
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tkey %s\n", name);
 						break;
 					case LSTT_REMOTE_DATA:	// LSTT_REMOTE_DATA
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tinteger %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tkey %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tinteger %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tstring %s\n", name);
 						break;
 					case LSTT_REZ:	// LSTT_REZ
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
 						break;
 					case LSTT_SENSOR:	// LSTT_SENSOR
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tinteger %s\n", name);
 						break;
 					case LSTT_NO_SENSOR:	// LSTT_NO_SENSOR
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
 						break;
 					case LSTT_CONTROL:	// LSTT_CONTROL
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tkey %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tinteger %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tinteger %s\n", name);
 						break;
 					case LSTT_LINK_MESSAGE:	// LSTT_LINK_MESSAGE
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tinteger %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tstring %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tkey %s\n", name);
 						break;
 					case LSTT_MONEY:	// LSTT_MONEY
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tkey %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tinteger %s\n", name);
 						break;
 					case LSTT_EMAIL:	// LSTT_EMAIL
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tstring %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tstring %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tstring %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tinteger %s\n", name);
 						break;
 					case LSTT_AT_TARGET:	// LSTT_AT_TARGET
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tinteger %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tvector %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tvector %s\n", name);
 						break;
 					case LSTT_NOT_AT_TARGET:	// LSTT_NOT_AT_TARGET
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
 						break;
 					case LSTT_AT_ROT_TARGET:	// LSTT_AT_ROT_TARGET
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tinteger %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tquaternion %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tquaternion %s\n", name);
 						break;
 					case LSTT_NOT_AT_ROT_TARGET:	// LSTT_NOT_AT_TARGET
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
 						break;
 					case LSTT_RTPERMISSIONS:	// LSTT_RTPERMISSIONS
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
 						fprintf(fp, "\t\tinteger %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						break;
 					case LSTT_HTTP_RESPONSE:	// LSTT_REMOTE_DATA ?!?!?!
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "%s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tkey %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tinteger %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tlist %s\n", name);
-						bytestream2char(name, mRawData, event_offset);
+						bytestream2char(name, mRawData, event_offset, sizeof(name));
 						fprintf(fp, "\t\tstring %s\n", name);
 						break;
 					default:
@@ -1210,7 +1210,7 @@ void print_pushargs(FILE *fp, U8 *buffer, S32 &offset, S32 tabs)
 	char arg[1024];		/*Flawfinder: ignore*/
 	lso_print_tabs(fp, tabs);
 	fprintf(fp, "[0x%X]\tPUSHARGS ", offset++);
-	bytestream2char(arg, buffer, offset);
+	bytestream2char(arg, buffer, offset, sizeof(arg));
 	fprintf(fp, "%s\n", arg);
 }
 

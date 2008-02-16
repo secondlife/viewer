@@ -278,7 +278,7 @@ public:
 			break;
 		case LST_KEY:
 			{
-				bytestream2char(temp, src, offset);
+				bytestream2char(temp, src, offset, sizeof(temp));
 				mKey = new char[strlen(temp) + 1];	/* Flawfinder: ignore */
 				if (mKey == NULL)
 				{
@@ -290,7 +290,7 @@ public:
 			break;
 		case LST_STRING:
 			{
-				bytestream2char(temp, src, offset);
+				bytestream2char(temp, src, offset, sizeof(temp));
 				mString = new char[strlen(temp) + 1];	/* Flawfinder: ignore */
 				if (mString == NULL)
 				{
@@ -327,7 +327,7 @@ public:
 			break;
 		case LST_KEY:
 			{
-				bytestream2char(temp, src, offset);
+				bytestream2char(temp, src, offset, sizeof(temp));
 				mKey = new char[strlen(temp) + 1];	/* Flawfinder: ignore */
 				if (mKey == NULL)
 				{
@@ -339,7 +339,7 @@ public:
 			break;
 		case LST_STRING:
 			{
-				bytestream2char(temp, src, offset);
+				bytestream2char(temp, src, offset, sizeof(temp));
 				mString = new char[strlen(temp) + 1];	/* Flawfinder: ignore */
 				if (mString == NULL)
 				{

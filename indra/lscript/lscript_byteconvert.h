@@ -162,10 +162,16 @@ inline void bytestream_int2float(U8 *stream, S32 &offset)
 	float2bytestream(stream, offset, fpvalue);
 }
 
-inline void bytestream2char(char *buffer, const U8 *stream, S32 &offset)
+// Returns true on success, return false and clip copy on buffer overflow
+inline bool bytestream2char(char *buffer, const U8 *stream, S32 &offset, S32 buffsize)
 {
-	while ((*buffer++ = *(stream + offset++)))
-		;
+	S32 source_len = strlen( (const char *)stream+offset );
+	strncpy( buffer, (const char *)stream+offset, buffsize-1 );
+	buffer[buffsize-1] = 0;
+
+	offset += source_len + 1; // advance past source string, include terminating '\0'
+
+	return source_len < buffsize;
 }
 
 inline void char2bytestream(U8 *stream, S32 &offset, const char *buffer)
@@ -1065,10 +1071,29 @@ inline void safe_instruction_float2bytestream(U8 *stream, S32 &offset, F32 value
 	}
 }
 
-inline void safe_instruction_bytestream2char(char *buffer, U8 *stream, S32 &offset)
+inline void safe_instruction_bytestream2char(char *buffer, U8 *stream, S32 &offset, S32 buffsize)
 {
-	while (  (safe_instruction_check_address(stream, offset, 1))
+	bool safe;
+	while (  (safe = safe_instruction_check_address(stream, offset, 1))
+		   && buffsize--
 		   &&(*buffer++ = *(stream + offset++)))
+		;
+
+	// Return if it ended in a null (success) or if script error handling is taking over
+	if( !safe || (0 == *(buffer-1)) )
+	{
+		return; // Yep. Success.
+	}
+
+	// Defensive mode. We copied at least one char and ran out of space before
+	// null termination. Add the terminator...
+	*(buffer-1) = 0;
+
+	// ...and advance offset past the end of the data as if we copied the rest. If we
+	// violate the safety check, script error handling will protect us. No need to
+	// keep advancing.
+	while( safe_instruction_check_address(stream, offset, 1)
+			&& *( stream + offset++ ) )
 		;
 }
 

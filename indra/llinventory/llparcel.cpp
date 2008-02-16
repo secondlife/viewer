@@ -1337,7 +1337,7 @@ void LLParcel::packMessage(LLMessageSystem* msg)
 void LLParcel::packMessage(LLSD& msg)
 {
 	msg["local_id"] = getLocalID();
-	msg["flags"] = ll_sd_from_U32(getParcelFlags());
+	msg["parcel_flags"] = ll_sd_from_U32(getParcelFlags());
 	msg["sale_price"] = getSalePrice();
 	msg["name"] = getName();
 	msg["description"] = getDesc();
@@ -1362,6 +1362,7 @@ void LLParcel::packMessage(LLSD& msg)
 	msg["user_location"] = ll_sd_from_vector3(mUserLocation);
 	msg["user_look_at"] = ll_sd_from_vector3(mUserLookAt);
 	msg["landing_type"] = (U8)mLandingType;
+
 }
 
 

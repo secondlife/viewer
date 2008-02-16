@@ -526,7 +526,7 @@ void lsa_decrease_ref_count(U8 *buffer, S32 offset)
 	alloc_entry2bytestream(buffer, orig_offset, entry);
 }
 
-char gLSAStringRead[16384];		/*Flawfinder: ignore*/
+char gLSAStringRead[TOP_OF_MEMORY];		/*Flawfinder: ignore*/
 
 
 LLScriptLibData *lsa_get_data(U8 *buffer, S32 &offset, BOOL b_dec_ref)
@@ -566,12 +566,12 @@ LLScriptLibData *lsa_get_data(U8 *buffer, S32 &offset, BOOL b_dec_ref)
 			retval->mFP = bytestream2float(buffer, offset);
 			break;
 		case LST_KEY:
-			bytestream2char(gLSAStringRead, buffer, offset);
+			bytestream2char(gLSAStringRead, buffer, offset, sizeof(gLSAStringRead)); // global sring buffer? for real? :(
 			retval->mKey = new char[strlen(gLSAStringRead) + 1];		/*Flawfinder: ignore*/
 			strcpy(retval->mKey, gLSAStringRead);			/*Flawfinder: ignore*/
 			break;
 		case LST_STRING:
-			bytestream2char(gLSAStringRead, buffer, offset);
+			bytestream2char(gLSAStringRead, buffer, offset, sizeof(gLSAStringRead));
 			retval->mString = new char[strlen(gLSAStringRead) + 1];		/*Flawfinder: ignore*/
 			strcpy(retval->mString, gLSAStringRead);			/*Flawfinder: ignore*/
 			break;
@@ -818,11 +818,11 @@ void lsa_print_heap(U8 *buffer)
 			printf("%f\n", fpvalue);
 			break;
 		case LST_STRING:
-			bytestream2char(string, buffer, readoffset);
+			bytestream2char(string, buffer, readoffset, sizeof(string));
 			printf("%s\n", string);
 			break;
 		case LST_KEY:
-			bytestream2char(string, buffer, readoffset);
+			bytestream2char(string, buffer, readoffset, sizeof(string));
 			printf("%s\n", string);
 			break;
 		case LST_VECTOR:
@@ -885,11 +885,11 @@ void lsa_fprint_heap(U8 *buffer, FILE *fp)
 			fprintf(fp, "%f\n", fpvalue);
 			break;
 		case LST_STRING:
-			bytestream2char(string, buffer, readoffset);
+			bytestream2char(string, buffer, readoffset, sizeof(string));
 			fprintf(fp, "%s\n", string);
 			break;
 		case LST_KEY:
-			bytestream2char(string, buffer, readoffset);
+			bytestream2char(string, buffer, readoffset, sizeof(string));
 			fprintf(fp, "%s\n", string);
 			break;
 		case LST_VECTOR:
