@@ -58,9 +58,11 @@ public:
 	static void setAutoOpenInstance(LLMultiPreview* previewp, const LLUUID& id);
 
 protected:
-	typedef std::map<LLUUID, LLViewHandle> handle_map_t;
-	static std::map<LLUUID, LLViewHandle> sAutoOpenPreviewHandles;
+	typedef std::map<LLUUID, LLHandle<LLFloater> > handle_map_t;
+	static handle_map_t sAutoOpenPreviewHandles;
 };
+
+// https://wiki.lindenlab.com/mediawiki/index.php?title=LLPreview&oldid=81373
 
 class LLPreview : public LLFloater, LLInventoryObserver
 {
@@ -160,7 +162,7 @@ protected:
 	EAssetStatus mAssetStatus;
 
 	typedef std::map<LLUUID, LLPreview*> preview_map_t;
-	typedef std::multimap<LLUUID, LLViewHandle> preview_multimap_t;
+	typedef std::multimap<LLUUID, LLHandle<LLFloater> > preview_multimap_t;
 
 	static preview_multimap_t sPreviewsBySource;
 	static preview_map_t sInstances;

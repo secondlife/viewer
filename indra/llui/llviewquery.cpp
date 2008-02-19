@@ -71,22 +71,9 @@ filterResult_t LLWidgetTypeFilter::operator() (const LLView* const view, const v
 	return filterResult_t(view->getWidgetType() == mType, TRUE);
 } 
 
+//
 // LLViewQuery
-
-LLViewQuery::LLViewQuery(): mPreFilters(), mPostFilters(), mSorterp() 
-{
-}
-
-void LLViewQuery::addPreFilter(const LLQueryFilter* prefilter) { mPreFilters.push_back(prefilter); }
-
-void LLViewQuery::addPostFilter(const LLQueryFilter* postfilter) {	mPostFilters.push_back(postfilter); }
-
-const LLViewQuery::filterList_t & LLViewQuery::getPreFilters() const { return mPreFilters; }
-
-const LLViewQuery::filterList_t & LLViewQuery::getPostFilters() const { return mPostFilters; }
-
-void LLViewQuery::setSorter(const LLQuerySorter* sorterp) { mSorterp = sorterp; }
-const LLQuerySorter* LLViewQuery::getSorter() const { return mSorterp; }
+//
 
 viewList_t LLViewQuery::run(LLView* view) const
 {

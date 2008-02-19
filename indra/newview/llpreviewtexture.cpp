@@ -199,7 +199,7 @@ void LLPreviewTexture::draw()
 
 		LLPreview::draw();
 
-		if (!mMinimized)
+		if (!isMinimized())
 		{
 			LLGLSUIDefault gls_ui;
 			LLGLSNoTexture gls_notex;
@@ -255,7 +255,7 @@ void LLPreviewTexture::draw()
 					const S32 BAR_HEIGHT = 12;
 					const S32 BAR_LEFT_PAD = 80;
 					S32 left = interior.mLeft + 4 + BAR_LEFT_PAD;
-					S32 bar_width = mRect.getWidth() - left - RESIZE_HANDLE_WIDTH - 2;
+					S32 bar_width = getRect().getWidth() - left - RESIZE_HANDLE_WIDTH - 2;
 					S32 top = interior.mBottom + 4 + BAR_HEIGHT;
 					S32 right = left + bar_width;
 					S32 bottom = top - BAR_HEIGHT;
@@ -434,8 +434,8 @@ void LLPreviewTexture::updateAspectRatio()
 		mLastWidth = client_width;
 		mLastHeight = client_height;
 
-		S32 old_top = mRect.mTop;
-		S32 old_left = mRect.mLeft;
+		S32 old_top = getRect().mTop;
+		S32 old_left = getRect().mLeft;
 		if (getHost())
 		{
 			getHost()->growToFit(view_width, view_height);
@@ -443,7 +443,7 @@ void LLPreviewTexture::updateAspectRatio()
 		else
 		{
 			reshape( view_width, view_height );
-			S32 new_bottom = old_top - mRect.getHeight();
+			S32 new_bottom = old_top - getRect().getHeight();
 			setOrigin( old_left, new_bottom );
 			// Try to keep whole view onscreen, don't allow partial offscreen.
 			gFloaterView->adjustToFitScreen(this, FALSE);
@@ -454,20 +454,20 @@ void LLPreviewTexture::updateAspectRatio()
 	if (!mUserResized)
 	{
 		// clamp texture size to fit within actual size of floater after attempting resize
-		client_width = llmin(client_width, mRect.getWidth() - horiz_pad);
-		client_height = llmin(client_height, mRect.getHeight() - PREVIEW_HEADER_SIZE 
+		client_width = llmin(client_width, getRect().getWidth() - horiz_pad);
+		client_height = llmin(client_height, getRect().getHeight() - PREVIEW_HEADER_SIZE 
 						- (2 * CLIENT_RECT_VPAD) - LLPANEL_BORDER_WIDTH - info_height);
 
 		
 	}
 	else
 	{
-		client_width = mRect.getWidth() - horiz_pad;
+		client_width = getRect().getWidth() - horiz_pad;
 		client_height = llround(client_width * inv_aspect_ratio);
 	}
 
 
-	S32 max_height = mRect.getHeight() - PREVIEW_BORDER - button_height 
+	S32 max_height = getRect().getHeight() - PREVIEW_BORDER - button_height 
 			            - CLIENT_RECT_VPAD - info_height - CLIENT_RECT_VPAD - PREVIEW_HEADER_SIZE;
 	max_height = llmax(max_height, 1);
 
@@ -478,7 +478,7 @@ void LLPreviewTexture::updateAspectRatio()
 		client_width = llround(client_height * aspect_ratio);
 	}
 	
-	LLRect window_rect(0, mRect.getHeight(), mRect.getWidth(), 0);
+	LLRect window_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
 	window_rect.mTop -= (PREVIEW_HEADER_SIZE + CLIENT_RECT_VPAD);
 	window_rect.mBottom += PREVIEW_BORDER + button_height + CLIENT_RECT_VPAD + info_height + CLIENT_RECT_VPAD;
 

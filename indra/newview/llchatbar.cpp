@@ -125,6 +125,12 @@ BOOL LLChatBar::postBuild()
 	// attempt to bind to an existing combo box named gesture
 	setGestureCombo(LLUICtrlFactory::getComboBoxByName(this, "Gesture"));
 
+	LLButton * sayp = getChild<LLButton>("Say");
+	if(sayp)
+	{
+		setDefaultBtn(sayp);
+	}
+
 	mInputEditor = LLUICtrlFactory::getLineEditorByName(this, "Chat Editor");
 	if (mInputEditor)
 	{

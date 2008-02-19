@@ -72,18 +72,18 @@ LLJoystick::LLJoystick(
 	mHeldDown(FALSE),
 	mHeldDownTimer()
 {
-	mHeldDownCallback = &LLJoystick::onHeldDown;
-	mCallbackUserData = this;
+	setHeldDownCallback(&LLJoystick::onHeldDown);
+	setCallbackUserData(this);
 }
 
 
 void LLJoystick::updateSlop()
 {
-	mVertSlopNear = mRect.getHeight();
-	mVertSlopFar = mRect.getHeight() * 2;
+	mVertSlopNear = getRect().getHeight();
+	mVertSlopFar = getRect().getHeight() * 2;
 
-	mHorizSlopNear = mRect.getWidth();
-	mHorizSlopFar = mRect.getWidth() * 2;
+	mHorizSlopNear = getRect().getWidth();
+	mHorizSlopFar = getRect().getWidth() * 2;
 
 	// Compute initial mouse offset based on initial quadrant.
 	// Place the mouse evenly between the near and far zones.
@@ -163,7 +163,7 @@ F32 LLJoystick::getElapsedHeldDownTime()
 {
 	if( mHeldDown )
 	{
-		return mMouseDownTimer.getElapsedTimeF32();
+		return getHeldDownTime();
 	}
 	else
 	{
@@ -244,13 +244,13 @@ LLXMLNodePtr LLJoystick::getXML(bool save_children) const
 {
 	LLXMLNodePtr node = LLUICtrl::getXML();
 
-	node->createChild("halign", TRUE)->setStringValue(LLFontGL::nameFromHAlign(mHAlign));
+	node->createChild("halign", TRUE)->setStringValue(LLFontGL::nameFromHAlign(getHAlign()));
 	node->createChild("quadrant", TRUE)->setStringValue(nameFromQuadrant(mInitialQuadrant));
 
-	addImageAttributeToXML(node,mImageUnselectedName,mImageUnselectedID,"image_unselected");
-	addImageAttributeToXML(node,mImageSelectedName,mImageSelectedID,"image_selected");
+	addImageAttributeToXML(node,getImageUnselectedName(),getImageUnselectedID(),"image_unselected");
+	addImageAttributeToXML(node,getImageSelectedName(),getImageSelectedID(),"image_selected");
 	
-	node->createChild("scale_image", TRUE)->setBoolValue(mScaleImage);
+	node->createChild("scale_image", TRUE)->setBoolValue(getScaleImage());
 
 	return node;
 }
@@ -504,8 +504,8 @@ BOOL LLJoystickCameraRotate::handleMouseDown(S32 x, S32 y, MASK mask)
 	updateSlop();
 
 	// Set initial offset based on initial click location
-	S32 horiz_center = mRect.getWidth() / 2;
-	S32 vert_center = mRect.getHeight() / 2;
+	S32 horiz_center = getRect().getWidth() / 2;
+	S32 vert_center = getRect().getHeight() / 2;
 
 	S32 dx = x - horiz_center;
 	S32 dy = y - vert_center;
@@ -607,26 +607,26 @@ void LLJoystickCameraRotate::draw()
 	{
 		LLGLSUIDefault gls_ui;
 
-		mImageUnselected->draw( 0, 0 );
+		getImageUnselected()->draw( 0, 0 );
 
 		if( mInTop )
 		{
-			drawRotatedImage( mImageSelected->getImage(), 0 );
+			drawRotatedImage( getImageSelected()->getImage(), 0 );
 		}
 
 		if( mInRight )
 		{
-			drawRotatedImage( mImageSelected->getImage(), 1 );
+			drawRotatedImage( getImageSelected()->getImage(), 1 );
 		}
 
 		if( mInBottom )
 		{
-			drawRotatedImage( mImageSelected->getImage(), 2 );
+			drawRotatedImage( getImageSelected()->getImage(), 2 );
 		}
 
 		if( mInLeft )
 		{
-			drawRotatedImage( mImageSelected->getImage(), 3 );
+			drawRotatedImage( getImageSelected()->getImage(), 3 );
 		}
 
 		if (sDebugRects)
@@ -637,7 +637,7 @@ void LLJoystickCameraRotate::draw()
 }
 
 // Draws image rotated by multiples of 90 degrees
-void LLJoystickCameraRotate::drawRotatedImage( LLImageGL* image, S32 rotations )
+void LLJoystickCameraRotate::drawRotatedImage( const LLImageGL* image, S32 rotations )
 {
 	S32 width = image->getWidth();
 	S32 height = image->getHeight();
@@ -732,7 +732,7 @@ BOOL LLJoystickCameraZoom::handleMouseDown(S32 x, S32 y, MASK mask)
 
 	if( handled )
 	{
-		if (mFirstMouse.mY > mRect.getHeight() / 2)
+		if (mFirstMouse.mY > getRect().getHeight() / 2)
 		{
 			mInitialQuadrant = JQ_UP;
 		}
@@ -801,7 +801,7 @@ void LLJoystickCameraZoom::draw()
 		}
 		else
 		{
-			mImageUnselected->draw( 0, 0 );
+			getImageUnselected()->draw( 0, 0 );
 		}
 
 		if (sDebugRects)
@@ -813,11 +813,11 @@ void LLJoystickCameraZoom::draw()
 
 void LLJoystickCameraZoom::updateSlop()
 {
-	mVertSlopNear = mRect.getHeight() / 4;
-	mVertSlopFar = mRect.getHeight() / 2;
+	mVertSlopNear = getRect().getHeight() / 4;
+	mVertSlopFar = getRect().getHeight() / 2;
 
-	mHorizSlopNear = mRect.getWidth() / 4;
-	mHorizSlopFar = mRect.getWidth() / 2;
+	mHorizSlopNear = getRect().getWidth() / 4;
+	mHorizSlopFar = getRect().getWidth() / 2;
 
 	// Compute initial mouse offset based on initial quadrant.
 	// Place the mouse evenly between the near and far zones.

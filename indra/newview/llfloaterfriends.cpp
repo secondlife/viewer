@@ -60,6 +60,7 @@
 
 //Maximum number of people you can select to do an operation on at once.
 #define MAX_FRIEND_SELECT 20
+#define DEFAULT_PERIOD 5.0
 #define RIGHTS_CHANGE_TIMEOUT 5.0
 #define OBSERVER_TIMEOUT 0.5
 
@@ -80,7 +81,6 @@ public:
 		// events can arrive quickly in bulk - we need not process EVERY one of them -
 		// so we wait a short while to let others pile-in, and process them in aggregate.
 		mEventTimer.start();
-		mEventTimer.reset();
 
 		// save-up all the mask-bits which have come-in
 		mMask |= mask;
@@ -102,7 +102,7 @@ protected:
 
 LLPanelFriends::LLPanelFriends() :
 	LLPanel(),
-	LLEventTimer(1000000),
+	LLEventTimer(DEFAULT_PERIOD),
 	mObserver(NULL),
 	mShowMaxSelectWarning(TRUE),
 	mAllowRightsChange(TRUE),
@@ -122,7 +122,7 @@ LLPanelFriends::~LLPanelFriends()
 BOOL LLPanelFriends::tick()
 {
 	mEventTimer.stop();
-	mPeriod = 1000000;
+	mPeriod = DEFAULT_PERIOD;
 	mAllowRightsChange = TRUE;
 	updateFriends(LLFriendObserver::ADD);
 	return FALSE;
@@ -152,7 +152,6 @@ void LLPanelFriends::updateFriends(U32 changed_mask)
 		{
 			mPeriod = RIGHTS_CHANGE_TIMEOUT;	
 			mEventTimer.start();
-			mEventTimer.reset();
 			mAllowRightsChange = FALSE;
 		}
 		else
@@ -208,17 +207,20 @@ BOOL LLPanelFriends::postBuild()
 }
 
 
-void LLPanelFriends::addFriend(const std::string& name, const LLUUID& agent_id)
+BOOL LLPanelFriends::addFriend(const LLUUID& agent_id)
 {
 	LLAvatarTracker& at = LLAvatarTracker::instance();
 	const LLRelationship* relationInfo = at.getBuddyInfo(agent_id);
-	if(!relationInfo) return;
+	if(!relationInfo) return FALSE;
 	BOOL online = relationInfo->isOnline();
 
+	std::string fullname;
+	BOOL have_name = gCacheName->getFullName(agent_id, fullname);
+	
 	LLSD element;
 	element["id"] = agent_id;
 	element["columns"][LIST_FRIEND_NAME]["column"] = "friend_name";
-	element["columns"][LIST_FRIEND_NAME]["value"] = name.c_str();
+	element["columns"][LIST_FRIEND_NAME]["value"] = fullname;
 	element["columns"][LIST_FRIEND_NAME]["font"] = "SANSSERIF";
 	element["columns"][LIST_FRIEND_NAME]["font-style"] = "NORMAL";	
 	element["columns"][LIST_ONLINE_STATUS]["column"] = "icon_online_status";
@@ -247,30 +249,39 @@ void LLPanelFriends::addFriend(const std::string& name, const LLUUID& agent_id)
 	element["columns"][LIST_EDIT_THEIRS]["value"] = relationInfo->isRightGrantedFrom(LLRelationship::GRANT_MODIFY_OBJECTS);
 
 	element["columns"][LIST_FRIEND_UPDATE_GEN]["column"] = "friend_last_update_generation";
-	element["columns"][LIST_FRIEND_UPDATE_GEN]["value"] = relationInfo->getChangeSerialNum();
+	element["columns"][LIST_FRIEND_UPDATE_GEN]["value"] = have_name ? relationInfo->getChangeSerialNum() : -1;
 
 	mFriendsList->addElement(element, ADD_BOTTOM);
+	return have_name;
 }
 
 // propagate actual relationship to UI
-void LLPanelFriends::updateFriendItem(LLScrollListItem* itemp, const LLRelationship* info)
+BOOL LLPanelFriends::updateFriendItem(const LLUUID& agent_id, const LLRelationship* info)
 {
-	if (!itemp) return;
-	if (!info) return;
+	if (!info) return FALSE;
+	LLScrollListItem* itemp = mFriendsList->getItem(agent_id);
+	if (!itemp) return FALSE;
+
+	std::string fullname;
+	BOOL have_name = gCacheName->getFullName(agent_id, fullname);
 
 	itemp->getColumn(LIST_ONLINE_STATUS)->setValue(info->isOnline() ? gViewerArt.getString("icon_avatar_online.tga") : LLString());
+	itemp->getColumn(LIST_FRIEND_NAME)->setValue(fullname);
 	// render name of online friends in bold text
 	((LLScrollListText*)itemp->getColumn(LIST_FRIEND_NAME))->setFontStyle(info->isOnline() ? LLFontGL::BOLD : LLFontGL::NORMAL);	
 	itemp->getColumn(LIST_VISIBLE_ONLINE)->setValue(info->isRightGrantedTo(LLRelationship::GRANT_ONLINE_STATUS));
 	itemp->getColumn(LIST_VISIBLE_MAP)->setValue(info->isRightGrantedTo(LLRelationship::GRANT_MAP_LOCATION));
 	itemp->getColumn(LIST_EDIT_MINE)->setValue(info->isRightGrantedTo(LLRelationship::GRANT_MODIFY_OBJECTS));
-	itemp->getColumn(LIST_FRIEND_UPDATE_GEN)->setValue(info->getChangeSerialNum());
+	S32 change_generation = have_name ? info->getChangeSerialNum() : -1;
+	itemp->getColumn(LIST_FRIEND_UPDATE_GEN)->setValue(change_generation);
 
 	// enable this item, in case it was disabled after user input
 	itemp->setEnabled(TRUE);
 
 	// changed item in place, need to request sort
 	mFriendsList->sortItems();
+
+	return have_name;
 }
 
 void LLPanelFriends::refreshRightsChangeList()
@@ -354,7 +365,8 @@ void LLPanelFriends::refreshNames()
 
 	std::vector<LLScrollListItem*>::iterator item_it = items.begin();
 	std::vector<LLScrollListItem*>::iterator item_end = items.end();
-	
+
+	BOOL have_names = TRUE;
 	LLAvatarTracker::buddy_map_t::iterator buddy_it;
 	for (buddy_it = all_buddies.begin() ; buddy_it != all_buddies.end(); ++buddy_it)
 	{
@@ -379,24 +391,24 @@ void LLPanelFriends::refreshNames()
 			if (last_change_generation < info->getChangeSerialNum())
 			{
 				// update existing item in UI
-				updateFriendItem(mFriendsList->getItem(buddy_it->first), info);
+				have_names &= updateFriendItem(buddy_it->first, info);
 			}
 			++item_it;
 		}
 		// add new friend to list
 		else 
 		{
-			const LLUUID& buddy_id = buddy_it->first;
-			char first_name[DB_FIRST_NAME_BUF_SIZE];	/*Flawfinder: ignore*/	
-			char last_name[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
-
-			gCacheName->getName(buddy_id, first_name, last_name);
-			std::ostringstream fullname;
-			fullname << first_name << " " << last_name;
-			addFriend(fullname.str(), buddy_id);
+			have_names &= addFriend(buddy_it->first);
 		}
 	}
+	if (!have_names)
+	{
+		mEventTimer.start();
+	}
+	// changed item in place, need to request sort and update columns
+	mFriendsList->sortItems();
 
+	// re-select items
 	mFriendsList->selectMultiple(selected_ids);
 	mFriendsList->setScrollPos(pos);
 }
@@ -412,7 +424,7 @@ void LLPanelFriends::refreshUI()
 		single_selected = TRUE;
 		if(num_selected > 1)
 		{
-			childSetText("friend_name_label", childGetText("Multiple"));
+			childSetText("friend_name_label", getString("Multiple"));
 			multiple_selected = TRUE;		
 		}
 		else
@@ -501,26 +513,17 @@ void LLPanelFriends::onClickIM(void* user_data)
 		{
 			LLUUID agent_id = ids[0];
 			const LLRelationship* info = LLAvatarTracker::instance().getBuddyInfo(agent_id);
-			char first[DB_FIRST_NAME_BUF_SIZE];	/* Flawfinder: ignore */
-			char last[DB_LAST_NAME_BUF_SIZE];	/* Flawfinder: ignore */
-			if(info && gCacheName->getName(agent_id, first, last))
+			std::string fullname;
+			if(info && gCacheName->getFullName(agent_id, fullname))
 			{
-				char buffer[MAX_STRING];	/* Flawfinder: ignore */
-				snprintf(buffer, MAX_STRING, "%s %s", first, last);	/* Flawfinder: ignore */
 				gIMMgr->setFloaterOpen(TRUE);
-				gIMMgr->addSession(
-					buffer,
-					IM_NOTHING_SPECIAL,
-					agent_id);
+				gIMMgr->addSession(fullname, IM_NOTHING_SPECIAL, agent_id);
 			}		
 		}
 		else
 		{
 			gIMMgr->setFloaterOpen(TRUE);
-			gIMMgr->addSession("Friends Conference",
-								IM_SESSION_CONFERENCE_START,
-								ids[0],
-								ids);
+			gIMMgr->addSession("Friends Conference", IM_SESSION_CONFERENCE_START, ids[0], ids);
 		}
 		make_ui_sound("UISndStartIM");
 	}
@@ -612,8 +615,7 @@ void LLPanelFriends::onClickRemove(void* user_data)
 		if(ids.size() == 1)
 		{
 			LLUUID agent_id = ids[0];
-			char first[DB_FIRST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
-			char last[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
+			std::string first, last;
 			if(gCacheName->getName(agent_id, first, last))
 			{
 				args["[FIRST_NAME]"] = first;
@@ -671,8 +673,7 @@ void LLPanelFriends::confirmModifyRights(rights_map_t& ids, EGrantRevoke command
 		if(ids.size() == 1)
 		{
 			LLUUID agent_id = ids.begin()->first;
-			char first[DB_FIRST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
-			char last[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
+			std::string first, last;
 			if(gCacheName->getName(agent_id, first, last))
 			{
 				args["[FIRST_NAME]"] = first;
@@ -720,9 +721,8 @@ void LLPanelFriends::modifyRightsConfirmation(S32 option, void* user_data)
 			rights_map_t::iterator rights_it;
 			for (rights_it = rights->begin(); rights_it != rights->end(); ++rights_it)
 			{
-				LLScrollListItem* itemp = panelp->mFriendsList->getItem(rights_it->first);
 				const LLRelationship* info = LLAvatarTracker::instance().getBuddyInfo(rights_it->first);
-				panelp->updateFriendItem(itemp, info);
+				panelp->updateFriendItem(rights_it->first, info);
 			}
 		}
 		panelp->refreshUI();

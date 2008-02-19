@@ -73,42 +73,6 @@ void LLFloaterMyFriends::onClose(bool app_quitting)
 	setVisible(FALSE);
 }
 
-//static 
-LLFloaterMyFriends* LLFloaterMyFriends::showInstance(const LLSD& id)
-{
-	LLFloaterMyFriends* floaterp = LLUIInstanceMgr<LLFloaterMyFriends>::showInstance(id);
-	// garbage values in id will be interpreted as 0, or the friends tab
-	floaterp->mTabs->selectTab(id);
-
-	return floaterp;
-}
-
-//static 
-void LLFloaterMyFriends::hideInstance(const LLSD& id)
-{
-	LLFloaterMyFriends* floaterp = LLFloaterMyFriends::getInstance();
-
-	if(floaterp->getHost())
-	{
-		LLFloaterChatterBox::hideInstance();
-	}
-	else
-	{
-		LLUISingleton<LLFloaterMyFriends>::hideInstance(id);
-	}
-}
-
-// is the specified panel currently visible
-//static
-BOOL LLFloaterMyFriends::instanceVisible(const LLSD& id)
-{
-	// if singleton not created yet, trivially return false
-	if (!findInstance(id)) return FALSE;
-
-	LLFloaterMyFriends* floaterp = getInstance(id);
-	return floaterp->isInVisibleChain() && floaterp->mTabs->getCurrentPanelIndex() == id.asInteger();
-}
-
 //static
 void* LLFloaterMyFriends::createFriendsPanel(void* data)
 {
@@ -271,7 +235,7 @@ void LLFloaterChatterBox::removeFloater(LLFloater* floaterp)
 
 void LLFloaterChatterBox::addFloater(LLFloater* floaterp, 
 									BOOL select_added_floater, 
-									LLTabContainerCommon::eInsertionPoint insertion_point)
+									LLTabContainer::eInsertionPoint insertion_point)
 {
 	S32 num_locked_tabs = mTabContainer->getNumLockedTabs();
 
@@ -320,48 +284,6 @@ void LLFloaterChatterBox::addFloater(LLFloater* floaterp,
 	{
 		mTabContainer->setTabImage(floaterp, "active_voice_tab.tga");	
 	}
-}
-
-
-//static 
-LLFloaterChatterBox* LLFloaterChatterBox::showInstance(const LLSD& seed)
-{
-	LLFloaterChatterBox* chatterbox_floater = LLUISingleton<LLFloaterChatterBox>::showInstance(seed);
-
-	// if TRUE, show tab for active voice channel, otherwise, just show last tab
-	LLFloater* floater_to_show = NULL;
-	LLUUID session_id = seed.asUUID();
-	if (session_id.notNull())
-	{
-		floater_to_show = gIMMgr->findFloaterBySession(session_id);
-	}
-
-	if (floater_to_show)
-	{
-		floater_to_show->open();
-	}
-	else
-	{
-		// just open chatterbox to the last selected tab
-		chatterbox_floater->open();
-	}
-	
-	return chatterbox_floater;
-}
-
-//static
-BOOL LLFloaterChatterBox::instanceVisible(const LLSD &seed)
-{
-	if (seed.asBoolean())
-	{
-		LLFloater* floater_to_show = getCurrentVoiceFloater();
-		if (floater_to_show)
-		{
-			return floater_to_show->isInVisibleChain();
-		}
-	}
-
-	return LLUISingleton<LLFloaterChatterBox>::instanceVisible(seed);
 }
 
 //static 

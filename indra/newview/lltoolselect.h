@@ -49,7 +49,7 @@ public:
 
 	virtual void		stopEditing();
 
-	static LLHandle<LLObjectSelection>	handleObjectSelection(LLViewerObject *object, MASK mask, BOOL ignore_group, BOOL temp_select);
+	static LLSafeHandle<LLObjectSelection>	handleObjectSelection(LLViewerObject *object, MASK mask, BOOL ignore_group, BOOL temp_select);
 
 	virtual void		onMouseCaptureLost();
 	virtual void		handleDeselect();

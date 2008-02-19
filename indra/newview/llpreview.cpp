@@ -56,7 +56,7 @@
 // Globals and statics
 LLPreview::preview_multimap_t LLPreview::sPreviewsBySource;
 LLPreview::preview_map_t LLPreview::sInstances;
-std::map<LLUUID, LLViewHandle> LLMultiPreview::sAutoOpenPreviewHandles;
+std::map<LLUUID, LLHandle<LLFloater> > LLMultiPreview::sAutoOpenPreviewHandles;
 
 // Functions
 LLPreview::LLPreview(const std::string& name) :
@@ -72,7 +72,7 @@ LLPreview::LLPreview(const std::string& name) :
 	// don't add to instance list, since ItemID is null
 	mAuxItem = new LLInventoryItem; // (LLPointer is auto-deleted)
 	// don't necessarily steal focus on creation -- sometimes these guys pop up without user action
-	mAutoFocus = FALSE;
+	setAutoFocus(FALSE);
 	gInventory.addObserver(this);
 }
 
@@ -91,7 +91,7 @@ LLPreview::LLPreview(const std::string& name, const LLRect& rect, const std::str
 {
 	mAuxItem = new LLInventoryItem;
 	// don't necessarily steal focus on creation -- sometimes these guys pop up without user action
-	mAutoFocus = FALSE;
+	setAutoFocus(FALSE);
 
 	if (mItemUUID.notNull())
 	{
@@ -114,7 +114,7 @@ LLPreview::~LLPreview()
 		preview_multimap_t::iterator found_it = sPreviewsBySource.find(mSourceID);
 		for (; found_it != sPreviewsBySource.end(); ++found_it)
 		{
-			if (found_it->second == mViewHandle)
+			if (found_it->second == getHandle())
 			{
 				sPreviewsBySource.erase(found_it);
 				break;
@@ -152,7 +152,7 @@ void LLPreview::setSourceID(const LLUUID& source_id)
 		preview_multimap_t::iterator found_it = sPreviewsBySource.find(mSourceID);
 		for (; found_it != sPreviewsBySource.end(); ++found_it)
 		{
-			if (found_it->second == mViewHandle)
+			if (found_it->second == getHandle())
 			{
 				sPreviewsBySource.erase(found_it);
 				break;
@@ -160,7 +160,7 @@ void LLPreview::setSourceID(const LLUUID& source_id)
 		}
 	}
 	mSourceID = source_id;
-	sPreviewsBySource.insert(preview_multimap_t::value_type(mSourceID, mViewHandle));
+	sPreviewsBySource.insert(preview_multimap_t::value_type(mSourceID, getHandle()));
 }
 
 const LLViewerInventoryItem *LLPreview::getItem() const
@@ -427,8 +427,7 @@ BOOL LLPreview::handleHover(S32 x, S32 y, MASK mask)
 
 void LLPreview::open()	/*Flawfinder: ignore*/
 {
-	LLMultiFloater* hostp = getHost();
-	if (!sHostp && !hostp && getAssetStatus() == PREVIEW_ASSET_UNLOADED)
+	if (!getFloaterHost() && !getHost() && getAssetStatus() == PREVIEW_ASSET_UNLOADED)
 	{
 		loadAsset();
 	}
@@ -524,14 +523,14 @@ LLPreview* LLPreview::getFirstPreviewForSource(const LLUUID& source_id)
 	if (found_it != sPreviewsBySource.end())
 	{
 		// just return first one
-		return (LLPreview*)LLFloater::getFloaterByHandle(found_it->second);
+		return (LLPreview*)found_it->second.get();
 	}
 	return NULL;
 }
 
 void LLPreview::userSetShape(const LLRect& new_rect)
 {
-	if(new_rect.getWidth() != mRect.getWidth() || new_rect.getHeight() != mRect.getHeight())
+	if(new_rect.getWidth() != getRect().getWidth() || new_rect.getHeight() != getRect().getHeight())
 	{
 		userResized();
 	}
@@ -560,7 +559,7 @@ void LLMultiPreview::open()		/*Flawfinder: ignore*/
 
 void LLMultiPreview::userSetShape(const LLRect& new_rect)
 {
-	if(new_rect.getWidth() != mRect.getWidth() || new_rect.getHeight() != mRect.getHeight())
+	if(new_rect.getWidth() != getRect().getWidth() || new_rect.getHeight() != getRect().getHeight())
 	{
 		LLPreview* frontmost_preview = (LLPreview*)mTabContainer->getCurrentPanel();
 		if (frontmost_preview) frontmost_preview->userResized();
@@ -584,7 +583,7 @@ LLMultiPreview* LLMultiPreview::getAutoOpenInstance(const LLUUID& id)
 	handle_map_t::iterator found_it = sAutoOpenPreviewHandles.find(id);
 	if (found_it != sAutoOpenPreviewHandles.end())
 	{
-		return (LLMultiPreview*)gFloaterView->getFloaterByHandle(found_it->second);	
+		return (LLMultiPreview*)found_it->second.get();	
 	}
 	return NULL;
 }

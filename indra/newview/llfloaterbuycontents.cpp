@@ -124,9 +124,7 @@ void LLFloaterBuyContents::show(const LLSaleInfo& sale_info)
 	if (!node) return;
 	if(node->mPermissions->isGroupOwned())
 	{
-		char group_name[MAX_STRING];	/*Flawfinder: ignore*/
-		gCacheName->getGroupName(owner_id, group_name);
-		owner_name.assign(group_name);
+		gCacheName->getGroupName(owner_id, owner_name);
 	}
 
 	sInstance->childSetTextArg("contains_text", "[NAME]", node->mName);
@@ -240,15 +238,15 @@ void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
 
 		if (!(next_owner_mask & PERM_COPY))
 		{
-			text.append(childGetText("no_copy_text"));
+			text.append(getString("no_copy_text"));
 		}
 		if (!(next_owner_mask & PERM_MODIFY))
 		{
-			text.append(childGetText("no_modify_text"));
+			text.append(getString("no_modify_text"));
 		}
 		if (!(next_owner_mask & PERM_TRANSFER))
 		{
-			text.append(childGetText("no_transfer_text"));
+			text.append(getString("no_transfer_text"));
 		}
 		
 		row["columns"][1]["column"] = "text";

@@ -75,7 +75,7 @@ private:
 	S32 mNumSpawn;
 	LLVector3 mSpawnPointPos[MAX_SPAWNPOINTS_PER_TELEHUB];
 	
-	LLHandle<LLObjectSelection> mObjectSelection;
+	LLSafeHandle<LLObjectSelection> mObjectSelection;
 
 	static LLFloaterTelehub* sInstance;
 };

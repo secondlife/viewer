@@ -173,7 +173,7 @@ void LLToolCompInspect::pickCallback(S32 x, S32 y, MASK mask)
 	{
 		if (gSelectMgr->getSelection()->getObjectCount())
 		{
-			gEditMenuHandler = gSelectMgr;
+			LLEditMenuHandler::gEditMenuHandler = gSelectMgr;
 		}
 		gToolInspect->setCurrentTool( gToolInspect->mSelectRect );
 		gToolInspect->mSelectRect->handleMouseDown( x, y, mask );
@@ -247,7 +247,7 @@ void LLToolCompTranslate::pickCallback(S32 x, S32 y, MASK mask)
 	{
 		if (gToolTranslate->mManip->getSelection()->getObjectCount())
 		{
-			gEditMenuHandler = gSelectMgr;
+			LLEditMenuHandler::gEditMenuHandler = gSelectMgr;
 		}
 
 		BOOL can_move = gToolTranslate->mManip->canAffectSelection();
@@ -372,7 +372,7 @@ void LLToolCompScale::pickCallback(S32 x, S32 y, MASK mask)
 	{
 		if (gToolStretch->mManip->getSelection()->getObjectCount())
 		{
-			gEditMenuHandler = gSelectMgr;
+			LLEditMenuHandler::gEditMenuHandler = gSelectMgr;
 		}
 		if(	LLManip::LL_NO_PART != gToolStretch->mManip->getHighlightedPart() )
 		{
@@ -572,7 +572,7 @@ void LLToolCompRotate::pickCallback(S32 x, S32 y, MASK mask)
 	{
 		if (gToolRotate->mManip->getSelection()->getObjectCount())
 		{
-			gEditMenuHandler = gSelectMgr;
+			LLEditMenuHandler::gEditMenuHandler = gSelectMgr;
 		}
 		if(	LLManip::LL_NO_PART != gToolRotate->mManip->getHighlightedPart() )
 		{

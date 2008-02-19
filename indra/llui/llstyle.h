@@ -46,35 +46,51 @@ public:
 
 	LLStyle &operator=(const LLStyle &rhs);
 
-	virtual ~LLStyle();
+	virtual ~LLStyle() { }
 
 	virtual void init (BOOL is_visible, const LLColor4 &color, const LLString& font_name);
-	virtual void free ();
 
-	bool operator==(const LLStyle &rhs) const;
-	bool operator!=(const LLStyle &rhs) const;
+	virtual const LLColor4& getColor() const { return mColor; }
+	virtual void setColor(const LLColor4 &color) { mColor = color; }
 
-	virtual const LLColor4& getColor() const;
-	virtual void setColor(const LLColor4 &color);
+	virtual BOOL isVisible() const { return mVisible; }
+	virtual void setVisible(BOOL is_visible) { mVisible = is_visible; }
 
-	virtual BOOL isVisible() const;
-	virtual void setVisible(BOOL is_visible);
-
-	virtual const LLString& getFontString() const;
+	virtual const LLString& getFontString() const { return mFontName; }
 	virtual void setFontName(const LLString& fontname);
-	virtual LLFONT_ID getFontID() const;
+	virtual LLFONT_ID getFontID() const { return mFontID; }
 
-	virtual const LLString& getLinkHREF() const;
-	virtual void setLinkHREF(const LLString& fontname);
-	virtual BOOL isLink() const;
+	virtual const LLString& getLinkHREF() const { return mLink; }
+	virtual void setLinkHREF(const LLString& href) { mLink = href; }
+	virtual BOOL isLink() const { return mLink.size(); }
 
-	virtual LLImageGL *getImage() const;
+	virtual LLImageGL *getImage() const { return mImagep; }
 	virtual void setImage(const LLString& src);
-	virtual BOOL isImage() const;
+	virtual BOOL isImage() const { return ((mImageWidth != 0) && (mImageHeight != 0)); }
 	virtual void setImageSize(S32 width, S32 height);
 
 	BOOL	getIsEmbeddedItem() const	{ return mIsEmbeddedItem; }
 	void	setIsEmbeddedItem( BOOL b ) { mIsEmbeddedItem = b; }
+
+	// inlined here to make it easier to compare to member data below. -MG
+	bool operator==(const LLStyle &rhs) const
+	{
+		return 
+			mVisible == rhs.isVisible()
+			&& mColor == rhs.getColor()
+			&& mFontName == rhs.getFontString()
+			&& mLink == rhs.getLinkHREF()
+			&& mImagep == rhs.mImagep
+			&& mImageHeight == rhs.mImageHeight
+			&& mImageWidth == rhs.mImageWidth
+			&& mItalic == rhs.mItalic
+			&& mBold == rhs.mBold
+			&& mUnderline == rhs.mUnderline
+			&& mDropShadow == rhs.mDropShadow
+			&& mIsEmbeddedItem == rhs.mIsEmbeddedItem;
+	}
+
+	bool operator!=(const LLStyle& rhs) const { return !(*this == rhs); }
 
 public:	
 	BOOL        mItalic;
@@ -84,14 +100,13 @@ public:
 	S32         mImageWidth;
 	S32         mImageHeight;
 
-protected:
+private:
 	BOOL		mVisible;
 	LLColor4	mColor;
 	LLString	mFontName;
 	LLFONT_ID   mFontID;
 	LLString	mLink;
 	LLPointer<LLImageGL> mImagep;
-
 	BOOL		mIsEmbeddedItem;
 };
 

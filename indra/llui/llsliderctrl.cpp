@@ -81,7 +81,7 @@ LLSliderCtrl::LLSliderCtrl(const LLString& name, const LLRect& rect,
 	  mSliderMouseUpCallback( NULL ),
 	  mSliderMouseDownCallback( NULL )
 {
-	S32 top = mRect.getHeight();
+	S32 top = getRect().getHeight();
 	S32 bottom = 0;
 	S32 left = 0;
 
@@ -97,7 +97,7 @@ LLSliderCtrl::LLSliderCtrl(const LLString& name, const LLRect& rect,
 		addChild(mLabelBox);
 	}
 
-	S32 slider_right = mRect.getWidth();
+	S32 slider_right = getRect().getWidth();
 	if( show_text )
 	{
 		slider_right = text_left - SLIDERCTRL_SPACING;
@@ -115,7 +115,7 @@ LLSliderCtrl::LLSliderCtrl(const LLString& name, const LLRect& rect,
 	
 	if( show_text )
 	{
-		LLRect text_rect( text_left, top, mRect.getWidth(), bottom );
+		LLRect text_rect( text_left, top, getRect().getWidth(), bottom );
 		if( can_edit_text )
 		{
 			mEditor = new LLLineEditor( "SliderCtrl Editor", text_rect,
@@ -144,10 +144,6 @@ LLSliderCtrl::LLSliderCtrl(const LLString& name, const LLRect& rect,
 	updateText();
 }
 
-LLSliderCtrl::~LLSliderCtrl()
-{
-	// Children all cleaned up by default view destructor.
-}
 
 // static
 void LLSliderCtrl::onEditorGainFocus( LLFocusableElement* caller, void *userdata )
@@ -158,10 +154,6 @@ void LLSliderCtrl::onEditorGainFocus( LLFocusableElement* caller, void *userdata
 	self->onFocusReceived();
 }
 
-F32 LLSliderCtrl::getValueF32() const
-{
-	return mSlider->getValueF32();
-}
 
 void LLSliderCtrl::setValue(F32 v, BOOL from_event)
 {
@@ -207,11 +199,6 @@ void LLSliderCtrl::clear()
 		mTextBox->setText( LLString::null );
 	}
 
-}
-
-BOOL LLSliderCtrl::isMouseHeldDown()
-{
-	return mSlider->hasMouseCapture();
 }
 
 void LLSliderCtrl::updateText()
@@ -425,18 +412,6 @@ void LLSliderCtrl::onTabInto()
 void LLSliderCtrl::reportInvalidData()
 {
 	make_ui_sound("UISndBadKeystroke");
-}
-
-//virtual
-LLString LLSliderCtrl::getControlName() const
-{
-	return mSlider->getControlName();
-}
-
-// virtual
-void LLSliderCtrl::setControlName(const LLString& control_name, LLView* context)
-{
-	mSlider->setControlName(control_name, context);
 }
 
 // virtual

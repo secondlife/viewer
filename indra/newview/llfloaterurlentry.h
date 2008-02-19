@@ -10,15 +10,17 @@
 #define LL_LLFLOATERURLENTRY_H
 
 #include "llfloater.h"
+#include "llpanellandmedia.h"
 
 class LLLineEditor;
+class LLComboBox;
 
 class LLFloaterURLEntry : public LLFloater
 {
 public:
 	// Can only be shown by LLPanelLandMedia, and pushes data back into
 	// that panel via the handle.
-	static LLViewHandle show(LLViewHandle panel_land_media_handle);
+	static LLHandle<LLFloater> show(LLHandle<LLPanel> panel_land_media_handle);
 
 	void updateFromLandMediaPanel();
 
@@ -27,13 +29,13 @@ public:
 	bool addURLToCombobox(const std::string& media_url);
 
 private:
-	LLFloaterURLEntry(LLViewHandle parent);
+	LLFloaterURLEntry(LLHandle<LLPanel> parent);
 	/*virtual*/ ~LLFloaterURLEntry();
 	void buildURLHistory();
 
 private:
 	LLComboBox*		mMediaURLEdit;
-	LLViewHandle	mPanelLandMediaHandle;
+	LLHandle<LLPanel> mPanelLandMediaHandle;
 
 	static void		onBtnOK(void*);
 	static void		onBtnCancel(void*);

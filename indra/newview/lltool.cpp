@@ -42,7 +42,6 @@
 #include "lltoolfocus.h"
 #include "llfocusmgr.h"
 #include "llagent.h"
-#include "llviewborder.h"
 
 extern BOOL gDebugClicks;
 

@@ -92,7 +92,7 @@ LLScrollbar::LLScrollbar(
 
 	if( LLScrollbar::VERTICAL == mOrientation )
 	{
-		line_up_rect.setLeftTopAndSize( 0, mRect.getHeight(), SCROLLBAR_SIZE, SCROLLBAR_SIZE );
+		line_up_rect.setLeftTopAndSize( 0, getRect().getHeight(), SCROLLBAR_SIZE, SCROLLBAR_SIZE );
 		line_up_img="UIImgBtnScrollUpOutUUID";
 		line_up_selected_img="UIImgBtnScrollUpInUUID";
 
@@ -107,7 +107,7 @@ LLScrollbar::LLScrollbar(
 		line_up_img="UIImgBtnScrollLeftOutUUID";
 		line_up_selected_img="UIImgBtnScrollLeftInUUID";
 
-		line_down_rect.setOriginAndSize( mRect.getWidth() - SCROLLBAR_SIZE, 0, SCROLLBAR_SIZE, SCROLLBAR_SIZE );
+		line_down_rect.setOriginAndSize( getRect().getWidth() - SCROLLBAR_SIZE, 0, SCROLLBAR_SIZE, SCROLLBAR_SIZE );
 		line_down_img="UIImgBtnScrollRightOutUUID";
 		line_down_selected_img="UIImgBtnScrollRightInUUID";
 	}
@@ -210,7 +210,7 @@ void LLScrollbar::updateThumbRect()
 	
 	const S32 THUMB_MIN_LENGTH = 16;
 
-	S32 window_length = (mOrientation == LLScrollbar::HORIZONTAL) ? mRect.getWidth() : mRect.getHeight();
+	S32 window_length = (mOrientation == LLScrollbar::HORIZONTAL) ? getRect().getWidth() : getRect().getHeight();
 	S32 thumb_bg_length = window_length - 2 * SCROLLBAR_SIZE;
 	S32 visible_lines = llmin( mDocSize, mPageSize );
 	S32 thumb_length = mDocSize ? llmax( visible_lines * thumb_bg_length / mDocSize, THUMB_MIN_LENGTH ) : thumb_bg_length;
@@ -300,8 +300,8 @@ BOOL LLScrollbar::handleHover(S32 x, S32 y, MASK mask)
 	BOOL handled = FALSE;
 	if( hasMouseCapture() )
 	{
-		S32 height = mRect.getHeight();
-		S32 width = mRect.getWidth();
+		S32 height = getRect().getHeight();
+		S32 width = getRect().getWidth();
 
 		if( VERTICAL == mOrientation )
 		{
@@ -408,13 +408,13 @@ BOOL LLScrollbar::handleHover(S32 x, S32 y, MASK mask)
 
 	mDocChanged = FALSE;
 	return handled;
-}
+} // end handleHover
 
 
 BOOL LLScrollbar::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	BOOL handled = FALSE;
-	if( getVisible() && mRect.localPointInRect( x, y ) )
+	if( getVisible() && getRect().localPointInRect( x, y ) )
 	{
 		if( getEnabled() )
 		{
@@ -427,7 +427,7 @@ BOOL LLScrollbar::handleScrollWheel(S32 x, S32 y, S32 clicks)
 }
 
 BOOL LLScrollbar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-									EDragAndDropType cargo_type, void *carge_data, EAcceptance *accept, LLString &tooltip_msg)
+									EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, LLString &tooltip_msg)
 {
 	// enable this to get drag and drop to control scrollbars
 	//if (!drop)
@@ -436,7 +436,7 @@ BOOL LLScrollbar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	//	S32 variable_lines = getDocPosMax();
 	//	S32 pos = (VERTICAL == mOrientation) ? y : x;
 	//	S32 thumb_length = (VERTICAL == mOrientation) ? mThumbRect.getHeight() : mThumbRect.getWidth();
-	//	S32 thumb_track_length = (VERTICAL == mOrientation) ? (mRect.getHeight() - 2 * SCROLLBAR_SIZE) : (mRect.getWidth() - 2 * SCROLLBAR_SIZE);
+	//	S32 thumb_track_length = (VERTICAL == mOrientation) ? (getRect().getHeight() - 2 * SCROLLBAR_SIZE) : (getRect().getWidth() - 2 * SCROLLBAR_SIZE);
 	//	S32 usable_track_length = thumb_track_length - thumb_length;
 	//	F32 ratio = (VERTICAL == mOrientation) ? F32(pos - SCROLLBAR_SIZE - thumb_length) / usable_track_length
 	//		: F32(pos - SCROLLBAR_SIZE) / usable_track_length;	
@@ -485,7 +485,7 @@ void LLScrollbar::draw()
 
 		screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &local_mouse_x, &local_mouse_y);
 		BOOL other_captor = gFocusMgr.getMouseCapture() && gFocusMgr.getMouseCapture() != this;
-		BOOL hovered = mEnabled && !other_captor && (hasMouseCapture() || mThumbRect.pointInRect(local_mouse_x, local_mouse_y));
+		BOOL hovered = getEnabled() && !other_captor && (hasMouseCapture() || mThumbRect.pointInRect(local_mouse_x, local_mouse_y));
 		if (hovered)
 		{
 			mCurGlowStrength = lerp(mCurGlowStrength, mHoverGlowStrength, LLCriticalDamp::getInterpolant(0.05f));
@@ -504,8 +504,8 @@ void LLScrollbar::draw()
 		if (!rounded_rect_imagep)
 		{
 			gl_rect_2d(mOrientation == HORIZONTAL ? SCROLLBAR_SIZE : 0, 
-			mOrientation == VERTICAL ? mRect.getHeight() - 2 * SCROLLBAR_SIZE : mRect.getHeight(),
-			mOrientation == HORIZONTAL ? mRect.getWidth() - 2 * SCROLLBAR_SIZE : mRect.getWidth(), 
+			mOrientation == VERTICAL ? getRect().getHeight() - 2 * SCROLLBAR_SIZE : getRect().getHeight(),
+			mOrientation == HORIZONTAL ? getRect().getWidth() - 2 * SCROLLBAR_SIZE : getRect().getWidth(), 
 			mOrientation == VERTICAL ? SCROLLBAR_SIZE : 0, mTrackColor, TRUE);
 
 			gl_rect_2d(mThumbRect, mThumbColor, TRUE);
@@ -518,8 +518,8 @@ void LLScrollbar::draw()
 				mOrientation == VERTICAL ? SCROLLBAR_SIZE : 0,
 				16,
 				16,
-				mOrientation == HORIZONTAL ? mRect.getWidth() - 2 * SCROLLBAR_SIZE : mRect.getWidth(), 
-				mOrientation == VERTICAL ? mRect.getHeight() - 2 * SCROLLBAR_SIZE : mRect.getHeight(),
+				mOrientation == HORIZONTAL ? getRect().getWidth() - 2 * SCROLLBAR_SIZE : getRect().getWidth(), 
+				mOrientation == VERTICAL ? getRect().getHeight() - 2 * SCROLLBAR_SIZE : getRect().getHeight(),
 				rounded_rect_imagep, 
 				mTrackColor,
 				TRUE);
@@ -553,7 +553,8 @@ void LLScrollbar::draw()
 		// Draw children
 		LLView::draw();
 	}
-}
+} // end draw
+
 
 void LLScrollbar::changeLine( S32 delta, BOOL update_thumb )
 {
@@ -579,21 +580,12 @@ void LLScrollbar::setValue(const LLSD& value)
 	setDocPos((S32) value.asInteger());
 }
 
-EWidgetType LLScrollbar::getWidgetType() const
-{
-	return WIDGET_TYPE_SCROLLBAR;
-}
-
-LLString LLScrollbar::getWidgetTag() const
-{
-	return LL_SCROLLBAR_TAG;
-}
 
 BOOL LLScrollbar::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 {
 	BOOL handled = FALSE;
 
-	if( getVisible() && mEnabled && !called_from_parent )
+	if( getVisible() && getEnabled() && !called_from_parent )
 	{
 		switch( key )
 		{
@@ -660,4 +652,5 @@ void LLScrollbar::onLineDownBtnPressed( void* userdata )
 	LLScrollbar* self = (LLScrollbar*) userdata;
 	self->changeLine( self->mStepSize, TRUE );
 }
+
 

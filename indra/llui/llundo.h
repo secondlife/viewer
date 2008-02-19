@@ -1,6 +1,6 @@
 /** 
  * @file llundo.h
- * @brief LLUndo class header file
+ * @brief Generic interface for undo/redo circular buffer.
  *
  * $LicenseInfo:firstyear=2000&license=viewergpl$
  * 
@@ -32,34 +32,24 @@
 #ifndef LL_LLUNDO_H
 #define LL_LLUNDO_H
 
-class LLUndoAction
-{
-	friend class LLUndoBuffer;
-protected:
-	S32		mClusterID;
-protected:
-	LLUndoAction(): mClusterID(0) {};
-	virtual ~LLUndoAction(){};
-
-public:
-	static LLUndoAction *create() { return NULL; }
-
-	virtual void undo() = 0;
-	virtual void redo() = 0;
-	virtual void cleanup() {};
-};
 
 class LLUndoBuffer
 {
-protected:
-	LLUndoAction **mActions;	// array of pointers to undoactions
-	S32			mNumActions;	// total number of actions in ring buffer
-	S32			mNextAction;	// next action to perform undo/redo on
-	S32			mLastAction;	// last action actually added to undo buffer
-	S32			mFirstAction;	// beginning of ring buffer (don't undo any further)
-	S32			mOperationID;	// current operation id, for undoing and redoing in clusters
-
 public:
+	class LLUndoAction
+	{
+		friend class LLUndoBuffer;
+	public:
+		virtual void undo() = 0;
+		virtual void redo() = 0;
+		virtual void cleanup() {};
+	protected:
+		LLUndoAction(): mClusterID(0) {};
+		virtual ~LLUndoAction(){};
+	private:
+		S32		mClusterID;
+	};
+
 	LLUndoBuffer( LLUndoAction (*create_func()), S32 initial_count );
 	virtual ~LLUndoBuffer();
 
@@ -70,6 +60,14 @@ public:
 	BOOL canRedo() { return (mNextAction != mLastAction); }
 
 	void flushActions();
+
+private:
+	LLUndoAction **mActions;	// array of pointers to undoactions
+	S32			mNumActions;	// total number of actions in ring buffer
+	S32			mNextAction;	// next action to perform undo/redo on
+	S32			mLastAction;	// last action actually added to undo buffer
+	S32			mFirstAction;	// beginning of ring buffer (don't undo any further)
+	S32			mOperationID;	// current operation id, for undoing and redoing in clusters
 };
 
 #endif //LL_LLUNDO_H

@@ -134,7 +134,7 @@ BOOL LLPanelPick::postBuild()
 	mDescEditor->setCommitOnFocusLost(TRUE);
 	mDescEditor->setCommitCallback(onCommitAny);
 	mDescEditor->setCallbackUserData(this);
-	mDescEditor->setTabToNextField(TRUE);
+	mDescEditor->setTabsToNextField(TRUE);
 
     mLocationEditor = LLViewerUICtrlFactory::getLineEditorByName(this, "location_editor");
 
@@ -507,7 +507,7 @@ void LLPanelPick::onCommitAny(LLUICtrl* ctrl, void* data)
 		}
 		else
 		{*/
-		LLTabContainerVertical* tab = (LLTabContainerVertical*)self->getParent();
+		LLTabContainer* tab = (LLTabContainer*)self->getParent();
 		if (tab)
 		{
 			if(tab) tab->setCurrentTabName(self->mNameEditor->getText());

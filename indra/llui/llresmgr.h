@@ -29,8 +29,6 @@
  * $/LicenseInfo$
  */
 
-// NOTE: this is a MINIMAL implementation.  The interface will remain, but the implementation will
-// (when the time is right) become dynamic and probably use external files.
 
 #ifndef LL_LLRESMGR_H
 #define LL_LLRESMGR_H
@@ -157,11 +155,10 @@ public:
 	LLLocale(const LLString& locale_string);
 	virtual ~LLLocale();
 
-public:
 	static const LLString USER_LOCALE;
 	static const LLString SYSTEM_LOCALE;
 
-protected:
+private:
 	LLString	mPrevLocaleString;
 };
 

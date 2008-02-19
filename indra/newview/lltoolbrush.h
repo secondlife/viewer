@@ -74,11 +74,7 @@ public:
 
 	void modifyLandInSelectionGlobal();
 	virtual void	undo();
-	virtual BOOL	canUndo()	{ return TRUE; }
-
-	//virtual void	redo();
-	virtual BOOL	canRedo()	{ return FALSE; }
-
+	virtual BOOL	canUndo() const	{ return TRUE; }
 
 protected:
 	void brush( void );

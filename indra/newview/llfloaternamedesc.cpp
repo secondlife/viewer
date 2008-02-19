@@ -106,10 +106,10 @@ BOOL LLFloaterNameDesc::postBuild()
 
 	setTitle(mFilename);
 
-	centerWindow();
+	centerWithin(gViewerWindow->getRootView()->getRect());
 
-	S32 line_width = mRect.getWidth() - 2 * PREVIEW_HPAD;
-	S32 y = mRect.getHeight() - PREVIEW_LINE_HEIGHT;
+	S32 line_width = getRect().getWidth() - 2 * PREVIEW_HPAD;
+	S32 y = getRect().getHeight() - PREVIEW_LINE_HEIGHT;
 
 	r.setLeftTopAndSize( PREVIEW_HPAD, y, line_width, PREVIEW_LINE_HEIGHT );
 	y -= PREVIEW_LINE_HEIGHT;
@@ -156,19 +156,6 @@ BOOL LLFloaterNameDesc::postBuild()
 LLFloaterNameDesc::~LLFloaterNameDesc()
 {
 	gFocusMgr.releaseFocusIfNeeded( this ); // calls onCommit()
-}
-
-//-----------------------------------------------------------------------------
-// centerWindow()
-//-----------------------------------------------------------------------------
-void LLFloaterNameDesc::centerWindow()
-{
-	LLRect window_rect = gViewerWindow->getRootView()->getRect();
-
-	S32 dialog_left = window_rect.mLeft + (window_rect.getWidth() - mRect.getWidth()) / 2;
-	S32 dialog_bottom = window_rect.mBottom + (window_rect.getHeight() - mRect.getHeight()) / 2;
-
-	translate( dialog_left - mRect.mLeft, dialog_bottom - mRect.mBottom );
 }
 
 // Sub-classes should override this function if they allow editing

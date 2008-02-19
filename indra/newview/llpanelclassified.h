@@ -57,7 +57,7 @@ class LLMessageSystem;
 class LLPanelClassified : public LLPanel
 {
 public:
-    LLPanelClassified(BOOL in_finder, bool from_search = false);
+    LLPanelClassified(bool in_finder, bool from_search);
     /*virtual*/ ~LLPanelClassified();
 
 	void reset();
@@ -118,7 +118,7 @@ protected:
 	BOOL checkDirty();		// Update and return mDirty
 
 protected:
-	BOOL mInFinder;
+	bool mInFinder;
 	bool mFromSearch;		// from web-based "All" search sidebar
 	BOOL mDirty;
 	bool mForceClose;

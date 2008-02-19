@@ -93,7 +93,7 @@ LLFloaterAbout::LLFloaterAbout()
 	if (region)
 	{
 		const LLVector3d &pos = gAgent.getPositionGlobal();
-		LLUIString pos_text = childGetText("you_are_at");
+		LLUIString pos_text = getUIString("you_are_at");
 		pos_text.setArg("[POSITION]",
 						llformat("%.1f, %.1f, %.1f ", pos.mdV[VX], pos.mdV[VY], pos.mdV[VZ]));
 		support.append(pos_text);
@@ -177,7 +177,7 @@ LLFloaterAbout::LLFloaterAbout()
 	// Fix views
 	childDisable("credits_editor");
 
-	LLTextEditor * support_widget = (LLTextEditor *) getChildByName("support_editor", true);
+	LLTextEditor * support_widget = getChild<LLTextEditor>("support_editor", true);
 	if (support_widget)
 	{
 		support_widget->setEnabled( FALSE );

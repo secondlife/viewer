@@ -78,7 +78,7 @@ LLUploadDialog::LLUploadDialog( const std::string& msg)
 	LLRect msg_rect;
 	for (int line_num=0; line_num<16; ++line_num)
 	{
-		mLabelBox[line_num] = new LLTextBox( "Filename", msg_rect, "", font );
+		mLabelBox[line_num] = new LLTextBox( "Filename", msg_rect, "Filename", font );
 		addChild(mLabelBox[line_num]);
 	}
 
@@ -131,8 +131,8 @@ void LLUploadDialog::setMessage( const std::string& msg)
 	reshape( dialog_width, dialog_height, FALSE );
 
 	// Message
-	S32 msg_x = (mRect.getWidth() - max_msg_width) / 2;
-	S32 msg_y = mRect.getHeight() - VPAD - line_height;
+	S32 msg_x = (getRect().getWidth() - max_msg_width) / 2;
+	S32 msg_y = getRect().getHeight() - VPAD - line_height;
 	int line_num;
 	for (line_num=0; line_num<16; ++line_num)
 	{
@@ -152,7 +152,7 @@ void LLUploadDialog::setMessage( const std::string& msg)
 	}
 	msg_lines.deleteAllData();
 
-	centerDialog();
+	centerWithin(gViewerWindow->getRootView()->getRect());
 }
 
 LLUploadDialog::~LLUploadDialog()
@@ -165,13 +165,5 @@ LLUploadDialog::~LLUploadDialog()
 	LLUploadDialog::sDialog = NULL;
 }
 
-void LLUploadDialog::centerDialog()
-{
-	LLRect window_rect = gViewerWindow->getRootView()->getRect();
 
-	S32 dialog_left = window_rect.mLeft + (window_rect.getWidth() - mRect.getWidth()) / 2;
-	S32 dialog_bottom = window_rect.mBottom + (window_rect.getHeight() - mRect.getHeight()) / 2;
-
-	translate( dialog_left - mRect.mLeft, dialog_bottom - mRect.mBottom );
-}
 

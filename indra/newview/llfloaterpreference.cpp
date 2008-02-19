@@ -127,7 +127,7 @@ S32 pref_min_height()
 }
 
 
-LLPreferenceCore::LLPreferenceCore(LLTabContainerCommon* tab_container, LLButton * default_btn) :
+LLPreferenceCore::LLPreferenceCore(LLTabContainer* tab_container, LLButton * default_btn) :
 	mTabContainer(tab_container),
 	mGeneralPanel(NULL),
 	mInputPanel(NULL),
@@ -314,7 +314,7 @@ void LLPreferenceCore::cancel()
 // static
 void LLPreferenceCore::onTabChanged(void* user_data, bool from_click)
 {
-	LLTabContainerCommon* self = (LLTabContainerCommon*)user_data;
+	LLTabContainer* self = (LLTabContainer*)user_data;
 
 	gSavedSettings.setS32("LastPrefTab", self->getCurrentPanelIndex());
 }
@@ -363,7 +363,7 @@ BOOL LLFloaterPreference::postBuild()
 			
 	mPreferenceCore = new LLPreferenceCore(
 		LLUICtrlFactory::getTabContainerByName(this, "pref core"),
-		static_cast<LLButton *>(getChildByName("OK"))
+		getChild<LLButton>("OK")
 		);
 	
 	sInstance = this;

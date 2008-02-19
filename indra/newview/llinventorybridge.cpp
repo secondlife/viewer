@@ -488,11 +488,11 @@ void LLInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 }
 
 // *TODO: remove this
-BOOL LLInvFVBridge::startDrag(EDragAndDropType* type, LLUUID* id)
+BOOL LLInvFVBridge::startDrag(EDragAndDropType* type, LLUUID* id) const
 {
 	BOOL rv = FALSE;
 
-	LLInventoryObject* obj = getInventoryObject();
+	const LLInventoryObject* obj = getInventoryObject();
 
 	if(obj)
 	{

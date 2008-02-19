@@ -39,7 +39,7 @@ class LLPanelPlace;
 class LLSD;
 class LLUUID;
 
-class LLFloaterURLDisplay : public LLFloater, public LLUISingleton<LLFloaterURLDisplay>
+class LLFloaterURLDisplay : public LLFloater, public LLFloaterSingleton<LLFloaterURLDisplay>
 {
 public:
 	LLFloaterURLDisplay(const LLSD& sd);

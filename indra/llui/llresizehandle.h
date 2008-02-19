@@ -46,8 +46,8 @@ public:
 	
 	LLResizeHandle(const LLString& name, const LLRect& rect, S32 min_width, S32 min_height, ECorner corner = RIGHT_BOTTOM );
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
+	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_RESIZE_HANDLE; }
+	virtual LLString getWidgetTag() const { return LL_RESIZE_HANDLE_TAG; }
 
 	virtual void	draw();
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
@@ -56,10 +56,9 @@ public:
 
 	void			setResizeLimits( S32 min_width, S32 min_height ) { mMinWidth = min_width; mMinHeight = min_height; }
 
-protected:
+private:
 	BOOL			pointInHandle( S32 x, S32 y );
 
-protected:
 	S32				mDragLastScreenX;
 	S32				mDragLastScreenY;
 	S32				mLastMouseScreenX;
@@ -68,7 +67,7 @@ protected:
 	LLPointer<LLImageGL>	mImage;
 	S32				mMinWidth;
 	S32				mMinHeight;
-	ECorner			mCorner;
+	const ECorner	mCorner;
 };
 
 const S32 RESIZE_HANDLE_HEIGHT = 16;

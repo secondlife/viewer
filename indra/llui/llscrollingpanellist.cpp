@@ -126,20 +126,6 @@ void LLScrollingPanelList::updatePanelVisiblilty()
 	}
 }
 
-void LLScrollingPanelList::setValue(const LLSD& value)
-{
-
-}
-
-EWidgetType LLScrollingPanelList::getWidgetType() const
-{
-	return WIDGET_TYPE_SCROLLING_PANEL_LIST;
-}
-
-LLString LLScrollingPanelList::getWidgetTag() const
-{
-	return LL_SCROLLING_PANEL_LIST_TAG;
-}
 
 void LLScrollingPanelList::draw()
 {
@@ -165,9 +151,3 @@ LLView* LLScrollingPanelList::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtr
     return scrolling_panel_list;
 }
 
-// virtual
-LLXMLNodePtr LLScrollingPanelList::getXML(bool save_children) const
-{
-    LLXMLNodePtr node = LLUICtrl::getXML();
-    return node;
-}

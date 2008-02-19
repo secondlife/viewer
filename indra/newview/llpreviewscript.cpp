@@ -288,7 +288,7 @@ LLScriptEdCore::LLScriptEdCore(
 	const LLRect& rect,
 	const std::string& sample,
 	const std::string& help,
-	const LLViewHandle& floater_handle,
+	const LLHandle<LLFloater>& floater_handle,
 	void (*load_callback)(void*),
 	void (*save_callback)(void*, BOOL),
 	void (*search_replace_callback) (void* userdata),
@@ -343,19 +343,19 @@ LLScriptEdCore::LLScriptEdCore(
 
 	
 	LLKeywordToken *token;
-	LLKeywords::word_token_map_t::iterator token_it;
-	for (token_it = mEditor->mKeywords.mWordTokenMap.begin(); token_it != mEditor->mKeywords.mWordTokenMap.end(); ++token_it)
+	LLKeywords::keyword_iterator_t token_it;
+	for (token_it = mEditor->keywordsBegin(); token_it != mEditor->keywordsEnd(); ++token_it)
 	{
 		token = token_it->second;
-		if (token->mColor == color)
-			mFunctions->add(wstring_to_utf8str(token->mToken));
+		if (token->getColor() == color)
+			mFunctions->add(wstring_to_utf8str(token->getToken()));
 	}
 
-	for (token_it = mEditor->mKeywords.mWordTokenMap.begin(); token_it != mEditor->mKeywords.mWordTokenMap.end(); ++token_it)
+	for (token_it = mEditor->keywordsBegin(); token_it != mEditor->keywordsEnd(); ++token_it)
 	{
 		token = token_it->second;
-		if (token->mColor != color)
-			mFunctions->add(wstring_to_utf8str(token->mToken));
+		if (token->getColor() != color)
+			mFunctions->add(wstring_to_utf8str(token->getToken()));
 	}
 
 
@@ -365,7 +365,7 @@ LLScriptEdCore::LLScriptEdCore(
 	initMenu();
 		
 	// Do the work that addTabPanel() normally does.
-	//LLRect tab_panel_rect( 0, mRect.getHeight(), mRect.getWidth(), 0 );
+	//LLRect tab_panel_rect( 0, getRect().getHeight(), getRect().getWidth(), 0 );
 	//tab_panel_rect.stretch( -LLPANEL_BORDER_WIDTH );
 	//mCodePanel->setFollowsAll();
 	//mCodePanel->translate( tab_panel_rect.mLeft - mCodePanel->getRect().mLeft, tab_panel_rect.mBottom - mCodePanel->getRect().mBottom);
@@ -468,13 +468,13 @@ void LLScriptEdCore::draw()
 
 void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 {
-	LLFloater* help_floater = LLFloater::getFloaterByHandle(mLiveHelpHandle);
+	LLFloater* help_floater = mLiveHelpHandle.get();
 	if (!help_floater) return;
 
 	// update back and forward buttons
 	LLButton* fwd_button = LLUICtrlFactory::getButtonByName(help_floater, "fwd_btn");
 	LLButton* back_button = LLUICtrlFactory::getButtonByName(help_floater, "back_btn");
-	LLWebBrowserCtrl* browser = LLUICtrlFactory::getWebBrowserCtrlByName(help_floater, "lsl_guide_html");
+	LLWebBrowserCtrl* browser = help_floater->getChild<LLWebBrowserCtrl>("lsl_guide_html");
 	back_button->setEnabled(browser->canNavigateBack());
 	fwd_button->setEnabled(browser->canNavigateForward());
 
@@ -483,12 +483,12 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 		return;
 	}
 
-	LLTextSegment* segment = NULL;
-	std::vector<LLTextSegment*> selected_segments;
+	const LLTextSegment* segment = NULL;
+	std::vector<const LLTextSegment*> selected_segments;
 	mEditor->getSelectedSegments(selected_segments);
 
 	// try segments in selection range first
-	std::vector<LLTextSegment*>::iterator segment_iter;
+	std::vector<const LLTextSegment*>::iterator segment_iter;
 	for (segment_iter = selected_segments.begin(); segment_iter != selected_segments.end(); ++segment_iter)
 	{
 		if((*segment_iter)->getToken() && (*segment_iter)->getToken()->getType() == LLKeywordToken::WORD)
@@ -501,7 +501,7 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 	// then try previous segment in case we just typed it
 	if (!segment)
 	{
-		LLTextSegment* test_segment = mEditor->getPreviousSegment();
+		const LLTextSegment* test_segment = mEditor->getPreviousSegment();
 		if(test_segment->getToken() && test_segment->getToken()->getType() == LLKeywordToken::WORD)
 		{
 			segment = test_segment;
@@ -530,10 +530,10 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 
 void LLScriptEdCore::setHelpPage(const LLString& help_string)
 {
-	LLFloater* help_floater = LLFloater::getFloaterByHandle(mLiveHelpHandle);
+	LLFloater* help_floater = mLiveHelpHandle.get();
 	if (!help_floater) return;
 	
-	LLWebBrowserCtrl* web_browser = gUICtrlFactory->getWebBrowserCtrlByName(help_floater, "lsl_guide_html");
+	LLWebBrowserCtrl* web_browser = help_floater->getChild<LLWebBrowserCtrl>("lsl_guide_html");
 	if (!web_browser) return;
 
 	LLComboBox* history_combo = gUICtrlFactory->getComboBoxByName(help_floater, "history_combo");
@@ -553,7 +553,7 @@ void LLScriptEdCore::addHelpItemToHistory(const LLString& help_string)
 {
 	if (help_string.empty()) return;
 
-	LLFloater* help_floater = LLFloater::getFloaterByHandle(mLiveHelpHandle);
+	LLFloater* help_floater = mLiveHelpHandle.get();
 	if (!help_floater) return;
 
 	LLComboBox* history_combo = gUICtrlFactory->getComboBoxByName(help_floater, "history_combo");
@@ -660,7 +660,7 @@ void LLScriptEdCore::onBtnDynamicHelp(void* userdata)
 {
 	LLScriptEdCore* corep = (LLScriptEdCore*)userdata;
 
-	LLFloater* live_help_floater = LLFloater::getFloaterByHandle(corep->mLiveHelpHandle);
+	LLFloater* live_help_floater = corep->mLiveHelpHandle.get();
 	if (live_help_floater)
 	{
 		live_help_floater->setFocus(TRUE);
@@ -678,18 +678,18 @@ void LLScriptEdCore::onBtnDynamicHelp(void* userdata)
 	live_help_floater->childSetAction("back_btn", onClickBack, userdata);
 	live_help_floater->childSetAction("fwd_btn", onClickForward, userdata);
 
-	LLWebBrowserCtrl* browser = LLUICtrlFactory::getWebBrowserCtrlByName(live_help_floater, "lsl_guide_html");
+	LLWebBrowserCtrl* browser = live_help_floater->getChild<LLWebBrowserCtrl>("lsl_guide_html");
 	browser->setAlwaysRefresh(TRUE);
 
 	LLComboBox* help_combo = LLUICtrlFactory::getComboBoxByName(live_help_floater, "history_combo");
 	LLKeywordToken *token;
-	LLKeywords::word_token_map_t::iterator token_it;
-	for (token_it = corep->mEditor->mKeywords.mWordTokenMap.begin(); 
-		token_it != corep->mEditor->mKeywords.mWordTokenMap.end(); 
+	LLKeywords::keyword_iterator_t token_it;
+	for (token_it = corep->mEditor->keywordsBegin(); 
+		token_it != corep->mEditor->keywordsEnd(); 
 		++token_it)
 	{
 		token = token_it->second;
-		help_combo->add(wstring_to_utf8str(token->mToken));
+		help_combo->add(wstring_to_utf8str(token->getToken()));
 	}
 	help_combo->sortByName();
 
@@ -704,10 +704,10 @@ void LLScriptEdCore::onBtnDynamicHelp(void* userdata)
 void LLScriptEdCore::onClickBack(void* userdata)
 {
 	LLScriptEdCore* corep = (LLScriptEdCore*)userdata;
-	LLFloater* live_help_floater = LLFloater::getFloaterByHandle(corep->mLiveHelpHandle);
+	LLFloater* live_help_floater = corep->mLiveHelpHandle.get();
 	if (live_help_floater)
 	{
-		LLWebBrowserCtrl* browserp = LLUICtrlFactory::getWebBrowserCtrlByName(live_help_floater, "lsl_guide_html");
+		LLWebBrowserCtrl* browserp = live_help_floater->getChild<LLWebBrowserCtrl>("lsl_guide_html");
 		if (browserp)
 		{
 			browserp->navigateBack();
@@ -719,10 +719,10 @@ void LLScriptEdCore::onClickBack(void* userdata)
 void LLScriptEdCore::onClickForward(void* userdata)
 {
 	LLScriptEdCore* corep = (LLScriptEdCore*)userdata;
-	LLFloater* live_help_floater = LLFloater::getFloaterByHandle(corep->mLiveHelpHandle);
+	LLFloater* live_help_floater = corep->mLiveHelpHandle.get();
 	if (live_help_floater)
 	{
-		LLWebBrowserCtrl* browserp = LLUICtrlFactory::getWebBrowserCtrlByName(live_help_floater, "lsl_guide_html");
+		LLWebBrowserCtrl* browserp = live_help_floater->getChild<LLWebBrowserCtrl>("lsl_guide_html");
 		if (browserp)
 		{
 			browserp->navigateForward();
@@ -757,14 +757,14 @@ void LLScriptEdCore::onHelpComboCommit(LLUICtrl* ctrl, void* userdata)
 {
 	LLScriptEdCore* corep = (LLScriptEdCore*)userdata;
 
-	LLFloater* live_help_floater = LLFloater::getFloaterByHandle(corep->mLiveHelpHandle);
+	LLFloater* live_help_floater = corep->mLiveHelpHandle.get();
 	if (live_help_floater)
 	{
 		LLString help_string = ctrl->getValue().asString();
 
 		corep->addHelpItemToHistory(help_string);
 
-		LLWebBrowserCtrl* web_browser = gUICtrlFactory->getWebBrowserCtrlByName(live_help_floater, "lsl_guide_html");
+		LLWebBrowserCtrl* web_browser = live_help_floater->getChild<LLWebBrowserCtrl>("lsl_guide_html");
 		LLUIString url_string = gSavedSettings.getString("LSLHelpURL");
 		url_string.setArg("[APP_DIRECTORY]", gDirUtilp->getWorkingDir());
 		url_string.setArg("[LSL_STRING]", help_string);
@@ -971,7 +971,7 @@ void LLScriptEdCore::handleReloadFromServerDialog( S32 option, void* userdata )
 	case 0: // "Yes"
 		if( self->mLoadCallback )
 		{
-			self->mEditor->setText( self->childGetText("loading") );
+			self->mEditor->setText( self->getString("loading") );
 			self->mLoadCallback( self->mUserdata );
 		}
 		break;
@@ -1071,7 +1071,7 @@ void* LLPreviewLSL::createScriptEdPanel(void* userdata)
 								   LLRect(),
 								   HELLO_LSL,
 								   HELP_LSL,
-								   self->mViewHandle,
+								   self->getHandle(),
 								   LLPreviewLSL::onLoad,
 								   LLPreviewLSL::onSave,
 								   LLPreviewLSL::onSearchReplace,
@@ -1104,9 +1104,7 @@ LLPreviewLSL::LLPreviewLSL(const std::string& name, const LLRect& rect,
 	childSetText("desc", item->getDescription());
 	childSetPrevalidate("desc", &LLLineEditor::prevalidatePrintableNotPipe);
 
-	LLMultiFloater* hostp = getHost();
-
-	if (!sHostp && !hostp && getAssetStatus() == PREVIEW_ASSET_UNLOADED)
+	if (!getFloaterHost() && !getHost() && getAssetStatus() == PREVIEW_ASSET_UNLOADED)
 	{
 		loadAsset();
 	}
@@ -1185,7 +1183,7 @@ void LLPreviewLSL::loadAsset()
 		}
 		else
 		{
-			mScriptEd->mEditor->setText(mScriptEd->childGetText("can_not_view"));
+			mScriptEd->mEditor->setText(mScriptEd->getString("can_not_view"));
 			mScriptEd->mEditor->makePristine();
 			mScriptEd->mEditor->setEnabled(FALSE);
 			mScriptEd->mFunctions->setEnabled(FALSE);
@@ -1565,7 +1563,7 @@ void LLPreviewLSL::reshape(S32 width, S32 height, BOOL called_from_parent)
 	{
 		// So that next time you open a script it will have the same height and width 
 		// (although not the same position).
-		gSavedSettings.setRect("PreviewScriptRect", mRect);
+		gSavedSettings.setRect("PreviewScriptRect", getRect());
 	}
 }
 
@@ -1587,7 +1585,7 @@ void* LLLiveLSLEditor::createScriptEdPanel(void* userdata)
 								   LLRect(),
 								   HELLO_LSL,
 								   HELP_LSL,
-								   self->mViewHandle,
+								   self->getHandle(),
 								   &LLLiveLSLEditor::onLoad,
 								   &LLLiveLSLEditor::onSave,
 								   &LLLiveLSLEditor::onSearchReplace,
@@ -1717,7 +1715,7 @@ void LLLiveLSLEditor::loadAsset(BOOL is_new)
 					   || !gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE))))
 			{
 				mItem = new LLViewerInventoryItem(item);
-				mScriptEd->mEditor->setText(childGetText("not_allowed"));
+				mScriptEd->mEditor->setText(getString("not_allowed"));
 				mScriptEd->mEditor->makePristine();
 				mScriptEd->mEditor->setEnabled(FALSE);
 				mAssetStatus = PREVIEW_ASSET_LOADED;
@@ -1971,12 +1969,12 @@ void LLLiveLSLEditor::draw()
 		{
 			if(object->permAnyOwner())
 			{
-				runningCheckbox->setLabel(childGetText("script_running"));
+				runningCheckbox->setLabel(getString("script_running"));
 				runningCheckbox->setEnabled(TRUE);
 			}
 			else
 			{
-				runningCheckbox->setLabel(childGetText("public_objects_can_not_run"));
+				runningCheckbox->setLabel(getString("public_objects_can_not_run"));
 				runningCheckbox->setEnabled(FALSE);
 				// *FIX: Set it to false so that the ui is correct for
 				// a box that is released to public. It could be
@@ -2224,7 +2222,7 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 
 	// If we successfully saved it, then we should be able to check/uncheck the running box!
 	LLCheckBoxCtrl* runningCheckbox = LLUICtrlFactory::getCheckBoxByName(this, "running");
-	runningCheckbox->setLabel(childGetText("script_running"));
+	runningCheckbox->setLabel(getString("script_running"));
 	runningCheckbox->setEnabled(TRUE);
 }
 
@@ -2404,6 +2402,6 @@ void LLLiveLSLEditor::reshape(S32 width, S32 height, BOOL called_from_parent)
 	{
 		// So that next time you open a script it will have the same height and width 
 		// (although not the same position).
-		gSavedSettings.setRect("PreviewScriptRect", mRect);
+		gSavedSettings.setRect("PreviewScriptRect", getRect());
 	}
 }

@@ -11,7 +11,6 @@
 #define LLPANELLANDMEDIA_H
 
 #include "lllineeditor.h"
-#include "llmemory.h"	// LLHandle<>
 #include "llpanel.h"
 #include "llparcelselection.h"
 #include "lluifwd.h"	// widget pointer types
@@ -20,7 +19,7 @@ class LLPanelLandMedia
 :	public LLPanel
 {
 public:
-	LLPanelLandMedia(LLHandle<LLParcelSelection>& parcelp);
+	LLPanelLandMedia(LLSafeHandle<LLParcelSelection>& parcelp);
 	/*virtual*/ ~LLPanelLandMedia();
 	/*virtual*/ BOOL postBuild();
 	void refresh();
@@ -50,9 +49,9 @@ private:
 	LLCheckBoxCtrl*	mMediaLoopCheck;
 	LLCheckBoxCtrl* mMediaUrlCheck;
 	LLCheckBoxCtrl* mMusicUrlCheck;
-	LLViewHandle	mURLEntryFloater;
+	LLHandle<LLFloater>	mURLEntryFloater;
 
-	LLHandle<LLParcelSelection>&	mParcel;
+	LLSafeHandle<LLParcelSelection>&	mParcel;
 };
 
 #endif

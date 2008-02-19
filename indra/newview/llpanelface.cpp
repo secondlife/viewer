@@ -81,7 +81,7 @@ BOOL	LLPanelFace::postBuild()
 	LLSpinCtrl*		mCtrlColorTransp;		// transparency = 1 - alpha
 
 	setMouseOpaque(FALSE);
-	mTextureCtrl = LLUICtrlFactory::getTexturePickerByName(this,"texture control");
+	mTextureCtrl = getChild<LLTextureCtrl>("texture control");
 	if(mTextureCtrl)
 	{
 		mTextureCtrl->setDefaultImageAssetID(LLUUID( gSavedSettings.getString( "DefaultObjectTexture" )));
@@ -113,7 +113,7 @@ BOOL	LLPanelFace::postBuild()
 		}
 	}
 
-	mColorSwatch = LLUICtrlFactory::getColorSwatchByName(this,"colorswatch");
+	mColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
 	if(mColorSwatch)
 	{
 		mColorSwatch->setCommitCallback(LLPanelFace::onCommitColor);
@@ -187,7 +187,7 @@ LLPanelFace::~LLPanelFace()
 
 void LLPanelFace::sendTexture()
 {
-	LLTextureCtrl* mTextureCtrl = gUICtrlFactory->getTexturePickerByName(this,"texture control");
+	LLTextureCtrl* mTextureCtrl = getChild<LLTextureCtrl>("texture control");
 	if(!mTextureCtrl) return;
 	if( !mTextureCtrl->getTentative() )
 	{
@@ -656,13 +656,13 @@ void LLPanelFace::getState()
 
 			if (selected_texgen == 1)
 			{
-				childSetText("tex scale",childGetText("string repeats per meter"));
+				childSetText("tex scale",getString("string repeats per meter"));
 				childSetValue("TexScaleU", 2.0f * childGetValue("TexScaleU").asReal() );
 				childSetValue("TexScaleV", 2.0f * childGetValue("TexScaleV").asReal() );
 			}
 			else
 			{
-				childSetText("tex scale",childGetText("string repeats per face"));
+				childSetText("tex scale",getString("string repeats per face"));
 			}
 
 		}
@@ -722,14 +722,14 @@ void LLPanelFace::getState()
 		clearCtrls();
 
 		// Disable non-UICtrls
-		LLTextureCtrl*	texture_ctrl = LLUICtrlFactory::getTexturePickerByName(this,"texture control"); 
+		LLTextureCtrl*	texture_ctrl = getChild<LLTextureCtrl>("texture control"); 
 		if(texture_ctrl)
 		{
 			texture_ctrl->setImageAssetID( LLUUID::null );
 			texture_ctrl->setEnabled( FALSE );  // this is a LLUICtrl, but we don't want it to have keyboard focus so we add it as a child, not a ctrl.
 // 			texture_ctrl->setValid(FALSE);
 		}
-		LLColorSwatchCtrl* mColorSwatch = LLUICtrlFactory::getColorSwatchByName(this,"colorswatch");
+		LLColorSwatchCtrl* mColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
 		if(mColorSwatch)
 		{
 			mColorSwatch->setEnabled( FALSE );			

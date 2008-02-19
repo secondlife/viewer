@@ -272,7 +272,7 @@ public:
 	void updateEffects();
 	void cleanupNodes();
 
-	BOOL isEmpty();
+	BOOL isEmpty() const;
 
 	S32 getOwnershipCost(S32 &cost);
 
@@ -331,7 +331,7 @@ private:
 	ESelectType mSelectType;
 };
 
-typedef LLHandle<LLObjectSelection> LLObjectSelectionHandle;
+typedef LLSafeHandle<LLObjectSelection> LLObjectSelectionHandle;
 
 class LLSelectMgr : public LLEditMenuHandler
 {
@@ -360,20 +360,20 @@ public:
 	static void cleanupGlobals();
 
 	// LLEditMenuHandler interface
-	virtual BOOL canUndo();
+	virtual BOOL canUndo() const;
 	virtual void undo();
 
-	virtual BOOL canRedo();
+	virtual BOOL canRedo() const;
 	virtual void redo();
 
-	virtual BOOL canDoDelete();
+	virtual BOOL canDoDelete() const;
 	virtual void doDelete();
 
 	virtual void deselect();
-	virtual BOOL canDeselect();
+	virtual BOOL canDeselect() const;
 
 	virtual void duplicate();
-	virtual BOOL canDuplicate();
+	virtual BOOL canDuplicate() const;
 
 	void clearSelections();
 	void update();

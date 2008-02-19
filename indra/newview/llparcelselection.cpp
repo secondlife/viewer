@@ -17,9 +17,8 @@
 LLPointer<LLParcelSelection> LLParcelSelection::sNullSelection;
 
 template<> 
-	const LLHandle<LLParcelSelection>::NullFunc 
-		LLHandle<LLParcelSelection>::sNullFunc =
-			LLParcelSelection::getNullParcelSelection;
+	const LLSafeHandle<LLParcelSelection>::NullFunc 
+		LLSafeHandle<LLParcelSelection>::sNullFunc = LLParcelSelection::getNullParcelSelection;
 
 //
 // LLParcelSelection

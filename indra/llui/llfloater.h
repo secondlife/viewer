@@ -112,8 +112,8 @@ public:
 	void initFloaterXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory, BOOL open = TRUE);
 
 	/*virtual*/ void userSetShape(const LLRect& new_rect);
-	/*virtual*/ BOOL canSnapTo(LLView* other_view);
-	/*virtual*/ void snappedTo(LLView* snap_view);
+	/*virtual*/ BOOL canSnapTo(const LLView* other_view);
+	/*virtual*/ void snappedTo(const LLView* snap_view);
 	/*virtual*/ void setFocus( BOOL b );
 	/*virtual*/ void setIsChrome(BOOL is_chrome);
 
@@ -122,16 +122,14 @@ public:
 	virtual void		init(const LLString& title, BOOL resizable, 
 						S32 min_width, S32 min_height, BOOL drag_on_left,
 						BOOL minimizable, BOOL close_btn);
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
+	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_FLOATER; }
+	virtual LLString getWidgetTag() const { return LL_FLOATER_TAG; };
 
 	virtual void	open();	/* Flawfinder: ignore */
 
 	// If allowed, close the floater cleanly, releasing focus.
 	// app_quitting is passed to onClose() below.
 	virtual void	close(bool app_quitting = false);
-
-	void			setAutoFocus(BOOL focus) { mAutoFocus = focus; setFocus(focus); }
 	
 	// Release keyboard and mouse focus
 	void			releaseFocus();
@@ -142,18 +140,18 @@ public:
 	void			applyRectControl();
 
 
-	LLMultiFloater* getHost() { return (LLMultiFloater*)LLFloater::getFloaterByHandle(mHostHandle); }
+	LLMultiFloater* getHost() { return (LLMultiFloater*)mHostHandle.get(); }
 
 	void			setTitle( const LLString& title );
-	const LLString&		getTitle() const;
+	const LLString&	getTitle() const;
 	void			setShortTitle( const LLString& short_title );
 	LLString		getShortTitle();
 	virtual void	setMinimized(BOOL b);
 	void			moveResizeHandlesToFront();
 	void			addDependentFloater(LLFloater* dependent, BOOL reposition = TRUE);
-	void			addDependentFloater(LLViewHandle dependent_handle, BOOL reposition = TRUE);
-	LLFloater*              getDependee() { return (LLFloater*)LLFloater::getFloaterByHandle(mDependeeHandle); }
-	void                    removeDependentFloater(LLFloater* dependent);
+	void			addDependentFloater(LLHandle<LLFloater> dependent_handle, BOOL reposition = TRUE);
+	LLFloater*      getDependee() { return (LLFloater*)mDependeeHandle.get(); }
+	void            removeDependentFloater(LLFloater* dependent);
 	BOOL			isMinimized()					{ return mMinimized; }
 	BOOL			isFrontmost();
 	BOOL			isDependent()					{ return !mDependeeHandle.isDead(); }
@@ -167,10 +165,9 @@ public:
 	void			setResizeLimits( S32 min_width, S32 min_height );
 	void			getResizeLimits( S32* min_width, S32* min_height ) { *min_width = mMinWidth; *min_height = mMinHeight; }
 
-
 	bool			isMinimizeable() const{ return mButtonsEnabled[BUTTON_MINIMIZE]; }
 	// Does this window have a close button, NOT can we close it right now.
-	bool			isCloseable() const{ return (mButtonsEnabled[BUTTON_CLOSE] ? true : false); }
+	bool			isCloseable() const{ return (mButtonsEnabled[BUTTON_CLOSE]); }
 	bool			isDragOnLeft() const{ return mDragOnLeft; }
 	S32				getMinWidth() const{ return mMinWidth; }
 	S32				getMinHeight() const{ return mMinHeight; }
@@ -181,29 +178,28 @@ public:
 
 	virtual void	draw();
 
-	// does nothing by default
-	virtual void	onOpen();
+	virtual void	onOpen() {}
 
 	// Call destroy() to free memory, or setVisible(FALSE) to keep it
 	// If app_quitting, you might not want to save your visibility.
 	// Defaults to destroy().
-	virtual void	onClose(bool app_quitting);
+	virtual void	onClose(bool app_quitting) { destroy(); }
 
-	// Defaults to true.
-	virtual BOOL	canClose();
+	virtual BOOL	canClose() const { return TRUE; }
 
 	virtual void	setVisible(BOOL visible);
 	void			setFrontmost(BOOL take_focus = TRUE);
 
 	// Defaults to false.
-	virtual BOOL	canSaveAs();
+	virtual BOOL	canSaveAs() const { return FALSE; }
 
-	// Defaults to no-op.
-	virtual void	saveAs();
+	virtual void	saveAs() {}
 
-	void			setSnapTarget(LLViewHandle handle) { mSnappedTo = handle; }
+	void			setSnapTarget(LLHandle<LLFloater> handle) { mSnappedTo = handle; }
 	void			clearSnapTarget() { mSnappedTo.markDead(); }
-	LLViewHandle	getSnapTarget() { return mSnappedTo; }
+	LLHandle<LLFloater>	getSnapTarget() { return mSnappedTo; }
+
+	LLHandle<LLFloater> getHandle() { return mHandle; }
 
 	static void		closeFocusedFloater();
 
@@ -214,39 +210,39 @@ public:
 
 	static void		setFloaterHost(LLMultiFloater* hostp) {sHostp = hostp; }
 	static void		setEditModeEnabled(BOOL enable);
-	static BOOL		getEditModeEnabled();
+	static BOOL		getEditModeEnabled() { return sEditModeEnabled; }
 	static LLMultiFloater*		getFloaterHost() {return sHostp; }
 
-	static void		show(LLFloater* floaterp);
-	static void		hide(LLFloater* floaterp);
-	static BOOL		visible(LLFloater* floaterp);
-
-	static LLFloater* getFloaterByHandle(LLViewHandle handle);
-
 protected:
-	// Don't call this directly.  You probably want to call close(). JC
-	void			destroy();
+
 	virtual void	bringToFront(S32 x, S32 y);
-	virtual void	setVisibleAndFrontmost(BOOL take_focus=TRUE);
+	virtual void	setVisibleAndFrontmost(BOOL take_focus=TRUE);    
+	
+	void            setExpandedRect(const LLRect& rect) { mExpandedRect = rect; } // size when not minimized
+    const LLRect&    getExpandedRect() const { return mExpandedRect; }
+
+	void			setAutoFocus(BOOL focus) { mAutoFocus = focus; } // whether to automatically take focus when opened
+	LLDragHandle*	getDragHandle() const { return mDragHandle; }
+
+	void			destroy() { die(); } // Don't call this directly.  You probably want to call close(). JC
+
+private:
+	
 	void			setForeground(BOOL b);	// called only by floaterview
 	void			cleanupHandles(); // remove handles to dead floaters
 	void			createMinimizeButton();
 	void			updateButtons();
 	void			buildButtons();
 
-protected:
-//	static LLViewerImage*		sBackgroundImage;
-//	static LLViewerImage*		sShadowImage;
-
+	LLRect			mExpandedRect;
 	LLDragHandle*	mDragHandle;
 	LLResizeBar*	mResizeBar[4];
 	LLResizeHandle* mResizeHandle[4];
 	LLButton		*mMinimizeButton;
 	BOOL			mCanTearOff;
 	BOOL			mMinimized;
-	LLRect			mPreviousRect;
 	BOOL			mForeground;
-	LLViewHandle	mDependeeHandle;
+	LLHandle<LLFloater>	mDependeeHandle;
 	LLString		mShortTitle;
 
 	BOOL			mFirstLook;			// TRUE if the _next_ time this floater is visible will be the first time in the session that it is visible.
@@ -255,25 +251,24 @@ protected:
 	S32				mMinWidth;
 	S32				mMinHeight;
 
-	BOOL			mAutoFocus;
 	BOOL			mEditing;
 	
-	typedef std::set<LLViewHandle> handle_set_t;
-	typedef std::set<LLViewHandle>::iterator handle_set_iter_t;
+	typedef std::set<LLHandle<LLFloater> > handle_set_t;
+	typedef std::set<LLHandle<LLFloater> >::iterator handle_set_iter_t;
 	handle_set_t	mDependents;
 	bool            mDragOnLeft;
 
 	BOOL			mButtonsEnabled[BUTTON_COUNT];
 	LLButton*		mButtons[BUTTON_COUNT];
 	F32				mButtonScale;
-
-	LLViewHandle	mSnappedTo;
+	BOOL			mAutoFocus;
+	LLHandle<LLFloater> mSnappedTo;
 	
-	LLViewHandle mHostHandle;
-	LLViewHandle mLastHostHandle;
+	LLHandle<LLFloater> mHostHandle;
+	LLHandle<LLFloater> mLastHostHandle;
 
-	static BOOL		sEditModeEnabled;
 	static LLMultiFloater* sHostp;
+	static BOOL		sEditModeEnabled;
 	static LLString	sButtonActiveImageNames[BUTTON_COUNT];
 	static LLString	sButtonInactiveImageNames[BUTTON_COUNT];
 	static LLString	sButtonPressedImageNames[BUTTON_COUNT];
@@ -282,15 +277,18 @@ protected:
 	typedef void (*click_callback)(void *);
 	static click_callback sButtonCallbacks[BUTTON_COUNT];
 
-	typedef std::map<LLViewHandle, LLFloater*> handle_map_t;
-	typedef std::map<LLViewHandle, LLFloater*>::iterator handle_map_iter_t;
+	typedef std::map<LLHandle<LLFloater>, LLFloater*> handle_map_t;
+	typedef std::map<LLHandle<LLFloater>, LLFloater*>::iterator handle_map_iter_t;
 	static handle_map_t	sFloaterMap;
 
-	std::vector<LLViewHandle> mMinimizedHiddenChildren;
+	std::vector<LLHandle<LLView> > mMinimizedHiddenChildren;
 
 	BOOL			mHasBeenDraggedWhileMinimized;
 	S32				mPreviousMinimizedBottom;
 	S32				mPreviousMinimizedLeft;
+	
+private:
+	LLRootHandle<LLFloater>		mHandle;	
 };
 
 /////////////////////////////////////////////////////////////
@@ -302,14 +300,14 @@ class LLFloaterView : public LLUICtrl
 public:
 	LLFloaterView( const LLString& name, const LLRect& rect );
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
+	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_FLOATER_VIEW; }
+	virtual LLString getWidgetTag() const { return LL_FLOATER_VIEW_TAG; }
 
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
 	void reshape(S32 width, S32 height, BOOL called_from_parent, BOOL adjust_vertical);
 
 	/*virtual*/ void draw();
-	/*virtual*/ const LLRect getSnapRect() const;
+	/*virtual*/ LLRect getSnapRect() const;
 	void refresh();
 
 	void			getNewFloaterPosition( S32* left, S32* top );
@@ -325,8 +323,8 @@ public:
 	void pushVisibleAll(BOOL visible, const skip_list_t& skip_list = skip_list_t());
 	void popVisibleAll(const skip_list_t& skip_list = skip_list_t());
 
-	void			setCycleMode(BOOL mode);
-	BOOL			getCycleMode();
+	void			setCycleMode(BOOL mode) { mFocusCycleMode = mode; }
+	BOOL			getCycleMode() const { return mFocusCycleMode; }
 	void			bringToFront( LLFloater* child, BOOL give_focus = TRUE );
 	void			highlightFocusedFloater();
 	void			unhighlightFocusedFloater();
@@ -341,10 +339,6 @@ public:
 	LLFloater* getParentFloater(LLView* viewp);
 	LLFloater* getFocusedFloater();
 	void		syncFloaterTabOrder();
-
-	// Get a floater based the handle. If this returns NULL, it is up
-	// to the caller to discard the handle.
-	LLFloater* getFloaterByHandle(LLViewHandle handle);
 
 	// Returns z order of child provided. 0 is closest, larger numbers
 	// are deeper in the screen. If there is no such child, the return
@@ -361,15 +355,16 @@ private:
 	S32				mSnapOffsetBottom;
 };
 
+// https://wiki.lindenlab.com/mediawiki/index.php?title=LLMultiFloater&oldid=81376
 class LLMultiFloater : public LLFloater
 {
 public:
 	LLMultiFloater();
-	LLMultiFloater(LLTabContainerCommon::TabPosition tab_pos);
+	LLMultiFloater(LLTabContainer::TabPosition tab_pos);
 	LLMultiFloater(const LLString& name);
 	LLMultiFloater(const LLString& name, const LLRect& rect, LLTabContainer::TabPosition tab_pos = LLTabContainer::TOP, BOOL auto_resize = TRUE);
 	LLMultiFloater(const LLString& name, const LLString& rect_control, LLTabContainer::TabPosition tab_pos = LLTabContainer::TOP, BOOL auto_resize = TRUE);
-	virtual ~LLMultiFloater();
+	virtual ~LLMultiFloater() {};
 
 	virtual BOOL postBuild();
 	/*virtual*/ void open();	/* Flawfinder: ignore */
@@ -377,12 +372,12 @@ public:
 	/*virtual*/ void draw();
 	/*virtual*/ void setVisible(BOOL visible);
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
-	/*virtual*/ EWidgetType getWidgetType() const;
-	/*virtual*/ LLString getWidgetTag() const;
+	/*virtual*/ EWidgetType getWidgetType() const { return WIDGET_TYPE_MULTI_FLOATER; }
+	/*virtual*/ LLString getWidgetTag() const { return LL_MULTI_FLOATER_TAG; };
 
 	virtual void setCanResize(BOOL can_resize);
 	virtual void growToFit(S32 content_width, S32 content_height);
-	virtual void addFloater(LLFloater* floaterp, BOOL select_added_floater, LLTabContainerCommon::eInsertionPoint insertion_point = LLTabContainerCommon::END);
+	virtual void addFloater(LLFloater* floaterp, BOOL select_added_floater, LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
 
 	virtual void showFloater(LLFloater* floaterp);
 	virtual void removeFloater(LLFloater* floaterp);
@@ -400,7 +395,7 @@ public:
 
 	virtual void setFloaterFlashing(LLFloater* floaterp, BOOL flashing);
 	virtual BOOL closeAllFloaters();	//Returns FALSE if the floater could not be closed due to pending confirmation dialogs
-	void setTabContainer(LLTabContainerCommon* tab_container) { if (!mTabContainer) mTabContainer = tab_container; }
+	void setTabContainer(LLTabContainer* tab_container) { if (!mTabContainer) mTabContainer = tab_container; }
 	static void onTabSelected(void* userdata, bool);
 
 	virtual void updateResizeLimits();
@@ -414,13 +409,54 @@ protected:
 		BOOL	mCanResize;
 	};
 
-	LLTabContainerCommon*		mTabContainer;
+	LLTabContainer*		mTabContainer;
 	
-	typedef std::map<LLViewHandle, LLFloaterData> floater_data_map_t;
+	typedef std::map<LLHandle<LLFloater>, LLFloaterData> floater_data_map_t;
 	floater_data_map_t	mFloaterDataMap;
 	
-	LLTabContainerCommon::TabPosition mTabPos;
+	LLTabContainer::TabPosition mTabPos;
 	BOOL				mAutoResize;
+};
+
+// visibility policy specialized for floaters
+template<>
+class VisibilityPolicy<LLFloater>
+{
+public:
+	// visibility methods
+	static bool visible(LLFloater* instance, const LLSD& key)
+	{
+		if (instance) 
+		{
+			return !instance->isMinimized() && instance->isInVisibleChain();
+		}
+		return FALSE;
+	}
+
+	static void show(LLFloater* instance, const LLSD& key)
+	{
+		if (instance) 
+		{
+			instance->open();
+			if (instance->getHost())
+			{
+				instance->getHost()->open();
+			}
+		}
+	}
+
+	static void hide(LLFloater* instance, const LLSD& key)
+	{
+		if (instance) instance->close();
+	}
+};
+
+
+// singleton implementation for floaters (provides visibility policy)
+// https://wiki.lindenlab.com/mediawiki/index.php?title=LLFloaterSingleton&oldid=79410
+
+template <class T> class LLFloaterSingleton : public LLUISingleton<T, VisibilityPolicy<LLFloater> >
+{
 };
 
 

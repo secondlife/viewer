@@ -243,25 +243,25 @@ protected:
 // Expands LLPointer to return a pointer to a special instance of class Type instead of NULL.
 // This is useful in instances where operations on NULL pointers are semantically safe and/or
 // when error checking occurs at a different granularity or in a different part of the code
-// than when referencing an object via a LLHandle.
+// than when referencing an object via a LLSafeHandle.
 // 
 
 template <class Type> 
-class LLHandle
+class LLSafeHandle
 {
 public:
-	LLHandle() :
+	LLSafeHandle() :
 		mPointer(NULL)
 	{
 	}
 
-	LLHandle(Type* ptr) : 
+	LLSafeHandle(Type* ptr) : 
 		mPointer(NULL)
 	{
 		assign(ptr);
 	}
 
-	LLHandle(const LLHandle<Type>& ptr) : 
+	LLSafeHandle(const LLSafeHandle<Type>& ptr) : 
 		mPointer(NULL)
 	{
 		assign(ptr.mPointer);
@@ -269,13 +269,13 @@ public:
 
 	// support conversion up the type hierarchy.  See Item 45 in Effective C++, 3rd Ed.
 	template<typename Subclass>
-	LLHandle(const LLHandle<Subclass>& ptr) : 
+	LLSafeHandle(const LLSafeHandle<Subclass>& ptr) : 
 		mPointer(NULL)
 	{
 		assign(ptr.get());
 	}
 
-	~LLHandle()								
+	~LLSafeHandle()								
 	{
 		unref();
 	}
@@ -300,17 +300,17 @@ public:
 	operator const Type*() const				{ return mPointer; }
 	bool operator !=(Type* ptr) const           { return (mPointer != ptr); 	}
 	bool operator ==(Type* ptr) const           { return (mPointer == ptr); 	}
-	bool operator ==(const LLHandle<Type>& ptr) const           { return (mPointer == ptr.mPointer); 	}
-	bool operator < (const LLHandle<Type>& ptr) const           { return (mPointer < ptr.mPointer); 	}
-	bool operator > (const LLHandle<Type>& ptr) const           { return (mPointer > ptr.mPointer); 	}
+	bool operator ==(const LLSafeHandle<Type>& ptr) const           { return (mPointer == ptr.mPointer); 	}
+	bool operator < (const LLSafeHandle<Type>& ptr) const           { return (mPointer < ptr.mPointer); 	}
+	bool operator > (const LLSafeHandle<Type>& ptr) const           { return (mPointer > ptr.mPointer); 	}
 
-	LLHandle<Type>& operator =(Type* ptr)                   
+	LLSafeHandle<Type>& operator =(Type* ptr)                   
 	{ 
 		assign(ptr);
 		return *this; 
 	}
 
-	LLHandle<Type>& operator =(const LLHandle<Type>& ptr)  
+	LLSafeHandle<Type>& operator =(const LLSafeHandle<Type>& ptr)  
 	{ 
 		assign(ptr.mPointer);
 		return *this; 
@@ -318,7 +318,7 @@ public:
 
 	// support assignment up the type hierarchy. See Item 45 in Effective C++, 3rd Ed.
 	template<typename Subclass>
-	LLHandle<Type>& operator =(const LLHandle<Subclass>& ptr)  
+	LLSafeHandle<Type>& operator =(const LLSafeHandle<Subclass>& ptr)  
 	{ 
 		assign(ptr.get());
 		return *this; 
@@ -399,11 +399,25 @@ protected:
 
 //----------------------------------------------------------------------------
 
-// LLSingleton implements the getInstance() method part of the Singleton pattern. It can't make
-// the derived class constructors protected, though, so you have to do that yourself.
-// The proper way to use LLSingleton is to inherit from it while using the typename that you'd 
-// like to be static as the template parameter, like so:
-//   class FooBar: public LLSingleton<FooBar>
+// LLSingleton implements the getInstance() method part of the Singleton
+// pattern. It can't make the derived class constructors protected, though, so
+// you have to do that yourself.
+//
+// There are two ways to use LLSingleton. The first way is to inherit from it
+// while using the typename that you'd like to be static as the template
+// parameter, like so:
+//
+//   class Foo: public LLSingleton<Foo>{};
+//
+//   Foo* instance = Foo::getInstance();
+//
+// The second way is to define a seperate class that exposes the singleton
+// interface:
+//
+//   class FooSingleton: public LLSingleton<Foo>{};
+//
+//   Foo* instance = FooSingleton::getInstance();
+//
 // As currently written, it is not thread-safe.
 template <typename T>
 class LLSingleton

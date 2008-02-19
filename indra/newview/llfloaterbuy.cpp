@@ -121,11 +121,11 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 	switch (sale_info.getSaleType())
 	{
 	  case LLSaleInfo::FS_ORIGINAL:
-		title = sInstance->childGetText("title_buy_text");
+		title = sInstance->getString("title_buy_text");
 		break;
 	  case LLSaleInfo::FS_COPY:
 	  default:
-		title = sInstance->childGetText("title_buy_copy_text");
+		title = sInstance->getString("title_buy_copy_text");
 		break;
 	}
 	title.setArg("[NAME]", node->mName);
@@ -165,15 +165,15 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 	LLString text = node->mName;
 	if (!(next_owner_mask & PERM_COPY))
 	{
-		text.append(sInstance->childGetText("no_copy_text"));
+		text.append(sInstance->getString("no_copy_text"));
 	}
 	if (!(next_owner_mask & PERM_MODIFY))
 	{
-		text.append(sInstance->childGetText("no_modify_text"));
+		text.append(sInstance->getString("no_modify_text"));
 	}
 	if (!(next_owner_mask & PERM_TRANSFER))
 	{
-		text.append(sInstance->childGetText("no_transfer_text"));
+		text.append(sInstance->getString("no_transfer_text"));
 	}
 
 	row["columns"][1]["column"] = "text";

@@ -969,12 +969,12 @@ void LLAgent::sendReliableMessage()
 {
 	if (gDisconnected)
 	{
-		llwarns << "Trying to send message when disconnected!" << llendl;
+		lldebugs << "Trying to send message when disconnected!" << llendl;
 		return;
 	}
 	if (!mRegionp)
 	{
-		llwarns << "LLAgent::sendReliableMessage No region for agent yet, not sending message!" << llendl;
+		lldebugs << "LLAgent::sendReliableMessage No region for agent yet, not sending message!" << llendl;
 		return;
 	}
 	gMessageSystem->sendReliable(mRegionp->getHost());

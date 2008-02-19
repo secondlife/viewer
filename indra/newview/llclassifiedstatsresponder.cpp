@@ -43,7 +43,7 @@
 #include "llview.h"
 #include "message.h"
 
-LLClassifiedStatsResponder::LLClassifiedStatsResponder(LLViewHandle classified_panel_handle, LLUUID classified_id)
+LLClassifiedStatsResponder::LLClassifiedStatsResponder(LLHandle<LLView> classified_panel_handle, LLUUID classified_id)
 : mClassifiedPanelHandle(classified_panel_handle),
 mClassifiedID(classified_id)
 {
@@ -58,7 +58,7 @@ void LLClassifiedStatsResponder::result(const LLSD& content)
 	S32 search_map = content["search_map_clicks"].asInteger();
 	S32 search_profile = content["search_profile_clicks"].asInteger();
 
-	LLPanelClassified* classified_panelp = (LLPanelClassified*)LLPanel::getPanelByHandle(mClassifiedPanelHandle);
+	LLPanelClassified* classified_panelp = (LLPanelClassified*)mClassifiedPanelHandle.get();
 
 	if(classified_panelp)
 	{

@@ -303,18 +303,13 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	//////////////////
 	// CREATOR NAME //
 	//////////////////
-	char first_name[DB_FIRST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-	char last_name[DB_LAST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
 	if(!gCacheName) return;
 	if(!gAgent.getRegion()) return;
 
 	if (item->getCreatorUUID().notNull())
 	{
-		gCacheName->getName(item->getCreatorUUID(), first_name, last_name);
-		LLString name(first_name);
-		name.append(1, ' ');
-		name.append(last_name);
-
+		std::string name;
+		gCacheName->getFullName(item->getCreatorUUID(), name);
 		childSetEnabled("BtnCreator",TRUE);
 		childSetEnabled("LabelCreatorTitle",TRUE);
 		childSetEnabled("LabelCreatorName",TRUE);
@@ -325,7 +320,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 		childSetEnabled("BtnCreator",FALSE);
 		childSetEnabled("LabelCreatorTitle",FALSE);
 		childSetEnabled("LabelCreatorName",FALSE);
-		childSetText("LabelCreatorName",childGetText("unknown"));
+		childSetText("LabelCreatorName",getString("unknown"));
 	}
 
 	////////////////
@@ -336,16 +331,11 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 		LLString name;
 		if (perm.isGroupOwned())
 		{
-			char group_name[DB_GROUP_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-			gCacheName->getGroupName(perm.getGroup(), group_name);
-			name.assign(group_name);
+			gCacheName->getGroupName(perm.getGroup(), name);
 		}
 		else
 		{
-			gCacheName->getName(perm.getOwner(), first_name, last_name);
-			name.assign(first_name);
-			name.append(1, ' ');
-			name.append(last_name);
+			gCacheName->getFullName(perm.getOwner(), name);
 		}
 		childSetEnabled("BtnOwner",TRUE);
 		childSetEnabled("LabelOwnerTitle",TRUE);
@@ -357,7 +347,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 		childSetEnabled("BtnOwner",FALSE);
 		childSetEnabled("LabelOwnerTitle",FALSE);
 		childSetEnabled("LabelOwnerName",FALSE);
-		childSetText("LabelOwnerName",childGetText("public"));
+		childSetText("LabelOwnerName",getString("public"));
 	}
 	
 	//////////////////
@@ -368,7 +358,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	time_t time_utc = (time_t)item->getCreationDate();
 	if (0 == time_utc)
 	{
-		childSetText("LabelAcquiredDate",childGetText("unknown"));
+		childSetText("LabelAcquiredDate",getString("unknown"));
 	}
 	else
 	{
@@ -380,11 +370,11 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	///////////////////////
 	if(can_agent_manipulate)
 	{
-		childSetText("OwnerLabel",childGetText("you_can"));
+		childSetText("OwnerLabel",getString("you_can"));
 	}
 	else
 	{
-		childSetText("OwnerLabel",childGetText("owner_can"));
+		childSetText("OwnerLabel",getString("owner_can"));
 	}
 
 	U32 base_mask		= perm.getMaskBase();

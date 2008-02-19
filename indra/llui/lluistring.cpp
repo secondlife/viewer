@@ -1,6 +1,6 @@
 /** 
  * @file lluistring.cpp
- * @brief LLUIString base class
+ * @brief LLUIString implementation.
  *
  * $LicenseInfo:firstyear=2006&license=viewergpl$
  * 
@@ -30,13 +30,10 @@
  */
 
 #include "linden_common.h"
-
 #include "lluistring.h"
 
 const LLString::format_map_t LLUIString::sNullArgs;
 
-
-// public
 
 LLUIString::LLUIString(const LLString& instring, const LLString::format_map_t& args)
 	: mOrig(instring),
@@ -97,13 +94,6 @@ void LLUIString::clear()
 	mResult.clear();
 	mWResult.clear();
 }
-
-void LLUIString::clearArgs()
-{
-	mArgs.clear();
-}
-
-// private
 
 void LLUIString::format()
 {

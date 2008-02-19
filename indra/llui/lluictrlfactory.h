@@ -38,68 +38,35 @@
 #include "llcallbackmap.h"
 #include "llfloater.h"
 
-class LLControlGroup;
 class LLView;
-class LLFontGL;
-
-class LLFloater;
 class LLPanel;
-class LLButton;
-class LLCheckBoxCtrl;
-class LLComboBox;
-class LLIconCtrl;
-class LLLineEditor;
-class LLMenuGL;
-class LLMenuBarGL;
-class LLMenuItemCallGL;
-class LLNameListCtrl;
-class LLPieMenu;
-class LLRadioGroup;
-class LLSearchEditor;
-class LLScrollableContainerView;
-class LLScrollListCtrl;
-class LLSlider;
-class LLSliderCtrl;
-class LLSpinCtrl;
-class LLTextBox;
-class LLTextEditor;
-class LLTextureCtrl;
-class LLWebBrowserCtrl;
-class LLViewBorder;
-class LLColorSwatchCtrl;
-class LLScrollingPanelList;
-class LLCtrlListInterface;
-class LLCtrlSelectionInterface;
-class LLCtrlScrollInterface;
-
-// Widget 
 
 class LLUICtrlFactory
 {
 public:
 	LLUICtrlFactory();
 	// do not call!  needs to be public so run-time can clean up the singleton
-	virtual ~LLUICtrlFactory();
+	virtual ~LLUICtrlFactory() {}
 
 	void setupPaths();
 	
 	void buildFloater(LLFloater* floaterp, const LLString &filename, 
-						const LLCallbackMap::map_t* factory_map = NULL, BOOL open = TRUE);
-
+					const LLCallbackMap::map_t* factory_map = NULL, BOOL open = TRUE);
 	BOOL buildPanel(LLPanel* panelp, const LLString &filename,
 					const LLCallbackMap::map_t* factory_map = NULL);
 
-	LLMenuGL *buildMenu(const LLString &filename, LLView* parentp);
+	void removePanel(LLPanel* panelp) { mBuiltPanels.erase(panelp->getHandle()); }
+	void removeFloater(LLFloater* floaterp) { mBuiltFloaters.erase(floaterp->getHandle()); }
 
-	LLPieMenu *buildPieMenu(const LLString &filename, LLView* parentp);
+	class LLMenuGL *buildMenu(const LLString &filename, LLView* parentp);
+	class LLPieMenu *buildPieMenu(const LLString &filename, LLView* parentp);
 
 	// Does what you want for LLFloaters and LLPanels
 	// Returns 0 on success
 	S32 saveToXML(LLView* viewp, const LLString& filename);
 
-	void removePanel(LLPanel* panelp);
-	void removeFloater(LLFloater* floaterp);
 
+	// Rebuilds all currently built panels.
 	void rebuild();
 
 	static EWidgetType getWidgetType(const LLString& ctrl_type);
@@ -107,37 +74,41 @@ public:
 	static BOOL getAttributeColor(LLXMLNodePtr node, const LLString& name, LLColor4& color);
 
 	// specific typed getters
-	static LLButton*			getButtonByName(		LLPanel* panelp, const LLString& name);
-	static LLCheckBoxCtrl*		getCheckBoxByName(		LLPanel* panelp, const LLString& name);
-	static LLComboBox*			getComboBoxByName(		LLPanel* panelp, const LLString& name);
-	static LLIconCtrl*			getIconByName(			LLPanel* panelp, const LLString& name);
-	static LLLineEditor*		getLineEditorByName(	LLPanel* panelp, const LLString& name);
-	static LLNameListCtrl*		getNameListByName(		LLPanel* panelp, const LLString& name);
-	static LLRadioGroup*		getRadioGroupByName(	LLPanel* panelp, const LLString& name);
-	static LLScrollListCtrl*	getScrollListByName(	LLPanel* panelp, const LLString& name);
-	static LLSliderCtrl*		getSliderByName(		LLPanel* panelp, const LLString& name);
-	static LLSlider*			getSliderBarByName(		LLPanel* panelp, const LLString& name);
-	static LLSpinCtrl*			getSpinnerByName(		LLPanel* panelp, const LLString& name);
-	static LLTextBox*			getTextBoxByName(		LLPanel* panelp, const LLString& name);
-	static LLTextEditor*		getTextEditorByName(	LLPanel* panelp, const LLString& name);
-	static LLTabContainerCommon* getTabContainerByName(	LLPanel* panelp, const LLString& name);
-	static LLScrollableContainerView*	getScrollableContainerByName(LLPanel* panelp, const LLString& name);
-	static LLTextureCtrl*		getTexturePickerByName(	LLPanel* panelp, const LLString& name);
-	static LLPanel* 			getPanelByName(LLPanel* panelp, const LLString& name);
-	static LLColorSwatchCtrl*	getColorSwatchByName(LLPanel* panelp, const LLString& name);
-	static LLWebBrowserCtrl*	getWebBrowserCtrlByName(LLPanel* panelp, const LLString& name);
-	static LLMenuItemCallGL*	getMenuItemCallByName(LLPanel* panelp, const LLString& name);
-	static LLScrollingPanelList* getScrollingPanelList(LLPanel* panelp, const LLString& name);
+	static class LLButton*				getButtonByName(		const LLPanel* panelp, const LLString& name);
+	static class LLCheckBoxCtrl*		getCheckBoxByName(		const LLPanel* panelp, const LLString& name);
+	static class LLComboBox*			getComboBoxByName(		const LLPanel* panelp, const LLString& name);
+	static class LLIconCtrl*			getIconByName(			const LLPanel* panelp, const LLString& name);
+	static class LLLineEditor*			getLineEditorByName(	const LLPanel* panelp, const LLString& name);
+	static class LLRadioGroup*			getRadioGroupByName(	const LLPanel* panelp, const LLString& name);
+	static class LLScrollListCtrl*		getScrollListByName(	const LLPanel* panelp, const LLString& name);
+	static class LLSliderCtrl*			getSliderByName(		const LLPanel* panelp, const LLString& name);
+	static class LLSlider*				getSliderBarByName(		const LLPanel* panelp, const LLString& name);
+	static class LLSpinCtrl*			getSpinnerByName(		const LLPanel* panelp, const LLString& name);
+	static class LLTextBox*				getTextBoxByName(		const LLPanel* panelp, const LLString& name);
+	static class LLTextEditor*			getTextEditorByName(	const LLPanel* panelp, const LLString& name);
+	static class LLTabContainer*		getTabContainerByName(	const LLPanel* panelp, const LLString& name);
+	static class LLScrollableContainerView*	getScrollableContainerByName(const LLPanel* panelp, const LLString& name);
+	static class LLPanel* 				getPanelByName(			const LLPanel* panelp, const LLString& name);
+	static class LLMenuItemCallGL*		getMenuItemCallByName(	const LLPanel* panelp, const LLString& name);
+	static class LLScrollingPanelList*	getScrollingPanelList(	const LLPanel* panelp, const LLString& name);
 
 	// interface getters
-	static LLCtrlListInterface* getListInterfaceByName(LLPanel* panelp, const LLString& name);
-	static LLCtrlSelectionInterface* getSelectionInterfaceByName(LLPanel* panelp, const LLString& name);
-	static LLCtrlScrollInterface* getScrollInterfaceByName(LLPanel* panelp, const LLString& name);
+	static LLCtrlListInterface* getListInterfaceByName(	const LLPanel* panelp, const LLString& name);
+	static LLCtrlSelectionInterface* getSelectionInterfaceByName(const LLPanel* panelp, const LLString& name);
+	static LLCtrlScrollInterface* getScrollInterfaceByName(const LLPanel* panelp, const LLString& name);
 
 	LLPanel* createFactoryPanel(LLString name);
 
 	virtual LLView* createCtrlWidget(LLPanel *parent, LLXMLNodePtr node);
 	virtual void createWidget(LLPanel *parent, LLXMLNodePtr node);
+
+	template <class T> T* createDummyWidget(const LLString& name)
+	{
+		return NULL;
+		//static LLPanel dummy_panel;
+		//LLXMLNodePtr new_node_ptr = new LLXMLNode(T::getWidgetTag(), FALSE);
+		//return createWidget(&dummy_panel, new_node_ptr);
+	}
 
 	// Creator library
 	typedef LLView* (*creator_function_t)(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
@@ -147,10 +118,21 @@ public:
 
 protected:
 
+	template<class T>
+	class LLUICtrlCreator
+	{
+	public:
+		static void registerCreator(LLString name, LLUICtrlFactory *factory)
+		{
+			factory->registerCreator(name, T::fromXML);
+		}
+	};
 
-	typedef std::map<LLViewHandle, LLString> built_panel_t;
+private:
+
+	typedef std::map<LLHandle<LLPanel>, LLString> built_panel_t;
 	built_panel_t mBuiltPanels;
-	typedef std::map<LLViewHandle, LLString> built_floater_t;
+	typedef std::map<LLHandle<LLFloater>, LLString> built_floater_t;
 	built_floater_t mBuiltFloaters;
 
 	std::deque<const LLCallbackMap::map_t*> mFactoryStack;
@@ -162,14 +144,5 @@ protected:
 	static std::vector<LLString> mXUIPaths;
 };
 
-template<class T>
-class LLUICtrlCreator
-{
-public:
-	static void registerCreator(LLString name, LLUICtrlFactory *factory)
-	{
-		factory->registerCreator(name, T::fromXML);
-	}
-};
 
-#endif //LL_LLWIDGETFACTORY_H
+#endif //LLUICTRLFACTORY_H

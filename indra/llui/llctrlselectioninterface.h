@@ -63,14 +63,14 @@ public:
 
 	// TomY TODO: Simply cast the UUIDs to LLSDs, using the selectByValue function
 	virtual BOOL	setCurrentByID( const LLUUID& id ) = 0;
-	virtual LLUUID	getCurrentID() = 0;
+	virtual LLUUID	getCurrentID() const = 0;
 
-			BOOL	selectByValue(LLSD value);
-			BOOL	deselectByValue(LLSD value);
-	virtual BOOL	setSelectedByValue(LLSD value, BOOL selected) = 0;
+			BOOL	selectByValue(const LLSD value);
+			BOOL	deselectByValue(const LLSD value);
+	virtual BOOL	setSelectedByValue(const LLSD& value, BOOL selected) = 0;
 	virtual LLSD	getSelectedValue() = 0;
 
-	virtual BOOL	isSelected(LLSD value) = 0;
+	virtual BOOL	isSelected(const LLSD& value) const = 0;
 
 	virtual BOOL	operateOnSelection(EOperation op) = 0;
 	virtual BOOL	operateOnAll(EOperation op) = 0;
@@ -100,7 +100,7 @@ class LLCtrlScrollInterface
 public:
 	virtual ~LLCtrlScrollInterface();
 	
-	virtual S32 getScrollPos() = 0;
+	virtual S32 getScrollPos() const = 0;
 	virtual void setScrollPos( S32 pos ) = 0;
 	virtual void scrollToShowSelected() = 0;
 };

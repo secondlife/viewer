@@ -45,11 +45,14 @@ class LLDragHandle : public LLView
 {
 public:
 	LLDragHandle(const LLString& name, const LLRect& rect, const LLString& title );
+	virtual ~LLDragHandle() { setTitleBox(NULL); }
 
 	virtual void setValue(const LLSD& value);
 
 	void			setForeground(BOOL b)		{ mForeground = b; }
+	BOOL			getForeground() const		{ return mForeground; }
 	void			setMaxTitleWidth(S32 max_width) {mMaxTitleWidth = llmin(max_width, mMaxTitleWidth); }
+	S32				getMaxTitleWidth() const { return mMaxTitleWidth; }
 	void			setTitleVisible(BOOL visible);
 
 	virtual void	setTitle( const LLString& title ) = 0;
@@ -61,6 +64,10 @@ public:
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 
 protected:
+	LLTextBox*		getTitleBox() const { return mTitleBox; }
+	void			setTitleBox(LLTextBox*);
+
+private:
 	S32				mDragLastScreenX;
 	S32				mDragLastScreenY;
 	S32				mLastMouseScreenX;

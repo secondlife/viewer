@@ -129,7 +129,7 @@ BOOL LLGroupDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	{
 		// check if inside
 		//LLRect parent_rect = mParentView->getRect();
-		//mRect.set(0, parent_rect.getHeight(), parent_rect.getWidth(), 0);
+		//getRect().set(0, parent_rect.getHeight(), parent_rect.getWidth(), 0);
 		handled = TRUE;
 
 		// check the type
@@ -229,67 +229,62 @@ BOOL LLPanelGroupNotices::postBuild()
 {
 	bool recurse = true;
 
-	mNoticesList = (LLScrollListCtrl*)getChildByName("notice_list",recurse);
+	mNoticesList = getChild<LLScrollListCtrl>("notice_list",recurse);
 	mNoticesList->setCommitOnSelectionChange(TRUE);
 	mNoticesList->setCommitCallback(onSelectNotice);
 	mNoticesList->setCallbackUserData(this);
 
-	mBtnNewMessage = (LLButton*)getChildByName("create_new_notice",recurse);
+	mBtnNewMessage = getChild<LLButton>("create_new_notice",recurse);
 	mBtnNewMessage->setClickedCallback(onClickNewMessage);
 	mBtnNewMessage->setCallbackUserData(this);
 	mBtnNewMessage->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_NOTICES_SEND));
 
-	mBtnGetPastNotices = (LLButton*)getChildByName("refresh_notices",recurse);
+	mBtnGetPastNotices = getChild<LLButton>("refresh_notices",recurse);
 	mBtnGetPastNotices->setClickedCallback(onClickRefreshNotices);
 	mBtnGetPastNotices->setCallbackUserData(this);
 
 	// Create
-	mCreateSubject = (LLLineEditor*)getChildByName("create_subject",recurse);
-	mCreateMessage = (LLTextEditor*)getChildByName("create_message",recurse);
+	mCreateSubject = getChild<LLLineEditor>("create_subject",recurse);
+	mCreateMessage = getChild<LLTextEditor>("create_message",recurse);
 
-	mCreateInventoryName =  (LLLineEditor*)getChildByName("create_inventory_name",recurse);
+	mCreateInventoryName =  getChild<LLLineEditor>("create_inventory_name",recurse);
 	mCreateInventoryName->setTabStop(FALSE);
 	mCreateInventoryName->setEnabled(FALSE);
 
-	mCreateInventoryIcon = (LLIconCtrl*)getChildByName("create_inv_icon",recurse);
+	mCreateInventoryIcon = getChild<LLIconCtrl>("create_inv_icon",recurse);
 	mCreateInventoryIcon->setVisible(FALSE);
 
-	mBtnSendMessage = (LLButton*)getChildByName("send_notice",recurse);
+	mBtnSendMessage = getChild<LLButton>("send_notice",recurse);
 	mBtnSendMessage->setClickedCallback(onClickSendMessage);
 	mBtnSendMessage->setCallbackUserData(this);
 
-	mBtnRemoveAttachment = (LLButton*)getChildByName("remove_attachment",recurse);
+	mBtnRemoveAttachment = getChild<LLButton>("remove_attachment",recurse);
 	mBtnRemoveAttachment->setClickedCallback(onClickRemoveAttachment);
 	mBtnRemoveAttachment->setCallbackUserData(this);
 	mBtnRemoveAttachment->setEnabled(FALSE);
 
 	// View
-	mViewSubject = (LLLineEditor*)getChildByName("view_subject",recurse);
-	mViewMessage = (LLTextEditor*)getChildByName("view_message",recurse);
+	mViewSubject = getChild<LLLineEditor>("view_subject",recurse);
+	mViewMessage = getChild<LLTextEditor>("view_message",recurse);
 
-	mViewInventoryName =  (LLLineEditor*)getChildByName("view_inventory_name",recurse);
+	mViewInventoryName =  getChild<LLLineEditor>("view_inventory_name",recurse);
 	mViewInventoryName->setTabStop(FALSE);
 	mViewInventoryName->setEnabled(FALSE);
 
-	mViewInventoryIcon = (LLIconCtrl*)getChildByName("view_inv_icon",recurse);
+	mViewInventoryIcon = getChild<LLIconCtrl>("view_inv_icon",recurse);
 	mViewInventoryIcon->setVisible(FALSE);
 
-	mBtnOpenAttachment = (LLButton*)getChildByName("open_attachment",recurse);
+	mBtnOpenAttachment = getChild<LLButton>("open_attachment",recurse);
 	mBtnOpenAttachment->setClickedCallback(onClickOpenAttachment);
 	mBtnOpenAttachment->setCallbackUserData(this);
 
-	LLTextBox *txt = (LLTextBox*) getChildByName("no_notices_text",false);
-	if (txt)
-	{
-		mNoNoticesStr = txt->getText();
-		removeChild(txt, TRUE);
-	}
+	mNoNoticesStr = getString("no_notices_text");
 
-	mPanelCreateNotice = (LLPanel*) getChildByName("panel_create_new_notice",recurse);
-	mPanelViewNotice = (LLPanel*) getChildByName("panel_view_past_notice",recurse);
+	mPanelCreateNotice = getChild<LLPanel>("panel_create_new_notice",recurse);
+	mPanelViewNotice = getChild<LLPanel>("panel_view_past_notice",recurse);
 
 	// Must be in front of all other UI elements.
-	LLPanel* dtv = (LLPanel*)getChildByName("drop_target",recurse);
+	LLPanel* dtv = getChild<LLPanel>("drop_target",recurse);
 	LLGroupDropTarget* target = new LLGroupDropTarget("drop_target",
 											dtv->getRect(),
 											this, mGroupID);

@@ -115,9 +115,12 @@ void LLViewerMediaImpl::play(const std::string& media_url,
 	mMediaSource = mgr->createSourceFromMimeType(scheme, mMimeType );
 	if ( !mMediaSource )
 	{
-		llwarns << "media source create failed " << media_url
-			<< " type " << mMimeType
-			<< llendl;
+		if (mMimeType != "none/none")
+		{
+			llwarns << "media source create failed " << media_url
+					<< " type " << mMimeType
+					<< llendl;
+		}
 		return;
 	}
 	

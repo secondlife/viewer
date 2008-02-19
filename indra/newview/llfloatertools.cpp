@@ -181,7 +181,7 @@ BOOL	LLFloaterTools::postBuild()
 	// make sounds on visibility changes.
 	setSoundFlags(LLView::SILENT);
 
-	mDragHandle->setEnabled( !gSavedSettings.getBOOL("ToolboxAutoMove") );
+	getDragHandle()->setEnabled( !gSavedSettings.getBOOL("ToolboxAutoMove") );
 
 	LLRect rect;
 	mBtnFocus = LLUICtrlFactory::getButtonByName(this,"button focus");//btn;
@@ -317,14 +317,14 @@ BOOL	LLFloaterTools::postBuild()
 		mTab->selectFirstTab();
 	}
 
-	mStatusText["rotate"] = childGetText("status_rotate");
-	mStatusText["scale"] = childGetText("status_scale");
-	mStatusText["move"] = childGetText("status_move");
-	mStatusText["modifyland"] = childGetText("status_modifyland");
-	mStatusText["camera"] = childGetText("status_camera");
-	mStatusText["grab"] = childGetText("status_grab");
-	mStatusText["place"] = childGetText("status_place");
-	mStatusText["selectland"] = childGetText("status_selectland");
+	mStatusText["rotate"] = getString("status_rotate");
+	mStatusText["scale"] = getString("status_scale");
+	mStatusText["move"] = getString("status_move");
+	mStatusText["modifyland"] = getString("status_modifyland");
+	mStatusText["camera"] = getString("status_camera");
+	mStatusText["grab"] = getString("status_grab");
+	mStatusText["place"] = getString("status_place");
+	mStatusText["selectland"] = getString("status_selectland");
 	
 	return TRUE;
 }
@@ -396,7 +396,7 @@ LLFloaterTools::LLFloaterTools()
 	mTabLand(NULL),
 	mDirty(TRUE)
 {
-	mAutoFocus = FALSE;
+	setAutoFocus(FALSE);
 	LLCallbackMap::map_t factory_map;
 	factory_map["General"] = LLCallbackMap(createPanelPermissions, this);//LLPanelPermissions
 	factory_map["Object"] = LLCallbackMap(createPanelObject, this);//LLPanelObject
@@ -442,7 +442,7 @@ void LLFloaterTools::setStatusText(const std::string& text)
 
 void LLFloaterTools::refresh()
 {
-	const S32 INFO_WIDTH = mRect.getWidth();
+	const S32 INFO_WIDTH = getRect().getWidth();
 	const S32 INFO_HEIGHT = 384;
 	LLRect object_info_rect(0, 0, INFO_WIDTH, -INFO_HEIGHT);
 	BOOL all_volume = gSelectMgr->selectionAllPCode( LL_PCODE_VOLUME );
@@ -611,19 +611,19 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 		switch (mObjectSelection->getSelectType())
 		{
 		case SELECT_TYPE_HUD:
-		  mComboGridMode->add(childGetText("grid_screen_text"));
-		  mComboGridMode->add(childGetText("grid_local_text"));
-		  //mComboGridMode->add(childGetText("grid_reference_text"));
+		  mComboGridMode->add(getString("grid_screen_text"));
+		  mComboGridMode->add(getString("grid_local_text"));
+		  //mComboGridMode->add(getString("grid_reference_text"));
 		  break;
 		case SELECT_TYPE_WORLD:
-		  mComboGridMode->add(childGetText("grid_world_text"));
-		  mComboGridMode->add(childGetText("grid_local_text"));
-		  mComboGridMode->add(childGetText("grid_reference_text"));
+		  mComboGridMode->add(getString("grid_world_text"));
+		  mComboGridMode->add(getString("grid_local_text"));
+		  mComboGridMode->add(getString("grid_reference_text"));
 		  break;
 		case SELECT_TYPE_ATTACHMENT:
-		  mComboGridMode->add(childGetText("grid_attachment_text"));
-		  mComboGridMode->add(childGetText("grid_local_text"));
-		  mComboGridMode->add(childGetText("grid_reference_text"));
+		  mComboGridMode->add(getString("grid_attachment_text"));
+		  mComboGridMode->add(getString("grid_local_text"));
+		  mComboGridMode->add(getString("grid_reference_text"));
 		  break;
 		}
 
@@ -805,12 +805,12 @@ void LLFloaterTools::showMore(BOOL show_more)
 
 	if (show_more)
 	{
-		reshape( mRect.getWidth(), mLargeHeight, TRUE);
+		reshape( getRect().getWidth(), mLargeHeight, TRUE);
 		translate( 0, mSmallHeight - mLargeHeight );
 	}
 	else
 	{
-		reshape( mRect.getWidth(), mSmallHeight, TRUE);
+		reshape( getRect().getWidth(), mSmallHeight, TRUE);
 		translate( 0, mLargeHeight - mSmallHeight );
 	}
 	childSetVisible("button less",  show_more);

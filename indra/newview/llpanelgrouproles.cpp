@@ -133,7 +133,7 @@ BOOL LLPanelGroupRoles::postBuild()
 {
 	lldebugs << "LLPanelGroupRoles::postBuild()" << llendl;
 
-	mSubTabContainer = (LLTabContainerCommon*) getChildByName("roles_tab_container");
+	mSubTabContainer = getChild<LLTabContainer>("roles_tab_container");
 
 	if (!mSubTabContainer) return FALSE;
 
@@ -169,20 +169,8 @@ BOOL LLPanelGroupRoles::postBuild()
 	mCurrentTab->activate();
 
 	// Read apply text from the xml file.
-	LLTextBox* txt;
-	// Don't recurse for this, since we don't currently have a recursive removeChild()
-	txt = (LLTextBox*)getChildByName("default_needs_apply_text");
-	if (txt)
-	{
-		mDefaultNeedsApplyMesg = txt->getText();
-		removeChild(txt, TRUE);
-	}
-	txt = (LLTextBox*)getChildByName("want_apply_text");
-	if (txt)
-	{
-		mWantApplyMesg = txt->getText();
-		removeChild(txt, TRUE);
-	}
+	mDefaultNeedsApplyMesg = getString("default_needs_apply_text");
+	mWantApplyMesg = getString("want_apply_text");
 
 	return LLPanelGroupTab::postBuild();
 }
@@ -515,20 +503,20 @@ BOOL LLPanelGroupSubTab::postBuild()
 {
 	// Hook up the search widgets.
 	bool recurse = true;
-	mSearchLineEditor = (LLLineEditor*) getChildByName("search_text", recurse);
+	mSearchLineEditor = getChild<LLLineEditor>("search_text", recurse);
 
 	if (!mSearchLineEditor) return FALSE;
 	mSearchLineEditor->setKeystrokeCallback(onSearchKeystroke);
 	mSearchLineEditor->setCallbackUserData(this);
 
-	mSearchButton = (LLButton*) getChildByName("search_button", recurse);
+	mSearchButton = getChild<LLButton>("search_button", recurse);
 
 	if (!mSearchButton) return FALSE;
 	mSearchButton->setClickedCallback(onClickSearch);
 	mSearchButton->setCallbackUserData(this);
 	mSearchButton->setEnabled(FALSE);
 
-	mShowAllButton = (LLButton*) getChildByName("show_all_button", recurse);
+	mShowAllButton = getChild<LLButton>("show_all_button", recurse);
 
 	if (!mShowAllButton) return FALSE;
 	mShowAllButton->setClickedCallback(onClickShowAll);
@@ -540,21 +528,21 @@ BOOL LLPanelGroupSubTab::postBuild()
 
 	bool no_recurse = false;
 
-	LLIconCtrl* icon = (LLIconCtrl*) getChildByName("power_folder_icon",no_recurse);
+	LLIconCtrl* icon = getChild<LLIconCtrl>("power_folder_icon",no_recurse);
 	if (icon && icon->getImage().notNull())
 	{
 		mActionIcons["folder"] = icon->getImage();
 		removeChild(icon, TRUE);
 	}
 
-	icon = (LLIconCtrl*) getChildByName("power_all_have_icon",no_recurse);
+	icon = getChild<LLIconCtrl>("power_all_have_icon",no_recurse);
 	if (icon && icon->getImage().notNull())
 	{
 		mActionIcons["full"] = icon->getImage();
 		removeChild(icon, TRUE);
 	}
 
-	icon = (LLIconCtrl*) getChildByName("power_partial_icon",no_recurse);
+	icon = getChild<LLIconCtrl>("power_partial_icon",no_recurse);
 	if (icon && icon->getImage().notNull())
 	{
 		mActionIcons["partial"] = icon->getImage();
@@ -913,12 +901,12 @@ BOOL LLPanelGroupMembersSubTab::postBuildSubTab(LLView* root)
 
 	// Look recursively from the parent to find all our widgets.
 	bool recurse = true;
-	mHeader = (LLPanel*) parent->getChildByName("members_header", recurse);
-	mFooter = (LLPanel*) parent->getChildByName("members_footer", recurse);
+	mHeader = parent->getChild<LLPanel>("members_header", recurse);
+	mFooter = parent->getChild<LLPanel>("members_footer", recurse);
 
-	mMembersList 		= (LLNameListCtrl*) 	parent->getChildByName("member_list", recurse);
-	mAssignedRolesList	= (LLScrollListCtrl*)	parent->getChildByName("member_assigned_roles", recurse);
-	mAllowedActionsList	= (LLScrollListCtrl*)	parent->getChildByName("member_allowed_actions", recurse);
+	mMembersList 		= parent->getChild<LLNameListCtrl>("member_list", recurse);
+	mAssignedRolesList	= parent->getChild<LLScrollListCtrl>("member_assigned_roles", recurse);
+	mAllowedActionsList	= parent->getChild<LLScrollListCtrl>("member_allowed_actions", recurse);
 
 	if (!mMembersList || !mAssignedRolesList || !mAllowedActionsList) return FALSE;
 
@@ -929,7 +917,7 @@ BOOL LLPanelGroupMembersSubTab::postBuildSubTab(LLView* root)
 	// Show the member's profile on double click.
 	mMembersList->setDoubleClickCallback(onMemberDoubleClick);
 
-	LLButton* button = (LLButton*) parent->getChildByName("member_invite", recurse);
+	LLButton* button = parent->getChild<LLButton>("member_invite", recurse);
 	if ( button )
 	{
 		button->setClickedCallback(onInviteMember);
@@ -937,7 +925,7 @@ BOOL LLPanelGroupMembersSubTab::postBuildSubTab(LLView* root)
 		button->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_MEMBER_INVITE));
 	}
 
-	mEjectBtn = (LLButton*) parent->getChildByName("member_eject", recurse);
+	mEjectBtn = parent->getChild<LLButton>("member_eject", recurse);
 	if ( mEjectBtn )
 	{
 		mEjectBtn->setClickedCallback(onEjectMembers);
@@ -1483,19 +1471,16 @@ void LLPanelGroupMembersSubTab::applyMemberChanges()
 	notifyObservers();
 }
 
-bool LLPanelGroupMembersSubTab::matchesSearchFilter(char* first, char* last)
+bool LLPanelGroupMembersSubTab::matchesSearchFilter(const std::string& fullname)
 {
 	// If the search filter is empty, everything passes.
 	if (mSearchFilter.empty()) return true;
 
 	// Create a full name, and compare it to the search filter.
-	LLString fullname;
-	fullname.assign(first);
-	fullname.append(1, ' ');
-	fullname.append(last);
-	LLString::toLower(fullname);
+	std::string fullname_lc(fullname);
+	LLString::toLower(fullname_lc);
 
-	std::string::size_type match = fullname.find(mSearchFilter);
+	std::string::size_type match = fullname_lc.find(mSearchFilter);
 
 	if (std::string::npos == match)
 	{
@@ -1709,8 +1694,6 @@ void LLPanelGroupMembersSubTab::updateMembers()
 		
 	LLGroupMgrGroupData::member_iter end = gdatap->mMembers.end();
 
-	char first[DB_FIRST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
-	char last[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
 	S32 i = 0;
 	for( ; mMemberProgress != end && i<UPDATE_MEMBERS_PER_FRAME; 
 			++mMemberProgress, ++i)
@@ -1720,9 +1703,10 @@ void LLPanelGroupMembersSubTab::updateMembers()
 		// Do filtering on name if it is already in the cache.
 		bool add_member = true;
 
-		if (gCacheName->getName(mMemberProgress->first, first, last))
+		std::string fullname;
+		if (gCacheName->getFullName(mMemberProgress->first, fullname))
 		{
-			if ( !matchesSearchFilter(first, last) )
+			if ( !matchesSearchFilter(fullname) )
 			{
 				add_member = false;
 			}
@@ -1802,19 +1786,19 @@ BOOL LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
 
 	// Look recursively from the parent to find all our widgets.
 	bool recurse = true;
-	mHeader = (LLPanel*) parent->getChildByName("roles_header", recurse);
-	mFooter = (LLPanel*) parent->getChildByName("roles_footer", recurse);
+	mHeader = parent->getChild<LLPanel>("roles_header", recurse);
+	mFooter = parent->getChild<LLPanel>("roles_footer", recurse);
 
 
-	mRolesList 		= (LLScrollListCtrl*) 	parent->getChildByName("role_list", recurse);
-	mAssignedMembersList	= (LLNameListCtrl*)	parent->getChildByName("role_assigned_members", recurse);
-	mAllowedActionsList	= (LLScrollListCtrl*)	parent->getChildByName("role_allowed_actions", recurse);
+	mRolesList 		= parent->getChild<LLScrollListCtrl>("role_list", recurse);
+	mAssignedMembersList	= parent->getChild<LLNameListCtrl>("role_assigned_members", recurse);
+	mAllowedActionsList	= parent->getChild<LLScrollListCtrl>("role_allowed_actions", recurse);
 
-	mRoleName = (LLLineEditor*) parent->getChildByName("role_name", recurse);
-	mRoleTitle = (LLLineEditor*) parent->getChildByName("role_title", recurse);
-	mRoleDescription = (LLTextEditor*) parent->getChildByName("role_description", recurse);
+	mRoleName = parent->getChild<LLLineEditor>("role_name", recurse);
+	mRoleTitle = parent->getChild<LLLineEditor>("role_title", recurse);
+	mRoleDescription = parent->getChild<LLTextEditor>("role_description", recurse);
 
-	mMemberVisibleCheck = (LLCheckBoxCtrl*) parent->getChildByName("role_visible_in_list", recurse);
+	mMemberVisibleCheck = parent->getChild<LLCheckBoxCtrl>("role_visible_in_list", recurse);
 
 	if (!mRolesList || !mAssignedMembersList || !mAllowedActionsList
 		|| !mRoleName || !mRoleTitle || !mRoleDescription || !mMemberVisibleCheck)
@@ -1823,15 +1807,10 @@ BOOL LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
 		return FALSE;
 	}
 
-	LLTextBox* txt = (LLTextBox*) parent->getChildByName("cant_delete_role", FALSE);
-	if (txt)
-	{
-		mRemoveEveryoneTxt = txt->getText();
-		parent->removeChild(txt, TRUE);
-	}
+	mRemoveEveryoneTxt = getString("cant_delete_role");
 
 	mCreateRoleButton = 
-		(LLButton*) parent->getChildByName("role_create", recurse);
+		parent->getChild<LLButton>("role_create", recurse);
 	if ( mCreateRoleButton )
 	{
 		mCreateRoleButton->setCallbackUserData(this);
@@ -1840,7 +1819,7 @@ BOOL LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
 	}
 	
 	mDeleteRoleButton =  
-		(LLButton*) parent->getChildByName("role_delete", recurse);
+		parent->getChild<LLButton>("role_delete", recurse);
 	if ( mDeleteRoleButton )
 	{
 		mDeleteRoleButton->setCallbackUserData(this);
@@ -2515,14 +2494,14 @@ BOOL LLPanelGroupActionsSubTab::postBuildSubTab(LLView* root)
 
 	// Look recursively from the parent to find all our widgets.
 	bool recurse = true;
-	mHeader = (LLPanel*) parent->getChildByName("actions_header", recurse);
-	mFooter = (LLPanel*) parent->getChildByName("actions_footer", recurse);
+	mHeader = parent->getChild<LLPanel>("actions_header", recurse);
+	mFooter = parent->getChild<LLPanel>("actions_footer", recurse);
 
-	mActionDescription = (LLTextEditor*) parent->getChildByName("action_description", recurse);
+	mActionDescription = parent->getChild<LLTextEditor>("action_description", recurse);
 
-	mActionList = (LLScrollListCtrl*) parent->getChildByName("action_list",recurse);
-	mActionRoles = (LLScrollListCtrl*) parent->getChildByName("action_roles",recurse);
-	mActionMembers  = (LLNameListCtrl*) parent->getChildByName("action_members",recurse);
+	mActionList = parent->getChild<LLScrollListCtrl>("action_list",recurse);
+	mActionRoles = parent->getChild<LLScrollListCtrl>("action_roles",recurse);
+	mActionMembers  = parent->getChild<LLNameListCtrl>("action_members",recurse);
 
 	if (!mActionList || !mActionDescription || !mActionRoles || !mActionMembers) return FALSE;
 

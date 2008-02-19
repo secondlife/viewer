@@ -74,6 +74,8 @@ private:
 	LLTextBox * mServerText;
 	LLTextBox * mServerCause;
 
+	LLString::format_map_t mStringArgs;
+
 	static LLFloaterLagMeter * sInstance;
 };
 

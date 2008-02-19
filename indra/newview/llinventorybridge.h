@@ -188,7 +188,7 @@ public:
 	void getClipboardEntries(bool show_asset_id, std::vector<LLString> &items, 
 		std::vector<LLString> &disabled_items, U32 flags);
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id);
+	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const;
 	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
 							void* cargo_data) { return FALSE; }

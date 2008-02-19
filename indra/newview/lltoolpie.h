@@ -78,7 +78,7 @@ protected:
 	BOOL				mMouseOutsideSlop;				// for this drag, has mouse moved outside slop region
 	static LLPointer<LLViewerObject> sClickActionObject;
 	static U8				sClickAction;
-	static LLHandle<LLObjectSelection> sLeftClickSelection;
+	static LLSafeHandle<LLObjectSelection> sLeftClickSelection;
 };
 
 extern LLToolPie *gToolPie;

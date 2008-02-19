@@ -75,7 +75,7 @@ protected:
 	LLVector3d		mEastNorthTop;			// global coords, from drag
 
 	BOOL			mLastShowParcelOwners;	// store last Show Parcel Owners setting
-	LLHandle<LLParcelSelection> mSelection;		// hold on to a parcel selection
+	LLSafeHandle<LLParcelSelection> mSelection;		// hold on to a parcel selection
 };
 
 extern LLToolSelectLand *gToolParcel;

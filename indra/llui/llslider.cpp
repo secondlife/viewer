@@ -82,15 +82,6 @@ LLSlider::LLSlider(
 	mDragStartThumbRect = mThumbRect;
 }
 
-EWidgetType LLSlider::getWidgetType() const
-{
-	return WIDGET_TYPE_SLIDER_BAR;
-}
-
-LLString LLSlider::getWidgetTag() const
-{
-	return LL_SLIDER_TAG;
-}
 
 void LLSlider::setValue(F32 value, BOOL from_event)
 {
@@ -118,7 +109,7 @@ void LLSlider::updateThumbRect()
 	S32 thumb_width = mThumbImage->getWidth();
 	S32 thumb_height = mThumbImage->getHeight();
 	S32 left_edge = (thumb_width / 2);
-	S32 right_edge = mRect.getWidth() - (thumb_width / 2);
+	S32 right_edge = getRect().getWidth() - (thumb_width / 2);
 
 	S32 x = left_edge + S32( t * (right_edge - left_edge) );
 	mThumbRect.mLeft = x - (thumb_width / 2);
@@ -140,18 +131,13 @@ void LLSlider::setValueAndCommit(F32 value)
 }
 
 
-F32 LLSlider::getValueF32() const
-{
-	return mValue;
-}
-
 BOOL LLSlider::handleHover(S32 x, S32 y, MASK mask)
 {
 	if( hasMouseCapture() )
 	{
 		S32 thumb_half_width = mThumbImage->getWidth()/2;
 		S32 left_edge = thumb_half_width;
-		S32 right_edge = mRect.getWidth() - (thumb_half_width);
+		S32 right_edge = getRect().getWidth() - (thumb_half_width);
 
 		x += mMouseOffset;
 		x = llclamp( x, left_edge, right_edge );
@@ -231,10 +217,10 @@ BOOL LLSlider::handleMouseDown(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
-BOOL	LLSlider::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+BOOL LLSlider::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 {
 	BOOL handled = FALSE;
-	if( getVisible() && mEnabled && !called_from_parent )
+	if( getVisible() && getEnabled() && !called_from_parent )
 	{
 		switch(key)
 		{
@@ -272,14 +258,14 @@ void LLSlider::draw()
 
 		LLRect rect(mDragStartThumbRect);
 
-		F32 opacity = mEnabled ? 1.f : 0.3f;
+		F32 opacity = getEnabled() ? 1.f : 0.3f;
 		LLColor4 center_color = (mThumbCenterColor % opacity);
 		LLColor4 track_color = (mTrackColor % opacity);
 
 		// Track
 		LLRect track_rect(mThumbImage->getWidth() / 2, 
 							getLocalRect().getCenterY() + (mTrackImage->getHeight() / 2), 
-							mRect.getWidth() - mThumbImage->getWidth() / 2, 
+							getRect().getWidth() - mThumbImage->getWidth() / 2, 
 							getLocalRect().getCenterY() - (mTrackImage->getHeight() / 2) );
 
 		gl_draw_scaled_image_with_border(track_rect.mLeft, track_rect.mBottom, 3, 3, track_rect.getWidth(), track_rect.getHeight(),
@@ -334,14 +320,14 @@ LLXMLNodePtr LLSlider::getXML(bool save_children) const
 	node->createChild("min_val", TRUE)->setFloatValue(getMinValue());
 	node->createChild("max_val", TRUE)->setFloatValue(getMaxValue());
 	node->createChild("increment", TRUE)->setFloatValue(getIncrement());
-	node->createChild("volume", TRUE)->setBoolValue(getVolumeSlider());
+	node->createChild("volume", TRUE)->setBoolValue(mVolumeSlider);
 
 	return node;
 }
 
 
 //static
-LLView* LLSlider::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
+LLView* LLSlider::fromXML(LLXMLNodePtr node, LLView *parent, class LLUICtrlFactory *factory)
 {
 	LLString name("slider_bar");
 	node->getAttributeString("name", name);

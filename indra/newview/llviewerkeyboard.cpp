@@ -473,11 +473,8 @@ void stop_moving( EKeystate s )
 
 void start_chat( EKeystate s )
 {
-	if (!gChatBar->inputEditorHasFocus())
-	{
-		// start chat
-		gChatBar->startChat(NULL);
-	}
+	// start chat
+	gChatBar->startChat(NULL);
 }
 
 void bind_keyboard_functions()

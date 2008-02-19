@@ -210,7 +210,7 @@ void LLTextureBar::draw()
 				mImagep->mFetchPriority);
 	}
 
-	LLFontGL::sMonospace->renderUTF8(tex_str, 0, title_x1, mRect.getHeight(),
+	LLFontGL::sMonospace->renderUTF8(tex_str, 0, title_x1, getRect().getHeight(),
 									 color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	// State
@@ -246,7 +246,7 @@ void LLTextureBar::draw()
 		mImagep->mFetchState;
 	state = llclamp(state,0,fetch_state_desc_size-1);
 
-	LLFontGL::sMonospace->renderUTF8(fetch_state_desc[state].desc, 0, title_x2, mRect.getHeight(),
+	LLFontGL::sMonospace->renderUTF8(fetch_state_desc[state].desc, 0, title_x2, getRect().getHeight(),
 									 fetch_state_desc[state].color,
 									 LLFontGL::LEFT, LLFontGL::TOP);
 	LLGLSNoTexture gls_no_texture;
@@ -328,7 +328,7 @@ void LLTextureBar::draw()
 		// draw the packet data
 // 		{
 // 			LLString num_str = llformat("%3d/%3d", mImagep->mLastPacket+1, mImagep->mPackets);
-// 			LLFontGL::sMonospace->renderUTF8(num_str, 0, bar_left + 100, mRect.getHeight(), color,
+// 			LLFontGL::sMonospace->renderUTF8(num_str, 0, bar_left + 100, getRect().getHeight(), color,
 // 											 LLFontGL::LEFT, LLFontGL::TOP);
 // 		}
 		
@@ -336,7 +336,7 @@ void LLTextureBar::draw()
 		{
 			LLString num_str = llformat("%3dx%3d (%d) %7d", mImagep->getWidth(), mImagep->getHeight(),
 										mImagep->getDiscardLevel(), mImagep->mTextureMemory);
-			LLFontGL::sMonospace->renderUTF8(num_str, 0, title_x4, mRect.getHeight(), color,
+			LLFontGL::sMonospace->renderUTF8(num_str, 0, title_x4, getRect().getHeight(), color,
 											LLFontGL::LEFT, LLFontGL::TOP);
 		}
 	}
@@ -727,7 +727,7 @@ void LLTextureView::draw()
 		mGLTexMemBar = new LLGLTexMemBar("gl texmem bar", this);
 		addChild(mGLTexMemBar);
 	
-		reshape(mRect.getWidth(), mRect.getHeight(), TRUE);
+		reshape(getRect().getWidth(), getRect().getHeight(), TRUE);
 
 		/*
 		  count = gImageList.getNumImages();
@@ -805,4 +805,5 @@ BOOL LLTextureView::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 {
 	return FALSE;
 }
+
 

@@ -100,7 +100,7 @@ protected:
 	LLString	mSessionName;
 	LLString::format_map_t mNotifyArgs;
 	BOOL		mIgnoreNextSessionLeave;
-	LLViewHandle mLoginNotificationHandle;
+	LLHandle<LLPanel> mLoginNotificationHandle;
 
 	typedef std::map<LLUUID, LLVoiceChannel*> voice_channel_map_t;
 	static voice_channel_map_t sVoiceChannelMap;

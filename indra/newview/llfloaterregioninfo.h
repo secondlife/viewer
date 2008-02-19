@@ -58,9 +58,9 @@ class LLPanelRegionTerrainInfo;
 class LLPanelEstateInfo;
 class LLPanelEstateCovenant;
 
-class LLFloaterRegionInfo : public LLFloater, public LLUISingleton<LLFloaterRegionInfo>
+class LLFloaterRegionInfo : public LLFloater, public LLFloaterSingleton<LLFloaterRegionInfo>
 {
-	friend class LLUISingleton<LLFloaterRegionInfo>;
+	friend class LLUISingleton<LLFloaterRegionInfo, VisibilityPolicy<LLFloater> >;
 public:
 	~LLFloaterRegionInfo();
 
@@ -90,7 +90,7 @@ protected:
 	void refreshFromRegion(LLViewerRegion* region);
 
 	// member data
-	LLTabContainerCommon* mTab;
+	LLTabContainer* mTab;
 	typedef std::vector<LLPanelRegionInfo*> info_panels_t;
 	info_panels_t mInfoPanels;
 	//static S32 sRequestSerial;	// serial # of last EstateOwnerRequest

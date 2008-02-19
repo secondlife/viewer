@@ -160,7 +160,7 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 // static
 void LLViewerParcelMedia::play(LLParcel* parcel)
 {
-	llinfos << "play" << llendl;
+	lldebugs << "LLViewerParcelMedia::play" << llendl;
 	
 	if (!parcel) return;
 

@@ -70,7 +70,7 @@
 LLToolPie *gToolPie = NULL;
 
 LLPointer<LLViewerObject> LLToolPie::sClickActionObject;
-LLHandle<LLObjectSelection> LLToolPie::sLeftClickSelection = NULL;
+LLSafeHandle<LLObjectSelection> LLToolPie::sLeftClickSelection = NULL;
 U8 LLToolPie::sClickAction = 0;
 
 extern void handle_buy(void*);

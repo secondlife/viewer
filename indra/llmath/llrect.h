@@ -152,68 +152,74 @@ public:
 			   mBottom <= rect->mTop && rect->mBottom <= mTop ;
 	}
 
-	void		set(Type left, Type top, Type right, Type bottom)
+	LLRectBase& set(Type left, Type top, Type right, Type bottom)
 	{
 		mLeft = left;
 		mTop = top;
 		mRight = right;
 		mBottom = bottom;
+		return *this;
 	}
 
 	// Note: follows GL_QUAD conventions: the top and right edges are not considered part of the rect
-	void		setOriginAndSize( Type left, Type bottom, Type width, Type height)
+	LLRectBase& setOriginAndSize( Type left, Type bottom, Type width, Type height)
 	{
 		mLeft = left;
 		mTop = bottom + height;
 		mRight = left + width;
 		mBottom = bottom;
+		return *this;
 	}
 
 	// Note: follows GL_QUAD conventions: the top and right edges are not considered part of the rect
-	void		setLeftTopAndSize( Type left, Type top, Type width, Type height)
+	LLRectBase& setLeftTopAndSize( Type left, Type top, Type width, Type height)
 	{
 		mLeft = left;
 		mTop = top;
 		mRight = left + width;
 		mBottom = top - height;
+		return *this;
 	}
 
-	void setCenterAndSize(Type x, Type y, Type width, Type height)
+	LLRectBase& setCenterAndSize(Type x, Type y, Type width, Type height)
 	{
 		mLeft = x - width/2;
 		mTop = y + height/2;
 		mRight = x + width/2;
 		mBottom = y - height/2;
+		return *this;
 	}
 
 
-	void		translate(Type horiz, Type vertical)
+	LLRectBase& translate(Type horiz, Type vertical)
 	{
 		mLeft += horiz;
 		mRight += horiz;
 		mTop += vertical;
 		mBottom += vertical;
+		return *this;
 	}
 
-	void	stretch( Type dx, Type dy)
+	LLRectBase& stretch( Type dx, Type dy)
 	{
 		mLeft -= dx;
 		mRight += dx;
 		mTop += dy;
 		mBottom -= dy;
-		makeValid();
+		return makeValid();
 	}
 	
-	void	stretch( Type delta )
+	LLRectBase& stretch( Type delta )
 	{
 		stretch(delta, delta);
-		
+		return *this;
 	}
 	
-	void  makeValid()
+	LLRectBase& makeValid()
 	{
 		mLeft = llmin(mLeft, mRight);
 		mBottom = llmin(mBottom, mTop);
+		return *this;
 	}
 
 	bool isNull() const
@@ -221,15 +227,16 @@ public:
 		return mLeft == mRight || mBottom == mTop;
 	}
 
-	void unionWith(const LLRectBase &other)
+	LLRectBase& unionWith(const LLRectBase &other)
 	{
 		mLeft = llmin(mLeft, other.mLeft);
 		mRight = llmax(mRight, other.mRight);
 		mBottom = llmin(mBottom, other.mBottom);
 		mTop = llmax(mTop, other.mTop);
+		return *this;
 	}
 
-	void intersectWith(const LLRectBase &other)
+	LLRectBase& intersectWith(const LLRectBase &other)
 	{
 		mLeft = llmax(mLeft, other.mLeft);
 		mRight = llmin(mRight, other.mRight);
@@ -243,6 +250,7 @@ public:
 		{
 			mBottom = mTop;
 		}
+		return *this;
 	}
 
 	friend std::ostream &operator<<(std::ostream &s, const LLRectBase &rect)

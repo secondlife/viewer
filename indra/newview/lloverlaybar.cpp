@@ -123,7 +123,7 @@ BOOL LLOverlayBar::postBuild()
 	childSetAction("Stand Up",onClickStandUp,this);
 	childSetVisible("chat_bar", gSavedSettings.getBOOL("ChatVisible"));
 
-	mIsFocusRoot = TRUE;
+	setFocusRoot(TRUE);
 	mBuilt = true;
 
 	layoutButtons();

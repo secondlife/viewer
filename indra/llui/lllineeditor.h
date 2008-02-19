@@ -1,6 +1,15 @@
 /** 
  * @file lllineeditor.h
- * @brief LLLineEditor base class
+ * @brief Text editor widget to let users enter/edit a single line.
+ *
+ * Features: 
+ *		Text entry of a single line (text, delete, left and right arrow, insert, return).
+ *		Callbacks either on every keystroke or just on the return key.
+ *		Focus (allow multiple text entry widgets)
+ *		Clipboard (cut, copy, and paste)
+ *		Horizontal scrolling to allow strings longer than widget size allows 
+ *		Pre-validation (limit which keys can be used)
+ *		Optional line history so previous entries can be recalled by CTRL UP/DOWN
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -29,19 +38,6 @@
  * $/LicenseInfo$
  */
 
-// Text editor widget to let users enter/edit a single line.
-//
-//
-// Features: 
-//		Text entry of a single line (text, delete, left and right arrow, insert, return).
-//		Callbacks either on every keystroke or just on the return key.
-//		Focus (allow multiple text entry widgets)
-//		Clipboard (cut, copy, and paste)
-//		Horizontal scrolling to allow strings longer than widget size allows 
-//		Pre-validation (limit which keys can be used)
-//		Optional line history so previous entries can be recalled by CTRL UP/DOWN
-
-
 #ifndef LL_LLLINEEDITOR_H
 #define LL_LLLINEEDITOR_H
 
@@ -61,13 +57,10 @@ class LLButton;
 
 typedef BOOL (*LLLinePrevalidateFunc)(const LLWString &wstr);
 
-// 
-// Classes
-//
+
 class LLLineEditor
 : public LLUICtrl, public LLEditMenuHandler, protected LLPreeditor
 {
-	friend class LLLineEditorRollback;
 
 public:
 	LLLineEditor(const LLString& name, 
@@ -85,8 +78,8 @@ public:
 				 S32 border_thickness = 1);
 
 	virtual ~LLLineEditor();
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
+	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_LINE_EDITOR; }
+	virtual LLString getWidgetTag() const { return LL_LINE_EDITOR_TAG; };
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	void setColorParameters(LLXMLNodePtr node);
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
@@ -102,22 +95,22 @@ public:
 
 	// LLEditMenuHandler overrides
 	virtual void	cut();
-	virtual BOOL	canCut();
+	virtual BOOL	canCut() const;
 
 	virtual void	copy();
-	virtual BOOL	canCopy();
+	virtual BOOL	canCopy() const;
 
 	virtual void	paste();
-	virtual BOOL	canPaste();
+	virtual BOOL	canPaste() const;
 	
 	virtual void	doDelete();
-	virtual BOOL	canDoDelete();
+	virtual BOOL	canDoDelete() const;
 
 	virtual void	selectAll();
-	virtual BOOL	canSelectAll();
+	virtual BOOL	canSelectAll() const;
 
 	virtual void	deselect();
-	virtual BOOL	canDeselect();
+	virtual BOOL	canDeselect() const;
 
 	// view overrides
 	virtual void	draw();
@@ -133,16 +126,16 @@ public:
 	virtual void 	setRect(const LLRect& rect);
 	virtual BOOL	acceptsTextInput() const;
 	virtual void	onCommit();
-	virtual BOOL	isDirty() const;	// Returns TRUE if the user has changed value at all
-	virtual void	resetDirty();		// Clear dirty state
+	virtual BOOL	isDirty() const { return mText.getString() != mPrevText; }	// Returns TRUE if user changed value at all
+	virtual void	resetDirty() { mPrevText = mText.getString(); }		// Clear dirty state
 
 	// assumes UTF8 text
-	virtual void	setValue(const LLSD& value );
-	virtual LLSD	getValue() const;
+	virtual void	setValue(const LLSD& value ) { setText(value.asString()); }
+	virtual LLSD	getValue() const { return LLSD(getText()); }
 	virtual BOOL	setTextArg( const LLString& key, const LLStringExplicit& text );
 	virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text );
 
-	void			setLabel(const LLStringExplicit &new_label);
+	void			setLabel(const LLStringExplicit &new_label) { mLabel = new_label; }
 	void			setText(const LLStringExplicit &new_text);
 
 	const LLString& getText() const		{ return mText.getString(); }
@@ -179,7 +172,6 @@ public:
 	void			setIgnoreArrowKeys(BOOL b)		{ mIgnoreArrowKeys = b; }
 	void			setIgnoreTab(BOOL b)			{ mIgnoreTab = b; }
 	void			setPassDelete(BOOL b)			{ mPassDelete = b; }
-
 	void			setDrawAsterixes(BOOL b);
 
 	// get the cursor position of the beginning/end of the prev/next word in the text
@@ -216,23 +208,24 @@ public:
 	static BOOL		postvalidateFloat(const LLString &str);
 
 	// line history support:
-	void			setEnableLineHistory( BOOL enabled ); // switches line history on or off 
+	void			setEnableLineHistory( BOOL enabled ) { mHaveHistory = enabled; } // switches line history on or off 
 	void			updateHistory(); // stores current line in history
 
-protected:
+private:
+	// private helper classes
 	void			removeChar();
 	void			addChar(const llwchar c);
 	void			setCursorAtLocalPos(S32 local_mouse_x);
-
 	S32				findPixelNearestPos(S32 cursor_offset = 0) const;
 	void			reportBadKeystroke();
-
 	BOOL			handleSpecialKey(KEY key, MASK mask);
 	BOOL			handleSelectionKey(KEY key, MASK mask);
 	BOOL			handleControlKey(KEY key, MASK mask);
 	S32				handleCommitKey(KEY key, MASK mask);
 
-protected:
+	//
+	// private data members
+	//
 	void			updateAllowingLanguageInput();
 	BOOL			hasPreeditString() const;
 	// Implementation (overrides) of LLPreeditor
@@ -308,13 +301,53 @@ protected:
 	LLWString	mPreeditOverwrittenWString;
 	std::vector<S32> mPreeditPositions;
 	LLPreeditor::standouts_t mPreeditStandouts;
-};
+
+	// private helper class
+	class LLLineEditorRollback
+	{
+	public:
+		LLLineEditorRollback( LLLineEditor* ed )
+			:
+			mCursorPos( ed->mCursorPos ),
+			mScrollHPos( ed->mScrollHPos ),
+			mIsSelecting( ed->mIsSelecting ),
+			mSelectionStart( ed->mSelectionStart ),
+			mSelectionEnd( ed->mSelectionEnd )
+		{
+			mText = ed->getText();
+		}
+
+		void doRollback( LLLineEditor* ed )
+		{
+			ed->mCursorPos = mCursorPos;
+			ed->mScrollHPos = mScrollHPos;
+			ed->mIsSelecting = mIsSelecting;
+			ed->mSelectionStart = mSelectionStart;
+			ed->mSelectionEnd = mSelectionEnd;
+			ed->mText = mText;
+			ed->mPrevText = mText;
+		}
+
+		LLString getText()   { return mText; }
+
+	private:
+		LLString mText;
+		S32		mCursorPos;
+		S32		mScrollHPos;
+		BOOL	mIsSelecting;
+		S32		mSelectionStart;
+		S32		mSelectionEnd;
+	}; // end class LLLineEditorRollback
+
+}; // end class LLLineEditor
 
 
+
+/*
+ * @brief A line editor with a button to clear it and a callback to call on every edit event.
+ */
 class LLSearchEditor : public LLUICtrl
 {
-friend class LLLineEditorRollback;
-
 public:
 	LLSearchEditor(const LLString& name, 
 		const LLRect& rect,
@@ -322,34 +355,34 @@ public:
 		void (*search_callback)(const LLString& search_string, void* user_data),
 		void* userdata);
 
-	virtual ~LLSearchEditor();
+	virtual ~LLSearchEditor() {}
 
 	/*virtual*/ void	draw();
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
+	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_SEARCH_EDITOR; }
+	virtual LLString getWidgetTag() const { return LL_SEARCH_EDITOR_TAG; }
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
-	void setText(const LLStringExplicit &new_text);
+	void setText(const LLStringExplicit &new_text) { mSearchEdit->setText(new_text); }
 
 	void setSearchCallback(void (*search_callback)(const LLString& search_string, void* user_data), void* data) { mSearchCallback = search_callback; mCallbackUserData = data; }
 
 	// LLUICtrl interface
-	virtual void	setValue(const LLSD& value );
-	virtual LLSD	getValue() const;
-	virtual BOOL	setTextArg( const LLString& key, const LLStringExplicit& text );
-	virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text );
-	virtual void	clear();
+	virtual void	setValue(const LLSD& value ) { mSearchEdit->setValue(value); }
+	virtual LLSD	getValue() const { return mSearchEdit->getValue(); }
+	virtual BOOL	setTextArg(  const LLString& key, const LLStringExplicit& text ) { return mSearchEdit->setTextArg( key, text); }
+	virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text ) { return mSearchEdit->setLabelArg(key, text); }
+	virtual void	clear() { if (mSearchEdit) mSearchEdit->clear(); }
 
 
-protected:
-	LLLineEditor* mSearchEdit;
-	LLButton* mClearSearchButton;
-
-	void (*mSearchCallback)(const LLString& search_string, void* user_data);
-
+private:
 	static void onSearchEdit(LLLineEditor* caller, void* user_data );
 	static void onClearSearch(void* user_data);
+
+	LLLineEditor* mSearchEdit;
+	class LLButton* mClearSearchButton;
+	void (*mSearchCallback)(const LLString& search_string, void* user_data);
+
 };
 
 #endif  // LL_LINEEDITOR_

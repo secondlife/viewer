@@ -245,8 +245,8 @@ LLPieMenu	*gPieLand	= NULL;
 
 // local constants
 const LLString LANDMARK_MENU_NAME("Landmarks");
-const LLString CLIENT_MENU_NAME("Client");
-const LLString SERVER_MENU_NAME("Server");
+const LLString CLIENT_MENU_NAME("Advanced");
+const LLString SERVER_MENU_NAME("Admin");
 
 const LLString SAVE_INTO_INVENTORY("Save Object Back to My Inventory");
 const LLString SAVE_INTO_TASK_INVENTORY("Save Object Back to Object Contents");
@@ -424,7 +424,6 @@ BOOL enable_dehinge(void*);
 void handle_force_delete(void*);
 void print_object_info(void*);
 void print_agent_nvpairs(void*);
-void show_debug_menus();
 void toggle_debug_menus(void*);
 void toggle_map( void* user_data );
 void export_info_callback(LLAssetInfo *info, void **user_data, S32 result);
@@ -613,13 +612,13 @@ void set_underclothes_menu_options()
 {
 	if (gMenuHolder && gAgent.isTeen())
 	{
-		gMenuHolder->getChildByName("Self Underpants", TRUE)->setVisible(FALSE);
-		gMenuHolder->getChildByName("Self Undershirt", TRUE)->setVisible(FALSE);
+		gMenuHolder->getChild<LLView>("Self Underpants", TRUE)->setVisible(FALSE);
+		gMenuHolder->getChild<LLView>("Self Undershirt", TRUE)->setVisible(FALSE);
 	}
 	if (gMenuBarView && gAgent.isTeen())
 	{
-		gMenuBarView->getChildByName("Menu Underpants", TRUE)->setVisible(FALSE);
-		gMenuBarView->getChildByName("Menu Undershirt", TRUE)->setVisible(FALSE);
+		gMenuBarView->getChild<LLView>("Menu Underpants", TRUE)->setVisible(FALSE);
+		gMenuBarView->getChild<LLView>("Menu Undershirt", TRUE)->setVisible(FALSE);
 	}
 }
 
@@ -656,16 +655,16 @@ void init_menus()
 	gPieSelf = gUICtrlFactory->buildPieMenu("menu_pie_self.xml", gMenuHolder);
 
 	// TomY TODO: what shall we do about these?
-	gDetachScreenPieMenu = (LLPieMenu*)gMenuHolder->getChildByName("Object Detach HUD", true);
-	gDetachPieMenu = (LLPieMenu*)gMenuHolder->getChildByName("Object Detach", true);
+	gDetachScreenPieMenu = gMenuHolder->getChild<LLPieMenu>("Object Detach HUD", true);
+	gDetachPieMenu = gMenuHolder->getChild<LLPieMenu>("Object Detach", true);
 
 	gPieAvatar = gUICtrlFactory->buildPieMenu("menu_pie_avatar.xml", gMenuHolder);
 
 	gPieObject = gUICtrlFactory->buildPieMenu("menu_pie_object.xml", gMenuHolder);
 
-	gAttachScreenPieMenu = (LLPieMenu*)gMenuHolder->getChildByName("Object Attach HUD", true);
-	gAttachPieMenu = (LLPieMenu*)gMenuHolder->getChildByName("Object Attach", true);
-	gPieRate = (LLPieMenu*)gMenuHolder->getChildByName("Rate Menu", true);
+	gAttachScreenPieMenu = gMenuHolder->getChild<LLPieMenu>("Object Attach HUD");
+	gAttachPieMenu = gMenuHolder->getChild<LLPieMenu>("Object Attach");
+	gPieRate = gMenuHolder->getChild<LLPieMenu>("Rate Menu");
 
 	gPieAttachment = gUICtrlFactory->buildPieMenu("menu_pie_attachment.xml", gMenuHolder);
 
@@ -715,8 +714,8 @@ void init_menus()
 	gMenuHolder->childSetLabelArg("Upload Animation", "[COST]", upload_cost);
 	gMenuHolder->childSetLabelArg("Bulk Upload", "[COST]", upload_cost);
 
-	gAFKMenu = (LLMenuItemCallGL*)gMenuBarView->getChildByName("Set Away", TRUE);
-	gBusyMenu = (LLMenuItemCallGL*)gMenuBarView->getChildByName("Set Busy", TRUE);
+	gAFKMenu = gMenuBarView->getChild<LLMenuItemCallGL>("Set Away", TRUE);
+	gBusyMenu = gMenuBarView->getChild<LLMenuItemCallGL>("Set Busy", TRUE);
 	gAttachSubMenu = gMenuBarView->getChildMenuByName("Attach Object", TRUE);
 	gDetachSubMenu = gMenuBarView->getChildMenuByName("Detach Object", TRUE);
 
@@ -1101,6 +1100,13 @@ void init_client_menu(LLMenuGL* menu)
 
 	menu->append(new LLMenuItemCallGL("Debug Settings", LLFloaterSettingsDebug::show, NULL, NULL));
 	menu->append(new LLMenuItemCheckGL("View Admin Options", &handle_admin_override_toggle, NULL, &check_admin_override, NULL, 'V', MASK_CONTROL | MASK_ALT));
+
+	menu->append(new LLMenuItemCallGL("Request Admin Status", 
+		&handle_god_mode, NULL, NULL, 'G', MASK_ALT | MASK_CONTROL));
+
+	menu->append(new LLMenuItemCallGL("Leave Admin Status", 
+		&handle_leave_god_mode, NULL, NULL, 'G', MASK_ALT | MASK_SHIFT | MASK_CONTROL));
+
 	menu->createJumpKeys();
 }
 
@@ -1586,19 +1592,11 @@ void init_server_menu(LLMenuGL* menu)
 		&LLPanelRegionTools::onSaveState, &enable_god_customer_service, NULL));
 
 //	menu->append(new LLMenuItemCallGL("Force Join Group", handle_force_join_group));
-
-
-
-	menu->appendSeparator();
+//
+//	menu->appendSeparator();
 //
 //	menu->append(new LLMenuItemCallGL( "OverlayTitle",
 //		&handle_show_overlay_title, &enable_god_customer_service, NULL));
-
-	menu->append(new LLMenuItemCallGL("Request Admin Status", 
-		&handle_god_mode, NULL, NULL, 'G', MASK_ALT | MASK_CONTROL));
-
-	menu->append(new LLMenuItemCallGL("Leave Admin Status", 
-		&handle_leave_god_mode, NULL, NULL, 'G', MASK_ALT | MASK_SHIFT | MASK_CONTROL));
 	menu->createJumpKeys();
 }
 
@@ -2627,12 +2625,10 @@ BOOL check_admin_override(void*)
 
 void handle_admin_override_toggle(void*)
 {
-	if(!gAgent.getAdminOverride())
-	{
-		gAgent.setAdminOverride(TRUE);
-		show_debug_menus();
-	}
-	else gAgent.setAdminOverride(FALSE);
+	gAgent.setAdminOverride(!gAgent.getAdminOverride());
+
+	// The above may have affected which debug menus are visible
+	show_debug_menus();
 }
 
 void handle_god_mode(void*)
@@ -2649,7 +2645,6 @@ void set_god_level(U8 god_level)
 {
 	U8 old_god_level = gAgent.getGodLevel();
 	gAgent.setGodLevel( god_level );
-	show_debug_menus();
 	gIMMgr->refresh();
 	gParcelMgr->notifyObservers();
 
@@ -2681,6 +2676,9 @@ void set_god_level(U8 god_level)
 		LLNotifyBox::showXml("LeavingGodMode", args);
 	}
 
+
+	// changing god-level can affect which menus we see
+	show_debug_menus();
 }
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
@@ -3351,9 +3349,9 @@ class LLEditDuplicate : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		if(gEditMenuHandler)
+		if(LLEditMenuHandler::gEditMenuHandler)
 		{
-			gEditMenuHandler->duplicate();
+			LLEditMenuHandler::gEditMenuHandler->duplicate();
 		}
 		return true;
 	}
@@ -3363,7 +3361,7 @@ class LLEditEnableDuplicate : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = gEditMenuHandler && gEditMenuHandler->canDuplicate();
+		bool new_value = LLEditMenuHandler::gEditMenuHandler && LLEditMenuHandler::gEditMenuHandler->canDuplicate();
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -4445,7 +4443,7 @@ class LLEditEnableCut : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = gEditMenuHandler && gEditMenuHandler->canCut();
+		bool new_value = LLEditMenuHandler::gEditMenuHandler && LLEditMenuHandler::gEditMenuHandler->canCut();
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -4455,9 +4453,9 @@ class LLEditCut : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		if( gEditMenuHandler )
+		if( LLEditMenuHandler::gEditMenuHandler )
 		{
-			gEditMenuHandler->cut();
+			LLEditMenuHandler::gEditMenuHandler->cut();
 		}
 		return true;
 	}
@@ -4467,7 +4465,7 @@ class LLEditEnableCopy : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = gEditMenuHandler && gEditMenuHandler->canCopy();
+		bool new_value = LLEditMenuHandler::gEditMenuHandler && LLEditMenuHandler::gEditMenuHandler->canCopy();
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -4477,9 +4475,9 @@ class LLEditCopy : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		if( gEditMenuHandler )
+		if( LLEditMenuHandler::gEditMenuHandler )
 		{
-			gEditMenuHandler->copy();
+			LLEditMenuHandler::gEditMenuHandler->copy();
 		}
 		return true;
 	}
@@ -4489,7 +4487,7 @@ class LLEditEnablePaste : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = gEditMenuHandler && gEditMenuHandler->canPaste();
+		bool new_value = LLEditMenuHandler::gEditMenuHandler && LLEditMenuHandler::gEditMenuHandler->canPaste();
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -4499,9 +4497,9 @@ class LLEditPaste : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		if( gEditMenuHandler )
+		if( LLEditMenuHandler::gEditMenuHandler )
 		{
-			gEditMenuHandler->paste();
+			LLEditMenuHandler::gEditMenuHandler->paste();
 		}
 		return true;
 	}
@@ -4511,7 +4509,7 @@ class LLEditEnableDelete : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = gEditMenuHandler && gEditMenuHandler->canDoDelete();
+		bool new_value = LLEditMenuHandler::gEditMenuHandler && LLEditMenuHandler::gEditMenuHandler->canDoDelete();
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -4523,9 +4521,9 @@ class LLEditDelete : public view_listener_t
 	{
 		// If a text field can do a deletion, it gets precedence over deleting
 		// an object in the world.
-		if( gEditMenuHandler && gEditMenuHandler->canDoDelete())
+		if( LLEditMenuHandler::gEditMenuHandler && LLEditMenuHandler::gEditMenuHandler->canDoDelete())
 		{
-			gEditMenuHandler->doDelete();
+			LLEditMenuHandler::gEditMenuHandler->doDelete();
 		}
 
 		// and close any pie/context menus when done
@@ -4605,7 +4603,7 @@ class LLEditEnableDeselect : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = gEditMenuHandler && gEditMenuHandler->canDeselect();
+		bool new_value = LLEditMenuHandler::gEditMenuHandler && LLEditMenuHandler::gEditMenuHandler->canDeselect();
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -4615,9 +4613,9 @@ class LLEditDeselect : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		if( gEditMenuHandler )
+		if( LLEditMenuHandler::gEditMenuHandler )
 		{
-			gEditMenuHandler->deselect();
+			LLEditMenuHandler::gEditMenuHandler->deselect();
 		}
 		return true;
 	}
@@ -4627,7 +4625,7 @@ class LLEditEnableSelectAll : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = gEditMenuHandler && gEditMenuHandler->canSelectAll();
+		bool new_value = LLEditMenuHandler::gEditMenuHandler && LLEditMenuHandler::gEditMenuHandler->canSelectAll();
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -4638,9 +4636,9 @@ class LLEditSelectAll : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		if( gEditMenuHandler )
+		if( LLEditMenuHandler::gEditMenuHandler )
 		{
-			gEditMenuHandler->selectAll();
+			LLEditMenuHandler::gEditMenuHandler->selectAll();
 		}
 		return true;
 	}
@@ -4651,7 +4649,7 @@ class LLEditEnableUndo : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = gEditMenuHandler && gEditMenuHandler->canUndo();
+		bool new_value = LLEditMenuHandler::gEditMenuHandler && LLEditMenuHandler::gEditMenuHandler->canUndo();
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -4661,9 +4659,9 @@ class LLEditUndo : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		if( gEditMenuHandler && gEditMenuHandler->canUndo() )
+		if( LLEditMenuHandler::gEditMenuHandler && LLEditMenuHandler::gEditMenuHandler->canUndo() )
 		{
-			gEditMenuHandler->undo();
+			LLEditMenuHandler::gEditMenuHandler->undo();
 		}
 		return true;
 	}
@@ -4673,7 +4671,7 @@ class LLEditEnableRedo : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = gEditMenuHandler && gEditMenuHandler->canRedo();
+		bool new_value = LLEditMenuHandler::gEditMenuHandler && LLEditMenuHandler::gEditMenuHandler->canRedo();
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -4683,9 +4681,9 @@ class LLEditRedo : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		if( gEditMenuHandler && gEditMenuHandler->canRedo() )
+		if( LLEditMenuHandler::gEditMenuHandler && LLEditMenuHandler::gEditMenuHandler->canRedo() )
 		{
-			gEditMenuHandler->redo();
+			LLEditMenuHandler::gEditMenuHandler->redo();
 		}
 		return true;
 	}
@@ -4731,8 +4729,12 @@ void show_debug_menus()
 
 		gMenuBarView->setItemVisible(CLIENT_MENU_NAME, debug);
 		gMenuBarView->setItemEnabled(CLIENT_MENU_NAME, debug);
-		gMenuBarView->setItemVisible(SERVER_MENU_NAME, debug);
-		gMenuBarView->setItemEnabled(SERVER_MENU_NAME, debug);
+
+		// Server ('Admin') menu hidden when not in godmode.
+		const bool show_server_menu = debug && (gAgent.getGodLevel() > GOD_NOT);
+		gMenuBarView->setItemVisible(SERVER_MENU_NAME, show_server_menu);
+		gMenuBarView->setItemEnabled(SERVER_MENU_NAME, show_server_menu);
+
 		//gMenuBarView->setItemVisible(LLString("DebugOptions"),	visible);
 		//gMenuBarView->setItemVisible(LLString(AVI_TOOLS),	visible);
 	};
@@ -5366,19 +5368,7 @@ class LLShowFloater : public view_listener_t
 		}
 		else if (floater_name == "help f1")
 		{
-			gViewerHtmlHelp.show( gSavedSettings.getString("HelpHomeURL") );
-		}
-		else if (floater_name == "help in-world")
-		{
-			const bool open_app_slurls = true;
-			LLFloaterHtml::getInstance()->show( 
-				"in-world_help", open_app_slurls );
-		}
-		else if (floater_name == "help additional")
-		{
-			const bool open_app_slurls = true;
-			LLFloaterHtml::getInstance()->show( 
-				"additional_help", open_app_slurls );
+			gViewerHtmlHelp.show();
 		}
 		else if (floater_name == "complaint reporter")
 		{
@@ -5436,7 +5426,7 @@ class LLFloaterVisible : public view_listener_t
 		}
 		else if (floater_name == "chat history")
 		{
-			new_value = LLFloaterChat::visible(NULL);
+			new_value = LLFloaterChat::instanceVisible();
 		}
 		else if (floater_name == "im")
 		{
@@ -7112,12 +7102,12 @@ BOOL LLViewerMenuHolderGL::hideMenus()
 	return handled;
 }
 
-void LLViewerMenuHolderGL::setParcelSelection(LLHandle<LLParcelSelection> selection) 
+void LLViewerMenuHolderGL::setParcelSelection(LLSafeHandle<LLParcelSelection> selection) 
 { 
 	mParcelSelection = selection; 
 }
 
-void LLViewerMenuHolderGL::setObjectSelection(LLHandle<LLObjectSelection> selection) 
+void LLViewerMenuHolderGL::setObjectSelection(LLSafeHandle<LLObjectSelection> selection) 
 { 
 	mObjectSelection = selection; 
 }
@@ -7125,7 +7115,7 @@ void LLViewerMenuHolderGL::setObjectSelection(LLHandle<LLObjectSelection> select
 
 const LLRect LLViewerMenuHolderGL::getMenuRect() const
 {
-	return LLRect(0, mRect.getHeight() - MENU_BAR_HEIGHT, mRect.getWidth(), STATUS_BAR_HEIGHT);
+	return LLRect(0, getRect().getHeight() - MENU_BAR_HEIGHT, getRect().getWidth(), STATUS_BAR_HEIGHT);
 }
 
 void handle_save_to_xml(void*)
@@ -7168,8 +7158,9 @@ void handle_load_from_xml(void*)
 
 void handle_slurl_test(void*)
 {
-	LLFloaterHtml::getInstance()->show(
-		"http://secondlife.com/app/search/slurls.html", "SLURL Test", true);
+	bool open_app_slurls = true;
+	bool open_links_externally = false;
+	LLFloaterHtml::getInstance()->show("http://secondlife.com/app/search/slurls.html", "SLURL Test", open_app_slurls, open_links_externally);
 }
 
 void handle_rebake_textures(void*)

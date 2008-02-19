@@ -214,7 +214,6 @@ BOOL LLFloaterRegionInfo::postBuild()
 
 LLFloaterRegionInfo::~LLFloaterRegionInfo()
 {
-	sInstance = NULL;
 }
 
 void LLFloaterRegionInfo::onOpen()
@@ -248,14 +247,17 @@ void LLFloaterRegionInfo::requestRegionInfo()
 void LLFloaterRegionInfo::processEstateOwnerRequest(LLMessageSystem* msg,void**)
 {
 	static LLDispatcher dispatch;
-	if(!sInstance) return;
-
+	if(!findInstance())
+	{
+		return;
+	}
+	
 	if (!estate_dispatch_initialized)
 	{
 		LLPanelEstateInfo::initDispatch(dispatch);
 	}
 
-	LLTabContainerCommon* tab = LLUICtrlFactory::getTabContainerByName(sInstance, "region_panels");
+	LLTabContainer* tab = LLUICtrlFactory::getTabContainerByName(findInstance(), "region_panels");
 	if (!tab) return;
 
 	LLPanelEstateInfo* panel = (LLPanelEstateInfo*)LLUICtrlFactory::getPanelByName(tab, "Estate");
@@ -283,8 +285,12 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	LLPanel* panel;
 
 	llinfos << "LLFloaterRegionInfo::processRegionInfo" << llendl;
-	if(!sInstance) return;
-	LLTabContainerCommon* tab = LLUICtrlFactory::getTabContainerByName(sInstance, "region_panels");
+	if(!findInstance())
+	{
+		return;
+	}
+	
+	LLTabContainer* tab = LLUICtrlFactory::getTabContainerByName(findInstance(), "region_panels");
 	if(!tab) return;
 
 	// extract message
@@ -361,7 +367,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	panel->childSetValue("sun_hour_slider", LLSD(sun_hour));
 	panel->childSetEnabled("sun_hour_slider", allow_modify && !use_estate_sun);
 
-	sInstance->refreshFromRegion( gAgent.getRegion() );
+	getInstance()->refreshFromRegion( gAgent.getRegion() );
 }
 
 // static
@@ -369,7 +375,7 @@ LLPanelEstateInfo* LLFloaterRegionInfo::getPanelEstate()
 {
 	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
 	if (!floater) return NULL;
-	LLTabContainerCommon* tab = LLUICtrlFactory::getTabContainerByName(floater, "region_panels");
+	LLTabContainer* tab = LLUICtrlFactory::getTabContainerByName(floater, "region_panels");
 	if (!tab) return NULL;
 	LLPanelEstateInfo* panel = (LLPanelEstateInfo*)LLUICtrlFactory::getPanelByName(tab,"Estate");
 	return panel;
@@ -380,7 +386,7 @@ LLPanelEstateCovenant* LLFloaterRegionInfo::getPanelCovenant()
 {
 	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
 	if (!floater) return NULL;
-	LLTabContainerCommon* tab = LLUICtrlFactory::getTabContainerByName(floater, "region_panels");
+	LLTabContainer* tab = LLUICtrlFactory::getTabContainerByName(floater, "region_panels");
 	if (!tab) return NULL;
 	LLPanelEstateCovenant* panel = (LLPanelEstateCovenant*)LLUICtrlFactory::getPanelByName(tab, "Covenant");
 	return panel;
@@ -1249,7 +1255,7 @@ BOOL LLPanelRegionTerrainInfo::sendUpdate()
 	LLFloaterRegionInfo* floater = LLFloaterRegionInfo::getInstance();
 	if (!floater) return true;
 
-	LLTabContainerCommon* tab = LLUICtrlFactory::getTabContainerByName(floater, "region_panels");
+	LLTabContainer* tab = LLUICtrlFactory::getTabContainerByName(floater, "region_panels");
 	if (!tab) return true;
 
 	LLPanelEstateInfo* panel = (LLPanelEstateInfo*)LLUICtrlFactory::getPanelByName(tab, "Estate");
@@ -2543,35 +2549,35 @@ LLPanelEstateCovenant::LLPanelEstateCovenant()
 // virtual 
 bool LLPanelEstateCovenant::refreshFromRegion(LLViewerRegion* region)
 {
-	LLTextBox* region_name = (LLTextBox*)getChildByName("region_name_text");
+	LLTextBox* region_name = getChild<LLTextBox>("region_name_text");
 	if (region_name)
 	{
 		region_name->setText(region->getName());
 	}
 
-	LLTextBox* resellable_clause = (LLTextBox*)getChildByName("resellable_clause");
+	LLTextBox* resellable_clause = getChild<LLTextBox>("resellable_clause");
 	if (resellable_clause)
 	{
 		if (region->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL)
 		{
-			resellable_clause->setText(childGetText("can_not_resell"));
+			resellable_clause->setText(getString("can_not_resell"));
 		}
 		else
 		{
-			resellable_clause->setText(childGetText("can_resell"));
+			resellable_clause->setText(getString("can_resell"));
 		}
 	}
 	
-	LLTextBox* changeable_clause = (LLTextBox*)getChildByName("changeable_clause");
+	LLTextBox* changeable_clause = getChild<LLTextBox>("changeable_clause");
 	if (changeable_clause)
 	{
 		if (region->getRegionFlags() & REGION_FLAGS_ALLOW_PARCEL_CHANGES)
 		{
-			changeable_clause->setText(childGetText("can_change"));
+			changeable_clause->setText(getString("can_change"));
 		}
 		else
 		{
-			changeable_clause->setText(childGetText("can_not_change"));
+			changeable_clause->setText(getString("can_not_change"));
 		}
 	}
 
@@ -2597,12 +2603,12 @@ bool LLPanelEstateCovenant::estateUpdate(LLMessageSystem* msg)
 BOOL LLPanelEstateCovenant::postBuild()
 {
 	initHelpBtn("covenant_help",		"HelpEstateCovenant");
-	mEstateNameText = (LLTextBox*)getChildByName("estate_name_text");
-	mEstateOwnerText = (LLTextBox*)getChildByName("estate_owner_text");
-	mLastModifiedText = (LLTextBox*)getChildByName("covenant_timestamp_text");
-	mEditor = (LLViewerTextEditor*)getChildByName("covenant_editor");
+	mEstateNameText = getChild<LLTextBox>("estate_name_text");
+	mEstateOwnerText = getChild<LLTextBox>("estate_owner_text");
+	mLastModifiedText = getChild<LLTextBox>("covenant_timestamp_text");
+	mEditor = getChild<LLViewerTextEditor>("covenant_editor");
 	if (mEditor) mEditor->setHandleEditKeysDirectly(TRUE);
-	LLButton* reset_button = (LLButton*)getChildByName("reset_covenant");
+	LLButton* reset_button = getChild<LLButton>("reset_covenant");
 	reset_button->setEnabled(gAgent.canManageEstate());
 	reset_button->setClickedCallback(LLPanelEstateCovenant::resetCovenantID, NULL);
 

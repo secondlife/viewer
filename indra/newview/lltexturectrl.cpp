@@ -462,7 +462,7 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 	if (!mLabel.empty())
 	{
-		std::string pick = childGetText("pick title");
+		std::string pick = getString("pick title");
 	
 		setTitle(pick + mLabel);
 	}
@@ -518,7 +518,7 @@ void LLFloaterTexturePicker::draw()
 		}
 	}
 
-	if (gFocusMgr.childHasMouseCapture(mDragHandle))
+	if (gFocusMgr.childHasMouseCapture(getDragHandle()))
 	{
 		mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLCriticalDamp::getInterpolant(CONTEXT_FADE_TIME));
 	}
@@ -566,9 +566,9 @@ void LLFloaterTexturePicker::draw()
 
 		// Border
 		LLRect border( BORDER_PAD, 
-				mRect.getHeight() - LLFLOATER_HEADER_SIZE - BORDER_PAD, 
+				getRect().getHeight() - LLFLOATER_HEADER_SIZE - BORDER_PAD, 
 				((TEX_PICKER_MIN_WIDTH / 2) - TEXTURE_INVENTORY_PADDING - HPAD) - BORDER_PAD,
-				BORDER_PAD + FOOTER_HEIGHT + (mRect.getHeight() - TEX_PICKER_MIN_HEIGHT));
+				BORDER_PAD + FOOTER_HEIGHT + (getRect().getHeight() - TEX_PICKER_MIN_HEIGHT));
 		gl_rect_2d( border, LLColor4::black, FALSE );
 
 
@@ -908,13 +908,13 @@ LLTextureCtrl::LLTextureCtrl(
 	mDirty( FALSE )
 {
 	mCaption = new LLTextBox( label, 
-		LLRect( 0, BTN_HEIGHT_SMALL, mRect.getWidth(), 0 ),
-		NULL,
+		LLRect( 0, BTN_HEIGHT_SMALL, getRect().getWidth(), 0 ),
+		label,
 		LLFontGL::sSansSerifSmall );
 	mCaption->setFollows( FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_BOTTOM );
 	addChild( mCaption );
 
-	S32 image_top = mRect.getHeight();
+	S32 image_top = getRect().getHeight();
 	S32 image_bottom = BTN_HEIGHT_SMALL;
 	S32 image_middle = (image_top + image_bottom) / 2;
 	S32 line_height = llround(LLFontGL::sSansSerifSmall->getLineHeight());
@@ -922,14 +922,14 @@ LLTextureCtrl::LLTextureCtrl(
 	mTentativeLabel = new LLTextBox( "Multiple", 
 		LLRect( 
 			0, image_middle + line_height / 2,
-			mRect.getWidth(), image_middle - line_height / 2 ),
-		NULL,
+			getRect().getWidth(), image_middle - line_height / 2 ),
+		"Multiple",
 		LLFontGL::sSansSerifSmall );
 	mTentativeLabel->setHAlign( LLFontGL::HCENTER );
 	mTentativeLabel->setFollowsAll();
 	addChild( mTentativeLabel );
 
-	LLRect border_rect(0, mRect.getHeight(), mRect.getWidth(), 0);
+	LLRect border_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
 	border_rect.mBottom += BTN_HEIGHT_SMALL;
 	mBorder = new LLViewBorder("border", border_rect, LLViewBorder::BEVEL_IN);
 	addChild(mBorder);
@@ -1013,7 +1013,7 @@ void LLTextureCtrl::setCaption(const LLString& caption)
 void LLTextureCtrl::setCanApplyImmediately(BOOL b)
 {
 	mCanApplyImmediately = b; 
-	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)LLFloater::getFloaterByHandle(mFloaterHandle);
+	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
 	if( floaterp )
 	{
 		floaterp->setCanApplyImmediately(b);
@@ -1031,7 +1031,7 @@ void LLTextureCtrl::setVisible( BOOL visible )
 
 void LLTextureCtrl::setEnabled( BOOL enabled )
 {
-	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)LLFloater::getFloaterByHandle(mFloaterHandle);
+	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
 	if( enabled )
 	{
 		LLString tooltip;
@@ -1061,7 +1061,7 @@ void LLTextureCtrl::setValid(BOOL valid )
 	mValid = valid;
 	if (!valid)
 	{
-		LLFloaterTexturePicker* pickerp = (LLFloaterTexturePicker*)LLFloater::getFloaterByHandle(mFloaterHandle);
+		LLFloaterTexturePicker* pickerp = (LLFloaterTexturePicker*)mFloaterHandle.get();
 		if (pickerp)
 		{
 			pickerp->setActive(FALSE);
@@ -1096,7 +1096,7 @@ void LLTextureCtrl::setLabel(const LLString& label)
 
 void LLTextureCtrl::showPicker(BOOL take_focus)
 {
-	LLFloater* floaterp = LLFloater::getFloaterByHandle(mFloaterHandle);
+	LLFloater* floaterp = mFloaterHandle.get();
 
 	// Show the dialog
 	if( floaterp )
@@ -1134,7 +1134,7 @@ void LLTextureCtrl::showPicker(BOOL take_focus)
 
 void LLTextureCtrl::closeFloater()
 {
-	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)LLFloater::getFloaterByHandle(mFloaterHandle);
+	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
 	if( floaterp )
 	{
 		floaterp->setOwner(NULL);
@@ -1180,7 +1180,7 @@ BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 
 void LLTextureCtrl::onFloaterClose()
 {
-	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)LLFloater::getFloaterByHandle(mFloaterHandle);
+	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
 
 	if (floaterp)
 	{
@@ -1193,9 +1193,9 @@ void LLTextureCtrl::onFloaterClose()
 
 void LLTextureCtrl::onFloaterCommit(ETexturePickOp op)
 {
-	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)LLFloater::getFloaterByHandle(mFloaterHandle);
+	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
 
-	if( floaterp && mEnabled)
+	if( floaterp && getEnabled())
 	{
 		mDirty = (op != TEXTURE_CANCEL);
 		if( floaterp->isDirty() )
@@ -1227,7 +1227,7 @@ void LLTextureCtrl::setImageAssetID( const LLUUID& asset_id )
 	{
 		mImageItemID.setNull();
 		mImageAssetID = asset_id;
-		LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)LLFloater::getFloaterByHandle(mFloaterHandle);
+		LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
 		if( floaterp && getEnabled() )
 		{
 			floaterp->setImageID( asset_id );
@@ -1247,7 +1247,7 @@ BOOL LLTextureCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
 	// returns true, then the cast was valid, and we can perform
 	// the third test without problems.
 	LLInventoryItem* item = (LLInventoryItem*)cargo_data; 
-	if (mEnabled && (cargo_type == DAD_TEXTURE) && allowDrop(item))
+	if (getEnabled() && (cargo_type == DAD_TEXTURE) && allowDrop(item))
 	{
 		if (drop)
 		{
@@ -1290,7 +1290,7 @@ void LLTextureCtrl::draw()
 		}
 		
 		// Border
-		LLRect border( 0, mRect.getHeight(), mRect.getWidth(), BTN_HEIGHT_SMALL );
+		LLRect border( 0, getRect().getHeight(), getRect().getWidth(), BTN_HEIGHT_SMALL );
 		gl_rect_2d( border, mBorderColor, FALSE );
 
 		// Interior
@@ -1315,7 +1315,7 @@ void LLTextureCtrl::draw()
 			gl_draw_x( interior, LLColor4::black );
 		}
 
-		mTentativeLabel->setVisible( !mTexturep.isNull() && mTentative );
+		mTentativeLabel->setVisible( !mTexturep.isNull() && getTentative() );
 
 		LLUICtrl::draw();
 	}
@@ -1371,7 +1371,7 @@ BOOL LLTextureCtrl::doDrop(LLInventoryItem* item)
 
 BOOL LLTextureCtrl::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent)
 {
-	if( getVisible() && mEnabled && !called_from_parent && ' ' == uni_char )
+	if( getVisible() && getEnabled() && !called_from_parent && ' ' == uni_char )
 	{
 		showPicker(TRUE);
 		return TRUE;
@@ -1448,5 +1448,6 @@ BOOL LLToolTexEyedropper::handleHover(S32 x, S32 y, MASK mask)
 	gViewerWindow->getWindow()->setCursor(UI_CURSOR_CROSS);  // TODO: better cursor
 	return TRUE;
 }
+
 
 

@@ -1,7 +1,7 @@
 /** 
  * @file lluistring.h
  * @author: Steve Bennetts
- * @brief LLUIString base class
+ * @brief A fancy wrapper for LLString supporting argument substitutions.
  *
  * $LicenseInfo:firstyear=2006&license=viewergpl$
  * 
@@ -33,12 +33,6 @@
 #ifndef LL_LLUISTRING_H
 #define LL_LLUISTRING_H
 
-// lluistring.h
-//
-// Copyright 2006, Linden Research, Inc.
-// Original aurthor: Steve
-
-#include "stdtypes.h"
 #include "llstring.h"
 #include <string>
 
@@ -89,7 +83,7 @@ public:
 	S32 length() const { return mWResult.size(); }
 
 	void clear();
-	void clearArgs();
+	void clearArgs() { mArgs.clear(); }
 	
 	// These utuilty functions are included for text editing.
 	// They do not affect mOrig and do not perform argument substitution

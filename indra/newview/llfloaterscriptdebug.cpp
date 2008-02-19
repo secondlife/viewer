@@ -163,14 +163,14 @@ LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput()
 LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput(const LLUUID& object_id)
 : LLFloater("script instance floater", LLRect(0, 200, 200, 0), "Script", TRUE), mObjectID(object_id)
 {
-	S32 y = mRect.getHeight() - LLFLOATER_HEADER_SIZE - LLFLOATER_VPAD;
+	S32 y = getRect().getHeight() - LLFLOATER_HEADER_SIZE - LLFLOATER_VPAD;
 	S32 x = LLFLOATER_HPAD;
 	// History editor
 	// Give it a border on the top
 	LLRect history_editor_rect(
 		x,
 		y,
-		mRect.getWidth() - LLFLOATER_HPAD,
+		getRect().getWidth() - LLFLOATER_HPAD,
 				LLFLOATER_VPAD );
 	mHistoryEditor = new LLViewerTextEditor( "Chat History Editor", 
 										history_editor_rect, S32_MAX, "", LLFontGL::sSansSerif);
@@ -186,14 +186,14 @@ void LLFloaterScriptDebugOutput::init(const LLString& title, BOOL resizable,
 						BOOL minimizable, BOOL close_btn)
 {
 	LLFloater::init(title, resizable, min_width, min_height, drag_on_left, minimizable, close_btn);
-	S32 y = mRect.getHeight() - LLFLOATER_HEADER_SIZE - LLFLOATER_VPAD;
+	S32 y = getRect().getHeight() - LLFLOATER_HEADER_SIZE - LLFLOATER_VPAD;
 	S32 x = LLFLOATER_HPAD;
 	// History editor
 	// Give it a border on the top
 	LLRect history_editor_rect(
 		x,
 		y,
-		mRect.getWidth() - LLFLOATER_HPAD,
+		getRect().getWidth() - LLFLOATER_HPAD,
 				LLFLOATER_VPAD );
 	mHistoryEditor = new LLViewerTextEditor( "Chat History Editor", 
 										history_editor_rect, S32_MAX, "", LLFontGL::sSansSerif);

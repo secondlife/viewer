@@ -161,7 +161,7 @@ protected:
 	void			cacheLandmarkPosition();
 
 protected:
-	LLTabContainerCommon*	mTabs;
+	LLTabContainer*	mTabs;
 
 	// Sets gMapScale, in pixels per region
 	F32						mCurZoomVal;

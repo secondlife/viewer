@@ -51,30 +51,33 @@ class LLStatGraph;
 class LLRegionDetails
 {
 public:
-	LLRegionDetails()
+	LLRegionDetails() :
+		mRegionName("Unknown"),
+		mParcelName("Unknown"),
+		mAccesString("Unknown"),
+		mX(0),
+		mY(0),
+		mZ(0),
+		mArea (0),
+		mForSale(FALSE),
+		mOwner("Unknown"),
+		mTraffic(0),
+		mBalance(0),
+		mPing(0)
 	{
-		mRegionName = LLString("Unknown");
-		mParcelName = "Unknown";
-		mAccesString = "Unknown";
-		mX = 0;
-		mY = 0;
-		mZ = 0;
-		mArea = 0;
-		mForSale = FALSE;
-		snprintf(mOwner, MAX_STRING, "Unknown");
 	}
-	LLString mRegionName;
-	char	*mParcelName;
-	char	*mAccesString;
+	std::string mRegionName;
+	std::string	mParcelName;
+	std::string	mAccesString;
 	S32		mX;
 	S32		mY;
 	S32		mZ;
 	S32		mArea;
 	BOOL	mForSale;
-	char	mOwner[MAX_STRING];
+	std::string	mOwner;
 	F32		mTraffic;
 	S32		mBalance;
-	LLString	mTime;
+	std::string mTime;
 	U32		mPing;
 };
 

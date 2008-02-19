@@ -67,26 +67,26 @@ LLFloaterAvatarTextures* LLFloaterAvatarTextures::show(const LLUUID &id)
 
 BOOL LLFloaterAvatarTextures::postBuild()
 {
-	mBakedHead = (LLTextureCtrl*)getChildByName("baked_head");
-	mBakedEyes = (LLTextureCtrl*)getChildByName("baked_eyes");
-	mBakedUpper = (LLTextureCtrl*)getChildByName("baked_upper_body");
-	mBakedLower = (LLTextureCtrl*)getChildByName("baked_lower_body");
-	mBakedSkirt = (LLTextureCtrl*)getChildByName("baked_skirt");
-	mHair = (LLTextureCtrl*)getChildByName("hair");
-	mMakeup = (LLTextureCtrl*)getChildByName("head_bodypaint");
-	mEye = (LLTextureCtrl*)getChildByName("eye_texture");
-	mShirt = (LLTextureCtrl*)getChildByName("shirt");
-	mUpperTattoo = (LLTextureCtrl*)getChildByName("upper_bodypaint");
-	mUpperJacket = (LLTextureCtrl*)getChildByName("upper_jacket");
-	mGloves = (LLTextureCtrl*)getChildByName("gloves");
-	mUndershirt = (LLTextureCtrl*)getChildByName("undershirt");
-	mPants = (LLTextureCtrl*)getChildByName("pants");
-	mLowerTattoo = (LLTextureCtrl*)getChildByName("lower_bodypaint");
-	mShoes = (LLTextureCtrl*)getChildByName("shoes");
-	mSocks = (LLTextureCtrl*)getChildByName("socks");
-	mJacket = (LLTextureCtrl*)getChildByName("jacket");
-	mUnderpants = (LLTextureCtrl*)getChildByName("underpants");
-	mSkirt = (LLTextureCtrl*)getChildByName("skirt_texture");
+	mBakedHead = getChild<LLTextureCtrl>("baked_head");
+	mBakedEyes = getChild<LLTextureCtrl>("baked_eyes");
+	mBakedUpper = getChild<LLTextureCtrl>("baked_upper_body");
+	mBakedLower = getChild<LLTextureCtrl>("baked_lower_body");
+	mBakedSkirt = getChild<LLTextureCtrl>("baked_skirt");
+	mHair = getChild<LLTextureCtrl>("hair");
+	mMakeup = getChild<LLTextureCtrl>("head_bodypaint");
+	mEye = getChild<LLTextureCtrl>("eye_texture");
+	mShirt = getChild<LLTextureCtrl>("shirt");
+	mUpperTattoo = getChild<LLTextureCtrl>("upper_bodypaint");
+	mUpperJacket = getChild<LLTextureCtrl>("upper_jacket");
+	mGloves = getChild<LLTextureCtrl>("gloves");
+	mUndershirt = getChild<LLTextureCtrl>("undershirt");
+	mPants = getChild<LLTextureCtrl>("pants");
+	mLowerTattoo = getChild<LLTextureCtrl>("lower_bodypaint");
+	mShoes = getChild<LLTextureCtrl>("shoes");
+	mSocks = getChild<LLTextureCtrl>("socks");
+	mJacket = getChild<LLTextureCtrl>("jacket");
+	mUnderpants = getChild<LLTextureCtrl>("underpants");
+	mSkirt = getChild<LLTextureCtrl>("skirt_texture");
 	mTitle = getTitle();
 
 	childSetAction("Dump", onClickDump, this);
@@ -142,16 +142,10 @@ void LLFloaterAvatarTextures::refresh()
 	LLVOAvatar *avatarp = find_avatar(mID);
 	if (avatarp)
 	{
-		char firstname[DB_FIRST_NAME_BUF_SIZE];	/*Flawfinder: ignore*/
-		char lastname[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
-		if (gCacheName->getName(avatarp->getID(), firstname, lastname))
+		std::string fullname;
+		if (gCacheName->getFullName(avatarp->getID(), fullname))
 		{
-			LLString name;
-			name.assign( firstname );
-			name.append( " " );
-			name.append( lastname );
-
-			setTitle(mTitle + ": " + name);
+			setTitle(mTitle + ": " + fullname);
 		}
 		update_texture_ctrl(avatarp, mBakedHead,	LLVOAvatar::TEX_HEAD_BAKED);
 		update_texture_ctrl(avatarp, mBakedEyes,	LLVOAvatar::TEX_EYES_BAKED);

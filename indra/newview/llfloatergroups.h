@@ -53,9 +53,9 @@ class LLScrollListCtrl;
 class LLButton;
 class LLFloaterGroupPicker;
 
-class LLFloaterGroupPicker : public LLFloater, public LLUIInstanceMgr<LLFloaterGroupPicker>
+class LLFloaterGroupPicker : public LLFloater, public LLUIFactory<LLFloaterGroupPicker, LLFloaterGroupPicker, VisibilityPolicy<LLFloater> >
 {
-	friend class LLUIInstanceMgr<LLFloaterGroupPicker>;
+	friend class LLUIFactory<LLFloaterGroupPicker>;
 public:
 	~LLFloaterGroupPicker();
 	void setSelectCallback( void (*callback)(LLUUID, void*), 
@@ -63,11 +63,13 @@ public:
 	void setPowersMask(U64 powers_mask);
 	BOOL postBuild();
 
+	// implementation of factory policy
+	static LLFloaterGroupPicker* findInstance(const LLSD& seed);
+	static LLFloaterGroupPicker* createInstance(const LLSD& seed);
+
 protected:
 	LLFloaterGroupPicker(const LLSD& seed);
 	void ok();
-	static LLFloaterGroupPicker* findInstance(const LLSD& seed);
-	static LLFloaterGroupPicker* createInstance(const LLSD& seed);
 	static void onBtnOK(void* userdata);
 	static void onBtnCancel(void* userdata);
 

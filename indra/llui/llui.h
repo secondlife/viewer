@@ -1,6 +1,6 @@
 /** 
  * @file llui.h
- * @brief UI implementation
+ * @brief GL function declarations and other general static UI services.
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -43,7 +43,10 @@
 #include <stack>
 #include "llimagegl.h"
 
-class LLColor4;
+// LLUIFactory
+#include "llsd.h"
+
+class LLColor4; 
 class LLVector3;
 class LLVector2;
 class LLUUID;
@@ -147,11 +150,15 @@ inline void gl_rect_2d_offset_local( const LLRect& rect, S32 pixel_offset, BOOL 
 extern BOOL gShowTextEditCursor;
 
 class LLImageProviderInterface;
+
 typedef	void (*LLUIAudioCallback)(const LLUUID& uuid);
 
 class LLUI
 {
 public:
+	//
+	// Methods
+	//
 	static void initClass(LLControlGroup* config, 
 						  LLControlGroup* colors, 
 						  LLControlGroup* assets, 
@@ -169,10 +176,10 @@ public:
 	//helper functions (should probably move free standing rendering helper functions here)
 	static LLString locateSkin(const LLString& filename);
 	static void setCursorPositionScreen(S32 x, S32 y);
-	static void setCursorPositionLocal(LLView* viewp, S32 x, S32 y);
+	static void setCursorPositionLocal(const LLView* viewp, S32 x, S32 y);
 	static void setScaleFactor(const LLVector2& scale_factor);
 	static void setLineWidth(F32 width);
-	static LLUUID findAssetUUIDByName(const LLString&	name);
+	static LLUUID findAssetUUIDByName(const LLString& name);
 	static LLUIImage* getUIImageByName(const LLString& name);
 	static LLVector2 getWindowSize();
 	static void screenPointToGL(S32 screen_x, S32 screen_y, S32 *gl_x, S32 *gl_y);
@@ -181,7 +188,9 @@ public:
 	static void glRectToScreen(const LLRect& gl, LLRect *screen);
 	static void setHtmlHelp(LLHtmlHelp* html_help);
 
-public:
+	//
+	// Data
+	//
 	static LLControlGroup* sConfigGroup;
 	static LLControlGroup* sColorsGroup;
 	static LLControlGroup* sAssetsGroup;
@@ -287,93 +296,179 @@ typedef enum e_widget_type
 	WIDGET_TYPE_COUNT
 } EWidgetType;
 
-// Manages generation of UI elements by LLSD, such that there is
-// only one instance per uniquely identified LLSD parameter
-// Class T is the instance type being managed, and INSTANCE_ADDAPTOR
-// wraps an instance of the class with handlers for show/hide semantics, etc.
-template <class T, class INSTANCE_ADAPTOR = T>
-class LLUIInstanceMgr
+//	FactoryPolicy is a static class that controls the creation and lookup of UI elements, 
+//	such as floaters.
+//	The key parameter is used to provide a unique identifier and/or associated construction 
+//	parameters for a given UI instance
+//
+//	Specialize this traits for different types, or provide a class with an identical interface 
+//	in the place of the traits parameter
+//
+//	For example:
+//
+//	template <>
+//	class FactoryPolicy<MyClass> /* FactoryPolicy specialized for MyClass */
+//	{
+//	public:
+//		static MyClass* findInstance(const LLSD& key = LLSD())
+//		{
+//			/* return instance of MyClass associated with key */
+//		}
+//	
+//		static MyClass* createInstance(const LLSD& key = LLSD())
+//		{
+//			/* create new instance of MyClass using key for construction parameters */
+//		}
+//	}
+//	
+//	class MyClass : public LLUIFactory<MyClass>
+//	{
+//		/* uses FactoryPolicy<MyClass> by default */
+//	}
+
+template <class T>
+class FactoryPolicy
 {
 public:
-	LLUIInstanceMgr()
+	// basic factory methods
+	static T* findInstance(const LLSD& key); // unimplemented, provide specialiation
+	static T* createInstance(const LLSD& key); // unimplemented, provide specialiation
+};
+
+//	VisibilityPolicy controls the visibility of UI elements, such as floaters.
+//	The key parameter is used to store the unique identifier of a given UI instance
+//
+//	Specialize this traits for different types, or duplicate this interface for specific instances
+//	(see above)
+
+template <class T>
+class VisibilityPolicy
+{
+public:
+	// visibility methods
+	static bool visible(T* instance, const LLSD& key); // unimplemented, provide specialiation
+	static void show(T* instance, const LLSD& key); // unimplemented, provide specialiation
+	static void hide(T* instance, const LLSD& key); // unimplemented, provide specialiation
+};
+
+//	Manages generation of UI elements by LLSD, such that (generally) there is
+//	a unique instance per distinct LLSD parameter
+//	Class T is the instance type being managed, and the FACTORY_POLICY and VISIBILITY_POLICY 
+//	classes provide static methods for creating, accessing, showing and hiding the associated 
+//	element T
+template <class T, class FACTORY_POLICY = FactoryPolicy<T>, class VISIBILITY_POLICY = VisibilityPolicy<T> >
+class LLUIFactory
+{
+public:
+	// give names to the template parameters so derived classes can refer to them
+	// except this doesn't work in gcc
+	typedef FACTORY_POLICY factory_policy_t;
+	typedef VISIBILITY_POLICY visibility_policy_t;
+
+	LLUIFactory()
 	{
 	}
 
- 	virtual ~LLUIInstanceMgr() 
+ 	virtual ~LLUIFactory() 
 	{ 
 	}
 
 	// default show and hide methods
-	static T* showInstance(const LLSD& seed = LLSD()) 
+	static T* showInstance(const LLSD& key = LLSD()) 
 	{ 
-		T* instance = INSTANCE_ADAPTOR::getInstance(seed); 
-		INSTANCE_ADAPTOR::show(instance);
+		T* instance = getInstance(key); 
+		if (instance != NULL)
+		{
+			VISIBILITY_POLICY::show(instance, key);
+		}
 		return instance;
 	}
 
-	static void hideInstance(const LLSD& seed = LLSD()) 
+	static void hideInstance(const LLSD& key = LLSD()) 
 	{ 
-		T* instance = INSTANCE_ADAPTOR::getInstance(seed); 
-		INSTANCE_ADAPTOR::hide(instance);
+		T* instance = getInstance(key); 
+		if (instance != NULL)
+		{
+			VISIBILITY_POLICY::hide(instance, key);
+		}
 	}
 
-	static void toggleInstance(const LLSD& seed = LLSD())
+	static void toggleInstance(const LLSD& key = LLSD())
 	{
-		if (INSTANCE_ADAPTOR::instanceVisible(seed))
+		if (instanceVisible(key))
 		{
-			INSTANCE_ADAPTOR::hideInstance(seed);
+			hideInstance(key);
 		}
 		else
 		{
-			INSTANCE_ADAPTOR::showInstance(seed);
+			showInstance(key);
 		}
 	}
 
-	static BOOL instanceVisible(const LLSD& seed = LLSD())
+	static bool instanceVisible(const LLSD& key = LLSD())
 	{
-		T* instance = INSTANCE_ADAPTOR::findInstance(seed);
-		return instance != NULL && INSTANCE_ADAPTOR::visible(instance);
+		T* instance = FACTORY_POLICY::findInstance(key);
+		return instance != NULL && VISIBILITY_POLICY::visible(instance, key);
 	}
 
-	static T* getInstance(const LLSD& seed = LLSD()) 
+	static T* getInstance(const LLSD& key = LLSD()) 
 	{
-		T* instance = INSTANCE_ADAPTOR::findInstance(seed);
+		T* instance = FACTORY_POLICY::findInstance(key);
 		if (instance == NULL)
 		{
-			instance = INSTANCE_ADAPTOR::createInstance(seed);
+			instance = FACTORY_POLICY::createInstance(key);
 		}
 		return instance;
 	}
 
 };
 
-// Creates a UI singleton by ignoring the identifying parameter
-// and always generating the same instance via the LLUIInstanceMgr interface.
-// Note that since UI elements can be destroyed by their hierarchy, this singleton
-// pattern uses a static pointer to an instance that will be re-created as needed.
-template <class T, class INSTANCE_ADAPTOR = T>
-class LLUISingleton: public LLUIInstanceMgr<T, INSTANCE_ADAPTOR>
+
+//	Creates a UI singleton by ignoring the identifying parameter
+//	and always generating the same instance via the LLUIFactory interface.
+//	Note that since UI elements can be destroyed by their hierarchy, this singleton
+//	pattern uses a static pointer to an instance that will be re-created as needed.
+//	
+//	Usage Pattern:
+//	
+//	class LLFloaterFoo : public LLFloater, public LLUISingleton<LLFloaterFoo>
+//	{
+//		friend class LLUISingleton<LLFloaterFoo>;
+//		private:
+//			LLFloaterFoo(const LLSD& key);
+//	};
+//	
+//	Note that LLUISingleton takes an option VisibilityPolicy parameter that defines
+//	how showInstance(), hideInstance(), etc. work.
+// 
+//  https://wiki.lindenlab.com/mediawiki/index.php?title=LLUISingleton&oldid=79352
+
+template <class T, class VISIBILITY_POLICY = VisibilityPolicy<T> >
+class LLUISingleton: public LLUIFactory<T, LLUISingleton<T, VISIBILITY_POLICY>, VISIBILITY_POLICY>
 {
-public:
-	// default constructor assumes T is derived from LLUISingleton (a true singleton)
-	LLUISingleton() : LLUIInstanceMgr<T, INSTANCE_ADAPTOR>() { sInstance = (T*)this; }
+protected:
+
+	// T must derive from LLUISingleton<T>
+	LLUISingleton() { sInstance = static_cast<T*>(this); }
+
 	~LLUISingleton() { sInstance = NULL; }
 
-	static T* findInstance(const LLSD& seed = LLSD())
+public:
+	static T* findInstance(const LLSD& key = LLSD())
 	{
 		return sInstance;
 	}
-
-	static T* createInstance(const LLSD& seed = LLSD())
+	
+	static T* createInstance(const LLSD& key = LLSD())
 	{
 		if (sInstance == NULL)
 		{
-			sInstance = new T(seed);
+			sInstance = new T(key);
 		}
 		return sInstance;
 	}
 
-protected:
+private:
 	static T*	sInstance;
 };
 
@@ -412,14 +507,15 @@ public:
 	void setScaleRegion(const LLRectf& region);
 
 	LLPointer<LLImageGL> getImage() { return mImage; }
+	const LLPointer<LLImageGL>& getImage() const { return mImage; }
 
-	void draw(S32 x, S32 y, const LLColor4& color = UI_VERTEX_COLOR);
-	void draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color = UI_VERTEX_COLOR);
-	void drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& color);
-	void drawSolid(S32 x, S32 y, const LLColor4& color);
+	void draw(S32 x, S32 y, const LLColor4& color = UI_VERTEX_COLOR) const;
+	void draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color = UI_VERTEX_COLOR) const;
+	void drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const;
+	void drawSolid(S32 x, S32 y, const LLColor4& color) const;
 
-	S32 getWidth();
-	S32 getHeight();
+	S32 getWidth() const;
+	S32 getHeight() const;
 
 protected:
 	LLRectf				mScaleRegion;
@@ -427,6 +523,140 @@ protected:
 	LLPointer<LLImageGL> mImage;
 	BOOL				mUniformScaling;
 	BOOL				mNoClip;
+};
+
+
+template <typename T>
+class LLTombStone : public LLRefCount
+{
+public:
+	LLTombStone(T* target = NULL) : mTarget(target) {}
+	
+	void setTarget(T* target) { mTarget = target; }
+	T* getTarget() const { return mTarget; }
+private:
+	T* mTarget;
+};
+
+//	LLHandles are used to refer to objects whose lifetime you do not control or influence.  
+//	Calling get() on a handle will return a pointer to the referenced object or NULL, 
+//	if the object no longer exists.  Note that during the lifetime of the returned pointer, 
+//	you are assuming that the object will not be deleted by any action you perform, 
+//	or any other thread, as normal when using pointers, so avoid using that pointer outside of
+//	the local code block.
+// 
+//  https://wiki.lindenlab.com/mediawiki/index.php?title=LLHandle&oldid=79669
+
+template <typename T>
+class LLHandle
+{
+public:
+	LLHandle() : mTombStone(sDefaultTombStone) {}
+	const LLHandle<T>& operator =(const LLHandle<T>& other)  
+	{ 
+		mTombStone = other.mTombStone;
+		return *this; 
+	}
+
+	bool isDead() const 
+	{ 
+		return mTombStone->getTarget() == NULL; 
+	}
+
+	void markDead() 
+	{ 
+		mTombStone = sDefaultTombStone; 
+	}
+
+	T* get() const
+	{
+		return mTombStone->getTarget();
+	}
+
+	friend bool operator== (const LLHandle<T>& lhs, const LLHandle<T>& rhs)
+	{
+		return lhs.mTombStone == rhs.mTombStone;
+	}
+	friend bool operator!= (const LLHandle<T>& lhs, const LLHandle<T>& rhs)
+	{
+		return !(lhs == rhs);
+	}
+	friend bool	operator< (const LLHandle<T>& lhs, const LLHandle<T>& rhs)
+	{
+		return lhs.mTombStone < rhs.mTombStone;
+	}
+	friend bool	operator> (const LLHandle<T>& lhs, const LLHandle<T>& rhs)
+	{
+		return lhs.mTombStone > rhs.mTombStone;
+	}
+protected:
+
+protected:
+	LLPointer<LLTombStone<T> > mTombStone;
+
+private:
+	static LLPointer<LLTombStone<T> > sDefaultTombStone;
+};
+
+// initialize static "empty" tombstone pointer
+template <typename T> LLPointer<LLTombStone<T> > LLHandle<T>::sDefaultTombStone = new LLTombStone<T>();
+
+
+template <typename T>
+class LLRootHandle : public LLHandle<T>
+{
+public:
+	LLRootHandle(T* object) { bind(object); }
+	LLRootHandle() {};
+	~LLRootHandle() { unbind(); }
+
+	// this is redundant, since a LLRootHandle *is* an LLHandle
+	LLHandle<T> getHandle() { return LLHandle<T>(*this); }
+
+	void bind(T* object) 
+	{ 
+		// unbind existing tombstone
+		if (LLHandle<T>::mTombStone.notNull())
+		{
+			if (LLHandle<T>::mTombStone->getTarget() == object) return;
+			LLHandle<T>::mTombStone->setTarget(NULL);
+		}
+		// tombstone reference counted, so no paired delete
+		LLHandle<T>::mTombStone = new LLTombStone<T>(object);
+	}
+
+	void unbind() 
+	{
+		LLHandle<T>::mTombStone->setTarget(NULL);
+	}
+
+	//don't allow copying of root handles, since there should only be one
+private:
+	LLRootHandle(const LLRootHandle& other) {};
+};
+
+// Use this as a mixin for simple classes that need handles and when you don't
+// want handles at multiple points of the inheritance hierarchy
+template <typename T>
+class LLHandleProvider
+{
+protected:
+	typedef LLHandle<T> handle_type_t;
+	LLHandleProvider() 
+	{
+		// provided here to enforce T deriving from LLHandleProvider<T>
+	} 
+
+	LLHandle<T> getHandle() 
+	{ 
+		// perform lazy binding to avoid small tombstone allocations for handle
+		// providers whose handles are never referenced
+		mHandle.bind(static_cast<T*>(this)); 
+		return mHandle; 
+	}
+
+private:
+	LLRootHandle<T> mHandle;
 };
 
 //RN: maybe this needs to moved elsewhere?

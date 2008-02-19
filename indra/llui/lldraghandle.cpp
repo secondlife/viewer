@@ -74,7 +74,24 @@ LLDragHandle::LLDragHandle( const LLString& name, const LLRect& rect, const LLSt
 
 void LLDragHandle::setTitleVisible(BOOL visible) 
 { 
-	mTitleBox->setVisible(visible); 
+	if(mTitleBox)
+	{
+		mTitleBox->setVisible(visible); 
+	}
+}
+
+void LLDragHandle::setTitleBox(LLTextBox* titlebox)
+{	
+	if( mTitleBox )
+	{
+		removeChild(mTitleBox);
+		delete mTitleBox;
+	}
+	mTitleBox = titlebox;
+	if(mTitleBox)
+	{
+		addChild( mTitleBox );
+	}
 }
 
 LLDragHandleTop::LLDragHandleTop(const LLString& name, const LLRect &rect, const LLString& title)
@@ -113,46 +130,28 @@ LLString LLDragHandleLeft::getWidgetTag() const
 
 void LLDragHandleTop::setTitle(const LLString& title)
 {
-	if( mTitleBox )
-	{
-		removeChild(mTitleBox);
-		delete mTitleBox;
-	}
-
 	LLString trimmed_title = title;
 	LLString::trim(trimmed_title);
 
 	const LLFontGL* font = gResMgr->getRes( LLFONT_SANSSERIF );
-	mTitleBox = new LLTextBox( "Drag Handle Title", mRect, trimmed_title, font );
-	mTitleBox->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT | FOLLOWS_RIGHT);
-	mTitleBox->setFontStyle(LLFontGL::DROP_SHADOW_SOFT);
-	reshapeTitleBox();
+	LLTextBox* titlebox = new LLTextBox( "Drag Handle Title", getRect(), trimmed_title, font );
+	titlebox->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT | FOLLOWS_RIGHT);
+	titlebox->setFontStyle(LLFontGL::DROP_SHADOW_SOFT);
 	
-	// allow empty titles, as default behavior replaces them with title box name
-	if (trimmed_title.empty())
-	{
-		mTitleBox->setText(LLString::null);
-	}
-	addChild( mTitleBox );
+	setTitleBox(titlebox);
+	reshapeTitleBox();
 }
 
 
 const LLString& LLDragHandleTop::getTitle() const
 {
-	return mTitleBox->getText();
+	return getTitleBox() == NULL ? LLString::null : getTitleBox()->getText();
 }
 
 
 void LLDragHandleLeft::setTitle(const LLString& )
 {
-	if( mTitleBox )
-	{
-		removeChild(mTitleBox);
-		delete mTitleBox;
-	}
-
-	mTitleBox = NULL;
-
+	setTitleBox(NULL);
 	/* no title on left edge */
 }
 
@@ -166,14 +165,14 @@ const LLString& LLDragHandleLeft::getTitle() const
 void LLDragHandleTop::draw()
 {
 	/* Disable lines.  Can drag anywhere in most windows.  JC
-	if( getVisible() && mEnabled && mForeground) 
+	if( getVisible() && getEnabled() && mForeground) 
 	{
 		const S32 BORDER_PAD = 2;
 		const S32 HPAD = 2;
 		const S32 VPAD = 2;
 		S32 left = BORDER_PAD + HPAD;
-		S32 top = mRect.getHeight() - 2 * VPAD;
-		S32 right = mRect.getWidth() - HPAD;
+		S32 top = getRect().getHeight() - 2 * VPAD;
+		S32 right = getRect().getWidth() - HPAD;
 //		S32 bottom = VPAD;
 
 		// draw lines for drag areas
@@ -183,7 +182,7 @@ void LLDragHandleTop::draw()
 
 		LLRect title_rect = mTitleBox->getRect();
 		S32 title_right = title_rect.mLeft + mTitleWidth;
-		BOOL show_right_side = title_right < mRect.getWidth();
+		BOOL show_right_side = title_right < getRect().getWidth();
 
 		for( S32 i=0; i<4; i++ )
 		{
@@ -204,9 +203,9 @@ void LLDragHandleTop::draw()
 	*/
 
 	// Colorize the text to match the frontmost state
-	if (mTitleBox)
+	if (getTitleBox())
 	{
-		mTitleBox->setEnabled(mForeground);
+		getTitleBox()->setEnabled(getForeground());
 	}
 
 	LLView::draw();
@@ -217,7 +216,7 @@ void LLDragHandleTop::draw()
 void LLDragHandleLeft::draw()
 {
 	/* Disable lines.  Can drag anywhere in most windows. JC
-	if( getVisible() && mEnabled && mForeground ) 
+	if( getVisible() && getEnabled() && mForeground ) 
 	{
 		const S32 BORDER_PAD = 2;
 //		const S32 HPAD = 2;
@@ -225,8 +224,8 @@ void LLDragHandleLeft::draw()
 		const S32 LINE_SPACING = 3;
 
 		S32 left = BORDER_PAD + LINE_SPACING;
-		S32 top = mRect.getHeight() - 2 * VPAD;
-//		S32 right = mRect.getWidth() - HPAD;
+		S32 top = getRect().getHeight() - 2 * VPAD;
+//		S32 right = getRect().getWidth() - HPAD;
 		S32 bottom = VPAD;
  
 		// draw lines for drag areas
@@ -234,7 +233,7 @@ void LLDragHandleLeft::draw()
 		// no titles yet
 		//LLRect title_rect = mTitleBox->getRect();
 		//S32 title_right = title_rect.mLeft + mTitleWidth;
-		//BOOL show_right_side = title_right < mRect.getWidth();
+		//BOOL show_right_side = title_right < getRect().getWidth();
 
 		S32 line = left;
 		for( S32 i=0; i<4; i++ )
@@ -249,9 +248,9 @@ void LLDragHandleLeft::draw()
 	*/
 
 	// Colorize the text to match the frontmost state
-	if (mTitleBox)
+	if (getTitleBox())
 	{
-		mTitleBox->setEnabled(mForeground);
+		getTitleBox()->setEnabled(getForeground());
 	}
 
 	LLView::draw();
@@ -259,19 +258,23 @@ void LLDragHandleLeft::draw()
 
 void LLDragHandleTop::reshapeTitleBox()
 {
+	if( ! getTitleBox())
+	{
+		return;
+	}
 	const LLFontGL* font = gResMgr->getRes( LLFONT_SANSSERIF );
-	S32 title_width = font->getWidth( mTitleBox->getText() ) + TITLE_PAD;
-	if (mMaxTitleWidth > 0)
-		title_width = llmin(title_width, mMaxTitleWidth);
+	S32 title_width = font->getWidth( getTitleBox()->getText() ) + TITLE_PAD;
+	if (getMaxTitleWidth() > 0)
+		title_width = llmin(title_width, getMaxTitleWidth());
 	S32 title_height = llround(font->getLineHeight());
 	LLRect title_rect;
 	title_rect.setLeftTopAndSize( 
 		LEFT_PAD, 
-		mRect.getHeight() - BORDER_PAD,
-		mRect.getWidth() - LEFT_PAD - RIGHT_PAD,
+		getRect().getHeight() - BORDER_PAD,
+		getRect().getWidth() - LEFT_PAD - RIGHT_PAD,
 		title_height);
 
-	mTitleBox->setRect( title_rect );
+	getTitleBox()->setRect( title_rect );
 }
 
 void LLDragHandleTop::reshape(S32 width, S32 height, BOOL called_from_parent)

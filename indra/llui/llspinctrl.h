@@ -1,6 +1,6 @@
 /** 
  * @file llspinctrl.h
- * @brief LLSpinCtrl base class
+ * @brief Typical spinner with "up" and "down" arrow buttons.
  *
  * $LicenseInfo:firstyear=2002&license=viewergpl$
  * 
@@ -47,15 +47,6 @@ const S32	SPINCTRL_SPACING		=  2;							// space between label right and button 
 const S32	SPINCTRL_HEIGHT			=  2 * SPINCTRL_BTN_HEIGHT;
 const S32	SPINCTRL_DEFAULT_LABEL_WIDTH = 10;
 
-//
-// Classes
-//
-class LLFontGL;
-class LLButton;
-class LLTextBox;
-class LLLineEditor;
-class LLUICtrlFactory;
-
 
 class LLSpinCtrl
 : public LLUICtrl
@@ -70,26 +61,26 @@ public:
 		const LLString& control_name = LLString(),
 		S32 label_width = SPINCTRL_DEFAULT_LABEL_WIDTH );
 
-	virtual ~LLSpinCtrl();
+	virtual ~LLSpinCtrl() {} // Children all cleaned up by default view destructor.
 	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_SPINNER; }
 	virtual LLString getWidgetTag() const { return LL_SPIN_CTRL_TAG; }
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
+	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, class LLUICtrlFactory *factory);
 
 	virtual void	setValue(const LLSD& value );
-	virtual LLSD	getValue() const;
-			F32		get() { return (F32)getValue().asReal(); }
+	virtual LLSD	getValue() const { return mValue; }
+			F32		get() const { return (F32)getValue().asReal(); }
 			void	set(F32 value) { setValue(value); mInitialValue = value; }
 
 	virtual void	setMinValue(LLSD min_value)	{ setMinValue((F32)min_value.asReal()); }
 	virtual void	setMaxValue(LLSD max_value)	{ setMaxValue((F32)max_value.asReal());  }
 
-	BOOL			isMouseHeldDown();
+	BOOL			isMouseHeldDown() const;
 
 	virtual void    setEnabled( BOOL b );
 	virtual void	setFocus( BOOL b );
 	virtual void	clear();
-	virtual BOOL	isDirty() const;
+	virtual BOOL	isDirty() const { return( mValue != mInitialValue ); }
 
 	virtual void	setPrecision(S32 precision);
 	virtual void	setMinValue(F32 min)			{ mMinValue = min; }
@@ -119,11 +110,9 @@ public:
 	static void		onUpBtn(void *userdata);
 	static void		onDownBtn(void *userdata);
 
-protected:
+private:
 	void			updateEditor();
 	void			reportInvalidData();
-
-protected:
 
 	F32				mValue;
 	F32				mInitialValue;
@@ -132,14 +121,14 @@ protected:
 	F32				mIncrement;
 
 	S32				mPrecision;
-	LLTextBox*		mLabelBox;
+	class LLTextBox*	mLabelBox;
 
-	LLLineEditor*	mEditor;
+	class LLLineEditor*	mEditor;
 	LLColor4		mTextEnabledColor;
 	LLColor4		mTextDisabledColor;
 
-	LLButton*		mUpBtn;
-	LLButton*		mDownBtn;
+	class LLButton*		mUpBtn;
+	class LLButton*		mDownBtn;
 
 	BOOL			mbHasBeenSet;
 };

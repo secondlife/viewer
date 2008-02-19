@@ -61,14 +61,14 @@ LLColorSwatchCtrl::LLColorSwatchCtrl(const std::string& name, const LLRect& rect
 	mOnSelectCallback(NULL)
 {
 	mCaption = new LLTextBox( name,
-		LLRect( 0, BTN_HEIGHT_SMALL, mRect.getWidth(), 0 ),
-		LLString::null,
+		LLRect( 0, BTN_HEIGHT_SMALL, getRect().getWidth(), 0 ),
+		name,
 		LLFontGL::sSansSerifSmall );
 	mCaption->setFollows( FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_BOTTOM );
 	addChild( mCaption );
 
 	// Scalable UI made this off-by-one, I don't know why. JC
-	LLRect border_rect(0, mRect.getHeight()-1, mRect.getWidth()-1, 0);
+	LLRect border_rect(0, getRect().getHeight()-1, getRect().getWidth()-1, 0);
 	border_rect.mBottom += BTN_HEIGHT_SMALL;
 	mBorder = new LLViewBorder("border", border_rect, LLViewBorder::BEVEL_IN);
 	addChild(mBorder);
@@ -89,14 +89,14 @@ LLColorSwatchCtrl::LLColorSwatchCtrl(const std::string& name, const LLRect& rect
 	mOnSelectCallback(NULL)
 {
 	mCaption = new LLTextBox( label,
-		LLRect( 0, BTN_HEIGHT_SMALL, mRect.getWidth(), 0 ),
-		LLString::null,
+		LLRect( 0, BTN_HEIGHT_SMALL, getRect().getWidth(), 0 ),
+		label,
 		LLFontGL::sSansSerifSmall );
 	mCaption->setFollows( FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_BOTTOM );
 	addChild( mCaption );
 
 	// Scalable UI made this off-by-one, I don't know why. JC
-	LLRect border_rect(0, mRect.getHeight()-1, mRect.getWidth()-1, 0);
+	LLRect border_rect(0, getRect().getHeight()-1, getRect().getWidth()-1, 0);
 	border_rect.mBottom += BTN_HEIGHT_SMALL;
 	mBorder = new LLViewBorder("border", border_rect, LLViewBorder::BEVEL_IN);
 	addChild(mBorder);
@@ -108,7 +108,7 @@ LLColorSwatchCtrl::LLColorSwatchCtrl(const std::string& name, const LLRect& rect
 LLColorSwatchCtrl::~LLColorSwatchCtrl ()
 {
 	// parent dialog is destroyed so we are too and we need to cancel selection
-	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)LLFloater::getFloaterByHandle(mPickerHandle);
+	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
 	if (pickerp)
 	{
 		pickerp->cancelSelection();
@@ -130,7 +130,7 @@ BOOL LLColorSwatchCtrl::handleHover(S32 x, S32 y, MASK mask)
 
 BOOL LLColorSwatchCtrl::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent)
 {
-	if( getVisible() && mEnabled && !called_from_parent && ' ' == uni_char )
+	if( getVisible() && getEnabled() && !called_from_parent && ' ' == uni_char )
 	{
 		showPicker(TRUE);
 	}
@@ -141,7 +141,7 @@ BOOL LLColorSwatchCtrl::handleUnicodeCharHere(llwchar uni_char, BOOL called_from
 void LLColorSwatchCtrl::setOriginal(const LLColor4& color)
 {
 	mColor = color;
-	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)LLFloater::getFloaterByHandle(mPickerHandle);
+	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
 	if (pickerp)
 	{
 		pickerp->setOrigRgb(mColor.mV[VRED], mColor.mV[VGREEN], mColor.mV[VBLUE]);
@@ -151,7 +151,7 @@ void LLColorSwatchCtrl::setOriginal(const LLColor4& color)
 void LLColorSwatchCtrl::set(const LLColor4& color, BOOL update_picker, BOOL from_event)
 {
 	mColor = color; 
-	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)LLFloater::getFloaterByHandle(mPickerHandle);
+	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
 	if (pickerp && update_picker)
 	{
 		pickerp->setCurRgb(mColor.mV[VRED], mColor.mV[VGREEN], mColor.mV[VBLUE]);
@@ -188,7 +188,7 @@ BOOL LLColorSwatchCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 		// If mouseup in the widget, it's been clicked
 		if ( pointInView(x, y) )
 		{
-			llassert(mEnabled);
+			llassert(getEnabled());
 			llassert(getVisible());
 
 			showPicker(FALSE);
@@ -206,7 +206,7 @@ void LLColorSwatchCtrl::draw()
 	{
 		mBorder->setKeyboardFocusHighlight(hasFocus());
 		// Draw border
-		LLRect border( 0, mRect.getHeight(), mRect.getWidth(), BTN_HEIGHT_SMALL );
+		LLRect border( 0, getRect().getHeight(), getRect().getWidth(), BTN_HEIGHT_SMALL );
 		gl_rect_2d( border, mBorderColor, FALSE );
 
 		LLRect interior = border;
@@ -253,7 +253,7 @@ void LLColorSwatchCtrl::setEnabled( BOOL enabled )
 
 	if (!enabled)
 	{
-		LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)LLFloater::getFloaterByHandle(mPickerHandle);
+		LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
 		if (pickerp)
 		{
 			pickerp->cancelSelection();
@@ -275,7 +275,7 @@ void LLColorSwatchCtrl::onColorChanged ( void* data, EColorPickOp pick_op )
 	LLColorSwatchCtrl* subject = ( LLColorSwatchCtrl* )data;
 	if ( subject )
 	{
-		LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)LLFloater::getFloaterByHandle(subject->mPickerHandle);
+		LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)subject->mPickerHandle.get();
 		if (pickerp)
 		{
 			// move color across from selector to internal widget storage
@@ -300,14 +300,14 @@ void LLColorSwatchCtrl::onColorChanged ( void* data, EColorPickOp pick_op )
 				subject->onCommit ();
 			}
 		}
-	};
+	}
 }
 
 void LLColorSwatchCtrl::setValid(BOOL valid )
 {
 	mValid = valid;
 
-	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)LLFloater::getFloaterByHandle(mPickerHandle);
+	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
 	if (pickerp)
 	{
 		pickerp->setActive(valid);
@@ -316,7 +316,7 @@ void LLColorSwatchCtrl::setValid(BOOL valid )
 
 void LLColorSwatchCtrl::showPicker(BOOL take_focus)
 {
-	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)LLFloater::getFloaterByHandle(mPickerHandle);
+	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
 	if (!pickerp)
 	{
 		pickerp = new LLFloaterColorPicker(this, mCanApplyImmediately);
@@ -324,7 +324,7 @@ void LLColorSwatchCtrl::showPicker(BOOL take_focus)
 		mPickerHandle = pickerp->getHandle();
 	}
 
-	// initialize picker singleton with current color
+	// initialize picker with current color
 	pickerp->initUI ( mColor.mV [ VRED ], mColor.mV [ VGREEN ], mColor.mV [ VBLUE ] );
 
 	// display it

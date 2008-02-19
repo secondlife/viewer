@@ -1,6 +1,6 @@
 /** 
  * @file llviewertexteditor.cpp
- * @brief Text editor widget to let users enter a a multi-line ASCII document.
+ * @brief Text editor widget to let users enter a multi-line document.
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -145,8 +145,8 @@ public:
 	// return true if there are no embedded items.
 	bool empty();
 	
-	void	bindEmbeddedChars(const LLFontGL* font);
-	void	unbindEmbeddedChars(const LLFontGL* font);
+	void	bindEmbeddedChars(LLFontGL* font) const;
+	void	unbindEmbeddedChars(LLFontGL* font) const;
 
 	BOOL	insertEmbeddedItem(LLInventoryItem* item, llwchar* value, bool is_new);
 	BOOL	removeEmbeddedItem( llwchar ext_char );
@@ -167,12 +167,13 @@ public:
 	static LLInventoryItem* getEmbeddedItem(llwchar ext_char); // returns item from static list
 	static BOOL getEmbeddedItemSaved(llwchar ext_char); // returns whether item from static list is saved
 
+private:
+
 	struct embedded_info_t
 	{
 		LLPointer<LLInventoryItem> mItem;
 		BOOL mSaved;
 	};
-private:
 	typedef std::map<llwchar, embedded_info_t > item_map_t;
 	static item_map_t sEntries;
 	static std::stack<llwchar> sFreeEntries;
@@ -227,14 +228,14 @@ BOOL LLEmbeddedItems::insertEmbeddedItem( LLInventoryItem* item, llwchar* ext_ch
 	}
 	else if (sEntries.empty())
 	{
-		wc_emb = FIRST_EMBEDDED_CHAR;
+		wc_emb = LLTextEditor::FIRST_EMBEDDED_CHAR;
 	}
 	else
 	{
 		item_map_t::iterator last = sEntries.end();
 		--last;
 		wc_emb = last->first;
-		if (wc_emb >= LAST_EMBEDDED_CHAR)
+		if (wc_emb >= LLTextEditor::LAST_EMBEDDED_CHAR)
 		{
 			return FALSE;
 		}
@@ -265,7 +266,7 @@ BOOL LLEmbeddedItems::removeEmbeddedItem( llwchar ext_char )
 // static
 LLInventoryItem* LLEmbeddedItems::getEmbeddedItem(llwchar ext_char)
 {
-	if( ext_char >= FIRST_EMBEDDED_CHAR && ext_char <= LAST_EMBEDDED_CHAR )
+	if( ext_char >= LLTextEditor::FIRST_EMBEDDED_CHAR && ext_char <= LLTextEditor::LAST_EMBEDDED_CHAR )
 	{
 		item_map_t::iterator iter = sEntries.find(ext_char);
 		if (iter != sEntries.end())
@@ -279,7 +280,7 @@ LLInventoryItem* LLEmbeddedItems::getEmbeddedItem(llwchar ext_char)
 // static
 BOOL LLEmbeddedItems::getEmbeddedItemSaved(llwchar ext_char)
 {
-	if( ext_char >= FIRST_EMBEDDED_CHAR && ext_char <= LAST_EMBEDDED_CHAR )
+	if( ext_char >= LLTextEditor::FIRST_EMBEDDED_CHAR && ext_char <= LLTextEditor::LAST_EMBEDDED_CHAR )
 	{
 		item_map_t::iterator iter = sEntries.find(ext_char);
 		if (iter != sEntries.end())
@@ -307,7 +308,7 @@ void LLEmbeddedItems::removeUnusedChars()
 	for (S32 i=0; i<(S32)wtext.size(); i++)
 	{
 		llwchar wc = wtext[i];
-		if( wc >= FIRST_EMBEDDED_CHAR && wc <= LAST_EMBEDDED_CHAR )
+		if( wc >= LLTextEditor::FIRST_EMBEDDED_CHAR && wc <= LLTextEditor::LAST_EMBEDDED_CHAR )
 		{
 			used.erase(wc);
 		}
@@ -365,14 +366,14 @@ BOOL LLEmbeddedItems::hasEmbeddedItem(llwchar ext_char)
 	return FALSE;
 }
 
-void LLEmbeddedItems::bindEmbeddedChars( const LLFontGL* font )
+void LLEmbeddedItems::bindEmbeddedChars( LLFontGL* font ) const
 {
 	if( sEntries.empty() )
 	{
 		return; 
 	}
 
-	for (std::set<llwchar>::iterator iter1 = mEmbeddedUsedChars.begin(); iter1 != mEmbeddedUsedChars.end(); ++iter1)
+	for (std::set<llwchar>::const_iterator iter1 = mEmbeddedUsedChars.begin(); iter1 != mEmbeddedUsedChars.end(); ++iter1)
 	{
 		llwchar wch = *iter1;
 		item_map_t::iterator iter2 = sEntries.find(wch);
@@ -431,20 +432,20 @@ void LLEmbeddedItems::bindEmbeddedChars( const LLFontGL* font )
 
 		LLViewerImage* image = gImageList.getImage(LLUUID(gViewerArt.getString(img_name)), MIPMAP_FALSE, TRUE);
 
-		((LLFontGL*)font)->addEmbeddedChar( wch, image, item->getName() );
+		font->addEmbeddedChar( wch, image, item->getName() );
 	}
 }
 
-void LLEmbeddedItems::unbindEmbeddedChars( const LLFontGL* font )
+void LLEmbeddedItems::unbindEmbeddedChars( LLFontGL* font ) const
 {
 	if( sEntries.empty() )
 	{
 		return; 
 	}
 
-	for (std::set<llwchar>::iterator iter1 = mEmbeddedUsedChars.begin(); iter1 != mEmbeddedUsedChars.end(); ++iter1)
+	for (std::set<llwchar>::const_iterator iter1 = mEmbeddedUsedChars.begin(); iter1 != mEmbeddedUsedChars.end(); ++iter1)
 	{
-		((LLFontGL*)font)->removeEmbeddedChar(*iter1);
+		font->removeEmbeddedChar(*iter1);
 	}
 }
 
@@ -490,7 +491,7 @@ void LLEmbeddedItems::markSaved()
 
 ///////////////////////////////////////////////////////////////////
 
-class LLTextCmdInsertEmbeddedItem : public LLTextCmd
+class LLViewerTextEditor::LLTextCmdInsertEmbeddedItem : public LLTextEditor::LLTextCmd
 {
 public:
 	LLTextCmdInsertEmbeddedItem( S32 pos, LLInventoryItem* item )
@@ -509,7 +510,7 @@ public:
 		{
 			LLWString ws;
 			ws.assign(1, mExtCharValue);
-			*delta = insert(editor, mPos, ws );
+			*delta = insert(editor, getPosition(), ws );
 			return (*delta != 0);
 		}
 		return FALSE;
@@ -517,18 +518,18 @@ public:
 	
 	virtual S32 undo( LLTextEditor* editor )
 	{
-		remove(editor, mPos, 1);
-		return mPos; 
+		remove(editor, getPosition(), 1);
+		return getPosition(); 
 	}
 	
 	virtual S32 redo( LLTextEditor* editor )
 	{ 
 		LLWString ws;
 		ws += mExtCharValue;
-		insert(editor, mPos, ws );
-		return mPos + 1;
+		insert(editor, getPosition(), ws );
+		return getPosition() + 1;
 	}
-	virtual BOOL hasExtCharValue( llwchar value )
+	virtual BOOL hasExtCharValue( llwchar value ) const
 	{
 		return (value == mExtCharValue);
 	}
@@ -571,17 +572,17 @@ LLViewerTextEditor::LLViewerTextEditor(const LLString& name,
 	mEmbeddedItemList = new LLEmbeddedItems(this);
 	mInventoryCallback->setEditor(this);
 
+	// *TODO: Add right click menus for SLURLs
 	// Build the right click menu
 	// make the popup menu available
-
-	LLMenuGL* menu = gUICtrlFactory->buildMenu("menu_slurl.xml", this);
-	if (!menu)
-	{
-		menu = new LLMenuGL("");
-	}
-	menu->setBackgroundColor(gColors.getColor("MenuPopupBgColor"));
-	// menu->setVisible(FALSE);
-	mPopupMenuHandle = menu->mViewHandle;
+	//LLMenuGL* menu = gUICtrlFactory->buildMenu("menu_slurl.xml", this);
+	//if (!menu)
+	//{
+	//	menu = new LLMenuGL("");
+	//}
+	//menu->setBackgroundColor(gColors.getColor("MenuPopupBgColor"));
+	//// menu->setVisible(FALSE);
+	//mPopupMenuHandle = menu->getHandle();
 }
 
 LLViewerTextEditor::~LLViewerTextEditor()
@@ -623,7 +624,7 @@ BOOL LLViewerTextEditor::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* stic
 		return TRUE;
 	}
 
-	LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
+	const LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
 	if( cur_segment )
 	{
 		BOOL has_tool_tip = FALSE;
@@ -674,13 +675,13 @@ BOOL LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 		}
 
 		BOOL start_select = TRUE;
-		if( mAllowEmbeddedItems )
+		if( allowsEmbeddedItems() )
 		{
 			setCursorAtLocalPos( x, y, FALSE );
 			llwchar wc = 0;
 			if (mCursorPos < getLength())
 			{
-				wc = mWText[mCursorPos];
+				wc = getWChar(mCursorPos);
 			}
 			LLInventoryItem* item_at_pos = LLEmbeddedItems::getEmbeddedItem(wc);
 			if (item_at_pos)
@@ -763,7 +764,7 @@ BOOL LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 	}
 
 	// Delay cursor flashing
-	mKeystrokeTimer.reset();
+	resetKeystrokeTimer();
 
 	return handled;
 }
@@ -790,12 +791,12 @@ BOOL LLViewerTextEditor::handleHover(S32 x, S32 y, MASK mask)
 					mLastSelectionY = y;
 				}
 
-				if( y > mTextRect.mTop )
+				if( y > getTextRect().mTop )
 				{
 					mScrollbar->setDocPos( mScrollbar->getDocPos() - 1 );
 				}
 				else
-				if( y < mTextRect.mBottom )
+				if( y < getTextRect().mBottom )
 				{
 					mScrollbar->setDocPos( mScrollbar->getDocPos() + 1 );
 				}
@@ -817,7 +818,7 @@ BOOL LLViewerTextEditor::handleHover(S32 x, S32 y, MASK mask)
 						LLAssetType::lookupDragAndDropType( mDragItem->getType() ),
 						mDragItem->getUUID(),
 						LLToolDragAndDrop::SOURCE_NOTECARD,
-						mSourceID, mObjectID);
+						getSourceID(), mObjectID);
 
 					return gToolDragAndDrop->handleHover( x, y, mask );
 				}
@@ -837,7 +838,7 @@ BOOL LLViewerTextEditor::handleHover(S32 x, S32 y, MASK mask)
 		if( handled )
 		{
 			// Delay cursor flashing
-			mKeystrokeTimer.reset();
+			resetKeystrokeTimer();
 		}
 	
 		// Opaque
@@ -846,7 +847,7 @@ BOOL LLViewerTextEditor::handleHover(S32 x, S32 y, MASK mask)
 			// Check to see if we're over an HTML-style link
 			if( !mSegments.empty() )
 			{
-				LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
+				const LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
 				if( cur_segment )
 				{
 					if(cur_segment->getStyle().isLink())
@@ -870,7 +871,7 @@ BOOL LLViewerTextEditor::handleHover(S32 x, S32 y, MASK mask)
 			if( !handled )
 			{
 				lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (inactive)" << llendl;		
-				if (!mScrollbar->getVisible() || x < mRect.getWidth() - SCROLLBAR_SIZE)
+				if (!mScrollbar->getVisible() || x < getRect().getWidth() - SCROLLBAR_SIZE)
 				{
 					getWindow()->setCursor(UI_CURSOR_IBEAM);
 				}
@@ -894,7 +895,7 @@ BOOL LLViewerTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 	// let scrollbar have first dibs
 	handled = LLView::childrenHandleMouseUp(x, y, mask) != NULL;
 
-	// enable I Agree checkbox if the user scrolled through entire text
+	// Used to enable I Agree checkbox if the user scrolled through entire text
 	BOOL was_scrolled_to_bottom = (mScrollbar->getDocPos() == mScrollbar->getDocPosMax());
 	if (mOnScrollEndCallback && was_scrolled_to_bottom)
 	{
@@ -906,12 +907,12 @@ BOOL LLViewerTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 		if( mIsSelecting )
 		{
 			// Finish selection
-			if( y > mTextRect.mTop )
+			if( y > getTextRect().mTop )
 			{
 				mScrollbar->setDocPos( mScrollbar->getDocPos() - 1 );
 			}
 			else
-			if( y < mTextRect.mBottom )
+			if( y < getTextRect().mBottom )
 			{
 				mScrollbar->setDocPos( mScrollbar->getDocPos() + 1 );
 			}
@@ -931,7 +932,7 @@ BOOL LLViewerTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 	}
 
 	// Delay cursor flashing
-	mKeystrokeTimer.reset();
+	resetKeystrokeTimer();
 
 	if( hasMouseCapture()  )
 	{
@@ -965,34 +966,35 @@ BOOL LLViewerTextEditor::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 	BOOL handled = childrenHandleRightMouseDown(x, y, mask) != NULL;
 
-	if(! handled)
-	{
-		LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
-		if( cur_segment )
-		{
-			if(cur_segment->getStyle().isLink())
-			{
-				handled = TRUE;
-				mHTML = cur_segment->getStyle().getLinkHREF();
-			}
-		}
-	}
-	LLMenuGL* menu = (LLMenuGL*)LLView::getViewByHandle(mPopupMenuHandle);
-	if(handled && menu && mParseHTML && mHTML.length() > 0)
-	{
-		menu->setVisible(TRUE);
-		menu->arrange();
-		menu->updateParent(LLMenuGL::sMenuContainer);
-		LLMenuGL::showPopup(this, menu, x, y);
-		mHTML = "";
-	}
-	else
-	{
-		if(menu && menu->getVisible())
-		{
-			menu->setVisible(FALSE);
-		}
-	}
+	// *TODO: Add right click menus for SLURLs
+// 	if(! handled)
+// 	{
+// 		const LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
+// 		if( cur_segment )
+// 		{
+// 			if(cur_segment->getStyle().isLink())
+// 			{
+// 				handled = TRUE;
+// 				mHTML = cur_segment->getStyle().getLinkHREF();
+// 			}
+// 		}
+// 	}
+// 	LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
+// 	if(handled && menu && mParseHTML && mHTML.length() > 0)
+// 	{
+// 		menu->setVisible(TRUE);
+// 		menu->arrange();
+// 		menu->updateParent(LLMenuGL::sMenuContainer);
+// 		LLMenuGL::showPopup(this, menu, x, y);
+// 		mHTML = "";
+// 	}
+// 	else
+// 	{
+// 		if(menu && menu->getVisible())
+// 		{
+// 			menu->setVisible(FALSE);
+// 		}
+// 	}
 	return handled;
 }
 
@@ -1005,9 +1007,9 @@ BOOL LLViewerTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 	if( !handled && mTakesNonScrollClicks)
 	{
-		if( mAllowEmbeddedItems )
+		if( allowsEmbeddedItems() )
 		{
-			LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
+			const LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
 			if( cur_segment && cur_segment->getStyle().getIsEmbeddedItem() )
 			{
 				if( openEmbeddedItemAtPos( cur_segment->getStart() ) )
@@ -1054,7 +1056,7 @@ BOOL LLViewerTextEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 		mIsSelecting = FALSE;  
 
 		// delay cursor flashing
-		mKeystrokeTimer.reset();
+		resetKeystrokeTimer();
 
 		handled = TRUE;
 	}
@@ -1074,12 +1076,12 @@ BOOL LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 
 	if (mTakesNonScrollClicks)
 	{
-		if (getEnabled() && !mReadOnly)
+		if (getEnabled() && acceptsTextInput())
 		{
 			switch( cargo_type )
 			{
 			case DAD_CALLINGCARD:
-				if(mAcceptCallingCardNames)
+				if(acceptsCallingCardNames())
 				{
 					if (drop)
 					{
@@ -1107,7 +1109,7 @@ BOOL LLViewerTextEditor::handleDragAndDrop(S32 x, S32 y, MASK mask,
 			case DAD_GESTURE:
 				{
 					LLInventoryItem *item = (LLInventoryItem *)cargo_data;
-					if( mAllowEmbeddedItems )
+					if( allowsEmbeddedItems() )
 					{
 						U32 mask_next = item->getPermissions().getMaskNextOwner();
 						if((mask_next & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED)
@@ -1208,9 +1210,9 @@ LLString LLViewerTextEditor::getEmbeddedText()
 	// New version (Version 2)
 	mEmbeddedItemList->copyUsedCharsToIndexed();
 	LLWString outtextw;
-	for (S32 i=0; i<(S32)mWText.size(); i++)
+	for (S32 i=0; i<(S32)getWText().size(); i++)
 	{
-		llwchar wch = mWText[i];
+		llwchar wch = getWChar(i);
 		if( wch >= FIRST_EMBEDDED_CHAR && wch <= LAST_EMBEDDED_CHAR )
 		{
 			S32 index = mEmbeddedItemList->getIndexFromEmbeddedChar(wch);
@@ -1282,21 +1284,21 @@ llwchar LLViewerTextEditor::pasteEmbeddedItem(llwchar ext_char)
 	return LL_UNKNOWN_CHAR; // item not found or list full
 }
 
-void LLViewerTextEditor::bindEmbeddedChars(const LLFontGL* font)
+void LLViewerTextEditor::bindEmbeddedChars(LLFontGL* font) const
 {
 	mEmbeddedItemList->bindEmbeddedChars( font );
 }
 
-void LLViewerTextEditor::unbindEmbeddedChars(const LLFontGL* font)
+void LLViewerTextEditor::unbindEmbeddedChars(LLFontGL* font) const
 {
 	mEmbeddedItemList->unbindEmbeddedChars( font );
 }
 
-BOOL LLViewerTextEditor::getEmbeddedItemToolTipAtPos(S32 pos, LLWString &msg)
+BOOL LLViewerTextEditor::getEmbeddedItemToolTipAtPos(S32 pos, LLWString &msg) const
 {
 	if (pos < getLength())
 	{
-		LLInventoryItem* item = LLEmbeddedItems::getEmbeddedItem(mWText[pos]);
+		LLInventoryItem* item = LLEmbeddedItems::getEmbeddedItem(getWChar(pos));
 		if( item )
 		{
 			msg = utf8str_to_wstring(item->getName());
@@ -1313,10 +1315,10 @@ BOOL LLViewerTextEditor::openEmbeddedItemAtPos(S32 pos)
 {
 	if( pos < getLength())
 	{
-		LLInventoryItem* item = LLEmbeddedItems::getEmbeddedItem( mWText[pos] );
+		LLInventoryItem* item = LLEmbeddedItems::getEmbeddedItem( getWChar(pos) );
 		if( item )
 		{
-			BOOL saved = LLEmbeddedItems::getEmbeddedItemSaved( mWText[pos] );
+			BOOL saved = LLEmbeddedItems::getEmbeddedItemSaved( getWChar(pos) );
 			if (saved)
 			{
 				return openEmbeddedItem(item); 
@@ -1490,7 +1492,7 @@ bool LLViewerTextEditor::importStream(std::istream& str)
 		const std::vector<LLPointer<LLInventoryItem> >& items = nc.getItems();
 		mEmbeddedItemList->addItems(items);
 		// Actually set the text
-		if (mAllowEmbeddedItems)
+		if (allowsEmbeddedItems())
 		{
 			if (nc.getVersion() == 1)
 				setASCIIEmbeddedText( nc.getText() );
@@ -1514,7 +1516,7 @@ void LLViewerTextEditor::copyInventory(const LLInventoryItem* item, U32 callback
 
 bool LLViewerTextEditor::hasEmbeddedInventory()
 {
-	return (!(mEmbeddedItemList->empty()));
+	return ! mEmbeddedItemList->empty();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1577,11 +1579,9 @@ LLView* LLViewerTextEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlF
 								font,
 								allow_embedded_items);
 
-	BOOL ignore_tabs = text_editor->mTabToNextField;
+	BOOL ignore_tabs = text_editor->tabsToNextField();
 	node->getAttributeBOOL("ignore_tab", ignore_tabs);
-
-	text_editor->setTabToNextField(ignore_tabs);
-
+	text_editor->setTabsToNextField(ignore_tabs);
 
 	text_editor->setTextEditorParameters(node);
 
@@ -1589,7 +1589,7 @@ LLView* LLViewerTextEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlF
 	node->getAttributeBOOL("hide_scrollbar",hide_scrollbar);
 	text_editor->setHideScrollbarForShortDocs(hide_scrollbar);
 
-	BOOL hide_border = !text_editor->mBorder->getVisible();
+	BOOL hide_border = !text_editor->isBorderVisible();
 	node->getAttributeBOOL("hide_border", hide_border);
 	text_editor->setBorderVisible(!hide_border);
 

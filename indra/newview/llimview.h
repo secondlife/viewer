@@ -165,7 +165,7 @@ public:
 	void clearPendingAgentListUpdates(const LLUUID& session_id);
 
 	//HACK: need a better way of enumerating existing session, or listening to session create/destroy events
-	const std::set<LLViewHandle>& getIMFloaterHandles() { return mFloaters; }
+	const std::set<LLHandle<LLFloater> >& getIMFloaterHandles() { return mFloaters; }
 
 private:
 	class LLIMSessionInvite;
@@ -199,7 +199,7 @@ private:
 	static void onInviteNameLookup(const LLUUID& id, const char* first, const char* last, BOOL is_group, void* userdata);
 
 private:
-	std::set<LLViewHandle> mFloaters;
+	std::set<LLHandle<LLFloater> > mFloaters;
 	LLFriendObserver* mFriendObserver;
 
 	// An IM has been received that you haven't seen yet.

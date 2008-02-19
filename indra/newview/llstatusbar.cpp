@@ -127,7 +127,7 @@ LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
 	mSquareMetersCommitted(0)
 {
 	// status bar can possible overlay menus?
-	mMouseOpaque = FALSE;
+	setMouseOpaque(FALSE);
 	setIsChrome(TRUE);
 
 	// size of day of the weeks and year
@@ -171,7 +171,7 @@ LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
 	childSetActionTextbox("BalanceText", onClickBalance );
 
 	// Adding Net Stat Graph
-	S32 x = mRect.getWidth() - 2;
+	S32 x = getRect().getWidth() - 2;
 	S32 y = 0;
 	LLRect r;
 	r.set( x-SIM_STAT_WIDTH, y+MENU_BAR_HEIGHT-1, x, y+1);
@@ -241,9 +241,9 @@ void LLStatusBar::draw()
 {
 	refresh();
 
-	if (mBgVisible)
+	if (isBackgroundVisible())
 	{
-		gl_drop_shadow(0, mRect.getHeight(), mRect.getWidth(), 0, 
+		gl_drop_shadow(0, getRect().getHeight(), getRect().getWidth(), 0, 
 				LLUI::sColorsGroup->getColor("ColorDropShadow"), 
 				LLUI::sConfigGroup->getS32("DropShadowFloater") );
 	}
@@ -504,7 +504,7 @@ void LLStatusBar::refresh()
 
 		mRegionDetails.mTime = mTextTime->getText();
 		mRegionDetails.mBalance = mBalance;
-		mRegionDetails.mAccesString = (char *)region->getSimAccessString();
+		mRegionDetails.mAccesString = region->getSimAccessString();
 		mRegionDetails.mPing = region->getNetDetailsForLCD();
 		if (parcel && !parcel->getName().empty())
 		{
@@ -516,7 +516,7 @@ void LLStatusBar::refresh()
 
 			// keep these around for the LCD to use
 			mRegionDetails.mRegionName = region->getName();
-			mRegionDetails.mParcelName = (char *)parcel->getName().c_str();
+			mRegionDetails.mParcelName = parcel->getName();
 			mRegionDetails.mX = pos_x;
 			mRegionDetails.mY = pos_y;
 			mRegionDetails.mZ = pos_z;
@@ -526,7 +526,7 @@ void LLStatusBar::refresh()
 			
 			if (parcel->isPublic())
 			{
-				snprintf(mRegionDetails.mOwner, MAX_STRING, "Public");
+				mRegionDetails.mOwner = "Public";
 			}
 			else
 			{
@@ -538,16 +538,13 @@ void LLStatusBar::refresh()
 					}
 					else
 					{
-						snprintf(mRegionDetails.mOwner, MAX_STRING, "Group Owned");
+						mRegionDetails.mOwner = "Group Owned";
 					}
 				}
 				else
 				{
 					// Figure out the owner's name
-					char owner_first[MAX_STRING];	/*Flawfinder: ignore*/
-					char owner_last[MAX_STRING];	/*Flawfinder: ignore*/
-					gCacheName->getName(parcel->getOwnerID(), owner_first, owner_last);
-					snprintf(mRegionDetails.mOwner, MAX_STRING, "%s %s", owner_first, owner_last); 		/* Flawfinder: ignore */
+					gCacheName->getFullName(parcel->getOwnerID(), mRegionDetails.mOwner);
 				}
 			}
 		}
@@ -566,7 +563,7 @@ void LLStatusBar::refresh()
 			mRegionDetails.mZ = pos_z;
 			mRegionDetails.mArea = 0;
 			mRegionDetails.mForSale = FALSE;
-			snprintf(mRegionDetails.mOwner, MAX_STRING, "Unknown");
+			mRegionDetails.mOwner = "Unknown";
 			mRegionDetails.mTraffic = 0.0f;
 		}
 	}
@@ -575,7 +572,7 @@ void LLStatusBar::refresh()
 		// no region
 		location_name = "(Unknown)";
 		// keep these around for the LCD to use
-		mRegionDetails.mRegionName = LLString("Unknown");
+		mRegionDetails.mRegionName = "Unknown";
 		mRegionDetails.mParcelName = "Unknown";
 		mRegionDetails.mAccesString = "Unknown";
 		mRegionDetails.mX = 0;
@@ -583,7 +580,7 @@ void LLStatusBar::refresh()
 		mRegionDetails.mZ = 0;
 		mRegionDetails.mArea = 0;
 		mRegionDetails.mForSale = FALSE;
-		snprintf(mRegionDetails.mOwner, MAX_STRING, "Unknown");
+		mRegionDetails.mOwner = "Unknown";
 		mRegionDetails.mTraffic = 0.0f;
 	}
 
@@ -640,7 +637,7 @@ void LLStatusBar::refresh()
 	x += 8;
 
 	const S32 PARCEL_RIGHT =  llmin(mTextTime->getRect().mLeft, mTextParcelName->getTextPixelWidth() + x + 5);
-	r.set(x+4, mRect.getHeight() - 2, PARCEL_RIGHT, 0);
+	r.set(x+4, getRect().getHeight() - 2, PARCEL_RIGHT, 0);
 	mTextParcelName->setRect(r);
 
 	// Set search bar visibility
@@ -841,7 +838,7 @@ static void onClickBuyLand(void*)
 void LLStatusBar::setupDate()
 {
 	// fill the day array with what's in the xui
-	LLString day_list = getFormattedUIString("StatBarDaysOfWeek");
+	LLString day_list = getString("StatBarDaysOfWeek");
 	size_t length = day_list.size();
 	
 	// quick input check
@@ -865,7 +862,7 @@ void LLStatusBar::setupDate()
 	}
 	
 	// fill the day array with what's in the xui	
-	LLString month_list = getFormattedUIString( "StatBarMonthsOfYear" );
+	LLString month_list = getString( "StatBarMonthsOfYear" );
 	length = month_list.size();
 	
 	// quick input check

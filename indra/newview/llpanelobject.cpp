@@ -259,7 +259,7 @@ BOOL	LLPanelObject::postBuild()
 	mSpinRevolutions->setValidateBeforeCommit( &precommitValidate );
 
 	// Sculpt
-	mCtrlSculptTexture = LLUICtrlFactory::getTexturePickerByName(this,"sculpt texture control");
+	mCtrlSculptTexture = getChild<LLTextureCtrl>("sculpt texture control");
 	if (mCtrlSculptTexture)
 	{
 		mCtrlSculptTexture->setDefaultImageAssetID(LLUUID(SCULPT_DEFAULT_TEXTURE));
@@ -1903,7 +1903,7 @@ void LLPanelObject::onSelectSculpt(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelObject* self = (LLPanelObject*) userdata;
 
-    LLTextureCtrl* mTextureCtrl = gUICtrlFactory->getTexturePickerByName(self, "sculpt texture control");
+    LLTextureCtrl* mTextureCtrl = self->getChild<LLTextureCtrl>("sculpt texture control");
 
 	if (mTextureCtrl)
 	{
@@ -1926,7 +1926,7 @@ BOOL LLPanelObject::onDropSculpt(LLUICtrl*, LLInventoryItem* item, void* userdat
 {
 	LLPanelObject* self = (LLPanelObject*) userdata;
 
-    LLTextureCtrl* mTextureCtrl = gUICtrlFactory->getTexturePickerByName(self, "sculpt texture control");
+    LLTextureCtrl* mTextureCtrl = self->getChild<LLTextureCtrl>("sculpt texture control");
 
 	if (mTextureCtrl)
 	{
@@ -1945,7 +1945,7 @@ void LLPanelObject::onCancelSculpt(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelObject* self = (LLPanelObject*) userdata;
 
-	LLTextureCtrl* mTextureCtrl = gUICtrlFactory->getTexturePickerByName(self,"sculpt texture control");
+	LLTextureCtrl* mTextureCtrl = self->getChild<LLTextureCtrl>("sculpt texture control");
 	if(!mTextureCtrl)
 		return;
 	

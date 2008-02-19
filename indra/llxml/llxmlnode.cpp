@@ -3024,80 +3024,65 @@ LLXMLNodePtr LLXMLNode::getNextSibling()
 LLString LLXMLNode::getTextContents() const
 {
 	std::string msg;
-	LLXMLNodeList p_children;
-	getChildren("p", p_children);
-	if (p_children.size() > 0)
+	LLString contents = mValue;
+	std::string::size_type n = contents.find_first_not_of(" \t\n");
+	if (n != std::string::npos && contents[n] == '\"')
 	{
-		// Case 1: node has <p>text</p> tags
-		LLXMLNodeList::iterator itor;
-		for (itor = p_children.begin(); itor != p_children.end(); ++itor)
+		// Case 1: node has quoted text
+		S32 num_lines = 0;
+		while(1)
 		{
-			LLXMLNodePtr p = itor->second;
-			msg += p->getValue() + "\n";
+			// mContents[n] == '"'
+			++n;
+			std::string::size_type t = n;
+			std::string::size_type m = 0;
+			// fix-up escaped characters
+			while(1)
+			{
+				m = contents.find_first_of("\\\"", t); // find first \ or "
+				if ((m == std::string::npos) || (contents[m] == '\"'))
+				{
+					break;
+				}
+				contents.erase(m,1);
+				t = m+1;
+			}
+			if (m == std::string::npos)
+			{
+				break;
+			}
+			// mContents[m] == '"'
+			num_lines++;
+			msg += contents.substr(n,m-n) + "\n";
+			n = contents.find_first_of("\"", m+1);
+			if (n == std::string::npos)
+			{
+				if (num_lines == 1)
+				{
+					msg.erase(msg.size()-1); // remove "\n" if only one line
+				}
+				break;
+			}
 		}
 	}
 	else
 	{
-		LLString contents = mValue;
-		std::string::size_type n = contents.find_first_not_of(" \t\n");
-		if (n != std::string::npos && contents[n] == '\"')
+		// Case 2: node has embedded text (beginning and trailing whitespace trimmed)
+		LLString::size_type start = mValue.find_first_not_of(" \t\n");
+		if (start != mValue.npos)
 		{
-			// Case 2: node has quoted text
-			S32 num_lines = 0;
-			while(1)
+			LLString::size_type end = mValue.find_last_not_of(" \t\n");
+			if (end != mValue.npos)
 			{
-				// mContents[n] == '"'
-				++n;
-				std::string::size_type t = n;
-				std::string::size_type m = 0;
-				// fix-up escaped characters
-				while(1)
-				{
-					m = contents.find_first_of("\\\"", t); // find first \ or "
-					if ((m == std::string::npos) || (contents[m] == '\"'))
-					{
-						break;
-					}
-					contents.erase(m,1);
-					t = m+1;
-				}
-				if (m == std::string::npos)
-				{
-					break;
-				}
-				// mContents[m] == '"'
-				num_lines++;
-				msg += contents.substr(n,m-n) + "\n";
-				n = contents.find_first_of("\"", m+1);
-				if (n == std::string::npos)
-				{
-					if (num_lines == 1)
-					{
-						msg.erase(msg.size()-1); // remove "\n" if only one line
-					}
-					break;
-				}
+				msg = mValue.substr(start, end+1-start);
+			}
+			else
+			{
+				msg = mValue.substr(start);
 			}
 		}
-		else
-		{
-			// Case 3: node has embedded text (beginning and trailing whitespace trimmed)
-			LLString::size_type start = mValue.find_first_not_of(" \t\n");
-			if (start != mValue.npos)
-			{
-				LLString::size_type end = mValue.find_last_not_of(" \t\n");
-				if (end != mValue.npos)
-				{
-					msg = mValue.substr(start, end+1-start);
-				}
-				else
-				{
-					msg = mValue.substr(start);
-				}
-			}
-			// Convert any internal CR to LF
-			msg = utf8str_removeCRLF(msg);
-		}
+		// Convert any internal CR to LF
+		msg = utf8str_removeCRLF(msg);
 	}
 	return msg;
 }

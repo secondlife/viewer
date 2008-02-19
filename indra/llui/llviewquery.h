@@ -42,12 +42,12 @@ class LLView;
 typedef std::list<LLView *>			viewList_t;
 typedef std::pair<BOOL, BOOL>		filterResult_t;
 
-// Abstract base class for all filters.
+// Abstract base class for all query filters.
 class LLQueryFilter
 {
 public:
 	virtual ~LLQueryFilter() {};
-	virtual filterResult_t operator() (const LLView* const view, const viewList_t & children) const =0;
+	virtual filterResult_t operator() (const LLView* const view, const viewList_t & children) const = 0;
 };
 
 class LLQuerySorter
@@ -105,25 +105,28 @@ public:
 	typedef filterList_t::iterator				filterList_iter_t;
 	typedef filterList_t::const_iterator		filterList_const_iter_t;
 
-	LLViewQuery();
+	LLViewQuery() : mPreFilters(), mPostFilters(), mSorterp() {}
 	virtual ~LLViewQuery() {}
 
-	void addPreFilter(const LLQueryFilter* prefilter);
-	void addPostFilter(const LLQueryFilter* postfilter);
-	const filterList_t & getPreFilters() const;
-	const filterList_t & getPostFilters() const;
+	void addPreFilter(const LLQueryFilter* prefilter) { mPreFilters.push_back(prefilter); }
+	void addPostFilter(const LLQueryFilter* postfilter) { mPostFilters.push_back(postfilter); }
+	const filterList_t & getPreFilters() const { return mPreFilters; }
+	const filterList_t & getPostFilters() const { return mPostFilters; }
 
-	void setSorter(const LLQuerySorter* sorter);
-	const LLQuerySorter* getSorter() const;
+	void setSorter(const LLQuerySorter* sorter) { mSorterp = sorter; }
+	const LLQuerySorter* getSorter() const { return mSorterp; }
 
 	viewList_t run(LLView * view) const;
 	// syntactic sugar
 	viewList_t operator () (LLView * view) const { return run(view); }
-protected:
+
 	// override this method to provide iteration over other types of children
 	virtual void filterChildren(LLView * view, viewList_t & filtered_children) const;
+
+private:
+
 	filterResult_t runFilters(LLView * view, const viewList_t children, const filterList_t filters) const;
-protected:
+
 	filterList_t mPreFilters;
 	filterList_t mPostFilters;
 	const LLQuerySorter* mSorterp;
@@ -135,4 +138,4 @@ public:
 	LLCtrlQuery();
 };
 
-#endif
+#endif // LL_LLVIEWQUERY_H

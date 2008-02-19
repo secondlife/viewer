@@ -41,7 +41,7 @@
 
 const U32 KEYWORD_FILE_CURRENT_VERSION = 2;
 
-inline BOOL LLKeywordToken::isHead(const llwchar* s)
+inline BOOL LLKeywordToken::isHead(const llwchar* s) const
 {
 	// strncmp is much faster than string compare
 	BOOL res = TRUE;

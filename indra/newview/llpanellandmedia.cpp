@@ -66,7 +66,7 @@ BOOL LLPanelLandMedia::postBuild()
 	mMusicURLEdit = LLUICtrlFactory::getLineEditorByName(this, "music_url");
 	childSetCommitCallback("music_url", onCommitAny, this);
 
-	mMediaTextureCtrl = LLUICtrlFactory::getTexturePickerByName(this, "media texture");
+	mMediaTextureCtrl = LLViewerUICtrlFactory::getTexturePickerByName(this, "media texture");
 	if (mMediaTextureCtrl)
 	{
 		mMediaTextureCtrl->setCommitCallback( onCommitAny );
@@ -77,7 +77,7 @@ BOOL LLPanelLandMedia::postBuild()
 	}
 	else
 	{
-		llwarns << "LLUICtrlFactory::getTexturePickerByName() returned NULL for 'media texure'" << llendl;
+		llwarns << "LLViewerUICtrlFactory::getTexturePickerByName() returned NULL for 'media texure'" << llendl;
 	}
 		
 	mMediaAutoScaleCheck = LLUICtrlFactory::getCheckBoxByName(this, "media_auto_scale");
@@ -242,7 +242,7 @@ void LLPanelLandMedia::refresh()
 		};
 		#endif
 
-		LLFloaterURLEntry* floater_url_entry = (LLFloaterURLEntry*)LLFloater::getFloaterByHandle(mURLEntryFloater);
+		LLFloaterURLEntry* floater_url_entry = (LLFloaterURLEntry*)mURLEntryFloater.get();
 		if (floater_url_entry)
 		{
 			floater_url_entry->updateFromLandMediaPanel();
@@ -373,6 +373,6 @@ void LLPanelLandMedia::onSetBtn(void *userdata)
 	LLFloater* parent_floater = gFloaterView->getParentFloater(self); 
 	if (parent_floater)
 	{
-		parent_floater->addDependentFloater(LLFloater::getFloaterByHandle(self->mURLEntryFloater));
+		parent_floater->addDependentFloater(self->mURLEntryFloater.get());
 	}
 }

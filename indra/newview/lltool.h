@@ -51,7 +51,7 @@ public:
 	virtual ~LLTool();
 
 	// Hack to support LLFocusMgr
-	virtual BOOL isView() { return FALSE; }
+	virtual BOOL isView() const { return FALSE; }
 
 	// Virtual functions inherited from LLMouseHandler
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);

@@ -110,7 +110,7 @@ public:
 	void selectCollisionParcel();
 
 	// Select the parcel at a specific point
-	LLHandle<LLParcelSelection> selectParcelAt(const LLVector3d& pos_global);
+	LLSafeHandle<LLParcelSelection> selectParcelAt(const LLVector3d& pos_global);
 
 	// Take the current rectangle select, and select the parcel contained
 	// within it.

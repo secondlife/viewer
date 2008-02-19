@@ -130,7 +130,7 @@ LLRect LLToolView::getButtonRect(S32 button_index)
 	const S32 HORIZ_SPACING = TOOL_SIZE + 5;
 	const S32 VERT_SPACING = TOOL_SIZE + 14;
 
-	S32 tools_per_row = mRect.getWidth() / HORIZ_SPACING;
+	S32 tools_per_row = getRect().getWidth() / HORIZ_SPACING;
 
 	S32 row = button_index / tools_per_row;
 	S32 column = button_index % tools_per_row; 
@@ -194,5 +194,6 @@ void LLToolView::onClickToolButton(void* userdata)
 	// Switch to this one
 	gToolMgr->getCurrentToolset()->selectTool( clicked->mTool );
 }
+
 
 

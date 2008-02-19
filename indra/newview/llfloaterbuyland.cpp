@@ -390,13 +390,13 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 	
 	if (!mParcelValid)
 	{
-		mCannotBuyReason= childGetText("no_land_selected");
+		mCannotBuyReason = getString("no_land_selected");
 		return;
 	}
 	
 	if (mParcel->getMultipleOwners())
 	{
-		mCannotBuyReason = childGetText("multiple_parcels_selected");
+		mCannotBuyReason = getString("multiple_parcels_selected");
 		return;
 	}
 
@@ -454,13 +454,13 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 	bool haveEnoughCash = mParcelPrice <= mAgentCashBalance;
 	S32 cashBuy = haveEnoughCash ? 0 : (mParcelPrice - mAgentCashBalance);
 	mCurrency.setAmount(cashBuy, true);
-	mCurrency.setZeroMessage(haveEnoughCash ? childGetText("none_needed") : "");
+	mCurrency.setZeroMessage(haveEnoughCash ? getString("none_needed") : "");
 
 	// checks that we can buy the land
 
 	if(mIsForGroup && !gAgent.hasPowerInActiveGroup(GP_LAND_DEED))
 	{
-		mCannotBuyReason = childGetText("cant_buy_for_group");
+		mCannotBuyReason = getString("cant_buy_for_group");
 		return;
 	}
 
@@ -474,7 +474,7 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 			|| (mParcelPrice == 0  &&  authorizedBuyer.isNull()))
 		{
 			
-			mCannotBuyReason = childGetText("parcel_not_for_sale");
+			mCannotBuyReason = getString("parcel_not_for_sale");
 			return;
 		}
 
@@ -482,18 +482,18 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 		{
 			if (mIsForGroup)
 			{
-				mCannotBuyReason = childGetText("group_already_owns");
+				mCannotBuyReason = getString("group_already_owns");
 			}
 			else
 			{
-				mCannotBuyReason = childGetText("you_already_own");
+				mCannotBuyReason = getString("you_already_own");
 			}
 			return;
 		}
 
 		if (!authorizedBuyer.isNull()  &&  buyer != authorizedBuyer)
 		{
-			mCannotBuyReason = childGetText("set_to_sell_to_other");
+			mCannotBuyReason = getString("set_to_sell_to_other");
 			return;
 		}
 	}
@@ -501,14 +501,14 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 	{
 		if (mParcelActualArea == 0)
 		{
-			mCannotBuyReason = childGetText("no_public_land");
+			mCannotBuyReason = getString("no_public_land");
 			return;
 		}
 
 		if (mParcel->hasOthersSelected())
 		{
 			// Policy: Must not have someone else's land selected
-			mCannotBuyReason = childGetText("not_owned_by_you");
+			mCannotBuyReason = getString("not_owned_by_you");
 			return;
 		}
 	}
@@ -521,39 +521,39 @@ void LLFloaterBuyLandUI::updateCovenantInfo()
 	LLViewerRegion* region = gParcelMgr->getSelectionRegion();
 	if(!region) return;
 
-	LLTextBox* region_name = (LLTextBox*)getChildByName("region_name_text");
+	LLTextBox* region_name = getChild<LLTextBox>("region_name_text");
 	if (region_name)
 	{
 		region_name->setText(region->getName());
 	}
 
-	LLTextBox* resellable_clause = (LLTextBox*)getChildByName("resellable_clause");
+	LLTextBox* resellable_clause = getChild<LLTextBox>("resellable_clause");
 	if (resellable_clause)
 	{
 		if (region->getRegionFlags() & REGION_FLAGS_BLOCK_LAND_RESELL)
 		{
-			resellable_clause->setText(childGetText("can_not_resell"));
+			resellable_clause->setText(getString("can_not_resell"));
 		}
 		else
 		{
-			resellable_clause->setText(childGetText("can_resell"));
+			resellable_clause->setText(getString("can_resell"));
 		}
 	}
 	
-	LLTextBox* changeable_clause = (LLTextBox*)getChildByName("changeable_clause");
+	LLTextBox* changeable_clause = getChild<LLTextBox>("changeable_clause");
 	if (changeable_clause)
 	{
 		if (region->getRegionFlags() & REGION_FLAGS_ALLOW_PARCEL_CHANGES)
 		{
-			changeable_clause->setText(childGetText("can_change"));
+			changeable_clause->setText(getString("can_change"));
 		}
 		else
 		{
-			changeable_clause->setText(childGetText("can_not_change"));
+			changeable_clause->setText(getString("can_not_change"));
 		}
 	}
 
-	LLCheckBoxCtrl* check = (LLCheckBoxCtrl*)getChildByName("agree_covenant");
+	LLCheckBoxCtrl* check = getChild<LLCheckBoxCtrl>("agree_covenant");
 	if(check)
 	{
 		check->set(false);
@@ -562,7 +562,7 @@ void LLFloaterBuyLandUI::updateCovenantInfo()
 		check->setCommitCallback(onChangeAgreeCovenant);
 	}
 
-	LLTextBox* box = (LLTextBox*)getChildByName("covenant_text");
+	LLTextBox* box = getChild<LLTextBox>("covenant_text");
 	if(box)
 	{
 		box->setVisible(FALSE);
@@ -589,14 +589,14 @@ void LLFloaterBuyLandUI::onChangeAgreeCovenant(LLUICtrl* ctrl, void* user_data)
 
 void LLFloaterBuyLandUI::updateCovenantText(const std::string &string, const LLUUID& asset_id)
 {
-	LLViewerTextEditor* editor = (LLViewerTextEditor*)getChildByName("covenant_editor");
+	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("covenant_editor");
 	if (editor)
 	{
 		editor->setHandleEditKeysDirectly(FALSE);
 		editor->setText(string);
 
-		LLCheckBoxCtrl* check = (LLCheckBoxCtrl*)getChildByName("agree_covenant");
-		LLTextBox* box = (LLTextBox*)getChildByName("covenant_text");
+		LLCheckBoxCtrl* check = getChild<LLCheckBoxCtrl>("agree_covenant");
+		LLTextBox* box = getChild<LLTextBox>("covenant_text");
 		if(check && box)
 		{
 			if (asset_id.isNull())
@@ -621,19 +621,19 @@ void LLFloaterBuyLandUI::updateCovenantText(const std::string &string, const LLU
 
 void LLFloaterBuyLandUI::updateEstateName(const std::string& name)
 {
-	LLTextBox* box = (LLTextBox*)getChildByName("estate_name_text");
+	LLTextBox* box = getChild<LLTextBox>("estate_name_text");
 	if (box) box->setText(name);
 }
 
 void LLFloaterBuyLandUI::updateLastModified(const std::string& text)
 {
-	LLTextBox* editor = (LLTextBox*)getChildByName("covenant_timestamp_text");
+	LLTextBox* editor = getChild<LLTextBox>("covenant_timestamp_text");
 	if (editor) editor->setText(text);
 }
 
 void LLFloaterBuyLandUI::updateEstateOwnerName(const std::string& name)
 {
-	LLTextBox* box = (LLTextBox*)getChildByName("estate_owner_text");
+	LLTextBox* box = getChild<LLTextBox>("estate_owner_text");
 	if (box) box->setText(name);
 }
 
@@ -819,18 +819,11 @@ void LLFloaterBuyLandUI::updateNames()
 	}
 	else if (parcelp->getIsGroupOwned())
 	{
-		char groupName[DB_LAST_NAME_BUF_SIZE];	/*Flawfinder: ignore*/
-		
-		gCacheName->getGroupName(parcelp->getGroupID(), &groupName[0]);
-		mParcelSellerName = groupName;
+		gCacheName->getGroupName(parcelp->getGroupID(), mParcelSellerName);
 	}
 	else
 	{
-		char firstName[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
-		char lastName[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
-		
-		gCacheName->getName(parcelp->getOwnerID(), firstName, lastName);
-		mParcelSellerName = llformat("%s %s", firstName, lastName);
+		gCacheName->getFullName(parcelp->getOwnerID(), mParcelSellerName);
 	}
 }
 
@@ -908,7 +901,7 @@ void LLFloaterBuyLandUI::tellUserError(
 {
 	mCanBuy = false;
 	mCannotBuyIsError = true;
-	mCannotBuyReason = childGetText("fetching_error");
+	mCannotBuyReason = getString("fetching_error");
 	mCannotBuyReason += message;
 	mCannotBuyURI = uri;
 }
@@ -998,17 +991,15 @@ void LLFloaterBuyLandUI::refreshUI()
 				mParcelValid ? mParcelSnapshot : LLUUID::null);
 		}
 		
-		
-			
 		if (mParcelValid)
 		{
 			childSetText("info_parcel", mParcelLocation);
 
-			
-			childSetTextArg("meters_supports_object", "[AMOUNT]",  llformat("%d", mParcelActualArea));
-			childSetTextArg("meters_supports_object", "[AMOUNT2]",  llformat("%d", mParcelSupportedObjects));
-			
-			childSetText("info_size", childGetText("meters_supports_object"));
+			LLString::format_map_t string_args;
+			string_args["[AMOUNT]"] = llformat("%d", mParcelActualArea);
+			string_args["[AMOUNT2]"] = llformat("%d", mParcelSupportedObjects);
+		
+			childSetText("info_size", getString("meters_supports_object", string_args));
 
 
 			childSetText("info_price",
@@ -1022,7 +1013,7 @@ void LLFloaterBuyLandUI::refreshUI()
 		}
 		else
 		{
-			childSetText("info_parcel", childGetText("no_parcel_selected"));
+			childSetText("info_parcel", getString("no_parcel_selected"));
 			childSetText("info_size", LLString::null);
 			childSetText("info_price", LLString::null);
 		}
@@ -1031,12 +1022,12 @@ void LLFloaterBuyLandUI::refreshUI()
 			mCanBuy
 				?
 					mIsForGroup
-						? childGetText("buying_for_group")//"Buying land for group:"
-						: childGetText("buying_will")//"Buying this land will:"
+						? getString("buying_for_group")//"Buying land for group:"
+						: getString("buying_will")//"Buying this land will:"
 				: 
 					mCannotBuyIsError
-						? childGetText("cannot_buy_now")//"Cannot buy now:"
-						: childGetText("not_for_sale")//"Not for sale:"
+						? getString("cannot_buy_now")//"Cannot buy now:"
+						: getString("not_for_sale")//"Not for sale:"
 
 			);
 	}
@@ -1081,8 +1072,8 @@ void LLFloaterBuyLandUI::refreshUI()
 		childSetText("account_action", mSiteMembershipAction);
 		childSetText("account_reason", 
 			mSiteMembershipUpgrade
-				?	childGetText("must_upgrade")
-				:	childGetText("cant_own_land")
+				?	getString("must_upgrade")
+				:	getString("cant_own_land")
 			);
 		
 		LLComboBox* levels = LLUICtrlFactory::getComboBoxByName(this, "account_level");
@@ -1127,18 +1118,17 @@ void LLFloaterBuyLandUI::refreshUI()
 		
 		if (mIsForGroup)
 		{
-			childSetTextArg("insufficient_land_credits", "[GROUP]", LLString(gAgent.mGroupName));
+			LLString::format_map_t string_args;
+			string_args["[GROUP]"] = LLString(gAgent.mGroupName);
 
-
-			message += childGetText("insufficient_land_credits");
+			message += getString("insufficient_land_credits", string_args);
 				
 		}
 		else
 		{
-		
-		childSetTextArg("land_holdings", "[BUYER]", llformat("%d", mAgentCommittedTier));
-		message += childGetText("land_holdings");
-
+			LLString::format_map_t string_args;
+			string_args["[BUYER]"] = llformat("%d", mAgentCommittedTier);
+			message += getString("land_holdings", string_args);
 		}
 		
 		if (!mParcelValid)
@@ -1147,21 +1137,24 @@ void LLFloaterBuyLandUI::refreshUI()
 		}
 		else if (mParcelBillableArea == mParcelActualArea)
 		{
-			childSetTextArg("parcel_meters", "[AMOUNT]", llformat("%d", mParcelActualArea));
-			message += childGetText("parcel_meters");
+			LLString::format_map_t string_args;
+			string_args["[AMOUNT]"] = llformat("%d", mParcelActualArea);
+			message += getString("parcel_meters", string_args);
 		}
 		else
 		{
 
 			if (mParcelBillableArea > mParcelActualArea)
 			{	
-				childSetTextArg("premium_land", "[AMOUNT]", llformat("%d", mParcelBillableArea) );
-				message += childGetText("premium_land");
+				LLString::format_map_t string_args;
+				string_args["[AMOUNT]"] = llformat("%d", mParcelBillableArea);
+				message += getString("premium_land", string_args);
 			}
 			else
 			{
-				childSetTextArg("discounted_land", "[AMOUNT]", llformat("%d", mParcelBillableArea) );
-				message += childGetText("discounted_land");
+				LLString::format_map_t string_args;
+				string_args["[AMOUNT]"] = llformat("%d", mParcelBillableArea);
+				message += getString("discounted_land", string_args);
 			}
 		}
 
@@ -1208,35 +1201,36 @@ void LLFloaterBuyLandUI::refreshUI()
 
 		if (haveEnough)
 		{
-			
-			childSetTextArg("have_enough_lindens", "[AMOUNT]", llformat("%d", mAgentCashBalance));
-			childSetText("currency_reason", childGetText("have_enough_lindens"));
+			LLString::format_map_t string_args;
+			string_args["[AMOUNT]"] = llformat("%d", mAgentCashBalance);
+
+			childSetText("currency_reason", getString("have_enough_lindens", string_args));
 		}
 		else
 		{
-			childSetTextArg("not_enough_lindens", "[AMOUNT]", llformat("%d", mAgentCashBalance));
-			childSetTextArg("not_enough_lindens", "[AMOUNT2]", llformat("%d", mParcelPrice - mAgentCashBalance));
+			LLString::format_map_t string_args;
+			string_args["[AMOUNT]"] = llformat("%d", mAgentCashBalance);
+			string_args["[AMOUNT2]"] = llformat("%d", mParcelPrice - mAgentCashBalance);
 			
-			childSetText("currency_reason", childGetText("not_enough_lindens"));
+			childSetText("currency_reason", getString("not_enough_lindens", string_args));
 
 			childSetTextArg("currency_est", "[AMOUNT2]", llformat("%#.2f", mCurrency.getEstimate() / 100.0));
-			
 		}
 		
 		if (willHaveEnough)
 		{
+			LLString::format_map_t string_args;
+			string_args["[AMOUNT]"] = llformat("%d", finalBalance);
 
-			childSetTextArg("balance_left", "[AMOUNT]", llformat("%d", finalBalance));
-			
-			childSetText("currency_balance", childGetText("balance_left"));
+			childSetText("currency_balance", getString("balance_left", string_args));
 
 		}
 		else
 		{
+			LLString::format_map_t string_args;
+			string_args["[AMOUNT]"] = llformat("%d", mParcelPrice - mAgentCashBalance);
 	
-			childSetTextArg("balance_needed", "[AMOUNT]", llformat("%d", mParcelPrice - mAgentCashBalance));
-		
-			childSetText("currency_balance", childGetText("balance_needed"));
+			childSetText("currency_balance", getString("balance_needed", string_args));
 			
 		}
 
@@ -1264,7 +1258,7 @@ void LLFloaterBuyLandUI::refreshUI()
 
 
 	bool agrees_to_covenant = false;
-	LLCheckBoxCtrl* check = (LLCheckBoxCtrl*)getChildByName("agree_covenant");
+	LLCheckBoxCtrl* check = getChild<LLCheckBoxCtrl>("agree_covenant");
 	if (check)
 	{
 	    agrees_to_covenant = check->get();
@@ -1298,17 +1292,17 @@ void LLFloaterBuyLandUI::startBuyPreConfirm()
 	}
 	if (mCurrency.getAmount() > 0)
 	{
+		LLString::format_map_t string_args;
+		string_args["[AMOUNT]"] = llformat("%d", mCurrency.getAmount());
+		string_args["[AMOUNT2]"] = llformat("%#.2f", mCurrency.getEstimate() / 100.0);
 		
-		childSetTextArg("buy_for_US", "[AMOUNT]", llformat("%d", mCurrency.getAmount()));
-		childSetTextArg("buy_for_US", "[AMOUNT2]", llformat("%#.2f", mCurrency.getEstimate() / 100.0));
-
-		action += childGetText("buy_for_US");
+		action += getString("buy_for_US", string_args);
 	}
 
-	childSetTextArg("pay_to_for_land", "[AMOUNT]", llformat("%d", mParcelPrice));
-	childSetTextArg("pay_to_for_land", "[SELLER]", mParcelSellerName);
-
-	action += childGetText("pay_to_for_land");
+	LLString::format_map_t string_args;
+	string_args["[AMOUNT]"] = llformat("%d", mParcelPrice);
+	string_args["[SELLER]"] = mParcelSellerName;
+	action += getString("pay_to_for_land", string_args);
 		
 	
 	LLConfirmationManager::confirm(mSiteConfirm,
@@ -1322,7 +1316,7 @@ void LLFloaterBuyLandUI::startBuyPostConfirm(const std::string& password)
 	runWebSitePrep(password);
 	
 	mCanBuy = false;
-	mCannotBuyReason = childGetText("processing");
+	mCannotBuyReason = getString("processing");
 	refreshUI();
 }
 

@@ -99,10 +99,10 @@ BOOL LLPanelGroupGeneral::postBuild()
 	bool recurse = true;
 
 	// General info
-	mGroupNameEditor = (LLLineEditor*) getChildByName("group_name_editor", recurse);
-	mGroupName = (LLTextBox*) getChildByName("group_name", recurse);
+	mGroupNameEditor = getChild<LLLineEditor>("group_name_editor", recurse);
+	mGroupName = getChild<LLTextBox>("group_name", recurse);
 	
-	mInsignia = (LLTextureCtrl*) getChildByName("insignia", recurse);
+	mInsignia = getChild<LLTextureCtrl>("insignia", recurse);
 	if (mInsignia)
 	{
 		mInsignia->setCommitCallback(onCommitAny);
@@ -110,7 +110,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 		mDefaultIconID = mInsignia->getImageAssetID();
 	}
 	
-	mEditCharter = (LLTextEditor*) getChildByName("charter", recurse);
+	mEditCharter = getChild<LLTextEditor>("charter", recurse);
 	if(mEditCharter)
 	{
 		mEditCharter->setCommitCallback(onCommitAny);
@@ -119,21 +119,21 @@ BOOL LLPanelGroupGeneral::postBuild()
 		mEditCharter->setCallbackUserData(this);
 	}
 
-	mBtnJoinGroup = (LLButton*) getChildByName("join_button", recurse);
+	mBtnJoinGroup = getChild<LLButton>("join_button", recurse);
 	if ( mBtnJoinGroup )
 	{
 		mBtnJoinGroup->setClickedCallback(onClickJoin);
 		mBtnJoinGroup->setCallbackUserData(this);
 	}
 
-	mBtnInfo = (LLButton*) getChildByName("info_button", recurse);
+	mBtnInfo = getChild<LLButton>("info_button", recurse);
 	if ( mBtnInfo )
 	{
 		mBtnInfo->setClickedCallback(onClickInfo);
 		mBtnInfo->setCallbackUserData(this);
 	}
 
-	LLTextBox* founder = (LLTextBox*) getChildByName("founder_name");
+	LLTextBox* founder = getChild<LLTextBox>("founder_name");
 	if (founder)
 	{
 		mFounderName = new LLNameBox(founder->getName(),founder->getRect(),LLUUID::null,FALSE,founder->getFont(),founder->getMouseOpaque());
@@ -141,7 +141,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 		addChild(mFounderName);
 	}
 
-	mListVisibleMembers = (LLNameListCtrl*) getChildByName("visible_members", recurse);
+	mListVisibleMembers = getChild<LLNameListCtrl>("visible_members", recurse);
 	if (mListVisibleMembers)
 	{
 		mListVisibleMembers->setDoubleClickCallback(openProfile);
@@ -149,14 +149,14 @@ BOOL LLPanelGroupGeneral::postBuild()
 	}
 
 	// Options
-	mCtrlShowInGroupList = (LLCheckBoxCtrl*) getChildByName("show_in_group_list", recurse);
+	mCtrlShowInGroupList = getChild<LLCheckBoxCtrl>("show_in_group_list", recurse);
 	if (mCtrlShowInGroupList)
 	{
 		mCtrlShowInGroupList->setCommitCallback(onCommitAny);
 		mCtrlShowInGroupList->setCallbackUserData(this);
 	}
 
-	mCtrlMature = (LLCheckBoxCtrl*) getChildByName("mature", recurse);
+	mCtrlMature = getChild<LLCheckBoxCtrl>("mature", recurse);
 	if (mCtrlMature)
 	{
 		mCtrlMature->setCommitCallback(onCommitAny);
@@ -164,21 +164,21 @@ BOOL LLPanelGroupGeneral::postBuild()
 		mCtrlMature->setVisible( !gAgent.isTeen() );
 	}
 
-	mCtrlOpenEnrollment = (LLCheckBoxCtrl*) getChildByName("open_enrollement", recurse);
+	mCtrlOpenEnrollment = getChild<LLCheckBoxCtrl>("open_enrollement", recurse);
 	if (mCtrlOpenEnrollment)
 	{
 		mCtrlOpenEnrollment->setCommitCallback(onCommitAny);
 		mCtrlOpenEnrollment->setCallbackUserData(this);
 	}
 
-	mCtrlEnrollmentFee = (LLCheckBoxCtrl*) getChildByName("check_enrollment_fee", recurse);
+	mCtrlEnrollmentFee = getChild<LLCheckBoxCtrl>("check_enrollment_fee", recurse);
 	if (mCtrlEnrollmentFee)
 	{
 		mCtrlEnrollmentFee->setCommitCallback(onCommitEnrollment);
 		mCtrlEnrollmentFee->setCallbackUserData(this);
 	}
 
-	mSpinEnrollmentFee = (LLSpinCtrl*) getChildByName("spin_enrollment_fee", recurse);
+	mSpinEnrollmentFee = getChild<LLSpinCtrl>("spin_enrollment_fee", recurse);
 	if (mSpinEnrollmentFee)
 	{
 		mSpinEnrollmentFee->setCommitCallback(onCommitAny);
@@ -194,7 +194,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 		accept_notices = data.mAcceptNotices;
 		list_in_profile = data.mListInProfile;
 	}
-	mCtrlReceiveNotices = (LLCheckBoxCtrl*) getChildByName("receive_notices", recurse);
+	mCtrlReceiveNotices = getChild<LLCheckBoxCtrl>("receive_notices", recurse);
 	if (mCtrlReceiveNotices)
 	{
 		mCtrlReceiveNotices->setCommitCallback(onCommitUserOnly);
@@ -203,7 +203,7 @@ BOOL LLPanelGroupGeneral::postBuild()
 		mCtrlReceiveNotices->setEnabled(data.mID.notNull());
 	}
 	
-	mCtrlListGroup = (LLCheckBoxCtrl*) getChildByName("list_groups_in_profile", recurse);
+	mCtrlListGroup = getChild<LLCheckBoxCtrl>("list_groups_in_profile", recurse);
 	if (mCtrlListGroup)
 	{
 		mCtrlListGroup->setCommitCallback(onCommitUserOnly);
@@ -212,31 +212,17 @@ BOOL LLPanelGroupGeneral::postBuild()
 		mCtrlListGroup->setEnabled(data.mID.notNull());
 	}
 
-	mActiveTitleLabel = (LLTextBox*) getChildByName("active_title_label", recurse);
+	mActiveTitleLabel = getChild<LLTextBox>("active_title_label", recurse);
 	
-	mComboActiveTitle = (LLComboBox*) getChildByName("active_title", recurse);
+	mComboActiveTitle = getChild<LLComboBox>("active_title", recurse);
 	if (mComboActiveTitle)
 	{
 		mComboActiveTitle->setCommitCallback(onCommitTitle);
 		mComboActiveTitle->setCallbackUserData(this);
 	}
 
-	// Extra data
-	LLTextBox* txt;
-	// Don't recurse for this, since we don't currently have a recursive removeChild()
-	txt = (LLTextBox*)getChildByName("incomplete_member_data_str");
-	if (txt)
-	{
-		mIncompleteMemberDataStr = txt->getText();
-		removeChild(txt, TRUE);
-	}
-
-	txt = (LLTextBox*)getChildByName("confirm_group_create_str");
-	if (txt)
-	{
-		mConfirmGroupCreateStr = txt->getText();
-		removeChild(txt, TRUE);
-	}
+	mIncompleteMemberDataStr = getString("incomplete_member_data_str");
+	mConfirmGroupCreateStr = getString("confirm_group_create_str");
 
 	// If the group_id is null, then we are creating a new group
 	if (mGroupID.isNull())

@@ -60,7 +60,7 @@ public:
 	LLGroupMoneyTabEventHandler(LLButton* earlier_button,
 								LLButton* later_button,
 								LLTextEditor* text_editor,
-								LLTabContainerCommon* tab_containerp,
+								LLTabContainer* tab_containerp,
 								LLPanel* panelp,
 								const LLString& loading_text,
 								const LLUUID& group_id,
@@ -92,7 +92,7 @@ public:
 	LLGroupMoneyDetailsTabEventHandler(LLButton* earlier_buttonp,
 									   LLButton* later_buttonp,
 									   LLTextEditor* text_editorp,
-									   LLTabContainerCommon* tab_containerp,
+									   LLTabContainer* tab_containerp,
 									   LLPanel* panelp,
 									   const LLString& loading_text,
 									   const LLUUID& group_id);
@@ -109,7 +109,7 @@ public:
 	LLGroupMoneySalesTabEventHandler(LLButton* earlier_buttonp,
 									 LLButton* later_buttonp,
 									 LLTextEditor* text_editorp,
-									 LLTabContainerCommon* tab_containerp,
+									 LLTabContainer* tab_containerp,
 									 LLPanel* panelp,
 									 const LLString& loading_text,
 									 const LLUUID& group_id);
@@ -123,7 +123,7 @@ class LLGroupMoneyPlanningTabEventHandler : public LLGroupMoneyTabEventHandler
 {
 public:
 	LLGroupMoneyPlanningTabEventHandler(LLTextEditor* text_editor,
-										LLTabContainerCommon* tab_containerp,
+										LLTabContainer* tab_containerp,
 										LLPanel* panelp,
 										const LLString& loading_text,
 										const LLUUID& group_id);
@@ -501,7 +501,7 @@ void LLPanelGroupLandMoney::activate()
 	if ( !mImplementationp->mBeenActivated )
 	{
 		//select the first tab
-		LLTabContainerCommon* tabp = (LLTabContainerCommon*) getChildByName("group_money_tab_container");
+		LLTabContainer* tabp = getChild<LLTabContainer>("group_money_tab_container");
 
 		if ( tabp )
 		{
@@ -541,7 +541,7 @@ void LLPanelGroupLandMoney::update(LLGroupChange gc)
 {
 	if (gc != GC_ALL) return;  //Don't update if it's the wrong panel!
 
-	LLTabContainerCommon* tabp = (LLTabContainerCommon*) getChildByName("group_money_tab_container");
+	LLTabContainer* tabp = getChild<LLTabContainer>("group_money_tab_container");
 
 	if ( tabp )
 	{
@@ -605,12 +605,12 @@ BOOL LLPanelGroupLandMoney::postBuild()
 	bool can_view = gAgent.isInGroup(mGroupID);
 
 	mImplementationp->mGroupOverLimitIconp = 
-		(LLIconCtrl*) getChildByName("group_over_limit_icon");
+		getChild<LLIconCtrl>("group_over_limit_icon");
 	mImplementationp->mGroupOverLimitTextp = 
-		(LLTextBox*) getChildByName("group_over_limit_text");
+		getChild<LLTextBox>("group_over_limit_text");
 
 	mImplementationp->mYourContributionEditorp 
-		= (LLLineEditor*) getChildByName("your_contribution_line_editor");
+		= getChild<LLLineEditor>("your_contribution_line_editor");
 	if ( mImplementationp->mYourContributionEditorp )
 	{
 		LLLineEditor* editor = mImplementationp->mYourContributionEditorp;
@@ -620,26 +620,13 @@ BOOL LLPanelGroupLandMoney::postBuild()
 		editor->setCallbackUserData(this);
 	}
 
-	mImplementationp->mMapButtonp = (LLButton*) getChildByName("map_button");
+	mImplementationp->mMapButtonp = getChild<LLButton>("map_button");
 
 	mImplementationp->mGroupParcelsp = 
-		(LLScrollListCtrl*) getChildByName("group_parcel_list");
+		getChild<LLScrollListCtrl>("group_parcel_list");
 
-	LLTextBox *no_permsp = 
-		(LLTextBox*) getChildByName("cant_view_group_land_text");
-	if ( no_permsp )
-	{
-		mImplementationp->mCantViewParcelsText = no_permsp->getText();
-		removeChild(no_permsp, TRUE);
-	}
-
-	no_permsp = (LLTextBox*) getChildByName("cant_view_group_accounting_text");
-	if ( no_permsp )
-	{
-		mImplementationp->mCantViewAccountsText = no_permsp->getText();
-		removeChild(no_permsp, TRUE);
-	}
-
+	mImplementationp->mCantViewParcelsText = getString("cant_view_group_land_text");
+	mImplementationp->mCantViewAccountsText = getString("cant_view_group_accounting_text");
 	
 	if ( mImplementationp->mMapButtonp )
 	{
@@ -677,8 +664,7 @@ BOOL LLPanelGroupLandMoney::postBuild()
 	LLTextEditor* textp;
 	LLPanel* panelp;
 
-	LLTabContainerCommon* tabcp = (LLTabContainerCommon*) 
-		getChildByName("group_money_tab_container", true);
+	LLTabContainer* tabcp = getChild<LLTabContainer>("group_money_tab_container");
 
 	if ( !can_view )
 	{
@@ -694,13 +680,13 @@ BOOL LLPanelGroupLandMoney::postBuild()
 		}
 	}
 
-	LLString loading_text = childGetText("loading_txt");
+	LLString loading_text = getString("loading_txt");
 	
 	//pull out the widgets for the L$ details tab
-	earlierp = (LLButton*) getChildByName("earlier_details_button", true);
-	laterp = (LLButton*) getChildByName("later_details_button", true);
-	textp = (LLTextEditor*) getChildByName("group_money_details_text", true);
-	panelp = (LLPanel*) getChildByName("group_money_details_tab", true);
+	earlierp = getChild<LLButton>("earlier_details_button", true);
+	laterp = getChild<LLButton>("later_details_button", true);
+	textp = getChild<LLTextEditor>("group_money_details_text", true);
+	panelp = getChild<LLPanel>("group_money_details_tab", true);
 
 	if ( !can_view )
 	{
@@ -718,8 +704,8 @@ BOOL LLPanelGroupLandMoney::postBuild()
 												   mGroupID);
 	}
 
-	textp = (LLTextEditor*) getChildByName("group_money_planning_text", true);
-	panelp = (LLPanel*) getChildByName("group_money_planning_tab", true);
+	textp = getChild<LLTextEditor>("group_money_planning_text", true);
+	panelp = getChild<LLPanel>("group_money_planning_tab", true);
 
 	if ( !can_view )
 	{
@@ -736,10 +722,10 @@ BOOL LLPanelGroupLandMoney::postBuild()
 	}
 
 	//pull out the widgets for the L$ sales tab
-	earlierp = (LLButton*) getChildByName("earlier_sales_button", true);
-	laterp = (LLButton*) getChildByName("later_sales_button", true);
-	textp = (LLTextEditor*) getChildByName("group_money_sales_text", true);
-	panelp = (LLPanel*) getChildByName("group_money_sales_tab", true);
+	earlierp = getChild<LLButton>("earlier_sales_button", true);
+	laterp = getChild<LLButton>("later_sales_button", true);
+	textp = getChild<LLTextEditor>("group_money_sales_text", true);
+	panelp = getChild<LLPanel>("group_money_sales_tab", true);
 
 	if ( !can_view )
 	{
@@ -881,7 +867,7 @@ std::map<LLPanel*, LLGroupMoneyTabEventHandler*> LLGroupMoneyTabEventHandler::sT
 LLGroupMoneyTabEventHandler::LLGroupMoneyTabEventHandler(LLButton* earlier_buttonp,
 														 LLButton* later_buttonp,
 														 LLTextEditor* text_editorp,
-														 LLTabContainerCommon* tab_containerp,
+														 LLTabContainer* tab_containerp,
 														 LLPanel* panelp,
 														 const LLString& loading_text,
 														 const LLUUID& group_id,
@@ -998,7 +984,7 @@ void LLGroupMoneyTabEventHandler::clickTabCallback(void* data, bool from_click)
 LLGroupMoneyDetailsTabEventHandler::LLGroupMoneyDetailsTabEventHandler(LLButton* earlier_buttonp,
 																	   LLButton* later_buttonp,
 																	   LLTextEditor* text_editorp,
-																	   LLTabContainerCommon* tab_containerp,
+																	   LLTabContainer* tab_containerp,
 																	   LLPanel* panelp,
 																	   const LLString& loading_text,
 																	   const LLUUID& group_id)
@@ -1138,7 +1124,7 @@ void LLPanelGroupLandMoney::processGroupAccountDetailsReply(LLMessageSystem* msg
 LLGroupMoneySalesTabEventHandler::LLGroupMoneySalesTabEventHandler(LLButton* earlier_buttonp,
 																   LLButton* later_buttonp,
 																   LLTextEditor* text_editorp,
-																   LLTabContainerCommon* tab_containerp,
+																   LLTabContainer* tab_containerp,
 																   LLPanel* panelp,
 																   const LLString& loading_text,
 																   const LLUUID& group_id)
@@ -1315,7 +1301,7 @@ void LLPanelGroupLandMoney::processGroupAccountTransactionsReply(LLMessageSystem
 //***************************************************
 
 LLGroupMoneyPlanningTabEventHandler::LLGroupMoneyPlanningTabEventHandler(LLTextEditor* text_editorp,
-																		 LLTabContainerCommon* tab_containerp,
+																		 LLTabContainer* tab_containerp,
 																		 LLPanel* panelp,
 																		 const LLString& loading_text,
 																		 const LLUUID& group_id)

@@ -46,8 +46,6 @@
 const char* CN_WAITING = "(waiting)";
 const char* CN_NOBODY = "(nobody)";
 const char* CN_NONE = "(none)";
-const char* CN_HIPPOS = "(hippos)";
-const F32 HIPPO_PROBABILITY = 0.01f;
 
 // llsd serialization constants
 static const std::string AGENTS("agents");
@@ -498,35 +496,26 @@ void LLCacheName::exportFile(std::ostream& ostr)
 }
 
 
-BOOL LLCacheName::getName(const LLUUID& id, char* first, char* last)
+BOOL LLCacheName::getName(const LLUUID& id, std::string& first, std::string& last)
 {
 	if(id.isNull())
 	{
-		// The function signature needs to change to pass in the
-		// length of first and last.
-		strcpy(first, CN_NOBODY);	/*Flawfinder: ignore*/
-		last[0] = '\0';
+		first = CN_NOBODY;
+		last.clear();
 		return FALSE;
 	}
 
 	LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache, id );
 	if (entry)
 	{
-		// The function signature needs to change to pass in the
-		// length of first and last.
-		strcpy(first, entry->mFirstName);	/*Flawfinder: ignore*/
-		strcpy(last,  entry->mLastName);	/*Flawfinder: ignore*/
+		first = entry->mFirstName;
+		last =  entry->mLastName;
 		return TRUE;
 	}
 	else
 	{
-		//The function signature needs to change to pass in the
-		//length of first and last.
-		strcpy(first,(ll_frand() < HIPPO_PROBABILITY)
-						? CN_HIPPOS 
-						: CN_WAITING);
-		strcpy(last, "");	/*Flawfinder: ignore*/
-
+		first = CN_WAITING;
+		last.clear();
 		if (!impl.isRequestPending(id))
 		{
 			impl.mAskNameQueue.insert(id);
@@ -536,15 +525,29 @@ BOOL LLCacheName::getName(const LLUUID& id, char* first, char* last)
 
 }
 
+BOOL LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
+{
+	std::string first_name, last_name;
+	BOOL res = getName(id, first_name, last_name);
+	fullname = first_name + " " + last_name;
+	return res;
+}
 
+// *TODO: Deprecate
+BOOL LLCacheName::getName(const LLUUID& id, char* first, char* last)
+{
+	std::string first_name, last_name;
+	BOOL res = getName(id, first_name, last_name);
+	strcpy(first, first_name.c_str());
+	strcpy(last, last_name.c_str());
+	return res;
+}
 
-BOOL LLCacheName::getGroupName(const LLUUID& id, char* group)
+BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 {
 	if(id.isNull())
 	{
-		// The function signature needs to change to pass in the
-		// length of first and last.
-		strcpy(group, CN_NONE);	/*Flawfinder: ignore*/
+		group = CN_NONE;
 		return FALSE;
 	}
 
@@ -560,16 +563,12 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, char* group)
 
 	if (entry)
 	{
-		// The function signature needs to change to pass in the length
-		// of group.
-		strcpy(group, entry->mGroupName);	/*Flawfinder: ignore*/
+		group = entry->mGroupName;
 		return TRUE;
 	}
 	else 
 	{
-		// The function signature needs to change to pass in the length
-		// of first and last.
-		strcpy(group, CN_WAITING);	/*Flawfinder: ignore*/
+		group = CN_WAITING;
 		if (!impl.isRequestPending(id))
 		{
 			impl.mAskGroupQueue.insert(id);
@@ -577,6 +576,16 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, char* group)
 		return FALSE;
 	}
 }
+
+// *TODO: Deprecate
+BOOL LLCacheName::getGroupName(const LLUUID& id, char* group)
+{
+	std::string group_name;
+	BOOL res = getGroupName(id, group_name);
+	strcpy(group, group_name.c_str());
+	return res;
+}
+
 
 // TODO: Make the cache name callback take a SINGLE std::string,
 // not a separate first and last name.

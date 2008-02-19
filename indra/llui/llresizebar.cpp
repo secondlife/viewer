@@ -33,8 +33,6 @@
 
 #include "llresizebar.h"
 
-//#include "llviewermenu.h"
-//#include "llviewerimagelist.h"
 #include "llmath.h"
 #include "llui.h"
 #include "llmenugl.h"
@@ -87,7 +85,7 @@ LLResizeBar::LLResizeBar( const LLString& name, LLView* resizing_view, const LLR
 
 BOOL LLResizeBar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if( mEnabled )
+	if( getEnabled() )
 	{
 		// Route future Mouse messages here preemptively.  (Release on mouse up.)
 		// No handler needed for focus lost since this clas has no state that depends on it.
@@ -119,15 +117,6 @@ BOOL LLResizeBar::handleMouseUp(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
-EWidgetType LLResizeBar::getWidgetType() const
-{
-	return WIDGET_TYPE_RESIZE_BAR;
-}
-
-LLString LLResizeBar::getWidgetTag() const
-{
-	return LL_RESIZE_BAR_TAG;
-}
 
 BOOL LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
 {
@@ -267,5 +256,34 @@ BOOL LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
 	}
 
 	return handled;
+} // end LLResizeBar::handleHover
+
+BOOL LLResizeBar::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	LLRect orig_rect = mResizingView->getRect();
+	LLRect scaled_rect = orig_rect;
+
+	if (mSnappingEnabled)
+	{
+		switch( mSide )
+		{
+		case LEFT:
+			mResizingView->findSnapEdge(scaled_rect.mLeft, LLCoordGL(0, 0), SNAP_LEFT, SNAP_PARENT_AND_SIBLINGS, S32_MAX);
+			break;
+		case TOP:
+			mResizingView->findSnapEdge(scaled_rect.mTop, LLCoordGL(0, 0), SNAP_TOP, SNAP_PARENT_AND_SIBLINGS, S32_MAX);
+			break;
+		case RIGHT:
+			mResizingView->findSnapEdge(scaled_rect.mRight, LLCoordGL(0, 0), SNAP_RIGHT, SNAP_PARENT_AND_SIBLINGS, S32_MAX);
+			break;
+		case BOTTOM:
+			mResizingView->findSnapEdge(scaled_rect.mBottom, LLCoordGL(0, 0), SNAP_BOTTOM, SNAP_PARENT_AND_SIBLINGS, S32_MAX);
+			break;
+		}
+	}
+
+	mResizingView->reshape(scaled_rect.getWidth(), scaled_rect.getHeight());
+	mResizingView->setOrigin(scaled_rect.mLeft, scaled_rect.mBottom);
+	return TRUE;
 }
 

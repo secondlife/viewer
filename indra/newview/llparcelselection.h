@@ -58,6 +58,6 @@ private:
 	static LLPointer<LLParcelSelection> sNullSelection;
 };
 
-typedef LLHandle<LLParcelSelection> LLParcelSelectionHandle;
+typedef LLSafeHandle<LLParcelSelection> LLParcelSelectionHandle;
 
 #endif

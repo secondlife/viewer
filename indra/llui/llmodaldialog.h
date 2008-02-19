@@ -40,7 +40,7 @@ class LLModalDialog;
 // By default, a ModalDialog is modal, i.e. no other window can have focus
 // However, for the sake of code reuse and simplicity, if mModal == false,
 // the dialog behaves like a normal floater
-
+// https://wiki.lindenlab.com/mediawiki/index.php?title=LLModalDialog&oldid=81385
 class LLModalDialog : public LLFloater
 {
 public:
@@ -67,6 +67,8 @@ public:
 	/*virtual*/ void	setVisible(BOOL visible);
 	/*virtual*/ void	draw();
 
+	BOOL isModal() const { return mModal; }
+
 	static void		onAppFocusLost();
 	static void		onAppFocusGained();
 
@@ -75,9 +77,9 @@ public:
 protected:
 	void			centerOnScreen();
 
-protected:
+private:
 	LLFrameTimer 	mVisibleTime;
-	BOOL			mModal; // do not change this after creation!
+	const BOOL		mModal;
 
 	static std::list<LLModalDialog*> sModalStack;  // Top of stack is currently being displayed
 };

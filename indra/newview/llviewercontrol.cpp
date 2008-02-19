@@ -114,13 +114,13 @@ BOOL LLFloaterSettingsDebug::postBuild()
 	childSetCommitCallback("color_swatch", onCommitSettings);
 	childSetUserData("color_swatch", this);
 	childSetAction("default_btn", onClickDefault, this);
-	mComment = (LLTextEditor*)getChildByName("comment_text");
+	mComment = getChild<LLTextEditor>("comment_text");
 	return TRUE;
 }
 
 void LLFloaterSettingsDebug::draw()
 {
-	LLComboBox* settings_combo = (LLComboBox*)getChildByName("settings_combo");
+	LLComboBox* settings_combo = getChild<LLComboBox>("settings_combo");
 	LLControlBase* controlp = (LLControlBase*)settings_combo->getCurrentUserdata();
 	updateControl(controlp);
 
@@ -155,7 +155,7 @@ void LLFloaterSettingsDebug::onCommitSettings(LLUICtrl* ctrl, void* user_data)
 {
 	LLFloaterSettingsDebug* floaterp = (LLFloaterSettingsDebug*)user_data;
 
-	LLComboBox* settings_combo = (LLComboBox*)floaterp->getChildByName("settings_combo");
+	LLComboBox* settings_combo = floaterp->getChild<LLComboBox>("settings_combo");
 	LLControlBase* controlp = (LLControlBase*)settings_combo->getCurrentUserdata();
 
 	LLVector3 vector;
@@ -229,7 +229,7 @@ void LLFloaterSettingsDebug::onCommitSettings(LLUICtrl* ctrl, void* user_data)
 void LLFloaterSettingsDebug::onClickDefault(void* user_data)
 {
 	LLFloaterSettingsDebug* floaterp = (LLFloaterSettingsDebug*)user_data;
-	LLComboBox* settings_combo = (LLComboBox*)floaterp->getChildByName("settings_combo");
+	LLComboBox* settings_combo = floaterp->getChild<LLComboBox>("settings_combo");
 	LLControlBase* controlp = (LLControlBase*)settings_combo->getCurrentUserdata();
 
 	if (controlp)
@@ -246,7 +246,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlBase* controlp)
 	LLSpinCtrl* spinner2 = LLUICtrlFactory::getSpinnerByName(this, "val_spinner_2");
 	LLSpinCtrl* spinner3 = LLUICtrlFactory::getSpinnerByName(this, "val_spinner_3");
 	LLSpinCtrl* spinner4 = LLUICtrlFactory::getSpinnerByName(this, "val_spinner_4");
-	LLColorSwatchCtrl* color_swatch = LLUICtrlFactory::getColorSwatchByName(this, "color_swatch");
+	LLColorSwatchCtrl* color_swatch = getChild<LLColorSwatchCtrl>("color_swatch");
 
 	if (!spinner1 || !spinner2 || !spinner3 || !spinner4 || !color_swatch)
 	{

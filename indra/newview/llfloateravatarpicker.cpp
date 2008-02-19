@@ -347,8 +347,9 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 			LLString avatar_name;
 			if (avatar_id.isNull())
 			{
-				self->childSetTextArg("NotFound", "[TEXT]", self->childGetText("Edit"));
-				avatar_name = self->childGetValue("NotFound").asString();
+				LLString::format_map_t map;
+				map["[TEXT]"] = self->childGetText("Edit");
+				avatar_name = self->getString("NotFound", map);
 				self->mListNames->setEnabled(FALSE);
 			}
 			else

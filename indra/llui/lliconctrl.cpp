@@ -91,8 +91,8 @@ void LLIconCtrl::draw()
 		if( mImagep.notNull() )
 		{
 			mImagep->draw(0, 0, 
-							mRect.getWidth(), mRect.getHeight(), 
-							mColor );
+						  getRect().getWidth(), getRect().getHeight(), 
+						  mColor );
 		}
 
 		LLUICtrl::draw();

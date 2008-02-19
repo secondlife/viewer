@@ -39,13 +39,6 @@
 
 #include "llfloaterworldmap.h"
 
-// Library includes
-#include "llfontgl.h"
-#include "llinventory.h"
-#include "lllineeditor.h"
-#include "message.h"
-
-// Viewer includes
 #include "llagent.h"
 #include "llviewerwindow.h"
 #include "llbutton.h"
@@ -54,36 +47,23 @@
 #include "llcombobox.h"
 #include "llviewercontrol.h"
 #include "lldraghandle.h"
-#include "lleconomy.h"
 #include "llfirstuse.h"
 #include "llfocusmgr.h"
-#include "lliconctrl.h"
 #include "llinventorymodel.h"
-#include "llinventoryview.h"
 #include "lllandmarklist.h"
+#include "lllineeditor.h"
 #include "llnetmap.h"
 #include "llpreviewlandmark.h"
-#include "llradiogroup.h"
 #include "llregionhandle.h"
-#include "llresizehandle.h"
-#include "llresmgr.h"
 #include "llscrolllistctrl.h"
-#include "llsliderctrl.h"
-#include "llspinctrl.h"
-#include "llstatusbar.h"
-#include "lltabcontainer.h"
 #include "lltextbox.h"
 #include "lltracker.h"
-#include "llui.h"
-#include "lluiconstants.h"
 #include "llurldispatcher.h"
-#include "llviewercamera.h"
 #include "llviewermenu.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llworldmap.h"
 #include "llworldmapview.h"
-#include "llurl.h"
 #include "llvieweruictrlfactory.h"
 #include "llappviewer.h"
 #include "llmapimagetype.h"
@@ -518,7 +498,7 @@ void LLFloaterWorldMap::draw()
 	childSetEnabled("copy_slurl", (mSLURL.size() > 0) );
 
 	setMouseOpaque(TRUE);
-	mDragHandle->setMouseOpaque(TRUE);
+	getDragHandle()->setMouseOpaque(TRUE);
 
 	//RN: snaps to zoom value because interpolation caused jitter in the text rendering
 	if (!mZoomTimer.getStarted() && mCurZoomVal != (F32)childGetValue("zoom slider").asReal())

@@ -52,9 +52,13 @@ extern S32	LLBUTTON_V_PAD;
 extern S32	BTN_HEIGHT_SMALL;
 extern S32	BTN_HEIGHT;
 
-
 // All button widths should be rounded up to this size
 extern S32	BTN_GRID;
+
+//
+// Helpful functions
+//
+S32 round_up(S32 grid, S32 value);
 
 
 class LLUICtrlFactory;
@@ -124,6 +128,7 @@ public:
 	BOOL			getFlashing() const		{ return mFlashing; }
 
 	void			setHAlign( LLFontGL::HAlign align )		{ mHAlign = align; }
+	LLFontGL::HAlign getHAlign() const						{ return mHAlign; }
 	void			setLeftHPad( S32 pad )					{ mLeftHPad = pad; }
 	void			setRightHPad( S32 pad )					{ mRightHPad = pad; }
 
@@ -162,6 +167,7 @@ public:
 	void			setFont(const LLFontGL *font)		
 		{ mGLFont = ( font ? font : LLFontGL::sSansSerif); }
 	void			setScaleImage(BOOL scale)			{ mScaleImage = scale; }
+	BOOL			getScaleImage() const				{ return mScaleImage; }
 
 	void			setDropShadowedText(BOOL b)			{ mDropShadowedText = b; }
 
@@ -171,9 +177,10 @@ public:
 
 	void			setHoverGlowStrength(F32 strength) { mHoverGlowStrength = strength; }
 
-public:
 	void			setImageUnselected(const LLString &image_name);
+	const LLString& getImageUnselectedName() const { return mImageUnselectedName; }
 	void			setImageSelected(const LLString &image_name);
+	const LLString& getImageSelectedName() const { return mImageSelectedName; }
 	void			setImageHoverSelected(const LLString &image_name);
 	void			setImageHoverUnselected(const LLString &image_name);
 	void			setImageDisabled(const LLString &image_name);
@@ -187,14 +194,29 @@ public:
 	void			setImageDisabledSelected(LLPointer<LLUIImage> image);
 
 	void			setCommitOnReturn(BOOL commit) { mCommitOnReturn = commit; }
-	BOOL			getCommitOnReturn() { return mCommitOnReturn; }
+	BOOL			getCommitOnReturn() const { return mCommitOnReturn; }
 
-	void			setHelpURLCallback(std::string help_url);
-	LLString		getHelpURL() { return mHelpURL; }
+	void			setHelpURLCallback(const LLString &help_url);
+	const LLString&	getHelpURL() const { return mHelpURL; }
+
 protected:
+
 	virtual void	drawBorder(const LLColor4& color, S32 size);
 
-protected:
+	void			setImageUnselectedID(const LLUUID &image_id);
+	const LLUUID&	getImageUnselectedID() const { return mImageUnselectedID; }
+	void			setImageSelectedID(const LLUUID &image_id);
+	const LLUUID&	getImageSelectedID() const { return mImageSelectedID; }
+	void			setImageHoverSelectedID(const LLUUID &image_id);
+	void			setImageHoverUnselectedID(const LLUUID &image_id);
+	void			setImageDisabledID(const LLUUID &image_id);
+	void			setImageDisabledSelectedID(const LLUUID &image_id);
+	const LLPointer<LLUIImage>&	getImageUnselected() const	{ return mImageUnselected; }
+	const LLPointer<LLUIImage>& getImageSelected() const	{ return mImageSelected; }
+
+	LLFrameTimer	mMouseDownTimer;
+
+private:
 
 	void			(*mClickedCallback)(void* data );
 	void			(*mMouseDownCallback)(void *data);
@@ -203,7 +225,6 @@ protected:
 
 	const LLFontGL	*mGLFont;
 	
-	LLFrameTimer	mMouseDownTimer;
 	S32				mMouseDownFrame;
 	F32				mHeldDownDelay;		// seconds, after which held-down callbacks get called
 	S32				mHeldDownFrameDelay;	// frames, after which held-down callbacks get called
@@ -231,7 +252,6 @@ protected:
 	LLPointer<LLUIImage>	mImageDisabledSelected;
 	LLUIString				mDisabledSelectedLabel;
 	LLColor4				mDisabledSelectedLabelColor;
-
 
 	LLUUID			mImageUnselectedID;
 	LLUUID			mImageSelectedID;
@@ -279,8 +299,5 @@ protected:
 
 	LLFrameTimer	mFlashingTimer;
 };
-
-// Helpful functions
-S32 round_up(S32 grid, S32 value);
 
 #endif  // LL_LLBUTTON_H

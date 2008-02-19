@@ -577,7 +577,7 @@ void LLFloaterColorPicker::draw()
 		glEnd();
 	}
 
-	if (gFocusMgr.childHasMouseCapture(mDragHandle))
+	if (gFocusMgr.childHasMouseCapture(getDragHandle()))
 	{
 		mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLCriticalDamp::getInterpolant(CONTEXT_FADE_TIME));
 	}
@@ -902,104 +902,103 @@ BOOL
 LLFloaterColorPicker::
 handleMouseDown ( S32 x, S32 y, MASK mask )
 {
-	// if this window is in the foreground
-	if ( mForeground )
-	{
+	BOOL ret = LLFloater::handleMouseDown ( x, y, mask );
+
 		// make it the frontmost
-		gFloaterView->bringToFront(this);
+	gFloaterView->bringToFront(this);
 
-		// rect containing RGB area
-		LLRect rgbAreaRect ( mRGBViewerImageLeft,
-							 mRGBViewerImageTop,
-							 mRGBViewerImageLeft + mRGBViewerImageWidth,
-							 mRGBViewerImageTop - mRGBViewerImageHeight );
+	// rect containing RGB area
+	LLRect rgbAreaRect ( mRGBViewerImageLeft,
+						 mRGBViewerImageTop,
+						 mRGBViewerImageLeft + mRGBViewerImageWidth,
+						 mRGBViewerImageTop - mRGBViewerImageHeight );
 
-		if ( rgbAreaRect.pointInRect ( x, y ) )
-		{
-			gViewerWindow->setMouseCapture(this);
-			// mouse button down
-			setMouseDownInHueRegion ( TRUE );
+	if ( rgbAreaRect.pointInRect ( x, y ) )
+	{
+		gViewerWindow->setMouseCapture(this);
+		// mouse button down
+		setMouseDownInHueRegion ( TRUE );
 
-			// update all values based on initial click
-			updateRgbHslFromPoint ( x, y );
+		// update all values based on initial click
+		updateRgbHslFromPoint ( x, y );
 
-			// required by base class
-			return TRUE;
-		}
-
-		// rect containing RGB area
-		LLRect lumAreaRect ( mLumRegionLeft,
-							 mLumRegionTop,
-							 mLumRegionLeft + mLumRegionWidth + mLumMarkerSize,
-							 mLumRegionTop - mLumRegionHeight );
-
-		if ( lumAreaRect.pointInRect ( x, y ) )
-		{
-			gViewerWindow->setMouseCapture(this);
-			// mouse button down
-			setMouseDownInLumRegion ( TRUE );
-
-			// required by base class
-			return TRUE;
-		}
-
-		// rect containing swatch area
-		LLRect swatchRect ( mSwatchRegionLeft,
-							mSwatchRegionTop,
-							mSwatchRegionLeft + mSwatchRegionWidth,
-							mSwatchRegionTop - mSwatchRegionHeight );
-
-		setMouseDownInSwatch( FALSE );
-		if ( swatchRect.pointInRect ( x, y ) )
-		{
-			setMouseDownInSwatch( TRUE );
-
-			// required - dont drag windows here.
-			return TRUE;
-		}
-
-		// rect containing palette area
-		LLRect paletteRect ( mPaletteRegionLeft,
-							 mPaletteRegionTop,
-							 mPaletteRegionLeft + mPaletteRegionWidth,
-							 mPaletteRegionTop - mPaletteRegionHeight );
-
-		if ( paletteRect.pointInRect ( x, y ) )
-		{
-			// release keyboard focus so we can change text values
-			if (gFocusMgr.childHasKeyboardFocus(this))
-			{
-				mSelectBtn->setFocus(TRUE);
-			}
-
-			// calculate which palette index we selected
-			S32 c = ( ( x - mPaletteRegionLeft ) * numPaletteColumns ) / mPaletteRegionWidth;
-			S32 r = ( ( y - ( mPaletteRegionTop - mPaletteRegionHeight ) ) * numPaletteRows ) / mPaletteRegionHeight;
-
-			U32 index = ( numPaletteRows - r - 1 ) * numPaletteColumns + c;
-
-			if ( index <= mPalette.size () )
-			{
-				LLColor4 selected = *mPalette [ index ];
-
-				setCurRgb ( selected [ 0 ], selected [ 1 ], selected [ 2 ] );
-
-				if (mApplyImmediateCheck->get())
-				{
-					LLColorSwatchCtrl::onColorChanged ( getSwatch (), LLColorSwatchCtrl::COLOR_CHANGE );
-				}
-
-				// HACK: turn off the call back wilst we update the text or we recurse ourselves into oblivion
-				enableTextCallbacks ( FALSE );
-				updateTextEntry ();
-				enableTextCallbacks ( TRUE );
-			}
-
-			return TRUE;
-		}
+		// required by base class
+		return TRUE;
 	}
+
+	// rect containing RGB area
+	LLRect lumAreaRect ( mLumRegionLeft,
+						 mLumRegionTop,
+						 mLumRegionLeft + mLumRegionWidth + mLumMarkerSize,
+						 mLumRegionTop - mLumRegionHeight );
+
+	if ( lumAreaRect.pointInRect ( x, y ) )
+	{
+		gViewerWindow->setMouseCapture(this);
+		// mouse button down
+		setMouseDownInLumRegion ( TRUE );
+
+		// required by base class
+		return TRUE;
+	}
+
+	// rect containing swatch area
+	LLRect swatchRect ( mSwatchRegionLeft,
+						mSwatchRegionTop,
+						mSwatchRegionLeft + mSwatchRegionWidth,
+						mSwatchRegionTop - mSwatchRegionHeight );
+
+	setMouseDownInSwatch( FALSE );
+	if ( swatchRect.pointInRect ( x, y ) )
+	{
+		setMouseDownInSwatch( TRUE );
+
+		// required - dont drag windows here.
+		return TRUE;
+	}
+
+	// rect containing palette area
+	LLRect paletteRect ( mPaletteRegionLeft,
+						 mPaletteRegionTop,
+						 mPaletteRegionLeft + mPaletteRegionWidth,
+						 mPaletteRegionTop - mPaletteRegionHeight );
+
+	if ( paletteRect.pointInRect ( x, y ) )
+	{
+		// release keyboard focus so we can change text values
+		if (gFocusMgr.childHasKeyboardFocus(this))
+		{
+			mSelectBtn->setFocus(TRUE);
+		}
+
+		// calculate which palette index we selected
+		S32 c = ( ( x - mPaletteRegionLeft ) * numPaletteColumns ) / mPaletteRegionWidth;
+		S32 r = ( ( y - ( mPaletteRegionTop - mPaletteRegionHeight ) ) * numPaletteRows ) / mPaletteRegionHeight;
+
+		U32 index = ( numPaletteRows - r - 1 ) * numPaletteColumns + c;
+
+		if ( index <= mPalette.size () )
+		{
+			LLColor4 selected = *mPalette [ index ];
+
+			setCurRgb ( selected [ 0 ], selected [ 1 ], selected [ 2 ] );
+
+			if (mApplyImmediateCheck->get())
+			{
+				LLColorSwatchCtrl::onColorChanged ( getSwatch (), LLColorSwatchCtrl::COLOR_CHANGE );
+			}
+
+			// HACK: turn off the call back wilst we update the text or we recurse ourselves into oblivion
+			enableTextCallbacks ( FALSE );
+			updateTextEntry ();
+			enableTextCallbacks ( TRUE );
+		}
+
+		return TRUE;
+	}
+
 	// dispatch to base class for the rest of things
-	return LLFloater::handleMouseDown ( x, y, mask );
+	return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////////

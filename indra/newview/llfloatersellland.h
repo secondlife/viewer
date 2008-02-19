@@ -40,7 +40,7 @@ class LLFloaterSellLand
 {
 public:
 	static void sellLand(LLViewerRegion* region,
-						LLHandle<LLParcelSelection> parcel);
+						LLSafeHandle<LLParcelSelection> parcel);
 };
 
 #endif // LL_LLFLOATERSELLLAND_H

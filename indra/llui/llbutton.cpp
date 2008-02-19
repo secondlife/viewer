@@ -189,7 +189,7 @@ void LLButton::init(void (*click_callback)(void*), void *callback_data, const LL
 	mGLFont = ( font ? font : LLFontGL::sSansSerif);
 
 	// Hack to make sure there is space for at least one character
-	if (mRect.getWidth() - (mRightHPad + mLeftHPad) < mGLFont->getWidth(" "))
+	if (getRect().getWidth() - (mRightHPad + mLeftHPad) < mGLFont->getWidth(" "))
 	{
 		// Use old defaults
 		mLeftHPad = LLBUTTON_ORIG_H_PAD;
@@ -252,12 +252,12 @@ void LLButton::onCommit()
 		(*mMouseUpCallback)(mCallbackUserData);
 	}
 
-	if (mSoundFlags & MOUSE_DOWN)
+	if (getSoundFlags() & MOUSE_DOWN)
 	{
 		make_ui_sound("UISndClick");
 	}
 
-	if (mSoundFlags & MOUSE_UP)
+	if (getSoundFlags() & MOUSE_UP)
 	{
 		make_ui_sound("UISndClickRelease");
 	}
@@ -279,7 +279,7 @@ void LLButton::onCommit()
 BOOL LLButton::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent)
 {
 	BOOL handled = FALSE;
-	if( getVisible() && mEnabled && !called_from_parent && ' ' == uni_char && !gKeyboard->getKeyRepeated(' '))
+	if( getVisible() && getEnabled() && !called_from_parent && ' ' == uni_char && !gKeyboard->getKeyRepeated(' '))
 	{
 		if (mIsToggle)
 		{
@@ -298,7 +298,7 @@ BOOL LLButton::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent)
 BOOL LLButton::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent )
 {
 	BOOL handled = FALSE;
-	if( getVisible() && mEnabled && !called_from_parent )
+	if( getVisible() && getEnabled() && !called_from_parent )
 	{
 		if( mCommitOnReturn && KEY_RETURN == key && mask == MASK_NONE && !gKeyboard->getKeyRepeated(key))
 		{
@@ -337,7 +337,7 @@ BOOL LLButton::handleMouseDown(S32 x, S32 y, MASK mask)
 	mMouseDownTimer.start();
 	mMouseDownFrame = LLFrameTimer::getFrameCount();
 	
-	if (mSoundFlags & MOUSE_DOWN)
+	if (getSoundFlags() & MOUSE_DOWN)
 	{
 		make_ui_sound("UISndClick");
 	}
@@ -367,7 +367,7 @@ BOOL LLButton::handleMouseUp(S32 x, S32 y, MASK mask)
 		// If mouseup in the widget, it's been clicked
 		if (pointInView(x, y))
 		{
-			if (mSoundFlags & MOUSE_UP)
+			if (getSoundFlags() & MOUSE_UP)
 			{
 				make_ui_sound("UISndClickRelease");
 			}
@@ -400,7 +400,7 @@ BOOL LLButton::handleHover(S32 x, S32 y, MASK mask)
 
 	if (mMouseDownTimer.getStarted() && NULL != mHeldDownCallback)
 	{
-		F32 elapsed = mMouseDownTimer.getElapsedTimeF32();
+		F32 elapsed = getHeldDownTime();
 		if( mHeldDownDelay <= elapsed && mHeldDownFrameDelay <= LLFrameTimer::getFrameCount() - mMouseDownFrame)
 		{
 			mHeldDownCallback( mCallbackUserData );		
@@ -505,11 +505,11 @@ void LLButton::draw()
 		//   enabled and tentative
 		// or
 		//   disabled but checked
-		if (!mImageDisabledSelected.isNull() && ( (mEnabled && mTentative) || (!mEnabled && pressed ) ) )
+		if (!mImageDisabledSelected.isNull() && ( (getEnabled() && getTentative()) || (!getEnabled() && pressed ) ) )
 		{
 			mImagep = mImageDisabledSelected;
 		}
-		else if (!mImageDisabled.isNull() && !mEnabled && !pressed)
+		else if (!mImageDisabled.isNull() && !getEnabled() && !pressed)
 		{
 			mImagep = mImageDisabled;
 		}
@@ -523,7 +523,7 @@ void LLButton::draw()
 		LLColor4 label_color;
 
 		// label changes when button state changes, not when pressed
-		if ( mEnabled )
+		if ( getEnabled() )
 		{
 			if ( mToggleState )
 			{
@@ -551,7 +551,7 @@ void LLButton::draw()
 
 		if( mToggleState )
 		{
-			if( mEnabled || mDisabledSelectedLabel.empty() )
+			if( getEnabled() || mDisabledSelectedLabel.empty() )
 			{
 				label = mSelectedLabel;
 			}
@@ -562,7 +562,7 @@ void LLButton::draw()
 		}
 		else
 		{
-			if( mEnabled || mDisabledLabel.empty() )
+			if( getEnabled() || mDisabledLabel.empty() )
 			{
 				label = mUnselectedLabel;
 			}
@@ -573,7 +573,7 @@ void LLButton::draw()
 		}
 		
 		// draw default button border
-		if (mEnabled && mBorderEnabled && gFocusMgr.getAppHasFocus()) // because we're the default button in a panel
+		if (getEnabled() && mBorderEnabled && gFocusMgr.getAppHasFocus()) // because we're the default button in a panel
 		{
 			drawBorder(LLUI::sColorsGroup->getColor( "ButtonBorderColor" ), BORDER_SIZE);
 		}
@@ -598,7 +598,7 @@ void LLButton::draw()
 		// Otherwise draw basic rectangular button.
 		if( mImagep.notNull() && !mScaleImage)
 		{
-			mImagep->draw(0, 0, mEnabled ? mImageColor : mDisabledImageColor );
+			mImagep->draw(0, 0, getEnabled() ? mImageColor : mDisabledImageColor );
 			if (mCurGlowStrength > 0.01f)
 			{
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -609,26 +609,26 @@ void LLButton::draw()
 		else
 		if ( mImagep.notNull() && mScaleImage)
 		{
-			mImagep->draw(0, 0, mRect.getWidth(), mRect.getHeight(), mEnabled ? mImageColor : mDisabledImageColor  );
+			mImagep->draw(0, 0, getRect().getWidth(), getRect().getHeight(), getEnabled() ? mImageColor : mDisabledImageColor  );
 			if (mCurGlowStrength > 0.01f)
 			{
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-				mImagep->drawSolid(0, 0, mRect.getWidth(), mRect.getHeight(), LLColor4(1.f, 1.f, 1.f, mCurGlowStrength));
+				mImagep->drawSolid(0, 0, getRect().getWidth(), getRect().getHeight(), LLColor4(1.f, 1.f, 1.f, mCurGlowStrength));
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			}
 		}
 		else
 		{
 			// no image
-			llwarns << "No image for button " << mName << llendl;
+			llwarns << "No image for button " << getName() << llendl;
 			// draw it in pink so we can find it
-			gl_rect_2d(0, mRect.getHeight(), mRect.getWidth(), 0, LLColor4::pink1, FALSE);
+			gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4::pink1, FALSE);
 		}
 
 		// let overlay image and text play well together
 		S32 text_left = mLeftHPad;
-		S32 text_right = mRect.getWidth() - mRightHPad;
-		S32 text_width = mRect.getWidth() - mLeftHPad - mRightHPad;
+		S32 text_right = getRect().getWidth() - mRightHPad;
+		S32 text_width = getRect().getWidth() - mLeftHPad - mRightHPad;
 
 		// draw overlay image
 		if (mImageOverlay.notNull())
@@ -637,7 +637,7 @@ void LLButton::draw()
 			S32 overlay_width = mImageOverlay->getWidth();
 			S32 overlay_height = mImageOverlay->getHeight();
 
-			F32 scale_factor = llmin((F32)mRect.getWidth() / (F32)overlay_width, (F32)mRect.getHeight() / (F32)overlay_height, 1.f);
+			F32 scale_factor = llmin((F32)getRect().getWidth() / (F32)overlay_width, (F32)getRect().getHeight() / (F32)overlay_height, 1.f);
 			overlay_width = llround((F32)overlay_width * scale_factor);
 			overlay_height = llround((F32)overlay_height * scale_factor);
 
@@ -682,7 +682,7 @@ void LLButton::draw()
 				text_right -= overlay_width + 1;				
 				text_width -= overlay_width + 1;
 				mImageOverlay->draw(
-					mRect.getWidth() - mRightHPad - overlay_width, 
+					getRect().getWidth() - mRightHPad - overlay_width, 
 					center_y - (overlay_height / 2), 
 					overlay_width, 
 					overlay_height, 
@@ -706,7 +706,7 @@ void LLButton::draw()
 				x = text_right;
 				break;
 			case LLFontGL::HCENTER:
-				x = mRect.getWidth() / 2;
+				x = getRect().getWidth() / 2;
 				break;
 			case LLFontGL::LEFT:
 			default:
@@ -714,7 +714,7 @@ void LLButton::draw()
 				break;
 			}
 
-			S32 y_offset = 2 + (mRect.getHeight() - 20)/2;
+			S32 y_offset = 2 + (getRect().getHeight() - 20)/2;
 		
 			if (pressed)
 			{
@@ -743,8 +743,8 @@ void LLButton::draw()
 void LLButton::drawBorder(const LLColor4& color, S32 size)
 {
 	S32 left = -size;
-	S32 top = mRect.getHeight() + size;
-	S32 right = mRect.getWidth() + size;
+	S32 top = getRect().getHeight() + size;
+	S32 right = getRect().getWidth() + size;
 	S32 bottom = -size;
 
 	if (mImagep.isNull())
@@ -1146,7 +1146,7 @@ LLView* LLButton::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *fa
 	return button;
 }
 
-void LLButton::setHelpURLCallback(std::string help_url)
+void LLButton::setHelpURLCallback(const LLString &help_url)
 {
 	mHelpURL = help_url;
 	setClickedCallback(clicked_help,this);

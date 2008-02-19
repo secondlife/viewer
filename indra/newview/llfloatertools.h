@@ -34,6 +34,7 @@
 
 #include "llfloater.h"
 #include "llcoord.h"
+#include "llparcelselection.h"
 
 class LLButton;
 class LLTextBox;
@@ -50,8 +51,7 @@ class LLComboBox;
 class LLParcelSelection;
 class LLObjectSelection;
 
-typedef LLHandle<LLParcelSelection> LLParcelSelectionHandle;
-typedef LLHandle<LLObjectSelection> LLObjectSelectionHandle;
+typedef LLSafeHandle<LLObjectSelection> LLObjectSelectionHandle;
 
 class LLFloaterTools
 : public LLFloater
@@ -174,7 +174,7 @@ public:
 
 	std::vector<LLButton*>	mButtons;//[ 15 ];
 
-	LLTabContainerCommon	*mTab;
+	LLTabContainer	*mTab;
 	LLPanelPermissions		*mPanelPermissions;
 	LLPanelObject			*mPanelObject;
 	LLPanelVolume			*mPanelVolume;

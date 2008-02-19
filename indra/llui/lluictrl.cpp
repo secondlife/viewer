@@ -32,26 +32,20 @@
 
 //#include "llviewerprecompiledheaders.h"
 #include "linden_common.h"
-
 #include "lluictrl.h"
-
-#include "llgl.h"
-#include "llui.h"
-#include "lluiconstants.h"
 #include "llfocusmgr.h"
-#include "v3color.h"
 
-#include "llstring.h"
-#include "llfontgl.h"
-#include "llkeyboard.h"
-
-const U32 MAX_STRING_LENGTH = 10;
 
 LLFocusableElement::LLFocusableElement()
 :	mFocusLostCallback(NULL),
 	mFocusReceivedCallback(NULL),
 	mFocusChangedCallback(NULL),
 	mFocusCallbackUserData(NULL)
+{
+}
+
+//virtual
+LLFocusableElement::~LLFocusableElement()
 {
 }
 
@@ -138,6 +132,18 @@ void LLUICtrl::onCommit()
 	}
 }
 
+//virtual
+BOOL LLUICtrl::isCtrl() const
+{
+	return TRUE;
+}
+
+//virtual
+LLSD LLUICtrl::getValue() const
+{
+	return LLSD();
+}
+
 // virtual
 BOOL LLUICtrl::setTextArg( const LLString& key, const LLStringExplicit& text ) 
 { 
@@ -176,7 +182,7 @@ BOOL LLUICtrl::hasFocus() const
 void LLUICtrl::setFocus(BOOL b)
 {
 	// focus NEVER goes to ui ctrls that are disabled!
-	if (!mEnabled)
+	if (!getEnabled())
 	{
 		return;
 	}
@@ -266,6 +272,17 @@ BOOL LLUICtrl::acceptsTextInput() const
 	return FALSE; 
 }
 
+//virtual
+BOOL LLUICtrl::isDirty() const
+{
+	return FALSE;
+};
+
+//virtual
+void LLUICtrl::resetDirty()
+{
+}
+
 // virtual
 void LLUICtrl::onTabInto()				
 {
@@ -315,7 +332,7 @@ public:
 	CompareByDefaultTabGroup(LLView::child_tab_order_t order, S32 default_tab_group):
 			LLCompareByTabOrder(order),
 			mDefaultTabGroup(default_tab_group) {}
-protected:
+private:
 	/*virtual*/ bool compareTabOrders(const LLView::tab_order_t & a, const LLView::tab_order_t & b) const
 	{
 		S32 ag = a.first; // tab group for a
@@ -329,8 +346,10 @@ protected:
 	S32 mDefaultTabGroup;
 };
 
-// sorter for plugging into the query
-class DefaultTabGroupFirstSorter : public LLQuerySorter, public LLSingleton<DefaultTabGroupFirstSorter>
+
+// Sorter for plugging into the query.
+// I'd have defined it local to the one method that uses it but that broke the VS 05 compiler. -MG
+class LLUICtrl::DefaultTabGroupFirstSorter : public LLQuerySorter, public LLSingleton<DefaultTabGroupFirstSorter>
 {
 public:
 	/*virtual*/ void operator() (LLView * parent, viewList_t &children) const
@@ -339,14 +358,13 @@ public:
 	}
 };
 
-
 BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
 {
 	// try to select default tab group child
-	LLCtrlQuery query = LLView::getTabOrderQuery();
+	LLCtrlQuery query = getTabOrderQuery();
 	// sort things such that the default tab group is at the front
 	query.setSorter(DefaultTabGroupFirstSorter::getInstance());
-	LLView::child_list_t result = query(this);
+	child_list_t result = query(this);
 	if(result.size() > 0)
 	{
 		LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.front());
@@ -361,9 +379,115 @@ BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
 		}
 		return TRUE;
 	}	
-	// fall back on default behavior if we didn't find anything
-	return LLView::focusFirstItem(prefer_text_fields);
+	// search for text field first
+	if(prefer_text_fields)
+	{
+		LLCtrlQuery query = getTabOrderQuery();
+		query.addPreFilter(LLUICtrl::LLTextInputFilter::getInstance());
+		child_list_t result = query(this);
+		if(result.size() > 0)
+		{
+			LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.front());
+			if(!ctrl->hasFocus())
+			{
+				ctrl->setFocus(TRUE);
+				ctrl->onTabInto();  
+				gFocusMgr.triggerFocusFlash();
+			}
+			return TRUE;
+		}
+	}
+	// no text field found, or we don't care about text fields
+	result = getTabOrderQuery().run(this);
+	if(result.size() > 0)
+	{
+		LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.front());
+		if(!ctrl->hasFocus())
+		{
+			ctrl->setFocus(TRUE);
+			ctrl->onTabInto();  
+			gFocusMgr.triggerFocusFlash();
+		}
+		return TRUE;
+	}	
+	return FALSE;
 }
+
+BOOL LLUICtrl::focusLastItem(BOOL prefer_text_fields)
+{
+	// search for text field first
+	if(prefer_text_fields)
+	{
+		LLCtrlQuery query = getTabOrderQuery();
+		query.addPreFilter(LLUICtrl::LLTextInputFilter::getInstance());
+		child_list_t result = query(this);
+		if(result.size() > 0)
+		{
+			LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.back());
+			if(!ctrl->hasFocus())
+			{
+				ctrl->setFocus(TRUE);
+				ctrl->onTabInto();  
+				gFocusMgr.triggerFocusFlash();
+			}
+			return TRUE;
+		}
+	}
+	// no text field found, or we don't care about text fields
+	child_list_t result = getTabOrderQuery().run(this);
+	if(result.size() > 0)
+	{
+		LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.back());
+		if(!ctrl->hasFocus())
+		{
+			ctrl->setFocus(TRUE);
+			ctrl->onTabInto();  
+			gFocusMgr.triggerFocusFlash();
+		}
+		return TRUE;
+	}	
+	return FALSE;
+}
+
+BOOL LLUICtrl::focusNextItem(BOOL text_fields_only)
+{
+	// this assumes that this method is called on the focus root.
+	LLCtrlQuery query = getTabOrderQuery();
+	if(text_fields_only || LLUI::sConfigGroup->getBOOL("TabToTextFieldsOnly"))
+	{
+		query.addPreFilter(LLUICtrl::LLTextInputFilter::getInstance());
+	}
+	child_list_t result = query(this);
+	return focusNext(result);
+}
+
+BOOL LLUICtrl::focusPrevItem(BOOL text_fields_only)
+{
+	// this assumes that this method is called on the focus root.
+	LLCtrlQuery query = getTabOrderQuery();
+	if(text_fields_only || LLUI::sConfigGroup->getBOOL("TabToTextFieldsOnly"))
+	{
+		query.addPreFilter(LLUICtrl::LLTextInputFilter::getInstance());
+	}
+	child_list_t result = query(this);
+	return focusPrev(result);
+}
+
+const LLUICtrl* LLUICtrl::findRootMostFocusRoot() const
+{
+	const LLUICtrl* focus_root = NULL;
+	const LLUICtrl* next_view = this;
+	while(next_view)
+	{
+		if (next_view->isFocusRoot())
+		{
+			focus_root = next_view;
+		}
+		next_view = next_view->getParentUICtrl();
+	}
+	return focus_root;
+}
+
 
 /*
 // Don't let the children handle the tool tip.  Handle it here instead.
@@ -381,7 +505,7 @@ BOOL LLUICtrl::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_sc
 				0, 0, 
 				&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
 			localPointToScreen(
-				mRect.getWidth(), mRect.getHeight(),
+				getRect().getWidth(), getRect().getHeight(),
 				&(sticky_rect_screen->mRight), &(sticky_rect_screen->mTop) );
 
 			handled = TRUE;
@@ -425,7 +549,26 @@ LLPanel* LLUICtrl::getParentPanel() const
 	{
 		parent = parent->getParent();
 	}
-	return reinterpret_cast<LLPanel*>(parent);
+	return (LLPanel*)(parent);
+}
+
+// Skip over any parents that are not LLUICtrl's
+//  Used in focus logic since only LLUICtrl elements can have focus
+LLUICtrl* LLUICtrl::getParentUICtrl() const
+{
+	LLView* parent = getParent();
+	while (parent)
+	{
+		if (parent->isCtrl())
+		{
+			return (LLUICtrl*)(parent);
+		}
+		else
+		{
+			parent =  parent->getParent();
+		}
+	}
+	return NULL;
 }
 
 // virtual

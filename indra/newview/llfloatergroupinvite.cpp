@@ -83,7 +83,7 @@ LLFloaterGroupInvite::LLFloaterGroupInvite(const std::string& name,
 										   const LLUUID& group_id)
 :	LLFloater(name, rect, title)
 {
-	LLRect contents(mRect);
+	LLRect contents(getRect());
 	contents.mTop -= LLFLOATER_HEADER_SIZE;
 
 	mImpl = new impl(group_id);

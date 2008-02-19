@@ -126,8 +126,8 @@ LLColor4 LLSelectMgr::sContextSilhouetteColor;
 
 static LLObjectSelection *get_null_object_selection();
 template<> 
-	const LLHandle<LLObjectSelection>::NullFunc 
-		LLHandle<LLObjectSelection>::sNullFunc = get_null_object_selection;
+	const LLSafeHandle<LLObjectSelection>::NullFunc 
+		LLSafeHandle<LLObjectSelection>::sNullFunc = get_null_object_selection;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // struct LLDeRezInfo
@@ -2272,12 +2272,7 @@ BOOL LLSelectMgr::selectGetCreator(LLUUID& result_id, LLString& name)
 	
 	if (identical)
 	{
-		char firstname[DB_FIRST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-		char lastname[DB_LAST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-		gCacheName->getName(first_id, firstname, lastname);
-		name.assign( firstname );
-		name.append( " " );
-		name.append( lastname );
+		gCacheName->getFullName(first_id, name);
 	}
 	else
 	{
@@ -2340,12 +2335,7 @@ BOOL LLSelectMgr::selectGetOwner(LLUUID& result_id, LLString& name)
 		}
 		else if(!public_owner)
 		{
-			char firstname[DB_FIRST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-			char lastname[DB_LAST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-			gCacheName->getName(first_id, firstname, lastname);
-			name.assign( firstname );
-			name.append( " " );
-			name.append( lastname );
+			gCacheName->getFullName(first_id, name);
 		}
 		else
 		{
@@ -2405,12 +2395,7 @@ BOOL LLSelectMgr::selectGetLastOwner(LLUUID& result_id, LLString& name)
 		BOOL public_owner = (first_id.isNull());
 		if(!public_owner)
 		{
-			char firstname[DB_FIRST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-			char lastname[DB_LAST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-			gCacheName->getName(first_id, firstname, lastname);
-			name.assign( firstname );
-			name.append( " " );
-			name.append( lastname );
+			gCacheName->getFullName(first_id, name);
 		}
 		else
 		{
@@ -4348,12 +4333,8 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
 		LLFloaterReporter *reporterp = LLFloaterReporter::getReporter(report_type);
 		if (reporterp)
 		{
-			char first_name[DB_FIRST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-			char last_name[DB_LAST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-			gCacheName->getName(owner_id, first_name, last_name);
-			LLString fullname(first_name);
-			fullname.append(" ");
-			fullname.append(last_name);
+			std::string fullname;
+			gCacheName->getFullName(owner_id, fullname);
 			reporterp->setPickedObjectProperties(name, fullname, owner_id);
 		}
 	}
@@ -5476,9 +5457,9 @@ LLBBox LLSelectMgr::getBBoxOfSelection() const
 //-----------------------------------------------------------------------------
 // canUndo()
 //-----------------------------------------------------------------------------
-BOOL LLSelectMgr::canUndo()
+BOOL LLSelectMgr::canUndo() const
 {
-	return mSelectedObjects->getFirstEditableObject() != NULL;
+	return const_cast<LLSelectMgr*>(this)->mSelectedObjects->getFirstEditableObject() != NULL; // HACK: casting away constness - MG
 }
 
 //-----------------------------------------------------------------------------
@@ -5494,9 +5475,9 @@ void LLSelectMgr::undo()
 //-----------------------------------------------------------------------------
 // canRedo()
 //-----------------------------------------------------------------------------
-BOOL LLSelectMgr::canRedo()
+BOOL LLSelectMgr::canRedo() const
 {
-	return mSelectedObjects->getFirstEditableObject() != NULL;
+	return const_cast<LLSelectMgr*>(this)->mSelectedObjects->getFirstEditableObject() != NULL; // HACK: casting away constness - MG
 }
 
 //-----------------------------------------------------------------------------
@@ -5512,10 +5493,10 @@ void LLSelectMgr::redo()
 //-----------------------------------------------------------------------------
 // canDoDelete()
 //-----------------------------------------------------------------------------
-BOOL LLSelectMgr::canDoDelete()
+BOOL LLSelectMgr::canDoDelete() const
 {
 	// Note: Can only delete root objects (see getFirstDeleteableObject() for more info)
-	return mSelectedObjects->getFirstDeleteableObject() != NULL;
+	return const_cast<LLSelectMgr*>(this)->mSelectedObjects->getFirstDeleteableObject() != NULL; // HACK: casting away constness - MG
 }
 
 //-----------------------------------------------------------------------------
@@ -5529,7 +5510,7 @@ void LLSelectMgr::doDelete()
 //-----------------------------------------------------------------------------
 // canDeselect()
 //-----------------------------------------------------------------------------
-BOOL LLSelectMgr::canDeselect()
+BOOL LLSelectMgr::canDeselect() const
 {
 	return !mSelectedObjects->isEmpty();
 }
@@ -5544,9 +5525,9 @@ void LLSelectMgr::deselect()
 //-----------------------------------------------------------------------------
 // canDuplicate()
 //-----------------------------------------------------------------------------
-BOOL LLSelectMgr::canDuplicate()
+BOOL LLSelectMgr::canDuplicate() const
 {
-	return mSelectedObjects->getFirstCopyableObject() != NULL;
+	return const_cast<LLSelectMgr*>(this)->mSelectedObjects->getFirstCopyableObject() != NULL; // HACK: casting away constness - MG
 }
 //-----------------------------------------------------------------------------
 // duplicate()
@@ -5744,7 +5725,7 @@ LLSelectNode* LLObjectSelection::findNode(LLViewerObject* objectp)
 //-----------------------------------------------------------------------------
 // isEmpty()
 //-----------------------------------------------------------------------------
-BOOL LLObjectSelection::isEmpty()
+BOOL LLObjectSelection::isEmpty() const
 {
 	return (mList.size() == 0);
 }
@@ -6134,4 +6115,5 @@ LLViewerObject* LLObjectSelection::getFirstMoveableObject(BOOL get_parent)
 	} func;
 	return getFirstSelectedObject(&func, get_parent);
 }
+
 

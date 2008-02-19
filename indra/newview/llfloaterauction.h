@@ -69,7 +69,7 @@ private:
 	LLTransactionID mTransactionID;
 	LLAssetID mImageID;
 	LLPointer<LLImageGL> mImage;
-	LLHandle<LLParcelSelection> mParcelp;
+	LLSafeHandle<LLParcelSelection> mParcelp;
 	S32 mParcelID;
 	LLHost mParcelHost;
 };

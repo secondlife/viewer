@@ -159,7 +159,7 @@ BOOL LLFloaterTOS::postBuild()
 		editor->setVisible( FALSE );
 	};
 
-	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(this, "tos_html");
+	LLWebBrowserCtrl* web_browser = getChild<LLWebBrowserCtrl>("tos_html");
 	if ( web_browser )
 	{
 		// start to observe it so we see navigate complete events
@@ -169,7 +169,7 @@ BOOL LLFloaterTOS::postBuild()
 		};
 
 		gResponsePtr = LLIamHere::build( this );
-		LLHTTPClient::get( childGetValue( "real_url" ).asString(), gResponsePtr );
+		LLHTTPClient::get( getString( "real_url" ), gResponsePtr );
 	};
 
 	return TRUE;
@@ -180,14 +180,14 @@ void LLFloaterTOS::setSiteIsAlive( bool alive )
 	// only do this for TOS pages
 	if ( mType == TOS_TOS )
 	{
-		LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(this, "tos_html");
+		LLWebBrowserCtrl* web_browser = getChild<LLWebBrowserCtrl>("tos_html");
 		// if the contents of the site was retrieved
 		if ( alive )
 		{
 			if ( web_browser )
 			{
 				// navigate to the "real" page 
-				web_browser->navigateTo( childGetValue( "real_url" ).asString() );
+				web_browser->navigateTo( getString( "real_url" ) );
 			};
 		}
 		else
@@ -212,7 +212,7 @@ void LLFloaterTOS::setSiteIsAlive( bool alive )
 LLFloaterTOS::~LLFloaterTOS()
 {
 	// stop obsaerving events
-	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(this, "tos_html");
+	LLWebBrowserCtrl* web_browser = getChild<LLWebBrowserCtrl>("tos_html");
 	if ( web_browser )
 	{
 		web_browser->addObserver( this );		

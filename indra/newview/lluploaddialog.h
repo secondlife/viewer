@@ -50,8 +50,6 @@ private:
 	LLUploadDialog( const std::string& msg);
 	virtual ~LLUploadDialog();	// No you can't kill it.  It can only kill itself.
 
-	void			centerDialog();
-
 	LLTextBox* mLabelBox[16];
 
 private:

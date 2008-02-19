@@ -67,7 +67,7 @@ private:
 	// static data
 	static LLFloaterInspect* sInstance;
 
-	LLHandle<LLObjectSelection> mObjectSelection;
+	LLSafeHandle<LLObjectSelection> mObjectSelection;
 };
 
 #endif //LL_LLFLOATERINSPECT_H

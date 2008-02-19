@@ -92,7 +92,7 @@ protected:
 	static void		fly( const LLVector3d& destination );
 
 public:
-	LLViewHandle	mPopupMenuHandle;
+	LLHandle<LLView>	mPopupMenuHandle;
 	LLColor4		mBackgroundColor;
 
 	F32				mScale;					// Size of a region in pixels

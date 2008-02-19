@@ -96,8 +96,8 @@ LLPreviewAnim::LLPreviewAnim(const std::string& name, const LLRect& rect, const 
 // static
 void LLPreviewAnim::endAnimCallback( void *userdata )
 {
-	LLViewHandle* handlep = ((LLViewHandle*)userdata);
-	LLFloater* self = getFloaterByHandle(*handlep);
+	LLHandle<LLFloater>* handlep = ((LLHandle<LLFloater>*)userdata);
+	LLFloater* self = handlep->get();
 	delete handlep; // done with the handle
 	if (self)
 	{
@@ -132,7 +132,7 @@ void LLPreviewAnim::playAnim( void *userdata )
 			
 			if (motion)
 			{
-				motion->setDeactivateCallback(&endAnimCallback, (void *)(new LLViewHandle(self->getHandle())));
+				motion->setDeactivateCallback(&endAnimCallback, (void *)(new LLHandle<LLFloater>(self->getHandle())));
 			}
 		}
 		else
@@ -169,7 +169,7 @@ void LLPreviewAnim::auditionAnim( void *userdata )
 			
 			if (motion)
 			{
-				motion->setDeactivateCallback(&endAnimCallback, (void *)(new LLViewHandle(self->getHandle())));
+				motion->setDeactivateCallback(&endAnimCallback, (void *)(new LLHandle<LLFloater>(self->getHandle())));
 			}
 		}
 		else

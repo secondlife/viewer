@@ -1,6 +1,6 @@
 /** 
  * @file llsliderctrl.h
- * @brief LLSliderCtrl base class
+ * @brief Decorated wrapper for a LLSlider.
  *
  * $LicenseInfo:firstyear=2002&license=viewergpl$
  * 
@@ -44,13 +44,6 @@
 const S32	SLIDERCTRL_SPACING		=  4;				// space between label, slider, and text
 const S32	SLIDERCTRL_HEIGHT		=  16;
 
-//
-// Classes
-//
-class LLFontGL;
-class LLLineEditor;
-class LLSlider;
-
 
 class LLSliderCtrl : public LLUICtrl
 {
@@ -63,41 +56,41 @@ public:
 		S32 text_left,
 		BOOL show_text,
 		BOOL can_edit_text,
-		BOOL volume,		 
+		BOOL volume, //TODO: create a "volume" slider sub-class or just use image art, no?  -MG
 		void (*commit_callback)(LLUICtrl*, void*),
 		void* callback_userdata,
 		F32 initial_value, F32 min_value, F32 max_value, F32 increment,
 		const LLString& control_which = LLString::null );
 
-	virtual ~LLSliderCtrl();
+	virtual ~LLSliderCtrl() {} // Children all cleaned up by default view destructor.
 	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_SLIDER; }
 	virtual LLString getWidgetTag() const { return LL_SLIDER_CTRL_TAG; }
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
-	F32				getValueF32() const;
+	F32				getValueF32() const { return mSlider->getValueF32(); }
 	void			setValue(F32 v, BOOL from_event = FALSE);
 
-	virtual void	setValue(const LLSD& value )	{ setValue((F32)value.asReal(), TRUE); }
-	virtual LLSD	getValue() const		{ return LLSD(getValueF32()); }
+	virtual void	setValue(const LLSD& value)	{ setValue((F32)value.asReal(), TRUE); }
+	virtual LLSD	getValue() const			{ return LLSD(getValueF32()); }
 	virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text );
 
 	virtual void	setMinValue(LLSD min_value)	{ setMinValue((F32)min_value.asReal()); }
-	virtual void	setMaxValue(LLSD max_value)	{ setMaxValue((F32)max_value.asReal());  }
+	virtual void	setMaxValue(LLSD max_value)	{ setMaxValue((F32)max_value.asReal()); }
 
-	BOOL			isMouseHeldDown();
+	BOOL			isMouseHeldDown() const { return mSlider->hasMouseCapture(); }
 
 	virtual void    setEnabled( BOOL b );
 	virtual void	clear();
 	virtual void	setPrecision(S32 precision);
-	void			setMinValue(F32 min_value) {mSlider->setMinValue(min_value);}
-	void			setMaxValue(F32 max_value) {mSlider->setMaxValue(max_value);}
-	void			setIncrement(F32 increment) {mSlider->setIncrement(increment);}
+	void			setMinValue(F32 min_value)	{ mSlider->setMinValue(min_value); }
+	void			setMaxValue(F32 max_value)	{ mSlider->setMaxValue(max_value); }
+	void			setIncrement(F32 increment)	{ mSlider->setIncrement(increment); }
 
 	F32				getMinValue() { return mSlider->getMinValue(); }
 	F32				getMaxValue() { return mSlider->getMaxValue(); }
 
-	void			setLabel(const LLStringExplicit& label)				{ if (mLabelBox) mLabelBox->setText(label); }
+	void			setLabel(const LLStringExplicit& label)		{ if (mLabelBox) mLabelBox->setText(label); }
 	void			setLabelColor(const LLColor4& c)			{ mTextEnabledColor = c; }
 	void			setDisabledLabelColor(const LLColor4& c)	{ mTextDisabledColor = c; }
 
@@ -109,8 +102,8 @@ public:
 	virtual void	setTentative(BOOL b);			// marks value as tentative
 	virtual void	onCommit();						// mark not tentative, then commit
 
-	virtual void		setControlName(const LLString& control_name, LLView* context);
-	virtual LLString 	getControlName() const;
+	virtual void		setControlName(const LLString& control_name, LLView* context) { mSlider->setControlName(control_name, context); }
+	virtual LLString 	getControlName() const { return mSlider->getControlName(); }
 	
 	static void		onSliderCommit(LLUICtrl* caller, void* userdata);
 	static void		onSliderMouseDown(LLUICtrl* caller,void* userdata);
@@ -124,7 +117,6 @@ private:
 	void			updateText();
 	void			reportInvalidData();
 
-private:
 	const LLFontGL*	mFont;
 	BOOL			mShowText;
 	BOOL			mCanEditText;
@@ -136,7 +128,7 @@ private:
 	
 	F32				mValue;
 	LLSlider*		mSlider;
-	LLLineEditor*	mEditor;
+	class LLLineEditor*	mEditor;
 	LLTextBox*		mTextBox;
 
 	LLColor4		mTextEnabledColor;

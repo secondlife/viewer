@@ -93,7 +93,7 @@ public:
 protected:
 	LLPanelGroupTab*		mCurrentTab;
 	LLPanelGroupTab*		mRequestedTab;
-	LLTabContainerCommon*	mSubTabContainer;
+	LLTabContainer*	mSubTabContainer;
 	BOOL					mFirstUse;
 	BOOL					mIgnoreTransition;
 
@@ -205,7 +205,7 @@ protected:
 	typedef std::map<LLUUID, role_change_data_map_t*>::iterator member_role_change_iter;
 	typedef std::map<LLUUID, role_change_data_map_t*> member_role_changes_map_t;
 
-	bool matchesSearchFilter(char* first, char* last);
+	bool matchesSearchFilter(const std::string& fullname);
 
 	U64  getAgentPowersBasedOnRoleChanges(const LLUUID& agent_id);
 	bool getRoleChangeType(const LLUUID& member_id,

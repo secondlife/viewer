@@ -74,10 +74,10 @@ LLModalDialog::~LLModalDialog()
 void LLModalDialog::open()	/* Flawfinder: ignore */
 {
 	// SJB: Hack! Make sure we don't ever host a modal dialog
-	LLMultiFloater* thost = LLFloater::sHostp;
-	LLFloater::sHostp = NULL;
+	LLMultiFloater* thost = LLFloater::getFloaterHost();
+	LLFloater::setFloaterHost(NULL);
 	LLFloater::open();
-	LLFloater::sHostp = thost;
+	LLFloater::setFloaterHost(thost);
 }
 
 void LLModalDialog::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -157,13 +157,17 @@ void LLModalDialog::setVisible( BOOL visible )
 
 BOOL LLModalDialog::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (!LLFloater::handleMouseDown(x, y, mask))
+	if (mModal)
 	{
-		if (mModal)
+		if (!LLFloater::handleMouseDown(x, y, mask))
 		{
 			// Click was outside the panel
 			make_ui_sound("UISndInvalidOp");
 		}
+	}
+	else
+	{
+		LLFloater::handleMouseDown(x, y, mask);
 	}
 	return TRUE;
 }
@@ -247,7 +251,7 @@ void LLModalDialog::draw()
 		LLColor4 shadow_color = LLUI::sColorsGroup->getColor("ColorDropShadow");
 		S32 shadow_lines = LLUI::sConfigGroup->getS32("DropShadowFloater");
 
-		gl_drop_shadow( 0, mRect.getHeight(), mRect.getWidth(), 0,
+		gl_drop_shadow( 0, getRect().getHeight(), getRect().getWidth(), 0,
 			shadow_color, shadow_lines);
 
 		LLFloater::draw();
@@ -276,11 +280,7 @@ void LLModalDialog::draw()
 void LLModalDialog::centerOnScreen()
 {
 	LLVector2 window_size = LLUI::getWindowSize();
-
-	S32 dialog_left = (llround(window_size.mV[VX]) - mRect.getWidth()) / 2;
-	S32 dialog_bottom = (llround(window_size.mV[VY]) - mRect.getHeight()) / 2;
-
-	translate( dialog_left - mRect.mLeft, dialog_bottom - mRect.mBottom );
+	centerWithin(LLRect(0, 0, llround(window_size.mV[VX]), llround(window_size.mV[VY])));
 }
 
 
@@ -317,5 +317,6 @@ void LLModalDialog::onAppFocusGained()
 		instance->centerOnScreen();
 	}
 }
+
 
 

@@ -37,37 +37,43 @@ class LLEditMenuHandler
 {
 public:
 	// this is needed even though this is just an interface class.
-	virtual ~LLEditMenuHandler();
+	virtual ~LLEditMenuHandler() {};
 	
-	virtual void	undo();
-	virtual BOOL	canUndo();
+	virtual void	undo() {};
+	virtual BOOL	canUndo() const { return FALSE; }
 	
-	virtual void	redo();
-	virtual BOOL	canRedo();
+	virtual void	redo() {};
+	virtual BOOL	canRedo() const { return FALSE; }
 	
-	virtual void	cut();
-	virtual BOOL	canCut();
+	virtual void	cut() {};
+	virtual BOOL	canCut() const { return FALSE; }
 	
-	virtual void	copy();
-	virtual BOOL	canCopy();
+	virtual void	copy() {};
+	virtual BOOL	canCopy() const { return FALSE; }
 	
-	virtual void	paste();
-	virtual BOOL	canPaste();
+	virtual void	paste() {};
+	virtual BOOL	canPaste() const { return FALSE; }
 	
 	// "delete" is a keyword
-	virtual void	doDelete();
-	virtual BOOL	canDoDelete();
+	virtual void	doDelete() {};
+	virtual BOOL	canDoDelete() const { return FALSE; }
 	
-	virtual void	selectAll();
-	virtual BOOL	canSelectAll();
+	virtual void	selectAll() {};
+	virtual BOOL	canSelectAll() const { return FALSE; }
 	
-	virtual void	deselect();
-	virtual BOOL	canDeselect();
+	virtual void	deselect() {};
+	virtual BOOL	canDeselect() const { return FALSE; }
 	
-	virtual void	duplicate();
-	virtual BOOL	canDuplicate();
+	virtual void	duplicate() {};
+	virtual BOOL	canDuplicate() const { return FALSE; }
+
+	// TODO: Instead of being a public data member, it would be better to hide it altogether
+	// and have a "set" method and then a bunch of static versions of the cut, copy, paste
+	// methods, etc that operate on the current global instance. That would drastically
+	// simplify the existing code that accesses this global variable by putting all the
+	// null checks in the one implementation of those static methods. -MG
+	static LLEditMenuHandler* gEditMenuHandler;
 };
 
-extern LLEditMenuHandler* gEditMenuHandler;
 
 #endif

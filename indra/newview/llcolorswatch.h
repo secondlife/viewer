@@ -98,7 +98,7 @@ protected:
 	LLColor4		mColor;
 	LLColor4		mBorderColor;
 	LLTextBox*		mCaption;
-	LLViewHandle mPickerHandle;
+	LLHandle<LLFloater> mPickerHandle;
 	LLViewBorder*	mBorder;
 	BOOL			mCanApplyImmediately;
 	LLUICtrlCallback mOnCancelCallback;

@@ -61,47 +61,10 @@ BOOL	LLView::sForceReshape = FALSE;
 LLView*	LLView::sEditingUIView = NULL;
 S32		LLView::sLastLeftXML = S32_MIN;
 S32		LLView::sLastBottomXML = S32_MIN;
-std::map<LLViewHandle,LLView*> LLView::sViewHandleMap;
-
-S32		LLViewHandle::sNextID = 0;
-LLViewHandle LLViewHandle::sDeadHandle;
 
 #if LL_DEBUG
 BOOL LLView::sIsDrawing = FALSE;
 #endif
-
-//static
-LLView* LLView::getViewByHandle(LLViewHandle handle)
-{
-	if (handle == LLViewHandle::sDeadHandle)
-	{
-		return NULL;
-	}
-	std::map<LLViewHandle,LLView*>::iterator iter = sViewHandleMap.find(handle);
-	if (iter != sViewHandleMap.end())
-	{
-		return iter->second;
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
-//static
-BOOL LLView::deleteViewByHandle(LLViewHandle handle)
-{
-	std::map<LLViewHandle,LLView*>::iterator iter = sViewHandleMap.find(handle);
-	if (iter != sViewHandleMap.end())
-	{
-		delete iter->second; // will remove from map
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
-}
 
 LLView::LLView() :
 	mParentView(NULL),
@@ -115,11 +78,8 @@ LLView::LLView() :
 	mLastVisible(TRUE),
 	mUseBoundingRect(FALSE),
 	mVisible(TRUE),
-	mHidden(FALSE),
 	mNextInsertionOrdinal(0)
 {
-	mViewHandle.init();
-	sViewHandleMap[mViewHandle] = this;
 }
 
 LLView::LLView(const LLString& name, BOOL mouse_opaque) :
@@ -135,11 +95,8 @@ LLView::LLView(const LLString& name, BOOL mouse_opaque) :
 	mLastVisible(TRUE),
 	mUseBoundingRect(FALSE),
 	mVisible(TRUE),
-	mHidden(FALSE),
 	mNextInsertionOrdinal(0)
 {
-	mViewHandle.init();
-	sViewHandleMap[mViewHandle] = this;
 }
 
 
@@ -159,11 +116,8 @@ LLView::LLView(
 	mLastVisible(TRUE),
 	mUseBoundingRect(FALSE),
 	mVisible(TRUE),
-	mHidden(FALSE),
 	mNextInsertionOrdinal(0)
 {
-	mViewHandle.init();
-	sViewHandleMap[mViewHandle] = this;
 }
 
 
@@ -183,8 +137,6 @@ LLView::~LLView()
 		gFocusMgr.removeMouseCaptureWithoutCallback( this );
 	}
 
-	sViewHandleMap.erase(mViewHandle);
-
 	deleteAllChildren();
 
 	if (mParentView != NULL)
@@ -203,7 +155,7 @@ LLView::~LLView()
 }
 
 // virtual
-BOOL LLView::isView()
+BOOL LLView::isView() const
 {
 	return TRUE;
 }
@@ -215,16 +167,12 @@ BOOL LLView::isCtrl() const
 }
 
 // virtual
-BOOL LLView::isPanel()
+BOOL LLView::isPanel() const
 {
 	return FALSE;
 }
 
-void LLView::setMouseOpaque(BOOL b)
-{
-	mMouseOpaque = b;
-}
-
+// virtual
 void LLView::setToolTip(const LLStringExplicit& msg)
 {
 	mToolTipMsg = msg;
@@ -248,52 +196,6 @@ void LLView::setRect(const LLRect& rect)
 	updateBoundingRect();
 }
 
-
-void LLView::setFollows(U32 flags)			
-{
-	mReshapeFlags = flags;
-}
-
-void LLView::setFollowsNone() 				
-{
-	mReshapeFlags = FOLLOWS_NONE; 
-}
-
-void LLView::setFollowsLeft()				
-{
-	mReshapeFlags |= FOLLOWS_LEFT; 
-}
-
-void LLView::setFollowsTop()					
-{
-	mReshapeFlags |= FOLLOWS_TOP; 
-}
-
-void LLView::setFollowsRight()				
-{
-	mReshapeFlags |= FOLLOWS_RIGHT;
-}
-
-void LLView::setFollowsBottom()				
-{
-	mReshapeFlags |= FOLLOWS_BOTTOM;
-}
-
-void LLView::setFollowsAll()					
-{
-	mReshapeFlags |= FOLLOWS_ALL;
-}
-
-void LLView::setSoundFlags(U8 flags)         
-{
-	mSoundFlags = flags;
-}
-
-void LLView::setName(LLString name)			
-{
-	mName = name;
-}
-
 void LLView::setUseBoundingRect( BOOL use_bounding_rect ) 
 {
 	if (mUseBoundingRect != use_bounding_rect)
@@ -306,11 +208,6 @@ void LLView::setUseBoundingRect( BOOL use_bounding_rect )
 BOOL LLView::getUseBoundingRect()
 {
 	return mUseBoundingRect;
-}
-
-const LLString& LLView::getToolTip()
-{
-	return mToolTipMsg.getString();
 }
 
 // virtual
@@ -452,8 +349,6 @@ void LLView::removeCtrl(LLUICtrl* ctrl)
 	}
 }
 
-S32 LLView::getDefaultTabGroup() const { return mDefaultTabGroup; }
-
 LLView::ctrl_list_t LLView::getCtrlList() const
 {
 	ctrl_list_t controls;
@@ -476,12 +371,6 @@ LLView::ctrl_list_t LLView::getCtrlListSorted() const
 	return controls;
 }
 
-LLCompareByTabOrder::LLCompareByTabOrder(LLView::child_tab_order_t order): mTabOrder(order) {}
-
-bool LLCompareByTabOrder::compareTabOrders(const LLView::tab_order_t & a, const LLView::tab_order_t & b) const
-{
-	return a < b;
-}
 
 // This method compares two LLViews by the tab order specified in the comparator object.  The
 // code for this is a little convoluted because each argument can have four states:
@@ -537,29 +426,55 @@ BOOL LLView::isInEnabledChain() const
 	return TRUE;
 }
 
-BOOL LLView::isFocusRoot() const
-{
-	return mIsFocusRoot;
-}
-
-LLView* LLView::findRootMostFocusRoot() 
-{
-	LLView* focus_root = NULL;
-	LLView* next_view = this;
-	while(next_view)
-	{
-		if (next_view->isFocusRoot())
-		{
-			focus_root = next_view;
-		}
-		next_view = next_view->getParent();
-	}
-	return focus_root;
-}
-
+// virtual
 BOOL LLView::canFocusChildren() const
 {
 	return TRUE;
+}
+
+//virtual
+void LLView::setTentative(BOOL b)
+{
+}
+
+//virtual
+BOOL LLView::getTentative() const
+{
+	return FALSE;
+}
+
+//virtual
+void LLView::setEnabled(BOOL enabled)
+{
+	mEnabled = enabled;
+}
+
+//virtual
+BOOL LLView::setLabelArg( const LLString& key, const LLStringExplicit& text )
+{
+	return FALSE;
+}
+
+//virtual
+LLRect LLView::getSnapRect() const
+{
+	return mRect;
+}
+
+//virtual
+LLRect LLView::getRequiredRect()
+{
+	return mRect;
+}
+
+//virtual
+void LLView::onFocusLost()
+{
+}
+
+//virtual
+void LLView::onFocusReceived()
+{
 }
 
 BOOL LLView::focusNextRoot()
@@ -573,31 +488,6 @@ BOOL LLView::focusPrevRoot()
 	LLView::child_list_t result = LLView::getFocusRootsQuery().run(this);
 	return LLView::focusPrev(result);
 }
-
-BOOL LLView::focusNextItem(BOOL text_fields_only)
-{
-	// this assumes that this method is called on the focus root.
-	LLCtrlQuery query = LLView::getTabOrderQuery();
-	if(text_fields_only || LLUI::sConfigGroup->getBOOL("TabToTextFieldsOnly"))
-	{
-		query.addPreFilter(LLUICtrl::LLTextInputFilter::getInstance());
-	}
-	LLView::child_list_t result = query(this);
-	return LLView::focusNext(result);
-}
-
-BOOL LLView::focusPrevItem(BOOL text_fields_only)
-{
-	// this assumes that this method is called on the focus root.
-	LLCtrlQuery query = LLView::getTabOrderQuery();
-	if(text_fields_only || LLUI::sConfigGroup->getBOOL("TabToTextFieldsOnly"))
-	{
-		query.addPreFilter(LLUICtrl::LLTextInputFilter::getInstance());
-	}
-	LLView::child_list_t result = query(this);
-	return LLView::focusPrev(result);
-}
-
 
 // static
 BOOL LLView::focusNext(LLView::child_list_t & result)
@@ -674,80 +564,6 @@ BOOL LLView::focusPrev(LLView::child_list_t & result)
 	return FALSE;
 }
 
-BOOL LLView::focusFirstItem(BOOL prefer_text_fields)
-{
-	// search for text field first
-	if(prefer_text_fields)
-	{
-		LLCtrlQuery query = LLView::getTabOrderQuery();
-		query.addPreFilter(LLUICtrl::LLTextInputFilter::getInstance());
-		LLView::child_list_t result = query(this);
-		if(result.size() > 0)
-		{
-			LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.front());
-			if(!ctrl->hasFocus())
-			{
-				ctrl->setFocus(TRUE);
-				ctrl->onTabInto();  
-				gFocusMgr.triggerFocusFlash();
-			}
-			return TRUE;
-		}
-	}
-	// no text field found, or we don't care about text fields
-	LLView::child_list_t result = LLView::getTabOrderQuery().run(this);
-	if(result.size() > 0)
-	{
-		LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.front());
-		if(!ctrl->hasFocus())
-		{
-			ctrl->setFocus(TRUE);
-			ctrl->onTabInto();  
-			gFocusMgr.triggerFocusFlash();
-		}
-		return TRUE;
-	}	
-	return FALSE;
-}
-
-BOOL LLView::focusLastItem(BOOL prefer_text_fields)
-{
-	// search for text field first
-	if(prefer_text_fields)
-	{
-		LLCtrlQuery query = LLView::getTabOrderQuery();
-		query.addPreFilter(LLUICtrl::LLTextInputFilter::getInstance());
-		LLView::child_list_t result = query(this);
-		if(result.size() > 0)
-		{
-			LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.back());
-			if(!ctrl->hasFocus())
-			{
-				ctrl->setFocus(TRUE);
-				ctrl->onTabInto();  
-				gFocusMgr.triggerFocusFlash();
-			}
-			return TRUE;
-		}
-	}
-	// no text field found, or we don't care about text fields
-	LLView::child_list_t result = LLView::getTabOrderQuery().run(this);
-	if(result.size() > 0)
-	{
-		LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.back());
-		if(!ctrl->hasFocus())
-		{
-			ctrl->setFocus(TRUE);
-			ctrl->onTabInto();  
-			gFocusMgr.triggerFocusFlash();
-		}
-		return TRUE;
-	}	
-	return FALSE;
-}
-
-
-
 // delete all children. Override this function if you need to
 // perform any extra clean up such as cached pointers to selected
 // children, etc.
@@ -773,23 +589,6 @@ void LLView::setAllChildrenEnabled(BOOL b)
 }
 
 // virtual
-void LLView::setTentative(BOOL b)
-{
-}
-
-// virtual
-BOOL LLView::getTentative() const
-{
-	return FALSE;
-}
-
-// virtual
-void LLView::setEnabled(BOOL enabled)
-{
-	mEnabled = enabled;
-}
-
-// virtual
 void LLView::setVisible(BOOL visible)
 {
 	if ( mVisible != visible )
@@ -809,18 +608,6 @@ void LLView::setVisible(BOOL visible)
 		}
 		updateBoundingRect();
 	}
-}
-
-// virtual
-void LLView::setHidden(BOOL hidden)
-{
-	mHidden = hidden;
-}
-
-// virtual
-BOOL LLView::setLabelArg(const LLString& key, const LLStringExplicit& text)
-{
-	return FALSE;
 }
 
 // virtual
@@ -845,9 +632,9 @@ void LLView::translate(S32 x, S32 y)
 }
 
 // virtual
-BOOL LLView::canSnapTo(LLView* other_view)
+BOOL LLView::canSnapTo(const LLView* other_view) const
 {
-	return other_view->getVisible();
+	return other_view != this && other_view->getVisible();
 }
 
 // virtual
@@ -956,7 +743,7 @@ BOOL LLView::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 	if( called_from_parent )
 	{
 		// Downward traversal
-		if (getVisible() && mEnabled)
+		if (getVisible() && getEnabled())
 		{
 			handled = childrenHandleKey( key, mask ) != NULL;
 		}
@@ -1003,7 +790,7 @@ BOOL LLView::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
 	if( called_from_parent )
 	{
 		// Downward traversal
-		if (getVisible() && mEnabled)
+		if (getVisible() && getEnabled())
 		{
 			handled = childrenHandleUnicodeChar( uni_char ) != NULL;
 		}
@@ -1074,16 +861,16 @@ LLView* LLView::childrenHandleDragAndDrop(S32 x, S32 y, MASK mask,
 	LLView* handled_view = FALSE;
 	// CRO this is an experiment to allow drag and drop into object inventory based on the DragAndDrop tool's permissions rather than the parent
 	if( getVisible() )
-//	if( getVisible() && mEnabled )
+//	if( getVisible() && getEnabled() )
 	{
 		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 		{
 			LLView* viewp = *child_it;
-			S32 local_x = x - viewp->mRect.mLeft;
-			S32 local_y = y - viewp->mRect.mBottom;
+			S32 local_x = x - viewp->getRect().mLeft;
+			S32 local_y = y - viewp->getRect().mBottom;
 			if( viewp->pointInView(local_x, local_y) && 
 				viewp->getVisible() &&
-				viewp->mEnabled &&
+				viewp->getEnabled() &&
 				viewp->handleDragAndDrop(local_x, local_y, mask, drop,
 										 cargo_type,
 										 cargo_data,
@@ -1158,7 +945,7 @@ BOOL LLView::handleDoubleClick(S32 x, S32 y, MASK mask)
 BOOL LLView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	BOOL handled = FALSE;
-	if( getVisible() && mEnabled )
+	if( getVisible() && getEnabled() )
 	{
 		handled = childrenHandleScrollWheel( x, y, clicks ) != NULL;
 		if( !handled && blockMouseEvent(x, y) )
@@ -1192,13 +979,13 @@ BOOL LLView::handleRightMouseUp(S32 x, S32 y, MASK mask)
 LLView* LLView::childrenHandleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	LLView* handled_view = NULL;
-	if (getVisible() && mEnabled )
+	if (getVisible() && getEnabled() )
 	{
 		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 		{
 			LLView* viewp = *child_it;
-			S32 local_x = x - viewp->mRect.mLeft;
-			S32 local_y = y - viewp->mRect.mBottom;
+			S32 local_x = x - viewp->getRect().mLeft;
+			S32 local_y = y - viewp->getRect().mBottom;
 			if (viewp->pointInView(local_x, local_y) && 
 				viewp->handleScrollWheel( local_x, local_y, clicks ))
 			{
@@ -1218,13 +1005,13 @@ LLView* LLView::childrenHandleScrollWheel(S32 x, S32 y, S32 clicks)
 LLView* LLView::childrenHandleHover(S32 x, S32 y, MASK mask)
 {
 	LLView* handled_view = NULL;
-	if (getVisible() && mEnabled )
+	if (getVisible() && getEnabled() )
 	{
 		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 		{
 			LLView* viewp = *child_it;
-			S32 local_x = x - viewp->mRect.mLeft;
-			S32 local_y = y - viewp->mRect.mBottom;
+			S32 local_x = x - viewp->getRect().mLeft;
+			S32 local_y = y - viewp->getRect().mBottom;
 			if(viewp->pointInView(local_x, local_y) &&
 				viewp->getVisible() &&
 				viewp->getEnabled() &&
@@ -1248,7 +1035,7 @@ LLView* LLView::childrenHandleKey(KEY key, MASK mask)
 {
 	LLView* handled_view = NULL;
 
-	if ( getVisible() && mEnabled )
+	if ( getVisible() && getEnabled() )
 	{
 		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 		{
@@ -1273,7 +1060,7 @@ LLView* LLView::childrenHandleUnicodeChar(llwchar uni_char)
 {
 	LLView* handled_view = NULL;
 
-	if ( getVisible() && mEnabled )
+	if ( getVisible() && getEnabled() )
 	{
 		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 		{
@@ -1300,12 +1087,12 @@ LLView* LLView::childrenHandleMouseDown(S32 x, S32 y, MASK mask)
 	for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 	{
 		LLView* viewp = *child_it;
-		S32 local_x = x - viewp->mRect.mLeft;
-		S32 local_y = y - viewp->mRect.mBottom;
+		S32 local_x = x - viewp->getRect().mLeft;
+		S32 local_y = y - viewp->getRect().mBottom;
 
 		if (viewp->pointInView(local_x, local_y) && 
 			viewp->getVisible() && 
-			viewp->mEnabled && 
+			viewp->getEnabled() && 
 			viewp->handleMouseDown( local_x, local_y, mask ))
 		{
 			if (sDebugMouseHandling)
@@ -1323,16 +1110,16 @@ LLView* LLView::childrenHandleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLView* handled_view = NULL;
 
-	if (getVisible() && mEnabled )
+	if (getVisible() && getEnabled() )
 	{
 		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 		{
 			LLView* viewp = *child_it;
-			S32 local_x = x - viewp->mRect.mLeft;
-			S32 local_y = y - viewp->mRect.mBottom;
+			S32 local_x = x - viewp->getRect().mLeft;
+			S32 local_y = y - viewp->getRect().mBottom;
 			if (viewp->pointInView(local_x, local_y) &&
 				viewp->getVisible() &&
-				viewp->mEnabled &&
+				viewp->getEnabled() &&
 				viewp->handleRightMouseDown( local_x, local_y, mask ))
 			{
 				if (sDebugMouseHandling)
@@ -1351,16 +1138,16 @@ LLView* LLView::childrenHandleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	LLView* handled_view = NULL;
 
-	if (getVisible() && mEnabled )
+	if (getVisible() && getEnabled() )
 	{
 		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 		{
 			LLView* viewp = *child_it;
-			S32 local_x = x - viewp->mRect.mLeft;
-			S32 local_y = y - viewp->mRect.mBottom;
+			S32 local_x = x - viewp->getRect().mLeft;
+			S32 local_y = y - viewp->getRect().mBottom;
 			if (viewp->pointInView(local_x, local_y) &&
 				viewp->getVisible() &&
-				viewp->mEnabled &&
+				viewp->getEnabled() &&
 				viewp->handleDoubleClick( local_x, local_y, mask ))
 			{
 				if (sDebugMouseHandling)
@@ -1378,18 +1165,18 @@ LLView* LLView::childrenHandleDoubleClick(S32 x, S32 y, MASK mask)
 LLView* LLView::childrenHandleMouseUp(S32 x, S32 y, MASK mask)
 {
 	LLView* handled_view = NULL;
-	if( getVisible() && mEnabled )
+	if( getVisible() && getEnabled() )
 	{
 		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 		{
 			LLView* viewp = *child_it;
-			S32 local_x = x - viewp->mRect.mLeft;
-			S32 local_y = y - viewp->mRect.mBottom;
+			S32 local_x = x - viewp->getRect().mLeft;
+			S32 local_y = y - viewp->getRect().mBottom;
 			if (!viewp->pointInView(local_x, local_y))
 				continue;
 			if (!viewp->getVisible())
 				continue;
-			if (!viewp->mEnabled)
+			if (!viewp->getEnabled())
 				continue;
 			if (viewp->handleMouseUp( local_x, local_y, mask ))
 			{
@@ -1408,16 +1195,16 @@ LLView* LLView::childrenHandleMouseUp(S32 x, S32 y, MASK mask)
 LLView* LLView::childrenHandleRightMouseUp(S32 x, S32 y, MASK mask)
 {
 	LLView* handled_view = NULL;
-	if( getVisible() && mEnabled )
+	if( getVisible() && getEnabled() )
 	{
 		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 		{
 			LLView* viewp = *child_it;
-			S32 local_x = x - viewp->mRect.mLeft;
-			S32 local_y = y - viewp->mRect.mBottom;
+			S32 local_x = x - viewp->getRect().mLeft;
+			S32 local_y = y - viewp->getRect().mBottom;
 			if (viewp->pointInView(local_x, local_y) &&
 				viewp->getVisible() &&
-				viewp->mEnabled &&
+				viewp->getEnabled() &&
 				viewp->handleRightMouseUp( local_x, local_y, mask ))
 			{
 				if (sDebugMouseHandling)
@@ -1440,8 +1227,8 @@ void LLView::draw()
 		drawDebugRect();
 
 		// Check for bogus rectangle
-		if (mRect.mRight <= mRect.mLeft
-			|| mRect.mTop <= mRect.mBottom)
+		if (getRect().mRight <= getRect().mLeft
+			|| getRect().mTop <= getRect().mBottom)
 		{
 			llwarns << "Bogus rectangle for " << getName() << " with " << mRect << llendl;
 		}
@@ -1578,14 +1365,14 @@ void LLView::drawChild(LLView* childp, S32 x_offset, S32 y_offset, BOOL force_dr
 void LLView::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	// compute how much things changed and apply reshape logic to children
-	S32 delta_width = width - mRect.getWidth();
-	S32 delta_height = height - mRect.getHeight();
+	S32 delta_width = width - getRect().getWidth();
+	S32 delta_height = height - getRect().getHeight();
 
 	if (delta_width || delta_height || sForceReshape)
 	{
 		// adjust our rectangle
-		mRect.mRight = mRect.mLeft + width;
-		mRect.mTop = mRect.mBottom + height;
+		mRect.mRight = getRect().mLeft + width;
+		mRect.mTop = getRect().mBottom + height;
 
 		// move child views according to reshape flags
 		for ( child_list_iter_t child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
@@ -1631,8 +1418,8 @@ void LLView::reshape(S32 width, S32 height, BOOL called_from_parent)
 				// for now, same as bottom
 			}
 
-			S32 delta_x = child_rect.mLeft - viewp->mRect.mLeft;
-			S32 delta_y = child_rect.mBottom - viewp->mRect.mBottom;
+			S32 delta_x = child_rect.mLeft - viewp->getRect().mLeft;
+			S32 delta_y = child_rect.mBottom - viewp->getRect().mBottom;
 			viewp->translate( delta_x, delta_y );
 			viewp->reshape(child_rect.getWidth(), child_rect.getHeight());
 		}
@@ -1647,11 +1434,6 @@ void LLView::reshape(S32 width, S32 height, BOOL called_from_parent)
 	}
 
 	updateBoundingRect();
-}
-
-LLRect LLView::getRequiredRect()
-{
-	return mRect;
 }
 
 void LLView::updateBoundingRect()
@@ -1701,16 +1483,16 @@ void LLView::updateBoundingRect()
 	}
 }
 
-const LLRect LLView::getScreenRect() const
+LLRect LLView::getScreenRect() const
 {
 	// *FIX: check for one-off error
 	LLRect screen_rect;
 	localPointToScreen(0, 0, &screen_rect.mLeft, &screen_rect.mBottom);
-	localPointToScreen(mRect.getWidth(), mRect.getHeight(), &screen_rect.mRight, &screen_rect.mTop);
+	localPointToScreen(getRect().getWidth(), getRect().getHeight(), &screen_rect.mRight, &screen_rect.mTop);
 	return screen_rect;
 }
 
-const LLRect LLView::getLocalBoundingRect() const
+LLRect LLView::getLocalBoundingRect() const
 {
 	LLRect local_bounding_rect = getBoundingRect();
 	local_bounding_rect.translate(-mRect.mLeft, -mRect.mBottom);
@@ -1719,20 +1501,20 @@ const LLRect LLView::getLocalBoundingRect() const
 }
 
 
-const LLRect LLView::getLocalRect() const
+LLRect LLView::getLocalRect() const
 {
-	LLRect local_rect(0, mRect.getHeight(), mRect.getWidth(), 0);
+	LLRect local_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
 	return local_rect;
 }
 
-const LLRect LLView::getLocalSnapRect() const
+LLRect LLView::getLocalSnapRect() const
 {
 	LLRect local_snap_rect = getSnapRect();
-	local_snap_rect.translate(-mRect.mLeft, -mRect.mBottom);
+	local_snap_rect.translate(-getRect().mLeft, -getRect().mBottom);
 	return local_snap_rect;
 }
 
-BOOL LLView::hasAncestor(const LLView* parentp)
+BOOL LLView::hasAncestor(const LLView* parentp) const
 {
 	if (!parentp)
 	{
@@ -1771,7 +1553,7 @@ BOOL LLView::childHasKeyboardFocus( const LLString& childname ) const
 
 BOOL LLView::hasChild(const LLString& childname, BOOL recurse) const
 {
-	return getChildByName(childname, recurse) ? TRUE : FALSE;
+	return getChildByName(childname, recurse) != NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -1829,55 +1611,55 @@ BOOL LLView::blockMouseEvent(S32 x, S32 y) const
 // virtual
 void LLView::screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const
 {
-	*local_x = screen_x - mRect.mLeft;
-	*local_y = screen_y - mRect.mBottom;
+	*local_x = screen_x - getRect().mLeft;
+	*local_y = screen_y - getRect().mBottom;
 
 	const LLView* cur = this;
 	while( cur->mParentView )
 	{
 		cur = cur->mParentView;
-		*local_x -= cur->mRect.mLeft;
-		*local_y -= cur->mRect.mBottom;
+		*local_x -= cur->getRect().mLeft;
+		*local_y -= cur->getRect().mBottom;
 	}
 }
 
 void LLView::localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const
 {
-	*screen_x = local_x + mRect.mLeft;
-	*screen_y = local_y + mRect.mBottom;
+	*screen_x = local_x + getRect().mLeft;
+	*screen_y = local_y + getRect().mBottom;
 
 	const LLView* cur = this;
 	while( cur->mParentView )
 	{
 		cur = cur->mParentView;
-		*screen_x += cur->mRect.mLeft;
-		*screen_y += cur->mRect.mBottom;
+		*screen_x += cur->getRect().mLeft;
+		*screen_y += cur->getRect().mBottom;
 	}
 }
 
 void LLView::screenRectToLocal(const LLRect& screen, LLRect* local) const
 {
 	*local = screen;
-	local->translate( -mRect.mLeft, -mRect.mBottom );
+	local->translate( -getRect().mLeft, -getRect().mBottom );
 
 	const LLView* cur = this;
 	while( cur->mParentView )
 	{
 		cur = cur->mParentView;
-		local->translate( -cur->mRect.mLeft, -cur->mRect.mBottom );
+		local->translate( -cur->getRect().mLeft, -cur->getRect().mBottom );
 	}
 }
 
 void LLView::localRectToScreen(const LLRect& local, LLRect* screen) const
 {
 	*screen = local;
-	screen->translate( mRect.mLeft, mRect.mBottom );
+	screen->translate( getRect().mLeft, getRect().mBottom );
 
 	const LLView* cur = this;
 	while( cur->mParentView )
 	{
 		cur = cur->mParentView;
-		screen->translate( cur->mRect.mLeft, cur->mRect.mBottom );
+		screen->translate( cur->getRect().mLeft, cur->getRect().mBottom );
 	}
 }
 
@@ -1891,11 +1673,14 @@ LLView* LLView::getRootView()
 	return view;
 }
 
-//static 
-LLWindow* LLView::getWindow(void)
+BOOL LLView::deleteViewByHandle(LLHandle<LLView> handle)
 {
-	return LLUI::sWindow;
+	LLView* viewp = handle.get();
+
+	delete viewp;
+	return viewp != NULL;
 }
+
 
 // Moves the view so that it is entirely inside of constraint.
 // If the view will not fit because it's too big, aligns with the top and left.
@@ -1909,50 +1694,50 @@ BOOL LLView::translateIntoRect(const LLRect& constraint, BOOL allow_partial_outs
 	{
 		const S32 KEEP_ONSCREEN_PIXELS = 16;
 
-		if( mRect.mRight - KEEP_ONSCREEN_PIXELS < constraint.mLeft )
+		if( getRect().mRight - KEEP_ONSCREEN_PIXELS < constraint.mLeft )
 		{
-			delta_x = constraint.mLeft - (mRect.mRight - KEEP_ONSCREEN_PIXELS);
+			delta_x = constraint.mLeft - (getRect().mRight - KEEP_ONSCREEN_PIXELS);
 		}
 		else
-		if( mRect.mLeft + KEEP_ONSCREEN_PIXELS > constraint.mRight )
+		if( getRect().mLeft + KEEP_ONSCREEN_PIXELS > constraint.mRight )
 		{
-			delta_x = constraint.mRight - (mRect.mLeft + KEEP_ONSCREEN_PIXELS);
-			delta_x += llmax( 0, mRect.getWidth() - constraint.getWidth() );
+			delta_x = constraint.mRight - (getRect().mLeft + KEEP_ONSCREEN_PIXELS);
+			delta_x += llmax( 0, getRect().getWidth() - constraint.getWidth() );
 		}
 
-		if( mRect.mTop > constraint.mTop )
+		if( getRect().mTop > constraint.mTop )
 		{
-			delta_y = constraint.mTop - mRect.mTop;
+			delta_y = constraint.mTop - getRect().mTop;
 		}
 		else
-		if( mRect.mTop - KEEP_ONSCREEN_PIXELS < constraint.mBottom )
+		if( getRect().mTop - KEEP_ONSCREEN_PIXELS < constraint.mBottom )
 		{
-			delta_y = constraint.mBottom - (mRect.mTop - KEEP_ONSCREEN_PIXELS);
-			delta_y -= llmax( 0, mRect.getHeight() - constraint.getHeight() );
+			delta_y = constraint.mBottom - (getRect().mTop - KEEP_ONSCREEN_PIXELS);
+			delta_y -= llmax( 0, getRect().getHeight() - constraint.getHeight() );
 		}
 	}
 	else
 	{
-		if( mRect.mLeft < constraint.mLeft )
+		if( getRect().mLeft < constraint.mLeft )
 		{
-			delta_x = constraint.mLeft - mRect.mLeft;
+			delta_x = constraint.mLeft - getRect().mLeft;
 		}
 		else
-		if( mRect.mRight > constraint.mRight )
+		if( getRect().mRight > constraint.mRight )
 		{
-			delta_x = constraint.mRight - mRect.mRight;
-			delta_x += llmax( 0, mRect.getWidth() - constraint.getWidth() );
+			delta_x = constraint.mRight - getRect().mRight;
+			delta_x += llmax( 0, getRect().getWidth() - constraint.getWidth() );
 		}
 
-		if( mRect.mTop > constraint.mTop )
+		if( getRect().mTop > constraint.mTop )
 		{
-			delta_y = constraint.mTop - mRect.mTop;
+			delta_y = constraint.mTop - getRect().mTop;
 		}
 		else
-		if( mRect.mBottom < constraint.mBottom )
+		if( getRect().mBottom < constraint.mBottom )
 		{
-			delta_y = constraint.mBottom - mRect.mBottom;
-			delta_y -= llmax( 0, mRect.getHeight() - constraint.getHeight() );
+			delta_y = constraint.mBottom - getRect().mBottom;
+			delta_y -= llmax( 0, getRect().getHeight() - constraint.getHeight() );
 		}
 	}
 
@@ -1964,10 +1749,18 @@ BOOL LLView::translateIntoRect(const LLRect& constraint, BOOL allow_partial_outs
 	return FALSE;
 }
 
-BOOL LLView::localPointToOtherView( S32 x, S32 y, S32 *other_x, S32 *other_y, LLView* other_view)
+void LLView::centerWithin(const LLRect& bounds)
 {
-	LLView* cur_view = this;
-	LLView* root_view = NULL;
+	S32 left   = bounds.mLeft + (bounds.getWidth() - getRect().getWidth()) / 2;
+	S32 bottom = bounds.mBottom + (bounds.getHeight() - getRect().getHeight()) / 2;
+
+	translate( left - getRect().mLeft, bottom - getRect().mBottom );
+}
+
+BOOL LLView::localPointToOtherView( S32 x, S32 y, S32 *other_x, S32 *other_y, LLView* other_view) const
+{
+	const LLView* cur_view = this;
+	const LLView* root_view = NULL;
 
 	while (cur_view)
 	{
@@ -2058,8 +1851,8 @@ LLXMLNodePtr LLView::getXML(bool save_children) const
 	node->createChild("height", TRUE)->setIntValue(getRect().getHeight());
 
 	LLView* parent = getParent();
-	S32 left = mRect.mLeft;
-	S32 bottom = mRect.mBottom;
+	S32 left = getRect().mLeft;
+	S32 bottom = getRect().mBottom;
 	if (parent) bottom -= parent->getRect().getHeight();
 
 	node->createChild("left", TRUE)->setIntValue(left);
@@ -2095,7 +1888,6 @@ LLXMLNodePtr LLView::getXML(bool save_children) const
 		node->createChild("follows", TRUE)->setStringValue(buffer.str());
 	}
 	// Export all widgets as enabled and visible - code must disable.
-	node->createChild("hidden", TRUE)->setBoolValue(mHidden);
 	node->createChild("mouse_opaque", TRUE)->setBoolValue(mMouseOpaque );
 	if (!mToolTipMsg.getString().empty())
 	{
@@ -2106,7 +1898,7 @@ LLXMLNodePtr LLView::getXML(bool save_children) const
 		node->createChild("sound_flags", TRUE)->setIntValue((S32)mSoundFlags);
 	}
 
-	node->createChild("enabled", TRUE)->setBoolValue(mEnabled);
+	node->createChild("enabled", TRUE)->setBoolValue(getEnabled());
 
 	if (!mControlName.empty())
 	{
@@ -2194,6 +1986,15 @@ const LLCtrlQuery & LLView::getTabOrderQuery()
 	return query;
 }
 
+// This class is only used internally by getFocusRootsQuery below. 
+class LLFocusRootsFilter : public LLQueryFilter, public LLSingleton<LLFocusRootsFilter>
+{
+	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const 
+	{
+		return filterResult_t(view->isCtrl() && view->isFocusRoot(), !view->isFocusRoot());
+	}
+};
+
 // static
 const LLCtrlQuery & LLView::getFocusRootsQuery()
 {
@@ -2201,7 +2002,7 @@ const LLCtrlQuery & LLView::getFocusRootsQuery()
 	if(query.getPreFilters().size() == 0) {
 		query.addPreFilter(LLVisibleFilter::getInstance());
 		query.addPreFilter(LLEnabledFilter::getInstance());
-		query.addPreFilter(LLView::LLFocusRootsFilter::getInstance());
+		query.addPreFilter(LLFocusRootsFilter::getInstance());
 		query.addPostFilter(LLRootsFilter::getInstance());
 	}
 	return query;
@@ -2211,167 +2012,189 @@ const LLCtrlQuery & LLView::getFocusRootsQuery()
 void	LLView::userSetShape(const LLRect& new_rect)
 {
 	reshape(new_rect.getWidth(), new_rect.getHeight());
-	translate(new_rect.mLeft - mRect.mLeft, new_rect.mBottom - mRect.mBottom);
+	translate(new_rect.mLeft - getRect().mLeft, new_rect.mBottom - getRect().mBottom);
 }
 
 LLView* LLView::findSnapRect(LLRect& new_rect, const LLCoordGL& mouse_dir,
 							 LLView::ESnapType snap_type, S32 threshold, S32 padding)
 {
+	new_rect = mRect;
 	LLView* snap_view = NULL;
 
 	if (!mParentView)
 	{
-		new_rect = mRect;
-		return snap_view;
+		return NULL;
 	}
-
-	// If the view is near the edge of its parent, snap it to
-	// the edge.
-	LLRect test_rect = getSnapRect();
-	LLRect view_rect = getSnapRect();
-	test_rect.stretch(padding);
-	view_rect.stretch(padding);
-
-	BOOL snapped_x = FALSE;
-	BOOL snapped_y = FALSE;
-
-	LLRect parent_local_snap_rect = mParentView->getLocalSnapRect();
-
-	if (snap_type == SNAP_PARENT || snap_type == SNAP_PARENT_AND_SIBLINGS)
+	
+	S32 delta_x = 0;
+	S32 delta_y = 0;
+	if (mouse_dir.mX >= 0)
 	{
-		if (llabs(parent_local_snap_rect.mRight - test_rect.mRight) <= threshold && (parent_local_snap_rect.mRight - test_rect.mRight) * mouse_dir.mX >= 0)
-		{
-			view_rect.translate(parent_local_snap_rect.mRight - view_rect.mRight, 0);
-			snap_view = mParentView;
-			snapped_x = TRUE;
-		}
-
-		if (llabs(test_rect.mLeft - parent_local_snap_rect.mLeft) <= threshold && test_rect.mLeft * mouse_dir.mX <= 0)
-		{
-			view_rect.translate(parent_local_snap_rect.mLeft - view_rect.mLeft, 0);
-			snap_view = mParentView;
-			snapped_x = TRUE;
-		}
-
-		if (llabs(test_rect.mBottom - parent_local_snap_rect.mBottom) <= threshold && test_rect.mBottom * mouse_dir.mY <= 0)
-		{
-			view_rect.translate(0, parent_local_snap_rect.mBottom - view_rect.mBottom);
-			snap_view = mParentView;
-			snapped_y = TRUE;
-		}
-
-		if (llabs(parent_local_snap_rect.mTop - test_rect.mTop) <= threshold && (parent_local_snap_rect.mTop - test_rect.mTop) * mouse_dir.mY >= 0)
-		{
-			view_rect.translate(0, parent_local_snap_rect.mTop - view_rect.mTop);
-			snap_view = mParentView;
-			snapped_y = TRUE;
-		}
+		S32 new_right = mRect.mRight;
+		LLView* view = findSnapEdge(new_right, mouse_dir, SNAP_RIGHT, snap_type, threshold, padding);
+		delta_x = new_right - mRect.mRight;
+		snap_view = view ? view : snap_view;
 	}
-	if (snap_type == SNAP_SIBLINGS || snap_type == SNAP_PARENT_AND_SIBLINGS)
+
+	if (mouse_dir.mX <= 0)
 	{
-		for ( child_list_const_iter_t child_it = mParentView->getChildList()->begin();
-			  child_it != mParentView->getChildList()->end(); ++child_it)
-		{
-			LLView* siblingp = *child_it;
-			// skip self
-			if (siblingp == this || !siblingp->getVisible() || !canSnapTo(siblingp))
-			{
-				continue;
-			}
-
-			LLRect sibling_rect = siblingp->getSnapRect();
-
-			if (!snapped_x && llabs(test_rect.mRight - sibling_rect.mLeft) <= threshold && (test_rect.mRight - sibling_rect.mLeft) * mouse_dir.mX <= 0)
-			{
-				view_rect.translate(sibling_rect.mLeft - view_rect.mRight, 0);
-				if (!snapped_y)
-				{
-					if (llabs(test_rect.mTop - sibling_rect.mTop) <= threshold && (test_rect.mTop - sibling_rect.mTop) * mouse_dir.mY <= 0)
-					{
-						view_rect.translate(0, sibling_rect.mTop - test_rect.mTop);
-						snapped_y = TRUE;
-					}
-					else if (llabs(test_rect.mBottom - sibling_rect.mBottom) <= threshold && (test_rect.mBottom - sibling_rect.mBottom) * mouse_dir.mY <= 0)
-					{
-						view_rect.translate(0, sibling_rect.mBottom - test_rect.mBottom);
-						snapped_y = TRUE;
-					}
-				}
-				snap_view = siblingp;
-				snapped_x = TRUE;
-			}
-
-			if (!snapped_x && llabs(test_rect.mLeft - sibling_rect.mRight) <= threshold && (test_rect.mLeft - sibling_rect.mRight) * mouse_dir.mX <= 0)
-			{
-				view_rect.translate(sibling_rect.mRight - view_rect.mLeft, 0);
-				if (!snapped_y)
-				{
-					if (llabs(test_rect.mTop - sibling_rect.mTop) <= threshold && (test_rect.mTop - sibling_rect.mTop) * mouse_dir.mY <= 0)
-					{
-						view_rect.translate(0, sibling_rect.mTop - test_rect.mTop);
-						snapped_y = TRUE;
-					}
-					else if (llabs(test_rect.mBottom - sibling_rect.mBottom) <= threshold && (test_rect.mBottom - sibling_rect.mBottom) * mouse_dir.mY <= 0)
-					{
-						view_rect.translate(0, sibling_rect.mBottom - test_rect.mBottom);
-						snapped_y = TRUE;
-					}
-				}
-				snap_view = siblingp;
-				snapped_x = TRUE;
-			}
-
-			if (!snapped_y && llabs(test_rect.mBottom - sibling_rect.mTop) <= threshold && (test_rect.mBottom - sibling_rect.mTop) * mouse_dir.mY <= 0)
-			{
-				view_rect.translate(0, sibling_rect.mTop - view_rect.mBottom);
-				if (!snapped_x)
-				{
-					if (llabs(test_rect.mLeft - sibling_rect.mLeft) <= threshold && (test_rect.mLeft - sibling_rect.mLeft) * mouse_dir.mX <= 0)
-					{
-						view_rect.translate(sibling_rect.mLeft - test_rect.mLeft, 0);
-						snapped_x = TRUE;
-					}
-					else if (llabs(test_rect.mRight - sibling_rect.mRight) <= threshold && (test_rect.mRight - sibling_rect.mRight) * mouse_dir.mX <= 0)
-					{
-						view_rect.translate(sibling_rect.mRight - test_rect.mRight, 0);
-						snapped_x = TRUE;
-					}
-				}
-				snap_view = siblingp;
-				snapped_y = TRUE;
-			}
-
-			if (!snapped_y && llabs(test_rect.mTop - sibling_rect.mBottom) <= threshold && (test_rect.mTop - sibling_rect.mBottom) * mouse_dir.mY <= 0)
-			{
-				view_rect.translate(0, sibling_rect.mBottom - view_rect.mTop);
-				if (!snapped_x)
-				{
-					if (llabs(test_rect.mLeft - sibling_rect.mLeft) <= threshold && (test_rect.mLeft - sibling_rect.mLeft) * mouse_dir.mX <= 0)
-					{
-						view_rect.translate(sibling_rect.mLeft - test_rect.mLeft, 0);
-						snapped_x = TRUE;
-					}
-					else if (llabs(test_rect.mRight - sibling_rect.mRight) <= threshold && (test_rect.mRight - sibling_rect.mRight) * mouse_dir.mX <= 0)
-					{
-						view_rect.translate(sibling_rect.mRight - test_rect.mRight, 0);
-						snapped_x = TRUE;
-					}
-				}
-				snap_view = siblingp;
-				snapped_y = TRUE;
-			}
-			
-			if (snapped_x && snapped_y)
-			{
-				break;
-			}
-		}
+		S32 new_left = mRect.mLeft;
+		LLView* view = findSnapEdge(new_left, mouse_dir, SNAP_LEFT, snap_type, threshold, padding);
+		delta_x = new_left - mRect.mLeft;
+		snap_view = view ? view : snap_view;
 	}
 
-	// shrink actual view rect back down
-	view_rect.stretch(-padding);
-	new_rect = view_rect;
+	if (mouse_dir.mY >= 0)
+	{
+		S32 new_top = mRect.mTop;
+		LLView* view = findSnapEdge(new_top, mouse_dir, SNAP_TOP, snap_type, threshold, padding);
+		delta_y = new_top - mRect.mTop;
+		snap_view = view ? view : snap_view;
+	}
+
+	if (mouse_dir.mY <= 0)
+	{
+		S32 new_bottom = mRect.mBottom;
+		LLView* view = findSnapEdge(new_bottom, mouse_dir, SNAP_BOTTOM, snap_type, threshold, padding);
+		delta_y = new_bottom - mRect.mBottom;
+		snap_view = view ? view : snap_view;
+	}
+
+	new_rect.translate(delta_x, delta_y);
 	return snap_view;
+
+	//// If the view is near the edge of its parent, snap it to
+	//// the edge.
+	//LLRect test_rect = getSnapRect();
+	//LLRect view_rect = getSnapRect();
+	//test_rect.stretch(padding);
+	//view_rect.stretch(padding);
+
+	//S32 x_threshold = threshold;
+	//S32 y_threshold = threshold;
+
+	//LLRect parent_local_snap_rect = mParentView->getLocalSnapRect();
+
+	//if (snap_type == SNAP_PARENT || snap_type == SNAP_PARENT_AND_SIBLINGS)
+	//{
+	//	if (llabs(parent_local_snap_rect.mRight - test_rect.mRight) <= x_threshold && (parent_local_snap_rect.mRight - test_rect.mRight) * mouse_dir.mX >= 0)
+	//	{
+	//		view_rect.translate(parent_local_snap_rect.mRight - view_rect.mRight, 0);
+	//		snap_view = mParentView;
+	//		x_threshold = llabs(parent_local_snap_rect.mRight - test_rect.mRight);
+	//	}
+
+	//	if (llabs(test_rect.mLeft - parent_local_snap_rect.mLeft) <= x_threshold && test_rect.mLeft * mouse_dir.mX <= 0)
+	//	{
+	//		view_rect.translate(parent_local_snap_rect.mLeft - view_rect.mLeft, 0);
+	//		snap_view = mParentView;
+	//		x_threshold = llabs(test_rect.mLeft - parent_local_snap_rect.mLeft);
+	//	}
+
+	//	if (llabs(test_rect.mBottom - parent_local_snap_rect.mBottom) <= y_threshold && test_rect.mBottom * mouse_dir.mY <= 0)
+	//	{
+	//		view_rect.translate(0, parent_local_snap_rect.mBottom - view_rect.mBottom);
+	//		snap_view = mParentView;
+	//		y_threshold = llabs(test_rect.mBottom - parent_local_snap_rect.mBottom);
+	//	}
+
+	//	if (llabs(parent_local_snap_rect.mTop - test_rect.mTop) <= y_threshold && (parent_local_snap_rect.mTop - test_rect.mTop) * mouse_dir.mY >= 0)
+	//	{
+	//		view_rect.translate(0, parent_local_snap_rect.mTop - view_rect.mTop);
+	//		snap_view = mParentView;
+	//		y_threshold = llabs(parent_local_snap_rect.mTop - test_rect.mTop);
+	//	}
+	//}
+	//if (snap_type == SNAP_SIBLINGS || snap_type == SNAP_PARENT_AND_SIBLINGS)
+	//{
+	//	for ( child_list_const_iter_t child_it = mParentView->getChildList()->begin();
+	//		  child_it != mParentView->getChildList()->end(); ++child_it)
+	//	{
+	//		LLView* siblingp = *child_it;
+
+	//		// skip non-snappable views (self, invisible views, etc)
+	//		if (!canSnapTo(siblingp)) continue;
+
+	//		LLRect sibling_rect = siblingp->getSnapRect();
+
+	//		if (llabs(test_rect.mRight - sibling_rect.mLeft) <= x_threshold 
+	//			&& (test_rect.mRight - sibling_rect.mLeft) * mouse_dir.mX <= 0)
+	//		{
+	//			view_rect.translate(sibling_rect.mLeft - view_rect.mRight, 0);
+	//			if (llabs(test_rect.mTop - sibling_rect.mTop) <= y_threshold && (test_rect.mTop - sibling_rect.mTop) * mouse_dir.mY <= 0)
+	//			{
+	//				view_rect.translate(0, sibling_rect.mTop - test_rect.mTop);
+	//				y_threshold = llabs(test_rect.mTop - sibling_rect.mTop);
+	//			}
+	//			else if (llabs(test_rect.mBottom - sibling_rect.mBottom) <= y_threshold && (test_rect.mBottom - sibling_rect.mBottom) * mouse_dir.mY <= 0)
+	//			{
+	//				view_rect.translate(0, sibling_rect.mBottom - test_rect.mBottom);
+	//				y_threshold = llabs(test_rect.mBottom - sibling_rect.mBottom);	
+	//			}
+	//			snap_view = siblingp;
+	//			x_threshold = llabs(test_rect.mRight - sibling_rect.mLeft);
+	//		}
+
+	//		if (llabs(test_rect.mLeft - sibling_rect.mRight) <= x_threshold 
+	//			&& (test_rect.mLeft - sibling_rect.mRight) * mouse_dir.mX <= 0)
+	//		{
+	//			view_rect.translate(sibling_rect.mRight - view_rect.mLeft, 0);
+	//			if (llabs(test_rect.mTop - sibling_rect.mTop) <= y_threshold && (test_rect.mTop - sibling_rect.mTop) * mouse_dir.mY <= 0)
+	//			{
+	//				view_rect.translate(0, sibling_rect.mTop - test_rect.mTop);
+	//				y_threshold = llabs(test_rect.mTop - sibling_rect.mTop);	
+	//			}
+	//			else if (llabs(test_rect.mBottom - sibling_rect.mBottom) <= y_threshold && (test_rect.mBottom - sibling_rect.mBottom) * mouse_dir.mY <= 0)
+	//			{
+	//				view_rect.translate(0, sibling_rect.mBottom - test_rect.mBottom);
+	//				y_threshold = llabs(test_rect.mBottom - sibling_rect.mBottom);	
+	//			}
+	//			snap_view = siblingp;
+	//			x_threshold = llabs(test_rect.mLeft - sibling_rect.mRight);
+	//		}
+
+	//		if (llabs(test_rect.mBottom - sibling_rect.mTop) <= y_threshold 
+	//			&& (test_rect.mBottom - sibling_rect.mTop) * mouse_dir.mY <= 0)
+	//		{
+	//			view_rect.translate(0, sibling_rect.mTop - view_rect.mBottom);
+	//			if (llabs(test_rect.mLeft - sibling_rect.mLeft) <= x_threshold && (test_rect.mLeft - sibling_rect.mLeft) * mouse_dir.mX <= 0)
+	//			{
+	//				view_rect.translate(sibling_rect.mLeft - test_rect.mLeft, 0);
+	//				x_threshold = llabs(test_rect.mLeft - sibling_rect.mLeft);
+	//			}
+	//			else if (llabs(test_rect.mRight - sibling_rect.mRight) <= x_threshold && (test_rect.mRight - sibling_rect.mRight) * mouse_dir.mX <= 0)
+	//			{
+	//				view_rect.translate(sibling_rect.mRight - test_rect.mRight, 0);
+	//				x_threshold = llabs(test_rect.mRight - sibling_rect.mRight);
+	//			}
+	//			snap_view = siblingp;
+	//			y_threshold = llabs(test_rect.mBottom - sibling_rect.mTop);
+	//		}
+
+	//		if (llabs(test_rect.mTop - sibling_rect.mBottom) <= y_threshold 
+	//			&& (test_rect.mTop - sibling_rect.mBottom) * mouse_dir.mY <= 0)
+	//		{
+	//			view_rect.translate(0, sibling_rect.mBottom - view_rect.mTop);
+	//			if (llabs(test_rect.mLeft - sibling_rect.mLeft) <= x_threshold && (test_rect.mLeft - sibling_rect.mLeft) * mouse_dir.mX <= 0)
+	//			{
+	//				view_rect.translate(sibling_rect.mLeft - test_rect.mLeft, 0);
+	//				x_threshold = llabs(test_rect.mLeft - sibling_rect.mLeft);
+	//			}
+	//			else if (llabs(test_rect.mRight - sibling_rect.mRight) <= x_threshold && (test_rect.mRight - sibling_rect.mRight) * mouse_dir.mX <= 0)
+	//			{
+	//				view_rect.translate(sibling_rect.mRight - test_rect.mRight, 0);
+	//				x_threshold = llabs(test_rect.mRight - sibling_rect.mRight);
+	//			}
+	//			snap_view = siblingp;
+	//			y_threshold = llabs(test_rect.mTop - sibling_rect.mBottom);
+	//		}
+	//	}
+	//}
+
+	//// shrink actual view rect back down
+	//view_rect.stretch(-padding);
+	//new_rect = view_rect;
+	//return snap_view;
 }
 
 LLView*	LLView::findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESnapEdge snap_edge, ESnapType snap_type, S32 threshold, S32 padding)
@@ -2407,8 +2230,8 @@ LLView*	LLView::findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESna
 	LLRect test_rect = snap_rect;
 	test_rect.stretch(padding);
 
-	BOOL snapped_x = FALSE;
-	BOOL snapped_y = FALSE;
+	S32 x_threshold = threshold;
+	S32 y_threshold = threshold;
 
 	LLRect parent_local_snap_rect = mParentView->getLocalSnapRect();
 
@@ -2417,35 +2240,38 @@ LLView*	LLView::findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESna
 		switch(snap_edge)
 		{
 		case SNAP_RIGHT:
-			if (llabs(parent_local_snap_rect.mRight - test_rect.mRight) <= threshold && (parent_local_snap_rect.mRight - test_rect.mRight) * mouse_dir.mX >= 0)
+			if (llabs(parent_local_snap_rect.mRight - test_rect.mRight) <= x_threshold 
+				&& (parent_local_snap_rect.mRight - test_rect.mRight) * mouse_dir.mX >= 0)
 			{
 				snap_pos = parent_local_snap_rect.mRight - padding;
 				snap_view = mParentView;
-				snapped_x = TRUE;
+				x_threshold = llabs(parent_local_snap_rect.mRight - test_rect.mRight);
 			}
 			break;
 		case SNAP_LEFT:
-			if (llabs(test_rect.mLeft - parent_local_snap_rect.mLeft) <= threshold && test_rect.mLeft * mouse_dir.mX <= 0)
+			if (llabs(test_rect.mLeft - parent_local_snap_rect.mLeft) <= x_threshold 
+				&& test_rect.mLeft * mouse_dir.mX <= 0)
 			{
 				snap_pos = parent_local_snap_rect.mLeft + padding;
 				snap_view = mParentView;
-				snapped_x = TRUE;
+				x_threshold = llabs(test_rect.mLeft - parent_local_snap_rect.mLeft);
 			}
 			break;
 		case SNAP_BOTTOM:
-			if (llabs(test_rect.mBottom - parent_local_snap_rect.mBottom) <= threshold && test_rect.mBottom * mouse_dir.mY <= 0)
+			if (llabs(test_rect.mBottom - parent_local_snap_rect.mBottom) <= y_threshold 
+				&& test_rect.mBottom * mouse_dir.mY <= 0)
 			{
 				snap_pos = parent_local_snap_rect.mBottom + padding;
 				snap_view = mParentView;
-				snapped_y = TRUE;
+				y_threshold = llabs(test_rect.mBottom - parent_local_snap_rect.mBottom);
 			}
 			break;
 		case SNAP_TOP:
-			if (llabs(parent_local_snap_rect.mTop - test_rect.mTop) <= threshold && (parent_local_snap_rect.mTop - test_rect.mTop) * mouse_dir.mY >= 0)
+			if (llabs(parent_local_snap_rect.mTop - test_rect.mTop) <= y_threshold && (parent_local_snap_rect.mTop - test_rect.mTop) * mouse_dir.mY >= 0)
 			{
 				snap_pos = parent_local_snap_rect.mTop - padding;
 				snap_view = mParentView;
-				snapped_y = TRUE;
+				y_threshold = llabs(parent_local_snap_rect.mTop - test_rect.mTop);
 			}
 			break;
 		default:
@@ -2459,131 +2285,105 @@ LLView*	LLView::findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESna
 			  child_it != mParentView->getChildList()->end(); ++child_it)
 		{
 			LLView* siblingp = *child_it;
-			// skip self
-			if (siblingp == this || !siblingp->getVisible() || !canSnapTo(siblingp))
-			{
-				continue;
-			}
+
+			if (!canSnapTo(siblingp)) continue;
 
 			LLRect sibling_rect = siblingp->getSnapRect();
 
 			switch(snap_edge)
 			{
 			case SNAP_RIGHT:
-				if (!snapped_x)
+				if (llabs(test_rect.mRight - sibling_rect.mLeft) <= x_threshold 
+					&& (test_rect.mRight - sibling_rect.mLeft) * mouse_dir.mX <= 0)
 				{
-					if (llabs(test_rect.mRight - sibling_rect.mLeft) <= threshold && (test_rect.mRight - sibling_rect.mLeft) * mouse_dir.mX <= 0)
+					snap_pos = sibling_rect.mLeft - padding;
+					snap_view = siblingp;
+					x_threshold = llabs(test_rect.mRight - sibling_rect.mLeft);
+				}
+				// if snapped with sibling along other axis, check for shared edge
+				else if (llabs(sibling_rect.mTop - (test_rect.mBottom - padding)) <= y_threshold 
+					|| llabs(sibling_rect.mBottom - (test_rect.mTop + padding)) <= x_threshold)
+				{
+					if (llabs(test_rect.mRight - sibling_rect.mRight) <= x_threshold 
+						&& (test_rect.mRight - sibling_rect.mRight) * mouse_dir.mX <= 0)
 					{
-						snap_pos = sibling_rect.mLeft - padding;
+						snap_pos = sibling_rect.mRight;
 						snap_view = siblingp;
-						snapped_x = TRUE;
-					}
-					// if snapped with sibling along other axis, check for shared edge
-					else if (llabs(sibling_rect.mTop - (test_rect.mBottom - padding)) <= threshold ||
-						llabs(sibling_rect.mBottom - (test_rect.mTop + padding)) <= threshold)
-					{
-						if (llabs(test_rect.mRight - sibling_rect.mRight) <= threshold && (test_rect.mRight - sibling_rect.mRight) * mouse_dir.mX <= 0)
-						{
-							snap_pos = sibling_rect.mRight;
-							snap_view = siblingp;
-							snapped_x = TRUE;
-						}
+						x_threshold = llabs(test_rect.mRight - sibling_rect.mRight);
 					}
 				}
 				break;
 			case SNAP_LEFT:
-				if (!snapped_x)
+				if (llabs(test_rect.mLeft - sibling_rect.mRight) <= x_threshold 
+					&& (test_rect.mLeft - sibling_rect.mRight) * mouse_dir.mX <= 0)
 				{
-					if (llabs(test_rect.mLeft - sibling_rect.mRight) <= threshold && (test_rect.mLeft - sibling_rect.mRight) * mouse_dir.mX <= 0)
+					snap_pos = sibling_rect.mRight + padding;
+					snap_view = siblingp;
+					x_threshold = llabs(test_rect.mLeft - sibling_rect.mRight);				
+				}
+				// if snapped with sibling along other axis, check for shared edge
+				else if (llabs(sibling_rect.mTop - (test_rect.mBottom - padding)) <= y_threshold 
+					|| llabs(sibling_rect.mBottom - (test_rect.mTop + padding)) <= y_threshold)
+				{
+					if (llabs(test_rect.mLeft - sibling_rect.mLeft) <= x_threshold 
+						&& (test_rect.mLeft - sibling_rect.mLeft) * mouse_dir.mX <= 0)
 					{
-						snap_pos = sibling_rect.mRight + padding;
+						snap_pos = sibling_rect.mLeft;
 						snap_view = siblingp;
-						snapped_x = TRUE;
-					}
-					// if snapped with sibling along other axis, check for shared edge
-					else if (llabs(sibling_rect.mTop - (test_rect.mBottom - padding)) <= threshold ||
-						llabs(sibling_rect.mBottom - (test_rect.mTop + padding)) <= threshold)
-					{
-						if (llabs(test_rect.mLeft - sibling_rect.mLeft) <= threshold && (test_rect.mLeft - sibling_rect.mLeft) * mouse_dir.mX <= 0)
-						{
-							snap_pos = sibling_rect.mLeft;
-							snap_view = siblingp;
-							snapped_x = TRUE;
-						}
+						x_threshold = llabs(test_rect.mLeft - sibling_rect.mLeft);									
 					}
 				}
 				break;
 			case SNAP_BOTTOM:
-				if (!snapped_y)
+				if (llabs(test_rect.mBottom - sibling_rect.mTop) <= y_threshold 
+					&& (test_rect.mBottom - sibling_rect.mTop) * mouse_dir.mY <= 0)
 				{
-					if (llabs(test_rect.mBottom - sibling_rect.mTop) <= threshold && (test_rect.mBottom - sibling_rect.mTop) * mouse_dir.mY <= 0)
+					snap_pos = sibling_rect.mTop + padding;
+					snap_view = siblingp;
+					y_threshold = llabs(test_rect.mBottom - sibling_rect.mTop);
+				}
+				// if snapped with sibling along other axis, check for shared edge
+				else if (llabs(sibling_rect.mRight - (test_rect.mLeft - padding)) <= x_threshold 
+					|| llabs(sibling_rect.mLeft - (test_rect.mRight + padding)) <= x_threshold)
+				{
+					if (llabs(test_rect.mBottom - sibling_rect.mBottom) <= y_threshold 
+						&& (test_rect.mBottom - sibling_rect.mBottom) * mouse_dir.mY <= 0)
 					{
-						snap_pos = sibling_rect.mTop + padding;
+						snap_pos = sibling_rect.mBottom;
 						snap_view = siblingp;
-						snapped_y = TRUE;
-					}
-					// if snapped with sibling along other axis, check for shared edge
-					else if (llabs(sibling_rect.mRight - (test_rect.mLeft - padding)) <= threshold ||
-						llabs(sibling_rect.mLeft - (test_rect.mRight + padding)) <= threshold)
-					{
-						if (llabs(test_rect.mBottom - sibling_rect.mBottom) <= threshold && (test_rect.mBottom - sibling_rect.mBottom) * mouse_dir.mY <= 0)
-						{
-							snap_pos = sibling_rect.mBottom;
-							snap_view = siblingp;
-							snapped_y = TRUE;
-						}
+						y_threshold = llabs(test_rect.mBottom - sibling_rect.mBottom);
 					}
 				}
 				break;
 			case SNAP_TOP:
-				if (!snapped_y)
+				if (llabs(test_rect.mTop - sibling_rect.mBottom) <= y_threshold 
+					&& (test_rect.mTop - sibling_rect.mBottom) * mouse_dir.mY <= 0)
 				{
-					if (llabs(test_rect.mTop - sibling_rect.mBottom) <= threshold && (test_rect.mTop - sibling_rect.mBottom) * mouse_dir.mY <= 0)
+					snap_pos = sibling_rect.mBottom - padding;
+					snap_view = siblingp;
+					y_threshold = llabs(test_rect.mTop - sibling_rect.mBottom);
+				}
+				// if snapped with sibling along other axis, check for shared edge
+				else if (llabs(sibling_rect.mRight - (test_rect.mLeft - padding)) <= x_threshold 
+					|| llabs(sibling_rect.mLeft - (test_rect.mRight + padding)) <= x_threshold)
+				{
+					if (llabs(test_rect.mTop - sibling_rect.mTop) <= y_threshold 
+						&& (test_rect.mTop - sibling_rect.mTop) * mouse_dir.mY <= 0)
 					{
-						snap_pos = sibling_rect.mBottom - padding;
+						snap_pos = sibling_rect.mTop;
 						snap_view = siblingp;
-						snapped_y = TRUE;
-					}
-					// if snapped with sibling along other axis, check for shared edge
-					else if (llabs(sibling_rect.mRight - (test_rect.mLeft - padding)) <= threshold ||
-						llabs(sibling_rect.mLeft - (test_rect.mRight + padding)) <= threshold)
-					{
-						if (llabs(test_rect.mTop - sibling_rect.mTop) <= threshold && (test_rect.mTop - sibling_rect.mTop) * mouse_dir.mY <= 0)
-						{
-							snap_pos = sibling_rect.mTop;
-							snap_view = siblingp;
-							snapped_y = TRUE;
-						}
+						y_threshold = llabs(test_rect.mTop - sibling_rect.mTop);
 					}
 				}
 				break;
 			default:
 				llerrs << "Invalid snap edge" << llendl;
 			}
-			if (snapped_x && snapped_y)
-			{
-				break;
-			}
 		}
 	}
 
 	new_edge_val = snap_pos;
 	return snap_view;
-}
-
-bool operator==(const LLViewHandle& lhs, const LLViewHandle& rhs)
-{
-	return lhs.mID == rhs.mID;
-}
-
-bool operator!=(const LLViewHandle& lhs, const LLViewHandle& rhs)
-{
-	return lhs.mID != rhs.mID;
-}
-
-bool operator<(const LLViewHandle &lhs, const LLViewHandle &rhs)
-{
-	return lhs.mID < rhs.mID;
 }
 
 //-----------------------------------------------------------------------------
@@ -2876,13 +2676,6 @@ void LLView::initFromXML(LLXMLNodePtr node, LLView* parent)
 		setVisible(visible);
 	}
 	
-	if (node->hasAttribute("hidden"))
-	{
-		BOOL hidden;
-		node->getAttributeBOOL("hidden", hidden);
-		setHidden(hidden);
-	}
-
 	node->getAttributeBOOL("use_bounding_rect", mUseBoundingRect);
 	node->getAttributeBOOL("mouse_opaque", mMouseOpaque);
 
@@ -3014,12 +2807,6 @@ void LLView::setControlValue(const LLSD& value)
 }
 
 //virtual
-LLString LLView::getControlName() const
-{
-	return mControlName;
-}
-
-//virtual
 void LLView::setControlName(const LLString& control_name, LLView *context)
 {
 	if (context == NULL)
@@ -3058,11 +2845,6 @@ bool LLView::handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	return FALSE;
 }
 
-void LLView::setValue(const LLSD& value)
-{
-}
-
-
 void LLView::addBoolControl(LLString name, bool initial_value)
 {
 	mFloaterControls[name] = new LLControl(name, TYPE_BOOLEAN, initial_value, "Internal floater control");
@@ -3076,4 +2858,15 @@ LLControlBase *LLView::getControl(LLString name)
 		return itor->second;
 	}
 	return NULL;
+}
+
+//virtual 
+void	LLView::setValue(const LLSD& value)
+{
+}
+
+//virtual 
+LLSD	LLView::getValue() const 
+{
+	return LLSD();
 }

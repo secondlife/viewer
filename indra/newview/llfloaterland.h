@@ -68,8 +68,9 @@ class LLPanelLandRenters;
 class LLPanelLandCovenant;
 
 class LLFloaterLand
-:	public LLFloater, public LLUISingleton<LLFloaterLand>
+:	public LLFloater, public LLUISingleton<LLFloaterLand, VisibilityPolicy<LLFloater> >
 {
+	friend class LLUISingleton<LLFloaterLand, VisibilityPolicy<LLFloater> >;
 public:
 	static void refreshAll();
 
@@ -82,7 +83,6 @@ public:
 	virtual BOOL postBuild();
 
 protected:
-	friend class LLUISingleton<LLFloaterLand>;
 
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
@@ -113,7 +113,7 @@ protected:
 	LLPanelLandAccess*		mPanelAccess;
 	LLPanelLandCovenant*	mPanelCovenant;
 
-	LLHandle<LLParcelSelection>	mParcel;
+	LLSafeHandle<LLParcelSelection>	mParcel;
 
 public:
 	// When closing the dialog, we want to deselect the land.  But when
@@ -128,7 +128,7 @@ class LLPanelLandGeneral
 :	public LLPanel
 {
 public:
-	LLPanelLandGeneral(LLHandle<LLParcelSelection>& parcelp);
+	LLPanelLandGeneral(LLSafeHandle<LLParcelSelection>& parcelp);
 	virtual ~LLPanelLandGeneral();
 	void refresh();
 	void refreshNames();
@@ -220,16 +220,16 @@ protected:
 	LLButton*		mBtnBuyPass;
 	LLButton* mBtnStartAuction;
 
-	LLHandle<LLParcelSelection>&	mParcel;
+	LLSafeHandle<LLParcelSelection>&	mParcel;
 
-	static LLViewHandle sBuyPassDialogHandle;
+	static LLHandle<LLFloater> sBuyPassDialogHandle;
 };
 
 class LLPanelLandObjects
 :	public LLPanel
 {
 public:
-	LLPanelLandObjects(LLHandle<LLParcelSelection>& parcelp);
+	LLPanelLandObjects(LLSafeHandle<LLParcelSelection>& parcelp);
 	virtual ~LLPanelLandObjects();
 	void refresh();
 	virtual void draw();
@@ -292,7 +292,7 @@ protected:
 	S32				mSelectedCount;
 	BOOL			mSelectedIsGroup;
 
-	LLHandle<LLParcelSelection>&	mParcel;
+	LLSafeHandle<LLParcelSelection>&	mParcel;
 };
 
 
@@ -300,7 +300,7 @@ class LLPanelLandOptions
 :	public LLPanel
 {
 public:
-	LLPanelLandOptions(LLHandle<LLParcelSelection>& parcelp);
+	LLPanelLandOptions(LLSafeHandle<LLParcelSelection>& parcelp);
 	virtual ~LLPanelLandOptions();
 	void refresh();
 
@@ -339,7 +339,7 @@ protected:
 	LLCheckBoxCtrl		*mPushRestrictionCtrl;
 	LLButton			*mPublishHelpButton;
 
-	LLHandle<LLParcelSelection>&	mParcel;
+	LLSafeHandle<LLParcelSelection>&	mParcel;
 };
 
 
@@ -347,7 +347,7 @@ class LLPanelLandAccess
 :	public LLPanel
 {
 public:
-	LLPanelLandAccess(LLHandle<LLParcelSelection>& parcelp);
+	LLPanelLandAccess(LLSafeHandle<LLParcelSelection>& parcelp);
 	virtual ~LLPanelLandAccess();
 	void refresh();
 	void refresh_ui();
@@ -369,7 +369,7 @@ protected:
 	LLNameListCtrl*		mListAccess;
 	LLNameListCtrl*		mListBanned;
 
-	LLHandle<LLParcelSelection>&	mParcel;
+	LLSafeHandle<LLParcelSelection>&	mParcel;
 };
 
 
@@ -377,7 +377,7 @@ class LLPanelLandCovenant
 :	public LLPanel
 {
 public:
-	LLPanelLandCovenant(LLHandle<LLParcelSelection>& parcelp);
+	LLPanelLandCovenant(LLSafeHandle<LLParcelSelection>& parcelp);
 	virtual ~LLPanelLandCovenant();
 	virtual BOOL postBuild();
 	void refresh();
@@ -387,7 +387,7 @@ public:
 	static void updateEstateOwnerName(const std::string& name);
 
 protected:
-	LLHandle<LLParcelSelection>&	mParcel;
+	LLSafeHandle<LLParcelSelection>&	mParcel;
 };
 
 #endif

@@ -96,7 +96,7 @@ BOOL LLToolSelect::handleDoubleClick(S32 x, S32 y, MASK mask)
 }
 
 // static
-LLHandle<LLObjectSelection> LLToolSelect::handleObjectSelection(LLViewerObject *object, MASK mask, BOOL ignore_group, BOOL temp_select)
+LLSafeHandle<LLObjectSelection> LLToolSelect::handleObjectSelection(LLViewerObject *object, MASK mask, BOOL ignore_group, BOOL temp_select)
 {
 	BOOL select_owned = gSavedSettings.getBOOL("SelectOwnedOnly");
 	BOOL select_movable = gSavedSettings.getBOOL("SelectMovableOnly");
@@ -273,5 +273,6 @@ void LLToolSelect::onMouseCaptureLost()
 	// Clean up drag-specific variables
 	mIgnoreGroup = FALSE;
 }
+
 
 

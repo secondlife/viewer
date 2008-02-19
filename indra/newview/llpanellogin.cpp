@@ -328,7 +328,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mCallbackData(cb_data),
 	mHtmlAvailable( TRUE )
 {
-	mIsFocusRoot = TRUE;
+	setFocusRoot(TRUE);
 
 	setBackgroundVisible(FALSE);
 	setBackgroundOpaque(TRUE);
@@ -437,7 +437,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 #endif    
 	
 	// get the web browser control
-	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(this, "login_html");
+	LLWebBrowserCtrl* web_browser = getChild<LLWebBrowserCtrl>("login_html");
 	if ( web_browser )
 	{
 		// Need to handle login secondlife:///app/ URLs
@@ -454,22 +454,22 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		web_browser->setOpenInExternalBrowser( true );
 
 		// force the size to be correct (XML doesn't seem to be sufficient to do this) (with some padding so the other login screen doesn't show through)
-		LLRect htmlRect = mRect;
+		LLRect htmlRect = getRect();
 #if USE_VIEWER_AUTH
-		htmlRect.setCenterAndSize( mRect.getCenterX() - 2, mRect.getCenterY(), mRect.getWidth() + 6, mRect.getHeight());
+		htmlRect.setCenterAndSize( getRect().getCenterX() - 2, getRect().getCenterY(), getRect().getWidth() + 6, getRect().getHeight());
 #else
-		htmlRect.setCenterAndSize( mRect.getCenterX() - 2, mRect.getCenterY() + 40, mRect.getWidth() + 6, mRect.getHeight() - 78 );
+		htmlRect.setCenterAndSize( getRect().getCenterX() - 2, getRect().getCenterY() + 40, getRect().getWidth() + 6, getRect().getHeight() - 78 );
 #endif
 		web_browser->setRect( htmlRect );
 		web_browser->reshape( htmlRect.getWidth(), htmlRect.getHeight(), TRUE );
-		reshape( mRect.getWidth(), mRect.getHeight(), 1 );
+		reshape( getRect().getWidth(), getRect().getHeight(), 1 );
 
 		// kick off a request to grab the url manually
 		gResponsePtr = LLIamHereLogin::build( this );
  		std::string login_page = LLAppViewer::instance()->getLoginPage();
  		if (login_page.empty())
  		{
- 			login_page = childGetValue( "real_url" ).asString();
+ 			login_page = getString( "real_url" );
  		}
  		LLHTTPClient::head( login_page, gResponsePtr );
 	};
@@ -482,7 +482,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 void LLPanelLogin::setSiteIsAlive( bool alive )
 {
-	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(this, "login_html");
+	LLWebBrowserCtrl* web_browser = getChild<LLWebBrowserCtrl>("login_html");
 	// if the contents of the site was retrieved
 	if ( alive )
 	{
@@ -555,16 +555,16 @@ void LLPanelLogin::draw()
 	glPushMatrix();
 	{
 		F32 image_aspect = 1.333333f;
-		F32 view_aspect = (F32)mRect.getWidth() / (F32)mRect.getHeight();
+		F32 view_aspect = (F32)getRect().getWidth() / (F32)getRect().getHeight();
 		// stretch image to maintain aspect ratio
 		if (image_aspect > view_aspect)
 		{
-			glTranslatef(-0.5f * (image_aspect / view_aspect - 1.f) * mRect.getWidth(), 0.f, 0.f);
+			glTranslatef(-0.5f * (image_aspect / view_aspect - 1.f) * getRect().getWidth(), 0.f, 0.f);
 			glScalef(image_aspect / view_aspect, 1.f, 1.f);
 		}
 
-		S32 width = mRect.getWidth();
-		S32 height = mRect.getHeight();
+		S32 width = getRect().getWidth();
+		S32 height = getRect().getHeight();
 
 		if ( mHtmlAvailable )
 		{
@@ -905,7 +905,7 @@ void LLPanelLogin::setAlwaysRefresh(bool refresh)
 {
 	if (LLStartUp::getStartupState() >= STATE_LOGIN_CLEANUP) return;
 
-	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(sInstance, "login_html");
+	LLWebBrowserCtrl* web_browser = sInstance->getChild<LLWebBrowserCtrl>("login_html");
 
 	if (web_browser)
 	{
@@ -924,7 +924,7 @@ void LLPanelLogin::loadLoginPage()
 	std::string login_page = LLAppViewer::instance()->getLoginPage();
 	if (login_page.empty())
 	{
-		login_page = sInstance->childGetValue( "real_url" ).asString();
+		login_page = sInstance->getString( "real_url" );
 	}
 	oStr << login_page;
 	
@@ -1036,7 +1036,7 @@ void LLPanelLogin::loadLoginPage()
 #endif
 #endif
 	
-	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(sInstance, "login_html");
+	LLWebBrowserCtrl* web_browser = sInstance->getChild<LLWebBrowserCtrl>("login_html");
 	
 	// navigate to the "real" page 
 	web_browser->navigateTo( oStr.str() );
@@ -1044,7 +1044,7 @@ void LLPanelLogin::loadLoginPage()
 
 void LLPanelLogin::onNavigateComplete( const EventType& eventIn )
 {
-	LLWebBrowserCtrl* web_browser = LLUICtrlFactory::getWebBrowserCtrlByName(sInstance, "login_html");
+	LLWebBrowserCtrl* web_browser = sInstance->getChild<LLWebBrowserCtrl>("login_html");
 	if (web_browser)
 	{
 		// *HACK HACK HACK HACK!
@@ -1157,7 +1157,7 @@ void LLPanelLogin::onClickForgotPassword(void*)
 {
 	if (sInstance )
 	{
-		LLWeb::loadURL(sInstance->childGetValue( "forgot_password_url" ).asString());
+		LLWeb::loadURL(sInstance->getString( "forgot_password_url" ));
 	}
 }
 

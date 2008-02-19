@@ -67,22 +67,14 @@ BOOL LLPanelGroupTab::isVisibleByAgent(LLAgent* agentp)
 BOOL LLPanelGroupTab::postBuild()
 {
 	// Hook up the help button callback.
-	LLButton* button = (LLButton*) getChildByName("help_button");
+	LLButton* button = getChild<LLButton>("help_button");
 	if (button)
 	{
 		button->setClickedCallback(onClickHelp);
 		button->setCallbackUserData(this);
 	}
 
-	// Read help text from the xml file.
-	LLTextBox* txt;
-	// Don't recurse for this, since we don't currently have a recursive removeChild()
-	txt = (LLTextBox*) getChildByName("help_text");
-	if (txt)
-	{
-		mHelpText = txt->getText();
-		removeChild(txt, TRUE);
-	}
+	mHelpText = getString("help_text");
 	return TRUE;
 }
 
@@ -219,14 +211,14 @@ void LLPanelGroup::updateTabVisibility()
 
 BOOL LLPanelGroup::postBuild()
 {
-	mTabContainer = (LLTabContainerCommon*) getChildByName("group_tab_container");
+	mTabContainer = getChild<LLTabContainer>("group_tab_container");
 
 	if (mTabContainer)
 	{
 		// Select the initial tab specified via constructor
 		const BOOL recurse = TRUE;
 		LLPanelGroupTab* tabp = 
-			(LLPanelGroupTab*) getChildByName(mInitialTab, recurse);
+			getChild<LLPanelGroupTab>(mInitialTab, recurse);
 
 		if (!tabp)
 		{
@@ -272,23 +264,10 @@ BOOL LLPanelGroup::postBuild()
 		mCurrentTab->activate();
 	}
 
-	// Read apply text from the xml file.
-	LLTextBox* txt;
-	// Don't recurse for this, since we don't currently have a recursive removeChild()
-	txt = (LLTextBox*)getChildByName("default_needs_apply_text");
-	if (txt)
-	{
-		mDefaultNeedsApplyMesg = txt->getText();
-		removeChild(txt, TRUE);
-	}
-	txt = (LLTextBox*)getChildByName("want_apply_text");
-	if (txt)
-	{
-		mWantApplyMesg = txt->getText();
-		removeChild(txt, TRUE);
-	}
+	mDefaultNeedsApplyMesg = getString("default_needs_apply_text");
+	mWantApplyMesg = getString("want_apply_text");
 
-	LLButton* button = (LLButton*) getChildByName("btn_ok");
+	LLButton* button = getChild<LLButton>("btn_ok");
 	if (button)
 	{
 		button->setClickedCallback(onBtnOK);
@@ -296,7 +275,7 @@ BOOL LLPanelGroup::postBuild()
 		button->setVisible(mAllowEdit);
 	}
 	
-	button = (LLButton*) getChildByName("btn_cancel");
+	button = getChild<LLButton>("btn_cancel");
 	if (button)
 	{
 		button->setClickedCallback(onBtnCancel);
@@ -304,7 +283,7 @@ BOOL LLPanelGroup::postBuild()
 		button->setVisible(mAllowEdit);
 	}
 
-	button = (LLButton*) getChildByName("btn_apply");
+	button = getChild<LLButton>("btn_apply");
 	if (button)
 	{
 		button->setClickedCallback(onBtnApply);
@@ -314,7 +293,7 @@ BOOL LLPanelGroup::postBuild()
 		mApplyBtn = button;
 	}
 
-	button = (LLButton*) getChildByName("btn_refresh");
+	button = getChild<LLButton>("btn_refresh");
 	if (button)
 	{
 		button->setClickedCallback(onBtnRefresh);
@@ -400,7 +379,7 @@ void LLPanelGroup::selectTab(std::string tab_name)
 	const BOOL recurse = TRUE;
 
 	LLPanelGroupTab* tabp = 
-		(LLPanelGroupTab*) getChildByName(tab_name, recurse);
+		getChild<LLPanelGroupTab>(tab_name, recurse);
 
 	if ( tabp && mTabContainer )
 	{

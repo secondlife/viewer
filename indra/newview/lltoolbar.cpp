@@ -389,7 +389,7 @@ void LLToolBar::updateCommunicateList()
 		communicate_button->addSeparator(ADD_TOP);
 		communicate_button->add(LLFloaterMute::getInstance()->getShortTitle(), LLSD("mute list"), ADD_TOP);
 		
-		std::set<LLViewHandle>::const_iterator floater_handle_it;
+		std::set<LLHandle<LLFloater> >::const_iterator floater_handle_it;
 
 		if (gIMMgr->getIMFloaterHandles().size() > 0)
 		{
@@ -398,7 +398,7 @@ void LLToolBar::updateCommunicateList()
 
 		for(floater_handle_it = gIMMgr->getIMFloaterHandles().begin(); floater_handle_it != gIMMgr->getIMFloaterHandles().end(); ++floater_handle_it)
 		{
-			LLFloaterIMPanel* im_floaterp = (LLFloaterIMPanel*)LLFloater::getFloaterByHandle(*floater_handle_it);
+			LLFloaterIMPanel* im_floaterp = (LLFloaterIMPanel*)floater_handle_it->get();
 			if (im_floaterp)
 			{
 				LLString floater_title = im_floaterp->getNumUnreadMessages() > 0 ? "*" : "";
@@ -443,10 +443,10 @@ void LLToolBar::onClickCommunicate(LLUICtrl* ctrl, void* user_data)
 		LLFloaterChatterBox::getInstance()->addFloater(LLFloaterChat::getInstance(), FALSE);
 		LLUUID session_to_show;
 		
-		std::set<LLViewHandle>::const_iterator floater_handle_it;
+		std::set<LLHandle<LLFloater> >::const_iterator floater_handle_it;
 		for(floater_handle_it = gIMMgr->getIMFloaterHandles().begin(); floater_handle_it != gIMMgr->getIMFloaterHandles().end(); ++floater_handle_it)
 		{
-			LLFloater* im_floaterp = LLFloater::getFloaterByHandle(*floater_handle_it);
+			LLFloater* im_floaterp = floater_handle_it->get();
 			if (im_floaterp)
 			{
 				if (im_floaterp->isFrontmost())

@@ -1,6 +1,6 @@
 /** 
  * @file llviewertexteditor.h
- * @brief Text editor widget to let users enter a a multi-line document//
+ * @brief Text editor widget to let users enter a multi-line document//
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -34,17 +34,12 @@
 
 #include "lltexteditor.h"
 
-class LLInventoryItem;
-class LLEmbeddedItems;
-class LLEmbeddedNotecardOpener;
 
 //
 // Classes
 //
 class LLViewerTextEditor : public LLTextEditor
 {
-	friend class LLEmbeddedItems;
-	friend class LLTextCmdInsertEmbeddedItem;
 	
 public:
 	LLViewerTextEditor(const LLString& name,
@@ -72,7 +67,7 @@ public:
 										BOOL drop, EDragAndDropType cargo_type, 
 										void *cargo_data, EAcceptance *accept, LLString& tooltip_msg);
 
-  	const LLInventoryItem* getDragItem() { return mDragItem; }
+  	const class LLInventoryItem* getDragItem() const { return mDragItem; }
 	virtual BOOL 	importBuffer(const LLString& buffer);
 	virtual bool	importStream(std::istream& str);
 	virtual BOOL 	exportBuffer(LLString& buffer);
@@ -86,9 +81,9 @@ public:
 	void setEmbeddedText(const LLString& instr);
 	LLString getEmbeddedText();
 	
+	// Appends Second Life time, small font, grey.
+	// If this starts a line, you need to prepend a newline.
 	LLString appendTime(bool prepend_newline);
-		// Appends Second Life time, small font, grey
-		// If this starts a line, you need to prepend a newline.
 
 	void copyInventory(const LLInventoryItem* item, U32 callback_id = 0);
 
@@ -99,13 +94,13 @@ public:
 	// rather than checking if a re-load is necessary. Phoenix 2007-02-27
 	bool hasEmbeddedInventory();
 
-protected:
+private:
 	// Embedded object operations
 	virtual llwchar	pasteEmbeddedItem(llwchar ext_char);
-	virtual void	bindEmbeddedChars(const LLFontGL* font);
-	virtual void	unbindEmbeddedChars(const LLFontGL* font);
+	virtual void	bindEmbeddedChars(LLFontGL* font) const;
+	virtual void	unbindEmbeddedChars(LLFontGL* font) const;
 
-	BOOL			getEmbeddedItemToolTipAtPos(S32 pos, LLWString &wmsg);
+	BOOL			getEmbeddedItemToolTipAtPos(S32 pos, LLWString &wmsg) const;
 	BOOL			openEmbeddedItemAtPos( S32 pos );
 	BOOL			openEmbeddedItem(LLInventoryItem* item);
 
@@ -121,17 +116,24 @@ protected:
 	static void		onCopyToInvDialog( S32 option, void* userdata );
 	static void		onNotecardDialog( S32 option, void* userdata );
 	
-protected:
 	LLPointer<LLInventoryItem> mDragItem;
 	BOOL mDragItemSaved;
-	LLEmbeddedItems* mEmbeddedItemList;
+	class LLEmbeddedItems* mEmbeddedItemList;
 
 	LLUUID mObjectID;
 	LLUUID mNotecardInventoryID;
 
-	LLPointer<LLEmbeddedNotecardOpener> mInventoryCallback;
+	LLPointer<class LLEmbeddedNotecardOpener> mInventoryCallback;
 
-	LLViewHandle mPopupMenuHandle;
+	// *TODO: Add right click menus for SLURLs
+	//LLHandle<LLView> mPopupMenuHandle;
+
+	//
+	// Inner classes
+	//
+
+	class LLTextCmdInsertEmbeddedItem;
+
 };
 
 #endif  // LL_VIEWERTEXTEDITOR_H

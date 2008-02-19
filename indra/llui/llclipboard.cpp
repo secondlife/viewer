@@ -61,7 +61,7 @@ void LLClipboard::copyFromSubstring(const LLWString &src, S32 pos, S32 len, cons
 }
 
 
-LLWString LLClipboard::getPasteWString( LLUUID* source_id )
+const LLWString& LLClipboard::getPasteWString( LLUUID* source_id )
 {
 	if( mSourceID.notNull() )
 	{
@@ -88,7 +88,7 @@ LLWString LLClipboard::getPasteWString( LLUUID* source_id )
 }
 
 
-BOOL LLClipboard::canPasteString()
+BOOL LLClipboard::canPasteString() const
 {
 	return LLView::getWindow()->isClipboardTextAvailable();
 }

@@ -128,7 +128,7 @@ void LLFloaterChat::draw()
 		
 	childSetValue("toggle_active_speakers_btn", childIsVisible("active_speakers_panel"));
 
-	LLChatBar* chat_barp = (LLChatBar*)getChildByName("chat_panel", TRUE);
+	LLChatBar* chat_barp = getChild<LLChatBar>("chat_panel", TRUE);
 	if (chat_barp)
 	{
 		chat_barp->refresh();
@@ -142,7 +142,7 @@ BOOL LLFloaterChat::postBuild()
 {
 	mPanel = (LLPanelActiveSpeakers*)LLUICtrlFactory::getPanelByName(this, "active_speakers_panel");
 
-	LLChatBar* chat_barp = (LLChatBar*)getChildByName("chat_panel", TRUE);
+	LLChatBar* chat_barp = getChild<LLChatBar>("chat_panel", TRUE);
 	if (chat_barp)
 	{
 		chat_barp->setGestureCombo(LLUICtrlFactory::getComboBoxByName(this, "Gesture"));
@@ -221,8 +221,8 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 	
 	// could flash the chat button in the status bar here. JC
 	LLFloaterChat* chat_floater = LLFloaterChat::getInstance(LLSD());
-	LLViewerTextEditor*	history_editor = (LLViewerTextEditor*)chat_floater->getChildByName("Chat History Editor", TRUE);
-	LLViewerTextEditor*	history_editor_with_mute = (LLViewerTextEditor*)chat_floater->getChildByName("Chat History Editor with mute", TRUE);
+	LLViewerTextEditor*	history_editor = chat_floater->getChild<LLViewerTextEditor>("Chat History Editor");
+	LLViewerTextEditor*	history_editor_with_mute = chat_floater->getChild<LLViewerTextEditor>("Chat History Editor with mute");
 
 	history_editor->setParseHTML(TRUE);
 	history_editor_with_mute->setParseHTML(TRUE);
@@ -255,8 +255,8 @@ void LLFloaterChat::addChatHistory(const LLChat& chat, bool log_to_file)
 // static
 void LLFloaterChat::setHistoryCursorAndScrollToEnd()
 {
-	LLViewerTextEditor*	history_editor = (LLViewerTextEditor*)LLFloaterChat::getInstance(LLSD())->getChildByName("Chat History Editor", TRUE);
-	LLViewerTextEditor*	history_editor_with_mute = (LLViewerTextEditor*)LLFloaterChat::getInstance(LLSD())->getChildByName("Chat History Editor with mute", TRUE);
+	LLViewerTextEditor*	history_editor = LLFloaterChat::getInstance(LLSD())->getChild<LLViewerTextEditor>("Chat History Editor");
+	LLViewerTextEditor*	history_editor_with_mute = LLFloaterChat::getInstance(LLSD())->getChild<LLViewerTextEditor>("Chat History Editor with mute");
 	
 	if (history_editor) 
 	{
@@ -299,8 +299,8 @@ void LLFloaterChat::onClickToggleShowMute(LLUICtrl* caller, void *data)
 
 	//LLCheckBoxCtrl*	
 	BOOL show_mute = LLUICtrlFactory::getCheckBoxByName(floater,"show mutes")->get();
-	LLViewerTextEditor*	history_editor = (LLViewerTextEditor*)floater->getChildByName("Chat History Editor", TRUE);
-	LLViewerTextEditor*	history_editor_with_mute = (LLViewerTextEditor*)floater->getChildByName("Chat History Editor with mute", TRUE);
+	LLViewerTextEditor*	history_editor = floater->getChild<LLViewerTextEditor>("Chat History Editor");
+	LLViewerTextEditor*	history_editor_with_mute = floater->getChild<LLViewerTextEditor>("Chat History Editor with mute");
 
 	if (!history_editor || !history_editor_with_mute)
 		return;
@@ -455,21 +455,6 @@ void* LLFloaterChat::createChatPanel(void* data)
 	return chatp;
 }
 
-//static 
-void LLFloaterChat::hideInstance(const LLSD& id)
-{
-	LLFloaterChat* floaterp = LLFloaterChat::getInstance(LLSD());
-
-	if(floaterp->getHost())
-	{
-		LLFloaterChatterBox::hideInstance(LLSD());
-	}
-	else
-	{
-		LLUISingleton<LLFloaterChat>::hideInstance(id);
-	}
-}
-
 // static
 void LLFloaterChat::onClickToggleActiveSpeakers(void* userdata)
 {
@@ -478,3 +463,27 @@ void LLFloaterChat::onClickToggleActiveSpeakers(void* userdata)
 	self->childSetVisible("active_speakers_panel", !self->childIsVisible("active_speakers_panel"));
 }
 
+//static 
+bool LLFloaterChat::visible(LLFloater* instance, const LLSD& key)
+{
+	return VisibilityPolicy<LLFloater>::visible(instance, key);
+}
+
+//static 
+void LLFloaterChat::show(LLFloater* instance, const LLSD& key)
+{
+	VisibilityPolicy<LLFloater>::show(instance, key);
+}
+
+//static 
+void LLFloaterChat::hide(LLFloater* instance, const LLSD& key)
+{
+	if(instance->getHost())
+	{
+		LLFloaterChatterBox::hideInstance();
+	}
+	else
+	{
+		VisibilityPolicy<LLFloater>::hide(instance, key);
+	}
+}

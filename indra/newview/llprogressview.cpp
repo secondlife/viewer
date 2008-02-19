@@ -74,7 +74,7 @@ LLProgressView::LLProgressView(const std::string& name, const LLRect &rect)
 	const S32 CANCEL_BTN_OFFSET = 16;
 	LLRect r;
 	r.setOriginAndSize( 
-		mRect.getWidth() - CANCEL_BTN_OFFSET - CANCEL_BTN_WIDTH, CANCEL_BTN_OFFSET,
+		getRect().getWidth() - CANCEL_BTN_OFFSET - CANCEL_BTN_WIDTH, CANCEL_BTN_OFFSET,
 		CANCEL_BTN_WIDTH, BTN_HEIGHT );
 	
 	mCancelBtn = new LLButton( 
@@ -162,7 +162,7 @@ void LLProgressView::draw()
 	// Make sure the progress view always fills the entire window.
 	S32 width = gViewerWindow->getWindowWidth();
 	S32 height = gViewerWindow->getWindowHeight();
-	if( (width != mRect.getWidth()) || (height != mRect.getHeight()) )
+	if( (width != getRect().getWidth()) || (height != getRect().getHeight()) )
 	{
 		reshape( width, height );
 	}
@@ -189,14 +189,14 @@ void LLProgressView::draw()
 				glTranslatef(0.f, -0.5f * (view_aspect / image_aspect - 1.f) * height, 0.f);
 				glScalef(1.f, view_aspect / image_aspect, 1.f);
 			}
-			gl_rect_2d_simple_tex( mRect.getWidth(), mRect.getHeight() );
+			gl_rect_2d_simple_tex( getRect().getWidth(), getRect().getHeight() );
 			gStartImageGL->unbindTexture(0, GL_TEXTURE_2D);
 		}
 		else
 		{
 			LLGLSNoTexture gls_no_texture;
 			glColor4f(0.f, 0.f, 0.f, 1.f);
-			gl_rect_2d(mRect);
+			gl_rect_2d(getRect());
 		}
 		glPopMatrix();
 	}
@@ -213,8 +213,8 @@ void LLProgressView::draw()
 		return;
 	}
 
-	S32 line_x = mRect.getWidth() / 2;
-	S32 line_one_y = mRect.getHeight() / 2 + 64;
+	S32 line_x = getRect().getWidth() / 2;
+	S32 line_one_y = getRect().getHeight() / 2 + 64;
 	const S32 LINE_SPACING = 25;
 	S32 line_two_y = line_one_y - LINE_SPACING;
 	const LLFontGL* font = LLFontGL::sSansSerif;
@@ -243,8 +243,8 @@ void LLProgressView::draw()
 
 	S32 bar_bottom = line_two_y - 30;
 	S32 bar_height = 18;
-	S32 bar_width = mRect.getWidth() * 2 / 3;
-	S32 bar_left = (mRect.getWidth() / 2) - (bar_width / 2);
+	S32 bar_width = getRect().getWidth() * 2 / 3;
+	S32 bar_left = (getRect().getWidth() / 2) - (bar_width / 2);
 
 	gl_draw_scaled_image_with_border(
 		bar_left + 2, 

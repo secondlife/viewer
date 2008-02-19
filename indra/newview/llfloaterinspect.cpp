@@ -211,18 +211,13 @@ void LLFloaterInspect::refresh()
 	{
 		LLSelectNode* obj = *iter;
 		LLSD row;
-		char owner_first_name[MAX_STRING], owner_last_name[MAX_STRING];
-		char creator_first_name[MAX_STRING], creator_last_name[MAX_STRING];
 		char time[MAX_STRING];
-		std::ostringstream owner_name, creator_name, date;
+		std::string owner_name, creator_name;
 		time_t timestamp = (time_t) (obj->mCreationDate/1000000);
 		LLString::copy(time, ctime(&timestamp), MAX_STRING);
 		time[24] = '\0';
-		date << obj->mCreationDate;
-		gCacheName->getName(obj->mPermissions->getOwner(), owner_first_name, owner_last_name);
-		owner_name << owner_first_name << " " << owner_last_name;
-		gCacheName->getName(obj->mPermissions->getCreator(), creator_first_name, creator_last_name);
-		creator_name << creator_first_name << " " << creator_last_name;
+		gCacheName->getFullName(obj->mPermissions->getOwner(), owner_name);
+		gCacheName->getFullName(obj->mPermissions->getCreator(), creator_name);
 		row["id"] = obj->getObject()->getID();
 		row["columns"][0]["column"] = "object_name";
 		row["columns"][0]["type"] = "text";
@@ -238,10 +233,10 @@ void LLFloaterInspect::refresh()
 		}
 		row["columns"][1]["column"] = "owner_name";
 		row["columns"][1]["type"] = "text";
-		row["columns"][1]["value"] = owner_name.str().c_str();
+		row["columns"][1]["value"] = owner_name;
 		row["columns"][2]["column"] = "creator_name";
 		row["columns"][2]["type"] = "text";
-		row["columns"][2]["value"] = creator_name.str().c_str();
+		row["columns"][2]["value"] = creator_name;
 		row["columns"][3]["column"] = "creation_date";
 		row["columns"][3]["type"] = "text";
 		row["columns"][3]["value"] = time;

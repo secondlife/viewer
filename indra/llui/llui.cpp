@@ -1644,7 +1644,7 @@ void LLUI::setCursorPositionScreen(S32 x, S32 y)
 }
 
 //static 
-void LLUI::setCursorPositionLocal(LLView* viewp, S32 x, S32 y)
+void LLUI::setCursorPositionLocal(const LLView* viewp, S32 x, S32 y)
 {
 	S32 screen_x, screen_y;
 	viewp->localPointToScreen(x, y, &screen_x, &screen_y);
@@ -1847,12 +1847,12 @@ void LLUIImage::setScaleRegion(const LLRectf& region)
 }
 
 //TODO: move drawing implementation inside class
-void LLUIImage::draw(S32 x, S32 y, const LLColor4& color)
+void LLUIImage::draw(S32 x, S32 y, const LLColor4& color) const
 {
 	gl_draw_image(x, y, mImage, color, mClipRegion);
 }
 
-void LLUIImage::draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color)
+void LLUIImage::draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const
 {
 	if (mUniformScaling)
 	{
@@ -1871,7 +1871,7 @@ void LLUIImage::draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color)
 	}
 }
 
-void LLUIImage::drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& color)
+void LLUIImage::drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const
 {
 	gl_draw_scaled_image_with_border(
 		x, y, 
@@ -1883,7 +1883,7 @@ void LLUIImage::drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& c
 		mScaleRegion);
 }
 
-void LLUIImage::drawSolid(S32 x, S32 y, const LLColor4& color)
+void LLUIImage::drawSolid(S32 x, S32 y, const LLColor4& color) const
 {
 	gl_draw_scaled_image_with_border(
 		x, y, 
@@ -1895,12 +1895,12 @@ void LLUIImage::drawSolid(S32 x, S32 y, const LLColor4& color)
 		mScaleRegion);
 }
 
-S32 LLUIImage::getWidth()
+S32 LLUIImage::getWidth() const
 { 
 	return mImage->getWidth(0); 
 }
 
-S32 LLUIImage::getHeight()
+S32 LLUIImage::getHeight() const
 { 
 	return mImage->getHeight(0); 
 }

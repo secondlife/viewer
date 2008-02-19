@@ -1,6 +1,5 @@
 /** 
  * @file llundo.cpp
- * @brief LLUndo class
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -29,12 +28,8 @@
  * $/LicenseInfo$
  */
 
-// Generic interface for undo/redo circular buffer
-
 #include "linden_common.h"
-
 #include "llundo.h"
-#include "llerror.h"
 
 
 // TODO:
@@ -82,7 +77,7 @@ LLUndoBuffer::~LLUndoBuffer()
 //-----------------------------------------------------------------------------
 // getNextAction()
 //-----------------------------------------------------------------------------
-LLUndoAction *LLUndoBuffer::getNextAction(BOOL setClusterBegin)
+LLUndoBuffer::LLUndoAction* LLUndoBuffer::getNextAction(BOOL setClusterBegin)
 {
 	LLUndoAction *nextAction = mActions[mNextAction];
 

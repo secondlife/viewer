@@ -41,7 +41,7 @@ const S32 UPDATE_MEMBERS_PER_FRAME = 500;
 
 // Forward declares
 class LLPanelGroupTab;
-class LLTabContainerCommon;
+class LLTabContainer;
 class LLAgent;
 
 class LLPanelGroupTabObserver
@@ -111,7 +111,7 @@ public:
 protected:
 	LLPanelGroupTab*		mCurrentTab;
 	LLPanelGroupTab*		mRequestedTab;
-	LLTabContainerCommon*	mTabContainer;
+	LLTabContainer*	mTabContainer;
 	BOOL mIgnoreTransition;
 
 	LLButton* mApplyBtn;
@@ -183,7 +183,7 @@ public:
 
 protected:
 	LLUUID	mGroupID;
-	LLTabContainerCommon*	mTabContainer;
+	LLTabContainer*	mTabContainer;
 	LLString	mHelpText;
 
 	BOOL mAllowEdit;

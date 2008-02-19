@@ -85,7 +85,7 @@ void LLFloaterBump::show(void *contents)
 
 	if (gMeanCollisionList.isEmpty())
 	{
-		LLString none_detected = sInstance->childGetText("none_detected");
+		LLString none_detected = sInstance->getString("none_detected");
 		LLSD row;
 		row["columns"][0]["value"] = none_detected;
 		row["columns"][0]["font"] = "SansSerifBold";
@@ -151,7 +151,7 @@ void LLFloaterBump::add(LLScrollListCtrl* list, LLMeanCollisionData* mcd)
 	}
 
 	// All above action strings are in XML file
-	LLUIString text = sInstance->childGetText(action);
+	LLUIString text = sInstance->getUIString(action);
 	text.setArg("[TIME]", time);
 	text.setArg("[FIRST]", mcd->mFirstName);
 	text.setArg("[LAST]", mcd->mLastName);

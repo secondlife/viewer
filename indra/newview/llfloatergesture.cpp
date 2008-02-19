@@ -99,7 +99,7 @@ LLFloaterGesture::~LLFloaterGesture()
 
 	// Custom saving rectangle, since load must be done
 	// after postBuild.
-	gSavedSettings.setRect("FloaterGestureRect", mRect);
+	gSavedSettings.setRect("FloaterGestureRect", getRect());
 }
 
 // virtual

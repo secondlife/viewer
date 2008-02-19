@@ -60,10 +60,10 @@
 #include "llresizebar.h"
 #include "llcriticaldamp.h"
 
-LLPanel::panel_map_t LLPanel::sPanelMap;
 LLPanel::alert_queue_t LLPanel::sAlertQueue;
 
 const S32 RESIZE_BAR_OVERLAP = 1;
+const S32 RESIZE_BAR_HEIGHT = 3;
 
 void LLPanel::init()
 {
@@ -78,8 +78,7 @@ void LLPanel::init()
 	setIsChrome(FALSE); //is this a decorator to a live window or a form?
 	mLastTabGroup = 0;
 
-	// add self to handle->panel map
-	sPanelMap[mViewHandle] = this;
+	mPanelHandle.bind(this);
 	setTabStop(FALSE);
 }
 
@@ -121,30 +120,10 @@ LLPanel::LLPanel(const LLString& name, const LLString& rect_control, BOOL border
 	}
 }
 
-void LLPanel::addBorder(LLViewBorder::EBevel border_bevel,
-						LLViewBorder::EStyle border_style, S32 border_thickness)
-{
-	removeBorder();
-	mBorder = new LLViewBorder( "panel border", 
-								LLRect(0, mRect.getHeight(), mRect.getWidth(), 0), 
-								border_bevel, border_style, border_thickness );
-	mBorder->setSaveToXML(false);
-	addChild( mBorder );
-}
-
-void LLPanel::removeBorder()
-{
-	delete mBorder;
-	mBorder = NULL;
-}
-
-
 LLPanel::~LLPanel()
 {
 	storeRectControl();
-	sPanelMap.erase(mViewHandle);
 }
-
 
 // virtual
 EWidgetType LLPanel::getWidgetType() const
@@ -159,7 +138,7 @@ LLString LLPanel::getWidgetTag() const
 }
 
 // virtual
-BOOL LLPanel::isPanel()
+BOOL LLPanel::isPanel() const
 {
 	return TRUE;
 }
@@ -169,6 +148,24 @@ BOOL LLPanel::postBuild()
 {
 	return TRUE;
 }
+
+void LLPanel::addBorder(LLViewBorder::EBevel border_bevel,
+						LLViewBorder::EStyle border_style, S32 border_thickness)
+{
+	removeBorder();
+	mBorder = new LLViewBorder( "panel border", 
+								LLRect(0, getRect().getHeight(), getRect().getWidth(), 0), 
+								border_bevel, border_style, border_thickness );
+	mBorder->setSaveToXML(false);
+	addChild( mBorder );
+}
+
+void LLPanel::removeBorder()
+{
+	delete mBorder;
+	mBorder = NULL;
+}
+
 
 // virtual
 void LLPanel::clearCtrls()
@@ -200,8 +197,8 @@ void LLPanel::draw()
 	{
 		//RN: I don't see the point of this
 		S32 left = 0;//LLPANEL_BORDER_WIDTH;
-		S32 top = mRect.getHeight();// - LLPANEL_BORDER_WIDTH;
-		S32 right = mRect.getWidth();// - LLPANEL_BORDER_WIDTH;
+		S32 top = getRect().getHeight();// - LLPANEL_BORDER_WIDTH;
+		S32 right = getRect().getWidth();// - LLPANEL_BORDER_WIDTH;
 		S32 bottom = 0;//LLPANEL_BORDER_WIDTH;
 
 		if (mBgOpaque )
@@ -272,13 +269,13 @@ BOOL LLPanel::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 		if( (mask == MASK_SHIFT) && (KEY_TAB == key))	
 		{
 			//SHIFT-TAB
-			LLView* cur_focus = gFocusMgr.getKeyboardFocus();
+			LLUICtrl* cur_focus = gFocusMgr.getKeyboardFocus();
 			if (cur_focus && gFocusMgr.childHasKeyboardFocus(this))
 			{
-				LLView* focus_root = cur_focus;
-				while(cur_focus->getParent())
+				LLUICtrl* focus_root = cur_focus;
+				while(cur_focus->getParentUICtrl())
 				{
-					cur_focus = cur_focus->getParent();
+					cur_focus = cur_focus->getParentUICtrl();
 					if (cur_focus->isFocusRoot())
 					{
 						// this is the root-most focus root found so far
@@ -287,7 +284,7 @@ BOOL LLPanel::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 				}
 				handled = focus_root->focusPrevItem(FALSE);
 			}
-			else if (!cur_focus && mIsFocusRoot)
+			else if (!cur_focus && isFocusRoot())
 			{
 				handled = focusLastItem();
 				if (!handled)
@@ -301,13 +298,13 @@ BOOL LLPanel::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 		if( (mask == MASK_NONE ) && (KEY_TAB == key))	
 		{
 			//TAB
-			LLView* cur_focus = gFocusMgr.getKeyboardFocus();
+			LLUICtrl* cur_focus = gFocusMgr.getKeyboardFocus();
 			if (cur_focus && gFocusMgr.childHasKeyboardFocus(this))
 			{
-				LLView* focus_root = cur_focus;
-				while(cur_focus->getParent())
+				LLUICtrl* focus_root = cur_focus;
+				while(cur_focus->getParentUICtrl())
 				{
-					cur_focus = cur_focus->getParent();
+					cur_focus = cur_focus->getParentUICtrl();
 					if (cur_focus->isFocusRoot())
 					{
 						focus_root = cur_focus;
@@ -315,7 +312,7 @@ BOOL LLPanel::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 				}
 				handled = focus_root->focusNextItem(FALSE);
 			}
-			else if (!cur_focus && mIsFocusRoot)
+			else if (!cur_focus && isFocusRoot())
 			{
 				handled = focusFirstItem();
 				if (!handled)
@@ -392,12 +389,12 @@ void LLPanel::requires(LLString name, EWidgetType type)
 	mRequirements[name] = type;
 }
 
-BOOL LLPanel::checkRequirements()
+BOOL LLPanel::checkRequirements() const
 {
 	BOOL retval = TRUE;
 	LLString message;
 
-	for (requirements_map_t::iterator i = mRequirements.begin(); i != mRequirements.end(); ++i)
+	for (requirements_map_t::const_iterator i = mRequirements.begin(); i != mRequirements.end(); ++i)
 	{
 		if (!this->getCtrlByNameAndType(i->first, i->second))
 		{
@@ -473,21 +470,6 @@ void LLPanel::setFocus(BOOL b)
 	}
 }
 
-void LLPanel::setBackgroundColor(const LLColor4& color)
-{
-	mBgColorOpaque = color;
-}
-
-LLColor4 LLPanel::getBackgroundColor()
-{
-	return mBgColorOpaque;
-}
-
-void LLPanel::setTransparentColor(const LLColor4& color)
-{
-	mBgColorAlpha = color;
-}
-
 void LLPanel::setBorderVisible(BOOL b)
 {
 	if (mBorder)
@@ -496,18 +478,18 @@ void LLPanel::setBorderVisible(BOOL b)
 	}
 }
 
-LLView* LLPanel::getCtrlByNameAndType(const LLString& name, EWidgetType type)
+LLUICtrl* LLPanel::getCtrlByNameAndType(const LLString& name, EWidgetType type) const
 {
 	LLView* view = getChildByName(name, TRUE);
-	if (view)
+	if (view && view->isCtrl())
 	{
 		if (type ==	WIDGET_TYPE_DONTCARE || view->getWidgetType() == type)
 		{
-			return view;
+			return (LLUICtrl*)view;
 		}
 		else
 		{
-			llwarns << "Widget " << name << " has improper type in panel " << mName << "\n"
+			llwarns << "Widget " << name << " has improper type in panel " << getName() << "\n"
 					<< "Is: \t\t" << view->getWidgetType() << "\n" 
 					<< "Should be: \t" << type 
 					<< llendl;
@@ -518,17 +500,6 @@ LLView* LLPanel::getCtrlByNameAndType(const LLString& name, EWidgetType type)
 		childNotFound(name);
 	}
 	return NULL;
-}
-
-// static 
-LLPanel* LLPanel::getPanelByHandle(LLViewHandle handle)
-{
-	if (!sPanelMap.count(handle))
-	{
-		return NULL;
-	}
- 
-	return sPanelMap[handle];
 }
 
 // virtual
@@ -718,7 +689,7 @@ void LLPanel::setPanelParameters(LLXMLNodePtr node, LLView* parent)
 	setLabel(label);
 }
 
-LLString LLPanel::getFormattedUIString(const LLString& name, const LLString::format_map_t& args) const
+LLString LLPanel::getString(const LLString& name, const LLString::format_map_t& args) const
 {
 	ui_string_map_t::const_iterator found_it = mUIStrings.find(name);
 	if (found_it != mUIStrings.end())
@@ -728,6 +699,7 @@ LLString LLPanel::getFormattedUIString(const LLString& name, const LLString::for
 		formatted_string.setArgList(args);
 		return formatted_string.getString();
 	}
+	llerrs << "Failed to find string " << name << " in panel " << getName() << llendl;
 	return LLString::null;
 }
 
@@ -738,13 +710,14 @@ LLUIString LLPanel::getUIString(const LLString& name) const
 	{
 		return found_it->second;
 	}
+	llerrs << "Failed to find string " << name << " in panel " << getName() << llendl;
 	return LLUIString(LLString::null);
 }
 
 
 void LLPanel::childSetVisible(const LLString& id, bool visible)
 {
-	LLView* child = getChildByName(id, true);
+	LLView* child = getChild<LLView>(id);
 	if (child)
 	{
 		child->setVisible(visible);
@@ -753,7 +726,7 @@ void LLPanel::childSetVisible(const LLString& id, bool visible)
 
 bool LLPanel::childIsVisible(const LLString& id) const
 {
-	LLView* child = getChildByName(id, true);
+	LLView* child = getChild<LLView>(id);
 	if (child)
 	{
 		return (bool)child->getVisible();
@@ -763,7 +736,7 @@ bool LLPanel::childIsVisible(const LLString& id) const
 
 void LLPanel::childSetEnabled(const LLString& id, bool enabled)
 {
-	LLView* child = getChildByName(id, true);
+	LLView* child = getChild<LLView>(id);
 	if (child)
 	{
 		child->setEnabled(enabled);
@@ -772,7 +745,7 @@ void LLPanel::childSetEnabled(const LLString& id, bool enabled)
 
 void LLPanel::childSetTentative(const LLString& id, bool tentative)
 {
-	LLView* child = getChildByName(id, true);
+	LLView* child = getChild<LLView>(id);
 	if (child)
 	{
 		child->setTentative(tentative);
@@ -781,7 +754,7 @@ void LLPanel::childSetTentative(const LLString& id, bool tentative)
 
 bool LLPanel::childIsEnabled(const LLString& id) const
 {
-	LLView* child = getChildByName(id, true);
+	LLView* child = getChild<LLView>(id);
 	if (child)
 	{
 		return (bool)child->getEnabled();
@@ -792,7 +765,7 @@ bool LLPanel::childIsEnabled(const LLString& id) const
 
 void LLPanel::childSetToolTip(const LLString& id, const LLString& msg)
 {
-	LLView* child = getChildByName(id, true);
+	LLView* child = getChild<LLView>(id);
 	if (child)
 	{
 		child->setToolTip(msg);
@@ -801,7 +774,7 @@ void LLPanel::childSetToolTip(const LLString& id, const LLString& msg)
 
 void LLPanel::childSetRect(const LLString& id, const LLRect& rect)
 {
-	LLView* child = getChildByName(id, true);
+	LLView* child = getChild<LLView>(id);
 	if (child)
 	{
 		child->setRect(rect);
@@ -810,7 +783,7 @@ void LLPanel::childSetRect(const LLString& id, const LLRect& rect)
 
 bool LLPanel::childGetRect(const LLString& id, LLRect& rect) const
 {
-	LLView* child = getChildByName(id, true);
+	LLView* child = getChild<LLView>(id);
 	if (child)
 	{
 		rect = child->getRect();
@@ -821,7 +794,7 @@ bool LLPanel::childGetRect(const LLString& id, LLRect& rect) const
 
 void LLPanel::childSetFocus(const LLString& id, BOOL focus)
 {
-	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);
+	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
 	{
 		child->setFocus(focus);
@@ -830,7 +803,7 @@ void LLPanel::childSetFocus(const LLString& id, BOOL focus)
 
 BOOL LLPanel::childHasFocus(const LLString& id)
 {
-	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);
+	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
 	{
 		return child->hasFocus();
@@ -845,7 +818,7 @@ BOOL LLPanel::childHasFocus(const LLString& id)
 
 void LLPanel::childSetFocusChangedCallback(const LLString& id, void (*cb)(LLFocusableElement*, void*), void* user_data)
 {
-	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);
+	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
 	{
 		child->setFocusChangedCallback(cb, user_data);
@@ -854,7 +827,7 @@ void LLPanel::childSetFocusChangedCallback(const LLString& id, void (*cb)(LLFocu
 
 void LLPanel::childSetCommitCallback(const LLString& id, void (*cb)(LLUICtrl*, void*), void *userdata )
 {
-	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);
+	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
 	{
 		child->setCommitCallback(cb);
@@ -864,7 +837,7 @@ void LLPanel::childSetCommitCallback(const LLString& id, void (*cb)(LLUICtrl*, v
 
 void LLPanel::childSetDoubleClickCallback(const LLString& id, void (*cb)(void*), void *userdata )
 {
-	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);
+	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
 	{
 		child->setDoubleClickCallback(cb);
@@ -877,7 +850,7 @@ void LLPanel::childSetDoubleClickCallback(const LLString& id, void (*cb)(void*),
 
 void LLPanel::childSetValidate(const LLString& id, BOOL (*cb)(LLUICtrl*, void*))
 {
-	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);
+	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
 	{
 		child->setValidateBeforeCommit(cb);
@@ -886,7 +859,7 @@ void LLPanel::childSetValidate(const LLString& id, BOOL (*cb)(LLUICtrl*, void*))
 
 void LLPanel::childSetUserData(const LLString& id, void* userdata)
 {
-	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);
+	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
 	{
 		child->setCallbackUserData(userdata);
@@ -895,16 +868,16 @@ void LLPanel::childSetUserData(const LLString& id, void* userdata)
 
 void LLPanel::childSetColor(const LLString& id, const LLColor4& color)
 {
-	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);
+	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
 	{
 		child->setColor(color);
 	}
 }
 
-LLCtrlSelectionInterface* LLPanel::childGetSelectionInterface(const LLString& id)
+LLCtrlSelectionInterface* LLPanel::childGetSelectionInterface(const LLString& id) const
 {
-	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);
+	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
 	{
 		return child->getSelectionInterface();
@@ -912,9 +885,9 @@ LLCtrlSelectionInterface* LLPanel::childGetSelectionInterface(const LLString& id
 	return NULL;
 }
 
-LLCtrlListInterface* LLPanel::childGetListInterface(const LLString& id)
+LLCtrlListInterface* LLPanel::childGetListInterface(const LLString& id) const
 {
-	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);
+	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
 	{
 		return child->getListInterface();
@@ -922,9 +895,9 @@ LLCtrlListInterface* LLPanel::childGetListInterface(const LLString& id)
 	return NULL;
 }
 
-LLCtrlScrollInterface* LLPanel::childGetScrollInterface(const LLString& id)
+LLCtrlScrollInterface* LLPanel::childGetScrollInterface(const LLString& id) const
 {
-	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);
+	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
 	{
 		return child->getScrollInterface();
@@ -934,7 +907,7 @@ LLCtrlScrollInterface* LLPanel::childGetScrollInterface(const LLString& id)
 
 void LLPanel::childSetValue(const LLString& id, LLSD value)
 {
-	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);
+	LLView* child = getChild<LLView>(id, true);
 	if (child)
 	{
 		child->setValue(value);
@@ -943,7 +916,7 @@ void LLPanel::childSetValue(const LLString& id, LLSD value)
 
 LLSD LLPanel::childGetValue(const LLString& id) const
 {
-	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);
+	LLView* child = getChild<LLView>(id, true);
 	if (child)
 	{
 		return child->getValue();
@@ -954,7 +927,7 @@ LLSD LLPanel::childGetValue(const LLString& id) const
 
 BOOL LLPanel::childSetTextArg(const LLString& id, const LLString& key, const LLStringExplicit& text)
 {
-	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);
+	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
 	{
 		return child->setTextArg(key, text);
@@ -964,7 +937,7 @@ BOOL LLPanel::childSetTextArg(const LLString& id, const LLString& key, const LLS
 
 BOOL LLPanel::childSetLabelArg(const LLString& id, const LLString& key, const LLStringExplicit& text)
 {
-	LLView* child = getChildByName(id, true);
+	LLView* child = getChild<LLView>(id);
 	if (child)
 	{
 		return child->setLabelArg(key, text);
@@ -984,7 +957,7 @@ BOOL LLPanel::childSetToolTipArg(const LLString& id, const LLString& key, const 
 
 void LLPanel::childSetMinValue(const LLString& id, LLSD min_value)
 {
-	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);
+	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
 	{
 		child->setMinValue(min_value);
@@ -993,7 +966,7 @@ void LLPanel::childSetMinValue(const LLString& id, LLSD min_value)
 
 void LLPanel::childSetMaxValue(const LLString& id, LLSD max_value)
 {
-	LLUICtrl* child = (LLUICtrl*)getChildByName(id, true);
+	LLUICtrl* child = getChild<LLUICtrl>(id, true);
 	if (child)
 	{
 		child->setMaxValue(max_value);
@@ -1002,16 +975,16 @@ void LLPanel::childSetMaxValue(const LLString& id, LLSD max_value)
 
 void LLPanel::childShowTab(const LLString& id, const LLString& tabname, bool visible)
 {
-	LLTabContainerCommon* child = LLUICtrlFactory::getTabContainerByName(this, id);
+	LLTabContainer* child = LLUICtrlFactory::getTabContainerByName(this, id);
 	if (child)
 	{
 		child->selectTabByName(tabname);
 	}
 }
 
-LLPanel *LLPanel::childGetVisibleTab(const LLString& id)
+LLPanel *LLPanel::childGetVisibleTab(const LLString& id) const
 {
-	LLTabContainerCommon* child = LLUICtrlFactory::getTabContainerByName(this, id);
+	LLTabContainer* child = LLUICtrlFactory::getTabContainerByName(this, id);
 	if (child)
 	{
 		return child->getCurrentPanel();
@@ -1021,7 +994,7 @@ LLPanel *LLPanel::childGetVisibleTab(const LLString& id)
 
 void LLPanel::childSetTabChangeCallback(const LLString& id, const LLString& tabname, void (*on_tab_clicked)(void*, bool), void *userdata)
 {
-	LLTabContainerCommon* child = LLUICtrlFactory::getTabContainerByName(this, id);
+	LLTabContainer* child = LLUICtrlFactory::getTabContainerByName(this, id);
 	if (child)
 	{
 		LLPanel *panel = child->getPanelByName(tabname);
@@ -1031,11 +1004,6 @@ void LLPanel::childSetTabChangeCallback(const LLString& id, const LLString& tabn
 			child->setTabUserData(panel, userdata);
 		}
 	}
-}
-
-void LLPanel::childSetText(const LLString& id, const LLStringExplicit& text)
-{
-	childSetValue(id, LLSD(text));
 }
 
 void LLPanel::childSetKeystrokeCallback(const LLString& id, void (*keystroke_callback)(LLLineEditor* caller, void* user_data), void *user_data)
@@ -1058,11 +1026,6 @@ void LLPanel::childSetPrevalidate(const LLString& id, BOOL (*func)(const LLWStri
 	{
 		child->setPrevalidate(func);
 	}
-}
-
-LLString LLPanel::childGetText(const LLString& id)
-{
-	return childGetValue(id).asString();
 }
 
 void LLPanel::childSetWrappedText(const LLString& id, const LLString& text, bool visible)
@@ -1095,7 +1058,7 @@ void LLPanel::childSetActionTextbox(const LLString& id, void(*function)(void*))
 
 void LLPanel::childSetControlName(const LLString& id, const LLString& control_name)
 {
-	LLView* view = getChildByName(id, TRUE);
+	LLView* view = getChild<LLView>(id);
 	if (view)
 	{
 		view->setControlName(control_name, NULL);
@@ -1145,7 +1108,7 @@ void LLPanel::storeRectControl()
 {
 	if( !mRectControl.empty() )
 	{
-		LLUI::sConfigGroup->setRect( mRectControl, mRect );
+		LLUI::sConfigGroup->setRect( mRectControl, getRect() );
 	}
 }
 
@@ -1214,6 +1177,19 @@ LLLayoutStack::~LLLayoutStack()
 {
 	std::for_each(mPanels.begin(), mPanels.end(), DeletePointer());
 }
+
+// virtual
+EWidgetType LLLayoutStack::getWidgetType() const
+{
+	return WIDGET_TYPE_LAYOUT_STACK;
+}
+
+// virtual
+LLString LLLayoutStack::getWidgetTag() const
+{
+	return LL_LAYOUT_STACK_TAG;
+}
+
 
 void LLLayoutStack::draw()
 {
@@ -1326,23 +1302,13 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactor
 	return layout_stackp;
 }
 
-S32 LLLayoutStack::getMinWidth()
-{
-	return mMinWidth;
-}
-
-S32 LLLayoutStack::getMinHeight()
-{
-	return mMinHeight;
-}
-
 S32 LLLayoutStack::getDefaultHeight(S32 cur_height)
 {
 	// if we are spanning our children (crude upward propagation of size)
 	// then don't enforce our size on our children
 	if (mOrientation == HORIZONTAL)
 	{
-		cur_height = llmax(mMinHeight, mRect.getHeight());
+		cur_height = llmax(mMinHeight, getRect().getHeight());
 	}
 
 	return cur_height;
@@ -1354,7 +1320,7 @@ S32 LLLayoutStack::getDefaultWidth(S32 cur_width)
 	// then don't enforce our size on our children
 	if (mOrientation == VERTICAL)
 	{
-		cur_width = llmax(mMinWidth, mRect.getWidth());
+		cur_width = llmax(mMinWidth, getRect().getWidth());
 	}
 
 	return cur_width;
@@ -1476,15 +1442,15 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 	S32 pixels_to_distribute;
 	if (mOrientation == HORIZONTAL)
 	{
-		pixels_to_distribute = mRect.getWidth() - total_width;
+		pixels_to_distribute = getRect().getWidth() - total_width;
 	}
 	else //VERTICAL
 	{
-		pixels_to_distribute = mRect.getHeight() - total_height;
+		pixels_to_distribute = getRect().getHeight() - total_height;
 	}
 
 	S32 cur_x = 0;
-	S32 cur_y = mRect.getHeight();
+	S32 cur_y = getRect().getHeight();
 
 	for (panel_it = mPanels.begin(); panel_it != mPanels.end(); ++panel_it)
 	{
@@ -1619,18 +1585,19 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 	// not enough room to fit existing contents
 	if (!force_resize 
 		&& ((cur_y != -mPanelSpacing) 
-			|| (cur_x != mRect.getWidth() + mPanelSpacing)))
+			|| (cur_x != getRect().getWidth() + mPanelSpacing)))
 	{
 		// do another layout pass with all stacked elements contributing
 		// even those that don't usually resize
 		llassert_always(force_resize == FALSE);
 		updateLayout(TRUE);
 	}
-}
+} // end LLLayoutStack::updateLayout
 
-LLLayoutStack::LLEmbeddedPanel* LLLayoutStack::findEmbeddedPanel(LLPanel* panelp)
+
+LLLayoutStack::LLEmbeddedPanel* LLLayoutStack::findEmbeddedPanel(LLPanel* panelp) const
 {
-	e_panel_list_t::iterator panel_it;
+	e_panel_list_t::const_iterator panel_it;
 	for (panel_it = mPanels.begin(); panel_it != mPanels.end(); ++panel_it)
 	{
 		if ((*panel_it)->mPanel == panelp)

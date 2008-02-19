@@ -36,24 +36,20 @@
 #include "llstring.h"
 #include "lluuid.h"
 
-//
-// Classes
-//
+
 class LLClipboard
 {
-protected:
-	LLUUID		mSourceID;
-	LLWString mString;
-	
 public:
 	LLClipboard();
 	~LLClipboard();
 
 	void		copyFromSubstring(const LLWString &copy_from, S32 pos, S32 len, const LLUUID& source_id = LLUUID::null );
-
-
-	BOOL		canPasteString();
-	LLWString 	getPasteWString(LLUUID* source_id = NULL);
+	BOOL		canPasteString() const;
+	const LLWString&	getPasteWString(LLUUID* source_id = NULL);
+	
+private:
+	LLUUID		mSourceID;
+	LLWString	mString;
 };
 
 

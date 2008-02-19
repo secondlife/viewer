@@ -190,11 +190,11 @@ void LLPanelPlace::setErrorStatus(U32 status, const std::string& reason)
 	LLString error_text;
 	if(status == 404)
 	{	
-		error_text = childGetText("server_error_text");
+		error_text = getString("server_error_text");
 	}
 	else if(status == 499)
 	{
-		error_text = childGetText("server_forbidden_text");
+		error_text = getString("server_forbidden_text");
 	}
 	mDescEditor->setText(error_text);
 }
@@ -260,13 +260,13 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 		std::string desc_str(desc);
 
 		if( !name_str.empty()
-			&& self->mNameEditor->getText().empty())
+		   && self->mNameEditor && self->mNameEditor->getText().empty())
 		{
 			self->mNameEditor->setText(name_str);
 		}
 
 		if( !desc_str.empty()
-			&& self->mDescEditor->getText().empty())
+			&& self->mDescEditor && self->mDescEditor->getText().empty())
 		{
 			self->mDescEditor->setText(desc_str);
 		}
@@ -290,8 +290,10 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 			auction.setArg("[ID]", llformat("%010d ", auction_id));
 			info_text += auction;
 		}
-		self->mInfoEditor->setText(info_text);
-
+		if (self->mInfoEditor)
+		{
+			self->mInfoEditor->setText(info_text);
+		}
 
 		// HACK: Flag 0x1 == mature region, otherwise assume PG
 		const char* rating = LLViewerRegion::accessToString(SIM_ACCESS_PG);
@@ -320,7 +322,10 @@ void LLPanelPlace::processParcelInfoReply(LLMessageSystem *msg, void **)
 
 		LLString location = llformat("%s %d, %d, %d (%s)",
 			sim_name, region_x, region_y, region_z, rating);
-		self->mLocationEditor->setText(location);
+		if (self->mLocationEditor)
+		{
+			self->mLocationEditor->setText(location);
+		}
 
 		BOOL show_auction = (auction_id > 0);
 		self->mAuctionBtn->setVisible(show_auction);
@@ -354,7 +359,7 @@ void LLPanelPlace::displayParcelInfo(const LLVector3& pos_region,
 	}
 	else
 	{
-		mDescEditor->setText(childGetText("server_update_text"));
+		mDescEditor->setText(getString("server_update_text"));
 	}
 	mSnapshotCtrl->setImageAssetID(LLUUID::null);
 }

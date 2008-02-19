@@ -216,6 +216,8 @@ BOOL LLFilePicker::getMultipleOpenFiles(ELoadFilter filter)
 			mCurrentFile = mFiles;
 			LLString tstr = utf16str_to_utf8str(llutf16string(mFilesW));
 			memcpy(mFiles, tstr.c_str(), tstr.size()+1); /*Flawfinder: ignore*/
+
+			mCurrentFile = &mFiles[mOFN.nFileOffset];
 		}
 		else
 		{

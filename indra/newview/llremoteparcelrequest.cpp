@@ -44,7 +44,7 @@
 #include "llview.h"
 #include "message.h"
 
-LLRemoteParcelRequestResponder::LLRemoteParcelRequestResponder(LLViewHandle place_panel_handle)
+LLRemoteParcelRequestResponder::LLRemoteParcelRequestResponder(LLHandle<LLPanel> place_panel_handle)
 {
 	 mPlacePanelHandle = place_panel_handle;
 }
@@ -53,7 +53,7 @@ void LLRemoteParcelRequestResponder::result(const LLSD& content)
 {
 	LLUUID parcel_id = content["parcel_id"];
 
-	LLPanelPlace* place_panelp = (LLPanelPlace*)LLPanel::getPanelByHandle(mPlacePanelHandle);
+	LLPanelPlace* place_panelp = (LLPanelPlace*)mPlacePanelHandle.get();
 
 	if(place_panelp)
 	{
@@ -67,7 +67,7 @@ void LLRemoteParcelRequestResponder::error(U32 status, const std::string& reason
 {
 	llinfos << "LLRemoteParcelRequest::error("
 		<< status << ": " << reason << ")" << llendl;
-	LLPanelPlace* place_panelp = (LLPanelPlace*)LLPanel::getPanelByHandle(mPlacePanelHandle);
+	LLPanelPlace* place_panelp = (LLPanelPlace*)mPlacePanelHandle.get();
 
 	if(place_panelp)
 	{

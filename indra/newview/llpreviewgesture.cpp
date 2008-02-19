@@ -585,7 +585,7 @@ void LLPreviewGesture::addAnimations()
 
 	combo->removeall();
 	
-	LLString none_text = childGetText("none_text");
+	LLString none_text = getString("none_text");
 
 	combo->add(none_text, LLUUID::null);
 
@@ -640,7 +640,7 @@ void LLPreviewGesture::addSounds()
 	LLComboBox* combo = mSoundCombo;
 	combo->removeall();
 	
-	LLString none_text = childGetText("none_text");
+	LLString none_text = getString("none_text");
 
 	combo->add(none_text, LLUUID::null);
 
@@ -789,7 +789,7 @@ void LLPreviewGesture::refresh()
 		case STEP_ANIMATION:
 			{
 				LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
-				optionstext = childGetText("step_anim");
+				optionstext = getString("step_anim");
 				mAnimationCombo->setVisible(TRUE);
 				mAnimationRadio->setVisible(TRUE);
 				mAnimationRadio->setSelectedIndex((anim_step->mFlags & ANIM_FLAG_STOP) ? 1 : 0);
@@ -799,7 +799,7 @@ void LLPreviewGesture::refresh()
 		case STEP_SOUND:
 			{
 				LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
-				optionstext = childGetText("step_sound");
+				optionstext = getString("step_sound");
 				mSoundCombo->setVisible(TRUE);
 				mSoundCombo->setCurrentByID(sound_step->mSoundAssetID);
 				break;
@@ -807,7 +807,7 @@ void LLPreviewGesture::refresh()
 		case STEP_CHAT:
 			{
 				LLGestureStepChat* chat_step = (LLGestureStepChat*)step;
-				optionstext = childGetText("step_chat");
+				optionstext = getString("step_chat");
 				mChatEditor->setVisible(TRUE);
 				mChatEditor->setText(chat_step->mChatText);
 				break;
@@ -815,7 +815,7 @@ void LLPreviewGesture::refresh()
 		case STEP_WAIT:
 			{
 				LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
-				optionstext = childGetText("step_wait");
+				optionstext = getString("step_wait");
 				mWaitAnimCheck->setVisible(TRUE);
 				mWaitAnimCheck->set(wait_step->mFlags & WAIT_FLAG_ALL_ANIM);
 				mWaitTimeCheck->setVisible(TRUE);
@@ -1753,7 +1753,7 @@ void LLPreviewGesture::onClickPreview(void* data)
 		self->mPreviewGesture->mCallbackData = self;
 
 		// set the button title
-		self->mPreviewBtn->setLabel(self->childGetText("stop_txt"));
+		self->mPreviewBtn->setLabel(self->getString("stop_txt"));
 
 		// play it, and delete when done
 		gGestureManager.playGesture(self->mPreviewGesture);
@@ -1775,7 +1775,7 @@ void LLPreviewGesture::onDonePreview(LLMultiGesture* gesture, void* data)
 {
 	LLPreviewGesture* self = (LLPreviewGesture*)data;
 
-	self->mPreviewBtn->setLabel(self->childGetText("preview_txt"));
+	self->mPreviewBtn->setLabel(self->getString("preview_txt"));
 
 	delete self->mPreviewGesture;
 	self->mPreviewGesture = NULL;

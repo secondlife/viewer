@@ -90,23 +90,15 @@ void LLNameEditor::setNameID(const LLUUID& name_id, BOOL is_group)
 {
 	mNameID = name_id;
 
-	char first[DB_FIRST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
-	char last[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
-	char group_name[DB_GROUP_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
-	LLString name;
+	std::string name;
 
 	if (!is_group)
 	{
-		gCacheName->getName(name_id, first, last);
-
-		name.assign(first);
-		name.append(1, ' ');
-		name.append(last);
+		gCacheName->getFullName(name_id, name);
 	}
 	else
 	{
-		gCacheName->getGroupName(name_id, group_name);
-		name.assign(group_name);
+		gCacheName->getGroupName(name_id, name);
 	}
 
 	setText(name);

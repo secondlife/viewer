@@ -57,12 +57,8 @@ LLFocusMgr::LLFocusMgr()
 {
 }
 
-LLFocusMgr::~LLFocusMgr()
-{
-	mFocusHistory.clear();
-}
 
-void LLFocusMgr::releaseFocusIfNeeded( LLView* view )
+void LLFocusMgr::releaseFocusIfNeeded( const LLView* view )
 {
 	if( childHasMouseCapture( view ) )
 	{
@@ -146,7 +142,7 @@ void LLFocusMgr::setKeyboardFocus(LLUICtrl* new_focus, BOOL lock)
 		
 		if (focus_subtree)
 		{
-			mFocusHistory[focus_subtree->mViewHandle] = mKeyboardFocus ? mKeyboardFocus->mViewHandle : LLViewHandle::sDeadHandle; 
+			mFocusHistory[focus_subtree->getHandle()] = mKeyboardFocus ? mKeyboardFocus->getHandle() : LLHandle<LLView>(); 
 		}
 	}
 	
@@ -156,10 +152,6 @@ void LLFocusMgr::setKeyboardFocus(LLUICtrl* new_focus, BOOL lock)
 	}
 }
 
-void LLFocusMgr::setDefaultKeyboardFocus(LLUICtrl* default_focus)
-{
-	mDefaultKeyboardFocus = default_focus;
-}
 
 // Returns TRUE is parent or any descedent of parent has keyboard focus.
 BOOL LLFocusMgr::childHasKeyboardFocus(const LLView* parent ) const
@@ -177,7 +169,7 @@ BOOL LLFocusMgr::childHasKeyboardFocus(const LLView* parent ) const
 }
 
 // Returns TRUE is parent or any descedent of parent is the mouse captor.
-BOOL LLFocusMgr::childHasMouseCapture( LLView* parent )
+BOOL LLFocusMgr::childHasMouseCapture( const LLView* parent ) const
 {
 	if( mMouseCaptor && mMouseCaptor->isView() )
 	{
@@ -194,7 +186,7 @@ BOOL LLFocusMgr::childHasMouseCapture( LLView* parent )
 	return FALSE;
 }
 
-void LLFocusMgr::removeKeyboardFocusWithoutCallback( LLView* focus )
+void LLFocusMgr::removeKeyboardFocusWithoutCallback( const LLView* focus )
 {
 	// should be ok to unlock here, as you have to know the locked view
 	// in order to unlock it
@@ -253,7 +245,7 @@ void LLFocusMgr::setMouseCapture( LLMouseHandler* new_captor )
 	}
 }
 
-void LLFocusMgr::removeMouseCaptureWithoutCallback( LLMouseHandler* captor )
+void LLFocusMgr::removeMouseCaptureWithoutCallback( const LLMouseHandler* captor )
 {
 	//if (mFocusLocked)
 	//{
@@ -269,7 +261,7 @@ void LLFocusMgr::removeMouseCaptureWithoutCallback( LLMouseHandler* captor )
 }
 
 
-BOOL LLFocusMgr::childIsTopCtrl( LLView* parent )
+BOOL LLFocusMgr::childIsTopCtrl( const LLView* parent ) const
 {
 	LLView* top_view = (LLView*)mTopCtrl;
 	while( top_view )
@@ -304,7 +296,7 @@ void LLFocusMgr::setTopCtrl( LLUICtrl* new_top  )
 	}
 }
 
-void LLFocusMgr::removeTopCtrlWithoutCallback( LLUICtrl* top_view )
+void LLFocusMgr::removeTopCtrlWithoutCallback( const LLUICtrl* top_view )
 {
 	if( mTopCtrl == top_view )
 	{
@@ -325,12 +317,12 @@ void LLFocusMgr::unlockFocus()
 	mLockedView = NULL; 
 }
 
-F32 LLFocusMgr::getFocusFlashAmt()
+F32 LLFocusMgr::getFocusFlashAmt() const
 {
 	return clamp_rescale(getFocusTime(), 0.f, FOCUS_FADE_TIME, mFocusWeight, 0.f);
 }
 
-LLColor4 LLFocusMgr::getFocusColor()
+LLColor4 LLFocusMgr::getFocusColor() const
 {
 	LLColor4 focus_color = lerp(LLUI::sColorsGroup->getColor( "FocusColor" ), LLColor4::white, getFocusFlashAmt());
 	// de-emphasize keyboard focus when app has lost focus (to avoid typing into wrong window problem)
@@ -362,15 +354,15 @@ void LLFocusMgr::setAppHasFocus(BOOL focus)
 	mAppHasFocus = focus; 
 }
 
-LLUICtrl* LLFocusMgr::getLastFocusForGroup(LLView* subtree_root)
+LLUICtrl* LLFocusMgr::getLastFocusForGroup(LLView* subtree_root) const
 {
 	if (subtree_root)
 	{
-		focus_history_map_t::iterator found_it = mFocusHistory.find(subtree_root->mViewHandle);
+		focus_history_map_t::const_iterator found_it = mFocusHistory.find(subtree_root->getHandle());
 		if (found_it != mFocusHistory.end())
 		{
 			// found last focus for this subtree
-			return static_cast<LLUICtrl*>(LLView::getViewByHandle(found_it->second));
+			return static_cast<LLUICtrl*>(found_it->second.get());
 		}
 	}
 	return NULL;
@@ -380,6 +372,6 @@ void LLFocusMgr::clearLastFocusForGroup(LLView* subtree_root)
 {
 	if (subtree_root)
 	{
-		mFocusHistory.erase(subtree_root->mViewHandle);
+		mFocusHistory.erase(subtree_root->getHandle());
 	}
 }

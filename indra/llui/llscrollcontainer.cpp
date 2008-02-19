@@ -29,14 +29,6 @@
  * $/LicenseInfo$
  */
 
-//*****************************************************************************
-//
-// A view meant to encapsulate a clipped region which is
-// scrollable. It automatically takes care of pixel perfect scrolling
-// and cliipping, as well as turning the scrollbars on or off based on
-// the width and height of the view you're scrolling.
-//
-//*****************************************************************************
 
 #include "linden_common.h"
 
@@ -112,11 +104,11 @@ LLScrollableContainerView::LLScrollableContainerView( const LLString& name, cons
 
 void LLScrollableContainerView::init()
 {
-	LLRect border_rect( 0, mRect.getHeight(), mRect.getWidth(), 0 );
+	LLRect border_rect( 0, getRect().getHeight(), getRect().getWidth(), 0 );
 	mBorder = new LLViewBorder( "scroll border", border_rect, LLViewBorder::BEVEL_IN );
 	addChild( mBorder );
 
-	mInnerRect.set( 0, mRect.getHeight(), mRect.getWidth(), 0 );
+	mInnerRect.set( 0, getRect().getHeight(), getRect().getWidth(), 0 );
 	mInnerRect.stretch( -mBorder->getBorderWidth()  );
 
 	LLRect vertical_scroll_rect = mInnerRect;
@@ -165,25 +157,6 @@ LLScrollableContainerView::~LLScrollableContainerView( void )
 	mScrolledView = NULL;
 }
 
-/*
-// scrollbar handlers
-void LLScrollableContainerView::horizontalChange( S32 new_pos,
-												  LLScrollbar* sb,
-												  void* user_data )
-{
-	LLScrollableContainerView* cont = reinterpret_cast<LLScrollableContainerView*>(user_data);
-//	cont->scrollHorizontal( new_pos );
-}
-
-
-void LLScrollableContainerView::verticalChange( S32 new_pos, LLScrollbar* sb,
-												void* user_data )
-{
-	LLScrollableContainerView* cont = reinterpret_cast<LLScrollableContainerView*>(user_data);
-//	cont->scrollVertical( new_pos );
-}
-*/
-
 // internal scrollbar handlers
 // virtual
 void LLScrollableContainerView::scrollHorizontal( S32 new_pos )
@@ -215,7 +188,7 @@ void LLScrollableContainerView::reshape(S32 width, S32 height,
 {
 	LLUICtrl::reshape( width, height, called_from_parent );
 
-	mInnerRect.set( 0, mRect.getHeight(), mRect.getWidth(), 0 );
+	mInnerRect.set( 0, getRect().getHeight(), getRect().getWidth(), 0 );
 	mInnerRect.stretch( -mBorder->getBorderWidth() );
 
 	if (mScrolledView)
@@ -238,7 +211,7 @@ void LLScrollableContainerView::reshape(S32 width, S32 height,
 
 BOOL LLScrollableContainerView::handleKey( KEY key, MASK mask, BOOL called_from_parent )
 {
-	if( getVisible() && mEnabled )
+	if( getVisible() && getEnabled() )
 	{
 		if( called_from_parent )
 		{
@@ -278,7 +251,7 @@ BOOL LLScrollableContainerView::handleKey( KEY key, MASK mask, BOOL called_from_
 
 BOOL LLScrollableContainerView::handleScrollWheel( S32 x, S32 y, S32 clicks )
 {
-	if( mEnabled )
+	if( getEnabled() )
 	{
 		for( S32 i = 0; i < SCROLLBAR_COUNT; i++ )
 		{
@@ -295,7 +268,8 @@ BOOL LLScrollableContainerView::handleScrollWheel( S32 x, S32 y, S32 clicks )
 	// Opaque
 	return TRUE;
 }
-BOOL LLScrollableContainerView::needsToScroll(S32 x, S32 y, LLScrollableContainerView::SCROLL_ORIENTATION axis)
+
+BOOL LLScrollableContainerView::needsToScroll(S32 x, S32 y, LLScrollableContainerView::SCROLL_ORIENTATION axis) const
 {
 	if(mScrollbar[axis]->getVisible())
 	{
@@ -315,6 +289,7 @@ BOOL LLScrollableContainerView::needsToScroll(S32 x, S32 y, LLScrollableContaine
 	}
 	return FALSE;
 }
+
 BOOL LLScrollableContainerView::handleDragAndDrop(S32 x, S32 y, MASK mask,
 												  BOOL drop,
 												  EDragAndDropType cargo_type,
@@ -419,19 +394,19 @@ BOOL LLScrollableContainerView::handleToolTip(S32 x, S32 y, LLString& msg, LLRec
 	return TRUE;
 }
 
-void LLScrollableContainerView::calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar )
+void LLScrollableContainerView::calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const
 {
 	const LLRect& rect = mScrolledView->getRect();
 	calcVisibleSize(rect, visible_width, visible_height, show_h_scrollbar, show_v_scrollbar);
 }
 
-void LLScrollableContainerView::calcVisibleSize( const LLRect& doc_rect, S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar )
+void LLScrollableContainerView::calcVisibleSize( const LLRect& doc_rect, S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const
 {
 	S32 doc_width = doc_rect.getWidth();
 	S32 doc_height = doc_rect.getHeight();
 
-	*visible_width = mRect.getWidth() - 2 * mBorder->getBorderWidth();
-	*visible_height = mRect.getHeight() - 2 * mBorder->getBorderWidth();
+	*visible_width = getRect().getWidth() - 2 * mBorder->getBorderWidth();
+	*visible_height = getRect().getHeight() - 2 * mBorder->getBorderWidth();
 	
 	*show_v_scrollbar = FALSE;
 	if( *visible_height < doc_height )
@@ -544,7 +519,7 @@ void LLScrollableContainerView::draw()
 			drawDebugRect();
 		}
 	}
-}
+} // end draw
 
 void LLScrollableContainerView::updateScroll()
 {
@@ -560,9 +535,9 @@ void LLScrollableContainerView::updateScroll()
 	S32 border_width = mBorder->getBorderWidth();
 	if( show_v_scrollbar )
 	{
-		if( doc_rect.mTop < mRect.getHeight() - border_width )
+		if( doc_rect.mTop < getRect().getHeight() - border_width )
 		{
-			mScrolledView->translate( 0, mRect.getHeight() - border_width - doc_rect.mTop );
+			mScrolledView->translate( 0, getRect().getHeight() - border_width - doc_rect.mTop );
 		}
 
 		scrollVertical(	mScrollbar[VERTICAL]->getDocPos() );
@@ -587,7 +562,7 @@ void LLScrollableContainerView::updateScroll()
 	}
 	else
 	{
-		mScrolledView->translate( 0, mRect.getHeight() - border_width - doc_rect.mTop );
+		mScrolledView->translate( 0, getRect().getHeight() - border_width - doc_rect.mTop );
 
 		mScrollbar[VERTICAL]->setVisible( FALSE );
 		mScrollbar[VERTICAL]->setDocPos( 0 );
@@ -626,7 +601,7 @@ void LLScrollableContainerView::updateScroll()
 
 	mScrollbar[VERTICAL]->setDocSize( doc_height );
 	mScrollbar[VERTICAL]->setPageSize( visible_height );
-}
+} // end updateScroll
 
 void LLScrollableContainerView::setBorderVisible(BOOL b)
 {
@@ -723,7 +698,7 @@ void LLScrollableContainerView::goToBottom()
 	mScrollbar[VERTICAL]->setDocPos(mScrollbar[VERTICAL]->getDocSize());
 }
 
-S32 LLScrollableContainerView::getBorderWidth()
+S32 LLScrollableContainerView::getBorderWidth() const
 {
 	if (mBorder)
 	{
@@ -803,7 +778,3 @@ LLView* LLScrollableContainerView::fromXML(LLXMLNodePtr node, LLView *parent, LL
 
 	return ret;
 }
-
-///----------------------------------------------------------------------------
-/// Local function definitions
-///----------------------------------------------------------------------------

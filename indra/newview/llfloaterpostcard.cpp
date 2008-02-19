@@ -157,9 +157,9 @@ void LLFloaterPostcard::draw()
 	LLGLSUIDefault gls_ui;
 	LLFloater::draw();
 
-	if(getVisible() && !mMinimized && mViewerImage.notNull() && mJPEGImage.notNull()) 
+	if(getVisible() && !isMinimized() && mViewerImage.notNull() && mJPEGImage.notNull()) 
 	{
-		LLRect rect(mRect);
+		LLRect rect(getRect());
 
 		// first set the max extents of our preview
 		rect.translate(-rect.mLeft, -rect.mBottom);
@@ -352,14 +352,14 @@ void LLFloaterPostcard::missingSubjMsgAlertCallback(S32 option, void* data)
 			if((self->childGetValue("subject_form").asString()).empty())
 			{
 				// Stuff the subject back into the form.
-				self->childSetValue("subject_form", self->childGetText("default_subject"));
+				self->childSetValue("subject_form", self->getString("default_subject"));
 			}
 
 			if(!self->mHasFirstMsgFocus)
 			{
 				// The user never switched focus to the messagee window. 
 				// Using the default string.
-				self->childSetValue("msg_form", self->childGetText("default_message"));
+				self->childSetValue("msg_form", self->getString("default_message"));
 			}
 
 			self->sendPostcard();

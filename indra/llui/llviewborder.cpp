@@ -1,6 +1,5 @@
 /** 
  * @file llviewborder.cpp
- * @brief LLViewBorder base class
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -29,19 +28,8 @@
  * $/LicenseInfo$
  */
 
-// A customizable decorative border.  Does not interact with mouse events.              
-
 #include "linden_common.h"
-
 #include "llviewborder.h"
-
-#include "llgl.h"
-#include "llui.h"
-#include "llimagegl.h"
-//#include "llviewerimagelist.h"
-#include "llcontrol.h"
-#include "llglheaders.h"
-#include "v2math.h"
 #include "llfocusmgr.h"
 
 LLViewBorder::LLViewBorder( const LLString& name, const LLRect& rect, EBevel bevel, EStyle style, S32 width )
@@ -53,18 +41,11 @@ LLViewBorder::LLViewBorder( const LLString& name, const LLRect& rect, EBevel bev
 	mHighlightDark(	LLUI::sColorsGroup->getColor( "DefaultHighlightDark" ) ),
 	mShadowLight( LLUI::sColorsGroup->getColor( "DefaultShadowLight" ) ),
 	mShadowDark( LLUI::sColorsGroup->getColor( "DefaultShadowDark" ) ),
-//	mKeyboardFocusColor(LLUI::sColorsGroup->getColor( "FocusColor" ) ),
 	mBorderWidth( width ),
 	mTexture( NULL ),
 	mHasKeyboardFocus( FALSE )
 {
 	setFollowsAll();
-}
-
-// virtual
-BOOL LLViewBorder::isCtrl() const
-{
-	return FALSE;
 }
 
 void LLViewBorder::setColors( const LLColor4& shadow_dark, const LLColor4& highlight_light )
@@ -160,8 +141,8 @@ void LLViewBorder::drawOnePixelLines()
 	}
 
 	S32 left	= 0;
-	S32 top		= mRect.getHeight();
-	S32 right	= mRect.getWidth();
+	S32 top		= getRect().getHeight();
+	S32 right	= getRect().getWidth();
 	S32 bottom	= 0;
 
 	glColor4fv( top_color.mV );
@@ -219,8 +200,8 @@ void LLViewBorder::drawTwoPixelLines()
 	}
 
 	S32 left	= 0;
-	S32 top		= mRect.getHeight();
-	S32 right	= mRect.getWidth();
+	S32 top		= getRect().getHeight();
+	S32 right	= getRect().getWidth();
 	S32 bottom	= 0;
 
 	// draw borders
@@ -253,10 +234,10 @@ void LLViewBorder::drawTextures()
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 
-	drawTextureTrapezoid(   0.f, mBorderWidth, mRect.getWidth(),  0,					0 );
-	drawTextureTrapezoid(  90.f, mBorderWidth, mRect.getHeight(), (F32)mRect.getWidth(),0 );
-	drawTextureTrapezoid( 180.f, mBorderWidth, mRect.getWidth(),  (F32)mRect.getWidth(),(F32)mRect.getHeight() );
-	drawTextureTrapezoid( 270.f, mBorderWidth, mRect.getHeight(), 0,					(F32)mRect.getHeight() );
+	drawTextureTrapezoid(   0.f, mBorderWidth, getRect().getWidth(),  0,					0 );
+	drawTextureTrapezoid(  90.f, mBorderWidth, getRect().getHeight(), (F32)getRect().getWidth(),0 );
+	drawTextureTrapezoid( 180.f, mBorderWidth, getRect().getWidth(),  (F32)getRect().getWidth(),(F32)getRect().getHeight() );
+	drawTextureTrapezoid( 270.f, mBorderWidth, getRect().getHeight(), 0,					(F32)getRect().getHeight() );
 }
 
 
@@ -292,7 +273,7 @@ void LLViewBorder::drawTextureTrapezoid( F32 degrees, S32 width, S32 length, F32
 	glPopMatrix();
 }
 
-bool LLViewBorder::getBevelFromAttribute(LLXMLNodePtr node, LLViewBorder::EBevel& bevel_style)
+BOOL LLViewBorder::getBevelFromAttribute(LLXMLNodePtr node, LLViewBorder::EBevel& bevel_style)
 {
 	if (node->hasAttribute("bevel_style"))
 	{
@@ -316,25 +297,11 @@ bool LLViewBorder::getBevelFromAttribute(LLXMLNodePtr node, LLViewBorder::EBevel
 		{
 			bevel_style = LLViewBorder::BEVEL_BRIGHT;
 		}
-		return true;
+		return TRUE;
 	}
-	return false;
+	return FALSE;
 }
 
-void LLViewBorder::setValue(const LLSD& val)
-{
-	setRect(LLRect(val));
-}
-
-EWidgetType LLViewBorder::getWidgetType() const
-{
-	return WIDGET_TYPE_VIEW_BORDER;
-}
-
-LLString LLViewBorder::getWidgetTag() const
-{
-	return LL_VIEW_BORDER_TAG;
-}
 
 // static
 LLView* LLViewBorder::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)

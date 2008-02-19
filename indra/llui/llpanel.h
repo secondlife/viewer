@@ -33,10 +33,11 @@
 #ifndef LL_LLPANEL_H
 #define LL_LLPANEL_H
 
-// Opaque view with a background and a border.  Can contain LLUICtrls.
 
 #include "llcallbackmap.h"
 #include "lluictrl.h"
+#include "llbutton.h"
+#include "lllineeditor.h"
 #include "llviewborder.h"
 #include "lluistring.h"
 #include "v4color.h"
@@ -47,39 +48,26 @@ const S32 LLPANEL_BORDER_WIDTH = 1;
 const BOOL BORDER_YES = TRUE;
 const BOOL BORDER_NO = FALSE;
 
-class LLViewerImage;
-class LLUUID;
-class LLCheckBoxCtrl;
-class LLComboBox;
-class LLIconCtrl;
-class LLLineEditor;
-class LLRadioGroup;
-class LLScrollListCtrl;
-class LLSliderCtrl;
-class LLSpinCtrl;
-class LLTextBox;
-class LLTextEditor;
 
-class LLAlertInfo
+struct LLAlertInfo
 {
-public:
 	LLString mLabel;
 	LLString::format_map_t mArgs;
 
-	LLAlertInfo(LLString label, LLString::format_map_t args)
-		: mLabel(label), mArgs(args) { }
-
-		LLAlertInfo() { }
+	LLAlertInfo(LLString label, LLString::format_map_t args) : mLabel(label), mArgs(args) { }
+	LLAlertInfo(){}
 };
 
-class LLPanel : public LLUICtrl
+
+/*
+ * General purpose concrete view base class.
+ * Transparent or opaque,
+ * With or without border,
+ * Can contain LLUICtrls.
+ */
+class LLPanel : public LLUICtrl 
 {
 public:
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
-
-	// defaults to TRUE
-	virtual BOOL isPanel();
 
 	// minimal constructor for data-driven initialization
 	LLPanel();
@@ -89,71 +77,74 @@ public:
 	LLPanel(const LLString& name, const LLRect& rect, BOOL bordered = TRUE);
 
 	// Position and size are saved to rect_control
-	LLPanel(const LLString& name, const LLString& rect_control, BOOL bordered = TRUE);
+	LLPanel(const LLString& name, const LLString& rect_control, BOOL bordered = TRUE);	
+	
+	/*virtual*/ ~LLPanel();
 
+	// LLView interface
+	/*virtual*/ EWidgetType getWidgetType() const;
+	/*virtual*/ LLString getWidgetTag() const;
+	/*virtual*/ BOOL 	isPanel() const;
+	/*virtual*/ void	draw();	
+	/*virtual*/ BOOL	handleKey( KEY key, MASK mask, BOOL called_from_parent );
+	/*virtual*/ BOOL	handleKeyHere( KEY key, MASK mask, BOOL called_from_parent );
+	/*virtual*/ LLXMLNodePtr getXML(bool save_children = true) const;
+
+	// From LLFocusableElement
+	/*virtual*/ void	setFocus( BOOL b );
+	
+	// New virtuals
+	virtual 	void	refresh();	// called in setFocus()
+	virtual 	BOOL	postBuild();
+	virtual 	void	clearCtrls(); // overridden in LLPanelObject and LLPanelVolume
+
+	// Border controls
 	void addBorder( LLViewBorder::EBevel border_bevel = LLViewBorder::BEVEL_OUT,
 					LLViewBorder::EStyle border_style = LLViewBorder::STYLE_LINE,
 					S32 border_thickness = LLPANEL_BORDER_WIDTH );
-
-	void removeBorder();
-
-	virtual ~LLPanel();
-	virtual void	draw();	
-	virtual void 	refresh();	// called in setFocus()
-	virtual void	setFocus( BOOL b );
-	void			setFocusRoot(BOOL b) { mIsFocusRoot = b; }
-	virtual BOOL	handleKeyHere( KEY key, MASK mask, BOOL called_from_parent );
-	virtual BOOL	handleKey( KEY key, MASK mask, BOOL called_from_parent );
-	virtual BOOL	postBuild();
+	void			removeBorder();
+	BOOL			hasBorder() const { return mBorder != NULL; }
+	void			setBorderVisible( BOOL b );
 
 	void			requires(LLString name, EWidgetType type = WIDGET_TYPE_DONTCARE);
-	BOOL			checkRequirements();
+	BOOL			checkRequirements() const;
 
-	static void		alertXml(LLString label, LLString::format_map_t args = LLString::format_map_t());
-	static BOOL		nextAlert(LLAlertInfo &alert);
-
-	void			setBackgroundColor( const LLColor4& color );
-	LLColor4		getBackgroundColor(); 
-	void			setTransparentColor(const LLColor4& color);
+	void			setBackgroundColor( const LLColor4& color ) { mBgColorOpaque = color; }
+	const LLColor4&	getBackgroundColor() const { return mBgColorOpaque; }
+	void			setTransparentColor(const LLColor4& color) { mBgColorAlpha = color; }
+	const LLColor4& getTransparentColor() const { return mBgColorAlpha; }
 	void			setBackgroundVisible( BOOL b )	{ mBgVisible = b; }
+	BOOL			isBackgroundVisible() const { return mBgVisible; }
 	void			setBackgroundOpaque(BOOL b)		{ mBgOpaque = b; }
+	BOOL			isBackgroundOpaque() const { return mBgOpaque; }
 	void			setDefaultBtn(LLButton* btn = NULL);
 	void			setDefaultBtn(const LLString& id);
 	void			setLabel(const LLStringExplicit& label) { mLabel = label; }
 	LLString		getLabel() const { return mLabel; }
 	
 	void            setRectControl(const LLString& rect_control) { mRectControl.assign(rect_control); }
+	const LLString&	getRectControl() const { return mRectControl; }
 	void			storeRectControl();
-	
-	void			setBorderVisible( BOOL b );
 
 	void			setCtrlsEnabled(BOOL b);
-	virtual void	clearCtrls();
 
-	LLViewHandle	getHandle() { return mViewHandle; }
+	LLHandle<LLPanel>	getHandle() const { return mPanelHandle; }
 
-	S32				getLastTabGroup() { return mLastTabGroup; }
+	S32				getLastTabGroup() const { return mLastTabGroup; }
 
-	LLView*			getCtrlByNameAndType(const LLString& name, EWidgetType type);
+	LLUICtrl*		getCtrlByNameAndType(const LLString& name, EWidgetType type) const;
 
-	static LLPanel*	getPanelByHandle(LLViewHandle handle);
+	const LLCallbackMap::map_t& getFactoryMap() const { return mFactoryMap; }
 
-	virtual const LLCallbackMap::map_t& getFactoryMap() const { return mFactoryMap; }
-
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 	BOOL initPanelXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 	void initChildrenXML(LLXMLNodePtr node, LLUICtrlFactory* factory);
 	void setPanelParameters(LLXMLNodePtr node, LLView *parentp);
 
-	LLString getFormattedUIString(const LLString& name, const LLString::format_map_t& args = LLUIString::sNullArgs) const;
+	LLString getString(const LLString& name, const LLString::format_map_t& args = LLUIString::sNullArgs) const;
 	LLUIString getUIString(const LLString& name) const;
 
 	// ** Wrappers for setting child properties by name ** -TomY
 
-	// Override to set not found list
-	virtual LLView* getChildByName(const LLString& name, BOOL recurse = FALSE) const;
-	
 	// LLView
 	void childSetVisible(const LLString& name, bool visible);
 	void childShow(const LLString& name) { childSetVisible(name, true); }
@@ -182,9 +173,9 @@ public:
 
 	void childSetColor(const LLString& id, const LLColor4& color);
 
-	LLCtrlSelectionInterface* childGetSelectionInterface(const LLString& id);
-	LLCtrlListInterface* childGetListInterface(const LLString& id);
-	LLCtrlScrollInterface* childGetScrollInterface(const LLString& id);
+	LLCtrlSelectionInterface* childGetSelectionInterface(const LLString& id) const;
+	LLCtrlListInterface* childGetListInterface(const LLString& id) const;
+	LLCtrlScrollInterface* childGetScrollInterface(const LLString& id) const;
 
 	// This is the magic bullet for data-driven UI
 	void childSetValue(const LLString& id, LLSD value);
@@ -202,15 +193,15 @@ public:
 
 	// LLTabContainer
 	void childShowTab(const LLString& id, const LLString& tabname, bool visible = true);
-	LLPanel *childGetVisibleTab(const LLString& id);
+	LLPanel *childGetVisibleTab(const LLString& id) const;
 	void childSetTabChangeCallback(const LLString& id, const LLString& tabname, void (*on_tab_clicked)(void*, bool), void *userdata);
 
 	// LLTextBox
 	void childSetWrappedText(const LLString& id, const LLString& text, bool visible = true);
 
 	// LLTextBox/LLTextEditor/LLLineEditor
-	void childSetText(const LLString& id, const LLStringExplicit& text);
-	LLString childGetText(const LLString& id);
+	void childSetText(const LLString& id, const LLStringExplicit& text) { childSetValue(id, LLSD(text)); }
+	LLString childGetText(const LLString& id) const { return childGetValue(id).asString(); }
 
 	// LLLineEditor
 	void childSetKeystrokeCallback(const LLString& id, void (*keystroke_callback)(LLLineEditor* caller, void* user_data), void *user_data);
@@ -225,16 +216,23 @@ public:
 	void childNotFound(const LLString& id) const;
 	void childDisplayNotFound();
 
-	typedef std::queue<LLAlertInfo> alert_queue_t;
-	static alert_queue_t sAlertQueue;
-
-	typedef std::map<LLString, LLUIString> ui_string_map_t;
-
-private:
-	// common constructor
-	void init();
+	static void		alertXml(LLString label, LLString::format_map_t args = LLString::format_map_t());
+	static BOOL		nextAlert(LLAlertInfo &alert);
+	static LLView*	fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 	
 protected:
+	// Override to set not found list
+	LLButton*		getDefaultButton() { return mDefaultBtn; }
+	LLCallbackMap::map_t mFactoryMap;
+
+	// Override to set not found list:
+	virtual LLView* getChildByName(const LLString& name, BOOL recurse = FALSE) const;
+
+private:
+	// common construction logic
+	void init();
+
+	// From LLView
 	virtual void	addCtrl( LLUICtrl* ctrl, S32 tab_group );
 	virtual void	addCtrlAtEnd( LLUICtrl* ctrl, S32 tab_group);
 
@@ -251,18 +249,20 @@ protected:
 	BOOL			mBgOpaque;
 	LLViewBorder*	mBorder;
 	LLButton*		mDefaultBtn;
-	LLCallbackMap::map_t mFactoryMap;
 	LLString		mLabel;
 	S32				mLastTabGroup;
+	LLRootHandle<LLPanel> mPanelHandle;
 
+	typedef std::map<LLString, LLUIString> ui_string_map_t;
 	ui_string_map_t	mUIStrings;
 
 	typedef std::map<LLString, EWidgetType> requirements_map_t;
 	requirements_map_t mRequirements;
 
-	typedef std::map<LLViewHandle, LLPanel*> panel_map_t;
-	static panel_map_t sPanelMap;
-};
+	typedef std::queue<LLAlertInfo> alert_queue_t;
+	static alert_queue_t sAlertQueue;
+}; // end class LLPanel
+
 
 class LLLayoutStack : public LLView
 {
@@ -280,37 +280,33 @@ public:
 	/*virtual*/ LLXMLNodePtr getXML(bool save_children = true) const;
 	/*virtual*/ void removeCtrl(LLUICtrl* ctrl);
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_LAYOUT_STACK; }
-	virtual LLString getWidgetTag() const { return LL_LAYOUT_STACK_TAG; }
+	virtual EWidgetType getWidgetType() const;
+	virtual LLString getWidgetTag() const;
 
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
-	S32 getMinWidth();
-	S32 getMinHeight();
+	S32 getMinWidth() const { return mMinWidth; }
+	S32 getMinHeight() const { return mMinHeight; }
 	
 	void addPanel(LLPanel* panel, S32 min_width, S32 min_height, BOOL auto_resize, BOOL user_resize, S32 index = S32_MAX);
 	void removePanel(LLPanel* panel);
 	void updateLayout(BOOL force_resize = FALSE);
 
-protected:
-	struct LLEmbeddedPanel;
-
-	LLEmbeddedPanel* findEmbeddedPanel(LLPanel* panelp);
+private:
 	void calcMinExtents();
-	S32 getMinStackSize();
-	S32 getCurStackSize();
 	S32 getDefaultHeight(S32 cur_height);
 	S32 getDefaultWidth(S32 cur_width);
 
-protected:
-	eLayoutOrientation mOrientation;
+	const eLayoutOrientation mOrientation;
 
+	struct LLEmbeddedPanel;
 	typedef std::vector<LLEmbeddedPanel*> e_panel_list_t;
 	e_panel_list_t mPanels;
+	LLEmbeddedPanel* findEmbeddedPanel(LLPanel* panelp) const;
 
 	S32 mMinWidth;
 	S32 mMinHeight;
 	S32 mPanelSpacing;
-};
+}; // end class LLLayoutStack
 
 #endif

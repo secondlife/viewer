@@ -37,28 +37,13 @@
 #include "llrect.h"
 #include "llsd.h"
 
-//
-// Classes
-//
-class LLFontGL;
-class LLButton;
-class LLTextBox;
-class LLLineEditor;
-class LLUICtrl;
-class LLPanel;
-class LLCtrlSelectionInterface;
-class LLCtrlListInterface;
-class LLCtrlScrollInterface;
-
-typedef void (*LLUICtrlCallback)(LLUICtrl* ctrl, void* userdata);
-typedef BOOL (*LLUICtrlValidate)(LLUICtrl* ctrl, void* userdata);
 
 class LLFocusableElement
 {
 	friend class LLFocusMgr; // allow access to focus change handlers
 public:
 	LLFocusableElement();
-	virtual ~LLFocusableElement() {};
+	virtual ~LLFocusableElement();
 
 	virtual void	setFocus( BOOL b );
 	virtual BOOL	hasFocus() const;
@@ -80,63 +65,74 @@ class LLUICtrl
 : public LLView, public LLFocusableElement
 {
 public:
+	typedef void (*LLUICtrlCallback)(LLUICtrl* ctrl, void* userdata);
+	typedef BOOL (*LLUICtrlValidate)(LLUICtrl* ctrl, void* userdata);
+
 	LLUICtrl();
 	LLUICtrl( const LLString& name, const LLRect& rect, BOOL mouse_opaque,
 		LLUICtrlCallback callback,
 		void* callback_userdata,
 		U32 reshape=FOLLOWS_NONE);
-	virtual ~LLUICtrl();
+	/*virtual*/ ~LLUICtrl();
 
 	// LLView interface
-	//virtual BOOL	handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect);
-	virtual void	initFromXML(LLXMLNodePtr node, LLView* parent);
-	virtual LLXMLNodePtr getXML(bool save_children = true) const;
+	/*virtual*/ void	initFromXML(LLXMLNodePtr node, LLView* parent);
+	/*virtual*/ LLXMLNodePtr getXML(bool save_children = true) const;
+	/*virtual*/ BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text );
+	/*virtual*/ void	onFocusReceived();
+	/*virtual*/ void	onFocusLost();
+	/*virtual*/ BOOL	isCtrl() const;
+	/*virtual*/ void	setTentative(BOOL b);
+	/*virtual*/ BOOL	getTentative() const;
 
-	virtual LLSD	getValue() const { return LLSD(); }
+	// From LLFocusableElement
+	/*virtual*/ void	setFocus( BOOL b );
+	/*virtual*/ BOOL	hasFocus() const;
+	
+	// New virtuals
 
-	// Defaults to no-op
-	virtual BOOL	setTextArg( const LLString& key, const LLStringExplicit& text );
+	// Return NULL by default (overrride if the class has the appropriate interface)
+	virtual class LLCtrlSelectionInterface* getSelectionInterface();
+	virtual class LLCtrlListInterface* getListInterface();
+	virtual class LLCtrlScrollInterface* getScrollInterface();
 
-	// Defaults to no-op
-	virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text );
+	virtual LLSD	getValue() const;
+	virtual BOOL	setTextArg(  const LLString& key, const LLStringExplicit& text );
+	virtual void	setIsChrome(BOOL is_chrome);
 
-	// Defaults to return NULL
-	virtual LLCtrlSelectionInterface* getSelectionInterface();
-	virtual LLCtrlListInterface* getListInterface();
-	virtual LLCtrlScrollInterface* getScrollInterface();
+	virtual BOOL	acceptsTextInput() const; // Defaults to false
 
-	virtual void	setFocus( BOOL b );
-	virtual BOOL	hasFocus() const;
-
-	virtual void	onFocusReceived();
-	virtual void	onFocusLost();
-
+	// A control is dirty if the user has modified its value.
+	// Editable controls should override this.
+	virtual BOOL	isDirty() const; // Defauls to false
+	virtual void	resetDirty(); //Defaults to no-op
+	
+	// Call appropriate callbacks
 	virtual void	onLostTop();	// called when registered as top ctrl and user clicks elsewhere
-
-	virtual void	setTabStop( BOOL b );
-	virtual BOOL	hasTabStop() const;
-
-	// Defaults to false
-	virtual BOOL	acceptsTextInput() const;
-
-	// Default to no-op
+	virtual void	onCommit();
+	
+	// Default to no-op:
 	virtual void	onTabInto();
 	virtual void	clear();
+	virtual	void	setDoubleClickCallback( void (*cb)(void*) );
+	virtual void	setColor(const LLColor4& color);
+	virtual void	setMinValue(LLSD min_value);
+	virtual void	setMaxValue(LLSD max_value);
 
-	virtual void	setIsChrome(BOOL is_chrome);
-	virtual BOOL	getIsChrome() const;
+	BOOL	focusNextItem(BOOL text_entry_only);
+	BOOL	focusPrevItem(BOOL text_entry_only);
+	BOOL 	focusFirstItem(BOOL prefer_text_fields = FALSE, BOOL focus_flash = TRUE );
+	BOOL	focusLastItem(BOOL prefer_text_fields = FALSE);
 
-	virtual void	onCommit();
-
-	virtual BOOL	isCtrl() const	{ return TRUE; }
-	// "Tentative" controls have a proposed value, but haven't committed
-	// it yet.  This is used when multiple objects are selected and we
-	// want to display a parameter that differs between the objects.
-	virtual void	setTentative(BOOL b);
-	virtual BOOL	getTentative() const;
+	// Non Virtuals
+	BOOL			getIsChrome() const;
+	
+	void			setTabStop( BOOL b );
+	BOOL			hasTabStop() const;
 
 	// Returns containing panel/floater or NULL if none found.
-	LLPanel*		getParentPanel() const;
+	class LLPanel*	getParentPanel() const;
+	class LLUICtrl*	getParentUICtrl() const;
 
 	void*			getCallbackUserData() const								{ return mCallbackUserData; }
 	void			setCallbackUserData( void* data )						{ mCallbackUserData = data; }
@@ -144,18 +140,8 @@ public:
 	void			setCommitCallback( void (*cb)(LLUICtrl*, void*) )		{ mCommitCallback = cb; }
 	void			setValidateBeforeCommit( BOOL(*cb)(LLUICtrl*, void*) )	{ mValidateCallback = cb; }
 	void			setLostTopCallback( void (*cb)(LLUICtrl*, void*) )		{ mLostTopCallback = cb; }
-
-	// Defaults to no-op!
-	virtual	void	setDoubleClickCallback( void (*cb)(void*) );
-
-	// Defaults to no-op
-	virtual void	setColor(const LLColor4& color);
-
-	// Defaults to no-op
-	virtual void	setMinValue(LLSD min_value);
-	virtual void	setMaxValue(LLSD max_value);
-
-	/*virtual*/ BOOL focusFirstItem(BOOL prefer_text_fields = FALSE, BOOL focus_flash = TRUE );
+	
+	const LLUICtrl* findRootMostFocusRoot() const;
 
 	class LLTextInputFilter : public LLQueryFilter, public LLSingleton<LLTextInputFilter>
 	{
@@ -165,11 +151,6 @@ public:
 		}
 	};
 
-	// Returns TRUE if the user has modified this control.   Editable controls should override this.
-	virtual BOOL	isDirty() const			{ return FALSE;		};
-	// Clear the dirty state
-	virtual void	resetDirty()			{};
-
 protected:
 
 	void			(*mCommitCallback)( LLUICtrl* ctrl, void* userdata );
@@ -177,13 +158,14 @@ protected:
 	BOOL			(*mValidateCallback)( LLUICtrl* ctrl, void* userdata );
 
 	void*			mCallbackUserData;
-	BOOL			mTentative;
-	BOOL			mTabStop;
 
 private:
+
+	BOOL			mTabStop;
 	BOOL			mIsChrome;
+	BOOL			mTentative;
 
-
+	class DefaultTabGroupFirstSorter;
 };
 
 #endif  // LL_LLUICTRL_H

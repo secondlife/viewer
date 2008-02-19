@@ -307,7 +307,7 @@ void LLPreviewNotecard::loadAsset()
 						// The object that we're trying to look at disappeared, bail.
 						llwarns << "Can't find object " << mObjectUUID << " associated with notecard." << llendl;
 						mAssetID.setNull();
-						editor->setText(childGetText("no_object"));
+						editor->setText(getString("no_object"));
 						editor->makePristine();
 						editor->setEnabled(FALSE);
 						mAssetStatus = PREVIEW_ASSET_LOADED;
@@ -332,7 +332,7 @@ void LLPreviewNotecard::loadAsset()
 		else
 		{
 			mAssetID.setNull();
-			editor->setText(childGetText("not_allowed"));
+			editor->setText(getString("not_allowed"));
 			editor->makePristine();
 			editor->setEnabled(FALSE);
 			mAssetStatus = PREVIEW_ASSET_LOADED;
@@ -654,7 +654,7 @@ void LLPreviewNotecard::reshape(S32 width, S32 height, BOOL called_from_parent)
 	{
 		// So that next time you open a script it will have the same height and width 
 		// (although not the same position).
-		gSavedSettings.setRect("NotecardEditorRect", mRect);
+		gSavedSettings.setRect("NotecardEditorRect", getRect());
 	}
 }
 

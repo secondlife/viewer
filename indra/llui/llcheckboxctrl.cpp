@@ -212,7 +212,7 @@ void LLCheckBoxCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
 
 void LLCheckBoxCtrl::draw()
 {
-	if (mEnabled)
+	if (getEnabled())
 	{
 		mLabel->setColor( mTextEnabledColor );
 	}

@@ -474,12 +474,12 @@ BOOL LLPanelGroupInvite::postBuild()
 {
 	BOOL recurse = TRUE;
 
-	mImplementation->mLoadingText = childGetText("loading");
-	mImplementation->mRoleNames = (LLComboBox*) getChildByName("role_name",
+	mImplementation->mLoadingText = getString("loading");
+	mImplementation->mRoleNames = getChild<LLComboBox>("role_name",
 															   recurse);
-	mImplementation->mGroupName = (LLTextBox*) getChildByName("group_name_text", recurse);
+	mImplementation->mGroupName = getChild<LLTextBox>("group_name_text", recurse);
 	mImplementation->mInvitees = 
-		(LLNameListCtrl*) getChildByName("invitee_list", recurse);
+		getChild<LLNameListCtrl>("invitee_list", recurse);
 	if ( mImplementation->mInvitees )
 	{
 		mImplementation->mInvitees->setCallbackUserData(mImplementation);
@@ -487,7 +487,7 @@ BOOL LLPanelGroupInvite::postBuild()
 		mImplementation->mInvitees->setCommitCallback(impl::callbackSelect);
 	}
 
-	LLButton* button = (LLButton*) getChildByName("add_button", recurse);
+	LLButton* button = getChild<LLButton>("add_button", recurse);
 	if ( button )
 	{
 		// default to opening avatarpicker automatically
@@ -497,7 +497,7 @@ BOOL LLPanelGroupInvite::postBuild()
 	}
 
 	mImplementation->mRemoveButton = 
-			(LLButton*) getChildByName("remove_button", recurse);
+			getChild<LLButton>("remove_button", recurse);
 	if ( mImplementation->mRemoveButton )
 	{
 		mImplementation->mRemoveButton->
@@ -507,7 +507,7 @@ BOOL LLPanelGroupInvite::postBuild()
 	}
 
 	mImplementation->mOKButton = 
-		(LLButton*) getChildByName("ok_button", recurse);
+		getChild<LLButton>("ok_button", recurse);
 	if ( mImplementation->mOKButton )
  	{
 		mImplementation->mOKButton->
@@ -516,7 +516,7 @@ BOOL LLPanelGroupInvite::postBuild()
 		mImplementation->mOKButton->setEnabled(FALSE);
  	}
 
-	button = (LLButton*) getChildByName("cancel_button", recurse);
+	button = getChild<LLButton>("cancel_button", recurse);
 	if ( button )
 	{
 		button->setClickedCallback(impl::callbackClickCancel);

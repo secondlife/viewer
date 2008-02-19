@@ -69,7 +69,7 @@ public:
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
-protected:
+private:
 	LLColor4		mColor;
 	LLString		mImageName;
 	LLUUID			mImageID;

@@ -46,7 +46,7 @@ class LLLineEditor;
 class LLNameEditor;
 class LLPanelAvatar;
 class LLScrollListCtrl;
-class LLTabContainerCommon;
+class LLTabContainer;
 class LLTextBox;
 class LLTextEditor;
 class LLTextureCtrl;
@@ -302,6 +302,7 @@ public:
 	void selectTabByName(std::string tab_name);
 
 	BOOL haveData() { return mHaveProperties && mHaveStatistics; }
+	BOOL isEditable() const { return mAllowEdit; }
 
 	static void processAvatarPropertiesReply(LLMessageSystem *msg, void **);
 	static void processAvatarInterestsReply(LLMessageSystem *msg, void **);
@@ -366,7 +367,7 @@ private:
 	// note is changed from database version
 	bool						mHaveNotes;
 	std::string					mLastNotes;
-	LLTabContainerCommon*		mTab;
+	LLTabContainer*		mTab;
 	BOOL						mAllowEdit;
 
 	typedef std::list<LLPanelAvatar*> panel_list_t;

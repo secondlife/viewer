@@ -607,6 +607,8 @@ BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask
 	x = llround((F32)x / mDisplayScale.mV[VX]);
 	y = llround((F32)y / mDisplayScale.mV[VY]);
 
+	LLView::sMouseHandlerMessage = "";
+
 	if (gDebugClicks)
 	{
 		llinfos << "ViewerWindow left mouse down at " << x << "," << y << llendl;
@@ -684,7 +686,6 @@ BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask
 		if (LLView::sDebugMouseHandling)
 		{
 			llinfos << "Left Mouse Down" << LLView::sMouseHandlerMessage << llendl;
-			LLView::sMouseHandlerMessage = "";
 		}
 		return TRUE;
 	}
@@ -719,6 +720,8 @@ BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK ma
 	S32 y = pos.mY;
 	x = llround((F32)x / mDisplayScale.mV[VX]);
 	y = llround((F32)y / mDisplayScale.mV[VY]);
+
+	LLView::sMouseHandlerMessage = "";
 
 	if (gDebugClicks)
 	{
@@ -768,7 +771,6 @@ BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK ma
 		if (LLView::sDebugMouseHandling)
 		{
 			llinfos << "Left Mouse Down" << LLView::sMouseHandlerMessage << llendl;
-			LLView::sMouseHandlerMessage = "";
 		}
 		return TRUE;
 	}
@@ -801,6 +803,8 @@ BOOL LLViewerWindow::handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 	S32 y = pos.mY;
 	x = llround((F32)x / mDisplayScale.mV[VX]);
 	y = llround((F32)y / mDisplayScale.mV[VY]);
+
+	LLView::sMouseHandlerMessage = "";
 
 	if (gDebugClicks)
 	{
@@ -868,7 +872,6 @@ BOOL LLViewerWindow::handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 		if (handled)
 		{
 			llinfos << "Left Mouse Up" << LLView::sMouseHandlerMessage << llendl;
-			LLView::sMouseHandlerMessage = "";
 		}
 		else 
 		{
@@ -895,6 +898,8 @@ BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK
 	S32 y = pos.mY;
 	x = llround((F32)x / mDisplayScale.mV[VX]);
 	y = llround((F32)y / mDisplayScale.mV[VY]);
+
+	LLView::sMouseHandlerMessage = "";
 
 	if (gDebugClicks)
 	{
@@ -966,7 +971,6 @@ BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK
 		if (LLView::sDebugMouseHandling)
 		{
 			llinfos << "Right Mouse Down" << LLView::sMouseHandlerMessage << llendl;
-			LLView::sMouseHandlerMessage = "";
 		}
 		return TRUE;
 	}
@@ -1007,6 +1011,8 @@ BOOL LLViewerWindow::handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK m
 	S32 y = pos.mY;
 	x = llround((F32)x / mDisplayScale.mV[VX]);
 	y = llround((F32)y / mDisplayScale.mV[VY]);
+
+	LLView::sMouseHandlerMessage = "";
 
 	// Don't care about caps lock for mouse events.
 	if (gDebugClicks)
@@ -1074,7 +1080,6 @@ BOOL LLViewerWindow::handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK m
 		if (handled)
 		{
 			llinfos << "Right Mouse Up" << LLView::sMouseHandlerMessage << llendl;
-			LLView::sMouseHandlerMessage = "";
 		}
 		else 
 		{
@@ -2641,6 +2646,8 @@ BOOL LLViewerWindow::handleUnicodeChar(llwchar uni_char, MASK mask)
 
 void LLViewerWindow::handleScrollWheel(S32 clicks)
 {
+	LLView::sMouseHandlerMessage = "";
+
 	gMouseIdleTimer.reset();
 
 	// Hide tooltips
@@ -2677,7 +2684,6 @@ void LLViewerWindow::handleScrollWheel(S32 clicks)
 		if (LLView::sDebugMouseHandling)
 		{
 			llinfos << "Scroll Wheel" << LLView::sMouseHandlerMessage << llendl;
-			LLView::sMouseHandlerMessage = "";
 		}
 		return;
 	}
@@ -2718,6 +2724,8 @@ void LLViewerWindow::moveCursorToCenter()
 BOOL LLViewerWindow::handlePerFrameHover()
 {
 	static std::string last_handle_msg;
+
+	LLView::sMouseHandlerMessage = "";
 
 	//RN: fix for asynchronous notification of mouse leaving window not working
 	LLCoordWindow mouse_pos;
@@ -2776,23 +2784,23 @@ BOOL LLViewerWindow::handlePerFrameHover()
 		{
 			gFocusMgr.releaseFocusIfNeeded(cur_focus);
 
-			LLView* parent = cur_focus->getParent();
-			LLView* focus_root = cur_focus->findRootMostFocusRoot();
+			LLUICtrl* parent = cur_focus->getParentUICtrl();
+			const LLUICtrl* focus_root = cur_focus->findRootMostFocusRoot();
 			while(parent)
 			{
 				if (parent->isCtrl() && 
-					(((LLUICtrl*)parent)->hasTabStop() || parent == focus_root) && 
-					!((LLUICtrl*)parent)->getIsChrome() && 
+					(parent->hasTabStop() || parent == focus_root) && 
+					!parent->getIsChrome() && 
 					parent->isInVisibleChain() && 
 					parent->isInEnabledChain())
 				{
 					if (!parent->focusFirstItem())
 					{
-						((LLUICtrl*)parent)->setFocus(TRUE);
+						parent->setFocus(TRUE);
 					}
 					break;
 				}
-				parent = parent->getParent();
+				parent = parent->getParentUICtrl();
 			}
 		}
 		else if (cur_focus->isFocusRoot())
@@ -2854,7 +2862,6 @@ BOOL LLViewerWindow::handlePerFrameHover()
 					last_handle_msg = LLView::sMouseHandlerMessage;
 					llinfos << "Hover" << LLView::sMouseHandlerMessage << llendl;
 				}
-				LLView::sMouseHandlerMessage = "";
 				handled = TRUE;
 			}
 			else if (LLView::sDebugMouseHandling)
@@ -3020,7 +3027,7 @@ BOOL LLViewerWindow::handlePerFrameHover()
 		}
 
 		// snap floaters to top of chat bar/button strip
-		LLView* chatbar_and_buttons = gOverlayBar->getChildByName("chatbar_and_buttons", TRUE);
+		LLView* chatbar_and_buttons = gOverlayBar->getChild<LLView>("chatbar_and_buttons", TRUE);
 		if (chatbar_and_buttons)
 		{
 			// convert top/left corner of chatbar/buttons container to gFloaterView-relative coordinates
@@ -3048,9 +3055,9 @@ BOOL LLViewerWindow::handlePerFrameHover()
 	mLastMousePoint = mCurrentMousePoint;
 
 	// last ditch force of edit menu to selection manager
-	if (gEditMenuHandler == NULL && gSelectMgr && gSelectMgr->getSelection()->getObjectCount())
+	if (LLEditMenuHandler::gEditMenuHandler == NULL && gSelectMgr && gSelectMgr->getSelection()->getObjectCount())
 	{
-		gEditMenuHandler = gSelectMgr;
+		LLEditMenuHandler::gEditMenuHandler = gSelectMgr;
 	}
 
 	if (gFloaterView->getCycleMode())

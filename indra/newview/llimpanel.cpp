@@ -438,7 +438,7 @@ void LLVoiceChannel::handleStatusChange(EStatusType type)
 	case STATUS_LOGGED_IN:
 		if (!mLoginNotificationHandle.isDead())
 		{
-			LLNotifyBox* notifyp = (LLNotifyBox*)LLPanel::getPanelByHandle(mLoginNotificationHandle);
+			LLNotifyBox* notifyp = (LLNotifyBox*)mLoginNotificationHandle.get();
 			if (notifyp)
 			{
 				notifyp->close();
@@ -1251,9 +1251,9 @@ BOOL LLFloaterIMPanel::postBuild()
 			childSetEnabled("profile_btn", FALSE);
 		}
 
-		sTitleString = getFormattedUIString("title_string");
-		sTypingStartString = getFormattedUIString("typing_start_string");
-		sSessionStartString = getFormattedUIString("session_start_string");
+		sTitleString = getString("title_string");
+		sTypingStartString = getString("typing_start_string");
+		sSessionStartString = getString("session_start_string");
 
 		if (mSpeakerPanel)
 		{
@@ -1330,12 +1330,12 @@ void LLFloaterIMPanel::draw()
 	if (self_speaker.notNull() && self_speaker->mModeratorMutedText)
 	{
 		mInputEditor->setEnabled(FALSE);
-		mInputEditor->setLabel(getFormattedUIString("muted_text_label"));
+		mInputEditor->setLabel(getString("muted_text_label"));
 	}
 	else
 	{
 		mInputEditor->setEnabled(TRUE);
-		mInputEditor->setLabel(getFormattedUIString("default_text_label"));
+		mInputEditor->setLabel(getString("default_text_label"));
 	}
 
 	if (mAutoConnect && enable_connect)
@@ -1539,7 +1539,7 @@ void LLFloaterIMPanel::selectNone()
 BOOL LLFloaterIMPanel::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 {
 	BOOL handled = FALSE;
-	if( getVisible() && mEnabled && !called_from_parent && gFocusMgr.childHasKeyboardFocus(this))
+	if( getVisible() && getEnabled() && !called_from_parent && gFocusMgr.childHasKeyboardFocus(this))
 	{
 		if( KEY_RETURN == key && mask == MASK_NONE)
 		{
@@ -1926,7 +1926,7 @@ void LLFloaterIMPanel::processSessionUpdate(const LLSD& session_update)
 
 		if (voice_moderated)
 		{
-			setTitle(mSessionLabel + LLString(" ") + getFormattedUIString("moderated_chat_label"));
+			setTitle(mSessionLabel + LLString(" ") + getString("moderated_chat_label"));
 		}
 		else
 		{

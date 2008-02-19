@@ -61,8 +61,9 @@ public:
 	virtual ~LLScrollbar();
 
 	virtual void setValue(const LLSD& value);
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
+
+	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_SCROLLBAR; }
+	virtual LLString getWidgetTag() const { return LL_SCROLLBAR_TAG; }
 
 	// Overrides from LLView
 	virtual BOOL	handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
@@ -71,32 +72,33 @@ public:
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
 	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, 
-		EDragAndDropType cargo_type, void *carge_data, EAcceptance *accept, LLString &tooltip_msg);
+		EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, LLString &tooltip_msg);
 
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 	virtual void	draw();
 
-	void				setDocParams( S32 size, S32 pos );
-
 	// How long the "document" is.
 	void				setDocSize( S32 size );
-	S32					getDocSize()			{ return mDocSize; }
+	S32					getDocSize() const		{ return mDocSize; }
 
 	// How many "lines" the "document" has scrolled.
 	// 0 <= DocPos <= DocSize - DocVisibile
 	void				setDocPos( S32 pos );
-	S32					getDocPos()				{ return mDocPos; }
+	S32					getDocPos() const		{ return mDocPos; }
 
 	BOOL				isAtBeginning();
 	BOOL				isAtEnd();
 
+	// Setting both at once.
+	void				setDocParams( S32 size, S32 pos );
+
 	// How many "lines" of the "document" is can appear on a page.
 	void				setPageSize( S32 page_size );
-	S32					getPageSize()			{ return mPageSize; }
+	S32					getPageSize() const		{ return mPageSize; }
 	
 	// The farthest the document can be scrolled (top of the last page).
-	S32					getDocPosMax()			{ return llmax( 0, mDocSize - mPageSize); }
+	S32					getDocPosMax() const	{ return llmax( 0, mDocSize - mPageSize); }
 
 	void				pageUp(S32 overlap);
 	void				pageDown(S32 overlap);
@@ -110,15 +112,15 @@ public:
 	void setShadowColor( const LLColor4& color ) { mShadowColor = color; }
 
 	void setOnScrollEndCallback(void (*callback)(void*), void* userdata) { mOnScrollEndCallback = callback; mOnScrollEndData = userdata;}
-protected:
+
+private:
 	void				updateThumbRect();
 	void				changeLine(S32 delta, BOOL update_thumb );
 
-protected:
 	void				(*mChangeCallback)( S32 new_pos, LLScrollbar* self, void* userdata );
 	void*				mCallbackUserData;
 
-	ORIENTATION			mOrientation;	
+	const ORIENTATION	mOrientation;	
 	S32					mDocSize;		// Size of the document that the scrollbar is modeling.  Units depend on the user.  0 <= mDocSize.
 	S32					mDocPos;		// Position within the doc that the scrollbar is modeling, in "lines" (user size)
 	S32					mPageSize;		// Maximum number of lines that can be seen at one time.

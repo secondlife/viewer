@@ -427,8 +427,8 @@ void LLHorizontalCompass::draw()
 
 	LLGLSUIDefault gls_ui;
 	
-	S32 width = mRect.getWidth();
-	S32 height = mRect.getHeight();
+	S32 width = getRect().getWidth();
+	S32 height = getRect().getHeight();
 	S32 half_width = width / 2;
 
 	if( mTexture )

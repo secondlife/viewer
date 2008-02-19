@@ -919,37 +919,25 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 		gFloaterMute->selectMute(blocked_id);
 	}
 
-	// purge the offer queue of any previously queued inventory offers from the same source.
-	LLView::child_list_t notification_queue(*(gNotifyBoxView->getChildList()));
-	for(LLView::child_list_iter_t iter = notification_queue.begin();
-		iter != notification_queue.end();
-		iter++)
+	// purge the message queue of any previously queued inventory offers from the same source.
+	class OfferMatcher : public LLNotifyBoxView::Matcher
 	{
-		LLNotifyBox* notification = (LLNotifyBox*)*iter;
-		// scan for other inventory offers (i.e. ignore other types of notifications).
-		// we can tell by looking for the associated callback they were created with.
-		if(notification->getNotifyCallback() == inventory_offer_callback)
+	public:
+		OfferMatcher(const LLUUID& to_block) : blocked_id(to_block) {}
+		BOOL matches(LLNotifyBox::notify_callback_t callback, void* cb_data) const
 		{
-			// found one.
-			// safe to downcast user data because we know it's associated with offer callback.
-			LLOfferInfo* offer_data = (LLOfferInfo*)notification->getUserData();
-			if(offer_data == user_data)
-			{
-				continue; // don't remove the msg triggering us. it will be dequeued normally.
-			}
-			if(offer_data->mFromID == blocked_id) 
-			{
-				gNotifyBoxView->removeChild(notification);
-			}
+			return callback == inventory_offer_callback && ((LLOfferInfo*)cb_data)->mFromID == blocked_id;
 		}
-	}
+	private:
+		const LLUUID& blocked_id;
+	};
+	gNotifyBoxView->purgeMessagesMatching(OfferMatcher(blocked_id));
 }
 
 void inventory_offer_callback(S32 button, void* user_data)
  {
 	LLChat chat;
 	LLString log_message;
-
 	LLOfferInfo* info = (LLOfferInfo*)user_data;
 	if(!info) return;
 
@@ -997,7 +985,7 @@ void inventory_offer_callback(S32 button, void* user_data)
 	{
 		if (info->mFromGroup)
 		{
-			char group_name[MAX_STRING];		/* Flawfinder: ignore */
+			std::string group_name;
 			if (gCacheName->getGroupName(info->mFromID, group_name))
 			{
 				from_string = LLString("An object named '") + info->mFromName + "' owned by the group '" + group_name + "'";
@@ -1011,8 +999,7 @@ void inventory_offer_callback(S32 button, void* user_data)
 		}
 		else
 		{
-			char first_name[MAX_STRING];		/* Flawfinder: ignore */
-			char last_name[MAX_STRING];		/* Flawfinder: ignore */
+			std::string first_name, last_name;
 			if (gCacheName->getName(info->mFromID, first_name, last_name))
 			{
 				from_string = LLString("An object named '") + info->mFromName + "' owned by " + first_name + " " + last_name;
@@ -1213,19 +1200,19 @@ void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
 	// Name cache callbacks don't store userdata, so can't save
 	// off the LLOfferInfo.  Argh.  JC
 	BOOL name_found = FALSE;
-	char first_name[MAX_STRING];		/* Flawfinder: ignore */
-	char last_name[MAX_STRING];		/* Flawfinder: ignore */
 	if (info->mFromGroup)
 	{
-		if (gCacheName->getGroupName(info->mFromID, first_name))
+		std::string group_name;
+		if (gCacheName->getGroupName(info->mFromID, group_name))
 		{
-			args["[FIRST]"] = first_name;
+			args["[FIRST]"] = group_name;
 			args["[LAST]"] = "";
 			name_found = TRUE;
 		}
 	}
 	else
 	{
+		std::string first_name, last_name;
 		if (gCacheName->getName(info->mFromID, first_name, last_name))
 		{
 			args["[FIRST]"] = first_name;
@@ -4413,9 +4400,23 @@ void script_question_cb(S32 option, void* user_data)
 		notify_cautioned_script_question(cbdata, orig, allowed);
 	}
 
-	if ( option == 2 )
+	if ( option == 2 ) // mute
 	{
 		gMuteListp->add(LLMute(cbdata->mItemID, cbdata->mObjectName, LLMute::OBJECT));
+
+		// purge the message queue of any previously queued requests from the same source. DEV-4879
+		class OfferMatcher : public LLNotifyBoxView::Matcher
+		{
+		public:
+			OfferMatcher(const LLUUID& to_block) : blocked_id(to_block) {}
+			BOOL matches(LLNotifyBox::notify_callback_t callback, void* cb_data) const
+			{
+				return callback == script_question_cb && ((LLScriptQuestionCBData*)cb_data)->mItemID == blocked_id;
+			}
+		private:
+			const LLUUID& blocked_id;
+		};
+		gNotifyBoxView->purgeMessagesMatching(OfferMatcher(cbdata->mItemID));
 	}
 	delete cbdata;
 }

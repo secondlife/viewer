@@ -158,7 +158,7 @@ LLFloaterIM::LLFloaterIM()
 
 BOOL LLFloaterIM::postBuild()
 {
-	sOnlyUserMessage = getFormattedUIString("only_user_message");
+	sOnlyUserMessage = getString("only_user_message");
 	sOfflineMessage = getUIString("offline_message");
 
 	sInviteMessage = getUIString("invite_message");
@@ -166,75 +166,75 @@ BOOL LLFloaterIM::postBuild()
 	if ( sErrorStringsMap.find("generic") == sErrorStringsMap.end() )
 	{
 		sErrorStringsMap["generic"] =
-			getFormattedUIString("generic_request_error");
+			getString("generic_request_error");
 	}
 
 	if ( sErrorStringsMap.find("unverified") ==
 		 sErrorStringsMap.end() )
 	{
 		sErrorStringsMap["unverified"] =
-			getFormattedUIString("insufficient_perms_error");
+			getString("insufficient_perms_error");
 	}
 
 	if ( sErrorStringsMap.end() ==
 		 sErrorStringsMap.find("no_ability") )
 	{
 		sErrorStringsMap["no_ability"] =
-			getFormattedUIString("no_ability_error");
+			getString("no_ability_error");
 	}
 
 	if ( sErrorStringsMap.end() ==
 		 sErrorStringsMap.find("muted") )
 	{
 		sErrorStringsMap["muted"] =
-			getFormattedUIString("muted_error");
+			getString("muted_error");
 	}
 
 	if ( sErrorStringsMap.end() ==
 		 sErrorStringsMap.find("not_a_moderator") )
 	{
 		sErrorStringsMap["not_a_moderator"] =
-			getFormattedUIString("not_a_mod_error");
+			getString("not_a_mod_error");
 	}
 
 	if ( sErrorStringsMap.end() ==
 		 sErrorStringsMap.find("does not exist") )
 	{
 		sErrorStringsMap["does not exist"] =
-			getFormattedUIString("session_does_not_exist_error");
+			getString("session_does_not_exist_error");
 	}
 
 	if ( sEventStringsMap.end() == sEventStringsMap.find("add") )
 	{
 		sEventStringsMap["add"] =
-			getFormattedUIString("add_session_event");
+			getString("add_session_event");
 	}
 
 	if ( sEventStringsMap.end() == sEventStringsMap.find("message") )
 	{
 		sEventStringsMap["message"] =
-			getFormattedUIString("message_session_event");
+			getString("message_session_event");
 	}
 
 
 	if ( sEventStringsMap.end() == sEventStringsMap.find("mute") )
 	{
-		sEventStringsMap["mute"] = getFormattedUIString(
-			"mute_agent_event");
+		sEventStringsMap["mute"] =
+			getString("mute_agent_event");
 	}
 
 	if ( sForceCloseSessionMap.end() ==
 		 sForceCloseSessionMap.find("removed") )
 	{
 		sForceCloseSessionMap["removed"] =
-			getFormattedUIString("removed_from_group");
+			getString("removed_from_group");
 	}
 
 	if ( sForceCloseSessionMap.end() ==
 		 sForceCloseSessionMap.find("no ability") )
 	{
 		sForceCloseSessionMap["no ability"] =
-			getFormattedUIString("close_on_no_ability");
+			getString("close_on_no_ability");
 	}
 
 	return TRUE;
@@ -1015,12 +1015,12 @@ BOOL LLIMMgr::getFloaterOpen()
 void LLIMMgr::disconnectAllSessions()
 {
 	LLFloaterIMPanel* floater = NULL;
-	std::set<LLViewHandle>::iterator handle_it;
+	std::set<LLHandle<LLFloater> >::iterator handle_it;
 	for(handle_it = mFloaters.begin();
 		handle_it != mFloaters.end();
 		)
 	{
-		floater = (LLFloaterIMPanel*)LLFloater::getFloaterByHandle(*handle_it);
+		floater = (LLFloaterIMPanel*)handle_it->get();
 
 		// MUST do this BEFORE calling floater->onClose() because that may remove the item from the set, causing the subsequent increment to crash.
 		++handle_it;
@@ -1040,12 +1040,12 @@ void LLIMMgr::disconnectAllSessions()
 LLFloaterIMPanel* LLIMMgr::findFloaterBySession(const LLUUID& session_id)
 {
 	LLFloaterIMPanel* rv = NULL;
-	std::set<LLViewHandle>::iterator handle_it;
+	std::set<LLHandle<LLFloater> >::iterator handle_it;
 	for(handle_it = mFloaters.begin();
 		handle_it != mFloaters.end();
 		++handle_it)
 	{
-		rv = (LLFloaterIMPanel*)LLFloater::getFloaterByHandle(*handle_it);
+		rv = (LLFloaterIMPanel*)handle_it->get();
 		if(rv && session_id == rv->getSessionID())
 		{
 			break;
@@ -1171,7 +1171,7 @@ LLFloaterIMPanel* LLIMMgr::createFloater(
 													 session_id,
 													 other_participant_id,
 													 dialog);
-	LLTabContainerCommon::eInsertionPoint i_pt = user_initiated ? LLTabContainerCommon::RIGHT_OF_CURRENT : LLTabContainerCommon::END;
+	LLTabContainer::eInsertionPoint i_pt = user_initiated ? LLTabContainer::RIGHT_OF_CURRENT : LLTabContainer::END;
 	LLFloaterChatterBox::getInstance(LLSD())->addFloater(floater, FALSE, i_pt);
 	mFloaters.insert(floater->getHandle());
 	return floater;
@@ -1197,7 +1197,7 @@ LLFloaterIMPanel* LLIMMgr::createFloater(
 													 other_participant_id,
 													 ids,
 													 dialog);
-	LLTabContainerCommon::eInsertionPoint i_pt = user_initiated ? LLTabContainerCommon::RIGHT_OF_CURRENT : LLTabContainerCommon::END;
+	LLTabContainer::eInsertionPoint i_pt = user_initiated ? LLTabContainer::RIGHT_OF_CURRENT : LLTabContainer::END;
 	LLFloaterChatterBox::getInstance(LLSD())->addFloater(floater, FALSE, i_pt);
 	mFloaters.insert(floater->getHandle());
 	return floater;
@@ -1219,8 +1219,7 @@ void LLIMMgr::noteOfflineUsers(
 		for(S32 i = 0; i < count; ++i)
 		{
 			info = at.getBuddyInfo(ids.get(i));
-			char first[DB_FIRST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
-			char last[DB_LAST_NAME_BUF_SIZE];		/*Flawfinder: ignore*/
+			std::string first, last;
 			if(info && !info->isOnline()
 			   && gCacheName->getName(ids.get(i), first, last))
 			{
@@ -1628,3 +1627,4 @@ LLHTTPRegistration<LLViewerChatterBoxSessionUpdate>
 LLHTTPRegistration<LLViewerChatterBoxInvitation>
     gHTTPRegistrationMessageChatterBoxInvitation(
 		"/message/ChatterBoxInvitation");
+

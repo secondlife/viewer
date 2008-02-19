@@ -73,7 +73,7 @@ protected:
 	static LLFloaterOpenObject* sInstance;
 
 	LLPanelInventory*	mPanelInventory;
-	LLHandle<LLObjectSelection> mObjectSelection;
+	LLSafeHandle<LLObjectSelection> mObjectSelection;
 	BOOL mDirty;
 };
 

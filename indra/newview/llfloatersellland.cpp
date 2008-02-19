@@ -244,13 +244,7 @@ void LLFloaterSellLandUI::updateParcelInfo()
 	if(mSellToBuyer)
 	{
 		LLString name;
-		char firstname[MAX_STRING];		/* Flawfinder: ignore */
-		char lastname[MAX_STRING];		/* Flawfinder: ignore */
-		gCacheName->getName(mAuthorizedBuyer, firstname, lastname);
-		name.assign(firstname);
-		name.append(" ");
-		name.append(lastname);
-
+		gCacheName->getFullName(mAuthorizedBuyer, name);
 		childSetText("sell_to_agent", name);
 	}
 }

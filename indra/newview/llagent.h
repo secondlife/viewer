@@ -117,6 +117,8 @@ inline bool operator==(const LLGroupData &a, const LLGroupData &b)
 
 class LLAgent : public LLObservable
 {
+	LOG_CLASS(LLAgent);
+	
 public:
 	// When the agent hasn't typed anything for this duration, it leaves the 
 	// typing state (for both chat and IM).

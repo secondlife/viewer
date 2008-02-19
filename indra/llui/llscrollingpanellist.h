@@ -35,30 +35,31 @@
 #include "llview.h"
 #include "llpanel.h"
 
-// virtual class for scrolling panels
+/*
+ * Pure virtual class represents a scrolling panel.
+ */
 class LLScrollingPanel : public LLPanel
 {
 public:
-	LLScrollingPanel(const LLString& name, const LLRect& rect)
-		: LLPanel(name, rect)
-	{
-	}
+	LLScrollingPanel(const LLString& name, const LLRect& rect) : LLPanel(name, rect) { }
 	virtual void updatePanel(BOOL allow_modify) = 0;
-	
 };
-	
-// A set of panels that are displayed in a vertical sequence inside a scroll container.
+
+
+/*
+ * A set of panels that are displayed in a vertical sequence inside a scroll container.
+ */
 class LLScrollingPanelList : public LLUICtrl
 {
 public:
 	LLScrollingPanelList(const LLString& name, const LLRect& rect)
 		:	LLUICtrl(name, rect, TRUE, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_BOTTOM ) {}
 
-	virtual void setValue(const LLSD& value);
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
+	virtual void setValue(const LLSD& value) {};
+	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_SCROLLING_PANEL_LIST; }
+	virtual LLString getWidgetTag() const { return LL_SCROLLING_PANEL_LIST_TAG; }
 
-	virtual LLXMLNodePtr getXML(bool save_children) const;
+	virtual LLXMLNodePtr getXML(bool save_children) const { return LLUICtrl::getXML(); }
 	
 	virtual void		draw();
 
@@ -68,9 +69,8 @@ public:
 
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 	
-protected:
+private:
 	void				updatePanelVisiblilty();
 
-protected:
 	std::deque<LLScrollingPanel*> mPanelList;
 };

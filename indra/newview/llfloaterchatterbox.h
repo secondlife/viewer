@@ -36,32 +36,12 @@
 
 #include "llfloater.h"
 #include "llstring.h"
+#include "llimview.h"
+#include "llimpanel.h"
 
-class LLTabContainerCommon;
+class LLTabContainer;
 
-class LLFloaterMyFriends : public LLFloater, public LLUISingleton<LLFloaterMyFriends>
-{
-public:
-	LLFloaterMyFriends(const LLSD& seed);
-	virtual ~LLFloaterMyFriends();
-
-	virtual BOOL postBuild();
-
-	void onClose(bool app_quitting);
-
-	// override LLUISingleton behavior
-	static LLFloaterMyFriends* showInstance(const LLSD& id = LLSD());
-	static void hideInstance(const LLSD& id);
-	static BOOL instanceVisible(const LLSD& id);
-
-	static void* createFriendsPanel(void* data);
-	static void* createGroupsPanel(void* data);
-
-protected:
-	LLTabContainerCommon* mTabs;
-};
-
-class LLFloaterChatterBox : public LLMultiFloater, public LLUISingleton<LLFloaterChatterBox>
+class LLFloaterChatterBox : public LLMultiFloater, public LLUISingleton<LLFloaterChatterBox, LLFloaterChatterBox>
 {
 public:
 	LLFloaterChatterBox(const LLSD& seed);
@@ -75,16 +55,103 @@ public:
 	/*virtual*/ void removeFloater(LLFloater* floaterp);
 	/*virtual*/ void addFloater(LLFloater* floaterp, 
 								BOOL select_added_floater, 
-								LLTabContainerCommon::eInsertionPoint insertion_point = LLTabContainerCommon::END);
-
-	static LLFloaterChatterBox* showInstance(const LLSD& seed = LLSD());
-	static BOOL instanceVisible(const LLSD& seed);
+								LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
 
 	static LLFloater* getCurrentVoiceFloater();
+	
+	// visibility policy for LLUISingleton
+	static bool visible(LLFloater* instance, const LLSD& key)
+	{
+		LLFloater* floater_to_check = ((LLFloaterChatterBox*)instance)->getFloater(key);
+
+		if (floater_to_check)
+		{
+			return floater_to_check->isInVisibleChain();
+		}
+
+		// otherwise use default visibility rule for chatterbox
+		return VisibilityPolicy<LLFloater>::visible(instance, key);
+	}
+
+	static void show(LLFloater* instance, const LLSD& key)
+	{
+		LLFloater* floater_to_show = ((LLFloaterChatterBox*)instance)->getFloater(key);
+		VisibilityPolicy<LLFloater>::show(instance, key);
+
+		if (floater_to_show)
+		{
+			floater_to_show->open();
+		}
+	}
+
+	static void hide(LLFloater* instance, const LLSD& key)
+	{
+		VisibilityPolicy<LLFloater>::hide(instance, key);
+	}
+
+private:
+	LLFloater* getFloater(const LLSD& key)
+	{
+		LLFloater* floater = NULL;
+
+		//try to show requested session
+		LLUUID session_id = key.asUUID();
+		if (session_id.notNull())
+		{
+			floater = LLIMMgr::getInstance()->findFloaterBySession(session_id);
+		}
+
+		// if TRUE, show tab for active voice channel, otherwise, just show last tab
+		if (key.asBoolean())
+		{
+			floater = getCurrentVoiceFloater();
+		}
+
+		return floater;
+	}
 
 protected:
 	LLFloater* mActiveVoiceFloater;
 };
 
+
+class LLFloaterMyFriends : public LLFloater, public LLUISingleton<LLFloaterMyFriends, LLFloaterMyFriends>
+{
+public:
+	LLFloaterMyFriends(const LLSD& seed);
+	virtual ~LLFloaterMyFriends();
+
+	virtual BOOL postBuild();
+
+	void onClose(bool app_quitting);
+
+	static void* createFriendsPanel(void* data);
+	static void* createGroupsPanel(void* data);
+
+	// visibility policy for LLUISingleton
+	static bool visible(LLFloater* instance, const LLSD& key)
+	{
+		LLFloaterMyFriends* floaterp = (LLFloaterMyFriends*)instance;
+		return floaterp->isInVisibleChain() && floaterp->mTabs->getCurrentPanelIndex() == key.asInteger();
+	}
+
+	static void show(LLFloater* instance, const LLSD& key)
+	{
+		VisibilityPolicy<LLFloater>::show(instance, key);
+		// garbage values in id will be interpreted as 0, or the friends tab
+		((LLFloaterMyFriends*)instance)->mTabs->selectTab(key);
+	}
+
+	static void hide(LLFloater* instance, const LLSD& key)
+	{
+		if (visible(instance, key))
+		{
+			LLFloaterChatterBox::hideInstance();
+		}
+	}
+
+protected:
+	LLTabContainer* mTabs;
+};
 
 #endif // LL_LLFLOATERCHATTERBOX_H

@@ -108,7 +108,7 @@ public:
 
 	// This method should be called when a drag begins. returns TRUE
 	// if the drag can begin, otherwise FALSE.
-	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) = 0;
+	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const = 0;
 
 	// This method will be called to determine if a drop can be
 	// performed, and will set drop to TRUE if a drop is
@@ -465,11 +465,14 @@ public:
 	// Used for sorting, like getLabel() above.
 	virtual U32 getCreationDate() const { return mCreationDate; }
 	
-	LLFolderViewFolder* getParentFolder( void );
+	LLFolderViewFolder* getParentFolder( void ) { return mParentFolder; }
+	const LLFolderViewFolder* getParentFolder( void ) const { return mParentFolder; }
+	
 	LLFolderViewItem* getNextOpenNode( BOOL include_children = TRUE );
 	LLFolderViewItem* getPreviousOpenNode( BOOL include_children = TRUE );
 
-	LLFolderViewEventListener* getListener( void );
+	const LLFolderViewEventListener* getListener( void ) const { return mListener; }
+	LLFolderViewEventListener* getListener( void ) { return mListener; }
 
 	// just rename the object.
 	void rename(const LLString& new_name);
@@ -803,16 +806,16 @@ public:
 
 	// copy & paste
 	virtual void	copy();
-	virtual BOOL	canCopy();
+	virtual BOOL	canCopy() const;
 
 	virtual void	cut();
-	virtual BOOL	canCut();
+	virtual BOOL	canCut() const;
 
 	virtual void	paste();
-	virtual BOOL	canPaste();
+	virtual BOOL	canPaste() const;
 
 	virtual void	doDelete();
-	virtual BOOL	canDoDelete();
+	virtual BOOL	canDoDelete() const;
 
 	// public rename functionality - can only start the process
 	void startRenamingSelectedItem( void );
@@ -885,7 +888,7 @@ protected:
 	void revertRenamingItem( void );
 
 protected:
-	LLViewHandle					mPopupMenuHandle;
+	LLHandle<LLView>					mPopupMenuHandle;
 	
 	typedef std::deque<LLFolderViewItem*> selected_items_t;
 	selected_items_t				mSelectedItems;
@@ -920,7 +923,7 @@ protected:
 
 	void*							mUserData;
 	SelectCallback					mSelectCallback;
-	BOOL							mSelectionChanged;
+	S32								mSignalSelectCallback;
 	S32								mMinWidth;
 	std::map<LLUUID, LLFolderViewItem*> mItemMap;
 	BOOL							mDragAndDropThisFrame;

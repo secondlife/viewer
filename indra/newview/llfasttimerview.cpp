@@ -286,7 +286,7 @@ BOOL LLFastTimerView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 S32 LLFastTimerView::getLegendIndex(S32 y)
 {
-	S32 idx = (mRect.getHeight() - y) / ((S32) LLFontGL::sMonospace->getLineHeight()+2) - 5;
+	S32 idx = (getRect().getHeight() - y) / ((S32) LLFontGL::sMonospace->getLineHeight()+2) - 5;
 	if (idx >= 0 && idx < FTV_DISPLAY_NUM)
 	{
 		return ft_display_idx[idx];
@@ -415,7 +415,8 @@ void LLFastTimerView::draw()
 	S32 height = (S32) (gViewerWindow->getVirtualWindowRect().getHeight()*0.75f);
 	S32 width = (S32) (gViewerWindow->getVirtualWindowRect().getWidth() * 0.75f);
 	
-	mRect.setLeftTopAndSize(mRect.mLeft, mRect.mTop, width, height);
+	// HACK: casting away const. Should use setRect or some helper function instead.
+		const_cast<LLRect&>(getRect()).setLeftTopAndSize(getRect().mLeft, getRect().mTop, width, height);
 
 	S32 left, top, right, bottom;
 	S32 x, y, barw, barh, dx, dy;
@@ -461,7 +462,7 @@ void LLFastTimerView::draw()
 	// Draw the window background
 	{
 		LLGLSNoTexture gls_ui_no_texture;
-		gl_rect_2d(0, mRect.getHeight(), mRect.getWidth(), 0, LLColor4(0.f, 0.f, 0.f, 0.25f));
+		gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, LLColor4(0.f, 0.f, 0.f, 0.25f));
 	}
 	
 	S32 xleft = margin;
@@ -642,7 +643,7 @@ void LLFastTimerView::draw()
 
 	// update rectangle that includes timer bars
 	mBarRect.mLeft = xleft;
-	mBarRect.mRight = mRect.mRight - xleft;
+	mBarRect.mRight = getRect().mRight - xleft;
 	mBarRect.mTop = ytop - ((S32)LLFontGL::sMonospace->getLineHeight() + 4);
 	mBarRect.mBottom = margin + LINE_GRAPH_HEIGHT;
 
@@ -760,29 +761,29 @@ void LLFastTimerView::draw()
 			y -= ((S32)LLFontGL::sMonospace->getLineHeight() + 4);
 
 			//heading
-			gl_rect_2d(xleft-5, by, mRect.getWidth()-5, y+5, FALSE);
+			gl_rect_2d(xleft-5, by, getRect().getWidth()-5, y+5, FALSE);
 
 			//tree view
 			gl_rect_2d(5, by, xleft-10, 5, FALSE);
 
 			by = y + 5;
 			//average bar
-			gl_rect_2d(xleft-5, by, mRect.getWidth()-5, by-barh-dy-5, FALSE);
+			gl_rect_2d(xleft-5, by, getRect().getWidth()-5, by-barh-dy-5, FALSE);
 			
 			by -= barh*2+dy;
 			
 			//current frame bar
-			gl_rect_2d(xleft-5, by, mRect.getWidth()-5, by-barh-dy-2, FALSE);
+			gl_rect_2d(xleft-5, by, getRect().getWidth()-5, by-barh-dy-2, FALSE);
 			
 			by -= barh+dy+1;
 			
 			//history bars
-			gl_rect_2d(xleft-5, by, mRect.getWidth()-5, LINE_GRAPH_HEIGHT-barh-dy-2, FALSE);			
+			gl_rect_2d(xleft-5, by, getRect().getWidth()-5, LINE_GRAPH_HEIGHT-barh-dy-2, FALSE);			
 			
 			by = LINE_GRAPH_HEIGHT-barh-dy-7;
 			
 			//line graph
-			graph_rect = LLRect(xleft-5, by, mRect.getWidth()-5, 5);
+			graph_rect = LLRect(xleft-5, by, getRect().getWidth()-5, 5);
 			
 			gl_rect_2d(graph_rect, FALSE);
 		}

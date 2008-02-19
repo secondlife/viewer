@@ -590,13 +590,13 @@ void LLViewerParcelMgr::deselectLand()
 
 		mSelectedDwell = 0.f;
 
-		notifyObservers();
-
 		// invalidate parcel selection so that existing users of this selection can clean up
 		mCurrentParcelSelection->setParcel(NULL);
 		mFloatingParcelSelection->setParcel(NULL);
 		// create new parcel selection
 		mCurrentParcelSelection = new LLParcelSelection(mCurrentParcel);
+
+		notifyObservers(); // Notify observers *after* changing the parcel selection
 	}
 }
 
@@ -1968,17 +1968,14 @@ void LLViewerParcelMgr::sendParcelAccessListUpdate(U32 which)
 
 void LLViewerParcelMgr::deedLandToGroup()
 {
-	char group_name[MAX_STRING];		/* Flawfinder: ignore */
+	std::string group_name;
 	gCacheName->getGroupName(mCurrentParcel->getGroupID(), group_name);
 	LLString::format_map_t args;
 	args["[AREA]"] = llformat("%d", mCurrentParcel->getArea());
 	args["[GROUP_NAME]"] = group_name;
 	if(mCurrentParcel->getContributeWithDeed())
 	{
-		char first_name[DB_FIRST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-		first_name[0] = '\0';
-		char last_name[DB_FIRST_NAME_BUF_SIZE];		/* Flawfinder: ignore */
-		last_name[0] = '\0';		
+		std::string first_name, last_name;
 		gCacheName->getName(mCurrentParcel->getOwnerID(), first_name, last_name);
 		args["[FIRST_NAME]"] = first_name;
 		args["[LAST_NAME]"] = last_name;

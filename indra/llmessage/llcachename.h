@@ -76,12 +76,15 @@ public:
 	// If not available, copies the string "waiting".
 	// Returns TRUE iff available.
 	BOOL getName(const LLUUID& id, char* first, char* last);
+	BOOL getName(const LLUUID& id, std::string& first, std::string& last);
+	BOOL getFullName(const LLUUID& id, std::string& fullname);
 	
 	// If available, this method copies the group name into the string
 	// provided. The caller must allocate at least
 	// DB_GROUP_NAME_BUF_SIZE characters. If not available, this
 	// method copies the string "waiting". Returns TRUE iff available.
 	BOOL getGroupName(const LLUUID& id, char* group);
+	BOOL getGroupName(const LLUUID& id, std::string& group);
 
 	// Call the callback with the group or avatar name.
 	// If the data is currently available, may call the callback immediatly

@@ -27,11 +27,11 @@ static LLFloaterURLEntry* sInstance = NULL;
 class LLMediaTypeResponder : public LLHTTPClient::Responder
 {
 public:
-	LLMediaTypeResponder( LLViewHandle parent ) :
+	LLMediaTypeResponder( const LLHandle<LLFloater> parent ) :
 	  mParent( parent )
 	  {}
 
-	  LLViewHandle mParent;
+	  LLHandle<LLFloater> mParent;
 
 
 	  virtual void completedHeader(U32 status, const std::string& reason, const LLSD& content)
@@ -49,8 +49,7 @@ public:
 
 	  void completeAny(U32 status, const std::string& mime_type)
 	  {
-		  LLFloaterURLEntry* floater_url_entry =
-			  (LLFloaterURLEntry*)LLFloater::getFloaterByHandle(mParent);
+		  LLFloaterURLEntry* floater_url_entry = (LLFloaterURLEntry*)mParent.get();
 		  if ( floater_url_entry )
 			  floater_url_entry->headerFetchComplete( status, mime_type );
 	  }
@@ -59,7 +58,7 @@ public:
 //-----------------------------------------------------------------------------
 // LLFloaterURLEntry()
 //-----------------------------------------------------------------------------
-LLFloaterURLEntry::LLFloaterURLEntry(LLViewHandle parent)
+LLFloaterURLEntry::LLFloaterURLEntry(LLHandle<LLPanel> parent)
 	:
 	LLFloater(),
 	mPanelLandMediaHandle(parent)
@@ -119,7 +118,7 @@ void LLFloaterURLEntry::buildURLHistory()
 
 void LLFloaterURLEntry::headerFetchComplete(U32 status, const std::string& mime_type)
 {
-	LLPanelLandMedia* panel_media = (LLPanelLandMedia*)LLPanel::getPanelByHandle(mPanelLandMediaHandle);
+	LLPanelLandMedia* panel_media = (LLPanelLandMedia*)mPanelLandMediaHandle.get();
 	if (panel_media)
 	{
 		// status is ignored for now -- error = "none/none"
@@ -133,7 +132,7 @@ void LLFloaterURLEntry::headerFetchComplete(U32 status, const std::string& mime_
 }
 
 // static
-LLViewHandle LLFloaterURLEntry::show(LLViewHandle parent)
+LLHandle<LLFloater> LLFloaterURLEntry::show(LLHandle<LLPanel> parent)
 {
 	if (sInstance)
 	{
@@ -149,7 +148,7 @@ LLViewHandle LLFloaterURLEntry::show(LLViewHandle parent)
 
 void LLFloaterURLEntry::updateFromLandMediaPanel()
 {
-	LLPanelLandMedia* panel_media = (LLPanelLandMedia*)LLPanel::getPanelByHandle(mPanelLandMediaHandle);
+	LLPanelLandMedia* panel_media = (LLPanelLandMedia*)mPanelLandMediaHandle.get();
 	if (panel_media)
 	{
 		std::string media_url = panel_media->getMediaURL();

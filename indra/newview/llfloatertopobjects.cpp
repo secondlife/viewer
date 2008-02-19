@@ -207,7 +207,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 		LLSD element;
 		element["id"] = LLUUID::null;
 		element["columns"][0]["column"] = "name";
-		element["columns"][0]["value"] = childGetText("none_descriptor");
+		element["columns"][0]["value"] = getString("none_descriptor");
 		element["columns"][0]["font"] = "SANSSERIF";
 
 		list->addElement(element);
@@ -219,19 +219,19 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 
 	if (mCurrentMode == STAT_REPORT_TOP_SCRIPTS)
 	{
-		setTitle(childGetText("top_scripts_title"));
-		list->setColumnLabel("score", childGetText("scripts_score_label"));
+		setTitle(getString("top_scripts_title"));
+		list->setColumnLabel("score", getString("scripts_score_label"));
 		
-		LLUIString format = childGetText("top_scripts_text");
+		LLUIString format = getString("top_scripts_text");
 		format.setArg("[COUNT]", llformat("%d", total_count));
 		format.setArg("[TIME]", llformat("%0.1f", mtotalScore));
 		childSetValue("title_text", LLSD(format));
 	}
 	else
 	{
-		setTitle(childGetText("top_colliders_title"));
-		list->setColumnLabel("score", childGetText("colliders_score_label"));
-		LLUIString format = childGetText("top_colliders_text");
+		setTitle(getString("top_colliders_title"));
+		list->setColumnLabel("score", getString("colliders_score_label"));
+		LLUIString format = getString("top_colliders_text");
 		format.setArg("[COUNT]", llformat("%d", total_count));
 		childSetValue("title_text", LLSD(format));
 	}

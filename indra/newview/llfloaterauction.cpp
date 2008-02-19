@@ -123,7 +123,7 @@ void LLFloaterAuction::initialize()
 		mParcelHost.invalidate();
 		if(parcelp && parcelp->getForSale())
 		{
-			childSetText("parcel_text", childGetText("already for sale"));
+			childSetText("parcel_text", getString("already for sale"));
 		}
 		else
 		{

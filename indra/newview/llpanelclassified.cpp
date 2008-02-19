@@ -144,7 +144,7 @@ public:
 LLClassifiedTeleportHandler gClassifiedTeleportHandler;
 */
 
-LLPanelClassified::LLPanelClassified(BOOL in_finder, bool from_search)
+LLPanelClassified::LLPanelClassified(bool in_finder, bool from_search)
 :	LLPanel("Classified Panel"),
 	mInFinder(in_finder),
 	mFromSearch(from_search),
@@ -241,7 +241,7 @@ BOOL LLPanelClassified::postBuild()
 	mDescEditor->setFocusReceivedCallback(onFocusReceived, this);
 	mDescEditor->setCommitCallback(onCommitAny);
 	mDescEditor->setCallbackUserData(this);
-	mDescEditor->setTabToNextField(TRUE);
+	mDescEditor->setTabsToNextField(TRUE);
 
     mLocationEditor = LLViewerUICtrlFactory::getLineEditorByName(this, "location_editor");
 
@@ -403,13 +403,7 @@ void LLPanelClassified::initNewClassified()
 		mCategoryCombo->setCurrentByIndex(0);
 	}
 
-	// default new classifieds to publish
-	//mEnabledCheck->set(TRUE);
-
-	// delay commit until user hits save
-	// sendClassifiedInfoUpdate();
-
-	mUpdateBtn->setLabel(childGetText("publish_txt"));
+	mUpdateBtn->setLabel(getString("publish_txt"));
 }
 
 
@@ -502,7 +496,7 @@ void LLPanelClassified::sendClassifiedInfoRequest()
 		if (!url.empty())
 		{
 			llinfos << "Classified stat request via capability" << llendl;
-			LLHTTPClient::post(url, body, new LLClassifiedStatsResponder(this->getHandle(), mClassifiedID));
+			LLHTTPClient::post(url, body, new LLClassifiedStatsResponder(((LLView*)this)->getHandle(), mClassifiedID));
 		}
 	}
 }
@@ -539,8 +533,6 @@ void LLPanelClassified::sendClassifiedInfoUpdate()
 	msg->addUUIDFast(_PREHASH_SnapshotID, mSnapshotCtrl->getImageAssetID());
 	msg->addVector3dFast(_PREHASH_PosGlobal, mPosGlobal);
 	BOOL mature = mMatureCheck->get();
-	// Classifieds are always enabled/published 11/2005 JC
-	//BOOL enabled = mEnabledCheck->get();
 	BOOL auto_renew = FALSE;
 	if (mAutoRenewCheck) 
 	{
@@ -671,14 +663,15 @@ void LLPanelClassified::processClassifiedInfoReply(LLMessageSystem *msg, void **
 		}
 
 		LLString datestr = llformat("%02d/%02d/%d", now->tm_mon+1, now->tm_mday, now->tm_year+1900);
-		self->childSetTextArg("ad_placed_paid", "[DATE]", datestr);
-		self->childSetTextArg("ad_placed_paid", "[AMT]", llformat("%d", price_for_listing));		
-		self->childSetText("classified_info_text", self->childGetValue("ad_placed_paid").asString());
+		LLString::format_map_t string_args;
+		string_args["[DATE]"] = datestr;
+		string_args["[AMT]"] = llformat("%d", price_for_listing);
+		self->childSetText("classified_info_text", self->getString("ad_placed_paid", string_args));
 
 		// If we got data from the database, we know the listing is paid for.
 		self->mPaidFor = TRUE;
 
-		self->mUpdateBtn->setLabel(self->childGetText("update_txt"));
+		self->mUpdateBtn->setLabel(self->getString("update_txt"));
     }
 }
 
@@ -727,9 +720,6 @@ void LLPanelClassified::refresh()
 		mCategoryCombo->setEnabled(godlike);
 		mCategoryCombo->setVisible(godlike);
 
-		//mEnabledCheck->setVisible(godlike);
-		//mEnabledCheck->setEnabled(godlike);
-
 		mMatureCheck->setEnabled(godlike);
 		mMatureCheck->setVisible(godlike);
 
@@ -750,8 +740,6 @@ void LLPanelClassified::refresh()
 		//mPriceEditor->setEnabled(is_self);
 		mCategoryCombo->setEnabled(is_self);
 
-		//mEnabledCheck->setVisible(FALSE);
-		//mEnabledCheck->setEnabled(is_self);
 		mMatureCheck->setEnabled(is_self);
 
 		if (mAutoRenewCheck)
@@ -845,7 +833,7 @@ void LLPanelClassified::confirmPublish(S32 option)
 	}
 	else
 	{
-		LLTabContainerVertical* tab = (LLTabContainerVertical*)getParent();
+		LLTabContainer* tab = (LLTabContainer*)getParent();
 		tab->setCurrentTabName(mNameEditor->getText());
 	}
 

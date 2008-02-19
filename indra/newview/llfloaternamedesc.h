@@ -50,7 +50,6 @@ public:
 	static void			doCommit(class LLUICtrl *, void* userdata);
 protected:
 	virtual void		onCommit();
-	virtual void	    centerWindow();
 
 protected:
 	BOOL        mIsAudio;

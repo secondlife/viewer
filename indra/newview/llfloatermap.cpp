@@ -128,7 +128,7 @@ LLFloaterMap::LLFloaterMap(const std::string& name)
 				TRUE)	// close button
 {
 	const S32 LEFT = LLPANEL_BORDER_WIDTH;
-	const S32 TOP = mRect.getHeight();
+	const S32 TOP = getRect().getHeight();
 
 	S32 y = 0;
 
@@ -136,7 +136,7 @@ LLFloaterMap::LLFloaterMap(const std::string& name)
 	LLRect map_rect(
 		LEFT, 
 		TOP - LLPANEL_BORDER_WIDTH,
-		mRect.getWidth() - LLPANEL_BORDER_WIDTH,
+		getRect().getWidth() - LLPANEL_BORDER_WIDTH,
 		y );
 	LLColor4 bg_color = gColors.getColor( "NetMapBackgroundColor" );
 	mMap = new LLNetMap("Net Map", map_rect, bg_color);
@@ -144,8 +144,7 @@ LLFloaterMap::LLFloaterMap(const std::string& name)
 	addChildAtEnd(mMap);
 
 	// Get the drag handle all the way in back
-	removeChild(mDragHandle);
-	addChildAtEnd(mDragHandle);
+	sendChildToBack(getDragHandle());
 
 	setIsChrome(TRUE);
 }
@@ -191,14 +190,14 @@ void LLFloaterMap::draw()
 		if( gAgent.cameraMouselook())
 		{
 			setMouseOpaque(FALSE);
-			mDragHandle->setMouseOpaque(FALSE);
+			getDragHandle()->setMouseOpaque(FALSE);
 
 			drawChild(mMap);
 		}
 		else
 		{
 			setMouseOpaque(TRUE);
-			mDragHandle->setMouseOpaque(TRUE);
+			getDragHandle()->setMouseOpaque(TRUE);
 
 			LLFloater::draw();
 		}

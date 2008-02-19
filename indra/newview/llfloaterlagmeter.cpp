@@ -72,49 +72,49 @@ LLFloaterLagMeter::LLFloaterLagMeter()
 	mServerText = LLUICtrlFactory::getTextBoxByName(this, "server_text");
 	mServerCause = LLUICtrlFactory::getTextBoxByName(this, "server_lag_cause");
 
-	LLString config_string = childGetText("client_frame_rate_critical_fps");
+	LLString config_string = getString("client_frame_rate_critical_fps", mStringArgs);
 	mClientFrameTimeCritical = 1.0f / (float)atof( config_string.c_str() );
-	config_string = childGetText("client_frame_rate_warning_fps");
+	config_string = getString("client_frame_rate_warning_fps", mStringArgs);
 	mClientFrameTimeWarning = 1.0f / (float)atof( config_string.c_str() );
 
-	config_string = childGetText("network_packet_loss_critical_pct");
+	config_string = getString("network_packet_loss_critical_pct", mStringArgs);
 	mNetworkPacketLossCritical = (float)atof( config_string.c_str() );
-	config_string = childGetText("network_packet_loss_warning_pct");
+	config_string = getString("network_packet_loss_warning_pct", mStringArgs);
 	mNetworkPacketLossWarning = (float)atof( config_string.c_str() );
 
-	config_string = childGetText("network_ping_critical_ms");
+	config_string = getString("network_ping_critical_ms", mStringArgs);
 	mNetworkPingCritical = (float)atof( config_string.c_str() );
-	config_string = childGetText("network_ping_warning_ms");
+	config_string = getString("network_ping_warning_ms", mStringArgs);
 	mNetworkPingWarning = (float)atof( config_string.c_str() );
-	config_string = childGetText("server_frame_rate_critical_fps");
+	config_string = getString("server_frame_rate_critical_fps", mStringArgs);
 
 	mServerFrameTimeCritical = 1000.0f / (float)atof( config_string.c_str() );
-	config_string = childGetText("server_frame_rate_warning_fps");
+	config_string = getString("server_frame_rate_warning_fps", mStringArgs);
 	mServerFrameTimeWarning = 1000.0f / (float)atof( config_string.c_str() );
-	config_string = childGetText("server_single_process_max_time_ms");
+	config_string = getString("server_single_process_max_time_ms", mStringArgs);
 	mServerSingleProcessMaxTime = (float)atof( config_string.c_str() );
 
 	mShrunk = false;
-	config_string = childGetText("max_width_px");
+	config_string = getString("max_width_px", mStringArgs);
 	mMaxWidth = atoi( config_string.c_str() );
-	config_string = childGetText("min_width_px");
+	config_string = getString("min_width_px", mStringArgs);
 	mMinWidth = atoi( config_string.c_str() );
 
-	childSetTextArg("client_frame_time_critical_msg", "[CLIENT_FRAME_RATE_CRITICAL]", childGetText("client_frame_rate_critical_fps"));
-	childSetTextArg("client_frame_time_warning_msg", "[CLIENT_FRAME_RATE_CRITICAL]", childGetText("client_frame_rate_critical_fps"));
-	childSetTextArg("client_frame_time_warning_msg", "[CLIENT_FRAME_RATE_WARNING]", childGetText("client_frame_rate_warning_fps"));
+	mStringArgs["[CLIENT_FRAME_RATE_CRITICAL]"] = getString("client_frame_rate_critical_fps");
+	mStringArgs["[CLIENT_FRAME_RATE_CRITICAL]"] = getString("client_frame_rate_critical_fps");
+	mStringArgs["[CLIENT_FRAME_RATE_WARNING]"] = getString("client_frame_rate_warning_fps");
 
-	childSetTextArg("network_packet_loss_critical_msg", "[NETWORK_PACKET_LOSS_CRITICAL]", childGetText("network_packet_loss_critical_pct"));
-	childSetTextArg("network_packet_loss_warning_msg", "[NETWORK_PACKET_LOSS_CRITICAL]", childGetText("network_packet_loss_critical_pct"));
-	childSetTextArg("network_packet_loss_warning_msg", "[NETWORK_PACKET_LOSS_WARNING]", childGetText("network_packet_loss_warning_pct"));
+	mStringArgs["[NETWORK_PACKET_LOSS_CRITICAL]"] = getString("network_packet_loss_critical_pct");
+	mStringArgs["[NETWORK_PACKET_LOSS_CRITICAL]"] = getString("network_packet_loss_critical_pct");
+	mStringArgs["[NETWORK_PACKET_LOSS_WARNING]"] = getString("network_packet_loss_warning_pct");
 
-	childSetTextArg("network_ping_critical_msg", "[NETWORK_PING_CRITICAL]", childGetText("network_ping_critical_ms"));
-	childSetTextArg("network_ping_warning_msg", "[NETWORK_PING_CRITICAL]", childGetText("network_ping_critical_ms"));
-	childSetTextArg("network_ping_warning_msg", "[NETWORK_PING_WARNING]", childGetText("network_ping_warning_ms"));
+	mStringArgs["[NETWORK_PING_CRITICAL]"] = getString("network_ping_critical_ms");
+	mStringArgs["[NETWORK_PING_CRITICAL]"] = getString("network_ping_critical_ms");
+	mStringArgs["[NETWORK_PING_WARNING]"] = getString("network_ping_warning_ms");
 
-	childSetTextArg("server_frame_time_critical_msg", "[SERVER_FRAME_RATE_CRITICAL]", childGetText("server_frame_rate_critical_fps"));
-	childSetTextArg("server_frame_time_warning_msg", "[SERVER_FRAME_RATE_CRITICAL]", childGetText("server_frame_rate_critical_fps"));
-	childSetTextArg("server_frame_time_warning_msg", "[SERVER_FRAME_RATE_WARNING]", childGetText("server_frame_rate_warning_fps"));
+	mStringArgs["[SERVER_FRAME_RATE_CRITICAL]"] = getString("server_frame_rate_critical_fps");
+	mStringArgs["[SERVER_FRAME_RATE_CRITICAL]"] = getString("server_frame_rate_critical_fps");
+	mStringArgs["[SERVER_FRAME_RATE_WARNING]"] = getString("server_frame_rate_warning_fps");
 
 	childSetAction("minimize", onClickShrink, this);
 
@@ -162,25 +162,25 @@ void LLFloaterLagMeter::determineClient()
 	if (!gFocusMgr.getAppHasFocus())
 	{
 		mClientButton->setImageUnselected(LAG_GOOD_IMAGE_NAME);
-		mClientText->setText( childGetText("client_frame_time_window_bg_msg") );
+		mClientText->setText( getString("client_frame_time_window_bg_msg", mStringArgs) );
 		mClientCause->setText( LLString::null );
 	}
 	else if(client_frame_time >= mClientFrameTimeCritical)
 	{
 		mClientButton->setImageUnselected(LAG_CRITICAL_IMAGE_NAME);
-		mClientText->setText( childGetText("client_frame_time_critical_msg") );
+		mClientText->setText( getString("client_frame_time_critical_msg", mStringArgs) );
 		find_cause = true;
 	}
 	else if(client_frame_time >= mClientFrameTimeWarning)
 	{
 		mClientButton->setImageUnselected(LAG_WARNING_IMAGE_NAME);
-		mClientText->setText( childGetText("client_frame_time_warning_msg") );
+		mClientText->setText( getString("client_frame_time_warning_msg", mStringArgs) );
 		find_cause = true;
 	}
 	else
 	{
 		mClientButton->setImageUnselected(LAG_GOOD_IMAGE_NAME);
-		mClientText->setText( childGetText("client_frame_time_normal_msg") );
+		mClientText->setText( getString("client_frame_time_normal_msg", mStringArgs) );
 		mClientCause->setText( LLString::null );
 	}	
 
@@ -188,19 +188,19 @@ void LLFloaterLagMeter::determineClient()
 	{
 		if(gSavedSettings.getF32("RenderFarClip") > 128)
 		{
-			mClientCause->setText( childGetText("client_draw_distance_cause_msg") );
+			mClientCause->setText( getString("client_draw_distance_cause_msg", mStringArgs) );
 		}
 		else if(LLAppViewer::instance()->getTextureFetch()->getNumRequests() > 2)
 		{
-			mClientCause->setText( childGetText("client_texture_loading_cause_msg") );
+			mClientCause->setText( getString("client_texture_loading_cause_msg", mStringArgs) );
 		}
 		else if(LLViewerImage::sBoundTextureMemory > LLViewerImage::sMaxBoundTextureMem)
 		{
-			mClientCause->setText( childGetText("client_texture_memory_cause_msg") );
+			mClientCause->setText( getString("client_texture_memory_cause_msg", mStringArgs) );
 		}
 		else 
 		{
-			mClientCause->setText( childGetText("client_complex_objects_cause_msg") );
+			mClientCause->setText( getString("client_complex_objects_cause_msg", mStringArgs) );
 		}
 	}
 }
@@ -215,40 +215,40 @@ void LLFloaterLagMeter::determineNetwork()
 	if(packet_loss >= mNetworkPacketLossCritical)
 	{
 		mNetworkButton->setImageUnselected(LAG_CRITICAL_IMAGE_NAME);
-		mNetworkText->setText( childGetText("network_packet_loss_critical_msg") );
+		mNetworkText->setText( getString("network_packet_loss_critical_msg", mStringArgs) );
 		find_cause_loss = true;
 	}
 	else if(ping_time >= mNetworkPingCritical)
 	{
 		mNetworkButton->setImageUnselected(LAG_CRITICAL_IMAGE_NAME);
-		mNetworkText->setText( childGetText("network_ping_critical_msg") );
+		mNetworkText->setText( getString("network_ping_critical_msg", mStringArgs) );
 		find_cause_ping = true;
 	}
 	else if(packet_loss >= mNetworkPacketLossWarning)
 	{
 		mNetworkButton->setImageUnselected(LAG_WARNING_IMAGE_NAME);
-		mNetworkText->setText( childGetText("network_packet_loss_warning_msg") );
+		mNetworkText->setText( getString("network_packet_loss_warning_msg", mStringArgs) );
 		find_cause_loss = true;
 	}
 	else if(ping_time >= mNetworkPingWarning)
 	{
 		mNetworkButton->setImageUnselected(LAG_WARNING_IMAGE_NAME);
-		mNetworkText->setText( childGetText("network_ping_warning_msg") );
+		mNetworkText->setText( getString("network_ping_warning_msg", mStringArgs) );
 		find_cause_ping = true;
 	}
 	else
 	{
 		mNetworkButton->setImageUnselected(LAG_GOOD_IMAGE_NAME);
-		mNetworkText->setText( childGetText("network_performance_normal_msg") );
+		mNetworkText->setText( getString("network_performance_normal_msg", mStringArgs) );
 	}
 
 	if(find_cause_loss)
  	{
-		mNetworkCause->setText( childGetText("network_packet_loss_cause_msg") );
+		mNetworkCause->setText( getString("network_packet_loss_cause_msg", mStringArgs) );
  	}
 	else if(find_cause_ping)
 	{
-		mNetworkCause->setText( childGetText("network_ping_cause_msg") );
+		mNetworkCause->setText( getString("network_ping_cause_msg", mStringArgs) );
 	}
 	else
 	{
@@ -264,19 +264,19 @@ void LLFloaterLagMeter::determineServer()
 	if(sim_frame_time >= mServerFrameTimeCritical)
 	{
 		mServerButton->setImageUnselected(LAG_CRITICAL_IMAGE_NAME);
-		mServerText->setText( childGetText("server_frame_time_critical_msg") );
+		mServerText->setText( getString("server_frame_time_critical_msg", mStringArgs) );
 		find_cause = true;
 	}
 	else if(sim_frame_time >= mServerFrameTimeWarning)
 	{
 		mServerButton->setImageUnselected(LAG_WARNING_IMAGE_NAME);
-		mServerText->setText( childGetText("server_frame_time_warning_msg") );
+		mServerText->setText( getString("server_frame_time_warning_msg", mStringArgs) );
 		find_cause = true;
 	}
 	else
 	{
 		mServerButton->setImageUnselected(LAG_GOOD_IMAGE_NAME);
-		mServerText->setText( childGetText("server_frame_time_normal_msg") );
+		mServerText->setText( getString("server_frame_time_normal_msg", mStringArgs) );
 		mServerCause->setText( LLString::null );
 	}	
 
@@ -284,27 +284,27 @@ void LLFloaterLagMeter::determineServer()
 	{
 		if(gViewerStats->mSimSimPhysicsMsec.getCurrent() > mServerSingleProcessMaxTime)
 		{
-			mServerCause->setText( childGetText("server_physics_cause_msg") );
+			mServerCause->setText( getString("server_physics_cause_msg", mStringArgs) );
 		}
 		else if(gViewerStats->mSimScriptMsec.getCurrent() > mServerSingleProcessMaxTime)
 		{
-			mServerCause->setText( childGetText("server_scripts_cause_msg") );
+			mServerCause->setText( getString("server_scripts_cause_msg", mStringArgs) );
 		}
 		else if(gViewerStats->mSimNetMsec.getCurrent() > mServerSingleProcessMaxTime)
 		{
-			mServerCause->setText( childGetText("server_net_cause_msg") );
+			mServerCause->setText( getString("server_net_cause_msg", mStringArgs) );
 		}
 		else if(gViewerStats->mSimAgentMsec.getCurrent() > mServerSingleProcessMaxTime)
 		{
-			mServerCause->setText( childGetText("server_agent_cause_msg") );
+			mServerCause->setText( getString("server_agent_cause_msg", mStringArgs) );
 		}
 		else if(gViewerStats->mSimImagesMsec.getCurrent() > mServerSingleProcessMaxTime)
 		{
-			mServerCause->setText( childGetText("server_images_cause_msg") );
+			mServerCause->setText( getString("server_images_cause_msg", mStringArgs) );
 		}
 		else
 		{
-			mServerCause->setText( childGetText("server_generic_cause_msg") );
+			mServerCause->setText( getString("server_generic_cause_msg", mStringArgs) );
 		}
 	}
 }
@@ -314,38 +314,38 @@ void LLFloaterLagMeter::onClickShrink(void * data)
 {
 	LLFloaterLagMeter * self = (LLFloaterLagMeter*)data;
 
-	LLButton * button = (LLButton*)self->getChildByName("minimize");
+	LLButton * button = self->getChild<LLButton>("minimize");
 	S32 delta_width = self->mMaxWidth - self->mMinWidth;
 	LLRect r = self->getRect();
 	if(self->mShrunk)
 	{
-		self->setTitle( self->childGetText("max_title_msg") );
+		self->setTitle( self->getString("max_title_msg", self->mStringArgs) );
 		// make left edge appear to expand
 		r.translate(-delta_width, 0);
 		self->setRect(r);
 		self->reshape(self->mMaxWidth, self->getRect().getHeight());
 		
-		self->childSetText("client", self->childGetText("client_text_msg") + ":");
-		self->childSetText("network", self->childGetText("network_text_msg") + ":");
-		self->childSetText("server", self->childGetText("server_text_msg") + ":");
+		self->childSetText("client", self->getString("client_text_msg", self->mStringArgs) + ":");
+		self->childSetText("network", self->getString("network_text_msg", self->mStringArgs) + ":");
+		self->childSetText("server", self->getString("server_text_msg", self->mStringArgs) + ":");
 
 		// usually "<<"
-		button->setLabel( self->childGetText("smaller_label") );
+		button->setLabel( self->getString("smaller_label", self->mStringArgs) );
 	}
 	else
 	{
-		self->setTitle( self->childGetText("min_title_msg") );
+		self->setTitle( self->getString("min_title_msg", self->mStringArgs) );
 		// make left edge appear to collapse
 		r.translate(delta_width, 0);
 		self->setRect(r);
 		self->reshape(self->mMinWidth, self->getRect().getHeight());
 		
-		self->childSetText("client", self->childGetText("client_text_msg") );
-		self->childSetText("network", self->childGetText("network_text_msg") );
-		self->childSetText("server", self->childGetText("server_text_msg") );
+		self->childSetText("client", self->getString("client_text_msg", self->mStringArgs) );
+		self->childSetText("network", self->getString("network_text_msg", self->mStringArgs) );
+		self->childSetText("server", self->getString("server_text_msg", self->mStringArgs) );
 
 		// usually ">>"
-		button->setLabel( self->childGetText("bigger_label") );
+		button->setLabel( self->getString("bigger_label", self->mStringArgs) );
 	}
 	// Don't put keyboard focus on the button
 	button->setFocus(FALSE);

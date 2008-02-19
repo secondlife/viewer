@@ -35,19 +35,19 @@
 #define LL_LLREMOTEPARCELREQUEST_H
 
 #include "llhttpclient.h"
-#include "llview.h"
+#include "llpanel.h"
 
 class LLRemoteParcelRequestResponder : public LLHTTPClient::Responder
 {
 public:
-	LLRemoteParcelRequestResponder(LLViewHandle place_panel_handle);
+	LLRemoteParcelRequestResponder(LLHandle<LLPanel> place_panel_handle);
 	//If we get back a normal response, handle it here
 	virtual void result(const LLSD& content);
 	//If we get back an error (not found, etc...), handle it here
 	virtual void error(U32 status, const std::string& reason);
 
 protected:
-	LLViewHandle mPlacePanelHandle;
+	LLHandle<LLPanel> mPlacePanelHandle;
 };
 
 #endif // LL_LLREMOTEPARCELREQUEST_H

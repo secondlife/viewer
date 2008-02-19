@@ -40,21 +40,18 @@
 #include "llcoord.h"
 #include "llscrollbar.h"
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Class LLScrollableContainerView
-//
-// A view meant to encapsulate a clipped region which is
-// scrollable. It automatically takes care of pixel perfect scrolling
-// and cliipping, as well as turning the scrollbars on or off based on
-// the width and height of the view you're scrolling.
-//
-// This class is a decorator class.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class LLViewBorder;
 class LLUICtrlFactory;
 
-
+/*****************************************************************************
+ * 
+ * A decorator view class meant to encapsulate a clipped region which is
+ * scrollable. It automatically takes care of pixel perfect scrolling
+ * and cliipping, as well as turning the scrollbars on or off based on
+ * the width and height of the view you're scrolling.
+ *
+ *****************************************************************************/
 class LLScrollableContainerView : public LLUICtrl
 {
 public:
@@ -70,32 +67,26 @@ public:
 							   const LLColor4& bg_color = LLColor4(0,0,0,0) );
 	virtual ~LLScrollableContainerView( void );
 
-	void init();
-
 	void setScrolledView(LLView* view) { mScrolledView = view; }
 
 	virtual void setValue(const LLSD& value) { mInnerRect.setValue(value); }
 	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_SCROLL_CONTAINER; }
 	virtual LLString getWidgetTag() const { return LL_SCROLLABLE_CONTAINER_VIEW_TAG; }
 
-	// scrollbar handlers
-	static void		horizontalChange( S32 new_pos, LLScrollbar* sb, void* user_data );
-	static void		verticalChange( S32 new_pos, LLScrollbar* sb, void* user_data );
-
-	void			calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar );
-	void			calcVisibleSize( const LLRect& doc_rect, S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar );
+	void			calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const;
+	void			calcVisibleSize( const LLRect& doc_rect, S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const;
 	void			setBorderVisible( BOOL b );
 
 	void			scrollToShowRect( const LLRect& rect, const LLCoordGL& desired_offset );
 	void			setReserveScrollCorner( BOOL b ) { mReserveScrollCorner = b; }
-	const LLRect&	getScrolledViewRect() { return mScrolledView->getRect(); }
+	const LLRect&	getScrolledViewRect() const { return mScrolledView->getRect(); }
 	void			pageUp(S32 overlap = 0);
 	void			pageDown(S32 overlap = 0);
 	void			goToTop();
 	void			goToBottom();
-	S32				getBorderWidth();
+	S32				getBorderWidth() const;
 
-	BOOL			needsToScroll(S32 x, S32 y, SCROLL_ORIENTATION axis);
+	BOOL			needsToScroll(S32 x, S32 y, SCROLL_ORIENTATION axis) const;
 
 	// LLView functionality
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent);
@@ -113,7 +104,9 @@ public:
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
-protected:
+private:
+	void init();
+
 	// internal scrollbar handlers
 	virtual void scrollHorizontal( S32 new_pos );
 	virtual void scrollVertical( S32 new_pos );

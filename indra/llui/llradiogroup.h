@@ -29,10 +29,6 @@
  * $/LicenseInfo$
  */
 
-// An invisible view containing multiple mutually exclusive toggling 
-// buttons (usually radio buttons).  Automatically handles the mutex
-// condition by highlighting only one button at a time.
-
 #ifndef LL_LLRADIOGROUP_H
 #define LL_LLRADIOGROUP_H
 
@@ -40,21 +36,30 @@
 #include "llcheckboxctrl.h"
 #include "llctrlselectioninterface.h"
 
-class LLFontGL;
 
-// Radio controls are checkbox controls with use_radio_style true
+/*
+ * A checkbox control with use_radio_style == true.
+ */
 class LLRadioCtrl : public LLCheckBoxCtrl 
 {
 public:
-	LLRadioCtrl(const LLString& name, const LLRect& rect, const LLString& label,	
-		const LLFontGL* font = NULL,
-		void (*commit_callback)(LLUICtrl*, void*) = NULL,
-		void* callback_userdata = NULL);
+	LLRadioCtrl(const LLString& name, const LLRect& rect, const LLString& label, const LLFontGL* font = NULL,
+		void (*commit_callback)(LLUICtrl*, void*) = NULL, void* callback_userdata = NULL) :
+				LLCheckBoxCtrl(name, rect, label, font, commit_callback, callback_userdata, FALSE, RADIO_STYLE)
+	{
+		setTabStop(FALSE);
+	}
 	/*virtual*/ ~LLRadioCtrl();
 
 	/*virtual*/ void setValue(const LLSD& value);
 };
 
+
+/*
+ * An invisible view containing multiple mutually exclusive toggling 
+ * buttons (usually radio buttons).  Automatically handles the mutex
+ * condition by highlighting only one button at a time.
+ */
 class LLRadioGroup
 :	public LLUICtrl, public LLCtrlSelectionInterface
 {
@@ -88,7 +93,7 @@ public:
 	void setIndexEnabled(S32 index, BOOL enabled);
 	
 	// return the index value of the selected item
-	S32 getSelectedIndex() const;
+	S32 getSelectedIndex() const { return mSelectedIndex; }
 	
 	// set the index value programatically
 	BOOL setSelectedIndex(S32 index, BOOL from_event = FALSE);
@@ -97,8 +102,7 @@ public:
 	virtual void	setValue(const LLSD& value );
 	virtual LLSD	getValue() const;
 
-	// Draw the group, but also fix the highlighting based on the
-	// control.
+	// Draw the group, but also fix the highlighting based on the control.
 	void draw();
 
 	// You must use this method to add buttons to a radio group.
@@ -106,8 +110,7 @@ public:
 	// correctly.
 	LLRadioCtrl* addRadioButton(const LLString& name, const LLString& label, const LLRect& rect, const LLFontGL* font);
 	LLRadioCtrl* getRadioButton(const S32& index) { return mRadioButtons[index]; }
-	// Update the control as needed.  Userdata must be a pointer to the
-	// button.
+	// Update the control as needed.  Userdata must be a pointer to the button.
 	static void onClickButton(LLUICtrl* radio, void* userdata);
 	
 	//========================================================================
@@ -120,14 +123,14 @@ public:
 	/*virtual*/ BOOL	selectNthItem( S32 index )			{ return setSelectedIndex(index); }
 	/*virtual*/ S32		getFirstSelectedIndex() const		{ return getSelectedIndex(); }
 	/*virtual*/ BOOL	setCurrentByID( const LLUUID& id );
-	/*virtual*/ LLUUID	getCurrentID();				// LLUUID::null if no items in menu
-	/*virtual*/ BOOL	setSelectedByValue(LLSD value, BOOL selected);
+	/*virtual*/ LLUUID	getCurrentID() const;				// LLUUID::null if no items in menu
+	/*virtual*/ BOOL	setSelectedByValue(const LLSD& value, BOOL selected);
 	/*virtual*/ LLSD	getSelectedValue();
-	/*virtual*/ BOOL	isSelected(LLSD value);
+	/*virtual*/ BOOL	isSelected(const LLSD& value) const;
 	/*virtual*/ BOOL	operateOnSelection(EOperation op);
 	/*virtual*/ BOOL	operateOnAll(EOperation op);
 
-protected:
+private:
 	// protected function shared by the two constructors.
 	void init(BOOL border);
 

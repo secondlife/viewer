@@ -67,7 +67,7 @@ public:
 		const LLRect& rect,
 		const std::string& sample,
 		const std::string& help,
-		const LLViewHandle& floater_handle,
+		const LLHandle<LLFloater>& floater_handle,
 		void (*load_callback)(void* userdata),
 		void (*save_callback)(void* userdata, BOOL close_after_save),
 		void (*search_replace_callback)(void* userdata),
@@ -144,7 +144,7 @@ private:
 	LLPanel*		mCodePanel;
 	LLScrollListCtrl* mErrorList;
 	LLDynamicArray<LLEntryAndEdCore*> mBridges;
-	LLViewHandle	mLiveHelpHandle;
+	LLHandle<LLFloater>	mLiveHelpHandle;
 	LLKeywordToken* mLastHelpToken;
 	LLFrameTimer	mLiveHelpTimer;
 	S32				mLiveHelpHistorySize;

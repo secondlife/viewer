@@ -158,7 +158,7 @@ LLNetMap::LLNetMap(
 										&LLTracker::isTracking, NULL) );
 	menu->setVisible(FALSE);
 	addChild(menu);
-	mPopupMenuHandle = menu->mViewHandle;
+	mPopupMenuHandle = menu->getHandle();
 
 	sInstance = this;
 
@@ -191,8 +191,8 @@ void LLNetMap::setScale( F32 scale )
 
 	if (mObjectImagep.notNull())
 	{
-		F32 half_width = (F32)(mRect.getWidth() / 2);
-		F32 half_height = (F32)(mRect.getHeight() / 2);
+		F32 half_width = (F32)(getRect().getWidth() / 2);
+		F32 half_height = (F32)(getRect().getHeight() / 2);
 		F32 radius = sqrt( half_width * half_width + half_height * half_height );
 
 		F32 region_widths = (2.f*radius)/gMiniMapScale;
@@ -257,12 +257,12 @@ void LLNetMap::draw()
 
 			// Draw background rectangle
 			glColor4fv( mBackgroundColor.mV );
-			gl_rect_2d(0, mRect.getHeight(), mRect.getWidth(), 0);
+			gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0);
 		}
 
 		// region 0,0 is in the middle
-		S32 center_sw_left = mRect.getWidth() / 2 + llfloor(mCurPanX);
-		S32 center_sw_bottom = mRect.getHeight() / 2 + llfloor(mCurPanY);
+		S32 center_sw_left = getRect().getWidth() / 2 + llfloor(mCurPanX);
+		S32 center_sw_bottom = getRect().getHeight() / 2 + llfloor(mCurPanY);
 
 		glPushMatrix();
 
@@ -542,8 +542,8 @@ LLVector3 LLNetMap::globalPosToView( const LLVector3d& global_pos )
 		pos_local.rotVec( rot );
 	}
 
-	pos_local.mV[VX] += mRect.getWidth() / 2 + mCurPanX;
-	pos_local.mV[VY] += mRect.getHeight() / 2 + mCurPanY;
+	pos_local.mV[VX] += getRect().getWidth() / 2 + mCurPanX;
+	pos_local.mV[VY] += getRect().getHeight() / 2 + mCurPanY;
 
 	return pos_local;
 }
@@ -554,15 +554,15 @@ void LLNetMap::drawTracking(const LLVector3d& pos_global, const LLColor4& color,
 	LLVector3 pos_local = globalPosToView( pos_global );
 	if( (pos_local.mV[VX] < 0) ||
 		(pos_local.mV[VY] < 0) ||
-		(pos_local.mV[VX] >= mRect.getWidth()) ||
-		(pos_local.mV[VY] >= mRect.getHeight()) )
+		(pos_local.mV[VX] >= getRect().getWidth()) ||
+		(pos_local.mV[VY] >= getRect().getHeight()) )
 	{
 		if (draw_arrow)
 		{
 			S32 x = llround( pos_local.mV[VX] );
 			S32 y = llround( pos_local.mV[VY] );
-			LLWorldMapView::drawTrackingCircle( mRect, x, y, color, 1, 10 );
-			LLWorldMapView::drawTrackingArrow( mRect, x, y, color );
+			LLWorldMapView::drawTrackingCircle( getRect(), x, y, color, 1, 10 );
+			LLWorldMapView::drawTrackingArrow( getRect(), x, y, color );
 		}
 	}
 	else
@@ -576,8 +576,8 @@ void LLNetMap::drawTracking(const LLVector3d& pos_global, const LLColor4& color,
 
 LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
 {
-	x -= llround(mRect.getWidth() / 2 + mCurPanX);
-	y -= llround(mRect.getHeight() / 2 + mCurPanY);
+	x -= llround(getRect().getWidth() / 2 + mCurPanX);
+	y -= llround(getRect().getHeight() / 2 + mCurPanY);
 
 	LLVector3 pos_local( (F32)x, (F32)y, 0 );
 
@@ -612,35 +612,32 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, LLString& msg, LLRect* sticky_rect_s
 	{
 		return FALSE;
 	}
-	if( getVisible() && pointInView( x, y ) )
+	LLViewerRegion*	region = gWorldPointer->getRegionFromPosGlobal( viewPosToGlobal( x, y ) );
+	if( region )
 	{
-		LLViewerRegion*	region = gWorldPointer->getRegionFromPosGlobal( viewPosToGlobal( x, y ) );
-		if( region )
-		{
-			msg.assign( region->getName() );
+		msg.assign( region->getName() );
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-			char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-			msg.append("\n");
-			region->getHost().getHostName(buffer, MAX_STRING);
-			msg.append(buffer);
-			msg.append("\n");
-			region->getHost().getString(buffer, MAX_STRING);
-			msg.append(buffer);
+		char buffer[MAX_STRING];		/*Flawfinder: ignore*/
+		msg.append("\n");
+		region->getHost().getHostName(buffer, MAX_STRING);
+		msg.append(buffer);
+		msg.append("\n");
+		region->getHost().getString(buffer, MAX_STRING);
+		msg.append(buffer);
 #endif
-			// *TODO: put this under the control of XUI so it can be
-			// translated.
-			msg.append("\n(Double-click to open Map)");
+		// *TODO: put this under the control of XUI so it can be
+		// translated.
+		msg.append("\n(Double-click to open Map)");
 
-			S32 SLOP = 4;
-			localPointToScreen( 
-				x - SLOP, y - SLOP, 
-				&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
-			sticky_rect_screen->mRight = sticky_rect_screen->mLeft + 2 * SLOP;
-			sticky_rect_screen->mTop = sticky_rect_screen->mBottom + 2 * SLOP;
-		}
-		handled = TRUE;
+		S32 SLOP = 4;
+		localPointToScreen( 
+			x - SLOP, y - SLOP, 
+			&(sticky_rect_screen->mLeft), &(sticky_rect_screen->mBottom) );
+		sticky_rect_screen->mRight = sticky_rect_screen->mLeft + 2 * SLOP;
+		sticky_rect_screen->mTop = sticky_rect_screen->mBottom + 2 * SLOP;
 	}
+	handled = TRUE;
 	return handled;
 }
 
@@ -651,8 +648,8 @@ void LLNetMap::setDirectionPos( LLTextBox* text_box, F32 rotation )
 	// Rotation of 0 means x = 1, y = 0 on the unit circle.
 
 
-	F32 map_half_height = (F32)(mRect.getHeight() / 2);
-	F32 map_half_width = (F32)(mRect.getWidth() / 2);
+	F32 map_half_height = (F32)(getRect().getHeight() / 2);
+	F32 map_half_width = (F32)(getRect().getWidth() / 2);
 	F32 text_half_height = (F32)(text_box->getRect().getHeight() / 2);
 	F32 text_half_width = (F32)(text_box->getRect().getWidth() / 2);
 	F32 radius = llmin( map_half_height - text_half_height, map_half_width - text_half_width );
@@ -762,9 +759,9 @@ void LLNetMap::renderPoint(const LLVector3 &pos_local, const LLColor4U &color,
 
 void LLNetMap::createObjectImage()
 {
-	// Find the size of the side of a square that surrounds the circle that surrounds mRect.
-	F32 half_width = (F32)(mRect.getWidth() / 2);
-	F32 half_height = (F32)(mRect.getHeight() / 2);
+	// Find the size of the side of a square that surrounds the circle that surrounds getRect().
+	F32 half_width = (F32)(getRect().getWidth() / 2);
+	F32 half_height = (F32)(getRect().getHeight() / 2);
 	F32 radius = sqrt( half_width * half_width + half_height * half_height );
 	S32 square_size = S32( 2 * radius );
 
@@ -798,7 +795,7 @@ BOOL LLNetMap::handleDoubleClick( S32 x, S32 y, MASK mask )
 
 BOOL LLNetMap::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	LLMenuGL* menu = (LLMenuGL*)LLView::getViewByHandle(mPopupMenuHandle);
+	LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
 	if (menu)
 	{
 		menu->buildDrawLabels();

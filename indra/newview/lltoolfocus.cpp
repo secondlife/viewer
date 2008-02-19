@@ -51,7 +51,6 @@
 #include "llstatusbar.h"
 #include "lltoolmgr.h"
 #include "lltoolselect.h"
-#include "llviewborder.h"
 #include "llviewercamera.h"
 #include "llviewerobject.h"
 #include "llviewerwindow.h"

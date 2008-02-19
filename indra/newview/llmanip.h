@@ -135,7 +135,7 @@ public:
 
 	EManipPart			getHighlightedPart() { return mHighlightedPart; }
 	
-	LLHandle<LLObjectSelection> getSelection();
+	LLSafeHandle<LLObjectSelection> getSelection();
 
 protected:
 	LLVector3			getSavedPivotPoint() const;
@@ -153,7 +153,7 @@ protected:
 protected:
 	LLFrameTimer		mHelpTextTimer;
 	BOOL				mInSnapRegime;
-	LLHandle<LLObjectSelection> mObjectSelection;
+	LLSafeHandle<LLObjectSelection> mObjectSelection;
 	EManipPart			mHighlightedPart;
 
 	static F32			sHelpTextVisibleTime;

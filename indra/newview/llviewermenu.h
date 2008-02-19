@@ -126,14 +126,14 @@ public:
 
 	virtual BOOL hideMenus();
 	
-	void setParcelSelection(LLHandle<LLParcelSelection> selection);
-	void setObjectSelection(LLHandle<LLObjectSelection> selection);
+	void setParcelSelection(LLSafeHandle<LLParcelSelection> selection);
+	void setObjectSelection(LLSafeHandle<LLObjectSelection> selection);
 
 	virtual const LLRect getMenuRect() const;
 
 protected:
-	LLHandle<LLParcelSelection> mParcelSelection;
-	LLHandle<LLObjectSelection> mObjectSelection;
+	LLSafeHandle<LLParcelSelection> mParcelSelection;
+	LLSafeHandle<LLObjectSelection> mObjectSelection;
 };
 
 extern const LLString SAVE_INTO_INVENTORY;

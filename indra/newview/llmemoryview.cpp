@@ -147,8 +147,8 @@ static const int MTV_DISPLAY_NUM  = (sizeof(mtv_display_table)/sizeof(mtv_displa
 void LLMemoryView::draw()
 {
 	std::string tdesc;
-	S32 width = mRect.getWidth();
-	S32 height = mRect.getHeight();
+	S32 width = getRect().getWidth();
+	S32 height = getRect().getHeight();
 	
 	LLGLSUIDefault gls_ui;
 	LLGLSNoTexture gls_no_tex;

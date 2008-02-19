@@ -75,23 +75,13 @@ LLResizeHandle::LLResizeHandle( const LLString& name, const LLRect& rect, S32 mi
 	setSaveToXML(FALSE);
 }
 
-EWidgetType LLResizeHandle::getWidgetType() const
-{
-	return WIDGET_TYPE_RESIZE_HANDLE;
-}
-
-LLString LLResizeHandle::getWidgetTag() const
-{
-	return LL_RESIZE_HANDLE_TAG;
-}
-
 BOOL LLResizeHandle::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = FALSE;
 	if( getVisible() && pointInHandle(x, y) )
 	{
 		handled = TRUE;
-		if( mEnabled )
+		if( getEnabled() )
 		{
 			// Route future Mouse messages here preemptively.  (Release on mouse up.)
 			// No handler needed for focus lost since this clas has no state that depends on it.
@@ -292,10 +282,12 @@ BOOL LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
 
 		handled = TRUE;
 	}
-	else
-	if( getVisible() && pointInHandle( x, y ) )
+	else // don't have mouse capture
 	{
-		handled = TRUE;
+		if( getVisible() && pointInHandle( x, y ) )
+		{
+			handled = TRUE;
+		}
 	}
 
 	if( handled )
@@ -314,7 +306,8 @@ BOOL LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
 	}
 
 	return handled;
-}
+} // end handleHover
+
 
 // assumes GL state is set for 2D
 void LLResizeHandle::draw()
@@ -330,8 +323,8 @@ BOOL LLResizeHandle::pointInHandle( S32 x, S32 y )
 {
 	if( pointInView(x, y) )
 	{
-		const S32 TOP_BORDER = (mRect.getHeight() - RESIZE_BORDER_WIDTH);
-		const S32 RIGHT_BORDER = (mRect.getWidth() - RESIZE_BORDER_WIDTH);
+		const S32 TOP_BORDER = (getRect().getHeight() - RESIZE_BORDER_WIDTH);
+		const S32 RIGHT_BORDER = (getRect().getWidth() - RESIZE_BORDER_WIDTH);
 
 		switch( mCorner )
 		{

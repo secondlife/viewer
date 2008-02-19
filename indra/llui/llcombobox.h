@@ -158,10 +158,10 @@ public:
 	virtual BOOL	selectNthItem( S32 index )			{ return setCurrentByIndex(index); }
 	virtual S32		getFirstSelectedIndex() const		{ return getCurrentIndex(); }
 	virtual BOOL	setCurrentByID( const LLUUID& id );
-	virtual LLUUID	getCurrentID();				// LLUUID::null if no items in menu
-	virtual BOOL	setSelectedByValue(LLSD value, BOOL selected);
+	virtual LLUUID	getCurrentID() const;				// LLUUID::null if no items in menu
+	virtual BOOL	setSelectedByValue(const LLSD& value, BOOL selected);
 	virtual LLSD	getSelectedValue();
-	virtual BOOL	isSelected(LLSD value);
+	virtual BOOL	isSelected(const LLSD& value) const;
 	virtual BOOL	operateOnSelection(EOperation op);
 	virtual BOOL	operateOnAll(EOperation op);
 
@@ -182,18 +182,20 @@ public:
 	void			updateSelection();
 	virtual void	showList();
 	virtual void	hideList();
-	
+
 protected:
 	LLButton*			mButton;
 	LLScrollListCtrl*	mList;
-	S32					mButtonPadding;
 	LLViewBorder*		mBorder;
+	EPreferredPosition	mListPosition;
+	LLPointer<LLImageGL> mArrowImage;
+
+private:
+	S32					mButtonPadding;
 	LLLineEditor*		mTextEntry;
-	LLPointer<LLImageGL>	mArrowImage;
 	BOOL				mAllowTextEntry;
 	S32					mMaxChars;
 	BOOL				mTextEntryTentative;
-	EPreferredPosition	mListPosition;
 	void				(*mPrearrangeCallback)(LLUICtrl*,void*);
 	void				(*mTextEntryCallback)(LLLineEditor*, void*);
 };

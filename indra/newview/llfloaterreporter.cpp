@@ -903,7 +903,7 @@ void LLFloaterReporter::takeScreenshot()
 	gImageList.addImage(image_in_list); 
 
 	// the texture picker then uses that texture
-	LLTexturePicker* texture = LLUICtrlFactory::getTexturePickerByName(this, "screenshot");
+	LLTexturePicker* texture = getChild<LLTextureCtrl>("screenshot");
 	if (texture)
 	{
 		texture->setImageAssetID(mResourceDatap->mAssetInfo.mUuid);

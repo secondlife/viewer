@@ -62,13 +62,13 @@ class LLPreferenceCore
 {
 
 public:
-	LLPreferenceCore(LLTabContainerCommon* tab_container, LLButton * default_btn);
+	LLPreferenceCore(LLTabContainer* tab_container, LLButton * default_btn);
 	~LLPreferenceCore();
 
 	void apply();
 	void cancel();
 
-	LLTabContainerCommon* getTabContainer() { return mTabContainer; }
+	LLTabContainer* getTabContainer() { return mTabContainer; }
 
 	void setPersonalInfo(
 		const char* visibility,
@@ -78,7 +78,7 @@ public:
 	static void onTabChanged(void* user_data, bool from_click);
 
 private:
-	LLTabContainerCommon	*mTabContainer;
+	LLTabContainer	*mTabContainer;
 	LLPanelGeneral	        *mGeneralPanel;
 	LLPanelInput			*mInputPanel;
 	LLPanelNetwork	        *mNetworkPanel;

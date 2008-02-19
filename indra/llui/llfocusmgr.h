@@ -45,48 +45,48 @@ class LLFocusMgr
 {
 public:
 	LLFocusMgr();
-	~LLFocusMgr();
+	~LLFocusMgr() { mFocusHistory.clear(); }
 
 	// Mouse Captor
 	void			setMouseCapture(LLMouseHandler* new_captor);	// new_captor = NULL to release the mouse.
-	LLMouseHandler* getMouseCapture() { return mMouseCaptor; } 
-	void			removeMouseCaptureWithoutCallback( LLMouseHandler* captor );
-	BOOL			childHasMouseCapture( LLView* parent );
+	LLMouseHandler* getMouseCapture() const { return mMouseCaptor; } 
+	void			removeMouseCaptureWithoutCallback( const LLMouseHandler* captor );
+	BOOL			childHasMouseCapture( const LLView* parent ) const;
 
 	// Keyboard Focus
 	void			setKeyboardFocus(LLUICtrl* new_focus, BOOL lock = FALSE);		// new_focus = NULL to release the focus.
 	LLUICtrl*		getKeyboardFocus() const { return mKeyboardFocus; }  
 	LLUICtrl*		getLastKeyboardFocus() const { return mLastKeyboardFocus; }  
 	BOOL			childHasKeyboardFocus( const LLView* parent ) const;
-	void			removeKeyboardFocusWithoutCallback( LLView* focus );
+	void			removeKeyboardFocusWithoutCallback( const LLView* focus );
 	F32				getFocusTime() const { return mFocusTimer.getElapsedTimeF32(); }
-	F32				getFocusFlashAmt();
-	LLColor4		getFocusColor();
+	F32				getFocusFlashAmt() const;
+	LLColor4		getFocusColor() const;
 	void			triggerFocusFlash();
-	BOOL			getAppHasFocus() { return mAppHasFocus; }
+	BOOL			getAppHasFocus() const { return mAppHasFocus; }
 	void			setAppHasFocus(BOOL focus);
-	LLUICtrl*		getLastFocusForGroup(LLView* subtree_root);
+	LLUICtrl*		getLastFocusForGroup(LLView* subtree_root) const;
 	void			clearLastFocusForGroup(LLView* subtree_root);
 
 	// If setKeyboardFocus(NULL) is called, and there is a non-NULL default
 	// keyboard focus view, focus goes there. JC
-	void			setDefaultKeyboardFocus(LLUICtrl* default_focus);
+	void			setDefaultKeyboardFocus(LLUICtrl* default_focus) { mDefaultKeyboardFocus = default_focus; }
 	LLUICtrl*		getDefaultKeyboardFocus() const { return mDefaultKeyboardFocus; }
 
 	
 	// Top View
 	void			setTopCtrl(LLUICtrl* new_top);
 	LLUICtrl*		getTopCtrl() const					{ return mTopCtrl; }
-	void			removeTopCtrlWithoutCallback( LLUICtrl* top_view );
-	BOOL			childIsTopCtrl( LLView* parent );
+	void			removeTopCtrlWithoutCallback( const LLUICtrl* top_view );
+	BOOL			childIsTopCtrl( const LLView* parent ) const;
 
 	// All Three
-	void			releaseFocusIfNeeded( LLView* top_view );
+	void			releaseFocusIfNeeded( const LLView* top_view );
 	void			lockFocus();
 	void			unlockFocus();
-	BOOL			focusLocked() { return mLockedView != NULL; }
+	BOOL			focusLocked() const { return mLockedView != NULL; }
 
-protected:
+private:
 	LLUICtrl*			mLockedView;
 
 	// Mouse Captor
@@ -105,7 +105,7 @@ protected:
 
 	BOOL				mAppHasFocus;
 
-	typedef std::map<LLViewHandle, LLViewHandle> focus_history_map_t;
+	typedef std::map<LLHandle<LLView>, LLHandle<LLView> > focus_history_map_t;
 	focus_history_map_t mFocusHistory;
 
 	#ifdef _DEBUG
@@ -118,4 +118,5 @@ protected:
 extern LLFocusMgr gFocusMgr;
 
 #endif  // LL_LLFOCUSMGR_H
+
 

@@ -56,11 +56,12 @@ public:
 	{
 	}
 
-	S32					getLength()				{ return mToken.size(); }
-	BOOL				isHead(const llwchar* s);
-	const LLColor3&		getColor()				{ return mColor; }
-	TOKEN_TYPE			getType()				{ return mType; }
-	const LLWString&	getToolTip()			{ return mToolTip; }
+	S32					getLength() const		{ return mToken.size(); }
+	BOOL				isHead(const llwchar* s) const;
+	const LLWString&	getToken() const		{ return mToken; }
+	const LLColor3&		getColor() const		{ return mColor; }
+	TOKEN_TYPE			getType()  const		{ return mType; }
+	const LLWString&	getToolTip() const		{ return mToolTip; }
 
 #ifdef _DEBUG
 	void		dump();
@@ -68,10 +69,8 @@ public:
 
 private:
 	TOKEN_TYPE	mType;
-public:
 	LLWString	mToken;
 	LLColor3	mColor;
-private:
 	LLWString	mToolTip;
 };
 
@@ -82,13 +81,9 @@ public:
 	~LLKeywords();
 
 	BOOL		loadFromFile(const LLString& filename);
-	BOOL		isLoaded()	{ return mLoaded; }
+	BOOL		isLoaded() const	{ return mLoaded; }
 
 	void		findSegments(std::vector<LLTextSegment *> *seg_list, const LLWString& text, const LLColor4 &defaultColor );
-
-#ifdef _DEBUG
-	void		dump();
-#endif
 
 	// Add the token as described
 	void addToken(LLKeywordToken::TOKEN_TYPE type,
@@ -96,16 +91,21 @@ public:
 					const LLColor3& color,
 					const LLString& tool_tip = LLString::null);
 
+	typedef std::map<LLWString, LLKeywordToken*> word_token_map_t;
+	typedef word_token_map_t::const_iterator keyword_iterator_t;
+	keyword_iterator_t begin() const { return mWordTokenMap.begin(); }
+	keyword_iterator_t end() const { return mWordTokenMap.end(); }
+
+#ifdef _DEBUG
+	void		dump();
+#endif
+
 private:
 	LLColor3	readColor(const LLString& s);
 	void		insertSegment(std::vector<LLTextSegment *> *seg_list, LLTextSegment* new_segment, S32 text_len, const LLColor4 &defaultColor);
 
-private:
-	BOOL						 mLoaded;
-public:
-	typedef std::map<LLWString, LLKeywordToken*> word_token_map_t;
+	BOOL		mLoaded;
 	word_token_map_t mWordTokenMap;
-private:
 	typedef std::deque<LLKeywordToken*> token_list_t;
 	token_list_t mLineTokenList;
 	token_list_t mDelimiterTokenList;

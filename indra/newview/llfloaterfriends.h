@@ -41,7 +41,8 @@
 
 class LLFriendObserver;
 class LLRelationship;
-
+class LLScrollListItem;
+class LLScrollListCtrl;
 
 /** 
  * @class LLPanelFriends
@@ -100,8 +101,8 @@ private:
 	void refreshUI();
 	void refreshRightsChangeList();
 	void applyRightsToFriends();
-	void addFriend(const std::string& name, const LLUUID& agent_id);	
-	void updateFriendItem(LLScrollListItem* itemp, const LLRelationship* relationship);
+	BOOL addFriend(const LLUUID& agent_id);	
+	BOOL updateFriendItem(const LLUUID& agent_id, const LLRelationship* relationship);
 
 	typedef enum 
 	{
@@ -138,7 +139,7 @@ private:
 	LLFriendObserver* mObserver;
 	LLUUID mAddFriendID;
 	LLString mAddFriendName;
-	LLScrollListCtrl*			mFriendsList;
+	LLScrollListCtrl* mFriendsList;
 	BOOL mShowMaxSelectWarning;
 	BOOL mAllowRightsChange;
 	S32 mNumRightsChanged;

@@ -138,11 +138,11 @@ void LLPanelPermissions::refresh()
 		LLString deedText;
 		if (gSavedSettings.getWarning("DeedObject"))
 		{
-			deedText = this->childGetText("text deed continued");
+			deedText = getString("text deed continued");
 		}
 		else
 		{
-			deedText = this->childGetText("text deed");
+			deedText = getString("text deed");
 		}
 		BtnDeedToGroup->setLabelSelected(deedText);
 		BtnDeedToGroup->setLabelUnselected(deedText);
@@ -261,10 +261,10 @@ void LLPanelPermissions::refresh()
 	S32 string_index = 0;
 	LLString MODIFY_INFO_STRINGS[] =
 	{
-		childGetText("text modify info 1"),
-		childGetText("text modify info 2"),
-		childGetText("text modify info 3"),
-		childGetText("text modify info 4")
+		getString("text modify info 1"),
+		getString("text modify info 2"),
+		getString("text modify info 3"),
+		getString("text modify info 4")
 	};
 	if(!is_perm_modify)
 	{
@@ -572,7 +572,7 @@ void LLPanelPermissions::refresh()
 	if (!has_change_perm_ability && !has_change_sale_ability && !root_selected)
 	{
 		// ...must select root to choose permissions
-		childSetValue("perm_modify", childGetText("text modify warning"));
+		childSetValue("perm_modify", getString("text modify warning"));
 	}
 
 	if (has_change_perm_ability)

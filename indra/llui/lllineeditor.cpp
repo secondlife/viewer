@@ -81,44 +81,6 @@ const S32	PREEDIT_STANDOUT_GAP = 1;
 const S32	PREEDIT_STANDOUT_POSITION = 2;
 const S32	PREEDIT_STANDOUT_THICKNESS = 2;
 
-// This is a friend class of and is only used by LLLineEditor
-class LLLineEditorRollback
-{
-public:
-	LLLineEditorRollback( LLLineEditor* ed )
-		:
-		mCursorPos( ed->mCursorPos ),
-		mScrollHPos( ed->mScrollHPos ),
-		mIsSelecting( ed->mIsSelecting ),
-		mSelectionStart( ed->mSelectionStart ),
-		mSelectionEnd( ed->mSelectionEnd )
-	{
-		mText = ed->getText();
-	}
-
-	void doRollback( LLLineEditor* ed )
-	{
-		ed->mCursorPos = mCursorPos;
-		ed->mScrollHPos = mScrollHPos;
-		ed->mIsSelecting = mIsSelecting;
-		ed->mSelectionStart = mSelectionStart;
-		ed->mSelectionEnd = mSelectionEnd;
-		ed->mText = mText;
-		ed->mPrevText = mText;
-	}
-
-	LLString getText()   { return mText; }
-
-private:
-	LLString mText;
-	S32		mCursorPos;
-	S32		mScrollHPos;
-	BOOL	mIsSelecting;
-	S32		mSelectionStart;
-	S32		mSelectionEnd;
-};
-
-
 //
 // Member functions
 //
@@ -190,7 +152,7 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 	setFocusLostCallback(focus_lost_callback);
 
 	mMinHPixels = mBorderThickness + UI_LINEEDITOR_H_PAD + mBorderLeft;
-	mMaxHPixels = mRect.getWidth() - mMinHPixels - mBorderThickness - mBorderRight;
+	mMaxHPixels = getRect().getWidth() - mMinHPixels - mBorderThickness - mBorderRight;
 
 	mScrollTimer.reset();
 
@@ -200,7 +162,7 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 
 	// Scalable UI somehow made these rectangles off-by-one.
 	// I don't know why. JC
-	LLRect border_rect(0, mRect.getHeight()-1, mRect.getWidth()-1, 0);
+	LLRect border_rect(0, getRect().getHeight()-1, getRect().getWidth()-1, 0);
 	mBorder = new LLViewBorder( "line ed border", border_rect, border_bevel, border_style, mBorderThickness );
 	addChild( mBorder );
 	mBorder->setFollows(FOLLOWS_LEFT|FOLLOWS_RIGHT|FOLLOWS_TOP|FOLLOWS_BOTTOM);
@@ -219,17 +181,6 @@ LLLineEditor::~LLLineEditor()
 	}
 }
 
-//virtual
-EWidgetType LLLineEditor::getWidgetType() const
-{
-	return WIDGET_TYPE_LINE_EDITOR;
-}
-
-//virtual
-LLString LLLineEditor::getWidgetTag() const
-{
-	return LL_LINE_EDITOR_TAG;
-}
 
 void LLLineEditor::onFocusReceived()
 {
@@ -269,18 +220,6 @@ void LLLineEditor::onCommit()
 	selectAll();
 }
 
-// virtual 
-BOOL	LLLineEditor::isDirty() const	
-{ 
-	return ( mText.getString() != mPrevText );	
-}
-
-// virtual 
-void	LLLineEditor::resetDirty()	
-{ 
-	mPrevText = mText.getString();	
-}
-
 
 // line history support
 void LLLineEditor::updateHistory()
@@ -306,12 +245,7 @@ void LLLineEditor::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLUICtrl::reshape(width, height, called_from_parent );
 
-	mMaxHPixels = mRect.getWidth() - 2 * (mBorderThickness + UI_LINEEDITOR_H_PAD) + 1 - mBorderRight;
-}
-
-void LLLineEditor::setEnableLineHistory( BOOL enabled )
-{
-	mHaveHistory = enabled;
+	mMaxHPixels = getRect().getWidth() - 2 * (mBorderThickness + UI_LINEEDITOR_H_PAD) + 1 - mBorderRight;
 }
 
 void LLLineEditor::setEnabled(BOOL enabled)
@@ -330,16 +264,12 @@ void LLLineEditor::setMaxTextLength(S32 max_text_length)
 
 void LLLineEditor::setBorderWidth(S32 left, S32 right)
 {
-	mBorderLeft = llclamp(left, 0, mRect.getWidth());
-	mBorderRight = llclamp(right, 0, mRect.getWidth());
+	mBorderLeft = llclamp(left, 0, getRect().getWidth());
+	mBorderRight = llclamp(right, 0, getRect().getWidth());
 	mMinHPixels = mBorderThickness + UI_LINEEDITOR_H_PAD + mBorderLeft;
-	mMaxHPixels = mRect.getWidth() - mMinHPixels - mBorderThickness - mBorderRight;
+	mMaxHPixels = getRect().getWidth() - mMinHPixels - mBorderThickness - mBorderRight;
 }
 
-void LLLineEditor::setLabel(const LLStringExplicit &new_label)
-{
-	mLabel = new_label;
-}
 
 void LLLineEditor::setText(const LLStringExplicit &new_text)
 {
@@ -451,11 +381,10 @@ void LLLineEditor::setCursorToEnd()
 	deselect();
 }
 
-BOOL LLLineEditor::canDeselect()
+BOOL LLLineEditor::canDeselect() const
 {
 	return hasSelection();
 }
-
 
 void LLLineEditor::deselect()
 {
@@ -481,7 +410,7 @@ void LLLineEditor::endSelection()
 	}
 }
 
-BOOL LLLineEditor::canSelectAll()
+BOOL LLLineEditor::canSelectAll() const
 {
 	return TRUE;
 }
@@ -554,7 +483,7 @@ BOOL LLLineEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (x < mBorderLeft || x > (mRect.getWidth() - mBorderRight))
+	if (x < mBorderLeft || x > (getRect().getWidth() - mBorderRight))
 	{
 		return LLUICtrl::handleMouseDown(x, y, mask);
 	}
@@ -634,7 +563,7 @@ BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLLineEditor::handleHover(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = FALSE;
-	if (!hasMouseCapture() && (x < mBorderLeft || x > (mRect.getWidth() - mBorderRight)))
+	if (!hasMouseCapture() && (x < mBorderLeft || x > (getRect().getWidth() - mBorderRight)))
 	{
 		return LLUICtrl::handleHover(x, y, mask);
 	}
@@ -705,7 +634,7 @@ BOOL LLLineEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 		handled = TRUE;
 	}
 
-	if (!handled && (x < mBorderLeft || x > (mRect.getWidth() - mBorderRight)))
+	if (!handled && (x < mBorderLeft || x > (getRect().getWidth() - mBorderRight)))
 	{
 		return LLUICtrl::handleMouseUp(x, y, mask);
 	}
@@ -856,11 +785,6 @@ BOOL LLLineEditor::handleSelectionKey(KEY key, MASK mask)
 		switch( key )
 		{
 		case KEY_LEFT:
-			if (mIgnoreArrowKeys) 
-			{
-				handled = FALSE;
-				break;
-			}
 			if( 0 < getCursor() )
 			{
 				S32 cursorPos = getCursor() - 1;
@@ -877,11 +801,6 @@ BOOL LLLineEditor::handleSelectionKey(KEY key, MASK mask)
 			break;
 
 		case KEY_RIGHT:
-			if (mIgnoreArrowKeys) 
-			{
-				handled = FALSE;
-				break;
-			}
 			if( getCursor() < mText.length())
 			{
 				S32 cursorPos = getCursor() + 1;
@@ -899,22 +818,12 @@ BOOL LLLineEditor::handleSelectionKey(KEY key, MASK mask)
 
 		case KEY_PAGE_UP:
 		case KEY_HOME:
-			if (mIgnoreArrowKeys) 
-			{
-				handled = FALSE;
-				break;
-			}
 			extendSelection( 0 );
 			break;
 		
 		case KEY_PAGE_DOWN:
 		case KEY_END:
 			{
-				if (mIgnoreArrowKeys) 
-				{
-					handled = FALSE;
-					break;
-				}
 				S32 len = mText.length();
 				if( len )
 				{
@@ -962,7 +871,7 @@ void LLLineEditor::deleteSelection()
 	}
 }
 
-BOOL LLLineEditor::canCut()
+BOOL LLLineEditor::canCut() const
 {
 	return !mReadOnly && !mDrawAsterixes && hasSelection();
 }
@@ -996,7 +905,7 @@ void LLLineEditor::cut()
 	}
 }
 
-BOOL LLLineEditor::canCopy()
+BOOL LLLineEditor::canCopy() const
 {
 	return !mDrawAsterixes && hasSelection();
 }
@@ -1013,7 +922,7 @@ void LLLineEditor::copy()
 	}
 }
 
-BOOL LLLineEditor::canPaste()
+BOOL LLLineEditor::canPaste() const
 {
 	return !mReadOnly && gClipboard.canPasteString(); 
 }
@@ -1148,8 +1057,9 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 		break;
 
 	case KEY_LEFT:
-		if (!mIgnoreArrowKeys
-			&& mask != MASK_ALT)
+		if (mIgnoreArrowKeys && mask == MASK_NONE)
+			break;
+		if ((mask & MASK_ALT) == 0)
 		{
 			if( hasSelection() )
 			{
@@ -1174,8 +1084,9 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 		break;
 
 	case KEY_RIGHT:
-		if (!mIgnoreArrowKeys
-			&& mask != MASK_ALT)
+		if (mIgnoreArrowKeys && mask == MASK_NONE)
+			break;
+		if ((mask & MASK_ALT) == 0)
 		{
 			if (hasSelection())
 			{
@@ -1428,7 +1339,7 @@ BOOL LLLineEditor::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_pare
 }
 
 
-BOOL LLLineEditor::canDoDelete()
+BOOL LLLineEditor::canDoDelete() const
 {
 	return ( !mReadOnly && (!mPassDelete || (hasSelection() || (getCursor() < mText.length()))) );
 }
@@ -1490,7 +1401,7 @@ void LLLineEditor::draw()
 	}
 
 	// draw rectangle for the background
-	LLRect background( 0, mRect.getHeight(), mRect.getWidth(), 0 );
+	LLRect background( 0, getRect().getHeight(), getRect().getWidth(), 0 );
 	background.stretch( -mBorderThickness );
 
 	LLColor4 bg_color = mReadOnlyBgColor;
@@ -1521,7 +1432,7 @@ void LLLineEditor::draw()
 	LLColor4 text_color;
 	if (!mReadOnly)
 	{
-		if (!mTentative)
+		if (!getTentative())
 		{
 			text_color = mFgColor;
 		}
@@ -1846,7 +1757,7 @@ BOOL LLLineEditor::prevalidateFloat(const LLWString &str)
 	if( 0 < len )
 	{
 		// May be a comma or period, depending on the locale
-		char decimal_point = gResMgr->getDecimalPoint();
+		llwchar decimal_point = (llwchar)gResMgr->getDecimalPoint();
 
 		S32 i = 0;
 
@@ -1895,7 +1806,7 @@ BOOL LLLineEditor::postvalidateFloat(const LLString &str)
 		}
 
 		// May be a comma or period, depending on the locale
-		char decimal_point = gResMgr->getDecimalPoint();
+		llwchar decimal_point = (llwchar)gResMgr->getDecimalPoint();
 
 		for( ; i < len; i++ )
 		{
@@ -2366,18 +2277,6 @@ void LLLineEditor::setColorParameters(LLXMLNodePtr node)
 	}
 }
 
-void LLLineEditor::setValue(const LLSD& value )
-{
-	setText(value.asString());
-}
-
-LLSD LLLineEditor::getValue() const
-{
-	LLString str = getText();
-	LLSD ret(str);
-	return ret;
-}
-
 BOOL LLLineEditor::setTextArg( const LLString& key, const LLStringExplicit& text )
 {
 	mText.setArg(key, text);
@@ -2504,7 +2403,7 @@ BOOL LLLineEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
 	if (control)
 	{
 		LLRect control_rect_screen;
-		localRectToScreen(mRect, &control_rect_screen);
+		localRectToScreen(getRect(), &control_rect_screen);
 		LLUI::screenRectToGL(control_rect_screen, control);
 	}
 
@@ -2534,21 +2433,21 @@ BOOL LLLineEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
 	{
 		S32 query_local = findPixelNearestPos(query - getCursor());
 		S32 query_screen_x, query_screen_y;
-		localPointToScreen(query_local, mRect.getHeight() / 2, &query_screen_x, &query_screen_y);
+		localPointToScreen(query_local, getRect().getHeight() / 2, &query_screen_x, &query_screen_y);
 		LLUI::screenPointToGL(query_screen_x, query_screen_y, &coord->mX, &coord->mY);
 	}
 
 	if (bounds)
 	{
 		S32 preedit_left_local = findPixelNearestPos(llmax(preedit_left_column, mScrollHPos) - getCursor());
-		S32 preedit_right_local = llmin(findPixelNearestPos(preedit_right_column - getCursor()), mRect.getWidth() - mBorderThickness);
+		S32 preedit_right_local = llmin(findPixelNearestPos(preedit_right_column - getCursor()), getRect().getWidth() - mBorderThickness);
 		if (preedit_left_local > preedit_right_local)
 		{
 			// Is this condition possible?
 			preedit_right_local = preedit_left_local;
 		}
 
-		LLRect preedit_rect_local(preedit_left_local, mRect.getHeight(), preedit_right_local, 0);
+		LLRect preedit_rect_local(preedit_left_local, getRect().getHeight(), preedit_right_local, 0);
 		LLRect preedit_rect_screen;
 		localRectToScreen(preedit_rect_local, &preedit_rect_screen);
 		LLUI::screenRectToGL(preedit_rect_screen, bounds);
@@ -2632,7 +2531,7 @@ LLSearchEditor::LLSearchEditor(const LLString& name,
 		LLUICtrl(name, rect, TRUE, NULL, userdata),
 		mSearchCallback(search_callback)
 {
-	LLRect search_edit_rect(0, mRect.getHeight(), mRect.getWidth(), 0);
+	LLRect search_edit_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
 	mSearchEdit = new LLLineEditor("search edit",
 			search_edit_rect,
 			LLString::null,
@@ -2668,55 +2567,6 @@ LLSearchEditor::LLSearchEditor(const LLString& name,
 	mSearchEdit->setBorderWidth(0, btn_width);
 }
 
-LLSearchEditor::~LLSearchEditor() 
-{
-}
-
-//virtual
-EWidgetType LLSearchEditor::getWidgetType() const
-{
-	return WIDGET_TYPE_SEARCH_EDITOR;
-}
-
-//virtual
-LLString LLSearchEditor::getWidgetTag() const
-{
-	return LL_SEARCH_EDITOR_TAG;
-}
-
-//virtual
-void LLSearchEditor::setValue(const LLSD& value )
-{
-	mSearchEdit->setValue(value);
-}
-
-//virtual
-LLSD LLSearchEditor::getValue() const
-{
-	return mSearchEdit->getValue();
-}
-
-//virtual
-BOOL LLSearchEditor::setTextArg( const LLString& key, const LLStringExplicit& text )
-{
-	return mSearchEdit->setTextArg(key, text);
-}
-
-//virtual
-BOOL LLSearchEditor::setLabelArg( const LLString& key, const LLStringExplicit& text )
-{
-	return mSearchEdit->setLabelArg(key, text);
-}
-
-//virtual
-void LLSearchEditor::clear()
-{
-	if (mSearchEdit)
-	{
-		mSearchEdit->clear();
-	}
-}
-
 
 void LLSearchEditor::draw()
 {
@@ -2725,10 +2575,6 @@ void LLSearchEditor::draw()
 	LLUICtrl::draw();
 }
 
-void LLSearchEditor::setText(const LLStringExplicit &new_text)
-{
-	mSearchEdit->setText(new_text);
-}
 
 //static
 void LLSearchEditor::onSearchEdit(LLLineEditor* caller, void* user_data )

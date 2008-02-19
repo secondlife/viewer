@@ -50,7 +50,7 @@ class LLCheckBoxCtrl;
 class LLPanelActiveSpeakers;
 
 class LLFloaterChat
-:	public LLFloater, public LLUISingleton<LLFloaterChat>
+	:	public LLFloater, public LLUISingleton<LLFloaterChat, LLFloaterChat>
 {
 public:
 	LLFloaterChat(const LLSD& seed);
@@ -78,9 +78,12 @@ public:
 	static void loadHistory();
 	static void* createSpeakersPanel(void* data);
 	static void* createChatPanel(void* data);
-	static void hideInstance(const LLSD& id);
 
-protected:
+	// visibility policy for LLUISingleton
+	static bool visible(LLFloater* instance, const LLSD& key);
+	static void show(LLFloater* instance, const LLSD& key);
+	static void hide(LLFloater* instance, const LLSD& key);
+
 	LLPanelActiveSpeakers* mPanel;
 	BOOL mScrolledToEnd;
 };

@@ -57,7 +57,7 @@ public:
 	virtual void	onMouseCaptureLost() = 0;
 
 	// Hack to support LLFocusMgr
-	virtual BOOL isView() = 0;
+	virtual BOOL isView() const = 0;
 
 	virtual void	screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const = 0;
 	virtual void	localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const = 0;

@@ -35,7 +35,6 @@
 #include "lluictrl.h"
 #include "v4color.h"
 
-class LLUICtrlFactory;
 class LLImageGL;
 
 class LLSlider : public LLUICtrl
@@ -50,16 +49,16 @@ public:
 		F32 min_value,
 		F32 max_value,
 		F32 increment,
-		BOOL volume,
+		BOOL volume, //TODO: create a "volume" slider sub-class or just use image art, no?  -MG
 		const LLString& control_name = LLString::null );
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
+	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_SLIDER_BAR; }
+	virtual LLString getWidgetTag() const { return LL_SLIDER_TAG; }
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
-	static  LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
+	static  LLView* fromXML(LLXMLNodePtr node, LLView *parent, class LLUICtrlFactory *factory);
 
 	void			setValue( F32 value, BOOL from_event = FALSE );
-	F32				getValueF32() const;
+	F32				getValueF32() const { return mValue; }
 
 	virtual void	setValue(const LLSD& value )	{ setValue((F32)value.asReal(), TRUE); }
 	virtual LLSD	getValue() const		{ return LLSD(getValueF32()); }
@@ -71,7 +70,6 @@ public:
 	F32				getMinValue() const		{ return mMinValue; }
 	F32				getMaxValue() const		{ return mMaxValue; }
 	F32				getIncrement() const	{ return mIncrement; }
-	BOOL			getVolumeSlider() const	{ return mVolumeSlider; }
 	void			setMinValue(F32 min_value) {mMinValue = min_value;}
 	void			setMaxValue(F32 max_value) {mMaxValue = max_value;}
 	void			setIncrement(F32 increment) {mIncrement = increment;}
@@ -84,11 +82,10 @@ public:
 	virtual BOOL	handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
 	virtual void	draw();
 
-protected:
+private:
 	void			setValueAndCommit(F32 value);
 	void			updateThumbRect();
 
-protected:
 	F32				mValue;
 	F32				mInitialValue;
 	F32				mMinValue;

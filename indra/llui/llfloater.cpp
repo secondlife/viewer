@@ -142,20 +142,18 @@ LLFloater::LLFloater() :
 		mButtons[i] = NULL;
 	}
 	mDragHandle = NULL;
+	mHandle.bind(this);
 }
 
 LLFloater::LLFloater(const LLString& name)
-:	LLPanel(name)
+:	LLPanel(name), mAutoFocus(TRUE) // automatically take focus when opened
 {
 	for (S32 i = 0; i < BUTTON_COUNT; i++)
 	{
 		mButtonsEnabled[i] = FALSE;
 		mButtons[i] = NULL;
 	}
-
 	LLString title; // null string
-	// automatically take focus when opened
-	mAutoFocus = TRUE;
 	init(title, FALSE, DEFAULT_MIN_WIDTH, DEFAULT_MIN_HEIGHT, FALSE, TRUE, TRUE); // defaults
 }
 
@@ -168,15 +166,13 @@ LLFloater::LLFloater(const LLString& name, const LLRect& rect, const LLString& t
 	BOOL minimizable,
 	BOOL close_btn,
 	BOOL bordered)
-:	LLPanel(name, rect, bordered)
+:	LLPanel(name, rect, bordered), mAutoFocus(TRUE) // automatically take focus when opened
 {
 	for (S32 i = 0; i < BUTTON_COUNT; i++)
 	{
 		mButtonsEnabled[i] = FALSE;
 		mButtons[i] = NULL;
 	}
-	// automatically take focus when opened
-	mAutoFocus = TRUE;
 	init( title, resizable, min_width, min_height, drag_on_left, minimizable, close_btn);
 }
 
@@ -188,15 +184,13 @@ LLFloater::LLFloater(const LLString& name, const LLString& rect_control, const L
 	BOOL minimizable,
 	BOOL close_btn,
 	BOOL bordered)
-:	LLPanel(name, rect_control, bordered)
+:	LLPanel(name, rect_control, bordered), mAutoFocus(TRUE) // automatically take focus when opened
 {
 	for (S32 i = 0; i < BUTTON_COUNT; i++)
 	{
 		mButtonsEnabled[i] = FALSE;
 		mButtons[i] = NULL;
 	}
-	// automatically take focus when opened
-	mAutoFocus = TRUE;
 	init( title, resizable, min_width, min_height, drag_on_left, minimizable, close_btn);
 }
 
@@ -206,6 +200,8 @@ void LLFloater::init(const LLString& title,
 					 BOOL resizable, S32 min_width, S32 min_height,
 					 BOOL drag_on_left, BOOL minimizable, BOOL close_btn)
 {
+	mHandle.bind(this);
+
 	// Init function can be called more than once, so clear out old data.
 	for (S32 i = 0; i < BUTTON_COUNT; i++)
 	{
@@ -219,20 +215,20 @@ void LLFloater::init(const LLString& title,
 	}
 	mButtonScale = 1.f;
 
-	BOOL need_border = mBorder != NULL;
-
+	//sjb: Thia is a bit of a hack:
+	BOOL need_border = hasBorder();
+	// remove the border since deleteAllChildren() will also delete the border (but not clear mBorder)
+	removeBorder();
 	// this will delete mBorder too
 	deleteAllChildren();
-	// make sure we don't have a pointer to an old, deleted border	
-	mBorder = NULL;
-	//sjb: HACK! we had a border which was just deleted, so re-create it
+	// add the border back if we want it
 	if (need_border)
 	{
-		addBorder();
+	    addBorder();
 	}
 
 	// chrome floaters don't take focus at all
-	mIsFocusRoot = !getIsChrome();
+	setFocusRoot(!getIsChrome());
 
 	// Reset cached pointers
 	mDragHandle = NULL;
@@ -257,7 +253,7 @@ void LLFloater::init(const LLString& title,
 	// Floaters start not minimized.  When minimized, they save their
 	// prior rectangle to be used on restore.
 	mMinimized = FALSE;
-	mPreviousRect.set(0,0,0,0);
+	mExpandedRect.set(0,0,0,0);
 	
 	S32 close_pad;			// space to the right of close box
 	S32 close_box_size;		// For layout purposes, how big is the close box?
@@ -288,30 +284,19 @@ void LLFloater::init(const LLString& title,
 	// Drag Handle
 	// Add first so it's in the background.
 //	const S32 drag_pad = 2;
-	LLRect drag_handle_rect;
-	if (!drag_on_left)
+	if (drag_on_left)
 	{
-		drag_handle_rect.set( 0, mRect.getHeight(), mRect.getWidth(), 0 );
-
-		/*
-		drag_handle_rect.setLeftTopAndSize(
-			0, mRect.getHeight(),
-			mRect.getWidth() 
-				- LLPANEL_BORDER_WIDTH 
-				- drag_pad
-				- minimize_box_size - minimize_pad 
-				- close_box_size - close_pad,
-			DRAG_HANDLE_HEIGHT);
-			*/
-		mDragHandle = new LLDragHandleTop( "Drag Handle", drag_handle_rect, title );
-	}
-	else
-	{
+		LLRect drag_handle_rect;
 		drag_handle_rect.setOriginAndSize(
 			0, 0,
 			DRAG_HANDLE_WIDTH,
-			mRect.getHeight() - LLPANEL_BORDER_WIDTH - close_box_size);
+			getRect().getHeight() - LLPANEL_BORDER_WIDTH - close_box_size);
 		mDragHandle = new LLDragHandleLeft("drag", drag_handle_rect, title );
+	}
+	else // drag on top
+	{
+		LLRect drag_handle_rect( 0, getRect().getHeight(), getRect().getWidth(), 0 );
+		mDragHandle = new LLDragHandleTop( "Drag Handle", drag_handle_rect, title );
 	}
 	addChild(mDragHandle);
 
@@ -327,28 +312,28 @@ void LLFloater::init(const LLString& title,
 		mResizeBar[LLResizeBar::LEFT] = new LLResizeBar( 
 			"resizebar_left",
 			this,
-			LLRect( 0, mRect.getHeight(), RESIZE_BAR_THICKNESS, 0), 
+			LLRect( 0, getRect().getHeight(), RESIZE_BAR_THICKNESS, 0), 
 			min_width, S32_MAX, LLResizeBar::LEFT );
 		addChild( mResizeBar[0] );
 
 		mResizeBar[LLResizeBar::TOP] = new LLResizeBar( 
 			"resizebar_top",
 			this,
-			LLRect( 0, mRect.getHeight(), mRect.getWidth(), mRect.getHeight() - RESIZE_BAR_THICKNESS), 
+			LLRect( 0, getRect().getHeight(), getRect().getWidth(), getRect().getHeight() - RESIZE_BAR_THICKNESS), 
 			min_height, S32_MAX, LLResizeBar::TOP );
 		addChild( mResizeBar[1] );
 
 		mResizeBar[LLResizeBar::RIGHT] = new LLResizeBar( 
 			"resizebar_right",
 			this,
-			LLRect( mRect.getWidth() - RESIZE_BAR_THICKNESS, mRect.getHeight(), mRect.getWidth(), 0), 
+			LLRect( getRect().getWidth() - RESIZE_BAR_THICKNESS, getRect().getHeight(), getRect().getWidth(), 0), 
 			min_width, S32_MAX, LLResizeBar::RIGHT );
 		addChild( mResizeBar[2] );
 
 		mResizeBar[LLResizeBar::BOTTOM] = new LLResizeBar( 
 			"resizebar_bottom",
 			this,
-			LLRect( 0, RESIZE_BAR_THICKNESS, mRect.getWidth(), 0), 
+			LLRect( 0, RESIZE_BAR_THICKNESS, getRect().getWidth(), 0), 
 			min_height, S32_MAX, LLResizeBar::BOTTOM );
 		addChild( mResizeBar[3] );
 
@@ -356,14 +341,14 @@ void LLFloater::init(const LLString& title,
 		// Resize handles (corners)
 		mResizeHandle[0] = new LLResizeHandle( 
 			"Resize Handle",
-			LLRect( mRect.getWidth() - RESIZE_HANDLE_WIDTH, RESIZE_HANDLE_HEIGHT, mRect.getWidth(), 0),
+			LLRect( getRect().getWidth() - RESIZE_HANDLE_WIDTH, RESIZE_HANDLE_HEIGHT, getRect().getWidth(), 0),
 			min_width,
 			min_height,
 			LLResizeHandle::RIGHT_BOTTOM);
 		addChild(mResizeHandle[0]);
 
 		mResizeHandle[1] = new LLResizeHandle( "resize", 
-			LLRect( mRect.getWidth() - RESIZE_HANDLE_WIDTH, mRect.getHeight(), mRect.getWidth(), mRect.getHeight() - RESIZE_HANDLE_HEIGHT),
+			LLRect( getRect().getWidth() - RESIZE_HANDLE_WIDTH, getRect().getHeight(), getRect().getWidth(), getRect().getHeight() - RESIZE_HANDLE_HEIGHT),
 			min_width,
 			min_height,
 			LLResizeHandle::RIGHT_TOP );
@@ -377,7 +362,7 @@ void LLFloater::init(const LLString& title,
 		addChild(mResizeHandle[2]);
 
 		mResizeHandle[3] = new LLResizeHandle( "resize", 
-			LLRect( 0, mRect.getHeight(), RESIZE_HANDLE_WIDTH, mRect.getHeight() - RESIZE_HANDLE_HEIGHT ),
+			LLRect( 0, getRect().getHeight(), RESIZE_HANDLE_WIDTH, getRect().getHeight() - RESIZE_HANDLE_HEIGHT ),
 			min_width,
 			min_height,
 			LLResizeHandle::LEFT_TOP );
@@ -413,7 +398,7 @@ void LLFloater::init(const LLString& title,
 	setVisible(FALSE);
 
 	// add self to handle->floater map
-	sFloaterMap[mViewHandle] = this;
+	sFloaterMap[mHandle] = this;
 
 	if (!getParent())
 	{
@@ -450,7 +435,7 @@ LLFloater::~LLFloater()
 	// correct, non-minimized positions.
 	setMinimized( FALSE );
 
-	sFloaterMap.erase(mViewHandle);
+	sFloaterMap.erase(mHandle);
 
 	delete mDragHandle;
 	for (S32 i = 0; i < 4; i++) 
@@ -460,22 +445,6 @@ LLFloater::~LLFloater()
 	}
 }
 
-// virtual
-EWidgetType LLFloater::getWidgetType() const
-{
-	return WIDGET_TYPE_FLOATER;
-}
-
-// virtual
-LLString LLFloater::getWidgetTag() const
-{
-	return LL_FLOATER_TAG;
-}
-
-void LLFloater::destroy()
-{
-	die();	
-}
 
 void LLFloater::setVisible( BOOL visible )
 {
@@ -501,7 +470,7 @@ void LLFloater::setVisible( BOOL visible )
 	for(handle_set_iter_t dependent_it = mDependents.begin();
 		dependent_it != mDependents.end(); )
 	{
-		LLFloater* floaterp = LLFloater::getFloaterByHandle(*dependent_it);
+		LLFloater* floaterp = dependent_it->get();
 
 		if (floaterp)
 		{
@@ -513,10 +482,10 @@ void LLFloater::setVisible( BOOL visible )
 
 void LLFloater::open()	/* Flawfinder: ignore */
 {
-	if (mSoundFlags != SILENT 
+	if (getSoundFlags() != SILENT 
 	// don't play open sound for hosted (tabbed) windows
 		&& !getHost() 
-		&& !sHostp
+		&& !getFloaterHost()
 		&& (!getVisible() || isMinimized()))
 	{
 		make_ui_sound("UISndWindowOpen");
@@ -524,17 +493,16 @@ void LLFloater::open()	/* Flawfinder: ignore */
 
 	//RN: for now, we don't allow rehosting from one multifloater to another
 	// just need to fix the bugs
-	LLMultiFloater* hostp = getHost();
-	if (sHostp != NULL && hostp == NULL)
+	if (getFloaterHost() != NULL && getHost() == NULL)
 	{
 		// needs a host
 		// only select tabs if window they are hosted in is visible
-		sHostp->addFloater(this, sHostp->getVisible());
+		getFloaterHost()->addFloater(this, getFloaterHost()->getVisible());
 	}
-	else if (hostp != NULL)
+	else if (getHost() != NULL)
 	{
 		// already hosted
-		hostp->showFloater(this);
+		getHost()->showFloater(this);
 	}
 	else
 	{
@@ -558,7 +526,7 @@ void LLFloater::close(bool app_quitting)
 			((LLMultiFloater*)getHost())->removeFloater(this);
 		}
 
-		if (mSoundFlags != SILENT
+		if (getSoundFlags() != SILENT
 			&& getVisible()
 			&& !getHost()
 			&& !app_quitting)
@@ -571,7 +539,7 @@ void LLFloater::close(bool app_quitting)
 			dependent_it != mDependents.end(); )
 		{
 			
-			LLFloater* floaterp = LLFloater::getFloaterByHandle(*dependent_it);
+			LLFloater* floaterp = dependent_it->get();
 			if (floaterp)
 			{
 				++dependent_it;
@@ -595,7 +563,7 @@ void LLFloater::close(bool app_quitting)
 			// give focus to dependee floater if it exists, and we had focus first
 			if (isDependent())
 			{
-				LLFloater* dependee = LLFloater::getFloaterByHandle(mDependeeHandle);
+				LLFloater* dependee = mDependeeHandle.get();
 				if (dependee && !dependee->isDead())
 				{
 					dependee->setFocus(TRUE);
@@ -661,20 +629,15 @@ void LLFloater::center()
 		// hosted floaters can't move
 		return;
 	}
-	const LLRect &window = gFloaterView->getRect();
-
-	S32 left   = window.mLeft + (window.getWidth() - mRect.getWidth()) / 2;
-	S32 bottom = window.mBottom + (window.getHeight() - mRect.getHeight()) / 2;
-
-	translate( left - mRect.mLeft, bottom - mRect.mBottom );
+	centerWithin(gFloaterView->getRect());
 }
 
 void LLFloater::applyRectControl()
 {
-	if (!mRectControl.empty())
+	if (!getRectControl().empty())
 	{
-		const LLRect& rect = LLUI::sConfigGroup->getRect(mRectControl);
-		translate( rect.mLeft - mRect.mLeft, rect.mBottom - mRect.mBottom);
+		const LLRect& rect = LLUI::sConfigGroup->getRect(getRectControl());
+		translate( rect.mLeft - getRect().mLeft, rect.mBottom - getRect().mBottom);
 		if (mResizable)
 		{
 			reshape(llmax(mMinWidth, rect.getWidth()), llmax(mMinHeight, rect.getHeight()));
@@ -715,7 +678,7 @@ LLString LLFloater::getShortTitle()
 
 
 
-BOOL LLFloater::canSnapTo(LLView* other_view)
+BOOL LLFloater::canSnapTo(const LLView* other_view)
 {
 	if (NULL == other_view)
 	{
@@ -727,7 +690,7 @@ BOOL LLFloater::canSnapTo(LLView* other_view)
 	{
 		LLFloater* other_floaterp = (LLFloater*)other_view;
 		
-		if (other_floaterp->getSnapTarget() == mViewHandle && mDependents.find(other_floaterp->getHandle()) != mDependents.end())
+		if (other_floaterp->getSnapTarget() == getHandle() && mDependents.find(other_floaterp->getHandle()) != mDependents.end())
 		{
 			// this is a dependent that is already snapped to us, so don't snap back to it
 			return FALSE;
@@ -737,7 +700,7 @@ BOOL LLFloater::canSnapTo(LLView* other_view)
 	return LLPanel::canSnapTo(other_view);
 }
 
-void LLFloater::snappedTo(LLView* snap_view)
+void LLFloater::snappedTo(const LLView* snap_view)
 {
 	if (!snap_view || snap_view == getParent())
 	{
@@ -754,7 +717,7 @@ void LLFloater::snappedTo(LLView* snap_view)
 
 void LLFloater::userSetShape(const LLRect& new_rect)
 {
-	LLRect old_rect = mRect;
+	const LLRect& old_rect = getRect();
 	LLView::userSetShape(new_rect);
 
 	// if not minimized, adjust all snapped dependents to new shape
@@ -764,22 +727,22 @@ void LLFloater::userSetShape(const LLRect& new_rect)
 		for(handle_set_iter_t dependent_it = mDependents.begin();
 			dependent_it != mDependents.end(); ++dependent_it)
 		{
-			LLFloater* floaterp = LLFloater::getFloaterByHandle(*dependent_it);
+			LLFloater* floaterp = dependent_it->get();
 			// is a dependent snapped to us?
-			if (floaterp && floaterp->getSnapTarget() == mViewHandle)
+			if (floaterp && floaterp->getSnapTarget() == getHandle())
 			{
 				S32 delta_x = 0;
 				S32 delta_y = 0;
 				// check to see if it snapped to right or top, and move if dependee floater is resizing
 				LLRect dependent_rect = floaterp->getRect();
-				if (dependent_rect.mLeft - mRect.mLeft >= old_rect.getWidth() || // dependent on my right?
-					dependent_rect.mRight == mRect.mLeft + old_rect.getWidth()) // dependent aligned with my right
+				if (dependent_rect.mLeft - getRect().mLeft >= old_rect.getWidth() || // dependent on my right?
+					dependent_rect.mRight == getRect().mLeft + old_rect.getWidth()) // dependent aligned with my right
 				{
 					// was snapped directly onto right side or aligned with it
 					delta_x += new_rect.getWidth() - old_rect.getWidth();
 				}
-				if (dependent_rect.mBottom - mRect.mBottom >= old_rect.getHeight() ||
-					dependent_rect.mTop == mRect.mBottom + old_rect.getHeight())
+				if (dependent_rect.mBottom - getRect().mBottom >= old_rect.getHeight() ||
+					dependent_rect.mTop == getRect().mBottom + old_rect.getHeight())
 				{
 					// was snapped directly onto top side or aligned with it
 					delta_y += new_rect.getHeight() - old_rect.getHeight();
@@ -812,7 +775,7 @@ void LLFloater::setMinimized(BOOL minimize)
 
 	if (minimize)
 	{
-		mPreviousRect = mRect;
+		mExpandedRect = getRect();
 
 		reshape( MINIMIZED_WIDTH, LLFLOATER_HEADER_SIZE, TRUE);
 
@@ -843,7 +806,7 @@ void LLFloater::setMinimized(BOOL minimize)
 			LLView* viewp = *child_it;
 			if (!viewp->getVisible())
 			{
-				mMinimizedHiddenChildren.push_back(viewp->mViewHandle);
+				mMinimizedHiddenChildren.push_back(viewp->getHandle());
 			}
 			viewp->setVisible(FALSE);
 		}
@@ -860,7 +823,7 @@ void LLFloater::setMinimized(BOOL minimize)
 			dependent_it != mDependents.end();
 			++dependent_it)
 		{
-			LLFloater* floaterp = LLFloater::getFloaterByHandle(*dependent_it);
+			LLFloater* floaterp = dependent_it->get();
 			if (floaterp)
 			{
 				if (floaterp->isMinimizeable())
@@ -890,8 +853,8 @@ void LLFloater::setMinimized(BOOL minimize)
 			mPreviousMinimizedBottom = currentRect.mBottom;
 		}
 
-		reshape( mPreviousRect.getWidth(), mPreviousRect.getHeight(), TRUE );
-		setOrigin( mPreviousRect.mLeft, mPreviousRect.mBottom );
+		reshape( mExpandedRect.getWidth(), mExpandedRect.getHeight(), TRUE );
+		setOrigin( mExpandedRect.mLeft, mExpandedRect.mBottom );
 
 		if (mButtonsEnabled[BUTTON_RESTORE])
 		{
@@ -906,10 +869,10 @@ void LLFloater::setMinimized(BOOL minimize)
 			viewp->setVisible(TRUE);
 		}
 
-		std::vector<LLViewHandle>::iterator itor = mMinimizedHiddenChildren.begin();
+		std::vector<LLHandle<LLView> >::iterator itor = mMinimizedHiddenChildren.begin();
 		for ( ; itor != mMinimizedHiddenChildren.end(); ++itor)
 		{
-			LLView* viewp = LLView::getViewByHandle(*itor);
+			LLView* viewp = itor->get();
 			if(viewp)
 			{
 				viewp->setVisible(FALSE);
@@ -922,7 +885,7 @@ void LLFloater::setMinimized(BOOL minimize)
 			dependent_it != mDependents.end();
 			++dependent_it)
 		{
-			LLFloater* floaterp = LLFloater::getFloaterByHandle(*dependent_it);
+			LLFloater* floaterp = dependent_it->get();
 			if (floaterp)
 			{
 				floaterp->setMinimized(FALSE);
@@ -979,7 +942,7 @@ void LLFloater::setIsChrome(BOOL is_chrome)
 		// remove focus if we're changing to chrome
 		setFocus(FALSE);
 		// can't Ctrl-Tab to "chrome" floaters
-		mIsFocusRoot = FALSE;
+		setFocusRoot(FALSE);
 	}
 	
 	// no titles displayed on "chrome" floaters
@@ -1011,7 +974,7 @@ void LLFloater::cleanupHandles()
 	for(handle_set_iter_t dependent_it = mDependents.begin();
 		dependent_it != mDependents.end(); )
 	{
-		LLFloater* floaterp = LLFloater::getFloaterByHandle(*dependent_it);
+		LLFloater* floaterp = dependent_it->get();
 		if (!floaterp)
 		{
 			mDependents.erase(dependent_it++);
@@ -1085,7 +1048,7 @@ void LLFloater::addDependentFloater(LLFloater* floaterp, BOOL reposition)
 	if (reposition)
 	{
 		floaterp->setRect(gFloaterView->findNeighboringPosition(this, floaterp));
-		floaterp->setSnapTarget(mViewHandle);
+		floaterp->setSnapTarget(getHandle());
 	}
 	gFloaterView->adjustToFitScreen(floaterp, FALSE);
 	if (floaterp->isFrontmost())
@@ -1095,9 +1058,9 @@ void LLFloater::addDependentFloater(LLFloater* floaterp, BOOL reposition)
 	}
 }
 
-void LLFloater::addDependentFloater(LLViewHandle dependent, BOOL reposition)
+void LLFloater::addDependentFloater(LLHandle<LLFloater> dependent, BOOL reposition)
 {
-	LLFloater* dependent_floaterp = LLFloater::getFloaterByHandle(dependent);
+	LLFloater* dependent_floaterp = dependent.get();
 	if(dependent_floaterp)
 	{
 		addDependentFloater(dependent_floaterp, reposition);
@@ -1107,7 +1070,7 @@ void LLFloater::addDependentFloater(LLViewHandle dependent, BOOL reposition)
 void LLFloater::removeDependentFloater(LLFloater* floaterp)
 {
 	mDependents.erase(floaterp->getHandle());
-	floaterp->mDependeeHandle = LLViewHandle::sDeadHandle;
+	floaterp->mDependeeHandle = LLHandle<LLFloater>();
 }
 
 // virtual
@@ -1215,32 +1178,13 @@ void LLFloater::setFrontmost(BOOL take_focus)
 	}
 }
 
-// static
-LLFloater*	LLFloater::getFloaterByHandle(LLViewHandle handle)
-{
-	LLFloater* floater = NULL;
-	if (sFloaterMap.count(handle))
-	{
-		floater = sFloaterMap[handle];
-	}
-	if (floater && !floater->isDead())
-	{
-		return floater;
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
 //static
 void LLFloater::setEditModeEnabled(BOOL enable)
 {
 	if (enable != sEditModeEnabled)
 	{
 		S32 count = 0;
-		std::map<LLViewHandle, LLFloater*>::iterator iter;
-		for(iter = sFloaterMap.begin(); iter != sFloaterMap.end(); ++iter)
+		for(handle_map_iter_t iter = sFloaterMap.begin(); iter != sFloaterMap.end(); ++iter)
 		{
 			LLFloater* floater = iter->second;
 			if (!floater->isDead())
@@ -1255,41 +1199,6 @@ void LLFloater::setEditModeEnabled(BOOL enable)
 	sEditModeEnabled = enable;
 }
 
-//static
-BOOL LLFloater::getEditModeEnabled()
-{
-	return sEditModeEnabled;
-}
-
-//static 
-void LLFloater::show(LLFloater* floaterp)
-{
-	if (floaterp) 
-	{
-		gFocusMgr.triggerFocusFlash();
-		floaterp->open();
-		if (floaterp->getHost())
-		{
-			floaterp->getHost()->open();
-		}
-	}
-}
-
-//static 
-void LLFloater::hide(LLFloater* floaterp)
-{
-	if (floaterp) floaterp->close();
-}
-
-//static
-BOOL LLFloater::visible(LLFloater* floaterp)
-{
-	if (floaterp) 
-	{
-		return !floaterp->isMinimized() && floaterp->isInVisibleChain();
-	}
-	return FALSE;
-}
 
 // static
 void LLFloater::onClickMinimize(void *userdata)
@@ -1316,9 +1225,9 @@ void LLFloater::onClickTearOff(void *userdata)
 		self->open();	/* Flawfinder: ignore */
 		
 		// only force position for floaters that don't have that data saved
-		if (self->mRectControl.empty())
+		if (self->getRectControl().empty())
 		{
-			new_rect.setLeftTopAndSize(host_floater->getRect().mLeft + 5, host_floater->getRect().mTop - LLFLOATER_HEADER_SIZE - 5, self->mRect.getWidth(), self->mRect.getHeight());
+			new_rect.setLeftTopAndSize(host_floater->getRect().mLeft + 5, host_floater->getRect().mTop - LLFLOATER_HEADER_SIZE - 5, self->getRect().getWidth(), self->getRect().getHeight());
 			self->setRect(new_rect);
 		}
 		gFloaterView->adjustToFitScreen(self, FALSE);
@@ -1327,7 +1236,7 @@ void LLFloater::onClickTearOff(void *userdata)
 	}
 	else  //Attach to parent.
 	{
-		LLMultiFloater* new_host = (LLMultiFloater*)LLFloater::getFloaterByHandle(self->mLastHostHandle);
+		LLMultiFloater* new_host = (LLMultiFloater*)self->mLastHostHandle.get();
 		if (new_host)
 		{
 			new_host->showFloater(self);
@@ -1351,7 +1260,7 @@ void LLFloater::closeFocusedFloater()
 {
 	LLFloater* focused_floater = NULL;
 
-	std::map<LLViewHandle, LLFloater*>::iterator iter;
+	handle_map_iter_t iter;
 	for(iter = sFloaterMap.begin(); iter != sFloaterMap.end(); ++iter)
 	{
 		focused_floater = iter->second;
@@ -1396,16 +1305,16 @@ void LLFloater::draw()
 	if( getVisible() )
 	{
 		// draw background
-		if( mBgVisible )
+		if( isBackgroundVisible() )
 		{
 			S32 left = LLPANEL_BORDER_WIDTH;
-			S32 top = mRect.getHeight() - LLPANEL_BORDER_WIDTH;
-			S32 right = mRect.getWidth() - LLPANEL_BORDER_WIDTH;
+			S32 top = getRect().getHeight() - LLPANEL_BORDER_WIDTH;
+			S32 right = getRect().getWidth() - LLPANEL_BORDER_WIDTH;
 			S32 bottom = LLPANEL_BORDER_WIDTH;
 
 			LLColor4 shadow_color = LLUI::sColorsGroup->getColor("ColorDropShadow");
 			F32 shadow_offset = (F32)LLUI::sConfigGroup->getS32("DropShadowFloater");
-			if (!mBgOpaque)
+			if (!isBackgroundOpaque())
 			{
 				shadow_offset *= 0.2f;
 				shadow_color.mV[VALPHA] *= 0.5f;
@@ -1415,13 +1324,13 @@ void LLFloater::draw()
 				llround(shadow_offset));
 
 			// No transparent windows in simple UI
-			if (mBgOpaque)
+			if (isBackgroundOpaque())
 			{
-				gl_rect_2d( left, top, right, bottom, mBgColorOpaque );
+				gl_rect_2d( left, top, right, bottom, getBackgroundColor() );
 			}
 			else
 			{
-				gl_rect_2d( left, top, right, bottom, mBgColorAlpha );
+				gl_rect_2d( left, top, right, bottom, getTransparentColor() );
 			}
 
 			if(gFocusMgr.childHasKeyboardFocus(this) && !getIsChrome() && !getTitle().empty())
@@ -1434,19 +1343,19 @@ void LLFloater::draw()
 			}
 		}
 
-		if( mDefaultBtn)
+		if( getDefaultButton() )
 		{
-			if (gFocusMgr.childHasKeyboardFocus( this ) && mDefaultBtn->getEnabled())
+			if (gFocusMgr.childHasKeyboardFocus( this ) && getDefaultButton()->getEnabled())
 			{
 				LLUICtrl* focus_ctrl = gFocusMgr.getKeyboardFocus();
 				// is this button a direct descendent and not a nested widget (e.g. checkbox)?
 				BOOL focus_is_child_button = focus_ctrl->getWidgetType() == WIDGET_TYPE_BUTTON && focus_ctrl->getParent() == this;
 				// only enable default button when current focus is not a button
-				mDefaultBtn->setBorderEnabled(!focus_is_child_button);
+				getDefaultButton()->setBorderEnabled(!focus_is_child_button);
 			}
 			else
 			{
-				mDefaultBtn->setBorderEnabled(FALSE);
+				getDefaultButton()->setBorderEnabled(FALSE);
 			}
 		}
 
@@ -1461,13 +1370,13 @@ void LLFloater::draw()
 
 		LLView::draw();
 
-		if( mBgVisible )
+		if( isBackgroundVisible() )
 		{
 			// add in a border to improve spacialized visual aclarity ;)
 			// use lines instead of gl_rect_2d so we can round the edges as per james' recommendation
 			LLUI::setLineWidth(1.5f);
 			LLColor4 outlineColor = gFocusMgr.childHasKeyboardFocus(this) ? LLUI::sColorsGroup->getColor("FloaterFocusBorderColor") : LLUI::sColorsGroup->getColor("FloaterUnfocusBorderColor");
-			gl_rect_2d_offset_local(0, mRect.getHeight() + 1, mRect.getWidth() + 1, 0, outlineColor, -LLPANEL_BORDER_WIDTH, FALSE);
+			gl_rect_2d_offset_local(0, getRect().getHeight() + 1, getRect().getWidth() + 1, 0, outlineColor, -LLPANEL_BORDER_WIDTH, FALSE);
 			LLUI::setLineWidth(1.f);
 		}
 	
@@ -1481,7 +1390,7 @@ void LLFloater::draw()
 		// when last host goes away
 		if (mCanTearOff && !getHost())
 		{
-			LLFloater* old_host = gFloaterView->getFloaterByHandle(mLastHostHandle);
+			LLFloater* old_host = mLastHostHandle.get();
 			if (!old_host)
 			{
 				setCanTearOff(FALSE);
@@ -1490,33 +1399,6 @@ void LLFloater::draw()
 	}
 }
 
-// virtual
-void LLFloater::onOpen()
-{
-}
-
-// virtual
-void LLFloater::onClose(bool app_quitting)
-{
-	destroy();
-}
-
-// virtual
-BOOL LLFloater::canClose()
-{
-	return TRUE;
-}
-
-// virtual
-BOOL LLFloater::canSaveAs()
-{
-	return FALSE;
-}
-
-// virtual
-void LLFloater::saveAs()
-{
-}
 
 void	LLFloater::setCanMinimize(BOOL can_minimize)
 {
@@ -1585,28 +1467,28 @@ void	LLFloater::setCanResize(BOOL can_resize)
 		mResizeBar[0] = new LLResizeBar( 
 			"resizebar_left",
 			this,
-			LLRect( 0, mRect.getHeight(), RESIZE_BAR_THICKNESS, 0), 
+			LLRect( 0, getRect().getHeight(), RESIZE_BAR_THICKNESS, 0), 
 			mMinWidth, S32_MAX, LLResizeBar::LEFT );
 		addChild( mResizeBar[0] );
 
 		mResizeBar[1] = new LLResizeBar( 
 			"resizebar_top",
 			this,
-			LLRect( 0, mRect.getHeight(), mRect.getWidth(), mRect.getHeight() - RESIZE_BAR_THICKNESS), 
+			LLRect( 0, getRect().getHeight(), getRect().getWidth(), getRect().getHeight() - RESIZE_BAR_THICKNESS), 
 			mMinHeight, S32_MAX, LLResizeBar::TOP );
 		addChild( mResizeBar[1] );
 
 		mResizeBar[2] = new LLResizeBar( 
 			"resizebar_right",
 			this,
-			LLRect( mRect.getWidth() - RESIZE_BAR_THICKNESS, mRect.getHeight(), mRect.getWidth(), 0), 
+			LLRect( getRect().getWidth() - RESIZE_BAR_THICKNESS, getRect().getHeight(), getRect().getWidth(), 0), 
 			mMinWidth, S32_MAX, LLResizeBar::RIGHT );
 		addChild( mResizeBar[2] );
 
 		mResizeBar[3] = new LLResizeBar( 
 			"resizebar_bottom",
 			this,
-			LLRect( 0, RESIZE_BAR_THICKNESS, mRect.getWidth(), 0), 
+			LLRect( 0, RESIZE_BAR_THICKNESS, getRect().getWidth(), 0), 
 			mMinHeight, S32_MAX, LLResizeBar::BOTTOM );
 		addChild( mResizeBar[3] );
 
@@ -1614,14 +1496,14 @@ void	LLFloater::setCanResize(BOOL can_resize)
 		// Resize handles (corners)
 		mResizeHandle[0] = new LLResizeHandle( 
 			"Resize Handle",
-			LLRect( mRect.getWidth() - RESIZE_HANDLE_WIDTH, RESIZE_HANDLE_HEIGHT, mRect.getWidth(), 0),
+			LLRect( getRect().getWidth() - RESIZE_HANDLE_WIDTH, RESIZE_HANDLE_HEIGHT, getRect().getWidth(), 0),
 			mMinWidth,
 			mMinHeight,
 			LLResizeHandle::RIGHT_BOTTOM);
 		addChild(mResizeHandle[0]);
 
 		mResizeHandle[1] = new LLResizeHandle( "resize", 
-			LLRect( mRect.getWidth() - RESIZE_HANDLE_WIDTH, mRect.getHeight(), mRect.getWidth(), mRect.getHeight() - RESIZE_HANDLE_HEIGHT),
+			LLRect( getRect().getWidth() - RESIZE_HANDLE_WIDTH, getRect().getHeight(), getRect().getWidth(), getRect().getHeight() - RESIZE_HANDLE_HEIGHT),
 			mMinWidth,
 			mMinHeight,
 			LLResizeHandle::RIGHT_TOP );
@@ -1635,7 +1517,7 @@ void	LLFloater::setCanResize(BOOL can_resize)
 		addChild(mResizeHandle[2]);
 
 		mResizeHandle[3] = new LLResizeHandle( "resize", 
-			LLRect( 0, mRect.getHeight(), RESIZE_HANDLE_WIDTH, mRect.getHeight() - RESIZE_HANDLE_HEIGHT ),
+			LLRect( 0, getRect().getHeight(), RESIZE_HANDLE_WIDTH, getRect().getHeight() - RESIZE_HANDLE_HEIGHT ),
 			mMinWidth,
 			mMinHeight,
 			LLResizeHandle::LEFT_TOP );
@@ -1672,15 +1554,15 @@ void LLFloater::updateButtons()
 			{
 				btn_rect.setLeftTopAndSize(
 					LLPANEL_BORDER_WIDTH,
-					mRect.getHeight() - CLOSE_BOX_FROM_TOP - (LLFLOATER_CLOSE_BOX_SIZE + 1) * button_count,
+					getRect().getHeight() - CLOSE_BOX_FROM_TOP - (LLFLOATER_CLOSE_BOX_SIZE + 1) * button_count,
 					llround((F32)LLFLOATER_CLOSE_BOX_SIZE * mButtonScale),
 					llround((F32)LLFLOATER_CLOSE_BOX_SIZE * mButtonScale));
 			}
 			else
 			{
 				btn_rect.setLeftTopAndSize(
-					mRect.getWidth() - LLPANEL_BORDER_WIDTH - (LLFLOATER_CLOSE_BOX_SIZE + 1) * button_count,
-					mRect.getHeight() - CLOSE_BOX_FROM_TOP,
+					getRect().getWidth() - LLPANEL_BORDER_WIDTH - (LLFLOATER_CLOSE_BOX_SIZE + 1) * button_count,
+					getRect().getHeight() - CLOSE_BOX_FROM_TOP,
 					llround((F32)LLFLOATER_CLOSE_BOX_SIZE * mButtonScale),
 					llround((F32)LLFLOATER_CLOSE_BOX_SIZE * mButtonScale));
 			}
@@ -1698,7 +1580,7 @@ void LLFloater::updateButtons()
 		}
 	}
 
-	mDragHandle->setMaxTitleWidth(mRect.getWidth() - (button_count * (LLFLOATER_CLOSE_BOX_SIZE + 1)));
+	mDragHandle->setMaxTitleWidth(getRect().getWidth() - (button_count * (LLFLOATER_CLOSE_BOX_SIZE + 1)));
 }
 
 void LLFloater::buildButtons()
@@ -1710,15 +1592,15 @@ void LLFloater::buildButtons()
 		{
 			btn_rect.setLeftTopAndSize(
 				LLPANEL_BORDER_WIDTH,
-				mRect.getHeight() - CLOSE_BOX_FROM_TOP - (LLFLOATER_CLOSE_BOX_SIZE + 1) * (i + 1),
+				getRect().getHeight() - CLOSE_BOX_FROM_TOP - (LLFLOATER_CLOSE_BOX_SIZE + 1) * (i + 1),
 				llround(LLFLOATER_CLOSE_BOX_SIZE * mButtonScale),
 				llround(LLFLOATER_CLOSE_BOX_SIZE * mButtonScale));
 		}
 		else
 		{
 			btn_rect.setLeftTopAndSize(
-				mRect.getWidth() - LLPANEL_BORDER_WIDTH - (LLFLOATER_CLOSE_BOX_SIZE + 1) * (i + 1),
-				mRect.getHeight() - CLOSE_BOX_FROM_TOP,
+				getRect().getWidth() - LLPANEL_BORDER_WIDTH - (LLFLOATER_CLOSE_BOX_SIZE + 1) * (i + 1),
+				getRect().getHeight() - CLOSE_BOX_FROM_TOP,
 				llround(LLFLOATER_CLOSE_BOX_SIZE * mButtonScale),
 				llround(LLFLOATER_CLOSE_BOX_SIZE * mButtonScale));
 		}
@@ -1761,16 +1643,6 @@ LLFloaterView::LLFloaterView( const LLString& name, const LLRect& rect )
 	resetStartingFloaterPosition();
 }
 
-EWidgetType LLFloaterView::getWidgetType() const
-{
-	return WIDGET_TYPE_FLOATER_VIEW;
-}
-
-LLString LLFloaterView::getWidgetTag() const
-{
-	return LL_FLOATER_VIEW_TAG;
-}
-
 // By default, adjust vertical.
 void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
@@ -1780,8 +1652,8 @@ void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent)
 // When reshaping this view, make the floaters follow their closest edge.
 void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent, BOOL adjust_vertical)
 {
-	S32 old_width = mRect.getWidth();
-	S32 old_height = mRect.getHeight();
+	S32 old_width = getRect().getWidth();
+	S32 old_height = getRect().getHeight();
 
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 	{
@@ -1835,7 +1707,7 @@ void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent, BOOL
 		for(LLFloater::handle_set_iter_t dependent_it = floaterp->mDependents.begin();
 			dependent_it != floaterp->mDependents.end(); ++dependent_it)
 		{
-			LLFloater* dependent_floaterp = getFloaterByHandle(*dependent_it);
+			LLFloater* dependent_floaterp = dependent_it->get();
 			if (dependent_floaterp)
 			{
 				dependent_floaterp->setFollows(follow_flags);
@@ -1937,7 +1809,7 @@ LLRect LLFloaterView::findNeighboringPosition( LLFloater* reference_floater, LLF
 	for(LLFloater::handle_set_iter_t dependent_it = reference_floater->mDependents.begin();
 		dependent_it != reference_floater->mDependents.end(); ++dependent_it)
 	{
-		LLFloater* sibling = LLFloater::getFloaterByHandle(*dependent_it);
+		LLFloater* sibling = dependent_it->get();
 		// check for dependents within 10 pixels of base floater
 		if (sibling && 
 			sibling != neighbor && 
@@ -1949,8 +1821,8 @@ LLRect LLFloaterView::findNeighboringPosition( LLFloater* reference_floater, LLF
 	}
 
 	S32 left_margin = llmax(0, base_rect.mLeft);
-	S32 right_margin = llmax(0, mRect.getWidth() - base_rect.mRight);
-	S32 top_margin = llmax(0, mRect.getHeight() - base_rect.mTop);
+	S32 right_margin = llmax(0, getRect().getWidth() - base_rect.mRight);
+	S32 top_margin = llmax(0, getRect().getHeight() - base_rect.mTop);
 	S32 bottom_margin = llmax(0, base_rect.mBottom);
 
 	// find position for floater in following order
@@ -1959,22 +1831,22 @@ LLRect LLFloaterView::findNeighboringPosition( LLFloater* reference_floater, LLF
 	{
 		if (right_margin > width)
 		{
-			new_rect.translate(base_rect.mRight - neighbor->mRect.mLeft, base_rect.mTop - neighbor->mRect.mTop);
+			new_rect.translate(base_rect.mRight - neighbor->getRect().mLeft, base_rect.mTop - neighbor->getRect().mTop);
 			return new_rect;
 		}
 		else if (left_margin > width)
 		{
-			new_rect.translate(base_rect.mLeft - neighbor->mRect.mRight, base_rect.mTop - neighbor->mRect.mTop);
+			new_rect.translate(base_rect.mLeft - neighbor->getRect().mRight, base_rect.mTop - neighbor->getRect().mTop);
 			return new_rect;
 		}
 		else if (bottom_margin > height)
 		{
-			new_rect.translate(base_rect.mLeft - neighbor->mRect.mLeft, base_rect.mBottom - neighbor->mRect.mTop);
+			new_rect.translate(base_rect.mLeft - neighbor->getRect().mLeft, base_rect.mBottom - neighbor->getRect().mTop);
 			return new_rect;
 		}
 		else if (top_margin > height)
 		{
-			new_rect.translate(base_rect.mLeft - neighbor->mRect.mLeft, base_rect.mTop - neighbor->mRect.mBottom);
+			new_rect.translate(base_rect.mLeft - neighbor->getRect().mLeft, base_rect.mTop - neighbor->getRect().mBottom);
 			return new_rect;
 		}
 
@@ -1989,15 +1861,6 @@ LLRect LLFloaterView::findNeighboringPosition( LLFloater* reference_floater, LLF
 	return new_rect;
 }
 
-void LLFloaterView::setCycleMode(BOOL mode)
-{
-	mFocusCycleMode = mode;
-}
-
-BOOL LLFloaterView::getCycleMode()
-{
-	return mFocusCycleMode;
-}
 
 void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 {
@@ -2027,7 +1890,7 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 				for(LLFloater::handle_set_iter_t dependent_it = floater->mDependents.begin();
 					dependent_it != floater->mDependents.end(); )
 				{
-					LLFloater* sibling = LLFloater::getFloaterByHandle(*dependent_it);
+					LLFloater* sibling = dependent_it->get();
 					if (sibling)
 					{
 						floaters_to_move.push_back(sibling);
@@ -2058,7 +1921,7 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus)
 	for(LLFloater::handle_set_iter_t dependent_it = child->mDependents.begin();
 		dependent_it != child->mDependents.end(); )
 	{
-		LLFloater* dependent = getFloaterByHandle(*dependent_it);
+		LLFloater* dependent = dependent_it->get();
 		if (dependent)
 		{
 			sendChildToFront(dependent);
@@ -2099,7 +1962,7 @@ void LLFloaterView::highlightFocusedFloater()
 			dependent_it != floater->mDependents.end(); 
 			++dependent_it)
 		{
-			LLFloater* dependent_floaterp = getFloaterByHandle(*dependent_it);
+			LLFloater* dependent_floaterp = dependent_it->get();
 			if (dependent_floaterp && gFocusMgr.childHasKeyboardFocus(dependent_floaterp))
 			{
 				floater_or_dependent_has_focus = TRUE;
@@ -2112,7 +1975,7 @@ void LLFloaterView::highlightFocusedFloater()
 		for(LLFloater::handle_set_iter_t dependent_it = floater->mDependents.begin();
 			dependent_it != floater->mDependents.end(); )
 		{
-			LLFloater* dependent_floaterp = getFloaterByHandle(*dependent_it);
+			LLFloater* dependent_floaterp = dependent_it->get();
 			if (dependent_floaterp)
 			{
 				dependent_floaterp->setForeground(floater_or_dependent_has_focus);
@@ -2341,9 +2204,9 @@ void LLFloaterView::draw()
 	}
 }
 
-const LLRect LLFloaterView::getSnapRect() const
+LLRect LLFloaterView::getSnapRect() const
 {
-	LLRect snap_rect = mRect;
+	LLRect snap_rect = getRect();
 	snap_rect.mBottom += mSnapOffsetBottom;
 
 	return snap_rect;
@@ -2408,23 +2271,6 @@ void LLFloaterView::syncFloaterTabOrder()
 		LLFloater* floaterp = (LLFloater*)*child_it;
 		moveChildToFrontOfTabGroup(floaterp);
 	}
-}
-
-LLFloater* LLFloaterView::getFloaterByHandle(LLViewHandle handle)
-{
-	if (handle == LLViewHandle::sDeadHandle)
-	{
-		return NULL;
-	}
-	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
-	{
-		LLView* viewp = *child_it;
-		if (((LLFloater*)viewp)->getHandle() == handle)
-		{
-			return (LLFloater*)viewp;
-		}
-	}
-	return NULL;
 }
 
 LLFloater*	LLFloaterView::getParentFloater(LLView* viewp)
@@ -2492,13 +2338,13 @@ void LLFloaterView::popVisibleAll(const skip_list_t& skip_list)
 
 LLMultiFloater::LLMultiFloater() :
 	mTabContainer(NULL),
-	mTabPos(LLTabContainerCommon::TOP),
+	mTabPos(LLTabContainer::TOP),
 	mAutoResize(TRUE)
 {
 
 }
 
-LLMultiFloater::LLMultiFloater(LLTabContainerCommon::TabPosition tab_pos) :
+LLMultiFloater::LLMultiFloater(LLTabContainer::TabPosition tab_pos) :
 	mTabContainer(NULL),
 	mTabPos(tab_pos),
 	mAutoResize(TRUE)
@@ -2509,7 +2355,7 @@ LLMultiFloater::LLMultiFloater(LLTabContainerCommon::TabPosition tab_pos) :
 LLMultiFloater::LLMultiFloater(const LLString &name) :
 	LLFloater(name),
 	mTabContainer(NULL),
-	mTabPos(LLTabContainerCommon::TOP),
+	mTabPos(LLTabContainer::TOP),
 	mAutoResize(FALSE)
 {
 }
@@ -2521,16 +2367,16 @@ LLMultiFloater::LLMultiFloater(
 	BOOL auto_resize) : 
 	LLFloater(name, rect, name),
 	mTabContainer(NULL),
-	mTabPos(LLTabContainerCommon::TOP),
+	mTabPos(LLTabContainer::TOP),
 	mAutoResize(auto_resize)
 {
 	mTabContainer = new LLTabContainer("Preview Tabs", 
-		LLRect(LLPANEL_BORDER_WIDTH, mRect.getHeight() - LLFLOATER_HEADER_SIZE, mRect.getWidth() - LLPANEL_BORDER_WIDTH, 0), 
+		LLRect(LLPANEL_BORDER_WIDTH, getRect().getHeight() - LLFLOATER_HEADER_SIZE, getRect().getWidth() - LLPANEL_BORDER_WIDTH, 0), 
 		mTabPos, 
-		NULL, 
-		NULL);
+		FALSE, 
+		FALSE);
 	mTabContainer->setFollowsAll();
-	if (mResizable)
+	if (isResizable())
 	{
 		mTabContainer->setRightTabBtnOffset(RESIZE_HANDLE_WIDTH);
 	}
@@ -2549,12 +2395,12 @@ LLMultiFloater::LLMultiFloater(
 	mAutoResize(auto_resize)
 {
 	mTabContainer = new LLTabContainer("Preview Tabs", 
-	LLRect(LLPANEL_BORDER_WIDTH, mRect.getHeight() - LLFLOATER_HEADER_SIZE, mRect.getWidth() - LLPANEL_BORDER_WIDTH, 0), 
-	mTabPos, 
-	NULL, 
-	NULL);
+		LLRect(LLPANEL_BORDER_WIDTH, getRect().getHeight() - LLFLOATER_HEADER_SIZE, getRect().getWidth() - LLPANEL_BORDER_WIDTH, 0), 
+		mTabPos, 
+		FALSE, 
+		FALSE);
 	mTabContainer->setFollowsAll();
-	if (mResizable && mTabPos == LLTabContainerCommon::BOTTOM)
+	if (isResizable() && mTabPos == LLTabContainer::BOTTOM)
 	{
 		mTabContainer->setRightTabBtnOffset(RESIZE_HANDLE_WIDTH);
 	}
@@ -2563,21 +2409,6 @@ LLMultiFloater::LLMultiFloater(
 	
 }
 
-LLMultiFloater::~LLMultiFloater()
-{
-}
-
-// virtual
-EWidgetType LLMultiFloater::getWidgetType() const
-{
-	return WIDGET_TYPE_MULTI_FLOATER;
-}
-
-// virtual
-LLString LLMultiFloater::getWidgetTag() const
-{
-	return LL_MULTI_FLOATER_TAG;
-}
 
 void LLMultiFloater::open()	/* Flawfinder: ignore */
 {
@@ -2597,7 +2428,7 @@ void LLMultiFloater::onClose(bool app_quitting)
 {
 	if(closeAllFloaters() == TRUE)
 	{
-		LLFloater::onClose(app_quitting ? true : false);
+		LLFloater::onClose(app_quitting);
 	}//else not all tabs could be closed...
 }
 
@@ -2648,16 +2479,18 @@ BOOL LLMultiFloater::closeAllFloaters()
 
 void LLMultiFloater::growToFit(S32 content_width, S32 content_height)
 {
-	S32 new_width = llmax(mRect.getWidth(), content_width + LLPANEL_BORDER_WIDTH * 2);
-	S32 new_height = llmax(mRect.getHeight(), content_height + LLFLOATER_HEADER_SIZE + TABCNTR_HEADER_HEIGHT);
+	S32 new_width = llmax(getRect().getWidth(), content_width + LLPANEL_BORDER_WIDTH * 2);
+	S32 new_height = llmax(getRect().getHeight(), content_height + LLFLOATER_HEADER_SIZE + TABCNTR_HEADER_HEIGHT);
 
-	if (isMinimized())
-	{
-		mPreviousRect.setLeftTopAndSize(mPreviousRect.mLeft, mPreviousRect.mTop, new_width, new_height);
-	}
+    if (isMinimized())
+    {
+        LLRect newrect;
+        newrect.setLeftTopAndSize(getExpandedRect().mLeft, getExpandedRect().mTop, new_width, new_height);
+        setExpandedRect(newrect);
+    }
 	else
 	{
-		S32 old_height = mRect.getHeight();
+		S32 old_height = getRect().getHeight();
 		reshape(new_width, new_height);
 		// keep top left corner in same position
 		translate(0, old_height - new_height);
@@ -2737,7 +2570,7 @@ void LLMultiFloater::addFloater(LLFloater* floaterp, BOOL select_added_floater, 
 	}
 
 	floaterp->setHost(this);
-	if (mMinimized)
+	if (isMinimized())
 	{
 		floaterp->setVisible(FALSE);
 	}
@@ -2920,7 +2753,7 @@ void LLMultiFloater::onTabSelected(void* userdata, bool from_click)
 void LLMultiFloater::setCanResize(BOOL can_resize)
 {
 	LLFloater::setCanResize(can_resize);
-	if (mResizable && mTabContainer->getTabPosition() == LLTabContainer::BOTTOM)
+	if (isResizable() && mTabContainer->getTabPosition() == LLTabContainer::BOTTOM)
 	{
 		mTabContainer->setRightTabBtnOffset(RESIZE_HANDLE_WIDTH);
 	}
@@ -2963,20 +2796,23 @@ void LLMultiFloater::updateResizeLimits()
 	}
 	setResizeLimits(new_min_width, new_min_height);
 
-	S32 cur_height = mRect.getHeight();
-	S32 new_width = llmax(mRect.getWidth(), new_min_width);
-	S32 new_height = llmax(mRect.getHeight(), new_min_height);
+	S32 cur_height = getRect().getHeight();
+	S32 new_width = llmax(getRect().getWidth(), new_min_width);
+	S32 new_height = llmax(getRect().getHeight(), new_min_height);
 
 	if (isMinimized())
 	{
-		mPreviousRect.setLeftTopAndSize(mPreviousRect.mLeft, mPreviousRect.mTop, llmax(mPreviousRect.getWidth(), new_width), llmax(mPreviousRect.getHeight(), new_height));
+		const LLRect& expanded = getExpandedRect();
+		LLRect newrect;
+		newrect.setLeftTopAndSize(expanded.mLeft, expanded.mTop, llmax(expanded.getWidth(), new_width), llmax(expanded.getHeight(), new_height));
+		setExpandedRect(newrect);
 	}
 	else
 	{
 		reshape(new_width, new_height);
 
 		// make sure upper left corner doesn't move
-		translate(0, cur_height - mRect.getHeight());
+		translate(0, cur_height - getRect().getHeight());
 
 		// make sure this window is visible on screen when it has been modified
 		// (tab added, etc)

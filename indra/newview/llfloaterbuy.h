@@ -71,7 +71,7 @@ protected:
 private:
 	static LLFloaterBuy* sInstance;
 
-	LLHandle<LLObjectSelection>	mObjectSelection;
+	LLSafeHandle<LLObjectSelection>	mObjectSelection;
 	LLSaleInfo mSaleInfo;
 };
 

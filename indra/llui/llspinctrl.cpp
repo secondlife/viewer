@@ -72,7 +72,7 @@ LLSpinCtrl::LLSpinCtrl(	const LLString& name, const LLRect& rect, const LLString
 	mTextDisabledColor( LLUI::sColorsGroup->getColor( "LabelDisabledColor" ) ),
 	mbHasBeenSet( FALSE )
 {
-	S32 top = mRect.getHeight();
+	S32 top = getRect().getHeight();
 	S32 bottom = top - 2 * SPINCTRL_BTN_HEIGHT;
 	S32 centered_top = top;
 	S32 centered_bottom = bottom;
@@ -121,7 +121,7 @@ LLSpinCtrl::LLSpinCtrl(	const LLString& name, const LLRect& rect, const LLString
 	mDownBtn->setTabStop(FALSE);
 	addChild(mDownBtn);
 
-	LLRect editor_rect( btn_right + 1, centered_top, mRect.getWidth(), centered_bottom );
+	LLRect editor_rect( btn_right + 1, centered_top, getRect().getWidth(), centered_bottom );
 	mEditor = new LLLineEditor( "SpinCtrl Editor", editor_rect, "",	font,
 		MAX_STRING_LENGTH,
 		&LLSpinCtrl::onEditorCommit, NULL, NULL, this,
@@ -138,11 +138,6 @@ LLSpinCtrl::LLSpinCtrl(	const LLString& name, const LLRect& rect, const LLString
 
 	updateEditor();
 	setUseBoundingRect( TRUE );
-}
-
-LLSpinCtrl::~LLSpinCtrl()
-{
-	// Children all cleaned up by default view destructor.
 }
 
 
@@ -253,10 +248,6 @@ void LLSpinCtrl::setValue(const LLSD& value )
 	}
 }
 
-LLSD LLSpinCtrl::getValue() const
-{
-	return mValue;
-}
 
 void LLSpinCtrl::clear()
 {
@@ -356,7 +347,7 @@ void LLSpinCtrl::setTentative(BOOL b)
 }
 
 
-BOOL LLSpinCtrl::isMouseHeldDown()
+BOOL LLSpinCtrl::isMouseHeldDown() const
 {
 	return 
 		mDownBtn->hasMouseCapture()
@@ -366,9 +357,7 @@ BOOL LLSpinCtrl::isMouseHeldDown()
 void LLSpinCtrl::onCommit()
 {
 	setTentative(FALSE);
-
 	setControlValue(mValue);
-
 	LLUICtrl::onCommit();
 }
 
@@ -412,7 +401,7 @@ void LLSpinCtrl::draw()
 {
 	if( mLabelBox )
 	{
-		mLabelBox->setColor( mEnabled ? mTextEnabledColor : mTextDisabledColor );
+		mLabelBox->setColor( getEnabled() ? mTextEnabledColor : mTextDisabledColor );
 	}
 	LLUICtrl::draw();
 }
@@ -420,7 +409,7 @@ void LLSpinCtrl::draw()
 
 BOOL LLSpinCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	if( mEnabled )
+	if( getEnabled() )
 	{
 		if( clicks > 0 )
 		{
@@ -551,7 +540,3 @@ LLView* LLSpinCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *
 	return spinner;
 }
 
-BOOL LLSpinCtrl::isDirty() const
-{
-	return( mValue != mInitialValue );
-}

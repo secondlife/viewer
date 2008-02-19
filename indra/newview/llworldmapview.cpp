@@ -325,8 +325,8 @@ void LLWorldMapView::draw()
 	sPanX = lerp(sPanX, sTargetPanX, LLCriticalDamp::getInterpolant(0.1f));
 	sPanY = lerp(sPanY, sTargetPanY, LLCriticalDamp::getInterpolant(0.1f));
 
-	const S32 width = mRect.getWidth();
-	const S32 height = mRect.getHeight();
+	const S32 width = getRect().getWidth();
+	const S32 height = getRect().getHeight();
 	const S32 half_width = width / 2;
 	const S32 half_height = height / 2;
 	LLVector3d camera_global = gAgent.getCameraPositionGlobal();
@@ -990,8 +990,8 @@ void LLWorldMapView::drawFrustum()
 	F32 half_width_meters = far_clip_meters * tan( horiz_fov / 2 );
 	F32 half_width_pixels = half_width_meters * meters_to_pixels;
 	
-	F32 ctr_x = mRect.getWidth() * 0.5f + sPanX;
-	F32 ctr_y = mRect.getHeight() * 0.5f + sPanY;
+	F32 ctr_x = getRect().getWidth() * 0.5f + sPanX;
+	F32 ctr_y = getRect().getHeight() * 0.5f + sPanY;
 
 	LLGLSNoTexture gls_no_texture;
 
@@ -1027,8 +1027,8 @@ LLVector3 LLWorldMapView::globalPosToView( const LLVector3d& global_pos )
 	// leave Z component in meters
 
 
-	pos_local.mV[VX] += mRect.getWidth() / 2 + sPanX;
-	pos_local.mV[VY] += mRect.getHeight() / 2 + sPanY;
+	pos_local.mV[VX] += getRect().getWidth() / 2 + sPanX;
+	pos_local.mV[VY] += getRect().getHeight() / 2 + sPanY;
 
 	return pos_local;
 }
@@ -1048,13 +1048,13 @@ void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& 
 
 	if(    x < 0 
 		|| y < 0 
-		|| x >= mRect.getWidth() 
-		|| y >= mRect.getHeight() )
+		|| x >= getRect().getWidth() 
+		|| y >= getRect().getHeight() )
 	{
 		if (draw_arrow)
 		{
-			drawTrackingCircle( mRect, x, y, color, 3, 15 );
-			drawTrackingArrow( mRect, x, y, color );
+			drawTrackingCircle( getRect(), x, y, color, 3, 15 );
+			drawTrackingArrow( getRect(), x, y, color );
 			text_x = sTrackingArrowX;
 			text_y = sTrackingArrowY;
 		}
@@ -1063,7 +1063,7 @@ void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& 
 	else if (LLTracker::getTrackingStatus() == LLTracker::TRACKING_LOCATION &&
 		LLTracker::getTrackedLocationType() != LLTracker::LOCATION_NOTHING)
 	{
-		drawTrackingCircle( mRect, x, y, color, 3, 15 );
+		drawTrackingCircle( getRect(), x, y, color, 3, 15 );
 	}
 	else
 	{
@@ -1073,8 +1073,8 @@ void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& 
 	// clamp text position to on-screen
 	const S32 TEXT_PADDING = DEFAULT_TRACKING_ARROW_SIZE + 2;
 	S32 half_text_width = llfloor(font->getWidthF32(label) * 0.5f);
-	text_x = llclamp(text_x, half_text_width + TEXT_PADDING, mRect.getWidth() - half_text_width - TEXT_PADDING);
-	text_y = llclamp(text_y + vert_offset, TEXT_PADDING + vert_offset, mRect.getHeight() - llround(font->getLineHeight()) - TEXT_PADDING - vert_offset);
+	text_x = llclamp(text_x, half_text_width + TEXT_PADDING, getRect().getWidth() - half_text_width - TEXT_PADDING);
+	text_y = llclamp(text_y + vert_offset, TEXT_PADDING + vert_offset, getRect().getHeight() - llround(font->getLineHeight()) - TEXT_PADDING - vert_offset);
 
 	if (label != "")
 	{
@@ -1102,8 +1102,8 @@ void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& 
 // If you change this, then you need to change LLTracker::getTrackedPositionGlobal() as well
 LLVector3d LLWorldMapView::viewPosToGlobal( S32 x, S32 y )
 {
-	x -= llfloor((mRect.getWidth() / 2 + sPanX));
-	y -= llfloor((mRect.getHeight() / 2 + sPanY));
+	x -= llfloor((getRect().getWidth() / 2 + sPanX));
+	y -= llfloor((getRect().getHeight() / 2 + sPanY));
 
 	LLVector3 pos_local( (F32)x, (F32)y, 0.f );
 
@@ -1448,8 +1448,8 @@ void LLWorldMapView::setDirectionPos( LLTextBox* text_box, F32 rotation )
 	// Rotation of 0 means x = 1, y = 0 on the unit circle.
 
 
-	F32 map_half_height = mRect.getHeight() * 0.5f;
-	F32 map_half_width = mRect.getWidth() * 0.5f;
+	F32 map_half_height = getRect().getHeight() * 0.5f;
+	F32 map_half_width = getRect().getWidth() * 0.5f;
 	F32 text_half_height = text_box->getRect().getHeight() * 0.5f;
 	F32 text_half_width = text_box->getRect().getWidth() * 0.5f;
 	F32 radius = llmin( map_half_height - text_half_height, map_half_width - text_half_width );
@@ -1462,8 +1462,8 @@ void LLWorldMapView::setDirectionPos( LLTextBox* text_box, F32 rotation )
 
 void LLWorldMapView::updateDirections()
 {
-	S32 width = mRect.getWidth();
-	S32 height = mRect.getHeight();
+	S32 width = getRect().getWidth();
+	S32 height = getRect().getHeight();
 
 	S32 text_height = mTextBoxNorth->getRect().getHeight();
 	S32 text_width = mTextBoxNorth->getRect().getWidth();
@@ -1695,7 +1695,7 @@ BOOL LLWorldMapView::handleMouseUp( S32 x, S32 y, MASK mask )
 			S32 local_x, local_y;
 			local_x = mMouseDownX + llfloor(sPanX - mMouseDownPanX);
 			local_y = mMouseDownY + llfloor(sPanY - mMouseDownPanY);
-			LLRect clip_rect = mRect;
+			LLRect clip_rect = getRect();
 			clip_rect.stretch(-8);
 			clip_rect.clipPointToRect(mMouseDownX, mMouseDownY, local_x, local_y);
 			LLUI::setCursorPositionLocal(this, local_x, local_y);

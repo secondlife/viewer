@@ -44,8 +44,6 @@
 #include "lluistring.h"
 #include "llview.h"
 
-class LLMenuItemGL;
-class LLMenuHolderGL;
 
 extern S32 MENU_BAR_HEIGHT;
 extern S32 MENU_BAR_WIDTH;
@@ -77,13 +75,19 @@ typedef void (*label_callback)(LLString&,void*);
 // The LLMenuItemGL represents a single menu item in a menu. 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLFontGL;
-class LLMenuGL;
-
-
 class LLMenuItemGL : public LLView
 {
 public:
+	// static functions to control the global color scheme.
+	static void setEnabledColor( const LLColor4& color ) { sEnabledColor = color; }
+	static const LLColor4& getEnabledColor() { return sEnabledColor; }
+	static void setDisabledColor( const LLColor4& color ) { sDisabledColor = color; }
+	static const LLColor4& getDisabledColor() { return sDisabledColor; }
+	static void setHighlightBGColor( const LLColor4& color ) { sHighlightBackground = color; }
+	static const LLColor4& getHighlightBGColor() { return sHighlightBackground; }
+	static void setHighlightFGColor( const LLColor4& color ) { sHighlightForeground = color; }
+	static const LLColor4& getHighlightFGColor() { return sHighlightForeground; }
+
 	LLMenuItemGL( const LLString& name, const LLString& label, KEY key = KEY_NONE, MASK = MASK_NONE );
 
 	virtual void setValue(const LLSD& value) { setLabel(value.asString()); }
@@ -99,44 +103,38 @@ public:
 
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 
-	BOOL getHighlight() const			{ return mHighlight; }
-
 	void setJumpKey(KEY key);
-	KEY getJumpKey();
+	KEY getJumpKey() const { return mJumpKey; }
 	
 	// set the font used by this item.
-	void setFont(LLFontGL* font);
+	void setFont(const LLFontGL* font) { mFont = font; }
+	const LLFontGL* getFont() const { return mFont; }
 	void setFontStyle(U8 style) { mStyle = style; }
+	U8 getFontStyle() const { return mStyle; }
 
 	// returns the height in pixels for the current font.
-	virtual U32 getNominalHeight( void );
-
-	// functions to control the color scheme
-	static void setEnabledColor( const LLColor4& color );
-	static void setDisabledColor( const LLColor4& color );
-	static void setHighlightBGColor( const LLColor4& color );
-	static void setHighlightFGColor( const LLColor4& color );
+	virtual U32 getNominalHeight( void ) const;
 	
 	// Marks item as not needing space for check marks or accelerator keys
-	virtual void setBriefItem(BOOL brief);
+	virtual void setBriefItem(BOOL brief) { mBriefItem = brief; }
+	virtual BOOL isBriefItem() const { return mBriefItem; }
 
 	virtual BOOL addToAcceleratorList(std::list<LLKeyBinding*> *listp);
 	void setAllowKeyRepeat(BOOL allow) { mAllowKeyRepeat = allow; }
-
-	// return the name label
-	LLString getLabel( void ) const { return mLabel.getString(); }
+	BOOL getAllowKeyRepeat() const { return mAllowKeyRepeat; }
 
 	// change the label
-	void setLabel( const LLStringExplicit& label );
+	void setLabel( const LLStringExplicit& label ) { mLabel = label; }	
+	LLString getLabel( void ) const { return mLabel.getString(); }
 	virtual BOOL setLabelArg( const LLString& key, const LLStringExplicit& text );
 
 	// Get the parent menu for this item
-	virtual LLMenuGL*	getMenu();
+	virtual class LLMenuGL*	getMenu();
 
 	// returns the normal width of this control in pixels - this is
 	// used for calculating the widest item, as well as for horizontal
 	// arrangement.
-	virtual U32 getNominalWidth( void );
+	virtual U32 getNominalWidth( void ) const;
 
 	// buildDrawLabel() - constructs the string used during the draw()
 	// function. This reduces the overall string manipulation, but can
@@ -155,14 +153,14 @@ public:
 	// doIt() - do the primary funcationality of the menu item.
 	virtual void doIt( void );
 
-	// set the hover status (called by it's menu)
 	virtual void setHighlight( BOOL highlight );
+	virtual BOOL getHighlight() const { return mHighlight; }
 
 	// determine if this represents an active sub-menu
-	virtual BOOL isActive( void ) const;
+	virtual BOOL isActive( void ) const { return FALSE; }
 
 	// determine if this represents an open sub-menu
-	virtual BOOL isOpen( void ) const;
+	virtual BOOL isOpen( void ) const { return FALSE; }
 
 	virtual void setEnabledSubMenus(BOOL enable){};
 
@@ -172,24 +170,20 @@ public:
 	virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask );
 	virtual void draw( void );
 
-	BOOL getHover() { return mGotHover; }
+	BOOL getHover() const { return mGotHover; }
 
+	void setDrawTextDisabled(BOOL disabled) { mDrawTextDisabled = disabled; }
 	BOOL getDrawTextDisabled() const { return mDrawTextDisabled; }
 
 protected:
+	void setHover(BOOL hover) { mGotHover = hover; }
+
 	// This function appends the character string representation of
 	// the current accelerator key and mask to the provided string.
-	void appendAcceleratorString( LLString& st );
+	void appendAcceleratorString( LLString& st ) const;
 
-public:
-	static LLColor4 sEnabledColor;
-	static LLColor4 sDisabledColor;
-	static LLColor4 sHighlightBackground;
-	static LLColor4 sHighlightForeground;
-
-protected:
-	static BOOL sDropShadowText;
-
+	KEY mAcceleratorKey;
+	MASK mAcceleratorMask;
 	// mLabel contains the actual label specified by the user.
 	LLUIString mLabel;
 
@@ -200,12 +194,15 @@ protected:
 	LLUIString mDrawAccelLabel;
 	LLUIString mDrawBranchLabel;
 
-	// Keyboard and mouse variables
-	KEY mJumpKey;
-	KEY mAcceleratorKey;
-	MASK mAcceleratorMask;
-	BOOL mAllowKeyRepeat;
 	BOOL mHighlight;
+private:
+	static LLColor4 sEnabledColor;
+	static LLColor4 sDisabledColor;
+	static LLColor4 sHighlightBackground;
+	static LLColor4 sHighlightForeground;
+
+	// Keyboard and mouse variables
+	BOOL mAllowKeyRepeat;
 	BOOL mGotHover;
 
 	// If true, suppress normal space for check marks on the left and accelerator
@@ -213,10 +210,11 @@ protected:
 	BOOL mBriefItem;
 
 	// Font for this item
-	LLFontGL* mFont;
-
+	const LLFontGL* mFont;
 	U8	mStyle;
 	BOOL mDrawTextDisabled;
+
+	KEY mJumpKey;
 };
 
 
@@ -229,14 +227,6 @@ protected:
 
 class LLMenuItemCallGL : public LLMenuItemGL
 {
-protected:
-	menu_callback			mCallback;
-	// mEnabledCallback should return TRUE if the item should be enabled
-	enabled_callback		mEnabledCallback;	
-	label_callback			mLabelCallback;
-	void*					mUserData;
-	on_disabled_callback	mOnDisabledCallback;
-
 public:
 	// normal constructor
 	LLMenuItemCallGL( const LLString& name,
@@ -277,8 +267,8 @@ public:
 
 	virtual LLString getType() const	{ return "call"; }
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
+	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_MENU_ITEM_CALL; }
+	virtual LLString getWidgetTag() const { return LL_MENU_ITEM_CALL_GL_TAG; }
 
 	void setEnabledControl(LLString enabled_control, LLView *context);
 	void setVisibleControl(LLString enabled_control, LLView *context);
@@ -302,6 +292,14 @@ public:
 	//virtual void draw();
 
 	virtual bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+
+private:
+	menu_callback			mCallback;
+	// mEnabledCallback should return TRUE if the item should be enabled
+	enabled_callback		mEnabledCallback;	
+	label_callback			mLabelCallback;
+	void*					mUserData;
+	on_disabled_callback	mOnDisabledCallback;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -310,17 +308,13 @@ public:
 // The LLMenuItemCheckGL is an extension of the LLMenuItemCallGL
 // class, by allowing another method to be specified which determines
 // if the menu item should consider itself checked as true or not.  Be
-// careful that the check callback provided - it needs to be VERY
+// careful that the provided callback is fast - it needs to be VERY
 // FUCKING EFFICIENT, because it may need to be checked a lot.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class LLMenuItemCheckGL 
 :	public LLMenuItemCallGL
 {
-protected:
-	check_callback mCheckCallback;
-	BOOL mChecked;
-
 public:
 	LLMenuItemCheckGL( const LLString& name, 
 					   const LLString& label,
@@ -348,8 +342,8 @@ public:
 	void setCheckedControl(LLString checked_control, LLView *context);
 
 	virtual void setValue(const LLSD& value) { mChecked = value.asBoolean(); }
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
+	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_MENU_ITEM_CHECK; }
+	virtual LLString getWidgetTag() const { return LL_MENU_ITEM_CHECK_GL_TAG; }
 
 	virtual LLString getType() const	{ return "check"; }
 
@@ -358,8 +352,9 @@ public:
 
 	virtual bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
 
-	// LLView Functionality
-	//virtual void draw( void );
+private:
+	check_callback mCheckCallback;
+	BOOL mChecked;
 };
 
 
@@ -372,9 +367,6 @@ public:
 
 class LLMenuItemToggleGL : public LLMenuItemGL
 {
-protected:
-	BOOL* mToggle;
-
 public:
 	LLMenuItemToggleGL( const LLString& name, const LLString& label,
 						BOOL* toggle, 
@@ -394,6 +386,9 @@ public:
 
 	// LLView Functionality
 	//virtual void draw( void );
+
+private:
+	BOOL* mToggle;
 };
 
 
@@ -408,16 +403,14 @@ public:
 // it in the appendMenu() method.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLMenuArrowGL;
-class LLMenuItemBranchGL;
-class LLMenuItemTearOffGL;
-
 class LLMenuGL 
 :	public LLUICtrl
+// TODO: The menu and menu item classes share a great deal of functionality and perhaps should be united.
+// I think it may make the most sense to make LLMenuGL be a subclass of LLMenuItemGL. -MG
 {
 public:
-	LLMenuGL( const LLString& name, const LLString& label, LLViewHandle parent_floater = LLViewHandle::sDeadHandle );
-	LLMenuGL( const LLString& label, LLViewHandle parent_floater = LLViewHandle::sDeadHandle );
+	LLMenuGL( const LLString& name, const LLString& label, LLHandle<LLFloater> parent_floater = LLHandle<LLFloater>());
+	LLMenuGL( const LLString& label, LLHandle<LLFloater> parent_floater = LLHandle<LLFloater>() );
 	virtual ~LLMenuGL( void );
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
@@ -446,11 +439,12 @@ public:
 	const LLString& getLabel( void ) const { return mLabel.getString(); }
 	void setLabel(const LLStringExplicit& label) { mLabel = label; }
 
-	static void setDefaultBackgroundColor( const LLColor4& color );
-	void setBackgroundColor( const LLColor4& color );
-	LLColor4 getBackgroundColor();
+	// background colors
+	static void setDefaultBackgroundColor( const LLColor4& color ) { sDefaultBackgroundColor = color; }
+	void setBackgroundColor( const LLColor4& color ) { mBackgroundColor = color; }
+	const LLColor4& getBackgroundColor() const { return mBackgroundColor; }
 	void setBackgroundVisible( BOOL b )	{ mBgVisible = b; }
-	void setCanTearOff(BOOL tear_off, LLViewHandle parent_floater_handle = LLViewHandle::sDeadHandle);
+	void setCanTearOff(BOOL tear_off, LLHandle<LLFloater> parent_floater_handle = LLHandle<LLFloater>());
 
 	// Add the menu item to this menu.
 	virtual BOOL append( LLMenuItemGL* item );
@@ -524,7 +518,7 @@ public:
 
 	BOOL getCanTearOff() { return mTearOffItem != NULL; }
 
-	KEY getJumpKey() { return mJumpKey; }
+	KEY getJumpKey() const { return mJumpKey; }
 	void setJumpKey(KEY key) { mJumpKey = key; }
 
 	static void setKeyboardMode(BOOL mode) { sKeyboardMode = mode; }
@@ -532,40 +526,42 @@ public:
 
 	static void onFocusLost(LLView* old_focus);
 
-	static LLMenuHolderGL* sMenuContainer;
+	static class LLMenuHolderGL* sMenuContainer;
 	
 protected:
 	void createSpilloverBranch();
 	void cleanupSpilloverBranch();
 
-protected:
+	// TODO: create accessor methods for these?
+	typedef std::list< LLMenuItemGL* > item_list_t;
+	item_list_t mItems;
+	typedef std::map<KEY, LLMenuItemGL*> navigation_key_map_t;
+	navigation_key_map_t mJumpKeys;
+	S32				mLastMouseX;
+	S32				mLastMouseY;
+	S32				mMouseVelX;
+	S32				mMouseVelY;
+	BOOL			mHorizontalLayout;
+	BOOL			mKeepFixedSize;
+
+private:
 	static LLColor4 sDefaultBackgroundColor;
 	static BOOL		sKeyboardMode;
 
 	LLColor4		mBackgroundColor;
 	BOOL			mBgVisible;
-	typedef std::list< LLMenuItemGL* > item_list_t;
-	item_list_t mItems;
-	typedef std::map<KEY, LLMenuItemGL*> navigation_key_map_t;
-	navigation_key_map_t mJumpKeys;
 	LLMenuItemGL*	mParentMenuItem;
 	LLUIString		mLabel;
 	BOOL mDropShadowed; 	//  Whether to drop shadow 
-	BOOL			mHorizontalLayout;
-	BOOL			mKeepFixedSize;
 	BOOL			mHasSelection;
 	LLFrameTimer	mFadeTimer;
-	S32				mLastMouseX;
-	S32				mLastMouseY;
-	S32				mMouseVelX;
-	S32				mMouseVelY;
 	BOOL			mTornOff;
-	LLMenuItemTearOffGL* mTearOffItem;
-	LLMenuItemBranchGL* mSpilloverBranch;
+	class LLMenuItemTearOffGL* mTearOffItem;
+	class LLMenuItemBranchGL* mSpilloverBranch;
 	LLMenuGL*		mSpilloverMenu;
-	LLViewHandle	mParentFloaterHandle;
+	LLHandle<LLFloater>	mParentFloaterHandle;
 	KEY				mJumpKey;
-};
+}; // end class LLMenuGL
 
 
 
@@ -578,20 +574,15 @@ protected:
 
 class LLMenuItemBranchGL : public LLMenuItemGL
 {
-protected:
-	LLMenuGL* mBranch;
-
 public:
 	LLMenuItemBranchGL( const LLString& name, const LLString& label, LLMenuGL* branch,
 						KEY key = KEY_NONE, MASK mask = MASK_NONE );
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 
-	virtual LLView* getChildByName(const LLString& name, BOOL recurse) const;
+	virtual LLString getType() const { return "menu"; }
 
-	virtual LLString getType() const	{ return "menu"; }
-
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
+	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_MENU_ITEM_BRANCH; }
+	virtual LLString getWidgetTag() const { return LL_MENU_ITEM_BRANCH_GL_TAG; }
 
 	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 
@@ -615,9 +606,9 @@ public:
 
 	virtual BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
 
-	virtual BOOL isActive() const;
+	virtual BOOL isActive() const { return isOpen() && mBranch->getHighlightedItem(); }
 
-	virtual BOOL isOpen() const;
+	virtual BOOL isOpen() const { return mBranch->isOpen(); }
 
 	LLMenuGL *getBranch() const { return mBranch; }
 
@@ -628,11 +619,16 @@ public:
 
 	virtual void draw();
 
-	virtual void setEnabledSubMenus(BOOL enabled);
+	virtual void setEnabledSubMenus(BOOL enabled) { mBranch->setEnabledSubMenus(enabled); }
 
 	virtual void openMenu();
-};
 
+protected:
+	virtual LLView* getChildByName(const LLString& name, BOOL recurse) const;
+
+private:
+	LLMenuGL* mBranch;
+}; // end class LLMenuItemBranchGL
 
 
 
@@ -647,10 +643,10 @@ class LLPieMenu
 public:
 	LLPieMenu(const LLString& name, const LLString& label);
 	LLPieMenu(const LLString& name);
-	virtual ~LLPieMenu();
+	virtual ~LLPieMenu() {}
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
+	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_PIE_MENU; }
+	virtual LLString getWidgetTag() const { return LL_PIE_MENU_TAG; }
 
 	void initXML(LLXMLNodePtr node, LLView *context, LLUICtrlFactory *factory);
 
@@ -682,11 +678,10 @@ public:
 	void show(S32 x, S32 y, BOOL mouse_down);
 	void hide(BOOL item_selected);
 
-protected:
+private:
 	LLMenuItemGL *pieItemFromXY(S32 x, S32 y);
 	S32			  pieItemIndexFromXY(S32 x, S32 y);
 
-private:
 	// These cause menu items to be spuriously selected by right-clicks
 	// near the window edge at low frame rates.  I don't think they are
 	// needed unless you shift the menu position in the draw() function. JC
@@ -703,6 +698,7 @@ private:
 	BOOL			mRightMouseDown;
 };
 
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLMenuBarGL
 //
@@ -711,10 +707,6 @@ private:
 
 class LLMenuBarGL : public LLMenuGL
 {
-protected:
-	std::list <LLKeyBinding*>	mAccelerators;
-	BOOL						mAltKeyTrigger;
-
 public:
 	LLMenuBarGL( const LLString& name );
 	virtual ~LLMenuBarGL();
@@ -748,9 +740,11 @@ public:
 
 	void resetMenuTrigger() { mAltKeyTrigger = FALSE; }
 
-protected:
+private:
 	void checkMenuTrigger();
 
+	std::list <LLKeyBinding*>	mAccelerators;
+	BOOL						mAltKeyTrigger;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -763,10 +757,10 @@ class LLMenuHolderGL : public LLPanel
 public:
 	LLMenuHolderGL();
 	LLMenuHolderGL(const LLString& name, const LLRect& rect, BOOL mouse_opaque, U32 follows = FOLLOWS_NONE);
-	virtual ~LLMenuHolderGL();
+	virtual ~LLMenuHolderGL() {}
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
+	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_MENU_HOLDER; }
+	virtual LLString getWidgetTag() const { return LL_MENU_HOLDER_GL_TAG; }
 
 	virtual BOOL hideMenus();
 	void reshape(S32 width, S32 height, BOOL called_from_parent);
@@ -777,13 +771,13 @@ public:
 	virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	virtual BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
 
-	virtual const LLRect getMenuRect() const;
+	virtual const LLRect getMenuRect() const { return getLocalRect(); }
 	virtual BOOL hasVisibleMenu() const;
 
 	static void setActivatedItem(LLMenuItemGL* item);
 
-protected:
-	static LLViewHandle sItemLastSelectedHandle;
+private:
+	static LLHandle<LLView> sItemLastSelectedHandle;
 	static LLFrameTimer sItemActivationTimer;
 
 	BOOL mCanHide;
@@ -793,12 +787,13 @@ protected:
 // Class LLTearOffMenu
 //
 // Floater that hosts a menu
+// https://wiki.lindenlab.com/mediawiki/index.php?title=LLTearOffMenu&oldid=81344
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLTearOffMenu : public LLFloater
 {
 public:
 	static LLTearOffMenu* create(LLMenuGL* menup);
-	virtual ~LLTearOffMenu();
+	virtual ~LLTearOffMenu() {}
 	virtual void onClose(bool app_quitting);
 	virtual void draw(void);
 	virtual void onFocusReceived();
@@ -807,10 +802,9 @@ public:
 	virtual BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
 	virtual void translate(S32 x, S32 y);
 
-protected:
+private:
 	LLTearOffMenu(LLMenuGL* menup);
 
-protected:
 	LLView*		mOldParent;
 	LLMenuGL*	mMenu;
 	F32			mTargetHeight;
@@ -825,19 +819,19 @@ protected:
 class LLMenuItemTearOffGL : public LLMenuItemGL
 {
 public:
-	LLMenuItemTearOffGL( LLViewHandle parent_floater_handle = (LLViewHandle)LLViewHandle::sDeadHandle );
+	LLMenuItemTearOffGL( LLHandle<LLFloater> parent_floater_handle = LLHandle<LLFloater>());
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
+	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_TEAROFF_MENU; }
+	virtual LLString getWidgetTag() const { return LL_MENU_ITEM_TEAR_OFF_GL_TAG; }
 
-	virtual LLString getType() const	{ return "tearoff_menu"; }
+	virtual LLString getType() const { return "tearoff_menu"; }
 
 	virtual void doIt(void);
 	virtual void draw(void);
-	virtual U32 getNominalHeight();
+	virtual U32 getNominalHeight() const;
 
-protected:
-	LLViewHandle mParentHandle;
+private:
+	LLHandle<LLFloater> mParentHandle;
 };
 
 
@@ -845,11 +839,13 @@ protected:
 class LLEditMenuHandlerMgr
 {
 public:
-	LLEditMenuHandlerMgr& getInstance();
-	virtual ~LLEditMenuHandlerMgr();
-protected:
-	LLEditMenuHandlerMgr();
-
+	LLEditMenuHandlerMgr& getInstance() {
+		static LLEditMenuHandlerMgr instance;
+		return instance;
+	}
+	virtual ~LLEditMenuHandlerMgr() {}
+private:
+	LLEditMenuHandlerMgr() {};
 };
 
 #endif // LL_LLMENUGL_H
