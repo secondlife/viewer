@@ -112,10 +112,7 @@ void LLAppViewerMacOSX::handleCrashReporting()
 {
 	// Macintosh
 	LLString command_str;
-	command_str = "crashreporter.app/Contents/MacOS/crashreporter ";
-	command_str += "-user ";
-	command_str += gGridName;
-	command_str += " &";	// This backgrounds the command so system() doesn't block until the crashreporter exits.
+	command_str = "open crashreporter.app";
 	system(command_str.c_str());		/* Flawfinder: ignore */
 		
 	// Sometimes signals don't seem to quit the viewer.  

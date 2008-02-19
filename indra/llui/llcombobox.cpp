@@ -642,12 +642,16 @@ void LLComboBox::showList()
 
 	mList->setFocus(TRUE);
 
+	// register ourselves as a "top" control
+	// effectively putting us into a special draw layer
+	// and not affecting the bounding rectangle calculation
+	gFocusMgr.setTopCtrl(this);
+
 	// Show the list and push the button down
 	mButton->setToggleState(TRUE);
 	mList->setVisible(TRUE);
 	
 	setUseBoundingRect(TRUE);
-	gFocusMgr.setTopCtrl(this);
 }
 
 void LLComboBox::hideList()
@@ -1081,6 +1085,10 @@ BOOL LLComboBox::operateOnAll(EOperation op)
 	return FALSE;
 }
 
+BOOL LLComboBox::selectItemRange( S32 first, S32 last )
+{
+	return mList->selectItemRange(first, last);
+}
 
 
 //

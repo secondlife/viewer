@@ -1370,9 +1370,13 @@ void LLFloaterIMPanel::draw()
 		}
 	}
 
+	// use embedded panel if available
 	if (mSpeakerPanel)
 	{
-		mSpeakerPanel->refreshSpeakers();
+		if (mSpeakerPanel->getVisible())
+		{
+			mSpeakerPanel->refreshSpeakers();
+		}
 	}
 	else
 	{

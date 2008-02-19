@@ -492,7 +492,11 @@ bool LLTextureCacheWorker::doWrite()
 		idx = mCache->getHeaderCacheEntry(mID, true, &mImageSize); // touch entry
 		if (idx >= 0)
 		{
-			llassert_always(cur_imagesize <= 0 || mImageSize == cur_imagesize);
+			if(cur_imagesize > 0 && mImageSize != cur_imagesize)
+			{
+				llwarns << "Header cache entry size: " << cur_imagesize << " != mImageSize: " << mImageSize << llendl;
+				offset = 0; // re-write header
+			}
 			mState = offset < TEXTURE_CACHE_ENTRY_SIZE ? HEADER : BODY;
 		}
 		else

@@ -77,11 +77,8 @@ public:
 	static void onClickResetView(void* data);
 
 	//static media helper functions
-	static void mediaPlay(void*);
-	static void mediaPause(void*);
-	static void mediaStop(void*);
-
-	static void musicPlay(void*);
+	static void toggleMediaPlay(void*);
+	static void toggleMusicPlay(void*);
 	static void musicPause(void*);
 	static void musicStop(void*);
 

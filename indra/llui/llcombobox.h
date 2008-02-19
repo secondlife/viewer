@@ -156,6 +156,7 @@ public:
 	virtual BOOL	getCanSelect() const				{ return TRUE; }
 	virtual BOOL	selectFirstItem()					{ return setCurrentByIndex(0); }
 	virtual BOOL	selectNthItem( S32 index )			{ return setCurrentByIndex(index); }
+	virtual BOOL	selectItemRange( S32 first, S32 last );
 	virtual S32		getFirstSelectedIndex() const		{ return getCurrentIndex(); }
 	virtual BOOL	setCurrentByID( const LLUUID& id );
 	virtual LLUUID	getCurrentID() const;				// LLUUID::null if no items in menu

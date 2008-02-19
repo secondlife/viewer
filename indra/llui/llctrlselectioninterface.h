@@ -58,6 +58,7 @@ public:
 
 	virtual BOOL	selectFirstItem() = 0;
 	virtual BOOL	selectNthItem( S32 index ) = 0;
+	virtual BOOL	selectItemRange( S32 first, S32 last ) = 0;
 
 	virtual S32		getFirstSelectedIndex() const = 0;
 

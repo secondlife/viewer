@@ -3006,7 +3006,7 @@ BOOL LLViewerWindow::handlePerFrameHover()
 	}
 
 	// Update rectangles for the various toolbars
-	if (gOverlayBar && gNotifyBoxView && gConsole)
+	if (gOverlayBar && gNotifyBoxView && gConsole && gToolBar)
 	{
 		LLRect bar_rect(-1, STATUS_BAR_HEIGHT, getWindowWidth()+1, -1);
 
@@ -3028,7 +3028,8 @@ BOOL LLViewerWindow::handlePerFrameHover()
 
 		// snap floaters to top of chat bar/button strip
 		LLView* chatbar_and_buttons = gOverlayBar->getChild<LLView>("chatbar_and_buttons", TRUE);
-		if (chatbar_and_buttons)
+		// find top of chatbar and strate buttons, if either are visible
+		if (chatbar_and_buttons && !chatbar_and_buttons->getLocalBoundingRect().isNull())
 		{
 			// convert top/left corner of chatbar/buttons container to gFloaterView-relative coordinates
 			S32 top, left;
@@ -3038,6 +3039,17 @@ BOOL LLViewerWindow::handlePerFrameHover()
 												&left,
 												&top,
 												gFloaterView);
+			gFloaterView->setSnapOffsetBottom(top);
+		}
+		else if (gToolBar->getVisible())
+		{
+			S32 top, left;
+			gToolBar->localPointToOtherView(
+											gToolBar->getLocalBoundingRect().mLeft,
+											gToolBar->getLocalBoundingRect().mTop,
+											&left,
+											&top,
+											gFloaterView);
 			gFloaterView->setSnapOffsetBottom(top);
 		}
 		else

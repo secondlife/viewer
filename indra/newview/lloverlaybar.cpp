@@ -160,11 +160,10 @@ void LLOverlayBar::layoutButtons()
 {
 	LLView* state_buttons_panel = getChildByName("state_buttons", TRUE);
 
-	if (state_buttons_panel)
+	if (state_buttons_panel && state_buttons_panel->getVisible())
 	{
 		LLViewQuery query;
 		LLWidgetTypeFilter widget_filter(WIDGET_TYPE_BUTTON);
-		query.addPreFilter(LLVisibleFilter::getInstance());
 		query.addPreFilter(LLEnabledFilter::getInstance());
 		query.addPreFilter(&widget_filter);
 
@@ -333,7 +332,7 @@ void LLOverlayBar::onClickStandUp(void*)
 // *TODO: Move this into an audio manager abstraction
 
 //static
-void LLOverlayBar::mediaPlay(void*)
+void LLOverlayBar::toggleMediaPlay(void*)
 {
 	if (!gOverlayBar)
 	{
@@ -360,24 +359,7 @@ void LLOverlayBar::mediaPlay(void*)
 }
 
 //static
-void LLOverlayBar::mediaPause(void*)
-{
-
-	LLViewerParcelMedia::pause();
-}
-
-//static
-void LLOverlayBar::mediaStop(void*)
-{
-	if (!gOverlayBar)
-	{
-		return;
-	}
-	LLViewerParcelMedia::stop();
-}
-
-//static
-void LLOverlayBar::musicPlay(void*)
+void LLOverlayBar::toggleMusicPlay(void*)
 {
 	if (!gOverlayBar)
 	{

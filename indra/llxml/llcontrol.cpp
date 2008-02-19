@@ -1235,12 +1235,25 @@ void LLControlGroup::resetToDefaults()
 }
 
 //============================================================================
-// FIrst-use
+// First-use
 
+static LLString get_warn_name(const LLString& name)
+{
+	LLString warnname = "Warn" + name;
+	for (LLString::iterator iter = warnname.begin(); iter != warnname.end(); ++iter)
+	{
+		char c = *iter;
+		if (!isalnum(c))
+		{
+			*iter = '_';
+		}
+	}
+	return warnname;
+}
 
 void LLControlGroup::addWarning(const LLString& name)
 {
-	LLString warnname = "Warn" + name;
+	LLString warnname = get_warn_name(name);
 	if(!mNameTable[warnname])
 	{
 		LLString comment = LLString("Enables ") + name + LLString(" warning dialog");
@@ -1251,13 +1264,13 @@ void LLControlGroup::addWarning(const LLString& name)
 
 BOOL LLControlGroup::getWarning(const LLString& name)
 {
-	LLString warnname = "Warn" + name;
+	LLString warnname = get_warn_name(name);
 	return getBOOL(warnname);
 }
 
 void LLControlGroup::setWarning(const LLString& name, BOOL val)
 {
-	LLString warnname = "Warn" + name;
+	LLString warnname = get_warn_name(name);
 	setBOOL(warnname, val);
 }
 

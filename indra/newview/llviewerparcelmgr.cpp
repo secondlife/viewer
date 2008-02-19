@@ -1739,9 +1739,9 @@ void optionally_start_music(const LLString& music_url)
 
 		// now only play music when you enter a new parcel if the control is in PLAY state
 		// changed as part of SL-4878
-		if ( gOverlayBar && gOverlayBar->musicPlaying() )
+		if ( gOverlayBar && gOverlayBar->musicPlaying())
 		{
-			LLOverlayBar::musicPlay(NULL);
+			gAudiop->startInternetStream(music_url.c_str());
 		}
 	}
 }
@@ -1755,7 +1755,10 @@ void callback_start_music(S32 option, void* data)
 	{
 		gSavedSettings.setBOOL("AudioStreamingMusic", TRUE);
 		llinfos << "Starting first parcel music " << music_url << llendl;
-		LLOverlayBar::musicPlay(NULL);
+		if ( gOverlayBar && gOverlayBar->musicPlaying())
+		{
+			gAudiop->startInternetStream(music_url->c_str());
+		}
 	}
 	else
 	{

@@ -110,7 +110,7 @@ private:
 	LLTextBox       *mActiveTitleLabel;
 	LLComboBox		*mComboActiveTitle;
 
-	LLGroupMgrGroupData::member_iter mMemberProgress;
+	LLGroupMgrGroupData::member_list_t::iterator mMemberProgress;
 };
 
 #endif

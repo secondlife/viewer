@@ -1036,7 +1036,7 @@ GtkWindow* LLFilePicker::buildFilePicker(bool is_save, bool is_folder,
 						   GTK_STOCK_SAVE :
 						   GTK_STOCK_OPEN),
 						   GTK_RESPONSE_ACCEPT,
-						  NULL);
+						  (gchar *)NULL);
 		mStoreFilenames.win = win;
 		mStoreFilenames.contextName = context;
 

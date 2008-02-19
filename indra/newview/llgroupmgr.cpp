@@ -96,16 +96,16 @@ LLGroupMemberData::~LLGroupMemberData()
 
 void LLGroupMemberData::addRole(const LLUUID& role, LLGroupRoleData* rd)
 {
-	mRoles[role] = rd;
+	mRolesList[role] = rd;
 }
 
 bool LLGroupMemberData::removeRole(const LLUUID& role)
 {
-	std::map<LLUUID,LLGroupRoleData*>::iterator it = mRoles.find(role);
+	role_list_t::iterator it = mRolesList.find(role);
 
-	if (it != mRoles.end())
+	if (it != mRolesList.end())
 	{
-		mRoles.erase(it);
+		mRolesList.erase(it);
 		return true;
 	}
 
@@ -233,7 +233,7 @@ LLGroupMgrGroupData::LLGroupMgrGroupData(const LLUUID& id) :
 
 BOOL LLGroupMgrGroupData::getRoleData(const LLUUID& role_id, LLRoleData& role_data)
 {
-	std::map<LLUUID,LLRoleData>::const_iterator it;
+	role_data_map_t::const_iterator it;
 
 	// Do we have changes for it?
 	it = mRoleChanges.find(role_id);
@@ -246,7 +246,7 @@ BOOL LLGroupMgrGroupData::getRoleData(const LLUUID& role_id, LLRoleData& role_da
 	}
 
 	// Ok, no changes, hasn't been deleted, isn't a new role, just find the role.
-	role_list::const_iterator rit = mRoles.find(role_id);
+	role_list_t::const_iterator rit = mRoles.find(role_id);
 	if (rit != mRoles.end())
 	{
 		role_data = (*rit).second->getRoleData();
@@ -261,7 +261,7 @@ BOOL LLGroupMgrGroupData::getRoleData(const LLUUID& role_id, LLRoleData& role_da
 void LLGroupMgrGroupData::setRoleData(const LLUUID& role_id, LLRoleData role_data)
 {
 	// If this is a newly created group, we need to change the data in the created list.
-	std::map<LLUUID,LLRoleData>::iterator it;
+	role_data_map_t::iterator it;
 	it = mRoleChanges.find(role_id);
 	if (it != mRoleChanges.end())
 	{
@@ -280,7 +280,7 @@ void LLGroupMgrGroupData::setRoleData(const LLUUID& role_id, LLRoleData role_dat
 
 	// Not a new role, so put it in the changes list.
 	LLRoleData old_role_data;
-	role_iter rit = mRoles.find(role_id);
+	role_list_t::iterator rit = mRoles.find(role_id);
 	if (rit != mRoles.end())
 	{
 		bool data_change = ( ((*rit).second->mRoleData.mRoleDescription != role_data.mRoleDescription)
@@ -337,7 +337,7 @@ void LLGroupMgrGroupData::createRole(const LLUUID& role_id, LLRoleData role_data
 
 void LLGroupMgrGroupData::deleteRole(const LLUUID& role_id)
 {
-	std::map<LLUUID,LLRoleData>::iterator it;
+	role_data_map_t::iterator it;
 
 	// If this was a new role, just discard it.
 	it = mRoleChanges.find(role_id);
@@ -404,7 +404,7 @@ void LLGroupMgrGroupData::removeData()
 
 void LLGroupMgrGroupData::removeMemberData()
 {
-	for (member_iter mi = mMembers.begin(); mi != mMembers.end(); ++mi)
+	for (member_list_t::iterator mi = mMembers.begin(); mi != mMembers.end(); ++mi)
 	{
 		delete mi->second;
 	}
@@ -414,7 +414,7 @@ void LLGroupMgrGroupData::removeMemberData()
 
 void LLGroupMgrGroupData::removeRoleData()
 {
-	for (member_iter mi = mMembers.begin(); mi != mMembers.end(); ++mi)
+	for (member_list_t::iterator mi = mMembers.begin(); mi != mMembers.end(); ++mi)
 	{
 		LLGroupMemberData* data = mi->second;
 		if (data)
@@ -423,7 +423,7 @@ void LLGroupMgrGroupData::removeRoleData()
 		}
 	}
 
-	for (role_iter ri = mRoles.begin(); ri != mRoles.end(); ++ri)
+	for (role_list_t::iterator ri = mRoles.begin(); ri != mRoles.end(); ++ri)
 	{
 		LLGroupRoleData* data = ri->second;
 		delete data;
@@ -436,7 +436,7 @@ void LLGroupMgrGroupData::removeRoleData()
 
 void LLGroupMgrGroupData::removeRoleMemberData()
 {
-	for (member_iter mi = mMembers.begin(); mi != mMembers.end(); ++mi)
+	for (member_list_t::iterator mi = mMembers.begin(); mi != mMembers.end(); ++mi)
 	{
 		LLGroupMemberData* data = mi->second;
 		if (data)
@@ -445,7 +445,7 @@ void LLGroupMgrGroupData::removeRoleMemberData()
 		}
 	}
 
-	for (role_iter ri = mRoles.begin(); ri != mRoles.end(); ++ri)
+	for (role_list_t::iterator ri = mRoles.begin(); ri != mRoles.end(); ++ri)
 	{
 		LLGroupRoleData* data = ri->second;
 		if (data)
@@ -467,8 +467,8 @@ bool LLGroupMgrGroupData::changeRoleMember(const LLUUID& role_id,
 										   const LLUUID& member_id, 
 										   LLRoleMemberChangeType rmc)
 {
-	role_iter ri = mRoles.find(role_id);
-	member_iter mi = mMembers.find(member_id);
+	role_list_t::iterator ri = mRoles.find(role_id);
+	member_list_t::iterator mi = mMembers.find(member_id);
 
 	if (ri == mRoles.end()
 		|| mi == mMembers.end() )
@@ -511,7 +511,7 @@ bool LLGroupMgrGroupData::changeRoleMember(const LLUUID& role_id,
 	role_member.first = role_id;
 	role_member.second = member_id;
 
-	change_map::iterator it = mRoleMemberChanges.find(role_member);
+	change_map_t::iterator it = mRoleMemberChanges.find(role_member);
 	if (it != mRoleMemberChanges.end())
 	{
 		// There was already a role change for this role_member
@@ -554,18 +554,15 @@ void LLGroupMgrGroupData::recalcAllAgentPowers()
 {
 	LLGroupMemberData* gmd;
 
-	member_iter mit = mMembers.begin();
-	member_iter mend = mMembers.end();
-	for( ; mit != mend; ++mit)
+	for (member_list_t::iterator mit = mMembers.begin();
+		 mit != mMembers.end(); ++mit)
 	{
 		gmd = mit->second;
 		if (!gmd) continue;
 
-		std::map<LLUUID,LLGroupRoleData*>::iterator it = gmd->mRoles.begin();
-		std::map<LLUUID,LLGroupRoleData*>::iterator end = gmd->mRoles.end();
-
 		gmd->mAgentPowers = 0;
-		for ( ; it != end; ++it)
+		for (LLGroupMemberData::role_list_t::iterator it = gmd->mRolesList.begin();
+			 it != gmd->mRolesList.end(); ++it)
 		{
 			LLGroupRoleData* grd = (*it).second;
 			if (!grd) continue;
@@ -577,18 +574,16 @@ void LLGroupMgrGroupData::recalcAllAgentPowers()
 
 void LLGroupMgrGroupData::recalcAgentPowers(const LLUUID& agent_id)
 {
-	member_iter mi = mMembers.find(agent_id);
+	member_list_t::iterator mi = mMembers.find(agent_id);
 	if (mi == mMembers.end()) return;
 
 	LLGroupMemberData* gmd = mi->second;
 
 	if (!gmd) return;
 
-	std::map<LLUUID,LLGroupRoleData*>::iterator it = gmd->mRoles.begin();
-	std::map<LLUUID,LLGroupRoleData*>::iterator end = gmd->mRoles.end();
-
 	gmd->mAgentPowers = 0;
-	for ( ; it != end; ++it)
+	for (LLGroupMemberData::role_list_t::iterator it = gmd->mRolesList.begin();
+		 it != gmd->mRolesList.end(); ++it)
 	{
 		LLGroupRoleData* grd = (*it).second;
 		if (!grd) continue;
@@ -633,10 +628,8 @@ bool packRoleUpdateMessageBlock(LLMessageSystem* msg,
 void LLGroupMgrGroupData::sendRoleChanges()
 {
 	// Commit changes locally
-	std::map<LLUUID,LLRoleData>::iterator it;
-	std::map<LLUUID,LLRoleData>::iterator end;
 	LLGroupRoleData* grd;
-	role_iter role_it;
+	role_list_t::iterator role_it;
 	LLMessageSystem* msg = gMessageSystem;
 	bool start_message = true;
 
@@ -645,16 +638,15 @@ void LLGroupMgrGroupData::sendRoleChanges()
 	bool need_power_recalc = false;
 
 	// Apply all changes
-	it = mRoleChanges.begin();
-	end = mRoleChanges.end();
-	for ( ; it != end; ++it)
+	for (role_data_map_t::iterator iter = mRoleChanges.begin();
+		 iter != mRoleChanges.end(); )
 	{
+		role_data_map_t::iterator it = iter++; // safely incrament iter
 		const LLUUID& role_id = (*it).first;
 		const LLRoleData& role_data = (*it).second;
 
 		// Commit to local data set
 		role_it = mRoles.find((*it).first);
-		LLGroupRoleData* group_role_data = (*role_it).second;
 		if ( (mRoles.end() == role_it 
 				&& RC_CREATE != role_data.mChangeType)
 			|| (mRoles.end() != role_it
@@ -662,11 +654,13 @@ void LLGroupMgrGroupData::sendRoleChanges()
 		{
 			continue;
 		}
-
+	
+		// NOTE: role_it is valid EXCEPT for the RC_CREATE case
 		switch (role_data.mChangeType)
 		{
 			case RC_CREATE:
 			{
+				// NOTE: role_it is NOT valid in this case
 				grd = new LLGroupRoleData(role_id, role_data, 0);
 				mRoles[role_id] = grd;
 				need_role_data = true;
@@ -674,6 +668,7 @@ void LLGroupMgrGroupData::sendRoleChanges()
 			}
 			case RC_DELETE:
 			{
+				LLGroupRoleData* group_role_data = (*role_it).second;
 				delete group_role_data;
 				mRoles.erase(role_it);
 				need_role_cleanup = true;
@@ -686,7 +681,8 @@ void LLGroupMgrGroupData::sendRoleChanges()
 			case RC_UPDATE_DATA:
 			default: 
 			{
-				group_role_data->setRoleData(role_data);
+				LLGroupRoleData* group_role_data = (*role_it).second;
+				group_role_data->setRoleData(role_data); // NOTE! might modify mRoleChanges!
 				break;
 			}
 		}
@@ -751,7 +747,7 @@ void LLGroupMgr::clearGroups()
 
 void LLGroupMgr::clearGroupData(const LLUUID& group_id)
 {
-	std::map<LLUUID, LLGroupMgrGroupData*>::iterator iter = mGroups.find(group_id);
+	group_map_t::iterator iter = mGroups.find(group_id);
 	if (iter != mGroups.end())
 	{
 		delete (*iter).second;
@@ -770,7 +766,7 @@ void LLGroupMgr::removeObserver(LLGroupMgrObserver* observer)
 	{
 		return;
 	}
-	observer_iter it;
+	observer_multimap_t::iterator it;
 	it = mObservers.find(observer->getID());
 	while (it != mObservers.end())
 	{
@@ -788,7 +784,7 @@ void LLGroupMgr::removeObserver(LLGroupMgrObserver* observer)
 
 LLGroupMgrGroupData* LLGroupMgr::getGroupData(const LLUUID& id)
 {
-	group_iter gi = mGroups.find(id);
+	group_map_t::iterator gi = mGroups.find(id);
 
 	if (gi != mGroups.end())
 	{
@@ -800,7 +796,7 @@ LLGroupMgrGroupData* LLGroupMgr::getGroupData(const LLUUID& id)
 // static
 void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 {
-	llinfos << "LLGroupMgr::processGroupMembersReply" << llendl;
+	lldebugs << "LLGroupMgr::processGroupMembersReply" << llendl;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
@@ -854,7 +850,7 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 																	std::string(online_status),
 																	is_owner);
 #if LL_DEBUG
-				LLGroupMgrGroupData::member_iter mit = group_datap->mMembers.find(member_id);
+				LLGroupMgrGroupData::member_list_t::iterator mit = group_datap->mMembers.find(member_id);
 				if (mit != group_datap->mMembers.end())
 				{
 					llinfos << " *** Received duplicate member data for agent " << member_id << llendl;
@@ -894,7 +890,7 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 //static 
 void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 {
-	llinfos << "LLGroupMgr::processGroupPropertiesReply" << llendl;
+	lldebugs << "LLGroupMgr::processGroupPropertiesReply" << llendl;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
@@ -961,7 +957,7 @@ void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 // static
 void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 {
-	llinfos << "LLGroupMgr::processGroupRoleDataReply" << llendl;
+	lldebugs << "LLGroupMgr::processGroupRoleDataReply" << llendl;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
@@ -1028,7 +1024,7 @@ void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 // static
 void LLGroupMgr::processGroupRoleMembersReply(LLMessageSystem* msg, void** data)
 {
-	llinfos << "LLGroupMgr::processGroupRoleMembersReply" << llendl;
+	lldebugs << "LLGroupMgr::processGroupRoleMembersReply" << llendl;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
@@ -1061,8 +1057,8 @@ void LLGroupMgr::processGroupRoleMembersReply(LLMessageSystem* msg, void** data)
 	LLGroupRoleData* rd = NULL;
 	LLGroupMemberData* md = NULL;
 
-	LLGroupMgrGroupData::role_iter ri;
-	LLGroupMgrGroupData::member_iter mi;
+	LLGroupMgrGroupData::role_list_t::iterator ri;
+	LLGroupMgrGroupData::member_list_t::iterator mi;
 
 	// If total_pairs == 0, there are no members in any custom roles.
 	if (total_pairs > 0)
@@ -1115,9 +1111,8 @@ void LLGroupMgr::processGroupRoleMembersReply(LLMessageSystem* msg, void** data)
 		}
 		else
 		{
-			LLGroupMgrGroupData::member_iter mi = group_data->mMembers.begin();
-			LLGroupMgrGroupData::member_iter end = group_data->mMembers.end();
-			for ( ; mi != end; ++mi)
+			for (LLGroupMgrGroupData::member_list_t::iterator mi = group_data->mMembers.begin();
+				 mi != group_data->mMembers.end(); ++mi)
 			{
 				LLGroupMemberData* data = mi->second;
 				if (data)
@@ -1138,7 +1133,7 @@ void LLGroupMgr::processGroupRoleMembersReply(LLMessageSystem* msg, void** data)
 // static
 void LLGroupMgr::processGroupTitlesReply(LLMessageSystem* msg, void** data)
 {
-	llinfos << "LLGroupMgr::processGroupTitlesReply" << llendl;
+	lldebugs << "LLGroupMgr::processGroupTitlesReply" << llendl;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
@@ -1188,7 +1183,7 @@ void LLGroupMgr::processGroupTitlesReply(LLMessageSystem* msg, void** data)
 // static
 void LLGroupMgr::processEjectGroupMemberReply(LLMessageSystem* msg, void ** data)
 {
-	llinfos << "processEjectGroupMemberReply" << llendl;
+	lldebugs << "processEjectGroupMemberReply" << llendl;
 	LLUUID group_id;
 	msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_GroupID, group_id);
 	BOOL success;
@@ -1204,7 +1199,7 @@ void LLGroupMgr::processEjectGroupMemberReply(LLMessageSystem* msg, void ** data
 // static
 void LLGroupMgr::processJoinGroupReply(LLMessageSystem* msg, void ** data)
 {
-	llinfos << "processJoinGroupReply" << llendl;
+	lldebugs << "processJoinGroupReply" << llendl;
 	LLUUID group_id;
 	BOOL success;
 	msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_GroupID, group_id);
@@ -1226,7 +1221,7 @@ void LLGroupMgr::processJoinGroupReply(LLMessageSystem* msg, void ** data)
 // static
 void LLGroupMgr::processLeaveGroupReply(LLMessageSystem* msg, void ** data)
 {
-	llinfos << "processLeaveGroupReply" << llendl;
+	lldebugs << "processLeaveGroupReply" << llendl;
 	LLUUID group_id;
 	BOOL success;
 	msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_GroupID, group_id);
@@ -1291,7 +1286,7 @@ LLGroupMgrGroupData* LLGroupMgr::createGroupData(const LLUUID& id)
 {
 	LLGroupMgrGroupData* group_datap;
 
-	group_iter existing_group = gGroupMgr->mGroups.find(id);
+	group_map_t::iterator existing_group = gGroupMgr->mGroups.find(id);
 	if (existing_group == gGroupMgr->mGroups.end())
 	{
 		group_datap = new LLGroupMgrGroupData(id);
@@ -1307,12 +1302,12 @@ LLGroupMgrGroupData* LLGroupMgr::createGroupData(const LLUUID& id)
 
 void LLGroupMgr::notifyObservers(LLGroupChange gc)
 {
-	for (group_iter gi = mGroups.begin(); gi != mGroups.end(); ++gi)
+	for (group_map_t::iterator gi = mGroups.begin(); gi != mGroups.end(); ++gi)
 	{
 		if (gi->second->mChanged)
 		{
 			// find all observers for this group id
-			observer_iter oi = mObservers.find(gi->first);
+			observer_multimap_t::iterator oi = mObservers.find(gi->first);
 			for (; oi != mObservers.end(); ++oi)
 			{
 				oi->second->changed(gc);
@@ -1327,9 +1322,9 @@ void LLGroupMgr::addGroup(LLGroupMgrGroupData* group_datap)
 	if (mGroups.size() > MAX_CACHED_GROUPS)
 	{
 		// get rid of groups that aren't observed
-		for (group_iter gi = mGroups.begin(); gi != mGroups.end() && mGroups.size() > MAX_CACHED_GROUPS / 2; )
+		for (group_map_t::iterator gi = mGroups.begin(); gi != mGroups.end() && mGroups.size() > MAX_CACHED_GROUPS / 2; )
 		{
-			observer_iter oi = mObservers.find(gi->first);
+			observer_multimap_t::iterator oi = mObservers.find(gi->first);
 			if (oi == mObservers.end())
 			{
 				// not observed
@@ -1349,7 +1344,7 @@ void LLGroupMgr::addGroup(LLGroupMgrGroupData* group_datap)
 
 void LLGroupMgr::sendGroupPropertiesRequest(const LLUUID& group_id)
 {
-	llinfos << "LLGroupMgr::sendGroupPropertiesRequest" << llendl;
+	lldebugs << "LLGroupMgr::sendGroupPropertiesRequest" << llendl;
 	// This will happen when we get the reply
 	//LLGroupMgrGroupData* group_datap = createGroupData(group_id);
 	
@@ -1365,7 +1360,7 @@ void LLGroupMgr::sendGroupPropertiesRequest(const LLUUID& group_id)
 
 void LLGroupMgr::sendGroupMembersRequest(const LLUUID& group_id)
 {
-	llinfos << "LLGroupMgr::sendGroupMembersRequest" << llendl;
+	lldebugs << "LLGroupMgr::sendGroupMembersRequest" << llendl;
 	LLGroupMgrGroupData* group_datap = createGroupData(group_id);
 	if (group_datap->mMemberRequestID.isNull())
 	{
@@ -1386,7 +1381,7 @@ void LLGroupMgr::sendGroupMembersRequest(const LLUUID& group_id)
 
 void LLGroupMgr::sendGroupRoleDataRequest(const LLUUID& group_id)
 {
-	llinfos << "LLGroupMgr::sendGroupRoleDataRequest" << llendl;
+	lldebugs << "LLGroupMgr::sendGroupRoleDataRequest" << llendl;
 	LLGroupMgrGroupData* group_datap = createGroupData(group_id);
 	if (group_datap->mRoleDataRequestID.isNull())
 	{
@@ -1407,7 +1402,7 @@ void LLGroupMgr::sendGroupRoleDataRequest(const LLUUID& group_id)
 
 void LLGroupMgr::sendGroupRoleMembersRequest(const LLUUID& group_id)
 {
-	llinfos << "LLGroupMgr::sendGroupRoleMembersRequest" << llendl;
+	lldebugs << "LLGroupMgr::sendGroupRoleMembersRequest" << llendl;
 	LLGroupMgrGroupData* group_datap = createGroupData(group_id);
 	
 	if (group_datap->mRoleMembersRequestID.isNull())
@@ -1441,7 +1436,7 @@ void LLGroupMgr::sendGroupRoleMembersRequest(const LLUUID& group_id)
 
 void LLGroupMgr::sendGroupTitlesRequest(const LLUUID& group_id)
 {
-	llinfos << "LLGroupMgr::sendGroupTitlesRequest" << llendl;
+	lldebugs << "LLGroupMgr::sendGroupTitlesRequest" << llendl;
 	LLGroupMgrGroupData* group_datap = createGroupData(group_id);
 	
 	group_datap->mTitles.clear();
@@ -1460,7 +1455,7 @@ void LLGroupMgr::sendGroupTitlesRequest(const LLUUID& group_id)
 
 void LLGroupMgr::sendGroupTitleUpdate(const LLUUID& group_id, const LLUUID& title_role_id)
 {
-	llinfos << "LLGroupMgr::sendGroupTitleUpdate" << llendl;
+	lldebugs << "LLGroupMgr::sendGroupTitleUpdate" << llendl;
 
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessage("GroupTitleUpdate");
@@ -1474,10 +1469,8 @@ void LLGroupMgr::sendGroupTitleUpdate(const LLUUID& group_id, const LLUUID& titl
 
 	// Save the change locally
 	LLGroupMgrGroupData* group_datap = createGroupData(group_id);
-	std::vector<LLGroupTitle>::iterator iter = group_datap->mTitles.begin();
-	std::vector<LLGroupTitle>::iterator end = group_datap->mTitles.end();
-	
-	for ( ; iter != end; ++iter)
+	for (std::vector<LLGroupTitle>::iterator iter = group_datap->mTitles.begin();
+		 iter != group_datap->mTitles.end(); ++iter)
 	{
 		if (iter->mRoleID == title_role_id)
 		{
@@ -1521,7 +1514,7 @@ void LLGroupMgr::sendCreateGroupRequest(const std::string& name,
 
 void LLGroupMgr::sendUpdateGroupInfo(const LLUUID& group_id)
 {
-	llinfos << "LLGroupMgr::sendUpdateGroupInfo" << llendl;
+	lldebugs << "LLGroupMgr::sendUpdateGroupInfo" << llendl;
 	LLGroupMgrGroupData* group_datap = createGroupData(group_id);
 
 	LLMessageSystem* msg = gMessageSystem;
@@ -1550,18 +1543,16 @@ void LLGroupMgr::sendUpdateGroupInfo(const LLUUID& group_id)
 
 void LLGroupMgr::sendGroupRoleMemberChanges(const LLUUID& group_id)
 {
-	llinfos << "LLGroupMgr::sendGroupRoleMemberChanges" << llendl;
+	lldebugs << "LLGroupMgr::sendGroupRoleMemberChanges" << llendl;
 	LLGroupMgrGroupData* group_datap = createGroupData(group_id);
 
 	if (group_datap->mRoleMemberChanges.empty()) return;
 
 	LLMessageSystem* msg = gMessageSystem;
 
-	change_map::const_iterator citer = group_datap->mRoleMemberChanges.begin();
-	change_map::const_iterator end = group_datap->mRoleMemberChanges.end();
 	bool start_message = true;
-
-	for ( ; citer != end; ++citer)
+	for (LLGroupMgrGroupData::change_map_t::const_iterator citer = group_datap->mRoleMemberChanges.begin();
+		 citer != group_datap->mRoleMemberChanges.end(); ++citer)
 	{
 		if (start_message)
 		{
@@ -1618,9 +1609,8 @@ void LLGroupMgr::sendGroupMemberInvites(const LLUUID& group_id, std::map<LLUUID,
 	bool start_message = true;
 	LLMessageSystem* msg = gMessageSystem;
 
-	std::map<LLUUID,LLUUID>::iterator it = member_role_pairs.begin();
-	std::map<LLUUID,LLUUID>::iterator end = member_role_pairs.end();
-	for ( ; it != end; ++it)
+	for (std::map<LLUUID,LLUUID>::iterator it = member_role_pairs.begin();
+		 it != member_role_pairs.end(); ++it)
 	{
 		if (start_message)
 		{
@@ -1660,15 +1650,14 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 	LLGroupMgrGroupData* group_datap = gGroupMgr->getGroupData(group_id);
 	if (!group_datap) return;
 
-	std::vector<LLUUID>::iterator it = member_ids.begin();
-	std::vector<LLUUID>::iterator end = member_ids.end();
-	for ( ; it != end; ++it)
+	for (std::vector<LLUUID>::iterator it = member_ids.begin();
+		 it != member_ids.end(); ++it)
 	{
 		// Can't use 'eject' to leave a group.
 		if ((*it) == gAgent.getID()) continue;
 
 		// Make sure they are in the group, and we need the member data
-		LLGroupMgrGroupData::member_iter mit = group_datap->mMembers.find(*it);
+		LLGroupMgrGroupData::member_list_t::iterator mit = group_datap->mMembers.find(*it);
 		if (mit != group_datap->mMembers.end())
 		{
 			// Add them to the message
@@ -1693,9 +1682,8 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 			}
 
 			// Clean up groupmgr
-			std::map<LLUUID,LLGroupRoleData*>::iterator rit = (*mit).second->roleBegin();
-			std::map<LLUUID,LLGroupRoleData*>::iterator rend = (*mit).second->roleEnd();
-			for ( ; rit != rend; ++rit)
+			for (LLGroupMemberData::role_list_t::iterator rit = (*mit).second->roleBegin();
+				 rit != (*mit).second->roleEnd(); ++rit)
 			{
 				if ((*rit).first.notNull())
 				{
@@ -1715,7 +1703,7 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 
 void LLGroupMgr::sendGroupRoleChanges(const LLUUID& group_id)
 {
-	llinfos << "LLGroupMgr::sendGroupRoleChanges" << llendl;
+	lldebugs << "LLGroupMgr::sendGroupRoleChanges" << llendl;
 	LLGroupMgrGroupData* group_datap = getGroupData(group_id);
 
 	if (group_datap && group_datap->pendingRoleChanges())
@@ -1730,7 +1718,7 @@ void LLGroupMgr::sendGroupRoleChanges(const LLUUID& group_id)
 
 void LLGroupMgr::cancelGroupRoleChanges(const LLUUID& group_id)
 {
-	llinfos << "LLGroupMgr::cancelGroupRoleChanges" << llendl;
+	lldebugs << "LLGroupMgr::cancelGroupRoleChanges" << llendl;
 	LLGroupMgrGroupData* group_datap = getGroupData(group_id);
 
 	if (group_datap) group_datap->cancelRoleChanges();
@@ -1750,11 +1738,10 @@ bool LLGroupMgr::parseRoleActions(const LLString& xml_filename)
 	}
 
 	LLXMLNodeList role_list;
-	LLXMLNodeList::iterator role_iter;
 
 	root->getChildren("action_set", role_list, false);
 	
-	for (role_iter = role_list.begin(); role_iter != role_list.end(); ++role_iter)
+	for (LLXMLNodeList::iterator role_iter = role_list.begin(); role_iter != role_list.end(); ++role_iter)
 	{
 		LLXMLNodePtr action_set = role_iter->second;
 

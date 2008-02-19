@@ -202,7 +202,6 @@ public:
 
 protected:
 	typedef std::map<LLUUID, LLRoleMemberChangeType> role_change_data_map_t;
-	typedef std::map<LLUUID, role_change_data_map_t*>::iterator member_role_change_iter;
 	typedef std::map<LLUUID, role_change_data_map_t*> member_role_changes_map_t;
 
 	bool matchesSearchFilter(const std::string& fullname);
@@ -224,7 +223,7 @@ protected:
 	member_role_changes_map_t mMemberRoleChangeData;
 	U32 mNumOwnerAdditions;
 
-	LLGroupMgrGroupData::member_iter mMemberProgress;
+	LLGroupMgrGroupData::member_list_t::iterator mMemberProgress;
 };
 
 class LLPanelGroupRolesSubTab : public LLPanelGroupSubTab

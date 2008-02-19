@@ -83,7 +83,9 @@ void LLCrashLoggerText::updateApplication(LLString message)
 }
 
 LLCrashLogger::LLCrashLogger() :
-mSentCrashLogs(false)
+	mCrashBehavior(CRASH_BEHAVIOR_ASK),
+	mCrashInPreviousExec(false),
+	mSentCrashLogs(false)
 {
 
 }
@@ -206,8 +208,7 @@ S32 LLCrashLogger::loadCrashBehaviorSetting()
 
 bool LLCrashLogger::saveCrashBehaviorSetting(S32 crash_behavior)
 {
-	if (crash_behavior < CRASH_BEHAVIOR_ASK) return false;
-	if (crash_behavior > CRASH_BEHAVIOR_NEVER_SEND) return false;
+	if (crash_behavior != CRASH_BEHAVIOR_ASK && crash_behavior != CRASH_BEHAVIOR_ALWAYS_SEND) return false;
 
 	mCrashSettings.setS32(CRASH_BEHAVIOR_SETTING, crash_behavior);
 	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
@@ -290,18 +291,7 @@ bool LLCrashLogger::init()
 		llinfos << "Show the user dialog" << llendl;
 		mCrashBehavior = CRASH_BEHAVIOR_ASK;
 	}
-
-	LLSD server = getOption("user");
-	if(server.isDefined())
-	{
-		mGridName = server.asString();
-		llinfos << "Got userserver " << mGridName << llendl;
-	}
-	else
-	{
-		mGridName = "agni";
-	}
-
+	
 	LLSD name = getOption("name");
 	if(name.isDefined())
 	{	

@@ -956,37 +956,37 @@ S32 round_up(S32 grid, S32 value)
 
 void			LLButton::setImageUnselected(const LLString &image_name)
 {	
-	setImageUnselected(LLUI::getUIImageByName(image_name));
+	setImageUnselected(image_name.empty() ? NULL : LLUI::getUIImageByName(image_name));
 	mImageUnselectedName = image_name;
 }
 
 void			LLButton::setImageSelected(const LLString &image_name)
 {	
-	setImageSelected(LLUI::getUIImageByName(image_name));
+	setImageSelected(image_name.empty() ? NULL : LLUI::getUIImageByName(image_name));
 	mImageSelectedName = image_name;
 }
 
 void			LLButton::setImageHoverSelected(const LLString &image_name)
 {
-	setImageHoverSelected(LLUI::getUIImageByName(image_name));
+	setImageHoverSelected(image_name.empty() ? NULL : LLUI::getUIImageByName(image_name));
 	mImageHoverSelectedName = image_name;
 }
 
 void			LLButton::setImageHoverUnselected(const LLString &image_name)
 {
-	setImageHoverUnselected(LLUI::getUIImageByName(image_name));
+	setImageHoverUnselected(image_name.empty() ? NULL : LLUI::getUIImageByName(image_name));
 	mImageHoverUnselectedName = image_name;
 }
 
 void			LLButton::setImageDisabled(const LLString &image_name)
 {
-	setImageDisabled(LLUI::getUIImageByName(image_name));
+	setImageDisabled(image_name.empty() ? NULL : LLUI::getUIImageByName(image_name));
 	mImageDisabledName = image_name;
 }
 
 void			LLButton::setImageDisabledSelected(const LLString &image_name)
 {
-	setImageDisabledSelected(LLUI::getUIImageByName(image_name));
+	setImageDisabledSelected(image_name.empty() ? NULL : LLUI::getUIImageByName(image_name));
 	mImageDisabledSelectedName = image_name;
 }
 

@@ -70,7 +70,7 @@ bool agentCanAddToRole(const LLUUID& group_id,
 	}
 
 	//make sure the agent is in the group
-	LLGroupMgrGroupData::member_iter mi = gdatap->mMembers.find(gAgent.getID());
+	LLGroupMgrGroupData::member_list_t::iterator mi = gdatap->mMembers.find(gAgent.getID());
 	if (mi == gdatap->mMembers.end())
 	{
 		return false;
@@ -998,8 +998,8 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 	// Build the assigned roles list.
 	//////////////////////////////////
 	// Add each role to the assigned roles list.
-	LLGroupMgrGroupData::role_iter iter = gdatap->mRoles.begin();
-	LLGroupMgrGroupData::role_iter end  = gdatap->mRoles.end();
+	LLGroupMgrGroupData::role_list_t::iterator iter = gdatap->mRoles.begin();
+	LLGroupMgrGroupData::role_list_t::iterator end  = gdatap->mRoles.end();
 
 	BOOL can_eject_members = gAgent.hasPowerInGroup(mGroupID,
 													GP_MEMBER_EJECT);
@@ -1040,7 +1040,7 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 					if ((*member_iter) == gAgent.getID()) continue;
 					
 					// Look up the member data.
-					LLGroupMgrGroupData::member_iter mi = 
+					LLGroupMgrGroupData::member_list_t::iterator mi = 
 									gdatap->mMembers.find((*member_iter));
 					if (mi == gdatap->mMembers.end()) continue;
 					LLGroupMemberData* member_data = (*mi).second;
@@ -1134,7 +1134,7 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 	if (!can_eject_members && !member_is_owner)
 	{
 		// Maybe we can eject them because we are an owner...
-		LLGroupMgrGroupData::member_iter mi = gdatap->mMembers.find(gAgent.getID());
+		LLGroupMgrGroupData::member_list_t::iterator mi = gdatap->mMembers.find(gAgent.getID());
 		if (mi != gdatap->mMembers.end())
 		{
 			LLGroupMemberData* member_data = (*mi).second;
@@ -1218,41 +1218,29 @@ void LLPanelGroupMembersSubTab::handleRoleCheck(const LLUUID& role_id,
 	LLUUID member_id;
 	
 
-	member_role_change_iter           member_end = mMemberRoleChangeData.end();
-	member_role_change_iter           member;
-	role_change_data_map_t           *role_change_datap;
-	role_change_data_map_t::iterator  role_end;
-	role_change_data_map_t::iterator  role;
-
 	std::vector<LLScrollListItem*> selection = mMembersList->getAllSelected();
-	if (selection.empty()) return;
-
-	std::vector<LLScrollListItem*>::iterator itor;
-	for (itor = selection.begin() ; 
+	if (selection.empty())
+	{
+		return;
+	}
+	
+	for (std::vector<LLScrollListItem*>::iterator itor = selection.begin() ; 
 		 itor != selection.end(); ++itor)
 	{
 		member_id = (*itor)->getUUID();
 
 		//see if we requested a change for this member before
-		member = mMemberRoleChangeData.find(member_id);
-		if ( member != member_end )
+		if ( mMemberRoleChangeData.find(member_id) == mMemberRoleChangeData.end() )
 		{
-			//this member had previously had their role data changed
-			//so grab it
-			role_change_datap = (*member).second;
+			mMemberRoleChangeData[member_id] = new role_change_data_map_t;
 		}
-		else
-		{
-			role_change_datap = new role_change_data_map_t;
-			mMemberRoleChangeData[member_id] = role_change_datap;
-		}
+		role_change_data_map_t* role_change_datap = mMemberRoleChangeData[member_id];
 
 		//now check to see if the selected group member
 		//had changed his association with the selected role before
-		role_end = role_change_datap->end();
-		role     = role_change_datap->find(role_id);
 
-		if ( role != role_end )
+		role_change_data_map_t::iterator  role = role_change_datap->find(role_id);
+		if ( role != role_change_datap->end() )
 		{
 			//see if the new change type cancels out the previous change
 			if (role->second != type)
@@ -1442,15 +1430,11 @@ void LLPanelGroupMembersSubTab::applyMemberChanges()
 
 	//we need to add all of the changed roles data
 	//for each member whose role changed
-	member_role_change_iter member_end = mMemberRoleChangeData.end();
-	member_role_change_iter member     = mMemberRoleChangeData.begin();
-
-	for (; member != member_end; member++)
+	for (member_role_changes_map_t::iterator member = mMemberRoleChangeData.begin();
+		 member != mMemberRoleChangeData.end(); ++member)
 	{
-		role_change_data_map_t::iterator role_end = member->second->end();
-		role_change_data_map_t::iterator role     = member->second->begin();
-
-		for (; role != role_end; role++)
+		for (role_change_data_map_t::iterator role = member->second->begin();
+			 role != member->second->end(); ++role)
 		{
 			gdatap->changeRoleMember(role->first, //role_id
 									 member->first, //member_id
@@ -1500,11 +1484,6 @@ U64 LLPanelGroupMembersSubTab::getAgentPowersBasedOnRoleChanges(const LLUUID& ag
 	//if we are removing a role, we store that role id away
 	//and then we have to build the powers up bases on the roles the agent
 	//is in
-	member_role_change_iter          member_end = mMemberRoleChangeData.end();
-	member_role_change_iter          member;
-	role_change_data_map_t          *role_change_datap = NULL;
-	role_change_data_map_t::iterator role_end;
-	role_change_data_map_t::iterator role;
 
 	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
 	if (!gdatap) 
@@ -1521,8 +1500,9 @@ U64 LLPanelGroupMembersSubTab::getAgentPowersBasedOnRoleChanges(const LLUUID& ag
 	}
 
 	//see if there are unsaved role changes for this agent
-	member = mMemberRoleChangeData.find(agent_id);
-	if ( member != member_end )
+	role_change_data_map_t* role_change_datap = NULL;
+	member_role_changes_map_t::iterator member = mMemberRoleChangeData.find(agent_id);
+	if ( member != mMemberRoleChangeData.end() )
 	{
 		//this member has unsaved role changes
 		//so grab them
@@ -1535,13 +1515,13 @@ U64 LLPanelGroupMembersSubTab::getAgentPowersBasedOnRoleChanges(const LLUUID& ag
 	{
 		std::vector<LLUUID> roles_to_be_removed;
 
-		role_end = role_change_datap->end();
-		role     = role_change_datap->begin();
-
-		for (; role != role_end; role++)
+		for (role_change_data_map_t::iterator role = role_change_datap->begin();
+			 role != role_change_datap->end(); ++ role)
 		{
 			if ( role->second == RMC_ADD )
+			{
 				new_powers |= gdatap->getRolePowers(role->first);
+			}
 			else
 			{
 				roles_to_be_removed.push_back(role->first);
@@ -1550,12 +1530,8 @@ U64 LLPanelGroupMembersSubTab::getAgentPowersBasedOnRoleChanges(const LLUUID& ag
 
 		//loop over the member's current roles, summing up
 		//the powers (not including the role we are removing)
-		std::map<LLUUID,LLGroupRoleData*>::iterator current_role =
-			member_data->roleBegin();
-		std::map<LLUUID,LLGroupRoleData*>::iterator end_role = 
-			member_data->roleEnd();
-
-		for (; current_role != end_role; current_role++)
+		for (LLGroupMemberData::role_list_t::iterator current_role = member_data->roleBegin();
+			 current_role != member_data->roleEnd(); ++current_role)
 		{
 			bool role_in_remove_list =
 				(std::find(roles_to_be_removed.begin(),
@@ -1588,13 +1564,10 @@ bool LLPanelGroupMembersSubTab::getRoleChangeType(const LLUUID& member_id,
 												  const LLUUID& role_id,
 												  LLRoleMemberChangeType& type)
 {
-	member_role_change_iter           member_changes_iter;
-	role_change_data_map_t::iterator  role_changes_iter;
-
-	member_changes_iter = mMemberRoleChangeData.find(member_id);
+	member_role_changes_map_t::iterator member_changes_iter = mMemberRoleChangeData.find(member_id);
 	if ( member_changes_iter != mMemberRoleChangeData.end() )
 	{
-		role_changes_iter = member_changes_iter->second->find(role_id);
+		role_change_data_map_t::iterator role_changes_iter = member_changes_iter->second->find(role_id);
 		if ( role_changes_iter != member_changes_iter->second->end() )
 		{
 			type = role_changes_iter->second;
@@ -1692,7 +1665,7 @@ void LLPanelGroupMembersSubTab::updateMembers()
 		return;
 	}
 		
-	LLGroupMgrGroupData::member_iter end = gdatap->mMembers.end();
+	LLGroupMgrGroupData::member_list_t::iterator end = gdatap->mMembers.end();
 
 	S32 i = 0;
 	for( ; mMemberProgress != end && i<UPDATE_MEMBERS_PER_FRAME; 
@@ -1976,8 +1949,8 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
 
 		LLScrollListItem* item = NULL;
 
-		LLGroupMgrGroupData::role_iter rit = gdatap->mRoles.begin();
-		LLGroupMgrGroupData::role_iter end = gdatap->mRoles.end();
+		LLGroupMgrGroupData::role_list_t::iterator rit = gdatap->mRoles.begin();
+		LLGroupMgrGroupData::role_list_t::iterator end = gdatap->mRoles.end();
 
 		for ( ; rit != end; ++rit)
 		{
@@ -2160,8 +2133,8 @@ void LLPanelGroupRolesSubTab::buildMembersList()
 	if (item->getUUID().isNull())
 	{
 		// Special cased 'Everyone' role
-		LLGroupMgrGroupData::member_iter mit = gdatap->mMembers.begin();
-		LLGroupMgrGroupData::member_iter end = gdatap->mMembers.end();
+		LLGroupMgrGroupData::member_list_t::iterator mit = gdatap->mMembers.begin();
+		LLGroupMgrGroupData::member_list_t::iterator end = gdatap->mMembers.end();
 		for ( ; mit != end; ++mit)
 		{
 			mAssignedMembersList->addNameItem((*mit).first);
@@ -2169,7 +2142,7 @@ void LLPanelGroupRolesSubTab::buildMembersList()
 	}
 	else
 	{
-		LLGroupMgrGroupData::role_iter rit = gdatap->mRoles.find(item->getUUID());
+		LLGroupMgrGroupData::role_list_t::iterator rit = gdatap->mRoles.find(item->getUUID());
 		if (rit != gdatap->mRoles.end())
 		{
 			LLGroupRoleData* rdatap = (*rit).second;
@@ -2622,8 +2595,8 @@ void LLPanelGroupActionsSubTab::handleActionSelect()
 
 	if (gdatap->isMemberDataComplete())
 	{
-		LLGroupMgrGroupData::member_iter it = gdatap->mMembers.begin();
-		LLGroupMgrGroupData::member_iter end = gdatap->mMembers.end();
+		LLGroupMgrGroupData::member_list_t::iterator it = gdatap->mMembers.begin();
+		LLGroupMgrGroupData::member_list_t::iterator end = gdatap->mMembers.end();
 		LLGroupMemberData* gmd;
 
 		for ( ; it != end; ++it)
@@ -2643,8 +2616,8 @@ void LLPanelGroupActionsSubTab::handleActionSelect()
 
 	if (gdatap->isRoleDataComplete())
 	{
-		LLGroupMgrGroupData::role_iter it = gdatap->mRoles.begin();
-		LLGroupMgrGroupData::role_iter end = gdatap->mRoles.end();
+		LLGroupMgrGroupData::role_list_t::iterator it = gdatap->mRoles.begin();
+		LLGroupMgrGroupData::role_list_t::iterator end = gdatap->mRoles.end();
 		LLGroupRoleData* rmd;
 
 		for ( ; it != end; ++it)

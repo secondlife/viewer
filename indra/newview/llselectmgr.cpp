@@ -3649,14 +3649,25 @@ void LLSelectMgr::saveSelectedObjectTransform(EActionType action_type)
 					{
 						selectNode->mSavedPositionGlobal = gAgent.getPosGlobalFromAgent((object->getPosition() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition());
 					}
+					else
+					{
+						selectNode->mSavedPositionGlobal = object->getPositionGlobal();
+					}
 				}
 				else
 				{
 					LLViewerObject* attachment_root = (LLViewerObject*)object->getParent();
-					LLXform* parent_xform = attachment_root->mDrawable->getXform()->getParent();
-					LLVector3 root_pos = (attachment_root->getPosition() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition();
-					LLQuaternion root_rot = (attachment_root->getRotation() * parent_xform->getWorldRotation());
-					selectNode->mSavedPositionGlobal = gAgent.getPosGlobalFromAgent((object->getPosition() * root_rot) + root_pos);
+					LLXform* parent_xform = attachment_root ? attachment_root->mDrawable->getXform()->getParent() : NULL;
+					if (parent_xform)
+					{
+						LLVector3 root_pos = (attachment_root->getPosition() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition();
+						LLQuaternion root_rot = (attachment_root->getRotation() * parent_xform->getWorldRotation());
+						selectNode->mSavedPositionGlobal = gAgent.getPosGlobalFromAgent((object->getPosition() * root_rot) + root_pos);
+					}
+					else
+					{
+						selectNode->mSavedPositionGlobal = object->getPositionGlobal();
+					}
 				}
 				selectNode->mSavedRotation = object->getRenderRotation();
 			}

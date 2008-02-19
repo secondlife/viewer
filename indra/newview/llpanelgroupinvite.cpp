@@ -165,7 +165,7 @@ void LLPanelGroupInvite::impl::submitInvitations()
 
 void LLPanelGroupInvite::impl::addRoleNames(LLGroupMgrGroupData* gdatap)
 {
-	LLGroupMgrGroupData::member_iter agent_iter =
+	LLGroupMgrGroupData::member_list_t::iterator agent_iter =
 		gdatap->mMembers.find(gAgent.getID());
 
 	//get the member data for the agent if it exists
@@ -191,8 +191,8 @@ void LLPanelGroupInvite::impl::addRoleNames(LLGroupMgrGroupData* gdatap)
 			bool can_assign_limited = gAgent.hasPowerInGroup(mGroupID,
 												 GP_ROLE_ASSIGN_MEMBER_LIMITED);
 
-			LLGroupMgrGroupData::role_iter rit = gdatap->mRoles.begin();
-			LLGroupMgrGroupData::role_iter end = gdatap->mRoles.end();
+			LLGroupMgrGroupData::role_list_t::iterator rit = gdatap->mRoles.begin();
+			LLGroupMgrGroupData::role_list_t::iterator end = gdatap->mRoles.end();
 
 			//populate the role list
 			for ( ; rit != end; ++rit)

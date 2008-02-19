@@ -293,6 +293,7 @@ bool ll_apr_file_remove(const LLString& filename, apr_pool_t* pool)
 	if (s != APR_SUCCESS)
 	{
 		lldebugs << "ll_apr_file_remove failed on file: " << filename << llendl;
+		ll_apr_warn_status(s);
 		return false;
 	}
 	return true;
@@ -306,6 +307,7 @@ bool ll_apr_file_rename(const LLString& filename, const LLString& newname, apr_p
 	if (s != APR_SUCCESS)
 	{
 		lldebugs << "ll_apr_file_rename failed on file: " << filename << llendl;
+		ll_apr_warn_status(s);
 		return false;
 	}
 	return true;
@@ -362,6 +364,7 @@ bool ll_apr_dir_make(const LLString& dirname, apr_pool_t* pool)
 	if (s != APR_SUCCESS)
 	{
 		lldebugs << "ll_apr_dir_make failed on file: " << dirname << llendl;
+		ll_apr_warn_status(s);
 		return false;
 	}
 	return true;
@@ -375,6 +378,7 @@ bool ll_apr_dir_remove(const LLString& dirname, apr_pool_t* pool)
 	if (s != APR_SUCCESS)
 	{
 		lldebugs << "ll_apr_dir_remove failed on file: " << dirname << llendl;
+		ll_apr_warn_status(s);
 		return false;
 	}
 	return true;

@@ -760,18 +760,10 @@ BOOL LLView::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 		}
 	}
 
-	if( !handled && !called_from_parent)
+	if( !handled && !called_from_parent && mParentView)
 	{
-		if (mIsFocusRoot)
-		{
-			// stop processing at focus root
-			handled = FALSE;
-		}
-		else if (mParentView)
-		{
-			// Upward traversal
-			handled = mParentView->handleKey( key, mask, FALSE );
-		}
+		// Upward traversal
+		handled = mParentView->handleKey( key, mask, FALSE );
 	}
 	return handled;
 }
@@ -806,18 +798,10 @@ BOOL LLView::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
 	}
 
 
-	if (!handled && !called_from_parent)
+	if (!handled && !called_from_parent && mParentView)
 	{
-		if (mIsFocusRoot)
-		{
-			// stop processing at focus root
-			handled = FALSE;
-		}
-		else if(mParentView)
-		{
-			// Upward traversal
-			handled = mParentView->handleUnicodeChar(uni_char, FALSE);
-		}
+		// Upward traversal
+		handled = mParentView->handleUnicodeChar(uni_char, FALSE);
 	}
 
 	return handled;
@@ -1448,7 +1432,12 @@ void LLView::updateBoundingRect()
 		for ( child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 		{
 			LLView* childp = *child_it;
-			if (!childp->getVisible()) continue;
+			// ignore invisible and "top" children when calculating bounding rect
+			// such as combobox popups
+			if (!childp->getVisible() || childp == gFocusMgr.getTopCtrl()) 
+			{
+				continue;
+			}
 
 			LLRect child_bounding_rect = childp->getBoundingRect();
 

@@ -344,7 +344,7 @@ void LLPanelFriends::refreshRightsChangeList()
 
 struct SortFriendsByID
 {
-	bool SortFriendsByID::operator() (const LLScrollListItem* const a, const LLScrollListItem* const b) const
+	bool operator() (const LLScrollListItem* const a, const LLScrollListItem* const b) const
 	{
 		return a->getValue().asUUID() < b->getValue().asUUID();
 	}

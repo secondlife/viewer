@@ -55,8 +55,6 @@
 static const char dialog_text[] =
 "Second Life appears to have crashed or frozen last time it ran.\n"
 "This crash reporter collects information about your computer's hardware, operating system, and some Second Life logs, all of which are used for debugging purposes only.\n"
-"In the space below, please briefly describe what you were doing or trying to do just prior to the crash. Thank you for your help!\n"
-"This report is NOT read by Customer Support. If you have billing or other questions, contact support by visiting http://www.secondlife.com/support\n"
 "\n"
 "Send crash report?";
 

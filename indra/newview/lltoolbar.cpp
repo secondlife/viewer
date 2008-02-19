@@ -279,7 +279,7 @@ void LLToolBar::layoutButtons()
 
 	// We actually want to extend "pad" pixels off the right edge of the    
 	// screen, such that the rightmost button is aligned.                   
-	S32 segment_width = llround((F32)(width) / ((F32)count - 1.f));
+	S32 segment_width = llround((F32)(width) / ((F32)count - 1.f)); // ignore chat button
 	S32 btn_width = segment_width - pad;
 	
 	// Evenly space all views
@@ -314,7 +314,7 @@ void LLToolBar::layoutButtons()
 			btn_view->reshape(r.getWidth(), r.getHeight());
 			i--;                                                            
 		}
-	}                                                                       
+	}
 }
 
 

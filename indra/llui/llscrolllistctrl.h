@@ -120,7 +120,8 @@ public:
 private:
 	LLUIString		mText;
 	const LLFontGL*	mFont;
-	LLColor4*		mColor;
+	LLColor4		mColor;
+	U8				mUseColor;
 	U8				mFontStyle;
 	LLFontGL::HAlign mFontAlignment;
 	BOOL			mVisible;
@@ -467,6 +468,7 @@ public:
 	BOOL			handleClick(S32 x, S32 y, MASK mask);
 	BOOL			selectFirstItem();
 	BOOL			selectNthItem( S32 index );
+	BOOL			selectItemRange( S32 first, S32 last );
 	BOOL			selectItemAt(S32 x, S32 y, MASK mask);
 	
 	void			deleteSingleItem( S32 index );
@@ -486,7 +488,7 @@ public:
 	virtual BOOL	getCanSelect() const				{ return mCanSelect; }
 
 	S32				getItemIndex( LLScrollListItem* item ) const;
-	S32				getItemIndex( LLUUID& item_id ) const;
+	S32				getItemIndex( const LLUUID& item_id ) const;
 
 	LLScrollListItem* addCommentText( const LLString& comment_text, EAddPosition pos = ADD_BOTTOM);
 	LLScrollListItem* addSeparator(EAddPosition pos);
@@ -587,7 +589,7 @@ public:
 	static void onClickColumn(void *userdata);
 
 	void updateColumns();
-	void calcMaxContentWidth(LLScrollListItem* changed_item);
+	void calcColumnWidths();
 	S32 getMaxContentWidth() { return mMaxContentWidth; }
 
 	void setDisplayHeading(BOOL display);
@@ -616,6 +618,9 @@ public:
 
 	S32		selectMultiple( LLDynamicArray<LLUUID> ids );
 	void			sortItems();
+	// manually call this whenever editing list items in place to flag need for resorting
+	void			setSorted(BOOL sorted) { mSorted = sorted; }
+	void			dirtyColumns(); // some operation has potentially affected column layout or ordering
 
 protected:
 	// "Full" interface: use this when you're creating a list that has one or more of the following:
@@ -649,7 +654,6 @@ private:
 	void			selectItem(LLScrollListItem* itemp, BOOL single_select = TRUE);
 	void			deselectItem(LLScrollListItem* itemp);
 	void			commitIfChanged();
-	void			setSorted(BOOL sorted) { mSorted = sorted; }
 	BOOL			setSort(S32 column, BOOL ascending);
 
 
@@ -670,6 +674,7 @@ private:
 	BOOL			mNeedsScroll;
 	BOOL			mCanSelect;
 	BOOL			mDisplayColumnHeaders;
+	BOOL			mColumnsDirty;
 
 	item_list		mItemList;
 
@@ -710,7 +715,8 @@ private:
 
 	BOOL			mSorted;
 	
-	std::map<LLString, LLScrollListColumn> mColumns;
+	typedef std::map<LLString, LLScrollListColumn> column_map_t;
+	column_map_t mColumns;
 
 	BOOL			mDirty;
 	S32				mOriginalSelection;

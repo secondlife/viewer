@@ -115,6 +115,8 @@ public:
 
     bool isInProductionGrid();
 
+	void removeMarkerFile();
+	
     // LLAppViewer testing helpers.
     // *NOTE: These will potentially crash the viewer. Only for debugging.
     virtual void forceErrorLLError();
@@ -148,7 +150,6 @@ private:
 
 	bool anotherInstanceRunning(); 
 	void initMarkerFile(); 
-	void removeMarkerFile();
     
     void idle(); 
     void idleShutdown();
@@ -163,8 +164,8 @@ private:
 
     bool mSecondInstance; // Is this a second instance of the app?
 
-	FILE *mMarkerFile; // A file created to indicate the app is running.
-	bool mLastExecFroze; // Set on init if the marker file was found.
+	LLString mMarkerFileName;
+	apr_file_t* mMarkerFile; // A file created to indicate the app is running.
 
 	LLOSInfo mSysOSInfo; 
 	S32 mCrashBehavior;
@@ -224,7 +225,16 @@ extern BOOL gAcceptTOS;
 extern BOOL gAcceptCriticalMessage;
 
 extern LLUUID	gViewerDigest;  // MD5 digest of the viewer's executable file.
-extern BOOL gLastExecFroze; // llstartup
+
+typedef enum 
+{
+	LAST_EXEC_NORMAL = 0,
+	LAST_EXEC_FROZE,
+	LAST_EXEC_LLERROR_CRASH,
+	LAST_EXEC_OTHER_CRASH
+} eLastExecEvent;
+
+extern eLastExecEvent gLastExecEvent; // llstartup
 
 extern U32 gFrameCount;
 extern U32 gForegroundFrameCount;

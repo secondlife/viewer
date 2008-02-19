@@ -119,6 +119,7 @@ public:
 	BOOL			isBackgroundOpaque() const { return mBgOpaque; }
 	void			setDefaultBtn(LLButton* btn = NULL);
 	void			setDefaultBtn(const LLString& id);
+	void			updateDefaultBtn();
 	void			setLabel(const LLStringExplicit& label) { mLabel = label; }
 	LLString		getLabel() const { return mLabel; }
 	

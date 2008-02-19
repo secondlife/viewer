@@ -95,6 +95,7 @@ public:
 
     void sendClassifiedInfoRequest();
 	void sendClassifiedInfoUpdate();
+	void resetDirty();
 	void confirmPublish(S32 option);
 
     static void processClassifiedInfoReply(LLMessageSystem* msg, void**);

@@ -2667,6 +2667,13 @@ void process_avatar_init_complete(LLMessageSystem* msg, void**)
 }
 */
 
+static void display_release_message(S32, void* data)
+{
+	std::string* msg = (std::string*)data;
+	LLFloaterReleaseMsg::displayMessage(msg->c_str());
+	delete msg;
+}
+
 void process_agent_movement_complete(LLMessageSystem* msg, void**)
 {
 	gAgentMovementCompleted = TRUE;
@@ -2835,8 +2842,10 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	msg->addBOOLFast(_PREHASH_AlwaysRun, gAgent.getAlwaysRun());
 	gAgent.sendReliableMessage();
 
-	LLFloaterReleaseMsg::displayMessage(version_channel_char);
-	
+	if (LLFloaterReleaseMsg::checkVersion(version_channel_char))
+	{
+		LLNotifyBox::showXml("ServerVersionChanged", display_release_message, new std::string(version_channel_char) );
+	}
 }
 
 void process_crossed_region(LLMessageSystem* msg, void**)
@@ -3491,7 +3500,8 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 			gViewerStats->mSimTotalUnackedBytes.addValue(stat_value / 1024.f);
 			break;
 		default:
-			llwarns << "Unknown stat id" << stat_id << llendl;
+// 			llwarns << "Unknown stat id" << stat_id << llendl;
+		  break;
 		}
 	}
 

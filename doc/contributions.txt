@@ -39,6 +39,8 @@ Angus Boyd
 	VWR-592
 Argent Stonecutter
 	VWR-68
+Balp Allen
+    VWR-4157
 Benja Kepler
 	VWR-746
 Blakar Ogre
@@ -127,6 +129,7 @@ Hamncheese Omlet
 	VWR-333
 Henri Beauchamp
 	VWR-1406
+	VWR-4157
 Hikkoshi Sakai
 	VWR-429
 Hiro Sommambulist

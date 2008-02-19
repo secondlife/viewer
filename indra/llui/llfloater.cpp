@@ -1343,21 +1343,7 @@ void LLFloater::draw()
 			}
 		}
 
-		if( getDefaultButton() )
-		{
-			if (gFocusMgr.childHasKeyboardFocus( this ) && getDefaultButton()->getEnabled())
-			{
-				LLUICtrl* focus_ctrl = gFocusMgr.getKeyboardFocus();
-				// is this button a direct descendent and not a nested widget (e.g. checkbox)?
-				BOOL focus_is_child_button = focus_ctrl->getWidgetType() == WIDGET_TYPE_BUTTON && focus_ctrl->getParent() == this;
-				// only enable default button when current focus is not a button
-				getDefaultButton()->setBorderEnabled(!focus_is_child_button);
-			}
-			else
-			{
-				getDefaultButton()->setBorderEnabled(FALSE);
-			}
-		}
+		LLPanel::updateDefaultBtn();
 
 		// draw children
 		LLView* focused_child = gFocusMgr.getKeyboardFocus();
@@ -1368,6 +1354,7 @@ void LLFloater::draw()
 			focused_child->setVisible(FALSE);
 		}
 
+		// don't call LLPanel::draw() since we've implemented custom background rendering
 		LLView::draw();
 
 		if( isBackgroundVisible() )
@@ -2567,6 +2554,11 @@ void LLMultiFloater::addFloater(LLFloater* floaterp, BOOL select_added_floater, 
 	if ( select_added_floater )
 	{
 		mTabContainer->selectTabPanel(floaterp);
+	}
+	else
+	{
+		// reassert visible tab (hiding new floater if necessary)
+		mTabContainer->selectTab(mTabContainer->getCurrentPanelIndex());
 	}
 
 	floaterp->setHost(this);

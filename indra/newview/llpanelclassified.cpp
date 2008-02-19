@@ -672,6 +672,8 @@ void LLPanelClassified::processClassifiedInfoReply(LLMessageSystem *msg, void **
 		self->mPaidFor = TRUE;
 
 		self->mUpdateBtn->setLabel(self->getString("update_txt"));
+
+		self->resetDirty();
     }
 }
 
@@ -814,6 +816,25 @@ void LLPanelClassified::callbackGotPriceForListing(S32 option, LLString text, vo
 
 }
 
+void LLPanelClassified::resetDirty()
+{
+	// Tell all the widgets to reset their dirty state since the ad was just saved
+	if (mSnapshotCtrl)
+		mSnapshotCtrl->resetDirty();
+	if (mNameEditor)
+		mNameEditor->resetDirty();
+	if (mDescEditor)
+		mDescEditor->resetDirty();
+	if (mLocationEditor)
+		mLocationEditor->resetDirty();
+	mLocationChanged = false;
+	if (mCategoryCombo)
+		mCategoryCombo->resetDirty();
+	if (mMatureCheck)
+		mMatureCheck->resetDirty();
+	if (mAutoRenewCheck)
+		mAutoRenewCheck->resetDirty();
+}
 
 // invoked from callbackConfirmPublish
 void LLPanelClassified::confirmPublish(S32 option)
@@ -837,22 +858,7 @@ void LLPanelClassified::confirmPublish(S32 option)
 		tab->setCurrentTabName(mNameEditor->getText());
 	}
 
-	// Tell all the widgets to reset their dirty state since the ad was just saved
-	if (mSnapshotCtrl)
-		mSnapshotCtrl->resetDirty();
-	if (mNameEditor)
-		mNameEditor->resetDirty();
-	if (mDescEditor)
-		mDescEditor->resetDirty();
-	if (mLocationEditor)
-		mLocationEditor->resetDirty();
-	mLocationChanged = false;
-	if (mCategoryCombo)
-		mCategoryCombo->resetDirty();
-	if (mMatureCheck)
-		mMatureCheck->resetDirty();
-	if (mAutoRenewCheck)
-		mAutoRenewCheck->resetDirty();
+	resetDirty();
 }
 
 // static

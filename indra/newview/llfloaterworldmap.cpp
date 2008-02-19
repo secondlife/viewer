@@ -832,15 +832,17 @@ void LLFloaterWorldMap::friendsChanged()
 void LLFloaterWorldMap::buildAvatarIDList()
 {
 	LLCtrlListInterface *list = childGetListInterface("friend combo");
-	if (!list) return;
-
+	if (!list)
+	{
+		return;
+	}
+	
     // Delete all but the "None" entry
 	S32 list_size = list->getItemCount();
-	while (list_size > 1)
+	if (list_size > 1)
 	{
-		list->selectNthItem(1);
+		list->selectItemRange(1, -1);
 		list->operateOnSelection(LLCtrlListInterface::OP_DELETE);
-		--list_size;
 	}
 
 	LLSD default_column;
@@ -852,11 +854,9 @@ void LLFloaterWorldMap::buildAvatarIDList()
 	// Get all of the calling cards for avatar that are currently online
 	LLCollectMappableBuddies collector;
 	LLAvatarTracker::instance().applyFunctor(collector);
-	LLCollectMappableBuddies::buddy_map_t::iterator it;
-	LLCollectMappableBuddies::buddy_map_t::iterator end;
-	it = collector.mMappable.begin();
-	end = collector.mMappable.end();
-	for( ; it != end; ++it)
+	
+	for (LLCollectMappableBuddies::buddy_map_t::iterator it = collector.mMappable.begin();
+		 it != collector.mMappable.end(); ++it)
 	{
 		list->addSimpleElement((*it).first, ADD_BOTTOM, (*it).second);
 	}
@@ -869,15 +869,17 @@ void LLFloaterWorldMap::buildAvatarIDList()
 void LLFloaterWorldMap::buildLandmarkIDLists()
 {
 	LLCtrlListInterface *list = childGetListInterface("landmark combo");
-	if (!list) return;
+	if (!list)
+	{
+		return;
+	}
 
     // Delete all but the "None" entry
 	S32 list_size = list->getItemCount();
-	while (list_size > 1)
+	if (list_size > 1)
 	{
-		list->selectNthItem(1);
+		list->selectItemRange(1, -1);
 		list->operateOnSelection(LLCtrlListInterface::OP_DELETE);
-		--list_size;
 	}
 
 	mLandmarkItemIDList.reset();
@@ -898,6 +900,7 @@ void LLFloaterWorldMap::buildLandmarkIDLists()
 									items,
 									LLInventoryModel::EXCLUDE_TRASH,
 									is_landmark);
+
 	std::sort(items.begin(), items.end(), LLViewerInventoryItem::comparePointers());
 	
 	S32 count = items.count();
@@ -910,7 +913,9 @@ void LLFloaterWorldMap::buildLandmarkIDLists()
 		mLandmarkAssetIDList.put( item->getAssetUUID() );
 		mLandmarkItemIDList.put( item->getUUID() );
 	}
+	
 	list->sortByColumn("landmark name", TRUE);
+
 	list->selectFirstItem();
 }
 

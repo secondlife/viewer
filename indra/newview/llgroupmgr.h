@@ -58,6 +58,8 @@ class LLGroupMemberData
 friend class LLGroupMgrGroupData;
 
 public:
+	typedef std::map<LLUUID,LLGroupRoleData*> role_list_t;
+	
 	LLGroupMemberData(const LLUUID& id, 
 						S32 contribution,
 						U64 agent_powers,
@@ -75,11 +77,11 @@ public:
 	const std::string& getOnlineStatus() const { return mOnlineStatus; }
 	void addRole(const LLUUID& role, LLGroupRoleData* rd);
 	bool removeRole(const LLUUID& role);
-	void clearRoles() { mRoles.clear(); };
-	std::map<LLUUID,LLGroupRoleData*>::iterator roleBegin() { return mRoles.begin(); }
-	std::map<LLUUID,LLGroupRoleData*>::iterator roleEnd() { return mRoles.end(); }
+	void clearRoles() { mRolesList.clear(); };
+	role_list_t::iterator roleBegin() { return mRolesList.begin(); }
+	role_list_t::iterator roleEnd() { return mRolesList.end(); }
 
-	BOOL isInRole(const LLUUID& role_id) { return (mRoles.find(role_id) != mRoles.end()); }
+	BOOL isInRole(const LLUUID& role_id) { return (mRolesList.find(role_id) != mRolesList.end()); }
 
 protected:
 	LLUUID	mID;
@@ -88,7 +90,7 @@ protected:
 	std::string	mTitle;
 	std::string	mOnlineStatus;
 	BOOL	mIsOwner;
-	std::map<LLUUID,LLGroupRoleData*> mRoles;
+	role_list_t mRolesList;
 };
 
 struct LLRoleData
@@ -185,8 +187,6 @@ struct lluuid_pair_less
 	}
 };
 
-typedef std::map<lluuid_pair,LLRoleMemberChange,lluuid_pair_less> change_map;
-
 struct LLGroupTitle
 {
 	std::string mTitle;
@@ -231,17 +231,16 @@ public:
 	BOOL isGroupPropertiesDataComplete() { return mGroupPropertiesDataComplete; }
 
 public:
-	typedef	std::map<LLUUID,LLGroupMemberData*> member_list;
-	typedef member_list::iterator member_iter;
-	typedef	std::map<LLUUID,LLGroupRoleData*> role_list;
-	typedef role_list::iterator role_iter;
-
-	member_list			mMembers;
-	role_list			mRoles;
+	typedef	std::map<LLUUID,LLGroupMemberData*> member_list_t;
+	typedef	std::map<LLUUID,LLGroupRoleData*> role_list_t;
+	typedef std::map<lluuid_pair,LLRoleMemberChange,lluuid_pair_less> change_map_t;
+	typedef std::map<LLUUID,LLRoleData> role_data_map_t;
+	member_list_t		mMembers;
+	role_list_t			mRoles;
 
 	
-	change_map mRoleMemberChanges;
-	std::map<LLUUID,LLRoleData> mRoleChanges;
+	change_map_t		mRoleMemberChanges;
+	role_data_map_t		mRoleChanges;
 
 	std::vector<LLGroupTitle> mTitles;
 
@@ -298,6 +297,8 @@ struct LLRoleActionSet
 
 class LLGroupMgr
 {
+	LOG_CLASS(LLGroupMgr);
+	
 public:
 	LLGroupMgr();
 	~LLGroupMgr();
@@ -355,10 +356,10 @@ protected:
 	LLGroupMgrGroupData* createGroupData(const LLUUID &id);
 
 protected:
-	typedef std::multimap<LLUUID,LLGroupMgrObserver*>::iterator observer_iter;
-	std::multimap<LLUUID,LLGroupMgrObserver*> mObservers;
-	typedef std::map<LLUUID, LLGroupMgrGroupData*>::iterator group_iter;
-	std::map<LLUUID, LLGroupMgrGroupData*> mGroups;
+	typedef std::multimap<LLUUID,LLGroupMgrObserver*> observer_multimap_t;
+	observer_multimap_t mObservers;
+	typedef std::map<LLUUID, LLGroupMgrGroupData*> group_map_t;
+	group_map_t mGroups;
 };
 
 extern LLGroupMgr* gGroupMgr;

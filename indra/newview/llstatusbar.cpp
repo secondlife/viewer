@@ -468,6 +468,8 @@ void LLStatusBar::refresh()
 	childSetVisible("buyland", canBuyLand);
 	if (canBuyLand)
 	{
+		//HACK: layout tweak until this is all xml
+		x += 9;
 		childGetRect( "buyland", buttonRect );
 		r.setOriginAndSize( x, y, buttonRect.getWidth(), buttonRect.getHeight());
 		childSetRect( "buyland", r );

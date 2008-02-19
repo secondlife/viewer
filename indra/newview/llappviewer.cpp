@@ -252,7 +252,7 @@ BOOL gAcceptTOS = FALSE;
 BOOL gAcceptCriticalMessage = FALSE;
 
 LLUUID				gViewerDigest;	// MD5 digest of the viewer's executable file.
-BOOL gLastExecFroze = FALSE;
+eLastExecEvent gLastExecEvent = LAST_EXEC_NORMAL;
 
 LLSD gDebugInfo;
 
@@ -316,6 +316,7 @@ BOOL gRandomizeFramerate = FALSE;
 BOOL gPeriodicSlowFrame = FALSE;
 
 BOOL gQAMode = FALSE;
+BOOL gLLErrorActivated = FALSE;
 
 ////////////////////////////////////////////////////////////
 // Internal globals... that should be removed.
@@ -337,6 +338,9 @@ static LLString gArgs;
 
 static LLString gOldSettingsFileName;
 static const char* LEGACY_DEFAULT_SETTINGS_FILE = "settings.ini";
+const char* MARKER_FILE_NAME = "SecondLife.exec_marker";
+const char* ERROR_MARKER_FILE_NAME = "SecondLife.error_marker";
+const char* LLERROR_MARKER_FILE_NAME = "SecondLife.llerror_marker";
 static BOOL gDoDisconnect = FALSE;
 static LLString gLaunchFileOnQuit;
 
@@ -923,7 +927,6 @@ LLTextureFetch* LLAppViewer::sTextureFetch = NULL;
 
 LLAppViewer::LLAppViewer() : 
 	mMarkerFile(NULL),
-	mLastExecFroze(false),
 	mCrashBehavior(CRASH_BEHAVIOR_ASK),
 	mReportedCrash(false),
 	mNumSessions(0),
@@ -1912,6 +1915,10 @@ void errorCallback(const std::string &error_string)
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	OSMessageBox(error_string.c_str(), "Fatal Error", OSMB_OK);
 #endif
+
+	//Set the ErrorActivated global so we know to create a marker file
+	gLLErrorActivated = true;
+	
 	LLError::crashAndLoop(error_string);
 }
 
@@ -2092,7 +2099,7 @@ bool LLAppViewer::initConfiguration()
 		initMarkerFile();
 
 #if LL_SEND_CRASH_REPORTS
-		if (gLastExecFroze)
+		if (gLastExecEvent == LAST_EXEC_FROZE)
 		{
 			llinfos << "Last execution froze, requesting to send crash report." << llendl;
 			//
@@ -2112,25 +2119,19 @@ bool LLAppViewer::initConfiguration()
 			{
 				llinfos << "Sending crash report." << llendl;
 
- 				removeMarkerFile();
 #if LL_WINDOWS
 				std::string exe_path = gDirUtilp->getAppRODataDir();
 				exe_path += gDirUtilp->getDirDelimiter();
 				exe_path += "win_crash_logger.exe";
 
-				std::string arg_string = "-previous -user ";
-				arg_string += gGridName;
-				arg_string += " -name \"";
-				arg_string += gSecondLife;
-				arg_string += "\"";
+				std::string arg_string = "-previous ";
 				// Spawn crash logger.
 				// NEEDS to wait until completion, otherwise log files will get smashed.
 				_spawnl(_P_WAIT, exe_path.c_str(), exe_path.c_str(), arg_string.c_str(), NULL);
 #elif LL_DARWIN
 				std::string command_str;
 				command_str = "crashreporter.app/Contents/MacOS/crashreporter ";
-				command_str += "-previous -user ";
-				command_str += gGridName;
+				command_str += "-previous";
 				// XXX -- We need to exit fullscreen mode for this to work.
 				// XXX -- system() also doesn't wait for completion.  Hmm...
 				system(command_str.c_str());		/* Flawfinder: Ignore */
@@ -2145,10 +2146,6 @@ bool LLAppViewer::initConfiguration()
 				char* const cmdargv[] =
 					{(char*)cmd.c_str(),
 					 (char*)"-previous",
-					 (char*)"-user",
-					 (char*)gGridName,
-					 (char*)"-name",
-					 (char*)gSecondLife.c_str(),
 					 NULL};
 				pid_t pid = fork();
 				if (pid == 0)
@@ -2476,6 +2473,27 @@ void LLAppViewer::handleViewerCrash()
 	gDebugInfo["CurrentPath"] = gDirUtilp->getCurPath().c_str();
 	gDebugInfo["CurrentSimHost"] = gAgent.getRegionHost().getHostName();
 
+	//Write out the crash status file
+	//Use marker file style setup, as that's the simplest, especially since
+	//we're already in a crash situation	
+	if (gDirUtilp)
+	{
+		LLString crash_file_name;
+		if(gLLErrorActivated) crash_file_name = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,LLERROR_MARKER_FILE_NAME);
+		else crash_file_name = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,ERROR_MARKER_FILE_NAME);
+		llinfos << "Creating crash marker file " << crash_file_name << llendl;
+		apr_file_t* crash_file =  ll_apr_file_open(crash_file_name, LL_APR_W);
+		if (crash_file)
+		{
+			llinfos << "Created crash marker file " << crash_file_name << llendl;
+		}
+		else
+		{
+			llwarns << "Cannot create error marker file " << crash_file_name << llendl;
+		}
+		apr_file_close(crash_file);
+	}
+	
 	if (gMessageSystem && gDirUtilp)
 	{
 		std::string filename;
@@ -2502,6 +2520,9 @@ void LLAppViewer::handleViewerCrash()
 	pApp->closeDebug();
 	LLError::logToFile("");
 
+	// Remove the marker file, since otherwise we'll spawn a process that'll keep it locked
+	pApp->removeMarkerFile();
+	
 	// Call to pure virtual, handled by platform specifc llappviewer instance.
 	pApp->handleCrashReporting(); 
 
@@ -2519,7 +2540,7 @@ bool LLAppViewer::anotherInstanceRunning()
 		// We create a marker file when the program starts and remove the file when it finishes.
 	// If the file is currently locked, that means another process is already running.
 
-	std::string marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.exec_marker");
+	std::string marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, MARKER_FILE_NAME);
 	llinfos << "Checking marker file for lock..." << llendl;
 
 	// If file doesn't exist, we create it
@@ -2557,71 +2578,69 @@ bool LLAppViewer::anotherInstanceRunning()
 
 void LLAppViewer::initMarkerFile()
 {
-	// *FIX:Mani - an actually cross platform LLFile lib would be nice.
 
-#if LL_SOLARIS
-        struct flock fl;
-        fl.l_whence = SEEK_SET;
-        fl.l_start = 0;
-        fl.l_len = 1;
-#endif
-	// We create a marker file when the program starts and remove the file when it finishes.
-	// If the file is currently locked, that means another process is already running.
-	// If the file exists and isn't locked, we crashed on the last run.
-
-	std::string marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.exec_marker");
+	//First, check for the existence of other files.
+	//There are marker files for two different types of crashes
+	
+	mMarkerFileName = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,MARKER_FILE_NAME);
 	llinfos << "Checking marker file for lock..." << llendl;
 
-	FILE* fMarker = LLFile::fopen(marker_file.c_str(), "rb");		// Flawfinder: ignore
+	//We've got 4 things to test for here
+	// - Other Process Running (SecondLife.exec_marker present, locked)
+	// - Freeze (SecondLife.exec_marker present, not locked)
+	// - LLError Crash (SecondLife.llerror_marker present)
+	// - Other Crash (SecondLife.error_marker present)
+	// These checks should also remove these files for the last 2 cases if they currently exist
+
+	//LLError/Error checks. Only one of these should ever happen at a time.
+	LLString llerror_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, LLERROR_MARKER_FILE_NAME);
+	LLString error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
+	apr_file_t* fMarker = ll_apr_file_open(llerror_marker_file, LL_APR_RB);
+	if(fMarker != NULL)
+	{
+		apr_file_close(fMarker);
+		llinfos << "Last exec LLError crashed, setting LastExecEvent to " << LAST_EXEC_LLERROR_CRASH << llendl;
+		gLastExecEvent = LAST_EXEC_LLERROR_CRASH;
+	}
+
+	fMarker = ll_apr_file_open(error_marker_file, LL_APR_RB);
+	if(fMarker != NULL)
+	{
+		apr_file_close(fMarker);
+		llinfos << "Last exec crashed, setting LastExecEvent to " << LAST_EXEC_OTHER_CRASH << llendl;
+		gLastExecEvent = LAST_EXEC_OTHER_CRASH;
+	}
+
+	ll_apr_file_remove(llerror_marker_file);
+	ll_apr_file_remove(error_marker_file);
+	
+	//Freeze case checks
+	fMarker = ll_apr_file_open(mMarkerFileName, LL_APR_RB);		
 	if (fMarker != NULL)
 	{
 		// File exists, try opening with write permissions
-		fclose(fMarker);
-		fMarker = LLFile::fopen(marker_file.c_str(), "wb");		// Flawfinder: ignxore
+		apr_file_close(fMarker);
+		fMarker = ll_apr_file_open(mMarkerFileName, LL_APR_WB);
 		if (fMarker == NULL)
 		{
 			// Another instance is running. Skip the rest of these operations.
 			llinfos << "Marker file is locked." << llendl;
 			return;
 		}
-#if LL_DARWIN || LL_LINUX || LL_SOLARIS
-		// Try to lock it. On Mac, this is the only way to test if it's actually locked.
-		if (flock(fileno(fMarker), LOCK_EX | LOCK_NB) == -1)
+		if (apr_file_lock(fMarker, APR_FLOCK_NONBLOCK | APR_FLOCK_EXCLUSIVE) != APR_SUCCESS) //flock(fileno(fMarker), LOCK_EX | LOCK_NB) == -1)
 		{
-			// Lock failed - somebody else has it.
-			fclose(fMarker);
+			apr_file_close(fMarker);
 			llinfos << "Marker file is locked." << llendl;
 			return;
 		}
-#endif
-
 		// No other instances; we'll lock this file now & delete on quit.
-		fclose(fMarker);
-		gLastExecFroze = TRUE;
+		apr_file_close(fMarker);
+		gLastExecEvent = LAST_EXEC_FROZE;
 		llinfos << "Exec marker found: program froze on previous execution" << llendl;
 	}
 
 	// Create the marker file for this execution & lock it
-// 	FILE *fp_executing_marker;
-#if LL_WINDOWS
-	mMarkerFile = LLFile::_fsopen(marker_file.c_str(), "w", _SH_DENYWR);
-#else
-	mMarkerFile = LLFile::fopen(marker_file.c_str(), "w");		// Flawfinder: ignore
-	if (mMarkerFile)
-	{
-		int fd = fileno(mMarkerFile);
-		// Attempt to lock
-#if LL_SOLARIS
-		fl.l_type = F_WRLCK;
-		if (fcntl(fd, F_SETLK, &fl) == -1)
-#else
-		if (flock(fd, LOCK_EX | LOCK_NB) == -1)
-#endif
-		{
-			llinfos << "Failed to lock file." << llendl;
-		}
-	}
-#endif
+	mMarkerFile =  ll_apr_file_open(mMarkerFileName, LL_APR_W);
 	if (mMarkerFile)
 	{
 		llinfos << "Marker file created." << llendl;
@@ -2630,20 +2649,14 @@ void LLAppViewer::initMarkerFile()
 	{
 		llinfos << "Failed to create marker file." << llendl;
 	}
+	if (apr_file_lock(mMarkerFile, APR_FLOCK_NONBLOCK | APR_FLOCK_EXCLUSIVE) != APR_SUCCESS) 
+	{
+		apr_file_close(mMarkerFile);
+		llinfos << "Marker file cannot be locked." << llendl;
+		return;
+	}
 
-#if LL_WINDOWS
-	// Clean up SecondLife.dmp files, to avoid confusion
-	llinfos << "Removing SecondLife.dmp" << llendl;
-	std::string dmp_filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.dmp");
-	LLFile::remove(dmp_filename.c_str());
-#endif
-
-	// This is to keep the crash reporter from constantly sending stale message logs
-	// We wipe the message file now.
-	llinfos << "Removing message.log" << llendl;
-	std::string message_filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "message.log");
-	LLFile::remove(message_filename.c_str());
-
+	llinfos << "Marker file locked." << llendl;
 	llinfos << "Exiting initMarkerFile()." << llendl;
 }
 
@@ -2652,13 +2665,8 @@ void LLAppViewer::removeMarkerFile()
 	llinfos << "removeMarkerFile()" << llendl;
 	if (mMarkerFile != NULL)
 	{
-		fclose(mMarkerFile);
+		ll_apr_file_remove( mMarkerFileName );
 		mMarkerFile = NULL;
-	}
-	if( gDirUtilp )
-	{
-		LLString marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.exec_marker");
-		ll_apr_file_remove( marker_file );
 	}
 }
 

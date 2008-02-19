@@ -748,9 +748,8 @@ void LLPanelGroupGeneral::updateMembers()
 
 	all_timer.reset();
 	S32 i = 0;
-	LLGroupMgrGroupData::member_iter end = gdatap->mMembers.end();
 
-	for( ; mMemberProgress != end && i<UPDATE_MEMBERS_PER_FRAME; 
+	for( ; mMemberProgress != gdatap->mMembers.end() && i<UPDATE_MEMBERS_PER_FRAME; 
 			++mMemberProgress, ++i)
 	{
 		//llinfos << "Adding " << iter->first << ", " << iter->second->getTitle() << llendl;
@@ -791,7 +790,7 @@ void LLPanelGroupGeneral::updateMembers()
 	sAllTime += all_timer.getElapsedTimeF32();
 
 	llinfos << "Updated " << i << " of " << UPDATE_MEMBERS_PER_FRAME << "members in the list." << llendl;
-	if (mMemberProgress == end)
+	if (mMemberProgress == gdatap->mMembers.end())
 	{
 		llinfos << "   member list completed." << llendl;
 		mListVisibleMembers->setEnabled(TRUE);

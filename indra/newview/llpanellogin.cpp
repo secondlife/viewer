@@ -367,6 +367,11 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	childSetKeystrokeCallback("password_edit", onPassKey, this);
 	childSetUserData("password_edit", this);
 
+	// change z sort of clickable text to be behind buttons
+	sendChildToBack(getChildByName("channel_text"));
+	sendChildToBack(getChildByName("version_text"));
+	sendChildToBack(getChildByName("forgot_password_text"));
+
 	LLLineEditor* edit = LLUICtrlFactory::getLineEditorByName(this, "password_edit");
 	if (edit) edit->setDrawAsterixes(TRUE);
 
@@ -478,6 +483,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	// Initialize visibility (and don't force visibility - use prefs)
 	refreshLocation( false );
 #endif
+
 }
 
 void LLPanelLogin::setSiteIsAlive( bool alive )

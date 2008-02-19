@@ -1016,7 +1016,7 @@ BOOL idle_startup()
 			gAcceptTOS,
 			gAcceptCriticalMessage,
 			gViewerDigest,
-			gLastExecFroze,
+			gLastExecEvent,
 			requested_options,
 			hashed_mac_string,
 			LLAppViewer::instance()->getSerialNumber());
@@ -2767,8 +2767,8 @@ void update_dialog_callback(S32 option, void *userdata)
 
 	llinfos << "Calling updater: " << update_exe_path << " " << params.str() << llendl;
 
-	// *REMOVE:Mani The following call is handled through ~LLAppViewer.
- 	// remove_marker_file(); // In case updater fails
+	//Explicitly remove the marker file, otherwise we pass the lock onto the child process and things get weird.
+	LLAppViewer::instance()->removeMarkerFile(); // In case updater fails
 	
 	// Use spawn() to run asynchronously
 	int retval = _spawnl(_P_NOWAIT, update_exe_path.c_str(), update_exe_path.c_str(), params.str().c_str(), NULL);
