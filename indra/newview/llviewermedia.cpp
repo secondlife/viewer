@@ -1,11 +1,34 @@
-/** 
+/**
  * @file llviewermedia.cpp
- * @author Callum Prentice & James Cook
  * @brief Client interface to the media engine
  *
- * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
- * $License$
+ * $LicenseInfo:firstyear=2007&license=viewergpl$
+ *
+ * Copyright (c) 2007-2008, Linden Research, Inc.
+ *
+ * Second Life Viewer Source Code
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlife.com/developers/opensource/gplv2
+ *
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at http://secondlife.com/developers/opensource/flossexception
+ *
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
+ *
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
+ * $/LicenseInfo$
  */
+
 #include "llviewerprecompiledheaders.h"
 
 #include "llviewermedia.h"
@@ -44,7 +67,7 @@ class LLViewerMediaImpl
 				  const LLUUID& placeholder_texture_id,
 				  S32 media_width, S32 media_height, U8 media_auto_scale,
 				  U8 media_loop);
-	
+
 		void stop();
 		void pause();
 		void start();
@@ -62,10 +85,10 @@ class LLViewerMediaImpl
 	public:
 
 		// a single media url with some data and an impl.
-		LLMediaBase* mMediaSource;	
+		LLMediaBase* mMediaSource;
 		LLUUID mMovieImageID;
 		bool  mMovieImageHasMips;
-		std::string mMediaURL;		
+		std::string mMediaURL;
 		std::string mMimeType;
     private:
 	    void initializePlaceholderImage(LLViewerImage *placeholder_image, LLMediaBase *media_source);
@@ -97,20 +120,20 @@ void LLViewerMediaImpl::play(const std::string& media_url,
 {
 	// first stop any previously playing media
 	stop();
-	
+
 	// Save this first, as init/load below may fire events
 	mMovieImageID = placeholder_texture_id;
 
-	// If the mime_type passed in is different than the cached one, and 
+	// If the mime_type passed in is different than the cached one, and
 	// Auto-discovery is turned OFF, replace the cached mime_type with the new one.
-	if(mime_type != mMimeType && 
+	if(mime_type != mMimeType &&
 		! gSavedSettings.getBOOL("AutoMimeDiscovery"))
 	{
 		mMimeType = mime_type;
 	}
 	LLURI url(media_url);
 	std::string scheme = url.scheme() != "" ? url.scheme() : "http";
-	
+
 	LLMediaManager* mgr = LLMediaManager::getInstance();
 	mMediaSource = mgr->createSourceFromMimeType(scheme, mMimeType );
 	if ( !mMediaSource )
@@ -123,12 +146,12 @@ void LLViewerMediaImpl::play(const std::string& media_url,
 		}
 		return;
 	}
-	
+
 	if ((media_width != 0) && (media_height != 0))
 	{
 		mMediaSource->setRequestedMediaSize(media_width, media_height);
 	}
-	
+
 	mMediaSource->setLooping(media_loop);
 	mMediaSource->setAutoScaled(media_auto_scale);
 	mMediaSource->addObserver( this );
@@ -239,7 +262,7 @@ void LLViewerMediaImpl::initializePlaceholderImage(LLViewerImage *placeholder_im
 	//int media_rowspan = media_source->getMediaRowSpan();
 
 	// if width & height are invalid, don't bother doing anything
-	if ( media_width < 1 || media_height < 1 ) 
+	if ( media_width < 1 || media_height < 1 )
 		return;
 
 	llinfos << "initializing media placeholder" << llendl;
@@ -257,12 +280,12 @@ void LLViewerMediaImpl::initializePlaceholderImage(LLViewerImage *placeholder_im
 	// MEDIAOPT: seems insane that we actually have to make an imageraw then
 	// immediately discard it
 	LLPointer<LLImageRaw> raw = new LLImageRaw(texture_width, texture_height, texture_depth);
-	raw->clear(0x0f, 0x0f, 0x0f, 0xff);	
+	raw->clear(0x0f, 0x0f, 0x0f, 0xff);
 	int discard_level = 0;
 
 	// ask media source for correct GL image format constants
-	placeholder_image->setExplicitFormat(media_source->getTextureFormatInternal(), 
-										 media_source->getTextureFormatPrimary(), 
+	placeholder_image->setExplicitFormat(media_source->getTextureFormatInternal(),
+										 media_source->getTextureFormatPrimary(),
 										 media_source->getTextureFormatType());
 
 	placeholder_image->createGLTexture(discard_level, raw);
@@ -342,7 +365,7 @@ void LLViewerMediaImpl::onMediaSizeChange(const EventType& event_in)
 					{
 						// destroy existing GL image
 						viewerImage->destroyGLTexture();
-				
+
 						// set new size
 						viewerImage->setSize( renderer->getTextureWidth(),
 												renderer->getTextureHeight(),
@@ -356,8 +379,8 @@ void LLViewerMediaImpl::onMediaSizeChange(const EventType& event_in)
 					}
 
 					// Set the explicit format the instance wants
-					viewerImage->setExplicitFormat(renderer->getTextureFormatInternal(), 
-													renderer->getTextureFormatPrimary(), 
+					viewerImage->setExplicitFormat(renderer->getTextureFormatInternal(),
+													renderer->getTextureFormatPrimary(),
 													renderer->getTextureFormatType(),
 													renderer->getTextureFormatSwapBytes());
 					// This should be redundant, but just in case:
@@ -440,7 +463,7 @@ void LLViewerMedia::initClass()
 	init_data->setBrowserUserAgentId( codec.str() );
 
 	std::string application_dir = gDirUtilp->getExecutableDir();
-	
+
 	init_data->setBrowserApplicationDir( application_dir );
 	std::string profile_dir = gDirUtilp->getExpandedFilename( LL_PATH_MOZILLA_PROFILE, "" );
 	init_data->setBrowserProfileDir( profile_dir );
@@ -530,7 +553,7 @@ bool LLViewerMedia::getMediaSize(S32 *media_width, S32 *media_height)
 
 	if ( sViewerMediaImpl.mMediaSource != NULL )
 	{
-		*media_width = sViewerMediaImpl.mMediaSource->getMediaWidth(); 
+		*media_width = sViewerMediaImpl.mMediaSource->getMediaWidth();
 		*media_height = sViewerMediaImpl.mMediaSource->getMediaHeight();
 		return true;
 	}
@@ -543,7 +566,7 @@ bool LLViewerMedia::getTextureSize(S32 *texture_width, S32 *texture_height)
 {
 	if ( sViewerMediaImpl.mMediaSource != NULL )
 	{
-		S32 media_width = sViewerMediaImpl.mMediaSource->getMediaWidth(); 
+		S32 media_width = sViewerMediaImpl.mMediaSource->getMediaWidth();
 		S32 media_height = sViewerMediaImpl.mMediaSource->getMediaHeight();
 		*texture_width = LLMediaManager::textureWidthFromMediaWidth( media_width );
 		*texture_height = LLMediaManager::textureHeightFromMediaHeight( media_height );
@@ -564,14 +587,14 @@ void LLViewerMedia::updateImagesMediaStreams()
 bool LLViewerMedia::isMediaPlaying()
 {
 	LLMediaBase::EStatus status = sViewerMediaImpl.getStatus();
-	return (status == LLMediaBase::STATUS_STARTED ); 
+	return (status == LLMediaBase::STATUS_STARTED );
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
 bool LLViewerMedia::isMediaPaused()
 {
 	LLMediaBase::EStatus status = sViewerMediaImpl.getStatus();
-	return (status == LLMediaBase::STATUS_PAUSED); 
+	return (status == LLMediaBase::STATUS_PAUSED);
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
@@ -581,7 +604,7 @@ bool LLViewerMedia::hasMedia()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//static 
+//static
 bool LLViewerMedia::isActiveMediaTexture(const LLUUID& id)
 {
 	return (id.notNull()

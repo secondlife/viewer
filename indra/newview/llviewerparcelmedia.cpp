@@ -1,11 +1,34 @@
-/** 
+/**
  * @file llviewerparcelmedia.cpp
- * @author Callum Prentice & James Cook
  * @brief Handlers for multimedia on a per-parcel basis
  *
- * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
- * $License$
+ * $LicenseInfo:firstyear=2007&license=viewergpl$
+ *
+ * Copyright (c) 2007-2008, Linden Research, Inc.
+ *
+ * Second Life Viewer Source Code
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlife.com/developers/opensource/gplv2
+ *
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at http://secondlife.com/developers/opensource/flossexception
+ *
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
+ *
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
+ * $/LicenseInfo$
  */
+
 #include "llviewerprecompiledheaders.h"
 #include "llviewerparcelmedia.h"
 
@@ -26,12 +49,12 @@ S32 LLViewerParcelMedia::sMediaParcelLocalID = 0;
 LLUUID LLViewerParcelMedia::sMediaRegionID;
 
 // Move this to its own file.
-// helper class that tries to download a URL from a web site and calls a method 
+// helper class that tries to download a URL from a web site and calls a method
 // on the Panel Land Media and to discover the MIME type
 class LLMimeDiscoveryResponder : public LLHTTPClient::Responder
 {
 public:
-	LLMimeDiscoveryResponder( ) 
+	LLMimeDiscoveryResponder( )
 	  {}
 
 
@@ -161,12 +184,12 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 void LLViewerParcelMedia::play(LLParcel* parcel)
 {
 	lldebugs << "LLViewerParcelMedia::play" << llendl;
-	
+
 	if (!parcel) return;
 
 	if (!gSavedSettings.getBOOL("AudioStreamingVideo"))
 		return;
-	
+
 	std::string media_url = parcel->getMediaURL();
 	std::string mime_type = parcel->getMediaType();
 	LLUUID placeholder_texture_id = parcel->getMediaID();
@@ -232,10 +255,10 @@ void LLViewerParcelMedia::processParcelMediaCommandMessage( LLMessageSystem *msg
 	msg->getU32( "CommandBlock", "Command", command);
 	msg->getF32( "CommandBlock", "Time", time );
 
-	if (flags &( (1<<PARCEL_MEDIA_COMMAND_STOP) 
-				| (1<<PARCEL_MEDIA_COMMAND_PAUSE) 
-				| (1<<PARCEL_MEDIA_COMMAND_PLAY) 
-				| (1<<PARCEL_MEDIA_COMMAND_LOOP) 
+	if (flags &( (1<<PARCEL_MEDIA_COMMAND_STOP)
+				| (1<<PARCEL_MEDIA_COMMAND_PAUSE)
+				| (1<<PARCEL_MEDIA_COMMAND_PLAY)
+				| (1<<PARCEL_MEDIA_COMMAND_LOOP)
 				| (1<<PARCEL_MEDIA_COMMAND_UNLOAD) ))
 	{
 		// stop
@@ -303,13 +326,13 @@ void LLViewerParcelMedia::processParcelMediaUpdate( LLMessageSystem *msg, void *
 	S32 media_height = 0;
 	U8 media_auto_scale = FALSE;
 	U8 media_loop = FALSE;
-	
+
 	msg->getUUID( "DataBlock", "MediaID", media_id );
 	char media_url_buffer[257];
 	msg->getString( "DataBlock", "MediaURL", 255, media_url_buffer );
 	media_url = media_url_buffer;
 	msg->getU8("DataBlock", "MediaAutoScale", media_auto_scale);
-	
+
 	if (msg->getNumberOfBlocks("DataBlockExtended")) // do we have the extended data?
 	{
 		char media_type_buffer[257];

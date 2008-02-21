@@ -1,12 +1,35 @@
-/** 
+/**
  * @file llpanellandmedia.cpp
- * @author Callum Prentice, Sam Kolb, James Cook
  * @brief Allows configuration of "media" for a land parcel,
  *   for example movies, web pages, and audio.
  *
- * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
- * $License$
+ * $LicenseInfo:firstyear=2007&license=viewergpl$
+ *
+ * Copyright (c) 2007-2008, Linden Research, Inc.
+ *
+ * Second Life Viewer Source Code
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlife.com/developers/opensource/gplv2
+ *
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at http://secondlife.com/developers/opensource/flossexception
+ *
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
+ *
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
+ * $/LicenseInfo$
  */
+
 #include "llviewerprecompiledheaders.h"
 
 #include "llpanellandmedia.h"
@@ -79,7 +102,7 @@ BOOL LLPanelLandMedia::postBuild()
 	{
 		llwarns << "LLViewerUICtrlFactory::getTexturePickerByName() returned NULL for 'media texure'" << llendl;
 	}
-		
+
 	mMediaAutoScaleCheck = LLUICtrlFactory::getCheckBoxByName(this, "media_auto_scale");
 	childSetCommitCallback("media_auto_scale", onCommitAny, this);
 
@@ -175,7 +198,7 @@ void LLPanelLandMedia::refresh()
 
 		// don't display urls if you're not able to change it
 		// much requested change in forums so people can't 'steal' urls
-		// NOTE: bug#2009 means this is still vunerable - however, bug 
+		// NOTE: bug#2009 means this is still vunerable - however, bug
 		// should be closed since this bug opens up major security issues elsewhere.
 		bool obscure_media = ! can_change_media && parcel->getObscureMedia();
 		bool obscure_music = ! can_change_media && parcel->getObscureMusic();
@@ -289,7 +312,7 @@ void LLPanelLandMedia::onCommitType(LLUICtrl *ctrl, void *userdata)
 		self->childSetText("mime_type", LLMIMETypes::findDefaultMimeType(new_type));
 	}
 	onCommitAny(ctrl, userdata);
-	
+
 }
 // static
 void LLPanelLandMedia::onCommitAny(LLUICtrl *ctrl, void *userdata)
@@ -321,7 +344,7 @@ void LLPanelLandMedia::onCommitAny(LLUICtrl *ctrl, void *userdata)
 
 	BOOL voice_enabled;
 	BOOL voice_estate_chan;
-	
+
 	switch(voice_setting)
 	{
 		default:
@@ -338,7 +361,7 @@ void LLPanelLandMedia::onCommitAny(LLUICtrl *ctrl, void *userdata)
 			voice_estate_chan = FALSE;
 		break;
 	}
-	
+
 	// Remove leading/trailing whitespace (common when copying/pasting)
 	LLString::trim(music_url);
 	LLString::trim(media_url);
@@ -359,7 +382,7 @@ void LLPanelLandMedia::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	parcel->setObscureMedia( obscure_media );
 	parcel->setObscureMusic( obscure_music );
 
-	// Send current parcel data upstream to server 
+	// Send current parcel data upstream to server
 	gParcelMgr->sendParcelPropertiesUpdate( parcel );
 
 	// Might have changed properties, so let's redraw!
@@ -370,7 +393,7 @@ void LLPanelLandMedia::onSetBtn(void *userdata)
 {
 	LLPanelLandMedia *self = (LLPanelLandMedia *)userdata;
 	self->mURLEntryFloater = LLFloaterURLEntry::show( self->getHandle() );
-	LLFloater* parent_floater = gFloaterView->getParentFloater(self); 
+	LLFloater* parent_floater = gFloaterView->getParentFloater(self);
 	if (parent_floater)
 	{
 		parent_floater->addDependentFloater(self->mURLEntryFloater.get());
