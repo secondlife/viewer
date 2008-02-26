@@ -2286,10 +2286,19 @@ void LLVoiceClient::tuningSetMicVolume(float volume)
 
 void LLVoiceClient::tuningSetSpeakerVolume(float volume)
 {
-	int scaledVolume = ((int)(volume * 100.0f)) - 100;
+	// incoming volume has the range [0.0 ... 1.0], with 0.5 as the default.
+	// Map it as follows: 0.0 -> -100, 0.5 -> 24, 1.0 -> 50
+	
+	volume -= 0.5f;		// offset volume to the range [-0.5 ... 0.5], with 0 at the default.
+	int scaledVolume = 24;	// offset scaledVolume by its default level
+	if(volume < 0.0f)
+		scaledVolume += ((int)(volume * 248.0f));	// (24 - (-100)) * 2
+	else
+		scaledVolume += ((int)(volume * 52.0f));	// (50 - 24) * 2
+
 	if(scaledVolume != mTuningSpeakerVolume)
 	{
-		mTuningSpeakerVolume = ((int)(volume * 100.0f)) - 100;
+		mTuningSpeakerVolume = scaledVolume;
 		mTuningSpeakerVolumeDirty = true;
 	}
 }
@@ -3690,7 +3699,18 @@ void LLVoiceClient::setEarLocation(S32 loc)
 
 void LLVoiceClient::setVoiceVolume(F32 volume)
 {
-	int scaledVolume = ((int)(volume * 100.0f)) - 100;
+//	llinfos << "volume is " << volume << llendl;
+
+	// incoming volume has the range [0.0 ... 1.0], with 0.5 as the default.
+	// Map it as follows: 0.0 -> -100, 0.5 -> 24, 1.0 -> 50
+	
+	volume -= 0.5f;		// offset volume to the range [-0.5 ... 0.5], with 0 at the default.
+	int scaledVolume = 24;	// offset scaledVolume by its default level
+	if(volume < 0.0f)
+		scaledVolume += ((int)(volume * 248.0f));	// (24 - (-100)) * 2
+	else
+		scaledVolume += ((int)(volume * 52.0f));	// (50 - 24) * 2
+	
 	if(scaledVolume != mSpeakerVolume)
 	{
 		if((scaledVolume == -100) || (mSpeakerVolume == -100))

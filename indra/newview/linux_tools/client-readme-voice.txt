@@ -21,6 +21,7 @@ REQUIREMENTS
 
 Success with Linux Voice support has been reported on the following
 systems:
+* Ubuntu 7.04 (Feisty) with USB Plantronics headset
 * Ubuntu 7.04 (Feisty) with Intel HDA audio chipset
 * Ubuntu 6.06 (Dapper) with Intel ICH5/CMI9761A+ audio chipset
 * Ubuntu 6.06 (Dapper) with SigmaTel STAC2997 audio chipset
@@ -35,10 +36,6 @@ KNOWN PROBLEMS
 
 * The 'Input Level' meter in the Voice Chat Device Settings dialog
   does not respond to audio input.
-
-* The Input/Output options in the Voice Chat Device Settings dialog
-  do not list all of the available audio devices, so only the 'default'
-  device may be selected.
 
 TROUBLESHOOTING
 -=-=-=-=-=-=-=-
