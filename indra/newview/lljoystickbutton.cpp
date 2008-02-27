@@ -36,6 +36,7 @@
 // Library includes
 #include "llcoord.h"
 #include "indra_constants.h"
+#include "llglimmediate.h"
 
 // Project includes
 #include "llui.h"
@@ -652,23 +653,23 @@ void LLJoystickCameraRotate::drawRotatedImage( const LLImageGL* image, S32 rotat
 
 	image->bind();
 
-	glColor4fv(UI_VERTEX_COLOR.mV);
+	gGL.color4fv(UI_VERTEX_COLOR.mV);
 	
-	glBegin(GL_QUADS);
+	gGL.begin(GL_QUADS);
 	{
-		glTexCoord2fv( uv[ (rotations + 0) % 4]);
-		glVertex2i(width, height );
+		gGL.texCoord2fv( uv[ (rotations + 0) % 4]);
+		gGL.vertex2i(width, height );
 
-		glTexCoord2fv( uv[ (rotations + 1) % 4]);
-		glVertex2i(0, height );
+		gGL.texCoord2fv( uv[ (rotations + 1) % 4]);
+		gGL.vertex2i(0, height );
 
-		glTexCoord2fv( uv[ (rotations + 2) % 4]);
-		glVertex2i(0, 0);
+		gGL.texCoord2fv( uv[ (rotations + 2) % 4]);
+		gGL.vertex2i(0, 0);
 
-		glTexCoord2fv( uv[ (rotations + 3) % 4]);
-		glVertex2i(width, 0);
+		gGL.texCoord2fv( uv[ (rotations + 3) % 4]);
+		gGL.vertex2i(width, 0);
 	}
-	glEnd();
+	gGL.end();
 }
 
 

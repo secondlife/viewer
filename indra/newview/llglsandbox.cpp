@@ -39,6 +39,7 @@
 #include "llviewercontrol.h"
 
 #include "llgl.h"
+#include "llglimmediate.h"
 #include "llglheaders.h"
 #include "llparcel.h"
 #include "llui.h"
@@ -65,6 +66,7 @@
 #include "llpreviewtexture.h"
 #include "llresmgr.h"
 #include "pipeline.h"
+#include "llspatialpartition.h"
  
 BOOL LLAgent::setLookAt(ELookAtType target_type, LLViewerObject *object, LLVector3 position)
 {
@@ -137,7 +139,7 @@ void LLAgent::renderAutoPilotTarget()
 		LLVector3d target_global;
 
 		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
+		gGL.pushMatrix();
 
 		// not textured
 		LLGLSNoTexture no_texture;
@@ -147,31 +149,15 @@ void LLAgent::renderAutoPilotTarget()
 
 		target_global = mAutoPilotTargetGlobal;
 
-		glTranslatef((F32)(target_global.mdV[VX]), (F32)(target_global.mdV[VY]), (F32)(target_global.mdV[VZ]));
+		gGL.translatef((F32)(target_global.mdV[VX]), (F32)(target_global.mdV[VY]), (F32)(target_global.mdV[VZ]));
 
-		/*
-		LLVector3 offset = target_global - mCamera.getOrigin();
-		F32 range = offset.magVec();
-		if (range > 0.001f)
-		{
-			// range != zero
-			F32 fraction_of_fov = height_pixels / (F32) mCamera.getViewHeightInPixels();
-			F32 apparent_angle = fraction_of_fov * mCamera.getView();
-			height_meters = range * tan(apparent_angle);
-		}
-		else
-		{
-			// range == zero
-			height_meters = 1.0f;
-		}
-		*/
 		height_meters = 1.f;
 
 		glScalef(height_meters, height_meters, height_meters);
 
 		gSphere.render(1500.f);
 
-		glPopMatrix();
+		gGL.popMatrix();
 	}
 }
 
@@ -227,7 +213,7 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 
 	// save drawing mode
 	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
+	gGL.pushMatrix();
 
 	BOOL limit_select_distance = gSavedSettings.getBOOL("LimitSelectDistance");
 	if (limit_select_distance)
@@ -284,14 +270,18 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 	if (grow_selection)
 	{
 		std::vector<LLDrawable*> potentials;
-		
-		
-		for (U32 i = 0; i < LLPipeline::NUM_PARTITIONS-1; i++)
+				
+		for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
+			iter != gWorldp->getRegionList().end(); ++iter)
 		{
-			LLSpatialPartition* part = gPipeline.getSpatialPartition(i);
-			if (part)
+			LLViewerRegion* region = *iter;
+			for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
 			{
-				part->cull(*gCamera, &potentials, TRUE);
+				LLSpatialPartition* part = region->getSpatialPartition(i);
+				if (part)
+				{	
+					part->cull(*gCamera, &potentials, TRUE);
+				}
 			}
 		}
 		
@@ -338,7 +328,7 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 
 	// restore drawing mode
 	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
+	gGL.popMatrix();
 	glMatrixMode(GL_MODELVIEW);
 
 	// restore camera
@@ -358,35 +348,35 @@ void LLCompass::draw()
 	if (!getVisible()) return;
 
 	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
+	gGL.pushMatrix();
 
 	S32 width = 32;
 	S32 height = 32;
 
 	LLGLSUIDefault gls_ui;
 
-	glTranslatef( COMPASS_SIZE/2.f, COMPASS_SIZE/2.f, 0.f);
+	gGL.translatef( COMPASS_SIZE/2.f, COMPASS_SIZE/2.f, 0.f);
 
 	if (mBkgndTexture)
 	{
 		mBkgndTexture->bind();
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		gGL.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		
-		glBegin(GL_QUADS);
+		gGL.begin(GL_QUADS);
 		
-		glTexCoord2f(1.f, 1.f);
-		glVertex2i(width, height);
+		gGL.texCoord2f(1.f, 1.f);
+		gGL.vertex2i(width, height);
 		
-		glTexCoord2f(0.f, 1.f);
-		glVertex2i(-width, height);
+		gGL.texCoord2f(0.f, 1.f);
+		gGL.vertex2i(-width, height);
 		
-		glTexCoord2f(0.f, 0.f);
-		glVertex2i(-width, -height);
+		gGL.texCoord2f(0.f, 0.f);
+		gGL.vertex2i(-width, -height);
 		
-		glTexCoord2f(1.f, 0.f);
-		glVertex2i(width, -height);
+		gGL.texCoord2f(1.f, 0.f);
+		gGL.vertex2i(width, -height);
 		
-		glEnd();
+		gGL.end();
 	}
 
 	// rotate subsequent draws to agent rotation
@@ -396,26 +386,26 @@ void LLCompass::draw()
 	if (mTexture)
 	{
 		mTexture->bind();
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		gGL.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		
-		glBegin(GL_QUADS);
+		gGL.begin(GL_QUADS);
 		
-		glTexCoord2f(1.f, 1.f);
-		glVertex2i(width, height);
+		gGL.texCoord2f(1.f, 1.f);
+		gGL.vertex2i(width, height);
 		
-		glTexCoord2f(0.f, 1.f);
-		glVertex2i(-width, height);
+		gGL.texCoord2f(0.f, 1.f);
+		gGL.vertex2i(-width, height);
 		
-		glTexCoord2f(0.f, 0.f);
-		glVertex2i(-width, -height);
+		gGL.texCoord2f(0.f, 0.f);
+		gGL.vertex2i(-width, -height);
 		
-		glTexCoord2f(1.f, 0.f);
-		glVertex2i(width, -height);
+		gGL.texCoord2f(1.f, 0.f);
+		gGL.vertex2i(width, -height);
 		
-		glEnd();
+		gGL.end();
 	}
 
-	glPopMatrix();
+	gGL.popMatrix();
 
 }
 
@@ -443,28 +433,28 @@ void LLHorizontalCompass::draw()
 		F32 right = center + COMPASS_RANGE;
 
 		mTexture->bind();
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f );
-		glBegin( GL_QUADS );
+		gGL.color4f(1.0f, 1.0f, 1.0f, 1.0f );
+		gGL.begin( GL_QUADS );
 
-		glTexCoord2f(right, 1.f);
-		glVertex2i(width, height);
+		gGL.texCoord2f(right, 1.f);
+		gGL.vertex2i(width, height);
 
-		glTexCoord2f(left, 1.f);
-		glVertex2i(0, height);
+		gGL.texCoord2f(left, 1.f);
+		gGL.vertex2i(0, height);
 
-		glTexCoord2f(left, 0.f);
-		glVertex2i(0, 0);
+		gGL.texCoord2f(left, 0.f);
+		gGL.vertex2i(0, 0);
 
-		glTexCoord2f(right, 0.f);
-		glVertex2i(width, 0);
+		gGL.texCoord2f(right, 0.f);
+		gGL.vertex2i(width, 0);
 
-		glEnd();
+		gGL.end();
 	}
 
 	// Draw the focus line
 	{
 		LLGLSNoTexture gls_no_texture;
-		glColor4fv( mFocusColor.mV );
+		gGL.color4fv( mFocusColor.mV );
 		gl_line_2d( half_width, 0, half_width, height );
 	}
 }
@@ -482,31 +472,31 @@ void LLWind::renderVectors()
 	F32 region_width_meters = gWorldPointer->getRegionWidthInMeters();
 
 	LLGLSNoTexture gls_no_texture;
-	glPushMatrix();
+	gGL.pushMatrix();
 	LLVector3 origin_agent;
 	origin_agent = gAgent.getPosAgentFromGlobal(mOriginGlobal);
-	glTranslatef(origin_agent.mV[VX], origin_agent.mV[VY], WIND_ALTITUDE);
+	gGL.translatef(origin_agent.mV[VX], origin_agent.mV[VY], WIND_ALTITUDE);
 	for (j = 0; j < mSize; j++)
 	{
 		for (i = 0; i < mSize; i++)
 		{
 			x = mCloudVelX[i + j*mSize] * WIND_SCALE_HACK;
 			y = mCloudVelY[i + j*mSize] * WIND_SCALE_HACK;
-			glPushMatrix();
-			glTranslatef((F32)i * region_width_meters/mSize, (F32)j * region_width_meters/mSize, 0.0);
-			glColor3f(0,1,0);
-			glBegin(GL_POINTS);
-				glVertex3f(0,0,0);
-			glEnd();
-			glColor3f(1,0,0);
-			glBegin(GL_LINES);
-				glVertex3f(x * 0.1f, y * 0.1f ,0.f);
-				glVertex3f(x, y, 0.f);
-			glEnd();
-			glPopMatrix();
+			gGL.pushMatrix();
+			gGL.translatef((F32)i * region_width_meters/mSize, (F32)j * region_width_meters/mSize, 0.0);
+			gGL.color3f(0,1,0);
+			gGL.begin(GL_POINTS);
+				gGL.vertex3f(0,0,0);
+			gGL.end();
+			gGL.color3f(1,0,0);
+			gGL.begin(GL_LINES);
+				gGL.vertex3f(x * 0.1f, y * 0.1f ,0.f);
+				gGL.vertex3f(x, y, 0.f);
+			gGL.end();
+			gGL.popMatrix();
 		}
 	}
-	glPopMatrix();
+	gGL.popMatrix();
 }
 
 
@@ -545,49 +535,49 @@ void LLViewerParcelMgr::renderRect(const LLVector3d &west_south_bottom_global,
 	F32 nw_top = nw_bottom + PARCEL_POST_HEIGHT;
 
 	LLUI::setLineWidth(2.f);
-	glColor4f(1.f, 1.f, 0.f, 1.f);
+	gGL.color4f(1.f, 1.f, 0.f, 1.f);
 
 	// Cheat and give this the same pick-name as land
-	glBegin(GL_LINES);
+	gGL.begin(GL_LINES);
 
-	glVertex3f(west, north, nw_bottom);
-	glVertex3f(west, north, nw_top);
+	gGL.vertex3f(west, north, nw_bottom);
+	gGL.vertex3f(west, north, nw_top);
 
-	glVertex3f(east, north, ne_bottom);
-	glVertex3f(east, north, ne_top);
+	gGL.vertex3f(east, north, ne_bottom);
+	gGL.vertex3f(east, north, ne_top);
 
-	glVertex3f(east, south, se_bottom);
-	glVertex3f(east, south, se_top);
+	gGL.vertex3f(east, south, se_bottom);
+	gGL.vertex3f(east, south, se_top);
 
-	glVertex3f(west, south, sw_bottom);
-	glVertex3f(west, south, sw_top);
+	gGL.vertex3f(west, south, sw_bottom);
+	gGL.vertex3f(west, south, sw_top);
 
-	glEnd();
+	gGL.end();
 
-	glColor4f(1.f, 1.f, 0.f, 0.2f);
-	glBegin(GL_QUADS);
+	gGL.color4f(1.f, 1.f, 0.f, 0.2f);
+	gGL.begin(GL_QUADS);
 
-	glVertex3f(west, north, nw_bottom);
-	glVertex3f(west, north, nw_top);
-	glVertex3f(east, north, ne_top);
-	glVertex3f(east, north, ne_bottom);
+	gGL.vertex3f(west, north, nw_bottom);
+	gGL.vertex3f(west, north, nw_top);
+	gGL.vertex3f(east, north, ne_top);
+	gGL.vertex3f(east, north, ne_bottom);
 
-	glVertex3f(east, north, ne_bottom);
-	glVertex3f(east, north, ne_top);
-	glVertex3f(east, south, se_top);
-	glVertex3f(east, south, se_bottom);
+	gGL.vertex3f(east, north, ne_bottom);
+	gGL.vertex3f(east, north, ne_top);
+	gGL.vertex3f(east, south, se_top);
+	gGL.vertex3f(east, south, se_bottom);
 
-	glVertex3f(east, south, se_bottom);
-	glVertex3f(east, south, se_top);
-	glVertex3f(west, south, sw_top);
-	glVertex3f(west, south, sw_bottom);
+	gGL.vertex3f(east, south, se_bottom);
+	gGL.vertex3f(east, south, se_top);
+	gGL.vertex3f(west, south, sw_top);
+	gGL.vertex3f(west, south, sw_bottom);
 
-	glVertex3f(west, south, sw_bottom);
-	glVertex3f(west, south, sw_top);
-	glVertex3f(west, north, nw_top);
-	glVertex3f(west, north, nw_bottom);
+	gGL.vertex3f(west, south, sw_bottom);
+	gGL.vertex3f(west, south, sw_top);
+	gGL.vertex3f(west, north, nw_top);
+	gGL.vertex3f(west, north, nw_bottom);
 
-	glEnd();
+	gGL.end();
 
 	LLUI::setLineWidth(1.f);
 }
@@ -629,49 +619,49 @@ void LLViewerParcelMgr::renderParcel(LLParcel* parcel )
 		LLGLDepthTest gls_depth(GL_TRUE);
 
 		LLUI::setLineWidth(2.f);
-		glColor4f(0.f, 1.f, 1.f, 1.f);
+		gGL.color4f(0.f, 1.f, 1.f, 1.f);
 
 		// Cheat and give this the same pick-name as land
-		glBegin(GL_LINES);
+		gGL.begin(GL_LINES);
 
-		glVertex3f(west, north, nw_bottom);
-		glVertex3f(west, north, nw_top);
+		gGL.vertex3f(west, north, nw_bottom);
+		gGL.vertex3f(west, north, nw_top);
 
-		glVertex3f(east, north, ne_bottom);
-		glVertex3f(east, north, ne_top);
+		gGL.vertex3f(east, north, ne_bottom);
+		gGL.vertex3f(east, north, ne_top);
 
-		glVertex3f(east, south, se_bottom);
-		glVertex3f(east, south, se_top);
+		gGL.vertex3f(east, south, se_bottom);
+		gGL.vertex3f(east, south, se_top);
 
-		glVertex3f(west, south, sw_bottom);
-		glVertex3f(west, south, sw_top);
+		gGL.vertex3f(west, south, sw_bottom);
+		gGL.vertex3f(west, south, sw_top);
 
-		glEnd();
+		gGL.end();
 
-		glColor4f(0.f, 1.f, 1.f, 0.2f);
-		glBegin(GL_QUADS);
+		gGL.color4f(0.f, 1.f, 1.f, 0.2f);
+		gGL.begin(GL_QUADS);
 
-		glVertex3f(west, north, nw_bottom);
-		glVertex3f(west, north, nw_top);
-		glVertex3f(east, north, ne_top);
-		glVertex3f(east, north, ne_bottom);
+		gGL.vertex3f(west, north, nw_bottom);
+		gGL.vertex3f(west, north, nw_top);
+		gGL.vertex3f(east, north, ne_top);
+		gGL.vertex3f(east, north, ne_bottom);
 
-		glVertex3f(east, north, ne_bottom);
-		glVertex3f(east, north, ne_top);
-		glVertex3f(east, south, se_top);
-		glVertex3f(east, south, se_bottom);
+		gGL.vertex3f(east, north, ne_bottom);
+		gGL.vertex3f(east, north, ne_top);
+		gGL.vertex3f(east, south, se_top);
+		gGL.vertex3f(east, south, se_bottom);
 
-		glVertex3f(east, south, se_bottom);
-		glVertex3f(east, south, se_top);
-		glVertex3f(west, south, sw_top);
-		glVertex3f(west, south, sw_bottom);
+		gGL.vertex3f(east, south, se_bottom);
+		gGL.vertex3f(east, south, se_top);
+		gGL.vertex3f(west, south, sw_top);
+		gGL.vertex3f(west, south, sw_bottom);
 
-		glVertex3f(west, south, sw_bottom);
-		glVertex3f(west, south, sw_top);
-		glVertex3f(west, north, nw_top);
-		glVertex3f(west, north, nw_bottom);
+		gGL.vertex3f(west, south, sw_bottom);
+		gGL.vertex3f(west, south, sw_top);
+		gGL.vertex3f(west, north, nw_top);
+		gGL.vertex3f(west, north, nw_bottom);
 
-		glEnd();
+		gGL.end();
 
 		LLUI::setLineWidth(1.f);
 	}
@@ -714,14 +704,14 @@ void LLViewerParcelMgr::renderOneSegment(F32 x1, F32 y1, F32 x2, F32 y2, F32 hei
 	if (height < 1.f)
 	{
 		z = z1+height;
-		glVertex3f(x1, y1, z);
+		gGL.vertex3f(x1, y1, z);
 
-		glVertex3f(x1, y1, z1);
+		gGL.vertex3f(x1, y1, z1);
 
-		glVertex3f(x2, y2, z2);
+		gGL.vertex3f(x2, y2, z2);
 
 		z = z2+height;
-		glVertex3f(x2, y2, z);
+		gGL.vertex3f(x2, y2, z);
 	}
 	else
 	{
@@ -750,19 +740,19 @@ void LLViewerParcelMgr::renderOneSegment(F32 x1, F32 y1, F32 x2, F32 y2, F32 hei
 		}
 
 
-		glTexCoord2f(tex_coord1*0.5f+0.5f, z1*0.5f);
-		glVertex3f(x1, y1, z1);
+		gGL.texCoord2f(tex_coord1*0.5f+0.5f, z1*0.5f);
+		gGL.vertex3f(x1, y1, z1);
 
-		glTexCoord2f(tex_coord2*0.5f+0.5f, z2*0.5f);
-		glVertex3f(x2, y2, z2);
+		gGL.texCoord2f(tex_coord2*0.5f+0.5f, z2*0.5f);
+		gGL.vertex3f(x2, y2, z2);
 
 		// top edge stairsteps
 		z = llmax(z2+height, z1+height);
-		glTexCoord2f(tex_coord2*0.5f+0.5f, z*0.5f);
-		glVertex3f(x2, y2, z);
+		gGL.texCoord2f(tex_coord2*0.5f+0.5f, z*0.5f);
+		gGL.vertex3f(x2, y2, z);
 
-		glTexCoord2f(tex_coord1*0.5f+0.5f, z*0.5f);
-		glVertex3f(x1, y1, z);
+		gGL.texCoord2f(tex_coord1*0.5f+0.5f, z*0.5f);
+		gGL.vertex3f(x1, y1, z);
 	}
 }
 
@@ -772,17 +762,19 @@ void LLViewerParcelMgr::renderHighlightSegments(const U8* segments, LLViewerRegi
 	S32 x, y;
 	F32 x1, y1;	// start point
 	F32 x2, y2;	// end point
+	bool has_segments = false;
 
 	LLGLSUIDefault gls_ui;
 	LLGLSNoTexture gls_no_texture;
 	LLGLDepthTest gls_depth(GL_TRUE);
 
-	glColor4f(1.f, 1.f, 0.f, 0.2f);
-
-	// Cheat and give this the same pick-name as land
-	glBegin(GL_QUADS);
+	gGL.color4f(1.f, 1.f, 0.f, 0.2f);
 
 	const S32 STRIDE = (mParcelsPerEdge+1);
+
+	// Cheat and give this the same pick-name as land
+	
+	
 	for (y = 0; y < STRIDE; y++)
 	{
 		for (x = 0; x < STRIDE; x++)
@@ -796,7 +788,12 @@ void LLViewerParcelMgr::renderHighlightSegments(const U8* segments, LLViewerRegi
 
 				x2 = x1 + PARCEL_GRID_STEP_METERS;
 				y2 = y1;
-
+				
+				if (!has_segments)
+				{
+					has_segments = true;
+					gGL.begin(GL_QUADS);
+				}
 				renderOneSegment(x1, y1, x2, y2, PARCEL_POST_HEIGHT, SOUTH_MASK, regionp);
 			}
 
@@ -808,12 +805,20 @@ void LLViewerParcelMgr::renderHighlightSegments(const U8* segments, LLViewerRegi
 				x2 = x1;
 				y2 = y1 + PARCEL_GRID_STEP_METERS;
 
+				if (!has_segments)
+				{
+					has_segments = true;
+					gGL.begin(GL_QUADS);
+				}
 				renderOneSegment(x1, y1, x2, y2, PARCEL_POST_HEIGHT, WEST_MASK, regionp);
 			}
 		}
 	}
 
-	glEnd();
+	if (has_segments)
+	{
+		gGL.end();
+	}
 }
 
 
@@ -858,7 +863,7 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 		LLViewerImage::bindTexture( getBlockedImage() );
 	}
 
-	glBegin(GL_QUADS);
+	gGL.begin(GL_QUADS);
 
 	for (y = 0; y < STRIDE; y++)
 	{
@@ -882,7 +887,7 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 				if (gRenderForSelect)
 				{
 					LLColor4U color((U8)(GL_NAME_PARCEL_WALL >> 16), (U8)(GL_NAME_PARCEL_WALL >> 8), (U8)GL_NAME_PARCEL_WALL);
-					glColor4ubv(color.mV);
+					gGL.color4ubv(color.mV);
 				}
 				else
 				{
@@ -906,7 +911,7 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 
 					alpha = llclamp(alpha, 0.0f, MAX_ALPHA);
 
-					glColor4f(1.f, 1.f, 1.f, alpha);
+					gGL.color4f(1.f, 1.f, 1.f, alpha);
 				}
 
 				if ((pos_y - y1) < 0) direction = SOUTH_MASK;
@@ -928,7 +933,7 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 				if (gRenderForSelect)
 				{
 					LLColor4U color((U8)(GL_NAME_PARCEL_WALL >> 16), (U8)(GL_NAME_PARCEL_WALL >> 8), (U8)GL_NAME_PARCEL_WALL);
-					glColor4ubv(color.mV);
+					gGL.color4ubv(color.mV);
 				}
 				else
 				{					
@@ -952,7 +957,7 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 
 					alpha = llclamp(alpha, 0.0f, MAX_ALPHA);
 
-					glColor4f(1.f, 1.f, 1.f, alpha);
+					gGL.color4f(1.f, 1.f, 1.f, alpha);
 				}
 
 				if ((pos_x - x1) > 0) direction = WEST_MASK;
@@ -965,43 +970,48 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 		}
 	}
 
-	glEnd();
+	gGL.end();
 }
 
 void draw_line_cube(F32 width, const LLVector3& center)
 {
 	width = 0.5f * width;
-	glVertex3f(center.mV[VX] + width ,center.mV[VY] + width,center.mV[VZ] + width);
-	glVertex3f(center.mV[VX] - width ,center.mV[VY] + width,center.mV[VZ] + width);
-	glVertex3f(center.mV[VX] - width ,center.mV[VY] + width,center.mV[VZ] + width);
-	glVertex3f(center.mV[VX] - width ,center.mV[VY] - width,center.mV[VZ] + width);
-	glVertex3f(center.mV[VX] - width ,center.mV[VY] - width,center.mV[VZ] + width);
-	glVertex3f(center.mV[VX] + width ,center.mV[VY] - width,center.mV[VZ] + width);
-	glVertex3f(center.mV[VX] + width ,center.mV[VY] - width,center.mV[VZ] + width);
-	glVertex3f(center.mV[VX] + width ,center.mV[VY] + width,center.mV[VZ] + width);
+	gGL.vertex3f(center.mV[VX] + width ,center.mV[VY] + width,center.mV[VZ] + width);
+	gGL.vertex3f(center.mV[VX] - width ,center.mV[VY] + width,center.mV[VZ] + width);
+	gGL.vertex3f(center.mV[VX] - width ,center.mV[VY] + width,center.mV[VZ] + width);
+	gGL.vertex3f(center.mV[VX] - width ,center.mV[VY] - width,center.mV[VZ] + width);
+	gGL.vertex3f(center.mV[VX] - width ,center.mV[VY] - width,center.mV[VZ] + width);
+	gGL.vertex3f(center.mV[VX] + width ,center.mV[VY] - width,center.mV[VZ] + width);
+	gGL.vertex3f(center.mV[VX] + width ,center.mV[VY] - width,center.mV[VZ] + width);
+	gGL.vertex3f(center.mV[VX] + width ,center.mV[VY] + width,center.mV[VZ] + width);
 
-	glVertex3f(center.mV[VX] + width ,center.mV[VY] + width,center.mV[VZ] - width);
-	glVertex3f(center.mV[VX] - width ,center.mV[VY] + width,center.mV[VZ] - width);
-	glVertex3f(center.mV[VX] - width ,center.mV[VY] + width,center.mV[VZ] - width);
-	glVertex3f(center.mV[VX] - width ,center.mV[VY] - width,center.mV[VZ] - width);
-	glVertex3f(center.mV[VX] - width ,center.mV[VY] - width,center.mV[VZ] - width);
-	glVertex3f(center.mV[VX] + width ,center.mV[VY] - width,center.mV[VZ] - width);
-	glVertex3f(center.mV[VX] + width ,center.mV[VY] - width,center.mV[VZ] - width);
-	glVertex3f(center.mV[VX] + width ,center.mV[VY] + width,center.mV[VZ] - width);
+	gGL.vertex3f(center.mV[VX] + width ,center.mV[VY] + width,center.mV[VZ] - width);
+	gGL.vertex3f(center.mV[VX] - width ,center.mV[VY] + width,center.mV[VZ] - width);
+	gGL.vertex3f(center.mV[VX] - width ,center.mV[VY] + width,center.mV[VZ] - width);
+	gGL.vertex3f(center.mV[VX] - width ,center.mV[VY] - width,center.mV[VZ] - width);
+	gGL.vertex3f(center.mV[VX] - width ,center.mV[VY] - width,center.mV[VZ] - width);
+	gGL.vertex3f(center.mV[VX] + width ,center.mV[VY] - width,center.mV[VZ] - width);
+	gGL.vertex3f(center.mV[VX] + width ,center.mV[VY] - width,center.mV[VZ] - width);
+	gGL.vertex3f(center.mV[VX] + width ,center.mV[VY] + width,center.mV[VZ] - width);
 
-	glVertex3f(center.mV[VX] + width ,center.mV[VY] + width,center.mV[VZ] + width);
-	glVertex3f(center.mV[VX] + width ,center.mV[VY] + width,center.mV[VZ] - width);
-	glVertex3f(center.mV[VX] - width ,center.mV[VY] + width,center.mV[VZ] + width);
-	glVertex3f(center.mV[VX] - width ,center.mV[VY] + width,center.mV[VZ] - width);
-	glVertex3f(center.mV[VX] - width ,center.mV[VY] - width,center.mV[VZ] + width);
-	glVertex3f(center.mV[VX] - width ,center.mV[VY] - width,center.mV[VZ] - width);
-	glVertex3f(center.mV[VX] + width ,center.mV[VY] - width,center.mV[VZ] + width);
-	glVertex3f(center.mV[VX] + width ,center.mV[VY] - width,center.mV[VZ] - width);
+	gGL.vertex3f(center.mV[VX] + width ,center.mV[VY] + width,center.mV[VZ] + width);
+	gGL.vertex3f(center.mV[VX] + width ,center.mV[VY] + width,center.mV[VZ] - width);
+	gGL.vertex3f(center.mV[VX] - width ,center.mV[VY] + width,center.mV[VZ] + width);
+	gGL.vertex3f(center.mV[VX] - width ,center.mV[VY] + width,center.mV[VZ] - width);
+	gGL.vertex3f(center.mV[VX] - width ,center.mV[VY] - width,center.mV[VZ] + width);
+	gGL.vertex3f(center.mV[VX] - width ,center.mV[VY] - width,center.mV[VZ] - width);
+	gGL.vertex3f(center.mV[VX] + width ,center.mV[VY] - width,center.mV[VZ] + width);
+	gGL.vertex3f(center.mV[VX] + width ,center.mV[VY] - width,center.mV[VZ] - width);
 }
 
 
 void LLViewerObjectList::renderObjectBeacons()
 {
+	if (mDebugBeacons.empty())
+	{
+		return;
+	}
+
 	S32 i;
 	//const LLFontGL *font = gResMgr->getRes(LLFONT_SANSSERIF);
 
@@ -1011,7 +1021,7 @@ void LLViewerObjectList::renderObjectBeacons()
 	
 	{
 		LLGLSNoTexture gls_ui_no_texture;
-		glBegin(GL_LINES);
+		gGL.begin(GL_LINES);
 		for (i = 0; i < mDebugBeacons.count(); i++)
 		{
 			const LLDebugBeacon &debug_beacon = mDebugBeacons[i];
@@ -1020,31 +1030,32 @@ void LLViewerObjectList::renderObjectBeacons()
 			S32 line_width = debug_beacon.mLineWidth;
 			if (line_width != last_line_width)
 			{
-				glEnd();
+				gGL.end();
+				gGL.flush();
 				glLineWidth( (F32)line_width );
 				last_line_width = line_width;
-				glBegin(GL_LINES);
+				gGL.begin(GL_LINES);
 			}
 
 			const LLVector3 &thisline = debug_beacon.mPositionAgent;
-			glColor4fv(color.mV);
-			glVertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] - 50.f);
-			glVertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] + 50.f);
-			glVertex3f(thisline.mV[VX] - 2.f,thisline.mV[VY],thisline.mV[VZ]);
-			glVertex3f(thisline.mV[VX] + 2.f,thisline.mV[VY],thisline.mV[VZ]);
-			glVertex3f(thisline.mV[VX],thisline.mV[VY] - 2.f,thisline.mV[VZ]);
-			glVertex3f(thisline.mV[VX],thisline.mV[VY] + 2.f,thisline.mV[VZ]);
+			gGL.color4fv(color.mV);
+			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] - 50.f);
+			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] + 50.f);
+			gGL.vertex3f(thisline.mV[VX] - 2.f,thisline.mV[VY],thisline.mV[VZ]);
+			gGL.vertex3f(thisline.mV[VX] + 2.f,thisline.mV[VY],thisline.mV[VZ]);
+			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] - 2.f,thisline.mV[VZ]);
+			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] + 2.f,thisline.mV[VZ]);
 
 			draw_line_cube(0.10f, thisline);
 		}
-		glEnd();
+		gGL.end();
 	}
 
 	{
 		LLGLSNoTexture gls_ui_no_texture;
 		LLGLDepthTest gls_depth(GL_TRUE);
 		
-		glBegin(GL_LINES);
+		gGL.begin(GL_LINES);
 		last_line_width = -1;
 		for (i = 0; i < mDebugBeacons.count(); i++)
 		{
@@ -1053,25 +1064,27 @@ void LLViewerObjectList::renderObjectBeacons()
 			S32 line_width = debug_beacon.mLineWidth;
 			if (line_width != last_line_width)
 			{
-				glEnd();
+				gGL.end();
+				gGL.flush();
 				glLineWidth( (F32)line_width );
 				last_line_width = line_width;
-				glBegin(GL_LINES);
+				gGL.begin(GL_LINES);
 			}
 
 			const LLVector3 &thisline = debug_beacon.mPositionAgent;
-			glColor4fv(debug_beacon.mColor.mV);
-			glVertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] - 0.5f);
-			glVertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] + 0.5f);
-			glVertex3f(thisline.mV[VX] - 0.5f,thisline.mV[VY],thisline.mV[VZ]);
-			glVertex3f(thisline.mV[VX] + 0.5f,thisline.mV[VY],thisline.mV[VZ]);
-			glVertex3f(thisline.mV[VX],thisline.mV[VY] - 0.5f,thisline.mV[VZ]);
-			glVertex3f(thisline.mV[VX],thisline.mV[VY] + 0.5f,thisline.mV[VZ]);
+			gGL.color4fv(debug_beacon.mColor.mV);
+			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] - 0.5f);
+			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] + 0.5f);
+			gGL.vertex3f(thisline.mV[VX] - 0.5f,thisline.mV[VY],thisline.mV[VZ]);
+			gGL.vertex3f(thisline.mV[VX] + 0.5f,thisline.mV[VY],thisline.mV[VZ]);
+			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] - 0.5f,thisline.mV[VZ]);
+			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] + 0.5f,thisline.mV[VZ]);
 
 			draw_line_cube(0.10f, thisline);
 		}
-		glEnd();
+		gGL.end();
 	
+		gGL.flush();
 		glLineWidth(1.f);
 
 		for (i = 0; i < mDebugBeacons.count(); i++)

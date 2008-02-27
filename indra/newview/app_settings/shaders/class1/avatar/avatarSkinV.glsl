@@ -1,4 +1,9 @@
-vec4 calcLighting(vec3 pos, vec3 norm, vec4 color);
+/** 
+ * @file avatarSkinV.glsl
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
 
 attribute vec4 weight;  //1
 

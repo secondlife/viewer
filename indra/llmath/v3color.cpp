@@ -33,12 +33,20 @@
 
 #include "v3color.h"
 #include "v4color.h"
+#include "v4math.h"
 
 LLColor3 LLColor3::white(1.0f, 1.0f, 1.0f);
 LLColor3 LLColor3::black(0.0f, 0.0f, 0.0f);
 LLColor3 LLColor3::grey (0.5f, 0.5f, 0.5f);
 
 LLColor3::LLColor3(const LLColor4 &a)
+{
+	mV[0] = a.mV[0];
+	mV[1] = a.mV[1];
+	mV[2] = a.mV[2];
+}
+
+LLColor3::LLColor3(const LLVector4 &a)
 {
 	mV[0] = a.mV[0];
 	mV[1] = a.mV[1];

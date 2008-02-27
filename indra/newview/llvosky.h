@@ -48,6 +48,7 @@
 //
 
 const F32 HORIZON_DIST			= 1024.0f;
+const F32 SKY_BOX_MULT			= 16.0f;
 const F32 HEAVENLY_BODY_DIST		= HORIZON_DIST - 10.f;
 const F32 HEAVENLY_BODY_FACTOR	= 0.1f;
 const F32 HEAVENLY_BODY_SCALE	= HEAVENLY_BODY_DIST * HEAVENLY_BODY_FACTOR;
@@ -85,7 +86,6 @@ LL_FORCE_INLINE LLColor3 color_div(const LLColor3 &col1, const LLColor3 &col2)
 }
 
 LLColor3 color_norm(const LLColor3 &col);
-LLVector3 move_vec (const LLVector3& v, F32 cos_max_angle);
 BOOL clip_quad_to_horizon(F32& t_left, F32& t_right, LLVector3 v_clipped[4],
 						  const LLVector3 v_corner[4], const F32 cos_max_angle);
 F32 clip_side_to_horizon(const LLVector3& v0, const LLVector3& v1, const F32 cos_max_angle);
@@ -111,18 +111,6 @@ inline F32 color_min(const LLColor3 &col)
 	return llmin(col.mV[0], col.mV[1], col.mV[2]);
 }
 
-inline LLColor3 color_norm_abs(const LLColor3 &col)
-{
-	const F32 m = color_max(col);
-	if (m > 1e-6)
-	{
-		return 1.f/m * col;
-	}
-	else return col;
-}
-
-
-
 class LLFace;
 class LLHaze;
 
@@ -135,7 +123,7 @@ private:
 	static S32		sComponents;
 	LLPointer<LLImageGL> mImageGL[2];
 	LLPointer<LLImageRaw> mImageRaw[2];
-	LLColor3		*mSkyData;
+	LLColor4		*mSkyData;
 	LLVector3		*mSkyDirs;			// Cache of sky direction vectors
 	static S32		sCurrent;
 	static F32		sInterpVal;
@@ -163,7 +151,8 @@ protected:
 	static S32 getWhich(const BOOL curr)		{ return curr ? sCurrent : getNext(); }
 
 	void initEmpty(const S32 tex);
-	void create(F32 brightness_scale, const LLColor3& multiscatt);
+	
+	void create(F32 brightness);
 
 	void setDir(const LLVector3 &dir, const S32 i, const S32 j)
 	{
@@ -177,7 +166,7 @@ protected:
 		return mSkyDirs[offset];
 	}
 
-	void setPixel(const LLColor3 &col, const S32 i, const S32 j)
+	void setPixel(const LLColor4 &col, const S32 i, const S32 j)
 	{
 		S32 offset = i * sResolution + j;
 		mSkyData[offset] = col;
@@ -203,7 +192,7 @@ protected:
 	void createGLImage(BOOL curr=TRUE);
 };
 
-
+/// TODO Move into the stars draw pool (and rename them appropriately).
 class LLHeavenBody
 {
 protected:
@@ -260,27 +249,6 @@ public:
 	{
 		return sInterpVal * mColor + (1 - sInterpVal) * mColorCached;
 	}
-
-//	LLColor3 getDiffuseColor() const
-//	{
-//		LLColor3 dif = mColorCached;
-//		dif.clamp();
-//		return 2 * dif;
-//	}
-	
-//	LLColor4 getAmbientColor(const LLColor3& scatt, F32 scale) const
-//	{
-//		const F32 min_val = 0.05f;
-//		LLColor4 col = LLColor4(scale * (0.8f * color_norm_abs(getDiffuseColor()) + 0.2f * scatt));
-//		//F32 left = max(0, 1 - col.mV[0]);
-//		if (col.mV[0] >= 0.9)
-//		{
-//			col.mV[1] = llmax(col.mV[1], 2.f * min_val);
-//			col.mV[2] = llmax(col.mV[2], min_val);
-//		}
-//		col.setAlpha(1.f);
-//		return col;
-//	}
 
 	const F32& getHorizonVisibility() const				{ return mHorizonVisibility; }
 	void setHorizonVisibility(const F32 c = 1)			{ mHorizonVisibility = c; }
@@ -440,82 +408,55 @@ protected:
 	F32			mAbsCoef;
 };
 
-class LLTranspMap
-{
-public:
-	LLTranspMap() : mElevation(0), mMaxAngle(0), mStep(5), mHaze(NULL), mT(NULL) {}
-	~LLTranspMap()
-	{
-		delete[] mT;
-		mT = NULL;
-	}
-
-	void init(const F32 elev, const F32 step, const F32 h, const LLHaze* const haze);
-
-	F32 calcHeight(const LLVector3& pos) const
-	{
-		return pos.magVec() - EARTH_RADIUS ;
-	}
-
-	BOOL hasHaze() const
-	{
-		return mHaze != NULL;
-	}
-
-	LLColor3 calcSigExt(const F32 h) const
-	{
-		return LLHaze::calcAirSca(h) + (hasHaze() ? mHaze->calcSigExt(h) : LLColor3(0, 0, 0));
-	}
-
-	inline void calcAirTransp(const F32 cos_angle, LLColor3 &result) const;
-	LLColor3 calcAirTranspDir(const F32 elevation, const LLVector3 &dir) const;
-	LLColor3 getHorizonAirTransp () const				{ return mT[mMapSize-1]; }
-	F32 hitsAtmEdge(const LLVector3& orig, const LLVector3& dir) const;
-
-protected:
-	F32				mAtmHeight;
-	F32				mElevation;
-	F32				mMaxAngle;
-	F32				mCosMaxAngle;
-	F32				mStep;
-	F32				mStepInv;
-	S32				mMapSize;
-	const LLHaze	*mHaze;
-	LLColor3		*mT;	// transparency values in all directions
-							//starting with mAngleBelowHorz at mElevation
-};
-
-class LLTranspMapSet
-{
-protected:
-	F32					*mHeights;
-	LLTranspMap			*mTransp;
-	S32					mSize;
-	F32					mMediaHeight;
-	const LLHaze		*mHaze;
-	S32 lerp(F32& dt, S32& indx, const F32 h) const;
-public:
-	LLTranspMapSet() : mHeights(NULL), mTransp(NULL), mHaze(NULL) {}
-	~LLTranspMapSet();
-
-	void init (S32 size, F32 first_step, F32 media_height, const LLHaze* const haze);
-	S32 getSize() const							{ return mSize; }
-	F32 getMediaHeight() const					{ return mMediaHeight; }
-	const LLTranspMap& getLastTransp() const	{ return mTransp[mSize-1]; }
-	F32 getLastHeight() const					{ return mHeights[mSize-1]; }
-	const LLTranspMap& getMap(const S32 n) const	{ return mTransp[n]; }
-	F32 getHeight(const S32 n) const				{ return mHeights[n]; }
-	BOOL isReady() const						{ return mTransp != NULL; }
-
-	inline LLColor3 calcTransp(const F32 cos_angle, const F32 h) const;
-	inline void calcTransp(const F32 cos_angle, const F32 h, LLColor3 &result) const;
-};
 
 class LLCubeMap;
+
+// turn on floating point precision
+// in vs2003 for this class.  Otherwise
+// black dots go everywhere from 7:10 - 8:50
+#if LL_MSVC && __MSVC_VER__ < 8
+#pragma optimize("p", on)		
+#endif
 
 
 class LLVOSky : public LLStaticViewerObject
 {
+public:
+	/// WL PARAMS
+	F32 dome_radius;
+	F32 dome_offset_ratio;
+	LLColor3 sunlight_color;
+	LLColor3 ambient;
+	F32 gamma;
+	LLVector4 lightnorm;
+	LLVector4 unclamped_lightnorm;
+	LLColor3 blue_density;
+	LLColor3 blue_horizon;
+	F32 haze_density;
+	LLColor3 haze_horizon;
+	F32 density_multiplier;
+	F32 max_y;
+	LLColor3 glow;
+	F32 cloud_shadow;
+	LLColor3 cloud_color;
+	F32 cloud_scale;
+	LLColor3 cloud_pos_density1;
+	LLColor3 cloud_pos_density2;
+	
+public:
+	void initAtmospherics(void);
+	void calcAtmospherics(void);
+	LLColor3 createDiffuseFromWL(LLColor3 diffuse, LLColor3 ambient, LLColor3 sundiffuse, LLColor3 sunambient);
+	LLColor3 createAmbientFromWL(LLColor3 ambient, LLColor3 sundiffuse, LLColor3 sunambient);
+
+	void calcSkyColorWLVert(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLColor3 & vary_CloudColorSun, 
+							LLColor3 & vary_CloudColorAmbient, F32 & vary_CloudDensity, 
+							LLVector2 vary_HorizontalProjection[2]);
+
+	LLColor3 calcSkyColorWLFrag(LLVector3 & Pn, LLColor3 & vary_HazeColor,	LLColor3 & vary_CloudColorSun, 
+							LLColor3 & vary_CloudColorAmbient, F32 & vary_CloudDensity, 
+							LLVector2 vary_HorizontalProjection[2]);
+
 public:
 	enum
 	{
@@ -529,6 +470,7 @@ public:
 		FACE_MOON, // was 7
 		FACE_BLOOM, // was 8
 		FACE_REFLECTION, // was 10
+		FACE_DUMMY, //for an ATI bug --bao
 		FACE_COUNT
 	};
 	
@@ -539,9 +481,7 @@ public:
 	void init();
 	void initCubeMap();
 	void initEmpty();
-	BOOL isReady() const									{ return mTransp.isReady(); }
-	const LLTranspMapSet& getTransp() const				{ return mTransp; }
-
+	
 	void cleanupGL();
 	void restoreGL();
 
@@ -557,26 +497,12 @@ public:
 	void initSkyTextureDirs(const S32 side, const S32 tile);
 	void createSkyTexture(const S32 side, const S32 tile);
 
-	void updateBrightestDir();
-	void calcBrightnessScaleAndColors();
-
-	LLColor3 calcSkyColorInDir(const LLVector3& dir);
-	void calcSkyColorInDir(LLColor3& res, LLColor3& transp, 
-							const LLVector3& dir) const;
-	LLColor4 calcInScatter(LLColor4& transp, const LLVector3 &point, F32 exag) const;
-	void calcInScatter( LLColor3& res, LLColor3& transp,
-					const LLVector3& P, F32 exag) const;
-
-	// Not currently used.
-	//LLColor3 calcGroundFog(LLColor3& transp, const LLVector3 &view_dir, F32 obj_dist) const;
-	//void calcGroundFog(LLColor3& res, LLColor3& transp, const LLVector3 view_dir, F32 dist) const;
-
+	LLColor4 calcSkyColorInDir(const LLVector3& dir, bool isShiny = false);
+	
 	LLColor3 calcRadianceAtPoint(const LLVector3& pos) const
 	{
-		const F32 cos_angle = calcUpVec(pos) * getToSunLast();
-		LLColor3 tr;
-		mTransp.calcTransp(cos_angle, calcHeight(pos), tr);
-		return mBrightnessScaleGuess * mSun.getIntensity() * tr;
+		F32 radiance = mBrightnessScaleGuess * mSun.getIntensity();
+		return LLColor3(radiance, radiance, radiance);
 	}
 
 	const LLHeavenBody& getSun() const						{ return mSun; }
@@ -597,58 +523,16 @@ public:
 	LLColor4 getFogColor() const							{ return mFogColor; }
 	LLColor4 getGLFogColor() const							{ return mGLFogCol; }
 	
-	LLVector3 calcUpVec(const LLVector3 &pos) const
-	{
-		LLVector3 v = pos - mEarthCenter;
-		v.normVec();
-		return v;
-	}
-
-	F32 calcHeight(const LLVector3& pos) const
-	{
-		return dist_vec(pos, mEarthCenter) - EARTH_RADIUS;
-	}
-
-	// Phase function for atmospheric scattering.
-	// co = cos ( theta )
-	F32 calcAirPhaseFunc(const F32 co) const
-	{
-		return (0.75f * (1.f + co*co));
-	}
-
-
 	BOOL isSameFace(S32 idx, const LLFace* face) const { return mFace[idx] == face; }
 
-	void initSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_ang_velocity)
-	{
-		LLVector3 sun_direction = (sun_dir.magVec() == 0) ? LLVector3::x_axis : sun_dir;
-		sun_direction.normVec();
-		mSun.setDirection(sun_direction);
-		mSun.renewDirection();
-		mSun.setAngularVelocity(sun_ang_velocity);
-		mMoon.setDirection(-mSun.getDirection());
-		mMoon.renewDirection();
-		mLastLightingDirection = mSun.getDirection();
-
-		if ( !isReady() )
-		{
-			init();
-			LLSkyTex::stepCurrent();
-		}
-	}
+	void initSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_ang_velocity);
 
 	void setSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_ang_velocity);
-
-	void updateHaze();
 
 	BOOL updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 side, const BOOL is_sun,
 									LLHeavenBody& hb, const F32 sin_max_angle,
 									const LLVector3 &up, const LLVector3 &right);
 
-	LLVector3 toHorizon(const LLVector3& dir, F32 delta = 0) const
-	{
-		return move_vec(dir, cosHorizon(delta));
-	}
 	F32 cosHorizon(const F32 delta = 0) const
 	{
 		const F32 sin_angle = EARTH_RADIUS/(EARTH_RADIUS + mCameraPosAgent.mV[2]);
@@ -681,18 +565,14 @@ public:
 	BOOL isReflFace(const LLFace* face) const			{ return face == mFace[FACE_REFLECTION]; }
 	LLFace* getReflFace() const							{ return mFace[FACE_REFLECTION]; }
 
-	F32 calcHitsEarth(const LLVector3& orig, const LLVector3& dir) const;
-	F32 calcHitsAtmEdge(const LLVector3& orig, const LLVector3& dir) const;
 	LLViewerImage*	getSunTex() const					{ return mSunTexturep; }
 	LLViewerImage*	getMoonTex() const					{ return mMoonTexturep; }
 	LLViewerImage*	getBloomTex() const					{ return mBloomTexturep; }
-
-	void			generateScatterMap();
-	LLImageGL*		getScatterMap()						{ return mScatterMap; }
+	void forceSkyUpdate(void)							{ mForceUpdate = TRUE; }
 
 public:
-	static F32 sNighttimeBrightness; // [0,2] default = 1.0
-	LLFace				*mFace[FACE_COUNT];
+	LLFace	*mFace[FACE_COUNT];
+	LLVector3	mBumpSunDir;
 
 protected:
 	~LLVOSky();
@@ -705,6 +585,7 @@ protected:
 	static S32			sTileResX;
 	static S32			sTileResY;
 	LLSkyTex			mSkyTex[6];
+	LLSkyTex			mShinyTex[6];
 	LLHeavenBody		mSun;
 	LLHeavenBody		mMoon;
 	LLVector3			mSunDefaultPosition;
@@ -718,7 +599,6 @@ protected:
 	LLColor3			mBrightestPointNew;
 	F32					mBrightnessScaleGuess;
 	LLColor3			mBrightestPointGuess;
-	LLTranspMapSet		mTransp;
 	LLHaze				mHaze;
 	F32					mHazeConcentration;
 	BOOL				mWeatherChange;
@@ -751,9 +631,22 @@ protected:
 
 	LLFrameTimer		mUpdateTimer;
 
-	LLPointer<LLImageGL>	mScatterMap;
-	LLPointer<LLImageRaw>	mScatterMapRaw;
+public:
+	//by bao
+	//fake vertex buffer updating
+	//to guaranttee at least updating one VBO buffer every frame
+	//to walk around the bug caused by ATI card --> DEV-3855
+	//
+	void createDummyVertexBuffer() ;
+	void updateDummyVertexBuffer() ;
+
+	BOOL mHeavenlyBodyUpdated ;
 };
+
+// turn it off
+#if LL_MSVC && __MSVC_VER__ < 8
+#pragma optimize("p", off)		
+#endif
 
 // Utility functions
 F32 azimuth(const LLVector3 &v);
@@ -776,161 +669,5 @@ inline void LLHaze::calcAirSca(const F32 h, LLColor3 &result)
 	result *= calcFalloff(h);
 }
 
-// Given cos of the angle between direction of interest and zenith,
-// compute transparency by interpolation of known values.
-inline void LLTranspMap::calcAirTransp(const F32 cos_angle, LLColor3 &result) const
-{
-	if (cos_angle > 1.f)
-	{
-		result = mT[0];
-		return;
-	}
-	if (cos_angle < mCosMaxAngle - 0.1f)
-	{
-		result.setVec(0.f, 0.f, 0.f);
-		return;
-	}
-	if (cos_angle < mCosMaxAngle)
-	{
-		result = mT[mMapSize-1];
-		return;
-	}
-
-
-	const F32 relative = (1 - cos_angle)*mStepInv;
-	const S32 index = llfloor(relative);
-	const F32 dt = relative - index;
-
-	if (index >= (mMapSize-1))
-	{
-		result = mT[0];
-		return;
-	}
-//	result = mT[index];
-//	LLColor3 res2(mT[index+1]);
-//	result *= 1 - dt;
-//	res2 *= dt;
-//	result += res2;
-
-	const LLColor3& color1 = mT[index];
-	const LLColor3& color2 = mT[index + 1];
-
-	const F32 x1 = color1.mV[VX];
-	const F32 x2 = color2.mV[VX];
-	result.mV[VX] = x1 - dt * (x1 - x2);
-
-	const F32 y1 = color1.mV[VY];
-	const F32 y2 = color2.mV[VY];
-	result.mV[VY] = y1 - dt * (y1 - y2);
-
-	const F32 z1 = color1.mV[VZ];
-	const F32 z2 = color2.mV[VZ];
-	result.mV[VZ] = z1 - dt * (z1 - z2);
-}
-
-
-
-// Returns the translucency of the atmosphere along the ray in the sky.
-// dir is assumed to be normalized
-inline void LLTranspMapSet::calcTransp(const F32 cos_angle, const F32 h, LLColor3 &result) const
-{
-	S32 indx = 0;
-	F32 dt = 0.f;
-	const S32 status = lerp(dt, indx, h);
-
-	if (status < 0)
-	{
-		mTransp[0].calcAirTransp(cos_angle, result);
-		return;
-	}
-	if (status > 0)
-	{
-		mTransp[NO_STEPS].calcAirTransp(cos_angle, result);
-		return;
-	}
-
-	mTransp[indx].calcAirTransp(cos_angle, result);
-	result *= 1 - dt;
-
-	LLColor3 transp_above;
-
-	mTransp[indx + 1].calcAirTransp(cos_angle, transp_above);
-	transp_above *= dt;
-	result += transp_above;
-}
-
-
-inline LLColor3 LLTranspMapSet::calcTransp(const F32 cos_angle, const F32 h) const
-{
-	LLColor3 result;
-	S32 indx = 0;
-	F32 dt = 0;
-	const S32 status = lerp(dt, indx, h);
-
-	if (status < 0)
-	{
-		mTransp[0].calcAirTransp(cos_angle, result);
-		return result;
-	}
-	if (status > 0)
-	{
-		mTransp[NO_STEPS].calcAirTransp(cos_angle, result);
-		return result;
-	}
-
-	mTransp[indx].calcAirTransp(cos_angle, result);
-	result *= 1 - dt;
-
-	LLColor3 transp_above;
-
-	mTransp[indx + 1].calcAirTransp(cos_angle, transp_above);
-	transp_above *= dt;
-	result += transp_above;
-	return result;
-}
-
-
-// Returns -1 if height < 0; +1 if height > max height; 0 if within range
-inline S32 LLTranspMapSet::lerp(F32& dt, S32& indx, const F32 h) const
-{
-	static S32 last_indx = 0;
-
-	if (h < 0)
-	{
-		return -1;
-	}
-	if (h > getLastHeight())
-	{
-		return 1;
-	}
-
-	if (h < mHeights[last_indx])
-	{
-		indx = last_indx-1;
-		while (mHeights[indx] > h)
-		{
-			indx--;
-		}
-		last_indx = indx;
-	}
-	else if (h > mHeights[last_indx+1])
-	{
-		indx = last_indx+1;
-		while (mHeights[indx+1] < h)
-		{
-			indx++;
-		}
-		last_indx = indx;
-	}
-	else
-	{
-		indx = last_indx;
-	}
-
-	const F32 h_below = mHeights[indx];
-	const F32 h_above = mHeights[indx+1];
-	dt = (h - h_below) / (h_above - h_below);
-	return 0;
-}
 
 #endif

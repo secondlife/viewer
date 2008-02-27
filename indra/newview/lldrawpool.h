@@ -43,8 +43,6 @@ class LLViewerImage;
 class LLSpatialGroup;
 class LLDrawInfo;
 
-#define DEFAULT_MAX_VERTICES 65535
-
 class LLDrawPool
 {
 public:
@@ -53,18 +51,18 @@ public:
 	enum
 	{
 		// Correspond to LLPipeline render type
-		POOL_SKY = 1,
-		POOL_STARS,
-		POOL_GROUND,
+		POOL_SIMPLE = 1,
 		POOL_TERRAIN,	
-		POOL_SIMPLE,
-		POOL_BUMP,
-		POOL_AVATAR,
 		POOL_TREE,
+		POOL_SKY,
+		POOL_WL_SKY,
+		POOL_GROUND,
+		POOL_BUMP,
+		POOL_INVISIBLE,
+		POOL_AVATAR,
+		POOL_WATER,
 		POOL_GLOW,
 		POOL_ALPHA,
-		POOL_WATER,
-		POOL_ALPHA_POST_WATER,
 		NUM_POOL_TYPES,
 	};
 	
@@ -82,7 +80,6 @@ public:
 	virtual S32	 getNumPasses() { return 1; }
 	virtual void render(S32 pass = 0) = 0;
 	virtual void prerender() = 0;
-	virtual S32 getMaterialAttribIndex() = 0;
 	virtual U32 getVertexDataMask() = 0;
 	virtual BOOL verify() const { return TRUE; }		// Verify that all data in the draw pool is correct!
 	virtual S32 getVertexShaderLevel() const { return mVertexShaderLevel; }
@@ -110,12 +107,14 @@ public:
 	enum
 	{
 		PASS_SIMPLE = NUM_POOL_TYPES,
-		PASS_GLOW,
+		PASS_GRASS,
 		PASS_FULLBRIGHT,
 		PASS_INVISIBLE,
+		PASS_INVISI_SHINY,
+		PASS_FULLBRIGHT_SHINY,
 		PASS_SHINY,
 		PASS_BUMP,
-		PASS_GRASS,
+		PASS_GLOW,
 		PASS_ALPHA,
 		NUM_RENDER_TYPES,
 	};
@@ -123,17 +122,16 @@ public:
 	LLRenderPass(const U32 type);
 	virtual ~LLRenderPass();
 	/*virtual*/ LLDrawPool* instancePool();
-	/*vritual*/ S32 getMaterialAttribIndex() { return -1; }
 	/*virtual*/ LLViewerImage* getDebugTexture() { return NULL; }
 	LLViewerImage* getTexture() { return NULL; }
 	BOOL isDead() { return FALSE; }
 	void resetDrawOrders() { }
 
+	static void applyModelMatrix(LLDrawInfo& params);
+	virtual void pushBatches(U32 type, U32 mask, BOOL texture = TRUE);
 	virtual void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture);
 	virtual void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
-	virtual void renderStatic(U32 type, U32 mask, BOOL texture = TRUE);
-	virtual void renderActive(U32 type, U32 mask, BOOL texture = TRUE);
-	virtual void renderInvisible(U32 mask);
+	virtual void renderGroups(U32 type, U32 mask, BOOL texture = TRUE);
 	virtual void renderTexture(U32 type, U32 mask);
 
 };
@@ -178,8 +176,6 @@ public:
 	static S32 drawLoop(face_array_t& face_list);
 	static S32 drawLoopSetTex(face_array_t& face_list, S32 stage);
 	void drawLoop();
-
-	void renderVisibility();
 
 	void addFaceReference(LLFace *facep);
 	void removeFaceReference(LLFace *facep);
@@ -234,5 +230,6 @@ public:
 		static BOOL sOverrideFaceColor;
 	};
 };
+
 
 #endif //LL_LLDRAWPOOL_H

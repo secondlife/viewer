@@ -94,6 +94,7 @@
 #include "llfloaterbuyland.h"
 #include "llfloaterchat.h"
 #include "llfloatercustomize.h"
+#include "llfloaterdaycycle.h"
 #include "llfloaterdirectory.h"
 #include "llfloatereditui.h"
 #include "llfloaterchatterbox.h"
@@ -113,12 +114,16 @@
 #include "llfloatermute.h"
 #include "llfloateropenobject.h"
 #include "llfloaterpermissionsmgr.h"
+#include "llfloaterpostprocess.h"
 #include "llfloaterpreference.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterreporter.h"
 #include "llfloaterscriptdebug.h"
+#include "llfloaterenvsettings.h"
 #include "llfloatertest.h"
 #include "llfloatertools.h"
+#include "llfloaterwater.h"
+#include "llfloaterwindlight.h"
 #include "llfloaterworldmap.h"
 #include "llframestats.h"
 #include "llframestatview.h"
@@ -193,6 +198,9 @@
 #include "llappviewer.h"
 #include "roles_constants.h"
 #include "llviewerjoystick.h"
+#include "llwlanimator.h"
+#include "llwlparammanager.h"
+#include "llwaterparammanager.h"
 
 #include "lltexlayer.h"
 
@@ -1112,12 +1120,14 @@ void init_client_menu(LLMenuGL* menu)
 
 void init_debug_world_menu(LLMenuGL* menu)
 {
+/* REMOVE mouse move sun from menu options
 	menu->append(new LLMenuItemCheckGL("Mouse Moves Sun", 
 									   &menu_toggle_control,
 									   NULL, 
 									   &menu_check_control,
 									   (void*)"MouseSun", 
 									   'M', MASK_CONTROL|MASK_ALT));
+*/
 	menu->append(new LLMenuItemCheckGL("Sim Sun Override", 
 									   &menu_toggle_control,
 									   NULL, 
@@ -1186,6 +1196,7 @@ void init_debug_ui_menu(LLMenuGL* menu)
 	menu->appendSeparator();
 	menu->append(new LLMenuItemCheckGL("Show Time", menu_toggle_control, NULL, menu_check_control, (void*)"DebugShowTime"));
 	menu->append(new LLMenuItemCheckGL("Show Render Info", menu_toggle_control, NULL, menu_check_control, (void*)"DebugShowRenderInfo"));
+	menu->append(new LLMenuItemCheckGL("Show Color Under Cursor", menu_toggle_control, NULL, menu_check_control, (void*)"DebugShowColor"));
 	
 	menu->createJumpKeys();
 }
@@ -1329,6 +1340,9 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	sub_menu->append(new LLMenuItemCheckGL("Occlusion",	&LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_OCCLUSION));
+	sub_menu->append(new LLMenuItemCheckGL("Render Batches", &LLPipeline::toggleRenderDebug, NULL,
+													&LLPipeline::toggleRenderDebugControl,
+													(void*)LLPipeline::RENDER_DEBUG_BATCH_SIZE));
 	sub_menu->append(new LLMenuItemCheckGL("Animated Textures",	&LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_TEXTURE_ANIM));
@@ -1344,18 +1358,15 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	sub_menu->append(new LLMenuItemCheckGL("Pick Render",	&LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_PICKING));
+	sub_menu->append(new LLMenuItemCheckGL("Lights",	&LLPipeline::toggleRenderDebug, NULL,
+													&LLPipeline::toggleRenderDebugControl,
+													(void*)LLPipeline::RENDER_DEBUG_LIGHTS));
 	sub_menu->append(new LLMenuItemCheckGL("Particles",	&LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_PARTICLES));
 	sub_menu->append(new LLMenuItemCheckGL("Composition", &LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_COMPOSITION));
-	sub_menu->append(new LLMenuItemCheckGL("ShadowMap", &LLPipeline::toggleRenderDebug, NULL,
-													&LLPipeline::toggleRenderDebugControl,
-													(void*)LLPipeline::RENDER_DEBUG_SHADOW_MAP));
-	sub_menu->append(new LLMenuItemCheckGL("LightTrace",&LLPipeline::toggleRenderDebug, NULL,
-													&LLPipeline::toggleRenderDebugControl,
-													(void*)LLPipeline::RENDER_DEBUG_LIGHT_TRACE));
 	sub_menu->append(new LLMenuItemCheckGL("Glow",&LLPipeline::toggleRenderDebug, NULL,
 													&LLPipeline::toggleRenderDebugControl,
 													(void*)LLPipeline::RENDER_DEBUG_GLOW));
@@ -1380,6 +1391,9 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	sub_menu->append(new LLMenuItemToggleGL("Randomize Framerate", &gRandomizeFramerate));
 
 	sub_menu->append(new LLMenuItemToggleGL("Periodic Slow Frame", &gPeriodicSlowFrame));
+
+	sub_menu->append(new LLMenuItemToggleGL("Frame Test", &LLPipeline::sRenderFrameTest));
+
 	sub_menu->createJumpKeys();
 
 	menu->appendMenu( sub_menu );
@@ -1403,6 +1417,8 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 	item->setEnabled(gGLManager.mHasOcclusionQuery && gFeatureManagerp->isFeatureAvailable("UseOcclusion"));
 	menu->append(item);
 	
+	item = new LLMenuItemCheckGL("Fast Alpha", menu_toggle_control, NULL, menu_check_control, (void*)"RenderFastAlpha");
+	menu->append(item);
 	
 	item = new LLMenuItemCheckGL("Animate Textures", menu_toggle_control, NULL, menu_check_control, (void*)"AnimateTextures");
 	menu->append(item);
@@ -5203,40 +5219,6 @@ void handle_force_unlock(void*)
 	gSelectMgr->getSelection()->applyToObjects(&func);
 }
 
-class LLWorldForceSun : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		LLString tod = userdata.asString();
-		LLVector3 sun_direction;
-		if (tod == "sunrise")
-		{
-			sun_direction.setVec(1.0f, 0.f, 0.2f);
-		}
-		else if (tod == "noon")
-		{
-			sun_direction.setVec(0.0f, 0.3f, 1.0f);
-		}
-		else if (tod == "sunset")
-		{
-			sun_direction.setVec(-1.0f, 0.f, 0.2f);
-		}
-		else if (tod == "midnight")
-		{
-			sun_direction.setVec(0.0f, 0.3f, -1.0f);
-		}
-		else
-		{
-			gSky.setOverrideSun(FALSE);
-			return true;
-		}
-		sun_direction.normVec();
-		gSky.setOverrideSun(TRUE);
-		gSky.setSunDirection( sun_direction, LLVector3(0.f, 0.f, 0.f));
-		return true;
-	}
-};
-
 void handle_dump_followcam(void*)
 {
 	LLFollowCamMgr::dump();
@@ -7225,6 +7207,33 @@ class LLViewCheckHighlightTransparent : public view_listener_t
 	}
 };
 
+class LLViewBeaconWidth : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLString width = userdata.asString();
+		if(width == "1")
+		{
+			gSavedSettings.setS32("DebugBeaconLineWidth", 1);
+		}
+		else if(width == "4")
+		{
+			gSavedSettings.setS32("DebugBeaconLineWidth", 4);
+		}
+		else if(width == "16")
+		{
+			gSavedSettings.setS32("DebugBeaconLineWidth", 16);
+		}
+		else if(width == "32")
+		{
+			gSavedSettings.setS32("DebugBeaconLineWidth", 32);
+		}
+
+		return true;
+	}
+};
+
+
 class LLViewToggleBeacon : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -7531,6 +7540,125 @@ class LLToolsSelectTool : public view_listener_t
 	}
 };
 
+/// WINDLIGHT callbacks
+class LLWorldEnvSettings : public view_listener_t
+{	
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLString tod = userdata.asString();
+		LLVector3 sun_direction;
+		
+		if (tod == "editor")
+		{
+			// if not there or is hidden, show it
+			if(	!LLFloaterEnvSettings::isOpen() || 
+				!LLFloaterEnvSettings::instance()->getVisible()) {
+				LLFloaterEnvSettings::show();
+				
+			// otherwise, close it button acts like a toggle
+			} 
+			else 
+			{
+				LLFloaterEnvSettings::instance()->close();
+			}
+			return true;
+		}
+		
+		if (tod == "sunrise")
+		{
+			// set the value, turn off animation
+			LLWLParamManager::instance()->mAnimator.setDayTime(0.25);
+			LLWLParamManager::instance()->mAnimator.mIsRunning = false;
+			LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
+
+			// then call update once
+			LLWLParamManager::instance()->mAnimator.update(
+				LLWLParamManager::instance()->mCurParams);
+		}
+		else if (tod == "noon")
+		{
+			// set the value, turn off animation
+			LLWLParamManager::instance()->mAnimator.setDayTime(0.567);
+			LLWLParamManager::instance()->mAnimator.mIsRunning = false;
+			LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
+
+			// then call update once
+			LLWLParamManager::instance()->mAnimator.update(
+				LLWLParamManager::instance()->mCurParams);
+		}
+		else if (tod == "sunset")
+		{
+			// set the value, turn off animation
+			LLWLParamManager::instance()->mAnimator.setDayTime(0.75);
+			LLWLParamManager::instance()->mAnimator.mIsRunning = false;
+			LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
+
+			// then call update once
+			LLWLParamManager::instance()->mAnimator.update(
+				LLWLParamManager::instance()->mCurParams);
+		}
+		else if (tod == "midnight")
+		{
+			// set the value, turn off animation
+			LLWLParamManager::instance()->mAnimator.setDayTime(0.0);
+			LLWLParamManager::instance()->mAnimator.mIsRunning = false;
+			LLWLParamManager::instance()->mAnimator.mUseLindenTime = false;
+
+			// then call update once
+			LLWLParamManager::instance()->mAnimator.update(
+				LLWLParamManager::instance()->mCurParams);
+		}
+		else
+		{
+			LLWLParamManager::instance()->mAnimator.mIsRunning = true;
+			LLWLParamManager::instance()->mAnimator.mUseLindenTime = true;	
+		}
+		return true;
+	}
+};
+
+/// Water Menu callbacks
+class LLWorldWaterSettings : public view_listener_t
+{	
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		// if not there or is hidden, show it
+		if(	!LLFloaterWater::isOpen() || 
+			!LLFloaterWater::instance()->getVisible()) {
+			LLFloaterWater::show();
+				
+		// otherwise, close it button acts like a toggle
+		} 
+		else 
+		{
+			LLFloaterWater::instance()->close();
+		}
+		return true;
+	}
+};
+
+/// Post-Process callbacks
+class LLWorldPostProcess : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLFloaterPostProcess::show();
+		return true;
+	}
+};
+
+/// Day Cycle callbacks
+class LLWorldDayCycle : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLFloaterDayCycle::show();
+		return true;
+	}
+};
+
+
+
 static void addMenu(view_listener_t *menu, const char *name)
 {
 	sMenus.push_back(menu);
@@ -7575,6 +7703,7 @@ void initialize_menus()
 	addMenu(new LLViewShowHoverTips(), "View.ShowHoverTips");
 	addMenu(new LLViewHighlightTransparent(), "View.HighlightTransparent");
 	addMenu(new LLViewToggleBeacon(), "View.ToggleBeacon");
+	addMenu(new LLViewBeaconWidth(), "View.BeaconWidth");
 	addMenu(new LLViewToggleRenderType(), "View.ToggleRenderType");
 	addMenu(new LLViewShowHUDAttachments(), "View.ShowHUDAttachments");
 	addMenu(new LLViewZoomOut(), "View.ZoomOut");
@@ -7610,8 +7739,11 @@ void initialize_menus()
 	addMenu(new LLWorldEnableBuyLand(), "World.EnableBuyLand");
 
 	addMenu(new LLWorldCheckAlwaysRun(), "World.CheckAlwaysRun");
-
-	addMenu(new LLWorldForceSun(), "World.ForceSun");
+	
+	(new LLWorldEnvSettings())->registerListener(gMenuHolder, "World.EnvSettings");
+	(new LLWorldWaterSettings())->registerListener(gMenuHolder, "World.WaterSettings");
+	(new LLWorldPostProcess())->registerListener(gMenuHolder, "World.PostProcess");
+	(new LLWorldDayCycle())->registerListener(gMenuHolder, "World.DayCycle");
 
 	// Tools menu
 	addMenu(new LLToolsSelectTool(), "Tools.SelectTool");

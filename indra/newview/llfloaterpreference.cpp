@@ -73,6 +73,7 @@
 #include "llviewerwindow.h"
 #include "llkeyboard.h"
 #include "llscrollcontainer.h"
+#include "llfloaterhardwaresettings.h"
 
 #if LL_WINDOWS
 // for Logitech LCD keyboards / speakers
@@ -133,7 +134,6 @@ LLPreferenceCore::LLPreferenceCore(LLTabContainer* tab_container, LLButton * def
 	mInputPanel(NULL),
 	mNetworkPanel(NULL),
 	mDisplayPanel(NULL),
-	mDisplayPanel2(NULL),
 	mAudioPanel(NULL),
 	mMsgPanel(NULL),
 	mLCDPanel(NULL)
@@ -157,14 +157,6 @@ LLPreferenceCore::LLPreferenceCore(LLTabContainer* tab_container, LLButton * def
 	mDisplayPanel = new LLPanelDisplay();
 	mTabContainer->addTabPanel(mDisplayPanel, mDisplayPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
 	mDisplayPanel->setDefaultBtn(default_btn);
-
-	mDisplayPanel3 = new LLPanelDisplay3();
-	mTabContainer->addTabPanel(mDisplayPanel3, mDisplayPanel3->getLabel(), FALSE, onTabChanged, mTabContainer);
-	mDisplayPanel3->setDefaultBtn(default_btn);
-
-	mDisplayPanel2 = new LLPanelDisplay2();
-	mTabContainer->addTabPanel(mDisplayPanel2, mDisplayPanel2->getLabel(), FALSE, onTabChanged, mTabContainer);
-	mDisplayPanel2->setDefaultBtn(default_btn);
 
 	mAudioPanel = new LLPanelAudioPrefs();
 	mTabContainer->addTabPanel(mAudioPanel, mAudioPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
@@ -225,16 +217,7 @@ LLPreferenceCore::~LLPreferenceCore()
 		delete mDisplayPanel;
 		mDisplayPanel = NULL;
 	}
-	if (mDisplayPanel2)
-	{
-		delete mDisplayPanel2;
-		mDisplayPanel2 = NULL;
-	}
-	if (mDisplayPanel3)
-	{
-		delete mDisplayPanel3;
-		mDisplayPanel3 = NULL;
-	}
+
 	if (mAudioPanel)
 	{
 		delete mAudioPanel;
@@ -269,12 +252,14 @@ void LLPreferenceCore::apply()
 	mInputPanel->apply();
 	mNetworkPanel->apply();
 	mDisplayPanel->apply();
-	mDisplayPanel2->apply();
-	mDisplayPanel3->apply();
 	mPrefsChat->apply();
 	mPrefsVoice->apply();
 	mPrefsIM->apply();
 	mMsgPanel->apply();
+
+	// hardware menu apply
+	LLFloaterHardwareSettings::instance()->apply();
+
 	mWebPanel->apply();
 #if LL_WINDOWS && LL_LCD_COMPILE
 	// only add this option if we actually have a logitech keyboard / speaker set
@@ -293,13 +278,15 @@ void LLPreferenceCore::cancel()
 	mInputPanel->cancel();
 	mNetworkPanel->cancel();
 	mDisplayPanel->cancel();
-	mDisplayPanel2->cancel();
-	mDisplayPanel3->cancel();
 	mAudioPanel->cancel();
 	mPrefsChat->cancel();
 	mPrefsVoice->cancel();
 	mPrefsIM->cancel();
 	mMsgPanel->cancel();
+
+	// cancel hardware menu
+	LLFloaterHardwareSettings::instance()->cancel();
+
 	mWebPanel->cancel();
 #if LL_WINDOWS && LL_LCD_COMPILE
 	// only add this option if we actually have a logitech keyboard / speaker set
@@ -326,6 +313,12 @@ void LLPreferenceCore::setPersonalInfo(
 	const char* email)
 {
 	mPrefsIM->setPersonalInfo(visibility, im_via_email, email);
+}
+
+void LLPreferenceCore::refreshEnabledGraphics()
+{
+	LLFloaterHardwareSettings::instance()->refreshEnabledState();
+	mDisplayPanel->refreshEnabledState();
 }
 
 //////////////////////////////////////////////
@@ -520,4 +513,9 @@ void LLFloaterPreference::updateUserInfo(
 		sInstance->mPreferenceCore->setPersonalInfo(
 			visibility, im_via_email, email);
 	}
+}
+
+void LLFloaterPreference::refreshEnabledGraphics()
+{
+	sInstance->mPreferenceCore->refreshEnabledGraphics();
 }

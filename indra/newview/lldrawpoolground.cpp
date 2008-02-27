@@ -72,15 +72,10 @@ void LLDrawPoolGround::render(S32 pass)
 	glEnableClientState(GL_VERTEX_ARRAY);
 
 	LLGLSPipelineSkyBox gls_skybox;
-	LLGLDisable tex(GL_TEXTURE_2D);
-	LLGLDepthTest gls_depth(GL_FALSE, GL_FALSE);
+	LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
+	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 
-	glMatrixMode( GL_PROJECTION );
-		
-	glPushMatrix();
-	//gViewerWindow->setup3DRender();
-
-	glMatrixMode(GL_MODELVIEW);
+	LLGLClampToFarClip far_clip(glh_get_current_projection());
 
 	F32 water_height = gAgent.getRegion()->getWaterHeight();
 	glPushMatrix();
@@ -94,9 +89,6 @@ void LLDrawPoolGround::render(S32 pass)
 	LLOverrideFaceColor col(this, gSky.mVOSkyp->getGLFogColor());
 	facep->renderIndexed();
 	
-	glMatrixMode( GL_PROJECTION );
-	glPopMatrix();
-	glMatrixMode( GL_MODELVIEW );
 	glPopMatrix();
 }
 

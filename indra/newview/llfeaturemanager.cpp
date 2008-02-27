@@ -34,6 +34,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include <boost/regex.hpp>
+
 #include "llfeaturemanager.h"
 #include "lldir.h"
 
@@ -43,11 +45,13 @@
 
 #include "llviewercontrol.h"
 #include "llworld.h"
-#include "pipeline.h"
 #include "lldrawpoolterrain.h"
 #include "llviewerimagelist.h"
 #include "llwindow.h"
 #include "llui.h"
+#include "llcontrol.h"
+#include "llboost.h"
+#include "llweb.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -73,7 +77,7 @@ const char GPU_TABLE_FILENAME[] = "gpu_table.txt";
 
 LLFeatureManager *gFeatureManagerp = NULL;
 
-LLFeatureInfo::LLFeatureInfo(const char *name, const BOOL available, const S32 level) : mValid(TRUE)
+LLFeatureInfo::LLFeatureInfo(const char *name, const BOOL available, const F32 level) : mValid(TRUE)
 {
 	mName = name;
 	mAvailable = available;
@@ -89,7 +93,7 @@ LLFeatureList::~LLFeatureList()
 {
 }
 
-void LLFeatureList::addFeature(const char *name, const BOOL available, const S32 level)
+void LLFeatureList::addFeature(const char *name, const BOOL available, const F32 level)
 {
 	if (mFeatures.count(name))
 	{
@@ -108,18 +112,21 @@ BOOL LLFeatureList::isFeatureAvailable(const char *name)
 	}
 
 	llwarns << "Feature " << name << " not on feature list!" << llendl;
-	return FALSE;
+	
+	// changing this to TRUE so you have to explicitly disable 
+	// something for it to be disabled
+	return TRUE;
 }
 
-S32 LLFeatureList::getRecommendedLevel(const char *name)
+F32 LLFeatureList::getRecommendedValue(const char *name)
 {
-	if (mFeatures.count(name))
+	if (mFeatures.count(name) && isFeatureAvailable(name))
 	{
 		return mFeatures[name].mRecommendedLevel;
 	}
 
-	llwarns << "Feature " << name << " not on feature list!" << llendl;
-	return -1;
+	llwarns << "Feature " << name << " not on feature list or not available!" << llendl;
+	return 0;
 }
 
 BOOL LLFeatureList::maskList(LLFeatureList &mask)
@@ -207,6 +214,14 @@ BOOL LLFeatureManager::maskFeatures(const char *name)
 
 BOOL LLFeatureManager::loadFeatureTables()
 {
+	// *TODO - if I or anyone else adds something else to the skipped list
+	// make this data driven.  Put it in the feature table and parse it
+	// correctly
+	mSkippedFeatures.insert("RenderAnisotropic");
+	mSkippedFeatures.insert("RenderGamma");
+	mSkippedFeatures.insert("RenderVBOEnable");
+	mSkippedFeatures.insert("RenderFogRatio");
+
 	std::string data_path = gDirUtilp->getAppRODataDir();
 
 	data_path += gDirUtilp->getDirDelimiter();
@@ -275,19 +290,8 @@ BOOL LLFeatureManager::loadFeatureTables()
 				llerrs << "Overriding mask " << name << ", this is invalid!" << llendl;
 			}
 
-			if (!flp)
-			{
-				//
-				// The first one is always the default
-				//
-				flp = this;
-			}
-			else
-			{
-				flp = new LLFeatureList(name);
-				mMaskList[name] = flp;
-			}
-
+			flp = new LLFeatureList(name);
+			mMaskList[name] = flp;
 		}
 		else
 		{
@@ -295,7 +299,8 @@ BOOL LLFeatureManager::loadFeatureTables()
 			{
 				llerrs << "Specified parameter before <list> keyword!" << llendl;
 			}
-			S32 available, recommended;
+			S32 available;
+			F32 recommended;
 			file >> available >> recommended;
 			flp->addFeature(name, available, recommended);
 		}
@@ -314,9 +319,10 @@ void LLFeatureManager::loadGPUClass()
 	data_path += GPU_TABLE_FILENAME;
 
 	// defaults
-	mGPUClass = 0;
+	mGPUClass = GPU_CLASS_UNKNOWN;
 	mGPUString = gGLManager.getRawGLString();
-	
+	mGPUSupported = FALSE;
+
 	llifstream file;
 		
 	file.open(data_path.c_str()); 		 /*Flawfinder: ignore*/
@@ -354,41 +360,50 @@ void LLFeatureManager::loadGPUClass()
 			continue;
 		}
 
-		char* cls, *label, *expr;
-		
-		label = strtok(buffer, "\t");
-		expr = strtok(NULL, "\t");
-		cls = strtok(NULL, "\t");
+		// setup the tokenizer
+		std::string buf(buffer);
+		std::string cls, label, expr, supported;
+		boost_tokenizer tokens(buf, boost::char_separator<char>("\t\n"));
+		boost_tokenizer::iterator token_iter = tokens.begin();
 
-		if (label == NULL || expr == NULL || cls == NULL)
+		// grab the label, pseudo regular expression, and class
+		if(token_iter != tokens.end())
+		{
+			label = *token_iter++;
+		}
+		if(token_iter != tokens.end())
+		{
+			expr = *token_iter++;
+		}
+		if(token_iter != tokens.end())
+		{
+			cls = *token_iter++;
+		}
+		if(token_iter != tokens.end())
+		{
+			supported = *token_iter++;
+		}
+
+		if (label.empty() || expr.empty() || cls.empty() || supported.empty())
 		{
 			continue;
 		}
 	
-		for (U32 i = 0; i < strlen(expr); i++)	 /*Flawfinder: ignore*/
+		for (U32 i = 0; i < expr.length(); i++)	 /*Flawfinder: ignore*/
 		{
 			expr[i] = tolower(expr[i]);
 		}
-		
-		char* ex = strtok(expr, ".*");
-		char* rnd = (char*) renderer.c_str();
 
-		while (ex != NULL && rnd != NULL)
+		// run the regular expression against the renderer
+		boost::regex re(expr.c_str());
+		if(boost::regex_search(renderer, re))
 		{
-			rnd = strstr(rnd, ex);
-			if (rnd != NULL)
-			{
-				rnd += strlen(ex);
-			}
-			ex = strtok(NULL, ".*");
-		}
-		
-		if (rnd != NULL)
-		{
+			// if we found it, stop!
 			file.close();
 			llinfos << "GPU is " << label << llendl;
 			mGPUString = label;
-			mGPUClass = (S32) strtol(cls, NULL, 10);	
+			mGPUClass = (EGPUClass) strtol(cls.c_str(), NULL, 10);
+			mGPUSupported = (BOOL) strtol(supported.c_str(), NULL, 10);
 			file.close();
 			return;
 		}
@@ -404,33 +419,128 @@ void LLFeatureManager::cleanupFeatureTables()
 	mMaskList.clear();
 }
 
-
-void LLFeatureManager::initCPUFeatureMasks()
+void LLFeatureManager::init()
 {
-	if (gSysMemory.getPhysicalMemoryClamped() <= 256*1024*1024)
-	{
-		maskFeatures("RAM256MB");
-	}
-	
-#if LL_SOLARIS && defined(__sparc) 	//  even low MHz SPARCs are fast
-#error The 800 is hinky. Would something like a LL_MIN_MHZ make more sense here?
-	if (gSysCPU.getMhz() < 800)
-#else
-	if (gSysCPU.getMhz() < 1100)
+	// load the tables
+	loadFeatureTables();
+
+	// get the gpu class
+	loadGPUClass();
+
+	// apply the base masks, so we know if anything is disabled
+	applyBaseMasks();
+}
+
+void LLFeatureManager::applyRecommendedSettings()
+{
+	// apply saved settings
+	// cap the level at 2 (high)
+	S32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_2));
+
+	llinfos << "Applying Recommended Features" << llendl;
+
+	setGraphicsLevel(level, false);
+	gSavedSettings.setU32("RenderQualityPerformance", level);
+	gSavedSettings.setBOOL("RenderCustomSettings", FALSE);
+
+}
+
+void LLFeatureManager::applyFeatures(bool skipFeatures)
+{
+	// see featuretable.txt / featuretable_linux.txt / featuretable_mac.txt
+
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	dump();
 #endif
+
+	// scroll through all of these and set their corresponding control value
+	for(feature_map_t::iterator mIt = mFeatures.begin(); 
+		mIt != mFeatures.end(); 
+		++mIt)
 	{
-		maskFeatures("CPUSlow");
-	}
-	if (isSafe())
-	{
-		maskFeatures("safe");
+		// skip features you want to skip
+		// do this for when you don't want to change certain settings
+		if(skipFeatures)
+		{
+			if(mSkippedFeatures.find(mIt->first) != mSkippedFeatures.end())
+			{
+				continue;
+			}
+		}
+
+		// get the control setting
+		LLControlBase* ctrl = gSavedSettings.getControl(mIt->first);
+		if(ctrl == NULL)
+		{
+			llwarns << "AHHH! Control setting " << mIt->first << " does not exist!" << llendl;
+			continue;
+		}
+
+		// handle all the different types
+		if(ctrl->isType(TYPE_BOOLEAN))
+		{
+			gSavedSettings.setBOOL(mIt->first, (BOOL)getRecommendedValue(mIt->first.c_str()));
+		}
+		else if (ctrl->isType(TYPE_S32))
+		{
+			gSavedSettings.setS32(mIt->first, (S32)getRecommendedValue(mIt->first.c_str()));
+		}
+		else if (ctrl->isType(TYPE_U32))
+		{
+			gSavedSettings.setU32(mIt->first, (U32)getRecommendedValue(mIt->first.c_str()));
+		}
+		else if (ctrl->isType(TYPE_F32))
+		{
+			gSavedSettings.setF32(mIt->first, (F32)getRecommendedValue(mIt->first.c_str()));
+		}
+		else
+		{
+			llwarns << "AHHH! Control variable is not a numeric type!" << llendl;
+		}
 	}
 }
 
-void LLFeatureManager::initGraphicsFeatureMasks()
+void LLFeatureManager::setGraphicsLevel(S32 level, bool skipFeatures)
 {
-	loadGPUClass();
-	
+	applyBaseMasks();
+
+	switch (level)
+	{
+		case 0:
+			maskFeatures("Low");			
+			break;
+		case 1:
+			maskFeatures("Mid");
+			break;
+		case 2:
+			maskFeatures("High");
+			break;
+		case 3:
+			maskFeatures("Ultra");
+			break;
+		default:
+			maskFeatures("Low");
+			break;
+	}
+
+	applyFeatures(skipFeatures);
+}
+
+void LLFeatureManager::applyBaseMasks()
+{
+	// reapply masks
+	mFeatures.clear();
+
+	LLFeatureList* maskp = findMask("all");
+	if(maskp == NULL)
+	{
+		llwarns << "AHH! No \"all\" in feature table!" << llendl;
+		return;
+	}
+
+	mFeatures = maskp->getFeatures();
+
+	// mask class
 	if (mGPUClass >= 0 && mGPUClass < 4)
 	{
 		const char* class_table[] =
@@ -444,7 +554,13 @@ void LLFeatureManager::initGraphicsFeatureMasks()
 		llinfos << "Setting GPU Class to " << class_table[mGPUClass] << llendl;
 		maskFeatures(class_table[mGPUClass]);
 	}
-	
+	else
+	{
+		llinfos << "Setting GPU Class to Unknown" << llendl;
+		maskFeatures("Unknown");
+	}
+
+	// now all those wacky ones
 	if (!gGLManager.mHasFragmentShader)
 	{
 		maskFeatures("NoPixelShaders");
@@ -477,6 +593,8 @@ void LLFeatureManager::initGraphicsFeatureMasks()
 	{
 		maskFeatures("OpenGLPre15");
 	}
+
+	// now mask by gpu string
 	// Replaces ' ' with '_' in mGPUString to deal with inability for parser to handle spaces
 	std::string gpustr = mGPUString;
 	for (std::string::iterator iter = gpustr.begin(); iter != gpustr.end(); ++iter)
@@ -486,94 +604,28 @@ void LLFeatureManager::initGraphicsFeatureMasks()
 			*iter = '_';
 		}
 	}
-// 	llinfos << "Masking features from gpu table match: " << gpustr << llendl;
+
+	//llinfos << "Masking features from gpu table match: " << gpustr << llendl;
 	maskFeatures(gpustr.c_str());
+
+	// now mask cpu type ones
+	if (gSysMemory.getPhysicalMemoryClamped() <= 256*1024*1024)
+	{
+		maskFeatures("RAM256MB");
+	}
+	
+#if LL_SOLARIS && defined(__sparc) 	//  even low MHz SPARCs are fast
+#error The 800 is hinky. Would something like a LL_MIN_MHZ make more sense here?
+	if (gSysCPU.getMhz() < 800)
+#else
+	if (gSysCPU.getMhz() < 1100)
+#endif
+	{
+		maskFeatures("CPUSlow");
+	}
 
 	if (isSafe())
 	{
 		maskFeatures("safe");
-	}
-}
-
-void LLFeatureManager::applyRecommendedFeatures()
-{
-	// see featuretable.txt / featuretable_linux.txt / featuretable_mac.txt
-
-	llinfos << "Applying Recommended Features" << llendl;
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	dump();
-#endif
-	
-	// Enabling VBO
-	if (getRecommendedLevel("RenderVBO"))
-	{
-		gSavedSettings.setBOOL("RenderVBOEnable", TRUE);
-	}
-	else
-	{
-		gSavedSettings.setBOOL("RenderVBOEnable", FALSE);
-	}
-
-	// Anisotropic rendering
-	BOOL aniso = getRecommendedLevel("RenderAniso");
-	LLImageGL::sGlobalUseAnisotropic	= aniso;
-	gSavedSettings.setBOOL("RenderAnisotropic", LLImageGL::sGlobalUseAnisotropic);
-
-	// Render Avatar Mode
-	BOOL avatar_vp = getRecommendedLevel("RenderAvatarVP");
-	S32 avatar_mode = getRecommendedLevel("RenderAvatarMode");
-	if (avatar_vp == FALSE)
-		avatar_mode = 0;
-	gSavedSettings.setBOOL("RenderAvatarVP", avatar_vp);
-	gSavedSettings.setS32("RenderAvatarMode", avatar_mode);
-	
-	// Render Distance
-	S32 far_clip = getRecommendedLevel("RenderDistance");
-	gSavedSettings.setF32("RenderFarClip", (F32)far_clip);
-
-	// Lighting
-	S32 lighting = getRecommendedLevel("RenderLighting");
-	gSavedSettings.setS32("RenderLightingDetail", lighting);
-
-	// ObjectBump
-	BOOL bump = getRecommendedLevel("RenderObjectBump");
-	gSavedSettings.setBOOL("RenderObjectBump", bump);
-	
-	// Particle Count
-	S32 max_parts = getRecommendedLevel("RenderParticleCount");
-	gSavedSettings.setS32("RenderMaxPartCount", max_parts);
-	LLViewerPartSim::setMaxPartCount(max_parts);
-
-	// RippleWater
-	BOOL ripple = getRecommendedLevel("RenderRippleWater");
-	gSavedSettings.setBOOL("RenderRippleWater", ripple);
-
-	// Occlusion Culling
-	BOOL occlusion = getRecommendedLevel("UseOcclusion");
-	gSavedSettings.setBOOL("UseOcclusion", occlusion);
-	
-	// Vertex Shaders
-	S32 shaders = getRecommendedLevel("VertexShaderEnable");
-	gSavedSettings.setBOOL("VertexShaderEnable", shaders);
-
-	// Terrain
-	S32 terrain = getRecommendedLevel("RenderTerrainDetail");
-	gSavedSettings.setS32("RenderTerrainDetail", terrain);
-	LLDrawPoolTerrain::sDetailMode = terrain;
-
-	// Set the amount of VRAM we have available
-	if (isSafe())
-	{
-		gSavedSettings.setS32("GraphicsCardMemorySetting", 1);  // 32 MB in 'safe' mode
-	}
-	else
-	{
-		S32 idx = gSavedSettings.getS32("GraphicsCardMemorySetting");
-		// -1 indicates use default (max), don't change
-		if (idx != -1)
-		{
-			idx = LLViewerImageList::getMaxVideoRamSetting(-2); // get max recommended setting
-			gSavedSettings.setS32("GraphicsCardMemorySetting", idx);
-		}
 	}
 }

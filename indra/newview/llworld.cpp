@@ -636,7 +636,8 @@ void LLWorld::updateParticles()
 
 void LLWorld::updateClouds(const F32 dt)
 {
-	if (gSavedSettings.getBOOL("FreezeTime"))
+	if (gSavedSettings.getBOOL("FreezeTime") ||
+		!gSavedSettings.getBOOL("SkyUseClassicClouds"))
 	{
 		// don't move clouds in snapshot mode
 		return;
@@ -791,7 +792,6 @@ void LLWorld::setLandFarClip(const F32 far_clip)
 
 void LLWorld::updateWaterObjects()
 {
-	//llinfos << "Start water update" << llendl;
 	if (!gAgent.getRegion())
 	{
 		return;
@@ -803,35 +803,33 @@ void LLWorld::updateWaterObjects()
 	}
 
 	// First, determine the min and max "box" of water objects
-	bool first = true;
 	S32 min_x = 0;
 	S32 min_y = 0;
 	S32 max_x = 0;
 	S32 max_y = 0;
 	U32 region_x, region_y;
 
-	S32 rwidth = llfloor(getRegionWidthInMeters());
+	S32 rwidth = 256;
 
+	// We only want to fill in water for stuff that's near us, say, within 256 or 512m
+	S32 range = gCamera->getFar() > 256.f ? 512 : 256;
+
+	LLViewerRegion* regionp = gAgent.getRegion();
+	from_region_handle(regionp->getHandle(), &region_x, &region_y);
+
+	min_x = (S32)region_x - range;
+	min_y = (S32)region_y - range;
+	max_x = (S32)region_x + range;
+	max_y = (S32)region_y + range;
+
+	F32 height = 0.f;
 	
 	for (region_list_t::iterator iter = mRegionList.begin();
 		 iter != mRegionList.end(); ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
-		from_region_handle(regionp->getHandle(), &region_x, &region_y);
-		if (first)
-		{
-			first = false;
-			min_x = max_x = region_x;
-			min_y = max_y = region_y;
-		}
-		else
-		{
-			min_x = llmin(min_x, (S32)region_x);
-			min_y = llmin(min_y, (S32)region_y);
-			max_x = llmax(max_x, (S32)region_x);
-			max_y = llmax(max_y, (S32)region_y);
-		}
 		LLVOWater* waterp = regionp->getLand().getWaterObj();
+		height += regionp->getWaterHeight();
 		if (waterp)
 		{
 			gObjectList.updateActive(waterp);
@@ -846,15 +844,6 @@ void LLWorld::updateWaterObjects()
 	}
 	mHoleWaterObjects.clear();
 
-	// We only want to fill in holes for stuff that's near us, say, within 512m
-	LLViewerRegion* regionp = gAgent.getRegion();
-	from_region_handle(regionp->getHandle(), &region_x, &region_y);
-
-	min_x = llmax((S32)region_x - 512, min_x);
-	min_y = llmax((S32)region_y - 512, min_y);
-	max_x = llmin((S32)region_x + 512, max_x);
-	max_y = llmin((S32)region_y + 512, max_y);
-	
 	// Now, get a list of the holes
 	S32 x, y;
 	for (x = min_x; x <= max_x; x += rwidth)
@@ -866,11 +855,11 @@ void LLWorld::updateWaterObjects()
 			{
 				LLVOWater* waterp = (LLVOWater *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_WATER, gAgent.getRegion());
 				waterp->setUseTexture(FALSE);
-				gPipeline.addObject(waterp);
 				waterp->setPositionGlobal(LLVector3d(x + rwidth/2,
 													 y + rwidth/2,
-													 DEFAULT_WATER_HEIGHT));
-				waterp->setScale(LLVector3((F32)rwidth, (F32)rwidth, 0.f));
+													 256.f+DEFAULT_WATER_HEIGHT));
+				waterp->setScale(LLVector3((F32)rwidth, (F32)rwidth, 512.f));
+				gPipeline.addObject(waterp);
 				mHoleWaterObjects.push_back(waterp);
 			}
 		}
@@ -884,14 +873,11 @@ void LLWorld::updateWaterObjects()
 	center_x = min_x + (wx >> 1);
 	center_y = min_y + (wy >> 1);
 
-
-
 	S32 add_boundary[4] = {
 		512 - (max_x - region_x),
 		512 - (max_y - region_y),
 		512 - (region_x - min_x),
 		512 - (region_y - min_y) };
-		
 		
 	S32 dir;
 	for (dir = 0; dir < 8; dir++)
@@ -910,15 +896,9 @@ void LLWorld::updateWaterObjects()
 		default: dim[1] = add_boundary[1]; break;
 		}
 
-		if (dim[0] == 0 || dim[1] == 0)
-		{
-			continue;
-		}
-
 		// Resize and reshape the water objects
 		const S32 water_center_x = center_x + llround((wx + dim[0]) * 0.5f * gDirAxes[dir][0]);
 		const S32 water_center_y = center_y + llround((wy + dim[1]) * 0.5f * gDirAxes[dir][1]);
-		
 		
 		LLVOWater* waterp = mEdgeWaterObjects[dir];
 		if (!waterp || waterp->isDead())
@@ -929,23 +909,38 @@ void LLWorld::updateWaterObjects()
 																				 gAgent.getRegion());
 			waterp = mEdgeWaterObjects[dir];
 			waterp->setUseTexture(FALSE);
+			waterp->setIsEdgePatch(TRUE);
 			gPipeline.addObject(waterp);
 		}
 
 		waterp->setRegion(gAgent.getRegion());
 		LLVector3d water_pos(water_center_x, water_center_y, 
-			DEFAULT_WATER_HEIGHT);
+			DEFAULT_WATER_HEIGHT+256.f);
+		LLVector3 water_scale((F32) dim[0], (F32) dim[1], 512.f);
+
+		//stretch out to horizon
+		water_scale.mV[0] += fabsf(2048.f * gDirAxes[dir][0]);
+		water_scale.mV[1] += fabsf(2048.f * gDirAxes[dir][1]);
+
+		water_pos.mdV[0] += 1024.f * gDirAxes[dir][0];
+		water_pos.mdV[1] += 1024.f * gDirAxes[dir][1];
+
 		waterp->setPositionGlobal(water_pos);
-		waterp->setScale(LLVector3((F32)dim[0], (F32)dim[1], 0.f));
+		waterp->setScale(water_scale);
+
 		gObjectList.updateActive(waterp);
-		/*if (!gNoRender)
-		{
-			gPipeline.markMoved(waterp->mDrawable);
-		}*/
+	}
+}
+
+void LLWorld::shiftRegions(const LLVector3& offset)
+{
+	for (region_list_t::iterator i = getRegionList().begin(); i != getRegionList().end(); ++i)
+	{
+		LLViewerRegion* region = *i;
+		region->updateRenderMatrix();
 	}
 
-
-	//llinfos << "End water update" << llendl;
+	mPartSim.shift(offset);
 }
 
 LLViewerImage* LLWorld::getDefaultWaterTexture()

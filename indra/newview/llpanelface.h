@@ -67,6 +67,7 @@ protected:
 	void			sendTexGen();				// applies and sends bump map
 	void			sendShiny();			// applies and sends shininess
 	void			sendFullbright();		// applies and sends full bright
+	void            sendGlow();
 
 	// this function is to return TRUE if the dra should succeed.
 	static BOOL onDragTexture(LLUICtrl* ctrl, LLInventoryItem* item, void* ud);
@@ -83,9 +84,11 @@ protected:
 	static void		onCommitTexGen(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitShiny(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitFullbright(		LLUICtrl* ctrl, void* userdata);
+	static void     onCommitGlow(           LLUICtrl* ctrl, void *userdata);
 
 	static void		onClickApply(void*);
 	static void		onClickAutoFix(void*);
+	static F32      valueGlow(LLViewerObject* object, S32 face);
 };
 
 #endif

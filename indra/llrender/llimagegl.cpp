@@ -41,6 +41,8 @@
 
 #include "llmath.h"
 #include "llgl.h"
+#include "llglimmediate.h"
+
 
 //----------------------------------------------------------------------------
 
@@ -49,6 +51,8 @@ const F32 MIN_TEXTURE_LIFETIME = 10.f;
 //statics
 LLGLuint LLImageGL::sCurrentBoundTextures[MAX_GL_TEXTURE_UNITS] = { 0 };
 
+U32 LLImageGL::sUniqueCount				= 0;
+U32 LLImageGL::sBindCount				= 0;
 S32 LLImageGL::sGlobalTextureMemory		= 0;
 S32 LLImageGL::sBoundTextureMemory		= 0;
 S32 LLImageGL::sCurBoundTextureMemory	= 0;
@@ -123,6 +127,7 @@ S32 LLImageGL::dataFormatComponents(S32 dataformat)
 // static
 void LLImageGL::bindExternalTexture(LLGLuint gl_name, S32 stage, LLGLenum bind_target )
 {
+	gGL.flush();
 	glActiveTextureARB(GL_TEXTURE0_ARB + stage);
 	glClientActiveTextureARB(GL_TEXTURE0_ARB + stage);
 	glBindTexture(bind_target, gl_name);
@@ -135,6 +140,7 @@ void LLImageGL::unbindTexture(S32 stage, LLGLenum bind_target)
 	// LLGLSLShader can return -1
 	if (stage >= 0)
 	{
+		gGL.flush();
 		glActiveTextureARB(GL_TEXTURE0_ARB + stage);
 		glClientActiveTextureARB(GL_TEXTURE0_ARB + stage);
 		glBindTexture(bind_target, 0);
@@ -148,6 +154,7 @@ void LLImageGL::unbindTexture(S32 stage)
 	// LLGLSLShader can return -1
 	if (stage >= 0)
 	{
+		gGL.flush();
 		glActiveTextureARB(GL_TEXTURE0_ARB + stage);
 		glClientActiveTextureARB(GL_TEXTURE0_ARB + stage);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -411,6 +418,7 @@ BOOL LLImageGL::bindTextureInternal(const S32 stage) const
 		llwarns << "Trying to bind a texture while GL is disabled!" << llendl;
 	}
 
+
 	glActiveTextureARB(GL_TEXTURE0_ARB + stage);
 		
 	if (sCurrentBoundTextures[stage] && sCurrentBoundTextures[stage] == mTexName)
@@ -425,12 +433,15 @@ BOOL LLImageGL::bindTextureInternal(const S32 stage) const
 		mMissed = ! getIsResident(TRUE);
 #endif
 
+		gGL.flush();
 		glBindTexture(mBindTarget, mTexName);
 		sCurrentBoundTextures[stage] = mTexName;
+		sBindCount++;
 
 		if (mLastBindTime != sLastFrameTime)
 		{
 			// we haven't accounted for this texture yet this frame
+			sUniqueCount++;
 			updateBoundTexMem(mTextureMemory);
 			mLastBindTime = sLastFrameTime;
 		}
@@ -439,6 +450,7 @@ BOOL LLImageGL::bindTextureInternal(const S32 stage) const
 	}
 	else
 	{
+		gGL.flush();
 		glBindTexture(mBindTarget, 0);
 		sCurrentBoundTextures[stage] = 0;
 		return FALSE;
@@ -665,7 +677,6 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 		}
 		mHasMipMaps = FALSE;
 	}
-	glFlush();
 	stop_glerror();
 }
 
@@ -759,7 +770,7 @@ BOOL LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
 		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 		stop_glerror();
 	}
-	glFlush();
+	
 	return TRUE;
 }
 
@@ -1046,6 +1057,7 @@ void LLImageGL::destroyGLTexture()
 			{
 				unbindTexture(i, GL_TEXTURE_2D);
 				stop_glerror();
+				glActiveTextureARB(GL_TEXTURE0_ARB);
 			}
 		}
 

@@ -45,7 +45,6 @@ public:
 
 	static void playAnim( void* userdata );
 	static void auditionAnim( void* userdata );
-	static void saveAnim( void* userdata );
 	static void endAnimCallback( void *userdata );
 
 protected:

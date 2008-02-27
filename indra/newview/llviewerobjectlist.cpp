@@ -36,6 +36,7 @@
 #include "message.h"
 #include "timing.h"
 #include "llfasttimer.h"
+#include "llglimmediate.h"
 
 #include "llviewercontrol.h"
 #include "llface.h"
@@ -45,6 +46,7 @@
 #include "llnetmap.h"
 #include "llagent.h"
 #include "pipeline.h"
+#include "llspatialpartition.h"
 #include "llhoverview.h"
 #include "llworld.h"
 #include "llstring.h"
@@ -206,30 +208,28 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 
 	// ignore returned flags
 	objectp->processUpdateMessage(msg, user_data, i, update_type, dpp);
-
+		
 	if (objectp->isDead())
 	{
 		// The update failed
 		return;
 	}
+
 	updateActive(objectp);
-
-	// Also sets the approx. pixel area
-	objectp->setPixelAreaAndAngle(gAgent);
-
-	// Update the image levels of textures for this object.
-	objectp->updateTextures(gAgent);
 
 	if (just_created) 
 	{
 		gPipeline.addObject(objectp);
 	}
 
+	// Also sets the approx. pixel area
+	objectp->setPixelAreaAndAngle(gAgent);
+
 	// RN: this must be called after we have a drawable 
 	// (from gPipeline.addObject)
 	// so that the drawable parent is set properly
 	findOrphans(objectp, msg->getSenderIP(), msg->getSenderPort());
-
+	
 	// If we're just wandering around, don't create new objects selected.
 	if (just_created 
 		&& update_type != OUT_TERSE_IMPROVED 
@@ -527,18 +527,6 @@ void LLViewerObjectList::processCachedObjectUpdate(LLMessageSystem *mesgsys,
 {
 	processObjectUpdate(mesgsys, user_data, update_type, true, false);
 }	
-
-void LLViewerObjectList::relightAllObjects()
-{
-	for (S32 i = 0; i < mObjects.count(); i++)
-	{
-		LLDrawable *drawable = mObjects[i]->mDrawable;
-		if (drawable)
-		{
-			gPipeline.markRelight(drawable);
-		}
-	}
-}
 
 void LLViewerObjectList::dirtyAllObjectInventory()
 {
@@ -1008,7 +996,7 @@ void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 	}
 
 	gPipeline.shiftObjects(offset);
-	gWorldPointer->mPartSim.shift(offset);
+	gWorldp->shiftRegions(offset);
 }
 
 void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
@@ -1109,12 +1097,17 @@ U32 LLViewerObjectList::renderObjectsForSelect(LLCamera &camera, BOOL pick_parce
 
 		std::vector<LLDrawable*> pick_drawables;
 
-		for (i = 0; i < LLPipeline::NUM_PARTITIONS-1; i++)
+		for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
+			iter != gWorldp->getRegionList().end(); ++iter)
 		{
-			LLSpatialPartition* part = gPipeline.getSpatialPartition(i);
-			if (part)
+			LLViewerRegion* region = *iter;
+			for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
 			{
-				part->cull(camera, &pick_drawables, TRUE);
+				LLSpatialPartition* part = region->getSpatialPartition(i);
+				if (part)
+				{	
+					part->cull(camera, &pick_drawables, TRUE);
+				}
 			}
 		}
 
@@ -1213,10 +1206,12 @@ U32 LLViewerObjectList::renderObjectsForSelect(LLCamera &camera, BOOL pick_parce
 	//
 	// Render pass for selected objects
 	//
+	gGL.start();	
 	gViewerWindow->renderSelections( TRUE, pick_parcel_wall, FALSE );
 
 	// render pickable ui elements, like names, etc.
 	LLHUDObject::renderAllForSelect();
+	gGL.stop();
 
 	gRenderForSelect = FALSE;
 

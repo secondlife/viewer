@@ -224,6 +224,8 @@ typedef enum e_widget_type
 	WIDGET_TYPE_SLIDER,	// actually LLSliderCtrl
 	WIDGET_TYPE_SLIDER_BAR, // actually LLSlider
 	WIDGET_TYPE_VOLUME_SLIDER,//actually LLVolumeSliderCtrl
+	WIDGET_TYPE_MULTI_SLIDER,	// actually LLMultiSliderCtrl
+	WIDGET_TYPE_MULTI_SLIDER_BAR, // actually LLMultiSlider
 	WIDGET_TYPE_SPINNER,
 	WIDGET_TYPE_TEXT_EDITOR,
 	WIDGET_TYPE_TEXTURE_PICKER,

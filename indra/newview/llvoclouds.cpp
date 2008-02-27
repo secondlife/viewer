@@ -49,6 +49,7 @@
 #include "llvosky.h"
 #include "llworld.h"
 #include "pipeline.h"
+#include "llspatialpartition.h"
 
 LLUUID gCloudTextureID = IMG_CLOUD_POOF;
 
@@ -78,14 +79,17 @@ BOOL LLVOClouds::isActive() const
 
 BOOL LLVOClouds::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
- 	if (!(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS)))
+	if (!(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS)))
+	{
 		return TRUE;
+	}
 	
 	// Set dirty flag (so renderer will rebuild primitive)
 	if (mDrawable)
 	{
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
 	}
+
 	return TRUE;
 }
 
@@ -113,9 +117,13 @@ LLDrawable* LLVOClouds::createDrawable(LLPipeline *pipeline)
 BOOL LLVOClouds::updateGeometry(LLDrawable *drawable)
 {
 	LLFastTimer ftm(LLFastTimer::FTM_UPDATE_CLOUDS);
- 	if (!(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS)))
+	if (!(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS)))
+	{
 		return TRUE;
+	}
 	
+	dirtySpatialGroup();
+
 	LLFace *facep;
 	
 	S32 num_faces = mCloudGroupp->getNumPuffs();
@@ -137,19 +145,16 @@ BOOL LLVOClouds::updateGeometry(LLDrawable *drawable)
 			continue;
 		}
 
-		if (isParticle())
-		{
-			facep->setSize(1,1);
-		}
-		else
-		{
-			facep->setSize(4, 6);
-		}
+		facep->setSize(4, 6);
+		
 		facep->setTEOffset(face_indx);
 		facep->setTexture(getTEImage(0));
 		const LLCloudPuff &puff = mCloudGroupp->getPuff(face_indx);
 		const LLVector3 puff_pos_agent = gAgent.getPosAgentFromGlobal(puff.getPositionGlobal());
 		facep->mCenterLocal = puff_pos_agent;
+		/// Update cloud color based on sun color.
+		LLColor4 float_color(LLColor3(gSky.getSunDiffuseColor() + gSky.getSunAmbientColor()),puff.getAlpha());
+		facep->setFaceColor(float_color);
 	}
 	for ( ; face_indx < drawable->getNumFaces(); face_indx++)
 	{
@@ -169,11 +174,6 @@ BOOL LLVOClouds::updateGeometry(LLDrawable *drawable)
 	return TRUE;
 }
 
-BOOL LLVOClouds::isParticle()
-{
-	return FALSE; // gGLManager.mHasPointParameters;
-}
-
 F32 LLVOClouds::getPartSize(S32 idx)
 {
 	return (CLOUD_PUFF_HEIGHT+CLOUD_PUFF_WIDTH)*0.5f;
@@ -184,7 +184,7 @@ void LLVOClouds::getGeometry(S32 te,
 							LLStrider<LLVector3>& normalsp, 
 							LLStrider<LLVector2>& texcoordsp, 
 							LLStrider<LLColor4U>& colorsp, 
-							LLStrider<U32>& indicesp)
+							LLStrider<U16>& indicesp)
 {
 
 	if (te >= mCloudGroupp->getNumPuffs())
@@ -204,80 +204,71 @@ void LLVOClouds::getGeometry(S32 te,
 
 	const LLCloudPuff &puff = mCloudGroupp->getPuff(te);
 	S32 index_offset = facep->getGeomIndex();
-	LLColor4U color(255, 255, 255, (U8) (puff.getAlpha()*255));
-	facep->setFaceColor(LLColor4(color));
+	LLColor4 float_color(LLColor3(gSky.getSunDiffuseColor() + gSky.getSunAmbientColor()),puff.getAlpha());
+	LLColor4U color;
+	color.setVec(float_color);
+	facep->setFaceColor(float_color);
 		
 	
-	if (isParticle())
-	{
-		*verticesp++ = facep->mCenterLocal;
-		*texcoordsp++ = LLVector2(0.5f, 0.5f);
-		*colorsp++ = color;
-		*normalsp++ = normal;
-		*indicesp++ = facep->getGeomIndex();
-	}
-	else
-	{
-		LLVector3 up;
-		LLVector3 right;
-		LLVector3 at;
+	LLVector3 up;
+	LLVector3 right;
+	LLVector3 at;
 
-		const LLVector3& puff_pos_agent = facep->mCenterLocal;
-		LLVector2 uvs[4];
+	const LLVector3& puff_pos_agent = facep->mCenterLocal;
+	LLVector2 uvs[4];
 
-		uvs[0].setVec(0.f, 1.f);
-		uvs[1].setVec(0.f, 0.f);
-		uvs[2].setVec(1.f, 1.f);
-		uvs[3].setVec(1.f, 0.f);
+	uvs[0].setVec(0.f, 1.f);
+	uvs[1].setVec(0.f, 0.f);
+	uvs[2].setVec(1.f, 1.f);
+	uvs[3].setVec(1.f, 0.f);
 
-		LLVector3 vtx[4];
+	LLVector3 vtx[4];
 
-		at = gCamera->getAtAxis();
-		right = at % LLVector3(0.f, 0.f, 1.f);
-		right.normVec();
-		up = right % at;
-		up.normVec();
-		right *= 0.5f*CLOUD_PUFF_WIDTH;
-		up *= 0.5f*CLOUD_PUFF_HEIGHT;;
+	at = gCamera->getAtAxis();
+	right = at % LLVector3(0.f, 0.f, 1.f);
+	right.normVec();
+	up = right % at;
+	up.normVec();
+	right *= 0.5f*CLOUD_PUFF_WIDTH;
+	up *= 0.5f*CLOUD_PUFF_HEIGHT;;
 		
-		*colorsp++ = color;
-		*colorsp++ = color;
-		*colorsp++ = color;
-		*colorsp++ = color;
+	*colorsp++ = color;
+	*colorsp++ = color;
+	*colorsp++ = color;
+	*colorsp++ = color;
 
-		vtx[0] = puff_pos_agent - right + up;
-		vtx[1] = puff_pos_agent - right - up;
-		vtx[2] = puff_pos_agent + right + up;
-		vtx[3] = puff_pos_agent + right - up;
+	vtx[0] = puff_pos_agent - right + up;
+	vtx[1] = puff_pos_agent - right - up;
+	vtx[2] = puff_pos_agent + right + up;
+	vtx[3] = puff_pos_agent + right - up;
 
-		*verticesp++  = vtx[0];
-		*verticesp++  = vtx[1];
-		*verticesp++  = vtx[2];
-		*verticesp++  = vtx[3];
+	*verticesp++  = vtx[0];
+	*verticesp++  = vtx[1];
+	*verticesp++  = vtx[2];
+	*verticesp++  = vtx[3];
 
-		*texcoordsp++ = uvs[0];
-		*texcoordsp++ = uvs[1];
-		*texcoordsp++ = uvs[2];
-		*texcoordsp++ = uvs[3];
+	*texcoordsp++ = uvs[0];
+	*texcoordsp++ = uvs[1];
+	*texcoordsp++ = uvs[2];
+	*texcoordsp++ = uvs[3];
 
-		*normalsp++   = normal;
-		*normalsp++   = normal;
-		*normalsp++   = normal;
-		*normalsp++   = normal;
+	*normalsp++   = normal;
+	*normalsp++   = normal;
+	*normalsp++   = normal;
+	*normalsp++   = normal;
 
-		*indicesp++ = index_offset + 0;
-		*indicesp++ = index_offset + 1;
-		*indicesp++ = index_offset + 2;
+	*indicesp++ = index_offset + 0;
+	*indicesp++ = index_offset + 1;
+	*indicesp++ = index_offset + 2;
 
-		*indicesp++ = index_offset + 1;
-		*indicesp++ = index_offset + 3;
-		*indicesp++ = index_offset + 2;
-	}
+	*indicesp++ = index_offset + 1;
+	*indicesp++ = index_offset + 3;
+	*indicesp++ = index_offset + 2;
 }
 
 U32 LLVOClouds::getPartitionType() const
 {
-	return LLPipeline::PARTITION_CLOUD;
+	return LLViewerRegion::PARTITION_CLOUD;
 }
 
 // virtual
@@ -295,6 +286,6 @@ void LLVOClouds::updateDrawable(BOOL force_damped)
 LLCloudPartition::LLCloudPartition()
 {
 	mDrawableType = LLPipeline::RENDER_TYPE_CLOUDS;
-	mPartitionType = LLPipeline::PARTITION_CLOUD;
+	mPartitionType = LLViewerRegion::PARTITION_CLOUD;
 }
 

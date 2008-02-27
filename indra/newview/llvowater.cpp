@@ -48,6 +48,7 @@
 #include "llviewerregion.h"
 #include "llworld.h"
 #include "pipeline.h"
+#include "llspatialpartition.h"
 
 const BOOL gUseRoam = FALSE;
 
@@ -76,6 +77,7 @@ LLVOWater::LLVOWater(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regi
 	setScale(LLVector3(256.f, 256.f, 0.f)); // Hack for setting scale for bounding boxes/visibility.
 
 	mUseTexture = TRUE;
+	mIsEdgePatch = FALSE;
 }
 
 
@@ -106,14 +108,14 @@ void LLVOWater::updateTextures(LLAgent &agent)
 // Never gets called
 BOOL LLVOWater::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
- 	if (mDead || !(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER)))
+ 	/*if (mDead || !(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER)))
 	{
 		return TRUE;
 	}
-	if (mDrawable)
+	if (mDrawable) 
 	{
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
-	}
+	}*/
 	return TRUE;
 }
 
@@ -149,23 +151,23 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 	}
 	face = drawable->getFace(0);
 
-	LLVector2 uvs[4];
-	LLVector3 vtx[4];
+//	LLVector2 uvs[4];
+//	LLVector3 vtx[4];
 
 	LLStrider<LLVector3> verticesp, normalsp;
 	LLStrider<LLVector2> texCoordsp;
-	LLStrider<U32> indicesp;
-	S32 index_offset;
+	LLStrider<U16> indicesp;
+	U16 index_offset;
 
 	S32 size = 16;
 
+	S32 num_quads = size*size;	
+	face->setSize(4*num_quads, 6*num_quads);
+
 	if (face->mVertexBuffer.isNull())
 	{
-		S32 num_quads = size*size;	
-		face->setSize(4*num_quads, 6*num_quads);
-		
 		face->mVertexBuffer = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_DYNAMIC_DRAW_ARB);
-		face->mVertexBuffer->allocateBuffer(4*num_quads, 6*num_quads, TRUE);
+		face->mVertexBuffer->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE);
 		face->setIndicesIndex(0);
 		face->setGeomIndex(0);
 	}
@@ -175,11 +177,7 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 	}
 		
 	index_offset = face->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
-	if (-1 == index_offset)
-	{
-		return TRUE;
-	}
-	
+		
 	LLVector3 position_agent;
 	position_agent = getPositionAgent();
 	face->mCenterAgent = position_agent;
@@ -204,34 +202,20 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 			position_agent.mV[VX] += (x + 0.5f) * step_x;
 			position_agent.mV[VY] += (y + 0.5f) * step_y;
 
-			vtx[0] = position_agent - right + up;
-			vtx[1] = position_agent - right - up;
-			vtx[2] = position_agent + right + up;
-			vtx[3] = position_agent + right - up;
+			*verticesp++  = position_agent - right + up;
+			*verticesp++  = position_agent - right - up;
+			*verticesp++  = position_agent + right + up;
+			*verticesp++  = position_agent + right - up;
 
-			*(verticesp++)  = vtx[0];
-			*(verticesp++)  = vtx[1];
-			*(verticesp++)  = vtx[2];
-			*(verticesp++)  = vtx[3];
-
-			uvs[0].setVec(x*size_inv, (y+1)*size_inv);
-			uvs[1].setVec(x*size_inv, y*size_inv);
-			uvs[2].setVec((x+1)*size_inv, (y+1)*size_inv);
-			uvs[3].setVec((x+1)*size_inv, y*size_inv);
-
-			*(texCoordsp) = uvs[0];
-			texCoordsp++;
-			*(texCoordsp) = uvs[1];
-			texCoordsp++;
-			*(texCoordsp) = uvs[2];
-			texCoordsp++;
-			*(texCoordsp) = uvs[3];
-			texCoordsp++;
-
-			*(normalsp++)   = normal;
-			*(normalsp++)   = normal;
-			*(normalsp++)   = normal;
-			*(normalsp++)   = normal;
+			*texCoordsp++ = LLVector2(x*size_inv, (y+1)*size_inv);
+			*texCoordsp++ = LLVector2(x*size_inv, y*size_inv);
+			*texCoordsp++ = LLVector2((x+1)*size_inv, (y+1)*size_inv);
+			*texCoordsp++ = LLVector2((x+1)*size_inv, y*size_inv);
+			
+			*normalsp++   = normal;
+			*normalsp++   = normal;
+			*normalsp++   = normal;
+			*normalsp++   = normal;
 
 			*indicesp++ = toffset + 0;
 			*indicesp++ = toffset + 1;
@@ -243,6 +227,8 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 		}
 	}
 	
+	face->mVertexBuffer->setBuffer(0);
+
 	mDrawable->movePartition();
 	LLPipeline::sCompiles++;
 	return TRUE;
@@ -268,6 +254,11 @@ void LLVOWater::setUseTexture(const BOOL use_texture)
 	mUseTexture = use_texture;
 }
 
+void LLVOWater::setIsEdgePatch(const BOOL edge_patch)
+{
+	mIsEdgePatch = edge_patch;
+}
+
 void LLVOWater::updateSpatialExtents(LLVector3 &newMin, LLVector3& newMax)
 {
 	LLVector3 pos = getPositionAgent();
@@ -281,13 +272,14 @@ void LLVOWater::updateSpatialExtents(LLVector3 &newMin, LLVector3& newMax)
 
 U32 LLVOWater::getPartitionType() const
 { 
-	return LLPipeline::PARTITION_WATER; 
+	return LLViewerRegion::PARTITION_WATER; 
 }
 
 LLWaterPartition::LLWaterPartition()
 : LLSpatialPartition(0)
 {
 	mRenderByGroup = FALSE;
+	mInfiniteFarClip = TRUE;
 	mDrawableType = LLPipeline::RENDER_TYPE_WATER;
-	mPartitionType = LLPipeline::PARTITION_WATER;
+	mPartitionType = LLViewerRegion::PARTITION_WATER;
 }

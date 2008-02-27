@@ -38,11 +38,20 @@
 #include "llskipmap.h"
 #include <map>
 
+typedef enum EGPUClass
+{
+	GPU_CLASS_UNKNOWN = -1,
+	GPU_CLASS_0 = 0,
+	GPU_CLASS_1 = 1,
+	GPU_CLASS_2 = 2,
+	GPU_CLASS_3 = 3
+} EGPUClass; 
+
 class LLFeatureInfo
 {
 public:
 	LLFeatureInfo() : mValid(FALSE), mAvailable(FALSE), mRecommendedLevel(-1) {}
-	LLFeatureInfo(const char *name, const BOOL available, const S32 level);
+	LLFeatureInfo(const char *name, const BOOL available, const F32 level);
 
 	BOOL isValid() const	{ return mValid; };
 
@@ -50,32 +59,38 @@ public:
 	BOOL		mValid;
 	LLString	mName;
 	BOOL		mAvailable;
-	S32			mRecommendedLevel;
+	F32			mRecommendedLevel;
 };
 
 
 class LLFeatureList
 {
 public:
+	typedef std::map<LLString, LLFeatureInfo> feature_map_t;
+
 	LLFeatureList(const char *name = "default");
 	virtual ~LLFeatureList();
 
 	BOOL isFeatureAvailable(const char *name);
-	S32 getRecommendedLevel(const char *name);
+	F32 getRecommendedValue(const char *name);
 
 	void setFeatureAvailable(const char *name, const BOOL available);
-	void setRecommendedLevel(const char *name, const S32 level);
+	void setRecommendedLevel(const char *name, const F32 level);
 
 	BOOL loadFeatureList(FILE *fp);
 
 	BOOL maskList(LLFeatureList &mask);
 
-	void addFeature(const char *name, const BOOL available, const S32 level);
+	void addFeature(const char *name, const BOOL available, const F32 level);
+
+	feature_map_t& getFeatures()
+	{
+		return mFeatures;
+	}
 
 	void dump();
 protected:
 	LLString	mName;
-	typedef std::map<LLString, LLFeatureInfo> feature_map_t;
 	feature_map_t	mFeatures;
 };
 
@@ -83,14 +98,19 @@ protected:
 class LLFeatureManager : public LLFeatureList
 {
 public:
-	LLFeatureManager() : mInited(FALSE), mTableVersion(0), mSafe(FALSE), mGPUClass(0) {}
+	LLFeatureManager() : mInited(FALSE), mTableVersion(0), mSafe(FALSE), mGPUClass(GPU_CLASS_UNKNOWN) {}
+	~LLFeatureManager() {cleanupFeatureTables();}
+
+	// initialize this by loading feature table and gpu table
+	void init();
 
 	void maskCurrentList(const char *name); // Mask the current feature list with the named list
 
 	BOOL loadFeatureTables();
 
-	S32	getGPUClass() 					{ return mGPUClass; }
+	EGPUClass getGPUClass() 			{ return mGPUClass; }
 	std::string& getGPUString() 		{ return mGPUString; }
+	BOOL isGPUSupported()				{ return mGPUSupported; }
 	
 	void cleanupFeatureTables();
 
@@ -101,22 +121,32 @@ public:
 	LLFeatureList *findMask(const char *name);
 	BOOL maskFeatures(const char *name);
 
-
-	void initCPUFeatureMasks();
-	void initGraphicsFeatureMasks();
+	// set the graphics to low, medium, high, or ultra.
+	// skipFeatures forces skipping of mostly hardware settings
+	// that we don't want to change when we change graphics
+	// settings
+	void setGraphicsLevel(S32 level, bool skipFeatures);
 	
-	void applyRecommendedFeatures();
+	void applyBaseMasks();
+	void applyRecommendedSettings();
+
+	// apply the basic masks.  Also, skip one saved
+	// in the skip list if true
+	void applyFeatures(bool skipFeatures);
 
 protected:
 	void loadGPUClass();
 	void initBaseMask();
 
+
 	std::map<LLString, LLFeatureList *> mMaskList;
+	std::set<LLString> mSkippedFeatures;
 	BOOL		mInited;
 	S32			mTableVersion;
 	BOOL		mSafe;					// Reinitialize everything to the "safe" mask
-	S32			mGPUClass;
+	EGPUClass	mGPUClass;
 	std::string	mGPUString;
+	BOOL		mGPUSupported;
 };
 
 extern LLFeatureManager *gFeatureManagerp;

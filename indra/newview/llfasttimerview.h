@@ -60,6 +60,7 @@ private:
 	S32 mDisplayMode;
 	S32 mDisplayCenter;
 	S32 mDisplayCalls;
+	S32 mDisplayHz;
 	U64 mAvgCountTotal;
 	U64 mMaxCountTotal;
 	LLRect mBarRect;

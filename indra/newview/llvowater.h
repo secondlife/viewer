@@ -75,9 +75,13 @@ public:
 	/*virtual*/ BOOL isActive() const; // Whether this object needs to do an idleUpdate.
 
 	void setUseTexture(const BOOL use_texture);
+	void setIsEdgePatch(const BOOL edge_patch);
+	BOOL getUseTexture() const { return mUseTexture; }
+	BOOL getIsEdgePatch() const { return mIsEdgePatch; }
 
 protected:
 	BOOL mUseTexture;
+	BOOL mIsEdgePatch;
 };
 
 #endif // LL_VOSURFACEPATCH_H

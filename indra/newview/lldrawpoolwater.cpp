@@ -51,12 +51,16 @@
 #include "llworld.h"
 #include "pipeline.h"
 #include "llglslshader.h"
+#include "llwaterparammanager.h"
 
 const LLUUID WATER_TEST("2bfd3884-7e27-69b9-ba3a-3e673f680004");
 
 static float sTime;
 
 BOOL LLDrawPoolWater::sSkipScreenCopy = FALSE;
+BOOL LLDrawPoolWater::sNeedsReflectionUpdate = TRUE;
+LLColor4 LLDrawPoolWater::sWaterFogColor = LLColor4(0.2f, 0.5f, 0.5f, 0.f);
+LLVector3 LLDrawPoolWater::sLightDir;
 
 LLDrawPoolWater::LLDrawPoolWater() :
 	LLFacePool(POOL_WATER)
@@ -70,7 +74,8 @@ LLDrawPoolWater::LLDrawPoolWater() :
 	mHBTex[1]->setClamp(TRUE, TRUE);
 
 	mWaterImagep = gImageList.getImage(WATER_TEST);
-	mWaterNormp = gImageList.getImage(LLUUID(gViewerArt.getString("water_normal.tga")));
+	//mWaterNormp = gImageList.getImage(LLUUID(gViewerArt.getString("water_normal.tga")));
+	mWaterNormp = gImageList.getImage(LLWaterParamManager::instance()->getNormalMapID());
 
 	restoreGL();
 }
@@ -94,12 +99,25 @@ LLDrawPool *LLDrawPoolWater::instancePool()
 
 void LLDrawPoolWater::prerender()
 {
-	mVertexShaderLevel = (gSavedSettings.getBOOL("RenderRippleWater") && gGLManager.mHasCubeMap && gFeatureManagerp->isFeatureAvailable("RenderCubeMap")) ?
-		LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_ENVIRONMENT) : 0;
+	mVertexShaderLevel = (gGLManager.mHasCubeMap && gFeatureManagerp->isFeatureAvailable("RenderCubeMap")) ?
+		LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_WATER) : 0;
+
+	// got rid of modulation by light color since it got a little too
+	// green at sunset and sl-57047 (underwater turns black at 8:00)
+	sWaterFogColor = LLWaterParamManager::instance()->getFogColor();
+	sWaterFogColor.mV[3] = 0;
 
 }
 
-extern LLColor4U MAX_WATER_COLOR;
+S32 LLDrawPoolWater::getNumPasses()
+{
+	if (gCamera->getOrigin().mV[2] < 1024.f)
+	{
+		return 1;
+	}
+
+	return 0;
+}
 
 void LLDrawPoolWater::render(S32 pass)
 {
@@ -121,18 +139,12 @@ void LLDrawPoolWater::render(S32 pass)
 
 	LLGLEnable blend(GL_BLEND);
 
-	if ((mVertexShaderLevel >= SHADER_LEVEL_RIPPLE))
+	if ((mVertexShaderLevel > 0) && !sSkipScreenCopy)
 	{
 		shade();
 		return;
 	}
 
-	if ((mVertexShaderLevel > 0))
-	{
-		renderShaderSimple();
-		return;
-	}
-	
 	LLVOSky *voskyp = gSky.mVOSkyp;
 
 	stop_glerror();
@@ -229,9 +241,9 @@ void LLDrawPoolWater::render(S32 pass)
 	glClientActiveTextureARB(GL_TEXTURE1_ARB);
 	glActiveTextureARB(GL_TEXTURE1_ARB);
 	glDisable(GL_TEXTURE_2D); // Texture unit 1
-	LLImageGL::unbindTexture(1, GL_TEXTURE_2D);
 	glDisable(GL_TEXTURE_GEN_S); //texture unit 1
 	glDisable(GL_TEXTURE_GEN_T); //texture unit 1
+	LLImageGL::unbindTexture(1, GL_TEXTURE_2D);
 
 	// Disable texture coordinate and color arrays
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
@@ -259,17 +271,6 @@ void LLDrawPoolWater::render(S32 pass)
 
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-		/*glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_ADD);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB,		GL_REPLACE);
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_PREVIOUS_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB,		GL_TEXTURE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB,		GL_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_PREVIOUS_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);*/
-		
 		for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
 			 iter != mDrawFace.end(); iter++)
 		{
@@ -315,153 +316,6 @@ void LLDrawPoolWater::render(S32 pass)
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }
 
-
-void LLDrawPoolWater::renderShaderSimple()
-{
-	LLVOSky *voskyp = gSky.mVOSkyp;
-
-	stop_glerror();
-
-	if (!gGLManager.mHasMultitexture)
-	{
-		// Ack!  No multitexture!  Bail!
-		return;
-	}
-
-	LLFace* refl_face = voskyp->getReflFace();
-
-	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-
-	LLGLDisable cullFace(GL_CULL_FACE);
-	
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	
-	// Set up second pass first
-	S32 bumpTex = gWaterProgram.enableTexture(LLShaderMgr::BUMP_MAP);
-	mWaterImagep->addTextureStats(1024.f*1024.f);
-	mWaterImagep->bind(bumpTex);
-
-	glClientActiveTextureARB(GL_TEXTURE1_ARB);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	
-	LLVector3 camera_up = gCamera->getUpAxis();
-	F32 up_dot = camera_up * LLVector3::z_axis;
-
-	LLColor4 water_color;
-	if (gCamera->cameraUnderWater())
-	{
-		water_color.setVec(1.f, 1.f, 1.f, 0.4f);
-	}
-	else
-	{
-		water_color.setVec(1.f, 1.f, 1.f, 0.5f*(1.f + up_dot));
-	}
-
-	glColor4fv(water_color.mV);
-
-	// Automatically generate texture coords for detail map
-	glActiveTextureARB(GL_TEXTURE1_ARB);
-	glEnable(GL_TEXTURE_GEN_S); //texture unit 1
-	glEnable(GL_TEXTURE_GEN_T); //texture unit 1
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-
-	// Slowly move over time.
-	F32 offset = fmod(gFrameTimeSeconds*2.f, 100.f);
-	F32 tp0[4] = {16.f/256.f, 0.0f, 0.0f, offset*0.01f};
-	F32 tp1[4] = {0.0f, 16.f/256.f, 0.0f, offset*0.01f};
-	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0);
-	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1);
-
-	glClientActiveTextureARB(GL_TEXTURE0_ARB);
-	glActiveTextureARB(GL_TEXTURE0_ARB);
-	
-	glClearStencil(1);
-	glClear(GL_STENCIL_BUFFER_BIT);
-	LLGLEnable gls_stencil(GL_STENCIL_TEST);
-	glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
-	glStencilFunc(GL_ALWAYS, 0, 0xFFFFFFFF);
-
-	S32 envTex = -1;
-
-	if (gSky.mVOSkyp->getCubeMap())
-	{
-		envTex = gWaterProgram.enableTexture(LLShaderMgr::ENVIRONMENT_MAP, GL_TEXTURE_CUBE_MAP_ARB);
-		gSky.mVOSkyp->getCubeMap()->bind();
-		
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-		LLMatrix4 camera_mat = gCamera->getModelview();
-		LLMatrix4 camera_rot(camera_mat.getMat3());
-		camera_rot.invert();
-
-		glLoadMatrixf((F32 *)camera_rot.mMatrix);
-
-		glMatrixMode(GL_MODELVIEW);
-	}
-
-	S32 diffTex = gWaterProgram.enableTexture(LLShaderMgr::DIFFUSE_MAP);
-    
-	gWaterProgram.bind();
-
-	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-		 iter != mDrawFace.end(); iter++)
-	{
-		LLFace *face = *iter;
-		if (voskyp->isReflFace(face))
-		{
-			continue;
-		}
-		face->bindTexture(diffTex);
-		face->renderIndexed();
-		mIndicesDrawn += face->getIndicesCount();
-	}
-		
-	if (gSky.mVOSkyp->getCubeMap())
-	{
-		gWaterProgram.disableTexture(LLShaderMgr::ENVIRONMENT_MAP, GL_TEXTURE_CUBE_MAP_ARB);
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-	}
-	
-	// Now, disable texture coord generation on texture state 1
-	gWaterProgram.disableTexture(LLShaderMgr::BUMP_MAP);
-	LLImageGL::unbindTexture(bumpTex, GL_TEXTURE_2D);
-
-	glActiveTextureARB(GL_TEXTURE1_ARB);
-	glDisable(GL_TEXTURE_GEN_S); //texture unit 1
-	glDisable(GL_TEXTURE_GEN_T); //texture unit 1
-
-	gWaterProgram.disableTexture(LLShaderMgr::DIFFUSE_MAP);
-	
-	// Disable texture coordinate and color arrays
-	LLImageGL::unbindTexture(diffTex, GL_TEXTURE_2D);
-
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	stop_glerror();
-	
-	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-
-	glUseProgramObjectARB(0);
-	gPipeline.disableLights();
-
-	glActiveTextureARB(GL_TEXTURE0_ARB);
-	glClientActiveTextureARB(GL_TEXTURE0_ARB);
-	glEnable(GL_TEXTURE_2D);
-
-    if (refl_face)
-	{
-		glStencilFunc(GL_NOTEQUAL, 0, 0xFFFFFFFF);
-		renderReflection(refl_face);
-	}
-
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-}
-
 void LLDrawPoolWater::renderReflection(LLFace* face)
 {
 	LLVOSky *voskyp = gSky.mVOSkyp;
@@ -500,47 +354,33 @@ void LLDrawPoolWater::shade()
 {
 	glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 
-	static LLVector2 d1( 0.5f, -0.17f );
-	static LLVector2 d2( 0.58f, -0.67f );
-	static LLVector2 d3( 0.5f, 0.25f );
-
-	static LLVector3 wave1(1,0.42f,1);
-	static LLVector3 wave2(0.58f,0.42f,0.17f);
-	static LLVector3 wave3(0.42f,0.67f,0.33f);
-
-	/*static LLVector2 d1( 0.83f, -1 );
-	static LLVector2 d2( 0.58f, 1 );
-	static LLVector2 d3( 1, -0.88f );
-
-	static LLVector4 wave1(0.75f,0.08f,0.5f,0.67f);
-	static LLVector4 wave2(0.17f,0.33f,0.53f,0.62f);
-	static LLVector4 wave3(0.17f,0.6f,0.67f,1);*/
-
-	/*LLDebugVarMessageBox::show("Wave Direction 1", &d1, LLVector2(1,1), LLVector2(0.01f, 0.01f));
-	LLDebugVarMessageBox::show("Wave Direction 2", &d2, LLVector2(1,1), LLVector2(0.01f, 0.01f));
-	LLDebugVarMessageBox::show("Wave Direction 3", &d3, LLVector2(1,1), LLVector2(0.01f, 0.01f));
-
-	LLDebugVarMessageBox::show("Wave 1", &wave1, LLVector3(2,1,4), LLVector3(0.01f, 0.01f, 0.01f));
-	LLDebugVarMessageBox::show("Wave 2", &wave2, LLVector3(2,1,4), LLVector3(0.01f, 0.01f, 0.01f));
-	LLDebugVarMessageBox::show("Wave 3", &wave3, LLVector3(2,1,4), LLVector3(0.01f, 0.01f, 0.01f));*/
-
 	LLVOSky *voskyp = gSky.mVOSkyp;
+
+	if(voskyp == NULL) 
+	{
+		return;
+	}
 
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
+	
 	LLGLDisable blend(GL_BLEND);
 
 	LLColor3 light_diffuse(0,0,0);
 	F32 light_exp = 0.0f;
 	LLVector3 light_dir;
+	LLColor3 light_color;
 
 	if (gSky.getSunDirection().mV[2] > NIGHTTIME_ELEVATION_COS) 	 
     { 	 
         light_dir  = gSky.getSunDirection(); 	 
-        light_dir.normVec(); 	 
-        light_diffuse   = gSky.mVOSkyp->getSun().getColorCached(); 	 
-        light_diffuse.normVec(); 	 
+        light_dir.normVec(); 	
+		light_color = gSky.getSunDiffuseColor();
+		if(gSky.mVOSkyp) {
+	        light_diffuse = gSky.mVOSkyp->getSun().getColorCached(); 	 
+			light_diffuse.normVec(); 	 
+		}
         light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0); 	 
         light_diffuse *= light_exp + 0.25f; 	 
     } 	 
@@ -548,6 +388,7 @@ void LLDrawPoolWater::shade()
     { 	 
         light_dir       = gSky.getMoonDirection(); 	 
         light_dir.normVec(); 	 
+		light_color = gSky.getMoonDiffuseColor();
         light_diffuse   = gSky.mVOSkyp->getMoon().getColorCached(); 	 
         light_diffuse.normVec(); 	 
         light_diffuse *= 0.5f; 	 
@@ -558,57 +399,112 @@ void LLDrawPoolWater::shade()
 	light_exp *= light_exp;
 	light_exp *= light_exp;
 	light_exp *= light_exp;
-	light_exp *= light_exp;
-	light_exp *= 512.f;
+	light_exp *= 256.f;
 	light_exp = light_exp > 32.f ? light_exp : 32.f;
+
+	LLGLSLShader* shader;
+
+	F32 eyedepth = gCamera->getOrigin().mV[2] - gAgent.getRegion()->getWaterHeight();
+	
+	if (eyedepth < 0.f && LLPipeline::sWaterReflections)
+	{
+		shader = &gUnderWaterProgram;
+	}
+	else
+	{
+		shader = &gWaterProgram;
+	}
 
 	sTime = (F32)LLFrameTimer::getElapsedSeconds()*0.5f;
 	
-	LLCubeMap* skyMap = gSky.mVOSkyp->getCubeMap();
-	
-	gWaterProgram.enableTexture(LLShaderMgr::ENVIRONMENT_MAP, GL_TEXTURE_CUBE_MAP_ARB);
-
-	if (skyMap)
+	S32 reftex = shader->enableTexture(LLShaderMgr::WATER_REFTEX);
+		
+	if (reftex > -1)
 	{
-		skyMap->bind();
-	}
-	else
-	{
-		llwarns << "NULL gSky.mVOSkyp->getCubeMap(), not binding." << llendl;
-	}
+		glActiveTextureARB(GL_TEXTURE0_ARB+reftex);
+		gPipeline.mWaterRef.bindTexture();
+		glActiveTextureARB(GL_TEXTURE0_ARB);
+	}	
 
 	//bind normal map
-	S32 bumpTex = gWaterProgram.enableTexture(LLShaderMgr::BUMP_MAP);
+	S32 bumpTex = shader->enableTexture(LLShaderMgr::BUMP_MAP);
+
+	LLWaterParamManager * param_mgr = LLWaterParamManager::instance();
+
+	// change mWaterNormp if needed
+	if (mWaterNormp->getID() != param_mgr->getNormalMapID())
+	{
+		mWaterNormp = gImageList.getImage(param_mgr->getNormalMapID());
+	}
+
 	mWaterNormp->addTextureStats(1024.f*1024.f);
 	mWaterNormp->bind(bumpTex);
-	
-	gWaterProgram.enableTexture(LLShaderMgr::WATER_SCREENTEX);	
-
-	gWaterProgram.bind();
-	
-	if (!sSkipScreenCopy)
+	if (!gSavedSettings.getBOOL("RenderWaterMipNormal"))
 	{
-		gPipeline.bindScreenToTexture();
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	}
 	else
 	{
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	}
 	
-	glUniform2fvARB(gWaterProgram.mUniform[LLShaderMgr::WATER_FBSCALE], 1, 
-			gPipeline.mScreenScale.mV);
-
-	S32 diffTex = gWaterProgram.enableTexture(LLShaderMgr::DIFFUSE_MAP);
+	S32 screentex = shader->enableTexture(LLShaderMgr::WATER_SCREENTEX);	
+	stop_glerror();
 	
-	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
+	shader->bind();
 
-	glUniform1fARB(gWaterProgram.mUniform[LLShaderMgr::WATER_TIME], sTime);
-	glUniform3fvARB(gWaterProgram.mUniform[LLShaderMgr::WATER_SPECULAR], 1, light_diffuse.mV);
-	glUniform1fARB(gWaterProgram.mUniform[LLShaderMgr::WATER_SPECULAR_EXP], light_exp);
-	glUniform3fvARB(gWaterProgram.mUniform[LLShaderMgr::WATER_EYEVEC], 1, (GLfloat *)(gCamera->getOrigin().mV));
-	glUniform2fvARB(gWaterProgram.mUniform[LLShaderMgr::WATER_WAVE_DIR1], 1, d1.mV);
-	glUniform2fvARB(gWaterProgram.mUniform[LLShaderMgr::WATER_WAVE_DIR2], 1, d2.mV);
-	glUniform3fvARB(gWaterProgram.mUniform[LLShaderMgr::WATER_LIGHT_DIR], 1, light_dir.mV);
+	if (screentex > -1)
+	{
+		shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, sWaterFogColor.mV);
+		shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, 
+			param_mgr->getFogDensity());
+	}
+	
+	gPipeline.mWaterDis.bindTexture();
+
+	if (mVertexShaderLevel == 1)
+	{
+		sWaterFogColor.mV[3] = param_mgr->mDensitySliderValue;
+		shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, sWaterFogColor.mV);
+	}
+
+	F32 screenRes[] = 
+	{
+		1.f/gGLViewport[2],
+		1.f/gGLViewport[3]
+	};
+	shader->uniform2fv("screenRes", 1, screenRes);
+	stop_glerror();
+	
+	S32 diffTex = shader->enableTexture(LLShaderMgr::DIFFUSE_MAP);
+	stop_glerror();
+	
+	light_dir.normVec();
+	sLightDir = light_dir;
+	
+	light_diffuse *= 6.f;
+
+	//shader->uniformMatrix4fv("inverse_ref", 1, GL_FALSE, (GLfloat*) gGLObliqueProjectionInverse.mMatrix);
+	shader->uniform1f(LLShaderMgr::WATER_WATERHEIGHT, eyedepth);
+	shader->uniform1f(LLShaderMgr::WATER_TIME, sTime);
+	shader->uniform3fv(LLShaderMgr::WATER_EYEVEC, 1, gCamera->getOrigin().mV);
+	shader->uniform3fv(LLShaderMgr::WATER_SPECULAR, 1, light_diffuse.mV);
+	shader->uniform1f(LLShaderMgr::WATER_SPECULAR_EXP, light_exp);
+	shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR1, 1, param_mgr->getWave1Dir().mV);
+	shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR2, 1, param_mgr->getWave2Dir().mV);
+	shader->uniform3fv(LLShaderMgr::WATER_LIGHT_DIR, 1, light_dir.mV);
+
+	shader->uniform3fv("normScale", 1, param_mgr->getNormalScale().mV);
+	shader->uniform1f("fresnelScale", param_mgr->getFresnelScale());
+	shader->uniform1f("fresnelOffset", param_mgr->getFresnelOffset());
+	shader->uniform1f("blurMultiplier", param_mgr->getBlurMultiplier());
+
+	F32 sunAngle = llmax(0.f, light_dir.mV[2]);
+	F32 scaledAngle = 1.f - sunAngle;
+
+	shader->uniform1f("sunAngle", sunAngle);
+	shader->uniform1f("scaledAngle", scaledAngle);
+	shader->uniform1f("sunAngle2", 0.1f + 0.2f*sunAngle);
 
 	LLColor4 water_color;
 	LLVector3 camera_up = gCamera->getUpAxis();
@@ -616,13 +512,14 @@ void LLDrawPoolWater::shade()
 	if (gCamera->cameraUnderWater())
 	{
 		water_color.setVec(1.f, 1.f, 1.f, 0.4f);
-		glUniform1fARB(gWaterProgram.mUniform[LLShaderMgr::WATER_REFSCALE], 0.25f);
+		shader->uniform1f(LLShaderMgr::WATER_REFSCALE, param_mgr->getScaleBelow());
 	}
 	else
 	{
 		water_color.setVec(1.f, 1.f, 1.f, 0.5f*(1.f + up_dot));
-		glUniform1fARB(gWaterProgram.mUniform[LLShaderMgr::WATER_REFSCALE], 0.01f);
+		shader->uniform1f(LLShaderMgr::WATER_REFSCALE, param_mgr->getScaleAbove());
 	}
+
 	if (water_color.mV[3] > 0.9f)
 	{
 		water_color.mV[3] = 0.9f;
@@ -642,24 +539,46 @@ void LLDrawPoolWater::shade()
 				continue;
 			}
 
+			LLVOWater* water = (LLVOWater*) face->getViewerObject();
 			face->bindTexture(diffTex);
-			face->renderIndexed();
+
+			sNeedsReflectionUpdate = TRUE;
+			
+			if (water->getUseTexture())
+			{
+				face->renderIndexed();
+			}
+			else
+			{ //smash background faces to far clip plane
+				if (water->getIsEdgePatch())
+				{
+					LLGLClampToFarClip far_clip(glh_get_current_projection());
+					face->renderIndexed();
+				}
+				else
+				{
+					face->renderIndexed();
+				}
+			}
+						
 			mIndicesDrawn += face->getIndicesCount();
 		}
 	}
 	
-	gWaterProgram.disableTexture(LLShaderMgr::ENVIRONMENT_MAP, GL_TEXTURE_CUBE_MAP_ARB);
-	gWaterProgram.disableTexture(LLShaderMgr::WATER_SCREENTEX);
-	gWaterProgram.disableTexture(LLShaderMgr::BUMP_MAP);
-	gWaterProgram.disableTexture(LLShaderMgr::DIFFUSE_MAP);
+	shader->disableTexture(LLShaderMgr::ENVIRONMENT_MAP, GL_TEXTURE_CUBE_MAP_ARB);
+	shader->disableTexture(LLShaderMgr::WATER_SCREENTEX);	
+	shader->disableTexture(LLShaderMgr::BUMP_MAP);
+	shader->disableTexture(LLShaderMgr::DIFFUSE_MAP);
+	shader->disableTexture(LLShaderMgr::WATER_REFTEX);
+	shader->disableTexture(LLShaderMgr::WATER_SCREENDEPTH);
+	shader->unbind();
 
 	glActiveTextureARB(GL_TEXTURE0_ARB);
-	glEnable(GL_TEXTURE_2D);
-	glUseProgramObjectARB(0);
-	
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnable(GL_TEXTURE_2D);
 	glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_FALSE);
+
 }
 
 void LLDrawPoolWater::renderForSelect()

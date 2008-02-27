@@ -39,17 +39,11 @@
 
 #include "llhudtext.h"
 #include "llhudicon.h"
-#include "llhudconnector.h"
 #include "llhudeffectbeam.h"
 #include "llhudeffecttrail.h"
 #include "llhudeffectlookat.h"
 
-//Ventrella
 #include "llvoicevisualizer.h"
-#include "llanimalcontrols.h"
-#include "lllocalanimationobject.h"
-#include "llcape.h"
-// End Ventrella
 
 #include "llagent.h"
 
@@ -154,9 +148,6 @@ LLHUDObject *LLHUDObject::addHUDObject(const U8 type)
 		break;
 	case LL_HUD_ICON:
 		hud_objectp = new LLHUDIcon(type);
-		break;
-	case LL_HUD_CONNECTOR:
-		hud_objectp = new LLHUDConnector(type);
 		break;
 	default:
 		llwarns << "Unknown type of hud object:" << (U32) type << llendl;

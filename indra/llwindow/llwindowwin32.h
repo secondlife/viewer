@@ -122,6 +122,7 @@ protected:
 	~LLWindowWin32();
 
 	void	initCursors();
+	void	initInputDevices();
 	HCURSOR loadColorCursor(LPCTSTR name);
 	BOOL	isValid();
 	void	moveWindow(const LLCoordScreen& position,const LLCoordScreen& size);

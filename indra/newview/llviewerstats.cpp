@@ -537,7 +537,7 @@ void update_statistics(U32 frame_count)
 	gViewerStats->setStat(LLViewerStats::ST_UPDATE_SECS, idle_secs - network_secs);
 	gViewerStats->setStat(LLViewerStats::ST_NETWORK_SECS, network_secs);
 	gViewerStats->setStat(LLViewerStats::ST_IMAGE_SECS, gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_IMAGE_UPDATE));
-	gViewerStats->setStat(LLViewerStats::ST_REBUILD_SECS, gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_REBUILD));
+	gViewerStats->setStat(LLViewerStats::ST_REBUILD_SECS, gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_STATESORT ));
 	gViewerStats->setStat(LLViewerStats::ST_RENDER_SECS, gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_RENDER_GEOMETRY));
 		
 	LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(gAgent.getRegion()->getHost());
@@ -704,11 +704,11 @@ void send_stats()
 	std::string gpu_desc = llformat(
 		"%-6s Class %d ",
 		gGLManager.mGLVendorShort.substr(0,6).c_str(),
-		gFeatureManagerp->getGPUClass())
+		(S32)gFeatureManagerp->getGPUClass())
 		+ gFeatureManagerp->getGPUString();
 
 	system["gpu"] = gpu_desc;
-	system["gpu_class"] = gFeatureManagerp->getGPUClass();
+	system["gpu_class"] = (S32)gFeatureManagerp->getGPUClass();
 	system["gpu_vendor"] = gGLManager.mGLVendorShort;
 	system["gpu_version"] = gGLManager.mDriverVersionVendorString;
 

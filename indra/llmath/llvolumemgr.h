@@ -56,6 +56,7 @@ public:
 
 	BOOL derefLOD(LLVolume *volumep);
 	static S32 getDetailFromTan(const F32 tan_angle);
+	static void getDetailProximity(const F32 tan_angle, F32 &to_lower, F32& to_higher);
 	static F32 getVolumeScaleFromDetail(const S32 detail);
 
 	LLVolume *getLOD(const S32 detail);

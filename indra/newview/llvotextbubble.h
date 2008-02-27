@@ -54,7 +54,7 @@ public:
 								LLStrider<LLVector3>& normalsp, 
 								LLStrider<LLVector2>& texcoordsp,
 								LLStrider<LLColor4U>& colorsp, 
-								LLStrider<U32>& indicesp);
+								LLStrider<U16>& indicesp);
 
 	virtual U32 getPartitionType() const;
 

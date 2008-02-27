@@ -36,6 +36,7 @@
 // indra includes
 #include "llparcel.h"
 #include "llgl.h"
+#include "llglimmediate.h"
 #include "v4color.h"
 #include "v2math.h"
 
@@ -829,14 +830,12 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 			continue;
 		}
 
-		glBegin(GL_TRIANGLE_STRIP);
+		gGL.begin(GL_TRIANGLE_STRIP);
 
 		for (j = 0; j < vertex_per_edge; j++)
 		{
-			// JC - This doesn't work
-			//glTexCoord2fv(mTexCoordArray + FLOATS_PER_TEX_COORD*offset);
-			glColor4ubv(colorp);
-			glVertex3fv(vertexp);
+			gGL.color4ubv(colorp);
+			gGL.vertex3fv(vertexp);
 
 			colorp  += BYTES_PER_COLOR;
 			vertexp += FLOATS_PER_VERTEX;			
@@ -844,7 +843,34 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 
 		drawn += vertex_per_edge;
 
-		glEnd();
+		gGL.end();
+
+		LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
+		
+		colorp  = mColorArray  + BYTES_PER_COLOR   * i;
+		vertexp = mVertexArray + FLOATS_PER_VERTEX * i;
+
+		gGL.begin(GL_TRIANGLE_STRIP);
+
+		for (j = 0; j < vertex_per_edge; j++)
+		{
+			U8 color[4];
+			color[0] = colorp[0];
+			color[1] = colorp[1];
+			color[2] = colorp[2];
+			color[3] = colorp[3]/4;
+
+			gGL.color4ubv(color);
+			gGL.vertex3fv(vertexp);
+
+			colorp  += BYTES_PER_COLOR;
+			vertexp += FLOATS_PER_VERTEX;			
+		}
+
+		drawn += vertex_per_edge;
+
+		gGL.end();
+		
 	}
 
 	glPopMatrix();

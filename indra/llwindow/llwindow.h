@@ -258,7 +258,7 @@ protected:
 	ESwapMethod mSwapMethod;
 	BOOL		mHideCursorPermanent;
 	U32			mFlags;
-	F32			mJoyAxis[6]; 
+	F32			mJoyAxis[8]; 
 	U8			mJoyButtonState[16];
 	U16			mHighSurrogate;
 

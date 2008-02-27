@@ -70,8 +70,8 @@ public:
 	F32				getMinValue() const		{ return mMinValue; }
 	F32				getMaxValue() const		{ return mMaxValue; }
 	F32				getIncrement() const	{ return mIncrement; }
-	void			setMinValue(F32 min_value) {mMinValue = min_value;}
-	void			setMaxValue(F32 max_value) {mMaxValue = max_value;}
+	void			setMinValue(F32 min_value) {mMinValue = min_value; updateThumbRect(); }
+	void			setMaxValue(F32 max_value) {mMaxValue = max_value; updateThumbRect(); }
 	void			setIncrement(F32 increment) {mIncrement = increment;}
 	void			setMouseDownCallback( void (*cb)(LLUICtrl* ctrl, void* userdata) ) { mMouseDownCallback = cb; }
 	void			setMouseUpCallback(	void (*cb)(LLUICtrl* ctrl, void* userdata) ) { mMouseUpCallback = cb; }

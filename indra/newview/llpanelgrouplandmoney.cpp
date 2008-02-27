@@ -311,7 +311,6 @@ void LLPanelGroupLandMoney::impl::setYourContributionTextField(int contrib)
 	if ( mYourContributionEditorp )
 	{
 		mYourContributionEditorp->setText(buffer);
-		mYourContributionEditorp->draw();
 	}
 }
 

@@ -463,7 +463,6 @@ void LLAgent::cleanup()
 	mPointAt = NULL;
 	mRegionp = NULL;
 	setFocusObject(NULL);
-	mFadeObjects.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -833,19 +832,17 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 
 			setPositionAgent(getPositionAgent() - delta);
 			LLVector3 camera_position_agent = gCamera->getOrigin();
+			
 			gCamera->setOrigin(camera_position_agent - delta);
 
 			// Update all of the regions.
 			gWorldPointer->updateAgentOffset(agent_offset_global);
 
 			// Hack to keep sky in the agent's region, otherwise it may get deleted - DJS 08/02/02
+			// *TODO: possibly refactor into gSky->setAgentRegion(regionp)? -Brad
 			if (gSky.mVOSkyp)
 			{
 				gSky.mVOSkyp->setRegion(regionp);
-			}
-			if (gSky.mVOStarsp)
-			{
-				gSky.mVOStarsp->setRegion(regionp);
 			}
 			if (gSky.mVOGroundp)
 			{
@@ -1390,12 +1387,6 @@ LLVector3d LLAgent::calcFocusOffset(LLViewerObject *object, S32 x, S32 y)
 	if (!is_avatar) 
 	{
 		//unproject relative clicked coordinate from window coordinate using GL
-		glPushMatrix();
-		glMatrixMode(GL_PROJECTION);
-		glLoadMatrixf((const GLfloat*) gCamera->getProjection().mMatrix);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadMatrixf((const GLfloat*) gCamera->getModelview().mMatrix);
-		glMultMatrixf((const GLfloat*) obj_matrix.mMatrix);
 
 		GLint viewport[4];
 		GLdouble modelview[16];
@@ -1403,8 +1394,16 @@ LLVector3d LLAgent::calcFocusOffset(LLViewerObject *object, S32 x, S32 y)
 		GLfloat winX, winY, winZ;
 		GLdouble posX, posY, posZ;
 
-		glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
-		glGetDoublev( GL_PROJECTION_MATRIX, projection );
+		// convert our matrices to something that has a multiply that works
+		glh::matrix4f newModel((F32*)gCamera->getModelview().mMatrix);
+		glh::matrix4f tmpObjMat((F32*)obj_matrix.mMatrix);
+		newModel *= tmpObjMat;
+
+		for(U32 i = 0; i < 16; ++i)
+		{
+			modelview[i] = newModel.m[i];
+			projection[i] = gCamera->getProjection().mMatrix[i/4][i%4];
+		}
 		glGetIntegerv( GL_VIEWPORT, viewport );
 
 		winX = ((F32)x) * gViewerWindow->getDisplayScale().mV[VX];
@@ -1413,14 +1412,12 @@ LLVector3d LLAgent::calcFocusOffset(LLViewerObject *object, S32 x, S32 y)
 
 		gluUnProject( winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
 
-		glPopMatrix();
-
-		LLVector3 obj_rel = LLVector3((F32)posX, (F32)posY, (F32)posZ);
-		LLVector3 obj_center = LLVector3(0, 0, 0);
-		obj_rel = obj_rel * object->getRenderMatrix(); //mDrawable->getWorldMatrix();
-		obj_center = obj_center * object->getRenderMatrix();//mDrawable->getWorldMatrix();
-		obj_rel -= object->getRenderPosition();//mDrawable->getWorldPosition();
+		LLVector3 obj_rel((F32)posX, (F32)posY, (F32)posZ);
+		obj_rel = obj_rel * object->getRenderMatrix();
+		obj_rel -= object->getRenderPosition();
 		
+		LLVector3 obj_center = LLVector3(0, 0, 0) * object->getRenderMatrix();
+
 		//now that we have the object relative position, we should bias toward the center of the object 
 		//based on the distance of the camera to the focus point vs. the distance of the camera to the focus
 
@@ -3151,74 +3148,6 @@ void LLAgent::updateCamera()
 	mCameraFOVZoomFactor = calcCameraFOVZoomFactor();
 	camera_target_global = focus_target_global + (camera_target_global - focus_target_global) * (1.f + mCameraFOVZoomFactor);
 
-	// do alpha fade on focus object
-	F32 fade_increment = mFocusObjectFadeTimer.getElapsedTimeAndResetF32();
-
-	if (mFocusObject.notNull() && !mFocusObject->isAttachment() && mFocusObject->mDrawable.notNull())
-	{
-		F32 increment = fade_increment;
-		if (mFocusObjectDist < -0.2f)
-		{
-			increment *= -1.f;
-		}
-
-		if (mFocusObject->getVObjRadius() > MIN_RADIUS_ALPHA_SIZZLE)
-		{
-			S32 num_faces = mFocusObject->mDrawable->getNumFaces();
-			for (S32 i = 0; i < num_faces; i++)
-			{
-				LLFace* facep = mFocusObject->mDrawable->getFace(i);
-				F32 fade = facep->mAlphaFade;
-				fade = llclamp(fade + increment, 0.f, 1.f);
-				facep->mAlphaFade = fade;
-			}
-		}
-	}
-
-	// do alpha fade in on fade objects
-	std::set< LLPointer<LLViewerObject> >::iterator fade_object_it;
-	for (fade_object_it = mFadeObjects.begin(); fade_object_it != mFadeObjects.end(); )
-	{
-		LLViewerObject* fade_object = *fade_object_it;
-		if (fade_object->isDead())
-		{
-			// remove from list
-			mFadeObjects.erase(fade_object_it++);
-		}
-		else
-		{
-			LLDrawable* drawablep = fade_object->mDrawable;
-			if (drawablep && fade_object->getVObjRadius() > MIN_RADIUS_ALPHA_SIZZLE)
-			{
-				S32 num_faces = drawablep->getNumFaces();
-				BOOL fade_done = TRUE;
-				for (S32 i = 0; i < num_faces; i++)
-				{
-					LLFace* facep = drawablep->getFace(i);
-					F32 fade = facep->mAlphaFade;
-					fade = llclamp(fade - fade_increment, 0.f, 1.f);
-					facep->mAlphaFade = fade;
-					if (fade > 0.f)
-					{
-						fade_done = FALSE;
-					}
-				}
-				if (fade_done)
-				{
-					mFadeObjects.erase(fade_object_it++);
-				}
-				else
-				{
-					fade_object_it++;
-				}
-			}
-			else
-			{
-				fade_object_it++;
-			}
-		}
-	}
-
 	mShowAvatar = TRUE; // can see avatar by default
 
 	// Adjust position for animation
@@ -4316,19 +4245,6 @@ void LLAgent::clearFocusObject()
 
 void LLAgent::setFocusObject(LLViewerObject* object)
 {
-	if (mFocusObject.notNull() && 
-		mFocusObject->mDrawable.notNull() && 
-		mFocusObject->getPCode() == LL_PCODE_VOLUME &&
-		mFocusObject != object)
-	{
-		LLPointer<LLViewerObject> fade_object_ptr(mFocusObject);
-
-		if (fade_object_ptr.notNull() && mFadeObjects.find(fade_object_ptr) == mFadeObjects.end())
-		{
-			mFadeObjects.insert(fade_object_ptr);
-		}
-	}
-
 	mFocusObject = object;
 }
 
@@ -5783,6 +5699,9 @@ bool LLAgent::teleportCore(bool is_local)
 	{
 		gTeleportDisplay = TRUE;
 		gAgent.setTeleportState( LLAgent::TELEPORT_START );
+
+		//release geometry from old location
+		gPipeline.resetVertexBuffers();
 	}
 	make_ui_sound("UISndTeleportOut");
 	

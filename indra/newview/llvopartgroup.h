@@ -54,7 +54,6 @@ public:
 
 	/*virtual*/ BOOL    isActive() const; // Whether this object needs to do an idleUpdate.
 	BOOL idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time);
-	BOOL isParticle();
 
 	virtual F32 getBinRadius();
 	virtual void updateSpatialExtents(LLVector3& newMin, LLVector3& newMax);
@@ -70,7 +69,7 @@ public:
 								LLStrider<LLVector3>& normalsp, 
 								LLStrider<LLVector2>& texcoordsp,
 								LLStrider<LLColor4U>& colorsp, 
-								LLStrider<U32>& indicesp);
+								LLStrider<U16>& indicesp);
 
 	void updateFaceSize(S32 idx) { }
 	F32 getPartSize(S32 idx);
@@ -81,8 +80,6 @@ protected:
 	~LLVOPartGroup();
 
 	LLViewerPartGroup *mViewerPartGroupp;
-	LLVector3 mExtents[2];
-	LLColor4 mDebugColor;
 };
 
 #endif // LL_LLVOPARTGROUP_H

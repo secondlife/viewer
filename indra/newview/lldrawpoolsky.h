@@ -36,12 +36,14 @@
 
 class LLSkyTex;
 class LLHeavenBody;
+class LLGLSLShader;
 
 class LLDrawPoolSky : public LLFacePool
 {
 private:
 	LLSkyTex			*mSkyTex;
 	LLHeavenBody		*mHB[2]; // Sun and Moon
+	LLGLSLShader		*mShader;
 
 public:
 	enum
@@ -59,6 +61,7 @@ public:
 	/*virtual*/ void prerender();
 	/*virtual*/ void render(S32 pass = 0);
 	/*virtual*/ void renderForSelect();
+	/*virtual*/ void endRenderPass(S32 pass);
 	void setSkyTex(LLSkyTex* const st) { mSkyTex = st; }
 	void setSun(LLHeavenBody* sun_flag) { mHB[0] = sun_flag; }
 	void setMoon(LLHeavenBody* moon) { mHB[1] = moon; }
@@ -67,7 +70,6 @@ public:
 	void renderHeavenlyBody(U8 hb, LLFace* face);
 	void renderSunHalo(LLFace* face);
 
-	virtual S32 getMaterialAttribIndex() { return 0; }
 };
 
 #endif // LL_LLDRAWPOOLSKY_H

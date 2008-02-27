@@ -46,6 +46,7 @@
 #include "llcombobox.h"
 #include "lldrawable.h"
 #include "lldrawpoolavatar.h"
+#include "llglimmediate.h"
 #include "llface.h"
 #include "llkeyframemotion.h"
 #include "lllineeditor.h"
@@ -349,21 +350,21 @@ void LLFloaterAnimPreview::draw()
 
 	if (mMotionID.notNull() && mAnimPreview)
 	{
-		glColor3f(1.f, 1.f, 1.f);
+		gGL.color3f(1.f, 1.f, 1.f);
 		mAnimPreview->bindTexture();
 
-		glBegin( GL_QUADS );
+		gGL.begin( GL_QUADS );
 		{
-			glTexCoord2f(0.f, 1.f);
-			glVertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
-			glTexCoord2f(0.f, 0.f);
-			glVertex2i(PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
-			glTexCoord2f(1.f, 0.f);
-			glVertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
-			glTexCoord2f(1.f, 1.f);
-			glVertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
+			gGL.texCoord2f(0.f, 1.f);
+			gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
+			gGL.texCoord2f(0.f, 0.f);
+			gGL.vertex2i(PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
+			gGL.texCoord2f(1.f, 0.f);
+			gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
+			gGL.texCoord2f(1.f, 1.f);
+			gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
 		}
-		glEnd();
+		gGL.end();
 
 		mAnimPreview->unbindTexture();
 
@@ -1040,25 +1041,27 @@ BOOL	LLPreviewAnimation::render()
 	LLVOAvatar* avatarp = mDummyAvatar;
 	
 	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
+	gGL.pushMatrix();
 	glLoadIdentity();
 	glOrtho(0.0f, mWidth, 0.0f, mHeight, -1.0f, 1.0f);
 
 	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
+	gGL.pushMatrix();
 	glLoadIdentity();
 
 	LLGLSUIDefault def;
 	LLGLSNoTexture gls_no_texture;
-	glColor4f(0.15f, 0.2f, 0.3f, 1.f);
+	gGL.color4f(0.15f, 0.2f, 0.3f, 1.f);
 
 	gl_rect_2d_simple( mWidth, mHeight );
 
 	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
+	gGL.popMatrix();
 
 	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
+	gGL.popMatrix();
+
+	gGL.stop();
 
 	LLVector3 target_pos = avatarp->mRoot.getWorldPosition();
 
@@ -1105,7 +1108,8 @@ BOOL	LLPreviewAnimation::render()
 		LLDrawPoolAvatar *avatarPoolp = (LLDrawPoolAvatar *)avatarp->mDrawable->getFace(0)->getPool();
 		avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
 	}
-	
+
+	gGL.start();
 	return TRUE;
 }
 

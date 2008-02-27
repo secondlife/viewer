@@ -131,7 +131,6 @@ public:
 	virtual void dump();
 
 	void setVisible( BOOL visible, BOOL recursive );
-	virtual void writeCAL3D(apr_file_t* fp);
 
 public:
 	static BOOL	sDisableLOD;

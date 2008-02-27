@@ -44,6 +44,7 @@
 
 // Require DirectInput version 8
 #define DIRECTINPUT_VERSION 0x0800
+
 #include <dinput.h>
 
 
@@ -428,7 +429,7 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 	mhInstance = GetModuleHandle(NULL);
 	mWndProc = NULL;
 
-	mSwapMethod = SWAP_METHOD_UNDEFINED;
+	mSwapMethod = SWAP_METHOD_EXCHANGE;
 
 	// No WPARAM yet.
 	mLastSizeWParam = 0;
@@ -774,7 +775,7 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 			attrib_list[cur_attrib++] = GL_TRUE;
 
 			attrib_list[cur_attrib++] = WGL_COLOR_BITS_ARB;
-			attrib_list[cur_attrib++] = 24;
+			attrib_list[cur_attrib++] = 32;
 
 			attrib_list[cur_attrib++] = WGL_RED_BITS_ARB;
 			attrib_list[cur_attrib++] = 8;
@@ -1018,6 +1019,11 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 	// based on the system's (or user's) default settings.
 	allowLanguageTextInput(NULL, FALSE);
 
+	initInputDevices();
+}
+
+void LLWindowWin32::initInputDevices()
+{
 	// Direct Input
 	HRESULT hr;
 
@@ -1752,6 +1758,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, LLCoordScreen size, BOOL disa
 
 	SetWindowLong(mWindowHandle, GWL_USERDATA, (U32)this);
 	show();
+
+	initInputDevices();
 
 	// ok to post quit messages now
 	mPostQuit = TRUE;
@@ -3199,6 +3207,8 @@ void LLWindowWin32::updateJoystick( )
 	mJoyAxis[3] = js.lRx/1000.f;
 	mJoyAxis[4] = js.lRy/1000.f;
 	mJoyAxis[5] = js.lRz/1000.f;
+	mJoyAxis[6] = js.rglSlider[0]/1000.f;
+	mJoyAxis[7] = js.rglSlider[1]/1000.f;
 
 	for (U32 i = 0; i < 16; i++)
 	{

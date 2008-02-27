@@ -175,7 +175,6 @@ public:
 
 	F32 getDensityRegion(const LLVector3 &pos_region);		// "position" is in local coordinates
 
-	void renderDensityField();
 	void decompress(LLBitPack &bitpack, LLGroupHeader *group_header);
 
 	LLCloudLayer* getNeighbor(const S32 n) const					{ return mNeighbors[n]; }

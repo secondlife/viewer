@@ -39,13 +39,15 @@
 #include "v4color.h"
 #include "v4coloru.h"
 #include "llvosky.h"
-#include "llvostars.h"
 #include "llvoground.h"
 
 const F32 NIGHTTIME_ELEVATION			= -8.0f;	// degrees
 const F32 NIGHTTIME_ELEVATION_COS		= (F32)sin(NIGHTTIME_ELEVATION*DEG_TO_RAD);
 
 class LLViewerCamera;
+
+class LLVOWLSky;
+class LLVOWLClouds;
 
 
 class LLSky  
@@ -64,9 +66,7 @@ public:
 	void setSunDirection(const LLVector3 &sun_direction, const LLVector3 &sun_ang_velocity);
 	void setSunTargetDirection(const LLVector3 &sun_direction, const LLVector3 &sun_ang_velocity);
 
-
 	LLColor4 getFogColor() const;
-
 
 	void setCloudDensityAtAgent(F32 cloud_density);
 	void setWind(const LLVector3& wind);
@@ -88,20 +88,23 @@ public:
 	LLVector3 getMoonDirection() const;
 	LLColor4 getSunDiffuseColor() const;
 	LLColor4 getMoonDiffuseColor() const;
+	LLColor4 getSunAmbientColor() const;
+	LLColor4 getMoonAmbientColor() const;
 	LLColor4 getTotalAmbientColor() const;
 	BOOL sunUp() const;
-	LLColor4 calcInScatter(LLColor4& transp, const LLVector3 &point, F32 exag) const;
 
 	F32 getSunPhase() const;
 	void setSunPhase(const F32 phase);
 
 	void destroyGL();
 	void restoreGL();
+	void resetVertexBuffers();
 
 public:
 	LLPointer<LLVOSky>		mVOSkyp;	// Pointer to the LLVOSky object (only one, ever!)
-	LLPointer<LLVOStars>	mVOStarsp;	// Pointer to the LLVOStars object (only one, ever!)
 	LLPointer<LLVOGround>	mVOGroundp;
+
+	LLPointer<LLVOWLSky>	mVOWLSkyp;
 
 	LLVector3 mSunTargDir;
 

@@ -45,6 +45,7 @@
 #include "llviewerimagelist.h"
 #include "llvolume.h"
 #include "pipeline.h"
+#include "llviewerregion.h"
 
 LLVOTextBubble::LLVOTextBubble(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 :	LLAlphaObject(id, pcode, regionp)
@@ -236,7 +237,7 @@ void LLVOTextBubble::getGeometry(S32 idx,
 								LLStrider<LLVector3>& normalsp, 
 								LLStrider<LLVector2>& texcoordsp,
 								LLStrider<LLColor4U>& colorsp, 
-								LLStrider<U32>& indicesp) 
+								LLStrider<U16>& indicesp) 
 {
 	if (idx == 0 || idx == 2)
 	{
@@ -265,5 +266,5 @@ void LLVOTextBubble::getGeometry(S32 idx,
 
 U32 LLVOTextBubble::getPartitionType() const
 { 
-	return LLPipeline::PARTITION_PARTICLE; 
+	return LLViewerRegion::PARTITION_PARTICLE; 
 }

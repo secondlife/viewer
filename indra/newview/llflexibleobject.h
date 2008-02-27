@@ -98,7 +98,8 @@ class LLVolumeImplFlexible : public LLVolumeInterface
 		void updateRelativeXform();
 		void doFlexibleUpdate(); // Called to update the simulation
 		void doFlexibleRebuild(); // Called to rebuild the geometry
-		
+		void preRebuild();
+
 		//void				setAttributes( LLFlexibleObjectData );
 		void				setParentPositionAndRotationDirectly( LLVector3 p, LLQuaternion r );
 		void				setUsingCollisionSphere( bool u );

@@ -232,6 +232,10 @@ void LLPanelVolume::getState( )
 	}
 	else
 	{
+		((LLPanel *) getChildByName ("Light Intensity", true))->clear();
+		((LLPanel *) getChildByName ("Light Radius", true))->clear();
+		((LLPanel *) getChildByName ("Light Falloff", true))->clear();
+
 		childSetEnabled("label color",false);	
 		LLColorSwatchCtrl* LightColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
 		if(LightColorSwatch)
@@ -288,6 +292,15 @@ void LLPanelVolume::getState( )
 	}
 	else
 	{
+		((LLPanel *) getChildByName ("FlexNumSections", true))->clear();
+		((LLPanel *) getChildByName ("FlexGravity", true))->clear();
+		((LLPanel *) getChildByName ("FlexTension", true))->clear();
+		((LLPanel *) getChildByName ("FlexFriction", true))->clear();
+		((LLPanel *) getChildByName ("FlexWind", true))->clear();
+		((LLPanel *) getChildByName ("FlexForceX", true))->clear();
+		((LLPanel *) getChildByName ("FlexForceY", true))->clear();
+		((LLPanel *) getChildByName ("FlexForceZ", true))->clear();
+
 		childSetEnabled("FlexNumSections",false);
 		childSetEnabled("FlexGravity",false);
 		childSetEnabled("FlexTension",false);

@@ -40,7 +40,10 @@
 #include "llviewercontrol.h"
 #include "llviewerimage.h"
 #include "llvertexbuffer.h"
+#include "llviewerdisplay.h"
+#include "llglimmediate.h"
 
+void render_ui_and_swap_if_needed();
 
 // static
 LLLinkedList<LLDynamicTexture> LLDynamicTexture::sInstances[ LLDynamicTexture::ORDER_COUNT ];
@@ -216,15 +219,22 @@ BOOL LLDynamicTexture::updateAllInstances()
 			dynamicTexture = LLDynamicTexture::sInstances[order].getNextData())
 		{
 			if (dynamicTexture->needsRender())
-			{	
+			{
+				render_ui_and_swap_if_needed();
+				glClear(GL_DEPTH_BUFFER_BIT);
+				gDisplaySwapBuffers = FALSE;
+				
+				LLVertexBuffer::startRender();
+				gGL.start();
+								
 				dynamicTexture->preRender();	// Must be called outside of startRender()
 
-				LLVertexBuffer::startRender();
 				if (dynamicTexture->render())
 				{
 					result = TRUE;
 					sNumRenders++;
 				}
+				gGL.stop();
 				LLVertexBuffer::stopRender();
 		
 				dynamicTexture->postRender(result);

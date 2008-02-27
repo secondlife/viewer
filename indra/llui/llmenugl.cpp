@@ -47,6 +47,7 @@
 
 #include "llmath.h"
 #include "llgl.h"
+#include "llglimmediate.h"
 #include "llfocusmgr.h"
 #include "llfont.h"
 #include "llcoord.h"
@@ -470,7 +471,7 @@ void LLMenuItemGL::draw( void )
 	// let disabled items be highlighted, just don't draw them as such
 	if( getEnabled() && getHighlight() && !mBriefItem)
 	{
-		glColor4fv( sHighlightBackground.mV );
+		gGL.color4fv( sHighlightBackground.mV );
 		gl_rect_2d( 0, getRect().getHeight(), getRect().getWidth(), 0 );
 	}
 
@@ -580,7 +581,7 @@ LLMenuItemSeparatorGL::LLMenuItemSeparatorGL( const LLString &name ) :
 
 void LLMenuItemSeparatorGL::draw( void )
 {
-	glColor4fv( getDisabledColor().mV );
+	gGL.color4fv( getDisabledColor().mV );
 	const S32 y = getRect().getHeight() / 2;
 	const S32 PAD = 6;
 	gl_line_2d( PAD, y, getRect().getWidth() - PAD, y );
@@ -701,17 +702,17 @@ void LLMenuItemTearOffGL::draw()
 	// disabled items can be highlighted, but shouldn't render as such
 	if( getEnabled() && getHighlight() && !isBriefItem())
 	{
-		glColor4fv( getHighlightBGColor().mV );
+		gGL.color4fv( getHighlightBGColor().mV );
 		gl_rect_2d( 0, getRect().getHeight(), getRect().getWidth(), 0 );
 	}
 
 	if (getEnabled())
 	{
-		glColor4fv( getEnabledColor().mV );
+		gGL.color4fv( getEnabledColor().mV );
 	}
 	else
 	{
-		glColor4fv( getDisabledColor().mV );
+		gGL.color4fv( getDisabledColor().mV );
 	}
 	const S32 y = getRect().getHeight() / 3;
 	const S32 PAD = 6;
@@ -1638,7 +1639,7 @@ void LLMenuItemBranchDownGL::draw( void )
 
 	if( getHighlight() )
 	{
-		glColor4fv( getHighlightBGColor().mV );
+		gGL.color4fv( getHighlightBGColor().mV );
 		gl_rect_2d( 0, getRect().getHeight(), getRect().getWidth(), 0 );
 	}
 
@@ -2949,7 +2950,7 @@ void LLMenuGL::draw( void )
 
 void LLMenuGL::drawBackground(LLMenuItemGL* itemp, LLColor4& color)
 {
-	glColor4fv( color.mV );
+	gGL.color4fv( color.mV );
 	LLRect item_rect = itemp->getRect();
 	gl_rect_2d( 0, item_rect.getHeight(), item_rect.getWidth(), 0);
 }
@@ -3476,9 +3477,9 @@ void LLPieMenu::draw()
 	F32 center_y = height/2;
 	S32 steps = 100;
 
-	glPushMatrix();
+	gGL.pushMatrix();
 	{
-		glTranslatef(center_x, center_y, 0.f);
+		gGL.translatef(center_x, center_y, 0.f);
 
 		F32 line_width = LLUI::sConfigGroup->getF32("PieMenuLineWidth");
 		LLColor4 line_color = LLUI::sColorsGroup->getColor("PieMenuLineColor");
@@ -3517,16 +3518,16 @@ void LLPieMenu::draw()
 		gl_washer_spokes_2d( mCurRadius, (F32)PIE_CENTER_SIZE, 8, line_color, outer_color );
 
 		// inner circle
-		glColor4fv( line_color.mV );
+		gGL.color4fv( line_color.mV );
 		gl_circle_2d( 0, 0, (F32)PIE_CENTER_SIZE, steps, FALSE );
 
 		// outer circle
-		glColor4fv( outer_color.mV );
+		gGL.color4fv( outer_color.mV );
 		gl_circle_2d( 0, 0, mCurRadius, steps, FALSE );
 
 		LLUI::setLineWidth(1.0f);
 	}
-	glPopMatrix();
+	gGL.popMatrix();
 
 	mHoverThisFrame = FALSE;
 
@@ -3541,10 +3542,10 @@ void LLPieMenu::drawBackground(LLMenuItemGL* itemp, LLColor4& color)
 	F32 center_y = height/2;
 	S32 steps = 100;
 
-	glColor4fv( color.mV );
-	glPushMatrix();
+	gGL.color4fv( color.mV );
+	gGL.pushMatrix();
 	{
-		glTranslatef(center_x - itemp->getRect().mLeft, center_y - itemp->getRect().mBottom, 0.f);
+		gGL.translatef(center_x - itemp->getRect().mLeft, center_y - itemp->getRect().mBottom, 0.f);
 
 		item_list_t::iterator item_iter;
 		S32 i = 0;
@@ -3564,7 +3565,7 @@ void LLPieMenu::drawBackground(LLMenuItemGL* itemp, LLColor4& color)
 			i++;
 		}
 	}
-	glPopMatrix();
+	gGL.popMatrix();
 }
 
 // virtual

@@ -312,7 +312,8 @@ inline bool operator!=(const LLVector4 &a, const LLVector4 &b)
 {
 	return (  (a.mV[VX] != b.mV[VX])
 			||(a.mV[VY] != b.mV[VY])
-			||(a.mV[VZ] != b.mV[VZ]));
+			||(a.mV[VZ] != b.mV[VZ])
+			||(a.mV[VW] != b.mV[VW]) );
 }
 
 inline const LLVector4& operator+=(LLVector4 &a, const LLVector4 &b)

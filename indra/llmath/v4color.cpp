@@ -36,7 +36,7 @@
 #include "v4color.h"
 #include "v4coloru.h"
 #include "v3color.h"
-//#include "vmath.h"
+#include "v4math.h"
 #include "llmath.h"
 
 // LLColor4
@@ -151,6 +151,14 @@ LLColor4::LLColor4(const LLColor4U& color4u)
 	mV[VY] = color4u.mV[VY] * SCALE;
 	mV[VZ] = color4u.mV[VZ] * SCALE;
 	mV[VW] = color4u.mV[VW] * SCALE;
+}
+
+LLColor4::LLColor4(const LLVector4& vector4)
+{
+	mV[VX] = vector4.mV[VX];
+	mV[VY] = vector4.mV[VY];
+	mV[VZ] = vector4.mV[VZ];
+	mV[VW] = vector4.mV[VW];
 }
 
 const LLColor4&	LLColor4::setVec(const LLColor4U& color4u)

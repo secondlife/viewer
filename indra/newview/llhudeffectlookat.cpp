@@ -33,6 +33,8 @@
 
 #include "llhudeffectlookat.h"
 
+#include "llglimmediate.h"
+
 #include "message.h"
 #include "llagent.h"
 #include "llvoavatar.h"
@@ -498,19 +500,19 @@ void LLHUDEffectLookAt::render()
 		glPushMatrix();
 		glTranslatef(target.mV[VX], target.mV[VY], target.mV[VZ]);
 		glScalef(0.3f, 0.3f, 0.3f);
-		glBegin(GL_LINES);
+		gGL.begin(GL_LINES);
 		{
 			LLColor3 color = (*mAttentions)[mTargetType].mColor;
-			glColor3f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE]);
-			glVertex3f(-1.f, 0.f, 0.f);
-			glVertex3f(1.f, 0.f, 0.f);
+			gGL.color3f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE]);
+			gGL.vertex3f(-1.f, 0.f, 0.f);
+			gGL.vertex3f(1.f, 0.f, 0.f);
 
-			glVertex3f(0.f, -1.f, 0.f);
-			glVertex3f(0.f, 1.f, 0.f);
+			gGL.vertex3f(0.f, -1.f, 0.f);
+			gGL.vertex3f(0.f, 1.f, 0.f);
 
-			glVertex3f(0.f, 0.f, -1.f);
-			glVertex3f(0.f, 0.f, 1.f);
-		} glEnd();
+			gGL.vertex3f(0.f, 0.f, -1.f);
+			gGL.vertex3f(0.f, 0.f, 1.f);
+		} gGL.end();
 		glPopMatrix();
 	}
 }

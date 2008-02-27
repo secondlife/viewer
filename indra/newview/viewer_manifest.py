@@ -56,6 +56,8 @@ class ViewerManifest(LLManifest):
 
                         # include the entire shaders directory recursively
                         self.path("shaders")
+                        # ... and the entire windlight directory
+                        self.path("windlight")
                         self.end_prefix("app_settings")
 
                 if self.prefix(src="character"):

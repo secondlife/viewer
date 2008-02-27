@@ -47,7 +47,6 @@
 #include "lldbstrings.h"
 #include "lleconomy.h"
 #include "llfilepicker.h"
-#include "llfloaterimport.h"
 #include "llfocusmgr.h"
 #include "llfollowcamparams.h"
 #include "llfloaterreleasemsg.h"

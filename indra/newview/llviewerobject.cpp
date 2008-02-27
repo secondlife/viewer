@@ -86,7 +86,6 @@
 #include "llvolumemessage.h"
 #include "llvopartgroup.h"
 #include "llvosky.h"
-#include "llvostars.h"
 #include "llvosurfacepatch.h"
 #include "llvotextbubble.h"
 #include "llvotree.h"
@@ -96,6 +95,7 @@
 #include "llui.h"
 #include "pipeline.h"
 #include "llappviewer.h"
+#include "llvowlsky.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -143,14 +143,14 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 	  res = new LLVOSurfacePatch(id, pcode, regionp); break;
 	case LL_VO_SKY:
 	  res = new LLVOSky(id, pcode, regionp); break;
-	case LL_VO_STARS:
-	  res = new LLVOStars(id, pcode, regionp); break;
 	case LL_VO_WATER:
 	  res = new LLVOWater(id, pcode, regionp); break;
 	case LL_VO_GROUND:
 	  res = new LLVOGround(id, pcode, regionp); break;
 	case LL_VO_PART_GROUP:
 	  res = new LLVOPartGroup(id, pcode, regionp); break;
+	case LL_VO_WL_SKY:
+	  res = new LLVOWLSky(id, pcode, regionp); break;
 	default:
 	  llwarns << "Unknown object pcode " << (S32)pcode << llendl;
 	  res = NULL; break;
@@ -193,7 +193,6 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mOnMap(FALSE),
 	mStatic(FALSE),
 	mNumFaces(0),
-	mLastUpdateFrame(0),
 	mTimeDilation(1.f),
 	mRotTime(0.f),
 	mJointInfo(NULL),
@@ -631,17 +630,19 @@ BOOL LLViewerObject::setDrawableParent(LLDrawable* parentp)
 	
 	BOOL ret = mDrawable->mXform.setParent(parentp ? &parentp->mXform : NULL);
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
-	if (old_parent || (parentp && parentp->isActive()))
+	if(	old_parent != parentp &&
+		old_parent || (parentp && parentp->isActive()))
 	{
+		// *TODO we should not be relying on setDrawable parent to call markMoved
 		gPipeline.markMoved(mDrawable, FALSE);
 	}
-	else
+	else if (!mDrawable->isAvatar())
 	{
 		mDrawable->updateXform(TRUE);
-		if (!mDrawable->getSpatialGroup())
+		/*if (!mDrawable->getSpatialGroup())
 		{
 			mDrawable->movePartition();
-		}
+		}*/
 	}
 	
 	return ret;
@@ -677,7 +678,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					 LLDataPacker *dp)
 {
 	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	
 	U32 retval = 0x0;
 	
 	// Coordinates of objects on simulators are region-local.
@@ -3063,6 +3063,11 @@ const LLVector3 &LLViewerObject::getPositionRegion() const
 		LLViewerObject *parent = (LLViewerObject *)getParent();
 		mPositionRegion = parent->getPositionRegion() + (getPosition() * parent->getRotation());
 	}
+	else
+	{
+		mPositionRegion = getPosition();
+	}
+
 	return mPositionRegion;
 }
 
@@ -3088,18 +3093,6 @@ const LLVector3 LLViewerObject::getRenderPosition() const
 	}
 	else
 	{
-		if (isAvatar())
-		{
-			if (isRoot())
-			{
-				return mDrawable->getPositionAgent();
-			}
-			else
-			{
-				return getPosition() * mDrawable->getParent()->getRenderMatrix();
-			}
-		}
-
 		return mDrawable->getPositionAgent();
 	}
 }
@@ -3771,6 +3764,26 @@ S32 LLViewerObject::setTEMediaFlags(const U8 te, const U8 media_flags)
 	return retval;
 }
 
+S32 LLViewerObject::setTEGlow(const U8 te, const F32 glow)
+{
+	S32 retval = 0;
+	const LLTextureEntry *tep = getTE(te);
+	if (!tep)
+	{
+		llwarns << "No texture entry for te " << (S32)te << ", object " << mID << llendl;
+	}
+	else if (glow != tep->getGlow())
+	{
+		retval = LLPrimitive::setTEGlow(te, glow);
+		setChanged(TEXTURE);
+		if (mDrawable.notNull() && retval)
+		{
+			gPipeline.markTextured(mDrawable);
+		}
+	}
+	return retval;
+}
+
 
 S32 LLViewerObject::setTEScale(const U8 te, const F32 s, const F32 t)
 {
@@ -4166,10 +4179,8 @@ void LLViewerObject::updateDrawable(BOOL force_damped)
 {
 	if (mDrawable.notNull() && 
 		!mDrawable->isState(LLDrawable::ON_MOVE_LIST) &&
-		isChanged(MOVED) && 
-		!isAvatar())
+		isChanged(MOVED))
 	{
-		mLastUpdateFrame = LLFrameTimer::getFrameCount();
 		BOOL damped_motion = 
 			!isChanged(SHIFTED) &&										// not shifted between regions this frame and...
 				(force_damped ||										// ...forced into damped motion by application logic or...
@@ -4826,12 +4837,31 @@ void LLViewerObject::resetRot()
 
 U32 LLViewerObject::getPartitionType() const
 { 
-	return LLPipeline::PARTITION_NONE; 
+	return LLViewerRegion::PARTITION_NONE; 
 }
 
-BOOL LLAlphaObject::isParticle()
+void LLViewerObject::dirtySpatialGroup() const
 {
-	return FALSE;
+	if (mDrawable)
+	{
+		LLSpatialGroup* group = mDrawable->getSpatialGroup();
+		if (group)
+		{
+			group->dirtyGeom();
+		}
+	}
+}
+
+void LLViewerObject::dirtyMesh() const
+{
+	if (mDrawable)
+	{
+		LLSpatialGroup* group = mDrawable->getSpatialGroup();
+		if (group)
+		{
+			group->dirtyMesh();
+		}
+	}
 }
 
 F32 LLAlphaObject::getPartSize(S32 idx)

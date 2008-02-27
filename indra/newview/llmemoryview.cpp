@@ -107,12 +107,12 @@ BOOL LLMemoryView::handleHover(S32 x, S32 y, MASK mask)
 struct mtv_display_info {
 	S32 memtype;
 	const char *desc;
-	LLColor4 *color;
+	const LLColor4 *color;
 };
 
-static LLColor4 red0(0.5f, 0.0f, 0.0f, 1.0f);
+static const LLColor4 red0(0.5f, 0.0f, 0.0f, 1.0f);
 
-static struct mtv_display_info mtv_display_table[] =
+static const struct mtv_display_info mtv_display_table[] =
 {
 	{ LLMemType::MTYPE_INIT,			"Init", 			&LLColor4::white },
 	{ LLMemType::MTYPE_STARTUP,			"Startup", 			&LLColor4::cyan1 },
@@ -194,7 +194,6 @@ void LLMemoryView::draw()
 	
 	// Labels
 	{
-		LLGLSTexture gls_texture;
 		y = ytop;
 		S32 peak = 0;
 		for (S32 i=0; i<MTV_DISPLAY_NUM; i++)

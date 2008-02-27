@@ -389,4 +389,3 @@ S32 LLTextureEntry::setGlow(F32 glow)
 	}
 	return 0;
 }
-

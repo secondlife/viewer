@@ -52,12 +52,14 @@
 #include "llworld.h"
 #include "pipeline.h"
 #include "llglslshader.h"
+#include "llglimmediate.h"
 
 const F32 DETAIL_SCALE = 1.f/16.f;
 int DebugDetailMap = 0;
 
 S32 LLDrawPoolTerrain::sDetailMode = 1;
 F32 LLDrawPoolTerrain::sDetailScale = DETAIL_SCALE;
+static LLGLSLShader* sShader = NULL;
 
 LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerImage *texturep) :
 	LLFacePool(POOL_TERRAIN),
@@ -95,10 +97,40 @@ LLDrawPool *LLDrawPoolTerrain::instancePool()
 
 void LLDrawPoolTerrain::prerender()
 {
-#if 0 // 1.9.2
-	mVertexShaderLevel = gPipeline.getVertexShaderLevel(LLPipeline::SHADER_ENVIRONMENT);
-#endif
-	sDetailMode = gSavedSettings.getS32("RenderTerrainDetail");
+	mVertexShaderLevel = LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_ENVIRONMENT);
+	if (mVertexShaderLevel > 0)
+	{
+		sDetailMode = 1;
+	}
+	else
+	{
+		sDetailMode = gSavedSettings.getS32("RenderTerrainDetail");
+	}
+}
+
+void LLDrawPoolTerrain::beginRenderPass( S32 pass )
+{
+	LLFastTimer t(LLFastTimer::FTM_RENDER_TERRAIN);
+	LLFacePool::beginRenderPass(pass);
+
+	sShader = LLPipeline::sUnderWaterRender ? 
+					&gTerrainWaterProgram :
+					&gTerrainProgram;
+
+	if (mVertexShaderLevel > 1 && sShader->mShaderLevel > 0)
+	{
+		sShader->bind();
+	}
+}
+
+void LLDrawPoolTerrain::endRenderPass( S32 pass )
+{
+	LLFastTimer t(LLFastTimer::FTM_RENDER_TERRAIN);
+	LLFacePool::endRenderPass(pass);
+
+	if (mVertexShaderLevel > 1 && sShader->mShaderLevel > 0) {
+		sShader->unbind();
+	}
 }
 
 //static
@@ -127,7 +159,7 @@ void LLDrawPoolTerrain::render(S32 pass)
 
 	if (!gGLManager.mHasMultitexture)
 	{
-		// No mulititexture, render simple land.
+		// No multitexture, render simple land.
 		renderSimple(); // Render without multitexture
 		return;
 	}
@@ -141,52 +173,47 @@ void LLDrawPoolTerrain::render(S32 pass)
 	LLGLSPipeline gls;
 	LLOverrideFaceColor override(this, 1.f, 1.f, 1.f, 1.f);
 
-	if (mVertexShaderLevel > 0)
+	if (mVertexShaderLevel > 1 && sShader->mShaderLevel > 0)
 	{
-		gPipeline.enableLightsDynamic(1.f);
-		renderFull4TUShader();
+		gPipeline.enableLightsDynamic();
+		renderFullShader();
 	}
 	else
 	{
-		gPipeline.enableLightsStatic(1.f);
-		switch (sDetailMode)
-		{
-		  case 0:
+		gPipeline.enableLightsStatic();
+
+		if (sDetailMode == 0){
 			renderSimple();
-			break;
-		  default:
-			if (gGLManager.mNumTextureUnits < 4)
-			{
-				renderFull2TU();
-			}
-			else
-			{
-				renderFull4TU();
-			}
-			break;
+		} else if (gGLManager.mNumTextureUnits < 4){
+			renderFull2TU();
+		} else {
+			renderFull4TU();
 		}
 	}
 
 	// Special-case for land ownership feedback
 	if (gSavedSettings.getBOOL("ShowParcelOwners"))
 	{
-		gPipeline.disableLights();
-		if ((mVertexShaderLevel > 0))
-		{
-			gHighlightProgram.bind();
-			gHighlightProgram.vertexAttrib4f(LLShaderMgr::MATERIAL_COLOR,1,1,1,1);
+		if (mVertexShaderLevel > 1)
+		{ //use fullbright shader for highlighting
+			LLGLSLShader* old_shader = sShader;
+			sShader->unbind();
+			sShader = &gObjectFullbrightProgram;
+			sShader->bind();
 			renderOwnership();
-			gTerrainProgram.bind();
+			sShader = old_shader;
+			sShader->bind();
 		}
 		else
 		{
+			gPipeline.disableLights();
 			renderOwnership();
 		}
 	}
 }
 
 
-void LLDrawPoolTerrain::renderFull4TUShader()
+void LLDrawPoolTerrain::renderFullShader()
 {
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
@@ -195,9 +222,7 @@ void LLDrawPoolTerrain::renderFull4TUShader()
 	{
 		glEnableClientState(GL_COLOR_ARRAY);
 	}
-	
-	glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
-	
+
 	// Hack! Get the region that this draw pool is rendering from!
 	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
 	LLVLComposition *compp = regionp->getComposition();
@@ -206,12 +231,7 @@ void LLDrawPoolTerrain::renderFull4TUShader()
 	LLViewerImage *detail_texture2p = compp->mDetailTextures[2];
 	LLViewerImage *detail_texture3p = compp->mDetailTextures[3];
 
-	static F32 dp = 0.f;
-	static LLFrameTimer timer;
-	dp += timer.getElapsedTimeAndResetF32();
-
 	LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
-
 	F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
 	F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sDetailScale)*sDetailScale;
 
@@ -220,21 +240,14 @@ void LLDrawPoolTerrain::renderFull4TUShader()
 	tp0.setVec(sDetailScale, 0.0f, 0.0f, offset_x);
 	tp1.setVec(0.0f, sDetailScale, 0.0f, offset_y);
 
-	//----------------------------------------------------------------------------
-	// Pass 1/1
-
 	//
-	// Stage 0: detail texture 0
+	// detail texture 0
 	//
-	
-	S32 detailTex0 = gTerrainProgram.enableTexture(LLShaderMgr::TERRAIN_DETAIL0);
-	S32 detailTex1 = gTerrainProgram.enableTexture(LLShaderMgr::TERRAIN_DETAIL1);
-	S32 rampTex = gTerrainProgram.enableTexture(LLShaderMgr::TERRAIN_ALPHARAMP);
-	
-	LLViewerImage::bindTexture(detail_texture0p,detailTex0);
-
+	S32 detail0 = sShader->enableTexture(LLShaderMgr::TERRAIN_DETAIL0);
+	LLViewerImage::bindTexture(detail_texture0p,detail0);
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	glActiveTextureARB(GL_TEXTURE0_ARB);
+
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnable(GL_TEXTURE_GEN_S);
 	glEnable(GL_TEXTURE_GEN_T);
@@ -243,122 +256,84 @@ void LLDrawPoolTerrain::renderFull4TUShader()
 
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
-
-	//
-	// Stage 1: Generate alpha ramp for detail0/detail1 transition
-	//
-	LLViewerImage::bindTexture(m2DAlphaRampImagep,rampTex);
-
-	glClientActiveTextureARB(GL_TEXTURE1_ARB);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	//
-	// Stage 2: Interpolate detail1 with existing based on ramp
-	//
-	LLViewerImage::bindTexture(detail_texture1p,detailTex1);
-	
-	glClientActiveTextureARB(GL_TEXTURE2_ARB);
-	glActiveTextureARB(GL_TEXTURE2_ARB);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnable(GL_TEXTURE_GEN_S);
-	glEnable(GL_TEXTURE_GEN_T);
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
-	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
-
-	//
-	// Stage 3: Modulate with primary color for lighting
-	//
-	//LLViewerImage::bindTexture(detail_texture1p,3); // bind any texture
-	//glEnable(GL_TEXTURE_2D); // Texture unit 3
-	glClientActiveTextureARB(GL_TEXTURE3_ARB);
-	glActiveTextureARB(GL_TEXTURE3_ARB);
-	// GL_BLEND disabled by default
-	drawLoop();
-
-	//----------------------------------------------------------------------------
-	// Second pass
-
-	//
-	// Stage 0: Write detail3 into base
-	//
-	LLViewerImage::bindTexture(detail_texture2p,detailTex0);
-	
-	glClientActiveTextureARB(GL_TEXTURE0_ARB);
-	glActiveTextureARB(GL_TEXTURE0_ARB);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnable(GL_TEXTURE_GEN_S);
-	glEnable(GL_TEXTURE_GEN_T);
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
-	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
-
-	//
-	// Stage 1: Generate alpha ramp for detail2/detail3 transition
-	//
-	LLViewerImage::bindTexture(m2DAlphaRampImagep,rampTex);
-	
-	glClientActiveTextureARB(GL_TEXTURE1_ARB);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glActiveTextureARB(GL_TEXTURE1_ARB);
-
-	// Set the texture matrix
-	glMatrixMode(GL_TEXTURE);
-	glLoadIdentity();
-	glTranslatef(-2.f, 0.f, 0.f);
-
-	//
-	// Stage 2: Interpolate detail2 with existing based on ramp
-	//
-	LLViewerImage::bindTexture(detail_texture3p,detailTex1);
-	
-	glClientActiveTextureARB(GL_TEXTURE2_ARB);
-	glActiveTextureARB(GL_TEXTURE2_ARB);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnable(GL_TEXTURE_GEN_S);
-	glEnable(GL_TEXTURE_GEN_T);
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
-	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
-
-	//
-	// Stage 3: Generate alpha ramp for detail1/detail2 transition
-	//
-	//LLViewerImage::bindTexture(m2DAlphaRampImagep,3);
-	
-	//glEnable(GL_TEXTURE_2D); // Texture unit 3
-	
-	glClientActiveTextureARB(GL_TEXTURE3_ARB);
-	glActiveTextureARB(GL_TEXTURE3_ARB);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	// Set the texture matrix
-	glMatrixMode(GL_TEXTURE);
-	glLoadIdentity();
-	glTranslatef(-1.f, 0.f, 0.f);
-
-	{
-		LLGLEnable blend(GL_BLEND);
-		drawLoop();
-	}
-
-	// Disable multitexture
-	gTerrainProgram.disableTexture(LLShaderMgr::TERRAIN_ALPHARAMP);
-	gTerrainProgram.disableTexture(LLShaderMgr::TERRAIN_DETAIL0);
-	gTerrainProgram.disableTexture(LLShaderMgr::TERRAIN_DETAIL1);
-	
-	glClientActiveTextureARB(GL_TEXTURE3_ARB);
-	glActiveTextureARB(GL_TEXTURE3_ARB);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 
+	//
+	// detail texture 1
+	//
+	S32 detail1 = sShader->enableTexture(LLShaderMgr::TERRAIN_DETAIL1); 
+	LLViewerImage::bindTexture(detail_texture1p,detail1);
+	
+	/// ALPHA TEXTURE COORDS 0:
+	glClientActiveTextureARB(GL_TEXTURE1_ARB);
+	glActiveTextureARB(GL_TEXTURE1_ARB);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	
+	// detail texture 2
+	//
+	S32 detail2 = sShader->enableTexture(LLShaderMgr::TERRAIN_DETAIL2);
+	LLViewerImage::bindTexture(detail_texture2p,detail2);
+	glEnable(GL_TEXTURE_2D);
+	
+	/// ALPHA TEXTURE COORDS 1:
 	glClientActiveTextureARB(GL_TEXTURE2_ARB);
 	glActiveTextureARB(GL_TEXTURE2_ARB);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+	glTranslatef(-2.f, 0.f, 0.f);
+	glMatrixMode(GL_MODELVIEW);
+
+	//
+	// detail texture 3
+	//
+	S32 detail3 = sShader->enableTexture(LLShaderMgr::TERRAIN_DETAIL3);
+	LLViewerImage::bindTexture(detail_texture3p,detail3);
+	
+	/// ALPHA TEXTURE COORDS 2:
+	glClientActiveTextureARB(GL_TEXTURE3_ARB);
+	glActiveTextureARB(GL_TEXTURE3_ARB);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+	glTranslatef(-1.f, 0.f, 0.f);
+	glMatrixMode(GL_MODELVIEW);
+
+	//
+	// Alpha Ramp 
+	//
+	S32 alpha_ramp = sShader->enableTexture(LLShaderMgr::TERRAIN_ALPHARAMP);
+	LLViewerImage::bindTexture(m2DAlphaRampImagep,alpha_ramp);
+		
+	// GL_BLEND disabled by default
+	drawLoop();
+
+	// Disable multitexture
+	sShader->disableTexture(LLShaderMgr::TERRAIN_ALPHARAMP);
+	sShader->disableTexture(LLShaderMgr::TERRAIN_DETAIL0);
+	sShader->disableTexture(LLShaderMgr::TERRAIN_DETAIL1);
+	sShader->disableTexture(LLShaderMgr::TERRAIN_DETAIL2);
+	sShader->disableTexture(LLShaderMgr::TERRAIN_DETAIL3);
+
+	LLImageGL::unbindTexture(alpha_ramp, GL_TEXTURE_2D);
+	glClientActiveTextureARB(GL_TEXTURE4_ARB);
+	glActiveTextureARB(GL_TEXTURE4_ARB);	
+	glDisable(GL_TEXTURE_2D); // Texture unit 4
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+
+	LLImageGL::unbindTexture(detail3, GL_TEXTURE_2D);
+	glClientActiveTextureARB(GL_TEXTURE3_ARB);
+	glActiveTextureARB(GL_TEXTURE3_ARB);
+	glDisable(GL_TEXTURE_2D);	
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
@@ -366,32 +341,43 @@ void LLDrawPoolTerrain::renderFull4TUShader()
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 
-	glClientActiveTextureARB(GL_TEXTURE1_ARB);
-	glActiveTextureARB(GL_TEXTURE1_ARB);
+	LLImageGL::unbindTexture(detail2, GL_TEXTURE_2D);
+	glClientActiveTextureARB(GL_TEXTURE2_ARB);
+	glActiveTextureARB(GL_TEXTURE2_ARB);
+	glDisable(GL_TEXTURE_2D);		
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 
-	// Restore blend state
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	LLImageGL::unbindTexture(detail1, GL_TEXTURE_2D);
+	glClientActiveTextureARB(GL_TEXTURE1_ARB);
+	glActiveTextureARB(GL_TEXTURE1_ARB);
+	glDisable(GL_TEXTURE_2D);		
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);	
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
 	
 	//----------------------------------------------------------------------------
 	// Restore Texture Unit 0 defaults
 	
+	LLImageGL::unbindTexture(detail0, GL_TEXTURE_2D);
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	glActiveTextureARB(GL_TEXTURE0_ARB);
+	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
-	glEnable(GL_TEXTURE_2D);
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 
 	// Restore non Texture Unit specific defaults
 	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }
 
 void LLDrawPoolTerrain::renderFull4TU()
@@ -416,7 +402,7 @@ void LLDrawPoolTerrain::renderFull4TU()
 	tp0.setVec(sDetailScale, 0.0f, 0.0f, offset_x);
 	tp1.setVec(0.0f, sDetailScale, 0.0f, offset_y);
 
-	glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+	gGL.blendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
 	
 	//----------------------------------------------------------------------------
 	// Pass 1/1
@@ -649,7 +635,7 @@ void LLDrawPoolTerrain::renderFull4TU()
 	glMatrixMode(GL_MODELVIEW);
 
 	// Restore blend state
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	//----------------------------------------------------------------------------
 	// Restore Texture Unit 0 defaults
@@ -690,7 +676,7 @@ void LLDrawPoolTerrain::renderFull2TU()
 	tp0.setVec(sDetailScale, 0.0f, 0.0f, offset_x);
 	tp1.setVec(0.0f, sDetailScale, 0.0f, offset_y);
 
-	glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+	gGL.blendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
 	
 	//----------------------------------------------------------------------------
 	// Pass 1/4
@@ -887,7 +873,7 @@ void LLDrawPoolTerrain::renderFull2TU()
 	}
 	
 	// Restore blend state
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	// Disable multitexture
 	LLImageGL::unbindTexture(1, GL_TEXTURE_2D);
@@ -1015,7 +1001,6 @@ void LLDrawPoolTerrain::renderOwnership()
 
 	const F32 TEXTURE_FUDGE = 257.f / 256.f;
 	glScalef( TEXTURE_FUDGE, TEXTURE_FUDGE, 1.f );
-
 	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
 		 iter != mDrawFace.end(); iter++)
 	{
@@ -1081,9 +1066,4 @@ LLViewerImage *LLDrawPoolTerrain::getDebugTexture()
 LLColor3 LLDrawPoolTerrain::getDebugColor() const
 {
 	return LLColor3(0.f, 0.f, 1.f);
-}
-
-S32 LLDrawPoolTerrain::getMaterialAttribIndex()
-{
-	return gTerrainProgram.mAttribute[LLShaderMgr::MATERIAL_COLOR];
 }

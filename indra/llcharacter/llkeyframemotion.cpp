@@ -2030,64 +2030,6 @@ void LLKeyframeMotion::onLoadComplete(LLVFS *vfs,
 	}
 }
 
-
-//-----------------------------------------------------------------------------
-// writeCAL3D()
-//-----------------------------------------------------------------------------
-void LLKeyframeMotion::writeCAL3D(apr_file_t* fp)
-{
-//	<ANIMATION VERSION="1000" DURATION="1.03333" NUMTRACKS="58">
-//		<TRACK BONEID="0" NUMKEYFRAMES="31">
-//			<KEYFRAME TIME="0">
-//				<TRANSLATION>0 0 48.8332</TRANSLATION>
-//				<ROTATION>0.0512905 0.05657 0.66973 0.738668</ROTATION>
-//			</KEYFRAME>
-//			</TRACK>
-//	</ANIMATION>
-
-	apr_file_printf(fp, "<ANIMATION VERSION=\"1000\" DURATION=\"%.5f\" NUMTRACKS=\"%d\">\n",  getDuration(), mJointMotionList->getNumJointMotions());
-	for (U32 joint_index = 0; joint_index < mJointMotionList->getNumJointMotions(); joint_index++)
-	{
-		JointMotion* joint_motionp = mJointMotionList->getJointMotion(joint_index);
-		LLJoint* animated_joint = mCharacter->getJoint(joint_motionp->mJointName);
-		S32 joint_num = animated_joint->mJointNum + 1;
-
-		apr_file_printf(fp, "	<TRACK BONEID=\"%d\" NUMKEYFRAMES=\"%d\">\n",  joint_num, joint_motionp->mRotationCurve.mNumKeys );
-		PositionKey* pos_keyp = joint_motionp->mPositionCurve.mKeys.getFirstData();
-		for (RotationKey* rot_keyp = joint_motionp->mRotationCurve.mKeys.getFirstData();
-			rot_keyp;
-			rot_keyp = joint_motionp->mRotationCurve.mKeys.getNextData())
-		{
-			apr_file_printf(fp, "		<KEYFRAME TIME=\"%0.3f\">\n", rot_keyp->mTime);
-			LLVector3 nominal_pos = animated_joint->getPosition();
-			if (animated_joint->getParent())
-			{
-				nominal_pos.scaleVec(animated_joint->getParent()->getScale());
-			}
-			nominal_pos = nominal_pos * 100.f;
-
-			if (joint_motionp->mUsage & LLJointState::POS && pos_keyp)
-			{
-				LLVector3 pos_val = pos_keyp->mPosition;
-				pos_val = pos_val * 100.f;
-				pos_val += nominal_pos;
-				apr_file_printf(fp, "			<TRANSLATION>%0.4f %0.4f %0.4f</TRANSLATION>\n", pos_val.mV[VX], pos_val.mV[VY], pos_val.mV[VZ]);
-				pos_keyp = joint_motionp->mPositionCurve.mKeys.getNextData();
-			}
-			else
-			{
-				apr_file_printf(fp, "			<TRANSLATION>%0.4f %0.4f %0.4f</TRANSLATION>\n", nominal_pos.mV[VX], nominal_pos.mV[VY], nominal_pos.mV[VZ]);
-			}
-
-			LLQuaternion rot_val = ~rot_keyp->mRotation;
-			apr_file_printf(fp, "			<ROTATION>%0.4f %0.4f %0.4f %0.4f</ROTATION>\n", rot_val.mQ[VX], rot_val.mQ[VY], rot_val.mQ[VZ], rot_val.mQ[VW]);
-			apr_file_printf(fp, "		</KEYFRAME>\n");
-		}
-		apr_file_printf(fp, "	</TRACK>\n");
-	}
-	apr_file_printf(fp, "</ANIMATION>\n");
-}
-
 //--------------------------------------------------------------------
 // LLKeyframeDataCache::dumpDiagInfo()
 //--------------------------------------------------------------------

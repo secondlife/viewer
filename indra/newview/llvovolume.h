@@ -33,7 +33,6 @@
 #define LL_LLVOVOLUME_H
 
 #include "llviewerobject.h"
-#include "llspatialpartition.h"
 #include "llviewerimage.h"
 #include "llframetimer.h"
 #include "llapr.h"
@@ -67,6 +66,7 @@ public:
 	virtual const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const = 0;
 	virtual void updateRelativeXform() = 0;
 	virtual U32 getID() const = 0;
+	virtual void preRebuild() = 0;
 };
 
 // Class which embodies all Volume objects (with pcode LL_PCODE_VOLUME)
@@ -105,7 +105,6 @@ public:
 
 				void	generateSilhouette(LLSelectNode* nodep, const LLVector3& view_point);
 	/*virtual*/	void	setParent(LLViewerObject* parent);
-				F32		getIndividualRadius()					{ return mRadius; }
 				S32		getLOD() const							{ return mLOD; }
 	const LLVector3		getPivotPositionAgent() const;
 	const LLMatrix4&	getRelativeXform() const				{ return mRelativeXform; }
@@ -147,6 +146,7 @@ public:
 	/*virtual*/ S32		setTEShiny(const U8 te, const U8 shiny);
 	/*virtual*/ S32		setTEFullbright(const U8 te, const U8 fullbright);
 	/*virtual*/ S32		setTEMediaFlags(const U8 te, const U8 media_flags);
+	/*virtual*/ S32		setTEGlow(const U8 te, const F32 glow);
 	/*virtual*/ S32		setTEScale(const U8 te, const F32 s, const F32 t);
 	/*virtual*/ S32		setTEScaleS(const U8 te, const F32 s);
 	/*virtual*/ S32		setTEScaleT(const U8 te, const F32 t);
@@ -168,19 +168,10 @@ public:
 				void	updateFaceFlags();
 				void	regenFaces();
 				BOOL	genBBoxes(BOOL force_global);
+				void	preRebuild();
 	virtual		void	updateSpatialExtents(LLVector3& min, LLVector3& max);
 	virtual		F32		getBinRadius();
-	virtual		void	writeCAL3D(apr_file_t* fp, 
-							std::string& path,
-							std::string& file_base,
-							S32 joint_num, 
-							LLVector3& pos, 
-							LLQuaternion& rot, 
-							S32& material_index, 
-							S32& texture_index, 
-							std::multimap<LLUUID, LLMaterialExportInfo*>& material_map);
-
-
+	
 	virtual U32 getPartitionType() const;
 
 	// For Lights
@@ -197,8 +188,7 @@ public:
 	F32 getLightRadius() const;
 	F32 getLightFalloff() const;
 	F32 getLightCutoff() const;
-	F32 getLightDistance(const LLVector3& pos) const; // returns < 0 if inside radius
-
+	
 	// Flexible Objects
 	U32 getVolumeInterfaceID() const;
 	virtual BOOL isFlexible() const;
@@ -206,11 +196,7 @@ public:
 	BOOL isVolumeGlobal() const;
 	BOOL canBeFlexible() const;
 	BOOL setIsFlexible(BOOL is_flexible);
-	
-	// Lighting
-	F32 calcLightAtPoint(const LLVector3& pos, const LLVector3& norm, LLColor4& result);
-	BOOL updateLighting(BOOL do_lighting);
-
+			
 protected:
 	S32	computeLODDetail(F32	distance, F32 radius);
 	BOOL calcLOD();
@@ -220,17 +206,14 @@ protected:
 public:
 	LLViewerTextureAnim *mTextureAnimp;
 	U8 mTexAnimMode;
-protected:
+private:
 	friend class LLDrawable;
 	
 	BOOL		mFaceMappingChanged;
-	BOOL		mGlobalVolume;
-	BOOL		mInited;
 	LLFrameTimer mTextureUpdateTimer;
 	S32			mLOD;
 	BOOL		mLODChanged;
 	BOOL		mSculptChanged;
-	F32			mRadius;
 	LLMatrix4	mRelativeXform;
 	LLMatrix3	mRelativeXformInvTrans;
 	BOOL		mVolumeChanged;

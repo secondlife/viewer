@@ -185,7 +185,8 @@ public:
 	static S32 sGlobalTextureMemory;		// Tracks main memory texmem
 	static S32 sBoundTextureMemory;			// Tracks bound texmem for last completed frame
 	static S32 sCurBoundTextureMemory;		// Tracks bound texmem for current frame
-
+	static U32 sBindCount;					// Tracks number of texture binds for current frame
+	static U32 sUniqueCount;				// Tracks number of unique texture binds for current frame
 	static BOOL sGlobalUseAnisotropic;
 
 #if DEBUG_MISS

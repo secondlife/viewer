@@ -1,6 +1,6 @@
-version 10
+version 15
 
-// NOTE: This is mostly identical to featuretable.txt with a few differences
+// NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
 
 //
@@ -12,7 +12,7 @@ version 10
 //		<name> <available> <recommended>
 //		<name> is the name of a feature
 //		<available> is 0 or 1, whether the feature is available
-//		<recommended> is an S32 which is the recommended value
+//		<recommended> is an F32 which is the recommended value
 //
 // For now, the first list read sets up all of the default values
 //
@@ -23,104 +23,197 @@ version 10
 // NOTE: All settings are set to the MIN of applied values, including 'all'!
 //
 list all
-RenderVBO			1	1
-RenderAniso			1	0
-RenderAvatarMode	1	2
-RenderAvatarVP		1	1
-RenderDistance		1	128
-RenderLighting		1	1
-RenderObjectBump	1	1
-RenderParticleCount	1	4096
-RenderRippleWater	1	1
-RenderTerrainDetail	1	2
-VertexShaderEnable	1	1
-UseOcclusion		1	1
-RenderCubeMap		1	1
+RenderAnisotropic			1	0
+RenderAvatarCloth			1	1
+RenderAvatarLODFactor		1	1.0
+RenderAvatarVP				1	1
+RenderCubeMap				1	1
+RenderFarClip				1	256
+RenderFlexTimeFactor		1	1.0
+RenderFogRatio				1	4.0
+RenderGamma					1	0
+RenderGlowResolutionPow		1	9
+RenderLightingDetail		1	1
+RenderMaxPartCount			1	8192
+RenderNightBrightness		1	1.0
+RenderObjectBump			1	1
+RenderReflectionDetail		1	3
+RenderTerrainDetail			1	1
+RenderTerrainLODFactor		1	2.0
+RenderTreeLODFactor			1	1.0
+RenderUseImpostors			1	1
+RenderVBOEnable				1	1
+RenderVolumeLODFactor		1	2.0
+RenderWaterReflections		1	1
+UseOcclusion				1	1
+VertexShaderEnable			1	1
+WindLightUseAtmosShaders	1	1
+WLSkyDetail					1	128
 
 //
-// Class 0 Hardware (Unknown or just old)
+// Low Graphics Settings
+//
+list Low
+RenderAnisotropic			1	0
+RenderAvatarCloth			1	0
+RenderAvatarLODFactor		1	0.5
+RenderAvatarVP				1	0
+RenderFarClip				1	64
+RenderFlexTimeFactor		1	0.5
+RenderGlowResolutionPow		1	8
+RenderLightingDetail		1	0
+RenderMaxPartCount			1	1024
+RenderObjectBump			1	0
+RenderReflectionDetail		1	0
+RenderTerrainDetail			1	0
+RenderTerrainLODFactor		1	1
+RenderTreeLODFactor			1	0.5
+RenderUseImpostors			1	1
+RenderVolumeLODFactor		1	1.125
+RenderWaterReflections		1	0
+VertexShaderEnable			1	0
+WindLightUseAtmosShaders	1	0
+WLSkyDetail					1	48
+
+//
+// Mid Graphics Settings
+//
+list Mid
+RenderAnisotropic			1	0
+RenderAvatarCloth			1	0
+RenderAvatarLODFactor		1	0.5
+RenderAvatarVP				1	1
+RenderFarClip				1	96
+RenderFlexTimeFactor		1	1.0
+RenderGlowResolutionPow		1	8
+RenderLightingDetail		1	1
+RenderMaxPartCount			1	2048
+RenderObjectBump			1	1
+RenderReflectionDetail		1	0
+RenderTerrainDetail			1	1
+RenderTerrainLODFactor		1	1.0
+RenderTreeLODFactor			1	0.5
+RenderUseImpostors			1	1
+RenderVolumeLODFactor		1	1.125
+RenderWaterReflections		1	0
+VertexShaderEnable			1	1
+WindLightUseAtmosShaders	1	0
+WLSkyDetail					1	48
+
+//
+// High Graphics Settings (purty)
+//
+list High
+RenderAnisotropic			1	1
+RenderAvatarCloth			1	0
+RenderAvatarLODFactor		1	1.0
+RenderAvatarVP				1	1
+RenderFarClip				1	128
+RenderFlexTimeFactor		1	1.0
+RenderGlowResolutionPow		1	9
+RenderLightingDetail		1	1
+RenderMaxPartCount			1	4096
+RenderObjectBump			1	1
+RenderReflectionDetail		1	2
+RenderTerrainDetail			1	1
+RenderTerrainLODFactor		1	2.0
+RenderTreeLODFactor			1	0.5
+RenderUseImpostors			1	1
+RenderVolumeLODFactor		1	1.125
+RenderWaterReflections		1	0
+VertexShaderEnable			1	1
+WindLightUseAtmosShaders	1	1
+WLSkyDetail					1	48
+
+//
+// Ultra graphics (REALLY PURTY!)
+//
+list Ultra
+RenderAnisotropic			1	1
+RenderAvatarCloth			1	1
+RenderAvatarLODFactor		1	1.0
+RenderAvatarVP				1	1
+RenderFarClip				1	256
+RenderFlexTimeFactor		1	1.0
+RenderGlowResolutionPow		1	9
+RenderLightingDetail		1	1
+RenderMaxPartCount			1	8192
+RenderObjectBump			1	1
+RenderReflectionDetail		1	3
+RenderTerrainDetail			1	1
+RenderTerrainLODFactor		1	2.0
+RenderTreeLODFactor			1	1.0
+RenderUseImpostors			1	1
+RenderVolumeLODFactor		1	2.0
+RenderWaterReflections		1	1
+VertexShaderEnable			1	1
+WindLightUseAtmosShaders	1	1
+WLSkyDetail					1	128
+
+//
+// Class Unknown Hardware (unknown)
+//
+list Unknown
+RenderVBOEnable				1	0
+
+//
+// Class 0 Hardware (just old)
 //
 list Class0
-VertexShaderEnable	1	0
-RenderVBO			1	0
-RenderDistance		1	64
-RenderAvatarVP		1	0
-RenderAvatarMode	1	0
-RenderLighting		1	0
-RenderObjectBump	1	0
-RenderRippleWater	1	0
+RenderVBOEnable				1	1
 
 //
 // Class 1 Hardware
 //
 list Class1
-VertexShaderEnable	1	0
-RenderVBO			1	1
-RenderDistance		1	96
-RenderAvatarVP		1	1
-RenderAvatarMode	1	0
-RenderLighting		1	0
-RenderObjectBump	1	0
-RenderRippleWater	1	0
+RenderVBOEnable				1	1
 
 //
 // Class 2 Hardware (make it purty)
 //
 list Class2
-VertexShaderEnable	1	1
-RenderAvatarVP		1	1
-RenderAvatarMode	1	1
-RenderLighting		1	1
-RenderObjectBump	1	1
-RenderRippleWater	1	1
+RenderVBOEnable				1	1
 
 //
 // Class 3 Hardware (make it purty)
 //
 list Class3
-VertexShaderEnable	1	1
-RenderAvatarVP		1	1
-RenderAvatarMode	1	1
-RenderLighting		1	1
-RenderObjectBump	1	1
-RenderRippleWater	1	1
+RenderVBOEnable				1	1
 
 //
 // No Pixel Shaders available
 //
 list NoPixelShaders
-VertexShaderEnable	0	0
-RenderAvatarVP		0  0
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+RenderWaterReflections		0	0
+VertexShaderEnable			0	0
+WindLightUseAtmosShaders	0	0
 
 //
 // No Vertex Shaders available
 //
 list NoVertexShaders
-VertexShaderEnable	0	0
-RenderAvatarVP		0  0
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+RenderWaterReflections		0	0
+VertexShaderEnable			0	0
+WindLightUseAtmosShaders	0	0
 
-//
 // "Default" setups for safe, low, medium, high
 //
 list safe
-RenderVBO			1	0
-RenderAniso			1	0
-RenderAvatarVP		0	0
-RenderLighting		1	0
-RenderParticleCount	1	1024
-RenderTerrainDetail 1	0
-RenderCubeMap		0	0
-UseOcclusion		0	0
-
-
-list low
-RenderVBO			1	0
-RenderAniso			1	0
-RenderLighting		1	0
-
-list medium
-RenderLighting		1	0
-
+RenderAnisotropic			1	0
+RenderAvatarCloth			0	0
+RenderAvatarVP				0	0
+RenderLightingDetail		1	0
+RenderObjectBump			0	0
+RenderMaxPartCount			1	1024
+RenderTerrainDetail 		1	0
+RenderUseImpostors			0	0
+RenderVBOEnable				1	0
+RenderWaterReflections		0	0
+WindLightUseAtmosShaders	0	0
 
 //
 // CPU based feature masks
@@ -128,52 +221,100 @@ RenderLighting		1	0
 
 // 1Ghz or less (equiv)
 list CPUSlow
-RenderParticleCount	1	1024
-
+RenderMaxPartCount			1	1024
 
 //
 // RAM based feature masks
 //
 list RAM256MB
-RenderObjectBump	0	0
-
+RenderObjectBump			0	0
 
 //
 // Graphics card based feature masks
 //
 list OpenGLPre15
-RenderVBO			1	0
+RenderVBOEnable				1	0
 
 list Intel
-RenderVBO			1	0
-RenderAniso			1	0
-RenderLighting		1	0
-RenderTerrainDetail	1	0
-RenderCubeMap		0	0
+RenderAnisotropic			1	0
+RenderLightingDetail		1	0
+RenderTerrainDetail			1	0
+RenderVBOEnable				1	0
+RenderCubeMap				0	0
+
 
 list GeForce2
-RenderVBO			1	1
-RenderAniso			1	0
-RenderLighting		1	0
-RenderParticleCount	1	2048
-RenderTerrainDetail	1	0
+RenderAnisotropic			1	0
+RenderLightingDetail		1	0
+RenderMaxPartCount			1	2048
+RenderTerrainDetail			1	0
 
-list GeForce3
+list Intel_965
+UseOcclusion				0	0
 
 list ATI
-UseOcclusion		0	0
+UseOcclusion				0	0
+WindLightUseAtmosShaders	0	0
+RenderVBOEnable				1	0
 
-list Radeon8500
-RenderLighting		1	0
-RenderParticleCount	1	4096
+list ATI_Mobility_Radeon_9800
+RenderAvatarCloth			0	0
+VertexShaderEnable			0	0
+WindLightUseAtmosShaders	0	0
 
-// Hacked to be paranoid "safe"
-list Radeon9700
-RenderParticleCount	1	4096
+list ATI_Mobility_Radeon_9700
+RenderAvatarCloth			0	0
+VertexShaderEnable			0	0
+WindLightUseAtmosShaders	0	0
 
-// Hacked to be paranoid "safe"
-list MobilityRadeon9000
-RenderLighting		1	0
-RenderParticleCount	1	4096
+list ATI_Mobility_Radeon_9600
+RenderAvatarCloth			0	0
+VertexShaderEnable			0	0
+WindLightUseAtmosShaders	0	0
 
-list GeForceFX
+// Avatar hardware skinning causes
+// invisible avatars on x2600... so I masked
+// out other possible bad ones till it's fixed
+list ATI_Radeon_X2400
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+list ATI_Radeon_X2600
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+list ATI_Radeon_X2900
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+list ATI_Radeon_X3800
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+
+list ATI_Radeon_HD_2300
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+list ATI_Radeon_HD_2400
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+list ATI_Radeon_HD_2600
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+list ATI_Radeon_HD_2900
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+list ATI_Radeon_HD_3800
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+
+list NVIDIA_GeForce_Go_6100
+RenderVBOEnable				1	0
+list NVIDIA_GeForce_Go_6200
+RenderVBOEnable				1	0
+list NVIDIA_GeForce_Go_6500
+RenderVBOEnable				1	0
+list NVIDIA_GeForce_Go_6600
+RenderVBOEnable				1	0
+list NVIDIA_GeForce_Go_6700
+RenderVBOEnable				1	0
+list NVIDIA_GeForce_Go_6800
+RenderVBOEnable				1	0
+list NVIDIA_GeForce_Go_6
+RenderVBOEnable				1	0

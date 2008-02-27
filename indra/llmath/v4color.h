@@ -39,6 +39,7 @@
 
 class LLColor3;
 class LLColor4U;
+class LLVector4;
 
 //  LLColor4 = |x y z w|
 
@@ -58,6 +59,7 @@ class LLColor4
 		LLColor4(const LLColor3 &vec, F32 a = 1.f);	// Initializes LLColor4 to (vec, a)
 		LLColor4(const LLSD& sd);
 		explicit LLColor4(const LLColor4U& color4u);  // "explicit" to avoid automatic conversion
+		explicit LLColor4(const LLVector4& vector4);  // "explicit" to avoid automatic conversion
 
 		LLSD getValue() const
 		{
@@ -107,7 +109,7 @@ class LLColor4
 		friend std::ostream&	 operator<<(std::ostream& s, const LLColor4 &a);		// Print a
 		friend LLColor4 operator+(const LLColor4 &a, const LLColor4 &b);	// Return vector a + b
 		friend LLColor4 operator-(const LLColor4 &a, const LLColor4 &b);	// Return vector a minus b
-		friend LLColor4 operator*(const LLColor4 &a, const LLColor4 &b);	// Return a * b
+		friend LLColor4 operator*(const LLColor4 &a, const LLColor4 &b);	// Return component wise a * b
 		friend LLColor4 operator*(const LLColor4 &a, F32 k);				// Return rgb times scaler k (no alpha change)
 		friend LLColor4 operator*(F32 k, const LLColor4 &a);				// Return rgb times scaler k (no alpha change)
 		friend LLColor4 operator%(const LLColor4 &a, F32 k);				// Return alpha times scaler k (no rgb change)

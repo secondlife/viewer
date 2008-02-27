@@ -68,7 +68,7 @@ public:
 								LLStrider<LLVector3>& normalsp, 
 								LLStrider<LLVector2>& texcoordsp,
 								LLStrider<LLColor4U>& colorsp, 
-								LLStrider<U32>& indicesp);
+								LLStrider<U16>& indicesp);
 
 	void updateFaceSize(S32 idx) { }
 	/*virtual*/ void updateTextures(LLAgent &agent);											

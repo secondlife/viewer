@@ -39,6 +39,7 @@
 #include "llfontgl.h"
 #include "llsys.h"
 #include "llgl.h"
+#include "llglimmediate.h"
 #include "v3dmath.h"
 #include "lldir.h"
 #include "llui.h"
@@ -544,37 +545,37 @@ void LLFloaterColorPicker::draw()
 	{
 		LLGLSNoTexture no_texture;
 		LLGLEnable(GL_CULL_FACE);
-		glBegin(GL_QUADS);
+		gGL.begin(GL_QUADS);
 		{
-			glColor4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
-			glVertex2i(swatch_rect.mLeft, swatch_rect.mTop);
-			glVertex2i(swatch_rect.mRight, swatch_rect.mTop);
-			glColor4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-			glVertex2i(local_rect.mRight, local_rect.mTop);
-			glVertex2i(local_rect.mLeft, local_rect.mTop);
+			gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
+			gGL.vertex2i(swatch_rect.mLeft, swatch_rect.mTop);
+			gGL.vertex2i(swatch_rect.mRight, swatch_rect.mTop);
+			gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
+			gGL.vertex2i(local_rect.mRight, local_rect.mTop);
+			gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
 
-			glColor4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-			glVertex2i(local_rect.mLeft, local_rect.mTop);
-			glVertex2i(local_rect.mLeft, local_rect.mBottom);
-			glColor4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
-			glVertex2i(swatch_rect.mLeft, swatch_rect.mBottom);
-			glVertex2i(swatch_rect.mLeft, swatch_rect.mTop);
+			gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
+			gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+			gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+			gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
+			gGL.vertex2i(swatch_rect.mLeft, swatch_rect.mBottom);
+			gGL.vertex2i(swatch_rect.mLeft, swatch_rect.mTop);
 
-			glColor4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-			glVertex2i(local_rect.mRight, local_rect.mBottom);
-			glVertex2i(local_rect.mRight, local_rect.mTop);
-			glColor4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
-			glVertex2i(swatch_rect.mRight, swatch_rect.mTop);
-			glVertex2i(swatch_rect.mRight, swatch_rect.mBottom);
+			gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
+			gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
+			gGL.vertex2i(local_rect.mRight, local_rect.mTop);
+			gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
+			gGL.vertex2i(swatch_rect.mRight, swatch_rect.mTop);
+			gGL.vertex2i(swatch_rect.mRight, swatch_rect.mBottom);
 
-			glColor4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-			glVertex2i(local_rect.mLeft, local_rect.mBottom);
-			glVertex2i(local_rect.mRight, local_rect.mBottom);
-			glColor4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
-			glVertex2i(swatch_rect.mRight, swatch_rect.mBottom);
-			glVertex2i(swatch_rect.mLeft, swatch_rect.mBottom);
+			gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
+			gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+			gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
+			gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
+			gGL.vertex2i(swatch_rect.mRight, swatch_rect.mBottom);
+			gGL.vertex2i(swatch_rect.mLeft, swatch_rect.mBottom);
 		}
-		glEnd();
+		gGL.end();
 	}
 
 	if (gFocusMgr.childHasMouseCapture(getDragHandle()))
@@ -672,9 +673,9 @@ void LLFloaterColorPicker::draw()
 
 //////////////////////////////////////////////////////////////////////////////
 // find a complimentary color to the one passed in that can be used to highlight
-LLColor4&
+const LLColor4&
 LLFloaterColorPicker::
-getComplimentaryColor ( LLColor4& backgroundColor )
+getComplimentaryColor ( const LLColor4& backgroundColor )
 {
 	// going to base calculation on luminance
 	F32 hVal, sVal, lVal;
@@ -1162,7 +1163,7 @@ void
 LLFloaterColorPicker::
 cancelSelection ()
 {
-	// restore the previous colour selection
+	// restore the previous color selection
 	setCurRgb ( getOrigR (), getOrigG (), getOrigB () );
 
 	// 	we're going away and when we do and the entry widgets lose focus, they do bad things so turn them off

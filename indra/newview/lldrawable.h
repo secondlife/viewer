@@ -83,7 +83,7 @@ public:
 	virtual void setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* results = NULL, BOOL for_select = FALSE);
 
 
-	const LLViewerRegion* getRegion()               const { return mVObjp->getRegion(); }
+	LLViewerRegion* getRegion()               const { return mVObjp->getRegion(); }
 	const LLTextureEntry* getTextureEntry(U8 which) const { return mVObjp->getTE(which); }
 	LLPointer<LLViewerObject>& getVObj()							  { return mVObjp; }
 	const LLViewerObject *getVObj()	const						  { return mVObjp; }
@@ -153,13 +153,8 @@ public:
 	void updateMaterial();
 	virtual void updateDistance(LLCamera& camera);
 	BOOL updateGeometry(BOOL priority);
-	BOOL updateLighting(BOOL priority);
 	void updateFaceSize(S32 idx);
-	void updateLightSet();
-	
-	F32  getSunShadowFactor() const				{ return mSunShadowFactor; }
-	void setSunShadowFactor(F32 factor)			{ mSunShadowFactor = factor; }
-	void applyLightsAsPoint(LLColor4& result);
+		
 	void updateSpecialHoverCursor(BOOL enabled);
 
 	virtual void shiftPos(const LLVector3 &shift_vector);
@@ -169,7 +164,6 @@ public:
 	BOOL getLit() const							{ return isState(UNLIT) ? FALSE : TRUE; }
 	void setLit(BOOL lit)						{ lit ? clearState(UNLIT) : setState(UNLIT); }
 
-	void clearLightSet();
 	virtual void cleanupReferences();
 
 	void setRadius(const F32 radius);
@@ -245,7 +239,6 @@ public:
 	
 	typedef enum e_drawable_flags
 	{
-// 		TEXTURE			= 0x00000001,
  		IN_REBUILD_Q1	= 0x00000002,
  		IN_REBUILD_Q2	= 0x00000004,
  		IN_LIGHT_Q		= 0x00000008,
@@ -260,13 +253,11 @@ public:
 		REBUILD_VOLUME  = 0x00001000,	//volume changed LOD or parameters, or vertex buffer changed
 		REBUILD_TCOORD	= 0x00002000,	//texture coordinates changed
 		REBUILD_COLOR	= 0x00004000,	//color changed
-		REBUILD_LIGHTING= 0x00008000,	//lighting information changed
 		REBUILD_POSITION= 0x00010000,	//vertex positions/normals changed
 		REBUILD_GEOMETRY= REBUILD_POSITION|REBUILD_TCOORD|REBUILD_COLOR,
 		REBUILD_MATERIAL= REBUILD_TCOORD|REBUILD_COLOR,
-		REBUILD_ALL		= REBUILD_GEOMETRY|REBUILD_LIGHTING|REBUILD_VOLUME,
+		REBUILD_ALL		= REBUILD_GEOMETRY|REBUILD_VOLUME,
 		ON_SHIFT_LIST	= 0x00100000,
-// 		NO_INTERP_COLOR = 0x00200000,
 		BLOCKER			= 0x00400000,
 		ACTIVE			= 0x00800000,
 		DEAD			= 0x01000000,
@@ -284,14 +275,7 @@ public:
 	LLPointer<LLDrawable> mParent;
 
 	F32				mDistanceWRTCamera;
-
-	LLRectf			mUVRect;
-	F32				mUVZ;
-
-	drawable_set_t	mLightSet;
-	drawable_set_t	mBlockSet;
-
-	LLVector3		mSavePos;
+	
 	S32				mQuietCount;
 
 	static S32 getCurrentFrame() { return sCurVisible; }
@@ -301,7 +285,7 @@ public:
 	
 	static F32 sCurPixelAngle; //current pixels per radian
 
-protected:
+private:
 	typedef std::vector<LLFace*> face_list_t;
 	
 	U32				mState;
@@ -318,8 +302,6 @@ protected:
 	F64				mBinRadius;
 	S32				mGeneration;
 
-	F32				mSunShadowFactor;
-	
 	LLVector3		mCurrentScale;
 	
 	static U32 sCurVisible; // Counter for what value of mVisible means currently visible

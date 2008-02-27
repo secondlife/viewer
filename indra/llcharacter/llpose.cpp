@@ -379,15 +379,20 @@ void LLJointStateBlender::blendJointStates(BOOL apply_now)
 		}
 	}
 
-	// apply blended transforms
-	target_joint->setPosition(blended_pos);
-	target_joint->setScale(blended_scale);
-	target_joint->setRotation(blended_rot);
+	if (!added_scale.isFinite())
+	{
+		added_scale.clearVec();
+	}
 
-	// apply additive transforms
-	target_joint->setPosition(target_joint->getPosition() + added_pos);
-	target_joint->setScale(target_joint->getScale() + added_scale);
-	target_joint->setRotation(added_rot * target_joint->getRotation());
+	if (!blended_scale.isFinite())
+	{
+		blended_scale.setVec(1,1,1);
+	}
+
+	// apply transforms
+	target_joint->setPosition(blended_pos + added_pos);
+	target_joint->setScale(blended_scale + added_scale);
+	target_joint->setRotation(added_rot * blended_rot);
 
 	if (apply_now)
 	{

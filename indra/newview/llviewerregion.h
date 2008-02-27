@@ -64,10 +64,27 @@ class LLViewerParcelOverlay;
 class LLSurface;
 class LLVOCache;
 class LLVOCacheEntry;
+class LLSpatialPartition;
 
 class LLViewerRegion 
 {
 public:
+	//MUST MATCH THE ORDER OF DECLARATION IN CONSTRUCTOR
+	typedef enum 
+	{
+		PARTITION_HUD=0,
+		PARTITION_TERRAIN,
+		PARTITION_WATER,
+		PARTITION_TREE,
+		PARTITION_PARTICLE,
+		PARTITION_CLOUD,
+		PARTITION_GRASS,
+		PARTITION_VOLUME,
+		PARTITION_BRIDGE,
+		PARTITION_NONE,
+		NUM_PARTITIONS
+	} eObjectPartitions;
+
 	LLViewerRegion(const U64 &handle,
 				   const LLHost &host,
 				   const U32 surface_grid_width,
@@ -84,7 +101,8 @@ public:
 	void sendReliableMessage(); // Send the current message to this region's simulator
 
 	void setOriginGlobal(const LLVector3d &origin);
-	void setAgentOffset(const LLVector3d &offset);
+	//void setAgentOffset(const LLVector3d &offset);
+	void updateRenderMatrix();
 
 	void setAllowDamage(BOOL b) { setFlags(b, REGION_FLAGS_ALLOW_DAMAGE); }
 	void setAllowLandmark(BOOL b) { setFlags(b, REGION_FLAGS_ALLOW_LANDMARK); }
@@ -245,6 +263,7 @@ public:
 	// used by LCD to get details for debug screen
 	U32 getNetDetailsForLCD();
 
+	LLSpatialPartition* getSpatialPartition(U32 type);
 public:
 	struct CompareDistance
 	{
@@ -269,6 +288,8 @@ public:
 	LLStat	mBitStat;
 	LLStat	mPacketsStat;
 	LLStat	mPacketsLostStat;
+
+	LLMatrix4 mRenderMatrix;
 
 	// These arrays are maintained in parallel. Ideally they'd be combined into a
 	// single array of an aggrigate data type but for compatibility with the old
@@ -348,6 +369,10 @@ protected:
 	CapabilityMap mCapabilities;
 	
 	LLEventPoll* mEventPoll;
+
+private:
+	//spatial partitions for objects in this region
+	std::vector<LLSpatialPartition*> mObjectPartition;
 };
 
 inline BOOL LLViewerRegion::getAllowDamage() const

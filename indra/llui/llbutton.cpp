@@ -48,6 +48,7 @@
 #include "llglheaders.h"
 #include "llfocusmgr.h"
 #include "llwindow.h"
+#include "llglimmediate.h"
 
 // globals loaded from settings.xml
 S32	LLBUTTON_ORIG_H_PAD	= 6; // Pre-zoomable UI
@@ -601,9 +602,9 @@ void LLButton::draw()
 			mImagep->draw(0, 0, getEnabled() ? mImageColor : mDisabledImageColor );
 			if (mCurGlowStrength > 0.01f)
 			{
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+				gGL.blendFunc(GL_SRC_ALPHA, GL_ONE);
 				mImagep->drawSolid(0, 0, LLColor4(1.f, 1.f, 1.f, mCurGlowStrength));
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			}
 		}
 		else
@@ -612,9 +613,9 @@ void LLButton::draw()
 			mImagep->draw(0, 0, getRect().getWidth(), getRect().getHeight(), getEnabled() ? mImageColor : mDisabledImageColor  );
 			if (mCurGlowStrength > 0.01f)
 			{
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+				gGL.blendFunc(GL_SRC_ALPHA, GL_ONE);
 				mImagep->drawSolid(0, 0, getRect().getWidth(), getRect().getHeight(), LLColor4(1.f, 1.f, 1.f, mCurGlowStrength));
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			}
 		}
 		else

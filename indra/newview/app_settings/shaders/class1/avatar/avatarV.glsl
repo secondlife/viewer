@@ -1,9 +1,13 @@
-void default_scatter(vec3 viewVec, vec3 lightDir);
+/** 
+ * @file avatarV.glsl
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 mat4 getSkinnedTransform();
-vec2 getScatterCoord(vec3 viewVec, vec3 lightDir);
-
-attribute vec4 materialColor;
+void calcAtmospherics(vec3 inPositionEye);
 
 void main()
 {
@@ -24,12 +28,16 @@ void main()
 	norm = normalize(norm);
 		
 	gl_Position = gl_ProjectionMatrix * pos;
-	 
+	
 	//gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 	
-	default_scatter(pos.xyz, gl_LightSource[0].position.xyz);
+	gl_FogFragCoord = length(pos.xyz);
 
-	vec4 color = calcLighting(pos.xyz, norm, materialColor, gl_Color);
+	calcAtmospherics(pos.xyz);
+
+	vec4 color = calcLighting(pos.xyz, norm, gl_Color, vec4(0,0,0,0));
 	gl_FrontColor = color; 
 
 }
+
+

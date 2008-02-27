@@ -43,6 +43,7 @@
 #include "llclipboard.h"
 #include "llfocusmgr.h"
 #include "llgl.h"
+#include "llglimmediate.h"
 #include "llglheaders.h"
 #include "llresmgr.h"
 #include "llscrollbar.h"
@@ -280,7 +281,7 @@ void LLScrollListText::draw(const LLColor4& color, const LLColor4& highlight_col
 	if (mHighlightCount > 0)
 	{
 		mRoundedRectImage->bind();
-		glColor4fv(highlight_color.mV);
+		gGL.color4fv(highlight_color.mV);
 		S32 left = 0;
 		switch(mFontAlignment)
 		{
@@ -392,7 +393,7 @@ void LLScrollListItem::draw(const LLRect& rect, const LLColor4& fg_color, const 
 	bg_rect.stretch(LIST_BORDER_PAD, 0);
 	{
 		LLGLSNoTexture no_texture;
-		glColor4fv(bg_color.mV);
+		gGL.color4fv(bg_color.mV);
 		gl_rect_2d( bg_rect );
 	}
 
@@ -1711,7 +1712,7 @@ void LLScrollListCtrl::draw()
 		if (mBackgroundVisible)
 		{
 			LLGLSNoTexture no_texture;
-			glColor4fv( getEnabled() ? mBgWriteableColor.mV : mBgReadOnlyColor.mV );
+			gGL.color4fv( getEnabled() ? mBgWriteableColor.mV : mBgReadOnlyColor.mV );
 			gl_rect_2d(background);
 		}
 

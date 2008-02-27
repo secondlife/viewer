@@ -43,7 +43,6 @@
 #include "llchat.h"
 #include "llviewerobject.h"
 #include "lljointsolverrp3.h"
-#include "llviewerjointshape.h"
 #include "llviewerjointmesh.h"
 #include "llviewerjointattachment.h"
 #include "llcharacter.h"
@@ -54,6 +53,7 @@
 #include "llframetimer.h"
 #include "llxmltree.h"
 #include "llwearable.h"
+#include "llrendertarget.h"
 
 //Ventrella
 //#include "llvoiceclient.h"
@@ -62,6 +62,7 @@
 
 const S32 VOAVATAR_SCRATCH_TEX_WIDTH = 512;
 const S32 VOAVATAR_SCRATCH_TEX_HEIGHT = 512;
+const S32 VOAVATAR_IMPOSTOR_PERIOD = 2;
 
 const LLUUID ANIM_AGENT_BODY_NOISE		=	LLUUID("9aa8b0a6-0c6f-9518-c7c3-4f41f2c001ad"); //"body_noise"
 const LLUUID ANIM_AGENT_BREATHE_ROT	=	LLUUID("4c5a103e-b830-2f1c-16bc-224aa0ad5bc8");  //"breathe_rot"
@@ -269,6 +270,8 @@ public:
 	LLVOAvatar(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 	/*virtual*/ void markDead();
 
+	static void updateImpostors();
+
 	//--------------------------------------------------------------------
 	// LLViewerObject interface
 	//--------------------------------------------------------------------
@@ -288,6 +291,7 @@ public:
 	// Graphical stuff for objects - maybe broken out into render class later?
 
 	U32 renderFootShadows();
+	U32 renderImpostor(LLColor4U color = LLColor4U(255,255,255,255));
 	U32 renderRigid();
 	U32 renderSkinned(EAvatarRenderPass pass);
 	U32 renderTransparent();
@@ -296,10 +300,10 @@ public:
 	/*virtual*/ void updateTextures(LLAgent &agent);
 	// If setting a baked texture, need to request it from a non-local sim.
 	/*virtual*/ S32 setTETexture(const U8 te, const LLUUID& uuid);
-	
+	/*virtual*/ void onShift(const LLVector3& shift_vector);
 	virtual U32 getPartitionType() const;
 	
-	void updateVisibility(BOOL force_invisible);
+	void updateVisibility();
 	void updateAttachmentVisibility(U32 camera_mode);
 	void clampAttachmentPositions();
 	S32 getAttachmentCount();	// Warning: order(N) not order(1)
@@ -309,8 +313,6 @@ public:
 // 	void renderHUD(BOOL for_select); // old
 	void rebuildHUD();
 
-	static void updateAllAvatarVisiblity();
-
 	/*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
 	/*virtual*/ BOOL		updateGeometry(LLDrawable *drawable);
 	void updateShadowFaces();
@@ -318,13 +320,20 @@ public:
 	/*virtual*/ void		setPixelAreaAndAngle(LLAgent &agent);
 	BOOL					updateJointLODs();
 
-	void writeCAL3D(std::string& path, std::string& file_base);
-
 	virtual void updateRegion(LLViewerRegion *regionp);
-
 	
+	virtual const LLVector3 getRenderPosition() const;
+	virtual void updateDrawable(BOOL force_damped);
 	void updateSpatialExtents(LLVector3& newMin, LLVector3 &newMax);
-	
+	void getSpatialExtents(LLVector3& newMin, LLVector3& newMax);
+	BOOL isImpostor() const;
+	BOOL needsImpostorUpdate() const;
+	const LLVector3& getImpostorOffset() const;
+	const LLVector2& getImpostorDim() const;
+	void getImpostorValues(LLVector3* extents, LLVector3& angle, F32& distance);
+	void cacheImpostorValues();
+	void setImpostorDim(const LLVector2& dim);
+
 	//--------------------------------------------------------------------
 	// texture entry assignment
 	//--------------------------------------------------------------------
@@ -448,7 +457,7 @@ public:
 
 	void computeBodySize();
 
-	void updateCharacter(LLAgent &agent);
+	BOOL updateCharacter(LLAgent &agent);
 	void updateHeadOffset();
 
 	LLUUID& getStepSound();
@@ -546,8 +555,7 @@ public:
 	static void		deleteCachedImages();
 	static void		destroyGL();
 	static void		restoreGL();
-	static void		initVertexPrograms();
-	static void		cleanupVertexPrograms();
+	static void		resetImpostors();
 	static enum EWearableType	getTEWearableType( S32 te );
 	static LLUUID			getDefaultTEImageID( S32 te );
 
@@ -696,6 +704,19 @@ public:
 	LLUUID			mLastSkirtBakedID;
 
 	//--------------------------------------------------------------------
+	// impostor state
+	//--------------------------------------------------------------------
+	LLRenderTarget	mImpostor;
+	LLVector3		mImpostorOffset;
+	LLVector2		mImpostorDim;
+	BOOL			mNeedsImpostorUpdate;
+	BOOL			mNeedsAnimUpdate;
+	LLVector3		mImpostorExtents[2];
+	LLVector3		mImpostorAngle;
+	F32				mImpostorDistance;
+	LLVector3		mLastAnimExtents[2];  
+
+	//--------------------------------------------------------------------
 	// Misc Render State
 	//--------------------------------------------------------------------
 	BOOL			mIsDummy; // For special views
@@ -815,13 +836,14 @@ public:
 	// static members
 	//--------------------------------------------------------------------
 	static S32		sMaxVisible;
+	static F32		sRenderDistance; //distance at which avatars will render (affected by control "RenderAvatarMaxVisible")
 	static S32		sCurJoint;
 	static S32		sCurVolume;
 	static BOOL		sShowAnimationDebug; // show animation debug info
+	static BOOL		sUseImpostors; //use impostors for far away avatars
 	static BOOL		sShowFootPlane;	// show foot collision plane reported by server
 	static BOOL		sShowCollisionVolumes;	// show skeletal collision volumes
 	static BOOL		sVisibleInFirstPerson;
-
 	static S32		sMaxOtherAvatarsToComposite;
 
 	static S32		sNumLODChangesThisFrame;
@@ -848,13 +870,12 @@ public:
 	typedef std::map<S32, LLViewerJointAttachment*> attachment_map_t;
 	attachment_map_t mAttachmentPoints;
 
+	std::vector<LLPointer<LLViewerObject> > mPendingAttachment;
+
 	// xml parse tree of avatar config file
 	static LLXmlTree sXMLTree;
 	// xml parse tree of avatar skeleton file
 	static LLXmlTree sSkeletonXMLTree;
-
-	// number of avatar duplicates, for debugging purposes
-	static BOOL		sAvatarLoadTest;
 
 	// user-settable LOD factor
 	static F32		sLODFactor;
@@ -929,6 +950,9 @@ protected:
 	LLTexGlobalColor*	mTexSkinColor;
 	LLTexGlobalColor*	mTexHairColor;
 	LLTexGlobalColor*	mTexEyeColor;
+
+	BOOL				mNeedsSkin;  //if TRUE, avatar has been animated and verts have not been updated
+	S32					mUpdatePeriod;
 
 	static LLVOAvatarSkeletonInfo*	sSkeletonInfo;
 	static LLVOAvatarInfo*			sAvatarInfo;

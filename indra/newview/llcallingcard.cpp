@@ -193,7 +193,7 @@ bool LLAvatarTracker::haveTrackingInfo()
 
 LLVector3d LLAvatarTracker::getGlobalPos()
 {
-	if(!mTrackedAgentValid) return LLVector3d();
+	if(!mTrackedAgentValid || !mTrackingData) return LLVector3d();
 	LLVector3d global_pos;
 	
 	LLViewerObject* object = gObjectList.findObject(mTrackingData->mAvatarID);
@@ -452,8 +452,10 @@ void LLAvatarTracker::empowerList(const buddy_map_t& list, bool grant)
 
 void LLAvatarTracker::deleteTrackingData()
 {
-	delete mTrackingData;
+	//make sure mTrackingData never points to freed memory
+	LLTrackingData* tmp = mTrackingData;
 	mTrackingData = NULL;
+	delete tmp;
 }
 
 void LLAvatarTracker::findAgent()

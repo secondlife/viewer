@@ -1,7 +1,11 @@
-vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
-void default_scatter(vec3 viewVec, vec3 lightDir);
+/** 
+ * @file terrainV.glsl
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
 
-attribute vec4 materialColor;
+vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 
 vec4 texgen_object(vec4  vpos, vec4 tc, mat4 mat, vec4 tp0, vec4 tp1)
 {
@@ -25,7 +29,7 @@ void main()
 	vec4 pos = gl_ModelViewMatrix * gl_Vertex;
 	vec3 norm = normalize(gl_NormalMatrix * gl_Normal);
 	
-	vec4 color = calcLighting(pos.xyz, norm, materialColor, gl_Color);
+	vec4 color = calcLighting(pos.xyz, norm, vec4(1,1,1,1), gl_Color);
 	
 	gl_FrontColor = color;
 	
@@ -33,5 +37,4 @@ void main()
 	gl_TexCoord[1] = gl_TextureMatrix[1]*gl_MultiTexCoord1;
 	gl_TexCoord[2] = texgen_object(gl_Vertex,gl_MultiTexCoord2,gl_TextureMatrix[2],gl_ObjectPlaneS[2],gl_ObjectPlaneT[2]);
 	gl_TexCoord[3] = gl_TextureMatrix[3]*gl_MultiTexCoord3;
-	default_scatter(pos.xyz, gl_LightSource[0].position.xyz);	
 }

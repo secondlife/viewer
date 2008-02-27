@@ -42,6 +42,7 @@
 #include "llgl.h"
 #include "llstring.h"
 #include "lldir.h"
+#include "llviewercontrol.h"
 
 #include "llglheaders.h"
 
@@ -800,22 +801,24 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 	}
 	aglSetInteger(mContext, AGL_SWAP_INTERVAL, &frames_per_swap);  
 
-#if 0 // SJB: Got a compile error. Plus I don't want to test this along with everything else ; save it for later
 	//enable multi-threaded OpenGL
-	CGLError cgl_err;
-	CGLContextObj ctx = CGLGetCurrentContext();
-			
-	cgl_err =  CGLEnable( ctx, kCGLCEMPEngine);
-			
-	if (cgl_err != kCGLNoError )
+	if (gSavedSettings.getBOOL("RenderAppleUseMultGL"))
 	{
-		 llinfos << "Multi-threaded OpenGL not available." << llendl;
-	}    
-	else
-	{
-		llinfos << "Multi-threaded OpenGL enabled." << llendl;
+		CGLError cgl_err;
+		CGLContextObj ctx = CGLGetCurrentContext();
+
+		cgl_err =  CGLEnable( ctx, kCGLCEMPEngine);
+
+		if (cgl_err != kCGLNoError )
+		{
+			llinfos << "Multi-threaded OpenGL not available." << llendl;
+		}    
+		else
+		{
+			llinfos << "Multi-threaded OpenGL enabled." << llendl;
+		}
 	}
-#endif 		
+
 	// Don't need to get the current gamma, since there's a call that restores it to the system defaults.
 	return TRUE;
 }

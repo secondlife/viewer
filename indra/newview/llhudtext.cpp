@@ -33,6 +33,8 @@
 
 #include "llhudtext.h"
 
+#include "llglimmediate.h"
+
 #include "llagent.h"
 #include "llviewercontrol.h"
 #include "llchatbar.h"
@@ -262,7 +264,7 @@ void LLHUDText::renderText(BOOL for_select)
 				LLGLSNoTexture no_texture_state;
 				S32 name = mSourceObject->mGLName;
 				LLColor4U coloru((U8)(name >> 16), (U8)(name >> 8), (U8)name);
-				glColor4ubv(coloru.mV);
+				gGL.color4ubv(coloru.mV);
 				gl_segmented_rect_3d_tex(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, height_vec);
 				LLUI::popMatrix();
 				return;
@@ -271,14 +273,14 @@ void LLHUDText::renderText(BOOL for_select)
 			{
 				LLViewerImage::bindTexture(imagep);
 				
-				glColor4fv(bg_color.mV);
+				gGL.color4fv(bg_color.mV);
 				gl_segmented_rect_3d_tex(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, height_vec);
 		
 				if ( mLabelSegments.size())
 				{
 					LLUI::pushMatrix();
 					{
-						glColor4f(text_color.mV[VX], text_color.mV[VY], text_color.mV[VZ], gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
+						gGL.color4f(text_color.mV[VX], text_color.mV[VY], text_color.mV[VZ], gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
 						LLVector3 label_height = (mFontp->getLineHeight() * mLabelSegments.size() + (VERTICAL_PADDING / 3.f)) * y_pixel_vec;
 						LLVector3 label_offset = height_vec - label_height;
 						LLUI::translate(label_offset.mV[VX], label_offset.mV[VY], label_offset.mV[VZ]);
@@ -296,7 +298,7 @@ void LLHUDText::renderText(BOOL for_select)
 			{
 				LLUI::pushMatrix();
 				{
-					glColor4fv(bg_color.mV);
+					gGL.color4fv(bg_color.mV);
 					LLVector3 target_pos = -1.f * (mPositionOffset.mV[VX] * x_pixel_vec + mPositionOffset.mV[VY] * y_pixel_vec);
 					target_pos += (width_vec / 2.f);
 					target_pos += mVertAlignment == ALIGN_VERT_CENTER ? (height_vec * 0.5f) : LLVector3::zero;
@@ -308,15 +310,15 @@ void LLHUDText::renderText(BOOL for_select)
 				LLUI::popMatrix();
 
 				
-				LLGLDisable gls_texture_2d(GL_TEXTURE_2D);
+				LLImageGL::unbindTexture(0);
 				LLGLDepthTest gls_depth(mZCompare ? GL_TRUE : GL_FALSE, GL_FALSE);
 				
 				LLVector3 box_center_offset;
 				box_center_offset = (width_vec * 0.5f) + (height_vec * 0.5f);
 				LLUI::translate(box_center_offset.mV[VX], box_center_offset.mV[VY], box_center_offset.mV[VZ]);
-				glColor4fv(bg_color.mV);
+				gGL.color4fv(bg_color.mV);
 				LLUI::setLineWidth(2.0);
-				glBegin(GL_LINES);
+				gGL.begin(GL_LINES);
 				{
 					if (outside_width)
 					{
@@ -326,20 +328,20 @@ void LLHUDText::renderText(BOOL for_select)
 						{
 							// start at right edge
 							vert = width_vec * 0.5f;
-							glVertex3fv(vert.mV);
+							gGL.vertex3fv(vert.mV);
 						}
 						else
 						{
 							// start at left edge
 							vert = width_vec * -0.5f;
-							glVertex3fv(vert.mV);
+							gGL.vertex3fv(vert.mV);
 						}
 						vert = -mPositionOffset.mV[VX] * x_pixel_vec;
-						glVertex3fv(vert.mV);
-						glVertex3fv(vert.mV);
+						gGL.vertex3fv(vert.mV);
+						gGL.vertex3fv(vert.mV);
 						vert -= mPositionOffset.mV[VY] * y_pixel_vec;
 						vert -= ((mVertAlignment == ALIGN_VERT_TOP) ? (height_vec * 0.5f) : LLVector3::zero);
-						glVertex3fv(vert.mV);
+						gGL.vertex3fv(vert.mV);
 					}
 					else
 					{
@@ -349,20 +351,20 @@ void LLHUDText::renderText(BOOL for_select)
 						{
 							// start at top edge
 							vert = (height_vec * 0.5f) - (mPositionOffset.mV[VX] * x_pixel_vec);
-							glVertex3fv(vert.mV);
+							gGL.vertex3fv(vert.mV);
 						}
 						else
 						{
 							// start at bottom edge
 							vert = (height_vec * -0.5f)  - (mPositionOffset.mV[VX] * x_pixel_vec);
-							glVertex3fv(vert.mV);
+							gGL.vertex3fv(vert.mV);
 						}
 						vert = -mPositionOffset.mV[VY] * y_pixel_vec - mPositionOffset.mV[VX] * x_pixel_vec;
 						vert -= ((mVertAlignment == ALIGN_VERT_TOP) ? (height_vec * 0.5f) : LLVector3::zero);
-						glVertex3fv(vert.mV);
+						gGL.vertex3fv(vert.mV);
 					}
 				}
-				glEnd();
+				gGL.end();
 				LLUI::setLineWidth(1.0);
 
 			}
@@ -441,6 +443,8 @@ void LLHUDText::renderText(BOOL for_select)
 			hud_render_text(segment_iter->getText(), render_position, *fontp, style, x_offset, y_offset, text_color, mOnHUDAttachment);
 		}
 	}
+	/// Reset the default color to white.  The renderer expects this to be the default. 
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void LLHUDText::setStringUTF8(const std::string &wtext)

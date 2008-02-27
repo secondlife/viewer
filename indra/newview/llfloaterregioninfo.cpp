@@ -52,10 +52,12 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "llfilepicker.h"
+#include "llfloaterdaycycle.h"
 #include "llfloatergodtools.h"	// for send_sim_wide_deletes()
 #include "llfloatertopobjects.h" // added to fix SL-32336
 #include "llfloatergroups.h"
 #include "llfloatertelehub.h"
+#include "llfloaterwindlight.h"
 #include "lllineeditor.h"
 #include "llalertdialog.h"
 #include "llnamelistctrl.h"
@@ -1436,9 +1438,21 @@ void LLPanelEstateInfo::onChangeFixedSun(LLUICtrl* ctrl, void* user_data)
 	}
 }
 
+
+
+
 //---------------------------------------------------------------------------
 // Add/Remove estate access button callbacks
 //---------------------------------------------------------------------------
+void LLPanelEstateInfo::onClickEditSky(void* user_data)
+{
+	LLFloaterWindLight::show();
+}
+
+void LLPanelEstateInfo::onClickEditDayCycle(void* user_data)
+{
+	LLFloaterDayCycle::show();
+}
 
 // static
 void LLPanelEstateInfo::onClickAddAllowedAgent(void* user_data)
@@ -2010,6 +2024,9 @@ BOOL LLPanelEstateInfo::postBuild()
 	initHelpBtn("estate_manager_help",			"HelpEstateEstateManager");
 	initHelpBtn("use_global_time_help",			"HelpEstateUseGlobalTime");
 	initHelpBtn("fixed_sun_help",				"HelpEstateFixedSun");
+	initHelpBtn("WLEditSkyHelp",				"HelpEditSky");
+	initHelpBtn("WLEditDayCycleHelp",			"HelpEditDayCycle");
+
 	initHelpBtn("externally_visible_help",		"HelpEstateExternallyVisible");
 	initHelpBtn("allow_direct_teleport_help",	"HelpEstateAllowDirectTeleport");
 	initHelpBtn("allow_resident_help",			"HelpEstateAllowResident");
@@ -2068,6 +2085,9 @@ BOOL LLPanelEstateInfo::postBuild()
 	childSetAction("remove_estate_manager_btn", onClickRemoveEstateManager, this);
 	childSetAction("message_estate_btn", onClickMessageEstate, this);
 	childSetAction("kick_user_from_estate_btn", onClickKickUser, this);
+
+	childSetAction("WLEditSky", onClickEditSky, this);
+	childSetAction("WLEditDayCycle", onClickEditDayCycle, this);
 
 	return LLPanelRegionInfo::postBuild();
 }

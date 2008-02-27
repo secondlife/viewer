@@ -37,7 +37,6 @@
 #include "object_flags.h"
 
 #include "llagent.h"
-#include "llhudconnector.h"
 #include "llhudeffect.h"
 #include "pipeline.h"
 #include "llviewercontrol.h"
@@ -91,7 +90,7 @@ void LLHUDManager::sendEffects()
 			llwarns << "Trying to send dead effect!" << llendl;
 			continue;
 		}
-		if (hep->mType <= LLHUDObject::LL_HUD_CONNECTOR)
+		if (hep->mType < LLHUDObject::LL_HUD_EFFECT_BEAM)
 		{
 			llwarns << "Trying to send effect of type " << hep->mType << " which isn't really an effect and shouldn't be in this list!" << llendl;
 			continue;

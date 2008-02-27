@@ -1,4 +1,10 @@
-vec4 calcLighting(vec3 pos, vec3 norm, vec4 color);
+/** 
+ * @file pickAvatarV.glsl
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
 mat4 getSkinnedTransform();
 
 void main()

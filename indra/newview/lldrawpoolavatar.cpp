@@ -32,6 +32,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lldrawpoolavatar.h"
+#include "llglimmediate.h"
 
 #include "llvoavatar.h"
 #include "m3math.h"
@@ -142,19 +143,32 @@ LLMatrix4& LLDrawPoolAvatar::getModelView()
 
 S32 LLDrawPoolAvatar::getNumPasses()
 {
-	return 3;
+	return LLPipeline::sImpostorRender ? 1 : 3;
 }
 
 void LLDrawPoolAvatar::render(S32 pass)
 {
 	LLFastTimer t(LLFastTimer::FTM_RENDER_CHARACTERS);
+	if (LLPipeline::sImpostorRender)
+	{
+		renderAvatars(NULL, 2);
+		return;
+	}
+
 	renderAvatars(NULL, pass); // render all avatars
 }
 
 void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 {
+	LLFastTimer t(LLFastTimer::FTM_RENDER_CHARACTERS);
 	//reset vertex buffer mappings
 	LLVertexBuffer::unbind();
+
+	if (LLPipeline::sImpostorRender)
+	{
+		beginSkinned();
+		return;
+	}
 
 	switch (pass)
 	{
@@ -172,6 +186,14 @@ void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 
 void LLDrawPoolAvatar::endRenderPass(S32 pass)
 {
+	LLFastTimer t(LLFastTimer::FTM_RENDER_CHARACTERS);
+
+	if (LLPipeline::sImpostorRender)
+	{
+		endSkinned();
+		return;
+	}
+
 	switch (pass)
 	{
 	case 0:
@@ -187,31 +209,47 @@ void LLDrawPoolAvatar::endRenderPass(S32 pass)
 
 void LLDrawPoolAvatar::beginFootShadow()
 {
-	glDepthMask(GL_FALSE);
+	if (!LLPipeline::sReflectionRender)
+	{
+		LLVOAvatar::sRenderDistance = llclamp(LLVOAvatar::sRenderDistance, 16.f, 256.f);
+		LLVOAvatar::sNumVisibleAvatars = 0;
+	}
+
 	gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void LLDrawPoolAvatar::endFootShadow()
 {
-	gPipeline.enableLightsDynamic(1.f);
-	glDepthMask(GL_TRUE);
+	gPipeline.enableLightsDynamic();
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void LLDrawPoolAvatar::beginRigid()
 {
-	sVertexProgram = NULL;
-	sShaderLevel = 0;
+	if (gPipeline.canUseVertexShaders())
+	{
+		if (LLPipeline::sUnderWaterRender)
+		{
+			sVertexProgram = &gObjectSimpleWaterProgram;
+		}
+		else
+		{
+			sVertexProgram = &gObjectSimpleProgram;
+		}
+		
+		if (sVertexProgram != NULL)
+		{	//eyeballs render with the specular shader
+			sVertexProgram->bind();
+		}
+	}
+	else
+	{
+		sVertexProgram = NULL;
+	}
+
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	/*if (sShaderLevel > 0)
-	{	//eyeballs render with the specular shader
-		gAvatarEyeballProgram.bind();
-		gMaterialIndex = gAvatarEyeballProgram.mAttribute[LLShaderMgr::MATERIAL_COLOR];
-		gSpecularIndex = gAvatarEyeballProgram.mAttribute[LLShaderMgr::SPECULAR_COLOR];
-	}*/
 }
 
 void LLDrawPoolAvatar::endRigid()
@@ -219,6 +257,10 @@ void LLDrawPoolAvatar::endRigid()
 	sShaderLevel = mVertexShaderLevel;
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	if (sVertexProgram != NULL)
+	{
+		sVertexProgram->unbind();
+	}
 }
 
 void LLDrawPoolAvatar::beginSkinned()
@@ -226,17 +268,35 @@ void LLDrawPoolAvatar::beginSkinned()
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	sVertexProgram = &gAvatarProgram;
-
+	if (sShaderLevel > 0)
+	{
+		if (LLPipeline::sUnderWaterRender)
+		{
+			sVertexProgram = &gAvatarWaterProgram;
+			sShaderLevel = llmin((U32) 1, sShaderLevel);
+		}
+		else
+		{
+			sVertexProgram = &gAvatarProgram;
+		}
+	}
+	else
+	{
+		if (LLPipeline::sUnderWaterRender)
+		{
+			sVertexProgram = &gObjectSimpleWaterProgram;
+		}
+		else
+		{
+			sVertexProgram = &gObjectSimpleProgram;
+		}
+	}
+	
 	if (sShaderLevel > 0)  // for hardware blending
 	{
 		sRenderingSkinned = TRUE;
 		glClientActiveTextureARB(GL_TEXTURE1_ARB);
-		if (sShaderLevel >= SHADER_LEVEL_BUMP)
-		{
-			gMaterialIndex = sVertexProgram->mAttribute[LLShaderMgr::MATERIAL_COLOR];
-			gSpecularIndex = sVertexProgram->mAttribute[LLShaderMgr::SPECULAR_COLOR];
-		}
+
 		sVertexProgram->bind();
 		if (sShaderLevel >= SHADER_LEVEL_CLOTH)
 		{
@@ -251,6 +311,15 @@ void LLDrawPoolAvatar::beginSkinned()
 		
 		sVertexProgram->enableTexture(LLShaderMgr::BUMP_MAP);
 		glActiveTextureARB(GL_TEXTURE0_ARB);
+	}
+	else
+	{
+		if(gPipeline.canUseVertexShaders())
+		{
+			// software skinning, use a basic shader for windlight.
+			// TODO: find a better fallback method for software skinning.
+			sVertexProgram->bind();
+		}
 	}
 }
 
@@ -274,6 +343,16 @@ void LLDrawPoolAvatar::endSkinned()
 		}
 
 		sVertexProgram->unbind();
+		sShaderLevel = mVertexShaderLevel;
+	}
+	else
+	{
+		if(gPipeline.canUseVertexShaders())
+		{
+			// software skinning, use a basic shader for windlight.
+			// TODO: find a better fallback method for software skinning.
+			sVertexProgram->unbind();
+		}
 	}
 
 	glActiveTextureARB(GL_TEXTURE0_ARB);
@@ -298,6 +377,8 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 
 		return;
 	}
+
+	
 
 	if (!gRenderAvatar)
 	{
@@ -330,60 +411,50 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		return;
 	}
 
-    LLOverrideFaceColor color(this, 1.0f, 1.0f, 1.0f, 1.0f);
+	BOOL impostor = avatarp->isImpostor() && !single_avatar;
+
+	if (impostor && pass != 0)
+	{ //don't draw anything but the impostor for impostored avatars
+		return;
+	}
 	
+	if (pass == 0 && !impostor && LLPipeline::sUnderWaterRender)
+	{ //don't draw foot shadows under water
+		return;
+	}
+
+    LLOverrideFaceColor color(this, 1.0f, 1.0f, 1.0f, 1.0f);
+
 	if (pass == 0)
 	{
-		if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FOOT_SHADOWS))
+		if (!LLPipeline::sReflectionRender)
+		{
+			LLVOAvatar::sNumVisibleAvatars++;
+		}
+
+		if (impostor)
+		{
+			avatarp->renderImpostor();
+		}
+		else if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FOOT_SHADOWS))
 		{
 			mIndicesDrawn += avatarp->renderFootShadows();	
 		}
 		return;
 	}
 
-	if (avatarp->mSpecialRenderMode == 0) // normal
-	{
-		gPipeline.enableLightsAvatar(avatarp->mDrawable->getSunShadowFactor());
-	}
-	else if (avatarp->mSpecialRenderMode == 1)  // anim preview
-	{
-		gPipeline.enableLightsAvatarEdit(LLColor4(0.7f, 0.6f, 0.3f, 1.f));
-	}
-	else // 2=image preview,  3=morph view
+	if (single_avatar && avatarp->mSpecialRenderMode >= 2) // 2=image preview,  3=morph view
 	{
 		gPipeline.enableLightsAvatarEdit(LLColor4(.5f, .5f, .5f, 1.f));
 	}
-
+	
 	if (pass == 1)
 	{
 		// render rigid meshes (eyeballs) first
 		mIndicesDrawn += avatarp->renderRigid();
-
-		if (!gRenderForSelect && avatarp->mIsSelf && LLVOAvatar::sAvatarLoadTest)
-		{
-			LLVector3 orig_pos_root = avatarp->mRoot.getPosition();
-			LLVector3 next_pos_root = orig_pos_root;
-			for (S32 i = 0; i < NUM_TEST_AVATARS; i++)
-			{
-				next_pos_root.mV[VX] += 1.f;
-				if (i % 5 == 0)
-				{
-					next_pos_root.mV[VY] += 1.f;
-					next_pos_root.mV[VX] = orig_pos_root.mV[VX];
-				}
-
-				avatarp->mRoot.setPosition(next_pos_root); // avatar load test
-				avatarp->mRoot.updateWorldMatrixChildren(); // avatar load test
-
-				mIndicesDrawn += avatarp->renderRigid();
-			}
-			avatarp->mRoot.setPosition(orig_pos_root); // avatar load test
-			avatarp->mRoot.updateWorldMatrixChildren(); // avatar load test
-		}
 		return;
 	}
 	
-
 	if (sShaderLevel > 0)
 	{
 		gAvatarMatrixParam = sVertexProgram->mUniform[LLShaderMgr::AVATAR_MATRIX];
@@ -427,79 +498,57 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 			LLGLSNoTexture gls_no_texture;
 			LLVector3 pos = avatarp->getPositionAgent();
 
-			color.setColor(1.0f, 0.0f, 0.0f, 0.8f);
-			glBegin(GL_LINES);
+			gGL.color4f(1.0f, 0.0f, 0.0f, 0.8f);
+			gGL.begin(GL_LINES);
 			{
-				glVertex3fv((pos - LLVector3(0.2f, 0.f, 0.f)).mV);
-				glVertex3fv((pos + LLVector3(0.2f, 0.f, 0.f)).mV);
-				glVertex3fv((pos - LLVector3(0.f, 0.2f, 0.f)).mV);
-				glVertex3fv((pos + LLVector3(0.f, 0.2f, 0.f)).mV);
-				glVertex3fv((pos - LLVector3(0.f, 0.f, 0.2f)).mV);
-				glVertex3fv((pos + LLVector3(0.f, 0.f, 0.2f)).mV);
-			}glEnd();
+				gGL.vertex3fv((pos - LLVector3(0.2f, 0.f, 0.f)).mV);
+				gGL.vertex3fv((pos + LLVector3(0.2f, 0.f, 0.f)).mV);
+				gGL.vertex3fv((pos - LLVector3(0.f, 0.2f, 0.f)).mV);
+				gGL.vertex3fv((pos + LLVector3(0.f, 0.2f, 0.f)).mV);
+				gGL.vertex3fv((pos - LLVector3(0.f, 0.f, 0.2f)).mV);
+				gGL.vertex3fv((pos + LLVector3(0.f, 0.f, 0.2f)).mV);
+			}gGL.end();
 
 			pos = avatarp->mDrawable->getPositionAgent();
-			color.setColor(1.0f, 0.0f, 0.0f, 0.8f);
-			glBegin(GL_LINES);
+			gGL.color4f(1.0f, 0.0f, 0.0f, 0.8f);
+			gGL.begin(GL_LINES);
 			{
-				glVertex3fv((pos - LLVector3(0.2f, 0.f, 0.f)).mV);
-				glVertex3fv((pos + LLVector3(0.2f, 0.f, 0.f)).mV);
-				glVertex3fv((pos - LLVector3(0.f, 0.2f, 0.f)).mV);
-				glVertex3fv((pos + LLVector3(0.f, 0.2f, 0.f)).mV);
-				glVertex3fv((pos - LLVector3(0.f, 0.f, 0.2f)).mV);
-				glVertex3fv((pos + LLVector3(0.f, 0.f, 0.2f)).mV);
-			}glEnd();
+				gGL.vertex3fv((pos - LLVector3(0.2f, 0.f, 0.f)).mV);
+				gGL.vertex3fv((pos + LLVector3(0.2f, 0.f, 0.f)).mV);
+				gGL.vertex3fv((pos - LLVector3(0.f, 0.2f, 0.f)).mV);
+				gGL.vertex3fv((pos + LLVector3(0.f, 0.2f, 0.f)).mV);
+				gGL.vertex3fv((pos - LLVector3(0.f, 0.f, 0.2f)).mV);
+				gGL.vertex3fv((pos + LLVector3(0.f, 0.f, 0.2f)).mV);
+			}gGL.end();
 
 			pos = avatarp->mRoot.getWorldPosition();
-			color.setColor(1.0f, 1.0f, 1.0f, 0.8f);
-			glBegin(GL_LINES);
+			gGL.color4f(1.0f, 1.0f, 1.0f, 0.8f);
+			gGL.begin(GL_LINES);
 			{
-				glVertex3fv((pos - LLVector3(0.2f, 0.f, 0.f)).mV);
-				glVertex3fv((pos + LLVector3(0.2f, 0.f, 0.f)).mV);
-				glVertex3fv((pos - LLVector3(0.f, 0.2f, 0.f)).mV);
-				glVertex3fv((pos + LLVector3(0.f, 0.2f, 0.f)).mV);
-				glVertex3fv((pos - LLVector3(0.f, 0.f, 0.2f)).mV);
-				glVertex3fv((pos + LLVector3(0.f, 0.f, 0.2f)).mV);
-			}glEnd();
+				gGL.vertex3fv((pos - LLVector3(0.2f, 0.f, 0.f)).mV);
+				gGL.vertex3fv((pos + LLVector3(0.2f, 0.f, 0.f)).mV);
+				gGL.vertex3fv((pos - LLVector3(0.f, 0.2f, 0.f)).mV);
+				gGL.vertex3fv((pos + LLVector3(0.f, 0.2f, 0.f)).mV);
+				gGL.vertex3fv((pos - LLVector3(0.f, 0.f, 0.2f)).mV);
+				gGL.vertex3fv((pos + LLVector3(0.f, 0.f, 0.2f)).mV);
+			}gGL.end();
 
 			pos = avatarp->mPelvisp->getWorldPosition();
-			color.setColor(0.0f, 0.0f, 1.0f, 0.8f);
-			glBegin(GL_LINES);
+			gGL.color4f(0.0f, 0.0f, 1.0f, 0.8f);
+			gGL.begin(GL_LINES);
 			{
-				glVertex3fv((pos - LLVector3(0.2f, 0.f, 0.f)).mV);
-				glVertex3fv((pos + LLVector3(0.2f, 0.f, 0.f)).mV);
-				glVertex3fv((pos - LLVector3(0.f, 0.2f, 0.f)).mV);
-				glVertex3fv((pos + LLVector3(0.f, 0.2f, 0.f)).mV);
-				glVertex3fv((pos - LLVector3(0.f, 0.f, 0.2f)).mV);
-				glVertex3fv((pos + LLVector3(0.f, 0.f, 0.2f)).mV);
-			}glEnd();	
+				gGL.vertex3fv((pos - LLVector3(0.2f, 0.f, 0.f)).mV);
+				gGL.vertex3fv((pos + LLVector3(0.2f, 0.f, 0.f)).mV);
+				gGL.vertex3fv((pos - LLVector3(0.f, 0.2f, 0.f)).mV);
+				gGL.vertex3fv((pos + LLVector3(0.f, 0.2f, 0.f)).mV);
+				gGL.vertex3fv((pos - LLVector3(0.f, 0.f, 0.2f)).mV);
+				gGL.vertex3fv((pos + LLVector3(0.f, 0.f, 0.2f)).mV);
+			}gGL.end();	
 
 			color.setColor(1.0f, 1.0f, 1.0f, 1.0f);
 		}
 
 		mIndicesDrawn += avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
-				
-		if (!gRenderForSelect && avatarp->mIsSelf && LLVOAvatar::sAvatarLoadTest)
-		{
-			LLVector3 orig_pos_root = avatarp->mRoot.getPosition();
-			LLVector3 next_pos_root = orig_pos_root;
-			for (S32 i = 0; i < NUM_TEST_AVATARS; i++)
-			{
-				next_pos_root.mV[VX] += 1.f;
-				if (i % 5 == 0)
-				{
-					next_pos_root.mV[VY] += 1.f;
-					next_pos_root.mV[VX] = orig_pos_root.mV[VX];
-				}
-
-				avatarp->mRoot.setPosition(next_pos_root); // avatar load test
-				avatarp->mRoot.updateWorldMatrixChildren(); // avatar load test
-
-				mIndicesDrawn += avatarp->renderSkinned(AVATAR_RENDER_PASS_SINGLE);
-			}
-			avatarp->mRoot.setPosition(orig_pos_root); // avatar load test
-			avatarp->mRoot.updateWorldMatrixChildren(); // avatar load test
-		}
 	}
 }
 
@@ -535,6 +584,31 @@ void LLDrawPoolAvatar::renderForSelect()
 		return;
 	}
 
+	S32 name = avatarp->mDrawable->getVObj()->mGLName;
+	LLColor4U color((U8)(name >> 16), (U8)(name >> 8), (U8)name);
+
+	BOOL impostor = avatarp->isImpostor();
+	if (impostor)
+	{
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_REPLACE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB,		GL_MODULATE);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_PRIMARY_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_TEXTURE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB,		GL_PRIMARY_COLOR_ARB);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_ARB,	GL_SRC_ALPHA);
+
+		avatarp->renderImpostor(color);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		return;
+	}
+
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -544,14 +618,9 @@ void LLDrawPoolAvatar::renderForSelect()
 		gAvatarMatrixParam = sVertexProgram->mUniform[LLShaderMgr::AVATAR_MATRIX];
 	}
 	glAlphaFunc(GL_GEQUAL, 0.2f);
-	glBlendFunc(GL_ONE, GL_ZERO);
+	gGL.blendFunc(GL_ONE, GL_ZERO);
 
-	S32 name = avatarp->mDrawable->getVObj()->mGLName;
-	LLColor4U color((U8)(name >> 16), (U8)(name >> 8), (U8)name);
 	glColor4ubv(color.mV);
-
-	// render rigid meshes (eyeballs) first
-	//mIndicesDrawn += avatarp->renderRigid();
 
 	if ((sShaderLevel > 0) && !gUseGLPick)  // for hardware blending
 	{
@@ -572,7 +641,7 @@ void LLDrawPoolAvatar::renderForSelect()
 	}
 
 	glAlphaFunc(GL_GREATER, 0.01f);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// restore texture mode
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);

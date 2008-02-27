@@ -762,7 +762,8 @@ class LLVolumeFace
 {
 public:
 	LLVolumeFace();
-	BOOL create();
+	BOOL create(BOOL partial_build = FALSE);
+	void createBinormals();
 
 	class VertexData
 	{
@@ -792,6 +793,7 @@ public:
 	S32 mID;
 	U32 mTypeMask;
 	LLVector3 mCenter;
+	BOOL mHasBinormals;
 
 	// Only used for INNER/OUTER faces
 	S32 mBeginS;
@@ -802,7 +804,7 @@ public:
 	LLVector3 mExtents[2]; //minimum and maximum point of face
 
 	std::vector<VertexData> mVertices;
-	std::vector<S32>	mIndices;
+	std::vector<U16>	mIndices;
 	std::vector<S32>	mEdge;
 	LLVolume *mVolumep; // Deliberately NOT reference counted - djs 11/20/03 - otherwise would make an annoying circular reference
 
@@ -811,9 +813,9 @@ public:
 							 LLStrider<LLColor4U> &new_colors, const S32 num_new, const LLVolumeFace &new_face);
 	
 protected:
-	BOOL createUnCutCubeCap();
-	BOOL createCap();
-	BOOL createSide();
+	BOOL createUnCutCubeCap(BOOL partial_build = FALSE);
+	BOOL createCap(BOOL partial_build = FALSE);
+	BOOL createSide(BOOL partial_build = FALSE);
 };
 
 class LLVolume : public LLRefCount
@@ -850,12 +852,14 @@ public:
 	LLVolumeParams getCopyOfParams() const					{ return mParams; }
 	const LLProfile& getProfile() const						{ return *mProfilep; }
 	LLPath& getPath() const									{ return *mPathp; }
+	void resizePath(S32 length);
 	const std::vector<Point>& getMesh() const				{ return mMesh; }
 	const LLVector3& getMeshPt(const U32 i) const			{ return mMesh[i].mPos; }
 
 	void setDirty() { mPathp->setDirty(); mProfilep->setDirty(); }
 
 	void regen();
+	void genBinormals(S32 face);
 
 	BOOL isConvex() const;
 	BOOL isCap(S32 face);

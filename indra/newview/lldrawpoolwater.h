@@ -49,6 +49,11 @@ protected:
 	const LLWaterSurface *mWaterSurface;
 public:
 	static BOOL sSkipScreenCopy;
+	static BOOL sNeedsReflectionUpdate;
+	static LLVector3 sLightDir;
+
+	static LLColor4 sWaterFogColor;
+
 	enum
 	{
 		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
@@ -58,17 +63,13 @@ public:
 
 	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
 
-	enum
-	{
-		SHADER_LEVEL_RIPPLE = 2,
-	};
-	
 	LLDrawPoolWater();
 	/*virtual*/ ~LLDrawPoolWater();
 
 	/*virtual*/ LLDrawPool *instancePool();
 	static void restoreGL();
 
+	/*virtual*/ S32 getNumPasses();
 	/*virtual*/ void render(S32 pass = 0);
 	/*virtual*/ void renderFaceSelected(LLFace *facep, LLImageGL *image, const LLColor4 &color,
 										const S32 index_offset = 0, const S32 index_count = 0);
@@ -80,9 +81,6 @@ public:
 
 	void renderReflection(LLFace* face);
 	void shade();
-	void renderShaderSimple();
-
-	virtual S32 getMaterialAttribIndex() { return 0; }
 };
 
 void cgErrorCallback();

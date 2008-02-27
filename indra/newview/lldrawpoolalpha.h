@@ -37,6 +37,7 @@
 
 class LLFace;
 class LLColor4;
+class LLGLSLShader;
 
 class LLDrawPoolAlpha: public LLRenderPass
 {
@@ -54,15 +55,26 @@ public:
 	/*virtual*/ ~LLDrawPoolAlpha();
 
 	/*virtual*/ void beginRenderPass(S32 pass = 0);
+	/*virtual*/ void endRenderPass( S32 pass );
+	/*virtual*/ S32	 getNumPasses() { return 1; }
+
 	virtual void render(S32 pass = 0);
-	void render(std::vector<LLSpatialGroup*>& groups);
 	/*virtual*/ void prerender();
 
 	void renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
-	void renderAlpha(U32 mask, std::vector<LLSpatialGroup*>& groups);
-	void renderAlphaHighlight(U32 mask, std::vector<LLSpatialGroup*>& groups);
+	void renderAlpha(U32 mask);
+	void renderAlphaHighlight(U32 mask);
 	
 	static BOOL sShowDebugAlpha;
+
+private:
+	S32 mDiffuse;
+	LLGLSLShader* current_shader;
+	LLGLSLShader* target_shader;
+	LLGLSLShader* simple_shader;
+	LLGLSLShader* simple_lod_shader;
+	LLGLSLShader* fullbright_shader;	
+	LLGLSLShader* fullbright_lod_shader;
 };
 
 class LLDrawPoolAlphaPostWater : public LLDrawPoolAlpha

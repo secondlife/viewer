@@ -120,8 +120,6 @@ public:
 	// Update methods (called during idle, normally)
 	BOOL idleUpdate(F32 max_update_time);
 
-	void renderSurfaceBounds();
-	
 	BOOL containsPosition(const LLVector3 &position);
 
 	void moveZ(const S32 x, const S32 y, const F32 delta);	

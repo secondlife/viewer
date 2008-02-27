@@ -89,7 +89,16 @@ LLCheckBoxCtrl::LLCheckBoxCtrl(const LLString& name, const LLRect& rect,
 		LLCHECKBOXCTRL_VPAD + 1, // padding to get better alignment
 		text_width + LLCHECKBOXCTRL_HPAD,
 		text_height );
-	mLabel = new LLTextBox( "CheckboxCtrl Label", label_rect, label.c_str(), mFont );
+
+	// *HACK Get rid of this with SL-55508... 
+	// this allows blank check boxes and radio boxes for now
+	LLString local_label = label;
+	if(local_label.empty())
+	{
+		local_label = " ";
+	}
+
+	mLabel = new LLTextBox( "CheckboxCtrl Label", label_rect, local_label.c_str(), mFont );
 	mLabel->setFollowsLeft();
 	mLabel->setFollowsBottom();
 	addChild(mLabel);

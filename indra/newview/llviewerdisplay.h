@@ -32,14 +32,17 @@
 #ifndef LL_LLVIEWERDISPLAY_H
 #define LL_LLVIEWERDISPLAY_H
 
+class LLPostProcess;
+
 void display_startup();
 void display_cleanup();
 
-void display(BOOL rebuild = TRUE, F32 zoom_factor = 1.f, int subfield = 0);
+void display(BOOL rebuild = TRUE, F32 zoom_factor = 1.f, int subfield = 0, BOOL for_snapshot = FALSE);
 
 extern BOOL gDisplaySwapBuffers;
 extern BOOL	gTeleportDisplay;
 extern LLFrameTimer	gTeleportDisplayTimer;
 extern BOOL			gForceRenderLandFence;
+extern BOOL gResizeScreenTexture;
 
 #endif // LL_LLVIEWERDISPLAY_H

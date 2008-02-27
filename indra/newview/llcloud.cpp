@@ -425,41 +425,6 @@ F32 LLCloudLayer::getDensityRegion(const LLVector3 &pos_region)
 	return density;
 }
 
-// a debug method that may yet be useful
-void LLCloudLayer::renderDensityField()
-{
-// 	F32 x, y, z;
-// 	U32 i, j, k;
-// 	LLGLSNoTexture gls_ui_no_texture;
-// 	// Render a bunch of triangles to represent the cloud density field
-// 	glBegin(GL_TRIANGLES);
-// 	for(j=0; j<CLOUD_GRIDS_PER_EDGE-1; j++)
-// 	{
-// 		y = j * mMetersPerGrid;
-
-// 		for(i=0; i<CLOUD_GRIDS_PER_EDGE; i++)
-// 		{
-// 			k = i + j*CLOUD_GRIDS_PER_EDGE;
-// 			x = i * mMetersPerGrid;
-
-// 			z = 0.5f * CLOUD_MAX_HEIGHT + 40.0f * *(mDensityp + k + CLOUD_GRIDS_PER_EDGE);
-// 			glColor3f(1.0f - *(mDensityp + k + CLOUD_GRIDS_PER_EDGE), *(mDensityp + k + CLOUD_GRIDS_PER_EDGE), 0.0f);
-// 			glVertex3f(x, y+mMetersPerGrid, z);
-
-// 			z = 0.5f * CLOUD_MAX_HEIGHT + 40.0f * *(mDensityp + k);
-// 			glColor3f(1.0f - *(mDensityp + k), *(mDensityp + k), 0.0f);
-// 			glVertex3f(x, y, z);
-
-// 			z = 0.5f * CLOUD_MAX_HEIGHT + 40.0f * *(mDensityp + k + 1);
-// 			glColor3f(1.0f - *(mDensityp + k + 1), *(mDensityp + k + 1), 0.0f);
-// 			glVertex3f(x+mMetersPerGrid, y, z);
-
-// 		}
-// 	}
-// 	glEnd();
-}
-
-
 void LLCloudLayer::decompress(LLBitPack &bitpack, LLGroupHeader *group_headerp)
 {
 	LLPatchHeader  patch_header;

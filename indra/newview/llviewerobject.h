@@ -194,7 +194,6 @@ public:
 	virtual void		updateFaceSize(S32 idx);
 	virtual BOOL		updateLOD();
 	virtual BOOL		setDrawableParent(LLDrawable* parentp);
-	virtual BOOL		updateLighting(BOOL do_lighting) { return TRUE; };
 	F32					getRotTime() { return mRotTime; }
 	void				resetRot();
 	void				applyAngularVelocity(F32 dt);
@@ -248,11 +247,11 @@ public:
 	//closest to start.
 	virtual BOOL lineSegmentIntersect(const LLVector3& start, LLVector3& end) const;
 	
-	const LLVector3d getPositionGlobal() const;
-	const LLVector3 &getPositionRegion() const;
-	const LLVector3 getPositionEdit() const;
-	const LLVector3 &getPositionAgent() const;
-	const LLVector3 getRenderPosition() const;
+	virtual const LLVector3d getPositionGlobal() const;
+	virtual const LLVector3 &getPositionRegion() const;
+	virtual const LLVector3 getPositionEdit() const;
+	virtual const LLVector3 &getPositionAgent() const;
+	virtual const LLVector3 getRenderPosition() const;
 
 	virtual const LLVector3 getPivotPositionAgent() const; // Usually = to getPositionAgent, unless like flex objects it's not
 
@@ -295,6 +294,7 @@ public:
 	/*virtual*/	S32		setTEShiny(const U8 te, const U8 shiny );
 	/*virtual*/	S32		setTEFullbright(const U8 te, const U8 fullbright );
 	/*virtual*/	S32		setTEMediaFlags(const U8 te, const U8 media_flags );
+	/*virtual*/ S32     setTEGlow(const U8 te, const F32 glow);
 	/*virtual*/	BOOL	setMaterial(const U8 material);
 	virtual		void	setTEImage(const U8 te, LLViewerImage *imagep); // Not derived from LLPrimitive
 	LLViewerImage		*getTEImage(const U8 te) const;
@@ -323,6 +323,7 @@ public:
 
 	 // Create if necessary
 	LLAudioSource *getAudioSource(const LLUUID& owner_id);
+	bool isAudioSource() {return mAudioSourcep != NULL;}
 
 	U8 getMediaType() const;
 	void setMediaType(U8 media_type);
@@ -452,6 +453,8 @@ public:
 
 	virtual S32 getLOD() const { return 3; } 
 	virtual U32 getPartitionType() const;
+	virtual void dirtySpatialGroup() const;
+	virtual void dirtyMesh() const;
 
 	virtual LLNetworkData* getParameterEntry(U16 param_type) const;
 	virtual bool setParameterEntry(U16 param_type, const LLNetworkData& new_value, bool local_origin);
@@ -478,13 +481,14 @@ public:
 	{
 		LL_VO_CLOUDS =				LL_PCODE_APP | 0x20,
 		LL_VO_SURFACE_PATCH =		LL_PCODE_APP | 0x30,
-		LL_VO_STARS =				LL_PCODE_APP | 0x40,
+		//LL_VO_STARS =				LL_PCODE_APP | 0x40,
 		LL_VO_SQUARE_TORUS =		LL_PCODE_APP | 0x50,
 		LL_VO_SKY =					LL_PCODE_APP | 0x60,
 		LL_VO_WATER =				LL_PCODE_APP | 0x70,
 		LL_VO_GROUND =				LL_PCODE_APP | 0x80,
 		LL_VO_PART_GROUP =			LL_PCODE_APP | 0x90,
 		LL_VO_TRIANGLE_TORUS =		LL_PCODE_APP | 0xa0,
+		LL_VO_WL_SKY =				LL_PCODE_APP | 0xb0, // should this be moved to 0x40?
 	} EVOType;
 
 	child_list_t	mChildList;
@@ -601,9 +605,6 @@ protected:
 	BOOL			mStatic;					// Object doesn't move.
 	S32				mNumFaces;
 
-	S32				mLastUpdateFrame;			// frames in which an object had last moved for smart coalescing of drawables 
-												// (child objects not moving relative to parent)
-
 	F32				mTimeDilation;				// Time dilation sent with the object.
 	F32				mRotTime;					// Amount (in seconds) that object has rotated according to angular velocity (llSetTargetOmega)
 	LLQuaternion	mLastRot;					// last rotation received from the simulator
@@ -669,14 +670,13 @@ public:
 	: LLViewerObject(id,type,regionp) 
 	{ mDepth = 0.f; }
 
-	virtual BOOL isParticle();
 	virtual F32 getPartSize(S32 idx);
 	virtual void getGeometry(S32 idx,
 								LLStrider<LLVector3>& verticesp,
 								LLStrider<LLVector3>& normalsp, 
 								LLStrider<LLVector2>& texcoordsp,
 								LLStrider<LLColor4U>& colorsp, 
-								LLStrider<U32>& indicesp) = 0;
+								LLStrider<U16>& indicesp) = 0;
 
 	F32 mDepth;
 };

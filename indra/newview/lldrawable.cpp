@@ -94,11 +94,7 @@ void LLDrawable::init()
 	mRenderType = 0;
 	mCurrentScale = LLVector3(1,1,1);
 	mDistanceWRTCamera = 0.0f;
-	// mUVRect
-	mUVZ = 0.f;
-	// mLightSet
-	// mBlockSet
-	// mSavePos
+
 	mQuietCount = 0;
 
 	mState     = 0;
@@ -107,7 +103,6 @@ void LLDrawable::init()
 	mSpatialGroupp = NULL;
 	mVisible = 0;
 	mRadius = 0.f;
-	mSunShadowFactor = 1.f;
 	
 	mGeneration = -1;
 	mBinRadius = 1.f;
@@ -185,21 +180,6 @@ BOOL LLDrawable::isLight() const
 	}
 }
 
-void LLDrawable::clearLightSet()
-{
-	// Remove this object from any object which has it as a light
-	for (drawable_set_t::iterator iter = mLightSet.begin(); iter != mLightSet.end(); iter++)
-	{
-		LLDrawable *targetp = *iter;
-		if (targetp != this && !targetp->isDead())
-		{
-			targetp->mLightSet.erase(this);
-			gPipeline.markRelight(targetp);
-		}
-	}
-	mLightSet.clear();
-}
-
 void LLDrawable::cleanupReferences()
 {
 	LLFastTimer t(LLFastTimer::FTM_PIPELINE);
@@ -207,12 +187,8 @@ void LLDrawable::cleanupReferences()
 	std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
 	mFaces.clear();
 
-	clearLightSet();
-
 	gObjectList.removeDrawable(this);
 	
-	mBlockSet.clear();
-
 	gPipeline.unlinkDrawable(this);
 	
 	// Cleanup references to other objects
@@ -239,16 +215,6 @@ void LLDrawable::cleanupDeadDrawables()
 S32 LLDrawable::findReferences(LLDrawable *drawablep)
 {
 	S32 count = 0;
-	if (mLightSet.count(drawablep) > 0)
-	{
-		llinfos << this << ": lightset reference" << llendl;
-		count++;
-	}
-	if (mBlockSet.count(drawablep) > 0)
-	{
-		llinfos << this << ": blockset reference" << llendl;
-		count++;
-	}
 	if (mParent == drawablep)
 	{
 		llinfos << this << ": parent reference" << llendl;
@@ -256,20 +222,6 @@ S32 LLDrawable::findReferences(LLDrawable *drawablep)
 	}
 	return count;
 }
-
-#if 0
-// SJB: This is SLOW, so we don't want to allow it (we don't currently use it)
-void LLDrawable::removeFace(const S32 i)
-{
-	LLFace *face= mFaces[i];
-
-	if (face)
-	{
-		mFaces.erase(mFaces.begin() + i);
-		delete face;
-	}
-}
-#endif
 
 LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerImage *texturep)
 {
@@ -299,11 +251,13 @@ LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerImage *texturep)
 {
 	LLMemType mt(LLMemType::MTYPE_DRAWABLE);
 	
-	LLFace *face = new LLFace(this, mVObjp);
+	LLFace *face;
+	face = new LLFace(this, mVObjp);
 
 	face->setTEOffset(mFaces.size());
 	face->setTexture(texturep);
 	face->setPoolType(gPipeline.getPoolTypeFromTE(te, texturep));
+
 	mFaces.push_back(face);
 
 	if (isState(UNLIT))
@@ -399,7 +353,6 @@ void LLDrawable::makeActive()
 			pcode == LLViewerObject::LL_VO_SURFACE_PATCH ||
 			pcode == LLViewerObject::LL_VO_PART_GROUP ||
 			pcode == LLViewerObject::LL_VO_CLOUDS ||
-			pcode == LLViewerObject::LL_VO_STARS ||
 			pcode == LLViewerObject::LL_VO_GROUND ||
 			pcode == LLViewerObject::LL_VO_SKY)
 		{
@@ -429,22 +382,22 @@ void LLDrawable::makeActive()
 				drawable->makeActive();
 			}
 		}
-			
+
 		if (mVObjp->getPCode() == LL_PCODE_VOLUME)
 		{
-			if (mVObjp->getVolume()->getPathType() == LL_PCODE_PATH_FLEXIBLE)
+			if (mVObjp->isFlexible())
 			{
 				return;
 			}
 		}
 	
-		clearState(LLDrawable::LIGHTING_BUILT);
 		if (mVObjp->getPCode() == LL_PCODE_VOLUME)
 		{
 			gPipeline.markRebuild(this, LLDrawable::REBUILD_VOLUME, TRUE);
 		}
+		updatePartition();
 	}
-	updatePartition();
+
 	if (isRoot())
 	{
 		mQuietCount = 0;
@@ -482,7 +435,6 @@ void LLDrawable::makeStatic()
 			}
 		}
 		
-		gPipeline.markRelight(this);
 		if (mVObjp->getPCode() == LL_PCODE_VOLUME)
 		{
 			gPipeline.markRebuild(this, LLDrawable::REBUILD_VOLUME, TRUE);
@@ -526,8 +478,8 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	
 	// Damping
 	F32 dist_squared = 0.f;
-	F32 scaled = 0.f;
-	
+	F32 camdist2 = (mDistanceWRTCamera * mDistanceWRTCamera);
+
 	if (damped && mDistanceWRTCamera > 0.0f)
 	{
 		F32 lerp_amt = llclamp(LLCriticalDamp::getInterpolant(OBJECT_DAMPING_TIME_CONSTANT), 0.f, 1.f);
@@ -538,10 +490,8 @@ F32 LLDrawable::updateXform(BOOL undamped)
 		dist_squared += (1.f - dot(new_rot, target_rot)) * 10.f;
 
 		LLVector3 new_scale = lerp(old_scale, target_scale, lerp_amt);
-		scaled = dist_vec_squared(new_scale, target_scale);
+		dist_squared += dist_vec_squared(new_scale, target_scale);
 
-		dist_squared += scaled;
-		F32 camdist2 = (mDistanceWRTCamera * mDistanceWRTCamera);
 		if ((dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED * camdist2) &&
 			(dist_squared <= MAX_INTERPOLATE_DISTANCE_SQUARED))
 		{
@@ -549,12 +499,6 @@ F32 LLDrawable::updateXform(BOOL undamped)
 			target_pos = new_pos;
 			target_rot = new_rot;
 			target_scale = new_scale;
-			
-			if (scaled >= MIN_INTERPOLATE_DISTANCE_SQUARED)
-			{		
-				//scaling requires an immediate rebuild
-				gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
-			}
 		}
 		else
 		{
@@ -562,7 +506,17 @@ F32 LLDrawable::updateXform(BOOL undamped)
 			dist_squared = 0.0f;
 		}
 	}
-		
+
+	if ((mCurrentScale != target_scale) ||
+		(!isRoot() && (dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED*camdist2)))
+	{ //child prim moving or scale change requires immediate rebuild
+		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
+	}
+	else if (!getVOVolume() && !isAvatar())
+	{
+		movePartition();
+	}
+
 	// Update
 	mXform.setPosition(target_pos);
 	mXform.setRotation(target_rot);
@@ -571,6 +525,10 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	
 	mCurrentScale = target_scale;
 	
+	if (mSpatialBridge)
+	{
+		gPipeline.markMoved(mSpatialBridge, FALSE);
+	}
 	return dist_squared;
 }
 
@@ -590,18 +548,6 @@ void LLDrawable::moveUpdatePipeline(BOOL moved)
 	for (S32 i = 0; i < getNumFaces(); i++)
 	{
 		getFace(i)->updateCenterAgent();
-	}
-
-	if (moved || !isState(LLDrawable::BUILT)) // moved since last frame
-	{
-		LLVector3 tmp = mSavePos - mXform.getPositionW();
-		F32 dist = tmp.magVecSquared(); // moved since last _update_
-
-		if (dist > 1.0f || !isState(LLDrawable::BUILT) || isLight())
-		{
-			mSavePos = mXform.getPositionW();
-			gPipeline.markRelight(this);
-		}
 	}
 }
 
@@ -703,17 +649,21 @@ BOOL LLDrawable::updateMoveDamped()
 void LLDrawable::updateDistance(LLCamera& camera)
 {
 	//switch LOD with the spatial group to avoid artifacts
-	LLSpatialGroup* sg = getSpatialGroup();
+	//LLSpatialGroup* sg = getSpatialGroup();
 
 	LLVector3 pos;
 
-	if (!sg || sg->changeLOD())
+	//if (!sg || sg->changeLOD())
 	{
 		LLVOVolume* volume = getVOVolume();
 		if (volume)
 		{
 			volume->updateRelativeXform();
-			pos = LLVector3(0,0,0) * volume->getRelativeXform();
+			pos = volume->getRelativeXform().getTranslation();
+			if (isStatic())
+			{
+				pos += volume->getRegion()->getOriginAgent();
+			}
 
 			for (S32 i = 0; i < getNumFaces(); i++)
 			{
@@ -761,7 +711,7 @@ void LLDrawable::updateTexture()
 	{
 		if (!isActive())
 		{
-			gPipeline.markMoved(this);
+			//gPipeline.markMoved(this);
 		}
 		else
 		{
@@ -783,18 +733,6 @@ BOOL LLDrawable::updateGeometry(BOOL priority)
 {
 	llassert(mVObjp.notNull());
 	BOOL res = mVObjp->updateGeometry(this);
-	if (isState(REBUILD_LIGHTING))
-	{
-		updateLighting(priority ? FALSE : TRUE); // only do actual lighting for non priority updates
-		if (priority)
-		{
-			gPipeline.markRelight(this); // schedule non priority update
-		}
-		else
-		{
-			clearState(REBUILD_LIGHTING);
-		}
-	}
 	return res;
 }
 
@@ -821,7 +759,11 @@ void LLDrawable::shiftPos(const LLVector3 &shift_vector)
 
 	if (isStatic())
 	{
-		gPipeline.markRebuild(this, LLDrawable::REBUILD_GEOMETRY, TRUE);
+		LLVOVolume* volume = getVOVolume();
+		if (!volume)
+		{
+			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL, TRUE);
+		}
 
 		for (S32 i = 0; i < getNumFaces(); i++)
 		{
@@ -830,7 +772,7 @@ void LLDrawable::shiftPos(const LLVector3 &shift_vector)
 			facep->mExtents[0] += shift_vector;
 			facep->mExtents[1] += shift_vector;
 			
-			if (facep->hasGeometry())
+			if (!volume && facep->hasGeometry())
 			{
 				facep->mVertexBuffer = NULL;
 				facep->mLastVertexBuffer = NULL;
@@ -845,9 +787,13 @@ void LLDrawable::shiftPos(const LLVector3 &shift_vector)
 	{
 		mSpatialBridge->shiftPos(shift_vector);
 	}
+	else if (isAvatar())
+	{
+		mExtents[0] += shift_vector;
+		mExtents[1] += shift_vector;
+		mPositionGroup += LLVector3d(shift_vector);
+	}
 	
-	mSavePos = mXform.getPositionW();
-
 	mVObjp->onShift(shift_vector);
 }
 
@@ -894,64 +840,11 @@ void LLDrawable::updateBinRadius()
 {
 	if (mVObjp.notNull())
 	{
-		mBinRadius = mVObjp->getBinRadius();
+		mBinRadius = llmin(mVObjp->getBinRadius(), 256.f);
 	}
 	else
 	{
-		mBinRadius = getRadius()*4.f;
-	}
-}
-
-void LLDrawable::updateLightSet()
-{
-	if (isDead())
-	{
-		llwarns << "Updating light set for dead drawable!" << llendl;
-		return;
-	}
-
-	LLSpatialPartition* part = gPipeline.getSpatialPartition(LLPipeline::PARTITION_VOLUME);
-	LLVOVolume* light = getVOVolume();
-	if (isLight() && light)
-	{
-		// mLightSet points to lit objects
-		for (drawable_set_t::iterator iter = mLightSet.begin(); iter != mLightSet.end(); iter++)
-		{
-			gPipeline.markRelight(*iter);
-		}
-		mLightSet.clear();
-		part->getObjects(getPositionAgent(), light->getLightRadius(), mLightSet);
-		for (drawable_set_t::iterator iter = mLightSet.begin(); iter != mLightSet.end(); iter++)
-		{
-			gPipeline.markRelight(*iter);
-		}
-	}
-	else
-	{
-		// mLightSet points to nearby lights
-		mLightSet.clear();
-		part->getLights(getPositionAgent(), getRadius(), mLightSet);
-		const drawable_set_t::size_type MAX_LIGHTS = 16;
-		if (mLightSet.size() > MAX_LIGHTS)
-		{
-			typedef std::set<std::pair<F32,LLPointer<LLDrawable> > > sorted_pair_set_t;
-			sorted_pair_set_t sorted_set;
-			for (drawable_set_t::iterator iter = mLightSet.begin(); iter != mLightSet.end(); iter++)
-			{
-				LLDrawable* drawable = *iter;
-				LLVector3 dvec = drawable->getPositionAgent() - getPositionAgent();
-				F32 dist2 = dvec.magVecSquared();
-				sorted_set.insert(std::make_pair(dist2, drawable));
-			}
-			mLightSet.clear();
-			S32 count = 0;
-			for (sorted_pair_set_t::iterator iter = sorted_set.begin(); iter != sorted_set.end(); iter++)
-			{
-				if (++count > 16)
-					break;
-				mLightSet.insert((*iter).second);
-			}
-		}
+		mBinRadius = llmin(getRadius()*4.f, 256.f);
 	}
 }
 
@@ -960,72 +853,6 @@ void LLDrawable::updateSpecialHoverCursor(BOOL enabled)
 	// TODO: maintain a list of objects that have special
 	// hover cursors, then use that list for per-frame
 	// hover cursor selection. JC
-}
-
-BOOL LLDrawable::updateLighting(BOOL do_lighting)
-{
-	if (do_lighting)
-	{
-		if (gPipeline.getLightingDetail() >= 2 && (getLit() || isLight()))
-		{
-			LLFastTimer t(LLFastTimer::FTM_UPDATE_LIGHTS);
-			updateLightSet();
-			do_lighting = isLight() ? FALSE : TRUE;
-		}
-		else
-		{
-			do_lighting = FALSE;
-		}
-	}
-	if (gPipeline.getLightingDetail() >= 2)
-	{
-		LLFastTimer t(LLFastTimer::FTM_GEO_LIGHT);
-		if (mVObjp->updateLighting(do_lighting))
-		{
-			setState(LIGHTING_BUILT);
-		}
-	}
-
-	return TRUE;
-}
-
-void LLDrawable::applyLightsAsPoint(LLColor4& result)
-{
-	LLMemType mt1(LLMemType::MTYPE_DRAWABLE);
-
-	LLVector3 point_agent(getPositionAgent());
-	LLVector3 normal(-gCamera->getXAxis()); // make point agent face camera
-	
-	F32 sun_int = normal * gPipeline.mSunDir;
-	LLColor4 color(gSky.getTotalAmbientColor());
-	color += gPipeline.mSunDiffuse * sun_int;
-	
-	for (drawable_set_t::iterator iter = mLightSet.begin();
-		 iter != mLightSet.end(); ++iter)
-	{
-		LLDrawable* drawable = *iter;
-		LLVOVolume* light = drawable->getVOVolume();
-		if (!light)
-		{
-			continue;
-		}
-		LLColor4 light_color;
-		light->calcLightAtPoint(point_agent, normal, light_color);
-		color += light_color;
-	}
-	
-	// Clamp the color...
-	color.mV[0] = llmax(color.mV[0], 0.f);
-	color.mV[1] = llmax(color.mV[1], 0.f);
-	color.mV[2] = llmax(color.mV[2], 0.f);
-
-	F32 max_color = llmax(color.mV[0], color.mV[1], color.mV[2]);
-	if (max_color > 1.f)
-	{
-		color *= 1.f/max_color;
-	}
-
-	result = color;
 }
 
 F32 LLDrawable::getVisibilityRadius() const
@@ -1053,10 +880,10 @@ void LLDrawable::updateUVMinMax()
 
 void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 {
-	if (mSpatialGroupp && (groupp != mSpatialGroupp))
+/*if (mSpatialGroupp && (groupp != mSpatialGroupp))
 	{
 		mSpatialGroupp->setState(LLSpatialGroup::GEOM_DIRTY);
-	}
+	}*/
 	mSpatialGroupp = groupp;
 }
 
@@ -1113,7 +940,7 @@ BOOL LLDrawable::isVisible() const
 		{
 			LLSpatialGroup* group = mSpatialBridge.notNull() ? mSpatialBridge->getSpatialGroup() :
 									getSpatialGroup();
-			if (!group || group->isVisible())
+			if (group && group->isVisible())
 			{
 				mVisible = sCurVisible;
 				return TRUE;
@@ -1131,7 +958,7 @@ BOOL LLDrawable::isVisible() const
 	else
 	{
 		LLSpatialGroup* group = getSpatialGroup();
-		if (!group || group->isVisible())
+		if (group && group->isVisible())
 		{
 			mVisible = sCurVisible;
 			return TRUE;
@@ -1154,18 +981,19 @@ LLSpatialBridge::LLSpatialBridge(LLDrawable* root, U32 data_mask)
 	mRenderType = mDrawable->mRenderType;
 	mDrawableType = mDrawable->mRenderType;
 	
-	mPartitionType = LLPipeline::PARTITION_VOLUME;
+	mPartitionType = LLViewerRegion::PARTITION_VOLUME;
 	
 	mOctree->balance();
 	
-	gPipeline.getSpatialPartition(mPartitionType)->put(this);
+	mDrawable->getRegion()->getSpatialPartition(mPartitionType)->put(this);
 }
 
 LLSpatialBridge::~LLSpatialBridge()
 {	
-	if (getSpatialGroup())
+	LLSpatialGroup* group = getSpatialGroup();
+	if (group)
 	{
-		gPipeline.getSpatialPartition(mPartitionType)->remove(this, getSpatialGroup());
+		group->mSpatialPartition->remove(this, group);
 	}
 }
 
@@ -1252,6 +1080,11 @@ LLCamera LLSpatialBridge::transformCamera(LLCamera& camera)
 	up_axis *= rot;
 	left_axis *= rot;
 
+	if (!delta.isFinite())
+	{
+		delta.clearVec();
+	}
+
 	ret.setOrigin(delta);
 	ret.setAxes(lookAt, left_axis, up_axis);
 		
@@ -1305,13 +1138,13 @@ public:
 	virtual void traverse(const LLOctreeNode<LLDrawable>* node)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*) node->getListener(0);
-		group->clearState(LLSpatialGroup::OCCLUDED | LLSpatialGroup::CULLED);
+		group->setVisible();
 		LLOctreeTraveler<LLDrawable>::traverse(node);
 	}
 	
-	void visit(const LLOctreeState<LLDrawable>* branch)
+	void visit(const LLOctreeNode<LLDrawable>* branch)
 	{
-		gPipeline.markNotCulled((LLSpatialGroup*) branch->getListener(0), *mCamera, TRUE);
+		gPipeline.markNotCulled((LLSpatialGroup*) branch->getListener(0), *mCamera);
 	}
 };
 
@@ -1322,17 +1155,26 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
 		return;
 	}
 
+
+	//HACK don't draw attachments for avatars that haven't been visible in more than a frame
 	LLViewerObject *vobj = mDrawable->getVObj();
 	if (vobj && vobj->isAttachment() && !vobj->isHUDAttachment())
 	{
-		LLVOAvatar* av;
+		LLDrawable* av;
 		LLDrawable* parent = mDrawable->getParent();
 
 		if (parent)
 		{
-			av = (LLVOAvatar*) parent->getVObj().get();
-		
-			if (!av->isVisible())
+			LLViewerObject* objparent = parent->getVObj();
+			av = objparent->mDrawable;
+			LLSpatialGroup* group = av->getSpatialGroup();
+
+			BOOL impostor = objparent->isAvatar() && ((LLVOAvatar*) objparent)->isImpostor();
+
+			if (!group ||
+				av->getSpatialGroup()->mDistance > LLVOAvatar::sRenderDistance ||
+				LLDrawable::getCurrentFrame() - av->mVisible > 1 ||
+				impostor)
 			{
 				return;
 			}
@@ -1346,7 +1188,8 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
 	LLVector3 center = (mExtents[0] + mExtents[1]) * 0.5f;
 	LLVector3 size = (mExtents[1]-mExtents[0]) * 0.5f;
 
-	if (camera_in.AABBInFrustum(center, size))
+	if (camera_in.AABBInFrustumNoFarClip(center, size) && 
+		AABBSphereIntersect(mExtents[0], mExtents[1], camera_in.getOrigin(), camera_in.mFrustumCornerDist))
 	{
 		if (LLPipeline::calcPixelArea(center, size, camera_in) < FORCE_INVISIBLE_AREA)
 		{
@@ -1392,18 +1235,17 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in)
 			llwarns << "Corrupt drawable found while updating spatial bridge distance." << llendl;
 			continue;
 		}
-		child->updateDistance(camera);
+
+		if (!child->isAvatar())
+		{
+			child->updateDistance(camera);
+		}
 	}
 }
 
 void LLSpatialBridge::makeActive()
 { //it is an error to make a spatial bridge active (it's already active)
 	llerrs << "makeActive called on spatial bridge" << llendl;
-}
-
-void LLSpatialBridge::makeStatic()
-{
-	llerrs << "makeStatic called on spatial bridge" << llendl;
 }
 
 void LLSpatialBridge::move(LLDrawable *drawablep, LLSpatialGroup *curp, BOOL immediate)
@@ -1415,7 +1257,7 @@ void LLSpatialBridge::move(LLDrawable *drawablep, LLSpatialGroup *curp, BOOL imm
 BOOL LLSpatialBridge::updateMove()
 {
 	mOctree->balance();
-	gPipeline.getSpatialPartition(mPartitionType)->move(this, getSpatialGroup(), TRUE);
+	mDrawable->getRegion()->getSpatialPartition(mPartitionType)->move(this, getSpatialGroup(), TRUE);
 	return TRUE;
 }
 
@@ -1453,14 +1295,12 @@ const LLVector3	LLDrawable::getPositionAgent() const
 	{
 		if (isActive())
 		{
-			if (isRoot())
+			LLVector3 pos(0,0,0);
+			if (!isRoot())
 			{
-				return LLVector3(0,0,0) * getWorldMatrix();
+				pos = mVObjp->getPosition();
 			}
-			else
-			{
-				return mVObjp->getPosition() * getParent()->getWorldMatrix();
-			}
+			return pos * getRenderMatrix();
 		}
 		else
 		{
@@ -1485,23 +1325,12 @@ BOOL LLDrawable::isAnimating() const
 		return TRUE;
 	}
 
-	if (mVObjp->isFlexible())
-	{
-		return TRUE;
-	}
-
 	if (mVObjp->getPCode() == LLViewerObject::LL_VO_PART_GROUP)
 	{
 		return TRUE;
 	}
 
 	if (mVObjp->getPCode() == LLViewerObject::LL_VO_CLOUDS)
-	{
-		return TRUE;
-	}
-
-	LLVOVolume* vol = getVOVolume();
-	if (vol && vol->mTextureAnimp)
 	{
 		return TRUE;
 	}
@@ -1527,16 +1356,16 @@ LLBridgePartition::LLBridgePartition()
 { 
 	mRenderByGroup = FALSE; 
 	mDrawableType = LLPipeline::RENDER_TYPE_AVATAR; 
-	mPartitionType = LLPipeline::PARTITION_BRIDGE;
-	mLODPeriod = 1;
-	mSlopRatio = 0.f;
+	mPartitionType = LLViewerRegion::PARTITION_BRIDGE;
+	mLODPeriod = 16;
+	mSlopRatio = 0.25f;
 }
 
 LLHUDBridge::LLHUDBridge(LLDrawable* drawablep)
 : LLVolumeBridge(drawablep)
 {
 	mDrawableType = LLPipeline::RENDER_TYPE_HUD;
-	mPartitionType = LLPipeline::PARTITION_HUD;
+	mPartitionType = LLViewerRegion::PARTITION_HUD;
 	mSlopRatio = 0.0f;
 }
 

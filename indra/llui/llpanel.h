@@ -188,7 +188,7 @@ public:
 	BOOL childSetLabelArg(const LLString& id, const LLString& key, const LLStringExplicit& text);
 	BOOL childSetToolTipArg(const LLString& id, const LLString& key, const LLStringExplicit& text);
 	
-	// LLSlider / LLSpinCtrl
+	// LLSlider / LLMultiSlider / LLSpinCtrl
 	void childSetMinValue(const LLString& id, LLSD min_value);
 	void childSetMaxValue(const LLString& id, LLSD max_value);
 

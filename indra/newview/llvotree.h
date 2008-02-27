@@ -78,10 +78,8 @@ public:
 
 	void updateRadius();
 
-	U32 drawBranchPipeline(U32* indicesp, S32 trunk_LOD, S32 stop_level, U16 depth, U16 trunk_depth,  F32 scale, F32 twist, F32 droop,  F32 branches, F32 alpha);
+	U32 drawBranchPipeline(LLMatrix4& matrix, U16* indicesp, S32 trunk_LOD, S32 stop_level, U16 depth, U16 trunk_depth,  F32 scale, F32 twist, F32 droop,  F32 branches, F32 alpha);
  
-	void drawBranch(S32 stop_level, U16 depth, U16 trunk_depth, F32 scale, F32 twist, F32 droop,  F32 branches, F32 alpha, BOOL draw_leaves);
-
 	static S32 sMaxTreeSpecies;
 
 	struct TreeSpeciesData

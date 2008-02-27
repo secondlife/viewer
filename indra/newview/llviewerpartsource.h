@@ -73,6 +73,7 @@ public:
 	LLUUID getOwnerUUID() const { return mOwnerUUID; }
 	U32	getID() const { return mID; }
 	LLUUID getImageUUID() const;
+	void  setStart() ;
 
 	LLVector3	mPosAgent; // Location of the particle source
 	LLVector3	mTargetPosAgent; // Location of the target position
@@ -91,6 +92,7 @@ protected:
 
 	// Particle information
 	U32			mPartFlags; // Flags for the particle
+	U32         mDelay ; //delay to start particles
 };
 
 

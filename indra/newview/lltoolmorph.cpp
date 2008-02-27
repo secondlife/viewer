@@ -33,6 +33,7 @@
 
 // File includes
 #include "lltoolmorph.h" 
+#include "llglimmediate.h"
 
 // Library includes
 #include "audioengine.h"
@@ -180,7 +181,7 @@ BOOL LLVisualParamHint::render()
 	LLGLSUIDefault gls_ui;
 	//LLGLState::verify(TRUE);
 	LLViewerImage::bindTexture(mBackgroundp);
-	glColor4f(1.f, 1.f, 1.f, 1.f);
+	gGL.color4f(1.f, 1.f, 1.f, 1.f);
 	gl_rect_2d_simple_tex( mWidth, mHeight );
 	mBackgroundp->unbindTexture(0, GL_TEXTURE_2D);
 
@@ -227,6 +228,7 @@ BOOL LLVisualParamHint::render()
 		mVisualParam->getCameraElevation() );
 	LLVector3 camera_pos = target_joint_pos + (camera_snapshot_offset * avatar_rotation);
 	
+	gGL.stop();
 	gCamera->setAspect((F32)mWidth / (F32)mHeight);
 	gCamera->setOriginAndLookAt(
 		camera_pos,		// camera
@@ -242,7 +244,7 @@ BOOL LLVisualParamHint::render()
 		avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
 	}
 	avatarp->setVisualParamWeight(mVisualParam, mLastParamWeight);
-	
+	gGL.start();
 	return TRUE;
 }
 
@@ -256,21 +258,21 @@ void LLVisualParamHint::draw()
 
 	bindTexture();
 
-	glColor4f(1.f, 1.f, 1.f, 1.f);
+	gGL.color4f(1.f, 1.f, 1.f, 1.f);
 
 	LLGLSUIDefault gls_ui;
-	glBegin(GL_QUADS);
+	gGL.begin(GL_QUADS);
 	{
-		glTexCoord2i(0, 1);
-		glVertex2i(0, mHeight);
-		glTexCoord2i(0, 0);
-		glVertex2i(0, 0);
-		glTexCoord2i(1, 0);
-		glVertex2i(mWidth, 0);
-		glTexCoord2i(1, 1);
-		glVertex2i(mWidth, mHeight);
+		gGL.texCoord2i(0, 1);
+		gGL.vertex2i(0, mHeight);
+		gGL.texCoord2i(0, 0);
+		gGL.vertex2i(0, 0);
+		gGL.texCoord2i(1, 0);
+		gGL.vertex2i(mWidth, 0);
+		gGL.texCoord2i(1, 1);
+		gGL.vertex2i(mWidth, mHeight);
 	}
-	glEnd();
+	gGL.end();
 
 	LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
 }

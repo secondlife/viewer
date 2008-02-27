@@ -157,6 +157,8 @@ public:
 	// deactivates terminated motions`
 	void updateMotion();
 
+	void clearBlenders() { mPoseBlender.clearBlenders(); }
+
 	// flush motions
 	// releases all motion instances
 	void flushAllMotions();

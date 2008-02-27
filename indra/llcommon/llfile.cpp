@@ -286,6 +286,7 @@ llofstream::llofstream(const char *_Filename,
 
 llofstream::~llofstream()
 {	// destroy the object
+	close();
 	delete _Filebuffer;
 }
 

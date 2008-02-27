@@ -59,6 +59,8 @@
 #include "llscrolllistctrl.h"
 #include "llslider.h"
 #include "llsliderctrl.h"
+#include "llmultislider.h"
+#include "llmultisliderctrl.h"
 #include "llspinctrl.h"
 #include "lltabcontainer.h"
 #include "lltabcontainervertical.h"
@@ -92,6 +94,8 @@ const LLString LLUICtrlFactory::sUICtrlNames[WIDGET_TYPE_COUNT] =
 	LLString("slider"),		//WIDGET_TYPE_SLIDER, actually LLSliderCtrl
 	LLString("slider_bar"), //WIDGET_TYPE_SLIDER_BAR, actually LLSlider
 	LLString("volume_slider"),	//WIDGET_TYPE_VOLUME_SLIDER, actually LLSlider + "volume" param
+	LLString("multi_slider"),		//WIDGET_TYPE_MULTI_SLIDER, actually LLMultiSliderCtrl
+	LLString("multi_slider_bar"), //WIDGET_TYPE_MULTI_SLIDER_BAR, actually LLMultiSlider
 	LLString("spinner"),		//WIDGET_TYPE_SPINNER, actually LLSpinCtrl
 	LLString("text_editor"),	//WIDGET_TYPE_TEXT_EDITOR
 	LLString("texture_picker"),//WIDGET_TYPE_TEXTURE_PICKER
@@ -206,6 +210,8 @@ LLUICtrlFactory::LLUICtrlFactory()
 	LLUICtrlCreator<LLSliderCtrl>::registerCreator(LL_SLIDER_CTRL_TAG, this);
 	LLUICtrlCreator<LLSlider>::registerCreator(LL_SLIDER_TAG, this);
 	LLUICtrlCreator<LLSlider>::registerCreator(LL_VOLUME_SLIDER_CTRL_TAG, this);
+	LLUICtrlCreator<LLMultiSliderCtrl>::registerCreator(LL_MULTI_SLIDER_CTRL_TAG, this);
+	LLUICtrlCreator<LLMultiSlider>::registerCreator(LL_MULTI_SLIDER_TAG, this);
 	LLUICtrlCreator<LLSpinCtrl>::registerCreator(LL_SPIN_CTRL_TAG, this);
 	LLUICtrlCreator<LLTextBox>::registerCreator(LL_TEXT_BOX_TAG, this);
 	LLUICtrlCreator<LLRadioGroup>::registerCreator(LL_RADIO_GROUP_TAG, this);
@@ -727,6 +733,16 @@ LLMenuItemCallGL* LLUICtrlFactory::getMenuItemCallByName(const LLPanel* panelp, 
 LLScrollingPanelList* LLUICtrlFactory::getScrollingPanelList(const LLPanel* panelp, const LLString& name)
 { 
 	return panelp->getChild<LLScrollingPanelList>(name);
+}
+
+LLMultiSliderCtrl* LLUICtrlFactory::getMultiSliderByName(const LLPanel* panelp, const LLString& name)		
+{ 
+	return panelp->getChild<LLMultiSliderCtrl>(name); 
+}
+
+LLMultiSlider* LLUICtrlFactory::getMultiSliderBarByName(const LLPanel* panelp, const LLString& name)		
+{ 
+	return panelp->getChild<LLMultiSlider>(name); 
 }
 
 

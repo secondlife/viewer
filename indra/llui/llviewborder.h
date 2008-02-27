@@ -64,6 +64,9 @@ public:
 				  				   const LLColor4& highlight_light, const LLColor4& highlight_dark );
 	void		setTexture( const class LLUUID &image_id );
 
+	LLColor4	getHighlightLight() {return mHighlightLight;}
+	LLColor4	getShadowDark() {return mHighlightDark;}
+
 	EStyle		getStyle() const { return mStyle; }
 
 	void		setKeyboardFocusHighlight( BOOL b )	{ mHasKeyboardFocus = b; }

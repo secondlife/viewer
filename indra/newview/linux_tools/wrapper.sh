@@ -17,7 +17,9 @@
 ##   on some hardware.  Disabling this option may cause BETTER PERFORMANCE but
 ##   may also cause CRASHES and hangs on some unstable combinations of drivers
 ##   and hardware.
-export LL_GL_BASICEXT=x
+## NOTE: This is 'off' for WindLight to help testing.  Hopefully it's not
+##   really needed any more anyway.
+#export LL_GL_BASICEXT=x
 
 ## - Avoids *all* optional OpenGL extensions.  This is the safest and least-
 ##   exciting option.  Enable this if you experience stability issues, and

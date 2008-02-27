@@ -95,4 +95,6 @@ void LLViewerJointMesh::updateGeometryVectorized(LLFace *face, LLPolyMesh *mesh)
 		blend_mat.multiply(coords[index], o_vertices[index]);
 		((LLV4Matrix3)blend_mat).multiply(normals[index], o_normals[index]);
 	}
+
+	buffer->setBuffer(0);
 }

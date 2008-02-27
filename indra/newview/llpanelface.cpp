@@ -80,6 +80,9 @@ BOOL	LLPanelFace::postBuild()
 	LLTextBox*		mLabelColorTransp;
 	LLSpinCtrl*		mCtrlColorTransp;		// transparency = 1 - alpha
 
+	LLTextBox*      mLabelGlow;
+	LLSpinCtrl*     mCtrlGlow;
+
 	setMouseOpaque(FALSE);
 	mTextureCtrl = getChild<LLTextureCtrl>("texture control");
 	if(mTextureCtrl)
@@ -156,6 +159,15 @@ BOOL	LLPanelFace::postBuild()
 		mComboTexGen->setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);	
 		mComboTexGen->setCallbackUserData( this );
 	}
+
+	mLabelGlow = LLUICtrlFactory::getTextBoxByName(this,"glow label");
+	mCtrlGlow = LLUICtrlFactory::getSpinnerByName(this,"glow");
+	if(mCtrlGlow)
+	{
+		mCtrlGlow->setCommitCallback(LLPanelFace::onCommitGlow);
+		mCtrlGlow->setCallbackUserData(this);
+	}
+	
 	childSetCommitCallback("combobox shininess",&LLPanelFace::onCommitShiny,this);
 	childSetCommitCallback("combobox bumpiness",&LLPanelFace::onCommitBump,this);
 	childSetCommitCallback("TexScaleU",&LLPanelFace::onCommitTextureInfo, this);
@@ -253,6 +265,15 @@ void LLPanelFace::sendAlpha()
 	gSelectMgr->selectionSetAlphaOnly( alpha );
 }
 
+
+void LLPanelFace::sendGlow()
+{
+	LLSpinCtrl*	mCtrlGlow = LLViewerUICtrlFactory::getSpinnerByName(this,"glow");
+	if(!mCtrlGlow)return;
+	F32 glow = mCtrlGlow->get();
+
+	gSelectMgr->selectionSetGlow( glow );
+}
 
 struct LLPanelFaceSetTEFunctor : public LLSelectedTEFunctor
 {
@@ -363,7 +384,8 @@ void LLPanelFace::getState()
 	LLViewerObject* objectp = gSelectMgr->getSelection()->getFirstObject();
 
 	if( objectp
-		&& objectp->getPCode() == LL_PCODE_VOLUME)
+		&& objectp->getPCode() == LL_PCODE_VOLUME
+		&& objectp->permModify())
 	{
 		BOOL editable = objectp->permModify();
 
@@ -578,10 +600,28 @@ void LLPanelFace::getState()
 			childSetEnabled("ColorTrans",editable);
 		}
 
+		{
+			F32 glow = 0.f;
+			struct f8 : public LLSelectedTEGetFunctor<F32>
+			{
+				F32 get(LLViewerObject* object, S32 face)
+				{
+					return object->getTE(face)->getGlow();
+				}
+			} func;
+			identical = gSelectMgr->getSelection()->getSelectedTEValue( &func, glow );
+
+			childSetValue("glow",glow);
+			childSetEnabled("glow",editable);
+			childSetTentative("glow",!identical);
+			childSetEnabled("glow label",editable);
+
+		}
+
 		// Bump
 		{
 			F32 shinyf = 0.f;
-			struct f8 : public LLSelectedTEGetFunctor<F32>
+			struct f9 : public LLSelectedTEGetFunctor<F32>
 			{
 				F32 get(LLViewerObject* object, S32 face)
 				{
@@ -606,7 +646,7 @@ void LLPanelFace::getState()
 
 		{
 			F32 bumpf = 0.f;
-			struct f9 : public LLSelectedTEGetFunctor<F32>
+			struct f10 : public LLSelectedTEGetFunctor<F32>
 			{
 				F32 get(LLViewerObject* object, S32 face)
 				{
@@ -631,7 +671,7 @@ void LLPanelFace::getState()
 
 		{
 			F32 genf = 0.f;
-			struct f10 : public LLSelectedTEGetFunctor<F32>
+			struct f11 : public LLSelectedTEGetFunctor<F32>
 			{
 				F32 get(LLViewerObject* object, S32 face)
 				{
@@ -669,7 +709,7 @@ void LLPanelFace::getState()
 
 		{
 			F32 fullbrightf = 0.f;
-			struct f11 : public LLSelectedTEGetFunctor<F32>
+			struct f12 : public LLSelectedTEGetFunctor<F32>
 			{
 				F32 get(LLViewerObject* object, S32 face)
 				{
@@ -691,7 +731,7 @@ void LLPanelFace::getState()
 		// Repeats per meter
 		{
 			F32 repeats = 1.f;
-			struct f12 : public LLSelectedTEGetFunctor<F32>
+			struct f13 : public LLSelectedTEGetFunctor<F32>
 			{
 				F32 get(LLViewerObject* object, S32 face)
 				{
@@ -761,6 +801,12 @@ void LLPanelFace::refresh()
 // Static functions
 //
 
+// static
+F32 LLPanelFace::valueGlow(LLViewerObject* object, S32 face)
+{
+	return (F32)(object->getTE(face)->getGlow());
+}
+
 
 // static
 void LLPanelFace::onCommitColor(LLUICtrl* ctrl, void* userdata)
@@ -816,6 +862,13 @@ void LLPanelFace::onCommitFullbright(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	self->sendFullbright();
+}
+
+// static
+void LLPanelFace::onCommitGlow(LLUICtrl* ctrl, void* userdata)
+{
+	LLPanelFace* self = (LLPanelFace*) userdata;
+	self->sendGlow();
 }
 
 // static

@@ -37,6 +37,7 @@
 #include "llviewerjoint.h"
 
 #include "llgl.h"
+#include "llglimmediate.h"
 #include "llmath.h"
 #include "llglheaders.h"
 #include "llsphere.h"
@@ -147,19 +148,19 @@ void LLViewerJoint::renderSkeleton(BOOL recursive)
 	//----------------------------------------------------------------
 	if (mComponents & SC_AXES)
 	{
-		glBegin(GL_LINES);
-		glColor3f( 1.0f, 0.0f, 0.0f );
-		glVertex3f( 0.0f,            0.0f, 0.0f );
-		glVertex3f( 0.1f, 0.0f, 0.0f );
+		gGL.begin(GL_LINES);
+		gGL.color3f( 1.0f, 0.0f, 0.0f );
+		gGL.vertex3f( 0.0f,            0.0f, 0.0f );
+		gGL.vertex3f( 0.1f, 0.0f, 0.0f );
 
-		glColor3f( 0.0f, 1.0f, 0.0f );
-		glVertex3f( 0.0f, 0.0f,            0.0f );
-		glVertex3f( 0.0f, 0.1f, 0.0f );
+		gGL.color3f( 0.0f, 1.0f, 0.0f );
+		gGL.vertex3f( 0.0f, 0.0f,            0.0f );
+		gGL.vertex3f( 0.0f, 0.1f, 0.0f );
 
-		glColor3f( 0.0f, 0.0f, 1.0f );
-		glVertex3f( 0.0f, 0.0f, 0.0f );
-		glVertex3f( 0.0f, 0.0f, 0.1f );
-		glEnd();
+		gGL.color3f( 0.0f, 0.0f, 1.0f );
+		gGL.vertex3f( 0.0f, 0.0f, 0.0f );
+		gGL.vertex3f( 0.0f, 0.0f, 0.1f );
+		gGL.end();
 	}
 
 	//----------------------------------------------------------------
@@ -167,53 +168,53 @@ void LLViewerJoint::renderSkeleton(BOOL recursive)
 	//----------------------------------------------------------------
 	if (mComponents & SC_JOINT)
 	{
-		glColor3f( 1.0f, 1.0f, 0.0f );
+		gGL.color3f( 1.0f, 1.0f, 0.0f );
 
-		glBegin(GL_TRIANGLES);
+		gGL.begin(GL_TRIANGLES);
 
 		// joint top half
 		glNormal3f(nc, nc, nc);
-		glVertex3f(0.0f,             0.0f, 0.05f);
-		glVertex3f(0.05f,       0.0f,       0.0f);
-		glVertex3f(0.0f,       0.05f,       0.0f);
+		gGL.vertex3f(0.0f,             0.0f, 0.05f);
+		gGL.vertex3f(0.05f,       0.0f,       0.0f);
+		gGL.vertex3f(0.0f,       0.05f,       0.0f);
 
 		glNormal3f(-nc, nc, nc);
-		glVertex3f(0.0f,             0.0f, 0.05f);
-		glVertex3f(0.0f,       0.05f,       0.0f);
-		glVertex3f(-0.05f,      0.0f,       0.0f);
+		gGL.vertex3f(0.0f,             0.0f, 0.05f);
+		gGL.vertex3f(0.0f,       0.05f,       0.0f);
+		gGL.vertex3f(-0.05f,      0.0f,       0.0f);
 		
 		glNormal3f(-nc, -nc, nc);
-		glVertex3f(0.0f,             0.0f, 0.05f);
-		glVertex3f(-0.05f,      0.0f,      0.0f);
-		glVertex3f(0.0f,      -0.05f,      0.0f);
+		gGL.vertex3f(0.0f,             0.0f, 0.05f);
+		gGL.vertex3f(-0.05f,      0.0f,      0.0f);
+		gGL.vertex3f(0.0f,      -0.05f,      0.0f);
 
 		glNormal3f(nc, -nc, nc);
-		glVertex3f(0.0f,              0.0f, 0.05f);
-		glVertex3f(0.0f,       -0.05f,       0.0f);
-		glVertex3f(0.05f,        0.0f,       0.0f);
+		gGL.vertex3f(0.0f,              0.0f, 0.05f);
+		gGL.vertex3f(0.0f,       -0.05f,       0.0f);
+		gGL.vertex3f(0.05f,        0.0f,       0.0f);
 		
 		// joint bottom half
 		glNormal3f(nc, nc, -nc);
-		glVertex3f(0.0f,             0.0f, -0.05f);
-		glVertex3f(0.0f,       0.05f,        0.0f);
-		glVertex3f(0.05f,       0.0f,        0.0f);
+		gGL.vertex3f(0.0f,             0.0f, -0.05f);
+		gGL.vertex3f(0.0f,       0.05f,        0.0f);
+		gGL.vertex3f(0.05f,       0.0f,        0.0f);
 
 		glNormal3f(-nc, nc, -nc);
-		glVertex3f(0.0f,             0.0f, -0.05f);
-		glVertex3f(-0.05f,      0.0f,        0.0f);
-		glVertex3f(0.0f,       0.05f,        0.0f);
+		gGL.vertex3f(0.0f,             0.0f, -0.05f);
+		gGL.vertex3f(-0.05f,      0.0f,        0.0f);
+		gGL.vertex3f(0.0f,       0.05f,        0.0f);
 		
 		glNormal3f(-nc, -nc, -nc);
-		glVertex3f(0.0f,              0.0f, -0.05f);
-		glVertex3f(0.0f,       -0.05f,        0.0f);
-		glVertex3f(-0.05f,       0.0f,        0.0f);
+		gGL.vertex3f(0.0f,              0.0f, -0.05f);
+		gGL.vertex3f(0.0f,       -0.05f,        0.0f);
+		gGL.vertex3f(-0.05f,       0.0f,        0.0f);
 
 		glNormal3f(nc, -nc, -nc);
-		glVertex3f(0.0f,             0.0f,  -0.05f);
-		glVertex3f(0.05f,       0.0f,         0.0f);
-		glVertex3f(0.0f,      -0.05f,         0.0f);
+		gGL.vertex3f(0.0f,             0.0f,  -0.05f);
+		gGL.vertex3f(0.05f,       0.0f,         0.0f);
+		gGL.vertex3f(0.0f,      -0.05f,         0.0f);
 		
-		glEnd();
+		gGL.end();
 	}
 
 	//----------------------------------------------------------------
@@ -258,7 +259,7 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass )
 		{
 			triangle_count += drawShape( pixelArea, first_pass );
 		}
-		else if ( isTransparent() )
+		else if ( isTransparent() && !LLPipeline::sReflectionRender)
 		{
 			// Hair and Skirt
 			if ((pixelArea > MIN_PIXEL_AREA_3PASS_HAIR))
@@ -357,27 +358,27 @@ void LLViewerJoint::drawBone()
 	glMultMatrixf( &rotateMat.mMatrix[0][0] );
 
 	// render the bone
-	glColor3f( 0.5f, 0.5f, 0.0f );
+	gGL.color3f( 0.5f, 0.5f, 0.0f );
 
-	glBegin(GL_TRIANGLES);
+	gGL.begin(GL_TRIANGLES);
 
-	glVertex3f( length,     0.0f,       0.0f);
-	glVertex3f( 0.0f,       boneSize,  0.0f);
-	glVertex3f( 0.0f,       0.0f,       boneSize);
+	gGL.vertex3f( length,     0.0f,       0.0f);
+	gGL.vertex3f( 0.0f,       boneSize,  0.0f);
+	gGL.vertex3f( 0.0f,       0.0f,       boneSize);
 
-	glVertex3f( length,     0.0f,        0.0f);
-	glVertex3f( 0.0f,       0.0f,        -boneSize);
-	glVertex3f( 0.0f,       boneSize,   0.0f);
+	gGL.vertex3f( length,     0.0f,        0.0f);
+	gGL.vertex3f( 0.0f,       0.0f,        -boneSize);
+	gGL.vertex3f( 0.0f,       boneSize,   0.0f);
 
-	glVertex3f( length,     0.0f,        0.0f);
-	glVertex3f( 0.0f,       -boneSize,  0.0f);
-	glVertex3f( 0.0f,       0.0f,        -boneSize);
+	gGL.vertex3f( length,     0.0f,        0.0f);
+	gGL.vertex3f( 0.0f,       -boneSize,  0.0f);
+	gGL.vertex3f( 0.0f,       0.0f,        -boneSize);
 
-	glVertex3f( length,     0.0f,        0.0f);
-	glVertex3f( 0.0f,       0.0f,        boneSize);
-	glVertex3f( 0.0f,       -boneSize,  0.0f);
+	gGL.vertex3f( length,     0.0f,        0.0f);
+	gGL.vertex3f( 0.0f,       0.0f,        boneSize);
+	gGL.vertex3f( 0.0f,       -boneSize,  0.0f);
 
-	glEnd();
+	gGL.end();
 
 	// restore matrix
 	glPopMatrix();
@@ -422,16 +423,7 @@ void LLViewerJoint::updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pix
 		 iter != mChildren.end(); ++iter)
 	{
 		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
-		//F32 jointLOD = joint->getLOD();
-		//if (pixel_area >= jointLOD || sDisableLOD)
-		{
-			joint->updateFaceSizes(num_vertices, num_indices, pixel_area);
-
-		//	if (jointLOD != DEFAULT_LOD)
-		//	{
-		//		break;
-		//	}
-		}
+		joint->updateFaceSizes(num_vertices, num_indices, pixel_area);
 	}
 }
 
@@ -441,16 +433,7 @@ void LLViewerJoint::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind)
 		 iter != mChildren.end(); ++iter)
 	{
 		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
-		//F32 jointLOD = joint->getLOD();
-		//if (pixel_area >= jointLOD || sDisableLOD)
-		{
-			joint->updateFaceData(face, pixel_area, damp_wind);
-
-		//	if (jointLOD != DEFAULT_LOD)
-		//	{
-		//		break;
-		//	}
-		}
+		joint->updateFaceData(face, pixel_area, damp_wind);
 	}
 }
 
@@ -520,76 +503,6 @@ void LLViewerJoint::setVisible(BOOL visible, BOOL recursive)
 			joint->setVisible(visible, recursive);
 		}
 	}
-}
-
-void LLViewerJoint::writeCAL3D(apr_file_t* fp)
-{
-	LLVector3 bone_pos = mXform.getPosition();
-	if (mParent)
-	{
-		bone_pos.scaleVec(mParent->getScale());
-		bone_pos *= 100.f;
-	}
-	else
-	{
-		bone_pos.clearVec();
-	}
-	
-	LLQuaternion bone_rot;
-
-	S32 num_children = 0;
-	for (child_list_t::iterator iter = mChildren.begin();
-		 iter != mChildren.end(); ++iter)
-	{
-		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
-		if (joint->mJointNum != -1)
-		{
-			num_children++;
-		}
-	}
-
-	LLJoint* cur_joint = this;
-	LLVector3 rootSkinOffset;
-	if (mParent)
-	{
-		while (cur_joint)
-		{
-			rootSkinOffset -= cur_joint->getSkinOffset();
-			cur_joint = (LLViewerJoint*)cur_joint->getParent();
-		}
-
-		rootSkinOffset *= 100.f;
-	}
-
-	apr_file_printf(fp, "	<BONE ID=\"%d\" NAME=\"%s\" NUMCHILDS=\"%d\">\n", mJointNum + 1, mName.c_str(), num_children);
-	apr_file_printf(fp, "		<TRANSLATION>%.6f %.6f %.6f</TRANSLATION>\n", bone_pos.mV[VX], bone_pos.mV[VY], bone_pos.mV[VZ]);
-	apr_file_printf(fp, "		<ROTATION>%.6f %.6f %.6f %.6f</ROTATION>\n", bone_rot.mQ[VX], bone_rot.mQ[VY], bone_rot.mQ[VZ], bone_rot.mQ[VW]);
-	apr_file_printf(fp, "		<LOCALTRANSLATION>%.6f %.6f %.6f</LOCALTRANSLATION>\n", rootSkinOffset.mV[VX], rootSkinOffset.mV[VY], rootSkinOffset.mV[VZ]);
-	apr_file_printf(fp, "		<LOCALROTATION>0 0 0 1</LOCALROTATION>\n");
-	apr_file_printf(fp, "		<PARENTID>%d</PARENTID>\n", mParent ? mParent->mJointNum + 1 : -1);
-	
-	for (child_list_t::iterator iter = mChildren.begin();
-		 iter != mChildren.end(); ++iter)
-	{
-		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
-		if (joint->mJointNum != -1)
-		{
-			apr_file_printf(fp, "		<CHILDID>%d</CHILDID>\n", joint->mJointNum + 1);
-		}
-	}
-	apr_file_printf(fp, "	</BONE>\n");
-
-	// recurse
-	for (child_list_t::iterator iter = mChildren.begin();
-		 iter != mChildren.end(); ++iter)
-	{
-		LLViewerJoint* joint = (LLViewerJoint*)(*iter);
-		if (joint->mJointNum != -1)
-		{
-			joint->writeCAL3D(fp);
-		}
-	}
-
 }
 
 //-----------------------------------------------------------------------------

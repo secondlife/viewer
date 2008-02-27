@@ -61,13 +61,12 @@ protected:
 public:
 	LLViewerPart();
 
-	LLViewerPart &operator=(const LLViewerPart &part);
 	void init(LLPointer<LLViewerPartSource> sourcep, LLViewerImage *imagep, LLVPCallback cb);
 
 
 	U32					mPartID;					// Particle ID used primarily for moving between groups
 	F32					mLastUpdateTime;			// Last time the particle was updated
-
+	F32					mSkipOffset;				// Offset against current group mSkippedTime
 
 	LLVPCallback		mVPCallback;				// Callback function for more complicated behaviors
 	LLPointer<LLViewerPartSource> mPartSourcep;		// Particle source used for this object
@@ -97,7 +96,7 @@ public:
 
 	BOOL addPart(LLViewerPart* part, const F32 desired_size = -1.f);
 	
-	void updateParticles(const F32 dt);
+	void updateParticles(const F32 lastdt);
 
 	BOOL posInGroup(const LLVector3 &pos, const F32 desired_size = -1.f);
 
@@ -117,8 +116,7 @@ public:
 	BOOL mUniformParticles;
 	U32 mID;
 
-protected:
-	void removePart(const S32 part_num);
+	F32 mSkippedTime;
 
 protected:
 	LLVector3 mCenterAgent;
@@ -131,7 +129,6 @@ protected:
 
 class LLViewerPartSim
 {
-
 public:
 	LLViewerPartSim();
 	virtual ~LLViewerPartSim();
@@ -148,7 +145,22 @@ public:
 	void cleanupRegion(LLViewerRegion *regionp);
 
 	BOOL shouldAddPart(); // Just decides whether this particle should be added or not (for particle count capping)
+	F32 maxRate() // Return maximum particle generation rate
+	{
+		if (sParticleCount >= MAX_PART_COUNT)
+		{
+			return 1.f;
+		}
+		if (sParticleCount > PART_THROTTLE_THRESHOLD*sMaxParticleCount)
+		{
+			return (((F32)sParticleCount/(F32)sMaxParticleCount)-PART_THROTTLE_THRESHOLD)*PART_THROTTLE_RESCALE;
+		}
+		return 0.f;
+	}
+	F32 getRefRate() { return sParticleAdaptiveRate; }
+	F32 getBurstRate() {return sParticleBurstRate; }
 	void addPart(LLViewerPart* part);
+	void updatePartBurstRate() ;
 	void clearParticlesByID(const U32 system_id);
 	void clearParticlesByOwnerID(const LLUUID& task_id);
 	void removeLastCreatedSource();
@@ -170,12 +182,20 @@ protected:
 	LLViewerPartGroup *createViewerPartGroup(const LLVector3 &pos_agent, const F32 desired_size);
 	LLViewerPartGroup *put(LLViewerPart* part);
 
-protected:
 	group_list_t mViewerPartGroups;
 	source_list_t mViewerPartSources;
 	LLFrameTimer mSimulationTimer;
+
 	static S32 sMaxParticleCount;
 	static S32 sParticleCount;
+	static F32 sParticleAdaptiveRate;
+	static F32 sParticleBurstRate;
+
+	static const S32 MAX_PART_COUNT;
+	static const F32 PART_THROTTLE_THRESHOLD;
+	static const F32 PART_THROTTLE_RESCALE;
+	static const F32 PART_ADAPT_RATE_MULT;
+	static const F32 PART_ADAPT_RATE_MULT_RECIP;
 };
 
 #endif // LL_LLVIEWERPARTSIM_H

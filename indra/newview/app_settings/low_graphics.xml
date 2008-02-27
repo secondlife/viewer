@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings version = "101">
+	<!--NO SHADERS-->
+	<RenderAvatarCloth value="FALSE"/>
+	<!--Default for now-->
+	<RenderAvatarLODFactor value="0.5"/>
+	<!--NO SHADERS-->
+	<RenderAvatarVP value="FALSE"/>
+	<!--Short Range-->
+	<RenderFarClip value="64"/>
+	<!--Default for now-->
+	<RenderFlexTimeFactor value="0.5"/>
+	<!--256... but they don't use this-->
+	<RenderGlowResolutionPow value="8"/>
+	<!--Sun/Moon only-->
+	<RenderLightingDetail value="0"/>
+	<!--Low number-->
+	<RenderMaxPartCount value="1024"/>
+	<!--bump okay-->
+	<RenderObjectBump value="FALSE"/>
+	<!--NO SHADERS-->
+	<RenderReflectionDetail value="0"/>
+	<!--Simple-->
+	<RenderTerrainDetail value="0"/>
+	<!--Default for now-->
+	<RenderTerrainLODFactor value="1.0"/>
+	<!--Default for now-->
+	<RenderTreeLODFactor value="0.5"/>
+	<!--Try Impostors-->
+	<RenderUseImpostors value="TRUE"/>
+	<!--Default for now-->
+	<RenderVolumeLODFactor value="1.125"/>
+	<!--NO SHADERS-->
+	<RenderWaterReflections value="FALSE"/>
+	<!--NO SHADERS-->
+	<VertexShaderEnable value="FALSE"/>
+	<!--NO SHADERS-->
+	<WindLightUseAtmosShaders value="FALSE"/>
+</settings>

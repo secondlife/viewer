@@ -8,6 +8,9 @@ Able Whitman
 	VWR-650
 	VWR-1460
 	VWR-1691
+Aimee Trescothick
+	VWR-3903
+	VWR-4803
 Alejandro Rosenthal
 	VWR-1184
 Alissa Sabre
@@ -44,9 +47,12 @@ Balp Allen
 Benja Kepler
 	VWR-746
 Blakar Ogre
+	VWR-418
 	VWR-881
+	VWR-983
 	VWR-1612
 	VWR-1613
+	VWR-2164
 blino Nakamura
 	VWR-17
 Boroondas Gupte
@@ -172,6 +178,7 @@ McCabe Maxsted
 Michelle2 Zenovka
 	VWR-2652
 	VWR-2834
+	VWR-3749
 Mm Alder
 	VWR-3777
 Mr Greggan

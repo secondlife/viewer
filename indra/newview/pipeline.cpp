@@ -50,6 +50,7 @@
 #include "v3color.h"
 #include "llui.h" 
 #include "llglheaders.h"
+#include "llglimmediate.h"
 
 // newview includes
 #include "llagent.h"
@@ -57,7 +58,6 @@
 #include "lldrawpoolalpha.h"
 #include "lldrawpoolavatar.h"
 #include "lldrawpoolground.h"
-#include "lldrawpoolsimple.h"
 #include "lldrawpoolbump.h"
 #include "lldrawpooltree.h"
 #include "lldrawpoolwater.h"
@@ -96,6 +96,10 @@
 #include "llglslshader.h"
 #include "llviewerjoystick.h"
 #include "llviewerdisplay.h"
+#include "llwlparammanager.h"
+#include "llwaterparammanager.h"
+#include "llspatialpartition.h"
+
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
@@ -104,7 +108,7 @@
 //#define DEBUG_INDICES
 #endif
 
-#define AGGRESSIVE_OCCLUSION 0
+void render_ui_and_swap_if_needed();
 
 const F32 BACKLIGHT_DAY_MAGNITUDE_AVATAR = 0.2f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_AVATAR = 0.1f;
@@ -112,15 +116,7 @@ const F32 BACKLIGHT_DAY_MAGNITUDE_OBJECT = 0.1f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_OBJECT = 0.08f;
 const S32 MAX_ACTIVE_OBJECT_QUIET_FRAMES = 40;
 const S32 MAX_OFFSCREEN_GEOMETRY_CHANGES_PER_FRAME = 10;
-
-// Guess on the number of visible objects in the scene, used to
-// pre-size std::vector and other arrays. JC
-const S32 ESTIMATED_VISIBLE_OBJECT_COUNT = 8192;
-
-// If the sum of the X + Y + Z scale of an object exceeds this number,
-// it will be considered a potential occluder.  For instance,
-// a box of size 6 x 6 x 1 has sum 13, which might be an occluder. JC
-const F32 OCCLUDE_SCALE_SUM_THRESHOLD = 8.f;
+const U32 REFLECTION_MAP_RES = 128;
 
 // Max number of occluders to search for. JC
 const S32 MAX_OCCLUDER_COUNT = 2;
@@ -128,30 +124,20 @@ const S32 MAX_OCCLUDER_COUNT = 2;
 extern S32 gBoxFrame;
 extern BOOL gRenderLightGlows;
 extern BOOL gHideSelectedObjects;
+extern BOOL gDisplaySwapBuffers;
+
+// hack counter for rendering a fixed number of frames after toggling
+// fullscreen to work around DEV-5361
+static S32 sDelayedVBOEnable = 0;
 
 BOOL	gAvatarBacklight = FALSE;
-
-S32		gTrivialAccepts = 0;
 
 BOOL	gRenderForSelect = FALSE;
 
 LLPipeline gPipeline;
+const LLMatrix4* gGLLastMatrix = NULL;
 
 //----------------------------------------
-
-void stamp(F32 x, F32 y, F32 xs, F32 ys)
-{
-	glBegin(GL_QUADS);
-	glTexCoord2f(0,0);
-	glVertex3f(x,   y,   0.0f);
-	glTexCoord2f(1,0);
-	glVertex3f(x+xs,y,   0.0f);
-	glTexCoord2f(1,1);
-	glVertex3f(x+xs,y+ys,0.0f);
-	glTexCoord2f(0,1);
-	glVertex3f(x,   y+ys,0.0f);
-	glEnd();
-}
 
 U32 nhpo2(U32 v) 
 {
@@ -162,11 +148,60 @@ U32 nhpo2(U32 v)
 	return r;
 }
 
+glh::matrix4f glh_copy_matrix(GLdouble* src)
+{
+	glh::matrix4f ret;
+	for (U32 i = 0; i < 16; i++)
+	{
+		ret.m[i] = (F32) src[i];
+	}
+	return ret;
+}
+
+glh::matrix4f glh_get_current_modelview()
+{
+	return glh_copy_matrix(gGLModelView);
+}
+
+glh::matrix4f glh_get_current_projection()
+{
+	return glh_copy_matrix(gGLProjection);
+}
+
+void glh_copy_matrix(glh::matrix4f& src, GLdouble* dst)
+{
+	for (U32 i = 0; i < 16; i++)
+	{
+		dst[i] = src.m[i];
+	}
+}
+
+void glh_set_current_modelview(glh::matrix4f& mat)
+{
+	glh_copy_matrix(mat, gGLModelView);
+}
+
+void glh_set_current_projection(glh::matrix4f& mat)
+{
+	glh_copy_matrix(mat, gGLProjection);
+}
+
+glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat znear, GLfloat zfar)
+{
+	glh::matrix4f ret(
+		2.f/(right-left), 0.f, 0.f, -(right+left)/(right-left),
+		0.f, 2.f/(top-bottom), 0.f, -(top+bottom)/(top-bottom),
+		0.f, 0.f, -2.f/(zfar-znear),  -(zfar+znear)/(zfar-znear),
+		0.f, 0.f, 0.f, 1.f);
+
+	return ret;
+}
 
 //----------------------------------------
 
 S32		LLPipeline::sCompiles = 0;
 
+BOOL	LLPipeline::sDynamicLOD = TRUE;
 BOOL	LLPipeline::sShowHUDAttachments = TRUE;
 BOOL	LLPipeline::sRenderPhysicalBeacons = TRUE;
 BOOL	LLPipeline::sRenderScriptedBeacons = FALSE;
@@ -176,32 +211,59 @@ BOOL	LLPipeline::sRenderSoundBeacons = FALSE;
 BOOL	LLPipeline::sRenderBeacons = FALSE;
 BOOL	LLPipeline::sRenderHighlight = TRUE;
 BOOL	LLPipeline::sRenderProcessBeacons = FALSE;
-BOOL	LLPipeline::sUseOcclusion = FALSE;
+S32		LLPipeline::sUseOcclusion = 0;
+BOOL	LLPipeline::sFastAlpha = TRUE;
+BOOL	LLPipeline::sDisableShaders = FALSE;
+BOOL	LLPipeline::sRenderBump = TRUE;
+BOOL	LLPipeline::sUseFarClip = TRUE;
 BOOL	LLPipeline::sSkipUpdate = FALSE;
 BOOL	LLPipeline::sDynamicReflections = FALSE;
+BOOL	LLPipeline::sWaterReflections = FALSE;
 BOOL	LLPipeline::sRenderGlow = FALSE;
+BOOL	LLPipeline::sReflectionRender = FALSE;
+BOOL	LLPipeline::sImpostorRender = FALSE;
+BOOL	LLPipeline::sUnderWaterRender = FALSE;
+BOOL	LLPipeline::sTextureBindTest = FALSE;
+BOOL	LLPipeline::sRenderFrameTest = FALSE;
+
+static LLCullResult* sCull = NULL;
+
+static const U32 gl_cube_face[] = 
+{
+	GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB,
+	GL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB,
+	GL_TEXTURE_CUBE_MAP_POSITIVE_Y_ARB,
+	GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB,
+	GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB,
+	GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB,
+};
+
+void validate_framebuffer_object();
 
 LLPipeline::LLPipeline() :
-	mScreenTex(0),
-	mGlowMap(0),
-	mGlowBuffer(0),
+	mCubeBuffer(NULL),
+	mInitialized(FALSE),
 	mVertexShadersEnabled(FALSE),
 	mVertexShadersLoaded(0),
 	mLastRebuildPool(NULL),
 	mAlphaPool(NULL),
-	mAlphaPoolPostWater(NULL),
 	mSkyPool(NULL),
-	mStarsPool(NULL),
 	mTerrainPool(NULL),
 	mWaterPool(NULL),
 	mGroundPool(NULL),
 	mSimplePool(NULL),
+	mInvisiblePool(NULL),
 	mGlowPool(NULL),
 	mBumpPool(NULL),
+	mWLSkyPool(NULL),
 	mLightMask(0),
 	mLightMovingMask(0)
 {
-	mFramebuffer[0] = mFramebuffer[1] = 0;
+	//mFramebuffer[0] = mFramebuffer[1] = mFramebuffer[2] = mFramebuffer[3] = 0;
+	mBlurCubeBuffer[0] = mBlurCubeBuffer[1] = mBlurCubeBuffer[2] = 0;
+	mBlurCubeTexture[0] = mBlurCubeTexture[1] = mBlurCubeTexture[2] = 0;
+
+	//mDepthbuffer[0] = mDepthbuffer[1] = 0;
 	mCubeFrameBuffer = 0;
 	mCubeDepth = 0;
 }
@@ -210,27 +272,17 @@ void LLPipeline::init()
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 
+	sDynamicLOD = gSavedSettings.getBOOL("RenderDynamicLOD");
+	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
+
 	mInitialized = TRUE;
 	
 	stop_glerror();
 
-	//create object partitions
-	//MUST MATCH declaration of eObjectPartitions
-	mObjectPartition.push_back(new LLVolumePartition());	//PARTITION_VOLUME
-	mObjectPartition.push_back(new LLBridgePartition());	//PARTITION_BRIDGE
-	mObjectPartition.push_back(new LLHUDPartition());		//PARTITION_HUD
-	mObjectPartition.push_back(new LLTerrainPartition());	//PARTITION_TERRAIN
-	mObjectPartition.push_back(new LLWaterPartition());		//PARTITION_WATER
-	mObjectPartition.push_back(new LLTreePartition());		//PARTITION_TREE
-	mObjectPartition.push_back(new LLParticlePartition());	//PARTITION_PARTICLE
-	mObjectPartition.push_back(new LLCloudPartition());		//PARTITION_CLOUD
-	mObjectPartition.push_back(new LLGrassPartition());		//PARTITION_GRASS
-	mObjectPartition.push_back(NULL);						//PARTITION_NONE
-	
 	//create render pass pools
 	getPool(LLDrawPool::POOL_ALPHA);
-	getPool(LLDrawPool::POOL_ALPHA_POST_WATER);
 	getPool(LLDrawPool::POOL_SIMPLE);
+	getPool(LLDrawPool::POOL_INVISIBLE);
 	getPool(LLDrawPool::POOL_BUMP);
 	getPool(LLDrawPool::POOL_GLOW);
 
@@ -239,7 +291,6 @@ void LLPipeline::init()
 
 	mRenderTypeMask = 0xffffffff;	// All render types start on
 	mRenderDebugFeatureMask = 0xffffffff; // All debugging features on
-	mRenderFeatureMask = 0;	// All features start off
 	mRenderDebugMask = 0;	// All debug starts off
 
 	mOldRenderDebugMask = mRenderDebugMask;
@@ -249,9 +300,10 @@ void LLPipeline::init()
 	stop_glerror();
 	
 	// Enable features
-	stop_glerror();
 		
 	LLShaderMgr::setShaders();
+
+	stop_glerror();
 }
 
 LLPipeline::~LLPipeline()
@@ -261,6 +313,8 @@ LLPipeline::~LLPipeline()
 
 void LLPipeline::cleanup()
 {
+	assertInitialized();
+
 	for(pool_set_t::iterator iter = mPools.begin();
 		iter != mPools.end(); )
 	{
@@ -295,12 +349,8 @@ void LLPipeline::cleanup()
 		
 	delete mAlphaPool;
 	mAlphaPool = NULL;
-	delete mAlphaPoolPostWater;
-	mAlphaPoolPostWater = NULL;
 	delete mSkyPool;
 	mSkyPool = NULL;
-	delete mStarsPool;
-	mStarsPool = NULL;
 	delete mTerrainPool;
 	mTerrainPool = NULL;
 	delete mWaterPool;
@@ -309,10 +359,15 @@ void LLPipeline::cleanup()
 	mGroundPool = NULL;
 	delete mSimplePool;
 	mSimplePool = NULL;
+	delete mInvisiblePool;
+	mInvisiblePool = NULL;
 	delete mGlowPool;
 	mGlowPool = NULL;
 	delete mBumpPool;
 	mBumpPool = NULL;
+	// don't delete wl sky pool it was handled above in the for loop
+	//delete mWLSkyPool;
+	mWLSkyPool = NULL;
 
 	releaseGLBuffers();
 
@@ -321,21 +376,9 @@ void LLPipeline::cleanup()
 	mFaceSelectImagep = NULL;
 	mAlphaSizzleImagep = NULL;
 
-	for (S32 i = 0; i < NUM_PARTITIONS-1; i++)
-	{
-		delete mObjectPartition[i];
-	}
-	mObjectPartition.clear();
-
-	mVisibleList.clear();
-	mVisibleGroups.clear();
-	mDrawableGroups.clear();
-	mActiveGroups.clear();
-	mVisibleBridge.clear();
 	mMovedBridge.clear();
-	mOccludedBridge.clear();
-	mAlphaGroups.clear();
-	clearRenderMap();
+
+	mInitialized = FALSE;
 }
 
 //============================================================================
@@ -345,39 +388,47 @@ void LLPipeline::destroyGL()
 	stop_glerror();
 	unloadShaders();
 	mHighlightFaces.clear();
-	mVisibleList.clear();
-	mVisibleGroups.clear();
-	mDrawableGroups.clear();
-	mActiveGroups.clear();
-	mVisibleBridge.clear();
-	mOccludedBridge.clear();
-	mAlphaGroups.clear();
-	clearRenderMap();
+	
+	resetDrawOrders();
+
 	resetVertexBuffers();
 
 	releaseGLBuffers();
+
+	if (LLVertexBuffer::sEnableVBOs)
+	{
+		// render 30 frames after switching to work around DEV-5361
+		sDelayedVBOEnable = 30;
+		LLVertexBuffer::sEnableVBOs = FALSE;
+	}
 }
+
+void LLPipeline::resizeScreenTexture()
+{
+	if (gPipeline.canUseVertexShaders() && assertInitialized())
+	{
+		GLuint resX = gViewerWindow->getWindowDisplayWidth();
+		GLuint resY = gViewerWindow->getWindowDisplayHeight();
+	
+		U32 res_mod = gSavedSettings.getU32("RenderResolutionDivisor");
+		if (res_mod > 1)
+		{
+			resX /= res_mod;
+			resY /= res_mod;
+		}
+	
+		mScreen.release();
+		mScreen.allocate(resX, resY, GL_RGBA, TRUE, GL_TEXTURE_RECTANGLE_ARB);		
+
+		llinfos << "RESIZED SCREEN TEXTURE: " << resX << "x" << resY << llendl;
+	}
+}
+
 
 void LLPipeline::releaseGLBuffers()
 {
-	if (mGlowMap)
-	{
-		glDeleteTextures(1, &mGlowMap);
-		mGlowMap = 0;
-	}
-
-	if (mGlowBuffer)
-	{
-		glDeleteTextures(1, &mGlowBuffer);
-		mGlowBuffer = 0;
-	}
-
-	if (mScreenTex)
-	{
-		glDeleteTextures(1, &mScreenTex);
-		mScreenTex = 0;
-	}
-
+	assertInitialized();
+	
 	if (mCubeBuffer)
 	{
 		mCubeBuffer = NULL;
@@ -390,27 +441,152 @@ void LLPipeline::releaseGLBuffers()
 		mCubeDepth = mCubeFrameBuffer = 0;
 	}
 
-	if (mFramebuffer[0])
+	/*if (mFramebuffer[0])
 	{
-		glDeleteFramebuffersEXT(2, mFramebuffer);
-		mFramebuffer[0] = mFramebuffer[1] = 0;
+		glDeleteFramebuffersEXT(4, mFramebuffer);
+		mFramebuffer[0] = mFramebuffer[1] = mFramebuffer[2] = mFramebuffer[3] = 0;
+	}*/
+
+	if (mBlurCubeBuffer[0])
+	{
+		glDeleteFramebuffersEXT(3, mBlurCubeBuffer);
+		mBlurCubeBuffer[0] = mBlurCubeBuffer[1] = mBlurCubeBuffer[2] = 0;
 	}
+
+	if (mBlurCubeTexture[0])
+	{
+		glDeleteTextures(3, mBlurCubeTexture);
+		mBlurCubeTexture[0] = mBlurCubeTexture[1] = mBlurCubeTexture[2] = 0;
+	}
+
+	mWaterRef.release();
+	mWaterDis.release();
+	mScreen.release();
+
+	for (U32 i = 0; i < 3; i++)
+	{
+		mGlow[i].release();
+	}
+
+	LLVOAvatar::resetImpostors();
+}
+
+void LLPipeline::createGLBuffers()
+{
+	assertInitialized();
+
+	if (LLPipeline::sDynamicReflections ||
+		LLPipeline::sWaterReflections)
+	{ //water reflection texture
+		U32 res = (U32) gSavedSettings.getS32("RenderWaterRefResolution");
+			
+		mWaterRef.allocate(res,res,GL_RGBA,TRUE);
+		mWaterDis.allocate(res,res,GL_RGBA,TRUE);
+
+		if (LLPipeline::sDynamicReflections)
+		{
+			//reflection map generation buffers
+			if (mCubeFrameBuffer == 0)
+			{
+				glGenFramebuffersEXT(1, &mCubeFrameBuffer);
+				glGenRenderbuffersEXT(1, &mCubeDepth);
+
+				U32 res = REFLECTION_MAP_RES;
+
+				glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, mCubeDepth);
+						
+				glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT,GL_DEPTH_COMPONENT,res,res);
+							
+				glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+			}
+
+			if (mCubeBuffer.isNull())
+			{
+				res = 128;
+				mCubeBuffer = new LLCubeMap();
+				mCubeBuffer->initGL();
+				glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, mCubeBuffer->getGLName());
+				glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+					
+				for (U32 i = 0; i < 6; i++)
+				{
+					glTexImage2D(gl_cube_face[i], 0, GL_RGBA, res, res, 0, GL_RGBA, GL_FLOAT, NULL); 
+				}
+			}
+
+			if (mBlurCubeBuffer[0] == 0)
+			{
+				glGenFramebuffersEXT(3, mBlurCubeBuffer);
+			}
+
+			if (mBlurCubeTexture[0] == 0)
+			{
+				glGenTextures(3, mBlurCubeTexture);
+			}
+
+			res = (U32) gSavedSettings.getS32("RenderReflectionRes");
+
+			for (U32 j = 0; j < 3; j++)
+			{
+				glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, mBlurCubeTexture[j]);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+					
+				for (U32 i = 0; i < 6; i++)
+				{
+					glTexImage2D(gl_cube_face[i], 0, GL_RGBA, res, res, 0, GL_RGBA, GL_FLOAT, NULL); 
+				}
+			}
+		}
+	}
+
+	stop_glerror();
+
+	if (LLPipeline::sRenderGlow)
+	{ //screen space glow buffers
+		const U32 glow_res = llmax(1, 
+			llmin(512, 1 << gSavedSettings.getS32("RenderGlowResolutionPow")));
+
+		for (U32 i = 0; i < 3; i++)
+		{
+			mGlow[i].allocate(512,glow_res,GL_RGBA,FALSE);
+		}
+	}
+
+	GLuint resX = gViewerWindow->getWindowDisplayWidth();
+	GLuint resY = gViewerWindow->getWindowDisplayHeight();
+	
+	mScreen.allocate(resX, resY, GL_RGBA, TRUE, GL_TEXTURE_RECTANGLE_ARB);
 }
 
 void LLPipeline::restoreGL() 
 {
-	resetVertexBuffers();
+	assertInitialized();
 
 	if (mVertexShadersEnabled)
 	{
 		LLShaderMgr::setShaders();
 	}
-	
-	for (U32 i = 0; i < mObjectPartition.size()-1; i++)
+
+	if (gWorldp)
 	{
-		if (mObjectPartition[i])
+		for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
+				iter != gWorldp->getRegionList().end(); ++iter)
 		{
-			mObjectPartition[i]->restoreGL();
+			LLViewerRegion* region = *iter;
+			for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
+			{
+				LLSpatialPartition* part = region->getSpatialPartition(i);
+				if (part)
+				{
+					part->restoreGL();
+				}
+			}
 		}
 	}
 }
@@ -421,7 +597,7 @@ BOOL LLPipeline::canUseVertexShaders()
 	if (!gGLManager.mHasVertexShader ||
 		!gGLManager.mHasFragmentShader ||
 		!gFeatureManagerp->isFeatureAvailable("VertexShaderEnable") ||
-		mVertexShadersLoaded == -1)
+		(assertInitialized() && mVertexShadersLoaded != 1) )
 	{
 		return FALSE;
 	}
@@ -431,10 +607,29 @@ BOOL LLPipeline::canUseVertexShaders()
 	}
 }
 
+BOOL LLPipeline::canUseWindLightShaders() const
+{
+	return (!LLPipeline::sDisableShaders &&
+			gWLSkyProgram.mProgramObject != 0 &&
+			LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_WINDLIGHT) > 1);
+}
+
+BOOL LLPipeline::canUseWindLightShadersOnObjects() const
+{
+	return (canUseWindLightShaders() 
+		&& LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_OBJECT) > 0);
+}
+
 void LLPipeline::unloadShaders()
 {
 	LLShaderMgr::unloadShaders();
+
 	mVertexShadersLoaded = 0;
+}
+
+void LLPipeline::assertInitializedDoError()
+{
+	llerrs << "LLPipeline used when uninitialized." << llendl;
 }
 
 //============================================================================
@@ -458,6 +653,8 @@ S32 LLPipeline::getMaxLightingDetail() const
 
 S32 LLPipeline::setLightingDetail(S32 level)
 {
+	assertInitialized();
+
 	if (level < 0)
 	{
 		level = gSavedSettings.getS32("RenderLightingDetail");
@@ -466,10 +663,7 @@ S32 LLPipeline::setLightingDetail(S32 level)
 	if (level != mLightingDetail)
 	{
 		gSavedSettings.setS32("RenderLightingDetail", level);
-		if (level >= 2)
-		{
-			gObjectList.relightAllObjects();
-		}
+		
 		mLightingDetail = level;
 
 		if (mVertexShadersLoaded == 1)
@@ -487,9 +681,9 @@ public:
 
 	LLOctreeDirtyTexture(const std::set<LLViewerImage*>& textures) : mTextures(textures) { }
 
-	virtual void visit(const LLOctreeState<LLDrawable>* state)
+	virtual void visit(const LLOctreeNode<LLDrawable>* node)
 	{
-		LLSpatialGroup* group = (LLSpatialGroup*) state->getNode()->getListener(0);
+		LLSpatialGroup* group = (LLSpatialGroup*) node->getListener(0);
 
 		if (!group->isState(LLSpatialGroup::GEOM_DIRTY) && !group->getData().empty())
 		{
@@ -517,6 +711,8 @@ public:
 // Called when a texture changes # of channels (causes faces to move to alpha pool)
 void LLPipeline::dirtyPoolObjectTextures(const std::set<LLViewerImage*>& textures)
 {
+	assertInitialized();
+
 	// *TODO: This is inefficient and causes frame spikes; need a better way to do this
 	//        Most of the time is spent in dirty.traverse.
 
@@ -529,23 +725,38 @@ void LLPipeline::dirtyPoolObjectTextures(const std::set<LLViewerImage*>& texture
 		}
 	}
 	
-	LLOctreeDirtyTexture dirty(textures);
-	for (U32 i = 0; i < mObjectPartition.size(); i++)
+	if (gWorldp)
 	{
-		if (mObjectPartition[i])
+		LLOctreeDirtyTexture dirty(textures);
+		for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
+				iter != gWorldp->getRegionList().end(); ++iter)
 		{
-			dirty.traverse(mObjectPartition[i]->mOctree);
+			LLViewerRegion* region = *iter;
+			for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
+			{
+				LLSpatialPartition* part = region->getSpatialPartition(i);
+				if (part)
+				{
+					dirty.traverse(part->mOctree);
+				}
+			}
 		}
 	}
 }
 
 LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerImage *tex0)
 {
+	assertInitialized();
+
 	LLDrawPool *poolp = NULL;
 	switch( type )
 	{
 	case LLDrawPool::POOL_SIMPLE:
 		poolp = mSimplePool;
+		break;
+
+	case LLDrawPool::POOL_INVISIBLE:
+		poolp = mInvisiblePool;
 		break;
 
 	case LLDrawPool::POOL_GLOW:
@@ -568,19 +779,11 @@ LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerImage *tex0)
 		poolp = mAlphaPool;
 		break;
 
-	case LLDrawPool::POOL_ALPHA_POST_WATER:
-		poolp = mAlphaPoolPostWater;
-		break;
-
 	case LLDrawPool::POOL_AVATAR:
 		break; // Do nothing
 
 	case LLDrawPool::POOL_SKY:
 		poolp = mSkyPool;
-		break;
-
-	case LLDrawPool::POOL_STARS:
-		poolp = mStarsPool;
 		break;
 
 	case LLDrawPool::POOL_WATER:
@@ -589,6 +792,10 @@ LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerImage *tex0)
 
 	case LLDrawPool::POOL_GROUND:
 		poolp = mGroundPool;
+		break;
+
+	case LLDrawPool::POOL_WL_SKY:
+		poolp = mWLSkyPool;
 		break;
 
 	default:
@@ -659,6 +866,7 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerImage* image
 void LLPipeline::addPool(LLDrawPool *new_poolp)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
+	assertInitialized();
 	mPools.insert(new_poolp);
 	addToQuickLookup( new_poolp );
 }
@@ -685,6 +893,8 @@ void LLPipeline::allocDrawable(LLViewerObject *vobj)
 void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 {
 	LLFastTimer t(LLFastTimer::FTM_PIPELINE);
+
+	assertInitialized();
 
 	LLPointer<LLDrawable> drawablep = drawable; // make sure this doesn't get deleted before we are done
 	
@@ -721,8 +931,13 @@ U32 LLPipeline::addObject(LLViewerObject *vobj)
 		return 0;
 	}
 
-	LLDrawable *drawablep = vobj->createDrawable(this);
+	LLDrawable* drawablep = vobj->mDrawable;
 
+	if (!drawablep)
+	{
+		drawablep = vobj->createDrawable(this);
+	}
+	
 	llassert(drawablep);
 
 	if (vobj->getParent())
@@ -742,8 +957,14 @@ U32 LLPipeline::addObject(LLViewerObject *vobj)
 
 void LLPipeline::resetFrameStats()
 {
+	assertInitialized();
+
 	mTrianglesDrawnStat.addValue(mTrianglesDrawn/1000.f);
 
+	if (mBatchCount > 0)
+	{
+		mMeanBatchSize = gPipeline.mTrianglesDrawn/gPipeline.mBatchCount;
+	}
 	mTrianglesDrawn = 0;
 	sCompiles        = 0;
 	mVerticesRelit   = 0;
@@ -775,6 +996,9 @@ void LLPipeline::updateMoveDampedAsync(LLDrawable* drawablep)
 	{
 		return;
 	}
+
+	assertInitialized();
+
 	// update drawable now
 	drawablep->clearState(LLDrawable::MOVE_UNDAMPED); // force to DAMPED
 	drawablep->updateMove(); // returns done
@@ -801,6 +1025,9 @@ void LLPipeline::updateMoveNormalAsync(LLDrawable* drawablep)
 	{
 		return;
 	}
+
+	assertInitialized();
+
 	// update drawable now
 	drawablep->setState(LLDrawable::MOVE_UNDAMPED); // force to UNDAMPED
 	drawablep->updateMove();
@@ -836,13 +1063,15 @@ void LLPipeline::updateMovedList(LLDrawable::drawable_vector_t& moved_list)
 
 void LLPipeline::updateMove()
 {
-	//LLFastTimer t(LLFastTimer::FTM_UPDATE_MOVE);
+	LLFastTimer t(LLFastTimer::FTM_UPDATE_MOVE);
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 
 	if (gSavedSettings.getBOOL("FreezeTime"))
 	{
 		return;
 	}
+
+	assertInitialized();
 
 	for (LLDrawable::drawable_set_t::iterator iter = mRetexturedList.begin();
 		 iter != mRetexturedList.end(); ++iter)
@@ -881,11 +1110,18 @@ void LLPipeline::updateMove()
 	//balance octrees
 	{
  		LLFastTimer ot(LLFastTimer::FTM_OCTREE_BALANCE);
-		for (U32 i = 0; i < mObjectPartition.size()-1; i++)
+
+		for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
+			iter != gWorldp->getRegionList().end(); ++iter)
 		{
-			if (mObjectPartition[i])
+			LLViewerRegion* region = *iter;
+			for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
 			{
-				mObjectPartition[i]->mOctree->balance();
+				LLSpatialPartition* part = region->getSpatialPartition(i);
+				if (part)
+				{
+					part->mOctree->balance();
+				}
 			}
 		}
 	}
@@ -915,27 +1151,72 @@ F32 LLPipeline::calcPixelArea(LLVector3 center, LLVector3 size, LLCamera &camera
 	return radius*radius * 3.14159f;
 }
 
-void LLPipeline::updateCull(LLCamera& camera)
+void LLPipeline::grabReferences(LLCullResult& result)
+{
+	sCull = &result;
+}
+
+void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip)
 {
 	LLFastTimer t(LLFastTimer::FTM_CULL);
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 
-	mVisibleList.clear();
-	mVisibleGroups.clear();
-	mDrawableGroups.clear();
-	mActiveGroups.clear();
-	gTrivialAccepts = 0;
-	mVisibleBridge.clear();
+	grabReferences(result);
 
-	processOcclusion(camera);
+	sCull->clear();
 
-	for (U32 i = 0; i < mObjectPartition.size(); i++)
-	{	
-		if (mObjectPartition[i] && hasRenderType(mObjectPartition[i]->mDrawableType))
+	BOOL to_texture =	LLPipeline::sUseOcclusion > 1 &&
+						!hasRenderType(LLPipeline::RENDER_TYPE_HUD) && 
+						!sReflectionRender &&
+						gPipeline.canUseVertexShaders() &&
+						sRenderGlow &&
+						gGLManager.mHasFramebufferObject;
+
+	if (to_texture)
+	{
+		mScreen.bindTarget();
+	}
+
+	glPushMatrix();
+	gGLLastMatrix = NULL;
+	glLoadMatrixd(gGLLastModelView);
+
+	LLVertexBuffer::unbind();
+	LLGLDisable blend(GL_BLEND);
+	LLGLDisable test(GL_ALPHA_TEST);
+	LLViewerImage::unbindTexture(0, GL_TEXTURE_2D);
+
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+
+	for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
+			iter != gWorldp->getRegionList().end(); ++iter)
+	{
+		LLViewerRegion* region = *iter;
+		if (water_clip != 0)
 		{
-			mObjectPartition[i]->cull(camera);
+			LLPlane plane(LLVector3(0,0, (F32) -water_clip), (F32) water_clip*region->getWaterHeight());
+			camera.setUserClipPlane(plane);
+		}
+		else
+		{
+			camera.disableUserClipPlane();
+		}
+
+		for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
+		{
+			LLSpatialPartition* part = region->getSpatialPartition(i);
+			if (part)
+			{
+				if (hasRenderType(part->mDrawableType))
+				{
+					part->cull(camera);
+				}
+			}
 		}
 	}
+
+	camera.disableUserClipPlane();
 
 	if (gSky.mVOSkyp.notNull() && gSky.mVOSkyp->mDrawable.notNull())
 	{
@@ -943,7 +1224,7 @@ void LLPipeline::updateCull(LLCamera& camera)
 		if (hasRenderType(LLPipeline::RENDER_TYPE_SKY)) 
 		{
 			gSky.mVOSkyp->mDrawable->setVisible(camera);
-			mVisibleList.push_back(gSky.mVOSkyp->mDrawable);
+			sCull->pushDrawable(gSky.mVOSkyp->mDrawable);
 			gSky.updateCull();
 			stop_glerror();
 		}
@@ -953,20 +1234,35 @@ void LLPipeline::updateCull(LLCamera& camera)
 		llinfos << "No sky drawable!" << llendl;
 	}
 
-	if (hasRenderType(LLPipeline::RENDER_TYPE_GROUND) && gSky.mVOGroundp.notNull() && gSky.mVOGroundp->mDrawable.notNull())
+	if (hasRenderType(LLPipeline::RENDER_TYPE_GROUND) && 
+		!gPipeline.canUseWindLightShaders() &&
+		gSky.mVOGroundp.notNull() && 
+		gSky.mVOGroundp->mDrawable.notNull() &&
+		!LLPipeline::sWaterReflections)
 	{
 		gSky.mVOGroundp->mDrawable->setVisible(camera);
-		mVisibleList.push_back(gSky.mVOGroundp->mDrawable);
+		sCull->pushDrawable(gSky.mVOGroundp->mDrawable);
+	}
+	
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+	glPopMatrix();
+
+	if (to_texture)
+	{
+		mScreen.flush();
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	}
 }
 
-void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera, BOOL active)
+void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera)
 {
 	if (group->getData().empty())
 	{ 
 		return;
 	}
 	
+	group->setVisible();
+
 	if (!sSkipUpdate)
 	{
 		group->updateDistance(camera);
@@ -978,29 +1274,39 @@ void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera, BOOL act
 	{
 		return;
 	}
+
+	assertInitialized();
 	
-	group->mLastRenderTime = gFrameTimeSeconds;
 	if (!group->mSpatialPartition->mRenderByGroup)
 	{ //render by drawable
-		mDrawableGroups.push_back(group);
-		for (LLSpatialGroup::element_iter i = group->getData().begin(); i != group->getData().end(); ++i)
-		{
-			markVisible(*i, camera);
-		}
+		sCull->pushDrawableGroup(group);
 	}
 	else
-	{ //render by group
-		if (active)
-		{
-			mActiveGroups.push_back(group);
-		}
-		else
-		{
-			mVisibleGroups.push_back(group);
-			for (LLSpatialGroup::bridge_list_t::iterator i = group->mBridgeList.begin(); i != group->mBridgeList.end(); ++i)
+	{   //render by group
+		sCull->pushVisibleGroup(group);
+	}
+
+	mNumVisibleNodes++;
+}
+
+void LLPipeline::markOccluder(LLSpatialGroup* group)
+{
+	if (sUseOcclusion > 1 && group && !group->isState(LLSpatialGroup::ACTIVE_OCCLUSION))
+	{
+		LLSpatialGroup* parent = group->getParent();
+
+		if (!parent || !parent->isState(LLSpatialGroup::OCCLUDED))
+		{ //only mark top most occluders as active occlusion
+			sCull->pushOcclusionGroup(group);
+			group->setState(LLSpatialGroup::ACTIVE_OCCLUSION);
+				
+			if (parent && 
+				!parent->isState(LLSpatialGroup::ACTIVE_OCCLUSION) &&
+				parent->getElementCount() == 0 &&
+				parent->needsUpdate())
 			{
-				LLSpatialBridge* bridge = *i;
-				markVisible(bridge, camera);
+				sCull->pushOcclusionGroup(group);
+				parent->setState(LLSpatialGroup::ACTIVE_OCCLUSION);
 			}
 		}
 	}
@@ -1008,38 +1314,37 @@ void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera, BOOL act
 
 void LLPipeline::doOcclusion(LLCamera& camera)
 {
-	if (sUseOcclusion)
+	LLVertexBuffer::unbind();
+	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCCLUSION))
 	{
-		for (U32 i = 0; i < mObjectPartition.size(); i++)
-		{
-			if (mObjectPartition[i] && hasRenderType(mObjectPartition[i]->mDrawableType))
-			{
-				mObjectPartition[i]->doOcclusion(&camera);
-			}
-		}
-		
-#if AGGRESSIVE_OCCLUSION
-		for (LLSpatialBridge::bridge_vector_t::iterator i = mVisibleBridge.begin(); i != mVisibleBridge.end(); ++i)
-		{
-			LLSpatialBridge* bridge = *i;
-			if (!bridge->isDead() && hasRenderType(bridge->mDrawableType))
-			{
-				glPushMatrix();
-				glMultMatrixf((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
-				LLCamera trans = bridge->transformCamera(camera);
-				bridge->doOcclusion(&trans);
-				glPopMatrix();
-				mOccludedBridge.push_back(bridge);
-			}
-		}
-#endif 
+		glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
 	}
+	else
+	{
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	}
+	LLGLDisable blend(GL_BLEND);
+	LLGLDisable test(GL_ALPHA_TEST);
+	LLViewerImage::unbindTexture(0, GL_TEXTURE_2D);
+	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+
+	if (LLPipeline::sUseOcclusion > 1)
+	{
+		for (LLCullResult::sg_list_t::iterator iter = sCull->beginOcclusionGroups(); iter != sCull->endOcclusionGroups(); ++iter)
+		{
+			LLSpatialGroup* group = *iter;
+			group->doOcclusion(&camera);
+			group->clearState(LLSpatialGroup::ACTIVE_OCCLUSION);
+		}
+	}
+
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 }
 	
 BOOL LLPipeline::updateDrawableGeom(LLDrawable* drawablep, BOOL priority)
 {
 	BOOL update_complete = drawablep->updateGeometry(priority);
-	if (update_complete)
+	if (update_complete && assertInitialized())
 	{
 		drawablep->setState(LLDrawable::BUILT);
 		mGeometryChanges++;
@@ -1054,6 +1359,17 @@ void LLPipeline::updateGeom(F32 max_dtime)
 	LLPointer<LLDrawable> drawablep;
 
 	LLFastTimer t(LLFastTimer::FTM_GEO_UPDATE);
+
+	assertInitialized();
+
+	if (sDelayedVBOEnable > 0)
+	{
+		if (--sDelayedVBOEnable <= 0)
+		{
+			resetVertexBuffers();
+			LLVertexBuffer::sEnableVBOs = TRUE;
+		}
+	}
 
 	// notify various object types to reset internal cost metrics, etc.
 	// for now, only LLVOVolume does this to throttle LOD changes
@@ -1091,9 +1407,10 @@ void LLPipeline::updateGeom(F32 max_dtime)
 		
 	// Iterate through some drawables on the non-priority build queue
 	S32 min_count = 16;
-	if (mBuildQ2.size() > 1000)
+	S32 size = (S32) mBuildQ2.size();
+	if (size > 1024)
 	{
-		min_count = mBuildQ2.size();
+		min_count = llclamp((S32) (size * (F32) size/4096), 16, size);
 	}
 		
 	S32 count = 0;
@@ -1144,44 +1461,25 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 	if(!drawablep || drawablep->isDead())
 	{
-		llwarns << "LLPipeline::markVisible called with NULL drawablep" << llendl;
 		return;
 	}
 	
-	
-#if LL_DEBUG
 	if (drawablep->isSpatialBridge())
 	{
-		if (std::find(mVisibleBridge.begin(), mVisibleBridge.end(), (LLSpatialBridge*) drawablep) !=
-			mVisibleBridge.end())
-		{
-			llerrs << "Spatial bridge marked visible redundantly." << llendl;
-		}
+		sCull->pushBridge((LLSpatialBridge*) drawablep);
 	}
 	else
 	{
-		if (std::find(mVisibleList.begin(), mVisibleList.end(), drawablep) !=
-			mVisibleList.end())
-		{
-			llerrs << "Drawable marked visible redundantly." << llendl;
-		}
+		sCull->pushDrawable(drawablep);
 	}
-#endif
 
-	if (drawablep->isSpatialBridge())
-	{
-		mVisibleBridge.push_back((LLSpatialBridge*) drawablep);
-	}
-	else
-	{
-		mVisibleList.push_back(drawablep);
-	}
 	drawablep->setVisible(camera);
 }
 
 void LLPipeline::markMoved(LLDrawable *drawablep, BOOL damped_motion)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
+
 	if (!drawablep)
 	{
 		llerrs << "Sending null drawable to moved list!" << llendl;
@@ -1200,6 +1498,7 @@ void LLPipeline::markMoved(LLDrawable *drawablep, BOOL damped_motion)
 		markMoved(drawablep->getParent(), damped_motion);
 	}
 
+	assertInitialized();
 
 	if (!drawablep->isState(LLDrawable::ON_MOVE_LIST))
 	{
@@ -1226,10 +1525,13 @@ void LLPipeline::markMoved(LLDrawable *drawablep, BOOL damped_motion)
 void LLPipeline::markShift(LLDrawable *drawablep)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
+
 	if (!drawablep || drawablep->isDead())
 	{
 		return;
 	}
+
+	assertInitialized();
 
 	if (!drawablep->isState(LLDrawable::ON_SHIFT_LIST))
 	{
@@ -1246,6 +1548,14 @@ void LLPipeline::markShift(LLDrawable *drawablep)
 void LLPipeline::shiftObjects(const LLVector3 &offset)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
+
+	assertInitialized();
+
+	//do a swap to indicate an invalid previous frame camera
+	render_ui_and_swap_if_needed();
+	glClear(GL_DEPTH_BUFFER_BIT);
+	gDisplaySwapBuffers = FALSE;
+
 	for (LLDrawable::drawable_vector_t::iterator iter = mShiftList.begin();
 		 iter != mShiftList.end(); iter++)
 	{
@@ -1259,11 +1569,17 @@ void LLPipeline::shiftObjects(const LLVector3 &offset)
 	}
 	mShiftList.resize(0);
 
-	for (U32 i = 0; i < mObjectPartition.size()-1; i++)
+	for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
+			iter != gWorldp->getRegionList().end(); ++iter)
 	{
-		if (mObjectPartition[i])
+		LLViewerRegion* region = *iter;
+		for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
 		{
-			mObjectPartition[i]->shift(offset);
+			LLSpatialPartition* part = region->getSpatialPartition(i);
+			if (part)
+			{
+				part->shift(offset);
+			}
 		}
 	}
 }
@@ -1271,7 +1587,8 @@ void LLPipeline::shiftObjects(const LLVector3 &offset)
 void LLPipeline::markTextured(LLDrawable *drawablep)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
-	if (drawablep && !drawablep->isDead())
+
+	if (drawablep && !drawablep->isDead() && assertInitialized())
 	{
 		mRetexturedList.insert(drawablep);
 	}
@@ -1281,7 +1598,7 @@ void LLPipeline::markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags f
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 
-	if (drawablep && !drawablep->isDead())
+	if (drawablep && !drawablep->isDead() && assertInitialized())
 	{
 		if (!drawablep->isState(LLDrawable::BUILT))
 		{
@@ -1305,60 +1622,94 @@ void LLPipeline::markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags f
 			drawablep->getVObj()->setChanged(LLXform::SILHOUETTE);
 		}
 		drawablep->setState(flag);
-		if ((flag & LLDrawable::REBUILD_LIGHTING) && drawablep->getLit())
-		{
-			if (drawablep->isLight())
-			{
-				drawablep->clearState(LLDrawable::LIGHTING_BUILT);
-			}
-			else
-			{
-				drawablep->clearState(LLDrawable::LIGHTING_BUILT);
-			}
-		}
 	}
 }
 
-void LLPipeline::markRelight(LLDrawable *drawablep, const BOOL priority)
+void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 {
-	if (getLightingDetail() >= 2)
+	const U32 face_mask = (1 << LLPipeline::RENDER_TYPE_AVATAR) |
+						  (1 << LLPipeline::RENDER_TYPE_GROUND) |
+						  (1 << LLPipeline::RENDER_TYPE_TERRAIN) |
+						  (1 << LLPipeline::RENDER_TYPE_TREE) |
+						  (1 << LLPipeline::RENDER_TYPE_SKY) |
+						  (1 << LLPipeline::RENDER_TYPE_WATER);
+
+	if (mRenderTypeMask & face_mask)
 	{
-		markRebuild(drawablep, LLDrawable::REBUILD_LIGHTING, FALSE);
+		//clear faces from face pools
+		LLFastTimer t(LLFastTimer::FTM_RESET_DRAWORDER);
+		gPipeline.resetDrawOrders();
 	}
-}
 
-void LLPipeline::stateSort(LLCamera& camera)
-{
 	LLFastTimer ftm(LLFastTimer::FTM_STATESORT);
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 
-	for (LLSpatialGroup::sg_vector_t::iterator iter = mVisibleGroups.begin(); iter != mVisibleGroups.end(); ++iter)
+	grabReferences(result);
+
 	{
-		stateSort(*iter, camera);
-	}
-		
-	for (LLSpatialBridge::bridge_vector_t::iterator i = mVisibleBridge.begin(); i != mVisibleBridge.end(); ++i)
-	{
-		LLSpatialBridge* bridge = *i;
-		if (!bridge->isDead())
+		for (LLCullResult::sg_list_t::iterator iter = sCull->beginDrawableGroups(); iter != sCull->endDrawableGroups(); ++iter)
 		{
-			stateSort(bridge, camera);
+			LLSpatialGroup* group = *iter;
+			group->checkOcclusion();
+			if (sUseOcclusion && group->isState(LLSpatialGroup::OCCLUDED))
+			{
+				markOccluder(group);
+			}
+			else
+			{
+				group->setVisible();
+				for (LLSpatialGroup::element_iter i = group->getData().begin(); i != group->getData().end(); ++i)
+				{
+					markVisible(*i, camera);
+				}
+			}
+		}
+
+		for (LLCullResult::sg_list_t::iterator iter = sCull->beginVisibleGroups(); iter != sCull->endVisibleGroups(); ++iter)
+		{
+			LLSpatialGroup* group = *iter;
+			group->checkOcclusion();
+			if (sUseOcclusion && group->isState(LLSpatialGroup::OCCLUDED))
+			{
+				markOccluder(group);
+			}
+			else
+			{
+				group->setVisible();
+				stateSort(group, camera);
+			}
 		}
 	}
 
-	for (LLDrawable::drawable_vector_t::iterator iter = mVisibleList.begin();
-		 iter != mVisibleList.end(); iter++)
 	{
-		LLDrawable *drawablep = *iter;
-		if (!drawablep->isDead())
+		for (LLCullResult::bridge_list_t::iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
 		{
-			stateSort(drawablep, camera);
+			LLCullResult::bridge_list_t::iterator cur_iter = i;
+			LLSpatialBridge* bridge = *cur_iter;
+			LLSpatialGroup* group = bridge->getSpatialGroup();
+			if (!bridge->isDead() && group && !group->isState(LLSpatialGroup::OCCLUDED))
+			{
+				stateSort(bridge, camera);
+			}
 		}
 	}
 
-	for (LLSpatialGroup::sg_vector_t::iterator iter = mActiveGroups.begin(); iter != mActiveGroups.end(); ++iter)
 	{
-		stateSort(*iter, camera);
+		LLFastTimer ftm(LLFastTimer::FTM_STATESORT_DRAWABLE);
+		for (LLCullResult::drawable_list_t::iterator iter = sCull->beginVisibleList();
+			 iter != sCull->endVisibleList(); ++iter)
+		{
+			LLDrawable *drawablep = *iter;
+			if (!drawablep->isDead())
+			{
+				stateSort(drawablep, camera);
+			}
+		}
+	}
+
+	{
+		LLFastTimer ftm(LLFastTimer::FTM_CLIENT_COPY);
+		LLVertexBuffer::clientCopy();
 	}
 
 	postSort(camera);
@@ -1375,19 +1726,12 @@ void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)
 			stateSort(drawablep, camera);
 		}
 	}
-	
-#if !LL_DARWIN
-	if (gFrameTimeSeconds - group->mLastUpdateTime > 4.f)
-	{
-		group->makeStatic();
-	}
-#endif
 }
 
 void LLPipeline::stateSort(LLSpatialBridge* bridge, LLCamera& camera)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
-	if (!sSkipUpdate)
+	if (!sSkipUpdate && bridge->getSpatialGroup()->changeLOD())
 	{
 		bridge->updateDistance(camera);
 	}
@@ -1396,8 +1740,7 @@ void LLPipeline::stateSort(LLSpatialBridge* bridge, LLCamera& camera)
 void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
-	LLFastTimer ftm(LLFastTimer::FTM_STATESORT_DRAWABLE);
-	
+		
 	if (!drawablep
 		|| drawablep->isDead() 
 		|| !hasRenderType(drawablep->getRenderType()))
@@ -1414,6 +1757,17 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 		}
 	}
 
+	if (drawablep->isAvatar())
+	{ //don't draw avatars beyond render distance or if we don't have a spatial group.
+		if ((drawablep->getSpatialGroup() == NULL) || 
+			(drawablep->getSpatialGroup()->mDistance > LLVOAvatar::sRenderDistance))
+		{
+			return;
+		}
+	}
+
+	assertInitialized();
+
 	if (hasRenderType(drawablep->mRenderType))
 	{
 		if (!drawablep->isState(LLDrawable::INVISIBLE|LLDrawable::FORCE_INVISIBLE))
@@ -1427,17 +1781,21 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 		}
 	}
 
-	if (!drawablep->isActive() && drawablep->isVisible())
+	LLSpatialGroup* group = drawablep->getSpatialGroup();
+	if (!group || group->changeLOD())
 	{
-		if (!sSkipUpdate)
+		if (!drawablep->isActive() && drawablep->isVisible())
 		{
-			drawablep->updateDistance(camera);
+			if (!sSkipUpdate)
+			{
+				drawablep->updateDistance(camera);
+			}
 		}
-	}
-	else if (drawablep->isAvatar() && drawablep->isVisible())
-	{
-		LLVOAvatar* vobj = (LLVOAvatar*) drawablep->getVObj().get();
-		vobj->updateVisibility(FALSE);
+		else if (drawablep->isAvatar() && drawablep->isVisible())
+		{
+			LLVOAvatar* vobj = (LLVOAvatar*) drawablep->getVObj().get();
+			vobj->updateVisibility();
+		}
 	}
 
 	for (LLDrawable::face_list_t::iterator iter = drawablep->mFaces.begin();
@@ -1457,15 +1815,16 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 			}
 		}
 	}
-	
-	
+
 	mNumVisibleFaces += drawablep->getNumFaces();
 }
 
 
-void LLPipeline::forAllDrawables(LLSpatialGroup::sg_vector_t& groups, void (*func)(LLDrawable*))
+void forAllDrawables(LLCullResult::sg_list_t::iterator begin, 
+					 LLCullResult::sg_list_t::iterator end,
+					 void (*func)(LLDrawable*))
 {
-	for (LLSpatialGroup::sg_vector_t::iterator i = groups.begin(); i != groups.end(); ++i)
+	for (LLCullResult::sg_list_t::iterator i = begin; i != end; ++i)
 	{
 		for (LLSpatialGroup::element_iter j = (*i)->getData().begin(); j != (*i)->getData().end(); ++j)
 		{
@@ -1476,9 +1835,8 @@ void LLPipeline::forAllDrawables(LLSpatialGroup::sg_vector_t& groups, void (*fun
 
 void LLPipeline::forAllVisibleDrawables(void (*func)(LLDrawable*))
 {
-	forAllDrawables(mDrawableGroups, func);
-	forAllDrawables(mVisibleGroups, func);
-	forAllDrawables(mActiveGroups, func);
+	forAllDrawables(sCull->beginDrawableGroups(), sCull->endDrawableGroups(), func);
+	forAllDrawables(sCull->beginVisibleGroups(), sCull->endVisibleGroups(), func);
 }
 
 //function for creating scripted beacons
@@ -1498,7 +1856,8 @@ void renderScriptedBeacons(LLDrawable* drawablep)
 		if (gPipeline.sRenderHighlight)
 		{
 			S32 face_id;
-			for (face_id = 0; face_id < drawablep->getNumFaces(); face_id++)
+			S32 count = drawablep->getNumFaces();
+			for (face_id = 0; face_id < count; face_id++)
 			{
 				gPipeline.mHighlightFaces.push_back(drawablep->getFace(face_id) );
 			}
@@ -1523,7 +1882,8 @@ void renderScriptedTouchBeacons(LLDrawable* drawablep)
 		if (gPipeline.sRenderHighlight)
 		{
 			S32 face_id;
-			for (face_id = 0; face_id < drawablep->getNumFaces(); face_id++)
+			S32 count = drawablep->getNumFaces();
+			for (face_id = 0; face_id < count; face_id++)
 			{
 				gPipeline.mHighlightFaces.push_back(drawablep->getFace(face_id) );
 			}
@@ -1547,7 +1907,8 @@ void renderPhysicalBeacons(LLDrawable* drawablep)
 		if (gPipeline.sRenderHighlight)
 		{
 			S32 face_id;
-			for (face_id = 0; face_id < drawablep->getNumFaces(); face_id++)
+			S32 count = drawablep->getNumFaces();
+			for (face_id = 0; face_id < count; face_id++)
 			{
 				gPipeline.mHighlightFaces.push_back(drawablep->getFace(face_id) );
 			}
@@ -1571,7 +1932,26 @@ void renderParticleBeacons(LLDrawable* drawablep)
 		if (gPipeline.sRenderHighlight)
 		{
 			S32 face_id;
-			for (face_id = 0; face_id < drawablep->getNumFaces(); face_id++)
+			S32 count = drawablep->getNumFaces();
+			for (face_id = 0; face_id < count; face_id++)
+			{
+				gPipeline.mHighlightFaces.push_back(drawablep->getFace(face_id) );
+			}
+		}
+	}
+}
+
+void renderSoundHighlights(LLDrawable* drawablep)
+{
+	// Look for attachments, objects, etc.
+	LLViewerObject *vobj = drawablep->getVObj();
+	if (vobj && vobj->isAudioSource())
+	{
+		if (gPipeline.sRenderHighlight)
+		{
+			S32 face_id;
+			S32 count = drawablep->getNumFaces();
+			for (face_id = 0; face_id < count; face_id++)
 			{
 				gPipeline.mHighlightFaces.push_back(drawablep->getFace(face_id) );
 			}
@@ -1583,69 +1963,39 @@ void LLPipeline::postSort(LLCamera& camera)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 	LLFastTimer ftm(LLFastTimer::FTM_STATESORT_POSTSORT);
-	//reset render data sets
-	clearRenderMap();
-	mAlphaGroups.clear();
-	mAlphaGroupsPostWater.clear();
-	
-	if (!gSavedSettings.getBOOL("RenderRippleWater") && hasRenderType(LLDrawPool::POOL_ALPHA))
-	{	//turn off clip plane for non-ripple water
-		toggleRenderType(LLDrawPool::POOL_ALPHA);
-	}
 
-	F32 water_height = gAgent.getRegion()->getWaterHeight();
-	BOOL above_water = gCamera->getOrigin().mV[2] > water_height ? TRUE : FALSE;
+	assertInitialized();
 
-	//prepare occlusion geometry
-	if (sUseOcclusion)
+	//rebuild drawable geometry
+	for (LLCullResult::sg_list_t::iterator i = sCull->beginDrawableGroups(); i != sCull->endDrawableGroups(); ++i)
 	{
-		for (U32 i = 0; i < mObjectPartition.size(); i++)
+		LLSpatialGroup* group = *i;
+		if (!sUseOcclusion || 
+			!group->isState(LLSpatialGroup::OCCLUDED))
 		{
-			if (mObjectPartition[i] && hasRenderType(mObjectPartition[i]->mDrawableType))
-			{
-				mObjectPartition[i]->buildOcclusion();
-			}
-		}
-		
-#if AGGRESSIVE_OCCLUSION
-		for (LLSpatialBridge::bridge_vector_t::iterator i = mVisibleBridge.begin(); i != mVisibleBridge.end(); ++i)
-		{
-			LLSpatialBridge* bridge = *i;
-			if (!bridge->isDead() && hasRenderType(bridge->mDrawableType))
-			{	
-				bridge->buildOcclusion();
-			}
-		}
-#endif
-	}
-
-
-	if (!sSkipUpdate)
-	{
-		//rebuild drawable geometry
-		for (LLSpatialGroup::sg_vector_t::iterator i = mDrawableGroups.begin(); i != mDrawableGroups.end(); ++i)
-		{
-			LLSpatialGroup* group = *i;
 			group->rebuildGeom();
 		}
 	}
 
 	//build render map
-	for (LLSpatialGroup::sg_vector_t::iterator i = mVisibleGroups.begin(); i != mVisibleGroups.end(); ++i)
+	for (LLCullResult::sg_list_t::iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
-		if (!sSkipUpdate)
+		if (sUseOcclusion && 
+			group->isState(LLSpatialGroup::OCCLUDED))
 		{
-			group->rebuildGeom();
+			continue;
 		}
+		
+		group->rebuildGeom();
+		
 		for (LLSpatialGroup::draw_map_t::iterator j = group->mDrawMap.begin(); j != group->mDrawMap.end(); ++j)
 		{
 			LLSpatialGroup::drawmap_elem_t& src_vec = j->second;	
-			LLSpatialGroup::drawmap_elem_t& dest_vec = mRenderMap[j->first];  
-
-			for (LLSpatialGroup::drawmap_elem_t::iterator k = src_vec.begin(); k != src_vec.end(); ++k) 
+			
+			for (LLSpatialGroup::drawmap_elem_t::iterator k = src_vec.begin(); k != src_vec.end(); ++k)
 			{
-				dest_vec.push_back(*k);
+				sCull->pushDrawInfo(j->first, *k);
 			}
 		}
 		
@@ -1653,94 +2003,46 @@ void LLPipeline::postSort(LLCamera& camera)
 		
 		if (alpha != group->mDrawMap.end())
 		{ //store alpha groups for sorting
-			if (!sSkipUpdate)
-			{
-				group->updateDistance(camera);
-			}
-			
-			if (hasRenderType(LLDrawPool::POOL_ALPHA))
-			{
-				BOOL above = group->mObjectBounds[0].mV[2] + group->mObjectBounds[1].mV[2] > water_height ? TRUE : FALSE;
-				BOOL below = group->mObjectBounds[0].mV[2] - group->mObjectBounds[1].mV[2] < water_height ? TRUE : FALSE;
-				
-				if (below == above_water || above == below)
-				{
-					mAlphaGroups.push_back(group);
-				}
-
-				if (above == above_water || below == above)
-				{
-					mAlphaGroupsPostWater.push_back(group);
-				}
-			}
-			else
-			{
-				mAlphaGroupsPostWater.push_back(group);
-			}
-		}
-	}
-	
-	//store active alpha groups
-	for (LLSpatialGroup::sg_vector_t::iterator i = mActiveGroups.begin(); i != mActiveGroups.end(); ++i)
-	{
-		LLSpatialGroup* group = *i;
-		if (!sSkipUpdate)
-		{
-			group->rebuildGeom();
-		}
-		LLSpatialGroup::draw_map_t::iterator alpha = group->mDrawMap.find(LLRenderPass::PASS_ALPHA);
-		
-		if (alpha != group->mDrawMap.end())
-		{
 			LLSpatialBridge* bridge = group->mSpatialPartition->asBridge();
-			LLCamera trans_camera = bridge->transformCamera(camera);
 			if (!sSkipUpdate)
 			{
-				group->updateDistance(trans_camera);
+				if (bridge)
+				{
+					LLCamera trans_camera = bridge->transformCamera(camera);
+					group->updateDistance(trans_camera);
+				}
+				else
+				{
+					group->updateDistance(camera);
+				}
 			}
 			
 			if (hasRenderType(LLDrawPool::POOL_ALPHA))
 			{
-				LLSpatialGroup* bridge_group = bridge->getSpatialGroup();
-				BOOL above = bridge_group->mObjectBounds[0].mV[2] + bridge_group->mObjectBounds[1].mV[2] > water_height ? TRUE : FALSE;
-				BOOL below = bridge_group->mObjectBounds[0].mV[2] - bridge_group->mObjectBounds[1].mV[2] < water_height ? TRUE : FALSE;
-					
-				
-				if (below == above_water || above == below)
-				{
-					mAlphaGroups.push_back(group);
-				}
-				
-				if (above == above_water || below == above)
-				{
-					mAlphaGroupsPostWater.push_back(group);
-				}
-			}
-			else
-			{
-				mAlphaGroupsPostWater.push_back(group);
+				sCull->pushAlphaGroup(group);
 			}
 		}
 	}
-
-	//sort by texture or bump map
-	for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; ++i)
+		
 	{
-		if (!mRenderMap[i].empty())
+		//sort by texture or bump map
+		for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; ++i)
 		{
-			if (i == LLRenderPass::PASS_BUMP)
+			//if (!mRenderMap[i].empty())
 			{
-				std::sort(mRenderMap[i].begin(), mRenderMap[i].end(), LLDrawInfo::CompareBump());
-			}
-			else 
-			{
-				std::sort(mRenderMap[i].begin(), mRenderMap[i].end(), LLDrawInfo::CompareTexturePtr());
+				if (i == LLRenderPass::PASS_BUMP)
+				{
+					std::sort(sCull->beginRenderMap(i), sCull->endRenderMap(i), LLDrawInfo::CompareBump());
+				}
+				else 
+				{
+					std::sort(sCull->beginRenderMap(i), sCull->endRenderMap(i), LLDrawInfo::CompareTexturePtrMatrix());
+				}
 			}
 		}
-	}
 
-	std::sort(mAlphaGroups.begin(), mAlphaGroups.end(), LLSpatialGroup::CompareDepthGreater());
-	std::sort(mAlphaGroupsPostWater.begin(), mAlphaGroupsPostWater.end(), LLSpatialGroup::CompareDepthGreater());
+		std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareDepthGreater());
+	}
 
 	// only render if the flag is set. The flag is only set if the right key is pressed, we are in edit mode or the toggle is set in the menus
 	if (sRenderProcessBeacons)
@@ -1771,7 +2073,7 @@ void LLPipeline::postSort(LLCamera& camera)
 		// If god mode, also show audio cues
 		if (sRenderSoundBeacons && gAudiop)
 		{
-			// Update all of our audio sources, clean up dead ones.
+			// Walk all sound sources and render out beacons for them. Note, this isn't done in the ForAllVisibleDrawables function, because some are not visible.
 			LLAudioEngine::source_map::iterator iter;
 			for (iter = gAudiop->mAllSources.begin(); iter != gAudiop->mAllSources.end(); ++iter)
 			{
@@ -1785,6 +2087,8 @@ void LLPipeline::postSort(LLCamera& camera)
 					gObjectList.addDebugBeacon(pos, "", LLColor4(1.f, 1.f, 0.f, 0.5f), LLColor4(1.f, 1.f, 1.f, 0.5f), gSavedSettings.getS32("DebugBeaconLineWidth"));
 				}
 			}
+			// now deal with highlights for all those seeable sound sources
+			forAllVisibleDrawables(renderSoundHighlights);
 		}
 	}
 
@@ -1815,7 +2119,7 @@ void LLPipeline::postSort(LLCamera& camera)
 }
 
 
-static void render_hud_elements()
+void render_hud_elements()
 {
 	LLFastTimer t(LLFastTimer::FTM_RENDER_UI);
 	gPipeline.disableLights();		
@@ -1824,8 +2128,14 @@ static void render_hud_elements()
 
 	LLGLDisable fog(GL_FOG);
 	LLGLSUIDefault gls_ui;
+
+	LLGLEnable stencil(GL_STENCIL_TEST);
+	glStencilFunc(GL_ALWAYS, 255, 0xFFFFFFFF);
+	glStencilMask(0xFFFFFFFF);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	
-	if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+	gGL.start();
+	if (!LLPipeline::sReflectionRender && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 	{
 		gViewerWindow->renderSelections(FALSE, FALSE, FALSE); // For HUD version in render_ui_3d()
 	
@@ -1857,11 +2167,15 @@ static void render_hud_elements()
 	{
 		LLHUDText::renderAllHUD();
 	}
+	gGL.stop();
 }
 
 void LLPipeline::renderHighlights()
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
+
+	assertInitialized();
+
 	// Draw 3D UI elements here (before we clear the Z buffer in POOL_HUD)
 	// Render highlighted faces.
 	LLColor4 color(1.f, 1.f, 1.f, 0.5f);
@@ -1871,7 +2185,7 @@ void LLPipeline::renderHighlights()
 	if ((LLShaderMgr::sVertexShaderLevel[LLShaderMgr::SHADER_INTERFACE] > 0))
 	{
 		gHighlightProgram.bind();
-		gHighlightProgram.vertexAttrib4f(LLShaderMgr::MATERIAL_COLOR,1,0,0,0.5f);
+		gHighlightProgram.vertexAttrib4f(LLShaderMgr::MATERIAL_COLOR,1,1,1,0.5f);
 	}
 	
 	if (hasRenderDebugFeatureMask(RENDER_DEBUG_FEATURE_SELECTED))
@@ -1883,7 +2197,8 @@ void LLPipeline::renderHighlights()
 		}
 		mFaceSelectImagep->addTextureStats((F32)MAX_IMAGE_AREA);
 
-		for (U32 i = 0; i < mSelectedFaces.size(); i++)
+		U32 count = mSelectedFaces.size();
+		for (U32 i = 0; i < count; i++)
 		{
 			LLFace *facep = mSelectedFaces[i];
 			if (!facep || facep->getDrawable()->isDead())
@@ -1900,7 +2215,12 @@ void LLPipeline::renderHighlights()
 	{
 		// Paint 'em red!
 		color.setVec(1.f, 0.f, 0.f, 0.5f);
-		for (U32 i = 0; i < mHighlightFaces.size(); i++)
+		if ((LLShaderMgr::sVertexShaderLevel[LLShaderMgr::SHADER_INTERFACE] > 0))
+		{
+			gHighlightProgram.vertexAttrib4f(LLShaderMgr::MATERIAL_COLOR,1,0,0,0.5f);
+		}
+		int count = mHighlightFaces.size();
+		for (S32 i = 0; i < count; i++)
 		{
 			LLFace* facep = mHighlightFaces[i];
 			facep->renderSelected(LLViewerImage::sNullImagep, color);
@@ -1917,11 +2237,26 @@ void LLPipeline::renderHighlights()
 	}
 }
 
-void LLPipeline::renderGeom(LLCamera& camera)
+void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 	LLFastTimer t(LLFastTimer::FTM_RENDER_GEOMETRY);
-	
+
+	assertInitialized();
+
+	F64 saved_modelview[16];
+	F64 saved_projection[16];
+
+	//HACK: preserve/restore matrices around HUD render
+	if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
+	{
+		for (U32 i = 0; i < 16; i++)
+		{
+			saved_modelview[i] = gGLModelView[i];
+			saved_projection[i] = gGLProjection[i];
+		}
+	}
+
 	if (!mAlphaSizzleImagep)
 	{
 		mAlphaSizzleImagep = gImageList.getImage(LLUUID(gViewerArt.getString("alpha_sizzle.tga")), MIPMAP_TRUE, TRUE);
@@ -1952,11 +2287,8 @@ void LLPipeline::renderGeom(LLCamera& camera)
 		}
 	}
 
-	{
-		//LLFastTimer ftm(LLFastTimer::FTM_TEMP6);
-		LLVertexBuffer::startRender();
-	}
-
+	LLVertexBuffer::startRender();
+	
 	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
 	{
 		LLDrawPool *poolp = *iter;
@@ -1965,6 +2297,14 @@ void LLPipeline::renderGeom(LLCamera& camera)
 			poolp->prerender();
 		}
 	}
+
+	//by bao
+	//fake vertex buffer updating
+	//to guaranttee at least updating one VBO buffer every frame
+	//to walk around the bug caused by ATI card --> DEV-3855
+	//
+	if(forceVBOUpdate)
+		gSky.mVOSkyp->updateDummyVertexBuffer() ;
 
 	gFrameStats.start(LLFrameStats::RENDER_GEOM);
 
@@ -1976,13 +2316,18 @@ void LLPipeline::renderGeom(LLCamera& camera)
 	LLGLSPipeline gls_pipeline;
 	
 	LLGLState gls_color_material(GL_COLOR_MATERIAL, mLightingDetail < 2);
-	// LLGLState normalize(GL_NORMALIZE, TRUE);
-			
+				
 	// Toggle backface culling for debugging
 	LLGLEnable cull_face(mBackfaceCull ? GL_CULL_FACE : 0);
 	// Set fog
-	LLGLEnable fog_enable(hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FOG) ? GL_FOG : 0);
+	BOOL use_fog = hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FOG);
+	LLGLEnable fog_enable(use_fog &&
+						  !gPipeline.canUseWindLightShadersOnObjects() ? GL_FOG : 0);
 	gSky.updateFog(camera.getFar());
+	if (!use_fog)
+	{
+		sUnderWaterRender = FALSE;
+	}
 
 	LLViewerImage::sDefaultImagep->bind(0);
 	LLViewerImage::sDefaultImagep->setClamp(FALSE, FALSE);
@@ -1993,12 +2338,9 @@ void LLPipeline::renderGeom(LLCamera& camera)
 	//
 	//	
 	stop_glerror();
-	BOOL did_hud_elements = LLDrawPoolWater::sSkipScreenCopy;
-	BOOL occlude = sUseOcclusion;
-
+	BOOL occlude = sUseOcclusion > 1;
+	
 	U32 cur_type = 0;
-
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PICKING))
 	{
@@ -2008,6 +2350,8 @@ void LLPipeline::renderGeom(LLCamera& camera)
 	{
 		LLFastTimer t(LLFastTimer::FTM_POOLS);
 		calcNearbyLights(camera);
+		setupHWLights(NULL);
+
 		pool_set_t::iterator iter1 = mPools.begin();
 		while ( iter1 != mPools.end() )
 		{
@@ -2018,15 +2362,9 @@ void LLPipeline::renderGeom(LLCamera& camera)
 			if (occlude && cur_type > LLDrawPool::POOL_AVATAR)
 			{
 				occlude = FALSE;
+				gGLLastMatrix = NULL;
+				glLoadMatrixd(gGLModelView);
 				doOcclusion(camera);
-			}
-
-			if (cur_type > LLDrawPool::POOL_ALPHA_POST_WATER && !did_hud_elements)
-			{
-				renderHighlights();
-				// Draw 3D UI elements here (before we clear the Z buffer in POOL_HUD)
-				render_hud_elements();
-				did_hud_elements = TRUE;
 			}
 
 			pool_set_t::iterator iter2 = iter1;
@@ -2034,7 +2372,8 @@ void LLPipeline::renderGeom(LLCamera& camera)
 			{
 				LLFastTimer t(LLFastTimer::FTM_POOLRENDER);
 
-				setupHWLights(poolp);
+				gGLLastMatrix = NULL;
+				glLoadMatrixd(gGLModelView);
 			
 				for( S32 i = 0; i < poolp->getNumPasses(); i++ )
 				{
@@ -2049,11 +2388,10 @@ void LLPipeline::renderGeom(LLCamera& camera)
 						
 						p->resetTrianglesDrawn();
 						p->render(i);
-						mTrianglesDrawn += p->getTrianglesDrawn();
 					}
 					poolp->endRenderPass(i);
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-#if LL_DEBUG_GL
+#	if LL_DEBUG_GL
 					GLint depth;
 					glGetIntegerv(GL_MODELVIEW_STACK_DEPTH, &depth);
 					if (depth > 3)
@@ -2063,7 +2401,7 @@ void LLPipeline::renderGeom(LLCamera& camera)
 					LLGLState::checkStates();
 					LLGLState::checkTextureChannels();
 					LLGLState::checkClientArrays();
-#endif
+#	endif
 #endif
 				}
 			}
@@ -2090,94 +2428,69 @@ void LLPipeline::renderGeom(LLCamera& camera)
 	LLGLState::checkClientArrays();
 #endif
 
+	gGLLastMatrix = NULL;
+	glLoadMatrixd(gGLModelView);
+
 	if (occlude)
 	{
-		doOcclusion(camera);
 		occlude = FALSE;
-	}
-
-	if (!did_hud_elements)
-	{
-		renderHighlights();
-		render_hud_elements();
+		gGLLastMatrix = NULL;
+		glLoadMatrixd(gGLModelView);
+		doOcclusion(camera);
 	}
 
 	stop_glerror();
-	
-	{
-		LLVertexBuffer::stopRender();
-	}
-	
+		
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 		LLGLState::checkStates();
 		LLGLState::checkTextureChannels();
 		LLGLState::checkClientArrays();
 #endif
 	
+	if (!sReflectionRender)
+	{
+		renderHighlights();
+	}
+
 	// Contains a list of the faces of objects that are physical or
 	// have touch-handlers.
 	mHighlightFaces.clear();
 
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	render_hud_elements();
 
-	if (!hasRenderType(LLPipeline::RENDER_TYPE_HUD) && 
-		!LLDrawPoolWater::sSkipScreenCopy &&
-		sRenderGlow &&
-		gGLManager.mHasFramebufferObject)
+	LLVertexBuffer::stopRender();
+	LLVertexBuffer::unbind();
+	
+
+	//HACK: preserve/restore matrices around HUD render
+	if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
 	{
-		const U32 glow_res = nhpo2(gSavedSettings.getS32("RenderGlowResolution"));
-		if (mGlowMap == 0)
+		for (U32 i = 0; i < 16; i++)
 		{
-			glGenTextures(1, &mGlowMap);
-			glBindTexture(GL_TEXTURE_2D, mGlowMap);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, glow_res, glow_res, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+			gGLModelView[i] = saved_modelview[i];
+			gGLProjection[i] = saved_projection[i];
 		}
-
-		if (mGlowBuffer == 0)
-		{
-			glGenTextures(1, &mGlowBuffer);
-			glBindTexture(GL_TEXTURE_2D, mGlowBuffer);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, glow_res, glow_res, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-		}
-
-		bindScreenToTexture();
-		renderBloom(mScreenTex, mGlowMap, mGlowBuffer, glow_res, LLVector2(0,0), mScreenScale);
 	}
+
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	LLGLState::checkStates();
+	LLGLState::checkTextureChannels();
+	LLGLState::checkClientArrays();
+#endif
 }
 
-void LLPipeline::processOcclusion(LLCamera& camera)
+void LLPipeline::addTrianglesDrawn(S32 count)
 {
-	//process occlusion (readback)
-	if (sUseOcclusion)
+	assertInitialized();
+	mTrianglesDrawn += count;
+	mBatchCount++;
+	mMaxBatchSize = llmax(mMaxBatchSize, count);
+	mMinBatchSize = llmin(mMinBatchSize, count);
+
+	if (LLPipeline::sRenderFrameTest)
 	{
-		for (U32 i = 0; i < mObjectPartition.size(); i++)
-		{
-			if (mObjectPartition[i] && hasRenderType(mObjectPartition[i]->mDrawableType))
-			{
-				mObjectPartition[i]->processOcclusion(&camera);
-			}
-		}
-		
-#if AGGRESSIVE_OCCLUSION
-		for (LLSpatialBridge::bridge_vector_t::iterator i = mOccludedBridge.begin(); i != mOccludedBridge.end(); ++i)
-		{
-			LLSpatialBridge* bridge = *i;
-			if (!bridge->isDead() && hasRenderType(bridge->mDrawableType))
-			{
-				LLCamera trans = bridge->transformCamera(camera);
-				bridge->processOcclusion(&trans);
-			}
-		}
-#endif
-		mOccludedBridge.clear();
+		gViewerWindow->getWindow()->swapBuffers();
+		ms_sleep(16);
 	}
 }
 
@@ -2185,74 +2498,46 @@ void LLPipeline::renderDebug()
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 
+	assertInitialized();
+
+	gGL.start();
+
 	// Disable all client state
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
+    //glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    //glDisableClientState(GL_NORMAL_ARRAY);
+	//glDisableClientState(GL_COLOR_ARRAY);
+
+	gGLLastMatrix = NULL;
+	glLoadMatrixd(gGLModelView);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 
 	// Debug stuff.
-	for (U32 i = 0; i < mObjectPartition.size(); i++)
+	for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
+			iter != gWorldp->getRegionList().end(); ++iter)
 	{
-		if (mObjectPartition[i] && hasRenderType(mObjectPartition[i]->mDrawableType))
+		LLViewerRegion* region = *iter;
+		for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
 		{
-			mObjectPartition[i]->renderDebug();
+			LLSpatialPartition* part = region->getSpatialPartition(i);
+			if (part)
+			{
+				if (hasRenderType(part->mDrawableType))
+				{
+					part->renderDebug();
+				}
+			}
 		}
 	}
 
-	for (LLSpatialBridge::bridge_vector_t::iterator i = mVisibleBridge.begin(); i != mVisibleBridge.end(); ++i)
+	for (LLCullResult::bridge_list_t::iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
 	{
 		LLSpatialBridge* bridge = *i;
-		if (!bridge->isDead() && hasRenderType(bridge->mDrawableType))
+		if (!bridge->isDead() && !bridge->isState(LLSpatialGroup::OCCLUDED) && hasRenderType(bridge->mDrawableType))
 		{
 			glPushMatrix();
 			glMultMatrixf((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
 			bridge->renderDebug();
 			glPopMatrix();
-		}
-	}
-
-	if (mRenderDebugMask & LLPipeline::RENDER_DEBUG_LIGHT_TRACE)
-	{
-		LLGLSNoTexture no_texture;
-
-		LLVector3 pos, pos1;
-
-		for (LLDrawable::drawable_vector_t::iterator iter = mVisibleList.begin();
-			 iter != mVisibleList.end(); iter++)
-		{
-			LLDrawable *drawablep = *iter;
-			if (drawablep->isDead())
-			{
-				continue;
-			}
-			for (LLDrawable::drawable_set_t::iterator iter = drawablep->mLightSet.begin();
-				 iter != drawablep->mLightSet.end(); iter++)
-			{
-				LLDrawable *targetp = *iter;
-				if (targetp->isDead() || !targetp->getVObj()->getNumTEs())
-				{
-					continue;
-				}
-				else
-				{
-					if (targetp->getTextureEntry(0))
-					{
-						if (drawablep->getVObj()->getPCode() == LLViewerObject::LL_VO_SURFACE_PATCH)
-						{
-							glColor4f(0.f, 1.f, 0.f, 1.f);
-							gObjectList.addDebugBeacon(drawablep->getPositionAgent(), "TC");
-						}
-						else
-						{
-							glColor4fv (targetp->getTextureEntry(0)->getColor().mV);
-						}
-						glBegin(GL_LINES);
-						glVertex3fv(targetp->getPositionAgent().mV);
-						glVertex3fv(drawablep->getPositionAgent().mV);
-						glEnd();
-					}
-				}
-			}
 		}
 	}
 
@@ -2263,9 +2548,9 @@ void LLPipeline::renderDebug()
 
 		LLGLSNoTexture gls_no_texture;
 
-		glBegin(GL_POINTS);
 		if (gAgent.getRegion())
 		{
+			gGL.begin(GL_POINTS);
 			// Draw the composition layer for the region that I'm in.
 			for (x = 0; x <= 260; x++)
 			{
@@ -2273,25 +2558,36 @@ void LLPipeline::renderDebug()
 				{
 					if ((x > 255) || (y > 255))
 					{
-						glColor4f(1.f, 0.f, 0.f, 1.f);
+						gGL.color4f(1.f, 0.f, 0.f, 1.f);
 					}
 					else
 					{
-						glColor4f(0.f, 0.f, 1.f, 1.f);
+						gGL.color4f(0.f, 0.f, 1.f, 1.f);
 					}
 					F32 z = gAgent.getRegion()->getCompositionXY((S32)x, (S32)y);
 					z *= 5.f;
 					z += 50.f;
-					glVertex3f(x, y, z);
+					gGL.vertex3f(x, y, z);
 				}
 			}
+			gGL.end();
 		}
-		glEnd();
 	}
+	gGL.stop();
 }
 
 void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects)
 {
+	assertInitialized();
+
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+	gPipeline.resetDrawOrders();
+
+	for (std::set<LLViewerObject*>::iterator iter = objects.begin(); iter != objects.end(); ++iter)
+	{
+		stateSort((*iter)->mDrawable, *gCamera);
+	}
+
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 	
 	LLVertexBuffer::startRender();
@@ -2319,7 +2615,10 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects)
 		{
 			LLFacePool* face_pool = (LLFacePool*) poolp;
 			face_pool->renderForSelect();
-		
+	
+			gGLLastMatrix = NULL;
+			glLoadMatrixd(gGLModelView);
+
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 			if (poolp->getType() != last_type)
 			{
@@ -2330,9 +2629,8 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects)
 			}
 #endif
 		}
-	}
+	}	
 
-	LLGLEnable tex(GL_TEXTURE_2D);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	LLGLEnable alpha_test(GL_ALPHA_TEST);
 	if (gPickTransparent)
@@ -2387,11 +2685,16 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects)
 	LLVOAvatar* avatarp = gAgent.getAvatarObject();
 	if (avatarp && sShowHUDAttachments)
 	{
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
+		glh::matrix4f save_proj(glh_get_current_projection());
+		glh::matrix4f save_model(glh_get_current_modelview());
 
+		U32 viewport[4];
+
+		for (U32 i = 0; i < 4; i++)
+		{
+			viewport[i] = gGLViewport[i];
+		}
+		
 		setup_hud_matrices(TRUE);
 		for (LLVOAvatar::attachment_map_t::iterator iter = avatarp->mAttachmentPoints.begin(); 
 			 iter != avatarp->mAttachmentPoints.end(); )
@@ -2436,15 +2739,27 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects)
 		}
 
 		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
+		glLoadMatrixf(save_proj.m);
+		glh_set_current_projection(save_proj);
+
 		glMatrixMode(GL_MODELVIEW);
-		glPopMatrix();
+		glLoadMatrixf(save_model.m);
+		glh_set_current_modelview(save_model);
+
+	
+		for (U32 i = 0; i < 4; i++)
+		{
+			gGLViewport[i] = viewport[i];
+		}
+		glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
 	}
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	
 	LLVertexBuffer::stopRender();
+
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 }
 
 void LLPipeline::renderFaceForUVSelect(LLFace* facep)
@@ -2455,6 +2770,9 @@ void LLPipeline::renderFaceForUVSelect(LLFace* facep)
 void LLPipeline::rebuildPools()
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
+
+	assertInitialized();
+
 	S32 max_count = mPools.size();
 	pool_set_t::iterator iter1 = mPools.upper_bound(mLastRebuildPool);
 	while(max_count > 0 && mPools.size() > 0) // && num_rebuilds < MAX_REBUILDS)
@@ -2492,6 +2810,9 @@ void LLPipeline::rebuildPools()
 void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
+
+	assertInitialized();
+
 	switch( new_poolp->getType() )
 	{
 	case LLDrawPool::POOL_SIMPLE:
@@ -2503,6 +2824,18 @@ void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
 		else
 		{
 			mSimplePool = (LLRenderPass*) new_poolp;
+		}
+		break;
+
+	case LLDrawPool::POOL_INVISIBLE:
+		if (mInvisiblePool)
+		{
+			llassert(0);
+			llwarns << "Ignoring duplicate simple pool." << llendl;
+		}
+		else
+		{
+			mInvisiblePool = (LLRenderPass*) new_poolp;
 		}
 		break;
 
@@ -2550,18 +2883,6 @@ void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
 		}
 		break;
 
-	case LLDrawPool::POOL_ALPHA_POST_WATER:
-		if( mAlphaPoolPostWater )
-		{
-			llassert(0);
-			llwarns << "LLPipeline::addPool(): Ignoring duplicate Alpha pool" << llendl;
-		}
-		else
-		{
-			mAlphaPoolPostWater = new_poolp;
-		}
-		break;
-
 	case LLDrawPool::POOL_AVATAR:
 		break; // Do nothing
 
@@ -2574,18 +2895,6 @@ void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
 		else
 		{
 			mSkyPool = new_poolp;
-		}
-		break;
-
-	case LLDrawPool::POOL_STARS:
-		if( mStarsPool )
-		{
-			llassert(0);
-			llwarns << "LLPipeline::addPool(): Ignoring duplicate Stars pool" << llendl;
-		}
-		else
-		{
-			mStarsPool = new_poolp;
 		}
 		break;
 	
@@ -2613,6 +2922,18 @@ void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
 		}
 		break;
 
+	case LLDrawPool::POOL_WL_SKY:
+		if( mWLSkyPool )
+		{
+			llassert(0);
+			llwarns << "LLPipeline::addPool(): Ignoring duplicate WLSky Pool" << llendl;
+		}
+		else
+		{ 
+			mWLSkyPool = new_poolp;
+		}
+		break;
+
 	default:
 		llassert(0);
 		llwarns << "Invalid Pool Type in  LLPipeline::addPool()" << llendl;
@@ -2622,6 +2943,7 @@ void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
 
 void LLPipeline::removePool( LLDrawPool* poolp )
 {
+	assertInitialized();
 	removeFromQuickLookup(poolp);
 	mPools.erase(poolp);
 	delete poolp;
@@ -2629,12 +2951,23 @@ void LLPipeline::removePool( LLDrawPool* poolp )
 
 void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 {
+	assertInitialized();
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 	switch( poolp->getType() )
 	{
 	case LLDrawPool::POOL_SIMPLE:
 		llassert(mSimplePool == poolp);
 		mSimplePool = NULL;
+		break;
+
+	case LLDrawPool::POOL_INVISIBLE:
+		llassert(mInvisiblePool == poolp);
+		mInvisiblePool = NULL;
+		break;
+
+	case LLDrawPool::POOL_WL_SKY:
+		llassert(mWLSkyPool == poolp);
+		mWLSkyPool = NULL;
 		break;
 
 	case LLDrawPool::POOL_GLOW:
@@ -2674,22 +3007,12 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 		mAlphaPool = NULL;
 		break;
 
-	case LLDrawPool::POOL_ALPHA_POST_WATER:
-		llassert( poolp == mAlphaPoolPostWater );
-		mAlphaPoolPostWater = NULL;
-		break;
-
 	case LLDrawPool::POOL_AVATAR:
 		break; // Do nothing
 
 	case LLDrawPool::POOL_SKY:
 		llassert( poolp == mSkyPool );
 		mSkyPool = NULL;
-		break;
-
-	case LLDrawPool::POOL_STARS:
-		llassert( poolp == mStarsPool );
-		mStarsPool = NULL;
 		break;
 
 	case LLDrawPool::POOL_WATER:
@@ -2711,6 +3034,7 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 
 void LLPipeline::resetDrawOrders()
 {
+	assertInitialized();
 	// Iterate through all of the draw pools and rebuild them.
 	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
 	{
@@ -2725,7 +3049,7 @@ void LLPipeline::resetDrawOrders()
 
 void LLPipeline::setupAvatarLights(BOOL for_edit)
 {
-	const LLColor4 black(0,0,0,1);
+	assertInitialized();
 
 	if (for_edit)
 	{
@@ -2740,8 +3064,8 @@ void LLPipeline::setupAvatarLights(BOOL for_edit)
 
 		mHWLightColors[1] = diffuse;
 		glLightfv(GL_LIGHT1, GL_DIFFUSE,  diffuse.mV);
-		glLightfv(GL_LIGHT1, GL_AMBIENT,  black.mV);
-		glLightfv(GL_LIGHT1, GL_SPECULAR, black.mV);
+		glLightfv(GL_LIGHT1, GL_AMBIENT,  LLColor4::black.mV);
+		glLightfv(GL_LIGHT1, GL_SPECULAR, LLColor4::black.mV);
 		glLightfv(GL_LIGHT1, GL_POSITION, light_pos.mV); 
 		glLightf (GL_LIGHT1, GL_CONSTANT_ATTENUATION,  1.0f);
 		glLightf (GL_LIGHT1, GL_LINEAR_ATTENUATION, 	 0.0f);
@@ -2756,7 +3080,7 @@ void LLPipeline::setupAvatarLights(BOOL for_edit)
 		LLVector4 backlight_pos = LLVector4(lerp(opposite_pos, orthog_light_pos, 0.3f), 0.0f);
 		backlight_pos.normVec();
 			
-		LLColor4 light_diffuse = mSunDiffuse * mSunShadowFactor;
+		LLColor4 light_diffuse = mSunDiffuse;
 		LLColor4 backlight_diffuse(1.f - light_diffuse.mV[VRED], 1.f - light_diffuse.mV[VGREEN], 1.f - light_diffuse.mV[VBLUE], 1.f);
 		F32 max_component = 0.001f;
 		for (S32 i = 0; i < 3; i++)
@@ -2780,8 +3104,8 @@ void LLPipeline::setupAvatarLights(BOOL for_edit)
 		mHWLightColors[1] = backlight_diffuse;
 		glLightfv(GL_LIGHT1, GL_POSITION, backlight_pos.mV); // this is just sun/moon direction
 		glLightfv(GL_LIGHT1, GL_DIFFUSE,  backlight_diffuse.mV);
-		glLightfv(GL_LIGHT1, GL_AMBIENT,  black.mV);
-		glLightfv(GL_LIGHT1, GL_SPECULAR, black.mV);
+		glLightfv(GL_LIGHT1, GL_AMBIENT,  LLColor4::black.mV);
+		glLightfv(GL_LIGHT1, GL_SPECULAR, LLColor4::black.mV);
 		glLightf (GL_LIGHT1, GL_CONSTANT_ATTENUATION,  1.0f);
 		glLightf (GL_LIGHT1, GL_LINEAR_ATTENUATION,    0.0f);
 		glLightf (GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.0f);
@@ -2790,10 +3114,10 @@ void LLPipeline::setupAvatarLights(BOOL for_edit)
 	}
 	else
 	{
-		mHWLightColors[1] = black;
-		glLightfv(GL_LIGHT1, GL_DIFFUSE,  black.mV);
-		glLightfv(GL_LIGHT1, GL_AMBIENT,  black.mV);
-		glLightfv(GL_LIGHT1, GL_SPECULAR, black.mV);
+		mHWLightColors[1] = LLColor4::black;
+		glLightfv(GL_LIGHT1, GL_DIFFUSE,  LLColor4::black.mV);
+		glLightfv(GL_LIGHT1, GL_AMBIENT,  LLColor4::black.mV);
+		glLightfv(GL_LIGHT1, GL_SPECULAR, LLColor4::black.mV);
 	}
 }
 
@@ -2829,13 +3153,15 @@ static F32 calc_light_dist(LLVOVolume* light, const LLVector3& cam_pos, F32 max_
 
 void LLPipeline::calcNearbyLights(LLCamera& camera)
 {
+	assertInitialized();
+
 	if (mLightingDetail >= 1)
 	{
 		// mNearbyLight (and all light_set_t's) are sorted such that
 		// begin() == the closest light and rbegin() == the farthest light
 		const S32 MAX_LOCAL_LIGHTS = 6;
 // 		LLVector3 cam_pos = gAgent.getCameraPositionAgent();
-		LLVector3 cam_pos = LLPipeline::sSkipUpdate || LLViewerJoystick::sOverrideCamera ?
+		LLVector3 cam_pos = LLViewerJoystick::sOverrideCamera ?
 						camera.getOrigin() : 
 						gAgent.getPositionAgent();
 
@@ -2933,7 +3259,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 
 void LLPipeline::setupHWLights(LLDrawPool* pool)
 {
-	const LLColor4 black(0,0,0,1);
+	assertInitialized();
 
 	// Ambient
 	LLColor4 ambient = gSky.getTotalAmbientColor();
@@ -2941,7 +3267,6 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 
 	// Light 0 = Sun or Moon (All objects)
 	{
-		mSunShadowFactor = 1.f; // no shadowing by defailt
 		if (gSky.getSunDirection().mV[2] >= NIGHTTIME_ELEVATION_COS)
 		{
 			mSunDir.setVec(gSky.getSunDirection());
@@ -2950,7 +3275,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		else
 		{
 			mSunDir.setVec(gSky.getMoonDirection());
-			mSunDiffuse.setVec(gSky.getMoonDiffuseColor() * 1.5f);
+			mSunDiffuse.setVec(gSky.getMoonDiffuseColor());
 		}
 
 		F32 max_color = llmax(mSunDiffuse.mV[0], mSunDiffuse.mV[1], mSunDiffuse.mV[2]);
@@ -2961,12 +3286,12 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		mSunDiffuse.clamp();
 
 		LLVector4 light_pos(mSunDir, 0.0f);
-		LLColor4 light_diffuse = mSunDiffuse * mSunShadowFactor;
+		LLColor4 light_diffuse = mSunDiffuse;
 		mHWLightColors[0] = light_diffuse;
 		glLightfv(GL_LIGHT0, GL_POSITION, light_pos.mV); // this is just sun/moon direction
 		glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse.mV);
-		glLightfv(GL_LIGHT0, GL_AMBIENT,  black.mV);
-		glLightfv(GL_LIGHT0, GL_SPECULAR, black.mV);
+		glLightfv(GL_LIGHT0, GL_AMBIENT,  LLColor4::black.mV);
+		glLightfv(GL_LIGHT0, GL_SPECULAR, LLColor4::black.mV);
 		glLightf (GL_LIGHT0, GL_CONSTANT_ATTENUATION,  1.0f);
 		glLightf (GL_LIGHT0, GL_LINEAR_ATTENUATION,    0.0f);
 		glLightf (GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0f);
@@ -3002,7 +3327,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			LLColor4  light_color = light->getLightColor();
 			light_color.mV[3] = 0.0f;
 
-			F32 fade = LLPipeline::sSkipUpdate ? 1.f : iter->fade;
+			F32 fade = iter->fade;
 			if (fade < LIGHT_FADE_TIME)
 			{
 				// fade in/out light
@@ -3043,8 +3368,8 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			S32 gllight = GL_LIGHT0+cur_light;
 			glLightfv(gllight, GL_POSITION, light_pos_gl.mV);
 			glLightfv(gllight, GL_DIFFUSE,  light_color.mV);
-			glLightfv(gllight, GL_AMBIENT,  black.mV);
-			glLightfv(gllight, GL_SPECULAR, black.mV);
+			glLightfv(gllight, GL_AMBIENT,  LLColor4::black.mV);
+			glLightfv(gllight, GL_SPECULAR, LLColor4::black.mV);
 			glLightf (gllight, GL_CONSTANT_ATTENUATION,   0.0f);
 			glLightf (gllight, GL_LINEAR_ATTENUATION,     atten);
 			glLightf (gllight, GL_QUADRATIC_ATTENUATION,  quad);
@@ -3059,11 +3384,41 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 	}
 	for ( ; cur_light < 8 ; cur_light++)
 	{
-		mHWLightColors[cur_light] = black;
+		mHWLightColors[cur_light] = LLColor4::black;
 		S32 gllight = GL_LIGHT0+cur_light;
-		glLightfv(gllight, GL_DIFFUSE,  black.mV);
-		glLightfv(gllight, GL_AMBIENT,  black.mV);
-		glLightfv(gllight, GL_SPECULAR, black.mV);
+		glLightfv(gllight, GL_DIFFUSE,  LLColor4::black.mV);
+		glLightfv(gllight, GL_AMBIENT,  LLColor4::black.mV);
+		glLightfv(gllight, GL_SPECULAR, LLColor4::black.mV);
+	}
+
+	if (gAgent.getAvatarObject() &&
+		gAgent.getAvatarObject()->mSpecialRenderMode == 3)
+	{
+		LLColor4  light_color = LLColor4::white;
+		light_color.mV[3] = 0.0f;
+
+		LLVector3 light_pos(gCamera->getOrigin());
+		LLVector4 light_pos_gl(light_pos, 1.0f);
+
+		F32 light_radius = 16.f;
+		F32 atten, quad;
+
+		{
+			F32 x = 3.f;
+			atten = x / (light_radius); // % of brightness at radius
+			quad = 0.0f;
+		}
+		//mHWLightColors[cur_light] = light_color;
+		S32 gllight = GL_LIGHT2;
+		glLightfv(gllight, GL_POSITION, light_pos_gl.mV);
+		glLightfv(gllight, GL_DIFFUSE,  light_color.mV);
+		glLightfv(gllight, GL_AMBIENT,  LLColor4::black.mV);
+		glLightfv(gllight, GL_SPECULAR, LLColor4::black.mV);
+		glLightf (gllight, GL_CONSTANT_ATTENUATION,   0.0f);
+		glLightf (gllight, GL_LINEAR_ATTENUATION,     atten);
+		glLightf (gllight, GL_QUADRATIC_ATTENUATION,  quad);
+		glLightf (gllight, GL_SPOT_EXPONENT,          0.0f);
+		glLightf (gllight, GL_SPOT_CUTOFF,            180.0f);
 	}
 
 	// Init GL state
@@ -3075,8 +3430,9 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 	mLightMask = 0;
 }
 
-void LLPipeline::enableLights(U32 mask, F32 shadow_factor)
+void LLPipeline::enableLights(U32 mask)
 {
+	assertInitialized();
 	if (mLightingDetail == 0)
 	{
 		mask &= 0xf003; // sun and backlight only (and fullbright bit)
@@ -3113,8 +3469,9 @@ void LLPipeline::enableLights(U32 mask, F32 shadow_factor)
 	}
 }
 
-void LLPipeline::enableLightsStatic(F32 shadow_factor)
+void LLPipeline::enableLightsStatic()
 {
+	assertInitialized();
 	U32 mask = 0x01; // Sun
 	if (mLightingDetail >= 2)
 	{
@@ -3125,39 +3482,55 @@ void LLPipeline::enableLightsStatic(F32 shadow_factor)
 	{
 		mask |= 0xff & (~2); // Hardware local lights
 	}
-	enableLights(mask, shadow_factor);
+	enableLights(mask);
 }
 
-void LLPipeline::enableLightsDynamic(F32 shadow_factor)
+void LLPipeline::enableLightsDynamic()
 {
+	assertInitialized();
 	U32 mask = 0xff & (~2); // Local lights
-	enableLights(mask, shadow_factor);
+	enableLights(mask);
 	if (mLightingDetail >= 2)
 	{
 		glColor4f(0.f, 0.f, 0.f, 1.f); // no local lighting by default
 	}
+
+	LLVOAvatar* avatarp = gAgent.getAvatarObject();
+
+	if (avatarp && getLightingDetail() <= 0)
+	{
+		if (avatarp->mSpecialRenderMode == 0) // normal
+		{
+			gPipeline.enableLightsAvatar();
+		}
+		else if (avatarp->mSpecialRenderMode >= 1)  // anim preview
+		{
+			gPipeline.enableLightsAvatarEdit(LLColor4(0.7f, 0.6f, 0.3f, 1.f));
+		}
+	}
 }
 
-void LLPipeline::enableLightsAvatar(F32 shadow_factor)
+void LLPipeline::enableLightsAvatar()
 {
 	U32 mask = 0xff; // All lights
 	setupAvatarLights(FALSE);
-	enableLights(mask, shadow_factor);
+	enableLights(mask);
 }
 
 void LLPipeline::enableLightsAvatarEdit(const LLColor4& color)
 {
 	U32 mask = 0x2002; // Avatar backlight only, set ambient
 	setupAvatarLights(TRUE);
-	enableLights(mask, 1.0f);
+	enableLights(mask);
 
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT,color.mV);
 }
 
 void LLPipeline::enableLightsFullbright(const LLColor4& color)
 {
+	assertInitialized();
 	U32 mask = 0x1000; // Non-0 mask, set ambient
-	enableLights(mask, 1.f);
+	enableLights(mask);
 
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT,color.mV);
 	if (mLightingDetail >= 2)
@@ -3168,17 +3541,8 @@ void LLPipeline::enableLightsFullbright(const LLColor4& color)
 
 void LLPipeline::disableLights()
 {
-	enableLights(0, 0.f); // no lighting (full bright)
+	enableLights(0); // no lighting (full bright)
 	glColor4f(1.f, 1.f, 1.f, 1.f); // lighting color = white by default
-}
-
-// Call *after*s etting up lights
-void LLPipeline::setAmbient(const LLColor4& ambient)
-{
-	mLightMask |= 0x4000; // tweak mask so that ambient will get reset
-	LLColor4 amb = ambient + gSky.getTotalAmbientColor();
-	amb.clamp();
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT,amb.mV);
 }
 
 //============================================================================
@@ -3188,55 +3552,10 @@ class LLInvFVBridge;
 struct cat_folder_pair;
 class LLVOBranch;
 class LLVOLeaf;
-class Foo;
-
-void scale_stamp(const F32 x, const F32 y, const F32 xs, const F32 ys)
-{
-	stamp(0.25f + 0.5f*x,
-		  0.5f + 0.45f*y,
-		  0.5f*xs,
-		  0.45f*ys);
-}
-
-void drawBars(const F32 begin, const F32 end, const F32 height = 1.f)
-{
-	if (begin >= 0 && end <=1)
-	{
-		F32 lines  = 40.0f;
-		S32 ibegin = (S32)(begin * lines);
-		S32 iend   = (S32)(end   * lines);
-		F32 fbegin = begin * lines - ibegin;
-		F32 fend   = end   * lines - iend;
-
-		F32 line_height = height/lines;
-
-		if (iend == ibegin)
-		{
-			scale_stamp(fbegin, (F32)ibegin/lines,fend-fbegin, line_height);
-		}
-		else
-		{
-			// Beginning row
-			scale_stamp(fbegin, (F32)ibegin/lines,  1.0f-fbegin, line_height);
-
-			// End row
-			scale_stamp(0.0,    (F32)iend/lines,  fend, line_height);
-
-			// Middle rows
-			for (S32 l = (ibegin+1); l < iend; l++)
-			{
-				scale_stamp(0.0f, (F32)l/lines, 1.0f, line_height);
-			}
-		}
-	}
-}
 
 void LLPipeline::findReferences(LLDrawable *drawablep)
 {
-	if (std::find(mVisibleList.begin(), mVisibleList.end(), drawablep) != mVisibleList.end())
-	{
-		llinfos << "In mVisibleList" << llendl;
-	}
+	assertInitialized();
 	if (mLights.find(drawablep) != mLights.end())
 	{
 		llinfos << "In mLights" << llendl;
@@ -3278,13 +3597,16 @@ void LLPipeline::findReferences(LLDrawable *drawablep)
 
 BOOL LLPipeline::verify()
 {
-	BOOL ok = TRUE;
-	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
+	BOOL ok = assertInitialized();
+	if (ok) 
 	{
-		LLDrawPool *poolp = *iter;
-		if (!poolp->verify())
+		for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
 		{
-			ok = FALSE;
+			LLDrawPool *poolp = *iter;
+			if (!poolp->verify())
+			{
+				ok = FALSE;
+			}
 		}
 	}
 
@@ -3396,7 +3718,7 @@ bool LLRayAABB(const LLVector3 &center, const LLVector3 &size, const LLVector3& 
 
 void LLPipeline::setLight(LLDrawable *drawablep, BOOL is_light)
 {
-	if (drawablep)
+	if (drawablep && assertInitialized())
 	{
 		if (is_light)
 		{
@@ -3408,12 +3730,12 @@ void LLPipeline::setLight(LLDrawable *drawablep, BOOL is_light)
 			drawablep->clearState(LLDrawable::LIGHT);
 			mLights.erase(drawablep);
 		}
-		markRelight(drawablep);
 	}
 }
 
 void LLPipeline::setActive(LLDrawable *drawablep, BOOL active)
 {
+	assertInitialized();
 	if (active)
 	{
 		mActiveQ.insert(drawablep);
@@ -3634,7 +3956,22 @@ BOOL LLPipeline::getProcessBeacons(void* data)
 
 LLViewerObject* LLPipeline::pickObject(const LLVector3 &start, const LLVector3 &end, LLVector3 &collision)
 {
-	LLDrawable* drawable = mObjectPartition[PARTITION_VOLUME]->pickDrawable(start, end, collision);
+	LLDrawable* drawable = NULL;
+
+	for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
+			iter != gWorldp->getRegionList().end(); ++iter)
+	{
+		LLViewerRegion* region = *iter;
+		LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_VOLUME);
+		if (part)
+		{
+			LLDrawable* hit = part->pickDrawable(start, end, collision);
+			if (hit)
+			{
+				drawable = hit;
+			}
+		}
+	}
 	return drawable ? drawable->getVObj().get() : NULL;
 }
 
@@ -3642,31 +3979,23 @@ LLSpatialPartition* LLPipeline::getSpatialPartition(LLViewerObject* vobj)
 {
 	if (vobj)
 	{
-		return getSpatialPartition(vobj->getPartitionType());
+		LLViewerRegion* region = vobj->getRegion();
+		if (region)
+		{
+			return region->getSpatialPartition(vobj->getPartitionType());
+		}
 	}
 	return NULL;
-}
-
-LLSpatialPartition* LLPipeline::getSpatialPartition(U32 type)
-{
-	if (type < mObjectPartition.size())
-	{
-		return mObjectPartition[type];
-	}
-	return NULL;
-}
-
-void LLPipeline::clearRenderMap()
-{
-	for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; i++)
-	{
-		mRenderMap[i].clear();
-	}
 }
 
 
 void LLPipeline::resetVertexBuffers(LLDrawable* drawable)
 {
+	if (!drawable || drawable->isDead())
+	{
+		return;
+	}
+
 	if (!drawable)
 	{
 		return;
@@ -3682,36 +4011,63 @@ void LLPipeline::resetVertexBuffers(LLDrawable* drawable)
 
 void LLPipeline::resetVertexBuffers()
 {
-	for (U32 i = 0; i < mObjectPartition.size(); ++i)
+	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
+
+	if (gWorldp)
 	{
-		if (mObjectPartition[i])
+		for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
+				iter != gWorldp->getRegionList().end(); ++iter)
 		{
-			mObjectPartition[i]->resetVertexBuffers();
+			LLViewerRegion* region = *iter;
+			for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
+			{
+				LLSpatialPartition* part = region->getSpatialPartition(i);
+				if (part)
+				{
+					part->resetVertexBuffers();
+				}
+			}
 		}
 	}
 
 	resetDrawOrders();
 
-	if (gSky.mVOSkyp.notNull())
-	{
-		resetVertexBuffers(gSky.mVOSkyp->mDrawable);
-		resetVertexBuffers(gSky.mVOGroundp->mDrawable);
-		resetVertexBuffers(gSky.mVOStarsp->mDrawable);
-		markRebuild(gSky.mVOSkyp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
-		markRebuild(gSky.mVOGroundp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
-		markRebuild(gSky.mVOStarsp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
-	}
+	gSky.resetVertexBuffers();
 
 	if (LLVertexBuffer::sGLCount > 0)
 	{
 		LLVertexBuffer::cleanupClass();
 	}
+
+	//delete all name pool caches
+	LLGLNamePool::cleanupPools();
+
+	if (LLVertexBuffer::sGLCount > 0)
+	{
+		llwarns << "VBO wipe failed." << llendl;
+	}
+
+	if (!LLVertexBuffer::sStreamIBOPool.mNameList.empty() ||
+		!LLVertexBuffer::sStreamVBOPool.mNameList.empty() ||
+		!LLVertexBuffer::sDynamicIBOPool.mNameList.empty() ||
+		!LLVertexBuffer::sDynamicVBOPool.mNameList.empty())
+	{
+		llwarns << "VBO name pool cleanup failed." << llendl;
+	}
+
+	LLVertexBuffer::unbind();
+
+	LLPipeline::sTextureBindTest = gSavedSettings.getBOOL("RenderDebugTextureBind");
 }
 
 void LLPipeline::renderObjects(U32 type, U32 mask, BOOL texture)
 {
-	mSimplePool->renderStatic(type, mask, texture);
-	mSimplePool->renderActive(type, mask, texture);
+	assertInitialized();
+	gGLLastMatrix = NULL;
+	glLoadMatrixd(gGLLastModelView);
+	mSimplePool->renderGroups(type, mask, texture);
+	gGLLastMatrix = NULL;
+	glLoadMatrixd(gGLLastModelView);
 }
 
 void LLPipeline::setUseVBO(BOOL use_vbo)
@@ -3759,26 +4115,42 @@ void apply_cube_face_rotation(U32 face)
 		break;
 	}
 }
-void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, GLsizei res)
+void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam)
 {
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	LLGLState::checkStates();
+	LLGLState::checkTextureChannels();
+	LLGLState::checkClientArrays();
+#endif
+
+	assertInitialized();
+
 	//render dynamic cube map
 	U32 type_mask = gPipeline.getRenderTypeMask();
-	BOOL use_occlusion = LLPipeline::sUseOcclusion;
-	LLPipeline::sUseOcclusion = FALSE;
+	S32 use_occlusion = LLPipeline::sUseOcclusion;
+	LLPipeline::sUseOcclusion = 0;
 	LLPipeline::sSkipUpdate = TRUE;
-	static GLuint blur_tex = 0;
-	if (!blur_tex)
-	{
-		glGenTextures(1, &blur_tex);
-	}
+	U32 res = REFLECTION_MAP_RES;
 
-	BOOL reattach = FALSE;
-	if (mCubeFrameBuffer == 0)
+	LLPipeline::sReflectionRender = TRUE;
+
+	cube_map->bind();
+	GLint width;
+	glGetTexLevelParameteriv(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB, 0, GL_TEXTURE_WIDTH, &width);
+	if (width != res)
 	{
-		glGenFramebuffersEXT(1, &mCubeFrameBuffer);
-		glGenRenderbuffersEXT(1, &mCubeDepth);
-		reattach = TRUE;
+		glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		
+		for (U32 i = 0; i < 6; i++)
+		{
+			glTexImage2D(gl_cube_face[i], 0, GL_RGBA, res, res, 0, GL_RGBA, GL_FLOAT, NULL); 
+		}
 	}
+	glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, 0);
+	cube_map->disable();
 
 	BOOL toggle_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
 	if (toggle_ui)
@@ -3788,10 +4160,9 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, 
 	
 	U32 cube_mask = (1 << LLPipeline::RENDER_TYPE_SIMPLE) |
 					(1 << LLPipeline::RENDER_TYPE_WATER) |
-					(1 << LLPipeline::RENDER_TYPE_BUMP) |
+					//(1 << LLPipeline::RENDER_TYPE_BUMP) |
 					(1 << LLPipeline::RENDER_TYPE_ALPHA) |
 					(1 << LLPipeline::RENDER_TYPE_TREE) |
-					(1 << LLDrawPool::POOL_ALPHA_POST_WATER) |
 					//(1 << LLPipeline::RENDER_TYPE_PARTICLES) |
 					(1 << LLPipeline::RENDER_TYPE_CLOUDS) |
 					//(1 << LLPipeline::RENDER_TYPE_STARS) |
@@ -3801,9 +4172,11 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, 
 					(1 << LLPipeline::RENDER_TYPE_VOLUME) |
 					(1 << LLPipeline::RENDER_TYPE_TERRAIN) |
 					(1 << LLPipeline::RENDER_TYPE_SKY) |
+					(1 << LLPipeline::RENDER_TYPE_WL_SKY) |
 					(1 << LLPipeline::RENDER_TYPE_GROUND);
 	
 	LLDrawPoolWater::sSkipScreenCopy = TRUE;
+	LLPipeline::sSkipUpdate = TRUE;
 	cube_mask = cube_mask & type_mask;
 	gPipeline.setRenderTypeMask(cube_mask);
 
@@ -3816,57 +4189,23 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, 
 	
 	glClearColor(0,0,0,0);			
 	
-	U32 cube_face[] = 
-	{
-		GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB,
-		GL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB,
-		GL_TEXTURE_CUBE_MAP_POSITIVE_Y_ARB,
-		GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB,
-		GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB,
-		GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB,
-	};
-	
 	LLVector3 origin = cube_cam.getOrigin();
 
 	gPipeline.calcNearbyLights(cube_cam);
 
-	cube_map->bind();
-	for (S32 i = 0; i < 6; i++)
-	{
-		GLint res_x, res_y;
-		glGetTexLevelParameteriv(cube_face[i], 0, GL_TEXTURE_WIDTH, &res_x);
-		glGetTexLevelParameteriv(cube_face[i], 0, GL_TEXTURE_HEIGHT, &res_y);
-
-		if (res_x != res || res_y != res)
-		{
-			glTexImage2D(cube_face[i],0,GL_RGBA,res,res,0,GL_RGBA,GL_FLOAT,NULL);
-			reattach = TRUE;
-		}
-	}
-	cube_map->disable();
-
-	if (reattach)
-	{
-		glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, mCubeDepth);
-		GLint res_x, res_y;
-		glGetRenderbufferParameterivEXT(GL_RENDERBUFFER_EXT, GL_RENDERBUFFER_WIDTH_EXT, &res_x);
-		glGetRenderbufferParameterivEXT(GL_RENDERBUFFER_EXT, GL_RENDERBUFFER_HEIGHT_EXT, &res_y);
-
-		if (res_x != res || res_y != res)
-		{
-			glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT,GL_DEPTH_COMPONENT24,res,res);
-		}
-		
-		glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
-	}
+	stop_glerror();
+	LLViewerImage::unbindTexture(0, GL_TEXTURE_2D);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mCubeFrameBuffer);
+	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
+										GL_RENDERBUFFER_EXT, mCubeDepth);		
+	stop_glerror();
 
 	for (S32 i = 0; i < 6; i++)
 	{
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mCubeFrameBuffer);
 		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
-									cube_face[i], cube_map->getGLName(), 0);
-		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
-										GL_RENDERBUFFER_EXT, mCubeDepth);		
+									gl_cube_face[i], cube_map->getGLName(), 0);
+		validate_framebuffer_object();
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		gluPerspective(90.f, 1.f, 0.1f, 1024.f);
@@ -3879,22 +4218,28 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, 
 		cube_cam.setOrigin(origin);
 		LLViewerCamera::updateFrustumPlanes(cube_cam);
 		cube_cam.setOrigin(gCamera->getOrigin());
-		gPipeline.updateCull(cube_cam);
-		gPipeline.stateSort(cube_cam);
+		static LLCullResult result;
+		gPipeline.updateCull(cube_cam, result);
+		gPipeline.stateSort(cube_cam, result);
 		
+		glClearColor(0,0,0,0);
+		glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+		glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_FALSE);
+		stop_glerror();
 		gPipeline.renderGeom(cube_cam);
 	}
 
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
 	cube_cam.setOrigin(origin);
-	gPipeline.resetDrawOrders();
 	gShinyOrigin.setVec(cube_cam.getOrigin(), cube_cam.getFar()*2.f);
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+
+	gViewerWindow->setupViewport();
 
 	gPipeline.setRenderTypeMask(type_mask);
 	LLPipeline::sUseOcclusion = use_occlusion;
@@ -3905,12 +4250,21 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam, 
 		gPipeline.toggleRenderDebugFeature((void*)LLPipeline::RENDER_DEBUG_FEATURE_UI);
 	}
 	LLDrawPoolWater::sSkipScreenCopy = FALSE;
+	LLPipeline::sSkipUpdate = FALSE;
+	LLPipeline::sReflectionRender = FALSE;
+
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	LLGLState::checkStates();
+	LLGLState::checkTextureChannels();
+	LLGLState::checkClientArrays();
+#endif
+
 }
 
 //send cube map vertices and texture coordinates
 void render_cube_map()
 {
-	U32 idx[36];
+	U16 idx[36];
 
 	idx[0] = 1; idx[1] = 0; idx[2] = 2; //front
 	idx[3] = 3; idx[4] = 2; idx[5] = 0;
@@ -3943,18 +4297,54 @@ void render_cube_map()
 	vert[6] = r.scaledVec(LLVector3(-1,-1,-1)); //  6 - right bottom back
 	vert[7] = r.scaledVec(LLVector3(1,-1,-1)); // 7 -left bottom back
 
-	glBegin(GL_TRIANGLES);
-	for (U32 i = 0; i < 36; i++)
-	{
-		glTexCoord3fv(vert[idx[i]].mV);
-		glVertex3fv(vert[idx[i]].mV);
-	}
-	glEnd();
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glTexCoordPointer(3, GL_FLOAT, 0, vert);
+	glVertexPointer(3, GL_FLOAT, 0, vert);
+
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, (GLushort*) idx);
+
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
-void LLPipeline::blurReflectionMap(LLCubeMap* cube_in, LLCubeMap* cube_out, U32 res)
+void validate_framebuffer_object()
+{                                                           
+	GLenum status;                                            
+	status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT); 
+	switch(status) 
+	{                                          
+		case GL_FRAMEBUFFER_COMPLETE_EXT:                       
+			//framebuffer OK, no error.
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+			// frame buffer not OK: probably means unsupported depth buffer format
+			llerrs << "Framebuffer Incomplete Dimensions." << llendl;
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+			// frame buffer not OK: probably means unsupported depth buffer format
+			llerrs << "Framebuffer Incomplete Attachment." << llendl;
+			break; 
+		case GL_FRAMEBUFFER_UNSUPPORTED_EXT:                    
+			/* choose different formats */                        
+			llerrs << "Framebuffer unsupported." << llendl;
+			break;                                                
+		default:                                                
+			llerrs << "Unknown framebuffer status." << llendl;
+			break;
+	}
+}
+
+void LLPipeline::blurReflectionMap(LLCubeMap* cube_in, LLCubeMap* cube_out)
 {
-	LLGLEnable cube(GL_TEXTURE_CUBE_MAP_ARB);
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	LLGLState::checkStates();
+	LLGLState::checkTextureChannels();
+	LLGLState::checkClientArrays();
+#endif
+
+	assertInitialized();
+
+	U32 res = (U32) gSavedSettings.getS32("RenderReflectionRes");
+	enableLightsFullbright(LLColor4::white);
 	LLGLDepthTest depth(GL_FALSE);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glMatrixMode(GL_PROJECTION);
@@ -3964,27 +4354,33 @@ void LLPipeline::blurReflectionMap(LLCubeMap* cube_in, LLCubeMap* cube_out, U32 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 
+	cube_out->enableTexture(0);
+	cube_out->bind();
+	GLint width;
+	glGetTexLevelParameteriv(GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB, 0, GL_TEXTURE_WIDTH, &width);
+	if (width != res)
+	{
+		glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		
+		for (U32 i = 0; i < 6; i++)
+		{
+			glTexImage2D(gl_cube_face[i], 0, GL_RGBA, res, res, 0, GL_RGBA, GL_FLOAT, NULL); 
+		}
+	}
+	glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, 0);
+
 	glViewport(0, 0, res, res);
 	LLGLEnable blend(GL_BLEND);
 	
 	S32 kernel = 2;
 	F32 step = 90.f/res;
-	F32 alpha = 1.f/((kernel*2)+1);
+	F32 alpha = 1.f / ((kernel*2)+1);
 
-	glColor4f(alpha,alpha,alpha,alpha*1.25f);
-
-	S32 x = 0;
-
-	U32 cube_face[] = 
-	{
-		GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB,
-		GL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB,
-		GL_TEXTURE_CUBE_MAP_POSITIVE_Y_ARB,
-		GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB,
-		GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB,
-		GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB,
-	};
-
+	gGL.color4f(alpha,alpha,alpha,alpha*1.25f);
+	
 	LLVector3 axis[] = 
 	{
 		LLVector3(1,0,0),
@@ -3992,117 +4388,121 @@ void LLPipeline::blurReflectionMap(LLCubeMap* cube_in, LLCubeMap* cube_out, U32 
 		LLVector3(0,0,1)
 	};
 
-	
-	glBlendFunc(GL_ONE, GL_ONE);
+	stop_glerror();
+	glViewport(0,0,res, res);
+	gGL.blendFunc(GL_ONE, GL_ONE);
+	cube_in->enableTexture(0);
 	//3-axis blur
 	for (U32 j = 0; j < 3; j++)
 	{
-		glViewport(0,0,res, res*6);
-		glClear(GL_COLOR_BUFFER_BIT);
+		stop_glerror();
+
 		if (j == 0)
 		{
 			cube_in->bind();
 		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, mBlurCubeTexture[j-1]);
+		}
+
+		stop_glerror();
+
+		LLViewerImage::unbindTexture(0, GL_TEXTURE_2D);
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mBlurCubeBuffer[j]);
+		stop_glerror();
 
 		for (U32 i = 0; i < 6; i++)
 		{
-			glViewport(0,i*res, res, res);
+			stop_glerror();
+			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
+								GL_COLOR_ATTACHMENT0_EXT,
+								gl_cube_face[i], 
+								j < 2 ? mBlurCubeTexture[j] : cube_out->getGLName(), 0);
+			validate_framebuffer_object();
+			glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+			glClear(GL_COLOR_BUFFER_BIT);
 			glLoadIdentity();
 			apply_cube_face_rotation(i);
-			for (x = -kernel; x <= kernel; ++x)
+			for (S32 x = -kernel; x <= kernel; ++x)
 			{
 				glPushMatrix();
 				glRotatef(x*step, axis[j].mV[0], axis[j].mV[1], axis[j].mV[2]);
 				render_cube_map();
 				glPopMatrix();
 			}
+			stop_glerror();
 		}	
-
-		//readback
-		if (j == 0)
-		{
-			cube_out->bind();
-		}
-		for (U32 i = 0; i < 6; i++)
-		{
-			glCopyTexImage2D(cube_face[i], 0, GL_RGBA, 0, i*res, res, res, 0);
-		}
 	}
+
+	stop_glerror();
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, 0);
 	
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_FALSE);
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glClear(GL_COLOR_BUFFER_BIT);
+	cube_in->disableTexture();
+	gViewerWindow->setupViewport();
+	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	LLGLState::checkStates();
+	LLGLState::checkTextureChannels();
+	LLGLState::checkClientArrays();
+#endif
 }
 
 void LLPipeline::bindScreenToTexture() 
 {
-	LLGLEnable gl_texture_2d(GL_TEXTURE_2D);
-
-	GLint* viewport = (GLint*) gGLViewport;
-	GLuint resX = nhpo2(viewport[2]);
-	GLuint resY = nhpo2(viewport[3]);
-
-	if (mScreenTex == 0)
-	{
-		glGenTextures(1, &mScreenTex);
-		glBindTexture(GL_TEXTURE_2D, mScreenTex);
-		
-		gImageList.updateMaxResidentTexMem(-1, resX*resY*3);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, resX, resY, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	}
-
-	glBindTexture(GL_TEXTURE_2D, mScreenTex);
-	GLint cResX;
-	GLint cResY;
-	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &cResX);
-	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &cResY);
-
-	if (cResX != (GLint)resX || cResY != (GLint)resY)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, resX, resY, 0, GL_RGB, GL_FLOAT, NULL);
-		gImageList.updateMaxResidentTexMem(-1, resX*resY*3);
-	}
-
-	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, viewport[0], viewport[1], 0, 0, viewport[2], viewport[3]); 
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
 	
-	mScreenScale.mV[0] = (float) viewport[2]/resX;
-	mScreenScale.mV[1] = (float) viewport[3]/resY;
-	
-	LLImageGL::sBoundTextureMemory += resX * resY * 3;
 }
 
-void LLPipeline::renderBloom(GLuint source, GLuint dest, GLuint buffer, U32 res, LLVector2 tc1, LLVector2 tc2)
+void LLPipeline::renderBloom(BOOL for_snapshot)
 {
-	gGlowProgram.bind();
+	if (!(gPipeline.canUseVertexShaders() &&
+		sRenderGlow &&
+		gGLManager.mHasFramebufferObject))
+	{
+		return;
+	}
 
-	LLGLEnable tex(GL_TEXTURE_2D);
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	LLGLState::checkStates();
+	LLGLState::checkTextureChannels();
+#endif
+
+	assertInitialized();
+
+	if (gUseWireframe)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+
+	U32 res_mod = gSavedSettings.getU32("RenderResolutionDivisor");
+
+	LLVector2 tc1(0,0);
+	LLVector2 tc2((F32) gViewerWindow->getWindowDisplayWidth(),
+					(F32) gViewerWindow->getWindowDisplayHeight());
+
+	if (res_mod > 1)
+	{
+		tc2 /= (F32) res_mod;
+	}
+
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		
+	LLFastTimer ftm(LLFastTimer::FTM_RENDER_BLOOM);
+	gGL.start();
 	LLGLDepthTest depth(GL_FALSE);
 	LLGLDisable blend(GL_BLEND);
 	LLGLDisable cull(GL_CULL_FACE);
-
-	if (mFramebuffer[0] == 0)
-	{
-		glGenFramebuffersEXT(2, mFramebuffer);
-	}
-
-	GLint viewport[4];
-	glGetIntegerv(GL_VIEWPORT, viewport);
-	glViewport(0,0,res,res);
+	
+	enableLightsFullbright(LLColor4(1,1,1,1));
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -4111,82 +4511,774 @@ void LLPipeline::renderBloom(GLuint source, GLuint dest, GLuint buffer, U32 res,
 	glPushMatrix();
 	glLoadIdentity();
 
-	glBindTexture(GL_TEXTURE_2D, source);
-	
-	S32 kernel = gSavedSettings.getS32("RenderGlowSize")*2;
-	
 	LLGLDisable test(GL_ALPHA_TEST);
 
-	F32 delta = 1.f/(res*gSavedSettings.getF32("RenderGlowStrength"));
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glClearColor(0,0,0,0);
+
+	if (for_snapshot)
+	{
+		mGlow[1].bindTexture();
+		{
+			//LLGLEnable stencil(GL_STENCIL_TEST);
+			//glStencilFunc(GL_NOTEQUAL, 255, 0xFFFFFFFF);
+			//glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+			//LLGLDisable blend(GL_BLEND);
+			LLGLEnable blend(GL_BLEND);
+			gGL.blendFunc(GL_ONE, GL_ONE);
+			tc2.setVec(1,1);				
+			gGL.begin(GL_TRIANGLE_STRIP);
+			gGL.color4f(1,1,1,1);
+			gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
+			gGL.vertex2f(-1,-1);
+			
+			gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
+			gGL.vertex2f(-1,1);
+			
+			gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
+			gGL.vertex2f(1,-1);
+			
+			gGL.texCoord2f(tc2.mV[0], tc2.mV[1]);
+			gGL.vertex2f(1,1);
+			gGL.end();
+
+			gGL.flush();
+			gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
+
+		gGL.stop();
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+
+		return;
+	}
+	
+	{
+		{
+			LLFastTimer ftm(LLFastTimer::FTM_RENDER_BLOOM_FBO);
+			mGlow[2].bindTarget();
+			mGlow[2].clear();
+		}
+		
+		gGlowExtractProgram.bind();
+		F32 minLum = llclamp(gSavedSettings.getF32("RenderGlowMinLuminance"), 0.0f, 1.0f);
+		F32 maxAlpha = gSavedSettings.getF32("RenderGlowMaxExtractAlpha");		
+		F32 warmthAmount = gSavedSettings.getF32("RenderGlowWarmthAmount");	
+		LLVector3 lumWeights = gSavedSettings.getVector3("RenderGlowLumWeights");
+		LLVector3 warmthWeights = gSavedSettings.getVector3("RenderGlowWarmthWeights");
+		gGlowExtractProgram.uniform1f("minLuminance", minLum);
+		gGlowExtractProgram.uniform1f("maxExtractAlpha", maxAlpha);
+		gGlowExtractProgram.uniform3f("lumWeights", lumWeights.mV[0], lumWeights.mV[1], lumWeights.mV[2]);
+		gGlowExtractProgram.uniform3f("warmthWeights", warmthWeights.mV[0], warmthWeights.mV[1], warmthWeights.mV[2]);
+		gGlowExtractProgram.uniform1f("warmthAmount", warmthAmount);
+		LLGLEnable blend_on(GL_BLEND);
+		LLGLEnable test(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.f);
+		gGL.blendFunc(GL_SRC_ALPHA, GL_ONE);
+		LLViewerImage::unbindTexture(0, GL_TEXTURE_2D);
+		
+		glDisable(GL_TEXTURE_2D);
+		glEnable(GL_TEXTURE_RECTANGLE_ARB);
+		mScreen.bindTexture();
+
+		gGL.color4f(1,1,1,1);
+		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+		gGL.begin(GL_TRIANGLE_STRIP);
+		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
+		gGL.vertex2f(-1,-1);
+		
+		gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
+		gGL.vertex2f(-1,1);
+		
+		gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
+		gGL.vertex2f(1,-1);
+		
+		gGL.texCoord2f(tc2.mV[0], tc2.mV[1]);
+		gGL.vertex2f(1,1);
+		gGL.end();
+		
+		glEnable(GL_TEXTURE_2D);
+		glDisable(GL_TEXTURE_RECTANGLE_ARB);
+
+		mGlow[2].flush();
+	}
+
+	tc1.setVec(0,0);
+	tc2.setVec(1,1);
+
+
+
+	// power of two between 1 and 1024
+	U32 glowResPow = gSavedSettings.getS32("RenderGlowResolutionPow");
+	const U32 glow_res = llmax(1, 
+		llmin(1024, 1 << glowResPow));
+
+	S32 kernel = gSavedSettings.getS32("RenderGlowIterations")*2;
+	F32 delta = gSavedSettings.getF32("RenderGlowWidth") / glow_res;
+	// Use half the glow width if we have the res set to less than 9 so that it looks
+	// almost the same in either case.
+	if (glowResPow < 9)
+	{
+		delta *= 0.5f;
+	}
+	F32 strength = gSavedSettings.getF32("RenderGlowStrength");
+
+	gGlowProgram.bind();
+	gGlowProgram.uniform1f("glowStrength", strength);
 
 	for (S32 i = 0; i < kernel; i++)
 	{
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFramebuffer[i%2]);
-		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, 
-								GL_COLOR_ATTACHMENT0_EXT,
-								GL_TEXTURE_2D, 
-								i%2 == 0 ? buffer : dest, 0);
-		
-		glBindTexture(GL_TEXTURE_2D, i == 0 ? source : 
-									i%2==0 ? dest :
-									buffer);
-		
-		glUniform1fARB(gGlowProgram.mUniform[LLShaderMgr::GLOW_DELTA],delta);					
+		LLViewerImage::unbindTexture(0, GL_TEXTURE_2D);
+		{
+			LLFastTimer ftm(LLFastTimer::FTM_RENDER_BLOOM_FBO);
+			mGlow[i%2].bindTarget();
+			mGlow[i%2].clear();
+		}
+			
+		if (i == 0)
+		{
+			mGlow[2].bindTexture();
+		}
+		else
+		{
+			mGlow[(i-1)%2].bindTexture();
+		}
 
-		glBegin(GL_TRIANGLE_STRIP);
-		glTexCoord2f(tc1.mV[0], tc1.mV[1]);
-		glVertex2f(-1,-1);
+		if (i%2 == 0)
+		{
+			gGlowProgram.uniform2f("glowDelta", delta, 0);
+		}
+		else
+		{
+			gGlowProgram.uniform2f("glowDelta", 0, delta);
+		}
+
+		gGL.begin(GL_TRIANGLE_STRIP);
+		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
+		gGL.vertex2f(-1,-1);
 		
-		glTexCoord2f(tc1.mV[0], tc2.mV[1]);
-		glVertex2f(-1,1);
+		gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
+		gGL.vertex2f(-1,1);
 		
-		glTexCoord2f(tc2.mV[0], tc1.mV[1]);
-		glVertex2f(1,-1);
+		gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
+		gGL.vertex2f(1,-1);
 		
-		glTexCoord2f(tc2.mV[0], tc2.mV[1]);
-		glVertex2f(1,1);
-		glEnd();
-	
-		tc1.setVec(0,0);
-		tc2.setVec(1,1);
+		gGL.texCoord2f(tc2.mV[0], tc2.mV[1]);
+		gGL.vertex2f(1,1);
+		gGL.end();
 		
+		mGlow[i%2].flush();
 	}
 
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	gGlowProgram.unbind();
 
-	glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-
-	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_GLOW))
+	if (LLRenderTarget::sUseFBO)
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		LLFastTimer ftm(LLFastTimer::FTM_RENDER_BLOOM_FBO);
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	}
 
-	glBindTexture(GL_TEXTURE_2D, dest);
+	gViewerWindow->setupViewport();
+
+	/*mGlow[1].bindTexture();
 	{
+		LLGLEnable stencil(GL_STENCIL_TEST);
+		glStencilFunc(GL_NOTEQUAL, 255, 0xFFFFFFFF);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+		LLGLDisable blend(GL_BLEND);
+			
+		gGL.begin(GL_TRIANGLE_STRIP);
+		gGL.color4f(1,1,1,1);
+		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
+		gGL.vertex2f(-1,-1);
+		
+		gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
+		gGL.vertex2f(-1,1);
+		
+		gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
+		gGL.vertex2f(1,-1);
+		
+		gGL.texCoord2f(tc2.mV[0], tc2.mV[1]);
+		gGL.vertex2f(1,1);
+		gGL.end();
+
+		gGL.flush();
+	}
+
+	if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_GLOW))
+	{
+		tc2.setVec((F32) gViewerWindow->getWindowDisplayWidth(),
+				(F32) gViewerWindow->getWindowDisplayHeight());
+
+		if (res_mod > 1)
+		{
+			tc2 /= (F32) res_mod;
+		}
+
 		LLGLEnable blend(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		gGL.blendFunc(GL_ONE, GL_ONE);
 
-		glBegin(GL_TRIANGLE_STRIP);
-		glColor4f(1,1,1,1);
-		glTexCoord2f(tc1.mV[0], tc1.mV[1]);
-		glVertex2f(-1,-1);
+		glDisable(GL_TEXTURE_2D);
+		glEnable(GL_TEXTURE_RECTANGLE_ARB);
+		mScreen.bindTexture();
 		
-		glTexCoord2f(tc1.mV[0], tc2.mV[1]);
-		glVertex2f(-1,1);
+		gGL.begin(GL_TRIANGLE_STRIP);
+		gGL.color4f(1,1,1,1);
+		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
+		gGL.vertex2f(-1,-1);
 		
-		glTexCoord2f(tc2.mV[0], tc1.mV[1]);
-		glVertex2f(1,-1);
+		gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
+		gGL.vertex2f(-1,1);
 		
-		glTexCoord2f(tc2.mV[0], tc2.mV[1]);
-		glVertex2f(1,1);
-		glEnd();
+		gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
+		gGL.vertex2f(1,-1);
+		
+		gGL.texCoord2f(tc2.mV[0], tc2.mV[1]);
+		gGL.vertex2f(1,1);
+		gGL.end();
 
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		gGL.flush();
+		
+		glEnable(GL_TEXTURE_2D);
+		glDisable(GL_TEXTURE_RECTANGLE_ARB);
+
+		gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}*/
+	gGL.stop();
+	
+	{
+		LLVertexBuffer::unbind();
+
+		F32 uv0[] = 
+		{
+				tc1.mV[0], tc1.mV[1],
+				tc1.mV[0], tc2.mV[1],
+				tc2.mV[0], tc1.mV[1],
+				tc2.mV[0], tc2.mV[1]
+		};
+		
+		tc2.setVec((F32) gViewerWindow->getWindowDisplayWidth(),
+			(F32) gViewerWindow->getWindowDisplayHeight());
+
+		if (res_mod > 1)
+		{
+			tc2 /= (F32) res_mod;
+		}
+
+		F32 uv1[] = 
+		{
+				tc1.mV[0], tc1.mV[1],
+				tc1.mV[0], tc2.mV[1],
+				tc2.mV[0], tc1.mV[1],
+				tc2.mV[0], tc2.mV[1]
+		};
+
+		F32 v[] = 
+		{
+			-1,-1,
+			-1,1,
+			1,-1,
+			1,1
+		};
+		
+		LLGLDisable blend(GL_BLEND);
+
+
+		//tex unit 0
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_REPLACE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_TEXTURE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, GL_SRC_COLOR);
+		
+		mGlow[1].bindTexture();
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glTexCoordPointer(2, GL_FLOAT, 0, uv0);
+		glActiveTextureARB(GL_TEXTURE1_ARB);
+		glEnable(GL_TEXTURE_RECTANGLE_ARB);
+		
+		//tex unit 1
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_ADD);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_PREVIOUS_ARB);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_TEXTURE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB, GL_SRC_COLOR);
+		
+		glClientActiveTextureARB(GL_TEXTURE1_ARB);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glTexCoordPointer(2, GL_FLOAT, 0, uv1);
+
+		glVertexPointer(2, GL_FLOAT, 0, v);
+		
+		mScreen.bindTexture();
+		
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		
+		glDisable(GL_TEXTURE_RECTANGLE_ARB);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		glActiveTextureARB(GL_TEXTURE0_ARB);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	}
+	
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	LLGLState::checkStates();
+	LLGLState::checkTextureChannels();
+#endif
+
+}
+
+void LLPipeline::processImagery(LLCamera& camera)
+{
+	for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
+			iter != gWorldp->getRegionList().end(); ++iter)
+	{
+		LLViewerRegion* region = *iter;
+		LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_VOLUME);
+		if (part)
+		{
+			part->processImagery(&camera);	
+		}
+	}
+}
+
+
+inline float sgn(float a)
+{
+    if (a > 0.0F) return (1.0F);
+    if (a < 0.0F) return (-1.0F);
+    return (0.0F);
+}
+
+void LLPipeline::generateWaterReflection(LLCamera& camera_in)
+{
+	if (LLPipeline::sWaterReflections && assertInitialized() && LLDrawPoolWater::sNeedsReflectionUpdate)
+	{
+		LLCamera camera = camera_in;
+		camera.setFar(camera.getFar()*0.87654321f);
+		LLPipeline::sReflectionRender = TRUE;
+		S32 occlusion = LLPipeline::sUseOcclusion;
+		LLPipeline::sUseOcclusion = llmin(occlusion, 1);
+		U32 type_mask = gPipeline.mRenderTypeMask;
+
+		glh::matrix4f projection = glh_get_current_projection();
+		glh::matrix4f mat;
+
+		stop_glerror();
+		LLPlane plane;
+
+		F32 height = gAgent.getRegion()->getWaterHeight(); 
+		F32 to_clip = fabsf(camera.getOrigin().mV[2]-height);
+		F32 pad = -to_clip*0.05f; //amount to "pad" clip plane by
+
+		//plane params
+		LLVector3 pnorm;
+		F32 pd;
+
+		S32 water_clip = 0;
+		if (!gCamera->cameraUnderWater())
+		{ //camera is above water, clip plane points up
+			pnorm.setVec(0,0,1);
+			pd = -height;
+			plane.setVec(pnorm, pd);
+			water_clip = -1;
+		}
+		else
+		{	//camera is below water, clip plane points down
+			pnorm = LLVector3(0,0,-1);
+			pd = height;
+			plane.setVec(pnorm, pd);
+			water_clip = 1;
+		}
+
+
+
+		if (!gCamera->cameraUnderWater())
+		{	//generate planar reflection map
+			LLViewerImage::unbindTexture(0, GL_TEXTURE_2D);
+			glClearColor(0,0,0,0);
+			glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+			mWaterRef.bindTarget();
+			mWaterRef.getViewport(gGLViewport);
+			mWaterRef.clear();
+			glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_FALSE);
+
+			stop_glerror();
+
+			LLVector3 origin = camera.getOrigin();
+
+			glPushMatrix();
+
+			mat.set_scale(glh::vec3f(1,1,-1));
+			mat.set_translate(glh::vec3f(0,0,height*2.f));
+			
+			glh::matrix4f current = glh_get_current_modelview();
+
+			mat = current * mat;
+
+			glh_set_current_modelview(mat);
+			glLoadMatrixf(mat.m);
+
+			LLViewerCamera::updateFrustumPlanes(camera, FALSE, TRUE);
+
+			glCullFace(GL_FRONT);
+
+			//initial sky pass (no user clip plane)
+			{ //mask out everything but the sky
+				U32 tmp = mRenderTypeMask;
+				mRenderTypeMask &= ((1 << LLPipeline::RENDER_TYPE_SKY) |
+									(1 << LLPipeline::RENDER_TYPE_CLOUDS) |
+									(1 << LLPipeline::RENDER_TYPE_WL_SKY));
+
+				static LLCullResult result;
+				updateCull(camera, result);
+				stateSort(camera, result);
+				renderGeom(camera, TRUE);
+
+				mRenderTypeMask = tmp;
+			}
+
+			if (LLDrawPoolWater::sNeedsReflectionUpdate)
+			{
+				mRenderTypeMask &=	~((1<<LLPipeline::RENDER_TYPE_WATER) |
+									  (1<<LLPipeline::RENDER_TYPE_GROUND) |
+									  (1<<LLPipeline::RENDER_TYPE_SKY) |
+									  (1<<LLPipeline::RENDER_TYPE_CLOUDS) |
+									  (1<<LLPipeline::RENDER_TYPE_WL_SKY));	
+
+				if (gSavedSettings.getBOOL("RenderWaterReflections"))
+				{ //mask out selected geometry based on reflection detail
+
+					S32 detail = gSavedSettings.getS32("RenderReflectionDetail");
+					if (detail < 3)
+					{
+						mRenderTypeMask &= ~(1 << LLPipeline::RENDER_TYPE_PARTICLES);
+						if (detail < 2)
+						{
+							mRenderTypeMask &= ~(1 << LLPipeline::RENDER_TYPE_AVATAR);
+							if (detail < 1)
+							{
+								mRenderTypeMask &= ~(1 << LLPipeline::RENDER_TYPE_VOLUME);
+							}
+						}
+					}
+
+					LLSpatialPartition::sFreezeState = TRUE;
+					LLPipeline::sSkipUpdate = TRUE;
+					LLGLUserClipPlane clip_plane(plane, mat, projection);
+					static LLCullResult result;
+					updateCull(camera, result, 1);
+					stateSort(camera, result);
+					renderGeom(camera);
+					LLSpatialPartition::sFreezeState = FALSE;
+					LLPipeline::sSkipUpdate = FALSE;
+				}
+			}	
+			glCullFace(GL_BACK);
+			glPopMatrix();
+			mWaterRef.flush();
+
+			glh_set_current_modelview(current);
+		}
+
+		//render distortion map
+		static BOOL last_update = TRUE;
+		if (last_update)
+		{
+			camera.setFar(camera_in.getFar());
+			mRenderTypeMask = type_mask & (~(1<<LLPipeline::RENDER_TYPE_WATER) |
+											(1<<LLPipeline::RENDER_TYPE_GROUND));	
+			stop_glerror();
+
+			LLPipeline::sUnderWaterRender = gCamera->cameraUnderWater() ? FALSE : TRUE;
+
+			if (LLPipeline::sUnderWaterRender)
+			{
+				mRenderTypeMask &=	~((1<<LLPipeline::RENDER_TYPE_GROUND) |
+									  (1<<LLPipeline::RENDER_TYPE_SKY) |
+									  (1<<LLPipeline::RENDER_TYPE_CLOUDS) |
+									  (1<<LLPipeline::RENDER_TYPE_WL_SKY));		
+			}
+			LLViewerCamera::updateFrustumPlanes(camera);
+
+			LLViewerImage::unbindTexture(0, GL_TEXTURE_2D);
+			LLColor4& col = LLDrawPoolWater::sWaterFogColor;
+			glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);
+			glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+			mWaterDis.bindTarget();
+			mWaterDis.getViewport(gGLViewport);
+			mWaterDis.clear();
+			glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_FALSE);
+
+			if (!LLPipeline::sUnderWaterRender || LLDrawPoolWater::sNeedsReflectionUpdate)
+			{
+				//clip out geometry on the same side of water as the camera
+				mat = glh_get_current_modelview();
+				LLGLUserClipPlane clip_plane(LLPlane(-pnorm, -(pd+pad)), mat, projection);
+				static LLCullResult result;
+				updateCull(camera, result, water_clip);
+				stateSort(camera, result);
+				renderGeom(camera);
+			}
+
+			LLPipeline::sUnderWaterRender = FALSE;
+			mWaterDis.flush();
+		}
+		last_update = LLDrawPoolWater::sNeedsReflectionUpdate;
+
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		LLPipeline::sReflectionRender = FALSE;
+
+		if (!LLRenderTarget::sUseFBO)
+		{
+			glClear(GL_DEPTH_BUFFER_BIT);
+		}
+		glClearColor(0.f, 0.f, 0.f, 0.f);
+
+		gViewerWindow->setupViewport();
+		mRenderTypeMask = type_mask;
+		LLDrawPoolWater::sNeedsReflectionUpdate = FALSE;
+		gCamera->setUserClipPlane(LLPlane(-pnorm, -pd));
+		LLPipeline::sUseOcclusion = occlusion;
+	}
+}
+
+LLCubeMap* LLPipeline::findReflectionMap(const LLVector3& location)
+{
+	LLViewerRegion* region = gWorldp->getRegionFromPosAgent(location);
+	if (region)
+	{
+		LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_VOLUME);
+		if (part)
+		{
+			LLSpatialGroup::OctreeNode* node = part->mOctree->getNodeAt(LLVector3d(location), 32.0);
+			if (node)
+			{
+				LLSpatialGroup* group = (LLSpatialGroup*) node->getListener(0);
+				return group->mReflectionMap;
+			}
+		}
+	}
+
+	return NULL;
+}
+
+S32 LLPipeline::getVisibleCount() const 
+{ 
+	return sCull->getVisibleListSize();
+}
+
+void LLPipeline::renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL texture)
+{
+#if !LL_RELEASE_FOR_DOWNLOAD
+	LLGLState::checkClientArrays(mask);
+#endif
+
+	for (LLCullResult::sg_list_t::iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
+	{
+		LLSpatialGroup* group = *i;
+		if (!group->isDead() &&
+			(!sUseOcclusion || !group->isState(LLSpatialGroup::OCCLUDED)) &&
+			gPipeline.hasRenderType(group->mSpatialPartition->mDrawableType) &&
+			group->mDrawMap.find(type) != group->mDrawMap.end())
+		{
+			pass->renderGroup(group,type,mask,texture);
+		}
+	}
+}
+
+void LLPipeline::generateImpostor(LLVOAvatar* avatar)
+{
+	static LLCullResult result;
+	result.clear();
+	grabReferences(result);
+	
+	if (!avatar || !avatar->mDrawable)
+	{
+		return;
+	}
+
+	assertInitialized();
+
+	if (!avatar->mImpostor.isComplete())
+	{
+		avatar->mImpostor.allocate(128,256,GL_RGBA,TRUE);
+		avatar->mImpostor.bindTexture();
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
+	}
+
+	U32 mask = (1<<LLPipeline::RENDER_TYPE_VOLUME) |
+				(1<<LLPipeline::RENDER_TYPE_AVATAR) |
+				(1<<LLPipeline::RENDER_TYPE_BUMP) |
+				(1<<LLPipeline::RENDER_TYPE_GRASS) |
+				(1<<LLPipeline::RENDER_TYPE_SIMPLE) |
+				(1<<LLPipeline::RENDER_TYPE_ALPHA) | 
+				(1<<LLPipeline::RENDER_TYPE_INVISIBLE);
+	
+	mask = mask & gPipeline.getRenderTypeMask();
+	U32 saved_mask = gPipeline.mRenderTypeMask;
+	gPipeline.mRenderTypeMask = mask;
+
+	S32 occlusion = sUseOcclusion;
+	sUseOcclusion = 0;
+	sReflectionRender = TRUE;
+	sImpostorRender = TRUE;
+
+	markVisible(avatar->mDrawable, *gCamera);
+	LLVOAvatar::sUseImpostors = FALSE;
+
+	LLVOAvatar::attachment_map_t::iterator iter;
+	for (iter = avatar->mAttachmentPoints.begin();
+		iter != avatar->mAttachmentPoints.end();
+		++iter)
+	{
+		LLViewerObject* object = iter->second->getObject();
+		if (object)
+		{
+			markVisible(object->mDrawable->getSpatialBridge(), *gCamera);
+		}
+	}
+
+	stateSort(*gCamera, result);
+	
+	glClearColor(0.0f,0.0f,0.0f,0.0f);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glStencilMask(0xFFFFFFFF);
+	glClearStencil(0);
+
+	{
+		LLGLEnable scissor(GL_SCISSOR_TEST);
+		glScissor(0, 0, 128, 256);
+		avatar->mImpostor.bindTarget();
+		avatar->mImpostor.getViewport(gGLViewport);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	}
+	
+	LLGLEnable stencil(GL_STENCIL_TEST);
+
+	glStencilFunc(GL_ALWAYS, 1, 0xFFFFFFFF);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+	const LLVector3* ext = avatar->mDrawable->getSpatialExtents();
+	LLVector3 pos(avatar->getRenderPosition()+avatar->getImpostorOffset());
+
+	LLCamera camera = *gCamera;
+
+	camera.lookAt(gCamera->getOrigin(), pos, gCamera->getUpAxis());
+	
+	LLVector2 tdim;
+
+	LLVector3 half_height = (ext[1]-ext[0])*0.5f;
+
+	LLVector3 left = camera.getLeftAxis();
+	left *= left;
+	left.normVec();
+
+	LLVector3 up = camera.getUpAxis();
+	up *= up;
+	up.normVec();
+
+	tdim.mV[0] = fabsf(half_height * left);
+	tdim.mV[1] = fabsf(half_height * up);
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glh::matrix4f ortho = gl_ortho(-tdim.mV[0], tdim.mV[0], -tdim.mV[1], tdim.mV[1], 1.0, 256.0);
+	glh_set_current_projection(ortho);
+	glLoadMatrixf(ortho.m);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glh::matrix4f mat;
+	camera.getOpenGLTransform(mat.m);
+
+	mat = glh::matrix4f((GLfloat*) OGL_TO_CFR_ROTATION) * mat;
+
+	glLoadMatrixf(mat.m);
+	glh_set_current_modelview(mat);
+
+	renderGeom(camera);
+	
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	glStencilFunc(GL_EQUAL, 1, 0xFFFFFF);
+
+	{
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		LLVector3 left = camera.getLeftAxis()*tdim.mV[0]*2.f;
+		LLVector3 up = camera.getUpAxis()*tdim.mV[1]*2.f;
+
+		LLGLEnable blend(GL_BLEND);
+		gGL.blendFunc(GL_ONE, GL_ONE);
+		LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
+
+		LLGLDepthTest depth(GL_FALSE, GL_FALSE);
+
+		gGL.start();
+		gGL.color4ub(0,0,0,1);
+		gGL.begin(GL_QUADS);
+		gGL.vertex3fv((pos+left-up).mV);
+		gGL.vertex3fv((pos-left-up).mV);
+		gGL.vertex3fv((pos-left+up).mV);
+		gGL.vertex3fv((pos+left+up).mV);
+		gGL.end();
+		gGL.stop();
+
+		gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
+	avatar->mImpostor.flush();
+
+	avatar->setImpostorDim(tdim);
+
+	LLVOAvatar::sUseImpostors = TRUE;
+	sUseOcclusion = occlusion;
+	sReflectionRender = FALSE;
+	sImpostorRender = FALSE;
+	gPipeline.mRenderTypeMask = saved_mask;
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+
+	avatar->mNeedsImpostorUpdate = FALSE;
+	avatar->cacheImpostorValues();
 }
+
+BOOL LLPipeline::hasRenderBatches(const U32 type) const
+{
+	return sCull->getRenderMapSize(type) > 0;
+}
+
+LLCullResult::drawinfo_list_t::iterator LLPipeline::beginRenderMap(U32 type)
+{
+	return sCull->beginRenderMap(type);
+}
+
+LLCullResult::drawinfo_list_t::iterator LLPipeline::endRenderMap(U32 type)
+{
+	return sCull->endRenderMap(type);
+}
+
+LLCullResult::sg_list_t::iterator LLPipeline::beginAlphaGroups()
+{
+	return sCull->beginAlphaGroups();
+}
+
+LLCullResult::sg_list_t::iterator LLPipeline::endAlphaGroups()
+{
+	return sCull->endAlphaGroups();
+}
+

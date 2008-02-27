@@ -55,11 +55,10 @@
 #include "lldrawpool.h"
 
 #include "llvosky.h"
-#include "llvostars.h"
 #include "llcubemap.h"
 #include "llviewercontrol.h"
 
-extern LLPipeline gPipeline;
+#include "llvowlsky.h"
 
 F32 azimuth_from_vector(const LLVector3 &v);
 F32 elevation_from_vector(const LLVector3 &v);
@@ -92,7 +91,7 @@ LLSky::~LLSky()
 void LLSky::cleanup()
 {
 	mVOSkyp = NULL;
-	mVOStarsp = NULL;
+	mVOWLSkyp = NULL;
 	mVOGroundp = NULL;
 }
 
@@ -102,6 +101,10 @@ void LLSky::destroyGL()
 	{
 		mVOSkyp->cleanupGL();
 	}
+	if (mVOWLSkyp.notNull())
+	{
+		mVOWLSkyp->cleanupGL();
+	}
 }
 
 void LLSky::restoreGL()
@@ -109,6 +112,27 @@ void LLSky::restoreGL()
 	if (mVOSkyp)
 	{
 		mVOSkyp->restoreGL();
+	}
+	if (mVOWLSkyp)
+	{
+		mVOWLSkyp->restoreGL();
+	}
+}
+
+void LLSky::resetVertexBuffers()
+{
+	if (gSky.mVOSkyp.notNull())
+	{
+		gPipeline.resetVertexBuffers(gSky.mVOSkyp->mDrawable);
+		gPipeline.resetVertexBuffers(gSky.mVOGroundp->mDrawable);
+		gPipeline.markRebuild(gSky.mVOSkyp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+		gPipeline.markRebuild(gSky.mVOGroundp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+	}
+	if (gSky.mVOWLSkyp.notNull())
+	{
+		gSky.mVOWLSkyp->resetVertexBuffers();
+		gPipeline.resetVertexBuffers(gSky.mVOWLSkyp->mDrawable);
+		gPipeline.markRebuild(gSky.mVOWLSkyp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 	}
 }
 
@@ -127,7 +151,9 @@ void LLSky::setOverrideSun(BOOL override)
 
 void LLSky::setSunDirection(const LLVector3 &sun_direction, const LLVector3 &sun_ang_velocity)
 {
-	mVOSkyp->setSunDirection(sun_direction, sun_ang_velocity);
+	if(mVOSkyp.notNull()) {
+		mVOSkyp->setSunDirection(sun_direction, sun_ang_velocity);
+	}
 }
 
 
@@ -175,6 +201,18 @@ LLColor4 LLSky::getSunDiffuseColor() const
 	}
 }
 
+LLColor4 LLSky::getSunAmbientColor() const
+{
+	if (mVOSkyp)
+	{
+		return LLColor4(mVOSkyp->getSunAmbientColor());
+	}
+	else
+	{
+		return LLColor4(0.f, 0.f, 0.f, 1.f);
+	}
+}
+
 
 LLColor4 LLSky::getMoonDiffuseColor() const
 {
@@ -185,6 +223,18 @@ LLColor4 LLSky::getMoonDiffuseColor() const
 	else
 	{
 		return LLColor4(1.f, 1.f, 1.f, 1.f);
+	}
+}
+
+LLColor4 LLSky::getMoonAmbientColor() const
+{
+	if (mVOSkyp)
+	{
+		return LLColor4(mVOSkyp->getMoonAmbientColor());
+	}
+	else
+	{
+		return LLColor4(0.f, 0.f, 0.f, 0.f);
 	}
 }
 
@@ -215,19 +265,6 @@ BOOL LLSky::sunUp() const
 }
 
 
-LLColor4 LLSky::calcInScatter(LLColor4& transp, const LLVector3 &point, F32 exag) const
-{
-	if (mVOSkyp)
-	{
-		return mVOSkyp->calcInScatter(transp, point, exag);
-	}
-	else
-	{
-		return LLColor4(1.f, 1.f, 1.f, 1.f);
-	}
-}
-
-
 LLColor4U LLSky::getFadeColor() const
 {
 	if (mVOSkyp)
@@ -245,22 +282,23 @@ LLColor4U LLSky::getFadeColor() const
 // Public Methods
 //////////////////////////////////////////////////////////////////////
 
-
 void LLSky::init(const LLVector3 &sun_direction)
 {
+	mVOWLSkyp = static_cast<LLVOWLSky*>(gObjectList.createObjectViewer(LLViewerObject::LL_VO_WL_SKY, gAgent.getRegion()));
+	mVOWLSkyp->initSunDirection(sun_direction, LLVector3::zero);
+	gPipeline.addObject(mVOWLSkyp.get());
+
 	mVOSkyp = (LLVOSky *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_SKY, gAgent.getRegion());
 	mVOSkyp->initSunDirection(sun_direction, LLVector3());
 	gPipeline.addObject((LLViewerObject *)mVOSkyp);
 
-	mVOStarsp = (LLVOStars *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_STARS, gAgent.getRegion());
-	gPipeline.addObject((LLViewerObject *)mVOStarsp);
-	
+
 	mVOGroundp = (LLVOGround*)gObjectList.createObjectViewer(LLViewerObject::LL_VO_GROUND, gAgent.getRegion());
 	LLVOGround *groundp = mVOGroundp;
 	gPipeline.addObject((LLViewerObject *)groundp);
 
-	gSky.setFogRatio(gSavedSettings.getF32("RenderFogRatio"));
-	
+	gSky.setFogRatio(gSavedSettings.getF32("RenderFogRatio"));	
+
 	////////////////////////////
 	//
 	// Legacy code, ignore
@@ -279,7 +317,8 @@ void LLSky::init(const LLVector3 &sun_direction)
 	{
 		setSunDirection(sun_direction, LLVector3(0.f, 0.f, 0.f));
 	}
-	
+
+
 	mUpdatedThisFrame = TRUE;
 }
 
@@ -349,7 +388,6 @@ LLColor4 LLSky::getFogColor() const
 	return LLColor4(1.f, 1.f, 1.f, 1.f);
 }
 
-
 void LLSky::updateFog(const F32 distance)
 {
 	if (mVOSkyp)
@@ -369,19 +407,12 @@ void LLSky::updateCull()
 		llinfos << "No sky drawable!" << llendl;
 	}*/
 
-	if (mVOStarsp.notNull() && mVOStarsp->mDrawable.notNull())
-	{
-		gPipeline.markVisible(mVOStarsp->mDrawable, *gCamera);
-	}
-	else
-	{
-		llinfos << "No stars drawable!" << llendl;
-	}
-
 	/*if (mVOGroundp.notNull() && mVOGroundp->mDrawable.notNull())
 	{
 		gPipeline.markVisible(mVOGroundp->mDrawable);
 	}*/
+
+	// *TODO: do culling for wl sky properly -Brad
 }
 
 void LLSky::updateSky()
@@ -393,13 +424,6 @@ void LLSky::updateSky()
 	if (mVOSkyp)
 	{
 		mVOSkyp->updateSky();
-	}
-	if (mVOStarsp)
-	{
-		//if (mVOStarsp->mDrawable)
-		//{
-		//	gPipeline.markRebuild(mVOStarsp->mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
-		//}
 	}
 }
 

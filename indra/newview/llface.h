@@ -55,6 +55,9 @@ class LLVertexProgram;
 class LLViewerImage;
 class LLGeometryManager;
 
+const F32 MIN_ALPHA_SIZE = 1024.f;
+const F32 MIN_TEX_ANIM_SIZE = 512.f;
+
 class LLFace
 {
 public:
@@ -79,9 +82,9 @@ public:
 	const LLMatrix4& getRenderMatrix() const;
 	U32				getIndicesCount()	const	{ return mIndicesCount; };
 	S32				getIndicesStart()	const	{ return mIndicesIndex; };
-	S32				getGeomCount()		const	{ return mGeomCount; }		// vertex count for this face
-	S32				getGeomIndex()		const	{ return mGeomIndex; }		// index into draw pool
-	U32				getGeomStart()		const	{ return mGeomIndex; }		// index into draw pool
+	U16				getGeomCount()		const	{ return mGeomCount; }		// vertex count for this face
+	U16				getGeomIndex()		const	{ return mGeomIndex; }		// index into draw pool
+	U16				getGeomStart()		const	{ return mGeomIndex; }		// index into draw pool
 	LLViewerImage*	getTexture()		const	{ return mTexture; }
 	void			setTexture(LLViewerImage* tex) { mTexture = tex; }
 	LLXformMatrix*	getXform()			const	{ return mXform; }
@@ -98,12 +101,11 @@ public:
 	F32				getPixelArea() const { return mPixelArea; }
 	void			bindTexture(S32 stage = 0)		const	{ LLViewerImage::bindTexture(mTexture, stage); }
 
-	void			enableLights() const;
 	void			renderSetColor() const;
-	S32				renderElements(const U32 *index_array) const;
+	S32				renderElements(const U16 *index_array) const;
 	S32				renderIndexed ();
 	S32				renderIndexed (U32 mask);
-	S32				pushVertices(const U32* index_array) const;
+	S32				pushVertices(const U16* index_array) const;
 	
 	void			setWorldMatrix(const LLMatrix4& mat);
 	const LLTextureEntry* getTextureEntry()	const { return mVObjp->getTE(mTEOffset); }
@@ -130,49 +132,27 @@ public:
 	const LLColor4& getRenderColor() const;
 	
 	//for volumes
-	S32 getGeometryVolume(const LLVolume& volume,
-						S32 f,
-						LLStrider<LLVector3>& vertices, 
-						LLStrider<LLVector3>& normals,
-						LLStrider<LLVector2>& texcoords,
-						LLStrider<LLVector2>& texcoords2,
-						LLStrider<LLColor4U>& colors,
-						LLStrider<U32>& indices,
+	BOOL getGeometryVolume(const LLVolume& volume,
+						const S32 &f,
 						const LLMatrix4& mat_vert, const LLMatrix3& mat_normal,
-						U32& index_offset);
+						const U16 &index_offset);
 
 	// For avatar
-	S32				 getGeometryAvatar(
+	U16			 getGeometryAvatar(
 									LLStrider<LLVector3> &vertices,
 									LLStrider<LLVector3> &normals,
-									LLStrider<LLVector3> &binormals,
 								    LLStrider<LLVector2> &texCoords,
 									LLStrider<F32>		 &vertex_weights,
 									LLStrider<LLVector4> &clothing_weights);
 
-	// For terrain
-	S32				getGeometryTerrain(LLStrider<LLVector3> &vertices,
-									   LLStrider<LLVector3> &normals,
-									   LLStrider<LLColor4U> &colors,
-									   LLStrider<LLVector2> &texCoords0,
-									   LLStrider<LLVector2> &texCoords1,
-									   LLStrider<U32> &indices);
-
 	// For volumes, etc.
-	S32				getGeometry(LLStrider<LLVector3> &vertices,  
+	U16				getGeometry(LLStrider<LLVector3> &vertices,  
 								LLStrider<LLVector3> &normals,
 								LLStrider<LLVector2> &texCoords, 
-								LLStrider<U32>  &indices);
+								LLStrider<U16>  &indices);
 
-	S32				getGeometryColors(LLStrider<LLVector3> &vertices,  
-									  LLStrider<LLVector3> &normals,
-									  LLStrider<LLVector2> &texCoords, 
-									  LLStrider<LLColor4U> &colors, 
-									  LLStrider<U32>  &indices);
-	
-	S32 getVertices(LLStrider<LLVector3> &vertices);
 	S32 getColors(LLStrider<LLColor4U> &colors);
-	S32 getIndices(LLStrider<U32> &indices);
+	S32 getIndices(LLStrider<U16> &indices);
 
 	void		setSize(const S32 numVertices, const S32 num_indices = 0);
 	
@@ -197,7 +177,7 @@ public:
 	BOOL		verify(const U32* indices_array = NULL) const;
 	void		printDebugInfo() const;
 
-	void		setGeomIndex(S32 idx) { mGeomIndex = idx; }
+	void		setGeomIndex(U16 idx) { mGeomIndex = idx; }
 	void		setIndicesIndex(S32 idx) { mIndicesIndex = idx; }
 	
 protected:
@@ -208,11 +188,11 @@ public:
 	LLVector3		mExtents[2];
 	LLVector2		mTexExtents[2];
 	F32				mDistance;
-	F32				mAlphaFade;
 	LLPointer<LLVertexBuffer> mVertexBuffer;
 	LLPointer<LLVertexBuffer> mLastVertexBuffer;
 	F32			mLastUpdateTime;
-	LLMatrix4	mTextureMatrix;
+	F32			mLastMoveTime;
+	LLMatrix4*	mTextureMatrix;
 
 protected:
 	friend class LLGeometryManager;
@@ -223,16 +203,16 @@ protected:
 	U32			mPoolType;
 	LLColor4	mFaceColor;			// overrides material color if state |= USE_FACE_COLOR
 	
-	S32			mGeomCount;			// vertex count for this face
-	S32			mGeomIndex;			// index into draw pool
+	U16			mGeomCount;			// vertex count for this face
+	U16			mGeomIndex;			// index into draw pool
 	U32			mIndicesCount;
-	S32			mIndicesIndex;		// index into draw pool for indices (yeah, I know!)
+	U32			mIndicesIndex;		// index into draw pool for indices (yeah, I know!)
 
 	//previous rebuild's geometry info
-	S32			mLastGeomCount;
-	S32			mLastGeomIndex;
+	U16			mLastGeomCount;
+	U16			mLastGeomIndex;
 	U32			mLastIndicesCount;
-	S32			mLastIndicesIndex;
+	U32			mLastIndicesIndex;
 
 	LLXformMatrix* mXform;
 	LLPointer<LLViewerImage> mTexture;
@@ -264,12 +244,34 @@ public:
 		}
 	};
 
+	struct CompareBatchBreaker
+	{
+		bool operator()(const LLFace* const& lhs, const LLFace* const& rhs)
+		{
+			const LLTextureEntry* lte = lhs->getTextureEntry();
+			const LLTextureEntry* rte = rhs->getTextureEntry();
+
+			if (lhs->getTexture() != rhs->getTexture())
+			{
+				return lhs->getTexture() < rhs->getTexture();
+			}
+			else if (lte->getBumpShinyFullbright() != rte->getBumpShinyFullbright())
+			{
+				return lte->getBumpShinyFullbright() < rte->getBumpShinyFullbright();
+			}
+			else 
+			{
+				return lte->getGlow() < rte->getGlow();
+			}
+		}
+	};
+
 	struct CompareTextureAndGeomCount
 	{
 		bool operator()(const LLFace* const& lhs, const LLFace* const& rhs)
 		{
 			return lhs->getTexture() == rhs->getTexture() ? 
-				lhs->getGeomCount() < rhs->getGeomCount() :
+				lhs->getGeomCount() < rhs->getGeomCount() :  //smallest = first
 				lhs->getTexture() > rhs->getTexture();
 		}
 	};

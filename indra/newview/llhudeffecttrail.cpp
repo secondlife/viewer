@@ -250,7 +250,7 @@ void LLHUDEffectSpiral::triggerLocal()
 			psb->setColor(color);
 			if (mTargetObject.isNull())
 			{
-				psb->mLKGTargetPosGlobal = mPositionGlobal;				
+				psb->mLKGTargetPosGlobal = mPositionGlobal;
 			}
 		}
 		else
@@ -277,10 +277,10 @@ void LLHUDEffectSpiral::render()
 {
 	F32 time = mTimer.getElapsedTimeF32();
 
-	if (!mSourceObject.isNull() && mSourceObject->isDead() ||
-		!mTargetObject.isNull() && mTargetObject->isDead() ||
-		mKillTime < time ||
-		!gSavedSettings.getBOOL("ShowSelectionBeam"))
+	if ((!mSourceObject.isNull() && mSourceObject->isDead()) ||
+	    (!mTargetObject.isNull() && mTargetObject->isDead()) ||
+	    mKillTime < time ||
+		(!mPartSourcep.isNull() && !gSavedSettings.getBOOL("ShowSelectionBeam")) )
 	{
 		markDead();
 		return;

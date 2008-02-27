@@ -1,13 +1,13 @@
-void applyScatter(inout vec3 col);
+/** 
+ * @file shinyF.glsl
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
 
-uniform samplerCube environmentMap;
+void shiny_lighting();
 
 void main() 
 {
-	vec3 ref = textureCube(environmentMap, gl_TexCoord[0].xyz).rgb;
-			
-	applyScatter(ref);
-		
-	gl_FragColor.rgb = ref;
-	gl_FragColor.a = gl_Color.a;
+	shiny_lighting();
 }

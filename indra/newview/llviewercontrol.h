@@ -70,6 +70,9 @@ void declare_settings();
 void fixup_settings();
 void settings_setup_listeners();
 
+// for the graphics settings
+void create_graphics_group(LLControlGroup& group);
+
 // saved at end of session
 extern LLControlGroup gSavedSettings;
 extern LLControlGroup gSavedPerAccountSettings;

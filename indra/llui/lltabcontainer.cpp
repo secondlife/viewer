@@ -40,6 +40,7 @@
 #include "llcriticaldamp.h"
 #include "lluictrlfactory.h"
 #include "lltabcontainervertical.h"
+#include "llglimmediate.h"
 
 
 const F32 SCROLL_STEP_TIME = 0.4f;
@@ -287,15 +288,15 @@ void LLTabContainer::draw()
 			if( mIsVertical && has_scroll_arrows )
 			{
 				// Redraw the arrows so that they appears on top.
-				glPushMatrix();
-				glTranslatef((F32)mPrevArrowBtn->getRect().mLeft, (F32)mPrevArrowBtn->getRect().mBottom, 0.f);
+				gGL.pushMatrix();
+				gGL.translatef((F32)mPrevArrowBtn->getRect().mLeft, (F32)mPrevArrowBtn->getRect().mBottom, 0.f);
 				mPrevArrowBtn->draw();
-				glPopMatrix();
+				gGL.popMatrix();
 
-				glPushMatrix();
-				glTranslatef((F32)mNextArrowBtn->getRect().mLeft, (F32)mNextArrowBtn->getRect().mBottom, 0.f);
+				gGL.pushMatrix();
+				gGL.translatef((F32)mNextArrowBtn->getRect().mLeft, (F32)mNextArrowBtn->getRect().mBottom, 0.f);
 				mNextArrowBtn->draw();
-				glPopMatrix();
+				gGL.popMatrix();
 			}
 		}
 

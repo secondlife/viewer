@@ -83,9 +83,9 @@ public:
 	virtual void    setEnabled( BOOL b );
 	virtual void	clear();
 	virtual void	setPrecision(S32 precision);
-	void			setMinValue(F32 min_value)	{ mSlider->setMinValue(min_value); }
-	void			setMaxValue(F32 max_value)	{ mSlider->setMaxValue(max_value); }
-	void			setIncrement(F32 increment)	{ mSlider->setIncrement(increment); }
+	void			setMinValue(F32 min_value)  { mSlider->setMinValue(min_value); updateText(); }
+	void			setMaxValue(F32 max_value)  { mSlider->setMaxValue(max_value); updateText(); }
+	void			setIncrement(F32 increment) { mSlider->setIncrement(increment);}
 
 	F32				getMinValue() { return mSlider->getMinValue(); }
 	F32				getMaxValue() { return mSlider->getMaxValue(); }
@@ -102,7 +102,12 @@ public:
 	virtual void	setTentative(BOOL b);			// marks value as tentative
 	virtual void	onCommit();						// mark not tentative, then commit
 
-	virtual void		setControlName(const LLString& control_name, LLView* context) { mSlider->setControlName(control_name, context); }
+	virtual void		setControlName(const LLString& control_name, LLView* context)
+	{
+		LLView::setControlName(control_name, context);
+		mSlider->setControlName(control_name, context);
+	}
+
 	virtual LLString 	getControlName() const { return mSlider->getControlName(); }
 	
 	static void		onSliderCommit(LLUICtrl* caller, void* userdata);

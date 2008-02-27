@@ -192,10 +192,7 @@ public:
 	{
 		noteAction(id);
 		typename LLKeyThrottleImpl<T>::Entry& curr = (*m.currMap)[id];
-		if (curr.count < m.countLimit)
-		{
-			curr.count = m.countLimit;
-		}
+		curr.count = llmax(m.countLimit, curr.count);
 		curr.blocked = TRUE;
 	}
 

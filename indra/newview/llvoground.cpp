@@ -93,7 +93,7 @@ BOOL LLVOGround::updateGeometry(LLDrawable *drawable)
 	LLStrider<LLVector3> verticesp;
 	LLStrider<LLVector3> normalsp;
 	LLStrider<LLVector2> texCoordsp;
-	LLStrider<U32> indicesp;
+	LLStrider<U16> indicesp;
 	S32 index_offset;
 	LLFace *face;	
 
@@ -167,6 +167,7 @@ BOOL LLVOGround::updateGeometry(LLDrawable *drawable)
 	*(texCoordsp++) = LLVector2(0.f, 1.f);
 	*(texCoordsp++) = LLVector2(0.5f, 0.5f);
 	
+	face->mVertexBuffer->setBuffer(0);
 	LLPipeline::sCompiles++;
 	return TRUE;
 }

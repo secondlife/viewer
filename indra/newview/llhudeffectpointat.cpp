@@ -34,6 +34,7 @@
 #include "llhudeffectpointat.h"
 
 #include "llgl.h"
+#include "llglimmediate.h"
 
 #include "llagent.h"
 #include "lldrawable.h"
@@ -329,18 +330,18 @@ void LLHUDEffectPointAt::render()
 		glPushMatrix();
 		glTranslatef(target.mV[VX], target.mV[VY], target.mV[VZ]);
 		glScalef(0.3f, 0.3f, 0.3f);
-		glBegin(GL_LINES);
+		gGL.begin(GL_LINES);
 		{
-			glColor3f(1.f, 0.f, 0.f);
-			glVertex3f(-1.f, 0.f, 0.f);
-			glVertex3f(1.f, 0.f, 0.f);
+			gGL.color3f(1.f, 0.f, 0.f);
+			gGL.vertex3f(-1.f, 0.f, 0.f);
+			gGL.vertex3f(1.f, 0.f, 0.f);
 
-			glVertex3f(0.f, -1.f, 0.f);
-			glVertex3f(0.f, 1.f, 0.f);
+			gGL.vertex3f(0.f, -1.f, 0.f);
+			gGL.vertex3f(0.f, 1.f, 0.f);
 
-			glVertex3f(0.f, 0.f, -1.f);
-			glVertex3f(0.f, 0.f, 1.f);
-		} glEnd();
+			gGL.vertex3f(0.f, 0.f, -1.f);
+			gGL.vertex3f(0.f, 0.f, 1.f);
+		} gGL.end();
 		glPopMatrix();
 	}
 }

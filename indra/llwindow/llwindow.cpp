@@ -247,7 +247,7 @@ LLWindow::LLWindow(BOOL fullscreen, U32 flags)
 	  mFlags(flags),
 	  mHighSurrogate(0)
 {
-	for (U32 i = 0; i < 6; i++)
+	for (U32 i = 0; i < 8; i++)
 	{
 		mJoyAxis[i] = 0;
 	}
@@ -275,7 +275,7 @@ void LLWindow::decBusyCount()
 
 F32 LLWindow::getJoystickAxis(U32 axis)
 {
-	if (axis < 6)
+	if (axis < 8)
 	{
 		return mJoyAxis[axis];
 	}

@@ -49,6 +49,9 @@ public:
 	LLDrawPoolSimple();
 	
 	/*virtual*/ void beginRenderPass(S32 pass);
+	/*virtual*/ void endRenderPass(S32 pass);
+	/// We need two passes so we can handle emissive materials separately.
+	/*virtual*/ S32	 getNumPasses() { return 1; }
 	/*virtual*/ void render(S32 pass = 0);
 	/*virtual*/ void prerender();
 

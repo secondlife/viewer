@@ -91,6 +91,8 @@ public:
 	static class LLPanel* 				getPanelByName(			const LLPanel* panelp, const LLString& name);
 	static class LLMenuItemCallGL*		getMenuItemCallByName(	const LLPanel* panelp, const LLString& name);
 	static class LLScrollingPanelList*	getScrollingPanelList(	const LLPanel* panelp, const LLString& name);
+	static class LLMultiSliderCtrl*		getMultiSliderByName(	const LLPanel* panelp, const LLString& name);
+	static class LLMultiSlider*			getMultiSliderBarByName(const LLPanel* panelp, const LLString& name);
 
 	// interface getters
 	static LLCtrlListInterface* getListInterfaceByName(	const LLPanel* panelp, const LLString& name);

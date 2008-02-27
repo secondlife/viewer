@@ -486,6 +486,7 @@ public:
 	BOOL selectionAllPCode(LLPCode code);		// all objects have this PCode
 	BOOL selectionGetClickAction(U8 *out_action);
 	bool selectionGetIncludeInSearch(bool* include_in_search_out); // true if all selected objects have same
+	BOOL selectionGetGlow(F32 *glow);
 
 	void selectionSetMaterial(U8 material);
 	void selectionSetImage(const LLUUID& imageid); // could be item or asset id
@@ -501,6 +502,7 @@ public:
 	void selectionSetMediaTypeAndURL( U8 media_type, const std::string& media_url );
 	void selectionSetClickAction(U8 action);
 	void selectionSetIncludeInSearch(bool include_in_search);
+	void selectionSetGlow(const F32 glow);
 
 	void selectionSetObjectPermissions(U8 perm_field, BOOL set, U32 perm_mask, BOOL override = FALSE);
 	void selectionSetObjectName(const LLString& name);

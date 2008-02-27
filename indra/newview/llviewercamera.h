@@ -62,7 +62,7 @@ public:
 								const LLVector3 &up_direction,
 								const LLVector3 &point_of_interest);
 
-	static void updateFrustumPlanes(LLCamera& camera, BOOL ortho = FALSE);
+	static void updateFrustumPlanes(LLCamera& camera, BOOL ortho = FALSE, BOOL zflip = FALSE);
 	void setPerspective(BOOL for_selection, S32 x, S32 y_from_bot, S32 width, S32 height, BOOL limit_select_distance, F32 z_near = 0, F32 z_far = 0);
 
 	const LLMatrix4 &getProjection() const;
@@ -109,13 +109,14 @@ protected:
 	S16					mZoomSubregion;
 
 public:
-	F64		mGLProjectionMatrix[16];
-	
 };
 
 extern LLViewerCamera *gCamera;
 extern F64 gGLModelView[16];
+extern F64 gGLLastModelView[16];
 extern F64 gGLProjection[16];
 extern S32 gGLViewport[4];
+extern F32 gGLZNear;
+extern F32 gGLZFar;
 
 #endif // LL_LLVIEWERCAMERA_H

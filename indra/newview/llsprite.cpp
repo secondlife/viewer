@@ -199,8 +199,8 @@ void LLSprite::updateFace(LLFace &face)
 	LLStrider<LLVector3> verticesp;
 	LLStrider<LLVector3> normalsp;
 	LLStrider<LLVector2> tex_coordsp;
-	LLStrider<U32> indicesp;
-	S32 index_offset;
+	LLStrider<U16> indicesp;
+	U16 index_offset;
 
 	// Setup face
 	if (face.mVertexBuffer.isNull())
@@ -214,10 +214,6 @@ void LLSprite::updateFace(LLFace &face)
 	}
 		
 	index_offset = face.getGeometry(verticesp,normalsp,tex_coordsp, indicesp);
-	if (-1 == index_offset)
-	{
-		return;
-	}
 
 	*tex_coordsp = LLVector2(0.f, 0.f);
 	*verticesp = mC;
@@ -263,7 +259,7 @@ void LLSprite::updateFace(LLFace &face)
 		*indicesp++ = 3 + index_offset;
 	}
 
-	//face.mVertexBuffer->setBuffer(0);
+	face.mVertexBuffer->setBuffer(0);
 	face.mCenterAgent = mPosition;
 }
 

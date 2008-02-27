@@ -35,6 +35,7 @@
 #include "lltoolselectland.h"
 
 #include "llgl.h"
+#include "llglimmediate.h"
 
 #include "message.h"
 
@@ -476,29 +477,25 @@ void LLToolBrushLand::renderOverlay(LLSurface& land, const LLVector3& pos_region
 	LLGLSNoTexture gls_no_texture;
 	LLGLDepthTest mDepthTest(GL_TRUE);
 	glPushMatrix();
-	glColor4fv(OVERLAY_COLOR.mV);
+	gGL.color4fv(OVERLAY_COLOR.mV);
 	glTranslatef(0.0f, 0.0f, 1.0f);
-	//glPushMatrix();
-	//glTranslatef(spot.mV[VX], spot.mV[VY], 100.0f);
-	//gl_rect_2d(0, 10, 10, 0);
-	//glPopMatrix();
+	
 	S32 i = (S32) pos_region.mV[VX];
 	S32 j = (S32) pos_region.mV[VY];
 	S32 half_edge = llfloor(LAND_BRUSH_SIZE[mBrushIndex]);
-	//F32 dz = 0.0f;
-	//S32 dist = 0;
-	glBegin(GL_POINTS);
+	
+	gGL.begin(GL_POINTS);
 	for(S32 di = -half_edge; di <= half_edge; di++)
 	{
 		if((i+di) < 0 || (i+di) >= (S32)land.mGridsPerEdge) continue;
 		for(S32 dj = -half_edge; dj <= half_edge; dj++)
 		{
 			if( (j+dj) < 0 || (j+dj) >= (S32)land.mGridsPerEdge ) continue;
-			glVertex3f(pos_world.mV[VX] + di, pos_world.mV[VY] + dj,
+			gGL.vertex3f(pos_world.mV[VX] + di, pos_world.mV[VY] + dj,
 					   land.getZ((i+di)+(j+dj)*land.mGridsPerEdge));
 		}
 	}
-	glEnd();
+	gGL.end();
 	glPopMatrix();
 }
 

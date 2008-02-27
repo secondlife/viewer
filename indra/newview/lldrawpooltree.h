@@ -55,13 +55,12 @@ public:
 	/*virtual*/ void beginRenderPass( S32 pass );
 	/*virtual*/ void render(S32 pass = 0);
 	/*virtual*/ void endRenderPass( S32 pass );
+	/*virtual*/ S32	 getNumPasses() { return 1; }
 	/*virtual*/ void renderForSelect();
 	/*virtual*/ BOOL verify() const;
 	/*virtual*/ LLViewerImage *getTexture();
 	/*virtual*/ LLViewerImage *getDebugTexture();
 	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
-
-	virtual S32 getMaterialAttribIndex();
 
 	static S32 sDiffTex;
 

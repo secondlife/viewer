@@ -46,7 +46,7 @@ const F32 MAX_FIELD_OF_VIEW = F_PI;
 const F32 MAX_ASPECT_RATIO 	= 50.0f;
 const F32 MAX_NEAR_PLANE 	= 10.f;
 const F32 MAX_FAR_PLANE 	= 100000.0f; //1000000.0f; // Max allowed. Not good Z precision though.
-const F32 MAX_FAR_CLIP		= 1024.0f;
+const F32 MAX_FAR_CLIP		= 512.0f;
 
 const F32 MIN_FIELD_OF_VIEW = 0.1f;
 const F32 MIN_ASPECT_RATIO 	= 0.02f;
@@ -114,16 +114,28 @@ protected:
 	
 	LLPlane mWorldPlanes[PLANE_NUM];
 	LLPlane mHorizPlanes[HORIZ_PLANE_NUM];
-	LLPlane mAgentPlanes[6];		//frustum in agent space a la gluUnproject (I'm a bastard, I know) - DaveP
-	U8 mAgentPlaneMask[6];
+
+	typedef struct 
+	{
+		LLPlane p;
+		U8 mask;
+	} frustum_plane;
+	frustum_plane mAgentPlanes[7];  //frustum planes in agent space a la gluUnproject (I'm a bastard, I know) - DaveP
+									
+	U32 mPlaneCount;  //defaults to 6, if setUserClipPlane is called, uses user supplied clip plane in
+
 	LLVector3 mWorldPlanePos;		// Position of World Planes (may be offset from camera)
 public:
-	LLVector3 mAgentFrustum[8];
+	LLVector3 mAgentFrustum[8];  //8 corners of 6-plane frustum
+	F32	mFrustumCornerDist;		//distance to corner of frustum against far clip plane
 	
 public:
 	LLCamera();
 	LLCamera(F32 z_field_of_view, F32 aspect_ratio, S32 view_height_in_pixels, F32 near_plane, F32 far_plane);
 
+	void setUserClipPlane(LLPlane plane);
+	void disableUserClipPlane();
+	U8 calcPlaneMask(const LLPlane& plane);
 	void setView(F32 new_view);
 	void setViewHeightInPixels(S32 height);
 	void setAspect(F32 new_aspect);
@@ -164,6 +176,8 @@ public:
 	S32 pointInFrustum(const LLVector3 &point) const { return sphereInFrustum(point, 0.0f); }
 	S32 sphereInFrustumFull(const LLVector3 &center, const F32 radius) const { return sphereInFrustum(center, radius); }
 	S32 AABBInFrustum(const LLVector3 &center, const LLVector3& radius);
+	S32 AABBInFrustumNoFarClip(const LLVector3 &center, const LLVector3& radius);
+
 	//does a quick 'n dirty sphere-sphere check
 	S32 sphereInFrustumQuick(const LLVector3 &sphere_center, const F32 radius); 
 

@@ -730,7 +730,11 @@ void LLCoordFrame::lookDir(const LLVector3 &at, const LLVector3 &up_direction)
 	left.normVec();
 
 	LLVector3 up = at % left;
-	setAxes(at, left, up);
+
+	if (at.isFinite() && left.isFinite() && up.isFinite())
+	{
+		setAxes(at, left, up);
+	}
 }
 
 void LLCoordFrame::lookDir(const LLVector3 &xuv)

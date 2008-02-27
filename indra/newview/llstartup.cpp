@@ -170,6 +170,9 @@
 #include "llnamelistctrl.h"
 #include "llnamebox.h"
 #include "llnameeditor.h"
+#include "llpostprocess.h"
+#include "llwlparammanager.h"
+#include "llwaterparammanager.h"
 
 #if LL_WINDOWS
 #include "llwindebug.h"
@@ -1539,6 +1542,11 @@ BOOL idle_startup()
 		LLFace::initClass();
 
 		LLDrawable::initClass();
+
+		// init the shader managers
+		LLPostProcess::initClass();
+		LLWLParamManager::initClass();
+		LLWaterParamManager::initClass();
 
 		// RN: don't initialize VO classes in drone mode, they are too closely tied to rendering
 		LLViewerObject::initVOClasses();

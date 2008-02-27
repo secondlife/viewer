@@ -1,9 +1,13 @@
-void terrain_lighting(inout vec3 color);
+/** 
+ * @file terrainF.glsl
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
 
-uniform sampler2D detail0; //0
-uniform sampler2D detail1; //2
-uniform sampler2D alphaRamp; //1
-
+uniform sampler2D detail0;
+uniform sampler2D detail1;
+uniform sampler2D alphaRamp;
 
 void main() 
 {
@@ -12,8 +16,6 @@ void main()
 					 texture2D(detail0, gl_TexCoord[0].xy).rgb,
 					 a);
 
-	terrain_lighting(color);
-	
 	gl_FragColor.rgb = color;
 	gl_FragColor.a = texture2D(alphaRamp, gl_TexCoord[3].xy).a;
 }

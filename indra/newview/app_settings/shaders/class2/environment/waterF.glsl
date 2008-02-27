@@ -1,138 +1,117 @@
-void applyScatter(inout vec3 color);
+/** 
+ * @file waterF.glsl
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
 
-uniform sampler2D diffuseMap;
+vec3 scaleSoftClip(vec3 inColor);
+vec3 atmosTransport(vec3 inColor);
+
 uniform sampler2D bumpMap;   
-uniform samplerCube environmentMap; //: TEXUNIT4,   // Environment map texture
-uniform sampler2D screenTex;   //   : TEXUNIT5
+uniform sampler2D screenTex;
+uniform sampler2D refTex;
 
+uniform float sunAngle;
+uniform float sunAngle2;
 uniform vec3 lightDir;
 uniform vec3 specular;
 uniform float lightExp;
-uniform vec2 fbScale;
 uniform float refScale;
+uniform float kd;
+uniform vec2 screenRes;
+uniform vec3 normScale;
+uniform float fresnelScale;
+uniform float fresnelOffset;
+uniform float blurMultiplier;
 
-float msin(float x) {
-   float k = sin(x)+1.0;
-   k *= 0.5;
-   k *= k;
-   return 2.0 * k;
-}
 
-float mcos(float x) {
-   float k = cos(x)+1.0;
-   k *= 0.5;
-   k *= k;
-   return 2.0 * k;
-}
-
-float waveS(vec2 v, float t, float a, float f, vec2 d, float s, sampler1D sinMap) 
-{
-   return texture1D(sinMap, (dot(d, v)*f + t*s)*f).r*a;
-}
-
-float waveC(vec2 v, float t, float a, float f, vec2 d, float s, sampler1D sinMap) 
-{
-   return texture1D(sinMap, (dot(d, v)*f + t*s)*f).g*a*2.0-1.0;
-}
-
-float magnitude(vec3 vec) {
-   return sqrt(dot(vec,vec));
-}
-
-vec3 mreflect(vec3 i, vec3 n) {
-   return i + n * 2.0 * abs(dot(n,i))+vec3(0.0,0.0,0.5);
-}
+//bigWave is (refCoord.w, view.w);
+varying vec4 refCoord;
+varying vec4 littleWave;
+varying vec4 view;
 
 void main() 
 {
-   vec2 texCoord = gl_TexCoord[0].xy;   // Texture coordinates
-   vec2 littleWave1 = gl_TexCoord[0].zw;
-   vec2 littleWave2 = gl_TexCoord[1].xy;
-   vec2 bigWave = gl_TexCoord[1].zw;
-   vec3 viewVec = gl_TexCoord[2].xyz;
-   vec4 refCoord = gl_TexCoord[3];
-   vec4 col = gl_Color;
-   vec4 color;
-   
-   //get color from alpha map (alpha denotes water depth), rgb denotes water color
-   vec4 wcol = texture2D(diffuseMap, texCoord.xy);
-      
-   //store texture alpha
-   float da = wcol.a;
-         
-   //modulate by incoming water color
-   //wcol.a *= refCoord.w;
-   
-   //scale wcol.a (water depth) for steep transition
-   wcol.a *= wcol.a;
-   
-   //normalize view vector
-   viewVec = normalize(viewVec);
-   
-   //get bigwave normal
-   vec3 wavef = texture2D(bumpMap, bigWave).xyz*2.0;
-      
-   vec3 view = vec3(viewVec.x, viewVec.y, viewVec.z);
-   
-   float dx = 1.0-(dot(wavef*2.0-vec3(1.0), view))*da;
-   dx *= 0.274;
-      
-   //get detail normals
-   vec3 dcol = texture2D(bumpMap, littleWave1+dx*view.xy).rgb*0.75;
-   dcol += texture2D(bumpMap, littleWave2+view.xy*dx*0.1).rgb*1.25;
-      
-   //interpolate between big waves and little waves (big waves in deep water)
-   wavef = wavef*wcol.a + dcol*(1.0-wcol.a);
-   
-   //crunch normal to range [-1,1]
-   wavef -= vec3(1,1,1);
-   
-   //get base fresnel component
-   float df = dot(viewVec,wavef);
-   //reposition fresnel to latter half of [0,1]
-   df = 1.0-clamp(df,0.0,1.0);
+	vec4 color;
+	
+	float dist = length(view.xy);
+	
+	//normalize view vector
+	vec3 viewVec = normalize(view.xyz);
+	
+	//get wave normals
+	vec3 wave1 = texture2D(bumpMap, vec2(refCoord.w, view.w)).xyz*2.0-1.0;
+	vec3 wave2 = texture2D(bumpMap, littleWave.xy).xyz*2.0-1.0;
+	vec3 wave3 = texture2D(bumpMap, littleWave.zw).xyz*2.0-1.0;
+	//get base fresnel components	
+	
+	vec3 df = vec3(
+					dot(viewVec, wave1),
+					dot(viewVec, wave2),
+					dot(viewVec, wave3)
+				 ) * fresnelScale + fresnelOffset;
+	df *= df;
+		    
+	vec2 distort = (refCoord.xy/refCoord.z) * 0.5 + 0.5;
+	
+	float dist2 = dist;
+	dist = max(dist, 5.0);
+	
+	float dmod = sqrt(dist);
+	
+	vec2 dmod_scale = vec2(dmod*dmod, dmod);
+	
+	//get reflected color
+	vec2 refdistort1 = wave1.xy*normScale.x;
+	vec2 refvec1 = distort+refdistort1/dmod_scale;
+	vec4 refcol1 = texture2D(refTex, refvec1);
+	
+	vec2 refdistort2 = wave2.xy*normScale.y;
+	vec2 refvec2 = distort+refdistort2/dmod_scale;
+	vec4 refcol2 = texture2D(refTex, refvec2);
+	
+	vec2 refdistort3 = wave3.xy*normScale.z;
+	vec2 refvec3 = distort+refdistort3/dmod_scale;
+	vec4 refcol3 = texture2D(refTex, refvec3);
 
-   //set output alpha based on fresnel
-   color.a = clamp((df+da)*0.5,0.0,1.0);
-      
-   //calculate reflection vector
-   vec3 ref = reflect(viewVec.xyz, wavef);
-   
-   //get specular component
-   float spec = clamp(dot(lightDir, normalize(ref)),0.0,1.0);
-      
-   //fudge reflection to be more noisy at good angles
-   ref.z = ref.z*ref.z+df*df*0.5;
-   
-   //get diffuse component
-   float diff = clamp((abs(dot(ref, wavef))),0.0,1.0)*0.9;
-      
-   //fudge diffuse for extra contrast and ambience
-   diff *= diff;      
-   diff += 0.4;
-    
-   //set diffuse color contribution
-   color.rgb = textureCube(environmentMap, ref).rgb*diff;
-   
-   //harden specular
-   spec = pow(spec, lightExp);
-   
-   //add specular color contribution
-   color.rgb += spec * specular;
+	vec4 refcol = refcol1 + refcol2 + refcol3;
+	float df1 = df.x + df.y + df.z;
+	refcol *= df1 * 0.333;
+	
+	vec3 wavef = (wave1 + wave2 * 0.4 + wave3 * 0.6) * 0.5;
+	
+	wavef.z *= max(-viewVec.z, 0.1);
+	wavef = normalize(wavef);
+	
+	float df2 = dot(viewVec, wavef) * fresnelScale+fresnelOffset;
+	
+	vec2 refdistort4 = wavef.xy*0.125;
+	refdistort4.y -= abs(refdistort4.y);
+	vec2 refvec4 = distort+refdistort4/dmod;
+	float dweight = min(dist2*blurMultiplier, 1.0);
+	vec4 baseCol = texture2D(refTex, refvec4);
+	refcol = mix(baseCol*df2, refcol, dweight);
 
-   //figure out distortion vector (ripply)   
-   vec2 distort = clamp(((refCoord.xy/refCoord.z) * 0.5 + 0.5 + wavef.xy*refScale),0.0,0.99);
-   
-   //read from framebuffer (offset)
-   vec4 fb = texture2D(screenTex, distort*fbScale);
-   
-   //tint by framebuffer
-   color.rgb = color.a*color.rgb + (1.0-color.a)*fb.rgb;
-   
-   //apply fog
-   applyScatter(color.rgb);
-   
-   color.a = spec*0.5+fb.a;
-   
-   gl_FragColor = color;
+	//get specular component
+	float spec = clamp(dot(lightDir, (reflect(viewVec,wavef))),0.0,1.0);
+		
+	//harden specular
+	spec = pow(spec, 128.0);
+
+	//figure out distortion vector (ripply)   
+	vec2 distort2 = distort+wavef.xy*refScale/max(dmod*df1, 1.0);
+		
+	vec4 fb = texture2D(screenTex, distort2);
+	
+	//mix with reflection
+	// Note we actually want to use just df1, but multiplying by 0.999999 gets around and nvidia compiler bug
+	color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.99999);
+	color.rgb += spec * specular;
+	
+	color.rgb = atmosTransport(color.rgb);
+	color.rgb = scaleSoftClip(color.rgb);
+	color.a = spec * sunAngle2;
+
+	gl_FragColor = color;
 }

@@ -36,9 +36,6 @@
 
 #include "llhudobject.h"
 #include "lldarray.h"
-#include "llanimalcontrols.h"
-#include "lllocalanimationobject.h"
-#include "llcape.h"
 
 class LLViewerObject;
 class LLHUDEffect;

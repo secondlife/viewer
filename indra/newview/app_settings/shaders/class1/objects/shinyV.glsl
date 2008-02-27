@@ -1,27 +1,30 @@
-void default_scatter(vec3 viewVec, vec3 lightDir);
+/** 
+ * @file shinyV.glsl
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
+void calcAtmospherics(vec3 inPositionEye);
 
 uniform vec4 origin;
 
 void main()
 {
 	//transform vertex
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+	gl_Position = ftransform(); //gl_ModelViewProjectionMatrix * gl_Vertex;
 	
-	vec3 pos = (gl_ModelViewMatrix * gl_Vertex).xyz;
+	vec4 pos = (gl_ModelViewMatrix * gl_Vertex);
 	vec3 norm = normalize(gl_NormalMatrix * gl_Normal);
+
+	calcAtmospherics(pos.xyz);
 	
 	gl_FrontColor = gl_Color;
 	
-	vec3 ref = reflect(pos, norm);
-	
-	vec3 d = pos - origin.xyz;
-	float dist = dot(normalize(d), ref);
-	vec3 e = d + (ref * max(origin.w-dist, 0.0));
-	
-	ref = e - origin.xyz;
+	vec3 ref = reflect(pos.xyz, -norm);
 	
 	gl_TexCoord[0] = gl_TextureMatrix[0]*vec4(ref,1.0);
 	
-	default_scatter(pos.xyz, gl_LightSource[0].position.xyz);
+	gl_FogFragCoord = pos.z;
 }
 

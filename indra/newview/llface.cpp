@@ -40,9 +40,9 @@
 #include "m3math.h"
 #include "v3color.h"
 
-#include "lldrawpoolsimple.h"
 #include "lldrawpoolbump.h"
 #include "llgl.h"
+#include "llglimmediate.h"
 #include "lllightconstants.h"
 #include "llsky.h"
 #include "llviewercamera.h"
@@ -50,6 +50,7 @@
 #include "llvosky.h"
 #include "llvovolume.h"
 #include "pipeline.h"
+#include "llviewerregion.h"
 
 #define LL_MAX_INDICES_COUNT 1000000
 
@@ -140,19 +141,20 @@ void cylindricalProjection(LLVector2 &tc, const LLVolumeFace::VertexData &vd, co
 void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 {
 	mLastUpdateTime = gFrameTimeSeconds;
+	mLastMoveTime = 0.f;
 	mVSize = 0.f;
-	mPixelArea = 1024.f;
+	mPixelArea = 16.f;
 	mState      = GLOBAL;
 	mDrawPoolp  = NULL;
 	mPoolType = 0;
-	mGeomIndex  = -1;
-	// mCenterLocal
-	// mCenterAgent
+	mCenterLocal = objp->getPosition();
+	mCenterAgent = drawablep->getPositionAgent();
 	mDistance	= 0.f;
 
 	mGeomCount		= 0;
+	mGeomIndex		= 0;
 	mIndicesCount	= 0;
-	mIndicesIndex	= -1;
+	mIndicesIndex	= 0;
 	mTexture		= NULL;
 	mTEOffset		= -1;
 
@@ -160,7 +162,8 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mVObjp = objp;
 
 	mReferenceIndex = -1;
-	mAlphaFade = 0.f;
+
+	mTextureMatrix = NULL;
 
 	mFaceColor = LLColor4(1,0,0,1);
 
@@ -181,6 +184,12 @@ void LLFace::destroy()
 	{
 		mDrawPoolp->removeFace(this);
 		mDrawPoolp = NULL;
+	}
+
+	if (mTextureMatrix)
+	{
+		delete mTextureMatrix;
+		mTextureMatrix = NULL;
 	}
 }
 
@@ -216,7 +225,7 @@ void LLFace::setPool(LLFacePool* new_pool, LLViewerImage *texturep)
 				gPipeline.markRebuild(mDrawablep, LLDrawable::REBUILD_ALL, TRUE);
 			}
 		}
-		mGeomIndex = -1;
+		mGeomIndex = 0;
 
 		// Add to new pool
 		if (new_pool)
@@ -260,10 +269,9 @@ void LLFace::setSize(const S32 num_vertices, const S32 num_indices)
 
 //============================================================================
 
-S32 LLFace::getGeometryAvatar(
+U16 LLFace::getGeometryAvatar(
 						LLStrider<LLVector3> &vertices,
 						LLStrider<LLVector3> &normals,
-						LLStrider<LLVector3> &binormals,
 						LLStrider<LLVector2> &tex_coords,
 						LLStrider<F32>		 &vertex_weights,
 						LLStrider<LLVector4> &clothing_weights)
@@ -274,55 +282,18 @@ S32 LLFace::getGeometryAvatar(
 	{
 		mVertexBuffer->getVertexStrider      (vertices, mGeomIndex);
 		mVertexBuffer->getNormalStrider      (normals, mGeomIndex);
-		mVertexBuffer->getBinormalStrider    (binormals, mGeomIndex);
 		mVertexBuffer->getTexCoordStrider    (tex_coords, mGeomIndex);
 		mVertexBuffer->getWeightStrider(vertex_weights, mGeomIndex);
 		mVertexBuffer->getClothWeightStrider(clothing_weights, mGeomIndex);
 	}
-	else
-	{
-		mGeomIndex = -1;
-	}
 
 	return mGeomIndex;
 }
 
-S32 LLFace::getGeometryTerrain(
-						LLStrider<LLVector3> &vertices,
-						LLStrider<LLVector3> &normals,
-						LLStrider<LLColor4U> &colors,
-						LLStrider<LLVector2> &texcoords0,
-						LLStrider<LLVector2> &texcoords1,
-						LLStrider<U32> &indicesp)
+U16 LLFace::getGeometry(LLStrider<LLVector3> &vertices, LLStrider<LLVector3> &normals,
+					    LLStrider<LLVector2> &tex_coords, LLStrider<U16> &indicesp)
 {
 	LLMemType mt1(LLMemType::MTYPE_DRAWABLE);
-	
-	if (mVertexBuffer.notNull())
-	{
-		mVertexBuffer->getVertexStrider(vertices, mGeomIndex);
-		mVertexBuffer->getNormalStrider(normals, mGeomIndex);
-		mVertexBuffer->getColorStrider(colors, mGeomIndex);
-		mVertexBuffer->getTexCoordStrider(texcoords0, mGeomIndex);
-		mVertexBuffer->getTexCoord2Strider(texcoords1, mGeomIndex);
-		mVertexBuffer->getIndexStrider(indicesp, mIndicesIndex);
-	}
-	else
-	{
-		mGeomIndex = -1;
-	}
-	
-	return mGeomIndex;
-}
-
-S32 LLFace::getGeometry(LLStrider<LLVector3> &vertices, LLStrider<LLVector3> &normals,
-					    LLStrider<LLVector2> &tex_coords, LLStrider<U32> &indicesp)
-{
-	LLMemType mt1(LLMemType::MTYPE_DRAWABLE);
-	
-	if (mGeomCount <= 0)
-	{
-		return -1;
-	}
 	
 	if (mVertexBuffer.notNull())
 	{
@@ -338,24 +309,8 @@ S32 LLFace::getGeometry(LLStrider<LLVector3> &vertices, LLStrider<LLVector3> &no
 
 		mVertexBuffer->getIndexStrider(indicesp, mIndicesIndex);
 	}
-	else
-	{
-		mGeomIndex = -1;
-	}
 	
 	return mGeomIndex;
-}
-
-S32 LLFace::getGeometryColors(LLStrider<LLVector3> &vertices, LLStrider<LLVector3> &normals,
-							  LLStrider<LLVector2> &tex_coords, LLStrider<LLColor4U> &colors,
-							  LLStrider<U32> &indicesp)
-{
-	S32 res = getGeometry(vertices, normals, tex_coords, indicesp);
-	if (res >= 0)
-	{
-		getColors(colors);
-	}
-	return res;
 }
 
 void LLFace::updateCenterAgent()
@@ -372,7 +327,13 @@ void LLFace::updateCenterAgent()
 
 void LLFace::renderForSelect(U32 data_mask)
 {
-	if(mGeomIndex < 0 || mDrawablep.isNull() || mVertexBuffer.isNull())
+	if(mDrawablep.isNull() || mVertexBuffer.isNull())
+	{
+		return;
+	}
+
+	LLSpatialGroup* group = mDrawablep->getSpatialGroup();
+	if (!group || group->isState(LLSpatialGroup::GEOM_DIRTY))
 	{
 		return;
 	}
@@ -407,7 +368,7 @@ void LLFace::renderForSelect(U32 data_mask)
 #if !LL_RELEASE_FOR_DOWNLOAD
 		LLGLState::checkClientArrays(data_mask);
 #endif
-		U32* indicesp = (U32*) mVertexBuffer->getIndicesPointer() + mIndicesIndex;
+		U16* indicesp = (U16*) mVertexBuffer->getIndicesPointer() + mIndicesIndex;
 
 		if (gPickFaces && mTEOffset != -1)
 		{
@@ -421,13 +382,23 @@ void LLFace::renderForSelect(U32 data_mask)
 		{
 			if (isState(GLOBAL))
 			{
-				glDrawElements(GL_TRIANGLES, mIndicesCount, GL_UNSIGNED_INT, indicesp); 
+				if (mDrawablep->getVOVolume())
+				{
+					glPushMatrix();
+					glMultMatrixf((float*) mDrawablep->getRegion()->mRenderMatrix.mMatrix);
+					glDrawElements(GL_TRIANGLES, mIndicesCount, GL_UNSIGNED_SHORT, indicesp); 
+					glPopMatrix();
+				}
+				else
+				{
+					glDrawElements(GL_TRIANGLES, mIndicesCount, GL_UNSIGNED_SHORT, indicesp); 
+				}
 			}
 			else
 			{
 				glPushMatrix();
 				glMultMatrixf((float*)getRenderMatrix().mMatrix);
-				glDrawElements(GL_TRIANGLES, mIndicesCount, GL_UNSIGNED_INT, indicesp); 
+				glDrawElements(GL_TRIANGLES, mIndicesCount, GL_UNSIGNED_SHORT, indicesp); 
 				glPopMatrix();
 			}
 		}
@@ -450,7 +421,7 @@ void LLFace::renderForSelect(U32 data_mask)
 
 void LLFace::renderSelected(LLImageGL *imagep, const LLColor4& color, const S32 offset, const S32 count)
 {
-	if(mGeomIndex < 0 || mDrawablep.isNull() || mVertexBuffer.isNull())
+	if(mDrawablep.isNull() || mVertexBuffer.isNull())
 	{
 		return;
 	}
@@ -461,11 +432,15 @@ void LLFace::renderSelected(LLImageGL *imagep, const LLColor4& color, const S32 
 		glColor4fv(color.mV);
 
 		LLViewerImage::bindTexture(imagep);
-		if (!isState(GLOBAL))
+	
+		glPushMatrix();
+		if (mDrawablep->isActive())
 		{
-			// Apply the proper transform for non-global objects.
-			glPushMatrix();
-			glMultMatrixf((float*)getRenderMatrix().mMatrix);
+			glMultMatrixf((GLfloat*)mDrawablep->getRenderMatrix().mMatrix);
+		}
+		else
+		{
+			glMultMatrixf((GLfloat*)mDrawablep->getRegion()->mRenderMatrix.mMatrix);
 		}
 
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -476,24 +451,20 @@ void LLFace::renderSelected(LLImageGL *imagep, const LLColor4& color, const S32 
 #if !LL_RELEASE_FOR_DOWNLOAD
 		LLGLState::checkClientArrays(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD);
 #endif
-		U32* indicesp = ((U32*) mVertexBuffer->getIndicesPointer()) + mIndicesIndex;
+		U16* indicesp = ((U16*) mVertexBuffer->getIndicesPointer()) + mIndicesIndex;
 
 		if (count)
 		{
-			glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, indicesp + offset); 
+			glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, indicesp + offset); 
 		}
 		else
 		{
-			glDrawElements(GL_TRIANGLES, mIndicesCount, GL_UNSIGNED_INT, indicesp); 
+			glDrawElements(GL_TRIANGLES, mIndicesCount, GL_UNSIGNED_SHORT, indicesp); 
 		}
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glDisableClientState(GL_NORMAL_ARRAY);
 		
-		if (!isState(GLOBAL))
-		{
-			// Restore the tranform for non-global objects
-			glPopMatrix();
-		}
+		glPopMatrix();
 	}
 }
 
@@ -507,8 +478,7 @@ void LLFace::renderSelectedUV(const S32 offset, const S32 count)
 
 	LLGLSObjectSelect object_select;
 	LLGLEnable blend(GL_BLEND);
-	LLGLEnable texture(GL_TEXTURE_2D);
-
+	
 	if (!mDrawPoolp || !getIndicesCount() || getIndicesStart() < 0)
 	{
 		return;
@@ -519,7 +489,7 @@ void LLFace::renderSelectedUV(const S32 offset, const S32 count)
 		static F32 factor = -10.f;
 		if (mGeomCount > 0)
 		{
-			glColor4fv(LLColor4::white.mV);
+			gGL.color4fv(LLColor4::white.mV);
 
 			if (pass == 0)
 			{
@@ -527,7 +497,7 @@ void LLFace::renderSelectedUV(const S32 offset, const S32 count)
 			}
 			else // pass == 1
 			{
-				glBlendFunc(GL_ONE, GL_ONE);
+				gGL.blendFunc(GL_ONE, GL_ONE);
 				LLViewerImage::bindTexture(green_imagep);
 				glMatrixMode(GL_TEXTURE);
 				glPushMatrix();
@@ -549,15 +519,15 @@ void LLFace::renderSelectedUV(const S32 offset, const S32 count)
 			glPolygonOffset(factor, bias);
 			if (sSafeRenderSelect)
 			{
-				glBegin(GL_TRIANGLES);
+				gGL.begin(GL_TRIANGLES);
 				if (count)
 				{
 					for (S32 i = offset; i < offset + count; i++)
 					{
 						LLVector2 tc = mDrawPoolp->getTexCoord(mDrawPoolp->getIndex(getIndicesStart() + i), 0);
-						glTexCoord2fv(tc.mV);
+						gGL.texCoord2fv(tc.mV);
 						LLVector3 vertex = mDrawPoolp->getVertex(mDrawPoolp->getIndex(getIndicesStart() + i));
-						glVertex3fv(vertex.mV);
+						gGL.vertex3fv(vertex.mV);
 					}
 				}
 				else
@@ -565,12 +535,12 @@ void LLFace::renderSelectedUV(const S32 offset, const S32 count)
 					for (U32 i = 0; i < getIndicesCount(); i++)
 					{
 						LLVector2 tc = mDrawPoolp->getTexCoord(mDrawPoolp->getIndex(getIndicesStart() + i), 0);
-						glTexCoord2fv(tc.mV);
+						gGL.texCoord2fv(tc.mV);
 						LLVector3 vertex = mDrawPoolp->getVertex(mDrawPoolp->getIndex(getIndicesStart() + i));
-						glVertex3fv(vertex.mV);
+						gGL.vertex3fv(vertex.mV);
 					}
 				}
-				glEnd();
+				gGL.end();
 			}
 			else
 			{
@@ -581,7 +551,7 @@ void LLFace::renderSelectedUV(const S32 offset, const S32 count)
 				{
 					if (mIndicesCount > 0)
 					{
-						glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, getRawIndices() + offset); 
+						glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, getRawIndices() + offset); 
 					}
 					else
 					{
@@ -593,7 +563,7 @@ void LLFace::renderSelectedUV(const S32 offset, const S32 count)
 				{
 					if (mIndicesCount > 0)
 					{
-						glDrawElements(GL_TRIANGLES, mIndicesCount, GL_UNSIGNED_INT, getRawIndices()); 
+						glDrawElements(GL_TRIANGLES, mIndicesCount, GL_UNSIGNED_SHORT, getRawIndices()); 
 					}
 					else
 					{
@@ -614,13 +584,13 @@ void LLFace::renderSelectedUV(const S32 offset, const S32 count)
 				glMatrixMode(GL_TEXTURE);
 				glPopMatrix();
 				glMatrixMode(GL_MODELVIEW);
-				glBlendFunc(GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA);
+				gGL.blendFunc(GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA);
 			}
 		}
 	}
 	
 	//restore blend func
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 #endif
 }
 
@@ -804,34 +774,51 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 			}
 		}
 
+		if (!mDrawablep->isActive())
+		{
+			LLVector3 offset = mDrawablep->getRegion()->getOriginAgent();
+			newMin += offset;
+			newMax += offset;
+		}
+
 		mCenterLocal = (newMin+newMax)*0.5f;
+		
 		updateCenterAgent();
 	}
 
 	return TRUE;
 }
 
-
 BOOL LLFace::getGeometryVolume(const LLVolume& volume,
-							   S32 f,
-								LLStrider<LLVector3>& vertices, 
-								LLStrider<LLVector3>& normals,
-								LLStrider<LLVector2>& tex_coords,
-								LLStrider<LLVector2>& tex_coords2,
-								LLStrider<LLColor4U>& colors,
-								LLStrider<U32>& indicesp,
+							   const S32 &f,
 								const LLMatrix4& mat_vert, const LLMatrix3& mat_normal,
-								U32& index_offset)
+								const U16 &index_offset)
 {
 	const LLVolumeFace &vf = volume.getVolumeFace(f);
 	S32 num_vertices = (S32)vf.mVertices.size();
 	S32 num_indices = (S32)vf.mIndices.size();
 	
-	LLStrider<LLVector3> old_verts;
-	LLStrider<LLVector2> old_texcoords;
-	LLStrider<LLVector2> old_texcoords2;
-	LLStrider<LLVector3> old_normals;
-	LLStrider<LLColor4U> old_colors;
+	if (mVertexBuffer.notNull())
+	{
+		if (num_indices + (S32) mIndicesIndex > mVertexBuffer->getNumIndices())
+		{
+			llwarns << "Index buffer overflow!" << llendl;
+			return FALSE;
+		}
+
+		if (num_vertices + mGeomIndex > mVertexBuffer->getNumVerts())
+		{
+			llwarns << "Vertex buffer overflow!" << llendl;
+			return FALSE;
+		}
+	}
+
+	LLStrider<LLVector3> old_verts,vertices;
+	LLStrider<LLVector2> old_texcoords,tex_coords;
+	LLStrider<LLVector2> old_texcoords2,tex_coords2;
+	LLStrider<LLVector3> old_normals,normals;
+	LLStrider<LLColor4U> old_colors,colors;
+	LLStrider<U16> indicesp;
 
 	BOOL full_rebuild = mDrawablep->isState(LLDrawable::REBUILD_VOLUME);
 	BOOL moved = TRUE;
@@ -859,91 +846,49 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			{ //data is in same location in vertex buffer
 				moved = FALSE;
 			}
-
+			
 			if (!moved && !mDrawablep->isState(LLDrawable::REBUILD_ALL))
 			{ //nothing needs to be done
-				vertices += mGeomCount;
-				normals += mGeomCount;
-				tex_coords += mGeomCount;
-				colors += mGeomCount;
-				tex_coords2 += mGeomCount;
-				index_offset += mGeomCount;
-				indicesp += mIndicesCount;
 				return FALSE;
 			}
-
-			if (mLastGeomCount == mGeomCount)
-			{
-				if (mLastGeomIndex >= mGeomIndex && 
-					mLastGeomIndex + mGeomCount+1 < mVertexBuffer->getNumVerts())
-				{
-					//copy from further down the buffer
-					mVertexBuffer->getVertexStrider(old_verts, mLastGeomIndex);
-					mVertexBuffer->getTexCoordStrider(old_texcoords, mLastGeomIndex);
-					mVertexBuffer->getTexCoord2Strider(old_texcoords2, mLastGeomIndex);
-					mVertexBuffer->getNormalStrider(old_normals, mLastGeomIndex);
-					mVertexBuffer->getColorStrider(old_colors, mLastGeomIndex);
-
-					if (!mDrawablep->isState(LLDrawable::REBUILD_ALL))
-					{
-						//quick copy
-						for (S32 i = 0; i < mGeomCount; i++)
-						{
-							*vertices++ = *old_verts++;
-							*tex_coords++ = *old_texcoords++;
-							*tex_coords2++ = *old_texcoords2++;
-							*colors++ = *old_colors++;
-							*normals++ = *old_normals++;
-						}
-
-						for (U32 i = 0; i < mIndicesCount; i++)
-						{
-							*indicesp++ = vf.mIndices[i] + index_offset;
-						}
-
-						index_offset += mGeomCount;
-						mLastGeomIndex = mGeomIndex;
-						mLastIndicesCount = mIndicesCount;
-						mLastIndicesIndex = mIndicesIndex;
-
-						return TRUE;
-					}
-				}
-				else
-				{
-					full_rebuild = TRUE;
-				}
-			}
-			else
-			{
-				full_rebuild = TRUE;
-			}
 		}
-		else
-		{
-			full_rebuild = TRUE;
-		}
+		mLastMoveTime = gFrameTimeSeconds;
 	}
 	else
 	{
 		mLastUpdateTime = gFrameTimeSeconds;
 	}
+	
+	BOOL rebuild_pos = full_rebuild || moved || mDrawablep->isState(LLDrawable::REBUILD_POSITION);
+	BOOL rebuild_color = full_rebuild || moved || mDrawablep->isState(LLDrawable::REBUILD_COLOR);
+	BOOL rebuild_tcoord = full_rebuild || moved || mDrawablep->isState(LLDrawable::REBUILD_TCOORD);
 
+	const LLTextureEntry *tep = mVObjp->getTE(f);
+	U8  bump_code = tep ? tep->getBumpmap() : 0;
 
-	BOOL rebuild_pos = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_POSITION);
-	BOOL rebuild_color = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_COLOR);
-	BOOL rebuild_tcoord = full_rebuild || mDrawablep->isState(LLDrawable::REBUILD_TCOORD);
+	if (rebuild_pos)
+	{
+		mVertexBuffer->getVertexStrider(vertices, mGeomIndex);
+		mVertexBuffer->getNormalStrider(normals, mGeomIndex);
+	}
+	if (rebuild_tcoord)
+	{
+		mVertexBuffer->getTexCoordStrider(tex_coords, mGeomIndex);
+		if (bump_code)
+		{
+			mVertexBuffer->getTexCoord2Strider(tex_coords2, mGeomIndex);
+		}
+	}
+	if (rebuild_color)
+	{	
+		mVertexBuffer->getColorStrider(colors, mGeomIndex);
+	}
 
 	F32 r = 0, os = 0, ot = 0, ms = 0, mt = 0, cos_ang = 0, sin_ang = 0;
 	
 	BOOL is_static = mDrawablep->isStatic();
 	BOOL is_global = is_static;
 
-	if (index_offset == (U32) -1)
-	{
-		return TRUE;
-	}
-	
 	LLVector3 center_sum(0.f, 0.f, 0.f);
 	
 	if (is_global)
@@ -957,8 +902,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 	LLVector2 tmin, tmax;
 	
-	const LLTextureEntry *tep = mVObjp->getTE(f);
-	U8  bump_code = tep ? tep->getBumpmap() : 0;
+	
 
 	if (rebuild_tcoord)
 	{
@@ -983,14 +927,23 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		}
 	}
 
+	U8 tex_mode = 0;
+	
 	if (isState(TEXTURE_ANIM))
 	{
-		LLVOVolume* vobj = (LLVOVolume*) (LLViewerObject*) mVObjp;
-		U8 mode = vobj->mTexAnimMode;
-		if (!mode)
+		LLVOVolume* vobj = (LLVOVolume*) (LLViewerObject*) mVObjp;	
+		tex_mode = vobj->mTexAnimMode;
+
+		if (!tex_mode)
 		{
 			clearState(TEXTURE_ANIM);
 		}
+		//else if (getVirtualSize() <= 512.f)
+		//{			
+		//	//vobj->mTextureAnimp->animateTextures(os, ot, ms, mt, r);
+		//	//cos_ang = cos(r);
+		//	//sin_ang = sin(r);
+		//}
 		else
 		{
 			os = ot = 0.f;
@@ -998,6 +951,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			cos_ang = 1.f;
 			sin_ang = 0.f;
 			ms = mt = 1.f;
+		}
+
+		if (getVirtualSize() >= MIN_TEX_ANIM_SIZE)
+		{ //don't override texture transform during tc bake
+			tex_mode = 0;
 		}
 	}
 
@@ -1013,7 +971,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			0.75f
 		};
 
-		if (gPipeline.getPoolTypeFromTE(tep, getTexture()) == LLDrawPool::POOL_BUMP)
+		if (getPoolType() != LLDrawPool::POOL_ALPHA && LLPipeline::sRenderBump && tep->getShiny())
 		{
 			color.mV[3] = U8 (alpha[tep->getShiny()] * 255);
 		}
@@ -1022,23 +980,28 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
     // INDICES
 	if (full_rebuild || moved)
 	{
-		for (S32 i = 0; i < num_indices; i++)
+		mVertexBuffer->getIndexStrider(indicesp, mIndicesIndex);
+		for (U16 i = 0; i < num_indices; i++)
 		{
 			*indicesp++ = vf.mIndices[i] + index_offset;
 		}
 	}
-	else
-	{
-		indicesp += num_indices;
-	}
+	
 	
 	//bump setup
 	LLVector3 binormal_dir( -sin_ang, cos_ang, 0 );
 	LLVector3 bump_s_primary_light_ray;
 	LLVector3 bump_t_primary_light_ray;
+
+	LLQuaternion bump_quat;
+	if (mDrawablep->isActive())
+	{
+		bump_quat = LLQuaternion(mDrawablep->getRenderMatrix());
+	}
 	
 	if (bump_code)
 	{
+		mVObjp->getVolume()->genBinormals(f);
 		F32 offset_multiple; 
 		switch( bump_code )
 		{
@@ -1073,14 +1036,22 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		{
 			tep->getScale( &s_scale, &t_scale );
 		}
-		LLVector3   sun_ray  = gSky.getSunDirection();
+		// Use the nudged south when coming from above sun angle, such
+		// that emboss mapping always shows up on the upward faces of cubes when 
+		// it's noon (since a lot of builders build with the sun forced to noon).
+		LLVector3   sun_ray  = gSky.mVOSkyp->mBumpSunDir;
 		LLVector3   moon_ray = gSky.getMoonDirection();
 		LLVector3& primary_light_ray = (sun_ray.mV[VZ] > 0) ? sun_ray : moon_ray;
+
 		bump_s_primary_light_ray = offset_multiple * s_scale * primary_light_ray;
 		bump_t_primary_light_ray = offset_multiple * t_scale * primary_light_ray;
 	}
 		
 	U8 texgen = getTextureEntry()->getTexGen();
+	if (rebuild_tcoord && texgen != LLTextureEntry::TEX_GEN_DEFAULT)
+	{ //planar texgen needs binormals
+		mVObjp->getVolume()->genBinormals(f);
+	}
 
 	for (S32 i = 0; i < num_vertices; i++)
 	{
@@ -1110,20 +1081,37 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				}		
 			}
 
-			xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
+			if (tex_mode && mTextureMatrix)
+			{
+				LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
+				tmp = tmp * *mTextureMatrix;
+				tc.mV[0] = tmp.mV[0];
+				tc.mV[1] = tmp.mV[1];
+			}
+			else
+			{
+				xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
+			}
+
 			*tex_coords++ = tc;
 		
 			if (bump_code)
 			{
 				LLVector3 tangent = vf.mVertices[i].mBinormal % vf.mVertices[i].mNormal;
+
 				LLMatrix3 tangent_to_object;
 				tangent_to_object.setRows(tangent, vf.mVertices[i].mBinormal, vf.mVertices[i].mNormal);
 				LLVector3 binormal = binormal_dir * tangent_to_object;
-
 				binormal = binormal * mat_normal;
-				binormal.normVec();
+				
+				if (mDrawablep->isActive())
+				{
+					binormal *= bump_quat;
+				}
 
+				binormal.normVec();
 				tc += LLVector2( bump_s_primary_light_ray * tangent, bump_t_primary_light_ray * binormal );
+				
 				*tex_coords2++ = tc;
 			}	
 		}
@@ -1161,26 +1149,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		}
 	}
 
-	if (!rebuild_pos && !moved)
-	{
-		vertices += num_vertices;
-	}
-
-	if (!rebuild_tcoord && !moved)
-	{
-		tex_coords2 += num_vertices;
-		tex_coords += num_vertices;
-	}
-	else if (!bump_code)
-	{
-		tex_coords2 += num_vertices;
-	}
-
-	if (!rebuild_color && !moved)
-	{
-		colors += num_vertices;
-	}
-
 	if (rebuild_tcoord)
 	{
 		mTexExtents[0].setVec(0,0);
@@ -1188,8 +1156,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		xform(mTexExtents[0], cos_ang, sin_ang, os, ot, ms, mt);
 		xform(mTexExtents[1], cos_ang, sin_ang, os, ot, ms, mt);		
 	}
-
-	index_offset += num_vertices;
 
 	mLastVertexBuffer = mVertexBuffer;
 	mLastGeomCount = mGeomCount;
@@ -1200,136 +1166,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	return TRUE;
 }
 
-#if 0
-BOOL LLFace::genLighting(const LLVolume* volume, const LLDrawable* drawablep, S32 fstart, S32 fend, 
-						 const LLMatrix4& mat_vert, const LLMatrix3& mat_normal, BOOL do_lighting)
-{
-	if (drawablep->isLight())
-	{
-		do_lighting = FALSE;
-	}
-	
-	if (!((mDrawPoolp->mDataMaskIL) & LLDrawPool::DATA_COLORS_MASK))
-	{
-		return FALSE;
-	}
-	if (mGeomIndex < 0)
-	{
-		return FALSE; // no geometry
-	}
-	LLStrider<LLColor4U> colorsp;
-	S32 idx = getColors(colorsp);
-	if (idx < 0)
-	{
-		return FALSE;
-	}
-	
-	for (S32 vol_face = fstart; vol_face <= fend; vol_face++)
-	{
-		const LLVolumeFace &vf = volume->getVolumeFace(vol_face);
-		S32 num_vertices = (S32)vf.mVertices.size();
-
-		if (isState(FULLBRIGHT) || !do_lighting)
-		{
-			for (S32 i = 0; i < num_vertices; i++)
-			{
-				(*colorsp++).setToBlack();
-			}
-		}
-		else
-		{
-			for (S32 i = 0; i < num_vertices; i++)
-			{
-				LLVector3 vertex = vf.mVertices[i].mPosition * mat_vert;
-				LLVector3 normal = vf.mVertices[i].mNormal * mat_normal;
-				normal.normVec();
-		
-				LLColor4 color;
-				for (LLDrawable::drawable_set_t::const_iterator iter = drawablep->mLightSet.begin();
-					 iter != drawablep->mLightSet.end(); ++iter)
-				{
-					LLDrawable* light_drawable = *iter;
-					LLVOVolume* light = light_drawable->getVOVolume();
-					if (!light)
-					{
-						continue;
-					}
-					LLColor4 light_color;
-					light->calcLightAtPoint(vertex, normal, light_color);
-					color += light_color;
-				}
-
-				color.mV[3] = 1.0f;
-
-				(*colorsp++).setVecScaleClamp(color);
-			}
-		}
-	}
-	return TRUE;
-}
-
-BOOL LLFace::genShadows(const LLVolume* volume, const LLDrawable* drawablep, S32 fstart, S32 fend, 
-						 const LLMatrix4& mat_vert, const LLMatrix3& mat_normal, BOOL use_shadow_factor)
-{
-	if (drawablep->isLight())
-	{
-		return FALSE;
-	}
-	
-	if (!((mDrawPoolp->mDataMaskIL) & LLDrawPool::DATA_COLORS_MASK))
-	{
-		return FALSE;
-	}
-	if (mGeomIndex < 0)
-	{
-		return FALSE; // no geometry
-	}
-	LLStrider<LLColor4U> colorsp;
-	S32 idx = getColors(colorsp);
-	if (idx < 0)
-	{
-		return FALSE;
-	}
-	
-	for (S32 vol_face = fstart; vol_face <= fend; vol_face++)
-	{
-		const LLVolumeFace &vf = volume->getVolumeFace(vol_face);
-		S32 num_vertices = (S32)vf.mVertices.size();
-
-		if (isState(FULLBRIGHT))
-		{
-			continue;
-		}
-
-		for (S32 i = 0; i < num_vertices; i++)
-		{
-			LLVector3 vertex = vf.mVertices[i].mPosition * mat_vert;
-			LLVector3 normal = vf.mVertices[i].mNormal * mat_normal;
-			normal.normVec();
-				
-			U8 shadow;
-
-			if (use_shadow_factor)
-			{
-				shadow = (U8) (drawablep->getSunShadowFactor() * 255);
-			}
-			else
-			{
-				shadow = 255;
-			}
-		
-			(*colorsp++).mV[3] = shadow;	
-		}
-	}
-	return TRUE;
-}
-#endif
-
 BOOL LLFace::verify(const U32* indices_array) const
 {
 	BOOL ok = TRUE;
 	// First, check whether the face data fits within the pool's range.
-	if ((mGeomIndex < 0) || (mGeomIndex + mGeomCount) > mVertexBuffer->getNumVerts())
+	if ((mGeomIndex + mGeomCount) > mVertexBuffer->getNumVerts())
 	{
 		ok = FALSE;
 		llinfos << "Face not within pool range!" << llendl;
@@ -1385,27 +1226,6 @@ void LLFace::setViewerObject(LLViewerObject* objp)
 	mVObjp = objp;
 }
 
-void LLFace::enableLights() const
-{
- 	if (isState(FULLBRIGHT|HUD_RENDER))
-	{
-		gPipeline.enableLightsFullbright(LLColor4::white);
-	}
-	else if (mDrawablep->isState(LLDrawable::LIGHTING_BUILT))
-	{
-		gPipeline.enableLightsStatic(1.f);
-	}
-	else
-	{
-		gPipeline.enableLightsDynamic(1.f);
-	}
-	if (isState(LIGHT))
-	{
-		const LLVOVolume* vovolume = (const LLVOVolume*)mDrawablep->getVObj();
-		gPipeline.setAmbient(vovolume->getLightColor());
-	}
-}
-
 const LLColor4& LLFace::getRenderColor() const
 {
 	if (isState(USE_FACE_COLOR))
@@ -1425,18 +1245,11 @@ void LLFace::renderSetColor() const
 	{
 		const LLColor4* color = &(getRenderColor());
 		
-		if ((mDrawPoolp->mVertexShaderLevel > 0) && (mDrawPoolp->getMaterialAttribIndex() != 0))
-		{
-			glVertexAttrib4fvARB(mDrawPoolp->getMaterialAttribIndex(), color->mV);
-		}
-		else
-		{
-			glColor4fv(color->mV);
-		}
+		glColor4fv(color->mV);
 	}
 }
 
-S32 LLFace::pushVertices(const U32* index_array) const
+S32 LLFace::pushVertices(const U16* index_array) const
 {
 	if (mIndicesCount)
 	{
@@ -1444,14 +1257,15 @@ S32 LLFace::pushVertices(const U32* index_array) const
 			mIndicesCount <= (U32) gGLManager.mGLMaxIndexRange)
 		{
 			glDrawRangeElements(GL_TRIANGLES, mGeomIndex, mGeomIndex + mGeomCount-1, mIndicesCount, 
-									GL_UNSIGNED_INT, index_array + mIndicesIndex); 
+									GL_UNSIGNED_SHORT, index_array + mIndicesIndex); 
 		}
 		else
 		{
-			glDrawElements(GL_TRIANGLES, mIndicesCount, GL_UNSIGNED_INT, index_array+mIndicesIndex);
+			glDrawElements(GL_TRIANGLES, mIndicesCount, GL_UNSIGNED_SHORT, index_array+mIndicesIndex);
 		}
+		gPipeline.addTrianglesDrawn(mIndicesCount/3);
 	}
-	
+
 	return mIndicesCount;
 }
 
@@ -1460,7 +1274,7 @@ const LLMatrix4& LLFace::getRenderMatrix() const
 	return mDrawablep->getRenderMatrix();
 }
 
-S32 LLFace::renderElements(const U32 *index_array) const
+S32 LLFace::renderElements(const U16 *index_array) const
 {
 	S32 ret = 0;
 	
@@ -1481,7 +1295,7 @@ S32 LLFace::renderElements(const U32 *index_array) const
 
 S32 LLFace::renderIndexed()
 {
-	if(mGeomIndex < 0 || mDrawablep.isNull() || mDrawPoolp == NULL)
+	if(mDrawablep.isNull() || mDrawPoolp == NULL)
 	{
 		return 0;
 	}
@@ -1497,27 +1311,12 @@ S32 LLFace::renderIndexed(U32 mask)
 	}
 
 	mVertexBuffer->setBuffer(mask);
-	U32* index_array = (U32*) mVertexBuffer->getIndicesPointer();
+	U16* index_array = (U16*) mVertexBuffer->getIndicesPointer();
 	return renderElements(index_array);
 }
 
 //============================================================================
 // From llface.inl
-
-S32 LLFace::getVertices(LLStrider<LLVector3> &vertices)
-{
-	if (!mGeomCount)
-	{
-		return -1;
-	}
-	
-	if (mGeomIndex >= 0) // flexible objects may not have geometry
-	{
-		mVertexBuffer->getVertexStrider(vertices, mGeomIndex);
-		
-	}
-	return mGeomIndex;
-}
 
 S32 LLFace::getColors(LLStrider<LLColor4U> &colors)
 {
@@ -1526,15 +1325,15 @@ S32 LLFace::getColors(LLStrider<LLColor4U> &colors)
 		return -1;
 	}
 	
-	llassert(mGeomIndex >= 0);
+	// llassert(mGeomIndex >= 0);
 	mVertexBuffer->getColorStrider(colors, mGeomIndex);
 	return mGeomIndex;
 }
 
-S32	LLFace::getIndices(LLStrider<U32> &indicesp)
+S32	LLFace::getIndices(LLStrider<U16> &indicesp)
 {
 	mVertexBuffer->getIndexStrider(indicesp, mIndicesIndex);
-	llassert(mGeomIndex >= 0 && indicesp[0] != indicesp[1]);
+	llassert(indicesp[0] != indicesp[1]);
 	return mIndicesIndex;
 }
 

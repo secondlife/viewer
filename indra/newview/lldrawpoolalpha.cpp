@@ -48,20 +48,20 @@
 #include "llviewerobjectlist.h" // For debugging
 #include "llviewerwindow.h"
 #include "pipeline.h"
-#include "llviewerregion.h"
 #include "llglslshader.h"
+#include "llviewerregion.h"
+#include "lldrawpoolwater.h"
+#include "llspatialpartition.h"
 
 BOOL LLDrawPoolAlpha::sShowDebugAlpha = FALSE;
 
+
+
 LLDrawPoolAlpha::LLDrawPoolAlpha(U32 type) :
-	LLRenderPass(type)
+		LLRenderPass(type), current_shader(NULL), target_shader(NULL),
+		simple_shader(NULL), fullbright_shader(NULL)
 {
 
-}
-
-LLDrawPoolAlphaPostWater::LLDrawPoolAlphaPostWater()
-: LLDrawPoolAlpha(POOL_ALPHA_POST_WATER)
-{
 }
 
 LLDrawPoolAlpha::~LLDrawPoolAlpha()
@@ -76,61 +76,58 @@ void LLDrawPoolAlpha::prerender()
 
 void LLDrawPoolAlpha::beginRenderPass(S32 pass)
 {
+	LLFastTimer t(LLFastTimer::FTM_RENDER_ALPHA);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
-}
-
-void setup_clip_plane(BOOL pre_water)
-{
-	F32 height = gAgent.getRegion()->getWaterHeight();
-	BOOL above = gCamera->getOrigin().mV[2] > height ? TRUE : FALSE;
 	
-	F64 plane[4];
-	
-	plane[0] = 0;
-	plane[1] = 0;
-	plane[2] = above == pre_water ? -1.0 : 1.0;
-	plane[3] = -plane[2] * height;
-	
-	glClipPlane(GL_CLIP_PLANE0, plane);
-}
-
-void LLDrawPoolAlphaPostWater::render(S32 pass)
-{
-    LLFastTimer t(LLFastTimer::FTM_RENDER_ALPHA);
-
-	if (gPipeline.hasRenderType(LLDrawPool::POOL_ALPHA))
+	if (LLPipeline::sUnderWaterRender)
 	{
-		LLGLEnable clip(GL_CLIP_PLANE0);
-		setup_clip_plane(FALSE);
-		LLDrawPoolAlpha::render(gPipeline.mAlphaGroupsPostWater);
+		simple_shader = &gObjectSimpleWaterProgram;
+		fullbright_shader = &gObjectFullbrightWaterProgram;
 	}
 	else
 	{
-		LLDrawPoolAlpha::render(gPipeline.mAlphaGroupsPostWater);
+		simple_shader = &gObjectSimpleProgram;
+		fullbright_shader = &gObjectFullbrightProgram;
+	}
+
+	if (mVertexShaderLevel > 0)
+	{
+		// Start out with no shaders.
+		current_shader = target_shader = NULL;
+		glUseProgramObjectARB(0);
+	}
+	gPipeline.enableLightsDynamic();
+}
+
+void LLDrawPoolAlpha::endRenderPass( S32 pass )
+{
+	LLFastTimer t(LLFastTimer::FTM_RENDER_ALPHA);
+	LLRenderPass::endRenderPass(pass);
+
+	if(gPipeline.canUseWindLightShaders()) 
+	{
+		glUseProgramObjectARB(0);
 	}
 }
 
 void LLDrawPoolAlpha::render(S32 pass)
 {
 	LLFastTimer t(LLFastTimer::FTM_RENDER_ALPHA);
-	
-	LLGLEnable clip(GL_CLIP_PLANE0);
-	setup_clip_plane(TRUE);
-	render(gPipeline.mAlphaGroups);
-}
 
-void LLDrawPoolAlpha::render(std::vector<LLSpatialGroup*>& groups)
-{
-	LLGLDepthTest gls_depth(GL_TRUE);
+	LLGLDepthTest depth(GL_TRUE, LLDrawPoolWater::sSkipScreenCopy ? GL_TRUE : GL_FALSE);
+
 	LLGLSPipelineAlpha gls_pipeline_alpha;
-
-	gPipeline.enableLightsDynamic(1.f);
-	renderAlpha(getVertexDataMask(), groups);
+	
+	renderAlpha(getVertexDataMask());
 
 	if (sShowDebugAlpha)
 	{
+		if(gPipeline.canUseWindLightShaders()) 
+		{
+			glUseProgramObjectARB(0);
+		}
 		glDisableClientState(GL_NORMAL_ARRAY);
 		glDisableClientState(GL_COLOR_ARRAY);
 		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
@@ -138,90 +135,39 @@ void LLDrawPoolAlpha::render(std::vector<LLSpatialGroup*>& groups)
 		LLViewerImage::sSmokeImagep->addTextureStats(1024.f*1024.f);
         LLViewerImage::sSmokeImagep->bind();
 		renderAlphaHighlight(LLVertexBuffer::MAP_VERTEX |
-							LLVertexBuffer::MAP_TEXCOORD, groups);
+							LLVertexBuffer::MAP_TEXCOORD);
 	}
 }
 
-void LLDrawPoolAlpha::renderAlpha(U32 mask, std::vector<LLSpatialGroup*>& groups)
+void LLDrawPoolAlpha::renderAlpha(U32 mask)
 {
 #if !LL_RELEASE_FOR_DOWNLOAD
 	LLGLState::checkClientArrays(mask);
 #endif
-
-	LLSpatialBridge* last_bridge = NULL;
-	LLSpatialPartition* last_part = NULL;
-	glPushMatrix();
-	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
-
-	for (std::vector<LLSpatialGroup*>::iterator i = groups.begin(); i != groups.end(); ++i)
+	
+	for (LLCullResult::sg_list_t::iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
 		if (group->mSpatialPartition->mRenderByGroup &&
 			!group->isDead())
 		{
-			LLSpatialPartition* part = group->mSpatialPartition;
-			if (part != last_part)
-			{
-				LLSpatialBridge* bridge = part->asBridge();
-				if (bridge != last_bridge)
-				{
-					glPopMatrix();
-					glPushMatrix();
-					if (bridge)
-					{
-						glMultMatrixf((F32*) bridge->mDrawable->getRenderMatrix().mMatrix);
-					}
-					last_bridge = bridge;
-				}
-
-//				if (!last_part || part->mDepthMask != last_part->mDepthMask)
-//				{
-//					glDepthMask(part->mDepthMask);
-//				}
-				last_part = part;
-			}
-
 			renderGroupAlpha(group,LLRenderPass::PASS_ALPHA,mask,TRUE);
 		}
 	}
-	
-	glPopMatrix();
 }
 
-void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask, std::vector<LLSpatialGroup*>& groups)
+void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 {
 #if !LL_RELEASE_FOR_DOWNLOAD
 	LLGLState::checkClientArrays(mask);
 #endif
 
-	LLSpatialBridge* last_bridge = NULL;
-	LLSpatialPartition* last_part = NULL;
-	glPushMatrix();
-	
-	for (std::vector<LLSpatialGroup*>::iterator i = groups.begin(); i != groups.end(); ++i)
+	for (LLCullResult::sg_list_t::iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
 		if (group->mSpatialPartition->mRenderByGroup &&
 			!group->isDead())
 		{
-			LLSpatialPartition* part = group->mSpatialPartition;
-			if (part != last_part)
-			{
-				LLSpatialBridge* bridge = part->asBridge();
-				if (bridge != last_bridge)
-				{
-					glPopMatrix();
-					glPushMatrix();
-					if (bridge)
-					{
-						glMultMatrixf((F32*) bridge->mDrawable->getRenderMatrix().mMatrix);
-					}
-					last_bridge = bridge;
-				}
-				
-				last_part = part;
-			}
-
 			LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA];	
 
 			for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
@@ -232,104 +178,135 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask, std::vector<LLSpatialGroup*
 				{
 					continue;
 				}
+
+				LLRenderPass::applyModelMatrix(params);
+
 				params.mVertexBuffer->setBuffer(mask);
-				U32* indices_pointer = (U32*) params.mVertexBuffer->getIndicesPointer();
+				U16* indices_pointer = (U16*) params.mVertexBuffer->getIndicesPointer();
 				glDrawRangeElements(GL_TRIANGLES, params.mStart, params.mEnd, params.mCount,
-									GL_UNSIGNED_INT, indices_pointer+params.mOffset);
-				
-				addIndicesDrawn(params.mCount);
+									GL_UNSIGNED_SHORT, indices_pointer+params.mOffset);
+				gPipeline.addTrianglesDrawn(params.mCount/3);
 			}
 		}
 	}
-	glPopMatrix();
 }
 
 void LLDrawPoolAlpha::renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture)
-{					
+{
+	BOOL initialized_lighting = FALSE;
 	BOOL light_enabled = TRUE;
+	BOOL is_particle = FALSE;
+	BOOL use_shaders = (LLPipeline::sUnderWaterRender && gPipeline.canUseVertexShaders())
+		|| gPipeline.canUseWindLightShadersOnObjects();
+	F32 dist;
 
-	LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[type];	
+	// check to see if it's a particle and if it's "close"
+	is_particle = !LLPipeline::sUnderWaterRender && (group->mSpatialPartition->mDrawableType == LLPipeline::RENDER_TYPE_PARTICLES);
+	dist = group->mDistance;
 	
-	U32 prim_type = GL_TRIANGLES;
-
-	//F32 width = (F32) gViewerWindow->getWindowDisplayWidth();
-
-	//F32 view = gCamera->getView();
-	
-	if (group->mSpatialPartition->mDrawableType == LLPipeline::RENDER_TYPE_CLOUDS)
+	// don't use shader if debug setting is off and it's close or if it's a particle
+	// and it's close
+	if(is_particle && !gSavedSettings.getBOOL("RenderUseShaderNearParticles"))
 	{
+		if((dist < gCamera->getFar() * gSavedSettings.getF32("RenderShaderParticleThreshold")))
+		{
+			use_shaders = FALSE;
+		}
+	}
+
+	LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[type];
+
+	if (group->mSpatialPartition->mDrawableType == LLPipeline::RENDER_TYPE_CLOUDS)
+	{		
+		if (!gSavedSettings.getBOOL("SkyUseClassicClouds"))
+		{
+			return;
+		}
+		// *TODO - Uhhh, we should always be doing some type of alpha rejection.  These should probably both be 0.01f
 		glAlphaFunc(GL_GREATER, 0.f);
 	}
 	else
 	{
-		glAlphaFunc(GL_GREATER, 0.01f);
+		if (LLPipeline::sImpostorRender)
+		{
+			glAlphaFunc(GL_GREATER, 0.5f);
+		}
+		else
+		{
+			glAlphaFunc(GL_GREATER, 0.01f);
+		}
 	}
-
-	/*LLGLEnable point_sprite(GL_POINT_SPRITE_ARB);
-
-	if (gGLManager.mHasPointParameters)
-	{
-		glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, TRUE);
-		glPointParameterfARB(GL_POINT_SIZE_MIN_ARB, 0.f);
-		glPointParameterfARB(GL_POINT_SIZE_MAX_ARB, width*16.f);
-		glPointSize(width/(view*view));
-	}*/
 
 	for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
 	{
 		LLDrawInfo& params = **k;
+
+		LLRenderPass::applyModelMatrix(params);
+
 		if (texture && params.mTexture.notNull())
 		{
+			glActiveTextureARB(GL_TEXTURE0_ARB);
 			params.mTexture->bind();
 			params.mTexture->addTextureStats(params.mVSize);
 			if (params.mTextureMatrix)
 			{
 				glMatrixMode(GL_TEXTURE);
 				glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
-			}
-		}
-		
-		if (params.mFullbright)
-		{
-			if (light_enabled)
-			{
-				gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
-				light_enabled = FALSE;
-				if (LLPipeline::sRenderGlow)
-				{
-					glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-				}
-			}
-		}
-		else if (!light_enabled)
-		{
-			gPipeline.enableLightsDynamic(1.f);
-			light_enabled = TRUE;
-			if (LLPipeline::sRenderGlow)
-			{
-				glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+				gPipeline.mTextureMatrixOps++;
 			}
 		}
 
-		/*if (params.mParticle)
+		if (params.mFullbright)
 		{
-			F32 size = params.mPartSize;
-			size *= size;
-			float param[] = { 0, 0, 0.01f/size*view*view };
-			prim_type = GL_POINTS;
-			glPointParameterfvARB(GL_POINT_DISTANCE_ATTENUATION_ARB, param);
+			// Turn off lighting if it hasn't already been so.
+			if (light_enabled || !initialized_lighting)
+			{
+				initialized_lighting = TRUE;
+				if (use_shaders) 
+				{
+					target_shader = fullbright_shader;
+				}
+				else
+				{
+					gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+				}
+				light_enabled = FALSE;
+			}
 		}
-		else*/
+		// Turn on lighting if it isn't already.
+		else if (!light_enabled || !initialized_lighting)
 		{
-			prim_type = GL_TRIANGLES;
+			initialized_lighting = TRUE;
+			if (use_shaders) 
+			{
+				target_shader = simple_shader;
+			}
+			else
+			{
+				gPipeline.enableLightsDynamic();
+			}
+			light_enabled = TRUE;
+		}
+
+		// If we need shaders, and we're not ALREADY using the proper shader, then bind it
+		// (this way we won't rebind shaders unnecessarily).
+		if(use_shaders && (current_shader != target_shader))
+		{
+			llassert(target_shader != NULL);
+			current_shader = target_shader;
+			current_shader->bind();
+		}
+		else if (!use_shaders && current_shader != NULL)
+		{
+			glUseProgramObjectARB(0);
+			current_shader = NULL;
 		}
 
 		params.mVertexBuffer->setBuffer(mask);
-		U32* indices_pointer = (U32*) params.mVertexBuffer->getIndicesPointer();
-		glDrawRangeElements(prim_type, params.mStart, params.mEnd, params.mCount,
-							GL_UNSIGNED_INT, indices_pointer+params.mOffset);
-		
-		addIndicesDrawn(params.mCount);
+		U16* indices_pointer = (U16*) params.mVertexBuffer->getIndicesPointer();
+		glDrawRangeElements(GL_TRIANGLES, params.mStart, params.mEnd, params.mCount,
+							GL_UNSIGNED_SHORT, indices_pointer+params.mOffset);
+		gPipeline.addTrianglesDrawn(params.mCount/3);
 
 		if (params.mTextureMatrix && texture && params.mTexture.notNull())
 		{
@@ -340,19 +317,6 @@ void LLDrawPoolAlpha::renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask
 
 	if (!light_enabled)
 	{
-		gPipeline.enableLightsDynamic(1.f);
-	
-		if (LLPipeline::sRenderGlow)
-		{
-			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
-		}
+		gPipeline.enableLightsDynamic();
 	}
-
-	/*glPointSize(1.f);
-
-	if (gGLManager.mHasPointParameters)
-	{
-		float param[] = {1, 0, 0 };
-		glPointParameterfvARB(GL_POINT_DISTANCE_ATTENUATION_ARB, param);
-	}*/
-}	
+}

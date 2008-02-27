@@ -2123,42 +2123,40 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	if( floater->isResizable() )
 	{
 		LLRect view_rect = floater->getRect();
-		S32 view_width = view_rect.getWidth();
-		S32 view_height = view_rect.getHeight();
+		S32 old_width = view_rect.getWidth();
+		S32 old_height = view_rect.getHeight();
 		S32 min_width;
 		S32 min_height;
 		floater->getResizeLimits( &min_width, &min_height );
 
 		// Make sure floater isn't already smaller than its min height/width?
-		S32 new_width = llmax( min_width, view_width );
-		S32 new_height = llmax( min_height, view_height );
+		S32 new_width = llmax( min_width, old_width );
+		S32 new_height = llmax( min_height, old_height);
 
-		if( !allow_partial_outside
-			&& ( (new_width > screen_width)
-			|| (new_height > screen_height) ) )
+		if((new_width > screen_width) || (new_height > screen_height))
 		{
-			// We have to force this window to be inside the screen.
+			// We have to make this window able to fit on screen
 			new_width = llmin(new_width, screen_width);
 			new_height = llmin(new_height, screen_height);
 
-			// Still respect minimum width/height
+			// ...while respecting minimum width/height
 			new_width = llmax(new_width, min_width);
 			new_height = llmax(new_height, min_height);
 
 			floater->reshape( new_width, new_height, TRUE );
-
-			// Make sure the damn thing is actually onscreen.
-			if (floater->translateIntoRect(snap_rect_local, FALSE))
+			if (floater->followsRight())
 			{
-				floater->clearSnapTarget();
+				floater->translate(old_width - new_width, 0);
 			}
-		}
-		else if (!floater->isMinimized())
-		{
-			floater->reshape(new_width, new_height, TRUE);
+
+			if (floater->followsTop())
+			{
+				floater->translate(0, old_height - new_height);
+			}
 		}
 	}
 
+	// move window fully onscreen
 	if (floater->translateIntoRect( snap_rect_local, allow_partial_outside ))
 	{
 		floater->clearSnapTarget();

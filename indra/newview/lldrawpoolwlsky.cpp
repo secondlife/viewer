@@ -1,0 +1,343 @@
+/** 
+ * @file lldrawpoolwlsky.cpp
+ * @brief LLDrawPoolWLSky class implementation
+ *
+ * $LicenseInfo:firstyear=2007&license=viewergpl$
+ * 
+ * Copyright (c) 2007-2007, Linden Research, Inc.
+ * 
+ * Second Life Viewer Source Code
+ * The source code in this file ("Source Code") is provided by Linden Lab
+ * to you under the terms of the GNU General Public License, version 2.0
+ * ("GPL"), unless you have obtained a separate licensing agreement
+ * ("Other License"), formally executed by you and Linden Lab.  Terms of
+ * the GPL can be found in doc/GPL-license.txt in this distribution, or
+ * online at http://secondlife.com/developers/opensource/gplv2
+ * 
+ * There are special exceptions to the terms and conditions of the GPL as
+ * it is applied to this Source Code. View the full text of the exception
+ * in the file doc/FLOSS-exception.txt in this software distribution, or
+ * online at http://secondlife.com/developers/opensource/flossexception
+ * 
+ * By copying, modifying or distributing this software, you acknowledge
+ * that you have read and understood your obligations described above,
+ * and agree to abide by those obligations.
+ * 
+ * ALL LINDEN LAB SOURCE CODE IS PROVIDED "AS IS." LINDEN LAB MAKES NO
+ * WARRANTIES, EXPRESS, IMPLIED OR OTHERWISE, REGARDING ITS ACCURACY,
+ * COMPLETENESS OR PERFORMANCE.
+ * $/LicenseInfo$
+ */
+
+#include "llviewerprecompiledheaders.h"
+
+#include "lldrawpoolwlsky.h"
+
+#include "llerror.h"
+#include "llgl.h"
+#include "pipeline.h"
+#include "llviewercamera.h"
+#include "llimage.h"
+#include "llwlparammanager.h"
+#include "llsky.h"
+#include "llvowlsky.h"
+#include "llagent.h"
+#include "llviewerregion.h"
+#include "llface.h"
+#include "llglimmediate.h"
+
+LLPointer<LLImageGL> LLDrawPoolWLSky::sCloudNoiseTexture = NULL;
+
+LLPointer<LLImageRaw> LLDrawPoolWLSky::sCloudNoiseRawImage = NULL;
+
+
+
+LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
+	LLDrawPool(POOL_WL_SKY)
+{
+	const LLString cloudNoiseFilename(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", "clouds2.tga"));
+	llinfos << "loading WindLight cloud noise from " << cloudNoiseFilename << llendl;
+
+	LLPointer<LLImageFormatted> cloudNoiseFile(LLImageFormatted::createFromExtension(cloudNoiseFilename));
+
+	if(cloudNoiseFile.isNull()) {
+		llerrs << "Error: Failed to load cloud noise image " << cloudNoiseFilename << llendl;
+	}
+
+	cloudNoiseFile->load(cloudNoiseFilename);
+
+	sCloudNoiseRawImage = new LLImageRaw();
+
+	cloudNoiseFile->decode(sCloudNoiseRawImage);
+
+	LLImageGL::create(sCloudNoiseTexture, sCloudNoiseRawImage, TRUE);
+
+	LLWLParamManager::instance()->propagateParameters();
+}
+
+LLDrawPoolWLSky::~LLDrawPoolWLSky()
+{
+	//llinfos << "destructing wlsky draw pool." << llendl;
+	sCloudNoiseTexture = 0;
+}
+
+LLViewerImage *LLDrawPoolWLSky::getDebugTexture()
+{
+	return NULL;
+}
+
+void LLDrawPoolWLSky::beginRenderPass( S32 pass )
+{
+}
+
+void LLDrawPoolWLSky::endRenderPass( S32 pass )
+{
+}
+
+void LLDrawPoolWLSky::renderDome(F32 camHeightLocal, LLGLSLShader * shader) const
+{
+	LLVector3 const & origin = gCamera->getOrigin();
+
+	llassert_always(NULL != shader);
+
+	glPushMatrix();
+
+	//chop off translation
+	if (LLPipeline::sReflectionRender && origin.mV[2] > 256.f)
+	{
+		glTranslatef(origin.mV[0], origin.mV[1], 256.f-origin.mV[2]*0.5f);
+	}
+	else
+	{
+		glTranslatef(origin.mV[0], origin.mV[1], origin.mV[2]);
+	}
+		
+
+	// the windlight sky dome works most conveniently in a coordinate system
+	// where Y is up, so permute our basis vectors accordingly.
+	glRotatef(120.f, 1.f / F_SQRT3, 1.f / F_SQRT3, 1.f / F_SQRT3);
+
+	glScalef(0.333f, 0.333f, 0.333f);
+
+	glTranslatef(0.f,-camHeightLocal, 0.f);
+	
+	// Draw WL Sky	
+	shader->uniform3f("camPosLocal", 0.f, camHeightLocal, 0.f);
+
+	gSky.mVOWLSkyp->drawDome();
+
+	glPopMatrix();
+}
+
+void LLDrawPoolWLSky::renderSkyHaze(F32 camHeightLocal) const
+{
+	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY))
+	{
+		LLGLSLShader* shader =
+			LLPipeline::sUnderWaterRender ?
+				&gObjectSimpleWaterProgram :
+				&gWLSkyProgram;
+
+		LLGLDisable blend(GL_BLEND);
+
+		shader->bind();
+
+		/// Render the skydome
+		renderDome(camHeightLocal, shader);	
+
+		shader->unbind();
+	}
+}
+
+void LLDrawPoolWLSky::renderStars(void) const
+{
+	LLGLSPipelineSkyBox gls_sky;
+	LLGLEnable blend(GL_BLEND);
+	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	// *NOTE: have to have bound the cloud noise texture already since register
+	// combiners blending below requires something to be bound
+	// and we might as well only bind once.
+	//LLGLEnable gl_texture_2d(GL_TEXTURE_2D);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+
+	gPipeline.disableLights();
+
+	if (!LLPipeline::sReflectionRender)
+	{
+		glPointSize(2.f);
+	}
+
+	// *NOTE: we divide by two here and GL_ALPHA_SCALE by two below to avoid
+	// clamping and allow the star_alpha param to brighten the stars.
+	bool error;
+	LLColor4 star_alpha(LLColor4::black);
+	star_alpha.mV[3] = LLWLParamManager::instance()->mCurParams.getFloat("star_brightness", error) / 2.f;
+	llassert_always(!error);
+
+	// gl_FragColor.rgb = gl_Color.rgb;
+	// gl_FragColor.a = gl_Color.a * star_alpha.a;
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_REPLACE);
+	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
+	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_PREVIOUS);
+	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, GL_SRC_COLOR);
+	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_PREVIOUS);
+	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, GL_SRC_ALPHA);
+	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, GL_CONSTANT);
+	glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_ARB, GL_SRC_ALPHA);
+	glTexEnvf(GL_TEXTURE_ENV, GL_ALPHA_SCALE, 2.0f);
+	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, star_alpha.mV);
+
+	gSky.mVOWLSkyp->drawStars();
+
+	glPointSize(1.f);
+
+	// and disable the combiner states
+	glTexEnvf(GL_TEXTURE_ENV, GL_ALPHA_SCALE, 1.0f);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+}
+
+void LLDrawPoolWLSky::renderSkyClouds(F32 camHeightLocal) const
+{
+	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS))
+	{
+		LLGLSLShader* shader =
+			LLPipeline::sUnderWaterRender ?
+				&gObjectSimpleWaterProgram :
+				&gWLCloudProgram;
+
+		LLGLEnable blend(GL_BLEND);
+		LLGLSBlendFunc blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glAlphaFunc(GL_GREATER, 0.01f);
+
+		sCloudNoiseTexture->bind();
+		shader->bind();
+
+		/// Render the skydome
+		renderDome(camHeightLocal, shader);
+
+		shader->unbind();
+	}
+}
+
+void LLDrawPoolWLSky::renderHeavenlyBodies()
+{
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	LLGLSPipelineSkyBox gls_skybox;
+	LLGLEnable blend_on(GL_BLEND);
+	gPipeline.disableLights();
+
+#if 0 // when we want to re-add a texture sun disc, here's where to do it.
+	LLFace * face = gSky.mVOSkyp->mFace[LLVOSky::FACE_SUN];
+	if (gSky.mVOSkyp->getSun().getDraw() && face->getGeomCount())
+	{
+		LLImageGL * tex  = face->getTexture();
+		tex->bind();
+		LLColor4 color(gSky.mVOSkyp->getSun().getInterpColor());
+		LLFacePool::LLOverrideFaceColor color_override(this, color);
+		face->renderIndexed();
+		mIndicesDrawn += face->getIndicesCount();
+	}
+#endif
+
+	LLFace * face = gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON];
+
+	if (gSky.mVOSkyp->getMoon().getDraw() && face->getGeomCount())
+	{
+		// *NOTE: even though we already bound this texture above for the
+		// stars register combiners, we bind again here for defensive reasons,
+		// since LLImageGL::bind detects that it's a noop, and optimizes it out.
+		LLImageGL * tex  = face->getTexture();
+		tex->bind();
+		LLColor4 color(gSky.mVOSkyp->getMoon().getInterpColor());
+		F32 a = gSky.mVOSkyp->getMoon().getDirection().mV[2];
+		if (a > 0.f)
+		{
+			a = a*a*4.f;
+		}
+			
+		color.mV[3] = llclamp(a, 0.f, 1.f);
+		
+		LLFacePool::LLOverrideFaceColor color_override(this, color);
+		face->renderIndexed();
+		mIndicesDrawn += face->getIndicesCount();
+	}
+
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+}
+
+void LLDrawPoolWLSky::render(S32 pass)
+{
+	if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY))
+	{
+		return;
+	}
+	LLFastTimer ftm(LLFastTimer::FTM_RENDER_WL_SKY);
+
+	const F32 camHeightLocal = LLWLParamManager::instance()->getDomeOffset() * LLWLParamManager::instance()->getDomeRadius();
+
+	LLGLSNoFog disableFog;
+	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+	LLGLDisable clip(GL_CLIP_PLANE0);
+
+	LLGLClampToFarClip far_clip(glh_get_current_projection());
+
+	renderSkyHaze(camHeightLocal);
+
+	LLVector3 const & origin = gCamera->getOrigin();
+	glPushMatrix();
+
+		glTranslatef(origin.mV[0], origin.mV[1], origin.mV[2]);
+
+		// *NOTE: have to bind a texture here since register combiners blending in
+		// renderStars() requires something to be bound and we might as well only
+		// bind the moon's texture once.
+		LLImageGL * tex  = gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture();
+		tex->bind();
+
+		renderHeavenlyBodies();
+
+		renderStars();
+		
+
+	glPopMatrix();
+
+	renderSkyClouds(camHeightLocal);
+
+	LLImageGL::unbindTexture(0);
+}
+
+void LLDrawPoolWLSky::prerender()
+{
+	//llinfos << "wlsky prerendering pass." << llendl;
+}
+
+LLDrawPoolWLSky *LLDrawPoolWLSky::instancePool()
+{
+	return new LLDrawPoolWLSky();
+}
+
+LLViewerImage* LLDrawPoolWLSky::getTexture()
+{
+	return NULL;
+}
+
+void LLDrawPoolWLSky::resetDrawOrders()
+{
+}
+
+//static
+void LLDrawPoolWLSky::cleanupGL()
+{
+	sCloudNoiseTexture = NULL;
+}
+
+//static
+void LLDrawPoolWLSky::restoreGL()
+{
+	LLImageGL::create(sCloudNoiseTexture, sCloudNoiseRawImage, TRUE);
+}

@@ -180,33 +180,6 @@ void LLPreviewAnim::auditionAnim( void *userdata )
 	}
 }
 
-void LLPreviewAnim::saveAnim( void *userdata )
-{
-	LLPreviewAnim* self = (LLPreviewAnim*) userdata;
-	const LLInventoryItem *item = self->getItem();
-
-	if(item)
-	{
-		LLKeyframeMotion* motionp = (LLKeyframeMotion*)gAgent.getAvatarObject()->createMotion( item->getAssetUUID() );
-		if (motionp && motionp->isLoaded())
-		{
-			LLFilePicker& picker = LLFilePicker::instance();
-			LLString proposed_name = item->getName() + LLString(".xaf");
-			if (picker.getSaveFile(LLFilePicker::FFSAVE_ANIM, proposed_name.c_str()))
-			{
-					apr_file_t* fp = ll_apr_file_open(picker.getFirstFile(), LL_APR_W);
-					if (!fp)
-					{
-						llwarns << "Unable to open file " << picker.getFirstFile() << llendl;
-						return;
-					}
-					motionp->writeCAL3D(fp);
-					apr_file_close(fp);
-			}
-		}
-	}
-}
-
 void LLPreviewAnim::onClose(bool app_quitting)
 {
 	const LLInventoryItem *item = getItem();

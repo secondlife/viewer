@@ -47,6 +47,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llworld.h"
+#include "llvoavatar.h"
 
 /*static*/ F32 LLVolumeImplFlexible::sUpdateFactor = 1.0f;
 
@@ -66,6 +67,11 @@ LLVolumeImplFlexible::LLVolumeImplFlexible(LLViewerObject* vo, LLFlexibleObjectD
 	mSimulateRes = 0;
 	mFrameNum = 0;
 	mRenderRes = 1;
+
+	if(mVO->mDrawable.notNull())
+	{
+		mVO->mDrawable->makeActive() ;
+	}
 }//-----------------------------------------------
 
 LLVector3 LLVolumeImplFlexible::getFramePosition() const
@@ -240,12 +246,7 @@ void LLVolumeImplFlexible::setAttributesOfAllSections()
 
 void LLVolumeImplFlexible::onSetVolume(const LLVolumeParams &volume_params, const S32 detail)
 {
-	/*doIdleUpdate(gAgent, *gWorldp, 0.0);
-	if (mVO && mVO->mDrawable.notNull())
-	{
-		gPipeline.markRebuild(mVO->mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
-		gPipeline.markMoved(mVO->mDrawable);
-	}*/
+	
 }
 
 //---------------------------------------------------------------------------------
@@ -255,12 +256,13 @@ void LLVolumeImplFlexible::onSetVolume(const LLVolumeParams &volume_params, cons
 //---------------------------------------------------------------------------------
 BOOL LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
-
 	if (mVO->mDrawable.isNull())
 	{
 		// Don't do anything until we have a drawable
 		return FALSE; // (we are not initialized or updated)
 	}
+
+	BOOL force_update = mSimulateRes == 0 ? TRUE : FALSE;
 
 	//flexible objects never go static
 	mVO->mDrawable->mQuietCount = 0;
@@ -307,7 +309,11 @@ BOOL LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F6
 		return FALSE; // (we are not initialized or updated)
 	}
 
-	if (mVO->mDrawable->isVisible() &&
+	if (force_update)
+	{
+		gPipeline.markRebuild(mVO->mDrawable, LLDrawable::REBUILD_POSITION, FALSE);
+	}
+	else if	(mVO->mDrawable->isVisible() &&
 		!mVO->mDrawable->isState(LLDrawable::IN_REBUILD_Q1) &&
 		mVO->getPixelArea() > 256.f)
 	{
@@ -332,7 +338,7 @@ BOOL LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F6
 		}
 	}
 	
-	return TRUE;
+	return force_update;
 }
 
 inline S32 log2(S32 x)
@@ -348,7 +354,8 @@ inline S32 log2(S32 x)
 
 void LLVolumeImplFlexible::doFlexibleUpdate()
 {
-	LLPath *path = &mVO->getVolume()->getPath();
+	LLVolume* volume = mVO->getVolume();
+	LLPath *path = &volume->getPath();
 	if (mSimulateRes == 0)
 	{
 		mVO->markForUpdate(TRUE);
@@ -568,7 +575,11 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 
 	// Create points
 	S32 num_render_sections = 1<<mRenderRes;
-	path->resizePath(num_render_sections+1);
+	if (path->getPathLength() != num_render_sections+1)
+	{
+		((LLVOVolume*) mVO)->mVolumeChanged = TRUE;
+		volume->resizePath(num_render_sections+1);
+	}
 
 	LLPath::PathPt *new_point;
 
@@ -600,7 +611,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 		LLVector3 pos = newSection[i].mPosition * rel_xform;
 		LLQuaternion rot = mSection[i].mAxisRotation * newSection[i].mRotation * delta_rot;
 		
-		if (!mUpdated || (new_point->mPos-pos).magVecSquared() > 0.000001f)
+		if (!mUpdated || (new_point->mPos-pos).magVec()/mVO->mDrawable->mDistanceWRTCamera > 0.001f)
 		{
 			new_point->mPos = newSection[i].mPosition * rel_xform;
 			mUpdated = FALSE;
@@ -614,9 +625,19 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	mLastSegmentRotation = parentSegmentRotation;
 }
 
+void LLVolumeImplFlexible::preRebuild()
+{
+	if (!mUpdated)
+	{
+		doFlexibleRebuild();
+	}
+}
+
 void LLVolumeImplFlexible::doFlexibleRebuild()
 {
-	mVO->getVolume()->regen();
+	LLVolume* volume = mVO->getVolume();
+	volume->regen();
+	
 	mUpdated = TRUE;
 }
 
@@ -631,7 +652,26 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 {
 	LLVOVolume *volume = (LLVOVolume*)mVO;
 
-	if (volume->mDrawable.isNull()) // Not sure why this is happening, but it is...
+	if (mVO->isAttachment())
+	{	//don't update flexible attachments for impostored avatars unless the 
+		//impostor is being updated this frame (w00!)
+		LLViewerObject* parent = (LLViewerObject*) mVO->getParent();
+		while (parent && !parent->isAvatar())
+		{
+			parent = (LLViewerObject*) parent->getParent();
+		}
+		
+		if (parent)
+		{
+			LLVOAvatar* avatar = (LLVOAvatar*) parent;
+			if (avatar->isImpostor() && !avatar->needsImpostorUpdate())
+			{
+				return TRUE;
+			}
+		}
+	}
+
+	if (volume->mDrawable.isNull())
 	{
 		return TRUE; // No update to complete
 	}
@@ -660,18 +700,20 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 	{
 		volume->regenFaces();
 		volume->mDrawable->setState(LLDrawable::REBUILD_VOLUME);
-	}
-
-	if (!mUpdated || volume->mFaceMappingChanged || volume->mVolumeChanged || rotated)
-	{
+		volume->dirtySpatialGroup();
 		doFlexibleRebuild();
+		volume->genBBoxes(isVolumeGlobal());
+	}
+	else if (!mUpdated || rotated)
+	{
+		volume->mDrawable->setState(LLDrawable::REBUILD_POSITION);
+		volume->dirtyMesh();
 		volume->genBBoxes(isVolumeGlobal());
 	}
 			
 	volume->mVolumeChanged = FALSE;
 	volume->mLODChanged = FALSE;
 	volume->mFaceMappingChanged = FALSE;
-
 
 	// clear UV flag
 	drawable->clearState(LLDrawable::UV);

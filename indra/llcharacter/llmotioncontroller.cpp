@@ -746,7 +746,7 @@ void LLMotionController::updateMotion()
 			
 			// is calculating a new keyframe pose, make sure the last one gets applied
 			mPoseBlender.interpolate(1.f);
-			mPoseBlender.clearBlenders();
+			clearBlenders();
 
 			mTimeStepCount = quantum_count;
 			mLastTime = mTime;
@@ -824,6 +824,13 @@ void LLMotionController::updateMotion()
 //-----------------------------------------------------------------------------
 BOOL LLMotionController::activateMotionInstance(LLMotion *motion, F32 time)
 {
+	// It's not clear why the getWeight() line seems to be crashing this, but
+	// hopefully this fixes it.
+	if (motion == NULL || motion->getPose() == NULL)
+	{
+		return FALSE;	
+	}
+
 	if (mLoadingMotions.find(motion) != mLoadingMotions.end())
 	{
 		// we want to start this motion, but we can't yet, so flag it as started

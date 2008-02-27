@@ -364,9 +364,17 @@ const LLVector3 &LLSurfacePatch::getNormal(const U32 x, const U32 y) const
 
 void LLSurfacePatch::updateCameraDistanceRegion(const LLVector3 &pos_region)
 {
-	LLVector3 dv = pos_region;
-	dv -= mCenterRegion;
-	mVisInfo.mDistance = llmax(0.f, (F32)(dv.magVec() - mRadius));
+	if (LLPipeline::sDynamicLOD)
+	{
+		LLVector3 dv = pos_region;
+		dv -= mCenterRegion;
+		mVisInfo.mDistance = llmax(0.f, (F32)(dv.magVec() - mRadius))/
+			llmax(LLVOSurfacePatch::sLODFactor, 0.1f);
+	}
+	else
+	{
+		mVisInfo.mDistance = 0.f;
+	}
 }
 
 F32 LLSurfacePatch::getDistance() const
@@ -833,8 +841,11 @@ void LLSurfacePatch::updateVisibility()
 	F32 stride_per_distance = DEFAULT_DELTA_ANGLE / mSurfacep->getMetersPerGrid();
 	U32 grids_per_patch_edge = mSurfacep->getGridsPerPatchEdge();
 
+	LLVector3 center = mCenterRegion + mSurfacep->getOriginAgent();
+	LLVector3 radius = LLVector3(mRadius, mRadius, mRadius);
+
 	// sphere in frustum on global coordinates
-	if (gCamera->sphereInFrustum(mCenterRegion + mSurfacep->getOriginAgent(), mRadius) )
+	if (gCamera->AABBInFrustumNoFarClip(center, radius))
 	{
 		// We now need to calculate the render stride based on patchp's distance 
 		// from LLCamera render_stride is governed by a relation something like this...

@@ -45,6 +45,7 @@
 #include "llviewerimage.h"
 #include "llviewerimagelist.h"
 #include "llvoiceclient.h"
+#include "llglimmediate.h"
 
 //brent's wave image
 //29de489d-0491-fb00-7dab-f9e686d31e83
@@ -197,7 +198,6 @@ void LLVoiceVisualizer::render()
 		//---------------------------------------------------------------
 		// some gl state
 		//---------------------------------------------------------------
-		LLGLEnable tex( GL_TEXTURE_2D );
 		LLGLEnable blend( GL_BLEND );
 		
 		//-------------------------------------------------------------
@@ -219,19 +219,19 @@ void LLVoiceVisualizer::render()
 		//-------------------------------------------------------------
 		// now render the dot
 		//-------------------------------------------------------------
-		glColor4fv( LLColor4( 1.0f, 1.0f, 1.0f, DOT_OPACITY ).mV );	
+		gGL.color4fv( LLColor4( 1.0f, 1.0f, 1.0f, DOT_OPACITY ).mV );	
 		
-		glBegin( GL_TRIANGLE_STRIP );
-			glTexCoord2i( 0,	0	); glVertex3fv( bottomLeft.mV );
-			glTexCoord2i( 1,	0	); glVertex3fv( bottomRight.mV );
-			glTexCoord2i( 0,	1	); glVertex3fv( topLeft.mV );
-		glEnd();
+		gGL.begin( GL_TRIANGLE_STRIP );
+			gGL.texCoord2i( 0,	0	); gGL.vertex3fv( bottomLeft.mV );
+			gGL.texCoord2i( 1,	0	); gGL.vertex3fv( bottomRight.mV );
+			gGL.texCoord2i( 0,	1	); gGL.vertex3fv( topLeft.mV );
+		gGL.end();
 
-		glBegin( GL_TRIANGLE_STRIP );
-			glTexCoord2i( 1,	0	); glVertex3fv( bottomRight.mV );
-			glTexCoord2i( 1,	1	); glVertex3fv( topRight.mV );
-			glTexCoord2i( 0,	1	); glVertex3fv( topLeft.mV );
-		glEnd();
+		gGL.begin( GL_TRIANGLE_STRIP );
+			gGL.texCoord2i( 1,	0	); gGL.vertex3fv( bottomRight.mV );
+			gGL.texCoord2i( 1,	1	); gGL.vertex3fv( topRight.mV );
+			gGL.texCoord2i( 0,	1	); gGL.vertex3fv( topLeft.mV );
+		gGL.end();
 		
 		
 		
@@ -338,23 +338,23 @@ void LLVoiceVisualizer::render()
 				LLVector3 topLeft		= mSoundSymbol.mPosition + l + u;
 				LLVector3 topRight		= mSoundSymbol.mPosition - l + u;
 							
-				glColor4fv( LLColor4( red, green, blue, mSoundSymbol.mWaveOpacity[i] ).mV );		
+				gGL.color4fv( LLColor4( red, green, blue, mSoundSymbol.mWaveOpacity[i] ).mV );		
 				mSoundSymbol.mTexture[i]->bind();
 				
 				//---------------------------------------------------
 				// now, render the mofo
 				//---------------------------------------------------
-				glBegin( GL_TRIANGLE_STRIP );
-					glTexCoord2i( 0, 0 ); glVertex3fv( bottomLeft.mV );
-					glTexCoord2i( 1, 0 ); glVertex3fv( bottomRight.mV );
-					glTexCoord2i( 0, 1 ); glVertex3fv( topLeft.mV );
-				glEnd();
+				gGL.begin( GL_TRIANGLE_STRIP );
+					gGL.texCoord2i( 0, 0 ); gGL.vertex3fv( bottomLeft.mV );
+					gGL.texCoord2i( 1, 0 ); gGL.vertex3fv( bottomRight.mV );
+					gGL.texCoord2i( 0, 1 ); gGL.vertex3fv( topLeft.mV );
+				gGL.end();
 
-				glBegin( GL_TRIANGLE_STRIP );
-					glTexCoord2i( 1, 0 ); glVertex3fv( bottomRight.mV );
-					glTexCoord2i( 1, 1 ); glVertex3fv( topRight.mV );
-					glTexCoord2i( 0, 1 ); glVertex3fv( topLeft.mV );
-				glEnd();
+				gGL.begin( GL_TRIANGLE_STRIP );
+					gGL.texCoord2i( 1, 0 ); gGL.vertex3fv( bottomRight.mV );
+					gGL.texCoord2i( 1, 1 ); gGL.vertex3fv( topRight.mV );
+					gGL.texCoord2i( 0, 1 ); gGL.vertex3fv( topLeft.mV );
+				gGL.end();
 				
 			} //if ( mSoundSymbol.mWaveActive[i] ) 
 			

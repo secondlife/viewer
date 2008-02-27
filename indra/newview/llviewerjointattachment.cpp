@@ -38,9 +38,11 @@
 #include "llviewercontrol.h"
 #include "lldrawable.h"
 #include "llgl.h"
+#include "llglimmediate.h"
 #include "llvoavatar.h"
 #include "llvolume.h"
 #include "pipeline.h"
+#include "llspatialpartition.h"
 #include "llinventorymodel.h"
 #include "llviewerobjectlist.h"
 #include "llface.h"
@@ -56,7 +58,6 @@ extern LLPipeline gPipeline;
 LLViewerJointAttachment::LLViewerJointAttachment() :
 mJoint(NULL),
 mAttachedObject(NULL),
-mAttachmentDirty(FALSE),
 mVisibleInFirst(FALSE),
 mGroup(0),
 mIsHUDAttachment(FALSE),
@@ -90,34 +91,16 @@ U32 LLViewerJointAttachment::drawShape( F32 pixelArea, BOOL first_pass )
 	{
 		LLGLDisable cull_face(GL_CULL_FACE);
 		
-		glColor4f(1.f, 1.f, 1.f, 1.f);
-		glBegin(GL_QUADS);
+		gGL.color4f(1.f, 1.f, 1.f, 1.f);
+		gGL.begin(GL_QUADS);
 		{
-			glVertex3f(-0.1f, 0.1f, 0.f);
-			glVertex3f(-0.1f, -0.1f, 0.f);
-			glVertex3f(0.1f, -0.1f, 0.f);
-			glVertex3f(0.1f, 0.1f, 0.f);
-		}glEnd();
+			gGL.vertex3f(-0.1f, 0.1f, 0.f);
+			gGL.vertex3f(-0.1f, -0.1f, 0.f);
+			gGL.vertex3f(0.1f, -0.1f, 0.f);
+			gGL.vertex3f(0.1f, 0.1f, 0.f);
+		}gGL.end();
 	}
 	return 0;
-}
-
-//-----------------------------------------------------------------------------
-// lazyAttach()
-//-----------------------------------------------------------------------------
-void LLViewerJointAttachment::lazyAttach()
-{
-	if (!mAttachedObject)
-	{
-		return;
-	}
-	LLDrawable *drawablep = mAttachedObject->mDrawable;
-
-	if (mAttachmentDirty && drawablep)
-	{
-		setupDrawable(drawablep);
-		mAttachmentDirty = FALSE;
-	}
 }
 
 void LLViewerJointAttachment::setupDrawable(LLDrawable* drawablep)
@@ -211,12 +194,13 @@ BOOL LLViewerJointAttachment::addObject(LLViewerObject* object)
 
 	if (drawablep)
 	{
+		//if object is active, make it static
+		if(drawablep->isActive())
+		{
+			drawablep->makeStatic() ;
+		}
+
 		setupDrawable(drawablep);
-	}
-	else
-	{
-		// do lazy update once we have a drawable for this object
-		mAttachmentDirty = TRUE;
 	}
 
 	if (mIsHUDAttachment)
@@ -251,6 +235,12 @@ void LLViewerJointAttachment::removeObject(LLViewerObject *object)
 
 	if (object->mDrawable.notNull())
 	{
+		//if object is active, make it static
+		if(object->mDrawable->isActive())
+		{
+			object->mDrawable->makeStatic() ;
+		}
+
 		LLVector3 cur_position = object->getRenderPosition();
 		LLQuaternion cur_rotation = object->getRenderRotation();
 

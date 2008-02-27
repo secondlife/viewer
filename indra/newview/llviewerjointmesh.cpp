@@ -193,48 +193,6 @@ BOOL LLViewerJointMesh::allocateSkinData( U32 numSkinJoints )
 }
 
 //-----------------------------------------------------------------------------
-// getSkinJointByIndex()
-//-----------------------------------------------------------------------------
-S32 LLViewerJointMesh::getBoundJointsByIndex(S32 index, S32 &joint_a, S32& joint_b)
-{
-	S32 num_joints = 0;
-	if (mNumSkinJoints == 0)
-	{
-		return num_joints;
-	}
-
-	joint_a = -1;
-	joint_b = -1;
-
-	LLPolyMesh *reference_mesh = mMesh->getReferenceMesh();
-
-	if (index < reference_mesh->mJointRenderData.count())
-	{
-		LLJointRenderData* render_datap = reference_mesh->mJointRenderData[index];
-		if (render_datap->mSkinJoint)
-		{
-			joint_a = render_datap->mSkinJoint->mJoint->mJointNum;
-		}
-		num_joints++;
-	}
-	if (index + 1 < reference_mesh->mJointRenderData.count())
-	{
-		LLJointRenderData* render_datap = reference_mesh->mJointRenderData[index + 1];
-		if (render_datap->mSkinJoint)
-		{
-			joint_b = render_datap->mSkinJoint->mJoint->mJointNum;
-
-			if (joint_a == -1)
-			{
-				joint_a = render_datap->mSkinJoint->mJoint->getParent()->mJointNum;
-			}
-		}
-		num_joints++;
-	}
-	return num_joints;
-}
-
-//-----------------------------------------------------------------------------
 // LLViewerJointMesh::freeSkinData()
 //-----------------------------------------------------------------------------
 void LLViewerJointMesh::freeSkinData()
@@ -554,6 +512,8 @@ void llDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, G
 	{
 		glDrawRangeElements(mode,start,end,count,type,indices);
 	}
+
+	gPipeline.addTrianglesDrawn(count/3);
 }
 
 //--------------------------------------------------------------------
@@ -577,32 +537,13 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 	//----------------------------------------------------------------
 	if (!gRenderForSelect)
 	{
-		if ((mFace->getPool()->getVertexShaderLevel() > 0))
-		{
-			glColor4f(0,0,0,1);
-			
-			if (gMaterialIndex > 0)
-			{
-				glVertexAttrib4fvARB(gMaterialIndex, mColor.mV);
-			}
-			
-			if (mShiny && gSpecularIndex > 0)
-			{
-				glVertexAttrib4fARB(gSpecularIndex, 1,1,1,1);
-			}
-		}
-		else
-		{
-			glColor4fv(mColor.mV);
-		}
+		glColor4fv(mColor.mV);
 	}
 
 	stop_glerror();
 	
 	LLGLSSpecular specular(LLColor4(1.f,1.f,1.f,1.f), gRenderForSelect ? 0.0f : mShiny && !(mFace->getPool()->getVertexShaderLevel() > 0));
 
-	LLGLEnable texture_2d((gRenderForSelect && isTransparent()) ? GL_TEXTURE_2D : 0);
-	
 	//----------------------------------------------------------------
 	// setup current texture
 	//----------------------------------------------------------------
@@ -660,8 +601,6 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 		gImageList.getImage(IMG_DEFAULT_AVATAR)->bind();
 	}
 	
-	LLGLDisable tex(gRenderForSelect && !isTransparent() ? GL_TEXTURE_2D : 0);
-
 	if (gRenderForSelect)
 	{
 		if (isTransparent())
@@ -676,92 +615,18 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_TEXTURE);  // GL_TEXTURE_ENV_COLOR is set in renderPass1
 			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
 		}
-	}
-	else
-	{
-		//----------------------------------------------------------------
-		// by default, backface culling is enabled
-		//----------------------------------------------------------------
-		/*if (sRenderPass == AVATAR_RENDER_PASS_CLOTHING_INNER)
+		else
 		{
-			LLImageGL::bindExternalTexture( sClothingMaskImageName, 1, GL_TEXTURE_2D );
-
-			glClientActiveTextureARB(GL_TEXTURE0_ARB);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_MODULATE);
-			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB,		GL_REPLACE);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_TEXTURE);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_PRIMARY_COLOR_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB,		GL_PRIMARY_COLOR_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB,		GL_SRC_COLOR);
-
-			glClientActiveTextureARB(GL_TEXTURE1_ARB);
-			glEnable(GL_TEXTURE_2D); // Texture unit 1
-			glActiveTextureARB(GL_TEXTURE1_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-			glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR,	sClothingInnerColor.mV);
-			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_INTERPOLATE_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB,		GL_REPLACE);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_PREVIOUS_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_CONSTANT_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB,		GL_PREVIOUS_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB,		GL_SRC_COLOR);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB,		GL_TEXTURE);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_ARB,		GL_SRC_ALPHA);
+			LLImageGL::unbindTexture(0);
 		}
-		else if (sRenderPass == AVATAR_RENDER_PASS_CLOTHING_OUTER)
-		{
-			glAlphaFunc(GL_GREATER, 0.1f);
-			LLImageGL::bindExternalTexture( sClothingMaskImageName, 1, GL_TEXTURE_2D );
-
-			glClientActiveTextureARB(GL_TEXTURE0_ARB);
-			glActiveTextureARB(GL_TEXTURE0_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_MODULATE);
-			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB,		GL_REPLACE);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_TEXTURE);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_PRIMARY_COLOR_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB,		GL_PRIMARY_COLOR_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB,		GL_SRC_COLOR);
-
-			glClientActiveTextureARB(GL_TEXTURE1_ARB);
-			glEnable(GL_TEXTURE_2D); // Texture unit 1
-			glActiveTextureARB(GL_TEXTURE1_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_REPLACE);
-			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB,		GL_MODULATE);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB,		GL_PREVIOUS_ARB);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB,		GL_SRC_COLOR);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB,		GL_TEXTURE);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB,	GL_SRC_ALPHA);
-		}*/
 	}
-
+	
 	mFace->mVertexBuffer->setBuffer(sRenderMask);
 
 	U32 start = mMesh->mFaceVertexOffset;
 	U32 end = start + mMesh->mFaceVertexCount - 1;
 	U32 count = mMesh->mFaceIndexCount;
-	U32* indicesp = ((U32*) mFace->mVertexBuffer->getIndicesPointer()) + mMesh->mFaceIndexOffset;
+	U16* indicesp = ((U16*) mFace->mVertexBuffer->getIndicesPointer()) + mMesh->mFaceIndexOffset;
 
 	if (mMesh->hasWeights())
 	{
@@ -771,11 +636,11 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 			{
 				uploadJointMatrices();
 			}
-			llDrawRangeElements(GL_TRIANGLES, start, end, count, GL_UNSIGNED_INT, indicesp);
+			llDrawRangeElements(GL_TRIANGLES, start, end, count, GL_UNSIGNED_SHORT, indicesp);
 		}
 		else
 		{
-			llDrawRangeElements(GL_TRIANGLES, start, end, count, GL_UNSIGNED_INT, indicesp);
+			llDrawRangeElements(GL_TRIANGLES, start, end, count, GL_UNSIGNED_SHORT, indicesp);
 		}
 	}
 	else
@@ -783,7 +648,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 		glPushMatrix();
 		LLMatrix4 jointToWorld = getWorldMatrix();
 		glMultMatrixf((GLfloat*)jointToWorld.mMatrix);
-		llDrawRangeElements(GL_TRIANGLES, start, end, count, GL_UNSIGNED_INT, indicesp);
+		llDrawRangeElements(GL_TRIANGLES, start, end, count, GL_UNSIGNED_SHORT, indicesp);
 		glPopMatrix();
 	}
 
@@ -793,21 +658,6 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass)
 	{
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	}
-
-	/*if (sRenderPass != AVATAR_RENDER_PASS_SINGLE)
-	{
-		LLImageGL::unbindTexture(1, GL_TEXTURE_2D);
-		glActiveTextureARB(GL_TEXTURE1_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_MODULATE);
-
-		// Return to the default texture.
-		LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
-		glClientActiveTextureARB(GL_TEXTURE0_ARB);
-		glActiveTextureARB(GL_TEXTURE0_ARB);
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB,		GL_MODULATE);
-		glAlphaFunc(GL_GREATER, 0.01f);
-	}*/
 
 	if (mTexture.notNull()) {
 		if (!mTexture->getClampS()) {
@@ -846,37 +696,36 @@ void LLViewerJointMesh::updateFaceSizes(U32 &num_vertices, U32& num_indices, F32
 //-----------------------------------------------------------------------------
 void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind)
 {
-	U32 i;
-	
 	mFace = face;
+
+	if (mFace->mVertexBuffer.isNull())
+	{
+		return;
+	}
 
 	LLStrider<LLVector3> verticesp;
 	LLStrider<LLVector3> normalsp;
-	LLStrider<LLVector3> binormalsp;
 	LLStrider<LLVector2> tex_coordsp;
 	LLStrider<F32>		 vertex_weightsp;
 	LLStrider<LLVector4> clothing_weightsp;
-	LLStrider<U32> indicesp;
+	LLStrider<U16> indicesp;
 
 	// Copy data into the faces from the polymesh data.
 	if (mMesh && mValid)
 	{
 		if (mMesh->getNumVertices())
 		{
-			S32 index = face->getGeometryAvatar(verticesp, normalsp, binormalsp, tex_coordsp, vertex_weightsp, clothing_weightsp);
+			stop_glerror();
+			face->getGeometryAvatar(verticesp, normalsp, tex_coordsp, vertex_weightsp, clothing_weightsp);
+			stop_glerror();
 			face->mVertexBuffer->getIndexStrider(indicesp);
+			stop_glerror();
 
-			if (-1 == index)
-			{
-				return;
-			}
-
-			for (i = 0; i < mMesh->getNumVertices(); i++)
+			for (U16 i = 0; i < mMesh->getNumVertices(); i++)
 			{
 				verticesp[mMesh->mFaceVertexOffset + i] = *(mMesh->getCoords() + i);
 				tex_coordsp[mMesh->mFaceVertexOffset + i] = *(mMesh->getTexCoords() + i);
 				normalsp[mMesh->mFaceVertexOffset + i] = *(mMesh->getNormals() + i);
-				binormalsp[mMesh->mFaceVertexOffset + i] = *(mMesh->getBinormals() + i);
 				vertex_weightsp[mMesh->mFaceVertexOffset + i] = *(mMesh->getWeights() + i);
 				if (damp_wind)
 				{
@@ -1001,6 +850,8 @@ void LLViewerJointMesh::updateGeometryOriginal(LLFace *mFace, LLPolyMesh *mMesh)
 		
 		o_normals[bidx] = normals[index] * gBlendRotMat;
 	}
+
+	buffer->setBuffer(0);
 }
 
 const U32 UPDATE_GEOMETRY_CALL_MASK			= 0x1FFF; // 8K samples before overflow
@@ -1164,101 +1015,6 @@ void LLViewerJointMesh::dump()
 	{
 		llinfos << "Usable LOD " << mName << llendl;
 	}
-}
-
-void LLViewerJointMesh::writeCAL3D(apr_file_t* fp, S32 material_num, LLCharacter* characterp)
-{
-	apr_file_printf(fp, "\t<SUBMESH NUMVERTICES=\"%d\" NUMFACES=\"%d\" MATERIAL=\"%d\" NUMLODSTEPS=\"0\" NUMSPRINGS=\"0\" NUMTEXCOORDS=\"1\">\n", mMesh->getNumVertices(), mMesh->getNumFaces(), material_num);
-
-	const LLVector3* mesh_coords = mMesh->getCoords();
-	const LLVector3* mesh_normals = mMesh->getNormals();
-	const LLVector2* mesh_uvs = mMesh->getTexCoords();
-	const F32* mesh_weights = mMesh->getWeights();
-	LLVector3 mesh_offset;
-	LLVector3 scale(1.f, 1.f, 1.f);
-	S32 joint_a = -1;
-	S32 joint_b = -1;
-	S32 num_bound_joints = 0;
-	
-	if(!mMesh->hasWeights())
-	{
-		num_bound_joints = 1;
-		LLJoint* cur_joint = this;
-		while(cur_joint)
-		{
-			if (cur_joint->mJointNum != -1 && joint_a == -1)
-			{
-				joint_a = cur_joint->mJointNum;
-			}
-			mesh_offset += cur_joint->getSkinOffset();
-			cur_joint = cur_joint->getParent();
-		}
-	}
-
-	for (S32 i = 0; i < (S32)mMesh->getNumVertices(); i++)
-	{
-		LLVector3 coord = mesh_coords[i];
-
-		if (mMesh->hasWeights())
-		{
-			// calculate joint to which this skinned vertex is bound
-			num_bound_joints = getBoundJointsByIndex(llfloor(mesh_weights[i]), joint_a, joint_b);
-			LLJoint* first_joint = characterp->getCharacterJoint(joint_a);
-			LLJoint* second_joint = characterp->getCharacterJoint(joint_b);
-
-			LLVector3 first_joint_offset;
-			LLJoint* cur_joint = first_joint;
-			while(cur_joint)
-			{
-				first_joint_offset += cur_joint->getSkinOffset();
-				cur_joint = cur_joint->getParent();
-			}
-
-			LLVector3 second_joint_offset;
-			cur_joint = second_joint;
-			while(cur_joint)
-			{
-				second_joint_offset += cur_joint->getSkinOffset();
-				cur_joint = cur_joint->getParent();
-			}
-
-			LLVector3 first_coord = coord - first_joint_offset;
-			first_coord.scaleVec(first_joint->getScale());
-			LLVector3 second_coord = coord - second_joint_offset;
-			if (second_joint)
-			{
-				second_coord.scaleVec(second_joint->getScale());
-			}
-			
-			coord = lerp(first_joint_offset + first_coord, second_joint_offset + second_coord, fmodf(mesh_weights[i], 1.f));
-		}
-
-		// add offset to move rigid mesh to target location
-		coord += mesh_offset;
-		coord *= 100.f;
-
-		apr_file_printf(fp, "		<VERTEX ID=\"%d\" NUMINFLUENCES=\"%d\">\n", i, num_bound_joints);
-		apr_file_printf(fp, "			<POS>%.4f %.4f %.4f</POS>\n", coord.mV[VX], coord.mV[VY], coord.mV[VZ]);
-		apr_file_printf(fp, "			<NORM>%.6f %.6f %.6f</NORM>\n", mesh_normals[i].mV[VX], mesh_normals[i].mV[VY], mesh_normals[i].mV[VZ]);
-		apr_file_printf(fp, "			<TEXCOORD>%.6f %.6f</TEXCOORD>\n", mesh_uvs[i].mV[VX], 1.f - mesh_uvs[i].mV[VY]);
-		if (num_bound_joints >= 1)
-		{
-			apr_file_printf(fp, "			<INFLUENCE ID=\"%d\">%.2f</INFLUENCE>\n", joint_a + 1, 1.f - fmod(mesh_weights[i], 1.f));
-		}
-		if (num_bound_joints == 2)
-		{
-			apr_file_printf(fp, "			<INFLUENCE ID=\"%d\">%.2f</INFLUENCE>\n", joint_b + 1, fmod(mesh_weights[i], 1.f));
-		}
-		apr_file_printf(fp, "		</VERTEX>\n");
-	}
-
-	LLPolyFace* mesh_faces = mMesh->getFaces();
-	for (S32 i = 0; i < mMesh->getNumFaces(); i++)
-	{
-		apr_file_printf(fp, "		<FACE VERTEXID=\"%d %d %d\" />\n", mesh_faces[i][0], mesh_faces[i][1], mesh_faces[i][2]);
-	}
-	
-	apr_file_printf(fp, "	</SUBMESH>\n");
 }
 
 // End

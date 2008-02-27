@@ -41,8 +41,10 @@
 #include "pipeline.h"
 #include "llviewercamera.h"
 #include "llglslshader.h"
+#include "llglimmediate.h"
 
 S32 LLDrawPoolTree::sDiffTex = 0;
+static LLGLSLShader* shader = NULL;
 
 LLDrawPoolTree::LLDrawPoolTree(LLViewerImage *texturep) :
 	LLFacePool(POOL_TREE),
@@ -59,15 +61,34 @@ LLDrawPool *LLDrawPoolTree::instancePool()
 
 void LLDrawPoolTree::prerender()
 {
-	mVertexShaderLevel = 0;
+	mVertexShaderLevel = LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_OBJECT);
 }
 
 void LLDrawPoolTree::beginRenderPass(S32 pass)
 {
+	LLFastTimer t(LLFastTimer::FTM_RENDER_TREES);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glAlphaFunc(GL_GREATER, 0.5f);
+	
+	if (LLPipeline::sUnderWaterRender)
+	{
+		shader = &gObjectSimpleWaterProgram;
+	}
+	else
+	{
+		shader = &gObjectSimpleProgram;
+	}
+
+	if (gPipeline.canUseWindLightShadersOnObjects())
+	{
+		shader->bind();
+	}
+	else
+	{
+		gPipeline.enableLightsDynamic();
+	}
 }
 
 void LLDrawPoolTree::render(S32 pass)
@@ -79,8 +100,7 @@ void LLDrawPoolTree::render(S32 pass)
 		return;
 	}
 
-	gPipeline.enableLightsDynamic(1.f);
-	LLGLSPipelineAlpha gls_pipeline_alpha;
+	LLGLEnable test(GL_ALPHA_TEST);
 	LLOverrideFaceColor color(this, 1.f, 1.f, 1.f, 1.f);
 
 	renderTree();
@@ -88,9 +108,15 @@ void LLDrawPoolTree::render(S32 pass)
 
 void LLDrawPoolTree::endRenderPass(S32 pass)
 {
+	LLFastTimer t(LLFastTimer::FTM_RENDER_TREES);
 	glAlphaFunc(GL_GREATER, 0.01f);
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	if (gPipeline.canUseWindLightShadersOnObjects())
+	{
+		shader->unbind();
+	}
 }
 
 void LLDrawPoolTree::renderForSelect()
@@ -107,7 +133,7 @@ void LLDrawPoolTree::renderForSelect()
 
 	LLGLSObjectSelectAlpha gls_alpha;
 
-	glBlendFunc(GL_ONE, GL_ZERO);
+	gGL.blendFunc(GL_ONE, GL_ZERO);
 	glAlphaFunc(GL_GREATER, 0.5f);
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,		GL_COMBINE_ARB);
@@ -126,7 +152,7 @@ void LLDrawPoolTree::renderForSelect()
 	renderTree(TRUE);
 
 	glAlphaFunc(GL_GREATER, 0.01f);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glDisableClientState (GL_TEXTURE_COORD_ARRAY);
@@ -138,16 +164,7 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 	
 	// Bind the texture for this tree.
 	LLViewerImage::bindTexture(mTexturep,sDiffTex);
-	if (mTexturep)
-	{
-		if (mTexturep->getClampS()) {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		}
-		if (mTexturep->getClampT()) {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		}
-	}
-
+		
 	U32 indices_drawn = 0;
 
 	glMatrixMode(GL_MODELVIEW);
@@ -164,7 +181,7 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 		}
 
 		face->mVertexBuffer->setBuffer(LLDrawPoolTree::VERTEX_DATA_MASK);
-		U32* indicesp = (U32*) face->mVertexBuffer->getIndicesPointer();
+		U16* indicesp = (U16*) face->mVertexBuffer->getIndicesPointer();
 
 		// Render each of the trees
 		LLVOTree *treep = (LLVOTree *)drawablep->getVObj().get();
@@ -180,28 +197,43 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 				color = LLColor4U((U8)(name >> 16), (U8)(name >> 8), (U8)name, 255);
 			}
 			
-			glPushMatrix();
+			gGLLastMatrix = NULL;
+			glLoadMatrixd(gGLModelView);
+			//glPushMatrix();
+			F32 mat[16];
+			for (U32 i = 0; i < 16; i++)
+				mat[i] = (F32) gGLModelView[i];
+
+			LLMatrix4 matrix(mat);
 			
 			// Translate to tree base  HACK - adjustment in Z plants tree underground
 			const LLVector3 &pos_agent = treep->getPositionAgent();
-			glTranslatef(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
-
-			// Rotate to tree position
-			F32 angle_radians, x, y, z;
-			treep->getRotation().getAngleAxis(&angle_radians, &x, &y, &z);
-			glRotatef(angle_radians * RAD_TO_DEG, x, y, z);
-
-			// Rotate and bend for current trunk/wind
+			//glTranslatef(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
+			LLMatrix4 trans_mat;
+			trans_mat.setTranslation(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
+			trans_mat *= matrix;
+			
+			// Rotate to tree position and bend for current trunk/wind
 			// Note that trunk stiffness controls the amount of bend at the trunk as 
 			// opposed to the crown of the tree
 			// 
-			glRotatef(90.f, 0, 0, 1);
 			const F32 TRUNK_STIFF = 22.f;
-			glRotatef(treep->mTrunkBend.magVec()*TRUNK_STIFF, treep->mTrunkBend.mV[VX], treep->mTrunkBend.mV[VY], 0);
+			
+			LLQuaternion rot = 
+				LLQuaternion(treep->mTrunkBend.magVec()*TRUNK_STIFF*DEG_TO_RAD, LLVector4(treep->mTrunkBend.mV[VX], treep->mTrunkBend.mV[VY], 0)) *
+				LLQuaternion(90.f*DEG_TO_RAD, LLVector4(0,0,1)) *
+				treep->getRotation();
 
-			F32 radius = treep->getScale().magVec()*0.5f;
-			radius *= 0.1f;
-			glScalef(radius, radius, radius);
+			LLMatrix4 rot_mat(rot);
+			rot_mat *= trans_mat;
+
+			F32 radius = treep->getScale().magVec()*0.05f;
+			LLMatrix4 scale_mat;
+			scale_mat.mMatrix[0][0] = 
+				scale_mat.mMatrix[1][1] =
+				scale_mat.mMatrix[2][2] = radius;
+
+			scale_mat *= rot_mat;
 
 			const F32 THRESH_ANGLE_FOR_BILLBOARD = 15.f;
 			const F32 BLEND_RANGE_FOR_BILLBOARD = 3.f;
@@ -231,7 +263,7 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 				//  Only the billboard, can use closer to normal alpha func.
 				stop_depth = -1;
 				LLFacePool::LLOverrideFaceColor clr(this, color); 
-				indices_drawn += treep->drawBranchPipeline(indicesp, trunk_LOD, stop_depth, treep->mDepth, treep->mTrunkDepth, 1.0, treep->mTwist, droop, treep->mBranches, alpha);
+				indices_drawn += treep->drawBranchPipeline(scale_mat, indicesp, trunk_LOD, stop_depth, treep->mDepth, treep->mTrunkDepth, 1.0, treep->mTwist, droop, treep->mBranches, alpha);
 			}
 			else // if (app_angle > (THRESH_ANGLE_FOR_BILLBOARD + BLEND_RANGE_FOR_BILLBOARD))
 			{
@@ -240,20 +272,10 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 				//
 				//stop_depth = (app_angle < THRESH_ANGLE_FOR_RECURSION_REDUCTION);
 				LLFacePool::LLOverrideFaceColor clr(this, color); 
-				indices_drawn += treep->drawBranchPipeline(indicesp, trunk_LOD, stop_depth, treep->mDepth, treep->mTrunkDepth, 1.0, treep->mTwist, droop, treep->mBranches, alpha);
+				indices_drawn += treep->drawBranchPipeline(scale_mat, indicesp, trunk_LOD, stop_depth, treep->mDepth, treep->mTrunkDepth, 1.0, treep->mTwist, droop, treep->mBranches, alpha);
 			}
 			
-			glPopMatrix();
-		}
-	}
-
-	if (mTexturep)
-	{
-		if (mTexturep->getClampS()) {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		}
-		if (mTexturep->getClampT()) {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			//glPopMatrix();
 		}
 	}
 
@@ -289,7 +311,3 @@ LLColor3 LLDrawPoolTree::getDebugColor() const
 	return LLColor3(1.f, 0.f, 1.f);
 }
 
-S32 LLDrawPoolTree::getMaterialAttribIndex() 
-{ 
-	return gObjectSimpleProgram.mAttribute[LLShaderMgr::MATERIAL_COLOR];
-}

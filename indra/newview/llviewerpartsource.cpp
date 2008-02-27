@@ -36,6 +36,7 @@
 
 #include "llagent.h"
 #include "lldrawable.h"
+#include "llviewercamera.h"
 #include "llviewerimagelist.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
@@ -53,6 +54,8 @@ LLViewerPartSource::LLViewerPartSource(const U32 type) :
 	mIsSuspended = FALSE;
 	static U32 id_seed = 0;
 	mID = ++id_seed;
+
+	mDelay = 0 ;
 }
 
 void LLViewerPartSource::setDead()
@@ -78,6 +81,10 @@ LLUUID LLViewerPartSource::getImageUUID() const
 		return imagep->getID();
 	}
 	return LLUUID::null;
+}
+void LLViewerPartSource::setStart()
+{
+	mDelay = 99 ;
 }
 
 LLViewerPartSourceScript::LLViewerPartSourceScript(LLViewerObject *source_objp) :
@@ -111,6 +118,8 @@ void LLViewerPartSourceScript::update(const F32 dt)
 	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	F32 old_update_time = mLastUpdateTime;
 	mLastUpdateTime += dt;
+
+	F32 ref_rate_travelspeed = llmin(gWorldPointer->mPartSim.getRefRate(), 1.f);
 	
 	F32 dt_update = mLastUpdateTime - mLastPartTime;
 
@@ -199,21 +208,71 @@ void LLViewerPartSourceScript::update(const F32 dt)
 			// No angular velocity.  Reset our rotation.
 			mRotation.setQuat(0, 0, 0);
 		}
-
+		
 		if (gWorldPointer->mPartSim.aboveParticleLimit())
 		{
 			// Don't bother doing any more updates if we're above the particle limit,
 			// just give up.
 			mLastPartTime = mLastUpdateTime;
+            break;
+
+		}
+		
+		// find the greatest length that the shortest side of a system
+		// particle is expected to have
+		F32 max_short_side =
+			llmax(
+			      llmax(llmin(mPartSysData.mPartData.mStartScale[0],
+					  mPartSysData.mPartData.mStartScale[1]),
+				    llmin(mPartSysData.mPartData.mEndScale[0],
+					  mPartSysData.mPartData.mEndScale[1])),
+			      llmin((mPartSysData.mPartData.mStartScale[0]
+				     + mPartSysData.mPartData.mEndScale[0])/2,
+				    (mPartSysData.mPartData.mStartScale[1]
+				     + mPartSysData.mPartData.mEndScale[1])/2));
+		
+		F32 pixel_meter_ratio = gCamera->getPixelMeterRatio();
+
+		// Maximum distance at which spawned particles will be viewable
+		F32 max_dist = max_short_side * pixel_meter_ratio; 
+
+		if (max_dist < 0.25f)
+		{
+			// < 1 pixel wide at a distance of >=25cm.  Particles
+			// this tiny are useless and mostly spawned by buggy
+			// sources
+			mLastPartTime = mLastUpdateTime;
 			break;
+		}
+
+		// Distance from camera
+		F32 dist = (mPosAgent - gCamera->getOrigin()).magVec();
+
+		// Particle size vs distance vs maxage throttling
+
+		F32 limited_rate=0.f;
+		if (dist - max_dist > 0.f)
+		{
+			if((dist - max_dist) * ref_rate_travelspeed > mPartSysData.mPartData.mMaxAge - 0.2f )
+			{
+				// You need to travel faster than 1 divided by reference rate m/s directly towards these particles to see them at least 0.2s
+				mLastPartTime = mLastUpdateTime;
+				break;
+			}
+			limited_rate = ((dist - max_dist) * ref_rate_travelspeed) / mPartSysData.mPartData.mMaxAge;
+		}
+		
+		if(mDelay)
+		{
+			limited_rate = llmax(limited_rate, 0.01f * mDelay--) ;
 		}
 
 		S32 i;
 		for (i = 0; i < mPartSysData.mBurstPartCount; i++)
 		{
-			if (!gWorldPointer->mPartSim.shouldAddPart())
+			if (ll_frand() < llmax(1.0f - gWorldPointer->mPartSim.getBurstRate(), limited_rate))
 			{
-				// Particle simulation says we have too many particles, skip all this
+				// Limit particle generation
 				continue;
 			}
 

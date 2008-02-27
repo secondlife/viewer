@@ -283,6 +283,29 @@ S32 LLVolumeLODGroup::getDetailFromTan(const F32 tan_angle)
 	return NUM_LODS - 1;
 }
 
+void LLVolumeLODGroup::getDetailProximity(const F32 tan_angle, F32 &to_lower, F32& to_higher)
+{
+	S32 detail = getDetailFromTan(tan_angle);
+	
+	if (detail > 0)
+	{
+		to_lower = tan_angle - mDetailThresholds[detail];
+	}
+	else
+	{
+		to_lower = 1024.f*1024.f;
+	}
+
+	if (detail < NUM_LODS-1)
+	{
+		to_higher = mDetailThresholds[detail+1] - tan_angle;
+	}
+	else
+	{
+		to_higher = 1024.f*1024.f;
+	}
+}
+
 F32 LLVolumeLODGroup::getVolumeScaleFromDetail(const S32 detail)
 {
 	return mDetailScales[detail];

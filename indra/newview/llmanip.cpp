@@ -35,8 +35,8 @@
 
 #include "llmath.h"
 #include "v3math.h"
-//#include "llquaternion.h"
 #include "llgl.h"
+#include "llglimmediate.h"
 #include "llprimitive.h"
 #include "llview.h"
 #include "llviewerimagelist.h"
@@ -78,11 +78,13 @@ void LLManip::rebuild(LLViewerObject* vobj)
 	{
 		
 		gPipeline.markRebuild(drawablep,LLDrawable::REBUILD_VOLUME, TRUE);
-		//gPipeline.markMoved(drawablep, FALSE);
-		//gPipeline.updateMoveNormalAsync(vobj->mDrawable);
-
 		drawablep->setState(LLDrawable::MOVE_UNDAMPED); // force to UNDAMPED
 		drawablep->updateMove();
+		LLSpatialGroup* group = drawablep->getSpatialGroup();
+		if (group)
+		{
+			group->dirtyGeom();
+		}
 	}
 }
 
@@ -388,29 +390,29 @@ void LLManip::renderGuidelines(BOOL draw_x, BOOL draw_y, BOOL draw_z)
 
 		if (draw_x)
 		{
-			glColor4f(1.f, 0.f, 0.f, LINE_ALPHA);
-			glBegin(GL_LINES);
-			glVertex3f( -region_size, 0.f, 0.f );
-			glVertex3f(  region_size, 0.f, 0.f );
-			glEnd();
+			gGL.color4f(1.f, 0.f, 0.f, LINE_ALPHA);
+			gGL.begin(GL_LINES);
+			gGL.vertex3f( -region_size, 0.f, 0.f );
+			gGL.vertex3f(  region_size, 0.f, 0.f );
+			gGL.end();
 		}
 
 		if (draw_y)
 		{
-			glColor4f(0.f, 1.f, 0.f, LINE_ALPHA);
-			glBegin(GL_LINES);
-			glVertex3f( 0.f, -region_size, 0.f );
-			glVertex3f( 0.f,  region_size, 0.f );
-			glEnd();
+			gGL.color4f(0.f, 1.f, 0.f, LINE_ALPHA);
+			gGL.begin(GL_LINES);
+			gGL.vertex3f( 0.f, -region_size, 0.f );
+			gGL.vertex3f( 0.f,  region_size, 0.f );
+			gGL.end();
 		}
 
 		if (draw_z)
 		{
-			glColor4f(0.f, 0.f, 1.f, LINE_ALPHA);
-			glBegin(GL_LINES);
-			glVertex3f( 0.f, 0.f, -region_size );
-			glVertex3f( 0.f, 0.f,  region_size );
-			glEnd();
+			gGL.color4f(0.f, 0.f, 1.f, LINE_ALPHA);
+			gGL.begin(GL_LINES);
+			gGL.vertex3f( 0.f, 0.f, -region_size );
+			gGL.vertex3f( 0.f, 0.f,  region_size );
+			gGL.end();
 		}
 		LLUI::setLineWidth(1.0f);
 	}
@@ -435,7 +437,7 @@ void LLManip::renderXYZ(const LLVector3 &vec)
 		gViewerWindow->setup2DRender();
 		const LLVector2& display_scale = gViewerWindow->getDisplayScale();
 		glScalef(display_scale.mV[VX], display_scale.mV[VY], 1.f);
-		glColor4f(0.f, 0.f, 0.f, 0.7f);
+		gGL.color4f(0.f, 0.f, 0.f, 0.7f);
 
 		gl_draw_scaled_image_with_border(window_center_x - 115, 
 			window_center_y + vertical_offset - PAD, 
@@ -453,7 +455,6 @@ void LLManip::renderXYZ(const LLVector3 &vec)
 	{
 		LLLocale locale(LLLocale::USER_LOCALE);
 		LLGLDepthTest gls_depth(GL_FALSE);
-		LLGLEnable tex(GL_TEXTURE_2D);
 		// render drop shadowed text
 		snprintf(feedback_string, sizeof(feedback_string), "X: %.3f", vec.mV[VX]);			/* Flawfinder: ignore */
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *gResMgr->getRes( LLFONT_SANSSERIF ), LLFontGL::NORMAL, -102.f + 1.f, (F32)vertical_offset - 1.f, LLColor4::black, FALSE);
@@ -497,7 +498,6 @@ void LLManip::renderTickText(const LLVector3& pos, const char* text, const LLCol
 
 	// render shadow first
 	LLColor4 shadow_color = LLColor4::black;
-	LLGLEnable tex(GL_TEXTURE_2D);
 	shadow_color.mV[VALPHA] = color.mV[VALPHA] * 0.5f;
 	gViewerWindow->setupViewport(1, -1);
 	hud_render_utf8text(text, render_pos, *big_fontp, LLFontGL::NORMAL, -0.5f * big_fontp->getWidthF32(text), 3.f, shadow_color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
@@ -557,7 +557,6 @@ void LLManip::renderTickValue(const LLVector3& pos, F32 value, const char* suffi
 	LLColor4 shadow_color = LLColor4::black;
 	shadow_color.mV[VALPHA] = color.mV[VALPHA] * 0.5f;
 
-	LLGLEnable tex(GL_TEXTURE_2D);
 	if (fractional_portion != 0)
 	{
 		snprintf(fraction_string, sizeof(fraction_string), "%c%02d%s", gResMgr->getDecimalPoint(), fractional_portion, suffix);			/* Flawfinder: ignore */

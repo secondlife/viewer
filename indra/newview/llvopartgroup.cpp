@@ -47,6 +47,7 @@
 #include "llviewerpartsim.h"
 #include "llviewerregion.h"
 #include "pipeline.h"
+#include "llspatialpartition.h"
 
 const F32 MAX_PART_LIFETIME = 120.f;
 
@@ -59,7 +60,6 @@ LLVOPartGroup::LLVOPartGroup(const LLUUID &id, const LLPCode pcode, LLViewerRegi
 	setNumTEs(1);
 	setTETexture(0, LLUUID::null);
 	mbCanSelect = FALSE;			// users can't select particle systems
-	mDebugColor = LLColor4(ll_frand(), ll_frand(), ll_frand(), 1.f);
 }
 
 
@@ -70,7 +70,7 @@ LLVOPartGroup::~LLVOPartGroup()
 
 BOOL LLVOPartGroup::isActive() const
 {
-	return TRUE;
+	return FALSE;
 }
 
 F32 LLVOPartGroup::getBinRadius()
@@ -80,11 +80,9 @@ F32 LLVOPartGroup::getBinRadius()
 
 void LLVOPartGroup::updateSpatialExtents(LLVector3& newMin, LLVector3& newMax)
 {		
-	LLVector3 pos_agent = getPositionAgent();
-	mExtents[0] = pos_agent - mScale;
-	mExtents[1] = pos_agent + mScale;
-	newMin = mExtents[0];
-	newMax = mExtents[1];
+	const LLVector3& pos_agent = getPositionAgent();
+	newMin = pos_agent - mScale;
+	newMax = pos_agent + mScale;
 	mDrawable->setPositionGroup(pos_agent);
 }
 
@@ -139,6 +137,8 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 {
 	LLFastTimer ftm(LLFastTimer::FTM_UPDATE_PARTICLES);
 
+	dirtySpatialGroup();
+
  	LLVector3 at;
 	LLVector3 position_agent;
 	LLVector3 camera_agent = gCamera->getOrigin();
@@ -156,7 +156,7 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 	{
 		if (group && drawable->getNumFaces())
 		{
-			group->dirtyGeom();
+			group->setState(LLSpatialGroup::GEOM_DIRTY);
 		}
 		drawable->setNumFaces(0, NULL, getTEImage(0));
 		LLPipeline::sCompiles++;
@@ -174,7 +174,6 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 	}
 
 	F32 tot_area = 0;
-	BOOL is_particle = isParticle();
 
 	F32 max_area = LLViewerPartSim::getMaxPartCount() * MAX_PARTICLE_AREA_SCALE; 
 	F32 pixel_meter_ratio = gCamera->getPixelMeterRatio();
@@ -182,7 +181,6 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 
 	S32 count=0;
 	S32 i;
-	F32 max_width = 0.f;
 	mDepth = 0.f;
 
 	for (i = 0; i < num_parts; i++)
@@ -199,9 +197,9 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 		else
 			inv_camera_dist_squared = 1.f;
 		F32 area = part.mScale.mV[0] * part.mScale.mV[1] * inv_camera_dist_squared;
-		tot_area += area;
+		tot_area = llmax(tot_area, area);
  		
-		if (!is_particle && tot_area > max_area)
+		if (tot_area > max_area)
 		{
 			break;
 		}
@@ -219,21 +217,14 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 		const F32 NEAR_PART_DIST_SQ = 5.f*5.f;  // Only discard particles > 5 m from the camera
 		const F32 MIN_PART_AREA = .005f*.005f;  // only less than 5 mm x 5 mm at 1 m from camera
 		
-		if (!is_particle)
+		if (camera_dist_squared > NEAR_PART_DIST_SQ && area < MIN_PART_AREA)
 		{
-			if (camera_dist_squared > NEAR_PART_DIST_SQ && area < MIN_PART_AREA)
-			{
-				facep->setSize(0, 0);
-				continue;
-			}
-
-			facep->setSize(4, 6);
-		}
-		else
-		{		
-			facep->setSize(1,1);
+			facep->setSize(0, 0);
+			continue;
 		}
 
+		facep->setSize(4, 6);
+		
 		facep->setViewerObject(this);
 
 		if (part.mFlags & LLPartData::LL_PART_EMISSIVE_MASK)
@@ -248,18 +239,6 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 		facep->mCenterLocal = part.mPosAgent;
 		facep->setFaceColor(part.mColor);
 		facep->setTexture(part.mImagep);
-		
-		if (i == 0)
-		{
-			mExtents[0] = mExtents[1] = part.mPosAgent;
-		}
-		else
-		{
-			update_min_max(mExtents[0], mExtents[1], part.mPosAgent);
-		}
-
-		max_width = llmax(max_width, part.mScale.mV[0]);
-		max_width = llmax(max_width, part.mScale.mV[1]);
 
 		mPixelArea = tot_area * pixel_meter_ratio;
 		const F32 area_scale = 10.f; // scale area to increase priority a bit
@@ -274,21 +253,9 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 			continue;
 		}
 		facep->setTEOffset(i);
-		facep->setSize(0,0);
+		facep->setSize(0, 0);
 	}
-	
-	LLVector3 y = gCamera->mYAxis;
-	LLVector3 z = gCamera->mZAxis;
 
-	LLVector3 pad;
-	for (i = 0; i < 3; i++)
-	{
-		pad.mV[i] = llmax(max_width, max_width * (fabsf(y.mV[i]) + fabsf(z.mV[i])));
-	}
-	
-	mExtents[0] -= pad;
-	mExtents[1] += pad;
-	
 	mDrawable->movePartition();
 	LLPipeline::sCompiles++;
 	return TRUE;
@@ -299,7 +266,7 @@ void LLVOPartGroup::getGeometry(S32 idx,
 								LLStrider<LLVector3>& normalsp, 
 								LLStrider<LLVector2>& texcoordsp,
 								LLStrider<LLColor4U>& colorsp, 
-								LLStrider<U32>& indicesp)
+								LLStrider<U16>& indicesp)
 {
 	if (idx >= (S32) mViewerPartGroupp->mParticles.size())
 	{
@@ -310,92 +277,72 @@ void LLVOPartGroup::getGeometry(S32 idx,
 
 	U32 vert_offset = mDrawable->getFace(idx)->getGeomIndex();
 
-	if (isParticle())
+	
+	LLVector3 part_pos_agent(part.mPosAgent);
+	LLVector3 camera_agent = gAgent.getCameraPositionAgent();
+	LLVector3 at = part_pos_agent - camera_agent;
+	LLVector3 up, right;
+
+	right = at % LLVector3(0.f, 0.f, 1.f);
+	right.normVec();
+	up = right % at;
+	up.normVec();
+
+	if (part.mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK)
 	{
-		LLVector3 part_pos_agent(part.mPosAgent);
-
-		const LLVector3& normal = -gCamera->getXAxis();
-
-		*verticesp++ = part_pos_agent;
-		*normalsp++ = normal;
-		*colorsp++ = part.mColor;
-		*texcoordsp++ = LLVector2(0.5f, 0.5f);
-		*indicesp++ = vert_offset;
-	}
-	else
-	{
-		LLVector3 part_pos_agent(part.mPosAgent);
-		LLVector3 camera_agent = gAgent.getCameraPositionAgent();
-		LLVector3 at = part_pos_agent - camera_agent;
-		LLVector3 up, right;
-
-		right = at % LLVector3(0.f, 0.f, 1.f);
-		right.normVec();
-		up = right % at;
+		LLVector3 normvel = part.mVelocity;
+		normvel.normVec();
+		LLVector2 up_fracs;
+		up_fracs.mV[0] = normvel*right;
+		up_fracs.mV[1] = normvel*up;
+		up_fracs.normVec();
+		LLVector3 new_up;
+		LLVector3 new_right;
+		new_up = up_fracs.mV[0] * right + up_fracs.mV[1]*up;
+		new_right = up_fracs.mV[1] * right - up_fracs.mV[0]*up;
+		up = new_up;
+		right = new_right;
 		up.normVec();
-
-		if (part.mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK)
-		{
-			LLVector3 normvel = part.mVelocity;
-			normvel.normVec();
-			LLVector2 up_fracs;
-			up_fracs.mV[0] = normvel*right;
-			up_fracs.mV[1] = normvel*up;
-			up_fracs.normVec();
-
-			LLVector3 new_up;
-			LLVector3 new_right;
-			new_up = up_fracs.mV[0] * right + up_fracs.mV[1]*up;
-			new_right = up_fracs.mV[1] * right - up_fracs.mV[0]*up;
-			up = new_up;
-			right = new_right;
-			up.normVec();
-			right.normVec();
-		}
-
-		right *= 0.5f*part.mScale.mV[0];
-		up *= 0.5f*part.mScale.mV[1];
-
-		const LLVector3& normal = -gCamera->getXAxis();
-		
-		*verticesp++ = part_pos_agent + up - right;
-		*verticesp++ = part_pos_agent - up - right;
-		*verticesp++ = part_pos_agent + up + right;
-		*verticesp++ = part_pos_agent - up + right;
-
-		*colorsp++ = part.mColor;
-		*colorsp++ = part.mColor;
-		*colorsp++ = part.mColor;
-		*colorsp++ = part.mColor;
-
-		*texcoordsp++ = LLVector2(0.f, 1.f);
-		*texcoordsp++ = LLVector2(0.f, 0.f);
-		*texcoordsp++ = LLVector2(1.f, 1.f);
-		*texcoordsp++ = LLVector2(1.f, 0.f);
-
-		*normalsp++   = normal;
-		*normalsp++   = normal;
-		*normalsp++   = normal;
-		*normalsp++   = normal;
-
-		*indicesp++ = vert_offset + 0;
-		*indicesp++ = vert_offset + 1;
-		*indicesp++ = vert_offset + 2;
-
-		*indicesp++ = vert_offset + 1;
-		*indicesp++ = vert_offset + 3;
-		*indicesp++ = vert_offset + 2;
+		right.normVec();
 	}
-}
 
-BOOL LLVOPartGroup::isParticle()
-{
-	return FALSE; //gGLManager.mHasPointParameters && mViewerPartGroupp->mUniformParticles;
+	right *= 0.5f*part.mScale.mV[0];
+	up *= 0.5f*part.mScale.mV[1];
+
+	const LLVector3& normal = -gCamera->getXAxis();
+		
+	*verticesp++ = part_pos_agent + up - right;
+	*verticesp++ = part_pos_agent - up - right;
+	*verticesp++ = part_pos_agent + up + right;
+	*verticesp++ = part_pos_agent - up + right;
+
+	*colorsp++ = part.mColor;
+	*colorsp++ = part.mColor;
+	*colorsp++ = part.mColor;
+	*colorsp++ = part.mColor;
+
+	*texcoordsp++ = LLVector2(0.f, 1.f);
+	*texcoordsp++ = LLVector2(0.f, 0.f);
+	*texcoordsp++ = LLVector2(1.f, 1.f);
+	*texcoordsp++ = LLVector2(1.f, 0.f);
+
+	*normalsp++   = normal;
+	*normalsp++   = normal;
+	*normalsp++   = normal;
+	*normalsp++   = normal;
+
+	*indicesp++ = vert_offset + 0;
+	*indicesp++ = vert_offset + 1;
+	*indicesp++ = vert_offset + 2;
+
+	*indicesp++ = vert_offset + 1;
+	*indicesp++ = vert_offset + 3;
+	*indicesp++ = vert_offset + 2;
 }
 
 U32 LLVOPartGroup::getPartitionType() const
 { 
-	return LLPipeline::PARTITION_PARTICLE; 
+	return LLViewerRegion::PARTITION_PARTICLE; 
 }
 
 LLParticlePartition::LLParticlePartition()
@@ -403,7 +350,7 @@ LLParticlePartition::LLParticlePartition()
 {
 	mRenderPass = LLRenderPass::PASS_ALPHA;
 	mDrawableType = LLPipeline::RENDER_TYPE_PARTICLES;
-	mPartitionType = LLPipeline::PARTITION_PARTICLE;
+	mPartitionType = LLViewerRegion::PARTITION_PARTICLE;
 	mBufferUsage = GL_DYNAMIC_DRAW_ARB;
 	mSlopRatio = 0.f;
 	mLODPeriod = 1;
@@ -459,6 +406,7 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 {
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
+	LLFastTimer ftm(LLFastTimer::FTM_REBUILD_PARTICLE_VB);
 
 	std::sort(mFaceList.begin(), mFaceList.end(), LLFace::CompareDistanceGreater());
 
@@ -469,7 +417,7 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 
 	LLVertexBuffer* buffer = group->mVertexBuffer;
 
-	LLStrider<U32> indicesp;
+	LLStrider<U16> indicesp;
 	LLStrider<LLVector3> verticesp;
 	LLStrider<LLVector3> normalsp;
 	LLStrider<LLVector2> texcoordsp;
@@ -503,8 +451,8 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 
 		if (idx >= 0 && draw_vec[idx]->mEnd == facep->getGeomIndex()-1 &&
 			draw_vec[idx]->mTexture == facep->getTexture() &&
-			draw_vec[idx]->mEnd - draw_vec[idx]->mStart + facep->getGeomCount() <= (U32) gGLManager.mGLMaxVertexRange &&
-			draw_vec[idx]->mCount + facep->getIndicesCount() <= (U32) gGLManager.mGLMaxIndexRange &&
+			(U16) (draw_vec[idx]->mEnd - draw_vec[idx]->mStart + facep->getGeomCount()) <= (U32) gGLManager.mGLMaxVertexRange &&
+			//draw_vec[idx]->mCount + facep->getIndicesCount() <= (U32) gGLManager.mGLMaxIndexRange &&
 			draw_vec[idx]->mEnd - draw_vec[idx]->mStart + facep->getGeomCount() < 4096 &&
 			draw_vec[idx]->mFullbright == fullbright)
 		{
@@ -524,6 +472,7 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 		}
 	}
 
+	buffer->setBuffer(0);
 	mFaceList.clear();
 }
 

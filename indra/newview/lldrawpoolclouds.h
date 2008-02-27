@@ -55,7 +55,6 @@ public:
 	/*virtual*/ void beginRenderPass(S32 pass);
 	/*virtual*/ void render(S32 pass = 0);
 	/*virtual*/ void renderForSelect();
-	virtual S32 getMaterialAttribIndex() { return 0; }
 };
 
 #endif // LL_LLDRAWPOOLSKY_H

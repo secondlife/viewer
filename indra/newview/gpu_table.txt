@@ -1,139 +1,193 @@
 // 
 // Categorizes graphics chips into various classes by name
 //
-// The table contains chip names			 regular expressions to match
-// against driver strings			 and a class number.
+// The table contains chip names regular expressions to match
+// against driver strings, a class number, and whether we claim
+// to support them or not.
 //
 // Class Numbers:
-//		0 - Compatibility rendering only
-//		1 - Shaders available			 off by default
-//		2 - Shaders enabled by default
-//		3 - Everything on.
+//		0 - Defaults to low graphics settings.  No shaders on by default
+//		1 - Defaults to mid graphics settings.  Basic shaders on by default
+//		2 - Defaults to high graphics settings.  Atmospherics on by default.
+//		3 - Same as class 2 for now.
+//
+// Supported Number:
+//		0 - We claim to not support this card.
+//		1 - We claim to support this card.
 //
 // Format:
-//   <chip name>	<regexp>	<class>
+//   <chip name>	<regexp>	<class>		<supported>
 //	
 
-3Dfx							.*3Dfx.*								0
-3Dlabs							.*3Dlabs.*								0
-ATI All-in-Wonder PCI-E			.*ATI.*All-in-Wonder.*PCI-E.*			1
-ATI All-in-Wonder X800			.*ATI.*All-in-Wonder X8.*				2
-ATI All-in-Wonder X1800			.*ATI.*All-in-Wonder X18.*				3
-ATI All-in-Wonder X1900			.*ATI.*All-in-Wonder X19.*				3
-ATI ASUS X1xxx					.*ASUS X1.*			 					3
-ATI Mobility Radeon X1xxx		.*ATI.*Mobility.*X1.*					2
-ATI Mobility Radeon X3xx		.*ATI.*Mobility.*X3.*					1
-ATI Mobility Radeon X6xx		.*ATI.*Mobility.*X6.*					1
-ATI Mobility Radeon X7xx		.*ATI.*Mobility.*X7.*					1
-ATI Mobility Radeon Xxxx		.*ATI.*Mobility.*X.*					1
-ATI Mobility Radeon				.*ATI.*Mobility.*						0
-ATI Radeon OpenGL				.*ATI.*Radeon OpenGL.* 					3
-ATI Diamond X1xxx				.*ATI.*Diamond.*X1.*					3
-ATI FireGL 5xxx					.*ATI.*FireGL V5.*						3
-ATI FireGL						.*ATI.*Fire.*GL.*						0
-ATI FireMV						.*ATI.*FireMV.*							0
-ATI Generic						.*ATI.*Generic.*						0
-ATI Radeon 7000					.*ATI.*Radeon 7.*						0
-ATI Radeon 8000					.*ATI.*Radeon 8.*						0
-ATI Radeon 9000					.*ATI.*Radeon 90.*						1
-ATI Radeon 9100					.*ATI.*Radeon 91.*						1
-ATI Radeon 9200					.*ATI.*Radeon 92.*						1
-ATI Radeon 9500					.*ATI.*Radeon 95.*						1
-ATI Radeon 9600					.*ATI.*Radeon 96.*						1
-ATI Radeon 9700					.*ATI.*Radeon 97.*						1
-ATI Radeon 9800					.*ATI.*Radeon 98.*						1
-ATI Radeon X1300				.*ATI.*Radeon X13.*						3
-ATI Radeon X1400				.*ATI.*Radeon X14.*						3
-ATI Radeon X1500				.*ATI.*Radeon X15.*						3
-ATI Radeon X1600				.*ATI.*Radeon X16.*						3
-ATI Radeon X1700				.*ATI.*Radeon X17.*						3
-ATI Radeon X1800				.*ATI.*Radeon X18.*						3
-ATI Radeon X1900				.*ATI.*Radeon X19.*						3
-ATI Radeon X2400				.*ATI.*Radeon X24.*						3
-ATI Radeon X2600				.*ATI.*Radeon X26.*						3
-ATI Radeon X2900				.*ATI.*Radeon X29.*						3
-ATI Radeon X300					.*ATI.*Radeon X3.*						2
-ATI Radeon X400					.*ATI.*Radeon X4.*						2
-ATI Radeon X500					.*ATI.*Radeon X5.*						2
-ATI Radeon X600					.*ATI.*Radeon X6.*						2
-ATI Radeon X700					.*ATI.*Radeon X7.*						2
-ATI Radeon X800					.*ATI.*Radeon X8.*						2
-ATI Radeon X900					.*ATI.*Radeon X9.*						2
-ATI Radeon Xpress				.*ATI.*Radeon Xpress.*					1
-ATI Rage 128					.*ATI.*Rage 128.*						0
-Intel 830M						.*Intel.*830M							0
-Intel 845G						.*Intel.*845G							0
-Intel 855GM						.*Intel.*855GM							0
-Intel 865G						.*Intel.*865G							0
-Intel 900						.*Intel.*900.*900						0
-Intel 915G						.*Intel.*915G							0
-Intel 915GM						.*Intel.*915GM							0
-Intel 945G						.*Intel.*945G							0
-Intel 945GM						.*Intel.*945GM							0
-Intel 950						.*Intel.*950.*950						0
-Intel G965						.*Intel.*G965.*							0
-Intel GM965						.*Intel.*GM965.*						0
-Intel G33						.*Intel.*G33.*							0
-Intel Brookdale					.*Intel.*Brookdale.*					0
-Intel Montara					.*Intel.*Montara.*						0
-Intel Springdale				.*Intel.*Springdale.*					0
-Matrox							.*Matrox.*								0
-NVIDIA GeForce					.*GeForce 256.*							0
-NVIDIA GeForce 2				.*GeForce2.*							0
-NVIDIA GeForce 3				.*GeForce3.*							0
-NVIDIA GeForce 4 Go				.*NVIDIA.*GeForce4.*Go.*				0
-NVIDIA GeForce 4 MX				.*NVIDIA.*GeForce4 MX.*					0
-NVIDIA GeForce 4 Ti				.*NVIDIA.*GeForce4 Ti.*					0
-NVIDIA GeForce 6100				.*NVIDIA.*GeForce 61.*					2
-NVIDIA GeForce 6200				.*NVIDIA.*GeForce 62.*					2
-NVIDIA GeForce 6500				.*NVIDIA.*GeForce 65.*					2
-NVIDIA GeForce 6600				.*NVIDIA.*GeForce 66.*					2
-NVIDIA GeForce 6700				.*NVIDIA.*GeForce 67.*					2
-NVIDIA GeForce 6800				.*NVIDIA.*GeForce 68.*					2
-NVIDIA GeForce 7300				.*NVIDIA.*GeForce 73.*					3
-NVIDIA GeForce 7600				.*NVIDIA.*GeForce 76.*					3
-NVIDIA GeForce 7800				.*NVIDIA.*GeForce 78.*					3
-NVIDIA GeForce 7900				.*NVIDIA.*GeForce 79.*					3
-NVIDIA GeForce 8800				.*NVIDIA.*GeForce 88.*					3
-NVIDIA GeForce FX 5100			.*NVIDIA.*GeForce FX 51.*				1
-NVIDIA GeForce FX 5200			.*NVIDIA.*GeForce FX 52.*				1
-NVIDIA GeForce FX 5500			.*NVIDIA.*GeForce FX 55.*				1
-NVIDIA GeForce FX 5600			.*NVIDIA.*GeForce FX 56.*				1
-NVIDIA GeForce FX 5700			.*NVIDIA.*GeForce FX 57.*				1
-NVIDIA GeForce FX 5800			.*NVIDIA.*GeForce FX 58.*				1
-NVIDIA GeForce FX 5900			.*NVIDIA.*GeForce FX 59.*				1
-NVIDIA GeForce FX Go5100		.*NVIDIA.*GeForce FX Go51.*				1
-NVIDIA GeForce FX Go5200		.*NVIDIA.*GeForce FX Go52.*				1
-NVIDIA GeForce FX Go5300		.*NVIDIA.*GeForce FX Go53.*				1
-NVIDIA GeForce FX Go5500		.*NVIDIA.*GeForce FX Go55.*				1
-NVIDIA GeForce FX Go5600		.*NVIDIA.*GeForce FX Go56.*				1
-NVIDIA GeForce FX Go5700		.*NVIDIA.*GeForce FX Go57.*				1
-NVIDIA GeForce FX Go5800		.*NVIDIA.*GeForce FX Go58.*				1
-NVIDIA GeForce FX Go5900		.*NVIDIA.*GeForce FX Go59.*				1
-NVIDIA GeForce Go 6100			.*NVIDIA.*GeForce Go 61.*				2
-NVIDIA GeForce Go 6200			.*NVIDIA.*GeForce Go 62.*				2
-NVIDIA GeForce Go 6500			.*NVIDIA.*GeForce Go 65.*				2
-NVIDIA GeForce Go 6600			.*NVIDIA.*GeForce Go 66.*				2
-NVIDIA GeForce Go 6700			.*NVIDIA.*GeForce Go 67.*				2
-NVIDIA GeForce Go 6800			.*NVIDIA.*GeForce Go 68.*				2
-NVIDIA GeForce Go 7300			.*NVIDIA.*GeForce Go 73.*				3
-NVIDIA GeForce Go 7400			.*NVIDIA.*GeForce Go 74.*				3
-NVIDIA GeForce Go 7600			.*NVIDIA.*GeForce Go 76.*				3
-NVIDIA GeForce Go 7700			.*NVIDIA.*GeForce Go 77.*				3
-NVIDIA GeForce Go 7800			.*NVIDIA.*GeForce Go 78.*				3
-NVIDIA GeForce Go 7900			.*NVIDIA.*GeForce Go 79.*				3
-NVIDIA GeForce Go 6				.*GeForce Go 6.*						2
-NVIDIA GeForce PCX				.*GeForce PCX.*							1
-NVIDIA Generic					.*NVIDIA.*NV.*							0
-NVIDIA Generic					.*NVIDIA.*Unknown.*						0
-NVIDIA Quadro 2					.*Quadro2.*								0
-NVIDIA Quadro 4					.*Quadro4.*								0
-NVIDIA Quadro DCC				.*Quadro DCC.*							0
-NVIDIA Quadro FX				.*Quadro FX.*							1
-NVIDIA Quadro NVS				.*Quadro NVS.*							0
-NVIDIA RIVA TNT					.*RIVA TNT.*							0
-S3								.*S3 Graphics.*							0
-SiS								SiS.*									0
-Trident							Trident.*								0
-Tungsten Graphics				Tungsten.*								0
-XGI								XGI.*									0
+3Dfx							.*3Dfx.*							0		0
+3Dlabs							.*3Dlabs.*							0		0
+ATI 3D-Analyze					.*ATI.*3D-Analyze.*					0		0
+ATI All-in-Wonder PCI-E			.*ATI.*All-in-Wonder.*PCI-E.*		1		1
+ATI All-in-Wonder 9xxx			.*ATI.*All-in-Wonder 9.*			1		1
+ATI All-in-Wonder X800			.*ATI.*All-in-Wonder X8.*			2		1
+ATI All-in-Wonder X1800			.*ATI.*All-in-Wonder X18.*			3		1
+ATI All-in-Wonder X1900			.*ATI.*All-in-Wonder X19.*			3		1
+ATI ASUS A9xxx					.*ATI.*ASUS.*A9.*					1		1
+ATI ASUS AH24xx					.*ATI.*ASUS.*AH24.*					3		1
+ATI ASUS AH26xx					.*ATI.*ASUS.*AH26.*					3		1
+ATI ASUS AX3xx					.*ATI.*ASUS.*AX3.*					1		1
+ATI ASUS AX5xx					.*ATI.*ASUS.*AX5.*					1		1
+ATI ASUS AX8xx					.*ATI.*ASUS.*AX8.* 					2		1
+ATI ASUS EAH38xx				.*ATI.*ASUS.*EAH38.*				3		1
+ATI ASUS EAH24xx				.*ATI.*ASUS.*EAH24.*				2		1
+ATI ASUS EAH26xx				.*ATI.*ASUS.*EAH26.*				3		1
+ATI ASUS X1xxx					.*ATI.*ASUS.*X1.*					2		1
+ATI Diamond X1xxx				.*ATI.*Diamond.*X1.*				3		1
+ATI Diamond X550				.*ATI.*Diamond X550.*				1		1
+ATI FireGL 5xxx					.*ATI.*FireGL V5.*					1		0
+ATI FireGL						.*ATI.*Fire.*GL.*					0		0
+ATI FireMV						.*ATI.*FireMV.*						0		0
+ATI Generic						.*ATI.*Generic.*					0		0
+ATI Hercules 9800				.*ATI.*Hercules.*9800.*				1		1
+ATI IGP 340M					.*ATI.*IGP.*340M.*					0		0
+ATI M52							.*ATI.*M52.*						1		1
+ATI Mobility Radeon 9800		.*ATI.*Mobility.*98.*				1		1
+ATI Mobility Radeon 9700		.*ATI.*Mobility.*97.*				1		1
+ATI Mobility Radeon 9600		.*ATI.*Mobility.*96.*				0		1
+ATI Mobility Radeon X1xxx		.*ATI.*Mobility.*X1.*				1		1
+ATI Mobility Radeon X2xxx		.*ATI.*Mobility.*X2.*				1		1
+ATI Mobility Radeon X3xx		.*ATI.*Mobility.*X3.*				1		1
+ATI Mobility Radeon X6xx		.*ATI.*Mobility.*X6.*				1		1
+ATI Mobility Radeon X7xx		.*ATI.*Mobility.*X7.*				1		1
+ATI Mobility Radeon Xxxx		.*ATI.*Mobility.*X.*				1		1
+ATI Mobility Radeon				.*ATI.*Mobility.*					0		1
+ATI Radeon HD 2300				.*ATI.*Radeon HD 23.*				2		1
+ATI Radeon HD 2400				.*ATI.*Radeon HD 24.*				2		1
+ATI Radeon HD 2600				.*ATI.*Radeon HD 26.*				2		1
+ATI Radeon HD 2900				.*ATI.*Radeon HD 29.*				3		1
+ATI Radeon HD 3800				.*ATI.*Radeon HD 38.*				3		1
+ATI Radeon OpenGL				.*ATI.*Radeon OpenGL.* 				0		0
+ATI Radeon 7000					.*ATI.*Radeon 7.*					0		1
+ATI Radeon 8000					.*ATI.*Radeon 8.*					0		1
+ATI Radeon 9000					.*ATI.*Radeon 90.*					0		1
+ATI Radeon 9100					.*ATI.*Radeon 91.*					0		1
+ATI Radeon 9200					.*ATI.*Radeon 92.*					0		1
+ATI Radeon 9500					.*ATI.*Radeon 95.*					0		1
+ATI Radeon 9600					.*ATI.*Radeon 96.*					0		1
+ATI Radeon 9700					.*ATI.*Radeon 97.*					1		1
+ATI Radeon 9800					.*ATI.*Radeon 98.*					1		1
+ATI Radeon RV250				.*ATI.*RV250.*						0		1
+ATI Radeon RX700				.*ATI.*RX70.*						1		1
+ATI Radeon RX800				.*ATI.*Radeon *RX80.*				2		1
+ATI Radeon VE					.*ATI.*Radeon.*VE.*					0		0
+ATI Radeon X1000				.*ATI.*Radeon *X10.*				0		1
+ATI Radeon X1200				.*ATI.*Radeon *X12.*				1		1
+ATI Radeon X1300				.*ATI.*Radeon *X13.*				1		1
+ATI Radeon X1400				.*ATI.*Radeon X14.*					1		1
+ATI Radeon X1500				.*ATI.*Radeon X15.*					1		1
+ATI Radeon X1600				.*ATI.*Radeon X16.*					1		1
+ATI Radeon X1700				.*ATI.*Radeon X17.*					1		1
+ATI Radeon X1800				.*ATI.*Radeon X18.*					3		1
+ATI Radeon X1900				.*ATI.*Radeon X19.*					3		1
+ATI Radeon X2400				.*ATI.*Radeon X24.*					3		1
+ATI Radeon X2600				.*ATI.*Radeon X26.*					3		1
+ATI Radeon X2900				.*ATI.*Radeon X29.*					3		1
+ATI Radeon X300					.*ATI.*Radeon *X3.*					1		1
+ATI Radeon X400					.*ATI.*Radeon X4.*					1		1
+ATI Radeon X500					.*ATI.*Radeon X5.*					1		1
+ATI Radeon X600					.*ATI.*Radeon X6.*					1		1
+ATI Radeon X700					.*ATI.*Radeon X7.*					1		1
+ATI Radeon X800					.*ATI.*Radeon X8.*					2		1
+ATI Radeon X900					.*ATI.*Radeon X9.*					2		1
+ATI Radeon Xpress				.*ATI.*Radeon Xpress.*				0		0
+ATI Rage 128					.*ATI.*Rage 128.*					0		1
+ATI RV250						.*ATI.*RV250.*						0		1
+ATI RV530						.*ATI.*RV530.*						1		1
+ATI RX700						.*ATI.*RX700.*						1		1
+Intel x3100						.*Intel.*x3100						0		1
+Intel 830M						.*Intel.*830M						0		0
+Intel 845G						.*Intel.*845G						0		0
+Intel 855GM						.*Intel.*855GM						0		0
+Intel 865G						.*Intel.*865G						0		0
+Intel 900						.*Intel.*900.*900					0		0
+Intel 915GM						.*Intel.*915GM						0		0
+Intel 915G						.*Intel.*915G						0		0
+Intel 945GM						.*Intel.*945GM						0		1
+Intel 945G						.*Intel.*945G						0		1
+Intel 950						.*Intel.*950.*						0		1
+Intel 965						.*Intel.*965.*						0		1
+Intel G33						.*Intel.*G33.*						0		0
+Intel Bear Lake					.*Intel.*Bear Lake.*				0		0
+Intel Broadwater 				.*Intel.*Broadwater.*				0		0
+Intel Brookdale					.*Intel.*Brookdale.*				0		0
+Intel Montara					.*Intel.*Montara.*					0		0
+Intel Springdale				.*Intel.*Springdale.*				0		0
+Matrox							.*Matrox.*							0		0
+Mesa							.*Mesa.*							0		0
+NVIDIA G72						.*NVIDIA.*G72.*						1		1
+NVIDIA G73						.*NVIDIA.*G73.*						2		1
+NVIDIA GeForce					.*GeForce 256.*						0		0
+NVIDIA GeForce 2				.*GeForce2.*						0		1
+NVIDIA GeForce 3				.*GeForce3.*						0		1
+NVIDIA GeForce 4 Go				.*NVIDIA.*GeForce4.*Go.*			0		1
+NVIDIA GeForce 4 MX				.*NVIDIA.*GeForce4 MX.*				0		1
+NVIDIA GeForce 4 Ti				.*NVIDIA.*GeForce4 Ti.*				0		1
+NVIDIA GeForce 6100				.*NVIDIA.*GeForce 61.*				0		1
+NVIDIA GeForce 6200				.*NVIDIA.*GeForce 62.*				0		1
+NVIDIA GeForce 6500				.*NVIDIA.*GeForce 65.*				1		1
+NVIDIA GeForce 6600				.*NVIDIA.*GeForce 66.*				1		1
+NVIDIA GeForce 6700				.*NVIDIA.*GeForce 67.*				2		1
+NVIDIA GeForce 6800				.*NVIDIA.*GeForce 68.*				2		1
+NVIDIA GeForce 7000				.*NVIDIA.*GeForce 70.*				0		1
+NVIDIA GeForce 7100				.*NVIDIA.*GeForce 71.*				1		1
+NVIDIA GeForce 7200				.*NVIDIA.*GeForce 72.*				1		1
+NVIDIA GeForce 7300				.*NVIDIA.*GeForce 73.*				1		1
+NVIDIA GeForce 7500				.*NVIDIA.*GeForce 75.*				1		1
+NVIDIA GeForce 7600				.*NVIDIA.*GeForce 76.*				2		1
+NVIDIA GeForce 7800				.*NVIDIA.*GeForce 78.*				2		1
+NVIDIA GeForce 7900				.*NVIDIA.*GeForce 79.*				2		1
+NVIDIA GeForce 8300				.*NVIDIA.*GeForce 83.*				1		1
+NVIDIA GeForce 8400				.*NVIDIA.*GeForce 84.*				1		1
+NVIDIA GeForce 8500				.*NVIDIA.*GeForce 85.*				3		1
+NVIDIA GeForce 8600				.*NVIDIA.*GeForce 86.*				3		1
+NVIDIA GeForce 8700				.*NVIDIA.*GeForce 87.*				3		1
+NVIDIA GeForce 8800				.*NVIDIA.*GeForce 88.*				3		1
+NVIDIA GeForce FX 5100			.*NVIDIA.*GeForce FX 51.*			0		1
+NVIDIA GeForce FX 5200			.*NVIDIA.*GeForce FX 52.*			0		1
+NVIDIA GeForce FX 5500			.*NVIDIA.*GeForce FX 55.*			0		1
+NVIDIA GeForce FX 5600			.*NVIDIA.*GeForce FX 56.*			1		1
+NVIDIA GeForce FX 5700			.*NVIDIA.*GeForce FX 57.*			1		1
+NVIDIA GeForce FX 5800			.*NVIDIA.*GeForce FX 58.*			1		1
+NVIDIA GeForce FX 5900			.*NVIDIA.*GeForce FX 59.*			1		1
+NVIDIA GeForce FX Go5100		.*NVIDIA.*GeForce FX Go51.*			0		1
+NVIDIA GeForce FX Go5200		.*NVIDIA.*GeForce FX Go52.*			0		1
+NVIDIA GeForce FX Go5300		.*NVIDIA.*GeForce FX Go53.*			0		1
+NVIDIA GeForce FX Go5500		.*NVIDIA.*GeForce FX Go55.*			0		1
+NVIDIA GeForce FX Go5600		.*NVIDIA.*GeForce FX Go56.*			0		1
+NVIDIA GeForce FX Go5700		.*NVIDIA.*GeForce FX Go57.*			1		1
+NVIDIA GeForce FX Go5800		.*NVIDIA.*GeForce FX Go58.*			1		1
+NVIDIA GeForce FX Go5900		.*NVIDIA.*GeForce FX Go59.*			1		1
+NVIDIA GeForce Go 6100			.*NVIDIA.*GeForce Go 61.*			0		1
+NVIDIA GeForce Go 6200			.*NVIDIA.*GeForce Go 62.*			0		1
+NVIDIA GeForce Go 6500			.*NVIDIA.*GeForce Go 65.*			1		1
+NVIDIA GeForce Go 6600			.*NVIDIA.*GeForce Go 66.*			1		1
+NVIDIA GeForce Go 6700			.*NVIDIA.*GeForce Go 67.*			1		1
+NVIDIA GeForce Go 6800			.*NVIDIA.*GeForce Go 68.*			1		1
+NVIDIA GeForce Go 7200			.*NVIDIA.*GeForce Go 72.*			1		1
+NVIDIA GeForce Go 7300			.*NVIDIA.*GeForce Go 73.*			1		1
+NVIDIA GeForce Go 7400			.*NVIDIA.*GeForce Go 74.*			1		1
+NVIDIA GeForce Go 7600			.*NVIDIA.*GeForce Go 76.*			2		1
+NVIDIA GeForce Go 7700			.*NVIDIA.*GeForce Go 77.*			2		1
+NVIDIA GeForce Go 7800			.*NVIDIA.*GeForce Go 78.*			2		1
+NVIDIA GeForce Go 7900			.*NVIDIA.*GeForce Go 79.*			2		1
+NVIDIA GeForce Go 6				.*GeForce Go 6.*					1		1
+NVIDIA GeForce PCX				.*GeForce PCX.*						0		1
+NVIDIA Generic					.*NVIDIA.*Unknown.*					0		0
+NVIDIA Quadro2					.*Quadro2.*							0		0
+NVIDIA Quadro4					.*Quadro4.*							0		0
+NVIDIA Quadro DCC				.*Quadro DCC.*						0		0
+NVIDIA Quadro FX				.*Quadro FX.*						1		0
+NVIDIA Quadro NVS				.*Quadro NVS.*						0		0
+NVIDIA RIVA TNT					.*RIVA TNT.*						0		0
+S3								.*S3 Graphics.*						0		0
+SiS								SiS.*								0		0
+Trident							Trident.*							0		0
+Tungsten Graphics				Tungsten.*							0		0
+XGI								XGI.*								0		0
+VIA								VIA.*								0		0
+

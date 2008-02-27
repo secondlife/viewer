@@ -37,6 +37,7 @@
 #include <cassert>
 #include <boost/tokenizer.hpp>
 
+#include "llglimmediate.h"
 #include "llevent.h"
 #include "llfontgl.h"
 #include "llfocusmgr.h"
@@ -1290,28 +1291,28 @@ void LLView::drawDebugRect()
 			border_color.mV[sDepth%3] = 1.f;
 		}
 
-		glColor4fv( border_color.mV );
+		gGL.color4fv( border_color.mV );
 
-		glBegin(GL_LINES);
-			glVertex2i(0, debug_rect.getHeight() - 1);
-			glVertex2i(0, 0);
+		gGL.begin(GL_LINES);
+			gGL.vertex2i(0, debug_rect.getHeight() - 1);
+			gGL.vertex2i(0, 0);
 
-			glVertex2i(0, 0);
-			glVertex2i(debug_rect.getWidth() - 1, 0);
+			gGL.vertex2i(0, 0);
+			gGL.vertex2i(debug_rect.getWidth() - 1, 0);
 
-			glVertex2i(debug_rect.getWidth() - 1, 0);
-			glVertex2i(debug_rect.getWidth() - 1, debug_rect.getHeight() - 1);
+			gGL.vertex2i(debug_rect.getWidth() - 1, 0);
+			gGL.vertex2i(debug_rect.getWidth() - 1, debug_rect.getHeight() - 1);
 
-			glVertex2i(debug_rect.getWidth() - 1, debug_rect.getHeight() - 1);
-			glVertex2i(0, debug_rect.getHeight() - 1);
-		glEnd();
+			gGL.vertex2i(debug_rect.getWidth() - 1, debug_rect.getHeight() - 1);
+			gGL.vertex2i(0, debug_rect.getHeight() - 1);
+		gGL.end();
 
 		// Draw the name if it's not a leaf node
 		if (mChildList.size() && !sEditingUI)
 		{
 			//char temp[256];
 			S32 x, y;
-			glColor4fv( border_color.mV );
+			gGL.color4fv( border_color.mV );
 			x = debug_rect.getWidth()/2;
 			y = debug_rect.getHeight()/2;
 			LLString debug_text = llformat("%s (%d x %d)", getName().c_str(),

@@ -43,31 +43,36 @@ class LLDrawInfo;
 
 class LLDrawPoolBump : public LLRenderPass
 {
+protected :
+	LLDrawPoolBump(const U32 type):LLRenderPass(type) { mShiny = FALSE; }
 public:
 	static U32 sVertexMask;
+	BOOL mShiny;
 
 	virtual U32 getVertexDataMask() { return sVertexMask; }
 
 	LLDrawPoolBump();
 
 	virtual void render(S32 pass = 0);
-	/*virtual*/ void beginRenderPass( S32 pass );
-	/*virtual*/ void endRenderPass( S32 pass );
-	/*virtual*/ S32	 getNumPasses();
+	virtual void beginRenderPass( S32 pass );
+	virtual void endRenderPass( S32 pass );
+	virtual S32	 getNumPasses();
 	/*virtual*/ void prerender();
 	/*virtual*/ void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture);
 
 	void renderBump(U32 type, U32 mask);
-	void renderBumpActive(U32 type, U32 mask);
 	void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture);
 	void renderGroupBump(LLSpatialGroup* group, U32 type, U32 mask);
 	
 	S32 numBumpPasses();
 	
-	void beginShiny();
-	void renderShiny();
-	void endShiny();
-	void renderActive(U32 type, U32 mask, BOOL texture = TRUE);
+	void beginShiny(bool invisible = false);
+	void renderShiny(bool invisible = false);
+	void endShiny(bool invisible = false);
+	
+	void beginFullbrightShiny();
+	void renderFullbrightShiny();
+	void endFullbrightShiny();
 
 	void beginBump();
 	void renderBump();
@@ -143,6 +148,25 @@ private:
 
 extern LLBumpImageList gBumpImageList;
 
+class LLDrawPoolInvisible : public LLDrawPoolBump
+{
+public:
+	LLDrawPoolInvisible() : LLDrawPoolBump(LLDrawPool::POOL_INVISIBLE) { }
+
+	enum
+	{
+		VERTEX_DATA_MASK = LLVertexBuffer::MAP_VERTEX
+	};
+	
+	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+
+	virtual void prerender() { }
+
+	virtual void render(S32 pass = 0);
+	virtual void beginRenderPass( S32 pass ) { }
+	virtual void endRenderPass( S32 pass ) { }
+	virtual S32	 getNumPasses() {return 1;}
+};
 
 
 #endif // LL_LLDRAWPOOLBUMP_H

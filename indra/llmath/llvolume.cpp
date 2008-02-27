@@ -1639,10 +1639,25 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL ge
 	}
 }
 
+void LLVolume::resizePath(S32 length)
+{
+	mPathp->resizePath(length);
+	if (mVolumeFaces != NULL)
+	{
+		delete[] mVolumeFaces;
+		mVolumeFaces = NULL;
+	}
+}
+
 void LLVolume::regen()
 {
 	generate();
 	createVolumeFaces();
+}
+
+void LLVolume::genBinormals(S32 face)
+{
+	mVolumeFaces[face].createBinormals();
 }
 
 LLVolume::~LLVolume()
@@ -1746,12 +1761,6 @@ void LLVolume::createVolumeFaces()
 {
 	S32 i;
 
-	if (mVolumeFaces != NULL)
-	{
-		delete[] mVolumeFaces;
-		mVolumeFaces = NULL;
-	}
-
 	if (mGenerateSingleFace)
 	{
 		mNumVolumeFaces = 0;
@@ -1760,7 +1769,12 @@ void LLVolume::createVolumeFaces()
 	{
 		S32 num_faces = getNumFaces();
 		mNumVolumeFaces = num_faces;
-		mVolumeFaces = new LLVolumeFace[num_faces];
+		BOOL partial_build = TRUE;
+		if (!mVolumeFaces)
+		{
+			partial_build = FALSE;
+			mVolumeFaces = new LLVolumeFace[num_faces];
+		}
 		// Initialize volume faces with parameter data
 		for (i = 0; i < num_faces; i++)
 		{
@@ -1823,7 +1837,7 @@ void LLVolume::createVolumeFaces()
 
 		for (i = 0; i < mNumVolumeFaces; i++)
 		{
-			mVolumeFaces[i].create();
+			mVolumeFaces[i].create(partial_build);
 		}
 	}
 }
@@ -3967,18 +3981,19 @@ LLVolumeFace::LLVolumeFace()
 	mBeginT = 0;
 	mNumS = 0;
 	mNumT = 0;
+	mHasBinormals = FALSE;
 }
 
 
-BOOL LLVolumeFace::create()
+BOOL LLVolumeFace::create(BOOL partial_build)
 {
 	if (mTypeMask & CAP_MASK)
 	{
-		return createCap();
+		return createCap(partial_build);
 	}
 	else if ((mTypeMask & END_MASK) || (mTypeMask & SIDE_MASK))
 	{
-		return createSide();
+		return createSide(partial_build);
 	}
 	else
 	{
@@ -4000,7 +4015,7 @@ void	LerpPlanarVertex(LLVolumeFace::VertexData& v0,
 	vout.mBinormal = v0.mBinormal;
 }
 
-BOOL LLVolumeFace::createUnCutCubeCap()
+BOOL LLVolumeFace::createUnCutCubeCap(BOOL partial_build)
 {
 	const std::vector<LLVolume::Point>& mesh = mVolumep->getMesh();
 	const std::vector<LLVector3>& profile = mVolumep->getProfile().mProfile;
@@ -4055,6 +4070,12 @@ BOOL LLVolumeFace::createUnCutCubeCap()
 		corners[t].mBinormal = baseVert.mBinormal;
 		corners[t].mNormal = baseVert.mNormal;
 	}
+	mHasBinormals = TRUE;
+
+	if (partial_build)
+	{
+		mVertices.clear();
+	}
 
 	S32	vtop = mVertices.size();
 	for(int gx = 0;gx<grid_size+1;gx++){
@@ -4082,22 +4103,25 @@ BOOL LLVolumeFace::createUnCutCubeCap()
 	
 	mCenter = (min + max) * 0.5f;
 
-	int idxs[] = {0,1,(grid_size+1)+1,(grid_size+1)+1,(grid_size+1),0};
-	for(int gx = 0;gx<grid_size;gx++){
-		for(int gy = 0;gy<grid_size;gy++){
-			if (mTypeMask & TOP_MASK){
-				for(int i=5;i>=0;i--)mIndices.push_back(vtop+(gy*(grid_size+1))+gx+idxs[i]);
-			}else{
-				for(int i=0;i<6;i++)mIndices.push_back(vtop+(gy*(grid_size+1))+gx+idxs[i]);
+	if (!partial_build)
+	{
+		int idxs[] = {0,1,(grid_size+1)+1,(grid_size+1)+1,(grid_size+1),0};
+		for(int gx = 0;gx<grid_size;gx++){
+			for(int gy = 0;gy<grid_size;gy++){
+				if (mTypeMask & TOP_MASK){
+					for(int i=5;i>=0;i--)mIndices.push_back(vtop+(gy*(grid_size+1))+gx+idxs[i]);
+				}else{
+					for(int i=0;i<6;i++)mIndices.push_back(vtop+(gy*(grid_size+1))+gx+idxs[i]);
+				}
 			}
 		}
 	}
-	
+		
 	return TRUE;
 }
 
 
-BOOL LLVolumeFace::createCap()
+BOOL LLVolumeFace::createCap(BOOL partial_build)
 {
 	if (!(mTypeMask & HOLLOW_MASK) && 
 		!(mTypeMask & OPEN_MASK) && 
@@ -4106,7 +4130,7 @@ BOOL LLVolumeFace::createCap()
 		(mVolumep->getProfile().mParams.getCurveType()==LL_PCODE_PROFILE_SQUARE &&
 			mVolumep->getPath().mParams.getCurveType()==LL_PCODE_PATH_LINE)	
 		){
-		return createUnCutCubeCap();
+		return createUnCutCubeCap(partial_build);
 	}
 
 	S32 i;
@@ -4118,8 +4142,13 @@ BOOL LLVolumeFace::createCap()
 	// All types of caps have the same number of vertices and indices
 	num_vertices = profile.size();
 	num_indices = (profile.size() - 2)*3;
-	vector_append(mVertices,num_vertices);
-	vector_append(mIndices,num_indices);
+
+	mVertices.resize(num_vertices);
+
+	if (!partial_build)
+	{
+		mIndices.resize(num_indices);
+	}
 
 	S32 max_s = mVolumep->getProfile().getTotal();
 	S32 max_t = mVolumep->getPath().mPath.size();
@@ -4203,7 +4232,10 @@ BOOL LLVolumeFace::createCap()
 	{
 		mVertices.push_back(vd);
 		num_vertices++;
-		vector_append(mIndices, 3);
+		if (!partial_build)
+		{
+			vector_append(mIndices, 3);
+		}
 	}
 		
 	
@@ -4211,6 +4243,13 @@ BOOL LLVolumeFace::createCap()
 	{
 		mVertices[i].mBinormal = binormal;
 		mVertices[i].mNormal = normal;
+	}
+
+	mHasBinormals = TRUE;
+
+	if (partial_build)
+	{
+		return TRUE;
 	}
 
 	if (mTypeMask & HOLLOW_MASK)
@@ -4480,7 +4519,50 @@ BOOL LLVolumeFace::createCap()
 	return TRUE;
 }
 
-BOOL LLVolumeFace::createSide()
+void LLVolumeFace::createBinormals()
+{
+	if (!mHasBinormals)
+	{
+		//generate binormals
+		for (U32 i = 0; i < mIndices.size()/3; i++) 
+		{	//for each triangle
+			const VertexData& v0 = mVertices[mIndices[i*3+0]];
+			const VertexData& v1 = mVertices[mIndices[i*3+1]];
+			const VertexData& v2 = mVertices[mIndices[i*3+2]];
+						
+			//calculate binormal
+			LLVector3 binorm = calc_binormal_from_triangle(v0.mPosition, v0.mTexCoord,
+															v1.mPosition, v1.mTexCoord,
+															v2.mPosition, v2.mTexCoord);
+
+			for (U32 j = 0; j < 3; j++) 
+			{ //add triangle normal to vertices
+				mVertices[mIndices[i*3+j]].mBinormal += binorm; // * (weight_sum - d[j])/weight_sum;
+			}
+
+			//even out quad contributions
+			if (i % 2 == 0) 
+			{
+				mVertices[mIndices[i*3+2]].mBinormal += binorm;
+			}
+			else 
+			{
+				mVertices[mIndices[i*3+1]].mBinormal += binorm;
+			}
+		}
+
+		//normalize binormals
+		for (U32 i = 0; i < mVertices.size(); i++) 
+		{
+			mVertices[i].mBinormal.normVec();
+			mVertices[i].mNormal.normVec();
+		}
+
+		mHasBinormals = TRUE;
+	}
+}
+
+BOOL LLVolumeFace::createSide(BOOL partial_build)
 {
 	BOOL flat = mTypeMask & FLAT_MASK;
 	S32 num_vertices, num_indices;
@@ -4496,9 +4578,14 @@ BOOL LLVolumeFace::createSide()
 
 	num_vertices = mNumS*mNumT;
 	num_indices = (mNumS-1)*(mNumT-1)*6;
-	vector_append(mVertices,num_vertices);
-	vector_append(mIndices,num_indices);
-	vector_append(mEdge, num_indices);
+
+	mVertices.resize(num_vertices);
+
+	if (!partial_build)
+	{
+		mIndices.resize(num_indices);
+		mEdge.resize(num_indices);
+	}
 
 	LLVector3& face_min = mExtents[0];
 	LLVector3& face_max = mExtents[1];
@@ -4609,60 +4696,62 @@ BOOL LLVolumeFace::createSide()
 	S32 cur_edge = 0;
 	BOOL flat_face = mTypeMask & FLAT_MASK;
 
-	// Now we generate the indices.
-	for (t = 0; t < (mNumT-1); t++)
+	if (!partial_build)
 	{
-		for (s = 0; s < (mNumS-1); s++)
-		{	
-			mIndices[cur_index++] = s   + mNumS*t;			//bottom left
-			mIndices[cur_index++] = s+1 + mNumS*(t+1);		//top right
-			mIndices[cur_index++] = s   + mNumS*(t+1);		//top left
-			mIndices[cur_index++] = s   + mNumS*t;			//bottom left
-			mIndices[cur_index++] = s+1 + mNumS*t;			//bottom right
-			mIndices[cur_index++] = s+1 + mNumS*(t+1);		//top right
+		// Now we generate the indices.
+		for (t = 0; t < (mNumT-1); t++)
+		{
+			for (s = 0; s < (mNumS-1); s++)
+			{	
+				mIndices[cur_index++] = s   + mNumS*t;			//bottom left
+				mIndices[cur_index++] = s+1 + mNumS*(t+1);		//top right
+				mIndices[cur_index++] = s   + mNumS*(t+1);		//top left
+				mIndices[cur_index++] = s   + mNumS*t;			//bottom left
+				mIndices[cur_index++] = s+1 + mNumS*t;			//bottom right
+				mIndices[cur_index++] = s+1 + mNumS*(t+1);		//top right
 
-			mEdge[cur_edge++] = (mNumS-1)*2*t+s*2+1;						//bottom left/top right neighbor face 
-			if (t < mNumT-2) {												//top right/top left neighbor face 
-				mEdge[cur_edge++] = (mNumS-1)*2*(t+1)+s*2+1;
+				mEdge[cur_edge++] = (mNumS-1)*2*t+s*2+1;						//bottom left/top right neighbor face 
+				if (t < mNumT-2) {												//top right/top left neighbor face 
+					mEdge[cur_edge++] = (mNumS-1)*2*(t+1)+s*2+1;
+				}
+				else if (mNumT <= 3 || mVolumep->getPath().isOpen() == TRUE) { //no neighbor
+					mEdge[cur_edge++] = -1;
+				}
+				else { //wrap on T
+					mEdge[cur_edge++] = s*2+1;
+				}
+				if (s > 0) {													//top left/bottom left neighbor face
+					mEdge[cur_edge++] = (mNumS-1)*2*t+s*2-1;
+				}
+				else if (flat_face ||  mVolumep->getProfile().isOpen() == TRUE) { //no neighbor
+					mEdge[cur_edge++] = -1;
+				}
+				else {	//wrap on S
+					mEdge[cur_edge++] = (mNumS-1)*2*t+(mNumS-2)*2+1;
+				}
+				
+				if (t > 0) {													//bottom left/bottom right neighbor face
+					mEdge[cur_edge++] = (mNumS-1)*2*(t-1)+s*2;
+				}
+				else if (mNumT <= 3 || mVolumep->getPath().isOpen() == TRUE) { //no neighbor
+					mEdge[cur_edge++] = -1;
+				}
+				else { //wrap on T
+					mEdge[cur_edge++] = (mNumS-1)*2*(mNumT-2)+s*2;
+				}
+				if (s < mNumS-2) {												//bottom right/top right neighbor face
+					mEdge[cur_edge++] = (mNumS-1)*2*t+(s+1)*2;
+				}
+				else if (flat_face || mVolumep->getProfile().isOpen() == TRUE) { //no neighbor
+					mEdge[cur_edge++] = -1;
+				}
+				else { //wrap on S
+					mEdge[cur_edge++] = (mNumS-1)*2*t;
+				}
+				mEdge[cur_edge++] = (mNumS-1)*2*t+s*2;							//top right/bottom left neighbor face	
 			}
-			else if (mNumT <= 3 || mVolumep->getPath().isOpen() == TRUE) { //no neighbor
-				mEdge[cur_edge++] = -1;
-			}
-			else { //wrap on T
-				mEdge[cur_edge++] = s*2+1;
-			}
-			if (s > 0) {													//top left/bottom left neighbor face
-				mEdge[cur_edge++] = (mNumS-1)*2*t+s*2-1;
-			}
-			else if (flat_face ||  mVolumep->getProfile().isOpen() == TRUE) { //no neighbor
-				mEdge[cur_edge++] = -1;
-			}
-			else {	//wrap on S
-				mEdge[cur_edge++] = (mNumS-1)*2*t+(mNumS-2)*2+1;
-			}
-			
-			if (t > 0) {													//bottom left/bottom right neighbor face
-				mEdge[cur_edge++] = (mNumS-1)*2*(t-1)+s*2;
-			}
-			else if (mNumT <= 3 || mVolumep->getPath().isOpen() == TRUE) { //no neighbor
-				mEdge[cur_edge++] = -1;
-			}
-			else { //wrap on T
-				mEdge[cur_edge++] = (mNumS-1)*2*(mNumT-2)+s*2;
-			}
-			if (s < mNumS-2) {												//bottom right/top right neighbor face
-				mEdge[cur_edge++] = (mNumS-1)*2*t+(s+1)*2;
-			}
-			else if (flat_face || mVolumep->getProfile().isOpen() == TRUE) { //no neighbor
-				mEdge[cur_edge++] = -1;
-			}
-			else { //wrap on S
-				mEdge[cur_edge++] = (mNumS-1)*2*t;
-			}
-            mEdge[cur_edge++] = (mNumS-1)*2*t+s*2;							//top right/bottom left neighbor face	
 		}
 	}
-
 
 	//generate normals
 	for (U32 i = 0; i < mIndices.size()/3; i++) {	//for each triangle
@@ -4674,27 +4763,22 @@ BOOL LLVolumeFace::createSide()
 		LLVector3 norm = (v0.mPosition-v1.mPosition)%
 						(v0.mPosition-v2.mPosition);
 
-		//calculate binormal
-		LLVector3 binorm = calc_binormal_from_triangle(v0.mPosition, v0.mTexCoord,
-														v1.mPosition, v1.mTexCoord,
-														v2.mPosition, v2.mTexCoord);
-
-		for (U32 j = 0; j < 3; j++) { //add triangle normal to vertices
+		for (U32 j = 0; j < 3; j++) 
+		{ //add triangle normal to vertices
 			mVertices[mIndices[i*3+j]].mNormal += norm; // * (weight_sum - d[j])/weight_sum;
-			mVertices[mIndices[i*3+j]].mBinormal += binorm; // * (weight_sum - d[j])/weight_sum;
 		}
 
 		//even out quad contributions
-		if (i % 2 == 0) {
+		if (i % 2 == 0) 
+		{
 			mVertices[mIndices[i*3+2]].mNormal += norm;
-			mVertices[mIndices[i*3+2]].mBinormal += binorm;
 		}
-		else {
+		else 
+		{
 			mVertices[mIndices[i*3+1]].mNormal += norm;
-			mVertices[mIndices[i*3+1]].mBinormal += binorm;
 		}
 	}
-
+	
 	// adjust normals based on wrapping and stitching
 	
 	BOOL s_bottom_converges = ((mVertices[0].mPosition - mVertices[mNumS*(mNumT-2)].mPosition).magVecSquared() < 0.000001f);
@@ -4818,15 +4902,6 @@ BOOL LLVolumeFace::createSide()
 			
 		}
 
-	}
-
-
-	//normalize normals and binormals here so the meshes that reference
-	//this volume data don't have to
-	for (U32 i = 0; i < mVertices.size(); i++) 
-	{
-		mVertices[i].mNormal.normVec();
-		mVertices[i].mBinormal.normVec();
 	}
 
 	return TRUE;

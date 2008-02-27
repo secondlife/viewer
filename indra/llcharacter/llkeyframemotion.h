@@ -158,7 +158,6 @@ public:
 	U32		getFileSize();
 	BOOL	serialize(LLDataPacker& dp) const;
 	BOOL	deserialize(LLDataPacker& dp);
-	void	writeCAL3D(apr_file_t* fp);
 	BOOL	isLoaded() { return mJointMotionList != NULL; }
 
 

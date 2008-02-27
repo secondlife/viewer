@@ -37,6 +37,7 @@
 
 #include "llfontgl.h"
 #include "llgl.h"
+#include "llglimmediate.h"
 #include "llui.h"
 #include "lluictrlfactory.h"
 #include "llrect.h"
@@ -424,7 +425,7 @@ void LLTextEditor::updateLineStartList(S32 startpos)
 			else
 			{ 
 				const llwchar* str = mWText.c_str() + start_idx;
-				S32 drawn = mGLFont->maxDrawableChars(str, (F32)mTextRect.getWidth() - line_width,
+				S32 drawn = mGLFont->maxDrawableChars(str, (F32)abs(mTextRect.getWidth()) - line_width,
 													  end_idx - start_idx, mWordWrap, mAllowEmbeddedItems );
 				if( 0 == drawn && line_width == 0)
 				{
@@ -2601,7 +2602,7 @@ void LLTextEditor::drawSelectionBackground()
 			LLGLSNoTexture no_texture;
 			const LLColor4& color = mReadOnly ? mReadOnlyBgColor : mWriteableBgColor;
 			F32 alpha = hasFocus() ? 1.f : 0.5f;
-			glColor4f( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], alpha );
+			gGL.color4f( 1.f - color.mV[0], 1.f - color.mV[1], 1.f - color.mV[2], alpha );
 
 			if( selection_left_y == selection_right_y )
 			{
@@ -2729,7 +2730,7 @@ void LLTextEditor::drawCursor()
 				
 				LLGLSNoTexture no_texture;
 
-				glColor4fv( mCursorColor.mV );
+				gGL.color4fv( mCursorColor.mV );
 				
 				gl_rect_2d(llfloor(cursor_left), llfloor(cursor_top),
 					llfloor(cursor_right), llfloor(cursor_bottom));
@@ -2750,7 +2751,6 @@ void LLTextEditor::drawCursor()
 					{
 						text_color = mFgColor;
 					}
-					LLGLSTexture texture;
 					mGLFont->render(text, mCursorPos, next_char_left, cursor_bottom + line_height, 
 						LLColor4(1.f - text_color.mV[VRED], 1.f - text_color.mV[VGREEN], 1.f - text_color.mV[VBLUE], 1.f),
 						LLFontGL::LEFT, LLFontGL::TOP,

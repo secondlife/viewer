@@ -53,23 +53,29 @@
 #include "llviewerregion.h"
 #include "llworld.h"
 #include "pipeline.h"
+#include "lldrawpoolwlsky.h"
+#include "llwlparammanager.h"
+#include "llwaterparammanager.h"
 
-const S32 NUM_TILES_X = 8;
-const S32 NUM_TILES_Y = 4;
-const S32 NUM_TILES = NUM_TILES_X * NUM_TILES_Y;
+#undef min
+#undef max
+
+static const S32 NUM_TILES_X = 8;
+static const S32 NUM_TILES_Y = 4;
+static const S32 NUM_TILES = NUM_TILES_X * NUM_TILES_Y;
 
 // Heavenly body constants
-const F32 SUN_DISK_RADIUS	= 0.5f;
-const F32 MOON_DISK_RADIUS	= SUN_DISK_RADIUS * 0.9f;
-const F32 SUN_INTENSITY = 1e5;
-const F32 SUN_DISK_INTENSITY = 24.f;
+static const F32 SUN_DISK_RADIUS	= 0.5f;
+static const F32 MOON_DISK_RADIUS	= SUN_DISK_RADIUS * 0.9f;
+static const F32 SUN_INTENSITY = 1e5;
+static const F32 SUN_DISK_INTENSITY = 24.f;
 
 
 // Texture coordinates:
-const LLVector2 TEX00 = LLVector2(0.f, 0.f);
-const LLVector2 TEX01 = LLVector2(0.f, 1.f);
-const LLVector2 TEX10 = LLVector2(1.f, 0.f);
-const LLVector2 TEX11 = LLVector2(1.f, 1.f);
+static const LLVector2 TEX00 = LLVector2(0.f, 0.f);
+static const LLVector2 TEX01 = LLVector2(0.f, 1.f);
+static const LLVector2 TEX10 = LLVector2(1.f, 0.f);
+static const LLVector2 TEX11 = LLVector2(1.f, 1.f);
 
 // Exported globals
 LLUUID gSunTextureID = IMG_SUN;
@@ -134,7 +140,7 @@ private:
 	F32 mTable[257]; // index 0 is unused
 };
 
-LLFastLn gFastLn;
+static LLFastLn gFastLn;
 
 
 // Functions used a lot.
@@ -163,42 +169,6 @@ inline LLColor3 color_norm(const LLColor3 &col)
 	else return col;
 }
 
-inline LLColor3 color_norm_fog(const LLColor3 &col)
-{
-	const F32 m = color_max(col);
-	if (m > 0.75f)
-	{
-		return 0.75f/m * col;
-	}
-	else return col;
-}
-
-
-inline LLColor4 color_norm_abs(const LLColor4 &col)
-{
-	const F32 m = color_max(col);
-	if (m > 1e-6)
-	{
-		return 1.f/m * col;
-	}
-	else
-	{
-		return col;
-	}
-}
-
-
-inline F32 color_intens ( const LLColor4 &col )
-{
-	return col.mV[0] + col.mV[1] + col.mV[2];
-}
-
-
-inline F32 color_avg ( const LLColor3 &col )
-{
-	return color_intens(col) / 3.f;
-}
-
 inline void color_gamma_correct(LLColor3 &col)
 {
 	const F32 gamma_inv = 1.f/1.2f;
@@ -214,164 +184,6 @@ inline void color_gamma_correct(LLColor3 &col)
 	{
 		col.mV[2] = gFastLn.pow(col.mV[2], gamma_inv);
 	}
-}
-
-inline F32 min_intens_factor( LLColor3& col, F32 min_intens, BOOL postmultiply = FALSE);
-inline F32 min_intens_factor( LLColor3& col, F32 min_intens, BOOL postmultiply)
-{ 
-	const F32 intens = color_intens(col);
-	F32 factor = 1;
-	if (0 == intens)
-	{
-		return 0;
-	}
-
-	if (intens < min_intens)
-	{
-		factor = min_intens / intens;
-		if (postmultiply)
-			col *= factor;
-	}
-	return factor;
-}
-
-inline LLVector3 move_vec(const LLVector3& v, const F32 cos_max_angle)
-{
-	LLVector3 v_norm = v;
-	v_norm.normVec();
-
-	LLVector2 v_norm_proj(v_norm.mV[0], v_norm.mV[1]);
-	const F32 projection2 = v_norm_proj.magVecSquared();
-	const F32 scale = sqrt((1 - cos_max_angle * cos_max_angle) / projection2);
-	return LLVector3(scale * v_norm_proj.mV[0], scale * v_norm_proj.mV[1], cos_max_angle);
-}
-
-
-/***************************************
-		Transparency Map
-***************************************/
-
-void LLTranspMap::init(const F32 elev, const F32 step, const F32 h, const LLHaze* const haze)
-{
-	mHaze = haze;
-	mAtmHeight = h;
-	mElevation = elev;
-	mStep = step;
-	mStepInv = 1.f / step;
-	F32 sin_angle = EARTH_RADIUS/(EARTH_RADIUS + mElevation);
-	mCosMaxAngle = -sqrt(1 - sin_angle * sin_angle);
-	mMapSize = S32(ceil((1 - mCosMaxAngle) * mStepInv + 1) + 0.5);
-	delete mT;
-	mT = new LLColor3[mMapSize];
-
-	for (S32 i = 0; i < mMapSize; ++i)
-	{
-		const F32 cos_a = 1 - i*mStep;
-		const LLVector3 dir(0, sqrt(1-cos_a*cos_a), cos_a);
-		mT[i] = calcAirTranspDir(mElevation, dir);
-	}
-}
-
-
-
-LLColor3 LLTranspMap::calcAirTranspDir(const F32 elevation, const LLVector3 &dir) const
-{
-	LLColor3 opt_depth(0, 0, 0);
-	const LLVector3 point(0, 0, EARTH_RADIUS + elevation);
-	F32 dist = -dir * point;
-	LLVector3 cur_point;
-	S32 s;
-
-	if (dist > 0)
-	{
-		cur_point = point + dist * dir;
-//		const F32 K = log(dist * INV_FIRST_STEP + 1) * INV_NO_STEPS;
-//		const F32 e_pow_k = LL_FAST_EXP(K);
-		const F32 e_pow_k = gFastLn.pow( dist * INV_FIRST_STEP + 1, INV_NO_STEPS );
-		F32 step = FIRST_STEP * (1 - 1 / e_pow_k);
-
-		for (s = 0; s < NO_STEPS; ++s)
-		{
-			const F32 h = cur_point.magVec() - EARTH_RADIUS;
-			step *= e_pow_k;
-			opt_depth += calcSigExt(h) * step;
-			cur_point -= dir * step;
-		}
-		opt_depth *= 2;
-		cur_point = point + 2 * dist * dir;
-	}
-	else
-	{
-		cur_point = point;
-	}
-
-	dist = hitsAtmEdge(cur_point, dir);
-//	const F32 K = log(dist * INV_FIRST_STEP + 1) * INV_NO_STEPS;
-//	const F32 e_pow_k = LL_FAST_EXP(K);
-	const F32 e_pow_k = gFastLn.pow( dist * INV_FIRST_STEP + 1, INV_NO_STEPS );
-	F32 step = FIRST_STEP * (1 - 1 / e_pow_k);
-
-	for (s = 0; s < NO_STEPS; ++s)
-	{
-		const F32 h = cur_point.magVec() - EARTH_RADIUS;
-		step *= e_pow_k;
-		opt_depth += calcSigExt(h) * step;
-		cur_point += dir * step;
-	}
-
-	opt_depth *= -4.0f*F_PI;
-	opt_depth.exp();
-	return opt_depth;
-}
-
-
-
-F32 LLTranspMap::hitsAtmEdge(const LLVector3& X, const LLVector3& dir) const
-{
-	const F32 tca = -dir * X;
-	const F32 R = EARTH_RADIUS + mAtmHeight;
-	const F32 thc2 = R * R - X.magVecSquared() + tca * tca;
-	return tca + sqrt ( thc2 );
-}
-
-
-
-
-
-void LLTranspMapSet::init(const S32 size, const F32 first_step, const F32 media_height, const LLHaze* const haze)
-{
-	const F32 angle_step = 0.005f;
-	mSize = size;
-	mMediaHeight = media_height;
-
-	delete[] mTransp;
-	mTransp = new LLTranspMap[mSize];
-
-	delete[] mHeights;
-	mHeights = new F32[mSize];
-
-	F32 h = 0;
-	mHeights[0] = h;
-	mTransp[0].init(h, angle_step, mMediaHeight, haze);	
-	const F32 K = log(mMediaHeight / first_step + 1) / (mSize - 1);
-	const F32 e_pow_k = exp(K);
-	F32 step = first_step * (e_pow_k - 1);
-
-	for (S32 s = 1; s < mSize; ++s)
-	{
-		h += step;
-		mHeights[s] = h;
-		mTransp[s].init(h, angle_step, mMediaHeight, haze);
-		step *= e_pow_k;
-	}
-}
-
-LLTranspMapSet::~LLTranspMapSet()
-{
-	delete[] mTransp;
-	mTransp = NULL;
-	delete[] mHeights;
-	mHeights = NULL;
 }
 
 
@@ -392,7 +204,7 @@ LLSkyTex::LLSkyTex()
 
 void LLSkyTex::init()
 {
-	mSkyData = new LLColor3[sResolution * sResolution];
+	mSkyData = new LLColor4[sResolution * sResolution];
 	mSkyDirs = new LLVector3[sResolution * sResolution];
 
 	for (S32 i = 0; i < 2; ++i)
@@ -451,9 +263,9 @@ void LLSkyTex::initEmpty(const S32 tex)
 	createGLImage(tex);
 }
 
-
-void LLSkyTex::create(const F32 brightness_scale, const LLColor3& multiscatt)
+void LLSkyTex::create(const F32 brightness)
 {
+	/// Brightness ignored for now.
 	U8* data = mImageRaw[sCurrent]->getData();
 	for (S32 i = 0; i < sResolution; ++i)
 	{
@@ -461,22 +273,16 @@ void LLSkyTex::create(const F32 brightness_scale, const LLColor3& multiscatt)
 		{
 			const S32 basic_offset = (i * sResolution + j);
 			S32 offset = basic_offset * sComponents;
-			LLColor3 col(mSkyData[basic_offset]);
-			if (getDir(i, j).mV[VZ] >= -0.02f) {
-				col += 0.1f * multiscatt;
-				col *= brightness_scale;
-				col.clamp();
-				color_gamma_correct(col);
-			}
-			
 			U32* pix = (U32*)(data + offset);
-			LLColor4 temp = LLColor4(col, 0);
-			LLColor4U temp1 = LLColor4U(temp);
-			*pix = temp1.mAll;
+			LLColor4U temp = LLColor4U(mSkyData[basic_offset]);
+			*pix = temp.mAll;
 		}
 	}
 	createGLImage(sCurrent);
 }
+
+
+
 
 void LLSkyTex::createGLImage(S32 which)
 {	
@@ -495,8 +301,6 @@ void LLSkyTex::bindTexture(BOOL curr)
 
 F32	LLHeavenBody::sInterpVal = 0;
 
-F32 LLVOSky::sNighttimeBrightness = 1.5f;
-
 S32 LLVOSky::sResolution = LLSkyTex::getResolution();
 S32 LLVOSky::sTileResX = sResolution/NUM_TILES_X;
 S32 LLVOSky::sTileResY = sResolution/NUM_TILES_Y;
@@ -511,8 +315,32 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mCloudDensity(0.2f),
 	mWind(0.f),
 	mForceUpdate(FALSE),
-	mWorldScale(1.f)
+	mWorldScale(1.f),
+	mBumpSunDir(0.f, 0.f, 1.f)
 {
+	bool error = false;
+	
+	/// WL PARAMS
+	dome_radius = 1.f;
+	dome_offset_ratio = 0.f;
+	sunlight_color = LLColor3();
+	ambient = LLColor3();
+	gamma = 1.f;
+	lightnorm = LLVector4();
+	blue_density = LLColor3();
+	blue_horizon = LLColor3();
+	haze_density = 0.f;
+	haze_horizon = LLColor3();
+	density_multiplier = 0.f;
+	max_y = 0.f;
+	glow = LLColor3();
+	cloud_shadow = 0.f;
+	cloud_color = LLColor3();
+	cloud_scale = 0.f;
+	cloud_pos_density1 = LLColor3();
+	cloud_pos_density2 = LLColor3();
+
+
 	mInitialized = FALSE;
 	mbCanSelect = FALSE;
 	mUpdateTimer.reset();
@@ -520,6 +348,7 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	for (S32 i = 0; i < 6; i++)
 	{
 		mSkyTex[i].init();
+		mShinyTex[i].init();
 	}
 	for (S32 i=0; i<FACE_COUNT; i++)
 	{
@@ -529,9 +358,8 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mCameraPosAgent = gAgent.getCameraPositionAgent();
 	mAtmHeight = ATM_HEIGHT;
 	mEarthCenter = LLVector3(mCameraPosAgent.mV[0], mCameraPosAgent.mV[1], -EARTH_RADIUS);
-	updateHaze();
 
-	mSunDefaultPosition = gSavedSettings.getVector3("SkySunDefaultPosition");
+	mSunDefaultPosition = LLVector3(LLWLParamManager::instance()->mCurParams.getVector("lightnorm", error));
 	if (gSavedSettings.getBOOL("SkyOverrideSimSunPosition"))
 	{
 		initSunDirection(mSunDefaultPosition, LLVector3(0, 0, 0));
@@ -551,6 +379,8 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mMoonTexturep->setClamp(TRUE, TRUE);
 	mBloomTexturep = gImageList.getImage(IMG_BLOOM1);
 	mBloomTexturep->setClamp(TRUE, TRUE);
+
+	mHeavenlyBodyUpdated = FALSE ;
 }
 
 
@@ -570,14 +400,11 @@ void LLVOSky::initClass()
 
 void LLVOSky::init()
 {
-    // index of refraction calculation.
-	mTransp.init(NO_STEPS+1+4, FIRST_STEP, mAtmHeight, &mHaze);
-
-	const F32 haze_int = color_intens(mHaze.calcSigSca(0));
+   	const F32 haze_int = color_intens(mHaze.calcSigSca(0));
 	mHazeConcentration = haze_int /
 		(color_intens(LLHaze::calcAirSca(0)) + haze_int);
 
-	mBrightnessScaleNew = 0;
+	calcAtmospherics();
 
 	// Initialize the cached normalized direction vectors
 	for (S32 side = 0; side < 6; ++side)
@@ -589,8 +416,16 @@ void LLVOSky::init()
 		}
 	}
 
-	calcBrightnessScaleAndColors();
+	for (S32 i = 0; i < 6; ++i)
+	{
+		mSkyTex[i].create(1.0f);
+		mShinyTex[i].create(1.0f);
+	}
+
 	initCubeMap();
+	mInitialized = true;
+
+	mHeavenlyBodyUpdated = FALSE ;
 }
 
 void LLVOSky::initCubeMap() 
@@ -598,7 +433,7 @@ void LLVOSky::initCubeMap()
 	std::vector<LLPointer<LLImageRaw> > images;
 	for (S32 side = 0; side < 6; side++)
 	{
-		images.push_back(mSkyTex[side].getImageRaw());
+		images.push_back(mShinyTex[side].getImageRaw());
 	}
 	if (mCubeMap)
 	{
@@ -639,7 +474,7 @@ void LLVOSky::restoreGL()
 	mBloomTexturep = gImageList.getImage(IMG_BLOOM1);
 	mBloomTexturep->setClamp(TRUE, TRUE);
 
-	calcBrightnessScaleAndColors();
+	calcAtmospherics();	
 
 	if (gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap
 	    && gFeatureManagerp->isFeatureAvailable("RenderCubeMap"))
@@ -649,7 +484,7 @@ void LLVOSky::restoreGL()
 		std::vector<LLPointer<LLImageRaw> > images;
 		for (S32 side = 0; side < 6; side++)
 		{
-			images.push_back(mSkyTex[side].getImageRaw());
+			images.push_back(mShinyTex[side].getImageRaw());
 		}
 
 		if(cube_map)
@@ -664,67 +499,6 @@ void LLVOSky::restoreGL()
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
 	}
 
-}
-
-
-void LLVOSky::updateHaze()
-{
-	static LLRandLagFib607 weather_generator(LLUUID::getRandomSeed());
-	if (gSavedSettings.getBOOL("FixedWeather"))
-	{
-		weather_generator.seed(8008135);
-	}
-
-	const F32 fo_upper_bound = 5;
-	const F32 sca_upper_bound = 6;
-	const F32 fo = 1 + (F32)weather_generator() *(fo_upper_bound - 1);
-	const static F32 upper = 0.5f / gFastLn.ln(fo_upper_bound);
-	mHaze.setFalloff(fo);
-	mHaze.setG((F32)weather_generator() * (0.0f + upper * gFastLn.ln(fo)));
-	LLColor3 sca;
-	const F32 cd = mCloudDensity * 3;
-	F32 min_r = cd - 1;
-	if (min_r < 0)
-	{
-		min_r = 0;
-	}
-	F32 max_r = cd + 1;
-	if (max_r > sca_upper_bound)
-	{
-		max_r = sca_upper_bound;
-	}
-
-	sca.mV[0] = min_r + (F32)weather_generator() * (max_r - min_r);
-
-	min_r = sca.mV[0] - 0.1f;
-	if (min_r < 0)
-	{
-		min_r = 0;
-	}
-	max_r = sca.mV[0] + 0.5f;
-	if (max_r > sca_upper_bound)
-	{
-		max_r = sca_upper_bound;
-	}
-
-	sca.mV[1] = min_r + (F32)weather_generator() * (max_r - min_r);
-
-	min_r = sca.mV[1];
-	if (min_r < 0)
-	{
-		min_r = 0;
-	}
-	max_r = sca.mV[1] + 1;
-	if (max_r > sca_upper_bound)
-	{
-		max_r = sca_upper_bound;
-	}
-
-	sca.mV[2] = min_r + (F32)weather_generator() * (max_r - min_r);
-
-	sca = AIR_SCA_AVG * sca;
-
-	mHaze.setSigSca(sca);
 }
 
 void LLVOSky::initSkyTextureDirs(const S32 side, const S32 tile)
@@ -754,6 +528,7 @@ void LLVOSky::initSkyTextureDirs(const S32 side, const S32 tile)
 			LLVector3 dir(coeff[0], coeff[1], coeff[2]);
 			dir.normVec();
 			mSkyTex[side].setDir(dir, x, y);
+			mShinyTex[side].setDir(dir, x, y);
 		}
 	}
 }
@@ -772,18 +547,154 @@ void LLVOSky::createSkyTexture(const S32 side, const S32 tile)
 		for (x = tile_x_pos; x < (tile_x_pos + sTileResX); ++x)
 		{
 			mSkyTex[side].setPixel(calcSkyColorInDir(mSkyTex[side].getDir(x, y)), x, y);
+			mShinyTex[side].setPixel(calcSkyColorInDir(mSkyTex[side].getDir(x, y), true), x, y);
 		}
 	}
 }
 
-
-LLColor3 LLVOSky::calcSkyColorInDir(const LLVector3 &dir)
+static inline LLColor3 componentDiv(LLColor3 const &left, LLColor3 const & right)
 {
-	LLColor3 col, transp;
+	return LLColor3(left.mV[0]/right.mV[0],
+					 left.mV[1]/right.mV[1],
+					 left.mV[2]/right.mV[2]);
+}
 
+
+static inline LLColor3 componentMult(LLColor3 const &left, LLColor3 const & right)
+{
+	return LLColor3(left.mV[0]*right.mV[0],
+					 left.mV[1]*right.mV[1],
+					 left.mV[2]*right.mV[2]);
+}
+
+
+static inline LLColor3 componentExp(LLColor3 const &v)
+{
+	return LLColor3(exp(v.mV[0]),
+					 exp(v.mV[1]),
+					 exp(v.mV[2]));
+}
+
+static inline LLColor3 componentPow(LLColor3 const &v, F32 exponent)
+{
+	return LLColor3(pow(v.mV[0], exponent),
+					pow(v.mV[1], exponent),
+					pow(v.mV[2], exponent));
+}
+
+static inline LLColor3 componentSaturate(LLColor3 const &v)
+{
+	return LLColor3(std::max(std::min(v.mV[0], 1.f), 0.f),
+					 std::max(std::min(v.mV[1], 1.f), 0.f),
+					 std::max(std::min(v.mV[2], 1.f), 0.f));
+}
+
+
+static inline LLColor3 componentSqrt(LLColor3 const &v)
+{
+	return LLColor3(sqrt(v.mV[0]),
+					 sqrt(v.mV[1]),
+					 sqrt(v.mV[2]));
+}
+
+static inline void componentMultBy(LLColor3 & left, LLColor3 const & right)
+{
+	left.mV[0] *= right.mV[0];
+	left.mV[1] *= right.mV[1];
+	left.mV[2] *= right.mV[2];
+}
+
+static inline LLColor3 colorMix(LLColor3 const & left, LLColor3 const & right, F32 amount)
+{
+	return (left + ((right - left) * amount));
+}
+
+static inline F32 texture2D(LLPointer<LLImageRaw> const & tex, LLVector2 const & uv)
+{
+	U16 w = tex->getWidth();
+	U16 h = tex->getHeight();
+
+	U16 r = U16(uv[0] * w) % w;
+	U16 c = U16(uv[1] * h) % h;
+
+	U8 const * imageBuffer = tex->getData();
+
+	U8 sample = imageBuffer[r * w + c];
+
+	return sample / 255.f;
+}
+
+static inline LLColor3 smear(F32 val)
+{
+	return LLColor3(val, val, val);
+}
+
+void LLVOSky::initAtmospherics(void)
+{	
+	bool error;
+	
+	// uniform parameters for convenience
+	dome_radius = LLWLParamManager::instance()->getDomeRadius();
+	dome_offset_ratio = LLWLParamManager::instance()->getDomeOffset();
+	sunlight_color = LLColor3(LLWLParamManager::instance()->mCurParams.getVector("sunlight_color", error));
+	ambient = LLColor3(LLWLParamManager::instance()->mCurParams.getVector("ambient", error));
+	//lightnorm = LLWLParamManager::instance()->mCurParams.getVector("lightnorm", error);
+	gamma = LLWLParamManager::instance()->mCurParams.getVector("gamma", error)[0];
+	blue_density = LLColor3(LLWLParamManager::instance()->mCurParams.getVector("blue_density", error));
+	blue_horizon = LLColor3(LLWLParamManager::instance()->mCurParams.getVector("blue_horizon", error));
+	haze_density = LLWLParamManager::instance()->mCurParams.getVector("haze_density", error)[0];
+	haze_horizon = LLColor3(LLWLParamManager::instance()->mCurParams.getVector("haze_horizon", error));
+	density_multiplier = LLWLParamManager::instance()->mCurParams.getVector("density_multiplier", error)[0];
+	max_y = LLWLParamManager::instance()->mCurParams.getVector("max_y", error)[0];
+	glow = LLColor3(LLWLParamManager::instance()->mCurParams.getVector("glow", error));
+	cloud_shadow = LLWLParamManager::instance()->mCurParams.getVector("cloud_shadow", error)[0];
+	cloud_color = LLColor3(LLWLParamManager::instance()->mCurParams.getVector("cloud_color", error));
+	cloud_scale = LLWLParamManager::instance()->mCurParams.getVector("cloud_scale", error)[0];
+	cloud_pos_density1 = LLColor3(LLWLParamManager::instance()->mCurParams.getVector("cloud_pos_density1", error));
+	cloud_pos_density2 = LLColor3(LLWLParamManager::instance()->mCurParams.getVector("cloud_pos_density2", error));
+
+	// light norm is different.  We need the sun's direction, not the light direction
+	// which could be from the moon.  And we need to clamp it
+	// just like for the gpu
+	LLVector3 sunDir = gSky.getSunDirection();
+
+	// CFR_TO_OGL
+	lightnorm = LLVector4(sunDir.mV[1], sunDir.mV[2], sunDir.mV[0], 0);
+	unclamped_lightnorm = lightnorm;
+	if(lightnorm.mV[1] < -0.1f)
+	{
+		lightnorm.mV[1] = -0.1f;
+	}
+	
+}
+
+LLColor4 LLVOSky::calcSkyColorInDir(const LLVector3 &dir, bool isShiny)
+{
+	F32 saturation = 0.3f;
 	if (dir.mV[VZ] < -0.02f)
 	{
-		col = LLColor3(llmax(mFogColor[0],0.2f), llmax(mFogColor[1],0.2f), llmax(mFogColor[2],0.27f));
+		LLColor4 col = LLColor4(llmax(mFogColor[0],0.2f), llmax(mFogColor[1],0.2f), llmax(mFogColor[2],0.22f),0.f);
+		if (isShiny)
+		{
+			LLColor3 desat_fog = LLColor3(mFogColor);
+			F32 brightness = desat_fog.brightness();
+			// So that shiny somewhat shows up at night.
+			if (brightness < 0.15f)
+			{
+				brightness = 0.15f;
+				desat_fog = smear(0.15f);
+			}
+			LLColor3 greyscale = smear(brightness);
+			desat_fog = desat_fog * saturation + greyscale * (1.0f - saturation);
+			if (!gPipeline.canUseWindLightShaders())
+			{
+				col = LLColor4(desat_fog, 0.f);
+			}
+			else 
+			{
+				col = LLColor4(desat_fog * 0.5f, 0.f);
+			}
+		}
 		float x = 1.0f-fabsf(-0.1f-dir.mV[VZ]);
 		x *= x;
 		col.mV[0] *= x*x;
@@ -792,383 +703,334 @@ LLColor3 LLVOSky::calcSkyColorInDir(const LLVector3 &dir)
 		return col;
 	}
 
+	// undo OGL_TO_CFR_ROTATION and negate vertical direction.
+	LLVector3 Pn = LLVector3(-dir[1] , -dir[2], -dir[0]);
 
-	calcSkyColorInDir(col, transp, dir);
-	F32 br = color_max(col);
-	if (br > mBrightnessScaleNew)
+	LLColor3 vary_HazeColor(0,0,0);
+	LLColor3 vary_CloudColorSun(0,0,0);
+	LLColor3 vary_CloudColorAmbient(0,0,0);
+	F32 vary_CloudDensity(0);
+	LLVector2 vary_HorizontalProjection[2];
+	vary_HorizontalProjection[0] = LLVector2(0,0);
+	vary_HorizontalProjection[1] = LLVector2(0,0);
+
+	calcSkyColorWLVert(Pn, vary_HazeColor, vary_CloudColorSun, vary_CloudColorAmbient,
+						vary_CloudDensity, vary_HorizontalProjection);
+	
+	LLColor3 sky_color =  calcSkyColorWLFrag(Pn, vary_HazeColor, vary_CloudColorSun, vary_CloudColorAmbient, 
+								vary_CloudDensity, vary_HorizontalProjection);
+	if (isShiny)
 	{
-		mBrightnessScaleNew = br;
-		mBrightestPointNew = col;
+		F32 brightness = sky_color.brightness();
+		LLColor3 greyscale = smear(brightness);
+		sky_color = sky_color * saturation + greyscale * (1.0f - saturation);
+		sky_color *= (0.5f + 0.5f * brightness);
 	}
-	return col;
+	return LLColor4(sky_color, 0.0f);
 }
 
+// turn on floating point precision
+// in vs2003 for this function.  Otherwise
+// sky is aliased looking 7:10 - 8:50
+#if LL_MSVC && __MSVC_VER__ < 8
+#pragma optimize("p", on)
+#endif
 
-LLColor4 LLVOSky::calcInScatter(LLColor4& transp, const LLVector3 &point, F32 exager = 1) const
+void LLVOSky::calcSkyColorWLVert(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLColor3 & vary_CloudColorSun, 
+							LLColor3 & vary_CloudColorAmbient, F32 & vary_CloudDensity, 
+							LLVector2 vary_HorizontalProjection[2])
 {
-	LLColor3 col, tr;
-	calcInScatter(col, tr, point, exager);
-	col *= mBrightnessScaleGuess;
-	transp = LLColor4(tr);
-	return LLColor4(col);
-}
+	// project the direction ray onto the sky dome.
+	F32 phi = acos(Pn[1]);
+	F32 sinA = sin(F_PI - phi);
+	F32 Plen = dome_radius * sin(F_PI + phi + asin(dome_offset_ratio * sinA)) / sinA;
 
+	Pn *= Plen;
 
+	vary_HorizontalProjection[0] = LLVector2(Pn[0], Pn[2]);
+	vary_HorizontalProjection[0] /= - 2.f * Plen;
 
-void LLVOSky::calcSkyColorInDir(LLColor3& res, LLColor3& transp, const LLVector3& dir) const
-{
-	const LLVector3& tosun = getToSunLast();
-	res.setToBlack();
-	LLColor3 haze_res(0.f, 0.f, 0.f);
-	transp.setToWhite();
-	LLVector3 step_v ;
-	LLVector3 cur_pos = mCameraPosAgent;
-	F32 h;
-
-	F32 dist = calcHitsAtmEdge(mCameraPosAgent, dir);
-//	const F32 K = log(dist / FIRST_STEP + 1) / NO_STEPS;
-	const F32 K = gFastLn.ln(dist / FIRST_STEP + 1) / NO_STEPS;
-	const F32 e_pow_k = (F32)LL_FAST_EXP(K);
-	F32 step = FIRST_STEP * (1 - 1 / e_pow_k);
-
-	// Initialize outside the loop because we write into them every iteration. JC
-	LLColor3 air_sca_opt_depth;
-	LLColor3 haze_sca_opt_depth;
-	LLColor3 air_transp;
-
-	for (S32 s = 0; s < NO_STEPS; ++s)
+	// Set altitude
+	if (Pn[1] > 0.f)
 	{
-		h = calcHeight(cur_pos);
-		step *= e_pow_k;
-		LLHaze::calcAirSca(h, air_sca_opt_depth);
-		air_sca_opt_depth *= step;
-
-		mHaze.calcSigSca(h, haze_sca_opt_depth);
-		haze_sca_opt_depth *= step;
-
-		LLColor3 haze_ext_opt_depth = haze_sca_opt_depth;
-		haze_ext_opt_depth *= (1.f + mHaze.getAbsCoef());
-
-		if (calcHitsEarth(cur_pos, tosun) < 0) // calculates amount of in-scattered light from the sun
-		{
-			//visibility check is too expensive
-			mTransp.calcTransp(calcUpVec(cur_pos) * tosun, h, air_transp);
-			air_transp *= transp;
-			res += air_sca_opt_depth * air_transp;
-			haze_res += haze_sca_opt_depth * air_transp;
-		}
-		LLColor3 temp(-4.f * F_PI * (air_sca_opt_depth + haze_ext_opt_depth));
-		temp.exp();
-		transp *= temp;
-		step_v = dir * step;
-		cur_pos += step_v;
-	}
-	const F32 cos_dir = dir * tosun;
-	res *= calcAirPhaseFunc(cos_dir);
-	res += haze_res * mHaze.calcPhase(cos_dir);
-	res *= mSun.getIntensity();
-}
-
-
-
-
-void LLVOSky::calcInScatter(LLColor3& res, LLColor3& transp, 
-					const LLVector3& P, const F32 exaggeration) const
-{
-	const LLVector3& tosun = getToSunLast();
-	res.setToBlack();
-	transp.setToWhite();
-
-	LLVector3 lower, upper;
-	LLVector3 dir = P - mCameraPosAgent;
-
-	F32 dist = exaggeration * dir.normVec();
-
-	const F32 cos_dir = dir * tosun;
-
-	if (dir.mV[VZ] > 0)
-	{
-		lower = mCameraPosAgent;
-		upper = P;
+		Pn *= (max_y / Pn[1]);
 	}
 	else
 	{
-		lower = P;
-		upper = mCameraPosAgent;
-		dir = -dir;
+		Pn *= (-32000.f / Pn[1]);
 	}
 
-	const F32 lower_h = calcHeight(lower);
-	const F32 upper_h = calcHeight(upper);
-	const LLVector3 up_upper = calcUpVec(upper);
-	const LLVector3 up_lower = calcUpVec(lower);
+	Plen = Pn.magVec();
+	Pn /= Plen;
 
-	transp = color_div(mTransp.calcTransp(up_lower * dir, lower_h),
-					mTransp.calcTransp(up_upper * dir, upper_h));
-	color_pow(transp, exaggeration);
+	// Initialize temp variables
+	LLColor3 sunlight = sunlight_color;
 
-	if (calcHitsEarth(upper, tosun) > 0)
+	// Sunlight attenuation effect (hue and brightness) due to atmosphere
+	// this is used later for sunlight modulation at various altitudes
+	LLColor3 light_atten =
+		(blue_density * 1.0 + smear(haze_density * 0.25f)) * (density_multiplier * max_y);
+
+	// Calculate relative weights
+	LLColor3 temp2(0.f, 0.f, 0.f);
+	LLColor3 temp1 = blue_density + smear(haze_density);
+	LLColor3 blue_weight = componentDiv(blue_density, temp1);
+	LLColor3 haze_weight = componentDiv(smear(haze_density), temp1);
+
+	// Compute sunlight from P & lightnorm (for long rays like sky)
+	temp2.mV[1] = llmax(F_APPROXIMATELY_ZERO, llmax(0.f, Pn[1]) * 1.0f + lightnorm[1] );
+
+	temp2.mV[1] = 1.f / temp2.mV[1];
+	componentMultBy(sunlight, componentExp((light_atten * -1.f) * temp2.mV[1]));
+
+	// Distance
+	temp2.mV[2] = Plen * density_multiplier;
+
+	// Transparency (-> temp1)
+	temp1 = componentExp((temp1 * -1.f) * temp2.mV[2]);
+
+
+	// Compute haze glow
+	temp2.mV[0] = Pn * LLVector3(lightnorm);
+
+	temp2.mV[0] = 1.f - temp2.mV[0];
+		// temp2.x is 0 at the sun and increases away from sun
+	temp2.mV[0] = llmax(temp2.mV[0], .001f);	
+		// Set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
+	temp2.mV[0] *= glow.mV[0];
+		// Higher glow.x gives dimmer glow (because next step is 1 / "angle")
+	temp2.mV[0] = pow(temp2.mV[0], glow.mV[2]);
+		// glow.z should be negative, so we're doing a sort of (1 / "angle") function
+
+	// Add "minimum anti-solar illumination"
+	temp2.mV[0] += .25f;
+
+
+	// Haze color above cloud
+	vary_HazeColor = (blue_horizon * blue_weight * (sunlight + ambient)
+				+ componentMult(haze_horizon.mV[0] * haze_weight, sunlight * temp2.mV[0] + ambient)
+			 );	
+
+	// Increase ambient when there are more clouds
+	LLColor3 tmpAmbient = ambient + (LLColor3::white - ambient) * cloud_shadow * 0.5f;
+
+	// Dim sunlight by cloud shadow percentage
+	sunlight *= (1.f - cloud_shadow);
+
+	// Haze color below cloud
+	LLColor3 additiveColorBelowCloud = (blue_horizon * blue_weight * (sunlight + tmpAmbient)
+				+ componentMult(haze_horizon.mV[0] * haze_weight, sunlight * temp2.mV[0] + tmpAmbient)
+			 );	
+
+	// Final atmosphere additive
+	componentMultBy(vary_HazeColor, LLColor3::white - temp1);
+
+	sunlight = sunlight_color;
+	temp2.mV[1] = llmax(0.f, lightnorm[1] * 2.f);
+	temp2.mV[1] = 1.f / temp2.mV[1];
+	componentMultBy(sunlight, componentExp((light_atten * -1.f) * temp2.mV[1]));
+
+	// Attenuate cloud color by atmosphere
+	temp1 = componentSqrt(temp1);	//less atmos opacity (more transparency) below clouds
+
+	// At horizon, blend high altitude sky color towards the darker color below the clouds
+	vary_HazeColor +=
+		componentMult(additiveColorBelowCloud - vary_HazeColor, LLColor3::white - componentSqrt(temp1));
+		
+	if (Pn[1] < 0.f)
 	{
-		const F32 avg = color_avg(transp);
-		//const F32 avg = llmin(1.f, 1.2f * color_avg(transp));
-		transp.setVec(avg, avg, avg);
-		return;
-	}
+		// Eric's original: 
+		// LLColor3 dark_brown(0.143f, 0.129f, 0.114f);
+		LLColor3 dark_brown(0.082f, 0.076f, 0.066f);
+		LLColor3 brown(0.430f, 0.386f, 0.322f);
+		LLColor3 sky_lighting = sunlight + ambient;
+		F32 haze_brightness = vary_HazeColor.brightness();
 
-	LLColor3 air_sca_opt_depth = LLHaze::calcAirSca(upper_h);
-	LLColor3 haze_sca_opt_depth = mHaze.calcSigSca(upper_h);
-	LLColor3 sun_transp;
-	mTransp.calcTransp(up_upper * tosun, upper_h, sun_transp);
-
-	if (calcHitsEarth(lower, tosun) < 0)
-	{
-		air_sca_opt_depth += LLHaze::calcAirSca(lower_h);
-		air_sca_opt_depth *= 0.5;
-		haze_sca_opt_depth += mHaze.calcSigSca(lower_h);
-		haze_sca_opt_depth *= 0.5;
-		sun_transp += mTransp.calcTransp(up_lower * tosun, lower_h);
-		sun_transp *= 0.5;
-	}
-
-	res = calcAirPhaseFunc(cos_dir) * air_sca_opt_depth;
-	res += mHaze.calcPhase(cos_dir) * haze_sca_opt_depth;
-	res = mSun.getIntensity() * dist * sun_transp * res;
-}
-
-
-
-
-
-
-F32 LLVOSky::calcHitsEarth(const LLVector3& orig, const LLVector3& dir) const
-{
-	const LLVector3 from_earth_center = mEarthCenter - orig;
-	const F32 tca = dir * from_earth_center;
-	if ( tca < 0 )
-	{
-		return -1;
-	}
-
-	const F32 thc2 = EARTH_RADIUS * EARTH_RADIUS -
-			from_earth_center.magVecSquared() + tca * tca;
-	if (thc2 < 0 )
-	{
-		return -1;
-	}
-
-	return tca - sqrt ( thc2 );
-}
-
-F32 LLVOSky::calcHitsAtmEdge(const LLVector3& orig, const LLVector3& dir) const
-{
-	const LLVector3 from_earth_center = mEarthCenter - orig;
-	const F32 tca = dir * from_earth_center;
-
-	const F32 thc2 = (EARTH_RADIUS + mAtmHeight) * (EARTH_RADIUS + mAtmHeight) -
-			from_earth_center.magVecSquared() + tca * tca;
-	return tca + sqrt(thc2);
-}
-
-
-void LLVOSky::updateBrightestDir()
-{
-	LLColor3 br_pt, transp;
-	const S32 test_no = 5;
-	const F32 step = F_PI_BY_TWO / (test_no + 1);
-	for (S32 i = 0; i < test_no; ++i)
-	{
-		F32 cos_dir = cos ((i + 1) * step);
-		calcSkyColorInDir(br_pt, transp, move_vec(getToSunLast(), cos_dir));
-		const F32 br = color_max(br_pt);
-		if (br > mBrightnessScaleGuess)
+		if (Pn[1] < -0.05f)
 		{
-			mBrightnessScaleGuess = br;
-			mBrightestPointGuess = br_pt;
+			vary_HazeColor = colorMix(dark_brown, brown, -Pn[1] * 0.9f) * sky_lighting * haze_brightness;
+		}
+		
+		if (Pn[1] > -0.1f)
+		{
+			vary_HazeColor = colorMix(LLColor3::white * haze_brightness, vary_HazeColor, fabs((Pn[1] + 0.05f) * -20.f));
 		}
 	}
 }
 
+#if LL_MSVC && __MSVC_VER__ < 8
+#pragma optimize("p", off)
+#endif
 
-void LLVOSky::calcBrightnessScaleAndColors()
+LLColor3 LLVOSky::calcSkyColorWLFrag(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLColor3 & vary_CloudColorSun, 
+							LLColor3 & vary_CloudColorAmbient, F32 & vary_CloudDensity, 
+							LLVector2 vary_HorizontalProjection[2])
 {
-	// new correct normalization.
-	if (mBrightnessScaleNew < 1e-7)
+	LLColor3 res;
+
+	LLColor3 color0 = vary_HazeColor;
+	
+	if (!gPipeline.canUseWindLightShaders())
 	{
-		mBrightnessScale = 1;
-		mBrightestPoint.setToBlack();
-	}
-	else
+		LLColor3 color1 = color0 * 2.0f;
+		color1 = smear(1.f) - componentSaturate(color1);
+		componentPow(color1, gamma);
+		res = smear(1.f) - color1;
+	} 
+	else 
 	{
-		mBrightnessScale = 1.f/mBrightnessScaleNew;
-		mBrightestPoint = mBrightestPointNew;
-	}
-
-	mBrightnessScaleNew = 0;
-	// and addition
-
-	// Calculate Sun and Moon color
-	const F32 h = llmax(0.0f, mCameraPosAgent.mV[2]);
-	const LLColor3 sun_color = mSun.getIntensity() * mTransp.calcTransp(getToSunLast().mV[2], h);
-	const LLColor3 moon_color = mNightColorShift * 
-				mMoon.getIntensity() * mTransp.calcTransp(getToMoonLast().mV[2], h);
-
-	F32 intens = color_intens(sun_color);
-	F32 increase_sun_br = (intens > 0) ? 1.2f * color_intens(mBrightestPoint) / intens : 1;
-
-	intens = color_intens(moon_color);
-	F32 increase_moon_br = (intens > 0) ? 1.2f * llmax(1.0f, color_intens(mBrightestPoint) / intens) : 1;
-
-	mSun.setColor(mBrightnessScale * increase_sun_br * sun_color);
-	mMoon.setColor(mBrightnessScale * increase_moon_br * moon_color);
-
-	const LLColor3 haze_col = color_norm_abs(mHaze.getSigSca());
-	for (S32 i = 0; i < 6; ++i)
-	{
-		mSkyTex[i].create(mBrightnessScale, mHazeConcentration * mBrightestPoint * haze_col);
+		res = color0;
 	}
 
-	mBrightnessScaleGuess = mBrightnessScale;
-	mBrightestPointGuess = mBrightestPoint;
+#	ifndef LL_RELEASE_FOR_DOWNLOAD
 
-//	calculateColors(); // MSMSM Moving this down to before generateScatterMap(), per Milo Lindens suggestion, to fix orange flashing bug.
+	LLColor3 color2 = 2.f * color0;
+
+	LLColor3 color3 = LLColor3(1.f, 1.f, 1.f) - componentSaturate(color2);
+	componentPow(color3, gamma);
+	color3 = LLColor3(1.f, 1.f, 1.f) - color3;
+
+	static enum {
+		OUT_DEFAULT		= 0,
+		OUT_SKY_BLUE	= 1,
+		OUT_RED			= 2,
+		OUT_PN			= 3,
+		OUT_HAZE		= 4,
+	} debugOut = OUT_DEFAULT;
+
+	switch(debugOut) 
+	{
+		case OUT_DEFAULT:
+			break;
+		case OUT_SKY_BLUE:
+			res = LLColor3(0.4f, 0.4f, 0.9f);
+			break;
+		case OUT_RED:
+			res = LLColor3(1.f, 0.f, 0.f);
+			break;
+		case OUT_PN:
+			res = LLColor3(Pn[0], Pn[1], Pn[2]);
+			break;
+		case OUT_HAZE:
+			res = vary_HazeColor;
+			break;
+	}
+#	endif // LL_RELEASE_FOR_DOWNLOAD
+	return res;
+}
+
+LLColor3 LLVOSky::createDiffuseFromWL(LLColor3 diffuse, LLColor3 ambient, LLColor3 sundiffuse, LLColor3 sunambient)
+{
+	return componentMult(diffuse, sundiffuse) * 4.0f +
+			componentMult(ambient, sundiffuse) * 2.0f + sunambient;
+}
+
+LLColor3 LLVOSky::createAmbientFromWL(LLColor3 ambient, LLColor3 sundiffuse, LLColor3 sunambient)
+{
+	return (componentMult(ambient, sundiffuse) + sunambient) * 0.8f;
+}
+
+
+void LLVOSky::calcAtmospherics(void)
+{
+	initAtmospherics();
+
+	LLColor3 vary_HazeColor;
+	LLColor3 vary_SunlightColor;
+	LLColor3 vary_AmbientColor;
+	{
+		// Initialize temp variables
+		LLColor3 sunlight = sunlight_color;
+
+		// Sunlight attenuation effect (hue and brightness) due to atmosphere
+		// this is used later for sunlight modulation at various altitudes
+		LLColor3 light_atten =
+			(blue_density * 1.0 + smear(haze_density * 0.25f)) * (density_multiplier * max_y);
+
+		// Calculate relative weights
+		LLColor3 temp2(0.f, 0.f, 0.f);
+		LLColor3 temp1 = blue_density + smear(haze_density);
+		LLColor3 blue_weight = componentDiv(blue_density, temp1);
+		LLColor3 haze_weight = componentDiv(smear(haze_density), temp1);
+
+		// Compute sunlight from P & lightnorm (for long rays like sky)
+		/// USE only lightnorm.
+		// temp2[1] = llmax(0.f, llmax(0.f, Pn[1]) * 1.0f + lightnorm[1] );
+		
+		// and vary_sunlight will work properly with moon light
+		F32 lighty = unclamped_lightnorm[1];
+		if(lighty < NIGHTTIME_ELEVATION_COS)
+		{
+			lighty = -lighty;
+		}
+
+		temp2.mV[1] = llmax(0.f, lighty);
+		temp2.mV[1] = 1.f / temp2.mV[1];
+		componentMultBy(sunlight, componentExp((light_atten * -1.f) * temp2.mV[1]));
+
+		// Distance
+		temp2.mV[2] = density_multiplier;
+
+		// Transparency (-> temp1)
+		temp1 = componentExp((temp1 * -1.f) * temp2.mV[2]);
+
+		// vary_AtmosAttenuation = temp1; 
+
+		//increase ambient when there are more clouds
+		LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow * 0.5f;
+
+		//haze color
+		vary_HazeColor =
+			(blue_horizon * blue_weight * (sunlight*(1.f - cloud_shadow) + tmpAmbient)	
+			+ componentMult(haze_horizon.mV[0] * haze_weight, sunlight*(1.f - cloud_shadow) * temp2.mV[0] + tmpAmbient)
+				 );	
+
+		//brightness of surface both sunlight and ambient
+		vary_SunlightColor = componentMult(sunlight, temp1) * 1.f;
+		vary_SunlightColor.clamp();
+		vary_SunlightColor = smear(1.0f) - vary_SunlightColor;
+		vary_SunlightColor = componentPow(vary_SunlightColor, gamma);
+		vary_SunlightColor = smear(1.0f) - vary_SunlightColor;
+		vary_AmbientColor = componentMult(tmpAmbient, temp1) * 0.5;
+		vary_AmbientColor.clamp();
+		vary_AmbientColor = smear(1.0f) - vary_AmbientColor;
+		vary_AmbientColor = componentPow(vary_AmbientColor, gamma);
+		vary_AmbientColor = smear(1.0f) - vary_AmbientColor;
+
+		componentMultBy(vary_HazeColor, LLColor3(1.f, 1.f, 1.f) - temp1);
+
+	}
+
+	mSun.setColor(vary_SunlightColor);
+	mMoon.setColor(LLColor3(1.0f, 1.0f, 1.0f));
 
 	mSun.renewDirection();
 	mSun.renewColor();
 	mMoon.renewDirection();
 	mMoon.renewColor();
 
-	LLColor3 transp;
-
-	if (calcHitsEarth(mCameraPosAgent, getToSunLast()) < 0)
+	float dp = getToSunLast() * LLVector3(0,0,1.f);
+	if (dp < 0)
 	{
-		calcSkyColorInDir(mBrightestPointGuess, transp, getToSunLast());
-		mBrightnessScaleGuess = color_max(mBrightestPointGuess);
-		updateBrightestDir();
-		mBrightnessScaleGuess = 1.f / llmax(1.0f, mBrightnessScaleGuess);
-	}
-	else if (getToSunLast().mV[2] > -0.5)
-	{
-		const LLVector3 almost_to_sun = toHorizon(getToSunLast());
-		calcSkyColorInDir(mBrightestPointGuess, transp, almost_to_sun);
-		mBrightnessScaleGuess = color_max(mBrightestPointGuess);
-		updateBrightestDir();
-		mBrightnessScaleGuess = 1.f / llmax(1.0f, mBrightnessScaleGuess);
-	}
-	else
-	{
-		mBrightestPointGuess.setToBlack();
-		mBrightnessScaleGuess = 1;
+		dp = 0;
 	}
 
-	calculateColors(); // MSMSM Moved this down here per Milo Lindens suggestion, to fix orange flashing bug at sunset.
-}
+	// Since WL scales everything by 2, there should always be at least a 2:1 brightness ratio
+	// between sunlight and point lights in windlight to normalize point lights.
+	F32 sun_dynamic_range = llmax(gSavedSettings.getF32("RenderSunDynamicRange"), 0.0001f);
+	LLWLParamManager::instance()->mSceneLightStrength = 2.0f * (1.0f + sun_dynamic_range * dp);
 
+	mSunDiffuse = vary_SunlightColor;
+	mSunAmbient = vary_AmbientColor;
+	mMoonDiffuse = vary_SunlightColor;
+	mMoonAmbient = vary_AmbientColor;
 
-void LLVOSky::calculateColors()
-{
-	const F32 h = -0.1f;
-	const LLVector3& tosun = getToSunLast();
-
-	F32 full_on, full_off, on, on_cl;
-	F32 sun_factor = 1;
-	
-	// Sun Diffuse
-	F32 sun_height = tosun.mV[2];
-
-	if (sun_height <= 0.0)
-		sun_height = 0.0;
-	
-	mSunDiffuse = mBrightnessScaleGuess * mSun.getIntensity() * mTransp.calcTransp(sun_height, h);
-
-	mSunDiffuse = 1.0f * color_norm(mSunDiffuse);
-
-	// Sun Ambient
-	full_off = -0.3f;
-	full_on = -0.03f;
-	if (tosun.mV[2] < full_off)
-	{
-		mSunAmbient.setToBlack();
-	}
-	else
-	{
-		on = (tosun.mV[2] - full_off) / (full_on - full_off);
-		sun_factor = llmax(0.0f, llmin(on, 1.0f));
-
-		LLColor3 sun_amb = mAmbientScale * (0.8f * mSunDiffuse + 
-					0.2f * mBrightnessScaleGuess * mBrightestPointGuess);
-
-		color_norm_pow(sun_amb, 0.1f, TRUE);
-		sun_factor *= min_intens_factor(sun_amb, 1.9f);
-		mSunAmbient = LLColor4(sun_factor * sun_amb);
-	}
-
-
-	// Moon Diffuse
-	full_on = 0.3f;
-	full_off = 0.01f;
-	if (getToMoonLast().mV[2] < full_off)
-	{
-		mMoonDiffuse.setToBlack();
-	}
-	else
-	{
-		// Steve: Added moonlight diffuse factor scalar (was constant .3)
-		F32 diffuse_factor = .1f + sNighttimeBrightness * .2f; // [.1, .5] default = .3
-		on = (getToMoonLast().mV[2] - full_off) / (full_on - full_off);
-		on_cl = llmin(on, 1.0f);
-		mMoonDiffuse = on_cl * mNightColorShift * diffuse_factor;
-	}
-
-	// Moon Ambient
-
-	F32 moon_amb_factor = 1.f;
-
-	if (gAgent.inPrelude())
-	{
-		moon_amb_factor *= 2.0f;
-	}
-
-	full_on = 0.30f;
-	full_off = 0.01f;
-	if (getToMoonLast().mV[2] < full_off)
-	{
-		mMoonAmbient.setToBlack();
-	}
-	else
-	{
-		on = (getToMoonLast().mV[2] - full_off) / (full_on - full_off);
-		on_cl = llmax(0.0f, llmin(on, 1.0f));
-		mMoonAmbient = on_cl * moon_amb_factor * mMoonDiffuse;
-	}
-
-
-	// Sun Diffuse
-	full_off = -0.05f;
-	full_on = -0.00f;
-	if (tosun.mV[2] < full_off)
-	{
-		mSunDiffuse.setToBlack();
-	}
-	else
-	{
-		on = (getToSunLast().mV[2] - full_off) / (full_on - full_off);
-		sun_factor = llmax(0.0f, llmin(on, 1.0f));
-
-		color_norm_pow(mSunDiffuse, 0.12f, TRUE);
-		sun_factor *= min_intens_factor(mSunDiffuse, 2.1f);
-		mSunDiffuse *= sun_factor;
-	}
-
-
-	mTotalAmbient = mSunAmbient + mMoonAmbient;
+	mTotalAmbient = vary_AmbientColor;
 	mTotalAmbient.setAlpha(1);
-	//llinfos << "MoonDiffuse: " << mMoonDiffuse << llendl;
-	//llinfos << "TotalAmbient: " << mTotalAmbient << llendl;
-
+	
 	mFadeColor = mTotalAmbient + (mSunDiffuse + mMoonDiffuse) * 0.5f;
 	mFadeColor.setAlpha(0);
 }
-
 
 BOOL LLVOSky::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
@@ -1177,7 +1039,7 @@ BOOL LLVOSky::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 
 BOOL LLVOSky::updateSky()
 {
- 	if (mDead || !(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY)))
+	if (mDead || !(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY)))
 	{
 		return TRUE;
 	}
@@ -1196,7 +1058,7 @@ BOOL LLVOSky::updateSky()
 	const S32 total_no_tiles = 6 * NUM_TILES;
 	const S32 cycle_frame_no = total_no_tiles + 1;
 
-//	if (mUpdateTimer.getElapsedTimeF32() > 0.1f)
+	if (mUpdateTimer.getElapsedTimeF32() > 0.001f)
 	{
 		mUpdateTimer.reset();
 		const S32 frame = next_frame;
@@ -1205,12 +1067,13 @@ BOOL LLVOSky::updateSky()
 		next_frame = next_frame % cycle_frame_no;
 
 		sInterpVal = (!mInitialized) ? 1 : (F32)next_frame / cycle_frame_no;
+		// sInterpVal = (F32)next_frame / cycle_frame_no;
 		LLSkyTex::setInterpVal( sInterpVal );
 		LLHeavenBody::setInterpVal( sInterpVal );
-		calculateColors();
+		calcAtmospherics();
+
 		if (mForceUpdate || total_no_tiles == frame)
 		{
-			calcBrightnessScaleAndColors();
 			LLSkyTex::stepCurrent();
 			
 			const static F32 LIGHT_DIRECTION_THRESHOLD = (F32) cos(DEG_TO_RAD * 1.f);
@@ -1248,7 +1111,7 @@ BOOL LLVOSky::updateSky()
 							}
 						}
 
-						calcBrightnessScaleAndColors();
+						calcAtmospherics();
 
 						for (int side = 0; side < 6; side++) 
 						{
@@ -1256,21 +1119,42 @@ BOOL LLVOSky::updateSky()
 							LLImageRaw* raw2 = mSkyTex[side].getImageRaw(FALSE);
 							raw2->copy(raw1);
 							mSkyTex[side].createGLImage(mSkyTex[side].getWhich(FALSE));
+
+							raw1 = mShinyTex[side].getImageRaw(TRUE);
+							raw2 = mShinyTex[side].getImageRaw(FALSE);
+							raw2->copy(raw1);
+							mShinyTex[side].createGLImage(mShinyTex[side].getWhich(FALSE));
 						}
 						next_frame = 0;	
 					}
-
-					std::vector<LLPointer<LLImageRaw> > images;
-					for (S32 side = 0; side < 6; side++)
-					{
-						images.push_back(mSkyTex[side].getImageRaw(FALSE));
-					}
-					mCubeMap->init(images);
 				}
 			}
 
+			/// *TODO really, sky texture and env map should be shared on a single texture
+			/// I'll let Brad take this at some point
+
+			// update the sky texture
+			for (S32 i = 0; i < 6; ++i)
+			{
+				mSkyTex[i].create(1.0f);
+				mShinyTex[i].create(1.0f);
+			}
+			
+			// update the environment map
+			if (mCubeMap)
+			{
+				std::vector<LLPointer<LLImageRaw> > images;
+				images.reserve(6);
+				for (S32 side = 0; side < 6; side++)
+				{
+					images.push_back(mShinyTex[side].getImageRaw(TRUE));
+				}
+				mCubeMap->init(images);
+			}
+
 			gPipeline.markRebuild(gSky.mVOGroundp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
-			gPipeline.markRebuild(gSky.mVOStarsp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+			// *TODO: decide whether we need to update the stars vertex buffer in LLVOWLSky -Brad.
+			//gPipeline.markRebuild(gSky.mVOWLSkyp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 
 			mForceUpdate = FALSE;
 		}
@@ -1282,14 +1166,12 @@ BOOL LLVOSky::updateSky()
 		}
 	}
 
-
-	if (mDrawable)
+	if (mDrawable.notNull() && mDrawable->getFace(0) && mDrawable->getFace(0)->mVertexBuffer.isNull())
 	{
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
 	}
 	return TRUE;
 }
-
 
 void LLVOSky::updateTextures(LLAgent &agent)
 {
@@ -1324,12 +1206,61 @@ LLDrawable *LLVOSky::createDrawable(LLPipeline *pipeline)
 	return mDrawable;
 }
 
+//by bao
+//fake vertex buffer updating
+//to guaranttee at least updating one VBO buffer every frame
+//to walk around the bug caused by ATI card --> DEV-3855
+//
+void LLVOSky::createDummyVertexBuffer()
+{
+	if(!mFace[FACE_DUMMY])
+	{
+		LLDrawPoolSky *poolp = (LLDrawPoolSky*) gPipeline.getPool(LLDrawPool::POOL_SKY);
+		mFace[FACE_DUMMY] = mDrawable->addFace(poolp, NULL);
+	}
+
+	if(mFace[FACE_DUMMY]->mVertexBuffer.isNull())
+	{
+		mFace[FACE_DUMMY]->mVertexBuffer = new LLVertexBuffer(LLDrawPoolSky::VERTEX_DATA_MASK, GL_DYNAMIC_DRAW_ARB);
+		mFace[FACE_DUMMY]->mVertexBuffer->allocateBuffer(1, 1, TRUE);
+	}
+}
+
+void LLVOSky::updateDummyVertexBuffer()
+{	
+	if(!LLVertexBuffer::sEnableVBOs)
+		return ;
+
+	if(mHeavenlyBodyUpdated)
+	{
+		mHeavenlyBodyUpdated = FALSE ;
+		return ;
+	}
+
+	LLFastTimer t(LLFastTimer::FTM_RENDER_FAKE_VBO_UPDATE) ;
+
+	if(!mFace[FACE_DUMMY] || mFace[FACE_DUMMY]->mVertexBuffer.isNull())
+		createDummyVertexBuffer() ;
+
+	LLStrider<LLVector3> vertices ;
+	mFace[FACE_DUMMY]->mVertexBuffer->getVertexStrider(vertices,  0);
+	*vertices = mCameraPosAgent ;
+	mFace[FACE_DUMMY]->mVertexBuffer->setBuffer(0) ;
+}
+//----------------------------------
+//end of fake vertex buffer updating
+//----------------------------------
+
 BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 {
+	LLFastTimer ftm(LLFastTimer::FTM_GEO_SKY);
 	if (mFace[FACE_REFLECTION] == NULL)
 	{
 		LLDrawPoolWater *poolp = (LLDrawPoolWater*) gPipeline.getPool(LLDrawPool::POOL_WATER);
-		mFace[FACE_REFLECTION] = drawable->addFace(poolp, NULL);
+		if (gPipeline.getPool(LLDrawPool::POOL_WATER)->getVertexShaderLevel() != 0)
+		{
+			mFace[FACE_REFLECTION] = drawable->addFace(poolp, NULL);
+		}
 	}
 
 	mCameraPosAgent = drawable->getPositionAgent();
@@ -1342,14 +1273,14 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 		F32 x_sgn = (i&1) ? 1.f : -1.f;
 		F32 y_sgn = (i&2) ? 1.f : -1.f;
 		F32 z_sgn = (i&4) ? 1.f : -1.f;
-		v_agent[i] = HORIZON_DIST*0.25f * LLVector3(x_sgn, y_sgn, z_sgn);
+		v_agent[i] = HORIZON_DIST * SKY_BOX_MULT * LLVector3(x_sgn, y_sgn, z_sgn);
 	}
 
 	LLStrider<LLVector3> verticesp;
 	LLStrider<LLVector3> normalsp;
 	LLStrider<LLVector2> texCoordsp;
-	LLStrider<U32> indicesp;
-	S32 index_offset;
+	LLStrider<U16> indicesp;
+	U16 index_offset;
 	LLFace *face;	
 
 	for (S32 side = 0; side < 6; ++side)
@@ -1395,6 +1326,8 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 			*indicesp++ = index_offset + 0;
 			*indicesp++ = index_offset + 3;
 			*indicesp++ = index_offset + 2;
+
+			face->mVertexBuffer->setBuffer(0);
 		}
 	}
 
@@ -1430,11 +1363,8 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 	
 	if (height_above_water > 0)
 	{
-#if 1 //1.9.1
 		BOOL render_ref = gPipeline.getPool(LLDrawPool::POOL_WATER)->getVertexShaderLevel() == 0;
-#else
-		BOOL render_ref = !(gPipeline.getVertexShaderLevel(LLPipeline::SHADER_ENVIRONMENT) >= LLDrawPoolWater::SHADER_LEVEL_RIPPLE);
-#endif
+
 		if (sun_flag)
 		{
 			setDrawRefl(0);
@@ -1457,24 +1387,29 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 		setDrawRefl(-1);
 	}
 
-
 	LLPipeline::sCompiles++;
 	return TRUE;
 }
-
 
 BOOL LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, const BOOL is_sun,
 										 LLHeavenBody& hb, const F32 cos_max_angle,
 										 const LLVector3 &up, const LLVector3 &right)
 {
+	mHeavenlyBodyUpdated = TRUE ;
+
 	LLStrider<LLVector3> verticesp;
 	LLStrider<LLVector3> normalsp;
 	LLStrider<LLVector2> texCoordsp;
-	LLStrider<U32> indicesp;
+	LLStrider<U16> indicesp;
 	S32 index_offset;
 	LLFace *facep;
 
 	LLVector3 to_dir = hb.getDirection();
+
+	if (!is_sun)
+	{
+		to_dir.mV[2] = llmax(to_dir.mV[2]+0.1f, 0.1f);
+	}
 	LLVector3 draw_pos = to_dir * HEAVENLY_BODY_DIST;
 
 
@@ -1521,14 +1456,15 @@ BOOL LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, cons
 
 	if (facep->mVertexBuffer.isNull())
 	{
-		facep->setSize(4, 6);
-		facep->mVertexBuffer = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
+		facep->setSize(4, 6);		
+		facep->mVertexBuffer = new LLVertexBuffer(LLDrawPoolSky::VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
 		facep->mVertexBuffer->allocateBuffer(facep->getGeomCount(), facep->getIndicesCount(), TRUE);
 		facep->setGeomIndex(0);
 		facep->setIndicesIndex(0);
 	}
 
 	index_offset = facep->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
+
 	if (-1 == index_offset)
 	{
 		return TRUE;
@@ -1542,10 +1478,8 @@ BOOL LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, cons
 
 	*(texCoordsp++) = TEX01;
 	*(texCoordsp++) = TEX00;
-	//*(texCoordsp++) = (t_left > 0) ? LLVector2(0, t_left) : TEX00;
 	*(texCoordsp++) = TEX11;
 	*(texCoordsp++) = TEX10;
-	//*(texCoordsp++) = (t_right > 0) ? LLVector2(1, t_right) : TEX10;
 
 	*indicesp++ = index_offset + 0;
 	*indicesp++ = index_offset + 2;
@@ -1554,6 +1488,8 @@ BOOL LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, cons
 	*indicesp++ = index_offset + 1;
 	*indicesp++ = index_offset + 2;
 	*indicesp++ = index_offset + 3;
+
+	facep->mVertexBuffer->setBuffer(0);
 
 	if (is_sun)
 	{
@@ -1651,12 +1587,13 @@ F32 clip_side_to_horizon(const LLVector3& V0, const LLVector3& V1, const F32 cos
 
 void LLVOSky::updateSunHaloGeometry(LLDrawable *drawable )
 {
+#if 0
 	const LLVector3* v_corner = mSun.corners();
 
 	LLStrider<LLVector3> verticesp;
 	LLStrider<LLVector3> normalsp;
 	LLStrider<LLVector2> texCoordsp;
-	LLStrider<U32> indicesp;
+	LLStrider<U16> indicesp;
 	S32 index_offset;
 	LLFace *face;
 
@@ -1708,6 +1645,7 @@ void LLVOSky::updateSunHaloGeometry(LLDrawable *drawable )
 	*indicesp++ = index_offset + 1;
 	*indicesp++ = index_offset + 2;
 	*indicesp++ = index_offset + 3;
+#endif
 }
 
 
@@ -1932,7 +1870,7 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 	LLStrider<LLVector3> verticesp;
 	LLStrider<LLVector3> normalsp;
 	LLStrider<LLVector2> texCoordsp;
-	LLStrider<U32> indicesp;
+	LLStrider<U16> indicesp;
 	S32 index_offset;
 	
 	index_offset = face->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
@@ -2063,6 +2001,8 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 			}
 		}
 	}
+
+	face->mVertexBuffer->setBuffer(0);
 }
 
 
@@ -2072,36 +2012,10 @@ void LLVOSky::updateFog(const F32 distance)
 {
 	if (!gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FOG))
 	{
-		/*gGLSFog.addCap(GL_FOG, FALSE);
-		gGLSPipeline.addCap(GL_FOG, FALSE);
-		gGLSPipelineAlpha.addCap(GL_FOG, FALSE);
-		gGLSPipelinePixieDust.addCap(GL_FOG, FALSE);
-		gGLSPipelineSelection.addCap(GL_FOG, FALSE);
-		gGLSPipelineAvatar.addCap(GL_FOG, FALSE);
-		gGLSPipelineAvatarAlphaOnePass.addCap(GL_FOG, FALSE);
-		gGLSPipelineAvatarAlphaPass1.addCap(GL_FOG, FALSE);
-		gGLSPipelineAvatarAlphaPass2.addCap(GL_FOG, FALSE);
-		gGLSPipelineAvatarAlphaPass3.addCap(GL_FOG, FALSE);*/
 		glFogf(GL_FOG_DENSITY, 0);
 		glFogfv(GL_FOG_COLOR, (F32 *) &LLColor4::white.mV);
 		glFogf(GL_FOG_END, 1000000.f);
 		return;
-	}
-	else
-	{
-		/*gGLSFog.addCap(GL_FOG, TRUE);
-		gGLSPipeline.addCap(GL_FOG, TRUE);
-		gGLSPipelineAlpha.addCap(GL_FOG, TRUE);
-		gGLSPipelinePixieDust.addCap(GL_FOG, TRUE);
-		gGLSPipelineSelection.addCap(GL_FOG, TRUE);
-		if (!gGLManager.mIsATI)
-		{
-			gGLSPipelineAvatar.addCap(GL_FOG, TRUE);
-			gGLSPipelineAvatarAlphaOnePass.addCap(GL_FOG, TRUE);
-			gGLSPipelineAvatarAlphaPass1.addCap(GL_FOG, TRUE);
-			gGLSPipelineAvatarAlphaPass2.addCap(GL_FOG, TRUE);
-			gGLSPipelineAvatarAlphaPass3.addCap(GL_FOG, TRUE);
-		}*/
 	}
 
 	const BOOL hide_clip_plane = TRUE;
@@ -2120,7 +2034,6 @@ void LLVOSky::updateFog(const F32 distance)
 	LLColor3 sky_fog_color = LLColor3::white;
 	LLColor3 render_fog_color = LLColor3::white;
 
-	LLColor3 transp;
 	LLVector3 tosun = getToSunLast();
 	const F32 tosun_z = tosun.mV[VZ];
 	tosun.mV[VZ] = 0.f;
@@ -2140,9 +2053,10 @@ void LLVOSky::updateFog(const F32 distance)
 	tosun_45.normVec();
 
 	// Sky colors, just slightly above the horizon in the direction of the sun, perpendicular to the sun, and at a 45 degree angle to the sun.
-	calcSkyColorInDir(res_color[0],transp, tosun);
-	calcSkyColorInDir(res_color[1],transp, perp_tosun);
-	calcSkyColorInDir(res_color[2],transp, tosun_45);
+	initAtmospherics();
+	res_color[0] = calcSkyColorInDir(tosun);
+	res_color[1] = calcSkyColorInDir(perp_tosun);
+	res_color[2] = calcSkyColorInDir(tosun_45);
 
 	sky_fog_color = color_norm(res_color[0] + res_color[1] + res_color[2]);
 
@@ -2163,53 +2077,58 @@ void LLVOSky::updateFog(const F32 distance)
 	color_gamma_correct(sky_fog_color);
 
 	render_fog_color = sky_fog_color;
+
+	F32 fog_density = 0.f;
+	fog_distance = mFogRatio * distance;
 	
 	if (camera_height > water_height)
 	{
-		fog_distance = mFogRatio * distance;
 		LLColor4 fog(render_fog_color);
 		glFogfv(GL_FOG_COLOR, fog.mV);
 		mGLFogCol = fog;
+
+		if (hide_clip_plane)
+		{
+			// For now, set the density to extend to the cull distance.
+			const F32 f_log = 2.14596602628934723963618357029f; // sqrt(fabs(log(0.01f)))
+			fog_density = f_log/fog_distance;
+			glFogi(GL_FOG_MODE, GL_EXP2);
+		}
+		else
+		{
+			const F32 f_log = 4.6051701859880913680359829093687f; // fabs(log(0.01f))
+			fog_density = (f_log)/fog_distance;
+			glFogi(GL_FOG_MODE, GL_EXP);
+		}
 	}
 	else
 	{
-		// Interpolate between sky fog and water fog...
 		F32 depth = water_height - camera_height;
-		F32 depth_frac = 1.f/(1.f + 200.f*depth);
-		F32 color_frac = 1.f/(1.f + 0.5f* depth)* 0.2f;
-		fog_distance = (mFogRatio * distance) * depth_frac + 30.f * (1.f-depth_frac);
-		fog_distance = llmin(75.f, fog_distance);
+		
+		// get the water param manager variables
+		float water_fog_density = LLWaterParamManager::instance()->getFogDensity();
+		LLColor4 water_fog_color = LLDrawPoolWater::sWaterFogColor.mV;
+		
+		// adjust the color based on depth.  We're doing linear approximations
+		float depth_scale = gSavedSettings.getF32("WaterGLFogDepthScale");
+		float depth_modifier = 1.0f - llmin(llmax(depth / depth_scale, 0.01f), 
+			gSavedSettings.getF32("WaterGLFogDepthFloor"));
 
-		F32 brightness = 1.f/(1.f + 0.05f*depth);
-		F32 sun_brightness = getSunDiffuseColor().magVec() * 0.3f;
-		brightness = llmin(1.f, brightness);
-		brightness = llmin(brightness, sun_brightness);
-		color_frac = llmin(0.7f, color_frac);
-
-		LLColor4 fogCol = brightness * (color_frac * render_fog_color + (1.f - color_frac) * LLColor4(0.f, 0.2f, 0.3f, 1.f));
+		LLColor4 fogCol = water_fog_color * depth_modifier;
 		fogCol.setAlpha(1);
+
+		// set the gl fog color
 		glFogfv(GL_FOG_COLOR, (F32 *) &fogCol.mV);
 		mGLFogCol = fogCol;
+
+		// set the density based on what the shaders use
+		fog_density = water_fog_density * gSavedSettings.getF32("WaterGLFogDensityScale");
+		glFogi(GL_FOG_MODE, GL_EXP2);
 	}
 
 	mFogColor = sky_fog_color;
 	mFogColor.setAlpha(1);
 	LLGLSFog gls_fog;
-
-	F32 fog_density;
-	if (hide_clip_plane)
-	{
-		// For now, set the density to extend to the cull distance.
-		const F32 f_log = 2.14596602628934723963618357029f; // sqrt(fabs(log(0.01f)))
-		fog_density = f_log/fog_distance;
-		glFogi(GL_FOG_MODE, GL_EXP2);
-	}
-	else
-	{
-		const F32 f_log = 4.6051701859880913680359829093687f; // fabs(log(0.01f))
-		fog_density = (f_log)/fog_distance;
-		glFogi(GL_FOG_MODE, GL_EXP);
-	}
 
 	glFogf(GL_FOG_END, fog_distance*2.2f);
 
@@ -2279,197 +2198,53 @@ F32 azimuth(const LLVector3 &v)
 	return azimuth;
 }
 
-
-#if 0
-// Not currently used
-LLColor3 LLVOSky::calcGroundFog(LLColor3& transp, const LLVector3 &view_dir, F32 obj_dist) const
+void LLVOSky::initSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_ang_velocity)
 {
-	LLColor3 col;
-	calcGroundFog(col, transp, view_dir, obj_dist);
-	col *= mBrightnessScaleGuess;
-	return col;
+	LLVector3 sun_direction = (sun_dir.magVec() == 0) ? LLVector3::x_axis : sun_dir;
+	sun_direction.normVec();
+	mSun.setDirection(sun_direction);
+	mSun.renewDirection();
+	mSun.setAngularVelocity(sun_ang_velocity);
+	mMoon.setDirection(-mSun.getDirection());
+	mMoon.renewDirection();
+	mLastLightingDirection = mSun.getDirection();
+
+	calcAtmospherics();
+
+	if ( !mInitialized )
+	{
+		init();
+		LLSkyTex::stepCurrent();
+	}		
 }
-#endif
 
 void LLVOSky::setSunDirection(const LLVector3 &sun_dir, const LLVector3 &sun_ang_velocity)
 {
 	LLVector3 sun_direction = (sun_dir.magVec() == 0) ? LLVector3::x_axis : sun_dir;
 	sun_direction.normVec();
-	F32 dp = mSun.getDirection() * sun_direction;
+
+	// Push the sun "South" as it approaches directly overhead so that we can always see bump mapping
+	// on the upward facing faces of cubes.
+	LLVector3 newDir = sun_direction;
+
+	// Same as dot product with the up direction + clamp.
+	F32 sunDot = llmax(0.f, newDir.mV[2]);
+	sunDot *= sunDot;	
+
+	// Create normalized vector that has the sunDir pushed south about an hour and change.
+	LLVector3 adjustedDir = (newDir + LLVector3(0.f, -0.70711f, 0.70711f)) * 0.5f;
+
+	// Blend between normal sun dir and adjusted sun dir based on how close we are
+	// to having the sun overhead.
+	mBumpSunDir = adjustedDir * sunDot + newDir * (1.0f - sunDot);
+	mBumpSunDir.normVec();
+
+	F32 dp = mLastLightingDirection * sun_direction;
 	mSun.setDirection(sun_direction);
 	mSun.setAngularVelocity(sun_ang_velocity);
 	mMoon.setDirection(-sun_direction);
+	calcAtmospherics();
 	if (dp < 0.995f) { //the sun jumped a great deal, update immediately
-		updateHaze();
-		mWeatherChange = FALSE;
 		mForceUpdate = TRUE;
 	}
-	else if (mWeatherChange && (mSun.getDirection().mV[VZ] > -0.5) )
-	{
-		updateHaze();
-		init();
-		mWeatherChange = FALSE;
-	}
-	else if (mSun.getDirection().mV[VZ] < -0.5)
-	{
-		mWeatherChange = TRUE;
-	}
 }
-
-#define INV_WAVELENGTH_R_POW4 (1.f/0.2401f)			// = 1/0.7^4
-#define INV_WAVELENGTH_G_POW4 (1.f/0.0789f)			// = 1/0.53^4
-#define INV_WAVELENGTH_B_POW4 (1.f/0.03748f)		// = 1/0.44^4
-
-// Dummy class for globals used below. Replace when KILLERSKY is merged in.
-class LLKillerSky
-{
-public:
-	static F32 sRaleighGroundDensity;
-	static F32 sMieFactor;
-	static F32 sNearFalloffFactor;
-	static F32 sSkyContrib;
-
-	static void getRaleighCoefficients(float eye_sun_dp, float density, float *coefficients)
-	{
-		float dp = eye_sun_dp;
-		float angle_dep = density*(1 + dp*dp);
-		coefficients[0] = angle_dep * INV_WAVELENGTH_R_POW4;
-		coefficients[1] = angle_dep * INV_WAVELENGTH_G_POW4;
-		coefficients[2] = angle_dep * INV_WAVELENGTH_B_POW4;
-	}
-
-	static void getMieCoefficients(float eye_sun_dp, float density, float *coefficient)
-	{
-		// TOTALLY ARBITRARY FUNCTION. Seems to work though
-		// If anyone can replace this with some *actual* mie function, that'd be great
-		float dp = eye_sun_dp;
-		float dp_highpower = dp*dp;
-		float angle_dep = density * (llclamp(dp_highpower*dp, 0.f, 1.f) + 0.4f);
-		*coefficient = angle_dep;
-	}
-};
-
-F32 LLKillerSky::sRaleighGroundDensity = 0.013f;
-F32 LLKillerSky::sMieFactor = 50;
-F32 LLKillerSky::sNearFalloffFactor = 1.5f;
-F32 LLKillerSky::sSkyContrib = 0.06f;
-
-void LLVOSky::generateScatterMap()
-{
-	float raleigh[3], mie;
-
-	mScatterMap = new LLImageGL(FALSE);
-	mScatterMapRaw = new LLImageRaw(256, 256, 4);
-	U8 *data = mScatterMapRaw->getData();
-
-	F32 light_brightness = gSky.getSunDirection().mV[VZ]+0.1f;
-	LLColor4 light_color;
-	LLColor4 sky_color;
-	if (light_brightness > 0)
-	{
-		F32 interp = sqrtf(light_brightness);
-		light_brightness = sqrt(sqrtf(interp));
-		light_color = lerp(gSky.getSunDiffuseColor(), LLColor4(1,1,1,1), interp) * light_brightness;
-		sky_color = lerp(LLColor4(0,0,0,0), LLColor4(0.4f, 0.6f, 1.f, 1.f), light_brightness)*LLKillerSky::sSkyContrib;
-	}
-	else
-	{
-		light_brightness = /*0.3f*/sqrt(-light_brightness);
-		light_color = gSky.getMoonDiffuseColor() * light_brightness;
-		sky_color = LLColor4(0,0,0,1);
-	}
-
-	// x = distance [0..1024m]
-	// y = dot product [-1,1]
-	for (int y=0;y<256;y++)
-	{
-		// Accumulate outward
-		float accum_r = 0, accum_g = 0, accum_b = 0;
-
-		float dp = (((float)y)/255.f)*1.95f - 0.975f;
-		U8 *scanline = &data[y*256*4];
-		for (int x=0;x<256;x++)
-		{
-			float dist = ((float)x+1)*4; // x -> 2048
-
-			float raleigh_density = LLKillerSky::sRaleighGroundDensity * 0.05f; // Arbitrary? Perhaps...
-			float mie_density = raleigh_density*LLKillerSky::sMieFactor;
-
-			float extinction_factor = dist/LLKillerSky::sNearFalloffFactor;
-
-			LLKillerSky::getRaleighCoefficients(dp, raleigh_density, raleigh);
-			LLKillerSky::getMieCoefficients(dp, mie_density, &mie);
-
-			float falloff_r = pow(llclamp(0.985f-raleigh[0],0.f,1.f), extinction_factor);
-			float falloff_g = pow(llclamp(0.985f-raleigh[1],0.f,1.f), extinction_factor);
-			float falloff_b = pow(llclamp(0.985f-raleigh[2],0.f,1.f), extinction_factor);
-
-			float light_r = light_color.mV[0] * (raleigh[0]+mie+sky_color.mV[0]) * falloff_r;
-			float light_g = light_color.mV[1] * (raleigh[1]+mie+sky_color.mV[1]) * falloff_g;
-			float light_b = light_color.mV[2] * (raleigh[2]+mie+sky_color.mV[2]) * falloff_b;
-
-			accum_r += light_r;
-			accum_g += light_g;
-			accum_b += light_b;
-
-			scanline[x*4] = (U8)llclamp(accum_r*255.f, 0.f, 255.f);
-			scanline[x*4+1] = (U8)llclamp(accum_g*255.f, 0.f, 255.f);
-			scanline[x*4+2] = (U8)llclamp(accum_b*255.f, 0.f, 255.f);
-			float alpha = ((falloff_r+falloff_g+falloff_b)*0.33f);
-			scanline[x*4+3] = (U8)llclamp(alpha*255.f, 0.f, 255.f); // Avg falloff
-
-			// Output color Co, Input color Ci, Map channels Mrgb, Ma:
-			// Co = (Ci * Ma) + Mrgb
-		}
-	}
-
-	mScatterMap->createGLTexture(0, mScatterMapRaw);
-	mScatterMap->bind(0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-}
-
-#if 0
-// Not currently used
-void LLVOSky::calcGroundFog(LLColor3& res, LLColor3& transp, const LLVector3 view_dir, F32 obj_dist) const
-{
-	const LLVector3& tosun = getToSunLast();//use_old_value ? sunDir() : toSunLast();
-	res.setToBlack();
-	transp.setToWhite();
-	const F32 dist = obj_dist * mWorldScale;
-
-	//LLVector3 view_dir = gCamera->getAtAxis();
-
-	const F32 cos_dir = view_dir * tosun;
-	LLVector3 dir = view_dir;
-	LLVector3 virtual_P = mCameraPosAgent + dist * dir;
-
-	if (dir.mV[VZ] < 0)
-	{
-		dir = -dir;
-	}
-
-	const F32 z_dir = dir.mV[2];
-
-	const F32 h = mCameraPosAgent.mV[2];
-
-	transp = color_div(mTransp.calcTransp(dir * calcUpVec(virtual_P), 0),
-		mTransp.calcTransp(z_dir, h));
-
-	if (calcHitsEarth(mCameraPosAgent, tosun) > 0)
-	{
-		const F32 avg = llmin(1.f, 1.2f * color_avg(transp));
-		transp = LLColor3(avg, avg, avg);
-		return;
-	}
-
-	LLColor3 haze_sca_opt_depth = mHaze.getSigSca();
-	LLColor3 sun_transp;
-	mTransp.calcTransp(tosun.mV[2], -0.1f, sun_transp);
-
-	res = calcAirPhaseFunc(cos_dir) * LLHaze::getAirScaSeaLevel();
-	res += mHaze.calcPhase(cos_dir) * mHaze.getSigSca();
-	res = mSun.getIntensity() * dist * sun_transp * res;
-}
-
-#endif

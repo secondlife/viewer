@@ -214,7 +214,6 @@ void LLPreviewTexture::draw()
 
 			if ( mImage.notNull() )
 			{
-				LLGLSTexture gls_no_texture;
 				// Draw the texture
 				glColor3f( 1.f, 1.f, 1.f );
 				gl_draw_scaled_image(interior.mLeft,

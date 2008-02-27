@@ -1,4 +1,4 @@
-version 10
+version 15
 
 // NOTE: This is mostly identical to featuretable.txt with a few differences
 // Should be combined into one table

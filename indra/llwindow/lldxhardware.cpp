@@ -35,7 +35,9 @@
 
 #include "linden_common.h"
 
+#define INITGUID
 #include <dxdiag.h>
+#undef INITGUID
 
 #include <boost/tokenizer.hpp>
 

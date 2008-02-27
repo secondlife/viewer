@@ -36,6 +36,7 @@
 
 // Library includes
 #include "llgl.h"
+#include "llglimmediate.h"
 #include "lldarray.h"
 
 // Viewer includes
@@ -160,11 +161,11 @@ void LLToolSelectRect::draw()
 	{
 		if (gKeyboard->currentMask(TRUE) == MASK_CONTROL)
 		{
-			glColor4f(1.f, 0.f, 0.f, 1.f);
+			gGL.color4f(1.f, 0.f, 0.f, 1.f);
 		}
 		else
 		{
-			glColor4f(1.f, 1.f, 0.f, 1.f);
+			gGL.color4f(1.f, 1.f, 0.f, 1.f);
 		}
 		LLGLSNoTexture gls_no_texture;
 		gl_rect_2d(
@@ -175,11 +176,11 @@ void LLToolSelectRect::draw()
 			FALSE);
 		if (gKeyboard->currentMask(TRUE) == MASK_CONTROL)
 		{
-			glColor4f(1.f, 0.f, 0.f, 0.1f);
+			gGL.color4f(1.f, 0.f, 0.f, 0.1f);
 		}
 		else
 		{
-			glColor4f(1.f, 1.f, 0.f, 0.1f);
+			gGL.color4f(1.f, 1.f, 0.f, 0.1f);
 		}
 		gl_rect_2d(
 			llmin(mDragStartX, mDragEndX),

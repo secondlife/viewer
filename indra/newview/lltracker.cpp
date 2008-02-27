@@ -36,6 +36,7 @@
 #include "lldarray.h"
 #include "llfontgl.h"
 #include "llgl.h"
+#include "llglimmediate.h"
 #include "llinventory.h"
 #include "llmemory.h"
 #include "llstring.h"
@@ -50,7 +51,6 @@
 #include "llagent.h"
 #include "llcallingcard.h"
 #include "llcolorscheme.h"
-#include "llcylinder.h"
 #include "llfloaterworldmap.h"
 #include "llhudtext.h"
 #include "llhudview.h"
@@ -448,24 +448,24 @@ void draw_shockwave(F32 center_z, F32 t, S32 steps, LLColor4 color)
 	F32 y = 0.f;
 
 	LLColor4 ccol = LLColor4(1,1,1,(1.f-t)*0.25f);
-	glBegin(GL_TRIANGLE_FAN);
-	glColor4fv(ccol.mV);
-	glVertex3f(0.f, 0.f, center_z);
+	gGL.begin(GL_TRIANGLE_FAN);
+	gGL.color4fv(ccol.mV);
+	gGL.vertex3f(0.f, 0.f, center_z);
 	// make sure circle is complete
 	steps += 1;
 	
 	color.mV[3] = (1.f-t*t);
 	
-	glColor4fv(color.mV);
+	gGL.color4fv(color.mV);
 	while( steps-- )
 	{
 		// Successive rotations
-		glVertex3f( x, y, center_z );
+		gGL.vertex3f( x, y, center_z );
 		F32 x_new = x * cos_delta - y * sin_delta;
 		y = x * sin_delta +  y * cos_delta;
 		x = x_new;
 	}
-	glEnd();
+	gGL.end();
 }
 
 
@@ -508,8 +508,7 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 		
 		draw_shockwave(1024.f, gRenderStartTime.getElapsedTimeF32(), 32, fogged_color);
 
-		//glScalef(1.f, 1.f, 1000.f);
-		glColor4fv(fogged_color.mV);
+		gGL.color4fv(fogged_color.mV);
 		const U32 BEACON_VERTS = 256;
 		const F32 step = 1024.0f/BEACON_VERTS;
 		
@@ -539,23 +538,23 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 			an *= 2.f;
 			an += 1.0f+dr;
 		
-			glBegin(GL_TRIANGLE_STRIP);
-			glColor4fv(col_edge.mV);
-			glVertex3f(-x*a, -y*a, z);
-			glColor4fv(col_edge_next.mV);
-			glVertex3f(-x*an, -y*an, z_next);
+			gGL.begin(GL_TRIANGLE_STRIP);
+			gGL.color4fv(col_edge.mV);
+			gGL.vertex3f(-x*a, -y*a, z);
+			gGL.color4fv(col_edge_next.mV);
+			gGL.vertex3f(-x*an, -y*an, z_next);
 			
-			glColor4fv(c_col.mV);
-			glVertex3f(0, 0, z);
-			glColor4fv(col_next.mV);
-			glVertex3f(0, 0, z_next);
+			gGL.color4fv(c_col.mV);
+			gGL.vertex3f(0, 0, z);
+			gGL.color4fv(col_next.mV);
+			gGL.vertex3f(0, 0, z_next);
 			
-			glColor4fv(col_edge.mV);
-			glVertex3f(x*a,y*a,z);
-			glColor4fv(col_edge_next.mV);
-			glVertex3f(x*an,y*an,z_next);
+			gGL.color4fv(col_edge.mV);
+			gGL.vertex3f(x*a,y*a,z);
+			gGL.color4fv(col_edge_next.mV);
+			gGL.vertex3f(x*an,y*an,z_next);
 			
-			glEnd();
+			gGL.end();
 		}
 							
 		//gCylinder.render(1000);

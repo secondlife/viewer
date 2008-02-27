@@ -36,6 +36,7 @@
 #include "indra_constants.h"
 #include "llmath.h"
 #include "llgl.h"
+#include "llglimmediate.h"
 #include "llui.h"
 #include "llfontgl.h"
 #include "llimagegl.h"
@@ -175,7 +176,7 @@ void LLProgressView::draw()
 		{
 			LLGLSUIDefault gls_ui;
 			LLViewerImage::bindTexture(gStartImageGL);
-			glColor4f(1.f, 1.f, 1.f, mFadeTimer.getStarted() ? clamp_rescale(mFadeTimer.getElapsedTimeF32(), 0.f, FADE_IN_TIME, 1.f, 0.f) : 1.f);
+			gGL.color4f(1.f, 1.f, 1.f, mFadeTimer.getStarted() ? clamp_rescale(mFadeTimer.getElapsedTimeF32(), 0.f, FADE_IN_TIME, 1.f, 0.f) : 1.f);
 			F32 image_aspect = (F32)gStartImageWidth / (F32)gStartImageHeight;
 			F32 view_aspect = (F32)width / (F32)height;
 			// stretch image to maintain aspect ratio
@@ -195,7 +196,7 @@ void LLProgressView::draw()
 		else
 		{
 			LLGLSNoTexture gls_no_texture;
-			glColor4f(0.f, 0.f, 0.f, 1.f);
+			gGL.color4f(0.f, 0.f, 0.f, 1.f);
 			gl_rect_2d(getRect());
 		}
 		glPopMatrix();

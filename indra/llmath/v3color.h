@@ -33,6 +33,7 @@
 #define LL_V3COLOR_H
 
 class LLColor4;
+class LLVector4;
 
 #include "llerror.h"
 #include "llmath.h"
@@ -57,6 +58,7 @@ public:
 	LLColor3(const F32 *vec);			// Initializes LLColor3 to (vec[0]. vec[1], vec[2])
 	LLColor3(char *color_string);       // html format color ie "#FFDDEE"
 	explicit LLColor3(const LLColor4& color4);  // "explicit" to avoid automatic conversion
+	explicit LLColor3(const LLVector4& vector4);  // "explicit" to avoid automatic conversion
 	LLColor3(const LLSD& sd);
 	
 
@@ -87,6 +89,7 @@ public:
 	F32		magVec() const;				// Returns magnitude of LLColor3
 	F32		magVecSquared() const;		// Returns magnitude squared of LLColor3
 	F32		normVec();					// Normalizes and returns the magnitude of LLColor3
+	F32		brightness() const;			// Returns brightness of LLColor3
 
 	const LLColor3&	operator=(const LLColor4 &a);
 	
@@ -98,7 +101,7 @@ public:
 	friend const LLColor3& operator-=(LLColor3 &a, const LLColor3 &b);	// Return vector a minus b
 	friend const LLColor3& operator*=(LLColor3 &a, const LLColor3 &b);
 
-	friend LLColor3 operator*(const LLColor3 &a, const LLColor3 &b);		// Return a dot b
+	friend LLColor3 operator*(const LLColor3 &a, const LLColor3 &b);	// Return component wise a * b
 	friend LLColor3 operator*(const LLColor3 &a, F32 k);				// Return a times scaler k
 	friend LLColor3 operator*(F32 k, const LLColor3 &a);				// Return a times scaler k
 
@@ -229,6 +232,11 @@ inline const LLColor3&	LLColor3::setVec(const F32 *vec)
 	mV[1] = vec[1];
 	mV[2] = vec[2];
 	return (*this);
+}
+
+inline F32		LLColor3::brightness(void) const
+{
+	return (mV[0] + mV[1] + mV[2]) / 3.0f;
 }
 
 inline F32		LLColor3::magVec(void) const

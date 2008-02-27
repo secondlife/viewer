@@ -64,6 +64,7 @@
 #include "llvocache.h"
 #include "llvoclouds.h"
 #include "llworld.h"
+#include "llspatialpartition.h"
 
 // Viewer object cache version, change if object update
 // format changes. JC
@@ -105,6 +106,7 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mWidth = region_width_meters;
 
 	mOriginGlobal = from_region_handle(handle); 
+	updateRenderMatrix();
 
 	mLandp = new LLSurface('l', NULL);
 	if (!gNoRender)
@@ -137,6 +139,19 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	initStats();
 
 	mCacheStart.append(mCacheEnd);
+	
+	//create object partitions
+	//MUST MATCH declaration of eObjectPartitions
+	mObjectPartition.push_back(new LLHUDPartition());		//PARTITION_HUD
+	mObjectPartition.push_back(new LLTerrainPartition());	//PARTITION_TERRAIN
+	mObjectPartition.push_back(new LLWaterPartition());		//PARTITION_WATER
+	mObjectPartition.push_back(new LLTreePartition());		//PARTITION_TREE
+	mObjectPartition.push_back(new LLParticlePartition());	//PARTITION_PARTICLE
+	mObjectPartition.push_back(new LLCloudPartition());		//PARTITION_CLOUD
+	mObjectPartition.push_back(new LLGrassPartition());		//PARTITION_GRASS
+	mObjectPartition.push_back(new LLVolumePartition());	//PARTITION_VOLUME
+	mObjectPartition.push_back(new LLBridgePartition());	//PARTITION_BRIDGE
+	mObjectPartition.push_back(NULL);						//PARTITION_NONE
 	
 }
 
@@ -176,6 +191,8 @@ LLViewerRegion::~LLViewerRegion()
 	LLHTTPSender::clearSender(mHost);
 	
 	saveCache();
+
+	std::for_each(mObjectPartition.begin(), mObjectPartition.end(), DeletePointer());
 }
 
 
@@ -381,12 +398,17 @@ void LLViewerRegion::setRegionFlags(U32 flags)
 void LLViewerRegion::setOriginGlobal(const LLVector3d &origin_global) 
 { 
 	mOriginGlobal = origin_global; 
+	updateRenderMatrix();
 	mLandp->setOriginGlobal(origin_global);
 	mWind.setOriginGlobal(origin_global);
 	mCloudLayer.setOriginGlobal(origin_global);
 	calculateCenterGlobal();
 }
 
+void LLViewerRegion::updateRenderMatrix()
+{
+	mRenderMatrix.setTranslation(getOriginAgent());
+}
 
 void LLViewerRegion::setTimeDilation(F32 time_dilation)
 {
@@ -952,8 +974,7 @@ void LLViewerRegion::updateCoarseLocations(LLMessageSystem* msg)
 		//		<< " Z: " << (S32)(z_pos * 4)
 		//		<< llendl;
 
-		// treat the target specially for the map, and don't add you
-		// or the target
+		// treat the target specially for the map
 		if(i == target_index)
 		{
 			LLVector3d global_pos(mOriginGlobal);
@@ -962,7 +983,9 @@ void LLViewerRegion::updateCoarseLocations(LLMessageSystem* msg)
 			global_pos.mdV[VZ] += (F64)(z_pos) * 4.0;
 			LLAvatarTracker::instance().setTrackedCoarseLocation(global_pos);
 		}
-		else if( i != agent_index)
+		
+		//don't add you
+		if( i != agent_index)
 		{
 			pos = 0x0;
 			pos |= x_pos;
@@ -1431,4 +1454,12 @@ void LLViewerRegion::logActiveCapabilities() const
 	llinfos << "Dumped " << count << " entries." << llendl;
 }
 
+LLSpatialPartition* LLViewerRegion::getSpatialPartition(U32 type)
+{
+	if (type < mObjectPartition.size())
+	{
+		return mObjectPartition[type];
+	}
+	return NULL;
+}
 

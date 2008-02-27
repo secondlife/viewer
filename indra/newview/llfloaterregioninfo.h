@@ -257,6 +257,11 @@ public:
 	static void onChangeFixedSun(LLUICtrl* ctrl, void* user_data);
 	static void onChangeUseGlobalTime(LLUICtrl* ctrl, void* user_data);
 	
+	static void onClickEditSky(void* userdata);
+	static void onClickEditSkyHelp(void* userdata);	
+	static void onClickEditDayCycle(void* userdata);
+	static void onClickEditDayCycleHelp(void* userdata);	
+
 	static void onClickAddAllowedAgent(void* user_data);
 	static void onClickRemoveAllowedAgent(void* user_data);
 	static void onClickAddAllowedGroup(void* user_data);

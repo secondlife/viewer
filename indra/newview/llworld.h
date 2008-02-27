@@ -138,6 +138,7 @@ public:
 
 	LLViewerImage *getDefaultWaterTexture();
 	void updateWaterObjects();
+	void shiftRegions(const LLVector3& offset);
 
 	void setSpaceTimeUSec(const U64 space_time_usec);
 	U64 getSpaceTimeUSec() const;
@@ -149,6 +150,8 @@ public:
 	
 	region_list_t	mActiveRegionList;
 	LLViewerPartSim mPartSim;
+
+	region_list_t& getRegionList() { return mActiveRegionList; }
 
 private:
 	region_list_t	mRegionList;

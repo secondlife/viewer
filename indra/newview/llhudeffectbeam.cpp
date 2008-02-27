@@ -274,51 +274,6 @@ void LLHUDEffectBeam::render()
 
 	// Init the color of the particles
 	LLColor4U coloru = mColor;
-
-	/*
-	// This is disabled for now - DJS
-
-	// Fade the alpha
-	coloru.mV[3] = mFadeInterp.getCurVal()*mColor.mV[3];
-
-	// Draw a regular "beam" that connects the source and target
-
-	// First, figure out start and end positions relative to the camera
-	LLVector3 start_pos_agent;
-	if (mSourceObject->getPCode() == LL_PCODE_LEGACY_AVATAR)
-	{
-		LLViewerObject *objp = mSourceObject;
-		LLVOAvatar *avatarp = (LLVOAvatar *)objp;
-		LLVector3d hand_pos_global = gAgent.getPosGlobalFromAgent(avatarp->mWristLeftp->getWorldPosition());
-		start_pos_agent = gAgent.getPosAgentFromGlobal(hand_pos_global);
-	}
-	else
-	{
-		start_pos_agent = mSourceObject->getPositionAgent();
-	}
-	LLVector3 start_pos_camera = (start_pos_agent - gAgent.getCameraPositionAgent());
-	LLVector3 target_pos_agent = gAgent.getPosAgentFromGlobal(mTargetPos);
-	LLVector3 target_pos_camera = target_pos_agent - gAgent.getCameraPositionAgent();
-
-	// Generate the right "up" vector which is perpendicular to the beam, make it 1/10 meter wide, going to a point.
-	LLVector3 camera_up = gCamera->getUpAxis();
-	LLVector3 camera_at = gCamera->getAtAxis();
-	LLVector3 up = target_pos_camera % start_pos_camera;
-	up.normVec();
-	up *= 0.1f;
-
-	// Draw the triangle for the beam.
-	LLVector3 vertex;
-	glColor4ubv(coloru.mV);
-	glBegin(GL_TRIANGLE_STRIP);
-	vertex = start_pos_agent + up;
-	glVertex3fv(vertex.mV);
-	vertex = start_pos_agent - up;
-	glVertex3fv(vertex.mV);
-	vertex = target_pos_agent;
-	glVertex3fv(vertex.mV);
-	glEnd();
-	*/
 	
 	// Draw the particles
 	S32 i;

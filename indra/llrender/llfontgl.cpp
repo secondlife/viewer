@@ -36,6 +36,7 @@
 #include "llfont.h"
 #include "llfontgl.h"
 #include "llgl.h"
+#include "llglimmediate.h"
 #include "v4color.h"
 #include "llstl.h"
 
@@ -556,8 +557,8 @@ S32 LLFontGL::render(const LLWString &wstr,
 					 BOOL use_embedded,
 					 BOOL use_ellipses) const
 {
-	LLGLEnable texture_2d(GL_TEXTURE_2D);
-	
+	LLGLEnable tex(GL_TEXTURE_2D);
+
 	if (wstr.empty())
 	{
 		return 0;
@@ -593,9 +594,9 @@ S32 LLFontGL::render(const LLWString &wstr,
 		}
 	}
 
-	glPushMatrix();
+	gGL.pushMatrix();
 	glLoadIdentity();
-	glTranslatef(floorf(sCurOrigin.mX*sScaleX), floorf(sCurOrigin.mY*sScaleY), sCurOrigin.mZ);
+	gGL.translatef(floorf(sCurOrigin.mX*sScaleX), floorf(sCurOrigin.mY*sScaleY), sCurOrigin.mZ);
 	//glScalef(sScaleX, sScaleY, 1.0f);
 	
 	// avoid half pixels
@@ -604,20 +605,20 @@ S32 LLFontGL::render(const LLWString &wstr,
 	//F32 half_pixel_distance = llabs(fmodf(sCurOrigin.mX * sScaleX, 1.f) - 0.5f);
 	//if (half_pixel_distance < PIXEL_BORDER_THRESHOLD)
 	//{
-		glTranslatef(PIXEL_CORRECTION_DISTANCE*sScaleX, 0.f, 0.f);
+		gGL.translatef(PIXEL_CORRECTION_DISTANCE*sScaleX, 0.f, 0.f);
 	//}
 
 	// this code would just snap to pixel grid, although it seems to introduce more jitter
 	//F32 pixel_offset_x = llround(sCurOrigin.mX * sScaleX) - (sCurOrigin.mX * sScaleX);
 	//F32 pixel_offset_y = llround(sCurOrigin.mY * sScaleY) - (sCurOrigin.mY * sScaleY);
-	//glTranslatef(-pixel_offset_x, -pixel_offset_y, 0.f);
+	//gGL.translatef(-pixel_offset_x, -pixel_offset_y, 0.f);
 
 	// scale back to native pixel size
 	//glScalef(1.f / sScaleX, 1.f / sScaleY, 1.f);
 	//glScaled(1.0 / (F64) sScaleX, 1.0 / (F64) sScaleY, 1.0f);
 	LLFastTimer t(LLFastTimer::FTM_RENDER_FONTS);
 
-	glColor4fv( color.mV );
+	gGL.color4fv( color.mV );
 
 	S32 chars_drawn = 0;
 	S32 i;
@@ -638,7 +639,7 @@ S32 LLFontGL::render(const LLWString &wstr,
 	
 	mImageGLp->bind(0);
 	
- 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Not guaranteed to be set correctly
+ 	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Not guaranteed to be set correctly
 	
 	cur_x = ((F32)x * sScaleX);
 	cur_y = ((F32)y * sScaleY);
@@ -743,9 +744,9 @@ S32 LLFontGL::render(const LLWString &wstr,
 
 			if (!label.empty())
 			{
-				glPushMatrix();
+				gGL.pushMatrix();
 				//glLoadIdentity();
-				//glTranslatef(sCurOrigin.mX, sCurOrigin.mY, 0.0f);
+				//gGL.translatef(sCurOrigin.mX, sCurOrigin.mY, 0.0f);
 				//glScalef(sScaleX, sScaleY, 1.f);
 				gExtCharFont->render(label, 0,
 									 /*llfloor*/((ext_x + (F32)ext_image->getWidth() + EXT_X_BEARING) / sScaleX), 
@@ -753,10 +754,10 @@ S32 LLFontGL::render(const LLWString &wstr,
 									 color,
 									 halign, BASELINE, NORMAL, S32_MAX, S32_MAX, NULL,
 									 TRUE );
-				glPopMatrix();
+				gGL.popMatrix();
 			}
 
-			glColor4fv(color.mV);
+			gGL.color4fv(color.mV);
 
 			chars_drawn++;
 			cur_x += ext_advance;
@@ -836,10 +837,10 @@ S32 LLFontGL::render(const LLWString &wstr,
 	if (style & UNDERLINE)
 	{
 		LLGLSNoTexture no_texture;
-		glBegin(GL_LINES);
-		glVertex2f(start_x, cur_y - (mDescender));
-		glVertex2f(cur_x, cur_y - (mDescender));
-		glEnd();
+		gGL.begin(GL_LINES);
+		gGL.vertex2f(start_x, cur_y - (mDescender));
+		gGL.vertex2f(cur_x, cur_y - (mDescender));
+		gGL.end();
 	}
 
 	// *FIX: get this working in all alignment cases, etc.
@@ -847,9 +848,9 @@ S32 LLFontGL::render(const LLWString &wstr,
 	{
 		// recursively render ellipses at end of string
 		// we've already reserved enough room
-		glPushMatrix();
+		gGL.pushMatrix();
 		//glLoadIdentity();
-		//glTranslatef(sCurOrigin.mX, sCurOrigin.mY, 0.0f);
+		//gGL.translatef(sCurOrigin.mX, sCurOrigin.mY, 0.0f);
 		//glScalef(sScaleX, sScaleY, 1.f);
 		renderUTF8("...", 
 				0,
@@ -860,10 +861,10 @@ S32 LLFontGL::render(const LLWString &wstr,
 				S32_MAX, max_pixels,
 				right_x,
 				FALSE); 
-		glPopMatrix();
+		gGL.popMatrix();
 	}
 
-	glPopMatrix();
+	gGL.popMatrix();
 
 	return chars_drawn;
 }
@@ -1309,20 +1310,20 @@ void LLFontGL::removeEmbeddedChar( llwchar wc )
 
 void LLFontGL::renderQuad(const LLRectf& screen_rect, const LLRectf& uv_rect, F32 slant_amt) const
 {
-	glTexCoord2f(uv_rect.mRight, uv_rect.mTop);
-	glVertex2f(llfont_round_x(screen_rect.mRight), 
+	gGL.texCoord2f(uv_rect.mRight, uv_rect.mTop);
+	gGL.vertex2f(llfont_round_x(screen_rect.mRight), 
 				llfont_round_y(screen_rect.mTop));
 
-	glTexCoord2f(uv_rect.mLeft, uv_rect.mTop);
-	glVertex2f(llfont_round_x(screen_rect.mLeft), 
+	gGL.texCoord2f(uv_rect.mLeft, uv_rect.mTop);
+	gGL.vertex2f(llfont_round_x(screen_rect.mLeft), 
 				llfont_round_y(screen_rect.mTop));
 
-	glTexCoord2f(uv_rect.mLeft, uv_rect.mBottom);
-	glVertex2f(llfont_round_x(screen_rect.mLeft + slant_amt), 
+	gGL.texCoord2f(uv_rect.mLeft, uv_rect.mBottom);
+	gGL.vertex2f(llfont_round_x(screen_rect.mLeft + slant_amt), 
 				llfont_round_y(screen_rect.mBottom));
 
-	glTexCoord2f(uv_rect.mRight, uv_rect.mBottom);
-	glVertex2f(llfont_round_x(screen_rect.mRight + slant_amt), 
+	gGL.texCoord2f(uv_rect.mRight, uv_rect.mBottom);
+	gGL.vertex2f(llfont_round_x(screen_rect.mRight + slant_amt), 
 				llfont_round_y(screen_rect.mBottom));
 }
 
@@ -1331,13 +1332,13 @@ void LLFontGL::drawGlyph(const LLRectf& screen_rect, const LLRectf& uv_rect, con
 	F32 slant_offset;
 	slant_offset = ((style & ITALIC) ? ( -mAscender * 0.2f) : 0.f);
 
-	glBegin(GL_QUADS);
+	gGL.begin(GL_QUADS);
 	{
 		//FIXME: bold and drop shadow are mutually exclusive only for convenience
 		//Allow both when we need them.
 		if (style & BOLD)
 		{
-			glColor4fv(color.mV);
+			gGL.color4fv(color.mV);
 			for (S32 pass = 0; pass < 2; pass++)
 			{
 				LLRectf screen_rect_offset = screen_rect;
@@ -1350,7 +1351,7 @@ void LLFontGL::drawGlyph(const LLRectf& screen_rect, const LLRectf& uv_rect, con
 		{
 			LLColor4 shadow_color = LLFontGL::sShadowColor;
 			shadow_color.mV[VALPHA] = color.mV[VALPHA] * drop_shadow_strength * DROP_SHADOW_SOFT_STRENGTH;
-			glColor4fv(shadow_color.mV);
+			gGL.color4fv(shadow_color.mV);
 			for (S32 pass = 0; pass < 5; pass++)
 			{
 				LLRectf screen_rect_offset = screen_rect;
@@ -1376,28 +1377,28 @@ void LLFontGL::drawGlyph(const LLRectf& screen_rect, const LLRectf& uv_rect, con
 			
 				renderQuad(screen_rect_offset, uv_rect, slant_offset);
 			}
-			glColor4fv(color.mV);
+			gGL.color4fv(color.mV);
 			renderQuad(screen_rect, uv_rect, slant_offset);
 		}
 		else if (style & DROP_SHADOW)
 		{
 			LLColor4 shadow_color = LLFontGL::sShadowColor;
 			shadow_color.mV[VALPHA] = color.mV[VALPHA] * drop_shadow_strength;
-			glColor4fv(shadow_color.mV);
+			gGL.color4fv(shadow_color.mV);
 			LLRectf screen_rect_shadow = screen_rect;
 			screen_rect_shadow.translate(1.f, -1.f);
 			renderQuad(screen_rect_shadow, uv_rect, slant_offset);
-			glColor4fv(color.mV);
+			gGL.color4fv(color.mV);
 			renderQuad(screen_rect, uv_rect, slant_offset);
 		}
 		else // normal rendering
 		{
-			glColor4fv(color.mV);
+			gGL.color4fv(color.mV);
 			renderQuad(screen_rect, uv_rect, slant_offset);
 		}
 
 	}
-	glEnd();
+	gGL.end();
 }
 
 // static

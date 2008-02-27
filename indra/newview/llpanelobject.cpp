@@ -913,12 +913,15 @@ void LLPanelObject::getState( )
 		mSpinScaleY->setMaxValue(OBJECT_MAX_HOLE_SIZE_Y);
 		break;
 	default:
-		mSpinScaleX->set( 1.f - scale_x );
-		mSpinScaleY->set( 1.f - scale_y );
-		mSpinScaleX->setMinValue(-1.f);
-		mSpinScaleX->setMaxValue(1.f);
-		mSpinScaleY->setMinValue(-1.f);
-		mSpinScaleY->setMaxValue(1.f);
+		if (editable)
+		{
+			mSpinScaleX->set( 1.f - scale_x );
+			mSpinScaleY->set( 1.f - scale_y );
+			mSpinScaleX->setMinValue(-1.f);
+			mSpinScaleX->setMaxValue(1.f);
+			mSpinScaleY->setMinValue(-1.f);
+			mSpinScaleY->setMaxValue(1.f);
+		}
 		break;
 	}
 

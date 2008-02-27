@@ -86,6 +86,8 @@ public:
 	virtual void	setMinValue(F32 min)			{ mMinValue = min; }
 	virtual void	setMaxValue(F32 max)			{ mMaxValue = max; }
 	virtual void	setIncrement(F32 inc)			{ mIncrement = inc; }
+	virtual F32		getMinValue()			{ return mMinValue ; }
+	virtual F32 	getMaxValue()			{ return mMaxValue ; }
 
 	void			setLabel(const LLStringExplicit& label);
 	void			setLabelColor(const LLColor4& c)			{ mTextEnabledColor = c; }

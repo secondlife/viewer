@@ -134,7 +134,7 @@ class LLFloaterColorPicker
 		void drawPalette ();
 
 		// find a complimentary color to the one passed in that can be used to highlight 
-		LLColor4& getComplimentaryColor ( LLColor4& backgroundColor );
+		const LLColor4& getComplimentaryColor ( const LLColor4& backgroundColor );
 
 		// original RGB values
 		F32 origR, origG, origB;

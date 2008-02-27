@@ -104,7 +104,6 @@ public:
 	void renderObjectBeacons();
 	void resetObjectBeacons();
 
-	void relightAllObjects();
 	void dirtyAllObjectInventory();
 
 	void updateActive(LLViewerObject *objectp);

@@ -37,6 +37,7 @@
 #include "llagent.h"
 #include "llviewercontrol.h"
 #include "llsky.h"
+#include "llappviewer.h"
 #include "llresmgr.h"
 #include "llfontgl.h"
 #include "llui.h"

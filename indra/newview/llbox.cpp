@@ -34,6 +34,7 @@
 #include "llbox.h"
 
 #include "llgl.h"
+#include "llglimmediate.h"
 #include "llglheaders.h"
 
 LLBox		gBox;
@@ -61,7 +62,7 @@ void LLBox::cleanupGL()
 
 void LLBox::renderface(S32 which_face)
 {
-	static F32 normals[6][3] =
+	/*static F32 normals[6][3] =
 	{
 		{-1.0f,  0.0f,  0.0f},
 		{ 0.0f,  1.0f,  0.0f},
@@ -69,7 +70,7 @@ void LLBox::renderface(S32 which_face)
 		{ 0.0f, -1.0f,  0.0f},
 		{ 0.0f,  0.0f,  1.0f},
 		{ 0.0f,  0.0f, -1.0f}
-	};
+		};*/
 	static S32 faces[6][4] =
 	{
 		{0, 1, 2, 3},
@@ -80,17 +81,17 @@ void LLBox::renderface(S32 which_face)
 		{7, 4, 0, 3}
 	};
 
-	glBegin(GL_QUADS);
-		glNormal3fv(&normals[which_face][0]);
-		glTexCoord2f(1,0);
-		glVertex3fv(&mVertex[ faces[which_face][0] ][0]);
-		glTexCoord2f(1,1);
-		glVertex3fv(&mVertex[ faces[which_face][1] ][0]);
-		glTexCoord2f(0,1);
-		glVertex3fv(&mVertex[ faces[which_face][2] ][0]);
-		glTexCoord2f(0,0);
-		glVertex3fv(&mVertex[ faces[which_face][3] ][0]);
-	glEnd();
+	gGL.begin(GL_QUADS);
+		//gGL.normal3fv(&normals[which_face][0]);
+		gGL.texCoord2f(1,0);
+		gGL.vertex3fv(&mVertex[ faces[which_face][0] ][0]);
+		gGL.texCoord2f(1,1);
+		gGL.vertex3fv(&mVertex[ faces[which_face][1] ][0]);
+		gGL.texCoord2f(0,1);
+		gGL.vertex3fv(&mVertex[ faces[which_face][2] ][0]);
+		gGL.texCoord2f(0,0);
+		gGL.vertex3fv(&mVertex[ faces[which_face][3] ][0]);
+	gGL.end();
 }
 
 void LLBox::render()
@@ -125,4 +126,5 @@ void LLBox::render()
 	renderface(2);
 	renderface(1);
 	renderface(0);
+	gGL.flush();
 }

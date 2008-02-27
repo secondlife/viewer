@@ -33,6 +33,7 @@
 #include "linden_common.h"
 
 #include "llgl.h"
+#include "llglimmediate.h"
 
 #include "llscrollcontainer.h"
 #include "llscrollbar.h"
@@ -459,7 +460,7 @@ void LLScrollableContainerView::draw()
 		if( mIsOpaque )
 		{
 			LLGLSNoTexture no_texture;
-			glColor4fv( mBackgroundColor.mV );
+			gGL.color4fv( mBackgroundColor.mV );
 			gl_rect_2d( mInnerRect );
 		}
 		

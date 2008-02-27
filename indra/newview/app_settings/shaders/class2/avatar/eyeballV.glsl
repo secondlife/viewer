@@ -1,8 +1,12 @@
-vec4 calcLightingSpecular(vec3 pos, vec3 norm, vec4 color, inout vec4 specularColor, vec3 baseCol);
-void default_scatter(vec3 viewVec, vec3 lightDir);
+/** 
+ * @file eyeballV.glsl
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
 
-attribute vec4 materialColor;
-attribute vec4 specularColor;
+vec4 calcLightingSpecular(vec3 pos, vec3 norm, vec4 color, inout vec4 specularColor, vec4 baseCol);
+void calcAtmospherics(vec3 inPositionEye);
 
 void main()
 {
@@ -12,12 +16,15 @@ void main()
 	
 	vec3 pos = (gl_ModelViewMatrix * gl_Vertex).xyz;
 	vec3 norm = normalize(gl_NormalMatrix * gl_Normal);
+
+	calcAtmospherics(pos.xyz);
 	
-	default_scatter(pos.xyz, gl_LightSource[0].position.xyz);
-	vec4 specular = specularColor;
-	vec4 color = calcLightingSpecular(pos, norm, materialColor, specular, gl_Color.rgb);
+	// vec4 specular = specularColor;
+	vec4 specular = vec4(1.0);
+	vec4 color = calcLightingSpecular(pos, norm, gl_Color, specular, vec4(0.0));
 			
 	gl_FrontColor = color;
 	gl_FogFragCoord = pos.z;
+
 }
 

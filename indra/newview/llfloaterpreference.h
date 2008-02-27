@@ -45,8 +45,6 @@ class LLPanelGeneral;
 class LLPanelInput;
 class LLPanelLCD;
 class LLPanelDisplay;
-class LLPanelDisplay2;
-class LLPanelDisplay3;
 class LLPanelAudioPrefs;
 class LLPanelDebug;
 class LLPanelNetwork;
@@ -76,6 +74,9 @@ public:
 		const char* email);
 
 	static void onTabChanged(void* user_data, bool from_click);
+	
+	// refresh all the graphics preferences menus
+	void refreshEnabledGraphics();
 
 private:
 	LLTabContainer	*mTabContainer;
@@ -83,8 +84,6 @@ private:
 	LLPanelInput			*mInputPanel;
 	LLPanelNetwork	        *mNetworkPanel;
 	LLPanelDisplay	        *mDisplayPanel;
-	LLPanelDisplay2			*mDisplayPanel2;
-	LLPanelDisplay3			*mDisplayPanel3;
 	LLPanelAudioPrefs		*mAudioPanel;
 //	LLPanelDebug			*mDebugPanel;
 	LLPrefsChat				*mPrefsChat;
@@ -112,6 +111,9 @@ public:
 		const char* visibility,
 		BOOL im_via_email,
 		const char* email);
+
+	// refresh all the graphics preferences menus
+	static void refreshEnabledGraphics();
 
 protected:
 	LLPreferenceCore		*mPreferenceCore;

@@ -100,16 +100,10 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
 	LLVector3 render_pos = pos_agent + (floorf(x_offset) * right_axis) + (floorf(y_offset) * up_axis);
 
 	//get the render_pos in screen space
-	F64 modelview[16];
-	F64 projection[16];
-	GLint viewport[4];
-	glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
-	glGetDoublev(GL_PROJECTION_MATRIX, projection);
-	glGetIntegerv(GL_VIEWPORT, viewport);
-
+	
 	F64 winX, winY, winZ;
 	gluProject(render_pos.mV[0], render_pos.mV[1], render_pos.mV[2],
-				modelview, projection, viewport,
+				gGLModelView, gGLProjection, (GLint*) gGLViewport,
 				&winX, &winY, &winZ);
 		
 	//fonts all render orthographically, set up projection

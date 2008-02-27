@@ -58,6 +58,8 @@ public:
 
 	/*virtual*/ void render(S32 pass = 0);
 	/*virtual*/ void prerender();
+	/*virtual*/ void beginRenderPass( S32 pass );
+	/*virtual*/ void endRenderPass( S32 pass );
 	/*virtual*/ void renderForSelect();
 	/*virtual*/ void dirtyTextures(const std::set<LLViewerImage*>& textures);
 	/*virtual*/ LLViewerImage *getTexture();
@@ -68,8 +70,6 @@ public:
 	LLPointer<LLViewerImage> m2DAlphaRampImagep;
 	LLPointer<LLViewerImage> mAlphaNoiseImagep;
 
-	virtual S32 getMaterialAttribIndex();
-
 	static S32 sDetailMode;
 	static F32 sDetailScale; // meters per texture
 protected:
@@ -78,7 +78,7 @@ protected:
 
 	void renderFull2TU();
 	void renderFull4TU();
-	void renderFull4TUShader();
+	void renderFullShader();
 };
 
 #endif // LL_LLDRAWPOOLSIMPLE_H

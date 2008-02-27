@@ -34,6 +34,7 @@
 
 #include "lltexturectrl.h"
 
+#include "llglimmediate.h"
 #include "llagent.h"
 #include "llviewerimagelist.h"
 #include "llcheckboxctrl.h"
@@ -483,38 +484,38 @@ void LLFloaterTexturePicker::draw()
 		{
 			LLGLSNoTexture no_texture;
 			LLGLEnable(GL_CULL_FACE);
-			glBegin(GL_QUADS);
+			gGL.begin(GL_QUADS);
 			{
-				glColor4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
-				glVertex2i(owner_rect.mLeft, owner_rect.mTop);
-				glVertex2i(owner_rect.mRight, owner_rect.mTop);
-				glColor4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-				glVertex2i(local_rect.mRight, local_rect.mTop);
-				glVertex2i(local_rect.mLeft, local_rect.mTop);
+				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
+				gGL.vertex2i(owner_rect.mLeft, owner_rect.mTop);
+				gGL.vertex2i(owner_rect.mRight, owner_rect.mTop);
+				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
+				gGL.vertex2i(local_rect.mRight, local_rect.mTop);
+				gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
 
-				glColor4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-				glVertex2i(local_rect.mLeft, local_rect.mTop);
-				glVertex2i(local_rect.mLeft, local_rect.mBottom);
-				glColor4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
-				glVertex2i(owner_rect.mLeft, owner_rect.mBottom);
-				glVertex2i(owner_rect.mLeft, owner_rect.mTop);
+				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
+				gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+				gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
+				gGL.vertex2i(owner_rect.mLeft, owner_rect.mBottom);
+				gGL.vertex2i(owner_rect.mLeft, owner_rect.mTop);
 
-				glColor4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-				glVertex2i(local_rect.mRight, local_rect.mBottom);
-				glVertex2i(local_rect.mRight, local_rect.mTop);
-				glColor4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
-				glVertex2i(owner_rect.mRight, owner_rect.mTop);
-				glVertex2i(owner_rect.mRight, owner_rect.mBottom);
+				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
+				gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
+				gGL.vertex2i(local_rect.mRight, local_rect.mTop);
+				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
+				gGL.vertex2i(owner_rect.mRight, owner_rect.mTop);
+				gGL.vertex2i(owner_rect.mRight, owner_rect.mBottom);
 
 
-				glColor4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-				glVertex2i(local_rect.mLeft, local_rect.mBottom);
-				glVertex2i(local_rect.mRight, local_rect.mBottom);
-				glColor4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
-				glVertex2i(owner_rect.mRight, owner_rect.mBottom);
-				glVertex2i(owner_rect.mLeft, owner_rect.mBottom);
+				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
+				gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+				gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
+				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
+				gGL.vertex2i(owner_rect.mRight, owner_rect.mBottom);
+				gGL.vertex2i(owner_rect.mLeft, owner_rect.mBottom);
 			}
-			glEnd();
+			gGL.end();
 		}
 	}
 

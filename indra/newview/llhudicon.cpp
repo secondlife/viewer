@@ -34,6 +34,7 @@
 #include "llhudicon.h"
 
 #include "llgl.h"
+#include "llglimmediate.h"
 
 #include "llviewerobject.h"
 #include "lldrawable.h"
@@ -83,8 +84,11 @@ void LLHUDIcon::renderIcon(BOOL for_select)
 {
 	LLGLSUIDefault texture_state;
 	LLGLDepthTest gls_depth(GL_TRUE);
-	LLGLState no_texture(GL_TEXTURE_2D, for_select ? FALSE : TRUE);
-
+	if (for_select)
+	{
+		LLViewerImage::unbindTexture(0);
+	}
+	
 	if (mHidden)
 		return;
 
@@ -152,28 +156,28 @@ void LLHUDIcon::renderIcon(BOOL for_select)
 	{
 		// set color to unique color id for picking
 		LLColor4U coloru((U8)(mPickID >> 16), (U8)(mPickID >> 8), (U8)mPickID);
-		glColor4ubv(coloru.mV);
+		gGL.color4ubv(coloru.mV);
 	}
 	else
 	{
 		LLColor4 icon_color = LLColor4::white;
 		icon_color.mV[VALPHA] = alpha_factor;
-		glColor4fv(icon_color.mV);
+		gGL.color4fv(icon_color.mV);
 		LLViewerImage::bindTexture(mImagep);
 	}
 
-	glBegin(GL_QUADS);
+	gGL.begin(GL_QUADS);
 	{
-		glTexCoord2f(0.f, 1.f);
-		glVertex3fv(upper_left.mV);
-		glTexCoord2f(0.f, 0.f);
-		glVertex3fv(lower_left.mV);
-		glTexCoord2f(1.f, 0.f);
-		glVertex3fv(lower_right.mV);
-		glTexCoord2f(1.f, 1.f);
-		glVertex3fv(upper_right.mV);
+		gGL.texCoord2f(0.f, 1.f);
+		gGL.vertex3fv(upper_left.mV);
+		gGL.texCoord2f(0.f, 0.f);
+		gGL.vertex3fv(lower_left.mV);
+		gGL.texCoord2f(1.f, 0.f);
+		gGL.vertex3fv(lower_right.mV);
+		gGL.texCoord2f(1.f, 1.f);
+		gGL.vertex3fv(upper_right.mV);
 	}
-	glEnd();
+	gGL.end();
 }
 
 void LLHUDIcon::setImage(LLViewerImage* imagep)

@@ -148,8 +148,7 @@ public:
 	void setIsTransparent(BOOL is_transparent) { mIsTransparent = is_transparent; }
 
 	/*virtual*/ BOOL isAnimatable() { return FALSE; }
-	void writeCAL3D(apr_file_t* fp, S32 material_num, LLCharacter* characterp);
-
+	
 	// Avatar vertex skinning is a significant performance issue on computers
 	// with avatar vertex programs turned off (for example, most Macs).  We
 	// therefore have custom versions that use SIMD instructions.
@@ -168,8 +167,6 @@ public:
 private:
 	// Allocate skin data
 	BOOL allocateSkinData( U32 numSkinJoints );
-
-	S32 getBoundJointsByIndex(S32 index, S32 &joint_a, S32& joint_b);
 
 	// Free skin data
 	void freeSkinData();

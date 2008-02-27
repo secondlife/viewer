@@ -49,7 +49,7 @@
 #include "llglslshader.h"
 
 LLDrawPoolSky::LLDrawPoolSky() :
-	LLFacePool(POOL_SKY)
+	LLFacePool(POOL_SKY), mShader(NULL)
 {
 }
 
@@ -61,6 +61,7 @@ LLDrawPool *LLDrawPoolSky::instancePool()
 void LLDrawPoolSky::prerender()
 {
 	mVertexShaderLevel = LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_ENVIRONMENT);
+	gSky.mVOSkyp->updateGeometry(gSky.mVOSkyp->mDrawable);
 }
 
 void LLDrawPoolSky::render(S32 pass)
@@ -70,24 +71,44 @@ void LLDrawPoolSky::render(S32 pass)
 		return;
 	}
 
+	// Don't draw the sky box if we can and are rendering the WL sky dome.
+	if (gPipeline.canUseWindLightShaders())
+	{
+		return;
+	}
+	
+	// use a shader only underwater
+	if(mVertexShaderLevel > 0 && LLPipeline::sUnderWaterRender)
+	{
+		mShader = &gObjectFullbrightWaterProgram;
+		mShader->bind();
+	}
+	else
+	{
+		// don't use shaders!
+		if (gGLManager.mHasShaderObjects)
+		{
+			// Ironically, we must support shader objects to be
+			// able to use this call.
+			glUseProgramObjectARB(0);
+		}
+		mShader = NULL;
+	}
+	
+
 	LLVOSky *voskyp = gSky.mVOSkyp;
 	LLGLSPipelineSkyBox gls_skybox;
-	LLGLDepthTest gls_depth(GL_FALSE, GL_FALSE);
 
-	if (gCamera->getOrigin().mV[VZ] < gAgent.getRegion()->getWaterHeight())
-		//gWorldPointer->getWaterHeight())
-	{
-		//gGLSFog.set();
-	}
+	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
+
+	LLGLClampToFarClip far_clip(glh_get_current_projection());
+
+	LLGLEnable fog_enable( (mVertexShaderLevel < 1 && gCamera->cameraUnderWater()) ? GL_FOG : 0);
 
 	gPipeline.disableLights();
 	
-	glMatrixMode( GL_PROJECTION );
+	LLGLDisable clip(GL_CLIP_PLANE0);
 
-	glPushMatrix();
-	//gViewerWindow->setup3DRender();
-
-	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	LLVector3 origin = gCamera->getOrigin();
 	glTranslatef(origin.mV[0], origin.mV[1], origin.mV[2]);
@@ -128,21 +149,19 @@ void LLDrawPoolSky::render(S32 pass)
 
 	if (hbfaces[2])
 	{
-		renderSunHalo(hbfaces[2]);
+		// renderSunHalo(hbfaces[2]);
 	}
 	if (hbfaces[0])
 	{
-		renderHeavenlyBody(0, hbfaces[0]);
+		// renderHeavenlyBody(0, hbfaces[0]);
 	}
 	if (hbfaces[1])
 	{
-		renderHeavenlyBody(1, hbfaces[1]);
+		// renderHeavenlyBody(1, hbfaces[1]);
 	}
 
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	glMatrixMode( GL_PROJECTION );
-	glPopMatrix();
-	glMatrixMode( GL_MODELVIEW );
 	glPopMatrix();
 }
 
@@ -204,3 +223,6 @@ void LLDrawPoolSky::renderForSelect()
 {
 }
 
+void LLDrawPoolSky::endRenderPass( S32 pass )
+{
+}

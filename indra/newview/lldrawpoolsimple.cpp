@@ -32,7 +32,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lldrawpoolsimple.h"
-#include "lldrawpoolbump.h"
 
 #include "llviewercamera.h"
 #include "llagent.h"
@@ -40,76 +39,46 @@
 #include "llface.h"
 #include "llsky.h"
 #include "pipeline.h"
+#include "llspatialpartition.h"
 #include "llglslshader.h"
+#include "llglimmediate.h"
 
-class LLRenderShinyGlow : public LLDrawPoolBump
-{
-public:
-	LLRenderShinyGlow() { }
-	
-	void render(S32 pass = 0)
-	{
-		LLCubeMap* cube_map = gSky.mVOSkyp->getCubeMap();
-		if( cube_map )
-		{
-			cube_map->enable(0);
-			cube_map->setMatrix(0);
-			cube_map->bind();
-			glEnableClientState(GL_NORMAL_ARRAY);
-			
-			glColor4f(1,1,1,1);
 
-            U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL;
-			renderStatic(LLRenderPass::PASS_SHINY, mask);
-			renderActive(LLRenderPass::PASS_SHINY, mask);
-
-			glDisableClientState(GL_NORMAL_ARRAY);
-			cube_map->disable();
-			cube_map->restoreMatrix();
-		}
-	}
-};
+static LLGLSLShader* simple_shader = NULL;
+static LLGLSLShader* fullbright_shader = NULL;
 
 void LLDrawPoolGlow::render(S32 pass)
 {
+	LLFastTimer t(LLFastTimer::FTM_RENDER_GLOW);
 	LLGLEnable blend(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	renderTexture(LLRenderPass::PASS_GLOW, getVertexDataMask());
-	renderActive(LLRenderPass::PASS_GLOW, getVertexDataMask());
+	LLGLDisable test(GL_ALPHA_TEST);
+	gGL.blendFunc(GL_ONE, GL_ONE);
+	
+	U32 shader_level = LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_OBJECT);
 
-	if (gSky.mVOSkyp)
+	if (shader_level > 0 && fullbright_shader)
 	{
-		glPushMatrix();
-		LLVector3 origin = gCamera->getOrigin();
-		glTranslatef(origin.mV[0], origin.mV[1], origin.mV[2]);
-
-		LLFace* facep = gSky.mVOSkyp->mFace[LLVOSky::FACE_BLOOM];
-
-		if (facep)
-		{
-			LLGLDisable cull(GL_CULL_FACE);
-			facep->getTexture()->bind();
-			glColor4f(1,1,1,1);
-			facep->renderIndexed(getVertexDataMask());
-		}
-
-		glPopMatrix();
+		fullbright_shader->bind();
 	}
+	else
+	{
+		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+	}
+
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
+	renderTexture(LLRenderPass::PASS_GLOW, getVertexDataMask());
 
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	if (LLPipeline::sDynamicReflections)
-	{
-		LLRenderShinyGlow glow;
-		glow.render();
-	}
-
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
+	if (shader_level > 0 && fullbright_shader)
+	{
+		fullbright_shader->unbind();
+	}
 }
 
 void LLDrawPoolGlow::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
@@ -131,53 +100,87 @@ void LLDrawPoolSimple::prerender()
 
 void LLDrawPoolSimple::beginRenderPass(S32 pass)
 {
+	LLFastTimer t(LLFastTimer::FTM_RENDER_SIMPLE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
+
+	if (LLPipeline::sUnderWaterRender)
+	{
+		simple_shader = &gObjectSimpleWaterProgram;
+		fullbright_shader = &gObjectFullbrightWaterProgram;
+	}
+	else
+	{
+		simple_shader = &gObjectSimpleProgram;
+		fullbright_shader = &gObjectFullbrightProgram;
+	}
+
+	if (mVertexShaderLevel > 0)
+	{
+		simple_shader->bind();
+		simple_shader->uniform1f(LLShaderMgr::FULLBRIGHT, 0.f);
+	}
+	else 
+	{
+		// don't use shaders!
+		if (gGLManager.mHasShaderObjects)
+		{
+			glUseProgramObjectARB(0);
+		}		
+	}
+}
+
+void LLDrawPoolSimple::endRenderPass(S32 pass)
+{
+	LLFastTimer t(LLFastTimer::FTM_RENDER_SIMPLE);
+	LLRenderPass::endRenderPass(pass);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	if (mVertexShaderLevel > 0){
+
+		simple_shader->unbind();
+	}
 }
 
 void LLDrawPoolSimple::render(S32 pass)
 {
 	LLGLDisable blend(GL_BLEND);
-	LLGLDisable alpha_test(GL_ALPHA_TEST);
-	
-	{
+	LLGLState alpha_test(GL_ALPHA_TEST, gPipeline.canUseWindLightShadersOnObjects());
+	glAlphaFunc(GL_GREATER, 0.5f);
+
+	{ //render simple
 		LLFastTimer t(LLFastTimer::FTM_RENDER_SIMPLE);
-		gPipeline.enableLightsDynamic(1.f);
+		gPipeline.enableLightsDynamic();
 		renderTexture(LLRenderPass::PASS_SIMPLE, getVertexDataMask());
-		renderActive(LLRenderPass::PASS_SIMPLE, getVertexDataMask());
 	}
 
 	{
 		LLFastTimer t(LLFastTimer::FTM_RENDER_GRASS);
+		LLGLEnable test(GL_ALPHA_TEST);
 		LLGLEnable blend(GL_BLEND);
-		LLGLEnable alpha_test(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.5f);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		//render grass
 		LLRenderPass::renderTexture(LLRenderPass::PASS_GRASS, getVertexDataMask());
-		glAlphaFunc(GL_GREATER, 0.01f);
-	}
-		
-	{
+	}			
+
+	{ //render fullbright
+		if (mVertexShaderLevel > 0)
+		{
+			fullbright_shader->bind();
+			fullbright_shader->uniform1f(LLShaderMgr::FULLBRIGHT, 1.f);
+		}
+		else
+		{
+			gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+		}
 		LLFastTimer t(LLFastTimer::FTM_RENDER_FULLBRIGHT);
 		U32 fullbright_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD | LLVertexBuffer::MAP_COLOR;
-		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
 		glDisableClientState(GL_NORMAL_ARRAY);
 		renderTexture(LLRenderPass::PASS_FULLBRIGHT, fullbright_mask);
-		renderActive(LLRenderPass::PASS_FULLBRIGHT, fullbright_mask);
 	}
 
-	{
-		LLFastTimer t(LLFastTimer::FTM_RENDER_INVISIBLE);
-		U32 invisi_mask = LLVertexBuffer::MAP_VERTEX;
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		renderInvisible(invisi_mask);
-		renderActive(LLRenderPass::PASS_INVISIBLE, invisi_mask);
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
-	}
+	glAlphaFunc(GL_GREATER, 0.01f);
 }
 

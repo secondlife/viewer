@@ -59,10 +59,9 @@ public:
 							LLStrider<LLVector3>& normalsp, 
 							LLStrider<LLVector2>& texcoordsp, 
 							LLStrider<LLColor4U>& colorsp, 
-							LLStrider<U32>& indicesp);
+							LLStrider<U16>& indicesp);
 
 	/*virtual*/ BOOL    isActive() const; // Whether this object needs to do an idleUpdate.
-	BOOL isParticle();
 	F32 getPartSize(S32 idx);
 
 	/*virtual*/ void updateTextures(LLAgent &agent);

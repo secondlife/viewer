@@ -40,6 +40,7 @@
 #include "llfocusmgr.h"
 #include "llfontgl.h"
 #include "llgl.h" 
+#include "llglimmediate.h"
 #include "llinventory.h"
 
 #include "llcallbacklist.h"
@@ -809,7 +810,6 @@ void LLFolderViewItem::draw()
 	}
 	if(/*mControlLabel[0] != '\0' && */possibly_has_children)
 	{
-		LLGLSTexture gls_texture;
 		if (mArrowImage)
 		{
 			gl_draw_scaled_rotated_image(mIndentation, getRect().getHeight() - ARROW_SIZE - TEXT_PAD,
@@ -962,7 +962,7 @@ void LLFolderViewItem::draw()
 				S32 top = getRect().getHeight();
 
 				LLViewerImage::bindTexture(mBoxImage);
-				glColor4fv(sFilterBGColor.mV);
+				gGL.color4fv(sFilterBGColor.mV);
 				gl_segmented_rect_2d_tex(left, top, right, bottom, mBoxImage->getWidth(), mBoxImage->getHeight(), 16);
 				F32 match_string_left = text_left + sFont->getWidthF32(combined_string, 0, mStringMatchOffset);
 				F32 y = (F32)getRect().getHeight() - sFont->getLineHeight() - (F32)TEXT_PAD;

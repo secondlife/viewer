@@ -30,6 +30,7 @@
 
 #include "linden_common.h"
 #include "llviewborder.h"
+#include "llglimmediate.h"
 #include "llfocusmgr.h"
 
 LLViewBorder::LLViewBorder( const LLString& name, const LLRect& rect, EBevel bevel, EStyle style, S32 width )
@@ -145,11 +146,11 @@ void LLViewBorder::drawOnePixelLines()
 	S32 right	= getRect().getWidth();
 	S32 bottom	= 0;
 
-	glColor4fv( top_color.mV );
+	gGL.color4fv( top_color.mV );
 	gl_line_2d(left, bottom, left, top);
 	gl_line_2d(left, top, right, top);
 
-	glColor4fv( bottom_color.mV );
+	gGL.color4fv( bottom_color.mV );
 	gl_line_2d(right, top, right, bottom);
 	gl_line_2d(left, bottom, right, bottom);
 
@@ -205,19 +206,19 @@ void LLViewBorder::drawTwoPixelLines()
 	S32 bottom	= 0;
 
 	// draw borders
-	glColor3fv( top_out_color );
+	gGL.color3fv( top_out_color );
 	gl_line_2d(left, bottom, left, top-1);
 	gl_line_2d(left, top-1, right, top-1);
 
-	glColor3fv( top_in_color );
+	gGL.color3fv( top_in_color );
 	gl_line_2d(left+1, bottom+1, left+1, top-2);
 	gl_line_2d(left+1, top-2, right-1, top-2);
 
-	glColor3fv( bottom_out_color );
+	gGL.color3fv( bottom_out_color );
 	gl_line_2d(right-1, top-1, right-1, bottom);
 	gl_line_2d(left, bottom, right, bottom);
 
-	glColor3fv( bottom_in_color );
+	gGL.color3fv( bottom_in_color );
 	gl_line_2d(right-2, top-2, right-2, bottom+1);
 	gl_line_2d(left+1, bottom+1, right-1, bottom+1);
 }
@@ -228,7 +229,7 @@ void LLViewBorder::drawTextures()
 
 	llassert( FALSE );  // TODO: finish implementing
 
-	glColor4fv(UI_VERTEX_COLOR.mV);
+	gGL.color4fv(UI_VERTEX_COLOR.mV);
 
 	mTexture->bind();
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
@@ -243,12 +244,12 @@ void LLViewBorder::drawTextures()
 
 void LLViewBorder::drawTextureTrapezoid( F32 degrees, S32 width, S32 length, F32 start_x, F32 start_y )
 {
-	glPushMatrix();
+	gGL.pushMatrix();
 	{
-		glTranslatef(start_x, start_y, 0.f);
+		gGL.translatef(start_x, start_y, 0.f);
 		glRotatef( degrees, 0, 0, 1 );
 
-		glBegin(GL_QUADS);
+		gGL.begin(GL_QUADS);
 		{
 			//      width, width   /---------\ length-width, width		//
 			//	   			      /           \							//
@@ -256,21 +257,21 @@ void LLViewBorder::drawTextureTrapezoid( F32 degrees, S32 width, S32 length, F32
 			//				    /---------------\						//
 			//    			0,0					  length, 0				//
 
-			glTexCoord2f( 0, 0 );
-			glVertex2i( 0, 0 );
+			gGL.texCoord2f( 0, 0 );
+			gGL.vertex2i( 0, 0 );
 
-			glTexCoord2f( (GLfloat)length, 0 );
-			glVertex2i( length, 0 );
+			gGL.texCoord2f( (GLfloat)length, 0 );
+			gGL.vertex2i( length, 0 );
 
-			glTexCoord2f( (GLfloat)(length - width), (GLfloat)width );
-			glVertex2i( length - width, width );
+			gGL.texCoord2f( (GLfloat)(length - width), (GLfloat)width );
+			gGL.vertex2i( length - width, width );
 
-			glTexCoord2f( (GLfloat)width, (GLfloat)width );
-			glVertex2i( width, width );
+			gGL.texCoord2f( (GLfloat)width, (GLfloat)width );
+			gGL.vertex2i( width, width );
 		}
-		glEnd();
+		gGL.end();
 	}
-	glPopMatrix();
+	gGL.popMatrix();
 }
 
 BOOL LLViewBorder::getBevelFromAttribute(LLXMLNodePtr node, LLViewBorder::EBevel& bevel_style)

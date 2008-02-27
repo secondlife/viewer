@@ -32,7 +32,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lldrawpool.h"
-
+#include "llglimmediate.h"
 #include "llfasttimer.h"
 #include "llviewercontrol.h"
 
@@ -44,16 +44,17 @@
 #include "lldrawpoolground.h"
 #include "lldrawpoolsimple.h"
 #include "lldrawpoolsky.h"
-#include "lldrawpoolstars.h"
 #include "lldrawpooltree.h"
 #include "lldrawpoolterrain.h"
 #include "lldrawpoolwater.h"
 #include "llface.h"
 #include "llviewerobjectlist.h" // For debug listing.
 #include "pipeline.h"
+#include "llspatialpartition.h"
+#include "llviewercamera.h"
+#include "lldrawpoolwlsky.h"
 
 S32 LLDrawPool::sNumDrawPools = 0;
-
 
 //=============================
 // Draw Pool Implementation
@@ -66,14 +67,14 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerImage *tex0)
 	case POOL_SIMPLE:
 		poolp = new LLDrawPoolSimple();
 		break;
+	case POOL_INVISIBLE:
+		poolp = new LLDrawPoolInvisible();
+		break;
 	case POOL_GLOW:
 		poolp = new LLDrawPoolGlow();
 		break;
 	case POOL_ALPHA:
 		poolp = new LLDrawPoolAlpha();
-		break;
-	case POOL_ALPHA_POST_WATER:
-		poolp = new LLDrawPoolAlphaPostWater();
 		break;
 	case POOL_AVATAR:
 		poolp = new LLDrawPoolAvatar();
@@ -87,9 +88,6 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerImage *tex0)
 	case POOL_SKY:
 		poolp = new LLDrawPoolSky();
 		break;
-	case POOL_STARS:
-		poolp = new LLDrawPoolStars();
-		break;
 	case POOL_WATER:
 		poolp = new LLDrawPoolWater();
 		break;
@@ -98,6 +96,9 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerImage *tex0)
 		break;
 	case POOL_BUMP:
 		poolp = new LLDrawPoolBump();
+		break;
+	case POOL_WL_SKY:
+		poolp = new LLDrawPoolWLSky();
 		break;
 	default:
 		llerrs << "Unknown draw pool type!" << llendl;
@@ -196,7 +197,6 @@ S32 LLFacePool::drawLoop(face_array_t& face_list)
 			 iter != face_list.end(); iter++)
 		{
 			LLFace *facep = *iter;
-			//facep->enableLights();
 			res += facep->renderIndexed();
 		}
 	}
@@ -214,7 +214,6 @@ S32 LLFacePool::drawLoopSetTex(face_array_t& face_list, S32 stage)
 		{
 			LLFace *facep = *iter;
 			facep->bindTexture(stage);
-			facep->enableLights();
 			res += facep->renderIndexed();
 		}
 	}
@@ -234,92 +233,6 @@ void LLFacePool::renderFaceSelected(LLFace *facep,
 									const LLColor4 &color,
 									const S32 index_offset, const S32 index_count)
 {
-}
-
-void LLFacePool::renderVisibility()
-{
-	if (mDrawFace.empty())
-	{
-		return;
-	}
-
-	// SJB: Note: This may be broken now. If you need it, fix it :)
-	
-	glLineWidth(1.0);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-
-	glTranslatef(-0.4f,-0.3f,0);
-
-	float table[7][3] = { 
-		{ 1,0,0 },
-		{ 0,1,0 },
-		{ 1,1,0 },
-		{ 0,0,1 },
-		{ 1,0,1 },
-		{ 0,1,1 },
-		{ 1,1,1 }
-	};
-
-	glColor4f(0,0,0,0.5);
-	glBegin(GL_POLYGON);
-	glVertex3f(-0.5f,-0.5f,1.0f);
-	glVertex3f(+0.5f,-0.5f,1.0f);
-	glVertex3f(+0.5f,+0.5f,1.0f);
-	glVertex3f(-0.5f,+0.5f,1.0f);
-	glVertex3f(-0.5f,-0.5f,1.0f);
-	glEnd();
-	
-	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-		 iter != mDrawFace.end(); iter++)
-	{
-		LLFace *face = *iter;
-
-		S32 geom_count = face->getGeomCount();
-		for (S32 j=0;j<geom_count;j++)
-		{
-			LLVector3 p1;
-			LLVector3 p2;
-
-			intptr_t p = ((intptr_t)face*13) % 7;
-			F32 r = table[p][0];
-			F32 g = table[p][1];
-			F32 b = table[p][2];
-
-			//p1.mV[1] = y;
-			//p2.mV[1] = y;
-
-			p1.mV[2] = 1.0;
-			p2.mV[2] = 1.0;
-
-			glColor4f(r,g,b,0.5f);
-
-			glBegin(GL_LINE_STRIP);
-			glVertex3fv(p1.mV);
-			glVertex3fv(p2.mV);
-			glEnd();
-
-		}		
-	}
-
-	glColor4f(1,1,1,1);
-	glBegin(GL_LINE_STRIP);
-	glVertex3f(-0.5f,-0.5f,1.0f);
-	glVertex3f(+0.5f,-0.5f,1.0f);
-	glVertex3f(+0.5f,+0.5f,1.0f);
-	glVertex3f(-0.5f,+0.5f,1.0f);
-	glVertex3f(-0.5f,-0.5f,1.0f);
-	glEnd();
-
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-
 }
 
 void LLFacePool::enqueue(LLFace* facep)
@@ -411,38 +324,17 @@ BOOL LLFacePool::LLOverrideFaceColor::sOverrideFaceColor = FALSE;
 
 void LLFacePool::LLOverrideFaceColor::setColor(const LLColor4& color)
 {
-	if (mPool->getVertexShaderLevel() > 0 && mPool->getMaterialAttribIndex() > 0)
-	{
-		glVertexAttrib4fvARB(mPool->getMaterialAttribIndex(), color.mV);
-	}
-	else
-	{
-		glColor4fv(color.mV);
-	}
+	glColor4fv(color.mV);
 }
 
 void LLFacePool::LLOverrideFaceColor::setColor(const LLColor4U& color)
 {
-	if (mPool->getVertexShaderLevel() > 0 && mPool->getMaterialAttribIndex() > 0)
-	{
-		glVertexAttrib4ubvARB(mPool->getMaterialAttribIndex(), color.mV);
-	}
-	else
-	{
-		glColor4ubv(color.mV);
-	}
+	glColor4ubv(color.mV);
 }
 
 void LLFacePool::LLOverrideFaceColor::setColor(F32 r, F32 g, F32 b, F32 a)
 {
-	if (mPool->getVertexShaderLevel() > 0 && mPool->getMaterialAttribIndex() > 0)
-	{
-		glVertexAttrib4fARB(mPool->getMaterialAttribIndex(), r,g,b,a);
-	}
-	else
-	{
-		glColor4f(r,g,b,a);
-	}
+	glColor4f(r,g,b,a);
 }
 
 
@@ -483,51 +375,45 @@ void LLRenderPass::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL t
 	}
 }
 
-void LLRenderPass::renderInvisible(U32 mask)
+void LLRenderPass::renderTexture(U32 type, U32 mask)
+{
+	pushBatches(type, mask, TRUE);
+}
+
+void LLRenderPass::pushBatches(U32 type, U32 mask, BOOL texture)
 {
 #if !LL_RELEASE_FOR_DOWNLOAD
 	LLGLState::checkClientArrays(mask);
 #endif
-	
-	LLSpatialGroup::drawmap_elem_t& draw_info = gPipeline.mRenderMap[LLRenderPass::PASS_INVISIBLE];	
 
-	for (LLSpatialGroup::drawmap_elem_t::iterator i = draw_info.begin(); i != draw_info.end(); ++i)	
+	for (LLCullResult::drawinfo_list_t::iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)	
 	{
-		
- 		LLDrawInfo *pparams = *i;
-		if (pparams && pparams->mVertexBuffer.notNull()) {
-	 		LLDrawInfo &params = *pparams;
-
-			params.mVertexBuffer->setBuffer(mask);
-			U32 *indices_pointer =
-				(U32 *) params.mVertexBuffer->getIndicesPointer();
-			glDrawRangeElements(GL_TRIANGLES, params.mStart, params.mEnd,
-								params.mCount, GL_UNSIGNED_INT,
-								indices_pointer + params.mOffset);
-			gPipeline.mTrianglesDrawn += params.mCount / 3;
+		LLDrawInfo* pparams = *i;
+		if (pparams) 
+		{
+			pushBatch(*pparams, mask, texture);
 		}
 	}
 }
 
-void LLRenderPass::renderTexture(U32 type, U32 mask)
+void LLRenderPass::applyModelMatrix(LLDrawInfo& params)
 {
-#if !LL_RELEASE_FOR_DOWNLOAD
-	LLGLState::checkClientArrays(mask);
-#endif
-
-	LLSpatialGroup::drawmap_elem_t& draw_info = gPipeline.mRenderMap[type];	
-
-	for (LLSpatialGroup::drawmap_elem_t::iterator i = draw_info.begin(); i != draw_info.end(); ++i)	
+	if (params.mModelMatrix != gGLLastMatrix)
 	{
-		LLDrawInfo* pparams = *i;
-		if (pparams) {
-			pushBatch(*pparams, mask, TRUE);
+		gGLLastMatrix = params.mModelMatrix;
+		glLoadMatrixd(gGLModelView);
+		if (params.mModelMatrix)
+		{
+			glMultMatrixf((GLfloat*) params.mModelMatrix->mMatrix);
 		}
+		gPipeline.mMatrixOpCount++;
 	}
 }
 
 void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 {
+	applyModelMatrix(params);
+
 	if (texture)
 	{
 		if (params.mTexture.notNull())
@@ -537,6 +423,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 			{
 				glMatrixMode(GL_TEXTURE);
 				glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
+				gPipeline.mTextureMatrixOps++;
 			}
 			params.mTexture->addTextureStats(params.mVSize);
 		}
@@ -545,14 +432,14 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 			LLImageGL::unbindTexture(0);
 		}
 	}
-
+	
 	if (params.mVertexBuffer.notNull())
 	{
 		params.mVertexBuffer->setBuffer(mask);
-		U32* indices_pointer = (U32*) params.mVertexBuffer->getIndicesPointer();
+		U16* indices_pointer = (U16*) params.mVertexBuffer->getIndicesPointer();
 		glDrawRangeElements(GL_TRIANGLES, params.mStart, params.mEnd, params.mCount,
-							GL_UNSIGNED_INT, indices_pointer+params.mOffset);
-		gPipeline.mTrianglesDrawn += params.mCount/3;
+							GL_UNSIGNED_SHORT, indices_pointer+params.mOffset);
+		gPipeline.addTrianglesDrawn(params.mCount/3);
 	}
 
 	if (params.mTextureMatrix && texture && params.mTexture.notNull())
@@ -562,52 +449,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture)
 	}
 }
 
-void LLRenderPass::renderActive(U32 type, U32 mask, BOOL texture)
+void LLRenderPass::renderGroups(U32 type, U32 mask, BOOL texture)
 {
-#if !LL_RELEASE_FOR_DOWNLOAD
-	LLGLState::checkClientArrays(mask);
-#endif
-
-	LLSpatialBridge* last_bridge = NULL;
-	glPushMatrix();
-	
-	for (LLSpatialGroup::sg_vector_t::iterator i = gPipeline.mActiveGroups.begin(); i != gPipeline.mActiveGroups.end(); ++i)
-	{
-		LLSpatialGroup* group = *i;
-		if (!group->isDead() &&
-			gPipeline.hasRenderType(group->mSpatialPartition->mDrawableType) &&
-			group->mDrawMap.find(type) != group->mDrawMap.end())
-		{
-			LLSpatialBridge* bridge = (LLSpatialBridge*) group->mSpatialPartition;
-			if (bridge != last_bridge)
-			{
-				glPopMatrix();
-				glPushMatrix();
-				glMultMatrixf((F32*) bridge->mDrawable->getRenderMatrix().mMatrix);
-				last_bridge = bridge;
-			}
-
-			renderGroup(group,type,mask,texture);
-		}
-	}
-	
-	glPopMatrix();
-}
-
-void LLRenderPass::renderStatic(U32 type, U32 mask, BOOL texture)
-{
-#if !LL_RELEASE_FOR_DOWNLOAD
-	LLGLState::checkClientArrays(mask);
-#endif
-
-	for (LLSpatialGroup::sg_vector_t::iterator i = gPipeline.mVisibleGroups.begin(); i != gPipeline.mVisibleGroups.end(); ++i)
-	{
-		LLSpatialGroup* group = *i;
-		if (!group->isDead() &&
-			gPipeline.hasRenderType(group->mSpatialPartition->mDrawableType) &&
-			group->mDrawMap.find(type) != group->mDrawMap.end())
-		{
-			renderGroup(group,type,mask,texture);
-		}
-	}
+	gPipeline.renderGroups(this, type, mask, texture);
 }

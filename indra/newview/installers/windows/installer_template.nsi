@@ -116,6 +116,10 @@ Call RemoveNSIS					; Check for old NSIS install to remove
 								; VFS and cache files.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Need to clean out shader files from previous installs to fix DEV-5663
+Call RemoveOldShaders
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Files
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; This placeholder is replaced by the complete list of all the files in the installer, by viewer_manifest.py
@@ -481,6 +485,19 @@ FunctionEnd
 ;FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Delete the installed shader files
+;;; Since shaders are in active development, we'll likely need to shuffle them
+;;; around a bit from build to build.  This ensures that shaders that we move
+;;; or rename in the dev tree don't get left behind in the install.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function RemoveOldShaders
+
+;; Remove old shader files first so fallbacks will work. see DEV-5663
+RMDir /r "$INSTDIR\app_settings\shaders\*"
+
+FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Delete files in Documents and Settings\<user>\SecondLife
 ; Delete files in Documents and Settings\All Users\SecondLife
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -513,6 +530,7 @@ Push $2
         GoTo CONTINUE
       RM_CACHE:
         RMDir /r "$2\Application Data\SecondLife\Cache"
+        Delete "$2\Application Data\SecondLife\user_settings\settings_windlight.xml"
 
   CONTINUE:
     IntOp $0 $0 + 1

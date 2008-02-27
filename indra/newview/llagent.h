@@ -841,7 +841,6 @@ private:
 	U8				mGodLevel;
 	LLFrameTimer	mFidgetTimer;
 	LLFrameTimer	mFocusObjectFadeTimer;
-	std::set<LLPointer <LLViewerObject> > mFadeObjects;
 	F32				mNextFidgetTime;
 	S32				mCurrentFidget;
 	BOOL			mFirstLogin;

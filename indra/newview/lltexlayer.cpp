@@ -52,6 +52,7 @@
 #include "llxmltree.h"
 #include "pipeline.h"
 #include "v4coloru.h"
+#include "llglimmediate.h"
 
 //#include "../tools/imdebug/imdebug.h"
 
@@ -176,22 +177,22 @@ void LLTexLayerSetBuffer::cancelUpload()
 void LLTexLayerSetBuffer::pushProjection()
 {
 	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
+	gGL.pushMatrix();
 	glLoadIdentity();
 	glOrtho(0.0f, mWidth, 0.0f, mHeight, -1.0f, 1.0f);
 
 	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
+	gGL.pushMatrix();
 	glLoadIdentity();
 }
 
 void LLTexLayerSetBuffer::popProjection()
 {
 	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
+	gGL.popMatrix();
 
 	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
+	gGL.popMatrix();
 }
 
 BOOL LLTexLayerSetBuffer::needsRender()
@@ -274,6 +275,7 @@ BOOL LLTexLayerSetBuffer::render()
 	// Composite the color data
 	LLGLSUIDefault gls_ui;
 	success &= mTexLayerSet->render( mOrigin.mX, mOrigin.mY, mWidth, mHeight );
+	gGL.flush();
 
 	if( upload_now )
 	{
@@ -291,7 +293,7 @@ BOOL LLTexLayerSetBuffer::render()
 
 	// reset GL state
 	glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
-	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  
+	gGL.blendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  
 
 	// we have valid texture data now
 	mInitialized = TRUE;
@@ -761,7 +763,9 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 		LLTexLayer* layer = *iter;
 		if( layer->getRenderPass() == RP_COLOR )
 		{
+			gGL.flush();
 			success &= layer->render( x, y, width, height );
+			gGL.flush();
 		}
 	}
 
@@ -769,8 +773,9 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 	if( !getInfo()->mStaticAlphaFileName.empty() )
 	{
 		LLGLSNoAlphaTest gls_no_alpha_test;
+		gGL.flush();
 		glColorMask( GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE );
-		glBlendFunc( GL_ONE, GL_ZERO );
+		gGL.blendFunc( GL_ONE, GL_ZERO );
 
 		{
 			LLImageGL* image_gl = gTexStaticImageList.getImageGL( getInfo()->mStaticAlphaFileName, TRUE );
@@ -787,19 +792,22 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 		}
 		LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
 
+		gGL.flush();
 		glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
-		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+		gGL.blendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	}
 	else 
 	if( getInfo()->mClearAlpha )
 	{
 		// Set the alpha channel to one (clean up after previous blending)
 		LLGLSNoTextureNoAlphaTest gls_no_alpha;
-		glColor4f( 0.f, 0.f, 0.f, 1.f );
+		gGL.color4f( 0.f, 0.f, 0.f, 1.f );
+		gGL.flush();
 		glColorMask( GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE );
 
 		gl_rect_2d_simple( width, height );
 		
+		gGL.flush();
 		glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
 	}
 	stop_glerror();
@@ -827,7 +835,7 @@ BOOL LLTexLayerSet::renderBump( S32 x, S32 y, S32 width, S32 height )
 
 	// Set the alpha channel to one (clean up after previous blending)
 	LLGLSNoTextureNoAlphaTest gls_no_texture_no_alpha;
-	glColor4f( 0.f, 0.f, 0.f, 1.f );
+	gGL.color4f( 0.f, 0.f, 0.f, 1.f );
 	glColorMask( GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE );
 
 	gl_rect_2d_simple( width, height );
@@ -1321,14 +1329,16 @@ BOOL LLTexLayer::render( S32 x, S32 y, S32 width, S32 height )
 
 		renderAlphaMasks( x, y, width, height, &net_color );
 		alpha_mask_specified = TRUE;
-		glBlendFunc( GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA );
+		gGL.flush();
+		gGL.blendFunc( GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA );
 	}
 
-	glColor4fv( net_color.mV);
+	gGL.color4fv( net_color.mV);
 
 	if( getInfo()->mWriteAllChannels )
 	{
-		glBlendFunc( GL_ONE, GL_ZERO );
+		gGL.flush();
+		gGL.blendFunc( GL_ONE, GL_ZERO );
 	}
 
 	if( (getInfo()->mLocalTexture != -1) && !getInfo()->mUseLocalTextureAlphaOnly )
@@ -1383,14 +1393,15 @@ BOOL LLTexLayer::render( S32 x, S32 y, S32 width, S32 height )
 		color_specified )
 	{
 		LLGLSNoTextureNoAlphaTest gls;
-		glColor4fv( net_color.mV);
+		gGL.color4fv( net_color.mV);
 		gl_rect_2d_simple( width, height );
 	}
 
 	if( alpha_mask_specified || getInfo()->mWriteAllChannels )
 	{
 		// Restore standard blend func value
-		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+		gGL.flush();
+		gGL.blendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 		stop_glerror();
 	}
 
@@ -1506,15 +1517,16 @@ BOOL LLTexLayer::renderAlphaMasks( S32 x, S32 y, S32 width, S32 height, LLColor4
 		LLGLSNoTextureNoAlphaTest gls_no_texture_no_alpha_test;
 	
 		// Clear the alpha
-		glBlendFunc( GL_ONE, GL_ZERO );
+		gGL.flush();
+		gGL.blendFunc( GL_ONE, GL_ZERO );
 
-		glColor4f( 0.f, 0.f, 0.f, 0.f );
+		gGL.color4f( 0.f, 0.f, 0.f, 0.f );
 		gl_rect_2d_simple( width, height );
 	}
 
 	// Accumulate alphas
 	LLGLSNoAlphaTest gls_no_alpha_test;
-	glColor4f( 1.f, 1.f, 1.f, 1.f );
+	gGL.color4f( 1.f, 1.f, 1.f, 1.f );
 
 	for( iter = mParamAlphaList.begin(); iter != mParamAlphaList.end(); iter++ )
 	{
@@ -1523,7 +1535,8 @@ BOOL LLTexLayer::renderAlphaMasks( S32 x, S32 y, S32 width, S32 height, LLColor4
 	}
 
 	// Approximates a min() function
-	glBlendFunc( GL_DST_ALPHA, GL_ZERO );
+	gGL.flush();
+	gGL.blendFunc( GL_DST_ALPHA, GL_ZERO );
 
 	// Accumulate the alpha component of the texture
 	if( getInfo()->mLocalTexture != -1 )
@@ -1577,11 +1590,11 @@ BOOL LLTexLayer::renderAlphaMasks( S32 x, S32 y, S32 width, S32 height, LLColor4
 	}
 
 	// Draw a rectangle with the layer color to multiply the alpha by that color's alpha.
-	// Note: we're still using glBlendFunc( GL_DST_ALPHA, GL_ZERO );
+	// Note: we're still using gGL.blendFunc( GL_DST_ALPHA, GL_ZERO );
 	if( colorp->mV[VW] != 1.f )
 	{
 		LLGLSNoTextureNoAlphaTest gls_no_texture_no_alpha_test;
-		glColor4fv( colorp->mV );
+		gGL.color4fv( colorp->mV );
 		gl_rect_2d_simple( width, height );
 	}
 
@@ -1947,13 +1960,14 @@ BOOL LLTexLayerParamAlpha::render( S32 x, S32 y, S32 width, S32 height )
 		return success;
 	}
 
+	gGL.flush();
 	if( getInfo()->mMultiplyBlend )
 	{
-		glBlendFunc( GL_DST_ALPHA, GL_ZERO ); // Multiplication: approximates a min() function
+		gGL.blendFunc( GL_DST_ALPHA, GL_ZERO ); // Multiplication: approximates a min() function
 	}
 	else
 	{
-		glBlendFunc( GL_ONE, GL_ONE );  // Addition: approximates a max() function
+		gGL.blendFunc( GL_ONE, GL_ONE );  // Addition: approximates a max() function
 	}
 
 	if( !getInfo()->mStaticImageFileName.empty() && !mStaticImageInvalid)
@@ -2069,7 +2083,7 @@ BOOL LLTexLayerParamAlpha::render( S32 x, S32 y, S32 width, S32 height )
 	else
 	{
 		LLGLSNoTextureNoAlphaTest gls_no_texture_no_alpha_test;
-		glColor4f( 0.f, 0.f, 0.f, effective_weight );
+		gGL.color4f( 0.f, 0.f, 0.f, effective_weight );
 		gl_rect_2d_simple( width, height );
 	}
 

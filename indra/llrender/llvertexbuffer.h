@@ -50,18 +50,50 @@
 //  be called as soon as getVertexPointer(), etc is called (which MUST ONLY be
 //  called from the main (i.e OpenGL) thread)
 
+
+//============================================================================
+// gl name pools for dynamic and streaming buffers
+
+class LLVBOPool : public LLGLNamePool
+{
+protected:
+	virtual GLuint allocateName()
+	{
+		GLuint name;
+		glGenBuffersARB(1, &name);
+		return name;
+	}
+
+	virtual void releaseName(GLuint name)
+	{
+		glDeleteBuffersARB(1, &name);
+	}
+};
+
+
 //============================================================================
 // base class
 
 class LLVertexBuffer : public LLRefCount
 {
 public:
+	static LLVBOPool sStreamVBOPool;
+	static LLVBOPool sDynamicVBOPool;
+	static LLVBOPool sStreamIBOPool;
+	static LLVBOPool sDynamicIBOPool;
+
 	static void initClass(bool use_vbo);
 	static void cleanupClass();
  	static void startRender(); //between start and stop render, no client copies will occur
 	static void stopRender(); //any buffer not copied to GL will be rendered from client memory
 	static void clientCopy(F64 max_time = 0.005); //copy data from client to GL
 	static void unbind(); //unbind any bound vertex buffer
+
+	//get the size of a vertex with the given typemask
+	//if offsets is not NULL, its contents will be filled
+	//with the offset of each vertex component in the buffer, 
+	// indexed by the following enum
+	static S32 calcStride(const U32& typemask, S32* offsets = NULL); 										
 
 	enum {
 		TYPE_VERTEX,
@@ -92,10 +124,16 @@ public:
 	};
 	
 protected:
+	friend class LLGLImmediate;
+
 	virtual ~LLVertexBuffer(); // use unref()
 
 	virtual void setupVertexBuffer(U32 data_mask) const; // pure virtual, called from mapBuffer()
-
+	
+	void	genBuffer();
+	void	genIndices();
+	void	releaseBuffer();
+	void	releaseIndices();
 	void	createGLBuffer();
 	void	createGLIndices();
 	void 	destroyGLBuffer();
@@ -104,7 +142,7 @@ protected:
 	void	updateNumIndices(S32 nindices); 
 	virtual BOOL	useVBOs() const;
 	void	unmapBuffer();
-	
+		
 public:
 	LLVertexBuffer(U32 typemask, S32 usage);
 	
@@ -115,8 +153,7 @@ public:
 	// allocate buffer
 	void	allocateBuffer(S32 nverts, S32 nindices, bool create);
 	virtual void resizeBuffer(S32 newnverts, S32 newnindices);
-	void	makeStatic();
-	
+		
 	// Only call each getVertexPointer, etc, once before calling unmapBuffer()
 	// call unmapBuffer() after calls to getXXXStrider() before any cals to setBuffer()
 	// example:
@@ -125,7 +162,7 @@ public:
 	//   setVertsNorms(verts, norms);
 	//   vb->unmapBuffer();
 	bool getVertexStrider(LLStrider<LLVector3>& strider, S32 index=0);
-	bool getIndexStrider(LLStrider<U32>& strider, S32 index=0);
+	bool getIndexStrider(LLStrider<U16>& strider, S32 index=0);
 	bool getTexCoordStrider(LLStrider<LLVector2>& strider, S32 index=0);
 	bool getTexCoord2Strider(LLStrider<LLVector2>& strider, S32 index=0);
 	bool getNormalStrider(LLStrider<LLVector3>& strider, S32 index=0);
@@ -138,13 +175,16 @@ public:
 	BOOL isLocked() const					{ return mLocked; }
 	S32 getNumVerts() const					{ return mNumVerts; }
 	S32 getNumIndices() const				{ return mNumIndices; }
+	S32 getRequestedVerts() const			{ return mRequestedNumVerts; }
+	S32 getRequestedIndices() const			{ return mRequestedNumIndices; }
+
 	U8* getIndicesPointer() const			{ return useVBOs() ? NULL : mMappedIndexData; }
 	U8* getVerticesPointer() const			{ return useVBOs() ? NULL : mMappedData; }
 	S32 getStride() const					{ return mStride; }
 	S32 getTypeMask() const					{ return mTypeMask; }
 	BOOL hasDataType(S32 type) const		{ return ((1 << type) & getTypeMask()) ? TRUE : FALSE; }
 	S32 getSize() const						{ return mNumVerts*mStride; }
-	S32 getIndicesSize() const				{ return mNumIndices * sizeof(U32); }
+	S32 getIndicesSize() const				{ return mNumIndices * sizeof(U16); }
 	U8* getMappedData() const				{ return mMappedData; }
 	U8* getMappedIndices() const			{ return mMappedIndexData; }
 	S32 getOffset(S32 type) const			{ return mOffsets[type]; }
@@ -153,11 +193,13 @@ public:
 	void setStride(S32 type, S32 new_stride);
 	
 	void markDirty(U32 vert_index, U32 vert_count, U32 indices_index, U32 indices_count);
-	void markClean();
 
 protected:	
-	S32		mNumVerts;		// Number of vertices
-	S32		mNumIndices;	// Number of indices
+	S32		mNumVerts;		// Number of vertices allocated
+	S32		mNumIndices;	// Number of indices allocated
+	S32		mRequestedNumVerts;  // Number of vertices requested
+	S32		mRequestedNumIndices;  // Number of indices requested
+
 	S32		mStride;
 	U32		mTypeMask;
 	S32		mUsage;			// GL usage
@@ -192,10 +234,11 @@ public:
 	static BOOL sRenderActive;
 	static S32 sCount;
 	static S32 sGLCount;
+	static S32 sMappedCount;
+	static BOOL sMapped;
 	static std::vector<U32> sDeleteList;
 	typedef std::list<LLVertexBuffer*> buffer_list_t;
-	static buffer_list_t sLockedList;
-	
+		
 	static BOOL sEnableVBOs;
 	static S32 sTypeOffsets[TYPE_MAX];
 	static U32 sGLRenderBuffer;
@@ -204,6 +247,8 @@ public:
 	static BOOL sIBOActive;
 	static U32 sLastMask;
 	static U32 sAllocatedBytes;
+	static U32 sBindCount;
+	static U32 sSetCount;
 };
 
 

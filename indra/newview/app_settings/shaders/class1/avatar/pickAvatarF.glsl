@@ -1,3 +1,10 @@
+/** 
+ * @file pickAvatarF.glsl
+ *
+ * Copyright (c) 2007-$CurrentYear$, Linden Research, Inc.
+ * $License$
+ */
+
 uniform sampler2D diffuseMap;
 
 void main() 

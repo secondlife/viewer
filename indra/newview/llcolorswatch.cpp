@@ -39,6 +39,7 @@
 
 // Project includes
 #include "llui.h"
+#include "llglimmediate.h"
 #include "lluiconstants.h"
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
@@ -215,23 +216,21 @@ void LLColorSwatchCtrl::draw()
 		// Check state
 		if ( mValid )
 		{
-			LLGLSTexture gls_texture;
-
 			// Draw the color swatch
 			gl_rect_2d_checkerboard( interior );
 			gl_rect_2d(interior, mColor, TRUE);
 			LLColor4 opaque_color = mColor;
 			opaque_color.mV[VALPHA] = 1.f;
-			glColor4fv(opaque_color.mV);
+			gGL.color4fv(opaque_color.mV);
 			if (mAlphaGradientImage.notNull())
 			{
-				glPushMatrix();
+				gGL.pushMatrix();
 				{
-					glTranslatef((F32)interior.mLeft, (F32)interior.mBottom, 0.f);
+					gGL.translatef((F32)interior.mLeft, (F32)interior.mBottom, 0.f);
 					LLViewerImage::bindTexture(mAlphaGradientImage);
 					gl_rect_2d_simple_tex(interior.getWidth(), interior.getHeight());
 				}
-				glPopMatrix();
+				gGL.popMatrix();
 			}
 		}
 		else

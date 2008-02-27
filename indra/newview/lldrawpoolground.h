@@ -49,7 +49,6 @@ public:
 	LLDrawPoolGround();
 
 	/*virtual*/ LLDrawPool *instancePool();
-	virtual S32 getMaterialAttribIndex() { return 0; }
 
 	/*virtual*/ void prerender();
 	/*virtual*/ void render(S32 pass = 0);

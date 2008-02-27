@@ -36,6 +36,7 @@
 // library includes
 #include "llmath.h"
 #include "llgl.h"
+#include "llglimmediate.h"
 #include "v4color.h"
 #include "llprimitive.h"
 #include "llview.h"
@@ -205,7 +206,7 @@ void LLManipRotate::render()
 
 				if (mManipPart == LL_NO_PART)
 				{
-					glColor4f( 0.7f, 0.7f, 0.7f, 0.3f );
+					gGL.color4f( 0.7f, 0.7f, 0.7f, 0.3f );
 					gl_circle_2d( 0, 0,  mRadiusMeters, CIRCLE_STEPS, TRUE );
 				}
 				
@@ -839,7 +840,7 @@ void LLManipRotate::renderSnapGuides()
 
 			LLColor4 line_color = setupSnapGuideRenderPass(pass);
 
-			glColor4fv(line_color.mV);
+			gGL.color4fv(line_color.mV);
 
 			if (mCamEdgeOn)
 			{
@@ -868,7 +869,7 @@ void LLManipRotate::renderSnapGuides()
 				LLVector3 outer_point;
 				LLVector3 text_point;
 				LLQuaternion rot(deg * DEG_TO_RAD, constraint_axis);
-				glBegin(GL_LINES);
+				gGL.begin(GL_LINES);
 				{
 					inner_point = (projected_snap_axis * mRadiusMeters * SNAP_GUIDE_INNER_RADIUS * rot) + center;
 					F32 tick_length = 0.f;
@@ -921,10 +922,10 @@ void LLManipRotate::renderSnapGuides()
 
 					text_point = outer_point + (projected_snap_axis * mRadiusMeters * 0.1f) * rot;
 
-					glVertex3fv(inner_point.mV);
-					glVertex3fv(outer_point.mV);
+					gGL.vertex3fv(inner_point.mV);
+					gGL.vertex3fv(outer_point.mV);
 				}
-				glEnd();
+				gGL.end();
 
 				//RN: text rendering does own shadow pass, so only render once
 				if (pass == 1 && render_text && i % 16 == 0)
@@ -1029,7 +1030,7 @@ void LLManipRotate::renderSnapGuides()
 						}
 					}
 				}
-				glColor4fv(line_color.mV);
+				gGL.color4fv(line_color.mV);
 			}
 
 			// now render projected object axis
@@ -1046,15 +1047,15 @@ void LLManipRotate::renderSnapGuides()
 				object_axis = object_axis * SNAP_GUIDE_INNER_RADIUS * mRadiusMeters + center;
 				LLVector3 line_start = center;
 
-				glBegin(GL_LINES);
+				gGL.begin(GL_LINES);
 				{
-					glVertex3fv(line_start.mV);
-					glVertex3fv(object_axis.mV);
+					gGL.vertex3fv(line_start.mV);
+					gGL.vertex3fv(object_axis.mV);
 				}
-				glEnd();
+				gGL.end();
 
 				// draw snap guide arrow
-				glBegin(GL_TRIANGLES);
+				gGL.begin(GL_TRIANGLES);
 				{
 					LLVector3 arrow_dir;
 					LLVector3 arrow_span = (object_axis - line_start) % getConstraintAxis();
@@ -1066,23 +1067,23 @@ void LLManipRotate::renderSnapGuides()
 					{
 						arrow_dir *= -1.f;
 					}
-					glVertex3fv((object_axis + arrow_dir * mRadiusMeters * 0.1f).mV);
-					glVertex3fv((object_axis + arrow_span * mRadiusMeters * 0.1f).mV);
-					glVertex3fv((object_axis - arrow_span * mRadiusMeters * 0.1f).mV);
+					gGL.vertex3fv((object_axis + arrow_dir * mRadiusMeters * 0.1f).mV);
+					gGL.vertex3fv((object_axis + arrow_span * mRadiusMeters * 0.1f).mV);
+					gGL.vertex3fv((object_axis - arrow_span * mRadiusMeters * 0.1f).mV);
 				}
-				glEnd();
+				gGL.end();
 
 				{
 					LLGLDepthTest gls_depth(GL_TRUE);
-					glBegin(GL_LINES);
+					gGL.begin(GL_LINES);
 					{
-						glVertex3fv(line_start.mV);
-						glVertex3fv(object_axis.mV);
+						gGL.vertex3fv(line_start.mV);
+						gGL.vertex3fv(object_axis.mV);
 					}
-					glEnd();
+					gGL.end();
 
 					// draw snap guide arrow
-					glBegin(GL_TRIANGLES);
+					gGL.begin(GL_TRIANGLES);
 					{
 						LLVector3 arrow_dir;
 						LLVector3 arrow_span = (object_axis - line_start) % getConstraintAxis();
@@ -1095,11 +1096,11 @@ void LLManipRotate::renderSnapGuides()
 							arrow_dir *= -1.f;
 						}
 
-						glVertex3fv((object_axis + arrow_dir * mRadiusMeters * 0.1f).mV);
-						glVertex3fv((object_axis + arrow_span * mRadiusMeters * 0.1f).mV);
-						glVertex3fv((object_axis - arrow_span * mRadiusMeters * 0.1f).mV);
+						gGL.vertex3fv((object_axis + arrow_dir * mRadiusMeters * 0.1f).mV);
+						gGL.vertex3fv((object_axis + arrow_span * mRadiusMeters * 0.1f).mV);
+						gGL.vertex3fv((object_axis - arrow_span * mRadiusMeters * 0.1f).mV);
 					}
-					glEnd();
+					gGL.end();
 				}
 			}
 		}

@@ -53,9 +53,7 @@ public:
 							LLVertexBuffer::MAP_NORMAL |
 							LLVertexBuffer::MAP_TEXCOORD |
 							LLVertexBuffer::MAP_WEIGHT |
-							LLVertexBuffer::MAP_CLOTHWEIGHT |
-							LLVertexBuffer::MAP_BINORMAL
-							
+							LLVertexBuffer::MAP_CLOTHWEIGHT
 	};
 
 	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
@@ -85,8 +83,6 @@ public:
 		
 	/*virtual*/ LLViewerImage *getDebugTexture();
 	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
-
-	virtual S32 getMaterialAttribIndex() { return 0; }
 
 	void renderAvatars(LLVOAvatar *single_avatar, S32 pass = -1); // renders only one avatar if single_avatar is not null.
 };

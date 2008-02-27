@@ -48,6 +48,7 @@
 #include "llviewerimagelist.h"
 #include "llviewerregion.h"
 #include "pipeline.h"
+#include "llspatialpartition.h"
 #include "llworld.h"
 #include "lldir.h"
 #include "llxmltree.h"
@@ -400,6 +401,7 @@ LLDrawable* LLVOGrass::createDrawable(LLPipeline *pipeline)
 BOOL LLVOGrass::updateGeometry(LLDrawable *drawable)
 {
 	LLFastTimer ftm(LLFastTimer::FTM_UPDATE_GRASS);
+	dirtySpatialGroup();
 	plantBlades();
 	return TRUE;
 }
@@ -439,7 +441,7 @@ void LLVOGrass::getGeometry(S32 idx,
 								LLStrider<LLVector3>& normalsp, 
 								LLStrider<LLVector2>& texcoordsp,
 								LLStrider<LLColor4U>& colorsp, 
-								LLStrider<U32>& indicesp)
+								LLStrider<U16>& indicesp)
 {
 	mPatch = mRegionp->getLand().resolvePatchRegion(getPositionRegion());
 	if (mPatch)
@@ -552,13 +554,13 @@ void LLVOGrass::getGeometry(S32 idx,
 
 U32 LLVOGrass::getPartitionType() const
 {
-	return LLPipeline::PARTITION_GRASS;
+	return LLViewerRegion::PARTITION_GRASS;
 }
 
 LLGrassPartition::LLGrassPartition()
 {
 	mDrawableType = LLPipeline::RENDER_TYPE_GRASS;
-	mPartitionType = LLPipeline::PARTITION_GRASS;
+	mPartitionType = LLViewerRegion::PARTITION_GRASS;
 	mLODPeriod = 16;
 	mDepthMask = TRUE;
 	mSlopRatio = 0.1f;

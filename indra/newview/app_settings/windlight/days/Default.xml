@@ -1,0 +1,36 @@
+<llsd>
+    <array>
+        <array>
+            <real>0</real>
+            <string>A-12AM</string>
+        </array>
+        <array>
+            <real>0.125</real>
+            <string>A-3AM</string>
+        </array>
+        <array>
+            <real>0.25</real>
+            <string>A-6AM</string>
+        </array>
+        <array>
+            <real>0.375</real>
+            <string>A-9AM</string>
+        </array>
+        <array>
+            <real>0.5</real>
+            <string>A-12PM</string>
+        </array>
+        <array>
+            <real>0.625</real>
+            <string>A-3PM</string>
+        </array>
+        <array>
+            <real>0.75</real>
+            <string>A-6PM</string>
+        </array>
+        <array>
+            <real>0.875</real>
+            <string>A-9PM</string>
+        </array>
+    </array>
+</llsd>

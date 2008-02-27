@@ -1,0 +1,176 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+avatar/avatarV.glsl - gAvatarProgram, gAvatarWaterProgram
+	main() - avatar/avatarV.glsl
+		getSkinnedTransform() - avatarSkinV.glsl
+		calcAtmospherics() - windlight/atmosphericsV.glsl
+		calcLighting() - lighting/lightV.glsl
+			sumLights() - lighting/sumLightsV.glsl
+				calcDirectionalLight() - lighting/lightFuncV.glsl
+				calcPointLight() - lighting/lightFuncV.glsl
+				scaleDownLight() - windlight/atmosphericsHelpersV.glsl
+				atmosAmbient() - windlight/atmosphericsHelpersV.glsl
+				atmosAffectDirectionalLight() - windlight/atmosphericsHelpersV.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+avatar/avatarF.glsl - gAvatarProgram
+	main() - avatar/avatarF.glsl
+		default_lighting() - lighting/lightF.glsl
+			calc_default_lighting() - lighting/lightF.glsl
+				atmosLighting() - windlight/atmosphericsF.glsl
+				scaleSoftClip() - windlight/gammaF.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+avatar/eyeballV.glsl - gAvatarEyeballProgram
+	main() - avatar/eyeballV.glsl
+		calcAtmospherics() - windlight/atmosphericsV.glsl
+		calcLightingSpecular() - lighting/lightSpecularV.glsl
+			sumLightsSpecular() - lighting/sumLightsSpecularV.glsl
+				calcDirectionalLightSpecular() - lighting/lightFuncSpecularV.glsl
+				calcPointLightSpecular() - lighting/lightFuncSpecularV.glsl
+				atmosAmbient() - windlight/atmosphericsHelpersV.glsl
+				atmosAffectDirectionalLight() - windlight/atmosphericsHelpersV.glsl
+				atmosGetDiffuseSunlightColor() - windlight/atmosphericsHelpersV.glsl
+				scaleDownLight() - windlight/atmosphericsHelpersV.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+avatar/eyeballF.glsl - gAvatarEyeballProgram
+	main() - avatar/eyeballF.glsl
+		default_lighting() - lighting/lightF.glsl
+			calc_default_lighting() - lighting/lightF.glsl
+				atmosLighting() - windlight/atmosphericsF.glsl
+				scaleSoftClip() - windlight/gammaF.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+avatar/pickAvatarV.glsl - gAvatarPickProgram
+	main() - avatar/pickAvatarV.glsl
+		getSkinnedTransform() - avatarSkinV.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+avatar/pickAvatarF.glsl - gAvatarPickProgram
+	main() - avatar/pickAvatarF.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+environment/terrainV.glsl - gTerrainProgram, gTerrainWaterProgram
+	texgen_object() - environment/terrainV.glsl
+	main() - environment/terrainV.glsl
+		texgen_object() - environment/terrainV.glsl
+		calcAtmospherics() - windlight/atmosphericsV.glsl
+		calcLighting() - lighting/lightV.glsl
+			sumLights() - lighting/sumLightsV.glsl
+				calcDirectionalLight() - lighting/lightFuncV.glsl
+				calcPointLight() - lighting/lightFuncV.glsl
+				scaleDownLight() - windlight/atmosphericsHelpersV.glsl
+				atmosAmbient() - windlight/atmosphericsHelpersV.glsl
+				atmosAffectDirectionalLight() - windlight/atmosphericsHelpersV.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+environment/terrainF.glsl - gTerrainProgram
+	main() - environment/terrainF.glsl
+		atmosLighting() - windlight/atmosphericsF.glsl
+		scaleSoftClip() - windlight/gammaF.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+environment/terrainWaterF.glsl - gTerrainWaterProgram
+	main() - environment/terrainWaterF.glsl
+		atmosLighting() - windlight/atmosphericsF.glsl
+		applyWaterFog() - environment/waterFogF.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+environment/underWaterF.glsl - gUnderWaterProgram
+	applyWaterFog() - environment/underWaterF.glsl (NOTE: different than one in waterFogF.glsl)
+	main() - environment/underWaterF.glsl
+		applyWaterFog() - environment/underWaterF.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+environment/waterV.glsl - gWaterProgram, gUnderWaterProgram
+	main() - environment/waterV.glsl
+		calcAtmospherics() - windlight/atmosphericsV.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+environment/waterF.glsl - gWaterProgram
+	main() - environment/waterF.glsl
+		atmosTransport() - windlight/transportF.glsl
+		scaleSoftClip() - windlight/gammaF.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+objects/fullbrightV.glsl - gObjectFullbrightProgram, gObjectFullbrightWaterProgram
+	main() - objects/fullbrightV.glsl
+		calcAtmospherics() - windlight/atmosphericsV.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+objects/fullbrightF.glsl - gObjectFullbrightProgram
+	main() - objects/fullbrightF.glsl
+		fullbright_lighting() - lighting/lightFullbrightF.glsl
+			fullbrightAtmosTransport() - windlight/transportF.glsl
+				atmosTransport() - windlight/transportF.glsl
+			fullbrightScaleSoftClip() - windlight/gammaF.glsl
+				scaleSoftClip() - windlight/gammaF.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+objects/fullbrightShinyV.glsl - gObjectFullbrightShinyProgram
+	main() - objects/fullbrightShinyV.glsl
+		calcAtmospherics() - windlight/atmosphericsV.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+objects/fullbrightShinyF.glsl - gObjectFullbrightShinyProgram
+	main() - objects/fullbrightShinyF.glsl
+		fullbright_shiny_lighting() - lighting/lightFullbrightShinyF.glsl
+			fullbrightShinyAtmosTransport() - windlight/transportF.glsl
+				atmosTransport() - windlight/transportF.glsl
+			fullbrightScaleSoftClip() - windlight/gammaF.glsl
+				scaleSoftClip() - windlight/gammaF.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+objects/fullbrightWaterF.glsl - gObjectFullbrightWaterProgram
+	main() - objects/fullbrightWaterF.glsl
+		fullbright_lighting_water() - lighting/lightFullbrightWaterF.glsl
+			fullbrightAtmosTransport() - windlight/transportF.glsl
+				atmosTransport() - windlight/transportF.glsl
+			applyWaterFog() - environment/waterFogF.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+objects/shinyV.glsl - gObjectShinyProgram, gObjectShinyWaterProgram
+	main() - objects/shinyV.glsl
+		calcAtmospherics() - windlight/atmosphericsV.glsl
+		calcLighting() - lighting/lightV.glsl
+			calcLighting(vec4) - lighting/lightV.glsl
+				sumLights() - lighting/sumLightsV.glsl
+					calcDirectionalLight() - lighting/lightFuncV.glsl
+					calcPointLight() - lighting/lightFuncV.glsl
+					scaleDownLight() - windlight/atmosphericsHelpersV.glsl
+					atmosAmbient() - windlight/atmosphericsHelpersV.glsl
+					atmosAffectDirectionalLight() - windlight/atmosphericsHelpersV.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+objects/shinyF.glsl - gObjectShinyProgram
+	main() - objects/shinyF.glsl
+		shiny_lighting() - lighting/lightShinyF.glsl
+			atmosLighting() - windlight/atmosphericsF.glsl
+			scaleSoftClip() - windlight/gammaF.glsl	
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+objects/shinyWaterF.glsl - gObjectShinyWaterProgram
+	main() - objects/shinyWaterF.glsl
+		shiny_lighting_water() - lighting/lightShinyWaterF.glsl
+			atmosLighting() - windlight/atmosphericsF.glsl
+			applyWaterFog() - environment/waterFogF.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+objects/simpleV.glsl - gObjectSimpleProgram, gObjectSimpleWaterProgram
+	main() - objects/simpleV.glsl
+		calcAtmospherics() - windlight/atmosphericsV.glsl
+		calcLighting() - lighting/lightV.glsl
+			sumLights() - lighting/sumLightsV.glsl
+				calcDirectionalLight() - lighting/lightFuncV.glsl
+				calcPointLight() - lighting/lightFuncV.glsl
+				scaleDownLight() - windlight/atmosphericsHelpersV.glsl
+				atmosAmbient() - windlight/atmosphericsHelpersV.glsl
+				atmosAffectDirectionalLight() - windlight/atmosphericsHelpersV.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+objects/simpleF.glsl - gObjectSimpleProgram
+	main() - objects/simpleF.glsl
+		default_lighting() - lighting/lightF.glsl
+			atmosLighting() - windlight/atmosphericsF.glsl
+			scaleSoftClip() - windlight/gammaF.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+objects/simpleWaterF.glsl - gObjectSimpleWaterProgram, gAvatarWaterProgram
+	main() - objects/simpleWaterF.glsl
+		default_lighting_water() - lighting/lightWaterF.glsl
+			atmosLighting() - windlight/atmosphericsF.glsl
+			applyWaterFog() - environment/waterFogF.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+windlight/skyV.glsl - gWLSkyProgram
+	main() - windlight/skyV.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+windlight/skyF.glsl - gWLSkyProgram
+	main() - windlight/skyF.glsl
+		scaleSoftClip() - windlight/gammaF.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+windlight/cloudsV.glsl - gWLCloudProgram
+	main() - windlight/cloudsV.glsl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+windlight/cloudsF.glsl - gWLCloudProgram
+	main() - windlight/cloudsF.glsl
+		scaleSoftClip() - windlight/gammaF.glsl
+
+

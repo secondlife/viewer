@@ -39,7 +39,6 @@
 #include "llfloateranimpreview.h"
 #include "llfloaterbuycurrency.h"
 #include "llfloaterimagepreview.h"
-#include "llfloaterimport.h"
 #include "llfloaternamedesc.h"
 #include "llfloatersnapshot.h"
 #include "llinventorymodel.h"	// gInventory
@@ -53,6 +52,7 @@
 #include "llviewerstats.h"
 #include "llviewerwindow.h"
 #include "llappviewer.h"
+#include "lluploaddialog.h"
 
 
 // linden libraries
@@ -209,18 +209,6 @@ const char* upload_pick(void* data)
 	
 	return filename;
 }
-
-/*
-void handle_upload_object(void* data)
-{
-	const char* filename = upload_pick(data);
-	if (filename)
-	{
-		// start the import
-		LLFloaterImport* floaterp = new LLFloaterImport(filename);
-		gUICtrlFactory->buildFloater(floaterp, "floater_import.xml");
-	}
-}*/
 
 class LLFileUploadImage : public view_listener_t
 {
@@ -410,6 +398,7 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 									   width,
 									   height,
 									   TRUE,
+									   FALSE,
 									   gSavedSettings.getBOOL("RenderUIInSnapshot"),
 									   FALSE))
 		{

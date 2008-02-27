@@ -440,4 +440,20 @@ inline F32 llsimple_angle(F32 angle)
 	return angle;
 }
 
+//calculate the nearesr power of two number for val, bounded by max_power_two
+inline U32 get_nearest_power_two(U32 val, U32 max_power_two)
+{
+	if(!max_power_two)
+	{
+		max_power_two = 1 << 31 ;
+	}
+	if(max_power_two & (max_power_two - 1))
+	{
+		return 0 ;
+	}
+
+	for(; val < max_power_two ; max_power_two >>= 1) ;
+	
+	return max_power_two ;
+}
 #endif
