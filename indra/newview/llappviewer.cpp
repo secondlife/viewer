@@ -2599,43 +2599,36 @@ void LLAppViewer::setCrashBehavior(S32 cb)
 
 bool LLAppViewer::anotherInstanceRunning()
 {
-		// We create a marker file when the program starts and remove the file when it finishes.
+	// We create a marker file when the program starts and remove the file when it finishes.
 	// If the file is currently locked, that means another process is already running.
 
 	std::string marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, MARKER_FILE_NAME);
 	llinfos << "Checking marker file for lock..." << llendl;
 
-	// If file doesn't exist, we create it
-	// If file does exist, try to get writing privileges
-	FILE* fMarker = LLFile::fopen(marker_file.c_str(), "rb");		// Flawfinder: ignore
+	//Freeze case checks
+	apr_file_t* fMarker = ll_apr_file_open(marker_file, LL_APR_RB);		
 	if (fMarker != NULL)
 	{
 		// File exists, try opening with write permissions
-		fclose(fMarker);
-		fMarker = LLFile::fopen(marker_file.c_str(), "wb");		// Flawfinder: ignore
+		apr_file_close(fMarker);
+		fMarker = ll_apr_file_open(marker_file, LL_APR_WB);
 		if (fMarker == NULL)
 		{
+			// Another instance is running. Skip the rest of these operations.
 			llinfos << "Marker file is locked." << llendl;
 			return TRUE;
 		}
-
-		// *FIX:Mani - rather than have this exception here, 
-		// LLFile::fopen() have consistent behavior across platforms?
-#if LL_DARWIN || LL_LINUX || LL_SOLARIS
-		// Try to lock it. On Mac, this is the only way to test if it's actually locked.
-		if (flock(fileno(fMarker), LOCK_EX | LOCK_NB) == -1)
+		if (apr_file_lock(fMarker, APR_FLOCK_NONBLOCK | APR_FLOCK_EXCLUSIVE) != APR_SUCCESS) //flock(fileno(fMarker), LOCK_EX | LOCK_NB) == -1)
 		{
-			// Lock failed - somebody else has it.
-			fclose(fMarker);
+			apr_file_close(fMarker);
 			llinfos << "Marker file is locked." << llendl;
 			return TRUE;
 		}
-#endif
-		fclose(fMarker);
+		// No other instances; we'll lock this file now & delete on quit.
+		apr_file_close(fMarker);
 	}
 	llinfos << "Marker file isn't locked." << llendl;
 	return FALSE;
-
 }
 
 void LLAppViewer::initMarkerFile()
@@ -2677,25 +2670,10 @@ void LLAppViewer::initMarkerFile()
 	ll_apr_file_remove(error_marker_file);
 	
 	//Freeze case checks
+	if(anotherInstanceRunning()) return;
 	fMarker = ll_apr_file_open(mMarkerFileName, LL_APR_RB);		
 	if (fMarker != NULL)
 	{
-		// File exists, try opening with write permissions
-		apr_file_close(fMarker);
-		fMarker = ll_apr_file_open(mMarkerFileName, LL_APR_WB);
-		if (fMarker == NULL)
-		{
-			// Another instance is running. Skip the rest of these operations.
-			llinfos << "Marker file is locked." << llendl;
-			return;
-		}
-		if (apr_file_lock(fMarker, APR_FLOCK_NONBLOCK | APR_FLOCK_EXCLUSIVE) != APR_SUCCESS) //flock(fileno(fMarker), LOCK_EX | LOCK_NB) == -1)
-		{
-			apr_file_close(fMarker);
-			llinfos << "Marker file is locked." << llendl;
-			return;
-		}
-		// No other instances; we'll lock this file now & delete on quit.
 		apr_file_close(fMarker);
 		gLastExecEvent = LAST_EXEC_FROZE;
 		llinfos << "Exec marker found: program froze on previous execution" << llendl;

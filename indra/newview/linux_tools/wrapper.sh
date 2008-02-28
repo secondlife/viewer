@@ -1,7 +1,7 @@
 #!/bin/bash
 
-## Here are some configuration options for Linux Client Alpha Testers.
-## These options are for self-assisted troubleshooting during this alpha
+## Here are some configuration options for Linux Client Testers.
+## These options are for self-assisted troubleshooting during this beta
 ## testing phase; you should not usually need to touch them.
 
 ## - Avoids using the ESD audio driver.
@@ -23,14 +23,14 @@
 
 ## - Avoids *all* optional OpenGL extensions.  This is the safest and least-
 ##   exciting option.  Enable this if you experience stability issues, and
-##   report whether it helps in the Linux Client Alpha Testers forum.
+##   report whether it helps in the Linux Client Testers forum.
 #export LL_GL_NOEXT=x
 
 ## - For advanced troubleshooters, this lets you disable specific GL
 ##   extensions, each of which is represented by a letter a-o.  If you can
 ##   narrow down a stability problem on your system to just one or two
 ##   extensions then please post details of your hardware (and drivers) to
-##   the Linux Client Alpha Testers forum along with the minimal
+##   the Linux Client Testers forum along with the minimal
 ##   LL_GL_BLACKLIST which solves your problems.
 #export LL_GL_BLACKLIST=abcdefghijklmno
 
@@ -122,8 +122,8 @@ fi
 	
 
 echo
-echo '*********************************************************'
-echo 'This is an ALPHA release of the Second Life linux client.'
+echo '*******************************************************'
+echo 'This is a BETA release of the Second Life linux client.'
 echo 'Thank you for testing!'
 echo 'Please see README-linux.txt before reporting problems.'
 echo

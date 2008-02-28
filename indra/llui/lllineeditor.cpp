@@ -2317,6 +2317,12 @@ void LLLineEditor::resetPreedit()
 {
 	if (hasPreeditString())
 	{
+		if (hasSelection())
+		{
+			llwarns << "Preedit and selection!" << llendl;
+			deselect();
+		}
+
 		const S32 preedit_pos = mPreeditPositions.front();
 		mText.erase(preedit_pos, mPreeditPositions.back() - preedit_pos);
 		mText.insert(preedit_pos, mPreeditOverwrittenWString);
@@ -2326,11 +2332,10 @@ void LLLineEditor::resetPreedit()
 		mPreeditOverwrittenWString.clear();
 		mPreeditPositions.clear();
 
-		mKeystrokeTimer.reset();
-		if (mKeystrokeCallback)
-		{
-			mKeystrokeCallback(this, mCallbackUserData);
-		}
+		// Don't reset key stroke timer nor invoke keystroke callback,
+		// because a call to updatePreedit should be follow soon in 
+		// normal course of operation, and timer and callback will be 
+		// maintained there.  Doing so here made an odd sound.  (VWR-3410) 
 	}
 }
 
@@ -2343,27 +2348,10 @@ void LLLineEditor::updatePreedit(const LLWString &preedit_string,
 		return;
 	}
 
-	if (hasSelection())
-	{
-		if (hasPreeditString())
-		{
-			llwarns << "Preedit and selection!" << llendl;
-			deselect();
-		}
-		else
-		{
-			deleteSelection();
-		}
-	}
+	// Note that call to updatePreedit is always preceeded by resetPreedit,
+	// so we have no existing selection/preedit.
 
 	S32 insert_preedit_at = getCursor();
-	if (hasPreeditString())
-	{
-		insert_preedit_at = mPreeditPositions.front();
-		//mText.replace(insert_preedit_at, mPreeditPositions.back() - insert_preedit_at, mPreeditOverwrittenWString);
-		mText.erase(insert_preedit_at, mPreeditPositions.back() - insert_preedit_at);
-		mText.insert(insert_preedit_at, mPreeditOverwrittenWString);
-	}
 
 	mPreeditWString = preedit_string;
 	mPreeditPositions.resize(preedit_segment_lengths.size() + 1);

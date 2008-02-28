@@ -3716,6 +3716,10 @@ void LLWindowWin32::interruptLanguageTextInput()
 			LLWinImm::notifyIME(himc, NI_COMPOSITIONSTR, CPS_COMPLETE, 0);
 			LLWinImm::releaseContext(mWindowHandle, himc);
 		}
+
+		// Win32 document says there will be no composition string
+		// after NI_COMPOSITIONSTR returns.  The following call to
+		// resetPreedit should be a NOP unless IME goes mad...
 		mPreeditor->resetPreedit();
 	}
 }
@@ -3859,7 +3863,12 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
 			}
 		}
 
-		if (preedit_string.length() > 0)
+		if (preedit_string.length() == 0)
+ 		{
+			preedit_segment_lengths.clear();
+			preedit_standouts.clear();
+		}
+		else
 		{
 			if (preedit_segment_lengths.size() == 0)
 			{
@@ -3869,8 +3878,8 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
 			{
 				preedit_standouts.assign(preedit_segment_lengths.size(), FALSE);
 			}
-			mPreeditor->updatePreedit(preedit_string, preedit_segment_lengths, preedit_standouts, caret_position);
 		}
+		mPreeditor->updatePreedit(preedit_string, preedit_segment_lengths, preedit_standouts, caret_position);
 
 		// Some IME doesn't query char position after WM_IME_COMPOSITION,
 		// so we need to update them actively.

@@ -4335,6 +4335,12 @@ void LLTextEditor::resetPreedit()
 {
 	if (hasPreeditString())
 	{
+		if (hasSelection())
+		{
+			llwarns << "Preedit and selection!" << llendl;
+			deselect();
+		}
+
 		mCursorPos = mPreeditPositions.front();
 		removeStringNoUndo(mCursorPos, mPreeditPositions.back() - mCursorPos);
 		insertStringNoUndo(mCursorPos, mPreeditOverwrittenWString);
@@ -4343,9 +4349,10 @@ void LLTextEditor::resetPreedit()
 		mPreeditOverwrittenWString.clear();
 		mPreeditPositions.clear();
 
-		updateLineStartList();
-		setCursorPos(mCursorPos);
-		// updateScrollFromCursor();
+		// A call to updatePreedit should soon follow under a
+		// normal course of operation, so we don't need to 
+		// maintain internal variables such as line start 
+		// positions now.
 	}
 }
 
@@ -4358,28 +4365,9 @@ void LLTextEditor::updatePreedit(const LLWString &preedit_string,
 		return;
 	}
 
-	if (hasSelection())
-	{
-		if (hasPreeditString())
-		{
-			llwarns << "Preedit and selection!" << llendl;
-			deselect();
-		}
-		else
-		{
-			deleteSelection(TRUE);
-		}
-	}
-
 	getWindow()->hideCursorUntilMouseMove();
 
 	S32 insert_preedit_at = mCursorPos;
-	if (hasPreeditString())
-	{
-		insert_preedit_at = mPreeditPositions.front();
-		removeStringNoUndo(insert_preedit_at, mPreeditPositions.back() - insert_preedit_at);
-		insertStringNoUndo(insert_preedit_at, mPreeditOverwrittenWString);
-	}
 
 	mPreeditWString = preedit_string;
 	mPreeditPositions.resize(preedit_segment_lengths.size() + 1);

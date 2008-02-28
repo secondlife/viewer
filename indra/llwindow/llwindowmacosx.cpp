@@ -2102,15 +2102,17 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 						}
 
 						// Handle preedit string.
-						if (preedit_string.length() > 0)
+						if (preedit_string.length() == 0)
 						{
-							if (preedit_segment_lengths.size() == 0)
-							{
-								preedit_segment_lengths.push_back(preedit_string.length());
-								preedit_standouts.push_back(FALSE);
-							}
-							mPreeditor->updatePreedit(preedit_string, preedit_segment_lengths, preedit_standouts, caret_position);
+							preedit_segment_lengths.clear();
+							preedit_standouts.clear();
 						}
+						else if (preedit_segment_lengths.size() == 0)
+						{
+							preedit_segment_lengths.push_back(preedit_string.length());
+							preedit_standouts.push_back(FALSE);
+						}
+						mPreeditor->updatePreedit(preedit_string, preedit_segment_lengths, preedit_standouts, caret_position);
 
 						result = noErr;
 					}
@@ -3366,6 +3368,8 @@ void LLWindowMacOSX::interruptLanguageTextInput()
 	{
 		FixTSMDocument(mTSMDocument);
 	}
+	// Don't we need to call resetPreedit here?
+	// Well, if Apple's TSM document is correct, we don't.
 }
 
 #endif // LL_DARWIN

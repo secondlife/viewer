@@ -1,5 +1,5 @@
-Second Life - Linux Alpha README
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Second Life - Linux Beta README
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 This document contains information about the Second Life Linux
 client, and isn't meant to serve as an introduction to Second
@@ -26,16 +26,14 @@ Life itself - please see <http://www.secondlife.com/whatis/>.
 1. INTRODUCTION
 -=-=-=-=-=-=-=-
 
-Hi!  This is an ALPHA release of the Second Life client for Linux.
-The 'alpha' status means that not everything is implemented yet and
-we're still hard at work on this version of the client, but many
-residents find that it already works well 'out of the box' for accessing
-Second Life.
+Hi!  This is a BETA release of the Second Life client for Linux.
+The 'beta' status means that although we're still smoothing-out a few rough
+edges, this version of the client is functionally complete and should
+work quite well 'out of the box' for accessing Second Life.
 
 We encourage you to try it out and let us know of its compatibility
-with your system.  Be aware that although the client itself is provided
-for testing purposes, any changes you make within the Second Life world
-are permanent.
+with your system.  Be aware that although this is a 'beta' client, it connects
+to the main Second Life world and changes you make there are permanent.
 
 You will have either obtained this client from secondlife.com (the official
 site) or from a third-party packager; if you encounter any problems then
@@ -98,7 +96,7 @@ you wish.
 -=-=-=-=-=-=-=-
 
 These are the most commonly-encountered known issues which are specific to
-the Alpha release of the Linux client.
+the Beta release of the Linux client.
 
 * VISUAL EFFECTS AND PERFORMANCE - many Linux graphics drivers are not as
   robust as their counterparts for other operating systems, so some advanced
@@ -106,9 +104,9 @@ the Alpha release of the Linux client.
   stability.  See PROBLEM 3 in the TROUBLESHOOTING section if you wish to
   turn these on to possibly enhance your experience.
 
-* MISC - The following features are not currently fully implemented on the
-  Linux client and are therefore known not to work properly:
-  * Movie recording
+* MISC - The following features are known to not yet be fully operational on
+  the Linux client:
+  * Movie recording (soon to be deprecated)
   * Full Unicode font rendering
 
 * UPLOAD / SAVE / COLOR-PICKER DIALOGS - These only appear when the client
@@ -214,7 +212,7 @@ configuration options for advanced troubleshooters.
   you disable specific GL extensions, each of which is represented by a
   letter ("a"-"o").  If you can narrow down a stability problem on your system
   to just one or two GL extensions then please post details of your hardware
-  (and drivers) to the Linux Client Alpha Testers forum (see link below) along
+  (and drivers) to the Linux Client Testers forum (see link below) along
   with the minimal LL_GL_BLACKLIST which solves your problems.  This will help
   us to improve stability for your hardware while minimally impacting
   performance.
@@ -256,7 +254,7 @@ bugs in all Second Life releases if you find that the Troubleshooting
 section in this file hasn't helped (please note, however, that this is
 not a support forum).
 
-Linux Client Alpha Testers forum:
+Linux Client Testers forum:
 <http://forums.secondlife.com/forumdisplay.php?forumid=263>
 This is a forum where Linux Client users can help each other out and
 discuss the latest updates.
