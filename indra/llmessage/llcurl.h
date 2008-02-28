@@ -1,8 +1,8 @@
-/**
+/** 
  * @file llcurl.h
  * @author Zero / Donovan
  * @date 2006-10-15
- * @brief Curl wrapper
+ * @brief A wrapper around libcurl.
  *
  * $LicenseInfo:firstyear=2006&license=viewergpl$
  * 
@@ -41,104 +41,183 @@
 #include <vector>
 
 #include <boost/intrusive_ptr.hpp>
-#include <curl/curl.h>
+#include <curl/curl.h> // TODO: remove dependency
 
-// #include "llhttpclient.h"
+#include "llbuffer.h"
+#include "lliopipe.h"
+#include "llsd.h"
+
+class LLMutex;
+
+// For whatever reason, this is not typedef'd in curl.h
+typedef size_t (*curl_header_callback)(void *ptr, size_t size, size_t nmemb, void *stream);
 
 class LLCurl
 {
+	LOG_CLASS(LLCurl);
+	
 public:
+	class Easy;
 	class Multi;
 
+	struct TransferInfo
+	{
+		TransferInfo() : mSizeDownload(0.0), mTotalTime(0.0), mSpeedDownload(0.0) {}
+		F64 mSizeDownload;
+		F64 mTotalTime;
+		F64 mSpeedDownload;
+	};
+	
 	class Responder
 	{
+	//LOG_CLASS(Responder);
 	public:
+
 		Responder();
 		virtual ~Responder();
 
-		virtual void error(U32 status, const std::stringstream& content);	// called with bad status codes
+		/**
+		 * @brief return true if the status code indicates success.
+		 */
+		static bool isGoodStatus(U32 status)
+		{
+			return((200 <= status) && (status < 300));
+		}
 		
-		virtual void result(const std::stringstream& content);
+		virtual void error(U32 status, const std::string& reason);
+			// called with non-200 status codes
 		
-		virtual void completed(U32 status, const std::stringstream& content);
+		virtual void result(const LLSD& content);
+		
+		// Override point for clients that may want to use this class when the response is some other format besides LLSD
+		virtual void completedRaw(U32 status, const std::string& reason,
+								  const LLChannelDescriptors& channels,
+								  const LLIOPipe::buffer_ptr_t& buffer);
+
+		virtual void completed(U32 status, const std::string& reason, const LLSD& content);
 			/**< The default implemetnation calls
 				either:
 				* result(), or
 				* error() 
 			*/
 			
+			// Override to handle parsing of the header only.  Note: this is the only place where the contents
+			// of the header can be parsed.  In the ::completed call above only the body is contained in the LLSD.
+			virtual void completedHeader(U32 status, const std::string& reason, const LLSD& content);
+
 	public: /* but not really -- don't touch this */
 		U32 mReferenceCount;
 	};
 	typedef boost::intrusive_ptr<Responder>	ResponderPtr;
+
+
+	/**
+	 * @ brief Set certificate authority file used to verify HTTPS certs.
+	 */
+	static void setCAFile(const std::string& file);
+
+	/**
+	 * @ brief Set certificate authority path used to verify HTTPS certs.
+	 */
+	static void setCAPath(const std::string& path);
 	
-	class Easy
-	{
-	public:
-		Easy();
-		~Easy();
-		
-		void get(const std::string& url, ResponderPtr);
-		void getByteRange(const std::string& url, S32 offset, S32 length, ResponderPtr);
+	/**
+	 * @ brief Get certificate authority file used to verify HTTPS certs.
+	 */
+	static const std::string& getCAFile() { return sCAFile; }
 
-		void perform();
+	/**
+	 * @ brief Get certificate authority path used to verify HTTPS certs.
+	 */
+	static const std::string& getCAPath() { return sCAPath; }
 
-	private:
-		void prep(const std::string& url, ResponderPtr);
-		void report(CURLcode);
-		
-		CURL*				mHandle;
-		struct curl_slist*	mHeaders;
-		
-		std::string			mURL;
-		std::string			mRange;
-		std::stringstream	mRequest;
+	/**
+	 * @ brief Initialize LLCurl class
+	 */
+	static void initClass();
 
-		std::stringstream	mOutput;
-		char				mErrorBuffer[CURL_ERROR_SIZE];
+	/**
+	 * @ brief Cleanup LLCurl class
+	 */
+	static void cleanupClass();
 
-		std::stringstream	mHeaderOutput; // Debug
-		
-		ResponderPtr		mResponder;
-
-		friend class Multi;
-	};
-
-
-	class Multi
-	{
-	public:
-		Multi();
-		~Multi();
-
-		void get(const std::string& url, ResponderPtr);
-		void getByteRange(const std::string& url, S32 offset, S32 length, ResponderPtr);
-
-		void process();
-		
-	private:
-		Easy* easyAlloc();
-		void easyFree(Easy*);
-		
-		CURLM* mHandle;
-		
-		typedef std::vector<Easy*>	EasyList;
-		EasyList mFreeEasy;
-	};
-
-
-	static void get(const std::string& url, ResponderPtr);
-	static void getByteRange(const std::string& url, S32 offset, S32 length, ResponderPtr responder);
+	/**
+	 * @ brief curl error code -> string
+	 */
+	static std::string strerror(CURLcode errorcode);
 	
-    static void initClass(); // *NOTE:Mani - not thread safe!
-	static void process();
-	static void cleanup(); // *NOTE:Mani - not thread safe!
+	// For OpenSSL callbacks
+	static std::vector<LLMutex*> sSSLMutex;
+
+	// OpenSSL callbacks
+	static void LLCurl::ssl_locking_callback(int mode, int type, const char *file, int line);
+	static unsigned long LLCurl::ssl_thread_id(void);
+	
+	
+	
+private:
+
+	static std::string sCAPath;
+	static std::string sCAFile;
 };
 
 namespace boost
 {
 	void intrusive_ptr_add_ref(LLCurl::Responder* p);
 	void intrusive_ptr_release(LLCurl::Responder* p);
+};
+
+
+class LLCurlRequest
+{
+public:
+	LLCurlRequest();
+	~LLCurlRequest();
+
+	void get(const std::string& url, LLCurl::ResponderPtr responder);
+	bool getByteRange(const std::string& url, S32 offset, S32 length, LLCurl::ResponderPtr responder);
+	bool post(const std::string& url, const LLSD& data, LLCurl::ResponderPtr responder);
+	S32  process();
+	S32  getQueued();
+
+private:
+	void addMulti();
+	LLCurl::Easy* allocEasy();
+	bool addEasy(LLCurl::Easy* easy);
+	
+private:
+	typedef std::set<LLCurl::Multi*> curlmulti_set_t;
+	curlmulti_set_t mMultiSet;
+	LLCurl::Multi* mActiveMulti;
+	S32 mActiveRequestCount;
+};
+
+class LLCurlEasyRequest
+{
+public:
+	LLCurlEasyRequest();
+	~LLCurlEasyRequest();
+	void setopt(CURLoption option, S32 value);
+	void setoptString(CURLoption option, const std::string& value);
+	void setPost(char* postdata, S32 size);
+	void setHeaderCallback(curl_header_callback callback, void* userdata);
+	void setWriteCallback(curl_write_callback callback, void* userdata);
+	void setReadCallback(curl_read_callback callback, void* userdata);
+	void slist_append(const char* str);
+	void sendRequest(const std::string& url);
+	void requestComplete();
+	S32 perform();
+	bool getResult(CURLcode* result, LLCurl::TransferInfo* info = NULL);
+	std::string getErrorString();
+
+private:
+	CURLMsg* info_read(S32* queue, LLCurl::TransferInfo* info);
+	
+private:
+	LLCurl::Multi* mMulti;
+	LLCurl::Easy* mEasy;
+	bool mRequestSent;
+	bool mResultReturned;
 };
 
 #endif // LL_LLCURL_H

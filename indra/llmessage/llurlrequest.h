@@ -129,18 +129,8 @@ public:
 	 *
 	 * Set whether request will check that remote server
 	 * certificates are signed by a known root CA when using HTTPS.
-	 * Use the supplied root certificate bundle if supplied, else use
-	 * the standard bundle as found by libcurl and openssl.
 	 */
-	void checkRootCertificate(bool check, const char* caBundle = NULL);
-
-	/** 
-	 * @brief Request a particular response encoding if available.
-	 *
-	 * This call is a shortcut for requesting a particular encoding
-	 * from the server, eg, 'gzip'. 
-	 */
-	void requestEncoding(const char* encoding);
+	void checkRootCertificate(bool check);
 
 	/**
 	 * @brief Return at most size bytes of body.
@@ -167,16 +157,6 @@ public:
 	 */
 	void setCallback(LLURLRequestComplete* callback);
 	//@}
-
-	/**
-	 * @ brief Set certificate authority file used to verify HTTPS certs.
-	 */
-	static void setCertificateAuthorityFile(const std::string& file_name);
-
-	/**
-	 * @ brief Set certificate authority path used to verify HTTPS certs.
-	 */
-	static void setCertificateAuthorityPath(const std::string& path);
 
 	/* @name LLIOPipe virtual implementations
 	 */
@@ -234,7 +214,7 @@ private:
 	 * @brief Download callback method.
 	 */
  	static size_t downCallback(
-		void* data,
+		char* data,
 		size_t size,
 		size_t nmemb,
 		void* user);
@@ -243,7 +223,7 @@ private:
 	 * @brief Upload callback method.
 	 */
  	static size_t upCallback(
-		void* data,
+		char* data,
 		size_t size,
 		size_t nmemb,
 		void* user);

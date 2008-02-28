@@ -51,6 +51,7 @@
 #include "llstartup.h"
 #include "llfocusmgr.h"
 #include "llviewerjoystick.h"
+#include "llares.h" 
 #include "llcurl.h"
 #include "llfloatersnapshot.h"
 #include "llviewerwindow.h"
@@ -1338,7 +1339,7 @@ bool LLAppViewer::mainLoop()
 	// Create IO Pump to use for HTTP Requests.
 	gServicePump = new LLPumpIO(gAPRPoolp);
 	LLHTTPClient::setPump(*gServicePump);
-	LLHTTPClient::setCABundle(gDirUtilp->getCAFile());
+	LLCurl::setCAFile(gDirUtilp->getCAFile());
 	
 	// initialize voice stuff here
 	gLocalSpeakerMgr = new LLLocalSpeakerMgr();
@@ -1398,10 +1399,14 @@ bool LLAppViewer::mainLoop()
 				{
 					LLFastTimer t3(LLFastTimer::FTM_IDLE);
 					idle();
-					LLCurl::process();
-					// this pump is necessary to make the login screen show up
-					gServicePump->pump();
-					gServicePump->callback();
+
+					{
+						LLFastTimer t4(LLFastTimer::FTM_PUMP);
+						gAres->process();
+						// this pump is necessary to make the login screen show up
+						gServicePump->pump();
+						gServicePump->callback();
+					}
 				}
 
 				if (gDoDisconnect && (LLStartUp::getStartupState() == STATE_STARTED))
@@ -1811,7 +1816,7 @@ bool LLAppViewer::cleanup()
 	end_messaging_system();
 
     // *NOTE:Mani - The following call is not thread safe. 
-    LLCurl::cleanup();
+    LLCurl::cleanupClass();
 
     // If we're exiting to launch an URL, do that here so the screen
 	// is at the right resolution before we launch IE.

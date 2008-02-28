@@ -54,6 +54,7 @@ static const std::string INV_INVENTORY_TYPE_LABEL("inv_type");
 static const std::string INV_NAME_LABEL("name");
 static const std::string INV_DESC_LABEL("desc");
 static const std::string INV_PERMISSIONS_LABEL("permissions");
+static const std::string INV_SHADOW_ID_LABEL("shadow_id");
 static const std::string INV_ASSET_ID_LABEL("asset_id");
 static const std::string INV_SALE_INFO_LABEL("sale_info");
 static const std::string INV_FLAGS_LABEL("flags");
@@ -927,34 +928,34 @@ BOOL LLInventoryItem::exportLegacyStream(std::ostream& output_stream, BOOL inclu
 LLSD LLInventoryItem::asLLSD() const
 {
 	LLSD sd = LLSD();
-	sd["item_id"] = mUUID;
-	sd["parent_id"] = mParentUUID;
-	sd["permissions"] = ll_create_sd_from_permissions(mPermissions);
+	sd[INV_ITEM_ID_LABEL] = mUUID;
+	sd[INV_PARENT_ID_LABEL] = mParentUUID;
+	sd[INV_PERMISSIONS_LABEL] = ll_create_sd_from_permissions(mPermissions);
 
 	U32 mask = mPermissions.getMaskBase();
 	if(((mask & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED)
 		|| (mAssetUUID.isNull()))
 	{
-		sd["asset_id"] = mAssetUUID;
+		sd[INV_ASSET_ID_LABEL] = mAssetUUID;
 	}
 	else
 	{
 		LLUUID shadow_id(mAssetUUID);
 		LLXORCipher cipher(MAGIC_ID.mData, UUID_BYTES);
 		cipher.encrypt(shadow_id.mData, UUID_BYTES);
-		sd["shadow_id"] = shadow_id;
+		sd[INV_SHADOW_ID_LABEL] = shadow_id;
 	}
-	sd["type"] = LLAssetType::lookup(mType);
+	sd[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(mType);
 	const char* inv_type_str = LLInventoryType::lookup(mInventoryType);
 	if(inv_type_str)
 	{
-		sd["inv_type"] = inv_type_str;
+		sd[INV_INVENTORY_TYPE_LABEL] = inv_type_str;
 	}
-	sd["flags"] = ll_sd_from_U32(mFlags);
-	sd["sale_info"] = mSaleInfo;
-	sd["name"] = mName;
-	sd["desc"] = mDescription;
-	sd["creation_date"] = mCreationDate;
+	sd[INV_FLAGS_LABEL] = ll_sd_from_U32(mFlags);
+	sd[INV_SALE_INFO_LABEL] = mSaleInfo;
+	sd[INV_NAME_LABEL] = mName;
+	sd[INV_DESC_LABEL] = mDescription;
+	sd[INV_CREATION_DATE_LABEL] = mCreationDate;
 
 	return sd;
 }
@@ -1007,7 +1008,7 @@ bool LLInventoryItem::fromLLSD(LLSD& sd)
 			mPermissions.setMaskNext(perm_mask);
 		}
 	}
-	w = "shadow_id";
+	w = INV_SHADOW_ID_LABEL;
 	if (sd.has(w))
 	{
 		mAssetUUID = sd[w];
@@ -1357,6 +1358,19 @@ void LLInventoryCategory::setPreferredType(LLAssetType::EType type)
 	mPreferredType = type;
 }
 
+LLSD LLInventoryCategory::asLLSD() const
+{
+    LLSD sd = LLSD();
+    sd["item_id"] = mUUID;
+    sd["parent_id"] = mParentUUID;
+    S8 type = static_cast<S8>(mPreferredType);
+    sd["type"]      = type;
+    sd["name"] = mName;
+
+    return sd;
+}
+
+
 // virtual
 void LLInventoryCategory::packMessage(LLMessageSystem* msg) const
 {
@@ -1365,6 +1379,36 @@ void LLInventoryCategory::packMessage(LLMessageSystem* msg) const
 	S8 type = static_cast<S8>(mPreferredType);
 	msg->addS8Fast(_PREHASH_Type, type);
 	msg->addStringFast(_PREHASH_Name, mName);
+}
+
+bool LLInventoryCategory::fromLLSD(LLSD& sd)
+{
+    std::string w;
+
+    w = INV_ITEM_ID_LABEL;
+    if (sd.has(w))
+    {
+        mUUID = sd[w];
+    }
+    w = INV_PARENT_ID_LABEL;
+    if (sd.has(w))
+    {
+        mParentUUID = sd[w];
+    }
+    w = INV_ASSET_TYPE_LABEL;
+    if (sd.has(w))
+    {
+        S8 type = (U8)sd[w].asInteger();
+        mPreferredType = static_cast<LLAssetType::EType>(type);
+    }
+    w = INV_NAME_LABEL;
+    if (sd.has(w))
+    {
+        mName = sd[w].asString();
+        LLString::replaceNonstandardASCII(mName, ' ');
+        LLString::replaceChar(mName, '|', ' ');
+    }
+    return true;
 }
 
 // virtual

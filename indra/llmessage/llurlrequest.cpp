@@ -37,6 +37,7 @@
 #include <curl/curl.h>
 #include <algorithm>
 
+#include "llcurl.h"
 #include "llioutil.h"
 #include "llmemtype.h"
 #include "llpumpio.h"
@@ -52,8 +53,7 @@ static const U32 HTTP_STATUS_PIPE_ERROR = 499;
 const std::string CONTEXT_DEST_URI_SD_LABEL("dest_uri");
 
 
-static
-size_t headerCallback(void* data, size_t size, size_t nmemb, void* user);
+static size_t headerCallback(void* data, size_t size, size_t nmemb, void* user);
 
 /**
  * class LLURLRequestDetail
@@ -63,12 +63,8 @@ class LLURLRequestDetail
 public:
 	LLURLRequestDetail();
 	~LLURLRequestDetail();
-	CURLM* mCurlMulti;
- 	CURL* mCurl;
-	struct curl_slist* mHeaders;
-	char* mURL;
-	char mCurlErrorBuf[CURL_ERROR_SIZE + 1];		/* Flawfinder: ignore */
-	bool mNeedToRemoveEasyHandle;
+	std::string mURL;
+	LLCurlEasyRequest* mCurlRequest;
 	LLBufferArray* mResponseBuffer;
 	LLChannelDescriptors mChannels;
 	U8* mLastRead;
@@ -77,11 +73,7 @@ public:
 };
 
 LLURLRequestDetail::LLURLRequestDetail() :
-	mCurlMulti(NULL),
-	mCurl(NULL),
-	mHeaders(NULL),
-	mURL(NULL),
-	mNeedToRemoveEasyHandle(false),
+	mCurlRequest(NULL),
 	mResponseBuffer(NULL),
 	mLastRead(NULL),
 	mBodyLimit(0),
@@ -89,34 +81,13 @@ LLURLRequestDetail::LLURLRequestDetail() :
 	
 {
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
-	mCurlErrorBuf[0] = '\0';
+	mCurlRequest = new LLCurlEasyRequest();
 }
 
 LLURLRequestDetail::~LLURLRequestDetail()
 {
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
-	if(mCurl)
-	{
-		if(mNeedToRemoveEasyHandle && mCurlMulti)
-		{
-			curl_multi_remove_handle(mCurlMulti, mCurl);
-			mNeedToRemoveEasyHandle = false;
-		}
-		curl_easy_cleanup(mCurl);
-		mCurl = NULL;
-	}
-	if(mCurlMulti)
-	{
-		curl_multi_cleanup(mCurlMulti);
-		mCurlMulti = NULL;
-	}
-	if(mHeaders)
-	{
-		curl_slist_free_all(mHeaders);
-		mHeaders = NULL;
-	}
-	delete[] mURL;
-	mURL = NULL;
+	delete mCurlRequest;
 	mResponseBuffer = NULL;
 	mLastRead = NULL;
 }
@@ -125,9 +96,6 @@ LLURLRequestDetail::~LLURLRequestDetail()
 /**
  * class LLURLRequest
  */
-
-static std::string sCAFile("");
-static std::string sCAPath("");
 
 LLURLRequest::LLURLRequest(LLURLRequest::ERequestAction action) :
 	mAction(action)
@@ -155,31 +123,13 @@ LLURLRequest::~LLURLRequest()
 void LLURLRequest::setURL(const std::string& url)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
-	if(mDetail->mURL)
-	{
-		// *NOTE: if any calls to set the url have been made to curl,
-		// this will probably lead to a crash.
-		delete[] mDetail->mURL;
-		mDetail->mURL = NULL;
-	}
-	if(!url.empty())
-	{
-		mDetail->mURL = new char[url.size() + 1];
-		url.copy(mDetail->mURL, url.size());
-		mDetail->mURL[url.size()] = '\0';
-	}
+	mDetail->mURL = url;
 }
 
 void LLURLRequest::addHeader(const char* header)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
-	mDetail->mHeaders = curl_slist_append(mDetail->mHeaders, header);
-}
-
-void LLURLRequest::requestEncoding(const char* encoding)
-{
-	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
-	curl_easy_setopt(mDetail->mCurl, CURLOPT_ENCODING, encoding);
+	mDetail->mCurlRequest->slist_append(header);
 }
 
 void LLURLRequest::setBodyLimit(U32 size)
@@ -188,22 +138,17 @@ void LLURLRequest::setBodyLimit(U32 size)
 	mDetail->mIsBodyLimitSet = true;
 }
 
-void LLURLRequest::checkRootCertificate(bool check, const char* caBundle)
+void LLURLRequest::checkRootCertificate(bool check)
 {
-	curl_easy_setopt(mDetail->mCurl, CURLOPT_SSL_VERIFYPEER, (check? TRUE : FALSE));
-	if (caBundle)
-	{
-		curl_easy_setopt(mDetail->mCurl, CURLOPT_CAINFO, caBundle);
-	}
+	mDetail->mCurlRequest->setopt(CURLOPT_SSL_VERIFYPEER, (check? TRUE : FALSE));
+	mDetail->mCurlRequest->setoptString(CURLOPT_ENCODING, "");
 }
 
 void LLURLRequest::setCallback(LLURLRequestComplete* callback)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	mCompletionCallback = callback;
-
-	curl_easy_setopt(mDetail->mCurl, CURLOPT_HEADERFUNCTION, &headerCallback);
-	curl_easy_setopt(mDetail->mCurl, CURLOPT_WRITEHEADER, callback);
+	mDetail->mCurlRequest->setHeaderCallback(&headerCallback, (void*)callback);
 }
 
 // Added to mitigate the effect of libcurl looking
@@ -239,11 +184,11 @@ void LLURLRequest::useProxy(bool use_proxy)
 
     if (env_proxy && use_proxy)
     {
-        curl_easy_setopt(mDetail->mCurl, CURLOPT_PROXY, env_proxy);
+		mDetail->mCurlRequest->setoptString(CURLOPT_PROXY, env_proxy);
     }
     else
     {
-        curl_easy_setopt(mDetail->mCurl, CURLOPT_PROXY, "");
+        mDetail->mCurlRequest->setoptString(CURLOPT_PROXY, "");
     }
 }
 
@@ -309,27 +254,20 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 	case STATE_PROCESSING_RESPONSE:
 	{
 		PUMP_DEBUG;
-		const S32 MAX_CALLS = 5;
-		S32 count = MAX_CALLS;
-		CURLMcode code;
 		LLIOPipe::EStatus status = STATUS_BREAK;
-		S32 queue;
-		do
+		mDetail->mCurlRequest->perform();
+		while(1)
 		{
-			LLFastTimer t2(LLFastTimer::FTM_CURL);
-			code = curl_multi_perform(mDetail->mCurlMulti, &queue);			
-		}while((CURLM_CALL_MULTI_PERFORM == code) && (queue > 0) && count--);
-		CURLMsg* curl_msg;
-		do
-		{
-			curl_msg = curl_multi_info_read(mDetail->mCurlMulti, &queue);
-			if(curl_msg && (curl_msg->msg == CURLMSG_DONE))
+			CURLcode result;
+			bool newmsg = mDetail->mCurlRequest->getResult(&result);
+			if (!newmsg)
 			{
-				mState = STATE_HAVE_RESPONSE;
+				break;
+			}
 
-				CURLcode result = curl_msg->data.result;
-				switch(result)
-				{
+			mState = STATE_HAVE_RESPONSE;
+			switch(result)
+			{
 				case CURLE_OK:
 				case CURLE_WRITE_ERROR:
 					// NB: The error indication means that we stopped the
@@ -352,31 +290,21 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 						mCompletionCallback = NULL;
 					}
 					break;
+				case CURLE_FAILED_INIT:
 				case CURLE_COULDNT_CONNECT:
 					status = STATUS_NO_CONNECTION;
 					break;
 				default:
-					llwarns << "URLRequest Error: " << curl_msg->data.result
+					llwarns << "URLRequest Error: " << result
 							<< ", "
-#if LL_DARWIN
-							// curl_easy_strerror was added in libcurl 7.12.0.  Unfortunately, the version in the Mac OS X 10.3.9 SDK is 7.10.2...
-							// There's a problem with the custom curl headers in our build that keeps me from #ifdefing this on the libcurl version number
-							// (the correct check would be #if LIBCURL_VERSION_NUM >= 0x070c00).  We'll fix the header problem soon, but for now
-							// just punt and print the numeric error code on the Mac.
-							<< curl_msg->data.result
-#else // LL_DARWIN
-							<< curl_easy_strerror(curl_msg->data.result)
-#endif // LL_DARWIN
+							<< LLCurl::strerror(result)
 							<< ", "
-							<< (mDetail->mURL ? mDetail->mURL : "<EMPTY URL>")
+							<< (mDetail->mURL.empty() ? "<EMPTY URL>" : mDetail->mURL)
 							<< llendl;
 					status = STATUS_ERROR;
 					break;
-				}
-				curl_multi_remove_handle(mDetail->mCurlMulti, mDetail->mCurl);
-				mDetail->mNeedToRemoveEasyHandle = false;
 			}
-		}while(curl_msg && (queue > 0));
+		}
 		return status;
 	}
 	case STATE_HAVE_RESPONSE:
@@ -397,26 +325,9 @@ void LLURLRequest::initialize()
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	mState = STATE_INITIALIZED;
 	mDetail = new LLURLRequestDetail;
-	mDetail->mCurl = curl_easy_init();
-	mDetail->mCurlMulti = curl_multi_init();
-	curl_easy_setopt(mDetail->mCurl, CURLOPT_NOSIGNAL, 1);
-	curl_easy_setopt(mDetail->mCurl, CURLOPT_WRITEFUNCTION, &downCallback);
-	curl_easy_setopt(mDetail->mCurl, CURLOPT_WRITEDATA, this);
-	curl_easy_setopt(mDetail->mCurl, CURLOPT_READFUNCTION, &upCallback);
-	curl_easy_setopt(mDetail->mCurl, CURLOPT_READDATA, this);
-	curl_easy_setopt(
-		mDetail->mCurl,
-		CURLOPT_ERRORBUFFER,
-		mDetail->mCurlErrorBuf);
-
-	if(sCAPath != std::string(""))
-	{
-		curl_easy_setopt(mDetail->mCurl, CURLOPT_CAPATH, sCAPath.c_str());
-	}
-	if(sCAFile != std::string(""))
-	{
-		curl_easy_setopt(mDetail->mCurl, CURLOPT_CAINFO, sCAFile.c_str());
-	}
+	mDetail->mCurlRequest->setopt(CURLOPT_NOSIGNAL, 1);
+	mDetail->mCurlRequest->setWriteCallback(&downCallback, (void*)this);
+	mDetail->mCurlRequest->setReadCallback(&upCallback, (void*)this);
 }
 
 bool LLURLRequest::configure()
@@ -429,13 +340,14 @@ bool LLURLRequest::configure()
 	switch(mAction)
 	{
 	case HTTP_HEAD:
-		// These are in addition to the HTTP_GET options.
-		curl_easy_setopt(mDetail->mCurl, CURLOPT_HEADER, 1);
-		curl_easy_setopt(mDetail->mCurl, CURLOPT_NOBODY, 1);
-		
+		mDetail->mCurlRequest->setopt(CURLOPT_HEADER, 1);
+		mDetail->mCurlRequest->setopt(CURLOPT_NOBODY, 1);
+		mDetail->mCurlRequest->setopt(CURLOPT_FOLLOWLOCATION, 1);
+		rv = true;
+		break;
 	case HTTP_GET:
-		curl_easy_setopt(mDetail->mCurl, CURLOPT_HTTPGET, 1);
-		curl_easy_setopt(mDetail->mCurl, CURLOPT_FOLLOWLOCATION, 1);
+		mDetail->mCurlRequest->setopt(CURLOPT_HTTPGET, 1);
+		mDetail->mCurlRequest->setopt(CURLOPT_FOLLOWLOCATION, 1);
 		rv = true;
 		break;
 
@@ -444,8 +356,8 @@ bool LLURLRequest::configure()
 		// to turning this on, and I am not too sure what it means.
 		addHeader("Expect:");
 
-		curl_easy_setopt(mDetail->mCurl, CURLOPT_UPLOAD, 1);
-		curl_easy_setopt(mDetail->mCurl, CURLOPT_INFILESIZE, bytes);
+		mDetail->mCurlRequest->setopt(CURLOPT_UPLOAD, 1);
+		mDetail->mCurlRequest->setopt(CURLOPT_INFILESIZE, bytes);
 		rv = true;
 		break;
 
@@ -459,15 +371,13 @@ bool LLURLRequest::configure()
 		addHeader("Content-Type:");
 
 		// Set the handle for an http post
-		curl_easy_setopt(mDetail->mCurl, CURLOPT_POST, 1);
-		curl_easy_setopt(mDetail->mCurl, CURLOPT_POSTFIELDS, NULL);
-		curl_easy_setopt(mDetail->mCurl, CURLOPT_POSTFIELDSIZE, bytes);
+		mDetail->mCurlRequest->setPost(NULL, bytes);
 		rv = true;
 		break;
 
 	case HTTP_DELETE:
 		// Set the handle for an http post
-		curl_easy_setopt(mDetail->mCurl, CURLOPT_CUSTOMREQUEST, "DELETE");
+		mDetail->mCurlRequest->setoptString(CURLOPT_CUSTOMREQUEST, "DELETE");
 		rv = true;
 		break;
 
@@ -477,24 +387,14 @@ bool LLURLRequest::configure()
 	}
 	if(rv)
 	{
-		if(mDetail->mHeaders)
-		{
-			curl_easy_setopt(
-				mDetail->mCurl,
-				CURLOPT_HTTPHEADER,
-				mDetail->mHeaders);
-		}
-		curl_easy_setopt(mDetail->mCurl, CURLOPT_URL, mDetail->mURL);
-		lldebugs << "URL: " << mDetail->mURL << llendl;
-		curl_multi_add_handle(mDetail->mCurlMulti, mDetail->mCurl);
-		mDetail->mNeedToRemoveEasyHandle = true;
+		mDetail->mCurlRequest->sendRequest(mDetail->mURL);
 	}
 	return rv;
 }
 
 // static
 size_t LLURLRequest::downCallback(
-	void* data,
+	char* data,
 	size_t size,
 	size_t nmemb,
 	void* user)
@@ -528,7 +428,7 @@ size_t LLURLRequest::downCallback(
 
 // static
 size_t LLURLRequest::upCallback(
-	void* data,
+	char* data,
 	size_t size,
 	size_t nmemb,
 	void* user)
@@ -548,8 +448,7 @@ size_t LLURLRequest::upCallback(
 	return bytes;
 }
 
-static
-size_t headerCallback(void* data, size_t size, size_t nmemb, void* user)
+static size_t headerCallback(void* data, size_t size, size_t nmemb, void* user)
 {
 	const char* headerLine = (const char*)data;
 	size_t headerLen = size * nmemb;
@@ -603,18 +502,6 @@ size_t headerCallback(void* data, size_t size, size_t nmemb, void* user)
 	}
 
 	return headerLen;
-}
-
-//static 
-void LLURLRequest::setCertificateAuthorityFile(const std::string& file_name)
-{
-	sCAFile = file_name;
-}
-
-//static 
-void LLURLRequest::setCertificateAuthorityPath(const std::string& path)
-{
-	sCAPath = path;
 }
 
 /**

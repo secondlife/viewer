@@ -56,14 +56,14 @@ public:
 	virtual ~LLThread(); // Warning!  You almost NEVER want to destroy a thread unless it's in the STOPPED state.
 	virtual void shutdown(); // stops the thread
 	
-	static void yield(); // Static because it can be called by the main thread, which doesn't have an LLThread data structure.
-
-
 	bool isQuitting() const { return (QUITTING == mStatus); }
 	bool isStopped() const { return (STOPPED == mStatus); }
 	
-	// PAUSE / RESUME functionality. See source code for important usage notes.
+	static U32 currentID(); // Return ID of current thread
+	static void yield(); // Static because it can be called by the main thread, which doesn't have an LLThread data structure.
+	
 public:
+	// PAUSE / RESUME functionality. See source code for important usage notes.
 	// Called from MAIN THREAD.
 	void pause();
 	void unpause();
@@ -127,7 +127,7 @@ protected:
 class LLMutex
 {
 public:
-	LLMutex(apr_pool_t *apr_poolp); // Defaults to global pool, could use the thread pool as well.
+	LLMutex(apr_pool_t *apr_poolp); // NULL pool constructs a new pool for the mutex
 	~LLMutex();
 	
 	void lock();		// blocks

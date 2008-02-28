@@ -294,6 +294,9 @@ public:
 	// MISC METHODS and OPERATORS
 	//
 
+	LLSD	packMessage() const;
+	void	unpackMessage(LLSD perms);
+
 	// For messaging system support
 	void	packMessage(LLMessageSystem* msg) const;
 	void	unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);

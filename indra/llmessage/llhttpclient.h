@@ -41,7 +41,7 @@
 #include <boost/intrusive_ptr.hpp>
 
 #include "llassettype.h"
-#include "llbuffer.h"
+#include "llcurl.h"
 #include "lliopipe.h"
 
 extern const F32 HTTP_REQUEST_EXPIRY_SECS;
@@ -54,57 +54,18 @@ class LLSD;
 class LLHTTPClient
 {
 public:
-	class Responder
-	{
-	public:
-		Responder();
-		virtual ~Responder();
+	// class Responder moved to LLCurl
 
-		/**
-		 * @brief return true if the status code indicates success.
-		 */
-		static bool isGoodStatus(U32 status)
-		{
-			return((200 <= status) && (status < 300));
-		}
+	// For convenience
+	typedef LLCurl::Responder Responder;
+	typedef LLCurl::ResponderPtr ResponderPtr;
 
-		virtual void error(U32 status, const std::string& reason);	// called with bad status codes
-		
-		virtual void result(const LLSD& content);
-		
-		// Override point for clients that may want to use this class
-		// when the response is some other format besides LLSD
-		virtual void completedRaw(
-			U32 status,
-			const std::string& reason,
-			const LLChannelDescriptors& channels,
-			const LLIOPipe::buffer_ptr_t& buffer);
-
-		virtual void completed(
-			U32 status,
-			const std::string& reason,
-			const LLSD& content);
-			/**< The default implemetnation calls
-				either:
-				* result(), or
-				* error() 
-			*/
-
-		// Override to handle parsing of the header only.  Note: this is the only place where the contents
-		// of the header can be parsed.  In the ::completed call above only the body is contained in the LLSD.
-		virtual void completedHeader(U32 status, const std::string& reason, const LLSD& content);
-
-	public: /* but not really -- don't touch this */
-		U32 mReferenceCount;
-	};
-
-	typedef boost::intrusive_ptr<Responder>	ResponderPtr;
-	
+	// non-blocking
 	static void head(const std::string& url, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
-	static void get(const std::string& url, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
-	static void get(const std::string& url, ResponderPtr, const LLSD& headers, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
-	static void get(const std::string& url, const LLSD& query, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
-	static void get(const std::string& url, const LLSD& query, ResponderPtr, const LLSD& headers, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+	static void getByteRange(const std::string& url, S32 offset, S32 bytes, ResponderPtr, const LLSD& headers=LLSD(), const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+	static void get(const std::string& url, ResponderPtr, const LLSD& headers = LLSD(), const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+	static void get(const std::string& url, const LLSD& query, ResponderPtr, const LLSD& headers = LLSD(), const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
+
 	static void put(const std::string& url, const LLSD& body, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void getHeaderOnly(const std::string& url, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 	static void getHeaderOnly(const std::string& url, ResponderPtr, const LLSD& headers, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
@@ -127,20 +88,6 @@ public:
 		///< must be called before any of the above calls are made
 	static bool hasPump();
 		///< for testing
-	
-	static void setCABundle(const std::string& caBundle);
-		///< use this root CA bundle when checking SSL connections
-		///< defaults to the standard system root CA bundle
-		///< @see LLURLRequest::checkRootCertificate()
 };
-
-
-
-namespace boost
-{
-	void intrusive_ptr_add_ref(LLHTTPClient::Responder* p);
-	void intrusive_ptr_release(LLHTTPClient::Responder* p);
-};
-
 
 #endif // LL_LLHTTPCLIENT_H

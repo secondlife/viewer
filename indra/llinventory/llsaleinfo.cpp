@@ -280,12 +280,33 @@ void LLSaleInfo::setSalePrice(S32 price)
 	mSalePrice = llclamp(mSalePrice, 0, S32_MAX);
 }
 
+LLSD LLSaleInfo::packMessage() const
+{
+	LLSD result;
+
+	U8 sale_type = static_cast<U8>(mSaleType);
+	result["sale-type"]		= (U8)sale_type;
+	result["sale-price"]	= (S32)mSalePrice;
+	//result[_PREHASH_NextOwnerMask] = mNextOwnerPermMask;
+	return result;
+}
+
 void LLSaleInfo::packMessage(LLMessageSystem* msg) const
 {
 	U8 sale_type = static_cast<U8>(mSaleType);
 	msg->addU8Fast(_PREHASH_SaleType, sale_type);
 	msg->addS32Fast(_PREHASH_SalePrice, mSalePrice);
 	//msg->addU32Fast(_PREHASH_NextOwnerMask, mNextOwnerPermMask);
+}
+
+void LLSaleInfo::unpackMessage(LLSD sales)
+{
+	U8 sale_type = (U8)sales["sale-type"].asInteger();
+	mSaleType = static_cast<EForSale>(sale_type);
+
+	mSalePrice = (S32)sales["sale-price"].asInteger();
+	mSalePrice = llclamp(mSalePrice, 0, S32_MAX);
+	//msg->getU32Fast(block, _PREHASH_NextOwnerMask, mNextOwnerPermMask);
 }
 
 void LLSaleInfo::unpackMessage(LLMessageSystem* msg, const char* block)

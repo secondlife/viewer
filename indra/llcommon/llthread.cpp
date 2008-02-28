@@ -31,6 +31,8 @@
 #include "linden_common.h"
 #include "llapr.h"
 
+#include "apr-1/apr_portable.h"
+
 #include "llthread.h"
 
 #include "lltimer.h"
@@ -225,6 +227,11 @@ void LLThread::setQuitting()
 	wake();
 }
 
+// static
+U32 LLThread::currentID()
+{
+	return (U32)apr_os_thread_current();
+}
 
 // static
 void LLThread::yield()

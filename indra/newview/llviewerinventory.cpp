@@ -48,6 +48,8 @@
 #include "llviewerregion.h"
 #include "llviewerobjectlist.h"
 #include "llpreviewgesture.h"
+#include "llviewerwindow.h"
+
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
@@ -210,6 +212,14 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 		// *FIX: this can be removed after a bit.
 		llwarns << "request to fetch complete item" << llendl;
 	}
+}
+
+// virtual
+BOOL LLViewerInventoryItem::unpackMessage(LLSD item)
+{
+	BOOL rv = LLInventoryItem::fromLLSD(item);
+	mIsComplete = TRUE;
+	return rv;
 }
 
 // virtual
@@ -420,30 +430,42 @@ void LLViewerInventoryCategory::removeFromServer( void )
 bool LLViewerInventoryCategory::fetchDescendents()
 {
 	if((VERSION_UNKNOWN == mVersion)
-	   && mDescendentsRequested.hasExpired())
+	   && mDescendentsRequested.hasExpired())	//Expired check prevents multiple downloads.
 	{
 		const F32 FETCH_TIMER_EXPIRY = 10.0f;
 		mDescendentsRequested.reset();
 		mDescendentsRequested.setTimerExpirySec(FETCH_TIMER_EXPIRY);
 
-		LLMessageSystem* msg = gMessageSystem;
-		msg->newMessage("FetchInventoryDescendents");
-		msg->nextBlock("AgentData");
-		msg->addUUID("AgentID", gAgent.getID());
-		msg->addUUID("SessionID", gAgent.getSessionID());
-		msg->nextBlock("InventoryData");
-		msg->addUUID("FolderID", mUUID);
-		msg->addUUID("OwnerID", mOwnerID);
 		// bitfield
 		// 1 = by date
 		// 2 = folders by date
 		// Need to mask off anything but the first bit.
 		// This comes from LLInventoryFilter from llfolderview.h
 		U32 sort_order = gSavedSettings.getU32("InventorySortOrder") & 0x1;
-		msg->addS32("SortOrder", sort_order);
-		msg->addBOOL("FetchFolders", FALSE);
-		msg->addBOOL("FetchItems", TRUE);
-		gAgent.sendReliableMessage();
+
+		std::string url = gAgent.getRegion()->getCapability("FetchInventoryDescendents");
+   
+		if (!url.empty()) //Capability found.  Build up LLSD and use it.
+		{
+			LLInventoryModel::startBackgroundFetch(mUUID);			
+		}
+		else
+		{	//Deprecated, but if we don't have a capability, use the old system.
+			llinfos << "FetchInventoryDescendents capability not found.  Using deprecated UDP message." << llendl;
+			LLMessageSystem* msg = gMessageSystem;
+			msg->newMessage("FetchInventoryDescendents");
+			msg->nextBlock("AgentData");
+			msg->addUUID("AgentID", gAgent.getID());
+			msg->addUUID("SessionID", gAgent.getSessionID());
+			msg->nextBlock("InventoryData");
+			msg->addUUID("FolderID", mUUID);
+			msg->addUUID("OwnerID", mOwnerID);
+
+			msg->addS32("SortOrder", sort_order);
+			msg->addBOOL("FetchFolders", FALSE);
+			msg->addBOOL("FetchItems", TRUE);
+			gAgent.sendReliableMessage();
+		}
 		return true;
 	}
 	return false;

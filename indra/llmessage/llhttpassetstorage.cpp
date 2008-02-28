@@ -422,11 +422,8 @@ void LLHTTPAssetStorage::_init(const char *web_host, const char *local_web_host,
 	mLocalBaseURL = local_web_host;
 	mHostName = host_name;
 
-	// Do not change this "unless you are familiar with and mean to control 
-	// internal operations of libcurl"
-	// - http://curl.haxx.se/libcurl/c/curl_global_init.html
-	curl_global_init(CURL_GLOBAL_ALL);
-
+	// curl_global_init moved to LLCurl::initClass()
+	
 	mCurlMultiHandle = curl_multi_init();
 }
 
@@ -435,7 +432,7 @@ LLHTTPAssetStorage::~LLHTTPAssetStorage()
 	curl_multi_cleanup(mCurlMultiHandle);
 	mCurlMultiHandle = NULL;
 	
-	curl_global_cleanup();
+	// curl_global_cleanup moved to LLCurl::initClass()
 }
 
 // storing data is simpler than getting it, so we just overload the whole method

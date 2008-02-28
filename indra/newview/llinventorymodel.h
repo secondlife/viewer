@@ -91,6 +91,7 @@ class LLViewerInventoryItem;
 class LLViewerInventoryCategory;
 class LLMessageSystem;
 class LLInventoryCollectFunctor;
+class LLAlertDialog;
 
 class LLInventoryModel
 {
@@ -105,10 +106,25 @@ public:
 	// These are used a lot...
 	typedef LLDynamicArray<LLPointer<LLViewerInventoryCategory> > cat_array_t;
 	typedef LLDynamicArray<LLPointer<LLViewerInventoryItem> > item_array_t;
-
 	// construction & destruction
 	LLInventoryModel();
 	~LLInventoryModel();
+
+	class fetchDescendentsResponder: public LLHTTPClient::Responder
+	{
+		public:
+			fetchDescendentsResponder(const LLSD& request_sd) : mRequestSD(request_sd) {};
+			void result(const LLSD& content);			
+			void error(U32 status, const std::string& reason);
+			static void onClickRetry(S32 option, void* userdata);
+			static void appendRetryList(LLSD retry_sd);
+		public:
+			typedef std::vector<LLViewerInventoryCategory*> folder_ref_t;
+		protected:
+			LLSD mRequestSD;
+			static LLSD sRetrySD;
+			static LLAlertDialog		*sRetryDialog;
+	};
 
 	//
 	// Accessors
@@ -263,6 +279,9 @@ public:
 
 	// make sure we have the descendents in the structure.
 	void fetchDescendentsOf(const LLUUID& folder_id);
+	
+	// Add categories to a list to be fetched in bulk.
+	static void bulkFetch(std::string url);
 
 	// call this method to request the inventory.
 	//void requestFromServer(const LLUUID& agent_id);
@@ -348,7 +367,7 @@ public:
 	static BOOL backgroundFetchActive();
 	static bool isEverythingFetched();
 	static void backgroundFetch(void*); // background fetch idle function
-
+	static void incrBulkFetch(S16 fetching) {  sBulkFetchCount+=fetching; if (sBulkFetchCount<0) sBulkFetchCount=0; }
 protected:
 
 	// Internal methods which add inventory and make sure that all of
@@ -395,7 +414,8 @@ protected:
 	static void processInventoryDescendents(LLMessageSystem* msg, void**);
 	static void processMoveInventoryItem(LLMessageSystem* msg, void**);
 	static void processFetchInventoryReply(LLMessageSystem* msg, void**);
-
+	static bool isBulkFetchProcessingComplete();
+	
 	bool messageUpdateCore(LLMessageSystem* msg, bool do_accounting);
 
 protected:
@@ -430,6 +450,7 @@ protected:
 	observer_list_t mObservers;
 
 	// completing the fetch once per session should be sufficient
+	static cat_map_t sBulkFetchMap;
 	static BOOL sBackgroundFetchActive;
 	static BOOL sTimelyFetchPending;
 	static BOOL sAllFoldersFetched; 
@@ -438,6 +459,7 @@ protected:
 	static LLFrameTimer sFetchTimer;
 	static F32 sMinTimeBetweenFetches;
 	static F32 sMaxTimeBetweenFetches;
+	static S16 sBulkFetchCount;
 
 	// This flag is used to handle an invalid inventory state.
 	bool mIsAgentInvUsable;

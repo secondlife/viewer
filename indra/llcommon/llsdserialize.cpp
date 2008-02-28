@@ -227,7 +227,8 @@ F64 ll_ntohd(F64 netdouble)
  *
  * @param istr The stream to read from.
  * @param value [out] The string which was found.
- * @param max_bytes The maximum possible length of the string.
+ * @param max_bytes The maximum possible length of the string. Passing in
+ * a negative value will skip this check.
  * @return Returns number of bytes read off of the stream. Returns
  * PARSE_FAILURE (-1) on failure.
  */
@@ -251,7 +252,8 @@ int deserialize_string_delim(std::istream& istr, std::string& value, char d);
  * leading the stream.
  * @param value [out] The string which was found.
  * @param d The delimiter to use.
- * @param max_bytes The maximum possible length of the string.
+ * @param max_bytes The maximum possible length of the string. Passing in
+ * a negative value will skip this check.
  * @return Returns number of bytes read off of the stream. Returns
  * PARSE_FAILURE (-1) on failure.
  */
@@ -768,7 +770,7 @@ bool LLSDNotationParser::parseBinary(std::istream& istr, LLSD& data) const
 		// We probably have a valid raw binary stream. determine
 		// the size, and read it.
 		S32 len = strtol(buf + 2, NULL, 0);
-		if(len > mMaxBytesLeft) return false;
+		if(mCheckLimits && (len > mMaxBytesLeft)) return false;
 		std::vector<U8> value;
 		if(len)
 		{
@@ -1043,7 +1045,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data) const
 		U32 size_nbo = 0;
 		read(istr, (char*)&size_nbo, sizeof(U32));	/*Flawfinder: ignore*/
 		S32 size = (S32)ntohl(size_nbo);
-		if(size > mMaxBytesLeft)
+		if(mCheckLimits && (size > mMaxBytesLeft))
 		{
 			parse_count = PARSE_FAILURE;
 		}
@@ -1179,7 +1181,7 @@ bool LLSDBinaryParser::parseString(
 	U32 value_nbo = 0;
 	read(istr, (char*)&value_nbo, sizeof(U32));		 /*Flawfinder: ignore*/
 	S32 size = (S32)ntohl(value_nbo);
-	if(size > mMaxBytesLeft) return false;
+	if(mCheckLimits && (size > mMaxBytesLeft)) return false;
 	std::vector<char> buf;
 	if(size)
 	{
@@ -1635,7 +1637,7 @@ int deserialize_string_raw(
 		// the size, and read it.
 		// *FIX: This is memory inefficient.
 		S32 len = strtol(buf + 1, NULL, 0);
-		if(len > max_bytes) return LLSDParser::PARSE_FAILURE;
+		if((max_bytes>0)&&(len>max_bytes)) return LLSDParser::PARSE_FAILURE;
 		std::vector<char> buf;
 		if(len)
 		{

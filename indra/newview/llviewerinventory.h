@@ -99,6 +99,7 @@ public:
 
 	//virtual void packMessage(LLMessageSystem* msg) const;
 	virtual BOOL unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
+	virtual BOOL unpackMessage(LLSD item);
 	virtual BOOL importFile(FILE* fp);
 	virtual BOOL importLegacyStream(std::istream& input_stream);
 

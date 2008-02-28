@@ -103,6 +103,9 @@ public:
 	LLXMLNode *exportFileXML() const;
 	BOOL importXML(LLXMLNode* node);
 
+	LLSD packMessage() const;
+	void unpackMessage(LLSD sales);
+
 	// message serialization
 	void packMessage(LLMessageSystem* msg) const;
 	void unpackMessage(LLMessageSystem* msg, const char* block);

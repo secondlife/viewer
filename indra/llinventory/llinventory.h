@@ -230,7 +230,6 @@ public:
 	// network ok. It uses a simple crc check which is defeatable, but
 	// we want to detect network mangling somehow.
 	virtual BOOL unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
-
 	// file support
 	virtual BOOL importFile(FILE* fp);
 	virtual BOOL exportFile(FILE* fp, BOOL include_asset_key = TRUE) const;
@@ -287,6 +286,9 @@ public:
 	// For messaging system support
 	virtual void packMessage(LLMessageSystem* msg) const;
 	virtual void unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
+
+	LLSD asLLSD() const;
+	bool fromLLSD(LLSD& sd);
 
 	// file support
 	virtual BOOL importFile(FILE* fp);

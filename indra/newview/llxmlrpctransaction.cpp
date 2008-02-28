@@ -33,10 +33,10 @@
 
 #include "llxmlrpctransaction.h"
 
+#include "llcurl.h"
 #include "llviewercontrol.h"
 
 // Have to include these last to avoid queue redefinition!
-#include <curl/curl.h>
 #include <xmlrpc-epi/xmlrpc.h>
 
 #include "llappviewer.h"
@@ -150,51 +150,48 @@ class LLXMLRPCTransaction::Impl
 {
 public:
 	typedef LLXMLRPCTransaction::Status	Status;
-	
-	CURL*	mCurl;
-	CURLM*	mCurlMulti;
+
+	LLCurlEasyRequest* mCurlRequest;
 
 	Status		mStatus;
 	CURLcode	mCurlCode;
 	std::string	mStatusMessage;
 	std::string	mStatusURI;
+	LLCurl::TransferInfo mTransferInfo;
 	
-	char				mCurlErrorBuffer[CURL_ERROR_SIZE];		/* Flawfinder: ignore */
-
 	std::string			mURI;
 	char*				mRequestText;
 	int					mRequestTextSize;
 	
 	std::string			mProxyAddress;
-	struct curl_slist*	mHeaders;
 
 	std::string			mResponseText;
 	XMLRPC_REQUEST		mResponse;
 	
 	Impl(const std::string& uri, XMLRPC_REQUEST request, bool useGzip);
 	Impl(const std::string& uri,
-		const std::string& method, LLXMLRPCValue params, bool useGzip);
+		 const std::string& method, LLXMLRPCValue params, bool useGzip);
 	~Impl();
 	
 	bool process();
 	
 	void setStatus(Status code,
-		const std::string& message = "", const std::string& uri = "");
+				   const std::string& message = "", const std::string& uri = "");
 	void setCurlStatus(CURLcode);
 
 private:
 	void init(XMLRPC_REQUEST request, bool useGzip);
 
 	static size_t curlDownloadCallback(
-		void* data, size_t size, size_t nmemb, void* user_data);
+		char* data, size_t size, size_t nmemb, void* user_data);
 };
 
 LLXMLRPCTransaction::Impl::Impl(const std::string& uri,
 		XMLRPC_REQUEST request, bool useGzip)
-	: mCurl(0), mCurlMulti(0),
+	: mCurlRequest(0),
 	  mStatus(LLXMLRPCTransaction::StatusNotStarted),
 	  mURI(uri),
-	  mRequestText(0), mHeaders(0),
+	  mRequestText(0), 
 	  mResponse(0)
 {
 	init(request, useGzip);
@@ -203,10 +200,10 @@ LLXMLRPCTransaction::Impl::Impl(const std::string& uri,
 
 LLXMLRPCTransaction::Impl::Impl(const std::string& uri,
 		const std::string& method, LLXMLRPCValue params, bool useGzip)
-	: mCurl(0), mCurlMulti(0),
+	: mCurlRequest(0),
 	  mStatus(LLXMLRPCTransaction::StatusNotStarted),
 	  mURI(uri),
-	  mRequestText(0), mHeaders(0),
+	  mRequestText(0), 
 	  mResponse(0)
 {
 	XMLRPC_REQUEST request = XMLRPC_RequestNew();
@@ -222,55 +219,53 @@ LLXMLRPCTransaction::Impl::Impl(const std::string& uri,
 
 void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip)
 {
-	mCurl = curl_easy_init();
-
+	if (!mCurlRequest)
+	{
+		mCurlRequest = new LLCurlEasyRequest();
+	}
+	
 	if (gSavedSettings.getBOOL("BrowserProxyEnabled"))
 	{
 		mProxyAddress = gSavedSettings.getString("BrowserProxyAddress");
 		S32 port = gSavedSettings.getS32 ( "BrowserProxyPort" );
 
 		// tell curl about the settings
-		curl_easy_setopt(mCurl, CURLOPT_PROXY, mProxyAddress.c_str());
-		curl_easy_setopt(mCurl, CURLOPT_PROXYPORT, (long) port);
-		curl_easy_setopt(mCurl, CURLOPT_PROXYTYPE, (long) CURLPROXY_HTTP);
-	};
+		mCurlRequest->setoptString(CURLOPT_PROXY, mProxyAddress);
+		mCurlRequest->setopt(CURLOPT_PROXYPORT, port);
+		mCurlRequest->setopt(CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+	}
 
-//	curl_easy_setopt(mCurl, CURLOPT_VERBOSE, 1L); // usefull for debugging
-	curl_easy_setopt(mCurl, CURLOPT_NOSIGNAL, 1L);
-	curl_easy_setopt(mCurl, CURLOPT_WRITEFUNCTION, &curlDownloadCallback);
-	curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, this);
-	curl_easy_setopt(mCurl, CURLOPT_ERRORBUFFER, &mCurlErrorBuffer);
-	curl_easy_setopt(mCurl, CURLOPT_CAINFO, gDirUtilp->getCAFile().c_str());
-	curl_easy_setopt(mCurl, CURLOPT_SSL_VERIFYPEER, (long) gVerifySSLCert);
-	curl_easy_setopt(mCurl, CURLOPT_SSL_VERIFYHOST, gVerifySSLCert? 2L : 0L);
+//	mCurlRequest->setopt(CURLOPT_VERBOSE, 1); // usefull for debugging
+	mCurlRequest->setopt(CURLOPT_NOSIGNAL, 1);
+	mCurlRequest->setWriteCallback(&curlDownloadCallback, (void*)this);
+	mCurlRequest->setopt(CURLOPT_SSL_VERIFYPEER, gVerifySSLCert);
+	mCurlRequest->setopt(CURLOPT_SSL_VERIFYHOST, gVerifySSLCert? 2 : 0);
 	// Be a little impatient about establishing connections.
-	curl_easy_setopt(mCurl, CURLOPT_CONNECTTIMEOUT, 40L);
+	mCurlRequest->setopt(CURLOPT_CONNECTTIMEOUT, 40L);
 
 	/* Setting the DNS cache timeout to -1 disables it completely.
 	   This might help with bug #503 */
-	curl_easy_setopt(mCurl, CURLOPT_DNS_CACHE_TIMEOUT, -1L);
+	mCurlRequest->setopt(CURLOPT_DNS_CACHE_TIMEOUT, -1);
 
-    mHeaders = curl_slist_append(mHeaders, "Content-Type: text/xml");
-	curl_easy_setopt(mCurl, CURLOPT_URL, mURI.c_str());
-	curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, mHeaders);
+    mCurlRequest->slist_append("Content-Type: text/xml");
+
 	if (useGzip)
 	{
-		curl_easy_setopt(mCurl, CURLOPT_ENCODING, "");
+		mCurlRequest->setoptString(CURLOPT_ENCODING, "");
 	}
 	
 	mRequestText = XMLRPC_REQUEST_ToXML(request, &mRequestTextSize);
 	if (mRequestText)
 	{
-		curl_easy_setopt(mCurl, CURLOPT_POSTFIELDS, mRequestText);
-		curl_easy_setopt(mCurl, CURLOPT_POSTFIELDSIZE, (long) mRequestTextSize);
+		mCurlRequest->setoptString(CURLOPT_POSTFIELDS, mRequestText);
+		mCurlRequest->setopt(CURLOPT_POSTFIELDSIZE, mRequestTextSize);
 	}
 	else
 	{
 		setStatus(StatusOtherError);
 	}
-	
-	mCurlMulti = curl_multi_init();
-	curl_multi_add_handle(mCurlMulti, mCurl);
+
+	mCurlRequest->sendRequest(mURI);
 }
 
 
@@ -281,30 +276,12 @@ LLXMLRPCTransaction::Impl::~Impl()
 		XMLRPC_RequestFree(mResponse, 1);
 	}
 	
-	if (mHeaders)
-	{
-		curl_slist_free_all(mHeaders);
-	}
-	
 	if (mRequestText)
 	{
 		XMLRPC_Free(mRequestText);
 	}
 	
-	if (mCurl)
-	{
-		if (mCurlMulti)
-		{
-			curl_multi_remove_handle(mCurlMulti, mCurl);
-		}
-		curl_easy_cleanup(mCurl);
-	}
-	
-	if (mCurlMulti)
-	{
-		curl_multi_cleanup(mCurlMulti);
-	}
-	
+	delete mCurlRequest;
 }
 
 bool LLXMLRPCTransaction::Impl::process()
@@ -333,27 +310,28 @@ bool LLXMLRPCTransaction::Impl::process()
 	
 	const F32 MAX_PROCESSING_TIME = 0.05f;
 	LLTimer timer;
-	int count;
-	
-	while (CURLM_CALL_MULTI_PERFORM == curl_multi_perform(mCurlMulti, &count))
+
+	while (mCurlRequest->perform() > 0)
 	{
 		if (timer.getElapsedTimeF32() >= MAX_PROCESSING_TIME)
 		{
 			return false;
 		}
 	}
-			 
-	while(CURLMsg* curl_msg = curl_multi_info_read(mCurlMulti, &count))
+
+	while(1)
 	{
-		if (CURLMSG_DONE == curl_msg->msg)
+		CURLcode result;
+		bool newmsg = mCurlRequest->getResult(&result, &mTransferInfo);
+		if (newmsg)
 		{
-			if (curl_msg->data.result != CURLE_OK)
+			if (result != CURLE_OK)
 			{
-				setCurlStatus(curl_msg->data.result);
+				setCurlStatus(result);
 				llwarns << "LLXMLRPCTransaction CURL error "
-					<< mCurlCode << ": " << mCurlErrorBuffer << llendl;
+						<< mCurlCode << ": " << mCurlRequest->getErrorString() << llendl;
 				llwarns << "LLXMLRPCTransaction request URI: "
-					<< mURI << llendl;
+						<< mURI << llendl;
 					
 				return true;
 			}
@@ -361,7 +339,7 @@ bool LLXMLRPCTransaction::Impl::process()
 			setStatus(LLXMLRPCTransaction::StatusComplete);
 
 			mResponse = XMLRPC_REQUEST_FromXML(
-				mResponseText.data(), mResponseText.size(), NULL);
+					mResponseText.data(), mResponseText.size(), NULL);
 
 			bool		hasError = false;
 			bool		hasFault = false;
@@ -387,14 +365,18 @@ bool LLXMLRPCTransaction::Impl::process()
 				setStatus(LLXMLRPCTransaction::StatusXMLRPCError);
 				
 				llwarns << "LLXMLRPCTransaction XMLRPC "
-					<< (hasError ? "error " : "fault ")
-					<< faultCode << ": "
-					<< faultString << llendl;
+						<< (hasError ? "error " : "fault ")
+						<< faultCode << ": "
+						<< faultString << llendl;
 				llwarns << "LLXMLRPCTransaction request URI: "
-					<< mURI << llendl;
+						<< mURI << llendl;
 			}
 			
 			return true;
+		}
+		else
+		{
+			break; // done
 		}
 	}
 	
@@ -504,13 +486,13 @@ void LLXMLRPCTransaction::Impl::setCurlStatus(CURLcode code)
 }
 
 size_t LLXMLRPCTransaction::Impl::curlDownloadCallback(
-		void* data, size_t size, size_t nmemb, void* user_data)
+		char* data, size_t size, size_t nmemb, void* user_data)
 {
 	Impl& impl(*(Impl*)user_data);
 	
 	size_t n = size * nmemb;
 
-	impl.mResponseText.append((const char*)data, n);
+	impl.mResponseText.append(data, n);
 	
 	if (impl.mStatus == LLXMLRPCTransaction::StatusStarted)
 	{
@@ -579,25 +561,17 @@ LLXMLRPCValue LLXMLRPCTransaction::responseValue()
 
 F64 LLXMLRPCTransaction::transferRate()
 {
-	if (!impl.mCurl  ||  impl.mStatus != StatusComplete)
+	if (impl.mStatus != StatusComplete)
 	{
 		return 0.0L;
 	}
 	
-	double size_bytes = 0.0;
-	double time_seconds = 0.0;
-	double rate_bytes_per_sec = 0.0;
-
-	curl_easy_getinfo(impl.mCurl, CURLINFO_SIZE_DOWNLOAD, &size_bytes);
-	curl_easy_getinfo(impl.mCurl, CURLINFO_TOTAL_TIME, &time_seconds);
-	curl_easy_getinfo(impl.mCurl, CURLINFO_SPEED_DOWNLOAD, &rate_bytes_per_sec);
-
-	double rate_bits_per_sec = rate_bytes_per_sec * 8.0;
+	double rate_bits_per_sec = impl.mTransferInfo.mSpeedDownload * 8.0;
 	
 	llinfos << "Buffer size:   " << impl.mResponseText.size() << " B" << llendl;
-	llinfos << "Transfer size: " << size_bytes << " B" << llendl;
-	llinfos << "Transfer time: " << time_seconds << " s" << llendl;
-	llinfos << "Transfer rate: " << rate_bits_per_sec/1000.0 << " Kb/s" << llendl;
+	llinfos << "Transfer size: " << impl.mTransferInfo.mSizeDownload << " B" << llendl;
+	llinfos << "Transfer time: " << impl.mTransferInfo.mTotalTime << " s" << llendl;
+	llinfos << "Transfer rate: " << rate_bits_per_sec / 1000.0 << " Kb/s" << llendl;
 
 	return rate_bits_per_sec;
 }

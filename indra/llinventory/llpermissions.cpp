@@ -37,6 +37,7 @@
 // library includes
 #include "message.h"
 #include "metapropertyt.h"
+#include "llsd.h"
 
 ///----------------------------------------------------------------------------
 /// Class LLPermissions
@@ -473,6 +474,25 @@ BOOL LLPermissions::allowOperationBy(PermissionBit op, const LLUUID& requester, 
 }
 
 //
+// LLSD support for HTTP messages.
+//
+LLSD LLPermissions::packMessage() const
+{
+	LLSD result;
+	result["creator-id"]	= mCreator;
+	result["owner-id"]		= mOwner;
+	result["group-id"]		= mGroup;
+
+	result["base-mask"]		=	(S32)mMaskBase;
+	result["owner-mask"]	=	(S32)mMaskOwner;
+	result["group-mask"]	=	(S32)mMaskGroup;
+	result["everyone-mask"]	=	(S32)mMaskEveryone;
+	result["next-owner-mask"]=	(S32)mMaskNextOwner;
+	result["group-owned"]	= (BOOL)mIsGroupOwned;
+	return result;
+}
+
+//
 // Messaging support
 //
 void LLPermissions::packMessage(LLMessageSystem* msg) const
@@ -489,6 +509,19 @@ void LLPermissions::packMessage(LLMessageSystem* msg) const
 	msg->addBOOLFast(_PREHASH_GroupOwned, (BOOL)mIsGroupOwned);
 }
 
+void LLPermissions::unpackMessage(LLSD perms)
+{
+	mCreator	=	perms["creator-id"];
+	mOwner	=	perms["owner-id"];
+	mGroup	=	perms["group-id"];
+
+	mMaskBase	=	(U32)perms["base-mask"].asInteger();
+	mMaskOwner	=	(U32)perms["owner-mask"].asInteger();
+	mMaskGroup	=	(U32)perms["group-mask"].asInteger();
+	mMaskEveryone	=	(U32)perms["everyone-mask"].asInteger();
+	mMaskNextOwner	=	(U32)perms["next-owner-mask"].asInteger();
+	mIsGroupOwned	=	perms["group-owned"].asBoolean();
+}
 
 void LLPermissions::unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num)
 {
