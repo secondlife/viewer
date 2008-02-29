@@ -192,6 +192,11 @@ void LLURLRequest::useProxy(bool use_proxy)
     }
 }
 
+void LLURLRequest::useProxy(const std::string &proxy)
+{
+	curl_easy_setopt(mDetail->mCurl, CURLOPT_PROXY, proxy.c_str());
+}
+
 // virtual
 LLIOPipe::EStatus LLURLRequest::handleError(
 	LLIOPipe::EStatus status,
