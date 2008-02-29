@@ -166,11 +166,6 @@ public:
      */
     void useProxy(bool use_proxy);
 
-    /**
-     * @ brief Set the CURLOPT_PROXY header to the given value.
-     */
-	void useProxy(const std::string& proxy);
-
 public:
 	/** 
 	 * @brief Give this pipe a chance to handle a generated error
