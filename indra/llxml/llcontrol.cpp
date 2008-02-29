@@ -682,6 +682,8 @@ U32 LLControlGroup::loadFromFileLegacy(const LLString& filename, BOOL require_de
 
 		llassert(control);
 
+		mLoadedSettings.insert(name);
+		
 		switch(control->mType)
 		{
 		case TYPE_F32:
@@ -905,6 +907,8 @@ U32 LLControlGroup::loadFromFile(const LLString& filename, BOOL require_declarat
 
 		llassert(control);
 
+		mLoadedSettings.insert(name);
+		
 		switch(control->mType)
 		{
 		case TYPE_F32:

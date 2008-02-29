@@ -553,6 +553,8 @@ int parse_args(int argc, char **argv)
 
 	for (j = 1; j < argc; j++) 
 	{
+		// Used to show first chunk of each argument passed in the 
+		// window title.
 		gArgs += argv[j];
 		gArgs += " ";
 
@@ -841,6 +843,7 @@ int parse_args(int argc, char **argv)
 			// that someone can use IE (or potentially other browsers)
 			// and do the rough equivalent of command injection and
 			// steal passwords. Phoenix. SL-55321
+			return 0;
 		}
 		else if (!strcmp(argv[j], "-ignorepixeldepth"))
 		{

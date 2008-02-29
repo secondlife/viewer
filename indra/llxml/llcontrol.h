@@ -200,11 +200,14 @@ public:
 	typedef std::map<LLString, LLPointer<LLControlBase> > ctrl_name_table_t;
 	ctrl_name_table_t mNameTable;
 	std::set<LLString> mWarnings;
-	
+	std::set<LLString> mLoadedSettings;	// Filled in with names loaded from settings.xml
+
 public:
 	LLControlGroup();
 	~LLControlGroup();
 	void cleanup();
+	bool hasLoaded(const LLString& name) { return mLoadedSettings.find(name) != mLoadedSettings.end(); }
+	void clearLoaded() { mLoadedSettings.clear(); } // Call once we've done any settings tweaks which may need this data
 	
 	LLControlBase*	getControl(const LLString& name);
 	LLSD registerListener(const LLString& name, LLSimpleListenerObservable *listener);
