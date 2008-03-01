@@ -337,7 +337,7 @@ class WindowsManifest(ViewerManifest):
 
                 NSIS_path = 'C:\\Program Files\\NSIS\\makensis.exe'
                 self.run_command('"' + proper_windows_path(NSIS_path) + '" ' + self.dst_path_of(tempfile))
-                self.remove(self.dst_path_of(tempfile))
+                # self.remove(self.dst_path_of(tempfile))
                 self.created_path(installer_file)
 
 
