@@ -2778,9 +2778,9 @@ EAcceptance LLToolDragAndDrop::dad3dRezFromObjectOnLand(
 	LLViewerInventoryCategory* cat = NULL;
 	locateInventory(item, cat);
 	if(!item || !item->isComplete()) return ACCEPT_NO;
-	if(!item->getPermissions().allowCopyBy(gAgent.getID(),
-										   gAgent.getGroupID())
-	   || !item->getPermissions().allowTransferTo(LLUUID::null))
+
+	if(!gAgent.allowOperation(PERM_COPY, item->getPermissions())
+		|| !item->getPermissions().allowTransferTo(LLUUID::null))
 	{
 		return ACCEPT_NO_LOCKED;
 	}
