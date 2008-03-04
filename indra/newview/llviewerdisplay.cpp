@@ -284,7 +284,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	LLImageGL::updateStats(gFrameTimeSeconds);
 	
 	LLVOAvatar::sRenderName = gSavedSettings.getS32("RenderName");
-	LLVOAvatar::sRenderGroupTitles = gSavedSettings.getBOOL("RenderGroupTitleAll");
+	LLVOAvatar::sRenderGroupTitles = !gSavedSettings.getBOOL("RenderHideGroupTitleAll");
+	
 	gPipeline.mBackfaceCull = TRUE;
 	gFrameCount++;
 	if (gFocusMgr.getAppHasFocus())

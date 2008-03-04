@@ -208,9 +208,6 @@ public:
 
 	static void		loadUserImage(void **cb_data, const LLUUID &uuid);
 
-	// Save snapshot like Snapshot 1, 2, 3, etc.
-	static void		saveMovieNumbered(void*);
-
 	static void		movieSize(S32 new_width, S32 new_height);
 
 	typedef enum e_snapshot_type

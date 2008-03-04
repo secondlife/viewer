@@ -84,6 +84,7 @@
 #include "llcolorscheme.h"
 #include "llconsole.h"
 #include "llcontainerview.h"
+#include "llfloaterstats.h"
 #include "lldebugview.h"
 #include "lldrawable.h"
 #include "lleventnotifier.h"
@@ -1629,7 +1630,7 @@ BOOL idle_startup()
 			LLError::logToFixedBuffer(gDebugView->mDebugConsolep);
 			// set initial visibility of debug console
 			gDebugView->mDebugConsolep->setVisible(gSavedSettings.getBOOL("ShowDebugConsole"));
-			gDebugView->mStatViewp->setVisible(gSavedSettings.getBOOL("ShowDebugStats"));
+			gDebugView->mFloaterStatsp->setVisible(gSavedSettings.getBOOL("ShowDebugStats"));
 		}
 
 		//
@@ -2273,7 +2274,7 @@ BOOL idle_startup()
 		if(gFloaterWorldMap)
 		{
 			gFloaterWorldMap->observeInventory(&gInventory);
-			gFloaterWorldMap->observeFriends();
+			//gFloaterWorldMap->observeFriends();
 		}
 
 		gViewerWindow->showCursor();
@@ -3036,7 +3037,7 @@ void init_stat_view()
 
 	LLRect rect;
 	LLStatBar *stat_barp;
-	rect = gDebugView->mStatViewp->getRect();
+	rect = gDebugView->mFloaterStatsp->getRect();
 
 	//
 	// Viewer advanced stats
@@ -3047,7 +3048,7 @@ void init_stat_view()
 	// Viewer Basic
 	//
 	stat_viewp = new LLStatView("basic stat view", "Basic",	"OpenDebugStatBasic", rect);
-	gDebugView->mStatViewp->addChildAtEnd(stat_viewp);
+	gDebugView->mFloaterStatsp->addStatView(stat_viewp);
 
 	stat_barp = stat_viewp->addStat("FPS", &(gViewerStats->mFPSStat));
 	stat_barp->setUnitLabel(" fps");
@@ -3091,7 +3092,7 @@ void init_stat_view()
 
 
 	stat_viewp = new LLStatView("advanced stat view", "Advanced", "OpenDebugStatAdvanced", rect);
-	gDebugView->mStatViewp->addChildAtEnd(stat_viewp);
+	gDebugView->mFloaterStatsp->addStatView(stat_viewp);
 
 
 	LLStatView *render_statviewp;
@@ -3249,7 +3250,7 @@ void init_stat_view()
 
 	// Simulator stats
 	LLStatView *sim_statviewp = new LLStatView("sim stat view", "Simulator", "OpenDebugStatSim", rect);
-	gDebugView->mStatViewp->addChildAtEnd(sim_statviewp);
+	gDebugView->mFloaterStatsp->addStatView(sim_statviewp);
 
 	stat_barp = sim_statviewp->addStat("Time Dilation", &(gViewerStats->mSimTimeDilation));
 	stat_barp->mPrecision = 2;
@@ -3485,10 +3486,10 @@ void init_stat_view()
 	stat_barp->mDisplayBar = FALSE;
 	stat_barp->mDisplayMean = FALSE;
 
-	LLRect r = gDebugView->mStatViewp->getRect();
+	LLRect r = gDebugView->mFloaterStatsp->getRect();
 
 	// Reshape based on the parameters we set.
-	gDebugView->mStatViewp->reshape(r.getWidth(), r.getHeight());
+	gDebugView->mFloaterStatsp->reshape(r.getWidth(), r.getHeight());
 }
 
 void asset_callback_nothing(LLVFS*, const LLUUID&, LLAssetType::EType, void*, S32)

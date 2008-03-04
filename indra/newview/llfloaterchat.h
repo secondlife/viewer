@@ -38,7 +38,7 @@
 #define LL_LLFLOATERCHAT_H
 
 #include "llfloater.h"
-
+#include "lllogchat.h"
 class LLButton;
 class LLChat;
 class LLComboBox;
@@ -48,6 +48,7 @@ class LLMessageSystem;
 class LLUUID;
 class LLCheckBoxCtrl;
 class LLPanelActiveSpeakers;
+class LLLogChat;
 
 class LLFloaterChat
 	:	public LLFloater, public LLUISingleton<LLFloaterChat, LLFloaterChat>
@@ -74,7 +75,7 @@ public:
 	static void onClickMute(void *data);
 	static void onClickToggleShowMute(LLUICtrl* caller, void *data);
 	static void onClickToggleActiveSpeakers(void* userdata);
-	static void chatFromLogFile(LLString line, void* userdata);
+	static void chatFromLogFile(LLLogChat::ELogLineType type,LLString line, void* userdata);
 	static void loadHistory();
 	static void* createSpeakersPanel(void* data);
 	static void* createChatPanel(void* data);

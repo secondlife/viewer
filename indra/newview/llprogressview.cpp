@@ -51,6 +51,7 @@
 #include "llviewerimagelist.h"
 #include "llviewerwindow.h"
 #include "llappviewer.h"
+#include "llweb.h"
 
 LLProgressView* LLProgressView::sInstance = NULL;
 
@@ -66,7 +67,8 @@ const S32 ANIMATION_FRAMES = 1; //13;
 
 // XUI:translate
 LLProgressView::LLProgressView(const std::string& name, const LLRect &rect) 
-: LLPanel(name, rect, FALSE)
+: LLPanel(name, rect, FALSE),
+mMouseDownInActiveArea( false )
 {
 	mPercentDone = 0.f;
 	mDrawBackground = TRUE;
@@ -89,6 +91,8 @@ LLProgressView::LLProgressView(const std::string& name, const LLRect &rect)
 	mFadeTimer.stop();
 	setVisible(FALSE);
 
+	mOutlineRect.set( 0, 0, 0, 0 );
+
 	sInstance = this;
 }
 
@@ -110,12 +114,57 @@ LLString LLProgressView::getWidgetTag() const
 	return LL_PROGRESS_VIEW_TAG;
 }
 
+BOOL LLProgressView::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	if ( mOutlineRect.pointInRect( x, y ) )
+	{
+		mMouseDownInActiveArea = TRUE;
+	};
+
+	return TRUE;
+}
+
+BOOL LLProgressView::handleMouseUp(S32 x, S32 y, MASK mask)
+{
+	if ( mOutlineRect.pointInRect( x, y ) )
+	{
+		if ( mMouseDownInActiveArea )
+		{
+			if ( ! mMessage.empty() )
+			{
+				std::string url_to_open( "" );
+
+				size_t start_pos = mMessage.find( "http://" );
+				if ( start_pos != std::string::npos )
+				{
+					size_t end_pos = mMessage.find_first_of( " \n\r\t", start_pos );
+					if ( end_pos != std::string::npos )
+						url_to_open = mMessage.substr( start_pos, end_pos - start_pos );
+					else
+						url_to_open = mMessage.substr( start_pos );
+
+					LLWeb::loadURLExternal( url_to_open );
+				};
+			};
+		};
+	};
+
+	return TRUE;
+}
+
 BOOL LLProgressView::handleHover(S32 x, S32 y, MASK mask)
 {
 	if( childrenHandleHover( x, y, mask ) == NULL )
 	{
 		lldebugst(LLERR_USER_INPUT) << "hover handled by LLProgressView" << llendl;
-		gViewerWindow->setCursor(UI_CURSOR_WAIT);
+		if ( mOutlineRect.pointInRect( x, y ) )
+		{
+			gViewerWindow->setCursor(UI_CURSOR_ARROW);
+		}
+		else
+		{
+			gViewerWindow->setCursor(UI_CURSOR_WAIT);
+		}
 	}
 	return TRUE;
 }
@@ -231,6 +280,53 @@ void LLProgressView::draw()
 
 	LLString top_line = LLAppViewer::instance()->getSecondLifeTitle();
 
+	S32 bar_bottom = line_two_y - 30;
+	S32 bar_height = 18;
+	S32 bar_width = getRect().getWidth() * 2 / 3;
+	S32 bar_left = (getRect().getWidth() / 2) - (bar_width / 2);
+
+	// translucent outline box
+	S32 background_box_left = ( ( ( getRect().getWidth() / 2 ) - ( bar_width / 2 ) ) / 4 ) * 3;
+	S32 background_box_top = ( getRect().getHeight() / 2 ) + LINE_SPACING * 5;
+	S32 background_box_right = getRect().getWidth() - background_box_left;
+	S32 background_box_bottom = ( getRect().getHeight() / 2 ) - LINE_SPACING * 5;
+	S32 background_box_width = background_box_right - background_box_left + 1;
+	S32 background_box_height = background_box_top - background_box_bottom + 1;
+
+	gl_draw_scaled_image_with_border( background_box_left + 2, 
+									  background_box_bottom - 2, 
+									  16, 
+									  16,
+									  background_box_width, 
+									  background_box_height,
+									  shadow_imagep,
+									  gColors.getColor( "ColorDropShadow" ) );
+
+	gl_draw_scaled_image_with_border( background_box_left, 
+									  background_box_bottom, 
+									  16, 
+									  16,
+									  background_box_width, 
+									  background_box_height,
+									  bar_imagep,
+									  LLColor4( 0.0f, 0.0f, 0.0f, 0.5f ) );
+
+	gl_draw_scaled_image_with_border( background_box_left + 1,
+									  background_box_bottom + 1, 
+									  16,
+									  16,
+									  background_box_width - 2,
+									  background_box_height - 2,
+									  bar_imagep,
+									  LLColor4( 0.4f, 0.4f, 0.4f, 0.4f ) );
+
+	// we'll need this later for catching a click if it looks like it contains a link
+	if ( mMessage.find( "http://" ) != std::string::npos )
+		mOutlineRect.set( background_box_left, background_box_top, background_box_right, background_box_bottom );
+	else
+		mOutlineRect.set( 0, 0, 0, 0 );
+
+	// draw loading bar
 	font->renderUTF8(top_line, 0,
 		line_x, line_one_y,
 		LLColor4::white,
@@ -241,11 +337,6 @@ void LLProgressView::draw()
 		LLColor4::white,
 		LLFontGL::HCENTER, LLFontGL::BASELINE,
 		LLFontGL::DROP_SHADOW);
-
-	S32 bar_bottom = line_two_y - 30;
-	S32 bar_height = 18;
-	S32 bar_width = getRect().getWidth() * 2 / 3;
-	S32 bar_left = (getRect().getWidth() / 2) - (bar_width / 2);
 
 	gl_draw_scaled_image_with_border(
 		bar_left + 2, 

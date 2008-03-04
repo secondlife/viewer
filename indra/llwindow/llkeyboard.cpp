@@ -96,6 +96,7 @@ LLKeyboard::LLKeyboard() : mCallbacks(NULL), mNumpadDistinct(ND_NUMLOCK_OFF)
 	addKeyName(KEY_SUBTRACT, "Subtract" );
 	addKeyName(KEY_MULTIPLY, "Multiply" );
 	addKeyName(KEY_DIVIDE, "Divide" );
+	addKeyName(KEY_PAD_DIVIDE, "PAD_DIVIDE" );
 	addKeyName(KEY_PAD_LEFT, "PAD_LEFT" );
 	addKeyName(KEY_PAD_RIGHT, "PAD_RIGHT" );
 	addKeyName(KEY_PAD_DOWN, "PAD_DOWN" );

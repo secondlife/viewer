@@ -909,6 +909,8 @@ protected:
 	BOOL	  mNameMute;
 	BOOL      mNameAppearance;
 	BOOL	  mVisibleChat;
+	BOOL      mRenderGroupTitles;
+
 
 	LLString  mDebugText;
 	U64		  mLastRegionHandle;

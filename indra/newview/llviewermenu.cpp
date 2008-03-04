@@ -120,6 +120,7 @@
 #include "llfloaterreporter.h"
 #include "llfloaterscriptdebug.h"
 #include "llfloaterenvsettings.h"
+#include "llfloaterstats.h"
 #include "llfloatertest.h"
 #include "llfloatertools.h"
 #include "llfloaterwater.h"
@@ -706,6 +707,9 @@ void init_menus()
 	gMenuBarView->setRect(LLRect(0, top, 0, top - MENU_BAR_HEIGHT));
 	gMenuBarView->setBackgroundColor( color );
 
+    gMenuBarView->setItemVisible("Tools", FALSE);
+	gMenuBarView->arrange();
+	
 	gMenuHolder->addChild(gMenuBarView);
 	
 	// menu holder appears on top of menu bar so you can see the menu title
@@ -2216,10 +2220,23 @@ class LLAvatarFreeze : public view_listener_t
 		if( avatar )
 		{
 			LLUUID* avatar_id = new LLUUID( avatar->getID() );
+			LLString fullname = avatar->getFullname();
 
-			gViewerWindow->alertXml("FreezeAvatar",
-				callback_freeze, (void*)avatar_id);
-			
+			if (!fullname.empty())
+			{
+				LLString::format_map_t args;
+				args["[AVATAR_NAME]"] = fullname;
+				gViewerWindow->alertXml("FreezeAvatarFullname",
+							args,
+							callback_freeze,
+							(void*)avatar_id);
+			}
+			else
+			{
+				gViewerWindow->alertXml("FreezeAvatar",
+							callback_freeze,
+							(void*)avatar_id);
+			}
 		}
 		return true;
 	}
@@ -2305,9 +2322,23 @@ class LLAvatarEject : public view_listener_t
 		if( avatar )
 		{
 			LLUUID* avatar_id = new LLUUID( avatar->getID() );
-			gViewerWindow->alertXml("EjectAvatar",
-					callback_eject, (void*)avatar_id);
-			
+			LLString fullname = avatar->getFullname();
+
+			if (!fullname.empty())
+			{
+				LLString::format_map_t args;
+				args["[AVATAR_NAME]"] = fullname;
+				gViewerWindow->alertXml("EjectAvatarFullname",
+							args,
+							callback_eject,
+							(void*)avatar_id);
+			}
+			else
+			{
+				gViewerWindow->alertXml("EjectAvatar",
+							callback_eject,
+							(void*)avatar_id);
+			}
 		}
 		return true;
 	}
@@ -3253,17 +3284,6 @@ void handle_show_newest_map(void*)
 //-------------------------------------------------------------------
 // Help menu functions
 //-------------------------------------------------------------------
-
-class LLHelpMOTD : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		LLString::format_map_t args;
-		args["[MOTD]"] = gAgent.mMOTD;
-		gViewerWindow->alertXml("MOTD", args, NULL, NULL);
-		return true;
-	}
-};
 
 //
 // Major mode switching
@@ -5312,7 +5332,7 @@ class LLShowFloater : public view_listener_t
 		}
 		else if (floater_name == "stat bar")
 		{
-			gDebugView->mStatViewp->setVisible(!gDebugView->mStatViewp->getVisible());
+			gDebugView->mFloaterStatsp->setVisible(!gDebugView->mFloaterStatsp->getVisible());
 		}
 		else if (floater_name == "my land")
 		{
@@ -5428,7 +5448,7 @@ class LLFloaterVisible : public view_listener_t
 		}
 		else if (floater_name == "stat bar")
 		{
-			new_value = gDebugView->mStatViewp->getVisible();
+			new_value = gDebugView->mFloaterStatsp->getVisible();
 		}
 		else if (floater_name == "active speakers")
 		{
@@ -7140,9 +7160,13 @@ void handle_load_from_xml(void*)
 
 void handle_slurl_test(void*)
 {
-	bool open_app_slurls = true;
-	bool open_links_externally = false;
-	LLFloaterHtml::getInstance()->show("http://secondlife.com/app/search/slurls.html", "SLURL Test", open_app_slurls, open_links_externally);
+	const bool open_links_externally = false;
+	const bool open_app_slurls = true;
+	LLFloaterHtml::getInstance()->show(
+		"http://secondlife.com/app/search/slurls.html",
+		"SLURL Test", 
+		open_links_externally, 
+		open_app_slurls);
 }
 
 void handle_rebake_textures(void*)
@@ -7502,15 +7526,6 @@ class LLWorldChat : public view_listener_t
 	}
 };
 
-class LLWorldStartGesture : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		handle_slash_key(NULL);
-		return true;
-	}
-};
-
 class LLToolsSelectTool : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -7724,7 +7739,6 @@ void initialize_menus()
 
 	// World menu
 	addMenu(new LLWorldChat(), "World.Chat");
-	addMenu(new LLWorldStartGesture(), "World.StartGesture");
 	addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
 	addMenu(new LLWorldFly(), "World.Fly");
 	addMenu(new LLWorldCreateLandmark(), "World.CreateLandmark");
@@ -7777,7 +7791,6 @@ void initialize_menus()
 	addMenu(new LLToolsVisibleTakeObject(), "Tools.VisibleTakeObject");*/
 
 	// Help menu
-	addMenu(new LLHelpMOTD(), "Help.MOTD");
 	// most items use the ShowFloater method
 
 	// Self pie menu

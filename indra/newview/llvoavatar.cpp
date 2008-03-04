@@ -663,6 +663,7 @@ LLVOAvatar::LLVOAvatar(
 	mNameAway(FALSE),
 	mNameBusy(FALSE),
 	mNameMute(FALSE),
+	mRenderGroupTitles(sRenderGroupTitles),
 	mNameAppearance(FALSE),
 	mLastRegionHandle(0),
 	mRegionCrossingCount(0),
@@ -2792,6 +2793,12 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 			mVisibleChat = visible_chat;
 			new_name = TRUE;
 		}
+		
+		if (sRenderGroupTitles != mRenderGroupTitles)
+		{
+			mRenderGroupTitles = sRenderGroupTitles;
+			new_name = TRUE;
+		}
 
 		// First Calculate Alpha
 		// If alpha > 0, create mNameText if necessary, otherwise delete it
@@ -2868,7 +2875,7 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		LLNameValue *title = getNVPair("Title");
 		LLNameValue* firstname = getNVPair("FirstName");
 		LLNameValue* lastname = getNVPair("LastName");
-		
+
 		if (mNameText.notNull() && firstname && lastname)
 		{
 			BOOL is_away = mSignaledAnimations.find(ANIM_AGENT_AWAY)  != mSignaledAnimations.end();

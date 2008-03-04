@@ -103,7 +103,7 @@ LLKeyboardSDL::LLKeyboardSDL()
 	mTranslateKeyMap[SDLK_KP_PLUS] = KEY_ADD;
 	mTranslateKeyMap[SDLK_KP_MINUS] = KEY_SUBTRACT;
 	mTranslateKeyMap[SDLK_KP_MULTIPLY] = KEY_MULTIPLY;
-	mTranslateKeyMap[SDLK_KP_DIVIDE] = KEY_DIVIDE;
+	mTranslateKeyMap[SDLK_KP_DIVIDE] = KEY_PAD_DIVIDE;
 	mTranslateKeyMap[SDLK_F1] = KEY_F1;
 	mTranslateKeyMap[SDLK_F2] = KEY_F2;
 	mTranslateKeyMap[SDLK_F3] = KEY_F3;
@@ -121,7 +121,7 @@ LLKeyboardSDL::LLKeyboardSDL()
 	mTranslateKeyMap[SDLK_MINUS]  = '-';
 	mTranslateKeyMap[SDLK_PERIOD] = '.';
 	mTranslateKeyMap[SDLK_BACKQUOTE] = '`';
-	mTranslateKeyMap[SDLK_SLASH] = '/';
+	mTranslateKeyMap[SDLK_SLASH] = KEY_DIVIDE;
 	mTranslateKeyMap[SDLK_SEMICOLON] = ';';
 	mTranslateKeyMap[SDLK_LEFTBRACKET] = '[';
 	mTranslateKeyMap[SDLK_BACKSLASH] = '\\';

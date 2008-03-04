@@ -80,9 +80,9 @@ public:
 	void observeInventory(LLInventoryModel* inventory);
 	void inventoryChanged();
 
-	// Calls for dealing with changes in friendship
-	void observeFriends();
-	void friendsChanged();
+	//// Calls for dealing with changes in friendship
+	//void observeFriends();
+	//void friendsChanged();
 
 	// tracking methods
 	void			trackAvatar( const LLUUID& avatar_id, const LLString& name );
@@ -98,7 +98,7 @@ public:
 	F32			getDistanceToDestination(const LLVector3d& pos_global, F32 z_attenuation = 0.5f) const;
 
 	void			clearLocationSelection(BOOL clear_ui = FALSE);
-	void			clearAvatarSelection(BOOL clear_ui = FALSE);
+	//void			clearAvatarSelection(BOOL clear_ui = FALSE);
 	void			clearLandmarkSelection(BOOL clear_ui = FALSE);
 
 	// Adjust the maximally zoomed out limit of the zoom slider so you can
@@ -119,8 +119,8 @@ protected:
 	static void		onLandmarkComboPrearrange( LLUICtrl* ctrl, void* data );
 	static void		onLandmarkComboCommit( LLUICtrl* ctrl, void* data );
 
-	static void		onAvatarComboPrearrange( LLUICtrl* ctrl, void* data );
-	static void		onAvatarComboCommit( LLUICtrl* ctrl, void* data );
+	//static void		onAvatarComboPrearrange( LLUICtrl* ctrl, void* data );
+	//static void		onAvatarComboCommit( LLUICtrl* ctrl, void* data );
 
 	static void		onCommitBackground(void* data, bool from_click);
 
@@ -148,7 +148,7 @@ protected:
 	void			teleportToLandmark();
 	void			setLandmarkVisited();
 
-	void			buildAvatarIDList();
+	//void			buildAvatarIDList();
 	void			flyToAvatar();
 	void			teleportToAvatar();
 

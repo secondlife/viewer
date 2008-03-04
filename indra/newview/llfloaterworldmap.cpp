@@ -128,14 +128,14 @@ public:
 	virtual void changed(U32 mask);
 };
 
-void LLMapFriendObserver::changed(U32 mask)
-{
-	// if there's a change we're interested in.
-	if((mask & (LLFriendObserver::ADD | LLFriendObserver::REMOVE | LLFriendObserver::ONLINE | LLFriendObserver::POWERS)) != 0)
-	{
-		gFloaterWorldMap->friendsChanged();
-	}
-}
+//void LLMapFriendObserver::changed(U32 mask)
+//{
+//	// if there's a change we're interested in.
+//	if((mask & (LLFriendObserver::ADD | LLFriendObserver::REMOVE | LLFriendObserver::ONLINE | LLFriendObserver::POWERS)) != 0)
+//	{
+//		gFloaterWorldMap->friendsChanged();
+//	}
+//}
 
 //---------------------------------------------------------------------------
 // Statics
@@ -202,15 +202,15 @@ BOOL LLFloaterWorldMap::postBuild()
 
 	onCommitBackground((void*)this, false);
 
-	childSetCommitCallback("friend combo", onAvatarComboCommit, this);
+	//childSetCommitCallback("friend combo", onAvatarComboCommit, this);
 
-	LLComboBox *avatar_combo = LLUICtrlFactory::getComboBoxByName(this, "friend combo");
-	if (avatar_combo)
-	{
-		avatar_combo->selectFirstItem();
-		avatar_combo->setPrearrangeCallback( onAvatarComboPrearrange );
-		avatar_combo->setTextEntryCallback( onComboTextEntry );
-	}
+	//LLComboBox *avatar_combo = LLUICtrlFactory::getComboBoxByName(this, "friend combo");
+	//if (avatar_combo)
+	//{
+	//	avatar_combo->selectFirstItem();
+	//	avatar_combo->setPrearrangeCallback( onAvatarComboPrearrange );
+	//	avatar_combo->setTextEntryCallback( onComboTextEntry );
+	//}
 
 	childSetAction("DoSearch", onLocationCommit, this);
 
@@ -323,7 +323,7 @@ void LLFloaterWorldMap::show(void*, BOOL center_on_target)
 		gFloaterWorldMap->childSetFocus("location", TRUE);
 		gFocusMgr.triggerFocusFlash();
 
-		gFloaterWorldMap->buildAvatarIDList();
+//		gFloaterWorldMap->buildAvatarIDList();
 		gFloaterWorldMap->buildLandmarkIDLists();
 
 		// If nothing is being tracked, set flag so the user position will be found
@@ -448,14 +448,14 @@ void LLFloaterWorldMap::draw()
 	updateLocation();
 	
 	LLTracker::ETrackingStatus tracking_status = LLTracker::getTrackingStatus(); 
-	if (LLTracker::TRACKING_AVATAR == tracking_status)
-	{
-		childSetColor("avatar_icon", gTrackColor);
-	}
-	else
-	{
-		childSetColor("avatar_icon", gDisabledTrackColor);
-	}
+	//if (LLTracker::TRACKING_AVATAR == tracking_status)
+	//{
+	//	childSetColor("avatar_icon", gTrackColor);
+	//}
+	//else
+	//{
+	//	childSetColor("avatar_icon", gDisabledTrackColor);
+	//}
 
 	if (LLTracker::TRACKING_LANDMARK == tracking_status)
 	{
@@ -518,38 +518,27 @@ void LLFloaterWorldMap::draw()
 	LLFloater::draw();
 }
 
-
-//-------------------------------------------------------------------------
-// Internal utility functions
-//-------------------------------------------------------------------------
-
-
+//
+////-------------------------------------------------------------------------
+//// Internal utility functions
+////-------------------------------------------------------------------------
+//
+//
 void LLFloaterWorldMap::trackAvatar( const LLUUID& avatar_id, const LLString& name )
 {
-	LLCtrlSelectionInterface *iface = childGetSelectionInterface("friend combo");
-	if (!iface) return;
-
-	buildAvatarIDList();
-	if(iface->setCurrentByID(avatar_id) || gAgent.isGodlike())
+	// *HACK: Adjust Z values automatically for liaisons & gods so
+	// they swoop down when they click on the map. Requested
+	// convenience.
+	if(gAgent.isGodlike())
 	{
-		// *HACK: Adjust Z values automatically for liaisons & gods so
-		// they swoop down when they click on the map. Requested
-		// convenience.
-		if(gAgent.isGodlike())
-		{
-			childSetValue("spin z", LLSD(200.f));
-		}
-		// Don't re-request info if we already have it or we won't have it in time to teleport
-		if (mTrackedStatus != LLTracker::TRACKING_AVATAR || name != mTrackedAvatarName)
-		{
-			mTrackedStatus = LLTracker::TRACKING_AVATAR;
-			mTrackedAvatarName = name;
-			LLTracker::trackAvatar(avatar_id, name);
-		}
+		childSetValue("spin z", LLSD(200.f));
 	}
-	else
+	// Don't re-request info if we already have it or we won't have it in time to teleport
+	if (mTrackedStatus != LLTracker::TRACKING_AVATAR || name != mTrackedAvatarName)
 	{
-		LLTracker::stopTracking(NULL);
+		mTrackedStatus = LLTracker::TRACKING_AVATAR;
+		mTrackedAvatarName = name;
+		LLTracker::trackAvatar(avatar_id, name);
 	}
 	setDefaultBtn("Teleport");
 }
@@ -802,68 +791,68 @@ void LLFloaterWorldMap::inventoryChanged()
 	}
 }
 
-void LLFloaterWorldMap::observeFriends()
-{
-	if(!mFriendObserver)
-	{
-		mFriendObserver = new LLMapFriendObserver;
-		LLAvatarTracker::instance().addObserver(mFriendObserver);
-		friendsChanged();
-	}
-}
+//void LLFloaterWorldMap::observeFriends()
+//{
+//	if(!mFriendObserver)
+//	{
+//		mFriendObserver = new LLMapFriendObserver;
+//		LLAvatarTracker::instance().addObserver(mFriendObserver);
+//		friendsChanged();
+//	}
+//}
 
-void LLFloaterWorldMap::friendsChanged()
-{
-	LLAvatarTracker& t = LLAvatarTracker::instance();
-	const LLUUID& avatar_id = t.getAvatarID();
-	buildAvatarIDList();
-	if(avatar_id.notNull())
-	{
-		LLCtrlSelectionInterface *iface = childGetSelectionInterface("friend combo");
-		if(!iface || !iface->setCurrentByID(avatar_id) || 
-			!t.getBuddyInfo(avatar_id)->isRightGrantedFrom(LLRelationship::GRANT_MAP_LOCATION) || gAgent.isGodlike())
-		{
-			LLTracker::stopTracking(NULL);
-		}
-	}
-}
-
-// No longer really builds a list.  Instead, just updates mAvatarCombo.
-void LLFloaterWorldMap::buildAvatarIDList()
-{
-	LLCtrlListInterface *list = childGetListInterface("friend combo");
-	if (!list)
-	{
-		return;
-	}
-	
-    // Delete all but the "None" entry
-	S32 list_size = list->getItemCount();
-	if (list_size > 1)
-	{
-		list->selectItemRange(1, -1);
-		list->operateOnSelection(LLCtrlListInterface::OP_DELETE);
-	}
-
-	LLSD default_column;
-	default_column["name"] = "friend name";
-	default_column["label"] = "Friend Name";
-	default_column["width"] = 500;
-	list->addColumn(default_column);
-
-	// Get all of the calling cards for avatar that are currently online
-	LLCollectMappableBuddies collector;
-	LLAvatarTracker::instance().applyFunctor(collector);
-	
-	for (LLCollectMappableBuddies::buddy_map_t::iterator it = collector.mMappable.begin();
-		 it != collector.mMappable.end(); ++it)
-	{
-		list->addSimpleElement((*it).first, ADD_BOTTOM, (*it).second);
-	}
-
-	list->setCurrentByID( LLAvatarTracker::instance().getAvatarID() );
-	list->selectFirstItem();
-}
+//void LLFloaterWorldMap::friendsChanged()
+//{
+//	LLAvatarTracker& t = LLAvatarTracker::instance();
+//	const LLUUID& avatar_id = t.getAvatarID();
+//	buildAvatarIDList();
+//	if(avatar_id.notNull())
+//	{
+//		LLCtrlSelectionInterface *iface = childGetSelectionInterface("friend combo");
+//		if(!iface || !iface->setCurrentByID(avatar_id) || 
+//			!t.getBuddyInfo(avatar_id)->isRightGrantedFrom(LLRelationship::GRANT_MAP_LOCATION) || gAgent.isGodlike())
+//		{
+//			LLTracker::stopTracking(NULL);
+//		}
+//	}
+//}
+//
+//// No longer really builds a list.  Instead, just updates mAvatarCombo.
+//void LLFloaterWorldMap::buildAvatarIDList()
+//{
+//	LLCtrlListInterface *list = childGetListInterface("friend combo");
+//	if (!list) return;
+//
+//    // Delete all but the "None" entry
+//	S32 list_size = list->getItemCount();
+//	while (list_size > 1)
+//	{
+//		list->selectNthItem(1);
+//		list->operateOnSelection(LLCtrlListInterface::OP_DELETE);
+//		--list_size;
+//	}
+//
+//	LLSD default_column;
+//	default_column["name"] = "friend name";
+//	default_column["label"] = "Friend Name";
+//	default_column["width"] = 500;
+//	list->addColumn(default_column);
+//
+//	// Get all of the calling cards for avatar that are currently online
+//	LLCollectMappableBuddies collector;
+//	LLAvatarTracker::instance().applyFunctor(collector);
+//	LLCollectMappableBuddies::buddy_map_t::iterator it;
+//	LLCollectMappableBuddies::buddy_map_t::iterator end;
+//	it = collector.mMappable.begin();
+//	end = collector.mMappable.end();
+//	for( ; it != end; ++it)
+//	{
+//		list->addSimpleElement((*it).first, ADD_BOTTOM, (*it).second);
+//	}
+//
+//	list->setCurrentByID( LLAvatarTracker::instance().getAvatarID() );
+//	list->selectFirstItem();
+//}
 
 
 void LLFloaterWorldMap::buildLandmarkIDLists()
@@ -969,19 +958,19 @@ void LLFloaterWorldMap::clearLandmarkSelection(BOOL clear_ui)
 	}
 }
 
-
-void LLFloaterWorldMap::clearAvatarSelection(BOOL clear_ui)
-{
-	if (clear_ui || !childHasKeyboardFocus("friend combo"))
-	{
-		mTrackedStatus = LLTracker::TRACKING_NOTHING;
-		LLCtrlListInterface *list = childGetListInterface("friend combo");
-		if (list)
-		{
-			list->selectByValue( "None" );
-		}
-	}
-}
+//
+//void LLFloaterWorldMap::clearAvatarSelection(BOOL clear_ui)
+//{
+//	if (clear_ui || !childHasKeyboardFocus("friend combo"))
+//	{
+//		mTrackedStatus = LLTracker::TRACKING_NOTHING;
+//		LLCtrlListInterface *list = childGetListInterface("friend combo");
+//		if (list)
+//		{
+//			list->selectByValue( "None" );
+//		}
+//	}
+//}
 
 
 // Adjust the maximally zoomed out limit of the zoom slider so you
@@ -1147,61 +1136,61 @@ void LLFloaterWorldMap::onLandmarkComboCommit( LLUICtrl* ctrl, void* userdata )
 	// Reset to user postion if nothing is tracked
 	self->mSetToUserPosition = ( LLTracker::getTrackingStatus() == LLTracker::TRACKING_NOTHING );
 }
-
-// static 
-void LLFloaterWorldMap::onAvatarComboPrearrange( LLUICtrl* ctrl, void* userdata )
-{
-	LLFloaterWorldMap* self = gFloaterWorldMap;
-	if( !self || self->mIsClosing )
-	{
-		return;
-	}
-
-	LLCtrlListInterface *list = self->childGetListInterface("friend combo");
-	if (!list) return;
-
-	LLUUID current_choice;
-
-	if( LLAvatarTracker::instance().haveTrackingInfo() )
-	{
-		current_choice = LLAvatarTracker::instance().getAvatarID();
-	}
-
-	self->buildAvatarIDList();
-
-	if( !list->setCurrentByID( current_choice ) || current_choice.isNull() )
-	{
-		LLTracker::stopTracking(NULL);
-	}
-}
-
-
-// static 
-void LLFloaterWorldMap::onAvatarComboCommit( LLUICtrl* ctrl, void* userdata )
-{
-	LLFloaterWorldMap* self = gFloaterWorldMap;
-	if( !self || self->mIsClosing )
-	{
-		return;
-	}
-
-	LLCtrlListInterface *list = gFloaterWorldMap->childGetListInterface("friend combo");
-	if (!list) return;
-
-	const LLUUID& new_avatar_id = list->getCurrentID();
-	if (new_avatar_id.notNull())
-	{
-		LLString name;
-		LLComboBox* combo = LLUICtrlFactory::getComboBoxByName(gFloaterWorldMap, "friend combo");
-		if (combo) name = combo->getSimple();
-		self->trackAvatar(new_avatar_id, name);
-		onShowTargetBtn(self);
-	}
-	else
-	{	// Reset to user postion if nothing is tracked
-		self->mSetToUserPosition = ( LLTracker::getTrackingStatus() == LLTracker::TRACKING_NOTHING );
-	}
-}
+//
+//// static 
+//void LLFloaterWorldMap::onAvatarComboPrearrange( LLUICtrl* ctrl, void* userdata )
+//{
+//	LLFloaterWorldMap* self = gFloaterWorldMap;
+//	if( !self || self->mIsClosing )
+//	{
+//		return;
+//	}
+//
+//	LLCtrlListInterface *list = self->childGetListInterface("friend combo");
+//	if (!list) return;
+//
+//	LLUUID current_choice;
+//
+//	if( LLAvatarTracker::instance().haveTrackingInfo() )
+//	{
+//		current_choice = LLAvatarTracker::instance().getAvatarID();
+//	}
+//
+//	self->buildAvatarIDList();
+//
+//	if( !list->setCurrentByID( current_choice ) || current_choice.isNull() )
+//	{
+//		LLTracker::stopTracking(NULL);
+//	}
+//}
+//
+//
+//// static 
+//void LLFloaterWorldMap::onAvatarComboCommit( LLUICtrl* ctrl, void* userdata )
+//{
+//	LLFloaterWorldMap* self = gFloaterWorldMap;
+//	if( !self || self->mIsClosing )
+//	{
+//		return;
+//	}
+//
+//	LLCtrlListInterface *list = gFloaterWorldMap->childGetListInterface("friend combo");
+//	if (!list) return;
+//
+//	const LLUUID& new_avatar_id = list->getCurrentID();
+//	if (new_avatar_id.notNull())
+//	{
+//		LLString name;
+//		LLComboBox* combo = LLUICtrlFactory::getComboBoxByName(gFloaterWorldMap, "friend combo");
+//		if (combo) name = combo->getSimple();
+//		self->trackAvatar(new_avatar_id, name);
+//		onShowTargetBtn(self);
+//	}
+//	else
+//	{	// Reset to user postion if nothing is tracked
+//		self->mSetToUserPosition = ( LLTracker::getTrackingStatus() == LLTracker::TRACKING_NOTHING );
+//	}
+//}
 
 //static 
 void LLFloaterWorldMap::onLocationFocusChanged( LLFocusableElement* focus, void* userdata )

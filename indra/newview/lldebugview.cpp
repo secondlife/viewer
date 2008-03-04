@@ -43,6 +43,7 @@
 #include "imageids.h"
 #include "llvelocitybar.h"
 #include "llviewerwindow.h"
+#include "llfloaterstats.h"
 
 //
 // Globals
@@ -100,16 +101,16 @@ LLDebugView::LLDebugView(const std::string& name, const LLRect &rect)
 	// Debug statistics
 	//
 	r.set(rect.getWidth() - 250,
-		  rect.getHeight(),
+		  rect.getHeight() - 50,
 		  rect.getWidth(),
-		  rect.getHeight() - 400);
-	mStatViewp = new LLContainerView("statistics", r);
-	mStatViewp->setLabel("Statistics");
-	mStatViewp->setFollowsTop();
-	mStatViewp->setFollowsRight();
+		  rect.getHeight() - 450);
+	mFloaterStatsp = new LLFloaterStats(r);
+
+	mFloaterStatsp->setFollowsTop();
+	mFloaterStatsp->setFollowsRight();
 	// Default to off
-	mStatViewp->setVisible(FALSE);
-	addChild(mStatViewp);
+	mFloaterStatsp->setVisible(FALSE);
+	addChild(mFloaterStatsp);
 
 	const S32 VELOCITY_LEFT = 10; // 370;
 	const S32 VELOCITY_WIDTH = 500;

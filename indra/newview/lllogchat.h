@@ -36,10 +36,18 @@
 class LLLogChat
 {
 public:
+	// status values for callback function
+	enum ELogLineType {
+		LOG_EMPTY,
+		LOG_LINE,
+		LOG_END
+	};
 	static LLString timestamp(bool withdate = false);
 	static LLString makeLogFileName(LLString(filename));
 	static void saveHistory(LLString filename, LLString line);
-	static void loadHistory(LLString filename, void (*callback)(LLString,void*),void* userdata);
+	static void loadHistory(LLString filename, 
+		                    void (*callback)(ELogLineType,LLString,void*), 
+							void* userdata);
 };
 
 #endif

@@ -303,6 +303,8 @@ SpacedOut Frye
 	VWR-123
 	VWR-130
 	VWR-1823
+Sporked Friis
+	VWR-4903
 Stevex Janus
 	VWR-1182
 Still Defiant

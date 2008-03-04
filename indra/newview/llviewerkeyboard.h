@@ -55,9 +55,8 @@ typedef enum e_keyboard_mode
 } EKeyboardMode;
 
 
-void agent_push_forward( EKeystate s );
-void agent_turn_right( EKeystate s );
 void bind_keyboard_functions();
+
 
 class LLViewerKeyboard
 {

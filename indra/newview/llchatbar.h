@@ -90,7 +90,7 @@ public:
 
 	static void onCommitGesture(LLUICtrl* ctrl, void* data);
 
-	static void startChat(void*);
+	static void startChat(const char* line);
 	static void stopChat();
 
 protected:

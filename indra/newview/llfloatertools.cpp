@@ -759,6 +759,9 @@ void LLFloaterTools::onOpen()
 {
 	mParcelSelection = gParcelMgr->getFloatingParcelSelection();
 	mObjectSelection = gSelectMgr->getEditSelection();
+	
+	gMenuBarView->setItemVisible("Tools", TRUE);
+	gMenuBarView->arrange();
 }
 
 // virtual
@@ -788,6 +791,9 @@ void LLFloaterTools::onClose(bool app_quitting)
 	// we were already in basic toolset, using build tools
 	// so manually reset tool to default (pie menu tool)
 	gToolMgr->getCurrentToolset()->selectFirstTool();
+
+	gMenuBarView->setItemVisible("Tools", FALSE);
+	gMenuBarView->arrange();
 }
 
 void LLFloaterTools::showMore(BOOL show_more)

@@ -332,6 +332,7 @@ void LLCurrencyUIManager::Impl::currencyKey(S32 value)
 		// get reset and the cursor will change...
 		
 		mPanel.childHide("currency_est");
+		mPanel.childSetVisible("getting_data",TRUE);
 	}
 	
 	mCurrencyChanged = true;
@@ -392,6 +393,13 @@ void LLCurrencyUIManager::Impl::updateUI()
 
 	mPanel.childSetTextArg("currency_est", "[USD]", llformat("%#.2f", mSiteCurrencyEstimatedCost / 100.0));
 	mPanel.childSetVisible("currency_est", mSiteCurrencyEstimated && mUserCurrencyBuy > 0);
+
+	if (mPanel.childIsEnabled("buy_btn")
+		||mPanel.childIsVisible("currency_est")
+		|| mPanel.childIsVisible("error_web"))
+	{
+		mPanel.childSetVisible("getting_data",FALSE);
+	}
 }
 
 

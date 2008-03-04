@@ -46,7 +46,7 @@ class LLFastTimerView;
 class LLMemoryView;
 class LLConsole;
 class LLTextureView;
-class LLContainerView;
+class LLFloaterStats;
 
 class LLDebugView : public LLView
 {
@@ -61,7 +61,7 @@ public:
 	LLFastTimerView* mFastTimerView;
 	LLMemoryView*	 mMemoryView;
 	LLConsole*		 mDebugConsolep;
-	LLContainerView* mStatViewp;
+	LLFloaterStats*  mFloaterStatsp;
 };
 
 extern LLDebugView* gDebugView;

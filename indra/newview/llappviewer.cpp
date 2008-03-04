@@ -108,6 +108,7 @@
 #include "lldebugview.h"
 #include "llconsole.h"
 #include "llcontainerview.h"
+#include "llfloaterstats.h"
 #include "llhoverview.h"
 
 #include "llsdserialize.h"
@@ -209,13 +210,6 @@ extern OSStatus DisplayReleaseNotes(void);
 #include <boost/tokenizer.hpp>
 #endif // LL_DARWIN
 
-
-#include "moviemaker.h"
-extern BOOL gbCapturing;
-
-#if !LL_SOLARIS
-	extern MovieMaker gMovieMaker;
-#endif
 
 extern BOOL gRandomizeFramerate;
 extern BOOL gPeriodicSlowFrame;
@@ -1425,12 +1419,6 @@ bool LLAppViewer::mainLoop()
 
 					LLFloaterSnapshot::update(); // take snapshots
 					
-#if !LL_SOLARIS
-					if (gbCapturing)
-					{
-						gMovieMaker.Snap();
-					}
-#endif
 #if LL_WINDOWS && LL_LCD_COMPILE
 					// update LCD Screen
 					gLcdScreen->UpdateDisplay();
@@ -2440,7 +2428,7 @@ void LLAppViewer::cleanupSavedSettings()
 		if (gDebugView)
 		{
 			gSavedSettings.setBOOL("ShowDebugConsole", gDebugView->mDebugConsolep->getVisible());
-			gSavedSettings.setBOOL("ShowDebugStats", gDebugView->mStatViewp->getVisible());
+			gSavedSettings.setBOOL("ShowDebugStats", gDebugView->mFloaterStatsp->getVisible());
 		}
 	}
 

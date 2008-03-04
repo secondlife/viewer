@@ -2708,3 +2708,4 @@ void init_prehash_data()
 	_PREHASH_RegionDenyAgeUnverified = gMessageStringTable.getString("RegionDenyAgeUnverified");
 	_PREHASH_AgeVerificationBlock = gMessageStringTable.getString("AgeVerificationBlock");
 }
+

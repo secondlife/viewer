@@ -2085,12 +2085,31 @@ void LLFloaterIMPanel::removeTypingIndicator(const LLIMInfo* im_info)
 }
 
 //static
-void LLFloaterIMPanel::chatFromLogFile(LLString line, void* userdata)
+void LLFloaterIMPanel::chatFromLogFile(LLLogChat::ELogLineType type, LLString line, void* userdata)
 {
 	LLFloaterIMPanel* self = (LLFloaterIMPanel*)userdata;
-	
+	LLUIString message = line;
+
+	switch (type)
+	{
+	case LLLogChat::LOG_EMPTY:
+		// add warning log enabled message
+		message = LLFloaterChat::getInstance()->getUIString("IM_logging_string");
+		break;
+	case LLLogChat::LOG_END:
+		// add log end message
+		message = LLFloaterChat::getInstance()->getUIString("IM_logging_string");
+		break;
+	case LLLogChat::LOG_LINE:
+		// just add normal lines from file
+		break;
+	default:
+		// nothing
+		break;
+	}
+
 	//self->addHistoryLine(line, LLColor4::grey, FALSE);
-	self->mHistoryEditor->appendColoredText(line, false, true, LLColor4::grey);
+	self->mHistoryEditor->appendColoredText(message, false, true, LLColor4::grey);
 }
 
 void LLFloaterIMPanel::showSessionStartError(

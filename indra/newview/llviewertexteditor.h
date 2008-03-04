@@ -126,14 +126,13 @@ private:
 	LLPointer<class LLEmbeddedNotecardOpener> mInventoryCallback;
 
 	// *TODO: Add right click menus for SLURLs
-	//LLHandle<LLView> mPopupMenuHandle;
+	//LLViewHandle mPopupMenuHandle;
 
 	//
 	// Inner classes
 	//
 
 	class LLTextCmdInsertEmbeddedItem;
-
 };
 
 #endif  // LL_VIEWERTEXTEDITOR_H

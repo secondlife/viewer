@@ -5,14 +5,9 @@ LoadLanguageFile "${NSISDIR}\Contrib\Language files\English.nlf"
 LangString LicenseSubTitleUpdate ${LANG_ENGLISH} " Update"
 LangString LicenseSubTitleSetup ${LANG_ENGLISH} " Setup"
 
-; description on license page
-LangString LicenseDescUpdate ${LANG_ENGLISH} "This package will update Second Life to version ${VERSION_LONG}.(XXX)"
-LangString LicenseDescSetup ${LANG_ENGLISH} "This package will install Second Life on your computer." 
-LangString LicenseDescNext ${LANG_ENGLISH} "Next" 
-
 ; installation directory text
 LangString DirectoryChooseTitle ${LANG_ENGLISH} "Installation Directory" 
-LangString DirectoryChooseUpdate ${LANG_ENGLISH} "Select the Second Life directory to update:"
+LangString DirectoryChooseUpdate ${LANG_ENGLISH} "Select the Second Life directory to update to version ${VERSION_LONG}.(XXX):"
 LangString DirectoryChooseSetup ${LANG_ENGLISH} "Select the directory to install Second Life in:"
 
 ; CheckStartupParams message box

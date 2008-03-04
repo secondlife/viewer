@@ -178,7 +178,6 @@
 #include "llvovolume.h"
 #include "llworld.h"
 #include "llworldmapview.h"
-#include "moviemaker.h"
 #include "pipeline.h"
 #include "llappviewer.h"
 #include "llurlsimstring.h"
@@ -241,11 +240,6 @@ BOOL			gShowOverlayTitle = FALSE;
 BOOL			gPickTransparent = TRUE;
 
 BOOL			gDebugFastUIRender = FALSE;
-
-BOOL			gbCapturing = FALSE;
-#if !LL_SOLARIS
-MovieMaker		gMovieMaker;
-#endif
 
 // HUD display lines in lower right
 BOOL				gDisplayWindInfo = FALSE;
@@ -1850,7 +1844,7 @@ void LLViewerWindow::adjustRectanglesForFirstUse(const LLRect& window)
 
 	adjust_rect_top_left("FloaterFindRect2", window);
 
-	adjust_rect_top_left("FloaterGestureRect", window);
+	adjust_rect_top_left("FloaterGestureRect2", window);
 
 	adjust_rect_top_right("FloaterMapRect", window);
 	
@@ -4193,108 +4187,6 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageRaw *raw, const LLString& extensio
 	return success;
 }
 
-void LLViewerWindow::saveMovieNumbered(void*)
-{
-	if (!gbCapturing)
-	{
-		// Get a directory if this is the first time.
-		if (strlen(sSnapshotDir) == 0)		/* Flawfinder: ignore */
-		{
-			LLString proposed_name( sMovieBaseName );
-#if LL_DARWIN
-			proposed_name.append( ".mov" );
-#else
-			proposed_name.append( ".avi" );
-#endif
-
-			// pick a directory in which to save
-			LLFilePicker &picker = LLFilePicker::instance();
-			if (!picker.getSaveFile(LLFilePicker::FFSAVE_AVI, proposed_name.c_str()))
-			{
-				// Clicked cancel
-				return;
-			}
-
-			// Copy the directory + file name
-			char directory[LL_MAX_PATH];		/* Flawfinder: ignore */
-			strncpy(directory, picker.getFirstFile(), LL_MAX_PATH -1);		/* Flawfinder: ignore */
-			directory[LL_MAX_PATH -1] = '\0';
-
-			// Smash the file extension
-			S32 length = strlen(directory);		/* Flawfinder: ignore */
-			S32 index = length;
-
-			// Back up over ".bmp"
-			index -= 4;
-			if (index >= 0 && directory[index] == '.')
-			{
-				directory[index] = '\0';
-			}
-			else
-			{
-				index = length;
-			}
-
-			// Find trailing backslash
-			while (index >= 0 && directory[index] != gDirUtilp->getDirDelimiter()[0])
-			{
-				index--;
-			}
-
-			// If we found one, truncate the string there
-			if (index >= 0)
-			{
-				if (index + 1 <= length)
-				{
-					strncpy(LLViewerWindow::sMovieBaseName, directory + index + 1, LL_MAX_PATH -1);		/* Flawfinder: ignore */
-					LLViewerWindow::sMovieBaseName[LL_MAX_PATH -1] = '\0';
-				}
-
-				index++;
-				directory[index] = '\0';
-				strncpy(LLViewerWindow::sSnapshotDir, directory, LL_MAX_PATH -1);		/* Flawfinder: ignore */
-				LLViewerWindow::sSnapshotDir[LL_MAX_PATH -1] = '\0';
-			}
-		}
-
-		// Look for an unused file name
-		LLString filepath;
-		S32 i = 1;
-		S32 err = 0;
-
-		do
-		{
-			char extension[100];		/* Flawfinder: ignore */
-#if LL_DARWIN
-			snprintf( extension, sizeof(extension), "_%.3d.mov", i );		/* Flawfinder: ignore */
-#else
-			snprintf( extension, sizeof(extension), "_%.3d.avi", i );		/* Flawfinder: ignore */
-#endif
-			filepath.assign( sSnapshotDir );
-			filepath.append( sMovieBaseName );
-			filepath.append( extension );
-
-			struct stat stat_info;
-			err = gViewerWindow->mWindow->stat( filepath.c_str(), &stat_info );
-			i++;
-		}
-		while( -1 != err );  // search until the file is not found (i.e., stat() gives an error).
-		S32 x = gViewerWindow->getWindowWidth();
-		S32 y = gViewerWindow->getWindowHeight();
-
-		gbCapturing = TRUE;
-#if !LL_SOLARIS
-		gMovieMaker.StartCapture((char *)filepath.c_str(), x, y);
-#endif
-	}
-	else
-	{
-#if !LL_SOLARIS
-		gMovieMaker.EndCapture();
-#endif
-		gbCapturing = FALSE;
-	}
-}
 
 static S32 BORDERHEIGHT = 0;
 static S32 BORDERWIDTH = 0;

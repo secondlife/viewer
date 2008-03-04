@@ -83,7 +83,7 @@ LLKeyboardMacOSX::LLKeyboardMacOSX()
 	mTranslateKeyMap[0x29] = ';';
 	mTranslateKeyMap[0x2a] = '\\';
 	mTranslateKeyMap[0x2b] = ',';
-	mTranslateKeyMap[0x2c] = '/';
+	mTranslateKeyMap[0x2c] = KEY_DIVIDE;
 	mTranslateKeyMap[0x2d] = 'N';
 	mTranslateKeyMap[0x2e] = 'M';
 	mTranslateKeyMap[0x2f] = '.';
@@ -100,7 +100,7 @@ LLKeyboardMacOSX::LLKeyboardMacOSX()
 	mTranslateKeyMap[0x41] = '.';	// keypad
 	mTranslateKeyMap[0x43] = '*';	// keypad
 	mTranslateKeyMap[0x45] = '+';	// keypad
-	mTranslateKeyMap[0x4b] = '/';	// keypad
+	mTranslateKeyMap[0x4b] = KEY_PAD_DIVIDE;	// keypad
 	mTranslateKeyMap[0x4c] = KEY_RETURN;	// keypad enter
 	mTranslateKeyMap[0x4e] = '-';	// keypad
 	mTranslateKeyMap[0x51] = '=';	// keypad

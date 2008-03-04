@@ -48,6 +48,9 @@ public:
 	virtual LLString getWidgetTag() const;
 
 	/*virtual*/ void draw();
+	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+
 	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
 	/*virtual*/ void setVisible(BOOL visible);
@@ -70,8 +73,10 @@ protected:
 	LLButton*	mCancelBtn;
 	LLFrameTimer	mFadeTimer;
 	LLFrameTimer mProgressTimer;
-
+	LLRect mOutlineRect;
+	bool mMouseDownInActiveArea;
 	static LLProgressView* sInstance;
+
 };
 
 #endif // LL_LLPROGRESSVIEW_H

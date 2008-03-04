@@ -33,7 +33,8 @@
 
 #include "lllogchat.h"
 #include "llappviewer.h"
-	
+#include "llfloaterchat.h"
+
 const S32 LOG_RECALL_SIZE = 2048;
 
 //static
@@ -88,7 +89,7 @@ void LLLogChat::saveHistory(LLString filename, LLString line)
 	}
 }
 
-void LLLogChat::loadHistory(LLString filename , void (*callback)(LLString,void*), void* userdata)
+void LLLogChat::loadHistory(LLString filename , void (*callback)(ELogLineType,LLString,void*), void* userdata)
 {
 	if(!filename.size())
 	{
@@ -98,6 +99,9 @@ void LLLogChat::loadHistory(LLString filename , void (*callback)(LLString,void*)
 	FILE* fptr = LLFile::fopen(makeLogFileName(filename).c_str(), "r");		/*Flawfinder: ignore*/
 	if (!fptr)
 	{
+		//LLUIString message = LLFloaterChat::getInstance()->getUIString("IM_logging_string");
+		//callback(LOG_EMPTY,"IM_logging_string",userdata);
+		callback(LOG_EMPTY,"",userdata);
 		return;			//No previous conversation with this name.
 	}
 	else
@@ -124,14 +128,14 @@ void LLLogChat::loadHistory(LLString filename , void (*callback)(LLString,void*)
 			
 			if (!firstline)
 			{
-				callback(buffer,userdata);
+				callback(LOG_LINE,buffer,userdata);
 			}
 			else
 			{
 				firstline = FALSE;
 			}
 		}
-		callback("-- End of Log ---",userdata);
+		callback(LOG_END,"",userdata);
 		
 		fclose(fptr);
 	}

@@ -229,6 +229,10 @@ void LLFloaterBuyCurrencyUI::updateUI()
 		}
 
 		childSetVisible("error_web", !mManager.errorURI().empty());
+		if (!mManager.errorURI().empty())
+		{
+			childHide("getting_data");
+		}
 	}
 	else
 	{
@@ -308,6 +312,11 @@ void LLFloaterBuyCurrencyUI::updateUI()
 	}
 	
 	childSetEnabled("buy_btn", mManager.canBuy());
+
+	if (!mManager.canBuy() && !childIsVisible("error_web"))
+	{
+		childShow("getting_data");
+	}
 }
 
 // static

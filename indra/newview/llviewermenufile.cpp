@@ -414,15 +414,6 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 	}
 };
 
-class LLFileSaveMovie : public view_listener_t
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		LLViewerWindow::saveMovieNumbered(NULL);
-		return true;
-	}
-};
-
 class LLFileSetWindowSize : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
@@ -1033,7 +1024,6 @@ void init_menu_file()
 	(new LLFileSaveTexture())->registerListener(gMenuHolder, "File.SaveTexture");
 	(new LLFileTakeSnapshot())->registerListener(gMenuHolder, "File.TakeSnapshot");
 	(new LLFileTakeSnapshotToDisk())->registerListener(gMenuHolder, "File.TakeSnapshotToDisk");
-	(new LLFileSaveMovie())->registerListener(gMenuHolder, "File.SaveMovie");
 	(new LLFileSetWindowSize())->registerListener(gMenuHolder, "File.SetWindowSize");
 	(new LLFileQuit())->registerListener(gMenuHolder, "File.Quit");
 

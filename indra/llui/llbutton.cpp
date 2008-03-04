@@ -1038,7 +1038,7 @@ void clicked_help(void* data)
 		return;
 	}
 	
-	LLUI::sHtmlHelp->show(self->getHelpURL(), "");
+	LLUI::sHtmlHelp->show(self->getHelpURL());
 }
 
 // static

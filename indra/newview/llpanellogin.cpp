@@ -934,6 +934,27 @@ void LLPanelLogin::loadLoginPage()
 	}
 	oStr << login_page;
 	
+	// Use the right delimeter depending on how LLURI parses the URL
+	LLURI login_page_uri = LLURI(login_page);
+	std::string first_query_delimiter = "&";
+	if (login_page_uri.queryMap().size() == 0)
+	{
+		first_query_delimiter = "?";
+	}
+
+	LLString language(gSavedSettings.getString("Language"));
+	if(language == "default")
+	{
+		language = gSavedSettings.getString("SystemLanguage");
+	}
+	oStr << first_query_delimiter<<"lang=" << language;
+	
+	if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
+	{
+		oStr << "&firstlogin=TRUE";
+	}
+
+
 #if USE_VIEWER_AUTH
 	LLURLSimString::sInstance.parse();
 
@@ -989,15 +1010,7 @@ void LLPanelLogin::loadLoginPage()
 	char* curl_channel = curl_escape(gChannelName.c_str(), 0);
 	char* curl_version = curl_escape(version.c_str(), 0);
 
-	
-	// Use the right delimeter depending on how LLURI parses the URL
-	LLURI login_page_uri = LLURI(login_page);
-	std::string first_query_delimiter = "&";
-	if (login_page_uri.queryMap().size() == 0)
-	{
-		first_query_delimiter = "?";
-	}
-	oStr << first_query_delimiter << "firstname=" << firstname <<
+	oStr <<"firstname=" << firstname <<
 		"&lastname=" << lastname << "&location=" << location <<	"&region=" << curl_region <<
 		"&grid=" << gGridInfo[gGridChoice].mLabel << "&channel=" << curl_channel <<
 		"&version=" << curl_version;
@@ -1006,13 +1019,6 @@ void LLPanelLogin::loadLoginPage()
 	curl_free(curl_channel);
 	curl_free(curl_version);
 
-	LLString language(gSavedSettings.getString("Language"));
-	if(language == "default")
-	{
-		language = gSavedSettings.getString("SystemLanguage");
-	}
-
-	oStr << "&lang=" << language;
 
 	if (!gCmdLinePassword.empty())
 	{

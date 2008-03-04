@@ -61,14 +61,6 @@ ShowInstDetails nevershow				; no details, no "show" button
 SetOverwrite on							; stomp files by default
 AutoCloseWindow true					; after all files install, close window
 
-!ifdef UPDATE
-LicenseText $(LicenseDescUpdate) $(LicenseDescNext)
-!else
-LicenseText $(LicenseDescSetup) $(LicenseDescNext)
-!endif
-
-LicenseData "releasenotes.txt"
-
 InstallDir "$PROGRAMFILES\${INSTNAME}"
 InstallDirRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" ""
 !ifdef UPDATE

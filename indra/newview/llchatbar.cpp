@@ -429,10 +429,8 @@ void LLChatBar::sendChat( EChatType type )
 //-----------------------------------------------------------------------
 
 // static 
-void LLChatBar::startChat(void* userdata)
+void LLChatBar::startChat(const char* line)
 {
-	const char* line = (const char*)userdata;
-
 	gChatBar->setVisible(TRUE);
 	gChatBar->setKeyboardFocus(TRUE);
 	gSavedSettings.setBOOL("ChatVisible", TRUE);

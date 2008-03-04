@@ -77,7 +77,7 @@ LLKeyboardWin32::LLKeyboardWin32()
 	mTranslateKeyMap[VK_OEM_COMMA]  = ',';
 	mTranslateKeyMap[VK_OEM_MINUS]  = '-';
 	mTranslateKeyMap[VK_OEM_PERIOD] = '.';
-	mTranslateKeyMap[VK_OEM_2] = '/';
+	mTranslateKeyMap[VK_OEM_2] = KEY_PAD_DIVIDE;
 	mTranslateKeyMap[VK_OEM_3] = '`';
 	mTranslateKeyMap[VK_OEM_4] = '[';
 	mTranslateKeyMap[VK_OEM_5] = '\\';
@@ -137,7 +137,11 @@ LLKeyboardWin32::LLKeyboardWin32()
 	mTranslateNumpadMap[0x67] = KEY_PAD_HOME;	// keypad 7
 	mTranslateNumpadMap[0x68] = KEY_PAD_UP;		// keypad 8
 	mTranslateNumpadMap[0x69] = KEY_PAD_PGUP;	// keypad 9
+	mTranslateNumpadMap[0x6A] = KEY_PAD_MULTIPLY;	// keypad *
+	mTranslateNumpadMap[0x6B] = KEY_PAD_ADD;	// keypad +
+	mTranslateNumpadMap[0x6D] = KEY_PAD_SUBTRACT;	// keypad -
 	mTranslateNumpadMap[0x6E] = KEY_PAD_DEL;	// keypad .
+	mTranslateNumpadMap[0x6F] = KEY_PAD_DIVIDE;	// keypad /
 
 	for (iter = mTranslateNumpadMap.begin(); iter != mTranslateNumpadMap.end(); iter++)
 	{

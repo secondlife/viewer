@@ -1055,10 +1055,9 @@ void LLPanelObject::getState( )
 	mLabelRevolutions->setVisible( revolutions_visible );
 	mSpinRevolutions ->setVisible( revolutions_visible );
 
-	bool sculpt_type_visible = FALSE; // currently not visible - for LSL setting only
 	mCtrlSculptTexture->setVisible(sculpt_texture_visible);
-	mLabelSculptType->setVisible(sculpt_texture_visible && sculpt_type_visible);
-	mCtrlSculptType->setVisible(sculpt_texture_visible && sculpt_type_visible);
+	mLabelSculptType->setVisible(sculpt_texture_visible);
+	mCtrlSculptType->setVisible(sculpt_texture_visible);
 
 
 	// sculpt texture

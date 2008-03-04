@@ -434,12 +434,25 @@ void LLFloaterChat::loadHistory()
 }
 
 //static
-void LLFloaterChat::chatFromLogFile(LLString line, void* userdata)
+void LLFloaterChat::chatFromLogFile(LLLogChat::ELogLineType type , LLString line, void* userdata)
 {
-	LLChat chat;
-				
-	chat.mText = line;
-	addChatHistory(chat,  FALSE);
+	switch (type)
+	{
+	case LLLogChat::LOG_EMPTY:
+	case LLLogChat::LOG_END:
+		// *TODO: nice message from XML file here
+		break;
+	case LLLogChat::LOG_LINE:
+		{
+			LLChat chat;					
+			chat.mText = line;
+			addChatHistory(chat,  FALSE);
+		}
+		break;
+	default:
+		// nothing
+		break;
+	}
 }
 
 //static

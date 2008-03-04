@@ -99,7 +99,7 @@ LLFloaterGesture::~LLFloaterGesture()
 
 	// Custom saving rectangle, since load must be done
 	// after postBuild.
-	gSavedSettings.setRect("FloaterGestureRect", getRect());
+	gSavedSettings.setRect("FloaterGestureRect2", getRect());
 }
 
 // virtual
@@ -147,7 +147,7 @@ void LLFloaterGesture::show()
 	gUICtrlFactory->buildFloater(self, "floater_gesture.xml");
 
 	// Fix up rectangle
-	LLRect rect = gSavedSettings.getRect("FloaterGestureRect");
+	LLRect rect = gSavedSettings.getRect("FloaterGestureRect2");
 	self->reshape(rect.getWidth(), rect.getHeight());
 	self->setRect(rect);
 
@@ -156,7 +156,12 @@ void LLFloaterGesture::show()
 	self->childSetFocus("gesture_list");
 
 	LLCtrlListInterface *list = self->childGetListInterface("gesture_list");
-	if (list) list->selectFirstItem();
+	if (list)
+	{
+		const BOOL ascending = TRUE;
+		list->sortByColumn("name", ascending);
+		list->selectFirstItem();
+	}
 	
 	self->mSelectedID = LLUUID::null;
 

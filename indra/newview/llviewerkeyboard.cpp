@@ -477,6 +477,24 @@ void start_chat( EKeystate s )
 	gChatBar->startChat(NULL);
 }
 
+void start_gesture( EKeystate s )
+{
+	if (KEYSTATE_UP == s &&
+	    !gChatBar->inputEditorHasFocus())
+	{
+		if (gChatBar->getCurrentChat().empty())
+		{
+			// No existing chat in chat editor, insert '/'
+			gChatBar->startChat("/");
+		}
+		else
+		{
+			// Don't overwrite existing text in chat editor
+			gChatBar->startChat(NULL);
+		}
+	}
+}
+
 void bind_keyboard_functions()
 {
 	gViewerKeyboard.bindNamedFunction("jump", agent_jump);
@@ -518,6 +536,7 @@ void bind_keyboard_functions()
 	gViewerKeyboard.bindNamedFunction("edit_avatar_move_backward", edit_avatar_move_backward);
 	gViewerKeyboard.bindNamedFunction("stop_moving", stop_moving);
 	gViewerKeyboard.bindNamedFunction("start_chat", start_chat);
+	gViewerKeyboard.bindNamedFunction("start_gesture", start_gesture);
 }
 
 LLViewerKeyboard::LLViewerKeyboard()
