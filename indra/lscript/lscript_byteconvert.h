@@ -166,8 +166,15 @@ inline void bytestream_int2float(U8 *stream, S32 &offset)
 inline bool bytestream2char(char *buffer, const U8 *stream, S32 &offset, S32 buffsize)
 {
 	S32 source_len = strlen( (const char *)stream+offset );
-	strncpy( buffer, (const char *)stream+offset, buffsize-1 );
-	buffer[buffsize-1] = 0;
+	S32 copy_len = buffsize - 1;
+	if( copy_len > source_len )
+	{
+		copy_len = source_len;
+	}
+
+	// strncpy without \0 padding overhead
+	memcpy( buffer, stream+offset, copy_len );
+	buffer[copy_len] = 0;
 
 	offset += source_len + 1; // advance past source string, include terminating '\0'
 
@@ -1073,28 +1080,20 @@ inline void safe_instruction_float2bytestream(U8 *stream, S32 &offset, F32 value
 
 inline void safe_instruction_bytestream2char(char *buffer, U8 *stream, S32 &offset, S32 buffsize)
 {
-	bool safe;
-	while (  (safe = safe_instruction_check_address(stream, offset, 1))
-		   && buffsize--
-		   &&(*buffer++ = *(stream + offset++)))
-		;
+	// This varies from the old method. Previously, we would copy up until we got an error,
+	// then halt the script via safe_isntruction_check_address. Now we don't bother
+	// copying a thing if there's an error.
 
-	// Return if it ended in a null (success) or if script error handling is taking over
-	if( !safe || (0 == *(buffer-1)) )
+	if( safe_instruction_check_address(stream, offset, strlen( (const char *)stream + offset ) + 1 ) )
 	{
-		return; // Yep. Success.
+		// Takes the same parms as this function. Won't overread, per above check.
+		bytestream2char( buffer, stream, offset, buffsize );
 	}
-
-	// Defensive mode. We copied at least one char and ran out of space before
-	// null termination. Add the terminator...
-	*(buffer-1) = 0;
-
-	// ...and advance offset past the end of the data as if we copied the rest. If we
-	// violate the safety check, script error handling will protect us. No need to
-	// keep advancing.
-	while( safe_instruction_check_address(stream, offset, 1)
-			&& *( stream + offset++ ) )
-		;
+	else
+	{
+		// Truncate - no point in copying
+		*buffer = 0;
+	}
 }
 
 inline void safe_instruction_bytestream_count_char(U8 *stream, S32 &offset)

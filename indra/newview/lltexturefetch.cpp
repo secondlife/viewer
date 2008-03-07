@@ -91,7 +91,7 @@ private:
 		LLUUID mID;
 	};
 
-	class HTTPGetResponder : public LLCurl::Responder
+	class HTTPGetResponder : public LLHTTPClient::Responder
 	{
 	public:
 		HTTPGetResponder(LLTextureFetch* fetcher, const LLUUID& id)

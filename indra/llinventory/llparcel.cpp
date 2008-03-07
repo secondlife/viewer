@@ -216,8 +216,8 @@ void LLParcel::init(const LLUUID &owner_id,
 	mMediaID.setNull();
 	mMediaAutoScale = 0;
 	mMediaLoop = TRUE;
-	mObscureMedia = 0;
-	mObscureMusic = 0;
+	mObscureMedia = 1;
+	mObscureMusic = 1;
 	mMediaWidth = 0;
 	mMediaHeight = 0;
 
@@ -1850,8 +1850,8 @@ void LLParcel::clearParcel()
     setMediaDesc(NULL);
 	setMediaAutoScale(0);
 	setMediaLoop(TRUE);
-	mObscureMedia = 0;
-	mObscureMusic = 0;
+	mObscureMedia = 1;
+	mObscureMusic = 1;
 	mMediaWidth = 0;
 	mMediaHeight = 0;
 	setMusicURL(NULL);
