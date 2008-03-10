@@ -445,6 +445,7 @@ extern "C" { int yyerror(const char *fmt, ...); }
 "PRIM_BUMP_SHINY"		{ count(); yylval.ival = LSL_PRIM_BUMP_SHINY; return(INTEGER_CONSTANT); }
 "PRIM_FULLBRIGHT"		{ count(); yylval.ival = LSL_PRIM_FULLBRIGHT; return(INTEGER_CONSTANT); }
 "PRIM_TEXGEN"			{ count(); yylval.ival = LSL_PRIM_TEXGEN; return(INTEGER_CONSTANT); }
+"PRIM_GLOW"	     		{ count(); yylval.ival = LSL_PRIM_GLOW; return(INTEGER_CONSTANT); }
 
 "PRIM_TYPE_BOX"			{ count(); yylval.ival = LSL_PRIM_TYPE_BOX; return(INTEGER_CONSTANT); }
 "PRIM_TYPE_CYLINDER"	{ count(); yylval.ival = LSL_PRIM_TYPE_CYLINDER; return(INTEGER_CONSTANT); }
