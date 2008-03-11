@@ -33,7 +33,6 @@
 #define LL_LLWEARABLE_H
 
 #include "lluuid.h"
-#include "llptrskipmap.h"
 #include "llstring.h"
 #include "llpermissions.h"
 #include "llsaleinfo.h"
@@ -132,8 +131,10 @@ private:
 	LLTransactionID		mTransactionID;
 	EWearableType		mType;
 
-	LLPtrSkipMap<S32, F32*>	mVisualParamMap;	// maps visual param id to weight
-	LLPtrSkipMap<S32, LLUUID*>	mTEMap;				// maps TE to Image ID
+	typedef std::map<S32, F32> param_map_t;
+	param_map_t mVisualParamMap;	// maps visual param id to weight
+	typedef std::map<S32, LLUUID> te_map_t;
+	te_map_t mTEMap;				// maps TE to Image ID
 
 	static const char* sTypeName[ WT_COUNT ];
 	static const char* sTypeLabel[ WT_COUNT ];

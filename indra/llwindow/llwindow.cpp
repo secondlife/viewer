@@ -415,7 +415,7 @@ void LLSplashScreen::hide()
 //
 
 // TODO: replace with std::set
-static LLLinkedList<LLWindow> sWindowList;
+static std::set<LLWindow*> sWindowList;
 
 LLWindow* LLWindowManager::createWindow(
 	char *title,
@@ -481,13 +481,13 @@ LLWindow* LLWindowManager::createWindow(
 		llwarns << "LLWindowManager::create() : Error creating window." << llendl;
 		return NULL;
 	}
-	sWindowList.addDataAtEnd(new_window);
+	sWindowList.insert(new_window);
 	return new_window;
 }
 
 BOOL LLWindowManager::destroyWindow(LLWindow* window)
 {
-	if (!sWindowList.checkData(window))
+	if (sWindowList.find(window) == sWindowList.end())
 	{
 		llerrs << "LLWindowManager::destroyWindow() : Window pointer not valid, this window doesn't exist!" 
 			<< llendl;
@@ -496,7 +496,7 @@ BOOL LLWindowManager::destroyWindow(LLWindow* window)
 
 	window->close();
 
-	sWindowList.removeData(window);
+	sWindowList.erase(window);
 
 	delete window;
 
@@ -505,5 +505,5 @@ BOOL LLWindowManager::destroyWindow(LLWindow* window)
 
 BOOL LLWindowManager::isWindowValid(LLWindow *window)
 {
-	return sWindowList.checkData(window);
+	return sWindowList.find(window) != sWindowList.end();
 }

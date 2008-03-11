@@ -33,7 +33,6 @@
 #define LL_LLVIEWERPARTSIM_H
 
 #include "lldarrayptr.h"
-#include "llskiplist.h"
 #include "llframetimer.h"
 #include "llmemory.h"
 

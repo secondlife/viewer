@@ -33,7 +33,6 @@
 #define LL_LLDYNAMICTEXTURE_H
 
 #include "llgl.h"
-#include "linked_lists.h"
 #include "llcamera.h"
 #include "llcoord.h"
 #include "llimagegl.h"
@@ -84,7 +83,8 @@ protected:
 	LLCoordGL mOrigin;
 
 	LLCamera mCamera;
-	static LLLinkedList<LLDynamicTexture> sInstances[ LLDynamicTexture::ORDER_COUNT ];
+	typedef std::set<LLDynamicTexture*> instance_list_t;
+	static instance_list_t sInstances[ LLDynamicTexture::ORDER_COUNT ];
 	static S32 sNumRenders;
 };
 

@@ -32,7 +32,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lldynamictexture.h"
-#include "linked_lists.h"
 #include "llimagegl.h"
 #include "llglheaders.h"
 #include "llviewerwindow.h"
@@ -46,7 +45,7 @@
 void render_ui_and_swap_if_needed();
 
 // static
-LLLinkedList<LLDynamicTexture> LLDynamicTexture::sInstances[ LLDynamicTexture::ORDER_COUNT ];
+LLDynamicTexture::instance_list_t LLDynamicTexture::sInstances[ LLDynamicTexture::ORDER_COUNT ];
 S32 LLDynamicTexture::sNumRenders = 0;
 
 //-----------------------------------------------------------------------------
@@ -65,7 +64,7 @@ LLDynamicTexture::LLDynamicTexture(S32 width, S32 height, S32 components, EOrder
 	generateGLTexture();
 
 	llassert( 0 <= order && order < ORDER_COUNT );
-	LLDynamicTexture::sInstances[ order ].addData(this);
+	LLDynamicTexture::sInstances[ order ].insert(this);
 }
 
 //-----------------------------------------------------------------------------
@@ -76,7 +75,7 @@ LLDynamicTexture::~LLDynamicTexture()
 	releaseGLTexture();
 	for( S32 order = 0; order < ORDER_COUNT; order++ )
 	{
-		LLDynamicTexture::sInstances[order].removeData(this);  // will fail in all but one case.
+		LLDynamicTexture::sInstances[order].erase(this);  // will fail in all but one case.
 	}
 }
 
@@ -214,10 +213,10 @@ BOOL LLDynamicTexture::updateAllInstances()
 	BOOL result = FALSE;
 	for( S32 order = 0; order < ORDER_COUNT; order++ )
 	{
-		for (LLDynamicTexture *dynamicTexture = LLDynamicTexture::sInstances[order].getFirstData();
-			dynamicTexture;
-			dynamicTexture = LLDynamicTexture::sInstances[order].getNextData())
+		for (instance_list_t::iterator iter = LLDynamicTexture::sInstances[order].begin();
+			 iter != LLDynamicTexture::sInstances[order].end(); ++iter)
 		{
+			LLDynamicTexture *dynamicTexture = *iter;
 			if (dynamicTexture->needsRender())
 			{
 				render_ui_and_swap_if_needed();

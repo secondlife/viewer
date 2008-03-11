@@ -67,7 +67,7 @@
 //LLToolMorph *gToolMorph = NULL;
 
 //static
-LLLinkedList<LLVisualParamHint> LLVisualParamHint::sInstances;
+LLVisualParamHint::instance_list_t LLVisualParamHint::sInstances;
 BOOL LLVisualParamReset::sDirty = FALSE;
 
 //-----------------------------------------------------------------------------
@@ -93,7 +93,7 @@ LLVisualParamHint::LLVisualParamHint(
 	mRect( pos_x, pos_y + height, pos_x + width, pos_y ),
 	mLastParamWeight(0.f)
 {
-	LLVisualParamHint::sInstances.addData( this );
+	LLVisualParamHint::sInstances.insert( this );
 	LLUUID id;
 	id.set( gViewerArt.getString("avatar_thumb_bkgrnd.tga") );
 	mBackgroundp = gImageList.getImage(id, FALSE, TRUE);
@@ -108,7 +108,7 @@ LLVisualParamHint::LLVisualParamHint(
 //-----------------------------------------------------------------------------
 LLVisualParamHint::~LLVisualParamHint()
 {
-	LLVisualParamHint::sInstances.removeData( this );
+	LLVisualParamHint::sInstances.erase( this );
 }
 
 //-----------------------------------------------------------------------------
@@ -119,10 +119,10 @@ LLVisualParamHint::~LLVisualParamHint()
 void LLVisualParamHint::requestHintUpdates( LLVisualParamHint* exception1, LLVisualParamHint* exception2 )
 {
 	S32 delay_frames = 0;
-	for(LLVisualParamHint* instance = sInstances.getFirstData();
-		instance;
-		instance = sInstances.getNextData())
+	for (instance_list_t::iterator iter = sInstances.begin();
+		 iter != sInstances.end(); ++iter)
 	{
+		LLVisualParamHint* instance = *iter;
 		if( (instance != exception1) && (instance != exception2) )
 		{
 			if( instance->mAllowsUpdates )

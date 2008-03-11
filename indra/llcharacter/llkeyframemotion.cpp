@@ -122,6 +122,7 @@ U32 LLKeyframeMotion::JointMotionList::dumpDiagInfo()
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
+
 //-----------------------------------------------------------------------------
 // ScaleCurve::ScaleCurve()
 //-----------------------------------------------------------------------------
@@ -136,7 +137,7 @@ LLKeyframeMotion::ScaleCurve::ScaleCurve()
 //-----------------------------------------------------------------------------
 LLKeyframeMotion::ScaleCurve::~ScaleCurve() 
 {
-	mKeys.deleteAllData();
+	mKeys.clear();
 	mNumKeys = 0;
 }
 
@@ -146,43 +147,42 @@ LLKeyframeMotion::ScaleCurve::~ScaleCurve()
 LLVector3 LLKeyframeMotion::ScaleCurve::getValue(F32 time, F32 duration)
 {
 	LLVector3 value;
-	F32 index_before, index_after;
-	ScaleKey* scale_before;
-	ScaleKey* scale_after;
 
-	mKeys.getInterval(time, index_before, index_after, scale_before, scale_after);
-	if (scale_before)
+	if (mKeys.empty())
 	{
-		if (!scale_after)
-		{
-			scale_after = &mLoopInKey;
-			index_after = duration;
-		}
-
-		if (index_after == index_before)
-		{
-			value = scale_after->mScale;
-		}
-		else
-		{
-			F32 u = (time - index_before) / (index_after - index_before);
-			value = interp(u, *scale_before, *scale_after);
-		}
+		value.clearVec();
+		return value;
+	}
+	
+	key_map_t::iterator right = mKeys.lower_bound(time);
+	if (right == mKeys.end())
+	{
+		// Past last key
+		--right;
+		value = right->second.mScale;
+	}
+	else if (right == mKeys.begin() || right->first == time)
+	{
+		// Before first key or exactly on a key
+		value = right->second.mScale;
 	}
 	else
 	{
-		// before first key
-		if (scale_after)
+		// Between two keys
+		key_map_t::iterator left = right; --left;
+		F32 index_before = left->first;
+		F32 index_after = right->first;
+		ScaleKey& scale_before = left->second;
+		ScaleKey& scale_after = right->second;
+		if (right == mKeys.end())
 		{
-			value = scale_after->mScale;
+			scale_after = mLoopInKey;
+			index_after = duration;
 		}
-		// no keys?
-		else
-		{
-			value.clearVec();
-		}
-	}
 
+		F32 u = (time - index_before) / (index_after - index_before);
+		value = interp(u, scale_before, scale_after);
+	}
 	return value;
 }
 
@@ -217,7 +217,7 @@ LLKeyframeMotion::RotationCurve::RotationCurve()
 //-----------------------------------------------------------------------------
 LLKeyframeMotion::RotationCurve::~RotationCurve()
 {
-	mKeys.deleteAllData();
+	mKeys.clear();
 	mNumKeys = 0;
 }
 
@@ -227,44 +227,42 @@ LLKeyframeMotion::RotationCurve::~RotationCurve()
 LLQuaternion LLKeyframeMotion::RotationCurve::getValue(F32 time, F32 duration)
 {
 	LLQuaternion value;
-	F32 index_before, index_after;
-	RotationKey* rot_before;
-	RotationKey* rot_after;
 
-	mKeys.getInterval(time, index_before, index_after, rot_before, rot_after);
-
-	if (rot_before)
+	if (mKeys.empty())
 	{
-		if (!rot_after)
-		{
-			rot_after = &mLoopInKey;
-			index_after = duration;
-		}
-
-		if (index_after == index_before)
-		{
-			value = rot_after->mRotation;
-		}
-		else
-		{
-			F32 u = (time - index_before) / (index_after - index_before);
-			value = interp(u, *rot_before, *rot_after);
-		}
+		value = LLQuaternion::DEFAULT;
+		return value;
+	}
+	
+	key_map_t::iterator right = mKeys.lower_bound(time);
+	if (right == mKeys.end())
+	{
+		// Past last key
+		--right;
+		value = right->second.mRotation;
+	}
+	else if (right == mKeys.begin() || right->first == time)
+	{
+		// Before first key or exactly on a key
+		value = right->second.mRotation;
 	}
 	else
 	{
-		// before first key
-		if (rot_after)
+		// Between two keys
+		key_map_t::iterator left = right; --left;
+		F32 index_before = left->first;
+		F32 index_after = right->first;
+		RotationKey& rot_before = left->second;
+		RotationKey& rot_after = right->second;
+		if (right == mKeys.end())
 		{
-			value = rot_after->mRotation;
+			rot_after = mLoopInKey;
+			index_after = duration;
 		}
-		// no keys?
-		else
-		{
-			value = LLQuaternion::DEFAULT;
-		}
-	}
 
+		F32 u = (time - index_before) / (index_after - index_before);
+		value = interp(u, rot_before, rot_after);
+	}
 	return value;
 }
 
@@ -300,7 +298,7 @@ LLKeyframeMotion::PositionCurve::PositionCurve()
 //-----------------------------------------------------------------------------
 LLKeyframeMotion::PositionCurve::~PositionCurve()
 {
-	mKeys.deleteAllData();
+	mKeys.clear();
 	mNumKeys = 0;
 }
 
@@ -310,46 +308,45 @@ LLKeyframeMotion::PositionCurve::~PositionCurve()
 LLVector3 LLKeyframeMotion::PositionCurve::getValue(F32 time, F32 duration)
 {
 	LLVector3 value;
-	F32 index_before, index_after;
-	PositionKey* pos_before;
-	PositionKey* pos_after;
 
-	mKeys.getInterval(time, index_before, index_after, pos_before, pos_after);
-
-	if (pos_before)
+	if (mKeys.empty())
 	{
-		if (!pos_after)
-		{
-			pos_after = &mLoopInKey;
-			index_after = duration;
-		}
-
-		if (index_after == index_before)
-		{
-			value = pos_after->mPosition;
-		}
-		else
-		{
-			F32 u = (time - index_before) / (index_after - index_before);
-			value = interp(u, *pos_before, *pos_after);
-		}
+		value.clearVec();
+		return value;
+	}
+	
+	key_map_t::iterator right = mKeys.lower_bound(time);
+	if (right == mKeys.end())
+	{
+		// Past last key
+		--right;
+		value = right->second.mPosition;
+	}
+	else if (right == mKeys.begin() || right->first == time)
+	{
+		// Before first key or exactly on a key
+		value = right->second.mPosition;
 	}
 	else
 	{
-		// before first key
-		if (pos_after)
+		// Between two keys
+		key_map_t::iterator left = right; --left;
+		F32 index_before = left->first;
+		F32 index_after = right->first;
+		PositionKey& pos_before = left->second;
+		PositionKey& pos_after = right->second;
+		if (right == mKeys.end())
 		{
-			value = pos_after->mPosition;
+			pos_after = mLoopInKey;
+			index_after = duration;
 		}
-		// no keys?
-		else
-		{
-			value.clearVec();
-		}
+
+		F32 u = (time - index_before) / (index_after - index_before);
+		value = interp(u, pos_before, pos_after);
 	}
 
 	llassert(value.isFinite());
-
+	
 	return value;
 }
 
@@ -1404,8 +1401,8 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				time = U16_to_F32(time_short, 0.f, mJointMotionList->mDuration);
 			}
 			
-			RotationKey *rot_key = new RotationKey;
-			rot_key->mTime = time;
+			RotationKey rot_key;
+			rot_key.mTime = time;
 			LLVector3 rot_angles;
 			U16 x, y, z;
 
@@ -1416,7 +1413,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				success = dp.unpackVector3(rot_angles, "rot_angles");
 
 				LLQuaternion::Order ro = StringToOrder("ZYX");
-				rot_key->mRotation = mayaQ(rot_angles.mV[VX], rot_angles.mV[VY], rot_angles.mV[VZ], ro);
+				rot_key.mRotation = mayaQ(rot_angles.mV[VX], rot_angles.mV[VY], rot_angles.mV[VZ], ro);
 			}
 			else
 			{
@@ -1428,13 +1425,12 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				rot_vec.mV[VX] = U16_to_F32(x, -1.f, 1.f);
 				rot_vec.mV[VY] = U16_to_F32(y, -1.f, 1.f);
 				rot_vec.mV[VZ] = U16_to_F32(z, -1.f, 1.f);
-				rot_key->mRotation.unpackFromVector3(rot_vec);
+				rot_key.mRotation.unpackFromVector3(rot_vec);
 			}
 
 			if (!success)
 			{
 				llwarns << "can't read rotation key (" << k << ")" << llendl;
-				delete rot_key;
 				return FALSE;
 			}
 
@@ -1464,14 +1460,13 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 		for (S32 k = 0; k < joint_motion->mPositionCurve.mNumKeys; k++)
 		{
 			U16 time_short;
-			PositionKey* pos_key = new PositionKey;
+			PositionKey pos_key;
 
 			if (old_version)
 			{
-				if (!dp.unpackF32(pos_key->mTime, "time"))
+				if (!dp.unpackF32(pos_key.mTime, "time"))
 				{
 					llwarns << "can't read position key (" << k << ")" << llendl;
-					delete pos_key;
 					return FALSE;
 				}
 			}
@@ -1480,18 +1475,17 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				if (!dp.unpackU16(time_short, "time"))
 				{
 					llwarns << "can't read position key (" << k << ")" << llendl;
-					delete pos_key;
 					return FALSE;
 				}
 
-				pos_key->mTime = U16_to_F32(time_short, 0.f, mJointMotionList->mDuration);
+				pos_key.mTime = U16_to_F32(time_short, 0.f, mJointMotionList->mDuration);
 			}
 
 			BOOL success = TRUE;
 
 			if (old_version)
 			{
-				success = dp.unpackVector3(pos_key->mPosition, "pos");
+				success = dp.unpackVector3(pos_key.mPosition, "pos");
 			}
 			else
 			{
@@ -1501,23 +1495,22 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				success &= dp.unpackU16(y, "pos_y");
 				success &= dp.unpackU16(z, "pos_z");
 
-				pos_key->mPosition.mV[VX] = U16_to_F32(x, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-				pos_key->mPosition.mV[VY] = U16_to_F32(y, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-				pos_key->mPosition.mV[VZ] = U16_to_F32(z, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+				pos_key.mPosition.mV[VX] = U16_to_F32(x, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+				pos_key.mPosition.mV[VY] = U16_to_F32(y, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+				pos_key.mPosition.mV[VZ] = U16_to_F32(z, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
 			}
 
 			if (!success)
 			{
 				llwarns << "can't read position key (" << k << ")" << llendl;
-				delete pos_key;
 				return FALSE;
 			}
 			
-			pCurve->mKeys[pos_key->mTime] = pos_key;
+			pCurve->mKeys[pos_key.mTime] = pos_key;
 
 			if (is_pelvis)
 			{
-				mJointMotionList->mPelvisBBox.addPoint(pos_key->mPosition);
+				mJointMotionList->mPelvisBBox.addPoint(pos_key.mPosition);
 			}
 		}
 
@@ -1724,14 +1717,14 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 		success &= dp.packS32(joint_motionp->mPriority, "joint_priority");
 		success &= dp.packS32(joint_motionp->mRotationCurve.mNumKeys, "num_rot_keys");
 
-		for (RotationKey* rot_keyp = joint_motionp->mRotationCurve.mKeys.getFirstData();
-			rot_keyp;
-			rot_keyp = joint_motionp->mRotationCurve.mKeys.getNextData())
+		for (RotationCurve::key_map_t::iterator iter = joint_motionp->mRotationCurve.mKeys.begin();
+			 iter != joint_motionp->mRotationCurve.mKeys.end(); ++iter)
 		{
-			U16 time_short = F32_to_U16(rot_keyp->mTime, 0.f, mJointMotionList->mDuration);
+			RotationKey& rot_key = iter->second;
+			U16 time_short = F32_to_U16(rot_key.mTime, 0.f, mJointMotionList->mDuration);
 			success &= dp.packU16(time_short, "time");
 
-			LLVector3 rot_angles = rot_keyp->mRotation.packToVector3();
+			LLVector3 rot_angles = rot_key.mRotation.packToVector3();
 			
 			U16 x, y, z;
 			rot_angles.quantize16(-1.f, 1.f, -1.f, 1.f);
@@ -1744,18 +1737,18 @@ BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
 		}
 
 		success &= dp.packS32(joint_motionp->mPositionCurve.mNumKeys, "num_pos_keys");
-		for (PositionKey* pos_keyp = joint_motionp->mPositionCurve.mKeys.getFirstData();
-			pos_keyp;
-			pos_keyp = joint_motionp->mPositionCurve.mKeys.getNextData())
+		for (PositionCurve::key_map_t::iterator iter = joint_motionp->mPositionCurve.mKeys.begin();
+			 iter != joint_motionp->mPositionCurve.mKeys.end(); ++iter)
 		{
-			U16 time_short = F32_to_U16(pos_keyp->mTime, 0.f, mJointMotionList->mDuration);
+			PositionKey& pos_key = iter->second;
+			U16 time_short = F32_to_U16(pos_key.mTime, 0.f, mJointMotionList->mDuration);
 			success &= dp.packU16(time_short, "time");
 
 			U16 x, y, z;
-			pos_keyp->mPosition.quantize16(-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-			x = F32_to_U16(pos_keyp->mPosition.mV[VX], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-			y = F32_to_U16(pos_keyp->mPosition.mV[VY], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-			z = F32_to_U16(pos_keyp->mPosition.mV[VZ], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+			pos_key.mPosition.quantize16(-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+			x = F32_to_U16(pos_key.mPosition.mV[VX], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+			y = F32_to_U16(pos_key.mPosition.mV[VY], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+			z = F32_to_U16(pos_key.mPosition.mV[VZ], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
 			success &= dp.packU16(x, "pos_x");
 			success &= dp.packU16(y, "pos_y");
 			success &= dp.packU16(z, "pos_z");

@@ -36,8 +36,6 @@
 #include <vector>
 
 #include "llviewervisualparam.h"
-#include "llskiplist.h"
-#include "linked_lists.h"
 
 class LLPolyMeshSharedData;
 class LLVOAvatar;

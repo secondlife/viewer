@@ -90,8 +90,9 @@ void LLXferManager::free ()
 {
 	LLXfer *xferp;
 	LLXfer *delp;
-	
-	mOutgoingHosts.deleteAllData();
+
+	for_each(mOutgoingHosts.begin(), mOutgoingHosts.end(), DeletePointer());
+	mOutgoingHosts.clear();
 
 	delp = mSendList;
 	while (delp)
@@ -155,12 +156,15 @@ void LLXferManager::updateHostStatus()
     LLXfer *xferp;
 	LLHostStatus *host_statusp = NULL;
 
-	mOutgoingHosts.deleteAllData();
+	for_each(mOutgoingHosts.begin(), mOutgoingHosts.end(), DeletePointer());
+	mOutgoingHosts.clear();
 
 	for (xferp = mSendList; xferp; xferp = xferp->mNext)
 	{
-		for (host_statusp = mOutgoingHosts.getFirstData(); host_statusp; host_statusp = mOutgoingHosts.getNextData())
+		for (status_list_t::iterator iter = mOutgoingHosts.begin();
+			 iter != mOutgoingHosts.end(); ++iter)
 		{
+			host_statusp = *iter;
 			if (host_statusp->mHost == xferp->mRemoteHost)
 			{
 				break;
@@ -172,7 +176,7 @@ void LLXferManager::updateHostStatus()
 			if (host_statusp)
 			{
 				host_statusp->mHost = xferp->mRemoteHost;
-				mOutgoingHosts.addData(host_statusp);
+				mOutgoingHosts.push_front(host_statusp);
 			}
 		}
 		if (host_statusp)
@@ -195,12 +199,14 @@ void LLXferManager::updateHostStatus()
 void LLXferManager::printHostStatus()
 {
 	LLHostStatus *host_statusp = NULL;
-	if (mOutgoingHosts.getFirstData())
+	if (!mOutgoingHosts.empty())
 	{
 		llinfos << "Outgoing Xfers:" << llendl;
 
-		for (host_statusp = mOutgoingHosts.getFirstData(); host_statusp; host_statusp = mOutgoingHosts.getNextData())
+		for (status_list_t::iterator iter = mOutgoingHosts.begin();
+			 iter != mOutgoingHosts.end(); ++iter)
 		{
+			host_statusp = *iter;
 			llinfos << "    " << host_statusp->mHost << "  active: " << host_statusp->mNumActive << "  pending: " << host_statusp->mNumPending << llendl;
 		}
 	}	
@@ -275,8 +281,10 @@ S32 LLXferManager::numPendingXfers(const LLHost &host)
 {
 	LLHostStatus *host_statusp = NULL;
 
-	for (host_statusp = mOutgoingHosts.getFirstData(); host_statusp; host_statusp = mOutgoingHosts.getNextData())
+	for (status_list_t::iterator iter = mOutgoingHosts.begin();
+		 iter != mOutgoingHosts.end(); ++iter)
 	{
+		host_statusp = *iter;
 		if (host_statusp->mHost == host)
 		{
 			return (host_statusp->mNumPending);
@@ -291,8 +299,10 @@ S32 LLXferManager::numActiveXfers(const LLHost &host)
 {
 	LLHostStatus *host_statusp = NULL;
 
-	for (host_statusp = mOutgoingHosts.getFirstData(); host_statusp; host_statusp = mOutgoingHosts.getNextData())
+	for (status_list_t::iterator iter = mOutgoingHosts.begin();
+		 iter != mOutgoingHosts.end(); ++iter)
 	{
+		host_statusp = *iter;
 		if (host_statusp->mHost == host)
 		{
 			return (host_statusp->mNumActive);
@@ -307,8 +317,10 @@ void LLXferManager::changeNumActiveXfers(const LLHost &host, S32 delta)
 {
 	LLHostStatus *host_statusp = NULL;
 
-	for (host_statusp = mOutgoingHosts.getFirstData(); host_statusp; host_statusp = mOutgoingHosts.getNextData())
+	for (status_list_t::iterator iter = mOutgoingHosts.begin();
+		 iter != mOutgoingHosts.end(); ++iter)
 	{
+		host_statusp = *iter;
 		if (host_statusp->mHost == host)
 		{
 			host_statusp->mNumActive += delta;
@@ -1010,15 +1022,15 @@ void LLXferManager::startPendingDownloads()
 	// stateful iteration, it would be possible for old requests to
 	// never start.
 	LLXfer* xferp = mReceiveList;
-	LLLinkedList<LLXfer> pending_downloads;
+	std::list<LLXfer*> pending_downloads;
 	S32 download_count = 0;
 	S32 pending_count = 0;
 	while(xferp)
 	{
 		if(xferp->mStatus == e_LL_XFER_PENDING)
 		{
-			++pending_count; // getLength() is O(N), so track it here.
-			pending_downloads.addData(xferp);
+			++pending_count;
+			pending_downloads.push_front(xferp);
 		}
 		else if(xferp->mStatus == e_LL_XFER_IN_PROGRESS)
 		{
@@ -1036,16 +1048,18 @@ void LLXferManager::startPendingDownloads()
 	if((start_count > 0) && (pending_count > 0))
 	{
 		S32 result;
-		xferp = pending_downloads.getFirstData();
-		while(start_count-- && xferp)
+		for (std::list<LLXfer*>::iterator iter = pending_downloads.begin();
+			 iter != pending_downloads.end(); ++iter)
 		{
+			xferp = *iter;
+			if (start_count-- <= 0)
+				break;
 			result = xferp->startDownload();
 			if(result)
 			{
 				xferp->abort(result);
 				++start_count;
 			}
-			xferp = pending_downloads.getNextData();
 		}
 	}
 }

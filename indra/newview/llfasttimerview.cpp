@@ -95,7 +95,7 @@ static struct ft_display_info ft_display_table[] =
 	{ LLFastTimer::FTM_UPDATE_MOVE,			"   Move Objects",		&LLColor4::pink2, 0 },
 	{ LLFastTimer::FTM_OCTREE_BALANCE,		"    Octree Balance", &LLColor4::red3, 0 },
 	{ LLFastTimer::FTM_SIMULATE_PARTICLES,	"   Particle Sim",	&LLColor4::blue4, 0 },
-	{ LLFastTimer::FTM_OBJECTLIST_UPDATE,	"  Object Update",	&LLColor4::purple1, 0 },
+	{ LLFastTimer::FTM_OBJECTLIST_UPDATE,	"  Object Update",	&LLColor4::purple1, 1 },
 	{ LLFastTimer::FTM_AVATAR_UPDATE,		"   Avatars",		&LLColor4::purple2, 0 },
 	{ LLFastTimer::FTM_JOINT_UPDATE,		"    Joints",		&LLColor4::purple3, 0 },
 	{ LLFastTimer::FTM_ATTACHMENT_UPDATE,	"    Attachments",	&LLColor4::purple4, 0 },
@@ -124,7 +124,7 @@ static struct ft_display_info ft_display_table[] =
 	{ LLFastTimer::FTM_HUD_UPDATE,			"  HUD Update",	&LLColor4::orange2, 0 },
 	{ LLFastTimer::FTM_UPDATE_SKY,			"  Sky Update",		&LLColor4::cyan1, 0 },
 	{ LLFastTimer::FTM_UPDATE_TEXTURES,		"  Textures",		&LLColor4::pink2, 0 },
-	{ LLFastTimer::FTM_GEO_UPDATE,			"  Geo Update",	&LLColor4::blue3, 0 },
+	{ LLFastTimer::FTM_GEO_UPDATE,			"  Geo Update",	&LLColor4::blue3, 1 },
 	{ LLFastTimer::FTM_UPDATE_PRIMITIVES,	"   Volumes",		&LLColor4::blue4, 0 },
 	{ LLFastTimer::FTM_GEN_VOLUME,			"    Gen Volume",	&LLColor4::yellow3, 0 },
 	{ LLFastTimer::FTM_GEN_FLEX,			"    Flexible",	&LLColor4::yellow4, 0 },
@@ -189,6 +189,7 @@ static struct ft_display_info ft_display_table[] =
 	{ LLFastTimer::FTM_SWAP,				"  Swap",			&LLColor4::pink1, 0 },
 	{ LLFastTimer::FTM_CLIENT_COPY,			"  Client Copy",	&LLColor4::red1, 1},
 
+#if 0 || !LL_RELEASE_FOR_DOWNLOAD
 	{ LLFastTimer::FTM_TEMP1,				" Temp1",			&LLColor4::red1, 0 },
 	{ LLFastTimer::FTM_TEMP2,				" Temp2",			&LLColor4::magenta1, 0 },
 	{ LLFastTimer::FTM_TEMP3,				" Temp3",			&LLColor4::red2, 0 },
@@ -197,7 +198,8 @@ static struct ft_display_info ft_display_table[] =
 	{ LLFastTimer::FTM_TEMP6,				" Temp6",			&LLColor4::magenta3, 0 },
 	{ LLFastTimer::FTM_TEMP7,				" Temp7",			&LLColor4::red4, 0 },
 	{ LLFastTimer::FTM_TEMP8,				" Temp8",			&LLColor4::magenta4, 0 },
-
+#endif
+	
 	{ LLFastTimer::FTM_OTHER,				" Other",			&red0 }
 };
 static int ft_display_didcalc = 0;

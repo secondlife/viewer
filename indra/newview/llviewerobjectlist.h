@@ -36,10 +36,8 @@
 #include <set>
 
 // common includes
-#include "doublelinkedlist.h"
 #include "llstat.h"
 #include "lldarrayptr.h"
-#include "llskipmap.h"
 #include "llstring.h"
 
 // project includes

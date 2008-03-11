@@ -73,13 +73,14 @@ struct LLWearableArrivedData
 
 LLWearableList::~LLWearableList()
 {
-	mList.deleteAllData();
+	for_each(mList.begin(), mList.end(), DeletePairedPointer());
+	mList.clear();
 }
 
 void LLWearableList::getAsset( const LLAssetID& assetID, const LLString& wearable_name, LLAssetType::EType asset_type, void(*asset_arrived_callback)(LLWearable*, void* userdata), void* userdata )
 {
 	llassert( (asset_type == LLAssetType::AT_CLOTHING) || (asset_type == LLAssetType::AT_BODYPART) );
-	LLWearable* instance = mList.getIfThere( assetID );
+	LLWearable* instance = get_if_there(mList, assetID, (LLWearable*)NULL );
 	if( instance )
 	{
 		asset_arrived_callback( instance, userdata );

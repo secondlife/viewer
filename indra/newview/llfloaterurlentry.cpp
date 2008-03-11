@@ -72,9 +72,12 @@ public:
 
 	  void completeAny(U32 status, const std::string& mime_type)
 	  {
+		  // Set empty type to none/none.  Empty string is reserved for legacy parcels
+		  // which have no mime type set.
+		  std::string resolved_mime_type = ! mime_type.empty() ? mime_type : "none/none";
 		  LLFloaterURLEntry* floater_url_entry = (LLFloaterURLEntry*)mParent.get();
 		  if ( floater_url_entry )
-			  floater_url_entry->headerFetchComplete( status, mime_type );
+			  floater_url_entry->headerFetchComplete( status, resolved_mime_type );
 	  }
 };
 

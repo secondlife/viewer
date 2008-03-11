@@ -69,8 +69,6 @@ std::set<LLControlBase*>	LLControlBase::mChangedControls;
 
 const S32 CURRENT_VERSION = 101;
 
-BOOL control_insert_before( LLControlBase* first, LLControlBase* second );
-
 BOOL LLControl::llsd_compare(const LLSD& a, const LLSD & b)
 {
 	switch (mType)
@@ -1033,6 +1031,13 @@ U32 LLControlGroup::loadFromFile(const LLString& filename, BOOL require_declarat
 	return validitems;
 }
 
+struct compare_controls
+{
+	bool operator() (const LLControlBase* const a, const LLControlBase* const b) const
+	{
+		return a->getName() < b->getName();
+	}
+};
 
 U32 LLControlGroup::saveToFile(const LLString& filename, BOOL nondefault_only)
 {
@@ -1042,13 +1047,14 @@ U32 LLControlGroup::saveToFile(const LLString& filename, BOOL nondefault_only)
 
 	// place the objects in a temporary container that enforces a sort
 	// order to ease manual editing of the file
-	LLLinkedList< LLControlBase > controls;
-	controls.setInsertBefore( &control_insert_before );
-	LLString name;
+
+	typedef std::set< LLControlBase*, compare_controls > control_list_t;
+	control_list_t controls;
+
 	for (ctrl_name_table_t::iterator iter = mNameTable.begin();
 		 iter != mNameTable.end(); iter++)
 	{
-		name = iter->first;
+		LLString name = iter->first;
 		if (name.empty())
 		{
 			CONTROL_ERRS << "Control with no name found!!!" << llendl;
@@ -1065,7 +1071,7 @@ U32 LLControlGroup::saveToFile(const LLString& filename, BOOL nondefault_only)
 		{
 			if (!(nondefault_only && (control->mIsDefault)))
 			{
-				controls.addDataSorted( control );
+				controls.insert( control );
 			}
 			else
 			{
@@ -1088,12 +1094,12 @@ U32 LLControlGroup::saveToFile(const LLString& filename, BOOL nondefault_only)
 	// Write file version
 	file << "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n";
 	file << "<settings version = \"" << CURRENT_VERSION << "\">\n";
-    for( LLControlBase* control = controls.getFirstData();
-		 control != NULL;
-		 control = controls.getNextData() )
+	for (control_list_t::iterator iter = controls.begin();
+		 iter != controls.end(); ++iter)
 	{
+		LLControlBase* control = *iter;
 		file << "\t<!--" << control->comment() << "-->" << ENDL;
-		name = control->name();
+		LLString name = control->getName();
 		switch (control->type())
 		{
 			case TYPE_U32:
@@ -1165,7 +1171,7 @@ U32 LLControlGroup::saveToFile(const LLString& filename, BOOL nondefault_only)
 	file << "</settings>\n";
 	file.close();
 
-	return controls.getLength();
+	return controls.size();
 }
 
 void LLControlGroup::applyOverrides(const std::map<std::string, std::string>& overrides)
@@ -1434,9 +1440,4 @@ void main()
 	delete baz;
 }
 #endif
-
-BOOL control_insert_before( LLControlBase* first, LLControlBase* second )
-{
-	return ( first->getName().compare(second->getName()) < 0 );
-}
 

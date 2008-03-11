@@ -39,9 +39,7 @@
 
 #include "lljoint.h"
 #include "llmotioncontroller.h"
-#include "llassoclist.h"
 #include "llvisualparam.h"
-#include "linked_lists.h"
 #include "string_table.h"
 #include "llmemory.h"
 #include "llthread.h"
@@ -255,7 +253,8 @@ public:
 protected:
 	LLMotionController	mMotionController;
 
-	LLAssocList<std::string, void *> mAnimationData;
+	typedef std::map<std::string, void *> animation_data_map_t;
+	animation_data_map_t mAnimationData;
 
 	F32					mPreferredPelvisHeight;
 	ESex				mSex;

@@ -49,6 +49,8 @@ UseOcclusion				1	1
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
+Disregard128DefaultDrawDistance	1	1
+Disregard96DefaultDrawDistance	1	1
 
 //
 // Low Graphics Settings
@@ -271,29 +273,60 @@ list ATI_Mobility_Radeon_9600
 RenderAvatarCloth			0	0
 VertexShaderEnable			0	0
 WindLightUseAtmosShaders	0	0
+Disregard96DefaultDrawDistance	1	0
+
+
+/// tweaked ATI to 96 Draw distance
+
+list ATI_Radeon_9000
+Disregard96DefaultDrawDistance	1	0
+list ATI_Radeon_9200
+Disregard96DefaultDrawDistance	1	0
+list ATI_Radeon_9500
+Disregard96DefaultDrawDistance	1	0
+list ATI_Radeon_9600
+Disregard96DefaultDrawDistance	1	0
+
+/// tweaked ATI to 128 draw distance
+
+list ATI_Radeon_X300 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Radeon_X400 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Radeon_X500 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Radeon_X600 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Radeon_X700 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Radeon_X1300 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Radeon_X1400 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Radeon_X1500 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Radeon_X1600 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Radeon_X1700 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Mobility_Radeon_X1xxx
+Disregard128DefaultDrawDistance	1	0
+
+
+
 
 // Avatar hardware skinning causes
-// invisible avatars on x2600... so I masked
+// invisible avatars on HD 2400... so I masked
 // out other possible bad ones till it's fixed
-list ATI_Radeon_X2400
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-list ATI_Radeon_X2600
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-list ATI_Radeon_X2900
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-list ATI_Radeon_X3800
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
 
 list ATI_Radeon_HD_2300
 RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
+Disregard128DefaultDrawDistance	1	0
 list ATI_Radeon_HD_2400
 RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
+Disregard128DefaultDrawDistance	1	0
 list ATI_Radeon_HD_2600
 RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
@@ -304,17 +337,89 @@ list ATI_Radeon_HD_3800
 RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
 
+list ATI_ASUS_AH24xx
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+Disregard128DefaultDrawDistance	1	0
+list ATI_ASUS_AH26xx
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+list ATI_ASUS_EAH24xx
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+list ATI_ASUS_EAH26xx
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+list ATI_ASUS_EAH38xx
+RenderAvatarVP				0	0
+RenderAvatarCloth			0	0
+
+
+/// Tweaked NVIDIA
+
+list NVIDIA_GeForce_FX_5100
+Disregard96DefaultDrawDistance	1	0
+list NVIDIA_GeForce_FX_5200
+Disregard96DefaultDrawDistance	1	0
+list NVIDIA_GeForce_FX_5500
+Disregard96DefaultDrawDistance	1	0
+list NVIDIA_GeForce_FX_5600
+Disregard96DefaultDrawDistance	1	0
+
+list NVIDIA_GeForce_FX_Go5100
+Disregard96DefaultDrawDistance	1	0
+list NVIDIA_GeForce_FX_Go5200
+Disregard96DefaultDrawDistance	1	0
+list NVIDIA_GeForce_FX_Go5300
+Disregard96DefaultDrawDistance	1	0
+list NVIDIA_GeForce_FX_Go5500
+Disregard96DefaultDrawDistance	1	0
+list NVIDIA_GeForce_FX_Go5600
+Disregard96DefaultDrawDistance	1	0
+
+list NVIDIA_GeForce_6100
+Disregard128DefaultDrawDistance	1	0
+list NVIDIA_GeForce_6200
+Disregard128DefaultDrawDistance	1	0
+list NVIDIA_GeForce_6500
+Disregard128DefaultDrawDistance	1	0
+list NVIDIA_GeForce_6600
+Disregard128DefaultDrawDistance	1	0
+
+
 list NVIDIA_GeForce_Go_6100
 RenderVBOEnable				1	0
+Disregard128DefaultDrawDistance	1	0
 list NVIDIA_GeForce_Go_6200
 RenderVBOEnable				1	0
+Disregard128DefaultDrawDistance	1	0
 list NVIDIA_GeForce_Go_6500
 RenderVBOEnable				1	0
+Disregard128DefaultDrawDistance	1	0
 list NVIDIA_GeForce_Go_6600
 RenderVBOEnable				1	0
+Disregard128DefaultDrawDistance	1	0
 list NVIDIA_GeForce_Go_6700
 RenderVBOEnable				1	0
+Disregard128DefaultDrawDistance	1	0
 list NVIDIA_GeForce_Go_6800
 RenderVBOEnable				1	0
+Disregard128DefaultDrawDistance	1	0
 list NVIDIA_GeForce_Go_6
 RenderVBOEnable				1	0
+Disregard128DefaultDrawDistance	1	0
+
+list NVIDIA_GeForce_7200
+Disregard128DefaultDrawDistance	1	0
+list NVIDIA_GeForce_7300
+Disregard128DefaultDrawDistance	1	0
+list NVIDIA_GeForce_7400
+Disregard128DefaultDrawDistance	1	0
+
+list NVIDIA_GeForce_Go_7200
+Disregard128DefaultDrawDistance	1	0
+list NVIDIA_GeForce_Go_7300
+Disregard128DefaultDrawDistance	1	0
+list NVIDIA_GeForce_Go_7400
+Disregard128DefaultDrawDistance	1	0
+

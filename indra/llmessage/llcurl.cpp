@@ -121,6 +121,7 @@ void LLCurl::Responder::error(U32 status, const std::string& reason)
 // virtual
 void LLCurl::Responder::result(const LLSD& content)
 {
+	llwarns << "Virtual Function not implemented" << llendl;
 }
 
 // virtual

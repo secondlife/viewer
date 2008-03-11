@@ -164,11 +164,10 @@ BOOL	LLPanelObject::postBuild()
 	childSetCommitCallback("material",onCommitMaterial,this);
 	mComboMaterial->removeall();
 	// *TODO:translate
-	LLMaterialInfo *minfop;
-	for (minfop = LLMaterialTable::basic.mMaterialInfoList.getFirstData(); 
-		 minfop != NULL; 
-		 minfop = LLMaterialTable::basic.mMaterialInfoList.getNextData())
+	for (LLMaterialTable::info_list_t::iterator iter = LLMaterialTable::basic.mMaterialInfoList.begin();
+		 iter != LLMaterialTable::basic.mMaterialInfoList.end(); ++iter)
 	{
+		LLMaterialInfo* minfop = *iter;
 		if (minfop->mMCode != LL_MCODE_LIGHT)
 		{
 			mComboMaterial->add(minfop->mName);

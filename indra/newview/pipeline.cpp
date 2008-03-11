@@ -5073,11 +5073,6 @@ LLCubeMap* LLPipeline::findReflectionMap(const LLVector3& location)
 	return NULL;
 }
 
-S32 LLPipeline::getVisibleCount() const 
-{ 
-	return sCull->getVisibleListSize();
-}
-
 void LLPipeline::renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL texture)
 {
 #if !LL_RELEASE_FOR_DOWNLOAD

@@ -679,7 +679,8 @@ BOOL gunzip_file(const char *srcfile, const char *dstfile)
 		size_t nwrit = fwrite(buffer, sizeof(U8), bytes, dst);
 		if (nwrit < (size_t) bytes)
 		{
-			llerrs << "Short write on " << tmpfile << llendl;
+			llwarns << "Short write on " << tmpfile << ": Wrote " << nwrit << " of " << bytes << " bytes." << llendl;
+			goto err;
 		}
 	} while(gzeof(src) == 0);
 	fclose(dst); 

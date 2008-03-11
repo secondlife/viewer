@@ -903,6 +903,10 @@ public:
 	LLVector3			mLODScaleBias;		// vector for biasing LOD based on scale
 	
 	void sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level);
+private:
+	F32 sculptGetSurfaceArea(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data);
+	void sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, U8 sculpt_type);
+	void sculptGeneratePlaceholder();
 	
 protected:
 	BOOL generate();

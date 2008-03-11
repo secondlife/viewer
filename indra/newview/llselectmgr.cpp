@@ -42,7 +42,6 @@
 #include "llglimmediate.h"
 #include "llpermissions.h"
 #include "llpermissionsflags.h"
-#include "llptrskiplist.h"
 #include "llundo.h"
 #include "lluuid.h"
 #include "llvolume.h"

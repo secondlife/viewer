@@ -57,7 +57,6 @@
 // linden library includes
 #include "audioengine.h"		// mute on minimize
 #include "indra_constants.h"
-#include "linked_lists.h"
 #include "llassetstorage.h"
 #include "llfontgl.h"
 #include "llrect.h"
@@ -1812,18 +1811,23 @@ void adjust_rect_bottom_center(const LLString& control, const LLRect& window)
 	}
 }
 
-
-void update_saved_window_size(const LLString& control,S32 delta_width, S32 delta_height)
+void adjust_rect_centered_partial_zoom(const LLString& control,
+									   const LLRect& window)
 {
-	if (delta_width || delta_height )
+	LLRect rect = gSavedSettings.getRect(control);
+	// Only adjust on first use
+	if (rect.mLeft == 0 && rect.mBottom == 0)
 	{
-		LLRect mXMLRect = gSavedSettings.getRect(control);
-		//hard code it all follows the right and top
-		mXMLRect.mRight += delta_width;
-		mXMLRect.mTop += delta_height;
-		mXMLRect.mLeft = llmax (0, mXMLRect.mLeft+delta_width);
-		mXMLRect.mBottom = llmax(0,mXMLRect.mBottom+delta_height);
-		gSavedSettings.setRect(control,mXMLRect);
+		S32 width = window.getWidth();
+		S32 height = window.getHeight();
+		rect.set(0, height-STATUS_BAR_HEIGHT, width, TOOL_BAR_HEIGHT);
+		// Make floater fill 80% of window, leaving 20% padding on
+		// the sides.
+		const F32 ZOOM_FRACTION = 0.8f;
+		S32 dx = (S32)(width * (1.f - ZOOM_FRACTION));
+		S32 dy = (S32)(height * (1.f - ZOOM_FRACTION));
+		rect.stretch(-dx/2, -dy/2);
+		gSavedSettings.setRect(control, rect);
 	}
 }
 
@@ -1848,7 +1852,7 @@ void LLViewerWindow::adjustRectanglesForFirstUse(const LLRect& window)
 
 	adjust_rect_top_left("FloaterGestureRect2", window);
 
-	adjust_rect_top_right("FloaterMapRect", window);
+	adjust_rect_top_right("FloaterMiniMapRect", window);
 	
 	adjust_rect_top_right("FloaterLagMeter", window);
 
@@ -1917,17 +1921,8 @@ void LLViewerWindow::initWorldUI()
 
 		LLWorldMapView::initClass();
 
-		LLRect world_map_rect = gSavedSettings.getRect("FloaterWorldMapRect");
-		// if 0,0,0,0 then use fullscreen
-		if (world_map_rect.mTop == 0 
-			&& world_map_rect.mLeft == 0
-			&& world_map_rect.mRight == 0
-			&& world_map_rect.mBottom == 0)
-		{
-			world_map_rect.set(0, height-TOOL_BAR_HEIGHT, width, STATUS_BAR_HEIGHT);
-			world_map_rect.stretch(-4);
-			gSavedSettings.setRect("FloaterWorldMapRect", world_map_rect);
-		}
+		adjust_rect_centered_partial_zoom("FloaterWorldMapRect2", full_window);
+
 		gFloaterWorldMap = new LLFloaterWorldMap();
 		gFloaterWorldMap->setVisible(FALSE);
 
@@ -2121,9 +2116,6 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 			}
 		}
 
-		// changes in window's width and hight
-		S32 delta_width  = width - mWindowRect.getWidth();
-		S32 delta_height = height - mWindowRect.getHeight();
 		// update our window rectangle
 		mWindowRect.mRight = mWindowRect.mLeft + width;
 		mWindowRect.mTop = mWindowRect.mBottom + height;
@@ -2174,12 +2166,6 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 			{
 				gSavedSettings.setS32("WindowWidth", window_size.mX);
 				gSavedSettings.setS32("WindowHeight", window_size.mY);
-				if (!gFloaterMap)
-				{					
-					update_saved_window_size("FloaterWorldMapRect",delta_width, delta_height);	
-					update_saved_window_size("FloaterMapRect",delta_width, delta_height);		
-				}
-				
 			}
 		}
 

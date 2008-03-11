@@ -332,6 +332,12 @@ void LLParcel::setMediaType(const char* type)
 	// abstraction layer.
 	set_std_string(type, mMediaType);
 	mMediaType = rawstr_to_utf8(mMediaType);
+
+	// This code attempts to preserve legacy movie functioning
+	if(mMediaType.empty() && ! mMediaURL.empty())
+	{
+		setMediaType("video/vnd.secondlife.qt.legacy");
+	}
 }
 void LLParcel::setMediaWidth(S32 width)
 {

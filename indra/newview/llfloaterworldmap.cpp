@@ -150,13 +150,7 @@ const LLUUID LLFloaterWorldMap::sHomeID( "10000000-0000-0000-0000-000000000001" 
 
 
 LLFloaterWorldMap::LLFloaterWorldMap()
-:	LLFloater("worldmap", "FloaterWorldMapRect", "World Map",
-			  TRUE,		// resize
-			  410,		// min-width
-			  520,		// min-height
-			  FALSE,	// drag on left
-			  TRUE,		// minimize
-			  TRUE),	// close
+:	LLFloater("worldmap"),
 	mInventory(NULL),
 	mInventoryObserver(NULL),
 	mFriendObserver(NULL),

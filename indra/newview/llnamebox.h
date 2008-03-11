@@ -37,7 +37,6 @@
 #include "llview.h"
 #include "llstring.h"
 #include "llfontgl.h"
-#include "linked_lists.h"
 #include "lltextbox.h"
 
 class LLNameBox

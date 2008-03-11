@@ -40,7 +40,6 @@
 #include "llhttpclient.h"
 #include "llsdutil.h"
 #include "llstring.h"
-#include "linked_lists.h"
 #include "llvieweruictrlfactory.h"
 
 #include "llagent.h"

@@ -53,7 +53,7 @@ bool LLMIMETypes::parseMIMETypes(const LLString& xml_filename)
 {
 	LLXMLNodePtr root;
 	bool success = LLViewerUICtrlFactory::getLayeredXMLNode(xml_filename, root);
-	if ( ! success || ! root.isNull() || ! root->hasName( "mimetypes" ) )
+	if ( ! success || root.isNull() || ! root->hasName( "mimetypes" ) )
 	{
 		llwarns << "Unable to read MIME type file: "
 			<< xml_filename << llendl;

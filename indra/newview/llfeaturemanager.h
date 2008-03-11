@@ -35,7 +35,6 @@
 #include "stdtypes.h"
 
 #include "llstring.h"
-#include "llskipmap.h"
 #include <map>
 
 typedef enum EGPUClass

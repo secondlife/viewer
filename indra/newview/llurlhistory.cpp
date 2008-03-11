@@ -62,6 +62,7 @@ bool LLURLHistory::loadFile(const LLString& filename)
 			llinfos << "file missing, ill-formed, "
 				"or simply undefined; not changing the"
 				" file" << llendl;
+			sHistorySD = LLSD();
 			return false;
 		}
 	}
@@ -100,8 +101,11 @@ LLSD LLURLHistory::getURLHistory(const std::string& collection)
 // static
 void LLURLHistory::addURL(const std::string& collection, const std::string& url)
 {
-	sHistorySD[collection].insert(0, url);
-	LLURLHistory::limitSize(collection);
+	if(! url.empty())
+	{
+		sHistorySD[collection].insert(0, url);
+		LLURLHistory::limitSize(collection);
+	}
 }
 // static
 void LLURLHistory::removeURL(const std::string& collection, const std::string& url)

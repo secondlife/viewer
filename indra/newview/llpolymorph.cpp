@@ -35,7 +35,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llpolymorph.h"
-#include "linked_lists.h"
 #include "llvoavatar.h"
 #include "llxmltree.h"
 #include "llendianswizzle.h"
@@ -43,8 +42,6 @@
 //#include "../tools/imdebug/imdebug.h"
 
 const F32 NORMAL_SOFTEN_FACTOR = 0.65f;
-
-LLLinkedList<LLPolyMorphData> gLoadedMorphs;
 
 //-----------------------------------------------------------------------------
 // LLPolyMorphData()
@@ -183,8 +180,6 @@ BOOL LLPolyMorphData::loadBinary(FILE *fp, LLPolyMeshSharedData *mesh)
 
 	mAvgDistortion = mAvgDistortion * (1.f/(F32)mNumIndices);
 	mAvgDistortion.normVec();
-
-	gLoadedMorphs.addData(this);
 
 	return TRUE;
 }

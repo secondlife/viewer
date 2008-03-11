@@ -746,13 +746,16 @@ void LLVOVolume::sculpt()
 			return;
 		
 		LLPointer<LLImageRaw> raw_image = new LLImageRaw();
-		mSculptTexture->readBackRaw(discard_level, raw_image, TRUE);
+		mSculptTexture->readBackRaw(discard_level, raw_image, FALSE);
 
 		sculpt_height = raw_image->getHeight();
 		sculpt_width = raw_image->getWidth();
 
 		sculpt_components = raw_image->getComponents();
 		sculpt_data = raw_image->getData();
+
+		llassert_always(raw_image->getDataSize() >= sculpt_height * sculpt_width * sculpt_components);
+
 		getVolume()->sculpt(sculpt_width, sculpt_height, sculpt_components, sculpt_data, discard_level);
 	}
 }

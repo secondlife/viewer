@@ -41,7 +41,6 @@
 #ifndef LL_LLVIEWERWINDOW_H
 #define LL_LLVIEWERWINDOW_H
 
-#include "linked_lists.h"
 #include "v3dmath.h"
 #include "v2math.h"
 #include "llwindow.h"

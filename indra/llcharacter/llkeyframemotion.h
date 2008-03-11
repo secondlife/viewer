@@ -43,7 +43,6 @@
 #include "llhandmotion.h"
 #include "lljointstate.h"
 #include "llmotion.h"
-#include "llptrskipmap.h"
 #include "llquaternion.h"
 #include "v3dmath.h"
 #include "v3math.h"
@@ -338,7 +337,8 @@ public:
 
 		InterpolationType	mInterpolationType;
 		S32					mNumKeys;
-		LLPtrSkipMap<F32, ScaleKey*>			mKeys;
+		typedef std::map<F32, ScaleKey> key_map_t;
+		key_map_t 			mKeys;
 		ScaleKey			mLoopInKey;
 		ScaleKey			mLoopOutKey;
 	};
@@ -356,7 +356,8 @@ public:
 
 		InterpolationType	mInterpolationType;
 		S32					mNumKeys;
-		LLPtrSkipMap<F32, RotationKey*>		mKeys;
+		typedef std::map<F32, RotationKey> key_map_t;
+		key_map_t		mKeys;
 		RotationKey		mLoopInKey;
 		RotationKey		mLoopOutKey;
 	};
@@ -374,7 +375,8 @@ public:
 
 		InterpolationType	mInterpolationType;
 		S32					mNumKeys;
-		LLPtrSkipMap<F32, PositionKey*>		mKeys;
+		typedef std::map<F32, PositionKey> key_map_t;
+		key_map_t		mKeys;
 		PositionKey		mLoopInKey;
 		PositionKey		mLoopOutKey;
 	};

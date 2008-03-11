@@ -36,7 +36,6 @@
 #include <queue>
 
 #include "llpacketbuffer.h"
-#include "linked_lists.h"
 #include "llhost.h"
 #include "net.h"
 #include "llthrottle.h"

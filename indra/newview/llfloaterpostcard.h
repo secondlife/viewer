@@ -78,8 +78,9 @@ protected:
 	LLVector2 mImageScale;
 	LLVector3d mPosTakenGlobal;
 	boolean mHasFirstMsgFocus;
-	
-	static LLLinkedList<LLFloaterPostcard> sInstances;
+
+	typedef std::set<LLFloaterPostcard*> instance_list_t;
+	static instance_list_t sInstances;
 };
 
 

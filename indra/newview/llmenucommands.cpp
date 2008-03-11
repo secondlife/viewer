@@ -41,7 +41,6 @@
 #include "message.h"
 
 #include "llagent.h"
-#include "llcallbacklist.h"
 #include "llcallingcard.h"
 #include "llchatbar.h"
 #include "llviewercontrol.h"

@@ -121,6 +121,172 @@ MODULE32_NEST	Module32Next_;
 #define	CALL_TRACE_MAX	((DUMP_SIZE_MAX - 2000) / (MAX_PATH + 40))	//max number of traced calls
 #define	NL				L"\r\n"	//new line
 
+BOOL WINAPI Get_Module_By_Ret_Addr(PBYTE Ret_Addr, LPWSTR Module_Name, PBYTE & Module_Addr);
+
+
+void printError( CHAR* msg )
+{
+  DWORD eNum;
+  TCHAR sysMsg[256];
+  TCHAR* p;
+
+  eNum = GetLastError( );
+  FormatMessage( FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+         NULL, eNum,
+         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+         sysMsg, 256, NULL );
+
+  // Trim the end of the line and terminate it with a null
+  p = sysMsg;
+  while( ( *p > 31 ) || ( *p == 9 ) )
+    ++p;
+  do { *p-- = 0; } while( ( p >= sysMsg ) &&
+                          ( ( *p == '.' ) || ( *p < 33 ) ) );
+
+  // Display the message
+  printf( "\n  WARNING: %s failed with error %d (%s)", msg, eNum, sysMsg );
+}
+
+BOOL GetProcessThreadIDs(DWORD process_id, std::vector<DWORD>& thread_ids) 
+{ 
+  HANDLE hThreadSnap = INVALID_HANDLE_VALUE; 
+  THREADENTRY32 te32; 
+ 
+  // Take a snapshot of all running threads  
+  hThreadSnap = CreateToolhelp32Snapshot( TH32CS_SNAPTHREAD, 0 ); 
+  if( hThreadSnap == INVALID_HANDLE_VALUE ) 
+    return( FALSE ); 
+ 
+  // Fill in the size of the structure before using it. 
+  te32.dwSize = sizeof(THREADENTRY32 ); 
+ 
+  // Retrieve information about the first thread,
+  // and exit if unsuccessful
+  if( !Thread32First( hThreadSnap, &te32 ) ) 
+  {
+    printError( "Thread32First" );  // Show cause of failure
+    CloseHandle( hThreadSnap );     // Must clean up the snapshot object!
+    return( FALSE );
+  }
+
+  // Now walk the thread list of the system,
+  // and display information about each thread
+  // associated with the specified process
+  do 
+  { 
+    if( te32.th32OwnerProcessID == process_id )
+    {
+      thread_ids.push_back(te32.th32ThreadID); 
+    }
+  } while( Thread32Next(hThreadSnap, &te32 ) ); 
+
+//  Don't forget to clean up the snapshot object.
+  CloseHandle( hThreadSnap );
+  return( TRUE );
+}
+
+void WINAPI GetCallStackData(const CONTEXT* context_struct, LLSD& info)
+{	
+    // Fill Str with call stack info.
+    // pException can be either GetExceptionInformation() or NULL.
+    // If pException = NULL - get current call stack.
+
+    LPWSTR	Module_Name = new WCHAR[MAX_PATH];
+	PBYTE	Module_Addr = 0;
+	
+	typedef struct STACK
+	{
+		STACK *	Ebp;
+		PBYTE	Ret_Addr;
+		DWORD	Param[0];
+	} STACK, * PSTACK;
+
+	PSTACK	Ebp;
+
+    if(context_struct)
+    {
+        Ebp = (PSTACK)context_struct->Ebp;
+    }
+    else
+    {
+        // The context struct is NULL, 
+        // so we will use the current stack.
+        Ebp = (PSTACK)&context_struct - 1;
+
+        // Skip frame of GetCallStackData().
+		if (!IsBadReadPtr(Ebp, sizeof(PSTACK)))
+			Ebp = Ebp->Ebp;		//caller ebp
+    }
+
+	// Trace CALL_TRACE_MAX calls maximum - not to exceed DUMP_SIZE_MAX.
+	// Break trace on wrong stack frame.
+	for (int Ret_Addr_I = 0, i = 0;
+		(Ret_Addr_I < CALL_TRACE_MAX) && !IsBadReadPtr(Ebp, sizeof(PSTACK)) && !IsBadCodePtr(FARPROC(Ebp->Ret_Addr));
+		Ret_Addr_I++, Ebp = Ebp->Ebp, ++i)
+	{
+		// If module with Ebp->Ret_Addr found.
+
+		if (Get_Module_By_Ret_Addr(Ebp->Ret_Addr, Module_Name, Module_Addr))
+		{
+			// Save module's address and full path.
+			info["CallStack"][i]["ModuleName"] = ll_convert_wide_to_string(Module_Name);
+			info["CallStack"][i]["ModuleAddress"] = (int)Module_Addr;
+			info["CallStack"][i]["CallOffset"] = (int)(Ebp->Ret_Addr - Module_Addr);
+
+			LLSD params;
+			// Save 5 params of the call. We don't know the real number of params.
+			if (!IsBadReadPtr(Ebp, sizeof(PSTACK) + 5 * sizeof(DWORD)))
+			{
+				for(int j = 0; j < 5; ++j)
+				{
+					params[j] = (int)Ebp->Param[j];
+				}
+			}
+			info["CallStack"][i]["Parameters"] = params;
+		}
+		info["CallStack"][i]["ReturnAddress"] = (int)Ebp->Ret_Addr;			
+	}
+}
+
+BOOL GetThreadCallStack(DWORD thread_id, LLSD& info)
+{
+    if(GetCurrentThreadId() == thread_id)
+    {
+        // Early exit for the current thread.
+        // Suspending the current thread would be a bad idea.
+        // Plus you can't retrieve a valid current thread context.
+        return false;
+    }
+
+    HANDLE thread_handle = INVALID_HANDLE_VALUE; 
+    thread_handle = OpenThread(THREAD_ALL_ACCESS, FALSE, thread_id);
+    if(INVALID_HANDLE_VALUE == thread_handle)
+    {
+        return FALSE;
+    }
+
+    BOOL result = false;
+    if(-1 != SuspendThread(thread_handle))
+    {
+        CONTEXT context_struct;
+        context_struct.ContextFlags = CONTEXT_FULL;
+        if(GetThreadContext(thread_handle, &context_struct))
+        {
+            GetCallStackData(&context_struct, info);
+            result = true;
+        }
+        ResumeThread(thread_handle);
+    }
+    else
+    {
+        // Couldn't suspend thread.
+    }
+
+    CloseHandle(thread_handle);
+    return result;
+}
+
+
 //Windows Call Stack Construction idea from 
 //http://www.codeproject.com/tools/minidump.asp
 
@@ -490,7 +656,33 @@ LONG LLWinDebug::handleException(struct _EXCEPTION_POINTERS *exception_infop)
 
 		LLSD info;
 		info = Get_Exception_Info(exception_infop);
-		if (info)
+
+
+        LLSD threads;
+        std::vector<DWORD> thread_ids;
+        GetProcessThreadIDs(GetCurrentProcessId(), thread_ids);
+
+        for(std::vector<DWORD>::iterator th_itr = thread_ids.begin(); 
+                 th_itr != thread_ids.end();
+                 ++th_itr)
+        {
+            LLSD thread_info;
+            if(*th_itr != GetCurrentThreadId())
+            {
+                GetThreadCallStack(*th_itr, thread_info);
+            }
+
+            if(thread_info)
+            {
+                
+                threads[llformat("ID %d", *th_itr)] = thread_info;
+            }
+        }
+
+
+        info["Threads"] = threads;
+
+        if (info)
 		{
 			std::ofstream out_file(log_path.c_str());
 			LLSDSerialize::toPrettyXML(info, out_file);

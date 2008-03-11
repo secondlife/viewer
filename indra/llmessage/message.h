@@ -216,8 +216,6 @@ class LLMessageSystem
 	LLPacketRing				mPacketRing;
 	LLReliablePacketParams			mReliablePacketParams;
 
-	//LLLinkedList<LLPacketAck>		mAckList;
-
 	// Set this flag to TRUE when you want *very* verbose logs.
 	BOOL mVerboseLog;
 

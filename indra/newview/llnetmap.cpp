@@ -36,7 +36,6 @@
 
 #include "indra_constants.h"
 #include "llui.h"
-#include "linked_lists.h"
 #include "llmath.h"		// clampf()
 #include "llfocusmgr.h"
 #include "llglimmediate.h"

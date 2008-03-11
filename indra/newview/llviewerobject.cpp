@@ -2292,7 +2292,7 @@ void LLViewerObject::dirtyInventory()
 	// If there aren't any LLVOInventoryListeners, we won't be
 	// able to update our mInventory when it comes back from the
 	// simulator, so we should not clear the inventory either.
-	if(mInventory && !mInventoryCallbacks.isEmpty())
+	if(mInventory && !mInventoryCallbacks.empty())
 	{
 		mInventory->clear(); // will deref and delete entries
 		delete mInventory;
@@ -2308,20 +2308,22 @@ void LLViewerObject::registerInventoryListener(LLVOInventoryListener* listener, 
 	LLInventoryCallbackInfo* info = new LLInventoryCallbackInfo;
 	info->mListener = listener;
 	info->mInventoryData = user_data;
-	mInventoryCallbacks.addData(info);
+	mInventoryCallbacks.push_front(info);
 }
 
 void LLViewerObject::removeInventoryListener(LLVOInventoryListener* listener)
 {
-	if (listener == NULL) return;
-	LLInventoryCallbackInfo* info;
-	for (info = mInventoryCallbacks.getFirstData();
-		info;
-		info = mInventoryCallbacks.getNextData() )
+	if (listener == NULL)
+		return;
+	for (callback_list_t::iterator iter = mInventoryCallbacks.begin();
+		 iter != mInventoryCallbacks.end(); )
 	{
+		callback_list_t::iterator curiter = iter++;
+		LLInventoryCallbackInfo* info = *curiter;
 		if (info->mListener == listener)
 		{
-			mInventoryCallbacks.deleteCurrentData();
+			delete info;
+			mInventoryCallbacks.erase(curiter);
 			break;
 		}
 	}
@@ -2329,7 +2331,8 @@ void LLViewerObject::removeInventoryListener(LLVOInventoryListener* listener)
 
 void LLViewerObject::clearInventoryListeners()
 {
-	mInventoryCallbacks.deleteAllData();
+	for_each(mInventoryCallbacks.begin(), mInventoryCallbacks.end(), DeletePointer());
+	mInventoryCallbacks.clear();
 }
 
 void LLViewerObject::requestInventory()
@@ -2518,10 +2521,11 @@ void LLViewerObject::loadTaskInvFile(const char* filename)
 
 void LLViewerObject::doInventoryCallback()
 {
-	for(LLInventoryCallbackInfo* info = mInventoryCallbacks.getFirstData();
-		info != NULL;
-		info = mInventoryCallbacks.getNextData())
+	for (callback_list_t::iterator iter = mInventoryCallbacks.begin();
+		 iter != mInventoryCallbacks.end(); )
 	{
+		callback_list_t::iterator curiter = iter++;
+		LLInventoryCallbackInfo* info = *curiter;
 		if (info->mListener != NULL)
 		{
 			info->mListener->inventoryChanged(this,
@@ -2532,7 +2536,8 @@ void LLViewerObject::doInventoryCallback()
 		else
 		{
 			llinfos << "LLViewerObject::doInventoryCallback() deleting bad listener entry." << llendl;
-			mInventoryCallbacks.deleteCurrentData();
+			delete info;
+			mInventoryCallbacks.erase(curiter);
 		}
 	}
 	mInventoryPending = FALSE;

@@ -4121,7 +4121,7 @@ void process_alert_core(const std::string& message, BOOL modal)
 	}
 }
 
-LLLinkedList<LLMeanCollisionData>	gMeanCollisionList;
+mean_collision_list_t				gMeanCollisionList;
 time_t								gLastDisplayedTime = 0;
 
 void handle_show_mean_events(void *)
@@ -4141,15 +4141,19 @@ void mean_name_callback(const LLUUID &id, const char *first, const char *last, B
 		return;
 	}
 
-	while(gMeanCollisionList.getLength() > 20)
+	static const int max_collision_list_size = 20;
+	if (gMeanCollisionList.size() > max_collision_list_size)
 	{
-		gMeanCollisionList.getLastData();
-		gMeanCollisionList.deleteCurrentData();
+		mean_collision_list_t::iterator iter = gMeanCollisionList.begin();
+		for (S32 i=0; i<max_collision_list_size; i++) iter++;
+		for_each(iter, gMeanCollisionList.end(), DeletePointer());
+		gMeanCollisionList.erase(iter, gMeanCollisionList.end());
 	}
 
-	LLMeanCollisionData *mcd;
-	for (mcd = gMeanCollisionList.getFirstData(); mcd; mcd = gMeanCollisionList.getNextData())
+	for (mean_collision_list_t::iterator iter = gMeanCollisionList.begin();
+		 iter != gMeanCollisionList.end(); ++iter)
 	{
+		LLMeanCollisionData *mcd = *iter;
 		if (mcd->mPerp == id)
 		{
 			strncpy(mcd->mFirstName, first, DB_FIRST_NAME_BUF_SIZE -1);		/* Flawfinder: ignore */
@@ -4190,12 +4194,12 @@ void process_mean_collision_alert_message(LLMessageSystem *msgsystem, void **use
 
 		type = (EMeanCollisionType)u8type;
 
-		LLMeanCollisionData *mcd;
-
 		BOOL b_found = FALSE;
 
-		for (mcd = gMeanCollisionList.getFirstData(); mcd; mcd = gMeanCollisionList.getNextData())
+		for (mean_collision_list_t::iterator iter = gMeanCollisionList.begin();
+			 iter != gMeanCollisionList.end(); ++iter)
 		{
+			LLMeanCollisionData *mcd = *iter;
 			if ((mcd->mPerp == perp) && (mcd->mType == type))
 			{
 				mcd->mTime = time;
@@ -4208,7 +4212,7 @@ void process_mean_collision_alert_message(LLMessageSystem *msgsystem, void **use
 		if (!b_found)
 		{
 			LLMeanCollisionData *mcd = new LLMeanCollisionData(gAgentID, perp, time, type, mag);
-			gMeanCollisionList.addData(mcd);
+			gMeanCollisionList.push_front(mcd);
 			const BOOL is_group = FALSE;
 			gCacheName->get(perp, is_group, mean_name_callback);
 		}

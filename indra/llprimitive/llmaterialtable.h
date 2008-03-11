@@ -84,7 +84,9 @@ public:
 class LLMaterialTable
 {
 public:
-	LLLinkedList<LLMaterialInfo>	mMaterialInfoList;
+	typedef std::list<LLMaterialInfo*> info_list_t;
+	info_list_t mMaterialInfoList;
+	
 	LLUUID *mCollisionSoundMatrix;
 	LLUUID *mSlidingSoundMatrix;
 	LLUUID *mRollingSoundMatrix;

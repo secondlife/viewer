@@ -173,11 +173,6 @@ void LLManipScale::handleDeselect()
 	LLManip::handleDeselect();
 }
 
-BOOL sort_manip_by_z(LLManipScale::ManipulatorHandle *new_manip, LLManipScale::ManipulatorHandle *test_manip)
-{
-	return ((new_manip->mType < test_manip->mType) || (new_manip->mPosition.mV[VZ] < test_manip->mPosition.mV[VZ]));
-}
-
 LLManipScale::LLManipScale( LLToolComposite* composite )
 	: 
 	LLManip( "Scale", composite ),
@@ -194,7 +189,6 @@ LLManipScale::LLManipScale( LLToolComposite* composite )
 	mSnapGuideLength(0.f),
 	mScaleSnapValue(0.f)
 { 
-	mProjectedManipulators.setInsertBefore(sort_manip_by_z);
 	mManipulatorScales = new F32[NUM_MANIPULATORS];
 	for (S32 i = 0; i < NUM_MANIPULATORS; i++)
 	{
@@ -204,7 +198,8 @@ LLManipScale::LLManipScale( LLToolComposite* composite )
 
 LLManipScale::~LLManipScale()
 {
-	delete []mManipulatorScales;
+	for_each(mProjectedManipulators.begin(), mProjectedManipulators.end(), DeletePointer());
+	delete[] mManipulatorScales;
 }
 
 void LLManipScale::render()
@@ -471,8 +466,6 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
 		LLVector3 max = bbox.getMaxLocal();
 		LLVector3 ctr = bbox.getCenterLocal();
 
-		mProjectedManipulators.deleteAllData();
-
 		S32 numManips = 0;
 		// corners
 		mManipulatorVertices[numManips++] = LLVector4(min.mV[VX], min.mV[VY], min.mV[VZ], 1.f);
@@ -496,6 +489,9 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
 			mManipulatorVertices[numManips++] = LLVector4(ctr.mV[VX], ctr.mV[VY], min.mV[VZ], 1.f);
 		}
 
+		for_each(mProjectedManipulators.begin(), mProjectedManipulators.end(), DeletePointer());
+		mProjectedManipulators.clear();
+		
 		for (S32 i = 0; i < numManips; i++)
 		{
 			LLVector4 projectedVertex = mManipulatorVertices[i] * transform;
@@ -503,7 +499,7 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
 
 			ManipulatorHandle* projManipulator = new ManipulatorHandle(LLVector3(projectedVertex.mV[VX], projectedVertex.mV[VY], 
 				projectedVertex.mV[VZ]), MANIPULATOR_IDS[i], (i < 7) ? SCALE_MANIP_CORNER : SCALE_MANIP_FACE);
-			mProjectedManipulators.addDataSorted(projManipulator);
+			mProjectedManipulators.insert(projManipulator);
 		}
 
 		F32 half_width = (F32)gViewerWindow->getWindowWidth() / 2.f;
@@ -514,9 +510,10 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
 
 		mHighlightedPart = LL_NO_PART;
 
-		for (ManipulatorHandle* manipulator = mProjectedManipulators.getFirstData();
-			manipulator;
-			manipulator = mProjectedManipulators.getNextData())
+		for (minpulator_list_t::iterator iter = mProjectedManipulators.begin();
+			 iter != mProjectedManipulators.end(); ++iter)
+		{
+			ManipulatorHandle* manipulator = *iter;
 			{
 				manip2d.setVec(manipulator->mPosition.mV[VX] * half_width, manipulator->mPosition.mV[VY] * half_height);
 				
@@ -529,6 +526,7 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
 					break;
 				}
 			}
+		}
 	}
 
 	for (S32 i = 0; i < NUM_MANIPULATORS; i++)

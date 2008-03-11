@@ -100,7 +100,7 @@ void LLUploadDialog::setMessage( const std::string& msg)
 
 	// Split message into lines, separated by '\n'
 	S32 max_msg_width = 0;
-	LLDoubleLinkedList<LLString> msg_lines;
+	std::list<std::string> msg_lines;
 
 	S32 size = msg.size() + 1;// + strlen("Uploading...\n\n");
 	char* temp_msg = new char[size];
@@ -118,7 +118,7 @@ void LLUploadDialog::setMessage( const std::string& msg)
 	{
 		S32 cur_width = S32(font->getWidth(token) + 0.99f) + TEXT_PAD;
 		max_msg_width = llmax( max_msg_width, cur_width );
-		msg_lines.addDataAtEnd( new LLString( token ) );
+		msg_lines.push_back( std::string( token ) );
 		token = strtok( NULL, "\n" );
 	}
 	delete[] temp_msg;
@@ -126,7 +126,7 @@ void LLUploadDialog::setMessage( const std::string& msg)
 
 	S32 line_height = S32( font->getLineHeight() + 0.99f );
 	S32 dialog_width = max_msg_width + 2 * HPAD;
-	S32 dialog_height = line_height * msg_lines.getLength() + 2 * VPAD;
+	S32 dialog_height = line_height * msg_lines.size() + 2 * VPAD;
 
 	reshape( dialog_width, dialog_height, FALSE );
 
@@ -139,18 +139,19 @@ void LLUploadDialog::setMessage( const std::string& msg)
 		mLabelBox[line_num]->setVisible(FALSE);
 	}
 	line_num = 0;
-	for( LLString* cur_line = msg_lines.getFirstData(); cur_line; cur_line = msg_lines.getNextData() )
+	for (std::list<std::string>::iterator iter = msg_lines.begin();
+		 iter != msg_lines.end(); ++iter)
 	{
+		std::string& cur_line = *iter;
 		LLRect msg_rect;
 		msg_rect.setOriginAndSize( msg_x, msg_y, max_msg_width, line_height );
 		mLabelBox[line_num]->setRect(msg_rect);
-		mLabelBox[line_num]->setText(*cur_line);
+		mLabelBox[line_num]->setText(cur_line);
 		mLabelBox[line_num]->setColor( gColors.getColor( "LabelTextColor" ) );
 		mLabelBox[line_num]->setVisible(TRUE);
 		msg_y -= line_height;
 		++line_num;
 	}
-	msg_lines.deleteAllData();
 
 	centerWithin(gViewerWindow->getRootView()->getRect());
 }

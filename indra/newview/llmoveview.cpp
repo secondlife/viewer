@@ -38,7 +38,6 @@
 
 // Viewer includes
 #include "llagent.h"
-#include "llcallbacklist.h"
 #include "llviewercontrol.h"
 #include "llfontgl.h"
 #include "llbutton.h"

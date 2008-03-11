@@ -3522,8 +3522,13 @@ struct LLFoundData
 struct LLWearableHoldingPattern
 {
 	LLWearableHoldingPattern() : mResolved(0) {}
-	~LLWearableHoldingPattern() { mFoundList.deleteAllData(); }
-	LLDoubleLinkedList<LLFoundData> mFoundList;
+	~LLWearableHoldingPattern()
+	{
+		for_each(mFoundList.begin(), mFoundList.end(), DeletePointer());
+		mFoundList.clear();
+	}
+	typedef std::list<LLFoundData*> found_list_t;
+	found_list_t mFoundList;
 	S32 mResolved;
 };
 
@@ -3913,7 +3918,7 @@ void wear_inventory_category_on_avatar_step2( BOOL proceed, void* userdata )
 										item_array.get(i)->getAssetUUID(),
 										item_array.get(i)->getName(),
 										item_array.get(i)->getType());
-				holder->mFoundList.addData(found);
+				holder->mFoundList.push_front(found);
 				found_container.put(found);
 			}
 			for(i = 0; i < wearable_count; ++i)
@@ -4004,10 +4009,10 @@ void wear_inventory_category_on_avatar_loop(LLWearable* wearable, void* data)
 	
 	if(wearable)
 	{
-		for(LLFoundData* data = holder->mFoundList.getFirstData();
-			data;
-			data = holder->mFoundList.getNextData() )
+		for (LLWearableHoldingPattern::found_list_t::iterator iter = holder->mFoundList.begin();
+			 iter != holder->mFoundList.end(); ++iter)
 		{
+			LLFoundData* data = *iter;
 			if(wearable->getID() == data->mAssetID)
 			{
 				data->mWearable = wearable;
@@ -4016,7 +4021,7 @@ void wear_inventory_category_on_avatar_loop(LLWearable* wearable, void* data)
 		}
 	}
 	holder->mResolved += 1;
-	if(holder->mResolved >= holder->mFoundList.getLength())
+	if(holder->mResolved >= (S32)holder->mFoundList.size())
 	{
 		wear_inventory_category_on_avatar_step3(holder, append);
 	}
@@ -4032,10 +4037,10 @@ void wear_inventory_category_on_avatar_step3(LLWearableHoldingPattern* holder, B
 	// that we recursed through.
 	for( S32 i = 0; i < WT_COUNT; i++ )
 	{
-		for(LLFoundData* data = holder->mFoundList.getFirstData();
-			data;
-			data = holder->mFoundList.getNextData())
+		for (LLWearableHoldingPattern::found_list_t::iterator iter = holder->mFoundList.begin();
+			 iter != holder->mFoundList.end(); ++iter)
 		{
+			LLFoundData* data = *iter;
 			LLWearable* wearable = data->mWearable;
 			if( wearable && ((S32)wearable->getType() == i) )
 			{

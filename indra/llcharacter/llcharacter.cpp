@@ -241,33 +241,15 @@ void LLCharacter::dumpCharacter( LLJoint* joint )
 //-----------------------------------------------------------------------------
 void LLCharacter::setAnimationData(std::string name, void *data)
 {
-	if(mAnimationData.getValue(name))
-	{
-		*mAnimationData[name] = data;
-	}
-	else
-	{
-		mAnimationData.addToHead(name, data);
-	}
+	mAnimationData[name] = data;
 }
 
 //-----------------------------------------------------------------------------
 // getAnimationData()
 //-----------------------------------------------------------------------------
-void * LLCharacter::getAnimationData(std::string name)
+void* LLCharacter::getAnimationData(std::string name)
 {
-	void **result = mAnimationData.getValue(name);
-	void *return_value;		// Necessary to suppress VC6 warning. JC
-	if (!result)
-	{
-		return_value = NULL;
-	}
-	else 
-	{
-		return_value = *result;
-	}
-
-	return return_value;
+	return get_if_there(mAnimationData, name, (void*)NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -275,7 +257,7 @@ void * LLCharacter::getAnimationData(std::string name)
 //-----------------------------------------------------------------------------
 void LLCharacter::removeAnimationData(std::string name)
 {
-	mAnimationData.remove(name);
+	mAnimationData.erase(name);
 }
 
 //-----------------------------------------------------------------------------

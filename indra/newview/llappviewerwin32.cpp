@@ -127,7 +127,14 @@ LONG WINAPI viewer_windows_exception_handler(struct _EXCEPTION_POINTERS *excepti
 	return retval;
 }
 
-int APIENTRY WinMain(HINSTANCE hInstance,
+
+#if DEBUGGING_SEH_FILTER
+#	define WINMAIN DebuggingWinMain
+#else
+#	define WINMAIN WinMain
+#endif
+
+int APIENTRY WINMAIN(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
                      LPSTR     lpCmdLine,
                      int       nCmdShow)
@@ -206,6 +213,27 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	viewer_app_ptr = NULL;
 	return 0;
 }
+
+#if DEBUGGING_SEH_FILTER
+// The compiler doesn't like it when you use __try/__except blocks
+// in a method that uses object destructors. Go figure.
+// This winmain just calls the real winmain inside __try.
+// The __except calls our exception filter function. For debugging purposes.
+int APIENTRY WinMain(HINSTANCE hInstance,
+                     HINSTANCE hPrevInstance,
+                     LPSTR     lpCmdLine,
+                     int       nCmdShow)
+{
+    __try
+    {
+        WINMAIN(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+    }
+    __except( viewer_windows_exception_handler( GetExceptionInformation() ) )
+    {
+        _tprintf( _T("Exception handled.\n") );
+    }
+}
+#endif
 
 void LLAppViewerWin32::disableWinErrorReporting()
 {

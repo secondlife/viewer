@@ -90,7 +90,8 @@ LLPolyMeshSharedData::LLPolyMeshSharedData()
 LLPolyMeshSharedData::~LLPolyMeshSharedData()
 {
 	freeMeshData();
-	mMorphData.deleteAllData();
+	for_each(mMorphData.begin(), mMorphData.end(), DeletePointer());
+	mMorphData.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -604,7 +605,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const char *fileName )
 					continue;
 				}
 
-				mMorphData.addData(morph_data);
+				mMorphData.insert(morph_data);
 			}
 
 			S32 numRemaps;
@@ -759,11 +760,11 @@ LLPolyMesh *LLPolyMesh::getMesh(const LLString &name, LLPolyMesh* reference_mesh
 	//-------------------------------------------------------------------------
 	// search for an existing mesh by this name
 	//-------------------------------------------------------------------------
-	LLPolyMeshSharedData **meshSharedData = sGlobalSharedMeshList.getValue(name);
+	LLPolyMeshSharedData* meshSharedData = get_if_there(sGlobalSharedMeshList, name, (LLPolyMeshSharedData*)NULL);
 	if (meshSharedData)
 	{
 //		llinfos << "Polymesh " << name << " found in global mesh table." << llendl;
-		LLPolyMesh *poly_mesh = new LLPolyMesh(*meshSharedData, reference_mesh);
+		LLPolyMesh *poly_mesh = new LLPolyMesh(meshSharedData, reference_mesh);
 		return poly_mesh;
 	}
 
@@ -787,7 +788,7 @@ LLPolyMesh *LLPolyMesh::getMesh(const LLString &name, LLPolyMesh* reference_mesh
 	LLPolyMesh *poly_mesh = new LLPolyMesh(mesh_data, reference_mesh);
 
 //	llinfos << "Polymesh " << name << " added to global mesh table." << llendl;
-	sGlobalSharedMeshList.addToTail(name, poly_mesh->mSharedData);
+	sGlobalSharedMeshList[name] = poly_mesh->mSharedData;
 
 	return poly_mesh;
 }
@@ -797,21 +798,9 @@ LLPolyMesh *LLPolyMesh::getMesh(const LLString &name, LLPolyMesh* reference_mesh
 //-----------------------------------------------------------------------------
 void LLPolyMesh::freeAllMeshes()
 {
-	U32 i;
-
 	// delete each item in the global lists
-	for (i=0; i<sGlobalSharedMeshList.length(); i++)
-	{
-		// returns a pointer to the value, which is the pointer
-		// to the mesh
-		LLPolyMeshSharedData **shared_mesh_pp = sGlobalSharedMeshList.getValueAt(i);
-
-		// delete the mesh
-		delete *shared_mesh_pp;
-	}
-
-	// empty the lists
-	sGlobalSharedMeshList.removeAll();
+	for_each(sGlobalSharedMeshList.begin(), sGlobalSharedMeshList.end(), DeletePairedPointer());
+	sGlobalSharedMeshList.clear();
 }
 
 LLPolyMeshSharedData *LLPolyMesh::getSharedData() const
@@ -830,7 +819,7 @@ void LLPolyMesh::dumpDiagInfo()
 	U32 total_faces = 0;
 	U32 total_kb = 0;
 
-	char buf[1024];		/*Flawfinder: ignore*/
+	std::string buf;
 
 	llinfos << "-----------------------------------------------------" << llendl;
 	llinfos << "       Global PolyMesh Table (DEBUG only)" << llendl;
@@ -838,18 +827,17 @@ void LLPolyMesh::dumpDiagInfo()
 	llinfos << "-----------------------------------------------------" << llendl;
 
 	// print each loaded mesh, and it's memory usage
-	for (U32 i=0; i<sGlobalSharedMeshList.length(); i++)
+	for(LLPolyMeshSharedDataTable::iterator iter = sGlobalSharedMeshList.begin();
+		iter != sGlobalSharedMeshList.end(); ++iter)
 	{
-		std::string *mesh_name_p = sGlobalSharedMeshList.getIndexAt(i);
+		const std::string& mesh_name = iter->first;
+		LLPolyMeshSharedData* mesh = iter->second;
 
-		LLPolyMeshSharedData **mesh_pp = sGlobalSharedMeshList.getValueAt(i);
-		LLPolyMeshSharedData &mesh = **mesh_pp;
+		S32 num_verts = mesh->mNumVertices;
+		S32 num_faces = mesh->mNumFaces;
+		U32 num_kb = mesh->getNumKB();
 
-		S32 num_verts = mesh.mNumVertices;
-		S32 num_faces = mesh.mNumFaces;
-		U32 num_kb = mesh.getNumKB();
-
-		snprintf(buf, sizeof(buf), "%8d %8d %8d %s", num_verts, num_faces, num_kb, mesh_name_p->c_str());			/* Flawfinder: ignore */
+		buf = llformat("%8d %8d %8d %s", num_verts, num_faces, num_kb, mesh_name.c_str());
 		llinfos << buf << llendl;
 
 		total_verts += num_verts;
@@ -858,7 +846,7 @@ void LLPolyMesh::dumpDiagInfo()
 	}
 
 	llinfos << "-----------------------------------------------------" << llendl;
-	snprintf(buf, sizeof(buf), "%8d %8d %8d TOTAL", total_verts, total_faces, total_kb );			/* Flawfinder: ignore */
+	buf = llformat("%8d %8d %8d TOTAL", total_verts, total_faces, total_kb );
 	llinfos << buf << llendl;
 	llinfos << "-----------------------------------------------------" << llendl;
 }
@@ -943,11 +931,12 @@ void LLPolyMesh::initializeForMorph()
 //-----------------------------------------------------------------------------
 LLPolyMorphData*	LLPolyMesh::getMorphData(const char *morph_name)
 {
-	if (!mSharedData) return NULL;
-	for (LLPolyMorphData *morph_data = mSharedData->mMorphData.getFirstData();
-		morph_data;
-		morph_data = mSharedData->mMorphData.getNextData())
+	if (!mSharedData)
+		return NULL;
+	for (LLPolyMeshSharedData::morphdata_list_t::iterator iter = mSharedData->mMorphData.begin();
+		 iter != mSharedData->mMorphData.end(); ++iter)
 	{
+		LLPolyMorphData *morph_data = *iter;
 		if (!strcmp(morph_data->getName(), morph_name))
 		{
 			return morph_data;
@@ -959,22 +948,25 @@ LLPolyMorphData*	LLPolyMesh::getMorphData(const char *morph_name)
 //-----------------------------------------------------------------------------
 // removeMorphData()
 //-----------------------------------------------------------------------------
-void	LLPolyMesh::removeMorphData(LLPolyMorphData *morph_target)
-{
-	if (!mSharedData) return;
-
-	mSharedData->mMorphData.removeData(morph_target);
-}
+// // erasing but not deleting seems bad, but fortunately we don't actually use this...
+// void	LLPolyMesh::removeMorphData(LLPolyMorphData *morph_target)
+// {
+// 	if (!mSharedData)
+// 		return;
+// 	mSharedData->mMorphData.erase(morph_target);
+// }
 
 //-----------------------------------------------------------------------------
 // deleteAllMorphData()
 //-----------------------------------------------------------------------------
-void	LLPolyMesh::deleteAllMorphData()
-{
-	if (!mSharedData) return;
+// void	LLPolyMesh::deleteAllMorphData()
+// {
+// 	if (!mSharedData)
+// 		return;
 
-	mSharedData->mMorphData.deleteAllData();
-}
+// 	for_each(mSharedData->mMorphData.begin(), mSharedData->mMorphData.end(), DeletePointer());
+// 	mSharedData->mMorphData.clear();
+// }
 
 //-----------------------------------------------------------------------------
 // getWritableWeights()

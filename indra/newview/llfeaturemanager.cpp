@@ -443,6 +443,20 @@ void LLFeatureManager::applyRecommendedSettings()
 	gSavedSettings.setU32("RenderQualityPerformance", level);
 	gSavedSettings.setBOOL("RenderCustomSettings", FALSE);
 
+	// now apply the tweaks to draw distance
+	// these are double negatives, because feature masks only work by
+	// downgrading values, so i needed to make a true value go to false
+	// for certain cards, thus the awkward name, "Disregard..."
+	if(!gSavedSettings.getBOOL("Disregard96DefaultDrawDistance"))
+	{
+		gSavedSettings.setF32("RenderFarClip", 96.0f);
+	}
+	else if(!gSavedSettings.getBOOL("Disregard128DefaultDrawDistance"))
+	{
+		gSavedSettings.setF32("RenderFarClip", 128.0f);
+	}
+
+
 }
 
 void LLFeatureManager::applyFeatures(bool skipFeatures)

@@ -36,8 +36,6 @@
 #include "lldarrayptr.h"
 #include "lldqueueptr.h"
 #include "llstat.h"
-#include "lllinkedqueue.h"
-#include "llskiplist.h"
 #include "lldrawpool.h"
 #include "llspatialpartition.h"
 #include "m4math.h"
@@ -193,7 +191,6 @@ public:
 	void findReferences(LLDrawable *drawablep);	// Find the lists which have references to this object
 	BOOL verify();						// Verify that all data in the pipeline is "correct"
 
-	S32  getVisibleCount() const;
 	S32  getLightCount() const { return mLights.size(); }
 
 	void calcNearbyLights(LLCamera& camera);

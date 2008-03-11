@@ -331,7 +331,15 @@ void LLOverlayBar::onClickStandUp(void*)
 ////////////////////////////////////////////////////////////////////////////////
 // static media helpers
 // *TODO: Move this into an audio manager abstraction
-
+//static
+void LLOverlayBar::mediaStop(void*)
+{
+	if (!gOverlayBar)
+	{
+		return;
+	}
+	LLViewerParcelMedia::stop();
+}
 //static
 void LLOverlayBar::toggleMediaPlay(void*)
 {

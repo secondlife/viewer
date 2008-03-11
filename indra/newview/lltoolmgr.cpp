@@ -438,9 +438,7 @@ void LLToolMgr::clearSavedTool()
 
 void LLToolset::addTool(LLTool* tool)
 {
-	llassert( !mToolList.checkData( tool ) ); // check for duplicates
-
-	mToolList.addDataAtEnd( tool );
+	mToolList.push_back( tool );
 	if( !mSelectedTool )
 	{
 		mSelectedTool = tool;
@@ -457,7 +455,7 @@ void LLToolset::selectTool(LLTool* tool)
 
 void LLToolset::selectToolByIndex( S32 index )
 {
-	LLTool *tool = mToolList.getNthData( index );
+	LLTool *tool = (index >= 0 && index < (S32)mToolList.size()) ? mToolList[index] : NULL;
 	if (tool)
 	{
 		mSelectedTool = tool;
@@ -467,13 +465,14 @@ void LLToolset::selectToolByIndex( S32 index )
 
 BOOL LLToolset::isToolSelected( S32 index )
 {
-	return (mToolList.getNthData( index ) == mSelectedTool);
+	LLTool *tool = (index >= 0 && index < (S32)mToolList.size()) ? mToolList[index] : NULL;
+	return (tool == mSelectedTool);
 }
 
 
 void LLToolset::selectFirstTool()
 {
-	mSelectedTool = mToolList.getFirstData();
+	mSelectedTool = (0 < mToolList.size()) ? mToolList[0] : NULL;
 	if (gToolMgr) 
 	{
 		gToolMgr->setCurrentTool( mSelectedTool );
@@ -484,43 +483,52 @@ void LLToolset::selectFirstTool()
 void LLToolset::selectNextTool()
 {
 	LLTool* next = NULL;
-	for( LLTool* cur = mToolList.getFirstData(); cur; cur = mToolList.getNextData() )
+	for( tool_list_t::iterator iter = mToolList.begin();
+		 iter != mToolList.end(); )
 	{
-		if( cur == mSelectedTool )
+		LLTool* cur = *iter++;
+		if( cur == mSelectedTool && iter != mToolList.end() )
 		{
-			next = mToolList.getNextData();
+			next = *iter;
 			break;
 		}
 	}
 
-	if( !next )
+	if( next )
 	{
-		next = mToolList.getFirstData();
+		mSelectedTool = next;
+		gToolMgr->setCurrentTool( mSelectedTool );
 	}
-
-	mSelectedTool = next;
-	gToolMgr->setCurrentTool( mSelectedTool );
+	else
+	{
+		selectFirstTool();
+	}
 }
 
 void LLToolset::selectPrevTool()
 {
 	LLTool* prev = NULL;
-	for( LLTool* cur = mToolList.getLastData(); cur; cur = mToolList.getPreviousData() )
+	for( tool_list_t::reverse_iterator iter = mToolList.rbegin();
+		 iter != mToolList.rend(); )
 	{
-		if( cur == mSelectedTool )
+		LLTool* cur = *iter++;
+		if( cur == mSelectedTool && iter != mToolList.rend() )
 		{
-			prev = mToolList.getPreviousData();
+			prev = *iter;
 			break;
 		}
 	}
 
-	if( !prev )
+	if( prev )
 	{
-		prev = mToolList.getLastData();
+		mSelectedTool = prev;
+		gToolMgr->setCurrentTool( mSelectedTool );
+	}
+	else if (mToolList.size() > 0)
+	{
+		selectToolByIndex((S32)mToolList.size()-1);
 	}
 	
-	mSelectedTool = prev;
-	gToolMgr->setCurrentTool( mSelectedTool );
 }
 
 void select_tool( void *tool_pointer )

@@ -344,7 +344,8 @@ BOOL LLTabContainer::handleMouseDown( S32 x, S32 y, MASK mask )
 		handled = LLPanel::handleMouseDown( x, y, mask );
 	}
 
-	if (getTabCount() > 0)
+	S32 tab_count = getTabCount();
+	if (tab_count > 0)
 	{
 		LLTabTuple* firsttuple = getTab(0);
 		LLRect tab_rect;
@@ -364,7 +365,9 @@ BOOL LLTabContainer::handleMouseDown( S32 x, S32 y, MASK mask )
 		}
 		if( tab_rect.pointInRect( x, y ) )
 		{
-			LLButton* tab_button = getTab(getCurrentPanelIndex())->mButton;
+			S32 index = getCurrentPanelIndex();
+			index = llclamp(index, 0, tab_count-1);
+			LLButton* tab_button = getTab(index)->mButton;
 			gFocusMgr.setMouseCapture(this);
 			gFocusMgr.setKeyboardFocus(tab_button);
 		}

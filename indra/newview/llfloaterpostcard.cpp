@@ -67,7 +67,8 @@
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
 
-LLLinkedList<LLFloaterPostcard> LLFloaterPostcard::sInstances;
+//static
+LLFloaterPostcard::instance_list_t LLFloaterPostcard::sInstances;
 
 ///----------------------------------------------------------------------------
 /// Class LLFloaterPostcard
@@ -97,13 +98,13 @@ void LLFloaterPostcard::init()
 		gAgent.sendReliableMessage();
 	}
 
-	sInstances.addData(this);
+	sInstances.insert(this);
 }
 
 // Destroys the object
 LLFloaterPostcard::~LLFloaterPostcard()
 {
-	sInstances.removeData(this);
+	sInstances.erase(this);
 	mJPEGImage = NULL; // deletes image
 }
 
@@ -313,11 +314,10 @@ void LLFloaterPostcard::uploadCallback(const LLUUID& asset_id, void *user_data, 
 // static
 void LLFloaterPostcard::updateUserInfo(const char *email)
 {
-	LLFloaterPostcard *instance;
-
-	sInstances.resetList();
-	while ((instance = sInstances.getNextData()))
+	for (instance_list_t::iterator iter = sInstances.begin();
+		 iter != sInstances.end(); ++iter)
 	{
+		LLFloaterPostcard *instance = *iter;
 		const LLString& text = instance->childGetValue("from_form").asString();
 		if (text.empty())
 		{

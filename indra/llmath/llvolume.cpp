@@ -1854,6 +1854,181 @@ inline LLVector3 sculpt_rgb_to_vector(U8 r, U8 g, U8 b)
 	return value;
 }
 
+inline U32 sculpt_xy_to_index(U32 x, U32 y, U16 sculpt_width, U16 sculpt_height, S8 sculpt_components)
+{
+	U32 index = (x + y * sculpt_width) * sculpt_components;
+
+	// attempt to resolve DEV-11158 - remove assert later.
+	llassert(index < sculpt_width * sculpt_height * sculpt_components);
+	
+	return index;
+}
+
+
+inline U32 sculpt_st_to_index(S32 s, S32 t, S32 size_s, S32 size_t, U16 sculpt_width, U16 sculpt_height, S8 sculpt_components)
+{
+	U32 x = (U32) ((F32)s/(size_s) * (F32) sculpt_width);
+	U32 y = (U32) ((F32)t/(size_t) * (F32) sculpt_height);
+
+	return sculpt_xy_to_index(x, y, sculpt_width, sculpt_height, sculpt_components);
+}
+
+
+inline LLVector3 sculpt_index_to_vector(U32 index, const U8* sculpt_data)
+{
+	LLVector3 v = sculpt_rgb_to_vector(sculpt_data[index], sculpt_data[index+1], sculpt_data[index+2]);
+
+	return v;
+}
+
+inline LLVector3 sculpt_st_to_vector(S32 s, S32 t, S32 size_s, S32 size_t, U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data)
+{
+	U32 index = sculpt_st_to_index(s, t, size_s, size_t, sculpt_width, sculpt_height, sculpt_components);
+
+	return sculpt_index_to_vector(index, sculpt_data);
+}
+
+inline LLVector3 sculpt_xy_to_vector(U32 x, U32 y, U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data)
+{
+	U32 index = sculpt_xy_to_index(x, y, sculpt_width, sculpt_height, sculpt_components);
+
+	return sculpt_index_to_vector(index, sculpt_data);
+}
+
+
+F32 LLVolume::sculptGetSurfaceArea(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data)
+{
+	// test to see if image has enough variation to create non-degenerate geometry
+
+	S32 sizeS = mPathp->mPath.size();
+	S32 sizeT = mProfilep->mProfile.size();
+
+	F32 area = 0;
+	
+	if ((sculpt_width != 0) &&
+		(sculpt_height != 0) &&
+		(sculpt_components != 0) &&
+		(sculpt_data != NULL))
+	{
+		for (S32 s = 0; s < sizeS - 1; s++)
+		{
+			for (S32 t = 0; t < sizeT - 1; t++)
+			{
+				// convert image data to vectors
+				LLVector3 p1 = sculpt_st_to_vector(s, t, sizeS, sizeT, sculpt_width, sculpt_height, sculpt_components, sculpt_data);
+				LLVector3 p2 = sculpt_st_to_vector(s+1, t, sizeS, sizeT, sculpt_width, sculpt_height, sculpt_components, sculpt_data);
+				LLVector3 p3 = sculpt_st_to_vector(s, t+1, sizeS, sizeT, sculpt_width, sculpt_height, sculpt_components, sculpt_data);
+
+				// compute the area of the parallelogram by taking the length of the cross product:
+				// (parallegram is an approximation of two triangles)
+				LLVector3 cross = (p1 - p2) % (p1 - p3);
+				area += cross.magVec();
+			}
+		}
+	}
+
+	return area;
+}
+
+// create placeholder shape
+void LLVolume::sculptGeneratePlaceholder()
+{
+	S32 sizeS = mPathp->mPath.size();
+	S32 sizeT = mProfilep->mProfile.size();
+	
+	S32 line = 0;
+
+	// for now, this is a sphere.
+	for (S32 s = 0; s < sizeS; s++)
+	{
+		for (S32 t = 0; t < sizeT; t++)
+		{
+			S32 i = t + line;
+			Point& pt = mMesh[i];
+
+			
+			F32 u = (F32)s/(sizeS-1);
+			F32 v = (F32)t/(sizeT-1);
+
+			const F32 RADIUS = (F32) 0.3;
+					
+			pt.mPos.mV[0] = (F32)(sin(F_PI * v) * cos(2.0 * F_PI * u) * RADIUS);
+			pt.mPos.mV[1] = (F32)(sin(F_PI * v) * sin(2.0 * F_PI * u) * RADIUS);
+			pt.mPos.mV[2] = (F32)(cos(F_PI * v) * RADIUS);
+
+		}
+		line += sizeT;
+	}
+}
+
+// create the vertices from the map
+void LLVolume::sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, U8 sculpt_type)
+{
+	S32 sizeS = mPathp->mPath.size();
+	S32 sizeT = mProfilep->mProfile.size();
+	
+	S32 line = 0;
+	for (S32 s = 0; s < sizeS; s++)
+	{
+		// Run along the profile.
+		for (S32 t = 0; t < sizeT; t++)
+		{
+			S32 i = t + line;
+			Point& pt = mMesh[i];
+
+			U32 x = (U32) ((F32)t/(sizeT-1) * (F32) sculpt_width);
+			U32 y = (U32) ((F32)s/(sizeS-1) * (F32) sculpt_height);
+
+			if (y == 0)  // top row stitching
+			{
+				// pinch?
+				if (sculpt_type == LL_SCULPT_TYPE_SPHERE)
+				{
+					x = sculpt_width / 2;
+				}
+			}
+
+			if (y == sculpt_height)  // bottom row stitching
+			{
+				// wrap?
+				if (sculpt_type == LL_SCULPT_TYPE_TORUS)
+				{
+					y = 0;
+				}
+				else
+				{
+					y = sculpt_height - 1;
+				}
+
+				// pinch?
+				if (sculpt_type == LL_SCULPT_TYPE_SPHERE)
+				{
+					x = sculpt_width / 2;
+				}
+			}
+
+			if (x == sculpt_width)   // side stitching
+			{
+				// wrap?
+				if ((sculpt_type == LL_SCULPT_TYPE_SPHERE) ||
+					(sculpt_type == LL_SCULPT_TYPE_TORUS) ||
+					(sculpt_type == LL_SCULPT_TYPE_CYLINDER))
+				{
+					x = 0;
+				}
+					
+				else
+				{
+					x = sculpt_width - 1;
+				}
+			}
+
+			pt.mPos = sculpt_xy_to_vector(x, y, sculpt_width, sculpt_height, sculpt_components, sculpt_data);
+		}
+		line += sizeT;
+	}
+}
+
 
 // sculpt replaces generate() for sculpted surfaces
 void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, S32 sculpt_level)
@@ -1862,7 +2037,7 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 
 	BOOL data_is_empty = FALSE;
 
-	if (sculpt_width == 0 || sculpt_height == 0 || sculpt_data == NULL)
+	if (sculpt_width == 0 || sculpt_height == 0 || sculpt_components == 0 || sculpt_data == NULL)
 	{
 		sculpt_level = -1;
 		data_is_empty = TRUE;
@@ -1870,139 +2045,31 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 
 	mPathp->generate(mDetail, 0, TRUE);
 	mProfilep->generate(mPathp->isOpen(), mDetail, 0, TRUE);
-	
+
 	S32 sizeS = mPathp->mPath.size();
 	S32 sizeT = mProfilep->mProfile.size();
 
+	// weird crash bug - DEV-11158 - trying to collect more data:
+	if ((sizeS == 0) || (sizeT == 0))
+	{
+		llwarns << "sculpt bad mesh size " << sizeS << " " << sizeT << llendl;
+	}
+	
 	sNumMeshPoints -= mMesh.size();
 	mMesh.resize(sizeS * sizeT);
 	sNumMeshPoints += mMesh.size();
-
-	F32 area = 0;
-	// first test to see if image has enough variation to create non-degenerate geometry
-	if (!data_is_empty)
-	{
-		for (S32 s = 0; s < sizeS - 1; s++)
-		{
-			for (S32 t = 0; t < sizeT - 1; t++)
-			{
-				// first coordinate
-				U32 x = (U32) ((F32)s/(sizeS) * (F32) sculpt_width);
-				U32 y = (U32) ((F32)t/(sizeT) * (F32) sculpt_height);
-
-				// coordinate offset by 1
-				U32 x2 = (U32) ((F32)(s+1)/(sizeS) * (F32) sculpt_width);
-				U32 y2 = (U32) ((F32)(t+1)/(sizeT) * (F32) sculpt_height);
-					
-				// three points on a triagle - find the image indices first
-				U32 p1_index = (x + y * sculpt_width) * sculpt_components;
-				U32 p2_index = (x2 + y * sculpt_width) * sculpt_components;
-				U32 p3_index = (x + y2 * sculpt_width) * sculpt_components;
-
-				// convert image data to vectors
-				LLVector3 p1 = sculpt_rgb_to_vector(sculpt_data[p1_index], sculpt_data[p1_index+1], sculpt_data[p1_index+2]);
-				LLVector3 p2 = sculpt_rgb_to_vector(sculpt_data[p2_index], sculpt_data[p2_index+1], sculpt_data[p2_index+2]);
-				LLVector3 p3 = sculpt_rgb_to_vector(sculpt_data[p3_index], sculpt_data[p3_index+1], sculpt_data[p3_index+2]);
-
-				// compute the area of the parallelogram by taking the length of the cross product:
-				// (parallegram is an approximation of two triangles)
-				LLVector3 cross = (p1 - p2) % (p1 - p3);
-				area += cross.magVec();
-			}
-		}
-		if (area < SCULPT_MIN_AREA)
-			data_is_empty = TRUE;
-	}
+	
+	if (sculptGetSurfaceArea(sculpt_width, sculpt_height, sculpt_components, sculpt_data) < SCULPT_MIN_AREA)
+		data_is_empty = TRUE;
 
 	//generate vertex positions
-	if (data_is_empty) // if empty, make a sphere
+	if (data_is_empty) // if empty, make a placeholder mesh
 	{
-		S32 line = 0;
-
-		for (S32 s = 0; s < sizeS; s++)
-		{
-			for (S32 t = 0; t < sizeT; t++)
-			{
-				S32 i = t + line;
-				Point& pt = mMesh[i];
-
-			
-				F32 u = (F32)s/(sizeS-1);
-				F32 v = (F32)t/(sizeT-1);
-
-				const F32 RADIUS = (F32) 0.3;
-					
-				pt.mPos.mV[0] = (F32)(sin(F_PI * v) * cos(2.0 * F_PI * u) * RADIUS);
-				pt.mPos.mV[1] = (F32)(sin(F_PI * v) * sin(2.0 * F_PI * u) * RADIUS);
-				pt.mPos.mV[2] = (F32)(cos(F_PI * v) * RADIUS);
-
-			}
-			line += sizeT;
-		}
+		sculptGeneratePlaceholder();
 	}	
 	else
 	{
-		S32 line = 0;
-		for (S32 s = 0; s < sizeS; s++)
-		{
-			// Run along the profile.
-			for (S32 t = 0; t < sizeT; t++)
-			{
-				S32 i = t + line;
-				Point& pt = mMesh[i];
-
-				U32 x = (U32) ((F32)t/(sizeT-1) * (F32) sculpt_width);
-				U32 y = (U32) ((F32)s/(sizeS-1) * (F32) sculpt_height);
-
-				if (y == 0)  // top row stitching
-				{
-					// pinch?
-					if (sculpt_type == LL_SCULPT_TYPE_SPHERE)
-					{
-						x = sculpt_width / 2;
-					}
-				}
-
-				if (y == sculpt_height)  // bottom row stitching
-				{
-					// wrap?
-					if (sculpt_type == LL_SCULPT_TYPE_TORUS)
-					{
-						y = 0;
-					}
-					else
-					{
-						y = sculpt_height - 1;
-					}
-
-					// pinch?
-					if (sculpt_type == LL_SCULPT_TYPE_SPHERE)
-					{
-						x = sculpt_width / 2;
-					}
-				}
-
-				if (x == sculpt_width)   // side stitching
-				{
-					// wrap?
-					if ((sculpt_type == LL_SCULPT_TYPE_SPHERE) ||
-						(sculpt_type == LL_SCULPT_TYPE_TORUS) ||
-						(sculpt_type == LL_SCULPT_TYPE_CYLINDER))
-					{
-						x = 0;
-					}
-					
-					else
-					{
-						x = sculpt_width - 1;
-					}
-				}
-
-				U32 index = (x + y * sculpt_width) * sculpt_components;
-				pt.mPos = sculpt_rgb_to_vector(sculpt_data[index], sculpt_data[index+1], sculpt_data[index+2]);
-			}
-			line += sizeT;
-		}
+		sculptGenerateMapVertices(sculpt_width, sculpt_height, sculpt_components, sculpt_data, sculpt_type);
 	}
 
 	for (S32 i = 0; i < (S32)mProfilep->mFaces.size(); i++)

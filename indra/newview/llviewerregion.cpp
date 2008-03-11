@@ -98,7 +98,6 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mBillableFactor(1.0),
 	mMaxTasks(MAX_TASKS_PER_REGION),
 	mCacheLoaded(FALSE),
-	mCacheMap(),
 	mCacheEntriesCount(0),
 	mCacheID(),
 	mEventPoll(NULL)
@@ -343,7 +342,7 @@ void LLViewerRegion::saveCache()
 		entry->writeToFile(fp);
 	}
 
-	mCacheMap.removeAllData();
+	mCacheMap.clear();
 	mCacheEnd.unlink();
 	mCacheEnd.init();
 	mCacheStart.deleteAll();
@@ -1013,7 +1012,7 @@ void LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinary
 	U32 local_id = objectp->getLocalID();
 	U32 crc = objectp->getCRC();
 
-	LLVOCacheEntry *entry = mCacheMap.getIfThere(local_id);
+	LLVOCacheEntry* entry = get_if_there(mCacheMap, local_id, (LLVOCacheEntry*)NULL);
 
 	if (entry)
 	{
@@ -1026,7 +1025,7 @@ void LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinary
 		else
 		{
 			// Update the cache entry
-			mCacheMap.removeData(local_id);
+			mCacheMap.erase(local_id);
 			delete entry;
 			entry = new LLVOCacheEntry(local_id, crc, dp);
 			mCacheEnd.insert(*entry);
@@ -1041,7 +1040,7 @@ void LLViewerRegion::cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinary
 		if (mCacheEntriesCount > MAX_OBJECT_CACHE_ENTRIES)
 		{
 			entry = mCacheStart.getNext();
-			mCacheMap.removeData(entry->getLocalID());
+			mCacheMap.erase(entry->getLocalID());
 			delete entry;
 			mCacheEntriesCount--;
 		}
@@ -1060,7 +1059,7 @@ LLDataPacker *LLViewerRegion::getDP(U32 local_id, U32 crc)
 {
 	llassert(mCacheLoaded);
 
-	LLVOCacheEntry *entry = mCacheMap.getIfThere(local_id);
+	LLVOCacheEntry* entry = get_if_there(mCacheMap, local_id, (LLVOCacheEntry*)NULL);
 
 	if (entry)
 	{

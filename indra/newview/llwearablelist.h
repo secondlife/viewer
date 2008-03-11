@@ -33,7 +33,6 @@
 #define LL_LLWEARABLELIST_H
 
 #include "llwearable.h"
-#include "llskiplist.h"
 #include "lluuid.h"
 #include "llassetstorage.h"
 
@@ -43,9 +42,7 @@ public:
 	LLWearableList()	{}
 	~LLWearableList();
 
-	S32					getLength() { return mList.getLength(); }
-	const LLWearable*	getFirst()	{ return mList.getFirstData(); }
-	const LLWearable*	getNext()	{ return mList.getNextData(); }
+	S32					getLength() { return mList.size(); }
 
 	void				getAsset( 
 							const LLAssetID& assetID,
@@ -65,7 +62,7 @@ public:
 	static void	 	    processGetAssetReply(const char* filename, const LLAssetID& assetID, void* user_data, S32 status, LLExtStat ext_status);
 
 protected:
-	LLPtrSkipMap< const LLUUID, LLWearable* > mList;
+	std::map< LLUUID, LLWearable* > mList;
 };
 
 extern LLWearableList gWearableList;

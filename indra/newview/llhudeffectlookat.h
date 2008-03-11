@@ -33,7 +33,6 @@
 #define LL_LLHUDEFFECTLOOKAT_H
 
 #include "llhudeffect.h"
-#include "llskiplist.h"
 
 class LLViewerObject;
 class LLVOAvatar;

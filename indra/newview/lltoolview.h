@@ -33,7 +33,6 @@
 #define LL_LLTOOLVIEW_H
 
 // requires stdtypes.h
-#include "linked_lists.h"
 #include "llpanel.h"
 
 // forward declares
@@ -84,8 +83,8 @@ private:
 
 
 private:
-	LLLinkedList
-		<LLToolContainer>	mContainList;
+	typedef std::vector<LLToolContainer*> contain_list_t;
+	contain_list_t 			mContainList;
 	S32						mButtonCount;			// used to compute rectangles
 };
 

@@ -33,7 +33,6 @@
 #define LL_LLTEXTUREVIEW_H
 
 #include "llcontainerview.h"
-#include "linked_lists.h"
 
 class LLViewerImage;
 class LLTextureBar;

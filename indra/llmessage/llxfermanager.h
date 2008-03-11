@@ -45,7 +45,6 @@ class LLVFS;
 #include "llxfer.h"
 #include "message.h"
 #include "llassetstorage.h"
-#include "linked_lists.h"
 #include "lldir.h"
 #include "lllinkedqueue.h"
 #include "llthrottle.h"
@@ -101,7 +100,8 @@ class LLXferManager
 	LLXfer *mSendList;
 	LLXfer *mReceiveList;
 
-	LLLinkedList <LLHostStatus> mOutgoingHosts;
+	typedef std::list<LLHostStatus*> status_list_t;
+	status_list_t mOutgoingHosts;
 
  private:
  protected:

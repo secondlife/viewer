@@ -50,6 +50,8 @@ VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
 RenderUseCleverUI			1	1
+Disregard128DefaultDrawDistance	1	1
+Disregard96DefaultDrawDistance	1	1
 
 //
 // Low Graphics Settings
@@ -239,8 +241,6 @@ RenderVBOEnable				1	0
 list Intel
 RenderAnisotropic			1	0
 RenderLightingDetail		1	0
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	0
 
 list GeForce2
 RenderAnisotropic			1	0
@@ -249,8 +249,77 @@ RenderMaxPartCount			1	2048
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	1
 
+list Intel_830M
+RenderTerrainDetail			1	0
+RenderVBOEnable				1	0
+
+list Intel_845G					
+RenderTerrainDetail			1	0
+RenderVBOEnable				1	0
+
+list Intel_855GM				
+RenderTerrainDetail			1	0
+RenderVBOEnable				1	0
+
+list Intel_865G			
+RenderTerrainDetail			1	0
+RenderVBOEnable				1	0
+
+list Intel_900		
+RenderTerrainDetail			1	0
+RenderVBOEnable				1	0
+
+list Intel_915GM	
+RenderTerrainDetail			1	0
+RenderVBOEnable				1	0
+
+list Intel_915G					
+RenderTerrainDetail			1	0
+RenderVBOEnable				1	0
+
+list Intel_945GM			
+RenderTerrainDetail			1	0
+RenderVBOEnable				1	0
+
+list Intel_945G
+RenderTerrainDetail			1	0
+RenderVBOEnable				1	0
+
+list Intel_950
+RenderTerrainDetail			1	0
+RenderVBOEnable				1	0
+
 list Intel_965
+RenderTerrainDetail			1	0
+RenderVBOEnable				1	0
 UseOcclusion				0	0
+
+list Intel_G33
+RenderTerrainDetail			1	0
+RenderVBOEnable				1	0
+
+list Intel_Bear_Lake	
+RenderTerrainDetail			1	0
+RenderVBOEnable				1	0
+
+list Intel_Broadwater 
+RenderTerrainDetail			1	0
+RenderVBOEnable				1	0
+
+list Intel_Brookdale	
+RenderTerrainDetail			1	0
+RenderVBOEnable				1	0
+
+list Intel_X3100
+WindLightUseAtmosShaders	0	0
+
+list Intel_Montara
+RenderTerrainDetail			1	0
+RenderVBOEnable				1	0
+
+list Intel_Springdale
+RenderTerrainDetail			1	0
+RenderVBOEnable				1	0
 
 list ATI_Mobility_Radeon_9800
 RenderAvatarCloth			0	0
@@ -266,29 +335,60 @@ list ATI_Mobility_Radeon_9600
 RenderAvatarCloth			0	0
 VertexShaderEnable			0	0
 WindLightUseAtmosShaders	0	0
+Disregard96DefaultDrawDistance	1	0
+
+
+/// tweaked ATI to 96 Draw distance
+
+list ATI_Radeon_9000
+Disregard96DefaultDrawDistance	1	0
+list ATI_Radeon_9200
+Disregard96DefaultDrawDistance	1	0
+list ATI_Radeon_9500
+Disregard96DefaultDrawDistance	1	0
+list ATI_Radeon_9600
+Disregard96DefaultDrawDistance	1	0
+
+/// tweaked ATI to 128 draw distance
+
+list ATI_Radeon_X300 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Radeon_X400 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Radeon_X500 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Radeon_X600 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Radeon_X700 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Radeon_X1300 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Radeon_X1400 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Radeon_X1500 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Radeon_X1600 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Radeon_X1700 
+Disregard128DefaultDrawDistance	1	0
+list ATI_Mobility_Radeon_X1xxx
+Disregard128DefaultDrawDistance	1	0
+
+
+
 
 // Avatar hardware skinning causes
-// invisible avatars on x2600... so I masked
+// invisible avatars on HD 2600... so I masked
 // out other possible bad ones till it's fixed
-list ATI_Radeon_X2400
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-list ATI_Radeon_X2600
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-list ATI_Radeon_X2900
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-list ATI_Radeon_X3800
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
 
 list ATI_Radeon_HD_2300
 RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
+Disregard128DefaultDrawDistance	1	0
 list ATI_Radeon_HD_2400
 RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
+Disregard128DefaultDrawDistance	1	0
 list ATI_Radeon_HD_2600
 RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
@@ -299,17 +399,69 @@ list ATI_Radeon_HD_3800
 RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
 
+/// Tweaked NVIDIA
+
+list NVIDIA_GeForce_FX_5100
+Disregard96DefaultDrawDistance	1	0
+list NVIDIA_GeForce_FX_5200
+Disregard96DefaultDrawDistance	1	0
+list NVIDIA_GeForce_FX_5500
+Disregard96DefaultDrawDistance	1	0
+
+list NVIDIA_GeForce_FX_Go5100
+Disregard96DefaultDrawDistance	1	0
+list NVIDIA_GeForce_FX_Go5200
+Disregard96DefaultDrawDistance	1	0
+list NVIDIA_GeForce_FX_Go5300
+Disregard96DefaultDrawDistance	1	0
+list NVIDIA_GeForce_FX_Go5500
+Disregard96DefaultDrawDistance	1	0
+list NVIDIA_GeForce_FX_Go5600
+Disregard96DefaultDrawDistance	1	0
+
+list NVIDIA_GeForce_6100
+Disregard128DefaultDrawDistance	1	0
+list NVIDIA_GeForce_6200
+Disregard128DefaultDrawDistance	1	0
+list NVIDIA_GeForce_6500
+Disregard128DefaultDrawDistance	1	0
+list NVIDIA_GeForce_6600
+Disregard128DefaultDrawDistance	1	0
+
+
 list NVIDIA_GeForce_Go_6100
 RenderVBOEnable				1	0
+Disregard128DefaultDrawDistance	1	0
 list NVIDIA_GeForce_Go_6200
 RenderVBOEnable				1	0
+Disregard128DefaultDrawDistance	1	0
 list NVIDIA_GeForce_Go_6500
 RenderVBOEnable				1	0
+Disregard128DefaultDrawDistance	1	0
 list NVIDIA_GeForce_Go_6600
 RenderVBOEnable				1	0
+Disregard128DefaultDrawDistance	1	0
 list NVIDIA_GeForce_Go_6700
 RenderVBOEnable				1	0
+Disregard128DefaultDrawDistance	1	0
 list NVIDIA_GeForce_Go_6800
 RenderVBOEnable				1	0
+Disregard128DefaultDrawDistance	1	0
 list NVIDIA_GeForce_Go_6
 RenderVBOEnable				1	0
+Disregard128DefaultDrawDistance	1	0
+
+list NVIDIA_GeForce_7200
+Disregard128DefaultDrawDistance	1	0
+list NVIDIA_GeForce_7300
+Disregard128DefaultDrawDistance	1	0
+list NVIDIA_GeForce_7400
+Disregard128DefaultDrawDistance	1	0
+
+list NVIDIA_GeForce_Go_7200
+Disregard128DefaultDrawDistance	1	0
+list NVIDIA_GeForce_Go_7300
+Disregard128DefaultDrawDistance	1	0
+list NVIDIA_GeForce_Go_7400
+Disregard128DefaultDrawDistance	1	0
+

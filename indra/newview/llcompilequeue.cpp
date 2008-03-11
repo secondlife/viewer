@@ -44,7 +44,6 @@
 #include "llagent.h"
 #include "llchat.h"
 #include "llviewerwindow.h"
-#include "llcallbacklist.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"

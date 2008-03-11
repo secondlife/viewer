@@ -118,7 +118,7 @@ LLFloaterMap *gFloaterMap = NULL;
 LLFloaterMap::LLFloaterMap(const std::string& name)
 	:
 	LLFloater(name, 
-				"FloaterMapRect", 
+				"FloaterMiniMapRect", 
 				MAP_TITLE, 
 				TRUE, 
 				FLOATERMAP_MIN_WIDTH, 

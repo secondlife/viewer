@@ -34,7 +34,6 @@
 
 #include <map>
 
-#include "linked_lists.h"
 #include "llassetstorage.h"
 #include "lldarrayptr.h"
 #include "llhudtext.h"
@@ -591,7 +590,8 @@ protected:
 		LLVOInventoryListener* mListener;
 		void* mInventoryData;
 	};
-	LLLinkedList<LLInventoryCallbackInfo> mInventoryCallbacks;
+	typedef std::list<LLInventoryCallbackInfo*> callback_list_t;
+	callback_list_t mInventoryCallbacks;
 	S16 mInventorySerialNum;
 
 	LLViewerRegion	*mRegionp;					// Region that this object belongs to.

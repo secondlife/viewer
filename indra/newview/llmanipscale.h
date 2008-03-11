@@ -124,6 +124,20 @@ private:
 	void			updateSnapGuides(const LLBBox& bbox);
 private:
 
+	struct compare_manipulators
+	{
+		bool operator() (const ManipulatorHandle* const a, const ManipulatorHandle* const b) const
+		{
+			if (a->mType != b->mType)
+				return a->mType < b->mType;
+			else if (a->mPosition.mV[VZ] != b->mPosition.mV[VZ])
+				return a->mPosition.mV[VZ] < b->mPosition.mV[VZ];
+			else
+				return a->mManipID < b->mManipID;
+		}
+	};
+
+
 	F32				mBoxHandleSize;		// The size of the handles at the corners of the bounding box
 	F32				mScaledBoxHandleSize; // handle size after scaling for selection feedback
 	EManipPart		mManipPart;
@@ -135,7 +149,8 @@ private:
 	S32				mLastMouseY;
 	BOOL			mSendUpdateOnMouseUp;
 	U32 			mLastUpdateFlags;
-	LLLinkedList<ManipulatorHandle>		mProjectedManipulators;
+	typedef std::set<ManipulatorHandle*, compare_manipulators> minpulator_list_t;
+	minpulator_list_t mProjectedManipulators;
 	LLVector4		mManipulatorVertices[14];
 	F32				mScaleSnapUnit1;  // size of snap multiples for axis 1
 	F32				mScaleSnapUnit2;  // size of snap multiples for axis 2

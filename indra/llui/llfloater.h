@@ -185,7 +185,7 @@ public:
 	// Defaults to destroy().
 	virtual void	onClose(bool app_quitting) { destroy(); }
 
-	virtual BOOL	canClose() const { return TRUE; }
+	virtual BOOL	canClose() { return TRUE; }
 
 	virtual void	setVisible(BOOL visible);
 	void			setFrontmost(BOOL take_focus = TRUE);

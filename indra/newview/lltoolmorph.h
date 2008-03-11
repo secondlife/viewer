@@ -35,7 +35,6 @@
 #include "lltool.h"
 #include "m4math.h"
 #include "v2math.h"
-#include "linked_lists.h"
 #include "lldynamictexture.h"
 #include "llundo.h"
 #include "lltextbox.h"
@@ -93,8 +92,9 @@ protected:
 	F32						mLastParamWeight;
 
 	LLPointer<LLViewerImage> mBackgroundp;
-	
-	static LLLinkedList<LLVisualParamHint> sInstances;
+
+	typedef std::set<LLVisualParamHint*> instance_list_t;
+	static instance_list_t sInstances;
 };
 
 // this class resets avatar data at the end of an update cycle

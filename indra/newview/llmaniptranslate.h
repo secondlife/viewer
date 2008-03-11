@@ -35,7 +35,6 @@
 #include "llmanip.h"
 #include "lltimer.h"
 #include "v4math.h"
-#include "linked_lists.h"
 #include "llquaternion.h"
 
 class LLManipTranslate : public LLManip
@@ -88,6 +87,17 @@ protected:
 	F32			getMinGridScale();
 
 private:
+	struct compare_manipulators
+	{
+		bool operator() (const ManipulatorHandle* const a, const ManipulatorHandle* const b) const
+		{
+			if (a->mEndPosition.mV[VZ] != b->mEndPosition.mV[VZ])
+				return (a->mEndPosition.mV[VZ] < b->mEndPosition.mV[VZ]);
+			else
+				return a->mManipID < b->mManipID;			
+		}
+	};
+	
 	S32			mLastHoverMouseX;
 	S32			mLastHoverMouseY;
 	BOOL		mSendUpdateOnMouseUp;
@@ -105,7 +115,8 @@ private:
 	LLVector3d	mDragCursorStartGlobal;
 	LLVector3d	mDragSelectionStartGlobal;
 	LLTimer		mUpdateTimer;
-	LLLinkedList<ManipulatorHandle>		mProjectedManipulators;
+	typedef std::set<ManipulatorHandle*, compare_manipulators> minpulator_list_t;
+	minpulator_list_t mProjectedManipulators;
 	LLVector4	mManipulatorVertices[18];
 	F32			mSnapOffsetMeters;
 	LLVector3	mSnapOffsetAxis;

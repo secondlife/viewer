@@ -35,7 +35,6 @@
 
 #include "indra_constants.h"
 #include "llui.h"
-#include "linked_lists.h"
 #include "llmath.h"		// clampf()
 #include "llregionhandle.h"
 #include "lleventflags.h"

@@ -32,7 +32,6 @@
 #ifndef LL_TOOLMGR_H
 #define LL_TOOLMGR_H
 
-#include "doublelinkedlist.h"
 #include "llkeyboard.h"
 
 class LLTool;
@@ -108,7 +107,8 @@ public:
 
 protected:
 	LLTool*			mSelectedTool;
-	LLDoubleLinkedList<LLTool> mToolList;
+	typedef std::vector<LLTool*> tool_list_t;
+	tool_list_t 	mToolList;
 };
 
 // Handy callbacks for switching tools

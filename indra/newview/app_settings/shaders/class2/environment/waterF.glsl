@@ -48,7 +48,7 @@ void main()
 	
 	vec3 df = vec3(
 					dot(viewVec, wave1),
-					dot(viewVec, wave2),
+					dot(viewVec, (wave2 + wave3) * 0.5),
 					dot(viewVec, wave3)
 				 ) * fresnelScale + fresnelOffset;
 	df *= df;

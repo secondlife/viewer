@@ -40,8 +40,6 @@ class LLSurface;
 class LLVector3d;
 class LLViewerRegion;
 
-template<class DATA_TYPE> class LLLinkedList;
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLToolBrushLand
 //
@@ -50,6 +48,8 @@ template<class DATA_TYPE> class LLLinkedList;
 
 class LLToolBrushLand : public LLTool, public LLEditMenuHandler
 {
+	typedef std::set<LLViewerRegion*> region_list_t;
+
 public:
 	LLToolBrushLand();
 	
@@ -80,7 +80,7 @@ protected:
 	void brush( void );
 	void modifyLandAtPointGlobal( const LLVector3d &spot, MASK mask );
 
-	void determineAffectedRegions(LLLinkedList<LLViewerRegion>& regions,
+	void determineAffectedRegions(region_list_t& regions,
 								  const LLVector3d& spot) const;
 	void renderOverlay(LLSurface& land, const LLVector3& pos_region,
 					   const LLVector3& pos_world);
@@ -99,7 +99,8 @@ protected:
 	BOOL mGotHover;
 	BOOL mLastShowParcelOwners;
 	BOOL mBrushSelected;
-	LLLinkedList<LLViewerRegion> mLastAffectedRegions;
+	// Order doesn't matter and we do check for existance of regions, so use a set
+	region_list_t mLastAffectedRegions;
 };
 
 extern LLToolBrushLand *gToolLand;

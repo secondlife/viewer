@@ -44,7 +44,6 @@
 #include "llhost.h"
 #include "llstring.h"
 #include "llregionflags.h"
-#include "llptrskipmap.h"
 #include "lluuid.h"
 #include "lldatapacker.h"
 #include "llvocache.h"
@@ -352,7 +351,8 @@ protected:
 	// Regions can have order 10,000 objects, so assume
 	// a structure of size 2^14 = 16,000
 	BOOL									mCacheLoaded;
-	LLPtrSkipMap<U32, LLVOCacheEntry *, 14>	mCacheMap;
+	typedef std::map<U32, LLVOCacheEntry *>	cache_map_t;
+	cache_map_t			  				 	mCacheMap;
 	LLVOCacheEntry							mCacheStart;
 	LLVOCacheEntry							mCacheEnd;
 	U32										mCacheEntriesCount;

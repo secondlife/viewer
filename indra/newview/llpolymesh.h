@@ -39,10 +39,7 @@
 #include "v3math.h"
 #include "v2math.h"
 #include "llquaternion.h"
-#include "llskipmap.h"
-#include "llassoclist.h"
 #include "llpolymorph.h"
-#include "llptrskipmap.h"
 #include "lljoint.h"
 //#include "lldarray.h"
 
@@ -99,8 +96,8 @@ private:
 	std::string*			mJointNames;
 
 	// morph targets
-	typedef LLLinkedList<LLPolyMorphData> LLPolyMorphDataList;
-	LLPolyMorphDataList			mMorphData;
+	typedef std::set<LLPolyMorphData*> morphdata_list_t;
+	morphdata_list_t			mMorphData;
 
 	std::map<S32, S32> 			mSharedVerts;
 	
@@ -113,11 +110,11 @@ public:
 	U32				mNumTriangleIndices;
 	U32				*mTriangleIndices;
 
-private:
+public:
 	LLPolyMeshSharedData();
-
 	~LLPolyMeshSharedData();
 
+private:
 	void setupLOD(LLPolyMeshSharedData* reference_data);
 
 	// Frees all mesh memory resources 
@@ -315,8 +312,8 @@ public:
 	}
 
 	LLPolyMorphData*	getMorphData(const char *morph_name);
-	void	removeMorphData(LLPolyMorphData *morph_target);
-	void	deleteAllMorphData();
+// 	void	removeMorphData(LLPolyMorphData *morph_target);
+// 	void	deleteAllMorphData();
 
 	LLPolyMeshSharedData *getSharedData() const;
 	LLPolyMesh *getReferenceMesh() { return mReferenceMesh ? mReferenceMesh : this; }
@@ -365,7 +362,7 @@ protected:
 	LLPolyMesh				*mReferenceMesh;
 
 	// global mesh list
-	typedef LLAssocList<std::string, LLPolyMeshSharedData*> LLPolyMeshSharedDataTable; 
+	typedef std::map<LLString, LLPolyMeshSharedData*> LLPolyMeshSharedDataTable; 
 	static LLPolyMeshSharedDataTable sGlobalSharedMeshList;
 
 	// Backlink only; don't make this an LLPointer.

@@ -143,8 +143,20 @@ protected:
 	// Member Data
 	//-------------------------------------------------------------------------
 
-	typedef LLLinkedList < ParameterizedMotion >	motion_list_t;
-	LLAssocList <std::string, motion_list_t* > mParameterizedMotions;
+	struct compare_motions
+	{
+		bool operator() (const ParameterizedMotion& a, const ParameterizedMotion& b) const
+		{
+			if (a.second != b.second)
+				return (a.second < b.second);
+			else
+				return a.first < b.first;
+		}
+	};
+	
+	typedef std::set < ParameterizedMotion, compare_motions > motion_list_t;
+	typedef std::map <std::string, motion_list_t > motion_map_t;
+	motion_map_t 		mParameterizedMotions;
 	LLMotion*			mDefaultKeyframeMotion;
 	LLCharacter*		mCharacter;
 	LLPoseBlender		mPoseBlender;
