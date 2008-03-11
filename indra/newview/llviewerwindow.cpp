@@ -1842,6 +1842,8 @@ void LLViewerWindow::adjustRectanglesForFirstUse(const LLRect& window)
 
 	adjust_rect_top_left("FloaterLandRect5", window);
 
+	adjust_rect_top_left("FloaterHUDRect", window);
+
 	adjust_rect_top_left("FloaterFindRect2", window);
 
 	adjust_rect_top_left("FloaterGestureRect2", window);

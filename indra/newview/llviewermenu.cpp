@@ -106,6 +106,7 @@
 #include "llfloatergroups.h"
 #include "llfloaterhtml.h"
 #include "llfloaterhtmlhelp.h"
+#include "llfloaterhud.h"
 #include "llfloaterinspect.h"
 #include "llfloaterlagmeter.h"
 #include "llfloaterland.h"
@@ -5371,6 +5372,10 @@ class LLShowFloater : public view_listener_t
 		else if (floater_name == "help f1")
 		{
 			gViewerHtmlHelp.show();
+		}
+		else if (floater_name == "help tutorial")
+		{
+			LLFloaterHUD::show();
 		}
 		else if (floater_name == "complaint reporter")
 		{

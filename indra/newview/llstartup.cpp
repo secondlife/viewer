@@ -94,6 +94,7 @@
 #include "llfloateractivespeakers.h"
 #include "llfloaterchat.h"
 #include "llfloatergesture.h"
+#include "llfloaterhud.h"
 #include "llfloaterland.h"
 #include "llfloatertopobjects.h"
 #include "llfloatertos.h"
@@ -948,6 +949,7 @@ BOOL idle_startup()
 		requested_options.push_back("buddy-list");
 		requested_options.push_back("ui-config");
 #endif
+		requested_options.push_back("tutorial_setting");
 		requested_options.push_back("login-flags");
 		requested_options.push_back("global-textures");
 		if(gGodConnect)
@@ -1971,6 +1973,29 @@ BOOL idle_startup()
 				}
 			}
  		}
+		options.clear();
+		if(gUserAuthp->getOptions("tutorial_setting", options))
+		{
+			LLUserAuth::options_t::iterator it = options.begin();
+			LLUserAuth::options_t::iterator end = options.end();
+			for (; it != end; ++it)
+			{
+				LLUserAuth::response_t::const_iterator option_it;
+				option_it = (*it).find("tutorial_url");
+				if(option_it != (*it).end())
+				{
+					LLFloaterHUD::sTutorialUrl = option_it->second;
+				}
+				option_it = (*it).find("use_tutorial");
+				if(option_it != (*it).end())
+				{
+					if (option_it->second == "true")
+					{
+						LLFloaterHUD::show();
+					}
+				}
+			}
+		}
 
 		options.clear();
 		if(gUserAuthp->getOptions("event_categories", options))
