@@ -135,14 +135,39 @@ protected:
 	S32 mCreationDate;	// seconds from 1/1/1970, UTC
 
 public:
+
+	/**
+	 * Anonymous enumeration for specifying the inventory item flags.
+	 */
 	enum
 	{
-		// The meaning of LLInventoryItem::mFlags is distinct for each
-		// inventory type.
+		// The shared flags at the top are shared among all inventory
+		// types. After that section, all values of flags are type
+		// dependent.  The shared flags will start at 2^30 and work
+		// down while item type specific flags will start at 2^0 and
+		// work up.
 		II_FLAGS_NONE = 0,
 
-		// landmark flags
+
+		//
+		// Shared flags
+		//
+		//
+
+		// This value means that the asset has only one reference in
+		// the system. If the inventory item is deleted, or the asset
+		// id updated, then we can remove the old reference.
+		II_FLAGS_SHARED_SINGLE_REFERENCE = 0x40000000,
+
+
+		//
+		// Landmark flags
+		//
 		II_FLAGS_LANDMARK_VISITED = 1,
+
+		//
+		// Object flags
+		//
 
 		// flag to indicate that object permissions should have next
 		// owner perm be more restrictive on rez. We bump this into
@@ -169,8 +194,11 @@ public:
 		// of muiltiple items or not.
 		II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS			= 0x200000,
 
+		//
 		// wearables use the low order byte of flags to store the
 		// EWearableType enumeration found in newview/llwearable.h
+		//
+		II_FLAGS_WEARABLES_MASK = 0xff,
 	};
 
 protected:
