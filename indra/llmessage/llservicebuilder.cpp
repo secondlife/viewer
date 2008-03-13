@@ -134,6 +134,9 @@ std::string LLServiceBuilder::buildServiceURI(
 			std::string::iterator end(service_url.end());
 			std::string::iterator deepest_node(service_url.end());
 			std::string::iterator deepest_node_end(service_url.end());
+			//parse out the variables to replace by going through {}s one at a time,
+			// starting with the "deepest" in series {{}},
+			// and otherwise replacing right-to-left
 			for(; iter != end; ++iter)
 			{
 				switch(*iter)
@@ -163,7 +166,7 @@ std::string LLServiceBuilder::buildServiceURI(
 			{
 				break;
 			}
-
+			//replace the variable we found in the {} above.
 			// *NOTE: since the c++ implementation only understands
 			// params and straight string substitution, so it's a
 			// known distance of 2 to skip the directive.
@@ -181,7 +184,7 @@ std::string LLServiceBuilder::buildServiceURI(
 				}
 				else
 				{
-					llinfos << "Unknown key: " << key << llendl;
+					llwarns << "Unknown key: " << key << " in option map: " << LLSDOStreamer<LLSDNotationFormatter>(option_map) << llendl;
 					keep_looping = false;
 				}
 				break;
