@@ -97,7 +97,7 @@ class ViewerManifest(LLManifest):
                 """Channel reported for login and upgrade purposes ONLY; used for A/B testing"""
                 # NOTE: Do not return the normal channel if login_channel is not specified, as
                 # some code may branch depending on whether or not this is present
-                return self.args['login_channel']
+                return self.args.get('login_channel')
 
         def channel(self):
                 return self.args['channel']
