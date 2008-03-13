@@ -533,6 +533,9 @@
 			
 			<key>ParcelPropertiesUpdate</key>
 			<boolean>false</boolean>
+			
+			<key>EstateChangeInfo</key>
+			<boolean>false</boolean>
 		
 		</map>
 
