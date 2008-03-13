@@ -93,8 +93,16 @@ class ViewerManifest(LLManifest):
                 self.path("lsl_guide.html")
                 self.path("gpu_table.txt")
 
+        def login_channel(self):
+                """Channel reported for login and upgrade purposes ONLY; used for A/B testing"""
+                # NOTE: Do not return the normal channel if login_channel is not specified, as
+                # some code may branch depending on whether or not this is present
+                return self.args['login_channel']
+
+        def channel(self):
+                return self.args['channel']
         def channel_unique(self):
-                return self.args['channel'].replace("Second Life", "").strip()
+                return self.channel().replace("Second Life", "").strip()
         def channel_oneword(self):
                 return "".join(self.channel_unique().split())
         def channel_lowerword(self):
@@ -112,7 +120,11 @@ class ViewerManifest(LLManifest):
                         
                 if not self.default_channel():
                         # some channel on some grid
-                        channel_flags = '-settings settings_%s.xml -channel "%s"' % (self.channel_lowerword(), self.args['channel'])
+                        channel_flags = '-settings settings_%s.xml -channel "%s"' % (self.channel_lowerword(), self.channel())
+                elif self.login_channel():
+                        # Report a special channel during login, but use default channel elsewhere
+                        channel_flags = '-channel "%s"' % (self.login_channel())
+                        
                 return " ".join((channel_flags, grid_flags)).strip()
 
         def login_url(self):
@@ -144,7 +156,7 @@ class WindowsManifest(ViewerManifest):
                         else:
                                 return "SecondLifePreview.exe"
                 else:
-                        return ''.join(self.args['channel'].split()) + '.exe'
+                        return ''.join(self.channel().split()) + '.exe'
 
 
         def construct(self):
@@ -273,7 +285,7 @@ class WindowsManifest(ViewerManifest):
                         'grid_caps':self.args['grid'].upper(),
                         # escape quotes becase NSIS doesn't handle them well
                         'flags':self.flags_list().replace('"', '$\\"'),
-                        'channel':self.args['channel'],
+                        'channel':self.channel(),
                         'channel_oneword':self.channel_oneword(),
                         'channel_unique':self.channel_unique(),
                         }
@@ -395,7 +407,7 @@ class DarwinManifest(ViewerManifest):
         def package_finish(self):
                 channel_standin = 'Second Life'  # hah, our default channel is not usable on its own
                 if not self.default_channel():
-                        channel_standin = self.args['channel']
+                        channel_standin = self.channel()
                         
                 imagename="SecondLife_" + '_'.join(self.args['version'])
                 if self.default_channel():

@@ -128,8 +128,11 @@ ARGUMENTS=[
         value for this parameter.""",
          default=""),
     dict(name='channel',
-         description="""The channel to use for updates.""",
+         description="""The channel to use for updates, packaging, settings name, etc.""",
          default=get_channel),
+    dict(name='login_channel',
+         description="""The channel to use for login handshake/updates only.""",
+         default=None),
     dict(name='installer_name',
          description=""" The name of the file that the installer should be
         packaged up into. Only used on Linux at the moment.""",
