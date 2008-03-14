@@ -55,41 +55,13 @@
 #include "llviewernetwork.h"
 #include "llmd5.h"
 
-void fill_args(int& argc, char** argv, const S32 max_args, LPSTR cmd_line)
-{
-	char *token = NULL;
-	if( cmd_line[0] == '\"' )
-	{
-		// Exe name is enclosed in quotes
-		token = strtok( cmd_line, "\"" );
-		argv[argc++] = token;
-		token = strtok( NULL, " \t," );
-	}
-	else
-	{
-		// Exe name is not enclosed in quotes
-		token = strtok( cmd_line, " \t," );
-	}
+#include "llcommandlineparser.h"
 
-	while( (token != NULL) && (argc < max_args) )
-	{
-		argv[argc++] = token;
-		/* Get next token: */
-		if (*(token + strlen(token) + 1) == '\"')		/* Flawfinder: ignore*/
-		{
-			token = strtok( NULL, "\"");
-		}
-		else
-		{
-			token = strtok( NULL, " \t," );
-		}
-	}
-}
-
-// *NOTE:Mani - this code is stolen from LLApp, where its never actually used.
 LONG WINAPI viewer_windows_exception_handler(struct _EXCEPTION_POINTERS *exception_infop)
 {
-	// Translate the signals/exceptions into cross-platform stuff
+    // *NOTE:Mani - this code is stolen from LLApp, where its never actually used.
+	
+    // Translate the signals/exceptions into cross-platform stuff
 	// Windows implementation
 	llinfos << "Entering Windows Exception Handler..." << llendl;
 
@@ -144,21 +116,7 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	// *FIX: global
 	gIconResource = MAKEINTRESOURCE(IDI_LL_ICON);
 
-	// In Win32, we need to generate argc and argv ourselves...
-	// Note: GetCommandLine() returns a  potentially return a LPTSTR
-	// which can resolve to a LPWSTR (unicode string).
-	// (That's why it's different from lpCmdLine which is a LPSTR.)
-	// We don't currently do unicode, so call the non-unicode version
-	// directly.
-	LPSTR cmd_line_including_exe_name = GetCommandLineA();
-
-	const S32	MAX_ARGS = 100;
-	int argc = 0;
-	char* argv[MAX_ARGS];		/* Flawfinder: ignore */
-
-	fill_args(argc, argv, MAX_ARGS, cmd_line_including_exe_name);
-
-	LLAppViewerWin32* viewer_app_ptr = new LLAppViewerWin32();
+	LLAppViewerWin32* viewer_app_ptr = new LLAppViewerWin32(lpCmdLine);
 
 	// *FIX:Mani This method is poorly named, since the exception
 	// is now handled by LLApp. 
@@ -179,13 +137,6 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	}
 
 	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
-
-	ok = viewer_app_ptr->tempStoreCommandOptions(argc, argv);
-	if(!ok)
-	{
-		llwarns << "Unable to parse command line." << llendl;
-		return -1;
-	}
 
 	ok = viewer_app_ptr->init();
 	if(!ok)
@@ -308,7 +259,8 @@ void create_console()
 	setvbuf( stderr, NULL, _IONBF, 0 );
 }
 
-LLAppViewerWin32::LLAppViewerWin32()
+LLAppViewerWin32::LLAppViewerWin32(const char* cmd_line) :
+    mCmdLine(cmd_line)
 {
 }
 
@@ -339,15 +291,11 @@ bool LLAppViewerWin32::cleanup()
 	return result;
 }
 
-bool LLAppViewerWin32::initWindow()
+void LLAppViewerWin32::initConsole()
 {
-	// pop up debug console if necessary
-	if (gUseConsole && gSavedSettings.getBOOL("ShowConsoleWindow"))
-	{
-		create_console();
-	}
-
-	return LLAppViewer::initWindow();
+	// pop up debug console
+	create_console();
+	return LLAppViewer::initConsole();
 }
 
 void write_debug_dx(const char* str)
@@ -368,7 +316,7 @@ bool LLAppViewerWin32::initHardwareTest()
 	// Do driver verification and initialization based on DirectX
 	// hardware polling and driver versions
 	//
-	if (gProbeHardware)
+	if (FALSE == gSavedSettings.getBOOL("NoHardwareProbe"))
 	{
 		BOOL vram_only = !gSavedSettings.getBOOL("ProbeHardwareOnStartup");
 
@@ -429,6 +377,11 @@ bool LLAppViewerWin32::initHardwareTest()
 	llinfos << "Detected VRAM: " << gGLManager.mVRAM << llendl;
 
 	return true;
+}
+
+bool LLAppViewerWin32::initParseCommandLine(LLCommandLineParser& clp)
+{
+    return clp.parseCommandLineString(mCmdLine);
 }
 
 void LLAppViewerWin32::handleCrashReporting()

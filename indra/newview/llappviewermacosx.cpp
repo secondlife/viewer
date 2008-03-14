@@ -36,6 +36,8 @@
 #endif
 
 #include "llappviewermacosx.h"
+#include "llcommandlineparser.h"
+
 #include "llmemtype.h"
 
 #include "llviewernetwork.h"
@@ -45,6 +47,13 @@
 #include "llurldispatcher.h"
 #include <Carbon/Carbon.h>
 
+namespace 
+{
+	// The command line args stored.
+	// They are not used immediately by the app.
+	int gArgC;
+	char** gArgV;
+}
 
 int main( int argc, char **argv ) 
 {
@@ -61,14 +70,11 @@ int main( int argc, char **argv )
 
 	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
 
-	bool ok = viewer_app_ptr->tempStoreCommandOptions(argc, argv);
-	if(!ok)
-	{
-		llwarns << "Unable to parse command line." << llendl;
-		return -1;
-	}
-
-	ok = viewer_app_ptr->init();
+	// Store off the command line args for use later.
+	gArgC = argc;
+	gArgV = argv;
+	
+	bool ok = viewer_app_ptr->init();
 	if(!ok)
 	{
 		llwarns << "Application init failed." << llendl;
@@ -106,6 +112,27 @@ LLAppViewerMacOSX::~LLAppViewerMacOSX()
 bool LLAppViewerMacOSX::init()
 {
 	return LLAppViewer::init();
+}
+
+bool LLAppViewerMacOSX::initParseCommandLine(LLCommandLineParser& clp)
+{
+	// First parse the command line, not often used on the mac.
+	clp.parseCommandLine(gArgC, gArgV);
+    
+    // Now read in the args from arguments txt.
+    // Succesive calls to clp.parse... will NOT override earlier 
+    // options. 
+    const char* filename = "arguments.txt";
+	llifstream ifs(filename, llifstream::binary);
+	if (!ifs.is_open())
+	{
+		llwarns << "Unable to open file" << filename << llendl;
+		return false;
+	}
+	
+
+	clp.parseCommandLineFile(ifs);
+    return true;
 }
 
 void LLAppViewerMacOSX::handleCrashReporting()

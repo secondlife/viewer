@@ -446,7 +446,7 @@ void LLFloaterPreference::onBtnOK( void* userdata )
 		fp->apply();
 		fp->close(false);
 
-		gSavedSettings.saveToFile( gSettingsFileName, TRUE );
+		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
 		
 		std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
 		// save all settings, even if equals defaults

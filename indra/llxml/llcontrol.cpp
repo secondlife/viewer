@@ -57,19 +57,9 @@
 #endif
 
 //this defines the current version of the settings file
-U32	LLControlBase::sMaxControlNameLength = 0;
-
-//These lists are used to store the ID's of registered event listeners.
-std::list<S32>				LLControlBase::mFreeIDs;
-std::list<S32>				LLControlBase::mUsedIDs;
-
-S32							LLControlBase::mTopID;
-
-std::set<LLControlBase*>	LLControlBase::mChangedControls;
-
 const S32 CURRENT_VERSION = 101;
 
-BOOL LLControl::llsd_compare(const LLSD& a, const LLSD & b)
+BOOL LLControlVariable::llsd_compare(const LLSD& a, const LLSD & b)
 {
 	switch (mType)
 	{
@@ -101,58 +91,154 @@ BOOL LLControl::llsd_compare(const LLSD& a, const LLSD & b)
 	return FALSE;
 }
 
-LLControlBase::~LLControlBase()
+LLControlVariable::LLControlVariable(const LLString& name, eControlType type,
+							 LLSD initial, const LLString& comment,
+							 BOOL persist)
+	: mName(name),
+	  mComment(comment),
+	  mType(type),
+	  mPersist(persist)
+{
+	if (mPersist && mComment.empty())
+	{
+		llerrs << "Must supply a comment for control " << mName << llendl;
+	}
+	//Push back versus setValue'ing here, since we don't want to call a signal yet
+	mValues.push_back(initial);
+}
+
+
+
+LLControlVariable::~LLControlVariable()
 {
 }
 
-// virtual
-void LLControlBase::resetToDefault()
+void LLControlVariable::setValue(const LLSD& value, bool saved_value)
 {
+    bool value_changed = llsd_compare(getValue(), value) == FALSE;
+	if(saved_value)
+	{
+    	// If we're going to save this value, return to default but don't fire
+		resetToDefault(false);
+	    if (llsd_compare(mValues.back(), value) == FALSE)
+	    {
+		    mValues.push_back(value);
+	    }
+	}
+    else
+    {
+        // This is a unsaved value. Its needs to reside at
+        // mValues[2] (or greater). It must not affect 
+        // the result of getSaveValue()
+	    if (llsd_compare(mValues.back(), value) == FALSE)
+	    {
+            while(mValues.size() > 2)
+            {
+                // Remove any unsaved values.
+                mValues.pop_back();
+            }
+
+            if(mValues.size() < 2)
+            {
+                // Add the default to the 'save' value.
+                mValues.push_back(mValues[0]);
+            }
+
+            // Add the 'un-save' value.
+            mValues.push_back(value);
+	    }
+    }
+
+    if(value_changed)
+    {
+        mSignal(value); 
+    }
 }
 
-LLControlGroup::LLControlGroup():	mNameTable()
+void LLControlVariable::resetToDefault(bool fire_signal)
 {
-	//mFreeStringOffset = 0;
+	//The first setting is always the default
+	//Pop to it and fire off the listener
+	while(mValues.size() > 1) mValues.pop_back();
+	if(fire_signal) firePropertyChanged();
+}
+
+bool LLControlVariable::isSaveValueDefault()
+{ 
+    return (mValues.size() ==  1) 
+        || ((mValues.size() > 1) && llsd_compare(mValues[1], mValues[0]));
+}
+
+LLSD LLControlVariable::getSaveValue() const
+{
+	//The first level of the stack is default
+	//We assume that the second level is user preferences that should be saved
+	if(mValues.size() > 1) return mValues[1];
+	return mValues[0];
+}
+
+LLControlVariable*	LLControlGroup::getControl(const LLString& name)
+{
+	ctrl_name_table_t::iterator iter = mNameTable.find(name);
+	return iter == mNameTable.end() ? NULL : iter->second;
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+
+LLControlGroup::LLControlGroup()
+{
+	mTypeString[TYPE_U32] = "U32";
+	mTypeString[TYPE_S32] = "S32";
+	mTypeString[TYPE_F32] = "F32";
+	mTypeString[TYPE_BOOLEAN] = "Boolean";
+	mTypeString[TYPE_STRING] = "String";
+	mTypeString[TYPE_VEC3] = "Vector3";
+    mTypeString[TYPE_VEC3D] = "Vector3D";
+	mTypeString[TYPE_RECT] = "Rect";
+	mTypeString[TYPE_COL4] = "Color4";
+	mTypeString[TYPE_COL3] = "Color3";
+	mTypeString[TYPE_COL4U] = "Color4u";
+	mTypeString[TYPE_LLSD] = "LLSD";
 }
 
 LLControlGroup::~LLControlGroup()
 {
-}
-
-LLSD LLControlBase::registerListener(LLSimpleListenerObservable *listener, LLSD userdata)
-{
-	// Symmetric listener relationship
-	addListener(listener, "", userdata);
-	listener->addListener(this, "", userdata);
-	return getValue();
+	cleanup();
 }
 
 void LLControlGroup::cleanup()
 {
+	for_each(mNameTable.begin(), mNameTable.end(), DeletePairedPointer());
 	mNameTable.clear();
 }
 
-LLControlBase*	LLControlGroup::getControl(const LLString& name)
+eControlType LLControlGroup::typeStringToEnum(const LLString& typestr)
 {
-	ctrl_name_table_t::iterator iter = mNameTable.find(name);
-	return iter == mNameTable.end() ? NULL : (LLControlBase*)iter->second;
+	for(int i = 0; i < (int)TYPE_COUNT; ++i)
+	{
+		if(mTypeString[i] == typestr) return (eControlType)i;
+	}
+	return (eControlType)-1;
+}
+
+LLString LLControlGroup::typeEnumToString(eControlType typeenum)
+{
+	return mTypeString[typeenum];
 }
 
 BOOL LLControlGroup::declareControl(const LLString& name, eControlType type, const LLSD initial_val, const LLString& comment, BOOL persist)
 {
-	if(!mNameTable[name])
-	{
-		// if not, create the control and add it to the name table
-		LLControl* control = new LLControl(name, type, initial_val, comment, persist);
-		mNameTable[name] = control;
-		return TRUE;
-	}
-	else
+	if(mNameTable.find(name) != mNameTable.end())
 	{
 		llwarns << "LLControlGroup::declareControl: Control named " << name << " already exists." << llendl;
-		mNameTable.erase(name);
-		return FALSE;
+		mNameTable[name]->setValue(initial_val);
+		return TRUE;
 	}
+	// if not, create the control and add it to the name table
+	LLControlVariable* control = new LLControlVariable(name, type, initial_val, comment, persist);
+	mNameTable[name] = control;	
+	return TRUE;
 }
 
 BOOL LLControlGroup::declareU32(const LLString& name, const U32 initial_val, const LLString& comment, BOOL persist)
@@ -210,19 +296,14 @@ BOOL LLControlGroup::declareColor3(const LLString& name, const LLColor3 &initial
 	return declareControl(name, TYPE_COL3, initial_val.getValue(), comment, persist);
 }
 
-LLSD LLControlGroup::registerListener(const LLString& name, LLSimpleListenerObservable *listener)
+BOOL LLControlGroup::declareLLSD(const LLString& name, const LLSD &initial_val, const LLString& comment, BOOL persist )
 {
-	LLControlBase *control = getControl(name);
-	if (control)
-	{
-		return control->registerListener(listener);
-	}
-	return LLSD();
+	return declareControl(name, TYPE_LLSD, initial_val, comment, persist);
 }
 
 BOOL LLControlGroup::getBOOL(const LLString& name)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_BOOLEAN))
 		return control->get().asBoolean();
@@ -235,7 +316,7 @@ BOOL LLControlGroup::getBOOL(const LLString& name)
 
 S32 LLControlGroup::getS32(const LLString& name)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_S32))
 		return control->get().asInteger();
@@ -248,7 +329,7 @@ S32 LLControlGroup::getS32(const LLString& name)
 
 U32 LLControlGroup::getU32(const LLString& name)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_U32))		
 		return control->get().asInteger();
@@ -261,7 +342,7 @@ U32 LLControlGroup::getU32(const LLString& name)
 
 F32 LLControlGroup::getF32(const LLString& name)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_F32))
 		return (F32) control->get().asReal();
@@ -274,7 +355,7 @@ F32 LLControlGroup::getF32(const LLString& name)
 
 LLString LLControlGroup::findString(const LLString& name)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_STRING))
 		return control->get().asString();
@@ -283,7 +364,7 @@ LLString LLControlGroup::findString(const LLString& name)
 
 LLString LLControlGroup::getString(const LLString& name)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_STRING))
 		return control->get().asString();
@@ -309,7 +390,7 @@ LLString LLControlGroup::getText(const LLString& name)
 
 LLVector3 LLControlGroup::getVector3(const LLString& name)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_VEC3))
 		return control->get();
@@ -322,7 +403,7 @@ LLVector3 LLControlGroup::getVector3(const LLString& name)
 
 LLVector3d LLControlGroup::getVector3d(const LLString& name)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_VEC3D))
 		return control->get();
@@ -335,7 +416,7 @@ LLVector3d LLControlGroup::getVector3d(const LLString& name)
 
 LLRect LLControlGroup::getRect(const LLString& name)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_RECT))
 		return control->get();
@@ -353,7 +434,7 @@ LLColor4 LLControlGroup::getColor(const LLString& name)
 
 	if (i != mNameTable.end())
 	{
-		LLControlBase* control = i->second;
+		LLControlVariable* control = i->second;
 
 		switch(control->mType)
 		{
@@ -381,7 +462,7 @@ LLColor4 LLControlGroup::getColor(const LLString& name)
 
 LLColor4U LLControlGroup::getColor4U(const LLString& name)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_COL4U))
 		return control->get();
@@ -394,7 +475,7 @@ LLColor4U LLControlGroup::getColor4U(const LLString& name)
 
 LLColor4 LLControlGroup::getColor4(const LLString& name)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_COL4))
 		return control->get();
@@ -407,7 +488,7 @@ LLColor4 LLControlGroup::getColor4(const LLString& name)
 
 LLColor3 LLControlGroup::getColor3(const LLString& name)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_COL3))
 		return control->get();
@@ -416,6 +497,16 @@ LLColor3 LLControlGroup::getColor3(const LLString& name)
 		CONTROL_ERRS << "Invalid LLColor3 control " << name << llendl;
 		return LLColor3::white;
 	}
+}
+
+LLSD LLControlGroup::getLLSD(const LLString& name)
+{
+	LLControlVariable* control = getControl(name);
+	
+	if (control && control->isType(TYPE_LLSD))
+		return control->getValue();
+	CONTROL_ERRS << "Invalid LLSD control " << name << llendl;
+	return LLSD();
 }
 
 BOOL LLControlGroup::controlExists(const LLString& name)
@@ -430,7 +521,7 @@ BOOL LLControlGroup::controlExists(const LLString& name)
 
 void LLControlGroup::setBOOL(const LLString& name, BOOL val)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_BOOLEAN))
 	{
@@ -445,7 +536,7 @@ void LLControlGroup::setBOOL(const LLString& name, BOOL val)
 
 void LLControlGroup::setS32(const LLString& name, S32 val)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_S32))
 	{
@@ -460,7 +551,7 @@ void LLControlGroup::setS32(const LLString& name, S32 val)
 
 void LLControlGroup::setF32(const LLString& name, F32 val)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_F32))
 	{
@@ -475,7 +566,7 @@ void LLControlGroup::setF32(const LLString& name, F32 val)
 
 void LLControlGroup::setU32(const LLString& name, U32 val)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_U32))
 	{
@@ -490,7 +581,7 @@ void LLControlGroup::setU32(const LLString& name, U32 val)
 
 void LLControlGroup::setString(const LLString& name, const LLString &val)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_STRING))
 	{
@@ -505,7 +596,7 @@ void LLControlGroup::setString(const LLString& name, const LLString &val)
 
 void LLControlGroup::setVector3(const LLString& name, const LLVector3 &val)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_VEC3))
 	{
@@ -519,7 +610,7 @@ void LLControlGroup::setVector3(const LLString& name, const LLVector3 &val)
 
 void LLControlGroup::setVector3d(const LLString& name, const LLVector3d &val)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_VEC3D))
 	{
@@ -533,7 +624,7 @@ void LLControlGroup::setVector3d(const LLString& name, const LLVector3d &val)
 
 void LLControlGroup::setRect(const LLString& name, const LLRect &val)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 
 	if (control && control->isType(TYPE_RECT))
 	{
@@ -547,7 +638,7 @@ void LLControlGroup::setRect(const LLString& name, const LLRect &val)
 
 void LLControlGroup::setColor4U(const LLString& name, const LLColor4U &val)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_COL4U))
 	{
@@ -561,7 +652,7 @@ void LLControlGroup::setColor4U(const LLString& name, const LLColor4U &val)
 
 void LLControlGroup::setColor4(const LLString& name, const LLColor4 &val)
 {
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control && control->isType(TYPE_COL4))
 	{
@@ -573,6 +664,20 @@ void LLControlGroup::setColor4(const LLString& name, const LLColor4 &val)
 	}
 }
 
+void LLControlGroup::setLLSD(const LLString& name, const LLSD& val)
+{
+	LLControlVariable* control = getControl(name);
+	
+	if (control && control->isType(TYPE_LLSD))
+	{
+		setValue(name, val);
+	}
+	else
+	{
+		CONTROL_ERRS << "Invalid LLSD control " << name << llendl;
+	}
+}
+
 void LLControlGroup::setValue(const LLString& name, const LLSD& val)
 {
 	if (name.empty())
@@ -580,7 +685,7 @@ void LLControlGroup::setValue(const LLString& name, const LLSD& val)
 		return;
 	}
 
-	LLControlBase* control = getControl(name);
+	LLControlVariable* control = getControl(name);
 	
 	if (control)
 	{
@@ -596,238 +701,8 @@ void LLControlGroup::setValue(const LLString& name, const LLSD& val)
 // Load and save
 //---------------------------------------------------------------
 
-U32 LLControlGroup::loadFromFileLegacy(const LLString& filename, BOOL require_declaration, eControlType declare_as)
-{
-	U32		item = 0;
-	U32		validitems = 0;
-	llifstream file;
-	S32 version;
-	
-	file.open(filename.c_str());		/*Flawfinder: ignore*/ 
-
-	if (!file)
-	{
-		llinfos << "LLControlGroup::loadFromFile unable to open." << llendl;
-		return 0;
-	}
-
-	// Check file version
-	LLString name;
-	file >> name;
-	file >> version;
-	if (name != "version" || version != CURRENT_VERSION)
-	{
-		llinfos << filename << " does not appear to be a version " << CURRENT_VERSION << " controls file" << llendl;
-		return 0;
-	}
-
-	while (!file.eof())
-	{
-		file >> name;
-		
-		if (name.empty())
-		{
-			continue;
-		}
-
-		if (name.substr(0,2) == "//")
-		{
-			// This is a comment.
-			char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-			file.getline(buffer, MAX_STRING);
-			continue;
-		}
-
-		BOOL declared = mNameTable.find(name) != mNameTable.end();
-
-		if (require_declaration && !declared)
-		{
-			// Declaration required, but this name not declared.
-			// Complain about non-empty names.
-			if (!name.empty())
-			{
-				//read in to end of line
-				char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-				file.getline(buffer, MAX_STRING);
-				llwarns << "LLControlGroup::loadFromFile() : Trying to set \"" << name << "\", setting doesn't exist." << llendl;
-			}
-			continue;
-		}
-
-		// Got an item.  Load it up.
-		item++;
-
-		// If not declared, assume it's a string
-		if (!declared)
-		{
-			switch(declare_as)
-			{
-			case TYPE_COL4:
-				declareColor4(name, LLColor4::white, LLString::null, NO_PERSIST);
-				break;
-			case TYPE_COL4U:
-				declareColor4U(name, LLColor4U::white, LLString::null, NO_PERSIST);
-				break;
-			case TYPE_STRING:
-			default:
-				declareString(name, LLString::null, LLString::null, NO_PERSIST);
-				break;
-			}
-		}
-
-		// Control name has been declared in code.
-		LLControlBase *control = getControl(name);
-
-		llassert(control);
-
-		mLoadedSettings.insert(name);
-		
-		switch(control->mType)
-		{
-		case TYPE_F32:
-			{
-				F32 initial;
-
-				file >> initial;
-
-				control->set(initial);
-				validitems++;
-			}
-			break;
-		case TYPE_S32:
-			{
-				S32 initial;
-
-				file >> initial;
-
-				control->set(initial);
-				validitems++;
-			}
-			break;
-		case TYPE_U32:
-			{
-				U32 initial;
-
-				file >> initial;
-				control->set((LLSD::Integer) initial);
-				validitems++;
-			}
-			break;
-		case TYPE_BOOLEAN:
-			{
-				char boolstring[256];		/*Flawfinder: ignore*/
-				BOOL valid = FALSE;
-				BOOL initial = FALSE;
-
-				file >> boolstring;
-				if (!strcmp("TRUE", boolstring))
-				{
-					initial = TRUE;
-					valid = TRUE;
-				}
-				else if (!strcmp("FALSE", boolstring))
-				{
-					initial = FALSE;
-					valid = TRUE;
-				}
-
-				if (valid)
-				{
-					control->set(initial);
-				}
-				else
-				{
-					llinfos << filename << "Item " << item << ": Invalid BOOL control " << name << ", " << boolstring << llendl; 
-				}
-
-				validitems++;
-			}
-			break;
-		case TYPE_STRING:
-			{
-				LLString string;
-				
-				file >> string;
-				
-				control->set(string);
-				validitems++;
-			}
-			break;
-		case TYPE_VEC3:
-			{
-				F32 x, y, z;
-
-				file >> x >> y >> z;
-
-				LLVector3 vector(x, y, z);
-
-				control->set(vector.getValue());
-				validitems++;
-			}
-			break;
-		case TYPE_VEC3D:
-			{
-				F64 x, y, z;
-
-				file >> x >> y >> z;
-
-				LLVector3d vector(x, y, z);
-
-				control->set(vector.getValue());
-				validitems++;
-			}
-			break;
-		case TYPE_RECT:
-			{
-				S32 left, bottom, width, height;
-
-				file >> left >> bottom >> width >> height;
-
-				LLRect rect;
-				rect.setOriginAndSize(left, bottom, width, height);
-
-				control->set(rect.getValue());
-				validitems++;
-			}
-			break;
-		case TYPE_COL4U:
-			{
-				S32 red, green, blue, alpha;
-				LLColor4U color;
-				file >> red >> green >> blue >> alpha;
-				color.setVec(red, green, blue, alpha);
-				control->set(color.getValue());
-				validitems++;
-			}
-			break;
-		case TYPE_COL4:
-			{
-				LLColor4 color;
-				file >> color.mV[VRED] >> color.mV[VGREEN]
-					 >> color.mV[VBLUE] >> color.mV[VALPHA];
-				control->set(color.getValue());
-				validitems++;
-			}
-			break;
-		case TYPE_COL3:
-			{
-				LLColor3 color;
-				file >> color.mV[VRED] >> color.mV[VGREEN]
-					 >> color.mV[VBLUE];
-				control->set(color.getValue());
-				validitems++;
-			}
-			break;
-		}
-	}
-
-	file.close();
-
-	return validitems;
-}
-
 // Returns number of controls loaded, so 0 if failure
-U32 LLControlGroup::loadFromFile(const LLString& filename, BOOL require_declaration, eControlType declare_as)
+U32 LLControlGroup::loadFromFileLegacy(const LLString& filename, BOOL require_declaration, eControlType declare_as)
 {
 	LLString name;
 
@@ -901,11 +776,9 @@ U32 LLControlGroup::loadFromFile(const LLString& filename, BOOL require_declarat
 		}
 
 		// Control name has been declared in code.
-		LLControlBase *control = getControl(name);
+		LLControlVariable *control = getControl(name);
 
 		llassert(control);
-
-		mLoadedSettings.insert(name);
 		
 		switch(control->mType)
 		{
@@ -1019,59 +892,43 @@ U32 LLControlGroup::loadFromFile(const LLString& filename, BOOL require_declarat
 				LLVector3 color;
 				
 				child_nodep->getAttributeVector3("value", color);
-                control->set(LLColor3(color.mV).getValue());
+				control->set(LLColor3(color.mV).getValue());
 				validitems++;
 			}
 			break;
-		}
 
+		default:
+		  break;
+
+		}
+	
 		child_nodep = rootp->getNextChild();
 	}
 
 	return validitems;
 }
 
-struct compare_controls
-{
-	bool operator() (const LLControlBase* const a, const LLControlBase* const b) const
-	{
-		return a->getName() < b->getName();
-	}
-};
-
 U32 LLControlGroup::saveToFile(const LLString& filename, BOOL nondefault_only)
 {
-	const char ENDL = '\n';
-
-	llinfos << "Saving settings to file: " << filename << llendl;
-
-	// place the objects in a temporary container that enforces a sort
-	// order to ease manual editing of the file
-
-	typedef std::set< LLControlBase*, compare_controls > control_list_t;
-	control_list_t controls;
-
+	LLSD settings;
+	int num_saved = 0;
 	for (ctrl_name_table_t::iterator iter = mNameTable.begin();
 		 iter != mNameTable.end(); iter++)
 	{
-		LLString name = iter->first;
-		if (name.empty())
-		{
-			CONTROL_ERRS << "Control with no name found!!!" << llendl;
-			break;
-		}
-
-		LLControlBase* control = (LLControlBase *)iter->second;
+		LLControlVariable* control = iter->second;
 		if (!control)
 		{
-			llwarns << "Tried to save invalid control: " << name << llendl;
+			llwarns << "Tried to save invalid control: " << iter->first << llendl;
 		}
 
-		if( control && control->mPersist )
+		if( control && control->isPersisted() )
 		{
-			if (!(nondefault_only && (control->mIsDefault)))
+			if (!(nondefault_only && (control->isSaveValueDefault())))
 			{
-				controls.insert( control );
+				settings[iter->first]["Type"] = typeEnumToString(control->type());
+				settings[iter->first]["Comment"] = control->getComment();
+				settings[iter->first]["Value"] = control->getSaveValue();
+				++num_saved;
 			}
 			else
 			{
@@ -1080,156 +937,58 @@ U32 LLControlGroup::saveToFile(const LLString& filename, BOOL nondefault_only)
 			}
 		}
 	}
-
 	llofstream file;
-	file.open(filename.c_str());		/*Flawfinder: ignore*/
-
-	if (!file.is_open())
+	file.open(filename.c_str());
+	if (file.is_open())
 	{
-		// This is a warning because sometime we want to use settings files which can't be written...
-		llwarns << "LLControlGroup::saveToFile unable to open file for writing" << llendl;
+		LLSDSerialize::toPrettyXML(settings, file);
+		file.close();
+		llinfos << "Saved to " << filename << llendl;
+	}
+	else
+	{
+        // This is a warning because sometime we want to use settings files which can't be written...
+		llwarns << "Unable to open settings file: " << filename << llendl;
 		return 0;
 	}
-
-	// Write file version
-	file << "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n";
-	file << "<settings version = \"" << CURRENT_VERSION << "\">\n";
-	for (control_list_t::iterator iter = controls.begin();
-		 iter != controls.end(); ++iter)
-	{
-		LLControlBase* control = *iter;
-		file << "\t<!--" << control->comment() << "-->" << ENDL;
-		LLString name = control->getName();
-		switch (control->type())
-		{
-			case TYPE_U32:
-			{
-				file << "\t<" << name << " value=\"" << (U32) control->get().asInteger() << "\"/>\n";
-				break;
-			}
-			case TYPE_S32:
-			{
-				file << "\t<" << name << " value=\"" << (S32) control->get().asInteger() << "\"/>\n";
-				break;
-			}
-			case TYPE_F32:
-			{
-				file << "\t<" << name << " value=\"" << (F32) control->get().asReal() << "\"/>\n";
-				break;
-			}
-			case TYPE_VEC3:
-			{
-				LLVector3 vector(control->get());
-				file << "\t<" << name << " value=\"" << vector.mV[VX] << " " << vector.mV[VY] << " " << vector.mV[VZ] << "\"/>\n";
-				break;
-			}
-			case TYPE_VEC3D:
-			{
-				LLVector3d vector(control->get());
-				file << "\t<" << name << " value=\"" << vector.mdV[VX] << " " << vector.mdV[VY] << " " << vector.mdV[VZ] << "\"/>\n";
-				break;
-			}
-			case TYPE_RECT:
-			{
-				LLRect rect(control->get());
-				file << "\t<" << name << " value=\"" << rect.mLeft << " " << rect.mBottom << " " << rect.getWidth() << " " << rect.getHeight() << "\"/>\n";
-				break;
-			}
-			case TYPE_COL4:
-			{
-				LLColor4 color(control->get());
-				file << "\t<" << name << " value=\"" << color.mV[VRED] << ", " << color.mV[VGREEN] << ", " << color.mV[VBLUE] << ", " << color.mV[VALPHA] << "\"/>\n";
-				break;
-			}
-			case TYPE_COL3:
-			{
-				LLColor3 color(control->get());
-				file << "\t<" << name << " value=\"" << color.mV[VRED] << ", " << color.mV[VGREEN] << ", " << color.mV[VBLUE] << "\"/>\n";
-				break;
-			}
-			case TYPE_BOOLEAN:
-			{
-				file << "\t<" << name << " value=\"" << (control->get().asBoolean() ? "TRUE" : "FALSE") << "\"/>\n";			
-				break;
-			}
-			case TYPE_STRING:
-			{
-				file << "\t<" << name << " value=\"" << LLSDXMLFormatter::escapeString(control->get().asString()) << "\"/>\n";
-				break;
-			}
-			default:
-			{
-				CONTROL_ERRS << "LLControlGroup::saveToFile - unknown control type!" << llendl;
-				break;
-			}
-		}
-
-		// Debug spam
-		// llinfos << name << " " << control->getValue().asString() << llendl;
-	}// next
-
-	file << "</settings>\n";
-	file.close();
-
-	return controls.size();
+	return num_saved;
 }
 
-void LLControlGroup::applyOverrides(const std::map<std::string, std::string>& overrides)
+U32 LLControlGroup::loadFromFile(const LLString& filename, BOOL require_declaration, eControlType declare_as)
 {
-	for (std::map<std::string, std::string>::const_iterator iter = overrides.begin();
-		 iter != overrides.end(); ++iter)
+	LLString name;
+	LLSD settings;
+	LLSD control_map;
+	llifstream infile;
+	infile.open(filename.c_str());
+	if(!infile.is_open())
 	{
-		const std::string& command = iter->first;
-		const std::string& value = iter->second;
-		LLControlBase* control = (LLControlBase *)mNameTable[command];
-		if (control)
-		{
-			switch(control->mType)
-			{
-			case TYPE_U32:
-				control->set((LLSD::Integer)atof(value.c_str()));
-				break;
-			case TYPE_S32:
-				control->set((S32)atof(value.c_str()));
-				break;
-			case TYPE_F32:
-				control->set((F32)atof(value.c_str()));
-				break;
-			case TYPE_BOOLEAN:
-			  	if (!LLString::compareInsensitive(value.c_str(), "TRUE"))
-				{
-					control->set(TRUE);
-				} 
-				else if (!LLString::compareInsensitive(value.c_str(), "FALSE"))
-				{
-					control->set(FALSE);
-				}
-				else
-				{
-					control->set((BOOL)atof(value.c_str()));
-				}
-				break;
-			case TYPE_STRING:
-				control->set(value);
-				break;
-//			// *FIX: implement this given time and need.
-//			case TYPE_UUID:
-//				break;
-			// we don't support command line overrides of vec3 or col4
-			// yet - requires parsing of multiple values
-			case TYPE_VEC3:
-			case TYPE_VEC3D:
-			case TYPE_COL4:
-			case TYPE_COL3:
-			default:
-				break;
-			}
-		}
-		else
-		{
-			llinfos << "There is no control variable " << command << llendl;
-		}
+		llwarns << "Cannot find file " << filename << " to load." << llendl;
+		return 0;
 	}
+	S32 ret = LLSDSerialize::fromXML(settings, infile);
+	if (ret <= 0)
+	{
+		infile.close();
+		llwarns << "Unable to open LLSD control file " << filename << ". Trying Legacy Method." << llendl;		
+		return loadFromFileLegacy(filename, require_declaration, declare_as);
+	}
+
+	U32		validitems = 0;
+	int persist = 1;
+	for(LLSD::map_const_iterator itr = settings.beginMap(); itr != settings.endMap(); ++itr)
+	{
+		name = (*itr).first;
+		control_map = (*itr).second;
+		
+		if(control_map.has("Persist")) persist = control_map["Persist"].asInteger();
+		
+		declareControl(name, typeStringToEnum(control_map["Type"].asString()), control_map["Value"], control_map["Comment"].asString(), persist);
+		
+		++validitems;
+	}
+
+	return validitems;
 }
 
 void LLControlGroup::resetToDefaults()
@@ -1239,8 +998,17 @@ void LLControlGroup::resetToDefaults()
 		control_iter != mNameTable.end();
 		++control_iter)
 	{
-		LLControlBase* control = (*control_iter).second;
+		LLControlVariable* control = (*control_iter).second;
 		control->resetToDefault();
+	}
+}
+
+void LLControlGroup::applyToAll(ApplyFunctor* func)
+{
+	for (ctrl_name_table_t::iterator iter = mNameTable.begin();
+		 iter != mNameTable.end(); iter++)
+	{
+		func->apply(iter->first, iter->second);
 	}
 }
 
@@ -1264,7 +1032,7 @@ static LLString get_warn_name(const LLString& name)
 void LLControlGroup::addWarning(const LLString& name)
 {
 	LLString warnname = get_warn_name(name);
-	if(!mNameTable[warnname])
+	if(mNameTable.find(warnname) == mNameTable.end())
 	{
 		LLString comment = LLString("Enables ") + name + LLString(" warning dialog");
 		declareBOOL(warnname, TRUE, comment);
@@ -1293,91 +1061,6 @@ void LLControlGroup::resetWarnings()
 	}
 }
 
-
-
-//=============================================================================
-// Listener ID generator/management
-
-void	LLControlBase::releaseListenerID(S32	id)
-{	
-	mFreeIDs.push_back(id);
-}
-
-S32	LLControlBase::allocateListenerID()
-{	
-	if(mFreeIDs.size() == 0)
-	{	//Out of IDs so generate some new ones.
-		for(int t=0;t<32;t++)
-		{
-			mFreeIDs.push_back(mTopID++);
-		}
-	}
-	S32	rtn = mFreeIDs.front();
-	mFreeIDs.pop_front();
-	mUsedIDs.push_back(rtn);
-	return rtn;
-}
-
-bool LLControlBase::handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-{
-	if (event->desc() == "value_changed")
-	{
-		setValue(((LLValueChangedEvent*)(LLEvent*)event)->mValue);
-		return TRUE;
-	}
-	return TRUE;
-}
-
-void LLControlBase::firePropertyChanged()
-{
-	LLValueChangedEvent *evt = new LLValueChangedEvent(this, getValue());
-	fireEvent(evt, "");
-}
-
-//============================================================================
-// Used to add a listener callback that will be called on the frame that the controls value changes
-
-S32 LLControl::addListener(LLControl::tListenerCallback* cbfn)
-{
-	S32	id = allocateListenerID();
-	mListeners.push_back(cbfn);
-	mListenerIDs.push_back( id );
-	return id;
-}
-
-void LLControl::updateListeners() {
-	LLControl::tPropertyChangedListIter iter = mChangeEvents.begin();
-	while(iter!=mChangeEvents.end()){
-		LLControl::tPropertyChangedEvent&	evt = *iter;
-		(*evt.mCBFN)(evt.mNewValue,evt.mID,*this);
-		iter++;
-	}
-	mChangeEvents.clear();
-}
-
-//static
-void	LLControlBase::updateAllListeners()
-{
-	std::set< LLControlBase* >::iterator iter = mChangedControls.begin();
-	while(iter != mChangedControls.end()){
-		(*iter)->updateListeners();
-		iter++;
-	}
-	mChangedControls.clear();
-}
-
-LLControl::LLControl(
-	const LLString& name,
-	eControlType type,
-	LLSD initial,
-	const LLString& comment,
-	BOOL persist) :
-	LLControlBase(name, type, comment, persist),
-	mCurrent(initial),
-	mDefault(initial)
-{
-}
-
 //============================================================================
 
 #ifdef TEST_HARNESS
@@ -1393,17 +1076,17 @@ void main()
 	llinfos << "Loaded " << count << " controls" << llendl;
 
 	// test insertion
-	foo = new LLControl<F32>("gFoo", 5.f, 1.f, 20.f);
+	foo = new LLControlVariable<F32>("gFoo", 5.f, 1.f, 20.f);
 	gGlobals.addEntry("gFoo", foo);
 
-	bar = new LLControl<S32>("gBar", 10, 2, 22);
+	bar = new LLControlVariable<S32>("gBar", 10, 2, 22);
 	gGlobals.addEntry("gBar", bar);
 
-	baz = new LLControl<BOOL>("gBaz", FALSE);
+	baz = new LLControlVariable<BOOL>("gBaz", FALSE);
 	gGlobals.addEntry("gBaz", baz);
 
 	// test retrieval
-	getfoo = (LLControl<F32>*) gGlobals.resolveName("gFoo");
+	getfoo = (LLControlVariable<F32>*) gGlobals.resolveName("gFoo");
 	getfoo->dump();
 
 	getbar = (S32_CONTROL) gGlobals.resolveName("gBar");
@@ -1416,10 +1099,10 @@ void main()
 	// Failure modes
 
 	// ...min > max
-	// badfoo = new LLControl<F32>("gFoo2", 100.f, 20.f, 5.f);
+	// badfoo = new LLControlVariable<F32>("gFoo2", 100.f, 20.f, 5.f);
 
 	// ...initial > max
-	// badbar = new LLControl<S32>("gBar2", 10, 20, 100000);
+	// badbar = new LLControlVariable<S32>("gBar2", 10, 20, 100000);
 
 	// ...misspelled name
 	// getfoo = (F32_CONTROL) gGlobals.resolveName("fooMisspelled");
@@ -1440,4 +1123,5 @@ void main()
 	delete baz;
 }
 #endif
+
 

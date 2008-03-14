@@ -36,15 +36,21 @@ class LLTextureCache;
 class LLWorkerThread;
 class LLTextureFetch;
 
+class LLCommandLineParser;
+
 class LLAppViewer : public LLApp
 {
 public:
 	LLAppViewer();
 	virtual ~LLAppViewer();
 
-	// *NOTE:Mani - Don't use this!
-	// Having 
-	static LLAppViewer* instance() {return sInstance; } 
+    /**
+     * @brief Access to the LLAppViewer singleton.
+     * 
+     * The LLAppViewer singleton is created in main()/WinMain().
+     * So don't use it in pre-entry (static initialization) code.
+     */
+    static LLAppViewer* instance() {return sInstance; } 
 
 	//
 	// Main application logic
@@ -63,10 +69,6 @@ public:
 
     bool quitRequested() { return mQuitRequested; }
     bool logoutRequestSent() { return mLogoutRequestSent; }
-
-	// *FIX: This is meant to stay only until the command line issues are hashed out with repect to LLApp::parseCommandLine
-	// This version stores the argc and argv for later usage, make sure the params passed in last as long as this class.
-	bool tempStoreCommandOptions(int argc, char** argv);
 
 	void closeDebug();
 
@@ -87,9 +89,6 @@ public:
 
 	const std::string& getSerialNumber() { return mSerialNumber; }
 	
-	// *FIX:Mani purgeCache was made public for parse_args().
-	// If that beast is gone, make it private.
-	void purgeCache(); // Clear the local cache. 
 	bool getPurgeCache() const { return mPurgeCache; }
 	
 	const LLString& getSecondLifeTitle() const; // The Second Life title.
@@ -101,8 +100,6 @@ public:
     const std::vector<std::string>& getLoginURIs() const;
     const std::string& getHelperURI() const;
     void resetURIs() const;
-    void setLoginPage(const std::string& login_page);
-    const std::string& getLoginPage();
 
     void forceDisconnect(const LLString& msg); // Force disconnection, with a message to the user.
     void badNetworkHandler(); // Cause a crash state due to bad network packet.
@@ -125,23 +122,26 @@ public:
     virtual void forceErrorInifiniteLoop();
     virtual void forceErrorSoftwareException();
 
+	void loadSettingsFromDirectory(ELLPath path_index);
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
 	virtual bool initLogging(); // Initialize log files, logging system, return false on failure.
+	virtual void initConsole() {}; // Initialize OS level debugging console.
 	virtual bool initHardwareTest() { return true; } // A false result indicates the app should quit.
+
+    virtual bool initParseCommandLine(LLCommandLineParser& clp) 
+        { return true; } // Allow platforms to specify the command line args.
 	
 	virtual std::string generateSerialNumber() = 0; // Platforms specific classes generate this.
 
 
 private:
 
-	bool initEarlyConfiguration(); // Initialize setting needed by crash reporting.
 	bool initThreads(); // Initialize viewer threads, return false on failure.
 	bool initConfiguration(); // Initialize settings from the command line/config file.
 
 	bool initCache(); // Initialize local client cache.
-
-	bool doConfigFromCommandLine(); // calls parse args.
+	void purgeCache(); // Clear the local cache. 
 
 	void cleanupSavedSettings(); // Sets some config data to current or default values during cleanup.
 	void removeCacheFiles(const char *filemask); // Deletes cached files the match the given wildcard.
@@ -186,6 +186,8 @@ private:
 
     bool mQuitRequested;				// User wants to quit, may have modified documents open.
     bool mLogoutRequestSent;			// Disconnect message sent to simulator, no longer safe to send messages to the sim.
+    S32 mYieldTime;
+	LLSD mSettingsFileList;
 };
 
 // consts from viewer.h
@@ -196,30 +198,15 @@ const S32 AGENT_UPDATES_PER_SECOND  = 10;
 //
 // "// llstartup" indicates that llstartup is the only client for this global.
 
-extern bool gVerifySSLCert; // parse_args setting used by llxmlrpctransaction.cpp
 extern BOOL gHandleKeysAsync; // gSavedSettings used by llviewerdisplay.cpp & llviewermenu.cpp
-extern BOOL gProbeHardware;
 extern LLString gDisabledMessage; // llstartup
 extern BOOL gHideLinks; // used by llpanellogin, lllfloaterbuycurrency, llstartup
 extern LLSD gDebugInfo;
 
 extern BOOL	gAllowIdleAFK;
-extern F32 gAFKTimeout;
 extern BOOL	gShowObjectUpdates;
 
-extern BOOL gLogMessages; // llstartup 
-extern std::string gChannelName;
-extern BOOL gUseAudio; // llstartup
-
-extern LLString gCmdLineFirstName; // llstartup
-extern LLString gCmdLineLastName;
-extern LLString gCmdLinePassword;
-
-extern BOOL gAutoLogin; // llstartup
 extern const char* DEFAULT_SETTINGS_FILE; // llstartup
-
-extern BOOL gRequestInventoryLibrary; // llstartup
-extern BOOL gGodConnect; // llstartup
 
 extern BOOL gAcceptTOS;
 extern BOOL gAcceptCriticalMessage;
@@ -265,7 +252,6 @@ extern LLUUID gInventoryLibraryOwner;
 extern LLUUID gInventoryLibraryRoot;
 
 extern BOOL		gDisconnected;
-extern BOOL		gDisableVoice;
 
 // Map scale in pixels per region
 extern F32 gMapScale;
@@ -275,18 +261,12 @@ extern LLFrameTimer	gRestoreGLTimer;
 extern BOOL			gRestoreGL;
 extern BOOL		gUseWireframe;
 
-extern F32 gMouseSensitivity;
-extern BOOL gInvertMouse;
-
 // VFS globals - gVFS is for general use
 // gStaticVFS is read-only and is shipped w/ the viewer
 // it has pre-cache data like the UI .TGAs
 extern LLVFS	*gStaticVFS;
 
 extern LLMemoryInfo gSysMemory;
-
-extern bool gPreloadImages;
-extern bool gPreloadSounds;
 
 extern LLString gLastVersionChannel;
 
@@ -298,10 +278,7 @@ extern BOOL gPrintMessagesThisFrame;
 extern LLUUID gSunTextureID;
 extern LLUUID gMoonTextureID;
 
-extern BOOL gUseConsole; 
-
 extern BOOL gRandomizeFramerate;
 extern BOOL gPeriodicSlowFrame;
 
-extern BOOL gQAMode;
 #endif // LL_LLAPPVIEWER_H

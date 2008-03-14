@@ -149,6 +149,9 @@ public:
 
 	/*virtual*/ BOOL isAnimatable() { return FALSE; }
 	
+	static void updateVectorize(); // Update globals when settings variables change
+	
+private:
 	// Avatar vertex skinning is a significant performance issue on computers
 	// with avatar vertex programs turned off (for example, most Macs).  We
 	// therefore have custom versions that use SIMD instructions.

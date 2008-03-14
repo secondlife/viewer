@@ -339,7 +339,7 @@ const U32 MAP_ITEM_LAND_FOR_SALE = 0x07;
 const U32 MAP_ITEM_CLASSIFIED = 0x08;
 
 // Crash reporter behavior
-const char* const CRASH_SETTINGS_FILE = "crash_settings.xml";
+const char* const CRASH_SETTINGS_FILE = "settings_crash_behavior.xml";
 const char* const CRASH_BEHAVIOR_SETTING = "CrashSubmitBehavior";
 const S32 CRASH_BEHAVIOR_ASK = 0;
 const S32 CRASH_BEHAVIOR_ALWAYS_SEND = 1;

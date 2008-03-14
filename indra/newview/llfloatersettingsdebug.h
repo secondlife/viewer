@@ -1,6 +1,6 @@
 /** 
- * @file llviewercontrol.h
- * @brief references to viewer-specific control files
+ * @file llfloatersettingsdebug.h
+ * @brief floater for debugging internal viewer settings
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -29,43 +29,33 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERCONTROL_H
-#define LL_LLVIEWERCONTROL_H
+#ifndef LLFLOATERDEBUGSETTINGS_H
+#define LLFLOATERDEBUGSETTINGS_H
 
-#include <map>
 #include "llcontrol.h"
+#include "llfloater.h"
+#include "lltexteditor.h"
 
-// Enabled this definition to compile a 'hacked' viewer that
-// allows a hacked godmode to be toggled on and off.
-#define TOGGLE_HACKED_GODLIKE_VIEWER 
-#ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-extern BOOL gHackGodmode;
-#endif
+class LLFloaterSettingsDebug : public LLFloater
+{
+public:
+	LLFloaterSettingsDebug();
+	virtual ~LLFloaterSettingsDebug();
 
-// These functions found in llcontroldef.cpp *TODO: clean this up!
-//setting variables are declared in this function
-void settings_setup_listeners();
+	virtual BOOL postBuild();
+	virtual void draw();
 
-extern std::map<LLString, LLControlGroup*> gSettings;
+	void updateControl(LLControlVariable* control);
 
-// for the graphics settings
-void create_graphics_group(LLControlGroup& group);
+	static void show(void*);
+	static void onSettingSelect(LLUICtrl* ctrl, void* user_data);
+	static void onCommitSettings(LLUICtrl* ctrl, void* user_data);
+	static void onClickDefault(void* user_data);
 
-// saved at end of session
-extern LLControlGroup gSavedSettings;
-extern LLControlGroup gSavedPerAccountSettings;
+protected:
+	static LLFloaterSettingsDebug* sInstance;
+	LLTextEditor* mComment;
+};
 
-// Read-only
-extern LLControlGroup gViewerArt;
+#endif //LLFLOATERDEBUGSETTINGS_H
 
-// Read-only
-extern LLControlGroup gColors;
-
-// Saved at end of session
-extern LLControlGroup gCrashSettings;
-
-// Set after settings loaded
-extern LLString gLastRunVersion;
-extern LLString gCurrentVersion;
-
-#endif // LL_LLVIEWERCONTROL_H

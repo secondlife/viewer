@@ -78,8 +78,6 @@ public:
 	static const S32 WRITE;
 	static const S32 READ_WRITE;
 	static const S32 APPEND;
-
-	static BOOL ALLOW_ASYNC;
 	
 protected:
 	LLAssetType::EType mFileType;

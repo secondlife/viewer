@@ -866,13 +866,53 @@ static F64 sUpdateGeometryRunAvgOn[10];
 static U32 sUpdateGeometryRunCount			= 0 ;
 static U32 sUpdateGeometryCalls				= 0 ;
 static U32 sUpdateGeometryLastProcessor		= 0 ;
+static BOOL sVectorizePerfTest 				= FALSE;
+static U32 sVectorizeProcessor 				= 0;
+
+//static
 void (*LLViewerJointMesh::sUpdateGeometryFunc)(LLFace* face, LLPolyMesh* mesh);
+
+//static
+void LLViewerJointMesh::updateVectorize()
+{
+	sVectorizePerfTest = gSavedSettings.getBOOL("VectorizePerfTest");
+	sVectorizeProcessor = gSavedSettings.getU32("VectorizeProcessor");
+	BOOL vectorizeEnable = gSavedSettings.getBOOL("VectorizeEnable");
+	BOOL vectorizeSkin = gSavedSettings.getBOOL("VectorizeSkin");
+
+	std::string vp;
+	switch(sVectorizeProcessor)
+	{
+		case 2: vp = "SSE2"; break;					// *TODO: replace the magic #s
+		case 1: vp = "SSE"; break;
+		default: vp = "COMPILER DEFAULT"; break;
+	}
+	llinfos << "Vectorization         : " << ( vectorizeEnable ? "ENABLED" : "DISABLED" ) << llendl ;
+	llinfos << "Vector Processor      : " << vp << llendl ;
+	llinfos << "Vectorized Skinning   : " << ( vectorizeSkin ? "ENABLED" : "DISABLED" ) << llendl ;
+	if(vectorizeEnable && vectorizeSkin)
+	{
+		switch(sVectorizeProcessor)
+		{
+			case 2:
+				sUpdateGeometryFunc = &updateGeometrySSE2;
+				break;
+			case 1:
+				sUpdateGeometryFunc = &updateGeometrySSE;
+				break;
+			default:
+				sUpdateGeometryFunc = &updateGeometryVectorized;
+				break;
+		}
+	}
+	else
+	{
+		sUpdateGeometryFunc = &updateGeometryOriginal;
+	}
+}
 
 void LLViewerJointMesh::updateGeometry()
 {
-	extern BOOL gVectorizePerfTest;
-	extern U32	gVectorizeProcessor;
-
 	if (!(mValid
 		  && mMesh
 		  && mFace
@@ -883,7 +923,7 @@ void LLViewerJointMesh::updateGeometry()
 		return;
 	}
 
-	if (!gVectorizePerfTest)
+	if (!sVectorizePerfTest)
 	{
 		// Once we've measured performance, just run the specified
 		// code version.
@@ -916,13 +956,13 @@ void LLViewerJointMesh::updateGeometry()
 		{
 			F64 time_since_app_start = ug_timer.getElapsedSeconds();
 			if(sUpdateGeometryGlobalTime == 0.0 
-				|| sUpdateGeometryLastProcessor != gVectorizeProcessor)
+				|| sUpdateGeometryLastProcessor != sVectorizeProcessor)
 			{
 				sUpdateGeometryGlobalTime		= time_since_app_start;
 				sUpdateGeometryElapsedTime		= 0;
 				sUpdateGeometryCalls			= 0;
 				sUpdateGeometryRunCount			= 0;
-				sUpdateGeometryLastProcessor	= gVectorizeProcessor;
+				sUpdateGeometryLastProcessor	= sVectorizeProcessor;
 				sUpdateGeometryCallPointer		= false;
 				return;
 			}
@@ -969,7 +1009,7 @@ void LLViewerJointMesh::updateGeometry()
 				F64 perf_boost = ( sUpdateGeometryElapsedTimeOff - sUpdateGeometryElapsedTimeOn ) / sUpdateGeometryElapsedTimeOn;
 				llinfos << "run averages (" << (F64)sUpdateGeometryRunCount
 					<< "/10) vectorize off " << a
-					<< "% : vectorize type " << gVectorizeProcessor
+					<< "% : vectorize type " << sVectorizeProcessor
 					<< " " << b
 					<< "% : performance boost " 
 					<< perf_boost * 100.0
@@ -983,7 +1023,6 @@ void LLViewerJointMesh::updateGeometry()
 
 					// We have data now on which version is faster.  Switch to that
 					// code and save the data for next run.
-					gVectorizePerfTest = FALSE;
 					gSavedSettings.setBOOL("VectorizePerfTest", FALSE);
 
 					if (perf_boost > 0.0)
