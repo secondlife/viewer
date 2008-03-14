@@ -1,6 +1,6 @@
 /** 
- * @file llmoveview.h
- * @brief Container for buttons for walking, turning, flying
+ * @file llsmoothstep.h
+ * @brief Smoothstep - transition from 0 to 1 - function, first and second derivatives all continuous (smooth)
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -29,61 +29,22 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMOVEVIEW_H
-#define LL_LLMOVEVIEW_H
+#ifndef LL_LLSMOOTHSTEP_H
+#define LL_LLSMOOTHSTEP_H
 
-// Library includes
-#include "llfloater.h"
-
-class LLButton;
-class LLJoystickAgentTurn;
-class LLJoystickAgentSlide;
-
-//
-// Classes
-//
-class LLFloaterMove
-:	public LLFloater
+template <class LLDATATYPE>
+inline LLDATATYPE llsmoothstep(const LLDATATYPE& edge0, const LLDATATYPE& edge1, const LLDATATYPE& value)
 {
-protected:
-	LLFloaterMove();
-	~LLFloaterMove();
+    if (value < edge0)
+		return (LLDATATYPE)0;
 
-public:
-	/*virtual*/ void onClose(bool app_quitting);
+	if (value >= edge1)
+		return (LLDATATYPE)1;
 
-	static F32	getYawRate(F32 time);
+	// Scale/bias into [0..1] range
+	LLDATATYPE scaled_value = (value - edge0) / (edge1 - edge0);
 
-	static void show(void*);
-	static void toggle(void*);
-	static BOOL visible(void*);
-	
-	// This function is used for agent-driven button highlighting
-	static LLFloaterMove* getInstance()				{ return sInstance; }
+	return scaled_value * scaled_value * (3 - 2 * scaled_value);
+}
 
-protected:
-	static void turnLeftNudge(void* userdata);
-	static void turnLeft(void* userdata);
-	
-	static void turnRightNudge(void* userdata);
-	static void turnRight(void* userdata);
-
-	static void moveUp(void* userdata);
-	static void moveDown(void* userdata);
-
-public:
-	LLJoystickAgentTurn*	mForwardButton;
-	LLJoystickAgentTurn*	mBackwardButton;
-	LLJoystickAgentSlide*	mSlideLeftButton;
-	LLJoystickAgentSlide*	mSlideRightButton;
-	LLButton*				mTurnLeftButton;
-	LLButton*				mTurnRightButton;
-	LLButton*				mMoveUpButton;
-	LLButton*				mMoveDownButton;
-
-protected:
-	static LLFloaterMove*	sInstance;
-};
-
-
-#endif
+#endif // LL_LLSMOOTHSTEP_H

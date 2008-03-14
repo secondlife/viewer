@@ -4881,23 +4881,22 @@ class LLWorldAlwaysRun : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
+		// as well as altering the default walk-vs-run state,
+		// we also change the *current* walk-vs-run state.
 		if (gAgent.getAlwaysRun())
 		{
 			gAgent.clearAlwaysRun();
+			gAgent.clearRunning();
 		}
 		else
 		{
 			gAgent.setAlwaysRun();
+			gAgent.setRunning();
 		}
-		LLMessageSystem *msg = gMessageSystem;
 
+		// tell the simulator.
+		gAgent.sendWalkRun(gAgent.getAlwaysRun());
 
-		msg->newMessageFast(_PREHASH_SetAlwaysRun);
-		msg->nextBlockFast(_PREHASH_AgentData);
-		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-		msg->addBOOLFast(_PREHASH_AlwaysRun, gAgent.getAlwaysRun() );
-		gAgent.sendReliableMessage();
 		return true;
 	}
 };

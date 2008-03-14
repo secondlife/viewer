@@ -1802,9 +1802,11 @@ void adjust_rect_bottom_center(const LLString& control, const LLRect& window)
 	LLRect r = gSavedSettings.getRect(control);
 	if (r.mLeft == 0 && r.mBottom == 0)
 	{
+		// *TODO: Adjust based on XUI XML
+		const S32 TOOLBAR_HEIGHT = 64;
 		r.setOriginAndSize(
 			window.getWidth()/2 - r.getWidth()/2,
-			0,
+			TOOLBAR_HEIGHT,
 			r.getWidth(),
 			r.getHeight());
 		gSavedSettings.setRect(control, r);
@@ -1838,9 +1840,9 @@ void LLViewerWindow::adjustRectanglesForFirstUse(const LLRect& window)
 {
 	LLRect r;
 
-	adjust_rect_bottom_center("FloaterMoveRect", window);
+	adjust_rect_bottom_center("FloaterMoveRect2", window);
 
-	adjust_rect_bottom_center("FloaterCameraRect", window);
+	adjust_rect_bottom_center("FloaterCameraRect2", window);
 
 	adjust_rect_top_left("FloaterCustomizeAppearanceRect", window);
 
@@ -1854,8 +1856,6 @@ void LLViewerWindow::adjustRectanglesForFirstUse(const LLRect& window)
 
 	adjust_rect_top_right("FloaterMiniMapRect", window);
 	
-	adjust_rect_top_right("FloaterLagMeter", window);
-
 	adjust_rect_top_right("FloaterLagMeter", window);
 
 	adjust_rect_top_left("FloaterBuildOptionsRect", window);

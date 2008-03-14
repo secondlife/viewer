@@ -89,6 +89,11 @@ private:
 
 	static void regionHandleCallback(U64 handle, const std::string& url,
 		const LLUUID& snapshot_id, bool teleport);
+		// Called by LLWorldMap when a location has been resolved to a
+	    // region name
+
+	static void regionNameCallback(U64 handle, const std::string& url,
+		const LLUUID& snapshot_id, bool teleport);
 		// Called by LLWorldMap when a region name has been resolved to a
 		// location in-world, used by places-panel display.
 
@@ -220,14 +225,14 @@ bool LLURLDispatcherImpl::dispatchRegion(const std::string& url, BOOL right_mous
 
 	// Request a region handle by name
 	gWorldMap->sendNamedRegionRequest(region_name,
-		LLURLDispatcherImpl::regionHandleCallback,
-		url,
-		false);	// don't teleport
+									  LLURLDispatcherImpl::regionNameCallback,
+									  url,
+									  false);	// don't teleport
 	return true;
 }
 
 /*static*/
-void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const std::string& url, const LLUUID& snapshot_id, bool teleport)
+void LLURLDispatcherImpl::regionNameCallback(U64 region_handle, const std::string& url, const LLUUID& snapshot_id, bool teleport)
 {
 	std::string sim_string = stripProtocol(url);
 	std::string region_name;
@@ -241,6 +246,54 @@ void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const std::str
 	local_pos.mV[VY] = (F32)y;
 	local_pos.mV[VZ] = (F32)z;
 
+	
+	// determine whether the point is in this region
+	if ((x >= 0) && (x < REGION_WIDTH_UNITS) &&
+		(y >= 0) && (y < REGION_WIDTH_UNITS))
+	{
+		// if so, we're done
+		regionHandleCallback(region_handle, url, snapshot_id, teleport);
+	}
+
+	else
+	{
+		// otherwise find the new region from the location
+		
+		// add the position to get the new region
+		LLVector3d global_pos = from_region_handle(region_handle) + LLVector3d(local_pos);
+
+		U64 new_region_handle = to_region_handle(global_pos);
+		gWorldMap->sendHandleRegionRequest(new_region_handle,
+										   LLURLDispatcherImpl::regionHandleCallback,
+										   url, teleport);
+	}
+}
+
+/* static */
+void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const std::string& url, const LLUUID& snapshot_id, bool teleport)
+{
+	std::string sim_string = stripProtocol(url);
+	std::string region_name;
+	S32 x = 128;
+	S32 y = 128;
+	S32 z = 0;
+	LLURLSimString::parse(sim_string, &region_name, &x, &y, &z);
+
+	// remap x and y to local coordinates
+	S32 local_x = x % REGION_WIDTH_UNITS;
+	S32 local_y = y % REGION_WIDTH_UNITS;
+	if (local_x < 0)
+		local_x += REGION_WIDTH_UNITS;
+	if (local_y < 0)
+		local_y += REGION_WIDTH_UNITS;
+	
+	LLVector3 local_pos;
+	local_pos.mV[VX] = (F32)local_x;
+	local_pos.mV[VY] = (F32)local_y;
+	local_pos.mV[VZ] = (F32)z;
+
+
+	
 	if (teleport)
 	{
 		LLVector3d global_pos = from_region_handle(region_handle);

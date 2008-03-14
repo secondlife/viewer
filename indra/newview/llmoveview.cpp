@@ -39,11 +39,9 @@
 // Viewer includes
 #include "llagent.h"
 #include "llviewercontrol.h"
-#include "llfontgl.h"
 #include "llbutton.h"
 #include "llviewerwindow.h"
 #include "lljoystickbutton.h"
-#include "llresmgr.h"
 #include "llvieweruictrlfactory.h"
 
 //
@@ -53,8 +51,6 @@
 const F32 MOVE_BUTTON_DELAY = 0.0f;
 const F32 YAW_NUDGE_RATE = 0.05f;	// fraction of normal speed
 const F32 NUDGE_TIME = 0.25f;		// in seconds
-
-const char *MOVE_TITLE = "";
 
 //
 // Global statics
@@ -69,8 +65,7 @@ LLFloaterMove* LLFloaterMove::sInstance = NULL;
 
 // protected
 LLFloaterMove::LLFloaterMove()
-:	LLFloater("move floater", "FloaterMoveRect", MOVE_TITLE, FALSE, 100, 100, DRAG_ON_TOP,
-			  MINIMIZE_NO)
+:	LLFloater("move floater")
 {
 	setIsChrome(TRUE);
 	gUICtrlFactory->buildFloater(this,"floater_moveview.xml"); 
@@ -104,9 +99,6 @@ LLFloaterMove::LLFloaterMove()
 	childSetAction("move down btn",moveDown,NULL);	
 	mMoveDownButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
 	mMoveDownButton->setHeldDownCallback( moveDown );
-
-	mFlyButton = LLUICtrlFactory::getButtonByName(this, "fly btn"); 
-	childSetAction("fly btn",onFlyButtonClicked,NULL);
 
 	sInstance = this;
 }
@@ -166,12 +158,6 @@ void LLFloaterMove::toggle(void*)
 BOOL LLFloaterMove::visible(void*)
 {
 	return (sInstance != NULL);
-}
-
-// protected static 
-void LLFloaterMove::onFlyButtonClicked(void *)
-{
-	gAgent.toggleFlying();
 }
 
 

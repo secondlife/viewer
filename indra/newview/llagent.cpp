@@ -51,6 +51,7 @@
 #include "llquaternion.h"
 #include "v3math.h"
 #include "v4math.h"
+#include "llsmoothstep.h"
 #include "llsdutil.h"
 //#include "vmath.h"
 
@@ -176,6 +177,8 @@ const F32 AVATAR_ZOOM_MIN_Z_FACTOR = 1.15f;
 
 const F32 MAX_CAMERA_DISTANCE_FROM_AGENT = 50.f;
 
+const F32 MAX_CAMERA_SMOOTH_DISTANCE = 20.0f;
+
 const F32 HEAD_BUFFER_SIZE = 0.3f;
 const F32 CUSTOMIZE_AVATAR_CAMERA_ANIM_SLOP = 0.2f;
 
@@ -272,6 +275,13 @@ void LLAgentFriendObserver::changed(U32 mask)
 LLAgent::LLAgent()
 :	mViewerPort(NET_USE_OS_ASSIGNED_PORT),
 	mDrawDistance( DEFAULT_FAR_PLANE ),
+
+	mDoubleTapRunTimer(),
+	mDoubleTapRunMode(DOUBLETAP_NONE),
+
+	mbAlwaysRun(false),
+	mbRunning(false),
+
 	mAccess(SIM_ACCESS_PG),
 	mGroupPowers(0),
 	mGroupID(),
@@ -303,7 +313,6 @@ LLAgent::LLAgent()
 	mLastCameraMode( CAMERA_MODE_THIRD_PERSON ),
 	mViewsPushed(FALSE),
 
-	mbAlwaysRun(FALSE),
 	mShowAvatar(TRUE),
 	
 	mCameraAnimating( FALSE ),
@@ -329,6 +338,8 @@ LLAgent::LLAgent()
 	mFocusObjectOffset(),
 	mFocusDotRadius( 0.1f ),			// meters
 	mTrackFocusObject(TRUE),
+	mCameraSmoothingLastPositionGlobal(),
+	mCameraSmoothingLastPositionAgent(),
 
 	mFrameAgent(),
 
@@ -3185,8 +3196,9 @@ void LLAgent::updateCamera()
 			}
 
 			// ...adjust position for animation
-			camera_pos_global = lerp(mAnimationCameraStartGlobal, camera_target_global, fraction_of_animation);
-			mFocusGlobal = lerp(mAnimationFocusStartGlobal, focus_target_global, fraction_of_animation);
+			F32 smooth_fraction_of_animation = llsmoothstep(0.0f, 1.0f, fraction_of_animation);
+			camera_pos_global = lerp(mAnimationCameraStartGlobal, camera_target_global, smooth_fraction_of_animation);
+			mFocusGlobal = lerp(mAnimationFocusStartGlobal, focus_target_global, smooth_fraction_of_animation);
 		}
 		else
 		{
@@ -3205,13 +3217,52 @@ void LLAgent::updateCamera()
 			getAvatarObject()->updateAttachmentVisibility(mCameraMode);
 		}
 	}
-	else
+	else 
 	{
 		camera_pos_global = camera_target_global;
 		mFocusGlobal = focus_target_global;
 		mShowAvatar = TRUE;
 	}
 
+	// smoothing
+	if (TRUE) 	
+	{
+		LLVector3d agent_pos = getPositionGlobal();
+		LLVector3d camera_pos_agent = camera_pos_global - agent_pos;
+		
+		if (cameraThirdPerson()) // only smooth in third person mode
+		{
+			F32 smoothing = llclampf(1.f - pow(2.f, -4.f * gSavedSettings.getF32("CameraPositionSmoothing") / gFPSClamped));
+			// we use average FPS instead of LLCriticalDamp b/c exact frame time is jittery
+
+					
+			if (!mFocusObject)  // we differentiate on avatar mode 
+			{
+				// for avatar-relative focus, we smooth in avatar space -
+				// the avatar moves too jerkily w/r/t global space to smooth there.
+
+				LLVector3d delta = camera_pos_agent - mCameraSmoothingLastPositionAgent;
+				if (delta.magVec() < MAX_CAMERA_SMOOTH_DISTANCE)  // only smooth over short distances please
+				{
+					camera_pos_agent = lerp(camera_pos_agent, mCameraSmoothingLastPositionAgent, smoothing);
+					camera_pos_global = camera_pos_agent + agent_pos;
+				}
+			}
+			else
+			{
+				LLVector3d delta = camera_pos_global - mCameraSmoothingLastPositionGlobal;
+				if (delta.magVec() < MAX_CAMERA_SMOOTH_DISTANCE) // only smooth over short distances please
+				{
+					camera_pos_global = lerp(camera_pos_global, mCameraSmoothingLastPositionGlobal, smoothing);
+				}
+			}
+		}
+								 
+		mCameraSmoothingLastPositionGlobal = camera_pos_global;
+		mCameraSmoothingLastPositionAgent = camera_pos_agent;
+	}
+
+	
 	mCameraCurrentFOVZoomFactor = lerp(mCameraCurrentFOVZoomFactor, mCameraFOVZoomFactor, LLCriticalDamp::getInterpolant(FOV_ZOOM_HALF_LIFE));
 
 //	llinfos << "Current FOV Zoom: " << mCameraCurrentFOVZoomFactor << " Target FOV Zoom: " << mCameraFOVZoomFactor << " Object penetration: " << mFocusObjectDist << llendl;
@@ -4988,6 +5039,20 @@ void LLAgent::sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request)
 	msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
 	msg->addBinaryDataFast(_PREHASH_TypeData, NULL, 0);
 	sendReliableMessage();
+}
+
+void LLAgent::sendWalkRun(bool running)
+{
+	LLMessageSystem* msgsys = gMessageSystem;
+	if (msgsys)
+	{
+		msgsys->newMessageFast(_PREHASH_SetAlwaysRun);
+		msgsys->nextBlockFast(_PREHASH_AgentData);
+		msgsys->addUUIDFast(_PREHASH_AgentID, getID());
+		msgsys->addUUIDFast(_PREHASH_SessionID, getSessionID());
+		msgsys->addBOOLFast(_PREHASH_AlwaysRun, BOOL(running) );
+		sendReliableMessage();
+	}
 }
 
 void LLAgent::friendsChanged()

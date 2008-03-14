@@ -104,9 +104,8 @@ the Beta release of the Linux client.
   stability.  See PROBLEM 3 in the TROUBLESHOOTING section if you wish to
   turn these on to possibly enhance your experience.
 
-* MISC - The following features are known to not yet be fully operational on
-  the Linux client:
-  * Movie recording (soon to be deprecated)
+* MISC - The following features are not currently fully implemented on the
+  Linux client and are therefore known not to work properly:
   * Full Unicode font rendering
 
 * UPLOAD / SAVE / COLOR-PICKER DIALOGS - These only appear when the client

@@ -187,6 +187,7 @@ public:
 	virtual void draw();
 	virtual BOOL canClose();
 	virtual void onClose(bool app_quitting);
+	/*virtual*/ void setMinimized(BOOL b);
 	
 private:
 	class SelectionObserver : public LLParcelObserver
@@ -968,9 +969,27 @@ void LLFloaterBuyLandUI::draw()
 	}
 }
 
+// virtual
 BOOL LLFloaterBuyLandUI::canClose()
 {
-	return (mTransaction ? FALSE : TRUE) && mCurrency.canCancel();
+	bool can_close = (mTransaction ? FALSE : TRUE) && mCurrency.canCancel();
+	if (!can_close)
+	{
+		// explain to user why they can't do this, see DEV-9605
+		gViewerWindow->alertXml("CannotCloseFloaterBuyLand");
+	}
+	return can_close;
+}
+
+// virtual
+void LLFloaterBuyLandUI::setMinimized(BOOL minimize)
+{
+	bool restored = (isMinimized() && !minimize);
+	LLFloater::setMinimized(minimize);
+	if (restored)
+	{
+		refreshUI();
+	}
 }
 
 void LLFloaterBuyLandUI::onClose(bool app_quitting)

@@ -153,6 +153,10 @@ public:
 		url_callback_t callback,
 		const std::string& callback_url,
 		bool teleport);
+	void sendHandleRegionRequest(U64 region_handle, 
+		url_callback_t callback,
+		const std::string& callback_url,
+		bool teleport);
 	void sendItemRequest(U32 type, U64 handle = 0);
 
 	static void processMapLayerReply(LLMessageSystem*, void**);
@@ -217,6 +221,7 @@ private:
 
 	// search for named region for url processing
 	std::string mSLURLRegionName;
+	U64 mSLURLRegionHandle;
 	std::string mSLURL;
 	url_callback_t mSLURLCallback;
 	bool mSLURLTeleport;

@@ -67,12 +67,10 @@ const S32 ANIMATION_FRAMES = 1; //13;
 
 // XUI:translate
 LLProgressView::LLProgressView(const std::string& name, const LLRect &rect) 
-: LLPanel(name, rect, FALSE),
-mMouseDownInActiveArea( false )
+:	LLPanel(name, rect, FALSE),
+	mPercentDone( 0.f ),
+	mMouseDownInActiveArea( false )
 {
-	mPercentDone = 0.f;
-	mDrawBackground = TRUE;
-
 	const S32 CANCEL_BTN_WIDTH = 70;
 	const S32 CANCEL_BTN_OFFSET = 16;
 	LLRect r;
@@ -218,39 +216,37 @@ void LLProgressView::draw()
 	}
 
 	// Paint bitmap if we've got one
-	if (mDrawBackground)
+	glPushMatrix();
+	if (gStartImageGL)
 	{
-		glPushMatrix();
-		if (gStartImageGL)
+		LLGLSUIDefault gls_ui;
+		LLViewerImage::bindTexture(gStartImageGL);
+		gGL.color4f(1.f, 1.f, 1.f, mFadeTimer.getStarted() ? clamp_rescale(mFadeTimer.getElapsedTimeF32(), 0.f, FADE_IN_TIME, 1.f, 0.f) : 1.f);
+		F32 image_aspect = (F32)gStartImageWidth / (F32)gStartImageHeight;
+		F32 view_aspect = (F32)width / (F32)height;
+		// stretch image to maintain aspect ratio
+		if (image_aspect > view_aspect)
 		{
-			LLGLSUIDefault gls_ui;
-			LLViewerImage::bindTexture(gStartImageGL);
-			gGL.color4f(1.f, 1.f, 1.f, mFadeTimer.getStarted() ? clamp_rescale(mFadeTimer.getElapsedTimeF32(), 0.f, FADE_IN_TIME, 1.f, 0.f) : 1.f);
-			F32 image_aspect = (F32)gStartImageWidth / (F32)gStartImageHeight;
-			F32 view_aspect = (F32)width / (F32)height;
-			// stretch image to maintain aspect ratio
-			if (image_aspect > view_aspect)
-			{
-				glTranslatef(-0.5f * (image_aspect / view_aspect - 1.f) * width, 0.f, 0.f);
-				glScalef(image_aspect / view_aspect, 1.f, 1.f);
-			}
-			else
-			{
-				glTranslatef(0.f, -0.5f * (view_aspect / image_aspect - 1.f) * height, 0.f);
-				glScalef(1.f, view_aspect / image_aspect, 1.f);
-			}
-			gl_rect_2d_simple_tex( getRect().getWidth(), getRect().getHeight() );
-			gStartImageGL->unbindTexture(0, GL_TEXTURE_2D);
+			glTranslatef(-0.5f * (image_aspect / view_aspect - 1.f) * width, 0.f, 0.f);
+			glScalef(image_aspect / view_aspect, 1.f, 1.f);
 		}
 		else
 		{
-			LLGLSNoTexture gls_no_texture;
-			gGL.color4f(0.f, 0.f, 0.f, 1.f);
-			gl_rect_2d(getRect());
+			glTranslatef(0.f, -0.5f * (view_aspect / image_aspect - 1.f) * height, 0.f);
+			glScalef(1.f, view_aspect / image_aspect, 1.f);
 		}
-		glPopMatrix();
+		gl_rect_2d_simple_tex( getRect().getWidth(), getRect().getHeight() );
+		gStartImageGL->unbindTexture(0, GL_TEXTURE_2D);
 	}
+	else
+	{
+		LLGLSNoTexture gls_no_texture;
+		gGL.color4f(0.f, 0.f, 0.f, 1.f);
+		gl_rect_2d(getRect());
+	}
+	glPopMatrix();
 
+	// Handle fade-in animation
 	if (mFadeTimer.getStarted())
 	{
 		LLView::draw();
@@ -294,31 +290,31 @@ void LLProgressView::draw()
 	S32 background_box_height = background_box_top - background_box_bottom + 1;
 
 	gl_draw_scaled_image_with_border( background_box_left + 2, 
-									  background_box_bottom - 2, 
-									  16, 
-									  16,
-									  background_box_width, 
-									  background_box_height,
-									  shadow_imagep,
-									  gColors.getColor( "ColorDropShadow" ) );
+									background_box_bottom - 2, 
+									16, 
+									16,
+									background_box_width, 
+									background_box_height,
+									shadow_imagep,
+									gColors.getColor( "ColorDropShadow" ) );
 
 	gl_draw_scaled_image_with_border( background_box_left, 
-									  background_box_bottom, 
-									  16, 
-									  16,
-									  background_box_width, 
-									  background_box_height,
-									  bar_imagep,
-									  LLColor4( 0.0f, 0.0f, 0.0f, 0.5f ) );
+									background_box_bottom, 
+									16, 
+									16,
+									background_box_width, 
+									background_box_height,
+									bar_imagep,
+									LLColor4( 0.0f, 0.0f, 0.0f, 0.4f ) );
 
 	gl_draw_scaled_image_with_border( background_box_left + 1,
-									  background_box_bottom + 1, 
-									  16,
-									  16,
-									  background_box_width - 2,
-									  background_box_height - 2,
-									  bar_imagep,
-									  LLColor4( 0.4f, 0.4f, 0.4f, 0.4f ) );
+									background_box_bottom + 1, 
+									16,
+									16,
+									background_box_width - 2,
+									background_box_height - 2,
+									bar_imagep,
+									LLColor4( 0.4f, 0.4f, 0.4f, 0.3f ) );
 
 	// we'll need this later for catching a click if it looks like it contains a link
 	if ( mMessage.find( "http://" ) != std::string::npos )

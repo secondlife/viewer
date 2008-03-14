@@ -185,6 +185,8 @@ public:
 	// Defaults to destroy().
 	virtual void	onClose(bool app_quitting) { destroy(); }
 
+	// This cannot be "const" until all derived floater canClose()
+	// methods are const as well.  JC
 	virtual BOOL	canClose() { return TRUE; }
 
 	virtual void	setVisible(BOOL visible);

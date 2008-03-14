@@ -66,7 +66,6 @@ public:
 	static void onCancelButtonClicked( void* );
 
 protected:
-	BOOL mDrawBackground;
 	F32 mPercentDone;
 	LLString mText;
 	LLString mMessage;
@@ -75,8 +74,8 @@ protected:
 	LLFrameTimer mProgressTimer;
 	LLRect mOutlineRect;
 	bool mMouseDownInActiveArea;
-	static LLProgressView* sInstance;
 
+	static LLProgressView* sInstance;
 };
 
 #endif // LL_LLPROGRESSVIEW_H

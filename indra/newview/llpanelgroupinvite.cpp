@@ -43,6 +43,7 @@
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llvieweruictrlfactory.h"
+#include "llviewerwindow.h"
 
 class LLPanelGroupInvite::impl
 {
@@ -65,6 +66,7 @@ public:
 	static void callbackAddUsers(const std::vector<std::string>& names,
 								 const std::vector<LLUUID>& agent_ids,
 								 void* user_data);
+	static void inviteOwnerCallback(S32 option, void* userdata);
 
 public:
 	LLUUID mGroupID;
@@ -75,6 +77,8 @@ public:
 	LLButton		*mOKButton;
  	LLButton		*mRemoveButton;
 	LLTextBox		*mGroupName;
+	LLTextBox		*mOwnerWarning;
+	bool		mConfirmedOwnerInvite;
 
 	void (*mCloseCallback)(void* data);
 
@@ -82,16 +86,19 @@ public:
 };
 
 
-LLPanelGroupInvite::impl::impl(const LLUUID& group_id)
+LLPanelGroupInvite::impl::impl(const LLUUID& group_id):
+	mGroupID( group_id ),
+	mLoadingText (),
+	mInvitees ( NULL ),
+	mRoleNames( NULL ),
+	mOKButton ( NULL ),
+	mRemoveButton( NULL ),
+	mGroupName( NULL ),
+	mOwnerWarning ( NULL ),
+	mConfirmedOwnerInvite( false ),
+	mCloseCallback( NULL ),
+	mCloseCallbackUserData( NULL )
 {
-	mGroupID = group_id;
-
-	mInvitees  = NULL;
-	mRoleNames = NULL;
-	mRemoveButton = NULL;
-
-	mCloseCallback = NULL;
-	mCloseCallbackUserData = NULL;
 }
 
 LLPanelGroupInvite::impl::~impl()
@@ -140,12 +147,23 @@ void LLPanelGroupInvite::impl::submitInvitations()
 {
 	std::map<LLUUID, LLUUID> role_member_pairs;
 
+	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+
 	// Default to everyone role.
 	LLUUID role_id = LLUUID::null;
 
 	if (mRoleNames)
 	{
 		role_id = mRoleNames->getCurrentID();
+		
+		// owner role: display confirmation and wait for callback
+		if ((role_id == gdatap->mOwnerRole) && (!mConfirmedOwnerInvite))
+		{
+			LLString::format_map_t args;
+			args["[MESSAGE]"] = mOwnerWarning->getText();
+			gViewerWindow->alertXml("GenericAlertYesCancel", args, inviteOwnerCallback, this);
+			return; // we'll be called again if user confirms
+		}
 	}
 
 	//loop over the users
@@ -162,6 +180,28 @@ void LLPanelGroupInvite::impl::submitInvitations()
 	//then close
 	(*mCloseCallback)(mCloseCallbackUserData);
 }
+
+//static
+void LLPanelGroupInvite::impl::inviteOwnerCallback(S32 option, void* userdata)
+{
+	LLPanelGroupInvite::impl* self = (LLPanelGroupInvite::impl*)userdata;
+	if (!self) return;
+
+	switch(option)
+	{
+	case 0:
+		// user confirmed that they really want a new group owner
+		self->mConfirmedOwnerInvite = true;
+		self->submitInvitations();
+		break;
+	case 1:
+		// fall through
+	default:
+		break;
+	}
+}
+
+
 
 void LLPanelGroupInvite::impl::addRoleNames(LLGroupMgrGroupData* gdatap)
 {
@@ -413,7 +453,7 @@ void LLPanelGroupInvite::update()
 void LLPanelGroupInvite::updateLists()
 {
 	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mImplementation->mGroupID);
-	BOOL waiting = FALSE;
+	bool waiting = false;
 
 	if (gdatap) 
 	{
@@ -426,7 +466,7 @@ void LLPanelGroupInvite::updateLists()
 		} 
 		else 
 		{
-			waiting = TRUE;
+			waiting = true;
 		}
 		if (gdatap->isRoleDataComplete() && gdatap->isMemberDataComplete()) 
 		{
@@ -442,12 +482,12 @@ void LLPanelGroupInvite::updateLists()
 		} 
 		else 
 		{
-			waiting = TRUE;
+			waiting = true;
 		}
 	} 
 	else 
 	{
-		waiting = TRUE;
+		waiting = true;
 	}
 
 	if (waiting) 
@@ -522,6 +562,8 @@ BOOL LLPanelGroupInvite::postBuild()
 		button->setClickedCallback(impl::callbackClickCancel);
 		button->setCallbackUserData(mImplementation);
 	}
+
+	mImplementation->mOwnerWarning = (LLTextBox*)getChildByName("confirm_invite_owner_str", recurse);
 
 	update();
 	

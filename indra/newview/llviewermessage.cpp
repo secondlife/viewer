@@ -2834,13 +2834,8 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		avatarp->mFootPlane.clearVec();
 	}
 	
-	// reset always run status
-	msg->newMessageFast(_PREHASH_SetAlwaysRun);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->addBOOLFast(_PREHASH_AlwaysRun, gAgent.getAlwaysRun());
-	gAgent.sendReliableMessage();
+	// send walk-vs-run status
+	gAgent.sendWalkRun(gAgent.getRunning() || gAgent.getAlwaysRun());
 
 	if (LLFloaterReleaseMsg::checkVersion(version_channel_char))
 	{

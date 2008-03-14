@@ -1465,6 +1465,16 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	// Select the object only if we're editing.
 	BOOL rez_selected = gToolMgr->inEdit();
 
+
+	LLVector3 ray_start = regionp->getPosRegionFromGlobal(mLastCameraPos);
+	LLVector3 ray_end   = regionp->getPosRegionFromGlobal(mLastHitPos);
+	// currently the ray's end point is an approximation,
+	// and is sometimes too short (causing failure.)  so we
+	// double the ray's length:
+	LLVector3 ray_direction = ray_start - ray_end;
+	ray_end = ray_end - ray_direction;
+	
+	
 	// Message packing code should be it's own uninterrupted block
 	LLMessageSystem* msg = gMessageSystem;
 	if (mSource == SOURCE_NOTECARD)
@@ -1488,8 +1498,8 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	// optimization.
 	msg->addUUIDFast(_PREHASH_FromTaskID, source_id);
 	msg->addU8Fast(_PREHASH_BypassRaycast, (U8) bypass_sim_raycast);
-	msg->addVector3Fast(_PREHASH_RayStart, regionp->getPosRegionFromGlobal(mLastCameraPos));
-	msg->addVector3Fast(_PREHASH_RayEnd, regionp->getPosRegionFromGlobal(mLastHitPos));
+	msg->addVector3Fast(_PREHASH_RayStart, ray_start);
+	msg->addVector3Fast(_PREHASH_RayEnd, ray_end);
 	msg->addUUIDFast(_PREHASH_RayTargetID, ray_target_id );
 	msg->addBOOLFast(_PREHASH_RayEndIsIntersection, FALSE);
 	msg->addBOOLFast(_PREHASH_RezSelected, rez_selected);

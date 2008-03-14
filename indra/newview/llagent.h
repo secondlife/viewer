@@ -201,16 +201,17 @@ public:
 
 	void			heardChat(const LLUUID& id);
 	void			lookAtLastChat();
-	LLUUID			getLastChatter() { return mLastChatterID; }
-	F32				getTypingTime() { return mTypingTimer.getElapsedTimeF32(); }
+	F32			getTypingTime() { return mTypingTimer.getElapsedTimeF32(); }
 
 	void			setAFK();
 	void			clearAFK();
 	BOOL			getAFK() const;
 
-	void			setAlwaysRun()	{ mbAlwaysRun = TRUE; }
-	void			clearAlwaysRun() { mbAlwaysRun = FALSE; }
-	BOOL			getAlwaysRun() const { return mbAlwaysRun; }
+	void			setAlwaysRun() { mbAlwaysRun = true; }
+	void			clearAlwaysRun() { mbAlwaysRun = false; }
+
+	void			setRunning() { mbRunning = true; }
+	void			clearRunning() { mbRunning = false; }
 
 	void			setBusy();
 	void			clearBusy();
@@ -220,8 +221,7 @@ public:
 	void			setGodLevel(U8 god_level)	{ mGodLevel = god_level; }
 	void			setFirstLogin(BOOL b)		{ mFirstLogin = b; }
 	void			setGenderChosen(BOOL b)		{ mGenderChosen = b; }
-		
-	BOOL			getAdminOverride() const	{ return mAdminOverride; }
+
 	// update internal datastructures and update the server with the
 	// new contribution level. Returns true if the group id was found
 	// and contribution could be set.
@@ -255,6 +255,11 @@ public:
 	F32				getFocusObjectDist() const	{ return mFocusObjectDist; }
 	BOOL			inPrelude();
 	BOOL			canManageEstate() const;
+	BOOL			getAdminOverride() const	{ return mAdminOverride; }
+
+	LLUUID			getLastChatter() const { return mLastChatterID; }
+	bool			getAlwaysRun() const { return mbAlwaysRun; }
+	bool			getRunning() const { return mbRunning; }
 
 	const LLUUID&	getInventoryRootID() const 	{ return mInventoryRootID; }
 
@@ -535,6 +540,15 @@ public:
 
 	F32				getNearChatRadius() { return mNearChatRadius; }
 
+	enum EDoubleTapRunMode
+	{
+		DOUBLETAP_NONE,
+		DOUBLETAP_FORWARD,
+		DOUBLETAP_BACKWARD,
+		DOUBLETAP_SLIDELEFT,
+		DOUBLETAP_SLIDERIGHT
+	};
+
 	enum ETeleportState
 	{
 		TELEPORT_NONE = 0,			// No teleport in progress
@@ -637,6 +651,8 @@ public:
 
 	BOOL			areWearablesLoaded() { return mWearablesLoaded; }
 
+	void sendWalkRun(bool running);
+
 	void observeFriends();
 	void friendsChanged();
 
@@ -709,7 +725,13 @@ public:
 	static std::map<LLString, LLString> sTeleportErrorMessages;
 	static std::map<LLString, LLString> sTeleportProgressMessages;
 
+	LLFrameTimer mDoubleTapRunTimer;
+	EDoubleTapRunMode mDoubleTapRunMode;
+
 private:
+	bool mbAlwaysRun; // should the avatar run by default rather than walk
+	bool mbRunning;	// is the avatar trying to run right now
+
 	// Access or "maturity" level
 	U8				mAccess;	// SIM_ACCESS_MATURE or SIM_ACCESS_PG
 	ETeleportState	mTeleportState;
@@ -738,7 +760,6 @@ private:
 	BOOL			mViewsPushed;					// keep track of whether or not we have pushed views.
 
 	BOOL            mCustomAnim ;                   //current animation is ANIM_AGENT_CUSTOMIZE ?
-	BOOL			mbAlwaysRun;					// should the avatar run rather than walk
 	BOOL			mShowAvatar;					// should we render the avatar?
 	BOOL			mCameraAnimating;				// camera is transitioning from one mode to another
 	LLVector3d		mAnimationCameraStartGlobal;	// camera start position, global coords
@@ -762,7 +783,9 @@ private:
 	BOOL			mSitCameraEnabled;				// use provided camera information when sitting?
 	LLVector3		mSitCameraPos;					// root relative camera pos when sitting
 	LLVector3		mSitCameraFocus;				// root relative camera target when sitting
-
+	LLVector3d      mCameraSmoothingLastPositionGlobal;    
+	LLVector3d      mCameraSmoothingLastPositionAgent;    
+	
 	//Ventrella
 	LLVector3		mCameraUpVector;				// camera's up direction in world coordinates (determines the 'roll' of the view)
 	//End Ventrella

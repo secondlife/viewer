@@ -108,6 +108,7 @@ LLWorldMap::LLWorldMap() :
 	mNeighborMapWidth(0),
 	mNeighborMapHeight(0),
 	mSLURLRegionName(),
+	mSLURLRegionHandle(0),
 	mSLURL(),
 	mSLURLCallback(0),
 	mSLURLTeleport(false)
@@ -409,11 +410,32 @@ void LLWorldMap::sendNamedRegionRequest(std::string region_name,
 		bool teleport)	// immediately teleport when result returned
 {
 	mSLURLRegionName = region_name;
+	mSLURLRegionHandle = 0;
 	mSLURL = callback_url;
 	mSLURLCallback = callback;
 	mSLURLTeleport = teleport;
 
 	sendNamedRegionRequest(region_name);
+}
+
+void LLWorldMap::sendHandleRegionRequest(U64 region_handle, 
+		url_callback_t callback,
+		const std::string& callback_url,
+		bool teleport)	// immediately teleport when result returned
+{
+	mSLURLRegionName.clear();
+	mSLURLRegionHandle = region_handle;
+	mSLURL = callback_url;
+	mSLURLCallback = callback;
+	mSLURLTeleport = teleport;
+
+	U32 global_x;
+	U32 global_y;
+	from_region_handle(region_handle, &global_x, &global_y);
+	U16 grid_x = (U16)(global_x / REGION_WIDTH_UNITS);
+	U16 grid_y = (U16)(global_y / REGION_WIDTH_UNITS);
+	
+	sendMapBlockRequest(grid_x, grid_y, grid_x, grid_y, true);
 }
 
 // public
@@ -566,17 +588,6 @@ void LLWorldMap::processMapBlockReply(LLMessageSystem* msg, void**)
 
 			found_null_sim = true;
 		}
-		else if(gWorldMap->mSLURLCallback != NULL)
-		{
-			// Server returns definitive capitalization, SLURL might
-			// not have that.
-			if (!stricmp(gWorldMap->mSLURLRegionName.c_str(), name))
-			{
-				gWorldMap->mSLURLCallback(handle, gWorldMap->mSLURL, image_id, gWorldMap->mSLURLTeleport);
-				gWorldMap->mSLURLCallback = NULL;
-				gWorldMap->mSLURLRegionName.clear();
-			}
-		}
 		else
 		{
 			adjust = gWorldMap->extendAABB(x_meters, 
@@ -640,6 +651,22 @@ void LLWorldMap::processMapBlockReply(LLMessageSystem* msg, void**)
 						gAgent.teleportViaLocation( pos_global );
 					}
 				}
+			}
+		}
+				
+		if(gWorldMap->mSLURLCallback != NULL)
+		{
+			// Server returns definitive capitalization, SLURL might
+			// not have that.
+			if (!stricmp(gWorldMap->mSLURLRegionName.c_str(), name) || (gWorldMap->mSLURLRegionHandle == handle))
+			{
+				url_callback_t callback = gWorldMap->mSLURLCallback;
+
+				gWorldMap->mSLURLCallback = NULL;
+				gWorldMap->mSLURLRegionName.clear();
+				gWorldMap->mSLURLRegionHandle = 0;
+
+				callback(handle, gWorldMap->mSLURL, image_id, gWorldMap->mSLURLTeleport);
 			}
 		}
 	}

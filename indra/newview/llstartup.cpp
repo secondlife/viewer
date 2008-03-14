@@ -2253,8 +2253,9 @@ BOOL idle_startup()
 		else
 		{
 			update_texture_fetch();
-			set_startup_status(0.60f + 0.40f * timeout_frac, "Precaching...",
-							   gAgent.mMOTD.c_str());
+			set_startup_status(0.60f + 0.40f * timeout_frac,
+				"Loading world...",
+					gAgent.mMOTD.c_str());
 		}
 
 		return do_normal_idle;
