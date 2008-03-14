@@ -34,45 +34,54 @@ from indra.base import llsd
 
 from eventlet import httpc
 
-
-get, put, delete, post = httpc.make_suite(
-    llsd.format_xml, llsd.parse, 'application/xml+llsd')
-
+suite = httpc.HttpSuite(llsd.format_xml, llsd.parse, 'application/xml+llsd')
+delete = suite.delete
+delete_ = suite.delete_
+get = suite.get
+get_ = suite.get_
+head = suite.head
+head_ = suite.head_
+post = suite.post
+post_ = suite.post_
+put = suite.put
+put_ = suite.put_
+request = suite.request
+request_ = suite.request_
 
 for x in (httpc.ConnectionError, httpc.NotFound, httpc.Forbidden):
     globals()[x.__name__] = x
 
 
-def postFile(url, filename, verbose=False):
+def postFile(url, filename):
     f = open(filename)
     body = f.read()
     f.close()
     llsd_body = llsd.parse(body)
-    return post(url, llsd_body, verbose=verbose)
+    return post_(url, llsd_body)
 
 
 def getStatus(url, use_proxy=False):
-    status, _headers, _body = get(url, use_proxy=use_proxy, verbose=True)
+    status, _headers, _body = get_(url, use_proxy=use_proxy)
     return status
 
 
 def putStatus(url, data):
-    status, _headers, _body = put(url, data, verbose=True)
+    status, _headers, _body = put_(url, data)
     return status
 
 
 def deleteStatus(url):
-    status, _headers, _body = delete(url, verbose=True)
+    status, _headers, _body = delete_(url)
     return status
 
 
 def postStatus(url, data):
-    status, _headers, _body = post(url, data, verbose=True)
+    status, _headers, _body = post_(url, data)
     return status
 
 
 def postFileStatus(url, filename):
-    status, _headers, body = postFile(url, filename, verbose=True)
+    status, _headers, body = postFile(url, filename)
     return status, body
 
 
