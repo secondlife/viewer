@@ -483,7 +483,7 @@ void LLFeatureManager::applyFeatures(bool skipFeatures)
 		}
 
 		// get the control setting
-		LLControlVariable* ctrl = gSavedSettings.getControl(mIt->first);
+		LLControlBase* ctrl = gSavedSettings.getControl(mIt->first);
 		if(ctrl == NULL)
 		{
 			llwarns << "AHHH! Control setting " << mIt->first << " does not exist!" << llendl;

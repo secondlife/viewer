@@ -36,7 +36,6 @@
 
 #include "indra_constants.h"
 #include "llmath.h"
-#include "llcontrol.h"
 #include "llcoordframe.h"
 #include "llevent.h"
 #include "llagentconstants.h"
@@ -226,8 +225,8 @@ public:
 	// update internal datastructures and update the server with the
 	// new contribution level. Returns true if the group id was found
 	// and contribution could be set.
-	BOOL 			setGroupContribution(const LLUUID& group_id, S32 contribution);
-	BOOL 			setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOOL list_in_profile);
+	BOOL setGroupContribution(const LLUUID& group_id, S32 contribution);
+	BOOL setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOOL list_in_profile);
 	void			setHideGroupTitle(BOOL hide)	{ mHideGroupTitle = hide; }
 
 	//
@@ -687,6 +686,7 @@ protected:
 						BOOL notify = TRUE);
 public:
 	// TODO: Make these private!
+	U32				mViewerPort;				// Port this agent transmits on.
 	LLUUID			mSecureSessionID;			// secure token for this login session
 
 	F32				mDrawDistance;
@@ -932,6 +932,21 @@ private:
 		LLPointer<LLRefCount> mCB;
 	};
 
+	//control listeners
+	class LLHideGroupTitleListener: public LLSimpleListener
+	{
+	public:
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD &userdata);
+	};
+
+	class LLEffectColorListener: public LLSimpleListener
+	{
+	public:
+		bool handleEvent(LLPointer<LLEvent> event, const LLSD &userdata);
+	};
+
+	LLHideGroupTitleListener mHideGroupTitleListener;
+	LLEffectColorListener mEffectColorListener;
 	LLFriendObserver* mFriendObserver;
 };
 

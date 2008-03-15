@@ -65,7 +65,7 @@ void init_audio()
 
 	BOOL mute_audio = gSavedSettings.getBOOL("MuteAudio");
 
-	if (!mute_audio && FALSE == gSavedSettings.getBOOL("NoPreload"))
+	if (!mute_audio && gPreloadSounds)
 	{
 		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndAlert")));
 		gAudiop->preloadSound(LLUUID(gSavedSettings.getString("UISndBadKeystroke")));

@@ -38,26 +38,6 @@
 #include "llstring.h"
 #include "llrect.h"
 
-#include <vector>
-
-// *NOTE: boost::visit_each<> generates warning 4675 on .net 2003
-// Disable the warning for the boost includes.
-#if LL_WINDOWS
-# if (_MSC_VER >= 1300 && _MSC_VER < 1400)
-#   pragma warning(push)
-#   pragma warning( disable : 4675 )
-# endif
-#endif
-
-#include <boost/bind.hpp>
-#include <boost/signal.hpp>
-
-#if LL_WINDOWS
-# if (_MSC_VER >= 1300 && _MSC_VER < 1400)
-#   pragma warning(pop)
-# endif
-#endif
-
 class LLVector3;
 class LLVector3d;
 class LLColor4;
@@ -68,7 +48,7 @@ const BOOL NO_PERSIST = FALSE;
 
 typedef enum e_control_type
 {
-	TYPE_U32 = 0,
+	TYPE_U32,
 	TYPE_S32,
 	TYPE_F32,
 	TYPE_BOOLEAN,
@@ -78,82 +58,159 @@ typedef enum e_control_type
 	TYPE_RECT,
 	TYPE_COL4,
 	TYPE_COL3,
-	TYPE_COL4U,
-	TYPE_LLSD,
-	TYPE_COUNT
+	TYPE_COL4U
 } eControlType;
 
-class LLControlVariable
+class LLControlBase : public LLSimpleListenerObservable
 {
-	friend class LLControlGroup;
-	typedef boost::signal<void(const LLSD&)> signal_t;
-
-private:
+friend class LLControlGroup;
+protected:
 	LLString		mName;
 	LLString		mComment;
 	eControlType	mType;
+	BOOL			mHasRange;
 	BOOL			mPersist;
-	std::vector<LLSD> mValues;
-	
-	signal_t mSignal;
-	
-public:
-	LLControlVariable(const LLString& name, eControlType type,
-					  LLSD initial, const LLString& comment,
-					  BOOL persist = TRUE);
+	BOOL            mIsDefault;
 
-	virtual ~LLControlVariable();
-	
+	static	std::set<LLControlBase*>	mChangedControls;
+	static	std::list<S32>				mFreeIDs;//These lists are used to store the ID's of registered event listeners.
+	static	std::list<S32>				mUsedIDs;
+	static	S32							mTopID;//This is the index of the highest ID event listener ID. When the free pool is exhausted, new IDs are allocated from here.
+
+public:
+	static	void						releaseListenerID(S32	id);
+	static	S32							allocateListenerID();
+	static	void						updateAllListeners();
+	virtual void updateListeners() = 0;
+
+	LLControlBase(const LLString& name, eControlType type, const LLString& comment, BOOL persist)
+		: mName(name),
+		mComment(comment),
+		mType(type),
+		mHasRange(FALSE),
+		mPersist(persist),
+		mIsDefault(TRUE)
+	{ 
+		if (mPersist && mComment.empty())
+		{
+			llerrs << "Must supply a comment for control " << mName << llendl;
+		}
+		sMaxControlNameLength = llmax((U32)mName.size(), sMaxControlNameLength);
+	}
+
+	virtual ~LLControlBase();
+
 	const LLString& getName() const { return mName; }
 	const LLString& getComment() const { return mComment; }
 
 	eControlType type()		{ return mType; }
-	BOOL isType(eControlType tp) { return tp == mType; }
+	BOOL	isType(eControlType tp) { return tp == mType; }
 
-	void resetToDefault(bool fire_signal = TRUE);
+	// Defaults to no-op
+	virtual void resetToDefault();
 
-	signal_t* getSignal() { return &mSignal; }
+	LLSD registerListener(LLSimpleListenerObservable *listener, LLSD userdata = "");
 
-	bool isDefault() { return (mValues.size() == 1); }
-	bool isSaveValueDefault();
-	bool isPersisted() { return mPersist; }
-	void set(const LLSD& val)	{ setValue(val); }
-	LLSD get()			const	{ return getValue(); }
-	LLSD getDefault()	const	{ return mValues.front(); }
-	LLSD getValue()		const	{ return mValues.back(); }
-	LLSD getSaveValue() const;
-	void setValue(const LLSD& value, bool saved_value = TRUE);
-	void firePropertyChanged()
-	{
-		mSignal(mValues.back());
-	}
+	virtual LLSD get() const = 0;
+	virtual LLSD getValue() const = 0;
+	virtual void setValue(LLSD value) = 0;
+	virtual void set(LLSD value) = 0;
+
+	// From LLSimpleListener
+	virtual bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+
+	void firePropertyChanged();
+
+	static U32	sMaxControlNameLength;
+
+protected:
+	const char* name()			{ return mName.c_str(); }
+	const char* comment()		{ return mComment.c_str(); }
+};
+
+class LLControl
+: public LLControlBase
+{
+friend class LLControlGroup;
+protected:
+	LLSD mCurrent;
+	LLSD mDefault;
+
+public:	
+
+	typedef void	tListenerCallback(const LLSD&	newValue,S32	listenerID, LLControl& control);
+	typedef struct{
+		S32					mID;
+		LLSD			mNewValue;
+		tListenerCallback*	mCBFN;
+	}tPropertyChangedEvent;
+
+	typedef std::list<tPropertyChangedEvent>::iterator tPropertyChangedListIter;
+	std::list<tPropertyChangedEvent>	mChangeEvents;
+	std::list< tListenerCallback* >		mListeners;
+	std::list< S32 >					mListenerIDs;
+
+	virtual void						updateListeners();
+	S32									addListener(tListenerCallback*	cbfn);
+	
+	LLControl(
+		const LLString& name,
+		eControlType type,
+		LLSD initial, const
+		LLString& comment,
+		BOOL persist = TRUE);
+
+	void set(LLSD val)			{ setValue(val); }
+	LLSD get()			const	{ return getValue(); } 
+	LLSD getdefault()	const	{ return mDefault; }
+	LLSD getValue()		const	{ return mCurrent; }
 	BOOL llsd_compare(const LLSD& a, const LLSD& b);
+
+	void setValue(LLSD value)			
+	{ 
+		if (llsd_compare(mCurrent, value) == FALSE)
+		{
+			mCurrent = value; 
+			mIsDefault = llsd_compare(mCurrent, mDefault); 
+			firePropertyChanged(); 
+		}
+	}
+
+	/*virtual*/ void resetToDefault() 
+	{ 
+		setValue(mDefault);
+	}
+
+	virtual	~LLControl()
+	{
+		//Remove and deregister all listeners..
+		while(mListenerIDs.size())
+		{
+			S32	id = mListenerIDs.front();
+			mListenerIDs.pop_front();
+			releaseListenerID(id);
+		}
+	}
 };
 
 //const U32 STRING_CACHE_SIZE = 10000;
 class LLControlGroup
 {
-protected:
-	typedef std::map<LLString, LLControlVariable* > ctrl_name_table_t;
+public:
+	typedef std::map<LLString, LLPointer<LLControlBase> > ctrl_name_table_t;
 	ctrl_name_table_t mNameTable;
 	std::set<LLString> mWarnings;
-	LLString mTypeString[TYPE_COUNT];
+	std::set<LLString> mLoadedSettings;	// Filled in with names loaded from settings.xml
 
-	eControlType typeStringToEnum(const LLString& typestr);
-	LLString typeEnumToString(eControlType typeenum);	
 public:
 	LLControlGroup();
 	~LLControlGroup();
 	void cleanup();
+	bool hasLoaded(const LLString& name) { return mLoadedSettings.find(name) != mLoadedSettings.end(); }
+	void clearLoaded() { mLoadedSettings.clear(); } // Call once we've done any settings tweaks which may need this data
 	
-	LLControlVariable*	getControl(const LLString& name);
-
-	struct ApplyFunctor
-	{
-		virtual ~ApplyFunctor() {};
-		virtual void apply(const LLString& name, LLControlVariable* control) = 0;
-	};
-	void applyToAll(ApplyFunctor* func);
+	LLControlBase*	getControl(const LLString& name);
+	LLSD registerListener(const LLString& name, LLSimpleListenerObservable *listener);
 	
 	BOOL declareControl(const LLString& name, eControlType type, const LLSD initial_val, const LLString& comment, BOOL persist);
 	BOOL declareU32(const LLString& name, U32 initial_val, const LLString& comment, BOOL persist = TRUE);
@@ -167,7 +224,6 @@ public:
 	BOOL declareColor4U(const LLString& name, const LLColor4U &initial_val, const LLString& comment, BOOL persist = TRUE);
 	BOOL declareColor4(const LLString& name, const LLColor4 &initial_val, const LLString& comment, BOOL persist = TRUE);
 	BOOL declareColor3(const LLString& name, const LLColor3 &initial_val, const LLString& comment, BOOL persist = TRUE);
-	BOOL declareLLSD(const LLString& name, const LLSD &initial_val, const LLString& comment, BOOL persist = TRUE);
 	
 	LLString 	findString(const LLString& name);
 
@@ -181,7 +237,7 @@ public:
 	S32			getS32(const LLString& name);
 	F32			getF32(const LLString& name);
 	U32			getU32(const LLString& name);
-	LLSD        getLLSD(const LLString& name);
+	LLSD		getValue(const LLString& name);
 
 
 	// Note: If an LLColor4U control exists, it will cast it to the correct
@@ -202,21 +258,19 @@ public:
 	void	setColor4U(const LLString& name, const LLColor4U &val);
 	void	setColor4(const LLString& name, const LLColor4 &val);
 	void	setColor3(const LLString& name, const LLColor3 &val);
-	void    setLLSD(const LLString& name, const LLSD& val);
 	void	setValue(const LLString& name, const LLSD& val);
-	
-	
+
 	BOOL    controlExists(const LLString& name);
 
 	// Returns number of controls loaded, 0 if failed
 	// If require_declaration is false, will auto-declare controls it finds
 	// as the given type.
-	U32	loadFromFileLegacy(const LLString& filename, BOOL require_declaration = TRUE, eControlType declare_as = TYPE_STRING);
- 	U32 saveToFile(const LLString& filename, BOOL nondefault_only);
- 	U32	loadFromFile(const LLString& filename, BOOL require_declaration = TRUE, eControlType declare_as = TYPE_STRING);
+	U32		loadFromFileLegacy(const LLString& filename, BOOL require_declaration = TRUE, eControlType declare_as = TYPE_STRING);
+	U32		loadFromFile(const LLString& filename, BOOL require_declaration = TRUE, eControlType declare_as = TYPE_STRING);
+	U32		saveToFile(const LLString& filename, BOOL skip_if_default);
+	void	applyOverrides(const std::map<std::string, std::string>& overrides);
 	void	resetToDefaults();
 
-	
 	// Ignorable Warnings
 	
 	// Add a config variable to be reset on resetWarnings()

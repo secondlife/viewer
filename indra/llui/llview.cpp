@@ -2426,7 +2426,16 @@ LLSimpleListener* LLView::getListenerByName(const LLString& callback_name)
 	return callback;
 }
 
-LLControlVariable *LLView::findControl(LLString name)
+void LLView::addListenerToControl(LLEventDispatcher *dispatcher, const LLString& name, LLSD filter, LLSD userdata)
+{
+	LLSimpleListener* listener = getListenerByName(name);
+	if (listener)
+	{
+		dispatcher->addListener(listener, filter, userdata);
+	}
+}
+
+LLControlBase *LLView::findControl(LLString name)
 {
 	control_map_t::iterator itor = mFloaterControls.find(name);
 	if (itor != mFloaterControls.end())
@@ -2782,15 +2791,9 @@ LLFontGL::StyleFlags LLView::selectFontStyle(LLXMLNodePtr node)
 	return gl_font_style;
 }
 
-bool LLView::setControlValue(const LLSD& value)
+void LLView::setControlValue(const LLSD& value)
 {
-	LLString ctrlname = getControlName();
-	if (!ctrlname.empty())
-	{
-		LLUI::sConfigGroup->setValue(ctrlname, value);
-		return true;
-	}
-	return false;
+	LLUI::sConfigGroup->setValue(getControlName(), value);
 }
 
 //virtual
@@ -2801,57 +2804,43 @@ void LLView::setControlName(const LLString& control_name, LLView *context)
 		context = this;
 	}
 
+	// Unregister from existing listeners
 	if (!mControlName.empty())
 	{
-		llwarns << "setControlName called twice on same control!" << llendl;
-		mControlConnection.disconnect(); // disconnect current signal
-		mControlName.clear();
+		clearDispatchers();
 	}
-	
+
 	// Register new listener
 	if (!control_name.empty())
 	{
-		LLControlVariable *control = context->findControl(control_name);
+		LLControlBase *control = context->findControl(control_name);
 		if (control)
 		{
 			mControlName = control_name;
-			mControlConnection = control->getSignal()->connect(boost::bind(&controlListener, _1, getHandle(), std::string("value")));
-			setValue(control->getValue());
+			LLSD state = control->registerListener(this, "DEFAULT");
+			setValue(state);
 		}
 	}
 }
 
-// static
-bool LLView::controlListener(const LLSD& newvalue, LLHandle<LLView> handle, std::string type)
+// virtual
+bool LLView::handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 {
-	LLView* view = handle.get();
-	if (view)
+	if (userdata.asString() == "DEFAULT" && event->desc() == "value_changed")
 	{
-		if (type == "value")
-		{
-			view->setValue(newvalue);
-			return true;
-		}
-		else if (type == "enabled")
-		{
-			view->setEnabled(newvalue.asBoolean());
-			return true;
-		}
-		else if (type == "visible")
-		{
-			view->setVisible(newvalue.asBoolean());
-			return true;
-		}
+		LLSD state = event->getValue();
+		setValue(state);
+		return TRUE;
 	}
-	return false;
+	return FALSE;
 }
 
 void LLView::addBoolControl(LLString name, bool initial_value)
 {
-	mFloaterControls[name] = new LLControlVariable(name, TYPE_BOOLEAN, initial_value, "Internal floater control");
+	mFloaterControls[name] = new LLControl(name, TYPE_BOOLEAN, initial_value, "Internal floater control");
 }
 
-LLControlVariable *LLView::getControl(LLString name)
+LLControlBase *LLView::getControl(LLString name)
 {
 	control_map_t::iterator itor = mFloaterControls.find(name);
 	if (itor != mFloaterControls.end())

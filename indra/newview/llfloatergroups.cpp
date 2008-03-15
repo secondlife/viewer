@@ -173,7 +173,8 @@ bool LLPanelGroups::handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 		reset();
 		return true;
 	}
-	return false;
+	
+	return LLView::handleEvent(event, userdata);
 }
 
 // Default constructor

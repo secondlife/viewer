@@ -778,8 +778,9 @@ void LLButton::setToggleState(BOOL b)
 {
 	if( b != mToggleState )
 	{
-		setControlValue(b); // will fire LLControlVariable callbacks (if any)
-		mToggleState = b; // may or may not be redundant
+		mToggleState = b;
+		LLValueChangedEvent *evt = new LLValueChangedEvent(this, mToggleState);
+		fireEvent(evt, "");
 	}
 }
 

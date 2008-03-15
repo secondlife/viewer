@@ -1555,11 +1555,16 @@ void gl_segmented_rect_3d_tex_top(const LLVector2& border_scale, const LLVector3
 	gl_segmented_rect_3d_tex(border_scale, border_width, border_height, width_vec, height_vec, ROUNDED_RECT_TOP);
 }
 
-bool handleShowXUINamesChanged(const LLSD& newvalue)
+class LLShowXUINamesListener: public LLSimpleListener
 {
-	LLUI::sShowXUINames = newvalue.asBoolean();
-	return true;
-}
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		LLUI::sShowXUINames = (BOOL) event->getValue().asBoolean();
+		return true;
+	}
+};
+static LLShowXUINamesListener show_xui_names_listener;
+
 
 void LLUI::initClass(LLControlGroup* config, 
 					 LLControlGroup* colors, 
@@ -1579,7 +1584,7 @@ void LLUI::initClass(LLControlGroup* config,
 	LLFontGL::sShadowColor = colors->getColor("ColorDropShadow");
 
 	LLUI::sShowXUINames = LLUI::sConfigGroup->getBOOL("ShowXUINames");
-	LLUI::sConfigGroup->getControl("ShowXUINames")->getSignal()->connect(boost::bind(&handleShowXUINamesChanged, _1));
+	LLUI::sConfigGroup->getControl("ShowXUINames")->addListener(&show_xui_names_listener);
 }
 
 void LLUI::cleanupClass()

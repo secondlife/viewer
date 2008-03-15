@@ -185,6 +185,13 @@ protected:
 	LLPointer<LLEventDispatcher> mDispatcher;
 };
 
+// Utility mixer class which fires & handles events
+class LLSimpleListenerObservable : public LLObservable, public LLSimpleListener
+{
+public:
+	virtual bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata) = 0;
+};
+
 class LLValueChangedEvent : public LLEvent
 {
 public:

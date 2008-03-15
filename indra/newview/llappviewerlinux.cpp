@@ -31,11 +31,9 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llmemtype.h"
 #include "llappviewerlinux.h"
 
-#include "llcommandlineparser.h"
-
-#include "llmemtype.h"
 #include "llviewernetwork.h"
 #include "llmd5.h"
 
@@ -56,12 +54,6 @@
   #     include <ucontext.h>
   #endif
 
-namespace
-{
-	int gArgC = 0;
-	char **gArgV = NULL;
-}
-
 int main( int argc, char **argv ) 
 {
 	LLMemType mt1(LLMemType::MTYPE_STARTUP);
@@ -70,14 +62,18 @@ int main( int argc, char **argv )
 	asm ("ta\t6");		 // NOTE:  Make sure memory alignment is enforced on SPARC
 #endif
 
-	gArgC = argc;
-	gArgV = argv;
-
 	LLAppViewer* viewer_app_ptr = new LLAppViewerLinux();
 
 	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
 
-	bool ok = viewer_app_ptr->init();
+	bool ok = viewer_app_ptr->tempStoreCommandOptions(argc, argv);
+	if(!ok)
+	{
+		llwarns << "Unable to parse command line." << llendl;
+		return -1;
+	}
+
+	ok = viewer_app_ptr->init();
 	if(!ok)
 	{
 		llwarns << "Application init failed." << llendl;
@@ -325,7 +321,7 @@ void LLAppViewerLinux::handleCrashReporting()
 			{(char*)cmd.c_str(),
 			 ask_dialog,
 			 (char*)"-user",
-			 (char*)gGridName.c_str(),
+			 (char*)gGridName,
 			 (char*)"-name",
 			 (char*)LLAppViewer::instance()->getSecondLifeTitle().c_str(),
 			 NULL};
@@ -405,12 +401,6 @@ bool LLAppViewerLinux::initLogging()
 	LLFile::remove(old_stack_file.c_str());
 
 	return LLAppViewer::initLogging();
-}
-
-bool LLAppViewerLinux::initParseCommandLine(LLCommandLineParser& clp)
-{
-	clp.parseCommandLine(gArgC, gArgV);
-	return true;
 }
 
 std::string LLAppViewerLinux::generateSerialNumber()

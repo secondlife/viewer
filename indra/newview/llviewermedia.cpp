@@ -44,6 +44,9 @@
 #include "llmediamanager.h"
 #include "lluuid.h"
 
+// don't want to include llappviewer.h
+extern std::string gChannelName;
+
 // Implementation functions not exported into header file
 class LLViewerMediaImpl
 	:	public LLMediaObserver
@@ -454,7 +457,7 @@ void LLViewerMedia::initClass()
 	// append our magic version number string to the browser user agent id
 	std::ostringstream codec;
 	codec << "[Second Life ";
-	codec << "(" << gSavedSettings.getString("VersionChannelName") << ")";
+	codec << "(" << gChannelName << ")";
 	codec << " - " << LL_VERSION_MAJOR << "." << LL_VERSION_MINOR << "." << LL_VERSION_PATCH << "." << LL_VERSION_BUILD;
 	codec << "]";
 	init_data->setBrowserUserAgentId( codec.str() );

@@ -273,7 +273,8 @@ void LLAgentFriendObserver::changed(U32 mask)
 // LLAgent()
 //-----------------------------------------------------------------------------
 LLAgent::LLAgent()
-:	mDrawDistance( DEFAULT_FAR_PLANE ),
+:	mViewerPort(NET_USE_OS_ASSIGNED_PORT),
+	mDrawDistance( DEFAULT_FAR_PLANE ),
 
 	mDoubleTapRunTimer(),
 	mDoubleTapRunMode(DOUBLETAP_NONE),
@@ -454,6 +455,8 @@ void LLAgent::init()
 	mTrackFocusObject = gSavedSettings.getBOOL("TrackFocusObject");
 
 //	LLDebugVarMessageBox::show("Camera Lag", &CAMERA_FOCUS_HALF_LIFE, 0.5f, 0.01f);
+	gSavedSettings.getControl("RenderHideGroupTitle")->addListener(&mHideGroupTitleListener);
+	gSavedSettings.getControl("EffectColor")->addListener(&mEffectColorListener);
 
 	mEffectColor = gSavedSettings.getColor4("EffectColor");
 	
@@ -7461,6 +7464,19 @@ void LLAgent::userRemoveAllAttachments( void* userdata )
 		}
 	}
 	gMessageSystem->sendReliable( gAgent.getRegionHost() );
+}
+
+bool LLAgent::LLHideGroupTitleListener::handleEvent(LLPointer<LLEvent> event, const LLSD &userdata)
+{
+	gAgent.setHideGroupTitle(event->getValue());
+	return true;
+
+}
+
+bool LLAgent::LLEffectColorListener::handleEvent(LLPointer<LLEvent> event, const LLSD &userdata)
+{
+	gAgent.setEffectColor(LLColor4(event->getValue()));
+	return true;
 }
 
 void LLAgent::observeFriends()

@@ -827,33 +827,57 @@ void LLMenuItemCallGL::setEnabledControl(LLString enabled_control, LLView *conte
 	// Register new listener
 	if (!enabled_control.empty())
 	{
-		LLControlVariable *control = context->findControl(enabled_control);
-		if (!control)
+		LLControlBase *control = context->findControl(enabled_control);
+		if (control)
+		{
+			LLSD state = control->registerListener(this, "ENABLED");
+			setEnabled(state);
+		}
+		else
 		{
 			context->addBoolControl(enabled_control, getEnabled());
 			control = context->findControl(enabled_control);
-			llassert_always(control);
+			control->registerListener(this, "ENABLED");
 		}
-		control->getSignal()->connect(boost::bind(&LLView::controlListener, _1, getHandle(), std::string("enabled")));
-		setEnabled(control->getValue());
 	}
 }
 
-void LLMenuItemCallGL::setVisibleControl(LLString visible_control, LLView *context)
+void LLMenuItemCallGL::setVisibleControl(LLString enabled_control, LLView *context)
 {
 	// Register new listener
-	if (!visible_control.empty())
+	if (!enabled_control.empty())
 	{
-		LLControlVariable *control = context->findControl(visible_control);
-		if (!control)
+		LLControlBase *control = context->findControl(enabled_control);
+		if (control)
 		{
-			context->addBoolControl(visible_control, getVisible());
-			control = context->findControl(visible_control);
-			llassert_always(control);
+			LLSD state = control->registerListener(this, "VISIBLE");
+			setVisible(state);
 		}
-		control->getSignal()->connect(boost::bind(&LLView::controlListener, _1, getHandle(), std::string("visible")));
-		setVisible(control->getValue());
+		else
+		{
+			context->addBoolControl(enabled_control, getEnabled());
+			control = context->findControl(enabled_control);
+			control->registerListener(this, "VISIBLE");
+		}
 	}
+}
+
+// virtual
+bool LLMenuItemCallGL::handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+{
+	if (userdata.asString() == "ENABLED" && event->desc() == "value_changed")
+	{
+		LLSD state = event->getValue();
+		setEnabled(state);
+		return TRUE;
+	}
+	if (userdata.asString() == "VISIBLE" && event->desc() == "value_changed")
+	{
+		LLSD state = event->getValue();
+		setVisible(state);
+		return TRUE;
+	}
+	return LLMenuItemGL::handleEvent(event, userdata);
 }
 
 // virtual
@@ -976,35 +1000,44 @@ LLMenuItemCheckGL::LLMenuItemCheckGL ( const LLString& name,
 	setControlName(control_name, context);
 }
 
-//virtual
-void LLMenuItemCheckGL::setValue(const LLSD& value)
-{
-	mChecked = value.asBoolean();
-	if(mChecked)
-	{
-		mDrawBoolLabel = BOOLEAN_TRUE_PREFIX;
-	}
-	else
-	{
-		mDrawBoolLabel.clear();
-	}
-}
-
 void LLMenuItemCheckGL::setCheckedControl(LLString checked_control, LLView *context)
 {
 	// Register new listener
 	if (!checked_control.empty())
 	{
-		LLControlVariable *control = context->findControl(checked_control);
-		if (!control)
+		LLControlBase *control = context->findControl(checked_control);
+		if (control)
+		{
+			LLSD state = control->registerListener(this, "CHECKED");
+			mChecked = state;
+		}
+		else
 		{
 			context->addBoolControl(checked_control, mChecked);
 			control = context->findControl(checked_control);
-			llassert_always(control);
+			control->registerListener(this, "CHECKED");
 		}
-		control->getSignal()->connect(boost::bind(&LLView::controlListener, _1, getHandle(), std::string("value")));
-		mChecked = control->getValue();
 	}
+}
+
+// virtual
+bool LLMenuItemCheckGL::handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+{
+	if (userdata.asString() == "CHECKED" && event->desc() == "value_changed")
+	{
+		LLSD state = event->getValue();
+		mChecked = state;
+		if(mChecked)
+		{
+			mDrawBoolLabel = BOOLEAN_TRUE_PREFIX;
+		}
+		else
+		{
+			mDrawBoolLabel.clear();
+		}
+		return TRUE;
+	}
+	return LLMenuItemCallGL::handleEvent(event, userdata);
 }
 
 // virtual
@@ -1913,7 +1946,7 @@ void LLMenuGL::parseChildXML(LLXMLNodePtr child, LLView *parent, LLUICtrlFactory
 							{
 								continue;
 							}
-							LLControlVariable *control = parent->findControl(control_name);
+							LLControlBase *control = parent->findControl(control_name);
 							if (!control)
 							{
 								parent->addBoolControl(control_name, FALSE);

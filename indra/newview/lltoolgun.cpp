@@ -80,10 +80,14 @@ BOOL LLToolGun::handleHover(S32 x, S32 y, MASK mask)
 {
 	if( gAgent.cameraMouselook() )
 	{
-		const F32 NOMINAL_MOUSE_SENSITIVITY = 0.0025f;
+		#if 1 //LL_WINDOWS || LL_DARWIN
+			const F32 NOMINAL_MOUSE_SENSITIVITY = 0.0025f;
+		#else
+			const F32 NOMINAL_MOUSE_SENSITIVITY = 0.025f;
+		#endif
 
-		F32 mouse_sensitivity = gSavedSettings.getF32("MouseSensitivity");
-		mouse_sensitivity = clamp_rescale(mouse_sensitivity, 0.f, 15.f, 0.5f, 2.75f) * NOMINAL_MOUSE_SENSITIVITY;
+		
+		F32 mouse_sensitivity = clamp_rescale(gMouseSensitivity, 0.f, 15.f, 0.5f, 2.75f) * NOMINAL_MOUSE_SENSITIVITY;
 
 		// ...move the view with the mouse
 
@@ -94,7 +98,7 @@ BOOL LLToolGun::handleHover(S32 x, S32 y, MASK mask)
 		if (dx != 0 || dy != 0)
 		{
 			// ...actually moved off center
-			if (gSavedSettings.getBOOL("InvertMouse"))
+			if (gInvertMouse)
 			{
 				gAgent.pitch(mouse_sensitivity * -dy);
 			}

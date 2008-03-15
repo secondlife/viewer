@@ -55,7 +55,7 @@ enum EGridInfo
 	GRID_INFO_VAAK,
 	GRID_INFO_YAMI,
 	GRID_INFO_LOCAL,
-	GRID_INFO_OTHER, // IP address set via command line option
+	GRID_INFO_OTHER, // IP address set via -user or other command line option
 	GRID_INFO_COUNT
 };
 
@@ -68,9 +68,12 @@ struct LLGridData
 	const char* mHelperURI;
 };
 
+extern F32 gPacketDropPercentage;
+extern F32 gInBandwidth;
+extern F32 gOutBandwidth;
 extern EGridInfo gGridChoice;
 extern LLGridData gGridInfo[];
-extern LLString gGridName;		/* Flawfinder: ignore */
+extern char gGridName[MAX_STRING];		/* Flawfinder: ignore */
 
 const S32 MAC_ADDRESS_BYTES = 6;
 extern unsigned char gMACAddress[MAC_ADDRESS_BYTES];		/* Flawfinder: ignore */

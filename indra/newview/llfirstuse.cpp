@@ -49,8 +49,7 @@ std::set<LLString> LLFirstUse::sConfigVariables;
 // static
 void LLFirstUse::addConfigVariable(const LLString& var)
 {
-	//Don't add the warning, now that we're storing the default in the settings_default.xml file
-	//gSavedSettings.addWarning(var);
+	gSavedSettings.addWarning(var);
 	sConfigVariables.insert(var);
 }
 
@@ -257,15 +256,13 @@ void LLFirstUse::useSculptedPrim()
 // static 
 void LLFirstUse::useVoice()
 {
-	if (!gSavedSettings.getBOOL("CmdLineDisableVoice"))
-    {
-	    if (gSavedSettings.getWarning("FirstVoice"))
-	    {
-		    gSavedSettings.setWarning("FirstVoice", FALSE);
+	if (gDisableVoice) return;
+	if (gSavedSettings.getWarning("FirstVoice"))
+	{
+		gSavedSettings.setWarning("FirstVoice", FALSE);
 
-		    LLFloaterVoiceWizard::showInstance();
-	    }
-    }
+		LLFloaterVoiceWizard::showInstance();
+	}
 }
 
 // static 

@@ -120,7 +120,6 @@
 #include "llfloaterregioninfo.h"
 #include "llfloaterreporter.h"
 #include "llfloaterscriptdebug.h"
-#include "llfloatersettingsdebug.h"
 #include "llfloaterenvsettings.h"
 #include "llfloaterstats.h"
 #include "llfloatertest.h"
@@ -376,11 +375,6 @@ void toggle_cull_small(void *);
 
 void toggle_show_xui_names(void *);
 BOOL check_show_xui_names(void *);
-
-void run_vectorize_perf_test(void *)
-{
-	gSavedSettings.setBOOL("VectorizePerfTest", TRUE);
-}
 
 // Debug UI
 void handle_web_search_demo(void*);
@@ -1097,7 +1091,7 @@ void init_client_menu(LLMenuGL* menu)
 										&menu_check_control,
 										(void*)"ShowConsoleWindow"));
 
-	if(gSavedSettings.getBOOL("QAMode"))
+	if(gQAMode)
 	{
 		LLMenuGL* sub = NULL;
 		sub = new LLMenuGL("Debugging");
@@ -1177,6 +1171,7 @@ extern BOOL gDebugClicks;
 extern BOOL gDebugWindowProc;
 extern BOOL gDebugTextEditorTips;
 extern BOOL gDebugSelectMgr;
+extern BOOL gVectorizePerfTest;
 
 void init_debug_ui_menu(LLMenuGL* menu)
 {
@@ -1388,7 +1383,7 @@ void init_debug_rendering_menu(LLMenuGL* menu)
 										   (void*)"ShowDepthBuffer"));
 	sub_menu->append(new LLMenuItemToggleGL("Show Select Buffer", &gDebugSelect));
 
-	sub_menu->append(new LLMenuItemCallGL("Vectorize Perf Test", &run_vectorize_perf_test));
+	sub_menu->append(new LLMenuItemToggleGL("Vectorize Perf Test", &gVectorizePerfTest));
 
 	sub_menu = new LLMenuGL("Render Tests");
 
@@ -4853,7 +4848,7 @@ BOOL menu_check_build_tool( void* user_data )
 void handle_reload_settings(void*)
 {
 	gSavedSettings.resetToDefaults();
-	gSavedSettings.loadFromFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);
+	gSavedSettings.loadFromFile(gSettingsFileName, TRUE);
 
 	llinfos << "Loading colors from colors.xml" << llendl;
 	std::string color_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"colors.xml");

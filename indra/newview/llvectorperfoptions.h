@@ -32,6 +32,10 @@
 #ifndef LL_VECTORPERFOPTIONS_H
 #define LL_VECTORPERFOPTIONS_H
 
-// Deprecated - moved into llviewerjointmesh
+namespace LLVectorPerformanceOptions
+{
+	void initClass(); // Run after configuration files are read.
+	void cleanupClass();
+};
 
 #endif

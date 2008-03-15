@@ -62,12 +62,9 @@
 #include "llmutelist.h"
 #include "llurldispatcher.h"
 #include "llurlhistory.h"
-#include "llfirstuse.h"
 
 #include "llweb.h"
 #include "llsecondlifeurls.h"
-
-#include <boost/bind.hpp>
 
 #if LL_WINDOWS
 	#include "llwindebug.h"
@@ -156,7 +153,10 @@
 
 #include "llinventoryview.h"
 
-#include "llcommandlineparser.h"
+// *FIX: Remove these once the command line params thing is figured out.
+// Yuck!
+static int gTempArgC = 0;
+static char** gTempArgV;
 
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
@@ -169,6 +169,7 @@
 //----------------------------------------------------------------------------
 // llviewernetwork.h
 #include "llviewernetwork.h"
+// extern EGridInfo gGridChoice;
 
 
 ////// Windows-specific includes to the bottom - nasty defines in these pollute the preprocessor
@@ -215,7 +216,13 @@ extern BOOL gPeriodicSlowFrame;
 
 ////////////////////////////////////////////////////////////
 // All from the last globals push...
+bool gVerifySSLCert = true;
 BOOL gHandleKeysAsync = FALSE;
+
+BOOL gProbeHardware = TRUE; // Use DirectX 9 to probe for hardware
+
+S32 gYieldMS = 0; // set in parse_args, used in mainLoop
+BOOL gYieldTime = FALSE;
 
 const F32 DEFAULT_AFK_TIMEOUT = 5.f * 60.f; // time with no input before user flagged as Away From Keyboard
 
@@ -227,10 +234,21 @@ LLString gDisabledMessage; // Set in LLAppViewer::initConfiguration used in idle
 BOOL gHideLinks = FALSE; // Set in LLAppViewer::initConfiguration, used externally
 
 BOOL				gAllowIdleAFK = TRUE;
+F32					gAFKTimeout = DEFAULT_AFK_TIMEOUT;
 BOOL				gShowObjectUpdates = FALSE;
+BOOL gLogMessages = FALSE;
+std::string gChannelName = LL_CHANNEL;
+BOOL gUseAudio = TRUE;
 BOOL gUseQuickTime = TRUE;
+LLString gCmdLineFirstName;
+LLString gCmdLineLastName;
+LLString gCmdLinePassword;
+
+BOOL				gAutoLogin = FALSE;
 
 const char*			DEFAULT_SETTINGS_FILE = "settings.xml";
+BOOL gRequestInventoryLibrary = TRUE;
+BOOL gGodConnect = FALSE;
 BOOL gAcceptTOS = FALSE;
 BOOL gAcceptCriticalMessage = FALSE;
 
@@ -261,6 +279,7 @@ F32					gLogoutMaxTime = LOGOUT_REQUEST_TIME;
 LLUUID gInventoryLibraryOwner;
 LLUUID gInventoryLibraryRoot;
 
+BOOL				gDisableVoice = FALSE;
 BOOL				gDisconnected = FALSE;
 
 // Map scale in pixels per region
@@ -272,10 +291,16 @@ LLFrameTimer	gRestoreGLTimer;
 BOOL			gRestoreGL = FALSE;
 BOOL				gUseWireframe = FALSE;
 
+F32					gMouseSensitivity = 3.f;
+BOOL				gInvertMouse = FALSE;
+
 // VFS globals - see llappviewer.h
 LLVFS* gStaticVFS = NULL;
 
 LLMemoryInfo gSysMemory;
+
+bool gPreloadImages = true;
+bool gPreloadSounds = true;
 
 LLString gLastVersionChannel;
 
@@ -286,14 +311,34 @@ U32		gPacketsIn = 0;
 
 BOOL				gPrintMessagesThisFrame = FALSE;
 
+BOOL gUseConsole = TRUE;
+
 BOOL gRandomizeFramerate = FALSE;
 BOOL gPeriodicSlowFrame = FALSE;
 
+BOOL gQAMode = FALSE;
 BOOL gLLErrorActivated = FALSE;
+
 ////////////////////////////////////////////////////////////
 // Internal globals... that should be removed.
+static F32 gQuitAfterSeconds = 0.f;
+static BOOL gRotateRight = FALSE;
+static BOOL gIgnorePixelDepth = FALSE;
+
+// Allow multiple viewers in ReleaseForDownload
+#if LL_RELEASE_FOR_DOWNLOAD
+static BOOL gMultipleViewersOK = FALSE;
+#else
+static BOOL gMultipleViewersOK = TRUE;
+#endif
+
+static std::map<std::string, std::string> gCommandLineSettings;
+static std::map<std::string, std::string> gCommandLineForcedSettings;
+
 static LLString gArgs;
 
+static LLString gOldSettingsFileName;
+static const char* LEGACY_DEFAULT_SETTINGS_FILE = "settings.ini";
 const char* MARKER_FILE_NAME = "SecondLife.exec_marker";
 const char* ERROR_MARKER_FILE_NAME = "SecondLife.error_marker";
 const char* LLERROR_MARKER_FILE_NAME = "SecondLife.llerror_marker";
@@ -315,10 +360,52 @@ std::string gLoginPage;
 std::vector<std::string> gLoginURIs;
 static std::string gHelperURI;
 
+static const char USAGE[] = "\n"
+"usage:\tviewer [options]\n"
+"options:\n"
+" -login <first> <last> <password>     log in as a user\n"
+" -autologin                           log in as last saved user\n"
+" -loginpage <URL>                     login authentication page to use\n"
+" -loginuri <URI>                      login server and CGI script to use\n"
+" -helperuri <URI>                     helper web CGI prefix to use\n"
+" -settings <filename>                 specify the filename of a\n"
+"                                        configuration file\n"
+"                                        default is settings.xml\n"
+" -setdefault <variable> <value>       specify the value of a particular\n"
+"                                        configuration variable which can be\n"
+"                                        overridden by settings.xml\n"
+" -set <variable> <value>              specify the value of a particular\n"
+"                                        configuration variable that\n"
+"                                        overrides all other settings\n"
+#if !LL_RELEASE_FOR_DOWNLOAD
+" -sim <simulator_ip>                  specify the simulator ip address\n"
+#endif
+" -god		                           log in as god if you have god access\n"
+" -purge                               delete files in cache\n"
+" -safe                                reset preferences, run in safe mode\n"
+" -noutc                               logs in local time, not UTC\n"
+" -nothread                            run vfs in single thread\n"
+" -noinvlib                            Do not request inventory library\n"
+" -multiple                            allow multiple viewers\n"
+" -nomultiple                          block multiple viewers\n"
+" -novoice                             disable voice\n"
+" -ignorepixeldepth                    ignore pixel depth settings\n"
+" -cooperative [ms]                    yield some idle time to local host\n"
+" -skin                                ui/branding skin folder to use\n"
+#if LL_WINDOWS
+" -noprobe                             disable hardware probe\n"
+#endif
+" -noquicktime                         disable QuickTime movies, speeds startup\n"
+" -nopreload                           don't preload UI images or sounds, speeds startup\n"
+// these seem to be unused
+//" -noenv                               turn off environmental effects\n"
+//" -proxy <proxy_ip>                    specify the proxy ip address\n"
+"\n";
+
 void idle_afk_check()
 {
 	// check idle timers
-	if (gAllowIdleAFK && (gAwayTriggerTimer.getElapsedTimeF32() > gSavedSettings.getF32("AFKTimeout")))
+	if (gAllowIdleAFK && (gAwayTriggerTimer.getElapsedTimeF32() > gAFKTimeout))
 	{
 		gAgent.setAFK();
 	}
@@ -357,7 +444,7 @@ void request_initial_instant_messages()
 
 // Use these strictly for things that are constructed at startup,
 // or for things that are performance critical.  JC
-static void settings_to_globals()
+static void saved_settings_to_globals()
 {
 	LLBUTTON_H_PAD		= gSavedSettings.getS32("ButtonHPad");
 	LLBUTTON_V_PAD		= gSavedSettings.getS32("ButtonVPad");
@@ -395,15 +482,15 @@ static void settings_to_globals()
 
 	gDebugWindowProc = gSavedSettings.getBOOL("DebugWindowProc");
 	gAllowIdleAFK = gSavedSettings.getBOOL("AllowIdleAFK");
+	gAFKTimeout = gSavedSettings.getF32("AFKTimeout");
+	gMouseSensitivity = gSavedSettings.getF32("MouseSensitivity");
+	gInvertMouse = gSavedSettings.getBOOL("InvertMouse");
 	gShowObjectUpdates = gSavedSettings.getBOOL("ShowObjectUpdates");
 	gMapScale = gSavedSettings.getF32("MapScale");
 	gMiniMapScale = gSavedSettings.getF32("MiniMapScale");
 	gHandleKeysAsync = gSavedSettings.getBOOL("AsyncKeyboard");
 	LLHoverView::sShowHoverTips = gSavedSettings.getBOOL("ShowHoverTips");
-}
 
-static void settings_modify()
-{
 	LLRenderTarget::sUseFBO				= gSavedSettings.getBOOL("RenderUseFBO");
 	LLVOAvatar::sUseImpostors			= gSavedSettings.getBOOL("RenderUseImpostors");
 	LLVOSurfacePatch::sLODFactor		= gSavedSettings.getF32("RenderTerrainLODFactor");
@@ -445,74 +532,367 @@ static void settings_modify()
 
 	// propagate push to talk preference to current status
 	gSavedSettings.setBOOL("PTTCurrentlyEnabled", gSavedSettings.getBOOL("EnablePushToTalk"));
+
+	settings_setup_listeners();
+
+	// gAgent.init() also loads from saved settings.
 }
 
-void initGridChoice()
+int parse_args(int argc, char **argv)
 {
-    LLString gridChoice = gSavedSettings.getString("GridChoice");
-    if(!gridChoice.empty())
+	// Sometimes IP addresses passed in on the command line have leading
+	// or trailing white space.  Use LLString to clean that up.
+	LLString ip_string;
+	S32 j;
+
+	for (j = 1; j < argc; j++) 
+	{
 		// Used to show first chunk of each argument passed in the 
 		// window title.
-    {
-        // find the grid choice from the user setting.
-        int gridIndex = GRID_INFO_NONE; 
-        for(;gridIndex < GRID_INFO_OTHER; ++gridIndex )
-        {
-            if(0 == LLString::compareInsensitive(gGridInfo[gridIndex].mLabel, gridChoice.c_str()))
-            {
-                gGridChoice = (EGridInfo)gridIndex;
+		gArgs += argv[j];
+		gArgs += " ";
 
-                if(GRID_INFO_LOCAL == gGridChoice)
-                {
-                    gGridName = LOOPBACK_ADDRESS_STRING;
-                    break;
-                }
-                else
-                {
-                    gGridName = gGridInfo[gGridChoice].mName;
-                    break;
-                }
-            }
-        }
-
-        if(GRID_INFO_OTHER == gridIndex)
-        {
-                // *FIX:MEP Can and should we validate that this is an IP address?
-                gGridChoice = (EGridInfo)gridIndex;
-                gGridName = llformat("%s", gSavedSettings.getString("GridChoice").c_str());
-
-        }
-    }
-
-
-#if !LL_RELEASE_FOR_DOWNLOAD
-	if (gGridChoice == GRID_INFO_NONE)
-	{
-		// Development version: load last server choice by default (overridden by cmd line args)
-		S32 server = gSavedSettings.getS32("ServerChoice");
-		if (server != 0)
-			gGridChoice = (EGridInfo)llclamp(server, 0, (S32)GRID_INFO_COUNT - 1);
-		if (server == GRID_INFO_OTHER)
+		LLString argument = argv[j];
+		if ((!strcmp(argv[j], "-port")) && (++j < argc)) 
 		{
-			LLString custom_server = gSavedSettings.getString("CustomServer");
-			if (custom_server.empty())
+			sscanf(argv[j], "%u", &(gAgent.mViewerPort));
+		}
+		else if ((!strcmp(argv[j], "-drop")) && (++j < argc)) 
+		{
+			sscanf(argv[j], "%f", &gPacketDropPercentage);
+		}
+		else if ((!strcmp(argv[j], "-inbw")) && (++j < argc))
+		{
+			sscanf(argv[j], "%f", &gInBandwidth);
+		}
+		else if ((!strcmp(argv[j], "-outbw")) && (++j < argc))
+		{
+			sscanf(argv[j], "%f", &gOutBandwidth);
+		}
+		else if (!strcmp(argv[j], "--aditi"))
+		{
+			gGridChoice = GRID_INFO_ADITI;
+			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[gGridChoice].mName);		// Flawfinder: ignore
+		}
+		else if (!strcmp(argv[j], "--agni"))
+		{
+			gGridChoice = GRID_INFO_AGNI;
+			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[gGridChoice].mName);		// Flawfinder: ignore
+		}
+		else if (!strcmp(argv[j], "--aruna"))
+		{
+			gGridChoice = GRID_INFO_ARUNA;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
+		else if (!strcmp(argv[j], "--durga"))
+		{
+			gGridChoice = GRID_INFO_DURGA;
+			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[gGridChoice].mName);		// Flawfinder: ignore
+		}
+		else if (!strcmp(argv[j], "--ganga"))
+		{
+			gGridChoice = GRID_INFO_GANGA;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
+		else if (!strcmp(argv[j], "--mitra"))
+		{
+			gGridChoice = GRID_INFO_MITRA;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
+		else if (!strcmp(argv[j], "--mohini"))
+		{
+			gGridChoice = GRID_INFO_MOHINI;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
+		else if (!strcmp(argv[j], "--nandi"))
+		{
+			gGridChoice = GRID_INFO_NANDI;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
+		else if (!strcmp(argv[j], "--radha"))
+		{
+			gGridChoice = GRID_INFO_RADHA;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
+		else if (!strcmp(argv[j], "--ravi"))
+		{
+			gGridChoice = GRID_INFO_RAVI;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
+		else if (!strcmp(argv[j], "--siva"))
+		{
+			gGridChoice = GRID_INFO_SIVA;
+			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[gGridChoice].mName);		// Flawfinder: ignore
+		}
+		else if (!strcmp(argv[j], "--shakti"))
+		{
+			gGridChoice = GRID_INFO_SHAKTI;
+			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[gGridChoice].mName);		// Flawfinder: ignore
+		}
+		else if (!strcmp(argv[j], "--soma"))
+		{
+			gGridChoice = GRID_INFO_SOMA;
+			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[gGridChoice].mName);		// Flawfinder: ignore
+		}
+		else if (!strcmp(argv[j], "--uma"))
+		{
+			gGridChoice = GRID_INFO_UMA;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
+		else if (!strcmp(argv[j], "--vaak"))
+		{
+			gGridChoice = GRID_INFO_VAAK;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
+		else if (!strcmp(argv[j], "--yami"))
+		{
+			gGridChoice = GRID_INFO_YAMI;
+			sprintf(gGridName,"%s", gGridInfo[gGridChoice].mName);
+		}
+		else if (!strcmp(argv[j], "-loginpage") && (++j < argc))
+		{
+			LLAppViewer::instance()->setLoginPage(utf8str_trim(argv[j]));
+		}
+		else if (!strcmp(argv[j], "-loginuri") && (++j < argc))
+		{
+            LLAppViewer::instance()->addLoginURI(utf8str_trim(argv[j]));
+		}
+		else if (!strcmp(argv[j], "-helperuri") && (++j < argc))
+		{
+            LLAppViewer::instance()->setHelperURI(utf8str_trim(argv[j]));
+		}
+		else if (!strcmp(argv[j], "-debugviews"))
+		{
+			LLView::sDebugRects = TRUE;
+		}
+		else if (!strcmp(argv[j], "-skin") && (++j < argc))
+		{
+			std::string folder(argv[j]);
+			gDirUtilp->setSkinFolder(folder);
+		}
+		else if (!strcmp(argv[j], "-autologin") || !strcmp(argv[j], "--autologin")) // keep --autologin for compatibility
+		{
+			gAutoLogin = TRUE;
+		}
+		else if (!strcmp(argv[j], "-quitafter") && (++j < argc))
+		{
+			gQuitAfterSeconds = (F32)atof(argv[j]);
+		}
+		else if (!strcmp(argv[j], "-rotate"))
+		{
+			gRotateRight = TRUE;
+		}
+//		else if (!strcmp(argv[j], "-noenv")) 
+//		{
+			//turn OFF environmental effects for slow machines/video cards
+//			gRequestParaboloidMap = FALSE;
+//		}
+		else if (!strcmp(argv[j], "-noaudio"))
+		{
+			gUseAudio = FALSE;
+		}
+		else if (!strcmp(argv[j], "-nosound"))  // tends to be popular cmdline on Linux.
+		{
+			gUseAudio = FALSE;
+		}
+		else if (!strcmp(argv[j], "-noprobe"))
+		{
+			gProbeHardware = FALSE;
+		}
+		else if (!strcmp(argv[j], "-noquicktime"))
+		{
+			// Developers can log in faster if they don't load all the
+			// quicktime dlls.
+			gUseQuickTime = false;
+		}
+		else if (!strcmp(argv[j], "-nopreload"))
+		{
+			// Developers can log in faster if they don't decode sounds
+			// or images on startup, ~5 seconds faster.
+			gPreloadSounds = false;
+			gPreloadImages = false;
+		}
+		else if (!strcmp(argv[j], "-purge"))
+		{
+			LLAppViewer::instance()->purgeCache();
+		}
+		else if(!strcmp(argv[j], "-noinvlib"))
+		{
+			gRequestInventoryLibrary = FALSE;
+		}
+		else if (!strcmp(argv[j], "-log"))
+		{
+			gLogMessages = TRUE;
+			continue;
+		}
+		else if (!strcmp(argv[j], "-logfile") && (++j < argc)) 
+		{
+			// *NOTE: This buffer size is hard coded into scanf() below.
+			char logfile[256];	// Flawfinder: ignore
+			sscanf(argv[j], "%255s", logfile);	// Flawfinder: ignore
+			llinfos << "Setting log file to " << logfile << llendl;
+			LLFile::remove(logfile);
+			LLError::logToFile(logfile);
+		}
+		else if (!strcmp(argv[j], "-settings") && (++j < argc)) 
+		{
+			gSettingsFileName = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, argv[j]);
+		}
+		else if (!strcmp(argv[j], "-setdefault") && (j + 2 < argc)) 
+		{
+			std::string control_name;
+			std::string control_value;
+			
+			j++;
+			if (argv[j]) control_name = std::string(argv[j]);
+
+			j++;
+			if (argv[j]) control_value = std::string(argv[j]);
+			
+			// grab control name and value
+			if (!control_name.empty())
 			{
-				gGridName = "none";
+				gCommandLineSettings[control_name] = control_value;
+			}
+		}
+		else if (!strcmp(argv[j], "-set") && (j + 2 < argc)) 
+		{
+			std::string control_name;
+			std::string control_value;
+			
+			j++;
+			if (argv[j]) control_name = std::string(argv[j]);
+
+			j++;
+			if (argv[j]) control_value = std::string(argv[j]);
+			
+			// grab control name and value
+			if (!control_name.empty())
+			{
+				gCommandLineForcedSettings[control_name] = control_value;
+			}
+		}
+		else if (!strcmp(argv[j], "-login"))
+		{
+			if (j + 3 < argc)
+			{
+				j++;
+				gCmdLineFirstName = argv[j];
+				j++;
+				gCmdLineLastName = argv[j];
+				j++;
+				gCmdLinePassword = argv[j];
 			}
 			else
 			{
-				gGridName = custom_server.c_str();
+				// only works if -login is last parameter on command line
+				llerrs << "Not enough parameters to -login. Did you mean -loginuri?" << llendl;
 			}
 		}
-        gSavedSettings.setString("GridChoice", gGridInfo[gGridChoice].mName);
-	}
+		else if (!strcmp(argv[j], "-god"))
+		{
+			gGodConnect = TRUE;
+		}
+		else if (!strcmp(argv[j], "-noconsole"))
+		{
+			gUseConsole = FALSE;
+		}
+		else if (!strcmp(argv[j], "-safe"))
+		{
+			llinfos << "Setting viewer feature table to run in safe mode, resetting prefs" << llendl;
+			gFeatureManagerp->setSafe(TRUE);
+		}
+		else if (!strcmp(argv[j], "-multiple"))
+		{
+			gMultipleViewersOK = TRUE;
+		}
+		else if (!strcmp(argv[j], "-nomultiple"))
+		{
+			gMultipleViewersOK = FALSE;
+		}
+		else if (!strcmp(argv[j], "-novoice"))
+		{
+			gDisableVoice = TRUE;
+		}
+		else if (!strcmp(argv[j], "-nothread"))
+		{
+			LLVFile::ALLOW_ASYNC = FALSE;
+			llinfos << "Running VFS in nothread mode" << llendl;
+		}
+		// some programs don't respect the command line options in protocol handlers (I'm looking at you, Opera)
+		// so this allows us to parse the URL straight off the command line without a "-url" paramater
+		else if (LLURLDispatcher::isSLURL(argv[j])
+				 || !strcmp(argv[j], "-url") && (++j < argc)) 
+		{
+			std::string slurl = argv[j];
+			if (LLURLDispatcher::isSLURLCommand(slurl))
+			{
+				LLStartUp::sSLURLCommand = slurl;
+			}
+			else
+			{
+				LLURLSimString::setString(slurl);
+			}
+			// *NOTE: After setting the url, bail. What can happen is
+			// that someone can use IE (or potentially other browsers)
+			// and do the rough equivalent of command injection and
+			// steal passwords. Phoenix. SL-55321
+			return 0;
+		}
+		else if (!strcmp(argv[j], "-ignorepixeldepth"))
+		{
+			gIgnorePixelDepth = TRUE;
+		}
+		else if (!strcmp(argv[j], "-cooperative"))
+		{
+			S32 ms_to_yield = 0;
+			if(++j < argc)
+			{
+				S32 rv = sscanf(argv[j], "%d", &ms_to_yield);
+				if(0 == rv)
+				{
+					--j;
+				}
+			}
+			else
+			{
+				--j;
+			}
+			gYieldMS = ms_to_yield;
+			gYieldTime = TRUE;
+		}
+		else if (!strcmp(argv[j], "-no-verify-ssl-cert"))
+		{
+			gVerifySSLCert = false;
+		}
+		else if ( (!strcmp(argv[j], "--channel") || !strcmp(argv[j], "-channel"))  && (++j < argc)) 
+		{
+			gChannelName = argv[j];
+		}
+#if LL_DARWIN
+		else if (!strncmp(argv[j], "-psn_", 5))
+		{
+			// this is the Finder passing the process session number
+			// we ignore this
+		}
 #endif
+		else if(!strncmp(argv[j], "-qa", 3))
+		{
+			gQAMode = TRUE;
+		}
+		else
+		{
 
-	if (gGridChoice == GRID_INFO_NONE)
-	{
-		gGridChoice = GridDefaultChoice;
-        gSavedSettings.setString("GridChoice", gGridInfo[gGridChoice].mName);
+			// DBC - Mac OS X passes some stuff by default on the command line (e.g. psn).
+			// Second Life URLs are passed this way as well?
+			llwarns << "Possible unknown keyword " << argv[j] << llendl;
+
+			// print usage information
+			llinfos << USAGE << llendl;
+			// return 1;
+		}
 	}
+	return 0;
 }
 
 bool send_url_to_other_instance(const std::string& url)
@@ -558,12 +938,11 @@ LLAppViewer::LLAppViewer() :
 	mReportedCrash(false),
 	mNumSessions(0),
 	mPurgeCache(false),
-	mPurgeOnExit(false),
-	mSecondInstance(false),
+    mPurgeOnExit(false),
+    mSecondInstance(false),
 	mSavedFinalSnapshot(false),
-	mQuitRequested(false),
-	mLogoutRequestSent(false),
-	mYieldTime(-1)
+    mQuitRequested(false),
+    mLogoutRequestSent(false)
 {
 	if(NULL != sInstance)
 	{
@@ -579,6 +958,13 @@ LLAppViewer::~LLAppViewer()
 	removeMarkerFile();
 }
 
+bool LLAppViewer::tempStoreCommandOptions(int argc, char** argv)
+{
+	gTempArgC = argc;
+	gTempArgV = argv;
+	return true;
+}
+
 bool LLAppViewer::init()
 {
     // *NOTE:Mani - LLCurl::initClass is not thread safe. 
@@ -587,6 +973,7 @@ bool LLAppViewer::init()
 
     initThreads();
 
+	initEarlyConfiguration();
 
 	//
 	// Start of the application
@@ -606,24 +993,61 @@ bool LLAppViewer::init()
 	//
 	// OK to write stuff to logs now, we've now crash reported if necessary
 	//
+
+	// Set up some defaults...
+	gSettingsFileName = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, DEFAULT_SETTINGS_FILE);
+	gOldSettingsFileName = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, LEGACY_DEFAULT_SETTINGS_FILE);
+
     if (!initConfiguration())
 		return false;
-
-    writeSystemInfo();
-
-	// Build a string representing the current version number.
-    gCurrentVersion = llformat("%s %d.%d.%d.%d", 
-        gSavedSettings.getString("VersionChannelName").c_str(), 
-        LL_VERSION_MAJOR, 
-        LL_VERSION_MINOR, 
-        LL_VERSION_PATCH, 
-        LL_VERSION_BUILD );
 
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
 	// *FIX: The following code isn't grouped into functions yet.
+
+	//
+	// Write system information into the debug log (CPU, OS, etc.)
+	//
+	writeSystemInfo();
+
+	// Build a string representing the current version number.
+        gCurrentVersion = llformat("%s %d.%d.%d.%d", gChannelName.c_str(), LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VERSION_BUILD );
+	
+	//
+	// Merge with the command line overrides
+	gSavedSettings.applyOverrides(gCommandLineSettings);
+
+	// Need to do this before calling parseAlerts
+	gUICtrlFactory = new LLViewerUICtrlFactory();
+	
+	// Pre-load alerts.xml to define the warnings settings (always loads from skins/xui/en-us/)
+	// Do this *before* loading the settings file
+	LLAlertDialog::parseAlerts("alerts.xml", &gSavedSettings, TRUE);
+	
+	// Overwrite default settings with user settings
+	llinfos << "Loading configuration file " << gSettingsFileName << llendl;
+	if (0 == gSavedSettings.loadFromFile(gSettingsFileName))
+	{
+		llinfos << "Failed to load settings from " << gSettingsFileName << llendl;
+		llinfos << "Loading legacy settings from " << gOldSettingsFileName << llendl;
+		gSavedSettings.loadFromFileLegacy(gOldSettingsFileName);
+	}
+
+	// need to do this here - need to have initialized global settings first
+	LLString nextLoginLocation = gSavedSettings.getString( "NextLoginLocation" );
+	if ( nextLoginLocation.length() )
+	{
+		LLURLSimString::setString( nextLoginLocation.c_str() );
+	};
+
+	// Merge with the command line overrides
+	gSavedSettings.applyOverrides(gCommandLineForcedSettings);
+
+	gLastRunVersion = gSavedSettings.getString("LastRunVersion");
+
+	fixup_settings();
 	
 	// Get the single value from the crash settings file, if it exists
 	std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
@@ -663,25 +1087,56 @@ bool LLAppViewer::init()
 	{
 		LLError::setPrintLocation(true);
 	}
+
+#if !LL_RELEASE_FOR_DOWNLOAD
+	if (gGridChoice == GRID_INFO_NONE)
+	{
+		// Development version: load last server choice by default (overridden by cmd line args)
+		
+		S32 server = gSavedSettings.getS32("ServerChoice");
+		if (server != 0)
+			gGridChoice = (EGridInfo)llclamp(server, 0, (S32)GRID_INFO_COUNT - 1);
+		if (server == GRID_INFO_OTHER)
+		{
+			LLString custom_server = gSavedSettings.getString("CustomServer");
+			if (custom_server.empty())
+			{
+				snprintf(gGridName, MAX_STRING, "none");		/* Flawfinder: ignore */
+			}
+			else
+			{
+				snprintf(gGridName, MAX_STRING, "%s", custom_server.c_str());		/* Flawfinder: ignore */
+			}
+		}
+	}
+#endif
+
+	if (gGridChoice == GRID_INFO_NONE)
+	{
+		gGridChoice = GridDefaultChoice;
+	}
 	
 	// Load art UUID information, don't require these strings to be declared in code.
 	LLString viewer_art_filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"viewerart.xml");
 	llinfos << "Loading art table from " << viewer_art_filename << llendl;
-	gViewerArt.loadFromFileLegacy(viewer_art_filename.c_str(), FALSE);
+	gViewerArt.loadFromFile(viewer_art_filename.c_str(), FALSE);
 	LLString textures_filename = gDirUtilp->getExpandedFilename(LL_PATH_SKINS, "textures", "textures.xml");
 	llinfos << "Loading art table from " << textures_filename << llendl;
-	gViewerArt.loadFromFileLegacy(textures_filename.c_str(), FALSE);
+	gViewerArt.loadFromFile(textures_filename.c_str(), FALSE);
 
 	LLString colors_base_filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "colors_base.xml");
 	llinfos << "Loading base colors from " << colors_base_filename << llendl;
-	gColors.loadFromFileLegacy(colors_base_filename.c_str(), FALSE, TYPE_COL4U);
+	gColors.loadFromFile(colors_base_filename.c_str(), FALSE, TYPE_COL4U);
 
 	// Load overrides from user colors file
 	LLString user_colors_filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "colors.xml");
 	llinfos << "Loading user colors from " << user_colors_filename << llendl;
-	if (gColors.loadFromFileLegacy(user_colors_filename.c_str(), FALSE, TYPE_COL4U) == 0)
+	if (gColors.loadFromFile(user_colors_filename.c_str(), FALSE, TYPE_COL4U) == 0)
 	{
-		llinfos << "Cannot load user colors from " << user_colors_filename << llendl;
+		llinfos << "Failed to load user colors from " << user_colors_filename << llendl;
+		LLString user_legacy_colors_filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "colors.ini");
+		llinfos << "Loading legacy colors from " << user_legacy_colors_filename << llendl;
+		gColors.loadFromFileLegacy(user_legacy_colors_filename.c_str(), FALSE, TYPE_COL4U);
 	}
 
 	// Widget construction depends on LLUI being initialized
@@ -704,18 +1159,16 @@ bool LLAppViewer::init()
 
 	LLAgent::parseTeleportMessages("teleport_strings.xml");
 
-	LLViewerJointMesh::updateVectorize();
-
 	// load MIME type -> media impl mappings
 	LLMIMETypes::parseMIMETypes( "mime_types.xml" ); 
 
+	mCrashBehavior = gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING);
 
-	// Copy settings to globals. *TODO: Remove or move to appropriage class initializers
-    	settings_to_globals();
-	// Setup settings listeners
-	settings_setup_listeners();
-	// Modify settings based on system configuration and compile options
-	settings_modify();
+	LLVectorPerformanceOptions::initClass();
+
+	// Move certain saved settings into global variables for speed
+	saved_settings_to_globals();
+
 
 	// Find partition serial number (Windows) or hardware serial (Mac)
 	mSerialNumber = generateSerialNumber();
@@ -980,9 +1433,9 @@ bool LLAppViewer::mainLoop()
 				bool run_multiple_threads = gSavedSettings.getBOOL("RunMultipleThreads");
 
 				// yield some time to the os based on command line option
-				if(mYieldTime >= 0)
+				if(gYieldTime)
 				{
-					ms_sleep(mYieldTime);
+					ms_sleep(gYieldMS);
 				}
 
 				// yield cooperatively when not running as foreground window
@@ -1254,11 +1707,11 @@ bool LLAppViewer::cleanup()
 
 	// Must do this after all panels have been deleted because panels that have persistent rects
 	// save their rects on delete.
-	gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);	
-
-	// UserSettingsFile should be empty if no use has been logged on.
-	// *FIX:Mani This should get really saved in a "logoff" mode. 
-	gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("UserSettingsFile"), TRUE);
+	gSavedSettings.saveToFile(gSettingsFileName, TRUE);
+	if (!gPerAccountSettingsFileName.empty())
+	{
+		gSavedPerAccountSettings.saveToFile(gPerAccountSettingsFileName, TRUE);
+	}
 	llinfos << "Saved settings" << llendflush;
 
 	std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
@@ -1353,10 +1806,10 @@ bool LLAppViewer::cleanup()
 	
 	end_messaging_system();
 
-	// *NOTE:Mani - The following call is not thread safe. 
-	LLCurl::cleanupClass();
+    // *NOTE:Mani - The following call is not thread safe. 
+    LLCurl::cleanupClass();
 
-	// If we're exiting to launch an URL, do that here so the screen
+    // If we're exiting to launch an URL, do that here so the screen
 	// is at the right resolution before we launch IE.
 	if (!gLaunchFileOnQuit.empty())
 	{
@@ -1374,6 +1827,106 @@ bool LLAppViewer::cleanup()
 
     llinfos << "Goodbye" << llendflush;
 	// return 0;
+	return true;
+}
+
+bool LLAppViewer::initEarlyConfiguration()
+{
+	// *FIX: globals - This method sets a bunch of globals early in the init process.
+	int argc = gTempArgC;
+	char** argv = gTempArgV;
+
+	// HACK! We REALLY want to know what grid they were trying to connect to if they
+	// crashed hard.
+	// So we walk through the command line args ONLY looking for the
+	// userserver arguments first.  And we don't do ANYTHING but set
+	// the gGridName (which gets passed to the crash reporter).
+	// We're assuming that they're trying to log into the same grid as last
+	// time, which seems fairly reasonable.
+	snprintf(gGridName, MAX_STRING, "%s", gGridInfo[GridDefaultChoice].mName);		// Flawfinder: ignore
+	S32 j;
+	for (j = 1; j < argc; j++) 
+	{
+		if (!strcmp(argv[j], "--aditi"))
+		{
+			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[GRID_INFO_ADITI].mName);		// Flawfinder: ignore
+		}
+		else if (!strcmp(argv[j], "--agni"))
+		{
+			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[GRID_INFO_AGNI].mName);		// Flawfinder: ignore
+		}
+		else if (!strcmp(argv[j], "--siva"))
+		{
+			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[GRID_INFO_SIVA].mName);		// Flawfinder: ignore
+		}
+		else if (!strcmp(argv[j], "--shakti"))
+		{
+			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_SHAKTI].mName);
+		}
+		else if (!strcmp(argv[j], "--durga"))
+		{
+			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[GRID_INFO_DURGA].mName);		// Flawfinder: ignore
+		}
+		else if (!strcmp(argv[j], "--soma"))
+		{
+			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[GRID_INFO_SOMA].mName);		// Flawfinder: ignore
+		}
+		else if (!strcmp(argv[j], "--ganga"))
+		{
+			snprintf(gGridName, MAX_STRING, "%s", gGridInfo[GRID_INFO_GANGA].mName);		// Flawfinder: ignore 
+		}
+		else if (!strcmp(argv[j], "--vaak"))
+		{
+			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_VAAK].mName);
+		}
+		else if (!strcmp(argv[j], "--uma"))
+		{
+			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_UMA].mName);
+		}
+		else if (!strcmp(argv[j], "--mohini"))
+		{
+			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_MOHINI].mName);
+		}
+		else if (!strcmp(argv[j], "--yami"))
+		{
+			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_YAMI].mName);
+		}
+		else if (!strcmp(argv[j], "--nandi"))
+		{
+			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_NANDI].mName);
+		}
+		else if (!strcmp(argv[j], "--mitra"))
+		{
+			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_MITRA].mName);
+		}
+		else if (!strcmp(argv[j], "--radha"))
+		{
+			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_RADHA].mName);
+		}
+		else if (!strcmp(argv[j], "--ravi"))
+		{
+			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_RAVI].mName);
+		}
+		else if (!strcmp(argv[j], "--aruna"))
+		{
+			sprintf(gGridName,"%s", gGridInfo[GRID_INFO_ARUNA].mName);
+		}
+		else if (!strcmp(argv[j], "-multiple"))
+		{
+			// Hack to detect -multiple so we can disable the marker file check (which will always fail)
+			gMultipleViewersOK = TRUE;
+		}
+		else if (!strcmp(argv[j], "-novoice"))
+		{
+			// May need to know this early also
+			gDisableVoice = TRUE;
+		}
+		else if (!strcmp(argv[j], "-url") && (++j < argc)) 
+		{
+			LLURLSimString::setString(argv[j]);
+		}
+	}
+
 	return true;
 }
 
@@ -1437,275 +1990,14 @@ bool LLAppViewer::initLogging()
 	return true;
 }
 
-void LLAppViewer::loadSettingsFromDirectory(ELLPath path_index)
-{
-	for(LLSD::map_iterator itr = mSettingsFileList.beginMap(); itr != mSettingsFileList.endMap(); ++itr)
-	{
-		LLString settings_name = (*itr).first;
-		LLString settings_file = mSettingsFileList[settings_name].asString();
-		LLString full_settings_path = gDirUtilp->getExpandedFilename(path_index, settings_file);
-		if(gSettings.find(settings_name) == gSettings.end())
-		{
-			llwarns << "Cannot load " << settings_file << " - No matching settings group for name " << settings_name << llendl;
-			continue;
-		}
-		if(!gSettings[settings_name]->loadFromFile(gDirUtilp->getExpandedFilename(path_index, settings_file)))
-		{
-			llwarns << "Cannot load " << full_settings_path << " - No settings found." << llendl;
-		}
-		else
-		{
-			llinfos << "Loaded settings file " << full_settings_path << llendl;
-		}
-	}
-}
-
 bool LLAppViewer::initConfiguration()
 {
-	//Set up internal pointers	
-	gSettings["Global"] = &gSavedSettings;
-	gSettings["PerAccount"] = &gSavedPerAccountSettings;
-	gSettings["CrashSettings"] = &gCrashSettings;
-
-	//Load settings files list
-	std::string settings_file_list = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "settings_files.xml");
-	LLControlGroup settings_control;
-	llinfos << "Loading settings file list" << settings_file_list << llendl;
-	if (0 == settings_control.loadFromFile(settings_file_list))
+	// Ye olde parse_args()...
+	if(!doConfigFromCommandLine())
 	{
-        llerrs << "Cannot load default configuration file " << settings_file_list << llendl;
-	}
-
-	mSettingsFileList = settings_control.getLLSD("Files");
-	
-	//Order of loading
-	// - App Settings (Defaults)
-	// - user_settings (Client Overrides)
-	// - user directory (user specific overrides, happens in llstartup)
-	loadSettingsFromDirectory(LL_PATH_APP_SETTINGS);
-
-	//Fix settings that require compiled information
-	gSavedSettings.setString("ClientSettingsFile", 
-        gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, DEFAULT_SETTINGS_FILE));
-	gSavedSettings.setString("VersionChannelName", LL_CHANNEL);
-    #ifndef	LL_RELEASE_FOR_DOWNLOAD
-        gSavedSettings.setBOOL("ShowConsoleWindow", TRUE);
-    #endif
-
-	// These are warnings that appear on the first experience of that condition.
-	// They are already set in the settings_default.xml file, but still need to be added to LLFirstUse
-	// for disable/reset ability
-	LLFirstUse::addConfigVariable("FirstBalanceIncrease");
-	LLFirstUse::addConfigVariable("FirstBalanceDecrease");
-	LLFirstUse::addConfigVariable("FirstSit");
-	LLFirstUse::addConfigVariable("FirstMap");
-	LLFirstUse::addConfigVariable("FirstGoTo");
-	LLFirstUse::addConfigVariable("FirstBuild");
-	LLFirstUse::addConfigVariable("FirstLeftClickNoHit");
-	LLFirstUse::addConfigVariable("FirstTeleport");
-	LLFirstUse::addConfigVariable("FirstOverrideKeys");
-	LLFirstUse::addConfigVariable("FirstAttach");
-	LLFirstUse::addConfigVariable("FirstAppearance");
-	LLFirstUse::addConfigVariable("FirstInventory");
-	LLFirstUse::addConfigVariable("FirstSandbox");
-	LLFirstUse::addConfigVariable("FirstFlexible");
-	LLFirstUse::addConfigVariable("FirstDebugMenus");
-	LLFirstUse::addConfigVariable("FirstStreamingMusic");
-	LLFirstUse::addConfigVariable("FirstStreamingVideo");
-	LLFirstUse::addConfigVariable("FirstSculptedPrim");
-	LLFirstUse::addConfigVariable("FirstVoice");
-	LLFirstUse::addConfigVariable("FirstMedia");
-		
-    //////
-    // *FIX:Mani - Find a way to remove the gUICtrlFactory and
-    // LLAlertDialog::parseAlerts dependecies on the being loaded
-    // *before* the user settings. Having to do this init here
-    // seems odd. 
-
-   	// Need to do this before calling parseAlerts
-	gUICtrlFactory = new LLViewerUICtrlFactory();
-	
-	// Pre-load alerts.xml to define the warnings settings (always loads from skins/xui/en-us/)
-	// Do this *before* loading the settings file
-	LLAlertDialog::parseAlerts("alerts.xml", &gSavedSettings, TRUE);
-
-	// Overwrite default user settings with	user settings
-	loadSettingsFromDirectory(LL_PATH_USER_SETTINGS);
-
-	// Parse command line settings.
-	LLControlGroupCLP clp;
-	std::string	cmd_line_config	= gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,
-														  "cmd_line.xml");
-	clp.configure(cmd_line_config, &gSavedSettings);
-
-	if(!initParseCommandLine(clp))
-	{
-		llwarns	
-			<< "Error parsing command line options.	Command	Line options ignored." 
-			<< llendl;
-
-		llinfos	<< "Command	line usage:\n" << clp << llendl;
-	}
-
-	// If the user has specified a alternate settings file name.
-	// Load	it now.
-	if(clp.hasOption("settings"))
-	{
-		std::string	user_settings_filename = clp.getOption("settings")[0];
-		std::string	full_settings_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, 
-																		 user_settings_filename);
-
-		llinfos	<< "Loading	command	line specified settings	file: "	<< full_settings_path << llendl;
-
-		if(!gSavedSettings.loadFromFile(full_settings_path))		
-		{
-			llwarns	<< "File not found:	" << full_settings_path	<< llendl;
-		}
-
-		gSavedSettings.setString("ClientSettingsFile", full_settings_path);
-	}
-
-	// Apply the command line params to	the	settings system.
-	// Anyway the following	call to	notify depends upon	the	settings being init'd.
-	clp.notify(); 
-
-	// Start up	the	debugging console before handling other	options.
-	if (gSavedSettings.getBOOL("ShowConsoleWindow"))
-	{
-		initConsole();
-	}
-
-	if(clp.hasOption("help"))
-	{
-		llinfos	<< "Command	line usage:\n" << clp << llendl;
 		return false;
 	}
-
-    //////////////////////////
-    // Apply settings...
-    if(clp.hasOption("setdefault"))
-    {
-        //const LLCommandLineParser::token_vector_t& setdefault = clp.getOption("setdefault");
-        //if(0x1 & setdefault.size())
-        //{
-        //    llwarns << "Invalid '--setdefault' parameter count." << llendl;
-        //}
-        //else
-        //{
-        //    LLCommandLineParser::token_vector_t::const_iterator itr = setdefault.begin();
-        //    for(; itr != setdefault.end(); ++itr)
-        //    {
-        //        const std::string& name = *itr;
-        //        const std::string& value = *(++itr);
-        //        LLControlVariable* c = gSettings["global"]->getControl(name);
-        //        if(c)
-        //        {
-        //            c->setDefault(value);
-        //        }
-        //        else
-        //        {
-        //            llwarns << "'--setdefault' specified with unknown setting: '"
-        //                << name << "'." << llendl;
-        //        }
-        //    }
-        //}
-    }
-
-    if(clp.hasOption("set"))
-    {
-        const LLCommandLineParser::token_vector_t& set_values = clp.getOption("set");
-        if(0x1 & set_values.size())
-        {
-            llwarns << "Invalid '--set' parameter count." << llendl;
-        }
-        else
-        {
-            LLCommandLineParser::token_vector_t::const_iterator itr = set_values.begin();
-            for(; itr != set_values.end(); ++itr)
-            {
-                const std::string& name = *itr;
-                const std::string& value = *(++itr);
-                LLControlVariable* c = gSettings["Global"]->getControl(name);
-                if(c)
-                {
-                    c->setValue(value, false);
-                }
-                else
-                {
-                    llwarns << "'--set' specified with unknown setting: '"
-                        << name << "'." << llendl;
-                }
-            }
-        }
-    }
-
-    initGridChoice();
-
-    // Handle slurl use. NOTE: Don't let SL-55321 reappear.
-
-    // *FIX: This init code should be made more robust to prevent 
-    // the issue SL-55321 from returning. One thought is to allow 
-    // only select options to be set from command line when a slurl 
-    // is specified. More work on the settings system is needed to 
-    // achieve this. For now...
-
-    // *NOTE:Mani The command line parser parses tokens and is 
-    // setup to bail after parsing the '--url' option or the 
-    // first option specified without a '--option' flag (or
-    // any other option that uses the 'last_option' setting - 
-    // see LLControlGroupCLP::configure())
-
-    // What can happen is that someone can use IE (or potentially 
-    // other browsers) and do the rough equivalent of command 
-    // injection and steal passwords. Phoenix. SL-55321
-    if(clp.hasOption("url"))
-    {
-        std::string slurl = clp.getOption("url")[0];
-        if (LLURLDispatcher::isSLURLCommand(slurl))
-        {
-	        LLStartUp::sSLURLCommand = slurl;
-        }
-        else
-        {
-	        LLURLSimString::setString(slurl);
-        }
-    }
-    else if(clp.hasOption("slurl"))
-    {
-        std::string slurl = clp.getOption("slurl")[0];
-        if(LLURLDispatcher::isSLURL(slurl))
-        {
-            if (LLURLDispatcher::isSLURLCommand(slurl))
-            {
-	            LLStartUp::sSLURLCommand = slurl;
-            }
-            else
-            {
-	            LLURLSimString::setString(slurl);
-            }
-        }
-    }
-
-    const LLControlVariable* loginuri = gSavedSettings.getControl("LoginURI");
-    if(loginuri && LLString::null != loginuri->getValue().asString())
-    {   
-        addLoginURI(loginuri->getValue().asString());
-    }
-
-    const LLControlVariable* helperuri = gSavedSettings.getControl("HelperURI");
-    if(helperuri && LLString::null != helperuri->getValue().asString())
-    {   
-        setHelperURI(helperuri->getValue().asString());
-    }
-
-    const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinFolder");
-    if(skinfolder && LLString::null != skinfolder->getValue().asString())
-    {   
-        gDirUtilp->setSkinFolder(skinfolder->getValue().asString());
-    }
-
-    mYieldTime = gSavedSettings.getS32("YieldTime");
-             
+	
 	// XUI:translate
 	gSecondLife = "Second Life";
 
@@ -1776,6 +2068,19 @@ bool LLAppViewer::initConfiguration()
 
 	gStartTime = totalTime();
 
+	////////////////////////////////////////
+	//
+	// Process ini files
+	//
+
+	// declare all possible setting variables
+	declare_settings();
+
+#if !LL_RELEASE_FOR_DOWNLOAD
+//	only write the defaults for non-release builds!
+	gSavedSettings.saveToFile(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings_default.xml").c_str(), FALSE);
+#endif
+
 	//
 	// Set the name of the window
 	//
@@ -1788,7 +2093,7 @@ bool LLAppViewer::initConfiguration()
 #endif
 	LLString::truncate(gWindowTitle, 255);
 
-	if (!gSavedSettings.getBOOL("AllowMultipleViewers"))
+	if (!gMultipleViewersOK)
 	{
 	    //
 	    // Check for another instance of the app running
@@ -1914,12 +2219,12 @@ bool LLAppViewer::initConfiguration()
 		
 		if (mSecondInstance)
 		{
-			gSavedSettings.setBOOL("CmdLineDisableVoice", TRUE);
+			gDisableVoice = TRUE;
 			/* Don't start another instance if using -multiple
 			//RN: if we received a URL, hand it off to the existing instance
-			if (LLURLSimString::parse())
-			{
-				LLURLSimString::send_to_other_instance();
+		    if (LLURLSimString::parse())
+		    {
+			    LLURLSimString::send_to_other_instance();
 				return 1;
 			}
 			*/
@@ -1928,15 +2233,95 @@ bool LLAppViewer::initConfiguration()
 		initMarkerFile();
 	}
 
-   	// need to do this here - need to have initialized global settings first
-	LLString nextLoginLocation = gSavedSettings.getString( "NextLoginLocation" );
-	if ( nextLoginLocation.length() )
-	{
-		LLURLSimString::setString( nextLoginLocation.c_str() );
-	};
-
-	gLastRunVersion = gSavedSettings.getString("LastRunVersion");
 	return true; // Config was successful.
+}
+
+bool LLAppViewer::doConfigFromCommandLine()
+{
+	// *FIX: This is what parse args used to do, minus the arg reading part.
+	// Now the arg parsing is handled by LLApp::parseCommandOptions() and this
+	// method need only interpret settings. Perhaps some day interested parties 
+	// can ask an app about a setting rather than have the app set 
+	// a gazzillion globals.
+	
+	/////////////////////////////////////////
+	//
+	// Process command line arguments
+	//
+	S32 args_result = 0;
+
+#if LL_DARWIN
+	{
+		// On the Mac, read in arguments.txt (if it exists) and process it for additional arguments.
+		LLString args;
+		if(_read_file_into_string(args, "arguments.txt"))		/* Flawfinder: ignore*/
+		{
+			// The arguments file exists.  
+			// It should consist of command line arguments separated by newlines.
+			// Split it into individual arguments and build a fake argv[] to pass to parse_args.
+			std::vector<std::string> arglist;
+			
+			arglist.push_back("newview");
+			
+			llinfos << "Reading additional command line arguments from arguments.txt..." << llendl;
+			
+			typedef boost::tokenizer<boost::escaped_list_separator<char> > tokenizer;
+			boost::escaped_list_separator<char> sep("\\", "\r\n ", "\"'");
+			tokenizer tokens(args, sep);
+			tokenizer::iterator token_iter;
+
+			for(token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
+			{
+				llinfos << "argument: '" << (token_iter->c_str()) << "'" << llendl;
+				
+				arglist.push_back(*token_iter);
+			}
+
+			char **fakeargv = new char*[arglist.size()];
+			int i;
+			for(i=0; i < arglist.size(); i++)
+				fakeargv[i] = const_cast<char*>(arglist[i].c_str());
+				
+			args_result = parse_args(arglist.size(), fakeargv);
+			delete[] fakeargv;
+		}
+		
+		// Get the user's preferred language string based on the Mac OS localization mechanism.
+		// To add a new localization:
+			// go to the "Resources" section of the project
+			// get info on "language.txt"
+			// in the "General" tab, click the "Add Localization" button
+			// create a new localization for the language you're adding
+			// set the contents of the new localization of the file to the string corresponding to our localization
+			//   (i.e. "en-us", "ja", etc.  Use the existing ones as a guide.)
+		CFURLRef url = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("language"), CFSTR("txt"), NULL);
+		char path[MAX_PATH];
+		if(CFURLGetFileSystemRepresentation(url, false, (UInt8 *)path, sizeof(path)))
+		{
+			LLString lang;
+			if(_read_file_into_string(lang, path))		/* Flawfinder: ignore*/
+			{
+				gCommandLineForcedSettings["SystemLanguage"] = lang;
+			}
+		}
+		CFRelease(url);
+	}
+#endif
+
+	int argc = gTempArgC;
+	char** argv = gTempArgV;
+
+	//
+	// Parse the command line arguments
+	//
+	args_result |= parse_args(argc, argv);
+	if (args_result)
+	{
+		removeMarkerFile();
+		return false;
+	}
+
+	return true;
 }
 
 bool LLAppViewer::initWindow()
@@ -1955,11 +2340,10 @@ bool LLAppViewer::initWindow()
 	window_title_str[sizeof(window_title_str) - 1] = '\0';
 
 	// always start windowed
-	BOOL ignorePixelDepth = gSavedSettings.getBOOL("IgnorePixelDepth");
 	gViewerWindow = new LLViewerWindow(window_title_str, "Second Life",
 		gSavedSettings.getS32("WindowX"), gSavedSettings.getS32("WindowY"),
 		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
-		FALSE, ignorePixelDepth);
+		FALSE, gIgnorePixelDepth);
 		
 	if (gSavedSettings.getBOOL("FullScreen"))
 	{
@@ -1981,20 +2365,25 @@ bool LLAppViewer::initWindow()
 
 		// Set this flag in case we crash while initializing GL
 		gSavedSettings.setBOOL("RenderInitError", TRUE);
-		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
+		gSavedSettings.saveToFile( gSettingsFileName, TRUE );
 	
 		gPipeline.init();
 		stop_glerror();
 		gViewerWindow->initGLDefaults();
 
 		gSavedSettings.setBOOL("RenderInitError", FALSE);
-		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
+		gSavedSettings.saveToFile( gSettingsFileName, TRUE );
 	}
 
 	LLUI::sWindow = gViewerWindow->getWindow();
 
 	LLAlertDialog::parseAlerts("alerts.xml");
 	LLNotifyBox::parseNotify("notify.xml");
+
+	// *TODO - remove this when merging into release
+	// DON'T Clean up the feature manager lookup table - settings are needed
+	// for setting the graphics level.
+	//gFeatureManagerp->cleanupFeatureTables();
 
 	// Show watch cursor
 	gViewerWindow->setCursor(UI_CURSOR_WAIT);
@@ -2085,7 +2474,7 @@ void LLAppViewer::writeSystemInfo()
 {
 	gDebugInfo["SLLog"] = LLError::logFileName();
 
-	gDebugInfo["ClientInfo"]["Name"] = gSavedSettings.getString("VersionChannelName");
+	gDebugInfo["ClientInfo"]["Name"] = gChannelName;
 	gDebugInfo["ClientInfo"]["MajorVersion"] = LL_VERSION_MAJOR;
 	gDebugInfo["ClientInfo"]["MinorVersion"] = LL_VERSION_MINOR;
 	gDebugInfo["ClientInfo"]["PatchVersion"] = LL_VERSION_PATCH;
@@ -2136,7 +2525,7 @@ void LLAppViewer::handleViewerCrash()
 	}
 	pApp->mReportedCrash = TRUE;
 
-	gDebugInfo["SettingsFilename"] = gSavedSettings.getString("ClientSettingsFile");
+	gDebugInfo["SettingsFilename"] = gSettingsFileName;
 	gDebugInfo["CAFilename"] = gDirUtilp->getCAFile();
 	gDebugInfo["ViewerExePath"] = gDirUtilp->getExecutablePathAndName().c_str();
 	gDebugInfo["CurrentPath"] = gDirUtilp->getCurPath().c_str();
@@ -2277,11 +2666,7 @@ void LLAppViewer::initMarkerFile()
 	ll_apr_file_remove(error_marker_file);
 	
 	//Freeze case checks
-	if(anotherInstanceRunning()) 
-	{
-		return;
-	}
-	
+	if(anotherInstanceRunning()) return;
 	fMarker = ll_apr_file_open(mMarkerFileName, LL_APR_RB);		
 	if (fMarker != NULL)
 	{
@@ -2487,7 +2872,7 @@ bool LLAppViewer::initCache()
 	char static_vfs_index_file[LL_MAX_PATH];	// Flawfinder: ignore
 	char static_vfs_data_file[LL_MAX_PATH];	// Flawfinder: ignore
 
-	if (gSavedSettings.getBOOL("AllowMultipleViewers"))
+	if (gMultipleViewersOK)
 	{
 		// don't mess with renaming the VFS in this case
 		new_salt = old_salt;
@@ -2686,6 +3071,17 @@ void LLAppViewer::setHelperURI(const std::string& uri)
     gHelperURI = uri;
 }
 
+void LLAppViewer::setLoginPage(const std::string& login_page)
+{
+	gLoginPage = login_page;
+}
+
+const std::string& LLAppViewer::getLoginPage()
+{
+	return gLoginPage;
+}
+
+
 // Callback from a dialog indicating user was logged out.  
 void finish_disconnect(S32 option, void* userdata)
 {
@@ -2854,6 +3250,8 @@ void LLAppViewer::idle()
 	// Update frame timers
 	static LLTimer idle_timer;
 
+	LLControlBase::updateAllListeners();
+
 	LLFrameTimer::updateFrameTime();
 	LLEventTimer::updateClass();
 	LLCriticalDamp::updateInterpolants();
@@ -2874,10 +3272,9 @@ void LLAppViewer::idle()
 	// Smoothly weight toward current frame
 	gFPSClamped = (frame_rate_clamped + (4.f * gFPSClamped)) / 5.f;
 
-	F32 qas = gSavedSettings.getF32("QuitAfterSeconds");
-	if (qas > 0.f)
+	if (gQuitAfterSeconds > 0.f)
 	{
-		if (gRenderStartTime.getElapsedTimeF32() > qas)
+		if (gRenderStartTime.getElapsedTimeF32() > gQuitAfterSeconds)
 		{
 			LLAppViewer::instance()->forceQuit();
 		}
@@ -2916,7 +3313,7 @@ void LLAppViewer::idle()
 	    // Update simulator agent state
 	    //
 
-		if (gSavedSettings.getBOOL("RotateRight"))
+		if (gRotateRight)
 		{
 			gAgent.moveYaw(-1.f);
 		}
@@ -3124,6 +3521,7 @@ void LLAppViewer::idle()
 	//
 	// Update weather effects
 	//
+
 	if (!gNoRender)
 	{
 		gWorldp->updateClouds(gFrameDTClamped);

@@ -114,5 +114,10 @@ LLGridData gGridInfo[GRID_INFO_COUNT] =
 // Use this to figure out which domain name and login URI to use.
 
 EGridInfo gGridChoice = GRID_INFO_NONE;
-LLString gGridName;		/* Flawfinder: ignore */
+char gGridName[MAX_STRING];		/* Flawfinder: ignore */
+
+F32 gPacketDropPercentage = 0.f;
+F32 gInBandwidth = 0.f;
+F32 gOutBandwidth = 0.f;
+
 unsigned char gMACAddress[MAC_ADDRESS_BYTES];		/* Flawfinder: ignore */

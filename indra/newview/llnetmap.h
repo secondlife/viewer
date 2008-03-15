@@ -45,6 +45,12 @@ class LLCoordGL;
 class LLTextBox;
 class LLMenuGL;
 
+class LLRotateNetMapListener : public LLSimpleListener
+{
+public:
+	bool handleEvent(LLPointer<LLEvent>, const LLSD& user_data);
+};
+
 class LLNetMap : public LLUICtrl
 {
 public:
@@ -110,6 +116,8 @@ public:
 	LLTextBox*		mTextBoxNorthEast;
 	LLTextBox*		mTextBoxNorthWest;
 	LLTextBox*		mTextBoxSouthWest;
+
+	LLRotateNetMapListener mNetMapListener;
 
 	static BOOL		sRotateMap;
 	static LLNetMap*	sInstance;

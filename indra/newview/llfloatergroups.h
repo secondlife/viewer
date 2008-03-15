@@ -83,7 +83,7 @@ protected:
 	static instance_map_t sInstances;
 };
 
-class LLPanelGroups : public LLPanel, public LLSimpleListener
+class LLPanelGroups : public LLPanel
 {
 public:
 	LLPanelGroups();

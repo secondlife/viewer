@@ -65,6 +65,7 @@ const BOOL	NOT_MOUSE_OPAQUE = FALSE;
 
 const U32 GL_NAME_UI_RESERVED = 2;
 
+
 /*
 // virtual functions defined in LLView:
 
@@ -149,7 +150,7 @@ virtual BOOL	handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent);
 		*
 */
 
-class LLView : public LLMouseHandler, public LLMortician
+class LLView : public LLMouseHandler, public LLMortician, public LLSimpleListenerObservable
 {
 
 public:
@@ -293,6 +294,7 @@ public:
 	
 	LLHandle<LLView>	getHandle()				{ mHandle.bind(this); return mHandle; }
 
+
 	U32			getFollows() const				{ return mReshapeFlags; }
 	BOOL		followsLeft() const				{ return mReshapeFlags & FOLLOWS_LEFT; }
 	BOOL		followsRight() const			{ return mReshapeFlags & FOLLOWS_RIGHT; }
@@ -391,13 +393,13 @@ public:
 	void addListenerToControl(LLEventDispatcher *observer, const LLString& name, LLSD filter, LLSD userdata);
 
 	void addBoolControl(LLString name, bool initial_value);
-	LLControlVariable *getControl(LLString name);
-	LLControlVariable *findControl(LLString name);
+	LLControlBase *getControl(LLString name);
+	LLControlBase *findControl(LLString name);
 
-	bool setControlValue(const LLSD& value);
+	void			setControlValue(const LLSD& value);
 	virtual void	setControlName(const LLString& control, LLView *context);
 	virtual LLString getControlName() const { return mControlName; }
-//	virtual bool	handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
+	virtual bool	handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
 	virtual void	setValue(const LLSD& value);
 	virtual LLSD	getValue() const;
 
@@ -492,12 +494,11 @@ protected:
 	LLView* childrenHandleRightMouseDown(S32 x, S32 y, MASK mask);
 	LLView* childrenHandleRightMouseUp(S32 x, S32 y, MASK mask);
 
-	static bool controlListener(const LLSD& newvalue, LLHandle<LLView> handle, std::string type);
-
-	typedef std::map<LLString, LLControlVariable*> control_map_t;
+	typedef std::map<LLString, LLControlBase*> control_map_t;
 	control_map_t mFloaterControls;
 
 	virtual LLView* getChildByName(const LLString& name, BOOL recurse = FALSE) const;
+
 private:
 	LLView*		mParentView;
 	child_list_t mChildList;
@@ -536,8 +537,9 @@ private:
 	dispatch_list_t mDispatchList;
 
 	LLString		mControlName;
-	boost::signals::connection mControlConnection;
-	
+
+
+// Just debugging stuff? We should try to hide anything that's not. -MG
 public:
 	static BOOL	sDebugRects;	// Draw debug rects behind everything.
 	static BOOL sDebugKeys;

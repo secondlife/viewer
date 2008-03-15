@@ -39,7 +39,7 @@
 class LLAppViewerWin32 : public LLAppViewer
 {
 public:
-	LLAppViewerWin32(const char* cmd_line);
+	LLAppViewerWin32();
 	virtual ~LLAppViewerWin32();
 
 	//
@@ -49,18 +49,15 @@ public:
 	virtual bool cleanup();
 
 protected:
-	virtual void initConsole(); // Initialize OS level debugging console.
+	virtual bool initWindow(); // Initialize the viewer's window.
 	virtual bool initHardwareTest(); // Win32 uses DX9 to test hardware.
-    virtual bool initParseCommandLine(LLCommandLineParser& clp);
-
-    virtual void handleCrashReporting(); 
+	virtual void handleCrashReporting(); 
 
 	std::string generateSerialNumber();
 
 private:
 	void disableWinErrorReporting();
 
-    std::string mCmdLine;
 };
 
 #endif // LL_LLAPPVIEWERWIN32_H
