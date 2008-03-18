@@ -53,6 +53,7 @@ public:
 	static Flavor getMessageFlavor(const std::string& msg_name);
 	static SenderTrust getSenderTrustedness(const std::string& msg_name);
 	static bool isValidMessage(const std::string& msg_name);
+	static bool onlySendLatest(const std::string& msg_name);
 	static bool isCapBanned(const std::string& cap_name);
 	static LLSD getConfigForMessage(const std::string& msg_name);
 };

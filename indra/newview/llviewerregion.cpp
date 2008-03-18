@@ -950,6 +950,7 @@ void LLViewerRegion::updateCoarseLocations(LLMessageSystem* msg)
 {
 	//llinfos << "CoarseLocationUpdate" << llendl;
 	mMapAvatars.reset();
+	mMapAvatarIDs.reset(); // only matters in a rare case but it's good to be safe.
 
 	U8 x_pos = 0;
 	U8 y_pos = 0;
@@ -1382,7 +1383,6 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
 	capabilityNames.append("MapLayer");
 	capabilityNames.append("MapLayerGod");
 	capabilityNames.append("NewFileAgentInventory");
-	capabilityNames.append("ParcelGodReserveForNewbie");
 	capabilityNames.append("ParcelPropertiesUpdate");
 	capabilityNames.append("ParcelVoiceInfoRequest");
 	capabilityNames.append("ProvisionVoiceAccountRequest");

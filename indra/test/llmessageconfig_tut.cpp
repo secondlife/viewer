@@ -35,7 +35,6 @@
 #include "lltut.h"
 #include "llsdserialize.h"
 #include "llfile.h"
-#include "lldir.h"
 #include "lltimer.h"
 #include "llframetimer.h"
 #include "llsdutil.h"
@@ -198,5 +197,24 @@ namespace tut
 		ensure_equals("Ensure reload after 6 seconds",
 					  LLMessageConfig::getServerDefaultFlavor(),
 					  LLMessageConfig::LLSD_FLAVOR);
+	}
+
+	template<> template<>
+	void LLMessageConfigTestObject::test<8>()
+		// tests that config changes are picked up/refreshed periodically
+	{
+		LLSD config;
+		config["serverDefaults"]["simulator"] = "template";
+		config["messages"]["msg1"]["flavor"] = "llsd";
+		config["messages"]["msg1"]["only-send-latest"] = true;
+		config["messages"]["msg2"]["flavor"] = "llsd";
+		config["messages"]["msg2"]["only-send-latest"] = false;
+		LLMessageConfig::useConfig(config);
+		ensure_equals("Ensure msg1 exists, sent latest-only",
+					  LLMessageConfig::onlySendLatest("msg1"),
+					  true);
+		ensure_equals("Ensure msg2 exists, sent latest-only",
+					  LLMessageConfig::onlySendLatest("msg2"),
+					  false);
 	}
 }

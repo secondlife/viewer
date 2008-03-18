@@ -252,6 +252,14 @@ bool LLMessageConfig::isValidMessage(const std::string& msg_name)
 	return file.mMessages.has(msg_name);
 }
 
+//static
+bool LLMessageConfig::onlySendLatest(const std::string& msg_name)
+{
+	LLMessageConfigFile& file = LLMessageConfigFile::instance();
+	LLSD config = file.mMessages[msg_name];
+	return config["only-send-latest"].asBoolean();
+}
+
 bool LLMessageConfig::isCapBanned(const std::string& cap_name)
 {
 	return LLMessageConfigFile::instance().isCapBanned(cap_name);
