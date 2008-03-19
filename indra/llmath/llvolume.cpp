@@ -1858,9 +1858,6 @@ inline U32 sculpt_xy_to_index(U32 x, U32 y, U16 sculpt_width, U16 sculpt_height,
 {
 	U32 index = (x + y * sculpt_width) * sculpt_components;
 
-	// attempt to resolve DEV-11158 - remove assert later.
-	llassert(index < sculpt_width * sculpt_height * sculpt_components);
-	
 	return index;
 }
 
