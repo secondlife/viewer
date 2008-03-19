@@ -1021,7 +1021,6 @@ BOOL idle_startup()
 			gSkipOptionalUpdate,
 			gAcceptTOS,
 			gAcceptCriticalMessage,
-			gViewerDigest,
 			gLastExecEvent,
 			requested_options,
 			hashed_mac_string,

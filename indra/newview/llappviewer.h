@@ -224,7 +224,6 @@ extern BOOL gGodConnect; // llstartup
 extern BOOL gAcceptTOS;
 extern BOOL gAcceptCriticalMessage;
 
-extern LLUUID	gViewerDigest;  // MD5 digest of the viewer's executable file.
 
 typedef enum 
 {

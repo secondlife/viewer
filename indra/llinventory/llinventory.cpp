@@ -940,6 +940,7 @@ LLSD LLInventoryItem::asLLSD() const
 	}
 	else
 	{
+		// *TODO: get rid of this. Phoenix 2008-01-30
 		LLUUID shadow_id(mAssetUUID);
 		LLXORCipher cipher(MAGIC_ID.mData, UUID_BYTES);
 		cipher.encrypt(shadow_id.mData, UUID_BYTES);

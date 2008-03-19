@@ -1896,7 +1896,7 @@ void renderPhysicalBeacons(LLDrawable* drawablep)
 	LLViewerObject *vobj = drawablep->getVObj();
 	if (vobj 
 		&& !vobj->isAvatar() 
-		&& !vobj->getParent()
+		//&& !vobj->getParent()
 		&& vobj->usePhysics())
 	{
 		if (gPipeline.sRenderBeacons)

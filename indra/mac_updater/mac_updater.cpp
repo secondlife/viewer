@@ -416,6 +416,7 @@ int main(int argc, char **argv)
 	if(err == noErr)
 	{
 		ShowWindow(gWindow);
+		SelectWindow(gWindow);
 	}
 		
 	if(err == noErr)

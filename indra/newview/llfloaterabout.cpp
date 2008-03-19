@@ -168,12 +168,6 @@ LLFloaterAbout::LLFloaterAbout()
 		support.append("\n");
 	}
 
-	// MD5 digest of executable
-	support.append("Viewer Digest: ");
-	char viewer_digest_string[UUID_STR_LENGTH]; /*Flawfinder: ignore*/
-	gViewerDigest.toString( viewer_digest_string );
-	support.append(viewer_digest_string);
-
 	// Fix views
 	childDisable("credits_editor");
 

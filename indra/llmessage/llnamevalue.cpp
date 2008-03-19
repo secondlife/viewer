@@ -34,12 +34,12 @@
 
 #include "linden_common.h"
 
-#include <map>
-
 #include "llnamevalue.h"
+
 #include "u64.h"
 #include "llstring.h"
 #include "llcamera.h"
+#include "string_table.h"
 
 // Anonymous enumeration to provide constants in this file.
 // *NOTE: These values may be used in sscanf statements below as their
@@ -51,17 +51,7 @@ enum
 	U64_BUFFER_LEN = 64
 };
 
-struct user_callback_t
-{
-	user_callback_t() {};
-	user_callback_t(TNameValueCallback cb, void** data) : m_Callback(cb), m_Data(data) {}
-	TNameValueCallback	m_Callback;
-	void **				m_Data;
-};
-typedef std::map<char *, user_callback_t> user_callback_map_t;
-user_callback_map_t gUserCallbackMap;
-
-LLStringTable	gNVNameTable(16384);
+LLStringTable	gNVNameTable(256);
 
 char NameValueTypeStrings[NVT_EOF][NAME_VALUE_TYPE_STRING_LENGTH] = /*Flawfinder: Ignore*/
 {
@@ -80,8 +70,7 @@ char NameValueClassStrings[NVC_EOF][NAME_VALUE_CLASS_STRING_LENGTH] = /*Flawfind
 {
 	"NULL",
 	"R",			// read only
-	"RW",			// read write
-	"CB"			// callback
+	"RW"			// read write
 };		
 
 char NameValueSendtoStrings[NVS_EOF][NAME_VALUE_SENDTO_STRING_LENGTH] = /*Flawfinder: Ignore*/
@@ -92,13 +81,6 @@ char NameValueSendtoStrings[NVS_EOF][NAME_VALUE_SENDTO_STRING_LENGTH] = /*Flawfi
 	"SV",	// "Sim Viewer" formerly SIM_VIEWER
 	"DSV"	// "Data Sim Viewer", formerly SIM_SPACE_VIEWER
 };		/*Flawfinder: Ignore*/
-
-
-void add_use_callback(char *name, TNameValueCallback ucb, void **user_data)
-{
-	char *temp = gNVNameTable.addString(name);
-	gUserCallbackMap[temp] = user_callback_t(ucb,user_data);
-}
 
 
 //
@@ -125,12 +107,9 @@ void LLNameValue::baseInit()
 	
 	mSendto = NVS_NULL;
 	mStringSendto = NameValueSendtoStrings[NVS_NULL];
-
-	mNameValueCB = NULL;
-	mUserData = NULL;
 }
 
-void LLNameValue::init(const char *name, const char *data, const char *type, const char *nvclass, const char *nvsendto, TNameValueCallback nvcb, void **user_data)
+void LLNameValue::init(const char *name, const char *data, const char *type, const char *nvclass, const char *nvsendto)
 {
 	mNVNameTable = &gNVNameTable;
 
@@ -254,40 +233,11 @@ void LLNameValue::init(const char *name, const char *data, const char *type, con
 		mClass = NVC_READ_WRITE;
 		mStringClass = mNVNameTable->addString("RW");
 	}
-	else if (!strcmp(nvclass, "CB") ||
-			!strcmp(nvclass, "CALLBACK"))		// legacy
-	{
-		mClass = NVC_CALLBACK;
-		mStringClass = mNVNameTable->addString("CB");
-		mNameValueCB = nvcb;
-		mUserData = user_data;
-	}
 	else
 	{
 		// assume it's bad
 		mClass = NVC_NULL;
 		mStringClass = mNVNameTable->addString(nvclass);
-		mNameValueCB = NULL;
-		mUserData = NULL;
-
-		// are we a user-defined call back?
-		for (user_callback_map_t::iterator iter = gUserCallbackMap.begin();
-			 iter != gUserCallbackMap.end(); iter++)
-		{
-			char* tname = iter->first;
-			if (tname == mStringClass)
-			{
-				mClass = NVC_CALLBACK;
-				mNameValueCB = (iter->second).m_Callback;
-				mUserData = (iter->second).m_Data;
-			}
-		}
-
-		// Warn if we didn't find a callback
-		if (mClass == NVC_NULL)
-		{
-			llwarns << "Unknown user callback in name value init() for " << mName << llendl;
-		}
 	}
 
 	// Initialize the sendto variable
@@ -326,24 +276,24 @@ void LLNameValue::init(const char *name, const char *data, const char *type, con
 }
 
 
-LLNameValue::LLNameValue(const char *name, const char *data, const char *type, const char *nvclass, TNameValueCallback nvcb, void **user_data)
+LLNameValue::LLNameValue(const char *name, const char *data, const char *type, const char *nvclass)
 {
 	baseInit();
 	// if not specified, send to simulator only
-	init(name, data, type, nvclass, "SIM", nvcb, user_data);
+	init(name, data, type, nvclass, "SIM");
 }
 
 
-LLNameValue::LLNameValue(const char *name, const char *data, const char *type, const char *nvclass, const char *nvsendto, TNameValueCallback nvcb, void **user_data)
+LLNameValue::LLNameValue(const char *name, const char *data, const char *type, const char *nvclass, const char *nvsendto)
 {
 	baseInit();
-	init(name, data, type, nvclass, nvsendto, nvcb, user_data);
+	init(name, data, type, nvclass, nvsendto);
 }
 
 
 
 // Initialize without any initial data.
-LLNameValue::LLNameValue(const char *name, const char *type, const char *nvclass, TNameValueCallback nvcb, void **user_data)
+LLNameValue::LLNameValue(const char *name, const char *type, const char *nvclass)
 {
 	baseInit();
 	mName = mNVNameTable->addString(name);
@@ -401,11 +351,9 @@ LLNameValue::LLNameValue(const char *name, const char *type, const char *nvclass
 	{
 		mClass = NVC_READ_WRITE;
 	}
-	else if (!strcmp(mStringClass, "CALLBACK"))
+	else
 	{
-		mClass = NVC_READ_WRITE;
-		mNameValueCB = nvcb;
-		mUserData = user_data;
+		mClass = NVC_NULL;
 	}
 
 	// Initialize the sendto variable
@@ -734,46 +682,6 @@ LLVector3	*LLNameValue::getVec3()
 }
 
 
-F32 LLNameValue::magnitude()
-{
-	switch(mType)
-	{
-	case NVT_STRING:
-		return (F32)(strlen(mNameValueReference.string));		/* Flawfinder: ignore */
-		break;
-	case NVT_F32:
-		return (fabsf(*mNameValueReference.f32));
-		break;
-	case NVT_S32:
-		return (fabsf((F32)(*mNameValueReference.s32)));
-		break;
-	case NVT_VEC3:
-		return (mNameValueReference.vec3->magVec());
-		break;
-	case NVT_U32:
-		return (F32)(*mNameValueReference.u32);
-		break;
-	default:
-		llerrs << "No magnitude operation for NV type " << mStringType << llendl;
-		break;
-	}
-	return 0.f;
-}
-
-
-void LLNameValue::callCallback()
-{
-	if (mNameValueCB)
-	{
-		(*mNameValueCB)(this, mUserData);
-	}
-	else
-	{
-		llinfos << mName << " has no callback!" << llendl;
-	}
-}
-
-
 BOOL LLNameValue::sendToData() const
 {
 	return (mSendto == NVS_DATA_SIM || mSendto == NVS_DATA_SIM_VIEWER);
@@ -794,13 +702,6 @@ LLNameValue &LLNameValue::operator=(const LLNameValue &a)
 	}
 	if (mClass == NVC_READ_ONLY)
 		return *this;
-
-	BOOL b_changed = FALSE;
-	if (  (mClass == NVC_CALLBACK)
-		&&(*this != a))
-	{
-		b_changed = TRUE;
-	}
 
 	switch(a.mType)
 	{
@@ -835,11 +736,6 @@ LLNameValue &LLNameValue::operator=(const LLNameValue &a)
 		break;
 	}
 
-	if (b_changed)
-	{
-		callCallback();
-	}
-
 	return *this;
 }
 
@@ -847,19 +743,12 @@ void LLNameValue::setString(const char *a)
 {
 	if (mClass == NVC_READ_ONLY)
 		return;
-	BOOL b_changed = FALSE;
 
 	switch(mType)
 	{
 	case NVT_STRING:
 		if (a)
 		{
-			if (  (mClass == NVC_CALLBACK)
-				&&(strcmp(this->mNameValueReference.string,a)))
-			{
-				b_changed = TRUE;
-			}
-
 			if (mNameValueReference.string)
 			{
 				delete [] mNameValueReference.string;
@@ -870,11 +759,6 @@ void LLNameValue::setString(const char *a)
 			{
 				strcpy(mNameValueReference.string,  a);		/* Flawfinder: ignore */
 			}
-			
-			if (b_changed)
-			{
-				callCallback();
-			}
 		}
 		else
 		{
@@ -887,11 +771,6 @@ void LLNameValue::setString(const char *a)
 		break;
 	default:
 		break;
-	}
-
-	if (b_changed)
-	{
-		callCallback();
 	}
 
 	return;
@@ -902,19 +781,12 @@ void LLNameValue::setAsset(const char *a)
 {
 	if (mClass == NVC_READ_ONLY)
 		return;
-	BOOL b_changed = FALSE;
 
 	switch(mType)
 	{
 	case NVT_ASSET:
 		if (a)
 		{
-			if (  (mClass == NVC_CALLBACK)
-				&&(strcmp(this->mNameValueReference.string,a)))
-			{
-				b_changed = TRUE;
-			}
-
 			if (mNameValueReference.string)
 			{
 				delete [] mNameValueReference.string;
@@ -923,11 +795,6 @@ void LLNameValue::setAsset(const char *a)
 			if(mNameValueReference.string != NULL)
 			{
 				strcpy(mNameValueReference.string,  a);		/* Flawfinder: ignore */
-			}
-			
-			if (b_changed)
-			{
-				callCallback();
 			}
 		}
 		else
@@ -942,10 +809,6 @@ void LLNameValue::setAsset(const char *a)
 	default:
 		break;
 	}
-	if (b_changed)
-	{
-		callCallback();
-	}
 }
 
 
@@ -953,28 +816,14 @@ void LLNameValue::setF32(const F32 a)
 {
 	if (mClass == NVC_READ_ONLY)
 		return;
-	BOOL b_changed = FALSE;
 
 	switch(mType)
 	{
 	case NVT_F32:
-		if (  (mClass == NVC_CALLBACK)
-			&&(*this->mNameValueReference.f32 != a))
-		{
-			b_changed = TRUE;
-		}
 		*mNameValueReference.f32 = a;
-		if (b_changed)
-		{
-			callCallback();
-		}
 		break;
 	default:
 		break;
-	}
-	if (b_changed)
-	{
-		callCallback();
 	}
 
 	return;
@@ -985,52 +834,20 @@ void LLNameValue::setS32(const S32 a)
 {
 	if (mClass == NVC_READ_ONLY)
 		return;
-	BOOL b_changed = FALSE;
 
 	switch(mType)
 	{
 	case NVT_S32:
-		if (  (mClass == NVC_CALLBACK)
-			&&(*this->mNameValueReference.s32 != a))
-		{
-			b_changed = TRUE;
-		}
 		*mNameValueReference.s32 = a;
-		if (b_changed)
-		{
-			callCallback();
-		}
 		break;
 	case NVT_U32:
-		if (  (mClass == NVC_CALLBACK)
-			&& ((S32) (*this->mNameValueReference.u32) != a))
-		{
-			b_changed = TRUE;
-		}
 		*mNameValueReference.u32 = a;
-		if (b_changed)
-		{
-			callCallback();
-		}
 		break;
 	case NVT_F32:
-		if (  (mClass == NVC_CALLBACK)
-			&&(*this->mNameValueReference.f32 != a))
-		{
-			b_changed = TRUE;
-		}
 		*mNameValueReference.f32 = (F32)a;
-		if (b_changed)
-		{
-			callCallback();
-		}
 		break;
 	default:
 		break;
-	}
-	if (b_changed)
-	{
-		callCallback();
 	}
 
 	return;
@@ -1041,45 +858,17 @@ void LLNameValue::setU32(const U32 a)
 {
 	if (mClass == NVC_READ_ONLY)
 		return;
-	BOOL b_changed = FALSE;
 
 	switch(mType)
 	{
 	case NVT_S32:
-		if (  (mClass == NVC_CALLBACK)
-			&&(*this->mNameValueReference.s32 != (S32) a))
-		{
-			b_changed = TRUE;
-		}
 		*mNameValueReference.s32 = a;
-		if (b_changed)
-		{
-			callCallback();
-		}
 		break;
 	case NVT_U32:
-		if (  (mClass == NVC_CALLBACK)
-			&&(*this->mNameValueReference.u32 != a))
-		{
-			b_changed = TRUE;
-		}
 		*mNameValueReference.u32 = a;
-		if (b_changed)
-		{
-			callCallback();
-		}
 		break;
 	case NVT_F32:
-		if (  (mClass == NVC_CALLBACK)
-			&&(*this->mNameValueReference.f32 != a))
-		{
-			b_changed = TRUE;
-		}
 		*mNameValueReference.f32 = (F32)a;
-		if (b_changed)
-		{
-			callCallback();
-		}
 		break;
 	default:
 		llerrs << "NameValue: Trying to set U32 into a " << mStringType << ", unknown conversion" << llendl;
@@ -1093,21 +882,11 @@ void LLNameValue::setVec3(const LLVector3 &a)
 {
 	if (mClass == NVC_READ_ONLY)
 		return;
-	BOOL b_changed = FALSE;
 
 	switch(mType)
 	{
 	case NVT_VEC3:
-		if (  (mClass == NVC_CALLBACK)
-			&&(*this->mNameValueReference.vec3 != a))
-		{
-			b_changed = TRUE;
-		}
 		*mNameValueReference.vec3 = a;
-		if (b_changed)
-		{
-			callCallback();
-		}
 		break;
 	default:
 		llerrs << "NameValue: Trying to set LLVector3 into a " << mStringType << ", unknown conversion" << llendl;
@@ -1116,29 +895,6 @@ void LLNameValue::setVec3(const LLVector3 &a)
 	return;
 }
 
-
-BOOL LLNameValue::nonzero()
-{
-	switch(mType)
-	{
-	case NVT_STRING:
-		if (!mNameValueReference.string)
-			return 0;
-		return (mNameValueReference.string[0] != 0);
-	case NVT_F32:
-		return (*mNameValueReference.f32 != 0.f);
-	case NVT_S32:
-		return (*mNameValueReference.s32 != 0);
-	case NVT_U32:
-		return (*mNameValueReference.u32 != 0);
-	case NVT_VEC3:
-		return (mNameValueReference.vec3->magVecSquared() != 0.f);
-	default:
-		llerrs << "NameValue: Trying to call nonzero on a " << mStringType << ", unknown conversion" << llendl;
-		break;
-	}
-	return FALSE;
-}
 
 std::string LLNameValue::printNameValue()
 {
@@ -1217,951 +973,3 @@ std::ostream&		operator<<(std::ostream& s, const LLNameValue &a)
 	return s;
 }
 
-
-// nota bene: return values aren't static for now to prevent memory leaks
-
-LLNameValue	&operator+(const LLNameValue &a, const LLNameValue &b)
-{
-	static LLNameValue retval;
-
-	switch(a.mType)
-	{
-	case NVT_STRING:
-		if (b.mType == NVT_STRING)
-		{
-			retval.mType = a.mType;
-			retval.mStringType = NameValueTypeStrings[a.mType];
-
-			S32 length1 = (S32)strlen(a.mNameValueReference.string);		/* Flawfinder: Ignore */
-			S32 length2 = (S32)strlen(b.mNameValueReference.string);		/* Flawfinder: Ignore */
-			delete [] retval.mNameValueReference.string;
-			retval.mNameValueReference.string = new char[length1 + length2 + 1];
-			if(retval.mNameValueReference.string != NULL)
-			{
-				strcpy(retval.mNameValueReference.string, a.mNameValueReference.string);	/* Flawfinder: Ignore */
-				strcat(retval.mNameValueReference.string, b.mNameValueReference.string);		/* Flawfinder: Ignore */
-			}
-		}
-		break;
-	case NVT_F32:
-		if (b.mType == NVT_F32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.f32 + *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.f32 + *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.f32 + *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_S32:
-		if (b.mType == NVT_F32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.s32 + *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			retval.mType = NVT_S32;
-			retval.mStringType = NameValueTypeStrings[NVT_S32];
-			delete retval.mNameValueReference.s32;
-			retval.mNameValueReference.s32 = new S32(*a.mNameValueReference.s32 + *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			retval.mType = NVT_S32;
-			retval.mStringType = NameValueTypeStrings[NVT_S32];
-			delete retval.mNameValueReference.s32;
-			retval.mNameValueReference.s32 = new S32(*a.mNameValueReference.s32 + *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_U32:
-		if (b.mType == NVT_F32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.u32 + *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			retval.mType = NVT_S32;
-			retval.mStringType = NameValueTypeStrings[NVT_S32];
-			delete retval.mNameValueReference.s32;
-			retval.mNameValueReference.s32 = new S32(*a.mNameValueReference.u32 + *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			retval.mType = NVT_U32;
-			retval.mStringType = NameValueTypeStrings[NVT_U32];
-			delete retval.mNameValueReference.u32;
-			retval.mNameValueReference.u32 = new U32(*a.mNameValueReference.u32 + *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_VEC3:
-		if (  (a.mType == b.mType)
-			&&(a.mType == NVT_VEC3))
-		{
-			retval.mType = a.mType;
-			retval.mStringType = NameValueTypeStrings[a.mType];
-			delete retval.mNameValueReference.vec3;
-			retval.mNameValueReference.vec3 = new LLVector3(*a.mNameValueReference.vec3 + *b.mNameValueReference.vec3);
-		}
-		break;
-	default:
-		llerrs << "Unknown add of NV type " << a.mStringType << " to " << b.mStringType << llendl;
-		break;
-	}
-	return retval;
-}
-
-LLNameValue	&operator-(const LLNameValue &a, const LLNameValue &b)
-{
-	static LLNameValue retval;
-
-	switch(a.mType)
-	{
-	case NVT_STRING:
-		break;
-	case NVT_F32:
-		if (b.mType == NVT_F32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.f32 - *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.f32 - *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.f32 - *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_S32:
-		if (b.mType == NVT_F32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.s32 - *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			retval.mType = NVT_S32;
-			retval.mStringType = NameValueTypeStrings[NVT_S32];
-			delete retval.mNameValueReference.s32;
-			retval.mNameValueReference.s32 = new S32(*a.mNameValueReference.s32 - *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			retval.mType = NVT_S32;
-			retval.mStringType = NameValueTypeStrings[NVT_S32];
-			delete retval.mNameValueReference.s32;
-			retval.mNameValueReference.s32 = new S32(*a.mNameValueReference.s32 - *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_U32:
-		if (b.mType == NVT_F32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.u32 - *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			retval.mType = NVT_S32;
-			retval.mStringType = NameValueTypeStrings[NVT_S32];
-			delete retval.mNameValueReference.s32;
-			retval.mNameValueReference.s32 = new S32(*a.mNameValueReference.u32 - *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			retval.mType = NVT_U32;
-			retval.mStringType = NameValueTypeStrings[NVT_U32];
-			delete retval.mNameValueReference.u32;
-			retval.mNameValueReference.u32 = new U32(*a.mNameValueReference.u32 - *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_VEC3:
-		if (  (a.mType == b.mType)
-			&&(a.mType == NVT_VEC3))
-		{
-			retval.mType = a.mType;
-			retval.mStringType = NameValueTypeStrings[a.mType];
-			delete retval.mNameValueReference.vec3;
-			retval.mNameValueReference.vec3 = new LLVector3(*a.mNameValueReference.vec3 - *b.mNameValueReference.vec3);
-		}
-		break;
-	default:
-		llerrs << "Unknown subtract of NV type " << a.mStringType << " to " << b.mStringType << llendl;
-		break;
-	}
-	return retval;
-}
-
-LLNameValue	&operator*(const LLNameValue &a, const LLNameValue &b)
-{
-	static LLNameValue retval;
-
-	switch(a.mType)
-	{
-	case NVT_STRING:
-		break;
-	case NVT_F32:
-		if (b.mType == NVT_F32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.f32 * *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.f32 * *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.f32 * *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_S32:
-		if (b.mType == NVT_F32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.s32 * *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			retval.mType = NVT_S32;
-			retval.mStringType = NameValueTypeStrings[NVT_S32];
-			delete retval.mNameValueReference.s32;
-			retval.mNameValueReference.s32 = new S32(*a.mNameValueReference.s32 * *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			retval.mType = NVT_S32;
-			retval.mStringType = NameValueTypeStrings[NVT_S32];
-			delete retval.mNameValueReference.s32;
-			retval.mNameValueReference.s32 = new S32(*a.mNameValueReference.s32 * *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_U32:
-		if (b.mType == NVT_F32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.u32 * *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			retval.mType = NVT_S32;
-			retval.mStringType = NameValueTypeStrings[NVT_S32];
-			delete retval.mNameValueReference.s32;
-			retval.mNameValueReference.s32 = new S32(*a.mNameValueReference.u32 * *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			retval.mType = NVT_U32;
-			retval.mStringType = NameValueTypeStrings[NVT_U32];
-			delete retval.mNameValueReference.u32;
-			retval.mNameValueReference.u32 = new U32(*a.mNameValueReference.u32 * *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_VEC3:
-		if (  (a.mType == b.mType)
-			&&(a.mType == NVT_VEC3))
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[a.mType];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32((*a.mNameValueReference.vec3) * (*b.mNameValueReference.vec3));
-		}
-		break;
-	default:
-		llerrs << "Unknown multiply of NV type " << a.mStringType << " to " << b.mStringType << llendl;
-		break;
-	}
-	return retval;
-}
-
-LLNameValue	&operator/(const LLNameValue &a, const LLNameValue &b)
-{
-	static LLNameValue retval;
-
-	switch(a.mType)
-	{
-	case NVT_STRING:
-		break;
-	case NVT_F32:
-		if (b.mType == NVT_F32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.f32 / *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.f32 / *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.f32 / *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_S32:
-		if (b.mType == NVT_F32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.s32 / *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			retval.mType = NVT_S32;
-			retval.mStringType = NameValueTypeStrings[NVT_S32];
-			delete retval.mNameValueReference.s32;
-			retval.mNameValueReference.s32 = new S32(*a.mNameValueReference.s32 / *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			retval.mType = NVT_S32;
-			retval.mStringType = NameValueTypeStrings[NVT_S32];
-			delete retval.mNameValueReference.s32;
-			retval.mNameValueReference.s32 = new S32(*a.mNameValueReference.s32 / *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_U32:
-		if (b.mType == NVT_F32)
-		{
-			retval.mType = NVT_F32;
-			retval.mStringType = NameValueTypeStrings[NVT_F32];
-			delete retval.mNameValueReference.f32;
-			retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.u32 / *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			retval.mType = NVT_S32;
-			retval.mStringType = NameValueTypeStrings[NVT_S32];
-			delete retval.mNameValueReference.s32;
-			retval.mNameValueReference.s32 = new S32(*a.mNameValueReference.u32 / *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			retval.mType = NVT_U32;
-			retval.mStringType = NameValueTypeStrings[NVT_U32];
-			delete retval.mNameValueReference.u32;
-			retval.mNameValueReference.u32 = new U32(*a.mNameValueReference.u32 / *b.mNameValueReference.u32);
-		}
-		break;
-	default:
-		llerrs << "Unknown divide of NV type " << a.mStringType << " to " << b.mStringType << llendl;
-		break;
-	}
-	return retval;
-}
-
-LLNameValue	&operator%(const LLNameValue &a, const LLNameValue &b)
-{
-	static LLNameValue retval;
-
-	switch(a.mType)
-	{
-	case NVT_STRING:
-		break;
-	case NVT_F32:
-		break;
-	case NVT_S32:
-		if (b.mType == NVT_S32)
-		{
-			retval.mType = NVT_S32;
-			retval.mStringType = NameValueTypeStrings[NVT_S32];
-			delete retval.mNameValueReference.s32;
-			retval.mNameValueReference.s32 = new S32(*a.mNameValueReference.s32 % *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			retval.mType = NVT_S32;
-			retval.mStringType = NameValueTypeStrings[NVT_S32];
-			delete retval.mNameValueReference.s32;
-			retval.mNameValueReference.s32 = new S32(*a.mNameValueReference.s32 % *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_U32:
-		if (b.mType == NVT_S32)
-		{
-			retval.mType = NVT_S32;
-			retval.mStringType = NameValueTypeStrings[NVT_S32];
-			delete retval.mNameValueReference.s32;
-			retval.mNameValueReference.s32 = new S32(*a.mNameValueReference.u32 % *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			retval.mType = NVT_U32;
-			retval.mStringType = NameValueTypeStrings[NVT_U32];
-			delete retval.mNameValueReference.u32;
-			retval.mNameValueReference.u32 = new U32(*a.mNameValueReference.u32 % *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_VEC3:
-		if (  (a.mType == b.mType)
-			&&(a.mType == NVT_VEC3))
-		{
-			retval.mType = a.mType;
-			retval.mStringType = NameValueTypeStrings[a.mType];
-			delete retval.mNameValueReference.vec3;
-			retval.mNameValueReference.vec3 = new LLVector3(*a.mNameValueReference.vec3 % *b.mNameValueReference.vec3);
-		}
-		break;
-	default:
-		llerrs << "Unknown % of NV type " << a.mStringType << " to " << b.mStringType << llendl;
-		break;
-	}
-	return retval;
-}
-
-
-// Multiplying anything times a float gives you some floats
-LLNameValue	&operator*(const LLNameValue &a, F32 k)
-{
-	static LLNameValue retval;
-
-	switch(a.mType)
-	{
-	case NVT_STRING:
-		break;
-	case NVT_F32:
-		retval.mType = NVT_F32;
-		retval.mStringType = NameValueTypeStrings[NVT_F32];
-		delete retval.mNameValueReference.f32;
-		retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.f32 * k);
-		break;
-	case NVT_S32:
-		retval.mType = NVT_F32;
-		retval.mStringType = NameValueTypeStrings[NVT_F32];
-		delete retval.mNameValueReference.f32;
-		retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.s32 * k);
-		break;
-	case NVT_U32:
-		retval.mType = NVT_F32;
-		retval.mStringType = NameValueTypeStrings[NVT_F32];
-		delete retval.mNameValueReference.f32;
-		retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.u32 * k);
-		break;
-	case NVT_VEC3:
-		retval.mType = a.mType;
-		retval.mStringType = NameValueTypeStrings[a.mType];
-		delete retval.mNameValueReference.vec3;
-		retval.mNameValueReference.vec3 = new LLVector3(*a.mNameValueReference.vec3 * k);
-		break;
-	default:
-		llerrs << "Unknown multiply of NV type " << a.mStringType << " with F32" << llendl;
-		break;
-	}
-	return retval;
-}
-
-
-LLNameValue	&operator*(F32 k, const LLNameValue &a)
-{
-	static LLNameValue retval;
-
-	switch(a.mType)
-	{
-	case NVT_STRING:
-		break;
-	case NVT_F32:
-		retval.mType = NVT_F32;
-		retval.mStringType = NameValueTypeStrings[NVT_F32];
-		delete retval.mNameValueReference.f32;
-		retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.f32 * k);
-		break;
-	case NVT_S32:
-		retval.mType = NVT_F32;
-		retval.mStringType = NameValueTypeStrings[NVT_F32];
-		delete retval.mNameValueReference.f32;
-		retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.s32 * k);
-		break;
-	case NVT_U32:
-		retval.mType = NVT_F32;
-		retval.mStringType = NameValueTypeStrings[NVT_F32];
-		delete retval.mNameValueReference.f32;
-		retval.mNameValueReference.f32 = new F32(*a.mNameValueReference.u32 * k);
-		break;
-	case NVT_VEC3:
-		retval.mType = a.mType;
-		retval.mStringType = NameValueTypeStrings[a.mType];
-		delete retval.mNameValueReference.vec3;
-		retval.mNameValueReference.vec3 = new LLVector3(*a.mNameValueReference.vec3 * k);
-		break;
-	default:
-		llerrs << "Unknown multiply of NV type " << a.mStringType << " with F32" << llendl;
-		break;
-	}
-	return retval;
-}
-
-
-bool operator==(const LLNameValue &a, const LLNameValue &b)
-{
-	switch(a.mType)
-	{
-	case NVT_STRING:
-		if (b.mType == NVT_STRING)
-		{
-			if (!a.mNameValueReference.string)
-				return FALSE;
-			if (!b.mNameValueReference.string)
-				return FALSE;
-			return (!strcmp(a.mNameValueReference.string, b.mNameValueReference.string));
-		}
-		break;
-	case NVT_F32:
-		if (b.mType == NVT_F32)
-		{
-			return (*a.mNameValueReference.f32 == *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			return (*a.mNameValueReference.f32 == *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			return (*a.mNameValueReference.f32 == *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_S32:
-		if (b.mType == NVT_F32)
-		{
-			return (*a.mNameValueReference.s32 == *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			return (*a.mNameValueReference.s32 == *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			return (*a.mNameValueReference.s32 == (S32) *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_U32:
-		if (b.mType == NVT_F32)
-		{
-			return (*a.mNameValueReference.u32 == *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			return ((S32) *a.mNameValueReference.u32 == *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			return (*a.mNameValueReference.u32 == *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_VEC3:
-		if (  (a.mType == b.mType)
-			&&(a.mType == NVT_VEC3))
-		{
-			return (*a.mNameValueReference.vec3 == *b.mNameValueReference.vec3);
-		}
-		break;
-	default:
-		llerrs << "Unknown == NV type " << a.mStringType << " with " << b.mStringType << llendl;
-		break;
-	}
-	return FALSE;
-}
-
-bool operator<=(const LLNameValue &a, const LLNameValue &b)
-{
-	switch(a.mType)
-	{
-	case NVT_STRING:
-		if (b.mType == NVT_STRING)
-		{
-			S32 retval = strcmp(a.mNameValueReference.string, b.mNameValueReference.string);
-			return (retval <= 0);
-		}
-		break;
-	case NVT_F32:
-		if (b.mType == NVT_F32)
-		{
-			return (*a.mNameValueReference.f32 <= *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			return (*a.mNameValueReference.f32 <= *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			return (*a.mNameValueReference.f32 <= *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_S32:
-		if (b.mType == NVT_F32)
-		{
-			return (*a.mNameValueReference.s32 <= *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			return (*a.mNameValueReference.s32 <= *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			return (*a.mNameValueReference.s32 <= (S32) *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_U32:
-		if (b.mType == NVT_F32)
-		{
-			return (*a.mNameValueReference.u32 <= *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			return ((S32) *a.mNameValueReference.u32 <= *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			return (*a.mNameValueReference.u32 <= *b.mNameValueReference.u32);
-		}
-		break;
-	default:
-		llerrs << "Unknown <= NV type " << a.mStringType << " with " << b.mStringType << llendl;
-		break;
-	}
-	return FALSE;
-}
-
-
-bool			operator>=(const LLNameValue &a, const LLNameValue &b)
-{
-	switch(a.mType)
-	{
-	case NVT_STRING:
-		if (  (a.mType == b.mType)
-			&&(a.mType == NVT_STRING))
-		{
-			S32 retval = strcmp(a.mNameValueReference.string, b.mNameValueReference.string);
-			return (retval >= 0);
-		}
-		break;
-	case NVT_F32:
-		if (b.mType == NVT_F32)
-		{
-			return (*a.mNameValueReference.f32 >= *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			return (*a.mNameValueReference.f32 >= *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			return (*a.mNameValueReference.f32 >= *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_S32:
-		if (b.mType == NVT_F32)
-		{
-			return (*a.mNameValueReference.s32 >= *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			return (*a.mNameValueReference.s32 >= *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			return (*a.mNameValueReference.s32 >= (S32) *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_U32:
-		if (b.mType == NVT_F32)
-		{
-			return (*a.mNameValueReference.u32 >= *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			return ((S32) *a.mNameValueReference.u32 >= *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			return (*a.mNameValueReference.u32 >= *b.mNameValueReference.u32);
-		}
-		break;
-	default:
-		llerrs << "Unknown >= NV type " << a.mStringType << " with " << b.mStringType << llendl;
-		break;
-	}
-	return FALSE;
-}
-
-
-bool			operator<(const LLNameValue &a, const LLNameValue &b)
-{
-	switch(a.mType)
-	{
-	case NVT_STRING:
-		if (  (a.mType == b.mType)
-			&&(a.mType == NVT_STRING))
-		{
-			S32 retval = strcmp(a.mNameValueReference.string, b.mNameValueReference.string);
-			return (retval < 0);
-		}
-		break;
-	case NVT_F32:
-		if (b.mType == NVT_F32)
-		{
-			return (*a.mNameValueReference.f32 < *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			return (*a.mNameValueReference.f32 < *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			return (*a.mNameValueReference.f32 < *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_S32:
-		if (b.mType == NVT_F32)
-		{
-			return (*a.mNameValueReference.s32 < *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			return (*a.mNameValueReference.s32 < *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			return (*a.mNameValueReference.s32 < (S32) *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_U32:
-		if (b.mType == NVT_F32)
-		{
-			return (*a.mNameValueReference.u32 < *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			return ((S32) *a.mNameValueReference.u32 < *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			return (*a.mNameValueReference.u32 < *b.mNameValueReference.u32);
-		}
-		break;
-	default:
-		llerrs << "Unknown < NV type " << a.mStringType << " with " << b.mStringType << llendl;
-		break;
-	}
-	return FALSE;
-}
-
-
-bool			operator>(const LLNameValue &a, const LLNameValue &b)
-{
-	switch(a.mType)
-	{
-	case NVT_STRING:
-		if (  (a.mType == b.mType)
-			&&(a.mType == NVT_STRING))
-		{
-			S32 retval = strcmp(a.mNameValueReference.string, b.mNameValueReference.string);
-			return (retval > 0);
-		}
-		break;
-	case NVT_F32:
-		if (b.mType == NVT_F32)
-		{
-			return (*a.mNameValueReference.f32 > *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			return (*a.mNameValueReference.f32 > *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			return (*a.mNameValueReference.f32 > *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_S32:
-		if (b.mType == NVT_F32)
-		{
-			return (*a.mNameValueReference.s32 > *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			return (*a.mNameValueReference.s32 > *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			return (*a.mNameValueReference.s32 > (S32) *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_U32:
-		if (b.mType == NVT_F32)
-		{
-			return (*a.mNameValueReference.u32 > *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			return ((S32) *a.mNameValueReference.u32 > *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			return (*a.mNameValueReference.u32 > *b.mNameValueReference.u32);
-		}
-		break;
-	default:
-		llerrs << "Unknown > NV type " << a.mStringType << " with " << b.mStringType << llendl;
-		break;
-	}
-	return FALSE;
-}
-
-bool			operator!=(const LLNameValue &a, const LLNameValue &b)
-{
-	switch(a.mType)
-	{
-	case NVT_STRING:
-		if (  (a.mType == b.mType)
-			&&(a.mType == NVT_STRING))
-		{
-			return (strcmp(a.mNameValueReference.string, b.mNameValueReference.string)) ? true : false;
-		}
-		break;
-	case NVT_F32:
-		if (b.mType == NVT_F32)
-		{
-			return (*a.mNameValueReference.f32 != *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			return (*a.mNameValueReference.f32 != *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			return (*a.mNameValueReference.f32 != *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_S32:
-		if (b.mType == NVT_F32)
-		{
-			return (*a.mNameValueReference.s32 != *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			return (*a.mNameValueReference.s32 != *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			return (*a.mNameValueReference.s32 != (S32) *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_U32:
-		if (b.mType == NVT_F32)
-		{
-			return (*a.mNameValueReference.u32 != *b.mNameValueReference.f32);
-		}
-		else if (b.mType == NVT_S32)
-		{
-			return ((S32) *a.mNameValueReference.u32 != *b.mNameValueReference.s32);
-		}
-		else if (b.mType == NVT_U32)
-		{
-			return (*a.mNameValueReference.u32 != *b.mNameValueReference.u32);
-		}
-		break;
-	case NVT_VEC3:
-		if (  (a.mType == b.mType)
-			&&(a.mType == NVT_VEC3))
-		{
-			return (*a.mNameValueReference.vec3 != *b.mNameValueReference.vec3);
-		}
-		break;
-	default:
-		llerrs << "Unknown != NV type " << a.mStringType << " with " << b.mStringType << llendl;
-		break;
-	}
-	return FALSE;
-}
-
-
-LLNameValue	&operator-(const LLNameValue &a)
-{
-	static LLNameValue retval;
-
-	switch(a.mType)
-	{
-	case NVT_STRING:
-		break;
-	case NVT_F32:
-		retval.mType = a.mType;
-		retval.mStringType = NameValueTypeStrings[a.mType];
-		delete retval.mNameValueReference.f32;
-		retval.mNameValueReference.f32 = new F32(-*a.mNameValueReference.f32);
-		break;
-	case NVT_S32:
-		retval.mType = a.mType;
-		retval.mStringType = NameValueTypeStrings[a.mType];
-		delete retval.mNameValueReference.s32;
-		retval.mNameValueReference.s32 = new S32(-*a.mNameValueReference.s32);
-		break;
-	case NVT_U32:
-		retval.mType = NVT_S32;
-		retval.mStringType = NameValueTypeStrings[NVT_S32];
-		delete retval.mNameValueReference.s32;
-		// Can't do unary minus on U32, doesn't work.
-		retval.mNameValueReference.s32 = new S32(-S32(*a.mNameValueReference.u32));
-		break;
-	case NVT_VEC3:
-		retval.mType = a.mType;
-		retval.mStringType = NameValueTypeStrings[a.mType];
-		delete retval.mNameValueReference.vec3;
-		retval.mNameValueReference.vec3 = new LLVector3(-*a.mNameValueReference.vec3);
-		break;
-	default:
-		llerrs << "Unknown - NV type " << a.mStringType << llendl;
-		break;
-	}
-	return retval;
-}

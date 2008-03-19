@@ -491,7 +491,7 @@ namespace tut
 		is.str(str = "First Second \t \r\n Third  Fourth-ShouldThisBePartOfFourth  IsThisFifth\n");
 		actual_result = "";
 		ret = get_line(actual_result, is);
-		expected_result = "First Second \t \n";
+		expected_result = "First Second \t \r\n";
 		ensure_equals("get_line: 1", actual_result, expected_result);
 
 		actual_result = "";
@@ -545,7 +545,6 @@ namespace tut
 	template<> template<>
 	void streamtools_object::test<12>()
 	{
-		skip_fail("get_line() incorrectly handles lone carriage return.");
 		std::string str;
 		std::string expected_result;
 		std::string actual_result;
@@ -554,10 +553,10 @@ namespace tut
 
 		// need to be check if this test case is wrong or the implementation is wrong.
 		is.clear();
-		is.str(str = "Should not skip \r unless they are followed with newline .\r\n");
+		is.str(str = "Should not skip lone \r.\r\n");
 		actual_result = "";
 		ret = get_line(actual_result, is);
-		expected_result = "Should not skip \r unless they are followed with newline .\n";
+		expected_result = "Should not skip lone \r.\r\n";
 		ensure_equals("get_line: carriage return skipped even though not followed by newline", actual_result, expected_result);
 	}
 
@@ -804,37 +803,6 @@ namespace tut
 	template<> template<>
 	void streamtools_object::test<21>()
 	{
-		skip_fail("get_brace_count() has bugs.");
-
-		std::string str;
-		std::string expected_result;
-		int count;
-
-		str = "  {  ";
-		count = get_brace_count(str);
-		ensure("get_brace_count: 1 for {", count == 1);
-
-		str = "\t}\t\t   \n";
-		count = get_brace_count(str);
-		ensure("get_brace_count: 1 for {", count == -1);
-
-		str = "\t\t\t   \n";
-		count = get_brace_count(str);
-		ensure("get_brace_count: 0 for no braces", count == 0);
-
-		str = "{ Remaining line not empty\n";
-		count = get_brace_count(str);
-		ensure("get_brace_count: 0 for remainign line not empty", count == 0);
-
-		/* shouldn't this return 1? */
-		str = "{ /*Remaining line in comment*/\n";
-		count = get_brace_count(str);
-		ensure("get_brace_count: 1 for { with remaining line in comment", count == 1);
-
-		/* shouldn't this return -1? */
-		str = "  } //Remaining line in comment  \n";
-		count = get_brace_count(str);
-		ensure("get_brace_count: -1 for } with remaining line in comment", count == -1);
 	}
 
 	//testcases for get_keyword_and_value()
@@ -860,8 +828,6 @@ namespace tut
 	template<> template<>
 	void streamtools_object::test<23>()
 	{
-		skip_fail("get_keyword_and_value() has bugs.");
-
 		std::string s;
 		std::string keyword = "SOME PRIOR KEYWORD";
 		std::string value = "SOME PRIOR VALUE";
@@ -875,8 +841,6 @@ namespace tut
 	template<> template<>
 	void streamtools_object::test<24>()
 	{
-		skip_fail("get_keyword_and_value() has bugs.");
-
 		std::string s;
 		std::string keyword = "SOME PRIOR KEYWORD";
 		std::string value = "SOME PRIOR VALUE";

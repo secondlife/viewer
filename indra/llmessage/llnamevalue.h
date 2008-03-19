@@ -32,15 +32,26 @@
 #ifndef LL_LLNAMEVALUE_H
 #define LL_LLNAMEVALUE_H
 
-#include "string_table.h"
+// As of January 2008, I believe we only use the following name-value
+// pairs.  This is hard to prove because they are initialized from
+// strings.  JC
+//
+// FirstName STRING
+// LastName STRING
+// AttachPt U32
+// AttachmentItemId STRING
+// Title STRING
+// AttachmentOffset VEC3
+// AttachmentOrientation VEC3
+// SitObject STRING
+// SitPosition VEC3
+
 #include "llmath.h"
 #include "v3math.h"
 #include "lldbstrings.h"
 
 class LLNameValue;
-typedef void (*TNameValueCallback)(LLNameValue *changed, void **user_data);
-
-void add_use_callback(char *name, TNameValueCallback ucb, void **user_data);
+class LLStringTable;
 
 typedef enum e_name_value_types
 {
@@ -61,7 +72,6 @@ typedef enum e_name_value_class
 	NVC_NULL,
 	NVC_READ_ONLY,
 	NVC_READ_WRITE,
-	NVC_CALLBACK,
 	NVC_EOF
 } ENameValueClass;
 
@@ -110,17 +120,13 @@ class LLNameValue
 {
 public:
 	void baseInit();
-	void init(const char *name, const char *data, const char *type, const char *nvclass, const char *nvsendto, 
-				TNameValueCallback nvcb = NULL, void **user_data = NULL);
+	void init(const char *name, const char *data, const char *type, const char *nvclass, const char *nvsendto );
 
 	LLNameValue();
 	LLNameValue(const char *data);
-	LLNameValue(const char *name, const char *type, const char *nvclass, 
-				TNameValueCallback nvcb = NULL, void **user_data = NULL);
-	LLNameValue(const char *name, const char *data, const char *type, const char *nvclass, 
-				TNameValueCallback nvcb = NULL, void **user_data = NULL);
-	LLNameValue(const char *name, const char *data, const char *type, const char *nvclass, const char *nvsendto, 
-				TNameValueCallback nvcb = NULL, void **user_data = NULL);
+	LLNameValue(const char *name, const char *type, const char *nvclass );
+	LLNameValue(const char *name, const char *data, const char *type, const char *nvclass );
+	LLNameValue(const char *name, const char *data, const char *type, const char *nvclass, const char *nvsendto );
 
 	~LLNameValue();
 
@@ -130,7 +136,6 @@ public:
 	S32				*getS32();
 	void			getVec3(LLVector3 &vec);
 	LLVector3		*getVec3();
-	F32				magnitude();
 	U32				*getU32();
 	U64				*getU64();
 
@@ -157,26 +162,7 @@ public:
 	void			setVec3(const LLVector3 &a);
 	void			setU32(const U32 a);
 
-	BOOL			nonzero();
-
 	friend std::ostream&		operator<<(std::ostream& s, const LLNameValue &a);
-
-	friend LLNameValue	&operator+(const LLNameValue &a, const LLNameValue &b);
-	friend LLNameValue	&operator-(const LLNameValue &a, const LLNameValue &b);
-	friend LLNameValue	&operator*(const LLNameValue &a, const LLNameValue &b);
-	friend LLNameValue	&operator/(const LLNameValue &a, const LLNameValue &b);
-	friend LLNameValue	&operator%(const LLNameValue &a, const LLNameValue &b);
-	friend LLNameValue	&operator*(const LLNameValue &a, F32 k);
-	friend LLNameValue	&operator*(F32 k, const LLNameValue &a);
-
-	friend bool			operator==(const LLNameValue &a, const LLNameValue &b);	
-	friend bool			operator<=(const LLNameValue &a, const LLNameValue &b);	
-	friend bool			operator>=(const LLNameValue &a, const LLNameValue &b);	
-	friend bool			operator<(const LLNameValue &a, const LLNameValue &b);	
-	friend bool			operator>(const LLNameValue &a, const LLNameValue &b);	
-	friend bool			operator!=(const LLNameValue &a, const LLNameValue &b);	
-
-	friend LLNameValue	&operator-(const LLNameValue &a);	
 
 private:
 	void			printNameValue(std::ostream& s);
@@ -193,8 +179,6 @@ public:
 
 	UNameValueReference			mNameValueReference;
 	LLStringTable				*mNVNameTable;
-	TNameValueCallback			mNameValueCB;
-	void						**mUserData;
 };
 
 extern LLStringTable	gNVNameTable;

@@ -252,7 +252,6 @@ BOOL gGodConnect = FALSE;
 BOOL gAcceptTOS = FALSE;
 BOOL gAcceptCriticalMessage = FALSE;
 
-LLUUID				gViewerDigest;	// MD5 digest of the viewer's executable file.
 eLastExecEvent gLastExecEvent = LAST_EXEC_NORMAL;
 
 LLSD gDebugInfo;
@@ -1014,8 +1013,12 @@ bool LLAppViewer::init()
 
 	// Build a string representing the current version number.
         gCurrentVersion = llformat("%s %d.%d.%d.%d", gChannelName.c_str(), LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VERSION_BUILD );
-	
+
 	//
+	// Various introspection concerning the libs we're using.
+	//
+	llinfos << "J2C Engine is: " << LLImageJ2C::getEngineInfo() << llendl;
+
 	// Merge with the command line overrides
 	gSavedSettings.applyOverrides(gCommandLineSettings);
 
@@ -1248,17 +1251,6 @@ bool LLAppViewer::init()
 	// Load Custom bindings (override defaults)
 	gViewerKeyboard.loadBindings(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"custom_keys.ini").c_str());
 
-	// Calculate the digest for the executable (takes < 90ms on a fast machine).
-	FILE* app_file = LLFile::fopen( gDirUtilp->getExecutablePathAndName().c_str(), "rb" );		/* Flawfinder: ignore */
-	if( app_file )
-	{
-		LLMD5 app_md5;
-		app_md5.update( app_file ); // Automatically closes the file
-		app_md5.finalize();
-		app_md5.raw_digest( gViewerDigest.mData );
-	}
-	llinfos << "Viewer Digest: " << gViewerDigest << llendl;
-
 	// If we don't have the right GL requirements, exit.
 	if (!gGLManager.mHasRequirements && !gNoRender)
 	{	
@@ -1368,7 +1360,7 @@ bool LLAppViewer::mainLoop()
 				gViewerWindow->mWindow->gatherInput();
 			}
 
-#if 1 && !RELEASE_FOR_DOWNLOAD
+#if 1 && !LL_RELEASE_FOR_DOWNLOAD
 			// once per second debug info
 			if (debugTime.getElapsedTimeF32() > 1.f)
 			{

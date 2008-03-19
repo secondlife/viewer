@@ -172,9 +172,10 @@ const U32 ESTATE_ACCESS_BANNED_AGENT_ADD			= 1 << 6;
 const U32 ESTATE_ACCESS_BANNED_AGENT_REMOVE			= 1 << 7;
 const U32 ESTATE_ACCESS_MANAGER_ADD					= 1 << 8;
 const U32 ESTATE_ACCESS_MANAGER_REMOVE				= 1 << 9;
+const U32 ESTATE_ACCESS_NO_REPLY                                  = 1 << 10;
 
 const S32 ESTATE_MAX_MANAGERS = 10;
-const S32 ESTATE_MAX_ACCESS_IDS = 300;	// max for access, banned
+const S32 ESTATE_MAX_ACCESS_IDS = 500;	// max for access, banned
 const S32 ESTATE_MAX_GROUP_IDS = (S32) ESTATE_ACCESS_MAX_ENTRIES_PER_PACKET;
 
 // 'Sim Wide Delete' flags

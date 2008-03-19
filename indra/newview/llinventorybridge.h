@@ -199,7 +199,7 @@ public:
 
 protected:
 	LLInvFVBridge(LLInventoryPanel* inventory, const LLUUID& uuid) :
-		mInventoryPanel(inventory), mUUID(uuid) {}
+		mInventoryPanel(inventory), mUUID(uuid), mInvType(LLInventoryType::IT_NONE) {}
 
 	LLInventoryObject* getInventoryObject() const;
 	BOOL isInTrash() const;
@@ -297,7 +297,7 @@ public:
 
 protected:
 	LLFolderBridge(LLInventoryPanel* inventory, const LLUUID& uuid) :
-		LLInvFVBridge(inventory, uuid) {}
+		LLInvFVBridge(inventory, uuid), mCallingCards(FALSE), mWearables(FALSE) {}
 
 	// menu callbacks
 	static void pasteClipboard(void* user_data);

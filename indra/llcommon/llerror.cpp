@@ -37,15 +37,16 @@
 
 #include <cctype>
 #ifdef __GNUC__
-#include <cxxabi.h>
-#endif
+# include <cxxabi.h>
+#endif // __GNUC__
 #include <sstream>
 #if !LL_WINDOWS
-#include <syslog.h>
-#endif
+# include <syslog.h>
+# include <unistd.h>
+#endif // !LL_WINDOWS
 #if LL_WINDOWS
-#include <windows.h>
-#endif
+# include <windows.h>
+#endif // LL_WINDOWS
 #include <vector>
 
 #include "llapp.h"
@@ -133,18 +134,58 @@ namespace {
 	class RecordToStderr : public LLError::Recorder
 	{
 	public:
-		RecordToStderr(bool timestamp) : mTimestamp(timestamp) { }
+		RecordToStderr(bool timestamp) : mTimestamp(timestamp), mUseANSI(ANSI_PROBE) { }
 
 		virtual bool wantsTime() { return mTimestamp; }
 		
 		virtual void recordMessage(LLError::ELevel level,
-									const std::string& message)
+					   const std::string& message)
 		{
+			if (ANSI_PROBE == mUseANSI)
+				mUseANSI = (checkANSI() ? ANSI_YES : ANSI_NO);
+
+			if (ANSI_YES == mUseANSI)
+			{
+				// Default all message levels to bold so we can distinguish our own messages from those dumped by subprocesses and libraries.
+				colorANSI("1"); // bold
+				switch (level) {
+				case LLError::LEVEL_ERROR:
+					colorANSI("31"); // red
+					break;
+				case LLError::LEVEL_WARN:
+					colorANSI("34"); // blue
+					break;
+				case LLError::LEVEL_DEBUG:
+					colorANSI("35"); // magenta
+					break;
+				default:
+					break;
+				}
+			}
 			fprintf(stderr, "%s\n", message.c_str());
+			if (ANSI_YES == mUseANSI) colorANSI("0"); // reset
 		}
 	
 	private:
 		bool mTimestamp;
+		typedef enum ANSIState {ANSI_PROBE, ANSI_YES, ANSI_NO};
+		ANSIState mUseANSI;
+		void colorANSI(const std::string color)
+		{
+			// ANSI color code escape sequence
+			fprintf(stderr, "\033[%sm", color.c_str() );
+		};
+		bool checkANSI(void)
+		{
+#if LL_LINUX || LL_DARWIN
+			// Check whether it's okay to use ANSI; if stderr is
+			// a tty then we assume yes.  Can be turned off with
+			// the LL_NO_ANSI_COLOR env var.
+			return (0 != isatty(2)) &&
+				(NULL == getenv("LL_NO_ANSI_COLOR"));
+#endif // LL_LINUX
+			return false;
+		};
 	};
 
 	class RecordToFixedBuffer : public LLError::Recorder

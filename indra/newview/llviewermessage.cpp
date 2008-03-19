@@ -5180,7 +5180,7 @@ void process_script_teleport_request(LLMessageSystem* msg, void**)
 	msg->getVector3("Data", "SimPosition", pos);
 	msg->getVector3("Data", "LookAt", look_at);
 
-	// gFloaterWorldMap->trackURL(sim_name, (U32)pos.mV[VX], (U32)pos.mV[VY], (U32)pos.mV[VZ]);
+	// gFloaterWorldMap->trackURL(sim_name, (S32)pos.mV[VX], (S32)pos.mV[VY], (S32)pos.mV[VZ]);
 	// LLFloaterWorldMap::show(NULL, TRUE);
 
 	LLURLDispatcher::dispatch(LLURLDispatcher::buildSLURL(sim_name, (S32)pos.mV[VX], (S32)pos.mV[VY], (S32)pos.mV[VZ]), FALSE);

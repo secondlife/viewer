@@ -96,11 +96,6 @@ void escape_string(std::string& line);
 // replaces each '\n' character with ' '
 void replace_newlines_with_whitespace(std::string& line);
 
-// returns 1 for solitary "{"
-// returns -1 for solitary "}"
-// otherwise returns 0
-int get_brace_count(const std::string& line);
-
 // erases any double-quote characters in line
 void remove_double_quotes(std::string& line);
 

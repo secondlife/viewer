@@ -49,6 +49,7 @@
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
+#include "lldelayedgestureerror.h"
 #include "llfloatergesture.h" // for some label constants
 #include "llgesturemgr.h"
 #include "llinventorymodel.h"
@@ -955,11 +956,6 @@ void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
 		}
 		else
 		{
-			// Get missing gesture's name. Use UUID if name can't be found.
-			LLStringBase<char>::format_map_t args;
-			LLInventoryItem *item = gInventory.getItem( *item_idp );
-			args["[NAME]"] = item ? item->getName() : LLString( item_idp->asString() );
-
 			if( gViewerStats )
 			{
 				gViewerStats->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
@@ -968,11 +964,11 @@ void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
 			if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 				LL_ERR_FILE_EMPTY == status)
 			{
-				LLNotifyBox::showXml("GestureMissing", args);
+				LLDelayedGestureError::gestureMissing( *item_idp );
 			}
 			else
 			{
-				LLNotifyBox::showXml("UnableToLoadGesture", args);
+				LLDelayedGestureError::gestureFailedToLoad( *item_idp );
 			}
 
 			llwarns << "Problem loading gesture: " << status << llendl;

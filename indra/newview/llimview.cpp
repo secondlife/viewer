@@ -80,7 +80,7 @@ LLIMMgr* gIMMgr = NULL;
 //
 // Statics
 //
-//*FIXME: make these all either UIStrings or Strings
+// *FIXME: make these all either UIStrings or Strings
 static LLString sOnlyUserMessage;
 static LLUIString sOfflineMessage;
 static LLUIString sInviteMessage;
@@ -374,7 +374,7 @@ LLIMMgr::LLIMMgr() :
 	mFriendObserver = new LLIMViewFriendObserver(this);
 	LLAvatarTracker::instance().addObserver(mFriendObserver);
 
-	//*HACK: use floater to initialize string constants from xml file
+	// *HACK: use floater to initialize string constants from xml file
 	// then delete it right away
 	LLFloaterIM* dummy_floater = new LLFloaterIM();
 	delete dummy_floater;
@@ -738,7 +738,7 @@ void LLIMMgr::inviteToSession(
 	if (channelp && channelp->callStarted())
 	{
 		// you have already started a call to the other user, so just accept the invite
-		inviteUserResponse(0, invite);
+		inviteUserResponse(0, invite); // inviteUserResponse deletes
 		return;
 	}
 
@@ -752,7 +752,7 @@ void LLIMMgr::inviteToSession(
 			if (gSavedSettings.getBOOL("VoiceCallsFriendsOnly"))
 			{
 				// invite not from a friend, so decline
-				inviteUserResponse(1, invite);
+				inviteUserResponse(1, invite); // inviteUserResponse deletes
 				return;
 			}
 		}
@@ -771,12 +771,16 @@ void LLIMMgr::inviteToSession(
 			args["[GROUP]"] = session_name;
 
 			LLNotifyBox::showXml(notify_box_type, 
-								 args, 
-								 inviteUserResponse, 
-								 (void*)invite);
+					     args, 
+					     inviteUserResponse, 
+					     (void*)invite); // inviteUserResponse deletes
 
 		}
 		mPendingInvitations[session_id.asString()] = LLSD();
+	}
+	else
+	{
+		delete invite;
 	}
 }
 

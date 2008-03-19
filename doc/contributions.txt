@@ -8,6 +8,8 @@ Able Whitman
 	VWR-650
 	VWR-1460
 	VWR-1691
+Adam Marker
+    VWR-2755
 Aimee Trescothick
 	VWR-3903
 	VWR-4803
@@ -254,6 +256,8 @@ Nicholaz Beresford
 	VWR-2684
 Nounouch Hapmouche
 	VWR-238
+Patric Mills
+    VWR-2645
 Paul Churchill
 	VWR-20
 	VWR-493
@@ -321,6 +325,7 @@ Strife Onizuka
 	WEB-164
 	VWR-183
 	VWR-2265
+	VWR-4111
 tenebrous pau
 	VWR-247
 TBBle Kurosawa
@@ -351,3 +356,5 @@ Zipherius Turas
 	VWR-77
 Kerutsen Sellery
         VWR-1350
+
+

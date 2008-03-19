@@ -263,20 +263,14 @@ bool get_word(std::string& output_string, std::istream& input_stream, int n)
 // get everything up to and including the next newline
 bool get_line(std::string& output_string, std::istream& input_stream)
 {
+	output_string.clear();
 	char c = input_stream.get();
 	while (input_stream.good())
 	{
-		if ('\r' == c)
+		output_string += c;
+		if ('\n' == c)
 		{
-			// skip carriage returns
-		}
-		else
-		{
-			output_string += c;
-			if ('\n' == c)
-			{
-				break;
-			}
+			break;
 		}
 		c = input_stream.get();
 	} 
@@ -288,27 +282,21 @@ bool get_line(std::string& output_string, std::istream& input_stream)
 // add a newline on the end if bail before actual line ending
 bool get_line(std::string& output_string, std::istream& input_stream, int n)
 {
+	output_string.clear();
 	int char_count = 0;
 	char c = input_stream.get();
 	while (input_stream.good() && char_count < n)
 	{
 		char_count++;
 		output_string += c;
-		if ('\r' == c)
+		if ('\n' == c)
 		{
-			// skip carriage returns
+			break;
 		}
-		else
+		if (char_count >= n)
 		{
-			if ('\n' == c)
-			{
-				break;
-			}
-			if (char_count >= n)
-			{
-				output_string.append("\n");
-				break;
-			}
+			output_string.append("\n");
+			break;
 		}
 		c = input_stream.get();
 	} 
@@ -408,49 +396,6 @@ void replace_newlines_with_whitespace(std::string& line)
 	}
 }
 
-// returns 1 for solitary "{"
-// returns -1 for solitary "}"
-// otherwise returns 0
-int get_brace_count(const std::string& line)
-{
-	int index = 0;
-	int line_size = line.size();
-	char c = 0;
-	while (index < line_size)
-	{
-		c = line[index];
-		index++;
-		if (!isspace(c))
-		{
-			break;
-		}
-	}
-	char brace = c;
-	// make sure the rest of the line is whitespace
-	while (index < line_size)
-	{
-		c = line[index];
-		if (!isspace(c))
-		{
-			break;
-		}
-		index++;
-	}
-	if ('\n' != c)
-	{
-		return 0;
-	}
-	if ('{' == brace)
-	{
-		return 1;
-	}
-	else if ('}' == brace)
-	{
-		return -1;
-	}
-	return 0;
-}
-
 // erases any double-quote characters in 'line'
 void remove_double_quotes(std::string& line)
 {
@@ -498,7 +443,7 @@ void get_keyword_and_value(std::string& keyword,
 	}
 
 	// get the keyword
-	keyword.assign("");
+	keyword.clear();
 	while (line_index < line_size)
 	{
 		c = line[line_index];
@@ -510,6 +455,8 @@ void get_keyword_and_value(std::string& keyword,
 		line_index++;
 	}
 
+	// get the value
+	value.clear();
 	if (keyword.size() > 0
 		&& '\r' != line[line_index]
 		&& '\n' != line[line_index])
@@ -523,8 +470,6 @@ void get_keyword_and_value(std::string& keyword,
 			line_index++;
 		}
 
-		// get the value
-		value.assign("");
 		while (line_index < line_size)
 		{
 			c = line[line_index];

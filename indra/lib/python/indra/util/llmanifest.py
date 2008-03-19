@@ -94,7 +94,7 @@ def get_channel(srctree):
     for p in paths:
         if os.path.exists(p):
             contents = open(p, 'r').read()
-            channel = re.search("LL_CHANNEL\s=\s\"([\w\s]+)\"", contents).group(1)
+            channel = re.search("LL_CHANNEL\s=\s\"(.+)\";\s*$", contents, flags = re.M).group(1)
             return channel
     
 
