@@ -50,7 +50,11 @@ namespace tut
 			random.generate();
 			// generate temp dir
 			std::ostringstream oStr;
+#if LL_WINDOWS 
+			oStr << "llmessage-config-test-" << random;
+#else
 			oStr << "/tmp/llmessage-config-test-" << random;
+#endif
 			mTestConfigDir = oStr.str();
 			LLFile::mkdir(mTestConfigDir.c_str());
 			writeConfigFile(LLSD());
