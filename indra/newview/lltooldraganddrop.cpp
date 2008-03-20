@@ -1471,8 +1471,11 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	// currently the ray's end point is an approximation,
 	// and is sometimes too short (causing failure.)  so we
 	// double the ray's length:
-	LLVector3 ray_direction = ray_start - ray_end;
-	ray_end = ray_end - ray_direction;
+	if (bypass_sim_raycast == FALSE)
+	{
+		LLVector3 ray_direction = ray_start - ray_end;
+		ray_end = ray_end - ray_direction;
+	}
 	
 	
 	// Message packing code should be it's own uninterrupted block
