@@ -678,31 +678,6 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-class LLVoiceClientPrefsListener: public LLSimpleListener
-{
-	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
-	{
-		// Note: Ignore the specific event value, look up the ones we want
-
-		gVoiceClient->setVoiceEnabled(gSavedSettings.getBOOL("EnableVoiceChat"));
-		gVoiceClient->setUsePTT(gSavedSettings.getBOOL("PTTCurrentlyEnabled"));
-		std::string keyString = gSavedSettings.getString("PushToTalkButton");
-		gVoiceClient->setPTTKey(keyString);
-		gVoiceClient->setPTTIsToggle(gSavedSettings.getBOOL("PushToTalkToggle"));
-		gVoiceClient->setEarLocation(gSavedSettings.getS32("VoiceEarLocation"));
-		std::string serverName = gSavedSettings.getString("VivoxDebugServerName");
-		gVoiceClient->setVivoxDebugServerName(serverName);
-
-		std::string inputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
-		gVoiceClient->setCaptureDevice(inputDevice);
-		std::string outputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
-		gVoiceClient->setRenderDevice(outputDevice);
-
-		return true;
-	}
-};
-static LLVoiceClientPrefsListener voice_prefs_listener;
-
 class LLVoiceClientMuteListObserver : public LLMuteListObserver
 {
 	/* virtual */ void onChange()  { gVoiceClient->muteListChanged();}
@@ -859,16 +834,6 @@ LLVoiceClient::LLVoiceClient()
 	std::string renderDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
 	setRenderDevice(renderDevice);
 	
-	// Set up our listener to get updates on all prefs values we care about.
-	gSavedSettings.getControl("EnableVoiceChat")->addListener(&voice_prefs_listener);
-	gSavedSettings.getControl("PTTCurrentlyEnabled")->addListener(&voice_prefs_listener);
-	gSavedSettings.getControl("PushToTalkButton")->addListener(&voice_prefs_listener);
-	gSavedSettings.getControl("PushToTalkToggle")->addListener(&voice_prefs_listener);
-	gSavedSettings.getControl("VoiceEarLocation")->addListener(&voice_prefs_listener);
-	gSavedSettings.getControl("VivoxDebugServerName")->addListener(&voice_prefs_listener);
-	gSavedSettings.getControl("VoiceInputAudioDevice")->addListener(&voice_prefs_listener);
-	gSavedSettings.getControl("VoiceOutputAudioDevice")->addListener(&voice_prefs_listener);
-
 	mTuningMode = false;
 	mTuningEnergy = 0.0f;
 	mTuningMicVolume = 0;
@@ -1281,7 +1246,7 @@ void LLVoiceClient::stateMachine()
 		break;
 		
 		case stateStart:
-			if(gDisableVoice)
+			if(gSavedSettings.getBOOL("CmdLineDisableVoice"))
 			{
 				// Voice is locked out, we must not launch the vivox daemon.
 				setState(stateJail);
@@ -3644,7 +3609,7 @@ void LLVoiceClient::setVoiceEnabled(bool enabled)
 
 bool LLVoiceClient::voiceEnabled()
 {
-	return gSavedSettings.getBOOL("EnableVoiceChat") && !gDisableVoice;
+	return gSavedSettings.getBOOL("EnableVoiceChat") && !gSavedSettings.getBOOL("CmdLineDisableVoice");
 }
 
 void LLVoiceClient::setUsePTT(bool usePTT)

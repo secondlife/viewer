@@ -447,7 +447,7 @@ BOOL idle_startup()
 		{
 			fclose(found_template);
 
-			U32 port = gAgent.mViewerPort;
+			U32 port = gSavedSettings.getU32("UserConnectionPort");
 
 			if ((NET_USE_OS_ASSIGNED_PORT == port) &&   // if nothing specified on command line (-port)
 			    (gSavedSettings.getBOOL("ConnectionPortEnabled")))
@@ -497,7 +497,7 @@ BOOL idle_startup()
 								  invalid_message_callback,
 								  NULL);
 
-			if (gSavedSettings.getBOOL("LogMessages") || gLogMessages)
+			if (gSavedSettings.getBOOL("LogMessages"))
 			{
 				llinfos << "Message logging activated!" << llendl;
 				msg->startLogging();
@@ -516,18 +516,23 @@ BOOL idle_startup()
 			}
 			gAssetStorage = new LLViewerAssetStorage(msg, gXferManager, gVFS);
 
-			msg->mPacketRing.setDropPercentage(gPacketDropPercentage);
-			if (gInBandwidth != 0.f)
+
+			F32 dropPercent = gSavedSettings.getF32("PacketDropPercentage");
+			msg->mPacketRing.setDropPercentage(dropPercent);
+
+            F32 inBandwidth = gSavedSettings.getF32("InBandwidth"); 
+            F32 outBandwidth = gSavedSettings.getF32("OutBandwidth"); 
+			if (inBandwidth != 0.f)
 			{
-				llinfos << "Setting packetring incoming bandwidth to " << gInBandwidth << llendl;
+				llinfos << "Setting packetring incoming bandwidth to " << inBandwidth << llendl;
 				msg->mPacketRing.setUseInThrottle(TRUE);
-				msg->mPacketRing.setInBandwidth(gInBandwidth);
+				msg->mPacketRing.setInBandwidth(inBandwidth);
 			}
-			if (gOutBandwidth != 0.f)
+			if (outBandwidth != 0.f)
 			{
-				llinfos << "Setting packetring outgoing bandwidth to " << gOutBandwidth << llendl;
+				llinfos << "Setting packetring outgoing bandwidth to " << outBandwidth << llendl;
 				msg->mPacketRing.setUseOutThrottle(TRUE);
-				msg->mPacketRing.setOutBandwidth(gOutBandwidth);
+				msg->mPacketRing.setOutBandwidth(outBandwidth);
 			}
 		}
 
@@ -541,7 +546,7 @@ BOOL idle_startup()
 		// or audio cues in connection UI.
 		//-------------------------------------------------
 
-		if (gUseAudio)
+		if (FALSE == gSavedSettings.getBOOL("NoAudio"))
 		{
 #if LL_FMOD
 			gAudiop = (LLAudioEngine *) new LLAudioEngine_FMOD();
@@ -586,14 +591,13 @@ BOOL idle_startup()
 
 			show_connect_box = FALSE;
 		}
-		else if( !gCmdLineFirstName.empty() 
-			&& !gCmdLineLastName.empty() 
-			&& !gCmdLinePassword.empty())
-		{
-			firstname = gCmdLineFirstName;
-			lastname = gCmdLineLastName;
+        else if(gSavedSettings.getLLSD("UserLoginInfo").size() == 3)
+        {
+            LLSD cmd_line_login = gSavedSettings.getLLSD("UserLoginInfo");
+			firstname = cmd_line_login[0].asString();
+			lastname = cmd_line_login[1].asString();
 
-			LLMD5 pass((unsigned char*)gCmdLinePassword.c_str());
+			LLMD5 pass((unsigned char*)cmd_line_login[2].asString().c_str());
 			char md5pass[33];               /* Flawfinder: ignore */
 			pass.hex_digest(md5pass);
 			password = md5pass;
@@ -604,9 +608,9 @@ BOOL idle_startup()
 #else
 			show_connect_box = FALSE;
 #endif
-			gAutoLogin = TRUE;
-		}
-		else if (gAutoLogin || gSavedSettings.getBOOL("AutoLogin"))
+			gSavedSettings.setBOOL("AutoLogin", TRUE);
+        }
+		else if (gSavedSettings.getBOOL("AutoLogin"))
 		{
 			firstname = gSavedSettings.getString("FirstName");
 			lastname = gSavedSettings.getString("LastName");
@@ -781,19 +785,14 @@ BOOL idle_startup()
 		// create necessary directories
 		// *FIX: these mkdir's should error check
 		gDirUtilp->setLindenUserDir(firstname.c_str(), lastname.c_str());
+    	LLFile::mkdir(gDirUtilp->getLindenUserDir().c_str());
 
+        // Set UserSettingsFile to the default value.
+		gSavedSettings.setString("UserSettingsFile",
+			gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, DEFAULT_SETTINGS_FILE));
 
-		LLFile::mkdir(gDirUtilp->getLindenUserDir().c_str());
-
-		// the mute list is loaded in the llmutelist class.
-
-		gSavedSettings.loadFromFile(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT,"overrides.xml"));
-
-		// handle the per account settings setup
-		gPerAccountSettingsFileName = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, DEFAULT_SETTINGS_FILE);
-
-		// per account settings.  Set defaults here if not found.  If we get a bunch of these, eventually move to a function.
-		gSavedPerAccountSettings.loadFromFile(gPerAccountSettingsFileName);
+		// Overwrite default user settings with user settings								 
+		LLAppViewer::instance()->loadSettingsFromDirectory(LL_PATH_PER_SL_ACCOUNT);
 
 		// Need to set the LastLogoff time here if we don't have one.  LastLogoff is used for "Recent Items" calculation
 		// and startup time is close enough if we don't have a real value.
@@ -828,7 +827,7 @@ BOOL idle_startup()
 			gSavedSettings.setS32("ServerChoice", gGridChoice);
 			if (gGridChoice == GRID_INFO_OTHER)
 			{
-				snprintf(gGridName, MAX_STRING, "%s", server_label.c_str());/* Flawfinder: ignore */
+				gGridName = server_label;/* Flawfinder: ignore */
 			}
 			
 			if ( user_picked_server )
@@ -932,7 +931,7 @@ BOOL idle_startup()
 		//requested_options.push_back("inventory-meat");
 		//requested_options.push_back("inventory-skel-targets");
 #if (!defined LL_MINIMIAL_REQUESTED_OPTIONS)
-		if(gRequestInventoryLibrary)
+		if(FALSE == gSavedSettings.getBOOL("NoInventoryLibrary"))
 		{
 			requested_options.push_back("inventory-lib-root");
 			requested_options.push_back("inventory-lib-owner");
@@ -952,7 +951,7 @@ BOOL idle_startup()
 		requested_options.push_back("tutorial_setting");
 		requested_options.push_back("login-flags");
 		requested_options.push_back("global-textures");
-		if(gGodConnect)
+		if(gSavedSettings.getBOOL("ConnectAsGod"))
 		{
 			gSavedSettings.setBOOL("UseDebugMenus", TRUE);
 			requested_options.push_back("god-connect");
@@ -1239,7 +1238,6 @@ BOOL idle_startup()
 				  << (sAuthUriNum + 1) << ".  ";
 				auth_desc = s.str();
 				LLStartUp::setStartupState( STATE_LOGIN_AUTHENTICATE );
-				sAuthUriNum++;
 				return do_normal_idle;
 			}
 			break;
@@ -1489,7 +1487,7 @@ BOOL idle_startup()
 				args["[ERROR_MESSAGE]"] = emsg.str();
 				gViewerWindow->alertXml("ErrorMessage", args, login_alert_done);
 				reset_login();
-				gAutoLogin = FALSE;
+				gSavedSettings.setBOOL("AutoLogin", FALSE);
 				show_connect_box = TRUE;
 			}
 			
@@ -1509,7 +1507,7 @@ BOOL idle_startup()
 			args["[ERROR_MESSAGE]"] = emsg.str();
 			gViewerWindow->alertXml("ErrorMessage", args, login_alert_done);
 			reset_login();
-			gAutoLogin = FALSE;
+			gSavedSettings.setBOOL("AutoLogin", FALSE);
 			show_connect_box = TRUE;
 			// Don't save an incorrect password to disk.
 			save_password_to_disk(NULL);
@@ -1533,7 +1531,7 @@ BOOL idle_startup()
 
 		// Since we connected, save off the settings so the user doesn't have to
 		// type the name/password again if we crash.
-		gSavedSettings.saveToFile(gSettingsFileName, TRUE);
+		gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);
 
 		//
 		// Initialize classes w/graphics stuff.
@@ -2100,7 +2098,7 @@ BOOL idle_startup()
 			gSavedSettings.setString( "NextLoginLocation", "" );
 
 			// and make sure it's saved
-			gSavedSettings.saveToFile( gSettingsFileName, TRUE );
+			gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile") , TRUE );
 		};
 
 		if (!gNoRender)
@@ -2392,7 +2390,7 @@ void login_show()
 
 	if( GRID_INFO_OTHER == gGridChoice )
 	{
-		   LLPanelLogin::addServer( gGridName, GRID_INFO_OTHER );
+		   LLPanelLogin::addServer( gGridName.c_str(), GRID_INFO_OTHER );
 	}
 	else
 	{
@@ -2440,7 +2438,7 @@ void login_callback(S32 option, void *userdata)
 		{
 			// turn off the setting and write out to disk
 			gSavedSettings.setBOOL("RememberPassword", FALSE);
-			gSavedSettings.saveToFile(gSettingsFileName, TRUE);
+			gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile") , TRUE );
 
 			// stomp the saved password on disk
 			save_password_to_disk(NULL);
@@ -2634,7 +2632,7 @@ void login_alert_status(S32 option, void* user_data)
 void update_app(BOOL mandatory, const std::string& auth_msg)
 {
 	// store off config state, as we might quit soon
-	gSavedSettings.saveToFile(gSettingsFileName, TRUE);
+	gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);	
 
 	std::ostringstream message;
 
@@ -2734,7 +2732,7 @@ void update_dialog_callback(S32 option, void *userdata)
 	// *TODO change userserver to be grid on both viewer and sim, since
 	// userserver no longer exists.
 	query_map["userserver"] = gGridName;
-	query_map["channel"] = gChannelName;
+	query_map["channel"] = gSavedSettings.getString("VersionChannelName");
 	// *TODO constantize this guy
 	LLURI update_url = LLURI::buildHTTP("secondlife.com", 80, "update.php", query_map);
 	

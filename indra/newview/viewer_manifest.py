@@ -115,15 +115,15 @@ class ViewerManifest(LLManifest):
                 if not self.default_grid():
                         if self.default_channel():
                                 # beta grid viewer
-                                channel_flags = '-settings settings_beta.xml'
-                        grid_flags = "-helperuri http://preview-%(grid)s.secondlife.com/helpers/ -loginuri https://login.%(grid)s.lindenlab.com/cgi-bin/login.cgi" % {'grid':self.args['grid']}
+                                channel_flags = '--settings settings_beta.xml'
+                        grid_flags = "--helperuri http://preview-%(grid)s.secondlife.com/helpers/ --loginuri https://login.%(grid)s.lindenlab.com/cgi-bin/login.cgi" % {'grid':self.args['grid']}
                         
                 if not self.default_channel():
                         # some channel on some grid
-                        channel_flags = '-settings settings_%s.xml -channel "%s"' % (self.channel_lowerword(), self.channel())
+                        channel_flags = '--settings settings_%s.xml --channel "%s"' % (self.channel_lowerword(), self.channel())
                 elif self.login_channel():
                         # Report a special channel during login, but use default channel elsewhere
-                        channel_flags = '-channel "%s"' % (self.login_channel())
+                        channel_flags = '--channel "%s"' % (self.login_channel())
                         
                 return " ".join((channel_flags, grid_flags)).strip()
 

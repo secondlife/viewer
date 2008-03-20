@@ -163,8 +163,6 @@ LLNetMap::LLNetMap(
 	mPopupMenuHandle = menu->getHandle();
 
 	sInstance = this;
-
-	gSavedSettings.getControl("MiniMapRotate")->addListener(&mNetMapListener);
 }
 
 LLNetMap::~LLNetMap()
@@ -827,10 +825,4 @@ void LLNetMap::handleZoomLevel(void* which)
 	default:
 		break;
 	}
-}
-
-bool LLRotateNetMapListener::handleEvent(LLPointer<LLEvent> event, const LLSD& user_data)
-{
-	LLNetMap::setRotateMap(event->getValue().asBoolean());
-	return true;
 }

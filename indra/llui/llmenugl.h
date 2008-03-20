@@ -225,7 +225,7 @@ private:
 // calls a user defined callback.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLMenuItemCallGL : public LLMenuItemGL
+class LLMenuItemCallGL : public LLMenuItemGL, public LLObservable
 {
 public:
 	// normal constructor
@@ -291,7 +291,6 @@ public:
 
 	//virtual void draw();
 
-	virtual bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
 
 private:
 	menu_callback			mCallback;
@@ -341,7 +340,7 @@ public:
 
 	void setCheckedControl(LLString checked_control, LLView *context);
 
-	virtual void setValue(const LLSD& value) { mChecked = value.asBoolean(); }
+	virtual void setValue(const LLSD& value);
 	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_MENU_ITEM_CHECK; }
 	virtual LLString getWidgetTag() const { return LL_MENU_ITEM_CHECK_GL_TAG; }
 
@@ -349,8 +348,6 @@ public:
 
 	// called to rebuild the draw label
 	virtual void buildDrawLabel( void );
-
-	virtual bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata);
 
 private:
 	check_callback mCheckCallback;

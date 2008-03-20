@@ -206,7 +206,7 @@ void LLLoginHandler::parse(const LLSD& queryMap)
 	
  	if (LLAppViewer::instance()->getLoginURIs().size() == 0)
  	{
- 	    snprintf(gGridName, MAX_STRING, "%s", gGridInfo[gGridChoice].mName);		/* Flawfinder: ignore */
+		gGridName = gGridInfo[gGridChoice].mName;		/* Flawfinder: ignore */
  	    LLAppViewer::instance()->resetURIs();
  	}	    
 	
@@ -429,7 +429,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	LLTextBox* channel_text = LLUICtrlFactory::getTextBoxByName(this, "channel_text");
 	if (channel_text)
 	{
-		channel_text->setText(gChannelName);
+		channel_text->setText(gSavedSettings.getString("VersionChannelName"));
 		channel_text->setClickedCallback(onClickVersion);
 		channel_text->setCallbackUserData(this);
 	}
@@ -471,7 +471,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 		// kick off a request to grab the url manually
 		gResponsePtr = LLIamHereLogin::build( this );
- 		std::string login_page = LLAppViewer::instance()->getLoginPage();
+ 		std::string login_page = gSavedSettings.getString("LoginPage");
  		if (login_page.empty())
  		{
  			login_page = getString( "real_url" );
@@ -927,7 +927,7 @@ void LLPanelLogin::loadLoginPage()
 	
 	std::ostringstream oStr;
 
-	std::string login_page = LLAppViewer::instance()->getLoginPage();
+	std::string login_page = gSavedSettings.getString("LoginPage");
 	if (login_page.empty())
 	{
 		login_page = sInstance->getString( "real_url" );
@@ -984,23 +984,23 @@ void LLPanelLogin::loadLoginPage()
 	}
 	
 	LLString firstname, lastname;
-	
-	if (gCmdLineFirstName.empty())
+
+    if(gSavedSettings.getLLSD("UserLoginInfo").size() == 3)
+    {
+        LLSD cmd_line_login = gSavedSettings.getLLSD("UserLoginInfo");
+		firstname = cmd_line_login[0].asString();
+		lastname = cmd_line_login[1].asString();
+        password = cmd_line_login[2].asString();
+    }
+    	
+	if (firstname.empty())
 	{
 		firstname = gSavedSettings.getString("FirstName");
 	}
-	else
-	{
-		firstname = gCmdLineFirstName;
-	}
 	
-	if (gCmdLineLastName.empty())
+	if (lastname.empty())
 	{
 		lastname = gSavedSettings.getString("LastName");
-	}
-	else
-	{
-		lastname = gCmdLineLastName;
 	}
 	
 	LLString version = llformat("%d.%d.%d (%d)",
@@ -1020,9 +1020,9 @@ void LLPanelLogin::loadLoginPage()
 	curl_free(curl_version);
 
 
-	if (!gCmdLinePassword.empty())
+	if (!password.empty())
 	{
-		oStr << "&password=" << gCmdLinePassword;
+		oStr << "&password=" << password;
 	}
 	else if (!(password = load_password_from_disk()).empty())
 	{

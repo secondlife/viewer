@@ -917,19 +917,19 @@ Function .onInit
 	
 	; generate language ID that will be used as a command line arg	
 	StrCmp $LANGUAGE "1042" 0 +3
-	StrCpy $LANGFLAGS " -set SystemLanguage ko"
+	StrCpy $LANGFLAGS " --set SystemLanguage ko"
 	Goto EndOfFunc
 
 	StrCmp $LANGUAGE "1041" 0 +3
-	StrCpy $LANGFLAGS " -set SystemLanguage ja"
+	StrCpy $LANGFLAGS " --set SystemLanguage ja"
 	Goto EndOfFunc
 
 	StrCmp $LANGUAGE "1031" 0 +3
-	StrCpy $LANGFLAGS " -set SystemLanguage de"
+	StrCpy $LANGFLAGS " --set SystemLanguage de"
 	Goto EndOfFunc
 
 	StrCmp $LANGUAGE "1033" 0 +3
-	StrCpy $LANGFLAGS " -set SystemLanguage en-us"
+	StrCpy $LANGFLAGS " --set SystemLanguage en-us"
 	Goto EndOfFunc
 	
 	EndOfFunc:

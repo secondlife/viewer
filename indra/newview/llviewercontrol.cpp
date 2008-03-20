@@ -36,26 +36,47 @@
 
 #include "indra_constants.h"
 
-#include "v3math.h"
-#include "v3dmath.h"
-#include "llrect.h"
-#include "v4color.h"
-#include "v4coloru.h"
-#include "v3color.h"
-
-#include "llfloater.h"
-#include "llvieweruictrlfactory.h"
-#include "llfirstuse.h"
-#include "llcombobox.h"
-#include "llspinctrl.h"
-#include "llcolorswatch.h"
+// For Listeners
+#include "audioengine.h"
+#include "llagent.h"
+#include "llconsole.h"
+#include "lldrawpoolterrain.h"
+#include "llflexibleobject.h"
+#include "llfeaturemanager.h"
+#include "llglslshader.h"
+#include "llnetmap.h"
+#include "llpanelgeneral.h"
+#include "llpanelinput.h"
+#include "llsky.h"
+#include "llvieweraudio.h"
+#include "llviewerimagelist.h"
+#include "llviewerthrottle.h"
+#include "llviewerwindow.h"
+#include "llvoavatar.h"
+#include "llvoiceclient.h"
+#include "llvosky.h"
+#include "llvotree.h"
+#include "llvovolume.h"
+#include "llworld.h"
+#include "pipeline.h"
+#include "llviewerjoystick.h"
+#include "llviewerparcelmgr.h"
+#include "llparcel.h"
+#include "llnotify.h"
+#include "llkeyboard.h"
+#include "llerrorcontrol.h"
+#include "llversionviewer.h"
+#include "llappviewer.h"
+#include "llvosurfacepatch.h"
+#include "llvowlsky.h"
+#include "llglimmediate.h"
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 BOOL 				gHackGodmode = FALSE;
 #endif
 
-LLFloaterSettingsDebug* LLFloaterSettingsDebug::sInstance = NULL;
 
+std::map<LLString, LLControlGroup*> gSettings;
 LLControlGroup gSavedSettings;	// saved at end of session
 LLControlGroup gSavedPerAccountSettings; // saved at end of session
 LLControlGroup gViewerArt;		// read-only
@@ -65,461 +86,440 @@ LLControlGroup gCrashSettings;	// saved at end of session
 LLString gLastRunVersion;
 LLString gCurrentVersion;
 
-LLString gSettingsFileName;
-LLString gPerAccountSettingsFileName;
+extern BOOL gResizeScreenTexture;
 
-LLFloaterSettingsDebug::LLFloaterSettingsDebug() : LLFloater("Configuration Editor")
+////////////////////////////////////////////////////////////////////////////
+// Listeners
+
+static bool handleRenderAvatarMouselookChanged(const LLSD& newvalue)
 {
+	LLVOAvatar::sVisibleInFirstPerson = newvalue.asBoolean();
+	return true;
 }
 
-LLFloaterSettingsDebug::~LLFloaterSettingsDebug()
+static bool handleRenderFarClipChanged(const LLSD& newvalue)
 {
-	sInstance = NULL;
-}
-
-BOOL LLFloaterSettingsDebug::postBuild()
-{
-	LLComboBox* settings_combo = LLUICtrlFactory::getComboBoxByName(this, "settings_combo");
-
-	LLControlGroup::ctrl_name_table_t::iterator name_it;
-	for(name_it = gSavedSettings.mNameTable.begin(); name_it != gSavedSettings.mNameTable.end(); ++name_it)
+	F32 draw_distance = (F32) newvalue.asReal();
+	gAgent.mDrawDistance = draw_distance;
+	if (gWorldPointer)
 	{
-		settings_combo->add(name_it->first, (void*)name_it->second);
+		gWorldPointer->setLandFarClip(draw_distance);
 	}
-	for(name_it = gSavedPerAccountSettings.mNameTable.begin(); name_it != gSavedPerAccountSettings.mNameTable.end(); ++name_it)
-	{
-		settings_combo->add(name_it->first, (void*)name_it->second);
-	}
-	for(name_it = gColors.mNameTable.begin(); name_it != gColors.mNameTable.end(); ++name_it)
-	{
-		settings_combo->add(name_it->first, (void*)name_it->second);
-	}
-	settings_combo->sortByName();
-	settings_combo->setCommitCallback(onSettingSelect);
-	settings_combo->setCallbackUserData(this);
-	settings_combo->updateSelection();
-
-	childSetCommitCallback("val_spinner_1", onCommitSettings);
-	childSetUserData("val_spinner_1", this);
-	childSetCommitCallback("val_spinner_2", onCommitSettings);
-	childSetUserData("val_spinner_2", this);
-	childSetCommitCallback("val_spinner_3", onCommitSettings);
-	childSetUserData("val_spinner_3", this);
-	childSetCommitCallback("val_spinner_4", onCommitSettings);
-	childSetUserData("val_spinner_4", this);
-	childSetCommitCallback("val_text", onCommitSettings);
-	childSetUserData("val_text", this);
-	childSetCommitCallback("boolean_combo", onCommitSettings);
-	childSetUserData("boolean_combo", this);
-	childSetCommitCallback("color_swatch", onCommitSettings);
-	childSetUserData("color_swatch", this);
-	childSetAction("default_btn", onClickDefault, this);
-	mComment = getChild<LLTextEditor>("comment_text");
-	return TRUE;
+	return true;
 }
 
-void LLFloaterSettingsDebug::draw()
+static bool handleTerrainDetailChanged(const LLSD& newvalue)
 {
-	LLComboBox* settings_combo = getChild<LLComboBox>("settings_combo");
-	LLControlBase* controlp = (LLControlBase*)settings_combo->getCurrentUserdata();
-	updateControl(controlp);
-
-	LLFloater::draw();
+	LLDrawPoolTerrain::sDetailMode = newvalue.asInteger();
+	return true;
 }
 
-//static
-void LLFloaterSettingsDebug::show(void*)
+
+static bool handleSetShaderChanged(const LLSD& newvalue)
 {
-	if (sInstance == NULL)
+	LLShaderMgr::setShaders();
+	return true;
+}
+
+static bool handleReleaseGLBufferChanged(const LLSD& newvalue)
+{
+	if (gPipeline.isInit())
 	{
-		sInstance = new LLFloaterSettingsDebug();
-
-		gUICtrlFactory->buildFloater(sInstance, "floater_settings_debug.xml");
+		gPipeline.releaseGLBuffers();
+		gPipeline.createGLBuffers();
 	}
-
-	sInstance->open();		/* Flawfinder: ignore */
+	return true;
 }
 
-//static 
-void LLFloaterSettingsDebug::onSettingSelect(LLUICtrl* ctrl, void* user_data)
+static bool handleVolumeLODChanged(const LLSD& newvalue)
 {
-	LLFloaterSettingsDebug* floaterp = (LLFloaterSettingsDebug*)user_data;
-	LLComboBox* combo_box = (LLComboBox*)ctrl;
-	LLControlBase* controlp = (LLControlBase*)combo_box->getCurrentUserdata();
-
-	floaterp->updateControl(controlp);
+	LLVOVolume::sLODFactor = (F32) newvalue.asReal();
+	LLVOVolume::sDistanceFactor = 1.f-LLVOVolume::sLODFactor * 0.1f;
+	return true;
 }
 
-//static
-void LLFloaterSettingsDebug::onCommitSettings(LLUICtrl* ctrl, void* user_data)
+static bool handleAvatarLODChanged(const LLSD& newvalue)
 {
-	LLFloaterSettingsDebug* floaterp = (LLFloaterSettingsDebug*)user_data;
-
-	LLComboBox* settings_combo = floaterp->getChild<LLComboBox>("settings_combo");
-	LLControlBase* controlp = (LLControlBase*)settings_combo->getCurrentUserdata();
-
-	LLVector3 vector;
-	LLVector3d vectord;
-	LLRect rect;
-	LLColor4 col4;
-	LLColor3 col3;
-	LLColor4U col4U;
-	LLColor4 color_with_alpha;
-
-	switch(controlp->type())
-	{		
-	  case TYPE_U32:
-		controlp->set(floaterp->childGetValue("val_spinner_1"));
-		break;
-	  case TYPE_S32:
-		controlp->set(floaterp->childGetValue("val_spinner_1"));
-		break;
-	  case TYPE_F32:
-		controlp->set(LLSD(floaterp->childGetValue("val_spinner_1").asReal()));
-		break;
-	  case TYPE_BOOLEAN:
-		controlp->set(floaterp->childGetValue("boolean_combo"));
-		break;
-	  case TYPE_STRING:
-		controlp->set(LLSD(floaterp->childGetValue("val_text").asString()));
-		break;
-	  case TYPE_VEC3:
-		vector.mV[VX] = (F32)floaterp->childGetValue("val_spinner_1").asReal();
-		vector.mV[VY] = (F32)floaterp->childGetValue("val_spinner_2").asReal();
-		vector.mV[VZ] = (F32)floaterp->childGetValue("val_spinner_3").asReal();
-		controlp->set(vector.getValue());
-		break;
-	  case TYPE_VEC3D:
-		vectord.mdV[VX] = floaterp->childGetValue("val_spinner_1").asReal();
-		vectord.mdV[VY] = floaterp->childGetValue("val_spinner_2").asReal();
-		vectord.mdV[VZ] = floaterp->childGetValue("val_spinner_3").asReal();
-		controlp->set(vectord.getValue());
-		break;
-	  case TYPE_RECT:
-		rect.mLeft = floaterp->childGetValue("val_spinner_1").asInteger();
-		rect.mRight = floaterp->childGetValue("val_spinner_2").asInteger();
-		rect.mBottom = floaterp->childGetValue("val_spinner_3").asInteger();
-		rect.mTop = floaterp->childGetValue("val_spinner_4").asInteger();
-		controlp->set(rect.getValue());
-		break;
-	  case TYPE_COL4:
-		col3.setValue(floaterp->childGetValue("color_swatch"));
-		col4 = LLColor4(col3, (F32)floaterp->childGetValue("val_spinner_4").asReal());
-		controlp->set(col4.getValue());
-		break;
-	  case TYPE_COL3:
-		controlp->set(floaterp->childGetValue("color_swatch"));
-		//col3.mV[VRED] = (F32)floaterp->childGetValue("val_spinner_1").asC();
-		//col3.mV[VGREEN] = (F32)floaterp->childGetValue("val_spinner_2").asReal();
-		//col3.mV[VBLUE] = (F32)floaterp->childGetValue("val_spinner_3").asReal();
-		//controlp->set(col3.getValue());
-		break;
-	  case TYPE_COL4U:
-		col3.setValue(floaterp->childGetValue("color_swatch"));
-		col4U.setVecScaleClamp(col3);
-		col4U.mV[VALPHA] = floaterp->childGetValue("val_spinner_4").asInteger();
-		controlp->set(col4U.getValue());
-		break;
-	  default:
-		break;
-	}
+	LLVOAvatar::sLODFactor = (F32) newvalue.asReal();
+	return true;
 }
 
-// static
-void LLFloaterSettingsDebug::onClickDefault(void* user_data)
+static bool handleTerrainLODChanged(const LLSD& newvalue)
 {
-	LLFloaterSettingsDebug* floaterp = (LLFloaterSettingsDebug*)user_data;
-	LLComboBox* settings_combo = floaterp->getChild<LLComboBox>("settings_combo");
-	LLControlBase* controlp = (LLControlBase*)settings_combo->getCurrentUserdata();
+		LLVOSurfacePatch::sLODFactor = (F32)newvalue.asReal();
+		//sqaure lod factor to get exponential range of [0,4] and keep
+		//a value of 1 in the middle of the detail slider for consistency
+		//with other detail sliders (see panel_preferences_graphics1.xml)
+		LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor;
+		return true;
+}
 
-	if (controlp)
+static bool handleTreeLODChanged(const LLSD& newvalue)
+{
+	LLVOTree::sTreeFactor = (F32) newvalue.asReal();
+	return true;
+}
+
+static bool handleFlexLODChanged(const LLSD& newvalue)
+{
+	LLVolumeImplFlexible::sUpdateFactor = (F32) newvalue.asReal();
+	return true;
+}
+
+static bool handleGammaChanged(const LLSD& newvalue)
+{
+	F32 gamma = (F32) newvalue.asReal();
+	if (gamma == 0.0f)
 	{
-		controlp->resetToDefault();
-		floaterp->updateControl(controlp);
+		gamma = 1.0f; // restore normal gamma
 	}
-}
-
-// we've switched controls, or doing per-frame update, so update spinners, etc.
-void LLFloaterSettingsDebug::updateControl(LLControlBase* controlp)
-{
-	LLSpinCtrl* spinner1 = LLUICtrlFactory::getSpinnerByName(this, "val_spinner_1");
-	LLSpinCtrl* spinner2 = LLUICtrlFactory::getSpinnerByName(this, "val_spinner_2");
-	LLSpinCtrl* spinner3 = LLUICtrlFactory::getSpinnerByName(this, "val_spinner_3");
-	LLSpinCtrl* spinner4 = LLUICtrlFactory::getSpinnerByName(this, "val_spinner_4");
-	LLColorSwatchCtrl* color_swatch = getChild<LLColorSwatchCtrl>("color_swatch");
-
-	if (!spinner1 || !spinner2 || !spinner3 || !spinner4 || !color_swatch)
+	if (gViewerWindow && gViewerWindow->getWindow() && gamma != gViewerWindow->getWindow()->getGamma())
 	{
-		llwarns << "Could not find all desired controls by name"
-			<< llendl;
-		return;
-	}
-
-	spinner1->setVisible(FALSE);
-	spinner2->setVisible(FALSE);
-	spinner3->setVisible(FALSE);
-	spinner4->setVisible(FALSE);
-	color_swatch->setVisible(FALSE);
-	childSetVisible("val_text", FALSE);
-	mComment->setText(LLString::null);
-
-	if (controlp)
-	{
-		eControlType type = controlp->type();
-		mComment->setText(controlp->getComment());
-		spinner1->setMaxValue(F32_MAX);
-		spinner2->setMaxValue(F32_MAX);
-		spinner3->setMaxValue(F32_MAX);
-		spinner4->setMaxValue(F32_MAX);
-		spinner1->setMinValue(-F32_MAX);
-		spinner2->setMinValue(-F32_MAX);
-		spinner3->setMinValue(-F32_MAX);
-		spinner4->setMinValue(-F32_MAX);
-		if (!spinner1->hasFocus())
+		// Only save it if it's changed
+		if (!gViewerWindow->getWindow()->setGamma(gamma))
 		{
-			spinner1->setIncrement(0.1f);
+			llwarns << "setGamma failed!" << llendl;
 		}
-		if (!spinner2->hasFocus())
-		{
-			spinner2->setIncrement(0.1f);
-		}
-		if (!spinner3->hasFocus())
-		{
-			spinner3->setIncrement(0.1f);
-		}
-		if (!spinner4->hasFocus())
-		{
-			spinner4->setIncrement(0.1f);
-		}
+	}
 
-		LLSD sd = controlp->get();
-		switch(type)
+	return true;
+}
+
+const F32 MAX_USER_FOG_RATIO = 10.f;
+const F32 MIN_USER_FOG_RATIO = 0.5f;
+
+static bool handleFogRatioChanged(const LLSD& newvalue)
+{
+	F32 fog_ratio = llmax(MIN_USER_FOG_RATIO, llmin((F32) newvalue.asReal(), MAX_USER_FOG_RATIO));
+	gSky.setFogRatio(fog_ratio);
+	return true;
+}
+
+static bool handleMaxPartCountChanged(const LLSD& newvalue)
+{
+	LLViewerPartSim::setMaxPartCount(newvalue.asInteger());
+	return true;
+}
+
+const S32 MAX_USER_COMPOSITE_LIMIT = 100;
+const S32 MIN_USER_COMPOSITE_LIMIT = 0;
+
+static bool handleCompositeLimitChanged(const LLSD& newvalue)
+{
+	S32 composite_limit = llmax(MIN_USER_COMPOSITE_LIMIT,  llmin((S32)newvalue.asInteger(), MAX_USER_COMPOSITE_LIMIT));
+	LLVOAvatar::sMaxOtherAvatarsToComposite = composite_limit;
+	return true;
+}
+
+static bool handleVideoMemoryChanged(const LLSD& newvalue)
+{
+	gImageList.updateMaxResidentTexMem(newvalue.asInteger());
+	return true;
+}
+
+static bool handleBandwidthChanged(const LLSD& newvalue)
+{
+	gViewerThrottle.setMaxBandwidth((F32) newvalue.asReal());
+	return true;
+}
+
+static bool handleChatFontSizeChanged(const LLSD& newvalue)
+{
+	if(gConsole)
+	{
+		gConsole->setFontSize(newvalue.asInteger());
+	}
+	return true;
+}
+
+static bool handleChatPersistTimeChanged(const LLSD& newvalue)
+{
+	if(gConsole)
+	{
+		gConsole->setLinePersistTime((F32) newvalue.asReal());
+	}
+	return true;
+}
+
+static bool handleConsoleMaxLinesChanged(const LLSD& newvalue)
+{
+	if(gConsole)
+	{
+		gConsole->setMaxLines(newvalue.asInteger());
+	}
+	return true;
+}
+
+static void handleAudioVolumeChanged(const LLSD& newvalue)
+{
+	audio_update_volume(true);
+}
+
+static bool handleJoystickChanged(const LLSD& newvalue)
+{
+	LLViewerJoystick::updateCamera(TRUE);
+	return true;
+}
+
+static bool handleAudioStreamMusicChanged(const LLSD& newvalue)
+{
+	if (gAudiop)
+	{
+		if ( newvalue.asBoolean() )
 		{
-		  case TYPE_U32:
-			spinner1->setVisible(TRUE);
-			spinner1->setLabel(LLString("value")); // Debug, don't translate
-			childSetVisible("boolean_combo", FALSE);
-			if (!spinner1->hasFocus())
+			if (gParcelMgr
+				&& gParcelMgr->getAgentParcel()
+				&& !gParcelMgr->getAgentParcel()->getMusicURL().empty())
 			{
-				spinner1->setValue(sd);
-				spinner1->setMinValue((F32)U32_MIN);
-				spinner1->setMaxValue((F32)U32_MAX);
-				spinner1->setIncrement(1.f);
-				spinner1->setPrecision(0);
-			}
-			break;
-		  case TYPE_S32:
-			spinner1->setVisible(TRUE);
-			spinner1->setLabel(LLString("value")); // Debug, don't translate
-			childSetVisible("boolean_combo", FALSE);
-			if (!spinner1->hasFocus())
-			{
-				spinner1->setValue(sd);
-				spinner1->setMinValue((F32)S32_MIN);
-				spinner1->setMaxValue((F32)S32_MAX);
-				spinner1->setIncrement(1.f);
-				spinner1->setPrecision(0);
-			}
-			break;
-		  case TYPE_F32:
-			spinner1->setVisible(TRUE);
-			spinner1->setLabel(LLString("value")); // Debug, don't translate
-			childSetVisible("boolean_combo", FALSE);
-			if (!spinner1->hasFocus())
-			{
-				spinner1->setPrecision(3);
-				spinner1->setValue(sd);
-			}
-			break;
-		  case TYPE_BOOLEAN:
-			childSetVisible("boolean_combo", TRUE);
-			
-			if (!childHasFocus("boolean_combo"))
-			{
-				if (sd.asBoolean())
+				// if stream is already playing, don't call this
+				// otherwise music will briefly stop
+				if ( ! gAudiop->isInternetStreamPlaying() )
 				{
-					childSetValue("boolean_combo", LLSD("true"));
-				}
-				else
-				{
-					childSetValue("boolean_combo", LLSD(""));
+					gAudiop->startInternetStream(gParcelMgr->getAgentParcel()->getMusicURL().c_str());
 				}
 			}
-			break;
-		  case TYPE_STRING:
-			childSetVisible("val_text", TRUE);
-			childSetVisible("boolean_combo", FALSE);
-			if (!childHasFocus("val_text"))
-			{
-				childSetValue("val_text", sd);
-			}
-			break;
-		  case TYPE_VEC3:
-		  {
-			childSetVisible("boolean_combo", FALSE);
-			LLVector3 v;
-			v.setValue(sd);
-			spinner1->setVisible(TRUE);
-			spinner1->setLabel(LLString("X"));
-			spinner2->setVisible(TRUE);
-			spinner2->setLabel(LLString("Y"));
-			spinner3->setVisible(TRUE);
-			spinner3->setLabel(LLString("Z"));
-			if (!spinner1->hasFocus())
-			{
-				spinner1->setPrecision(3);
-				spinner1->setValue(v[VX]);
-			}
-			if (!spinner2->hasFocus())
-			{
-				spinner2->setPrecision(3);
-				spinner2->setValue(v[VY]);
-			}
-			if (!spinner3->hasFocus())
-			{
-				spinner3->setPrecision(3);
-				spinner3->setValue(v[VZ]);
-			}
-			break;
-		  }
-		  case TYPE_VEC3D:
-		  {
-			childSetVisible("boolean_combo", FALSE);
-			LLVector3d v;
-			v.setValue(sd);
-			spinner1->setVisible(TRUE);
-			spinner1->setLabel(LLString("X"));
-			spinner2->setVisible(TRUE);
-			spinner2->setLabel(LLString("Y"));
-			spinner3->setVisible(TRUE);
-			spinner3->setLabel(LLString("Z"));
-			if (!spinner1->hasFocus())
-			{
-				spinner1->setPrecision(3);
-				spinner1->setValue(v[VX]);
-			}
-			if (!spinner2->hasFocus())
-			{
-				spinner2->setPrecision(3);
-				spinner2->setValue(v[VY]);
-			}
-			if (!spinner3->hasFocus())
-			{
-				spinner3->setPrecision(3);
-				spinner3->setValue(v[VZ]);
-			}
-			break;
-		  }
-		  case TYPE_RECT:
-		  {
-			childSetVisible("boolean_combo", FALSE);
-			LLRect r;
-			r.setValue(sd);
-			spinner1->setVisible(TRUE);
-			spinner1->setLabel(LLString("Left"));
-			spinner2->setVisible(TRUE);
-			spinner2->setLabel(LLString("Right"));
-			spinner3->setVisible(TRUE);
-			spinner3->setLabel(LLString("Bottom"));
-			spinner4->setVisible(TRUE);
-			spinner4->setLabel(LLString("Top"));
-			if (!spinner1->hasFocus())
-			{
-				spinner1->setPrecision(0);
-				spinner1->setValue(r.mLeft);
-			}
-			if (!spinner2->hasFocus())
-			{
-				spinner2->setPrecision(0);
-				spinner2->setValue(r.mRight);
-			}
-			if (!spinner3->hasFocus())
-			{
-				spinner3->setPrecision(0);
-				spinner3->setValue(r.mBottom);
-			}
-			if (!spinner4->hasFocus())
-			{
-				spinner4->setPrecision(0);
-				spinner4->setValue(r.mTop);
-			}
-
-			spinner1->setMinValue((F32)S32_MIN);
-			spinner1->setMaxValue((F32)S32_MAX);
-			spinner1->setIncrement(1.f);
-
-			spinner2->setMinValue((F32)S32_MIN);
-			spinner2->setMaxValue((F32)S32_MAX);
-			spinner2->setIncrement(1.f);
-
-			spinner3->setMinValue((F32)S32_MIN);
-			spinner3->setMaxValue((F32)S32_MAX);
-			spinner3->setIncrement(1.f);
-
-			spinner4->setMinValue((F32)S32_MIN);
-			spinner4->setMaxValue((F32)S32_MAX);
-			spinner4->setIncrement(1.f);
-			break;
-		  }
-		  case TYPE_COL4:
-		  {
-			childSetVisible("boolean_combo", FALSE);
-			LLColor4 clr;
-			clr.setValue(sd);
-			color_swatch->setVisible(TRUE);
-			// only set if changed so color picker doesn't update
-			if(clr != LLColor4(color_swatch->getValue()))
-			{
-				color_swatch->set(LLColor4(sd), TRUE, FALSE);
-			}
-			spinner4->setVisible(TRUE);
-			spinner4->setLabel(LLString("Alpha"));
-			if (!spinner4->hasFocus())
-			{
-				spinner4->setPrecision(3);
-				spinner4->setMinValue(0.0);
-				spinner4->setMaxValue(1.f);
-				spinner4->setValue(clr.mV[VALPHA]);
-			}
-			break;
-		  }
-		  case TYPE_COL3:
-		  {
-			childSetVisible("boolean_combo", FALSE);
-			LLColor3 clr;
-			clr.setValue(sd);
-			color_swatch->setVisible(TRUE);
-			color_swatch->setValue(sd);
-			break;
-		  }
-		  case TYPE_COL4U:
-		  {
-			childSetVisible("boolean_combo", FALSE);
-			LLColor4U clr;
-			clr.setValue(sd);
-			color_swatch->setVisible(TRUE);
-			if(LLColor4(clr) != LLColor4(color_swatch->getValue()))
-			{
-				color_swatch->set(LLColor4(clr), TRUE, FALSE);
-			}
-			spinner4->setVisible(TRUE);
-			spinner4->setLabel(LLString("Alpha"));
-			if(!spinner4->hasFocus())
-			{
-				spinner4->setPrecision(0);
-				spinner4->setValue(clr.mV[VALPHA]);
-			}
-
-			spinner4->setMinValue(0);
-			spinner4->setMaxValue(255);
-			spinner4->setIncrement(1.f);
-
-			break;
-		  }
-		  default:
-			mComment->setText(LLString("unknown"));
-			break;
+		}
+		else
+		{
+			gAudiop->stopInternetStream();
 		}
 	}
-
+	return true;
 }
+
+static bool handleUseOcclusionChanged(const LLSD& newvalue)
+{
+	LLPipeline::sUseOcclusion = (newvalue.asBoolean() && gGLManager.mHasOcclusionQuery 
+			&& gFeatureManagerp->isFeatureAvailable("UseOcclusion") && !gUseWireframe) ? 2 : 0;
+	return true;
+}
+
+static bool handleNumpadControlChanged(const LLSD& newvalue)
+{
+	if (gKeyboard)
+	{
+		gKeyboard->setNumpadDistinct(static_cast<LLKeyboard::e_numpad_distinct>(newvalue.asInteger()));
+	}
+	return true;
+}
+
+static bool handleRenderUseVBOChanged(const LLSD& newvalue)
+{
+	if (gPipeline.isInit())
+	{
+		gPipeline.setUseVBO(newvalue.asBoolean());
+	}
+	return true;
+}
+
+static bool handleWLSkyDetailChanged(const LLSD&)
+{
+	if (gSky.mVOWLSkyp.notNull())
+	{
+		gSky.mVOWLSkyp->updateGeometry(gSky.mVOWLSkyp->mDrawable);
+	}
+	return true;
+}
+
+static bool handleRenderLightingDetailChanged(const LLSD& newvalue)
+{
+	if (gPipeline.isInit())
+	{
+		gPipeline.setLightingDetail(newvalue.asInteger());
+	}
+	return true;
+}
+
+static bool handleResetVertexBuffersChanged(const LLSD&)
+{
+	if (gPipeline.isInit())
+	{
+		gPipeline.resetVertexBuffers();
+	}
+	return true;
+}
+
+static bool handleRenderDynamicLODChanged(const LLSD& newvalue)
+{
+	LLPipeline::sDynamicLOD = newvalue.asBoolean();
+	return true;
+}
+
+static bool handleRenderUseFBOChanged(const LLSD& newvalue)
+{
+	LLRenderTarget::sUseFBO = newvalue.asBoolean();
+	if (gPipeline.isInit())
+	{
+		gPipeline.releaseGLBuffers();
+		gPipeline.createGLBuffers();
+	}
+	return true;
+}
+
+static bool handleRenderUseImpostorsChanged(const LLSD& newvalue)
+{
+	LLVOAvatar::sUseImpostors = newvalue.asBoolean();
+	return true;
+}
+
+static bool handleRenderUseCleverUIChanged(const LLSD& newvalue)
+{
+	gGL.setClever(newvalue.asBoolean());
+	return true;
+}
+
+static bool handleRenderResolutionDivisorChanged(const LLSD&)
+{
+	gResizeScreenTexture = TRUE;
+	return true;
+}
+
+static bool handleDebugViewsChanged(const LLSD& newvalue)
+{
+	LLView::sDebugRects = newvalue.asBoolean();
+	return true;
+}
+
+static bool handleLogFileChanged(const LLSD& newvalue)
+{
+	std::string log_filename = newvalue.asString();
+	LLFile::remove(log_filename.c_str());
+	LLError::logToFile(log_filename);
+	return true;
+}
+
+bool handleHideGroupTitleChanged(const LLSD& newvalue)
+{
+	gAgent.setHideGroupTitle(newvalue);
+	return true;
+}
+
+bool handleEffectColorChanged(const LLSD& newvalue)
+{
+	gAgent.setEffectColor(LLColor4(newvalue));
+	return true;
+}
+
+bool handleRotateNetMapChanged(const LLSD& newvalue)
+{
+	LLNetMap::setRotateMap(newvalue.asBoolean());
+	return true;
+}
+
+bool handleVectorizeChanged(const LLSD& newvalue)
+{
+	LLViewerJointMesh::updateVectorize();
+	return true;
+}
+
+bool handleVoiceClientPrefsChanged(const LLSD& newvalue)
+{
+	if(gVoiceClient)
+	{
+		// Note: Ignore the specific event value, look up the ones we want
+
+		gVoiceClient->setVoiceEnabled(gSavedSettings.getBOOL("EnableVoiceChat"));
+		gVoiceClient->setUsePTT(gSavedSettings.getBOOL("PTTCurrentlyEnabled"));
+		std::string keyString = gSavedSettings.getString("PushToTalkButton");
+		gVoiceClient->setPTTKey(keyString);
+		gVoiceClient->setPTTIsToggle(gSavedSettings.getBOOL("PushToTalkToggle"));
+		gVoiceClient->setEarLocation(gSavedSettings.getS32("VoiceEarLocation"));
+		std::string serverName = gSavedSettings.getString("VivoxDebugServerName");
+		gVoiceClient->setVivoxDebugServerName(serverName);
+
+		std::string inputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
+		gVoiceClient->setCaptureDevice(inputDevice);
+		std::string outputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
+		gVoiceClient->setRenderDevice(outputDevice);
+	}
+	return true;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void settings_setup_listeners()
+{
+	gSavedSettings.getControl("FirstPersonAvatarVisible")->getSignal()->connect(boost::bind(&handleRenderAvatarMouselookChanged, _1));
+	gSavedSettings.getControl("RenderFarClip")->getSignal()->connect(boost::bind(&handleRenderFarClipChanged, _1));
+	gSavedSettings.getControl("RenderTerrainDetail")->getSignal()->connect(boost::bind(&handleTerrainDetailChanged, _1));
+	gSavedSettings.getControl("RenderAvatarVP")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _1));
+	gSavedSettings.getControl("VertexShaderEnable")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _1));
+	gSavedSettings.getControl("RenderDynamicReflections")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _1));
+	gSavedSettings.getControl("RenderGlow")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _1));
+	gSavedSettings.getControl("RenderGlow")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _1));
+	gSavedSettings.getControl("EnableRippleWater")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _1));
+	gSavedSettings.getControl("RenderGlowResolutionPow")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _1));
+	gSavedSettings.getControl("RenderAvatarCloth")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _1));
+	gSavedSettings.getControl("WindLightUseAtmosShaders")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _1));
+	gSavedSettings.getControl("RenderGammaFull")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _1));
+	gSavedSettings.getControl("RenderVolumeLODFactor")->getSignal()->connect(boost::bind(&handleVolumeLODChanged, _1));
+	gSavedSettings.getControl("RenderAvatarLODFactor")->getSignal()->connect(boost::bind(&handleAvatarLODChanged, _1));
+	gSavedSettings.getControl("RenderTerrainLODFactor")->getSignal()->connect(boost::bind(&handleTerrainLODChanged, _1));
+	gSavedSettings.getControl("RenderTreeLODFactor")->getSignal()->connect(boost::bind(&handleTreeLODChanged, _1));
+	gSavedSettings.getControl("RenderFlexTimeFactor")->getSignal()->connect(boost::bind(&handleFlexLODChanged, _1));
+	gSavedSettings.getControl("ThrottleBandwidthKBPS")->getSignal()->connect(boost::bind(&handleBandwidthChanged, _1));
+	gSavedSettings.getControl("RenderGamma")->getSignal()->connect(boost::bind(&handleGammaChanged, _1));
+	gSavedSettings.getControl("RenderFogRatio")->getSignal()->connect(boost::bind(&handleFogRatioChanged, _1));
+	gSavedSettings.getControl("RenderMaxPartCount")->getSignal()->connect(boost::bind(&handleMaxPartCountChanged, _1));
+	gSavedSettings.getControl("RenderDynamicLOD")->getSignal()->connect(boost::bind(&handleRenderDynamicLODChanged, _1));
+	gSavedSettings.getControl("RenderDebugTextureBind")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _1));
+	gSavedSettings.getControl("RenderFastAlpha")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _1));
+	gSavedSettings.getControl("RenderObjectBump")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _1));
+	gSavedSettings.getControl("RenderMaxVBOSize")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _1));
+	gSavedSettings.getControl("RenderUseFBO")->getSignal()->connect(boost::bind(&handleRenderUseFBOChanged, _1));
+	gSavedSettings.getControl("RenderUseImpostors")->getSignal()->connect(boost::bind(&handleRenderUseImpostorsChanged, _1));
+	gSavedSettings.getControl("RenderUseCleverUI")->getSignal()->connect(boost::bind(&handleRenderUseCleverUIChanged, _1));
+	gSavedSettings.getControl("RenderResolutionDivisor")->getSignal()->connect(boost::bind(&handleRenderResolutionDivisorChanged, _1));
+	gSavedSettings.getControl("AvatarCompositeLimit")->getSignal()->connect(boost::bind(&handleCompositeLimitChanged, _1));
+	gSavedSettings.getControl("TextureMemory")->getSignal()->connect(boost::bind(&handleVideoMemoryChanged, _1));
+	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&handleChatFontSizeChanged, _1));
+	gSavedSettings.getControl("ChatPersistTime")->getSignal()->connect(boost::bind(&handleChatPersistTimeChanged, _1));
+	gSavedSettings.getControl("ConsoleMaxLines")->getSignal()->connect(boost::bind(&handleConsoleMaxLinesChanged, _1));
+	gSavedSettings.getControl("UseOcclusion")->getSignal()->connect(boost::bind(&handleUseOcclusionChanged, _1));
+	gSavedSettings.getControl("AudioLevelMaster")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _1));
+ 	gSavedSettings.getControl("AudioLevelSFX")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _1));
+ 	gSavedSettings.getControl("AudioLevelUI")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _1));
+	gSavedSettings.getControl("AudioLevelAmbient")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _1));
+	gSavedSettings.getControl("AudioLevelMusic")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _1));
+	gSavedSettings.getControl("AudioLevelMedia")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _1));
+	gSavedSettings.getControl("AudioLevelVoice")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _1));
+	gSavedSettings.getControl("AudioLevelDistance")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _1));
+	gSavedSettings.getControl("AudioLevelDoppler")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _1));
+	gSavedSettings.getControl("AudioLevelRolloff")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _1));
+	gSavedSettings.getControl("AudioStreamingMusic")->getSignal()->connect(boost::bind(&handleAudioStreamMusicChanged, _1));
+	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _1));
+	gSavedSettings.getControl("MuteMusic")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _1));
+	gSavedSettings.getControl("MuteMedia")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _1));
+	gSavedSettings.getControl("MuteVoice")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _1));
+	gSavedSettings.getControl("MuteAmbient")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _1));
+	gSavedSettings.getControl("MuteUI")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _1));
+	gSavedSettings.getControl("RenderVBOEnable")->getSignal()->connect(boost::bind(&handleRenderUseVBOChanged, _1));
+	gSavedSettings.getControl("WLSkyDetail")->getSignal()->connect(boost::bind(&handleWLSkyDetailChanged, _1));
+	gSavedSettings.getControl("RenderLightingDetail")->getSignal()->connect(boost::bind(&handleRenderLightingDetailChanged, _1));
+	gSavedSettings.getControl("NumpadControl")->getSignal()->connect(boost::bind(&handleNumpadControlChanged, _1));
+	gSavedSettings.getControl("FlycamAxis0")->getSignal()->connect(boost::bind(&handleJoystickChanged, _1));
+	gSavedSettings.getControl("FlycamAxis1")->getSignal()->connect(boost::bind(&handleJoystickChanged, _1));
+	gSavedSettings.getControl("FlycamAxis2")->getSignal()->connect(boost::bind(&handleJoystickChanged, _1));
+	gSavedSettings.getControl("FlycamAxis3")->getSignal()->connect(boost::bind(&handleJoystickChanged, _1));
+	gSavedSettings.getControl("FlycamAxis4")->getSignal()->connect(boost::bind(&handleJoystickChanged, _1));
+	gSavedSettings.getControl("FlycamAxis5")->getSignal()->connect(boost::bind(&handleJoystickChanged, _1));
+	gSavedSettings.getControl("FlycamAxis6")->getSignal()->connect(boost::bind(&handleJoystickChanged, _1));
+    gSavedSettings.getControl("DebugViews")->getSignal()->connect(boost::bind(&handleDebugViewsChanged, _1));
+    gSavedSettings.getControl("UserLogFile")->getSignal()->connect(boost::bind(&handleLogFileChanged, _1));
+	gSavedSettings.getControl("RenderHideGroupTitle")->getSignal()->connect(boost::bind(handleHideGroupTitleChanged, _1));
+	gSavedSettings.getControl("EffectColor")->getSignal()->connect(boost::bind(handleEffectColorChanged, _1));
+	gSavedSettings.getControl("MiniMapRotate")->getSignal()->connect(boost::bind(handleRotateNetMapChanged, _1));
+	gSavedSettings.getControl("VectorizePerfTest")->getSignal()->connect(boost::bind(&handleVectorizeChanged, _1));
+	gSavedSettings.getControl("VectorizeEnable")->getSignal()->connect(boost::bind(&handleVectorizeChanged, _1));
+	gSavedSettings.getControl("VectorizeProcessor")->getSignal()->connect(boost::bind(&handleVectorizeChanged, _1));
+	gSavedSettings.getControl("VectorizeSkin")->getSignal()->connect(boost::bind(&handleVectorizeChanged, _1));
+	gSavedSettings.getControl("EnableVoiceChat")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _1));
+	gSavedSettings.getControl("PTTCurrentlyEnabled")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _1));
+	gSavedSettings.getControl("PushToTalkButton")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _1));
+	gSavedSettings.getControl("PushToTalkToggle")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _1));
+	gSavedSettings.getControl("VoiceEarLocation")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _1));
+	gSavedSettings.getControl("VivoxDebugServerName")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _1));
+	gSavedSettings.getControl("VoiceInputAudioDevice")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _1));
+	gSavedSettings.getControl("VoiceOutputAudioDevice")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _1));
+}
+
