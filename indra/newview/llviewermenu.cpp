@@ -4774,6 +4774,8 @@ void show_debug_menus()
 
 		//gMenuBarView->setItemVisible(LLString("DebugOptions"),	visible);
 		//gMenuBarView->setItemVisible(LLString(AVI_TOOLS),	visible);
+
+		gMenuBarView->arrange(); // clean-up positioning 
 	};
 }
 
