@@ -537,7 +537,7 @@
 			<boolean>false</boolean>
 			
 			<key>EstateChangeInfo</key>
-			<boolean>false</boolean>
+			<boolean>true</boolean>
 		
 			<key>FetchInventoryDescendents</key>
 			<boolean>true</boolean>

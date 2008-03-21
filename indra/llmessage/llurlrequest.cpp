@@ -64,6 +64,7 @@ public:
 	LLURLRequestDetail();
 	~LLURLRequestDetail();
 	std::string mURL;
+	std::string mProxy;
 	LLCurlEasyRequest* mCurlRequest;
 	LLBufferArray* mResponseBuffer;
 	LLChannelDescriptors mChannels;
@@ -194,7 +195,11 @@ void LLURLRequest::useProxy(bool use_proxy)
 
 void LLURLRequest::useProxy(const std::string &proxy)
 {
-	curl_easy_setopt(mDetail->mCurlRequest, CURLOPT_PROXY, proxy.c_str());
+	mDetail->mProxy = proxy;
+	curl_easy_setopt(
+		mDetail->mCurlRequest,
+		CURLOPT_PROXY,
+		mDetail->mProxy.c_str());
 }
 
 // virtual
