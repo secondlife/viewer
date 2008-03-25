@@ -445,7 +445,7 @@
 				<key>FetchInventoryDescendents</key>
 				<map>
 					<key>flavor</key>
-					<string>llsd</string>
+					<string>template</string>
 					<key>trusted-sender</key>
 					<boolean>false</boolean>
 				</map>

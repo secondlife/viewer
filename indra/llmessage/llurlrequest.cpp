@@ -34,7 +34,6 @@
 #include "linden_common.h"
 #include "llurlrequest.h"
 
-#include <curl/curl.h>
 #include <algorithm>
 
 #include "llcurl.h"
@@ -64,7 +63,6 @@ public:
 	LLURLRequestDetail();
 	~LLURLRequestDetail();
 	std::string mURL;
-	std::string mProxy;
 	LLCurlEasyRequest* mCurlRequest;
 	LLBufferArray* mResponseBuffer;
 	LLChannelDescriptors mChannels;
@@ -195,11 +193,7 @@ void LLURLRequest::useProxy(bool use_proxy)
 
 void LLURLRequest::useProxy(const std::string &proxy)
 {
-	mDetail->mProxy = proxy;
-	curl_easy_setopt(
-		mDetail->mCurlRequest,
-		CURLOPT_PROXY,
-		mDetail->mProxy.c_str());
+    mDetail->mCurlRequest->setoptString(CURLOPT_PROXY, proxy);
 }
 
 // virtual
