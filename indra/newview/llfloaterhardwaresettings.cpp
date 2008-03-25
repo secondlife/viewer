@@ -77,11 +77,13 @@ void LLFloaterHardwareSettings::refresh()
 
 	mUseVBO = gSavedSettings.getBOOL("RenderVBOEnable");
 	mUseAniso = gSavedSettings.getBOOL("RenderAnisotropic");
+	mFSAASamples = gSavedSettings.getU32("RenderFSAASamples");
 	mGamma = gSavedSettings.getF32("RenderGamma");
 	mVideoCardMem = gSavedSettings.getS32("TextureMemory");
 	mFogRatio = gSavedSettings.getF32("RenderFogRatio");
 	mProbeHardwareOnStartup = gSavedSettings.getBOOL("ProbeHardwareOnStartup");
 
+	childSetValue("fsaa", (LLSD::Integer) mFSAASamples);
 	refreshEnabledState();
 }
 
@@ -175,9 +177,25 @@ void LLFloaterHardwareSettings::apply()
 	// Anisotropic rendering
 	BOOL old_anisotropic = LLImageGL::sGlobalUseAnisotropic;
 	LLImageGL::sGlobalUseAnisotropic = childGetValue("ani");
-	if (old_anisotropic != LLImageGL::sGlobalUseAnisotropic)
+
+	U32 fsaa = (U32) childGetValue("fsaa").asInteger();
+	U32 old_fsaa = gSavedSettings.getU32("RenderFSAASamples");
+
+	BOOL logged_in = (LLStartUp::getStartupState() >= STATE_STARTED);
+
+	if (old_fsaa != fsaa)
 	{
-		BOOL logged_in = (LLStartUp::getStartupState() >= STATE_STARTED);
+		gSavedSettings.setU32("RenderFSAASamples", fsaa);
+		LLWindow* window = gViewerWindow->getWindow();
+		LLCoordScreen size;
+		window->getSize(&size);
+		gViewerWindow->changeDisplaySettings(window->getFullscreen(), 
+														size,
+														gSavedSettings.getBOOL("DisableVerticalSync"),
+														logged_in);
+	}
+	else if (old_anisotropic != LLImageGL::sGlobalUseAnisotropic)
+	{
 		gViewerWindow->restartDisplay(logged_in);
 	}
 
@@ -189,6 +207,7 @@ void LLFloaterHardwareSettings::cancel()
 {
 	gSavedSettings.setBOOL("RenderVBOEnable", mUseVBO);
 	gSavedSettings.setBOOL("RenderAnisotropic", mUseAniso);
+	gSavedSettings.setU32("RenderFSAASamples", mFSAASamples);
 	gSavedSettings.setF32("RenderGamma", mGamma);
 	gSavedSettings.setS32("TextureMemory", mVideoCardMem);
 	gSavedSettings.setF32("RenderFogRatio", mFogRatio);

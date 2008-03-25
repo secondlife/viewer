@@ -85,6 +85,8 @@ public:
 	/*virtual*/ void flashIcon(F32 seconds);
 	/*virtual*/ F32 getGamma();
 	/*virtual*/ BOOL setGamma(const F32 gamma); // Set the gamma
+	/*virtual*/ U32 getFSAASamples();
+	/*virtual*/ void setFSAASamples(const U32 samples);
 	/*virtual*/ BOOL restoreGamma();			// Restore original gamma table (before updating gamma)
 	/*virtual*/ ESwapMethod getSwapMethod() { return mSwapMethod; }
 	/*virtual*/ void gatherInput();
@@ -132,7 +134,7 @@ protected:
 	LLWindowSDL(
 		char *title, int x, int y, int width, int height, U32 flags,
 		BOOL fullscreen, BOOL clearBg, BOOL disable_vsync, BOOL use_gl,
-		BOOL ignore_pixel_depth);
+		BOOL ignore_pixel_depth, U32 fsaa_samples);
 	~LLWindowSDL();
 
 	void	initCursors();
@@ -183,6 +185,7 @@ protected:
 	LLCoordScreen   mNeedsResizeSize;
 	F32			mOverrideAspectRatio;
 	F32		mGamma;
+	U32		mFSAASamples;
 
 	int		mSDLFlags;
 

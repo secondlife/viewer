@@ -5632,7 +5632,7 @@
         <key>Type</key>
             <string>Boolean</string>
         <key>Value</key>
-            <integer>0</integer>
+            <integer>1</integer>
         </map>
     <key>RenderUseFarClip</key>
         <map>
@@ -9599,6 +9599,61 @@
 			<string>Boolean</string>
 		<key>Value</key>
 			<integer>1</integer>
+		</map>
+    <key>RenderDeferred</key>
+		<map>
+		<key>Comment</key>
+			<string>Use deferred rendering pipeline.</string>
+		<key>Persist</key>
+			<integer>1</integer>
+		<key>Type</key>
+			<string>Boolean</string>
+		<key>Value</key>
+			<integer>0</integer>
+		</map>
+    <key>RenderFSAASamples</key>
+		<map>
+		<key>Comment</key>
+			<string>Number of samples to use for FSAA (0 = no AA).</string>
+		<key>Persist</key>
+			<integer>1</integer>
+		<key>Type</key>
+			<string>U32</string>
+		<key>Value</key>
+			<integer>0</integer>
+		</map>
+    <key>RenderTextureMemoryMultiple</key>
+		<map>
+		<key>Comment</key>
+			<string>Multiple of texture memory value to use (should fit: 0 &lt; value &lt;= 1.0)</string>
+		<key>Persist</key>
+			<integer>1</integer>
+		<key>Type</key>
+			<string>F32</string>
+		<key>Value</key>
+			<real>1.0</real>
+		</map>
+    <key>Disregard128DefaultDrawDistance</key>
+		<map>
+		<key>Comment</key>
+			<string>Whether to use the auto default to 128 draw distance</string>
+		<key>Persist</key>
+			<integer>1</integer>
+		<key>Type</key>
+			<string>Boolean</string>
+		<key>Value</key>
+			<real>1</real>
+		</map>
+    <key>Disregard96DefaultDrawDistance</key>
+		<map>
+		<key>Comment</key>
+			<string>Whether to use the auto default to 96 draw distance</string>
+		<key>Persist</key>
+			<integer>1</integer>
+		<key>Type</key>
+			<string>Boolean</string>
+		<key>Value</key>
+			<real>1</real>
 		</map>
     </map>
 </llsd>

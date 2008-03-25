@@ -34,6 +34,7 @@ RenderParticleCount	1	4096
 RenderRippleWater	1	1
 RenderTerrainDetail	1	2
 VertexShaderEnable	1	1
+RenderTextureMemoryMultiple		1	1.0
 
 //
 // Class 0 Hardware (Unknown or just old)

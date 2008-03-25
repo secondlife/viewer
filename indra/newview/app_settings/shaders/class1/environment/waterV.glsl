@@ -63,9 +63,8 @@ void main()
 	//pass wave parameters to pixel shader
 	vec2 bigWave =  (v.xy) * vec2(0.04,0.04)  + d1 * time * 0.055;
 	//get two normal map (detail map) texture coordinates
-	littleWave.xy = (v.xy) * vec2(0.6, 1.2)   + d2 * time * 0.05;
-	// littleWave.zw = (v.xy) * vec2(0.07, 0.15) - d1 * time * 0.043;
-	littleWave.zw = (v.xy) * vec2(0.3, 0.6) + d1 * time * 0.1;
+	littleWave.xy = (v.xy) * vec2(0.45, 0.9)   + d2 * time * 0.13;
+	littleWave.zw = (v.xy) * vec2(0.1, 0.2) + d1 * time * 0.1;
 	view.w = bigWave.y;
 	refCoord.w = bigWave.x;
 	

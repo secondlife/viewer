@@ -371,10 +371,11 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 							 S32 height, U32 flags, 
 							 BOOL fullscreen, BOOL clearBg,
 							 BOOL disable_vsync, BOOL use_gl,
-							 BOOL ignore_pixel_depth)
+							 BOOL ignore_pixel_depth,
+							 U32 fsaa_samples)
 	: LLWindow(fullscreen, flags)
 {
-	S32 i = 0;
+	mFSAASamples = fsaa_samples;
 	mIconResource = gIconResource;
 	mOverrideAspectRatio = 0.f;
 	mNativeAspectRatio = 0.f;
@@ -389,7 +390,6 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 	// based on the system's (user's) default settings.
 	allowLanguageTextInput(mPreeditor, FALSE);
 
-	GLuint			pixel_format;
 	WNDCLASS		wc;
 	DWORD			dw_ex_style;
 	DWORD			dw_style;
@@ -651,366 +651,13 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 	//-----------------------------------------------------------------------
 	// Create GL drawing context
 	//-----------------------------------------------------------------------
-	PIXELFORMATDESCRIPTOR pfd =
+	if (!switchContext(mFullscreen, LLCoordScreen(window_rect.right - window_rect.left,			// width
+												  window_rect.bottom - window_rect.top),			// height
+												  TRUE))
 	{
-		sizeof(PIXELFORMATDESCRIPTOR), 
-			1,
-			pfdflags, 
-			PFD_TYPE_RGBA,
-			BITS_PER_PIXEL,
-			0, 0, 0, 0, 0, 0,	// RGB bits and shift, unused
-			8,					// alpha bits
-			0,					// alpha shift
-			0,					// accum bits
-			0, 0, 0, 0,			// accum RGBA
-			24,					// depth bits
-			8,					// stencil bits, avi added for stencil test
-			0,
-			PFD_MAIN_PLANE,
-			0,
-			0, 0, 0
-	};
-
-	if (!(mhDC = GetDC(mWindowHandle)))
-	{
-		close();
-		OSMessageBox("Can't make GL device context", "Error", OSMB_OK);
 		return;
 	}
-
-	if (!(pixel_format = ChoosePixelFormat(mhDC, &pfd)))
-	{
-		close();
-		OSMessageBox("Can't find suitable pixel format", "Error", OSMB_OK);
-		return;
-	}
-
-	// Verify what pixel format we actually received.
-	if (!DescribePixelFormat(mhDC, pixel_format, sizeof(PIXELFORMATDESCRIPTOR),
-		&pfd))
-	{
-		close();
-		OSMessageBox("Can't get pixel format description", "Error", OSMB_OK);
-		return;
-	}
-
-	// sanity check pfd returned by Windows
-	if (!ignore_pixel_depth && (pfd.cColorBits < 32))
-	{
-		close();
-		OSMessageBox(
-			"Second Life requires True Color (32-bit) to run in a window.\n"
-			"Please go to Control Panels -> Display -> Settings and\n"
-			"set the screen to 32-bit color.\n"
-			"Alternately, if you choose to run fullscreen, Second Life\n"
-			"will automatically adjust the screen each time it runs.",
-			"Error",
-			OSMB_OK);
-		return;
-	}
-
-	if (!ignore_pixel_depth && (pfd.cAlphaBits < 8))
-	{
-		close();
-		OSMessageBox(
-			"Second Life is unable to run because it can't get an 8 bit alpha\n"
-			"channel.  Usually this is due to video card driver issues.\n"
-			"Please make sure you have the latest video card drivers installed.\n"
-			"Also be sure your monitor is set to True Color (32-bit) in\n"
-			"Control Panels -> Display -> Settings.\n"
-			"If you continue to receive this message, contact customer service.",
-			"Error",
-			OSMB_OK);
-		return;
-	}
-
-	if (!SetPixelFormat(mhDC, pixel_format, &pfd))
-	{
-		close();
-		OSMessageBox("Can't set pixel format", "Error", OSMB_OK);
-		return;
-	}
-
-	if (use_gl)
-	{
-		if (!(mhRC = wglCreateContext(mhDC)))
-		{
-			close();
-			OSMessageBox("Can't create GL rendering context", "Error", OSMB_OK);
-			return;
-		}
-
-		if (!wglMakeCurrent(mhDC, mhRC))
-		{
-			close();
-			OSMessageBox("Can't activate GL rendering context", "Error", OSMB_OK);
-			return;
-		}
-
-		gGLManager.initWGL();
-
-		if (gGLManager.mHasWGLARBPixelFormat && (wglChoosePixelFormatARB != NULL))
-		{
-			// OK, at this point, use the ARB wglChoosePixelFormatsARB function to see if we
-			// can get exactly what we want.
-			GLint attrib_list[256];
-			S32 cur_attrib = 0;
-
-			attrib_list[cur_attrib++] = WGL_DEPTH_BITS_ARB;
-			attrib_list[cur_attrib++] = 24;
-
-			attrib_list[cur_attrib++] = WGL_STENCIL_BITS_ARB;
-			attrib_list[cur_attrib++] = 8;
-
-			attrib_list[cur_attrib++] = WGL_DRAW_TO_WINDOW_ARB;
-			attrib_list[cur_attrib++] = GL_TRUE;
-
-			attrib_list[cur_attrib++] = WGL_ACCELERATION_ARB;
-			attrib_list[cur_attrib++] = WGL_FULL_ACCELERATION_ARB;
-
-			attrib_list[cur_attrib++] = WGL_SUPPORT_OPENGL_ARB;
-			attrib_list[cur_attrib++] = GL_TRUE;
-
-			attrib_list[cur_attrib++] = WGL_DOUBLE_BUFFER_ARB;
-			attrib_list[cur_attrib++] = GL_TRUE;
-
-			attrib_list[cur_attrib++] = WGL_COLOR_BITS_ARB;
-			attrib_list[cur_attrib++] = 32;
-
-			attrib_list[cur_attrib++] = WGL_RED_BITS_ARB;
-			attrib_list[cur_attrib++] = 8;
-
-			attrib_list[cur_attrib++] = WGL_GREEN_BITS_ARB;
-			attrib_list[cur_attrib++] = 8;
-
-			attrib_list[cur_attrib++] = WGL_BLUE_BITS_ARB;
-			attrib_list[cur_attrib++] = 8;
-
-			attrib_list[cur_attrib++] = WGL_ALPHA_BITS_ARB;
-			attrib_list[cur_attrib++] = 8;
-
-			// End the list
-			attrib_list[cur_attrib++] = 0;
-
-			GLint pixel_formats[256];
-			U32 num_formats = 0;
-
-			// First we try and get a 32 bit depth pixel format
-			BOOL result = wglChoosePixelFormatARB(mhDC, attrib_list, NULL, 256, pixel_formats, &num_formats);
-			if (!result)
-			{
-				close();
-				show_window_creation_error("Error after wglChoosePixelFormatARB 32-bit");
-				return;
-			}
-
-			if (!num_formats)
-			{
-				llinfos << "No 32 bit z-buffer, trying 24 bits instead" << llendl;
-				// Try 24-bit format
-				attrib_list[1] = 24;
-				BOOL result = wglChoosePixelFormatARB(mhDC, attrib_list, NULL, 256, pixel_formats, &num_formats);
-				if (!result)
-				{
-					close();
-					show_window_creation_error("Error after wglChoosePixelFormatARB 24-bit");
-					return;
-				}
-
-				if (!num_formats)
-				{
-					llwarns << "Couldn't get 24 bit z-buffer,trying 16 bits instead!" << llendl;
-					attrib_list[1] = 16;
-					BOOL result = wglChoosePixelFormatARB(mhDC, attrib_list, NULL, 256, pixel_formats, &num_formats);
-					if (!result || !num_formats)
-					{
-						close();
-						show_window_creation_error("Error after wglChoosePixelFormatARB 16-bit");
-						return;
-					}
-				}
-
-				llinfos << "Choosing pixel formats: " << num_formats << " pixel formats returned" << llendl;
-
-				pixel_format = pixel_formats[0];
-			}
-
-			DestroyWindow(mWindowHandle);
-
-			mWindowHandle = CreateWindowEx(dw_ex_style,
-				mWindowClassName,
-				mWindowTitle,
-				WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dw_style,
-				x,								// x pos
-				y,								// y pos
-				window_rect.right - window_rect.left,			// width
-				window_rect.bottom - window_rect.top,			// height
-				NULL,
-				NULL,
-				mhInstance,
-				NULL);
-
-			if (!(mhDC = GetDC(mWindowHandle)))
-			{
-				close();
-				OSMessageBox("Can't make GL device context", "Error", OSMB_OK);
-				return;
-			}
-
-			if (!SetPixelFormat(mhDC, pixel_format, &pfd))
-			{
-				close();
-				OSMessageBox("Can't set pixel format", "Error", OSMB_OK);
-				return;
-			}
-
-			int swap_method = 0;
-			GLint swap_query = WGL_SWAP_METHOD_ARB;
-
-			if (wglGetPixelFormatAttribivARB(mhDC, pixel_format, 0, 1, &swap_query, &swap_method))
-			{
-				switch (swap_method)
-				{
-				case WGL_SWAP_EXCHANGE_ARB:
-					mSwapMethod = SWAP_METHOD_EXCHANGE;
-					llinfos << "Swap Method: Exchange" << llendl;
-					break;
-				case WGL_SWAP_COPY_ARB:
-					mSwapMethod = SWAP_METHOD_COPY;
-					llinfos << "Swap Method: Copy" << llendl;
-					break;
-				case WGL_SWAP_UNDEFINED_ARB:
-					mSwapMethod = SWAP_METHOD_UNDEFINED;
-					llinfos << "Swap Method: Undefined" << llendl;
-					break;
-				default:
-					mSwapMethod = SWAP_METHOD_UNDEFINED;
-					llinfos << "Swap Method: Unknown" << llendl;
-					break;
-				}
-			}		
-		}
-		else
-		{
-			llwarns << "No wgl_ARB_pixel_format extension, using default ChoosePixelFormat!" << llendl;
-		}
-
-		// Verify what pixel format we actually received.
-		if (!DescribePixelFormat(mhDC, pixel_format, sizeof(PIXELFORMATDESCRIPTOR),
-			&pfd))
-		{
-			close();
-			OSMessageBox("Can't get pixel format description", "Error", OSMB_OK);
-			return;
-		}
-		llinfos << "GL buffer: Color Bits " << S32(pfd.cColorBits) 
-			<< " Alpha Bits " << S32(pfd.cAlphaBits)
-			<< " Depth Bits " << S32(pfd.cDepthBits) 
-			<< llendl;
-
-		if (pfd.cColorBits < 32)
-		{
-			close();
-			OSMessageBox(
-				"Second Life requires True Color (32-bit) to run in a window.\n"
-				"Please go to Control Panels -> Display -> Settings and\n"
-				"set the screen to 32-bit color.\n"
-				"Alternately, if you choose to run fullscreen, Second Life\n"
-				"will automatically adjust the screen each time it runs.",
-				"Error",
-				OSMB_OK);
-			return;
-		}
-
-		if (pfd.cAlphaBits < 8)
-		{
-			close();
-			OSMessageBox(
-				"Second Life is unable to run because it can't get an 8 bit alpha\n"
-				"channel.  Usually this is due to video card driver issues.\n"
-				"Please make sure you have the latest video card drivers installed.\n"
-				"Also be sure your monitor is set to True Color (32-bit) in\n"
-				"Control Panels -> Display -> Settings.\n"
-				"If you continue to receive this message, contact customer service.",
-				"Error",
-				OSMB_OK);
-			return;
-		}
-
-		if (!(mhRC = wglCreateContext(mhDC)))
-		{
-			close();
-			OSMessageBox("Can't create GL rendering context", "Error", OSMB_OK);
-			return;
-		}
-
-		if (!wglMakeCurrent(mhDC, mhRC))
-		{
-			close();
-			OSMessageBox("Can't activate GL rendering context", "Error", OSMB_OK);
-			return;
-		}
-
-		if (!gGLManager.initGL())
-		{
-			close();
-			OSMessageBox(
-				"Second Life is unable to run because your video card drivers\n"
-				"are out of date or unsupported. Please make sure you have\n"
-				"the latest video card drivers installed.\n\n"
-				"If you continue to receive this message, contact customer service.",
-				"Error",
-				OSMB_OK);
-			return;
-		}
-
-		// Disable vertical sync for swap
-		if (disable_vsync && wglSwapIntervalEXT)
-		{
-			llinfos << "Disabling vertical sync" << llendl;
-			wglSwapIntervalEXT(0);
-		}
-		else
-		{
-			llinfos << "Keeping vertical sync" << llendl;
-		}
-
-
-		// OK, let's get the current gamma information and store it off.
-		mCurrentGamma = 0.f; // Not set, default;
-		if (!GetDeviceGammaRamp(mhDC, mPrevGammaRamp))
-		{
-			llwarns << "Unable to get device gamma ramp" << llendl;
-		}
-
-		// Calculate what the current gamma is.  From a posting by Garrett T. Bass, Get/SetDeviceGammaRamp Demystified
-		// http://apollo.iwt.uni-bielefeld.de/~ml_robot/OpenGL-04-2000/0058.html
-
-		// We're going to assume that gamma's the same for all 3 channels, because I don't feel like doing it otherwise.
-		// Using the red channel.
-
-		F32 Csum = 0.0; 
-		S32 Ccount = 0; 
-		for (i = 0; i < 256; i++) 
-		{ 
-			if (i != 0 && mPrevGammaRamp[i] != 0 && mPrevGammaRamp[i] != 65536) 
-			{ 
-				F64 B = (i % 256) / 256.0; 
-				F64 A = mPrevGammaRamp[i] / 65536.0; 
-				F32 C = (F32) ( log(A) / log(B) ); 
-				Csum += C; 
-				Ccount++; 
-			} 
-		} 
-		mCurrentGamma = Csum / Ccount; 
-
-		llinfos << "Previous gamma: " << mCurrentGamma << llendl;
-	}
-
-
-	//store this pointer for wndProc callback
-	SetWindowLong(mWindowHandle, GWL_USERDATA, (U32)this);
-
+	
 	//start with arrow cursor
 	initCursors();
 	setCursor( UI_CURSOR_ARROW );
@@ -1018,8 +665,6 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 	// Initialize (boot strap) the Language text input management,
 	// based on the system's (or user's) default settings.
 	allowLanguageTextInput(NULL, FALSE);
-
-	initInputDevices();
 }
 
 void LLWindowWin32::initInputDevices()
@@ -1558,17 +1203,19 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, LLCoordScreen size, BOOL disa
 		attrib_list[cur_attrib++] = WGL_COLOR_BITS_ARB;
 		attrib_list[cur_attrib++] = 24;
 
-		attrib_list[cur_attrib++] = WGL_RED_BITS_ARB;
-		attrib_list[cur_attrib++] = 8;
-
-		attrib_list[cur_attrib++] = WGL_GREEN_BITS_ARB;
-		attrib_list[cur_attrib++] = 8;
-
-		attrib_list[cur_attrib++] = WGL_BLUE_BITS_ARB;
-		attrib_list[cur_attrib++] = 8;
-
 		attrib_list[cur_attrib++] = WGL_ALPHA_BITS_ARB;
 		attrib_list[cur_attrib++] = 8;
+
+		U32 end_attrib = 0;
+		if (mFSAASamples > 0)
+		{
+			end_attrib = cur_attrib;
+			attrib_list[cur_attrib++] = WGL_SAMPLE_BUFFERS_ARB;
+			attrib_list[cur_attrib++] = GL_TRUE;
+
+			attrib_list[cur_attrib++] = WGL_SAMPLES_ARB;
+			attrib_list[cur_attrib++] = mFSAASamples;
+		}
 
 		// End the list
 		attrib_list[cur_attrib++] = 0;
@@ -1587,36 +1234,67 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, LLCoordScreen size, BOOL disa
 
 		if (!num_formats)
 		{
-			llinfos << "No 32 bit z-buffer, trying 24 bits instead" << llendl;
-			// Try 24-bit format
-			attrib_list[1] = 24;
-			BOOL result = wglChoosePixelFormatARB(mhDC, attrib_list, NULL, 256, pixel_formats, &num_formats);
-			if (!result)
+			if (end_attrib > 0)
 			{
-				close();
-				show_window_creation_error("Error after wglChoosePixelFormatARB 24-bit");
-				return FALSE;
-			}
+				llinfos << "No valid pixel format for " << mFSAASamples << "x anti-aliasing." << llendl;
+				attrib_list[end_attrib] = 0;
 
-			if (!num_formats)
-			{
-				llwarns << "Couldn't get 24 bit z-buffer,trying 16 bits instead!" << llendl;
-				attrib_list[1] = 16;
 				BOOL result = wglChoosePixelFormatARB(mhDC, attrib_list, NULL, 256, pixel_formats, &num_formats);
-				if (!result || !num_formats)
+				if (!result)
 				{
 					close();
-					show_window_creation_error("Error after wglChoosePixelFormatARB 16-bit");
+					show_window_creation_error("Error after wglChoosePixelFormatARB 32-bit no AA");
 					return FALSE;
 				}
 			}
 
-			llinfos << "Choosing pixel formats: " << num_formats << " pixel formats returned" << llendl;
+			if (!num_formats)
+			{
+				llinfos << "No 32 bit z-buffer, trying 24 bits instead" << llendl;
+				// Try 24-bit format
+				attrib_list[1] = 24;
+				BOOL result = wglChoosePixelFormatARB(mhDC, attrib_list, NULL, 256, pixel_formats, &num_formats);
+				if (!result)
+				{
+					close();
+					show_window_creation_error("Error after wglChoosePixelFormatARB 24-bit");
+					return FALSE;
+				}
 
-			pixel_format = pixel_formats[0];
+				if (!num_formats)
+				{
+					llwarns << "Couldn't get 24 bit z-buffer,trying 16 bits instead!" << llendl;
+					attrib_list[1] = 16;
+					BOOL result = wglChoosePixelFormatARB(mhDC, attrib_list, NULL, 256, pixel_formats, &num_formats);
+					if (!result || !num_formats)
+					{
+						close();
+						show_window_creation_error("Error after wglChoosePixelFormatARB 16-bit");
+						return FALSE;
+					}
+				}
+			}
+
+			llinfos << "Choosing pixel formats: " << num_formats << " pixel formats returned" << llendl;
 		}
 
-		DestroyWindow(mWindowHandle);
+		pixel_format = pixel_formats[0];
+
+		if (mhDC != 0)											// Does The Window Have A Device Context?
+		{
+			wglMakeCurrent(mhDC, 0);							// Set The Current Active Rendering Context To Zero
+			if (mhRC != 0)										// Does The Window Have A Rendering Context?
+			{
+				wglDeleteContext (mhRC);							// Release The Rendering Context
+				mhRC = 0;										// Zero The Rendering Context
+
+			}
+			ReleaseDC (mWindowHandle, mhDC);						// Release The Device Context
+			mhDC = 0;											// Zero The Device Context
+		}
+		DestroyWindow (mWindowHandle);									// Destroy The Window
+		
+
 		mWindowHandle = CreateWindowEx(dw_ex_style,
 			mWindowClassName,
 			mWindowTitle,
@@ -2983,6 +2661,16 @@ BOOL LLWindowWin32::setGamma(const F32 gamma)
 	};
 
 	return SetDeviceGammaRamp ( mhDC, mCurrentGammaRamp );
+}
+
+void LLWindowWin32::setFSAASamples(const U32 fsaa_samples)
+{
+	mFSAASamples = fsaa_samples;
+}
+
+U32 LLWindowWin32::getFSAASamples()
+{
+	return mFSAASamples;
 }
 
 LLWindow::LLWindowResolution* LLWindowWin32::getSupportedResolutions(S32 &num_resolutions)

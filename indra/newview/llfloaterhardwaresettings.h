@@ -88,6 +88,7 @@ protected:
 
 	BOOL mUseVBO;
 	BOOL mUseAniso;
+	U32 mFSAASamples;
 	F32 mGamma;
 	S32 mVideoCardMem;
 	F32 mFogRatio;

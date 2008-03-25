@@ -266,6 +266,7 @@ void llofstream::open(const char* _Filename,	/* Flawfinder: ignore */
 	}
 	llassert(_Filebuffer==NULL);
 	_Filebuffer = new _Myfb(filep);
+	_ShouldClose = true;
 	_Myios::init(_Filebuffer);
 }
 
@@ -281,7 +282,7 @@ void llofstream::close()
 llofstream::llofstream(const char *_Filename,
 	std::ios_base::openmode _Mode,
 	int _Prot) 
-		: std::basic_ostream<char,std::char_traits < char > >(NULL,true),_Filebuffer(NULL)
+		: std::basic_ostream<char,std::char_traits < char > >(NULL,true),_Filebuffer(NULL),_ShouldClose(false)
 {	// construct with named file and specified mode
 	open(_Filename, _Mode , _Prot);	/* Flawfinder: ignore */
 }
@@ -289,7 +290,10 @@ llofstream::llofstream(const char *_Filename,
 llofstream::~llofstream()
 {	
 	// destroy the object
-	close();
+	if (_ShouldClose)
+	{
+		close();
+	}
 	delete _Filebuffer;
 }
 

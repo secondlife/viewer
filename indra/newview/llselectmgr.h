@@ -419,6 +419,7 @@ public:
 
 	// Send deselect messages to simulator, then clear the list
 	void deselectAll();
+	void deselectAllForStandingUp();
 
 	// deselect only if nothing else currently referencing the selection
 	void deselectUnused();

@@ -3343,6 +3343,36 @@ void LLSelectMgr::deselectAll()
 	updatePointAt();
 }
 
+void LLSelectMgr::deselectAllForStandingUp()
+{
+	/*
+	This function is similar deselectAll() except for the first if statement
+	which was removed. This is needed as a workaround for DEV-2854
+	*/
+
+	// Zap the angular velocity, as the sim will set it to zero
+	for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
+		 iter != mSelectedObjects->end(); iter++ )
+	{
+		LLViewerObject *objectp = (*iter)->getObject();
+		objectp->setAngularVelocity( 0,0,0 );
+		objectp->setVelocity( 0,0,0 );
+	}
+
+	sendListToRegions(
+		"ObjectDeselect",
+		packAgentAndSessionID,
+		packObjectLocalID,
+		NULL,
+		SEND_INDIVIDUALS);
+
+	removeAll();
+	
+	mLastSentSelectionCenterGlobal.clearVec();
+
+	updatePointAt();
+}
+
 void LLSelectMgr::deselectUnused()
 {
 	// no more outstanding references to this selection

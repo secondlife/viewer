@@ -184,6 +184,8 @@ public:
 	virtual void flashIcon(F32 seconds) = 0;
 	virtual F32 getGamma() = 0;
 	virtual BOOL setGamma(const F32 gamma) = 0; // Set the gamma
+	virtual void setFSAASamples(const U32 fsaa_samples) = 0; //set number of FSAA samples
+	virtual U32	 getFSAASamples() = 0;
 	virtual BOOL restoreGamma() = 0;			// Restore original gamma table (before updating gamma)
 	virtual ESwapMethod getSwapMethod() { return mSwapMethod; }
 	virtual void gatherInput() = 0;
@@ -340,7 +342,8 @@ public:
 		BOOL clearBg = FALSE,
 		BOOL disable_vsync = TRUE,
 		BOOL use_gl = TRUE,
-		BOOL ignore_pixel_depth = FALSE);
+		BOOL ignore_pixel_depth = FALSE,
+		U32 fsaa_samples = 0);
 	static BOOL destroyWindow(LLWindow* window);
 	static BOOL isWindowValid(LLWindow *window);
 };

@@ -47,6 +47,7 @@ F32 LLFontGL::sVertDPI = 96.f;
 F32 LLFontGL::sHorizDPI = 96.f;
 F32 LLFontGL::sScaleX = 1.f;
 F32 LLFontGL::sScaleY = 1.f;
+BOOL LLFontGL::sDisplayFont = TRUE ;
 LLString LLFontGL::sAppDir;
 
 LLFontGL* LLFontGL::sMonospace = NULL;
@@ -557,6 +558,11 @@ S32 LLFontGL::render(const LLWString &wstr,
 					 BOOL use_embedded,
 					 BOOL use_ellipses) const
 {
+	if(!sDisplayFont) //do not display texts
+	{
+		return wstr.length() ;
+	}
+
 	LLGLEnable tex(GL_TEXTURE_2D);
 
 	if (wstr.empty())

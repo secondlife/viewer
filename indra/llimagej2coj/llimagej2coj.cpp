@@ -158,6 +158,18 @@ BOOL LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decod
 		return TRUE; // done
 	}
 
+	// sometimes we get bad data out of the cache - check to see if the decode succeeded
+	for (S32 i = 0; i < image->numcomps; i++)
+	{
+		if (image->comps[i].factor != base.getRawDiscardLevel())
+		{
+			// if we didn't get the discard level we're expecting, fail
+			opj_image_destroy(image);
+			base.mDecoding = FALSE;
+			return TRUE;
+		}
+	}
+	
 	// Copy image data into our raw image format (instead of the separate channel format
 
 	S32 img_components = image->numcomps;

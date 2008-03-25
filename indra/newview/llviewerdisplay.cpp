@@ -75,12 +75,14 @@
 #include "llcubemap.h"
 #include "llviewerregion.h"
 #include "lldrawpoolwater.h"
+#include "lldrawpoolbump.h"
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llpostprocess.h"
 
 extern LLPointer<LLImageGL> gStartImageGL;
 extern BOOL gDisplaySwapBuffers;
+
 
 LLPointer<LLImageGL> gDisconnectedImagep = NULL;
 
@@ -509,7 +511,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		
 		gFrameStats.start(LLFrameStats::UPDATE_CULL);
 		S32 water_clip = 0;
-		if (LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_ENVIRONMENT) > 1)
+		if ((LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_ENVIRONMENT) > 1) &&
+			 gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER))
 		{
 			if (gCamera->cameraUnderWater())
 			{
@@ -571,7 +574,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				
 				glh::matrix4f proj = glh_get_current_projection();
 				glh::matrix4f mod = glh_get_current_modelview();
-				glViewport(0,0,128,256);
+				glViewport(0,0,512,512);
+				LLVOAvatar::updateFreezeCounter() ;
 				LLVOAvatar::updateImpostors();
 				glh_set_current_projection(proj);
 				glh_set_current_modelview(mod);
@@ -588,6 +592,28 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		{
 			gPipeline.processImagery(*gCamera);
 			gPipeline.generateWaterReflection(*gCamera);
+		}
+
+		//////////////////////////////////////
+		//
+		// Update images, using the image stats generated during object update/culling
+		//
+		// Can put objects onto the retextured list.
+		//
+		// Doing this here gives hardware occlusion queries extra time to complete
+		gFrameStats.start(LLFrameStats::IMAGE_UPDATE);
+
+		{
+			LLFastTimer t(LLFastTimer::FTM_IMAGE_UPDATE);
+			
+			LLViewerImage::updateClass(gCamera->getVelocityStat()->getMean(),
+										gCamera->getAngularVelocityStat()->getMean());
+
+			gBumpImageList.updateImages();  // must be called before gImageList version so that it's textures are thrown out first.
+
+			const F32 max_image_decode_time = llmin(0.005f, 0.005f*10.f*gFrameIntervalSeconds); // 50 ms/second decode time (no more than 5ms/frame)
+			gImageList.updateImages(max_image_decode_time);
+			stop_glerror();
 		}
 
 		///////////////////////////////////
@@ -692,8 +718,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			}
 			stop_glerror();
 		}
-	
-		render_hud_attachments();
 		
 		if (to_texture)
 		{
@@ -764,13 +788,13 @@ void render_hud_attachments()
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_BUMP);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_SIMPLE);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_VOLUME);
-		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_GLOW);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_ALPHA);
 		
 		gPipeline.stateSort(hud_cam, result);
 
 		gPipeline.renderGeom(hud_cam);
 
+		render_hud_elements();
 		//restore type mask
 		gPipeline.setRenderTypeMask(mask);
 		if (has_ui)
@@ -874,6 +898,9 @@ void render_ui_and_swap()
 		{
 			gPipeline.renderBloom(gSnapshot);
 		}
+
+		render_hud_elements();
+		render_hud_attachments();
 	}
 
 	LLGLSDefault gls_default;

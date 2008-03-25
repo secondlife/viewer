@@ -984,6 +984,7 @@ protected:
 	LLHost			getObjectHost() const;
 	S32				getLocalDiscardLevel( S32 index);
 	
+	void			shame();  //generate shame metric
 //Ventrella
 	//-----------------------------------------------------------------------------------------------
 	// the Voice Visualizer is responsible for detecting the user's voice signal, and when the
@@ -993,7 +994,11 @@ protected:
 	LLVoiceVisualizer * mVoiceVisualizer;
 	int					mCurrentGesticulationLevel;
 //End Ventrella
-	
+
+private:
+	static  S32 sFreezeCounter ;
+public:
+	static void updateFreezeCounter(S32 counter = 0 ) ;
 };
 
 #endif // LL_VO_AVATAR_H

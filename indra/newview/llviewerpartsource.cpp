@@ -84,7 +84,10 @@ LLUUID LLViewerPartSource::getImageUUID() const
 }
 void LLViewerPartSource::setStart()
 {
-	mDelay = 99 ;
+	//cancel delaying to start a new added particle source, because some particle source just emits for a short time.
+	//however, canceling this might cause overall particle emmitting fluctuate for a while because the new added source jumps to 
+	//the current particle emmitting settings instantly. -->bao
+	mDelay = 0 ; //99
 }
 
 LLViewerPartSourceScript::LLViewerPartSourceScript(LLViewerObject *source_objp) :
@@ -263,7 +266,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
 		}
 		
 		if(mDelay)
-		{
+		{			
 			limited_rate = llmax(limited_rate, 0.01f * mDelay--) ;
 		}
 

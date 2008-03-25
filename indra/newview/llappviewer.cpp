@@ -3171,27 +3171,6 @@ void LLAppViewer::idle()
 	
 	//////////////////////////////////////
 	//
-	// Update images, using the image stats generated during object update/culling
-	//
-	// Can put objects onto the retextured list.
-	//
-	gFrameStats.start(LLFrameStats::IMAGE_UPDATE);
-
-	{
-		LLFastTimer t(LLFastTimer::FTM_IMAGE_UPDATE);
-		
-		LLViewerImage::updateClass(gCamera->getVelocityStat()->getMean(),
-									gCamera->getAngularVelocityStat()->getMean());
-
-		gBumpImageList.updateImages();  // must be called before gImageList version so that it's textures are thrown out first.
-
-		const F32 max_image_decode_time = llmin(0.005f, 0.005f*10.f*gFrameIntervalSeconds); // 50 ms/second decode time (no more than 5ms/frame)
-		gImageList.updateImages(max_image_decode_time);
-		stop_glerror();
-	}
-
-	//////////////////////////////////////
-	//
 	// Sort and cull in the new renderer are moved to pipeline.cpp
 	// Here, particles are updated and drawables are moved.
 	//

@@ -78,6 +78,8 @@ public:
 	/*virtual*/ void flashIcon(F32 seconds);
 	/*virtual*/ F32 getGamma();
 	/*virtual*/ BOOL setGamma(const F32 gamma); // Set the gamma
+	/*virtual*/ void setFSAASamples(const U32 fsaa_samples);
+	/*virtual*/ U32 getFSAASamples();
 	/*virtual*/ BOOL restoreGamma();			// Restore original gamma table (before updating gamma)
 	/*virtual*/ ESwapMethod getSwapMethod() { return mSwapMethod; }
 	/*virtual*/ void gatherInput();
@@ -118,7 +120,7 @@ protected:
 	LLWindowWin32(
 		char *title, char *name, int x, int y, int width, int height, U32 flags, 
 		BOOL fullscreen, BOOL clearBg, BOOL disable_vsync, BOOL use_gl,
-		BOOL ignore_pixel_depth);
+		BOOL ignore_pixel_depth, U32 fsaa_samples);
 	~LLWindowWin32();
 
 	void	initCursors();
@@ -184,6 +186,7 @@ protected:
 	static BOOL sIsClassRegistered; // has the window class been registered?
 
 	F32			mCurrentGamma;
+	U32			mFSAASamples;
 	WORD		mPrevGammaRamp[256*3];
 	WORD		mCurrentGammaRamp[256*3];
 

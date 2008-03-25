@@ -51,6 +51,7 @@ WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
 Disregard128DefaultDrawDistance	1	1
 Disregard96DefaultDrawDistance	1	1
+RenderTextureMemoryMultiple		1	1.0
 
 //
 // Low Graphics Settings

@@ -124,6 +124,7 @@ public:
 	static void renderAllHUD();
 	static void addPickable(std::set<LLViewerObject*> &pick_list);
 	static void reshape();
+	static void setDisplayText(BOOL flag) { sDisplayText = flag ; }
 protected:
 	LLHUDText(const U8 type);
 
@@ -170,6 +171,7 @@ private:
 	S32				mLOD;
 	BOOL			mHidden;
 
+	static BOOL    sDisplayText ;
 	static std::set<LLPointer<LLHUDText> > sTextObjects;
 	static std::vector<LLPointer<LLHUDText> > sVisibleTextObjects;
 	static std::vector<LLPointer<LLHUDText> > sVisibleHUDTextObjects;

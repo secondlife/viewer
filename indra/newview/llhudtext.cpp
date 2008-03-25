@@ -76,6 +76,7 @@ const F32 LOD_2_SCREEN_COVERAGE = 0.40f;
 std::set<LLPointer<LLHUDText> > LLHUDText::sTextObjects;
 std::vector<LLPointer<LLHUDText> > LLHUDText::sVisibleTextObjects;
 std::vector<LLPointer<LLHUDText> > LLHUDText::sVisibleHUDTextObjects;
+BOOL LLHUDText::sDisplayText = TRUE ;
 
 bool lltextobject_further_away::operator()(const LLPointer<LLHUDText>& lhs, const LLPointer<LLHUDText>& rhs) const
 {
@@ -120,7 +121,7 @@ LLHUDText::~LLHUDText()
 
 void LLHUDText::render()
 {
-	if (!mOnHUDAttachment)
+	if (!mOnHUDAttachment && sDisplayText)
 	{
 		LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 		renderText(FALSE);

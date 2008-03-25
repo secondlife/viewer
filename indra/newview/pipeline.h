@@ -72,6 +72,7 @@ void glh_set_current_modelview(glh::matrix4f& mat);
 glh::matrix4f glh_get_current_projection();
 void glh_set_current_projection(glh::matrix4f& mat);
 glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat znear, GLfloat zfar);
+glh::matrix4f gl_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar);
 
 class LLPipeline
 {
@@ -179,6 +180,8 @@ public:
 	void grabReferences(LLCullResult& result);
 
 	void renderGeom(LLCamera& camera, BOOL forceVBOUpdate = FALSE);
+	void renderGeomDeferred();
+
 	void processImagery(LLCamera& camera);
 	void generateWaterReflection(LLCamera& camera);
 	void renderHighlights();
@@ -328,6 +331,7 @@ public:
 		RENDER_DEBUG_TEXTURE_ANIM		= 0x080000,
 		RENDER_DEBUG_LIGHTS				= 0x100000,
 		RENDER_DEBUG_BATCH_SIZE			= 0x200000,
+		RENDER_DEBUG_SHAME				= 0x400000,
 	};
 
 	LLPointer<LLViewerImage>	mAlphaSizzleImagep;

@@ -37,7 +37,7 @@
 /*
  SAMPLE USAGE:
 
-	LLFBOTarget target;
+	LLRenderTarget target;
 
 	...
 
@@ -46,7 +46,7 @@
 
 	//render to contents of offscreen buffer
 	target.bindTarget();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	target.clear();
 	... <issue drawing commands> ...
 	target.flush();
 
@@ -71,7 +71,10 @@ public:
 	//allocate resources for rendering
 	//must be called before use
 	//multiple calls will release previously allocated resources
-	void allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, U32 usage = GL_TEXTURE_2D, BOOL force_fbo = FALSE);
+	void allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, U32 usage = GL_TEXTURE_2D, BOOL use_fbo = TRUE);
+
+	//allocate a depth texture
+	void allocateDepth();
 
 	//free any allocated resources
 	//safe to call redundantly
@@ -80,7 +83,7 @@ public:
 	//bind target for rendering
 	//applies appropriate viewport
 	void bindTarget();
-
+	
 	//clear render targer, clears depth buffer if present,
 	//uses scissor rect if in copy-to-texture mode
 	void clear();
@@ -88,14 +91,25 @@ public:
 	//get applied viewport
 	void getViewport(S32* viewport);
 
+	//get X resolution
+	U32 getWidth() const { return mResX; }
+
+	//get Y resolution
+	U32 getHeight() const { return mResY; }
+
 	//bind results of render for sampling
 	void bindTexture();
+
+	//bind results of render for sampling depth buffer
+	void bindDepth();
 
 	//flush rendering operations
 	//must be called when rendering is complete
 	//should be used 1:1 with bindTarget 
 	// call bindTarget once, do all your rendering, call flush once
-	void flush();
+	// if fetch_depth is TRUE, every effort will be made to copy the depth buffer into 
+	// the current depth texture.  A depth texture will be allocated if needed.
+	void flush(BOOL fetch_depth = FALSE);
 
 	//Returns TRUE if target is ready to be rendered into.
 	//That is, if the target has been allocated with at least
@@ -108,8 +122,11 @@ private:
 	U32 mTex;
 	U32 mFBO;
 	U32 mDepth;
+	U32 mStencil;
 	BOOL mUseDepth;
+	BOOL mRenderDepth;
 	U32 mUsage;
+	
 };
 
 #endif

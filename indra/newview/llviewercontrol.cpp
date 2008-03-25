@@ -470,6 +470,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderUseImpostors")->getSignal()->connect(boost::bind(&handleRenderUseImpostorsChanged, _1));
 	gSavedSettings.getControl("RenderUseCleverUI")->getSignal()->connect(boost::bind(&handleRenderUseCleverUIChanged, _1));
 	gSavedSettings.getControl("RenderResolutionDivisor")->getSignal()->connect(boost::bind(&handleRenderResolutionDivisorChanged, _1));
+	gSavedSettings.getControl("RenderDeferred")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _1));
 	gSavedSettings.getControl("AvatarCompositeLimit")->getSignal()->connect(boost::bind(&handleCompositeLimitChanged, _1));
 	gSavedSettings.getControl("TextureMemory")->getSignal()->connect(boost::bind(&handleVideoMemoryChanged, _1));
 	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&handleChatFontSizeChanged, _1));

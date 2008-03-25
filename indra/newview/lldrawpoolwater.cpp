@@ -59,6 +59,7 @@ static float sTime;
 
 BOOL LLDrawPoolWater::sSkipScreenCopy = FALSE;
 BOOL LLDrawPoolWater::sNeedsReflectionUpdate = TRUE;
+BOOL LLDrawPoolWater::sNeedsDistortionUpdate = TRUE;
 LLColor4 LLDrawPoolWater::sWaterFogColor = LLColor4(0.2f, 0.5f, 0.5f, 0.f);
 LLVector3 LLDrawPoolWater::sLightDir;
 
@@ -546,6 +547,7 @@ void LLDrawPoolWater::shade()
 			
 			if (water->getUseTexture())
 			{
+				sNeedsDistortionUpdate = TRUE;
 				face->renderIndexed();
 			}
 			else
@@ -557,6 +559,7 @@ void LLDrawPoolWater::shade()
 				}
 				else
 				{
+					sNeedsDistortionUpdate = TRUE;
 					face->renderIndexed();
 				}
 			}

@@ -202,6 +202,8 @@ public:
 	static LLString nameFromVAlign(LLFontGL::VAlign align);
 	static LLFontGL::VAlign vAlignFromName(const LLString& name);
 
+	static void setFontDisplay(BOOL flag) { sDisplayFont = flag ; }
+
 protected:
 	struct embedded_data_t
 	{
@@ -220,6 +222,7 @@ public:
 	static F32 sHorizDPI;
 	static F32 sScaleX;
 	static F32 sScaleY;
+	static BOOL     sDisplayFont ;
 	static LLString sAppDir;			// For loading fonts
 		
 	static LLFontGL*	sMonospace;		// medium
@@ -244,7 +247,7 @@ public:
 protected:
 	/*virtual*/ BOOL addChar(const llwchar wch);
 	static LLString getFontPathLocal();
-	static LLString getFontPathSystem();
+	static LLString getFontPathSystem();	
 
 protected:
 	LLPointer<LLImageRaw>	mRawImageGLp;

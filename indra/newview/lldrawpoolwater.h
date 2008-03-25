@@ -50,6 +50,7 @@ protected:
 public:
 	static BOOL sSkipScreenCopy;
 	static BOOL sNeedsReflectionUpdate;
+	static BOOL sNeedsDistortionUpdate;
 	static LLVector3 sLightDir;
 
 	static LLColor4 sWaterFogColor;

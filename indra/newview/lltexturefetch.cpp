@@ -474,7 +474,7 @@ void LLTextureFetchWorker::setDesiredDiscard(S32 discard, S32 size)
 		mDesiredDiscard = discard;
 		mDesiredSize = size;
 	}
-	else if (size > mDesiredSize)
+	else if (size > mDesiredSize || size == 0)
 	{
 		mDesiredSize = size;
 		prioritize = true;
@@ -571,7 +571,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			U32 cache_priority = mWorkPriority;
 			S32 offset = mFormattedImage.notNull() ? mFormattedImage->getDataSize() : 0;
 			S32 size = mDesiredSize - offset;
-			if (size <= 0)
+
+			if(mDesiredSize != 0 && size <= 0)
 			{
 				mState = CACHE_POST;
 				return false;
@@ -1303,6 +1304,13 @@ bool LLTextureFetch::createRequest(const LLUUID& id, const LLHost& host, F32 pri
 		// was compressed - this code ensures that when we request the entire image,
 		// we really do get it.)
 		desired_size = worker->mFileSize;
+	}
+	else if ((discard == 0) && worker == NULL)
+	{
+		// if we want the entire image, but we don't know its size, then send
+		// a sentinel value of zero to request the entire contents of the cache.
+		// patch supplied by resident Sheet Spotter for VWR-2404
+		desired_size = 0;
 	}
 	else if (w*h*c > 0)
 	{

@@ -61,6 +61,7 @@
 #include "llvoavatar.h"
 #include "llvoiceremotectrl.h"
 #include "llwebbrowserctrl.h"
+#include "llselectmgr.h"
 
 //
 // Globals
@@ -325,6 +326,7 @@ void LLOverlayBar::onClickMouselook(void*)
 //static
 void LLOverlayBar::onClickStandUp(void*)
 {
+	gSelectMgr->deselectAllForStandingUp();
 	gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
 }
 

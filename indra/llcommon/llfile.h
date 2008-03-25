@@ -127,7 +127,7 @@ public:
 	typedef std::basic_ios<char,std::char_traits < char > > _Myios;
 
 	llofstream()
-		: std::basic_ostream<char,std::char_traits < char > >(NULL,true),_Filebuffer(NULL)
+		: std::basic_ostream<char,std::char_traits < char > >(NULL,true),_Filebuffer(NULL),_ShouldClose(false)
 	{	// construct unopened
 	}
 
@@ -138,7 +138,8 @@ public:
 
 	explicit llofstream(_Filet *_File)
 		: std::basic_ostream<char,std::char_traits < char > >(NULL,true),
-			_Filebuffer(new _Myfb(_File))//_File)
+			_Filebuffer(new _Myfb(_File)),//_File)
+			_ShouldClose(false)
 	{	// construct with specified C stream
 	}
 
@@ -157,6 +158,7 @@ public:
 
 private:
 	_Myfb *_Filebuffer;	// the file buffer
+	bool _ShouldClose;
 };
 
 

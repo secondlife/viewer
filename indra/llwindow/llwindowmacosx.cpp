@@ -246,7 +246,8 @@ LLWindowMacOSX::LLWindowMacOSX(char *title, char *name, S32 x, S32 y, S32 width,
 							   S32 height, U32 flags,
 							   BOOL fullscreen, BOOL clearBg,
 							   BOOL disable_vsync, BOOL use_gl,
-							   BOOL ignore_pixel_depth)
+							   BOOL ignore_pixel_depth,
+							   U32 fsaa_samples)
 	: LLWindow(fullscreen, flags)
 {
 	// Voodoo for calling cocoa from carbon (see llwindowmacosx-objc.mm).
@@ -277,6 +278,8 @@ LLWindowMacOSX::LLWindowMacOSX(char *title, char *name, S32 x, S32 y, S32 width,
 	mTSMScriptCode = 0;
 	mTSMLangCode = 0;
 	mPreeditor = NULL;
+	mFSAASamples = fsaa_samples;
+	mForceRebuild = FALSE;
 	
 	// For reasons that aren't clear to me, LLTimers seem to be created in the "started" state.
 	// Since the started state of this one is used to track whether the NMRec has been installed, it wants to start out in the "stopped" state.
@@ -558,6 +561,8 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 					AGL_RGBA,
 						AGL_FULLSCREEN,
 						//			AGL_NO_RECOVERY,	// MBW -- XXX -- Not sure if we want this attribute
+						AGL_SAMPLE_BUFFERS_ARB, mFSAASamples > 0 ? 1 : 0,
+						AGL_SAMPLES_ARB, mFSAASamples,
 						AGL_DOUBLEBUFFER,
 						AGL_CLOSEST_POLICY,
 						AGL_ACCELERATED,
@@ -586,6 +591,8 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 						AGL_DOUBLEBUFFER,
 						AGL_CLOSEST_POLICY,
 						AGL_ACCELERATED,
+						AGL_SAMPLE_BUFFERS_ARB, mFSAASamples > 0 ? 1 : 0,
+						AGL_SAMPLES_ARB, mFSAASamples,
 						AGL_RED_SIZE, 8,
 						AGL_GREEN_SIZE, 8,
 						AGL_BLUE_SIZE, 8,
@@ -819,6 +826,9 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		}
 	}
 
+	//make sure multisample starts off disabled
+	glDisable(GL_MULTISAMPLE_ARB);
+	
 	// Don't need to get the current gamma, since there's a call that restores it to the system defaults.
 	return TRUE;
 }
@@ -897,8 +907,9 @@ BOOL LLWindowMacOSX::switchContext(BOOL fullscreen, LLCoordScreen size, BOOL dis
 	}
 
 	stop_glerror();
-	if(needsRebuild)
+	if(needsRebuild || mForceRebuild)
 	{
+		mForceRebuild = FALSE;
 		destroyContext();
 		result = createContext(0, 0, size.mX, size.mY, 0, fullscreen, disable_vsync);
 		if (result)
@@ -1316,6 +1327,17 @@ F32 LLWindowMacOSX::getGamma()
 	}
 
 	return result;
+}
+
+U32 LLWindowMacOSX::getFSAASamples()
+{
+	return mFSAASamples;
+}
+
+void LLWindowMacOSX::setFSAASamples(const U32 samples)
+{
+	mFSAASamples = samples;
+	mForceRebuild = TRUE;
 }
 
 BOOL LLWindowMacOSX::restoreGamma()

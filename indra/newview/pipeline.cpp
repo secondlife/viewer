@@ -99,7 +99,7 @@
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llspatialpartition.h"
-
+#include "llmutelist.h"
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
@@ -1252,6 +1252,10 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 		mScreen.flush();
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	}
+	else if (LLPipeline::sUseOcclusion > 1)
+	{
+		glFlush();
+	}
 }
 
 void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera)
@@ -1339,6 +1343,7 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 	}
 
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+	glFlush();
 }
 	
 BOOL LLPipeline::updateDrawableGeom(LLDrawable* drawablep, BOOL priority)
@@ -2124,8 +2129,6 @@ void render_hud_elements()
 	LLFastTimer t(LLFastTimer::FTM_RENDER_UI);
 	gPipeline.disableLights();		
 	
-	gPipeline.renderDebug();
-
 	LLGLDisable fog(GL_FOG);
 	LLGLSUIDefault gls_ui;
 
@@ -2289,15 +2292,6 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 
 	LLVertexBuffer::startRender();
 	
-	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
-	{
-		LLDrawPool *poolp = *iter;
-		if (hasRenderType(poolp->getType()))
-		{
-			poolp->prerender();
-		}
-	}
-
 	//by bao
 	//fake vertex buffer updating
 	//to guaranttee at least updating one VBO buffer every frame
@@ -2314,7 +2308,8 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	glMatrixMode(GL_MODELVIEW);
 
 	LLGLSPipeline gls_pipeline;
-	
+	LLGLEnable multisample(GL_MULTISAMPLE_ARB);
+
 	LLGLState gls_color_material(GL_COLOR_MATERIAL, mLightingDetail < 2);
 				
 	// Toggle backface culling for debugging
@@ -2346,8 +2341,22 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	{
 		gObjectList.renderObjectsForSelect(camera);
 	}
+	else if (gSavedSettings.getBOOL("RenderDeferred"))
+	{
+		renderGeomDeferred();
+	}
 	else
 	{
+		for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
+		{
+			LLDrawPool *poolp = *iter;
+			if (hasRenderType(poolp->getType()))
+			{
+				poolp->prerender();
+			}
+		}
+
+
 		LLFastTimer t(LLFastTimer::FTM_POOLS);
 		calcNearbyLights(camera);
 		setupHWLights(NULL);
@@ -2456,7 +2465,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	// have touch-handlers.
 	mHighlightFaces.clear();
 
-	render_hud_elements();
+	renderDebug();
 
 	LLVertexBuffer::stopRender();
 	LLVertexBuffer::unbind();
@@ -2477,6 +2486,19 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	LLGLState::checkTextureChannels();
 	LLGLState::checkClientArrays();
 #endif
+}
+
+void LLPipeline::renderGeomDeferred()
+{
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	gDeferredDiffuseProgram.bind();
+	gPipeline.renderObjects(LLRenderPass::PASS_SIMPLE, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_NORMAL, TRUE);
+	gDeferredDiffuseProgram.unbind();
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void LLPipeline::addTrianglesDrawn(S32 count)
@@ -4814,6 +4836,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot)
 		
 		mScreen.bindTexture();
 		
+		LLGLEnable multisample(GL_MULTISAMPLE_ARB);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		
 		glDisable(GL_TEXTURE_RECTANGLE_ARB);
@@ -4948,13 +4971,12 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 				mRenderTypeMask = tmp;
 			}
 
-			if (LLDrawPoolWater::sNeedsReflectionUpdate)
+			if (LLDrawPoolWater::sNeedsDistortionUpdate)
 			{
 				mRenderTypeMask &=	~((1<<LLPipeline::RENDER_TYPE_WATER) |
 									  (1<<LLPipeline::RENDER_TYPE_GROUND) |
 									  (1<<LLPipeline::RENDER_TYPE_SKY) |
-									  (1<<LLPipeline::RENDER_TYPE_CLOUDS) |
-									  (1<<LLPipeline::RENDER_TYPE_WL_SKY));	
+									  (1<<LLPipeline::RENDER_TYPE_CLOUDS));	
 
 				if (gSavedSettings.getBOOL("RenderWaterReflections"))
 				{ //mask out selected geometry based on reflection detail
@@ -5034,7 +5056,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			LLPipeline::sUnderWaterRender = FALSE;
 			mWaterDis.flush();
 		}
-		last_update = LLDrawPoolWater::sNeedsReflectionUpdate;
+		last_update = LLDrawPoolWater::sNeedsReflectionUpdate && LLDrawPoolWater::sNeedsDistortionUpdate;
 
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		LLPipeline::sReflectionRender = FALSE;
@@ -5048,6 +5070,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		gViewerWindow->setupViewport();
 		mRenderTypeMask = type_mask;
 		LLDrawPoolWater::sNeedsReflectionUpdate = FALSE;
+		LLDrawPoolWater::sNeedsDistortionUpdate = FALSE;
 		gCamera->setUserClipPlane(LLPlane(-pnorm, -pd));
 		LLPipeline::sUseOcclusion = occlusion;
 	}
@@ -5075,10 +5098,6 @@ LLCubeMap* LLPipeline::findReflectionMap(const LLVector3& location)
 
 void LLPipeline::renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL texture)
 {
-#if !LL_RELEASE_FOR_DOWNLOAD
-	LLGLState::checkClientArrays(mask);
-#endif
-
 	for (LLCullResult::sg_list_t::iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
@@ -5105,22 +5124,23 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	assertInitialized();
 
-	if (!avatar->mImpostor.isComplete())
-	{
-		avatar->mImpostor.allocate(128,256,GL_RGBA,TRUE);
-		avatar->mImpostor.bindTexture();
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
-	}
+	U32 mask;
+	BOOL muted = gMuteListp && gMuteListp->isMuted(avatar->getID());
 
-	U32 mask = (1<<LLPipeline::RENDER_TYPE_VOLUME) |
+	if (muted)
+	{
+		mask  = 1 << LLPipeline::RENDER_TYPE_AVATAR;
+	}
+	else
+	{
+		mask  = (1<<LLPipeline::RENDER_TYPE_VOLUME) |
 				(1<<LLPipeline::RENDER_TYPE_AVATAR) |
 				(1<<LLPipeline::RENDER_TYPE_BUMP) |
 				(1<<LLPipeline::RENDER_TYPE_GRASS) |
 				(1<<LLPipeline::RENDER_TYPE_SIMPLE) |
 				(1<<LLPipeline::RENDER_TYPE_ALPHA) | 
 				(1<<LLPipeline::RENDER_TYPE_INVISIBLE);
+	}
 	
 	mask = mask & gPipeline.getRenderTypeMask();
 	U32 saved_mask = gPipeline.mRenderTypeMask;
@@ -5148,24 +5168,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	stateSort(*gCamera, result);
 	
-	glClearColor(0.0f,0.0f,0.0f,0.0f);
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	glStencilMask(0xFFFFFFFF);
-	glClearStencil(0);
-
-	{
-		LLGLEnable scissor(GL_SCISSOR_TEST);
-		glScissor(0, 0, 128, 256);
-		avatar->mImpostor.bindTarget();
-		avatar->mImpostor.getViewport(gGLViewport);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	}
-	
-	LLGLEnable stencil(GL_STENCIL_TEST);
-
-	glStencilFunc(GL_ALWAYS, 1, 0xFFFFFFFF);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
 	const LLVector3* ext = avatar->mDrawable->getSpatialExtents();
 	LLVector3 pos(avatar->getRenderPosition()+avatar->getImpostorOffset());
 
@@ -5190,9 +5192,13 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
-	glh::matrix4f ortho = gl_ortho(-tdim.mV[0], tdim.mV[0], -tdim.mV[1], tdim.mV[1], 1.0, 256.0);
-	glh_set_current_projection(ortho);
-	glLoadMatrixf(ortho.m);
+	//glh::matrix4f ortho = gl_ortho(-tdim.mV[0], tdim.mV[0], -tdim.mV[1], tdim.mV[1], 1.0, 256.0);
+	F32 distance = (pos-camera.getOrigin()).magVec();
+	F32 fov = atanf(tdim.mV[1]/distance)*2.f*RAD_TO_DEG;
+	F32 aspect = tdim.mV[0]/tdim.mV[1]; //128.f/256.f;
+	glh::matrix4f persp = gl_perspective(fov, aspect, 1.f, 256.f);
+	glh_set_current_projection(persp);
+	glLoadMatrixf(persp.m);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
@@ -5204,24 +5210,68 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	glLoadMatrixf(mat.m);
 	glh_set_current_modelview(mat);
 
+	glClearColor(0.0f,0.0f,0.0f,0.0f);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glStencilMask(0xFFFFFFFF);
+	glClearStencil(0);
+
+	// get the number of pixels per angle
+	F32 pa = gViewerWindow->getWindowDisplayHeight()/(RAD_TO_DEG*gCamera->getView());
+
+	//get resolution based on angle width and height of impostor (double desired resolution to prevent aliasing)
+	U32 resY = llmin(nhpo2((U32) (fov*pa)), (U32) 512);
+	U32 resX = llmin(nhpo2((U32) (atanf(tdim.mV[0]/distance)*2.f*RAD_TO_DEG*pa)), (U32) 512);
+
+	if (!avatar->mImpostor.isComplete() || resX != avatar->mImpostor.getWidth() ||
+		resY != avatar->mImpostor.getHeight())
+	{
+		avatar->mImpostor.allocate(resX,resY,GL_RGBA,TRUE);
+		avatar->mImpostor.bindTexture();
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
+	}
+
+	{
+		LLGLEnable scissor(GL_SCISSOR_TEST);
+		glScissor(0, 0, resX, resY);
+		avatar->mImpostor.bindTarget();
+		avatar->mImpostor.getViewport(gGLViewport);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	}
+	
+	LLGLEnable stencil(GL_STENCIL_TEST);
+
+	glStencilFunc(GL_ALWAYS, 1, 0xFFFFFFFF);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
 	renderGeom(camera);
 	
 	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 	glStencilFunc(GL_EQUAL, 1, 0xFFFFFF);
 
 	{
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 		LLVector3 left = camera.getLeftAxis()*tdim.mV[0]*2.f;
 		LLVector3 up = camera.getUpAxis()*tdim.mV[1]*2.f;
 
-		LLGLEnable blend(GL_BLEND);
+		LLGLEnable blend(muted ? 0 : GL_BLEND);
+
+		if (muted)
+		{
+			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		}
+		else
+		{
+			glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
+		}
+		
 		gGL.blendFunc(GL_ONE, GL_ONE);
 		LLImageGL::unbindTexture(0, GL_TEXTURE_2D);
 
 		LLGLDepthTest depth(GL_FALSE, GL_FALSE);
 
 		gGL.start();
-		gGL.color4ub(0,0,0,1);
+		gGL.color4ub(64,64,64,1);
 		gGL.begin(GL_QUADS);
 		gGL.vertex3fv((pos+left-up).mV);
 		gGL.vertex3fv((pos-left-up).mV);
@@ -5230,8 +5280,10 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		gGL.end();
 		gGL.stop();
 
+
 		gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
+
 
 	avatar->mImpostor.flush();
 

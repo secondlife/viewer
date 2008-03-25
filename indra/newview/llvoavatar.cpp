@@ -138,6 +138,7 @@ LLVOAvatarSkeletonInfo* LLVOAvatar::sSkeletonInfo = NULL;
 LLVOAvatarInfo* 		LLVOAvatar::sAvatarInfo = NULL;
 
 BOOL gDebugAvatarRotation = FALSE;
+S32 LLVOAvatar::sFreezeCounter = 0 ;
 
 //extern BOOL gVelocityInterpolate;
 
@@ -2378,7 +2379,7 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	LLFastTimer t(LLFastTimer::FTM_AVATAR_UPDATE);
-	
+
 	if (isDead())
 	{
 		llinfos << "Warning!  Idle on dead avatar" << llendl;
@@ -2606,7 +2607,7 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 			F32 old_angle = mImpostorAngle.mV[i];
 			F32 angle_diff = fabsf(cur_angle-old_angle);
 		
-			if (angle_diff > 3.14159f/16.f)
+			if (angle_diff > 3.14159f/512.f*distance)
 			{
 				mNeedsImpostorUpdate = TRUE;
 			}
@@ -3069,6 +3070,8 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		sNumVisibleChatBubbles--;
 	}
 
+	shame();
+
 	//--------------------------------------------------------------------
 	// draw tractor beam when editing objects
 	//--------------------------------------------------------------------
@@ -3166,6 +3169,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	// update screen joint size
+
 	if (mScreenp)
 	{
 		F32 aspect = gCamera->getAspect();
@@ -3235,10 +3239,15 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	// the rest should only be done occasionally for far away avatars
 	//--------------------------------------------------------------------
 
-	if (!mIsSelf && sUseImpostors && !mNeedsAnimUpdate)
+	if (!mIsSelf && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter)
 	{
 		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
-		if (visible && mPixelArea <= impostor_area)
+		if (gMuteListp && gMuteListp->isMuted(getID()))
+		{
+			mUpdatePeriod = 16;
+			visible = (LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0 ? TRUE : FALSE;
+		}
+		else if (visible && mPixelArea <= impostor_area)
 		{
 			mUpdatePeriod = llclamp((S32) sqrtf(impostor_area*4.f/mPixelArea), 2, 8);
 
@@ -3897,7 +3906,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 			{
 				mEyeLashLOD.updateGeometry();
 				mHeadLOD.updateGeometry();
-				mHairLOD.updateGeometry();
+				mHairLOD.updateGeometry();				
 			}
 			mNeedsSkin = FALSE;
 			
@@ -4119,8 +4128,13 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color)
 	}
 
 	LLVector3 pos(getRenderPosition()+mImpostorOffset);
-	LLVector3 left = gCamera->getLeftAxis()*mImpostorDim.mV[0];
-	LLVector3 up = gCamera->getUpAxis()*mImpostorDim.mV[1];
+	LLVector3 at = (pos-gCamera->getOrigin());
+	at.normVec();
+	LLVector3 left = gCamera->getUpAxis() % at;
+	LLVector3 up = at%left;
+
+	left *= mImpostorDim.mV[0];
+	up *= mImpostorDim.mV[1];
 
 	LLGLEnable test(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.f);
@@ -5650,6 +5664,8 @@ BOOL LLVOAvatar::updateJointLODs()
 	F32 lod_factor = (sLODFactor * AVATAR_LOD_TWEAK_RANGE + (1.f - AVATAR_LOD_TWEAK_RANGE));
 	F32 avatar_num_min_factor = clamp_rescale(sLODFactor, 0.f, 1.f, 0.25f, 0.6f);
 	F32 avatar_num_factor = clamp_rescale((F32)sNumVisibleAvatars, 8, 25, 1.f, avatar_num_min_factor);
+	F32 area_scale = 0.16f;
+
 	{
 		if (mIsSelf)
 		{
@@ -5659,7 +5675,7 @@ BOOL LLVOAvatar::updateJointLODs()
 			}
 			else
 			{
-				mAdjustedPixelArea = mPixelArea;
+				mAdjustedPixelArea = mPixelArea*area_scale;
 			}
 		}
 		else if (mIsDummy)
@@ -5669,7 +5685,7 @@ BOOL LLVOAvatar::updateJointLODs()
 		else
 		{
 			// reported avatar pixel area is dependent on avatar render load, based on number of visible avatars
-			mAdjustedPixelArea = (F32)mPixelArea * lod_factor * lod_factor * avatar_num_factor * avatar_num_factor;
+			mAdjustedPixelArea = (F32)mPixelArea * area_scale * lod_factor * lod_factor * avatar_num_factor * avatar_num_factor;
 		}
 
 		// now select meshes to render based on adjusted pixel area
@@ -9440,6 +9456,23 @@ LLHost LLVOAvatar::getObjectHost() const
 	}
 }
 
+//static
+void LLVOAvatar::updateFreezeCounter(S32 counter)
+{
+	if(counter)
+	{
+		sFreezeCounter = counter ;
+	}
+	else if(sFreezeCounter > 0)
+	{
+		sFreezeCounter-- ;
+	}
+	else
+	{
+		sFreezeCounter = 0 ;
+	}
+}
+
 BOOL LLVOAvatar::updateLOD()
 {
 	BOOL res = updateJointLODs();
@@ -9493,7 +9526,7 @@ BOOL LLVOAvatar::isImpostor() const
 
 BOOL LLVOAvatar::needsImpostorUpdate() const
 {
-	return mNeedsImpostorUpdate;
+	return mNeedsImpostorUpdate ;
 }
 
 const LLVector3& LLVOAvatar::getImpostorOffset() const
@@ -9524,8 +9557,141 @@ void LLVOAvatar::getImpostorValues(LLVector3* extents, LLVector3& angle, F32& di
 
 	LLVector3 at = gCamera->getOrigin()-(getRenderPosition()+mImpostorOffset);
 	distance = at.normVec();
-	angle.mV[0] = acosf(at.mV[0]);
-	angle.mV[1] = acosf(at.mV[1]);
-	angle.mV[2] = acosf(at.mV[2]);
+	F32 da = 1.f - (at*gCamera->getAtAxis());
+	angle.mV[0] = gCamera->getYaw()*da;
+	angle.mV[1] = gCamera->getPitch()*da;
+	angle.mV[2] = da;
 }
+
+U32 calc_shame(LLVOVolume* volume, std::set<LLUUID> &textures)
+{
+	if (!volume)
+	{
+		return 0;
+	}
+
+	U32 shame = 0;
+
+	U32 invisi = 0;
+	U32 shiny = 0;
+	U32 glow = 0;
+	U32 alpha = 0;
+	U32 flexi = 0;
+	U32 animtex = 0;
+	U32 particles = 0;
+	U32 scale = 0;
+	U32 bump = 0;
+	U32 planar = 0;
+	
+	if (volume->isFlexible())
+	{
+		flexi = 1;
+	}
+	if (volume->isParticleSource())
+	{
+		particles = 1;
+	}
+
+	const LLVector3& sc = volume->getScale();
+	scale += (U32) sc.mV[0] + (U32) sc.mV[1] + (U32) sc.mV[2];
+
+	LLDrawable* drawablep = volume->mDrawable;
+
+	if (volume->isSculpted())
+	{
+		LLSculptParams *sculpt_params = (LLSculptParams *) volume->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+		LLUUID sculpt_id = sculpt_params->getSculptTexture();
+		textures.insert(sculpt_id);
+	}
+
+	for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
+	{
+		LLFace* face = drawablep->getFace(i);
+		const LLTextureEntry* te = face->getTextureEntry();
+		LLViewerImage* img = face->getTexture();
+
+		textures.insert(img->getID());
+
+		if (face->getPoolType() == LLDrawPool::POOL_ALPHA)
+		{
+			alpha++;
+		}
+		else if (img->getPrimaryFormat() == GL_ALPHA)
+		{
+			invisi = 1;
+		}
+
+		if (te->getBumpmap())
+		{
+			bump = 1;
+		}
+		if (te->getShiny())
+		{
+			shiny = 1;
+		}
+		if (te->getGlow() > 0.f)
+		{
+			glow = 1;
+		}
+		if (face->mTextureMatrix != NULL)
+		{
+			animtex++;
+		}
+		if (te->getTexGen())
+		{
+			planar++;
+		}
+	}
+
+	shame += invisi + shiny + glow + alpha*4 + flexi*8 + animtex*4 + particles*16+bump*4+scale+planar;
+
+	for (U32 i = 0; i < drawablep->getChildCount(); ++i)
+	{
+		shame += calc_shame(drawablep->getChild(i)->getVOVolume(), textures);
+	}
+
+	return shame;
+}
+
+void LLVOAvatar::shame()
+{
+	if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHAME))
+	{
+		return;
+	}
+
+	U32 shame = 1;
+
+	std::set<LLUUID> textures;
+
+	attachment_map_t::const_iterator iter;
+	for (iter = mAttachmentPoints.begin(); 
+		iter != mAttachmentPoints.end();
+		++iter)
+	{
+		LLViewerJointAttachment* attachment = iter->second;
+		LLViewerObject* object = attachment->getObject();
+		if (object && !object->isHUDAttachment())
+		{
+			LLDrawable* drawable = object->mDrawable;
+			if (drawable)
+			{
+				shame += 10;
+				LLVOVolume* volume = drawable->getVOVolume();
+				if (volume)
+				{
+					shame += calc_shame(volume, textures);
+				}
+			}
+		}
+	}	
+
+	shame += textures.size() * 5;
+
+	setDebugText(llformat("%d", shame));
+	F32 green = 1.f-llclamp(((F32) shame-1024.f)/1024.f, 0.f, 1.f);
+	F32 red = llmin((F32) shame/1024.f, 1.f);
+	mText->setColor(LLColor4(red,green,0,1));
+}
+
 

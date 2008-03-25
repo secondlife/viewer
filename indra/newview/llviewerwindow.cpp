@@ -1522,7 +1522,8 @@ LLViewerWindow::LLViewerWindow(
 		gNoRender,
 		gSavedSettings.getBOOL("DisableVerticalSync"),
 		!gNoRender,
-		ignore_pixel_depth);
+		ignore_pixel_depth,
+		gSavedSettings.getU32("RenderFSAASamples"));
 #if LL_WINDOWS
 	if (!LLWinDebug::setupExceptionHandler())
 	{
@@ -4242,14 +4243,145 @@ void LLViewerWindow::playSnapshotAnimAndSound()
 	send_sound_trigger(LLUUID(gSavedSettings.getString("UISndSnapshot")), 1.0f);
 }
 
+BOOL LLViewerWindow::thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL do_rebuild, ESnapshotType type)
+{
+	if ((!gWorldPointer) || (!raw) || preview_width < 10 || preview_height < 10)
+	{
+		return FALSE;
+	}
+
+	if(gResizeScreenTexture) //the window is resizing
+	{
+		return FALSE ;
+	}
+
+	setCursor(UI_CURSOR_WAIT);
+
+	// Hide all the UI widgets first and draw a frame
+	BOOL prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
+
+	if ( prev_draw_ui != show_ui)
+	{
+		LLPipeline::toggleRenderDebugFeature((void*)LLPipeline::RENDER_DEBUG_FEATURE_UI);
+	}
+
+	BOOL hide_hud = !gSavedSettings.getBOOL("RenderHUDInSnapshot") && LLPipeline::sShowHUDAttachments;
+	if (hide_hud)
+	{
+		LLPipeline::sShowHUDAttachments = FALSE;
+	}
+
+	S32 render_name = gSavedSettings.getS32("RenderName");
+	gSavedSettings.setS32("RenderName", 0);
+	LLVOAvatar::updateFreezeCounter(1) ; //pause avatar updating for one frame
+	
+	S32 w = preview_width ;
+	S32 h = preview_height ;	
+	LLVector2 display_scale = mDisplayScale ;
+	mDisplayScale.setVec((F32)w / mWindowRect.getWidth(), (F32)h / mWindowRect.getHeight()) ;
+	LLRect window_rect = mWindowRect;
+	mWindowRect.set(0, h, w, 0);
+	
+	gDisplaySwapBuffers = FALSE;	
+	glClearColor(0.f, 0.f, 0.f, 0.f);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	setup3DRender();
+	setupViewport();
+
+	LLFontGL::setFontDisplay(FALSE) ;
+	LLHUDText::setDisplayText(FALSE) ;
+	if (type == SNAPSHOT_TYPE_OBJECT_ID)
+	{
+		gPickTransparent = FALSE;
+		gObjectList.renderObjectsForSelect(*gCamera, FALSE, FALSE);
+	}
+	else
+	{
+		display(do_rebuild, 1.0f, 0, TRUE);
+		render_ui_and_swap();
+	}
+
+	S32 glformat, gltype, glpixel_length ;
+	if(SNAPSHOT_TYPE_DEPTH == type)
+	{
+		glpixel_length = 4 ;
+		glformat = GL_DEPTH_COMPONENT ; 
+		gltype = GL_FLOAT ;
+	}
+	else
+	{
+		glpixel_length = 3 ;
+		glformat = GL_RGB ;
+		gltype = GL_UNSIGNED_BYTE ;
+	}
+
+	raw->resize(w, h, glpixel_length);	
+	glReadPixels(0, 0, w, h, glformat, gltype, raw->getData());
+
+	if(SNAPSHOT_TYPE_DEPTH == type)
+	{
+		F32 depth_conversion_factor_1 = (gCamera->getFar() + gCamera->getNear()) / (2.f * gCamera->getFar() * gCamera->getNear());
+		F32 depth_conversion_factor_2 = (gCamera->getFar() - gCamera->getNear()) / (2.f * gCamera->getFar() * gCamera->getNear());
+
+		//calculate the depth 
+		for (S32 y = 0 ; y < h ; y++)
+		{
+			for(S32 x = 0 ; x < w ; x++)
+			{
+				S32 i = (w * y + x) << 2 ;
+				
+				F32 depth_float_i = *(F32*)(raw->getData() + i);
+				
+				F32 linear_depth_float = 1.f / (depth_conversion_factor_1 - (depth_float_i * depth_conversion_factor_2));
+				U8 depth_byte = F32_to_U8(linear_depth_float, gCamera->getNear(), gCamera->getFar());
+				*(raw->getData() + i + 0) = depth_byte;
+				*(raw->getData() + i + 1) = depth_byte;
+				*(raw->getData() + i + 2) = depth_byte;
+				*(raw->getData() + i + 3) = 255;
+			}
+		}		
+	}
+
+	LLFontGL::setFontDisplay(TRUE) ;
+	LLHUDText::setDisplayText(TRUE) ;
+	mDisplayScale.setVec(display_scale) ;
+	mWindowRect = window_rect;	
+	setup3DRender();
+	setupViewport();
+	gDisplaySwapBuffers = FALSE;
+
+	// POST SNAPSHOT
+	if (!gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+	{
+		LLPipeline::toggleRenderDebugFeature((void*)LLPipeline::RENDER_DEBUG_FEATURE_UI);
+	}
+
+	if (hide_hud)
+	{
+		LLPipeline::sShowHUDAttachments = TRUE;
+	}
+
+	setCursor(UI_CURSOR_ARROW);
+
+	if (do_rebuild)
+	{
+		// If we had to do a rebuild, that means that the lists of drawables to be rendered
+		// was empty before we started.
+		// Need to reset these, otherwise we call state sort on it again when render gets called the next time
+		// and we stand a good chance of crashing on rebuild because the render drawable arrays have multiple copies of
+		// objects on them.
+		gPipeline.resetDrawOrders();
+	}
+	
+	gSavedSettings.setS32("RenderName", render_name);	
+	
+	return TRUE;
+}
 
 // Saves the image from the screen to the specified filename and path.
 BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, 
 								 BOOL keep_window_aspect, BOOL is_texture, BOOL show_ui, BOOL do_rebuild, ESnapshotType type, S32 max_size)
 {
-	//F32 image_aspect_ratio = ((F32)image_width) / ((F32)image_height);
-	//F32 window_aspect_ratio = ((F32)getWindowWidth()) / ((F32)getWindowHeight());
-
 	if ((!gWorldPointer) ||
 		(!raw))
 	{
@@ -4282,43 +4414,30 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	// from window
 	S32 snapshot_width = mWindowRect.getWidth();
 	S32 snapshot_height =  mWindowRect.getHeight();
-	F32 scale_factor = 1.0f ;
-	if (keep_window_aspect || is_texture) //map the entire window to snapshot
-	{
-	}
-	else //scale or crop
-	{
-		if(snapshot_width > image_width) //crop
-		{
-			snapshot_width = image_width ;
-		}
-		if(snapshot_height > image_height)//crop
-		{
-			snapshot_height = image_height ;
-		}
+	// SNAPSHOT
+	S32 window_width = mWindowRect.getWidth();
+	S32 window_height = mWindowRect.getHeight();	
+	LLRect window_rect = mWindowRect;
+	BOOL use_fbo = FALSE;
 
-		//if (image_aspect_ratio > window_aspect_ratio)
+	F32 scale_factor = 1.0f ;
+	if(!keep_window_aspect) //image cropping
+	{
+		//if(snapshot_width > image_width && snapshot_height > image_height) //crop
 		//{
-		//	snapshot_height  = llround((F32)snapshot_width / image_aspect_ratio);
+		//	snapshot_width = image_width ;
+		//	snapshot_height = image_height ;
 		//}
-		//else if (image_aspect_ratio < window_aspect_ratio)
-		//{
-		//	snapshot_width = llround((F32)snapshot_height  * image_aspect_ratio);
-		//}
+		//else //crop and enlarge
+		{
+			F32 ratio = llmin( (F32)window_width / image_width , (F32)window_height / image_height) ;
+			snapshot_width = (S32)(ratio * image_width) ;
+			snapshot_height = (S32)(ratio * image_height) ;
+			scale_factor = llmax(1.0f, 1.0f / ratio) ;
+		}
 	}
 
 	LLRenderTarget target;
-	
-	scale_factor = llmax(1.f, (F32)image_width / snapshot_width, (F32)image_height / snapshot_height); 
-	
-	// SNAPSHOT
-	S32 window_width = mWindowRect.getWidth();
-	S32 window_height = mWindowRect.getHeight();
-	
-	LLRect window_rect = mWindowRect;
-
-	BOOL use_fbo = FALSE;
-	
 	if (gGLManager.mHasFramebufferObject && 
 		(image_width > window_width ||
 		image_height > window_height) &&
@@ -4339,9 +4458,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 			window_height = snapshot_height;
 			scale_factor = 1.f;
 			mWindowRect.set(0, 0, snapshot_width, snapshot_height);
-			target.bindTarget();
-
-			
+			target.bindTarget();			
 		}
 	}
 	
@@ -4954,6 +5071,8 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 		return TRUE;	// a lie..., because we'll get to it later
 	}
 
+	U32 fsaa = gSavedSettings.getU32("RenderFSAASamples");
+	U32 old_fsaa = mWindow->getFSAASamples();
 	// going from windowed to windowed
 	if (!old_fullscreen && !fullscreen)
 	{
@@ -4962,7 +5081,11 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 		{
 			mWindow->setSize(size);
 		}
-		return TRUE;
+
+		if (fsaa == old_fsaa)
+		{
+			return TRUE;
+		}
 	}
 
 	// Close floaters that don't handle settings change
@@ -4988,10 +5111,13 @@ BOOL LLViewerWindow::changeDisplaySettings(BOOL fullscreen, LLCoordScreen size, 
 		gSavedSettings.setS32("WindowY", old_pos.mY);
 	}
 	
+	mWindow->setFSAASamples(fsaa);
+
 	result_first_try = mWindow->switchContext(fullscreen, size, disable_vsync);
 	if (!result_first_try)
 	{
 		// try to switch back
+		mWindow->setFSAASamples(old_fsaa);
 		result_second_try = mWindow->switchContext(old_fullscreen, old_size, disable_vsync);
 
 		if (!result_second_try)

@@ -50,14 +50,20 @@ public:
 
 	static void show(void*);
 	static void hide(void*);
-
 	static void update();
-	
+
+	static S32  getUIWinHeightLong()  {return sUIWinHeightLong ;}
+	static S32  getUIWinHeightShort() {return sUIWinHeightShort ;}
+	static S32  getUIWinWidth()       {return sUIWinWidth ;}
+
 private:
 	class Impl;
 	Impl& impl;
 
 	static LLFloaterSnapshot* sInstance;
+	static S32    sUIWinHeightLong ;
+	static S32    sUIWinHeightShort ;
+	static S32    sUIWinWidth ;
 };
 
 class LLSnapshotFloaterView : public LLFloaterView
