@@ -9102,6 +9102,17 @@
         <key>Value</key>
             <integer>1</integer>
         </map>
+    <key>WarnFirstMedia</key>
+        <map>
+        <key>Comment</key>
+            <string>Enables FirstMedia warning dialog</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map>
     <key>WarnFirstOverrideKeys</key>
         <map>
         <key>Comment</key>
