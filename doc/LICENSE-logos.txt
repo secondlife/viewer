@@ -1,17 +1,23 @@
-Logos and trademarks
-==============
+COPYRIGHT AND PERMISSION NOTICE
 
-"Second Life" and "Linden Lab" are registered trademarks of Linden
-Research, Inc.  Other trademarks include (but are not limited to): the
-names Linden and Linden Research, as well as the Linden Lab Hexagon
-Design and the Second Life Hand Design logos.
+Second Life(TM) Viewer Artwork.  Copyright (C) 2008 Linden Research, Inc.
 
-The copyrightable materials in this file that are owned by Linden Lab
-are "Work" licensed under Creative Commons license Attribution-Share
-Alike 2.5 (summarized at
-http://creativecommons.org/licenses/by-sa/2.5/ , full text of license
-at http://creativecommons.org/licenses/by-sa/2.5/legalcode); provided
-however that all trademarks of Linden Lab are subject to the Linden
-Lab trademark policy, available at
-http://secondlife.com/corporate/trademark/
+Linden Research, Inc. ("Linden Lab") licenses the Second Life viewer
+artwork and other works in the files distributed with this Notice under
+the Creative Commons Attribution-Share Alike 3.0 License, available at 
+http://creativecommons.org/licenses/by-sa/3.0/legalcode.  For the license
+summary, see http://creativecommons.org/licenses/by-sa/3.0/.
 
+Notwithstanding the foregoing, all of Linden Lab's trademarks, including
+but not limited to the Second Life brand name and Second Life Eye-in-Hand
+logo, are subject to our trademark policy at
+http://secondlife.com/corporate/trademark/.
+
+If you distribute any copies or adaptations of the Second Life viewer
+artwork or any other works in these files, you must include this Notice
+and clearly identify any changes made to the original works.  Include
+this Notice and information where copyright notices are usually included,
+for example, after your own copyright notice acknowledging your use of
+the Second Life viewer artwork, in a text file distributed with your
+program, in your application's About window, or on a credits page for
+your work.
