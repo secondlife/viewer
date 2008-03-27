@@ -238,6 +238,7 @@ class LLManifest(object):
     def __init__(self, srctree, dsttree, args):
         super(LLManifest, self).__init__()
         self.args = args
+        self.dir_list = []
         self.file_list = []
         self.excludes = []
         self.actions = []
@@ -424,6 +425,7 @@ class LLManifest(object):
         if(not self.includes(src, dst)):
             print "Excluding: ", src, dst
             return
+        self.dir_list.append([src, dst])
         names = os.listdir(src)
         self.cmakedirs(dst)
         errors = []
