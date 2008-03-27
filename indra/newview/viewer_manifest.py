@@ -479,16 +479,6 @@ class LinuxManifest(ViewerManifest):
                         if re.search("lib/lib.+\.so.*", d):
                                 self.run_command('strip -S %s' % d)
 
-                # Fixing access permissions
-                for s,d in self.dir_list:
-                    self.run_command("chmod 755 '%s'" % d)
-                for s,d in self.file_list:
-                    if os.access(d, os.X_OK):
-                        self.run_command("chmod 755 '%s'" % d)
-                    else:
-                        self.run_command("chmod 644 '%s'" % d) 
-
-
         def package_finish(self):
                 if(self.args.has_key('installer_name')):
                         installer_name = self.args['installer_name']
@@ -499,6 +489,15 @@ class LinuxManifest(ViewerManifest):
                                         installer_name += '_' + self.args['grid'].upper()
                         else:
                                 installer_name += '_' + self.channel_oneword().upper()
+
+                # Fix access permissions
+                self.run_command("""
+                find %(dst)s -type d | xargs chmod 755;
+                find %(dst)s -type f -perm 0700 | xargs chmod 0755;
+                find %(dst)s -type f -perm 0500 | xargs chmod 0555;
+                find %(dst)s -type f -perm 0600 | xargs chmod 0644;
+                find %(dst)s -type f -perm 0400 | xargs chmod 0444;
+                """ %  {'dst':self.get_dst_prefix() })
 
                 # temporarily move directory tree so that it has the right name in the tarfile
                 self.run_command("mv %(dst)s %(inst)s" % {'dst':self.get_dst_prefix(),'inst':self.src_path_of(installer_name)})
