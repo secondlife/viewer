@@ -479,14 +479,14 @@ class LinuxManifest(ViewerManifest):
                         if re.search("lib/lib.+\.so.*", d):
                                 self.run_command('strip -S %s' % d)
 
-        # Fixing access permissions
-        for s,d in self.dir_list:
-            self.run_command("chmod 755 '%s'" % d)
-        for s,d in self.file_list:
-            if os.access(d, os.X_OK):
-                self.run_command("chmod 755 '%s'" % d)
-            else:
-                self.run_command("chmod 644 '%s'" % d) 
+                # Fixing access permissions
+                for s,d in self.dir_list:
+                    self.run_command("chmod 755 '%s'" % d)
+                for s,d in self.file_list:
+                    if os.access(d, os.X_OK):
+                        self.run_command("chmod 755 '%s'" % d)
+                    else:
+                        self.run_command("chmod 644 '%s'" % d) 
 
 
         def package_finish(self):
