@@ -497,7 +497,7 @@ class LinuxManifest(ViewerManifest):
                 find %(dst)s -type f -perm 0500 | xargs chmod 0555;
                 find %(dst)s -type f -perm 0600 | xargs chmod 0644;
                 find %(dst)s -type f -perm 0400 | xargs chmod 0444;
-                """ %  {'dst':self.get_dst_prefix() })
+                true""" %  {'dst':self.get_dst_prefix() })
 
                 # temporarily move directory tree so that it has the right name in the tarfile
                 self.run_command("mv %(dst)s %(inst)s" % {'dst':self.get_dst_prefix(),'inst':self.src_path_of(installer_name)})
