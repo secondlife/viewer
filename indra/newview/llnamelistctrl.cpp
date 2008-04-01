@@ -39,6 +39,8 @@
 #include "llagent.h"
 #include "llinventory.h"
 
+static LLRegisterWidget<LLNameListCtrl> r("name_list");
+
 // statics
 std::set<LLNameListCtrl*> LLNameListCtrl::sInstances;
 

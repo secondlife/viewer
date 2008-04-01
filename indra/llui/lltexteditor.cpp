@@ -64,6 +64,8 @@
 // 
 // Globals
 //
+static LLRegisterWidget<LLTextEditor> r("simple_text_editor");
+
 BOOL gDebugTextEditorTips = FALSE;
 
 //
@@ -304,10 +306,10 @@ LLTextEditor::LLTextEditor(
 	// Init the scrollbar
 	LLRect scroll_rect;
 	scroll_rect.setOriginAndSize( 
-		getRect().getWidth() - UI_TEXTEDITOR_BORDER - SCROLLBAR_SIZE,
-		UI_TEXTEDITOR_BORDER,
+		getRect().getWidth() - SCROLLBAR_SIZE,
+		1,
 		SCROLLBAR_SIZE,
-		getRect().getHeight() - 2 * UI_TEXTEDITOR_BORDER );
+		getRect().getHeight() - 1);
 	S32 lines_in_doc = getLineCount();
 	mScrollbar = new LLScrollbar( "Scrollbar", scroll_rect,
 		LLScrollbar::VERTICAL,
@@ -1102,14 +1104,7 @@ BOOL LLTextEditor::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rec
 BOOL LLTextEditor::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	// Pretend the mouse is over the scrollbar
-	if (getVisible())
-	{
-		return mScrollbar->handleScrollWheel( 0, 0, clicks );
-	}
-	else
-	{
-		return FALSE;
-	}
+	return mScrollbar->handleScrollWheel( 0, 0, clicks );
 }
 
 BOOL LLTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -1197,91 +1192,88 @@ BOOL LLTextEditor::handleHover(S32 x, S32 y, MASK mask)
 	BOOL handled = FALSE;
 
 	mHoverSegment = NULL;
-	if( getVisible() )
+	if(hasMouseCapture() )
 	{
-		if(hasMouseCapture() )
+		if( mIsSelecting ) 
 		{
-			if( mIsSelecting ) 
+			if (x != mLastSelectionX || y != mLastSelectionY)
 			{
-				if (x != mLastSelectionX || y != mLastSelectionY)
-				{
-					mLastSelectionX = x;
-					mLastSelectionY = y;
-				}
-
-				if( y > mTextRect.mTop )
-				{
-					mScrollbar->setDocPos( mScrollbar->getDocPos() - 1 );
-				}
-				else
-				if( y < mTextRect.mBottom )
-				{
-					mScrollbar->setDocPos( mScrollbar->getDocPos() + 1 );
-				}
-
-				setCursorAtLocalPos( x, y, TRUE );
-				mSelectionEnd = mCursorPos;
-				
-				updateScrollFromCursor();
+				mLastSelectionX = x;
+				mLastSelectionY = y;
 			}
 
-			lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (active)" << llendl;		
-			getWindow()->setCursor(UI_CURSOR_IBEAM);
-			handled = TRUE;
+			if( y > mTextRect.mTop )
+			{
+				mScrollbar->setDocPos( mScrollbar->getDocPos() - 1 );
+			}
+			else
+			if( y < mTextRect.mBottom )
+			{
+				mScrollbar->setDocPos( mScrollbar->getDocPos() + 1 );
+			}
+
+			setCursorAtLocalPos( x, y, TRUE );
+			mSelectionEnd = mCursorPos;
+			
+			updateScrollFromCursor();
+		}
+
+		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (active)" << llendl;		
+		getWindow()->setCursor(UI_CURSOR_IBEAM);
+		handled = TRUE;
+	}
+
+	if( !handled )
+	{
+		// Pass to children
+		handled = LLView::childrenHandleHover(x, y, mask) != NULL;
+	}
+
+	if( handled )
+	{
+		// Delay cursor flashing
+		resetKeystrokeTimer();
+	}
+
+	// Opaque
+	if( !handled && mTakesNonScrollClicks)
+	{
+		// Check to see if we're over an HTML-style link
+		if( !mSegments.empty() )
+		{
+			const LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
+			if( cur_segment )
+			{
+				if(cur_segment->getStyle().isLink())
+				{
+					lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (over link, inactive)" << llendl;		
+					getWindow()->setCursor(UI_CURSOR_HAND);
+					handled = TRUE;
+				}
+				else
+				if(cur_segment->getStyle().getIsEmbeddedItem())
+				{
+					lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (over embedded item, inactive)" << llendl;		
+					getWindow()->setCursor(UI_CURSOR_HAND);
+					//getWindow()->setCursor(UI_CURSOR_ARROW);
+					handled = TRUE;
+				}
+				mHoverSegment = cur_segment;
+			}
 		}
 
 		if( !handled )
 		{
-			// Pass to children
-			handled = LLView::childrenHandleHover(x, y, mask) != NULL;
-		}
-
-		if( handled )
-		{
-			// Delay cursor flashing
-			resetKeystrokeTimer();
-		}
-	
-		// Opaque
-		if( !handled && mTakesNonScrollClicks)
-		{
-			// Check to see if we're over an HTML-style link
-			if( !mSegments.empty() )
+			lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (inactive)" << llendl;		
+			if (!mScrollbar->getVisible() || x < getRect().getWidth() - SCROLLBAR_SIZE)
 			{
-				const LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
-				if( cur_segment )
-				{
-					if(cur_segment->getStyle().isLink())
-					{
-						lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (over link, inactive)" << llendl;		
-						getWindow()->setCursor(UI_CURSOR_HAND);
-						handled = TRUE;
-					}
-					else
-					if(cur_segment->getStyle().getIsEmbeddedItem())
-					{
-						lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (over embedded item, inactive)" << llendl;		
-						getWindow()->setCursor(UI_CURSOR_HAND);
-						//getWindow()->setCursor(UI_CURSOR_ARROW);
-						handled = TRUE;
-					}
-					mHoverSegment = cur_segment;
-				}
+				getWindow()->setCursor(UI_CURSOR_IBEAM);
 			}
-
-			if( !handled )
+			else
 			{
-				lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (inactive)" << llendl;		
-				if (!mScrollbar->getVisible() || x < getRect().getWidth() - SCROLLBAR_SIZE)
-				{
-					getWindow()->setCursor(UI_CURSOR_IBEAM);
-				}
-				else
-				{
-					getWindow()->setCursor(UI_CURSOR_ARROW);
-				}
-				handled = TRUE;
+				getWindow()->setCursor(UI_CURSOR_ARROW);
 			}
+			handled = TRUE;
 		}
 	}
 
@@ -2154,14 +2146,14 @@ void LLTextEditor::unindentLineBeforeCloseBrace()
 }
 
 
-BOOL LLTextEditor::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent )
+BOOL LLTextEditor::handleKeyHere(KEY key, MASK mask )
 {
 	BOOL	handled = FALSE;
 	BOOL	selection_modified = FALSE;
 	BOOL	return_key_hit = FALSE;
 	BOOL	text_may_have_changed = TRUE;
 
-	if ( (gFocusMgr.getKeyboardFocus() == this) && getVisible())
+	if ( gFocusMgr.getKeyboardFocus() == this )
 	{
 		// Special case for TAB.  If want to move to next field, report
 		// not handled and let the parent take care of field movement.
@@ -2245,7 +2237,7 @@ BOOL LLTextEditor::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent )
 }
 
 
-BOOL LLTextEditor::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent)
+BOOL LLTextEditor::handleUnicodeCharHere(llwchar uni_char)
 {
 	if ((uni_char < 0x20) || (uni_char == 0x7F)) // Control character or DEL
 	{
@@ -2254,7 +2246,7 @@ BOOL LLTextEditor::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_pare
 
 	BOOL	handled = FALSE;
 
-	if ( (gFocusMgr.getKeyboardFocus() == this) && getVisible())
+	if ( gFocusMgr.getKeyboardFocus() == this )
 	{
 		// Handle most keys only if the text editor is writeable.
 		if( !mReadOnly )
@@ -2939,8 +2931,8 @@ void LLTextEditor::drawText()
 				LLStyle style = cur_segment->getStyle();
 				if ( style.isImage() && (cur_segment->getStart() >= seg_start) && (cur_segment->getStart() <= clipped_end))
 				{
-					LLImageGL *image = style.getImage();
-					gl_draw_scaled_image( llround(text_x), llround(text_y)+line_height-style.mImageHeight, style.mImageWidth, style.mImageHeight, image, LLColor4::white );
+					LLUIImagePtr image = style.getImage();
+					image->draw(llround(text_x), llround(text_y)+line_height-style.mImageHeight, style.mImageWidth, style.mImageHeight);
 				}
 
 				if (cur_segment == mHoverSegment && style.getIsEmbeddedItem())
@@ -2984,7 +2976,7 @@ void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 
 
 	if ( style.getFontString()[0] )
 	{
-		font = gResMgr->getRes(style.getFontID());
+		font = LLResMgr::getInstance()->getRes(style.getFontID());
 	}
 
 	U8 font_flags = LLFontGL::NORMAL;
@@ -3051,10 +3043,6 @@ void LLTextEditor::drawClippedSegment(const LLWString &text, S32 seg_start, S32 
 
 void LLTextEditor::draw()
 {
-	if( !getVisible() )
-	{
-		return;
-	}
 	{
 		LLLocalClipRect clip(LLRect(0, getRect().getHeight(), getRect().getWidth() - (mScrollbar->getVisible() ? SCROLLBAR_SIZE : 0), 0));
 

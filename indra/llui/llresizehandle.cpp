@@ -59,8 +59,7 @@ LLResizeHandle::LLResizeHandle( const LLString& name, const LLRect& rect, S32 mi
 
 	if( RIGHT_BOTTOM == mCorner)
 	{
-		LLUUID image_id(LLUI::sConfigGroup->getString("UIImgResizeBottomRightUUID"));
-		mImage = LLUI::sImageProvider->getImageByID(image_id);
+		mImage = LLUI::sImageProvider->getUIImage("UIImgResizeBottomRightUUID");
 	}
 
 	switch( mCorner )
@@ -78,19 +77,16 @@ LLResizeHandle::LLResizeHandle( const LLString& name, const LLRect& rect, S32 mi
 BOOL LLResizeHandle::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = FALSE;
-	if( getVisible() && pointInHandle(x, y) )
+	if( pointInHandle(x, y) )
 	{
 		handled = TRUE;
-		if( getEnabled() )
-		{
-			// Route future Mouse messages here preemptively.  (Release on mouse up.)
-			// No handler needed for focus lost since this clas has no state that depends on it.
-			gFocusMgr.setMouseCapture( this );
+		// Route future Mouse messages here preemptively.  (Release on mouse up.)
+		// No handler needed for focus lost since this clas has no state that depends on it.
+		gFocusMgr.setMouseCapture( this );
 
-			localPointToScreen(x, y, &mDragLastScreenX, &mDragLastScreenY);
-			mLastMouseScreenX = mDragLastScreenX;
-			mLastMouseScreenY = mDragLastScreenY;
-		}
+		localPointToScreen(x, y, &mDragLastScreenX, &mDragLastScreenY);
+		mLastMouseScreenX = mDragLastScreenX;
+		mLastMouseScreenY = mDragLastScreenY;
 	}
 
 	return handled;
@@ -107,8 +103,7 @@ BOOL LLResizeHandle::handleMouseUp(S32 x, S32 y, MASK mask)
 		gFocusMgr.setMouseCapture( NULL );
 		handled = TRUE;
 	}
-	else
-	if( getVisible() && pointInHandle(x, y) )
+	else if( pointInHandle(x, y) )
 	{
 		handled = TRUE;
 	}
@@ -284,7 +279,7 @@ BOOL LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
 	}
 	else // don't have mouse capture
 	{
-		if( getVisible() && pointInHandle( x, y ) )
+		if( pointInHandle( x, y ) )
 		{
 			handled = TRUE;
 		}
@@ -314,7 +309,7 @@ void LLResizeHandle::draw()
 {
 	if( mImage.notNull() && getVisible() && (RIGHT_BOTTOM == mCorner) ) 
 	{
-		gl_draw_image( 0, 0, mImage );
+		mImage->draw(0, 0);
 	}
 }
 

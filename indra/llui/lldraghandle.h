@@ -91,9 +91,6 @@ class LLDragHandleTop
 public:
 	LLDragHandleTop(const LLString& name, const LLRect& rect, const LLString& title );
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
-
 	virtual void	setTitle( const LLString& title );
 	virtual const LLString& getTitle() const;
 	virtual void	draw();
@@ -110,9 +107,6 @@ class LLDragHandleLeft
 {
 public:
 	LLDragHandleLeft(const LLString& name, const LLRect& rect, const LLString& title );
-
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
 
 	virtual void	setTitle( const LLString& title );
 	virtual const LLString& getTitle() const;

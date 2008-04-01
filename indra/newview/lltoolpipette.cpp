@@ -46,9 +46,6 @@
 #include "llselectmgr.h"
 #include "lltoolmgr.h"
 
-// Globals
-LLToolPipette *gToolPipette = NULL;
-
 //
 // Member functions
 //
@@ -79,9 +76,9 @@ BOOL LLToolPipette::handleMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLToolPipette::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	mSuccess = TRUE;
-	gSelectMgr->unhighlightAll();
+	LLSelectMgr::getInstance()->unhighlightAll();
 	// *NOTE: This assumes the pipette tool is a transient tool.
-	gToolMgr->clearTransientTool();
+	LLToolMgr::getInstance()->clearTransientTool();
 	setMouseCapture(FALSE);
 	return TRUE;
 }
@@ -113,7 +110,7 @@ BOOL LLToolPipette::handleToolTip(S32 x, S32 y, LLString& msg, LLRect *sticky_re
 void LLToolPipette::pickCallback(S32 x, S32 y, MASK mask)
 {
 	LLViewerObject* hit_obj	= gViewerWindow->lastObjectHit();
-	gSelectMgr->unhighlightAll();
+	LLSelectMgr::getInstance()->unhighlightAll();
 
 	// if we clicked on a face of a valid prim, save off texture entry data
 	if (hit_obj && 
@@ -121,11 +118,11 @@ void LLToolPipette::pickCallback(S32 x, S32 y, MASK mask)
 		gLastHitObjectFace != -1)
 	{
 		//TODO: this should highlight the selected face only
-		gSelectMgr->highlightObjectOnly(hit_obj);
-		gToolPipette->mTextureEntry = *hit_obj->getTE(gLastHitObjectFace);
-		if (gToolPipette->mSelectCallback)
+		LLSelectMgr::getInstance()->highlightObjectOnly(hit_obj);
+		LLToolPipette::getInstance()->mTextureEntry = *hit_obj->getTE(gLastHitObjectFace);
+		if (LLToolPipette::getInstance()->mSelectCallback)
 		{
-			gToolPipette->mSelectCallback(gToolPipette->mTextureEntry, gToolPipette->mUserData);
+			LLToolPipette::getInstance()->mSelectCallback(LLToolPipette::getInstance()->mTextureEntry, LLToolPipette::getInstance()->mUserData);
 		}
 	}
 }

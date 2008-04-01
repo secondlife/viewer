@@ -71,8 +71,6 @@ public:
 		const LLString& control_which = LLString::null );
 
 	virtual ~LLMultiSliderCtrl();
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_MULTI_SLIDER; }
-	virtual LLString getWidgetTag() const { return LL_MULTI_SLIDER_CTRL_TAG; }
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 

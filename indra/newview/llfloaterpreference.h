@@ -118,7 +118,6 @@ public:
 protected:
 	LLPreferenceCore		*mPreferenceCore;
 
-	/*virtual*/ void		draw();
 	/*virtual*/ void		onClose(bool app_quitting);
 
 	LLButton*	mAboutBtn;

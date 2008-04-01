@@ -84,10 +84,7 @@ BOOL LLViewerParcelMediaAutoPlay::tick()
 	LLUUID this_media_texture_id;
 	S32 this_parcel_id = 0;
 
-	if (gParcelMgr)
-	{
-		this_parcel = gParcelMgr->getAgentParcel();
-	}
+	this_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 
 	if (this_parcel)
 	{

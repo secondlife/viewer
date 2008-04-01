@@ -102,16 +102,6 @@ LLProgressView::~LLProgressView()
 	sInstance = NULL;
 }
 
-EWidgetType LLProgressView::getWidgetType() const
-{
-	return WIDGET_TYPE_PROGRESS_VIEW;
-}
-
-LLString LLProgressView::getWidgetTag() const
-{
-	return LL_PROGRESS_VIEW_TAG;
-}
-
 BOOL LLProgressView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if ( mOutlineRect.pointInRect( x, y ) )
@@ -168,18 +158,14 @@ BOOL LLProgressView::handleHover(S32 x, S32 y, MASK mask)
 }
 
 
-BOOL LLProgressView::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+BOOL LLProgressView::handleKeyHere(KEY key, MASK mask)
 {
-	if( getVisible() )
+	// Suck up all keystokes except CTRL-Q.
+	if( ('Q' == key) && (MASK_CONTROL == mask) )
 	{
-		// Suck up all keystokes except CTRL-Q.
-		if( ('Q' == key) && (MASK_CONTROL == mask) )
-		{
-			LLAppViewer::instance()->userQuit();
-		}
-		return TRUE;
+		LLAppViewer::instance()->userQuit();
 	}
-	return FALSE;
+	return TRUE;
 }
 
 void LLProgressView::setVisible(BOOL visible)
@@ -191,6 +177,7 @@ void LLProgressView::setVisible(BOOL visible)
 	else if (!getVisible() && visible)
 	{
 		gFocusMgr.setTopCtrl(this);
+		setFocus(TRUE);
 		mFadeTimer.stop();
 		mProgressTimer.start();
 		LLView::setVisible(visible);
@@ -265,8 +252,8 @@ void LLProgressView::draw()
 	S32 line_two_y = line_one_y - LINE_SPACING;
 	const LLFontGL* font = LLFontGL::sSansSerif;
 
-	LLViewerImage* shadow_imagep = gImageList.getImage(LLUUID(gViewerArt.getString("rounded_square_soft.tga")), MIPMAP_FALSE, TRUE);
-	LLViewerImage* bar_imagep = gImageList.getImage(LLUUID(gViewerArt.getString("rounded_square.tga")), MIPMAP_FALSE, TRUE);
+	LLUIImagePtr shadow_imagep = LLUI::getUIImage("rounded_square_soft.tga");
+	LLUIImagePtr bar_imagep = LLUI::getUIImage("rounded_square.tga");
 
 	//LLColor4 background_color = gColors.getColor("DefaultShadowLight");
 	LLColor4 background_color = LLColor4(0.3254f, 0.4f, 0.5058f, 1.0f);
@@ -289,31 +276,21 @@ void LLProgressView::draw()
 	S32 background_box_width = background_box_right - background_box_left + 1;
 	S32 background_box_height = background_box_top - background_box_bottom + 1;
 
-	gl_draw_scaled_image_with_border( background_box_left + 2, 
+	shadow_imagep->draw( background_box_left + 2, 
 									background_box_bottom - 2, 
-									16, 
-									16,
 									background_box_width, 
 									background_box_height,
-									shadow_imagep,
 									gColors.getColor( "ColorDropShadow" ) );
-
-	gl_draw_scaled_image_with_border( background_box_left, 
+	bar_imagep->draw( background_box_left, 
 									background_box_bottom, 
-									16, 
-									16,
 									background_box_width, 
 									background_box_height,
-									bar_imagep,
 									LLColor4( 0.0f, 0.0f, 0.0f, 0.4f ) );
 
-	gl_draw_scaled_image_with_border( background_box_left + 1,
+	bar_imagep->draw( background_box_left + 1,
 									background_box_bottom + 1, 
-									16,
-									16,
 									background_box_width - 2,
 									background_box_height - 2,
-									bar_imagep,
 									LLColor4( 0.4f, 0.4f, 0.4f, 0.3f ) );
 
 	// we'll need this later for catching a click if it looks like it contains a link
@@ -334,36 +311,34 @@ void LLProgressView::draw()
 		LLFontGL::HCENTER, LLFontGL::BASELINE,
 		LLFontGL::DROP_SHADOW);
 
-	gl_draw_scaled_image_with_border(
+	shadow_imagep->draw(
 		bar_left + 2, 
 		bar_bottom - 2, 
-		16, 
-		16,
 		bar_width, 
 		bar_height,
-		shadow_imagep,
 		gColors.getColor("ColorDropShadow"));
 
-	gl_draw_scaled_image_with_border(
+	bar_imagep->draw(
 		bar_left, 
 		bar_bottom, 
-		16, 
-		16,
 		bar_width, 
 		bar_height,
-		bar_imagep,
 		LLColor4(0.7f, 0.7f, 0.8f, 1.0f));
 
-	gl_draw_scaled_image_with_border(bar_left + 2, bar_bottom + 2, 16, 16,
-		bar_width - 4, bar_height - 4,
-		bar_imagep,
+	bar_imagep->draw(
+		bar_left + 2, 
+		bar_bottom + 2,
+		bar_width - 4, 
+		bar_height - 4,
 		background_color);
 
 	LLColor4 bar_color = LLColor4(0.5764f, 0.6627f, 0.8352f, 1.0f);
 	bar_color.mV[3] = alpha;
-	gl_draw_scaled_image_with_border(bar_left + 2, bar_bottom + 2, 16, 16,
-		llround((bar_width - 4) * (mPercentDone / 100.f)), bar_height - 4,
-		bar_imagep,
+	bar_imagep->draw(
+		bar_left + 2, 
+		bar_bottom + 2,
+		llround((bar_width - 4) * (mPercentDone / 100.f)), 
+		bar_height - 4,
 		bar_color);
 
 	S32 line_three_y = line_two_y - LINE_SPACING * 3;

@@ -111,7 +111,6 @@ private:
 	LLFrameTimer	mTimeSinceLastUpdate;
 	S32				mOverlayTextureIdx;
 	
-	LLUUID			mLineImageID;
 	S32				mVertexCount;
 	F32*			mVertexArray;
 	U8*				mColorArray;

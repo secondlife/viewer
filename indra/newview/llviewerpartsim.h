@@ -35,12 +35,11 @@
 #include "lldarrayptr.h"
 #include "llframetimer.h"
 #include "llmemory.h"
-
 #include "llpartdata.h"
+#include "llviewerpartsource.h"
 
 class LLViewerImage;
 class LLViewerPart;
-class LLViewerPartSource;
 class LLViewerRegion;
 class LLViewerImage;
 class LLVOPartGroup;
@@ -126,11 +125,12 @@ protected:
 	LLViewerRegion *mRegionp;
 };
 
-class LLViewerPartSim
+class LLViewerPartSim : public LLSingleton<LLViewerPartSim>
 {
 public:
 	LLViewerPartSim();
-	virtual ~LLViewerPartSim();
+	virtual ~LLViewerPartSim(){}
+	void destroyClass();
 
 	typedef std::vector<LLViewerPartGroup *> group_list_t;
 	typedef std::vector<LLPointer<LLViewerPartSource> > source_list_t;

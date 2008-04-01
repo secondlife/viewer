@@ -48,6 +48,10 @@
 
 #include "llglheaders.h"
 
+static LLRegisterWidget<LLJoystickAgentSlide> r1("joystick_slide");
+static LLRegisterWidget<LLJoystickAgentTurn> r2("joystick_turn");
+
+
 const F32 NUDGE_TIME = 0.25f;		// in seconds
 const F32 ORBIT_NUDGE_RATE = 0.05f; // fraction of normal speed
 
@@ -603,37 +607,33 @@ void LLJoystickCameraRotate::setToggleState( BOOL left, BOOL top, BOOL right, BO
 
 void LLJoystickCameraRotate::draw()
 {
-	
-	if( getVisible() ) 
+	LLGLSUIDefault gls_ui;
+
+	getImageUnselected()->draw( 0, 0 );
+
+	if( mInTop )
 	{
-		LLGLSUIDefault gls_ui;
+		drawRotatedImage( getImageSelected()->getImage(), 0 );
+	}
 
-		getImageUnselected()->draw( 0, 0 );
+	if( mInRight )
+	{
+		drawRotatedImage( getImageSelected()->getImage(), 1 );
+	}
 
-		if( mInTop )
-		{
-			drawRotatedImage( getImageSelected()->getImage(), 0 );
-		}
+	if( mInBottom )
+	{
+		drawRotatedImage( getImageSelected()->getImage(), 2 );
+	}
 
-		if( mInRight )
-		{
-			drawRotatedImage( getImageSelected()->getImage(), 1 );
-		}
+	if( mInLeft )
+	{
+		drawRotatedImage( getImageSelected()->getImage(), 3 );
+	}
 
-		if( mInBottom )
-		{
-			drawRotatedImage( getImageSelected()->getImage(), 2 );
-		}
-
-		if( mInLeft )
-		{
-			drawRotatedImage( getImageSelected()->getImage(), 3 );
-		}
-
-		if (sDebugRects)
-		{
-			drawDebugRect();
-		}
+	if (sDebugRects)
+	{
+		drawDebugRect();
 	}
 }
 
@@ -722,8 +722,8 @@ LLJoystickCameraZoom::LLJoystickCameraZoom(const LLString& name, LLRect rect, co
 	mInTop( FALSE ),
 	mInBottom( FALSE )
 {
-	mPlusInImage = gImageList.getImage(LLUI::findAssetUUIDByName(plus_in_img), MIPMAP_FALSE, TRUE);
-	mMinusInImage = gImageList.getImage(LLUI::findAssetUUIDByName(minus_in_img), MIPMAP_FALSE, TRUE);
+	mPlusInImage = LLUIImageList::getInstance()->getUIImage(plus_in_img);
+	mMinusInImage = LLUIImageList::getInstance()->getUIImage(minus_in_img);
 }
 
 
@@ -789,26 +789,23 @@ void LLJoystickCameraZoom::setToggleState( BOOL top, BOOL bottom )
 
 void LLJoystickCameraZoom::draw()
 {
-	if( getVisible() ) 
+	if( mInTop )
 	{
-		if( mInTop )
-		{
-			gl_draw_image( 0, 0, mPlusInImage );
-		}
-		else
-		if( mInBottom )
-		{
-			gl_draw_image( 0, 0, mMinusInImage );
-		}
-		else
-		{
-			getImageUnselected()->draw( 0, 0 );
-		}
+		mPlusInImage->draw(0,0);
+	}
+	else
+	if( mInBottom )
+	{
+		mMinusInImage->draw(0,0);
+	}
+	else
+	{
+		getImageUnselected()->draw( 0, 0 );
+	}
 
-		if (sDebugRects)
-		{
-			drawDebugRect();
-		}
+	if (sDebugRects)
+	{
+		drawDebugRect();
 	}
 }
 

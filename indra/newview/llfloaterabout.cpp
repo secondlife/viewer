@@ -46,7 +46,7 @@
 #include "llviewerregion.h"
 #include "llversionviewer.h"
 #include "llviewerbuild.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llappviewer.h" 
 #include "llglheaders.h"
 #include "llmediamanager.h"
@@ -70,7 +70,7 @@ LLFloaterAbout* LLFloaterAbout::sInstance = NULL;
 LLFloaterAbout::LLFloaterAbout() 
 :	LLFloater("floater_about", "FloaterAboutRect", "")
 {
-	gUICtrlFactory->buildFloater(this, "floater_about.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_about.xml");
 
 	// Support for changing product name.
 	LLString title("About ");
@@ -157,13 +157,12 @@ LLFloaterAbout::LLFloaterAbout()
 		}
 	}
 
-	if (gViewerStats
-		&& gPacketsIn > 0)
+	if (gPacketsIn > 0)
 	{
 		LLString packet_loss = llformat("Packets Lost: %.0f/%.0f (%.1f%%)", 
-			gViewerStats->mPacketsLostStat.getCurrent(),
+			LLViewerStats::getInstance()->mPacketsLostStat.getCurrent(),
 			F32(gPacketsIn),
-			100.f*gViewerStats->mPacketsLostStat.getCurrent() / F32(gPacketsIn) );
+			100.f*LLViewerStats::getInstance()->mPacketsLostStat.getCurrent() / F32(gPacketsIn) );
 		support.append(packet_loss);
 		support.append("\n");
 	}

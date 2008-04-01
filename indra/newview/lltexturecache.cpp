@@ -50,15 +50,6 @@ class LLTextureCacheWorker : public LLWorkerClass
 	friend class LLTextureCache;
 
 private:
-	enum e_state
-	{
-		INIT = 0,
-		LOCAL = 1,
-		CACHE = 2,
-		HEADER = 3,
-		BODY = 4
-	};
-
 	class ReadResponder : public LLLFSThread::Responder
 	{
 	public:
@@ -97,10 +88,9 @@ public:
 						 S32 imagesize, // for writes
 						 LLTextureCache::Responder* responder)
 		: LLWorkerClass(cache, "LLTextureCacheWorker"),
+		  mID(id),
 		  mCache(cache),
 		  mPriority(priority),
-		  mID(id),
-		  mState(INIT),
 		  mReadData(NULL),
 		  mWriteData(data),
 		  mDataSize(datasize),
@@ -121,8 +111,10 @@ public:
 		delete[] mReadData;
 	}
 
-	bool doRead();
-	bool doWrite();
+	// override this interface
+	virtual bool doRead() = 0;
+	virtual bool doWrite() = 0;
+
 	virtual bool doWork(S32 param); // Called from LLWorkerThread::processRequest()
 
 	handle_t read() { addWork(0, LLWorkerThread::PRIORITY_HIGH | mPriority); return mRequestHandle; }
@@ -133,24 +125,23 @@ public:
 		mBytesRead = bytes;
 		setPriority(LLWorkerThread::PRIORITY_HIGH | mPriority);
 	}
-	
+
 private:
 	virtual void startWork(S32 param); // called from addWork() (MAIN THREAD)
 	virtual void finishWork(S32 param, bool completed); // called from finishRequest() (WORK THREAD)
 	virtual void endWork(S32 param, bool aborted); // called from doWork() (MAIN THREAD)
 
-private:
+protected:
 	LLTextureCache* mCache;
 	U32 mPriority;
-	LLUUID mID;
-	e_state mState;
+	LLUUID	mID;
 	
 	U8* mReadData;
 	U8* mWriteData;
 	S32 mDataSize;
 	S32 mOffset;
 	S32 mImageSize;
-	S32 mImageFormat;
+	EImageCodec mImageFormat;
 	BOOL mImageLocal;
 	LLPointer<LLTextureCache::Responder> mResponder;
 	LLLFSThread::handle_t mFileHandle;
@@ -158,19 +149,169 @@ private:
 	LLAtomicS32 mBytesRead;
 };
 
+class LLTextureCacheLocalFileWorker : public LLTextureCacheWorker
+{
+public:
+	LLTextureCacheLocalFileWorker(LLTextureCache* cache, U32 priority, const LLString& filename, const LLUUID& id,
+						 U8* data, S32 datasize, S32 offset,
+						 S32 imagesize, // for writes
+						 LLTextureCache::Responder* responder) 
+			: LLTextureCacheWorker(cache, priority, id, data, datasize, offset, imagesize, responder),
+			mFileName(filename)
+
+	{
+	}
+
+	virtual bool doRead();
+	virtual bool doWrite();
+	
+private:
+	LLString	mFileName;
+};
+
+bool LLTextureCacheLocalFileWorker::doRead()
+{
+	S32 local_size = ll_apr_file_size(mFileName, mCache->getFileAPRPool());
+
+	if (local_size > 0 && mFileName.size() > 4)
+	{
+		mDataSize = local_size; // Only a complete file is valid
+
+		LLString extension = mFileName.substr(mFileName.size() - 3, 3);
+
+		mImageFormat = LLImageBase::getCodecFromExtension(extension);
+
+		if (mImageFormat == IMG_CODEC_INVALID)
+		{
+			llwarns << "Unrecognized file extension " << extension << " for local texture " << mFileName << llendl;
+			mDataSize = 0; // no data
+			return true;
+		}
+	}
+	else
+	{
+		// file doesn't exist
+		mDataSize = 0; // no data
+		return true;
+	}
+
+#if USE_LFS_READ
+	if (mFileHandle == LLLFSThread::nullHandle())
+	{
+		mImageLocal = TRUE;
+		mImageSize = local_size;
+		if (!mDataSize || mDataSize + mOffset > local_size)
+		{
+			mDataSize = local_size - mOffset;
+		}
+		if (mDataSize <= 0)
+		{
+			// no more data to read
+			mDataSize = 0;
+			return true;
+		}
+		mReadData = new U8[mDataSize];
+		mBytesRead = -1;
+		mBytesToRead = mDataSize;
+		setPriority(LLWorkerThread::PRIORITY_LOW | mPriority);
+		mFileHandle = LLLFSThread::sLocal->read(local_filename, mReadData, mOffset, mDataSize,
+												new ReadResponder(mCache, mRequestHandle));
+		return false;
+	}
+	else
+	{
+		if (mBytesRead >= 0)
+		{
+			if (mBytesRead != mBytesToRead)
+			{
+				llwarns << "Error reading file from local cache: " << local_filename
+						<< " Bytes: " << mDataSize << " Offset: " << mOffset
+						<< " / " << mDataSize << llendl;
+				mDataSize = 0; // failed
+				delete[] mReadData;
+				mReadData = NULL;
+			}
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+#else
+	if (!mDataSize || mDataSize > local_size)
+	{
+		mDataSize = local_size;
+	}
+	mReadData = new U8[mDataSize];
+	S32 bytes_read = ll_apr_file_read_ex(mFileName, mCache->getFileAPRPool(),
+										 mReadData, mOffset, mDataSize);
+	if (bytes_read != mDataSize)
+	{
+		llwarns << "Error reading file from local cache: " << mFileName
+				<< " Bytes: " << mDataSize << " Offset: " << mOffset
+				<< " / " << mDataSize << llendl;
+		mDataSize = 0;
+		delete[] mReadData;
+		mReadData = NULL;
+	}
+	else
+	{
+		mImageSize = local_size;
+		mImageLocal = TRUE;
+	}
+	return true;
+#endif
+}
+
+bool LLTextureCacheLocalFileWorker::doWrite()
+{
+	// no writes for local files
+	return false;
+}
+
+class LLTextureCacheRemoteWorker : public LLTextureCacheWorker
+{
+public:
+	LLTextureCacheRemoteWorker(LLTextureCache* cache, U32 priority, const LLUUID& id,
+						 U8* data, S32 datasize, S32 offset,
+						 S32 imagesize, // for writes
+						 LLTextureCache::Responder* responder) 
+			: LLTextureCacheWorker(cache, priority, id, data, datasize, offset, imagesize, responder),
+			mState(INIT)
+	{
+	}
+
+	virtual bool doRead();
+	virtual bool doWrite();
+
+private:
+	enum e_state
+	{
+		INIT = 0,
+		LOCAL = 1,
+		CACHE = 2,
+		HEADER = 3,
+		BODY = 4
+	};
+
+	e_state mState;
+};
+
+
 //virtual
 void LLTextureCacheWorker::startWork(S32 param)
 {
 }
 
-bool LLTextureCacheWorker::doRead()
+bool LLTextureCacheRemoteWorker::doRead()
 {
 	S32 local_size = 0;
 	std::string local_filename;
 	
 	if (mState == INIT)
 	{
-		std::string filename = mCache->getLocalFileName(mID);
+		std::string filename = mCache->getLocalFileName(mID);	
 		local_filename = filename + ".j2c";
 		local_size = ll_apr_file_size(local_filename, mCache->getFileAPRPool());
 		if (local_size == 0)
@@ -468,19 +609,13 @@ bool LLTextureCacheWorker::doRead()
 	return false;
 }
 
-bool LLTextureCacheWorker::doWrite()
+bool LLTextureCacheRemoteWorker::doWrite()
 {
 	S32 idx = -1;
 
-	if (mState == INIT)
-	{
-		llassert_always(mOffset == 0); // Currently don't support offsets
-		mState = CACHE;
-	}
-
 	// No LOCAL state for write()
 	
-	if (mState == CACHE)
+	if (mState == INIT)
 	{
 		S32 cur_imagesize = 0;
 		S32 offset = mOffset;
@@ -1250,19 +1385,34 @@ S32 LLTextureCache::getHeaderCacheEntry(const LLUUID& id, bool touch, S32* image
 
 // Calls from texture pipeline thread (i.e. LLTextureFetch)
 
-LLTextureCache::handle_t LLTextureCache::readFromCache(const LLUUID& id, U32 priority,
+LLTextureCache::handle_t LLTextureCache::readFromCache(const LLString& filename, const LLUUID& id, U32 priority,
 													   S32 offset, S32 size, ReadResponder* responder)
 {
 	// Note: checking to see if an entry exists can cause a stall,
 	//  so let the thread handle it
 	LLMutexLock lock(&mWorkersMutex);
-	LLTextureCacheWorker* worker = new LLTextureCacheWorker(this, priority, id,
+	LLTextureCacheWorker* worker = new LLTextureCacheLocalFileWorker(this, priority, filename, id,
 															NULL, size, offset, 0,
 															responder);
 	handle_t handle = worker->read();
 	mReaders[handle] = worker;
 	return handle;
 }
+
+LLTextureCache::handle_t LLTextureCache::readFromCache(const LLUUID& id, U32 priority,
+													   S32 offset, S32 size, ReadResponder* responder)
+{
+	// Note: checking to see if an entry exists can cause a stall,
+	//  so let the thread handle it
+	LLMutexLock lock(&mWorkersMutex);
+	LLTextureCacheWorker* worker = new LLTextureCacheRemoteWorker(this, priority, id,
+															NULL, size, offset, 0,
+															responder);
+	handle_t handle = worker->read();
+	mReaders[handle] = worker;
+	return handle;
+}
+
 
 bool LLTextureCache::readComplete(handle_t handle, bool abort)
 {
@@ -1306,7 +1456,7 @@ LLTextureCache::handle_t LLTextureCache::writeToCache(const LLUUID& id, U32 prio
 	{
 		LLMutexLock lock(&mWorkersMutex);
 		llassert_always(imagesize > 0);
-		LLTextureCacheWorker* worker = new LLTextureCacheWorker(this, priority, id,
+		LLTextureCacheWorker* worker = new LLTextureCacheRemoteWorker(this, priority, id,
 																data, datasize, 0,
 																imagesize, responder);
 		handle_t handle = worker->write();

@@ -55,9 +55,10 @@
 #include "llkeyboard.h"
 #include "llresizebar.h"
 
-const S32 LIST_BORDER_PAD = 0;		// white space inside the border and to the left of the scrollbar
 const S32 MIN_COLUMN_WIDTH = 20;
 const S32 LIST_SNAP_PADDING = 5;
+
+static LLRegisterWidget<LLScrollListCtrl> r("scroll_list");
 
 // local structures & classes.
 struct SortScrollListItem
@@ -114,14 +115,20 @@ struct SortScrollListItem
 //
 // LLScrollListIcon
 //
-LLScrollListIcon::LLScrollListIcon(const LLUUID& icon_id, S32 width)
+LLScrollListIcon::LLScrollListIcon(LLUIImagePtr icon, S32 width)
 	: LLScrollListCell(width),
-	  mColor(LLColor4::white),
-	  mImageUUID(icon_id)
+	  mIcon(icon),
+	  mColor(LLColor4::white)
 {
-	// don't use default image specified by LLUUID::null, use no image in that case
-	mIcon = icon_id.isNull() ? NULL : LLUI::sImageProvider->getImageByID(icon_id);
 }
+
+LLScrollListIcon::LLScrollListIcon(const LLSD& value, S32 width)
+	: LLScrollListCell(width),
+	mColor(LLColor4::white)
+{
+	setValue(value);
+}
+
 
 LLScrollListIcon::~LLScrollListIcon()
 {
@@ -129,9 +136,28 @@ LLScrollListIcon::~LLScrollListIcon()
 
 void LLScrollListIcon::setValue(const LLSD& value)
 {
-	mImageUUID = value.asUUID();
-	// don't use default image specified by LLUUID::null, use no image in that case
-	mIcon = mImageUUID.isNull() ? NULL : LLUI::sImageProvider->getImageByID(mImageUUID);
+	if (value.isUUID())
+	{
+		// don't use default image specified by LLUUID::null, use no image in that case
+		LLUUID image_id = value.asUUID();
+		mIcon = image_id.notNull() ? LLUI::sImageProvider->getUIImageByID(image_id) : LLUIImagePtr(NULL);
+	}
+	else
+	{
+		LLString value_string = value.asString();
+		if (LLUUID::validate(value_string))
+		{
+			setValue(LLUUID(value_string));
+		}
+		else if (!value_string.empty())
+		{
+			mIcon = LLUI::getUIImage(value.asString());
+		}
+		else
+		{
+			mIcon = NULL;
+		}
+	}
 }
 
 
@@ -143,7 +169,7 @@ void LLScrollListIcon::setColor(const LLColor4& color)
 S32	LLScrollListIcon::getWidth() const 
 {
 	// if no specified fix width, use width of icon
-	if (LLScrollListCell::getWidth() == 0)
+	if (LLScrollListCell::getWidth() == 0 && mIcon.notNull())
 	{
 		return mIcon->getWidth();
 	}
@@ -151,11 +177,11 @@ S32	LLScrollListIcon::getWidth() const
 }
 
 
-void LLScrollListIcon::draw(const LLColor4& color, const LLColor4& highlight_color) const	
+void LLScrollListIcon::draw(const LLColor4& color, const LLColor4& highlight_color)	 const
 {
 	if (mIcon)
 	{
-		gl_draw_image(0, 0, mIcon, mColor); 
+		mIcon->draw(0, 0, mColor);
 	}
 }
 
@@ -206,6 +232,13 @@ LLScrollListSeparator::LLScrollListSeparator(S32 width) : LLScrollListCell(width
 {
 }
 
+//virtual 
+S32 LLScrollListSeparator::getHeight() const
+{
+	return 5;
+}
+
+
 void LLScrollListSeparator::draw(const LLColor4& color, const LLColor4& highlight_color) const
 {
 	//*FIXME: use dynamic item heights and make separators narrow, and inactive
@@ -234,9 +267,34 @@ LLScrollListText::LLScrollListText( const LLString& text, const LLFontGL* font, 
 	// initialize rounded rect image
 	if (!mRoundedRectImage)
 	{
-		mRoundedRectImage = LLUI::sImageProvider->getImageByID(LLUUID(LLUI::sAssetsGroup->getString("rounded_square.tga")));
+		mRoundedRectImage = LLUI::sImageProvider->getUIImage("rounded_square.tga");
 	}
 }
+//virtual 
+void LLScrollListText::highlightText(S32 offset, S32 num_chars)
+{
+	mHighlightOffset = offset;
+	mHighlightCount = num_chars;
+}
+
+//virtual 
+BOOL LLScrollListText::isText() const
+{
+	return TRUE;
+}
+
+//virtual 
+BOOL LLScrollListText::getVisible() const
+{
+	return mVisible;
+}
+
+//virtual 
+S32 LLScrollListText::getHeight() const
+{
+	return llround(mFont->getLineHeight());
+}
+
 
 LLScrollListText::~LLScrollListText()
 {
@@ -266,6 +324,13 @@ void LLScrollListText::setValue(const LLSD& text)
 	setText(text.asString());
 }
 
+//virtual 
+const LLSD LLScrollListText::getValue() const		
+{ 
+	return LLSD(mText.getString()); 
+}
+
+
 void LLScrollListText::draw(const LLColor4& color, const LLColor4& highlight_color) const
 {
 	LLColor4 display_color;
@@ -280,8 +345,6 @@ void LLScrollListText::draw(const LLColor4& color, const LLColor4& highlight_col
 
 	if (mHighlightCount > 0)
 	{
-		mRoundedRectImage->bind();
-		gGL.color4fv(highlight_color.mV);
 		S32 left = 0;
 		switch(mFontAlignment)
 		{
@@ -295,13 +358,11 @@ void LLScrollListText::draw(const LLColor4& color, const LLColor4& highlight_col
 			left = (getWidth() - mFont->getWidth(mText.getString())) / 2;
 			break;
 		}
-		gl_segmented_rect_2d_tex(left - 2, 
+		LLRect highlight_rect(left - 2, 
 				llround(mFont->getLineHeight()) + 1, 
 				left + mFont->getWidth(mText.getString(), mHighlightOffset, mHighlightCount) + 1, 
-				1, 
-				mRoundedRectImage->getWidth(), 
-				mRoundedRectImage->getHeight(), 
-				16);
+				1);
+		mRoundedRectImage->draw(highlight_rect, highlight_color);
 	}
 
 	// Try to draw the entire string
@@ -389,8 +450,6 @@ void LLScrollListItem::draw(const LLRect& rect, const LLColor4& fg_color, const 
 {
 	// draw background rect
 	LLRect bg_rect = rect;
-	// pad background rectangle to separate it from contents
-	bg_rect.stretch(LIST_BORDER_PAD, 0);
 	{
 		LLGLSNoTexture no_texture;
 		gGL.color4fv(bg_color.mV);
@@ -432,7 +491,7 @@ LLScrollListItemComment::LLScrollListItemComment(const LLString& comment_string,
 : LLScrollListItem(FALSE),
 	mColor(color)
 {
-	addColumn( comment_string, gResMgr->getRes( LLFONT_SANSSERIF_SMALL ) );
+	addColumn( comment_string, LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF_SMALL ) );
 }
 
 void LLScrollListItemComment::draw(const LLRect& rect, const LLColor4& fg_color, const LLColor4& bg_color, const LLColor4& highlight_color, S32 column_padding)
@@ -541,10 +600,10 @@ LLScrollListCtrl::LLScrollListCtrl(const LLString& name, const LLRect& rect,
 	mDrewSelected(FALSE)
 {
 	mItemListRect.setOriginAndSize(
-		mBorderThickness + LIST_BORDER_PAD,
-		mBorderThickness + LIST_BORDER_PAD,
-		getRect().getWidth() - 2*( mBorderThickness + LIST_BORDER_PAD ),
-		getRect().getHeight() - 2*( mBorderThickness + LIST_BORDER_PAD ) );
+		mBorderThickness,
+		mBorderThickness,
+		getRect().getWidth() - 2 * mBorderThickness,
+		getRect().getHeight() - 2 * mBorderThickness );
 
 	updateLineHeight();
 
@@ -738,10 +797,10 @@ void LLScrollListCtrl::updateLayout()
 	// reserve room for column headers, if needed
 	S32 heading_size = (mDisplayColumnHeaders ? mHeadingHeight : 0);
 	mItemListRect.setOriginAndSize(
-		mBorderThickness + LIST_BORDER_PAD,
-		mBorderThickness + LIST_BORDER_PAD,
-		getRect().getWidth() - 2*( mBorderThickness + LIST_BORDER_PAD ),
-		getRect().getHeight() - 2*( mBorderThickness + LIST_BORDER_PAD ) - heading_size );
+		mBorderThickness,
+		mBorderThickness,
+		getRect().getWidth() - 2 * mBorderThickness,
+		getRect().getHeight() - (2 * mBorderThickness ) - heading_size );
 
 	// how many lines of content in a single "page"
 	mPageLines = mLineHeight? mItemListRect.getHeight() / mLineHeight : 0;
@@ -749,7 +808,7 @@ void LLScrollListCtrl::updateLayout()
 	if (scrollbar_visible)
 	{
 		// provide space on the right for scrollbar
-		mItemListRect.mRight = getRect().getWidth() - ( mBorderThickness + LIST_BORDER_PAD ) - SCROLLBAR_SIZE;
+		mItemListRect.mRight = getRect().getWidth() - mBorderThickness - SCROLLBAR_SIZE;
 	}
 
 	mScrollbar->reshape(SCROLLBAR_SIZE, mItemListRect.getHeight() + (mDisplayColumnHeaders ? mHeadingHeight : 0));
@@ -775,7 +834,7 @@ LLRect LLScrollListCtrl::getRequiredRect()
 {
 	S32 heading_size = (mDisplayColumnHeaders ? mHeadingHeight : 0);
 	S32 height = (mLineHeight * getItemCount()) 
-				+ (2 * ( mBorderThickness + LIST_BORDER_PAD )) 
+				+ (2 * mBorderThickness ) 
 				+ heading_size;
 	S32 width = getRect().getWidth();
 
@@ -1354,7 +1413,6 @@ LLScrollListItem* LLScrollListCtrl::addCommentText(const LLString& comment_text,
 	LLScrollListItem* item = NULL;
 	if (getItemCount() < mMaxItemCount)
 	{
-		// simple items have their LLSD data set to their label
 		// always draw comment text with "enabled" color
 		item = new LLScrollListItemComment( comment_text, mFgUnselectedColor );
 		addItem( item, pos, FALSE );
@@ -1522,7 +1580,7 @@ LLScrollListItem* LLScrollListCtrl::addStringUUIDItem(const LLString& item_text,
 	if (getItemCount() < mMaxItemCount)
 	{
 		item = new LLScrollListItem( enabled, NULL, id );
-		item->addColumn(item_text, gResMgr->getRes(LLFONT_SANSSERIF_SMALL), column_width);
+		item->addColumn(item_text, LLResMgr::getInstance()->getRes(LLFONT_SANSSERIF_SMALL), column_width);
 		addItem( item, pos );
 	}
 	return item;
@@ -1661,7 +1719,6 @@ void LLScrollListCtrl::drawItems()
 				fg_color = (item->getEnabled() ? mFgUnselectedColor : mFgDisabledColor);
 				if( item->getSelected() && mCanSelect)
 				{
-					// Draw background of selected item
 					bg_color = mBgSelectedColor;
 					fg_color = (item->getEnabled() ? mFgSelectedColor : mFgDisabledColor);
 				}
@@ -1694,43 +1751,40 @@ void LLScrollListCtrl::drawItems()
 
 void LLScrollListCtrl::draw()
 {
-	if( getVisible() )
+	// if user specifies sort, make sure it is maintained
+	if (needsSorting() && !isSorted())
 	{
-		// if user specifies sort, make sure it is maintained
-		if (needsSorting() && !isSorted())
-		{
-			sortItems();
-		}
-
-		if (mNeedsScroll)
-		{
-			scrollToShowSelected();
-			mNeedsScroll = FALSE;
-		}
-		LLRect background(0, getRect().getHeight(), getRect().getWidth(), 0);
-		// Draw background
-		if (mBackgroundVisible)
-		{
-			LLGLSNoTexture no_texture;
-			gGL.color4fv( getEnabled() ? mBgWriteableColor.mV : mBgReadOnlyColor.mV );
-			gl_rect_2d(background);
-		}
-
-		if (mColumnsDirty)
-		{
-			updateColumns();
-			mColumnsDirty = FALSE;
-		}
-
-		drawItems();
-
-		if (mBorder)
-		{
-			mBorder->setKeyboardFocusHighlight(gFocusMgr.getKeyboardFocus() == this);
-		}
-
-		LLUICtrl::draw();
+		sortItems();
 	}
+
+	if (mNeedsScroll)
+	{
+		scrollToShowSelected();
+		mNeedsScroll = FALSE;
+	}
+	LLRect background(0, getRect().getHeight(), getRect().getWidth(), 0);
+	// Draw background
+	if (mBackgroundVisible)
+	{
+		LLGLSNoTexture no_texture;
+		glColor4fv( getEnabled() ? mBgWriteableColor.mV : mBgReadOnlyColor.mV );
+		gl_rect_2d(background);
+	}
+
+	if (mColumnsDirty)
+	{
+		updateColumns();
+		mColumnsDirty = FALSE;
+	}
+
+	drawItems();
+
+	if (mBorder)
+	{
+		mBorder->setKeyboardFocusHighlight(gFocusMgr.getKeyboardFocus() == this);
+	}
+
+	LLUICtrl::draw();
 }
 
 void LLScrollListCtrl::setEnabled(BOOL enabled)
@@ -1947,23 +2001,21 @@ BOOL LLScrollListCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 BOOL LLScrollListCtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	//BOOL handled = FALSE;
-	if(getVisible())
-	{
-		BOOL handled = handleClick(x, y, mask);
+	BOOL handled = handleClick(x, y, mask);
 
-		if (!handled)
+	if (!handled)
+	{
+		// Offer the click to the children, even if we aren't enabled
+		// so the scroll bars will work.
+		if (NULL == LLView::childrenHandleDoubleClick(x, y, mask))
 		{
-			// Offer the click to the children, even if we aren't enabled
-			// so the scroll bars will work.
-			if (NULL == LLView::childrenHandleDoubleClick(x, y, mask))
+			if( mCanSelect && mOnDoubleClickCallback )
 			{
-				if( mCanSelect && mOnDoubleClickCallback )
-				{
-					mOnDoubleClickCallback( mCallbackUserData );
-				}
+				mOnDoubleClickCallback( mCallbackUserData );
 			}
 		}
 	}
+
 	return TRUE;
 }
 
@@ -2143,12 +2195,12 @@ BOOL LLScrollListCtrl::handleHover(S32 x,S32 y,MASK mask)
 }
 
 
-BOOL LLScrollListCtrl::handleKeyHere(KEY key,MASK mask, BOOL called_from_parent )
+BOOL LLScrollListCtrl::handleKeyHere(KEY key,MASK mask )
 {
 	BOOL handled = FALSE;
 
 	// not called from parent means we have keyboard focus or a child does
-	if (mCanSelect && !called_from_parent) 
+	if (mCanSelect) 
 	{
 		// Ignore capslock
 		mask = mask;
@@ -2231,7 +2283,7 @@ BOOL LLScrollListCtrl::handleKeyHere(KEY key,MASK mask, BOOL called_from_parent 
 				// JC - Special case: Only claim to have handled it
 				// if we're the special non-commit-on-move
 				// type. AND we are visible
-			  	if (!mCommitOnKeyboardMovement && mask == MASK_NONE && getVisible())
+			  	if (!mCommitOnKeyboardMovement && mask == MASK_NONE)
 				{
 					onCommit();
 					mSearchString.clear();
@@ -2278,7 +2330,7 @@ BOOL LLScrollListCtrl::handleKeyHere(KEY key,MASK mask, BOOL called_from_parent 
 	return handled;
 }
 
-BOOL LLScrollListCtrl::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent)
+BOOL LLScrollListCtrl::handleUnicodeCharHere(llwchar uni_char)
 {
 	if ((uni_char < 0x20) || (uni_char == 0x7F)) // Control character or DEL
 	{
@@ -3204,17 +3256,16 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& value, EAddPosition p
 		LLColor4 color = ((*itor)["color"]);
 		BOOL enabled = !(*itor).has("enabled") || (*itor)["enabled"].asBoolean() == true;
 
-		const LLFontGL *font = gResMgr->getRes(fontname);
+		const LLFontGL *font = LLResMgr::getInstance()->getRes(fontname);
 		if (!font)
 		{
-			font = gResMgr->getRes( LLFONT_SANSSERIF_SMALL );
+			font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF_SMALL );
 		}
 		U8 font_style = LLFontGL::getStyleFromString(fontstyle);
 
 		if (type == "icon")
 		{
-			LLUUID image_id = value.asUUID();
-			LLScrollListIcon* cell = new LLScrollListIcon(value.asUUID(), width);
+			LLScrollListIcon* cell = new LLScrollListIcon(value, width);
 			if (has_color)
 			{
 				cell->setColor(color);
@@ -3267,7 +3318,7 @@ LLScrollListItem* LLScrollListCtrl::addElement(const LLSD& value, EAddPosition p
 		if (new_item->getColumn(column_idx) == NULL)
 		{
 			LLScrollListColumn* column_ptr = &column_it->second;
-			new_item->setColumn(column_idx, new LLScrollListText("", gResMgr->getRes( LLFONT_SANSSERIF_SMALL ), column_ptr->mWidth, LLFontGL::NORMAL));
+			new_item->setColumn(column_idx, new LLScrollListText("", LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF_SMALL ), column_ptr->mWidth, LLFontGL::NORMAL));
 		}
 	}
 
@@ -3287,7 +3338,7 @@ LLScrollListItem* LLScrollListCtrl::addSimpleElement(const LLString& value, EAdd
 
 	LLScrollListItem *new_item = new LLScrollListItem(entry_id);
 
-	const LLFontGL *font = gResMgr->getRes( LLFONT_SANSSERIF_SMALL );
+	const LLFontGL *font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF_SMALL );
 
 	new_item->addColumn(value, font, getRect().getWidth());
 
@@ -3435,29 +3486,25 @@ LLColumnHeader::~LLColumnHeader()
 
 void LLColumnHeader::draw()
 {
-	if( getVisible() )
+	BOOL draw_arrow = !mColumn->mLabel.empty() && mColumn->mParentCtrl->isSorted() && mColumn->mParentCtrl->getSortColumnName() == mColumn->mSortingColumn;
+
+	BOOL is_ascending = mColumn->mParentCtrl->getSortAscending();
+	mButton->setImageOverlay(is_ascending ? "up_arrow.tga" : "down_arrow.tga", LLFontGL::RIGHT, draw_arrow ? LLColor4::white : LLColor4::transparent);
+	mArrowImage = mButton->getImageOverlay();
+
+	//BOOL clip = getRect().mRight > mColumn->mParentCtrl->getItemListRect().getWidth();
+	//LLGLEnable scissor_test(clip ? GL_SCISSOR_TEST : GL_FALSE);
+
+	//LLRect column_header_local_rect(-getRect().mLeft, getRect().getHeight(), mColumn->mParentCtrl->getItemListRect().getWidth() - getRect().mLeft, 0);
+	//LLUI::setScissorRegionLocal(column_header_local_rect);
+
+	// Draw children
+	LLComboBox::draw();
+
+	if (mList->getVisible())
 	{
-		BOOL draw_arrow = !mColumn->mLabel.empty() && mColumn->mParentCtrl->isSorted() && mColumn->mParentCtrl->getSortColumnName() == mColumn->mSortingColumn;
-
-		BOOL is_ascending = mColumn->mParentCtrl->getSortAscending();
-		mButton->setImageOverlay(is_ascending ? "up_arrow.tga" : "down_arrow.tga", LLFontGL::RIGHT, draw_arrow ? LLColor4::white : LLColor4::transparent);
-		mArrowImage = mButton->getImageOverlay()->getImage();
-
-		//BOOL clip = getRect().mRight > mColumn->mParentCtrl->getItemListRect().getWidth();
-		//LLGLEnable scissor_test(clip ? GL_SCISSOR_TEST : GL_FALSE);
-
-		//LLRect column_header_local_rect(-getRect().mLeft, getRect().getHeight(), mColumn->mParentCtrl->getItemListRect().getWidth() - getRect().mLeft, 0);
-		//LLUI::setScissorRegionLocal(column_header_local_rect);
-
-		// Draw children
-		LLComboBox::draw();
-
-		if (mList->getVisible())
-		{
-			// sync sort order with list selection every frame
-			mColumn->mParentCtrl->sortByColumn(mColumn->mSortingColumn, getCurrentIndex() == 0);
-		}
-
+		// sync sort order with list selection every frame
+		mColumn->mParentCtrl->sortByColumn(mColumn->mSortingColumn, getCurrentIndex() == 0);
 	}
 }
 

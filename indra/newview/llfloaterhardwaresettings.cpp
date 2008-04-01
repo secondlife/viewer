@@ -40,7 +40,7 @@
 #include "llstartup.h"
 
 #include "llradiogroup.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 #include "llimagegl.h"
 #include "pipeline.h"
@@ -49,7 +49,7 @@ LLFloaterHardwareSettings* LLFloaterHardwareSettings::sHardwareSettings = NULL;
 
 LLFloaterHardwareSettings::LLFloaterHardwareSettings() : LLFloater("Hardware Settings Floater")
 {
-	gUICtrlFactory->buildFloater(this, "floater_hardware_settings.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_hardware_settings.xml");
 	
 	// load it up
 	initCallbacks();
@@ -94,7 +94,7 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 	childSetMinValue("GrapicsCardTextureMemory", min_tex_mem);
 	childSetMaxValue("GrapicsCardTextureMemory", max_tex_mem);
 
-	if (!gFeatureManagerp->isFeatureAvailable("RenderVBOEnable") ||
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
 		!gGLManager.mHasVertexBufferObject)
 	{
 		childSetEnabled("vbo", FALSE);
@@ -124,7 +124,7 @@ void LLFloaterHardwareSettings::show()
 	hardSettings->center();
 
 	// comment in if you want the menu to rebuild each time
-	//gUICtrlFactory->buildFloater(hardSettings, "floater_hardware_settings.xml");
+	//LLUICtrlFactory::getInstance()->buildFloater(hardSettings, "floater_hardware_settings.xml");
 	//hardSettings->initCallbacks();
 
 	hardSettings->open();
@@ -153,17 +153,6 @@ void LLFloaterHardwareSettings::onClose(bool app_quitting)
 
 BOOL LLFloaterHardwareSettings::postBuild()
 {
-	requires("ani", WIDGET_TYPE_CHECKBOX);
-	requires("gamma", WIDGET_TYPE_SPINNER);
-	requires("vbo", WIDGET_TYPE_CHECKBOX);
-	requires("GrapicsCardTextureMemory", WIDGET_TYPE_SLIDER);
-	requires("fog", WIDGET_TYPE_SPINNER);
-
-	if (!checkRequirements())
-	{
-		return FALSE;
-	}
-
 	childSetAction("OK", onBtnOK, this);
 
 	refresh();

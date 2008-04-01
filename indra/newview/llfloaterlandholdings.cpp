@@ -49,7 +49,7 @@
 #include "llbutton.h"
 #include "lluiconstants.h"
 #include "llviewermessage.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 // statics
 LLFloaterLandHoldings* LLFloaterLandHoldings::sInstance = NULL;
@@ -59,7 +59,7 @@ LLFloaterLandHoldings* LLFloaterLandHoldings::sInstance = NULL;
 void LLFloaterLandHoldings::show(void*)
 {
 	LLFloaterLandHoldings* floater = new LLFloaterLandHoldings();
-	gUICtrlFactory->buildFloater(floater, "floater_land_holdings.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(floater, "floater_land_holdings.xml");
 	floater->center();
 
 	// query_id null is known to be us
@@ -250,7 +250,7 @@ void LLFloaterLandHoldings::processPlacesReply(LLMessageSystem* msg, void**)
 
 void LLFloaterLandHoldings::buttonCore(S32 which)
 {
-	LLScrollListCtrl *list = LLUICtrlFactory::getScrollListByName(this, "parcel list");
+	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("parcel list");
 	if (!list) return;
 
 	S32 index = list->getFirstSelectedIndex();

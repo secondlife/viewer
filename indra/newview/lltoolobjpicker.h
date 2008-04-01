@@ -36,7 +36,7 @@
 #include "v3math.h"
 #include "lluuid.h"
 
-class LLToolObjPicker : public LLTool
+class LLToolObjPicker : public LLTool, public LLSingleton<LLToolObjPicker>
 {
 public:
 	LLToolObjPicker();
@@ -63,6 +63,5 @@ protected:
 	void 				*mExitCallbackData;
 };
 
-extern LLToolObjPicker* gToolObjPicker;
 
 #endif  

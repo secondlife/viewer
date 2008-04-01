@@ -46,7 +46,7 @@
 #include "lltextbox.h"
 #include "lltabcontainer.h"
 #include "lltransactiontypes.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 #include "llstatusbar.h"
 #include "llfloaterworldmap.h"

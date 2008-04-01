@@ -50,7 +50,7 @@
 #include "llscrolllistctrl.h"
 #include "llviewerobject.h"
 #include "llviewerregion.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 
 LLFloaterBuyContents* LLFloaterBuyContents::sInstance = NULL;
@@ -58,7 +58,7 @@ LLFloaterBuyContents* LLFloaterBuyContents::sInstance = NULL;
 LLFloaterBuyContents::LLFloaterBuyContents()
 :	LLFloater("floater_buy_contents", "FloaterBuyContentsRect", "")
 {
-	gUICtrlFactory->buildFloater(this, "floater_buy_contents.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_buy_contents.xml");
 
 	childSetAction("cancel_btn", onClickCancel, this);
 	childSetAction("buy_btn", onClickBuy, this);
@@ -79,7 +79,7 @@ LLFloaterBuyContents::~LLFloaterBuyContents()
 // static
 void LLFloaterBuyContents::show(const LLSaleInfo& sale_info)
 {
-	LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 
 	if (selection->getRootObjectCount() != 1)
 	{
@@ -90,7 +90,7 @@ void LLFloaterBuyContents::show(const LLSaleInfo& sale_info)
 	// Create a new instance only if needed
 	if (sInstance)
 	{
-		LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(sInstance, "item_list");
+		LLScrollListCtrl* list = sInstance->getChild<LLScrollListCtrl>("item_list");
 		if (list) list->deleteAllItems();
 	}
 	else
@@ -100,7 +100,7 @@ void LLFloaterBuyContents::show(const LLSaleInfo& sale_info)
 
 	sInstance->open(); /*Flawfinder: ignore*/
 	sInstance->setFocus(TRUE);
-	sInstance->mObjectSelection = gSelectMgr->getEditSelection();
+	sInstance->mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 
 	// Always center the dialog.  User can change the size,
 	// but purchases are important and should be center screen.
@@ -110,7 +110,7 @@ void LLFloaterBuyContents::show(const LLSaleInfo& sale_info)
 
 	LLUUID owner_id;
 	LLString owner_name;
-	BOOL owners_identical = gSelectMgr->selectGetOwner(owner_id, owner_name);
+	BOOL owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
 	if (!owners_identical)
 	{
 		gViewerWindow->alertXml("BuyContentsOneOwner");
@@ -223,13 +223,13 @@ void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
 			item_is_multi = TRUE;
 		}
 
-		LLUUID icon_id = get_item_icon_uuid(inv_item->getType(), 
-							 inv_item->getInventoryType(),
-							 inv_item->getFlags(),
-							 item_is_multi);
+		LLString icon_name = get_item_icon_name(inv_item->getType(), 
+								 inv_item->getInventoryType(),
+								 inv_item->getFlags(),
+								 item_is_multi);
 		row["columns"][0]["column"] = "icon";
 		row["columns"][0]["type"] = "icon";
-		row["columns"][0]["value"] = icon_id;
+		row["columns"][0]["value"] = icon_name;
 		
 		// Append the permissions that you will acquire (not the current
 		// permissions).
@@ -291,7 +291,7 @@ void LLFloaterBuyContents::onClickBuy(void*)
 	// *NOTE: doesn't work for multiple object buy, which UI does not
 	// currently support sale info is used for verification only, if
 	// it doesn't match region info then sale is canceled.
-	gSelectMgr->sendBuy(gAgent.getID(), category_id, sInstance->mSaleInfo);
+	LLSelectMgr::getInstance()->sendBuy(gAgent.getID(), category_id, sInstance->mSaleInfo);
 
 	sInstance->close();
 }

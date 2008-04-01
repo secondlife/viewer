@@ -40,7 +40,7 @@
 // A tool to select individual objects rather than linked sets.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLToolIndividual : public LLTool
+class LLToolIndividual : public LLTool, public LLSingleton<LLToolIndividual>
 {
 public:
 	LLToolIndividual();
@@ -57,8 +57,6 @@ public:
 protected:
 
 };
-
-extern LLToolIndividual* gToolIndividual;
 
 
 #endif // LL_LLTOOLINDIVIDUAL_H

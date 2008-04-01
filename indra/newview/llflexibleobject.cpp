@@ -246,7 +246,6 @@ void LLVolumeImplFlexible::setAttributesOfAllSections()
 
 void LLVolumeImplFlexible::onSetVolume(const LLVolumeParams &volume_params, const S32 detail)
 {
-	
 }
 
 //---------------------------------------------------------------------------------
@@ -280,7 +279,7 @@ BOOL LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F6
 	F32 app_angle = llround((F32) atan2( mVO->getScale().mV[2]*2.f, mVO->mDrawable->mDistanceWRTCamera) * RAD_TO_DEG, 0.01f);
 
 	// Rendering sections increases with visible angle on the screen
-	mRenderRes = (S32)(FLEXIBLE_OBJECT_MAX_SECTIONS*4*app_angle*DEG_TO_RAD/gCamera->getView());
+	mRenderRes = (S32)(FLEXIBLE_OBJECT_MAX_SECTIONS*4*app_angle*DEG_TO_RAD/LLViewerCamera::getInstance()->getView());
 	if (mRenderRes > FLEXIBLE_OBJECT_MAX_SECTIONS)
 	{
 		mRenderRes = FLEXIBLE_OBJECT_MAX_SECTIONS;
@@ -330,7 +329,7 @@ BOOL LLVolumeImplFlexible::doIdleUpdate(LLAgent &agent, LLWorld &world, const F6
 			id = parent->getVolumeInterfaceID();
 		}
 
-		U32 update_period = (U32) (gCamera->getScreenPixelArea()*0.01f/(pixel_area*(sUpdateFactor+1.f)))+1;
+		U32 update_period = (U32) (LLViewerCamera::getInstance()->getScreenPixelArea()*0.01f/(pixel_area*(sUpdateFactor+1.f)))+1;
 
 		if ((LLDrawable::getCurrentFrame()+id)%update_period == 0)
 		{
@@ -359,7 +358,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	if (mSimulateRes == 0)
 	{
 		mVO->markForUpdate(TRUE);
-		if (!doIdleUpdate(gAgent, *gWorldp, 0.0))
+		if (!doIdleUpdate(gAgent, *LLWorld::getInstance(), 0.0))
 		{
 			return;	// we did not get updated or initialized, proceeding without can be dangerous
 		}

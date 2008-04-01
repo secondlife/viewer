@@ -55,7 +55,7 @@
 #include "llviewermedia.h"
 #include "llviewerparcelmedia.h"
 #include "llviewerparcelmgr.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "llvoiceclient.h"
 #include "llvoavatar.h"
@@ -113,7 +113,7 @@ LLOverlayBar::LLOverlayBar()
 	factory_map["voice_remote"] = LLCallbackMap(LLOverlayBar::createVoiceRemote, this);
 	factory_map["chat_bar"] = LLCallbackMap(LLOverlayBar::createChatBar, this);
 	
-	gUICtrlFactory->buildPanel(this, "panel_overlaybar.xml", &factory_map);
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_overlaybar.xml", &factory_map);
 }
 
 BOOL LLOverlayBar::postBuild()
@@ -137,16 +137,6 @@ LLOverlayBar::~LLOverlayBar()
 	// LLView destructor cleans up children
 }
 
-EWidgetType LLOverlayBar::getWidgetType() const
-{
-	return WIDGET_TYPE_OVERLAY_BAR;
-}
-
-LLString LLOverlayBar::getWidgetTag() const
-{
-	return LL_OVERLAY_BAR_TAG;
-}
-
 // virtual
 void LLOverlayBar::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
@@ -160,12 +150,12 @@ void LLOverlayBar::reshape(S32 width, S32 height, BOOL called_from_parent)
 
 void LLOverlayBar::layoutButtons()
 {
-	LLView* state_buttons_panel = getChildByName("state_buttons", TRUE);
+	LLView* state_buttons_panel = getChildView("state_buttons");
 
-	if (state_buttons_panel && state_buttons_panel->getVisible())
+	if (state_buttons_panel->getVisible())
 	{
 		LLViewQuery query;
-		LLWidgetTypeFilter widget_filter(WIDGET_TYPE_BUTTON);
+		LLWidgetTypeFilter<LLButton> widget_filter;
 		query.addPreFilter(LLEnabledFilter::getInstance());
 		query.addPreFilter(&widget_filter);
 
@@ -201,7 +191,7 @@ void LLOverlayBar::refresh()
 	BOOL buttons_changed = FALSE;
 
 	BOOL im_received = gIMMgr->getIMReceived();
-	LLButton* button = LLUICtrlFactory::getButtonByName(this, "IM Received");
+	LLButton* button = getChild<LLButton>("IM Received");
 	if (button && button->getVisible() != im_received)
 	{
 		button->setVisible(im_received);
@@ -211,7 +201,7 @@ void LLOverlayBar::refresh()
 	}
 
 	BOOL busy = gAgent.getBusy();
-	button = LLUICtrlFactory::getButtonByName(this, "Set Not Busy");
+	button = getChild<LLButton>("Set Not Busy");
 	if (button && button->getVisible() != busy)
 	{
 		button->setVisible(busy);
@@ -221,7 +211,7 @@ void LLOverlayBar::refresh()
 	}
 
 	BOOL controls_grabbed = gAgent.anyControlGrabbed();
-	button = LLUICtrlFactory::getButtonByName(this, "Release Keys");
+	button = getChild<LLButton>("Release Keys");
 
 	if (button && button->getVisible() != controls_grabbed)
 	{
@@ -234,7 +224,7 @@ void LLOverlayBar::refresh()
 	BOOL mouselook_grabbed;
 	mouselook_grabbed = gAgent.isControlGrabbed(CONTROL_ML_LBUTTON_DOWN_INDEX)
 		|| gAgent.isControlGrabbed(CONTROL_ML_LBUTTON_UP_INDEX);
-	button = LLUICtrlFactory::getButtonByName(this, "Mouselook");
+	button = getChild<LLButton>("Mouselook");
 
 	if (button && button->getVisible() != mouselook_grabbed)
 	{
@@ -249,7 +239,7 @@ void LLOverlayBar::refresh()
 	{
 		sitting = gAgent.getAvatarObject()->mIsSitting;
 	}
-	button = LLUICtrlFactory::getButtonByName(this, "Stand Up");
+	button = getChild<LLButton>("Stand Up");
 
 	if (button && button->getVisible() != sitting)
 	{
@@ -326,7 +316,7 @@ void LLOverlayBar::onClickMouselook(void*)
 //static
 void LLOverlayBar::onClickStandUp(void*)
 {
-	gSelectMgr->deselectAllForStandingUp();
+	LLSelectMgr::getInstance()->deselectAllForStandingUp();
 	gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
 }
 
@@ -361,7 +351,7 @@ void LLOverlayBar::toggleMediaPlay(void*)
 	}
 	else
 	{
-		LLParcel* parcel = gParcelMgr->getAgentParcel();
+		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 		if (parcel)
 		{
 			LLViewerParcelMedia::play(parcel);
@@ -382,7 +372,7 @@ void LLOverlayBar::toggleMusicPlay(void*)
 		gOverlayBar->mMusicState = PLAYING; // desired state
 		if (gAudiop)
 		{
-			LLParcel* parcel = gParcelMgr->getAgentParcel();
+			LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 			if ( parcel )
 			{
 				// this doesn't work properly when crossing parcel boundaries - even when the 

@@ -69,7 +69,7 @@
 #include "llagent.h"
 #include "llviewercontrol.h"
 #include "llviewernetwork.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "llkeyboard.h"
 #include "llscrollcontainer.h"
@@ -326,36 +326,36 @@ void LLPreferenceCore::refreshEnabledGraphics()
 
 LLFloaterPreference::LLFloaterPreference()
 {
-	gUICtrlFactory->buildFloater(this, "floater_preferences.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_preferences.xml");
 }
 
 BOOL LLFloaterPreference::postBuild()
 {
-	requires("About...", WIDGET_TYPE_BUTTON);
-	requires("OK", WIDGET_TYPE_BUTTON);
-	requires("Cancel", WIDGET_TYPE_BUTTON);
-	requires("Apply", WIDGET_TYPE_BUTTON);
-	requires("pref core", WIDGET_TYPE_TAB_CONTAINER);
+	requires<LLButton>("About...");
+	requires<LLButton>("OK");
+	requires<LLButton>("Cancel");
+	requires<LLButton>("Apply");
+	requires<LLTabContainer>("pref core");
 
 	if (!checkRequirements())
 	{
 		return FALSE;
 	}
 
-	mAboutBtn = LLUICtrlFactory::getButtonByName(this, "About...");
+	mAboutBtn = getChild<LLButton>("About...");
 	mAboutBtn->setClickedCallback(onClickAbout, this);
 	
-	mApplyBtn = LLUICtrlFactory::getButtonByName(this, "Apply");
+	mApplyBtn = getChild<LLButton>("Apply");
 	mApplyBtn->setClickedCallback(onBtnApply, this);
 		
-	mCancelBtn = LLUICtrlFactory::getButtonByName(this, "Cancel");
+	mCancelBtn = getChild<LLButton>("Cancel");
 	mCancelBtn->setClickedCallback(onBtnCancel, this);
 
-	mOKBtn = LLUICtrlFactory::getButtonByName(this, "OK");
+	mOKBtn = getChild<LLButton>("OK");
 	mOKBtn->setClickedCallback(onBtnOK, this);
 			
 	mPreferenceCore = new LLPreferenceCore(
-		LLUICtrlFactory::getTabContainerByName(this, "pref core"),
+		getChild<LLTabContainer>("pref core"),
 		getChild<LLButton>("OK")
 		);
 	
@@ -370,16 +370,6 @@ LLFloaterPreference::~LLFloaterPreference()
 	sInstance = NULL;
 	delete mPreferenceCore;
 }
-
-
-void LLFloaterPreference::draw()
-{
-	if( getVisible() )
-	{
-		LLFloater::draw();
-	}
-}
-
 
 void LLFloaterPreference::apply()
 {

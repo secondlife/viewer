@@ -333,7 +333,7 @@ private:
 
 typedef LLSafeHandle<LLObjectSelection> LLObjectSelectionHandle;
 
-class LLSelectMgr : public LLEditMenuHandler
+class LLSelectMgr : public LLEditMenuHandler, public LLSingleton<LLSelectMgr>
 {
 public:
 	static BOOL					sRectSelectInclusive;	// do we need to surround an object to pick it?
@@ -707,8 +707,6 @@ private:
 
 	LLAnimPauseRequest		mPauseRequest;
 };
-
-extern LLSelectMgr* gSelectMgr;
 
 // Utilities
 void dialog_refresh_all();		// Update subscribers to the selection list

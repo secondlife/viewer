@@ -50,8 +50,7 @@ public:
 				   S32 name_column_index = 0,
 				   const LLString& tooltip = LLString::null);
 	virtual ~LLNameListCtrl();
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_NAME_LIST; }
-	virtual LLString getWidgetTag() const { return LL_NAME_LIST_CTRL_TAG; }
+
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 

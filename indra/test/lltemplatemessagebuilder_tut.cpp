@@ -65,7 +65,7 @@ namespace tut
 									   LL_VERSION_PATCH,        
 									   FALSE,        
 									   "notasharedsecret");
-				init_prehash_data();
+				//init_prehash_data();
 				init = true;
 			}
 			return LLMessageTemplate(_PREHASH_TestMessage, 1, MFT_HIGH);

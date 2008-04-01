@@ -35,7 +35,7 @@
 
 #include "llsliderctrl.h"
 #include "llcheckboxctrl.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerdisplay.h"
 #include "llpostprocess.h"
 #include "llcombobox.h"
@@ -48,7 +48,7 @@ LLFloaterPostProcess* LLFloaterPostProcess::sPostProcess = NULL;
 
 LLFloaterPostProcess::LLFloaterPostProcess() : LLFloater("Post-Process Floater")
 {
-	gUICtrlFactory->buildFloater(this, "floater_post_process.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_post_process.xml");
 
 	/// Color Filter Callbacks
 	childSetCommitCallback("ColorFilterToggle", &LLFloaterPostProcess::onBoolToggle, (char*)"enable_color_filter");
@@ -75,11 +75,11 @@ LLFloaterPostProcess::LLFloaterPostProcess() : LLFloater("Post-Process Floater")
 	childSetCommitCallback("BloomStrength", &LLFloaterPostProcess::onFloatControlMoved, (char*)"bloom_strength");
 
 	// Effect loading and saving.
-	LLComboBox* comboBox = LLUICtrlFactory::getComboBoxByName(this, "PPEffectsCombo");
+	LLComboBox* comboBox = getChild<LLComboBox>("PPEffectsCombo");
 	childSetAction("PPLoadEffect", &LLFloaterPostProcess::onLoadEffect, comboBox);
 	comboBox->setCommitCallback(onChangeEffectName);
 
-	LLLineEditor* editBox = LLUICtrlFactory::getLineEditorByName(this, "PPEffectNameEditor");
+	LLLineEditor* editBox = getChild<LLLineEditor>("PPEffectNameEditor");
 	childSetAction("PPSaveEffect", &LLFloaterPostProcess::onSaveEffect, editBox);
 
 	syncMenu();
@@ -186,8 +186,7 @@ void LLFloaterPostProcess::onChangeEffectName(LLUICtrl* ctrl, void * userData)
 {
 	// get the combo box and name
 	LLComboBox * comboBox = static_cast<LLComboBox*>(ctrl);
-	LLLineEditor* editBox = LLUICtrlFactory::getLineEditorByName(sPostProcess, 
-		"PPEffectNameEditor");
+	LLLineEditor* editBox = sPostProcess->getChild<LLLineEditor>("PPEffectNameEditor");
 
 	// set the parameter's new name
 	editBox->setValue(comboBox->getSelectedValue());
@@ -231,22 +230,20 @@ void LLFloaterPostProcess::onClose(bool app_quitting)
 void LLFloaterPostProcess::syncMenu()
 {
 	// add the combo boxe contents
-	LLComboBox* comboBox = LLUICtrlFactory::getComboBoxByName(this, "PPEffectsCombo");
+	LLComboBox* comboBox = getChild<LLComboBox>("PPEffectsCombo");
 
-	if(comboBox != NULL) {
-		comboBox->removeall();
-	
-		LLSD::map_const_iterator currEffect;
-		for(currEffect = gPostProcess->mAllEffects.beginMap();
-			currEffect != gPostProcess->mAllEffects.endMap();
-			++currEffect) 
-		{
-			comboBox->add(currEffect->first);
-		}
+	comboBox->removeall();
 
-		// set the current effect as selected.
-		comboBox->selectByValue(gPostProcess->getSelectedEffect());
+	LLSD::map_const_iterator currEffect;
+	for(currEffect = gPostProcess->mAllEffects.beginMap();
+		currEffect != gPostProcess->mAllEffects.endMap();
+		++currEffect) 
+	{
+		comboBox->add(currEffect->first);
 	}
+
+	// set the current effect as selected.
+	comboBox->selectByValue(gPostProcess->getSelectedEffect());
 
 	/// Sync Color Filter Menu
 	childSetValue("ColorFilterToggle", gPostProcess->tweaks.useColorFilter());

@@ -67,16 +67,6 @@ LLMemoryView::~LLMemoryView()
 {
 }
 
-EWidgetType LLMemoryView::getWidgetType() const
-{
-	return WIDGET_TYPE_MEMORY_VIEW;
-}
-
-LLString LLMemoryView::getWidgetTag() const
-{
-	return LL_MEMORY_VIEW_TAG;
-}
-
 BOOL LLMemoryView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (mask & MASK_SHIFT)

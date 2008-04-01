@@ -37,6 +37,7 @@
 #include "llframetimer.h"
 #include "llmemory.h"
 #include "llparcelselection.h"
+#include "llui.h"
 
 class LLUUID;
 class LLMessageSystem;
@@ -73,8 +74,7 @@ public:
 	virtual void changed() = 0;
 };
 
-
-class LLViewerParcelMgr
+class LLViewerParcelMgr : public LLSingleton<LLViewerParcelMgr>
 {
 
 public:
@@ -325,15 +325,14 @@ private:
 	BOOL						mRenderSelection;
 	S32							mCollisionBanned;     
 	LLFrameTimer				mCollisionTimer;
-	LLUUID						mBlockedImageID;
-	LLUUID						mPassImageID;
+	LLImageGL* 					mBlockedImage;
+	LLImageGL*					mPassImage;
 
 	// Media
 	S32 						mMediaParcelId;
 	U64 						mMediaRegionId;
 };
 
-extern LLViewerParcelMgr *gParcelMgr;
 
 void sanitize_corners(const LLVector3d &corner1, const LLVector3d &corner2,
 						LLVector3d &west_south_bottom, LLVector3d &east_north_top);

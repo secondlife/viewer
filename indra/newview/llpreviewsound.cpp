@@ -41,7 +41,7 @@
 #include "llresmgr.h"
 #include "llviewercontrol.h"
 #include "llviewermessage.h"  // send_guid_sound_trigger
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 extern LLAudioEngine* gAudiop;
 extern LLAgent gAgent;
@@ -52,15 +52,15 @@ LLPreviewSound::LLPreviewSound(const std::string& name, const LLRect& rect, cons
 	LLPreview( name, rect, title, item_uuid, object_uuid)
 {
 	
-	gUICtrlFactory->buildFloater(this,"floater_preview_sound.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_preview_sound.xml");
 
 	childSetAction("Sound play btn",&LLPreviewSound::playSound,this);
 	childSetAction("Sound audition btn",&LLPreviewSound::auditionSound,this);
 
-	LLButton* button = LLUICtrlFactory::getButtonByName(this, "Sound play btn");
+	LLButton* button = getChild<LLButton>("Sound play btn");
 	button->setSoundFlags(LLView::SILENT);
 	
-	button = LLUICtrlFactory::getButtonByName(this, "Sound audition btn");
+	button = getChild<LLButton>("Sound audition btn");
 	button->setSoundFlags(LLView::SILENT);
 
 	const LLInventoryItem* item = getItem();

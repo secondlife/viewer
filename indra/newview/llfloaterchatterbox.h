@@ -47,7 +47,7 @@ public:
 	LLFloaterChatterBox(const LLSD& seed);
 	virtual ~LLFloaterChatterBox();
 
-	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
 	/*virtual*/ void draw();
 	/*virtual*/ void onOpen();
 	/*virtual*/ void onClose(bool app_quitting);

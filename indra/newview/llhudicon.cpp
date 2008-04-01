@@ -102,28 +102,28 @@ void LLHUDIcon::renderIcon(BOOL for_select)
 
 	// put icon above object, and in front
 	// RN: don't use drawable radius, it's fricking HUGE
-	LLVector3 icon_relative_pos = (gCamera->getUpAxis() * ~mSourceObject->getRenderRotation());
+	LLVector3 icon_relative_pos = (LLViewerCamera::getInstance()->getUpAxis() * ~mSourceObject->getRenderRotation());
 	icon_relative_pos.abs();
 
 	F32 distance_scale = llmin(mSourceObject->getScale().mV[VX] / icon_relative_pos.mV[VX], 
 		mSourceObject->getScale().mV[VY] / icon_relative_pos.mV[VY], 
 		mSourceObject->getScale().mV[VZ] / icon_relative_pos.mV[VZ]);
 	F32 up_distance = 0.5f * distance_scale;
-	LLVector3 icon_position = obj_position + (up_distance * gCamera->getUpAxis()) * 1.2f;
+	LLVector3 icon_position = obj_position + (up_distance * LLViewerCamera::getInstance()->getUpAxis()) * 1.2f;
 
-	LLVector3 icon_to_cam = gCamera->getOrigin() - icon_position;
+	LLVector3 icon_to_cam = LLViewerCamera::getInstance()->getOrigin() - icon_position;
 	icon_to_cam.normVec();
 
 	icon_position += icon_to_cam * mSourceObject->mDrawable->getRadius() * 1.1f;
 
-	mDistance = dist_vec(icon_position, gCamera->getOrigin());
+	mDistance = dist_vec(icon_position, LLViewerCamera::getInstance()->getOrigin());
 
 	F32 alpha_factor = for_select ? 1.f : clamp_rescale(mDistance, DIST_START_FADE, DIST_END_FADE, 1.f, 0.f);
 
 	LLVector3 x_pixel_vec;
 	LLVector3 y_pixel_vec;
 	
-	gCamera->getPixelVectors(icon_position, y_pixel_vec, x_pixel_vec);
+	LLViewerCamera::getInstance()->getPixelVectors(icon_position, y_pixel_vec, x_pixel_vec);
 
 	F32 scale_factor = 1.f;
 	if (mAnimTimer.getElapsedTimeF32() < ANIM_TIME)

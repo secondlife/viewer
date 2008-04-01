@@ -83,10 +83,10 @@ public:
 	LLVector3d		viewPosToGlobal(S32 x,S32 y);
 
 	virtual void	draw();
-	void			drawGenericItems(const LLWorldMap::item_info_list_t& items, LLPointer<LLViewerImage> image);
-	void			drawGenericItem(const LLItemInfo& item, LLPointer<LLViewerImage> image);
-	void			drawImage(const LLVector3d& global_pos, LLPointer<LLViewerImage> image, const LLColor4& color = LLColor4::white);
-	void			drawImageStack(const LLVector3d& global_pos, LLPointer<LLViewerImage> image, U32 count, F32 offset, const LLColor4& color);
+	void			drawGenericItems(const LLWorldMap::item_info_list_t& items, LLUIImagePtr image);
+	void			drawGenericItem(const LLItemInfo& item, LLUIImagePtr image);
+	void			drawImage(const LLVector3d& global_pos, LLUIImagePtr image, const LLColor4& color = LLColor4::white);
+	void			drawImageStack(const LLVector3d& global_pos, LLUIImagePtr image, U32 count, F32 offset, const LLColor4& color);
 	void			drawAgents();
 	void			drawEvents();
 	void			drawFrustum();
@@ -136,21 +136,21 @@ protected:
 public:
 	LLColor4		mBackgroundColor;
 
-	static LLPointer<LLViewerImage>	sAvatarYouSmallImage;
-	static LLPointer<LLViewerImage>	sAvatarSmallImage;
-	static LLPointer<LLViewerImage>	sAvatarLargeImage;
-	static LLPointer<LLViewerImage>	sAvatarAboveImage;
-	static LLPointer<LLViewerImage>	sAvatarBelowImage;
-	static LLPointer<LLViewerImage>	sTelehubImage;
-	static LLPointer<LLViewerImage>	sInfohubImage;
-	static LLPointer<LLViewerImage>	sHomeImage;
-	static LLPointer<LLViewerImage>	sEventImage;
-	static LLPointer<LLViewerImage>	sEventMatureImage;
-	static LLPointer<LLViewerImage>	sTrackCircleImage;
-	static LLPointer<LLViewerImage>	sTrackArrowImage;
-	static LLPointer<LLViewerImage>	sClassifiedsImage;
-	static LLPointer<LLViewerImage>	sPopularImage;
-	static LLPointer<LLViewerImage>	sForSaleImage;
+	static LLUIImagePtr	sAvatarYouSmallImage;
+	static LLUIImagePtr	sAvatarSmallImage;
+	static LLUIImagePtr	sAvatarLargeImage;
+	static LLUIImagePtr	sAvatarAboveImage;
+	static LLUIImagePtr	sAvatarBelowImage;
+	static LLUIImagePtr	sTelehubImage;
+	static LLUIImagePtr	sInfohubImage;
+	static LLUIImagePtr	sHomeImage;
+	static LLUIImagePtr	sEventImage;
+	static LLUIImagePtr	sEventMatureImage;
+	static LLUIImagePtr	sTrackCircleImage;
+	static LLUIImagePtr	sTrackArrowImage;
+	static LLUIImagePtr	sClassifiedsImage;
+	static LLUIImagePtr	sPopularImage;
+	static LLUIImagePtr	sForSaleImage;
 
 	static F32		sThresholdA;
 	static F32		sThresholdB;

@@ -42,6 +42,7 @@
 #include "llui.h"
 #include "llfocusmgr.h"
 
+static LLRegisterWidget<LLRadioGroup> r("radio_group");
 
 LLRadioGroup::LLRadioGroup(const LLString& name, const LLRect& rect,
 						   const LLString& control_name,
@@ -161,11 +162,11 @@ BOOL LLRadioGroup::setSelectedIndex(S32 index, BOOL from_event)
 	return TRUE;
 }
 
-BOOL LLRadioGroup::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+BOOL LLRadioGroup::handleKeyHere(KEY key, MASK mask)
 {
 	BOOL handled = FALSE;
 	// do any of the tab buttons have keyboard focus?
-	if (getEnabled() && !called_from_parent && mask == MASK_NONE)
+	if (mask == MASK_NONE)
 	{
 		switch(key)
 		{

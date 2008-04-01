@@ -133,7 +133,7 @@ LLDrawable *LLVOWater::createDrawable(LLPipeline *pipeline)
 	}
 	else
 	{
-		mDrawable->setNumFaces(1, pool, gWorldp->getDefaultWaterTexture());
+		mDrawable->setNumFaces(1, pool, LLWorld::getInstance()->getDefaultWaterTexture());
 	}
 
 	return mDrawable;

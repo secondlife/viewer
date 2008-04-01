@@ -104,7 +104,7 @@ public:
 //-----------------------------------------------------------------------
 // LLToolCompTranslate
 
-class LLToolCompInspect : public LLToolComposite
+class LLToolCompInspect : public LLToolComposite, public LLSingleton<LLToolCompInspect>
 {
 public:
 	LLToolCompInspect();
@@ -120,7 +120,7 @@ public:
 //-----------------------------------------------------------------------
 // LLToolCompTranslate
 
-class LLToolCompTranslate : public LLToolComposite
+class LLToolCompTranslate : public LLToolComposite, public LLSingleton<LLToolCompTranslate>
 {
 public:
 	LLToolCompTranslate();
@@ -141,7 +141,7 @@ public:
 //-----------------------------------------------------------------------
 // LLToolCompScale
 
-class LLToolCompScale : public LLToolComposite
+class LLToolCompScale : public LLToolComposite, public LLSingleton<LLToolCompScale>
 {
 public:
 	LLToolCompScale();
@@ -163,7 +163,7 @@ public:
 //-----------------------------------------------------------------------
 // LLToolCompRotate
 
-class LLToolCompRotate : public LLToolComposite
+class LLToolCompRotate : public LLToolComposite, public LLSingleton<LLToolCompRotate>
 {
 public:
 	LLToolCompRotate();
@@ -186,7 +186,7 @@ protected:
 //-----------------------------------------------------------------------
 // LLToolCompCreate
 
-class LLToolCompCreate : public LLToolComposite
+class LLToolCompCreate : public LLToolComposite, public LLSingleton<LLToolCompCreate>
 {
 public:
 	LLToolCompCreate();
@@ -211,7 +211,7 @@ class LLToolGun;
 class LLToolGrab;
 class LLToolSelect;
 
-class LLToolCompGun : public LLToolComposite
+class LLToolCompGun : public LLToolComposite, public LLSingleton<LLToolCompGun>
 {
 public:
 	LLToolCompGun();
@@ -234,11 +234,5 @@ protected:
 	LLTool*				mNull;
 };
 
-extern LLToolCompInspect	*gToolInspect;
-extern LLToolCompTranslate	*gToolTranslate;
-extern LLToolCompScale		*gToolStretch;
-extern LLToolCompRotate		*gToolRotate;
-extern LLToolCompCreate		*gToolCreate;
-extern LLToolCompGun		*gToolGun;
 
 #endif  // LL_TOOLCOMP_H

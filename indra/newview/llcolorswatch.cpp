@@ -50,6 +50,8 @@
 #include "llviewerimagelist.h"
 #include "llfocusmgr.h"
 
+static LLRegisterWidget<LLColorSwatchCtrl> r("color_swatch");
+
 LLColorSwatchCtrl::LLColorSwatchCtrl(const std::string& name, const LLRect& rect, const LLColor4& color,
 		void (*commit_callback)(LLUICtrl* ctrl, void* userdata),
 		void* userdata )
@@ -74,8 +76,7 @@ LLColorSwatchCtrl::LLColorSwatchCtrl(const std::string& name, const LLRect& rect
 	mBorder = new LLViewBorder("border", border_rect, LLViewBorder::BEVEL_IN);
 	addChild(mBorder);
 
-	mAlphaGradientImage = gImageList.getImageFromUUID(LLUUID(gViewerArt.getString("color_swatch_alpha.tga")),
-													  MIPMAP_FALSE, TRUE, GL_ALPHA8, GL_ALPHA);
+	mAlphaGradientImage = LLUI::getUIImage("color_swatch_alpha.tga");
 }
 
 LLColorSwatchCtrl::LLColorSwatchCtrl(const std::string& name, const LLRect& rect, const std::string& label, const LLColor4& color,
@@ -102,8 +103,7 @@ LLColorSwatchCtrl::LLColorSwatchCtrl(const std::string& name, const LLRect& rect
 	mBorder = new LLViewBorder("border", border_rect, LLViewBorder::BEVEL_IN);
 	addChild(mBorder);
 
-	mAlphaGradientImage = gImageList.getImageFromUUID(LLUUID(gViewerArt.getString("color_swatch_alpha.tga")),
-													  MIPMAP_FALSE, TRUE, GL_ALPHA8, GL_ALPHA);
+	mAlphaGradientImage = LLUI::getUIImage("color_swatch_alpha.tga");
 }
 
 LLColorSwatchCtrl::~LLColorSwatchCtrl ()
@@ -129,13 +129,13 @@ BOOL LLColorSwatchCtrl::handleHover(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
-BOOL LLColorSwatchCtrl::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent)
+BOOL LLColorSwatchCtrl::handleUnicodeCharHere(llwchar uni_char)
 {
-	if( getVisible() && getEnabled() && !called_from_parent && ' ' == uni_char )
+	if( ' ' == uni_char )
 	{
 		showPicker(TRUE);
 	}
-	return LLUICtrl::handleUnicodeCharHere(uni_char, called_from_parent);
+	return LLUICtrl::handleUnicodeCharHere(uni_char);
 }
 
 // forces color of this swatch and any associated floater to the input value, if currently invalid
@@ -203,46 +203,41 @@ BOOL LLColorSwatchCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 // assumes GL state is set for 2D
 void LLColorSwatchCtrl::draw()
 {
-	if( getVisible() )
+	mBorder->setKeyboardFocusHighlight(hasFocus());
+	// Draw border
+	LLRect border( 0, getRect().getHeight(), getRect().getWidth(), BTN_HEIGHT_SMALL );
+	gl_rect_2d( border, mBorderColor, FALSE );
+
+	LLRect interior = border;
+	interior.stretch( -1 );
+
+	// Check state
+	if ( mValid )
 	{
-		mBorder->setKeyboardFocusHighlight(hasFocus());
-		// Draw border
-		LLRect border( 0, getRect().getHeight(), getRect().getWidth(), BTN_HEIGHT_SMALL );
-		gl_rect_2d( border, mBorderColor, FALSE );
-
-		LLRect interior = border;
-		interior.stretch( -1 );
-
-		// Check state
-		if ( mValid )
+		// Draw the color swatch
+		gl_rect_2d_checkerboard( interior );
+		gl_rect_2d(interior, mColor, TRUE);
+		LLColor4 opaque_color = mColor;
+		opaque_color.mV[VALPHA] = 1.f;
+		gGL.color4fv(opaque_color.mV);
+		if (mAlphaGradientImage.notNull())
 		{
-			// Draw the color swatch
-			gl_rect_2d_checkerboard( interior );
-			gl_rect_2d(interior, mColor, TRUE);
-			LLColor4 opaque_color = mColor;
-			opaque_color.mV[VALPHA] = 1.f;
-			gGL.color4fv(opaque_color.mV);
-			if (mAlphaGradientImage.notNull())
+			gGL.pushMatrix();
 			{
-				gGL.pushMatrix();
-				{
-					gGL.translatef((F32)interior.mLeft, (F32)interior.mBottom, 0.f);
-					LLViewerImage::bindTexture(mAlphaGradientImage);
-					gl_rect_2d_simple_tex(interior.getWidth(), interior.getHeight());
-				}
-				gGL.popMatrix();
+				mAlphaGradientImage->draw(interior, mColor);
 			}
+			gGL.popMatrix();
 		}
-		else
-		{
-			// Draw grey and an X
-			gl_rect_2d(interior, LLColor4::grey, TRUE);
-
-			gl_draw_x(interior, LLColor4::black);
-		}
-
-		LLUICtrl::draw();
 	}
+	else
+	{
+		// Draw grey and an X
+		gl_rect_2d(interior, LLColor4::grey, TRUE);
+
+		gl_draw_x(interior, LLColor4::black);
+	}
+
+	LLUICtrl::draw();
 }
 
 void LLColorSwatchCtrl::setEnabled( BOOL enabled )

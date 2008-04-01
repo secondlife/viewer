@@ -439,7 +439,7 @@ void LLVOSky::initCubeMap()
 	{
 		mCubeMap->init(images);
 	}
-	else if (gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap && gFeatureManagerp->isFeatureAvailable("RenderCubeMap"))
+	else if (gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap && LLFeatureManager::getInstance()->isFeatureAvailable("RenderCubeMap"))
 	{
 		mCubeMap = new LLCubeMap();
 		mCubeMap->init(images);
@@ -477,7 +477,7 @@ void LLVOSky::restoreGL()
 	calcAtmospherics();	
 
 	if (gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap
-	    && gFeatureManagerp->isFeatureAvailable("RenderCubeMap"))
+	    && LLFeatureManager::getInstance()->isFeatureAvailable("RenderCubeMap"))
 	{
 		LLCubeMap* cube_map = getCubeMap();
 
@@ -1102,7 +1102,7 @@ BOOL LLVOSky::updateSky()
 				{
                     if (mForceUpdate)
 					{
-						updateFog(gCamera->getFar());
+						updateFog(LLViewerCamera::getInstance()->getFar());
 						for (int side = 0; side < 6; side++) 
 						{
 							for (int tile = 0; tile < NUM_TILES; tile++) 
@@ -1331,7 +1331,7 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 		}
 	}
 
-	const LLVector3 &look_at = gCamera->getAtAxis();
+	const LLVector3 &look_at = LLViewerCamera::getInstance()->getAtAxis();
 	LLVector3 right = look_at % LLVector3::z_axis;
 	LLVector3 up = right % look_at;
 	right.normVec();
@@ -1343,7 +1343,7 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 	mMoon.setDraw(updateHeavenlyBodyGeometry(drawable, FACE_MOON, FALSE, mMoon, cos_max_angle, up, right));
 
 	const F32 water_height = gAgent.getRegion()->getWaterHeight() + 0.01f;
-		// gWorldPointer->getWaterHeight() + 0.01f;
+		// LLWorld::getInstance()->getWaterHeight() + 0.01f;
 	const F32 camera_height = mCameraPosAgent.mV[2];
 	const F32 height_above_water = camera_height - water_height;
 
@@ -1691,9 +1691,9 @@ F32 dtClip(const LLVector3& v0, const LLVector3& v1, F32 far_clip2)
 void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 										 const LLHeavenBody& HB)
 {
-	const LLVector3 &look_at = gCamera->getAtAxis();
+	const LLVector3 &look_at = LLViewerCamera::getInstance()->getAtAxis();
 	// const F32 water_height = gAgent.getRegion()->getWaterHeight() + 0.001f;
-	// gWorldPointer->getWaterHeight() + 0.001f;
+	// LLWorld::getInstance()->getWaterHeight() + 0.001f;
 
 	LLVector3 to_dir = HB.getDirection();
 	LLVector3 hb_pos = to_dir * (HORIZON_DIST - 10);
@@ -1824,7 +1824,7 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 		side = 2;
 	}
 
-	//const F32 far_clip = (gCamera->getFar() - 0.01) / far_clip_factor;
+	//const F32 far_clip = (LLViewerCamera::getInstance()->getFar() - 0.01) / far_clip_factor;
 	const F32 far_clip = 512;
 	const F32 far_clip2 = far_clip*far_clip;
 
@@ -2022,10 +2022,10 @@ void LLVOSky::updateFog(const F32 distance)
 	LLColor4 target_fog(0.f, 0.2f, 0.5f, 0.f);
 
 	const F32 water_height = gAgent.getRegion()->getWaterHeight();
-	// gWorldPointer->getWaterHeight();
+	// LLWorld::getInstance()->getWaterHeight();
 	F32 camera_height = gAgent.getCameraPositionAgent().mV[2];
 
-	F32 near_clip_height = gCamera->getAtAxis().mV[VZ] * gCamera->getNear();
+	F32 near_clip_height = LLViewerCamera::getInstance()->getAtAxis().mV[VZ] * LLViewerCamera::getInstance()->getNear();
 	camera_height += near_clip_height;
 
 	F32 fog_distance = 0.f;

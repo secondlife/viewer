@@ -70,7 +70,6 @@ const F32	CURSOR_FLASH_DELAY = 1.0f;  // in seconds
 const S32	SCROLL_INCREMENT_ADD = 0;	// make space for typing
 const S32   SCROLL_INCREMENT_DEL = 4;	// make space for baskspacing
 const F32   AUTO_SCROLL_TIME = 0.05f;
-const F32	LABEL_HPAD = 5.f;
 
 const F32	PREEDIT_MARKER_BRIGHTNESS = 0.4f;
 const S32	PREEDIT_MARKER_GAP = 1;
@@ -80,6 +79,10 @@ const F32	PREEDIT_STANDOUT_BRIGHTNESS = 0.6f;
 const S32	PREEDIT_STANDOUT_GAP = 1;
 const S32	PREEDIT_STANDOUT_POSITION = 2;
 const S32	PREEDIT_STANDOUT_THICKNESS = 2;
+
+static LLRegisterWidget<LLLineEditor> r1("line_editor");
+
+/* static */ LLPointer<LLUIImage> LLLineEditor::sImage;
 
 //
 // Member functions
@@ -101,8 +104,8 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 		mMaxLengthBytes(max_length_bytes),
 		mCursorPos( 0 ),
 		mScrollHPos( 0 ),
-		mBorderLeft(0),
-		mBorderRight(0),
+		mTextPadLeft(0),
+		mTextPadRight(0),
 		mCommitOnFocusLost( TRUE ),
 		mRevertOnEsc( TRUE ),
 		mKeystrokeCallback( keystroke_callback ),
@@ -128,7 +131,8 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 		mHandleEditKeysDirectly( FALSE ),
 		mSelectAllonFocusReceived( FALSE ),
 		mPassDelete(FALSE),
-		mReadOnly(FALSE)
+		mReadOnly(FALSE),
+		mImage( sImage )
 {
 	llassert( max_length_bytes > 0 );
 
@@ -151,8 +155,7 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 
 	setFocusLostCallback(focus_lost_callback);
 
-	mMinHPixels = mBorderThickness + UI_LINEEDITOR_H_PAD + mBorderLeft;
-	mMaxHPixels = getRect().getWidth() - mMinHPixels - mBorderThickness - mBorderRight;
+	setTextPadding(0, 0);
 
 	mScrollTimer.reset();
 
@@ -166,6 +169,12 @@ LLLineEditor::LLLineEditor(const LLString& name, const LLRect& rect,
 	mBorder = new LLViewBorder( "line ed border", border_rect, border_bevel, border_style, mBorderThickness );
 	addChild( mBorder );
 	mBorder->setFollows(FOLLOWS_LEFT|FOLLOWS_RIGHT|FOLLOWS_TOP|FOLLOWS_BOTTOM);
+
+	if( ! sImage)
+	{
+		sImage = LLUI::getUIImage("sm_rounded_corners_simple.tga");
+	}
+	mImage = sImage;
 }
 
 
@@ -243,9 +252,9 @@ void LLLineEditor::updateHistory()
 
 void LLLineEditor::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	LLUICtrl::reshape(width, height, called_from_parent );
-
-	mMaxHPixels = getRect().getWidth() - 2 * (mBorderThickness + UI_LINEEDITOR_H_PAD) + 1 - mBorderRight;
+	LLUICtrl::reshape(width, height, called_from_parent);
+	setTextPadding(mTextPadLeft, mTextPadRight); // For clamping side-effect.
+	setCursor(mCursorPos); // For clamping side-effect.
 }
 
 void LLLineEditor::setEnabled(BOOL enabled)
@@ -262,12 +271,12 @@ void LLLineEditor::setMaxTextLength(S32 max_text_length)
 	mMaxLengthBytes = max_len;
 } 
 
-void LLLineEditor::setBorderWidth(S32 left, S32 right)
+void LLLineEditor::setTextPadding(S32 left, S32 right)
 {
-	mBorderLeft = llclamp(left, 0, getRect().getWidth());
-	mBorderRight = llclamp(right, 0, getRect().getWidth());
-	mMinHPixels = mBorderThickness + UI_LINEEDITOR_H_PAD + mBorderLeft;
-	mMaxHPixels = getRect().getWidth() - mMinHPixels - mBorderThickness - mBorderRight;
+	mTextPadLeft = llclamp(left, 0, getRect().getWidth());
+	mTextPadRight = llclamp(right, 0, getRect().getWidth());
+	mMinHPixels = UI_LINEEDITOR_H_PAD + mTextPadLeft;
+	mMaxHPixels = getRect().getWidth() - mMinHPixels - mTextPadRight;
 }
 
 
@@ -483,9 +492,10 @@ BOOL LLLineEditor::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (x < mBorderLeft || x > (getRect().getWidth() - mBorderRight))
+	// Check first whether the "clear search" button wants to deal with this.
+	if(childrenHandleMouseDown(x, y, mask) != NULL) 
 	{
-		return LLUICtrl::handleMouseDown(x, y, mask);
+		return TRUE;
 	}
 	if (mSelectAllonFocusReceived
 		&& gFocusMgr.getKeyboardFocus() != this)
@@ -563,61 +573,62 @@ BOOL LLLineEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLLineEditor::handleHover(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = FALSE;
-	if (!hasMouseCapture() && (x < mBorderLeft || x > (getRect().getWidth() - mBorderRight)))
+	// Check first whether the "clear search" button wants to deal with this.
+	if(!hasMouseCapture())
 	{
-		return LLUICtrl::handleHover(x, y, mask);
+		if(childrenHandleHover(x, y, mask) != NULL) 
+		{
+			return TRUE;
+		}
 	}
 
-	if( getVisible() )
+	if( (hasMouseCapture()) && mIsSelecting )
 	{
-		if( (hasMouseCapture()) && mIsSelecting )
+		if (x != mLastSelectionX || y != mLastSelectionY)
 		{
-			if (x != mLastSelectionX || y != mLastSelectionY)
+			mLastSelectionX = x;
+			mLastSelectionY = y;
+		}
+		// Scroll if mouse cursor outside of bounds
+		if (mScrollTimer.hasExpired())
+		{
+			S32 increment = llround(mScrollTimer.getElapsedTimeF32() / AUTO_SCROLL_TIME);
+			mScrollTimer.reset();
+			mScrollTimer.setTimerExpirySec(AUTO_SCROLL_TIME);
+			if( (x < mMinHPixels) && (mScrollHPos > 0 ) )
 			{
-				mLastSelectionX = x;
-				mLastSelectionY = y;
+				// Scroll to the left
+				mScrollHPos = llclamp(mScrollHPos - increment, 0, mText.length());
 			}
-			// Scroll if mouse cursor outside of bounds
-			if (mScrollTimer.hasExpired())
+			else
+			if( (x > mMaxHPixels) && (mCursorPos < (S32)mText.length()) )
 			{
-				S32 increment = llround(mScrollTimer.getElapsedTimeF32() / AUTO_SCROLL_TIME);
-				mScrollTimer.reset();
-				mScrollTimer.setTimerExpirySec(AUTO_SCROLL_TIME);
-				if( (x < mMinHPixels) && (mScrollHPos > 0 ) )
+				// If scrolling one pixel would make a difference...
+				S32 pixels_after_scrolling_one_char = findPixelNearestPos(1);
+				if( pixels_after_scrolling_one_char >= mMaxHPixels )
 				{
-					// Scroll to the left
-					mScrollHPos = llclamp(mScrollHPos - increment, 0, mText.length());
-				}
-				else
-				if( (x > mMaxHPixels) && (mCursorPos < (S32)mText.length()) )
-				{
-					// If scrolling one pixel would make a difference...
-					S32 pixels_after_scrolling_one_char = findPixelNearestPos(1);
-					if( pixels_after_scrolling_one_char >= mMaxHPixels )
-					{
-						// ...scroll to the right
-						mScrollHPos = llclamp(mScrollHPos + increment, 0, mText.length());
-					}
+					// ...scroll to the right
+					mScrollHPos = llclamp(mScrollHPos + increment, 0, mText.length());
 				}
 			}
-
-			setCursorAtLocalPos( x );
-			mSelectionEnd = getCursor();
-
-			// delay cursor flashing
-			mKeystrokeTimer.reset();
-
-			getWindow()->setCursor(UI_CURSOR_IBEAM);
-			lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (active)" << llendl;		
-			handled = TRUE;
 		}
 
-		if( !handled  )
-		{
-			getWindow()->setCursor(UI_CURSOR_IBEAM);
-			lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (inactive)" << llendl;		
-			handled = TRUE;
-		}
+		setCursorAtLocalPos( x );
+		mSelectionEnd = getCursor();
+
+		// delay cursor flashing
+		mKeystrokeTimer.reset();
+
+		getWindow()->setCursor(UI_CURSOR_IBEAM);
+		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (active)" << llendl;		
+		handled = TRUE;
+	}
+
+	if( !handled  )
+	{
+		getWindow()->setCursor(UI_CURSOR_IBEAM);
+		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (inactive)" << llendl;		
+		handled = TRUE;
 	}
 
 	return handled;
@@ -634,9 +645,10 @@ BOOL LLLineEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 		handled = TRUE;
 	}
 
-	if (!handled && (x < mBorderLeft || x > (getRect().getWidth() - mBorderRight)))
+	// Check first whether the "clear search" button wants to deal with this.
+	if(!handled && childrenHandleMouseUp(x, y, mask) != NULL) 
 	{
-		return LLUICtrl::handleMouseUp(x, y, mask);
+		return TRUE;
 	}
 
 	if( mIsSelecting )
@@ -1223,12 +1235,12 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 }
 
 
-BOOL LLLineEditor::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent )
+BOOL LLLineEditor::handleKeyHere(KEY key, MASK mask )
 {
 	BOOL	handled = FALSE;
 	BOOL	selection_modified = FALSE;
 
-	if ( (gFocusMgr.getKeyboardFocus() == this) && getVisible())
+	if ( gFocusMgr.getKeyboardFocus() == this )
 	{
 		LLLineEditorRollback rollback( this );
 
@@ -1291,7 +1303,7 @@ BOOL LLLineEditor::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent )
 }
 
 
-BOOL LLLineEditor::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent)
+BOOL LLLineEditor::handleUnicodeCharHere(llwchar uni_char)
 {
 	if ((uni_char < 0x20) || (uni_char == 0x7F)) // Control character or DEL
 	{
@@ -1381,11 +1393,6 @@ void LLLineEditor::doDelete()
 
 void LLLineEditor::draw()
 {
-	if( !getVisible() )
-	{
-		return;
-	}
-
 	S32 text_len = mText.length();
 
 	LLString saved_text;
@@ -1406,6 +1413,13 @@ void LLLineEditor::draw()
 
 	LLColor4 bg_color = mReadOnlyBgColor;
 
+#if 0 // for when we're ready for image art.
+	if( hasFocus())
+	{
+		mImage->drawBorder(0, 0, getRect().getWidth(), getRect().getHeight(), gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
+	}
+	mImage->draw(getLocalRect(), mReadOnly ? mReadOnlyBgColor : mWriteableBgColor  );
+#else // the old programmer art.
 	// drawing solids requires texturing be disabled
 	{
 		LLGLSNoTexture no_texture;
@@ -1423,6 +1437,7 @@ void LLLineEditor::draw()
 		}
 		gl_rect_2d(background, bg_color);
 	}
+#endif
 
 	// draw text
 
@@ -1560,10 +1575,14 @@ void LLLineEditor::draw()
 			mMaxHPixels - llround(rendered_pixels_right),
 			&rendered_pixels_right);
 	}
+#if 0 // for when we're ready for image art.
+	mBorder->setVisible(FALSE); // no more programmatic art.
+#endif
 
 	// If we're editing...
 	if( gFocusMgr.getKeyboardFocus() == this)
 	{
+		//mBorder->setVisible(TRUE); // ok, programmer art just this once.
 		// (Flash the cursor every half second)
 		if (gShowTextEditCursor && !mReadOnly)
 		{
@@ -1616,7 +1635,7 @@ void LLLineEditor::draw()
 		if (0 == mText.length())
 		{
 			mGLFont->render(mLabel.getWString(), 0, 
-							LABEL_HPAD, (F32)text_bottom,
+							mMinHPixels, (F32)text_bottom,
 							label_color,
 							LLFontGL::LEFT, LLFontGL::BOTTOM,
 							LLFontGL::NORMAL,
@@ -1757,7 +1776,7 @@ BOOL LLLineEditor::prevalidateFloat(const LLWString &str)
 	if( 0 < len )
 	{
 		// May be a comma or period, depending on the locale
-		llwchar decimal_point = (llwchar)gResMgr->getDecimalPoint();
+		llwchar decimal_point = (llwchar)LLResMgr::getInstance()->getDecimalPoint();
 
 		S32 i = 0;
 
@@ -1806,7 +1825,7 @@ BOOL LLLineEditor::postvalidateFloat(const LLString &str)
 		}
 
 		// May be a comma or period, depending on the locale
-		llwchar decimal_point = (llwchar)gResMgr->getDecimalPoint();
+		llwchar decimal_point = (llwchar)LLResMgr::getInstance()->getDecimalPoint();
 
 		for( ; i < len; i++ )
 		{
@@ -2244,8 +2263,27 @@ LLView* LLLineEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 	return line_editor;
 }
 
+//static
+void LLLineEditor::cleanupClass()
+{
+	sImage = NULL;
+}
+
+/* static */ 
+LLPointer<LLUIImage> LLLineEditor::parseImage(LLString name, LLXMLNodePtr from, LLPointer<LLUIImage> def)
+{
+	LLString xml_name;
+	if (from->hasAttribute(name)) from->getAttributeString(name, xml_name);
+	if (xml_name == LLString::null) return def;
+	LLPointer<LLUIImage> image = LLUI::getUIImage(xml_name);
+	return image.isNull() ? def : image;
+}
+
 void LLLineEditor::setColorParameters(LLXMLNodePtr node)
 {
+	// overrides default image if supplied.
+	mImage = parseImage("image", node, mImage);
+
 	LLColor4 color;
 	if (LLUICtrlFactory::getAttributeColor(node,"cursor_color", color)) 
 	{
@@ -2510,6 +2548,9 @@ S32 LLLineEditor::getPreeditFontSize() const
 }
 
 
+static LLRegisterWidget<LLSearchEditor> r2("search_editor");
+
+
 LLSearchEditor::LLSearchEditor(const LLString& name, 
 		const LLRect& rect,
 		S32 max_length_bytes,
@@ -2539,7 +2580,7 @@ LLSearchEditor::LLSearchEditor(const LLString& name,
 	LLRect clear_btn_rect(rect.getWidth() - btn_width, rect.getHeight(), rect.getWidth(), 0);
 	mClearSearchButton = new LLButton("clear search", 
 								clear_btn_rect, 
-								"closebox.tga",
+								"icn_clear_lineeditor.tga",
 								"UIImgBtnCloseInactiveUUID",
 								LLString::null,
 								onClearSearch,
@@ -2552,9 +2593,42 @@ LLSearchEditor::LLSearchEditor(const LLString& name,
 	mClearSearchButton->setTabStop(FALSE);
 	mSearchEdit->addChild(mClearSearchButton);
 
-	mSearchEdit->setBorderWidth(0, btn_width);
+	mSearchEdit->setTextPadding(0, btn_width);
 }
 
+
+//virtual
+void LLSearchEditor::setValue(const LLSD& value )
+{
+	mSearchEdit->setValue(value);
+}
+
+//virtual
+LLSD LLSearchEditor::getValue() const
+{
+	return mSearchEdit->getValue();
+}
+
+//virtual
+BOOL LLSearchEditor::setTextArg( const LLString& key, const LLStringExplicit& text )
+{
+	return mSearchEdit->setTextArg(key, text);
+}
+
+//virtual
+BOOL LLSearchEditor::setLabelArg( const LLString& key, const LLStringExplicit& text )
+{
+	return mSearchEdit->setLabelArg(key, text);
+}
+
+//virtual
+void LLSearchEditor::clear()
+{
+	if (mSearchEdit)
+	{
+		mSearchEdit->clear();
+	}
+}
 
 void LLSearchEditor::draw()
 {

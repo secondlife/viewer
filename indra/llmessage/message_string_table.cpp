@@ -46,8 +46,6 @@ inline U32	message_hash_my_string(const char *str)
 }
 
 
-LLMessageStringTable gMessageStringTable;
-
 
 LLMessageStringTable::LLMessageStringTable()
 :	mUsed(0)

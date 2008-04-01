@@ -42,9 +42,6 @@ public:
 
 	LLResizeBar(const LLString& name, LLView* resizing_view, const LLRect& rect, S32 min_size, S32 max_size, Side side );
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_RESIZE_BAR; }
-	virtual LLString getWidgetTag() const { return LL_RESIZE_BAR_TAG; }
-
 //	virtual void	draw();  No appearance
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);

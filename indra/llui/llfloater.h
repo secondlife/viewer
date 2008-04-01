@@ -50,7 +50,7 @@ class LLMultiFloater;
 const S32 LLFLOATER_VPAD = 6;
 const S32 LLFLOATER_HPAD = 6;
 const S32 LLFLOATER_CLOSE_BOX_SIZE = 16;
-const S32 LLFLOATER_HEADER_SIZE = 16;
+const S32 LLFLOATER_HEADER_SIZE = 18;
 
 const BOOL RESIZE_YES = TRUE;
 const BOOL RESIZE_NO = FALSE;
@@ -122,8 +122,6 @@ public:
 	virtual void		init(const LLString& title, BOOL resizable, 
 						S32 min_width, S32 min_height, BOOL drag_on_left,
 						BOOL minimizable, BOOL close_btn);
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_FLOATER; }
-	virtual LLString getWidgetTag() const { return LL_FLOATER_TAG; };
 
 	virtual void	open();	/* Flawfinder: ignore */
 
@@ -302,9 +300,6 @@ class LLFloaterView : public LLUICtrl
 public:
 	LLFloaterView( const LLString& name, const LLRect& rect );
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_FLOATER_VIEW; }
-	virtual LLString getWidgetTag() const { return LL_FLOATER_VIEW_TAG; }
-
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
 	void reshape(S32 width, S32 height, BOOL called_from_parent, BOOL adjust_vertical);
 
@@ -373,9 +368,7 @@ public:
 	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void draw();
 	/*virtual*/ void setVisible(BOOL visible);
-	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
-	/*virtual*/ EWidgetType getWidgetType() const { return WIDGET_TYPE_MULTI_FLOATER; }
-	/*virtual*/ LLString getWidgetTag() const { return LL_MULTI_FLOATER_TAG; };
+	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
 
 	virtual void setCanResize(BOOL can_resize);
 	virtual void growToFit(S32 content_width, S32 content_height);

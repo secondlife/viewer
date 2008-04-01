@@ -52,7 +52,7 @@
 #include "lltexturectrl.h"
 #include "lluiconstants.h"
 #include "llviewergenericmessage.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerparcelmgr.h"
 #include "llworldmap.h"
 #include "llfloaterworldmap.h"
@@ -88,11 +88,11 @@ LLPanelPick::LLPanelPick(BOOL top_pick)
 	std::string pick_def_file;
 	if (top_pick)
 	{
-		gUICtrlFactory->buildPanel(this, "panel_top_pick.xml");
+		LLUICtrlFactory::getInstance()->buildPanel(this, "panel_top_pick.xml");
 	}
 	else
 	{
-		gUICtrlFactory->buildPanel(this, "panel_avatar_pick.xml");
+		LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_pick.xml");
 	}	
 }
 
@@ -121,44 +121,44 @@ void LLPanelPick::reset()
 
 BOOL LLPanelPick::postBuild()
 {
-    mSnapshotCtrl = LLViewerUICtrlFactory::getTexturePickerByName(this, "snapshot_ctrl");
+    mSnapshotCtrl = getChild<LLTextureCtrl>("snapshot_ctrl");
 	mSnapshotCtrl->setCommitCallback(onCommitAny);
 	mSnapshotCtrl->setCallbackUserData(this);
 
-    mNameEditor = LLViewerUICtrlFactory::getLineEditorByName(this, "given_name_editor");
+    mNameEditor = getChild<LLLineEditor>("given_name_editor");
 	mNameEditor->setCommitOnFocusLost(TRUE);
 	mNameEditor->setCommitCallback(onCommitAny);
 	mNameEditor->setCallbackUserData(this);
 
-    mDescEditor = LLUICtrlFactory::getTextEditorByName(this, "desc_editor");
+    mDescEditor = getChild<LLTextEditor>("desc_editor");
 	mDescEditor->setCommitOnFocusLost(TRUE);
 	mDescEditor->setCommitCallback(onCommitAny);
 	mDescEditor->setCallbackUserData(this);
 	mDescEditor->setTabsToNextField(TRUE);
 
-    mLocationEditor = LLViewerUICtrlFactory::getLineEditorByName(this, "location_editor");
+    mLocationEditor = getChild<LLLineEditor>("location_editor");
 
-    mSetBtn = LLViewerUICtrlFactory::getButtonByName(this, "set_location_btn");
+    mSetBtn = getChild<LLButton>( "set_location_btn");
     mSetBtn->setClickedCallback(onClickSet);
     mSetBtn->setCallbackUserData(this);
 
-    mTeleportBtn = LLViewerUICtrlFactory::getButtonByName(this, "pick_teleport_btn");
+    mTeleportBtn = getChild<LLButton>( "pick_teleport_btn");
     mTeleportBtn->setClickedCallback(onClickTeleport);
     mTeleportBtn->setCallbackUserData(this);
 
-    mMapBtn = LLViewerUICtrlFactory::getButtonByName(this, "pick_map_btn");
+    mMapBtn = getChild<LLButton>( "pick_map_btn");
     mMapBtn->setClickedCallback(onClickMap);
     mMapBtn->setCallbackUserData(this);
 
-	mSortOrderText = LLViewerUICtrlFactory::getTextBoxByName(this, "sort_order_text");
+	mSortOrderText = getChild<LLTextBox>("sort_order_text");
 
-	mSortOrderEditor = LLViewerUICtrlFactory::getLineEditorByName(this, "sort_order_editor");
+	mSortOrderEditor = getChild<LLLineEditor>("sort_order_editor");
 	mSortOrderEditor->setPrevalidate(LLLineEditor::prevalidateInt);
 	mSortOrderEditor->setCommitOnFocusLost(TRUE);
 	mSortOrderEditor->setCommitCallback(onCommitAny);
 	mSortOrderEditor->setCallbackUserData(this);
 
-	mEnabledCheck = LLViewerUICtrlFactory::getCheckBoxByName(this, "enabled_check");
+	mEnabledCheck = getChild<LLCheckBoxCtrl>( "enabled_check");
 	mEnabledCheck->setCommitCallback(onCommitAny);
 	mEnabledCheck->setCallbackUserData(this);
 
@@ -176,7 +176,7 @@ void LLPanelPick::initNewPick()
 	mPosGlobal = gAgent.getPositionGlobal();
 
 	// Try to fill in the current parcel
-	LLParcel* parcel = gParcelMgr->getAgentParcel();
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if (parcel)
 	{
 		mNameEditor->setText(parcel->getName());
@@ -367,12 +367,9 @@ void LLPanelPick::processPickInfoReply(LLMessageSystem *msg, void **)
 
 void LLPanelPick::draw()
 {
-	if (getVisible())
-	{
-		refresh();
+	refresh();
 
-		LLPanel::draw();
-	}
+	LLPanel::draw();
 }
 
 

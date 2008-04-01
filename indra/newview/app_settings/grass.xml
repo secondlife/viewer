@@ -3,35 +3,35 @@
   <grass
     name="Grass 0"
 	species_id="0"
- 	texture_name="grass_texture_2.tga"
+ 	texture_id="6c4727b8-ac79-ba44-3b81-f9aa887b47eb"
 	blade_size_x="1.35"
 	blade_size_y="1.35"
      />
   <grass
     name="Grass 1"
 	species_id="1"
- 	texture_name="grass_texture_1.tga"
+ 	texture_id="79504bf5-c3ec-0763-6563-d843de66d0a1"
 	blade_size_x="1.0"
 	blade_size_y="0.66"
      />
   <grass
     name="Grass 2"
 	species_id="2"
- 	texture_name="grass_texture_2.tga"
+ 	texture_id="6c4727b8-ac79-ba44-3b81-f9aa887b47eb"
 	blade_size_x="1.8"
 	blade_size_y="1.8"
      />
   <grass
     name="Grass 3"
 	species_id="3"
- 	texture_name="grass_texture_3.tga"
+ 	texture_id="99bd60a2-3250-efc9-2e39-2fbcadefbecc"
 	blade_size_x="1.0"
 	blade_size_y="1.0"
      />
   <grass
     name="Grass 4"
 	species_id="4"
- 	texture_name="grass_texture_4.tga"
+ 	texture_id="7a2b3a4a-53c2-53ac-5716-aac7d743c020"
 	blade_size_x="2.25"
 	blade_size_y="2.25"
      />

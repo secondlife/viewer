@@ -37,10 +37,10 @@
 // viewer project includes
 #include "llcommandhandler.h"
 #include "llpanelevent.h"
-#include "llvieweruictrlfactory.h"
 
 // linden library includes
 #include "lluuid.h"
+#include "lluictrlfactory.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // LLFloaterEventInfo
@@ -79,7 +79,7 @@ LLFloaterEventInfo::LLFloaterEventInfo(const std::string& name, const U32 event_
 {
 
 	mFactoryMap["event_details_panel"] = LLCallbackMap(LLFloaterEventInfo::createEventDetail, this);
-	gUICtrlFactory->buildFloater(this, "floater_preview_event.xml", &getFactoryMap());
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_preview_event.xml", &getFactoryMap());
 	gEventInfoInstances.addData(event_id, this);
 }
 
@@ -100,7 +100,7 @@ void* LLFloaterEventInfo::createEventDetail(void* userdata)
 {
 	LLFloaterEventInfo *self = (LLFloaterEventInfo*)userdata;
 	self->mPanelEventp = new LLPanelEvent();
-	gUICtrlFactory->buildPanel(self->mPanelEventp, "panel_event.xml");
+	LLUICtrlFactory::getInstance()->buildPanel(self->mPanelEventp, "panel_event.xml");
 
 	return self->mPanelEventp;
 }

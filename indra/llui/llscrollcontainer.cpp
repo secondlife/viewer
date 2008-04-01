@@ -61,6 +61,8 @@ static const F32 AUTO_SCROLL_RATE_ACCEL = 120.f;
 /// Class LLScrollableContainerView
 ///----------------------------------------------------------------------------
 
+static LLRegisterWidget<LLScrollableContainerView> r("scroll_container");
+
 // Default constructor
 LLScrollableContainerView::LLScrollableContainerView( const LLString& name,
 													  const LLRect& rect,
@@ -210,63 +212,33 @@ void LLScrollableContainerView::reshape(S32 width, S32 height,
 	}
 }
 
-BOOL LLScrollableContainerView::handleKey( KEY key, MASK mask, BOOL called_from_parent )
+BOOL LLScrollableContainerView::handleKeyHere(KEY key, MASK mask)
 {
-	if( getVisible() && getEnabled() )
+	for( S32 i = 0; i < SCROLLBAR_COUNT; i++ )
 	{
-		if( called_from_parent )
+		if( mScrollbar[i]->handleKeyHere(key, mask) )
 		{
-			// Downward traversal
-
-			// Don't pass keys to scrollbars on downward.
-
-			// Handle 'child' view.
-			if( mScrolledView && mScrolledView->handleKey(key, mask, TRUE) )
-			{
-				return TRUE;
-			}
+			return TRUE;
 		}
-		else
-		{
-			// Upward traversal
-			
-			for( S32 i = 0; i < SCROLLBAR_COUNT; i++ )
-			{
-				// Note: the scrollbar _is_ actually being called from it's parent.  Here
-				// we're delgating LLScrollableContainerView's upward traversal to the scrollbars
-				if( mScrollbar[i]->handleKey(key, mask, TRUE) )
-				{
-					return TRUE;
-				}
-			}
-
-			if (getParent()) 
-			{
-				return getParent()->handleKey( key, mask, FALSE );
-			}
-		}
-	}
+	}	
 
 	return FALSE;
 }
 
 BOOL LLScrollableContainerView::handleScrollWheel( S32 x, S32 y, S32 clicks )
 {
-	if( getEnabled() )
+	for( S32 i = 0; i < SCROLLBAR_COUNT; i++ )
 	{
-		for( S32 i = 0; i < SCROLLBAR_COUNT; i++ )
-		{
-			// Note: tries vertical and then horizontal
+		// Note: tries vertical and then horizontal
 
-			// Pretend the mouse is over the scrollbar
-			if( mScrollbar[i]->handleScrollWheel( 0, 0, clicks ) )
-			{
-				return TRUE;
-			}
+		// Pretend the mouse is over the scrollbar
+		if( mScrollbar[i]->handleScrollWheel( 0, 0, clicks ) )
+		{
+			return TRUE;
 		}
 	}
 
-	// Opaque
+	// Eat scroll wheel event (to avoid scrolling nested containers?)
 	return TRUE;
 }
 
@@ -446,80 +418,78 @@ void LLScrollableContainerView::draw()
 	// clear this flag to be set on next call to handleDragAndDrop
 	mAutoScrolling = FALSE;
 
-	if( getVisible() )
+	// auto-focus when scrollbar active
+	// this allows us to capture user intent (i.e. stop automatically scrolling the view/etc)
+	if (!gFocusMgr.childHasKeyboardFocus(this) && 
+		(mScrollbar[VERTICAL]->hasMouseCapture() || mScrollbar[HORIZONTAL]->hasMouseCapture()))
 	{
-		// auto-focus when scrollbar active
-		// this allows us to capture user intent (i.e. stop automatically scrolling the view/etc)
-		if (!gFocusMgr.childHasKeyboardFocus(this) && 
-			(mScrollbar[VERTICAL]->hasMouseCapture() || mScrollbar[HORIZONTAL]->hasMouseCapture()))
-		{
-			focusFirstItem();
-		}
+		focusFirstItem();
+	}
 
-		// Draw background
-		if( mIsOpaque )
-		{
-			LLGLSNoTexture no_texture;
-			gGL.color4fv( mBackgroundColor.mV );
-			gl_rect_2d( mInnerRect );
-		}
-		
-		// Draw mScrolledViews and update scroll bars.
-		// get a scissor region ready, and draw the scrolling view. The
-		// scissor region ensures that we don't draw outside of the bounds
-		// of the rectangle.
-		if( mScrolledView )
-		{
-			updateScroll();
+	// Draw background
+	if( mIsOpaque )
+	{
+		LLGLSNoTexture no_texture;
+		glColor4fv( mBackgroundColor.mV );
+		gl_rect_2d( mInnerRect );
+	}
+	
+	// Draw mScrolledViews and update scroll bars.
+	// get a scissor region ready, and draw the scrolling view. The
+	// scissor region ensures that we don't draw outside of the bounds
+	// of the rectangle.
+	if( mScrolledView )
+	{
+		updateScroll();
 
-			// Draw the scrolled area.
-			{
-				S32 visible_width = 0;
-				S32 visible_height = 0;
-				BOOL show_v_scrollbar = FALSE;
-				BOOL show_h_scrollbar = FALSE;
-				calcVisibleSize( mScrolledView->getRect(), &visible_width, &visible_height, &show_h_scrollbar, &show_v_scrollbar );
-
-				LLLocalClipRect clip(LLRect(mInnerRect.mLeft, 
-						mInnerRect.mBottom + (show_h_scrollbar ? SCROLLBAR_SIZE : 0) + visible_height,
-						visible_width,
-						mInnerRect.mBottom + (show_h_scrollbar ? SCROLLBAR_SIZE : 0)
-						));
-				drawChild(mScrolledView);
-			}
-		}
-
-		// Highlight border if a child of this container has keyboard focus
-		if( mBorder->getVisible() )
+		// Draw the scrolled area.
 		{
-			mBorder->setKeyboardFocusHighlight( gFocusMgr.childHasKeyboardFocus(this) );
-		}
+			S32 visible_width = 0;
+			S32 visible_height = 0;
+			BOOL show_v_scrollbar = FALSE;
+			BOOL show_h_scrollbar = FALSE;
+			calcVisibleSize( mScrolledView->getRect(), &visible_width, &visible_height, &show_h_scrollbar, &show_v_scrollbar );
 
-		// Draw all children except mScrolledView
-		// Note: scrollbars have been adjusted by above drawing code
-		for (child_list_const_reverse_iter_t child_iter = getChildList()->rbegin();
-			 child_iter != getChildList()->rend(); ++child_iter)
-		{
-			LLView *viewp = *child_iter;
-			if( sDebugRects )
-			{
-				sDepth++;
-			}
-			if( (viewp != mScrolledView) && viewp->getVisible() )
-			{
-				drawChild(viewp);
-			}
-			if( sDebugRects )
-			{
-				sDepth--;
-			}
-		}
-
-		if (sDebugRects)
-		{
-			drawDebugRect();
+			LLLocalClipRect clip(LLRect(mInnerRect.mLeft, 
+					mInnerRect.mBottom + (show_h_scrollbar ? SCROLLBAR_SIZE : 0) + visible_height,
+					visible_width,
+					mInnerRect.mBottom + (show_h_scrollbar ? SCROLLBAR_SIZE : 0)
+					));
+			drawChild(mScrolledView);
 		}
 	}
+
+	// Highlight border if a child of this container has keyboard focus
+	if( mBorder->getVisible() )
+	{
+		mBorder->setKeyboardFocusHighlight( gFocusMgr.childHasKeyboardFocus(this) );
+	}
+
+	// Draw all children except mScrolledView
+	// Note: scrollbars have been adjusted by above drawing code
+	for (child_list_const_reverse_iter_t child_iter = getChildList()->rbegin();
+		 child_iter != getChildList()->rend(); ++child_iter)
+	{
+		LLView *viewp = *child_iter;
+		if( sDebugRects )
+		{
+			sDepth++;
+		}
+		if( (viewp != mScrolledView) && viewp->getVisible() )
+		{
+			drawChild(viewp);
+		}
+		if( sDebugRects )
+		{
+			sDepth--;
+		}
+	}
+
+	if (sDebugRects)
+	{
+		drawDebugRect();
+	}
+
 } // end draw
 
 void LLScrollableContainerView::updateScroll()

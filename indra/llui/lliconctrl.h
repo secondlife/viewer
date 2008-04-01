@@ -51,14 +51,14 @@ public:
 	LLIconCtrl(const LLString& name, const LLRect &rect, const LLUUID &image_id);
 	LLIconCtrl(const LLString& name, const LLRect &rect, const LLString &image_name);
 	virtual ~LLIconCtrl();
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_ICON; }
-	virtual LLString getWidgetTag() const { return LL_ICON_CTRL_TAG; }
 
 	// llview overrides
 	virtual void	draw();
 
-	void			setImage(const LLUUID &image_id);
+	void			setImage(const LLString& image_name);
+	void			setImage(const LLUUID& image_name);
 	const LLUUID	&getImage() const						{ return mImageID; }
+	LLString		getImageName() const						{ return mImageName; }
 
 	// Takes a UUID, wraps get/setImage
 	virtual void	setValue(const LLSD& value );

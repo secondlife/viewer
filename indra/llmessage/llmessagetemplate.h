@@ -156,7 +156,7 @@ public:
 
 	LLMessageVariable(const char *name, const EMsgVariableType type, const S32 size) : mType(type), mSize(size) 
 	{
-		mName = gMessageStringTable.getString(name); 
+		mName = LLMessageStringTable::getInstance()->getString(name); 
 	}
 	
 	~LLMessageVariable() {}
@@ -187,7 +187,7 @@ class LLMessageBlock
 public:
 	LLMessageBlock(const char *name, EMsgBlockType type, S32 number = 1) : mType(type), mNumber(number), mTotalSize(0) 
 	{ 
-		mName = gMessageStringTable.getString(name);
+		mName = LLMessageStringTable::getInstance()->getString(name);
 	}
 
 	~LLMessageBlock()
@@ -293,7 +293,7 @@ public:
 		mHandlerFunc(NULL), 
 		mUserData(NULL)
 	{ 
-		mName = gMessageStringTable.getString(name);
+		mName = LLMessageStringTable::getInstance()->getString(name);
 	}
 
 	~LLMessageTemplate()

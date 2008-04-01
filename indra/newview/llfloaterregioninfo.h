@@ -212,7 +212,6 @@ public:
 	
 	// LLPanel && LLView
 	virtual BOOL postBuild();
-	virtual void draw();
 	
 protected:
 	virtual BOOL sendUpdate();

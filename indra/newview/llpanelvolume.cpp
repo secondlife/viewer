@@ -74,7 +74,7 @@
 #include "pipeline.h"
 
 #include "lldrawpool.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 // "Features" Tab
 
@@ -139,11 +139,11 @@ LLPanelVolume::~LLPanelVolume()
 
 void LLPanelVolume::getState( )
 {
-	LLViewerObject* objectp = gSelectMgr->getSelection()->getFirstRootObject();
+	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject();
 	LLViewerObject* root_objectp = objectp;
 	if(!objectp)
 	{
-		objectp = gSelectMgr->getSelection()->getFirstObject();
+		objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 		// *FIX: shouldn't we just keep the child?
 		if (objectp)
 		{
@@ -183,12 +183,12 @@ void LLPanelVolume::getState( )
 	BOOL owners_identical;
 	LLUUID owner_id;
 	LLString owner_name;
-	owners_identical = gSelectMgr->selectGetOwner(owner_id, owner_name);
+	owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
 
 	// BUG? Check for all objects being editable?
 	BOOL editable = root_objectp->permModify();
-	BOOL single_volume = gSelectMgr->selectionAllPCode( LL_PCODE_VOLUME )
-		&& gSelectMgr->getSelection()->getObjectCount() == 1;
+	BOOL single_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME )
+		&& LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1;
 
 	// Select Single Message
 	if (single_volume)
@@ -232,9 +232,9 @@ void LLPanelVolume::getState( )
 	}
 	else
 	{
-		((LLPanel *) getChildByName ("Light Intensity", true))->clear();
-		((LLPanel *) getChildByName ("Light Radius", true))->clear();
-		((LLPanel *) getChildByName ("Light Falloff", true))->clear();
+		getChild<LLSpinCtrl>("Light Intensity", true)->clear();
+		getChild<LLSpinCtrl>("Light Radius", true)->clear();
+		getChild<LLSpinCtrl>("Light Falloff", true)->clear();
 
 		childSetEnabled("label color",false);	
 		LLColorSwatchCtrl* LightColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
@@ -292,14 +292,14 @@ void LLPanelVolume::getState( )
 	}
 	else
 	{
-		((LLPanel *) getChildByName ("FlexNumSections", true))->clear();
-		((LLPanel *) getChildByName ("FlexGravity", true))->clear();
-		((LLPanel *) getChildByName ("FlexTension", true))->clear();
-		((LLPanel *) getChildByName ("FlexFriction", true))->clear();
-		((LLPanel *) getChildByName ("FlexWind", true))->clear();
-		((LLPanel *) getChildByName ("FlexForceX", true))->clear();
-		((LLPanel *) getChildByName ("FlexForceY", true))->clear();
-		((LLPanel *) getChildByName ("FlexForceZ", true))->clear();
+		getChild<LLSpinCtrl>("FlexNumSections", true)->clear();
+		getChild<LLSpinCtrl>("FlexGravity", true)->clear();
+		getChild<LLSpinCtrl>("FlexTension", true)->clear();
+		getChild<LLSpinCtrl>("FlexFriction", true)->clear();
+		getChild<LLSpinCtrl>("FlexWind", true)->clear();
+		getChild<LLSpinCtrl>("FlexForceX", true)->clear();
+		getChild<LLSpinCtrl>("FlexForceY", true)->clear();
+		getChild<LLSpinCtrl>("FlexForceZ", true)->clear();
 
 		childSetEnabled("FlexNumSections",false);
 		childSetEnabled("FlexGravity",false);
@@ -412,7 +412,7 @@ void LLPanelVolume::sendIsFlexible()
 
 		if (objectp->getClickAction() == CLICK_ACTION_SIT)
 		{
-			gSelectMgr->selectionSetClickAction(CLICK_ACTION_NONE);
+			LLSelectMgr::getInstance()->selectionSetClickAction(CLICK_ACTION_NONE);
 		}
 
 	}
@@ -420,7 +420,7 @@ void LLPanelVolume::sendIsFlexible()
 	if (volobjp->setIsFlexible(is_flexible))
 	{
 		mObject->sendShapeUpdate();
-		gSelectMgr->selectionUpdatePhantom(volobjp->flagPhantom());
+		LLSelectMgr::getInstance()->selectionUpdatePhantom(volobjp->flagPhantom());
 	}
 
 	llinfos << "update flexible sent" << llendl;

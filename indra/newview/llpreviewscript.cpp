@@ -78,7 +78,7 @@
 #include "llviewerstats.h"
 #include "llviewertexteditor.h"
 #include "llviewerwindow.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llwebbrowserctrl.h"
 #include "lluictrlfactory.h"
 
@@ -176,7 +176,7 @@ LLFloaterScriptSearch::LLFloaterScriptSearch(std::string title, LLRect rect, LLS
 		: LLFloater("script search",rect,title), mEditorCore(editor_core)
 {
 	
-	gUICtrlFactory->buildFloater(this,"floater_script_search.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_script_search.xml");
 
 	childSetAction("search_btn", onBtnSearch,this);
 	childSetAction("replace_btn", onBtnReplace,this);
@@ -198,9 +198,10 @@ LLFloaterScriptSearch::LLFloaterScriptSearch(std::string title, LLRect rect, LLS
 	LLView* viewp = (LLView*)editor_core;
 	while(viewp)
 	{
-		if (viewp->getWidgetType() == WIDGET_TYPE_FLOATER)
+		LLFloater* floaterp = dynamic_cast<LLFloater*>(viewp);
+		if (floaterp)
 		{
-			((LLFloater*)viewp)->addDependentFloater(this);
+			floaterp->addDependentFloater(this);
 			break;
 		}
 		viewp = viewp->getParent();
@@ -243,7 +244,7 @@ void LLFloaterScriptSearch::onBtnSearch(void *userdata)
 
 void LLFloaterScriptSearch::handleBtnSearch()
 {
-	LLCheckBoxCtrl* caseChk = LLUICtrlFactory::getCheckBoxByName(this,"case_text");
+	LLCheckBoxCtrl* caseChk = getChild<LLCheckBoxCtrl>("case_text");
 	mEditorCore->mEditor->selectNext(childGetText("search_text"), caseChk->get());
 }
 
@@ -256,7 +257,7 @@ void LLFloaterScriptSearch::onBtnReplace(void *userdata)
 
 void LLFloaterScriptSearch::handleBtnReplace()
 {
-	LLCheckBoxCtrl* caseChk = LLUICtrlFactory::getCheckBoxByName(this,"case_text");
+	LLCheckBoxCtrl* caseChk = getChild<LLCheckBoxCtrl>("case_text");
 	mEditorCore->mEditor->replaceText(childGetText("search_text"), childGetText("replace_text"), caseChk->get());
 }
 
@@ -269,7 +270,7 @@ void LLFloaterScriptSearch::onBtnReplaceAll(void *userdata)
 
 void LLFloaterScriptSearch::handleBtnReplaceAll()
 {
-	LLCheckBoxCtrl* caseChk = LLUICtrlFactory::getCheckBoxByName(this,"case_text");
+	LLCheckBoxCtrl* caseChk = getChild<LLCheckBoxCtrl>("case_text");
 	mEditorCore->mEditor->replaceTextAll(childGetText("search_text"), childGetText("replace_text"), caseChk->get());
 }
 
@@ -311,16 +312,15 @@ LLScriptEdCore::LLScriptEdCore(
 	setBorderVisible(FALSE);
 
 	
-	gUICtrlFactory->buildPanel(this, "floater_script_ed_panel.xml");
+	LLUICtrlFactory::getInstance()->buildPanel(this, "floater_script_ed_panel.xml");
 	
-	mErrorList = LLUICtrlFactory::getScrollListByName(this, "lsl errors");
+	mErrorList = getChild<LLScrollListCtrl>("lsl errors");
 
-	mFunctions = LLUICtrlFactory::getComboBoxByName(this, "Insert...");
+	mFunctions = getChild<LLComboBox>( "Insert...");
 	
 	childSetCommitCallback("Insert...", &LLScriptEdCore::onBtnInsertFunction, this);
 
-	mEditor = LLViewerUICtrlFactory::getViewerTextEditorByName(this, "Script Editor");
-	mEditor->setReadOnlyBgColor(gColors.getColor( "ScriptBgReadOnlyColor" ) );
+	mEditor = getChild<LLViewerTextEditor>("Script Editor");
 	mEditor->setFollowsAll();
 	mEditor->setHandleEditKeysDirectly(TRUE);
 	mEditor->setEnabled(TRUE);
@@ -389,47 +389,47 @@ LLScriptEdCore::~LLScriptEdCore()
 void LLScriptEdCore::initMenu()
 {
 
-	LLMenuItemCallGL* menuItem = LLUICtrlFactory::getMenuItemCallByName(this, "Save");
+	LLMenuItemCallGL* menuItem = getChild<LLMenuItemCallGL>("Save");
 	menuItem->setMenuCallback(onBtnSave, this);
 	menuItem->setEnabledCallback(hasChanged);
 	
-	menuItem = LLUICtrlFactory::getMenuItemCallByName(this, "Revert All Changes");
+	menuItem = getChild<LLMenuItemCallGL>("Revert All Changes");
 	menuItem->setMenuCallback(onBtnUndoChanges, this);
 	menuItem->setEnabledCallback(hasChanged);
 
-	menuItem = LLUICtrlFactory::getMenuItemCallByName(this, "Undo");
+	menuItem = getChild<LLMenuItemCallGL>("Undo");
 	menuItem->setMenuCallback(onUndoMenu, this);
 	menuItem->setEnabledCallback(enableUndoMenu);
 
-	menuItem = LLUICtrlFactory::getMenuItemCallByName(this, "Redo");
+	menuItem = getChild<LLMenuItemCallGL>("Redo");
 	menuItem->setMenuCallback(onRedoMenu, this);
 	menuItem->setEnabledCallback(enableRedoMenu);
 
-	menuItem = LLUICtrlFactory::getMenuItemCallByName(this, "Cut");
+	menuItem = getChild<LLMenuItemCallGL>("Cut");
 	menuItem->setMenuCallback(onCutMenu, this);
 	menuItem->setEnabledCallback(enableCutMenu);
 
-	menuItem = LLUICtrlFactory::getMenuItemCallByName(this, "Copy");
+	menuItem = getChild<LLMenuItemCallGL>("Copy");
 	menuItem->setMenuCallback(onCopyMenu, this);
 	menuItem->setEnabledCallback(enableCopyMenu);
 
-	menuItem = LLUICtrlFactory::getMenuItemCallByName(this, "Paste");
+	menuItem = getChild<LLMenuItemCallGL>("Paste");
 	menuItem->setMenuCallback(onPasteMenu, this);
 	menuItem->setEnabledCallback(enablePasteMenu);
 
-	menuItem = LLUICtrlFactory::getMenuItemCallByName(this, "Select All");
+	menuItem = getChild<LLMenuItemCallGL>("Select All");
 	menuItem->setMenuCallback(onSelectAllMenu, this);
 	menuItem->setEnabledCallback(enableSelectAllMenu);
 
-	menuItem = LLUICtrlFactory::getMenuItemCallByName(this, "Search / Replace...");
+	menuItem = getChild<LLMenuItemCallGL>("Search / Replace...");
 	menuItem->setMenuCallback(onSearchMenu, this);
 	menuItem->setEnabledCallback(NULL);
 
-	menuItem = LLUICtrlFactory::getMenuItemCallByName(this, "Help...");
+	menuItem = getChild<LLMenuItemCallGL>("Help...");
 	menuItem->setMenuCallback(onBtnHelp, this);
 	menuItem->setEnabledCallback(NULL);
 
-	menuItem = LLUICtrlFactory::getMenuItemCallByName(this, "LSL Wiki Help...");
+	menuItem = getChild<LLMenuItemCallGL>("LSL Wiki Help...");
 	menuItem->setMenuCallback(onBtnDynamicHelp, this);
 	menuItem->setEnabledCallback(NULL);
 }
@@ -472,8 +472,8 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 	if (!help_floater) return;
 
 	// update back and forward buttons
-	LLButton* fwd_button = LLUICtrlFactory::getButtonByName(help_floater, "fwd_btn");
-	LLButton* back_button = LLUICtrlFactory::getButtonByName(help_floater, "back_btn");
+	LLButton* fwd_button = help_floater->getChild<LLButton>("fwd_btn");
+	LLButton* back_button = help_floater->getChild<LLButton>("back_btn");
 	LLWebBrowserCtrl* browser = help_floater->getChild<LLWebBrowserCtrl>("lsl_guide_html");
 	back_button->setEnabled(browser->canNavigateBack());
 	fwd_button->setEnabled(browser->canNavigateForward());
@@ -536,7 +536,7 @@ void LLScriptEdCore::setHelpPage(const LLString& help_string)
 	LLWebBrowserCtrl* web_browser = help_floater->getChild<LLWebBrowserCtrl>("lsl_guide_html");
 	if (!web_browser) return;
 
-	LLComboBox* history_combo = gUICtrlFactory->getComboBoxByName(help_floater, "history_combo");
+	LLComboBox* history_combo = help_floater->getChild<LLComboBox>("history_combo");
 	if (!history_combo) return;
 
 	LLUIString url_string = gSavedSettings.getString("LSLHelpURL");
@@ -556,7 +556,7 @@ void LLScriptEdCore::addHelpItemToHistory(const LLString& help_string)
 	LLFloater* help_floater = mLiveHelpHandle.get();
 	if (!help_floater) return;
 
-	LLComboBox* history_combo = gUICtrlFactory->getComboBoxByName(help_floater, "history_combo");
+	LLComboBox* history_combo = help_floater->getChild<LLComboBox>("history_combo");
 	if (!history_combo) return;
 
 	// separate history items from full item list
@@ -670,7 +670,7 @@ void LLScriptEdCore::onBtnDynamicHelp(void* userdata)
 	}
 
 	live_help_floater = new LLFloater("lsl_help");
-	gUICtrlFactory->buildFloater(live_help_floater, "floater_lsl_guide.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(live_help_floater, "floater_lsl_guide.xml");
 	((LLFloater*)corep->getParent())->addDependentFloater(live_help_floater, TRUE);
 	live_help_floater->childSetCommitCallback("lock_check", onCheckLock, userdata);
 	live_help_floater->childSetValue("lock_check", gSavedSettings.getBOOL("ScriptHelpFollowsCursor"));
@@ -681,7 +681,7 @@ void LLScriptEdCore::onBtnDynamicHelp(void* userdata)
 	LLWebBrowserCtrl* browser = live_help_floater->getChild<LLWebBrowserCtrl>("lsl_guide_html");
 	browser->setAlwaysRefresh(TRUE);
 
-	LLComboBox* help_combo = LLUICtrlFactory::getComboBoxByName(live_help_floater, "history_combo");
+	LLComboBox* help_combo = live_help_floater->getChild<LLComboBox>("history_combo");
 	LLKeywordToken *token;
 	LLKeywords::keyword_iterator_t token_it;
 	for (token_it = corep->mEditor->keywordsBegin(); 
@@ -789,10 +789,7 @@ void LLScriptEdCore::onBtnInsertFunction(LLUICtrl *ui, void* userdata)
 // static 
 void LLScriptEdCore::doSave( void* userdata, BOOL close_after_save )
 {
-	if( gViewerStats )
-	{
-		gViewerStats->incStat( LLViewerStats::ST_LSL_SAVE_COUNT );
-	}
+	LLViewerStats::getInstance()->incStat( LLViewerStats::ST_LSL_SAVE_COUNT );
 
 	LLScriptEdCore* self = (LLScriptEdCore*) userdata;
 
@@ -1015,33 +1012,31 @@ void LLScriptEdCore::deleteBridges()
 }
 
 // virtual
-BOOL LLScriptEdCore::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+BOOL LLScriptEdCore::handleKeyHere(KEY key, MASK mask)
 {
-	if(getVisible() && getEnabled())
+	bool just_control = MASK_CONTROL == (mask & MASK_MODIFIERS);
+
+	if(('S' == key) && just_control)
 	{
-		bool just_control = MASK_CONTROL == (mask & MASK_MODIFIERS);
-
-		if(('S' == key) && just_control)
+		if(mSaveCallback)
 		{
-			if(mSaveCallback)
-			{
-				// don't close after saving
-				mSaveCallback(mUserdata, FALSE);
-			}
-	
-			return TRUE;
+			// don't close after saving
+			mSaveCallback(mUserdata, FALSE);
 		}
 
-		if(('F' == key) && just_control)
-		{
-			if(mSearchReplaceCallback)
-			{
-				mSearchReplaceCallback(mUserdata);
-			}
-	
-			return TRUE;
-		}
+		return TRUE;
 	}
+
+	if(('F' == key) && just_control)
+	{
+		if(mSearchReplaceCallback)
+		{
+			mSearchReplaceCallback(mUserdata);
+		}
+
+		return TRUE;
+	}
+
 	return FALSE;
 }
 
@@ -1096,7 +1091,7 @@ LLPreviewLSL::LLPreviewLSL(const std::string& name, const LLRect& rect,
 	factory_map["script panel"] = LLCallbackMap(LLPreviewLSL::createScriptEdPanel, this);
 
 
-	gUICtrlFactory->buildFloater(this,"floater_script_preview.xml", &factory_map);
+	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_script_preview.xml", &factory_map);
 
 	const LLInventoryItem* item = getItem();	
 
@@ -1316,7 +1311,7 @@ void LLPreviewLSL::uploadAssetLegacy(const std::string& filename,
 									  const LLUUID& item_id,
 									  const LLTransactionID& tid)
 {
-	LLLineEditor* descEditor = LLUICtrlFactory::getLineEditorByName(this, "desc");
+	LLLineEditor* descEditor = getChild<LLLineEditor>("desc");
 	LLScriptSaveInfo* info = new LLScriptSaveInfo(item_id,
 								descEditor->getText(),
 								tid);
@@ -1517,10 +1512,7 @@ void LLPreviewLSL::onLoadComplete( LLVFS *vfs, const LLUUID& asset_uuid, LLAsset
 		}
 		else
 		{
-			if( gViewerStats )
-			{
-				gViewerStats->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
-			}
+			LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
 
 			if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 				LL_ERR_FILE_EMPTY == status)
@@ -1627,7 +1619,7 @@ LLLiveLSLEditor::LLLiveLSLEditor(const std::string& name,
 	LLCallbackMap::map_t factory_map;
 	factory_map["script ed panel"] = LLCallbackMap(LLLiveLSLEditor::createScriptEdPanel, this);
 
-	gUICtrlFactory->buildFloater(this,"floater_live_lsleditor.xml", &factory_map);
+	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_live_lsleditor.xml", &factory_map);
 
 
 	childSetCommitCallback("running", LLLiveLSLEditor::onRunningCheckboxClicked, this);
@@ -1830,10 +1822,7 @@ void LLLiveLSLEditor::onLoadComplete(LLVFS *vfs, const LLUUID& asset_id,
 		}
 		else
 		{
-			if( gViewerStats )
-			{
-				gViewerStats->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
-			}
+			LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
 
 			if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 				LL_ERR_FILE_EMPTY == status)
@@ -1913,7 +1902,7 @@ void LLLiveLSLEditor::onRunningCheckboxClicked( LLUICtrl*, void* userdata )
 {
 	LLLiveLSLEditor* self = (LLLiveLSLEditor*) userdata;
 	LLViewerObject* object = gObjectList.findObject( self->mObjectID );
-	LLCheckBoxCtrl* runningCheckbox = LLUICtrlFactory::getCheckBoxByName(self, "running");
+	LLCheckBoxCtrl* runningCheckbox = self->getChild<LLCheckBoxCtrl>("running");
 	BOOL running =  runningCheckbox->get();
 	//self->mRunningCheckbox->get();
 	if( object )
@@ -1961,39 +1950,37 @@ void LLLiveLSLEditor::onReset(void *userdata)
 
 void LLLiveLSLEditor::draw()
 {
-	if(getVisible())
+	LLViewerObject* object = gObjectList.findObject(mObjectID);
+	LLCheckBoxCtrl* runningCheckbox = getChild<LLCheckBoxCtrl>( "running");
+		if(object && mAskedForRunningInfo && mHaveRunningInfo)
 	{
-		LLViewerObject* object = gObjectList.findObject(mObjectID);
-		LLCheckBoxCtrl* runningCheckbox = LLUICtrlFactory::getCheckBoxByName(this, "running");
-			if(object && mAskedForRunningInfo && mHaveRunningInfo)
+		if(object->permAnyOwner())
 		{
-			if(object->permAnyOwner())
-			{
-				runningCheckbox->setLabel(getString("script_running"));
-				runningCheckbox->setEnabled(TRUE);
-			}
-			else
-			{
-				runningCheckbox->setLabel(getString("public_objects_can_not_run"));
-				runningCheckbox->setEnabled(FALSE);
-				// *FIX: Set it to false so that the ui is correct for
-				// a box that is released to public. It could be
-				// incorrect after a release/claim cycle, but will be
-				// correct after clicking on it.
-				runningCheckbox->set(FALSE);
-			}
+			runningCheckbox->setLabel(getString("script_running"));
+			runningCheckbox->setEnabled(TRUE);
 		}
-		else if(!object)
+		else
 		{
-			// HACK: Display this information in the title bar.
-			// Really ought to put in main window.
-			setTitle("Script (object out of range)");
+			runningCheckbox->setLabel(getString("public_objects_can_not_run"));
 			runningCheckbox->setEnabled(FALSE);
-			// object may have fallen out of range.
-			mHaveRunningInfo = FALSE;
+			// *FIX: Set it to false so that the ui is correct for
+			// a box that is released to public. It could be
+			// incorrect after a release/claim cycle, but will be
+			// correct after clicking on it.
+			runningCheckbox->set(FALSE);
 		}
-		LLFloater::draw();
 	}
+	else if(!object)
+	{
+		// HACK: Display this information in the title bar.
+		// Really ought to put in main window.
+		setTitle("Script (object out of range)");
+		runningCheckbox->setEnabled(FALSE);
+		// object may have fallen out of range.
+		mHaveRunningInfo = FALSE;
+	}
+
+	LLFloater::draw();
 }
 
 
@@ -2103,7 +2090,7 @@ void LLLiveLSLEditor::saveIfNeeded()
 	std::string url = gAgent.getRegion()->getCapability("UpdateScriptTaskInventory");
 	getWindow()->incBusyCount();
 	mPendingUploads++;
-	BOOL is_running = LLUICtrlFactory::getCheckBoxByName(this, "running")->get();
+	BOOL is_running = getChild<LLCheckBoxCtrl>( "running")->get();
 	if (!url.empty())
 	{
 		uploadAssetViaCaps(url, filename, mObjectID,
@@ -2221,7 +2208,7 @@ void LLLiveLSLEditor::uploadAssetLegacy(const std::string& filename,
 	LLFile::remove(dst_filename.c_str());
 
 	// If we successfully saved it, then we should be able to check/uncheck the running box!
-	LLCheckBoxCtrl* runningCheckbox = LLUICtrlFactory::getCheckBoxByName(this, "running");
+	LLCheckBoxCtrl* runningCheckbox = getChild<LLCheckBoxCtrl>( "running");
 	runningCheckbox->setLabel(getString("script_running"));
 	runningCheckbox->setEnabled(TRUE);
 }
@@ -2389,7 +2376,7 @@ void LLLiveLSLEditor::processScriptRunningReply(LLMessageSystem* msg, void**)
 		instance->mHaveRunningInfo = TRUE;
 		BOOL running;
 		msg->getBOOLFast(_PREHASH_Script, _PREHASH_Running, running);
-		LLCheckBoxCtrl* runningCheckbox = LLUICtrlFactory::getCheckBoxByName(instance, "running");
+		LLCheckBoxCtrl* runningCheckbox = instance->getChild<LLCheckBoxCtrl>("running");
 		runningCheckbox->set(running);
 	}
 }

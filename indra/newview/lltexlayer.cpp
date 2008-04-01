@@ -326,7 +326,7 @@ void LLTexLayerSetBuffer::readBackAndUpload(U8* baked_bump_data)
 	stop_glerror();
 
 	llinfos << "Baked " << mTexLayerSet->getBodyRegion() << llendl;
-	gViewerStats->incStat(LLViewerStats::ST_TEX_BAKES);
+	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TEX_BAKES);
 
 	llassert( gAgent.getAvatarObject() == mTexLayerSet->getAvatar() );
 

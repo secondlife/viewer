@@ -71,100 +71,6 @@
 
 const char XML_HEADER[] = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n";
 
-// *NOTE: If you add a new class derived from LLPanel, add a check for its
-// widget type to LLUICtrl::getParentPanel().
-// *NOTE: This MUST match EWidgetType in llui.h
-//static
-const LLString LLUICtrlFactory::sUICtrlNames[WIDGET_TYPE_COUNT] = 
-{
-	LLString("view"),			//WIDGET_TYPE_VIEW
-	LLString("root_view"),		//WIDGET_TYPE_ROOT_VIEW
-	LLString("floater_view"),	//WIDGET_TYPE_FLOATER_VIEW
-	LLString("button"),		//WIDGET_TYPE_BUTTON
-	LLString("joystick_turn"),	//WIDGET_TYPE_JOYSTICK_TURN
-	LLString("joystick_slide"),	//WIDGET_TYPE_JOYSTICK_SLIDE
-	LLString("check_box"),	//WIDGET_TYPE_CHECKBOX
-	LLString("color_swatch"),	//WIDGET_TYPE_COLOR_SWATCH
-	LLString("combo_box"),	//WIDGET_TYPE_COMBO_BOX
-	LLString("line_editor"),	//WIDGET_TYPE_LINE_EDITOR
-	LLString("search_editor"),	//WIDGET_TYPE_SEARCH_EDITOR
-	LLString("scroll_list"),	//WIDGET_TYPE_SCROLL_LIST
-	LLString("name_list"),	//WIDGET_TYPE_NAME_LIST
-	LLString("web_browser"),	//WIDGET_TYPE_WEBBROWSER
-	LLString("slider"),		//WIDGET_TYPE_SLIDER, actually LLSliderCtrl
-	LLString("slider_bar"), //WIDGET_TYPE_SLIDER_BAR, actually LLSlider
-	LLString("volume_slider"),	//WIDGET_TYPE_VOLUME_SLIDER, actually LLSlider + "volume" param
-	LLString("multi_slider"),		//WIDGET_TYPE_MULTI_SLIDER, actually LLMultiSliderCtrl
-	LLString("multi_slider_bar"), //WIDGET_TYPE_MULTI_SLIDER_BAR, actually LLMultiSlider
-	LLString("spinner"),		//WIDGET_TYPE_SPINNER, actually LLSpinCtrl
-	LLString("text_editor"),	//WIDGET_TYPE_TEXT_EDITOR
-	LLString("texture_picker"),//WIDGET_TYPE_TEXTURE_PICKER
-	LLString("text"),			//WIDGET_TYPE_TEXT_BOX
-	LLString("pad"),			//WIDGET_TYPE_PAD
-	LLString("radio_group"),	//WIDGET_TYPE_RADIO_GROUP
-	LLString("icon"),			//WIDGET_TYPE_ICON
-	LLString("locate"),		//WIDGET_TYPE_LOCATE
-	LLString("view_border"),	//WIDGET_TYPE_VIEW_BORDER
-	LLString("panel"),		//WIDGET_TYPE_PANEL
-	LLString("menu"),		//WIDGET_TYPE_MENU
-	LLString("pie_menu"),	//WIDGET_TYPE_PIE_MENU
-	LLString("pie_menu_branch"), //WIDGET_TYPE_PIE_MENU_BRANCH
-	LLString("menu_item"), //WIDGET_TYPE_MENU_ITEM
-	LLString("menu_item_separator"), //WIDGET_TYPE_MENU_ITEM_SEPARATOR
-	LLString("menu_separator_vertical"), //	WIDGET_TYPE_MENU_SEPARATOR_VERTICAL
-	LLString("menu_item_call"), // WIDGET_TYPE_MENU_ITEM_CALL
-	LLString("menu_item_check"),// WIDGET_TYPE_MENU_ITEM_CHECK
-	LLString("menu_item_branch"), // WIDGET_TYPE_MENU_ITEM_BRANCH
-	LLString("menu_item_branch_down"), //WIDGET_TYPE_MENU_ITEM_BRANCH_DOWN,
-	LLString("menu_item_blank"), //WIDGET_TYPE_MENU_ITEM_BLANK,
-	LLString("tearoff_menu"), //WIDGET_TYPE_TEAROFF_MENU
-	LLString("menu_bar"),	//WIDGET_TYPE_MENU_BAR
-	LLString("tab_container"),//WIDGET_TYPE_TAB_CONTAINER
-	LLString("scroll_container"),//WIDGET_TYPE_SCROLL_CONTAINER
-	LLString("scrollbar"),	//WIDGET_TYPE_SCROLLBAR
-	LLString("inventory_panel"), //WIDGET_TYPE_INVENTORY_PANEL
-	LLString("floater"),		//WIDGET_TYPE_FLOATER
-	LLString("drag_handle_top"), //WIDGET_TYPE_DRAG_HANDLE_TOP
-	LLString("drag_handle_left"), //WIDGET_TYPE_DRAG_HANDLE_LEFT
-	LLString("resize_handle"), //WIDGET_TYPE_RESIZE_HANDLE
-	LLString("resize_bar"), //WIDGET_TYPE_RESIZE_BAR
-	LLString("name_editor"),	//WIDGET_TYPE_NAME_EDITOR
-	LLString("multi_floater"),	//WIDGET_TYPE_MULTI_FLOATER
-	LLString("media_remote"), //WIDGET_TYPE_MEDIA_REMOTE
-	LLString("folder_view"), //WIDGET_TYPE_FOLDER_VIEW
-	LLString("folder_item"), //WIDGET_TYPE_FOLDER_ITEM
-	LLString("folder"), //WIDGET_TYPE_FOLDER
-	LLString("stat_graph"), //WIDGET_TYPE_STAT_GRAPH
-	LLString("stat_view"), //WIDGET_TYPE_STAT_VIEW
-	LLString("stat_bar"), //WIDGET_TYPE_STAT_BAR
-	LLString("drop_target"), //WIDGET_TYPE_DROP_TARGET
-	LLString("texture_bar"), //WIDGET_TYPE_TEXTURE_BAR
-	LLString("tex_mem_bar"), //WIDGET_TYPE_TEX_MEM_BAR
-	LLString("snapshot_live_preview"), //WIDGET_TYPE_SNAPSHOT_LIVE_PREVIEW
-	LLString("status_bar"), //WIDGET_TYPE_STATUS_BAR
-	LLString("progress_view"), //WIDGET_TYPE_PROGRESS_VIEW
-	LLString("talk_view"), //WIDGET_TYPE_TALK_VIEW
-	LLString("overlay_bar"), //WIDGET_TYPE_OVERLAY_BAR
-	LLString("hud_view"), //WIDGET_TYPE_HUD_VIEW
-	LLString("hover_view"), //WIDGET_TYPE_HOVER_VIEW
-	LLString("morph_view"), //WIDGET_TYPE_MORPH_VIEW
-	LLString("net_map"), //WIDGET_TYPE_NET_MAP
-	LLString("permissions_view"), //WIDGET_TYPE_PERMISSIONS_VIEW
-	LLString("menu_holder"), //WIDGET_TYPE_MENU_HOLDER
-	LLString("debug_view"), //WIDGET_TYPE_DEBUG_VIEW
-	LLString("scrolling_panel_list"), //WIDGET_TYPE_SCROLLING_PANEL_LIST
-	LLString("audio_status"), //WIDGET_TYPE_AUDIO_STATUS
-	LLString("container_view"), //WIDGET_TYPE_CONTAINER_VIEW
-	LLString("console"), //WIDGET_TYPE_CONSOLE
-	LLString("fast_timer_view"), //WIDGET_TYPE_FAST_TIMER_VIEW
-	LLString("velocity_bar"), //WIDGET_TYPE_VELOCITY_BAR
-	LLString("texture_view"), //WIDGET_TYPE_TEXTURE_VIEW
-	LLString("memory_view"), //WIDGET_TYPE_MEMORY_VIEW
-	LLString("frame_stat_view"), //WIDGET_TYPE_FRAME_STAT_VIEW
-	LLString("layout_stack"), //WIDGET_TYPE_LAYOUT_STACK
-	LLString("DONT_CARE"),	//WIDGET_TYPE_DONTCARE
-};
-
 const S32 HPAD = 4;
 const S32 VPAD = 4;
 const S32 FLOATER_H_MARGIN = 15;
@@ -179,9 +85,6 @@ public:
 	LLUICtrlLocate() : LLUICtrl("locate", LLRect(0,0,0,0), FALSE, NULL, NULL) { setTabStop(FALSE); }
 	virtual void draw() { }
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_LOCATE; }
-	virtual LLString getWidgetTag() const { return LL_UI_CTRL_LOCATE_TAG; }
-
 	static LLView *fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
 	{
 		LLString name("pad");
@@ -194,39 +97,14 @@ public:
 	}
 };
 
+static LLRegisterWidget<LLUICtrlLocate> r1("locate");
+static LLRegisterWidget<LLUICtrlLocate> r2("pad");
+
 //-----------------------------------------------------------------------------
 // LLUICtrlFactory()
 //-----------------------------------------------------------------------------
 LLUICtrlFactory::LLUICtrlFactory()
 {
-	// Register controls
-	LLUICtrlCreator<LLButton>::registerCreator(LL_BUTTON_TAG, this);
-	LLUICtrlCreator<LLCheckBoxCtrl>::registerCreator(LL_CHECK_BOX_CTRL_TAG, this);
-	LLUICtrlCreator<LLComboBox>::registerCreator(LL_COMBO_BOX_TAG, this);
-	LLUICtrlCreator<LLFlyoutButton>::registerCreator(LL_FLYOUT_BUTTON_TAG, this);
-	LLUICtrlCreator<LLLineEditor>::registerCreator(LL_LINE_EDITOR_TAG, this);
-	LLUICtrlCreator<LLSearchEditor>::registerCreator(LL_SEARCH_EDITOR_TAG, this);
-	LLUICtrlCreator<LLScrollListCtrl>::registerCreator(LL_SCROLL_LIST_CTRL_TAG, this);
-	LLUICtrlCreator<LLSliderCtrl>::registerCreator(LL_SLIDER_CTRL_TAG, this);
-	LLUICtrlCreator<LLSlider>::registerCreator(LL_SLIDER_TAG, this);
-	LLUICtrlCreator<LLSlider>::registerCreator(LL_VOLUME_SLIDER_CTRL_TAG, this);
-	LLUICtrlCreator<LLMultiSliderCtrl>::registerCreator(LL_MULTI_SLIDER_CTRL_TAG, this);
-	LLUICtrlCreator<LLMultiSlider>::registerCreator(LL_MULTI_SLIDER_TAG, this);
-	LLUICtrlCreator<LLSpinCtrl>::registerCreator(LL_SPIN_CTRL_TAG, this);
-	LLUICtrlCreator<LLTextBox>::registerCreator(LL_TEXT_BOX_TAG, this);
-	LLUICtrlCreator<LLRadioGroup>::registerCreator(LL_RADIO_GROUP_TAG, this);
-	LLUICtrlCreator<LLIconCtrl>::registerCreator(LL_ICON_CTRL_TAG, this);
-	LLUICtrlCreator<LLUICtrlLocate>::registerCreator(LL_UI_CTRL_LOCATE_TAG, this);
-	LLUICtrlCreator<LLUICtrlLocate>::registerCreator(LL_PAD_TAG, this);
-	LLUICtrlCreator<LLViewBorder>::registerCreator(LL_VIEW_BORDER_TAG, this);
-	LLUICtrlCreator<LLTabContainer>::registerCreator(LL_TAB_CONTAINER_COMMON_TAG, this);
-	LLUICtrlCreator<LLScrollableContainerView>::registerCreator(LL_SCROLLABLE_CONTAINER_VIEW_TAG, this);
-	LLUICtrlCreator<LLPanel>::registerCreator(LL_PANEL_TAG, this);
-	LLUICtrlCreator<LLMenuGL>::registerCreator(LL_MENU_GL_TAG, this);
-	LLUICtrlCreator<LLMenuBarGL>::registerCreator(LL_MENU_BAR_GL_TAG, this);
-	LLUICtrlCreator<LLScrollingPanelList>::registerCreator(LL_SCROLLING_PANEL_LIST_TAG, this);
-	LLUICtrlCreator<LLLayoutStack>::registerCreator(LL_LAYOUT_STACK_TAG, this);
-
 	setupPaths();
 }
 
@@ -548,43 +426,33 @@ void LLUICtrlFactory::rebuild()
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-// static
-EWidgetType LLUICtrlFactory::getWidgetType(const LLString& ctrl_type)
-{
-	U32 ctrl_id;
-	for (ctrl_id = 0; ctrl_id < WIDGET_TYPE_COUNT; ctrl_id++)
-	{
-		if (sUICtrlNames[ctrl_id] == ctrl_type)
-		{
-			break;
-		}
-	}
-	return (EWidgetType) ctrl_id;
-}
-
-LLString LLUICtrlFactory::getWidgetType(EWidgetType ctrl_type)
-{
-	return sUICtrlNames[ctrl_type];
-}
-
 LLView *LLUICtrlFactory::createCtrlWidget(LLPanel *parent, LLXMLNodePtr node)
 {
+	// panel for holding dummy widgets, so they have a parent for layout purposes, etc.
+	// does not manage lifetime of child widgets
+	static LLPanel dummy_panel;
+
 	LLString ctrl_type = node->getName()->mString;
 	LLString::toLower(ctrl_type);
 	
-	creator_list_t::const_iterator it = mCreatorFunctions.find(ctrl_type);
-	if (it == mCreatorFunctions.end())
+	LLWidgetClassRegistry::factory_func_t func = LLWidgetClassRegistry::getInstance()->getCreatorFunc(ctrl_type);
+
+	if (func == NULL)
 	{
 		llwarns << "Unknown control type " << ctrl_type << llendl;
 		return NULL;
 	}
 
-	LLView *ctrl = (*it->second)(node, parent, this);
+	if (parent == NULL)
+	{
+		parent = &dummy_panel;
+	}
+	LLView *ctrl = func(node, parent, this);
 
 	return ctrl;
 }
 
-void LLUICtrlFactory::createWidget(LLPanel *parent, LLXMLNodePtr node)
+LLView* LLUICtrlFactory::createWidget(LLPanel *parent, LLXMLNodePtr node)
 {
 	LLView* view = createCtrlWidget(parent, node);
 
@@ -595,6 +463,8 @@ void LLUICtrlFactory::createWidget(LLPanel *parent, LLXMLNodePtr node)
 	{
 		parent->addChild(view, tab_group);
 	}
+
+	return view;
 }
 
 //-----------------------------------------------------------------------------
@@ -647,139 +517,4 @@ BOOL LLUICtrlFactory::getAttributeColor(LLXMLNodePtr node, const LLString& name,
 	}
 	return res;
 }
-
-//============================================================================
-
-LLButton*	LLUICtrlFactory::getButtonByName(const LLPanel* panelp, const LLString& name)
-{ 
-	return panelp->getChild<LLButton>(name); 
-}
-
-LLCheckBoxCtrl*		LLUICtrlFactory::getCheckBoxByName(const LLPanel* panelp, const LLString& name)		
-{ 
-	return panelp->getChild<LLCheckBoxCtrl>(name); 
-}
-
-LLComboBox*			LLUICtrlFactory::getComboBoxByName(const LLPanel* panelp, const LLString& name)		
-{ 
-	return panelp->getChild<LLComboBox>(name); 
-}
-
-LLIconCtrl*			LLUICtrlFactory::getIconByName(const LLPanel* panelp, const LLString& name)			
-{ 
-	return panelp->getChild<LLIconCtrl>(name); 
-}
-
-LLLineEditor*		LLUICtrlFactory::getLineEditorByName(const LLPanel* panelp, const LLString& name)	
-{ 
-	return panelp->getChild<LLLineEditor>(name); 
-}
-
-LLRadioGroup*		LLUICtrlFactory::getRadioGroupByName(const LLPanel* panelp, const LLString& name)	
-{ 
-	return panelp->getChild<LLRadioGroup>(name); 
-}
-
-LLScrollListCtrl*	LLUICtrlFactory::getScrollListByName(const LLPanel* panelp, const LLString& name)	
-{ 
-	return panelp->getChild<LLScrollListCtrl>(name); 
-}
-
-LLSliderCtrl*		LLUICtrlFactory::getSliderByName(const LLPanel* panelp, const LLString& name)		
-{ 
-	return panelp->getChild<LLSliderCtrl>(name); 
-}
-
-LLSlider*			LLUICtrlFactory::getSliderBarByName(const LLPanel* panelp, const LLString& name)		
-{ 
-	return panelp->getChild<LLSlider>(name); 
-}
-
-LLSpinCtrl*			LLUICtrlFactory::getSpinnerByName(const LLPanel* panelp, const LLString& name)		
-{ 
-	return panelp->getChild<LLSpinCtrl>(name); 
-}
-
-LLTextBox*			LLUICtrlFactory::getTextBoxByName(const LLPanel* panelp, const LLString& name)		
-{ 
-	return panelp->getChild<LLTextBox>(name);
-}
-
-LLTextEditor*		LLUICtrlFactory::getTextEditorByName(const LLPanel* panelp, const LLString& name)	
-{ 
-	return panelp->getChild<LLTextEditor>(name); 
-}
-
-LLTabContainer* LLUICtrlFactory::getTabContainerByName(const LLPanel* panelp, const LLString& name)	
-{ 
-	return panelp->getChild<LLTabContainer>(name); 
-}
-
-LLScrollableContainerView* LLUICtrlFactory::getScrollableContainerByName(const LLPanel* panelp, const LLString& name)
-{
-	return panelp->getChild<LLScrollableContainerView>(name); 
-}
-
-LLPanel* LLUICtrlFactory::getPanelByName(const LLPanel* panelp, const LLString& name)	
-{ 
-	return panelp->getChild<LLPanel>(name); 
-}
-
-LLMenuItemCallGL* LLUICtrlFactory::getMenuItemCallByName(const LLPanel* panelp, const LLString& name)
-{ 
-	return panelp->getChild<LLMenuItemCallGL>(name); 
-}
-
-LLScrollingPanelList* LLUICtrlFactory::getScrollingPanelList(const LLPanel* panelp, const LLString& name)
-{ 
-	return panelp->getChild<LLScrollingPanelList>(name);
-}
-
-LLMultiSliderCtrl* LLUICtrlFactory::getMultiSliderByName(const LLPanel* panelp, const LLString& name)		
-{ 
-	return panelp->getChild<LLMultiSliderCtrl>(name); 
-}
-
-LLMultiSlider* LLUICtrlFactory::getMultiSliderBarByName(const LLPanel* panelp, const LLString& name)		
-{ 
-	return panelp->getChild<LLMultiSlider>(name); 
-}
-
-
-LLCtrlListInterface* LLUICtrlFactory::getListInterfaceByName(const LLPanel* panelp, const LLString& name)
-{
-	LLView* viewp = panelp->getCtrlByNameAndType(name, WIDGET_TYPE_DONTCARE);
-	if (viewp && viewp->isCtrl())
-	{
-		return ((LLUICtrl*)viewp)->getListInterface();
-	}
-	return NULL;
-}
-
-LLCtrlSelectionInterface* LLUICtrlFactory::getSelectionInterfaceByName(const LLPanel* panelp, const LLString& name)
-{
-	LLView* viewp = panelp->getCtrlByNameAndType(name, WIDGET_TYPE_DONTCARE);
-	if (viewp && viewp->isCtrl())
-	{
-		return ((LLUICtrl*)viewp)->getSelectionInterface();
-	}
-	return NULL;
-}
-
-LLCtrlScrollInterface* LLUICtrlFactory::getScrollInterfaceByName(const LLPanel* panelp, const LLString& name)
-{
-	LLView* viewp = panelp->getCtrlByNameAndType(name, WIDGET_TYPE_DONTCARE);
-	if (viewp && viewp->isCtrl())
-	{
-		return ((LLUICtrl*)viewp)->getScrollInterface();
-	}
-	return NULL;
-}
-
-void LLUICtrlFactory::registerCreator(LLString ctrlname, creator_function_t function)
-{
-	LLString::toLower(ctrlname);
-	mCreatorFunctions[ctrlname] = function;
-}
-
 

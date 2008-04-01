@@ -61,7 +61,7 @@
 #include "llviewermenufile.h"	// upload_new_resource()
 #include "llvoavatar.h"
 #include "pipeline.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 S32 LLFloaterAnimPreview::sUploadAmount = 10;
 
@@ -143,7 +143,7 @@ BOOL LLFloaterAnimPreview::postBuild()
 	S32 btn_left = PREVIEW_HPAD;
 
 	r.set( btn_left, y, btn_left + 32, y - BTN_HEIGHT );
-	mPlayButton = LLViewerUICtrlFactory::getButtonByName(this, "play_btn");
+	mPlayButton = getChild<LLButton>( "play_btn");
 	if (!mPlayButton)
 	{
 		mPlayButton = new LLButton("play_btn", LLRect(0,0,0,0));
@@ -157,7 +157,7 @@ BOOL LLFloaterAnimPreview::postBuild()
 
 	mPlayButton->setScaleImage(TRUE);
 
-	mStopButton = LLViewerUICtrlFactory::getButtonByName(this, "stop_btn");
+	mStopButton = getChild<LLButton>( "stop_btn");
 	if (!mStopButton)
 	{
 		mStopButton = new LLButton("stop_btn", LLRect(0,0,0,0));
@@ -265,7 +265,7 @@ BOOL LLFloaterAnimPreview::postBuild()
 			//temp.mV[VZ] = 0.f;
 			F32 pelvis_max_displacement = pelvis_offset + (temp.magVec() * 0.5f) + 1.f;
 			
-			F32 camera_zoom = gCamera->getDefaultFOV() / (2.f * atan(pelvis_max_displacement / PREVIEW_CAMERA_DISTANCE));
+			F32 camera_zoom = LLViewerCamera::getInstance()->getDefaultFOV() / (2.f * atan(pelvis_max_displacement / PREVIEW_CAMERA_DISTANCE));
 		
 			mAnimPreview->setZoom(camera_zoom);
 
@@ -1015,7 +1015,7 @@ LLPreviewAnimation::LLPreviewAnimation(S32 width, S32 height) : LLDynamicTexture
 	mDummyAvatar->updateGeometry(mDummyAvatar->mDrawable);
 	mDummyAvatar->startMotion(ANIM_AGENT_STAND, 5.f);
 	mDummyAvatar->mSkirtLOD.setVisible(FALSE, TRUE);
-	gPipeline.markVisible(mDummyAvatar->mDrawable, *gCamera);
+	gPipeline.markVisible(mDummyAvatar->mDrawable, *LLViewerCamera::getInstance());
 
 	// stop extraneous animations
 	mDummyAvatar->stopMotion( ANIM_AGENT_HEAD_ROT, TRUE );
@@ -1069,15 +1069,15 @@ BOOL	LLPreviewAnimation::render()
 		LLQuaternion(mCameraYaw, LLVector3::z_axis);
 
 	LLQuaternion av_rot = avatarp->mRoot.getWorldRotation() * camera_rot;
-	gCamera->setOriginAndLookAt(
+	LLViewerCamera::getInstance()->setOriginAndLookAt(
 		target_pos + ((LLVector3(mCameraDistance, 0.f, 0.f) + mCameraOffset) * av_rot),		// camera
 		LLVector3::z_axis,																	// up
 		target_pos + (mCameraOffset  * av_rot) );											// point of interest
 
-	gCamera->setView(gCamera->getDefaultFOV() / mCameraZoom);
-	gCamera->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mWidth, mHeight, FALSE);
+	LLViewerCamera::getInstance()->setView(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
+	LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mWidth, mHeight, FALSE);
 
-	mCameraRelPos = gCamera->getOrigin() - avatarp->mHeadp->getWorldPosition();
+	mCameraRelPos = LLViewerCamera::getInstance()->getOrigin() - avatarp->mHeadp->getWorldPosition();
 
 	//avatarp->setAnimationData("LookAtPoint", (void *)&mCameraRelPos);
 

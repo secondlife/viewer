@@ -2053,7 +2053,7 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 						{
 							for (LLWString::const_iterator i = fix_string.begin(); i != fix_string.end(); i++)
 							{
-								mPreeditor->handleUnicodeCharHere(*i, FALSE);
+								mPreeditor->handleUnicodeCharHere(*i);
 							}
 						}
 

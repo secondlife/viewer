@@ -68,7 +68,7 @@ const U32 MESSAGE_NUMBER_OF_HASH_BUCKETS = 8192;
 
 const S32 MESSAGE_MAX_PER_FRAME = 400;
 
-class LLMessageStringTable
+class LLMessageStringTable : public LLSingleton<LLMessageStringTable>
 {
 public:
 	LLMessageStringTable();
@@ -81,7 +81,6 @@ public:
 	char mString[MESSAGE_NUMBER_OF_HASH_BUCKETS][MESSAGE_MAX_STRINGS_LENGTH];	/* Flawfinder: ignore */
 };
 
-extern LLMessageStringTable gMessageStringTable;
 
 // Individual Messages are described with the following format
 // Note that to ease parsing, keywords are used
@@ -302,7 +301,7 @@ public:
 	void	setHandlerFuncFast(const char *name, void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data = NULL);
 	void	setHandlerFunc(const char *name, void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data = NULL)
 	{
-		setHandlerFuncFast(gMessageStringTable.getString(name), handler_func, user_data);
+		setHandlerFuncFast(LLMessageStringTable::getInstance()->getString(name), handler_func, user_data);
 	}
 
 	// Set a callback function for a message system exception.
@@ -339,7 +338,7 @@ public:
 	BOOL	isMessageFast(const char *msg);
 	BOOL	isMessage(const char *msg)
 	{
-		return isMessageFast(gMessageStringTable.getString(msg));
+		return isMessageFast(LLMessageStringTable::getInstance()->getString(msg));
 	}
 
 	void dumpPacketToLog();
@@ -372,7 +371,7 @@ public:
 	void nextBlockFast(const char *blockname);
 	void	nextBlock(const char *blockname)
 	{
-		nextBlockFast(gMessageStringTable.getString(blockname));
+		nextBlockFast(LLMessageStringTable::getInstance()->getString(blockname));
 	}
 
 public:

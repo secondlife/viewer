@@ -61,10 +61,10 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
 					const BOOL orthographic)
 {
 	// Do cheap plane culling
-	LLVector3 dir_vec = pos_agent - gCamera->getOrigin();
+	LLVector3 dir_vec = pos_agent - LLViewerCamera::getInstance()->getOrigin();
 	dir_vec /= dir_vec.magVec();
 
-	if (wstr.empty() || (!orthographic && dir_vec * gCamera->getAtAxis() <= 0.f))
+	if (wstr.empty() || (!orthographic && dir_vec * LLViewerCamera::getInstance()->getAtAxis() <= 0.f))
 	{
 		return;
 	}
@@ -78,15 +78,15 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
 	}
 	else
 	{
-		gCamera->getPixelVectors(pos_agent, up_axis, right_axis);
+		LLViewerCamera::getInstance()->getPixelVectors(pos_agent, up_axis, right_axis);
 	}
-	LLCoordFrame render_frame = *gCamera;
+	LLCoordFrame render_frame = *LLViewerCamera::getInstance();
 	LLQuaternion rot;
 	if (!orthographic)
 	{
 		rot = render_frame.getQuaternion();
-		rot = rot * LLQuaternion(-F_PI_BY_TWO, gCamera->getYAxis());
-		rot = rot * LLQuaternion(F_PI_BY_TWO, gCamera->getXAxis());
+		rot = rot * LLQuaternion(-F_PI_BY_TWO, LLViewerCamera::getInstance()->getYAxis());
+		rot = rot * LLQuaternion(F_PI_BY_TWO, LLViewerCamera::getInstance()->getXAxis());
 	}
 	else
 	{

@@ -42,6 +42,7 @@
 #include "llstring.h"
 #include "llui.h"
 
+static LLRegisterWidget<LLNameEditor> r("name_editor");
 
 // statics
 std::set<LLNameEditor*> LLNameEditor::sInstances;
@@ -55,10 +56,7 @@ LLNameEditor::LLNameEditor(const std::string& name, const LLRect& rect,
 		void (*keystroke_callback)(LLLineEditor* caller, void* user_data),
 		void (*focus_lost_callback)(LLFocusableElement* caller, void* user_data),
 		void* userdata,
-		LLLinePrevalidateFunc prevalidate_func,
-		LLViewBorder::EBevel border_bevel,
-		LLViewBorder::EStyle border_style,
-		S32 border_thickness)
+		LLLinePrevalidateFunc prevalidate_func)
 :	LLLineEditor(name, rect, 
 				 "(retrieving)", 
 				 glfont, 
@@ -67,10 +65,7 @@ LLNameEditor::LLNameEditor(const std::string& name, const LLRect& rect,
 				 keystroke_callback,
 				 focus_lost_callback,
 				 userdata,
-				 prevalidate_func,
-				 border_bevel,
-				 border_style,
-				 border_thickness),
+				 prevalidate_func),
 	mNameID(name_id)
 {
 	LLNameEditor::sInstances.insert(this);
@@ -157,19 +152,6 @@ LLView* LLNameEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 	node->getAttributeS32("max_length", max_text_length);
 
 	LLFontGL* font = LLView::selectFont(node);
-	
-	LLViewBorder::EStyle border_style = LLViewBorder::STYLE_LINE;
-	LLString border_string;
-	node->getAttributeString("border_style", border_string);
-	LLString::toLower(border_string);
-
-	if (border_string == "texture")
-	{
-		border_style = LLViewBorder::STYLE_TEXTURE;
-	}
-
-	S32 border_thickness = 1;
-	node->getAttributeS32("border_thickness", border_thickness);
 
 	LLUICtrlCallback commit_callback = NULL;
 
@@ -178,14 +160,7 @@ LLView* LLNameEditor::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory
 								LLUUID::null, FALSE,
 								font,
 								max_text_length,
-								commit_callback,
-								NULL,
-								NULL,
-								NULL,
-								NULL,
-								LLViewBorder::BEVEL_IN,
-								border_style,
-								border_thickness);
+								commit_callback);
 
 	LLString label;
 	if(node->getAttributeString("label", label))

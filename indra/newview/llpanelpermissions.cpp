@@ -61,7 +61,7 @@
 #include "llfloatergroups.h"
 #include "llnamebox.h"
 #include "llviewercontrol.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "roles_constants.h"
 
 ///----------------------------------------------------------------------------
@@ -109,7 +109,7 @@ BOOL LLPanelPermissions::postBuild()
 	this->childSetCommitCallback("clickaction",LLPanelPermissions::onCommitClickAction,this);
 	this->childSetCommitCallback("search_check",LLPanelPermissions::onCommitIncludeInSearch,this);
 	
-	LLTextBox* group_rect_proxy = gUICtrlFactory->getTextBoxByName(this,"Group Name Proxy");
+	LLTextBox* group_rect_proxy = getChild<LLTextBox>("Group Name Proxy");
 	if(group_rect_proxy )
 	{
 		mLabelGroupName = new LLNameBox("Group Name", group_rect_proxy->getRect());
@@ -132,7 +132,7 @@ LLPanelPermissions::~LLPanelPermissions()
 
 void LLPanelPermissions::refresh()
 {
-	LLButton*	BtnDeedToGroup = gUICtrlFactory->getButtonByName(this,"button deed");
+	LLButton*	BtnDeedToGroup = getChild<LLButton>("button deed");
 	if(BtnDeedToGroup)
 	{	
 		LLString deedText;
@@ -148,16 +148,16 @@ void LLPanelPermissions::refresh()
 		BtnDeedToGroup->setLabelUnselected(deedText);
 	}
 	BOOL root_selected = TRUE;
-	LLSelectNode* nodep = gSelectMgr->getSelection()->getFirstRootNode();
-	S32 object_count = gSelectMgr->getSelection()->getRootObjectCount();
+	LLSelectNode* nodep = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
+	S32 object_count = LLSelectMgr::getInstance()->getSelection()->getRootObjectCount();
 	if(!nodep || 0 == object_count)
 	{
-		nodep = gSelectMgr->getSelection()->getFirstNode();
-		object_count = gSelectMgr->getSelection()->getObjectCount();
+		nodep = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+		object_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
 		root_selected = FALSE;
 	}
 
-	//BOOL attachment_selected = gSelectMgr->getSelection()->isAttachment();
+	//BOOL attachment_selected = LLSelectMgr::getInstance()->getSelection()->isAttachment();
 	//attachment_selected = false;
 	LLViewerObject* objectp = NULL;
 	if(nodep) objectp = nodep->getObject();
@@ -222,7 +222,7 @@ void LLPanelPermissions::refresh()
 		childSetValue("search_check", FALSE);
 		childSetEnabled("search_check", false);
 		
-		LLRadioGroup*	RadioSaleType = gUICtrlFactory->getRadioGroupByName(this,"sale type");
+		LLRadioGroup*	RadioSaleType = getChild<LLRadioGroup>("sale type");
 		if(RadioSaleType)
 		{
 			RadioSaleType->setSelectedIndex(-1);
@@ -234,7 +234,7 @@ void LLPanelPermissions::refresh()
 		childSetEnabled("EdCost",false);
 		
 		childSetEnabled("label click action",false);
-		LLComboBox*	ComboClickAction = gUICtrlFactory->getComboBoxByName(this,"clickaction");
+		LLComboBox*	ComboClickAction = getChild<LLComboBox>("clickaction");
 		if(ComboClickAction)
 		{
 			ComboClickAction->setEnabled(FALSE);
@@ -254,9 +254,9 @@ void LLPanelPermissions::refresh()
 	BOOL is_one_object = (object_count == 1);
 
 	// BUG: fails if a root and non-root are both single-selected.
-	BOOL is_perm_modify = (gSelectMgr->getSelection()->getFirstRootNode() 
-							&& gSelectMgr->selectGetRootsModify()) 
-							|| gSelectMgr->selectGetModify();
+	BOOL is_perm_modify = (LLSelectMgr::getInstance()->getSelection()->getFirstRootNode() 
+							&& LLSelectMgr::getInstance()->selectGetRootsModify()) 
+							|| LLSelectMgr::getInstance()->selectGetModify();
 	const LLView* keyboard_focus_view = gFocusMgr.getKeyboardFocus();
 	S32 string_index = 0;
 	LLString MODIFY_INFO_STRINGS[] =
@@ -283,7 +283,7 @@ void LLPanelPermissions::refresh()
 	childSetEnabled("Creator:",true);
 	BOOL creators_identical;
 	LLString creator_name;
-	creators_identical = gSelectMgr->selectGetCreator(mCreatorID,
+	creators_identical = LLSelectMgr::getInstance()->selectGetCreator(mCreatorID,
 													  creator_name);
 
 	childSetText("Creator Name",creator_name);
@@ -295,13 +295,13 @@ void LLPanelPermissions::refresh()
 
 	BOOL owners_identical;
 	LLString owner_name;
-	owners_identical = gSelectMgr->selectGetOwner(mOwnerID, owner_name);
+	owners_identical = LLSelectMgr::getInstance()->selectGetOwner(mOwnerID, owner_name);
 
 //	llinfos << "owners_identical " << (owners_identical ? "TRUE": "FALSE") << llendl;
 
 	if (mOwnerID.isNull())
 	{
-		if(gSelectMgr->selectIsGroupOwned())
+		if(LLSelectMgr::getInstance()->selectIsGroupOwned())
 		{
 			// Group owned already displayed by selectGetOwner
 		}
@@ -309,7 +309,7 @@ void LLPanelPermissions::refresh()
 		{
 			// Display last owner if public
 			LLString last_owner_name;
-			gSelectMgr->selectGetLastOwner(mLastOwnerID, last_owner_name);
+			LLSelectMgr::getInstance()->selectGetLastOwner(mLastOwnerID, last_owner_name);
 
 			// It should never happen that the last owner is null and the owner
 			// is null, but it seems to be a bug in the simulator right now. JC
@@ -323,12 +323,12 @@ void LLPanelPermissions::refresh()
 
 	childSetText("Owner Name",owner_name);
 	childSetEnabled("Owner Name",TRUE);
-	childSetEnabled("button owner profile",owners_identical && (mOwnerID.notNull() || gSelectMgr->selectIsGroupOwned()));
+	childSetEnabled("button owner profile",owners_identical && (mOwnerID.notNull() || LLSelectMgr::getInstance()->selectIsGroupOwned()));
 
 	// update group text field
 	childSetEnabled("Group:",true);
 	LLUUID group_id;
-	BOOL groups_identical = gSelectMgr->selectGetGroup(group_id);
+	BOOL groups_identical = LLSelectMgr::getInstance()->selectGetGroup(group_id);
 	if (groups_identical)
 	{
 		if(mLabelGroupName)
@@ -348,14 +348,14 @@ void LLPanelPermissions::refresh()
 	if(is_one_object)
 	{
 		childSetEnabled("Name:",true);
-		LLLineEditor* LineEditorObjectName = gUICtrlFactory->getLineEditorByName(this,"Object Name");
+		LLLineEditor* LineEditorObjectName = getChild<LLLineEditor>("Object Name");
 		if(keyboard_focus_view != LineEditorObjectName)
 		{
 			childSetText("Object Name",nodep->mName);
 		}
 
 		childSetEnabled("Description:",true);
-		LLLineEditor*	LineEditorObjectDesc = gUICtrlFactory->getLineEditorByName(this,"Object Description");
+		LLLineEditor*	LineEditorObjectDesc = getChild<LLLineEditor>("Object Description");
 		if(LineEditorObjectDesc)
 		{
 			if(keyboard_focus_view != LineEditorObjectDesc)
@@ -378,8 +378,8 @@ void LLPanelPermissions::refresh()
 
 
 	// Pre-compute object info string
-	S32 prim_count = gSelectMgr->getSelection()->getObjectCount();
-	S32 obj_count = gSelectMgr->getSelection()->getRootObjectCount();
+	S32 prim_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
+	S32 obj_count = LLSelectMgr::getInstance()->getSelection()->getRootObjectCount();
 
 	LLString object_info_string;
 	if (1 == obj_count)
@@ -406,17 +406,17 @@ void LLPanelPermissions::refresh()
 	childSetEnabled("prim info",true);
 
 	S32 price;
-	BOOL is_for_sale = gSelectMgr->selectIsForSale(price);
+	BOOL is_for_sale = LLSelectMgr::getInstance()->selectIsForSale(price);
 	if (!is_for_sale)
 	{
 		price = DEFAULT_PRICE;
 	}
 
 	BOOL self_owned = (gAgent.getID() == mOwnerID);
-	BOOL group_owned = gSelectMgr->selectIsGroupOwned() ;
-	BOOL public_owned = (mOwnerID.isNull() && !gSelectMgr->selectIsGroupOwned());
-	BOOL can_transfer = gSelectMgr->selectGetRootsTransfer();
-	BOOL can_copy = gSelectMgr->selectGetRootsCopy();
+	BOOL group_owned = LLSelectMgr::getInstance()->selectIsGroupOwned() ;
+	BOOL public_owned = (mOwnerID.isNull() && !LLSelectMgr::getInstance()->selectIsGroupOwned());
+	BOOL can_transfer = LLSelectMgr::getInstance()->selectGetRootsTransfer();
+	BOOL can_copy = LLSelectMgr::getInstance()->selectGetRootsCopy();
 
 	if(!owners_identical)
 	{
@@ -426,7 +426,7 @@ void LLPanelPermissions::refresh()
 	}
 	else if(self_owned || (group_owned && gAgent.hasPowerInGroup(group_id,GP_OBJECT_SET_SALE)))
 	{
-		LLLineEditor*	EditPrice = gUICtrlFactory->getLineEditorByName(this,"EdCost");
+		LLLineEditor*	EditPrice = getChild<LLLineEditor>("EdCost");
 		if(keyboard_focus_view != EditPrice)
 		{
 			childSetText("EdCost",llformat("%d",price));
@@ -478,23 +478,23 @@ void LLPanelPermissions::refresh()
 	U32 next_owner_mask_on = 0;
 	U32 next_owner_mask_off = 0;
 
-	valid_base_perms = gSelectMgr->selectGetPerm(PERM_BASE,
+	valid_base_perms = LLSelectMgr::getInstance()->selectGetPerm(PERM_BASE,
 									  &base_mask_on,
 									  &base_mask_off);
 
-	valid_owner_perms = gSelectMgr->selectGetPerm(PERM_OWNER,
+	valid_owner_perms = LLSelectMgr::getInstance()->selectGetPerm(PERM_OWNER,
 									  &owner_mask_on,
 									  &owner_mask_off);
 
-	valid_group_perms = gSelectMgr->selectGetPerm(PERM_GROUP,
+	valid_group_perms = LLSelectMgr::getInstance()->selectGetPerm(PERM_GROUP,
 									  &group_mask_on,
 									  &group_mask_off);
 	
-	valid_everyone_perms = gSelectMgr->selectGetPerm(PERM_EVERYONE,
+	valid_everyone_perms = LLSelectMgr::getInstance()->selectGetPerm(PERM_EVERYONE,
 									  &everyone_mask_on,
 									  &everyone_mask_off);
 	
-	valid_next_perms = gSelectMgr->selectGetPerm(PERM_NEXT_OWNER,
+	valid_next_perms = LLSelectMgr::getInstance()->selectGetPerm(PERM_NEXT_OWNER,
 									  &next_owner_mask_on,
 									  &next_owner_mask_off);
 
@@ -724,10 +724,10 @@ void LLPanelPermissions::refresh()
 
 	// reflect sale information
 	LLSaleInfo sale_info;
-	BOOL valid_sale_info = gSelectMgr->selectGetSaleInfo(sale_info);
+	BOOL valid_sale_info = LLSelectMgr::getInstance()->selectGetSaleInfo(sale_info);
 	LLSaleInfo::EForSale sale_type = sale_info.getSaleType();
 
-	LLRadioGroup* RadioSaleType = gUICtrlFactory->getRadioGroupByName(this,"sale type");
+	LLRadioGroup* RadioSaleType = getChild<LLRadioGroup>("sale type");
 	if(RadioSaleType)
 	{
 		if (valid_sale_info)
@@ -753,18 +753,18 @@ void LLPanelPermissions::refresh()
 	}
 		
 	// Check search status of objects
-	BOOL all_volume = gSelectMgr->selectionAllPCode( LL_PCODE_VOLUME );
+	BOOL all_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME );
 	bool include_in_search;
-	bool all_include_in_search = gSelectMgr->selectionGetIncludeInSearch(&include_in_search);
+	bool all_include_in_search = LLSelectMgr::getInstance()->selectionGetIncludeInSearch(&include_in_search);
 	childSetEnabled("search_check", has_change_sale_ability && all_volume);
 	childSetValue("search_check", include_in_search);
 	childSetTentative("search_check", ! all_include_in_search);
 
 	// Click action (touch, sit, buy)
 	U8 click_action = 0;
-	if (gSelectMgr->selectionGetClickAction(&click_action))
+	if (LLSelectMgr::getInstance()->selectionGetClickAction(&click_action))
 	{
-		LLComboBox*	ComboClickAction = gUICtrlFactory->getComboBoxByName(this,"clickaction");
+		LLComboBox*	ComboClickAction = getChild<LLComboBox>("clickaction");
 		if(ComboClickAction)
 		{
 			ComboClickAction->setCurrentByIndex((S32)click_action);
@@ -779,14 +779,14 @@ void LLPanelPermissions::refresh()
 void LLPanelPermissions::onClickClaim(void*)
 {
 	// try to claim ownership
-	gSelectMgr->sendOwner(gAgent.getID(), gAgent.getGroupID());
+	LLSelectMgr::getInstance()->sendOwner(gAgent.getID(), gAgent.getGroupID());
 }
 
 // static
 void LLPanelPermissions::onClickRelease(void*)
 {
 	// try to release ownership
-	gSelectMgr->sendOwner(LLUUID::null, LLUUID::null);
+	LLSelectMgr::getInstance()->sendOwner(LLUUID::null, LLUUID::null);
 }
 
 // static
@@ -802,10 +802,10 @@ void LLPanelPermissions::onClickOwner(void *data)
 {
 	LLPanelPermissions *self = (LLPanelPermissions *)data;
 
-	if (gSelectMgr->selectIsGroupOwned())
+	if (LLSelectMgr::getInstance()->selectIsGroupOwned())
 	{
 		LLUUID group_id;
-		gSelectMgr->selectGetGroup(group_id);
+		LLSelectMgr::getInstance()->selectGetGroup(group_id);
 		LLFloaterGroupInfo::showFromUUID(group_id);
 	}
 	else
@@ -819,7 +819,7 @@ void LLPanelPermissions::onClickGroup(void* data)
 	LLPanelPermissions* panelp = (LLPanelPermissions*)data;
 	LLUUID owner_id;
 	LLString name;
-	BOOL owners_identical = gSelectMgr->selectGetOwner(owner_id, name);
+	BOOL owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, name);
 	LLFloater* parent_floater = gFloaterView->getParentFloater(panelp);
 
 	if(owners_identical && (owner_id == gAgent.getID()))
@@ -845,7 +845,7 @@ void LLPanelPermissions::cbGroupID(LLUUID group_id, void* userdata)
 	{
 		self->mLabelGroupName->setNameID(group_id, TRUE);
 	}
-	gSelectMgr->sendGroup(group_id);
+	LLSelectMgr::getInstance()->sendGroup(group_id);
 }
 
 void callback_deed_to_group(S32 option, void*)
@@ -853,11 +853,11 @@ void callback_deed_to_group(S32 option, void*)
 	if (0 == option)
 	{
 		LLUUID group_id;
-		BOOL groups_identical = gSelectMgr->selectGetGroup(group_id);
+		BOOL groups_identical = LLSelectMgr::getInstance()->selectGetGroup(group_id);
 		if(groups_identical && (gAgent.hasPowerInGroup(group_id, GP_OBJECT_DEED)))
 		{
-			gSelectMgr->sendOwner(LLUUID::null, group_id, FALSE);
-//			gViewerStats->incStat(LLViewerStats::ST_RELEASE_COUNT);
+			LLSelectMgr::getInstance()->sendOwner(LLUUID::null, group_id, FALSE);
+//			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_RELEASE_COUNT);
 		}
 	}
 }
@@ -875,7 +875,7 @@ void LLPanelPermissions::onClickDeedToGroup(void* data)
 // static
 void LLPanelPermissions::onCommitPerm(LLUICtrl *ctrl, void *data, U8 field, U32 perm)
 {
-	LLViewerObject* object = gSelectMgr->getSelection()->getFirstRootObject();
+	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject();
 	if(!object) return;
 
 	// Checkbox will have toggled itself
@@ -883,7 +883,7 @@ void LLPanelPermissions::onCommitPerm(LLUICtrl *ctrl, void *data, U8 field, U32 
 	LLCheckBoxCtrl *check = (LLCheckBoxCtrl *)ctrl;
 	BOOL new_state = check->get();
 	
-	gSelectMgr->selectionSetObjectPermissions(field, new_state, perm);
+	LLSelectMgr::getInstance()->selectionSetObjectPermissions(field, new_state, perm);
 }
 
 // static
@@ -931,11 +931,11 @@ void LLPanelPermissions::onCommitName(LLUICtrl*, void* data)
 {
 	//llinfos << "LLPanelPermissions::onCommitName()" << llendl;
 	LLPanelPermissions* self = (LLPanelPermissions*)data;
-	LLLineEditor*	tb = gUICtrlFactory->getLineEditorByName(self,"Object Name");
+	LLLineEditor*	tb = self->getChild<LLLineEditor>("Object Name");
 	if(tb)
 	{
-		gSelectMgr->selectionSetObjectName(tb->getText());
-//		gSelectMgr->selectionSetObjectName(self->mLabelObjectName->getText());
+		LLSelectMgr::getInstance()->selectionSetObjectName(tb->getText());
+//		LLSelectMgr::getInstance()->selectionSetObjectName(self->mLabelObjectName->getText());
 	}
 }
 
@@ -945,10 +945,10 @@ void LLPanelPermissions::onCommitDesc(LLUICtrl*, void* data)
 {
 	//llinfos << "LLPanelPermissions::onCommitDesc()" << llendl;
 	LLPanelPermissions* self = (LLPanelPermissions*)data;
-	LLLineEditor*	le = gUICtrlFactory->getLineEditorByName(self,"Object Description");
+	LLLineEditor*	le = self->getChild<LLLineEditor>("Object Description");
 	if(le)
 	{
-		gSelectMgr->selectionSetObjectDescription(le->getText());
+		LLSelectMgr::getInstance()->selectionSetObjectDescription(le->getText());
 	}
 }
 
@@ -971,11 +971,11 @@ void LLPanelPermissions::setAllSaleInfo()
 	llinfos << "LLPanelPermissions::setAllSaleInfo()" << llendl;
 	LLSaleInfo::EForSale sale_type = LLSaleInfo::FS_NOT;
 
-	LLCheckBoxCtrl*	mCheckPurchase = gUICtrlFactory->getCheckBoxByName(this,"checkbox for sale");
+	LLCheckBoxCtrl*	mCheckPurchase = getChild<LLCheckBoxCtrl>("checkbox for sale");
 
 	if(mCheckPurchase && mCheckPurchase->get())
 	{
-		LLRadioGroup* RadioSaleType = gUICtrlFactory->getRadioGroupByName(this,"sale type");
+		LLRadioGroup* RadioSaleType = getChild<LLRadioGroup>("sale type");
 		if(RadioSaleType)
 		{
 			switch(RadioSaleType->getSelectedIndex())
@@ -995,7 +995,7 @@ void LLPanelPermissions::setAllSaleInfo()
 			}
 		}
 	}
-	LLLineEditor*	mEditPrice = gUICtrlFactory->getLineEditorByName(this,"EdCost");
+	LLLineEditor*	mEditPrice = getChild<LLLineEditor>("EdCost");
 
 	S32 price = -1;
 	if(mEditPrice)
@@ -1010,17 +1010,17 @@ void LLPanelPermissions::setAllSaleInfo()
 	}
 
 	LLSaleInfo sale_info(sale_type, price);
-	gSelectMgr->selectionSetObjectSaleInfo(sale_info);
+	LLSelectMgr::getInstance()->selectionSetObjectSaleInfo(sale_info);
 
 	// If turned off for-sale, make sure click-action buy is turned
 	// off as well
 	if (sale_type == LLSaleInfo::FS_NOT)
 	{
 		U8 click_action = 0;
-		gSelectMgr->selectionGetClickAction(&click_action);
+		LLSelectMgr::getInstance()->selectionGetClickAction(&click_action);
 		if (click_action == CLICK_ACTION_BUY)
 		{
-			gSelectMgr->selectionSetClickAction(CLICK_ACTION_TOUCH);
+			LLSelectMgr::getInstance()->selectionSetClickAction(CLICK_ACTION_TOUCH);
 		}
 	}
 }
@@ -1046,14 +1046,14 @@ void LLPanelPermissions::onCommitClickAction(LLUICtrl* ctrl, void*)
 	if (click_action == CLICK_ACTION_BUY)
 	{
 		LLSaleInfo sale_info;
-		gSelectMgr->selectGetSaleInfo(sale_info);
+		LLSelectMgr::getInstance()->selectGetSaleInfo(sale_info);
 		if (!sale_info.isForSale())
 		{
 			gViewerWindow->alertXml("CantSetBuyObject");
 
 			// Set click action back to its old value
 			U8 click_action = 0;
-			gSelectMgr->selectionGetClickAction(&click_action);
+			LLSelectMgr::getInstance()->selectionGetClickAction(&click_action);
 			box->setCurrentByIndex((S32)click_action);
 
 			return;
@@ -1063,14 +1063,14 @@ void LLPanelPermissions::onCommitClickAction(LLUICtrl* ctrl, void*)
 	{
 		// Verify object has script with money() handler
 		LLSelectionPayable payable;
-		bool can_pay = gSelectMgr->getSelection()->applyToObjects(&payable);
+		bool can_pay = LLSelectMgr::getInstance()->getSelection()->applyToObjects(&payable);
 		if (!can_pay)
 		{
 			// Warn, but do it anyway.
 			gViewerWindow->alertXml("ClickActionNotPayable");
 		}
 	}
-	gSelectMgr->selectionSetClickAction(click_action);
+	LLSelectMgr::getInstance()->selectionSetClickAction(click_action);
 }
 
 // static
@@ -1079,6 +1079,6 @@ void LLPanelPermissions::onCommitIncludeInSearch(LLUICtrl* ctrl, void*)
 	LLCheckBoxCtrl* box = (LLCheckBoxCtrl*)ctrl;
 	llassert(box);
 
-	gSelectMgr->selectionSetIncludeInSearch(box->get());
+	LLSelectMgr::getInstance()->selectionSetIncludeInSearch(box->get());
 }
 

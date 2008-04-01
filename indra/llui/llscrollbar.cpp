@@ -414,17 +414,8 @@ BOOL LLScrollbar::handleHover(S32 x, S32 y, MASK mask)
 
 BOOL LLScrollbar::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	BOOL handled = FALSE;
-	if( getVisible() && getRect().localPointInRect( x, y ) )
-	{
-		if( getEnabled() )
-		{
-			changeLine( clicks * mStepSize, TRUE );
-		}
-		handled = TRUE;
-	}
-
-	return handled;
+	changeLine( clicks * mStepSize, TRUE );
+	return TRUE;
 }
 
 BOOL LLScrollbar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
@@ -475,85 +466,68 @@ void LLScrollbar::reshape(S32 width, S32 height, BOOL called_from_parent)
 
 void LLScrollbar::draw()
 {
-	if( getVisible() )
+	S32 local_mouse_x;
+	S32 local_mouse_y;
+	LLCoordWindow cursor_pos_window;
+	getWindow()->getCursorPosition(&cursor_pos_window);
+	LLCoordGL cursor_pos_gl;
+	getWindow()->convertCoords(cursor_pos_window, &cursor_pos_gl);
+
+	screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &local_mouse_x, &local_mouse_y);
+	BOOL other_captor = gFocusMgr.getMouseCapture() && gFocusMgr.getMouseCapture() != this;
+	BOOL hovered = getEnabled() && !other_captor && (hasMouseCapture() || mThumbRect.pointInRect(local_mouse_x, local_mouse_y));
+	if (hovered)
 	{
-		S32 local_mouse_x;
-		S32 local_mouse_y;
-		LLCoordWindow cursor_pos_window;
-		getWindow()->getCursorPosition(&cursor_pos_window);
-		LLCoordGL cursor_pos_gl;
-		getWindow()->convertCoords(cursor_pos_window, &cursor_pos_gl);
-
-		screenPointToLocal(cursor_pos_gl.mX, cursor_pos_gl.mY, &local_mouse_x, &local_mouse_y);
-		BOOL other_captor = gFocusMgr.getMouseCapture() && gFocusMgr.getMouseCapture() != this;
-		BOOL hovered = getEnabled() && !other_captor && (hasMouseCapture() || mThumbRect.pointInRect(local_mouse_x, local_mouse_y));
-		if (hovered)
-		{
-			mCurGlowStrength = lerp(mCurGlowStrength, mHoverGlowStrength, LLCriticalDamp::getInterpolant(0.05f));
-		}
-		else
-		{
-			mCurGlowStrength = lerp(mCurGlowStrength, 0.f, LLCriticalDamp::getInterpolant(0.05f));
-		}
-
-
-		// Draw background and thumb.
-		LLUUID rounded_rect_image_id;
-		rounded_rect_image_id.set(LLUI::sAssetsGroup->getString("rounded_square.tga"));
-		LLImageGL* rounded_rect_imagep = LLUI::sImageProvider->getImageByID(rounded_rect_image_id);
-
-		if (!rounded_rect_imagep)
-		{
-			gl_rect_2d(mOrientation == HORIZONTAL ? SCROLLBAR_SIZE : 0, 
-			mOrientation == VERTICAL ? getRect().getHeight() - 2 * SCROLLBAR_SIZE : getRect().getHeight(),
-			mOrientation == HORIZONTAL ? getRect().getWidth() - 2 * SCROLLBAR_SIZE : getRect().getWidth(), 
-			mOrientation == VERTICAL ? SCROLLBAR_SIZE : 0, mTrackColor, TRUE);
-
-			gl_rect_2d(mThumbRect, mThumbColor, TRUE);
-
-		}
-		else
-		{
-			// Background
-			gl_draw_scaled_image_with_border(mOrientation == HORIZONTAL ? SCROLLBAR_SIZE : 0, 
-				mOrientation == VERTICAL ? SCROLLBAR_SIZE : 0,
-				16,
-				16,
-				mOrientation == HORIZONTAL ? getRect().getWidth() - 2 * SCROLLBAR_SIZE : getRect().getWidth(), 
-				mOrientation == VERTICAL ? getRect().getHeight() - 2 * SCROLLBAR_SIZE : getRect().getHeight(),
-				rounded_rect_imagep, 
-				mTrackColor,
-				TRUE);
-
-			// Thumb
-			LLRect outline_rect = mThumbRect;
-			outline_rect.stretch(2);
-
-			if (gFocusMgr.getKeyboardFocus() == this)
-			{
-				gl_draw_scaled_image_with_border(outline_rect.mLeft, outline_rect.mBottom, 16, 16, outline_rect.getWidth(), outline_rect.getHeight(), 
-							rounded_rect_imagep, gFocusMgr.getFocusColor() );
-			}
-
-			gl_draw_scaled_image_with_border(mThumbRect.mLeft, mThumbRect.mBottom, 16, 16, mThumbRect.getWidth(), mThumbRect.getHeight(), 
-							rounded_rect_imagep, mThumbColor );
-			if (mCurGlowStrength > 0.01f)
-			{
-				gGL.blendFunc(GL_SRC_ALPHA, GL_ONE);
-				gl_draw_scaled_image_with_border(mThumbRect.mLeft, mThumbRect.mBottom, 16, 16, mThumbRect.getWidth(), mThumbRect.getHeight(), 
-							rounded_rect_imagep, LLColor4(1.f, 1.f, 1.f, mCurGlowStrength), TRUE);
-				gGL.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			}
-		}
-
-		BOOL was_scrolled_to_bottom = (getDocPos() == getDocPosMax());
-		if (mOnScrollEndCallback && was_scrolled_to_bottom)
-		{
-			mOnScrollEndCallback(mOnScrollEndData);
-		}
-		// Draw children
-		LLView::draw();
+		mCurGlowStrength = lerp(mCurGlowStrength, mHoverGlowStrength, LLCriticalDamp::getInterpolant(0.05f));
 	}
+	else
+	{
+		mCurGlowStrength = lerp(mCurGlowStrength, 0.f, LLCriticalDamp::getInterpolant(0.05f));
+	}
+
+
+	// Draw background and thumb.
+	LLUIImage* rounded_rect_imagep = LLUI::sImageProvider->getUIImage("rounded_square.tga");
+
+	if (!rounded_rect_imagep)
+	{
+		gl_rect_2d(mOrientation == HORIZONTAL ? SCROLLBAR_SIZE : 0, 
+		mOrientation == VERTICAL ? getRect().getHeight() - 2 * SCROLLBAR_SIZE : getRect().getHeight(),
+		mOrientation == HORIZONTAL ? getRect().getWidth() - 2 * SCROLLBAR_SIZE : getRect().getWidth(), 
+		mOrientation == VERTICAL ? SCROLLBAR_SIZE : 0, mTrackColor, TRUE);
+
+		gl_rect_2d(mThumbRect, mThumbColor, TRUE);
+
+	}
+	else
+	{
+		// Thumb
+		LLRect outline_rect = mThumbRect;
+		outline_rect.stretch(2);
+
+		if (gFocusMgr.getKeyboardFocus() == this)
+		{
+			rounded_rect_imagep->draw(outline_rect, gFocusMgr.getFocusColor());
+		}
+
+		rounded_rect_imagep->draw(mThumbRect, mThumbColor);
+		if (mCurGlowStrength > 0.01f)
+		{
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			rounded_rect_imagep->drawSolid(mThumbRect, LLColor4(1.f, 1.f, 1.f, mCurGlowStrength));
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
+
+	}
+
+	BOOL was_scrolled_to_bottom = (getDocPos() == getDocPosMax());
+	if (mOnScrollEndCallback && was_scrolled_to_bottom)
+	{
+		mOnScrollEndCallback(mOnScrollEndData);
+	}
+
+	// Draw children
+	LLView::draw();
 } // end draw
 
 
@@ -582,42 +556,39 @@ void LLScrollbar::setValue(const LLSD& value)
 }
 
 
-BOOL LLScrollbar::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+BOOL LLScrollbar::handleKeyHere(KEY key, MASK mask)
 {
 	BOOL handled = FALSE;
 
-	if( getVisible() && getEnabled() && !called_from_parent )
+	switch( key )
 	{
-		switch( key )
-		{
-		case KEY_HOME:
-			changeLine( -mDocPos, TRUE );
-			handled = TRUE;
-			break;
-		
-		case KEY_END:
-			changeLine( getDocPosMax() - mDocPos, TRUE );
-			handled = TRUE;
-			break;
-		
-		case KEY_DOWN:
-			changeLine( mStepSize, TRUE );
-			handled = TRUE;
-			break;
-		
-		case KEY_UP:
-			changeLine( - mStepSize, TRUE );
-			handled = TRUE;
-			break;
+	case KEY_HOME:
+		changeLine( -mDocPos, TRUE );
+		handled = TRUE;
+		break;
+	
+	case KEY_END:
+		changeLine( getDocPosMax() - mDocPos, TRUE );
+		handled = TRUE;
+		break;
+	
+	case KEY_DOWN:
+		changeLine( mStepSize, TRUE );
+		handled = TRUE;
+		break;
+	
+	case KEY_UP:
+		changeLine( - mStepSize, TRUE );
+		handled = TRUE;
+		break;
 
-		case KEY_PAGE_DOWN:
-			pageDown(1);
-			break;
+	case KEY_PAGE_DOWN:
+		pageDown(1);
+		break;
 
-		case KEY_PAGE_UP:
-			pageUp(1);
-			break;
-		}
+	case KEY_PAGE_UP:
+		pageUp(1);
+		break;
 	}
 
 	return handled;

@@ -37,10 +37,10 @@
 // viewer project includes
 #include "llcommandhandler.h"
 #include "llpanelplace.h"
-#include "llvieweruictrlfactory.h"
 
 // linden library includes
 #include "lluuid.h"
+#include "lluictrlfactory.h"
 
 //-----------------------------------------------------------------------------
 // Globals
@@ -84,7 +84,7 @@ void*	LLFloaterParcelInfo::createPanelPlace(void*	data)
 {
 	LLFloaterParcelInfo* self = (LLFloaterParcelInfo*)data;
 	self->mPanelParcelp = new LLPanelPlace(); // allow edit self
-	gUICtrlFactory->buildPanel(self->mPanelParcelp, "panel_place.xml");
+	LLUICtrlFactory::getInstance()->buildPanel(self->mPanelParcelp, "panel_place.xml");
 	return self->mPanelParcelp;
 }
 
@@ -96,7 +96,7 @@ LLFloaterParcelInfo::LLFloaterParcelInfo(const std::string& name, const LLUUID &
 	mParcelID( parcel_id )
 {
 	mFactoryMap["place_details_panel"] = LLCallbackMap(LLFloaterParcelInfo::createPanelPlace, this);
-	gUICtrlFactory->buildFloater(this, "floater_preview_url.xml", &getFactoryMap());
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_preview_url.xml", &getFactoryMap());
 	gPlaceInfoInstances.addData(parcel_id, this);
 }
 

@@ -44,8 +44,6 @@ public:
 	LLViewBorder( const LLString& name, const LLRect& rect, EBevel bevel = BEVEL_OUT, EStyle style = STYLE_LINE, S32 width = 1 );
 
 	virtual void setValue(const LLSD& val) { setRect(LLRect(val)); }
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_VIEW_BORDER; }
-	virtual LLString getWidgetTag() const { return LL_VIEW_BORDER_TAG; }
 
 	virtual BOOL isCtrl() const { return FALSE; }
 
@@ -85,7 +83,7 @@ private:
 	LLColor4	mShadowDark;
 	LLColor4	mBackgroundColor;
 	S32			mBorderWidth;
-	LLPointer<LLImageGL>	mTexture;
+	LLUIImagePtr	mTexture;
 	BOOL		mHasKeyboardFocus;
 };
 

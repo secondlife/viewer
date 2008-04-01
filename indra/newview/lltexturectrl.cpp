@@ -64,7 +64,7 @@
 #include "llviewerobject.h"
 #include "llviewercontrol.h"
 #include "llglheaders.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 
 static const S32 CLOSE_BTN_WIDTH = 100;
@@ -119,7 +119,7 @@ public:
 						EAcceptance *accept,
 						LLString& tooltip_msg);
 	virtual void	draw();
-	virtual BOOL	handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL	handleKeyHere(KEY key, MASK mask);
 
 	// LLFloater overrides
 	virtual void	onClose(bool app_quitting);
@@ -214,11 +214,11 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mNonImmediateFilterPermMask(non_immediate_filter_perm_mask),
 	mContextConeOpacity(0.f)
 {
-	gUICtrlFactory->buildFloater(this,"floater_texture_ctrl.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_texture_ctrl.xml");
 
-	mTentativeLabel = LLUICtrlFactory::getTextBoxByName(this,"Multiple");
+	mTentativeLabel = getChild<LLTextBox>("Multiple");
 
-	mResolutionLabel = LLUICtrlFactory::getTextBoxByName(this,"unknown");
+	mResolutionLabel = getChild<LLTextBox>("unknown");
 
 
 	childSetAction("Default",LLFloaterTexturePicker::onBtnSetToDefault,this);
@@ -229,10 +229,10 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	childSetCommitCallback("show_folders_check", onShowFolders, this);
 	childSetVisible("show_folders_check", FALSE);
 	
-	mSearchEdit = (LLSearchEditor*)getCtrlByNameAndType("inventory search editor", WIDGET_TYPE_SEARCH_EDITOR);
+	mSearchEdit = getChild<LLSearchEditor>("inventory search editor");
 	mSearchEdit->setSearchCallback(onSearchEdit, this);
 		
-	mInventoryPanel = (LLInventoryPanel*)this->getCtrlByNameAndType("inventory panel", WIDGET_TYPE_INVENTORY_PANEL);
+	mInventoryPanel = getChild<LLInventoryPanel>("inventory panel");
 
 	if(mInventoryPanel)
 	{
@@ -332,9 +332,9 @@ void LLFloaterTexturePicker::setCanApplyImmediately(BOOL b)
 
 void LLFloaterTexturePicker::stopUsingPipette()
 {
-	if (gToolMgr && gToolMgr->getCurrentTool() == gToolPipette)
+	if (LLToolMgr::getInstance()->getCurrentTool() == LLToolPipette::getInstance())
 	{
-		gToolMgr->clearTransientTool();
+		LLToolMgr::getInstance()->clearTransientTool();
 	}
 }
 
@@ -407,15 +407,15 @@ BOOL LLFloaterTexturePicker::handleDragAndDrop(
 	return handled;
 }
 
-BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 {
 	LLFolderView* root_folder = mInventoryPanel->getRootFolder();
 
 	if (root_folder && mSearchEdit)
 	{
-		if (!called_from_parent && mSearchEdit->hasFocus() &&
-		    (key == KEY_RETURN || key == KEY_DOWN) &&
-		    mask == MASK_NONE)
+		if (mSearchEdit->hasFocus() 
+			&& (key == KEY_RETURN || key == KEY_DOWN) 
+			&& mask == MASK_NONE)
 		{
 			if (!root_folder->getCurSelectedItem())
 			{
@@ -442,7 +442,7 @@ BOOL LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask, BOOL called_from_
 		}
 	}
 
-	return LLFloater::handleKeyHere(key, mask, called_from_parent);
+	return LLFloater::handleKeyHere(key, mask);
 }
 
 // virtual
@@ -533,14 +533,14 @@ void LLFloaterTexturePicker::draw()
 	// if we're inactive, gray out "apply immediate" checkbox
 	childSetEnabled("show_folders_check", mActive && mCanApplyImmediately && !mNoCopyTextureSelected);
 	childSetEnabled("Select", mActive);
-	childSetEnabled("Pipette", gToolMgr != NULL && mActive);
-	childSetValue("Pipette", gToolMgr && gToolMgr->getCurrentTool() == gToolPipette);
+	childSetEnabled("Pipette", mActive);
+	childSetValue("Pipette", LLToolMgr::getInstance()->getCurrentTool() == LLToolPipette::getInstance());
 
 	//RN: reset search bar to reflect actual search query (all caps, for example)
 	mSearchEdit->setText(mInventoryPanel->getFilterSubString());
 
 	//BOOL allow_copy = FALSE;
-	if( getVisible() && mOwner) 
+	if( mOwner ) 
 	{
 		mTexturep = NULL;
 		if(mImageAssetID.notNull())
@@ -739,18 +739,18 @@ void LLFloaterTexturePicker::onBtnPipette( void* userdata )
 {
 	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
 
-	if ( self && gToolMgr)
+	if ( self)
 	{
 		BOOL pipette_active = self->childGetValue("Pipette").asBoolean();
 		pipette_active = !pipette_active;
 		if (pipette_active)
 		{
-			gToolPipette->setSelectCallback(onTextureSelect, self);
-			gToolMgr->setTransientTool(gToolPipette);
+			LLToolPipette::getInstance()->setSelectCallback(onTextureSelect, self);
+			LLToolMgr::getInstance()->setTransientTool(LLToolPipette::getInstance());
 		}
 		else
 		{
-			gToolMgr->clearTransientTool();
+			LLToolMgr::getInstance()->clearTransientTool();
 		}
 	}
 
@@ -859,7 +859,7 @@ void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te, void *da
 	LLUUID inventory_item_id = self->findItemID(te.getID(), TRUE);
 	if (self && inventory_item_id.notNull())
 	{
-		gToolPipette->setResult(TRUE, "");
+		LLToolPipette::getInstance()->setResult(TRUE, "");
 		self->setImageID(te.getID());
 
 		self->mNoCopyTextureSelected = FALSE;
@@ -875,12 +875,14 @@ void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te, void *da
 	}
 	else
 	{
-		gToolPipette->setResult(FALSE, "You do not have a copy this \nof texture in your inventory");
+		LLToolPipette::getInstance()->setResult(FALSE, "You do not have a copy this \nof texture in your inventory");
 	}
 }
 
 ///////////////////////////////////////////////////////////////////////
 // LLTextureCtrl
+
+static LLRegisterWidget<LLTextureCtrl> r("texture_picker");
 
 LLTextureCtrl::LLTextureCtrl(
 	const std::string& name, 
@@ -933,6 +935,7 @@ LLTextureCtrl::LLTextureCtrl(
 	LLRect border_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
 	border_rect.mBottom += BTN_HEIGHT_SMALL;
 	mBorder = new LLViewBorder("border", border_rect, LLViewBorder::BEVEL_IN);
+	mBorder->setFollowsAll();
 	addChild(mBorder);
 
 	setEnabled(TRUE); // for the tooltip
@@ -1276,50 +1279,47 @@ BOOL LLTextureCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
 
 void LLTextureCtrl::draw()
 {
-	if( getVisible() ) 
-	{
-		mBorder->setKeyboardFocusHighlight(hasFocus());
+	mBorder->setKeyboardFocusHighlight(hasFocus());
 
-		if (mImageAssetID.isNull() || !mValid)
+	if (mImageAssetID.isNull() || !mValid)
+	{
+		mTexturep = NULL;
+	}
+	else
+	{
+		mTexturep = gImageList.getImage(mImageAssetID, MIPMAP_YES, IMMEDIATE_NO);
+		mTexturep->setBoostLevel(LLViewerImage::BOOST_PREVIEW);
+	}
+	
+	// Border
+	LLRect border( 0, getRect().getHeight(), getRect().getWidth(), BTN_HEIGHT_SMALL );
+	gl_rect_2d( border, mBorderColor, FALSE );
+
+	// Interior
+	LLRect interior = border;
+	interior.stretch( -1 ); 
+
+	if( mTexturep )
+	{
+		if( mTexturep->getComponents() == 4 )
 		{
-			mTexturep = NULL;
-		}
-		else
-		{
-			mTexturep = gImageList.getImage(mImageAssetID, MIPMAP_YES, IMMEDIATE_NO);
-			mTexturep->setBoostLevel(LLViewerImage::BOOST_PREVIEW);
+			gl_rect_2d_checkerboard( interior );
 		}
 		
-		// Border
-		LLRect border( 0, getRect().getHeight(), getRect().getWidth(), BTN_HEIGHT_SMALL );
-		gl_rect_2d( border, mBorderColor, FALSE );
-
-		// Interior
-		LLRect interior = border;
-		interior.stretch( -1 ); 
-
-		if( mTexturep )
-		{
-			if( mTexturep->getComponents() == 4 )
-			{
-				gl_rect_2d_checkerboard( interior );
-			}
-			
-			gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep);
-			mTexturep->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
-		}
-		else
-		{
-			gl_rect_2d( interior, LLColor4::grey, TRUE );
-
-			// Draw X
-			gl_draw_x( interior, LLColor4::black );
-		}
-
-		mTentativeLabel->setVisible( !mTexturep.isNull() && getTentative() );
-
-		LLUICtrl::draw();
+		gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep);
+		mTexturep->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
 	}
+	else
+	{
+		gl_rect_2d( interior, LLColor4::grey, TRUE );
+
+		// Draw X
+		gl_draw_x( interior, LLColor4::black );
+	}
+
+	mTentativeLabel->setVisible( !mTexturep.isNull() && getTentative() );
+
+	LLUICtrl::draw();
 }
 
 BOOL LLTextureCtrl::allowDrop(LLInventoryItem* item)
@@ -1370,14 +1370,14 @@ BOOL LLTextureCtrl::doDrop(LLInventoryItem* item)
 	return TRUE;
 }
 
-BOOL LLTextureCtrl::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent)
+BOOL LLTextureCtrl::handleUnicodeCharHere(llwchar uni_char)
 {
-	if( getVisible() && getEnabled() && !called_from_parent && ' ' == uni_char )
+	if( ' ' == uni_char )
 	{
 		showPicker(TRUE);
 		return TRUE;
 	}
-	return LLUICtrl::handleUnicodeCharHere(uni_char, called_from_parent);
+	return LLUICtrl::handleUnicodeCharHere(uni_char);
 }
 
 void LLTextureCtrl::setValue( LLSD value )

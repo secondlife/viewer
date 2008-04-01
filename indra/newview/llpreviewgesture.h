@@ -53,7 +53,7 @@ public:
 	static LLPreviewGesture* show(const std::string& title, const LLUUID& item_id, const LLUUID& object_id, BOOL take_focus = TRUE);
 
 	// LLView
-	virtual BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL handleKeyHere(KEY key, MASK mask);
 	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									 EDragAndDropType cargo_type,
 									 void* cargo_data,

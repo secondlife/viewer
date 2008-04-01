@@ -160,10 +160,7 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 		{
 			LLFile::remove(filename);
 		}
-		if( gViewerStats )
-		{
-			gViewerStats->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
-		}
+		LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
 
 		llwarns << "Wearable download failed: " << LLAssetStorage::getErrorString( status ) << " " << uuid << llendl;
 		switch( status )

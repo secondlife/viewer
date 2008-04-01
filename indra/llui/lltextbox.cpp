@@ -34,6 +34,8 @@
 #include "lluictrlfactory.h"
 #include "llfocusmgr.h"
 
+static LLRegisterWidget<LLTextBox> r("text");
+
 LLTextBox::LLTextBox(const LLString& name, const LLRect& rect, const LLString& text,
 					 const LLFontGL* font, BOOL mouse_opaque)
 :	LLUICtrl(name, rect, mouse_opaque, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_TOP ),
@@ -212,7 +214,7 @@ void LLTextBox::setLineLengths()
 	LLString::size_type  cur = 0;
 	LLString::size_type  len = mText.getWString().size();
 
-	while (cur < len)
+	while (cur < len) 
 	{
 		LLString::size_type end = mText.getWString().find('\n', cur);
 		LLString::size_type runLen;
@@ -323,63 +325,60 @@ BOOL LLTextBox::setTextArg( const LLString& key, const LLStringExplicit& text )
 
 void LLTextBox::draw()
 {
-	if( getVisible() )
+	if (mBorderVisible)
 	{
-		if (mBorderVisible)
-		{
-			gl_rect_2d_offset_local(getLocalRect(), 2, FALSE);
-		}
+		gl_rect_2d_offset_local(getLocalRect(), 2, FALSE);
+	}
 
-		if( mBorderDropShadowVisible )
-		{
-			static LLColor4 color_drop_shadow = LLUI::sColorsGroup->getColor("ColorDropShadow");
-			static S32 drop_shadow_tooltip = LLUI::sConfigGroup->getS32("DropShadowTooltip");
-			gl_drop_shadow(0, getRect().getHeight(), getRect().getWidth(), 0,
-				color_drop_shadow, drop_shadow_tooltip);
-		}
-	
-		if (mBackgroundVisible)
-		{
-			LLRect r( 0, getRect().getHeight(), getRect().getWidth(), 0 );
-			gl_rect_2d( r, mBackgroundColor );
-		}
+	if( mBorderDropShadowVisible )
+	{
+		static LLColor4 color_drop_shadow = LLUI::sColorsGroup->getColor("ColorDropShadow");
+		static S32 drop_shadow_tooltip = LLUI::sConfigGroup->getS32("DropShadowTooltip");
+		gl_drop_shadow(0, getRect().getHeight(), getRect().getWidth(), 0,
+			color_drop_shadow, drop_shadow_tooltip);
+	}
 
-		S32 text_x = 0;
-		switch( mHAlign )
-		{
-		case LLFontGL::LEFT:	
-			text_x = mHPad;						
-			break;
-		case LLFontGL::HCENTER:
-			text_x = getRect().getWidth() / 2;
-			break;
-		case LLFontGL::RIGHT:
-			text_x = getRect().getWidth() - mHPad;
-			break;
-		}
+	if (mBackgroundVisible)
+	{
+		LLRect r( 0, getRect().getHeight(), getRect().getWidth(), 0 );
+		gl_rect_2d( r, mBackgroundColor );
+	}
 
-		S32 text_y = getRect().getHeight() - mVPad;
+	S32 text_x = 0;
+	switch( mHAlign )
+	{
+	case LLFontGL::LEFT:	
+		text_x = mHPad;						
+		break;
+	case LLFontGL::HCENTER:
+		text_x = getRect().getWidth() / 2;
+		break;
+	case LLFontGL::RIGHT:
+		text_x = getRect().getWidth() - mHPad;
+		break;
+	}
 
-		if ( getEnabled() )
+	S32 text_y = getRect().getHeight() - mVPad;
+
+	if ( getEnabled() )
+	{
+		if(mHasHover)
 		{
-			if(mHasHover)
-			{
-				drawText( text_x, text_y, mHoverColor );
-			}
-			else
-			{
-				drawText( text_x, text_y, mTextColor );
-			}				
+			drawText( text_x, text_y, mHoverColor );
 		}
 		else
 		{
-			drawText( text_x, text_y, mDisabledColor );
-		}
+			drawText( text_x, text_y, mTextColor );
+		}				
+	}
+	else
+	{
+		drawText( text_x, text_y, mDisabledColor );
+	}
 
-		if (sDebugRects)
-		{
-			drawDebugRect();
-		}
+	if (sDebugRects)
+	{
+		drawDebugRect();
 	}
 
 	mHasHover = FALSE; // This is reset every frame.

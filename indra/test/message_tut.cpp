@@ -62,7 +62,7 @@ namespace tut
 			if(! init)
 			{
 				ll_init_apr();
-				init_prehash_data();
+				//init_prehash_data();
 				init = true;
 			}
 

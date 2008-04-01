@@ -52,8 +52,8 @@
 //static
 class LLTextureFetchWorker : public LLWorkerClass
 {
-	friend class LLTextureFetch;
-	
+friend class LLTextureFetch;
+
 private:
 	class URLResponder : public LLHTTPClient::Responder
 	{
@@ -233,6 +233,7 @@ private:
 	/*virtual*/ void startWork(S32 param); // called from addWork() (MAIN THREAD)
 	/*virtual*/ void endWork(S32 param, bool aborted); // called from doWork() (MAIN THREAD)
 
+	virtual LLString getName() { return LLString::null; }
 	void resetFormattedData();
 	
 	void setImagePriority(F32 priority);
@@ -336,6 +337,26 @@ private:
 	U16 mTotalPackets;
 	U8 mImageCodec;
 };
+
+class LLTextureFetchLocalFileWorker : public LLTextureFetchWorker
+{
+friend class LLTextureFetch;
+
+protected:
+	LLTextureFetchLocalFileWorker(LLTextureFetch* fetcher, const LLString& filename, const LLUUID& id, const LLHost& host,
+						 F32 priority, S32 discard, S32 size)
+		:	LLTextureFetchWorker(fetcher, id, host, priority, discard, size),
+			mFileName(filename)
+	{}
+
+private:
+	/*virtual*/ LLString getName() { return mFileName; }
+
+
+private:
+	LLString mFileName;
+};
+
 
 //static
 const char* LLTextureFetchWorker::sStateDescs[] = {
@@ -580,9 +601,19 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mFileSize = 0;
 			mLoaded = FALSE;
 			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
+
 			CacheReadResponder* responder = new CacheReadResponder(mFetcher, mID, mFormattedImage);
-			mCacheReadHandle = mFetcher->mTextureCache->readFromCache(mID, cache_priority,
-																	  offset, size, responder);
+			if (getName().empty())
+			{
+				mCacheReadHandle = mFetcher->mTextureCache->readFromCache(mID, cache_priority,
+																		  offset, size, responder);
+			}
+			else
+			{
+				// read file from local disk
+				mCacheReadHandle = mFetcher->mTextureCache->readFromCache(getName(), mID, cache_priority,
+																		  offset, size, responder);
+			}
 		}
 
 		if (mLoaded)
@@ -612,12 +643,17 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		if ((mCachedSize >= mDesiredSize) || mHaveAllData)
 		{
 			// we have enough data, decode it
-			llassert_always(mFormattedImage->getDataSize() > 0);
+			llassert_always(mFormattedImage.isNull() || mFormattedImage->getDataSize() > 0);
 			mState = DECODE_IMAGE;
 			// fall through
 		}
 		else
 		{
+			if (!getName().empty())
+			{
+				// failed to load local file, we're done.
+				return true;
+			}
 			// need more data
 			mState = LOAD_FROM_NETWORK;
 			// fall through
@@ -821,7 +857,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	
 	if (mState == DECODE_IMAGE)
 	{
-		llassert_always(mFormattedImage->getDataSize() > 0);
+		llassert_always(mFormattedImage.isNull() || mFormattedImage->getDataSize() > 0);
 		setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
 		mRawImage = NULL;
 		mAuxImage = NULL;
@@ -1273,6 +1309,12 @@ LLTextureFetch::~LLTextureFetch()
 }
 
 bool LLTextureFetch::createRequest(const LLUUID& id, const LLHost& host, F32 priority,
+									S32 w, S32 h, S32 c, S32 discard, bool needs_aux)
+{
+	return createRequest(LLString::null, id, host, priority, w, h, c, discard, needs_aux);
+}
+
+bool LLTextureFetch::createRequest(const LLString& filename, const LLUUID& id, const LLHost& host, F32 priority,
 								   S32 w, S32 h, S32 c, S32 discard, bool needs_aux)
 {
 	if (mDebugPause)
@@ -1305,13 +1347,13 @@ bool LLTextureFetch::createRequest(const LLUUID& id, const LLHost& host, F32 pri
 		// we really do get it.)
 		desired_size = worker->mFileSize;
 	}
-	else if ((discard == 0) && worker == NULL)
-	{
-		// if we want the entire image, but we don't know its size, then send
-		// a sentinel value of zero to request the entire contents of the cache.
-		// patch supplied by resident Sheet Spotter for VWR-2404
-		desired_size = 0;
-	}
+	//else if ((discard == 0) && worker == NULL)
+	//{
+	//	// if we want the entire image, but we don't know its size, then send
+	//	// a sentinel value of zero to request the entire contents of the cache.
+	//	// patch supplied by resident Sheet Spotter for VWR-2404
+	//	desired_size = 0;
+	//}
 	else if (w*h*c > 0)
 	{
 		// If the requester knows the dimentions of the image,
@@ -1342,7 +1384,16 @@ bool LLTextureFetch::createRequest(const LLUUID& id, const LLHost& host, F32 pri
 	}
 	else
 	{
-		worker = new LLTextureFetchWorker(this, id, host, priority, discard, desired_size);
+		if (filename.empty())
+		{
+			// do remote fetch
+			worker = new LLTextureFetchWorker(this, id, host, priority, discard, desired_size);
+		}
+		else
+		{
+			// do local file fetch
+			worker = new LLTextureFetchLocalFileWorker(this, filename, id, host, priority, discard, desired_size);
+		}
 		mRequestMap[id] = worker;
 	}
 	worker->mActiveCount++;

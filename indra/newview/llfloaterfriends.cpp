@@ -51,7 +51,7 @@
 #include "llnotify.h"
 #include "llresmgr.h"
 #include "llimview.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llmenucommands.h"
 #include "llviewercontrol.h"
 #include "llviewermessage.h"
@@ -178,7 +178,7 @@ void LLPanelFriends::updateFriends(U32 changed_mask)
 // virtual
 BOOL LLPanelFriends::postBuild()
 {
-	mFriendsList = LLUICtrlFactory::getScrollListByName(this, "friend_list");
+	mFriendsList = getChild<LLScrollListCtrl>("friend_list");
 	mFriendsList->setMaxSelectable(MAX_FRIEND_SELECT);
 	mFriendsList->setMaximumSelectCallback(onMaximumSelect);
 	mFriendsList->setCommitOnSelectionChange(TRUE);
@@ -201,7 +201,7 @@ BOOL LLPanelFriends::postBuild()
 
 	// primary sort = online status, secondary sort = name
 	mFriendsList->sortByColumn("friend_name", TRUE);
-	mFriendsList->sortByColumn("icon_online_status", TRUE);
+	mFriendsList->sortByColumn("icon_online_status", FALSE);
 
 	return TRUE;
 }
@@ -219,37 +219,46 @@ BOOL LLPanelFriends::addFriend(const LLUUID& agent_id)
 	
 	LLSD element;
 	element["id"] = agent_id;
-	element["columns"][LIST_FRIEND_NAME]["column"] = "friend_name";
-	element["columns"][LIST_FRIEND_NAME]["value"] = fullname;
-	element["columns"][LIST_FRIEND_NAME]["font"] = "SANSSERIF";
-	element["columns"][LIST_FRIEND_NAME]["font-style"] = "NORMAL";	
-	element["columns"][LIST_ONLINE_STATUS]["column"] = "icon_online_status";
-	element["columns"][LIST_ONLINE_STATUS]["type"] = "icon";
+	LLSD& friend_column = element["columns"][LIST_FRIEND_NAME];
+	friend_column["column"] = "friend_name";
+	friend_column["value"] = fullname;
+	friend_column["font"] = "SANSSERIF";
+	friend_column["font-style"] = "NORMAL";	
+
+	LLSD& online_status_column = element["columns"][LIST_ONLINE_STATUS];
+	online_status_column["column"] = "icon_online_status";
+	online_status_column["type"] = "icon";
+
 	if (online)
 	{
-		element["columns"][LIST_FRIEND_NAME]["font-style"] = "BOLD";	
-		element["columns"][LIST_ONLINE_STATUS]["value"] = gViewerArt.getString("icon_avatar_online.tga");		
+		friend_column["font-style"] = "BOLD";	
+		online_status_column["value"] = "icon_avatar_online.tga";
 	}
 
-	element["columns"][LIST_VISIBLE_ONLINE]["column"] = "icon_visible_online";
-	element["columns"][LIST_VISIBLE_ONLINE]["type"] = "checkbox";
-	element["columns"][LIST_VISIBLE_ONLINE]["value"] = relationInfo->isRightGrantedTo(LLRelationship::GRANT_ONLINE_STATUS);
+	LLSD& online_column = element["columns"][LIST_VISIBLE_ONLINE];
+	online_column["column"] = "icon_visible_online";
+	online_column["type"] = "checkbox";
+	online_column["value"] = relationInfo->isRightGrantedTo(LLRelationship::GRANT_ONLINE_STATUS);
 
-	element["columns"][LIST_VISIBLE_MAP]["column"] = "icon_visible_map";
-	element["columns"][LIST_VISIBLE_MAP]["type"] = "checkbox";
-	element["columns"][LIST_VISIBLE_MAP]["value"] = relationInfo->isRightGrantedTo(LLRelationship::GRANT_MAP_LOCATION);
+	LLSD& visible_map_column = element["columns"][LIST_VISIBLE_MAP];
+	visible_map_column["column"] = "icon_visible_map";
+	visible_map_column["type"] = "checkbox";
+	visible_map_column["value"] = relationInfo->isRightGrantedTo(LLRelationship::GRANT_MAP_LOCATION);
 
-	element["columns"][LIST_EDIT_MINE]["column"] = "icon_edit_mine";
-	element["columns"][LIST_EDIT_MINE]["type"] = "checkbox";
-	element["columns"][LIST_EDIT_MINE]["value"] = relationInfo->isRightGrantedTo(LLRelationship::GRANT_MODIFY_OBJECTS);
+	LLSD& edit_my_object_column = element["columns"][LIST_EDIT_MINE];
+	edit_my_object_column["column"] = "icon_edit_mine";
+	edit_my_object_column["type"] = "checkbox";
+	edit_my_object_column["value"] = relationInfo->isRightGrantedTo(LLRelationship::GRANT_MODIFY_OBJECTS);
 
-	element["columns"][LIST_EDIT_THEIRS]["column"] = "icon_edit_theirs";
-	element["columns"][LIST_EDIT_THEIRS]["type"] = "checkbox";
-	element["columns"][LIST_EDIT_THEIRS]["enabled"] = "";
-	element["columns"][LIST_EDIT_THEIRS]["value"] = relationInfo->isRightGrantedFrom(LLRelationship::GRANT_MODIFY_OBJECTS);
+	LLSD& edit_their_object_column = element["columns"][LIST_EDIT_THEIRS];
+	edit_their_object_column["column"] = "icon_edit_theirs";
+	edit_their_object_column["type"] = "checkbox";
+	edit_their_object_column["enabled"] = "";
+	edit_their_object_column["value"] = relationInfo->isRightGrantedFrom(LLRelationship::GRANT_MODIFY_OBJECTS);
 
-	element["columns"][LIST_FRIEND_UPDATE_GEN]["column"] = "friend_last_update_generation";
-	element["columns"][LIST_FRIEND_UPDATE_GEN]["value"] = have_name ? relationInfo->getChangeSerialNum() : -1;
+	LLSD& update_gen_column = element["columns"][LIST_FRIEND_UPDATE_GEN];
+	update_gen_column["column"] = "friend_last_update_generation";
+	update_gen_column["value"] = have_name ? relationInfo->getChangeSerialNum() : -1;
 
 	mFriendsList->addElement(element, ADD_BOTTOM);
 	return have_name;
@@ -265,7 +274,7 @@ BOOL LLPanelFriends::updateFriendItem(const LLUUID& agent_id, const LLRelationsh
 	std::string fullname;
 	BOOL have_name = gCacheName->getFullName(agent_id, fullname);
 
-	itemp->getColumn(LIST_ONLINE_STATUS)->setValue(info->isOnline() ? gViewerArt.getString("icon_avatar_online.tga") : LLString());
+	itemp->getColumn(LIST_ONLINE_STATUS)->setValue(info->isOnline() ? "icon_avatar_online.tga" : LLString::null);
 	itemp->getColumn(LIST_FRIEND_NAME)->setValue(fullname);
 	// render name of online friends in bold text
 	((LLScrollListText*)itemp->getColumn(LIST_FRIEND_NAME))->setFontStyle(info->isOnline() ? LLFontGL::BOLD : LLFontGL::NORMAL);	
@@ -292,7 +301,7 @@ void LLPanelFriends::refreshRightsChangeList()
 	bool can_offer_teleport = num_selected >= 1;
 	bool selected_friends_online = true;
 
-	LLTextBox* processing_label = LLUICtrlFactory::getTextBoxByName(this, "process_rights_label");
+	LLTextBox* processing_label = getChild<LLTextBox>("process_rights_label");
 
 	if(!mAllowRightsChange)
 	{

@@ -56,7 +56,7 @@ namespace tut
 
 		char * prehash(const char * name)
 		{
-			return gMessageStringTable.getString(name);
+			return LLMessageStringTable::getInstance()->getString(name);
 		}
 
 		void ensure_block_attributes(std::string identifier,

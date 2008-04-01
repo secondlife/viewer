@@ -39,7 +39,7 @@
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "llcheckboxctrl.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewercamera.h"
 #include "llcombobox.h"
 #include "lllineeditor.h"
@@ -280,7 +280,7 @@ void LLWLParamManager::updateShaderUniforms(LLGLSLShader * shader)
 	if (shader->mShaderGroup == LLGLSLShader::SG_DEFAULT)
 	{
 		shader->uniform4fv(LLShaderMgr::LIGHTNORM, 1, mRotatedLightDir.mV);
-		shader->uniform3fv("camPosLocal", 1, gCamera->getOrigin().mV);
+		shader->uniform3fv("camPosLocal", 1, LLViewerCamera::getInstance()->getOrigin().mV);
 	} 
 
 	else if (shader->mShaderGroup == LLGLSLShader::SG_SKY)

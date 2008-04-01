@@ -349,7 +349,7 @@ void LLCurrencyUIManager::Impl::onCurrencyKey(
 
 void LLCurrencyUIManager::Impl::prepare()
 {
-	LLLineEditor* lindenAmount = LLUICtrlFactory::getLineEditorByName(&mPanel,"currency_amt");
+	LLLineEditor* lindenAmount = mPanel.getChild<LLLineEditor>("currency_amt");
 	if (lindenAmount)
 	{
 		lindenAmount->setPrevalidate(LLLineEditor::prevalidateNonNegativeS32);
@@ -370,7 +370,7 @@ void LLCurrencyUIManager::Impl::updateUI()
 
 	mPanel.childShow("currency_action");
 
-	LLLineEditor* lindenAmount = LLUICtrlFactory::getLineEditorByName(&mPanel,"currency_amt");
+	LLLineEditor* lindenAmount = mPanel.getChild<LLLineEditor>("currency_amt");
 	if (lindenAmount) 
 	{
 		lindenAmount->setVisible(true);

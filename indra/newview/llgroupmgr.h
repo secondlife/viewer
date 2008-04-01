@@ -295,7 +295,7 @@ struct LLRoleActionSet
 	std::vector<LLRoleAction*> mActions;
 };
 
-class LLGroupMgr
+class LLGroupMgr : public LLSingleton<LLGroupMgr>
 {
 	LOG_CLASS(LLGroupMgr);
 	
@@ -350,19 +350,18 @@ public:
 	static void debugClearAllGroups(void*);
 	void clearGroups();
 	void clearGroupData(const LLUUID& group_id);
-protected:
+
+private:
 	void notifyObservers(LLGroupChange gc);
 	void addGroup(LLGroupMgrGroupData* group_datap);
 	LLGroupMgrGroupData* createGroupData(const LLUUID &id);
 
-protected:
 	typedef std::multimap<LLUUID,LLGroupMgrObserver*> observer_multimap_t;
 	observer_multimap_t mObservers;
 	typedef std::map<LLUUID, LLGroupMgrGroupData*> group_map_t;
 	group_map_t mGroups;
 };
 
-extern LLGroupMgr* gGroupMgr;
 
 #endif
 

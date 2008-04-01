@@ -47,7 +47,7 @@
 #include "v4coloru.h"
 #include "llbutton.h"
 #include "llviewercontrol.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "llgl.h"
 #include "llmemory.h"
@@ -138,7 +138,7 @@ LLFloaterColorPicker::
 createUI ()
 {
 	// build the majority of the gui using the factory builder
-	gUICtrlFactory->buildFloater ( this, "floater_color_picker.xml" );
+	LLUICtrlFactory::getInstance()->buildFloater ( this, "floater_color_picker.xml" );
 	setVisible ( FALSE );
 
 	// create RGB type area (not really RGB but it's got R,G & B in it.,..
@@ -221,23 +221,23 @@ BOOL
 LLFloaterColorPicker::
 postBuild()
 {
-	mCancelBtn = LLViewerUICtrlFactory::getButtonByName( this, "cancel_btn" );
+	mCancelBtn = getChild<LLButton>( "cancel_btn" );
     mCancelBtn->setClickedCallback ( onClickCancel );
     mCancelBtn->setCallbackUserData ( this );
 
-	mSelectBtn = LLViewerUICtrlFactory::getButtonByName( this, "select_btn");
+	mSelectBtn = getChild<LLButton>( "select_btn");
     mSelectBtn->setClickedCallback ( onClickSelect );
     mSelectBtn->setCallbackUserData ( this );
 	mSelectBtn->setFocus ( TRUE );
 
-	mPipetteBtn = LLViewerUICtrlFactory::getButtonByName ( this, "color_pipette" );
+	mPipetteBtn = getChild<LLButton>("color_pipette" );
 
 	mPipetteBtn->setImages("eye_button_inactive.tga", "eye_button_active.tga");
 
 	mPipetteBtn->setClickedCallback( onClickPipette );
 	mPipetteBtn->setCallbackUserData ( this );
 
-	mApplyImmediateCheck = LLViewerUICtrlFactory::getCheckBoxByName( this, "apply_immediate");
+	mApplyImmediateCheck = getChild<LLCheckBoxCtrl>("apply_immediate");
 	mApplyImmediateCheck->set(gSavedSettings.getBOOL("ApplyColorImmediately"));
 	mApplyImmediateCheck->setCommitCallback(onImmediateCheck);
 	mApplyImmediateCheck->setCallbackUserData(this);
@@ -468,18 +468,18 @@ void LLFloaterColorPicker::onClickPipette( void* data )
 {
 	LLFloaterColorPicker* self = ( LLFloaterColorPicker* )data;
 
-	if ( self && gToolMgr)
+	if ( self)
 	{
 		BOOL pipette_active = self->mPipetteBtn->getToggleState();
 		pipette_active = !pipette_active;
 		if (pipette_active)
 		{
-			gToolPipette->setSelectCallback(onColorSelect, self);
-			gToolMgr->setTransientTool(gToolPipette);
+			LLToolPipette::getInstance()->setSelectCallback(onColorSelect, self);
+			LLToolMgr::getInstance()->setTransientTool(LLToolPipette::getInstance());
 		}
 		else
 		{
-			gToolMgr->clearTransientTool();
+			LLToolMgr::getInstance()->clearTransientTool();
 		}
 	}
 }
@@ -587,8 +587,7 @@ void LLFloaterColorPicker::draw()
 		mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLCriticalDamp::getInterpolant(CONTEXT_FADE_TIME));
 	}
 
-	mPipetteBtn->setEnabled(gToolMgr != NULL);
-	mPipetteBtn->setToggleState(gToolMgr && gToolMgr->getCurrentTool() == gToolPipette);
+	mPipetteBtn->setToggleState(LLToolMgr::getInstance()->getCurrentTool() == LLToolPipette::getInstance());
 	mApplyImmediateCheck->setEnabled(mActive && mCanApplyImmediately);
 	mSelectBtn->setEnabled(mActive);
 
@@ -1227,8 +1226,8 @@ void LLFloaterColorPicker::setActive(BOOL active)
 
 void LLFloaterColorPicker::stopUsingPipette()
 {
-	if (gToolMgr && gToolMgr->getCurrentTool() == gToolPipette)
+	if (LLToolMgr::getInstance()->getCurrentTool() == LLToolPipette::getInstance())
 	{
-		gToolMgr->clearTransientTool();
+		LLToolMgr::getInstance()->clearTransientTool();
 	}
 }

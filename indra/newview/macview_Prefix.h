@@ -117,7 +117,7 @@
 #include "llresmgr.h"
 #include "llui.h"
 #include "llviewborder.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 
 /////////////////// From lldrawpool.cpp
@@ -172,7 +172,7 @@
 #include "llviewerwindow.h"
 #include "llcontrol.h"
 #include "lluictrl.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewborder.h"
 #include "llviewerimagelist.h"
 #include "llbutton.h"

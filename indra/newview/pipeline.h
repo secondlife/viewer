@@ -334,8 +334,6 @@ public:
 		RENDER_DEBUG_SHAME				= 0x400000,
 	};
 
-	LLPointer<LLViewerImage>	mAlphaSizzleImagep;
-
 public:
 	
 	LLSpatialPartition* getSpatialPartition(LLViewerObject* vobj);

@@ -157,7 +157,7 @@ void LLCloudGroup::updatePuffOwnership()
 		}
 
 		//llinfos << "Cloud moving to new group" << llendl;
-		LLCloudGroup *new_cgp = gWorldPointer->findCloudGroup(mCloudPuffs[i]);
+		LLCloudGroup *new_cgp = LLWorld::getInstance()->findCloudGroup(mCloudPuffs[i]);
 		if (!new_cgp)
 		{
 			//llinfos << "Killing puff not in group" << llendl;

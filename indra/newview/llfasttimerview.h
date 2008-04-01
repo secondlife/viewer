@@ -41,9 +41,6 @@ public:
 	LLFastTimerView(const std::string& name, const LLRect& rect);
 	virtual ~LLFastTimerView();
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
-
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);

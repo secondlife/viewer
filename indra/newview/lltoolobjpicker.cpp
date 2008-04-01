@@ -48,7 +48,6 @@
 #include "llviewerwindow.h"
 #include "lldrawable.h"
 
-LLToolObjPicker* gToolObjPicker = NULL;
 
 LLToolObjPicker::LLToolObjPicker()
 :	LLTool( "ObjPicker", NULL ),
@@ -98,8 +97,8 @@ void LLToolObjPicker::pickCallback(S32 x, S32 y, MASK mask)
 	objectp = gObjectList.findObject( gLastHitObjectID );
 	if (objectp)
 	{
-		gToolObjPicker->mHitObjectID = objectp->mID;
-		gToolObjPicker->mPicked = TRUE;
+		LLToolObjPicker::getInstance()->mHitObjectID = objectp->mID;
+		LLToolObjPicker::getInstance()->mPicked = TRUE;
 	}
 }
 

@@ -56,8 +56,6 @@ public:
 		:	LLUICtrl(name, rect, TRUE, NULL, NULL, FOLLOWS_LEFT | FOLLOWS_BOTTOM ) {}
 
 	virtual void setValue(const LLSD& value) {};
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_SCROLLING_PANEL_LIST; }
-	virtual LLString getWidgetTag() const { return LL_SCROLLING_PANEL_LIST_TAG; }
 
 	virtual LLXMLNodePtr getXML(bool save_children) const { return LLUICtrl::getXML(); }
 	

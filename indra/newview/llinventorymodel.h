@@ -243,6 +243,7 @@ public:
 	// to remove it.
 	void addObserver(LLInventoryObserver* observer);
 	void removeObserver(LLInventoryObserver* observer);
+	BOOL containsObserver(LLInventoryObserver* observer);
 
 	//
 	// Misc Methods 

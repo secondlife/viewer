@@ -40,7 +40,7 @@
 #include "lltoolmgr.h"
 #include "llviewercontrol.h"
 #include "llviewerobject.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 LLFloaterInspect* LLFloaterInspect::sInstance = NULL;
 
@@ -49,19 +49,19 @@ LLFloaterInspect::LLFloaterInspect(void) :
 	mDirty(FALSE)
 {
 	sInstance = this;
-	gUICtrlFactory->buildFloater(this, "floater_inspect.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_inspect.xml");
 }
 
 LLFloaterInspect::~LLFloaterInspect(void)
 {
 	if(!gFloaterTools->getVisible())
 	{
-		if(gToolMgr->getBaseTool() == gToolInspect)
+		if(LLToolMgr::getInstance()->getBaseTool() == LLToolCompInspect::getInstance())
 		{
-			gToolMgr->clearTransientTool();
+			LLToolMgr::getInstance()->clearTransientTool();
 		}
 		// Switch back to basic toolset
-		gToolMgr->setCurrentToolset(gBasicToolset);	
+		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);	
 	}
 	else
 	{
@@ -80,7 +80,7 @@ void LLFloaterInspect::show(void* ignored)
 	// setForceSelection ensures that the pie menu does not deselect things when it 
 	// looses the focus (this can happen with "select own objects only" enabled
 	// VWR-1471
-	BOOL forcesel = gSelectMgr->setForceSelection(TRUE);
+	BOOL forcesel = LLSelectMgr::getInstance()->setForceSelection(TRUE);
 
 	if (!sInstance)	// first use
 	{
@@ -88,10 +88,10 @@ void LLFloaterInspect::show(void* ignored)
 	}
 
 	sInstance->open();
-	gToolMgr->setTransientTool(gToolInspect);
-	gSelectMgr->setForceSelection(forcesel);	// restore previouis value
+	LLToolMgr::getInstance()->setTransientTool(LLToolCompInspect::getInstance());
+	LLSelectMgr::getInstance()->setForceSelection(forcesel);	// restore previouis value
 
-	sInstance->mObjectSelection = gSelectMgr->getSelection();
+	sInstance->mObjectSelection = LLSelectMgr::getInstance()->getSelection();
 	sInstance->refresh();
 }
 
@@ -152,7 +152,7 @@ void LLFloaterInspect::onClickOwnerProfile(void* ctrl)
 
 BOOL LLFloaterInspect::postBuild()
 {
-	mObjectList = LLUICtrlFactory::getScrollListByName(this, "object_list");
+	mObjectList = getChild<LLScrollListCtrl>("object_list");
 	childSetAction("button owner",onClickOwnerProfile, this);
 	childSetAction("button creator",onClickCreatorProfile, this);
 	childSetCommitCallback("object_list", onSelectObject);
@@ -256,7 +256,7 @@ void LLFloaterInspect::refresh()
 
 void LLFloaterInspect::onFocusReceived()
 {
-	gToolMgr->setTransientTool(gToolInspect);
+	LLToolMgr::getInstance()->setTransientTool(LLToolCompInspect::getInstance());
 	LLFloater::onFocusReceived();
 }
 

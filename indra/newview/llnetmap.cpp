@@ -103,15 +103,20 @@ LLNetMap::LLNetMap(
 
 	mObjectImageCenterGlobal = gAgent.getCameraPositionGlobal();
 	
+	// TODO: exteralize hardcoded constants.
 	const S32 DIR_WIDTH = 10;
 	const S32 DIR_HEIGHT = 10;
 	LLRect major_dir_rect(  0, DIR_HEIGHT, DIR_WIDTH, 0 );
+	const LLColor4 minor_color( 1.f, 1.f, 1.f, .7f );
+	const LLRect minor_dir_rect(  0, DIR_HEIGHT, DIR_WIDTH * 2, 0 );
 
-	mTextBoxNorth = new LLTextBox( "N", major_dir_rect );
-	mTextBoxNorth->setFontStyle(LLFontGL::DROP_SHADOW_SOFT);
+	// Note: removing special treatment for north compass point (DEV-10559). -MG
+	//mTextBoxNorth = new LLTextBox( "N", major_dir_rect );
+	//mTextBoxNorth->setFontStyle(LLFontGL::DROP_SHADOW_SOFT);
+	//addChild( mTextBoxNorth );
+	mTextBoxNorth =	new LLTextBox( "N", major_dir_rect );
+	mTextBoxNorth->setColor( minor_color );
 	addChild( mTextBoxNorth );
-
-	LLColor4 minor_color( 1.f, 1.f, 1.f, .7f );
 	
 	mTextBoxEast =	new LLTextBox( "E", major_dir_rect );
 	mTextBoxEast->setColor( minor_color );
@@ -126,8 +131,6 @@ LLNetMap::LLNetMap(
 	mTextBoxSouth = new LLTextBox( "S", major_dir_rect );
 	mTextBoxSouth->setColor( minor_color );
 	addChild( mTextBoxSouth );
-
-	LLRect minor_dir_rect(  0, DIR_HEIGHT, DIR_WIDTH * 2, 0 );
 
 	mTextBoxSouthEast =	new LLTextBox( "SE", minor_dir_rect );
 	mTextBoxSouthEast->setColor( minor_color );
@@ -170,17 +173,6 @@ LLNetMap::~LLNetMap()
 	sInstance = NULL;
 }
 
-EWidgetType LLNetMap::getWidgetType() const
-{
-	return WIDGET_TYPE_NET_MAP;
-}
-
-LLString LLNetMap::getWidgetTag() const
-{
-	return LL_NET_MAP_TAG;
-}
-
-
 void LLNetMap::setScale( F32 scale )
 {
 	gMiniMapScale = scale;
@@ -194,20 +186,8 @@ void LLNetMap::setScale( F32 scale )
 		F32 half_width = (F32)(getRect().getWidth() / 2);
 		F32 half_height = (F32)(getRect().getHeight() / 2);
 		F32 radius = sqrt( half_width * half_width + half_height * half_height );
-
 		F32 region_widths = (2.f*radius)/gMiniMapScale;
-
-		F32 meters;
-		if (!gWorldPointer)
-		{
-			// Hack!  Sometimes world hasn't been initialized at this point.
-			meters = 256.f*region_widths;
-		}
-		else
-		{
-			meters = region_widths * gWorldPointer->getRegionWidthInMeters();
-		}
-
+		F32 meters = region_widths * LLWorld::getInstance()->getRegionWidthInMeters();
 		F32 num_pixels = (F32)mObjectImagep->getWidth();
 		mObjectMapTPM = num_pixels/meters;
 		mObjectMapPixels = 2.f*radius;
@@ -231,10 +211,6 @@ void LLNetMap::draw()
 {
  	static LLFrameTimer map_timer;
 
-	if (!getVisible() || !gWorldPointer)
-	{
-		return;
-	}
 	if (mObjectImagep.isNull())
 	{
 		createObjectImage();
@@ -271,15 +247,15 @@ void LLNetMap::draw()
 		if( LLNetMap::sRotateMap )
 		{
 			// rotate subsequent draws to agent rotation
-			rotation = atan2( gCamera->getAtAxis().mV[VX], gCamera->getAtAxis().mV[VY] );
+			rotation = atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] );
 			glRotatef( rotation * RAD_TO_DEG, 0.f, 0.f, 1.f);
 		}
 
 		// figure out where agent is
-		S32 region_width = llround(gWorldPointer->getRegionWidthInMeters());
+		S32 region_width = llround(LLWorld::getInstance()->getRegionWidthInMeters());
 
-		for (LLWorld::region_list_t::iterator iter = gWorldp->mActiveRegionList.begin();
-			 iter != gWorldp->mActiveRegionList.end(); ++iter)
+		for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->mActiveRegionList.begin();
+			 iter != LLWorld::getInstance()->mActiveRegionList.end(); ++iter)
 		{
 			LLViewerRegion* regionp = *iter;
 			// Find x and y position relative to camera's center.
@@ -395,8 +371,8 @@ void LLNetMap::draw()
 		LLVector3 pos_map;
 
 		// Draw avatars
-		for (LLWorld::region_list_t::iterator iter = gWorldp->mActiveRegionList.begin();
-			 iter != gWorldp->mActiveRegionList.end(); ++iter)
+		for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->mActiveRegionList.begin();
+			 iter != LLWorld::getInstance()->mActiveRegionList.end(); ++iter)
 		{
 			LLViewerRegion* regionp = *iter;
 			const LLVector3d& origin_global = regionp->getOriginGlobal();
@@ -463,16 +439,13 @@ void LLNetMap::draw()
 		//drawTracking( gAgent.getPosGlobalFromAgent(gAgent.getFrameAgent().getCenter()), gSelfMapColor );
 		pos_global = gAgent.getPositionGlobal();
 		pos_map = globalPosToView(pos_global);
-		gl_draw_image(llround(pos_map.mV[VX]) - 4,
-					llround(pos_map.mV[VY]) - 4,
-					LLWorldMapView::sAvatarYouSmallImage,
-					LLColor4::white);
+		LLWorldMapView::sAvatarYouSmallImage->draw(llround(pos_map.mV[VX]) - 4, llround(pos_map.mV[VY]) - 4);
 
 		// Draw frustum
-		F32 meters_to_pixels = gMiniMapScale/ gWorldPointer->getRegionWidthInMeters();
+		F32 meters_to_pixels = gMiniMapScale/ LLWorld::getInstance()->getRegionWidthInMeters();
 
-		F32 horiz_fov = gCamera->getView() * gCamera->getAspect();
-		F32 far_clip_meters = gCamera->getFar();
+		F32 horiz_fov = LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect();
+		F32 far_clip_meters = LLViewerCamera::getInstance()->getFar();
 		F32 far_clip_pixels = far_clip_meters * meters_to_pixels;
 
 		F32 half_width_meters = far_clip_meters * tan( horiz_fov / 2 );
@@ -501,7 +474,7 @@ void LLNetMap::draw()
 			// If we don't rotate the map, we have to rotate the frustum.
 			gGL.pushMatrix();
 				gGL.translatef( ctr_x, ctr_y, 0 );
-				glRotatef( atan2( gCamera->getAtAxis().mV[VX], gCamera->getAtAxis().mV[VY] ) * RAD_TO_DEG, 0.f, 0.f, -1.f);
+				glRotatef( atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] ) * RAD_TO_DEG, 0.f, 0.f, -1.f);
 				gGL.begin( GL_TRIANGLES  );
 					gGL.vertex2f( 0, 0 );
 					gGL.vertex2f( -half_width_pixels, far_clip_pixels );
@@ -537,7 +510,7 @@ LLVector3 LLNetMap::globalPosToView( const LLVector3d& global_pos )
 
 	if( LLNetMap::sRotateMap )
 	{
-		F32 radians = atan2( gCamera->getAtAxis().mV[VX], gCamera->getAtAxis().mV[VY] );
+		F32 radians = atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] );
 		LLQuaternion rot(radians, LLVector3(0.f, 0.f, 1.f));
 		pos_local.rotVec( rot );
 	}
@@ -581,7 +554,7 @@ LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
 
 	LLVector3 pos_local( (F32)x, (F32)y, 0 );
 
-	F32 radians = - atan2( gCamera->getAtAxis().mV[VX], gCamera->getAtAxis().mV[VY] );
+	F32 radians = - atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] );
 
 	if( LLNetMap::sRotateMap )
 	{
@@ -589,7 +562,7 @@ LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
 		pos_local.rotVec( rot );
 	}
 
-	pos_local *= ( gWorldPointer->getRegionWidthInMeters() / gMiniMapScale );
+	pos_local *= ( LLWorld::getInstance()->getRegionWidthInMeters() / gMiniMapScale );
 	
 	LLVector3d pos_global;
 	pos_global.setVec( pos_local );
@@ -612,7 +585,7 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, LLString& msg, LLRect* sticky_rect_s
 	{
 		return FALSE;
 	}
-	LLViewerRegion*	region = gWorldPointer->getRegionFromPosGlobal( viewPosToGlobal( x, y ) );
+	LLViewerRegion*	region = LLWorld::getInstance()->getRegionFromPosGlobal( viewPosToGlobal( x, y ) );
 	if( region )
 	{
 		msg.assign( region->getName() );

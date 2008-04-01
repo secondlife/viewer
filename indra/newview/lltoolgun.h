@@ -33,7 +33,7 @@
 #define LL_TOOLGUN_H
 
 #include "lltool.h"
-#include "llviewerimage.h"
+#include "llui.h"
 
 
 class LLToolGun : public LLTool
@@ -51,9 +51,6 @@ public:
 
 	virtual LLTool*	getOverrideTool(MASK mask) { return NULL; }
 	virtual BOOL	clipMouseWhenDown()		{ return FALSE; }
-
-private:
-	LLPointer<LLViewerImage>	mCrosshairImg;
 };
 
 #endif

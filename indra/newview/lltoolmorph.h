@@ -91,7 +91,7 @@ protected:
 	LLRect					mRect;
 	F32						mLastParamWeight;
 
-	LLPointer<LLViewerImage> mBackgroundp;
+	LLUIImagePtr mBackgroundp;
 
 	typedef std::set<LLVisualParamHint*> instance_list_t;
 	static instance_list_t sInstances;

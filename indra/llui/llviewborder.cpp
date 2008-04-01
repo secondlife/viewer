@@ -33,6 +33,8 @@
 #include "llglimmediate.h"
 #include "llfocusmgr.h"
 
+static LLRegisterWidget<LLViewBorder> r("view_border");
+
 LLViewBorder::LLViewBorder( const LLString& name, const LLRect& rect, EBevel bevel, EStyle style, S32 width )
 	:
 	LLView( name, rect, FALSE ),
@@ -66,47 +68,45 @@ void LLViewBorder::setColorsExtended( const LLColor4& shadow_light, const LLColo
 
 void LLViewBorder::setTexture( const LLUUID &image_id )
 {
-	mTexture = LLUI::sImageProvider->getImageByID(image_id);
+	mTexture = LLUI::sImageProvider->getUIImageByID(image_id);
 }
 
 
 void LLViewBorder::draw()
 {
-	if( getVisible() )
+	if( STYLE_LINE == mStyle )
 	{
-		if( STYLE_LINE == mStyle )
+		if( 0 == mBorderWidth )
 		{
-			if( 0 == mBorderWidth )
-			{
-				// no visible border
-			}
-			else
-			if( 1 == mBorderWidth )
-			{
-				drawOnePixelLines();
-			}
-			else
-			if( 2 == mBorderWidth )
-			{
-				drawTwoPixelLines();
-			}
-			else
-			{
-				llassert( FALSE );  // not implemented
-			}
+			// no visible border
 		}
 		else
-		if( STYLE_TEXTURE == mStyle )
+		if( 1 == mBorderWidth )
 		{
-			if( mTexture )
-			{
-				drawTextures();
-			}
+			drawOnePixelLines();
 		}
+		else
+		if( 2 == mBorderWidth )
+		{
+			drawTwoPixelLines();
+		}
+		else
+		{
+			llassert( FALSE );  // not implemented
+		}
+	}
+	else
+	if( STYLE_TEXTURE == mStyle )
+	{
+		if( mTexture )
+		{
+			drawTextures();
+		}
+	}
 
-		// draw the children
-		LLView::draw();
-	}	
+	// draw the children
+	LLView::draw();
+
 }
 
 void LLViewBorder::drawOnePixelLines()
@@ -134,11 +134,10 @@ void LLViewBorder::drawOnePixelLines()
 
 	if( mHasKeyboardFocus )
 	{
-		F32 lerp_amt = gFocusMgr.getFocusFlashAmt();
 		top_color = gFocusMgr.getFocusColor();
 		bottom_color = top_color;
 
-		LLUI::setLineWidth(lerp(1.f, 3.f, lerp_amt));
+		LLUI::setLineWidth(lerp(1.f, 3.f, gFocusMgr.getFocusFlashAmt()));
 	}
 
 	S32 left	= 0;
@@ -225,20 +224,20 @@ void LLViewBorder::drawTwoPixelLines()
 
 void LLViewBorder::drawTextures()
 {
-	LLGLSUIDefault gls_ui;
+	//LLGLSUIDefault gls_ui;
 
-	llassert( FALSE );  // TODO: finish implementing
+	//llassert( FALSE );  // TODO: finish implementing
 
-	gGL.color4fv(UI_VERTEX_COLOR.mV);
+	//gGL.color4fv(UI_VERTEX_COLOR.mV);
 
-	mTexture->bind();
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+	//mTexture->bind();
+	//glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+	//glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 
-	drawTextureTrapezoid(   0.f, mBorderWidth, getRect().getWidth(),  0,					0 );
-	drawTextureTrapezoid(  90.f, mBorderWidth, getRect().getHeight(), (F32)getRect().getWidth(),0 );
-	drawTextureTrapezoid( 180.f, mBorderWidth, getRect().getWidth(),  (F32)getRect().getWidth(),(F32)getRect().getHeight() );
-	drawTextureTrapezoid( 270.f, mBorderWidth, getRect().getHeight(), 0,					(F32)getRect().getHeight() );
+	//drawTextureTrapezoid(   0.f, mBorderWidth, getRect().getWidth(),  0,					0 );
+	//drawTextureTrapezoid(  90.f, mBorderWidth, getRect().getHeight(), (F32)getRect().getWidth(),0 );
+	//drawTextureTrapezoid( 180.f, mBorderWidth, getRect().getWidth(),  (F32)getRect().getWidth(),(F32)getRect().getHeight() );
+	//drawTextureTrapezoid( 270.f, mBorderWidth, getRect().getHeight(), 0,					(F32)getRect().getHeight() );
 }
 
 

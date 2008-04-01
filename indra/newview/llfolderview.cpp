@@ -58,7 +58,7 @@
 #include "llviewerimagelist.h"
 #include "llviewerjointattachment.h"
 #include "llviewermenu.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "llvoavatar.h"
 #include "llfloaterproperties.h"
@@ -114,10 +114,11 @@ LLColor4 LLFolderViewItem::sHighlightBgColor;
 LLColor4 LLFolderViewItem::sHighlightFgColor;
 LLColor4 LLFolderViewItem::sFilterBGColor;
 LLColor4 LLFolderViewItem::sFilterTextColor;
-LLColor4 LLFolderViewItem::sLoadingMessageTextColor;
+LLColor4 LLFolderViewItem::sSuffixColor;
+LLColor4 LLFolderViewItem::sSearchStatusColor;
 
 // Default constructor
-LLFolderViewItem::LLFolderViewItem( const LLString& name, LLViewerImage* icon,
+LLFolderViewItem::LLFolderViewItem( const LLString& name, LLUIImagePtr icon,
 								   S32 creation_date,
 								   LLFolderView* root,
 									LLFolderViewEventListener* listener ) :
@@ -145,12 +146,12 @@ LLFolderViewItem::LLFolderViewItem( const LLString& name, LLViewerImage* icon,
 	setIcon(icon);
 	if( !LLFolderViewItem::sFont )
 	{
-		LLFolderViewItem::sFont = gResMgr->getRes( LLFONT_SANSSERIF_SMALL );
+		LLFolderViewItem::sFont = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF_SMALL );
 	}
 
 	if (!LLFolderViewItem::sSmallFont)
 	{
-		LLFolderViewItem::sSmallFont = gResMgr->getRes( LLFONT_SMALL );
+		LLFolderViewItem::sSmallFont = LLResMgr::getInstance()->getRes( LLFONT_SMALL );
 	}
 
 	// HACK: Can't be set above because gSavedSettings might not be constructed.
@@ -159,10 +160,12 @@ LLFolderViewItem::LLFolderViewItem( const LLString& name, LLViewerImage* icon,
 	LLFolderViewItem::sHighlightFgColor = gColors.getColor( "MenuItemHighlightFgColor" );
 	LLFolderViewItem::sFilterBGColor = gColors.getColor( "FilterBackgroundColor" );
 	LLFolderViewItem::sFilterTextColor = gColors.getColor( "FilterTextColor" );
-	LLFolderViewItem::sLoadingMessageTextColor = gColors.getColor( "FolderViewLoadingMessageTextColor" );
+	LLFolderViewItem::sSuffixColor = gColors.getColor( "InventoryItemSuffixColor" );
+	LLFolderViewItem::sSearchStatusColor = gColors.getColor( "InventorySearchStatusColor" );
 
-	mArrowImage = gImageList.getImage(LLUUID(gViewerArt.getString("folder_arrow.tga")), MIPMAP_FALSE, TRUE); 
-	mBoxImage = gImageList.getImage(LLUUID(gViewerArt.getString("rounded_square.tga")), MIPMAP_FALSE, TRUE);
+
+	mArrowImage = LLUI::getUIImage("folder_arrow.tga"); 
+	mBoxImage = LLUI::getUIImage("rounded_square.tga");
 
 	refresh();
 	setTabStop(FALSE);
@@ -267,13 +270,9 @@ void LLFolderViewItem::setFiltered(BOOL filtered, S32 filter_generation)
 	mLastFilterGeneration = filter_generation;
 }
 
-void LLFolderViewItem::setIcon(LLViewerImage* icon)
+void LLFolderViewItem::setIcon(LLUIImagePtr icon)
 {
 	mIcon = icon;
-	if (mIcon)
-	{
-		mIcon->setBoostLevel(LLViewerImage::BOOST_UI);
-	}
 }
 
 // refresh information from the listener
@@ -367,16 +366,6 @@ void LLFolderViewItem::extendSelectionFromRoot(LLFolderViewItem* selection)
 	LLDynamicArray<LLFolderViewItem*> selected_items;
 
 	getRoot()->extendSelection(selection, NULL, selected_items);
-}
-
-EWidgetType LLFolderViewItem::getWidgetType() const
-{
-	return WIDGET_TYPE_FOLDER_ITEM;
-}
-
-LLString LLFolderViewItem::getWidgetTag() const
-{
-	return LL_FOLDER_VIEW_ITEM_TAG;
 }
 
 EInventorySortGroup LLFolderViewItem::getSortGroup() 
@@ -649,7 +638,7 @@ BOOL LLFolderViewItem::handleMouseDown( S32 x, S32 y, MASK mask )
 		S32 screen_x;
 		S32 screen_y;
 		localPointToScreen(x, y, &screen_x, &screen_y );
-		gToolDragAndDrop->setDragStart( screen_x, screen_y );
+		LLToolDragAndDrop::getInstance()->setDragStart( screen_x, screen_y );
 	}
 	return TRUE;
 }
@@ -662,7 +651,7 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 		S32 screen_y;
 		localPointToScreen(x, y, &screen_x, &screen_y );
 		BOOL can_drag = TRUE;
-		if( gToolDragAndDrop->isOverThreshold( screen_x, screen_y ) )
+		if( LLToolDragAndDrop::getInstance()->isOverThreshold( screen_x, screen_y ) )
 		{
 			LLFolderView* root = getRoot();
 			
@@ -694,7 +683,7 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 					// item.
 					gViewerWindow->setKeyboardFocus(NULL);
 
-					return gToolDragAndDrop->handleHover( x, y, mask );
+					return LLToolDragAndDrop::getInstance()->handleHover( x, y, mask );
 				}
 			}
 		}
@@ -813,7 +802,7 @@ void LLFolderViewItem::draw()
 		if (mArrowImage)
 		{
 			gl_draw_scaled_rotated_image(mIndentation, getRect().getHeight() - ARROW_SIZE - TEXT_PAD,
-				ARROW_SIZE, ARROW_SIZE, mControlLabelRotation, mArrowImage, sFgColor);
+				ARROW_SIZE, ARROW_SIZE, mControlLabelRotation, mArrowImage->getImage(), sFgColor);
 		}
 	}
 
@@ -905,8 +894,7 @@ void LLFolderViewItem::draw()
 
 	if(mIcon)
 	{
-		gl_draw_image(mIndentation + ARROW_SIZE + TEXT_PAD, getRect().getHeight() - mIcon->getHeight(), mIcon);
-		mIcon->addTextureStats( (F32)(mIcon->getWidth() * mIcon->getHeight()));
+		mIcon->draw(mIndentation + ARROW_SIZE + TEXT_PAD, getRect().getHeight() - mIcon->getHeight());
 	}
 
 	if (!mLabel.empty())
@@ -934,7 +922,7 @@ void LLFolderViewItem::draw()
 
 		if ( mIsLoading && mTimeSinceRequestStart.getElapsedTimeF32() >= gSavedSettings.getF32("FolderLoadingMessageWaitTime") )
 		{
-			sFont->renderUTF8( "Loading... ", 0, text_left, y, sLoadingMessageTextColor,
+			sFont->renderUTF8( "Loading... ", 0, text_left, y, sSearchStatusColor,
 						LLFontGL::LEFT, LLFontGL::BOTTOM, mLabelStyle, S32_MAX, S32_MAX, &right_x, FALSE);
 			text_left = right_x;
 		}
@@ -944,7 +932,7 @@ void LLFolderViewItem::draw()
 							S32_MAX, S32_MAX, &right_x, FALSE );
 		if (!mLabelSuffix.empty())
 		{
-			sFont->renderUTF8( mLabelSuffix, 0, right_x, y, LLColor4(0.75f, 0.85f, 0.85f, 1.f),
+			sFont->renderUTF8( mLabelSuffix, 0, right_x, y, sSuffixColor,
 								LLFontGL::LEFT, LLFontGL::BOTTOM, mLabelStyle,
 								S32_MAX, S32_MAX, &right_x, FALSE );
 		}
@@ -961,9 +949,8 @@ void LLFolderViewItem::draw()
 				S32 bottom = llfloor(getRect().getHeight() - sFont->getLineHeight() - 3);
 				S32 top = getRect().getHeight();
 
-				LLViewerImage::bindTexture(mBoxImage);
-				gGL.color4fv(sFilterBGColor.mV);
-				gl_segmented_rect_2d_tex(left, top, right, bottom, mBoxImage->getWidth(), mBoxImage->getHeight(), 16);
+				LLRect box_rect(left, top, right, bottom);
+				mBoxImage->draw(box_rect, sFilterBGColor);
 				F32 match_string_left = text_left + sFont->getWidthF32(combined_string, 0, mStringMatchOffset);
 				F32 y = (F32)getRect().getHeight() - sFont->getLineHeight() - (F32)TEXT_PAD;
 				sFont->renderUTF8( combined_string, mStringMatchOffset, match_string_left, y,
@@ -985,7 +972,7 @@ void LLFolderViewItem::draw()
 ///----------------------------------------------------------------------------
 
 // Default constructor
-LLFolderViewFolder::LLFolderViewFolder( const LLString& name, LLViewerImage* icon,
+LLFolderViewFolder::LLFolderViewFolder( const LLString& name, LLUIImagePtr icon,
 										LLFolderView* root,
 										LLFolderViewEventListener* listener ): 
 	LLFolderViewItem( name, icon, 0, root, listener ),	// 0 = no create time
@@ -1017,16 +1004,6 @@ LLFolderViewFolder::~LLFolderViewFolder( void )
 	//mItems.reset();
 	//mItems.removeAllNodes();
 	//mFolders.removeAllNodes();
-}
-
-EWidgetType LLFolderViewFolder::getWidgetType() const
-{
-	return WIDGET_TYPE_FOLDER;
-}
-
-LLString LLFolderViewFolder::getWidgetTag() const
-{
-	return LL_FOLDER_VIEW_FOLDER_TAG;
 }
 
 // addToFolder() returns TRUE if it succeeds. FALSE otherwise
@@ -2098,20 +2075,17 @@ BOOL LLFolderViewFolder::handleDragAndDrop(S32 x, S32 y, MASK mask,
 BOOL LLFolderViewFolder::handleRightMouseDown( S32 x, S32 y, MASK mask )
 {
 	BOOL handled = FALSE;
-	if( getVisible() )
+	// fetch contents of this folder, as context menu can depend on contents
+	// still, user would have to open context menu again to see the changes
+	gInventory.fetchDescendentsOf(mListener->getUUID());
+	
+	if( mIsOpen )
 	{
-		// fetch contents of this folder, as context menu can depend on contents
-		// still, user would have to open context menu again to see the changes
-		gInventory.fetchDescendentsOf(mListener->getUUID());
-		
-		if( mIsOpen )
-		{
-			handled = childrenHandleRightMouseDown( x, y, mask ) != NULL;
-		}
-		if (!handled)
-		{
-			handled = LLFolderViewItem::handleRightMouseDown( x, y, mask );
-		}
+		handled = childrenHandleRightMouseDown( x, y, mask ) != NULL;
+	}
+	if (!handled)
+	{
+		handled = LLFolderViewItem::handleRightMouseDown( x, y, mask );
 	}
 	return handled;
 }
@@ -2162,16 +2136,12 @@ BOOL LLFolderViewFolder::handleMouseDown( S32 x, S32 y, MASK mask )
 
 BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
-	if (!getVisible())
-	{
-		return FALSE;
-	}
-	BOOL rv = false;
+	BOOL handled = FALSE;
 	if( mIsOpen )
 	{
-		rv = childrenHandleDoubleClick( x, y, mask ) != NULL;
+		handled = childrenHandleDoubleClick( x, y, mask ) != NULL;
 	}
-	if( !rv )
+	if( !handled )
 	{
 		if(x < LEFT_INDENTATION + mIndentation && x > mIndentation - LEFT_PAD)
 		{
@@ -2184,9 +2154,9 @@ BOOL LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
 			setSelectionFromRoot(this, FALSE);
 			toggleOpen();
 		}
-		return TRUE;
+		handled = TRUE;
 	}
-	return rv;
+	return handled;
 }
 
 void LLFolderViewFolder::draw()
@@ -2529,7 +2499,7 @@ void LLCloseAllFoldersFunctor::doItem(LLFolderViewItem* item)
 ///----------------------------------------------------------------------------
 
 // Default constructor
-LLFolderView::LLFolderView( const LLString& name, LLViewerImage* root_folder_icon, 
+LLFolderView::LLFolderView( const LLString& name, LLUIImagePtr root_folder_icon, 
 						   const LLRect& rect, const LLUUID& source_id, LLView *parent_view ) :
 #if LL_WINDOWS
 #pragma warning( push )
@@ -2584,18 +2554,15 @@ LLFolderView::LLFolderView( const LLString& name, LLViewerImage* root_folder_ico
 								NULL,
 								NULL,
 								this,
-								&LLLineEditor::prevalidatePrintableNotPipe,
-								LLViewBorder::BEVEL_NONE,
-								LLViewBorder::STYLE_LINE,
-								2);
-	mRenamer->setWriteableBgColor(LLColor4::white);
+								&LLLineEditor::prevalidatePrintableNotPipe);
+	//mRenamer->setWriteableBgColor(LLColor4::white);
 	// Escape is handled by reverting the rename, not commiting it (default behavior)
 	mRenamer->setCommitOnFocusLost(TRUE);
 	mRenamer->setVisible(FALSE);
 	addChild(mRenamer);
 
 	// make the popup menu available
-	LLMenuGL* menu = gUICtrlFactory->buildMenu("menu_inventory.xml", parent_view);
+	LLMenuGL* menu = LLUICtrlFactory::getInstance()->buildMenu("menu_inventory.xml", parent_view);
 	if (!menu)
 	{
 		menu = new LLMenuGL("");
@@ -2641,16 +2608,6 @@ LLFolderView::~LLFolderView( void )
 	mFolders.clear();
 
 	mItemMap.clear();
-}
-
-EWidgetType LLFolderView::getWidgetType() const
-{
-	return WIDGET_TYPE_FOLDER_VIEW;
-}
-
-LLString LLFolderView::getWidgetTag() const
-{
-	return LL_FOLDER_VIEW_TAG;
 }
 
 BOOL LLFolderView::canFocusChildren() const
@@ -3156,7 +3113,7 @@ BOOL LLFolderView::startDrag(LLToolDragAndDrop::ESource source)
 			cargo_ids.push_back(id);
 		}
 
-		gToolDragAndDrop->beginMultiDrag(types, cargo_ids, source, mSourceID); 
+		LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, source, mSourceID); 
 	}
 	return can_drag;
 }
@@ -3187,15 +3144,11 @@ void LLFolderView::draw()
 	{
 		closeAutoOpenedFolders();
 	}
-	if(gViewerWindow->hasKeyboardFocus(this) && !getVisible())
-	{
-		gViewerWindow->setKeyboardFocus( NULL );
-	}
 
 	// while dragging, update selection rendering to reflect single/multi drag status
-	if (gToolDragAndDrop->hasMouseCapture())
+	if (LLToolDragAndDrop::getInstance()->hasMouseCapture())
 	{
-		EAcceptance last_accept = gToolDragAndDrop->getLastAccept();
+		EAcceptance last_accept = LLToolDragAndDrop::getInstance()->getLastAccept();
 		if (last_accept == ACCEPT_YES_SINGLE || last_accept == ACCEPT_YES_COPY_SINGLE)
 		{
 			setShowSingleSelection(TRUE);
@@ -3225,12 +3178,12 @@ void LLFolderView::draw()
 		if (gInventory.backgroundFetchActive() || mCompletedFilterGeneration < mFilter.getMinRequiredGeneration())
 		{
 			mStatusText = "Searching..."; // *TODO:translate
-			sFont->renderUTF8(mStatusText, 0, 2, 1, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL, S32_MAX, S32_MAX, NULL, FALSE );
+			sFont->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL, S32_MAX, S32_MAX, NULL, FALSE );
 		}
 		else
 		{
 			mStatusText = "No matching items found in inventory."; // *TODO:translate
-			sFont->renderUTF8(mStatusText, 0, 2, 1, LLColor4::white, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL, S32_MAX, S32_MAX, NULL, FALSE );
+			sFont->renderUTF8(mStatusText, 0, 2, 1, sSearchStatusColor, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::NORMAL, S32_MAX, S32_MAX, NULL, FALSE );
 		}
 	}
 
@@ -3698,7 +3651,7 @@ void LLFolderView::setFocus(BOOL focus)
 	LLFolderViewFolder::setFocus(focus);
 }
 
-BOOL LLFolderView::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
+BOOL LLFolderView::handleKeyHere( KEY key, MASK mask )
 {
 	BOOL handled = FALSE;
 
@@ -3716,202 +3669,199 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 		item = *(getChildList()->begin());
 	}
 
-	if( getVisible() && getEnabled() && !called_from_parent )
+	switch( key )
 	{
-		switch( key )
+	case KEY_F2:
+		mSearchString.clear();
+		startRenamingSelectedItem();
+		handled = TRUE;
+		break;
+
+	case KEY_RETURN:
+		if (mask == MASK_NONE)
 		{
-		case KEY_F2:
-			mSearchString.clear();
-			startRenamingSelectedItem();
-			handled = TRUE;
-			break;
-
-		case KEY_RETURN:
-			if (mask == MASK_NONE)
-			{
-				if( mRenameItem && mRenamer->getVisible() )
-				{
-					finishRenamingItem();
-					mSearchString.clear();
-					handled = TRUE;
-				}
-				else
-				{
-					LLFolderView::openSelectedItems();
-					handled = TRUE;
-				}
-			}
-			break;
-
-		case KEY_ESCAPE:
-			// mark flag don't commit
 			if( mRenameItem && mRenamer->getVisible() )
 			{
-				revertRenamingItem();
+				finishRenamingItem();
+				mSearchString.clear();
 				handled = TRUE;
 			}
 			else
 			{
-				if( gViewerWindow->childHasKeyboardFocus( this ) )
-				{
-					gViewerWindow->setKeyboardFocus( NULL );
-				}
-			}
-			mSearchString.clear();
-			break;
-
-		case KEY_PAGE_UP:
-			mSearchString.clear();
-			mScrollContainer->pageUp(30);
-			handled = TRUE;
-			break;
-
-		case KEY_PAGE_DOWN:
-			mSearchString.clear();
-			mScrollContainer->pageDown(30);
-			handled = TRUE;
-			break;
-
-		case KEY_HOME:
-			mSearchString.clear();
-			mScrollContainer->goToTop();
-			handled = TRUE;
-			break;
-
-		case KEY_END:
-			mSearchString.clear();
-			mScrollContainer->goToBottom();
-			break;
-
-		case KEY_DOWN:
-			if((mSelectedItems.size() > 0) && mScrollContainer)
-			{
-				LLFolderViewItem* last_selected = getCurSelectedItem();
-
-				if (!mKeyboardSelection)
-				{
-					setSelection(last_selected, FALSE, TRUE);
-					mKeyboardSelection = TRUE;
-				}
-
-				LLFolderViewItem* next = NULL;
-				if (mask & MASK_SHIFT)
-				{
-					// don't shift select down to children of folders (they are implicitly selected through parent)
-					next = last_selected->getNextOpenNode(FALSE);
-					if (next)
-					{
-						if (next->isSelected())
-						{
-							// shrink selection
-							changeSelectionFromRoot(last_selected, FALSE);
-						}
-						else if (last_selected->getParentFolder() == next->getParentFolder())
-						{
-							// grow selection
-							changeSelectionFromRoot(next, TRUE);
-						}
-					}
-				}
-				else
-				{
-					next = last_selected->getNextOpenNode();
-					if( next )
-					{
-						if (next == last_selected)
-						{
-							return FALSE;
-						}
-						setSelection( next, FALSE, TRUE );
-					}
-				}
-				scrollToShowSelection();
-				mSearchString.clear();
+				LLFolderView::openSelectedItems();
 				handled = TRUE;
 			}
-			break;
-
-		case KEY_UP:
-			if((mSelectedItems.size() > 0) && mScrollContainer)
-			{
-				LLFolderViewItem* last_selected = mSelectedItems.back();
-
-				if (!mKeyboardSelection)
-				{
-					setSelection(last_selected, FALSE, TRUE);
-					mKeyboardSelection = TRUE;
-				}
-
-				LLFolderViewItem* prev = NULL;
-				if (mask & MASK_SHIFT)
-				{
-					// don't shift select down to children of folders (they are implicitly selected through parent)
-					prev = last_selected->getPreviousOpenNode(FALSE);
-					if (prev)
-					{
-						if (prev->isSelected())
-						{
-							// shrink selection
-							changeSelectionFromRoot(last_selected, FALSE);
-						}
-						else if (last_selected->getParentFolder() == prev->getParentFolder())
-						{
-							// grow selection
-							changeSelectionFromRoot(prev, TRUE);
-						}
-					}
-				}
-				else
-				{
-					prev = last_selected->getPreviousOpenNode();
-					if( prev )
-					{
-						if (prev == this)
-						{
-							return FALSE;
-						}
-						setSelection( prev, FALSE, TRUE );
-					}
-				}
-				scrollToShowSelection();
-				mSearchString.clear();
-
-				handled = TRUE;
-			}
-			break;
-
-		case KEY_RIGHT:
-			if(mSelectedItems.size())
-			{
-				LLFolderViewItem* last_selected = getCurSelectedItem();
-				last_selected->setOpen( TRUE );
-				mSearchString.clear();
-				handled = TRUE;
-			}
-			break;
-
-		case KEY_LEFT:
-			if(mSelectedItems.size())
-			{
-				LLFolderViewItem* last_selected = getCurSelectedItem();
-				LLFolderViewItem* parent_folder = last_selected->getParentFolder();
-				if (!last_selected->isOpen() && parent_folder && parent_folder->getParentFolder())
-				{
-					setSelection(parent_folder, FALSE, TRUE);
-				}
-				else
-				{
-					last_selected->setOpen( FALSE );
-				}
-				mSearchString.clear();
-				scrollToShowSelection();
-				handled = TRUE;
-			}
-			break;
 		}
+		break;
+
+	case KEY_ESCAPE:
+		// mark flag don't commit
+		if( mRenameItem && mRenamer->getVisible() )
+		{
+			revertRenamingItem();
+			handled = TRUE;
+		}
+		else
+		{
+			if( gViewerWindow->childHasKeyboardFocus( this ) )
+			{
+				gViewerWindow->setKeyboardFocus( NULL );
+			}
+		}
+		mSearchString.clear();
+		break;
+
+	case KEY_PAGE_UP:
+		mSearchString.clear();
+		mScrollContainer->pageUp(30);
+		handled = TRUE;
+		break;
+
+	case KEY_PAGE_DOWN:
+		mSearchString.clear();
+		mScrollContainer->pageDown(30);
+		handled = TRUE;
+		break;
+
+	case KEY_HOME:
+		mSearchString.clear();
+		mScrollContainer->goToTop();
+		handled = TRUE;
+		break;
+
+	case KEY_END:
+		mSearchString.clear();
+		mScrollContainer->goToBottom();
+		break;
+
+	case KEY_DOWN:
+		if((mSelectedItems.size() > 0) && mScrollContainer)
+		{
+			LLFolderViewItem* last_selected = getCurSelectedItem();
+
+			if (!mKeyboardSelection)
+			{
+				setSelection(last_selected, FALSE, TRUE);
+				mKeyboardSelection = TRUE;
+			}
+
+			LLFolderViewItem* next = NULL;
+			if (mask & MASK_SHIFT)
+			{
+				// don't shift select down to children of folders (they are implicitly selected through parent)
+				next = last_selected->getNextOpenNode(FALSE);
+				if (next)
+				{
+					if (next->isSelected())
+					{
+						// shrink selection
+						changeSelectionFromRoot(last_selected, FALSE);
+					}
+					else if (last_selected->getParentFolder() == next->getParentFolder())
+					{
+						// grow selection
+						changeSelectionFromRoot(next, TRUE);
+					}
+				}
+			}
+			else
+			{
+				next = last_selected->getNextOpenNode();
+				if( next )
+				{
+					if (next == last_selected)
+					{
+						return FALSE;
+					}
+					setSelection( next, FALSE, TRUE );
+				}
+			}
+			scrollToShowSelection();
+			mSearchString.clear();
+			handled = TRUE;
+		}
+		break;
+
+	case KEY_UP:
+		if((mSelectedItems.size() > 0) && mScrollContainer)
+		{
+			LLFolderViewItem* last_selected = mSelectedItems.back();
+
+			if (!mKeyboardSelection)
+			{
+				setSelection(last_selected, FALSE, TRUE);
+				mKeyboardSelection = TRUE;
+			}
+
+			LLFolderViewItem* prev = NULL;
+			if (mask & MASK_SHIFT)
+			{
+				// don't shift select down to children of folders (they are implicitly selected through parent)
+				prev = last_selected->getPreviousOpenNode(FALSE);
+				if (prev)
+				{
+					if (prev->isSelected())
+					{
+						// shrink selection
+						changeSelectionFromRoot(last_selected, FALSE);
+					}
+					else if (last_selected->getParentFolder() == prev->getParentFolder())
+					{
+						// grow selection
+						changeSelectionFromRoot(prev, TRUE);
+					}
+				}
+			}
+			else
+			{
+				prev = last_selected->getPreviousOpenNode();
+				if( prev )
+				{
+					if (prev == this)
+					{
+						return FALSE;
+					}
+					setSelection( prev, FALSE, TRUE );
+				}
+			}
+			scrollToShowSelection();
+			mSearchString.clear();
+
+			handled = TRUE;
+		}
+		break;
+
+	case KEY_RIGHT:
+		if(mSelectedItems.size())
+		{
+			LLFolderViewItem* last_selected = getCurSelectedItem();
+			last_selected->setOpen( TRUE );
+			mSearchString.clear();
+			handled = TRUE;
+		}
+		break;
+
+	case KEY_LEFT:
+		if(mSelectedItems.size())
+		{
+			LLFolderViewItem* last_selected = getCurSelectedItem();
+			LLFolderViewItem* parent_folder = last_selected->getParentFolder();
+			if (!last_selected->isOpen() && parent_folder && parent_folder->getParentFolder())
+			{
+				setSelection(parent_folder, FALSE, TRUE);
+			}
+			else
+			{
+				last_selected->setOpen( FALSE );
+			}
+			mSearchString.clear();
+			scrollToShowSelection();
+			handled = TRUE;
+		}
+		break;
 	}
 
-	if (!handled && gFocusMgr.childHasKeyboardFocus(getRoot()))
+	if (!handled && hasFocus())
 	{
 		if (key == KEY_BACKSPACE)
 		{
@@ -3929,7 +3879,7 @@ BOOL LLFolderView::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 }
 
 
-BOOL LLFolderView::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent)
+BOOL LLFolderView::handleUnicodeCharHere(llwchar uni_char)
 {
 	if ((uni_char < 0x20) || (uni_char == 0x7F)) // Control character or DEL
 	{
@@ -4082,11 +4032,7 @@ BOOL LLFolderView::search(LLFolderViewItem* first_item, const LLString &search_s
 
 BOOL LLFolderView::handleDoubleClick( S32 x, S32 y, MASK mask )
 {
-	if (!getVisible())
-	{
-		return FALSE;
-	}
-
+	// skip LLFolderViewFolder::handleDoubleClick()
 	return LLView::handleDoubleClick( x, y, mask );
 }
 

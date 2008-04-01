@@ -100,7 +100,7 @@ public:
 	// This is a back door of the method of same name of LLWindowCallback.
 	// called_from_parent should be set to FALSE if calling through LLPreeditor.
 
-	virtual BOOL handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent) = 0;
+	virtual BOOL handleUnicodeCharHere(llwchar uni_char) = 0;
 };
 
 #endif

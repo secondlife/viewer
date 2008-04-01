@@ -46,7 +46,6 @@
 #include "lltoolgrab.h"
 #include "lltoolgun.h"
 #include "lltoolmgr.h"
-#include "lltoolselect.h"
 #include "lltoolselectrect.h"
 #include "lltoolplacer.h"
 #include "llviewermenu.h"
@@ -60,14 +59,6 @@ const S32 BUTTON_HEIGHT = 16;
 const S32 BUTTON_WIDTH_SMALL = 32;
 const S32 BUTTON_WIDTH_BIG = 48;
 const S32 HPAD = 4;
-
-// Globals
-LLToolCompInspect   *gToolInspect = NULL;
-LLToolCompTranslate	*gToolTranslate = NULL;
-LLToolCompScale		*gToolStretch = NULL;
-LLToolCompRotate	*gToolRotate = NULL;
-LLToolCompCreate	*gToolCreate = NULL;
-LLToolCompGun		*gToolGun = NULL;
 
 extern LLControlGroup gSavedSettings;
 
@@ -126,7 +117,7 @@ void LLToolComposite::handleSelect()
 {
 	if (!gSavedSettings.getBOOL("EditLinkedParts"))
 	{
-		gSelectMgr->promoteSelectionToRoot();
+		LLSelectMgr::getInstance()->promoteSelectionToRoot();
 	}
 	mCur = mDefault; 
 	mCur->handleSelect(); 
@@ -162,27 +153,27 @@ void LLToolCompInspect::pickCallback(S32 x, S32 y, MASK mask)
 {
 	LLViewerObject* hit_obj = gViewerWindow->lastObjectHit();
 
-	if (!gToolInspect->mMouseDown)
+	if (!LLToolCompInspect::getInstance()->mMouseDown)
 	{
 		// fast click on object, but mouse is already up...just do select
-		gToolInspect->mSelectRect->handleObjectSelection(hit_obj, mask, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
+		LLToolCompInspect::getInstance()->mSelectRect->handleObjectSelection(hit_obj, mask, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
 		return;
 	}
 
 	if( hit_obj )
 	{
-		if (gSelectMgr->getSelection()->getObjectCount())
+		if (LLSelectMgr::getInstance()->getSelection()->getObjectCount())
 		{
-			LLEditMenuHandler::gEditMenuHandler = gSelectMgr;
+			LLEditMenuHandler::gEditMenuHandler = LLSelectMgr::getInstance();
 		}
-		gToolInspect->setCurrentTool( gToolInspect->mSelectRect );
-		gToolInspect->mSelectRect->handleMouseDown( x, y, mask );
+		LLToolCompInspect::getInstance()->setCurrentTool( LLToolCompInspect::getInstance()->mSelectRect );
+		LLToolCompInspect::getInstance()->mSelectRect->handleMouseDown( x, y, mask );
 
 	}
 	else
 	{
-		gToolInspect->setCurrentTool( gToolInspect->mSelectRect );
-		gToolInspect->mSelectRect->handleMouseDown( x, y, mask);
+		LLToolCompInspect::getInstance()->setCurrentTool( LLToolCompInspect::getInstance()->mSelectRect );
+		LLToolCompInspect::getInstance()->mSelectRect->handleMouseDown( x, y, mask);
 	}
 }
 
@@ -235,41 +226,41 @@ void LLToolCompTranslate::pickCallback(S32 x, S32 y, MASK mask)
 {
 	LLViewerObject* hit_obj = gViewerWindow->lastObjectHit();
 
-	gToolTranslate->mManip->highlightManipulators(x, y);
-	if (!gToolTranslate->mMouseDown)
+	LLToolCompTranslate::getInstance()->mManip->highlightManipulators(x, y);
+	if (!LLToolCompTranslate::getInstance()->mMouseDown)
 	{
 		// fast click on object, but mouse is already up...just do select
-		gToolTranslate->mSelectRect->handleObjectSelection(hit_obj, mask, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
+		LLToolCompTranslate::getInstance()->mSelectRect->handleObjectSelection(hit_obj, mask, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
 		return;
 	}
 
-	if( hit_obj || gToolTranslate->mManip->getHighlightedPart() != LLManip::LL_NO_PART )
+	if( hit_obj || LLToolCompTranslate::getInstance()->mManip->getHighlightedPart() != LLManip::LL_NO_PART )
 	{
-		if (gToolTranslate->mManip->getSelection()->getObjectCount())
+		if (LLToolCompTranslate::getInstance()->mManip->getSelection()->getObjectCount())
 		{
-			LLEditMenuHandler::gEditMenuHandler = gSelectMgr;
+			LLEditMenuHandler::gEditMenuHandler = LLSelectMgr::getInstance();
 		}
 
-		BOOL can_move = gToolTranslate->mManip->canAffectSelection();
+		BOOL can_move = LLToolCompTranslate::getInstance()->mManip->canAffectSelection();
 
-		if(	LLManip::LL_NO_PART != gToolTranslate->mManip->getHighlightedPart() && can_move)
+		if(	LLManip::LL_NO_PART != LLToolCompTranslate::getInstance()->mManip->getHighlightedPart() && can_move)
 		{
-			gToolTranslate->setCurrentTool( gToolTranslate->mManip );
-			gToolTranslate->mManip->handleMouseDownOnPart( x, y, mask );
+			LLToolCompTranslate::getInstance()->setCurrentTool( LLToolCompTranslate::getInstance()->mManip );
+			LLToolCompTranslate::getInstance()->mManip->handleMouseDownOnPart( x, y, mask );
 		}
 		else
 		{
-			gToolTranslate->setCurrentTool( gToolTranslate->mSelectRect );
-			gToolTranslate->mSelectRect->handleMouseDown( x, y, mask );
+			LLToolCompTranslate::getInstance()->setCurrentTool( LLToolCompTranslate::getInstance()->mSelectRect );
+			LLToolCompTranslate::getInstance()->mSelectRect->handleMouseDown( x, y, mask );
 
 			// *TODO: add toggle to trigger old click-drag functionality
-			// gToolTranslate->mManip->handleMouseDownOnPart( XY_part, x, y, mask);
+			// LLToolCompTranslate::getInstance()->mManip->handleMouseDownOnPart( XY_part, x, y, mask);
 		}
 	}
 	else
 	{
-		gToolTranslate->setCurrentTool( gToolTranslate->mSelectRect );
-		gToolTranslate->mSelectRect->handleMouseDown( x, y, mask);
+		LLToolCompTranslate::getInstance()->setCurrentTool( LLToolCompTranslate::getInstance()->mSelectRect );
+		LLToolCompTranslate::getInstance()->mSelectRect->handleMouseDown( x, y, mask);
 	}
 }
 
@@ -283,11 +274,11 @@ LLTool* LLToolCompTranslate::getOverrideTool(MASK mask)
 {
 	if (mask == MASK_CONTROL)
 	{
-		return gToolRotate;
+		return LLToolCompRotate::getInstance();
 	}
 	else if (mask == (MASK_CONTROL | MASK_SHIFT))
 	{
-		return gToolStretch;
+		return LLToolCompScale::getInstance();
 	}
 	return LLToolComposite::getOverrideTool(mask);
 }
@@ -359,36 +350,36 @@ void LLToolCompScale::pickCallback(S32 x, S32 y, MASK mask)
 {
 	LLViewerObject* hit_obj = gViewerWindow->lastObjectHit();
 
-	gToolStretch->mManip->highlightManipulators(x, y);
-	if (!gToolStretch->mMouseDown)
+	LLToolCompScale::getInstance()->mManip->highlightManipulators(x, y);
+	if (!LLToolCompScale::getInstance()->mMouseDown)
 	{
 		// fast click on object, but mouse is already up...just do select
-		gToolStretch->mSelectRect->handleObjectSelection(hit_obj, mask, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
+		LLToolCompScale::getInstance()->mSelectRect->handleObjectSelection(hit_obj, mask, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
 
 		return;
 	}
 
-	if( hit_obj || gToolStretch->mManip->getHighlightedPart() != LLManip::LL_NO_PART)
+	if( hit_obj || LLToolCompScale::getInstance()->mManip->getHighlightedPart() != LLManip::LL_NO_PART)
 	{
-		if (gToolStretch->mManip->getSelection()->getObjectCount())
+		if (LLToolCompScale::getInstance()->mManip->getSelection()->getObjectCount())
 		{
-			LLEditMenuHandler::gEditMenuHandler = gSelectMgr;
+			LLEditMenuHandler::gEditMenuHandler = LLSelectMgr::getInstance();
 		}
-		if(	LLManip::LL_NO_PART != gToolStretch->mManip->getHighlightedPart() )
+		if(	LLManip::LL_NO_PART != LLToolCompScale::getInstance()->mManip->getHighlightedPart() )
 		{
-			gToolStretch->setCurrentTool( gToolStretch->mManip );
-			gToolStretch->mManip->handleMouseDownOnPart( x, y, mask );
+			LLToolCompScale::getInstance()->setCurrentTool( LLToolCompScale::getInstance()->mManip );
+			LLToolCompScale::getInstance()->mManip->handleMouseDownOnPart( x, y, mask );
 		}
 		else
 		{
-			gToolStretch->setCurrentTool( gToolStretch->mSelectRect );
-			gToolStretch->mSelectRect->handleMouseDown( x, y, mask );
+			LLToolCompScale::getInstance()->setCurrentTool( LLToolCompScale::getInstance()->mSelectRect );
+			LLToolCompScale::getInstance()->mSelectRect->handleMouseDown( x, y, mask );
 		}
 	}
 	else
 	{
-		gToolStretch->setCurrentTool( gToolStretch->mSelectRect );
-		gToolStretch->mCur->handleMouseDown( x, y, mask );
+		LLToolCompScale::getInstance()->setCurrentTool( LLToolCompScale::getInstance()->mSelectRect );
+		LLToolCompScale::getInstance()->mCur->handleMouseDown( x, y, mask );
 	}
 }
 
@@ -402,7 +393,7 @@ LLTool* LLToolCompScale::getOverrideTool(MASK mask)
 {
 	if (mask == MASK_CONTROL)
 	{
-		return gToolRotate;
+		return LLToolCompRotate::getInstance();
 	}
 
 	return LLToolComposite::getOverrideTool(mask);
@@ -489,8 +480,8 @@ void LLToolCompCreate::pickCallback(S32 x, S32 y, MASK mask)
 	mask = (mask & ~MASK_SHIFT);
 	mask = (mask & ~MASK_CONTROL);
 
-	gToolCreate->setCurrentTool( gToolCreate->mSelectRect );
-	gToolCreate->mSelectRect->handleMouseDown( x, y, mask);
+	LLToolCompCreate::getInstance()->setCurrentTool( LLToolCompCreate::getInstance()->mSelectRect );
+	LLToolCompCreate::getInstance()->mSelectRect->handleMouseDown( x, y, mask);
 }
 
 BOOL LLToolCompCreate::handleDoubleClick(S32 x, S32 y, MASK mask)
@@ -560,35 +551,35 @@ void LLToolCompRotate::pickCallback(S32 x, S32 y, MASK mask)
 {
 	LLViewerObject* hit_obj = gViewerWindow->lastObjectHit();
 
-	gToolRotate->mManip->highlightManipulators(x, y);
-	if (!gToolRotate->mMouseDown)
+	LLToolCompRotate::getInstance()->mManip->highlightManipulators(x, y);
+	if (!LLToolCompRotate::getInstance()->mMouseDown)
 	{
 		// fast click on object, but mouse is already up...just do select
-		gToolRotate->mSelectRect->handleObjectSelection(hit_obj, mask, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
+		LLToolCompRotate::getInstance()->mSelectRect->handleObjectSelection(hit_obj, mask, gSavedSettings.getBOOL("EditLinkedParts"), FALSE);
 		return;
 	}
 	
-	if( hit_obj || gToolRotate->mManip->getHighlightedPart() != LLManip::LL_NO_PART)
+	if( hit_obj || LLToolCompRotate::getInstance()->mManip->getHighlightedPart() != LLManip::LL_NO_PART)
 	{
-		if (gToolRotate->mManip->getSelection()->getObjectCount())
+		if (LLToolCompRotate::getInstance()->mManip->getSelection()->getObjectCount())
 		{
-			LLEditMenuHandler::gEditMenuHandler = gSelectMgr;
+			LLEditMenuHandler::gEditMenuHandler = LLSelectMgr::getInstance();
 		}
-		if(	LLManip::LL_NO_PART != gToolRotate->mManip->getHighlightedPart() )
+		if(	LLManip::LL_NO_PART != LLToolCompRotate::getInstance()->mManip->getHighlightedPart() )
 		{
-			gToolRotate->setCurrentTool( gToolRotate->mManip );
-			gToolRotate->mManip->handleMouseDownOnPart( x, y, mask );
+			LLToolCompRotate::getInstance()->setCurrentTool( LLToolCompRotate::getInstance()->mManip );
+			LLToolCompRotate::getInstance()->mManip->handleMouseDownOnPart( x, y, mask );
 		}
 		else
 		{
-			gToolRotate->setCurrentTool( gToolRotate->mSelectRect );
-			gToolRotate->mSelectRect->handleMouseDown( x, y, mask );
+			LLToolCompRotate::getInstance()->setCurrentTool( LLToolCompRotate::getInstance()->mSelectRect );
+			LLToolCompRotate::getInstance()->mSelectRect->handleMouseDown( x, y, mask );
 		}
 	}
 	else
 	{
-		gToolRotate->setCurrentTool( gToolRotate->mSelectRect );
-		gToolRotate->mCur->handleMouseDown( x, y, mask );
+		LLToolCompRotate::getInstance()->setCurrentTool( LLToolCompRotate::getInstance()->mSelectRect );
+		LLToolCompRotate::getInstance()->mCur->handleMouseDown( x, y, mask );
 	}
 }
 
@@ -602,7 +593,7 @@ LLTool* LLToolCompRotate::getOverrideTool(MASK mask)
 {
 	if (mask == (MASK_CONTROL | MASK_SHIFT))
 	{
-		return gToolStretch;
+		return LLToolCompScale::getInstance();
 	}
 	return LLToolComposite::getOverrideTool(mask);
 }
@@ -671,7 +662,7 @@ BOOL LLToolCompGun::handleHover(S32 x, S32 y, MASK mask)
 	// item selected from context menu.
 	if ( mCur == mNull && !gPopupMenuView->getVisible() )
 	{
-		gSelectMgr->deselectAll();
+		LLSelectMgr::getInstance()->deselectAll();
 		setCurrentTool( (LLTool*) mGrab );
 	}
 
@@ -712,9 +703,9 @@ BOOL LLToolCompGun::handleMouseDown(S32 x, S32 y, MASK mask)
 
 	// On mousedown, start grabbing
 	gGrabTransientTool = this;
-	gToolMgr->getCurrentToolset()->selectTool( (LLTool*) mGrab );
+	LLToolMgr::getInstance()->getCurrentToolset()->selectTool( (LLTool*) mGrab );
 
-	return gToolGrab->handleMouseDown(x, y, mask);
+	return LLToolGrab::getInstance()->handleMouseDown(x, y, mask);
 }
 
 
@@ -729,9 +720,9 @@ BOOL LLToolCompGun::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 	// On mousedown, start grabbing
 	gGrabTransientTool = this;
-	gToolMgr->getCurrentToolset()->selectTool( (LLTool*) mGrab );
+	LLToolMgr::getInstance()->getCurrentToolset()->selectTool( (LLTool*) mGrab );
 
-	return gToolGrab->handleDoubleClick(x, y, mask);
+	return LLToolGrab::getInstance()->handleDoubleClick(x, y, mask);
 }
 
 

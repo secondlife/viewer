@@ -62,8 +62,6 @@
 const std::string REGION_BLOCKS_TERRAFORM_MSG = "This region does not allow terraforming.\n"
 				"You will need to buy land in another part of the world to terraform it.";
 
-// Globals
-LLToolBrushLand *gToolLand = NULL;
 
 ///============================================================================
 /// Local function declarations, constants, enums, and typedefs
@@ -182,12 +180,12 @@ void LLToolBrushLand::modifyLandAtPointGlobal(const LLVector3d &pos_global,
 
 void LLToolBrushLand::modifyLandInSelectionGlobal()
 {
-	if (gParcelMgr->selectionEmpty())
+	if (LLViewerParcelMgr::getInstance()->selectionEmpty())
 	{
 		return;
 	}
 
-	if (gToolMgr->getCurrentTool() == gToolParcel)
+	if (LLToolMgr::getInstance()->getCurrentTool() == LLToolSelectLand::getInstance())
 	{
 		// selecting land, don't do anything
 		return;
@@ -196,7 +194,7 @@ void LLToolBrushLand::modifyLandInSelectionGlobal()
 	LLVector3d min;
 	LLVector3d max;
 
-	gParcelMgr->getSelection(min, max);
+	LLViewerParcelMgr::getInstance()->getSelection(min, max);
 
 	S32 radioAction = gSavedSettings.getS32("RadioLandBrushAction");
 
@@ -306,8 +304,8 @@ void LLToolBrushLand::modifyLandInSelectionGlobal()
 		msg->addF32Fast(_PREHASH_Seconds, seconds);
 		msg->addF32Fast(_PREHASH_Height, mStartingZ);
 
-		BOOL parcel_selected = gParcelMgr->getParcelSelection()->getWholeParcelSelected();
-		LLParcel* selected_parcel = gParcelMgr->getParcelSelection()->getParcel();
+		BOOL parcel_selected = LLViewerParcelMgr::getInstance()->getParcelSelection()->getWholeParcelSelected();
+		LLParcel* selected_parcel = LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
 
 		if (parcel_selected && selected_parcel)
 		{
@@ -376,7 +374,7 @@ BOOL LLToolBrushLand::handleMouseDown(S32 x, S32 y, MASK mask)
 		gIdleCallbacks.addFunction( &LLToolBrushLand::onIdle, (void*)this );
 		setMouseCapture( TRUE );
 
-		gParcelMgr->setSelectionVisible(FALSE);
+		LLViewerParcelMgr::getInstance()->setSelectionVisible(FALSE);
 		handled = TRUE;
 	}
 
@@ -404,7 +402,7 @@ BOOL LLToolBrushLand::handleMouseUp(S32 x, S32 y, MASK mask)
 		// Release the mouse
 		setMouseCapture( FALSE );
 
-		gParcelMgr->setSelectionVisible(TRUE);
+		LLViewerParcelMgr::getInstance()->setSelectionVisible(TRUE);
 
 		gIdleCallbacks.deleteFunction( &LLToolBrushLand::onIdle, (void*)this );
 		handled = TRUE;
@@ -435,7 +433,7 @@ void LLToolBrushLand::handleDeselect()
 	}
 	mLastShowParcelOwners = gSavedSettings.getBOOL("ShowParcelOwners");
 	gSavedSettings.setBOOL("ShowParcelOwners", mLastShowParcelOwners);
-	gParcelMgr->setSelectionVisible(TRUE);
+	LLViewerParcelMgr::getInstance()->setSelectionVisible(TRUE);
 	mBrushSelected = FALSE;
 }
 
@@ -506,25 +504,25 @@ void LLToolBrushLand::determineAffectedRegions(region_list_t& regions,
 	corner.mdV[VX] -= (LAND_BRUSH_SIZE[mBrushIndex] / 2);
 	corner.mdV[VY] -= (LAND_BRUSH_SIZE[mBrushIndex] / 2);
 	LLViewerRegion* region = NULL;
-	region = gWorldPointer->getRegionFromPosGlobal(corner);
+	region = LLWorld::getInstance()->getRegionFromPosGlobal(corner);
 	if(region && regions.find(region) == regions.end())
 	{
 		regions.insert(region);
 	}
 	corner.mdV[VY] += LAND_BRUSH_SIZE[mBrushIndex];
-	region = gWorldPointer->getRegionFromPosGlobal(corner);
+	region = LLWorld::getInstance()->getRegionFromPosGlobal(corner);
 	if(region && regions.find(region) == regions.end())
 	{
 		regions.insert(region);
 	}
 	corner.mdV[VX] += LAND_BRUSH_SIZE[mBrushIndex];
-	region = gWorldPointer->getRegionFromPosGlobal(corner);
+	region = LLWorld::getInstance()->getRegionFromPosGlobal(corner);
 	if(region && regions.find(region) == regions.end())
 	{
 		regions.insert(region);
 	}
 	corner.mdV[VY] -= LAND_BRUSH_SIZE[mBrushIndex];
-	region = gWorldPointer->getRegionFromPosGlobal(corner);
+	region = LLWorld::getInstance()->getRegionFromPosGlobal(corner);
 	if(region && regions.find(region) == regions.end())
 	{
 		regions.insert(region);
@@ -536,7 +534,7 @@ void LLToolBrushLand::onIdle( void* brush_tool )
 {
 	LLToolBrushLand* self = reinterpret_cast<LLToolBrushLand*>(brush_tool);
 
-	if( gToolMgr->getCurrentTool() == self )
+	if( LLToolMgr::getInstance()->getCurrentTool() == self )
 	{
 		self->brush();
 	}

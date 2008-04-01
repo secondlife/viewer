@@ -74,7 +74,7 @@ public:
 				void *callback_data);
 	~LLPanelLogin();
 
-	virtual BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL handleKeyHere(KEY key, MASK mask);
 	virtual void draw();
 	virtual void setFocus( BOOL b );
 
@@ -114,7 +114,7 @@ private:
 	static void onPassKey(LLLineEditor* caller, void* user_data);
 	
 private:
-	LLPointer<LLViewerImage> mLogoImage;
+	LLPointer<LLUIImage> mLogoImage;
 
 	void			(*mCallback)(S32 option, void *userdata);
 	void*			mCallbackData;

@@ -42,7 +42,7 @@
 #include "lltextbox.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 
 class LLPanelGroupInvite::impl
@@ -77,7 +77,7 @@ public:
 	LLButton		*mOKButton;
  	LLButton		*mRemoveButton;
 	LLTextBox		*mGroupName;
-	LLTextBox		*mOwnerWarning;
+	LLString		mOwnerWarning;
 	bool		mConfirmedOwnerInvite;
 
 	void (*mCloseCallback)(void* data);
@@ -94,7 +94,6 @@ LLPanelGroupInvite::impl::impl(const LLUUID& group_id):
 	mOKButton ( NULL ),
 	mRemoveButton( NULL ),
 	mGroupName( NULL ),
-	mOwnerWarning ( NULL ),
 	mConfirmedOwnerInvite( false ),
 	mCloseCallback( NULL ),
 	mCloseCallbackUserData( NULL )
@@ -147,7 +146,7 @@ void LLPanelGroupInvite::impl::submitInvitations()
 {
 	std::map<LLUUID, LLUUID> role_member_pairs;
 
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 
 	// Default to everyone role.
 	LLUUID role_id = LLUUID::null;
@@ -160,7 +159,7 @@ void LLPanelGroupInvite::impl::submitInvitations()
 		if ((role_id == gdatap->mOwnerRole) && (!mConfirmedOwnerInvite))
 		{
 			LLString::format_map_t args;
-			args["[MESSAGE]"] = mOwnerWarning->getText();
+			args["[MESSAGE]"] = mOwnerWarning;
 			gViewerWindow->alertXml("GenericAlertYesCancel", args, inviteOwnerCallback, this);
 			return; // we'll be called again if user confirms
 		}
@@ -175,7 +174,7 @@ void LLPanelGroupInvite::impl::submitInvitations()
 		role_member_pairs[item->getUUID()] = role_id;
 	}
 
-	gGroupMgr->sendGroupMemberInvites(mGroupID, role_member_pairs);
+	LLGroupMgr::getInstance()->sendGroupMemberInvites(mGroupID, role_member_pairs);
 
 	//then close
 	(*mCloseCallback)(mCloseCallbackUserData);
@@ -363,7 +362,7 @@ LLPanelGroupInvite::LLPanelGroupInvite(const std::string& name,
 	std::string panel_def_file;
 
 	// Pass on construction of this panel to the control factory.
-	gUICtrlFactory->buildPanel(this, "panel_group_invite.xml", &getFactoryMap());
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_group_invite.xml", &getFactoryMap());
 }
 
 LLPanelGroupInvite::~LLPanelGroupInvite()
@@ -452,7 +451,7 @@ void LLPanelGroupInvite::update()
 
 void LLPanelGroupInvite::updateLists()
 {
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mImplementation->mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mImplementation->mGroupID);
 	bool waiting = false;
 
 	if (gdatap) 
@@ -494,9 +493,9 @@ void LLPanelGroupInvite::updateLists()
 	{
 		if (!mPendingUpdate) 
 		{
-			gGroupMgr->sendGroupPropertiesRequest(mImplementation->mGroupID);
-			gGroupMgr->sendGroupMembersRequest(mImplementation->mGroupID);
-			gGroupMgr->sendGroupRoleDataRequest(mImplementation->mGroupID);
+			LLGroupMgr::getInstance()->sendGroupPropertiesRequest(mImplementation->mGroupID);
+			LLGroupMgr::getInstance()->sendGroupMembersRequest(mImplementation->mGroupID);
+			LLGroupMgr::getInstance()->sendGroupRoleDataRequest(mImplementation->mGroupID);
 		}
 		mPendingUpdate = TRUE;
 	} 
@@ -563,7 +562,7 @@ BOOL LLPanelGroupInvite::postBuild()
 		button->setCallbackUserData(mImplementation);
 	}
 
-	mImplementation->mOwnerWarning = (LLTextBox*)getChildByName("confirm_invite_owner_str", recurse);
+	mImplementation->mOwnerWarning = getString("confirm_invite_owner_str");
 
 	update();
 	

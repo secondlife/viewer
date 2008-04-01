@@ -52,7 +52,7 @@
 #include "llselectmgr.h"
 #include "llscrolllistctrl.h"
 #include "lltextbox.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "llimview.h"
 
@@ -81,7 +81,7 @@ LLFloaterGroupPicker* LLFloaterGroupPicker::findInstance(const LLSD& seed)
 LLFloaterGroupPicker* LLFloaterGroupPicker::createInstance(const LLSD &seed)
 {
 	LLFloaterGroupPicker* pickerp = new LLFloaterGroupPicker(seed);
-	gUICtrlFactory->buildFloater(pickerp, "floater_choose_group.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(pickerp, "floater_choose_group.xml");
 	return pickerp;
 }
 
@@ -115,7 +115,7 @@ void LLFloaterGroupPicker::setPowersMask(U64 powers_mask)
 
 BOOL LLFloaterGroupPicker::postBuild()
 {
-	init_group_list(LLUICtrlFactory::getScrollListByName(this, "group list"), gAgent.getGroupID(), mPowersMask);
+	init_group_list(getChild<LLScrollListCtrl>("group list"), gAgent.getGroupID(), mPowersMask);
 
 	childSetAction("OK", onBtnOK, this);
 
@@ -199,7 +199,7 @@ void LLPanelGroups::reset()
 	childSetTextArg("groupcount", "[COUNT]", llformat("%d",gAgent.mGroups.count()));
 	childSetTextArg("groupcount", "[MAX]", llformat("%d",MAX_AGENT_GROUPS));
 
-	init_group_list(LLUICtrlFactory::getScrollListByName(this, "group list"), gAgent.getGroupID());
+	init_group_list(getChild<LLScrollListCtrl>("group list"), gAgent.getGroupID());
 	enableButtons();
 }
 
@@ -210,7 +210,7 @@ BOOL LLPanelGroups::postBuild()
 	childSetTextArg("groupcount", "[COUNT]", llformat("%d",gAgent.mGroups.count()));
 	childSetTextArg("groupcount", "[MAX]", llformat("%d",MAX_AGENT_GROUPS));
 
-	init_group_list(LLUICtrlFactory::getScrollListByName(this, "group list"), gAgent.getGroupID());
+	init_group_list(getChild<LLScrollListCtrl>("group list"), gAgent.getGroupID());
 
 	childSetAction("Activate", onBtnActivate, this);
 

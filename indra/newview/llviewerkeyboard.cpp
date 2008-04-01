@@ -170,7 +170,7 @@ void agent_slide_right( EKeystate s )
 
 void agent_turn_left( EKeystate s )
 {
-	if (gToolCamera->mouseSteerMode())
+	if (LLToolCamera::getInstance()->mouseSteerMode())
 	{
 		agent_slide_left(s);
 	}
@@ -185,7 +185,7 @@ void agent_turn_left( EKeystate s )
 
 void agent_turn_right( EKeystate s )
 {
-	if (gToolCamera->mouseSteerMode())
+	if (LLToolCamera::getInstance()->mouseSteerMode())
 	{
 		agent_slide_right(s);
 	}
@@ -499,7 +499,7 @@ void start_chat( EKeystate s )
 void start_gesture( EKeystate s )
 {
 	if (KEYSTATE_UP == s &&
-	    !gChatBar->inputEditorHasFocus())
+		!(gFocusMgr.getKeyboardFocus() && gFocusMgr.getKeyboardFocus()->acceptsTextInput()))
 	{
 		if (gChatBar->getCurrentChat().empty())
 		{

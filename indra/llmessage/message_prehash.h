@@ -1373,10 +1373,4 @@ extern char * _PREHASH_RegionDenyAgeUnverified;
 extern char * _PREHASH_AgeVerificationBlock;
 
 
-void init_prehash_data();
-
-
-
-
-
 #endif

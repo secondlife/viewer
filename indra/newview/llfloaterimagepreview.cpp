@@ -52,7 +52,7 @@
 #include "llviewerwindow.h"
 #include "llvoavatar.h"
 #include "pipeline.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerimagelist.h"
 
 //static
@@ -616,7 +616,7 @@ LLImagePreviewAvatar::LLImagePreviewAvatar(S32 width, S32 height) : LLDynamicTex
 	mDummyAvatar->slamPosition();
 	mDummyAvatar->updateJointLODs();
 	mDummyAvatar->updateGeometry(mDummyAvatar->mDrawable);
-	// gPipeline.markVisible(mDummyAvatar->mDrawable, *gCamera);
+	// gPipeline.markVisible(mDummyAvatar->mDrawable, *LLViewerCamera::getInstance());
 
 	mTextureName = 0;
 }
@@ -696,16 +696,16 @@ BOOL LLImagePreviewAvatar::render()
 		LLQuaternion(mCameraYaw, LLVector3::z_axis);
 
 	LLQuaternion av_rot = avatarp->mPelvisp->getWorldRotation() * camera_rot;
-	gCamera->setOriginAndLookAt(
+	LLViewerCamera::getInstance()->setOriginAndLookAt(
 		target_pos + ((LLVector3(mCameraDistance, 0.f, 0.f) + mCameraOffset) * av_rot),		// camera
 		LLVector3::z_axis,																	// up
 		target_pos + (mCameraOffset  * av_rot) );											// point of interest
 
 	stop_glerror();
 
-	gCamera->setAspect((F32)mWidth / mHeight);
-	gCamera->setView(gCamera->getDefaultFOV() / mCameraZoom);
-	gCamera->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mWidth, mHeight, FALSE);
+	LLViewerCamera::getInstance()->setAspect((F32)mWidth / mHeight);
+	LLViewerCamera::getInstance()->setView(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
+	LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mWidth, mHeight, FALSE);
 
 	LLVertexBuffer::stopRender();
 	avatarp->updateLOD();
@@ -787,7 +787,7 @@ LLImagePreviewSculpted::LLImagePreviewSculpted(S32 width, S32 height) : LLDynami
 	mDummyAvatar->slamPosition();
 	mDummyAvatar->updateJointLODs();
 	mDummyAvatar->updateGeometry(mDummyAvatar->mDrawable);
-	gPipeline.markVisible(mDummyAvatar->mDrawable, *gCamera);
+	gPipeline.markVisible(mDummyAvatar->mDrawable, *LLViewerCamera::getInstance());
 	mTextureName = 0;
 	*/
 }
@@ -856,16 +856,16 @@ BOOL LLImagePreviewSculpted::render()
 		LLQuaternion(mCameraYaw, LLVector3::z_axis);
 
 	LLQuaternion av_rot = camera_rot;
-	gCamera->setOriginAndLookAt(
+	LLViewerCamera::getInstance()->setOriginAndLookAt(
 		target_pos + ((LLVector3(mCameraDistance, 0.f, 0.f) + mCameraOffset) * av_rot),		// camera
 		LLVector3::z_axis,																	// up
 		target_pos + (mCameraOffset  * av_rot) );											// point of interest
 
 	stop_glerror();
 
-	gCamera->setAspect((F32) mWidth / mHeight);
-	gCamera->setView(gCamera->getDefaultFOV() / mCameraZoom);
-	gCamera->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mWidth, mHeight, FALSE);
+	LLViewerCamera::getInstance()->setAspect((F32) mWidth / mHeight);
+	LLViewerCamera::getInstance()->setView(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
+	LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mWidth, mHeight, FALSE);
 
 	gPipeline.enableLightsAvatar();
 		

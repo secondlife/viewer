@@ -46,7 +46,7 @@
 #include "lltracker.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 
 LLFloaterTopObjects* LLFloaterTopObjects::sInstance = NULL;
@@ -62,7 +62,7 @@ void LLFloaterTopObjects::show()
 	}
 
 	sInstance = new LLFloaterTopObjects();
-	gUICtrlFactory->buildFloater(sInstance, "floater_top_objects.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_top_objects.xml");
 	sInstance->center();
 }
 
@@ -85,7 +85,7 @@ BOOL LLFloaterTopObjects::postBuild()
 	childSetCommitCallback("objects_list", onCommitObjectsList, this);
 	childSetDoubleClickCallback("objects_list", onDoubleClickObjectsList);
 	childSetFocus("objects_list");
-	LLScrollListCtrl *objects_list = LLUICtrlFactory::getScrollListByName(this, "objects_list");
+	LLScrollListCtrl *objects_list = getChild<LLScrollListCtrl>("objects_list");
 	if (objects_list)
 	{
 		objects_list->setCommitOnSelectionChange(TRUE);
@@ -106,7 +106,7 @@ BOOL LLFloaterTopObjects::postBuild()
 
 
 	/*
-	LLLineEditor* line_editor = LLUICtrlFactory::getLineEditorByName(this, "owner_name_editor");
+	LLLineEditor* line_editor = getChild<LLLineEditor>("owner_name_editor");
 	if (line_editor)
 	{
 		line_editor->setCommitOnFocusLost(FALSE);
@@ -114,7 +114,7 @@ BOOL LLFloaterTopObjects::postBuild()
 		line_editor->setCallbackUserData(this);
 	}
 
-	line_editor = LLUICtrlFactory::getLineEditorByName(this, "object_name_editor");
+	line_editor = getChild<LLLineEditor>("object_name_editor");
 	if (line_editor)
 	{
 		line_editor->setCommitOnFocusLost(FALSE);
@@ -247,7 +247,7 @@ void LLFloaterTopObjects::onCommitObjectsList(LLUICtrl* ctrl, void* data)
 
 void LLFloaterTopObjects::updateSelectionInfo()
 {
-	LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(this, "objects_list");
+	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("objects_list");
 
 	if (!list) return;
 
@@ -445,7 +445,7 @@ void LLFloaterTopObjects::onGetByOwnerName(LLUICtrl* ctrl, void* data)
 
 void LLFloaterTopObjects::showBeacon()
 {	
-	LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(this, "objects_list");
+	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("objects_list");
 	if (!list) return;
 
 	LLScrollListItem* first_selected = list->getFirstSelected();

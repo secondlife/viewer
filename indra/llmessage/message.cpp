@@ -201,7 +201,7 @@ void LLMessageHandlerBridge::post(LLHTTPNode::ResponsePtr response,
 							const LLSD& context, const LLSD& input) const
 {
 	std::string name = context["request"]["wildcard"]["message-name"];
-	char* namePtr = gMessageStringTable.getString(name.c_str());
+	char* namePtr = LLMessageStringTable::getInstance()->getString(name.c_str());
 	
 	lldebugs << "Setting mLastSender " << input["sender"].asString() << llendl;
 	gMessageSystem->mLastSender = LLHost(input["sender"].asString());
@@ -469,7 +469,7 @@ static LLMessageSystem::message_template_name_map_t::const_iterator
 findTemplate(const LLMessageSystem::message_template_name_map_t& templates, 
 			 std::string name)
 {
-	const char* namePrehash = gMessageStringTable.getString(name.c_str());
+	const char* namePrehash = LLMessageStringTable::getInstance()->getString(name.c_str());
 	if(NULL == namePrehash) {return templates.end();}
 	return templates.find(namePrehash);
 }
@@ -770,7 +770,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 				/* Code for dumping the complete contents of a message.  Keep for future use in optimizing messages.
 				if( 1 )
 				{
-					static char* object_update = gMessageStringTable.getString("ObjectUpdate");
+					static char* object_update = LLMessageStringTable::getInstance()->getString("ObjectUpdate");
 					if(object_update == mTemplateMessageReader->getMessageName() )
 					{
 						llinfos << "ObjectUpdate:" << llendl;
@@ -1018,7 +1018,7 @@ BOOL LLMessageSystem::isSendFull(const char* blockname)
 	char* stringTableName = NULL;
 	if(NULL != blockname)
 	{
-		stringTableName = gMessageStringTable.getString(blockname);
+		stringTableName = LLMessageStringTable::getInstance()->getString(blockname);
 	}
 	return isSendFullFast(stringTableName);
 }
@@ -2139,7 +2139,7 @@ void LLMessageSystem::dispatch(
 	LLHTTPNode::ResponsePtr responsep)
 {
 	if ((gMessageSystem->mMessageTemplates.find
-			(gMessageStringTable.getString(msg_name.c_str())) ==
+			(LLMessageStringTable::getInstance()->getString(msg_name.c_str())) ==
 				gMessageSystem->mMessageTemplates.end()) &&
 		!LLMessageConfig::isValidMessage(msg_name))
 	{
@@ -2173,7 +2173,7 @@ static void check_for_unrecognized_messages(
 			end = map.endMap();
 		 iter != end; ++iter)
 	{
-		const char* name = gMessageStringTable.getString(iter->first.c_str());
+		const char* name = LLMessageStringTable::getInstance()->getString(iter->first.c_str());
 
 		if (templates.find(name) == templates.end())
 		{
@@ -2441,13 +2441,11 @@ void dump_prehash_files()
 		fprintf(fp, "\n\nextern F32 gPrehashVersionNumber;\n\n");
 		for (i = 0; i < MESSAGE_NUMBER_OF_HASH_BUCKETS; i++)
 		{
-			if (!gMessageStringTable.mEmpty[i] && gMessageStringTable.mString[i][0] != '.')
+			if (!LLMessageStringTable::getInstance()->mEmpty[i] && LLMessageStringTable::getInstance()->mString[i][0] != '.')
 			{
-				fprintf(fp, "extern char * _PREHASH_%s;\n", gMessageStringTable.mString[i]);
+				fprintf(fp, "extern char * _PREHASH_%s;\n", LLMessageStringTable::getInstance()->mString[i]);
 			}
 		}
-		fprintf(fp, "\n\nvoid init_prehash_data();\n\n");
-		fprintf(fp, "\n\n");
 		fprintf(fp, "\n\n#endif\n");
 		fclose(fp);
 	}
@@ -2472,21 +2470,11 @@ void dump_prehash_files()
 		fprintf(fp, "\n\nF32 gPrehashVersionNumber = %.3ff;\n\n", gMessageSystem->mMessageFileVersionNumber);
 		for (i = 0; i < MESSAGE_NUMBER_OF_HASH_BUCKETS; i++)
 		{
-			if (!gMessageStringTable.mEmpty[i] && gMessageStringTable.mString[i][0] != '.')
+			if (!LLMessageStringTable::getInstance()->mEmpty[i] && LLMessageStringTable::getInstance()->mString[i][0] != '.')
 			{
-				fprintf(fp, "char * _PREHASH_%s;\n", gMessageStringTable.mString[i]);
+				fprintf(fp, "char * _PREHASH_%s = LLMessageStringTable::getInstance()->getString(\"%s\");\n", LLMessageStringTable::getInstance()->mString[i], LLMessageStringTable::getInstance()->mString[i]);
 			}
 		}
-		fprintf(fp, "\nvoid init_prehash_data()\n");
-		fprintf(fp, "{\n");
-		for (i = 0; i < MESSAGE_NUMBER_OF_HASH_BUCKETS; i++)
-		{
-			if (!gMessageStringTable.mEmpty[i] && gMessageStringTable.mString[i][0] != '.')
-			{
-				fprintf(fp, "\t_PREHASH_%s = gMessageStringTable.getString(\"%s\");\n", gMessageStringTable.mString[i], gMessageStringTable.mString[i]);
-			}
-		}
-		fprintf(fp, "}\n");
 		fclose(fp);
 	}
 }
@@ -2528,7 +2516,6 @@ BOOL start_messaging_system(
 	}
 	else
 	{
-		init_prehash_data();
 		if (gMessageSystem->mMessageFileVersionNumber != gPrehashVersionNumber)
 		{
 			llinfos << "Message template version does not match prehash version number" << llendl;
@@ -2991,7 +2978,7 @@ void LLMessageSystem::setHandlerFuncFast(const char *name, void (*handler_func)(
 bool LLMessageSystem::callHandler(const char *name,
 		bool trustedSource, LLMessageSystem* msg)
 {
-	name = gMessageStringTable.getString(name);
+	name = LLMessageStringTable::getInstance()->getString(name);
 	message_template_name_map_t::const_iterator iter;
 	iter = mMessageTemplates.find(name);
 	if(iter == mMessageTemplates.end())
@@ -3474,7 +3461,7 @@ void LLMessageSystem::newMessageFast(const char *name)
 	
 void LLMessageSystem::newMessage(const char *name)
 {
-	newMessageFast(gMessageStringTable.getString(name));
+	newMessageFast(LLMessageStringTable::getInstance()->getString(name));
 }
 
 void LLMessageSystem::addBinaryDataFast(const char *varname, const void *data, S32 size)
@@ -3484,7 +3471,7 @@ void LLMessageSystem::addBinaryDataFast(const char *varname, const void *data, S
 
 void LLMessageSystem::addBinaryData(const char *varname, const void *data, S32 size)
 {
-	mMessageBuilder->addBinaryData(gMessageStringTable.getString(varname),data, size);
+	mMessageBuilder->addBinaryData(LLMessageStringTable::getInstance()->getString(varname),data, size);
 }
 
 void LLMessageSystem::addS8Fast(const char *varname, S8 v)
@@ -3494,7 +3481,7 @@ void LLMessageSystem::addS8Fast(const char *varname, S8 v)
 
 void LLMessageSystem::addS8(const char *varname, S8 v)
 {
-	mMessageBuilder->addS8(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addS8(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 void LLMessageSystem::addU8Fast(const char *varname, U8 v)
@@ -3504,7 +3491,7 @@ void LLMessageSystem::addU8Fast(const char *varname, U8 v)
 
 void LLMessageSystem::addU8(const char *varname, U8 v)
 {
-	mMessageBuilder->addU8(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addU8(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 void LLMessageSystem::addS16Fast(const char *varname, S16 v)
@@ -3514,7 +3501,7 @@ void LLMessageSystem::addS16Fast(const char *varname, S16 v)
 
 void LLMessageSystem::addS16(const char *varname, S16 v)
 {
-	mMessageBuilder->addS16(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addS16(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 void LLMessageSystem::addU16Fast(const char *varname, U16 v)
@@ -3524,7 +3511,7 @@ void LLMessageSystem::addU16Fast(const char *varname, U16 v)
 
 void LLMessageSystem::addU16(const char *varname, U16 v)
 {
-	mMessageBuilder->addU16(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addU16(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 void LLMessageSystem::addF32Fast(const char *varname, F32 v)
@@ -3534,7 +3521,7 @@ void LLMessageSystem::addF32Fast(const char *varname, F32 v)
 
 void LLMessageSystem::addF32(const char *varname, F32 v)
 {
-	mMessageBuilder->addF32(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addF32(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 void LLMessageSystem::addS32Fast(const char *varname, S32 v)
@@ -3544,7 +3531,7 @@ void LLMessageSystem::addS32Fast(const char *varname, S32 v)
 
 void LLMessageSystem::addS32(const char *varname, S32 v)
 {
-	mMessageBuilder->addS32(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addS32(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 void LLMessageSystem::addU32Fast(const char *varname, U32 v)
@@ -3554,7 +3541,7 @@ void LLMessageSystem::addU32Fast(const char *varname, U32 v)
 
 void LLMessageSystem::addU32(const char *varname, U32 v)
 {
-	mMessageBuilder->addU32(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addU32(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 void LLMessageSystem::addU64Fast(const char *varname, U64 v)
@@ -3564,7 +3551,7 @@ void LLMessageSystem::addU64Fast(const char *varname, U64 v)
 
 void LLMessageSystem::addU64(const char *varname, U64 v)
 {
-	mMessageBuilder->addU64(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addU64(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 void LLMessageSystem::addF64Fast(const char *varname, F64 v)
@@ -3574,7 +3561,7 @@ void LLMessageSystem::addF64Fast(const char *varname, F64 v)
 
 void LLMessageSystem::addF64(const char *varname, F64 v)
 {
-	mMessageBuilder->addF64(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addF64(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 void LLMessageSystem::addIPAddrFast(const char *varname, U32 v)
@@ -3584,7 +3571,7 @@ void LLMessageSystem::addIPAddrFast(const char *varname, U32 v)
 
 void LLMessageSystem::addIPAddr(const char *varname, U32 v)
 {
-	mMessageBuilder->addIPAddr(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addIPAddr(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 void LLMessageSystem::addIPPortFast(const char *varname, U16 v)
@@ -3594,7 +3581,7 @@ void LLMessageSystem::addIPPortFast(const char *varname, U16 v)
 
 void LLMessageSystem::addIPPort(const char *varname, U16 v)
 {
-	mMessageBuilder->addIPPort(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addIPPort(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 void LLMessageSystem::addBOOLFast(const char* varname, BOOL v)
@@ -3604,7 +3591,7 @@ void LLMessageSystem::addBOOLFast(const char* varname, BOOL v)
 
 void LLMessageSystem::addBOOL(const char* varname, BOOL v)
 {
-	mMessageBuilder->addBOOL(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addBOOL(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 void LLMessageSystem::addStringFast(const char* varname, const char* v)
@@ -3614,7 +3601,7 @@ void LLMessageSystem::addStringFast(const char* varname, const char* v)
 
 void LLMessageSystem::addString(const char* varname, const char* v)
 {
-	mMessageBuilder->addString(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addString(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 void LLMessageSystem::addStringFast(const char* varname, const std::string& v)
@@ -3624,7 +3611,7 @@ void LLMessageSystem::addStringFast(const char* varname, const std::string& v)
 
 void LLMessageSystem::addString(const char* varname, const std::string& v)
 {
-	mMessageBuilder->addString(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addString(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 void LLMessageSystem::addVector3Fast(const char *varname, const LLVector3& v)
@@ -3634,7 +3621,7 @@ void LLMessageSystem::addVector3Fast(const char *varname, const LLVector3& v)
 
 void LLMessageSystem::addVector3(const char *varname, const LLVector3& v)
 {
-	mMessageBuilder->addVector3(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addVector3(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 void LLMessageSystem::addVector4Fast(const char *varname, const LLVector4& v)
@@ -3644,7 +3631,7 @@ void LLMessageSystem::addVector4Fast(const char *varname, const LLVector4& v)
 
 void LLMessageSystem::addVector4(const char *varname, const LLVector4& v)
 {
-	mMessageBuilder->addVector4(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addVector4(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 void LLMessageSystem::addVector3dFast(const char *varname, const LLVector3d& v)
@@ -3654,7 +3641,7 @@ void LLMessageSystem::addVector3dFast(const char *varname, const LLVector3d& v)
 
 void LLMessageSystem::addVector3d(const char *varname, const LLVector3d& v)
 {
-	mMessageBuilder->addVector3d(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addVector3d(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 void LLMessageSystem::addQuatFast(const char *varname, const LLQuaternion& v)
@@ -3664,7 +3651,7 @@ void LLMessageSystem::addQuatFast(const char *varname, const LLQuaternion& v)
 
 void LLMessageSystem::addQuat(const char *varname, const LLQuaternion& v)
 {
-	mMessageBuilder->addQuat(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addQuat(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 
@@ -3675,7 +3662,7 @@ void LLMessageSystem::addUUIDFast(const char *varname, const LLUUID& v)
 
 void LLMessageSystem::addUUID(const char *varname, const LLUUID& v)
 {
-	mMessageBuilder->addUUID(gMessageStringTable.getString(varname), v);
+	mMessageBuilder->addUUID(LLMessageStringTable::getInstance()->getString(varname), v);
 }
 
 S32 LLMessageSystem::getCurrentSendTotal() const
@@ -3692,8 +3679,8 @@ void LLMessageSystem::getS8Fast(const char *block, const char *var, S8 &u,
 void LLMessageSystem::getS8(const char *block, const char *var, S8 &u, 
 							S32 blocknum)
 {
-	getS8Fast(gMessageStringTable.getString(block), 
-			  gMessageStringTable.getString(var), u, blocknum);
+	getS8Fast(LLMessageStringTable::getInstance()->getString(block), 
+			  LLMessageStringTable::getInstance()->getString(var), u, blocknum);
 }
 
 void LLMessageSystem::getU8Fast(const char *block, const char *var, U8 &u, 
@@ -3705,8 +3692,8 @@ void LLMessageSystem::getU8Fast(const char *block, const char *var, U8 &u,
 void LLMessageSystem::getU8(const char *block, const char *var, U8 &u, 
 							S32 blocknum)
 {
-	getU8Fast(gMessageStringTable.getString(block), 
-				gMessageStringTable.getString(var), u, blocknum);
+	getU8Fast(LLMessageStringTable::getInstance()->getString(block), 
+				LLMessageStringTable::getInstance()->getString(var), u, blocknum);
 }
 
 void LLMessageSystem::getBOOLFast(const char *block, const char *var, BOOL &b,
@@ -3718,8 +3705,8 @@ void LLMessageSystem::getBOOLFast(const char *block, const char *var, BOOL &b,
 void LLMessageSystem::getBOOL(const char *block, const char *var, BOOL &b, 
 							  S32 blocknum)
 {
-	getBOOLFast(gMessageStringTable.getString(block), 
-				gMessageStringTable.getString(var), b, blocknum);
+	getBOOLFast(LLMessageStringTable::getInstance()->getString(block), 
+				LLMessageStringTable::getInstance()->getString(var), b, blocknum);
 }
 
 void LLMessageSystem::getS16Fast(const char *block, const char *var, S16 &d, 
@@ -3731,8 +3718,8 @@ void LLMessageSystem::getS16Fast(const char *block, const char *var, S16 &d,
 void LLMessageSystem::getS16(const char *block, const char *var, S16 &d, 
 							 S32 blocknum)
 {
-	getS16Fast(gMessageStringTable.getString(block), 
-			   gMessageStringTable.getString(var), d, blocknum);
+	getS16Fast(LLMessageStringTable::getInstance()->getString(block), 
+			   LLMessageStringTable::getInstance()->getString(var), d, blocknum);
 }
 
 void LLMessageSystem::getU16Fast(const char *block, const char *var, U16 &d, 
@@ -3744,8 +3731,8 @@ void LLMessageSystem::getU16Fast(const char *block, const char *var, U16 &d,
 void LLMessageSystem::getU16(const char *block, const char *var, U16 &d, 
 							 S32 blocknum)
 {
-	getU16Fast(gMessageStringTable.getString(block), 
-			   gMessageStringTable.getString(var), d, blocknum);
+	getU16Fast(LLMessageStringTable::getInstance()->getString(block), 
+			   LLMessageStringTable::getInstance()->getString(var), d, blocknum);
 }
 
 void LLMessageSystem::getS32Fast(const char *block, const char *var, S32 &d, 
@@ -3757,8 +3744,8 @@ void LLMessageSystem::getS32Fast(const char *block, const char *var, S32 &d,
 void LLMessageSystem::getS32(const char *block, const char *var, S32 &d, 
 							 S32 blocknum)
 {
-	getS32Fast(gMessageStringTable.getString(block), 
-			   gMessageStringTable.getString(var), d, blocknum);
+	getS32Fast(LLMessageStringTable::getInstance()->getString(block), 
+			   LLMessageStringTable::getInstance()->getString(var), d, blocknum);
 }
 
 void LLMessageSystem::getU32Fast(const char *block, const char *var, U32 &d, 
@@ -3770,8 +3757,8 @@ void LLMessageSystem::getU32Fast(const char *block, const char *var, U32 &d,
 void LLMessageSystem::getU32(const char *block, const char *var, U32 &d, 
 							 S32 blocknum)
 {
-	getU32Fast(gMessageStringTable.getString(block), 
-				gMessageStringTable.getString(var), d, blocknum);
+	getU32Fast(LLMessageStringTable::getInstance()->getString(block), 
+				LLMessageStringTable::getInstance()->getString(var), d, blocknum);
 }
 
 void LLMessageSystem::getU64Fast(const char *block, const char *var, U64 &d, 
@@ -3784,8 +3771,8 @@ void LLMessageSystem::getU64(const char *block, const char *var, U64 &d,
 							 S32 blocknum)
 {
 	
-	getU64Fast(gMessageStringTable.getString(block), 
-			   gMessageStringTable.getString(var), d, blocknum);
+	getU64Fast(LLMessageStringTable::getInstance()->getString(block), 
+			   LLMessageStringTable::getInstance()->getString(var), d, blocknum);
 }
 
 void LLMessageSystem::getBinaryDataFast(const char *blockname, 
@@ -3802,8 +3789,8 @@ void LLMessageSystem::getBinaryData(const char *blockname,
 									void *datap, S32 size, 
 									S32 blocknum, S32 max_size)
 {
-	getBinaryDataFast(gMessageStringTable.getString(blockname), 
-					  gMessageStringTable.getString(varname), 
+	getBinaryDataFast(LLMessageStringTable::getInstance()->getString(blockname), 
+					  LLMessageStringTable::getInstance()->getString(varname), 
 					  datap, size, blocknum, max_size);
 }
 
@@ -3816,8 +3803,8 @@ void LLMessageSystem::getF32Fast(const char *block, const char *var, F32 &d,
 void LLMessageSystem::getF32(const char *block, const char *var, F32 &d, 
 							 S32 blocknum)
 {
-	getF32Fast(gMessageStringTable.getString(block), 
-			   gMessageStringTable.getString(var), d, blocknum);
+	getF32Fast(LLMessageStringTable::getInstance()->getString(block), 
+			   LLMessageStringTable::getInstance()->getString(var), d, blocknum);
 }
 
 void LLMessageSystem::getF64Fast(const char *block, const char *var, F64 &d, 
@@ -3829,8 +3816,8 @@ void LLMessageSystem::getF64Fast(const char *block, const char *var, F64 &d,
 void LLMessageSystem::getF64(const char *block, const char *var, F64 &d, 
 							 S32 blocknum)
 {
-	getF64Fast(gMessageStringTable.getString(block), 
-				gMessageStringTable.getString(var), d, blocknum);
+	getF64Fast(LLMessageStringTable::getInstance()->getString(block), 
+				LLMessageStringTable::getInstance()->getString(var), d, blocknum);
 }
 
 
@@ -3843,8 +3830,8 @@ void LLMessageSystem::getVector3Fast(const char *block, const char *var,
 void LLMessageSystem::getVector3(const char *block, const char *var, 
 								 LLVector3 &v, S32 blocknum )
 {
-	getVector3Fast(gMessageStringTable.getString(block), 
-				   gMessageStringTable.getString(var), v, blocknum);
+	getVector3Fast(LLMessageStringTable::getInstance()->getString(block), 
+				   LLMessageStringTable::getInstance()->getString(var), v, blocknum);
 }
 
 void LLMessageSystem::getVector4Fast(const char *block, const char *var, 
@@ -3856,8 +3843,8 @@ void LLMessageSystem::getVector4Fast(const char *block, const char *var,
 void LLMessageSystem::getVector4(const char *block, const char *var, 
 								 LLVector4 &v, S32 blocknum )
 {
-	getVector4Fast(gMessageStringTable.getString(block), 
-				   gMessageStringTable.getString(var), v, blocknum);
+	getVector4Fast(LLMessageStringTable::getInstance()->getString(block), 
+				   LLMessageStringTable::getInstance()->getString(var), v, blocknum);
 }
 
 void LLMessageSystem::getVector3dFast(const char *block, const char *var, 
@@ -3869,8 +3856,8 @@ void LLMessageSystem::getVector3dFast(const char *block, const char *var,
 void LLMessageSystem::getVector3d(const char *block, const char *var, 
 								  LLVector3d &v, S32 blocknum )
 {
-	getVector3dFast(gMessageStringTable.getString(block), 
-				gMessageStringTable.getString(var), v, blocknum);
+	getVector3dFast(LLMessageStringTable::getInstance()->getString(block), 
+				LLMessageStringTable::getInstance()->getString(var), v, blocknum);
 }
 
 void LLMessageSystem::getQuatFast(const char *block, const char *var, 
@@ -3882,8 +3869,8 @@ void LLMessageSystem::getQuatFast(const char *block, const char *var,
 void LLMessageSystem::getQuat(const char *block, const char *var, 
 							  LLQuaternion &q, S32 blocknum)
 {
-	getQuatFast(gMessageStringTable.getString(block), 
-			gMessageStringTable.getString(var), q, blocknum);
+	getQuatFast(LLMessageStringTable::getInstance()->getString(block), 
+			LLMessageStringTable::getInstance()->getString(var), q, blocknum);
 }
 
 void LLMessageSystem::getUUIDFast(const char *block, const char *var, 
@@ -3895,8 +3882,8 @@ void LLMessageSystem::getUUIDFast(const char *block, const char *var,
 void LLMessageSystem::getUUID(const char *block, const char *var, LLUUID &u, 
 							  S32 blocknum )
 {
-	getUUIDFast(gMessageStringTable.getString(block), 
-				gMessageStringTable.getString(var), u, blocknum);
+	getUUIDFast(LLMessageStringTable::getInstance()->getString(block), 
+				LLMessageStringTable::getInstance()->getString(var), u, blocknum);
 }
 
 void LLMessageSystem::getIPAddrFast(const char *block, const char *var, 
@@ -3908,8 +3895,8 @@ void LLMessageSystem::getIPAddrFast(const char *block, const char *var,
 void LLMessageSystem::getIPAddr(const char *block, const char *var, U32 &u, 
 								S32 blocknum)
 {
-	getIPAddrFast(gMessageStringTable.getString(block), 
-				  gMessageStringTable.getString(var), u, blocknum);
+	getIPAddrFast(LLMessageStringTable::getInstance()->getString(block), 
+				  LLMessageStringTable::getInstance()->getString(var), u, blocknum);
 }
 
 void LLMessageSystem::getIPPortFast(const char *block, const char *var, 
@@ -3921,8 +3908,8 @@ void LLMessageSystem::getIPPortFast(const char *block, const char *var,
 void LLMessageSystem::getIPPort(const char *block, const char *var, U16 &u, 
 								S32 blocknum)
 {
-	getIPPortFast(gMessageStringTable.getString(block), 
-				  gMessageStringTable.getString(var), u, 
+	getIPPortFast(LLMessageStringTable::getInstance()->getString(block), 
+				  LLMessageStringTable::getInstance()->getString(var), u, 
 				  blocknum);
 }
 
@@ -3940,8 +3927,8 @@ void LLMessageSystem::getStringFast(const char *block, const char *var,
 void LLMessageSystem::getString(const char *block, const char *var, 
 								S32 buffer_size, char *s, S32 blocknum )
 {
-	getStringFast(gMessageStringTable.getString(block), 
-				  gMessageStringTable.getString(var), buffer_size, s, 
+	getStringFast(LLMessageStringTable::getInstance()->getString(block), 
+				  LLMessageStringTable::getInstance()->getString(var), buffer_size, s, 
 				  blocknum);
 }
 
@@ -3952,7 +3939,7 @@ S32	LLMessageSystem::getNumberOfBlocksFast(const char *blockname)
 
 S32	LLMessageSystem::getNumberOfBlocks(const char *blockname)
 {
-	return getNumberOfBlocksFast(gMessageStringTable.getString(blockname));
+	return getNumberOfBlocksFast(LLMessageStringTable::getInstance()->getString(blockname));
 }
 	
 S32	LLMessageSystem::getSizeFast(const char *blockname, const char *varname)
@@ -3962,8 +3949,8 @@ S32	LLMessageSystem::getSizeFast(const char *blockname, const char *varname)
 
 S32	LLMessageSystem::getSize(const char *blockname, const char *varname)
 {
-	return getSizeFast(gMessageStringTable.getString(blockname), 
-					   gMessageStringTable.getString(varname));
+	return getSizeFast(LLMessageStringTable::getInstance()->getString(blockname), 
+					   LLMessageStringTable::getInstance()->getString(varname));
 }
 	
 // size in bytes of variable length data
@@ -3976,8 +3963,8 @@ S32	LLMessageSystem::getSizeFast(const char *blockname, S32 blocknum,
 S32	LLMessageSystem::getSize(const char *blockname, S32 blocknum, 
 							 const char *varname)
 {
-	return getSizeFast(gMessageStringTable.getString(blockname), blocknum, 
-					   gMessageStringTable.getString(varname));
+	return getSizeFast(LLMessageStringTable::getInstance()->getString(blockname), blocknum, 
+					   LLMessageStringTable::getInstance()->getString(varname));
 }
 
 S32 LLMessageSystem::getReceiveSize() const

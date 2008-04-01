@@ -50,7 +50,6 @@
 #include "llselectmgr.h"
 #include "llstatusbar.h"
 #include "lltoolmgr.h"
-#include "lltoolselect.h"
 #include "llviewercamera.h"
 #include "llviewerobject.h"
 #include "llviewerwindow.h"
@@ -58,9 +57,9 @@
 #include "llmorphview.h"
 
 // Globals
-LLToolCamera	*gToolCamera = NULL;
 BOOL gCameraBtnOrbit = FALSE;
 BOOL gCameraBtnPan = FALSE;
+
 const S32 SLOP_RANGE = 4;
 const F32 FOCUS_OFFSET_FACTOR = 1.f;
 
@@ -133,13 +132,13 @@ BOOL LLToolCamera::handleMouseDown(S32 x, S32 y, MASK mask)
 
 void LLToolCamera::pickCallback(S32 x, S32 y, MASK mask)
 {
-	if (!gToolCamera->hasMouseCapture())
+	if (!LLToolCamera::getInstance()->hasMouseCapture())
 	{
 		return;
 	}
 
-	gToolCamera->mMouseDownX = x;
-	gToolCamera->mMouseDownY = y;
+	LLToolCamera::getInstance()->mMouseDownX = x;
+	LLToolCamera::getInstance()->mMouseDownY = y;
 
 	gViewerWindow->moveCursorToCenter();
 
@@ -149,17 +148,17 @@ void LLToolCamera::pickCallback(S32 x, S32 y, MASK mask)
 	// Check for hit the sky, or some other invalid point
 	if (!hit_obj && gLastHitPosGlobal.isExactlyZero())
 	{
-		gToolCamera->mValidClickPoint = FALSE;
+		LLToolCamera::getInstance()->mValidClickPoint = FALSE;
 		return;
 	}
 
 	// check for hud attachments
 	if (hit_obj && hit_obj->isHUDAttachment())
 	{
-		LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+		LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 		if (!selection->getObjectCount() || selection->getSelectType() != SELECT_TYPE_HUD)
 		{
-			gToolCamera->mValidClickPoint = FALSE;
+			LLToolCamera::getInstance()->mValidClickPoint = FALSE;
 			return;
 		}
 	}
@@ -185,7 +184,7 @@ void LLToolCamera::pickCallback(S32 x, S32 y, MASK mask)
 
 		if( !good_customize_avatar_hit )
 		{
-			gToolCamera->mValidClickPoint = FALSE;
+			LLToolCamera::getInstance()->mValidClickPoint = FALSE;
 			return;
 		}
 
@@ -196,7 +195,7 @@ void LLToolCamera::pickCallback(S32 x, S32 y, MASK mask)
 	}
 	//RN: check to see if this is mouse-driving as opposed to ALT-zoom or Focus tool
 	else if (mask & MASK_ALT || 
-			(gToolMgr->getCurrentTool()->getName() == "Camera")) 
+			(LLToolMgr::getInstance()->getCurrentTool()->getName() == "Camera")) 
 	{
 		LLViewerObject* hit_obj = gViewerWindow->lastObjectHit();
 		if (hit_obj)
@@ -224,19 +223,19 @@ void LLToolCamera::pickCallback(S32 x, S32 y, MASK mask)
 			(hit_obj == gAgent.getAvatarObject() || 
 				(hit_obj && hit_obj->isAttachment() && LLVOAvatar::findAvatarFromAttachment(hit_obj)->mIsSelf)))
 		{
-			gToolCamera->mMouseSteering = TRUE;
+			LLToolCamera::getInstance()->mMouseSteering = TRUE;
 		}
 
 	}
 
-	gToolCamera->mValidClickPoint = TRUE;
+	LLToolCamera::getInstance()->mValidClickPoint = TRUE;
 
 	if( CAMERA_MODE_CUSTOMIZE_AVATAR == gAgent.getCameraMode() )
 	{
 		gAgent.setFocusOnAvatar(FALSE, FALSE);
 		
 		LLVector3d cam_pos = gAgent.getCameraPositionGlobal();
-		cam_pos -= LLVector3d(gCamera->getLeftAxis() * gAgent.calcCustomizeAvatarUIOffset( cam_pos ));
+		cam_pos -= LLVector3d(LLViewerCamera::getInstance()->getLeftAxis() * gAgent.calcCustomizeAvatarUIOffset( cam_pos ));
 
 		gAgent.setCameraPosAndFocusGlobal( cam_pos, gLastHitObjectOffset + gLastHitPosGlobal, gLastHitObjectID);
 	}
@@ -255,7 +254,7 @@ void LLToolCamera::releaseMouse()
 
 	gViewerWindow->showCursor();
 
-	gToolMgr->clearTransientTool();
+	LLToolMgr::getInstance()->clearTransientTool();
 
 	mMouseSteering = FALSE;
 	mValidClickPoint = FALSE;
@@ -279,7 +278,7 @@ BOOL LLToolCamera::handleMouseUp(S32 x, S32 y, MASK mask)
 			{
 				LLCoordGL mouse_pos;
 				LLVector3 focus_pos = gAgent.getPosAgentFromGlobal(gAgent.getFocusGlobal());
-				BOOL success = gCamera->projectPosAgentToScreen(focus_pos, mouse_pos);
+				BOOL success = LLViewerCamera::getInstance()->projectPosAgentToScreen(focus_pos, mouse_pos);
 				if (success)
 				{
 					LLUI::setCursorPositionScreen(mouse_pos.mX, mouse_pos.mY);

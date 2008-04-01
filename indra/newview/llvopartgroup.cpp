@@ -95,7 +95,7 @@ void LLVOPartGroup::setPixelAreaAndAngle(LLAgent &agent)
 {
 	// mPixelArea is calculated during render
 	F32 mid_scale = getMidScale();
-	F32 range = (getRenderPosition()-gCamera->getOrigin()).magVec();
+	F32 range = (getRenderPosition()-LLViewerCamera::getInstance()->getOrigin()).magVec();
 
 	if (range < 0.001f || isHUDAttachment())		// range == zero
 	{
@@ -141,7 +141,7 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 
  	LLVector3 at;
 	LLVector3 position_agent;
-	LLVector3 camera_agent = gCamera->getOrigin();
+	LLVector3 camera_agent = LLViewerCamera::getInstance()->getOrigin();
 	
 	S32 num_parts = mViewerPartGroupp->getCount();
 	LLFace *facep;
@@ -176,7 +176,7 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 	F32 tot_area = 0;
 
 	F32 max_area = LLViewerPartSim::getMaxPartCount() * MAX_PARTICLE_AREA_SCALE; 
-	F32 pixel_meter_ratio = gCamera->getPixelMeterRatio();
+	F32 pixel_meter_ratio = LLViewerCamera::getInstance()->getPixelMeterRatio();
 	pixel_meter_ratio *= pixel_meter_ratio;
 
 	S32 count=0;
@@ -309,7 +309,7 @@ void LLVOPartGroup::getGeometry(S32 idx,
 	right *= 0.5f*part.mScale.mV[0];
 	up *= 0.5f*part.mScale.mV[1];
 
-	const LLVector3& normal = -gCamera->getXAxis();
+	const LLVector3& normal = -LLViewerCamera::getInstance()->getXAxis();
 		
 	*verticesp++ = part_pos_agent + up - right;
 	*verticesp++ = part_pos_agent - up - right;
@@ -391,7 +391,7 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 			}
 			
 			count++;
-			facep->mDistance = (facep->mCenterLocal - gCamera->getOrigin()) * gCamera->getAtAxis();
+			facep->mDistance = (facep->mCenterLocal - LLViewerCamera::getInstance()->getOrigin()) * LLViewerCamera::getInstance()->getAtAxis();
 			obj->mDepth += facep->mDistance;
 			
 			mFaceList.push_back(facep);

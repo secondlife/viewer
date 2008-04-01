@@ -54,12 +54,14 @@
 #include "llviewerimagelist.h"
 #include "llviewerwindow.h"
 #include "llviewerinventory.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llnotecard.h"
 #include "llmemorystream.h"
 #include "llmenugl.h"
 
 #include "llappviewer.h" // for gPacificDaylightTime
+
+static LLRegisterWidget<LLViewerTextEditor> r("text_editor");
 
 ///----------------------------------------------------------------------------
 /// Class LLEmbeddedNotecardOpener
@@ -424,15 +426,15 @@ void LLEmbeddedItems::bindEmbeddedChars( LLFontGL* font ) const
 			break;
 		  case LLAssetType::AT_NOTECARD:		img_name = "inv_item_notecard.tga";	break;
 		  case LLAssetType::AT_LSL_TEXT:		img_name = "inv_item_script.tga";	break;
-		  case LLAssetType::AT_BODYPART:		img_name = "inv_item_bodypart.tga";	break;
+		  case LLAssetType::AT_BODYPART:		img_name = "inv_item_skin.tga";	break;
 		  case LLAssetType::AT_ANIMATION:		img_name = "inv_item_animation.tga";break;
 		  case LLAssetType::AT_GESTURE:			img_name = "inv_item_gesture.tga";	break;
 		  default: llassert(0); continue;
 		}
 
-		LLViewerImage* image = gImageList.getImage(LLUUID(gViewerArt.getString(img_name)), MIPMAP_FALSE, TRUE);
+		LLUIImagePtr image = LLUI::getUIImage(img_name);
 
-		font->addEmbeddedChar( wch, image, item->getName() );
+		font->addEmbeddedChar( wch, image->getImage(), item->getName() );
 	}
 }
 
@@ -575,7 +577,8 @@ LLViewerTextEditor::LLViewerTextEditor(const LLString& name,
 	// *TODO: Add right click menus for SLURLs
 	// Build the right click menu
 	// make the popup menu available
-	//LLMenuGL* menu = gUICtrlFactory->buildMenu("menu_slurl.xml", this);
+
+	//LLMenuGL* menu = LLUICtrlFactory::getInstance()->buildMenu("menu_slurl.xml", this);
 	//if (!menu)
 	//{
 	//	menu = new LLMenuGL("");
@@ -694,7 +697,7 @@ BOOL LLViewerTextEditor::handleMouseDown(S32 x, S32 y, MASK mask)
 				S32 screen_x;
 				S32 screen_y;
 				localPointToScreen(x, y, &screen_x, &screen_y );
-				gToolDragAndDrop->setDragStart( screen_x, screen_y );
+				LLToolDragAndDrop::getInstance()->setDragStart( screen_x, screen_y );
 
 				start_select = FALSE;
 			}
@@ -779,108 +782,105 @@ BOOL LLViewerTextEditor::handleHover(S32 x, S32 y, MASK mask)
 		// leave hover segment active during drag and drop
 		mHoverSegment = NULL;
 	}
-	if( getVisible() )
+	if(hasMouseCapture() )
 	{
-		if(hasMouseCapture() )
+		if( mIsSelecting ) 
 		{
-			if( mIsSelecting ) 
+			if (x != mLastSelectionX || y != mLastSelectionY)
 			{
-				if (x != mLastSelectionX || y != mLastSelectionY)
-				{
-					mLastSelectionX = x;
-					mLastSelectionY = y;
-				}
+				mLastSelectionX = x;
+				mLastSelectionY = y;
+			}
 
-				if( y > getTextRect().mTop )
+			if( y > getTextRect().mTop )
+			{
+				mScrollbar->setDocPos( mScrollbar->getDocPos() - 1 );
+			}
+			else
+			if( y < getTextRect().mBottom )
+			{
+				mScrollbar->setDocPos( mScrollbar->getDocPos() + 1 );
+			}
+
+			setCursorAtLocalPos( x, y, TRUE );
+			mSelectionEnd = mCursorPos;
+			
+			updateScrollFromCursor();
+			getWindow()->setCursor(UI_CURSOR_IBEAM);
+		}
+		else if( mDragItem )
+		{
+			S32 screen_x;
+			S32 screen_y;
+			localPointToScreen(x, y, &screen_x, &screen_y );
+			if( LLToolDragAndDrop::getInstance()->isOverThreshold( screen_x, screen_y ) )
+			{
+				LLToolDragAndDrop::getInstance()->beginDrag(
+					LLAssetType::lookupDragAndDropType( mDragItem->getType() ),
+					mDragItem->getUUID(),
+					LLToolDragAndDrop::SOURCE_NOTECARD,
+					getSourceID(), mObjectID);
+
+				return LLToolDragAndDrop::getInstance()->handleHover( x, y, mask );
+			}
+			getWindow()->setCursor(UI_CURSOR_HAND);
+		}
+
+		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (active)" << llendl;		
+		handled = TRUE;
+	}
+
+	if( !handled )
+	{
+		// Pass to children
+		handled = LLView::childrenHandleHover(x, y, mask) != NULL;
+	}
+
+	if( handled )
+	{
+		// Delay cursor flashing
+		resetKeystrokeTimer();
+	}
+
+	// Opaque
+	if( !handled && mTakesNonScrollClicks)
+	{
+		// Check to see if we're over an HTML-style link
+		if( !mSegments.empty() )
+		{
+			const LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
+			if( cur_segment )
+			{
+				if(cur_segment->getStyle().isLink())
 				{
-					mScrollbar->setDocPos( mScrollbar->getDocPos() - 1 );
+					lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (over link, inactive)" << llendl;		
+					getWindow()->setCursor(UI_CURSOR_HAND);
+					handled = TRUE;
 				}
 				else
-				if( y < getTextRect().mBottom )
+				if(cur_segment->getStyle().getIsEmbeddedItem())
 				{
-					mScrollbar->setDocPos( mScrollbar->getDocPos() + 1 );
+					lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (over embedded item, inactive)" << llendl;		
+					getWindow()->setCursor(UI_CURSOR_HAND);
+					//getWindow()->setCursor(UI_CURSOR_ARROW);
+					handled = TRUE;
 				}
-
-				setCursorAtLocalPos( x, y, TRUE );
-				mSelectionEnd = mCursorPos;
-				
-				updateScrollFromCursor();
-				getWindow()->setCursor(UI_CURSOR_IBEAM);
+				mHoverSegment = cur_segment;
 			}
-			else if( mDragItem )
-			{
-				S32 screen_x;
-				S32 screen_y;
-				localPointToScreen(x, y, &screen_x, &screen_y );
-				if( gToolDragAndDrop->isOverThreshold( screen_x, screen_y ) )
-				{
-					gToolDragAndDrop->beginDrag(
-						LLAssetType::lookupDragAndDropType( mDragItem->getType() ),
-						mDragItem->getUUID(),
-						LLToolDragAndDrop::SOURCE_NOTECARD,
-						getSourceID(), mObjectID);
-
-					return gToolDragAndDrop->handleHover( x, y, mask );
-				}
-				getWindow()->setCursor(UI_CURSOR_HAND);
-			}
-
-			lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (active)" << llendl;		
-			handled = TRUE;
 		}
 
 		if( !handled )
 		{
-			// Pass to children
-			handled = LLView::childrenHandleHover(x, y, mask) != NULL;
-		}
-
-		if( handled )
-		{
-			// Delay cursor flashing
-			resetKeystrokeTimer();
-		}
-	
-		// Opaque
-		if( !handled && mTakesNonScrollClicks)
-		{
-			// Check to see if we're over an HTML-style link
-			if( !mSegments.empty() )
+			lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (inactive)" << llendl;		
+			if (!mScrollbar->getVisible() || x < getRect().getWidth() - SCROLLBAR_SIZE)
 			{
-				const LLTextSegment* cur_segment = getSegmentAtLocalPos( x, y );
-				if( cur_segment )
-				{
-					if(cur_segment->getStyle().isLink())
-					{
-						lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (over link, inactive)" << llendl;		
-						getWindow()->setCursor(UI_CURSOR_HAND);
-						handled = TRUE;
-					}
-					else
-					if(cur_segment->getStyle().getIsEmbeddedItem())
-					{
-						lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (over embedded item, inactive)" << llendl;		
-						getWindow()->setCursor(UI_CURSOR_HAND);
-						//getWindow()->setCursor(UI_CURSOR_ARROW);
-						handled = TRUE;
-					}
-					mHoverSegment = cur_segment;
-				}
+				getWindow()->setCursor(UI_CURSOR_IBEAM);
 			}
-
-			if( !handled )
+			else
 			{
-				lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (inactive)" << llendl;		
-				if (!mScrollbar->getVisible() || x < getRect().getWidth() - SCROLLBAR_SIZE)
-				{
-					getWindow()->setCursor(UI_CURSOR_IBEAM);
-				}
-				else
-				{
-					getWindow()->setCursor(UI_CURSOR_ARROW);
-				}
-				handled = TRUE;
+				getWindow()->setCursor(UI_CURSOR_ARROW);
 			}
+			handled = TRUE;
 		}
 	}
 

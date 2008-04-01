@@ -56,9 +56,6 @@ extern LLControlGroup gSavedSettings;
 extern LLControlGroup gSavedPerAccountSettings;
 
 // Read-only
-extern LLControlGroup gViewerArt;
-
-// Read-only
 extern LLControlGroup gColors;
 
 // Saved at end of session

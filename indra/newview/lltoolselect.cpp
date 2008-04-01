@@ -51,7 +51,6 @@
 #include "llworld.h"
 
 // Globals
-LLToolSelect		*gToolSelect = NULL;
 extern BOOL gAllowSelectAvatar;
 
 const F32 SELECTION_ROTATION_TRESHOLD = 0.1f;
@@ -106,7 +105,7 @@ LLSafeHandle<LLObjectSelection> LLToolSelect::handleObjectSelection(LLViewerObje
 	{
 		gSavedSettings.setBOOL("SelectOwnedOnly", FALSE);
 		gSavedSettings.setBOOL("SelectMovableOnly", FALSE);
-		gSelectMgr->setForceSelection(TRUE);
+		LLSelectMgr::getInstance()->setForceSelection(TRUE);
 	}
 
 	BOOL extend_select = (mask == MASK_SHIFT) || (mask == MASK_CONTROL);
@@ -120,7 +119,7 @@ LLSafeHandle<LLObjectSelection> LLToolSelect::handleObjectSelection(LLViewerObje
 		}
 		else if (!extend_select)
 		{
-			gSelectMgr->deselectAll();
+			LLSelectMgr::getInstance()->deselectAll();
 		}
 	}
 	else
@@ -133,22 +132,22 @@ LLSafeHandle<LLObjectSelection> LLToolSelect::handleObjectSelection(LLViewerObje
 			{
 				if ( ignore_group )
 				{
-					gSelectMgr->deselectObjectOnly(object);
+					LLSelectMgr::getInstance()->deselectObjectOnly(object);
 				}
 				else
 				{
-					gSelectMgr->deselectObjectAndFamily(object, TRUE, TRUE);
+					LLSelectMgr::getInstance()->deselectObjectAndFamily(object, TRUE, TRUE);
 				}
 			}
 			else
 			{
 				if ( ignore_group )
 				{
-					gSelectMgr->selectObjectOnly(object, SELECT_ALL_TES);
+					LLSelectMgr::getInstance()->selectObjectOnly(object, SELECT_ALL_TES);
 				}
 				else
 				{
-					gSelectMgr->selectObjectAndFamily(object);
+					LLSelectMgr::getInstance()->selectObjectAndFamily(object);
 				}
 			}
 		}
@@ -157,27 +156,27 @@ LLSafeHandle<LLObjectSelection> LLToolSelect::handleObjectSelection(LLViewerObje
 			// Save the current zoom values because deselect resets them.
 			F32 target_zoom;
 			F32 current_zoom;
-			gSelectMgr->getAgentHUDZoom(target_zoom, current_zoom);
+			LLSelectMgr::getInstance()->getAgentHUDZoom(target_zoom, current_zoom);
 
 			// JC - Change behavior to make it easier to select children
 			// of linked sets. 9/3/2002
 			if( !already_selected || ignore_group)
 			{
 				// ...lose current selection in favor of just this object
-				gSelectMgr->deselectAll();
+				LLSelectMgr::getInstance()->deselectAll();
 			}
 
 			if ( ignore_group )
 			{
-				gSelectMgr->selectObjectOnly(object, SELECT_ALL_TES);
+				LLSelectMgr::getInstance()->selectObjectOnly(object, SELECT_ALL_TES);
 			}
 			else
 			{
-				gSelectMgr->selectObjectAndFamily(object);
+				LLSelectMgr::getInstance()->selectObjectAndFamily(object);
 			}
 
 			// restore the zoom to the previously stored values.
-			gSelectMgr->setAgentHUDZoom(target_zoom, current_zoom);
+			LLSelectMgr::getInstance()->setAgentHUDZoom(target_zoom, current_zoom);
 		}
 
 		if (!gAgent.getFocusOnAvatar() &&										// if camera not glued to avatar
@@ -185,7 +184,7 @@ LLSafeHandle<LLObjectSelection> LLToolSelect::handleObjectSelection(LLViewerObje
 			object != gAgent.getAvatarObject())									// and it's not you
 		{
 			// have avatar turn to face the selected object(s)
-			LLVector3d selection_center = gSelectMgr->getSelectionCenterGlobal();
+			LLVector3d selection_center = LLSelectMgr::getInstance()->getSelectionCenterGlobal();
 			selection_center = selection_center - gAgent.getPositionGlobal();
 			LLVector3 selection_dir;
 			selection_dir.setVec(selection_center);
@@ -204,7 +203,7 @@ LLSafeHandle<LLObjectSelection> LLToolSelect::handleObjectSelection(LLViewerObje
 			if (!already_selected)
 			{
 				LLViewerObject* root_object = (LLViewerObject*)object->getRootEdit();
-				LLObjectSelectionHandle selection = gSelectMgr->getSelection();
+				LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 
 				// this is just a temporary selection
 				LLSelectNode* select_node = selection->findNode(root_object);
@@ -231,10 +230,10 @@ LLSafeHandle<LLObjectSelection> LLToolSelect::handleObjectSelection(LLViewerObje
 	{
 		gSavedSettings.setBOOL("SelectOwnedOnly", select_owned);
 		gSavedSettings.setBOOL("SelectMovableOnly", select_movable);
-		gSelectMgr->setForceSelection(FALSE);
+		LLSelectMgr::getInstance()->setForceSelection(FALSE);
 	}
 
-	return gSelectMgr->getSelection();
+	return LLSelectMgr::getInstance()->getSelection();
 }
 
 BOOL LLToolSelect::handleMouseUp(S32 x, S32 y, MASK mask)
@@ -268,7 +267,7 @@ void LLToolSelect::onMouseCaptureLost()
 {
 	// Finish drag
 
-	gSelectMgr->enableSilhouette(TRUE);
+	LLSelectMgr::getInstance()->enableSilhouette(TRUE);
 
 	// Clean up drag-specific variables
 	mIgnoreGroup = FALSE;

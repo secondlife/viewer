@@ -60,7 +60,7 @@
 #include "lltextbox.h"
 #include "lltexturectrl.h"
 #include "lluiconstants.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewermessage.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
@@ -130,12 +130,12 @@ void send_parcel_select_objects(S32 parcel_local_id, S32 return_type,
 {
 	LLMessageSystem *msg = gMessageSystem;
 
-	LLViewerRegion* region = gParcelMgr->getSelectionRegion();
+	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 	if (!region) return;
 
 	// Since new highlight will be coming in, drop any highlights
 	// that exist right now.
-	gSelectMgr->unhighlightAll();
+	LLSelectMgr::getInstance()->unhighlightAll();
 
 	msg->newMessageFast(_PREHASH_ParcelSelectObjects);
 	msg->nextBlockFast(_PREHASH_AgentData);
@@ -191,9 +191,9 @@ void LLFloaterLand::onOpen()
 {
 	// Done automatically when the selected parcel's properties arrive
 	// (and hence we have the local id).
-	// gParcelMgr->sendParcelAccessListRequest(AL_ACCESS | AL_BAN | AL_RENTER);
+	// LLViewerParcelMgr::getInstance()->sendParcelAccessListRequest(AL_ACCESS | AL_BAN | AL_RENTER);
 
-	mParcel = gParcelMgr->getFloatingParcelSelection();
+	mParcel = LLViewerParcelMgr::getInstance()->getFloatingParcelSelection();
 	
 	// Refresh even if not over a region so we don't get an
 	// uninitialized dialog. The dialog is 0-region aware.
@@ -204,12 +204,12 @@ void LLFloaterLand::onOpen()
 // virtual
 void LLFloaterLand::onClose(bool app_quitting)
 {
-	gParcelMgr->removeObserver( sObserver );
+	LLViewerParcelMgr::getInstance()->removeObserver( sObserver );
 	delete sObserver;
 	sObserver = NULL;
 
 	// Might have been showing owned objects
-	gSelectMgr->unhighlightAll();
+	LLSelectMgr::getInstance()->unhighlightAll();
 
 	// Save which panel we had open
 	sLastTab = mTabLand->getCurrentPanelIndex();
@@ -233,18 +233,17 @@ LLFloaterLand::LLFloaterLand(const LLSD& seed)
 	factory_map["land_media_panel"] =	LLCallbackMap(createPanelLandMedia, this);
 	factory_map["land_access_panel"] =	LLCallbackMap(createPanelLandAccess, this);
 
-	gUICtrlFactory->buildFloater(this, "floater_about_land.xml", &factory_map, false);
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_about_land.xml", &factory_map, false);
 
 	sObserver = new LLParcelSelectionObserver();
-	gParcelMgr->addObserver( sObserver );
+	LLViewerParcelMgr::getInstance()->addObserver( sObserver );
 }
 
 BOOL LLFloaterLand::postBuild()
 {
-	LLTabContainer* tab = LLUICtrlFactory::getTabContainerByName(this, "landtab");
+	LLTabContainer* tab = getChild<LLTabContainer>("landtab");
 
 	mTabLand = (LLTabContainer*) tab;
-
 
 	if (tab)
 	{
@@ -280,8 +279,6 @@ void* LLFloaterLand::createPanelLandGeneral(void* data)
 }
 
 // static
-
-
 void* LLFloaterLand::createPanelLandCovenant(void* data)
 {
 	LLFloaterLand* self = (LLFloaterLand*)data;
@@ -337,96 +334,96 @@ LLPanelLandGeneral::LLPanelLandGeneral(LLParcelSelectionHandle& parcel)
 BOOL LLPanelLandGeneral::postBuild()
 {
 
-	mEditName = LLUICtrlFactory::getLineEditorByName(this, "Name");
+	mEditName = getChild<LLLineEditor>("Name");
 	mEditName->setCommitCallback(onCommitAny);	
 	childSetPrevalidate("Name", LLLineEditor::prevalidatePrintableNotPipe);
 	childSetUserData("Name", this);
 
-	mEditDesc = LLUICtrlFactory::getTextEditorByName(this, "Description");
+	mEditDesc = getChild<LLTextEditor>("Description");
 	mEditDesc->setCommitOnFocusLost(TRUE);
 	mEditDesc->setCommitCallback(onCommitAny);	
 	childSetPrevalidate("Description", LLLineEditor::prevalidatePrintableNotPipe);
 	childSetUserData("Description", this);
 
 	
-	mTextSalePending = LLUICtrlFactory::getTextBoxByName(this, "SalePending");
-	mTextOwnerLabel = LLUICtrlFactory::getTextBoxByName(this, "Owner:");
-	mTextOwner = LLUICtrlFactory::getTextBoxByName(this, "OwnerText");
+	mTextSalePending = getChild<LLTextBox>("SalePending");
+	mTextOwnerLabel = getChild<LLTextBox>("Owner:");
+	mTextOwner = getChild<LLTextBox>("OwnerText");
 
 	
-	mBtnProfile = LLUICtrlFactory::getButtonByName(this, "Profile...");
+	mBtnProfile = getChild<LLButton>("Profile...");
 	mBtnProfile->setClickedCallback(onClickProfile, this);
 
 	
-	mTextGroupLabel = LLUICtrlFactory::getTextBoxByName(this, "Group:");
-	mTextGroup = LLUICtrlFactory::getTextBoxByName(this, "GroupText");
+	mTextGroupLabel = getChild<LLTextBox>("Group:");
+	mTextGroup = getChild<LLTextBox>("GroupText");
 
 	
-	mBtnSetGroup = LLUICtrlFactory::getButtonByName(this, "Set...");
+	mBtnSetGroup = getChild<LLButton>("Set...");
 	mBtnSetGroup->setClickedCallback(onClickSetGroup, this);
 
 	
 
-	mCheckDeedToGroup = LLUICtrlFactory::getCheckBoxByName(this, "check deed");
+	mCheckDeedToGroup = getChild<LLCheckBoxCtrl>( "check deed");
 	childSetCommitCallback("check deed", onCommitAny, this);
 
 	
-	mBtnDeedToGroup = LLUICtrlFactory::getButtonByName(this, "Deed...");
+	mBtnDeedToGroup = getChild<LLButton>("Deed...");
 	mBtnDeedToGroup->setClickedCallback(onClickDeed, this);
 
 	
-	mCheckContributeWithDeed = LLUICtrlFactory::getCheckBoxByName(this, "check contrib");
+	mCheckContributeWithDeed = getChild<LLCheckBoxCtrl>( "check contrib");
 	childSetCommitCallback("check contrib", onCommitAny, this);
 
 	
 	
-	mSaleInfoNotForSale = LLUICtrlFactory::getTextBoxByName(this, "Not for sale.");
+	mSaleInfoNotForSale = getChild<LLTextBox>("Not for sale.");
 	
-	mSaleInfoForSale1 = LLUICtrlFactory::getTextBoxByName(this, "For Sale: Price L$[PRICE].");
+	mSaleInfoForSale1 = getChild<LLTextBox>("For Sale: Price L$[PRICE].");
 
 	
-	mBtnSellLand = LLUICtrlFactory::getButtonByName(this, "Sell Land...");
+	mBtnSellLand = getChild<LLButton>("Sell Land...");
 	mBtnSellLand->setClickedCallback(onClickSellLand, this);
 	
-	mSaleInfoForSale2 = LLUICtrlFactory::getTextBoxByName(this, "For sale to");
+	mSaleInfoForSale2 = getChild<LLTextBox>("For sale to");
 	
-	mSaleInfoForSaleObjects = LLUICtrlFactory::getTextBoxByName(this, "Sell with landowners objects in parcel.");
+	mSaleInfoForSaleObjects = getChild<LLTextBox>("Sell with landowners objects in parcel.");
 	
-	mSaleInfoForSaleNoObjects = LLUICtrlFactory::getTextBoxByName(this, "Selling with no objects in parcel.");
+	mSaleInfoForSaleNoObjects = getChild<LLTextBox>("Selling with no objects in parcel.");
 
 	
-	mBtnStopSellLand = LLUICtrlFactory::getButtonByName(this, "Cancel Land Sale");
+	mBtnStopSellLand = getChild<LLButton>("Cancel Land Sale");
 	mBtnStopSellLand->setClickedCallback(onClickStopSellLand, this);
 
 	
-	mTextClaimDateLabel = LLUICtrlFactory::getTextBoxByName(this, "Claimed:");
-	mTextClaimDate = LLUICtrlFactory::getTextBoxByName(this, "DateClaimText");
+	mTextClaimDateLabel = getChild<LLTextBox>("Claimed:");
+	mTextClaimDate = getChild<LLTextBox>("DateClaimText");
 
 	
-	mTextPriceLabel = LLUICtrlFactory::getTextBoxByName(this, "PriceLabel");
-	mTextPrice = LLUICtrlFactory::getTextBoxByName(this, "PriceText");
+	mTextPriceLabel = getChild<LLTextBox>("PriceLabel");
+	mTextPrice = getChild<LLTextBox>("PriceText");
 
 	
-	mTextDwell = LLUICtrlFactory::getTextBoxByName(this, "DwellText");
+	mTextDwell = getChild<LLTextBox>("DwellText");
 
 	
-	mBtnBuyLand = LLUICtrlFactory::getButtonByName(this, "Buy Land...");
+	mBtnBuyLand = getChild<LLButton>("Buy Land...");
 	mBtnBuyLand->setClickedCallback(onClickBuyLand, (void*)&BUY_PERSONAL_LAND);
 	
-	mBtnBuyGroupLand = LLUICtrlFactory::getButtonByName(this, "Buy For Group...");
+	mBtnBuyGroupLand = getChild<LLButton>("Buy For Group...");
 	mBtnBuyGroupLand->setClickedCallback(onClickBuyLand, (void*)&BUY_GROUP_LAND);
 	
 	
-	mBtnBuyPass = LLUICtrlFactory::getButtonByName(this, "Buy Pass...");
+	mBtnBuyPass = getChild<LLButton>("Buy Pass...");
 	mBtnBuyPass->setClickedCallback(onClickBuyPass, this);
 
-	mBtnReleaseLand = LLUICtrlFactory::getButtonByName(this, "Abandon Land...");
+	mBtnReleaseLand = getChild<LLButton>("Abandon Land...");
 	mBtnReleaseLand->setClickedCallback(onClickRelease, NULL);
 
-	mBtnReclaimLand = LLUICtrlFactory::getButtonByName(this, "Reclaim Land...");
+	mBtnReclaimLand = getChild<LLButton>("Reclaim Land...");
 	mBtnReclaimLand->setClickedCallback(onClickReclaim, NULL);
 	
-	mBtnStartAuction = LLUICtrlFactory::getButtonByName(this, "Linden Sale...");
+	mBtnStartAuction = getChild<LLButton>("Linden Sale...");
 	mBtnStartAuction->setClickedCallback(onClickStartAuction, NULL);
 
 	return TRUE;
@@ -445,7 +442,7 @@ void LLPanelLandGeneral::refresh()
 
 	LLParcel *parcel = mParcel->getParcel();
 	bool region_owner = false;
-	LLViewerRegion* regionp = gParcelMgr->getSelectionRegion();
+	LLViewerRegion* regionp = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 	if(regionp && (regionp->getOwner() == gAgent.getID()))
 	{
 		region_owner = true;
@@ -672,16 +669,16 @@ void LLPanelLandGeneral::refresh()
 		refreshNames();
 
 		mBtnBuyLand->setEnabled(
-			gParcelMgr->canAgentBuyParcel(parcel, false));
+			LLViewerParcelMgr::getInstance()->canAgentBuyParcel(parcel, false));
 		mBtnBuyGroupLand->setEnabled(
-			gParcelMgr->canAgentBuyParcel(parcel, true));
+			LLViewerParcelMgr::getInstance()->canAgentBuyParcel(parcel, true));
 
 		// show pricing information
 		S32 area;
 		S32 claim_price;
 		S32 rent_price;
 		F32 dwell;
-		gParcelMgr->getDisplayInfo(&area,
+		LLViewerParcelMgr::getInstance()->getDisplayInfo(&area,
 								   &claim_price,
 								   &rent_price,
 								   &for_sale,
@@ -710,7 +707,7 @@ void LLPanelLandGeneral::refresh()
 			mBtnReleaseLand->setEnabled( can_release );
 		}
 
-		BOOL use_pass = parcel->getParcelFlag(PF_USE_PASS_LIST) && !gParcelMgr->isCollisionBanned();;
+		BOOL use_pass = parcel->getParcelFlag(PF_USE_PASS_LIST) && !LLViewerParcelMgr::getInstance()->isCollisionBanned();;
 		mBtnBuyPass->setEnabled(use_pass);
 	}
 }
@@ -827,7 +824,7 @@ void LLPanelLandGeneral::setGroup(const LLUUID& group_id)
 	//mTextGroup->setText(group_name);
 
 	// Send update
-	gParcelMgr->sendParcelPropertiesUpdate(parcel);
+	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate(parcel);
 
 	// Update UI
 	refresh();
@@ -837,7 +834,7 @@ void LLPanelLandGeneral::setGroup(const LLUUID& group_id)
 void LLPanelLandGeneral::onClickBuyLand(void* data)
 {
 	BOOL* for_group = (BOOL*)data;
-	gParcelMgr->startBuyLand(*for_group);
+	LLViewerParcelMgr::getInstance()->startBuyLand(*for_group);
 }
 
 BOOL LLPanelLandGeneral::enableDeedToGroup(void* data)
@@ -853,29 +850,29 @@ void LLPanelLandGeneral::onClickDeed(void*)
 	//LLParcel* parcel = mParcel->getParcel();
 	//if (parcel)
 	//{
-	gParcelMgr->startDeedLandToGroup();
+	LLViewerParcelMgr::getInstance()->startDeedLandToGroup();
 	//}
 }
 
 // static
 void LLPanelLandGeneral::onClickRelease(void*)
 {
-	gParcelMgr->startReleaseLand();
+	LLViewerParcelMgr::getInstance()->startReleaseLand();
 }
 
 // static
 void LLPanelLandGeneral::onClickReclaim(void*)
 {
 	lldebugs << "LLPanelLandGeneral::onClickReclaim()" << llendl;
-	gParcelMgr->reclaimParcel();
+	LLViewerParcelMgr::getInstance()->reclaimParcel();
 }
 
 // static
 BOOL LLPanelLandGeneral::enableBuyPass(void* data)
 {
 	LLPanelLandGeneral* panelp = (LLPanelLandGeneral*)data;
-	LLParcel* parcel = panelp != NULL ? panelp->mParcel->getParcel() : gParcelMgr->getParcelSelection()->getParcel();
-	return (parcel != NULL) && (parcel->getParcelFlag(PF_USE_PASS_LIST) && !gParcelMgr->isCollisionBanned());
+	LLParcel* parcel = panelp != NULL ? panelp->mParcel->getParcel() : LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
+	return (parcel != NULL) && (parcel->getParcelFlag(PF_USE_PASS_LIST) && !LLViewerParcelMgr::getInstance()->isCollisionBanned());
 }
 
 
@@ -883,7 +880,7 @@ BOOL LLPanelLandGeneral::enableBuyPass(void* data)
 void LLPanelLandGeneral::onClickBuyPass(void* data)
 {
 	LLPanelLandGeneral* panelp = (LLPanelLandGeneral*)data;
-	LLParcel* parcel = panelp != NULL ? panelp->mParcel->getParcel() : gParcelMgr->getParcelSelection()->getParcel();
+	LLParcel* parcel = panelp != NULL ? panelp->mParcel->getParcel() : LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
 
 	if (!parcel) return;
 
@@ -927,7 +924,7 @@ void LLPanelLandGeneral::cbBuyPass(S32 option, void* data)
 	if (0 == option)
 	{
 		// User clicked OK
-		gParcelMgr->buyPass();
+		LLViewerParcelMgr::getInstance()->buyPass();
 	}
 }
 
@@ -965,7 +962,7 @@ void LLPanelLandGeneral::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	parcel->setContributeWithDeed(contribute_with_deed);
 
 	// Send update to server
-	gParcelMgr->sendParcelPropertiesUpdate( parcel );
+	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate( parcel );
 
 	// Might have changed properties, so let's redraw!
 	panelp->refresh();
@@ -974,7 +971,7 @@ void LLPanelLandGeneral::onCommitAny(LLUICtrl *ctrl, void *userdata)
 // static
 void LLPanelLandGeneral::onClickSellLand(void* data)
 {
-	gParcelMgr->startSellLand();
+	LLViewerParcelMgr::getInstance()->startSellLand();
 }
 
 // static
@@ -987,7 +984,7 @@ void LLPanelLandGeneral::onClickStopSellLand(void* data)
 	parcel->setSalePrice(0);
 	parcel->setAuthorizedBuyerID(LLUUID::null);
 
-	gParcelMgr->sendParcelPropertiesUpdate(parcel);
+	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate(parcel);
 }
 
 //---------------------------------------------------------------------------
@@ -1004,34 +1001,34 @@ BOOL LLPanelLandObjects::postBuild()
 {
 	
 	mFirstReply = TRUE;
-	mParcelObjectBonus = LLUICtrlFactory::getTextBoxByName(this, "parcel_object_bonus");
-	mSWTotalObjects = LLUICtrlFactory::getTextBoxByName(this, "objects_available");
-	mObjectContribution = LLUICtrlFactory::getTextBoxByName(this, "object_contrib_text");
-	mTotalObjects = LLUICtrlFactory::getTextBoxByName(this, "total_objects_text");
-	mOwnerObjects = LLUICtrlFactory::getTextBoxByName(this, "owner_objects_text");
+	mParcelObjectBonus = getChild<LLTextBox>("parcel_object_bonus");
+	mSWTotalObjects = getChild<LLTextBox>("objects_available");
+	mObjectContribution = getChild<LLTextBox>("object_contrib_text");
+	mTotalObjects = getChild<LLTextBox>("total_objects_text");
+	mOwnerObjects = getChild<LLTextBox>("owner_objects_text");
 	
-	mBtnShowOwnerObjects = LLUICtrlFactory::getButtonByName(this, "ShowOwner");
+	mBtnShowOwnerObjects = getChild<LLButton>("ShowOwner");
 	mBtnShowOwnerObjects->setClickedCallback(onClickShowOwnerObjects, this);
 	
-	mBtnReturnOwnerObjects = LLUICtrlFactory::getButtonByName(this, "ReturnOwner...");
+	mBtnReturnOwnerObjects = getChild<LLButton>("ReturnOwner...");
 	mBtnReturnOwnerObjects->setClickedCallback(onClickReturnOwnerObjects, this);
 	
-	mGroupObjects = LLUICtrlFactory::getTextBoxByName(this, "group_objects_text");
-	mBtnShowGroupObjects = LLUICtrlFactory::getButtonByName(this, "ShowGroup");
+	mGroupObjects = getChild<LLTextBox>("group_objects_text");
+	mBtnShowGroupObjects = getChild<LLButton>("ShowGroup");
 	mBtnShowGroupObjects->setClickedCallback(onClickShowGroupObjects, this);
 	
-	mBtnReturnGroupObjects = LLUICtrlFactory::getButtonByName(this, "ReturnGroup...");
+	mBtnReturnGroupObjects = getChild<LLButton>("ReturnGroup...");
 	mBtnReturnGroupObjects->setClickedCallback(onClickReturnGroupObjects, this);
 	
-	mOtherObjects = LLUICtrlFactory::getTextBoxByName(this, "other_objects_text");
-	mBtnShowOtherObjects = LLUICtrlFactory::getButtonByName(this, "ShowOther");
+	mOtherObjects = getChild<LLTextBox>("other_objects_text");
+	mBtnShowOtherObjects = getChild<LLButton>("ShowOther");
 	mBtnShowOtherObjects->setClickedCallback(onClickShowOtherObjects, this);
 	
-	mBtnReturnOtherObjects = LLUICtrlFactory::getButtonByName(this, "ReturnOther...");
+	mBtnReturnOtherObjects = getChild<LLButton>("ReturnOther...");
 	mBtnReturnOtherObjects->setClickedCallback(onClickReturnOtherObjects, this);
 	
-	mSelectedObjects = LLUICtrlFactory::getTextBoxByName(this, "selected_objects_text");
-	mCleanOtherObjectsTime = LLUICtrlFactory::getLineEditorByName(this, "clean other time");
+	mSelectedObjects = getChild<LLTextBox>("selected_objects_text");
+	mCleanOtherObjectsTime = getChild<LLLineEditor>("clean other time");
 
 	mCleanOtherObjectsTime->setFocusLostCallback(onLostFocus, this);
 	mCleanOtherObjectsTime->setCommitCallback(onCommitClean);
@@ -1039,22 +1036,15 @@ BOOL LLPanelLandObjects::postBuild()
 	childSetPrevalidate("clean other time", LLLineEditor::prevalidateNonNegativeS32);
 	childSetUserData("clean other time", this);
 	
-	mBtnRefresh = LLUICtrlFactory::getButtonByName(this, "Refresh List");
+	mBtnRefresh = getChild<LLButton>("Refresh List");
 	mBtnRefresh->setClickedCallback(onClickRefresh, this);
 	
-	mBtnReturnOwnerList = LLUICtrlFactory::getButtonByName(this, "Return objects...");
+	mBtnReturnOwnerList = getChild<LLButton>("Return objects...");
 	mBtnReturnOwnerList->setClickedCallback(onClickReturnOwnerList, this);
 
-	LLUUID image_id;
-
-	image_id.set( gViewerArt.getString("icon_avatar_online.tga") );
-	mIconAvatarOnline = gImageList.getImage(image_id, MIPMAP_FALSE, TRUE);
-	
-	image_id.set( gViewerArt.getString("icon_avatar_offline.tga") );
-	mIconAvatarOffline = gImageList.getImage(image_id, MIPMAP_FALSE, TRUE);
-
-	image_id.set( gViewerArt.getString("icon_group.tga") );
-	mIconGroup = gImageList.getImage(image_id, MIPMAP_FALSE, TRUE);
+	mIconAvatarOnline = LLUIImageList::getInstance()->getUIImage("icon_avatar_online.tga");
+	mIconAvatarOffline = LLUIImageList::getInstance()->getUIImage("icon_avatar_offline.tga");
+	mIconGroup = LLUIImageList::getInstance()->getUIImage("icon_group.tga");
 
 	mOwnerList = getChild<LLNameListCtrl>("owner list");
 	mOwnerList->sortByColumn(3, FALSE);
@@ -1146,7 +1136,7 @@ void LLPanelLandObjects::refresh()
 
 		// Can't have more than region max tasks, regardless of parcel
 		// object bonus factor.
-		LLViewerRegion* region = gParcelMgr->getSelectionRegion();
+		LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 		if (region)
 		{
 			S32 max_tasks_per_region = (S32)region->getMaxTasks();
@@ -1223,7 +1213,7 @@ void send_other_clean_time_message(S32 parcel_local_id, S32 other_clean_time)
 {
 	LLMessageSystem *msg = gMessageSystem;
 
-	LLViewerRegion* region = gParcelMgr->getSelectionRegion();
+	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 	if (!region) return;
 
 	msg->newMessageFast(_PREHASH_ParcelSetOtherCleanTime);
@@ -1242,7 +1232,7 @@ void send_return_objects_message(S32 parcel_local_id, S32 return_type,
 {
 	LLMessageSystem *msg = gMessageSystem;
 
-	LLViewerRegion* region = gParcelMgr->getSelectionRegion();
+	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 	if (!region) return;
 
 	msg->newMessageFast(_PREHASH_ParcelReturnObjects);
@@ -1306,8 +1296,8 @@ void LLPanelLandObjects::callbackReturnOwnerObjects(S32 option, void* userdata)
 		}
 	}
 
-	gSelectMgr->unhighlightAll();
-	gParcelMgr->sendParcelPropertiesUpdate( parcel );
+	LLSelectMgr::getInstance()->unhighlightAll();
+	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate( parcel );
 	lop->refresh();
 }
 
@@ -1328,8 +1318,8 @@ void LLPanelLandObjects::callbackReturnGroupObjects(S32 option, void* userdata)
 			send_return_objects_message(parcel->getLocalID(), RT_GROUP);
 		}
 	}
-	gSelectMgr->unhighlightAll();
-	gParcelMgr->sendParcelPropertiesUpdate( parcel );
+	LLSelectMgr::getInstance()->unhighlightAll();
+	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate( parcel );
 	lop->refresh();
 }
 
@@ -1346,8 +1336,8 @@ void LLPanelLandObjects::callbackReturnOtherObjects(S32 option, void* userdata)
 			send_return_objects_message(parcel->getLocalID(), RT_OTHER);
 		}
 	}
-	gSelectMgr->unhighlightAll();
-	gParcelMgr->sendParcelPropertiesUpdate( parcel );
+	LLSelectMgr::getInstance()->unhighlightAll();
+	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate( parcel );
 	lop->refresh();
 }
 
@@ -1380,8 +1370,8 @@ void LLPanelLandObjects::callbackReturnOwnerList(S32 option, void* userdata)
 			}
 		}
 	}
-	gSelectMgr->unhighlightAll();
-	gParcelMgr->sendParcelPropertiesUpdate( parcel );
+	LLSelectMgr::getInstance()->unhighlightAll();
+	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate( parcel );
 	self->refresh();
 }
 
@@ -1428,7 +1418,7 @@ void LLPanelLandObjects::onClickRefresh(void* userdata)
 	LLParcel* parcel = self->mParcel->getParcel();
 	if (!parcel) return;
 
-	LLViewerRegion* region = gParcelMgr->getSelectionRegion();
+	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 	if (!region) return;
 
 	// ready the list for results
@@ -1494,17 +1484,17 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 		LLScrollListItem *row = new LLScrollListItem( TRUE, NULL, owner_id);
 		if (is_group_owned)
 		{
-			row->addColumn(self->mIconGroup.notNull() ? self->mIconGroup->getID() : LLUUID::null);
+			row->addColumn(self->mIconGroup);
 			row->addColumn(OWNER_GROUP, FONT);
 		}
 		else if (is_online)
 		{
-			row->addColumn(self->mIconAvatarOnline.notNull() ? self->mIconAvatarOnline->getID() : LLUUID::null);
+			row->addColumn(self->mIconAvatarOnline);
 			row->addColumn(OWNER_ONLINE, FONT);
 		}
 		else  // offline
 		{
-			row->addColumn(self->mIconAvatarOffline.notNull() ? self->mIconAvatarOffline->getID() : LLUUID::null);
+			row->addColumn(self->mIconAvatarOffline);
 			row->addColumn(OWNER_OFFLINE, FONT);
 		}
 		// Placeholder for name.
@@ -1749,56 +1739,56 @@ BOOL LLPanelLandOptions::postBuild()
 {
 
 	
-	mCheckEditObjects = LLUICtrlFactory::getCheckBoxByName(this, "edit objects check");
+	mCheckEditObjects = getChild<LLCheckBoxCtrl>( "edit objects check");
 	childSetCommitCallback("edit objects check", onCommitAny, this);
 	
-	mCheckEditGroupObjects = LLUICtrlFactory::getCheckBoxByName(this, "edit group objects check");
+	mCheckEditGroupObjects = getChild<LLCheckBoxCtrl>( "edit group objects check");
 	childSetCommitCallback("edit group objects check", onCommitAny, this);
 
-	mCheckAllObjectEntry = LLUICtrlFactory::getCheckBoxByName(this, "all object entry check");
+	mCheckAllObjectEntry = getChild<LLCheckBoxCtrl>( "all object entry check");
 	childSetCommitCallback("all object entry check", onCommitAny, this);
 
-	mCheckGroupObjectEntry = LLUICtrlFactory::getCheckBoxByName(this, "group object entry check");
+	mCheckGroupObjectEntry = getChild<LLCheckBoxCtrl>( "group object entry check");
 	childSetCommitCallback("group object entry check", onCommitAny, this);
 	
-	mCheckEditLand = LLUICtrlFactory::getCheckBoxByName(this, "edit land check");
+	mCheckEditLand = getChild<LLCheckBoxCtrl>( "edit land check");
 	childSetCommitCallback("edit land check", onCommitAny, this);
 
 	
-	mCheckLandmark = LLUICtrlFactory::getCheckBoxByName(this, "check landmark");
+	mCheckLandmark = getChild<LLCheckBoxCtrl>( "check landmark");
 	childSetCommitCallback("check landmark", onCommitAny, this);
 
 	
-	mCheckGroupScripts = LLUICtrlFactory::getCheckBoxByName(this, "check group scripts");
+	mCheckGroupScripts = getChild<LLCheckBoxCtrl>( "check group scripts");
 	childSetCommitCallback("check group scripts", onCommitAny, this);
 
 	
-	mCheckFly = LLUICtrlFactory::getCheckBoxByName(this, "check fly");
+	mCheckFly = getChild<LLCheckBoxCtrl>( "check fly");
 	childSetCommitCallback("check fly", onCommitAny, this);
 
 	
-	mCheckOtherScripts = LLUICtrlFactory::getCheckBoxByName(this, "check other scripts");
+	mCheckOtherScripts = getChild<LLCheckBoxCtrl>( "check other scripts");
 	childSetCommitCallback("check other scripts", onCommitAny, this);
 
 	
-	mCheckSafe = LLUICtrlFactory::getCheckBoxByName(this, "check safe");
+	mCheckSafe = getChild<LLCheckBoxCtrl>( "check safe");
 	childSetCommitCallback("check safe", onCommitAny, this);
 
 	
-	mPushRestrictionCtrl = LLUICtrlFactory::getCheckBoxByName(this, "PushRestrictCheck");
+	mPushRestrictionCtrl = getChild<LLCheckBoxCtrl>( "PushRestrictCheck");
 	childSetCommitCallback("PushRestrictCheck", onCommitAny, this);
 
-	mCheckShowDirectory = LLUICtrlFactory::getCheckBoxByName(this, "ShowDirectoryCheck");
+	mCheckShowDirectory = getChild<LLCheckBoxCtrl>( "ShowDirectoryCheck");
 	childSetCommitCallback("ShowDirectoryCheck", onCommitAny, this);
 
 	
-	mCategoryCombo = LLUICtrlFactory::getComboBoxByName(this, "land category");
+	mCategoryCombo = getChild<LLComboBox>( "land category");
 	childSetCommitCallback("land category", onCommitAny, this);
 
-	mMatureCtrl = LLUICtrlFactory::getCheckBoxByName(this, "MatureCheck");
+	mMatureCtrl = getChild<LLCheckBoxCtrl>( "MatureCheck");
 	childSetCommitCallback("MatureCheck", onCommitAny, this);
 	
-	mPublishHelpButton = LLUICtrlFactory::getButtonByName(this, "?");
+	mPublishHelpButton = getChild<LLButton>("?");
 	mPublishHelpButton->setClickedCallback(onClickPublishHelp, this);
 
 
@@ -1847,17 +1837,17 @@ BOOL LLPanelLandOptions::postBuild()
 	}
 
 
-	mLocationText = LLUICtrlFactory::getTextBoxByName(this, "landing_point");
+	mLocationText = getChild<LLTextBox>("landing_point");
 
-	mSetBtn = LLUICtrlFactory::getButtonByName(this, "Set");
+	mSetBtn = getChild<LLButton>("Set");
 	mSetBtn->setClickedCallback(onClickSet, this);
 
 	
-	mClearBtn = LLUICtrlFactory::getButtonByName(this, "Clear");
+	mClearBtn = getChild<LLButton>("Clear");
 	mClearBtn->setClickedCallback(onClickClear, this);
 
 
-	mLandingTypeCombo = LLUICtrlFactory::getComboBoxByName(this, "landing type");
+	mLandingTypeCombo = getChild<LLComboBox>( "landing type");
 	childSetCommitCallback("landing type", onCommitAny, this);
 
 	return TRUE;
@@ -2031,12 +2021,12 @@ void LLPanelLandOptions::refresh()
 // virtual
 void LLPanelLandOptions::draw()
 {
-	LLParcel *parcel = gParcelMgr->getFloatingParcelSelection()->getParcel();
+	LLParcel *parcel = LLViewerParcelMgr::getInstance()->getFloatingParcelSelection()->getParcel();
 	
 	if(parcel)
 	{
 		LLViewerRegion* region;
-		region = gParcelMgr->getSelectionRegion();
+		region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 		llassert(region); // Region should never be null.
 
 		BOOL can_change_identity = region ? 
@@ -2091,7 +2081,7 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	S32  landing_type_index	= self->mLandingTypeCombo->getCurrentIndex();
 	LLUUID snapshot_id		= self->mSnapshotCtrl->getImageAssetID();
 	LLViewerRegion* region;
-	region = gParcelMgr->getSelectionRegion();
+	region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 
 	if (!allow_other_scripts && region && region->getAllowDamage())
 	{
@@ -2120,7 +2110,7 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	parcel->setSnapshotID(snapshot_id);
 
 	// Send current parcel data upstream to server
-	gParcelMgr->sendParcelPropertiesUpdate( parcel );
+	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate( parcel );
 
 	// Might have changed properties, so let's redraw!
 	self->refresh();
@@ -2135,7 +2125,7 @@ void LLPanelLandOptions::onClickSet(void* userdata)
 	LLParcel* selected_parcel = self->mParcel->getParcel();
 	if (!selected_parcel) return;
 
-	LLParcel* agent_parcel = gParcelMgr->getAgentParcel();
+	LLParcel* agent_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if (!agent_parcel) return;
 
 	if (agent_parcel->getLocalID() != selected_parcel->getLocalID())
@@ -2148,7 +2138,7 @@ void LLPanelLandOptions::onClickSet(void* userdata)
 	selected_parcel->setUserLocation(pos_region);
 	selected_parcel->setUserLookAt(gAgent.getFrameAgent().getAtAxis());
 
-	gParcelMgr->sendParcelPropertiesUpdate(selected_parcel);
+	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate(selected_parcel);
 
 	self->refresh();
 }
@@ -2165,7 +2155,7 @@ void LLPanelLandOptions::onClickClear(void* userdata)
 	selected_parcel->setUserLocation(zero_vec);
 	selected_parcel->setUserLookAt(zero_vec);
 
-	gParcelMgr->sendParcelPropertiesUpdate(selected_parcel);
+	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate(selected_parcel);
 
 	self->refresh();
 }
@@ -2173,8 +2163,8 @@ void LLPanelLandOptions::onClickClear(void* userdata)
 // static
 void LLPanelLandOptions::onClickPublishHelp(void*)
 {
-	LLViewerRegion* region = gParcelMgr->getSelectionRegion();
-	LLParcel *parcel = gParcelMgr->getFloatingParcelSelection()->getParcel();
+	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
+	LLParcel *parcel = LLViewerParcelMgr::getInstance()->getFloatingParcelSelection()->getParcel();
 	llassert(region); // Region should never be null.
 
 	bool can_change_identity = region && parcel ? 
@@ -2585,7 +2575,7 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	parcel->setPassHours( pass_hours );
 
 	// Send current parcel data upstream to server
-	gParcelMgr->sendParcelPropertiesUpdate( parcel );
+	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate( parcel );
 
 	// Might have changed properties, so let's redraw!
 	self->refresh();
@@ -2612,7 +2602,7 @@ void LLPanelLandAccess::callbackAvatarCBAccess(const std::vector<std::string>& n
 		if (parcel)
 		{
 			parcel->addToAccessList(id, 0);
-			gParcelMgr->sendParcelAccessListUpdate(AL_ACCESS);
+			LLViewerParcelMgr::getInstance()->sendParcelAccessListUpdate(AL_ACCESS);
 			panelp->refresh();
 		}
 	}
@@ -2635,7 +2625,7 @@ void LLPanelLandAccess::onClickRemoveAccess(void* data)
 				const LLUUID& agent_id = item->getUUID();
 				parcel->removeFromAccessList(agent_id);
 			}
-			gParcelMgr->sendParcelAccessListUpdate(AL_ACCESS);
+			LLViewerParcelMgr::getInstance()->sendParcelAccessListUpdate(AL_ACCESS);
 			panelp->refresh();
 		}
 	}
@@ -2659,7 +2649,7 @@ void LLPanelLandAccess::callbackAvatarCBBanned(const std::vector<std::string>& n
 		if (parcel)
 		{
 			parcel->addToBanList(id, 0);
-			gParcelMgr->sendParcelAccessListUpdate(AL_BAN);
+			LLViewerParcelMgr::getInstance()->sendParcelAccessListUpdate(AL_BAN);
 			panelp->refresh();
 		}
 	}
@@ -2682,7 +2672,7 @@ void LLPanelLandAccess::onClickRemoveBanned(void* data)
 				const LLUUID& agent_id = item->getUUID();
 				parcel->removeFromBanList(agent_id);
 			}
-			gParcelMgr->sendParcelAccessListUpdate(AL_BAN);
+			LLViewerParcelMgr::getInstance()->sendParcelAccessListUpdate(AL_BAN);
 			panelp->refresh();
 		}
 	}
@@ -2709,7 +2699,7 @@ BOOL LLPanelLandCovenant::postBuild()
 // virtual
 void LLPanelLandCovenant::refresh()
 {
-	LLViewerRegion* region = gParcelMgr->getSelectionRegion();
+	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 	if(!region) return;
 		
 	LLTextBox* region_name = getChild<LLTextBox>("region_name_text");

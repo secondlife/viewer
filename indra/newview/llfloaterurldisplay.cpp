@@ -35,7 +35,7 @@
 #include "llfloaterurldisplay.h"
 
 #include "llpanelplace.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 #include "v3dmath.h"
 
@@ -46,7 +46,7 @@
 LLFloaterURLDisplay::LLFloaterURLDisplay(const LLSD& sd)
 {	
 	mFactoryMap["place_details_panel"] = LLCallbackMap(LLFloaterURLDisplay::createPlaceDetail, this);
-	gUICtrlFactory->buildFloater(this, "floater_preview_url.xml", &getFactoryMap());
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_preview_url.xml", &getFactoryMap());
 	this->setVisible(false);
 
 	// If positioned at 0,0 the teleport button is behind the toolbar.
@@ -101,7 +101,7 @@ void* LLFloaterURLDisplay::createPlaceDetail(void* userdata)
 {
 	LLFloaterURLDisplay *self = (LLFloaterURLDisplay*)userdata;
 	self->mPlacePanel = new LLPanelPlace();
-	gUICtrlFactory->buildPanel(self->mPlacePanel, "panel_place.xml");
+	LLUICtrlFactory::getInstance()->buildPanel(self->mPlacePanel, "panel_place.xml");
 
 	return self->mPlacePanel;
 }

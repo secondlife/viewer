@@ -58,7 +58,7 @@
 #include "llviewercontrol.h"		// gSavedSettings
 #include "llappviewer.h"		// app_abort_quit()
 #include "lllineeditor.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -99,13 +99,13 @@ LLPreviewNotecard::LLPreviewNotecard(const std::string& name,
 
 	if (show_keep_discard)
 	{
-		gUICtrlFactory->buildFloater(this,"floater_preview_notecard_keep_discard.xml");
+		LLUICtrlFactory::getInstance()->buildFloater(this,"floater_preview_notecard_keep_discard.xml");
 		childSetAction("Keep",onKeepBtn,this);
 		childSetAction("Discard",onDiscardBtn,this);
 	}
 	else
 	{
-		gUICtrlFactory->buildFloater(this,"floater_preview_notecard.xml");
+		LLUICtrlFactory::getInstance()->buildFloater(this,"floater_preview_notecard.xml");
 		childSetAction("Save",onClickSave,this);
 		
 		if( mAssetID.isNull() )
@@ -136,7 +136,7 @@ LLPreviewNotecard::LLPreviewNotecard(const std::string& name,
 
 	setTitle(title);
 	
-	LLViewerTextEditor* editor = LLViewerUICtrlFactory::getViewerTextEditorByName(this, "Notecard Editor");
+	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");
 
 	if (editor)
 	{
@@ -154,7 +154,7 @@ LLPreviewNotecard::~LLPreviewNotecard()
 
 BOOL LLPreviewNotecard::postBuild()
 {
-	LLViewerTextEditor *ed = (LLViewerTextEditor *)gUICtrlFactory->getTextEditorByName(this, "Notecard Editor");
+	LLViewerTextEditor *ed = getChild<LLViewerTextEditor>("Notecard Editor");
 	if (ed)
 	{
 		ed->setNotecardInfo(mNotecardItemID, mObjectID);
@@ -181,7 +181,7 @@ bool LLPreviewNotecard::saveItem(LLPointer<LLInventoryItem>* itemptr)
 void LLPreviewNotecard::setEnabled( BOOL enabled )
 {
 
-	LLViewerTextEditor* editor = LLViewerUICtrlFactory::getViewerTextEditorByName(this, "Notecard Editor");
+	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");
 
 	childSetEnabled("Notecard Editor", enabled);
 	childSetVisible("lock", !enabled);
@@ -197,7 +197,7 @@ void LLPreviewNotecard::draw()
 
 	//childSetFocus("Save", FALSE);
 
-	LLViewerTextEditor* editor = LLViewerUICtrlFactory::getViewerTextEditorByName(this, "Notecard Editor");
+	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");
 	BOOL script_changed = !editor->isPristine();
 	
 	childSetEnabled("Save", script_changed && getEnabled());
@@ -206,24 +206,21 @@ void LLPreviewNotecard::draw()
 }
 
 // virtual
-BOOL LLPreviewNotecard::handleKeyHere(KEY key, MASK mask,
-									  BOOL called_from_parent)
+BOOL LLPreviewNotecard::handleKeyHere(KEY key, MASK mask)
 {
-	if(getVisible() && getEnabled())
+	if(('S' == key) && (MASK_CONTROL == (mask & MASK_CONTROL)))
 	{
-		if(('S' == key) && (MASK_CONTROL == (mask & MASK_CONTROL)))
-		{
-			saveIfNeeded();
-			return TRUE;
-		}
+		saveIfNeeded();
+		return TRUE;
 	}
-	return LLPreview::handleKeyHere(key, mask, called_from_parent);
+
+	return LLPreview::handleKeyHere(key, mask);
 }
 
 // virtual
 BOOL LLPreviewNotecard::canClose()
 {
-	LLViewerTextEditor* editor = LLViewerUICtrlFactory::getViewerTextEditorByName(this, "Notecard Editor");
+	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");
 
 	if(mForceClose || editor->isPristine())
 	{
@@ -242,7 +239,7 @@ BOOL LLPreviewNotecard::canClose()
 
 const LLInventoryItem* LLPreviewNotecard::getDragItem()
 {
-	LLViewerTextEditor* editor = LLViewerUICtrlFactory::getViewerTextEditorByName(this, "Notecard Editor");
+	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");
 
 	if(editor)
 	{
@@ -254,9 +251,7 @@ const LLInventoryItem* LLPreviewNotecard::getDragItem()
 bool LLPreviewNotecard::hasEmbeddedInventory()
 {
 	LLViewerTextEditor* editor = NULL;
-	editor = LLViewerUICtrlFactory::getViewerTextEditorByName(
-		this,
-		"Notecard Editor");
+	editor = getChild<LLViewerTextEditor>("Notecard Editor");
 	if (!editor) return false;
 	return editor->hasEmbeddedInventory();
 }
@@ -271,7 +266,7 @@ void LLPreviewNotecard::loadAsset()
 {
 	// request the asset.
 	const LLInventoryItem* item = getItem();
-	LLViewerTextEditor* editor = LLViewerUICtrlFactory::getViewerTextEditorByName(this, "Notecard Editor");
+	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");
 
 	if (!editor)
 		return;
@@ -377,7 +372,7 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 			buffer[file_length] = 0;
 
 			
-			LLViewerTextEditor* previewEditor = LLViewerUICtrlFactory::getViewerTextEditorByName(preview, "Notecard Editor");
+			LLViewerTextEditor* previewEditor = preview->getChild<LLViewerTextEditor>("Notecard Editor");
 
 			if( (file_length > 19) && !strncmp( buffer, "Linden text version", 19 ) )
 			{
@@ -403,10 +398,7 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 		}
 		else
 		{
-			if( gViewerStats )
-			{
-				gViewerStats->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
-			}
+			LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
 
 			if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 				LL_ERR_FILE_EMPTY == status)
@@ -475,7 +467,7 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
 	}
 
 	
-	LLViewerTextEditor* editor = LLViewerUICtrlFactory::getViewerTextEditorByName(this, "Notecard Editor");
+	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");
 
 	if(!editor->isPristine())
 	{
@@ -592,7 +584,7 @@ void LLPreviewNotecard::onSaveComplete(const LLUUID& asset_uuid, void* user_data
 		// Perform item copy to inventory
 		if (info->mCopyItem.notNull())
 		{
-			LLViewerTextEditor* editor = LLViewerUICtrlFactory::getViewerTextEditorByName(info->mSelf, "Notecard Editor");
+			LLViewerTextEditor* editor = info->mSelf->getChild<LLViewerTextEditor>("Notecard Editor");
 			if (editor)
 			{
 				editor->copyInventory(info->mCopyItem);

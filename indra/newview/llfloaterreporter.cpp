@@ -80,7 +80,7 @@
 #include "lldir.h"
 #include "llselectmgr.h"
 #include "llviewerbuild.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llappviewer.h"
 
 #include "llassetuploadresponders.h"
@@ -124,16 +124,16 @@ LLFloaterReporter::LLFloaterReporter(
 {
 	if (report_type == BUG_REPORT)
 	{
-		gUICtrlFactory->buildFloater(this, "floater_report_bug.xml");
+		LLUICtrlFactory::getInstance()->buildFloater(this, "floater_report_bug.xml");
 	}
 	else
 	{
-		gUICtrlFactory->buildFloater(this, "floater_report_abuse.xml");
+		LLUICtrlFactory::getInstance()->buildFloater(this, "floater_report_abuse.xml");
 	}
 
 	childSetText("abuse_location_edit", gAgent.getSLURL() );
 
-	LLButton* pick_btn = LLUICtrlFactory::getButtonByName(this, "pick_btn");
+	LLButton* pick_btn = getChild<LLButton>("pick_btn");
 	if (pick_btn)
 	{
 		// XUI: Why aren't these in viewerart.ini?
@@ -145,7 +145,7 @@ LLFloaterReporter::LLFloaterReporter(
 	if (report_type != BUG_REPORT)
 	{
 		// abuser name is selected from a list
-		LLLineEditor* le = (LLLineEditor*)getCtrlByNameAndType("abuser_name_edit", WIDGET_TYPE_LINE_EDITOR);
+		LLLineEditor* le = getChild<LLLineEditor>("abuser_name_edit");
 		le->setEnabled( FALSE );
 	}
 
@@ -454,12 +454,12 @@ void LLFloaterReporter::onClickCancel(void *userdata)
 void LLFloaterReporter::onClickObjPicker(void *userdata)
 {
 	LLFloaterReporter *self = (LLFloaterReporter *)userdata;
-	gToolObjPicker->setExitCallback(LLFloaterReporter::closePickTool, self);
-	gToolMgr->setTransientTool(gToolObjPicker);
+	LLToolObjPicker::getInstance()->setExitCallback(LLFloaterReporter::closePickTool, self);
+	LLToolMgr::getInstance()->setTransientTool(LLToolObjPicker::getInstance());
 	self->mPicking = TRUE;
 	self->childSetText("object_name", LLString::null);
 	self->childSetText("owner_name", LLString::null);
-	LLButton* pick_btn = LLUICtrlFactory::getButtonByName(self, "pick_btn");
+	LLButton* pick_btn = self->getChild<LLButton>("pick_btn");
 	if (pick_btn) pick_btn->setToggleState(TRUE);
 }
 
@@ -469,12 +469,12 @@ void LLFloaterReporter::closePickTool(void *userdata)
 {
 	LLFloaterReporter *self = (LLFloaterReporter *)userdata;
 
-	LLUUID object_id = gToolObjPicker->getObjectID();
+	LLUUID object_id = LLToolObjPicker::getInstance()->getObjectID();
 	self->getObjectInfo(object_id);
 
-	gToolMgr->clearTransientTool();
+	LLToolMgr::getInstance()->clearTransientTool();
 	self->mPicking = FALSE;
-	LLButton* pick_btn = LLUICtrlFactory::getButtonByName(self, "pick_btn");
+	LLButton* pick_btn = self->getChild<LLButton>("pick_btn");
 	if (pick_btn) pick_btn->setToggleState(FALSE);
 }
 
@@ -662,7 +662,7 @@ LLSD LLFloaterReporter::gatherReport()
 	}
 
 	LLString category_name;
-	LLComboBox* combo = LLUICtrlFactory::getComboBoxByName(this, "category_combo");
+	LLComboBox* combo = getChild<LLComboBox>( "category_combo");
 	if (combo)
 	{
 		category_name = combo->getSelectedItemLabel(); // want label, not value
@@ -1003,7 +1003,7 @@ void LLFloaterReporter::addDescription(const LLString& description, LLMeanCollis
 	LLFloaterReporter *self = gReporterInstances[COMPLAINT_REPORT];
 	if (self)
 	{
-		LLTextEditor* text = LLUICtrlFactory::getTextEditorByName(self, "details_edit");
+		LLTextEditor* text = self->getChild<LLTextEditor>("details_edit");
 		if (text)
 		{	
 			text->insertText(description);

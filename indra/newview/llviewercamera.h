@@ -50,7 +50,7 @@ const F32 OGL_TO_CFR_ROTATION[16] = {  0.f,  0.f, -1.f,  0.f, 	// -Z becomes X
 const BOOL FOR_SELECTION = TRUE;
 const BOOL NOT_FOR_SELECTION = FALSE;
 
-class LLViewerCamera : public LLCamera
+class LLViewerCamera : public LLCamera, public LLSingleton<LLViewerCamera>
 {
 public:
 	LLViewerCamera();
@@ -111,7 +111,6 @@ protected:
 public:
 };
 
-extern LLViewerCamera *gCamera;
 extern F64 gGLModelView[16];
 extern F64 gGLLastModelView[16];
 extern F64 gGLProjection[16];

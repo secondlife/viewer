@@ -44,7 +44,7 @@ class LLHUDAnimalControls;
 // End Ventrella
 class LLMessageSystem;
 
-class LLHUDManager
+class LLHUDManager : public LLSingleton<LLHUDManager>
 {
 public:
 	LLHUDManager();
@@ -64,7 +64,5 @@ public:
 protected:
 	LLDynamicArrayPtr<LLPointer<LLHUDEffect>				> mHUDEffects;
 };
-
-extern LLHUDManager *gHUDManager;
 
 #endif // LL_LLHUDMANAGER_H

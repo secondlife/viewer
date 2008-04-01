@@ -42,14 +42,15 @@
 
 const F32 RESOLUTION_BUMP = 1.f;
 
+static LLRegisterWidget<LLIconCtrl> r("icon");
+
 LLIconCtrl::LLIconCtrl(const LLString& name, const LLRect &rect, const LLUUID &image_id)
 :	LLUICtrl(name, 
 			 rect, 
 			 FALSE, // mouse opaque
 			 NULL, NULL, 
 			 FOLLOWS_LEFT | FOLLOWS_TOP),
-	mColor( LLColor4::white ),
-	mImageName("")
+	mColor( LLColor4::white )
 {
 	setImage( image_id );
 	setTabStop(FALSE);
@@ -64,9 +65,7 @@ LLIconCtrl::LLIconCtrl(const LLString& name, const LLRect &rect, const LLString 
 	mColor( LLColor4::white ),
 	mImageName(image_name)
 {
-	LLUUID image_id;
-	image_id.set(LLUI::sAssetsGroup->getString( image_name ));
-	setImage( image_id );
+	setImage( image_name );
 	setTabStop(FALSE);
 }
 
@@ -77,32 +76,52 @@ LLIconCtrl::~LLIconCtrl()
 }
 
 
-void LLIconCtrl::setImage(const LLUUID &image_id)
+void LLIconCtrl::setImage(const LLString& image_name)
 {
-	mImageID = image_id;
+	//RN: support UUIDs masquerading as strings
+	if (LLUUID::validate(image_name))
+	{
+		mImageID = LLUUID(image_name);
+
+		setImage(mImageID);
+	}
+	else
+	{
+		mImageName = image_name;
+		mImagep = LLUI::sImageProvider->getUIImage(image_name);
+		mImageID.setNull();
+	}
+}
+
+void LLIconCtrl::setImage(const LLUUID& image_id)
+{
+	mImageName.clear();
 	mImagep = LLUI::sImageProvider->getUIImageByID(image_id);
+	mImageID = image_id;
 }
 
 
 void LLIconCtrl::draw()
 {
-	if( getVisible() ) 
+	if( mImagep.notNull() )
 	{
-		if( mImagep.notNull() )
-		{
-			mImagep->draw(0, 0, 
-						  getRect().getWidth(), getRect().getHeight(), 
-						  mColor );
-		}
-
-		LLUICtrl::draw();
+		mImagep->draw(getLocalRect(), mColor );
 	}
+
+	LLUICtrl::draw();
 }
 
 // virtual
 void LLIconCtrl::setValue(const LLSD& value )
 {
-	setImage(value.asUUID());
+	if (value.isUUID())
+	{
+		setImage(value.asUUID());
+	}
+	else
+	{
+		setImage(value.asString());
+	}
 }
 
 // virtual
@@ -135,18 +154,16 @@ LLView* LLIconCtrl::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *
 	LLRect rect;
 	createRect(node, rect, parent, LLRect());
 
-	LLUUID image_id;
+	LLString image_name;
 	if (node->hasAttribute("image_name"))
 	{
-		LLString image_name;
 		node->getAttributeString("image_name", image_name);
-		image_id.set(LLUI::sAssetsGroup->getString( image_name ));
 	}
 
 	LLColor4 color(LLColor4::white);
 	LLUICtrlFactory::getAttributeColor(node,"color", color);
 
-	LLIconCtrl* icon = new LLIconCtrl(name, rect, image_id);
+	LLIconCtrl* icon = new LLIconCtrl(name, rect, image_name);
 
 	icon->setColor(color);
 

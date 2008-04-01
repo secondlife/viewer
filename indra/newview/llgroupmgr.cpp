@@ -53,8 +53,6 @@
 #include "llfloatergroupinfo.h"
 #include "lluictrlfactory.h"
 
-LLGroupMgr sGroupMgr; // use local instance so that it gets cleaned up on application exit
-LLGroupMgr* gGroupMgr = &sGroupMgr;
 
 const U32 MAX_CACHED_GROUPS = 10;
 
@@ -705,7 +703,7 @@ void LLGroupMgrGroupData::sendRoleChanges()
 	// If we create a new role, then we need to re-fetch all the role data.
 	if (need_role_data)
 	{
-		gGroupMgr->sendGroupRoleDataRequest(getID());
+		LLGroupMgr::getInstance()->sendGroupRoleDataRequest(getID());
 	}
 
 	// Clean up change lists	
@@ -811,7 +809,7 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 	LLUUID request_id;
 	msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_RequestID, request_id);
 
-	LLGroupMgrGroupData* group_datap = gGroupMgr->createGroupData(group_id);
+	LLGroupMgrGroupData* group_datap = LLGroupMgr::getInstance()->createGroupData(group_id);
 	if (group_datap->mMemberRequestID != request_id)
 	{
 		llwarns << "processGroupMembersReply: Received incorrect (stale?) request id" << llendl;
@@ -867,7 +865,7 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 		//if group members are loaded while titles are missing, load the titles.
 		if(group_datap->mTitles.size() < 1)
 		{
-			gGroupMgr->sendGroupTitlesRequest(group_id);
+			LLGroupMgr::getInstance()->sendGroupTitlesRequest(group_id);
 		}
 	}
 
@@ -879,12 +877,12 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 		if (group_datap->mPendingRoleMemberRequest)
 		{
 			group_datap->mPendingRoleMemberRequest = FALSE;
-			gGroupMgr->sendGroupRoleMembersRequest(group_datap->mID);
+			LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(group_datap->mID);
 		}
 	}
 
 	group_datap->mChanged = TRUE;
-	gGroupMgr->notifyObservers(GC_MEMBER_DATA);
+	LLGroupMgr::getInstance()->notifyObservers(GC_MEMBER_DATA);
 }
 
 //static 
@@ -933,7 +931,7 @@ void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 	msg->getBOOL("GroupData", "MaturePublish", mature);
 	msg->getUUID(_PREHASH_GroupData, "OwnerRole", owner_role);
 
-	LLGroupMgrGroupData* group_datap = gGroupMgr->createGroupData(group_id);
+	LLGroupMgrGroupData* group_datap = LLGroupMgr::getInstance()->createGroupData(group_id);
 
 	group_datap->mName = name;
 	group_datap->mCharter = charter;
@@ -951,7 +949,7 @@ void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 	group_datap->mGroupPropertiesDataComplete = TRUE;
 	group_datap->mChanged = TRUE;
 
-	gGroupMgr->notifyObservers(GC_PROPERTIES);
+	LLGroupMgr::getInstance()->notifyObservers(GC_PROPERTIES);
 }
 
 // static
@@ -972,7 +970,7 @@ void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 	LLUUID request_id;
 	msg->getUUIDFast(_PREHASH_GroupData, _PREHASH_RequestID, request_id);
 
-	LLGroupMgrGroupData* group_data = gGroupMgr->createGroupData(group_id);
+	LLGroupMgrGroupData* group_data = LLGroupMgr::getInstance()->createGroupData(group_id);
 	if (group_data->mRoleDataRequestID != request_id)
 	{
 		llwarns << "processGroupRoleDataReply: Received incorrect (stale?) request id" << llendl;
@@ -1013,12 +1011,12 @@ void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 		if (group_data->mPendingRoleMemberRequest)
 		{
 			group_data->mPendingRoleMemberRequest = FALSE;
-			gGroupMgr->sendGroupRoleMembersRequest(group_data->mID);
+			LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(group_data->mID);
 		}
 	}
 
 	group_data->mChanged = TRUE;
-	gGroupMgr->notifyObservers(GC_ROLE_DATA);
+	LLGroupMgr::getInstance()->notifyObservers(GC_ROLE_DATA);
 }
 
 // static
@@ -1042,7 +1040,7 @@ void LLGroupMgr::processGroupRoleMembersReply(LLMessageSystem* msg, void** data)
 	U32 total_pairs;
 	msg->getU32(_PREHASH_AgentData, "TotalPairs", total_pairs);
 
-	LLGroupMgrGroupData* group_data = gGroupMgr->createGroupData(group_id);
+	LLGroupMgrGroupData* group_data = LLGroupMgr::getInstance()->createGroupData(group_id);
 
 	if (group_data->mRoleMembersRequestID != request_id)
 	{
@@ -1127,7 +1125,7 @@ void LLGroupMgr::processGroupRoleMembersReply(LLMessageSystem* msg, void** data)
 	}
 
 	group_data->mChanged = TRUE;
-	gGroupMgr->notifyObservers(GC_ROLE_MEMBER_DATA);
+	LLGroupMgr::getInstance()->notifyObservers(GC_ROLE_MEMBER_DATA);
 }
 
 // static
@@ -1145,7 +1143,7 @@ void LLGroupMgr::processGroupTitlesReply(LLMessageSystem* msg, void** data)
 	LLUUID group_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_GroupID, group_id );
 
-	LLGroupMgrGroupData* group_data = gGroupMgr->createGroupData(group_id);
+	LLGroupMgrGroupData* group_data = LLGroupMgr::getInstance()->createGroupData(group_id);
 
 	LLUUID request_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_RequestID, request_id);
@@ -1177,7 +1175,7 @@ void LLGroupMgr::processGroupTitlesReply(LLMessageSystem* msg, void** data)
 	}
 
 	group_data->mChanged = TRUE;
-	gGroupMgr->notifyObservers(GC_TITLES);
+	LLGroupMgr::getInstance()->notifyObservers(GC_TITLES);
 }
 
 // static
@@ -1210,7 +1208,7 @@ void LLGroupMgr::processJoinGroupReply(LLMessageSystem* msg, void ** data)
 		// refresh all group information
 		gAgent.sendAgentDataUpdateRequest();
 
-		gGroupMgr->clearGroupData(group_id);
+		LLGroupMgr::getInstance()->clearGroupData(group_id);
 		// refresh the floater for this group, if any.
 		LLFloaterGroupInfo::refreshGroup(group_id);
 		// refresh the group panel of the search window, if necessary.
@@ -1232,7 +1230,7 @@ void LLGroupMgr::processLeaveGroupReply(LLMessageSystem* msg, void ** data)
 		// refresh all group information
 		gAgent.sendAgentDataUpdateRequest();
 
-		gGroupMgr->clearGroupData(group_id);
+		LLGroupMgr::getInstance()->clearGroupData(group_id);
 		// close the floater for this group, if any.
 		LLFloaterGroupInfo::closeGroup(group_id);
 		// refresh the group panel of the search window, if necessary.
@@ -1286,11 +1284,11 @@ LLGroupMgrGroupData* LLGroupMgr::createGroupData(const LLUUID& id)
 {
 	LLGroupMgrGroupData* group_datap;
 
-	group_map_t::iterator existing_group = gGroupMgr->mGroups.find(id);
-	if (existing_group == gGroupMgr->mGroups.end())
+	group_map_t::iterator existing_group = LLGroupMgr::getInstance()->mGroups.find(id);
+	if (existing_group == LLGroupMgr::getInstance()->mGroups.end())
 	{
 		group_datap = new LLGroupMgrGroupData(id);
-		gGroupMgr->addGroup(group_datap);
+		LLGroupMgr::getInstance()->addGroup(group_datap);
 	}
 	else
 	{
@@ -1647,7 +1645,7 @@ void LLGroupMgr::sendGroupMemberEjects(const LLUUID& group_id,
 	bool start_message = true;
 	LLMessageSystem* msg = gMessageSystem;
 
-	LLGroupMgrGroupData* group_datap = gGroupMgr->getGroupData(group_id);
+	LLGroupMgrGroupData* group_datap = LLGroupMgr::getInstance()->getGroupData(group_id);
 	if (!group_datap) return;
 
 	for (std::vector<LLUUID>::iterator it = member_ids.begin();
@@ -1832,7 +1830,7 @@ bool LLGroupMgr::parseRoleActions(const LLString& xml_filename)
 		role_action_data->mPowerBit = set_power_mask;
 		role_action_set->mActionSetData = role_action_data;
 
-		gGroupMgr->mRoleActionSets.push_back(role_action_set);
+		LLGroupMgr::getInstance()->mRoleActionSets.push_back(role_action_set);
 	}
 	return true;
 }
@@ -1840,7 +1838,7 @@ bool LLGroupMgr::parseRoleActions(const LLString& xml_filename)
 // static
 void LLGroupMgr::debugClearAllGroups(void*)
 {
-	gGroupMgr->clearGroups();
+	LLGroupMgr::getInstance()->clearGroups();
 	LLGroupMgr::parseRoleActions("role_actions.xml");
 }
 

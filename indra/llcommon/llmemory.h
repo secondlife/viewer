@@ -419,6 +419,31 @@ protected:
 //   Foo* instance = FooSingleton::getInstance();
 //
 // As currently written, it is not thread-safe.
+#if LL_WINDOWS && _MSC_VER < 1400 // this is Visual C++ 2003 or earlier
+// workaround for VC7 compiler bug
+// adapted from http://www.codeproject.com/KB/tips/VC2003MeyersSingletonBug.aspx
+// our version doesn't introduce a nested struct so that you can still declare LLSingleton<MyClass>
+// a friend and hide your constructor
+
+template <typename T>
+class LLSingleton
+{
+public:
+ 	static T* getInstance()
+    {
+        LLSingleton<T> singleton;
+        return singleton.get();
+    }
+private:
+	T* get()
+    {
+        static T instance;
+        return &instance;
+    }
+
+};
+#else
+
 template <typename T>
 class LLSingleton
 {
@@ -429,6 +454,8 @@ public:
 		return &instance;
 	}
 };
+
+#endif
 
 //----------------------------------------------------------------------------
 

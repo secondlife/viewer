@@ -68,13 +68,15 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerImage *texturep) :
 	// Hack!
 	sDetailScale = 1.f/gSavedSettings.getF32("RenderTerrainScale");
 	sDetailMode = gSavedSettings.getS32("RenderTerrainDetail");
-	mAlphaRampImagep = gImageList.getImageFromUUID(LLUUID(gViewerArt.getString("alpha_gradient.tga")),
-												   TRUE, TRUE, GL_ALPHA8, GL_ALPHA);
+	mAlphaRampImagep = gImageList.getImageFromFile("alpha_gradient.tga",
+												   TRUE, TRUE, GL_ALPHA8, GL_ALPHA,
+												   LLUUID("e97cf410-8e61-7005-ec06-629eba4cd1fb"));
 	mAlphaRampImagep->bind(0);
 	mAlphaRampImagep->setClamp(TRUE, TRUE);
 
-	m2DAlphaRampImagep = gImageList.getImageFromUUID(LLUUID(gViewerArt.getString("alpha_gradient_2d.tga")),
-													 TRUE, TRUE, GL_ALPHA8, GL_ALPHA);
+	m2DAlphaRampImagep = gImageList.getImageFromFile("alpha_gradient_2d.j2c",
+													TRUE, TRUE, GL_ALPHA8, GL_ALPHA,
+													LLUUID("38b86f85-2575-52a9-a531-23108d8da837"));
 	m2DAlphaRampImagep->bind(0);
 	m2DAlphaRampImagep->setClamp(TRUE, TRUE);
 	

@@ -87,16 +87,15 @@ public:
 
 	virtual ~LLButton();
 	void init(void (*click_callback)(void*), void *callback_data, const LLFontGL* font, const LLString& control_name);
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
+
 	
 	void			addImageAttributeToXML(LLXMLNodePtr node, const LLString& imageName,
 										const LLUUID&	imageID,const LLString&	xmlTagName) const;
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
-	virtual BOOL	handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent);
-	virtual BOOL	handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
+	virtual BOOL	handleKeyHere(KEY key, MASK mask);
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
@@ -104,7 +103,6 @@ public:
 
 	virtual void	onMouseCaptureLost();
 
-	// HACK: "committing" a button is the same as clicking on it.
 	virtual void	onCommit();
 
 	void			setUnselectedLabelColor( const LLColor4& c )		{ mUnselectedLabelColor = c; }

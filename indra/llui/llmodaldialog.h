@@ -60,7 +60,7 @@ public:
 	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
 	/*virtual*/ BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask, BOOL called_from_parent );
+	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask );
 
 	/*virtual*/ void	onClose(bool app_quitting);
 

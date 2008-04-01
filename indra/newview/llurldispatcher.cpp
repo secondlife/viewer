@@ -224,7 +224,7 @@ bool LLURLDispatcherImpl::dispatchRegion(const std::string& url, BOOL right_mous
 	url_displayp->setName(region_name);
 
 	// Request a region handle by name
-	gWorldMap->sendNamedRegionRequest(region_name,
+	LLWorldMap::getInstance()->sendNamedRegionRequest(region_name,
 									  LLURLDispatcherImpl::regionNameCallback,
 									  url,
 									  false);	// don't teleport
@@ -263,7 +263,7 @@ void LLURLDispatcherImpl::regionNameCallback(U64 region_handle, const std::strin
 		LLVector3d global_pos = from_region_handle(region_handle) + LLVector3d(local_pos);
 
 		U64 new_region_handle = to_region_handle(global_pos);
-		gWorldMap->sendHandleRegionRequest(new_region_handle,
+		LLWorldMap::getInstance()->sendHandleRegionRequest(new_region_handle,
 										   LLURLDispatcherImpl::regionHandleCallback,
 										   url, teleport);
 	}
@@ -375,7 +375,7 @@ public:
 		{
 			url += tokens[i].asString() + "/";
 		}
-		gWorldMap->sendNamedRegionRequest(region_name,
+		LLWorldMap::getInstance()->sendNamedRegionRequest(region_name,
 			LLURLDispatcherImpl::regionHandleCallback,
 			url,
 			true);	// teleport

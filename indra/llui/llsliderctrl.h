@@ -63,8 +63,7 @@ public:
 		const LLString& control_which = LLString::null );
 
 	virtual ~LLSliderCtrl() {} // Children all cleaned up by default view destructor.
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_SLIDER; }
-	virtual LLString getWidgetTag() const { return LL_SLIDER_CTRL_TAG; }
+
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 

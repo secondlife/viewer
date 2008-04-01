@@ -184,23 +184,20 @@ BOOL LLFloaterMap::canClose()
 // virtual
 void LLFloaterMap::draw()
 {
-	if( getVisible() )
+	// Note: we can't just gAgent.check cameraMouselook() because the transition states are wrong.
+	if( gAgent.cameraMouselook())
 	{
-		// Note: we can't just gAgent.check cameraMouselook() because the transition states are wrong.
-		if( gAgent.cameraMouselook())
-		{
-			setMouseOpaque(FALSE);
-			getDragHandle()->setMouseOpaque(FALSE);
+		setMouseOpaque(FALSE);
+		getDragHandle()->setMouseOpaque(FALSE);
 
-			drawChild(mMap);
-		}
-		else
-		{
-			setMouseOpaque(TRUE);
-			getDragHandle()->setMouseOpaque(TRUE);
+		drawChild(mMap);
+	}
+	else
+	{
+		setMouseOpaque(TRUE);
+		getDragHandle()->setMouseOpaque(TRUE);
 
-			LLFloater::draw();
-		}
+		LLFloater::draw();
 	}
 }
 

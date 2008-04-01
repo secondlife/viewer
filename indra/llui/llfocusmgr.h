@@ -54,13 +54,17 @@ public:
 	BOOL			childHasMouseCapture( const LLView* parent ) const;
 
 	// Keyboard Focus
-	void			setKeyboardFocus(LLUICtrl* new_focus, BOOL lock = FALSE);		// new_focus = NULL to release the focus.
+	void			setKeyboardFocus(LLUICtrl* new_focus, BOOL lock = FALSE, BOOL keystrokes_only = FALSE);		// new_focus = NULL to release the focus.
 	LLUICtrl*		getKeyboardFocus() const { return mKeyboardFocus; }  
 	LLUICtrl*		getLastKeyboardFocus() const { return mLastKeyboardFocus; }  
 	BOOL			childHasKeyboardFocus( const LLView* parent ) const;
 	void			removeKeyboardFocusWithoutCallback( const LLView* focus );
+	BOOL			getKeystrokesOnly() { return mKeystrokesOnly; }
+	void			setKeystrokesOnly(BOOL keystrokes_only) { mKeystrokesOnly = keystrokes_only; }
+
 	F32				getFocusTime() const { return mFocusTimer.getElapsedTimeF32(); }
 	F32				getFocusFlashAmt() const;
+	S32				getFocusFlashWidth() const { return llround(lerp(1.f, 3.f, getFocusFlashAmt())); }
 	LLColor4		getFocusColor() const;
 	void			triggerFocusFlash();
 	BOOL			getAppHasFocus() const { return mAppHasFocus; }
@@ -96,6 +100,7 @@ private:
 	LLUICtrl*			mKeyboardFocus;				// Keyboard events are preemptively routed to this object
 	LLUICtrl*			mLastKeyboardFocus;			// who last had focus
 	LLUICtrl*			mDefaultKeyboardFocus;
+	BOOL				mKeystrokesOnly;
 
 	// Top View
 	LLUICtrl*			mTopCtrl;

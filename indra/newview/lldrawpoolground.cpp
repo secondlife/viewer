@@ -79,7 +79,7 @@ void LLDrawPoolGround::render(S32 pass)
 
 	F32 water_height = gAgent.getRegion()->getWaterHeight();
 	glPushMatrix();
-	LLVector3 origin = gCamera->getOrigin();
+	LLVector3 origin = LLViewerCamera::getInstance()->getOrigin();
 	glTranslatef(origin.mV[0], origin.mV[1], llmax(origin.mV[2], water_height));
 
 	LLFace *facep = mDrawFace[0];

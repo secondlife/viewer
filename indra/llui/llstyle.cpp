@@ -138,12 +138,34 @@ void LLStyle::setFontName(const LLString& fontname)
 }
 
 
-void LLStyle::setImage(const LLString& src)
+void LLStyle::setLinkHREF(const LLString& href)
 {
-	if (src.size() >= UUID_STR_LENGTH - 1)
-	{
-		mImagep = LLUI::sImageProvider->getImageByID(LLUUID(src));
-	}
+	mLink = href;
+}
+
+BOOL LLStyle::isLink() const
+{
+	return mLink.size();
+}
+
+BOOL LLStyle::isVisible() const
+{
+	return mVisible;
+}
+
+void LLStyle::setVisible(BOOL is_visible)
+{
+	mVisible = is_visible;
+}
+
+LLUIImagePtr LLStyle::getImage() const
+{
+	return mImagep;
+}
+
+void LLStyle::setImage(const LLUUID& src)
+{
+	mImagep = LLUI::sImageProvider->getUIImageByID(src);
 }
 
 

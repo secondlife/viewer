@@ -131,13 +131,3 @@ LLDebugView::~LLDebugView()
 	gTextureView = NULL;
 }
 
-EWidgetType LLDebugView::getWidgetType() const
-{
-	return WIDGET_TYPE_DEBUG_VIEW;
-}
-
-LLString LLDebugView::getWidgetTag() const
-{
-	return LL_DEBUG_VIEW_TAG;
-}
-

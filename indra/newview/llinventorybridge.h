@@ -235,7 +235,7 @@ public:
 	virtual void selectItem();
 	virtual void restoreItem();
 
-	virtual LLViewerImage* getIcon() const;
+	virtual LLUIImagePtr getIcon() const;
 	virtual const LLString& getDisplayName() const;
 	virtual LLString getLabelSuffix() const;
 	virtual PermissionMask getPermissionMask() const;
@@ -275,7 +275,7 @@ public:
 	virtual void restoreItem();
 
 
-	virtual LLViewerImage* getIcon() const;
+	virtual LLUIImagePtr getIcon() const;
 	virtual BOOL renameItem(const LLString& new_name);
 	virtual BOOL removeItem();
 	virtual BOOL isClipboardPasteable() const;
@@ -337,7 +337,7 @@ class LLScriptBridge : public LLItemBridge
 {
 	friend class LLInvFVBridge;
 public:
-	LLViewerImage* getIcon() const;
+	LLUIImagePtr getIcon() const;
 
 protected:
 	LLScriptBridge( LLInventoryPanel* inventory, const LLUUID& uuid ) :
@@ -351,7 +351,7 @@ class LLTextureBridge : public LLItemBridge
 public:
 	virtual const LLString& getPrefix() { return sPrefix; }
 
-	virtual LLViewerImage* getIcon() const;
+	virtual LLUIImagePtr getIcon() const;
 	virtual void openItem();
 
 protected:
@@ -367,7 +367,7 @@ class LLSoundBridge : public LLItemBridge
 public:
 	virtual const LLString& getPrefix() { return sPrefix; }
 
-	virtual LLViewerImage* getIcon() const;
+	virtual LLUIImagePtr getIcon() const;
 	virtual void openItem();
 	virtual void previewItem();
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
@@ -387,7 +387,7 @@ public:
 	virtual const LLString& getPrefix() { return sPrefix; }
 	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, LLString action);
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-	virtual LLViewerImage* getIcon() const;
+	virtual LLUIImagePtr getIcon() const;
 	virtual void openItem();
 
 protected:
@@ -427,7 +427,7 @@ public:
 
 	virtual LLString getLabelSuffix() const;
 	//virtual const LLString& getDisplayName() const;
-	virtual LLViewerImage* getIcon() const;
+	virtual LLUIImagePtr getIcon() const;
 	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, LLString action);
 	virtual void openItem();
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
@@ -454,7 +454,7 @@ class LLNotecardBridge : public LLItemBridge
 public:
 	virtual const LLString& getPrefix() { return sPrefix; }
 
-	virtual LLViewerImage* getIcon() const;
+	virtual LLUIImagePtr getIcon() const;
 	virtual void openItem();
 
 protected:
@@ -471,7 +471,7 @@ class LLGestureBridge : public LLItemBridge
 public:
 	virtual const LLString& getPrefix() { return sPrefix; }
 
-	virtual LLViewerImage* getIcon() const;
+	virtual LLUIImagePtr getIcon() const;
 
 	// Only suffix for gesture items, not task items, because only
 	// gestures in your inventory can be active.
@@ -501,7 +501,7 @@ public:
 	virtual void performAction(LLFolderView* folder, LLInventoryModel* model, LLString action);
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 
-	virtual LLViewerImage* getIcon() const;
+	virtual LLUIImagePtr getIcon() const;
 	virtual void openItem();
 
 protected:
@@ -519,7 +519,7 @@ class LLObjectBridge : public LLItemBridge
 public:
 	virtual const LLString& getPrefix() { return sPrefix; }
 
-	virtual LLViewerImage*	getIcon() const;
+	virtual LLUIImagePtr	getIcon() const;
 	virtual void			performAction(LLFolderView* folder, LLInventoryModel* model, LLString action);
 	virtual void			openItem();
 	virtual LLFontGL::StyleFlags getLabelStyle() const;
@@ -552,7 +552,7 @@ class LLLSLTextBridge : public LLItemBridge
 public:
 	virtual const LLString& getPrefix() { return sPrefix; }
 
-	virtual LLViewerImage* getIcon() const;
+	virtual LLUIImagePtr getIcon() const;
 	virtual void openItem();
 
 protected:
@@ -568,7 +568,7 @@ class LLWearableBridge : public LLItemBridge
 {
 	friend class LLInvFVBridge;
 public:
-	virtual LLViewerImage* getIcon() const;
+	virtual LLUIImagePtr getIcon() const;
 	virtual void	performAction(LLFolderView* folder, LLInventoryModel* model, LLString action);
 	virtual void	openItem();
 	virtual void	buildContextMenu(LLMenuGL& menu, U32 flags);

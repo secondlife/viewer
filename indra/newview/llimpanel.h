@@ -217,7 +217,7 @@ public:
 
 	S32 getNumUnreadMessages() { return mNumUnreadMessages; }
 
-	BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	BOOL handleKeyHere(KEY key, MASK mask);
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
 						   BOOL drop, EDragAndDropType cargo_type,
 						   void *cargo_data, EAcceptance *accept,

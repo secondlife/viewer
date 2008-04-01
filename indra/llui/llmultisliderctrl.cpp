@@ -50,6 +50,8 @@
 #include "llfocusmgr.h"
 #include "llresmgr.h"
 
+static LLRegisterWidget<LLMultiSliderCtrl> r("multi_slider");
+
 const U32 MAX_STRING_LENGTH = 10;
 
  

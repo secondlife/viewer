@@ -74,8 +74,6 @@ public:
 	virtual ~LLTextureCtrl();
 
 	// LLView interface
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_TEXTURE_PICKER; }
-	virtual LLString getWidgetTag() const { return LL_TEXTURE_CTRL_TAG; }
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
@@ -85,7 +83,7 @@ public:
 						EAcceptance *accept,
 						LLString& tooltip_msg);
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent);
+	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
 
 	virtual void	draw();
 	virtual void	setVisible( BOOL visible );

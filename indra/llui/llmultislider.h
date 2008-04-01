@@ -55,8 +55,6 @@ public:
 		BOOL use_triangle,
 		const LLString& control_name = LLString::null );
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static  LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
@@ -94,7 +92,7 @@ public:
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL	handleKeyHere(KEY key, MASK mask);
 	virtual void	draw();
 
 protected:

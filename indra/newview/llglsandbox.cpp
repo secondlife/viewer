@@ -86,7 +86,7 @@ BOOL LLAgent::setLookAt(ELookAtType target_type, LLViewerObject *object, LLVecto
 	}
 	if(!mLookAt || mLookAt->isDead())
 	{
-		mLookAt = (LLHUDEffectLookAt *)gHUDManager->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_LOOKAT);
+		mLookAt = (LLHUDEffectLookAt *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_LOOKAT);
 		mLookAt->setSourceObject(mAvatarObject);
 	}
 
@@ -103,7 +103,7 @@ BOOL LLAgent::setPointAt(EPointAtType target_type, LLViewerObject *object, LLVec
 
 	if(!mPointAt || mPointAt->isDead())
 	{
-		mPointAt = (LLHUDEffectPointAt *)gHUDManager->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINTAT);
+		mPointAt = (LLHUDEffectPointAt *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINTAT);
 		mPointAt->setSourceObject(mAvatarObject);
 	}
 
@@ -181,8 +181,8 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 	top = llround((F32) top * LLUI::sGLScaleFactor.mV[VY]);
 	bottom = llround((F32) bottom * LLUI::sGLScaleFactor.mV[VY]);
 
-	F32 old_far_plane = gCamera->getFar();
-	F32 old_near_plane = gCamera->getNear();
+	F32 old_far_plane = LLViewerCamera::getInstance()->getFar();
+	F32 old_near_plane = LLViewerCamera::getInstance()->getNear();
 
 	S32 width = right - left + 1;
 	S32 height = top - bottom + 1;
@@ -220,17 +220,17 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 	{
 		// ...select distance from control
 		LLVector3 relative_av_pos = av_pos;
-		relative_av_pos -= gCamera->getOrigin();
+		relative_av_pos -= LLViewerCamera::getInstance()->getOrigin();
 
-		F32 new_far = relative_av_pos * gCamera->getAtAxis() + gSavedSettings.getF32("MaxSelectDistance");
-		F32 new_near = relative_av_pos * gCamera->getAtAxis() - gSavedSettings.getF32("MaxSelectDistance");
+		F32 new_far = relative_av_pos * LLViewerCamera::getInstance()->getAtAxis() + gSavedSettings.getF32("MaxSelectDistance");
+		F32 new_near = relative_av_pos * LLViewerCamera::getInstance()->getAtAxis() - gSavedSettings.getF32("MaxSelectDistance");
 
 		new_near = llmax(new_near, 0.1f);
 
-		gCamera->setFar(new_far);
-		gCamera->setNear(new_near);
+		LLViewerCamera::getInstance()->setFar(new_far);
+		LLViewerCamera::getInstance()->setNear(new_near);
 	}
-	gCamera->setPerspective(FOR_SELECTION, 
+	LLViewerCamera::getInstance()->setPerspective(FOR_SELECTION, 
 							center_x-width/2, center_y-height/2, width, height, 
 							limit_select_distance);
 
@@ -245,17 +245,17 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 				{
 					return true;
 				}
-				S32 result = gCamera->sphereInFrustum(drawable->getPositionAgent(), drawable->getRadius());
+				S32 result = LLViewerCamera::getInstance()->sphereInFrustum(drawable->getPositionAgent(), drawable->getRadius());
 				switch (result)
 				{
 				  case 0:
-					gSelectMgr->unhighlightObjectOnly(vobjp);
+					LLSelectMgr::getInstance()->unhighlightObjectOnly(vobjp);
 					break;
 				  case 1:
 					// check vertices
-					if (!gCamera->areVertsVisible(vobjp, LLSelectMgr::sRectSelectInclusive))
+					if (!LLViewerCamera::getInstance()->areVertsVisible(vobjp, LLSelectMgr::sRectSelectInclusive))
 					{
-						gSelectMgr->unhighlightObjectOnly(vobjp);
+						LLSelectMgr::getInstance()->unhighlightObjectOnly(vobjp);
 					}
 					break;
 				  default:
@@ -264,15 +264,15 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 				return true;
 			}
 		} func;
-		gSelectMgr->getHighlightedObjects()->applyToObjects(&func);
+		LLSelectMgr::getInstance()->getHighlightedObjects()->applyToObjects(&func);
 	}
 
 	if (grow_selection)
 	{
 		std::vector<LLDrawable*> potentials;
 				
-		for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
-			iter != gWorldp->getRegionList().end(); ++iter)
+		for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 		{
 			LLViewerRegion* region = *iter;
 			for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
@@ -280,7 +280,7 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 				LLSpatialPartition* part = region->getSpatialPartition(i);
 				if (part)
 				{	
-					part->cull(*gCamera, &potentials, TRUE);
+					part->cull(*LLViewerCamera::getInstance(), &potentials, TRUE);
 				}
 			}
 		}
@@ -304,20 +304,20 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 				continue;
 			}
 
-			S32 result = gCamera->sphereInFrustum(drawable->getPositionAgent(), drawable->getRadius());
+			S32 result = LLViewerCamera::getInstance()->sphereInFrustum(drawable->getPositionAgent(), drawable->getRadius());
 			if (result)
 			{
 				switch (result)
 				{
 				case 1:
 					// check vertices
-					if (gCamera->areVertsVisible(vobjp, LLSelectMgr::sRectSelectInclusive))
+					if (LLViewerCamera::getInstance()->areVertsVisible(vobjp, LLSelectMgr::sRectSelectInclusive))
 					{
-						gSelectMgr->highlightObjectOnly(vobjp);
+						LLSelectMgr::getInstance()->highlightObjectOnly(vobjp);
 					}
 					break;
 				case 2:
-					gSelectMgr->highlightObjectOnly(vobjp);
+					LLSelectMgr::getInstance()->highlightObjectOnly(vobjp);
 					break;
 				default:
 					break;
@@ -332,8 +332,8 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 	glMatrixMode(GL_MODELVIEW);
 
 	// restore camera
-	gCamera->setFar(old_far_plane);
-	gCamera->setNear(old_near_plane);
+	LLViewerCamera::getInstance()->setFar(old_far_plane);
+	LLViewerCamera::getInstance()->setNear(old_near_plane);
 	gViewerWindow->setup3DRender();
 }
 
@@ -343,10 +343,6 @@ static const F32 COMPASS_RANGE = 0.33f;
 
 void LLCompass::draw()
 {
-//	S32 left, top, right, bottom;
-
-	if (!getVisible()) return;
-
 	glMatrixMode(GL_MODELVIEW);
 	gGL.pushMatrix();
 
@@ -413,8 +409,6 @@ void LLCompass::draw()
 
 void LLHorizontalCompass::draw()
 {
-	if (!getVisible()) return;
-
 	LLGLSUIDefault gls_ui;
 	
 	S32 width = getRect().getWidth();
@@ -423,7 +417,7 @@ void LLHorizontalCompass::draw()
 
 	if( mTexture )
 	{
-		const LLVector3& at_axis = gCamera->getAtAxis();
+		const LLVector3& at_axis = LLViewerCamera::getInstance()->getAtAxis();
 		F32 center = atan2( at_axis.mV[VX], at_axis.mV[VY] );
 
 		center += F_PI;
@@ -469,7 +463,7 @@ void LLWind::renderVectors()
 	S32 i,j;
 	F32 x,y;
 
-	F32 region_width_meters = gWorldPointer->getRegionWidthInMeters();
+	F32 region_width_meters = LLWorld::getInstance()->getRegionWidthInMeters();
 
 	LLGLSNoTexture gls_no_texture;
 	gGL.pushMatrix();
@@ -524,10 +518,10 @@ void LLViewerParcelMgr::renderRect(const LLVector3d &west_south_bottom_global,
 	// resolves correctly so we can get a height value.
 	const F32 FUDGE = 0.01f;
 
-	F32 sw_bottom = gWorldp->resolveLandHeightAgent( LLVector3( west, south, 0.f ) );
-	F32 se_bottom = gWorldp->resolveLandHeightAgent( LLVector3( east-FUDGE, south, 0.f ) );
-	F32 ne_bottom = gWorldp->resolveLandHeightAgent( LLVector3( east-FUDGE, north-FUDGE, 0.f ) );
-	F32 nw_bottom = gWorldp->resolveLandHeightAgent( LLVector3( west, north-FUDGE, 0.f ) );
+	F32 sw_bottom = LLWorld::getInstance()->resolveLandHeightAgent( LLVector3( west, south, 0.f ) );
+	F32 se_bottom = LLWorld::getInstance()->resolveLandHeightAgent( LLVector3( east-FUDGE, south, 0.f ) );
+	F32 ne_bottom = LLWorld::getInstance()->resolveLandHeightAgent( LLVector3( east-FUDGE, north-FUDGE, 0.f ) );
+	F32 nw_bottom = LLWorld::getInstance()->resolveLandHeightAgent( LLVector3( west, north-FUDGE, 0.f ) );
 
 	F32 sw_top = sw_bottom + PARCEL_POST_HEIGHT;
 	F32 se_top = se_bottom + PARCEL_POST_HEIGHT;
@@ -601,10 +595,10 @@ void LLViewerParcelMgr::renderParcel(LLParcel* parcel )
 		// resolves correctly so we can get a height value.
 		const F32 FUDGE = 0.01f;
 
-		F32 sw_bottom = gWorldp->resolveLandHeightAgent( LLVector3( west, south, 0.f ) );
-		F32 se_bottom = gWorldp->resolveLandHeightAgent( LLVector3( east-FUDGE, south, 0.f ) );
-		F32 ne_bottom = gWorldp->resolveLandHeightAgent( LLVector3( east-FUDGE, north-FUDGE, 0.f ) );
-		F32 nw_bottom = gWorldp->resolveLandHeightAgent( LLVector3( west, north-FUDGE, 0.f ) );
+		F32 sw_bottom = LLWorld::getInstance()->resolveLandHeightAgent( LLVector3( west, south, 0.f ) );
+		F32 se_bottom = LLWorld::getInstance()->resolveLandHeightAgent( LLVector3( east-FUDGE, south, 0.f ) );
+		F32 ne_bottom = LLWorld::getInstance()->resolveLandHeightAgent( LLVector3( east-FUDGE, north-FUDGE, 0.f ) );
+		F32 nw_bottom = LLWorld::getInstance()->resolveLandHeightAgent( LLVector3( west, north-FUDGE, 0.f ) );
 
 		// little hack to make nearby lines not Z-fight
 		east -= 0.1f;
@@ -856,11 +850,11 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 	
 	if (use_pass && (mCollisionBanned == BA_NOT_ON_LIST))
 	{
-		LLViewerImage::bindTexture( getPassImage() );
+		LLViewerImage::bindTexture(mPassImage);
 	}
 	else
 	{
-		LLViewerImage::bindTexture( getBlockedImage() );
+		LLViewerImage::bindTexture(mBlockedImage);
 	}
 
 	gGL.begin(GL_QUADS);
@@ -1013,7 +1007,7 @@ void LLViewerObjectList::renderObjectBeacons()
 	}
 
 	S32 i;
-	//const LLFontGL *font = gResMgr->getRes(LLFONT_SANSSERIF);
+	//const LLFontGL *font = LLResMgr::getInstance()->getRes(LLFONT_SANSSERIF);
 
 	LLGLSUIDefault gls_ui;
 

@@ -42,7 +42,7 @@
 #include "lltexturectrl.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 
 // defined in llfloaterland.cpp
@@ -122,7 +122,7 @@ LLFloaterSellLandUI* LLFloaterSellLandUI::soleInstance(bool createIfNeeded)
 	{
 		sInstance = new LLFloaterSellLandUI();
 
-		gUICtrlFactory->buildFloater(sInstance, "floater_sell_land.xml");
+		LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_sell_land.xml");
 		sInstance->center();
 	}
 	
@@ -131,7 +131,7 @@ LLFloaterSellLandUI* LLFloaterSellLandUI::soleInstance(bool createIfNeeded)
 	if (!parcelSelectionObserver)
 	{
 		parcelSelectionObserver = new SelectionObserver;
-		gParcelMgr->addObserver(parcelSelectionObserver);
+		LLViewerParcelMgr::getInstance()->addObserver(parcelSelectionObserver);
 	}
 
 	return sInstance;
@@ -156,14 +156,14 @@ void LLFloaterSellLandUI::SelectionObserver::changed()
 	LLFloaterSellLandUI* ui = LLFloaterSellLandUI::soleInstance(false);
 	if (ui)
 	{
-		if (gParcelMgr->selectionEmpty())
+		if (LLViewerParcelMgr::getInstance()->selectionEmpty())
 		{
 			ui->close();
 		}
 		else {
 			ui->setParcel(
-				gParcelMgr->getSelectionRegion(),
-				gParcelMgr->getParcelSelection());
+				LLViewerParcelMgr::getInstance()->getSelectionRegion(),
+				LLViewerParcelMgr::getInstance()->getParcelSelection());
 		}
 	}
 }
@@ -251,22 +251,22 @@ void LLFloaterSellLandUI::updateParcelInfo()
 
 void LLFloaterSellLandUI::setBadge(const char* id, Badge badge)
 {
-	static LLUUID badgeOK(gViewerArt.getString("badge_ok.tga"));
-	static LLUUID badgeNote(gViewerArt.getString("badge_note.tga"));
-	static LLUUID badgeWarn(gViewerArt.getString("badge_warn.tga"));
-	static LLUUID badgeError(gViewerArt.getString("badge_error.tga"));
+	static LLString badgeOK("badge_ok.j2c");
+	static LLString badgeNote("badge_note.j2c");
+	static LLString badgeWarn("badge_warn.j2c");
+	static LLString badgeError("badge_error.j2c");
 	
-	LLUUID badgeUUID;
+	LLString badgeName;
 	switch (badge)
 	{
 		default:
-		case BADGE_OK:		badgeUUID = badgeOK;	break;
-		case BADGE_NOTE:	badgeUUID = badgeNote;	break;
-		case BADGE_WARN:	badgeUUID = badgeWarn;	break;
-		case BADGE_ERROR:	badgeUUID = badgeError;	break;
+		case BADGE_OK:		badgeName = badgeOK;	break;
+		case BADGE_NOTE:	badgeName = badgeNote;	break;
+		case BADGE_WARN:	badgeName = badgeWarn;	break;
+		case BADGE_ERROR:	badgeName = badgeError;	break;
 	}
 	
-	childSetValue(id, badgeUUID);
+	childSetValue(id, badgeName);
 }
 
 void LLFloaterSellLandUI::refreshUI()
@@ -274,7 +274,7 @@ void LLFloaterSellLandUI::refreshUI()
 	LLParcel* parcelp = mParcelSelection->getParcel();
 	if (!parcelp) return;
 
-	LLTextureCtrl* snapshot = LLViewerUICtrlFactory::getTexturePickerByName(this, "info_image");
+	LLTextureCtrl* snapshot = getChild<LLTextureCtrl>("info_image");
 	if (snapshot)
 	{
 		snapshot->setImageAssetID(mParcelSnapshot);
@@ -451,7 +451,7 @@ void LLFloaterSellLandUI::doShowObjects(void *userdata)
 // static
 void LLFloaterSellLandUI::callbackHighlightTransferable(S32 option, void* userdata)
 {
-	gSelectMgr->unhighlightAll();
+	LLSelectMgr::getInstance()->unhighlightAll();
 }
 
 // static
@@ -546,7 +546,7 @@ void LLFloaterSellLandUI::onConfirmSale(S32 option, void *userdata)
 	}
 
 	// Send update to server
-	gParcelMgr->sendParcelPropertiesUpdate( parcel );
+	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate( parcel );
 
 	self->close();
 }

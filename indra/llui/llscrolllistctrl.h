@@ -90,7 +90,7 @@ public:
 	LLScrollListSeparator(S32 width);
 	virtual ~LLScrollListSeparator() {};
 	virtual void			draw(const LLColor4& color, const LLColor4& highlight_color) const;		// truncate to given width, if possible
-	virtual S32				getHeight() const { return 5; };
+	virtual S32				getHeight() const;
 	virtual BOOL			isText() const { return FALSE; }
 };
 
@@ -105,14 +105,14 @@ public:
 
 	virtual void    draw(const LLColor4& color, const LLColor4& highlight_color) const;
 	virtual S32		getContentWidth() const;
-	virtual S32		getHeight() const			{ return llround(mFont->getLineHeight()); }
+	virtual S32		getHeight() const;
 	virtual void	setValue(const LLSD& value);
-	virtual const LLSD getValue() const		{ return LLSD(mText.getString()); }
-	virtual BOOL	getVisible() const  { return mVisible; }
-	virtual void	highlightText(S32 offset, S32 num_chars) {mHighlightOffset = offset; mHighlightCount = num_chars;}
+	virtual const LLSD getValue() const;
+	virtual BOOL	getVisible() const;
+	virtual void	highlightText(S32 offset, S32 num_chars);
 
 	virtual void	setColor(const LLColor4&);
-	virtual BOOL	isText() const { return TRUE; }
+	virtual BOOL	isText() const;
 
 	void			setText(const LLStringExplicit& text);
 	void			setFontStyle(const U8 font_style) { mFontStyle = font_style; }
@@ -128,7 +128,7 @@ private:
 	S32				mHighlightCount;
 	S32				mHighlightOffset;
 
-	LLPointer<LLImageGL> mRoundedRectImage;
+	LLPointer<LLUIImage> mRoundedRectImage;
 
 	static U32 sCount;
 };
@@ -139,20 +139,19 @@ private:
 class LLScrollListIcon : public LLScrollListCell
 {
 public:
-	LLScrollListIcon( const LLUUID& icon_id, S32 width = 0);
+	LLScrollListIcon( LLUIImagePtr icon, S32 width = 0);
+	LLScrollListIcon(const LLSD& value, S32 width = 0);
 	/*virtual*/ ~LLScrollListIcon();
 	virtual void	draw(const LLColor4& color, const LLColor4& highlight_color) const;
 	virtual S32		getWidth() const;
 	virtual S32		getHeight() const			{ return mIcon ? mIcon->getHeight() : 0; }
-	// used as sort criterion
-	virtual const LLSD		getValue() const { return LLSD(mImageUUID); }
+	virtual const LLSD		getValue() const { return mIcon.isNull() ? LLString::null : mIcon->getName(); }
 	virtual void	setColor(const LLColor4&);
 	virtual BOOL	isText()const { return FALSE; }
 	virtual void	setValue(const LLSD& value);
 
 private:
-	LLPointer<LLImageGL> mIcon;
-	LLUUID mImageUUID;
+	LLUIImagePtr mIcon;
 	LLColor4 mColor;
 };
 
@@ -342,8 +341,8 @@ public:
 	void	addColumn( const LLString& text, const LLFontGL* font, S32 width = 0 , U8 font_style = LLFontGL::NORMAL, LLFontGL::HAlign font_alignment = LLFontGL::LEFT, BOOL visible = TRUE)
 				{ mColumns.push_back( new LLScrollListText(text, font, width, font_style, font_alignment, LLColor4::black, FALSE, visible) ); }
 
-	void	addColumn( const LLUUID& icon_id, S32 width = 0 )
-				{ mColumns.push_back( new LLScrollListIcon(icon_id, width) ); }
+	void	addColumn( LLUIImagePtr icon, S32 width = 0 )
+				{ mColumns.push_back( new LLScrollListIcon(icon, width) ); }
 
 	void	addColumn( LLCheckBoxCtrl* check, S32 width = 0 )
 				{ mColumns.push_back( new LLScrollListCheck(check,width) ); }
@@ -404,8 +403,7 @@ public:
 		BOOL draw_border = TRUE);
 
 	virtual ~LLScrollListCtrl();
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_SCROLL_LIST; }
-	virtual LLString getWidgetTag() const { return LL_SCROLL_LIST_CTRL_TAG; }
+
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	void setScrollListParameters(LLXMLNodePtr node);
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
@@ -562,8 +560,8 @@ public:
 	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
-	/*virtual*/ BOOL	handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent);
+	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask);
+	/*virtual*/ BOOL	handleUnicodeCharHere(llwchar uni_char);
 	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
 	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect);
 	/*virtual*/ void	setEnabled(BOOL enabled);
@@ -618,6 +616,7 @@ public:
 
 	S32		selectMultiple( LLDynamicArray<LLUUID> ids );
 	void			sortItems();
+
 	// manually call this whenever editing list items in place to flag need for resorting
 	void			setSorted(BOOL sorted) { mSorted = sorted; }
 	void			dirtyColumns(); // some operation has potentially affected column layout or ordering

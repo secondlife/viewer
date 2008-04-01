@@ -54,10 +54,7 @@ public:
 		void (*keystroke_callback)(LLLineEditor* caller, void* user_data) = NULL,
 		void (*focus_lost_callback)(LLFocusableElement* caller, void* user_data) = NULL,
 		void* userdata = NULL,
-		LLLinePrevalidateFunc prevalidate_func = NULL,
-		LLViewBorder::EBevel border_bevel = LLViewBorder::BEVEL_IN,
-		LLViewBorder::EStyle border_style = LLViewBorder::STYLE_LINE,
-		S32 border_thickness = 1);
+		LLLinePrevalidateFunc prevalidate_func = NULL);
 		// By default, follows top and left and is mouse-opaque.
 		// If no text, text = name.
 		// If no font, uses default system font.
@@ -74,8 +71,6 @@ public:
 	static void refreshAll(const LLUUID& id, const char* firstname,
 						   const char* lastname, BOOL is_group);
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_NAME_EDITOR; }
-	virtual LLString getWidgetTag() const { return LL_NAME_EDITOR_TAG; }
 
 	// Take/return agent UUIDs
 	virtual void	setValue( LLSD value );

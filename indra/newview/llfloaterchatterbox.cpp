@@ -35,7 +35,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloaterchatterbox.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llfloaterchat.h"
 #include "llfloaterfriends.h"
 #include "llfloatergroups.h"
@@ -53,7 +53,7 @@ LLFloaterMyFriends::LLFloaterMyFriends(const LLSD& seed)
 	mFactoryMap["groups_panel"] = LLCallbackMap(LLFloaterMyFriends::createGroupsPanel, NULL);
 	// do not automatically open singleton floaters (as result of getInstance())
 	BOOL no_open = FALSE;
-	gUICtrlFactory->buildFloater(this, "floater_my_friends.xml", &getFactoryMap(), no_open);
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_my_friends.xml", &getFactoryMap(), no_open);
 }
 
 LLFloaterMyFriends::~LLFloaterMyFriends()
@@ -62,7 +62,7 @@ LLFloaterMyFriends::~LLFloaterMyFriends()
 
 BOOL LLFloaterMyFriends::postBuild()
 {
-	mTabs = LLUICtrlFactory::getTabContainerByName(this, "friends_and_groups");
+	mTabs = getChild<LLTabContainer>("friends_and_groups");
 
 	return TRUE;
 }
@@ -93,7 +93,7 @@ LLFloaterChatterBox::LLFloaterChatterBox(const LLSD& seed) :
 {
 	mAutoResize = FALSE;
 
-	gUICtrlFactory->buildFloater(this, "floater_chatterbox.xml", NULL, FALSE);
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_chatterbox.xml", NULL, FALSE);
 	if (gSavedSettings.getBOOL("ContactsTornOff"))
 	{
 		LLFloaterMyFriends* floater_contacts = LLFloaterMyFriends::getInstance(0);
@@ -128,33 +128,29 @@ LLFloaterChatterBox::~LLFloaterChatterBox()
 {
 }
 
-BOOL LLFloaterChatterBox::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+BOOL LLFloaterChatterBox::handleKeyHere(KEY key, MASK mask)
 {
-	if (getEnabled()
-		&& mask == MASK_CONTROL)
+	if (key == 'W' && mask == MASK_CONTROL)
 	{
-		if (key == 'W')
+		LLFloater* floater = getActiveFloater();
+		// is user closeable and is system closeable
+		if (floater && floater->canClose())
 		{
-			LLFloater* floater = getActiveFloater();
-			// is user closeable and is system closeable
-			if (floater && floater->canClose())
+			if (floater->isCloseable())
 			{
-				if (floater->isCloseable())
-				{
-					floater->close();
-				}
-				else
-				{
-					// close chatterbox window if frontmost tab is reserved, non-closeable tab
-					// such as contacts or near me
-					close();
-				}
+				floater->close();
 			}
-			return TRUE;
+			else
+			{
+				// close chatterbox window if frontmost tab is reserved, non-closeable tab
+				// such as contacts or near me
+				close();
+			}
 		}
+		return TRUE;
 	}
 
-	return LLMultiFloater::handleKeyHere(key, mask, called_from_parent);
+	return LLMultiFloater::handleKeyHere(key, mask);
 }
 
 void LLFloaterChatterBox::draw()
@@ -247,7 +243,7 @@ void LLFloaterChatterBox::addFloater(LLFloater* floaterp,
 	{
 		mTabContainer->unlockTabs();
 		// add chat history as second tab if contact window is present, first tab otherwise
-		if (getChildByName("floater_my_friends", TRUE))
+		if (getChildView("floater_my_friends"))
 		{
 			// assuming contacts window is first tab, select it
 			mTabContainer->selectFirstTab();

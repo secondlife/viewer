@@ -96,7 +96,7 @@ void LLDrawPoolWLSky::endRenderPass( S32 pass )
 
 void LLDrawPoolWLSky::renderDome(F32 camHeightLocal, LLGLSLShader * shader) const
 {
-	LLVector3 const & origin = gCamera->getOrigin();
+	LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
 
 	llassert_always(NULL != shader);
 
@@ -288,7 +288,7 @@ void LLDrawPoolWLSky::render(S32 pass)
 
 	renderSkyHaze(camHeightLocal);
 
-	LLVector3 const & origin = gCamera->getOrigin();
+	LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
 	glPushMatrix();
 
 		glTranslatef(origin.mV[0], origin.mV[1], origin.mV[2]);

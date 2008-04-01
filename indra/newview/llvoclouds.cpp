@@ -133,7 +133,7 @@ BOOL LLVOClouds::updateGeometry(LLDrawable *drawable)
 		drawable->setNumFacesFast(num_faces, NULL, getTEImage(0));
 	}
 
-	mDepth = (getPositionAgent()-gCamera->getOrigin())*gCamera->getAtAxis();
+	mDepth = (getPositionAgent()-LLViewerCamera::getInstance()->getOrigin())*LLViewerCamera::getInstance()->getAtAxis();
 
 	S32 face_indx = 0;
 	for ( ;	face_indx < num_faces; face_indx++)
@@ -224,7 +224,7 @@ void LLVOClouds::getGeometry(S32 te,
 
 	LLVector3 vtx[4];
 
-	at = gCamera->getAtAxis();
+	at = LLViewerCamera::getInstance()->getAtAxis();
 	right = at % LLVector3(0.f, 0.f, 1.f);
 	right.normVec();
 	up = right % at;

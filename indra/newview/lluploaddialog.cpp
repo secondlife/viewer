@@ -74,7 +74,7 @@ LLUploadDialog::LLUploadDialog( const std::string& msg)
 	}
 	LLUploadDialog::sDialog = this;
 
-	const LLFontGL* font = gResMgr->getRes( LLFONT_SANSSERIF );
+	const LLFontGL* font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF );
 	LLRect msg_rect;
 	for (int line_num=0; line_num<16; ++line_num)
 	{
@@ -90,7 +90,7 @@ LLUploadDialog::LLUploadDialog( const std::string& msg)
 
 void LLUploadDialog::setMessage( const std::string& msg)
 {
-	const LLFontGL* font = gResMgr->getRes( LLFONT_SANSSERIF );
+	const LLFontGL* font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF );
 
 	const S32 VPAD = 16;
 	const S32 HPAD = 25;

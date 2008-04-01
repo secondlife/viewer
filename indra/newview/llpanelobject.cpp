@@ -69,7 +69,7 @@
 #include "llworld.h"
 #include "pipeline.h"
 #include "llviewercontrol.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llfirstuse.h"
 
 #include "lldrawpool.h"
@@ -110,57 +110,57 @@ BOOL	LLPanelObject::postBuild()
 	//--------------------------------------------------------
 	
 	// Lock checkbox
-	mCheckLock = gUICtrlFactory->getCheckBoxByName(this,"checkbox locked");
+	mCheckLock = getChild<LLCheckBoxCtrl>("checkbox locked");
 	childSetCommitCallback("checkbox locked",onCommitLock,this);
 
 	// Physical checkbox
-	mCheckPhysics = gUICtrlFactory->getCheckBoxByName(this,"Physical Checkbox Ctrl");
+	mCheckPhysics = getChild<LLCheckBoxCtrl>("Physical Checkbox Ctrl");
 	childSetCommitCallback("Physical Checkbox Ctrl",onCommitPhysics,this);
 
 	// Temporary checkbox
-	mCheckTemporary = gUICtrlFactory->getCheckBoxByName(this,"Temporary Checkbox Ctrl");
+	mCheckTemporary = getChild<LLCheckBoxCtrl>("Temporary Checkbox Ctrl");
 	childSetCommitCallback("Temporary Checkbox Ctrl",onCommitTemporary,this);
 
 	// Phantom checkbox
-	mCheckPhantom = gUICtrlFactory->getCheckBoxByName(this,"Phantom Checkbox Ctrl");
+	mCheckPhantom = getChild<LLCheckBoxCtrl>("Phantom Checkbox Ctrl");
 	childSetCommitCallback("Phantom Checkbox Ctrl",onCommitPhantom,this);
 	
 	// Position
-	mLabelPosition = gUICtrlFactory->getTextBoxByName(this,"label position");
-	mCtrlPosX = gUICtrlFactory->getSpinnerByName(this,"Pos X");
+	mLabelPosition = getChild<LLTextBox>("label position");
+	mCtrlPosX = getChild<LLSpinCtrl>("Pos X");
 	childSetCommitCallback("Pos X",onCommitPosition,this);
-	mCtrlPosY = gUICtrlFactory->getSpinnerByName(this,"Pos Y");
+	mCtrlPosY = getChild<LLSpinCtrl>("Pos Y");
 	childSetCommitCallback("Pos Y",onCommitPosition,this);
-	mCtrlPosZ = gUICtrlFactory->getSpinnerByName(this,"Pos Z");
+	mCtrlPosZ = getChild<LLSpinCtrl>("Pos Z");
 	childSetCommitCallback("Pos Z",onCommitPosition,this);
 
 	// Scale
-	mLabelSize = gUICtrlFactory->getTextBoxByName(this,"label size");
-	mCtrlScaleX = gUICtrlFactory->getSpinnerByName(this,"Scale X");
+	mLabelSize = getChild<LLTextBox>("label size");
+	mCtrlScaleX = getChild<LLSpinCtrl>("Scale X");
 	childSetCommitCallback("Scale X",onCommitScale,this);
 
 	// Scale Y
-	mCtrlScaleY = gUICtrlFactory->getSpinnerByName(this,"Scale Y");
+	mCtrlScaleY = getChild<LLSpinCtrl>("Scale Y");
 	childSetCommitCallback("Scale Y",onCommitScale,this);
 
 	// Scale Z
-	mCtrlScaleZ = gUICtrlFactory->getSpinnerByName(this,"Scale Z");
+	mCtrlScaleZ = getChild<LLSpinCtrl>("Scale Z");
 	childSetCommitCallback("Scale Z",onCommitScale,this);
 
 	// Rotation
-	mLabelRotation = gUICtrlFactory->getTextBoxByName(this,"label rotation");
-	mCtrlRotX = gUICtrlFactory->getSpinnerByName(this,"Rot X");
+	mLabelRotation = getChild<LLTextBox>("label rotation");
+	mCtrlRotX = getChild<LLSpinCtrl>("Rot X");
 	childSetCommitCallback("Rot X",onCommitRotation,this);
-	mCtrlRotY = gUICtrlFactory->getSpinnerByName(this,"Rot Y");
+	mCtrlRotY = getChild<LLSpinCtrl>("Rot Y");
 	childSetCommitCallback("Rot Y",onCommitRotation,this);
-	mCtrlRotZ = gUICtrlFactory->getSpinnerByName(this,"Rot Z");
+	mCtrlRotZ = getChild<LLSpinCtrl>("Rot Z");
 	childSetCommitCallback("Rot Z",onCommitRotation,this);
 
 	//--------------------------------------------------------
 		
 	// material type popup
-	mLabelMaterial = gUICtrlFactory->getTextBoxByName(this,"label material");
-	mComboMaterial = gUICtrlFactory->getComboBoxByName(this,"material");
+	mLabelMaterial = getChild<LLTextBox>("label material");
+	mComboMaterial = getChild<LLComboBox>("material");
 	childSetCommitCallback("material",onCommitMaterial,this);
 	mComboMaterial->removeall();
 	// *TODO:translate
@@ -176,84 +176,84 @@ BOOL	LLPanelObject::postBuild()
 	mComboMaterialItemCount = mComboMaterial->getItemCount();
 
 	// Base Type
-	mLabelBaseType = gUICtrlFactory->getTextBoxByName(this,"label basetype");
-	mComboBaseType = gUICtrlFactory->getComboBoxByName(this,"comboBaseType");
+	mLabelBaseType = getChild<LLTextBox>("label basetype");
+	mComboBaseType = getChild<LLComboBox>("comboBaseType");
 	childSetCommitCallback("comboBaseType",onCommitParametric,this);
 
 	// Cut
-	mLabelCut = gUICtrlFactory->getTextBoxByName(this,"text cut");
-	mSpinCutBegin = gUICtrlFactory->getSpinnerByName(this,"cut begin");
+	mLabelCut = getChild<LLTextBox>("text cut");
+	mSpinCutBegin = getChild<LLSpinCtrl>("cut begin");
 	childSetCommitCallback("cut begin",onCommitParametric,this);
 	mSpinCutBegin->setValidateBeforeCommit( precommitValidate );
-	mSpinCutEnd = gUICtrlFactory->getSpinnerByName(this,"cut end");
+	mSpinCutEnd = getChild<LLSpinCtrl>("cut end");
 	childSetCommitCallback("cut end",onCommitParametric,this);
 	mSpinCutEnd->setValidateBeforeCommit( &precommitValidate );
 
 	// Hollow / Skew
-	mLabelHollow = gUICtrlFactory->getTextBoxByName(this,"text hollow");
-	mLabelSkew = gUICtrlFactory->getTextBoxByName(this,"text skew");
-	mSpinHollow = gUICtrlFactory->getSpinnerByName(this,"Scale 1");
+	mLabelHollow = getChild<LLTextBox>("text hollow");
+	mLabelSkew = getChild<LLTextBox>("text skew");
+	mSpinHollow = getChild<LLSpinCtrl>("Scale 1");
 	childSetCommitCallback("Scale 1",onCommitParametric,this);
 	mSpinHollow->setValidateBeforeCommit( &precommitValidate );
-	mSpinSkew = gUICtrlFactory->getSpinnerByName(this,"Skew");
+	mSpinSkew = getChild<LLSpinCtrl>("Skew");
 	childSetCommitCallback("Skew",onCommitParametric,this);
 	mSpinSkew->setValidateBeforeCommit( &precommitValidate );
-	mLabelHoleType = gUICtrlFactory->getTextBoxByName(this,"Hollow Shape");
+	mLabelHoleType = getChild<LLTextBox>("Hollow Shape");
 
 	// Hole Type
-	mComboHoleType = gUICtrlFactory->getComboBoxByName(this,"hole");
+	mComboHoleType = getChild<LLComboBox>("hole");
 	childSetCommitCallback("hole",onCommitParametric,this);
 
 	// Twist
-	mLabelTwist = gUICtrlFactory->getTextBoxByName(this,"text twist");
-	mSpinTwistBegin = gUICtrlFactory->getSpinnerByName(this,"Twist Begin");
+	mLabelTwist = getChild<LLTextBox>("text twist");
+	mSpinTwistBegin = getChild<LLSpinCtrl>("Twist Begin");
 	childSetCommitCallback("Twist Begin",onCommitParametric,this);
 	mSpinTwistBegin->setValidateBeforeCommit( precommitValidate );
-	mSpinTwist = gUICtrlFactory->getSpinnerByName(this,"Twist End");
+	mSpinTwist = getChild<LLSpinCtrl>("Twist End");
 	childSetCommitCallback("Twist End",onCommitParametric,this);
 	mSpinTwist->setValidateBeforeCommit( &precommitValidate );
 
 	// Scale
-	mSpinScaleX = gUICtrlFactory->getSpinnerByName(this,"Taper Scale X");
+	mSpinScaleX = getChild<LLSpinCtrl>("Taper Scale X");
 	childSetCommitCallback("Taper Scale X",onCommitParametric,this);
 	mSpinScaleX->setValidateBeforeCommit( &precommitValidate );
-	mSpinScaleY = gUICtrlFactory->getSpinnerByName(this,"Taper Scale Y");
+	mSpinScaleY = getChild<LLSpinCtrl>("Taper Scale Y");
 	childSetCommitCallback("Taper Scale Y",onCommitParametric,this);
 	mSpinScaleY->setValidateBeforeCommit( &precommitValidate );
 
 	// Shear
-	mLabelShear = gUICtrlFactory->getTextBoxByName(this,"text topshear");
-	mSpinShearX = gUICtrlFactory->getSpinnerByName(this,"Shear X");
+	mLabelShear = getChild<LLTextBox>("text topshear");
+	mSpinShearX = getChild<LLSpinCtrl>("Shear X");
 	childSetCommitCallback("Shear X",onCommitParametric,this);
 	mSpinShearX->setValidateBeforeCommit( &precommitValidate );
-	mSpinShearY = gUICtrlFactory->getSpinnerByName(this,"Shear Y");
+	mSpinShearY = getChild<LLSpinCtrl>("Shear Y");
 	childSetCommitCallback("Shear Y",onCommitParametric,this);
 	mSpinShearY->setValidateBeforeCommit( &precommitValidate );
 
 	// Path / Profile
-	mCtrlPathBegin = gUICtrlFactory->getSpinnerByName(this,"Path Limit Begin");
+	mCtrlPathBegin = getChild<LLSpinCtrl>("Path Limit Begin");
 	childSetCommitCallback("Path Limit Begin",onCommitParametric,this);
 	mCtrlPathBegin->setValidateBeforeCommit( &precommitValidate );
-	mCtrlPathEnd = gUICtrlFactory->getSpinnerByName(this,"Path Limit End");
+	mCtrlPathEnd = getChild<LLSpinCtrl>("Path Limit End");
 	childSetCommitCallback("Path Limit End",onCommitParametric,this);
 	mCtrlPathEnd->setValidateBeforeCommit( &precommitValidate );
 
 	// Taper
-	mLabelTaper = gUICtrlFactory->getTextBoxByName(this,"text taper2");
-	mSpinTaperX = gUICtrlFactory->getSpinnerByName(this,"Taper X");
+	mLabelTaper = getChild<LLTextBox>("text taper2");
+	mSpinTaperX = getChild<LLSpinCtrl>("Taper X");
 	childSetCommitCallback("Taper X",onCommitParametric,this);
 	mSpinTaperX->setValidateBeforeCommit( precommitValidate );
-	mSpinTaperY = gUICtrlFactory->getSpinnerByName(this,"Taper Y");
+	mSpinTaperY = getChild<LLSpinCtrl>("Taper Y");
 	childSetCommitCallback("Taper Y",onCommitParametric,this);
 	mSpinTaperY->setValidateBeforeCommit( precommitValidate );
 	
 	// Radius Offset / Revolutions
-	mLabelRadiusOffset = gUICtrlFactory->getTextBoxByName(this,"text radius delta");
-	mLabelRevolutions = gUICtrlFactory->getTextBoxByName(this,"text revolutions");
-	mSpinRadiusOffset = gUICtrlFactory->getSpinnerByName(this,"Radius Offset");
+	mLabelRadiusOffset = getChild<LLTextBox>("text radius delta");
+	mLabelRevolutions = getChild<LLTextBox>("text revolutions");
+	mSpinRadiusOffset = getChild<LLSpinCtrl>("Radius Offset");
 	childSetCommitCallback("Radius Offset",onCommitParametric,this);
 	mSpinRadiusOffset->setValidateBeforeCommit( &precommitValidate );
-	mSpinRevolutions = gUICtrlFactory->getSpinnerByName(this,"Revolutions");
+	mSpinRevolutions = getChild<LLSpinCtrl>("Revolutions");
 	childSetCommitCallback("Revolutions",onCommitParametric,this);
 	mSpinRevolutions->setValidateBeforeCommit( &precommitValidate );
 
@@ -272,7 +272,7 @@ BOOL	LLPanelObject::postBuild()
 		// Allow any texture to be used during non-immediate mode.
 		mCtrlSculptTexture->setNonImmediateFilterPermMask(PERM_NONE);
 		LLAggregatePermissions texture_perms;
-		if (gSelectMgr->selectGetAggregateTexturePermissions(texture_perms))
+		if (LLSelectMgr::getInstance()->selectGetAggregateTexturePermissions(texture_perms))
 		{
 			BOOL can_copy =
 				texture_perms.getValue(PERM_COPY) == LLAggregatePermissions::AP_EMPTY ||
@@ -288,8 +288,8 @@ BOOL	LLPanelObject::postBuild()
 		}
 	}
 
-	mLabelSculptType = gUICtrlFactory->getTextBoxByName(this, "label sculpt type");
-	mCtrlSculptType = gUICtrlFactory->getComboBoxByName(this, "sculpt type control");
+	mLabelSculptType = getChild<LLTextBox>("label sculpt type");
+	mCtrlSculptType = getChild<LLComboBox>( "sculpt type control");
 	childSetCommitCallback("sculpt type control", onCommitSculptType, this);
 
 	
@@ -317,11 +317,11 @@ LLPanelObject::~LLPanelObject()
 
 void LLPanelObject::getState( )
 {
-	LLViewerObject* objectp = gSelectMgr->getSelection()->getFirstRootObject();
+	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject();
 	LLViewerObject* root_objectp = objectp;
 	if(!objectp)
 	{
-		objectp = gSelectMgr->getSelection()->getFirstObject();
+		objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 		// *FIX: shouldn't we just keep the child?
 		if (objectp)
 		{
@@ -430,13 +430,13 @@ void LLPanelObject::getState( )
 	BOOL owners_identical;
 	LLUUID owner_id;
 	LLString owner_name;
-	owners_identical = gSelectMgr->selectGetOwner(owner_id, owner_name);
+	owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
 
 	// BUG? Check for all objects being editable?
-	S32 roots_selected = gSelectMgr->getSelection()->getRootObjectCount();
+	S32 roots_selected = LLSelectMgr::getInstance()->getSelection()->getRootObjectCount();
 	BOOL editable = root_objectp->permModify();
-	S32 selected_count = gSelectMgr->getSelection()->getObjectCount();
-	BOOL single_volume = (gSelectMgr->selectionAllPCode( LL_PCODE_VOLUME ))
+	S32 selected_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
+	BOOL single_volume = (LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME ))
 						 && (selected_count == 1);
 
 	// Select Single Message
@@ -460,7 +460,7 @@ void LLPanelObject::getState( )
 	BOOL valid;
 	U32 owner_mask_on;
 	U32 owner_mask_off;
-	valid = gSelectMgr->selectGetPerm(PERM_OWNER, &owner_mask_on, &owner_mask_off);
+	valid = LLSelectMgr::getInstance()->selectGetPerm(PERM_OWNER, &owner_mask_on, &owner_mask_off);
 
 	if(valid)
 	{
@@ -517,7 +517,7 @@ void LLPanelObject::getState( )
 			return object->getMaterial();
 		}
 	} func;
-	bool material_same = gSelectMgr->getSelection()->getSelectedTEValue( &func, material_code );
+	bool material_same = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, material_code );
 	
 	if (editable && single_volume && material_same)
 	{
@@ -1075,7 +1075,7 @@ void LLPanelObject::getState( )
 				mSculptTypeRevert    = sculpt_params->getSculptType();
 			}
 		
-			LLTextureCtrl*  mTextureCtrl = LLViewerUICtrlFactory::getTexturePickerByName(this,"sculpt texture control");
+			LLTextureCtrl*  mTextureCtrl = getChild<LLTextureCtrl>("sculpt texture control");
 			if(mTextureCtrl)
 			{
 				mTextureCtrl->setTentative(FALSE);
@@ -1122,7 +1122,7 @@ void LLPanelObject::sendIsPhysical()
 	BOOL value = mCheckPhysics->get();
 	if( mIsPhysical != value )
 	{
-		gSelectMgr->selectionUpdatePhysics(value);
+		LLSelectMgr::getInstance()->selectionUpdatePhysics(value);
 		mIsPhysical = value;
 
 		llinfos << "update physics sent" << llendl;
@@ -1138,7 +1138,7 @@ void LLPanelObject::sendIsTemporary()
 	BOOL value = mCheckTemporary->get();
 	if( mIsTemporary != value )
 	{
-		gSelectMgr->selectionUpdateTemporary(value);
+		LLSelectMgr::getInstance()->selectionUpdateTemporary(value);
 		mIsTemporary = value;
 
 		llinfos << "update temporary sent" << llendl;
@@ -1155,7 +1155,7 @@ void LLPanelObject::sendIsPhantom()
 	BOOL value = mCheckPhantom->get();
 	if( mIsPhantom != value )
 	{
-		gSelectMgr->selectionUpdatePhantom(value);
+		LLSelectMgr::getInstance()->selectionUpdatePhantom(value);
 		mIsPhantom = value;
 
 		llinfos << "update phantom sent" << llendl;
@@ -1171,7 +1171,7 @@ void LLPanelObject::sendCastShadows()
 	BOOL value = mCheckCastShadows->get();
 	if( mCastShadows != value )
 	{
-		gSelectMgr->selectionUpdateCastShadows(value);
+		LLSelectMgr::getInstance()->selectionUpdateCastShadows(value);
 		mCastShadows = value;
 
 		llinfos << "update cast shadows sent" << llendl;
@@ -1195,7 +1195,7 @@ void LLPanelObject::onCommitMaterial( LLUICtrl* ctrl, void* userdata )
 		if (material_name != LEGACY_FULLBRIGHT_DESC)
 		{
 			U8 material_code = LLMaterialTable::basic.getMCode(material_name.c_str());
-			gSelectMgr->selectionSetMaterial(material_code);
+			LLSelectMgr::getInstance()->selectionSetMaterial(material_code);
 		}
 	}
 }
@@ -1573,7 +1573,7 @@ void LLPanelObject::sendRotation()
 
 		mObject->setRotation(rotation, TRUE );
 
-		gSelectMgr->sendMultipleUpdate(UPD_ROTATION);
+		LLSelectMgr::getInstance()->sendMultipleUpdate(UPD_ROTATION);
 	}
 }
 
@@ -1595,13 +1595,13 @@ void LLPanelObject::sendScale()
 		BOOL dont_stretch_textures = !LLManipScale::getStretchTextures();
 		if (dont_stretch_textures)
 		{
-			gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_SCALE);
+			LLSelectMgr::getInstance()->saveSelectedObjectTransform(SELECT_ACTION_TYPE_SCALE);
 		}
 
 		mObject->setScale(newscale, TRUE);
-		gSelectMgr->sendMultipleUpdate(UPD_SCALE | UPD_POSITION);
+		LLSelectMgr::getInstance()->sendMultipleUpdate(UPD_SCALE | UPD_POSITION);
 
-		gSelectMgr->adjustTexturesByScale(TRUE, !dont_stretch_textures);
+		LLSelectMgr::getInstance()->adjustTexturesByScale(TRUE, !dont_stretch_textures);
 //		llinfos << "scale sent" << llendl;
 	}
 	else
@@ -1620,8 +1620,8 @@ void LLPanelObject::sendPosition()
 		
 	// Clamp the Z height
 	const F32 height = newpos.mV[VZ];
-	const F32 min_height = gWorldp->getMinAllowedZ(mObject);
-	const F32 max_height = gWorldPointer->getRegionMaxHeight();
+	const F32 min_height = LLWorld::getInstance()->getMinAllowedZ(mObject);
+	const F32 max_height = LLWorld::getInstance()->getRegionMaxHeight();
 
 	if (!mObject->isAttachment())
 	{
@@ -1639,7 +1639,7 @@ void LLPanelObject::sendPosition()
 		// Grass is always drawn on the ground, so clamp its position to the ground
 		if (mObject->getPCode() == LL_PCODE_LEGACY_GRASS)
 		{
-			mCtrlPosZ->set(gWorldp->resolveLandHeightAgent(newpos) + 1.f);
+			mCtrlPosZ->set(LLWorld::getInstance()->resolveLandHeightAgent(newpos) + 1.f);
 		}
 	}
 
@@ -1647,7 +1647,7 @@ void LLPanelObject::sendPosition()
 	// won't get dumped by the simulator.
 	LLVector3d new_pos_global = regionp->getPosGlobalFromRegion(newpos);
 
-	if ( gWorldPointer->positionRegionValidGlobal(new_pos_global) )
+	if ( LLWorld::getInstance()->positionRegionValidGlobal(new_pos_global) )
 	{
 		// send only if the position is changed, that is, the delta vector is not zero
 		LLVector3d old_pos_global = mObject->getPositionGlobal();
@@ -1665,10 +1665,10 @@ void LLPanelObject::sendPosition()
 			{
 				mObject->setPositionEdit(newpos);
 			}
-			gSelectMgr->sendMultipleUpdate(UPD_POSITION);
+			LLSelectMgr::getInstance()->sendMultipleUpdate(UPD_POSITION);
 			//mRootObject->sendPositionUpdate();
 
-			gSelectMgr->updateSelectionCenter();
+			LLSelectMgr::getInstance()->updateSelectionCenter();
 
 //			llinfos << "position sent" << llendl;
 		}
@@ -1726,9 +1726,9 @@ void LLPanelObject::draw()
 	const LLColor4	blue(	0.f,	0.5f,	1.0f,	1);
 
 	// Tune the colors of the labels
-	LLTool* tool = gToolMgr->getCurrentTool();
+	LLTool* tool = LLToolMgr::getInstance()->getCurrentTool();
 
-	if (tool == gToolTranslate)
+	if (tool == LLToolCompTranslate::getInstance())
 	{
 		mCtrlPosX	->setLabelColor(red);
 		mCtrlPosY	->setLabelColor(green);
@@ -1742,7 +1742,7 @@ void LLPanelObject::draw()
 		mCtrlRotY	->setLabelColor(white);
 		mCtrlRotZ	->setLabelColor(white);
 	}
-	else if ( tool == gToolStretch )
+	else if ( tool == LLToolCompScale::getInstance() )
 	{
 		mCtrlPosX	->setLabelColor(white);
 		mCtrlPosY	->setLabelColor(white);
@@ -1756,7 +1756,7 @@ void LLPanelObject::draw()
 		mCtrlRotY	->setLabelColor(white);
 		mCtrlRotZ	->setLabelColor(white);
 	}
-	else if ( tool == gToolRotate )
+	else if ( tool == LLToolCompRotate::getInstance() )
 	{
 		mCtrlPosX	->setLabelColor(white);
 		mCtrlPosY	->setLabelColor(white);
@@ -1846,7 +1846,7 @@ void LLPanelObject::onCommitLock(LLUICtrl *ctrl, void *data)
 
 	BOOL new_state = self->mCheckLock->get();
 	
-	gSelectMgr->selectionSetObjectPermissions(PERM_OWNER, !new_state, PERM_MOVE | PERM_MODIFY);
+	LLSelectMgr::getInstance()->selectionSetObjectPermissions(PERM_OWNER, !new_state, PERM_MOVE | PERM_MODIFY);
 }
 
 // static

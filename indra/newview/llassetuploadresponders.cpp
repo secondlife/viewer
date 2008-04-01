@@ -159,7 +159,7 @@ void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 	// deal with L$ errors
 	if (reason == "insufficient funds")
 	{
-		LLFloaterBuyCurrency::buyCurrency("Uploading costs", gGlobalEconomy->getPriceUpload());
+		LLFloaterBuyCurrency::buyCurrency("Uploading costs", LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
 	}
 	else
 	{
@@ -209,7 +209,7 @@ void LLNewAgentInventoryResponder::uploadComplete(const LLSD& content)
 		gAgent.sendReliableMessage();
 
 		LLString::format_map_t args;
-		args["[AMOUNT]"] = llformat("%d",gGlobalEconomy->getPriceUpload());
+		args["[AMOUNT]"] = llformat("%d",LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
 		LLNotifyBox::showXml("UploadPayment", args);
 	}
 

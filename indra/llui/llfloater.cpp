@@ -50,7 +50,6 @@
 #include "lltextbox.h"
 #include "llresmgr.h"
 #include "llui.h"
-#include "llviewborder.h"
 #include "llwindow.h"
 #include "llstl.h"
 #include "llcontrol.h"
@@ -799,24 +798,10 @@ void LLFloater::setMinimized(BOOL minimize)
 			mButtonsEnabled[BUTTON_RESTORE] = TRUE;
 		}
 
-		mMinimizedHiddenChildren.clear();
-		// hide all children
-		for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
-		{
-			LLView* viewp = *child_it;
-			if (!viewp->getVisible())
-			{
-				mMinimizedHiddenChildren.push_back(viewp->getHandle());
-			}
-			viewp->setVisible(FALSE);
-		}
-
-		// except the special controls
 		if (mDragHandle)
 		{
 			mDragHandle->setVisible(TRUE);
 		}
-
 		setBorderVisible(TRUE);
 
 		for(handle_set_iter_t dependent_it = mDependents.begin();
@@ -840,6 +825,12 @@ void LLFloater::setMinimized(BOOL minimize)
 		// Lose keyboard focus when minimized
 		releaseFocus();
 
+		for (S32 i = 0; i < 4; i++)
+		{
+			mResizeBar[i]->setEnabled(FALSE);
+			mResizeHandle[i]->setEnabled(FALSE);
+		}
+
 		mMinimized = TRUE;
 	}
 	else
@@ -862,24 +853,6 @@ void LLFloater::setMinimized(BOOL minimize)
 			mButtonsEnabled[BUTTON_RESTORE] = FALSE;
 		}
 
-		// show all children
-		for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
-		{
-			LLView* viewp = *child_it;
-			viewp->setVisible(TRUE);
-		}
-
-		std::vector<LLHandle<LLView> >::iterator itor = mMinimizedHiddenChildren.begin();
-		for ( ; itor != mMinimizedHiddenChildren.end(); ++itor)
-		{
-			LLView* viewp = itor->get();
-			if(viewp)
-			{
-				viewp->setVisible(FALSE);
-			}
-		}
-		mMinimizedHiddenChildren.clear();
-
 		// show dependent floater
 		for(handle_set_iter_t dependent_it = mDependents.begin();
 			dependent_it != mDependents.end();
@@ -891,6 +864,12 @@ void LLFloater::setMinimized(BOOL minimize)
 				floaterp->setMinimized(FALSE);
 				floaterp->setVisible(TRUE);
 			}
+		}
+
+		for (S32 i = 0; i < 4; i++)
+		{
+			mResizeBar[i]->setEnabled(isResizable());
+			mResizeHandle[i]->setEnabled(isResizable());
 		}
 
 		mMinimized = FALSE;
@@ -1302,49 +1281,72 @@ void LLFloater::onClickClose( void* userdata )
 // virtual
 void LLFloater::draw()
 {
-	if( getVisible() )
+	// draw background
+	if( isBackgroundVisible() )
 	{
-		// draw background
-		if( isBackgroundVisible() )
+		S32 left = LLPANEL_BORDER_WIDTH;
+		S32 top = getRect().getHeight() - LLPANEL_BORDER_WIDTH;
+		S32 right = getRect().getWidth() - LLPANEL_BORDER_WIDTH;
+		S32 bottom = LLPANEL_BORDER_WIDTH;
+
+		LLColor4 shadow_color = LLUI::sColorsGroup->getColor("ColorDropShadow");
+		F32 shadow_offset = (F32)LLUI::sConfigGroup->getS32("DropShadowFloater");
+		if (!isBackgroundOpaque())
 		{
-			S32 left = LLPANEL_BORDER_WIDTH;
-			S32 top = getRect().getHeight() - LLPANEL_BORDER_WIDTH;
-			S32 right = getRect().getWidth() - LLPANEL_BORDER_WIDTH;
-			S32 bottom = LLPANEL_BORDER_WIDTH;
+			shadow_offset *= 0.2f;
+			shadow_color.mV[VALPHA] *= 0.5f;
+		}
+		gl_drop_shadow(left, top, right, bottom, 
+			shadow_color, 
+			llround(shadow_offset));
 
-			LLColor4 shadow_color = LLUI::sColorsGroup->getColor("ColorDropShadow");
-			F32 shadow_offset = (F32)LLUI::sConfigGroup->getS32("DropShadowFloater");
-			if (!isBackgroundOpaque())
-			{
-				shadow_offset *= 0.2f;
-				shadow_color.mV[VALPHA] *= 0.5f;
-			}
-			gl_drop_shadow(left, top, right, bottom, 
-				shadow_color, 
-				llround(shadow_offset));
-
-			// No transparent windows in simple UI
-			if (isBackgroundOpaque())
-			{
-				gl_rect_2d( left, top, right, bottom, getBackgroundColor() );
-			}
-			else
-			{
-				gl_rect_2d( left, top, right, bottom, getTransparentColor() );
-			}
-
-			if(gFocusMgr.childHasKeyboardFocus(this) && !getIsChrome() && !getTitle().empty())
-			{
-				// draw highlight on title bar to indicate focus.  RDW
-				const LLFontGL* font = gResMgr->getRes( LLFONT_SANSSERIF );
-				LLRect r = getRect();
-				gl_rect_2d_offset_local(0, r.getHeight(), r.getWidth(), r.getHeight() - (S32)font->getLineHeight() - 1, 
-					LLUI::sColorsGroup->getColor("TitleBarFocusColor"), 0, TRUE);
-			}
+		// No transparent windows in simple UI
+		if (isBackgroundOpaque())
+		{
+			gl_rect_2d( left, top, right, bottom, getBackgroundColor() );
+		}
+		else
+		{
+			gl_rect_2d( left, top, right, bottom, getTransparentColor() );
 		}
 
-		LLPanel::updateDefaultBtn();
+		if(gFocusMgr.childHasKeyboardFocus(this) && !getIsChrome() && !getTitle().empty())
+		{
+			// draw highlight on title bar to indicate focus.  RDW
+			const LLFontGL* font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF );
+			LLRect r = getRect();
+			gl_rect_2d_offset_local(0, r.getHeight(), r.getWidth(), r.getHeight() - (S32)font->getLineHeight() - 1, 
+				LLUI::sColorsGroup->getColor("TitleBarFocusColor"), 0, TRUE);
+		}
+	}
 
+	LLPanel::updateDefaultBtn();
+
+	if( getDefaultButton() )
+	{
+		if (hasFocus() && getDefaultButton()->getEnabled())
+		{
+			LLUICtrl* focus_ctrl = gFocusMgr.getKeyboardFocus();
+			// is this button a direct descendent and not a nested widget (e.g. checkbox)?
+			BOOL focus_is_child_button = dynamic_cast<LLButton*>(focus_ctrl) != NULL && focus_ctrl->getParent() == this;
+			// only enable default button when current focus is not a button
+			getDefaultButton()->setBorderEnabled(!focus_is_child_button);
+		}
+		else
+		{
+			getDefaultButton()->setBorderEnabled(FALSE);
+		}
+	}
+	if (isMinimized())
+	{
+		for (S32 i = 0; i < BUTTON_COUNT; i++)
+		{
+			drawChild(mButtons[i]);
+		}
+		drawChild(mDragHandle);
+	}
+	else
+	{
 		// draw children
 		LLView* focused_child = gFocusMgr.getKeyboardFocus();
 		BOOL focused_child_visible = FALSE;
@@ -1357,35 +1359,34 @@ void LLFloater::draw()
 		// don't call LLPanel::draw() since we've implemented custom background rendering
 		LLView::draw();
 
-		if( isBackgroundVisible() )
-		{
-			// add in a border to improve spacialized visual aclarity ;)
-			// use lines instead of gl_rect_2d so we can round the edges as per james' recommendation
-			LLUI::setLineWidth(1.5f);
-			LLColor4 outlineColor = gFocusMgr.childHasKeyboardFocus(this) ? LLUI::sColorsGroup->getColor("FloaterFocusBorderColor") : LLUI::sColorsGroup->getColor("FloaterUnfocusBorderColor");
-			gl_rect_2d_offset_local(0, getRect().getHeight() + 1, getRect().getWidth() + 1, 0, outlineColor, -LLPANEL_BORDER_WIDTH, FALSE);
-			LLUI::setLineWidth(1.f);
-		}
-	
 		if (focused_child_visible)
 		{
 			focused_child->setVisible(TRUE);
 		}
 		drawChild(focused_child);
+	}
 
-		// update tearoff button for torn off floaters
-		// when last host goes away
-		if (mCanTearOff && !getHost())
+	if( isBackgroundVisible() )
+	{
+		// add in a border to improve spacialized visual aclarity ;)
+		// use lines instead of gl_rect_2d so we can round the edges as per james' recommendation
+		LLUI::setLineWidth(1.5f);
+		LLColor4 outlineColor = gFocusMgr.childHasKeyboardFocus(this) ? LLUI::sColorsGroup->getColor("FloaterFocusBorderColor") : LLUI::sColorsGroup->getColor("FloaterUnfocusBorderColor");
+		gl_rect_2d_offset_local(0, getRect().getHeight() + 1, getRect().getWidth() + 1, 0, outlineColor, -LLPANEL_BORDER_WIDTH, FALSE);
+		LLUI::setLineWidth(1.f);
+	}
+
+	// update tearoff button for torn off floaters
+	// when last host goes away
+	if (mCanTearOff && !getHost())
+	{
+		LLFloater* old_host = mLastHostHandle.get();
+		if (!old_host)
 		{
-			LLFloater* old_host = mLastHostHandle.get();
-			if (!old_host)
-			{
-				setCanTearOff(FALSE);
-			}
+			setCanTearOff(FALSE);
 		}
 	}
 }
-
 
 void	LLFloater::setCanMinimize(BOOL can_minimize)
 {
@@ -1532,7 +1533,13 @@ void LLFloater::updateButtons()
 	S32 button_count = 0;
 	for (S32 i = 0; i < BUTTON_COUNT; i++)
 	{
-		if (mButtonsEnabled[i])
+		mButtons[i]->setEnabled(mButtonsEnabled[i]);
+
+		if (mButtonsEnabled[i] 
+			//*HACK: always render close button for hosted floaters
+			// so that users don't accidentally hit the button when closing multiple windows
+			// in the chatterbox
+			|| (i == BUTTON_CLOSE && mButtonScale != 1.f))
 		{
 			button_count++;
 
@@ -1556,14 +1563,12 @@ void LLFloater::updateButtons()
 
 			mButtons[i]->setRect(btn_rect);
 			mButtons[i]->setVisible(TRUE);
-			mButtons[i]->setEnabled(TRUE);
 			// the restore button should have a tab stop so that it takes action when you Ctrl-Tab to a minimized floater
 			mButtons[i]->setTabStop(i == BUTTON_RESTORE);
 		}
 		else if (mButtons[i])
 		{
 			mButtons[i]->setVisible(FALSE);
-			mButtons[i]->setEnabled(FALSE);
 		}
 	}
 
@@ -2068,7 +2073,7 @@ void LLFloaterView::closeAllChildren(bool app_quitting)
 
 		// Attempt to close floater.  This will cause the "do you want to save"
 		// dialogs to appear.
-		if (floaterp->canClose())
+		if (floaterp->canClose() && !floaterp->isDead())
 		{
 			floaterp->close(app_quitting);
 		}
@@ -2085,7 +2090,7 @@ BOOL LLFloaterView::allChildrenClosed()
 		LLView* viewp = *it;
 		LLFloater* floaterp = (LLFloater*)viewp;
 
-		if (floaterp->getVisible() && floaterp->canClose())
+		if (floaterp->getVisible() && !floaterp->isDead() && floaterp->canClose())
 		{
 			return false;
 		}
@@ -2670,24 +2675,20 @@ void LLMultiFloater::setVisible(BOOL visible)
 	}
 }
 
-BOOL LLMultiFloater::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+BOOL LLMultiFloater::handleKeyHere(KEY key, MASK mask)
 {
-	if (getEnabled()
-		&& mask == MASK_CONTROL)
+	if (key == 'W' && mask == MASK_CONTROL)
 	{
-		if (key == 'W')
+		LLFloater* floater = getActiveFloater();
+		// is user closeable and is system closeable
+		if (floater && floater->canClose() && floater->isCloseable())
 		{
-			LLFloater* floater = getActiveFloater();
-			// is user closeable and is system closeable
-			if (floater && floater->canClose() && floater->isCloseable())
-			{
-				floater->close();
-			}
-			return TRUE;
+			floater->close();
 		}
+		return TRUE;
 	}
 
-	return LLFloater::handleKeyHere(key, mask, called_from_parent);
+	return LLFloater::handleKeyHere(key, mask);
 }
 
 LLFloater* LLMultiFloater::getActiveFloater()
@@ -2760,10 +2761,10 @@ BOOL LLMultiFloater::postBuild()
 		return TRUE;
 	}
 
-	requires("Preview Tabs", WIDGET_TYPE_TAB_CONTAINER);
+	requires<LLTabContainer>("Preview Tabs");
 	if (checkRequirements())
 	{
-		mTabContainer = LLUICtrlFactory::getTabContainerByName(this, "Preview Tabs");
+		mTabContainer = getChild<LLTabContainer>("Preview Tabs");
 		return TRUE;
 	}
 

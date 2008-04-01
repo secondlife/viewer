@@ -37,7 +37,7 @@
 class LLViewerObject;
 
 class LLToolFace
-:	public LLTool
+:	public LLTool, public LLSingleton<LLToolFace>
 {
 public:
 	LLToolFace();
@@ -51,7 +51,5 @@ public:
 
 	static void pickCallback(S32 x, S32 y, MASK mask);
 };
-
-extern LLToolFace *gToolFace;
 
 #endif

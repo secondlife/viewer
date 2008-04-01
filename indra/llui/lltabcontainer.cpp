@@ -64,7 +64,7 @@ const S32 TABCNTRV_HEADER_HEIGHT = LLPANEL_BORDER_WIDTH + TABCNTRV_CLOSE_BTN_SIZ
 const S32 TABCNTRV_ARROW_BTN_SIZE = 16;
 const S32 TABCNTRV_PAD = 0;
 
-
+static LLRegisterWidget<LLTabContainer> r("tab_container");
 
 LLTabContainer::LLTabContainer(const LLString& name, const LLRect& rect, TabPosition pos,
 							   BOOL bordered, BOOL is_vertical )
@@ -115,18 +115,6 @@ void LLTabContainer::setValue(const LLSD& value)
 }
 
 //virtual
-EWidgetType LLTabContainer::getWidgetType() const
-{
-	return WIDGET_TYPE_TAB_CONTAINER;
-}
-
-//virtual
-LLString LLTabContainer::getWidgetTag() const
-{
-	return LL_TAB_CONTAINER_COMMON_TAG;
-}
-
-//virtual
 void LLTabContainer::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLPanel::reshape( width, height, called_from_parent );
@@ -134,7 +122,7 @@ void LLTabContainer::reshape(S32 width, S32 height, BOOL called_from_parent)
 }
 
 //virtual
-LLView* LLTabContainer::getChildByName(const LLString& name, BOOL recurse) const
+LLView* LLTabContainer::getChildView(const LLString& name, BOOL recurse, BOOL create_if_missing) const
 {
 	tuple_list_t::const_iterator itor;
 	for (itor = mTabList.begin(); itor != mTabList.end(); ++itor)
@@ -145,19 +133,20 @@ LLView* LLTabContainer::getChildByName(const LLString& name, BOOL recurse) const
 			return panel;
 		}
 	}
+
 	if (recurse)
 	{
 		for (itor = mTabList.begin(); itor != mTabList.end(); ++itor)
 		{
 			LLPanel *panel = (*itor)->mTabPanel;
-			LLView *child = panel->getChild<LLView>(name, recurse);
+			LLView *child = panel->getChildView(name, recurse, FALSE);
 			if (child)
 			{
 				return child;
 			}
 		}
 	}
-	return LLView::getChildByName(name, recurse);
+	return LLView::getChildView(name, recurse, create_if_missing);
 }
 
 // virtual
@@ -185,124 +174,122 @@ void LLTabContainer::draw()
 	}
 
 	setScrollPosPixels((S32)lerp((F32)getScrollPosPixels(), (F32)target_pixel_scroll, LLCriticalDamp::getInterpolant(0.08f)));
-	if( getVisible() )
-	{
-		BOOL has_scroll_arrows = (mMaxScrollPos > 0) || (mScrollPosPixels > 0);
-		if (!mIsVertical)
-		{
-			mJumpPrevArrowBtn->setVisible( has_scroll_arrows );
-			mJumpNextArrowBtn->setVisible( has_scroll_arrows );
-		}
-		mPrevArrowBtn->setVisible( has_scroll_arrows );
-		mNextArrowBtn->setVisible( has_scroll_arrows );
 
-		S32 left = 0, top = 0;
-		if (mIsVertical)
-		{
-			top = getRect().getHeight() - getTopBorderHeight() - LLPANEL_BORDER_WIDTH - 1 - (has_scroll_arrows ? TABCNTRV_ARROW_BTN_SIZE : 0);
-			top += getScrollPosPixels();
-		}
-		else
-		{
-			// Set the leftmost position of the tab buttons.
-			left = LLPANEL_BORDER_WIDTH + (has_scroll_arrows ? (TABCNTR_ARROW_BTN_SIZE * 2) : TABCNTR_TAB_H_PAD);
-			left -= getScrollPosPixels();
-		}
-		
-		// Hide all the buttons
+	BOOL has_scroll_arrows = (mMaxScrollPos > 0) || (mScrollPosPixels > 0);
+	if (!mIsVertical)
+	{
+		mJumpPrevArrowBtn->setVisible( has_scroll_arrows );
+		mJumpNextArrowBtn->setVisible( has_scroll_arrows );
+	}
+	mPrevArrowBtn->setVisible( has_scroll_arrows );
+	mNextArrowBtn->setVisible( has_scroll_arrows );
+
+	S32 left = 0, top = 0;
+	if (mIsVertical)
+	{
+		top = getRect().getHeight() - getTopBorderHeight() - LLPANEL_BORDER_WIDTH - 1 - (has_scroll_arrows ? TABCNTRV_ARROW_BTN_SIZE : 0);
+		top += getScrollPosPixels();
+	}
+	else
+	{
+		// Set the leftmost position of the tab buttons.
+		left = LLPANEL_BORDER_WIDTH + (has_scroll_arrows ? (TABCNTR_ARROW_BTN_SIZE * 2) : TABCNTR_TAB_H_PAD);
+		left -= getScrollPosPixels();
+	}
+	
+	// Hide all the buttons
+	for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
+	{
+		LLTabTuple* tuple = *iter;
+		tuple->mButton->setVisible( FALSE );
+	}
+
+	LLPanel::draw();
+
+	// if tabs are hidden, don't draw them and leave them in the invisible state
+	if (!getTabsHidden())
+	{
+		// Show all the buttons
 		for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
 		{
 			LLTabTuple* tuple = *iter;
-			tuple->mButton->setVisible( FALSE );
+			tuple->mButton->setVisible( TRUE );
 		}
 
-		LLPanel::draw();
-
-		// if tabs are hidden, don't draw them and leave them in the invisible state
-		if (!getTabsHidden())
+		// Draw some of the buttons...
+		LLRect clip_rect = getLocalRect();
+		if (has_scroll_arrows)
 		{
-			// Show all the buttons
-			for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
+			// ...but clip them.
+			if (mIsVertical)
 			{
-				LLTabTuple* tuple = *iter;
-				tuple->mButton->setVisible( TRUE );
+				clip_rect.mBottom = mNextArrowBtn->getRect().mTop + 3*TABCNTRV_PAD;
+				clip_rect.mTop = mPrevArrowBtn->getRect().mBottom - 3*TABCNTRV_PAD;
 			}
-
-			// Draw some of the buttons...
-			LLRect clip_rect = getLocalRect();
-			if (has_scroll_arrows)
+			else
 			{
-				// ...but clip them.
-				if (mIsVertical)
-				{
-					clip_rect.mBottom = mNextArrowBtn->getRect().mTop + 3*TABCNTRV_PAD;
-					clip_rect.mTop = mPrevArrowBtn->getRect().mBottom - 3*TABCNTRV_PAD;
-				}
-				else
-				{
-					clip_rect.mLeft = mPrevArrowBtn->getRect().mRight;
-					clip_rect.mRight = mNextArrowBtn->getRect().mLeft;
-				}
-			}
-			LLLocalClipRect clip(clip_rect);
-
-			S32 max_scroll_visible = getTabCount() - getMaxScrollPos() + getScrollPos();
-			S32 idx = 0;
-			for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
-			{
-				LLTabTuple* tuple = *iter;
-
-				tuple->mButton->translate( left ? left - tuple->mButton->getRect().mLeft : 0,
-										   top ? top - tuple->mButton->getRect().mTop : 0 );
-				if (top) top -= BTN_HEIGHT + TABCNTRV_PAD;
-				if (left) left += tuple->mButton->getRect().getWidth();
-
-				if (!mIsVertical)
-				{
-					if( idx < getScrollPos() )
-					{
-						if( tuple->mButton->getFlashing() )
-						{
-							mPrevArrowBtn->setFlashing( TRUE );
-						}
-					}
-					else if( max_scroll_visible < idx )
-					{
-						if( tuple->mButton->getFlashing() )
-						{
-							mNextArrowBtn->setFlashing( TRUE );
-						}
-					}
-				}
-				LLUI::pushMatrix();
-				{
-					LLUI::translate((F32)tuple->mButton->getRect().mLeft, (F32)tuple->mButton->getRect().mBottom, 0.f);
-					tuple->mButton->draw();
-				}
-				LLUI::popMatrix();
-
-				idx++;
-			}
-
-
-			if( mIsVertical && has_scroll_arrows )
-			{
-				// Redraw the arrows so that they appears on top.
-				gGL.pushMatrix();
-				gGL.translatef((F32)mPrevArrowBtn->getRect().mLeft, (F32)mPrevArrowBtn->getRect().mBottom, 0.f);
-				mPrevArrowBtn->draw();
-				gGL.popMatrix();
-
-				gGL.pushMatrix();
-				gGL.translatef((F32)mNextArrowBtn->getRect().mLeft, (F32)mNextArrowBtn->getRect().mBottom, 0.f);
-				mNextArrowBtn->draw();
-				gGL.popMatrix();
+				clip_rect.mLeft = mPrevArrowBtn->getRect().mRight;
+				clip_rect.mRight = mNextArrowBtn->getRect().mLeft;
 			}
 		}
+		LLLocalClipRect clip(clip_rect);
 
-		mPrevArrowBtn->setFlashing(FALSE);
-		mNextArrowBtn->setFlashing(FALSE);
+		S32 max_scroll_visible = getTabCount() - getMaxScrollPos() + getScrollPos();
+		S32 idx = 0;
+		for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
+		{
+			LLTabTuple* tuple = *iter;
+
+			tuple->mButton->translate( left ? left - tuple->mButton->getRect().mLeft : 0,
+									   top ? top - tuple->mButton->getRect().mTop : 0 );
+			if (top) top -= BTN_HEIGHT + TABCNTRV_PAD;
+			if (left) left += tuple->mButton->getRect().getWidth();
+
+			if (!mIsVertical)
+			{
+				if( idx < getScrollPos() )
+				{
+					if( tuple->mButton->getFlashing() )
+					{
+						mPrevArrowBtn->setFlashing( TRUE );
+					}
+				}
+				else if( max_scroll_visible < idx )
+				{
+					if( tuple->mButton->getFlashing() )
+					{
+						mNextArrowBtn->setFlashing( TRUE );
+					}
+				}
+			}
+			LLUI::pushMatrix();
+			{
+				LLUI::translate((F32)tuple->mButton->getRect().mLeft, (F32)tuple->mButton->getRect().mBottom, 0.f);
+				tuple->mButton->draw();
+			}
+			LLUI::popMatrix();
+
+			idx++;
+		}
+
+
+		if( mIsVertical && has_scroll_arrows )
+		{
+			// Redraw the arrows so that they appears on top.
+			gGL.pushMatrix();
+			gGL.translatef((F32)mPrevArrowBtn->getRect().mLeft, (F32)mPrevArrowBtn->getRect().mBottom, 0.f);
+			mPrevArrowBtn->draw();
+			gGL.popMatrix();
+
+			gGL.pushMatrix();
+			gGL.translatef((F32)mNextArrowBtn->getRect().mLeft, (F32)mNextArrowBtn->getRect().mBottom, 0.f);
+			mNextArrowBtn->draw();
+			gGL.popMatrix();
+		}
 	}
+
+	mPrevArrowBtn->setFlashing(FALSE);
+	mNextArrowBtn->setFlashing(FALSE);
 }
 
 
@@ -524,12 +511,8 @@ BOOL LLTabContainer::handleToolTip( S32 x, S32 y, LLString& msg, LLRect* sticky_
 }
 
 // virtual
-BOOL LLTabContainer::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+BOOL LLTabContainer::handleKeyHere(KEY key, MASK mask)
 {
-	if (!getEnabled()) return FALSE;
-
-	if (!gFocusMgr.childHasKeyboardFocus(this)) return FALSE;
-
 	BOOL handled = FALSE;
 	if (key == KEY_LEFT && mask == MASK_ALT)
 	{
@@ -687,7 +670,7 @@ void LLTabContainer::addTabPanel(LLPanel* child,
 		// already a child of mine
 		return;
 	}
-	const LLFontGL* font = gResMgr->getRes( mIsVertical ? LLFONT_SANSSERIF : LLFONT_SANSSERIF_SMALL );
+	const LLFontGL* font = LLResMgr::getInstance()->getRes( mIsVertical ? LLFONT_SANSSERIF : LLFONT_SANSSERIF_SMALL );
 
 	// Store the original label for possible xml export.
 	child->setLabel(label);
@@ -1272,7 +1255,7 @@ void LLTabContainer::setTabImage(LLPanel* child, std::string image_name, const L
 
 		if (!mIsVertical)
 		{
-			const LLFontGL* fontp = gResMgr->getRes( LLFONT_SANSSERIF_SMALL );
+			const LLFontGL* fontp = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF_SMALL );
 			// remove current width from total tab strip width
 			mTotalTabWidth -= tuple->mButton->getRect().getWidth();
 
@@ -1353,7 +1336,7 @@ void LLTabContainer::setPanelTitle(S32 index, const LLString& title)
 	{
 		LLTabTuple* tuple = getTab(index);
 		LLButton* tab_button = tuple->mButton;
-		const LLFontGL* fontp = gResMgr->getRes( LLFONT_SANSSERIF_SMALL );
+		const LLFontGL* fontp = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF_SMALL );
 		mTotalTabWidth -= tab_button->getRect().getWidth();
 		tab_button->reshape(llclamp(fontp->getWidth(title) + TAB_PADDING + tuple->mPadding, mMinTabWidth, mMaxTabWidth), tab_button->getRect().getHeight());
 		mTotalTabWidth += tab_button->getRect().getWidth();

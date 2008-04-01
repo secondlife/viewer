@@ -40,7 +40,7 @@
 #include "llhttpclient.h"
 #include "llsdutil.h"
 #include "llstring.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 #include "llagent.h"
 #include "llcallingcard.h"
@@ -152,7 +152,7 @@ LLFloaterIM::LLFloaterIM()
 	// the size of the im-sesssion when they were created.  This happens in 
 	// LLMultiFloater::resizeToContents() when called through LLMultiFloater::addFloater())
 	this->mAutoResize = FALSE;
-	gUICtrlFactory->buildFloater(this, "floater_im.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_im.xml");
 }
 
 BOOL LLFloaterIM::postBuild()
@@ -403,12 +403,12 @@ void LLIMMgr::addMessage(
 	const LLVector3& position)
 {
 	LLUUID other_participant_id = target_id;
-	bool is_from_system = target_id.isNull();
+	bool is_from_system = target_id.isNull() || !strcmp(from, SYSTEM_FROM);
 
 	// don't process muted IMs
-	if (gMuteListp->isMuted(
+	if (LLMuteList::getInstance()->isMuted(
 			other_participant_id,
-			LLMute::flagTextChat) && !gMuteListp->isLinden(from))
+			LLMute::flagTextChat) && !LLMuteList::getInstance()->isLinden(from))
 	{
 		return;
 	}
@@ -488,7 +488,7 @@ void LLIMMgr::addMessage(
 	}
 	else
 	{
-		floater->addHistoryLine(other_participant_id, msg);
+		floater->addHistoryLine(other_participant_id, msg, gSavedSettings.getColor("IMChatColor"));
 	}
 
 	LLFloaterChatterBox* chat_floater = LLFloaterChatterBox::getInstance(LLSD());
@@ -693,7 +693,7 @@ void LLIMMgr::inviteToSession(
 	const LLString& session_handle)
 {
 	//ignore invites from muted residents
-	if (gMuteListp->isMuted(caller_id))
+	if (LLMuteList::getInstance()->isMuted(caller_id))
 	{
 		return;
 	}
@@ -953,10 +953,10 @@ void LLIMMgr::inviteUserResponse(S32 option, void* user_data)
 	case 2: // mute (also implies ignore, so this falls through to the "ignore" case below)
 	{
 		// mute the sender of this invite
-		if (!gMuteListp->isMuted(invitep->mCallerID))
+		if (!LLMuteList::getInstance()->isMuted(invitep->mCallerID))
 		{
 			LLMute mute(invitep->mCallerID, invitep->mCallerName, LLMute::AGENT);
-			gMuteListp->add(mute);
+			LLMuteList::getInstance()->add(mute);
 		}
 	}
 	/* FALLTHROUGH */
@@ -1482,12 +1482,12 @@ public:
 				(time_t) message_params["timestamp"].asInteger();
 
 			BOOL is_busy = gAgent.getBusy();
-			BOOL is_muted = gMuteListp->isMuted(
+			BOOL is_muted = LLMuteList::getInstance()->isMuted(
 				from_id,
 				name.c_str(),
 				LLMute::flagTextChat);
 
-			BOOL is_linden = gMuteListp->isLinden(
+			BOOL is_linden = LLMuteList::getInstance()->isLinden(
 				name.c_str());
 			char separator_string[3]=": ";		/* Flawfinder: ignore */
 			int message_offset=0;
@@ -1630,4 +1630,5 @@ LLHTTPRegistration<LLViewerChatterBoxSessionUpdate>
 LLHTTPRegistration<LLViewerChatterBoxInvitation>
     gHTTPRegistrationMessageChatterBoxInvitation(
 		"/message/ChatterBoxInvitation");
+
 

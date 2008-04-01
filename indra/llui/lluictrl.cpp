@@ -34,7 +34,9 @@
 #include "linden_common.h"
 #include "lluictrl.h"
 #include "llfocusmgr.h"
+#include "llpanel.h"
 
+static LLRegisterWidget<LLUICtrl> r("ui_ctrl");
 
 LLFocusableElement::LLFocusableElement()
 :	mFocusLostCallback(NULL),
@@ -473,7 +475,7 @@ BOOL LLUICtrl::focusPrevItem(BOOL text_fields_only)
 	return focusPrev(result);
 }
 
-const LLUICtrl* LLUICtrl::findRootMostFocusRoot() const
+LLUICtrl* LLUICtrl::findRootMostFocusRoot() const
 {
 	const LLUICtrl* focus_root = NULL;
 	const LLUICtrl* next_view = this;
@@ -485,7 +487,9 @@ const LLUICtrl* LLUICtrl::findRootMostFocusRoot() const
 		}
 		next_view = next_view->getParentUICtrl();
 	}
-	return focus_root;
+	// since focus_root could be this, need to cast away const to return
+	// a non-const result
+	return const_cast<LLUICtrl*>(focus_root);
 }
 
 
@@ -538,14 +542,22 @@ LLXMLNodePtr LLUICtrl::getXML(bool save_children) const
 	return node;
 }
 
+//static 
+LLView* LLUICtrl::fromXML(LLXMLNodePtr node, LLView* parent, class LLUICtrlFactory* factory)
+{
+	LLUICtrl* ctrl = new LLUICtrl();
+	ctrl->initFromXML(node, parent);
+	return ctrl;
+}
+
+
 // *NOTE: If other classes derive from LLPanel, they will need to be
 // added to this function.
 LLPanel* LLUICtrl::getParentPanel() const
 {
 	LLView* parent = getParent();
-	while (parent 
-		   && parent->getWidgetType() != WIDGET_TYPE_PANEL
-		   && parent->getWidgetType() != WIDGET_TYPE_FLOATER)
+	LLPanel* parent_panel = dynamic_cast<LLPanel*>(parent);
+	while (!parent_panel)
 	{
 		parent = parent->getParent();
 	}

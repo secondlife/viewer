@@ -48,7 +48,7 @@
 #include "llviewerimagelist.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "llviewerdisplay.h"
 #include "llviewercontrol.h"
@@ -74,7 +74,7 @@ LLFloaterAuction::LLFloaterAuction() :
 	LLFloater("floater_auction"),
 	mParcelID(-1)
 {
-	gUICtrlFactory->buildFloater(this, "floater_auction.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_auction.xml");
 
 	childSetValue("fence_check",
 		LLSD( gSavedSettings.getBOOL("AuctionShowFence") ) );
@@ -106,8 +106,8 @@ void LLFloaterAuction::show()
 
 void LLFloaterAuction::initialize()
 {
-	mParcelp = gParcelMgr->getParcelSelection();
-	LLViewerRegion* region = gParcelMgr->getSelectionRegion();
+	mParcelp = LLViewerParcelMgr::getInstance()->getParcelSelection();
+	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 	LLParcel* parcelp = mParcelp->getParcel();
 	if(parcelp && region && !parcelp->getForSale())
 	{
@@ -141,7 +141,7 @@ void LLFloaterAuction::draw()
 {
 	LLFloater::draw();
 
-	if(getVisible() && !isMinimized() && mImage.notNull()) 
+	if(!isMinimized() && mImage.notNull()) 
 	{
 		LLRect rect;
 		if (childGetRect("snapshot_icon", rect))

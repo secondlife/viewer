@@ -208,7 +208,7 @@ void LLDrawPoolAlpha::renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask
 	// and it's close
 	if(is_particle && !gSavedSettings.getBOOL("RenderUseShaderNearParticles"))
 	{
-		if((dist < gCamera->getFar() * gSavedSettings.getF32("RenderShaderParticleThreshold")))
+		if((dist < LLViewerCamera::getInstance()->getFar() * gSavedSettings.getF32("RenderShaderParticleThreshold")))
 		{
 			use_shaders = FALSE;
 		}

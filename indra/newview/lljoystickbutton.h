@@ -94,9 +94,6 @@ public:
 		: LLJoystick(name, rect, default_image, selected_image, initial)
 	{ }
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_JOYSTICK_TURN; }
-	virtual LLString getWidgetTag() const { return LL_JOYSTICK_TURN; }
-
 	virtual void	onHeldDown();
 
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
@@ -113,10 +110,6 @@ public:
 		: LLJoystick(name, rect, default_image, selected_image, initial)
 	{ }
 	
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_JOYSTICK_SLIDE; }
-	virtual LLString getWidgetTag() const { return LL_JOYSTICK_SLIDE; }
-
-
 	virtual void	onHeldDown();
 	virtual void	onMouseUp();
 
@@ -183,8 +176,8 @@ protected:
 protected:
 	BOOL			mInTop;
 	BOOL			mInBottom;
-	LLPointer<LLViewerImage>	mPlusInImage;
-	LLPointer<LLViewerImage>	mMinusInImage;
+	LLUIImagePtr	mPlusInImage;
+	LLUIImagePtr	mMinusInImage;
 };
 
 

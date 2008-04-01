@@ -74,7 +74,7 @@
 #include "llviewermenu.h"	// for gMenuBarView
 #include "llviewerparcelmgr.h"
 #include "llviewerthrottle.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llvoiceclient.h"	// for gVoiceClient
 
 #include "lltoolmgr.h"
@@ -137,7 +137,7 @@ LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
 	mBalanceTimer = new LLFrameTimer();
 	mHealthTimer = new LLFrameTimer();
 
-	gUICtrlFactory->buildPanel(this,"panel_status_bar.xml");
+	LLUICtrlFactory::getInstance()->buildPanel(this,"panel_status_bar.xml");
 
 	// status bar can never get a tab
 	setFocusRoot(FALSE);
@@ -145,11 +145,11 @@ LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
 	// build date necessary data (must do after panel built)
 	setupDate();
 
-	mTextParcelName = LLUICtrlFactory::getTextBoxByName( this, "ParcelNameText" );
-	mTextBalance = LLUICtrlFactory::getTextBoxByName( this, "BalanceText" );
+	mTextParcelName = getChild<LLTextBox>("ParcelNameText" );
+	mTextBalance = getChild<LLTextBox>("BalanceText" );
 
-	mTextHealth = LLUICtrlFactory::getTextBoxByName( this, "HealthText" );
-	mTextTime = LLUICtrlFactory::getTextBoxByName( this, "TimeText" );
+	mTextHealth = getChild<LLTextBox>("HealthText" );
+	mTextTime = getChild<LLTextBox>("TimeText" );
 	
 	childSetAction("scriptout", onClickScriptDebug, this);
 	childSetAction("health", onClickHealth, this);
@@ -166,6 +166,7 @@ LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
 
 	childSetVisible("search_editor", gSavedSettings.getBOOL("ShowSearchBar"));
 	childSetVisible("search_btn", gSavedSettings.getBOOL("ShowSearchBar"));
+	childSetVisible("menubar_search_bevel_bg", gSavedSettings.getBOOL("ShowSearchBar"));
 
 	childSetActionTextbox("ParcelNameText", onClickParcelInfo );
 	childSetActionTextbox("BalanceText", onClickBalance );
@@ -177,7 +178,7 @@ LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
 	r.set( x-SIM_STAT_WIDTH, y+MENU_BAR_HEIGHT-1, x, y+1);
 	mSGBandwidth = new LLStatGraph("BandwidthGraph", r);
 	mSGBandwidth->setFollows(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
-	mSGBandwidth->setStat(&gViewerStats->mKBitStat);
+	mSGBandwidth->setStat(&LLViewerStats::getInstance()->mKBitStat);
 	LLString text = childGetText("bandwidth_tooltip") + " ";
 	LLUIString bandwidth_tooltip = text;	// get the text from XML until this widget is XML driven
 	mSGBandwidth->setLabel(bandwidth_tooltip.getString().c_str());
@@ -190,7 +191,7 @@ LLStatusBar::LLStatusBar(const std::string& name, const LLRect& rect)
 	r.set( x-SIM_STAT_WIDTH, y+MENU_BAR_HEIGHT-1, x, y+1);
 	mSGPacketLoss = new LLStatGraph("PacketLossPercent", r);
 	mSGPacketLoss->setFollows(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
-	mSGPacketLoss->setStat(&gViewerStats->mPacketsLostPercentStat);
+	mSGPacketLoss->setStat(&LLViewerStats::getInstance()->mPacketsLostPercentStat);
 	text = childGetText("packet_loss_tooltip") + " ";
 	LLUIString packet_loss_tooltip = text;	// get the text from XML until this widget is XML driven
 	mSGPacketLoss->setLabel(packet_loss_tooltip.getString().c_str());
@@ -218,18 +219,6 @@ LLStatusBar::~LLStatusBar()
 	mHealthTimer = NULL;
 
 	// LLView destructor cleans up children
-}
-
-//virtual
-EWidgetType LLStatusBar::getWidgetType() const
-{
-	return WIDGET_TYPE_STATUS_BAR;
-}
-
-//virtual
-LLString LLStatusBar::getWidgetTag() const
-{
-	return LL_STATUS_BAR_TAG;
 }
 
 //-----------------------------------------------------------------------
@@ -321,7 +310,7 @@ void LLStatusBar::refresh()
 	}
 
 	LLViewerRegion *region = gAgent.getRegion();
-	LLParcel *parcel = gParcelMgr->getAgentParcel();
+	LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 
 	LLRect buttonRect;
 
@@ -464,7 +453,7 @@ void LLStatusBar::refresh()
 
 	BOOL canBuyLand = parcel
 		&& !parcel->isPublic()
-		&& gParcelMgr->canAgentBuyParcel(parcel, false);
+		&& LLViewerParcelMgr::getInstance()->canAgentBuyParcel(parcel, false);
 	childSetVisible("buyland", canBuyLand);
 	if (canBuyLand)
 	{
@@ -524,7 +513,7 @@ void LLStatusBar::refresh()
 			mRegionDetails.mZ = pos_z;
 			mRegionDetails.mArea = parcel->getArea();
 			mRegionDetails.mForSale = parcel->getForSale();
-			mRegionDetails.mTraffic = gParcelMgr->getDwelling();
+			mRegionDetails.mTraffic = LLViewerParcelMgr::getInstance()->getDwelling();
 			
 			if (parcel->isPublic())
 			{
@@ -599,15 +588,14 @@ void LLStatusBar::refresh()
 	if (search_visible)
 	{
 		childGetRect("search_btn", r);
-		r.translate( new_right - r.mRight, 0);
-		childSetRect("search_btn", r);
+		//r.translate( new_right - r.mRight, 0);
+		//childSetRect("search_btn", r);
 		new_right -= r.getWidth();
 
 		childGetRect("search_editor", r);
-		r.translate( new_right - r.mRight, 0);
-		childSetRect("search_editor", r);
+		//r.translate( new_right - r.mRight, 0);
+		//childSetRect("search_editor", r);
 		new_right -= r.getWidth() + 6;
-
 	}
 	else
 	{
@@ -645,6 +633,7 @@ void LLStatusBar::refresh()
 	// Set search bar visibility
 	childSetVisible("search_editor", search_visible);
 	childSetVisible("search_btn", search_visible);
+	childSetVisible("menubar_search_bevel_bg", search_visible);
 	mSGBandwidth->setVisible(! search_visible);
 	mSGPacketLoss->setVisible(! search_visible);
 	childSetEnabled("stat_btn", ! search_visible);
@@ -674,7 +663,7 @@ void LLStatusBar::creditBalance(S32 credit)
 
 void LLStatusBar::setBalance(S32 balance)
 {
-	LLString money_str = gResMgr->getMonetaryString( balance );
+	LLString money_str = LLResMgr::getInstance()->getMonetaryString( balance );
 	LLString balance_str = "L$";
 	balance_str += money_str;
 	mTextBalance->setText( balance_str );
@@ -768,7 +757,7 @@ S32 LLStatusBar::getSquareMetersLeft() const
 
 static void onClickParcelInfo(void* data)
 {
-	gParcelMgr->selectParcelAt(gAgent.getPositionGlobal());
+	LLViewerParcelMgr::getInstance()->selectParcelAt(gAgent.getPositionGlobal());
 
 	LLFloaterLand::showInstance();
 }
@@ -832,8 +821,8 @@ static void onClickScripts(void*)
 
 static void onClickBuyLand(void*)
 {
-	gParcelMgr->selectParcelAt(gAgent.getPositionGlobal());
-	gParcelMgr->startBuyLand();
+	LLViewerParcelMgr::getInstance()->selectParcelAt(gAgent.getPositionGlobal());
+	LLViewerParcelMgr::getInstance()->startBuyLand();
 }
 
 // sets the static variables necessary for the date

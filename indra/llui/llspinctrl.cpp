@@ -52,6 +52,7 @@
 
 const U32 MAX_STRING_LENGTH = 32;
 
+static LLRegisterWidget<LLSpinCtrl> r2("spinner");
  
 LLSpinCtrl::LLSpinCtrl(	const LLString& name, const LLRect& rect, const LLString& label, const LLFontGL* font,
 	void (*commit_callback)(LLUICtrl*, void*),
@@ -409,26 +410,23 @@ void LLSpinCtrl::draw()
 
 BOOL LLSpinCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	if( getEnabled() )
+	if( clicks > 0 )
 	{
-		if( clicks > 0 )
+		while( clicks-- )
 		{
-			while( clicks-- )
-			{
-				LLSpinCtrl::onDownBtn(this);
-			}
+			LLSpinCtrl::onDownBtn(this);
 		}
-		else
-		while( clicks++ )
-		{
-			LLSpinCtrl::onUpBtn(this);
-		}
+	}
+	else
+	while( clicks++ )
+	{
+		LLSpinCtrl::onUpBtn(this);
 	}
 
 	return TRUE;
 }
 
-BOOL LLSpinCtrl::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+BOOL LLSpinCtrl::handleKeyHere(KEY key, MASK mask)
 {
 	if (mEditor->hasFocus())
 	{

@@ -71,51 +71,49 @@ void LLAudioSourceVO::updateGain()
 	}
 
 	BOOL mute = FALSE;
-	if (gParcelMgr)
-	{
-		LLVector3d pos_global;
+	LLVector3d pos_global;
 
-		if (mObjectp->isAttachment())
+	if (mObjectp->isAttachment())
+	{
+		LLViewerObject* parent = mObjectp;
+		while (parent && !parent->isAvatar())
 		{
-			LLViewerObject* parent = mObjectp;
-			while (parent 
-				   && !parent->isAvatar())
-			{
-				parent = (LLViewerObject*)parent->getParent();
-			}
-			if (parent)
-				pos_global = parent->getPositionGlobal();
+			parent = (LLViewerObject*)parent->getParent();
 		}
-		
-		else
-			pos_global = mObjectp->getPositionGlobal();
-		
-		if (!gParcelMgr->canHearSound(pos_global))
+		if (parent)
 		{
-			mute = TRUE;
+			pos_global = parent->getPositionGlobal();
 		}
 	}
-
-	if (!mute && gMuteListp)
+	else
 	{
-		if (gMuteListp->isMuted(mObjectp->getID()))
+		pos_global = mObjectp->getPositionGlobal();
+	}
+	
+	if (!LLViewerParcelMgr::getInstance()->canHearSound(pos_global))
+	{
+		mute = TRUE;
+	}
+
+	if (!mute)
+	{
+		if (LLMuteList::getInstance()->isMuted(mObjectp->getID()))
 		{
 			mute = TRUE;
 		}
-		else if (gMuteListp->isMuted(mOwnerID, LLMute::flagObjectSounds))
+		else if (LLMuteList::getInstance()->isMuted(mOwnerID, LLMute::flagObjectSounds))
 		{
 			mute = TRUE;
 		}
 		else if (mObjectp->isAttachment())
 		{
 			LLViewerObject* parent = mObjectp;
-			while (parent 
-				   && !parent->isAvatar())
+			while (parent && !parent->isAvatar())
 			{
 				parent = (LLViewerObject*)parent->getParent();
 			}
 			if (parent 
-				&& gMuteListp->isMuted(parent->getID()))
+				&& LLMuteList::getInstance()->isMuted(parent->getID()))
 			{
 				mute = TRUE;
 			}

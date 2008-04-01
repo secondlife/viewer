@@ -85,16 +85,13 @@ LLResizeBar::LLResizeBar( const LLString& name, LLView* resizing_view, const LLR
 
 BOOL LLResizeBar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if( getEnabled() )
-	{
-		// Route future Mouse messages here preemptively.  (Release on mouse up.)
-		// No handler needed for focus lost since this clas has no state that depends on it.
-		gFocusMgr.setMouseCapture( this );
+	// Route future Mouse messages here preemptively.  (Release on mouse up.)
+	// No handler needed for focus lost since this clas has no state that depends on it.
+	gFocusMgr.setMouseCapture( this );
 
-		localPointToScreen(x, y, &mDragLastScreenX, &mDragLastScreenY);
-		mLastMouseScreenX = mDragLastScreenX;
-		mLastMouseScreenY = mDragLastScreenY;
-	}
+	localPointToScreen(x, y, &mDragLastScreenX, &mDragLastScreenY);
+	mLastMouseScreenX = mDragLastScreenX;
+	mLastMouseScreenY = mDragLastScreenY;
 
 	return TRUE;
 }

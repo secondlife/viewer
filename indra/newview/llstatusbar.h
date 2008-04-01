@@ -88,9 +88,6 @@ public:
 	LLStatusBar(const std::string& name, const LLRect& rect );
 	/*virtual*/ ~LLStatusBar();
 	
-	/*virtual*/ EWidgetType getWidgetType() const;
-	/*virtual*/ LLString getWidgetTag() const;
-
 	/*virtual*/ void draw();
 
 	// MANIPULATORS

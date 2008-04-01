@@ -49,7 +49,6 @@
 /// Globals
 ///----------------------------------------------------------------------------
 
-LLToolIndividual* gToolIndividual = NULL;
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -80,16 +79,16 @@ BOOL LLToolIndividual::handleMouseDown(S32 x, S32 y, MASK mask)
 void LLToolIndividual::pickCallback(S32 x, S32 y, MASK mask)
 {
 	LLViewerObject* obj = gViewerWindow->lastObjectHit();
-	gSelectMgr->deselectAll();
+	LLSelectMgr::getInstance()->deselectAll();
 	if(obj)
 	{
-		gSelectMgr->selectObjectOnly(obj);
+		LLSelectMgr::getInstance()->selectObjectOnly(obj);
 	}
 }
 
 BOOL LLToolIndividual::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	if(!gSelectMgr->getSelection()->isEmpty())
+	if(!LLSelectMgr::getInstance()->getSelection()->isEmpty())
 	{
 		// You should already have an object selected from the mousedown.
 		// If so, show its inventory. 
@@ -109,11 +108,11 @@ BOOL LLToolIndividual::handleDoubleClick(S32 x, S32 y, MASK mask)
 void LLToolIndividual::handleSelect()
 {
 	const BOOL children_ok = TRUE;
-	LLViewerObject* obj = gSelectMgr->getSelection()->getFirstRootObject(children_ok);
-	gSelectMgr->deselectAll();
+	LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject(children_ok);
+	LLSelectMgr::getInstance()->deselectAll();
 	if(obj)
 	{
-		gSelectMgr->selectObjectOnly(obj);
+		LLSelectMgr::getInstance()->selectObjectOnly(obj);
 	}
 }
 

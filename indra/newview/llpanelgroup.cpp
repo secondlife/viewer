@@ -42,7 +42,7 @@
 #include "lltabcontainer.h"
 #include "lltextbox.h"
 #include "llviewermessage.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "llappviewer.h"
 
@@ -160,16 +160,16 @@ LLPanelGroup::LLPanelGroup(const std::string& filename,
 	mFactoryMap["roles_sub_tab"] = LLCallbackMap(LLPanelGroupRolesSubTab::createTab, &mID);
 	mFactoryMap["actions_sub_tab"] = LLCallbackMap(LLPanelGroupActionsSubTab::createTab, &mID);
 
-	gGroupMgr->addObserver(this);
+	LLGroupMgr::getInstance()->addObserver(this);
 
 	// Pass on construction of this panel to the control factory.
-	gUICtrlFactory->buildPanel(this, filename, &getFactoryMap());
+	LLUICtrlFactory::getInstance()->buildPanel(this, filename, &getFactoryMap());
 	mFilename = filename;
 }
 
 LLPanelGroup::~LLPanelGroup()
 {
-	gGroupMgr->removeObserver(this);
+	LLGroupMgr::getInstance()->removeObserver(this);
 
 	int i;
 	int tab_count = mTabContainer->getTabCount();
@@ -360,9 +360,9 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 {
 	LLRect rect(getRect());
 
-	gGroupMgr->removeObserver(this);
+	LLGroupMgr::getInstance()->removeObserver(this);
 	mID = group_id;
-	gGroupMgr->addObserver(this);
+	LLGroupMgr::getInstance()->addObserver(this);
 	//TODO:  this is really bad, we should add a method
 	// where the panels can just update themselves
 	// on a group id change.  Similar to update() but with a group
@@ -371,7 +371,7 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
 	// For now, rebuild panel
 	//delete children and rebuild panel
 	deleteAllChildren();
-	gUICtrlFactory->buildPanel(this, mFilename, &getFactoryMap());
+	LLUICtrlFactory::getInstance()->buildPanel(this, mFilename, &getFactoryMap());
 }
 
 void LLPanelGroup::selectTab(std::string tab_name)
@@ -603,7 +603,7 @@ void LLPanelGroup::draw()
 
 void LLPanelGroup::refreshData()
 {
-	gGroupMgr->clearGroupData(getID());
+	LLGroupMgr::getInstance()->clearGroupData(getID());
 	mCurrentTab->activate();
 
 	// 5 second timeout
@@ -616,14 +616,13 @@ void LLPanelGroup::close()
 {
 	// Pass this to the parent, if it is a floater.
 	LLView* viewp = getParent();
-	if (viewp
-		&& WIDGET_TYPE_FLOATER == viewp->getWidgetType())
+	LLFloater* floaterp = dynamic_cast<LLFloater*>(viewp);
+	if (floaterp)
 	{
 		// First, set the force close flag, since the floater
 		// will be asking us whether it can close.
 		mForceClose = TRUE;
 		// Tell the parent floater to close.
-		LLFloater* floaterp = (LLFloater*) viewp;
 		floaterp->close();
 	}
 }

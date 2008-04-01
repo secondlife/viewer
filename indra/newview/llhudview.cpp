@@ -59,16 +59,6 @@ LLHUDView::LLHUDView()
 LLHUDView::~LLHUDView()
 { }
 
-EWidgetType LLHUDView::getWidgetType() const
-{
-	return WIDGET_TYPE_HUD_VIEW;
-}
-
-LLString LLHUDView::getWidgetTag() const
-{
-	return LL_HUD_VIEW_TAG;
-}
-
 // virtual
 void LLHUDView::draw()
 {

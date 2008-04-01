@@ -46,6 +46,7 @@ LLFocusMgr::LLFocusMgr()
 	mKeyboardFocus( NULL ),
 	mLastKeyboardFocus( NULL ),
 	mDefaultKeyboardFocus( NULL ),
+	mKeystrokesOnly(FALSE),
 	mTopCtrl( NULL ),
 	mFocusWeight(0.f),
 	mAppHasFocus(TRUE)   // Macs don't seem to notify us that we've gotten focus, so default to true
@@ -85,7 +86,7 @@ void LLFocusMgr::releaseFocusIfNeeded( const LLView* view )
 }
 
 
-void LLFocusMgr::setKeyboardFocus(LLUICtrl* new_focus, BOOL lock)
+void LLFocusMgr::setKeyboardFocus(LLUICtrl* new_focus, BOOL lock, BOOL keystrokes_only)
 {
 	if (mLockedView && 
 		(new_focus == NULL || 
@@ -97,6 +98,8 @@ void LLFocusMgr::setKeyboardFocus(LLUICtrl* new_focus, BOOL lock)
 	}
 
 	//llinfos << "Keyboard focus handled by " << (new_focus ? new_focus->getName() : "nothing") << llendl;
+
+	mKeystrokesOnly = keystrokes_only;
 
 	if( new_focus != mKeyboardFocus )
 	{

@@ -46,7 +46,7 @@ class LLToolDragAndDrop;
 class LLViewerRegion;
 class LLVOAvatar;
 
-class LLToolDragAndDrop : public LLTool
+class LLToolDragAndDrop : public LLTool, public LLSingleton<LLToolDragAndDrop>
 {
 public:
 	LLToolDragAndDrop();
@@ -252,9 +252,6 @@ public:
 	static void giveInventoryCategory(const LLUUID& to_agent,
 									  LLInventoryCategory* item);
 };
-
-// Singleton
-extern LLToolDragAndDrop *gToolDragAndDrop;
 
 // utility functions
 void pack_permissions_slam(LLMessageSystem* msg, U32 flags, const LLPermissions& perms);

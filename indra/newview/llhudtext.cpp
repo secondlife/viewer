@@ -175,9 +175,7 @@ void LLHUDText::renderText(BOOL for_select)
 	mOffsetY = lltrunc(mHeight * ((mVertAlignment == ALIGN_VERT_CENTER) ? 0.5f : 1.f));
 
 	// *TODO: cache this image
-	LLUUID image_id;
-	image_id.set(gViewerArt.getString("rounded_square.tga"));
-	LLViewerImage* imagep = gImageList.getImage(image_id, MIPMAP_FALSE, TRUE);
+	LLUIImagePtr imagep = LLUI::getUIImage("rounded_square.tga");
 
 	// *TODO: make this a per-text setting
 	LLColor4 bg_color = gSavedSettings.getColor4("BackgroundChatColor");
@@ -211,10 +209,10 @@ void LLHUDText::renderText(BOOL for_select)
 	}
 	else
 	{
-		gCamera->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
+		LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
 	}
 
-	LLVector2 border_scale_vec((F32)border_width / (F32)imagep->getWidth(), (F32)border_height / (F32)imagep->getHeight());
+	LLVector2 border_scale_vec((F32)border_width / (F32)imagep->getTextureWidth(), (F32)border_height / (F32)imagep->getTextureHeight());
 	LLVector3 width_vec = mWidth * x_pixel_vec;
 	LLVector3 height_vec = mHeight * y_pixel_vec;
 	LLVector3 scaled_border_width = (F32)llfloor(border_scale * (F32)border_width) * x_pixel_vec;
@@ -223,7 +221,7 @@ void LLHUDText::renderText(BOOL for_select)
 	mRadius = (width_vec + height_vec).magVec() * 0.5f;
 
 	LLCoordGL screen_pos;
-	gCamera->projectPosAgentToScreen(mPositionAgent, screen_pos, FALSE);
+	LLViewerCamera::getInstance()->projectPosAgentToScreen(mPositionAgent, screen_pos, FALSE);
 
 	LLVector2 screen_offset;
 	if (!mUseBubble)
@@ -246,7 +244,7 @@ void LLHUDText::renderText(BOOL for_select)
 	//}
 	//else
 	//{
-	//	render_position = gCamera->roundToPixel(render_position);
+	//	render_position = LLViewerCamera::getInstance()->roundToPixel(render_position);
 	//}
 
 	if (mUseBubble)
@@ -272,7 +270,7 @@ void LLHUDText::renderText(BOOL for_select)
 			}
 			else
 			{
-				LLViewerImage::bindTexture(imagep);
+				LLViewerImage::bindTexture(imagep->getImage());
 				
 				gGL.color4fv(bg_color.mV);
 				gl_segmented_rect_3d_tex(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, height_vec);
@@ -616,25 +614,25 @@ void LLHUDText::updateVisibility()
 	}
 
 	// push text towards camera by radius of object, but not past camera
-	LLVector3 vec_from_camera = mPositionAgent - gCamera->getOrigin();
+	LLVector3 vec_from_camera = mPositionAgent - LLViewerCamera::getInstance()->getOrigin();
 	LLVector3 dir_from_camera = vec_from_camera;
 	dir_from_camera.normVec();
 
-	if (dir_from_camera * gCamera->getAtAxis() <= 0.f)
+	if (dir_from_camera * LLViewerCamera::getInstance()->getAtAxis() <= 0.f)
 	{
-		mPositionAgent -= projected_vec(vec_from_camera, gCamera->getAtAxis()) * 1.f;
-		mPositionAgent += gCamera->getAtAxis() * (gCamera->getNear() + 0.1f);
+		mPositionAgent -= projected_vec(vec_from_camera, LLViewerCamera::getInstance()->getAtAxis()) * 1.f;
+		mPositionAgent += LLViewerCamera::getInstance()->getAtAxis() * (LLViewerCamera::getInstance()->getNear() + 0.1f);
 	}
-	else if (vec_from_camera * gCamera->getAtAxis() <= gCamera->getNear() + 0.1f + mSourceObject->getVObjRadius())
+	else if (vec_from_camera * LLViewerCamera::getInstance()->getAtAxis() <= LLViewerCamera::getInstance()->getNear() + 0.1f + mSourceObject->getVObjRadius())
 	{
-		mPositionAgent = gCamera->getOrigin() + vec_from_camera * ((gCamera->getNear() + 0.1f) / (vec_from_camera * gCamera->getAtAxis()));
+		mPositionAgent = LLViewerCamera::getInstance()->getOrigin() + vec_from_camera * ((LLViewerCamera::getInstance()->getNear() + 0.1f) / (vec_from_camera * LLViewerCamera::getInstance()->getAtAxis()));
 	}
 	else
 	{
 		mPositionAgent -= dir_from_camera * mSourceObject->getVObjRadius();
 	}
 
-	mLastDistance = (mPositionAgent - gCamera->getOrigin()).magVec();
+	mLastDistance = (mPositionAgent - LLViewerCamera::getInstance()->getOrigin()).magVec();
 
 	if (mLOD >= 3 || !mTextSegments.size() || (mDoFade && (mLastDistance > mFadeDistance + mFadeRange)))
 	{
@@ -645,14 +643,14 @@ void LLHUDText::updateVisibility()
 	LLVector3 x_pixel_vec;
 	LLVector3 y_pixel_vec;
 
-	gCamera->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
+	LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
 
 	LLVector3 render_position = mPositionAgent + 			
 			(x_pixel_vec * mPositionOffset.mV[VX]) +
 			(y_pixel_vec * mPositionOffset.mV[VY]);
 
 	mOffscreen = FALSE;
-	if (!gCamera->sphereInFrustum(render_position, mRadius))
+	if (!LLViewerCamera::getInstance()->sphereInFrustum(render_position, mRadius))
 	{
 		if (!mVisibleOffScreen)
 		{
@@ -675,9 +673,9 @@ LLVector2 LLHUDText::updateScreenPos(LLVector2 &offset)
 	LLVector2 screen_pos_vec;
 	LLVector3 x_pixel_vec;
 	LLVector3 y_pixel_vec;
-	gCamera->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
+	LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
 	LLVector3 world_pos = mPositionAgent + (offset.mV[VX] * x_pixel_vec) + (offset.mV[VY] * y_pixel_vec);
-	if (!gCamera->projectPosAgentToScreen(world_pos, screen_pos, FALSE) && mVisibleOffScreen)
+	if (!LLViewerCamera::getInstance()->projectPosAgentToScreen(world_pos, screen_pos, FALSE) && mVisibleOffScreen)
 	{
 		// bubble off-screen, so find a spot for it along screen edge
 		LLVector2 window_center(gViewerWindow->getWindowDisplayWidth() * 0.5f, gViewerWindow->getWindowDisplayHeight() * 0.5f);
@@ -685,7 +683,7 @@ LLVector2 LLHUDText::updateScreenPos(LLVector2 &offset)
 									screen_pos.mY - window_center.mV[VY]);
 		delta_from_center.normVec();
 
-		F32 camera_aspect = gCamera->getAspect();
+		F32 camera_aspect = LLViewerCamera::getInstance()->getAspect();
 		F32 delta_aspect = llabs(delta_from_center.mV[VX] / delta_from_center.mV[VY]);
 		if (camera_aspect / llmax(delta_aspect, 0.001f) > 1.f)
 		{
@@ -835,7 +833,7 @@ void LLHUDText::updateAll()
 		}
 	}
 
-	LLStat* camera_vel_stat = gCamera->getVelocityStat();
+	LLStat* camera_vel_stat = LLViewerCamera::getInstance()->getVelocityStat();
 	F32 camera_vel = camera_vel_stat->getCurrent();
 	if (camera_vel > MAX_STABLE_CAMERA_VELOCITY)
 	{

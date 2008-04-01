@@ -34,6 +34,9 @@
 
 #include "llscrollingpanellist.h"
 
+static LLRegisterWidget<LLScrollingPanelList> r("scrolling_panel_list");
+
+
 /////////////////////////////////////////////////////////////////////
 // LLScrollingPanelList
 
@@ -129,10 +132,8 @@ void LLScrollingPanelList::updatePanelVisiblilty()
 
 void LLScrollingPanelList::draw()
 {
-	if( getVisible() )
-	{
-		updatePanelVisiblilty();
-	}
+	updatePanelVisiblilty();
+
 	LLUICtrl::draw();
 }
 

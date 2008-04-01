@@ -930,6 +930,11 @@ void LLInventoryModel::removeObserver(LLInventoryObserver* observer)
 	mObservers.erase(observer);
 }
 
+BOOL LLInventoryModel::containsObserver(LLInventoryObserver* observer)
+{
+	return mObservers.find(observer) != mObservers.end();
+}
+
 // Call this method when it's time to update everyone on a new state,
 // by default, the inventory model will not update observers
 // automatically.

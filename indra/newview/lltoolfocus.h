@@ -35,7 +35,7 @@
 #include "lltool.h"
 
 class LLToolCamera
-:	public LLTool
+:	public LLTool, public LLSingleton<LLToolCamera>
 {
 public:
 	LLToolCamera();
@@ -74,8 +74,6 @@ protected:
 	MASK	mMouseUpMask;
 };
 
-
-extern LLToolCamera *gToolCamera;
 
 extern BOOL gCameraBtnOrbit;
 extern BOOL gCameraBtnPan;

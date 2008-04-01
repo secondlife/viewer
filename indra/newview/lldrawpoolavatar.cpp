@@ -463,7 +463,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 	if ((sShaderLevel >= SHADER_LEVEL_CLOTH))
 	{
 		LLMatrix4 rot_mat;
-		gCamera->getMatrixToLocal(rot_mat);
+		LLViewerCamera::getInstance()->getMatrixToLocal(rot_mat);
 		LLMatrix4 cfr(OGL_TO_CFR_ROTATION);
 		rot_mat *= cfr;
 		

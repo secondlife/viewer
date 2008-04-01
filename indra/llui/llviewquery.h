@@ -87,14 +87,14 @@ class LLCtrlFilter : public LLQueryFilter, public LLSingleton<LLCtrlFilter>
 	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const;
 };
 
+template <class T>
 class LLWidgetTypeFilter : public LLQueryFilter
 {
-public:
-	LLWidgetTypeFilter(EWidgetType type) : mType(type) {};
-private:
-	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const;
+	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const
+	{
+		return filterResult_t(dynamic_cast<const T*>(view) != NULL, TRUE);
+	}
 
-	EWidgetType mType;
 };
 
 // Algorithm for flattening

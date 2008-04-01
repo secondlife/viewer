@@ -35,7 +35,7 @@
 #include "v4color.h"
 #include "llresmgr.h"
 #include "llfont.h"
-#include "llimagegl.h"
+#include "llui.h"
 
 class LLStyle
 {
@@ -53,19 +53,20 @@ public:
 	virtual const LLColor4& getColor() const { return mColor; }
 	virtual void setColor(const LLColor4 &color) { mColor = color; }
 
-	virtual BOOL isVisible() const { return mVisible; }
-	virtual void setVisible(BOOL is_visible) { mVisible = is_visible; }
+	virtual BOOL isVisible() const;
+	virtual void setVisible(BOOL is_visible);
 
 	virtual const LLString& getFontString() const { return mFontName; }
 	virtual void setFontName(const LLString& fontname);
 	virtual LLFONT_ID getFontID() const { return mFontID; }
 
 	virtual const LLString& getLinkHREF() const { return mLink; }
-	virtual void setLinkHREF(const LLString& href) { mLink = href; }
-	virtual BOOL isLink() const { return mLink.size(); }
+	virtual void setLinkHREF(const LLString& href);
+	virtual BOOL isLink() const;
 
-	virtual LLImageGL *getImage() const { return mImagep; }
-	virtual void setImage(const LLString& src);
+	virtual LLUIImagePtr getImage() const;
+	virtual void setImage(const LLUUID& src);
+
 	virtual BOOL isImage() const { return ((mImageWidth != 0) && (mImageHeight != 0)); }
 	virtual void setImageSize(S32 width, S32 height);
 
@@ -106,7 +107,7 @@ private:
 	LLString	mFontName;
 	LLFONT_ID   mFontID;
 	LLString	mLink;
-	LLPointer<LLImageGL> mImagep;
+	LLUIImagePtr mImagep;
 	BOOL		mIsEmbeddedItem;
 };
 

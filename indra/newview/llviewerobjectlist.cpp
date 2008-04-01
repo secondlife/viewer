@@ -235,11 +235,11 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 		&& update_type != OUT_TERSE_IMPROVED 
 		&& objectp->mCreateSelected)
 	{
-		if ( gToolMgr->getCurrentTool() != gToolPie )
+		if ( LLToolMgr::getInstance()->getCurrentTool() != LLToolPie::getInstance() )
 		{
 			//llinfos << "DEBUG selecting " << objectp->mID << " " 
 			//		<< objectp->mLocalID << llendl;
-			gSelectMgr->selectObjectAndFamily(objectp);
+			LLSelectMgr::getInstance()->selectObjectAndFamily(objectp);
 			dialog_refresh_all();
 		}
 
@@ -302,7 +302,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 
 	U64 region_handle;
 	mesgsys->getU64Fast(_PREHASH_RegionData, _PREHASH_RegionHandle, region_handle);
-	LLViewerRegion *regionp = gWorldPointer->getRegionFromHandle(region_handle);
+	LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromHandle(region_handle);
 
 	if (!regionp)
 	{
@@ -585,7 +585,7 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 			return true;
 		}
 	} func;
-	gSelectMgr->getSelection()->applyToRootObjects(&func);
+	LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func);
 
 	// Iterate through some of the objects and lazy update their texture priorities
 	for (i = mCurLazyUpdateIndex; i < max_value; i++)
@@ -710,7 +710,7 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	// don't factor frames that were paused into the stats
 	if (! mWasPaused)
 	{
-		gViewerStats->updateFrameStats(time_diff);
+		LLViewerStats::getInstance()->updateFrameStats(time_diff);
 	}
 
 	/*
@@ -996,7 +996,7 @@ void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 	}
 
 	gPipeline.shiftObjects(offset);
-	gWorldp->shiftRegions(offset);
+	LLWorld::getInstance()->shiftRegions(offset);
 }
 
 void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
@@ -1023,7 +1023,7 @@ void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 		const LLVector3& scale = objectp->getScale();
 		const LLVector3d pos = objectp->getPositionGlobal();
 		const F64 water_height = F64( objectp->getRegion()->getWaterHeight() );
-		// gWorldPointer->getWaterHeight();
+		// LLWorld::getInstance()->getWaterHeight();
 
 		F32 approx_radius = (scale.mV[VX] + scale.mV[VY]) * 0.5f * 0.5f * 1.3f;  // 1.3 is a fudge
 
@@ -1097,8 +1097,8 @@ U32 LLViewerObjectList::renderObjectsForSelect(LLCamera &camera, BOOL pick_parce
 
 		std::vector<LLDrawable*> pick_drawables;
 
-		for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
-			iter != gWorldp->getRegionList().end(); ++iter)
+		for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 		{
 			LLViewerRegion* region = *iter;
 			for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
@@ -1491,12 +1491,12 @@ void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
 
 	if (orphans_found && objectp->isSelected())
 	{
-		LLSelectNode* nodep = gSelectMgr->getSelection()->findNode(objectp);
+		LLSelectNode* nodep = LLSelectMgr::getInstance()->getSelection()->findNode(objectp);
 		if (nodep && !nodep->mIndividualSelection)
 		{
 			// rebuild selection with orphans
-			gSelectMgr->deselectObjectAndFamily(objectp);
-			gSelectMgr->selectObjectAndFamily(objectp);
+			LLSelectMgr::getInstance()->deselectObjectAndFamily(objectp);
+			LLSelectMgr::getInstance()->selectObjectAndFamily(objectp);
 		}
 	}
 }

@@ -64,7 +64,6 @@
 #include "llworld.h"
 #include "object_flags.h"
 
-LLToolDragAndDrop *gToolDragAndDrop = NULL;
 
 // MAX ITEMS is based on (sizeof(uuid)+2) * count must be < MTUBYTES
 // or 18 * count < 1200 => count < 1200/18 => 66. I've cut it down a
@@ -77,37 +76,6 @@ const char* FOLDER_INCLUDES_ATTACHMENTS_BEING_WORN =
 
 // syntactic sugar
 #define callMemberFunction(object,ptrToMember)  ((object).*(ptrToMember))
-
-/*
-const LLUUID MULTI_CONTAINER_TEXTURE("b2181ea2-1937-2ee1-78b8-bf05c43536b7");
-LLUUID CONTAINER_TEXTURES[LLAssetType::AT_COUNT];
-
-const char* CONTAINER_TEXTURE_NAMES[LLAssetType::AT_COUNT] =
-{
-	"container_texture.tga",
-	"container_sound.tga",
-	"container_many_things.tga",
-	"container_landmark.tga",
-	"container_script.tga",
-	"container_clothing.tga",
-	"container_object.tga",
-	"container_many_things.tga",
-	"container_many_things.tga",
-	"container_many_things.tga",
-	"container_script.tga",
-	"container_script.tga",
-	"container_texture.tga",
-	"container_bodypart.tga",
-	"container_many_things.tga",
-	"container_many_things.tga",
-	"container_many_things.tga",
-	"container_sound.tga",
-	"container_texture.tga",
-	"container_texture.tga",
-	"container_animation.tga",
-	"container_gesture.tga"
-};
-*/
 
 class LLNoPreferredType : public LLInventoryCollectFunctor
 {
@@ -610,11 +578,7 @@ LLToolDragAndDrop::LLToolDragAndDrop()
 	 mDrop(FALSE),
 	 mCurItemIndex(0)
 {
-	// setup container texture ids
-	//for (S32 i = 0; i < LLAssetType::AT_COUNT; i++)
-	//{
-	//	CONTAINER_TEXTURES[i].set(gViewerArt.getString(CONTAINER_TEXTURE_NAMES[i]));
-	//}
+
 }
 
 void LLToolDragAndDrop::setDragStart(S32 x, S32 y)
@@ -650,7 +614,7 @@ void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
 	mObjectID = object_id;
 
 	setMouseCapture( TRUE );
-	gToolMgr->setTransientTool( this );
+	LLToolMgr::getInstance()->setTransientTool( this );
 	mCursor = UI_CURSOR_NO;
 	if((mCargoTypes[0] == DAD_CATEGORY)
 	   && ((mSource == SOURCE_AGENT) || (mSource == SOURCE_LIBRARY)))
@@ -719,7 +683,7 @@ void LLToolDragAndDrop::beginMultiDrag(
 	mSourceID = source_id;
 
 	setMouseCapture( TRUE );
-	gToolMgr->setTransientTool( this );
+	LLToolMgr::getInstance()->setTransientTool( this );
 	mCursor = UI_CURSOR_NO;
 	if((mSource == SOURCE_AGENT) || (mSource == SOURCE_LIBRARY))
 	{
@@ -766,14 +730,14 @@ void LLToolDragAndDrop::beginMultiDrag(
 
 void LLToolDragAndDrop::endDrag()
 {
-	gSelectMgr->unhighlightAll();
+	LLSelectMgr::getInstance()->unhighlightAll();
 	setMouseCapture(FALSE);
 }
 
 void LLToolDragAndDrop::onMouseCaptureLost()
 {
 	// Called whenever the drag ends or if mouse captue is simply lost
-	gToolMgr->clearTransientTool();
+	LLToolMgr::getInstance()->clearTransientTool();
 	mCargoTypes.clear();
 	mCargoIDs.clear();
 	mSource = SOURCE_AGENT;
@@ -1045,7 +1009,7 @@ void LLToolDragAndDrop::pickCallback(S32 x, S32 y, MASK mask)
 	S32	hit_face = -1;
 
 	LLViewerObject* hit_obj = gViewerWindow->lastNonFloraObjectHit();
-	gSelectMgr->unhighlightAll();
+	LLSelectMgr::getInstance()->unhighlightAll();
 
 	// Treat attachments as part of the avatar they are attached to.
 	if (hit_obj)
@@ -1055,9 +1019,9 @@ void LLToolDragAndDrop::pickCallback(S32 x, S32 y, MASK mask)
 			LLVOAvatar* avatar = LLVOAvatar::findAvatarFromAttachment( hit_obj );
 			if( !avatar )
 			{
-				gToolDragAndDrop->mLastAccept = ACCEPT_NO;
-				gToolDragAndDrop->mCursor = UI_CURSOR_NO;
-				gViewerWindow->getWindow()->setCursor( gToolDragAndDrop->mCursor );
+				LLToolDragAndDrop::getInstance()->mLastAccept = ACCEPT_NO;
+				LLToolDragAndDrop::getInstance()->mCursor = UI_CURSOR_NO;
+				gViewerWindow->getWindow()->setCursor( LLToolDragAndDrop::getInstance()->mCursor );
 				return;
 			}
 			
@@ -1083,11 +1047,11 @@ void LLToolDragAndDrop::pickCallback(S32 x, S32 y, MASK mask)
 			hit_face = gLastHitNonFloraObjectFace;
 			// if any item being dragged will be applied to the object under our cursor
 			// highlight that object
-			for (S32 i = 0; i < (S32)gToolDragAndDrop->mCargoIDs.size(); i++)
+			for (S32 i = 0; i < (S32)LLToolDragAndDrop::getInstance()->mCargoIDs.size(); i++)
 			{
-				if (gToolDragAndDrop->mCargoTypes[i] != DAD_OBJECT || (mask & MASK_CONTROL))
+				if (LLToolDragAndDrop::getInstance()->mCargoTypes[i] != DAD_OBJECT || (mask & MASK_CONTROL))
 				{
-					gSelectMgr->highlightObjectAndFamily(hit_obj);
+					LLSelectMgr::getInstance()->highlightObjectAndFamily(hit_obj);
 					break;
 				}
 			}
@@ -1099,78 +1063,78 @@ void LLToolDragAndDrop::pickCallback(S32 x, S32 y, MASK mask)
 		hit_face = -1;
 	}
 
-	gToolDragAndDrop->mLastAccept = ACCEPT_YES_MULTI;
+	LLToolDragAndDrop::getInstance()->mLastAccept = ACCEPT_YES_MULTI;
 
-	for (gToolDragAndDrop->mCurItemIndex = 0; gToolDragAndDrop->mCurItemIndex < (S32)gToolDragAndDrop->mCargoIDs.size(); 
-		gToolDragAndDrop->mCurItemIndex++)
+	for (LLToolDragAndDrop::getInstance()->mCurItemIndex = 0; LLToolDragAndDrop::getInstance()->mCurItemIndex < (S32)LLToolDragAndDrop::getInstance()->mCargoIDs.size(); 
+		LLToolDragAndDrop::getInstance()->mCurItemIndex++)
 	{
 		// Call the right implementation function
-		gToolDragAndDrop->mLastAccept = (EAcceptance)llmin(
-			(U32)gToolDragAndDrop->mLastAccept,
-			(U32)callMemberFunction((*gToolDragAndDrop), 
-				gToolDragAndDrop->sDragAndDrop3d[gToolDragAndDrop->mCargoTypes[gToolDragAndDrop->mCurItemIndex]][target])
+		LLToolDragAndDrop::getInstance()->mLastAccept = (EAcceptance)llmin(
+			(U32)LLToolDragAndDrop::getInstance()->mLastAccept,
+			(U32)callMemberFunction((*LLToolDragAndDrop::getInstance()), 
+				LLToolDragAndDrop::getInstance()->sDragAndDrop3d[LLToolDragAndDrop::getInstance()->mCargoTypes[LLToolDragAndDrop::getInstance()->mCurItemIndex]][target])
 				(hit_obj, hit_face, mask, FALSE));
 	}
 
-	if (gToolDragAndDrop->mDrop && (U32)gToolDragAndDrop->mLastAccept >= ACCEPT_YES_COPY_SINGLE)
+	if (LLToolDragAndDrop::getInstance()->mDrop && (U32)LLToolDragAndDrop::getInstance()->mLastAccept >= ACCEPT_YES_COPY_SINGLE)
 	{
 		// if target allows multi-drop, go ahead and start iteration at beginning of cargo list
-		if (gToolDragAndDrop->mLastAccept >= ACCEPT_YES_COPY_MULTI)
+		if (LLToolDragAndDrop::getInstance()->mLastAccept >= ACCEPT_YES_COPY_MULTI)
 		{
-			gToolDragAndDrop->mCurItemIndex = 0;
+			LLToolDragAndDrop::getInstance()->mCurItemIndex = 0;
 		}
 		// otherwise start at end, to follow selection rules (last selected item is most current)
 		else
 		{
-			gToolDragAndDrop->mCurItemIndex = gToolDragAndDrop->mCargoIDs.size() - 1;
+			LLToolDragAndDrop::getInstance()->mCurItemIndex = LLToolDragAndDrop::getInstance()->mCargoIDs.size() - 1;
 		}
 
-		for (; gToolDragAndDrop->mCurItemIndex < (S32)gToolDragAndDrop->mCargoIDs.size(); 
-			gToolDragAndDrop->mCurItemIndex++)
+		for (; LLToolDragAndDrop::getInstance()->mCurItemIndex < (S32)LLToolDragAndDrop::getInstance()->mCargoIDs.size(); 
+			LLToolDragAndDrop::getInstance()->mCurItemIndex++)
 		{
 			// Call the right implementation function
-			(U32)callMemberFunction((*gToolDragAndDrop), 
-				gToolDragAndDrop->sDragAndDrop3d[gToolDragAndDrop->mCargoTypes[gToolDragAndDrop->mCurItemIndex]][target])
+			(U32)callMemberFunction((*LLToolDragAndDrop::getInstance()), 
+				LLToolDragAndDrop::getInstance()->sDragAndDrop3d[LLToolDragAndDrop::getInstance()->mCargoTypes[LLToolDragAndDrop::getInstance()->mCurItemIndex]][target])
 				(hit_obj, hit_face, mask, TRUE);
 		}
 	}
 
-	switch( gToolDragAndDrop->mLastAccept )
+	switch( LLToolDragAndDrop::getInstance()->mLastAccept )
 	{
 	case ACCEPT_YES_MULTI: 
-		if (gToolDragAndDrop->mCargoIDs.size() > 1)
+		if (LLToolDragAndDrop::getInstance()->mCargoIDs.size() > 1)
 		{
-			gToolDragAndDrop->mCursor = UI_CURSOR_ARROWDRAGMULTI;
+			LLToolDragAndDrop::getInstance()->mCursor = UI_CURSOR_ARROWDRAGMULTI;
 		}
 		else
 		{
-			gToolDragAndDrop->mCursor = UI_CURSOR_ARROWDRAG;
+			LLToolDragAndDrop::getInstance()->mCursor = UI_CURSOR_ARROWDRAG;
 		}
 		break;
 	case ACCEPT_YES_SINGLE: 
-		gToolDragAndDrop->mCursor = UI_CURSOR_ARROWDRAG;
+		LLToolDragAndDrop::getInstance()->mCursor = UI_CURSOR_ARROWDRAG;
 		break;
 
 	case ACCEPT_NO_LOCKED:
-		gToolDragAndDrop->mCursor = UI_CURSOR_NOLOCKED;
+		LLToolDragAndDrop::getInstance()->mCursor = UI_CURSOR_NOLOCKED;
 		break;
 
 	case ACCEPT_NO:
-		gToolDragAndDrop->mCursor = UI_CURSOR_NO;
+		LLToolDragAndDrop::getInstance()->mCursor = UI_CURSOR_NO;
 		break;
 
 	case ACCEPT_YES_COPY_MULTI:
-	if (gToolDragAndDrop->mCargoIDs.size() > 1)
+	if (LLToolDragAndDrop::getInstance()->mCargoIDs.size() > 1)
 		{
-			gToolDragAndDrop->mCursor = UI_CURSOR_ARROWCOPYMULTI;
+			LLToolDragAndDrop::getInstance()->mCursor = UI_CURSOR_ARROWCOPYMULTI;
 		}
 		else
 		{
-			gToolDragAndDrop->mCursor = UI_CURSOR_ARROWCOPY;
+			LLToolDragAndDrop::getInstance()->mCursor = UI_CURSOR_ARROWCOPY;
 		}
 		break;
 	case ACCEPT_YES_COPY_SINGLE:
-		gToolDragAndDrop->mCursor = UI_CURSOR_ARROWCOPY;
+		LLToolDragAndDrop::getInstance()->mCursor = UI_CURSOR_ARROWCOPY;
 		break;
 	case ACCEPT_POSTPONED:
 		break;
@@ -1178,10 +1142,10 @@ void LLToolDragAndDrop::pickCallback(S32 x, S32 y, MASK mask)
 		llassert( FALSE );
 	}
 
-	gToolDragAndDrop->mLastHitPos = gLastHitPosGlobal + gLastHitObjectOffset;
-	gToolDragAndDrop->mLastCameraPos = gAgent.getCameraPositionGlobal();
+	LLToolDragAndDrop::getInstance()->mLastHitPos = gLastHitPosGlobal + gLastHitObjectOffset;
+	LLToolDragAndDrop::getInstance()->mLastCameraPos = gAgent.getCameraPositionGlobal();
 
-	gViewerWindow->getWindow()->setCursor( gToolDragAndDrop->mCursor );
+	gViewerWindow->getWindow()->setCursor( LLToolDragAndDrop::getInstance()->mCursor );
 }
 
 // static
@@ -1294,7 +1258,7 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 		return;
 	}
 	LLViewerImage* image = gImageList.getImage(asset_id);
-	gViewerStats->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
+	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
 	S32 num_faces = hit_obj->getNumTEs();
 	for( S32 face = 0; face < num_faces; face++ )
 	{
@@ -1337,7 +1301,7 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 	}
 	// update viewer side image in anticipation of update from simulator
 	LLViewerImage* image = gImageList.getImage(asset_id);
-	gViewerStats->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
+	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
 	hit_obj->setTEImage(hit_face, image);
 	dialog_refresh_all();
 
@@ -1354,8 +1318,8 @@ void LLToolDragAndDrop::dropScript(LLViewerObject* hit_obj,
 {
 	// *HACK: In order to resolve SL-22177, we need to block drags
 	// from notecards and objects onto other objects.
-	if((SOURCE_WORLD == gToolDragAndDrop->mSource)
-	   || (SOURCE_NOTECARD == gToolDragAndDrop->mSource))
+	if((SOURCE_WORLD == LLToolDragAndDrop::getInstance()->mSource)
+	   || (SOURCE_NOTECARD == LLToolDragAndDrop::getInstance()->mSource))
 	{
 		llwarns << "Call to LLToolDragAndDrop::dropScript() from world"
 			<< " or notecard." << llendl;
@@ -1394,7 +1358,7 @@ void LLToolDragAndDrop::dropScript(LLViewerObject* hit_obj,
 		gFloaterTools->dirty();
 
 		// VEFFECT: SetScript
-		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)gHUDManager->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
+		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
 		effectp->setSourceObject(gAgent.getAvatarObject());
 		effectp->setTargetObject(hit_obj);
 		effectp->setDuration(LL_HUD_DUR_SHORT);
@@ -1407,7 +1371,7 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 								   BOOL from_task_inventory,
 								   BOOL remove_from_inventory)
 {
-	LLViewerRegion* regionp = gWorldp->getRegionFromPosGlobal(mLastHitPos);
+	LLViewerRegion* regionp = LLWorld::getInstance()->getRegionFromPosGlobal(mLastHitPos);
 	if (!regionp)
 	{
 		llwarns << "Couldn't find region to rez object" << llendl;
@@ -1463,7 +1427,7 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	LLUUID source_id = from_task_inventory ? mSourceID : LLUUID::null;
 
 	// Select the object only if we're editing.
-	BOOL rez_selected = gToolMgr->inEdit();
+	BOOL rez_selected = LLToolMgr::getInstance()->inEdit();
 
 
 	LLVector3 ray_start = regionp->getPosRegionFromGlobal(mLastCameraPos);
@@ -1542,7 +1506,7 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	// selected object.
 	if (rez_selected)
 	{
-		gSelectMgr->deselectAll();
+		LLSelectMgr::getInstance()->deselectAll();
 		gViewerWindow->getWindow()->incBusyCount();
 	}
 
@@ -1556,13 +1520,13 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	}
 
 	// VEFFECT: DropObject
-	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)gHUDManager->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
+	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
 	effectp->setSourceObject(gAgent.getAvatarObject());
 	effectp->setPositionGlobal(mLastHitPos);
 	effectp->setDuration(LL_HUD_DUR_SHORT);
 	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 
-	gViewerStats->incStat(LLViewerStats::ST_REZ_COUNT);
+	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_REZ_COUNT);
 }
 
 void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
@@ -1572,8 +1536,8 @@ void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
 {
 	// *HACK: In order to resolve SL-22177, we need to block drags
 	// from notecards and objects onto other objects.
-	if((SOURCE_WORLD == gToolDragAndDrop->mSource)
-	   || (SOURCE_NOTECARD == gToolDragAndDrop->mSource))
+	if((SOURCE_WORLD == LLToolDragAndDrop::getInstance()->mSource)
+	   || (SOURCE_NOTECARD == LLToolDragAndDrop::getInstance()->mSource))
 	{
 		llwarns << "Call to LLToolDragAndDrop::dropInventory() from world"
 			<< " or notecard." << llendl;
@@ -1619,7 +1583,7 @@ void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
 	}
 
 	// VEFFECT: AddToInventory
-	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)gHUDManager->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
+	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
 	effectp->setSourceObject(gAgent.getAvatarObject());
 	effectp->setTargetObject(hit_obj);
 	effectp->setDuration(LL_HUD_DUR_SHORT);
@@ -1723,7 +1687,7 @@ void LLToolDragAndDrop::commitGiveInventoryItem(const LLUUID& to_agent,
 	gAgent.sendReliableMessage(); 
 
 	// VEFFECT: giveInventory
-	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)gHUDManager->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
+	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
 	effectp->setSourceObject(gAgent.getAvatarObject());
 	effectp->setTargetObject(gObjectList.findObject(to_agent));
 	effectp->setDuration(LL_HUD_DUR_SHORT);
@@ -1925,7 +1889,7 @@ void LLToolDragAndDrop::commitGiveInventoryCategory(const LLUUID& to_agent,
 		delete[] bucket;
 
 		// VEFFECT: giveInventoryCategory
-		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)gHUDManager->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
+		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
 		effectp->setSourceObject(gAgent.getAvatarObject());
 		effectp->setTargetObject(gObjectList.findObject(to_agent));
 		effectp->setDuration(LL_HUD_DUR_SHORT);
@@ -2378,7 +2342,7 @@ EAcceptance LLToolDragAndDrop::dad3dTextureObject(
 		}
 		
 		// VEFFECT: SetTexture
-		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)gHUDManager->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
+		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
 		effectp->setSourceObject(gAgent.getAvatarObject());
 		effectp->setTargetObject(obj);
 		effectp->setDuration(LL_HUD_DUR_SHORT);

@@ -60,7 +60,7 @@
 #include "lltexturectrl.h"
 #include "lluiconstants.h"
 #include "llurldispatcher.h"	// for classified HTML detail click teleports
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
 #include "llworldmap.h"
@@ -184,11 +184,11 @@ LLPanelClassified::LLPanelClassified(bool in_finder, bool from_search)
 	std::string classified_def_file;
 	if (mInFinder)
 	{
-		gUICtrlFactory->buildPanel(this, "panel_classified.xml");
+		LLUICtrlFactory::getInstance()->buildPanel(this, "panel_classified.xml");
 	}
 	else
 	{
-		gUICtrlFactory->buildPanel(this, "panel_avatar_classified.xml");
+		LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar_classified.xml");
 	}
 
 	// Register dispatcher
@@ -223,12 +223,12 @@ void LLPanelClassified::reset()
 
 BOOL LLPanelClassified::postBuild()
 {
-    mSnapshotCtrl = LLViewerUICtrlFactory::getTexturePickerByName(this, "snapshot_ctrl");
+    mSnapshotCtrl = getChild<LLTextureCtrl>("snapshot_ctrl");
 	mSnapshotCtrl->setCommitCallback(onCommitAny);
 	mSnapshotCtrl->setCallbackUserData(this);
 	mSnapshotSize = mSnapshotCtrl->getRect();
 
-    mNameEditor = LLViewerUICtrlFactory::getLineEditorByName(this, "given_name_editor");
+    mNameEditor = getChild<LLLineEditor>("given_name_editor");
 	mNameEditor->setMaxTextLength(DB_PARCEL_NAME_LEN);
 	mNameEditor->setCommitOnFocusLost(TRUE);
 	mNameEditor->setFocusReceivedCallback(onFocusReceived, this);
@@ -236,35 +236,35 @@ BOOL LLPanelClassified::postBuild()
 	mNameEditor->setCallbackUserData(this);
 	mNameEditor->setPrevalidate( LLLineEditor::prevalidateASCII );
 
-    mDescEditor = LLUICtrlFactory::getTextEditorByName(this, "desc_editor");
+    mDescEditor = getChild<LLTextEditor>("desc_editor");
 	mDescEditor->setCommitOnFocusLost(TRUE);
 	mDescEditor->setFocusReceivedCallback(onFocusReceived, this);
 	mDescEditor->setCommitCallback(onCommitAny);
 	mDescEditor->setCallbackUserData(this);
 	mDescEditor->setTabsToNextField(TRUE);
 
-    mLocationEditor = LLViewerUICtrlFactory::getLineEditorByName(this, "location_editor");
+    mLocationEditor = getChild<LLLineEditor>("location_editor");
 
-    mSetBtn = LLViewerUICtrlFactory::getButtonByName(this, "set_location_btn");
+    mSetBtn = getChild<LLButton>( "set_location_btn");
     mSetBtn->setClickedCallback(onClickSet);
     mSetBtn->setCallbackUserData(this);
 
-    mTeleportBtn = LLViewerUICtrlFactory::getButtonByName(this, "classified_teleport_btn");
+    mTeleportBtn = getChild<LLButton>( "classified_teleport_btn");
     mTeleportBtn->setClickedCallback(onClickTeleport);
     mTeleportBtn->setCallbackUserData(this);
 
-    mMapBtn = LLViewerUICtrlFactory::getButtonByName(this, "classified_map_btn");
+    mMapBtn = getChild<LLButton>( "classified_map_btn");
     mMapBtn->setClickedCallback(onClickMap);
     mMapBtn->setCallbackUserData(this);
 
 	if(mInFinder)
 	{
-		mProfileBtn  = LLViewerUICtrlFactory::getButtonByName(this, "classified_profile_btn");
+		mProfileBtn  = getChild<LLButton>( "classified_profile_btn");
 		mProfileBtn->setClickedCallback(onClickProfile);
 		mProfileBtn->setCallbackUserData(this);
 	}
 
-	mCategoryCombo = LLViewerUICtrlFactory::getComboBoxByName(this, "classified_category_combo");
+	mCategoryCombo = getChild<LLComboBox>( "classified_category_combo");
 	LLClassifiedInfo::cat_map::iterator iter;
 	for (iter = LLClassifiedInfo::sCategories.begin();
 		iter != LLClassifiedInfo::sCategories.end();
@@ -276,7 +276,7 @@ BOOL LLPanelClassified::postBuild()
 	mCategoryCombo->setCommitCallback(onCommitAny);
 	mCategoryCombo->setCallbackUserData(this);
 
-	mMatureCheck = LLViewerUICtrlFactory::getCheckBoxByName(this, "classified_mature_check");
+	mMatureCheck = getChild<LLCheckBoxCtrl>( "classified_mature_check");
 	mMatureCheck->setCommitCallback(onCommitAny);
 	mMatureCheck->setCallbackUserData(this);
 	if (gAgent.isTeen())
@@ -287,18 +287,18 @@ BOOL LLPanelClassified::postBuild()
 
 	if (!mInFinder)
 	{
-		mAutoRenewCheck = LLUICtrlFactory::getCheckBoxByName(this, "auto_renew_check");
+		mAutoRenewCheck = getChild<LLCheckBoxCtrl>( "auto_renew_check");
 		mAutoRenewCheck->setCommitCallback(onCommitAny);
 		mAutoRenewCheck->setCallbackUserData(this);
 	}
 
-	mUpdateBtn = LLUICtrlFactory::getButtonByName(this, "classified_update_btn");
+	mUpdateBtn = getChild<LLButton>("classified_update_btn");
     mUpdateBtn->setClickedCallback(onClickUpdate);
     mUpdateBtn->setCallbackUserData(this);
 
 	if (!mInFinder)
 	{
-		mClickThroughText = LLUICtrlFactory::getTextBoxByName(this, "click_through_text");
+		mClickThroughText = getChild<LLTextBox>("click_through_text");
 	}
 	
     return TRUE;
@@ -351,10 +351,10 @@ void LLPanelClassified::saveCallback(S32 option, void* data)
 				LLView* view = self;
 				while (view)
 				{
-					if (view->getWidgetType() == WIDGET_TYPE_FLOATER)
+					LLFloater* floaterp = dynamic_cast<LLFloater*>(view);
+					if (floaterp)
 					{
-						LLFloater* f = (LLFloater*)view;
-						f->close();
+						floaterp->close();
 						break;
 					}
 					view = view->getParent();
@@ -393,7 +393,7 @@ void LLPanelClassified::initNewClassified()
 	mPaidFor = FALSE;
 
 	// Try to fill in the current parcel
-	LLParcel* parcel = gParcelMgr->getAgentParcel();
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if (parcel)
 	{
 		mNameEditor->setText(parcel->getName());
@@ -674,17 +674,16 @@ void LLPanelClassified::processClassifiedInfoReply(LLMessageSystem *msg, void **
 		self->mUpdateBtn->setLabel(self->getString("update_txt"));
 
 		self->resetDirty();
+
+		self->resetDirty();
     }
 }
 
 void LLPanelClassified::draw()
 {
-	if (getVisible())
-	{
-		refresh();
+	refresh();
 
-		LLPanel::draw();
-	}
+	LLPanel::draw();
 }
 
 
@@ -709,12 +708,13 @@ void LLPanelClassified::refresh()
 		if(godlike)
 		{
 			//make it smaller, so text is more legible
-			mSnapshotCtrl->setRect(LLRect(20, 375, 320, 175));
-			
+			mSnapshotCtrl->setOrigin(20, 175);
+			mSnapshotCtrl->reshape(300, 200);
 		}
 		else
 		{
-			mSnapshotCtrl->setRect(mSnapshotSize);
+			mSnapshotCtrl->setOrigin(mSnapshotSize.mLeft, mSnapshotSize.mBottom);
+			mSnapshotCtrl->reshape(mSnapshotSize.getWidth(), mSnapshotSize.getHeight());
 			//normal
 		}
 		mNameEditor->setEnabled(godlike);
@@ -1004,7 +1004,7 @@ LLFloaterPriceForListing::~LLFloaterPriceForListing()
 //virtual
 BOOL LLFloaterPriceForListing::postBuild()
 {
-	LLLineEditor* edit = LLUICtrlFactory::getLineEditorByName(this, "price_edit");
+	LLLineEditor* edit = getChild<LLLineEditor>("price_edit");
 	if (edit)
 	{
 		edit->setPrevalidate(LLLineEditor::prevalidateNonNegativeS32);
@@ -1028,7 +1028,7 @@ void LLFloaterPriceForListing::show( void (*callback)(S32, LLString, void*), voi
 	LLFloaterPriceForListing *self = new LLFloaterPriceForListing();
 
 	// Builds and adds to gFloaterView
-	gUICtrlFactory->buildFloater(self, "floater_price_for_listing.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(self, "floater_price_for_listing.xml");
 	self->center();
 
 	self->mCallback = callback;

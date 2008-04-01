@@ -74,14 +74,13 @@
 #include "llviewergenericmessage.h"	// send_generic_message
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
-#include "llviewborder.h"
 #include "llweb.h"
 #include "llinventorymodel.h"
 #include "roles_constants.h"
 
 #define	kArraySize( _kArray ) ( sizeof( (_kArray) ) / sizeof( _kArray[0] ) )
 
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 // Statics
 std::list<LLPanelAvatar*> LLPanelAvatar::sAllPanels;
@@ -103,9 +102,6 @@ class LLDropTarget : public LLView
 public:
 	LLDropTarget(const std::string& name, const LLRect& rect, const LLUUID& agent_id);
 	~LLDropTarget();
-
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
 
 	void doDrop(EDragAndDropType cargo_type, void* cargo_data);
 
@@ -131,16 +127,6 @@ LLDropTarget::LLDropTarget(const std::string& name, const LLRect& rect,
 
 LLDropTarget::~LLDropTarget()
 {
-}
-
-EWidgetType LLDropTarget::getWidgetType() const
-{
-	return WIDGET_TYPE_DROP_TARGET;
-}
-
-LLString LLDropTarget::getWidgetTag() const
-{
-	return LL_DROP_TARGET_TAG;
 }
 
 void LLDropTarget::doDrop(EDragAndDropType cargo_type, void* cargo_data)
@@ -243,12 +229,9 @@ LLPanelAvatarTab::LLPanelAvatarTab(const std::string& name, const LLRect &rect,
 // virtual
 void LLPanelAvatarTab::draw()
 {
-	if (getVisible())
-	{
-		refresh();
+	refresh();
 
-		LLPanel::draw();
-	}
+	LLPanel::draw();
 }
 
 void LLPanelAvatarTab::sendAvatarProfileRequestIfNeeded(const char* method)
@@ -314,12 +297,12 @@ void LLPanelAvatarSecondLife::clearControls()
 
 	mPartnerID = LLUUID::null;
 	
-	LLScrollListCtrl*	group_list = LLUICtrlFactory::getScrollListByName(this,"groups"); 
+	LLScrollListCtrl*	group_list = getChild<LLScrollListCtrl>("groups"); 
 	if(group_list)
 	{
 		group_list->deleteAllItems();
 	}
-	LLScrollListCtrl*	ratings_list = LLUICtrlFactory::getScrollListByName(this,"ratings"); 
+	LLScrollListCtrl*	ratings_list = getChild<LLScrollListCtrl>("ratings"); 
 	if(ratings_list)
 	{
 		ratings_list->deleteAllItems();
@@ -339,15 +322,6 @@ void LLPanelAvatarSecondLife::enableControls(BOOL self)
 	childSetEnabled("allow_publish", self);
 	childSetVisible("?", self);
 	childSetEnabled("?", self);
-
-	if (!self)
-	{
-		// This is because the LLTextEditor
-		// appears to reset the read only background color when
-		// setEnable is called, for some reason
-		LLTextEditor* about = LLUICtrlFactory::getTextEditorByName(this,"about");
-		if (about) about->setReadOnlyBgColor(LLColor4::transparent);
-	}
 }
 
 
@@ -361,7 +335,7 @@ void LLPanelAvatarSecondLife::onDoubleClickGroup(void* data)
 	LLPanelAvatarSecondLife* self = (LLPanelAvatarSecondLife*)data;
 
 	
-	LLScrollListCtrl*	group_list =  LLUICtrlFactory::getScrollListByName(self,"groups"); 
+	LLScrollListCtrl*	group_list =  self->getChild<LLScrollListCtrl>("groups"); 
 	if(group_list)
 	{
 		LLScrollListItem* item = group_list->getFirstSelected();
@@ -478,7 +452,7 @@ BOOL LLPanelAvatarNotes::postBuild(void)
 {
 	childSetCommitCallback("notes edit",onCommitNotes,this);
 	
-	LLTextEditor*	te = LLUICtrlFactory::getTextEditorByName(this,"notes edit");
+	LLTextEditor*	te = getChild<LLTextEditor>("notes edit");
 	if(te) te->setCommitOnFocusLost(TRUE);
 	return TRUE;
 }
@@ -529,7 +503,7 @@ BOOL LLPanelAvatarAdvanced::postBuild()
 	for(S32 tt=0; tt < mWantToCount; ++tt)
 	{	
 		LLString ctlname = llformat("chk%d", tt);
-		mWantToCheck[tt] = LLUICtrlFactory::getCheckBoxByName(this,ctlname);
+		mWantToCheck[tt] = getChild<LLCheckBoxCtrl>(ctlname);
 	}	
 	mSkillsCount = (6>kArraySize(mSkillsCheck))?kArraySize(mSkillsCheck):6;
 
@@ -537,11 +511,11 @@ BOOL LLPanelAvatarAdvanced::postBuild()
 	{
 		//Find the Skills checkboxes and save off thier controls
 		LLString ctlname = llformat("schk%d",tt);
-		mSkillsCheck[tt] = LLUICtrlFactory::getCheckBoxByName(this,ctlname);
+		mSkillsCheck[tt] = getChild<LLCheckBoxCtrl>(ctlname);
 	}
 
-	mWantToEdit = LLUICtrlFactory::getLineEditorByName(this,"want_to_edit");
-	mSkillsEdit = LLUICtrlFactory::getLineEditorByName(this,"skills_edit");
+	mWantToEdit = getChild<LLLineEditor>("want_to_edit");
+	mSkillsEdit = getChild<LLLineEditor>("skills_edit");
 	childSetVisible("skills_edit",LLPanelAvatar::sAllowFirstLife);
 	childSetVisible("want_to_edit",LLPanelAvatar::sAllowFirstLife);
 
@@ -717,17 +691,6 @@ void LLPanelAvatarAdvanced::enableControls(BOOL self)
 	if (mWantToEdit) mWantToEdit->setEnabled(self);
 	if (mSkillsEdit) mSkillsEdit->setEnabled(self);
 	childSetEnabled("languages_edit",self);
-
-	if (!self)
-	{
-		// This is because the LLTextEditor
-		// appears to reset the read only background color when
-		// setEnable is called, for some reason
-		if (mWantToEdit) mWantToEdit->setReadOnlyBgColor(LLColor4::transparent);
-		if (mSkillsEdit) mSkillsEdit->setReadOnlyBgColor(LLColor4::transparent);
-		LLLineEditor* languages_edit = getChild<LLLineEditor>("languages_edit");
-		languages_edit->setReadOnlyBgColor(LLColor4::transparent);
-	}
 }
 
 void LLPanelAvatarAdvanced::setWantSkills(U32 want_to_mask, const std::string& want_to_text,
@@ -828,7 +791,7 @@ void LLPanelAvatarClassified::refresh()
 {
 	BOOL self = (gAgent.getID() == getPanelAvatar()->getAvatarID());
 	
-	LLTabContainer* tabs = LLUICtrlFactory::getTabContainerByName(this,"classified tab");
+	LLTabContainer* tabs = getChild<LLTabContainer>("classified tab");
 	
 	S32 tab_count = tabs ? tabs->getTabCount() : 0;
 
@@ -862,7 +825,7 @@ void LLPanelAvatarClassified::refresh()
 
 BOOL LLPanelAvatarClassified::canClose()
 {
-	LLTabContainer* tabs = LLViewerUICtrlFactory::getTabContainerByName(this, "classified tab");
+	LLTabContainer* tabs = getChild<LLTabContainer>("classified tab");
 	for (S32 i = 0; i < tabs->getTabCount(); i++)
 	{
 		LLPanelClassified* panel = (LLPanelClassified*)tabs->getPanelByIndex(i);
@@ -876,7 +839,7 @@ BOOL LLPanelAvatarClassified::canClose()
 
 BOOL LLPanelAvatarClassified::titleIsValid()
 {
-	LLTabContainer* tabs = LLViewerUICtrlFactory::getTabContainerByName(this, "classified tab");
+	LLTabContainer* tabs = getChild<LLTabContainer>("classified tab");
 	if ( tabs )
 	{
 		LLPanelClassified* panel = (LLPanelClassified*)tabs->getCurrentPanel();
@@ -894,7 +857,7 @@ BOOL LLPanelAvatarClassified::titleIsValid()
 
 void LLPanelAvatarClassified::apply()
 {
-	LLTabContainer* tabs = LLViewerUICtrlFactory::getTabContainerByName(this, "classified tab");
+	LLTabContainer* tabs = getChild<LLTabContainer>("classified tab");
 	for (S32 i = 0; i < tabs->getTabCount(); i++)
 	{
 		LLPanelClassified* panel = (LLPanelClassified*)tabs->getPanelByIndex(i);
@@ -905,7 +868,7 @@ void LLPanelAvatarClassified::apply()
 
 void LLPanelAvatarClassified::deleteClassifiedPanels()
 {
-	LLTabContainer* tabs = LLViewerUICtrlFactory::getTabContainerByName(this,"classified tab");
+	LLTabContainer* tabs = getChild<LLTabContainer>("classified tab");
 	if (tabs)
 	{
 		tabs->deleteAllTabs();
@@ -925,7 +888,7 @@ void LLPanelAvatarClassified::processAvatarClassifiedReply(LLMessageSystem* msg,
 	char classified_name[DB_PICK_NAME_SIZE];		/*Flawfinder: ignore*/
 	LLPanelClassified* panel_classified = NULL;
 
-	LLTabContainer* tabs = LLViewerUICtrlFactory::getTabContainerByName(this,"classified tab");
+	LLTabContainer* tabs = getChild<LLTabContainer>("classified tab");
 
 	// Don't remove old panels.  We need to be able to process multiple
 	// packets for people who have lots of classifieds. JC
@@ -983,7 +946,7 @@ void LLPanelAvatarClassified::callbackNew(S32 option, void* data)
 	{
 		LLPanelClassified* panel_classified = new LLPanelClassified(false, false);
 		panel_classified->initNewClassified();
-		LLTabContainer*	tabs = LLViewerUICtrlFactory::getTabContainerByName(self,"classified tab");
+		LLTabContainer*	tabs = self->getChild<LLTabContainer>("classified tab");
 		if(tabs)
 		{
 			tabs->addTabPanel(panel_classified, panel_classified->getClassifiedName());
@@ -998,7 +961,7 @@ void LLPanelAvatarClassified::onClickDelete(void* data)
 {
 	LLPanelAvatarClassified* self = (LLPanelAvatarClassified*)data;
 
-	LLTabContainer*	tabs = LLViewerUICtrlFactory::getTabContainerByName(self,"classified tab");
+	LLTabContainer*	tabs = self->getChild<LLTabContainer>("classified tab");
 	LLPanelClassified* panel_classified = NULL;
 	if(tabs)
 	{
@@ -1017,7 +980,7 @@ void LLPanelAvatarClassified::onClickDelete(void* data)
 void LLPanelAvatarClassified::callbackDelete(S32 option, void* data)
 {
 	LLPanelAvatarClassified* self = (LLPanelAvatarClassified*)data;
-	LLTabContainer*	tabs = LLViewerUICtrlFactory::getTabContainerByName(self,"classified tab");
+	LLTabContainer*	tabs = self->getChild<LLTabContainer>("classified tab");
 	LLPanelClassified* panel_classified=NULL;
 	if(tabs)
 	{
@@ -1062,7 +1025,7 @@ LLPanelAvatarPicks::LLPanelAvatarPicks(const std::string& name,
 void LLPanelAvatarPicks::refresh()
 {
 	BOOL self = (gAgent.getID() == getPanelAvatar()->getAvatarID());
-	LLTabContainer*	tabs = LLViewerUICtrlFactory::getTabContainerByName(this,"picks tab");
+	LLTabContainer*	tabs = getChild<LLTabContainer>("picks tab");
 	S32 tab_count = tabs ? tabs->getTabCount() : 0;
 	childSetEnabled("New...",    self && tab_count < MAX_AVATAR_PICKS);
 	childSetEnabled("Delete...", self && tab_count > 0);
@@ -1075,7 +1038,7 @@ void LLPanelAvatarPicks::refresh()
 
 void LLPanelAvatarPicks::deletePickPanels()
 {
-	LLTabContainer* tabs = LLUICtrlFactory::getTabContainerByName(this,"picks tab");
+	LLTabContainer* tabs = getChild<LLTabContainer>("picks tab");
 	if(tabs)
 	{
 		tabs->deleteAllTabs();
@@ -1094,7 +1057,7 @@ void LLPanelAvatarPicks::processAvatarPicksReply(LLMessageSystem* msg, void**)
 	char pick_name[DB_PICK_NAME_SIZE];		/*Flawfinder: ignore*/
 	LLPanelPick* panel_pick = NULL;
 
-	LLTabContainer* tabs =  LLUICtrlFactory::getTabContainerByName(this,"picks tab");
+	LLTabContainer* tabs =  getChild<LLTabContainer>("picks tab");
 
 	// Clear out all the old panels.  We'll replace them with the correct
 	// number of new panels.
@@ -1144,7 +1107,7 @@ void LLPanelAvatarPicks::onClickNew(void* data)
 {
 	LLPanelAvatarPicks* self = (LLPanelAvatarPicks*)data;
 	LLPanelPick* panel_pick = new LLPanelPick(FALSE);
-	LLTabContainer* tabs =  LLUICtrlFactory::getTabContainerByName(self,"picks tab");
+	LLTabContainer* tabs =  self->getChild<LLTabContainer>("picks tab");
 
 	panel_pick->initNewPick();
 	if(tabs)
@@ -1159,7 +1122,7 @@ void LLPanelAvatarPicks::onClickNew(void* data)
 void LLPanelAvatarPicks::onClickDelete(void* data)
 {
 	LLPanelAvatarPicks* self = (LLPanelAvatarPicks*)data;
-	LLTabContainer* tabs =  LLUICtrlFactory::getTabContainerByName(self,"picks tab");
+	LLTabContainer* tabs =  self->getChild<LLTabContainer>("picks tab");
 	LLPanelPick* panel_pick = tabs?(LLPanelPick*)tabs->getCurrentPanel():NULL;
 
 	if (!panel_pick) return;
@@ -1177,7 +1140,7 @@ void LLPanelAvatarPicks::onClickDelete(void* data)
 void LLPanelAvatarPicks::callbackDelete(S32 option, void* data)
 {
 	LLPanelAvatarPicks* self = (LLPanelAvatarPicks*)data;
-	LLTabContainer* tabs = LLUICtrlFactory::getTabContainerByName(self,"picks tab");
+	LLTabContainer* tabs = self->getChild<LLTabContainer>("picks tab");
 	LLPanelPick* panel_pick = tabs?(LLPanelPick*)tabs->getCurrentPanel():NULL;
 	LLMessageSystem* msg = gMessageSystem;
 
@@ -1257,7 +1220,7 @@ LLPanelAvatar::LLPanelAvatar(
 	factory_map["1st Life"] = LLCallbackMap(createPanelAvatarFirstLife, this);
 	factory_map["My Notes"] = LLCallbackMap(createPanelAvatarNotes, this);
 	
-	gUICtrlFactory->buildPanel(this, "panel_avatar.xml", &factory_map);
+	LLUICtrlFactory::getInstance()->buildPanel(this, "panel_avatar.xml", &factory_map);
 
 	selectTab(0);
 	
@@ -1266,7 +1229,7 @@ LLPanelAvatar::LLPanelAvatar(
 
 BOOL LLPanelAvatar::postBuild(void)
 {
-	mTab = LLUICtrlFactory::getTabContainerByName(this,"tab");
+	mTab = getChild<LLTabContainer>("tab");
 	childSetAction("Kick",onClickKick,this);
 	childSetAction("Freeze",onClickFreeze, this);
 	childSetAction("Unfreeze", onClickUnfreeze, this);
@@ -1406,7 +1369,7 @@ void LLPanelAvatar::setAvatarID(const LLUUID &avatar_id, const LLString &name,
 		mDropTarget->setAgentID(mAvatarID);
 	}
 
-	LLNameEditor* name_edit = LLViewerUICtrlFactory::getNameEditorByName(this, "name");
+	LLNameEditor* name_edit = getChild<LLNameEditor>("name");
 	if(name_edit)
 	{
 		if (name.empty())
@@ -1535,7 +1498,7 @@ void LLPanelAvatar::resetGroupList()
 		
 	if (mPanelSecondLife)
 	{
-		LLScrollListCtrl* group_list = LLUICtrlFactory::getScrollListByName(mPanelSecondLife,"groups");
+		LLScrollListCtrl* group_list = mPanelSecondLife->getChild<LLScrollListCtrl>("groups");
 		if (group_list)
 		{
 			group_list->deleteAllItems();
@@ -1584,7 +1547,7 @@ void LLPanelAvatar::onClickIM(void* userdata)
 	gIMMgr->setFloaterOpen(TRUE);
 
 	std::string name;
-	LLNameEditor* nameedit = LLViewerUICtrlFactory::getNameEditorByName(self->mPanelSecondLife, "name");
+	LLNameEditor* nameedit = self->mPanelSecondLife->getChild<LLNameEditor>("name");
 	if (nameedit) name = nameedit->getText();
 	gIMMgr->addSession(name, IM_NOTHING_SPECIAL, self->mAvatarID);
 }
@@ -1601,7 +1564,7 @@ void LLPanelAvatar::onClickTrack(void* userdata)
 	if( gFloaterWorldMap )
 	{
 		std::string name;
-		LLNameEditor* nameedit = LLViewerUICtrlFactory::getNameEditorByName(self->mPanelSecondLife, "name");
+		LLNameEditor* nameedit = self->mPanelSecondLife->getChild<LLNameEditor>("name");
 		if (nameedit) name = nameedit->getText();
 		gFloaterWorldMap->trackAvatar(self->mAvatarID, name);
 		LLFloaterWorldMap::show(NULL, TRUE);
@@ -1613,7 +1576,7 @@ void LLPanelAvatar::onClickTrack(void* userdata)
 void LLPanelAvatar::onClickAddFriend(void* userdata)
 {
 	LLPanelAvatar* self = (LLPanelAvatar*) userdata;
-	LLNameEditor* name_edit = LLViewerUICtrlFactory::getNameEditorByName(self->mPanelSecondLife, "name");	
+	LLNameEditor* name_edit = self->mPanelSecondLife->getChild<LLNameEditor>("name");	
 	if (name_edit)
 	{
 		LLPanelFriends::requestFriendshipDialog(self->getAvatarID(),
@@ -1629,21 +1592,21 @@ void LLPanelAvatar::onClickMute(void *userdata)
 	LLPanelAvatar* self = (LLPanelAvatar*) userdata;
 	
 	LLUUID agent_id = self->getAvatarID();
-	LLNameEditor* name_edit = LLViewerUICtrlFactory::getNameEditorByName(self->mPanelSecondLife, "name");
+	LLNameEditor* name_edit = self->mPanelSecondLife->getChild<LLNameEditor>("name");
 	
 	if (name_edit)
 	{
 		std::string agent_name = name_edit->getText();
 		LLFloaterMute::showInstance();
 		
-		if (gMuteListp->isMuted(agent_id))
+		if (LLMuteList::getInstance()->isMuted(agent_id))
 		{
-			gFloaterMute->selectMute(agent_id);
+			LLFloaterMute::getInstance()->selectMute(agent_id);
 		}
 		else
 		{
 			LLMute mute(agent_id, agent_name, LLMute::AGENT);
-			gMuteListp->add(mute);
+			LLMuteList::getInstance()->add(mute);
 		}
 	}
 }
@@ -1679,7 +1642,7 @@ void LLPanelAvatar::onClickOK(void *userdata)
 	{
 		self->sendAvatarPropertiesUpdate();
 
-		LLTabContainer* tabs = LLUICtrlFactory::getTabContainerByName(self,"tab");
+		LLTabContainer* tabs = self->getChild<LLTabContainer>("tab");
 		if ( tabs->getCurrentPanel() != self->mPanelClassified )
 		{
 			self->mPanelClassified->apply();
@@ -1984,7 +1947,7 @@ void LLPanelAvatar::processAvatarGroupsReply(LLMessageSystem *msg, void**)
 			continue;
 		}
 		
-		LLScrollListCtrl*	group_list = LLUICtrlFactory::getScrollListByName(self->mPanelSecondLife,"groups"); 
+		LLScrollListCtrl*	group_list = self->mPanelSecondLife->getChild<LLScrollListCtrl>("groups"); 
 // 		if(group_list)
 // 		{
 // 			group_list->deleteAllItems();
@@ -2316,7 +2279,7 @@ void LLPanelAvatar::onClickCSR(void* userdata)
 	LLPanelAvatar* self = (LLPanelAvatar*)userdata;
 	if (!self) return;
 	
-	LLNameEditor* name_edit = LLViewerUICtrlFactory::getNameEditorByName(self, "name");
+	LLNameEditor* name_edit = self->getChild<LLNameEditor>("name");
 	if (!name_edit) return;
 
 	LLString name = name_edit->getText();

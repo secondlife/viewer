@@ -74,7 +74,7 @@ protected:
 	void find();
 	void setAllowMultiple(BOOL allow_multiple);
 
-	virtual BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
 protected:
 	LLScrollListCtrl*	mListNames;

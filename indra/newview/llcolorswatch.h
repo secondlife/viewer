@@ -66,8 +66,7 @@ public:
 	~LLColorSwatchCtrl ();
 
 	virtual void setValue(const LLSD& value);
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_COLOR_SWATCH; }
-	virtual LLString getWidgetTag() const { return LL_COLOR_SWATCH_CTRL_TAG; }
+
 	virtual LLSD getValue() const { return mColor.getValue(); }
 	const LLColor4&	get()							{ return mColor; }
 	
@@ -85,7 +84,7 @@ public:
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleDoubleClick(S32 x,S32 y,MASK mask);
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent);
+	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
 	virtual void	draw();
 	virtual void	setEnabled( BOOL enabled );
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
@@ -104,7 +103,7 @@ protected:
 	LLUICtrlCallback mOnCancelCallback;
 	LLUICtrlCallback mOnSelectCallback;
 
-	LLPointer<LLViewerImage> mAlphaGradientImage;
+	LLPointer<LLUIImage> mAlphaGradientImage;
 };
 
 #endif  // LL_LLBUTTON_H

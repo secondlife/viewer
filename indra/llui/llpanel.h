@@ -82,13 +82,12 @@ public:
 	/*virtual*/ ~LLPanel();
 
 	// LLView interface
-	/*virtual*/ EWidgetType getWidgetType() const;
-	/*virtual*/ LLString getWidgetTag() const;
 	/*virtual*/ BOOL 	isPanel() const;
 	/*virtual*/ void	draw();	
-	/*virtual*/ BOOL	handleKey( KEY key, MASK mask, BOOL called_from_parent );
-	/*virtual*/ BOOL	handleKeyHere( KEY key, MASK mask, BOOL called_from_parent );
+	/*virtual*/ BOOL	handleKeyHere( KEY key, MASK mask );
 	/*virtual*/ LLXMLNodePtr getXML(bool save_children = true) const;
+	// Override to set not found list:
+	virtual LLView* getChildView(const LLString& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
 
 	// From LLFocusableElement
 	/*virtual*/ void	setFocus( BOOL b );
@@ -106,8 +105,21 @@ public:
 	BOOL			hasBorder() const { return mBorder != NULL; }
 	void			setBorderVisible( BOOL b );
 
-	void			requires(LLString name, EWidgetType type = WIDGET_TYPE_DONTCARE);
-	BOOL			checkRequirements() const;
+	template <class T> void requires(LLString name)
+	{
+		// check for widget with matching type and name
+		if (LLView::getChild<T>(name) == NULL)
+		{
+			mRequirementsError += name + "\n";
+		}
+	}
+	
+	// requires LLView by default
+	void requires(LLString name)
+	{
+		requires<LLView>(name);
+	}
+	BOOL			checkRequirements();
 
 	void			setBackgroundColor( const LLColor4& color ) { mBgColorOpaque = color; }
 	const LLColor4&	getBackgroundColor() const { return mBgColorOpaque; }
@@ -132,8 +144,6 @@ public:
 	LLHandle<LLPanel>	getHandle() const { return mPanelHandle; }
 
 	S32				getLastTabGroup() const { return mLastTabGroup; }
-
-	LLUICtrl*		getCtrlByNameAndType(const LLString& name, EWidgetType type) const;
 
 	const LLCallbackMap::map_t& getFactoryMap() const { return mFactoryMap; }
 
@@ -226,9 +236,6 @@ protected:
 	LLButton*		getDefaultButton() { return mDefaultBtn; }
 	LLCallbackMap::map_t mFactoryMap;
 
-	// Override to set not found list:
-	virtual LLView* getChildByName(const LLString& name, BOOL recurse = FALSE) const;
-
 private:
 	// common construction logic
 	void init();
@@ -257,8 +264,7 @@ private:
 	typedef std::map<LLString, LLUIString> ui_string_map_t;
 	ui_string_map_t	mUIStrings;
 
-	typedef std::map<LLString, EWidgetType> requirements_map_t;
-	requirements_map_t mRequirements;
+	LLString		mRequirementsError;
 
 	typedef std::queue<LLAlertInfo> alert_queue_t;
 	static alert_queue_t sAlertQueue;
@@ -281,9 +287,6 @@ public:
 	/*virtual*/ LLXMLNodePtr getXML(bool save_children = true) const;
 	/*virtual*/ void removeCtrl(LLUICtrl* ctrl);
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
-
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
 	S32 getMinWidth() const { return mMinWidth; }
@@ -291,16 +294,17 @@ public:
 	
 	void addPanel(LLPanel* panel, S32 min_width, S32 min_height, BOOL auto_resize, BOOL user_resize, S32 index = S32_MAX);
 	void removePanel(LLPanel* panel);
-	void updateLayout(BOOL force_resize = FALSE);
 
 private:
+	struct LLEmbeddedPanel;
+
+	void updateLayout(BOOL force_resize = FALSE);
 	void calcMinExtents();
 	S32 getDefaultHeight(S32 cur_height);
 	S32 getDefaultWidth(S32 cur_width);
 
 	const eLayoutOrientation mOrientation;
 
-	struct LLEmbeddedPanel;
 	typedef std::vector<LLEmbeddedPanel*> e_panel_list_t;
 	e_panel_list_t mPanels;
 	LLEmbeddedPanel* findEmbeddedPanel(LLPanel* panelp) const;

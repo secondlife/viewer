@@ -41,7 +41,7 @@
 #include "lllineeditor.h"
 #include "llscrolllistctrl.h"
 #include "lltextbox.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llagent.h"
 
 const S32 MIN_WIDTH = 200;
@@ -88,7 +88,7 @@ LLFloaterAvatarPicker::LLFloaterAvatarPicker() :
 	mCallback(NULL),
 	mCallbackUserdata(NULL)
 {
-	gUICtrlFactory->buildFloater(this, "floater_avatar_picker.xml", NULL);
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_avatar_picker.xml", NULL);
 }
 
 BOOL LLFloaterAvatarPicker::postBuild()
@@ -98,7 +98,7 @@ BOOL LLFloaterAvatarPicker::postBuild()
 	childSetAction("Find", onBtnFind, this);
 	childDisable("Find");
 
-	mListNames = LLViewerUICtrlFactory::getScrollListByName(this, "Names");
+	mListNames = getChild<LLScrollListCtrl>("Names");
 	childSetDoubleClickCallback("Names",onBtnAdd);
 	childSetCommitCallback("Names", onList, this);
 	childDisable("Names");
@@ -115,7 +115,7 @@ BOOL LLFloaterAvatarPicker::postBuild()
 		mListNames->addCommentText("No results");
 	}
 
-	mInventoryPanel = (LLInventoryPanel*)this->getCtrlByNameAndType("Inventory Panel", WIDGET_TYPE_INVENTORY_PANEL);
+	mInventoryPanel = getChild<LLInventoryPanel>("Inventory Panel");
 	if(mInventoryPanel)
 	{
 		mInventoryPanel->setFilterTypes(0x1 << LLInventoryType::IT_CALLINGCARD);
@@ -388,7 +388,7 @@ void LLFloaterAvatarPicker::editKeystroke(LLLineEditor* caller, void* user_data)
 }
 
 // virtual
-BOOL LLFloaterAvatarPicker::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+BOOL LLFloaterAvatarPicker::handleKeyHere(KEY key, MASK mask)
 {
 	if (key == KEY_RETURN
 		&& mask == MASK_NONE)
@@ -410,5 +410,5 @@ BOOL LLFloaterAvatarPicker::handleKeyHere(KEY key, MASK mask, BOOL called_from_p
 		return TRUE;
 	}
 
-	return LLFloater::handleKeyHere(key, mask, called_from_parent);
+	return LLFloater::handleKeyHere(key, mask);
 }

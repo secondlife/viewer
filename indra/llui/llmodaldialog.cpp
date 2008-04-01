@@ -211,11 +211,9 @@ BOOL LLModalDialog::handleRightMouseDown(S32 x, S32 y, MASK mask)
 }
 
 
-BOOL LLModalDialog::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent )
+BOOL LLModalDialog::handleKeyHere(KEY key, MASK mask )
 {
-	childrenHandleKey(key, mask);
-
-	LLFloater::handleKeyHere(key, mask, called_from_parent );
+	LLFloater::handleKeyHere(key, mask );
 
 	if (mModal)
 	{
@@ -246,33 +244,30 @@ void LLModalDialog::onClose(bool app_quitting)
 // virtual
 void LLModalDialog::draw()
 {
-	if (getVisible())
+	LLColor4 shadow_color = LLUI::sColorsGroup->getColor("ColorDropShadow");
+	S32 shadow_lines = LLUI::sConfigGroup->getS32("DropShadowFloater");
+
+	gl_drop_shadow( 0, getRect().getHeight(), getRect().getWidth(), 0,
+		shadow_color, shadow_lines);
+
+	LLFloater::draw();
+
+	if (mModal)
 	{
-		LLColor4 shadow_color = LLUI::sColorsGroup->getColor("ColorDropShadow");
-		S32 shadow_lines = LLUI::sConfigGroup->getS32("DropShadowFloater");
-
-		gl_drop_shadow( 0, getRect().getHeight(), getRect().getWidth(), 0,
-			shadow_color, shadow_lines);
-
-		LLFloater::draw();
-
-		if (mModal)
+		// If we've lost focus to a non-child, get it back ASAP.
+		if( gFocusMgr.getTopCtrl() != this )
 		{
-			// If we've lost focus to a non-child, get it back ASAP.
-			if( gFocusMgr.getTopCtrl() != this )
-			{
-				gFocusMgr.setTopCtrl( this );
-			}
+			gFocusMgr.setTopCtrl( this );
+		}
 
-			if( !gFocusMgr.childHasKeyboardFocus( this ) )
-			{
-				setFocus(TRUE);
-			}
+		if( !gFocusMgr.childHasKeyboardFocus( this ) )
+		{
+			setFocus(TRUE);
+		}
 
-			if( !gFocusMgr.childHasMouseCapture( this ) )
-			{
-				gFocusMgr.setMouseCapture( this );
-			}
+		if( !gFocusMgr.childHasMouseCapture( this ) )
+		{
+			gFocusMgr.setMouseCapture( this );
 		}
 	}
 }

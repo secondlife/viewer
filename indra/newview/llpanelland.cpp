@@ -43,7 +43,7 @@
 #include "llviewerregion.h"
 #include "roles_constants.h"
 
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 LLPanelLandSelectObserver* LLPanelLandInfo::sObserver = NULL;
 LLPanelLandInfo* LLPanelLandInfo::sInstance = NULL;
@@ -81,7 +81,7 @@ LLPanelLandInfo::LLPanelLandInfo(const std::string& name)
 	if (!sObserver)
 	{
 		sObserver = new LLPanelLandSelectObserver();
-		gParcelMgr->addObserver( sObserver );
+		LLViewerParcelMgr::getInstance()->addObserver( sObserver );
 	}
 
 }
@@ -90,7 +90,7 @@ LLPanelLandInfo::LLPanelLandInfo(const std::string& name)
 // virtual
 LLPanelLandInfo::~LLPanelLandInfo()
 {
-	gParcelMgr->removeObserver( sObserver );
+	LLViewerParcelMgr::getInstance()->removeObserver( sObserver );
 	delete sObserver;
 	sObserver = NULL;
 
@@ -111,8 +111,8 @@ void LLPanelLandInfo::refreshAll()
 // public
 void LLPanelLandInfo::refresh()
 {
-	LLParcel *parcel = gParcelMgr->getParcelSelection()->getParcel();
-	LLViewerRegion *regionp = gParcelMgr->getSelectionRegion();
+	LLParcel *parcel = LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
+	LLViewerRegion *regionp = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 
 	if (!parcel || !regionp)
 	{
@@ -177,9 +177,9 @@ void LLPanelLandInfo::refresh()
 		// not just a single unit of land,
 		// you must own part of it,
 		// and it must not be a whole parcel.
-		if (gParcelMgr->getSelectedArea() > PARCEL_UNIT_AREA
-			//&& gParcelMgr->getSelfCount() > 1
-			&& !gParcelMgr->getParcelSelection()->getWholeParcelSelected())
+		if (LLViewerParcelMgr::getInstance()->getSelectedArea() > PARCEL_UNIT_AREA
+			//&& LLViewerParcelMgr::getInstance()->getSelfCount() > 1
+			&& !LLViewerParcelMgr::getInstance()->getParcelSelection()->getWholeParcelSelected())
 		{
 			childSetEnabled("button join land",TRUE);
 		}
@@ -197,12 +197,12 @@ void LLPanelLandInfo::refresh()
 		S32 rent_price;
 		BOOL for_sale;
 		F32 dwell;
-		gParcelMgr->getDisplayInfo(&area,
+		LLViewerParcelMgr::getInstance()->getDisplayInfo(&area,
 								   &claim_price,
 								   &rent_price,
 								   &for_sale,
 								   &dwell);
-		if(is_public || (is_for_sale && gParcelMgr->getParcelSelection()->getWholeParcelSelected()))
+		if(is_public || (is_for_sale && LLViewerParcelMgr::getInstance()->getParcelSelection()->getWholeParcelSelected()))
 		{
 			childSetTextArg("label_area_price","[PRICE]", llformat("%d",claim_price));
 			childSetTextArg("label_area_price","[AREA]", llformat("%d",area));
@@ -222,35 +222,35 @@ void LLPanelLandInfo::refresh()
 //static
 void LLPanelLandInfo::onClickClaim(void*)
 {
-	gParcelMgr->startBuyLand();
+	LLViewerParcelMgr::getInstance()->startBuyLand();
 }
 
 
 //static
 void LLPanelLandInfo::onClickRelease(void*)
 {
-	gParcelMgr->startReleaseLand();
+	LLViewerParcelMgr::getInstance()->startReleaseLand();
 }
 
 // static
 void LLPanelLandInfo::onClickDivide(void*)
 {
-	gParcelMgr->startDivideLand();
+	LLViewerParcelMgr::getInstance()->startDivideLand();
 }
 
 // static
 void LLPanelLandInfo::onClickJoin(void*)
 {
-	gParcelMgr->startJoinLand();
+	LLViewerParcelMgr::getInstance()->startJoinLand();
 }
 
 //static
 void LLPanelLandInfo::onClickAbout(void*)
 {
 	// Promote the rectangle selection to a parcel selection
-	if (!gParcelMgr->getParcelSelection()->getWholeParcelSelected())
+	if (!LLViewerParcelMgr::getInstance()->getParcelSelection()->getWholeParcelSelected())
 	{
-		gParcelMgr->selectParcelInRectangle();
+		LLViewerParcelMgr::getInstance()->selectParcelInRectangle();
 	}
 
 	LLFloaterLand::showInstance();

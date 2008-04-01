@@ -46,9 +46,6 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
 
-// Globals
-LLToolSelectLand *gToolParcel = NULL;
-
 //
 // Member functions
 //
@@ -98,7 +95,7 @@ BOOL LLToolSelectLand::handleMouseDown(S32 x, S32 y, MASK mask)
 
 		mMouseOutsideSlop = TRUE; //FALSE;
 
-		gParcelMgr->deselectLand();
+		LLViewerParcelMgr::getInstance()->deselectLand();
 	}
 
 	return hit_land;
@@ -112,7 +109,7 @@ BOOL LLToolSelectLand::handleDoubleClick(S32 x, S32 y, MASK mask)
 	if (hit_land)
 	{
 		// Auto-select this parcel
-		gParcelMgr->selectParcelAt( pos_global );
+		LLViewerParcelMgr::getInstance()->selectParcelAt( pos_global );
 		return TRUE;
 	}
 	return FALSE;
@@ -140,7 +137,7 @@ BOOL LLToolSelectLand::handleMouseUp(S32 x, S32 y, MASK mask)
 			roundXY(mEastNorthTop);
 
 			// Don't auto-select entire parcel.
-			mSelection = gParcelMgr->selectLand( mWestSouthBottom, mEastNorthTop, FALSE );
+			mSelection = LLViewerParcelMgr::getInstance()->selectLand( mWestSouthBottom, mEastNorthTop, FALSE );
 		}
 
 		mMouseOutsideSlop = FALSE;
@@ -212,7 +209,7 @@ void LLToolSelectLand::render()
 {
 	if(	hasMouseCapture() && /*mMouseOutsideSlop &&*/ mDragEndValid)
 	{
-		gParcelMgr->renderRect( mWestSouthBottom, mEastNorthTop );
+		LLViewerParcelMgr::getInstance()->renderRect( mWestSouthBottom, mEastNorthTop );
 	}
 }
 
@@ -228,7 +225,7 @@ void LLToolSelectLand::handleDeselect()
 {
 	mSelection = NULL;
 	mLastShowParcelOwners = gSavedSettings.getBOOL("ShowParcelOwners");
-	//gParcelMgr->deselectLand();
+	//LLViewerParcelMgr::getInstance()->deselectLand();
 	gSavedSettings.setBOOL("ShowParcelOwners", mLastShowParcelOwners);
 }
 

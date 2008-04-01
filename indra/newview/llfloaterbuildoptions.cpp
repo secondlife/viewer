@@ -37,7 +37,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloaterbuildoptions.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 // library includes
 #include "llfontgl.h"
@@ -79,7 +79,7 @@ void LLFloaterBuildOptions::show(void*)
 	{
 		LLFloaterBuildOptions* floater = new LLFloaterBuildOptions();
 
-		gUICtrlFactory->buildFloater(floater, "floater_build_options.xml");
+		LLUICtrlFactory::getInstance()->buildFloater(floater, "floater_build_options.xml");
 		floater->open();	/*Flawfinder: ignore*/
 	}
 }

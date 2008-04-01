@@ -35,7 +35,7 @@
 
 #include "llversionviewer.h"
 #include "llfeaturemanager.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llalertdialog.h"
 #include "llerrorcontrol.h"
 #include "llviewerimagelist.h"
@@ -45,7 +45,6 @@
 #include "llviewerstats.h"
 #include "llmd5.h"
 #include "llpumpio.h"
-#include "llfloateractivespeakers.h"
 #include "llimpanel.h"
 #include "llmimetypes.h"
 #include "llstartup.h"
@@ -96,7 +95,6 @@
 #include "lltoolmgr.h"
 #include "llassetstorage.h"
 #include "llpolymesh.h"
-#include "lleconomy.h"
 #include "llcachename.h"
 #include "audioengine.h"
 #include "llviewermenu.h"
@@ -337,8 +335,8 @@ void request_initial_instant_messages()
 {
 	static BOOL requested = FALSE;
 	if (!requested
-		&& gMuteListp
-		&& gMuteListp->isLoaded()
+		&& gMessageSystem
+		&& LLMuteList::getInstance()->isLoaded()
 		&& gAgent.getAvatarObject())
 	{
 		// Auto-accepted inventory items may require the avatar object
@@ -503,6 +501,7 @@ void initGridChoice()
 				gGridName = custom_server.c_str();
 			}
 		}
+
         gSavedSettings.setString("GridChoice", gGridInfo[gGridChoice].mLabel);
 	}
 #endif
@@ -669,13 +668,6 @@ bool LLAppViewer::init()
 	}
 	
 	// Load art UUID information, don't require these strings to be declared in code.
-	LLString viewer_art_filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"viewerart.xml");
-	llinfos << "Loading art table from " << viewer_art_filename << llendl;
-	gViewerArt.loadFromFileLegacy(viewer_art_filename.c_str(), FALSE);
-	LLString textures_filename = gDirUtilp->getExpandedFilename(LL_PATH_SKINS, "textures", "textures.xml");
-	llinfos << "Loading art table from " << textures_filename << llendl;
-	gViewerArt.loadFromFileLegacy(textures_filename.c_str(), FALSE);
-
 	LLString colors_base_filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "colors_base.xml");
 	llinfos << "Loading base colors from " << colors_base_filename << llendl;
 	gColors.loadFromFileLegacy(colors_base_filename.c_str(), FALSE, TYPE_COL4U);
@@ -691,13 +683,12 @@ bool LLAppViewer::init()
 	// Widget construction depends on LLUI being initialized
 	LLUI::initClass(&gSavedSettings, 
 					&gColors, 
-					&gViewerArt,
-					&gImageList,
+					LLUIImageList::getInstance(),
 					ui_audio_callback,
 					&LLUI::sGLScaleFactor);
 
 	LLWeb::initClass();			  // do this after LLUI
-	gUICtrlFactory->setupPaths(); // update paths with correct language set
+	LLUICtrlFactory::getInstance()->setupPaths(); // update paths with correct language set
 	
 	/////////////////////////////////////////////////
 	//
@@ -740,7 +731,7 @@ bool LLAppViewer::init()
 	MemSetErrorHandler(first_mem_error_handler);
 #endif // LL_WINDOWS && LL_RELEASE_FOR_DOWNLOAD && LL_USE_SMARTHEAP
 
-	gViewerStats = new LLViewerStats();
+	// *Note: this is where gViewerStats used to be created.
 
 	//
 	// Initialize the VFS, and gracefully handle initialization errors
@@ -829,7 +820,7 @@ bool LLAppViewer::init()
 		minRAMString >> minRAM;
 		minRAM = minRAM * 1024 * 1024;
 
-		if(!gFeatureManagerp->isGPUSupported())
+		if(!LLFeatureManager::getInstance()->isGPUSupported())
 		{
 			minSpecs += LLAlertDialog::getTemplateMessage("UnsupportedGPU");
 			minSpecs += "\n";
@@ -878,9 +869,7 @@ bool LLAppViewer::mainLoop()
 	LLHTTPClient::setPump(*gServicePump);
 	LLCurl::setCAFile(gDirUtilp->getCAFile());
 	
-	// initialize voice stuff here
-	gLocalSpeakerMgr = new LLLocalSpeakerMgr();
-	gActiveChannelSpeakerMgr = new LLActiveSpeakerMgr();
+	// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be instantiated.
 
 	LLVoiceChannel::initClass();
 	LLVoiceClient::init(gServicePump);
@@ -1097,15 +1086,9 @@ bool LLAppViewer::cleanup()
 	gTransferManager.cleanup();
 #endif
 	
-	// Clean up map data storage
-	delete gWorldMap;
-	gWorldMap = NULL;
+	// Note: this is where gWorldMap used to be deleted.
 
-	delete gHUDManager;
-	gHUDManager = NULL;
-
-	delete gToolMgr;
-	gToolMgr = NULL;
+	// Note: this is where gHUDManager used to be deleted.
 
 	delete gAssetStorage;
 	gAssetStorage = NULL;
@@ -1115,17 +1098,12 @@ bool LLAppViewer::cleanup()
 	delete gCacheName;
 	gCacheName = NULL;
 
-	delete gGlobalEconomy;
-	gGlobalEconomy = NULL;
-
-	delete gActiveChannelSpeakerMgr;
-	gActiveChannelSpeakerMgr = NULL;
-
-	delete gLocalSpeakerMgr;
-	gLocalSpeakerMgr = NULL;
+	// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be deleted.
 
 	LLNotifyBox::cleanup();
 
+	LLWorldMap::getInstance()->reset(); // release any images
+	
 	llinfos << "Global stuff deleted" << llendflush;
 
 #if !LL_RELEASE_FOR_DOWNLOAD
@@ -1139,9 +1117,7 @@ bool LLAppViewer::cleanup()
 	llwarns << "Hack, skipping audio engine cleanup" << llendflush;
 #endif
 
-	llinfos << "Cleaning up feature manager" << llendflush;
-	delete gFeatureManagerp;
-	gFeatureManagerp = NULL;
+	// Note: this is where LLFeatureManager::getInstance()-> used to be deleted.
 
 	// Patch up settings for next time
 	// Must do this before we delete the viewer window,
@@ -1224,8 +1200,7 @@ bool LLAppViewer::cleanup()
 
 	LLViewerParcelMgr::cleanupGlobals();
 
-	delete gViewerStats;
-	gViewerStats = NULL;
+	// *Note: this is where gViewerStats used to be deleted.
 
  	//end_messaging_system();
 
@@ -1258,25 +1233,15 @@ bool LLAppViewer::cleanup()
 	// save all settings, even if equals defaults
 	gCrashSettings.saveToFile(crash_settings_filename.c_str(), FALSE);
 
-	delete gUICtrlFactory;
-	gUICtrlFactory = NULL;
-
 	gSavedSettings.cleanup();
-	gViewerArt.cleanup();
 	gColors.cleanup();
 	gCrashSettings.cleanup();
 
 	// Save URL history file
 	LLURLHistory::saveFile("url_history.xml");
 
-	if (gMuteListp)
-	{
-		// save mute list
-		gMuteListp->cache(gAgent.getID());
-
-		delete gMuteListp;
-		gMuteListp = NULL;
-	}
+	// save mute list. gMuteList used to also be deleted here too.
+	LLMuteList::getInstance()->cache(gAgent.getID());
 
 	if (mPurgeOnExit)
 	{
@@ -1536,9 +1501,15 @@ bool LLAppViewer::initConfiguration()
     // *before* the user settings. Having to do this init here
     // seems odd. 
 
-   	// Need to do this before calling parseAlerts
-	gUICtrlFactory = new LLViewerUICtrlFactory();
+	// This is where gUICtrlFactory used to be instantiated with a new LLUICtrlFactory
+	// which needed to happen before calling parseAlerts below.
+	// TODO: That method is still dependant upon the base LLUICtrlFactory constructor being called
+	// which registers some callbacks so I'm leaving in a call to getInstance here to cause that to
+	// still happen. This needs to be cleaned up later when the base and derived classes
+	// are planned to be combined. -MG
+	LLUICtrlFactory::getInstance();
 	
+
 	// Pre-load alerts.xml to define the warnings settings (always loads from skins/xui/en-us/)
 	// Do this *before* loading the settings file
 	LLAlertDialog::parseAlerts("alerts.xml", &gSavedSettings, TRUE);
@@ -1783,10 +1754,7 @@ bool LLAppViewer::initConfiguration()
 
 	LLVolumeMgr::initClass();
 
-	// Initialize the feature manager
-	// The feature manager is responsible for determining what features
-	// are turned on/off in the app.
-	gFeatureManagerp = new LLFeatureManager;
+	// Note: this is where we used to initialize LLFeatureManager::getInstance()->.
 
 	gStartTime = totalTime();
 
@@ -2194,10 +2162,8 @@ void LLAppViewer::handleViewerCrash()
 		gMessageSystem->getCircuitInfo(gDebugInfo["CircuitInfo"]);
 		gMessageSystem->stopLogging();
 	}
-	if (gWorldp)
-	{
-		gWorldp->getInfo(gDebugInfo);
-	}
+
+	LLWorld::getInstance()->getInfo(gDebugInfo);
 
 	// Close the debug file
 	pApp->closeDebug();
@@ -2353,13 +2319,10 @@ void LLAppViewer::requestQuit()
 		return;
 	}
 
-	if (gHUDManager)
-	{
-		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral*)gHUDManager->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
-		effectp->setPositionGlobal(gAgent.getPositionGlobal());
-		effectp->setColor(LLColor4U(gAgent.getEffectColor()));
-		gHUDManager->sendEffects();
-	}
+	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
+	effectp->setPositionGlobal(gAgent.getPositionGlobal());
+	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
+	LLHUDManager::getInstance()->sendEffects();
 
 	// Attempt to close all floaters that might be
 	// editing things.
@@ -2922,7 +2885,7 @@ void LLAppViewer::idle()
 	{
 		LLFastTimer t(LLFastTimer::FTM_NETWORK);
 		// Update spaceserver timeinfo
-	    gWorldp->setSpaceTimeUSec(gWorldp->getSpaceTimeUSec() + (U32)(dt_raw * SEC_TO_MICROSEC));
+	    LLWorld::getInstance()->setSpaceTimeUSec(LLWorld::getInstance()->getSpaceTimeUSec() + (U32)(dt_raw * SEC_TO_MICROSEC));
     
     
 	    //////////////////////////////////////
@@ -3056,7 +3019,7 @@ void LLAppViewer::idle()
 	{
 		// After agent and camera moved, figure out if we need to
 		// deselect objects.
-		gSelectMgr->deselectAllIfTooFar();
+		LLSelectMgr::getInstance()->deselectAllIfTooFar();
 
 	}
 
@@ -3073,7 +3036,7 @@ void LLAppViewer::idle()
 		
         if (!(logoutRequestSent() && hasSavedFinalSnapshot()))
 		{
-			gObjectList.update(gAgent, *gWorldp);
+			gObjectList.update(gAgent, *LLWorld::getInstance());
 		}
 	}
 	
@@ -3105,9 +3068,9 @@ void LLAppViewer::idle()
 
 	{
 		gFrameStats.start(LLFrameStats::UPDATE_EFFECTS);
-		gSelectMgr->updateEffects();
-		gHUDManager->cleanupEffects();
-		gHUDManager->sendEffects();
+		LLSelectMgr::getInstance()->updateEffects();
+		LLHUDManager::getInstance()->cleanupEffects();
+		LLHUDManager::getInstance()->sendEffects();
 	}
 
 	stop_glerror();
@@ -3127,11 +3090,11 @@ void LLAppViewer::idle()
 	// Update surfaces, and surface textures as well.
 	//
 
-	gWorldp->updateVisibilities();
+	LLWorld::getInstance()->updateVisibilities();
 	{
 		const F32 max_region_update_time = .001f; // 1ms
 		LLFastTimer t(LLFastTimer::FTM_REGION_UPDATE);
-		gWorldp->updateRegions(max_region_update_time);
+		LLWorld::getInstance()->updateRegions(max_region_update_time);
 	}
 	
 	/////////////////////////
@@ -3140,7 +3103,7 @@ void LLAppViewer::idle()
 	//
 	if (!gNoRender)
 	{
-		gWorldp->updateClouds(gFrameDTClamped);
+		LLWorld::getInstance()->updateClouds(gFrameDTClamped);
 		gSky.propagateHeavenlyBodies(gFrameDTClamped);				// moves sun, moon, and planets
 
 		// Update wind vector 
@@ -3148,7 +3111,7 @@ void LLAppViewer::idle()
 		static LLVector3 average_wind;
 
 		LLViewerRegion *regionp;
-		regionp = gWorldp->resolveRegionGlobal(wind_position_region, gAgent.getPositionGlobal());	// puts agent's local coords into wind_position	
+		regionp = LLWorld::getInstance()->resolveRegionGlobal(wind_position_region, gAgent.getPositionGlobal());	// puts agent's local coords into wind_position	
 		if (regionp)
 		{
 			gWindVec = regionp->mWind.getVelocity(wind_position_region);
@@ -3182,7 +3145,7 @@ void LLAppViewer::idle()
 		gPipeline.updateMove();
 
 		gFrameStats.start(LLFrameStats::UPDATE_PARTICLES);
-		gWorldp->updateParticles();
+		LLWorld::getInstance()->updateParticles();
 	}
 	stop_glerror();
 
@@ -3449,9 +3412,9 @@ void LLAppViewer::disconnectViewer()
 		}
 	}
 
-	if (gSelectMgr)
+	if (LLSelectMgr::getInstance())
 	{
-		gSelectMgr->deselectAll();
+		LLSelectMgr::getInstance()->deselectAll();
 	}
 
 	if (!gNoRender)
@@ -3472,9 +3435,9 @@ void LLAppViewer::disconnectViewer()
 	// Also writes cached agent settings to gSavedSettings
 	gAgent.cleanup();
 
-	gObjectList.destroy();
-	delete gWorldp;
-	gWorldp = NULL;
+	// This is where we used to call gObjectList.destroy() and then delete gWorldp.
+	// Now we just ask the LLWorld singleton to cleanly shut down.
+	LLWorld::getInstance()->destroyClass();
 
 	cleanup_xfer_manager();
 	gDisconnected = TRUE;

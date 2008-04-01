@@ -38,7 +38,7 @@
 // project includes
 #include "llcombobox.h"
 #include "llurlhistory.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llwindow.h"
 #include "llviewerwindow.h"
 
@@ -89,9 +89,9 @@ LLFloaterURLEntry::LLFloaterURLEntry(LLHandle<LLPanel> parent)
 	LLFloater(),
 	mPanelLandMediaHandle(parent)
 {
-	gUICtrlFactory->buildFloater(this, "floater_url_entry.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_url_entry.xml");
 
-	mMediaURLEdit = LLUICtrlFactory::getComboBoxByName(this, "media_entry");
+	mMediaURLEdit = getChild<LLComboBox>("media_entry");
 
 	// Cancel button
 	childSetAction("cancel_btn", onBtnCancel, this);

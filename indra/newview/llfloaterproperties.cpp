@@ -56,7 +56,7 @@
 #include "llviewerregion.h"
 #include "llviewercontrol.h"
 
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -65,7 +65,7 @@
 // helper class to watch the inventory. 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLPropertiesObserver : public LLInventoryObserver
+class LLPropertiesObserver : public LLInventoryObserver, public LLSingleton<LLPropertiesObserver>
 {
 public:
 	LLPropertiesObserver() {}
@@ -73,7 +73,6 @@ public:
 	virtual void changed(U32 mask);
 };
 
-LLPropertiesObserver* gPropertiesObserver = NULL;
 void LLPropertiesObserver::changed(U32 mask)
 {
 	// if there's a change we're interested in.
@@ -144,13 +143,13 @@ LLFloaterProperties::LLFloaterProperties(const std::string& name, const LLRect& 
 	mObjectID(object_id),
 	mDirty(TRUE)
 {
-	gUICtrlFactory->buildFloater(this,"floater_inventory_item_properties.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_inventory_item_properties.xml");
 
 	// hack to make sure these floaters are observing the inventory.
-	if(!gPropertiesObserver)
+	if(!gInventory.containsObserver(LLPropertiesObserver::getInstance()))
 	{
-		gPropertiesObserver = new LLPropertiesObserver;
-		gInventory.addObserver(gPropertiesObserver);
+		// Note: this is where gPropertiesObserver used to be constructed.
+		gInventory.addObserver(LLPropertiesObserver::getInstance());
 	}
 	// add the object to the static structure
 	LLUUID key = mItemID ^ mObjectID;
@@ -473,7 +472,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	{
 		childSetValue("CheckShareWithGroup",LLSD((BOOL)TRUE));
 
-		LLCheckBoxCtrl* ctl = LLUICtrlFactory::getCheckBoxByName(this,"CheckShareWithGroup");
+		LLCheckBoxCtrl* ctl = getChild<LLCheckBoxCtrl>("CheckShareWithGroup");
 		if(ctl)
 		{
 			ctl->setTentative(FALSE);
@@ -482,7 +481,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	else if (!is_group_copy && !is_group_modify && !is_group_move)
 	{
 		childSetValue("CheckShareWithGroup",LLSD((BOOL)FALSE));
-		LLCheckBoxCtrl* ctl = LLUICtrlFactory::getCheckBoxByName(this,"CheckShareWithGroup");
+		LLCheckBoxCtrl* ctl = getChild<LLCheckBoxCtrl>("CheckShareWithGroup");
 		if(ctl)
 		{
 			ctl->setTentative(FALSE);
@@ -490,7 +489,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	}
 	else
 	{
-		LLCheckBoxCtrl* ctl = LLUICtrlFactory::getCheckBoxByName(this,"CheckShareWithGroup");
+		LLCheckBoxCtrl* ctl = getChild<LLCheckBoxCtrl>("CheckShareWithGroup");
 		if(ctl)
 		{
 			ctl->setTentative(TRUE);
@@ -543,7 +542,7 @@ void LLFloaterProperties::refreshFromItem(LLInventoryItem* item)
 	childSetValue("CheckNextOwnerCopy",LLSD(BOOL(next_owner_mask & PERM_COPY)));
 	childSetValue("CheckNextOwnerTransfer",LLSD(BOOL(next_owner_mask & PERM_TRANSFER)));
 
-	LLRadioGroup* radioSaleType = LLUICtrlFactory::getRadioGroupByName(this,"RadioSaleType");
+	LLRadioGroup* radioSaleType = getChild<LLRadioGroup>("RadioSaleType");
 	if (is_for_sale)
 	{
 		radioSaleType->setSelectedIndex((S32)sale_info.getSaleType() - 1);
@@ -605,7 +604,7 @@ void LLFloaterProperties::onCommitName(LLUICtrl* ctrl, void* data)
 	{
 		return;
 	}
-	LLLineEditor* labelItemName = LLUICtrlFactory::getLineEditorByName(self,"LabelItemName");
+	LLLineEditor* labelItemName = self->getChild<LLLineEditor>("LabelItemName");
 
 	if(labelItemName&&
 	   (item->getName() != labelItemName->getText()) && 
@@ -642,7 +641,7 @@ void LLFloaterProperties::onCommitDescription(LLUICtrl* ctrl, void* data)
 	LLViewerInventoryItem* item = (LLViewerInventoryItem*)self->findItem();
 	if(!item) return;
 
-	LLLineEditor* labelItemDesc = LLUICtrlFactory::getLineEditorByName(self,"LabelItemDesc");
+	LLLineEditor* labelItemDesc = self->getChild<LLLineEditor>("LabelItemDesc");
 	if(!labelItemDesc)
 	{
 		return;
@@ -684,7 +683,7 @@ void LLFloaterProperties::onCommitPermissions(LLUICtrl* ctrl, void* data)
 	LLPermissions perm(item->getPermissions());
 
 
-	LLCheckBoxCtrl* CheckShareWithGroup = LLUICtrlFactory::getCheckBoxByName(self,"CheckShareWithGroup");
+	LLCheckBoxCtrl* CheckShareWithGroup = self->getChild<LLCheckBoxCtrl>("CheckShareWithGroup");
 
 	if(CheckShareWithGroup)
 	{
@@ -692,26 +691,26 @@ void LLFloaterProperties::onCommitPermissions(LLUICtrl* ctrl, void* data)
 						CheckShareWithGroup->get(),
 						PERM_MODIFY | PERM_MOVE | PERM_COPY);
 	}
-	LLCheckBoxCtrl* CheckEveryoneCopy = LLUICtrlFactory::getCheckBoxByName(self,"CheckEveryoneCopy");
+	LLCheckBoxCtrl* CheckEveryoneCopy = self->getChild<LLCheckBoxCtrl>("CheckEveryoneCopy");
 	if(CheckEveryoneCopy)
 	{
 		perm.setEveryoneBits(gAgent.getID(), gAgent.getGroupID(),
 						 CheckEveryoneCopy->get(), PERM_COPY);
 	}
 
-	LLCheckBoxCtrl* CheckNextOwnerModify = LLUICtrlFactory::getCheckBoxByName(self,"CheckNextOwnerModify");
+	LLCheckBoxCtrl* CheckNextOwnerModify = self->getChild<LLCheckBoxCtrl>("CheckNextOwnerModify");
 	if(CheckNextOwnerModify)
 	{
 		perm.setNextOwnerBits(gAgent.getID(), gAgent.getGroupID(),
 							CheckNextOwnerModify->get(), PERM_MODIFY);
 	}
-	LLCheckBoxCtrl* CheckNextOwnerCopy = LLUICtrlFactory::getCheckBoxByName(self,"CheckNextOwnerCopy");
+	LLCheckBoxCtrl* CheckNextOwnerCopy = self->getChild<LLCheckBoxCtrl>("CheckNextOwnerCopy");
 	if(CheckNextOwnerCopy)
 	{
 		perm.setNextOwnerBits(gAgent.getID(), gAgent.getGroupID(),
 							CheckNextOwnerCopy->get(), PERM_COPY);
 	}
-	LLCheckBoxCtrl* CheckNextOwnerTransfer = LLUICtrlFactory::getCheckBoxByName(self,"CheckNextOwnerTransfer");
+	LLCheckBoxCtrl* CheckNextOwnerTransfer = self->getChild<LLCheckBoxCtrl>("CheckNextOwnerTransfer");
 	if(CheckNextOwnerTransfer)
 	{
 		perm.setNextOwnerBits(gAgent.getID(), gAgent.getGroupID(),
@@ -805,7 +804,7 @@ void LLFloaterProperties::updateSaleInfo()
 		// turn on sale info
 		LLSaleInfo::EForSale sale_type = LLSaleInfo::FS_COPY;
 	
-		LLRadioGroup* RadioSaleType = LLUICtrlFactory::getRadioGroupByName(this,"RadioSaleType");
+		LLRadioGroup* RadioSaleType = getChild<LLRadioGroup>("RadioSaleType");
 		if(RadioSaleType)
 		{
 			switch (RadioSaleType->getSelectedIndex())
@@ -832,7 +831,7 @@ void LLFloaterProperties::updateSaleInfo()
 			sale_type = LLSaleInfo::FS_ORIGINAL;
 		}
 
-		LLLineEditor* EditPrice = LLUICtrlFactory::getLineEditorByName(this,"EditPrice");
+		LLLineEditor* EditPrice = getChild<LLLineEditor>("EditPrice");
 		
 		S32 price = -1;
 		if(EditPrice)

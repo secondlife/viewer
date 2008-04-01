@@ -89,9 +89,6 @@ public:
 	{
 	}
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_TEXTURE_BAR; }
-	virtual LLString getWidgetTag() const { return LL_TEXTURE_BAR_TAG; }
-
 	virtual void draw();
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual LLRect getRequiredRect();	// Return the height of this object, given the set options.
@@ -376,9 +373,6 @@ public:
 		setRect(LLRect(0,0,100,line_height * 4));
 	}
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_TEX_MEM_BAR; };
-	virtual LLString getWidgetTag() const { return LL_GL_TEX_MEM_BAR_TAG; };
-
 	virtual void draw();	
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual LLRect getRequiredRect();	// Return the height of this object, given the set options.
@@ -545,17 +539,6 @@ LLTextureView::~LLTextureView()
 	mGLTexMemBar = 0;
 }
 
-EWidgetType LLTextureView::getWidgetType() const
-{
-	return WIDGET_TYPE_TEXTURE_VIEW;
-}
-
-LLString LLTextureView::getWidgetTag() const
-{
-	return LL_TEXTURE_VIEW_TAG;
-}
-
-
 typedef std::pair<F32,LLViewerImage*> decode_pair_t;
 struct compare_decode_pair
 {
@@ -637,7 +620,7 @@ void LLTextureView::draw()
 			if (!mOrderFetch)
 			{
 #if 1
-			if (pri < HIGH_PRIORITY && gSelectMgr)
+			if (pri < HIGH_PRIORITY && LLSelectMgr::getInstance())
 			{
 				struct f : public LLSelectedTEFunctor
 				{
@@ -649,7 +632,7 @@ void LLTextureView::draw()
 					}
 				} func(imagep);
 				const bool firstonly = true;
-				bool match = gSelectMgr->getSelection()->applyToTEs(&func, firstonly);
+				bool match = LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func, firstonly);
 				if (match)
 				{
 					pri += 3*HIGH_PRIORITY;

@@ -61,7 +61,6 @@
 //
 // Globals
 //
-LLWorld*	gWorldp = NULL;
 U32			gAgentPauseSerialNum = 0;
 
 //
@@ -72,15 +71,19 @@ const S32 WORLD_PATCH_SIZE = 16;
 
 extern LLColor4U MAX_WATER_COLOR;
 
+const U32 LLWorld::mWidth = 256;
+
+// meters/point, therefore mWidth * mScale = meters per edge
+const F32 LLWorld::mScale = 1.f;
+
+const F32 LLWorld::mWidthInMeters = mWidth * mScale;
+
 //
 // Functions
 //
 
 // allocate the stack
-LLWorld::LLWorld(const U32 grids_per_region, const F32 meters_per_grid)
-:	mWidth(grids_per_region), 
-	mScale(meters_per_grid), 
-	mWidthInMeters( grids_per_region * meters_per_grid )
+LLWorld::LLWorld()
 {
 	mSpaceTimeUSec = 0;
 	mLastPacketsIn = 0;
@@ -112,10 +115,11 @@ LLWorld::LLWorld(const U32 grids_per_region, const F32 meters_per_grid)
 }
 
 
-LLWorld::~LLWorld()
+void LLWorld::destroyClass()
 {
-	gObjectList.killAllObjects();
+	gObjectList.destroy();
 	for_each(mRegionList.begin(), mRegionList.end(), DeletePointer());
+	LLViewerPartSim::getInstance()->destroyClass();
 }
 
 
@@ -556,9 +560,9 @@ LLVector3 LLWorld::resolveLandNormalGlobal(const LLVector3d &pos_global)
 
 void LLWorld::updateVisibilities()
 {
-	F32 cur_far_clip = gCamera->getFar();
+	F32 cur_far_clip = LLViewerCamera::getInstance()->getFar();
 
-	gCamera->setFar(mLandFarClip);
+	LLViewerCamera::getInstance()->setFar(mLandFarClip);
 
 	F32 diagonal_squared = F_SQRT2 * F_SQRT2 * mWidth * mWidth;
 	// Go through the culled list and check for visible regions
@@ -570,7 +574,7 @@ void LLWorld::updateVisibilities()
 		F32 height = regionp->getLand().getMaxZ() - regionp->getLand().getMinZ();
 		F32 radius = 0.5f*fsqrtf(height * height + diagonal_squared);
 		if (!regionp->getLand().hasZData()
-			|| gCamera->sphereInFrustum(regionp->getCenterAgent(), radius))
+			|| LLViewerCamera::getInstance()->sphereInFrustum(regionp->getCenterAgent(), radius))
 		{
 			mCulledRegionList.erase(curiter);
 			mVisibleRegionList.push_back(regionp);
@@ -590,7 +594,7 @@ void LLWorld::updateVisibilities()
 
 		F32 height = regionp->getLand().getMaxZ() - regionp->getLand().getMinZ();
 		F32 radius = 0.5f*fsqrtf(height * height + diagonal_squared);
-		if (gCamera->sphereInFrustum(regionp->getCenterAgent(), radius))
+		if (LLViewerCamera::getInstance()->sphereInFrustum(regionp->getCenterAgent(), radius))
 		{
 			regionp->calculateCameraDistance();
 			if (!gNoRender)
@@ -608,7 +612,7 @@ void LLWorld::updateVisibilities()
 	// Sort visible regions
 	mVisibleRegionList.sort(LLViewerRegion::CompareDistance());
 	
-	gCamera->setFar(cur_far_clip);
+	LLViewerCamera::getInstance()->setFar(cur_far_clip);
 }
 
 void LLWorld::updateRegions(F32 max_update_time)
@@ -631,7 +635,7 @@ void LLWorld::updateRegions(F32 max_update_time)
 
 void LLWorld::updateParticles()
 {
-	mPartSim.updateSimulation();
+	LLViewerPartSim::getInstance()->updateSimulation();
 }
 
 void LLWorld::updateClouds(const F32 dt)
@@ -727,19 +731,19 @@ void LLWorld::updateNetStats()
 
 	S32 actual_in_bits = gMessageSystem->mPacketRing.getAndResetActualInBits();
 	S32 actual_out_bits = gMessageSystem->mPacketRing.getAndResetActualOutBits();
-	gViewerStats->mActualInKBitStat.addValue(actual_in_bits/1024.f);
-	gViewerStats->mActualOutKBitStat.addValue(actual_out_bits/1024.f);
-	gViewerStats->mKBitStat.addValue(bits/1024.f);
-	gViewerStats->mPacketsInStat.addValue(packets_in);
-	gViewerStats->mPacketsOutStat.addValue(packets_out);
-	gViewerStats->mPacketsLostStat.addValue(gMessageSystem->mDroppedPackets);
+	LLViewerStats::getInstance()->mActualInKBitStat.addValue(actual_in_bits/1024.f);
+	LLViewerStats::getInstance()->mActualOutKBitStat.addValue(actual_out_bits/1024.f);
+	LLViewerStats::getInstance()->mKBitStat.addValue(bits/1024.f);
+	LLViewerStats::getInstance()->mPacketsInStat.addValue(packets_in);
+	LLViewerStats::getInstance()->mPacketsOutStat.addValue(packets_out);
+	LLViewerStats::getInstance()->mPacketsLostStat.addValue(gMessageSystem->mDroppedPackets);
 	if (packets_in)
 	{
-		gViewerStats->mPacketsLostPercentStat.addValue(100.f*((F32)packets_lost/(F32)packets_in));
+		LLViewerStats::getInstance()->mPacketsLostPercentStat.addValue(100.f*((F32)packets_lost/(F32)packets_in));
 	}
 	else
 	{
-		gViewerStats->mPacketsLostPercentStat.addValue(0.f);
+		LLViewerStats::getInstance()->mPacketsLostPercentStat.addValue(0.f);
 	}
 
 	mLastPacketsIn = gMessageSystem->mPacketsIn;
@@ -771,8 +775,7 @@ void LLWorld::printPacketsLost()
 
 void LLWorld::processCoarseUpdate(LLMessageSystem* msg, void** user_data)
 {
-	if(!gWorldp) return;
-	LLViewerRegion* region = gWorldp->getRegion(msg->getSender());
+	LLViewerRegion* region = LLWorld::getInstance()->getRegion(msg->getSender());
 	if( region )
 	{
 		region->updateCoarseLocations(msg);
@@ -812,7 +815,7 @@ void LLWorld::updateWaterObjects()
 	S32 rwidth = 256;
 
 	// We only want to fill in water for stuff that's near us, say, within 256 or 512m
-	S32 range = gCamera->getFar() > 256.f ? 512 : 256;
+	S32 range = LLViewerCamera::getInstance()->getFar() > 256.f ? 512 : 256;
 
 	LLViewerRegion* regionp = gAgent.getRegion();
 	from_region_handle(regionp->getHandle(), &region_x, &region_y);
@@ -940,7 +943,7 @@ void LLWorld::shiftRegions(const LLVector3& offset)
 		region->updateRenderMatrix();
 	}
 
-	mPartSim.shift(offset);
+	LLViewerPartSim::getInstance()->shift(offset);
 }
 
 LLViewerImage* LLWorld::getDefaultWaterTexture()
@@ -1022,8 +1025,7 @@ void process_enable_simulator(LLMessageSystem *msg, void **user_data)
 
 	// Viewer trusts the simulator.
 	msg->enableCircuit(sim, TRUE);
-	if(!gWorldp) return;
-	gWorldp->addRegion(handle, sim);
+	LLWorld::getInstance()->addRegion(handle, sim);
 
 	// give the simulator a message it can use to get ip and port
 	llinfos << "simulator_enable() Enabling " << sim << " with code " << msg->getOurCircuitCode() << llendl;
@@ -1060,8 +1062,7 @@ public:
 
 		LLHost sim(input["body"]["sim-ip-and-port"].asString());
 	
-		if(!gWorldp) return;
-		LLViewerRegion* regionp = gWorldp->getRegion(sim);
+		LLViewerRegion* regionp = LLWorld::getInstance()->getRegion(sim);
 		if (!regionp)
 		{
 			llwarns << "Got EstablishAgentCommunication for unknown region "
@@ -1079,8 +1080,7 @@ void process_disable_simulator(LLMessageSystem *mesgsys, void **user_data)
 	LLHost host = mesgsys->getSender();
 
 	//llinfos << "Disabling simulator with message from " << host << llendl;
-	if(!gWorldp) return;
-	gWorldp->removeRegion(host);
+	LLWorld::getInstance()->removeRegion(host);
 
 	mesgsys->disableCircuit(host);
 }
@@ -1089,8 +1089,7 @@ void process_disable_simulator(LLMessageSystem *mesgsys, void **user_data)
 void process_region_handshake(LLMessageSystem* msg, void** user_data)
 {
 	LLHost host = msg->getSender();
-	if(!gWorldp) return;
-	LLViewerRegion* regionp = gWorldp->getRegion(host);
+	LLViewerRegion* regionp = LLWorld::getInstance()->getRegion(host);
 	if (!regionp)
 	{
 		llwarns << "Got region handshake for unknown region "
@@ -1104,8 +1103,10 @@ void process_region_handshake(LLMessageSystem* msg, void** user_data)
 
 void send_agent_pause()
 {
-	// world not initialized yet
-	if (!gWorldp)
+	// Note: used to check for LLWorld initialization before it became a singleton.
+	// Rather than just remove this check I'm changing it to assure that the message 
+	// system has been initialized. -MG
+	if (!gMessageSystem)
 	{
 		return;
 	}
@@ -1118,8 +1119,8 @@ void send_agent_pause()
 	gAgentPauseSerialNum++;
 	gMessageSystem->addU32Fast(_PREHASH_SerialNum, gAgentPauseSerialNum);
 
-	for (LLWorld::region_list_t::iterator iter = gWorldp->mActiveRegionList.begin();
-		 iter != gWorldp->mActiveRegionList.end(); ++iter)
+	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->mActiveRegionList.begin();
+		 iter != LLWorld::getInstance()->mActiveRegionList.end(); ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
 		gMessageSystem->sendReliable(regionp->getHost());
@@ -1131,8 +1132,13 @@ void send_agent_pause()
 
 void send_agent_resume()
 {
-	// world not initialized yet
-	if (!gWorldp) return;
+	// Note: used to check for LLWorld initialization before it became a singleton.
+	// Rather than just remove this check I'm changing it to assure that the message 
+	// system has been initialized. -MG
+	if (!gMessageSystem)
+	{
+		return;
+	}
 
 	gMessageSystem->newMessageFast(_PREHASH_AgentResume);
 	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
@@ -1143,15 +1149,15 @@ void send_agent_resume()
 	gMessageSystem->addU32Fast(_PREHASH_SerialNum, gAgentPauseSerialNum);
 	
 
-	for (LLWorld::region_list_t::iterator iter = gWorldp->mActiveRegionList.begin();
-		 iter != gWorldp->mActiveRegionList.end(); ++iter)
+	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->mActiveRegionList.begin();
+		 iter != LLWorld::getInstance()->mActiveRegionList.end(); ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
 		gMessageSystem->sendReliable(regionp->getHost());
 	}
 
 	// Reset the FPS counter to avoid an invalid fps
-	gViewerStats->mFPSStat.start();
+	LLViewerStats::getInstance()->mFPSStat.start();
 }
 
 

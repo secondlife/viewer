@@ -252,7 +252,7 @@ LLManipTranslate::~LLManipTranslate()
 
 void LLManipTranslate::handleSelect()
 {
-	gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
+	LLSelectMgr::getInstance()->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
 	gFloaterTools->setStatusText("move");
 	LLManip::handleSelect();
 }
@@ -309,12 +309,12 @@ BOOL LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 	mHelpTextTimer.reset();
 	sNumTimesHelpTextShown++;
 
-	gSelectMgr->getGrid(mGridOrigin, mGridRotation, mGridScale);
+	LLSelectMgr::getInstance()->getGrid(mGridOrigin, mGridRotation, mGridScale);
 
-	gSelectMgr->enableSilhouette(FALSE);
+	LLSelectMgr::getInstance()->enableSilhouette(FALSE);
 
 	// we just started a drag, so save initial object positions
-	gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_MOVE);
+	LLSelectMgr::getInstance()->saveSelectedObjectTransform(SELECT_ACTION_TYPE_MOVE);
 
 	mManipPart = (EManipPart)hit_part;
 	mMouseDownX = x;
@@ -345,7 +345,7 @@ BOOL LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 	BOOL axis_exists = getManipAxis(selected_object, mManipPart, axis);
 	getManipNormal(selected_object, mManipPart, mManipNormal);
 
-	//LLVector3 select_center_agent = gAgent.getPosAgentFromGlobal(gSelectMgr->getSelectionCenterGlobal());
+	//LLVector3 select_center_agent = gAgent.getPosAgentFromGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal());
 	// TomY: The above should (?) be identical to the below
 	LLVector3 select_center_agent = getPivotPoint();
 	mSubdivisions = llclamp(getSubdivisionLevel(select_center_agent, axis_exists ? axis : LLVector3::z_axis, getMinGridScale()), sGridMinSubdivisionLevel, sGridMaxSubdivisionLevel);
@@ -354,7 +354,7 @@ BOOL LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 	if (mManipPart >= LL_YZ_PLANE && mManipPart <= LL_XY_PLANE)
 	{
 		LLCoordGL mouse_pos;
-		if (!gCamera->projectPosAgentToScreen(select_center_agent, mouse_pos))
+		if (!LLViewerCamera::getInstance()->projectPosAgentToScreen(select_center_agent, mouse_pos))
 		{
 			// mouse_pos may be nonsense
 			llwarns << "Failed to project object center to screen" << llendl;
@@ -367,7 +367,7 @@ BOOL LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 		}
 	}
 
-	gSelectMgr->updateSelectionCenter();
+	LLSelectMgr::getInstance()->updateSelectionCenter();
 	LLVector3d object_start_global = gAgent.getPosGlobalFromAgent(getPivotPoint());
 	getMousePointOnPlaneGlobal(mDragCursorStartGlobal, x, y, object_start_global, mManipNormal);
 	mDragSelectionStartGlobal = object_start_global;
@@ -445,7 +445,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 			if (mask == MASK_COPY)
 			{
 				// ...we're trying to make a copy
-				gSelectMgr->selectDuplicate(LLVector3::zero, FALSE);
+				LLSelectMgr::getInstance()->selectDuplicate(LLVector3::zero, FALSE);
 				mCopyMadeThisDrag = TRUE;
 
 				// When we make the copy, we don't want to do any other processing.
@@ -487,7 +487,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 
 	axis_d.setVec(axis_f);
 
-	gSelectMgr->updateSelectionCenter();
+	LLSelectMgr::getInstance()->updateSelectionCenter();
 	LLVector3d current_pos_global = gAgent.getPosGlobalFromAgent(getPivotPoint());
 
 	mSubdivisions = llclamp(getSubdivisionLevel(getPivotPoint(), axis_f, getMinGridScale()), sGridMinSubdivisionLevel, sGridMaxSubdivisionLevel);
@@ -558,7 +558,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 
 			// snap to planar grid
 			LLVector3 cursor_point_agent = gAgent.getPosAgentFromGlobal(cursor_point_global);
-			LLVector3 camera_plane_projection = gCamera->getAtAxis();
+			LLVector3 camera_plane_projection = LLViewerCamera::getInstance()->getAtAxis();
 			camera_plane_projection -= projected_vec(camera_plane_projection, mManipNormal);
 			camera_plane_projection.normVec();
 			LLVector3 camera_projected_dir = camera_plane_projection;
@@ -709,7 +709,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 				LLVector3d new_position_global = selectNode->mSavedPositionGlobal + clamped_relative_move;
 
 				// Don't let object centers go too far underground
-				F64 min_height = gWorldp->getMinAllowedZ(object);
+				F64 min_height = LLWorld::getInstance()->getMinAllowedZ(object);
 				if (new_position_global.mdV[VZ] < min_height)
 				{
 					new_position_global.mdV[VZ] = min_height;
@@ -724,12 +724,12 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 				// Grass is always drawn on the ground, so clamp its position to the ground
 				if (object->getPCode() == LL_PCODE_LEGACY_GRASS)
 				{
-					new_position_global.mdV[VZ] = gWorldp->resolveLandHeightGlobal(new_position_global) + 1.f;
+					new_position_global.mdV[VZ] = LLWorld::getInstance()->resolveLandHeightGlobal(new_position_global) + 1.f;
 				}
 				
 				if (object->isRootEdit())
 				{
-					new_position_global = gWorldp->clipToVisibleRegions(object->getPositionGlobal(), new_position_global);
+					new_position_global = LLWorld::getInstance()->clipToVisibleRegions(object->getPositionGlobal(), new_position_global);
 				}
 
 				// PR: Only update if changed
@@ -776,7 +776,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 		}
 	}
 
-	gSelectMgr->updateSelectionCenter();
+	LLSelectMgr::getInstance()->updateSelectionCenter();
 	gAgent.clearFocusObject();
 	dialog_refresh_all();		// ??? is this necessary?
 
@@ -794,9 +794,9 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 		return;
 	}
 	
-	//LLBBox bbox = gSelectMgr->getBBoxOfSelection();
-	LLMatrix4 projMatrix = gCamera->getProjection();
-	LLMatrix4 modelView = gCamera->getModelview();
+	//LLBBox bbox = LLSelectMgr::getInstance()->getBBoxOfSelection();
+	LLMatrix4 projMatrix = LLViewerCamera::getInstance()->getProjection();
+	LLMatrix4 modelView = LLViewerCamera::getInstance()->getModelview();
 
 	LLVector3 object_position = getPivotPoint();
 	
@@ -804,7 +804,7 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 	LLVector3 grid_scale;
 	LLQuaternion grid_rotation;
 
-	gSelectMgr->getGrid(grid_origin, grid_rotation, grid_scale);
+	LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
 
 	LLVector3 relative_camera_dir;
 
@@ -819,14 +819,14 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
 		transform *= cfr;
 		LLMatrix4 window_scale;
 		F32 zoom_level = 2.f * gAgent.getAvatarObject()->mHUDCurZoom;
-		window_scale.initAll(LLVector3(zoom_level / gCamera->getAspect(), zoom_level, 0.f),
+		window_scale.initAll(LLVector3(zoom_level / LLViewerCamera::getInstance()->getAspect(), zoom_level, 0.f),
 			LLQuaternion::DEFAULT,
 			LLVector3::zero);
 		transform *= window_scale;
 	}
 	else
 	{
-		relative_camera_dir = (object_position - gCamera->getOrigin()) * ~grid_rotation;
+		relative_camera_dir = (object_position - LLViewerCamera::getInstance()->getOrigin()) * ~grid_rotation;
 		relative_camera_dir.normVec();
 
 		transform.initRotTrans(grid_rotation, LLVector4(object_position));
@@ -1036,13 +1036,13 @@ BOOL LLManipTranslate::handleMouseUp(S32 x, S32 y, MASK mask)
 	{
 		// make sure arrow colors go back to normal
 		mManipPart = LL_NO_PART;
-		gSelectMgr->enableSilhouette(TRUE);
+		LLSelectMgr::getInstance()->enableSilhouette(TRUE);
 
 		// Might have missed last update due to UPDATE_DELAY timing.
-		gSelectMgr->sendMultipleUpdate( UPD_POSITION );
+		LLSelectMgr::getInstance()->sendMultipleUpdate( UPD_POSITION );
 		
 		mInSnapRegime = FALSE;
-		gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
+		LLSelectMgr::getInstance()->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
 		//gAgent.setObjectTracking(gSavedSettings.getBOOL("TrackFocusObject"));
 	}
 
@@ -1105,8 +1105,8 @@ void LLManipTranslate::renderSnapGuides()
 	LLVector3 grid_scale;
 	LLQuaternion grid_rotation;
 
-	gSelectMgr->getGrid(grid_origin, grid_rotation, grid_scale);
-	LLVector3 saved_selection_center = getSavedPivotPoint(); //gSelectMgr->getSavedBBoxOfSelection().getCenterAgent();
+	LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
+	LLVector3 saved_selection_center = getSavedPivotPoint(); //LLSelectMgr::getInstance()->getSavedBBoxOfSelection().getCenterAgent();
 	LLVector3 selection_center = getPivotPoint();
 
 	LLViewerObject *first_object = first_node->getObject();
@@ -1149,7 +1149,7 @@ void LLManipTranslate::renderSnapGuides()
 		}
 		else
 		{
-			at_axis_abs = saved_selection_center - gCamera->getOrigin();
+			at_axis_abs = saved_selection_center - LLViewerCamera::getInstance()->getOrigin();
 			at_axis_abs.normVec();
 
 			at_axis_abs = at_axis_abs * ~grid_rotation;
@@ -1225,14 +1225,14 @@ void LLManipTranslate::renderSnapGuides()
 		}
 		else
 		{
-			LLVector3 cam_to_selection = getPivotPoint() - gCamera->getOrigin();
+			LLVector3 cam_to_selection = getPivotPoint() - LLViewerCamera::getInstance()->getOrigin();
 			F32 current_range = cam_to_selection.normVec();
-			guide_size_meters = SNAP_GUIDE_SCREEN_SIZE * gViewerWindow->getWindowHeight() * current_range / gCamera->getPixelMeterRatio();
+			guide_size_meters = SNAP_GUIDE_SCREEN_SIZE * gViewerWindow->getWindowHeight() * current_range / LLViewerCamera::getInstance()->getPixelMeterRatio();
 	
-			F32 fraction_of_fov = mAxisArrowLength / (F32) gCamera->getViewHeightInPixels();
-			F32 apparent_angle = fraction_of_fov * gCamera->getView();  // radians
+			F32 fraction_of_fov = mAxisArrowLength / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();
+			F32 apparent_angle = fraction_of_fov * LLViewerCamera::getInstance()->getView();  // radians
 			F32 offset_at_camera = tan(apparent_angle) * 1.5f;
-			F32 range = dist_vec(gAgent.getPosAgentFromGlobal(first_node->mSavedPositionGlobal), gCamera->getOrigin());
+			F32 range = dist_vec(gAgent.getPosAgentFromGlobal(first_node->mSavedPositionGlobal), LLViewerCamera::getInstance()->getOrigin());
 			mSnapOffsetMeters = range * offset_at_camera;
 		}
 
@@ -1362,7 +1362,7 @@ void LLManipTranslate::renderSnapGuides()
 
 		sub_div_offset = llround(fmod(dist_grid_axis - offset_nearest_grid_unit, getMinGridScale() * 32.f) / smallest_grid_unit_scale);
 
-		LLVector2 screen_translate_axis(llabs(translate_axis * gCamera->getLeftAxis()), llabs(translate_axis * gCamera->getUpAxis()));
+		LLVector2 screen_translate_axis(llabs(translate_axis * LLViewerCamera::getInstance()->getLeftAxis()), llabs(translate_axis * LLViewerCamera::getInstance()->getUpAxis()));
 		screen_translate_axis.normVec();
 
 		S32 tick_label_spacing = llround(screen_translate_axis * sTickLabelSpacing);
@@ -1387,7 +1387,7 @@ void LLManipTranslate::renderSnapGuides()
 			{
 				F32 snap_offset_meters;
 
-				if (mSnapOffsetAxis * gCamera->getUpAxis() > 0.f)
+				if (mSnapOffsetAxis * LLViewerCamera::getInstance()->getUpAxis() > 0.f)
 				{
 					snap_offset_meters = mSnapOffsetMeters;			
 				}
@@ -1401,7 +1401,7 @@ void LLManipTranslate::renderSnapGuides()
 				
 				LLVector3 tick_offset = (tick_pos - mGridOrigin) * ~mGridRotation;
 				F32 offset_val = 0.5f * tick_offset.mV[ARROW_TO_AXIS[mManipPart]] / getMinGridScale();
-				EGridMode grid_mode = gSelectMgr->getGridMode();
+				EGridMode grid_mode = LLSelectMgr::getInstance()->getGridMode();
 				F32 text_highlight = 0.8f;
 				if(i - llround(offset_nearest_grid_unit / smallest_grid_unit_scale) == 0 && mInSnapRegime)
 				{
@@ -1426,7 +1426,7 @@ void LLManipTranslate::renderSnapGuides()
 			if (mHelpTextTimer.getElapsedTimeF32() < sHelpTextVisibleTime + sHelpTextFadeTime && sNumTimesHelpTextShown < sMaxTimesShowHelpText)
 			{
 				F32 snap_offset_meters_up;
-				if (mSnapOffsetAxis * gCamera->getUpAxis() > 0.f)
+				if (mSnapOffsetAxis * LLViewerCamera::getInstance()->getUpAxis() > 0.f)
 				{
 					snap_offset_meters_up = mSnapOffsetMeters;			
 				}
@@ -1435,7 +1435,7 @@ void LLManipTranslate::renderSnapGuides()
 					snap_offset_meters_up = -mSnapOffsetMeters;
 				}
 
-				LLVector3 selection_center_start = getSavedPivotPoint();//gSelectMgr->getSavedBBoxOfSelection().getCenterAgent();
+				LLVector3 selection_center_start = getSavedPivotPoint();//LLSelectMgr::getInstance()->getSavedBBoxOfSelection().getCenterAgent();
 
 				LLVector3 help_text_pos = selection_center_start + (snap_offset_meters_up * 3.f * mSnapOffsetAxis);
 				const LLFontGL* big_fontp = LLFontGL::sSansSerif;
@@ -1445,7 +1445,7 @@ void LLManipTranslate::renderSnapGuides()
 				help_text_color.mV[VALPHA] = clamp_rescale(mHelpTextTimer.getElapsedTimeF32(), sHelpTextVisibleTime, sHelpTextVisibleTime + sHelpTextFadeTime, line_alpha, 0.f);
 				hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
 				help_text = "to snap to grid";
-				help_text_pos -= gCamera->getUpAxis() * mSnapOffsetMeters * 0.2f;
+				help_text_pos -= LLViewerCamera::getInstance()->getUpAxis() * mSnapOffsetMeters * 0.2f;
 				hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
 			}
 		}
@@ -1655,7 +1655,7 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 
 		//setup clip plane
 		normal = normal * grid_rotation;
-		if (normal * (gCamera->getOrigin()-selection_center) < 0)
+		if (normal * (LLViewerCamera::getInstance()->getOrigin()-selection_center) < 0)
 		{
 			normal = -normal;
 		}
@@ -1756,7 +1756,7 @@ void LLManipTranslate::renderTranslationHandles()
 	LLQuaternion grid_rotation;
 	LLGLDepthTest gls_depth(GL_FALSE);
 	
-	gSelectMgr->getGrid(grid_origin, grid_rotation, grid_scale);
+	LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
 	LLVector3 at_axis;
 	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{
@@ -1764,7 +1764,7 @@ void LLManipTranslate::renderTranslationHandles()
 	}
 	else
 	{
-		at_axis = gCamera->getAtAxis() * ~grid_rotation;
+		at_axis = LLViewerCamera::getInstance()->getAtAxis() * ~grid_rotation;
 	}
 
 	if (at_axis.mV[VX] > 0.f)
@@ -1823,8 +1823,8 @@ void LLManipTranslate::renderTranslationHandles()
 		if (range > 0.001f)
 		{
 			// range != zero
-			F32 fraction_of_fov = mAxisArrowLength / (F32) gCamera->getViewHeightInPixels();
-			F32 apparent_angle = fraction_of_fov * gCamera->getView();  // radians
+			F32 fraction_of_fov = mAxisArrowLength / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();
+			F32 apparent_angle = fraction_of_fov * LLViewerCamera::getInstance()->getView();  // radians
 			mArrowLengthMeters = range * tan(apparent_angle);
 		}
 		else
@@ -1859,7 +1859,7 @@ void LLManipTranslate::renderTranslationHandles()
 		}
 		else
 		{
-			relative_camera_dir = (selection_center - gCamera->getOrigin()) * invRotation;
+			relative_camera_dir = (selection_center - LLViewerCamera::getInstance()->getOrigin()) * invRotation;
 		}
 		relative_camera_dir.normVec();
 

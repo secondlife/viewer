@@ -40,7 +40,7 @@
 #include "lltextbox.h"
 #include "llviewchildren.h"
 #include "llviewerwindow.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llweb.h"
 #include "llwindow.h"
 #include "llappviewer.h"
@@ -97,7 +97,7 @@ LLFloaterBuyCurrencyUI* LLFloaterBuyCurrencyUI::soleInstance(bool createIfNeeded
 	{
 		sInstance = new LLFloaterBuyCurrencyUI();
 
-		gUICtrlFactory->buildFloater(sInstance, "floater_buy_currency.xml");
+		LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_buy_currency.xml");
 		sInstance->center();
 	}
 	
@@ -221,7 +221,7 @@ void LLFloaterBuyCurrencyUI::updateUI()
 	{
 		mChildren.setBadge("step_error", LLViewChildren::BADGE_ERROR);
 		
-		LLTextBox* message = LLUICtrlFactory::getTextBoxByName(this, "error_message");
+		LLTextBox* message = getChild<LLTextBox>("error_message");
 		if (message)
 		{
 			message->setVisible(true);

@@ -65,7 +65,7 @@
 #include "llmultigesture.h"
 #include "llui.h"
 #include "llviewermenu.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 
 //
@@ -125,7 +125,7 @@ BOOL LLChatBar::postBuild()
 	childSetCommitCallback("Say", onClickSay, this);
 
 	// attempt to bind to an existing combo box named gesture
-	setGestureCombo(LLUICtrlFactory::getComboBoxByName(this, "Gesture"));
+	setGestureCombo(getChild<LLComboBox>( "Gesture"));
 
 	LLButton * sayp = getChild<LLButton>("Say");
 	if(sayp)
@@ -133,7 +133,7 @@ BOOL LLChatBar::postBuild()
 		setDefaultBtn(sayp);
 	}
 
-	mInputEditor = LLUICtrlFactory::getLineEditorByName(this, "Chat Editor");
+	mInputEditor = getChild<LLLineEditor>("Chat Editor");
 	if (mInputEditor)
 	{
 		mInputEditor->setCallbackUserData(this);
@@ -159,36 +159,34 @@ BOOL LLChatBar::postBuild()
 //-----------------------------------------------------------------------
 
 // virtual
-BOOL LLChatBar::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
+BOOL LLChatBar::handleKeyHere( KEY key, MASK mask )
 {
 	BOOL handled = FALSE;
 
-	if( getVisible() && getEnabled() && !called_from_parent)
+	// ALT-RETURN is reserved for windowed/fullscreen toggle
+	if( KEY_RETURN == key )
 	{
-		// ALT-RETURN is reserved for windowed/fullscreen toggle
-		if( KEY_RETURN == key )
+		if (mask == MASK_CONTROL)
 		{
-			if (mask == MASK_CONTROL)
-			{
-				// shout
-				sendChat(CHAT_TYPE_SHOUT);
-				handled = TRUE;
-			}
-			else if (mask == MASK_NONE)
-			{
-				// say
-				sendChat( CHAT_TYPE_NORMAL );
-				handled = TRUE;
-			}
+			// shout
+			sendChat(CHAT_TYPE_SHOUT);
+			handled = TRUE;
 		}
-		// only do this in main chatbar
-		else if ( KEY_ESCAPE == key && gChatBar == this)
+		else if (mask == MASK_NONE)
 		{
-			stopChat();
-
+			// say
+			sendChat( CHAT_TYPE_NORMAL );
 			handled = TRUE;
 		}
 	}
+	// only do this in main chatbar
+	else if ( KEY_ESCAPE == key && gChatBar == this)
+	{
+		stopChat();
+
+		handled = TRUE;
+	}
+
 	return handled;
 }
 
@@ -633,7 +631,7 @@ void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32
 
 	gAgent.sendReliableMessage();
 
-	gViewerStats->incStat(LLViewerStats::ST_CHAT_COUNT);
+	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_CHAT_COUNT);
 }
 
 

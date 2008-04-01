@@ -75,8 +75,7 @@ LLDrawPoolWater::LLDrawPoolWater() :
 	mHBTex[1]->setClamp(TRUE, TRUE);
 
 	mWaterImagep = gImageList.getImage(WATER_TEST);
-	//mWaterNormp = gImageList.getImage(LLUUID(gViewerArt.getString("water_normal.tga")));
-	mWaterNormp = gImageList.getImage(LLWaterParamManager::instance()->getNormalMapID());
+	mWaterNormp = gImageList.getImage(DEFAULT_WATER_NORMAL);
 
 	restoreGL();
 }
@@ -100,7 +99,7 @@ LLDrawPool *LLDrawPoolWater::instancePool()
 
 void LLDrawPoolWater::prerender()
 {
-	mVertexShaderLevel = (gGLManager.mHasCubeMap && gFeatureManagerp->isFeatureAvailable("RenderCubeMap")) ?
+	mVertexShaderLevel = (gGLManager.mHasCubeMap && LLFeatureManager::getInstance()->isFeatureAvailable("RenderCubeMap")) ?
 		LLShaderMgr::getVertexShaderLevel(LLShaderMgr::SHADER_WATER) : 0;
 
 	// got rid of modulation by light color since it got a little too
@@ -112,7 +111,7 @@ void LLDrawPoolWater::prerender()
 
 S32 LLDrawPoolWater::getNumPasses()
 {
-	if (gCamera->getOrigin().mV[2] < 1024.f)
+	if (LLViewerCamera::getInstance()->getOrigin().mV[2] < 1024.f)
 	{
 		return 1;
 	}
@@ -177,11 +176,11 @@ void LLDrawPoolWater::render(S32 pass)
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnable(GL_TEXTURE_2D); // Texture unit 1
 
-	LLVector3 camera_up = gCamera->getUpAxis();
+	LLVector3 camera_up = LLViewerCamera::getInstance()->getUpAxis();
 	F32 up_dot = camera_up * LLVector3::z_axis;
 
 	LLColor4 water_color;
-	if (gCamera->cameraUnderWater())
+	if (LLViewerCamera::getInstance()->cameraUnderWater())
 	{
 		water_color.setVec(1.f, 1.f, 1.f, 0.4f);
 	}
@@ -261,7 +260,7 @@ void LLDrawPoolWater::render(S32 pass)
 
 		glMatrixMode(GL_TEXTURE);
 		glLoadIdentity();
-		LLMatrix4 camera_mat = gCamera->getModelview();
+		LLMatrix4 camera_mat = LLViewerCamera::getInstance()->getModelview();
 		LLMatrix4 camera_rot(camera_mat.getMat3());
 		camera_rot.invert();
 
@@ -405,7 +404,7 @@ void LLDrawPoolWater::shade()
 
 	LLGLSLShader* shader;
 
-	F32 eyedepth = gCamera->getOrigin().mV[2] - gAgent.getRegion()->getWaterHeight();
+	F32 eyedepth = LLViewerCamera::getInstance()->getOrigin().mV[2] - gAgent.getRegion()->getWaterHeight();
 	
 	if (eyedepth < 0.f && LLPipeline::sWaterReflections)
 	{
@@ -488,7 +487,7 @@ void LLDrawPoolWater::shade()
 	//shader->uniformMatrix4fv("inverse_ref", 1, GL_FALSE, (GLfloat*) gGLObliqueProjectionInverse.mMatrix);
 	shader->uniform1f(LLShaderMgr::WATER_WATERHEIGHT, eyedepth);
 	shader->uniform1f(LLShaderMgr::WATER_TIME, sTime);
-	shader->uniform3fv(LLShaderMgr::WATER_EYEVEC, 1, gCamera->getOrigin().mV);
+	shader->uniform3fv(LLShaderMgr::WATER_EYEVEC, 1, LLViewerCamera::getInstance()->getOrigin().mV);
 	shader->uniform3fv(LLShaderMgr::WATER_SPECULAR, 1, light_diffuse.mV);
 	shader->uniform1f(LLShaderMgr::WATER_SPECULAR_EXP, light_exp);
 	shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR1, 1, param_mgr->getWave1Dir().mV);
@@ -508,9 +507,9 @@ void LLDrawPoolWater::shade()
 	shader->uniform1f("sunAngle2", 0.1f + 0.2f*sunAngle);
 
 	LLColor4 water_color;
-	LLVector3 camera_up = gCamera->getUpAxis();
+	LLVector3 camera_up = LLViewerCamera::getInstance()->getUpAxis();
 	F32 up_dot = camera_up * LLVector3::z_axis;
-	if (gCamera->cameraUnderWater())
+	if (LLViewerCamera::getInstance()->cameraUnderWater())
 	{
 		water_color.setVec(1.f, 1.f, 1.f, 0.4f);
 		shader->uniform1f(LLShaderMgr::WATER_REFSCALE, param_mgr->getScaleBelow());

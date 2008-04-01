@@ -35,7 +35,6 @@
 #include "message.h"
 #include "v3math.h"
 
-LLGlobalEconomy *gGlobalEconomy = NULL;
 
 LLGlobalEconomy::LLGlobalEconomy()
 :	mObjectCount( -1 ),
@@ -55,35 +54,33 @@ LLGlobalEconomy::~LLGlobalEconomy()
 { }
 
 // static
-void LLGlobalEconomy::processEconomyData(LLMessageSystem *msg, void** user_data)
+void LLGlobalEconomy::processEconomyData(LLMessageSystem *msg, LLGlobalEconomy* econ_data)
 {
 	S32 i;
 	F32 f;
 
-	LLGlobalEconomy *this_ptr = (LLGlobalEconomy*)user_data;
-
 	msg->getS32Fast(_PREHASH_Info, _PREHASH_ObjectCapacity, i);
-	this_ptr->setObjectCapacity(i);
+	econ_data->setObjectCapacity(i);
 	msg->getS32Fast(_PREHASH_Info, _PREHASH_ObjectCount, i);
-	this_ptr->setObjectCount(i);
+	econ_data->setObjectCount(i);
 	msg->getS32Fast(_PREHASH_Info, _PREHASH_PriceEnergyUnit, i);
-	this_ptr->setPriceEnergyUnit(i);
+	econ_data->setPriceEnergyUnit(i);
 	msg->getS32Fast(_PREHASH_Info, _PREHASH_PriceObjectClaim, i);
-	this_ptr->setPriceObjectClaim(i);
+	econ_data->setPriceObjectClaim(i);
 	msg->getS32Fast(_PREHASH_Info, _PREHASH_PricePublicObjectDecay, i);
-	this_ptr->setPricePublicObjectDecay(i);
+	econ_data->setPricePublicObjectDecay(i);
 	msg->getS32Fast(_PREHASH_Info, _PREHASH_PricePublicObjectDelete, i);
-	this_ptr->setPricePublicObjectDelete(i);
+	econ_data->setPricePublicObjectDelete(i);
 	msg->getS32Fast(_PREHASH_Info, _PREHASH_PriceUpload, i);
-	this_ptr->setPriceUpload(i);
+	econ_data->setPriceUpload(i);
 	msg->getS32Fast(_PREHASH_Info, _PREHASH_PriceRentLight, i);
-	this_ptr->setPriceRentLight(i);
+	econ_data->setPriceRentLight(i);
 	msg->getS32Fast(_PREHASH_Info, _PREHASH_TeleportMinPrice, i);
-	this_ptr->setTeleportMinPrice(i);
+	econ_data->setTeleportMinPrice(i);
 	msg->getF32Fast(_PREHASH_Info, _PREHASH_TeleportPriceExponent, f);
-	this_ptr->setTeleportPriceExponent(f);
+	econ_data->setTeleportPriceExponent(f);
 	msg->getS32Fast(_PREHASH_Info, _PREHASH_PriceGroupCreate, i);
-	this_ptr->setPriceGroupCreate(i);
+	econ_data->setPriceGroupCreate(i);
 }
 
 S32	LLGlobalEconomy::calculateTeleportCost(F32 distance) const
@@ -154,9 +151,9 @@ void LLRegionEconomy::processEconomyData(LLMessageSystem *msg, void** user_data)
 	S32 i;
 	F32 f;
 
-	LLGlobalEconomy::processEconomyData(msg, user_data);
-
 	LLRegionEconomy *this_ptr = (LLRegionEconomy*)user_data;
+
+	LLGlobalEconomy::processEconomyData(msg, this_ptr);
 
 	msg->getS32Fast(_PREHASH_Info, _PREHASH_PriceParcelClaim, i);
 	this_ptr->setBasePriceParcelClaimDefault(i);

@@ -75,8 +75,7 @@ public:
 	virtual ~LLCheckBoxCtrl();
 
 	// LLView interface
-	virtual EWidgetType getWidgetType() const	{ return WIDGET_TYPE_CHECKBOX; }
-	virtual LLString getWidgetTag() const { return LL_CHECK_BOX_CTRL_TAG; }
+
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 

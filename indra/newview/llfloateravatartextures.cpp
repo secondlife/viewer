@@ -35,7 +35,7 @@
 
 #include "lltexturectrl.h"
 
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerobjectlist.h"
 #include "llvoavatar.h"
 
@@ -55,7 +55,7 @@ LLFloaterAvatarTextures* LLFloaterAvatarTextures::show(const LLUUID &id)
 	LLFloaterAvatarTextures* floaterp = new LLFloaterAvatarTextures(id);
 
 	// Builds and adds to gFloaterView
-	gUICtrlFactory->buildFloater(floaterp, "floater_avatar_textures.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_avatar_textures.xml");
 
 	gFloaterView->addChild(floaterp);
 	floaterp->open();	/*Flawfinder: ignore*/

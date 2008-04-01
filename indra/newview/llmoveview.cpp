@@ -42,7 +42,7 @@
 #include "llbutton.h"
 #include "llviewerwindow.h"
 #include "lljoystickbutton.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 //
 // Constants
@@ -68,34 +68,34 @@ LLFloaterMove::LLFloaterMove()
 :	LLFloater("move floater")
 {
 	setIsChrome(TRUE);
-	gUICtrlFactory->buildFloater(this,"floater_moveview.xml"); 
+	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_moveview.xml"); 
 
-	mForwardButton = LLViewerUICtrlFactory::getJoystickAgentTurnByName(this, "forward btn"); 
+	mForwardButton = getChild<LLJoystickAgentTurn>("forward btn"); 
 	mForwardButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
 
-	mBackwardButton = LLViewerUICtrlFactory::getJoystickAgentTurnByName(this, "backward btn"); 
+	mBackwardButton = getChild<LLJoystickAgentTurn>("backward btn"); 
 	mBackwardButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
 
-	mSlideLeftButton = LLViewerUICtrlFactory::getJoystickAgentSlideByName(this, "slide left btn"); 
+	mSlideLeftButton = getChild<LLJoystickAgentSlide>("slide left btn"); 
 	mSlideLeftButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
 
-	mSlideRightButton = LLViewerUICtrlFactory::getJoystickAgentSlideByName(this, "slide right btn"); 
+	mSlideRightButton = getChild<LLJoystickAgentSlide>("slide right btn"); 
 	mSlideRightButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
 
-	mTurnLeftButton = LLUICtrlFactory::getButtonByName(this, "turn left btn"); 
+	mTurnLeftButton = getChild<LLButton>("turn left btn"); 
 	mTurnLeftButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
 	mTurnLeftButton->setHeldDownCallback( turnLeft );
 
-	mTurnRightButton = LLUICtrlFactory::getButtonByName(this, "turn right btn"); 
+	mTurnRightButton = getChild<LLButton>("turn right btn"); 
 	mTurnRightButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
 	mTurnRightButton->setHeldDownCallback( turnRight );
 
-	mMoveUpButton = LLUICtrlFactory::getButtonByName(this, "move up btn"); 
+	mMoveUpButton = getChild<LLButton>("move up btn"); 
 	childSetAction("move up btn",moveUp,NULL);
 	mMoveUpButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
 	mMoveUpButton->setHeldDownCallback( moveUp );
 
-	mMoveDownButton = LLUICtrlFactory::getButtonByName(this, "move down btn"); 
+	mMoveDownButton = getChild<LLButton>("move down btn"); 
 	childSetAction("move down btn",moveDown,NULL);	
 	mMoveDownButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
 	mMoveDownButton->setHeldDownCallback( moveDown );

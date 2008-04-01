@@ -54,9 +54,6 @@ public:
 	LLDebugView(const std::string& name, const LLRect &rect);
 	~LLDebugView();
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
-
 	LLFrameStatView* mFrameStatView;
 	LLFastTimerView* mFastTimerView;
 	LLMemoryView*	 mMemoryView;

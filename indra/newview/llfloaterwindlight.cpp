@@ -41,7 +41,7 @@
 #include "llmultisliderctrl.h"
 #include "llspinctrl.h"
 #include "llcheckboxctrl.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewercamera.h"
 #include "llcombobox.h"
 #include "lllineeditor.h"
@@ -68,10 +68,10 @@ static const F32 WL_SUN_AMBIENT_SLIDER_SCALE = 3.0f;
 
 LLFloaterWindLight::LLFloaterWindLight() : LLFloater("windlight floater")
 {
-	gUICtrlFactory->buildFloater(this, "floater_windlight_options.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_windlight_options.xml");
 	
 	// add the combo boxes
-	LLComboBox* comboBox = LLUICtrlFactory::getComboBoxByName(this, "WLPresetsCombo");
+	LLComboBox* comboBox = getChild<LLComboBox>("WLPresetsCombo");
 
 	if(comboBox != NULL) {
 		
@@ -214,7 +214,7 @@ void LLFloaterWindLight::initCallbacks(void) {
 	// WL Top
 	childSetAction("WLDayCycleMenuButton", onOpenDayCycle, NULL);
 	// Load/save
-	LLComboBox* comboBox = LLUICtrlFactory::getComboBoxByName(this, "WLPresetsCombo");
+	LLComboBox* comboBox = getChild<LLComboBox>("WLPresetsCombo");
 
 	//childSetAction("WLLoadPreset", onLoadPreset, comboBox);
 	childSetAction("WLNewPreset", onNewPreset, comboBox);
@@ -259,7 +259,7 @@ void LLFloaterWindLight::newPromptCallback(S32 option, const LLString& text, voi
 	}
 
 	if(option == 0) {
-		LLComboBox* comboBox = LLUICtrlFactory::getComboBoxByName(sWindLight, 
+		LLComboBox* comboBox = sWindLight->getChild<LLComboBox>( 
 			"WLPresetsCombo");
 
 		LLFloaterDayCycle* sDayCycle = NULL;
@@ -267,7 +267,7 @@ void LLFloaterWindLight::newPromptCallback(S32 option, const LLString& text, voi
 		if(LLFloaterDayCycle::isOpen()) 
 		{
 			sDayCycle = LLFloaterDayCycle::instance();
-			keyCombo = LLUICtrlFactory::getComboBoxByName(sDayCycle, 
+			keyCombo = sDayCycle->getChild<LLComboBox>( 
 				"WLKeyPresets");
 		}
 
@@ -459,7 +459,7 @@ void LLFloaterWindLight::show()
 	windLight->syncMenu();
 
 	// comment in if you want the menu to rebuild each time
-	//gUICtrlFactory->buildFloater(windLight, "floater_windlight_options.xml");
+	//LLUICtrlFactory::getInstance()->buildFloater(windLight, "floater_windlight_options.xml");
 	//windLight->initCallbacks();
 
 	windLight->open();
@@ -740,10 +740,8 @@ void LLFloaterWindLight::onSunMoved(LLUICtrl* ctrl, void* userData)
 {
 	deactivateAnimator();
 
-	LLSliderCtrl* sunSldr = LLUICtrlFactory::getSliderByName(sWindLight, 
-		"WLSunAngle");
-	LLSliderCtrl* eastSldr = LLUICtrlFactory::getSliderByName(sWindLight, 
-		"WLEastAngle");
+	LLSliderCtrl* sunSldr = sWindLight->getChild<LLSliderCtrl>("WLSunAngle");
+	LLSliderCtrl* eastSldr = sWindLight->getChild<LLSliderCtrl>("WLEastAngle");
 
 	WLColorControl * colorControl = static_cast<WLColorControl *>(userData);
 	
@@ -794,7 +792,7 @@ void LLFloaterWindLight::onNewPreset(void* userData)
 void LLFloaterWindLight::onSavePreset(void* userData)
 {
 	// get the name
-	LLComboBox* comboBox = LLUICtrlFactory::getComboBoxByName(sWindLight, 
+	LLComboBox* comboBox = sWindLight->getChild<LLComboBox>( 
 		"WLPresetsCombo");
 
 	// don't save the empty name
@@ -835,7 +833,7 @@ void LLFloaterWindLight::saveAlertCallback(S32 option, void* userdata)
 
 void LLFloaterWindLight::onDeletePreset(void* userData)
 {
-	LLComboBox* combo_box = LLUICtrlFactory::getComboBoxByName(sWindLight, 
+	LLComboBox* combo_box = sWindLight->getChild<LLComboBox>( 
 		"WLPresetsCombo");
 
 	if(combo_box->getSelectedValue().asString() == "")
@@ -853,7 +851,7 @@ void LLFloaterWindLight::deleteAlertCallback(S32 option, void* userdata)
 	// if they choose delete, do it.  Otherwise, don't do anything
 	if(option == 0) 
 	{
-		LLComboBox* combo_box = LLUICtrlFactory::getComboBoxByName(sWindLight, 
+		LLComboBox* combo_box = sWindLight->getChild<LLComboBox>( 
 			"WLPresetsCombo");
 		LLFloaterDayCycle* day_cycle = NULL;
 		LLComboBox* key_combo = NULL;
@@ -862,10 +860,9 @@ void LLFloaterWindLight::deleteAlertCallback(S32 option, void* userdata)
 		if(LLFloaterDayCycle::isOpen()) 
 		{
 			day_cycle = LLFloaterDayCycle::instance();
-			key_combo = LLUICtrlFactory::getComboBoxByName(day_cycle, 
+			key_combo = day_cycle->getChild<LLComboBox>( 
 				"WLKeyPresets");
-			mult_sldr = LLUICtrlFactory::getMultiSliderByName(day_cycle, 
-				"WLDayCycleKeys");
+			mult_sldr = day_cycle->getChild<LLMultiSliderCtrl>("WLDayCycleKeys");
 		}
 
 		LLString name(combo_box->getSelectedValue().asString());
@@ -956,7 +953,7 @@ void LLFloaterWindLight::onCloudScrollXToggled(LLUICtrl* ctrl, void* userData)
 	bool lock = cbCtrl->get();
 	LLWLParamManager::instance()->mCurParams.setEnableCloudScrollX(!lock);
 
-	LLSliderCtrl* sldr = LLUICtrlFactory::getSliderByName(sWindLight, 
+	LLSliderCtrl* sldr = sWindLight->getChild<LLSliderCtrl>( 
 		"WLCloudScrollX");
 
 	if(cbCtrl->get()) 
@@ -978,7 +975,7 @@ void LLFloaterWindLight::onCloudScrollYToggled(LLUICtrl* ctrl, void* userData)
 	bool lock = cbCtrl->get();
 	LLWLParamManager::instance()->mCurParams.setEnableCloudScrollY(!lock);
 
-	LLSliderCtrl* sldr = LLUICtrlFactory::getSliderByName(sWindLight, 
+	LLSliderCtrl* sldr = sWindLight->getChild<LLSliderCtrl>( 
 		"WLCloudScrollY");
 
 	if(cbCtrl->get()) 

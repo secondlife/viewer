@@ -60,7 +60,7 @@ class LLImageFormatted;
 class LLImageRaw;
 class LLColor4U;
 
-enum
+typedef enum e_image_codec
 {
 	IMG_CODEC_INVALID  = 0,
 	IMG_CODEC_RGB  = 1,
@@ -71,7 +71,7 @@ enum
 	IMG_CODEC_DXT  = 6,
 	IMG_CODEC_PNG  = 7,
 	IMG_CODEC_EOF  = 8
-};
+} EImageCodec;
 
 //============================================================================
 
@@ -124,6 +124,8 @@ public:
 
 	static void setSizeOverride(BOOL enabled) { sSizeOverride = enabled; }
 
+	static EImageCodec getCodecFromExtension(const LLString& exten);
+	
 private:
 	U8 *mData;
 	S32 mDataSize;

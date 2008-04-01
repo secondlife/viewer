@@ -38,8 +38,7 @@
 class LLViewerObject;
 class LLObjectSelection;
 
-class LLToolPie 
-:	public LLTool
+class LLToolPie : public LLTool, public LLSingleton<LLToolPie>
 {
 public:
 	LLToolPie( );
@@ -81,6 +80,5 @@ protected:
 	static LLSafeHandle<LLObjectSelection> sLeftClickSelection;
 };
 
-extern LLToolPie *gToolPie;
 
 #endif

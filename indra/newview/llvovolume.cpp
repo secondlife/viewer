@@ -452,7 +452,7 @@ void LLVOVolume::updateTextures()
 		
 		if (isHUDAttachment())
 		{
-			F32 area = (F32) gCamera->getScreenPixelArea();
+			F32 area = (F32) LLViewerCamera::getInstance()->getScreenPixelArea();
 			vsize = area;
 			imagep->setBoostLevel(LLViewerImage::BOOST_HUD);
  			face->setPixelArea(area); // treat as full screen
@@ -557,7 +557,7 @@ F32 LLVOVolume::getTextureVirtualSize(LLFace* face)
 	LLVector3 center = face->getPositionAgent();
 	LLVector3 size = (face->mExtents[1] - face->mExtents[0]) * 0.5f;
 	
-	F32 face_area = LLPipeline::calcPixelArea(center, size, *gCamera);
+	F32 face_area = LLPipeline::calcPixelArea(center, size, *LLViewerCamera::getInstance());
 
 	face->setPixelArea(face_area);
 
@@ -651,7 +651,7 @@ LLDrawable *LLVOVolume::createDrawable(LLPipeline *pipeline)
 	}
 	
 	updateRadius();
-	mDrawable->updateDistance(*gCamera);
+	mDrawable->updateDistance(*LLViewerCamera::getInstance());
 
 	return mDrawable;
 }

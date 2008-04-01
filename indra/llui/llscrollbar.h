@@ -62,11 +62,8 @@ public:
 
 	virtual void setValue(const LLSD& value);
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_SCROLLBAR; }
-	virtual LLString getWidgetTag() const { return LL_SCROLLBAR_TAG; }
-
 	// Overrides from LLView
-	virtual BOOL	handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL	handleKeyHere(KEY key, MASK mask);
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);

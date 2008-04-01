@@ -44,9 +44,6 @@ public:
 	LLHUDView();
 	virtual ~LLHUDView();
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
-
 	virtual void draw();
 
 	const LLColor4& colorFromType(S32 type);

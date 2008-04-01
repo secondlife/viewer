@@ -81,7 +81,7 @@ public:
 	virtual const LLUUID& getUUID() const = 0;
 	virtual U32 getCreationDate() const = 0;	// UTC seconds
 	virtual PermissionMask getPermissionMask() const = 0;
-	virtual LLViewerImage* getIcon() const = 0;
+	virtual LLUIImagePtr getIcon() const = 0;
 	virtual LLFontGL::StyleFlags getLabelStyle() const = 0;
 	virtual LLString getLabelSuffix() const = 0;
 	virtual void openItem( void ) = 0;
@@ -323,7 +323,8 @@ protected:
 	static LLColor4				sHighlightFgColor;
 	static LLColor4				sFilterBGColor;
 	static LLColor4				sFilterTextColor;
-	static LLColor4				sLoadingMessageTextColor;
+	static LLColor4				sSuffixColor;
+	static LLColor4				sSearchStatusColor;
 
 	LLString					mLabel;
 	LLString					mSearchableLabel;
@@ -337,7 +338,7 @@ protected:
 	BOOL						mSelectPending;
 	LLFontGL::StyleFlags		mLabelStyle;
 	LLString					mLabelSuffix;
-	LLPointer<LLViewerImage>	mIcon;
+	LLUIImagePtr				mIcon;
 	LLString					mStatusText;
 	BOOL						mHasVisibleChildren;
 	S32							mIndentation;
@@ -348,8 +349,8 @@ protected:
 	F32							mControlLabelRotation;
 	LLFolderView*				mRoot;
 	BOOL						mDragAndDropTarget;
-	LLPointer<LLViewerImage>	mArrowImage;
-	LLPointer<LLViewerImage>	mBoxImage;
+	LLUIImagePtr				mArrowImage;
+	LLUIImagePtr				mBoxImage;
 	BOOL                            mIsLoading;
 	LLTimer                         mTimeSinceRequestStart;
 	
@@ -379,11 +380,8 @@ public:
 	void filterFromRoot( void );
 
 	// creation_date is in UTC seconds
-	LLFolderViewItem( const LLString& name, LLViewerImage* icon, S32 creation_date, LLFolderView* root, LLFolderViewEventListener* listener );
+	LLFolderViewItem( const LLString& name, LLUIImagePtr icon, S32 creation_date, LLFolderView* root, LLFolderViewEventListener* listener );
 	virtual ~LLFolderViewItem( void );
-
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
 
 	// addToFolder() returns TRUE if it succeeds. FALSE otherwise
 	enum { ARRANGE = TRUE, DO_NOT_ARRANGE = FALSE };
@@ -497,7 +495,7 @@ public:
 	virtual void	setFiltered(BOOL filtered, S32 filter_generation);
 
 	// change the icon
-	void setIcon(LLViewerImage* icon);
+	void setIcon(LLUIImagePtr icon);
 
 	// refresh information from the object being viewed.
 	virtual void refresh();
@@ -569,13 +567,10 @@ public:
 		RECURSE_UP_DOWN
 	} ERecurseType;
 
-	LLFolderViewFolder( const LLString& name, LLViewerImage* icon,
+	LLFolderViewFolder( const LLString& name, LLUIImagePtr icon,
 						LLFolderView* root,
 						LLFolderViewEventListener* listener );
 	virtual ~LLFolderViewFolder( void );
-
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
 
 	virtual BOOL	potentiallyVisible();
 
@@ -726,12 +721,10 @@ public:
 
 	static F32 sAutoOpenTime;
 
-	LLFolderView( const LLString& name, LLViewerImage* root_folder_icon, const LLRect& rect, 
+	LLFolderView( const LLString& name, LLUIImagePtr root_folder_icon, const LLRect& rect, 
 					const LLUUID& source_id, LLView *parent_view );
 	virtual ~LLFolderView( void );
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
 	virtual BOOL canFocusChildren() const;
 
 	// FolderViews default to sort by name.  This will change that,
@@ -833,8 +826,8 @@ public:
 
 	// LLView functionality
 	///*virtual*/ BOOL handleKey( KEY key, MASK mask, BOOL called_from_parent );
-	/*virtual*/ BOOL handleKeyHere( KEY key, MASK mask, BOOL called_from_parent );
-	/*virtual*/ BOOL handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent);
+	/*virtual*/ BOOL handleKeyHere( KEY key, MASK mask );
+	/*virtual*/ BOOL handleUnicodeCharHere(llwchar uni_char);
 	/*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	/*virtual*/ BOOL handleDoubleClick( S32 x, S32 y, MASK mask );
 	/*virtual*/ BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );

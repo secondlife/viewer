@@ -60,7 +60,7 @@
 #include "llviewermedia.h"
 #include "llviewerobject.h"
 #include "llviewerstats.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 //
 // Methods
@@ -100,7 +100,7 @@ BOOL	LLPanelFace::postBuild()
 		// Allow any texture to be used during non-immediate mode.
 		mTextureCtrl->setNonImmediateFilterPermMask(PERM_NONE);
 		LLAggregatePermissions texture_perms;
-		if (gSelectMgr->selectGetAggregateTexturePermissions(texture_perms))
+		if (LLSelectMgr::getInstance()->selectGetAggregateTexturePermissions(texture_perms))
 		{
 			BOOL can_copy = 
 				texture_perms.getValue(PERM_COPY) == LLAggregatePermissions::AP_EMPTY || 
@@ -128,14 +128,14 @@ BOOL	LLPanelFace::postBuild()
 		mColorSwatch->setCanApplyImmediately(TRUE);
 	}
 
-	mLabelColorTransp = LLUICtrlFactory::getTextBoxByName(this,"color trans");
+	mLabelColorTransp = getChild<LLTextBox>("color trans");
 	if(mLabelColorTransp)
 	{
 		mLabelColorTransp->setFollowsTop();
 		mLabelColorTransp->setFollowsLeft();
 	}
 
-	mCtrlColorTransp = LLUICtrlFactory::getSpinnerByName(this,"ColorTrans");
+	mCtrlColorTransp = getChild<LLSpinCtrl>("ColorTrans");
 	if(mCtrlColorTransp)
 	{
 		mCtrlColorTransp->setCommitCallback(LLPanelFace::onCommitAlpha);
@@ -145,14 +145,14 @@ BOOL	LLPanelFace::postBuild()
 		mCtrlColorTransp->setFollowsLeft();
 	}
 
-	mCheckFullbright = LLUICtrlFactory::getCheckBoxByName(this,"checkbox fullbright");
+	mCheckFullbright = getChild<LLCheckBoxCtrl>("checkbox fullbright");
 	if (mCheckFullbright)
 	{
 		mCheckFullbright->setCommitCallback(LLPanelFace::onCommitFullbright);
 		mCheckFullbright->setCallbackUserData( this );
 	}
-	mLabelTexGen = LLUICtrlFactory::getTextBoxByName(this,"tex gen");
-	mComboTexGen = LLUICtrlFactory::getComboBoxByName(this,"combobox texgen");
+	mLabelTexGen = getChild<LLTextBox>("tex gen");
+	mComboTexGen = getChild<LLComboBox>("combobox texgen");
 	if(mComboTexGen)
 	{
 		mComboTexGen->setCommitCallback(LLPanelFace::onCommitTexGen);
@@ -160,8 +160,8 @@ BOOL	LLPanelFace::postBuild()
 		mComboTexGen->setCallbackUserData( this );
 	}
 
-	mLabelGlow = LLUICtrlFactory::getTextBoxByName(this,"glow label");
-	mCtrlGlow = LLUICtrlFactory::getSpinnerByName(this,"glow");
+	mLabelGlow = getChild<LLTextBox>("glow label");
+	mCtrlGlow = getChild<LLSpinCtrl>("glow");
 	if(mCtrlGlow)
 	{
 		mCtrlGlow->setCommitCallback(LLPanelFace::onCommitGlow);
@@ -210,69 +210,68 @@ void LLPanelFace::sendTexture()
 		{
 			id = mTextureCtrl->getImageAssetID();
 		}
-		gSelectMgr->selectionSetImage(id);
+		LLSelectMgr::getInstance()->selectionSetImage(id);
 	}
 }
 
 void LLPanelFace::sendBump()
 {	
-	LLComboBox*	mComboBumpiness = gUICtrlFactory->getComboBoxByName(this,"combobox bumpiness");
+	LLComboBox*	mComboBumpiness = getChild<LLComboBox>("combobox bumpiness");
 	if(!mComboBumpiness)return;
 	U8 bump = (U8) mComboBumpiness->getCurrentIndex() & TEM_BUMP_MASK;
-	gSelectMgr->selectionSetBumpmap( bump );
+	LLSelectMgr::getInstance()->selectionSetBumpmap( bump );
 }
 
 void LLPanelFace::sendTexGen()
 {
-	LLComboBox*	mComboTexGen = gUICtrlFactory->getComboBoxByName(this,"combobox texgen");
+	LLComboBox*	mComboTexGen = getChild<LLComboBox>("combobox texgen");
 	if(!mComboTexGen)return;
 	U8 tex_gen = (U8) mComboTexGen->getCurrentIndex() << TEM_TEX_GEN_SHIFT;
-	gSelectMgr->selectionSetTexGen( tex_gen );
+	LLSelectMgr::getInstance()->selectionSetTexGen( tex_gen );
 }
 
 void LLPanelFace::sendShiny()
 {
-	LLComboBox*	mComboShininess = gUICtrlFactory->getComboBoxByName(this,"combobox shininess");
+	LLComboBox*	mComboShininess = getChild<LLComboBox>("combobox shininess");
 	if(!mComboShininess)return;
 	U8 shiny = (U8) mComboShininess->getCurrentIndex() & TEM_SHINY_MASK;
-	gSelectMgr->selectionSetShiny( shiny );
+	LLSelectMgr::getInstance()->selectionSetShiny( shiny );
 }
 
 void LLPanelFace::sendFullbright()
 {
-	LLCheckBoxCtrl*	mCheckFullbright = gUICtrlFactory->getCheckBoxByName(this,"checkbox fullbright");
+	LLCheckBoxCtrl*	mCheckFullbright = getChild<LLCheckBoxCtrl>("checkbox fullbright");
 	if(!mCheckFullbright)return;
 	U8 fullbright = mCheckFullbright->get() ? TEM_FULLBRIGHT_MASK : 0;
-	gSelectMgr->selectionSetFullbright( fullbright );
+	LLSelectMgr::getInstance()->selectionSetFullbright( fullbright );
 }
 
 void LLPanelFace::sendColor()
 {
 	
-	LLColorSwatchCtrl*	mColorSwatch = LLViewerUICtrlFactory::getColorSwatchByName(this,"colorswatch");
+	LLColorSwatchCtrl*	mColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
 	if(!mColorSwatch)return;
 	LLColor4 color = mColorSwatch->get();
 
-	gSelectMgr->selectionSetColorOnly( color );
+	LLSelectMgr::getInstance()->selectionSetColorOnly( color );
 }
 
 void LLPanelFace::sendAlpha()
 {	
-	LLSpinCtrl*	mCtrlColorTransp = LLViewerUICtrlFactory::getSpinnerByName(this,"ColorTrans");
+	LLSpinCtrl*	mCtrlColorTransp = getChild<LLSpinCtrl>("ColorTrans");
 	if(!mCtrlColorTransp)return;
 	F32 alpha = (100.f - mCtrlColorTransp->get()) / 100.f;
 
-	gSelectMgr->selectionSetAlphaOnly( alpha );
+	LLSelectMgr::getInstance()->selectionSetAlphaOnly( alpha );
 }
 
 
 void LLPanelFace::sendGlow()
 {
-	LLSpinCtrl*	mCtrlGlow = LLViewerUICtrlFactory::getSpinnerByName(this,"glow");
-	if(!mCtrlGlow)return;
+	LLSpinCtrl*	mCtrlGlow = getChild<LLSpinCtrl>("glow");
 	F32 glow = mCtrlGlow->get();
 
-	gSelectMgr->selectionSetGlow( glow );
+	LLSelectMgr::getInstance()->selectionSetGlow( glow );
 }
 
 struct LLPanelFaceSetTEFunctor : public LLSelectedTEFunctor
@@ -282,14 +281,14 @@ struct LLPanelFaceSetTEFunctor : public LLSelectedTEFunctor
 	{
 		BOOL valid;
 		F32 value;
-		LLSpinCtrl*	ctrlTexScaleS = LLViewerUICtrlFactory::getSpinnerByName(mPanel,"TexScaleU");
-		LLSpinCtrl*	ctrlTexScaleT = LLViewerUICtrlFactory::getSpinnerByName(mPanel,"TexScaleV");
-		LLSpinCtrl*	ctrlTexOffsetS = LLViewerUICtrlFactory::getSpinnerByName(mPanel,"TexOffsetU");
-		LLSpinCtrl*	ctrlTexOffsetT = LLViewerUICtrlFactory::getSpinnerByName(mPanel,"TexOffsetV");
-		LLSpinCtrl*	ctrlTexRotation = LLViewerUICtrlFactory::getSpinnerByName(mPanel,"TexRot");
-		LLCheckBoxCtrl*	checkFlipScaleS = LLViewerUICtrlFactory::getCheckBoxByName(mPanel,"checkbox flip s");
-		LLCheckBoxCtrl*	checkFlipScaleT = LLViewerUICtrlFactory::getCheckBoxByName(mPanel,"checkbox flip t");
-		LLComboBox*		comboTexGen = LLViewerUICtrlFactory::getComboBoxByName(mPanel,"combobox texgen");
+		LLSpinCtrl*	ctrlTexScaleS = mPanel->getChild<LLSpinCtrl>("TexScaleU");
+		LLSpinCtrl*	ctrlTexScaleT = mPanel->getChild<LLSpinCtrl>("TexScaleV");
+		LLSpinCtrl*	ctrlTexOffsetS = mPanel->getChild<LLSpinCtrl>("TexOffsetU");
+		LLSpinCtrl*	ctrlTexOffsetT = mPanel->getChild<LLSpinCtrl>("TexOffsetV");
+		LLSpinCtrl*	ctrlTexRotation = mPanel->getChild<LLSpinCtrl>("TexRot");
+		LLCheckBoxCtrl*	checkFlipScaleS = mPanel->getChild<LLCheckBoxCtrl>("checkbox flip s");
+		LLCheckBoxCtrl*	checkFlipScaleT = mPanel->getChild<LLCheckBoxCtrl>("checkbox flip t");
+		LLComboBox*		comboTexGen = mPanel->getChild<LLComboBox>("combobox texgen");
 		if (ctrlTexScaleS)
 		{
 			valid = !ctrlTexScaleS->getTentative() || !checkFlipScaleS->getTentative();
@@ -373,15 +372,15 @@ struct LLPanelFaceSendFunctor : public LLSelectedObjectFunctor
 void LLPanelFace::sendTextureInfo()
 {
 	LLPanelFaceSetTEFunctor setfunc(this);
-	gSelectMgr->getSelection()->applyToTEs(&setfunc);
+	LLSelectMgr::getInstance()->getSelection()->applyToTEs(&setfunc);
 
 	LLPanelFaceSendFunctor sendfunc;
-	gSelectMgr->getSelection()->applyToObjects(&sendfunc);
+	LLSelectMgr::getInstance()->getSelection()->applyToObjects(&sendfunc);
 }
 
 void LLPanelFace::getState()
 {
-	LLViewerObject* objectp = gSelectMgr->getSelection()->getFirstObject();
+	LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 
 	if( objectp
 		&& objectp->getPCode() == LL_PCODE_VOLUME
@@ -411,7 +410,7 @@ void LLPanelFace::getState()
 		childSetEnabled("button apply",editable);
 
 		bool identical;
-		LLTextureCtrl*	texture_ctrl = LLViewerUICtrlFactory::getTexturePickerByName(this,"texture control");
+		LLTextureCtrl*	texture_ctrl = getChild<LLTextureCtrl>("texture control");
 		
 		// Texture
 		{
@@ -424,7 +423,7 @@ void LLPanelFace::getState()
 					return image ? image->getID() : LLUUID::null;
 				}
 			} func;
-			identical = gSelectMgr->getSelection()->getSelectedTEValue( &func, id );
+			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, id );
 			
 			if (identical)
 			{
@@ -463,7 +462,7 @@ void LLPanelFace::getState()
 		{
 // 			texture_ctrl->setValid( editable );
 		
-			if (gSelectMgr->selectGetAggregateTexturePermissions(texture_perms))
+			if (LLSelectMgr::getInstance()->selectGetAggregateTexturePermissions(texture_perms))
 			{
 				BOOL can_copy = 
 					texture_perms.getValue(PERM_COPY) == LLAggregatePermissions::AP_EMPTY || 
@@ -491,7 +490,7 @@ void LLPanelFace::getState()
 					return object->getTE(face)->mScaleS;
 				}
 			} func;
-			identical = gSelectMgr->getSelection()->getSelectedTEValue( &func, scale_s );
+			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, scale_s );
 			childSetValue("TexScaleU",editable ? llabs(scale_s) : 0);
 			childSetTentative("TexScaleU",LLSD((BOOL)(!identical)));
 			childSetEnabled("TexScaleU",editable);
@@ -509,7 +508,7 @@ void LLPanelFace::getState()
 					return object->getTE(face)->mScaleT;
 				}
 			} func;
-			identical = gSelectMgr->getSelection()->getSelectedTEValue( &func, scale_t );
+			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, scale_t );
 
 			childSetValue("TexScaleV",llabs(editable ? llabs(scale_t) : 0));
 			childSetTentative("TexScaleV",LLSD((BOOL)(!identical)));
@@ -530,7 +529,7 @@ void LLPanelFace::getState()
 					return object->getTE(face)->mOffsetS;
 				}
 			} func;
-			identical = gSelectMgr->getSelection()->getSelectedTEValue( &func, offset_s );
+			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, offset_s );
 			childSetValue("TexOffsetU", editable ? offset_s : 0);
 			childSetTentative("TexOffsetU",!identical);
 			childSetEnabled("TexOffsetU",editable);
@@ -545,7 +544,7 @@ void LLPanelFace::getState()
 					return object->getTE(face)->mOffsetT;
 				}
 			} func;
-			identical = gSelectMgr->getSelection()->getSelectedTEValue( &func, offset_t );
+			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, offset_t );
 			childSetValue("TexOffsetV", editable ? offset_t : 0);
 			childSetTentative("TexOffsetV",!identical);
 			childSetEnabled("TexOffsetV",editable);
@@ -562,14 +561,14 @@ void LLPanelFace::getState()
 					return object->getTE(face)->mRotation;
 				}
 			} func;
-			identical = gSelectMgr->getSelection()->getSelectedTEValue( &func, rotation );
+			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, rotation );
 			childSetValue("TexRot", editable ? rotation * RAD_TO_DEG : 0);
 			childSetTentative("TexRot",!identical);
 			childSetEnabled("TexRot",editable);
 		}
 
 		// Color swatch
-		LLColorSwatchCtrl*	mColorSwatch = LLViewerUICtrlFactory::getColorSwatchByName(this,"colorswatch");
+		LLColorSwatchCtrl*	mColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
 		LLColor4 color = LLColor4::white;
 		if(mColorSwatch)
 		{
@@ -580,7 +579,7 @@ void LLPanelFace::getState()
 					return object->getTE(face)->getColor();
 				}
 			} func;
-			identical = gSelectMgr->getSelection()->getSelectedTEValue( &func, color );
+			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, color );
 			
 			mColorSwatch->setOriginal(color);
 			mColorSwatch->set(color, TRUE);
@@ -609,7 +608,7 @@ void LLPanelFace::getState()
 					return object->getTE(face)->getGlow();
 				}
 			} func;
-			identical = gSelectMgr->getSelection()->getSelectedTEValue( &func, glow );
+			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, glow );
 
 			childSetValue("glow",glow);
 			childSetEnabled("glow",editable);
@@ -628,7 +627,7 @@ void LLPanelFace::getState()
 					return (F32)(object->getTE(face)->getShiny());
 				}
 			} func;
-			identical = gSelectMgr->getSelection()->getSelectedTEValue( &func, shinyf );
+			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, shinyf );
 			LLCtrlSelectionInterface* combobox_shininess =
 			      childGetSelectionInterface("combobox shininess");
 			if (combobox_shininess)
@@ -653,7 +652,7 @@ void LLPanelFace::getState()
 					return (F32)(object->getTE(face)->getBumpmap());
 				}
 			} func;
-			identical = gSelectMgr->getSelection()->getSelectedTEValue( &func, bumpf );
+			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, bumpf );
 			LLCtrlSelectionInterface* combobox_bumpiness =
 			      childGetSelectionInterface("combobox bumpiness");
 			if (combobox_bumpiness)
@@ -678,7 +677,7 @@ void LLPanelFace::getState()
 					return (F32)(object->getTE(face)->getTexGen());
 				}
 			} func;
-			identical = gSelectMgr->getSelection()->getSelectedTEValue( &func, genf );
+			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, genf );
 			S32 selected_texgen = ((S32) genf) >> TEM_TEX_GEN_SHIFT;
 			LLCtrlSelectionInterface* combobox_texgen =
 			      childGetSelectionInterface("combobox texgen");
@@ -716,7 +715,7 @@ void LLPanelFace::getState()
 					return (F32)(object->getTE(face)->getFullbright());
 				}
 			} func;
-			identical = gSelectMgr->getSelection()->getSelectedTEValue( &func, fullbrightf );
+			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, fullbrightf );
 
 			childSetValue("checkbox fullbright",(S32)fullbrightf);
 			childSetEnabled("checkbox fullbright",editable);
@@ -743,11 +742,11 @@ void LLPanelFace::getState()
 					return object->getTE(face)->mScaleS / object->getScale().mV[s_axis];
 				}
 			} func;			
-			identical = gSelectMgr->getSelection()->getSelectedTEValue( &func, repeats );
+			identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, repeats );
 			
 			childSetValue("rptctrl", editable ? repeats : 0);
 			childSetTentative("rptctrl",!identical);
-			LLComboBox*	mComboTexGen = LLViewerUICtrlFactory::getComboBoxByName(this,"combobox texgen");
+			LLComboBox*	mComboTexGen = getChild<LLComboBox>("combobox texgen");
 			if (mComboTexGen)
 			{
 				BOOL enabled = editable && (!mComboTexGen || mComboTexGen->getCurrentIndex() != 1);
@@ -825,14 +824,14 @@ void LLPanelFace::onCommitAlpha(LLUICtrl* ctrl, void* userdata)
 // static
 void LLPanelFace::onCancelColor(LLUICtrl* ctrl, void* userdata)
 {
-	gSelectMgr->selectionRevertColors();
+	LLSelectMgr::getInstance()->selectionRevertColors();
 }
 
 // static
 void LLPanelFace::onSelectColor(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
-	gSelectMgr->saveSelectedObjectColors();
+	LLSelectMgr::getInstance()->saveSelectedObjectColors();
 	self->sendColor();
 }
 
@@ -875,8 +874,8 @@ void LLPanelFace::onCommitGlow(LLUICtrl* ctrl, void* userdata)
 BOOL LLPanelFace::onDragTexture(LLUICtrl*, LLInventoryItem* item, void*)
 {
 	BOOL accept = TRUE;
-	for (LLObjectSelection::root_iterator iter = gSelectMgr->getSelection()->root_begin();
-		 iter != gSelectMgr->getSelection()->root_end(); iter++)
+	for (LLObjectSelection::root_iterator iter = LLSelectMgr::getInstance()->getSelection()->root_begin();
+		 iter != LLSelectMgr::getInstance()->getSelection()->root_end(); iter++)
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* obj = node->getObject();
@@ -894,7 +893,7 @@ void LLPanelFace::onCommitTexture( LLUICtrl* ctrl, void* userdata )
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
 
-	gViewerStats->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
+	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_EDIT_TEXTURE_COUNT );
 	
 	self->sendTexture();
 }
@@ -902,14 +901,14 @@ void LLPanelFace::onCommitTexture( LLUICtrl* ctrl, void* userdata )
 // static
 void LLPanelFace::onCancelTexture(LLUICtrl* ctrl, void* userdata)
 {
-	gSelectMgr->selectionRevertTextures();
+	LLSelectMgr::getInstance()->selectionRevertTextures();
 }
 
 // static
 void LLPanelFace::onSelectTexture(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
-	gSelectMgr->saveSelectedObjectTextures();
+	LLSelectMgr::getInstance()->saveSelectedObjectTextures();
 	self->sendTexture();
 }
 
@@ -931,7 +930,7 @@ void LLPanelFace::onClickApply(void* userdata)
 
 	//F32 repeats_per_meter = self->mCtrlRepeatsPerMeter->get();
 	F32 repeats_per_meter = (F32)self->childGetValue( "rptctrl" ).asReal();//self->mCtrlRepeatsPerMeter->get();
-	gSelectMgr->selectionTexScaleAutofit( repeats_per_meter );
+	LLSelectMgr::getInstance()->selectionTexScaleAutofit( repeats_per_meter );
 }
 
 // commit the fit media texture to prim button
@@ -965,8 +964,8 @@ struct LLPanelFaceSetMediaFunctor : public LLSelectedTEFunctor
 void LLPanelFace::onClickAutoFix(void* userdata)
 {
 	LLPanelFaceSetMediaFunctor setfunc;
-	gSelectMgr->getSelection()->applyToTEs(&setfunc);
+	LLSelectMgr::getInstance()->getSelection()->applyToTEs(&setfunc);
 
 	LLPanelFaceSendFunctor sendfunc;
-	gSelectMgr->getSelection()->applyToObjects(&sendfunc);
+	LLSelectMgr::getInstance()->getSelection()->applyToObjects(&sendfunc);
 }

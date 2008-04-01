@@ -76,8 +76,6 @@ public:
 
 	//
 	// LLView functionality
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
 	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 								   EDragAndDropType cargo_type,
 								   void* cargo_data,
@@ -94,16 +92,6 @@ LLGroupDropTarget::LLGroupDropTarget(const std::string& name, const LLRect& rect
 	mGroupNoticesPanel(panel),
 	mGroupID(group_id)
 {
-}
-
-EWidgetType LLGroupDropTarget::getWidgetType() const
-{
-	return WIDGET_TYPE_DONTCARE;
-}
-
-LLString LLGroupDropTarget::getWidgetTag() const
-{
-	return LL_GROUP_DROP_TARGET_TAG;
 }
 
 void LLGroupDropTarget::doDrop(EDragAndDropType cargo_type, void* cargo_data)
@@ -328,12 +316,12 @@ void LLPanelGroupNotices::setItem(LLPointer<LLInventoryItem> inv_item)
 		item_is_multi = TRUE;
 	};
 
-	LLViewerImage* item_icon = get_item_icon(inv_item->getType(),
+	LLString icon_name = get_item_icon_name(inv_item->getType(),
 										inv_item->getInventoryType(),
 										inv_item->getFlags(),
 										item_is_multi );
 
-	mCreateInventoryIcon->setImage(item_icon->getID());
+	mCreateInventoryIcon->setImage(icon_name);
 	mCreateInventoryIcon->setVisible(TRUE);
 
 	std::stringstream ss;
@@ -486,11 +474,11 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		row["columns"][0]["column"] = "icon";
 		if (has_attachment)
 		{
-			LLUUID icon_id = get_item_icon_uuid(
-						(LLAssetType::EType)asset_type,
-						LLInventoryType::IT_NONE,FALSE, FALSE);
+			LLString icon_name = get_item_icon_name(
+									(LLAssetType::EType)asset_type,
+									LLInventoryType::IT_NONE,FALSE, FALSE);
 			row["columns"][0]["type"] = "icon";
-			row["columns"][0]["value"] = icon_id;
+			row["columns"][0]["value"] = icon_name;
 		}
 
 		row["columns"][1]["column"] = "subject";
@@ -554,11 +542,11 @@ void LLPanelGroupNotices::showNotice(const char* subject,
 	{
 		mInventoryOffer = inventory_offer;
 
-		LLViewerImage* item_icon = get_item_icon(mInventoryOffer->mType,
+		LLString icon_name = get_item_icon_name(mInventoryOffer->mType,
 												LLInventoryType::IT_TEXTURE,
 												0, FALSE);
 
-		mViewInventoryIcon->setImage(item_icon->getID());
+		mViewInventoryIcon->setImage(icon_name);
 		mViewInventoryIcon->setVisible(TRUE);
 
 		std::stringstream ss;

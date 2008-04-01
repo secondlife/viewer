@@ -101,7 +101,7 @@ void LLToolView::addTool(const LLString& icon_off, const LLString& icon_on, LLPa
 	mButtonCount++;
 
 	const S32 LABEL_TOP_SPACING = 0;
-	const LLFontGL* font = gResMgr->getRes( LLFONT_SANSSERIF_SMALL );
+	const LLFontGL* font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF_SMALL );
 	S32 label_width = font->getWidth( label );
 	LLRect label_rect;
 	label_rect.setLeftTopAndSize( 
@@ -153,7 +153,7 @@ void LLToolView::draw()
 {
 	// turn off highlighting for all containers 
 	// and hide all option panels except for the selected one.
-	LLTool* selected = gToolMgr->getCurrentToolset()->getSelectedTool();
+	LLTool* selected = LLToolMgr::getInstance()->getCurrentToolset()->getSelectedTool();
 	for (contain_list_t::iterator iter = mContainList.begin();
 		 iter != mContainList.end(); ++iter)
 	{
@@ -194,7 +194,7 @@ void LLToolView::onClickToolButton(void* userdata)
 	LLToolContainer* clicked = (LLToolContainer*) userdata;
 
 	// Switch to this one
-	gToolMgr->getCurrentToolset()->selectTool( clicked->mTool );
+	LLToolMgr::getInstance()->getCurrentToolset()->selectTool( clicked->mTool );
 }
 
 

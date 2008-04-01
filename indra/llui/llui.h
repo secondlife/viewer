@@ -161,7 +161,6 @@ public:
 	//
 	static void initClass(LLControlGroup* config, 
 						  LLControlGroup* colors, 
-						  LLControlGroup* assets, 
 						  LLImageProviderInterface* image_provider,
 						  LLUIAudioCallback audio_callback = NULL,
 						  const LLVector2 *scale_factor = NULL,
@@ -179,8 +178,7 @@ public:
 	static void setCursorPositionLocal(const LLView* viewp, S32 x, S32 y);
 	static void setScaleFactor(const LLVector2& scale_factor);
 	static void setLineWidth(F32 width);
-	static LLUUID findAssetUUIDByName(const LLString& name);
-	static LLUIImage* getUIImageByName(const LLString& name);
+	static LLUIImage* getUIImage(const LLString& name);
 	static LLVector2 getWindowSize();
 	static void screenPointToGL(S32 screen_x, S32 screen_y, S32 *gl_x, S32 *gl_y);
 	static void glPointToScreen(S32 gl_x, S32 gl_y, S32 *screen_x, S32 *screen_y);
@@ -193,7 +191,6 @@ public:
 	//
 	static LLControlGroup* sConfigGroup;
 	static LLControlGroup* sColorsGroup;
-	static LLControlGroup* sAssetsGroup;
 	static LLImageProviderInterface* sImageProvider;
 	static LLUIAudioCallback sAudioCallback;
 	static LLVector2		sGLScaleFactor;
@@ -202,101 +199,6 @@ public:
 	static LLHtmlHelp*		sHtmlHelp;
 
 };
-
-// UI widgets
-// This MUST match UICtrlNames in lluictrlfactory.cpp
-typedef enum e_widget_type
-{
-	WIDGET_TYPE_VIEW = 0,
-	WIDGET_TYPE_ROOT_VIEW,
-	WIDGET_TYPE_FLOATER_VIEW,
-	WIDGET_TYPE_BUTTON,
-	WIDGET_TYPE_JOYSTICK_TURN,
-	WIDGET_TYPE_JOYSTICK_SLIDE,
-	WIDGET_TYPE_CHECKBOX,
-	WIDGET_TYPE_COLOR_SWATCH,
-	WIDGET_TYPE_COMBO_BOX,
-	WIDGET_TYPE_LINE_EDITOR,
-	WIDGET_TYPE_SEARCH_EDITOR,
-	WIDGET_TYPE_SCROLL_LIST,
-	WIDGET_TYPE_NAME_LIST,
-	WIDGET_TYPE_WEBBROWSER,
-	WIDGET_TYPE_SLIDER,	// actually LLSliderCtrl
-	WIDGET_TYPE_SLIDER_BAR, // actually LLSlider
-	WIDGET_TYPE_VOLUME_SLIDER,//actually LLVolumeSliderCtrl
-	WIDGET_TYPE_MULTI_SLIDER,	// actually LLMultiSliderCtrl
-	WIDGET_TYPE_MULTI_SLIDER_BAR, // actually LLMultiSlider
-	WIDGET_TYPE_SPINNER,
-	WIDGET_TYPE_TEXT_EDITOR,
-	WIDGET_TYPE_TEXTURE_PICKER,
-	WIDGET_TYPE_TEXT_BOX,
-	WIDGET_TYPE_PAD,	// used in XML for positioning, not a real widget
-	WIDGET_TYPE_RADIO_GROUP,
-	WIDGET_TYPE_ICON,
-	WIDGET_TYPE_LANDMARK_PICKER,
-	WIDGET_TYPE_LOCATE,	// used in XML for positioning, not a real widget
-	WIDGET_TYPE_VIEW_BORDER,	// decorative border
-	WIDGET_TYPE_PANEL,
-	WIDGET_TYPE_MENU,
-	WIDGET_TYPE_PIE_MENU,
-	WIDGET_TYPE_PIE_MENU_BRANCH,
-	WIDGET_TYPE_MENU_ITEM,
-	WIDGET_TYPE_MENU_ITEM_SEPARATOR,
-	WIDGET_TYPE_MENU_SEPARATOR_VERTICAL,
-	WIDGET_TYPE_MENU_ITEM_CALL,
-	WIDGET_TYPE_MENU_ITEM_CHECK,
-	WIDGET_TYPE_MENU_ITEM_BRANCH,
-	WIDGET_TYPE_MENU_ITEM_BRANCH_DOWN,
-	WIDGET_TYPE_MENU_ITEM_BLANK,
-	WIDGET_TYPE_TEAROFF_MENU,
-	WIDGET_TYPE_MENU_BAR,
-	WIDGET_TYPE_TAB_CONTAINER,
-	WIDGET_TYPE_SCROLL_CONTAINER, // LLScrollableContainerView
-	WIDGET_TYPE_SCROLLBAR,
-	WIDGET_TYPE_INVENTORY_PANEL, // LLInventoryPanel
-	WIDGET_TYPE_FLOATER,
-	WIDGET_TYPE_DRAG_HANDLE_TOP,
-	WIDGET_TYPE_DRAG_HANDLE_LEFT,
-	WIDGET_TYPE_RESIZE_HANDLE,
-	WIDGET_TYPE_RESIZE_BAR,
-	WIDGET_TYPE_NAME_EDITOR,
-	WIDGET_TYPE_MULTI_FLOATER,
-	WIDGET_TYPE_MEDIA_REMOTE,
-	WIDGET_TYPE_FOLDER_VIEW,
-	WIDGET_TYPE_FOLDER_ITEM,
-	WIDGET_TYPE_FOLDER,
-	WIDGET_TYPE_STAT_GRAPH,
-	WIDGET_TYPE_STAT_VIEW,
-	WIDGET_TYPE_STAT_BAR,
-	WIDGET_TYPE_DROP_TARGET,
-	WIDGET_TYPE_TEXTURE_BAR,
-	WIDGET_TYPE_TEX_MEM_BAR,
-	WIDGET_TYPE_SNAPSHOT_LIVE_PREVIEW,
-	WIDGET_TYPE_STATUS_BAR,
-	WIDGET_TYPE_PROGRESS_VIEW,
-	WIDGET_TYPE_TALK_VIEW,
-	WIDGET_TYPE_OVERLAY_BAR,
-	WIDGET_TYPE_HUD_VIEW,
-	WIDGET_TYPE_HOVER_VIEW,
-	WIDGET_TYPE_MORPH_VIEW,
-	WIDGET_TYPE_NET_MAP,
-	WIDGET_TYPE_PERMISSIONS_VIEW,
-	WIDGET_TYPE_MENU_HOLDER,
-	WIDGET_TYPE_DEBUG_VIEW,
-	WIDGET_TYPE_SCROLLING_PANEL_LIST,
-	WIDGET_TYPE_AUDIO_STATUS,
-	WIDGET_TYPE_CONTAINER_VIEW,
-	WIDGET_TYPE_CONSOLE,
-	WIDGET_TYPE_FAST_TIMER_VIEW,
-	WIDGET_TYPE_VELOCITY_BAR,
-	WIDGET_TYPE_TEXTURE_VIEW,
-	WIDGET_TYPE_MEMORY_VIEW,
-	WIDGET_TYPE_FRAME_STAT_VIEW,
-	WIDGET_TYPE_LAYOUT_STACK,
-	WIDGET_TYPE_FLYOUT_BUTTON,
-	WIDGET_TYPE_DONTCARE,
-	WIDGET_TYPE_COUNT
-} EWidgetType;
 
 //	FactoryPolicy is a static class that controls the creation and lookup of UI elements, 
 //	such as floaters.
@@ -503,7 +405,7 @@ public:
 class LLUIImage : public LLRefCount
 {
 public:
-	LLUIImage(LLPointer<LLImageGL> image);
+	LLUIImage(const LLString& name, LLPointer<LLImageGL> image);
 
 	void setClipRegion(const LLRectf& region);
 	void setScaleRegion(const LLRectf& region);
@@ -511,15 +413,29 @@ public:
 	LLPointer<LLImageGL> getImage() { return mImage; }
 	const LLPointer<LLImageGL>& getImage() const { return mImage; }
 
-	void draw(S32 x, S32 y, const LLColor4& color = UI_VERTEX_COLOR) const;
 	void draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color = UI_VERTEX_COLOR) const;
+	void draw(S32 x, S32 y, const LLColor4& color = UI_VERTEX_COLOR) const;
+	void draw(const LLRect& rect, const LLColor4& color = UI_VERTEX_COLOR) const { draw(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(), color); }
+	
 	void drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const;
-	void drawSolid(S32 x, S32 y, const LLColor4& color) const;
+	void drawSolid(const LLRect& rect, const LLColor4& color) const { drawSolid(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(), color); }
+	void drawSolid(S32 x, S32 y, const LLColor4& color) const { drawSolid(x, y, mImage->getWidth(0), mImage->getHeight(0), color); }
+
+	void drawBorder(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, S32 border_width) const;
+	void drawBorder(const LLRect& rect, const LLColor4& color, S32 border_width) const { drawBorder(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(), color, border_width); }
+	void drawBorder(S32 x, S32 y, const LLColor4& color, S32 border_width) const { drawBorder(x, y, mImage->getWidth(0), mImage->getHeight(0), color, border_width); }
+	
+	const LLString& getName() const { return mName; }
 
 	S32 getWidth() const;
 	S32 getHeight() const;
 
+	// returns dimensions of underlying textures, which might not be equal to ui image portion
+	S32 getTextureWidth() const;
+	S32 getTextureHeight() const;
+
 protected:
+	LLString			mName;
 	LLRectf				mScaleRegion;
 	LLRectf				mClipRegion;
 	LLPointer<LLImageGL> mImage;
@@ -527,6 +443,7 @@ protected:
 	BOOL				mNoClip;
 };
 
+typedef LLPointer<LLUIImage> LLUIImagePtr;
 
 template <typename T>
 class LLTombStone : public LLRefCount
@@ -661,6 +578,7 @@ private:
 	LLRootHandle<T> mHandle;
 };
 
+
 //RN: maybe this needs to moved elsewhere?
 class LLImageProviderInterface
 {
@@ -668,8 +586,9 @@ public:
 	LLImageProviderInterface() {};
 	virtual ~LLImageProviderInterface() {};
 
-	virtual LLUIImage* getUIImageByID(const LLUUID& id, BOOL clamped = TRUE) = 0;
-	virtual LLImageGL* getImageByID(const LLUUID& id, BOOL clamped = TRUE) = 0;
+	virtual LLUIImagePtr getUIImage(const LLString& name) = 0;
+	virtual LLUIImagePtr getUIImageByID(const LLUUID& id) = 0;
+	virtual void cleanUp() = 0;
 };
 
 #endif

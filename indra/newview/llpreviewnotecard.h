@@ -61,7 +61,7 @@ public:
 
 	// llview
 	virtual void draw();
-	virtual BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL handleKeyHere(KEY key, MASK mask);
 	virtual void setEnabled( BOOL enabled );
 	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 

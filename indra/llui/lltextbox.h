@@ -57,8 +57,7 @@ public:
 	LLTextBox(const LLString& name_and_label);
 
 	virtual ~LLTextBox() {}
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_TEXT_BOX; }
-	virtual LLString getWidgetTag() const { return LL_TEXT_BOX_TAG; }
+
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, class LLUICtrlFactory *factory);
 

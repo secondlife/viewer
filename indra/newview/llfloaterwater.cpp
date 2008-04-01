@@ -41,12 +41,13 @@
 #include "llcolorswatch.h"
 #include "llcheckboxctrl.h"
 #include "lltexturectrl.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewercamera.h"
 #include "llcombobox.h"
 #include "lllineeditor.h"
 #include "llfloaterdaycycle.h"
 #include "llboost.h"
+#include "llmultisliderctrl.h"
 
 #include "v4math.h"
 #include "llviewerdisplay.h"
@@ -66,10 +67,10 @@ std::set<std::string> LLFloaterWater::sDefaultPresets;
 
 LLFloaterWater::LLFloaterWater() : LLFloater("water floater")
 {
-	gUICtrlFactory->buildFloater(this, "floater_water.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_water.xml");
 	
 	// add the combo boxes
-	LLComboBox* comboBox = LLUICtrlFactory::getComboBoxByName(this, "WaterPresetsCombo");
+	LLComboBox* comboBox = getChild<LLComboBox>("WaterPresetsCombo");
 
 	if(comboBox != NULL) {
 		
@@ -150,7 +151,7 @@ void LLFloaterWater::initCallbacks(void) {
 	childSetCommitCallback("WaterBlurMult", onFloatControlMoved, &param_mgr->mBlurMultiplier);
 
 	// Load/save
-	LLComboBox* comboBox = LLUICtrlFactory::getComboBoxByName(this, "WaterPresetsCombo");
+	LLComboBox* comboBox = getChild<LLComboBox>("WaterPresetsCombo");
 
 	//childSetAction("WaterLoadPreset", onLoadPreset, comboBox);
 	childSetAction("WaterNewPreset", onNewPreset, comboBox);
@@ -166,7 +167,7 @@ void LLFloaterWater::initCallbacks(void) {
 	comboBox->setCommitCallback(onChangePresetName);
 
 	LLTextureCtrl* textCtrl = getChild<LLTextureCtrl>("WaterNormalMap");
-	textCtrl->setDefaultImageAssetID(LLUUID(gViewerArt.getString("water_normal.tga")));
+	textCtrl->setDefaultImageAssetID(DEFAULT_WATER_NORMAL);
 	childSetCommitCallback("WaterNormalMap", onNormalMapPicked, NULL);	
 }
 
@@ -199,8 +200,7 @@ void LLFloaterWater::newPromptCallback(S32 option, const LLString& text, void* u
 	}
 
 	if(option == 0) {
-		LLComboBox* comboBox = LLUICtrlFactory::getComboBoxByName(sWaterMenu, 
-			"WaterPresetsCombo");
+		LLComboBox* comboBox = sWaterMenu->getChild<LLComboBox>( "WaterPresetsCombo");
 
 		LLWaterParamManager * param_mgr = LLWaterParamManager::instance();
 
@@ -311,7 +311,7 @@ void LLFloaterWater::show()
 	water->syncMenu();
 
 	// comment in if you want the menu to rebuild each time
-	//gUICtrlFactory->buildFloater(water, "floater_water.xml");
+	//LLUICtrlFactory::getInstance()->buildFloater(water, "floater_water.xml");
 	//water->initCallbacks();
 
 	water->open();
@@ -604,8 +604,7 @@ void LLFloaterWater::onNewPreset(void* userData)
 void LLFloaterWater::onSavePreset(void* userData)
 {
 	// get the name
-	LLComboBox* comboBox = LLUICtrlFactory::getComboBoxByName(sWaterMenu, 
-		"WaterPresetsCombo");
+	LLComboBox* comboBox = sWaterMenu->getChild<LLComboBox>("WaterPresetsCombo");
 
 	// don't save the empty name
 	if(comboBox->getSelectedItemLabel() == "")
@@ -647,8 +646,7 @@ void LLFloaterWater::saveAlertCallback(S32 option, void* userdata)
 
 void LLFloaterWater::onDeletePreset(void* userData)
 {
-	LLComboBox* combo_box = LLUICtrlFactory::getComboBoxByName(sWaterMenu, 
-		"WaterPresetsCombo");
+	LLComboBox* combo_box = sWaterMenu->getChild<LLComboBox>("WaterPresetsCombo");
 
 	if(combo_box->getSelectedValue().asString() == "")
 	{
@@ -665,8 +663,7 @@ void LLFloaterWater::deleteAlertCallback(S32 option, void* userdata)
 	// if they choose delete, do it.  Otherwise, don't do anything
 	if(option == 0) 
 	{
-		LLComboBox* combo_box = LLUICtrlFactory::getComboBoxByName(sWaterMenu, 
-			"WaterPresetsCombo");
+		LLComboBox* combo_box = sWaterMenu->getChild<LLComboBox>("WaterPresetsCombo");
 		LLFloaterDayCycle* day_cycle = NULL;
 		LLComboBox* key_combo = NULL;
 		LLMultiSliderCtrl* mult_sldr = NULL;
@@ -674,10 +671,8 @@ void LLFloaterWater::deleteAlertCallback(S32 option, void* userdata)
 		if(LLFloaterDayCycle::isOpen()) 
 		{
 			day_cycle = LLFloaterDayCycle::instance();
-			key_combo = LLUICtrlFactory::getComboBoxByName(day_cycle, 
-				"WaterKeyPresets");
-			mult_sldr = LLUICtrlFactory::getMultiSliderByName(day_cycle, 
-				"WaterDayCycleKeys");
+			key_combo = day_cycle->getChild<LLComboBox>("WaterKeyPresets");
+			mult_sldr = day_cycle->getChild<LLMultiSliderCtrl>("WaterDayCycleKeys");
 		}
 
 		LLString name = combo_box->getSelectedValue().asString();

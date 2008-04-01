@@ -79,11 +79,16 @@ public:
 	U32			mFlags;	// flags pertaining to this mute entry
 };
 
-class LLMuteList
+class LLMuteList : public LLSingleton<LLMuteList>
 {
 public:
 	LLMuteList();
 	~LLMuteList();
+
+	// Implemented locally so that we can perform some delayed initialization. 
+	// Callers should be careful to call this one and not LLSingleton<LLMuteList>::getInstance()
+	// which would circumvent that mechanism. -MG
+	static LLMuteList* getInstance();
 
 	void addObserver(LLMuteListObserver* observer);
 	void removeObserver(LLMuteListObserver* observer);
@@ -170,6 +175,5 @@ public:
 	virtual void onChange() = 0;
 };
 
-extern LLMuteList *gMuteListp;
 
 #endif //LL_MUTELIST_H

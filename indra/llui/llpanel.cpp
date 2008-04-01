@@ -65,6 +65,8 @@ LLPanel::alert_queue_t LLPanel::sAlertQueue;
 const S32 RESIZE_BAR_OVERLAP = 1;
 const S32 RESIZE_BAR_HEIGHT = 3;
 
+static LLRegisterWidget<LLPanel> r1("panel");
+
 void LLPanel::init()
 {
 	// mRectControl
@@ -123,18 +125,6 @@ LLPanel::LLPanel(const LLString& name, const LLString& rect_control, BOOL border
 LLPanel::~LLPanel()
 {
 	storeRectControl();
-}
-
-// virtual
-EWidgetType LLPanel::getWidgetType() const
-{
-	return WIDGET_TYPE_PANEL;
-}
-
-// virtual
-LLString LLPanel::getWidgetTag() const
-{
-	return LL_PANEL_TAG;
 }
 
 // virtual
@@ -227,7 +217,8 @@ void LLPanel::updateDefaultBtn()
 		if (gFocusMgr.childHasKeyboardFocus( this ) && mDefaultBtn->getEnabled())
 		{
 			LLUICtrl* focus_ctrl = gFocusMgr.getKeyboardFocus();
-			BOOL focus_is_child_button = focus_ctrl->getWidgetType() == WIDGET_TYPE_BUTTON && static_cast<LLButton *>(focus_ctrl)->getCommitOnReturn();
+			LLButton* buttonp = dynamic_cast<LLButton*>(focus_ctrl);
+			BOOL focus_is_child_button = buttonp && buttonp->getCommitOnReturn();
 			// only enable default button when current focus is not a return-capturing button
 			mDefaultBtn->setBorderEnabled(!focus_is_child_button);
 		}
@@ -259,7 +250,7 @@ void LLPanel::setDefaultBtn(LLButton* btn)
 
 void LLPanel::setDefaultBtn(const LLString& id)
 {
-	LLButton *button = LLUICtrlFactory::getButtonByName(this, id);
+	LLButton *button = getChild<LLButton>(id);
 	if (button)
 	{
 		setDefaultBtn(button);
@@ -268,77 +259,6 @@ void LLPanel::setDefaultBtn(const LLString& id)
 	{
 		setDefaultBtn(NULL);
 	}
-}
-
-BOOL LLPanel::handleKey(KEY key, MASK mask, BOOL called_from_parent)
-{
-	BOOL handled = FALSE;
-	if (getVisible() && getEnabled())
-	{
-		if( (mask == MASK_SHIFT) && (KEY_TAB == key))	
-		{
-			//SHIFT-TAB
-			LLUICtrl* cur_focus = gFocusMgr.getKeyboardFocus();
-			if (cur_focus && gFocusMgr.childHasKeyboardFocus(this))
-			{
-				LLUICtrl* focus_root = cur_focus;
-				while(cur_focus->getParentUICtrl())
-				{
-					cur_focus = cur_focus->getParentUICtrl();
-					if (cur_focus->isFocusRoot())
-					{
-						// this is the root-most focus root found so far
-						focus_root = cur_focus;
-					}
-				}
-				handled = focus_root->focusPrevItem(FALSE);
-			}
-			else if (!cur_focus && isFocusRoot())
-			{
-				handled = focusLastItem();
-				if (!handled)
-				{
-					setFocus(TRUE);
-					handled = TRUE;
-				}
-			}
-		}
-		else
-		if( (mask == MASK_NONE ) && (KEY_TAB == key))	
-		{
-			//TAB
-			LLUICtrl* cur_focus = gFocusMgr.getKeyboardFocus();
-			if (cur_focus && gFocusMgr.childHasKeyboardFocus(this))
-			{
-				LLUICtrl* focus_root = cur_focus;
-				while(cur_focus->getParentUICtrl())
-				{
-					cur_focus = cur_focus->getParentUICtrl();
-					if (cur_focus->isFocusRoot())
-					{
-						focus_root = cur_focus;
-					}
-				}
-				handled = focus_root->focusNextItem(FALSE);
-			}
-			else if (!cur_focus && isFocusRoot())
-			{
-				handled = focusFirstItem();
-				if (!handled)
-				{
-					setFocus(TRUE);
-					handled = TRUE;
-				}
-			}
-		}
-	}
-
-	if (!handled)
-	{
-		handled = LLView::handleKey(key, mask, called_from_parent);
-	}
-
-	return handled;
 }
 
 void LLPanel::addCtrl( LLUICtrl* ctrl, S32 tab_group)
@@ -355,83 +275,84 @@ void LLPanel::addCtrlAtEnd( LLUICtrl* ctrl, S32 tab_group)
 	LLView::addCtrlAtEnd(ctrl, tab_group);
 }
 
-BOOL LLPanel::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
+BOOL LLPanel::handleKeyHere( KEY key, MASK mask )
 {
 	BOOL handled = FALSE;
 
-	if( getVisible() && getEnabled() && 
-		gFocusMgr.childHasKeyboardFocus(this) && !called_from_parent )
+	LLUICtrl* cur_focus = gFocusMgr.getKeyboardFocus();
+
+	// handle user hitting ESC to defocus
+	if (key == KEY_ESCAPE)
 	{
-		// handle user hitting ESC to defocus
-		if (key == KEY_ESCAPE)
+		gFocusMgr.setKeyboardFocus(NULL);
+		return TRUE;
+	}
+	else if( (mask == MASK_SHIFT) && (KEY_TAB == key))
+	{
+		//SHIFT-TAB
+		if (cur_focus)
 		{
-			gFocusMgr.setKeyboardFocus(NULL);
-			return TRUE;
+			LLUICtrl* focus_root = cur_focus->findRootMostFocusRoot();
+			handled = focus_root->focusPrevItem(FALSE);
 		}
-
-		LLUICtrl* cur_focus = gFocusMgr.getKeyboardFocus();
-		// If we have a default button, click it when
-		// return is pressed, unless current focus is a return-capturing button
-		// in which case *that* button will handle the return key
-		if (cur_focus && !(cur_focus->getWidgetType() == WIDGET_TYPE_BUTTON && static_cast<LLButton *>(cur_focus)->getCommitOnReturn()))
+	}
+	else if( (mask == MASK_NONE ) && (KEY_TAB == key))	
+	{
+		//TAB
+		if (cur_focus)
 		{
-			// RETURN key means hit default button in this case
-			if (key == KEY_RETURN && mask == MASK_NONE 
-				&& mDefaultBtn != NULL 
-				&& mDefaultBtn->getVisible()
-				&& mDefaultBtn->getEnabled())
-			{
-				mDefaultBtn->onCommit();
-				handled = TRUE;
-			}
+			LLUICtrl* focus_root = cur_focus->findRootMostFocusRoot();
+			handled = focus_root->focusNextItem(FALSE);
 		}
+	}
 
-		if (key == KEY_RETURN && mask == MASK_NONE)
+	// If we have a default button, click it when
+	// return is pressed, unless current focus is a return-capturing button
+	// in which case *that* button will handle the return key
+	LLButton* focused_button = dynamic_cast<LLButton*>(cur_focus);
+	if (cur_focus && !(focused_button && focused_button->getCommitOnReturn()))
+	{
+		// RETURN key means hit default button in this case
+		if (key == KEY_RETURN && mask == MASK_NONE 
+			&& mDefaultBtn != NULL 
+			&& mDefaultBtn->getVisible()
+			&& mDefaultBtn->getEnabled())
 		{
-			// set keyboard focus to self to trigger commitOnFocusLost behavior on current ctrl
-			if (cur_focus && cur_focus->acceptsTextInput())
-			{
-				cur_focus->onCommit();
-				handled = TRUE;
-			}
+			mDefaultBtn->onCommit();
+			handled = TRUE;
+		}
+	}
+
+	if (key == KEY_RETURN && mask == MASK_NONE)
+	{
+		// set keyboard focus to self to trigger commitOnFocusLost behavior on current ctrl
+		if (cur_focus && cur_focus->acceptsTextInput())
+		{
+			cur_focus->onCommit();
+			handled = TRUE;
 		}
 	}
 
 	return handled;
 }
 
-void LLPanel::requires(LLString name, EWidgetType type)
+BOOL LLPanel::checkRequirements()
 {
-	mRequirements[name] = type;
-}
-
-BOOL LLPanel::checkRequirements() const
-{
-	BOOL retval = TRUE;
-	LLString message;
-
-	for (requirements_map_t::const_iterator i = mRequirements.begin(); i != mRequirements.end(); ++i)
-	{
-		if (!this->getCtrlByNameAndType(i->first, i->second))
-		{
-			retval = FALSE;
-			message += i->first + " " + LLUICtrlFactory::getWidgetType(i->second) + "\n";
-		}
-	}
-
-	if (!retval)
+	if (!mRequirementsError.empty())
 	{
 		LLString::format_map_t args;
-		args["[COMPONENTS]"] = message;
+		args["[COMPONENTS]"] = mRequirementsError;
 		args["[FLOATER]"] = getName();
 
 		llwarns << getName() << " failed requirements check on: \n"  
-				<< message << llendl;
+				<< mRequirementsError << llendl;
 			
 		alertXml("FailedRequirementsCheck", args);
+		mRequirementsError.clear();
+		return FALSE;
 	}
 
-	return retval;
+	return TRUE;
 }
 
 //static
@@ -492,30 +413,6 @@ void LLPanel::setBorderVisible(BOOL b)
 	{
 		mBorder->setVisible( b );
 	}
-}
-
-LLUICtrl* LLPanel::getCtrlByNameAndType(const LLString& name, EWidgetType type) const
-{
-	LLView* view = getChildByName(name, TRUE);
-	if (view && view->isCtrl())
-	{
-		if (type ==	WIDGET_TYPE_DONTCARE || view->getWidgetType() == type)
-		{
-			return (LLUICtrl*)view;
-		}
-		else
-		{
-			llwarns << "Widget " << name << " has improper type in panel " << getName() << "\n"
-					<< "Is: \t\t" << view->getWidgetType() << "\n" 
-					<< "Should be: \t" << type 
-					<< llendl;
-		}
-	}
-	else
-	{
-		childNotFound(name);
-	}
-	return NULL;
 }
 
 // virtual
@@ -963,7 +860,7 @@ BOOL LLPanel::childSetLabelArg(const LLString& id, const LLString& key, const LL
 
 BOOL LLPanel::childSetToolTipArg(const LLString& id, const LLString& key, const LLStringExplicit& text)
 {
-	LLView* child = getChildByName(id, true);
+	LLView* child = getChildView(id, true, FALSE);
 	if (child)
 	{
 		return child->setToolTipArg(key, text);
@@ -991,7 +888,7 @@ void LLPanel::childSetMaxValue(const LLString& id, LLSD max_value)
 
 void LLPanel::childShowTab(const LLString& id, const LLString& tabname, bool visible)
 {
-	LLTabContainer* child = LLUICtrlFactory::getTabContainerByName(this, id);
+	LLTabContainer* child = getChild<LLTabContainer>(id);
 	if (child)
 	{
 		child->selectTabByName(tabname);
@@ -1000,7 +897,7 @@ void LLPanel::childShowTab(const LLString& id, const LLString& tabname, bool vis
 
 LLPanel *LLPanel::childGetVisibleTab(const LLString& id) const
 {
-	LLTabContainer* child = LLUICtrlFactory::getTabContainerByName(this, id);
+	LLTabContainer* child = getChild<LLTabContainer>(id);
 	if (child)
 	{
 		return child->getCurrentPanel();
@@ -1010,7 +907,7 @@ LLPanel *LLPanel::childGetVisibleTab(const LLString& id) const
 
 void LLPanel::childSetTabChangeCallback(const LLString& id, const LLString& tabname, void (*on_tab_clicked)(void*, bool), void *userdata)
 {
-	LLTabContainer* child = LLUICtrlFactory::getTabContainerByName(this, id);
+	LLTabContainer* child = getChild<LLTabContainer>(id);
 	if (child)
 	{
 		LLPanel *panel = child->getPanelByName(tabname);
@@ -1024,7 +921,7 @@ void LLPanel::childSetTabChangeCallback(const LLString& id, const LLString& tabn
 
 void LLPanel::childSetKeystrokeCallback(const LLString& id, void (*keystroke_callback)(LLLineEditor* caller, void* user_data), void *user_data)
 {
-	LLLineEditor* child = LLUICtrlFactory::getLineEditorByName(this, id);
+	LLLineEditor* child = getChild<LLLineEditor>(id);
 	if (child)
 	{
 		child->setKeystrokeCallback(keystroke_callback);
@@ -1037,7 +934,7 @@ void LLPanel::childSetKeystrokeCallback(const LLString& id, void (*keystroke_cal
 
 void LLPanel::childSetPrevalidate(const LLString& id, BOOL (*func)(const LLWString &) )
 {
-	LLLineEditor* child = LLUICtrlFactory::getLineEditorByName(this, id);
+	LLLineEditor* child = getChild<LLLineEditor>(id);
 	if (child)
 	{
 		child->setPrevalidate(func);
@@ -1046,7 +943,7 @@ void LLPanel::childSetPrevalidate(const LLString& id, BOOL (*func)(const LLWStri
 
 void LLPanel::childSetWrappedText(const LLString& id, const LLString& text, bool visible)
 {
-	LLTextBox* child = (LLTextBox*)getCtrlByNameAndType(id, WIDGET_TYPE_TEXT_BOX);
+	LLTextBox* child = getChild<LLTextBox>(id);
 	if (child)
 	{
 		child->setVisible(visible);
@@ -1056,7 +953,7 @@ void LLPanel::childSetWrappedText(const LLString& id, const LLString& text, bool
 
 void LLPanel::childSetAction(const LLString& id, void(*function)(void*), void* value)
 {
-	LLButton* button = (LLButton*)getCtrlByNameAndType(id, WIDGET_TYPE_BUTTON);
+	LLButton* button = getChild<LLButton>(id);
 	if (button)
 	{
 		button->setClickedCallback(function, value);
@@ -1065,7 +962,7 @@ void LLPanel::childSetAction(const LLString& id, void(*function)(void*), void* v
 
 void LLPanel::childSetActionTextbox(const LLString& id, void(*function)(void*))
 {
-	LLTextBox* textbox = (LLTextBox*)getCtrlByNameAndType(id, WIDGET_TYPE_TEXT_BOX);
+	LLTextBox* textbox = getChild<LLTextBox>(id);
 	if (textbox)
 	{
 		textbox->setClickedCallback(function);
@@ -1082,12 +979,17 @@ void LLPanel::childSetControlName(const LLString& id, const LLString& control_na
 }
 
 //virtual
-LLView* LLPanel::getChildByName(const LLString& name, BOOL recurse) const
+LLView* LLPanel::getChildView(const LLString& name, BOOL recurse, BOOL create_if_missing) const
 {
-	LLView* view = LLUICtrl::getChildByName(name, recurse);
+	// just get child, don't try to create a dummy one
+	LLView* view = LLUICtrl::getChildView(name, recurse, FALSE);
 	if (!view && !recurse)
 	{
 		childNotFound(name);
+	}
+	if (!view && create_if_missing)
+	{
+		view = createDummyWidget<LLView>(name);
 	}
 	return view;
 }
@@ -1181,6 +1083,8 @@ struct LLLayoutStack::LLEmbeddedPanel
 	F32 mVisibleAmt;
 };
 
+static LLRegisterWidget<LLLayoutStack> r2("layout_stack");
+
 LLLayoutStack::LLLayoutStack(eLayoutOrientation orientation) : 
 		mOrientation(orientation),
 		mMinWidth(0),
@@ -1193,19 +1097,6 @@ LLLayoutStack::~LLLayoutStack()
 {
 	std::for_each(mPanels.begin(), mPanels.end(), DeletePointer());
 }
-
-// virtual
-EWidgetType LLLayoutStack::getWidgetType() const
-{
-	return WIDGET_TYPE_LAYOUT_STACK;
-}
-
-// virtual
-LLString LLLayoutStack::getWidgetTag() const
-{
-	return LL_LAYOUT_STACK_TAG;
-}
-
 
 void LLLayoutStack::draw()
 {
@@ -1294,23 +1185,43 @@ LLView* LLLayoutStack::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactor
 	LLXMLNodePtr child;
 	for (child = node->getFirstChild(); child.notNull(); child = child->getNextSibling())
 	{
+		S32 min_width = 0;
+		S32 min_height = 0;
+		BOOL auto_resize = TRUE;
+
+		child->getAttributeS32("min_width", min_width);
+		child->getAttributeS32("min_height", min_height);
+		child->getAttributeBOOL("auto_resize", auto_resize);
+
 		if (child->hasName("layout_panel"))
 		{
-			S32 min_width = 0;
-			S32 min_height = 0;
-			BOOL auto_resize = TRUE;
 			BOOL user_resize = TRUE;
-
-			child->getAttributeS32("min_width", min_width);
-			child->getAttributeS32("min_height", min_height);
-			child->getAttributeBOOL("auto_resize", auto_resize);
 			child->getAttributeBOOL("user_resize", user_resize);
-
 			LLPanel* panelp = (LLPanel*)LLPanel::fromXML(child, layout_stackp, factory);
 			if (panelp)
 			{
 				panelp->setFollowsNone();
 				layout_stackp->addPanel(panelp, min_width, min_height, auto_resize, user_resize);
+			}
+		}
+		else
+		{
+			BOOL user_resize = FALSE;
+			child->getAttributeBOOL("user_resize", user_resize);
+
+			LLPanel* panelp = new LLPanel("auto_panel");
+			LLView* new_child = factory->createWidget(panelp, child);
+			if (new_child)
+			{
+				// put child in new embedded panel
+				layout_stackp->addPanel(panelp, min_width, min_height, auto_resize, user_resize);
+				// resize panel to contain widget and move widget to be contained in panel
+				panelp->setRect(new_child->getRect());
+				new_child->setOrigin(0, 0);
+			}
+			else
+			{
+				panelp->die();
 			}
 		}
 	}
@@ -1401,6 +1312,11 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 
 		if (mOrientation == HORIZONTAL)
 		{
+			// enforce minimize size constraint by default
+			if (panelp->getRect().getWidth() < (*panel_it)->mMinWidth)
+			{
+				panelp->reshape((*panel_it)->mMinWidth, panelp->getRect().getHeight());
+			}
         	total_width += llround(panelp->getRect().getWidth() * (*panel_it)->mVisibleAmt);
         	// want n-1 panel gaps for n panels
 			if (panel_it != mPanels.begin())
@@ -1410,6 +1326,11 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 		}
 		else //VERTICAL
 		{
+			// enforce minimize size constraint by default
+			if (panelp->getRect().getHeight() < (*panel_it)->mMinHeight)
+			{
+				panelp->reshape(panelp->getRect().getWidth(), (*panel_it)->mMinHeight);
+			}
 			total_height += llround(panelp->getRect().getHeight() * (*panel_it)->mVisibleAmt);
 			if (panel_it != mPanels.begin())
 			{
@@ -1428,6 +1349,7 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 		{
 			continue;
 		}
+
 		// if currently resizing a panel or the panel is flagged as not automatically resizing
 		// only track total available headroom, but don't use it for automatic resize logic
 		if ((*panel_it)->mResizeBar->hasMouseCapture() 
@@ -1459,6 +1381,7 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 		}
 	}
 
+	// calculate how many pixels need to be distributed among layout panels
 	// positive means panels need to grow, negative means shrink
 	S32 pixels_to_distribute;
 	if (mOrientation == HORIZONTAL)
@@ -1470,6 +1393,7 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 		pixels_to_distribute = getRect().getHeight() - total_height;
 	}
 
+	// now we distribute the pixels...
 	S32 cur_x = 0;
 	S32 cur_y = getRect().getHeight();
 
@@ -1495,13 +1419,17 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 				if (pixels_to_distribute < 0)
 				{
 					// shrink proportionally to amount over minimum
-					delta_size = (shrink_headroom_available > 0) ? llround((F32)pixels_to_distribute * (F32)(cur_width - (*panel_it)->mMinWidth) / (F32)shrink_headroom_available) : 0;
+					// so we can do this in one pass
+					delta_size = (shrink_headroom_available > 0) ? llround((F32)pixels_to_distribute * ((F32)(cur_width - (*panel_it)->mMinWidth) / (F32)shrink_headroom_available)) : 0;
+					shrink_headroom_available -= (cur_width - (*panel_it)->mMinWidth);
 				}
 				else
 				{
 					// grow all elements equally
 					delta_size = llround((F32)pixels_to_distribute / (F32)num_resizable_panels);
+					num_resizable_panels--;
 				}
+				pixels_to_distribute -= delta_size;
 				new_width = llmax((*panel_it)->mMinWidth, cur_width + delta_size);
 			}
 			else
@@ -1514,12 +1442,16 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 				if (pixels_to_distribute < 0)
 				{
 					// shrink proportionally to amount over minimum
-					delta_size = (shrink_headroom_available > 0) ? llround((F32)pixels_to_distribute * (F32)(cur_height - (*panel_it)->mMinHeight) / (F32)shrink_headroom_available) : 0;
+					// so we can do this in one pass
+					delta_size = (shrink_headroom_available > 0) ? llround((F32)pixels_to_distribute * ((F32)(cur_height - (*panel_it)->mMinHeight) / (F32)shrink_headroom_available)) : 0;
+					shrink_headroom_available -= (cur_height - (*panel_it)->mMinHeight);
 				}
 				else
 				{
 					delta_size = llround((F32)pixels_to_distribute / (F32)num_resizable_panels);
+					num_resizable_panels--;
 				}
+				pixels_to_distribute -= delta_size;
 				new_height = llmax((*panel_it)->mMinHeight, cur_height + delta_size);
 			}
 			else

@@ -65,7 +65,7 @@ void LLViewChildren::enable(const char* id, bool enabled)
 void LLViewChildren::setText(
 	const char* id, const std::string& text, bool visible)
 {
-	LLTextBox* child = LLUICtrlFactory::getTextBoxByName(&mParent, id);
+	LLTextBox* child = mParent.getChild<LLTextBox>(id);
 	if (child)
 	{
 		child->setVisible(visible);
@@ -76,7 +76,7 @@ void LLViewChildren::setText(
 void LLViewChildren::setWrappedText(
 	const char* id, const std::string& text, bool visible)
 {
-	LLTextBox* child = LLUICtrlFactory::getTextBoxByName(&mParent, id);
+	LLTextBox* child = mParent.getChild<LLTextBox>(id);
 	if (child)
 	{
 		child->setVisible(visible);
@@ -86,33 +86,25 @@ void LLViewChildren::setWrappedText(
 
 void LLViewChildren::setBadge(const char* id, Badge badge, bool visible)
 {
-	static LLUUID badgeOK(gViewerArt.getString("badge_ok.tga"));
-	static LLUUID badgeNote(gViewerArt.getString("badge_note.tga"));
-	static LLUUID badgeWarn(gViewerArt.getString("badge_warn.tga"));
-	static LLUUID	badgeError(gViewerArt.getString("badge_error.tga"));
-	
-	LLUUID badgeUUID;
-	switch (badge)
-	{
-		default:
-		case BADGE_OK:		badgeUUID = badgeOK;	break;
-		case BADGE_NOTE:	badgeUUID = badgeNote;	break;
-		case BADGE_WARN:	badgeUUID = badgeWarn;	break;
-		case BADGE_ERROR:	badgeUUID = badgeError;	break;
-	}
-	
-	LLIconCtrl* child = LLUICtrlFactory::getIconByName(&mParent, id);
+	LLIconCtrl* child = mParent.getChild<LLIconCtrl>(id);
 	if (child)
 	{
 		child->setVisible(visible);
-		child->setImage(badgeUUID);
+		switch (badge)
+		{
+			default:
+			case BADGE_OK:		child->setImage("badge_ok.j2c");	break;
+			case BADGE_NOTE:	child->setImage("badge_note.j2c");	break;
+			case BADGE_WARN:	child->setImage("badge_warn.j2c");	break;
+			case BADGE_ERROR:	child->setImage("badge_error.j2c");	break;
+		}
 	}
 }
 
 void LLViewChildren::setAction(const char* id,
 	void(*function)(void*), void* value)
 {
-	LLButton* button = LLUICtrlFactory::getButtonByName(&mParent, id);
+	LLButton* button = mParent.getChild<LLButton>(id);
 	if (button)
 	{
 		button->setClickedCallback(function, value);

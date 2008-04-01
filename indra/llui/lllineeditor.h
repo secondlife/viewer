@@ -78,19 +78,19 @@ public:
 				 S32 border_thickness = 1);
 
 	virtual ~LLLineEditor();
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_LINE_EDITOR; }
-	virtual LLString getWidgetTag() const { return LL_LINE_EDITOR_TAG; };
+
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	void setColorParameters(LLXMLNodePtr node);
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
+	static void cleanupClass();
 
 	// mousehandler overrides
 	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleDoubleClick(S32 x,S32 y,MASK mask);
-	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask, BOOL called_from_parent );
-	/*virtual*/ BOOL	handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent);
+	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask );
+	/*virtual*/ BOOL	handleUnicodeCharHere(llwchar uni_char);
 	/*virtual*/ void	onMouseCaptureLost();
 
 	// LLEditMenuHandler overrides
@@ -189,8 +189,8 @@ public:
 
 	void			setKeystrokeCallback(void (*keystroke_callback)(LLLineEditor* caller, void* user_data));
 
-	void			setMaxTextLength(S32 max_text_length); 
-	void			setBorderWidth(S32 left, S32 right);
+	void			setMaxTextLength(S32 max_text_length);
+	void			setTextPadding(S32 left, S32 right); // Used to specify room for children before or after text.
 
 	static BOOL		isPartOfWord(llwchar c);
 	// Prevalidation controls which keystrokes can affect the editor
@@ -212,7 +212,7 @@ public:
 	void			updateHistory(); // stores current line in history
 
 private:
-	// private helper classes
+	// private helper methods
 	void			removeChar();
 	void			addChar(const llwchar c);
 	void			setCursorAtLocalPos(S32 local_mouse_x);
@@ -254,10 +254,10 @@ protected:
 	S32			mCursorPos;					// I-beam is just after the mCursorPos-th character.
 	S32			mScrollHPos;				// Horizontal offset from the start of mText.  Used for scrolling.
 	LLFrameTimer mScrollTimer;
+	S32			mTextPadLeft;				// Used to reserve space before the beginning of the text for children.
+	S32			mTextPadRight;				// Used to reserve space after the end of the text for children.
 	S32			mMinHPixels;
 	S32			mMaxHPixels;
-	S32			mBorderLeft;
-	S32			mBorderRight;
 
 	BOOL		mCommitOnFocusLost;
 	BOOL		mRevertOnEsc;
@@ -301,6 +301,15 @@ protected:
 	LLWString	mPreeditOverwrittenWString;
 	std::vector<S32> mPreeditPositions;
 	LLPreeditor::standouts_t mPreeditStandouts;
+
+private:
+	// Utility on top of LLUI::getUIImage, looks up a named image in a given XML node and returns it if possible
+	// or returns a given default image if anything in the process fails.
+	static LLPointer<LLUIImage> LLLineEditor::parseImage(LLString name, LLXMLNodePtr from, LLPointer<LLUIImage> def);
+	// Global instance used as default for member instance below.
+	static LLPointer<LLUIImage> sImage;
+	// Instances that by default point to the statics but can be overidden in XML.
+	LLPointer<LLUIImage> mImage;
 
 	// private helper class
 	class LLLineEditorRollback
@@ -359,8 +368,6 @@ public:
 
 	/*virtual*/ void	draw();
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_SEARCH_EDITOR; }
-	virtual LLString getWidgetTag() const { return LL_SEARCH_EDITOR_TAG; }
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
 	void setText(const LLStringExplicit &new_text) { mSearchEdit->setText(new_text); }
@@ -368,12 +375,11 @@ public:
 	void setSearchCallback(void (*search_callback)(const LLString& search_string, void* user_data), void* data) { mSearchCallback = search_callback; mCallbackUserData = data; }
 
 	// LLUICtrl interface
-	virtual void	setValue(const LLSD& value ) { mSearchEdit->setValue(value); }
-	virtual LLSD	getValue() const { return mSearchEdit->getValue(); }
-	virtual BOOL	setTextArg(  const LLString& key, const LLStringExplicit& text ) { return mSearchEdit->setTextArg( key, text); }
-	virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text ) { return mSearchEdit->setLabelArg(key, text); }
-	virtual void	clear() { if (mSearchEdit) mSearchEdit->clear(); }
-
+	virtual void	setValue(const LLSD& value );
+	virtual LLSD	getValue() const;
+	virtual BOOL	setTextArg(  const LLString& key, const LLStringExplicit& text );
+	virtual BOOL	setLabelArg( const LLString& key, const LLStringExplicit& text );
+	virtual void	clear();
 
 private:
 	static void onSearchEdit(LLLineEditor* caller, void* user_data );

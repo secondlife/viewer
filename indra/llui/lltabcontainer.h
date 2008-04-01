@@ -62,19 +62,19 @@ public:
 
 	// from LLView
 	/*virtual*/ void setValue(const LLSD& value);
-	/*virtual*/ EWidgetType getWidgetType() const;
-	/*virtual*/ LLString getWidgetTag() const;	
+
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
 	/*virtual*/ void draw();
 	/*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	/*virtual*/ BOOL handleHover( S32 x, S32 y, MASK mask );
 	/*virtual*/ BOOL handleMouseUp( S32 x, S32 y, MASK mask );
 	/*virtual*/ BOOL handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect );
-	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
 	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,	BOOL drop,
 									   EDragAndDropType type, void* cargo_data,
 									   EAcceptance* accept, LLString& tooltip);
 	/*virtual*/ LLXMLNodePtr getXML(bool save_children = true) const;
+	/*virtual*/ LLView* getChildView(const LLString& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
 
 	void 		addTabPanel(LLPanel* child, 
 							const LLString& label, 
@@ -141,10 +141,6 @@ public:
 	static void onJumpLastBtn( void* userdata );
 
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
-
-protected:
-	/*virtual*/ LLView* getChildByName(const LLString& name, BOOL recurse = FALSE) const;
-
 
 private:
 	// Structure used to map tab buttons to and from tab panels

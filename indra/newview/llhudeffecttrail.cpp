@@ -196,7 +196,7 @@ void LLHUDEffectSpiral::triggerLocal()
 				psb->setSourceObject(mSourceObject);
 				psb->setTargetObject(mTargetObject);
 				psb->setOwnerUUID(gAgent.getID());
-				gWorldPointer->mPartSim.addPartSource(psb);
+				LLViewerPartSim::getInstance()->addPartSource(psb);
 				mPartSourcep = psb;
 			}
 		}
@@ -212,7 +212,7 @@ void LLHUDEffectSpiral::triggerLocal()
 					psb->setColor(color);
 					psb->mLKGTargetPosGlobal = mPositionGlobal;
 					psb->setOwnerUUID(gAgent.getID());
-					gWorldPointer->mPartSim.addPartSource(psb);
+					LLViewerPartSim::getInstance()->addPartSource(psb);
 					mPartSourcep = psb;
 				}
 			}
@@ -234,7 +234,7 @@ void LLHUDEffectSpiral::triggerLocal()
 				}
 				pss->setColor(color);
 				pss->setOwnerUUID(gAgent.getID());
-				gWorldPointer->mPartSim.addPartSource(pss);
+				LLViewerPartSim::getInstance()->addPartSource(pss);
 				mPartSourcep = pss;
 			}
 		}

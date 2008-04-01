@@ -69,7 +69,6 @@ const S32 SLOP_DIST_SQ = 4;
 BOOL gGrabBtnVertical = FALSE;
 BOOL gGrabBtnSpin = FALSE;
 LLTool* gGrabTransientTool = NULL;
-LLToolGrab *gToolGrab = NULL;
 extern BOOL gDebugClicks;
 
 //
@@ -151,26 +150,26 @@ void LLToolGrab::pickCallback(S32 x, S32 y, MASK mask)
 
 	BOOL extend_select = (mask & MASK_SHIFT);
 
-	if (!extend_select && !gSelectMgr->getSelection()->isEmpty())
+	if (!extend_select && !LLSelectMgr::getInstance()->getSelection()->isEmpty())
 	{
-		gSelectMgr->deselectAll();
-		gToolGrab->mDeselectedThisClick = TRUE;
+		LLSelectMgr::getInstance()->deselectAll();
+		LLToolGrab::getInstance()->mDeselectedThisClick = TRUE;
 	}
 	else
 	{
-		gToolGrab->mDeselectedThisClick = FALSE;
+		LLToolGrab::getInstance()->mDeselectedThisClick = FALSE;
 	}
 
 	// if not over object, do nothing
 	if (!objectp)
 	{
-		gToolGrab->setMouseCapture(TRUE);
-		gToolGrab->mMode = GRAB_NOOBJECT;
-		gToolGrab->mHitObjectID.setNull();
+		LLToolGrab::getInstance()->setMouseCapture(TRUE);
+		LLToolGrab::getInstance()->mMode = GRAB_NOOBJECT;
+		LLToolGrab::getInstance()->mHitObjectID.setNull();
 	}
 	else
 	{
-		gToolGrab->handleObjectHit(objectp, x, y, mask);
+		LLToolGrab::getInstance()->handleObjectHit(objectp, x, y, mask);
 	}
 }
 
@@ -273,7 +272,7 @@ BOOL LLToolGrab::handleObjectHit(LLViewerObject *objectp, S32 x, S32 y, MASK mas
 		startSpin();
 	}
 
-	gSelectMgr->updateSelectionCenter();		// update selection beam
+	LLSelectMgr::getInstance()->updateSelectionCenter();		// update selection beam
 
 	// update point at
 	LLViewerObject *edit_object = gObjectList.findObject(mHitObjectID);
@@ -505,7 +504,7 @@ void LLToolGrab::handleHoverActive(S32 x, S32 y, MASK mask)
 			LLQuaternion rotation_around_vertical( dx*RADIANS_PER_PIXEL_X, up );
 
 			// y motion maps to rotation around left axis
-			const LLVector3 &agent_left = gCamera->getLeftAxis();
+			const LLVector3 &agent_left = LLViewerCamera::getInstance()->getLeftAxis();
 			LLQuaternion rotation_around_left( dy*RADIANS_PER_PIXEL_Y, agent_left );
 
 			// compose with current rotation
@@ -530,14 +529,14 @@ void LLToolGrab::handleHoverActive(S32 x, S32 y, MASK mask)
 			//------------------------------------------------------
 
 			LLVector3d x_part;
-			x_part.setVec(gCamera->getLeftAxis());
+			x_part.setVec(LLViewerCamera::getInstance()->getLeftAxis());
 			x_part.mdV[VZ] = 0.0;
 			x_part.normVec();
 
 			LLVector3d y_part;
 			if( mVerticalDragging )
 			{
-				y_part.setVec(gCamera->getUpAxis());
+				y_part.setVec(LLViewerCamera::getInstance()->getUpAxis());
 				// y_part.setVec(0.f, 0.f, 1.f);
 			}
 			else
@@ -579,7 +578,7 @@ void LLToolGrab::handleHoverActive(S32 x, S32 y, MASK mask)
 			*/
 
 			// Don't let object centers go underground.
-			F32 land_height = gWorldPointer->resolveLandHeightGlobal(grab_point_global);
+			F32 land_height = LLWorld::getInstance()->resolveLandHeightGlobal(grab_point_global);
 
 			if (grab_point_global.mdV[VZ] < land_height)
 			{
@@ -592,7 +591,7 @@ void LLToolGrab::handleHoverActive(S32 x, S32 y, MASK mask)
 				grab_point_global.mdV[VZ] = MAX_OBJECT_Z;
 			}
 
-			grab_point_global = gWorldp->clipToVisibleRegions(mDragStartPointGlobal, grab_point_global);
+			grab_point_global = LLWorld::getInstance()->clipToVisibleRegions(mDragStartPointGlobal, grab_point_global);
 			// propagate constrained grab point back to grab offset
 			mGrabHiddenOffsetFromCamera = grab_point_global - gAgent.getCameraPositionGlobal();
 
@@ -600,7 +599,7 @@ void LLToolGrab::handleHoverActive(S32 x, S32 y, MASK mask)
 			LLVector3 grab_pos_agent = gAgent.getPosAgentFromGlobal( grab_point_global );
 
 			LLCoordGL grab_center_gl( gViewerWindow->getWindowWidth() / 2, gViewerWindow->getWindowHeight() / 2);
-			gCamera->projectPosAgentToScreen(grab_pos_agent, grab_center_gl);
+			LLViewerCamera::getInstance()->projectPosAgentToScreen(grab_pos_agent, grab_center_gl);
 
 			const S32 ROTATE_H_MARGIN = gViewerWindow->getWindowWidth() / 20;
 			const F32 ROTATE_ANGLE_PER_SECOND = 30.f * DEG_TO_RAD;
@@ -652,7 +651,7 @@ void LLToolGrab::handleHoverActive(S32 x, S32 y, MASK mask)
 
 		gViewerWindow->moveCursorToCenter();
 
-		gSelectMgr->updateSelectionCenter();
+		LLSelectMgr::getInstance()->updateSelectionCenter();
 
 	}
 
@@ -804,7 +803,7 @@ void LLToolGrab::onMouseCaptureLost()
 			LLVector3 grab_point_agent = mGrabObject->getRenderPosition();
 
 			LLCoordGL gl_point;
-			if (gCamera->projectPosAgentToScreen(grab_point_agent, gl_point))
+			if (LLViewerCamera::getInstance()->projectPosAgentToScreen(grab_point_agent, gl_point))
 			{
 				LLUI::setCursorPositionScreen(gl_point.mX, gl_point.mY);
 			}
@@ -826,7 +825,7 @@ void LLToolGrab::onMouseCaptureLost()
 
 	mGrabObject = NULL;
 
-	gSelectMgr->updateSelectionCenter();
+	LLSelectMgr::getInstance()->updateSelectionCenter();
 	gAgent.setPointAt(POINTAT_TARGET_CLEAR);
 	gAgent.setLookAt(LOOKAT_TARGET_CLEAR);
 

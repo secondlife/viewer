@@ -117,7 +117,7 @@ BOOL LLToolPlacer::raycastForNewObjPos( S32 x, S32 y, LLViewerObject** hit_obj, 
 	}
 
 	// Find the sim where the surface lives.
-	LLViewerRegion *regionp = gWorldp->getRegionFromPosGlobal(surface_pos_global);
+	LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromPosGlobal(surface_pos_global);
 	if (!regionp)
 	{
 		llwarns << "Trying to add object outside of all known regions!" << llendl;
@@ -130,8 +130,8 @@ BOOL LLToolPlacer::raycastForNewObjPos( S32 x, S32 y, LLViewerObject** hit_obj, 
 
 	*region = regionp;
 	*ray_start_region =	regionp->getPosRegionFromGlobal( ray_start_global );
-	F32 near_clip = gCamera->getNear() + 0.01f;  // Include an epsilon to avoid rounding issues.
-	*ray_start_region += gCamera->getAtAxis() * near_clip;
+	F32 near_clip = LLViewerCamera::getInstance()->getNear() + 0.01f;  // Include an epsilon to avoid rounding issues.
+	*ray_start_region += LLViewerCamera::getInstance()->getAtAxis() * near_clip;
 
 	if( bypass_sim_raycast )
 	{
@@ -415,18 +415,18 @@ BOOL LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 	// Spawns a message, so must be after above send
 	if (create_selected)
 	{
-		gSelectMgr->deselectAll();
+		LLSelectMgr::getInstance()->deselectAll();
 		gViewerWindow->getWindow()->incBusyCount();
 	}
 
 	// VEFFECT: AddObject
-	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)gHUDManager->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
+	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
 	effectp->setSourceObject((LLViewerObject*)gAgent.getAvatarObject());
 	effectp->setPositionGlobal(regionp->getPosGlobalFromRegion(ray_end_region));
 	effectp->setDuration(LL_HUD_DUR_SHORT);
 	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 
-	gViewerStats->incStat(LLViewerStats::ST_CREATE_COUNT);
+	LLViewerStats::getInstance()->incStat(LLViewerStats::ST_CREATE_COUNT);
 
 	return TRUE;
 }
@@ -468,7 +468,7 @@ BOOL LLToolPlacer::addDuplicate(S32 x, S32 y)
 		ray_target_id.setNull();
 	}
 
-	gSelectMgr->selectDuplicateOnRay(ray_start_region,
+	LLSelectMgr::getInstance()->selectDuplicateOnRay(ray_start_region,
 										ray_end_region,
 										b_hit_land,			// suppress raycast
 										FALSE,				// intersection
@@ -503,7 +503,7 @@ BOOL LLToolPlacer::placeObject(S32 x, S32 y, MASK mask)
 	// ...and go back to the default tool
 	if (added && !gSavedSettings.getBOOL("CreateToolKeepSelected"))
 	{
-		gToolMgr->getCurrentToolset()->selectTool( gToolTranslate );
+		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolCompTranslate::getInstance() );
 	}
 
 	return added;

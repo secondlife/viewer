@@ -31,7 +31,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llfloaterscriptdebug.h"
 
 #include "llfontgl.h"
@@ -84,7 +84,7 @@ BOOL LLFloaterScriptDebug::postBuild()
 	if (mTabContainer)
 	{
 		// *FIX: apparantly fails for tab containers?
-// 		mTabContainer->requires("all_scripts", WIDGET_TYPE_FLOATER);
+// 		mTabContainer->requires<LLFloater>("all_scripts");
 // 		mTabContainer->checkRequirements();
 		return TRUE;
 	}
@@ -104,7 +104,7 @@ LLFloater* LLFloaterScriptDebug::addOutputWindow(const LLUUID &object_id)
 		sInstance = new LLFloaterScriptDebug();
 		LLCallbackMap::map_t factory_map;
 		factory_map["all_scripts"] = LLCallbackMap(getOutputWindow, NULL);
-		gUICtrlFactory->buildFloater(sInstance, "floater_script_debug.xml", &factory_map);
+		LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_script_debug.xml", &factory_map);
 		sInstance->setVisible(FALSE);
 	}
 
@@ -128,7 +128,7 @@ void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std:
 
 	if (objectp)
 	{
-		objectp->setIcon(gImageList.getImage(LLUUID(gViewerArt.getString("script_error.tga"))));
+		objectp->setIcon(gImageList.getImageFromFile("script_error.j2c", TRUE, TRUE));
 		floater_label = llformat("%s(%.2f, %.2f)", user_name.c_str(), objectp->getPositionRegion().mV[VX], objectp->getPositionRegion().mV[VY]);
 	}
 	else

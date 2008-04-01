@@ -62,7 +62,7 @@
 #include "llviewerparceloverlay.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "llworld.h"
 #include "llworldmap.h"

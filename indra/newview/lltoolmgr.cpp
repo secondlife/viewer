@@ -46,13 +46,10 @@
 #include "lltoolmorph.h"
 #include "lltoolpie.h"
 #include "lltoolplacer.h"
-#include "lltoolselect.h"
 #include "lltoolselectland.h"
 #include "lltoolobjpicker.h"
 #include "lltoolpipette.h"
 
-// Globals (created and destroyed by LLAgent)
-LLToolMgr*		gToolMgr	= NULL;
 
 // Used when app not active to avoid processing hover.
 LLTool*			gToolNull	= NULL;
@@ -87,178 +84,33 @@ LLToolMgr::LLToolMgr()
 
 void LLToolMgr::initTools()
 {
-	// Initialize all the tools
-	// Variables that are reused for each tool
-	LLTool*		tool	= NULL;
-
-	//
-	// Pie tool (not visible in UI, implicit)
-	//
-	gToolPie = new LLToolPie();
-
-	gBasicToolset->addTool( gToolPie );
-//	gCameraToolset->addTool( gToolPie );
-//	gLandToolset->addTool( gToolPie );
-
-	// Camera tool
-	gToolCamera = new LLToolCamera();
-	gBasicToolset	->addTool( gToolCamera );
-	gCameraToolset->addTool( gToolCamera );
-
-	//
-	// Grab tool
-	//
-	gToolGrab = new LLToolGrab();
-	tool = gToolGrab;
-		
-	gBasicToolset->addTool( tool );
-
-	//
-	// Translation tool
-	//
-	gToolTranslate = new LLToolCompTranslate();
-	tool = gToolTranslate;
-
-	gBasicToolset->addTool( tool );
-
-	//
-	// Scale ("Stretch") tool
-	//
-	gToolStretch = new LLToolCompScale();
-	tool = gToolStretch;
-
-
-	//
-	// Rotation tool
-	//
-	gToolRotate = new LLToolCompRotate();
-	tool = gToolRotate;
-
-
-	//
-	// Face tool
-	//
-	gToolFace = new LLToolFace();
-	tool = gToolFace;
-
-	//
-	// Pipette tool
-	//
-	gToolPipette = new LLToolPipette();
-
-	//
-	// Individual object selector
-	//
-	gToolIndividual = new LLToolIndividual();
-
-	
-	//
-	// Create object tool
-	//
-	gToolCreate = new LLToolCompCreate();
-	tool = gToolCreate;
-
-	gBasicToolset->addTool( tool );
-
-	//
-	// Land brush tool
-	//
-	gToolLand = new LLToolBrushLand();
-	tool = gToolLand;
-
-	gBasicToolset->addTool( tool );
-
-
-	//
-	// Land select tool
-	//
-	gToolParcel = new LLToolSelectLand();
-	tool = gToolParcel;
-
-	//
-	// Gun tool
-	//
-	gToolGun = new LLToolCompGun();
-	gMouselookToolset->addTool( gToolGun );
-
-	//
-	// Inspect tool
-	//
-	gToolInspect = new LLToolCompInspect();
-	gBasicToolset->addTool( gToolInspect );
-
-	//
-	// Face edit tool
-	//
-//	gToolMorph = new LLToolMorph();
-//	gFaceEditToolset->addTool( gToolMorph );
-	gFaceEditToolset->addTool( gToolCamera );
-
-	// Drag and drop tool
-	gToolDragAndDrop = new LLToolDragAndDrop();
-
-	gToolObjPicker = new LLToolObjPicker();
+	static BOOL initialized = FALSE;
+	if(initialized)
+	{
+		return;
+	}
+	initialized = TRUE;
+	gBasicToolset->addTool( LLToolPie::getInstance() );
+	gBasicToolset->addTool( LLToolCamera::getInstance() );
+	gCameraToolset->addTool( LLToolCamera::getInstance() );
+	gBasicToolset->addTool( LLToolGrab::getInstance() );
+	gBasicToolset->addTool( LLToolCompTranslate::getInstance() );
+	gBasicToolset->addTool( LLToolCompCreate::getInstance() );
+	gBasicToolset->addTool( LLToolBrushLand::getInstance() );
+	gMouselookToolset->addTool( LLToolCompGun::getInstance() );
+	gBasicToolset->addTool( LLToolCompInspect::getInstance() );
+	gFaceEditToolset->addTool( LLToolCamera::getInstance() );
 
 	// On startup, use "select" tool
 	setCurrentToolset(gBasicToolset);
-	gBasicToolset->selectTool( gToolPie );
+
+	gBasicToolset->selectTool( LLToolPie::getInstance() );
 }
 
 LLToolMgr::~LLToolMgr()
 {
-	delete gToolPie;
-	gToolPie = NULL;
-
-	delete gToolInspect;
-	gToolInspect = NULL;
-
-	delete gToolGun;
-	gToolGun = NULL;
-
-	delete gToolCamera;
-	gToolCamera = NULL;
-
-//	delete gToolMorph;
-//	gToolMorph = NULL;
-
-	delete gToolDragAndDrop;
-	gToolDragAndDrop = NULL;
-
 	delete gBasicToolset;
 	gBasicToolset = NULL;
-
-	delete gToolGrab;
-	gToolGrab = NULL;
-
-	delete gToolRotate;
-	gToolRotate = NULL;
-
-	delete gToolTranslate;
-	gToolTranslate = NULL;
-
-	delete gToolStretch;
-	gToolStretch = NULL;
-
-	delete gToolIndividual;
-	gToolIndividual = NULL;
-
-	delete gToolPipette;
-	gToolPipette = NULL;
-
-	delete gToolCreate;
-	gToolCreate = NULL;
-
-	delete gToolFace;
-	gToolFace = NULL;
-
-	delete gToolLand;
-	gToolLand = NULL;
-
-	delete gToolParcel;
-	gToolParcel = NULL;
-
-	delete gToolObjPicker;
-	gToolObjPicker = NULL;
 
 	delete gMouselookToolset;
 	gMouselookToolset = NULL;
@@ -372,7 +224,7 @@ void LLToolMgr::updateToolStatus()
 
 BOOL LLToolMgr::inEdit()
 {
-	return mBaseTool != gToolPie && mBaseTool != gToolNull;
+	return mBaseTool != LLToolPie::getInstance() && mBaseTool != gToolNull;
 }
 
 void LLToolMgr::setTransientTool(LLTool* tool)
@@ -449,7 +301,7 @@ void LLToolset::addTool(LLTool* tool)
 void LLToolset::selectTool(LLTool* tool)
 {
 	mSelectedTool = tool;
-	gToolMgr->setCurrentTool( mSelectedTool );
+	LLToolMgr::getInstance()->setCurrentTool( mSelectedTool );
 }
 
 
@@ -459,7 +311,7 @@ void LLToolset::selectToolByIndex( S32 index )
 	if (tool)
 	{
 		mSelectedTool = tool;
-		gToolMgr->setCurrentTool( tool );
+		LLToolMgr::getInstance()->setCurrentTool( tool );
 	}
 }
 
@@ -473,10 +325,7 @@ BOOL LLToolset::isToolSelected( S32 index )
 void LLToolset::selectFirstTool()
 {
 	mSelectedTool = (0 < mToolList.size()) ? mToolList[0] : NULL;
-	if (gToolMgr) 
-	{
-		gToolMgr->setCurrentTool( mSelectedTool );
-	}
+	LLToolMgr::getInstance()->setCurrentTool( mSelectedTool );
 }
 
 
@@ -497,7 +346,7 @@ void LLToolset::selectNextTool()
 	if( next )
 	{
 		mSelectedTool = next;
-		gToolMgr->setCurrentTool( mSelectedTool );
+		LLToolMgr::getInstance()->setCurrentTool( mSelectedTool );
 	}
 	else
 	{
@@ -522,17 +371,16 @@ void LLToolset::selectPrevTool()
 	if( prev )
 	{
 		mSelectedTool = prev;
-		gToolMgr->setCurrentTool( mSelectedTool );
+		LLToolMgr::getInstance()->setCurrentTool( mSelectedTool );
 	}
 	else if (mToolList.size() > 0)
 	{
 		selectToolByIndex((S32)mToolList.size()-1);
 	}
-	
 }
 
 void select_tool( void *tool_pointer )
 {
 	LLTool *tool = (LLTool *)tool_pointer;
-	gToolMgr->getCurrentToolset()->selectTool( tool );
+	LLToolMgr::getInstance()->getCurrentToolset()->selectTool( tool );
 }

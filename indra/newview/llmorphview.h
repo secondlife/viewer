@@ -44,9 +44,6 @@ class LLMorphView : public LLView
 public:
 	LLMorphView(const std::string& name, const LLRect& rect);
 	
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
-
 	void		initialize();
 	void		shutdown();
 

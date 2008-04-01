@@ -64,7 +64,6 @@
 #include "llvoavatar.h"
 #include "pipeline.h"
 
-//LLToolMorph *gToolMorph = NULL;
 
 //static
 LLVisualParamHint::instance_list_t LLVisualParamHint::sInstances;
@@ -94,9 +93,7 @@ LLVisualParamHint::LLVisualParamHint(
 	mLastParamWeight(0.f)
 {
 	LLVisualParamHint::sInstances.insert( this );
-	LLUUID id;
-	id.set( gViewerArt.getString("avatar_thumb_bkgrnd.tga") );
-	mBackgroundp = gImageList.getImage(id, FALSE, TRUE);
+	mBackgroundp = LLUI::getUIImage("avatar_thumb_bkgrnd.j2c");
 
 
 	llassert(width != 0);
@@ -180,10 +177,7 @@ BOOL LLVisualParamHint::render()
 
 	LLGLSUIDefault gls_ui;
 	//LLGLState::verify(TRUE);
-	LLViewerImage::bindTexture(mBackgroundp);
-	gGL.color4f(1.f, 1.f, 1.f, 1.f);
-	gl_rect_2d_simple_tex( mWidth, mHeight );
-	mBackgroundp->unbindTexture(0, GL_TEXTURE_2D);
+	mBackgroundp->draw(0, 0, mWidth, mHeight);
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
@@ -229,13 +223,13 @@ BOOL LLVisualParamHint::render()
 	LLVector3 camera_pos = target_joint_pos + (camera_snapshot_offset * avatar_rotation);
 	
 	gGL.stop();
-	gCamera->setAspect((F32)mWidth / (F32)mHeight);
-	gCamera->setOriginAndLookAt(
+	LLViewerCamera::getInstance()->setAspect((F32)mWidth / (F32)mHeight);
+	LLViewerCamera::getInstance()->setOriginAndLookAt(
 		camera_pos,		// camera
 		LLVector3(0.f, 0.f, 1.f),						// up
 		target_pos );	// point of interest
 
-	gCamera->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mWidth, mHeight, FALSE);
+	LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mWidth, mHeight, FALSE);
 
 	if (avatarp->mDrawable.notNull())
 	{

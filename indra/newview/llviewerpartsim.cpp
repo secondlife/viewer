@@ -70,7 +70,7 @@ U32 LLViewerPart::sNextPartID = 1;
 
 F32 calc_desired_size(LLVector3 pos, LLVector2 scale)
 {
-	F32 desired_size = (pos-gCamera->getOrigin()).magVec();
+	F32 desired_size = (pos-LLViewerCamera::getInstance()->getOrigin()).magVec();
 	desired_size /= 4;
 	return llclamp(desired_size, scale.magVec()*0.5f, PART_SIM_BOX_SIDE*2);
 }
@@ -117,7 +117,7 @@ LLViewerPartGroup::LLViewerPartGroup(const LLVector3 &center_agent, const F32 bo
 	mVOPartGroupp = NULL;
 	mUniformParticles = TRUE;
 
-	mRegionp = gWorldPointer->getRegionFromPosAgent(center_agent);
+	mRegionp = LLWorld::getInstance()->getRegionFromPosAgent(center_agent);
 	llassert_always(center_agent.isFinite());
 	
 	if (!mRegionp)
@@ -367,7 +367,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 			if (!posInGroup(part.mPosAgent, desired_size))
 			{
 				// Transfer particles between groups
-				gWorldPointer->mPartSim.put(&part);
+				LLViewerPartSim::getInstance()->put(&part);
 				end--;
 				LLPointer<LLViewerPart>::swap(mParticles[i], mParticles[end]);
 				// be sure to process the particle we just swapped-in
@@ -441,7 +441,7 @@ LLViewerPartSim::LLViewerPartSim()
 }
 
 
-LLViewerPartSim::~LLViewerPartSim()
+void LLViewerPartSim::destroyClass()
 {
 	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	S32 i;

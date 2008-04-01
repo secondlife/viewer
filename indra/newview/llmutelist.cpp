@@ -59,14 +59,12 @@
 #include "message.h"
 
 #include "llagent.h"
-#include "llfloatermute.h"
 #include "llviewergenericmessage.h"	// for gGenericDispatcher
 #include "llviewerwindow.h"
 #include "llworld.h" //for particle system banning
 #include "llviewerobject.h" 
 #include "llviewerobjectlist.h"
 
-LLMuteList* gMuteListp = NULL;
 
 std::map<LLUUID, F32> LLMuteList::sUserVolumeSettings;
 
@@ -81,7 +79,7 @@ public:
 		const LLUUID& invoice,
 		const sparam_t& strings)
 	{
-		gMuteListp->setLoaded();
+		LLMuteList::getInstance()->setLoaded();
 		return true;
 	}
 };
@@ -159,18 +157,27 @@ void LLMute::setFromDisplayName(const LLString& display_name)
 	return;
 }
 
+/* static */
+LLMuteList* LLMuteList::getInstance()
+{
+	// Register callbacks at the first time that we find that the message system has been created.
+	static BOOL registered = FALSE;
+	if( !registered && gMessageSystem != NULL)
+	{
+		registered = TRUE;
+		// Register our various callbacks
+		gMessageSystem->setHandlerFuncFast(_PREHASH_MuteListUpdate, processMuteListUpdate);
+		gMessageSystem->setHandlerFuncFast(_PREHASH_UseCachedMuteList, processUseCachedMuteList);
+	}
+	return LLSingleton<LLMuteList>::getInstance(); // Call the "base" implementation.
+}
+
 //-----------------------------------------------------------------------------
 // LLMuteList()
 //-----------------------------------------------------------------------------
 LLMuteList::LLMuteList() :
 	mIsLoaded(FALSE)
 {
-	LLMessageSystem* msg = gMessageSystem;
-
-	// Register our various callbacks
-	msg->setHandlerFuncFast(_PREHASH_MuteListUpdate, processMuteListUpdate);
-	msg->setHandlerFuncFast(_PREHASH_UseCachedMuteList, processUseCachedMuteList);
-
 	gGenericDispatcher.addHandler("emptymutelist", &sDispatchEmptyMuteList);
 
 	// load per-resident voice volume information
@@ -318,7 +325,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 					//Kill all particle systems owned by muted task
 					if(localmute.mType == LLMute::AGENT || localmute.mType == LLMute::OBJECT)
 					{
-						gWorldPointer->mPartSim.clearParticlesByOwnerID(localmute.mID);
+						LLViewerPartSim::getInstance()->clearParticlesByOwnerID(localmute.mID);
 					}
 				}
 				return TRUE;
@@ -345,7 +352,7 @@ void LLMuteList::updateAdd(const LLMute& mute)
 	msg->addU32("MuteFlags", mute.mFlags);
 	gAgent.sendReliableMessage();
 
-	mIsLoaded = TRUE;
+	mIsLoaded = TRUE; // why is this here? -MG
 }
 
 
@@ -398,8 +405,7 @@ BOOL LLMuteList::remove(const LLMute& mute, U32 flags)
 		}
 		
 		// Must be after erase.
-		notifyObservers();
-		found = TRUE;
+		setLoaded();  // why is this here? -MG
 	}
 
 	// Clean up any legacy mutes
@@ -411,8 +417,7 @@ BOOL LLMuteList::remove(const LLMute& mute, U32 flags)
 		updateRemove(mute);
 		mLegacyMutes.erase(legacy_it);
 		// Must be after erase.
-		notifyObservers();
-		found = TRUE;
+		setLoaded(); // why is this here? -MG
 	}
 	
 	return found;
@@ -502,8 +507,7 @@ BOOL LLMuteList::loadFromFile(const LLString& filename)
 		}
 	}
 	fclose(fp);
-	mIsLoaded = TRUE;
-	notifyObservers();	
+	setLoaded();
 	return TRUE;
 }
 
@@ -673,24 +677,22 @@ void LLMuteList::processMuteListUpdate(LLMessageSystem* msg, void**)
 void LLMuteList::processUseCachedMuteList(LLMessageSystem* msg, void**)
 {
 	llinfos << "LLMuteList::processUseCachedMuteList()" << llendl;
-	if (!gMuteListp) return;
 
 	char agent_id_string[UUID_STR_LENGTH];		/*Flawfinder: ignore*/
 	gAgent.getID().toString(agent_id_string);
 	char filename[LL_MAX_PATH];		/*Flawfinder: ignore*/
 	snprintf(filename, sizeof(filename), "%s.cached_mute", gDirUtilp->getExpandedFilename(LL_PATH_CACHE,agent_id_string).c_str());			/* Flawfinder: ignore */
-	gMuteListp->loadFromFile(filename);
+	LLMuteList::getInstance()->loadFromFile(filename);
 }
 
 void LLMuteList::onFileMuteList(void** user_data, S32 error_code, LLExtStat ext_status)
 {
 	llinfos << "LLMuteList::processMuteListFile()" << llendl;
-	if (!gMuteListp) return;
 
 	std::string *local_filename_and_path = (std::string*)user_data;
 	if(local_filename_and_path && !local_filename_and_path->empty() && (error_code == 0))
 	{
-		gMuteListp->loadFromFile(local_filename_and_path->c_str());
+		LLMuteList::getInstance()->loadFromFile(local_filename_and_path->c_str());
 		LLFile::remove(local_filename_and_path->c_str());
 	}
 	delete local_filename_and_path;
@@ -714,14 +716,6 @@ void LLMuteList::setLoaded()
 
 void LLMuteList::notifyObservers()
 {
-	// HACK: LLFloaterMute is constructed before LLMuteList,
-	// so it can't easily observe it.  Changing this requires
-	// much reshuffling of the startup process. JC
-	if (gFloaterMute)
-	{
-		gFloaterMute->refreshMuteList();
-	}
-
 	for (observer_set_t::iterator it = mObservers.begin();
 		it != mObservers.end();
 		)

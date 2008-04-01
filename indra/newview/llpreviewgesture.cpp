@@ -59,7 +59,7 @@
 #include "llradiogroup.h"
 #include "llscrolllistctrl.h"
 #include "lltextbox.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerinventory.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
@@ -134,7 +134,7 @@ LLPreviewGesture* LLPreviewGesture::show(const std::string& title, const LLUUID&
 	self->init(item_id, object_id);
 
 	// Builds and adds to gFloaterView
-	gUICtrlFactory->buildFloater(self, "floater_preview_gesture.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(self, "floater_preview_gesture.xml");
 	self->setTitle(title);
 
 	// Move window to top-left of screen
@@ -185,18 +185,15 @@ LLPreviewGesture* LLPreviewGesture::show(const std::string& title, const LLUUID&
 
 
 // virtual
-BOOL LLPreviewGesture::handleKeyHere(KEY key, MASK mask,
-									  BOOL called_from_parent)
+BOOL LLPreviewGesture::handleKeyHere(KEY key, MASK mask)
 {
-	if(getVisible() && getEnabled())
+	if(('S' == key) && (MASK_CONTROL == (mask & MASK_CONTROL)))
 	{
-		if(('S' == key) && (MASK_CONTROL == (mask & MASK_CONTROL)))
-		{
-			saveIfNeeded();
-			return TRUE;
-		}
+		saveIfNeeded();
+		return TRUE;
 	}
-	return LLPreview::handleKeyHere(key, mask, called_from_parent);
+
+	return LLPreview::handleKeyHere(key, mask);
 }
 
 
@@ -397,7 +394,7 @@ BOOL LLPreviewGesture::postBuild()
 	LLTextBox* text;
 	LLCheckBoxCtrl* check;
 
-	edit = LLViewerUICtrlFactory::getLineEditorByName(this, "trigger_editor");
+	edit = getChild<LLLineEditor>("trigger_editor");
 	edit->setKeystrokeCallback(onKeystrokeCommit);
 	edit->setCommitCallback(onCommitSetDirty);
 	edit->setCommitOnFocusLost(TRUE);
@@ -405,11 +402,11 @@ BOOL LLPreviewGesture::postBuild()
 	edit->setIgnoreTab(TRUE);
 	mTriggerEditor = edit;
 
-	text = LLViewerUICtrlFactory::getTextBoxByName(this, "replace_text");
+	text = getChild<LLTextBox>("replace_text");
 	text->setEnabled(FALSE);
 	mReplaceText = text;
 
-	edit = LLViewerUICtrlFactory::getLineEditorByName(this, "replace_editor");
+	edit = getChild<LLLineEditor>("replace_editor");
 	edit->setEnabled(FALSE);
 	edit->setKeystrokeCallback(onKeystrokeCommit);
 	edit->setCommitCallback(onCommitSetDirty);
@@ -418,76 +415,76 @@ BOOL LLPreviewGesture::postBuild()
 	edit->setIgnoreTab(TRUE);
 	mReplaceEditor = edit;
 
-	combo = LLViewerUICtrlFactory::getComboBoxByName(this, "modifier_combo");
+	combo = getChild<LLComboBox>( "modifier_combo");
 	combo->setCommitCallback(onCommitSetDirty);
 	combo->setCallbackUserData(this);
 	mModifierCombo = combo;
 
-	combo = LLViewerUICtrlFactory::getComboBoxByName(this, "key_combo");
+	combo = getChild<LLComboBox>( "key_combo");
 	combo->setCommitCallback(onCommitSetDirty);
 	combo->setCallbackUserData(this);
 	mKeyCombo = combo;
 
-	list = LLViewerUICtrlFactory::getScrollListByName(this, "library_list");
+	list = getChild<LLScrollListCtrl>("library_list");
 	list->setCommitCallback(onCommitLibrary);
 	list->setDoubleClickCallback(onClickAdd);
 	list->setCallbackUserData(this);
 	mLibraryList = list;
 
-	btn = LLViewerUICtrlFactory::getButtonByName(this, "add_btn");
+	btn = getChild<LLButton>( "add_btn");
 	btn->setClickedCallback(onClickAdd);
 	btn->setCallbackUserData(this);
 	btn->setEnabled(FALSE);
 	mAddBtn = btn;
 
-	btn = LLViewerUICtrlFactory::getButtonByName(this, "up_btn");
+	btn = getChild<LLButton>( "up_btn");
 	btn->setClickedCallback(onClickUp);
 	btn->setCallbackUserData(this);
 	btn->setEnabled(FALSE);
 	mUpBtn = btn;
 
-	btn = LLViewerUICtrlFactory::getButtonByName(this, "down_btn");
+	btn = getChild<LLButton>( "down_btn");
 	btn->setClickedCallback(onClickDown);
 	btn->setCallbackUserData(this);
 	btn->setEnabled(FALSE);
 	mDownBtn = btn;
 
-	btn = LLViewerUICtrlFactory::getButtonByName(this, "delete_btn");
+	btn = getChild<LLButton>( "delete_btn");
 	btn->setClickedCallback(onClickDelete);
 	btn->setCallbackUserData(this);
 	btn->setEnabled(FALSE);
 	mDeleteBtn = btn;
 
-	list = LLViewerUICtrlFactory::getScrollListByName(this, "step_list");
+	list = getChild<LLScrollListCtrl>("step_list");
 	list->setCommitCallback(onCommitStep);
 	list->setCallbackUserData(this);
 	mStepList = list;
 
 	// Options
-	text = LLViewerUICtrlFactory::getTextBoxByName(this, "options_text");
+	text = getChild<LLTextBox>("options_text");
 	text->setBorderVisible(TRUE);
 	mOptionsText = text;
 
-	combo = LLViewerUICtrlFactory::getComboBoxByName(this, "animation_list");
+	combo = getChild<LLComboBox>( "animation_list");
 	combo->setVisible(FALSE);
 	combo->setCommitCallback(onCommitAnimation);
 	combo->setCallbackUserData(this);
 	mAnimationCombo = combo;
 
 	LLRadioGroup* group;
-	group = LLViewerUICtrlFactory::getRadioGroupByName(this, "animation_trigger_type");
+	group = getChild<LLRadioGroup>("animation_trigger_type");
 	group->setVisible(FALSE);
 	group->setCommitCallback(onCommitAnimationTrigger);
 	group->setCallbackUserData(this);
 	mAnimationRadio = group;
 
-	combo = LLViewerUICtrlFactory::getComboBoxByName(this, "sound_list");
+	combo = getChild<LLComboBox>( "sound_list");
 	combo->setVisible(FALSE);
 	combo->setCommitCallback(onCommitSound);
 	combo->setCallbackUserData(this);
 	mSoundCombo = combo;
 
-	edit = LLViewerUICtrlFactory::getLineEditorByName(this, "chat_editor");
+	edit = getChild<LLLineEditor>("chat_editor");
 	edit->setVisible(FALSE);
 	edit->setCommitCallback(onCommitChat);
 	//edit->setKeystrokeCallback(onKeystrokeCommit);
@@ -496,19 +493,19 @@ BOOL LLPreviewGesture::postBuild()
 	edit->setIgnoreTab(TRUE);
 	mChatEditor = edit;
 
-	check = LLViewerUICtrlFactory::getCheckBoxByName(this, "wait_anim_check");
+	check = getChild<LLCheckBoxCtrl>( "wait_anim_check");
 	check->setVisible(FALSE);
 	check->setCommitCallback(onCommitWait);
 	check->setCallbackUserData(this);
 	mWaitAnimCheck = check;
 
-	check = LLViewerUICtrlFactory::getCheckBoxByName(this, "wait_time_check");
+	check = getChild<LLCheckBoxCtrl>( "wait_time_check");
 	check->setVisible(FALSE);
 	check->setCommitCallback(onCommitWait);
 	check->setCallbackUserData(this);
 	mWaitTimeCheck = check;
 
-	edit = LLViewerUICtrlFactory::getLineEditorByName(this, "wait_time_editor");
+	edit = getChild<LLLineEditor>("wait_time_editor");
 	edit->setEnabled(FALSE);
 	edit->setVisible(FALSE);
 	edit->setPrevalidate(LLLineEditor::prevalidateFloat);
@@ -520,17 +517,17 @@ BOOL LLPreviewGesture::postBuild()
 	mWaitTimeEditor = edit;
 
 	// Buttons at the bottom
-	check = LLViewerUICtrlFactory::getCheckBoxByName(this, "active_check");
+	check = getChild<LLCheckBoxCtrl>( "active_check");
 	check->setCommitCallback(onCommitActive);
 	check->setCallbackUserData(this);
 	mActiveCheck = check;
 
-	btn = LLViewerUICtrlFactory::getButtonByName(this, "save_btn");
+	btn = getChild<LLButton>( "save_btn");
 	btn->setClickedCallback(onClickSave);
 	btn->setCallbackUserData(this);
 	mSaveBtn = btn;
 
-	btn = LLViewerUICtrlFactory::getButtonByName(this, "preview_btn");
+	btn = getChild<LLButton>( "preview_btn");
 	btn->setClickedCallback(onClickPreview);
 	btn->setCallbackUserData(this);
 	mPreviewBtn = btn;
@@ -956,10 +953,7 @@ void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
 		}
 		else
 		{
-			if( gViewerStats )
-			{
-				gViewerStats->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
-			}
+			LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
 
 			if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 				LL_ERR_FILE_EMPTY == status)
@@ -988,7 +982,7 @@ void LLPreviewGesture::loadUIFromGesture(LLMultiGesture* gesture)
 	
 	if (item)
 	{
-		LLLineEditor* descEditor = LLUICtrlFactory::getLineEditorByName(this, "desc");
+		LLLineEditor* descEditor = getChild<LLLineEditor>("desc");
 		descEditor->setText(item->getDescription());
 	}*/
 
@@ -1179,7 +1173,7 @@ void LLPreviewGesture::saveIfNeeded()
 			}
 			else if (gAssetStorage)
 			{
-				LLLineEditor* descEditor = LLUICtrlFactory::getLineEditorByName(this, "desc");
+				LLLineEditor* descEditor = getChild<LLLineEditor>("desc");
 				LLSaveInfo* info = new LLSaveInfo(mItemUUID, mObjectUUID, descEditor->getText(), tid);
 				gAssetStorage->storeAssetData(tid, LLAssetType::AT_GESTURE, onSaveComplete, info, FALSE);
 			}

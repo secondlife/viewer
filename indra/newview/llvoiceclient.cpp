@@ -1204,12 +1204,7 @@ void LLVoiceClient::stateMachine()
 	// Check for parcel boundary crossing
 	{
 		LLViewerRegion *region = gAgent.getRegion();
-		LLParcel *parcel = NULL;
-
-		if(gParcelMgr)
-		{
-			parcel = gParcelMgr->getAgentParcel();
-		}			
+		LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 		
 		if(region && parcel)
 		{
@@ -1626,9 +1621,9 @@ void LLVoiceClient::stateMachine()
 			notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LOGGED_IN);
 
 			// Set up the mute list observer if it hasn't been set up already.
-			if((!sMuteListListener_listening) && (gMuteListp))
+			if((!sMuteListListener_listening))
 			{
-				gMuteListp->addObserver(&mutelist_listener);
+				LLMuteList::getInstance()->addObserver(&mutelist_listener);
 				sMuteListListener_listening = true;
 			}
 
@@ -3068,7 +3063,7 @@ void LLVoiceClient::updateMuteState(participantState *p)
 {
 	if(p->mAvatarIDValid)
 	{
-		bool isMuted = gMuteListp->isMuted(p->mAvatarID, LLMute::flagVoiceChat);
+		bool isMuted = LLMuteList::getInstance()->isMuted(p->mAvatarID, LLMute::flagVoiceChat);
 		if(p->mOnMuteList != isMuted)
 		{
 			p->mOnMuteList = isMuted;

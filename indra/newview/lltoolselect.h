@@ -38,7 +38,7 @@
 
 class LLObjectSelection;
 
-class LLToolSelect : public LLTool
+class LLToolSelect : public LLTool, public LLSingleton<LLToolSelect>
 {
 public:
 	LLToolSelect( LLToolComposite* composite );
@@ -59,6 +59,5 @@ protected:
 	LLUUID				mSelectObjectID;
 };
 
-extern LLToolSelect *gToolSelect;
 
 #endif  // LL_TOOLSELECTION_H

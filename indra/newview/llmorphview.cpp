@@ -80,16 +80,6 @@ LLMorphView::LLMorphView(const std::string& name, const LLRect& rect)
 {
 }
 
-EWidgetType LLMorphView::getWidgetType() const
-{
-	return WIDGET_TYPE_MORPH_VIEW;
-}
-
-LLString LLMorphView::getWidgetTag() const
-{
-	return LL_MORPH_VIEW_TAG;
-}
-
 //-----------------------------------------------------------------------------
 // initialize()
 //-----------------------------------------------------------------------------
@@ -110,8 +100,8 @@ void	LLMorphView::initialize()
 	avatarp->mSpecialRenderMode = 3;
 	
 	// set up camera for close look at avatar
-	mOldCameraNearClip = gCamera->getNear();
-	gCamera->setNear(MORPH_NEAR_CLIP);	
+	mOldCameraNearClip = LLViewerCamera::getInstance()->getNear();
+	LLViewerCamera::getInstance()->setNear(MORPH_NEAR_CLIP);	
 }
 
 //-----------------------------------------------------------------------------
@@ -127,7 +117,7 @@ void	LLMorphView::shutdown()
 		avatarp->startMotion( ANIM_AGENT_BODY_NOISE );
 		avatarp->mSpecialRenderMode = 0;
 		// reset camera
-		gCamera->setNear(mOldCameraNearClip);
+		LLViewerCamera::getInstance()->setNear(mOldCameraNearClip);
 	}
 }
 

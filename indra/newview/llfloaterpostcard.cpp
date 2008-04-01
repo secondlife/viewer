@@ -46,7 +46,7 @@
 #include "llbutton.h"
 #include "llviewercontrol.h"
 #include "llviewernetwork.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "lluploaddialog.h"
 #include "llviewerstats.h"
 #include "llviewerwindow.h"
@@ -119,7 +119,7 @@ BOOL LLFloaterPostcard::postBuild()
 	gAgent.buildFullname(name_string);
 	childSetValue("name_form", LLSD(name_string));
 
-	LLTextEditor* MsgField = LLUICtrlFactory::getTextEditorByName(this, "msg_form");
+	LLTextEditor* MsgField = getChild<LLTextEditor>("msg_form");
 	if (MsgField)
 	{
 		MsgField->setWordWrap(TRUE);
@@ -142,7 +142,7 @@ LLFloaterPostcard* LLFloaterPostcard::showFromSnapshot(LLImageJPEG *jpeg, LLImag
 	// It's now our job to clean them up
 	LLFloaterPostcard *instance = new LLFloaterPostcard(jpeg, img, image_scale, pos_taken_global);
 
-	gUICtrlFactory->buildFloater(instance, "floater_postcard.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(instance, "floater_postcard.xml");
 
 	S32 left, top;
 	gFloaterView->getNewFloaterPosition(&left, &top);
@@ -158,7 +158,7 @@ void LLFloaterPostcard::draw()
 	LLGLSUIDefault gls_ui;
 	LLFloater::draw();
 
-	if(getVisible() && !isMinimized() && mViewerImage.notNull() && mJPEGImage.notNull()) 
+	if(!isMinimized() && mViewerImage.notNull() && mJPEGImage.notNull()) 
 	{
 		LLRect rect(getRect());
 
@@ -332,7 +332,7 @@ void LLFloaterPostcard::onMsgFormFocusRecieved(LLFocusableElement* receiver, voi
 	LLFloaterPostcard* self = (LLFloaterPostcard *)data;
 	if(self) 
 	{
-		LLTextEditor* msgForm = LLUICtrlFactory::getTextEditorByName(self, "msg_form");
+		LLTextEditor* msgForm = self->getChild<LLTextEditor>("msg_form");
 		if(msgForm && msgForm == receiver && msgForm->hasFocus() && !(self->mHasFirstMsgFocus))
 		{
 			self->mHasFirstMsgFocus = true;

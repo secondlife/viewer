@@ -45,7 +45,7 @@ const MASK MASK_ORBIT			= MASK_CONTROL;
 const MASK MASK_PAN				= MASK_CONTROL | MASK_SHIFT;
 const MASK MASK_COPY			= MASK_SHIFT;
 
-class LLToolMgr
+class LLToolMgr : public LLSingleton<LLToolMgr>
 {
 public:
 	LLToolMgr();
@@ -115,8 +115,7 @@ protected:
 void select_tool(void *tool);
 
 
-// Globals (created and destroyed by LLViewerWindow)
-extern LLToolMgr*   gToolMgr;
+// Globals
 
 extern LLToolset* gBasicToolset;
 extern LLToolset *gCameraToolset;

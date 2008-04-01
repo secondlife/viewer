@@ -101,16 +101,6 @@ LLDragHandleTop::LLDragHandleTop(const LLString& name, const LLRect &rect, const
 	setTitle( title );
 }
 
-EWidgetType LLDragHandleTop::getWidgetType() const
-{
-	return WIDGET_TYPE_DRAG_HANDLE_TOP;
-}
-
-LLString LLDragHandleTop::getWidgetTag() const
-{
-	return LL_DRAG_HANDLE_TOP_TAG;
-}
-
 LLDragHandleLeft::LLDragHandleLeft(const LLString& name, const LLRect &rect, const LLString& title)
 :	LLDragHandle(name, rect, title)
 {
@@ -118,22 +108,12 @@ LLDragHandleLeft::LLDragHandleLeft(const LLString& name, const LLRect &rect, con
 	setTitle( title );
 }
 
-EWidgetType LLDragHandleLeft::getWidgetType() const
-{
-	return WIDGET_TYPE_DRAG_HANDLE_LEFT;
-}
-
-LLString LLDragHandleLeft::getWidgetTag() const
-{
-	return LL_DRAG_HANDLE_LEFT_TAG;
-}
-
 void LLDragHandleTop::setTitle(const LLString& title)
 {
 	LLString trimmed_title = title;
 	LLString::trim(trimmed_title);
 
-	const LLFontGL* font = gResMgr->getRes( LLFONT_SANSSERIF );
+	const LLFontGL* font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF );
 	LLTextBox* titlebox = new LLTextBox( "Drag Handle Title", getRect(), trimmed_title, font );
 	titlebox->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT | FOLLOWS_RIGHT);
 	titlebox->setFontStyle(LLFontGL::DROP_SHADOW_SOFT);
@@ -262,7 +242,7 @@ void LLDragHandleTop::reshapeTitleBox()
 	{
 		return;
 	}
-	const LLFontGL* font = gResMgr->getRes( LLFONT_SANSSERIF );
+	const LLFontGL* font = LLResMgr::getInstance()->getRes( LLFONT_SANSSERIF );
 	S32 title_width = font->getWidth( getTitleBox()->getText() ) + TITLE_PAD;
 	if (getMaxTitleWidth() > 0)
 		title_width = llmin(title_width, getMaxTitleWidth());
@@ -372,7 +352,7 @@ BOOL LLDragHandle::handleHover(S32 x, S32 y, MASK mask)
 		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (active)" <<llendl;		
 		handled = TRUE;
 	}
-	else if( getVisible() )
+	else
 	{
 		getWindow()->setCursor(UI_CURSOR_ARROW);
 		lldebugst(LLERR_USER_INPUT) << "hover handled by " << getName() << " (inactive)" << llendl;		

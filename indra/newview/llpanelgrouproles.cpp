@@ -61,7 +61,7 @@ bool agentCanRemoveFromRole(const LLUUID& group_id,
 bool agentCanAddToRole(const LLUUID& group_id,
 					   const LLUUID& role_id)
 {
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(group_id);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(group_id);
 	if (!gdatap) 
 	{
 		llwarns << "agentCanAddToRole "
@@ -414,14 +414,14 @@ void LLPanelGroupRoles::update(LLGroupChange gc)
 void LLPanelGroupRoles::activate()
 {
 	// Start requesting member and role data if needed.
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	//if (!gdatap || mFirstUse)
 	{
 		// Check member data.
 		
 		if (!gdatap || !gdatap->isMemberDataComplete() )
 		{
-			gGroupMgr->sendGroupMembersRequest(mGroupID);
+			LLGroupMgr::getInstance()->sendGroupMembersRequest(mGroupID);
 		}
 
 		// Check role data.
@@ -430,19 +430,19 @@ void LLPanelGroupRoles::activate()
 			// Mildly hackish - clear all pending changes
 			cancel();
 
-			gGroupMgr->sendGroupRoleDataRequest(mGroupID);
+			LLGroupMgr::getInstance()->sendGroupRoleDataRequest(mGroupID);
 		}
 
 		// Check role-member mapping data.
 		if (!gdatap || !gdatap->isRoleMemberDataComplete() )
 		{
-			gGroupMgr->sendGroupRoleMembersRequest(mGroupID);
+			LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(mGroupID);
 		}
 
 		// Need this to get base group member powers
 		if (!gdatap || !gdatap->isGroupPropertiesDataComplete() )
 		{
-			gGroupMgr->sendGroupPropertiesRequest(mGroupID);
+			LLGroupMgr::getInstance()->sendGroupPropertiesRequest(mGroupID);
 		}
 
 		mFirstUse = FALSE;
@@ -529,23 +529,23 @@ BOOL LLPanelGroupSubTab::postBuild()
 	bool no_recurse = false;
 
 	LLIconCtrl* icon = getChild<LLIconCtrl>("power_folder_icon",no_recurse);
-	if (icon && icon->getImage().notNull())
+	if (icon && !icon->getImageName().empty())
 	{
-		mActionIcons["folder"] = icon->getImage();
+		mActionIcons["folder"] = icon->getImageName();
 		removeChild(icon, TRUE);
 	}
 
 	icon = getChild<LLIconCtrl>("power_all_have_icon",no_recurse);
-	if (icon && icon->getImage().notNull())
+	if (icon && !icon->getImageName().empty())
 	{
-		mActionIcons["full"] = icon->getImage();
+		mActionIcons["full"] = icon->getImageName();
 		removeChild(icon, TRUE);
 	}
 
 	icon = getChild<LLIconCtrl>("power_partial_icon",no_recurse);
-	if (icon && icon->getImage().notNull())
+	if (icon && !icon->getImageName().empty())
 	{
-		mActionIcons["partial"] = icon->getImage();
+		mActionIcons["partial"] = icon->getImageName();
 		removeChild(icon, TRUE);
 	}
 
@@ -679,14 +679,14 @@ void LLPanelGroupSubTab::buildActionsList(LLScrollListCtrl* ctrl,
 										  BOOL filter,
 										  BOOL is_owner_role)
 {
-	if (gGroupMgr->mRoleActionSets.empty())
+	if (LLGroupMgr::getInstance()->mRoleActionSets.empty())
 	{
 		llwarns << "Can't build action list - no actions found." << llendl;
 		return;
 	}
 
-	std::vector<LLRoleActionSet*>::iterator ras_it = gGroupMgr->mRoleActionSets.begin();
-	std::vector<LLRoleActionSet*>::iterator ras_end = gGroupMgr->mRoleActionSets.end();
+	std::vector<LLRoleActionSet*>::iterator ras_it = LLGroupMgr::getInstance()->mRoleActionSets.begin();
+	std::vector<LLRoleActionSet*>::iterator ras_end = LLGroupMgr::getInstance()->mRoleActionSets.end();
 
 	for ( ; ras_it != ras_end; ++ras_it)
 	{
@@ -951,7 +951,7 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 	mAssignedRolesList->deleteAllItems();
 	mAllowedActionsList->deleteAllItems();
 	
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (!gdatap) 
 	{
 		llwarns << "LLPanelGroupMembersSubTab::handleMemberSelect() "
@@ -1199,14 +1199,14 @@ void LLPanelGroupMembersSubTab::handleEjectMembers()
 
 	mMembersList->deleteSelectedItems();
 
-	gGroupMgr->sendGroupMemberEjects(mGroupID,
+	LLGroupMgr::getInstance()->sendGroupMemberEjects(mGroupID,
 									 selected_members);
 }
 
 void LLPanelGroupMembersSubTab::handleRoleCheck(const LLUUID& role_id,
 												LLRoleMemberChangeType type)
 {
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (!gdatap) return;
 
 	//add that the user is requesting to change the roles for selected
@@ -1356,7 +1356,7 @@ void LLPanelGroupMembersSubTab::cancel()
 
 bool LLPanelGroupMembersSubTab::apply(LLString& mesg)
 {
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (!gdatap)
 	{
 		llwarns << "Unable to get group data for group " << mGroupID << llendl;
@@ -1421,7 +1421,7 @@ void LLPanelGroupMembersSubTab::applyMemberChanges()
 {
 	//sucks to do a find again here, but it is in constant time, so, could
 	//be worse
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (!gdatap)
 	{
 		llwarns << "Unable to get group data for group " << mGroupID << llendl;
@@ -1446,7 +1446,7 @@ void LLPanelGroupMembersSubTab::applyMemberChanges()
 	}
 	mMemberRoleChangeData.clear();
 
-	gGroupMgr->sendGroupRoleMemberChanges(mGroupID);	
+	LLGroupMgr::getInstance()->sendGroupRoleMemberChanges(mGroupID);	
 	//force a UI update
 	handleMemberSelect();
 
@@ -1485,7 +1485,7 @@ U64 LLPanelGroupMembersSubTab::getAgentPowersBasedOnRoleChanges(const LLUUID& ag
 	//and then we have to build the powers up bases on the roles the agent
 	//is in
 
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (!gdatap) 
 	{
 		llwarns << "LLPanelGroupMembersSubTab::getAgentPowersBasedOnRoleChanges() -- No group data!" << llendl;
@@ -1598,7 +1598,7 @@ void LLPanelGroupMembersSubTab::update(LLGroupChange gc)
 		return;
 	}
 
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (!gdatap) 
 	{
 		llwarns << "LLPanelGroupMembersSubTab::update() -- No group data!" << llendl;
@@ -1649,7 +1649,7 @@ void LLPanelGroupMembersSubTab::updateMembers()
 
 	lldebugs << "LLPanelGroupMembersSubTab::updateMembers()" << llendl;
 
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (!gdatap) 
 	{
 		llwarns << "LLPanelGroupMembersSubTab::updateMembers() -- No group data!" << llendl;
@@ -1856,7 +1856,7 @@ bool LLPanelGroupRolesSubTab::needsApply(LLString& mesg)
 {
 	lldebugs << "LLPanelGroupRolesSubTab::needsApply()" << llendl;
 
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 
 	return (mHasRoleChange								// Text changed in current role
 			|| (gdatap && gdatap->pendingRoleChanges()));	// Pending role changes in the group
@@ -1867,7 +1867,7 @@ bool LLPanelGroupRolesSubTab::apply(LLString& mesg)
 	lldebugs << "LLPanelGroupRolesSubTab::apply()" << llendl;
 
 	saveRoleChanges();
-	gGroupMgr->sendGroupRoleChanges(mGroupID);
+	LLGroupMgr::getInstance()->sendGroupRoleChanges(mGroupID);
 
 	notifyObservers();
 
@@ -1877,7 +1877,7 @@ bool LLPanelGroupRolesSubTab::apply(LLString& mesg)
 void LLPanelGroupRolesSubTab::cancel()
 {
 	mHasRoleChange = FALSE;
-	gGroupMgr->cancelGroupRoleChanges(mGroupID);
+	LLGroupMgr::getInstance()->cancelGroupRoleChanges(mGroupID);
 
 	notifyObservers();
 }
@@ -1930,11 +1930,11 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
 
 	if (mGroupID.isNull()) return;
 
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 
 	if (!gdatap || !gdatap->isRoleDataComplete())
 	{
-		gGroupMgr->sendGroupRoleDataRequest(mGroupID);
+		LLGroupMgr::getInstance()->sendGroupRoleDataRequest(mGroupID);
 	}
 	else
 	{
@@ -2005,12 +2005,12 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
 
 	if (!gdatap || !gdatap->isMemberDataComplete())
 	{
-		gGroupMgr->sendGroupMembersRequest(mGroupID);
+		LLGroupMgr::getInstance()->sendGroupMembersRequest(mGroupID);
 	}
 	
 	if (!gdatap || !gdatap->isRoleMemberDataComplete())
 	{
-		gGroupMgr->sendGroupRoleMembersRequest(mGroupID);
+		LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(mGroupID);
 	}
 
 	if ((GC_ROLE_MEMBER_DATA == gc || GC_MEMBER_DATA == gc)
@@ -2037,7 +2037,7 @@ void LLPanelGroupRolesSubTab::handleRoleSelect()
 	mAssignedMembersList->deleteAllItems();
 	mAllowedActionsList->deleteAllItems();
 	
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (!gdatap) 
 	{
 		llwarns << "LLPanelGroupRolesSubTab::handleRoleSelect() "
@@ -2118,7 +2118,7 @@ void LLPanelGroupRolesSubTab::buildMembersList()
 {
 	mAssignedMembersList->deleteAllItems();
 
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (!gdatap) 
 	{
 		llwarns << "LLPanelGroupRolesSubTab::handleRoleSelect() "
@@ -2179,7 +2179,7 @@ void LLPanelGroupRolesSubTab::handleActionCheck(LLCheckBoxCtrl* check, bool forc
 {
 	lldebugs << "LLPanelGroupRolesSubTab::handleActionSelect()" << llendl;
 
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (!gdatap) 
 	{
 		llwarns << "LLPanelGroupRolesSubTab::handleRoleSelect() "
@@ -2313,7 +2313,7 @@ void LLPanelGroupRolesSubTab::handleMemberVisibilityChange(bool value)
 {
 	lldebugs << "LLPanelGroupRolesSubTab::handleMemberVisibilityChange()" << llendl;
 
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (!gdatap) 
 	{
 		llwarns << "LLPanelGroupRolesSubTab::handleRoleSelect() "
@@ -2348,7 +2348,7 @@ void LLPanelGroupRolesSubTab::onCreateRole(void* user_data)
 
 void LLPanelGroupRolesSubTab::handleCreateRole()
 {
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 
 	if (!gdatap) return;
 
@@ -2389,7 +2389,7 @@ void LLPanelGroupRolesSubTab::onDeleteRole(void* user_data)
 
 void LLPanelGroupRolesSubTab::handleDeleteRole()
 {
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 
 	if (!gdatap) return;
 
@@ -2416,7 +2416,7 @@ void LLPanelGroupRolesSubTab::handleDeleteRole()
 
 void LLPanelGroupRolesSubTab::saveRoleChanges()
 {
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 
 	if (!gdatap) return;
 
@@ -2589,7 +2589,7 @@ void LLPanelGroupActionsSubTab::handleActionSelect()
 		mActionDescription->clear();
 	}
 
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 
 	if (!gdatap) return;
 
@@ -2611,7 +2611,7 @@ void LLPanelGroupActionsSubTab::handleActionSelect()
 	}
 	else
 	{
-		gGroupMgr->sendGroupMembersRequest(mGroupID);
+		LLGroupMgr::getInstance()->sendGroupMembersRequest(mGroupID);
 	}
 
 	if (gdatap->isRoleDataComplete())
@@ -2632,6 +2632,6 @@ void LLPanelGroupActionsSubTab::handleActionSelect()
 	}
 	else
 	{
-		gGroupMgr->sendGroupRoleDataRequest(mGroupID);
+		LLGroupMgr::getInstance()->sendGroupRoleDataRequest(mGroupID);
 	}
 }

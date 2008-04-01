@@ -46,7 +46,7 @@ namespace tut
 									const std::string& expected_name)
 		{
 			LLSDMessageReader msg;
-			msg.setMessage(gMessageStringTable.getString(msg_name.c_str()), msg_data);
+			msg.setMessage(LLMessageStringTable::getInstance()->getString(msg_name.c_str()), msg_data);
 			ensure_equals("Ensure name", std::string(msg.getMessageName()), 
 						  expected_name);
 		}

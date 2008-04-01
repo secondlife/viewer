@@ -98,21 +98,21 @@ LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
 	
 	mTimer.reset();
 	
-	LLUUID sound_level_img[] = 
+	const char* sound_level_img[] = 
 	{
-		LLUUID(gSavedSettings.getString("VoiceImageLevel0")),
-		LLUUID(gSavedSettings.getString("VoiceImageLevel1")),
-		LLUUID(gSavedSettings.getString("VoiceImageLevel2")),
-		LLUUID(gSavedSettings.getString("VoiceImageLevel3")),
-		LLUUID(gSavedSettings.getString("VoiceImageLevel4")),
-		LLUUID(gSavedSettings.getString("VoiceImageLevel5")),															
-		LLUUID(gSavedSettings.getString("VoiceImageLevel6"))
+		"041ee5a0-cb6a-9ac5-6e49-41e9320507d5.j2c",
+		"29de489d-0491-fb00-7dab-f9e686d31e83.j2c",
+		"29de489d-0491-fb00-7dab-f9e686d31e83.j2c",
+		"29de489d-0491-fb00-7dab-f9e686d31e83.j2c",
+		"29de489d-0491-fb00-7dab-f9e686d31e83.j2c",
+		"29de489d-0491-fb00-7dab-f9e686d31e83.j2c",															
+		"29de489d-0491-fb00-7dab-f9e686d31e83.j2c"
 	};
 
 	for (int i=0; i<NUM_VOICE_SYMBOL_WAVES; i++)
 	{
 		mSoundSymbol.mWaveFadeOutStartTime	[i] = mCurrentTime;
-		mSoundSymbol.mTexture				[i] = gImageList.getImageByID(sound_level_img[i]);
+		mSoundSymbol.mTexture				[i] = gImageList.getImageFromFile(sound_level_img[i], FALSE, TRUE);
 		mSoundSymbol.mWaveActive			[i] = false;
 		mSoundSymbol.mWaveOpacity			[i] = 1.0f;
 		mSoundSymbol.mWaveExpansion			[i] = 1.0f;
@@ -203,8 +203,8 @@ void LLVoiceVisualizer::render()
 		//-------------------------------------------------------------
 		// create coordinates of the geometry for the dot
 		//-------------------------------------------------------------
-		LLVector3 l	= gCamera->getLeftAxis() * DOT_SIZE;
-		LLVector3 u	= gCamera->getUpAxis()   * DOT_SIZE;
+		LLVector3 l	= LLViewerCamera::getInstance()->getLeftAxis() * DOT_SIZE;
+		LLVector3 u	= LLViewerCamera::getInstance()->getUpAxis()   * DOT_SIZE;
 
 		LLVector3 bottomLeft	= mSoundSymbol.mPosition + l - u;
 		LLVector3 bottomRight	= mSoundSymbol.mPosition - l - u;
@@ -330,8 +330,8 @@ void LLVoiceVisualizer::render()
 				F32 width	= i * WAVE_WIDTH_SCALE  * mSoundSymbol.mWaveExpansion[i];
 				F32 height	= i * WAVE_HEIGHT_SCALE * mSoundSymbol.mWaveExpansion[i];
 
-				LLVector3 l	= gCamera->getLeftAxis() * width;
-				LLVector3 u	= gCamera->getUpAxis()   * height;
+				LLVector3 l	= LLViewerCamera::getInstance()->getLeftAxis() * width;
+				LLVector3 u	= LLViewerCamera::getInstance()->getUpAxis()   * height;
 
 				LLVector3 bottomLeft	= mSoundSymbol.mPosition + l - u;
 				LLVector3 bottomRight	= mSoundSymbol.mPosition - l - u;

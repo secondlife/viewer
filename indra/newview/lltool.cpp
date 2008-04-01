@@ -162,7 +162,7 @@ LLTool* LLTool::getOverrideTool(MASK mask)
 {
 	if (mask & MASK_ALT)
 	{
-		return gToolCamera;
+		return LLToolCamera::getInstance();
 	}
 	return NULL;
 }

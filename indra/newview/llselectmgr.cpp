@@ -100,7 +100,6 @@ extern LLVector3d		gLastHitObjectOffset;
 //
 // Globals
 //
-LLSelectMgr* gSelectMgr = NULL;
 
 BOOL gDebugSelectMgr = FALSE;
 
@@ -156,8 +155,6 @@ static LLPointer<LLObjectSelection> sNullSelection;
 
 void LLSelectMgr::cleanupGlobals()
 {
-	delete gSelectMgr;
-	gSelectMgr = NULL;
 	sNullSelection = NULL;
 }
 
@@ -506,7 +503,7 @@ BOOL LLSelectMgr::removeObjectFromSelections(const LLUUID &id)
 	LLTool *tool = NULL;
 	if (!gNoRender)
 	{
-		tool = gToolMgr->getCurrentTool();
+		tool = LLToolMgr::getInstance()->getCurrentTool();
 
 		// It's possible that the tool is editing an object that is not selected
 		LLViewerObject* tool_editing_object = tool->getEditingObject();
@@ -1420,7 +1417,7 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 			{
 				object->sendTEUpdate();
 				// 1 particle effect per object				
-				LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)gHUDManager->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
+				LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
 				effectp->setSourceObject(gAgent.getAvatarObject());
 				effectp->setTargetObject(object);
 				effectp->setDuration(LL_HUD_DUR_SHORT);
@@ -2770,28 +2767,28 @@ void LLSelectMgr::confirmDelete(S32 option, void* data)
 			LLUUID trash_id = gInventory.findCategoryUUIDForType(LLAssetType::AT_TRASH);
 			// attempt to derez into the trash.
 			LLDeRezInfo* info = new LLDeRezInfo(DRD_TRASH, trash_id);
-			gSelectMgr->sendListToRegions("DeRezObject",
+			LLSelectMgr::getInstance()->sendListToRegions("DeRezObject",
 										  packDeRezHeader,
 										  packObjectLocalID,
 										  (void*)info,
 										  SEND_ONLY_ROOTS);
 			// VEFFECT: Delete Object - one effect for all deletes
-			if (gSelectMgr->mSelectedObjects->mSelectType != SELECT_TYPE_HUD)
+			if (LLSelectMgr::getInstance()->mSelectedObjects->mSelectType != SELECT_TYPE_HUD)
 			{
-				LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)gHUDManager->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
-				effectp->setPositionGlobal( gSelectMgr->getSelectionCenterGlobal() );
+				LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
+				effectp->setPositionGlobal( LLSelectMgr::getInstance()->getSelectionCenterGlobal() );
 				effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 				F32 duration = 0.5f;
-				duration += gSelectMgr->mSelectedObjects->getObjectCount() / 64.f;
+				duration += LLSelectMgr::getInstance()->mSelectedObjects->getObjectCount() / 64.f;
 				effectp->setDuration(duration);
 			}
 
 			gAgent.setLookAt(LOOKAT_TARGET_CLEAR);
 
 			// Keep track of how many objects have been deleted.
-			F64 obj_delete_count = gViewerStats->getStat(LLViewerStats::ST_OBJECT_DELETE_COUNT);
-			obj_delete_count += gSelectMgr->mSelectedObjects->getObjectCount();
-			gViewerStats->setStat(LLViewerStats::ST_OBJECT_DELETE_COUNT, obj_delete_count );
+			F64 obj_delete_count = LLViewerStats::getInstance()->getStat(LLViewerStats::ST_OBJECT_DELETE_COUNT);
+			obj_delete_count += LLSelectMgr::getInstance()->mSelectedObjects->getObjectCount();
+			LLViewerStats::getInstance()->setStat(LLViewerStats::ST_OBJECT_DELETE_COUNT, obj_delete_count );
 		}
 		break;
 	case 1:
@@ -3509,7 +3506,7 @@ void LLSelectMgr::sendAttach(U8 attachment_point)
 		return;
 	}
 
-	BOOL build_mode = gToolMgr->inEdit();
+	BOOL build_mode = LLToolMgr::getInstance()->inEdit();
 	// Special case: Attach to default location for this object.
 	if (0 == attachment_point ||
 		get_if_there(gAgent.getAvatarObject()->mAttachmentPoints, (S32)attachment_point, (LLViewerJointAttachment*)NULL))
@@ -4298,7 +4295,7 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 				return (node->getObject()->mID == mID);
 			}
 		} func(id);
-		LLSelectNode* node = gSelectMgr->getSelection()->getFirstNode(&func);
+		LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode(&func);
 
 		if (node)
 		{
@@ -4441,7 +4438,7 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
 			return (node->getObject()->mID == mID);
 		}
 	} func(id);
-	LLSelectNode* node = gSelectMgr->getHoverObjects()->getFirstNode(&func);
+	LLSelectNode* node = LLSelectMgr::getInstance()->getHoverObjects()->getFirstNode(&func);
 
 	if (node)
 	{
@@ -4467,7 +4464,7 @@ void LLSelectMgr::processForceObjectSelect(LLMessageSystem* msg, void**)
 
 	if (reset_list)
 	{
-		gSelectMgr->deselectAll();
+		LLSelectMgr::getInstance()->deselectAll();
 	}
 
 	LLUUID full_id;
@@ -4493,7 +4490,7 @@ void LLSelectMgr::processForceObjectSelect(LLMessageSystem* msg, void**)
 	}
 
 	// Don't select, just highlight
-	gSelectMgr->highlightObjectAndFamily(objects);
+	LLSelectMgr::getInstance()->highlightObjectAndFamily(objects);
 }
 
 
@@ -4508,9 +4505,7 @@ void LLSelectMgr::updateSilhouettes()
 
 	if (!mSilhouetteImagep)
 	{
-		LLUUID id;
-		id.set( gViewerArt.getString("silhouette.tga") );
-		mSilhouetteImagep = gImageList.getImage(id, TRUE, TRUE);
+		mSilhouetteImagep = gImageList.getImageFromFile("silhouette.j2c", TRUE, TRUE);
 	}
 
 	mHighlightedObjects->cleanupNodes();
@@ -4561,7 +4556,7 @@ void LLSelectMgr::updateSilhouettes()
 				{
 					if (num_sils_genned++ < MAX_SILS_PER_FRAME)// && objectp->mDrawable->isVisible())
 					{
-						generateSilhouette(node, gCamera->getOrigin());
+						generateSilhouette(node, LLViewerCamera::getInstance()->getOrigin());
 						changed_objects.push_back(objectp);
 					}
 					else if (objectp->isAttachment())
@@ -4722,7 +4717,7 @@ void LLSelectMgr::updateSilhouettes()
 				{
 					if (num_sils_genned++ < MAX_SILS_PER_FRAME)
 					{
-						generateSilhouette(node, gCamera->getOrigin());
+						generateSilhouette(node, LLViewerCamera::getInstance()->getOrigin());
 						changed_objects.push_back(objectp);			
 					}
 					else if (objectp->isAttachment() && objectp->getRootEdit()->mDrawable.notNull())
@@ -4792,7 +4787,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 		glPushMatrix();
 		glLoadIdentity();
 		F32 depth = llmax(1.f, hud_bbox.getExtentLocal().mV[VX] * 1.1f);
-		glOrtho(-0.5f * gCamera->getAspect(), 0.5f * gCamera->getAspect(), -0.5f, 0.5f, 0.f, depth);
+		glOrtho(-0.5f * LLViewerCamera::getInstance()->getAspect(), 0.5f * LLViewerCamera::getInstance()->getAspect(), -0.5f, 0.5f, 0.f, depth);
 
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
@@ -5231,8 +5226,8 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 		}
 		else
 		{
-			LLVector3 view_vector = gCamera->getOrigin() - objectp->getRenderPosition();
-			silhouette_thickness = view_vector.magVec() * LLSelectMgr::sHighlightThickness * (gCamera->getView() / gCamera->getDefaultFOV());
+			LLVector3 view_vector = LLViewerCamera::getInstance()->getOrigin() - objectp->getRenderPosition();
+			silhouette_thickness = view_vector.magVec() * LLSelectMgr::sHighlightThickness * (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV());
 		}		
 		F32 animationTime = (F32)LLFrameTimer::getElapsedSeconds();
 
@@ -5246,10 +5241,10 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 			gGL.blendFunc(GL_SRC_COLOR, GL_ONE);
 			LLGLEnable fog(GL_FOG);
 			glFogi(GL_FOG_MODE, GL_LINEAR);
-			float d = (gCamera->getPointOfInterest()-gCamera->getOrigin()).magVec();
-			LLColor4 fogCol = color * (F32)llclamp((gSelectMgr->getSelectionCenterGlobal()-gAgent.getCameraPositionGlobal()).magVec()/(gSelectMgr->getBBoxOfSelection().getExtentLocal().magVec()*4), 0.0, 1.0);
+			float d = (LLViewerCamera::getInstance()->getPointOfInterest()-LLViewerCamera::getInstance()->getOrigin()).magVec();
+			LLColor4 fogCol = color * (F32)llclamp((LLSelectMgr::getInstance()->getSelectionCenterGlobal()-gAgent.getCameraPositionGlobal()).magVec()/(LLSelectMgr::getInstance()->getBBoxOfSelection().getExtentLocal().magVec()*4), 0.0, 1.0);
 			glFogf(GL_FOG_START, d);
-			glFogf(GL_FOG_END, d*(1 + (gCamera->getView() / gCamera->getDefaultFOV())));
+			glFogf(GL_FOG_END, d*(1 + (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV())));
 			glFogfv(GL_FOG_COLOR, fogCol.mV);
 
 			LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_GEQUAL);
@@ -5377,7 +5372,7 @@ S32 get_family_count(LLViewerObject *parent)
 		}
 		else
 		{
-			if (gSelectMgr->canSelectObject(child))
+			if (LLSelectMgr::getInstance()->canSelectObject(child))
 			{
 				count += get_family_count( child );
 			}
@@ -5467,9 +5462,9 @@ void LLSelectMgr::updateSelectionCenter()
 
 	}
 	
-	if ( !(gAgentID == LLUUID::null) && gToolMgr) 
+	if ( !(gAgentID == LLUUID::null)) 
 	{
-		LLTool		*tool = gToolMgr->getCurrentTool();
+		LLTool		*tool = LLToolMgr::getInstance()->getCurrentTool();
 		if (mShowSelection)
 		{
 			LLVector3d select_center_global;
@@ -5658,9 +5653,9 @@ void LLSelectMgr::validateSelection()
 	{
 		virtual bool apply(LLViewerObject* object)
 		{
-			if (!gSelectMgr->canSelectObject(object))
+			if (!LLSelectMgr::getInstance()->canSelectObject(object))
 			{
-				gSelectMgr->deselectObjectOnly(object);
+				LLSelectMgr::getInstance()->deselectObjectOnly(object);
 			}
 			return true;
 		}

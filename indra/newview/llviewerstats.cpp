@@ -59,7 +59,6 @@
 	#include "lllcd.h"
 #endif
 
-LLViewerStats *gViewerStats = NULL;
 
 class StatAttributes
 {
@@ -223,17 +222,17 @@ LLViewerStats::~LLViewerStats()
 
 void LLViewerStats::resetStats()
 {
-	gViewerStats->mKBitStat.reset();
-	gViewerStats->mLayersKBitStat.reset();
-	gViewerStats->mObjectKBitStat.reset();
-	gViewerStats->mTextureKBitStat.reset();
-	gViewerStats->mVFSPendingOperations.reset();
-	gViewerStats->mAssetKBitStat.reset();
-	gViewerStats->mPacketsInStat.reset();
-	gViewerStats->mPacketsLostStat.reset();
-	gViewerStats->mPacketsOutStat.reset();
-	gViewerStats->mFPSStat.reset();
-	gViewerStats->mTexturePacketsStat.reset();
+	LLViewerStats::getInstance()->mKBitStat.reset();
+	LLViewerStats::getInstance()->mLayersKBitStat.reset();
+	LLViewerStats::getInstance()->mObjectKBitStat.reset();
+	LLViewerStats::getInstance()->mTextureKBitStat.reset();
+	LLViewerStats::getInstance()->mVFSPendingOperations.reset();
+	LLViewerStats::getInstance()->mAssetKBitStat.reset();
+	LLViewerStats::getInstance()->mPacketsInStat.reset();
+	LLViewerStats::getInstance()->mPacketsLostStat.reset();
+	LLViewerStats::getInstance()->mPacketsOutStat.reset();
+	LLViewerStats::getInstance()->mFPSStat.reset();
+	LLViewerStats::getInstance()->mTexturePacketsStat.reset();
 }
 
 
@@ -511,54 +510,54 @@ void update_statistics(U32 frame_count)
 	{
 		if (gAgent.getCameraMode() == CAMERA_MODE_MOUSELOOK)
 		{
-			gViewerStats->incStat(LLViewerStats::ST_MOUSELOOK_SECONDS, gFrameIntervalSeconds);
+			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_MOUSELOOK_SECONDS, gFrameIntervalSeconds);
 		}
 		else if (gAgent.getCameraMode() == CAMERA_MODE_CUSTOMIZE_AVATAR)
 		{
-			gViewerStats->incStat(LLViewerStats::ST_AVATAR_EDIT_SECONDS, gFrameIntervalSeconds);
+			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_AVATAR_EDIT_SECONDS, gFrameIntervalSeconds);
 		}
 		else if (gFloaterTools && gFloaterTools->getVisible())
 		{
-			gViewerStats->incStat(LLViewerStats::ST_TOOLBOX_SECONDS, gFrameIntervalSeconds);
+			LLViewerStats::getInstance()->incStat(LLViewerStats::ST_TOOLBOX_SECONDS, gFrameIntervalSeconds);
 		}
 	}
-	gViewerStats->setStat(LLViewerStats::ST_ENABLE_VBO, (F64)gSavedSettings.getBOOL("RenderVBOEnable"));
-	gViewerStats->setStat(LLViewerStats::ST_LIGHTING_DETAIL, (F64)gSavedSettings.getS32("RenderLightingDetail"));
-	gViewerStats->setStat(LLViewerStats::ST_DRAW_DIST, (F64)gSavedSettings.getF32("RenderFarClip"));
-	gViewerStats->setStat(LLViewerStats::ST_CHAT_BUBBLES, (F64)gSavedSettings.getBOOL("UseChatBubbles"));
+	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_ENABLE_VBO, (F64)gSavedSettings.getBOOL("RenderVBOEnable"));
+	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_LIGHTING_DETAIL, (F64)gSavedSettings.getS32("RenderLightingDetail"));
+	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_DRAW_DIST, (F64)gSavedSettings.getF32("RenderFarClip"));
+	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_CHAT_BUBBLES, (F64)gSavedSettings.getBOOL("UseChatBubbles"));
 #if 0 // 1.9.2
-	gViewerStats->setStat(LLViewerStats::ST_SHADER_OBJECTS, (F64)gSavedSettings.getS32("VertexShaderLevelObject"));
-	gViewerStats->setStat(LLViewerStats::ST_SHADER_AVATAR, (F64)gSavedSettings.getBOOL("VertexShaderLevelAvatar"));
-	gViewerStats->setStat(LLViewerStats::ST_SHADER_ENVIRONMENT, (F64)gSavedSettings.getBOOL("VertexShaderLevelEnvironment"));
+	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_SHADER_OBJECTS, (F64)gSavedSettings.getS32("VertexShaderLevelObject"));
+	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_SHADER_AVATAR, (F64)gSavedSettings.getBOOL("VertexShaderLevelAvatar"));
+	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_SHADER_ENVIRONMENT, (F64)gSavedSettings.getBOOL("VertexShaderLevelEnvironment"));
 #endif
-	gViewerStats->setStat(LLViewerStats::ST_FRAME_SECS, gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_FRAME));
+	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_FRAME_SECS, gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_FRAME));
 	F64 idle_secs = gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_IDLE);
 	F64 network_secs = gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_NETWORK);
-	gViewerStats->setStat(LLViewerStats::ST_UPDATE_SECS, idle_secs - network_secs);
-	gViewerStats->setStat(LLViewerStats::ST_NETWORK_SECS, network_secs);
-	gViewerStats->setStat(LLViewerStats::ST_IMAGE_SECS, gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_IMAGE_UPDATE));
-	gViewerStats->setStat(LLViewerStats::ST_REBUILD_SECS, gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_STATESORT ));
-	gViewerStats->setStat(LLViewerStats::ST_RENDER_SECS, gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_RENDER_GEOMETRY));
+	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_UPDATE_SECS, idle_secs - network_secs);
+	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_NETWORK_SECS, network_secs);
+	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_IMAGE_SECS, gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_IMAGE_UPDATE));
+	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_REBUILD_SECS, gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_STATESORT ));
+	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_RENDER_SECS, gDebugView->mFastTimerView->getTime(LLFastTimer::FTM_RENDER_GEOMETRY));
 		
 	LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(gAgent.getRegion()->getHost());
 	if (cdp)
 	{
-		gViewerStats->mSimPingStat.addValue(cdp->getPingDelay());
+		LLViewerStats::getInstance()->mSimPingStat.addValue(cdp->getPingDelay());
 		gAvgSimPing = ((gAvgSimPing * (F32)gSimPingCount) + (F32)(cdp->getPingDelay())) / ((F32)gSimPingCount + 1);
 		gSimPingCount++;
 	}
 	else
 	{
-		gViewerStats->mSimPingStat.addValue(10000);
+		LLViewerStats::getInstance()->mSimPingStat.addValue(10000);
 	}
 
-	gViewerStats->mFPSStat.addValue(1);
+	LLViewerStats::getInstance()->mFPSStat.addValue(1);
 	F32 layer_bits = (F32)(gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits());
-	gViewerStats->mLayersKBitStat.addValue(layer_bits/1024.f);
-	gViewerStats->mObjectKBitStat.addValue(gObjectBits/1024.f);
-	gViewerStats->mTextureKBitStat.addValue(LLViewerImageList::sTextureBits/1024.f);
-	gViewerStats->mVFSPendingOperations.addValue(LLVFile::getVFSThread()->getPending());
-	gViewerStats->mAssetKBitStat.addValue(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
+	LLViewerStats::getInstance()->mLayersKBitStat.addValue(layer_bits/1024.f);
+	LLViewerStats::getInstance()->mObjectKBitStat.addValue(gObjectBits/1024.f);
+	LLViewerStats::getInstance()->mTextureKBitStat.addValue(LLViewerImageList::sTextureBits/1024.f);
+	LLViewerStats::getInstance()->mVFSPendingOperations.addValue(LLVFile::getVFSThread()->getPending());
+	LLViewerStats::getInstance()->mAssetKBitStat.addValue(gTransferManager.getTransferBitsIn(LLTCT_ASSET)/1024.f);
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
 
 	static S32 tex_bits_idle_count = 0;
@@ -573,7 +572,7 @@ void update_statistics(U32 frame_count)
 		gDebugTimers[0].unpause();
 	}
 	
-	gViewerStats->mTexturePacketsStat.addValue(LLViewerImageList::sTexturePackets);
+	LLViewerStats::getInstance()->mTexturePacketsStat.addValue(LLViewerImageList::sTexturePackets);
 
 	{
 		static F32 visible_avatar_frames = 0.f;
@@ -584,10 +583,10 @@ void update_statistics(U32 frame_count)
 			visible_avatar_frames = 1.f;
 			avg_visible_avatars = (avg_visible_avatars * (F32)(visible_avatar_frames - 1.f) + visible_avatars) / visible_avatar_frames;
 		}
-		gViewerStats->setStat(LLViewerStats::ST_VISIBLE_AVATARS, (F64)avg_visible_avatars);
+		LLViewerStats::getInstance()->setStat(LLViewerStats::ST_VISIBLE_AVATARS, (F64)avg_visible_avatars);
 	}
-	gWorldp->updateNetStats();
-	gWorldp->requestCacheMisses();
+	LLWorld::getInstance()->updateNetStats();
+	LLWorld::getInstance()->requestCacheMisses();
 	
 	// Reset all of these values.
 	gVLManager.resetBitCounts();
@@ -599,9 +598,9 @@ void update_statistics(U32 frame_count)
 
 #if LL_WINDOWS && LL_LCD_COMPILE
 	bool LCDenabled = gLcdScreen->Enabled();
-	gViewerStats->setStat(LLViewerStats::ST_LOGITECH_LCD, LCDenabled);
+	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_LOGITECH_LCD, LCDenabled);
 #else
-	gViewerStats->setStat(LLViewerStats::ST_LOGITECH_LCD, false);
+	LLViewerStats::getInstance()->setStat(LLViewerStats::ST_LOGITECH_LCD, false);
 #endif
 }
 
@@ -704,11 +703,11 @@ void send_stats()
 	std::string gpu_desc = llformat(
 		"%-6s Class %d ",
 		gGLManager.mGLVendorShort.substr(0,6).c_str(),
-		(S32)gFeatureManagerp->getGPUClass())
-		+ gFeatureManagerp->getGPUString();
+		(S32)LLFeatureManager::getInstance()->getGPUClass())
+		+ LLFeatureManager::getInstance()->getGPUString();
 
 	system["gpu"] = gpu_desc;
-	system["gpu_class"] = (S32)gFeatureManagerp->getGPUClass();
+	system["gpu_class"] = (S32)LLFeatureManager::getInstance()->getGPUClass();
 	system["gpu_vendor"] = gGLManager.mGLVendorShort;
 	system["gpu_version"] = gGLManager.mDriverVersionVendorString;
 
@@ -754,7 +753,7 @@ void send_stats()
 	misc["int_1"] = LLFloaterDirectory::sOldSearchCount; // Steve: 1.18.6
 	misc["int_2"] = LLFloaterDirectory::sNewSearchCount; // Steve: 1.18.6
 	
-	gViewerStats->addToMessage(body);
+	LLViewerStats::getInstance()->addToMessage(body);
 
 	LLHTTPClient::post(url, body, new ViewerStatsResponder());
 }

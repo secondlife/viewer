@@ -34,7 +34,7 @@
 
 #include "llstat.h"
 
-class LLViewerStats
+class LLViewerStats : public LLSingleton<LLViewerStats>
 {
 public:
 	LLStat mKBitStat;
@@ -184,8 +184,6 @@ private:
 
 	F64 mLastTimeDiff;  // used for time stat updates
 };
-
-extern LLViewerStats *gViewerStats;
 
 static const F32 SEND_STATS_PERIOD = 300.0f;
 

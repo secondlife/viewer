@@ -42,7 +42,7 @@ class LLView;
 class LLTextBox;
 class LLViewerObject;
 
-class LLToolGrab : public LLTool
+class LLToolGrab : public LLTool, public LLSingleton<LLToolGrab>
 {
 public:
 	LLToolGrab( LLToolComposite* composite = NULL );
@@ -124,8 +124,6 @@ private:
 
 	BOOL			mHideBuildHighlight;
 };
-
-extern LLToolGrab *gToolGrab;
 
 extern BOOL gGrabBtnVertical;
 extern BOOL gGrabBtnSpin;

@@ -471,10 +471,8 @@ void LLFace::renderSelected(LLImageGL *imagep, const LLColor4& color, const S32 
 void LLFace::renderSelectedUV(const S32 offset, const S32 count)
 {
 #if 0
-	LLUUID uv_img_red_blue_id(gViewerArt.getString("uv_test1.tga"));
-	LLUUID uv_img_green_id(gViewerArt.getString("uv_test2.tga"));
-	LLViewerImage* red_blue_imagep = gImageList.getImage(uv_img_red_blue_id, TRUE, TRUE);
-	LLViewerImage* green_imagep = gImageList.getImage(uv_img_green_id, TRUE, TRUE);
+	LLViewerImage* red_blue_imagep = gImageList.getImageFromFile("uv_test1.j2c", TRUE, TRUE);
+	LLViewerImage* green_imagep = gImageList.getImageFromFile("uv_test2.tga", TRUE, TRUE);
 
 	LLGLSObjectSelect object_select;
 	LLGLEnable blend(GL_BLEND);

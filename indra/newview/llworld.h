@@ -35,12 +35,12 @@
 #include "llpatchvertexarray.h"
 
 #include "llmath.h"
-//#include "vmath.h"
 #include "v3math.h"
 #include "llmemory.h"
 #include "llstring.h"
 #include "llviewerpartsim.h"
 #include "llviewerimage.h"
+#include "llvowater.h"
 
 class LLViewerRegion;
 class LLVector3d;
@@ -49,7 +49,6 @@ class LLNetMap;
 class LLHost;
 
 class LLViewerObject;
-class LLVOWater;
 class LLSurfacePatch;
 
 class LLCloudPuff;
@@ -60,11 +59,11 @@ class LLVOAvatar;
 // as simulators are connected to, viewer_regions are popped off the stack and connected as required
 // as simulators are removed, they are pushed back onto the stack
 
-class LLWorld
+class LLWorld : public LLSingleton<LLWorld>
 {
 public:
-	LLWorld(const U32 grids_per_region, const F32 meters_per_grid);
-	~LLWorld();
+	LLWorld();
+	void destroyClass();
 
 	LLViewerRegion*	addRegion(const U64 &region_handle, const LLHost &host);
 		// safe to call if already present, does the "right thing" if
@@ -149,7 +148,6 @@ public:
 	typedef std::list<LLViewerRegion*> region_list_t;
 	
 	region_list_t	mActiveRegionList;
-	LLViewerPartSim mPartSim;
 
 	region_list_t& getRegionList() { return mActiveRegionList; }
 
@@ -159,12 +157,12 @@ private:
 	region_list_t	mCulledRegionList;
 
 	// Number of points on edge
-	const U32 mWidth;
+	static const U32 mWidth;
 
 	// meters/point, therefore mWidth * mScale = meters per edge
-	const F32 mScale;
+	static const F32 mScale;
 
-	const F32 mWidthInMeters;
+	static const F32 mWidthInMeters;
 
 	F32 mLandFarClip;					// Far clip distance for land.
 	LLPatchVertexArray		mLandPatch;
@@ -190,8 +188,6 @@ private:
 	U64 mSpaceTimeUSec;
 };
 
-extern LLWorld *gWorldp;
-#define gWorldPointer gWorldp
 
 void process_enable_simulator(LLMessageSystem *mesgsys, void **user_data);
 void process_disable_simulator(LLMessageSystem *mesgsys, void **user_data);

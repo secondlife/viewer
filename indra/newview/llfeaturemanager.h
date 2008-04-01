@@ -1,6 +1,6 @@
 /** 
  * @file llfeaturemanager.h
- * @brief LLFeatureManager class definition
+ * @brief The feature manager is responsible for determining what features are turned on/off in the app.
  *
  * $LicenseInfo:firstyear=2003&license=viewergpl$
  * 
@@ -94,7 +94,7 @@ protected:
 };
 
 
-class LLFeatureManager : public LLFeatureList
+class LLFeatureManager : public LLFeatureList, public LLSingleton<LLFeatureManager>
 {
 public:
 	LLFeatureManager() : mInited(FALSE), mTableVersion(0), mSafe(FALSE), mGPUClass(GPU_CLASS_UNKNOWN) {}
@@ -148,6 +148,5 @@ protected:
 	BOOL		mGPUSupported;
 };
 
-extern LLFeatureManager *gFeatureManagerp;
 
 #endif // LL_LLFEATUREMANAGER_H

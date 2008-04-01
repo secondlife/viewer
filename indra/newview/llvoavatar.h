@@ -694,7 +694,6 @@ public:
 	//--------------------------------------------------------------------
 	// texture ids and pointers
 	//--------------------------------------------------------------------
-	LLUUID			mShadowImageID;
 	LLPointer<LLViewerImage> mShadowImagep;
 
 	LLUUID			mLastHeadBakedID;

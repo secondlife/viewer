@@ -285,8 +285,7 @@ void process_logout_reply(LLMessageSystem* msg, void**)
 
 void process_layer_data(LLMessageSystem *mesgsys, void **user_data)
 {
-	if(!gWorldp) return;
-	LLViewerRegion *regionp = gWorldp->getRegion(mesgsys->getSender());
+	LLViewerRegion *regionp = LLWorld::getInstance()->getRegion(mesgsys->getSender());
 
 	if (!regionp || gNoRender)
 	{
@@ -913,10 +912,10 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 	}
 
 	LLMute mute(blocked_id, from_name, type);
-	if (gMuteListp->add(mute))
+	if (LLMuteList::getInstance()->add(mute))
 	{
 		LLFloaterMute::showInstance();
-		gFloaterMute->selectMute(blocked_id);
+		LLFloaterMute::getInstance()->selectMute(blocked_id);
 	}
 
 	// purge the message queue of any previously queued inventory offers from the same source.
@@ -1101,7 +1100,7 @@ void inventory_offer_callback(S32 button, void* user_data)
 
 		log_message = "You decline " + info->mDesc + " from " + info->mFromName + ".";
 		chat.mText = log_message;
-		if( gMuteListp->isMuted(info->mFromID ) && ! gMuteListp->isLinden(info->mFromName) )  // muting for SL-42269
+		if( LLMuteList::getInstance()->isMuted(info->mFromID ) && ! LLMuteList::getInstance()->isLinden(info->mFromName) )  // muting for SL-42269
 		{
 			chat.mMuted = TRUE;
 		}
@@ -1160,7 +1159,7 @@ void inventory_offer_handler(LLOfferInfo* info, BOOL from_task)
 	}
 	
 	//If muted, don't even go through the messaging stuff.  Just curtail the offer here.
-	if (gMuteListp->isMuted(info->mFromID, info->mFromName))
+	if (LLMuteList::getInstance()->isMuted(info->mFromID, info->mFromName))
 	{
 		inventory_offer_callback(IOR_MUTE, info);
 		return;
@@ -1352,13 +1351,14 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	time_t timestamp = (time_t)t;
 
 	BOOL is_busy = gAgent.getBusy();
-	BOOL is_muted = gMuteListp->isMuted(from_id, name, LLMute::flagTextChat);
-	BOOL is_linden = gMuteListp->isLinden(name);
+	BOOL is_muted = LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat);
+	BOOL is_linden = LLMuteList::getInstance()->isLinden(name);
 	BOOL is_owned_by_me = FALSE;
 	
 	chat.mMuted = is_muted && !is_linden;
 	chat.mFromID = from_id;
 	chat.mFromName = name;
+	chat.mSourceType = (from_id.isNull() || !strcmp(name, SYSTEM_FROM)) ? CHAT_SOURCE_SYSTEM : CHAT_SOURCE_AGENT;
 
 	LLViewerObject *source = gObjectList.findObject(session_id); //Session ID is probably the wrong thing.
 	if (source)
@@ -1449,7 +1449,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		}
 		else if (from_id.isNull())
 		{
-			// Messages from "Second Life" don't go to IM history
+			// Messages from "Second Life" ID don't go to IM history
+			// messages which should be routed to IM window come from a user ID with name=SYSTEM_NAME
 			snprintf(buffer, sizeof(buffer), "%s: %s", name, message);		/* Flawfinder: ignore */
 			chat.mText = buffer;
 			LLFloaterChat::addChat(chat, FALSE, FALSE);
@@ -2100,7 +2101,7 @@ void process_offer_callingcard(LLMessageSystem* msg, void**)
 	if(!source_name.empty())
 	{
 		if (gAgent.getBusy() 
-			|| gMuteListp->isMuted(source_id, source_name, LLMute::flagTextChat))
+			|| LLMuteList::getInstance()->isMuted(source_id, source_name, LLMute::flagTextChat))
 		{
 			// automatically decline offer
 			callingcard_offer_callback(1, (void*)offerdata);
@@ -2170,20 +2171,15 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	BOOL is_self = (from_id == gAgent.getID());
 	BOOL is_busy = gAgent.getBusy();
 
-	// Apparently you can receive chat before app is fully initialized, hence
-	// gMuteListp can be null. JC
 	BOOL is_muted = FALSE;
 	BOOL is_linden = FALSE;
-	if (gMuteListp)
-	{
-		is_muted = gMuteListp->isMuted(
-			from_id,
-			from_name,
-			LLMute::flagTextChat) 
-			|| gMuteListp->isMuted(owner_id, LLMute::flagTextChat);
-		is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
-			gMuteListp->isLinden(from_name);
-	}
+	is_muted = LLMuteList::getInstance()->isMuted(
+		from_id,
+		from_name,
+		LLMute::flagTextChat) 
+		|| LLMuteList::getInstance()->isMuted(owner_id, LLMute::flagTextChat);
+	is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
+		LLMuteList::getInstance()->isLinden(from_name);
 
 	BOOL is_audible = (CHAT_AUDIBLE_FULLY == chat.mAudible);
 	chatter = gObjectList.findObject(from_id);
@@ -2201,7 +2197,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			//We set the particles to be owned by the object's owner, 
 			//just in case they should be muted by the mute list
 			psc->setOwnerUUID(owner_id);
-			gWorldPointer->mPartSim.addPartSource(psc);
+			LLViewerPartSim::getInstance()->addPartSource(psc);
 		}
 
 		// record last audible utterance
@@ -2243,7 +2239,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		// Look for the start of typing so we can put "..." in the bubbles.
 		if (CHAT_TYPE_START == chat.mChatType)
 		{
-			gLocalSpeakerMgr->setSpeakerTyping(from_id, TRUE);
+			LLLocalSpeakerMgr::getInstance()->setSpeakerTyping(from_id, TRUE);
 
 			// Might not have the avatar constructed yet, eg on login.
 			if (chatter && chatter->isAvatar())
@@ -2254,7 +2250,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		}
 		else if (CHAT_TYPE_STOP == chat.mChatType)
 		{
-			gLocalSpeakerMgr->setSpeakerTyping(from_id, FALSE);
+			LLLocalSpeakerMgr::getInstance()->setSpeakerTyping(from_id, FALSE);
 
 			// Might not have the avatar constructed yet, eg on login.
 			if (chatter && chatter->isAvatar())
@@ -2267,7 +2263,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		// We have a real utterance now, so can stop showing "..." and proceed.
 		if (chatter && chatter->isAvatar())
 		{
-			gLocalSpeakerMgr->setSpeakerTyping(from_id, FALSE);
+			LLLocalSpeakerMgr::getInstance()->setSpeakerTyping(from_id, FALSE);
 			((LLVOAvatar*)chatter)->stopTyping();
 
 			if (!is_muted && !is_busy)
@@ -2559,10 +2555,10 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 
 	// Do teleport effect for where you're leaving
 	// VEFFECT: TeleportStart
-	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)gHUDManager->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
+	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
 	effectp->setPositionGlobal(gAgent.getPositionGlobal());
 	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
-	gHUDManager->sendEffects();
+	LLHUDManager::getInstance()->sendEffects();
 
 	U32 location_id;
 	U32 sim_ip;
@@ -2598,8 +2594,7 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 
 	// Viewer trusts the simulator.
 	gMessageSystem->enableCircuit(sim_host, TRUE);
-	if(!gWorldp) return;
-	LLViewerRegion* regionp =  gWorldp->addRegion(region_handle, sim_host);
+	LLViewerRegion* regionp =  LLWorld::getInstance()->addRegion(region_handle, sim_host);
 
 /*
 	// send camera update to new region
@@ -2643,11 +2638,11 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 
 	// Now do teleport effect for where you're going.
 	// VEFFECT: TeleportEnd
-	effectp = (LLHUDEffectSpiral *)gHUDManager->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
+	effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
 	effectp->setPositionGlobal(gAgent.getPositionGlobal());
 
 	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
-	gHUDManager->sendEffects();
+	LLHUDManager::getInstance()->sendEffects();
 
 //	gTeleportDisplay = TRUE;
 //	gTeleportDisplayTimer.reset();
@@ -2713,8 +2708,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 
 	F32 x, y;
 	from_region_handle(region_handle, &x, &y);
-	if(!gWorldp) return;
-	LLViewerRegion* regionp = gWorldp->getRegionFromHandle(region_handle);
+	LLViewerRegion* regionp = LLWorld::getInstance()->getRegionFromHandle(region_handle);
 	if (!regionp)
 	{
 		if (gAgent.getRegion())
@@ -2870,8 +2864,7 @@ void process_crossed_region(LLMessageSystem* msg, void**)
 
 	send_complete_agent_movement(sim_host);
 
-	if(!gWorldp) return;
-	LLViewerRegion* regionp = gWorldp->addRegion(region_handle, sim_host);
+	LLViewerRegion* regionp = LLWorld::getInstance()->addRegion(region_handle, sim_host);
 	regionp->setSeedCapability(std::string(seedCap));
 }
 
@@ -2896,6 +2889,12 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 
 	// We have already requested to log out.  Don't send agent updates.
 	if(LLAppViewer::instance()->logoutRequestSent())
+	{
+		return;
+	}
+
+	// no region to send update to
+	if(gAgent.getRegion() == NULL)
 	{
 		return;
 	}
@@ -2940,7 +2939,7 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 	U8		flag_change = 0;
 
 	cam_center_chg = last_camera_pos_agent - camera_pos_agent;
-	cam_rot_chg = last_camera_at - gCamera->getAtAxis();
+	cam_rot_chg = last_camera_at - LLViewerCamera::getInstance()->getAtAxis();
 
 	// If a modifier key is held down, turn off
 	// LBUTTON and ML_LBUTTON so that using the camera (alt-key) doesn't
@@ -3048,9 +3047,9 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 //		}
 		
 		msg->addVector3Fast(_PREHASH_CameraCenter, camera_pos_agent);
-		msg->addVector3Fast(_PREHASH_CameraAtAxis, gCamera->getAtAxis());
-		msg->addVector3Fast(_PREHASH_CameraLeftAxis, gCamera->getLeftAxis());
-		msg->addVector3Fast(_PREHASH_CameraUpAxis, gCamera->getUpAxis());
+		msg->addVector3Fast(_PREHASH_CameraAtAxis, LLViewerCamera::getInstance()->getAtAxis());
+		msg->addVector3Fast(_PREHASH_CameraLeftAxis, LLViewerCamera::getInstance()->getLeftAxis());
+		msg->addVector3Fast(_PREHASH_CameraUpAxis, LLViewerCamera::getInstance()->getUpAxis());
 		msg->addF32Fast(_PREHASH_Far, gAgent.mDrawDistance);
 		
 		msg->addU32Fast(_PREHASH_ControlFlags, control_flags);
@@ -3085,9 +3084,9 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 		last_head_rot = head_rotation;
 		last_render_state = render_state;
 		last_camera_pos_agent = camera_pos_agent;
-		last_camera_at = gCamera->getAtAxis();
-		last_camera_left = gCamera->getLeftAxis();
-		last_camera_up = gCamera->getUpAxis();
+		last_camera_at = LLViewerCamera::getInstance()->getAtAxis();
+		last_camera_left = LLViewerCamera::getInstance()->getLeftAxis();
+		last_camera_up = LLViewerCamera::getInstance()->getUpAxis();
 		last_control_flags = control_flags;
 		last_flags = flags;
 	}
@@ -3201,7 +3200,7 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 			//llinfos << "Kill message for local " << local_id << llendl;
 		}
 
-		gSelectMgr->removeObjectFromSelections(id);
+		LLSelectMgr::getInstance()->removeObjectFromSelections(id);
 
 		// ...don't kill the avatar
 		if (!(id == gAgentID))
@@ -3255,8 +3254,7 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 	mesgsys->getVector3Fast(_PREHASH_TimeInfo, _PREHASH_SunDirection, sun_direction);
 	mesgsys->getVector3Fast(_PREHASH_TimeInfo, _PREHASH_SunAngVelocity, sun_ang_velocity);
 
-	if(!gWorldp) return;
-	gWorldp->setSpaceTimeUSec(space_time_usec);
+	LLWorld::getInstance()->setSpaceTimeUSec(space_time_usec);
 
 	//lldebugs << "time_synch() - " << sun_direction << ", " << sun_ang_velocity
 	//		 << ", " << phase << llendl;
@@ -3272,8 +3270,6 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 void process_sound_trigger(LLMessageSystem *msg, void **)
 {
 	if (!gAudiop) return;
-	if (!gParcelMgr) return;
-	if (!gMuteListp) return;
 
 	U64		region_handle = 0;
 	F32		gain = 0;
@@ -3299,17 +3295,17 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 
 	// Don't play a trigger sound if you can't hear it due
 	// to parcel "local audio only" settings.
-	if (!gParcelMgr->canHearSound(pos_global)) return;
+	if (!LLViewerParcelMgr::getInstance()->canHearSound(pos_global)) return;
 
 	// Don't play sounds triggered by someone you muted.
-	if (gMuteListp->isMuted(owner_id, LLMute::flagObjectSounds)) return;
+	if (LLMuteList::getInstance()->isMuted(owner_id, LLMute::flagObjectSounds)) return;
 	
 	// Don't play sounds from an object you muted
-	if (gMuteListp->isMuted(object_id)) return;
+	if (LLMuteList::getInstance()->isMuted(object_id)) return;
 
 	// Don't play sounds from an object whose parent you muted
 	if (parent_id.notNull()
-		&& gMuteListp->isMuted(parent_id))
+		&& LLMuteList::getInstance()->isMuted(parent_id))
 	{
 		return;
 	}
@@ -3336,8 +3332,8 @@ void process_preload_sound(LLMessageSystem *msg, void **user_data)
 	LLViewerObject *objectp = gObjectList.findObject(object_id);
 	if (!objectp) return;
 
-	if (gMuteListp->isMuted(object_id)) return;
-	if (gMuteListp->isMuted(owner_id, LLMute::flagObjectSounds)) return;
+	if (LLMuteList::getInstance()->isMuted(object_id)) return;
+	if (LLMuteList::getInstance()->isMuted(owner_id, LLMute::flagObjectSounds)) return;
 	
 	LLAudioSource *sourcep = objectp->getAudioSource(owner_id);
 	if (!sourcep) return;
@@ -3373,9 +3369,9 @@ void process_attached_sound(LLMessageSystem *msg, void **user_data)
 		return;
 	}
 	
-	if (gMuteListp->isMuted(object_id)) return;
+	if (LLMuteList::getInstance()->isMuted(object_id)) return;
 	
-	if (gMuteListp->isMuted(owner_id, LLMute::flagObjectSounds)) return;
+	if (LLMuteList::getInstance()->isMuted(owner_id, LLMute::flagObjectSounds)) return;
 
 	objectp->setAttachedSound(sound_id, owner_id, gain, flags);
 }
@@ -3426,73 +3422,73 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 		switch (stat_id)
 		{
 		case LL_SIM_STAT_TIME_DILATION:
-			gViewerStats->mSimTimeDilation.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimTimeDilation.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_FPS:
-			gViewerStats->mSimFPS.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimFPS.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_PHYSFPS:
-			gViewerStats->mSimPhysicsFPS.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimPhysicsFPS.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_AGENTUPS:
-			gViewerStats->mSimAgentUPS.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimAgentUPS.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_FRAMEMS:
-			gViewerStats->mSimFrameMsec.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimFrameMsec.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_NETMS:
-			gViewerStats->mSimNetMsec.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimNetMsec.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_SIMOTHERMS:
-			gViewerStats->mSimSimOtherMsec.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimSimOtherMsec.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_SIMPHYSICSMS:
-			gViewerStats->mSimSimPhysicsMsec.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimSimPhysicsMsec.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_AGENTMS:
-			gViewerStats->mSimAgentMsec.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimAgentMsec.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_IMAGESMS:
-			gViewerStats->mSimImagesMsec.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimImagesMsec.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_SCRIPTMS:
-			gViewerStats->mSimScriptMsec.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimScriptMsec.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_NUMTASKS:
-			gViewerStats->mSimObjects.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimObjects.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_NUMTASKSACTIVE:
-			gViewerStats->mSimActiveObjects.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimActiveObjects.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_NUMAGENTMAIN:
-			gViewerStats->mSimMainAgents.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimMainAgents.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_NUMAGENTCHILD:
-			gViewerStats->mSimChildAgents.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimChildAgents.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_NUMSCRIPTSACTIVE:
-			gViewerStats->mSimActiveScripts.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimActiveScripts.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_LSLIPS:
-			gViewerStats->mSimLSLIPS.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimLSLIPS.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_INPPS:
-			gViewerStats->mSimInPPS.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimInPPS.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_OUTPPS:
-			gViewerStats->mSimOutPPS.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimOutPPS.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_PENDING_DOWNLOADS:
-			gViewerStats->mSimPendingDownloads.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimPendingDownloads.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_PENDING_UPLOADS:
-			gViewerStats->mSimPendingUploads.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimPendingUploads.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_PENDING_LOCAL_UPLOADS:
-			gViewerStats->mSimPendingLocalUploads.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimPendingLocalUploads.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_TOTAL_UNACKED_BYTES:
-			gViewerStats->mSimTotalUnackedBytes.addValue(stat_value / 1024.f);
+			LLViewerStats::getInstance()->mSimTotalUnackedBytes.addValue(stat_value / 1024.f);
 			break;
 		default:
 // 			llwarns << "Unknown stat id" << stat_id << llendl;
@@ -3502,7 +3498,7 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 
 	/*
 	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_PhysicsTimeDilation, time_dilation);
-	gViewerStats->mSimTDStat.addValue(time_dilation);
+	LLViewerStats::getInstance()->mSimTDStat.addValue(time_dilation);
 
 	// Process information
 	//	{	CpuUsage			F32				}
@@ -3517,9 +3513,9 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_SimMemTotal, sim_mem_total);
 	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_SimMemRSS, sim_mem_rss);
 	msg->getF32Fast(_PREHASH_Statistics, _PREHASH_ProcessUptime, process_uptime);
-	gViewerStats->mSimCPUUsageStat.addValue(cpu_usage);
-	gViewerStats->mSimMemTotalStat.addValue(sim_mem_total);
-	gViewerStats->mSimMemRSSStat.addValue(sim_mem_rss);
+	LLViewerStats::getInstance()->mSimCPUUsageStat.addValue(cpu_usage);
+	LLViewerStats::getInstance()->mSimMemTotalStat.addValue(sim_mem_total);
+	LLViewerStats::getInstance()->mSimMemRSSStat.addValue(sim_mem_rss);
 	*/
 
 	//
@@ -3947,7 +3943,7 @@ void process_time_dilation(LLMessageSystem *msg, void **user_data)
 	// get the pointer to the right region
 	U32 ip = msg->getSenderIP();
 	U32 port = msg->getSenderPort();
-	LLViewerRegion *regionp = gWorldp->getRegion(ip, port);
+	LLViewerRegion *regionp = LLWorld::getInstance()->getRegion(ip, port);
 	if (regionp)
 	{
 		regionp->setTimeDilation(time_dilation);
@@ -4047,7 +4043,7 @@ void process_alert_core(const std::string& message, BOOL modal)
 	// HACK -- handle callbacks for specific alerts
 	if ( message == "You died and have been teleported to your home location")
 	{
-		gViewerStats->incStat(LLViewerStats::ST_KILLED_COUNT);
+		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_KILLED_COUNT);
 	}
 	else if( message == "Home position set." )
 	{
@@ -4235,9 +4231,9 @@ void process_frozen_message(LLMessageSystem *msgsystem, void **user_data)
 // do some extra stuff once we get our economy data
 void process_economy_data(LLMessageSystem *msg, void** /*user_data*/)
 {
-	LLGlobalEconomy::processEconomyData(msg, (void**)gGlobalEconomy);
+	LLGlobalEconomy::processEconomyData(msg, LLGlobalEconomy::Singleton::getInstance());
 
-	S32 upload_cost = gGlobalEconomy->getPriceUpload();
+	S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 	LLFloaterImagePreview::setUploadAmount(upload_cost);
 
 	gMenuHolder->childSetLabelArg("Upload Image", "[COST]", llformat("%d", upload_cost));
@@ -4411,7 +4407,7 @@ void script_question_cb(S32 option, void* user_data)
 
 	if ( option == 2 ) // mute
 	{
-		gMuteListp->add(LLMute(cbdata->mItemID, cbdata->mObjectName, LLMute::OBJECT));
+		LLMuteList::getInstance()->add(LLMute(cbdata->mItemID, cbdata->mObjectName, LLMute::OBJECT));
 
 		// purge the message queue of any previously queued requests from the same source. DEV-4879
 		class OfferMatcher : public LLNotifyBoxView::Matcher
@@ -4451,7 +4447,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 	msg->getS32Fast(_PREHASH_Data, _PREHASH_Questions, questions );
 
 	// don't display permission requests if this object is muted - JS.
-	if (gMuteListp->isMuted(taskid)) return;
+	if (LLMuteList::getInstance()->isMuted(taskid)) return;
 
 	// throttle excessive requests from any specific user's scripts
 	LLString throttle_owner_name = owner_name;
@@ -5081,7 +5077,7 @@ void callback_load_url_name(const LLUUID& id, const char* first, const char* las
 			}
 
 			// For legacy name-only mutes.
-			if (gMuteListp->isMuted(LLUUID::null, owner_name))
+			if (LLMuteList::getInstance()->isMuted(LLUUID::null, owner_name))
 			{
 				delete infop;
 				infop = NULL;
@@ -5115,10 +5111,8 @@ void process_load_url(LLMessageSystem* msg, void**)
 	// URL is safety checked in load_url above
 
 	// Check if object or owner is muted
-	if (gMuteListp &&
-	    (gMuteListp->isMuted(infop->mObjectID, infop->mObjectName) ||
-	     gMuteListp->isMuted(infop->mOwnerID))
-	    )
+	if (LLMuteList::getInstance()->isMuted(infop->mObjectID, infop->mObjectName) ||
+	    LLMuteList::getInstance()->isMuted(infop->mOwnerID))
 	{
 		llinfos<<"Ignoring load_url from muted object/owner."<<llendl;
 		delete infop;
@@ -5322,10 +5316,7 @@ void onCovenantLoadComplete(LLVFS *vfs,
 	}
 	else
 	{
-		if( gViewerStats )
-		{
-			gViewerStats->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
-		}
+		LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
 		
 		if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
 		    LL_ERR_FILE_EMPTY == status)

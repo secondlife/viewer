@@ -57,6 +57,8 @@ S32 LLCOMBOBOX_HEIGHT = 0;
 S32 LLCOMBOBOX_WIDTH = 0;
 S32 MAX_COMBO_WIDTH = 500;
 
+static LLRegisterWidget<LLComboBox> r1("combo_box");
+
 LLComboBox::LLComboBox(	const LLString& name, const LLRect &rect, const LLString& label,
 	void (*commit_callback)(LLUICtrl*,void*),
 	void *callback_userdata
@@ -74,9 +76,10 @@ LLComboBox::LLComboBox(	const LLString& name, const LLRect &rect, const LLString
 {
 	// Always use text box 
 	// Text label button
-	mButton = new LLButton("comboxbox button",
-								 LLRect(), label, NULL, LLString::null,
-								 NULL, this);
+	mButton = new LLButton(label,
+								LLRect(), 
+								LLString::null,
+								NULL, this);
 	mButton->setImageUnselected("square_btn_32x128.tga");
 	mButton->setImageSelected("square_btn_selected_32x128.tga");
 	mButton->setImageDisabled("square_btn_32x128.tga");
@@ -99,13 +102,7 @@ LLComboBox::LLComboBox(	const LLString& name, const LLRect &rect, const LLString
 	mList->setCommitOnKeyboardMovement(FALSE);
 	addChild(mList);
 
-	LLRect border_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
-	mBorder = new LLViewBorder( "combo border", border_rect );
-	addChild( mBorder );
-	mBorder->setFollowsAll();
-
-	LLUUID arrow_image_id( LLUI::sAssetsGroup->getString("combobox_arrow.tga") );
-	mArrowImage = LLUI::sImageProvider->getImageByID(arrow_image_id);
+	mArrowImage = LLUI::sImageProvider->getUIImage("combobox_arrow.tga");
 	mButton->setImageOverlay("combobox_arrow.tga", LLFontGL::RIGHT);
 
 	updateLayout();
@@ -447,7 +444,7 @@ void LLComboBox::setButtonVisible(BOOL visible)
 		LLRect text_entry_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
 		if (visible)
 		{
-			text_entry_rect.mRight -= llmax(8,mArrowImage->getWidth(0)) + 2 * LLUI::sConfigGroup->getS32("DropShadowButton");
+			text_entry_rect.mRight -= llmax(8,mArrowImage->getWidth()) + 2 * LLUI::sConfigGroup->getS32("DropShadowButton");
 		}
 		//mTextEntry->setRect(text_entry_rect);
 		mTextEntry->reshape(text_entry_rect.getWidth(), text_entry_rect.getHeight(), TRUE);
@@ -456,15 +453,10 @@ void LLComboBox::setButtonVisible(BOOL visible)
 
 void LLComboBox::draw()
 {
-	if( getVisible() )
-	{
-		mBorder->setKeyboardFocusHighlight(hasFocus());
+	mButton->setEnabled(getEnabled() /*&& !mList->isEmpty()*/);
 
-		mButton->setEnabled(getEnabled() /*&& !mList->isEmpty()*/);
-
-		// Draw children normally
-		LLUICtrl::draw();
-	}
+	// Draw children normally
+	LLUICtrl::draw();
 }
 
 BOOL LLComboBox::setCurrentByIndex( S32 index )
@@ -494,14 +486,14 @@ void LLComboBox::updateLayout()
 	if (mAllowTextEntry)
 	{
 		S32 shadow_size = LLUI::sConfigGroup->getS32("DropShadowButton");
-		mButton->setRect(LLRect( getRect().getWidth() - llmax(8,mArrowImage->getWidth(0)) - 2 * shadow_size,
+		mButton->setRect(LLRect( getRect().getWidth() - llmax(8,mArrowImage->getWidth()) - 2 * shadow_size,
 								rect.mTop, rect.mRight, rect.mBottom));
 		mButton->setTabStop(FALSE);
 
 		if (!mTextEntry)
 		{
 			LLRect text_entry_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
-			text_entry_rect.mRight -= llmax(8,mArrowImage->getWidth(0)) + 2 * LLUI::sConfigGroup->getS32("DropShadowButton");
+			text_entry_rect.mRight -= llmax(8,mArrowImage->getWidth()) + 2 * LLUI::sConfigGroup->getS32("DropShadowButton");
 			// clear label on button
 			LLString cur_label = mButton->getLabelSelected();
 			mTextEntry = new LLLineEditor("combo_text_entry",
@@ -512,11 +504,7 @@ void LLComboBox::updateLayout()
 										onTextCommit,
 										onTextEntry,
 										NULL,
-										this,
-										NULL,		// prevalidate func
-										LLViewBorder::BEVEL_NONE,
-										LLViewBorder::STYLE_LINE,
-										0);	// no border
+										this);
 			mTextEntry->setSelectAllonFocusReceived(TRUE);
 			mTextEntry->setHandleEditKeysDirectly(TRUE);
 			mTextEntry->setCommitOnFocusLost(FALSE);
@@ -780,10 +768,10 @@ BOOL LLComboBox::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_
 	return TRUE;
 }
 
-BOOL LLComboBox::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+BOOL LLComboBox::handleKeyHere(KEY key, MASK mask)
 {
 	BOOL result = FALSE;
-	if (gFocusMgr.childHasKeyboardFocus(this))
+	if (hasFocus())
 	{
 		//give list a chance to pop up and handle key
 		LLScrollListItem* last_selected_item = mList->getLastSelectedItem();
@@ -792,7 +780,7 @@ BOOL LLComboBox::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 			// highlight the original selection before potentially selecting a new item
 			mList->highlightNthItem(mList->getItemIndex(last_selected_item));
 		}
-		result = mList->handleKeyHere(key, mask, FALSE);
+		result = mList->handleKeyHere(key, mask);
 		// if selection has changed, pop open list
 		if (mList->getLastSelectedItem() != last_selected_item)
 		{
@@ -802,7 +790,7 @@ BOOL LLComboBox::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 	return result;
 }
 
-BOOL LLComboBox::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent)
+BOOL LLComboBox::handleUnicodeCharHere(llwchar uni_char)
 {
 	BOOL result = FALSE;
 	if (gFocusMgr.childHasKeyboardFocus(this))
@@ -816,7 +804,7 @@ BOOL LLComboBox::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent
 				// highlight the original selection before potentially selecting a new item
 				mList->highlightNthItem(mList->getItemIndex(last_selected_item));
 			}
-			result = mList->handleUnicodeCharHere(uni_char, called_from_parent);
+			result = mList->handleUnicodeCharHere(uni_char);
 			if (mList->getLastSelectedItem() != last_selected_item)
 			{
 				showList();
@@ -1095,6 +1083,8 @@ BOOL LLComboBox::selectItemRange( S32 first, S32 last )
 // LLFlyoutButton
 //
 
+static LLRegisterWidget<LLFlyoutButton> r2("flyout_button");
+
 const S32 FLYOUT_BUTTON_ARROW_WIDTH = 24;
 
 LLFlyoutButton::LLFlyoutButton(
@@ -1109,9 +1099,8 @@ LLFlyoutButton::LLFlyoutButton(
 {
 	// Always use text box 
 	// Text label button
-	mActionButton = new LLButton("flyout_button_main",
-								 LLRect(), label, NULL, LLString::null,
-								 NULL, this);
+	mActionButton = new LLButton(label,
+					LLRect(), LLString::null, NULL, this);
 	mActionButton->setScaleImage(TRUE);
 
 	mActionButton->setClickedCallback(onActionButtonClick);
@@ -1120,10 +1109,10 @@ LLFlyoutButton::LLFlyoutButton(
 	mActionButton->setLabel(label);
 	addChild(mActionButton);
 
-	mActionButtonImage = LLUI::getUIImageByName("flyout_btn_left.tga");
-	mExpanderButtonImage = LLUI::getUIImageByName("flyout_btn_right.tga");
-	mActionButtonImageSelected = LLUI::getUIImageByName("flyout_btn_left_selected.tga");
-	mExpanderButtonImageSelected = LLUI::getUIImageByName("flyout_btn_right_selected.tga");
+	mActionButtonImage = LLUI::getUIImage("flyout_btn_left.tga");
+	mExpanderButtonImage = LLUI::getUIImage("flyout_btn_right.tga");
+	mActionButtonImageSelected = LLUI::getUIImage("flyout_btn_left_selected.tga");
+	mExpanderButtonImageSelected = LLUI::getUIImage("flyout_btn_right_selected.tga");
 
 	mActionButton->setImageSelected(mActionButtonImageSelected);
 	mActionButton->setImageUnselected(mActionButtonImage);
@@ -1135,8 +1124,6 @@ LLFlyoutButton::LLFlyoutButton(
 	mButton->setImageDisabled(LLPointer<LLUIImage>(NULL));
 	mButton->setImageDisabledSelected(LLPointer<LLUIImage>(NULL));
 	mButton->setRightHPad(6);
-
-	mBorder->setVisible(FALSE);
 
 	updateLayout();
 }

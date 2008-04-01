@@ -69,7 +69,6 @@
 #include "lltoolpie.h"
 #include "lltoolpipette.h"
 #include "lltoolplacer.h"
-#include "lltoolselect.h"
 #include "lltoolselectland.h"
 #include "llui.h"
 #include "llviewermenu.h"
@@ -77,7 +76,7 @@
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
 
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 // Globals
 LLFloaterTools *gFloaterTools = NULL;
@@ -184,50 +183,50 @@ BOOL	LLFloaterTools::postBuild()
 	getDragHandle()->setEnabled( !gSavedSettings.getBOOL("ToolboxAutoMove") );
 
 	LLRect rect;
-	mBtnFocus = LLUICtrlFactory::getButtonByName(this,"button focus");//btn;
-	childSetAction("button focus",LLFloaterTools::setEditTool, (void*)gToolCamera);
-	mBtnMove = LLUICtrlFactory::getButtonByName(this,"button move");
-	childSetAction("button move",LLFloaterTools::setEditTool, (void*)gToolGrab);
-	mBtnEdit = LLUICtrlFactory::getButtonByName(this,"button edit");
-	childSetAction("button edit",LLFloaterTools::setEditTool, (void*)gToolTranslate);
-	mBtnCreate = LLUICtrlFactory::getButtonByName(this,"button create");
-	childSetAction("button create",LLFloaterTools::setEditTool, (void*)gToolCreate);
-	mBtnLand = LLUICtrlFactory::getButtonByName(this, "button land" );
-	childSetAction("button land",LLFloaterTools::setEditTool, (void*)gToolParcel);
-	mTextStatus = LLUICtrlFactory::getTextBoxByName(this,"text status");
-	mRadioZoom = LLUICtrlFactory::getCheckBoxByName(this,"radio zoom");
+	mBtnFocus = getChild<LLButton>("button focus");//btn;
+	childSetAction("button focus",LLFloaterTools::setEditTool, (void*)LLToolCamera::getInstance());
+	mBtnMove = getChild<LLButton>("button move");
+	childSetAction("button move",LLFloaterTools::setEditTool, (void*)LLToolGrab::getInstance());
+	mBtnEdit = getChild<LLButton>("button edit");
+	childSetAction("button edit",LLFloaterTools::setEditTool, (void*)LLToolCompTranslate::getInstance());
+	mBtnCreate = getChild<LLButton>("button create");
+	childSetAction("button create",LLFloaterTools::setEditTool, (void*)LLToolCompCreate::getInstance());
+	mBtnLand = getChild<LLButton>("button land" );
+	childSetAction("button land",LLFloaterTools::setEditTool, (void*)LLToolSelectLand::getInstance());
+	mTextStatus = getChild<LLTextBox>("text status");
+	mRadioZoom = getChild<LLCheckBoxCtrl>("radio zoom");
 	childSetCommitCallback("slider zoom",commit_slider_zoom,this);
-	mRadioOrbit = LLUICtrlFactory::getCheckBoxByName(this,"radio orbit");
+	mRadioOrbit = getChild<LLCheckBoxCtrl>("radio orbit");
 	childSetCommitCallback("radio orbit",commit_radio_orbit,this);
-	mRadioPan = LLUICtrlFactory::getCheckBoxByName(this,"radio pan");
+	mRadioPan = getChild<LLCheckBoxCtrl>("radio pan");
 	childSetCommitCallback("radio pan",commit_radio_pan,this);
-	mRadioMove = LLUICtrlFactory::getCheckBoxByName(this,"radio move");
+	mRadioMove = getChild<LLCheckBoxCtrl>("radio move");
 	childSetCommitCallback("radio move",click_popup_grab_drag,this);
-	mRadioLift = LLUICtrlFactory::getCheckBoxByName(this,"radio lift");
+	mRadioLift = getChild<LLCheckBoxCtrl>("radio lift");
 	childSetCommitCallback("radio lift",click_popup_grab_lift,this);
-	mRadioSpin = LLUICtrlFactory::getCheckBoxByName(this,"radio spin");
+	mRadioSpin = getChild<LLCheckBoxCtrl>("radio spin");
 	childSetCommitCallback("radio spin",click_popup_grab_spin,NULL);
-	mRadioPosition = LLUICtrlFactory::getCheckBoxByName(this,"radio position");
-	childSetCommitCallback("radio position",commit_select_tool,gToolTranslate);
-	mRadioRotate = LLUICtrlFactory::getCheckBoxByName(this,"radio rotate");
-	childSetCommitCallback("radio rotate",commit_select_tool,gToolRotate);
-	mRadioStretch = LLUICtrlFactory::getCheckBoxByName(this,"radio stretch");
-	childSetCommitCallback("radio stretch",commit_select_tool,gToolStretch);
-	mRadioSelectFace = LLUICtrlFactory::getCheckBoxByName(this,"radio select face");
-	childSetCommitCallback("radio select face",commit_select_tool,gToolFace);
-	mCheckSelectIndividual = LLUICtrlFactory::getCheckBoxByName(this,"checkbox edit linked parts");
+	mRadioPosition = getChild<LLCheckBoxCtrl>("radio position");
+	childSetCommitCallback("radio position",commit_select_tool,LLToolCompTranslate::getInstance());
+	mRadioRotate = getChild<LLCheckBoxCtrl>("radio rotate");
+	childSetCommitCallback("radio rotate",commit_select_tool,LLToolCompRotate::getInstance());
+	mRadioStretch = getChild<LLCheckBoxCtrl>("radio stretch");
+	childSetCommitCallback("radio stretch",commit_select_tool,LLToolCompScale::getInstance());
+	mRadioSelectFace = getChild<LLCheckBoxCtrl>("radio select face");
+	childSetCommitCallback("radio select face",commit_select_tool,LLToolFace::getInstance());
+	mCheckSelectIndividual = getChild<LLCheckBoxCtrl>("checkbox edit linked parts");
 	childSetValue("checkbox edit linked parts",(BOOL)gSavedSettings.getBOOL("EditLinkedParts"));
 	childSetCommitCallback("checkbox edit linked parts",commit_select_component,this);
-	mCheckSnapToGrid = LLUICtrlFactory::getCheckBoxByName(this,"checkbox snap to grid");
+	mCheckSnapToGrid = getChild<LLCheckBoxCtrl>("checkbox snap to grid");
 	childSetValue("checkbox snap to grid",(BOOL)gSavedSettings.getBOOL("SnapEnabled"));
-	mBtnGridOptions = LLUICtrlFactory::getButtonByName(this,"Options...");
+	mBtnGridOptions = getChild<LLButton>("Options...");
 	childSetAction("Options...",onClickGridOptions, this);
-	mCheckStretchUniform = LLUICtrlFactory::getCheckBoxByName(this,"checkbox uniform");
+	mCheckStretchUniform = getChild<LLCheckBoxCtrl>("checkbox uniform");
 	childSetValue("checkbox uniform",(BOOL)gSavedSettings.getBOOL("ScaleUniform"));
-	mCheckStretchTexture = LLUICtrlFactory::getCheckBoxByName(this,"checkbox stretch textures");
+	mCheckStretchTexture = getChild<LLCheckBoxCtrl>("checkbox stretch textures");
 	childSetValue("checkbox stretch textures",(BOOL)gSavedSettings.getBOOL("ScaleStretchTextures"));
-	mTextGridMode = LLUICtrlFactory::getTextBoxByName(this,"text ruler mode");
-	mComboGridMode = LLUICtrlFactory::getComboBoxByName(this,"combobox grid mode");
+	mTextGridMode = getChild<LLTextBox>("text ruler mode");
+	mComboGridMode = getChild<LLComboBox>("combobox grid mode");
 	childSetCommitCallback("combobox grid mode",commit_grid_mode, this);
 	//
 	// Create Buttons
@@ -267,7 +266,7 @@ BOOL	LLFloaterTools::postBuild()
 			&LLToolPlacerPanel::sGrass};
 	for(size_t t=0; t<sizeof(toolNames)/sizeof(toolNames[0]); ++t)
 	{
-		LLButton *found = LLViewerUICtrlFactory::getButtonByName(this,toolNames[t]);
+		LLButton *found = getChild<LLButton>(toolNames[t]);
 		if(found)
 		{
 			found->setClickedCallback(setObjectType,toolData[t]);
@@ -276,38 +275,38 @@ BOOL	LLFloaterTools::postBuild()
 			llwarns << "Tool button not found! DOA Pending." << llendl;
 		}
 	}
-	mCheckCopySelection = LLUICtrlFactory::getCheckBoxByName(this,"checkbox copy selection");
+	mCheckCopySelection = getChild<LLCheckBoxCtrl>("checkbox copy selection");
 	childSetValue("checkbox copy selection",(BOOL)gSavedSettings.getBOOL("CreateToolCopySelection"));
-	mCheckSticky = LLUICtrlFactory::getCheckBoxByName(this,"checkbox sticky");
+	mCheckSticky = getChild<LLCheckBoxCtrl>("checkbox sticky");
 	childSetValue("checkbox sticky",(BOOL)gSavedSettings.getBOOL("CreateToolKeepSelected"));
-	mCheckCopyCenters = LLUICtrlFactory::getCheckBoxByName(this,"checkbox copy centers");
+	mCheckCopyCenters = getChild<LLCheckBoxCtrl>("checkbox copy centers");
 	childSetValue("checkbox copy centers",(BOOL)gSavedSettings.getBOOL("CreateToolCopyCenters"));
-	mCheckCopyRotates = LLUICtrlFactory::getCheckBoxByName(this,"checkbox copy rotates");
+	mCheckCopyRotates = getChild<LLCheckBoxCtrl>("checkbox copy rotates");
 	childSetValue("checkbox copy rotates",(BOOL)gSavedSettings.getBOOL("CreateToolCopyRotates"));
-	mRadioSelectLand = LLUICtrlFactory::getCheckBoxByName(this,"radio select land");
-	childSetCommitCallback("radio select land",commit_select_tool, gToolParcel);
-	mRadioDozerFlatten = LLUICtrlFactory::getCheckBoxByName(this,"radio flatten");
+	mRadioSelectLand = getChild<LLCheckBoxCtrl>("radio select land");
+	childSetCommitCallback("radio select land",commit_select_tool, LLToolSelectLand::getInstance());
+	mRadioDozerFlatten = getChild<LLCheckBoxCtrl>("radio flatten");
 	childSetCommitCallback("radio flatten",click_popup_dozer_mode,  (void*)0);
-	mRadioDozerRaise = LLUICtrlFactory::getCheckBoxByName(this,"radio raise");
+	mRadioDozerRaise = getChild<LLCheckBoxCtrl>("radio raise");
 	childSetCommitCallback("radio raise",click_popup_dozer_mode,  (void*)1);
-	mRadioDozerLower = LLUICtrlFactory::getCheckBoxByName(this,"radio lower");
+	mRadioDozerLower = getChild<LLCheckBoxCtrl>("radio lower");
 	childSetCommitCallback("radio lower",click_popup_dozer_mode,  (void*)2);
-	mRadioDozerSmooth = LLUICtrlFactory::getCheckBoxByName(this,"radio smooth");
+	mRadioDozerSmooth = getChild<LLCheckBoxCtrl>("radio smooth");
 	childSetCommitCallback("radio smooth",click_popup_dozer_mode,  (void*)3);
-	mRadioDozerNoise = LLUICtrlFactory::getCheckBoxByName(this,"radio noise");
+	mRadioDozerNoise = getChild<LLCheckBoxCtrl>("radio noise");
 	childSetCommitCallback("radio noise",click_popup_dozer_mode,  (void*)4);
-	mRadioDozerRevert = LLUICtrlFactory::getCheckBoxByName(this,"radio revert");
+	mRadioDozerRevert = getChild<LLCheckBoxCtrl>("radio revert");
 	childSetCommitCallback("radio revert",click_popup_dozer_mode,  (void*)5);
-	mComboDozerSize = LLUICtrlFactory::getComboBoxByName(this,"combobox brush size");
+	mComboDozerSize = getChild<LLComboBox>("combobox brush size");
 	childSetCommitCallback("combobox brush size",click_dozer_size,  (void*)0);
 	if(mComboDozerSize) mComboDozerSize->setCurrentByIndex(0);
-	mBtnApplyToSelection = LLUICtrlFactory::getButtonByName(this,"button apply to selection");
+	mBtnApplyToSelection = getChild<LLButton>("button apply to selection");
 	childSetAction("button apply to selection",click_apply_to_selection,  (void*)0);
-	mCheckShowOwners = LLUICtrlFactory::getCheckBoxByName(this,"checkbox show owners");
+	mCheckShowOwners = getChild<LLCheckBoxCtrl>("checkbox show owners");
 	childSetValue("checkbox show owners",gSavedSettings.getBOOL("ShowParcelOwners"));
 	childSetAction("button more", click_show_more, this);
 	childSetAction("button less", click_show_more, this);
-	mTab = LLUICtrlFactory::getTabContainerByName(this,"Object Info Tabs");
+	mTab = getChild<LLTabContainer>("Object Info Tabs");
 	if(mTab)
 	{
 		mTab->setVisible( gSavedSettings.getBOOL("ToolboxShowMore") );
@@ -406,7 +405,7 @@ LLFloaterTools::LLFloaterTools()
 	factory_map["ContentsInventory"] = LLCallbackMap(createPanelContentsInventory, this);//LLPanelContents
 	factory_map["land info panel"] = LLCallbackMap(createPanelLandInfo, this);//LLPanelLandInfo
 
-	gUICtrlFactory->buildFloater(this,"floater_tools.xml",&factory_map,FALSE);
+	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_tools.xml",&factory_map,FALSE);
 
 	mLargeHeight = getRect().getHeight();
 	mSmallHeight = mLargeHeight;
@@ -445,7 +444,7 @@ void LLFloaterTools::refresh()
 	const S32 INFO_WIDTH = getRect().getWidth();
 	const S32 INFO_HEIGHT = 384;
 	LLRect object_info_rect(0, 0, INFO_WIDTH, -INFO_HEIGHT);
-	BOOL all_volume = gSelectMgr->selectionAllPCode( LL_PCODE_VOLUME );
+	BOOL all_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME );
 
 	S32 idx_features = mTab->getPanelIndexByTitle(PANEL_NAMES[PANEL_FEATURES]);
 	S32 idx_face = mTab->getPanelIndexByTitle(PANEL_NAMES[PANEL_FACE]);
@@ -502,7 +501,7 @@ void LLFloaterTools::resetToolState()
 
 void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 {
-	LLTool *tool = gToolMgr->getCurrentTool();
+	LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
 
 	// HACK to allow seeing the buttons when you have the app in a window.
 	// Keep the visibility the same as it 
@@ -517,7 +516,7 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	}
 	
 	// Focus buttons
-	BOOL focus_visible = (	tool == gToolCamera );
+	BOOL focus_visible = (	tool == LLToolCamera::getInstance() );
 
 	mBtnFocus	->setToggleState( focus_visible );
 
@@ -545,7 +544,7 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	childSetValue( "slider zoom", gAgent.getCameraZoomFraction() * 0.5f);
 
 	// Move buttons
-	BOOL move_visible = (tool == gToolGrab);
+	BOOL move_visible = (tool == LLToolGrab::getInstance());
 
 	if (mBtnMove) mBtnMove	->setToggleState( move_visible );
 
@@ -574,12 +573,12 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	}
 
 	// Edit buttons
-	BOOL edit_visible = tool == gToolTranslate ||
-						tool == gToolRotate ||
-						tool == gToolStretch ||
-						tool == gToolFace ||
-						tool == gToolIndividual ||
-						tool == gToolPipette;
+	BOOL edit_visible = tool == LLToolCompTranslate::getInstance() ||
+						tool == LLToolCompRotate::getInstance() ||
+						tool == LLToolCompScale::getInstance() ||
+						tool == LLToolFace::getInstance() ||
+						tool == LLToolIndividual::getInstance() ||
+						tool == LLToolPipette::getInstance();
 
 	mBtnEdit	->setToggleState( edit_visible );
 
@@ -589,7 +588,7 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	if (mRadioSelectFace)
 	{
 		mRadioSelectFace->setVisible( edit_visible );
-		mRadioSelectFace->set( tool == gToolFace );
+		mRadioSelectFace->set( tool == LLToolFace::getInstance() );
 	}
 
 	if (mCheckSelectIndividual)
@@ -598,9 +597,9 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 		//mCheckSelectIndividual->set(gSavedSettings.getBOOL("EditLinkedParts"));
 	}
 
-	mRadioPosition	->set( tool == gToolTranslate );
-	mRadioRotate	->set( tool == gToolRotate );
-	mRadioStretch	->set( tool == gToolStretch );
+	mRadioPosition	->set( tool == LLToolCompTranslate::getInstance() );
+	mRadioRotate	->set( tool == LLToolCompRotate::getInstance() );
+	mRadioStretch	->set( tool == LLToolCompScale::getInstance() );
 
 	if (mComboGridMode) 
 	{
@@ -632,17 +631,17 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	if (mTextGridMode) mTextGridMode->setVisible( edit_visible );
 
 	// Snap to grid disabled for grab tool - very confusing
-	if (mCheckSnapToGrid) mCheckSnapToGrid->setVisible( edit_visible /* || tool == gToolGrab */ );
-	if (mBtnGridOptions) mBtnGridOptions->setVisible( edit_visible /* || tool == gToolGrab */ );
+	if (mCheckSnapToGrid) mCheckSnapToGrid->setVisible( edit_visible /* || tool == LLToolGrab::getInstance() */ );
+	if (mBtnGridOptions) mBtnGridOptions->setVisible( edit_visible /* || tool == LLToolGrab::getInstance() */ );
 
 	//mCheckSelectLinked	->setVisible( edit_visible );
 	if (mCheckStretchUniform) mCheckStretchUniform->setVisible( edit_visible );
 	if (mCheckStretchTexture) mCheckStretchTexture->setVisible( edit_visible );
 
 	// Create buttons
-	BOOL create_visible = (tool == gToolCreate);
+	BOOL create_visible = (tool == LLToolCompCreate::getInstance());
 
-	mBtnCreate	->setToggleState(	tool == gToolCreate );
+	mBtnCreate	->setToggleState(	tool == LLToolCompCreate::getInstance() );
 
 	if (mCheckCopySelection
 		&& mCheckCopySelection->get())
@@ -678,12 +677,12 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	if (mCheckCopyRotates) mCheckCopyRotates->setEnabled( mCheckCopySelection->get() );
 
 	// Land buttons
-	BOOL land_visible = (tool == gToolLand || tool == gToolParcel );
+	BOOL land_visible = (tool == LLToolBrushLand::getInstance() || tool == LLToolSelectLand::getInstance() );
 
 	if (mBtnLand)	mBtnLand	->setToggleState( land_visible );
 
-	//	mRadioEditLand	->set( tool == gToolLand );
-	if (mRadioSelectLand)	mRadioSelectLand->set( tool == gToolParcel );
+	//	mRadioEditLand	->set( tool == LLToolBrushLand::getInstance() );
+	if (mRadioSelectLand)	mRadioSelectLand->set( tool == LLToolSelectLand::getInstance() );
 
 	//	mRadioEditLand	->setVisible( land_visible );
 	if (mRadioSelectLand)	mRadioSelectLand->setVisible( land_visible );
@@ -693,44 +692,44 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 
 	if (mRadioDozerFlatten)
 	{
-		mRadioDozerFlatten	->set( tool == gToolLand && dozer_mode == 0);
+		mRadioDozerFlatten	->set( tool == LLToolBrushLand::getInstance() && dozer_mode == 0);
 		mRadioDozerFlatten	->setVisible( land_visible );
 	}
 	if (mRadioDozerRaise)
 	{
-		mRadioDozerRaise	->set( tool == gToolLand && dozer_mode == 1);
+		mRadioDozerRaise	->set( tool == LLToolBrushLand::getInstance() && dozer_mode == 1);
 		mRadioDozerRaise	->setVisible( land_visible );
 	}
 	if (mRadioDozerLower)
 	{
-		mRadioDozerLower	->set( tool == gToolLand && dozer_mode == 2);
+		mRadioDozerLower	->set( tool == LLToolBrushLand::getInstance() && dozer_mode == 2);
 		mRadioDozerLower	->setVisible( land_visible );
 	}
 	if (mRadioDozerSmooth)
 	{
-		mRadioDozerSmooth	->set( tool == gToolLand && dozer_mode == 3);
+		mRadioDozerSmooth	->set( tool == LLToolBrushLand::getInstance() && dozer_mode == 3);
 		mRadioDozerSmooth	->setVisible( land_visible );
 	}
 	if (mRadioDozerNoise)
 	{
-		mRadioDozerNoise	->set( tool == gToolLand && dozer_mode == 4);
+		mRadioDozerNoise	->set( tool == LLToolBrushLand::getInstance() && dozer_mode == 4);
 		mRadioDozerNoise	->setVisible( land_visible );
 	}
 	if (mRadioDozerRevert)
 	{
-		mRadioDozerRevert	->set( tool == gToolLand && dozer_mode == 5);
+		mRadioDozerRevert	->set( tool == LLToolBrushLand::getInstance() && dozer_mode == 5);
 		mRadioDozerRevert	->setVisible( land_visible );
 	}
 	if (mComboDozerSize)
 	{
 		mComboDozerSize		->setCurrentByIndex(dozer_size);
 		mComboDozerSize 	->setVisible( land_visible );
-		mComboDozerSize 	->setEnabled( tool == gToolLand );
+		mComboDozerSize 	->setEnabled( tool == LLToolBrushLand::getInstance() );
 	}
 	if (mBtnApplyToSelection)
 	{
 		mBtnApplyToSelection->setVisible( land_visible );
-		mBtnApplyToSelection->setEnabled( land_visible && !gParcelMgr->selectionEmpty() && tool != gToolParcel);
+		mBtnApplyToSelection->setEnabled( land_visible && !LLViewerParcelMgr::getInstance()->selectionEmpty() && tool != LLToolSelectLand::getInstance());
 	}
 	if (mCheckShowOwners)
 	{
@@ -742,8 +741,8 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	//
 	BOOL show_more = gSavedSettings.getBOOL("ToolboxShowMore");
 
-	mTab->setVisible(show_more && tool != gToolLand && tool != gToolParcel);
-	mPanelLandInfo->setVisible(show_more && (tool == gToolLand || tool == gToolParcel));
+	mTab->setVisible(show_more && tool != LLToolBrushLand::getInstance() && tool != LLToolSelectLand::getInstance());
+	mPanelLandInfo->setVisible(show_more && (tool == LLToolBrushLand::getInstance() || tool == LLToolSelectLand::getInstance()));
 }
 
 
@@ -757,8 +756,8 @@ BOOL LLFloaterTools::canClose()
 // virtual
 void LLFloaterTools::onOpen()
 {
-	mParcelSelection = gParcelMgr->getFloatingParcelSelection();
-	mObjectSelection = gSelectMgr->getEditSelection();
+	mParcelSelection = LLViewerParcelMgr::getInstance()->getFloatingParcelSelection();
+	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 	
 	gMenuBarView->setItemVisible("Tools", TRUE);
 	gMenuBarView->arrange();
@@ -776,7 +775,7 @@ void LLFloaterTools::onClose(bool app_quitting)
 	gAgent.resetView(gSavedSettings.getBOOL("EditCameraMovement"));
 	
 	// exit component selection mode
-	gSelectMgr->promoteSelectionToRoot();
+	LLSelectMgr::getInstance()->promoteSelectionToRoot();
 	gSavedSettings.setBOOL("EditLinkedParts", FALSE);
 
 	gViewerWindow->showCursor();
@@ -787,10 +786,10 @@ void LLFloaterTools::onClose(bool app_quitting)
 	mObjectSelection = NULL;
 
 	// Switch back to basic toolset
-	gToolMgr->setCurrentToolset(gBasicToolset);
+	LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 	// we were already in basic toolset, using build tools
 	// so manually reset tool to default (pie menu tool)
-	gToolMgr->getCurrentToolset()->selectFirstTool();
+	LLToolMgr::getInstance()->getCurrentToolset()->selectFirstTool();
 
 	gMenuBarView->setItemVisible("Tools", FALSE);
 	gMenuBarView->arrange();
@@ -891,19 +890,19 @@ void commit_slider_zoom(LLUICtrl *ctrl, void*)
 
 void click_popup_rotate_left(void*)
 {
-	gSelectMgr->selectionRotateAroundZ( 45.f );
+	LLSelectMgr::getInstance()->selectionRotateAroundZ( 45.f );
 	dialog_refresh_all();
 }
 
 void click_popup_rotate_reset(void*)
 {
-	gSelectMgr->selectionResetRotation();
+	LLSelectMgr::getInstance()->selectionResetRotation();
 	dialog_refresh_all();
 }
 
 void click_popup_rotate_right(void*)
 {
-	gSelectMgr->selectionRotateAroundZ( -45.f );
+	LLSelectMgr::getInstance()->selectionRotateAroundZ( -45.f );
 	dialog_refresh_all();
 }
 
@@ -912,7 +911,7 @@ void click_popup_dozer_mode(LLUICtrl *, void *user)
 {
 	S32 show_owners = gSavedSettings.getBOOL("ShowParcelOwners");
 	S32 mode = (S32)(intptr_t) user;
-	gFloaterTools->setEditTool( gToolLand );
+	gFloaterTools->setEditTool( LLToolBrushLand::getInstance() );
 	gSavedSettings.setS32("RadioLandBrushAction", mode);
 	gSavedSettings.setBOOL("ShowParcelOwners", show_owners);
 }
@@ -931,7 +930,7 @@ void click_dozer_size(LLUICtrl *ctrl, void *user)
 
 void click_apply_to_selection(void* user)
 {
-	gToolLand->modifyLandInSelectionGlobal();
+	LLToolBrushLand::getInstance()->modifyLandInSelectionGlobal();
 }
 
 void commit_select_tool(LLUICtrl *ctrl, void *data)
@@ -957,11 +956,11 @@ void commit_select_component(LLUICtrl *ctrl, void *data)
 
 	if (select_individuals)
 	{
-		gSelectMgr->demoteSelectionToIndividuals();
+		LLSelectMgr::getInstance()->demoteSelectionToIndividuals();
 	}
 	else
 	{
-		gSelectMgr->promoteSelectionToRoot();
+		LLSelectMgr::getInstance()->promoteSelectionToRoot();
 	}
 }
 
@@ -969,7 +968,7 @@ void commit_grid_mode(LLUICtrl *ctrl, void *data)
 {   
 	LLComboBox* combo = (LLComboBox*)ctrl;   
     
-	gSelectMgr->setGridMode((EGridMode)combo->getCurrentIndex());
+	LLSelectMgr::getInstance()->setGridMode((EGridMode)combo->getCurrentIndex());
 } 
 
 // static 
@@ -997,6 +996,6 @@ void LLFloaterTools::setEditTool(void* tool_pointer)
 
 void LLFloaterTools::onFocusReceived()
 {
-	gToolMgr->setCurrentToolset(gBasicToolset);
+	LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 	LLFloater::onFocusReceived();
 }

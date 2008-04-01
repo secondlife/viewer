@@ -71,7 +71,7 @@
 #include "llvlcomposition.h"
 #include "llsurface.h"
 #include "llviewercontrol.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 #include "lltransfertargetfile.h"
 #include "lltransfersourcefile.h"
@@ -124,7 +124,7 @@ LLFloaterGodTools::LLFloaterGodTools()
 	factory_map["region"] = LLCallbackMap(createPanelRegion, this);
 	factory_map["objects"] = LLCallbackMap(createPanelObjects, this);
 	factory_map["request"] = LLCallbackMap(createPanelRequest, this);
-	gUICtrlFactory->buildFloater(this, "floater_god_tools.xml", &factory_map);
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_god_tools.xml", &factory_map);
 
 	childSetTabChangeCallback("GodTools Tabs", "grid", onTabChanged, this);
 	childSetTabChangeCallback("GodTools Tabs", "region", onTabChanged, this);
@@ -853,18 +853,14 @@ void LLPanelRegionTools::onSelectRegion(void* userdata)
 {
 	llinfos << "LLPanelRegionTools::onSelectRegion" << llendl;
 
-	if (!gWorldp)
-	{
-		return;
-	}
-	LLViewerRegion *regionp = gWorldp->getRegionFromPosGlobal(gAgent.getPositionGlobal());
+	LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromPosGlobal(gAgent.getPositionGlobal());
 	if (!regionp)
 	{
 		return;
 	}
 
 	LLVector3d north_east(REGION_WIDTH_METERS, REGION_WIDTH_METERS, 0);
-	gParcelMgr->selectLand(regionp->getOriginGlobal(), 
+	LLViewerParcelMgr::getInstance()->selectLand(regionp->getOriginGlobal(), 
 						   regionp->getOriginGlobal() + north_east, FALSE);
 	
 }
@@ -1261,12 +1257,12 @@ void LLPanelObjectTools::onClickSetBySelection(void* data)
 	if (!panelp) return;
 
 	const BOOL non_root_ok = TRUE; 
-	LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode(NULL, non_root_ok);
+	LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode(NULL, non_root_ok);
 	if (!node) return;
 
 	LLString owner_name;
 	LLUUID owner_id;
-	gSelectMgr->selectGetOwner(owner_id, owner_name);
+	LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
 
 	panelp->mTargetAvatar = owner_id;
 	LLString name = "Object " + node->mName + " owned by " + owner_name;
@@ -1348,8 +1344,8 @@ void LLPanelRequestTools::refresh()
 	list->operateOnAll(LLCtrlListInterface::OP_DELETE);
 	list->addSimpleElement(SELECTION);
 	list->addSimpleElement(AGENT_REGION);
-	for (LLWorld::region_list_t::iterator iter = gWorldp->mActiveRegionList.begin();
-		 iter != gWorldp->mActiveRegionList.end(); ++iter)
+	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->mActiveRegionList.begin();
+		 iter != LLWorld::getInstance()->mActiveRegionList.end(); ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
 		LLString name = regionp->getName();
@@ -1400,7 +1396,7 @@ void LLPanelRequestTools::onClickRequest(void* data)
 		std::string req = self->childGetValue("request");
 		req = req.substr(0, req.find_first_of(" "));
 		std::string param = self->childGetValue("parameter");
-		gSelectMgr->sendGodlikeRequest(req, param);
+		LLSelectMgr::getInstance()->sendGodlikeRequest(req, param);
 	}
 	else if(dest == AGENT_REGION)
 	{
@@ -1409,8 +1405,8 @@ void LLPanelRequestTools::onClickRequest(void* data)
 	else
 	{
 		// find region by name
-		for (LLWorld::region_list_t::iterator iter = gWorldp->mActiveRegionList.begin();
-			 iter != gWorldp->mActiveRegionList.end(); ++iter)
+		for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->mActiveRegionList.begin();
+			 iter != LLWorld::getInstance()->mActiveRegionList.end(); ++iter)
 		{
 			LLViewerRegion* regionp = *iter;
 			if(dest == regionp->getName())

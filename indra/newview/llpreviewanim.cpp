@@ -42,14 +42,14 @@
 #include "llfilepicker.h"
 #include "lllineeditor.h"
 #include "lluictrlfactory.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 extern LLAgent gAgent;
 
 LLPreviewAnim::LLPreviewAnim(const std::string& name, const LLRect& rect, const std::string& title, const LLUUID& item_uuid, const S32& activate, const LLUUID& object_uuid )	:
 	LLPreview( name, rect, title, item_uuid, object_uuid)
 {
-	gUICtrlFactory->buildFloater(this,"floater_preview_animation.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_preview_animation.xml");
 
 	childSetAction("Anim play btn",playAnim,this);
 	childSetAction("Anim audition btn",auditionAnim,this);
@@ -116,7 +116,7 @@ void LLPreviewAnim::playAnim( void *userdata )
 	{
 		LLUUID itemID=item->getAssetUUID();
 
-		LLButton* btn = LLUICtrlFactory::getButtonByName(self, "Anim play btn");
+		LLButton* btn = self->getChild<LLButton>("Anim play btn");
 		if (btn)
 		{
 			btn->toggleState();
@@ -153,7 +153,7 @@ void LLPreviewAnim::auditionAnim( void *userdata )
 	{
 		LLUUID itemID=item->getAssetUUID();
 
-		LLButton* btn = LLUICtrlFactory::getButtonByName(self, "Anim audition btn");
+		LLButton* btn = self->getChild<LLButton>("Anim audition btn");
 		if (btn)
 		{
 			btn->toggleState();

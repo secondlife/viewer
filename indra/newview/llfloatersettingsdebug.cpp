@@ -32,7 +32,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llfloatersettingsdebug.h"
 #include "llfloater.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llfirstuse.h"
 #include "llcombobox.h"
 #include "llspinctrl.h"
@@ -52,7 +52,7 @@ LLFloaterSettingsDebug::~LLFloaterSettingsDebug()
 
 BOOL LLFloaterSettingsDebug::postBuild()
 {
-	LLComboBox* settings_combo = LLUICtrlFactory::getComboBoxByName(this, "settings_combo");
+	LLComboBox* settings_combo = getChild<LLComboBox>("settings_combo");
 
 	struct f : public LLControlGroup::ApplyFunctor
 	{
@@ -108,7 +108,7 @@ void LLFloaterSettingsDebug::show(void*)
 	{
 		sInstance = new LLFloaterSettingsDebug();
 
-		gUICtrlFactory->buildFloater(sInstance, "floater_settings_debug.xml");
+		LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_settings_debug.xml");
 	}
 
 	sInstance->open();		/* Flawfinder: ignore */
@@ -216,10 +216,10 @@ void LLFloaterSettingsDebug::onClickDefault(void* user_data)
 // we've switched controls, or doing per-frame update, so update spinners, etc.
 void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 {
-	LLSpinCtrl* spinner1 = LLUICtrlFactory::getSpinnerByName(this, "val_spinner_1");
-	LLSpinCtrl* spinner2 = LLUICtrlFactory::getSpinnerByName(this, "val_spinner_2");
-	LLSpinCtrl* spinner3 = LLUICtrlFactory::getSpinnerByName(this, "val_spinner_3");
-	LLSpinCtrl* spinner4 = LLUICtrlFactory::getSpinnerByName(this, "val_spinner_4");
+	LLSpinCtrl* spinner1 = getChild<LLSpinCtrl>("val_spinner_1");
+	LLSpinCtrl* spinner2 = getChild<LLSpinCtrl>("val_spinner_2");
+	LLSpinCtrl* spinner3 = getChild<LLSpinCtrl>("val_spinner_3");
+	LLSpinCtrl* spinner4 = getChild<LLSpinCtrl>("val_spinner_4");
 	LLColorSwatchCtrl* color_swatch = getChild<LLColorSwatchCtrl>("color_swatch");
 
 	if (!spinner1 || !spinner2 || !spinner3 || !spinner4 || !color_swatch)

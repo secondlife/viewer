@@ -81,7 +81,7 @@
 #include "llviewermessage.h" 
 #include "llviewerregion.h"
 #include "lltabcontainer.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llselectmgr.h"
 #include "llfloateropenobject.h"
 
@@ -124,11 +124,11 @@ const char* ICON_NAME[ICON_NAME_COUNT] =
 	"inv_item_object.tga",
 	"inv_item_object_multi.tga",
 	"inv_item_notecard.tga",
-	"inv_item_bodypart.tga",
+	"inv_item_skin.tga",
 	"inv_item_snapshot.tga",
 
 	"inv_item_shape.tga",
-	"inv_item_bodypart.tga",
+	"inv_item_skin.tga",
 	"inv_item_hair.tga",
 	"inv_item_eyes.tga",
 	"inv_item_shirt.tga",
@@ -388,9 +388,10 @@ void hideContextEntries(LLMenuGL& menu,
 		LLString name = (*itor)->getName();
 
 		// descend into split menus:
-		if ((name == "More") && (WIDGET_TYPE_MENU_ITEM_BRANCH == (*itor)->getWidgetType()))
+		LLMenuItemBranchGL* branchp = dynamic_cast<LLMenuItemBranchGL*>(*itor);
+		if ((name == "More") && branchp)
 		{
-			hideContextEntries(*((LLMenuItemBranchGL *)(*itor))->getBranch(), entries_to_show, disabled_entries);
+			hideContextEntries(*branchp->getBranch(), entries_to_show, disabled_entries);
 		}
 		
 		
@@ -807,10 +808,9 @@ void LLItemBridge::restoreItem()
 	}
 }
 
-LLViewerImage* LLItemBridge::getIcon() const
+LLUIImagePtr LLItemBridge::getIcon() const
 {
-	LLString uuid_string = gViewerArt.getString(ICON_NAME[OBJECT_ICON_NAME]);
-	return gImageList.getImage(LLUUID(uuid_string), MIPMAP_FALSE, TRUE);
+	return LLUI::getUIImage(ICON_NAME[OBJECT_ICON_NAME]);
 }
 
 PermissionMask LLItemBridge::getPermissionMask() const
@@ -1133,7 +1133,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	}
 
 	// check to make sure source is agent inventory, and is represented there.
-	LLToolDragAndDrop::ESource source = gToolDragAndDrop->getSource();
+	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
 	BOOL is_agent_inventory = (model->getCategory(inv_cat->getUUID()) != NULL)
 		&& (LLToolDragAndDrop::SOURCE_AGENT == source);
 
@@ -1626,7 +1626,7 @@ void LLFolderBridge::restoreItem()
 }
 
 // Icons for folders are based on the preferred type
-LLViewerImage* LLFolderBridge::getIcon() const
+LLUIImagePtr LLFolderBridge::getIcon() const
 {
 	const char* control = NULL;
 	LLAssetType::EType preferred_type = LLAssetType::AT_NONE;
@@ -1687,8 +1687,7 @@ LLViewerImage* LLFolderBridge::getIcon() const
 		control = "inv_folder_plain_closed.tga";
 		break;
 	}
-	LLString uuid_string = gViewerArt.getString(control);
-	return gImageList.getImage(LLUUID(uuid_string), MIPMAP_FALSE, TRUE);
+	return LLUI::getUIImage(control);
 }
 
 BOOL LLFolderBridge::renameItem(const LLString& new_name)
@@ -2195,7 +2194,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 	LLVOAvatar* avatar = gAgent.getAvatarObject();
 	if(!avatar) return FALSE;
 
-	LLToolDragAndDrop::ESource source = gToolDragAndDrop->getSource();
+	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
 	BOOL accept = FALSE;
 	LLViewerObject* object = NULL;
 	if(LLToolDragAndDrop::SOURCE_AGENT == source)
@@ -2318,8 +2317,8 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		accept = TRUE;
 		if(drop)
 		{
-			copy_inventory_from_notecard(gToolDragAndDrop->getObjectID(),
-				gToolDragAndDrop->getSourceID(), inv_item);
+			copy_inventory_from_notecard(LLToolDragAndDrop::getInstance()->getObjectID(),
+				LLToolDragAndDrop::getInstance()->getSourceID(), inv_item);
 		}
 	}
 	else if(LLToolDragAndDrop::SOURCE_LIBRARY == source)
@@ -2351,7 +2350,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 // |        LLScriptBridge (DEPRECTED)               |
 // +=================================================+
 
-LLViewerImage* LLScriptBridge::getIcon() const
+LLUIImagePtr LLScriptBridge::getIcon() const
 {
 	return get_item_icon(LLAssetType::AT_SCRIPT, LLInventoryType::IT_LSL, 0, FALSE);
 }
@@ -2363,7 +2362,7 @@ LLViewerImage* LLScriptBridge::getIcon() const
 LLString LLTextureBridge::sPrefix("Texture: ");
 
 
-LLViewerImage* LLTextureBridge::getIcon() const
+LLUIImagePtr LLTextureBridge::getIcon() const
 {
 	return get_item_icon(LLAssetType::AT_TEXTURE, mInvType, 0, FALSE);
 }
@@ -2413,7 +2412,7 @@ void LLTextureBridge::openItem()
 LLString LLSoundBridge::sPrefix("Sound: ");
 
 
-LLViewerImage* LLSoundBridge::getIcon() const
+LLUIImagePtr LLSoundBridge::getIcon() const
 {
 	return get_item_icon(LLAssetType::AT_SOUND, LLInventoryType::IT_SOUND, 0, FALSE);
 }
@@ -2508,7 +2507,7 @@ void LLSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 LLString LLLandmarkBridge::sPrefix("Landmark:  ");
 
-LLViewerImage* LLLandmarkBridge::getIcon() const
+LLUIImagePtr LLLandmarkBridge::getIcon() const
 {
 	return get_item_icon(LLAssetType::AT_LANDMARK, LLInventoryType::IT_LANDMARK, mVisited, FALSE);
 }
@@ -2695,7 +2694,7 @@ void LLCallingCardBridge::performAction(LLFolderView* folder, LLInventoryModel* 
 	else LLItemBridge::performAction(folder, model, action);
 }
 
-LLViewerImage* LLCallingCardBridge::getIcon() const
+LLUIImagePtr LLCallingCardBridge::getIcon() const
 {
 	BOOL online = FALSE;
 	LLViewerInventoryItem* item = getItem();
@@ -2855,7 +2854,7 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 LLString LLNotecardBridge::sPrefix("Note: ");
 
 
-LLViewerImage* LLNotecardBridge::getIcon() const
+LLUIImagePtr LLNotecardBridge::getIcon() const
 {
 	return get_item_icon(LLAssetType::AT_NOTECARD, LLInventoryType::IT_NOTECARD, 0, FALSE);
 }
@@ -2923,7 +2922,7 @@ void LLNotecardBridge::openItem()
 
 LLString LLGestureBridge::sPrefix("Gesture: ");
 
-LLViewerImage* LLGestureBridge::getIcon() const
+LLUIImagePtr LLGestureBridge::getIcon() const
 {
 	return get_item_icon(LLAssetType::AT_GESTURE, LLInventoryType::IT_GESTURE, 0, FALSE);
 }
@@ -3055,7 +3054,7 @@ void LLGestureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 LLString LLAnimationBridge::sPrefix("Animation: ");
 
 
-LLViewerImage* LLAnimationBridge::getIcon() const
+LLUIImagePtr LLAnimationBridge::getIcon() const
 {
 	return get_item_icon(LLAssetType::AT_ANIMATION, LLInventoryType::IT_ANIMATION, 0, FALSE);
 }
@@ -3173,7 +3172,7 @@ BOOL LLObjectBridge::isItemRemovable()
 	return LLInvFVBridge::isItemRemovable();
 }
 
-LLViewerImage* LLObjectBridge::getIcon() const
+LLUIImagePtr LLObjectBridge::getIcon() const
 {
 	return get_item_icon(LLAssetType::AT_OBJECT, mInvType, mAttachPt, mIsMultiObject );
 }
@@ -3223,7 +3222,7 @@ void LLObjectBridge::performAction(LLFolderView* folder, LLInventoryModel* model
 			gObjectList.findObject(item->getUUID());
 		if (found_obj)
 		{
-			gSelectMgr->remove(found_obj);
+			LLSelectMgr::getInstance()->remove(found_obj);
 		}
 		else
 		{
@@ -3432,10 +3431,10 @@ BOOL LLObjectBridge::renameItem(const LLString& new_name)
 			LLViewerObject* obj = avatar->getWornAttachment( item->getUUID() );
 			if( obj )
 			{
-				gSelectMgr->deselectAll();
-				gSelectMgr->addAsIndividual( obj, SELECT_ALL_TES, FALSE );
-				gSelectMgr->selectionSetObjectName( new_name );
-				gSelectMgr->deselectAll();
+				LLSelectMgr::getInstance()->deselectAll();
+				LLSelectMgr::getInstance()->addAsIndividual( obj, SELECT_ALL_TES, FALSE );
+				LLSelectMgr::getInstance()->selectionSetObjectName( new_name );
+				LLSelectMgr::getInstance()->deselectAll();
 			}
 		}
 	}
@@ -3450,7 +3449,7 @@ BOOL LLObjectBridge::renameItem(const LLString& new_name)
 
 LLString LLLSLTextBridge::sPrefix("Script: ");
 
-LLViewerImage* LLLSLTextBridge::getIcon() const
+LLUIImagePtr LLLSLTextBridge::getIcon() const
 {
 	return get_item_icon(LLAssetType::AT_SCRIPT, LLInventoryType::IT_LSL, 0, FALSE);
 }
@@ -4176,7 +4175,7 @@ void remove_inventory_category_from_avatar_step2( BOOL proceed, void* userdata)
 				LLViewerObject *found_obj = gObjectList.findObject( obj_item_array.get(i)->getUUID());
 				if (found_obj)
 				{
-					gSelectMgr->remove(found_obj);
+					LLSelectMgr::getInstance()->remove(found_obj);
 				}
 				else
 				{
@@ -4243,7 +4242,7 @@ LLString LLWearableBridge::getLabelSuffix() const
 	}
 }
 
-LLViewerImage* LLWearableBridge::getIcon() const
+LLUIImagePtr LLWearableBridge::getIcon() const
 {
 	return get_item_icon(mAssetType, mInvType, mWearableType, FALSE);
 }

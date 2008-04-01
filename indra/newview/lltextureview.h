@@ -46,9 +46,6 @@ public:
 	LLTextureView(const std::string& name, const LLRect& rect);
 	~LLTextureView();
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
-
 	/*virtual*/ void draw();
 	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);

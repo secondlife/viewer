@@ -43,7 +43,7 @@
 class LLViewerObject;
 
 class LLToolPipette
-:	public LLTool
+:	public LLTool, public LLSingleton<LLToolPipette>
 {
 public:
 	LLToolPipette();
@@ -67,7 +67,5 @@ protected:
 	LLString		mTooltipMsg;
 	void*			mUserData;
 };
-
-extern LLToolPipette *gToolPipette;
 
 #endif //LL_LLTOOLPIPETTE_H

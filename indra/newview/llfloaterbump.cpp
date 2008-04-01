@@ -36,7 +36,7 @@
 
 #include "llscrolllistctrl.h"
 
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewermessage.h"
 #include "llappviewer.h"		// gPacificDaylightTime
 
@@ -55,7 +55,7 @@ LLFloaterBump::LLFloaterBump()
 {
 	sInstance = this;
 
-	gUICtrlFactory->buildFloater(this, "floater_bumps.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_bumps.xml");
 }
 
 
@@ -78,7 +78,7 @@ void LLFloaterBump::show(void *contents)
 		sInstance = new LLFloaterBump();
 	}
 	
-	LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(sInstance, "bump_list");
+	LLScrollListCtrl* list = sInstance->getChild<LLScrollListCtrl>("bump_list");
 	if (!list) return;
 	list->deleteAllItems();
 

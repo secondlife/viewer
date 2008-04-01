@@ -53,7 +53,7 @@
 #include "lltexturectrl.h"
 #include "llviewchildren.h"
 #include "llviewercontrol.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewertexteditor.h"
@@ -291,7 +291,7 @@ LLFloaterBuyLandUI* LLFloaterBuyLandUI::soleInstance(bool createIfNeeded)
 	{
 		sInstance = new LLFloaterBuyLandUI();
 
-		gUICtrlFactory->buildFloater(sInstance, "floater_buy_land.xml");
+		LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_buy_land.xml");
 		sInstance->center();
 
 		static bool observingCacheName = false;
@@ -305,7 +305,7 @@ LLFloaterBuyLandUI* LLFloaterBuyLandUI::soleInstance(bool createIfNeeded)
 		if (!parcelSelectionObserver)
 		{
 			parcelSelectionObserver = new SelectionObserver;
-			gParcelMgr->addObserver(parcelSelectionObserver);
+			LLViewerParcelMgr::getInstance()->addObserver(parcelSelectionObserver);
 		}
 	}
 	
@@ -334,7 +334,7 @@ LLFloaterBuyLandUI::~LLFloaterBuyLandUI()
 {
 	delete mTransaction;
 
-	gParcelMgr->deleteParcelBuy(mParcelBuyInfo);
+	LLViewerParcelMgr::getInstance()->deleteParcelBuy(mParcelBuyInfo);
 	
 	if (sInstance == this)
 	{
@@ -347,14 +347,14 @@ void LLFloaterBuyLandUI::SelectionObserver::changed()
 	LLFloaterBuyLandUI* ui = LLFloaterBuyLandUI::soleInstance(false);
 	if (ui)
 	{
-		if (gParcelMgr->selectionEmpty())
+		if (LLViewerParcelMgr::getInstance()->selectionEmpty())
 		{
 			ui->close();
 		}
 		else {
 			ui->setParcel(
-				gParcelMgr->getSelectionRegion(),
-				gParcelMgr->getParcelSelection());
+				LLViewerParcelMgr::getInstance()->getSelectionRegion(),
+				LLViewerParcelMgr::getInstance()->getParcelSelection());
 		}
 	}
 }
@@ -431,7 +431,7 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 		parcel->getMaxPrimCapacity() * parcel->getParcelPrimBonus()); 
  	// Can't have more than region max tasks, regardless of parcel 
  	// object bonus factor. 
- 	LLViewerRegion* region = gParcelMgr->getSelectionRegion(); 
+ 	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion(); 
  	if(region) 
  	{ 
 		S32 max_tasks_per_region = (S32)region->getMaxTasks(); 
@@ -519,7 +519,7 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 
 void LLFloaterBuyLandUI::updateCovenantInfo()
 {
-	LLViewerRegion* region = gParcelMgr->getSelectionRegion();
+	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 	if(!region) return;
 
 	LLTextBox* region_name = getChild<LLTextBox>("region_name_text");
@@ -729,7 +729,7 @@ void LLFloaterBuyLandUI::runWebSitePrep(const std::string& password)
 	}
 	
 	BOOL remove_contribution = childGetValue("remove_contribution").asBoolean();
-	mParcelBuyInfo = gParcelMgr->setupParcelBuy(gAgent.getID(), gAgent.getSessionID(),
+	mParcelBuyInfo = LLViewerParcelMgr::getInstance()->setupParcelBuy(gAgent.getID(), gAgent.getSessionID(),
 						gAgent.getGroupID(), mIsForGroup, mIsClaim, remove_contribution);
 
 	if (mParcelBuyInfo
@@ -747,7 +747,7 @@ void LLFloaterBuyLandUI::runWebSitePrep(const std::string& password)
 	
 	if (mSiteMembershipUpgrade)
 	{
-		LLComboBox* levels = LLUICtrlFactory::getComboBoxByName(this, "account_level");
+		LLComboBox* levels = getChild<LLComboBox>( "account_level");
 		if (levels)
 		{
 			mUserPlanChoice = levels->getCurrentIndex();
@@ -798,8 +798,8 @@ void LLFloaterBuyLandUI::sendBuyLand()
 {
 	if (mParcelBuyInfo)
 	{
-		gParcelMgr->sendParcelBuy(mParcelBuyInfo);
-		gParcelMgr->deleteParcelBuy(mParcelBuyInfo);
+		LLViewerParcelMgr::getInstance()->sendParcelBuy(mParcelBuyInfo);
+		LLViewerParcelMgr::getInstance()->deleteParcelBuy(mParcelBuyInfo);
 		mBought = true;
 	}
 }
@@ -1003,7 +1003,7 @@ void LLFloaterBuyLandUI::refreshUI()
 {
 	// section zero: title area
 	{
-		LLTextureCtrl* snapshot = LLViewerUICtrlFactory::getTexturePickerByName(this, "info_image");
+		LLTextureCtrl* snapshot = getChild<LLTextureCtrl>("info_image");
 		if (snapshot)
 		{
 			snapshot->setImageAssetID(
@@ -1061,7 +1061,7 @@ void LLFloaterBuyLandUI::refreshUI()
 				? LLViewChildren::BADGE_ERROR
 				: LLViewChildren::BADGE_WARN);
 		
-		LLTextBox* message = LLUICtrlFactory::getTextBoxByName(this, "error_message");
+		LLTextBox* message = getChild<LLTextBox>("error_message");
 		if (message)
 		{
 			message->setVisible(true);
@@ -1095,7 +1095,7 @@ void LLFloaterBuyLandUI::refreshUI()
 				:	getString("cant_own_land")
 			);
 		
-		LLComboBox* levels = LLUICtrlFactory::getComboBoxByName(this, "account_level");
+		LLComboBox* levels = getChild<LLComboBox>( "account_level");
 		if (levels)
 		{
 			levels->setVisible(mSiteMembershipUpgrade);
@@ -1296,7 +1296,7 @@ void LLFloaterBuyLandUI::startBuyPreConfirm()
 		action += mSiteMembershipAction;
 		action += "\n";
 
-		LLComboBox* levels = LLUICtrlFactory::getComboBoxByName(this, "account_level");
+		LLComboBox* levels = getChild<LLComboBox>( "account_level");
 		if (levels)
 		{
 			action += " * ";

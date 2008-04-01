@@ -31,6 +31,8 @@
 #ifndef LL_LLECONOMY_H
 #define LL_LLECONOMY_H
 
+#include "llmemory.h"
+
 class LLMessageSystem;
 class LLVector3;
 
@@ -40,9 +42,14 @@ public:
 	LLGlobalEconomy();
 	virtual ~LLGlobalEconomy();
 
+	// This class defines its singleton internally as a typedef instead of inheriting from
+	// LLSingleton like most others because the LLRegionEconomy sub-class might also
+	// become a singleton and this pattern will more easily disambiguate them.
+	typedef LLSingleton<LLGlobalEconomy> Singleton;
+
 	virtual void print();
 
-	static void processEconomyData(LLMessageSystem *msg, void **user_data);
+	static void processEconomyData(LLMessageSystem *msg, LLGlobalEconomy* econ_data);
 
 	S32		calculateTeleportCost(F32 distance) const;
 	S32		calculateLightRent(const LLVector3& object_size) const;
@@ -135,7 +142,5 @@ private:
 	F32		mAreaTotal;
 
 };
-
-extern LLGlobalEconomy* gGlobalEconomy;
 
 #endif

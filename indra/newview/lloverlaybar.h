@@ -57,9 +57,6 @@ public:
 	LLOverlayBar();
 	~LLOverlayBar();
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
-
 	/*virtual*/ void refresh();
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
 	/*virtual*/ BOOL postBuild();

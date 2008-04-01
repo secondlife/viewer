@@ -546,9 +546,9 @@ void LLViewerObject::removeChild(LLViewerObject *childp)
 	
 	if (childp->isSelected())
 	{
-		gSelectMgr->deselectObjectAndFamily(childp);
+		LLSelectMgr::getInstance()->deselectObjectAndFamily(childp);
 		BOOL add_to_end = TRUE;
-		gSelectMgr->selectObjectAndFamily(childp, add_to_end);
+		LLSelectMgr::getInstance()->selectObjectAndFamily(childp, add_to_end);
 	}
 }
 
@@ -683,7 +683,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	// Coordinates of objects on simulators are region-local.
 	U64 region_handle;
 	mesgsys->getU64Fast(_PREHASH_RegionData, _PREHASH_RegionHandle, region_handle);
-	mRegionp = gWorldPointer->getRegionFromHandle(region_handle);
+	mRegionp = LLWorld::getInstance()->getRegionFromHandle(region_handle);
 	if (!mRegionp)
 	{
 		U32 x, y;
@@ -708,9 +708,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	U16 valswizzle[4];
 #endif
 	U16	*val;
-	const F32 size = gWorldPointer->getRegionWidthInMeters();	
-	const F32 MAX_HEIGHT = gWorldPointer->getRegionMaxHeight();
-	const F32 MIN_HEIGHT = gWorldPointer->getRegionMinHeight();
+	const F32 size = LLWorld::getInstance()->getRegionWidthInMeters();	
+	const F32 MAX_HEIGHT = LLWorld::getInstance()->getRegionMaxHeight();
+	const F32 MIN_HEIGHT = LLWorld::getInstance()->getRegionMinHeight();
 	S32 length;
 	S32	count;
 	S32 this_update_precision = 32;		// in bits
@@ -1917,7 +1917,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 	if (needs_refresh)
 	{
-		gSelectMgr->updateSelectionCenter();
+		LLSelectMgr::getInstance()->updateSelectionCenter();
 		dialog_refresh_all();
 	} 
 
@@ -2177,7 +2177,7 @@ void LLViewerObject::doUpdateInventory(
 		// make sure that the serial number does not match.
 		deleteInventoryItem(item_id);
 		LLPermissions perm(item->getPermissions());
-		LLPermissions* obj_perm = gSelectMgr->findObjectPermissions(this);
+		LLPermissions* obj_perm = LLSelectMgr::getInstance()->findObjectPermissions(this);
 		bool is_atomic = ((S32)LLAssetType::AT_OBJECT == item->getType()) ? false : true;
 		if(obj_perm)
 		{
@@ -2714,19 +2714,19 @@ void LLViewerObject::setPixelAreaAndAngle(LLAgent &agent)
 	if (range < 0.001f || isHUDAttachment())		// range == zero
 	{
 		mAppAngle = 180.f;
-		mPixelArea = (F32)gCamera->getScreenPixelArea();
+		mPixelArea = (F32)LLViewerCamera::getInstance()->getScreenPixelArea();
 	}
 	else
 	{
 		mAppAngle = (F32) atan2( max_scale, range) * RAD_TO_DEG;
 
-		F32 pixels_per_meter = gCamera->getPixelMeterRatio() / range;
+		F32 pixels_per_meter = LLViewerCamera::getInstance()->getPixelMeterRatio() / range;
 
 		mPixelArea = (pixels_per_meter * max_scale) * (pixels_per_meter * mid_scale);
-		if (mPixelArea > gCamera->getScreenPixelArea())
+		if (mPixelArea > LLViewerCamera::getInstance()->getScreenPixelArea())
 		{
 			mAppAngle = 180.f;
-			mPixelArea = (F32)gCamera->getScreenPixelArea();
+			mPixelArea = (F32)LLViewerCamera::getInstance()->getScreenPixelArea();
 		}
 	}
 }
@@ -4092,7 +4092,7 @@ void LLViewerObject::unpackParticleSource(const S32 block_num, const LLUUID& own
 	{
 		LLPointer<LLViewerPartSourceScript> pss = LLViewerPartSourceScript::unpackPSS(this, NULL, block_num);
 		//If the owner is muted, don't create the system
-		if(gMuteListp->isMuted(owner_id, LLMute::flagParticles)) return;
+		if(LLMuteList::getInstance()->isMuted(owner_id, LLMute::flagParticles)) return;
 
 		// We need to be able to deal with a particle source that hasn't changed, but still got an update!
 		if (pss)
@@ -4100,7 +4100,7 @@ void LLViewerObject::unpackParticleSource(const S32 block_num, const LLUUID& own
 // 			llinfos << "Making particle system with owner " << owner_id << llendl;
 			pss->setOwnerUUID(owner_id);
 			mPartSourcep = pss;
-			gWorldPointer->mPartSim.addPartSource(pss);
+			LLViewerPartSim::getInstance()->addPartSource(pss);
 		}
 	}
 	if (mPartSourcep)
@@ -4110,8 +4110,7 @@ void LLViewerObject::unpackParticleSource(const S32 block_num, const LLUUID& own
 			LLViewerImage* image;
 			if (mPartSourcep->mPartSysData.mPartImageID == LLUUID::null)
 			{
-				LLUUID id(gViewerArt.getString("pixiesmall.tga"));
-				image = gImageList.getImage(id);
+				image = gImageList.getImageFromFile("pixiesmall.j2c");
 			}
 			else
 			{
@@ -4141,14 +4140,14 @@ void LLViewerObject::unpackParticleSource(LLDataPacker &dp, const LLUUID& owner_
 	{
 		LLPointer<LLViewerPartSourceScript> pss = LLViewerPartSourceScript::unpackPSS(this, NULL, dp);
 		//If the owner is muted, don't create the system
-		if(gMuteListp->isMuted(owner_id, LLMute::flagParticles)) return;
+		if(LLMuteList::getInstance()->isMuted(owner_id, LLMute::flagParticles)) return;
 		// We need to be able to deal with a particle source that hasn't changed, but still got an update!
 		if (pss)
 		{
 // 			llinfos << "Making particle system with owner " << owner_id << llendl;
 			pss->setOwnerUUID(owner_id);
 			mPartSourcep = pss;
-			gWorldPointer->mPartSim.addPartSource(pss);
+			LLViewerPartSim::getInstance()->addPartSource(pss);
 		}
 	}
 	if (mPartSourcep)
@@ -4158,8 +4157,7 @@ void LLViewerObject::unpackParticleSource(LLDataPacker &dp, const LLUUID& owner_
 			LLViewerImage* image;
 			if (mPartSourcep->mPartSysData.mPartImageID == LLUUID::null)
 			{
-				LLUUID id(gViewerArt.getString("pixiesmall.tga"));
-				image = gImageList.getImage(id);
+				image = gImageList.getImageFromFile("pixiesmall.j2c");
 			}
 			else
 			{

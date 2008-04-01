@@ -46,9 +46,6 @@ public:
 	
 	LLResizeHandle(const LLString& name, const LLRect& rect, S32 min_width, S32 min_height, ECorner corner = RIGHT_BOTTOM );
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_RESIZE_HANDLE; }
-	virtual LLString getWidgetTag() const { return LL_RESIZE_HANDLE_TAG; }
-
 	virtual void	draw();
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
@@ -64,7 +61,7 @@ private:
 	S32				mLastMouseScreenX;
 	S32				mLastMouseScreenY;
 	LLCoordGL		mLastMouseDir;
-	LLPointer<LLImageGL>	mImage;
+	LLPointer<LLUIImage>	mImage;
 	S32				mMinWidth;
 	S32				mMinHeight;
 	const ECorner	mCorner;

@@ -50,7 +50,7 @@
 #include "llselectmgr.h"
 #include "lluiconstants.h"
 #include "llviewerobject.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 
 
@@ -63,7 +63,7 @@ LLFloaterOpenObject::LLFloaterOpenObject()
 {
 	LLCallbackMap::map_t factory_map;
 	factory_map["object_contents"] = LLCallbackMap(createPanelInventory, this);
-	gUICtrlFactory->buildFloater(this,"floater_openobject.xml",&factory_map);
+	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_openobject.xml",&factory_map);
 
 	childSetAction("copy_to_inventory_button", onClickMoveToInventory, this);
 	childSetAction("copy_and_wear_button", onClickMoveAndWear, this);
@@ -106,7 +106,7 @@ void LLFloaterOpenObject::dirty()
 // static
 void LLFloaterOpenObject::show()
 {
-	LLObjectSelectionHandle object_selection = gSelectMgr->getSelection();
+	LLObjectSelectionHandle object_selection = LLSelectMgr::getInstance()->getSelection();
 	if (object_selection->getRootObjectCount() != 1)
 	{
 		gViewerWindow->alertXml("UnableToViewContentsMoreThanOne");
@@ -123,7 +123,7 @@ void LLFloaterOpenObject::show()
 	sInstance->open();		/* Flawfinder: ignore */
 	sInstance->setFocus(TRUE);
 
-	sInstance->mObjectSelection = gSelectMgr->getEditSelection();
+	sInstance->mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 }
 
 

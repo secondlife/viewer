@@ -68,7 +68,7 @@ class LLPanelLandRenters;
 class LLPanelLandCovenant;
 
 class LLFloaterLand
-:	public LLFloater, public LLUISingleton<LLFloaterLand, VisibilityPolicy<LLFloater> >
+:	public LLFloater, public LLFloaterSingleton<LLFloaterLand>
 {
 	friend class LLUISingleton<LLFloaterLand, VisibilityPolicy<LLFloater> >;
 public:
@@ -281,9 +281,9 @@ protected:
 	LLButton		*mBtnReturnOwnerList;
 	LLNameListCtrl	*mOwnerList;
 
-	LLPointer<LLViewerImage>	mIconAvatarOnline;
-	LLPointer<LLViewerImage>	mIconAvatarOffline;
-	LLPointer<LLViewerImage>	mIconGroup;
+	LLUIImagePtr	mIconAvatarOnline;
+	LLUIImagePtr	mIconAvatarOffline;
+	LLUIImagePtr	mIconGroup;
 
 	BOOL			mFirstReply;
 

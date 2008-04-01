@@ -374,7 +374,6 @@ void LLPipeline::cleanup()
 	mBloomImagep = NULL;
 	mBloomImage2p = NULL;
 	mFaceSelectImagep = NULL;
-	mAlphaSizzleImagep = NULL;
 
 	mMovedBridge.clear();
 
@@ -573,19 +572,16 @@ void LLPipeline::restoreGL()
 		LLShaderMgr::setShaders();
 	}
 
-	if (gWorldp)
+	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
-		for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
-				iter != gWorldp->getRegionList().end(); ++iter)
+		LLViewerRegion* region = *iter;
+		for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
 		{
-			LLViewerRegion* region = *iter;
-			for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
+			LLSpatialPartition* part = region->getSpatialPartition(i);
+			if (part)
 			{
-				LLSpatialPartition* part = region->getSpatialPartition(i);
-				if (part)
-				{
-					part->restoreGL();
-				}
+				part->restoreGL();
 			}
 		}
 	}
@@ -596,7 +592,7 @@ BOOL LLPipeline::canUseVertexShaders()
 {
 	if (!gGLManager.mHasVertexShader ||
 		!gGLManager.mHasFragmentShader ||
-		!gFeatureManagerp->isFeatureAvailable("VertexShaderEnable") ||
+		!LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable") ||
 		(assertInitialized() && mVertexShadersLoaded != 1) )
 	{
 		return FALSE;
@@ -725,20 +721,17 @@ void LLPipeline::dirtyPoolObjectTextures(const std::set<LLViewerImage*>& texture
 		}
 	}
 	
-	if (gWorldp)
+	LLOctreeDirtyTexture dirty(textures);
+	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
-		LLOctreeDirtyTexture dirty(textures);
-		for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
-				iter != gWorldp->getRegionList().end(); ++iter)
+		LLViewerRegion* region = *iter;
+		for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
 		{
-			LLViewerRegion* region = *iter;
-			for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
+			LLSpatialPartition* part = region->getSpatialPartition(i);
+			if (part)
 			{
-				LLSpatialPartition* part = region->getSpatialPartition(i);
-				if (part)
-				{
-					dirty.traverse(part->mOctree);
-				}
+				dirty.traverse(part->mOctree);
 			}
 		}
 	}
@@ -1111,8 +1104,8 @@ void LLPipeline::updateMove()
 	{
  		LLFastTimer ot(LLFastTimer::FTM_OCTREE_BALANCE);
 
-		for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
-			iter != gWorldp->getRegionList().end(); ++iter)
+		for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 		{
 			LLViewerRegion* region = *iter;
 			for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
@@ -1189,8 +1182,8 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 
-	for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
-			iter != gWorldp->getRegionList().end(); ++iter)
+	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
 		LLViewerRegion* region = *iter;
 		if (water_clip != 0)
@@ -1574,8 +1567,8 @@ void LLPipeline::shiftObjects(const LLVector3 &offset)
 	}
 	mShiftList.resize(0);
 
-	for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
-			iter != gWorldp->getRegionList().end(); ++iter)
+	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
 		LLViewerRegion* region = *iter;
 		for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
@@ -2106,7 +2099,7 @@ void LLPipeline::postSort(LLCamera& camera)
 	mSelectedFaces.clear();
 	
 	// Draw face highlights for selected faces.
-	if (gSelectMgr->getTEMode())
+	if (LLSelectMgr::getInstance()->getTEMode())
 	{
 		struct f : public LLSelectedTEFunctor
 		{
@@ -2119,7 +2112,7 @@ void LLPipeline::postSort(LLCamera& camera)
 				return true;
 			}
 		} func;
-		gSelectMgr->getSelection()->applyToTEs(&func);
+		LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
 	}
 }
 
@@ -2146,15 +2139,9 @@ void render_hud_elements()
 		LLTracker::render3D();
 		
 		// Show the property lines
-		if (gWorldp)
-		{
-			gWorldp->renderPropertyLines();
-		}
-		if (gParcelMgr)
-		{
-			gParcelMgr->render();
-			gParcelMgr->renderParcelCollision();
-		}
+		LLWorld::getInstance()->renderPropertyLines();
+		LLViewerParcelMgr::getInstance()->render();
+		LLViewerParcelMgr::getInstance()->renderParcelCollision();
 	
 		// Render debugging beacons.
 		gObjectList.renderObjectBeacons();
@@ -2164,7 +2151,7 @@ void render_hud_elements()
 	else if (gForceRenderLandFence)
 	{
 		// This is only set when not rendering the UI, for parcel snapshots
-		gParcelMgr->render();
+		LLViewerParcelMgr::getInstance()->render();
 	}
 	else if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
 	{
@@ -2258,11 +2245,6 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 			saved_modelview[i] = gGLModelView[i];
 			saved_projection[i] = gGLProjection[i];
 		}
-	}
-
-	if (!mAlphaSizzleImagep)
-	{
-		mAlphaSizzleImagep = gImageList.getImage(LLUUID(gViewerArt.getString("alpha_sizzle.tga")), MIPMAP_TRUE, TRUE);
 	}
 
 	///////////////////////////////////////////
@@ -2534,8 +2516,8 @@ void LLPipeline::renderDebug()
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 
 	// Debug stuff.
-	for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
-			iter != gWorldp->getRegionList().end(); ++iter)
+	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
 		LLViewerRegion* region = *iter;
 		for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
@@ -2607,7 +2589,7 @@ void LLPipeline::renderForSelect(std::set<LLViewerObject*>& objects)
 
 	for (std::set<LLViewerObject*>::iterator iter = objects.begin(); iter != objects.end(); ++iter)
 	{
-		stateSort((*iter)->mDrawable, *gCamera);
+		stateSort((*iter)->mDrawable, *LLViewerCamera::getInstance());
 	}
 
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
@@ -3077,7 +3059,7 @@ void LLPipeline::setupAvatarLights(BOOL for_edit)
 	{
 		LLColor4 diffuse(0.8f, 0.8f, 0.8f, 0.f);
 		LLVector4 light_pos_cam(-8.f, 0.25f, 10.f, 0.f);  // w==0 => directional light
-		LLMatrix4 camera_mat = gCamera->getModelview();
+		LLMatrix4 camera_mat = LLViewerCamera::getInstance()->getModelview();
 		LLMatrix4 camera_rot(camera_mat.getMat3());
 		camera_rot.invert();
 		LLVector4 light_pos = light_pos_cam * camera_rot;
@@ -3419,7 +3401,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		LLColor4  light_color = LLColor4::white;
 		light_color.mV[3] = 0.0f;
 
-		LLVector3 light_pos(gCamera->getOrigin());
+		LLVector3 light_pos(LLViewerCamera::getInstance()->getOrigin());
 		LLVector4 light_pos_gl(light_pos, 1.0f);
 
 		F32 light_radius = 16.f;
@@ -3980,8 +3962,8 @@ LLViewerObject* LLPipeline::pickObject(const LLVector3 &start, const LLVector3 &
 {
 	LLDrawable* drawable = NULL;
 
-	for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
-			iter != gWorldp->getRegionList().end(); ++iter)
+	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
 		LLViewerRegion* region = *iter;
 		LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_VOLUME);
@@ -4035,19 +4017,16 @@ void LLPipeline::resetVertexBuffers()
 {
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
 
-	if (gWorldp)
+	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
-		for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
-				iter != gWorldp->getRegionList().end(); ++iter)
+		LLViewerRegion* region = *iter;
+		for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
 		{
-			LLViewerRegion* region = *iter;
-			for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
+			LLSpatialPartition* part = region->getSpatialPartition(i);
+			if (part)
 			{
-				LLSpatialPartition* part = region->getSpatialPartition(i);
-				if (part)
-				{
-					part->resetVertexBuffers();
-				}
+				part->resetVertexBuffers();
 			}
 		}
 	}
@@ -4239,7 +4218,7 @@ void LLPipeline::generateReflectionMap(LLCubeMap* cube_map, LLCamera& cube_cam)
 		glTranslatef(-origin.mV[0], -origin.mV[1], -origin.mV[2]);
 		cube_cam.setOrigin(origin);
 		LLViewerCamera::updateFrustumPlanes(cube_cam);
-		cube_cam.setOrigin(gCamera->getOrigin());
+		cube_cam.setOrigin(LLViewerCamera::getInstance()->getOrigin());
 		static LLCullResult result;
 		gPipeline.updateCull(cube_cam, result);
 		gPipeline.stateSort(cube_cam, result);
@@ -4863,8 +4842,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot)
 
 void LLPipeline::processImagery(LLCamera& camera)
 {
-	for (LLWorld::region_list_t::iterator iter = gWorldp->getRegionList().begin(); 
-			iter != gWorldp->getRegionList().end(); ++iter)
+	for (LLWorld::region_list_t::iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
 		LLViewerRegion* region = *iter;
 		LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_VOLUME);
@@ -4909,7 +4888,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		F32 pd;
 
 		S32 water_clip = 0;
-		if (!gCamera->cameraUnderWater())
+		if (!LLViewerCamera::getInstance()->cameraUnderWater())
 		{ //camera is above water, clip plane points up
 			pnorm.setVec(0,0,1);
 			pd = -height;
@@ -4926,7 +4905,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 
 
-		if (!gCamera->cameraUnderWater())
+		if (!LLViewerCamera::getInstance()->cameraUnderWater())
 		{	//generate planar reflection map
 			LLViewerImage::unbindTexture(0, GL_TEXTURE_2D);
 			glClearColor(0,0,0,0);
@@ -5022,7 +5001,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 											(1<<LLPipeline::RENDER_TYPE_GROUND));	
 			stop_glerror();
 
-			LLPipeline::sUnderWaterRender = gCamera->cameraUnderWater() ? FALSE : TRUE;
+			LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater() ? FALSE : TRUE;
 
 			if (LLPipeline::sUnderWaterRender)
 			{
@@ -5071,14 +5050,14 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		mRenderTypeMask = type_mask;
 		LLDrawPoolWater::sNeedsReflectionUpdate = FALSE;
 		LLDrawPoolWater::sNeedsDistortionUpdate = FALSE;
-		gCamera->setUserClipPlane(LLPlane(-pnorm, -pd));
+		LLViewerCamera::getInstance()->setUserClipPlane(LLPlane(-pnorm, -pd));
 		LLPipeline::sUseOcclusion = occlusion;
 	}
 }
 
 LLCubeMap* LLPipeline::findReflectionMap(const LLVector3& location)
 {
-	LLViewerRegion* region = gWorldp->getRegionFromPosAgent(location);
+	LLViewerRegion* region = LLWorld::getInstance()->getRegionFromPosAgent(location);
 	if (region)
 	{
 		LLSpatialPartition* part = region->getSpatialPartition(LLViewerRegion::PARTITION_VOLUME);
@@ -5125,7 +5104,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	assertInitialized();
 
 	U32 mask;
-	BOOL muted = gMuteListp && gMuteListp->isMuted(avatar->getID());
+	BOOL muted = LLMuteList::getInstance()->isMuted(avatar->getID());
 
 	if (muted)
 	{
@@ -5151,7 +5130,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	sReflectionRender = TRUE;
 	sImpostorRender = TRUE;
 
-	markVisible(avatar->mDrawable, *gCamera);
+	markVisible(avatar->mDrawable, *LLViewerCamera::getInstance());
 	LLVOAvatar::sUseImpostors = FALSE;
 
 	LLVOAvatar::attachment_map_t::iterator iter;
@@ -5162,18 +5141,18 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		LLViewerObject* object = iter->second->getObject();
 		if (object)
 		{
-			markVisible(object->mDrawable->getSpatialBridge(), *gCamera);
+			markVisible(object->mDrawable->getSpatialBridge(), *LLViewerCamera::getInstance());
 		}
 	}
 
-	stateSort(*gCamera, result);
+	stateSort(*LLViewerCamera::getInstance(), result);
 	
 	const LLVector3* ext = avatar->mDrawable->getSpatialExtents();
 	LLVector3 pos(avatar->getRenderPosition()+avatar->getImpostorOffset());
 
-	LLCamera camera = *gCamera;
+	LLCamera camera = *LLViewerCamera::getInstance();
 
-	camera.lookAt(gCamera->getOrigin(), pos, gCamera->getUpAxis());
+	camera.lookAt(LLViewerCamera::getInstance()->getOrigin(), pos, LLViewerCamera::getInstance()->getUpAxis());
 	
 	LLVector2 tdim;
 
@@ -5216,7 +5195,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	glClearStencil(0);
 
 	// get the number of pixels per angle
-	F32 pa = gViewerWindow->getWindowDisplayHeight()/(RAD_TO_DEG*gCamera->getView());
+	F32 pa = gViewerWindow->getWindowDisplayHeight() / (RAD_TO_DEG * LLViewerCamera::getInstance()->getView());
 
 	//get resolution based on angle width and height of impostor (double desired resolution to prevent aliasing)
 	U32 resY = llmin(nhpo2((U32) (fov*pa)), (U32) 512);

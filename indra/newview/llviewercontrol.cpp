@@ -79,7 +79,6 @@ BOOL 				gHackGodmode = FALSE;
 std::map<LLString, LLControlGroup*> gSettings;
 LLControlGroup gSavedSettings;	// saved at end of session
 LLControlGroup gSavedPerAccountSettings; // saved at end of session
-LLControlGroup gViewerArt;		// read-only
 LLControlGroup gColors;			// read-only
 LLControlGroup gCrashSettings;	// saved at end of session
 
@@ -101,10 +100,7 @@ static bool handleRenderFarClipChanged(const LLSD& newvalue)
 {
 	F32 draw_distance = (F32) newvalue.asReal();
 	gAgent.mDrawDistance = draw_distance;
-	if (gWorldPointer)
-	{
-		gWorldPointer->setLandFarClip(draw_distance);
-	}
+	LLWorld::getInstance()->setLandFarClip(draw_distance);
 	return true;
 }
 
@@ -267,15 +263,14 @@ static bool handleAudioStreamMusicChanged(const LLSD& newvalue)
 	{
 		if ( newvalue.asBoolean() )
 		{
-			if (gParcelMgr
-				&& gParcelMgr->getAgentParcel()
-				&& !gParcelMgr->getAgentParcel()->getMusicURL().empty())
+			if (LLViewerParcelMgr::getInstance()->getAgentParcel()
+				&& !LLViewerParcelMgr::getInstance()->getAgentParcel()->getMusicURL().empty())
 			{
 				// if stream is already playing, don't call this
 				// otherwise music will briefly stop
-				if ( ! gAudiop->isInternetStreamPlaying() )
+				if ( !gAudiop->isInternetStreamPlaying() )
 				{
-					gAudiop->startInternetStream(gParcelMgr->getAgentParcel()->getMusicURL().c_str());
+					gAudiop->startInternetStream(LLViewerParcelMgr::getInstance()->getAgentParcel()->getMusicURL().c_str());
 				}
 			}
 		}
@@ -290,7 +285,7 @@ static bool handleAudioStreamMusicChanged(const LLSD& newvalue)
 static bool handleUseOcclusionChanged(const LLSD& newvalue)
 {
 	LLPipeline::sUseOcclusion = (newvalue.asBoolean() && gGLManager.mHasOcclusionQuery 
-			&& gFeatureManagerp->isFeatureAvailable("UseOcclusion") && !gUseWireframe) ? 2 : 0;
+		&& LLFeatureManager::getInstance()->isFeatureAvailable("UseOcclusion") && !gUseWireframe) ? 2 : 0;
 	return true;
 }
 

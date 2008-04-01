@@ -56,7 +56,7 @@
 #include "lldir.h"
 #include "llfloaterchat.h"
 #include "llviewerstats.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -106,7 +106,7 @@ LLFloaterScriptQueue::LLFloaterScriptQueue(const std::string& name,
 			  DRAG_ON_TOP, MINIMIZE_YES, CLOSE_YES)
 {
 
-	gUICtrlFactory->buildFloater(this,"floater_script_queue.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_script_queue.xml");
 
 	childSetAction("close",onCloseBtn,this);
 	childSetEnabled("close",FALSE);
@@ -201,7 +201,7 @@ BOOL LLFloaterScriptQueue::start()
 	char buffer[MAX_STRING]; 				/*Flawfinder: ignore*/
 	snprintf(buffer, sizeof(buffer), "Starting %s of %d items.", mStartString, mObjectIDs.count()); 		/* Flawfinder: ignore */
 	
-	LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(this, "queue output");
+	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("queue output");
 	list->addCommentText(buffer);
 
 	return nextObject();
@@ -235,7 +235,7 @@ BOOL LLFloaterScriptQueue::nextObject()
 	if(isDone() && !mDone)
 	{
 		
-		LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(this, "queue output");
+		LLScrollListCtrl* list = getChild<LLScrollListCtrl>("queue output");
 
 		mDone = TRUE;
 		char buffer[MAX_STRING];		/*Flawfinder: ignore*/
@@ -412,10 +412,7 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 	}
 	else
 	{
-		if( gViewerStats )
-		{
-			gViewerStats->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
-		}
+		LLViewerStats::getInstance()->incStat( LLViewerStats::ST_DOWNLOAD_FAILED );
 
 		if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status )
 		{
@@ -442,7 +439,7 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 	}
 	if(queue) 
 	{
-		LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(queue, "queue output");
+		LLScrollListCtrl* list = queue->getChild<LLScrollListCtrl>("queue output");
 		list->addCommentText(buffer);
 	}
 	delete data;
@@ -621,7 +618,7 @@ void LLFloaterResetQueue::handleInventory(LLViewerObject* viewer_obj,
 			if (object)
 			{
 				LLInventoryItem* item = (LLInventoryItem*)((LLInventoryObject*)(*it));
-				LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(this, "queue output");
+				LLScrollListCtrl* list = getChild<LLScrollListCtrl>("queue output");
 				char buffer[MAX_STRING];		 /*Flawfinder: ignore*/
 				snprintf(buffer, sizeof(buffer), "Resetting '%s'.", item->getName().c_str());		 	/* Flawfinder: ignore */
 				list->addCommentText(buffer);
@@ -684,7 +681,7 @@ void LLFloaterRunQueue::handleInventory(LLViewerObject* viewer_obj,
 			if (object)
 			{
 				LLInventoryItem* item = (LLInventoryItem*)((LLInventoryObject*)(*it));
-				LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(this, "queue output");
+				LLScrollListCtrl* list = getChild<LLScrollListCtrl>("queue output");
 				char buffer[MAX_STRING];  	/*Flawfinder: ignore*/
 				snprintf(buffer, sizeof(buffer), "Running '%s'.", item->getName().c_str());		 	/* Flawfinder: ignore */
 				list->addCommentText(buffer);
@@ -749,7 +746,7 @@ void LLFloaterNotRunQueue::handleInventory(LLViewerObject* viewer_obj,
 			if (object)
 			{
 				LLInventoryItem* item = (LLInventoryItem*)((LLInventoryObject*)(*it));
-				LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(this, "queue output");
+				LLScrollListCtrl* list = getChild<LLScrollListCtrl>("queue output");
 				char buffer[MAX_STRING];		 /*Flawfinder: ignore*/
 				snprintf(buffer, sizeof(buffer), "Not running '%s'.", item->getName().c_str());	 	/* Flawfinder: ignore */
 				list->addCommentText(buffer);

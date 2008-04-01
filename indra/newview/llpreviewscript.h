@@ -52,12 +52,11 @@ class LLMenuBarGL;
 class LLFloaterScriptSearch;
 class LLKeywordToken;
 
-// Inner, implementation class.  LLPreviewScript and LLLiveScriptEditor each own one of these.
+// Inner, implementation class.  LLPreviewScript and LLLiveLSLEditor each own one of these.
 class LLScriptEdCore : public LLPanel
 {
 	friend class LLPreviewScript;
 	friend class LLPreviewLSL;
-	friend class LLLiveScriptEditor;
 	friend class LLLiveLSLEditor;
 	friend class LLFloaterScriptSearch;
 
@@ -118,7 +117,7 @@ public:
 
 	void selectFirstError();
 
-	virtual BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
 protected:
 	void deleteBridges();

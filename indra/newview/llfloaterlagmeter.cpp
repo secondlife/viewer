@@ -33,7 +33,7 @@
 
 #include "llfloaterlagmeter.h"
 
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerstats.h"
 #include "llviewerimage.h"
 #include "llviewercontrol.h"
@@ -54,23 +54,23 @@ LLFloaterLagMeter * LLFloaterLagMeter::sInstance = NULL;
 LLFloaterLagMeter::LLFloaterLagMeter()
 	:	LLFloater("floater_lagmeter")
 {
-	gUICtrlFactory->buildFloater(this, "floater_lagmeter.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_lagmeter.xml");
 
 	// Don't let this window take keyboard focus -- it's confusing to
 	// lose arrow-key driving when testing lag.
 	setIsChrome(TRUE);
 
-	mClientButton = LLUICtrlFactory::getButtonByName(this, "client_lagmeter");
-	mClientText = LLUICtrlFactory::getTextBoxByName(this, "client_text");
-	mClientCause = LLUICtrlFactory::getTextBoxByName(this, "client_lag_cause");
+	mClientButton = getChild<LLButton>("client_lagmeter");
+	mClientText = getChild<LLTextBox>("client_text");
+	mClientCause = getChild<LLTextBox>("client_lag_cause");
 
-	mNetworkButton = LLUICtrlFactory::getButtonByName(this, "network_lagmeter");
-	mNetworkText = LLUICtrlFactory::getTextBoxByName(this, "network_text");
-	mNetworkCause = LLUICtrlFactory::getTextBoxByName(this, "network_lag_cause");
+	mNetworkButton = getChild<LLButton>("network_lagmeter");
+	mNetworkText = getChild<LLTextBox>("network_text");
+	mNetworkCause = getChild<LLTextBox>("network_lag_cause");
 
-	mServerButton = LLUICtrlFactory::getButtonByName(this, "server_lagmeter");
-	mServerText = LLUICtrlFactory::getTextBoxByName(this, "server_text");
-	mServerCause = LLUICtrlFactory::getTextBoxByName(this, "server_lag_cause");
+	mServerButton = getChild<LLButton>("server_lagmeter");
+	mServerText = getChild<LLTextBox>("server_text");
+	mServerCause = getChild<LLTextBox>("server_lag_cause");
 
 	LLString config_string = getString("client_frame_rate_critical_fps", mStringArgs);
 	mClientFrameTimeCritical = 1.0f / (float)atof( config_string.c_str() );
@@ -156,7 +156,7 @@ void LLFloaterLagMeter::show(void *data)
 
 void LLFloaterLagMeter::determineClient()
 {
-	F32 client_frame_time = gViewerStats->mFPSStat.getMeanDuration();
+	F32 client_frame_time = LLViewerStats::getInstance()->mFPSStat.getMeanDuration();
 	bool find_cause = false;
 
 	if (!gFocusMgr.getAppHasFocus())
@@ -207,8 +207,8 @@ void LLFloaterLagMeter::determineClient()
 
 void LLFloaterLagMeter::determineNetwork()
 {
-	F32 packet_loss = gViewerStats->mPacketsLostPercentStat.getMean();
-	F32 ping_time = gViewerStats->mSimPingStat.getMean();
+	F32 packet_loss = LLViewerStats::getInstance()->mPacketsLostPercentStat.getMean();
+	F32 ping_time = LLViewerStats::getInstance()->mSimPingStat.getMean();
 	bool find_cause_loss = false;
 	bool find_cause_ping = false;
 
@@ -258,7 +258,7 @@ void LLFloaterLagMeter::determineNetwork()
 
 void LLFloaterLagMeter::determineServer()
 {
-	F32 sim_frame_time = gViewerStats->mSimFrameMsec.getCurrent();
+	F32 sim_frame_time = LLViewerStats::getInstance()->mSimFrameMsec.getCurrent();
 	bool find_cause = false;
 
 	if(sim_frame_time >= mServerFrameTimeCritical)
@@ -282,23 +282,23 @@ void LLFloaterLagMeter::determineServer()
 
 	if(find_cause)
 	{
-		if(gViewerStats->mSimSimPhysicsMsec.getCurrent() > mServerSingleProcessMaxTime)
+		if(LLViewerStats::getInstance()->mSimSimPhysicsMsec.getCurrent() > mServerSingleProcessMaxTime)
 		{
 			mServerCause->setText( getString("server_physics_cause_msg", mStringArgs) );
 		}
-		else if(gViewerStats->mSimScriptMsec.getCurrent() > mServerSingleProcessMaxTime)
+		else if(LLViewerStats::getInstance()->mSimScriptMsec.getCurrent() > mServerSingleProcessMaxTime)
 		{
 			mServerCause->setText( getString("server_scripts_cause_msg", mStringArgs) );
 		}
-		else if(gViewerStats->mSimNetMsec.getCurrent() > mServerSingleProcessMaxTime)
+		else if(LLViewerStats::getInstance()->mSimNetMsec.getCurrent() > mServerSingleProcessMaxTime)
 		{
 			mServerCause->setText( getString("server_net_cause_msg", mStringArgs) );
 		}
-		else if(gViewerStats->mSimAgentMsec.getCurrent() > mServerSingleProcessMaxTime)
+		else if(LLViewerStats::getInstance()->mSimAgentMsec.getCurrent() > mServerSingleProcessMaxTime)
 		{
 			mServerCause->setText( getString("server_agent_cause_msg", mStringArgs) );
 		}
-		else if(gViewerStats->mSimImagesMsec.getCurrent() > mServerSingleProcessMaxTime)
+		else if(LLViewerStats::getInstance()->mSimImagesMsec.getCurrent() > mServerSingleProcessMaxTime)
 		{
 			mServerCause->setText( getString("server_images_cause_msg", mStringArgs) );
 		}

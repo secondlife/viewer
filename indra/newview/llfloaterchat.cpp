@@ -66,7 +66,7 @@
 #include "llviewermessage.h"
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llchatbar.h"
 #include "lllogchat.h"
 #include "lltexteditor.h"
@@ -81,7 +81,6 @@ extern void AddNewChatToLCD(const LLString &newLine);
 //
 const F32 INSTANT_MSG_SIZE = 8.0f;
 const F32 CHAT_MSG_SIZE = 8.0f;
-const LLColor4 INSTANT_MSG_COLOR(1, 1, 1, 1);
 const LLColor4 MUTED_MSG_COLOR(0.5f, 0.5f, 0.5f, 1.f);
 const S32 MAX_CHATTER_COUNT = 16;
 
@@ -102,7 +101,7 @@ LLFloaterChat::LLFloaterChat(const LLSD& seed)
 	mFactoryMap["active_speakers_panel"] = LLCallbackMap(createSpeakersPanel, NULL);
 	// do not automatically open singleton floaters (as result of getInstance())
 	BOOL no_open = FALSE;
-	gUICtrlFactory->buildFloater(this,"floater_chat_history.xml",&getFactoryMap(),no_open);
+	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_chat_history.xml",&getFactoryMap(),no_open);
 
 	childSetCommitCallback("show mutes",onClickToggleShowMute,this); //show mutes
 	childSetVisible("Chat History Editor with mute",FALSE);
@@ -140,12 +139,12 @@ void LLFloaterChat::draw()
 
 BOOL LLFloaterChat::postBuild()
 {
-	mPanel = (LLPanelActiveSpeakers*)LLUICtrlFactory::getPanelByName(this, "active_speakers_panel");
+	mPanel = (LLPanelActiveSpeakers*)getChild<LLPanel>("active_speakers_panel");
 
 	LLChatBar* chat_barp = getChild<LLChatBar>("chat_panel", TRUE);
 	if (chat_barp)
 	{
-		chat_barp->setGestureCombo(LLUICtrlFactory::getComboBoxByName(this, "Gesture"));
+		chat_barp->setGestureCombo(getChild<LLComboBox>( "Gesture"));
 	}
 	return TRUE;
 }
@@ -274,7 +273,7 @@ void LLFloaterChat::onClickMute(void *data)
 {
 	LLFloaterChat* self = (LLFloaterChat*)data;
 
-	LLComboBox*	chatter_combo = LLUICtrlFactory::getComboBoxByName(self,"chatter combobox");
+	LLComboBox*	chatter_combo = self->getChild<LLComboBox>("chatter combobox");
 
 	const LLString& name = chatter_combo->getSimple();
 	LLUUID id = chatter_combo->getCurrentID();
@@ -283,12 +282,9 @@ void LLFloaterChat::onClickMute(void *data)
 
 	LLMute mute(id);
 	mute.setFromDisplayName(name);
-	gMuteListp->add(mute);
+	LLMuteList::getInstance()->add(mute);
 	
-	if (gFloaterMute)
-	{
-		LLFloaterMute::showInstance();
-	}
+	LLFloaterMute::showInstance();
 }
 
 //static
@@ -298,7 +294,7 @@ void LLFloaterChat::onClickToggleShowMute(LLUICtrl* caller, void *data)
 
 
 	//LLCheckBoxCtrl*	
-	BOOL show_mute = LLUICtrlFactory::getCheckBoxByName(floater,"show mutes")->get();
+	BOOL show_mute = floater->getChild<LLCheckBoxCtrl>("show mutes")->get();
 	LLViewerTextEditor*	history_editor = floater->getChild<LLViewerTextEditor>("Chat History Editor");
 	LLViewerTextEditor*	history_editor_with_mute = floater->getChild<LLViewerTextEditor>("Chat History Editor with mute");
 
@@ -351,9 +347,13 @@ void LLFloaterChat::addChat(const LLChat& chat,
 		&& !local_agent)
 	{
 		F32 size = CHAT_MSG_SIZE;
-		if(from_instant_message)
+		if (chat.mSourceType == CHAT_SOURCE_SYSTEM)
 		{
-			text_color = INSTANT_MSG_COLOR;
+			text_color = gSavedSettings.getColor("SystemChatColor");
+		}
+		else if(from_instant_message)
+		{
+			text_color = gSavedSettings.getColor("IMChatColor");
 			size = INSTANT_MSG_SIZE;
 		}
 		gConsole->addLine(chat.mText, size, text_color);
@@ -458,7 +458,7 @@ void LLFloaterChat::chatFromLogFile(LLLogChat::ELogLineType type , LLString line
 //static
 void* LLFloaterChat::createSpeakersPanel(void* data)
 {
-	return new LLPanelActiveSpeakers(gLocalSpeakerMgr, TRUE);
+	return new LLPanelActiveSpeakers(LLLocalSpeakerMgr::getInstance(), TRUE);
 }
 
 //static

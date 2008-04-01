@@ -42,7 +42,7 @@
 #include "llstartup.h"
 #include "message.h"
 #include "llagent.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "llviewerstats.h"
 #include "llui.h"
@@ -62,11 +62,11 @@ LLFloaterTOS* LLFloaterTOS::show(ETOSType type, const std::string & message)
 
 	if (type == TOS_TOS)
 	{
-		gUICtrlFactory->buildFloater(LLFloaterTOS::sInstance, "floater_tos.xml");
+		LLUICtrlFactory::getInstance()->buildFloater(LLFloaterTOS::sInstance, "floater_tos.xml");
 	}
 	else
 	{
-		gUICtrlFactory->buildFloater(LLFloaterTOS::sInstance, "floater_critical.xml");
+		LLUICtrlFactory::getInstance()->buildFloater(LLFloaterTOS::sInstance, "floater_critical.xml");
 	}
 
 	return LLFloaterTOS::sInstance;
@@ -132,7 +132,7 @@ BOOL LLFloaterTOS::postBuild()
 	if ( mType != TOS_TOS )
 	{
 		// this displays the critical message
-		LLTextEditor *Editor = LLUICtrlFactory::getTextEditorByName(this, "tos_text");
+		LLTextEditor *Editor = getChild<LLTextEditor>("tos_text");
 		if (Editor)
 		{
 			Editor->setHandleEditKeysDirectly( TRUE );
@@ -146,14 +146,14 @@ BOOL LLFloaterTOS::postBuild()
 	}
 
 	// disable Agree to TOS radio button until the page has fully loaded
-	LLRadioGroup* tos_agreement = LLUICtrlFactory::getRadioGroupByName(this, "tos_agreement");
+	LLRadioGroup* tos_agreement = getChild<LLRadioGroup>("tos_agreement");
 	if ( tos_agreement )
 	{
 		tos_agreement->setEnabled( false );
 	};
 
 	// hide the SL text widget if we're displaying TOS with using a browser widget.
-	LLTextEditor *editor = LLUICtrlFactory::getTextEditorByName(this, "tos_text");
+	LLTextEditor *editor = getChild<LLTextEditor>("tos_text");
 	if ( editor )
 	{
 		editor->setVisible( FALSE );
@@ -194,7 +194,7 @@ void LLFloaterTOS::setSiteIsAlive( bool alive )
 		{
 			// normally this is set when navigation to TOS page navigation completes (so you can't accept before TOS loads)
 			// but if the page is unavailable, we need to do this now
-			LLRadioGroup* tos_agreement = LLUICtrlFactory::getRadioGroupByName(this, "tos_agreement");
+			LLRadioGroup* tos_agreement = getChild<LLRadioGroup>("tos_agreement");
 			if ( tos_agreement )
 			{
 				tos_agreement->setEnabled( true );
@@ -286,7 +286,7 @@ void LLFloaterTOS::onNavigateComplete( const EventType& eventIn )
 	{
 		llinfos << "NAVIGATE COMPLETE" << llendl;
 		// enable Agree to TOS radio button now that page has loaded
-		LLRadioGroup* tos_agreement = LLUICtrlFactory::getRadioGroupByName(this, "tos_agreement");
+		LLRadioGroup* tos_agreement = getChild<LLRadioGroup>("tos_agreement");
 		if ( tos_agreement )
 		{
 			tos_agreement->setEnabled( true );

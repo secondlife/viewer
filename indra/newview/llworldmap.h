@@ -110,7 +110,7 @@ struct LLWorldMapLayer
 };
 
 
-class LLWorldMap
+class LLWorldMap : public LLSingleton<LLWorldMap>
 {
 public:
 	typedef void(*url_callback_t)(U64 region_handle, const std::string& url, const LLUUID& snapshot_id, bool teleport);
@@ -226,7 +226,5 @@ private:
 	url_callback_t mSLURLCallback;
 	bool mSLURLTeleport;
 };
-
-extern LLWorldMap* gWorldMap;
 
 #endif

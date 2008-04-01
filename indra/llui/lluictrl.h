@@ -141,7 +141,9 @@ public:
 	void			setValidateBeforeCommit( BOOL(*cb)(LLUICtrl*, void*) )	{ mValidateCallback = cb; }
 	void			setLostTopCallback( void (*cb)(LLUICtrl*, void*) )		{ mLostTopCallback = cb; }
 	
-	const LLUICtrl* findRootMostFocusRoot() const;
+	static LLView* fromXML(LLXMLNodePtr node, LLView* parent, class LLUICtrlFactory* factory);
+
+	LLUICtrl*		findRootMostFocusRoot() const;
 
 	class LLTextInputFilter : public LLQueryFilter, public LLSingleton<LLTextInputFilter>
 	{

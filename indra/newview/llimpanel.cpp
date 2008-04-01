@@ -62,7 +62,7 @@
 #include "llviewermessage.h"
 #include "llviewerstats.h"
 #include "llviewercontrol.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "lllogchat.h"
 #include "llfloaterhtml.h"
@@ -1154,7 +1154,7 @@ void LLFloaterIMPanel::init(const LLString& session_label)
 
 	mSpeakers = new LLIMSpeakerMgr(mVoiceChannel);
 
-	gUICtrlFactory->buildFloater(this,
+	LLUICtrlFactory::getInstance()->buildFloater(this,
 								xml_filename,
 								&getFactoryMap(),
 								FALSE);
@@ -1217,12 +1217,12 @@ LLFloaterIMPanel::~LLFloaterIMPanel()
 
 BOOL LLFloaterIMPanel::postBuild() 
 {
-	requires("chat_editor", WIDGET_TYPE_LINE_EDITOR);
-	requires("im_history", WIDGET_TYPE_TEXT_EDITOR);
+	requires<LLLineEditor>("chat_editor");
+	requires<LLTextEditor>("im_history");
 
 	if (checkRequirements())
 	{
-		mInputEditor = LLUICtrlFactory::getLineEditorByName(this, "chat_editor");
+		mInputEditor = getChild<LLLineEditor>("chat_editor");
 		mInputEditor->setFocusReceivedCallback( onInputEditorFocusReceived, this );
 		mInputEditor->setFocusLostCallback( onInputEditorFocusLost, this );
 		mInputEditor->setKeystrokeCallback( onInputEditorKeystroke );
@@ -1240,10 +1240,10 @@ BOOL LLFloaterIMPanel::postBuild()
 		childSetAction("toggle_active_speakers_btn", onClickToggleActiveSpeakers, this);
 
 		childSetAction("moderator_kick_speaker", onKickSpeaker, this);
-		//LLButton* close_btn = LLUICtrlFactory::getButtonByName(this, "close_btn");
+		//LLButton* close_btn = getChild<LLButton>("close_btn");
 		//close_btn->setClickedCallback(&LLFloaterIMPanel::onClickClose, this);
 
-		mHistoryEditor = LLViewerUICtrlFactory::getViewerTextEditorByName(this, "im_history");
+		mHistoryEditor = getChild<LLViewerTextEditor>("im_history");
 		mHistoryEditor->setParseHTML(TRUE);
 
 		if ( IM_SESSION_GROUP_START == mDialog )
@@ -1286,16 +1286,16 @@ void LLFloaterIMPanel::onClickMuteVoice(void* user_data)
 	LLFloaterIMPanel* floaterp = (LLFloaterIMPanel*)user_data;
 	if (floaterp)
 	{
-		BOOL is_muted = gMuteListp->isMuted(floaterp->mOtherParticipantUUID, LLMute::flagVoiceChat);
+		BOOL is_muted = LLMuteList::getInstance()->isMuted(floaterp->mOtherParticipantUUID, LLMute::flagVoiceChat);
 
 		LLMute mute(floaterp->mOtherParticipantUUID, floaterp->getTitle(), LLMute::AGENT);
 		if (!is_muted)
 		{
-			gMuteListp->add(mute, LLMute::flagVoiceChat);
+			LLMuteList::getInstance()->add(mute, LLMute::flagVoiceChat);
 		}
 		else
 		{
-			gMuteListp->remove(mute, LLMute::flagVoiceChat);
+			LLMuteList::getInstance()->remove(mute, LLMute::flagVoiceChat);
 		}
 	}
 }
@@ -1384,7 +1384,7 @@ void LLFloaterIMPanel::draw()
 		childSetVisible("speaker_volume", LLVoiceClient::voiceEnabled() && mVoiceChannel->isActive());
 		childSetValue("speaker_volume", gVoiceClient->getUserVolume(mOtherParticipantUUID));
 
-		childSetValue("mute_btn", gMuteListp->isMuted(mOtherParticipantUUID, LLMute::flagVoiceChat));
+		childSetValue("mute_btn", LLMuteList::getInstance()->isMuted(mOtherParticipantUUID, LLMute::flagVoiceChat));
 		childSetVisible("mute_btn", LLVoiceClient::voiceEnabled() && mVoiceChannel->isActive());
 	}
 	LLFloater::draw();
@@ -1540,33 +1540,30 @@ void LLFloaterIMPanel::selectNone()
 }
 
 
-BOOL LLFloaterIMPanel::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
+BOOL LLFloaterIMPanel::handleKeyHere( KEY key, MASK mask )
 {
 	BOOL handled = FALSE;
-	if( getVisible() && getEnabled() && !called_from_parent && gFocusMgr.childHasKeyboardFocus(this))
+	if( KEY_RETURN == key && mask == MASK_NONE)
 	{
-		if( KEY_RETURN == key && mask == MASK_NONE)
-		{
-			sendMsg();
-			handled = TRUE;
+		sendMsg();
+		handled = TRUE;
 
-			// Close talk panels on hitting return
-			// but not shift-return or control-return
-			if ( !gSavedSettings.getBOOL("PinTalkViewOpen") && !(mask & MASK_CONTROL) && !(mask & MASK_SHIFT) )
-			{
-				gIMMgr->toggle(NULL);
-			}
+		// Close talk panels on hitting return
+		// but not shift-return or control-return
+		if ( !gSavedSettings.getBOOL("PinTalkViewOpen") && !(mask & MASK_CONTROL) && !(mask & MASK_SHIFT) )
+		{
+			gIMMgr->toggle(NULL);
 		}
-		else if ( KEY_ESCAPE == key )
-		{
-			handled = TRUE;
-			gFocusMgr.setKeyboardFocus(NULL);
+	}
+	else if ( KEY_ESCAPE == key )
+	{
+		handled = TRUE;
+		gFocusMgr.setKeyboardFocus(NULL);
 
-			// Close talk panel with escape
-			if( !gSavedSettings.getBOOL("PinTalkViewOpen") )
-			{
-				gIMMgr->toggle(NULL);
-			}
+		// Close talk panel with escape
+		if( !gSavedSettings.getBOOL("PinTalkViewOpen") )
+		{
+			gIMMgr->toggle(NULL);
 		}
 	}
 
@@ -1889,7 +1886,7 @@ void LLFloaterIMPanel::sendMsg()
 
 				BOOL other_was_typing = mOtherTyping;
 
-				addHistoryLine(gAgent.getID(), history_echo);
+				addHistoryLine(gAgent.getID(), history_echo, gSavedSettings.getColor("IMChatColor"));
 
 				if (other_was_typing) 
 				{
@@ -1905,7 +1902,7 @@ void LLFloaterIMPanel::sendMsg()
 			mQueuedMsgsForInit.append(utf8_text);
 		}
 
-		gViewerStats->incStat(LLViewerStats::ST_IM_COUNT);
+		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_IM_COUNT);
 	}
 	mInputEditor->setText(LLString::null);
 
@@ -2188,5 +2185,6 @@ void LLFloaterIMPanel::onConfirmForceCloseError(S32 option, void* data)
 		if ( floaterp ) floaterp->close(FALSE);
 	}
 }
+
 
 

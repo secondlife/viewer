@@ -43,6 +43,8 @@
 
 #include <sstream>
 
+static LLRegisterWidget<LLMultiSlider> r("multi_slider_bar");
+
 const S32 MULTI_THUMB_WIDTH = 8;
 const S32 MULTI_TRACK_HEIGHT = 6;
 const F32 FLOAT_THRESHOLD = 0.00001f;
@@ -96,16 +98,6 @@ LLMultiSlider::LLMultiSlider(
 	// and standalone ways of using this
 	setControlName(control_name, NULL);
 	setValue(getValue());
-}
-
-EWidgetType LLMultiSlider::getWidgetType() const
-{
-	return WIDGET_TYPE_MULTI_SLIDER_BAR;
-}
-
-LLString LLMultiSlider::getWidgetTag() const
-{
-	return LL_MULTI_SLIDER_TAG;
 }
 
 void LLMultiSlider::setSliderValue(const LLString& name, F32 value, BOOL from_event)
@@ -403,31 +395,28 @@ BOOL LLMultiSlider::handleMouseDown(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
-BOOL	LLMultiSlider::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+BOOL	LLMultiSlider::handleKeyHere(KEY key, MASK mask)
 {
 	BOOL handled = FALSE;
-	if( getVisible() && getEnabled() && !called_from_parent )
+	switch(key)
 	{
-		switch(key)
-		{
-		case KEY_UP:
-		case KEY_DOWN:
-			// eat up and down keys to be consistent
-			handled = TRUE;
-			break;
-		case KEY_LEFT:
-			setCurSliderValue(getCurSliderValue() - getIncrement());
-			onCommit();
-			handled = TRUE;
-			break;
-		case KEY_RIGHT:
-			setCurSliderValue(getCurSliderValue() + getIncrement());
-			onCommit();
-			handled = TRUE;
-			break;
-		default:
-			break;
-		}
+	case KEY_UP:
+	case KEY_DOWN:
+		// eat up and down keys to be consistent
+		handled = TRUE;
+		break;
+	case KEY_LEFT:
+		setCurSliderValue(getCurSliderValue() - getIncrement());
+		onCommit();
+		handled = TRUE;
+		break;
+	case KEY_RIGHT:
+		setCurSliderValue(getCurSliderValue() + getIncrement());
+		onCommit();
+		handled = TRUE;
+		break;
+	default:
+		break;
 	}
 	return handled;
 }
@@ -438,177 +427,142 @@ void LLMultiSlider::draw()
 
 	std::map<LLString, LLRect>::iterator mIt;
 	std::map<LLString, LLRect>::iterator curSldrIt;
-	if( getVisible() )
+
+	// Draw background and thumb.
+
+	// drawing solids requires texturing be disabled
+	LLGLSNoTexture no_texture;
+
+	LLRect rect(mDragStartThumbRect);
+
+	F32 opacity = getEnabled() ? 1.f : 0.3f;
+
+	// Track
+	LLUIImagePtr thumb_imagep = LLUI::sImageProvider->getUIImage("rounded_square.tga");
+
+	S32 height_offset = (getRect().getHeight() - MULTI_TRACK_HEIGHT) / 2;
+	LLRect track_rect(0, getRect().getHeight() - height_offset, getRect().getWidth(), height_offset );
+
+
+	if(mDrawTrack)
 	{
-		// Draw background and thumb.
-
-		// drawing solids requires texturing be disabled
-		LLGLSNoTexture no_texture;
-
-		LLRect rect(mDragStartThumbRect);
-
-		F32 opacity = getEnabled() ? 1.f : 0.3f;
-
-		// Track
-		LLUUID thumb_image_id;
-		thumb_image_id.set(LLUI::sAssetsGroup->getString("rounded_square.tga"));
-		LLPointer<LLImageGL> thumb_imagep(LLUI::sImageProvider->getUIImageByID(thumb_image_id)->getImage());
-
-		S32 height_offset = (getRect().getHeight() - MULTI_TRACK_HEIGHT) / 2;
-		LLRect track_rect(0, getRect().getHeight() - height_offset, getRect().getWidth(), height_offset );
-
-
-		if(mDrawTrack)
-		{
-			track_rect.stretch(-1);
-			gl_draw_scaled_image_with_border(track_rect.mLeft, track_rect.mBottom, 16, 16, track_rect.getWidth(), track_rect.getHeight(),
-				thumb_imagep, mTrackColor % opacity);
-		}
-
-		// if we're supposed to use a drawn triangle
-		// simple gl call for the triangle
-		if(mUseTriangle) {
-
-			for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); mIt++) {
-
-				gl_triangle_2d(
-					mIt->second.mLeft - EXTRA_TRIANGLE_WIDTH, 
-					mIt->second.mTop + EXTRA_TRIANGLE_HEIGHT,
-					mIt->second.mRight + EXTRA_TRIANGLE_WIDTH, 
-					mIt->second.mTop + EXTRA_TRIANGLE_HEIGHT,
-					mIt->second.mLeft + mIt->second.getWidth() / 2, 
-					mIt->second.mBottom - EXTRA_TRIANGLE_HEIGHT,
-					mTriangleColor, TRUE);
-			}
-		}
-		else if (!thumb_imagep)
-		{
-			// draw all the thumbs
-			curSldrIt = mThumbRects.end();
-			for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); mIt++) {
-				
-				// choose the color
-				curThumbColor = mThumbCenterColor;
-				if(mIt->first == mCurSlider) {
-					
-					curSldrIt = mIt;
-					continue;
-					//curThumbColor = mThumbCenterSelectedColor;
-				}
-
-				// the draw command
-				gl_rect_2d(mIt->second, curThumbColor, TRUE);
-			}
-
-			// now draw the current slider
-			if(curSldrIt != mThumbRects.end()) {
-				gl_rect_2d(curSldrIt->second, mThumbCenterSelectedColor, TRUE);
-			}
-
-			// and draw the drag start
-			if (gFocusMgr.getMouseCapture() == this)
-			{
-				gl_rect_2d(mDragStartThumbRect, mThumbCenterColor % opacity, FALSE);
-			}
-		}
-		else if( gFocusMgr.getMouseCapture() == this )
-		{
-			// draw drag start
-			gl_draw_scaled_image_with_border(mDragStartThumbRect.mLeft, 
-				mDragStartThumbRect.mBottom, 16, 16, 
-				mDragStartThumbRect.getWidth(), 
-				mDragStartThumbRect.getHeight(), 
-				thumb_imagep, mThumbCenterColor % 0.3f, TRUE);
-
-			// draw the highlight
-			if (hasFocus())
-			{
-				F32 lerp_amt = gFocusMgr.getFocusFlashAmt();
-				LLRect highlight_rect = mThumbRects[mCurSlider];
-				highlight_rect.stretch(llround(lerp(1.f, 3.f, lerp_amt)));
-				gl_draw_scaled_image_with_border(highlight_rect.mLeft, 
-					highlight_rect.mBottom, 16, 16, highlight_rect.getWidth(), 
-					highlight_rect.getHeight(),
-					thumb_imagep, gFocusMgr.getFocusColor());
-			}
-
-			// draw the thumbs
-			curSldrIt = mThumbRects.end();
-			for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); mIt++) {
-				
-				// choose the color
-				curThumbColor = mThumbCenterColor;
-				if(mIt->first == mCurSlider) {
-					// don't draw now, draw last
-					curSldrIt = mIt;
-					continue;				
-				}
-				
-				// the draw command
-				gl_draw_scaled_image_with_border(
-					mIt->second.mLeft, 
-					mIt->second.mBottom, 16, 16, 
-					mIt->second.getWidth(), 
-					mIt->second.getHeight(), thumb_imagep, 
-					curThumbColor, TRUE);
-			}
-			
-			// draw cur slider last
-			if(curSldrIt != mThumbRects.end()) {
-				gl_draw_scaled_image_with_border(
-					curSldrIt->second.mLeft, 
-					curSldrIt->second.mBottom, 16, 16, 
-					curSldrIt->second.getWidth(), 
-					curSldrIt->second.getHeight(), thumb_imagep, 
-					mThumbCenterSelectedColor, TRUE);
-			}
-			
-		}
-		else
-		{ 
-			// draw highlight
-			if (hasFocus())
-			{
-				F32 lerp_amt = gFocusMgr.getFocusFlashAmt();
-				LLRect highlight_rect = mThumbRects[mCurSlider];
-				highlight_rect.stretch(llround(lerp(1.f, 3.f, lerp_amt)));
-				gl_draw_scaled_image_with_border(highlight_rect.mLeft, highlight_rect.mBottom, 16, 16, highlight_rect.getWidth(), highlight_rect.getHeight(),
-					thumb_imagep, gFocusMgr.getFocusColor());
-			}
-
-			// draw thumbs
-			curSldrIt = mThumbRects.end();
-			for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); mIt++) {
-				
-				// choose the color
-				curThumbColor = mThumbCenterColor;
-				if(mIt->first == mCurSlider) {
-					curSldrIt = mIt;
-					continue;
-					//curThumbColor = mThumbCenterSelectedColor;
-				}				
-				
-				// the draw command
-				gl_draw_scaled_image_with_border(
-					mIt->second.mLeft, 
-					mIt->second.mBottom, 16, 16, 
-					mIt->second.getWidth(), 
-					mIt->second.getHeight(), thumb_imagep, 
-					curThumbColor % opacity, TRUE);
-			}
-
-			if(curSldrIt != mThumbRects.end()) {
-				gl_draw_scaled_image_with_border(
-					curSldrIt->second.mLeft, 
-					curSldrIt->second.mBottom, 16, 16, 
-					curSldrIt->second.getWidth(), 
-					curSldrIt->second.getHeight(), thumb_imagep, 
-					mThumbCenterSelectedColor % opacity, TRUE);
-			}
-		}
-
-		LLUICtrl::draw();
+		track_rect.stretch(-1);
+		thumb_imagep->draw(track_rect, mTrackColor % opacity);
 	}
+
+	// if we're supposed to use a drawn triangle
+	// simple gl call for the triangle
+	if(mUseTriangle) {
+
+		for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); mIt++) {
+
+			gl_triangle_2d(
+				mIt->second.mLeft - EXTRA_TRIANGLE_WIDTH, 
+				mIt->second.mTop + EXTRA_TRIANGLE_HEIGHT,
+				mIt->second.mRight + EXTRA_TRIANGLE_WIDTH, 
+				mIt->second.mTop + EXTRA_TRIANGLE_HEIGHT,
+				mIt->second.mLeft + mIt->second.getWidth() / 2, 
+				mIt->second.mBottom - EXTRA_TRIANGLE_HEIGHT,
+				mTriangleColor, TRUE);
+		}
+	}
+	else if (!thumb_imagep)
+	{
+		// draw all the thumbs
+		curSldrIt = mThumbRects.end();
+		for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); mIt++) {
+			
+			// choose the color
+			curThumbColor = mThumbCenterColor;
+			if(mIt->first == mCurSlider) {
+				
+				curSldrIt = mIt;
+				continue;
+				//curThumbColor = mThumbCenterSelectedColor;
+			}
+
+			// the draw command
+			gl_rect_2d(mIt->second, curThumbColor, TRUE);
+		}
+
+		// now draw the current slider
+		if(curSldrIt != mThumbRects.end()) {
+			gl_rect_2d(curSldrIt->second, mThumbCenterSelectedColor, TRUE);
+		}
+
+		// and draw the drag start
+		if (gFocusMgr.getMouseCapture() == this)
+		{
+			gl_rect_2d(mDragStartThumbRect, mThumbCenterColor % opacity, FALSE);
+		}
+	}
+	else if( gFocusMgr.getMouseCapture() == this )
+	{
+		// draw drag start
+		thumb_imagep->drawSolid(mDragStartThumbRect, mThumbCenterColor % 0.3f);
+
+		// draw the highlight
+		if (hasFocus())
+		{
+			thumb_imagep->drawBorder(mThumbRects[mCurSlider], gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
+		}
+
+		// draw the thumbs
+		curSldrIt = mThumbRects.end();
+		for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); mIt++) 
+		{
+			// choose the color
+			curThumbColor = mThumbCenterColor;
+			if(mIt->first == mCurSlider) 
+			{
+				// don't draw now, draw last
+				curSldrIt = mIt;
+				continue;				
+			}
+			
+			// the draw command
+			thumb_imagep->drawSolid(mIt->second, curThumbColor);
+		}
+		
+		// draw cur slider last
+		if(curSldrIt != mThumbRects.end()) 
+		{
+			thumb_imagep->drawSolid(curSldrIt->second, mThumbCenterSelectedColor);
+		}
+		
+	}
+	else
+	{ 
+		// draw highlight
+		if (hasFocus())
+		{
+			thumb_imagep->drawBorder(mThumbRects[mCurSlider], gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
+		}
+
+		// draw thumbs
+		curSldrIt = mThumbRects.end();
+		for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); mIt++) 
+		{
+			
+			// choose the color
+			curThumbColor = mThumbCenterColor;
+			if(mIt->first == mCurSlider) 
+			{
+				curSldrIt = mIt;
+				continue;
+				//curThumbColor = mThumbCenterSelectedColor;
+			}				
+			
+			thumb_imagep->drawSolid(mIt->second, curThumbColor % opacity);
+		}
+
+		if(curSldrIt != mThumbRects.end()) 
+		{
+			thumb_imagep->drawSolid(curSldrIt->second, mThumbCenterSelectedColor % opacity);
+		}
+	}
+
+	LLUICtrl::draw();
 }
 
 // virtual

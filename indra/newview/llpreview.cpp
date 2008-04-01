@@ -231,11 +231,11 @@ void LLPreview::onCommit()
 					LLViewerObject* obj = avatar->getWornAttachment( item->getUUID() );
 					if( obj )
 					{
-						gSelectMgr->deselectAll();
-						gSelectMgr->addAsIndividual( obj, SELECT_ALL_TES, FALSE );
-						gSelectMgr->selectionSetObjectDescription( childGetText("desc") );
+						LLSelectMgr::getInstance()->deselectAll();
+						LLSelectMgr::getInstance()->addAsIndividual( obj, SELECT_ALL_TES, FALSE );
+						LLSelectMgr::getInstance()->selectionSetObjectDescription( childGetText("desc") );
 
-						gSelectMgr->deselectAll();
+						LLSelectMgr::getInstance()->deselectAll();
 					}
 				}
 			}
@@ -374,7 +374,7 @@ BOOL LLPreview::handleMouseDown(S32 x, S32 y, MASK mask)
 		S32 screen_x;
 		S32 screen_y;
 		localPointToScreen(x, y, &screen_x, &screen_y );
-		gToolDragAndDrop->setDragStart(screen_x, screen_y);
+		LLToolDragAndDrop::getInstance()->setDragStart(screen_x, screen_y);
 		return TRUE;
 	}
 	return LLFloater::handleMouseDown(x, y, mask);
@@ -402,7 +402,7 @@ BOOL LLPreview::handleHover(S32 x, S32 y, MASK mask)
 		if(item
 		   && item->getPermissions().allowCopyBy(gAgent.getID(),
 												 gAgent.getGroupID())
-		   && gToolDragAndDrop->isOverThreshold(screen_x, screen_y))
+		   && LLToolDragAndDrop::getInstance()->isOverThreshold(screen_x, screen_y))
 		{
 			EDragAndDropType type;
 			type = LLAssetType::lookupDragAndDropType(item->getType());
@@ -415,11 +415,11 @@ BOOL LLPreview::handleHover(S32 x, S32 y, MASK mask)
 			{
 				src = LLToolDragAndDrop::SOURCE_AGENT;
 			}
-			gToolDragAndDrop->beginDrag(type,
+			LLToolDragAndDrop::getInstance()->beginDrag(type,
 										item->getUUID(),
 										src,
 										mObjectUUID);
-			return gToolDragAndDrop->handleHover(x, y, mask );
+			return LLToolDragAndDrop::getInstance()->handleHover(x, y, mask );
 		}
 	}
 	return LLFloater::handleHover(x,y,mask);

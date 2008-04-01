@@ -11,7 +11,7 @@
 
 #include "llfloaterhud.h"
 #include "llviewercontrol.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llwebbrowserctrl.h"
 #include "llalertdialog.h"
 
@@ -37,14 +37,14 @@ LLFloaterHUD::LLFloaterHUD()
 	setBackgroundOpaque(TRUE);
 
 	// Create floater from its XML definition
-	gUICtrlFactory->buildFloater(this, "floater_hud.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_hud.xml");
 	
 	// Position floater based on saved location
 	LLRect saved_position_rect = gSavedSettings.getRect("FloaterHUDRect");
 	reshape(saved_position_rect.getWidth(), saved_position_rect.getHeight(), FALSE);
 	setRect(saved_position_rect);
 	
-	mWebBrowser = LLViewerUICtrlFactory::getWebBrowserByName(this,  "floater_hud_browser" );
+	mWebBrowser = getChild<LLWebBrowserCtrl>("floater_hud_browser" );
 	if (mWebBrowser)
 	{
 		// Always refresh the browser

@@ -44,15 +44,12 @@ public:
 	LLProgressView(const std::string& name, const LLRect& rect);
 	virtual ~LLProgressView();
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
-
 	/*virtual*/ void draw();
 	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 
 	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
 	/*virtual*/ void setVisible(BOOL visible);
 
 	void setText(const LLString& text);

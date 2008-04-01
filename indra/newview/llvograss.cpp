@@ -176,7 +176,8 @@ void LLVOGrass::initClass()
 
 			static LLStdStringHandle texture_name_string = LLXmlTree::addAttributeString("texture_name");
 			success &= grass_def->getFastAttributeString(texture_name_string, textureName);
-			newGrass->mTextureID.set( gViewerArt.getString(textureName) );
+			LLViewerImage* grass_image = gImageList.getImageFromFile(textureName);
+			newGrass->mTextureID = grass_image->getID();
 		}
 
 		static LLStdStringHandle blade_sizex_string = LLXmlTree::addAttributeString("blade_size_x");
@@ -330,7 +331,7 @@ void LLVOGrass::setPixelAreaAndAngle(LLAgent &agent)
 	mAppAngle = (F32) atan2( max_scale, range) * RAD_TO_DEG;
 
 	// Compute pixels per meter at the given range
-	F32 pixels_per_meter = gCamera->getViewHeightInPixels() / (tan(gCamera->getView()) * range);
+	F32 pixels_per_meter = LLViewerCamera::getInstance()->getViewHeightInPixels() / (tan(LLViewerCamera::getInstance()->getView()) * range);
 
 	// Assume grass texture is a 5 meter by 5 meter sprite at the grass object's center
 	mPixelArea = (pixels_per_meter) * (pixels_per_meter) * 25.f;
@@ -430,7 +431,7 @@ void LLVOGrass::plantBlades()
 	face->setTEOffset(0);
 	face->mCenterLocal = mPosition + mRegionp->getOriginAgent();
 	
-	mDepth = (face->mCenterLocal - gCamera->getOrigin())*gCamera->getAtAxis();
+	mDepth = (face->mCenterLocal - LLViewerCamera::getInstance()->getOrigin())*LLViewerCamera::getInstance()->getAtAxis();
 	mDrawable->setPosition(face->mCenterLocal);
 	mDrawable->movePartition();
 	LLPipeline::sCompiles++;

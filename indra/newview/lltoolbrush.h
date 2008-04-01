@@ -46,7 +46,7 @@ class LLViewerRegion;
 // A toolbrush that modifies the land.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLToolBrushLand : public LLTool, public LLEditMenuHandler
+class LLToolBrushLand : public LLTool, public LLEditMenuHandler, public LLSingleton<LLToolBrushLand>
 {
 	typedef std::set<LLViewerRegion*> region_list_t;
 
@@ -103,6 +103,5 @@ protected:
 	region_list_t mLastAffectedRegions;
 };
 
-extern LLToolBrushLand *gToolLand;
 
 #endif // LL_LLTOOLBRUSH_H

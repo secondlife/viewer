@@ -45,9 +45,10 @@
 #include "llfontgl.h"
 #include "lltextbox.h"
 #include "llkeyboard.h"
-#include "llviewborder.h"
 
 const U32 MAX_STRING_LENGTH = 10;
+
+static LLRegisterWidget<LLCheckBoxCtrl> r("check_box");
 
  
 LLCheckBoxCtrl::LLCheckBoxCtrl(const LLString& name, const LLRect& rect, 

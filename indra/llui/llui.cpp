@@ -55,6 +55,7 @@
 //#include "llstartup.h"
 #include "llui.h"
 #include "llview.h"
+#include "lllineeditor.h"
 #include "llwindow.h"
 
 #include "llglheaders.h"
@@ -73,7 +74,6 @@ std::list<LLString> gUntranslated;
 
 LLControlGroup* LLUI::sConfigGroup = NULL;
 LLControlGroup* LLUI::sColorsGroup = NULL;
-LLControlGroup* LLUI::sAssetsGroup = NULL;
 LLImageProviderInterface* LLUI::sImageProvider = NULL;
 LLUIAudioCallback LLUI::sAudioCallback = NULL;
 LLVector2		LLUI::sGLScaleFactor(1.f, 1.f);
@@ -320,7 +320,7 @@ void gl_drop_shadow(S32 left, S32 top, S32 right, S32 bottom, const LLColor4 &st
 void gl_line_2d(S32 x1, S32 y1, S32 x2, S32 y2 )
 {
 	// Work around bug in ATI driver: vertical lines are offset by (-1,-1)
-	if( gGLManager.mATIOffsetVerticalLines && (x1 == x2) )
+	if( (x1 == x2) && gGLManager.mATIOffsetVerticalLines )
 	{
 		x1++;
 		x2++;
@@ -339,7 +339,7 @@ void gl_line_2d(S32 x1, S32 y1, S32 x2, S32 y2 )
 void gl_line_2d(S32 x1, S32 y1, S32 x2, S32 y2, const LLColor4 &color )
 {
 	// Work around bug in ATI driver: vertical lines are offset by (-1,-1)
-	if( gGLManager.mATIOffsetVerticalLines && (x1 == x2) )
+	if( (x1 == x2) && gGLManager.mATIOffsetVerticalLines )
 	{
 		x1++;
 		x2++;
@@ -457,24 +457,30 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLIma
 		return;
 	}
 
-	// scale screen size of borders down
-	LLRectf clipped_scale_rect = uv_rect;
-	clipped_scale_rect.intersectWith(scale_rect);
+	// shrink scaling region to be proportional to clipped image region
+	LLRectf scale_rect_uv(
+		uv_rect.mLeft + (scale_rect.mLeft * uv_rect.getWidth()),
+		uv_rect.mBottom + (scale_rect.mTop * uv_rect.getHeight()),
+		uv_rect.mLeft + (scale_rect.mRight * uv_rect.getWidth()),
+		uv_rect.mBottom + (scale_rect.mBottom * uv_rect.getHeight()));
+
+	S32 image_natural_width = llround((F32)image->getWidth(0) * uv_rect.getWidth());
+	S32 image_natural_height = llround((F32)image->getHeight(0) * uv_rect.getHeight());
 
 	LLRect draw_rect(0, height, width, 0);
-	LLRect draw_scale_rect(llround((F32)image->getWidth() * scale_rect.mLeft),
-						llround((F32)image->getHeight() * scale_rect.mTop),
-						llround((F32)image->getWidth() * scale_rect.mRight),
-						llround((F32)image->getHeight() * scale_rect.mBottom));
-	// scale fixed region of image up with drawn region
-	draw_scale_rect.mRight += width - image->getWidth();
-	draw_scale_rect.mTop += height - image->getHeight();
+	LLRect draw_scale_rect(llround(scale_rect_uv.mLeft * (F32)image->getWidth(0)),
+						llround(scale_rect_uv.mTop * (F32)image->getHeight(0)),
+						llround(scale_rect_uv.mRight * (F32)image->getWidth(0)),
+						llround(scale_rect_uv.mBottom * (F32)image->getHeight(0)));
+	// scale fixed region of image to drawn region
+	draw_scale_rect.mRight += width - image_natural_width;
+	draw_scale_rect.mTop += height - image_natural_height;
 
 	S32 border_shrink_width = llmax(0, draw_scale_rect.mLeft - draw_scale_rect.mRight);
 	S32 border_shrink_height = llmax(0, draw_scale_rect.mBottom - draw_scale_rect.mTop);
 
-	F32 shrink_width_ratio = scale_rect.getWidth() == 1.f ? 0.f : border_shrink_width / ((F32)image->getWidth() * (1.f - scale_rect.getWidth()));
-	F32 shrink_height_ratio = scale_rect.getHeight() == 1.f ? 0.f : border_shrink_height / ((F32)image->getHeight() * (1.f - scale_rect.getHeight()));
+	F32 shrink_width_ratio = scale_rect.getWidth() == 1.f ? 0.f : border_shrink_width / ((F32)image_natural_width * (1.f - scale_rect.getWidth()));
+	F32 shrink_height_ratio = scale_rect.getHeight() == 1.f ? 0.f : border_shrink_height / ((F32)image_natural_height * (1.f - scale_rect.getHeight()));
 
 	F32 shrink_scale = 1.f - llmax(shrink_width_ratio, shrink_height_ratio);
 	draw_scale_rect.mLeft = llround((F32)draw_scale_rect.mLeft * shrink_scale);
@@ -514,117 +520,117 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLIma
 			gGL.texCoord2f(uv_rect.mLeft, uv_rect.mBottom);
 			gGL.vertex2i(0, 0);
 
-			gGL.texCoord2f(clipped_scale_rect.mLeft, uv_rect.mBottom);
+			gGL.texCoord2f(scale_rect_uv.mLeft, uv_rect.mBottom);
 			gGL.vertex2i(draw_scale_rect.mLeft, 0);
 
-			gGL.texCoord2f(clipped_scale_rect.mLeft, clipped_scale_rect.mBottom);
+			gGL.texCoord2f(scale_rect_uv.mLeft, scale_rect_uv.mBottom);
 			gGL.vertex2i(draw_scale_rect.mLeft, draw_scale_rect.mBottom);
 
-			gGL.texCoord2f(uv_rect.mLeft, clipped_scale_rect.mBottom);
+			gGL.texCoord2f(uv_rect.mLeft, scale_rect_uv.mBottom);
 			gGL.vertex2i(0, draw_scale_rect.mBottom);
 
 			// draw bottom middle
-			gGL.texCoord2f(clipped_scale_rect.mLeft, uv_rect.mBottom);
+			gGL.texCoord2f(scale_rect_uv.mLeft, uv_rect.mBottom);
 			gGL.vertex2i(draw_scale_rect.mLeft, 0);
 
-			gGL.texCoord2f(clipped_scale_rect.mRight, uv_rect.mBottom);
+			gGL.texCoord2f(scale_rect_uv.mRight, uv_rect.mBottom);
 			gGL.vertex2i(draw_scale_rect.mRight, 0);
 
-			gGL.texCoord2f(clipped_scale_rect.mRight, clipped_scale_rect.mBottom);
+			gGL.texCoord2f(scale_rect_uv.mRight, scale_rect_uv.mBottom);
 			gGL.vertex2i(draw_scale_rect.mRight, draw_scale_rect.mBottom);
 
-			gGL.texCoord2f(clipped_scale_rect.mLeft, clipped_scale_rect.mBottom);
+			gGL.texCoord2f(scale_rect_uv.mLeft, scale_rect_uv.mBottom);
 			gGL.vertex2i(draw_scale_rect.mLeft, draw_scale_rect.mBottom);
 
 			// draw bottom right
-			gGL.texCoord2f(clipped_scale_rect.mRight, uv_rect.mBottom);
+			gGL.texCoord2f(scale_rect_uv.mRight, uv_rect.mBottom);
 			gGL.vertex2i(draw_scale_rect.mRight, 0);
 
 			gGL.texCoord2f(uv_rect.mRight, uv_rect.mBottom);
 			gGL.vertex2i(width, 0);
 
-			gGL.texCoord2f(uv_rect.mRight, clipped_scale_rect.mBottom);
+			gGL.texCoord2f(uv_rect.mRight, scale_rect_uv.mBottom);
 			gGL.vertex2i(width, draw_scale_rect.mBottom);
 
-			gGL.texCoord2f(clipped_scale_rect.mRight, clipped_scale_rect.mBottom);
+			gGL.texCoord2f(scale_rect_uv.mRight, scale_rect_uv.mBottom);
 			gGL.vertex2i(draw_scale_rect.mRight, draw_scale_rect.mBottom);
 
 			// draw left 
-			gGL.texCoord2f(uv_rect.mLeft, clipped_scale_rect.mBottom);
+			gGL.texCoord2f(uv_rect.mLeft, scale_rect_uv.mBottom);
 			gGL.vertex2i(0, draw_scale_rect.mBottom);
 
-			gGL.texCoord2f(clipped_scale_rect.mLeft, clipped_scale_rect.mBottom);
+			gGL.texCoord2f(scale_rect_uv.mLeft, scale_rect_uv.mBottom);
 			gGL.vertex2i(draw_scale_rect.mLeft, draw_scale_rect.mBottom);
 
-			gGL.texCoord2f(clipped_scale_rect.mLeft, clipped_scale_rect.mTop);
+			gGL.texCoord2f(scale_rect_uv.mLeft, scale_rect_uv.mTop);
 			gGL.vertex2i(draw_scale_rect.mLeft, draw_scale_rect.mTop);
 
-			gGL.texCoord2f(uv_rect.mLeft, clipped_scale_rect.mTop);
+			gGL.texCoord2f(uv_rect.mLeft, scale_rect_uv.mTop);
 			gGL.vertex2i(0, draw_scale_rect.mTop);
 
 			// draw middle
-			gGL.texCoord2f(clipped_scale_rect.mLeft, clipped_scale_rect.mBottom);
+			gGL.texCoord2f(scale_rect_uv.mLeft, scale_rect_uv.mBottom);
 			gGL.vertex2i(draw_scale_rect.mLeft, draw_scale_rect.mBottom);
 
-			gGL.texCoord2f(clipped_scale_rect.mRight, clipped_scale_rect.mBottom);
+			gGL.texCoord2f(scale_rect_uv.mRight, scale_rect_uv.mBottom);
 			gGL.vertex2i(draw_scale_rect.mRight, draw_scale_rect.mBottom);
 
-			gGL.texCoord2f(clipped_scale_rect.mRight, clipped_scale_rect.mTop);
+			gGL.texCoord2f(scale_rect_uv.mRight, scale_rect_uv.mTop);
 			gGL.vertex2i(draw_scale_rect.mRight, draw_scale_rect.mTop);
 
-			gGL.texCoord2f(clipped_scale_rect.mLeft, clipped_scale_rect.mTop);
+			gGL.texCoord2f(scale_rect_uv.mLeft, scale_rect_uv.mTop);
 			gGL.vertex2i(draw_scale_rect.mLeft, draw_scale_rect.mTop);
 
 			// draw right 
-			gGL.texCoord2f(clipped_scale_rect.mRight, clipped_scale_rect.mBottom);
+			gGL.texCoord2f(scale_rect_uv.mRight, scale_rect_uv.mBottom);
 			gGL.vertex2i(draw_scale_rect.mRight, draw_scale_rect.mBottom);
 
-			gGL.texCoord2f(uv_rect.mRight, clipped_scale_rect.mBottom);
+			gGL.texCoord2f(uv_rect.mRight, scale_rect_uv.mBottom);
 			gGL.vertex2i(width, draw_scale_rect.mBottom);
 
-			gGL.texCoord2f(uv_rect.mRight, clipped_scale_rect.mTop);
+			gGL.texCoord2f(uv_rect.mRight, scale_rect_uv.mTop);
 			gGL.vertex2i(width, draw_scale_rect.mTop);
 
-			gGL.texCoord2f(clipped_scale_rect.mRight, clipped_scale_rect.mTop);
+			gGL.texCoord2f(scale_rect_uv.mRight, scale_rect_uv.mTop);
 			gGL.vertex2i(draw_scale_rect.mRight, draw_scale_rect.mTop);
 
 			// draw top left
-			gGL.texCoord2f(uv_rect.mLeft, clipped_scale_rect.mTop);
+			gGL.texCoord2f(uv_rect.mLeft, scale_rect_uv.mTop);
 			gGL.vertex2i(0, draw_scale_rect.mTop);
 
-			gGL.texCoord2f(clipped_scale_rect.mLeft, clipped_scale_rect.mTop);
+			gGL.texCoord2f(scale_rect_uv.mLeft, scale_rect_uv.mTop);
 			gGL.vertex2i(draw_scale_rect.mLeft, draw_scale_rect.mTop);
 
-			gGL.texCoord2f(clipped_scale_rect.mLeft, uv_rect.mTop);
+			gGL.texCoord2f(scale_rect_uv.mLeft, uv_rect.mTop);
 			gGL.vertex2i(draw_scale_rect.mLeft, height);
 
 			gGL.texCoord2f(uv_rect.mLeft, uv_rect.mTop);
 			gGL.vertex2i(0, height);
 
 			// draw top middle
-			gGL.texCoord2f(clipped_scale_rect.mLeft, clipped_scale_rect.mTop);
+			gGL.texCoord2f(scale_rect_uv.mLeft, scale_rect_uv.mTop);
 			gGL.vertex2i(draw_scale_rect.mLeft, draw_scale_rect.mTop);
 
-			gGL.texCoord2f(clipped_scale_rect.mRight, clipped_scale_rect.mTop);
+			gGL.texCoord2f(scale_rect_uv.mRight, scale_rect_uv.mTop);
 			gGL.vertex2i(draw_scale_rect.mRight, draw_scale_rect.mTop);
 
-			gGL.texCoord2f(clipped_scale_rect.mRight, uv_rect.mTop);
+			gGL.texCoord2f(scale_rect_uv.mRight, uv_rect.mTop);
 			gGL.vertex2i(draw_scale_rect.mRight, height);
 
-			gGL.texCoord2f(clipped_scale_rect.mLeft, uv_rect.mTop);
+			gGL.texCoord2f(scale_rect_uv.mLeft, uv_rect.mTop);
 			gGL.vertex2i(draw_scale_rect.mLeft, height);
 
 			// draw top right
-			gGL.texCoord2f(clipped_scale_rect.mRight, clipped_scale_rect.mTop);
+			gGL.texCoord2f(scale_rect_uv.mRight, scale_rect_uv.mTop);
 			gGL.vertex2i(draw_scale_rect.mRight, draw_scale_rect.mTop);
 
-			gGL.texCoord2f(uv_rect.mRight, clipped_scale_rect.mTop);
+			gGL.texCoord2f(uv_rect.mRight, scale_rect_uv.mTop);
 			gGL.vertex2i(width, draw_scale_rect.mTop);
 
 			gGL.texCoord2f(uv_rect.mRight, uv_rect.mTop);
 			gGL.vertex2i(width, height);
 
-			gGL.texCoord2f(clipped_scale_rect.mRight, uv_rect.mTop);
+			gGL.texCoord2f(scale_rect_uv.mRight, uv_rect.mTop);
 			gGL.vertex2i(draw_scale_rect.mRight, height);
 		}
 		gGL.end();
@@ -1563,7 +1569,6 @@ bool handleShowXUINamesChanged(const LLSD& newvalue)
 
 void LLUI::initClass(LLControlGroup* config, 
 					 LLControlGroup* colors, 
-					 LLControlGroup* assets, 
 					 LLImageProviderInterface* image_provider,
 					 LLUIAudioCallback audio_callback,
 					 const LLVector2* scale_factor,
@@ -1571,7 +1576,6 @@ void LLUI::initClass(LLControlGroup* config,
 {
 	sConfigGroup = config;
 	sColorsGroup = colors;
-	sAssetsGroup = assets;
 	sImageProvider = image_provider;
 	sAudioCallback = audio_callback;
 	sGLScaleFactor = (scale_factor == NULL) ? LLVector2(1.f, 1.f) : *scale_factor;
@@ -1584,6 +1588,8 @@ void LLUI::initClass(LLControlGroup* config,
 
 void LLUI::cleanupClass()
 {
+	sImageProvider->cleanUp();
+	LLLineEditor::cleanupClass();
 }
 
 
@@ -1726,27 +1732,14 @@ void LLUI::glRectToScreen(const LLRect& gl, LLRect *screen)
 	glPointToScreen(gl.mRight, gl.mBottom, &screen->mRight, &screen->mBottom);
 }
 
-//static
-LLUUID			LLUI::findAssetUUIDByName(const LLString	&asset_name)
-{
-	if(asset_name == LLString::null) return LLUUID::null;
-	LLString	foundValue = LLUI::sConfigGroup->findString(asset_name);
-	if(foundValue==LLString::null)
-	{
-		foundValue = LLUI::sAssetsGroup->findString(asset_name);
-	}
-	if(foundValue == LLString::null){
-		return LLUUID::null;
-	}
-	return LLUUID( foundValue );
-}
-
 //static 
-LLUIImage* LLUI::getUIImageByName(const LLString& name)
+LLUIImage* LLUI::getUIImage(const LLString& name)
 {
-	return sImageProvider->getUIImageByID(findAssetUUIDByName(name));
+	if (!name.empty())
+		return sImageProvider->getUIImage(name);
+	else
+		return NULL;
 }
-
 
 // static 
 void LLUI::setHtmlHelp(LLHtmlHelp* html_help)
@@ -1822,7 +1815,8 @@ LLLocalClipRect::LLLocalClipRect(const LLRect &rect, BOOL enabled)
 // LLUIImage
 //
 
-LLUIImage::LLUIImage(LLPointer<LLImageGL> image) :
+LLUIImage::LLUIImage(const LLString& name, LLPointer<LLImageGL> image) :
+						mName(name),
 						mImage(image),
 						mScaleRegion(0.f, 1.f, 1.f, 0.f),
 						mClipRegion(0.f, 1.f, 1.f, 0.f),
@@ -1886,24 +1880,32 @@ void LLUIImage::drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& c
 		mScaleRegion);
 }
 
-void LLUIImage::drawSolid(S32 x, S32 y, const LLColor4& color) const
+void LLUIImage::drawBorder(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, S32 border_width) const
 {
-	gl_draw_scaled_image_with_border(
-		x, y, 
-		getWidth(), getHeight(), 
-		mImage, 
-		color, 
-		TRUE,
-		mClipRegion,
-		mScaleRegion);
+	LLRect border_rect;
+	border_rect.setOriginAndSize(x, y, width, height);
+	border_rect.stretch(border_width, border_width);
+	drawSolid(border_rect, color);
 }
 
 S32 LLUIImage::getWidth() const
 { 
-	return mImage->getWidth(0); 
+	// return clipped dimensions of actual image area
+	return llround((F32)mImage->getWidth(0) * mClipRegion.getWidth()); 
 }
 
 S32 LLUIImage::getHeight() const
 { 
-	return mImage->getHeight(0); 
+	// return clipped dimensions of actual image area
+	return llround((F32)mImage->getHeight(0) * mClipRegion.getHeight()); 
+}
+
+S32 LLUIImage::getTextureWidth() const
+{
+	return mImage->getWidth(0);
+}
+
+S32 LLUIImage::getTextureHeight() const
+{
+	return mImage->getHeight(0);
 }

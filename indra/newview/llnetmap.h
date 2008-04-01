@@ -51,9 +51,6 @@ public:
 	LLNetMap(const std::string& name, const LLRect& rect, const LLColor4& bg_color );
 	virtual ~LLNetMap();
 
-	virtual EWidgetType getWidgetType() const;
-	virtual LLString getWidgetTag() const;
-
 	virtual void	draw();
 	virtual BOOL	handleDoubleClick( S32 x, S32 y, MASK mask );
 	virtual BOOL	handleRightMouseDown( S32 x, S32 y, MASK mask );

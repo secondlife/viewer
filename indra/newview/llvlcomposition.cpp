@@ -32,6 +32,8 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llvlcomposition.h"
+
+#include "imageids.h"
 #include "llerror.h"
 #include "v3math.h"
 #include "llsurface.h"
@@ -69,22 +71,10 @@ LLVLComposition::LLVLComposition(LLSurface *surfacep, const U32 width, const F32
 	mSurfacep = surfacep;
 
 	// Load Terrain Textures - Original ones
-	LLUUID id;
-	// Dirt
-	id.set( gViewerArt.getString("terrain_dirt_detail.tga") );
-	setDetailTextureID(0, id);
-
-	// Grass
-	id.set( gViewerArt.getString("terrain_grass_detail.tga") );
-	setDetailTextureID(1, id);
-
-	// Rock mountain
-	id.set( gViewerArt.getString("terrain_mountain_detail.tga") );
-	setDetailTextureID(2, id);
-
-	// Rock face
-	id.set( gViewerArt.getString("terrain_rock_detail.tga") );
-	setDetailTextureID(3, id);
+	setDetailTextureID(0, TERRAIN_DIRT_DETAIL);
+	setDetailTextureID(1, TERRAIN_GRASS_DETAIL);
+	setDetailTextureID(2, TERRAIN_MOUNTAIN_DETAIL);
+	setDetailTextureID(3, TERRAIN_ROCK_DETAIL);
 
 	// Initialize the texture matrix to defaults.
 	for (S32 i = 0; i < CORNER_COUNT; ++i)

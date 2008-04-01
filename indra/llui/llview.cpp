@@ -49,7 +49,16 @@
 #include "lluictrl.h"
 #include "llwindow.h"
 #include "v3color.h"
+#include "lluictrlfactory.h"
 
+// for ui edit hack
+#include "llbutton.h"
+#include "lllineeditor.h"
+#include "lltexteditor.h"
+#include "lltextbox.h"
+
+//HACK: this allows you to instantiate LLView from xml with "<view/>" which we don't want
+static LLRegisterWidget<LLView> r("view");
 
 BOOL	LLView::sDebugRects = FALSE;
 BOOL	LLView::sDebugKeys = FALSE;
@@ -152,6 +161,8 @@ LLView::~LLView()
 	}
 
 	std::for_each(mFloaterControls.begin(), mFloaterControls.end(),
+				  DeletePairedPointer());
+	std::for_each(mDummyWidgets.begin(), mDummyWidgets.end(),
 				  DeletePairedPointer());
 }
 
@@ -716,7 +727,7 @@ BOOL LLView::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_scre
 		tool_tip = getShowNamesToolTip();
 	}
 
-	BOOL showNamesTextBox = LLUI::sShowXUINames && (getWidgetType() == WIDGET_TYPE_TEXT_BOX);
+	BOOL showNamesTextBox = LLUI::sShowXUINames && dynamic_cast<LLTextBox*>(this) != NULL;
 
 	if( !handled && (blockMouseEvent(x, y) || showNamesTextBox) && !tool_tip.empty())
 	{
@@ -741,23 +752,21 @@ BOOL LLView::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 {
 	BOOL handled = FALSE;
 
-	if( called_from_parent )
+	if (getVisible() && getEnabled())
 	{
-		// Downward traversal
-		if (getVisible() && getEnabled())
+		if( called_from_parent )
 		{
+			// Downward traversal
 			handled = childrenHandleKey( key, mask ) != NULL;
 		}
-	}
 
-	// JC: Must pass to disabled views, since they could have
-	// keyboard focus, which requires the escape key to exit.
-	if (!handled && getVisible())
-	{
-		handled = handleKeyHere( key, mask, called_from_parent );
-		if (handled && LLView::sDebugKeys)
+		if (!handled)
 		{
-			llinfos << "Key handled by " << getName() << llendl;
+			handled = handleKeyHere( key, mask );
+			if (handled && LLView::sDebugKeys)
+			{
+				llinfos << "Key handled by " << getName() << llendl;
+			}
 		}
 	}
 
@@ -771,7 +780,7 @@ BOOL LLView::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 
 // Called from handleKey()
 // Handles key in this object.  Checking parents and children happens in handleKey()
-BOOL LLView::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+BOOL LLView::handleKeyHere(KEY key, MASK mask)
 {
 	return FALSE;
 }
@@ -780,24 +789,23 @@ BOOL LLView::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
 {
 	BOOL handled = FALSE;
 
-	if( called_from_parent )
+	if (getVisible() && getEnabled())
 	{
-		// Downward traversal
-		if (getVisible() && getEnabled())
+		if( called_from_parent )
 		{
+			// Downward traversal
 			handled = childrenHandleUnicodeChar( uni_char ) != NULL;
 		}
-	}
 
-	if (!handled && getVisible())
-	{
-		handled = handleUnicodeCharHere(uni_char, called_from_parent);
-		if (handled && LLView::sDebugKeys)
+		if (!handled)
 		{
-			llinfos << "Unicode key handled by " << getName() << llendl;
+			handled = handleUnicodeCharHere(uni_char);
+			if (handled && LLView::sDebugKeys)
+			{
+				llinfos << "Unicode key handled by " << getName() << llendl;
+			}
 		}
 	}
-
 
 	if (!handled && !called_from_parent && mParentView)
 	{
@@ -809,7 +817,7 @@ BOOL LLView::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
 }
 
 
-BOOL LLView::handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent )
+BOOL LLView::handleUnicodeCharHere(llwchar uni_char )
 {
 	return FALSE;
 }
@@ -903,11 +911,14 @@ BOOL LLView::handleMouseDown(S32 x, S32 y, MASK mask)
 	if (sEditingUI && handled_view)
 	{
 		// need to find leaf views, big hack
-		EWidgetType type = handled_view->getWidgetType();
-		if (type == WIDGET_TYPE_BUTTON
-			|| type == WIDGET_TYPE_LINE_EDITOR
-			|| type == WIDGET_TYPE_TEXT_EDITOR
-			|| type == WIDGET_TYPE_TEXT_BOX)
+		LLButton* buttonp = dynamic_cast<LLButton*>(handled_view);
+		LLLineEditor* line_editorp = dynamic_cast<LLLineEditor*>(handled_view);
+		LLTextEditor* text_editorp = dynamic_cast<LLTextEditor*>(handled_view);
+		LLTextBox* text_boxp = dynamic_cast<LLTextBox*>(handled_view);
+		if (buttonp
+			|| line_editorp
+			|| text_editorp
+			|| text_boxp)
 		{
 			sEditingUIView = handled_view;
 		}
@@ -971,8 +982,10 @@ LLView* LLView::childrenHandleScrollWheel(S32 x, S32 y, S32 clicks)
 			LLView* viewp = *child_it;
 			S32 local_x = x - viewp->getRect().mLeft;
 			S32 local_y = y - viewp->getRect().mBottom;
-			if (viewp->pointInView(local_x, local_y) && 
-				viewp->handleScrollWheel( local_x, local_y, clicks ))
+			if (viewp->pointInView(local_x, local_y) 
+				&& viewp->getVisible()
+				&& viewp->getEnabled()
+				&& viewp->handleScrollWheel( local_x, local_y, clicks ))
 			{
 				if (sDebugMouseHandling)
 				{
@@ -1528,7 +1541,7 @@ BOOL LLView::hasAncestor(const LLView* parentp) const
 
 BOOL LLView::childHasKeyboardFocus( const LLString& childname ) const
 {
-	LLView *child = getChildByName(childname);
+	LLView *child = getChildView(childname, TRUE, FALSE);
 	if (child)
 	{
 		return gFocusMgr.childHasKeyboardFocus(child);
@@ -1543,16 +1556,17 @@ BOOL LLView::childHasKeyboardFocus( const LLString& childname ) const
 
 BOOL LLView::hasChild(const LLString& childname, BOOL recurse) const
 {
-	return getChildByName(childname, recurse) != NULL;
+	return getChildView(childname, recurse, FALSE) != NULL;
 }
 
 //-----------------------------------------------------------------------------
-// getChildByName()
+// getChildView()
 //-----------------------------------------------------------------------------
-LLView* LLView::getChildByName(const LLString& name, BOOL recurse) const
+LLView* LLView::getChildView(const LLString& name, BOOL recurse, BOOL create_if_missing) const
 {
-	if(name.empty())
-		return NULL;
+	//richard: should we allow empty names?
+	//if(name.empty())
+	//	return NULL;
 	child_list_const_iter_t child_it;
 	// Look for direct children *first*
 	for ( child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
@@ -1569,12 +1583,17 @@ LLView* LLView::getChildByName(const LLString& name, BOOL recurse) const
 		for ( child_it = mChildList.begin(); child_it != mChildList.end(); ++child_it)
 		{
 			LLView* childp = *child_it;
-			LLView* viewp = childp->getChildByName(name, recurse);
+			LLView* viewp = childp->getChildView(name, recurse, FALSE);
 			if ( viewp )
 			{
 				return viewp;
 			}
 		}
+	}
+
+	if (create_if_missing)
+	{
+		return createDummyWidget<LLView>(name);
 	}
 	return NULL;
 }
@@ -1692,7 +1711,6 @@ BOOL LLView::translateIntoRect(const LLRect& constraint, BOOL allow_partial_outs
 		if( getRect().mLeft + KEEP_ONSCREEN_PIXELS > constraint.mRight )
 		{
 			delta_x = constraint.mRight - (getRect().mLeft + KEEP_ONSCREEN_PIXELS);
-			delta_x += llmax( 0, getRect().getWidth() - constraint.getWidth() );
 		}
 
 		if( getRect().mTop > constraint.mTop )
@@ -1703,7 +1721,6 @@ BOOL LLView::translateIntoRect(const LLRect& constraint, BOOL allow_partial_outs
 		if( getRect().mTop - KEEP_ONSCREEN_PIXELS < constraint.mBottom )
 		{
 			delta_y = constraint.mBottom - (getRect().mTop - KEEP_ONSCREEN_PIXELS);
-			delta_y -= llmax( 0, getRect().getHeight() - constraint.getHeight() );
 		}
 	}
 	else
@@ -1716,6 +1733,7 @@ BOOL LLView::translateIntoRect(const LLRect& constraint, BOOL allow_partial_outs
 		if( getRect().mRight > constraint.mRight )
 		{
 			delta_x = constraint.mRight - getRect().mRight;
+			// compensate for left edge possible going off screen
 			delta_x += llmax( 0, getRect().getWidth() - constraint.getWidth() );
 		}
 
@@ -1727,6 +1745,7 @@ BOOL LLView::translateIntoRect(const LLRect& constraint, BOOL allow_partial_outs
 		if( getRect().mBottom < constraint.mBottom )
 		{
 			delta_y = constraint.mBottom - getRect().mBottom;
+			// compensate for top edge possible going off screen
 			delta_y -= llmax( 0, getRect().getHeight() - constraint.getHeight() );
 		}
 	}
@@ -1832,9 +1851,8 @@ BOOL LLView::localRectToOtherView( const LLRect& local, LLRect* other, LLView* o
 // virtual
 LLXMLNodePtr LLView::getXML(bool save_children) const
 {
-	const LLString& type_name = getWidgetTag();
-
-	LLXMLNodePtr node = new LLXMLNode(type_name, FALSE);
+	//FIXME: need to provide actual derived type tag, probably outside this method
+	LLXMLNodePtr node = new LLXMLNode("view", FALSE);
 
 	node->createChild("name", TRUE)->setStringValue(getName());
 	node->createChild("width", TRUE)->setIntValue(getRect().getWidth());
@@ -1895,6 +1913,14 @@ LLXMLNodePtr LLView::getXML(bool save_children) const
 		node->createChild("control_name", TRUE)->setStringValue(mControlName);
 	}
 	return node;
+}
+
+//static 
+LLView* LLView::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory)
+{
+	LLView* viewp = new LLView();
+	viewp->initFromXML(node, parent);
+	return viewp;
 }
 
 // static
@@ -2871,3 +2897,41 @@ LLSD	LLView::getValue() const
 {
 	return LLSD();
 }
+
+LLView* LLView::createWidget(LLXMLNodePtr xml_node) const
+{
+	// forward requests to ui ctrl factory
+	return LLUICtrlFactory::getInstance()->createCtrlWidget(NULL, xml_node);
+}
+
+//
+// LLWidgetClassRegistry
+//
+
+LLWidgetClassRegistry::LLWidgetClassRegistry()
+{ 
+}
+
+void LLWidgetClassRegistry::registerCtrl(const LLString& tag, LLWidgetClassRegistry::factory_func_t function)
+{ 
+	LLString lower_case_tag = tag;
+	LLString::toLower(lower_case_tag);
+	
+	mCreatorFunctions[lower_case_tag] = function;
+}
+
+BOOL LLWidgetClassRegistry::isTagRegistered(const LLString &tag)
+{ 
+	return mCreatorFunctions.find(tag) != mCreatorFunctions.end();
+}
+
+LLWidgetClassRegistry::factory_func_t LLWidgetClassRegistry::getCreatorFunc(const LLString& ctrl_type)
+{ 
+	factory_map_t::const_iterator found_it = mCreatorFunctions.find(ctrl_type);
+	if (found_it == mCreatorFunctions.end())
+	{
+		return NULL;
+	}
+	return found_it->second;
+}
+

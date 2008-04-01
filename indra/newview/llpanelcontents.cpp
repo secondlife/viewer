@@ -109,20 +109,20 @@ void LLPanelContents::getState(LLViewerObject *objectp )
 	}
 
 	LLUUID group_id;			// used for SL-23488
-	gSelectMgr->selectGetGroup(group_id);  // sets group_id as a side effect SL-23488
+	LLSelectMgr::getInstance()->selectGetGroup(group_id);  // sets group_id as a side effect SL-23488
 
 	// BUG? Check for all objects being editable?
 	BOOL editable = gAgent.isGodlike()
 					|| (objectp->permModify()
 					       && ( objectp->permYouOwner() || ( !group_id.isNull() && gAgent.isInGroup(group_id) )));  // solves SL-23488
-	BOOL all_volume = gSelectMgr->selectionAllPCode( LL_PCODE_VOLUME );
+	BOOL all_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME );
 
 	// Edit script button - ok if object is editable and there's an
 	// unambiguous destination for the object.
 	if(	editable &&
 		all_volume &&
-		((gSelectMgr->getSelection()->getRootObjectCount() == 1)
-					|| (gSelectMgr->getSelection()->getObjectCount() == 1)))
+		((LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() == 1)
+					|| (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1)))
 	{
 		//mBtnNewScript->setEnabled(TRUE);
 		childSetEnabled("button new script",TRUE);
@@ -138,7 +138,7 @@ void LLPanelContents::getState(LLViewerObject *objectp )
 void LLPanelContents::refresh()
 {
 	const BOOL children_ok = TRUE;
-	LLViewerObject* object = gSelectMgr->getSelection()->getFirstRootObject(children_ok);
+	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject(children_ok);
 
 	getState(object);
 	if (mPanelInventory)
@@ -157,7 +157,7 @@ void LLPanelContents::refresh()
 void LLPanelContents::onClickNewScript(void *userdata)
 {
 	const BOOL children_ok = TRUE;
-	LLViewerObject* object = gSelectMgr->getSelection()->getFirstRootObject(children_ok);
+	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject(children_ok);
 	if(object)
 	{
 		LLPermissions perm;

@@ -62,8 +62,7 @@ public:
 		S32 label_width = SPINCTRL_DEFAULT_LABEL_WIDTH );
 
 	virtual ~LLSpinCtrl() {} // Children all cleaned up by default view destructor.
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_SPINNER; }
-	virtual LLString getWidgetTag() const { return LL_SPIN_CTRL_TAG; }
+
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, class LLUICtrlFactory *factory);
 
@@ -101,7 +100,7 @@ public:
 	void 			forceEditorCommit();			// for commit on external button
 
 	virtual BOOL	handleScrollWheel(S32 x,S32 y,S32 clicks);
-	virtual BOOL	handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL	handleKeyHere(KEY key, MASK mask);
 
 	virtual void	draw();
 

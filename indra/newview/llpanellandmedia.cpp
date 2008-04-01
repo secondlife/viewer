@@ -37,7 +37,7 @@
 // viewer includes
 #include "llmimetypes.h"
 #include "llviewerparcelmgr.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 // library includes
 #include "llcheckboxctrl.h"
@@ -80,59 +80,52 @@ LLPanelLandMedia::~LLPanelLandMedia()
 
 BOOL LLPanelLandMedia::postBuild()
 {
-	mCheckSoundLocal = LLUICtrlFactory::getCheckBoxByName(this, "check sound local");
+	mCheckSoundLocal = getChild<LLCheckBoxCtrl>("check sound local");
 	childSetCommitCallback("check sound local", onCommitAny, this);
 
-	mRadioVoiceChat = LLUICtrlFactory::getRadioGroupByName(this, "parcel_voice_channel");
+	mRadioVoiceChat = getChild<LLRadioGroup>("parcel_voice_channel");
 	childSetCommitCallback("parcel_voice_channel", onCommitAny, this);
 
-	mMusicURLEdit = LLUICtrlFactory::getLineEditorByName(this, "music_url");
+	mMusicURLEdit = getChild<LLLineEditor>("music_url");
 	childSetCommitCallback("music_url", onCommitAny, this);
 
-	mMediaTextureCtrl = LLViewerUICtrlFactory::getTexturePickerByName(this, "media texture");
-	if (mMediaTextureCtrl)
-	{
-		mMediaTextureCtrl->setCommitCallback( onCommitAny );
-		mMediaTextureCtrl->setCallbackUserData( this );
-		mMediaTextureCtrl->setAllowNoTexture ( TRUE );
-		mMediaTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-		mMediaTextureCtrl->setNonImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
-	}
-	else
-	{
-		llwarns << "LLViewerUICtrlFactory::getTexturePickerByName() returned NULL for 'media texure'" << llendl;
-	}
+	mMediaTextureCtrl = getChild<LLTextureCtrl>("media texture");
+	mMediaTextureCtrl->setCommitCallback( onCommitAny );
+	mMediaTextureCtrl->setCallbackUserData( this );
+	mMediaTextureCtrl->setAllowNoTexture ( TRUE );
+	mMediaTextureCtrl->setImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
+	mMediaTextureCtrl->setNonImmediateFilterPermMask(PERM_COPY | PERM_TRANSFER);
 
-	mMediaAutoScaleCheck = LLUICtrlFactory::getCheckBoxByName(this, "media_auto_scale");
+	mMediaAutoScaleCheck = getChild<LLCheckBoxCtrl>("media_auto_scale");
 	childSetCommitCallback("media_auto_scale", onCommitAny, this);
 
-	mMediaLoopCheck = LLUICtrlFactory::getCheckBoxByName(this, "media_loop");
+	mMediaLoopCheck = getChild<LLCheckBoxCtrl>("media_loop");
 	childSetCommitCallback("media_loop", onCommitAny, this);
 
-	mMediaUrlCheck = LLUICtrlFactory::getCheckBoxByName(this, "hide_media_url");
+	mMediaUrlCheck = getChild<LLCheckBoxCtrl>("hide_media_url");
 	childSetCommitCallback("hide_media_url", onCommitAny, this);
 
-	mMusicUrlCheck = LLUICtrlFactory::getCheckBoxByName(this, "hide_music_url");
+	mMusicUrlCheck = getChild<LLCheckBoxCtrl>("hide_music_url");
 	childSetCommitCallback("hide_music_url", onCommitAny, this);
 
-	mMediaURLEdit = LLUICtrlFactory::getLineEditorByName(this, "media_url");
+	mMediaURLEdit = getChild<LLLineEditor>("media_url");
 	childSetCommitCallback("media_url", onCommitAny, this);
 
-	mMediaDescEdit = LLUICtrlFactory::getLineEditorByName(this, "url_description");
+	mMediaDescEdit = getChild<LLLineEditor>("url_description");
 	childSetCommitCallback("url_description", onCommitAny, this);
 
-	mMediaTypeCombo = LLUICtrlFactory::getComboBoxByName(this, "media type");
+	mMediaTypeCombo = getChild<LLComboBox>("media type");
 	childSetCommitCallback("media type", onCommitType, this);
 	populateMIMECombo();
 	mMediaTypeCombo->sortByName();
 
-	mMediaWidthCtrl = LLUICtrlFactory::getSpinnerByName(this, "media_size_width");
+	mMediaWidthCtrl = getChild<LLSpinCtrl>("media_size_width");
 	childSetCommitCallback("media_size_width", onCommitAny, this);
-	mMediaHeightCtrl = LLUICtrlFactory::getSpinnerByName(this, "media_size_height");
+	mMediaHeightCtrl = getChild<LLSpinCtrl>("media_size_height");
 	childSetCommitCallback("media_size_height", onCommitAny, this);
-	mMediaSizeCtrlLabel = LLUICtrlFactory::getTextBoxByName(this, "media_size");
+	mMediaSizeCtrlLabel = getChild<LLTextBox>("media_size");
 
-	mSetURLButton = LLUICtrlFactory::getButtonByName(this, "set_media_url");
+	mSetURLButton = getChild<LLButton>("set_media_url");
 	childSetAction("set_media_url", onSetBtn, this);
 
 	return TRUE;
@@ -383,7 +376,7 @@ void LLPanelLandMedia::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	parcel->setObscureMusic( obscure_music );
 
 	// Send current parcel data upstream to server
-	gParcelMgr->sendParcelPropertiesUpdate( parcel );
+	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate( parcel );
 
 	// Might have changed properties, so let's redraw!
 	self->refresh();

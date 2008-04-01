@@ -39,8 +39,6 @@
 #include "llerror.h"
 #include "llstring.h"
 
-// Global singleton
-LLResMgr* gResMgr = NULL;
 
 LLResMgr::LLResMgr()
 {

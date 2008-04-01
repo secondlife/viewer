@@ -45,7 +45,7 @@
 #include "lltoolmgr.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 LLFloaterTelehub* LLFloaterTelehub::sInstance = NULL;
 
@@ -62,8 +62,8 @@ void LLFloaterTelehub::show()
 	sInstance = new LLFloaterTelehub();
 
 	// Show tools floater by selecting translate (select) tool
-	gToolMgr->setCurrentToolset(gBasicToolset);
-	gToolMgr->getCurrentToolset()->selectTool( gToolTranslate );
+	LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
+	LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolCompTranslate::getInstance() );
 
 	// Find tools floater, glue to bottom
 	if (gFloaterTools)
@@ -92,21 +92,21 @@ LLFloaterTelehub::LLFloaterTelehub()
 
 	gMessageSystem->setHandlerFunc("TelehubInfo", processTelehubInfo);
 
-	gUICtrlFactory->buildFloater(sInstance, "floater_telehub.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(sInstance, "floater_telehub.xml");
 
 	childSetAction("connect_btn", onClickConnect, this);
 	childSetAction("disconnect_btn", onClickDisconnect, this);
 	childSetAction("add_spawn_point_btn", onClickAddSpawnPoint, this);
 	childSetAction("remove_spawn_point_btn", onClickRemoveSpawnPoint, this);
 
-	LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(this, "spawn_points_list");
+	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("spawn_points_list");
 	if (list)
 	{
 		// otherwise you can't walk with arrow keys while floater is up
 		list->setAllowKeyboardMovement(FALSE);
 	}
 
-	mObjectSelection = gSelectMgr->getEditSelection();
+	mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
 }
 
 LLFloaterTelehub::~LLFloaterTelehub()
@@ -119,7 +119,7 @@ LLFloaterTelehub::~LLFloaterTelehub()
 
 void LLFloaterTelehub::draw()
 {
-	if (getVisible() && !isMinimized())
+	if (!isMinimized())
 	{
 		refresh();
 	}
@@ -133,7 +133,7 @@ void LLFloaterTelehub::refresh()
 	LLViewerObject* object = mObjectSelection->getFirstRootObject(children_ok);
 	
 	BOOL have_selection = (object != NULL);
-	BOOL all_volume = gSelectMgr->selectionAllPCode( LL_PCODE_VOLUME );
+	BOOL all_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME );
 	childSetEnabled("connect_btn", have_selection && all_volume);
 
 	BOOL have_telehub = mTelehubObjectID.notNull();
@@ -142,7 +142,7 @@ void LLFloaterTelehub::refresh()
 	BOOL space_avail = (mNumSpawn < MAX_SPAWNPOINTS_PER_TELEHUB);
 	childSetEnabled("add_spawn_point_btn", have_selection && all_volume && space_avail);
 
-	LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(this, "spawn_points_list");
+	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("spawn_points_list");
 	if (list)
 	{
 		BOOL enable_remove = (list->getFirstSelected() != NULL);
@@ -175,7 +175,7 @@ void LLFloaterTelehub::addBeacons()
 	// Draw nice thick 3-pixel lines.
 	gObjectList.addDebugBeacon(hub_pos_region, "", LLColor4::yellow, LLColor4::white, 4);
 
-	LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(sInstance, "spawn_points_list");
+	LLScrollListCtrl* list = sInstance->getChild<LLScrollListCtrl>("spawn_points_list");
 	if (list)
 	{
 		S32 spawn_index = list->getFirstSelectedIndex();
@@ -189,26 +189,26 @@ void LLFloaterTelehub::addBeacons()
 
 void LLFloaterTelehub::sendTelehubInfoRequest()
 {
-	gSelectMgr->sendGodlikeRequest("telehub", "info ui");
+	LLSelectMgr::getInstance()->sendGodlikeRequest("telehub", "info ui");
 }
 
 // static 
 void LLFloaterTelehub::onClickConnect(void* data)
 {
-	gSelectMgr->sendGodlikeRequest("telehub", "connect");
+	LLSelectMgr::getInstance()->sendGodlikeRequest("telehub", "connect");
 }
 
 // static 
 void LLFloaterTelehub::onClickDisconnect(void* data)
 {
-	gSelectMgr->sendGodlikeRequest("telehub", "delete");
+	LLSelectMgr::getInstance()->sendGodlikeRequest("telehub", "delete");
 }
 
 // static 
 void LLFloaterTelehub::onClickAddSpawnPoint(void* data)
 {
-	gSelectMgr->sendGodlikeRequest("telehub", "spawnpoint add");
-	gSelectMgr->deselectAll();
+	LLSelectMgr::getInstance()->sendGodlikeRequest("telehub", "spawnpoint add");
+	LLSelectMgr::getInstance()->deselectAll();
 }
 
 // static 
@@ -216,7 +216,7 @@ void LLFloaterTelehub::onClickRemoveSpawnPoint(void* data)
 {
 	if (!sInstance) return;
 
-	LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(sInstance, "spawn_points_list");
+	LLScrollListCtrl* list = sInstance->getChild<LLScrollListCtrl>("spawn_points_list");
 	if (!list) return;
 
 	S32 spawn_index = list->getFirstSelectedIndex();
@@ -295,7 +295,7 @@ void LLFloaterTelehub::unpackTelehubInfo(LLMessageSystem* msg)
 		childSetVisible("help_text_not_connected", false);
 	}
 
-	LLScrollListCtrl* list = LLUICtrlFactory::getScrollListByName(this, "spawn_points_list");
+	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("spawn_points_list");
 	if (list)
 	{
 		list->deleteAllItems();

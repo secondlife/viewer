@@ -39,7 +39,7 @@
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "llcheckboxctrl.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewercontrol.h"
 #include "llviewercamera.h"
 #include "llcombobox.h"
@@ -227,7 +227,7 @@ void LLWaterParamManager::updateShaderUniforms(LLGLSLShader * shader)
 	if (shader->mShaderGroup == LLGLSLShader::SG_WATER)
 	{
 		shader->uniform4fv(LLShaderMgr::LIGHTNORM, 1, LLWLParamManager::instance()->getRotatedLightDir().mV);
-		shader->uniform3fv("camPosLocal", 1, gCamera->getOrigin().mV);
+		shader->uniform3fv("camPosLocal", 1, LLViewerCamera::getInstance()->getOrigin().mV);
 		shader->uniform4fv("waterFogColor", 1, LLDrawPoolWater::sWaterFogColor.mV);
 		shader->uniform4fv("waterPlane", 1, mWaterPlane.mV);
 		shader->uniform1f("waterFogDensity", getFogDensity());

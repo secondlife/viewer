@@ -52,7 +52,7 @@
 #include "lltexturectrl.h"
 #include "llworldmap.h"
 #include "llviewerregion.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 //#include "llviewermenu.h"	// create_landmark()
 #include "llweb.h"
 #include "llsdutil.h"
@@ -85,33 +85,33 @@ BOOL LLPanelPlace::postBuild()
 	// Since this is only used in the directory browser, always
 	// disable the snapshot control. Otherwise clicking on it will
 	// open a texture picker.
-	mSnapshotCtrl = LLViewerUICtrlFactory::getTexturePickerByName(this, "snapshot_ctrl");
+	mSnapshotCtrl = getChild<LLTextureCtrl>("snapshot_ctrl");
 	mSnapshotCtrl->setEnabled(FALSE);
 
-    mNameEditor = LLViewerUICtrlFactory::getTextBoxByName(this, "name_editor");
+    mNameEditor = getChild<LLTextBox>("name_editor");
 	// Text boxes appear to have a " " in them by default.  This breaks the
 	// emptiness test for filling in data from the network.  Slam to empty.
 	mNameEditor->setText( LLString::null );
 
-    mDescEditor = LLUICtrlFactory::getTextEditorByName(this, "desc_editor");
+    mDescEditor = getChild<LLTextEditor>("desc_editor");
 
-	mInfoEditor = LLViewerUICtrlFactory::getTextBoxByName(this, "info_editor");
+	mInfoEditor = getChild<LLTextBox>("info_editor");
 
-    mLocationEditor = LLViewerUICtrlFactory::getTextBoxByName(this, "location_editor");
+    mLocationEditor = getChild<LLTextBox>("location_editor");
 
-	mTeleportBtn = LLViewerUICtrlFactory::getButtonByName(this, "teleport_btn");
+	mTeleportBtn = getChild<LLButton>( "teleport_btn");
 	mTeleportBtn->setClickedCallback(onClickTeleport);
 	mTeleportBtn->setCallbackUserData(this);
 
-	mMapBtn = LLViewerUICtrlFactory::getButtonByName(this, "map_btn");
+	mMapBtn = getChild<LLButton>( "map_btn");
 	mMapBtn->setClickedCallback(onClickMap);
 	mMapBtn->setCallbackUserData(this);
 
-	//mLandmarkBtn = LLViewerUICtrlFactory::getButtonByName(this, "landmark_btn");
+	//mLandmarkBtn = getChild<LLButton>( "landmark_btn");
 	//mLandmarkBtn->setClickedCallback(onClickLandmark);
 	//mLandmarkBtn->setCallbackUserData(this);
 
-	mAuctionBtn = LLViewerUICtrlFactory::getButtonByName(this, "auction_btn");
+	mAuctionBtn = getChild<LLButton>( "auction_btn");
 	mAuctionBtn->setClickedCallback(onClickAuction);
 	mAuctionBtn->setCallbackUserData(this);
 
@@ -371,9 +371,9 @@ void LLPanelPlace::onClickTeleport(void* data)
 	LLPanelPlace* self = (LLPanelPlace*)data;
 
 	LLView* parent_viewp = self->getParent();
-	if (parent_viewp->getWidgetType() == WIDGET_TYPE_FLOATER)
+	LLFloater* parent_floaterp = dynamic_cast<LLFloater*>(parent_viewp);
+	if (parent_floaterp)
 	{
-		LLFloater* parent_floaterp = (LLFloater*)parent_viewp;
 		parent_floaterp->close();
 	}
 	// LLFloater* parent_floaterp = (LLFloater*)self->getParent();

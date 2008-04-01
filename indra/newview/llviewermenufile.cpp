@@ -46,7 +46,7 @@
 #include "llstatusbar.h"
 #include "llviewercontrol.h"	// gSavedSettings
 #include "llviewerimagelist.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewermenu.h"	// gMenuHolder
 #include "llviewerregion.h"
 #include "llviewerstats.h"
@@ -86,7 +86,7 @@ class LLFileEnableUpload : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_value = gStatusBar && gGlobalEconomy && (gStatusBar->getBalance() >= gGlobalEconomy->getPriceUpload());
+		bool new_value = gStatusBar && LLGlobalEconomy::Singleton::getInstance() && (gStatusBar->getBalance() >= LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_value);
 		return true;
 	}
@@ -218,7 +218,7 @@ class LLFileUploadImage : public view_listener_t
 		if (filename)
 		{
 			LLFloaterImagePreview* floaterp = new LLFloaterImagePreview(filename);
-			gUICtrlFactory->buildFloater(floaterp, "floater_image_preview.xml");
+			LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_image_preview.xml");
 		}
 		return TRUE;
 	}
@@ -232,7 +232,7 @@ class LLFileUploadSound : public view_listener_t
 		if (filename)
 		{
 			LLFloaterNameDesc* floaterp = new LLFloaterNameDesc(filename);
-			gUICtrlFactory->buildFloater(floaterp, "floater_sound_preview.xml");
+			LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_sound_preview.xml");
 		}
 		return true;
 	}
@@ -246,7 +246,7 @@ class LLFileUploadAnim : public view_listener_t
 		if (filename)
 		{
 			LLFloaterAnimPreview* floaterp = new LLFloaterAnimPreview(filename);
-			gUICtrlFactory->buildFloater(floaterp, "floater_animation_preview.xml");
+			LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_animation_preview.xml");
 		}
 		return true;
 	}
@@ -441,7 +441,7 @@ void handle_upload(void* data)
 	if (filename)
 	{
 		LLFloaterNameDesc* floaterp = new LLFloaterNameDesc(filename);
-		gUICtrlFactory->buildFloater(floaterp, "floater_name_description.xml");
+		LLUICtrlFactory::getInstance()->buildFloater(floaterp, "floater_name_description.xml");
 	}
 }
 
@@ -799,7 +799,7 @@ void upload_done_callback(const LLUUID& uuid, void* user_data, S32 result, LLExt
 		{
 			// Charge the user for the upload.
 			LLViewerRegion* region = gAgent.getRegion();
-			S32 upload_cost = gGlobalEconomy->getPriceUpload();
+			S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 
 			if(!(can_afford_transaction(upload_cost)))
 			{
@@ -911,17 +911,17 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 	
 	if( LLAssetType::AT_SOUND == asset_type )
 	{
-		gViewerStats->incStat(LLViewerStats::ST_UPLOAD_SOUND_COUNT );
+		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_UPLOAD_SOUND_COUNT );
 	}
 	else
 	if( LLAssetType::AT_TEXTURE == asset_type )
 	{
-		gViewerStats->incStat(LLViewerStats::ST_UPLOAD_TEXTURE_COUNT );
+		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_UPLOAD_TEXTURE_COUNT );
 	}
 	else
 	if( LLAssetType::AT_ANIMATION == asset_type)
 	{
-		gViewerStats->incStat(LLViewerStats::ST_UPLOAD_ANIM_COUNT );
+		LLViewerStats::getInstance()->incStat(LLViewerStats::ST_UPLOAD_ANIM_COUNT );
 	}
 
 	if(LLInventoryType::IT_NONE == inv_type)
@@ -976,7 +976,7 @@ void upload_new_resource(const LLTransactionID &tid, LLAssetType::EType asset_ty
 			LLAssetType::AT_TEXTURE == asset_type ||
 			LLAssetType::AT_ANIMATION == asset_type)
 		{
-			S32 upload_cost = gGlobalEconomy->getPriceUpload();
+			S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 			S32 balance = gStatusBar->getBalance();
 			if (balance < upload_cost)
 			{

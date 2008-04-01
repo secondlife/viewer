@@ -270,16 +270,6 @@ LLFastTimerView::~LLFastTimerView()
 	delete[] mBarEnd;
 }
 
-EWidgetType LLFastTimerView::getWidgetType() const
-{
-	return WIDGET_TYPE_FAST_TIMER_VIEW;
-}
-
-LLString LLFastTimerView::getWidgetTag() const
-{
-	return LL_FAST_TIMER_VIEW_TAG;
-}
-
 BOOL LLFastTimerView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (mBarRect.pointInRect(x, y))
@@ -408,14 +398,10 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 
 BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	if (getVisible() && pointInView(x, y))
-	{
-		LLFastTimer::sPauseHistory = TRUE;
-		mScrollIndex = llclamp(mScrollIndex - clicks, 
-								0, llmin(LLFastTimer::sLastFrameIndex, (S32)LLFastTimer::FTM_HISTORY_NUM-MAX_VISIBLE_HISTORY));
-		return TRUE;
-	}
-	return FALSE;
+	LLFastTimer::sPauseHistory = TRUE;
+	mScrollIndex = llclamp(mScrollIndex - clicks, 
+							0, llmin(LLFastTimer::sLastFrameIndex, (S32)LLFastTimer::FTM_HISTORY_NUM-MAX_VISIBLE_HISTORY));
+	return TRUE;
 }
 
 void LLFastTimerView::draw()
@@ -437,7 +423,7 @@ void LLFastTimerView::draw()
 	S32 left, top, right, bottom;
 	S32 x, y, barw, barh, dx, dy;
 	S32 texth, textw;
-	LLViewerImage* box_imagep = gImageList.getImage(LLUUID(gViewerArt.getString("rounded_square.tga")), MIPMAP_FALSE, TRUE);
+	LLPointer<LLUIImage> box_imagep = LLUI::getUIImage("rounded_square.tga");
 
 	// Make sure all timers are accounted for
 	// Set 'FTM_OTHER' to unaccounted ticks last frame
@@ -806,7 +792,7 @@ void LLFastTimerView::draw()
 		
 		// Draw bars for each history entry
 		// Special: -1 = show running average
-		LLViewerImage::bindTexture(box_imagep);
+		LLViewerImage::bindTexture(box_imagep->getImage());
 		for (S32 j=-1; j<histmax && y > LINE_GRAPH_HEIGHT; j++)
 		{
 			int sublevel_dx[FTV_DISPLAY_NUM+1];
@@ -938,7 +924,7 @@ void LLFastTimerView::draw()
 					gGL.color4fv(color.mV);
 					F32 start_fragment = llclamp((F32)(left - sublevel_left[level]) / (F32)sublevel_dx[level], 0.f, 1.f);
 					F32 end_fragment = llclamp((F32)(right - sublevel_left[level]) / (F32)sublevel_dx[level], 0.f, 1.f);
-					gl_segmented_rect_2d_fragment_tex(sublevel_left[level], top - level + scale_offset, sublevel_right[level], bottom + level - scale_offset, box_imagep->getWidth(), box_imagep->getHeight(), 16, start_fragment, end_fragment);
+					gl_segmented_rect_2d_fragment_tex(sublevel_left[level], top - level + scale_offset, sublevel_right[level], bottom + level - scale_offset, box_imagep->getTextureWidth(), box_imagep->getTextureHeight(), 16, start_fragment, end_fragment);
 
 				}
 					

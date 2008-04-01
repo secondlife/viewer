@@ -188,31 +188,6 @@ LLXMLNodePtr LLMenuItemGL::getXML(bool save_children) const
 	return node;
 }
 
-BOOL LLMenuItemGL::handleKey(KEY key, MASK mask, BOOL called_from_parent)
-{
-	// modified from LLView::handleKey
-	// ignore visibility, as keyboard accelerators should still trigger menu items
-	// even when they are not visible
-	// also, ignore enabled flag for self, as that can change based on menu callbacks
-	BOOL handled = FALSE;
-
-	if( called_from_parent )  
-	{
-		// Downward traversal
-		if (getEnabled())
-		{
-			handled = childrenHandleKey( key, mask ) != NULL;
-		}
-	}
-	
-	if( !handled )
-	{
-		handled = handleKeyHere( key, mask, called_from_parent );
-	}
-
-	return handled;
-}
-
 BOOL LLMenuItemGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	if( getEnabled() && (!gKeyboard->getKeyRepeated(key) || mAllowKeyRepeat) && (key == mAcceleratorKey) && (mask == (mAcceleratorMask & MASK_NORMALKEYS)) )
@@ -400,7 +375,7 @@ void LLMenuItemGL::doIt( void )
 }
 
 
-BOOL LLMenuItemGL::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
+BOOL LLMenuItemGL::handleKeyHere( KEY key, MASK mask )
 {
 	if (getHighlight() && 
 		getMenu()->isOpen())
@@ -436,29 +411,21 @@ BOOL LLMenuItemGL::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
 
 BOOL LLMenuItemGL::handleMouseUp( S32 x, S32 y, MASK )
 {
-	if (getEnabled())
-	{
-		// switch to mouse navigation mode
-		LLMenuGL::setKeyboardMode(FALSE);
+	// switch to mouse navigation mode
+	LLMenuGL::setKeyboardMode(FALSE);
 
-		doIt();
-		make_ui_sound("UISndClickRelease");
-		return TRUE;
-	}
-	return FALSE;
+	doIt();
+	make_ui_sound("UISndClickRelease");
+	return TRUE;
 }
 
 BOOL LLMenuItemGL::handleMouseDown( S32 x, S32 y, MASK )
 {
-	if (getEnabled())
-	{
-		// switch to mouse navigation mode
-		LLMenuGL::setKeyboardMode(FALSE);
+	// switch to mouse navigation mode
+	LLMenuGL::setKeyboardMode(FALSE);
 
-		setHighlight(TRUE);
-		return TRUE;
-	}
-	return FALSE;
+	setHighlight(TRUE);
+	return TRUE;
 }
 
 
@@ -560,9 +527,6 @@ public:
 
 	virtual LLString getType() const	{ return "separator"; }
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_MENU_ITEM_SEPARATOR; }
-	virtual LLString getWidgetTag() const { return LL_MENU_ITEM_SEPARATOR_GL_TAG; }
-
 	// doIt() - do the primary funcationality of the menu item.
 	virtual void doIt( void ) {}
 
@@ -640,9 +604,6 @@ class LLMenuItemVerticalSeparatorGL
 {
 public:
 	LLMenuItemVerticalSeparatorGL( void );
-
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_MENU_SEPARATOR_VERTICAL; }
-	virtual LLString getWidgetTag() const { return LL_MENU_ITEM_VERTICAL_SEPARATOR_GL_TAG; }
 
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask) { return FALSE; }
 };
@@ -739,8 +700,6 @@ public:
 	{
 		setEnabled(FALSE);
 	}
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_MENU_ITEM_BLANK; }
-	virtual LLString getWidgetTag() const { return LL_MENU_ITEM_BLANK_GL_TAG; }
 	virtual void doIt( void ) {}
 	virtual void draw( void ) {}
 };
@@ -1086,29 +1045,31 @@ LLMenuItemBranchGL::LLMenuItemBranchGL( const LLString& name, const LLString& la
 }
 
 // virtual
-LLView* LLMenuItemBranchGL::getChildByName(const LLString& name, BOOL recurse) const
+LLView* LLMenuItemBranchGL::getChildView(const LLString& name, BOOL recurse, BOOL create_if_missing) const
 {
+	// richard: this is redundant with parent, remove
 	if (mBranch->getName() == name)
 	{
 		return mBranch;
 	}
 	// Always recurse on branches
-	return mBranch->getChild<LLView>(name, recurse);
+	LLView* child = mBranch->getChildView(name, recurse, FALSE);
+	if (!child)
+	{
+		child = LLView::getChildView(name, recurse, create_if_missing);
+	}
+	return child;
 }
 
 // virtual
 BOOL LLMenuItemBranchGL::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	if (getEnabled())
-	{
-		// switch to mouse navigation mode
-		LLMenuGL::setKeyboardMode(FALSE);
+	// switch to mouse navigation mode
+	LLMenuGL::setKeyboardMode(FALSE);
 
-		doIt();
-		make_ui_sound("UISndClickRelease");
-		return TRUE;
-	}
-	return FALSE;
+	doIt();
+	make_ui_sound("UISndClickRelease");
+	return TRUE;
 }
 
 BOOL LLMenuItemBranchGL::handleAcceleratorKey(KEY key, MASK mask)
@@ -1266,7 +1227,7 @@ void LLMenuItemBranchGL::onVisibilityChange( BOOL new_visibility )
 	LLMenuItemGL::onVisibilityChange(new_visibility);
 }
 
-BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask, BOOL called_from_parent )
+BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask )
 {
 	if (getMenu()->getVisible() && mBranch->getVisible() && key == KEY_LEFT)
 	{
@@ -1285,8 +1246,7 @@ BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask, BOOL called_from_par
 		return handled;
 	}
 
-	if (getEnabled() &&
-		getHighlight() && 
+	if (getHighlight() && 
 		getMenu()->isOpen() && 
 		key == KEY_RIGHT && !mBranch->getHighlightedItem())
 	{
@@ -1300,7 +1260,7 @@ BOOL LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask, BOOL called_from_par
 		}
 	}
 
-	return LLMenuItemGL::handleKeyHere(key, mask, called_from_parent);
+	return LLMenuItemGL::handleKeyHere(key, mask);
 }
 
 void LLMenuItemBranchGL::openMenu()
@@ -1370,9 +1330,6 @@ public:
 	LLMenuItemBranchDownGL( const LLString& name, const LLString& label, LLMenuGL* branch,
 							KEY key = KEY_NONE, MASK mask = MASK_NONE );
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_MENU_ITEM_BRANCH_DOWN; }
-	virtual LLString getWidgetTag() const { return LL_MENU_ITEM_BRANCH_DOWN_GL_TAG; }
-
 	virtual LLString getType() const	{ return "menu"; }
 
 	// returns the normal width of this control in pixels - this is
@@ -1396,7 +1353,7 @@ public:
 	virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask ); 
 	virtual void draw( void );
-	virtual BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL handleKeyHere(KEY key, MASK mask);
 	
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 };
@@ -1533,7 +1490,7 @@ BOOL LLMenuItemBranchDownGL::handleAcceleratorKey(KEY key, MASK mask)
 	return handled;
 }
 
-BOOL LLMenuItemBranchDownGL::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+BOOL LLMenuItemBranchDownGL::handleKeyHere(KEY key, MASK mask)
 {
 	BOOL menu_open = getBranch()->getVisible();
 	// don't do keyboard navigation of top-level menus unless in keyboard mode, or menu expanded
@@ -1572,7 +1529,7 @@ BOOL LLMenuItemBranchDownGL::handleKeyHere(KEY key, MASK mask, BOOL called_from_
 			// switch to keyboard navigation mode
 			LLMenuGL::setKeyboardMode(TRUE);
 
-			if (getEnabled() && !isActive())
+			if (!isActive())
 			{
 				doIt();
 			}
@@ -1584,7 +1541,7 @@ BOOL LLMenuItemBranchDownGL::handleKeyHere(KEY key, MASK mask, BOOL called_from_
 			// switch to keyboard navigation mode
 			LLMenuGL::setKeyboardMode(TRUE);
 
-			if (getEnabled() && !isActive())
+			if (!isActive())
 			{
 				doIt();
 			}
@@ -1656,6 +1613,8 @@ void LLMenuItemBranchDownGL::draw( void )
 ///============================================================================
 /// Class LLMenuGL
 ///============================================================================
+
+static LLRegisterWidget<LLMenuGL> r1("menu");
 
 // Default constructor
 LLMenuGL::LLMenuGL( const LLString& name, const LLString& label, LLHandle<LLFloater> parent_floater_handle )
@@ -2652,8 +2611,8 @@ LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, BOOL skip_disa
 
 	while(1)
 	{
-		// skip separators and disabled items
-		if ((*next_item_iter)->getEnabled() && (*next_item_iter)->getType() != SEPARATOR_NAME)
+		// skip separators and disabled/invisible items
+		if ((*next_item_iter)->getEnabled() && (*next_item_iter)->getVisible() && (*next_item_iter)->getType() != SEPARATOR_NAME)
 		{
 			if (cur_item)
 			{
@@ -2718,8 +2677,8 @@ LLMenuItemGL* LLMenuGL::highlightPrevItem(LLMenuItemGL* cur_item, BOOL skip_disa
 
 	while(1)
 	{
-		// skip separators and disabled items
-		if ((*prev_item_iter)->getEnabled() && (*prev_item_iter)->getName() != SEPARATOR_NAME)
+		// skip separators and disabled/invisible items
+		if ((*prev_item_iter)->getEnabled() && (*prev_item_iter)->getVisible() && (*prev_item_iter)->getName() != SEPARATOR_NAME)
 		{
 			(*prev_item_iter)->setHighlight(TRUE);
 			return (*prev_item_iter);
@@ -2768,37 +2727,6 @@ void LLMenuGL::updateParent(LLView* parentp)
 	}
 }
 
-// LLView functionality
-BOOL LLMenuGL::handleKey( KEY key, MASK mask, BOOL called_from_parent )
-{
-	BOOL handled = FALSE;
-
-	// Pass down even if not visible
-	if( getEnabled() && called_from_parent )
-	{
-		for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
-		{
-			LLView* viewp = *child_it;
-			if (viewp->handleKey(key, mask, TRUE))
-			{
-				handled = TRUE;
-				break;
-			}
-		}
-	}
-
-	if( !handled )
-	{
-		handled = handleKeyHere( key, mask, called_from_parent );
-		if (handled && LLView::sDebugKeys)
-		{
-			llinfos << "Key handled by " << getName() << llendl;
-		}
-	}
-
-	return handled;
-}
-
 BOOL LLMenuGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	// don't handle if not enabled
@@ -2821,7 +2749,7 @@ BOOL LLMenuGL::handleAcceleratorKey(KEY key, MASK mask)
 	return FALSE;
 }
 
-BOOL LLMenuGL::handleUnicodeCharHere( llwchar uni_char, BOOL called_from_parent )
+BOOL LLMenuGL::handleUnicodeCharHere( llwchar uni_char )
 {
 	if (jumpKeysActive())
 	{
@@ -2947,17 +2875,19 @@ void LLMenuGL::setVisible(BOOL visible)
 
 LLMenuGL* LLMenuGL::getChildMenuByName(const LLString& name, BOOL recurse) const
 {
-	LLView* view = getChildByName(name, recurse);
+	LLView* view = getChildView(name, recurse, FALSE);
 	if (view)
 	{
-		if (view->getWidgetType() == WIDGET_TYPE_MENU_ITEM_BRANCH)
+		LLMenuItemBranchGL* branch = dynamic_cast<LLMenuItemBranchGL*>(view);
+		if (branch)
 		{
-			LLMenuItemBranchGL *branch = (LLMenuItemBranchGL *)view;
 			return branch->getBranch();
 		}
-		if (view->getWidgetType() == WIDGET_TYPE_MENU || view->getWidgetType() == WIDGET_TYPE_PIE_MENU)
+
+		LLMenuGL* menup = dynamic_cast<LLMenuGL*>(view);
+		if (menup)
 		{
-			return (LLMenuGL*)view;
+			return menup;
 		}
 	}
 	llwarns << "Child Menu " << name << " not found in menu " << getName() << llendl;
@@ -3037,9 +2967,6 @@ class LLPieMenuBranch : public LLMenuItemGL
 public:
 	LLPieMenuBranch(const LLString& name, const LLString& label, LLPieMenu* branch,
 					enabled_callback ecb, void* user_data);
-
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_PIE_MENU_BRANCH; }
-	virtual LLString getWidgetTag() const { return LL_PIE_MENU_BRANCH_TAG; }
 
 	// called to rebuild the draw label
 	virtual void buildDrawLabel( void );
@@ -3825,6 +3752,8 @@ void LLPieMenu::hide(BOOL item_selected)
 /// Class LLMenuBarGL
 ///============================================================================
 
+static LLRegisterWidget<LLMenuBarGL> r2("menu_bar");
+
 // Default constructor
 LLMenuBarGL::LLMenuBarGL( const LLString& name ) : LLMenuGL ( name, name )
 {
@@ -3880,9 +3809,10 @@ LLView* LLMenuBarGL::fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory 
 	LLMenuBarGL *menubar = new LLMenuBarGL(name);
 
 	LLHandle<LLFloater> parent_handle;
-	if (parent->getWidgetType() == WIDGET_TYPE_FLOATER)
+	LLFloater* parent_floater = dynamic_cast<LLFloater*>(parent);
+	if (parent_floater)
 	{
-		parent_handle = ((LLFloater*)parent)->getHandle();
+		parent_handle = parent_floater->getHandle();
 	}
 
 	// We need to have the rect early so that it's around when building
@@ -3974,7 +3904,7 @@ BOOL LLMenuBarGL::handleAcceleratorKey(KEY key, MASK mask)
 	return result;
 }
 
-BOOL LLMenuBarGL::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
+BOOL LLMenuBarGL::handleKeyHere(KEY key, MASK mask)
 {
 	if(key == KEY_ALT && !gKeyboard->getKeyRepeated(key) && LLUI::sConfigGroup->getBOOL("UseAltKeyForMenus"))
 	{
@@ -3988,7 +3918,7 @@ BOOL LLMenuBarGL::handleKeyHere(KEY key, MASK mask, BOOL called_from_parent)
 	// before processing any other key, check to see if ALT key has triggered menu access
 	checkMenuTrigger();
 
-	return LLMenuGL::handleKeyHere(key, mask, called_from_parent);
+	return LLMenuGL::handleKeyHere(key, mask);
 }
 
 BOOL LLMenuBarGL::handleJumpKey(KEY key)
@@ -4278,7 +4208,7 @@ BOOL LLMenuHolderGL::hasVisibleMenu() const
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 	{
 		LLView* viewp = *child_it;
-		if (viewp->getVisible() && viewp->getWidgetType() != WIDGET_TYPE_MENU_BAR)
+		if (viewp->getVisible() && dynamic_cast<LLMenuBarGL*>(viewp) == NULL)
 		{
 			return TRUE;
 		}
@@ -4302,7 +4232,7 @@ BOOL LLMenuHolderGL::hideMenus()
 		{
 			LLView* viewp = *child_it;
 			// clicks off of menu do not hide menu bar
-			if (viewp->getWidgetType() != WIDGET_TYPE_MENU_BAR && viewp->getVisible())
+			if (dynamic_cast<LLMenuBarGL*>(viewp) == NULL && viewp->getVisible())
 			{
 				viewp->setVisible(FALSE);
 			}
@@ -4412,7 +4342,7 @@ BOOL LLTearOffMenu::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
 	return mMenu->handleUnicodeChar(uni_char, TRUE);
 }
 
-BOOL LLTearOffMenu::handleKey(KEY key, MASK mask, BOOL called_from_parent)
+BOOL LLTearOffMenu::handleKeyHere(KEY key, MASK mask)
 {
 	if (!mMenu->getHighlightedItem())
 	{

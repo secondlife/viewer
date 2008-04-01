@@ -52,8 +52,6 @@ public:
 		BOOL volume, //TODO: create a "volume" slider sub-class or just use image art, no?  -MG
 		const LLString& control_name = LLString::null );
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_SLIDER_BAR; }
-	virtual LLString getWidgetTag() const { return LL_SLIDER_TAG; }
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static  LLView* fromXML(LLXMLNodePtr node, LLView *parent, class LLUICtrlFactory *factory);
 
@@ -79,7 +77,7 @@ public:
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL	handleKeyHere(KEY key, MASK mask);
 	virtual void	draw();
 
 private:
@@ -96,9 +94,9 @@ private:
 	S32				mMouseOffset;
 	LLRect			mDragStartThumbRect;
 
-	LLImageGL*		mThumbImage;
-	LLImageGL*		mTrackImage;
-	LLImageGL*		mTrackHighlightImage;
+	LLUIImage*		mThumbImage;
+	LLUIImage*		mTrackImage;
+	LLUIImage*		mTrackHighlightImage;
 
 	LLRect			mThumbRect;
 	LLColor4		mTrackColor;

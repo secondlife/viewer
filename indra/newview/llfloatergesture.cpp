@@ -52,7 +52,7 @@
 #include "llscrollcontainer.h"
 #include "llscrolllistctrl.h"
 #include "lltextbox.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llviewergesture.h"
 #include "llviewerimagelist.h"
 #include "llviewerinventory.h"
@@ -144,7 +144,7 @@ void LLFloaterGesture::show()
 	LLFloaterGesture *self = new LLFloaterGesture();
 
 	// Builds and adds to gFloaterView
-	gUICtrlFactory->buildFloater(self, "floater_gesture.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(self, "floater_gesture.xml");
 
 	// Fix up rectangle
 	LLRect rect = gSavedSettings.getRect("FloaterGestureRect2");

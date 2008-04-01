@@ -33,7 +33,7 @@
 
 #include "llpanelgroupgeneral.h"
 
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llagent.h"
 #include "roles_constants.h"
 #include "llfloateravatarinfo.h"
@@ -304,7 +304,7 @@ void LLPanelGroupGeneral::onCommitTitle(LLUICtrl* ctrl, void* data)
 {
 	LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)data;
 	if (self->mGroupID.isNull() || !self->mAllowEdit) return;
-	gGroupMgr->sendGroupTitleUpdate(self->mGroupID,self->mComboActiveTitle->getCurrentID());
+	LLGroupMgr::getInstance()->sendGroupTitleUpdate(self->mGroupID,self->mComboActiveTitle->getCurrentID());
 	self->update(GC_TITLES);
 }
 
@@ -329,7 +329,7 @@ void LLPanelGroupGeneral::onClickJoin(void *userdata)
 
 	lldebugs << "joining group: " << self->mGroupID << llendl;
 
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(self->mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(self->mGroupID);
 
 	if (gdatap)
 	{
@@ -350,7 +350,7 @@ void LLPanelGroupGeneral::onClickJoin(void *userdata)
 	}
 	else
 	{
-		llwarns << "gGroupMgr->getGroupData(" << self->mGroupID
+		llwarns << "LLGroupMgr::getInstance()->getGroupData(" << self->mGroupID
 			<< ") was NULL" << llendl;
 	}
 }
@@ -366,7 +366,7 @@ void LLPanelGroupGeneral::joinDlgCB(S32 which, void *userdata)
 		return;
 	}
 
-	gGroupMgr->sendGroupMemberJoin(self->mGroupID);
+	LLGroupMgr::getInstance()->sendGroupMemberJoin(self->mGroupID);
 }
 
 // static
@@ -392,17 +392,17 @@ bool LLPanelGroupGeneral::needsApply(LLString& mesg)
 
 void LLPanelGroupGeneral::activate()
 {
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 	if (mGroupID.notNull()
 		&& (!gdatap || mFirstUse))
 	{
-		gGroupMgr->sendGroupTitlesRequest(mGroupID);
-		gGroupMgr->sendGroupPropertiesRequest(mGroupID);
+		LLGroupMgr::getInstance()->sendGroupTitlesRequest(mGroupID);
+		LLGroupMgr::getInstance()->sendGroupPropertiesRequest(mGroupID);
 
 		
 		if (!gdatap || !gdatap->isMemberDataComplete() )
 		{
-			gGroupMgr->sendGroupMembersRequest(mGroupID);
+			LLGroupMgr::getInstance()->sendGroupMembersRequest(mGroupID);
 		}
 
 		mFirstUse = FALSE;
@@ -446,12 +446,12 @@ bool LLPanelGroupGeneral::apply(LLString& mesg)
 			LLString::format_map_t args;
 			args["[MESSAGE]"] = mConfirmGroupCreateStr;
 			gViewerWindow->alertXml("GenericAlertYesCancel", args,
-				createGroupCallback,this);
+				createGroupCallback,new LLHandle<LLPanel>(getHandle()));
 
 			return false;
 		}
 
-		LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+		LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 
 		if (!gdatap)
 		{
@@ -496,7 +496,7 @@ bool LLPanelGroupGeneral::apply(LLString& mesg)
 
 		if (can_change_ident || can_change_member_opts)
 		{
-			gGroupMgr->sendUpdateGroupInfo(mGroupID);
+			LLGroupMgr::getInstance()->sendUpdateGroupInfo(mGroupID);
 		}
 	}
 
@@ -526,7 +526,10 @@ void LLPanelGroupGeneral::cancel()
 // static
 void LLPanelGroupGeneral::createGroupCallback(S32 option, void* userdata)
 {
-	LLPanelGroupGeneral* self = (LLPanelGroupGeneral*)userdata;
+	LLHandle<LLPanel> panel_handle = *(LLHandle<LLPanel>*)userdata;
+	delete (LLHandle<LLPanel>*)userdata;
+
+	LLPanelGroupGeneral* self = dynamic_cast<LLPanelGroupGeneral*>(panel_handle.get());
 	if (!self) return;
 
 	switch(option)
@@ -537,7 +540,7 @@ void LLPanelGroupGeneral::createGroupCallback(S32 option, void* userdata)
 			U32 enrollment_fee = (self->mCtrlEnrollmentFee->get() ? 
 									(U32) self->mSpinEnrollmentFee->get() : 0);
 		
-			gGroupMgr->sendCreateGroupRequest(self->mGroupNameEditor->getText(),
+			LLGroupMgr::getInstance()->sendCreateGroupRequest(self->mGroupNameEditor->getText(),
 												self->mEditCharter->getText(),
 												self->mCtrlShowInGroupList->get(),
 												self->mInsignia->getImageAssetID(),
@@ -563,7 +566,7 @@ void LLPanelGroupGeneral::update(LLGroupChange gc)
 {
 	if (mGroupID.isNull()) return;
 
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 
 	if (!gdatap) return;
 
@@ -734,7 +737,7 @@ void LLPanelGroupGeneral::updateMembers()
 {
 	mPendingMemberUpdate = FALSE;
 
-	LLGroupMgrGroupData* gdatap = gGroupMgr->getGroupData(mGroupID);
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
 
 	if (!mListVisibleMembers || !gdatap 
 		|| !gdatap->isMemberDataComplete())

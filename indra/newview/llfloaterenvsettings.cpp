@@ -35,7 +35,7 @@
 
 #include "llfloaterwindlight.h"
 #include "llfloaterwater.h"
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 #include "llsliderctrl.h"
 #include "llcombobox.h"
 #include "llcolorswatch.h"
@@ -55,7 +55,7 @@ LLFloaterEnvSettings* LLFloaterEnvSettings::sEnvSettings = NULL;
 
 LLFloaterEnvSettings::LLFloaterEnvSettings() : LLFloater("Environment Settings Floater")
 {
-	gUICtrlFactory->buildFloater(this, "floater_env_settings.xml");
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_env_settings.xml");
 	
 	// load it up
 	initCallbacks();
@@ -106,24 +106,14 @@ void LLFloaterEnvSettings::initCallbacks(void)
 void LLFloaterEnvSettings::syncMenu()
 {
 	LLSliderCtrl* sldr;
-	sldr = LLUICtrlFactory::getSliderByName(sEnvSettings, 
-		"EnvTimeSlider");
-	if(NULL == sldr)
-	{
-		return;
-	}
+	sldr = sEnvSettings->getChild<LLSliderCtrl>("EnvTimeSlider");
 
 	// sync the clock
 	F32 val = (F32)LLWLParamManager::instance()->mAnimator.getDayTime();
 	LLString timeStr = timeToString(val);
 
 	LLTextBox* textBox;
-	textBox = LLUICtrlFactory::getTextBoxByName(sEnvSettings, 
-		"EnvTimeText");
-	if(NULL == textBox)
-	{
-		return;
-	}
+	textBox = sEnvSettings->getChild<LLTextBox>("EnvTimeText");
 
 	textBox->setValue(timeStr);
 	
@@ -204,7 +194,7 @@ void LLFloaterEnvSettings::show()
 	envSettings->syncMenu();
 
 	// comment in if you want the menu to rebuild each time
-	//gUICtrlFactory->buildFloater(envSettings, "floater_env_settings.xml");
+	//LLUICtrlFactory::getInstance()->buildFloater(envSettings, "floater_env_settings.xml");
 	//envSettings->initCallbacks();
 
 	envSettings->open();
@@ -232,8 +222,7 @@ void LLFloaterEnvSettings::onClose(bool app_quitting)
 void LLFloaterEnvSettings::onChangeDayTime(LLUICtrl* ctrl, void* userData)
 {
 	LLSliderCtrl* sldr;
-	sldr = LLUICtrlFactory::getSliderByName(sEnvSettings, 
-		"EnvTimeSlider");
+	sldr = sEnvSettings->getChild<LLSliderCtrl>("EnvTimeSlider");
 
 	// deactivate animator
 	LLWLParamManager::instance()->mAnimator.mIsRunning = false;
@@ -253,8 +242,7 @@ void LLFloaterEnvSettings::onChangeDayTime(LLUICtrl* ctrl, void* userData)
 void LLFloaterEnvSettings::onChangeCloudCoverage(LLUICtrl* ctrl, void* userData)
 {
 	LLSliderCtrl* sldr;
-	sldr = LLUICtrlFactory::getSliderByName(sEnvSettings, 
-		"EnvCloudSlider");
+	sldr = sEnvSettings->getChild<LLSliderCtrl>("EnvCloudSlider");
 	
 	// deactivate animator
 	//LLWLParamManager::instance()->mAnimator.mIsRunning = false;
@@ -267,10 +255,9 @@ void LLFloaterEnvSettings::onChangeCloudCoverage(LLUICtrl* ctrl, void* userData)
 void LLFloaterEnvSettings::onChangeWaterFogDensity(LLUICtrl* ctrl, void* userData)
 {
 	LLSliderCtrl* sldr;
-	sldr = LLUICtrlFactory::getSliderByName(sEnvSettings, 
-		"EnvWaterFogSlider");
+	sldr = sEnvSettings->getChild<LLSliderCtrl>("EnvWaterFogSlider");
 	
-	if(NULL == sldr || NULL == userData)
+	if(NULL == userData)
 	{
 		return;
 	}
@@ -313,7 +300,7 @@ void LLFloaterEnvSettings::onUseEstateTime(void* userData)
 	{
 		// select the blank value in 
 		LLFloaterWindLight* wl = LLFloaterWindLight::instance();
-		LLComboBox* box = LLUICtrlFactory::getComboBoxByName(wl, "WLPresetsCombo");
+		LLComboBox* box = wl->getChild<LLComboBox>("WLPresetsCombo");
 		box->selectByValue("");
 	}
 

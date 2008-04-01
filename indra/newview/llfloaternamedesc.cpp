@@ -45,7 +45,7 @@
 #include "lldir.h"
 #include "llviewercontrol.h"
 #include "llviewermenufile.h"	// upload_new_resource()
-#include "llvieweruictrlfactory.h"
+#include "lluictrlfactory.h"
 
 // linden includes
 #include "llassetstorage.h"
@@ -119,7 +119,7 @@ BOOL LLFloaterNameDesc::postBuild()
 	childSetCommitCallback("name_form", doCommit, this);
 	childSetValue("name_form", LLSD(asset_name));
 
-	LLLineEditor *NameEditor = LLViewerUICtrlFactory::getLineEditorByName(this, "name_form");
+	LLLineEditor *NameEditor = getChild<LLLineEditor>("name_form");
 	if (NameEditor)
 	{
 		NameEditor->setMaxTextLength(DB_INV_ITEM_NAME_STR_LEN);
@@ -131,7 +131,7 @@ BOOL LLFloaterNameDesc::postBuild()
 
 	r.setLeftTopAndSize( PREVIEW_HPAD, y, line_width, PREVIEW_LINE_HEIGHT );  
 	childSetCommitCallback("description_form", doCommit, this);
-	LLLineEditor *DescEditor = LLViewerUICtrlFactory::getLineEditorByName(this, "description_form");
+	LLLineEditor *DescEditor = getChild<LLLineEditor>("description_form");
 	if (DescEditor)
 	{
 		DescEditor->setMaxTextLength(DB_INV_ITEM_DESC_STR_LEN);

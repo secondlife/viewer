@@ -42,8 +42,6 @@
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 
-LLHUDManager *gHUDManager = NULL;
-
 extern BOOL gNoRender;
 
 // These are loaded from saved settings.
@@ -155,12 +153,6 @@ void LLHUDManager::processViewerEffect(LLMessageSystem *mesgsys, void **user_dat
 		return;
 	}
 
-	if (!gHUDManager)
-	{
-		llwarns << "No gHUDManager!" << llendl;
-		return;
-	}
-
 	LLHUDEffect *effectp = NULL;
 	LLUUID effect_id;
 	U8 effect_type = 0;
@@ -172,20 +164,20 @@ void LLHUDManager::processViewerEffect(LLMessageSystem *mesgsys, void **user_dat
 		effectp = NULL;
 		LLHUDEffect::getIDType(mesgsys, k, effect_id, effect_type);
 		S32 i;
-		for (i = 0; i < gHUDManager->mHUDEffects.count(); i++)
+		for (i = 0; i < LLHUDManager::getInstance()->mHUDEffects.count(); i++)
 		{
-			LLHUDEffect *cur_effectp = gHUDManager->mHUDEffects[i];
+			LLHUDEffect *cur_effectp = LLHUDManager::getInstance()->mHUDEffects[i];
 			if (!cur_effectp)
 			{
 				llwarns << "Null effect in effect manager, skipping" << llendl;
-				gHUDManager->mHUDEffects.remove(i);
+				LLHUDManager::getInstance()->mHUDEffects.remove(i);
 				i--;
 				continue;
 			}
 			if (cur_effectp->isDead())
 			{
 	//			llwarns << "Dead effect in effect manager, removing" << llendl;
-				gHUDManager->mHUDEffects.remove(i);
+				LLHUDManager::getInstance()->mHUDEffects.remove(i);
 				i--;
 				continue;
 			}
@@ -204,7 +196,7 @@ void LLHUDManager::processViewerEffect(LLMessageSystem *mesgsys, void **user_dat
 		{
 			if (!effectp)
 			{
-				effectp = gHUDManager->createViewerEffect(effect_type, FALSE, FALSE);
+				effectp = LLHUDManager::getInstance()->createViewerEffect(effect_type, FALSE, FALSE);
 			}
 
 			if (effectp)

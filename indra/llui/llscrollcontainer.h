@@ -70,8 +70,6 @@ public:
 	void setScrolledView(LLView* view) { mScrolledView = view; }
 
 	virtual void setValue(const LLSD& value) { mInnerRect.setValue(value); }
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_SCROLL_CONTAINER; }
-	virtual LLString getWidgetTag() const { return LL_SCROLLABLE_CONTAINER_VIEW_TAG; }
 
 	void			calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const;
 	void			calcVisibleSize( const LLRect& doc_rect, S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const;
@@ -90,7 +88,7 @@ public:
 
 	// LLView functionality
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent);
-	virtual BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL	handleKeyHere(KEY key, MASK mask);
 	virtual BOOL	handleScrollWheel( S32 x, S32 y, S32 clicks );
 	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 								   EDragAndDropType cargo_type,

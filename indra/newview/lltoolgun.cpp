@@ -51,7 +51,6 @@ LLToolGun::LLToolGun( LLToolComposite* composite )
 	:
 	LLTool( "gun", composite )
 {
-	mCrosshairImg = gImageList.getImage( LLUUID( gSavedSettings.getString("UIImgCrosshairsUUID") ), MIPMAP_FALSE, TRUE );
 }
 
 void LLToolGun::handleSelect()
@@ -71,9 +70,9 @@ void LLToolGun::handleDeselect()
 BOOL LLToolGun::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	gGrabTransientTool = this;
-	gToolMgr->getCurrentToolset()->selectTool( gToolGrab );
+	LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolGrab::getInstance() );
 
-	return gToolGrab->handleMouseDown(x, y, mask);
+	return LLToolGrab::getInstance()->handleMouseDown(x, y, mask);
 }
 
 BOOL LLToolGun::handleHover(S32 x, S32 y, MASK mask) 
@@ -107,9 +106,9 @@ BOOL LLToolGun::handleHover(S32 x, S32 y, MASK mask)
 
 			if (gSavedSettings.getBOOL("MouseSun"))
 			{
-				gSky.setSunDirection(gCamera->getAtAxis(), LLVector3(0.f, 0.f, 0.f));
+				gSky.setSunDirection(LLViewerCamera::getInstance()->getAtAxis(), LLVector3(0.f, 0.f, 0.f));
 				gSky.setOverrideSun(TRUE);
-				gSavedSettings.setVector3("SkySunDefaultPosition", gCamera->getAtAxis());
+				gSavedSettings.setVector3("SkySunDefaultPosition", LLViewerCamera::getInstance()->getAtAxis());
 			}
 
 			gViewerWindow->moveCursorToCenter();
@@ -133,9 +132,9 @@ void LLToolGun::draw()
 {
 	if( gSavedSettings.getBOOL("ShowCrosshairs") )
 	{
-		gl_draw_image(
-			( gViewerWindow->getWindowWidth() - mCrosshairImg->getWidth() ) / 2,
-			( gViewerWindow->getWindowHeight() - mCrosshairImg->getHeight() ) / 2,
-			mCrosshairImg );
+		LLUIImagePtr crosshair = LLUI::getUIImage("UIImgCrosshairsUUID");
+		crosshair->draw(
+			( gViewerWindow->getWindowWidth() - crosshair->getWidth() ) / 2,
+			( gViewerWindow->getWindowHeight() - crosshair->getHeight() ) / 2);
 	}
 }

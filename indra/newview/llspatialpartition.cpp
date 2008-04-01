@@ -1800,7 +1800,7 @@ S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* result
 
 BOOL earlyFail(LLCamera* camera, LLSpatialGroup* group)
 {
-	const F32 vel = (gCamera->getVelocityStat()->getCurrent()+0.2f);
+	const F32 vel = (LLViewerCamera::getInstance()->getVelocityStat()->getCurrent()+0.2f);
 	LLVector3 c = group->mBounds[0];
 	LLVector3 r = group->mBounds[1]*SG_OCCLUSION_FUDGE + LLVector3(vel,vel,vel);
     
@@ -2491,7 +2491,7 @@ void LLSpatialPartition::renderDebug()
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
 	{
 		//sLastMaxTexPriority = lerp(sLastMaxTexPriority, sCurMaxTexPriority, gFrameIntervalSeconds);
-		sLastMaxTexPriority = (F32) gCamera->getScreenPixelArea();
+		sLastMaxTexPriority = (F32) LLViewerCamera::getInstance()->getScreenPixelArea();
 		sCurMaxTexPriority = 0.f;
 	}
 
@@ -2504,7 +2504,7 @@ void LLSpatialPartition::renderDebug()
 	gPipeline.disableLights();
 
 	LLSpatialBridge* bridge = asBridge();
-	LLCamera* camera = gCamera;
+	LLCamera* camera = LLViewerCamera::getInstance();
 	
 	if (bridge)
 	{
@@ -2521,7 +2521,7 @@ void LLSpatialPartition::renderDebug()
 
 BOOL LLSpatialPartition::isVisible(const LLVector3& v)
 {
-	if (!gCamera->sphereInFrustum(v, 4.0f))
+	if (!LLViewerCamera::getInstance()->sphereInFrustum(v, 4.0f))
 	{
 		return FALSE;
 	}

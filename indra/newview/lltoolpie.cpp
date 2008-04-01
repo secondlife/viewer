@@ -67,8 +67,6 @@
 #include "llui.h"
 #include "llweb.h"
 
-LLToolPie *gToolPie = NULL;
-
 LLPointer<LLViewerObject> LLToolPie::sClickActionObject;
 LLSafeHandle<LLObjectSelection> LLToolPie::sLeftClickSelection = NULL;
 U8 LLToolPie::sClickAction = 0;
@@ -94,8 +92,6 @@ LLToolPie::LLToolPie()
 
 BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (!gCamera) return FALSE;
-
 	gPickFaces = TRUE;
 	//left mouse down always picks transparent
 	gViewerWindow->hitObjectOrLandGlobalAsync(x, y, mask, leftMouseCallback, 
@@ -107,7 +103,7 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 // static
 void LLToolPie::leftMouseCallback(S32 x, S32 y, MASK mask)
 {
-	gToolPie->pickAndShowMenu(x, y, mask, FALSE);
+	LLToolPie::getInstance()->pickAndShowMenu(x, y, mask, FALSE);
 }
 
 BOOL LLToolPie::handleRightMouseDown(S32 x, S32 y, MASK mask)
@@ -125,7 +121,7 @@ BOOL LLToolPie::handleRightMouseDown(S32 x, S32 y, MASK mask)
 // static
 void LLToolPie::rightMouseCallback(S32 x, S32 y, MASK mask)
 {
-	gToolPie->pickAndShowMenu(x, y, mask, TRUE);
+	LLToolPie::getInstance()->pickAndShowMenu(x, y, mask, TRUE);
 }
 
 // True if you selected an object.
@@ -133,12 +129,12 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 {
 	if (!always_show && gLastHitParcelWall)
 	{
-		LLParcel* parcel = gParcelMgr->getCollisionParcel();
+		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getCollisionParcel();
 		if (parcel)
 		{
-			gParcelMgr->selectCollisionParcel();
+			LLViewerParcelMgr::getInstance()->selectCollisionParcel();
 			if (parcel->getParcelFlag(PF_USE_PASS_LIST) 
-				&& !gParcelMgr->isCollisionBanned())
+				&& !LLViewerParcelMgr::getInstance()->isCollisionBanned())
 			{
 				// if selling passes, just buy one
 				void* deselect_when_done = (void*)TRUE;
@@ -161,7 +157,7 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 	mHitLand = !object && !gLastHitPosGlobal.isExactlyZero();
 	if (!mHitLand)
 	{
-		gParcelMgr->deselectLand();
+		LLViewerParcelMgr::getInstance()->deselectLand();
 	}
 	
 	if (object)
@@ -238,8 +234,8 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 		!always_show)
 	{
 		gGrabTransientTool = this;
-		gToolMgr->getCurrentToolset()->selectTool( gToolGrab );
-		return gToolGrab->handleObjectHit( object, x, y, mask);
+		LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolGrab::getInstance() );
+		return LLToolGrab::getInstance()->handleObjectHit( object, x, y, mask);
 	}
 	
 	if (!object && gLastHitHUDIcon && gLastHitHUDIcon->getSourceObject())
@@ -270,10 +266,10 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 		if (object && object == gAgent.getAvatarObject())
 		{
 			// we left clicked on avatar, switch to focus mode
-			gToolMgr->setTransientTool(gToolCamera);
+			LLToolMgr::getInstance()->setTransientTool(LLToolCamera::getInstance());
 			gViewerWindow->hideCursor();
-			gToolCamera->setMouseCapture(TRUE);
-			gToolCamera->pickCallback(gViewerWindow->getCurrentMouseX(), gViewerWindow->getCurrentMouseY(), mask);
+			LLToolCamera::getInstance()->setMouseCapture(TRUE);
+			LLToolCamera::getInstance()->pickCallback(gViewerWindow->getCurrentMouseX(), gViewerWindow->getCurrentMouseY(), mask);
 			gAgent.setFocusOnAvatar(TRUE, TRUE);
 
 			return TRUE;
@@ -297,12 +293,12 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 	// Spawn pie menu
 	if (mHitLand)
 	{
-		LLParcelSelectionHandle selection = gParcelMgr->selectParcelAt( gLastHitPosGlobal );
+		LLParcelSelectionHandle selection = LLViewerParcelMgr::getInstance()->selectParcelAt( gLastHitPosGlobal );
 		gMenuHolder->setParcelSelection(selection);
 		gPieLand->show(x, y, mPieMouseButtonDown);
 
 		// VEFFECT: ShowPie
-		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)gHUDManager->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_SPHERE, TRUE);
+		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_SPHERE, TRUE);
 		effectp->setPositionGlobal(gLastHitPosGlobal);
 		effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 		effectp->setDuration(0.25f);
@@ -313,7 +309,7 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 	}
 	else if (object)
 	{
-		gMenuHolder->setObjectSelection(gSelectMgr->getSelection());
+		gMenuHolder->setObjectSelection(LLSelectMgr::getInstance()->getSelection());
 
 		if (object->isAvatar() 
 			|| (object->isAttachment() && !object->isHUDAttachment() && !object->permYouOwner()))
@@ -327,7 +323,7 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 			// Object is an avatar, so check for mute by id.
 			LLVOAvatar* avatar = (LLVOAvatar*)object;
 			LLString name = avatar->getFullname();
-			if (gMuteListp->isMuted(avatar->getID(), name))
+			if (LLMuteList::getInstance()->isMuted(avatar->getID(), name))
 			{
 				gMenuHolder->childSetText("Avatar Mute", LLString("Unmute")); // *TODO:Translate
 				//gMutePieMenu->setLabel("Unmute");
@@ -348,12 +344,12 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 		{
 			// BUG: What about chatting child objects?
 			LLString name;
-			LLSelectNode* node = gSelectMgr->getSelection()->getFirstRootNode();
+			LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
 			if (node)
 			{
 				name = node->mName;
 			}
-			if (gMuteListp->isMuted(object->getID(), name))
+			if (LLMuteList::getInstance()->isMuted(object->getID(), name))
 			{
 				gMenuHolder->childSetText("Object Mute", LLString("Unmute")); // *TODO:Translate
 				//gMuteObjectPieMenu->setLabel("Unmute");
@@ -369,7 +365,7 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 			// VEFFECT: ShowPie object
 			// Don't show when you click on someone else, it freaks them
 			// out.
-			LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)gHUDManager->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_SPHERE, TRUE);
+			LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_SPHERE, TRUE);
 			effectp->setPositionGlobal(gLastHitPosGlobal);
 			effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 			effectp->setDuration(0.25f);
@@ -476,7 +472,7 @@ void LLToolPie::selectionPropertiesReceived()
 {
 	// Make sure all data has been received.
 	// This function will be called repeatedly as the data comes in.
-	if (!gSelectMgr->selectGetAllValid())
+	if (!LLSelectMgr::getInstance()->selectGetAllValid())
 	{
 		return;
 	}
@@ -594,7 +590,7 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 		}
 	}
 	mGrabMouseButtonDown = FALSE;
-	gToolMgr->clearTransientTool();
+	LLToolMgr::getInstance()->clearTransientTool();
 	gAgent.setLookAt(LOOKAT_TARGET_CONVERSATION, obj); // maybe look at object/person clicked on
 	return LLTool::handleMouseUp(x, y, mask);
 }
@@ -602,7 +598,7 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 BOOL LLToolPie::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
 	mPieMouseButtonDown = FALSE; 
-	gToolMgr->clearTransientTool();
+	LLToolMgr::getInstance()->clearTransientTool();
 	return LLTool::handleRightMouseUp(x, y, mask);
 }
 
@@ -668,18 +664,18 @@ void LLToolPie::handleDeselect()
 		setMouseCapture( FALSE );  // Calls onMouseCaptureLost() indirectly
 	}
 	// remove temporary selection for pie menu
-	gSelectMgr->validateSelection();
+	LLSelectMgr::getInstance()->validateSelection();
 }
 
 LLTool* LLToolPie::getOverrideTool(MASK mask)
 {
 	if (mask == MASK_CONTROL)
 	{
-		return gToolGrab;
+		return LLToolGrab::getInstance();
 	}
 	else if (mask == (MASK_CONTROL | MASK_SHIFT))
 	{
-		return gToolGrab;
+		return LLToolGrab::getInstance();
 	}
 
 	return LLTool::getOverrideTool(mask);
@@ -716,7 +712,7 @@ void LLToolPie::render()
 
 static void handle_click_action_play()
 {
-	LLParcel* parcel = gParcelMgr->getAgentParcel();
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if (!parcel) return;
 
 	LLMediaBase::EStatus status = LLViewerParcelMedia::getStatus();
@@ -739,7 +735,7 @@ static void handle_click_action_play()
 static void handle_click_action_open_media(LLPointer<LLViewerObject> objectp)
 {
 	//FIXME: how do we handle object in different parcel than us?
-	LLParcel* parcel = gParcelMgr->getAgentParcel();
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if (!parcel) return;
 
 	// did we hit an object?
@@ -781,7 +777,7 @@ static ECursorType cursor_from_parcel_media(U8 click_action)
 	
 	//FIXME: how do we handle object in different parcel than us?
 	ECursorType open_cursor = UI_CURSOR_ARROW;
-	LLParcel* parcel = gParcelMgr->getAgentParcel();
+	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if (!parcel) return open_cursor;
 
 	std::string media_url = std::string ( parcel->getMediaURL () );

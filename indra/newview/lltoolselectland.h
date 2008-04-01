@@ -38,7 +38,7 @@
 class LLParcelSelection;
 
 class LLToolSelectLand
-:	public LLTool
+:	public LLTool, public LLSingleton<LLToolSelectLand>
 {
 public:
 	LLToolSelectLand( );
@@ -78,6 +78,5 @@ protected:
 	LLSafeHandle<LLParcelSelection> mSelection;		// hold on to a parcel selection
 };
 
-extern LLToolSelectLand *gToolParcel;
 
 #endif

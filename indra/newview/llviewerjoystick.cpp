@@ -87,9 +87,9 @@ void LLViewerJoystick::updateCamera(BOOL reset)
 
 	if (reset)
 	{
-		sFlycamPosition = gCamera->getOrigin();
-		sFlycamRotation = gCamera->getQuaternion();
-		sFlycamZoom = gCamera->getView();
+		sFlycamPosition = LLViewerCamera::getInstance()->getOrigin();
+		sFlycamRotation = LLViewerCamera::getInstance()->getQuaternion();
+		sFlycamZoom = LLViewerCamera::getInstance()->getView();
 
 		for (U32 i = 0; i < 7; i++)
 		{
@@ -168,11 +168,11 @@ void LLViewerJoystick::updateCamera(BOOL reset)
 
 	LLMatrix3 mat(sFlycamRotation);
 
-	gCamera->setView(sFlycamZoom);
-	gCamera->setOrigin(sFlycamPosition);
-	gCamera->mXAxis = LLVector3(mat.mMatrix[0]);
-	gCamera->mYAxis = LLVector3(mat.mMatrix[1]);
-	gCamera->mZAxis = LLVector3(mat.mMatrix[2]);
+	LLViewerCamera::getInstance()->setView(sFlycamZoom);
+	LLViewerCamera::getInstance()->setOrigin(sFlycamPosition);
+	LLViewerCamera::getInstance()->mXAxis = LLVector3(mat.mMatrix[0]);
+	LLViewerCamera::getInstance()->mYAxis = LLVector3(mat.mMatrix[1]);
+	LLViewerCamera::getInstance()->mZAxis = LLVector3(mat.mMatrix[2]);
 }
 
 

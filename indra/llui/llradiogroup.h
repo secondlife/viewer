@@ -82,10 +82,8 @@ public:
 				 BOOL border = TRUE);
 
 	virtual ~LLRadioGroup();
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_RADIO_GROUP; }
-	virtual LLString getWidgetTag() const { return LL_RADIO_GROUP_TAG; }
 
-	virtual BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
 	virtual void setEnabled(BOOL enabled);
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;

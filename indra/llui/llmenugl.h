@@ -91,14 +91,11 @@ public:
 	LLMenuItemGL( const LLString& name, const LLString& label, KEY key = KEY_NONE, MASK = MASK_NONE );
 
 	virtual void setValue(const LLSD& value) { setLabel(value.asString()); }
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_MENU_ITEM; }
-	virtual LLString getWidgetTag() const { return LL_MENU_ITEM_TAG; }
 
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 
 	virtual LLString getType() const	{ return "item"; }
 
-	virtual BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
 	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
 
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
@@ -165,7 +162,7 @@ public:
 	virtual void setEnabledSubMenus(BOOL enable){};
 
 	// LLView Functionality
-	virtual BOOL handleKeyHere( KEY key, MASK mask, BOOL called_from_parent );
+	virtual BOOL handleKeyHere( KEY key, MASK mask );
 	virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask );
 	virtual void draw( void );
@@ -267,8 +264,6 @@ public:
 
 	virtual LLString getType() const	{ return "call"; }
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_MENU_ITEM_CALL; }
-	virtual LLString getWidgetTag() const { return LL_MENU_ITEM_CALL_GL_TAG; }
 
 	void setEnabledControl(LLString enabled_control, LLView *context);
 	void setVisibleControl(LLString enabled_control, LLView *context);
@@ -341,8 +336,6 @@ public:
 	void setCheckedControl(LLString checked_control, LLView *context);
 
 	virtual void setValue(const LLSD& value);
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_MENU_ITEM_CHECK; }
-	virtual LLString getWidgetTag() const { return LL_MENU_ITEM_CHECK_GL_TAG; }
 
 	virtual LLString getType() const	{ return "check"; }
 
@@ -405,6 +398,8 @@ class LLMenuGL
 // TODO: The menu and menu item classes share a great deal of functionality and perhaps should be united.
 // I think it may make the most sense to make LLMenuGL be a subclass of LLMenuItemGL. -MG
 {
+	// let branching menu items use my protected traversal methods
+	friend class LLMenuItemBranchGL;
 public:
 	LLMenuGL( const LLString& name, const LLString& label, LLHandle<LLFloater> parent_floater = LLHandle<LLFloater>());
 	LLMenuGL( const LLString& label, LLHandle<LLFloater> parent_floater = LLHandle<LLFloater>() );
@@ -414,13 +409,9 @@ public:
 
 	void parseChildXML(LLXMLNodePtr child, LLView *parent, LLUICtrlFactory *factory);
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_MENU; }
-	virtual LLString getWidgetTag() const { return LL_MENU_GL_TAG; }
 
 	// LLView Functionality
-	virtual BOOL handleKey( KEY key, MASK mask, BOOL called_from_parent );
-	//virtual BOOL handleKeyHere( KEY key, MASK mask, BOOL called_from_parent );
-	virtual BOOL handleUnicodeCharHere( llwchar uni_char, BOOL called_from_parent );
+	virtual BOOL handleUnicodeCharHere( llwchar uni_char );
 	virtual BOOL handleHover( S32 x, S32 y, MASK mask );
 	virtual void draw( void );
 	virtual void drawBackground(LLMenuItemGL* itemp, LLColor4& color);
@@ -578,9 +569,6 @@ public:
 
 	virtual LLString getType() const { return "menu"; }
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_MENU_ITEM_BRANCH; }
-	virtual LLString getWidgetTag() const { return LL_MENU_ITEM_BRANCH_GL_TAG; }
-
 	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
@@ -601,7 +589,7 @@ public:
 	// active. This is used for behavior transfer.
 	virtual void setHighlight( BOOL highlight );
 
-	virtual BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
 	virtual BOOL isActive() const { return isOpen() && mBranch->getHighlightedItem(); }
 
@@ -620,8 +608,7 @@ public:
 
 	virtual void openMenu();
 
-protected:
-	virtual LLView* getChildByName(const LLString& name, BOOL recurse) const;
+	virtual LLView* getChildView(const LLString& name, BOOL recurse = TRUE, BOOL create_if_missing = TRUE) const;
 
 private:
 	LLMenuGL* mBranch;
@@ -642,16 +629,12 @@ public:
 	LLPieMenu(const LLString& name);
 	virtual ~LLPieMenu() {}
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_PIE_MENU; }
-	virtual LLString getWidgetTag() const { return LL_PIE_MENU_TAG; }
-
 	void initXML(LLXMLNodePtr node, LLView *context, LLUICtrlFactory *factory);
 
 	// LLView Functionality
 	// can't set visibility directly, must call show or hide
 	virtual void setVisible(BOOL visible);
 	
-	//virtual BOOL handleKey( KEY key, MASK mask, BOOL called_from_parent );
 	virtual BOOL handleHover( S32 x, S32 y, MASK mask );
 	virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
@@ -710,11 +693,8 @@ public:
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactory *factory);
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_MENU_BAR; }
-	virtual LLString getWidgetTag() const { return LL_MENU_BAR_GL_TAG; }
-
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
-	virtual BOOL handleKeyHere(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL handleKeyHere(KEY key, MASK mask);
 	virtual BOOL handleJumpKey(KEY key);
 
 	// rearrange the child rects so they fit the shape of the menu
@@ -756,9 +736,6 @@ public:
 	LLMenuHolderGL(const LLString& name, const LLRect& rect, BOOL mouse_opaque, U32 follows = FOLLOWS_NONE);
 	virtual ~LLMenuHolderGL() {}
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_MENU_HOLDER; }
-	virtual LLString getWidgetTag() const { return LL_MENU_HOLDER_GL_TAG; }
-
 	virtual BOOL hideMenus();
 	void reshape(S32 width, S32 height, BOOL called_from_parent);
 	void setCanHide(BOOL can_hide) { mCanHide = can_hide; }
@@ -796,7 +773,7 @@ public:
 	virtual void onFocusReceived();
 	virtual void onFocusLost();
 	virtual BOOL handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);
-	virtual BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
+	virtual BOOL handleKeyHere(KEY key, MASK mask);
 	virtual void translate(S32 x, S32 y);
 
 private:
@@ -817,9 +794,6 @@ class LLMenuItemTearOffGL : public LLMenuItemGL
 {
 public:
 	LLMenuItemTearOffGL( LLHandle<LLFloater> parent_floater_handle = LLHandle<LLFloater>());
-
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_TEAROFF_MENU; }
-	virtual LLString getWidgetTag() const { return LL_MENU_ITEM_TEAR_OFF_GL_TAG; }
 
 	virtual LLString getType() const { return "tearoff_menu"; }
 

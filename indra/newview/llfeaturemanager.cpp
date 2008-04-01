@@ -75,8 +75,6 @@ const char FEATURE_TABLE_FILENAME[] = "featuretable.txt";
 
 const char GPU_TABLE_FILENAME[] = "gpu_table.txt";
 
-LLFeatureManager *gFeatureManagerp = NULL;
-
 LLFeatureInfo::LLFeatureInfo(const char *name, const BOOL available, const F32 level) : mValid(TRUE)
 {
 	mName = name;

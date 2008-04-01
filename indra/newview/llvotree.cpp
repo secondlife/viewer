@@ -399,8 +399,8 @@ void LLVOTree::setPixelAreaAndAngle(LLAgent &agent)
 	F32 area = max_scale * (max_scale*mBillboardRatio);
 
 	// Compute pixels per meter at the given range
-	F32 pixels_per_meter = gCamera->getViewHeightInPixels() / 
-						   (tan(gCamera->getView()) * range);
+	F32 pixels_per_meter = LLViewerCamera::getInstance()->getViewHeightInPixels() / 
+						   (tan(LLViewerCamera::getInstance()->getView()) * range);
 
 	mPixelArea = (pixels_per_meter) * (pixels_per_meter) * area;
 #if 0

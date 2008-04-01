@@ -71,9 +71,6 @@ public:
 
 	virtual ~LLTextEditor();
 
-	virtual EWidgetType getWidgetType() const { return WIDGET_TYPE_TEXT_EDITOR; }
-	virtual LLString getWidgetTag() const { return LL_TEXT_EDITOR_TAG; }
-
 	virtual LLXMLNodePtr getXML(bool save_children = true) const;
 	static LLView* fromXML(LLXMLNodePtr node, LLView *parent, class LLUICtrlFactory *factory);
 	void    setTextEditorParameters(LLXMLNodePtr node);
@@ -85,8 +82,8 @@ public:
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
 	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask );
-	virtual BOOL	handleKeyHere(KEY key, MASK mask, BOOL called_from_parent );
-	virtual BOOL	handleUnicodeCharHere(llwchar uni_char, BOOL called_from_parent);
+	virtual BOOL	handleKeyHere(KEY key, MASK mask );
+	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
 
 	virtual BOOL	handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect);
 	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,

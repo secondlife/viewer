@@ -179,7 +179,7 @@ LLViewerRegion::~LLViewerRegion()
 	// This should be reference counted...
 	disconnectAllNeighbors();
 	mCloudLayer.destroy();
-	gWorldPointer->mPartSim.cleanupRegion(this);
+	LLViewerPartSim::getInstance()->cleanupRegion(this);
 
 	gObjectList.killObjects(this);
 
@@ -626,7 +626,7 @@ F32 LLViewerRegion::getCompositionXY(const S32 x, const S32 y) const
 		if (y >= 256)
 		{
 			LLVector3d center = getCenterGlobal() + LLVector3d(256.f, 256.f, 0.f);
-			LLViewerRegion *regionp = gWorldPointer->getRegionFromPosGlobal(center);
+			LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromPosGlobal(center);
 			if (regionp)
 			{
 				// OK, we need to do some hackery here - different simulators no longer use
@@ -653,7 +653,7 @@ F32 LLViewerRegion::getCompositionXY(const S32 x, const S32 y) const
 		else
 		{
 			LLVector3d center = getCenterGlobal() + LLVector3d(256.f, 0, 0.f);
-			LLViewerRegion *regionp = gWorldPointer->getRegionFromPosGlobal(center);
+			LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromPosGlobal(center);
 			if (regionp)
 			{
 				// OK, we need to do some hackery here - different simulators no longer use
@@ -681,7 +681,7 @@ F32 LLViewerRegion::getCompositionXY(const S32 x, const S32 y) const
 	else if (y >= 256)
 	{
 		LLVector3d center = getCenterGlobal() + LLVector3d(0.f, 256.f, 0.f);
-		LLViewerRegion *regionp = gWorldPointer->getRegionFromPosGlobal(center);
+		LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromPosGlobal(center);
 		if (regionp)
 		{
 			// OK, we need to do some hackery here - different simulators no longer use
@@ -868,9 +868,8 @@ public:
 		const LLSD& context,
 		const LLSD& input) const
 	{
-		if(!gWorldp) return;
 		LLHost host(input["sender"].asString());
-		LLViewerRegion* region = gWorldp->getRegion(host);
+		LLViewerRegion* region = LLWorld::getInstance()->getRegion(host);
 		if( !region )
 		{
 			return;

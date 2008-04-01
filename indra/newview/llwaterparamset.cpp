@@ -72,8 +72,6 @@ LLWaterParamSet::LLWaterParamSet(void) :
 	wave2.append(0.58f);
 	wave2.append(-.67f);
 
-	LLUUID normalMap = LLUUID(gViewerArt.getString("water_normal.tga"));
-
 	mParamValues.insert("waterFogColor", vec4);
 	mParamValues.insert("waterFogDensity", 16.0f);
 	mParamValues.insert("underWaterFogMod", 0.25f);
@@ -85,7 +83,7 @@ LLWaterParamSet::LLWaterParamSet(void) :
 	mParamValues.insert("blurMultiplier", 0.01f);
 	mParamValues.insert("wave1Dir", wave1);
 	mParamValues.insert("wave2Dir", wave2);
-	mParamValues.insert("normalMap", normalMap);
+	mParamValues.insert("normalMap", DEFAULT_WATER_NORMAL);
 
 }
 

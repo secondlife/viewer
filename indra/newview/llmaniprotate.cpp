@@ -54,7 +54,6 @@
 #include "llstatusbar.h"
 #include "llui.h"
 #include "llvoavatar.h"
-#include "llviewborder.h"
 #include "llviewercamera.h"
 #include "llviewerobject.h"
 #include "llviewerobject.h"
@@ -109,7 +108,7 @@ LLManipRotate::LLManipRotate( LLToolComposite* composite )
 void LLManipRotate::handleSelect()
 {
 	// *FIX: put this in mouseDown?
-	gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
+	LLSelectMgr::getInstance()->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
 	gFloaterTools->setStatusText("rotate");
 	LLManip::handleSelect();
 }
@@ -225,7 +224,7 @@ void LLManipRotate::render()
 		LLVector3 grid_scale;
 		LLQuaternion grid_rotation;
 
-		gSelectMgr->getGrid(grid_origin, grid_rotation, grid_scale);
+		LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
 
 		grid_rotation.getAngleAxis(&angle_radians, &x, &y, &z);
 		glRotatef(angle_radians * RAD_TO_DEG, x, y, z);
@@ -386,10 +385,10 @@ BOOL LLManipRotate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 	highlightManipulators(x, y);
 	S32 hit_part = mHighlightedPart;
 	// we just started a drag, so save initial object positions
-	gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_ROTATE);
+	LLSelectMgr::getInstance()->saveSelectedObjectTransform(SELECT_ACTION_TYPE_ROTATE);
 
 	// save selection center
-	mRotationCenter = gAgent.getPosGlobalFromAgent( getPivotPoint() ); //gSelectMgr->getSelectionCenterGlobal();
+	mRotationCenter = gAgent.getPosGlobalFromAgent( getPivotPoint() ); //LLSelectMgr::getInstance()->getSelectionCenterGlobal();
 
 	mManipPart = (EManipPart)hit_part;
 	LLVector3 center = gAgent.getPosAgentFromGlobal( mRotationCenter );
@@ -435,7 +434,7 @@ BOOL LLManipRotate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 
 	// Route future Mouse messages here preemptively.  (Release on mouse up.)
 	setMouseCapture( TRUE );
-	gSelectMgr->enableSilhouette(FALSE);
+	LLSelectMgr::getInstance()->enableSilhouette(FALSE);
 	return TRUE;
 }
 
@@ -461,12 +460,12 @@ BOOL LLManipRotate::handleMouseUp(S32 x, S32 y, MASK mask)
 		mManipPart = LL_NO_PART;
 
 		// Might have missed last update due to timing.
-		gSelectMgr->sendMultipleUpdate( UPD_ROTATION | UPD_POSITION );
-		gSelectMgr->enableSilhouette(TRUE);
+		LLSelectMgr::getInstance()->sendMultipleUpdate( UPD_ROTATION | UPD_POSITION );
+		LLSelectMgr::getInstance()->enableSilhouette(TRUE);
 		//gAgent.setObjectTracking(gSavedSettings.getBOOL("TrackFocusObject"));
 
-		gSelectMgr->updateSelectionCenter();
-		gSelectMgr->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
+		LLSelectMgr::getInstance()->updateSelectionCenter();
+		LLSelectMgr::getInstance()->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
 	}
 
 	return LLManip::handleMouseUp(x, y, mask);
@@ -635,7 +634,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 			if (object->isRootEdit() && !object->isAttachment())
 			{
 				LLVector3d new_pos_global = gAgent.getPosGlobalFromAgent(new_position);
-				new_pos_global = gWorldp->clipToVisibleRegions(selectNode->mSavedPositionGlobal, new_pos_global);
+				new_pos_global = LLWorld::getInstance()->clipToVisibleRegions(selectNode->mSavedPositionGlobal, new_pos_global);
 				new_position = gAgent.getPosAgentFromGlobal(new_pos_global);
 			}
 
@@ -704,8 +703,8 @@ void LLManipRotate::drag( S32 x, S32 y )
 	}
 
 	// store changes to override updates
-	for (LLObjectSelection::iterator iter = gSelectMgr->getSelection()->begin();
-		 iter != gSelectMgr->getSelection()->end(); iter++)
+	for (LLObjectSelection::iterator iter = LLSelectMgr::getInstance()->getSelection()->begin();
+		 iter != LLSelectMgr::getInstance()->getSelection()->end(); iter++)
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject*cur = selectNode->getObject();
@@ -716,7 +715,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 		}
 	}	
 
-	gSelectMgr->updateSelectionCenter();
+	LLSelectMgr::getInstance()->updateSelectionCenter();
 
 	// RN: just clear focus so camera doesn't follow spurious object updates
 	gAgent.clearFocusObject();
@@ -744,7 +743,7 @@ void LLManipRotate::renderSnapGuides()
 	LLQuaternion grid_rotation;
 	LLVector3 constraint_axis = getConstraintAxis();
 
-	gSelectMgr->getGrid(grid_origin, grid_rotation, grid_scale);
+	LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
 
 	if (!gSavedSettings.getBOOL("SnapEnabled"))
 	{
@@ -771,7 +770,7 @@ void LLManipRotate::renderSnapGuides()
 	{
 		test_axis = test_axis * ~grid_rotation;
 	}
-	else if (gSelectMgr->getGridMode() == GRID_MODE_REF_OBJECT)
+	else if (LLSelectMgr::getInstance()->getGridMode() == GRID_MODE_REF_OBJECT)
 	{
 		test_axis = test_axis * ~grid_rotation;
 		constrain_to_ref_object = TRUE;
@@ -1118,7 +1117,7 @@ BOOL LLManipRotate::updateVisiblity()
 	// JC - 03.26.2002
 	if (!hasMouseCapture())
 	{
-		mRotationCenter = gAgent.getPosGlobalFromAgent( getPivotPoint() );//gSelectMgr->getSelectionCenterGlobal();
+		mRotationCenter = gAgent.getPosGlobalFromAgent( getPivotPoint() );//LLSelectMgr::getInstance()->getSelectionCenterGlobal();
 	}
 
 	BOOL visible = FALSE;
@@ -1130,7 +1129,7 @@ BOOL LLManipRotate::updateVisiblity()
 		mCenterToCamNorm = mCenterToCam;
 		mCenterToCamMag = mCenterToCamNorm.normVec();
 
-		mRadiusMeters = RADIUS_PIXELS / (F32) gCamera->getViewHeightInPixels();
+		mRadiusMeters = RADIUS_PIXELS / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();
 		mRadiusMeters /= gAgent.getAvatarObject()->mHUDCurZoom;
 
 		mCenterToProfilePlaneMag = mRadiusMeters * mRadiusMeters / mCenterToCamMag;
@@ -1142,13 +1141,13 @@ BOOL LLManipRotate::updateVisiblity()
 	}
 	else
 	{
-		visible = gCamera->projectPosAgentToScreen(center, mCenterScreen );
+		visible = LLViewerCamera::getInstance()->projectPosAgentToScreen(center, mCenterScreen );
 		if( visible )
 		{
 			mCenterToCam = gAgent.getCameraPositionAgent() - center;
 			mCenterToCamNorm = mCenterToCam;
 			mCenterToCamMag = mCenterToCamNorm.normVec();
-			LLVector3 cameraAtAxis = gCamera->getAtAxis();
+			LLVector3 cameraAtAxis = LLViewerCamera::getInstance()->getAtAxis();
 			cameraAtAxis.normVec();
 
 			F32 z_dist = -1.f * (mCenterToCam * cameraAtAxis);
@@ -1165,8 +1164,8 @@ BOOL LLManipRotate::updateVisiblity()
 			
 			if (mCenterToCamMag > 0.001f)
 			{
-				F32 fraction_of_fov = RADIUS_PIXELS / (F32) gCamera->getViewHeightInPixels();
-				F32 apparent_angle = fraction_of_fov * gCamera->getView();  // radians
+				F32 fraction_of_fov = RADIUS_PIXELS / (F32) LLViewerCamera::getInstance()->getViewHeightInPixels();
+				F32 apparent_angle = fraction_of_fov * LLViewerCamera::getInstance()->getView();  // radians
 				mRadiusMeters = z_dist * tan(apparent_angle);
 
 				mCenterToProfilePlaneMag = mRadiusMeters * mRadiusMeters / mCenterToCamMag;
@@ -1274,7 +1273,7 @@ LLVector3 LLManipRotate::getConstraintAxis()
 		LLVector3 grid_scale;
 		LLQuaternion grid_rotation;
 
-		gSelectMgr->getGrid(grid_origin, grid_rotation, grid_scale);
+		LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
 
 		LLSelectNode* first_node = mObjectSelection->getFirstMoveableNode(TRUE);
 		if (first_node)
@@ -1301,7 +1300,7 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
 	LLVector3 grid_scale;
 	LLQuaternion grid_rotation;
 
-	gSelectMgr->getGrid(grid_origin, grid_rotation, grid_scale);
+	LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
 
 	LLVector3 axis1;
 	LLVector3 axis2;
@@ -1311,7 +1310,7 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
 	{
 		test_axis = test_axis * ~grid_rotation;
 	}
-	else if (gSelectMgr->getGridMode() == GRID_MODE_REF_OBJECT)
+	else if (LLSelectMgr::getInstance()->getGridMode() == GRID_MODE_REF_OBJECT)
 	{
 		test_axis = test_axis * ~grid_rotation;
 	}
@@ -1335,7 +1334,7 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
 	{
 		axis1 = axis1 * grid_rotation;
 	}
-	else if (gSelectMgr->getGridMode() == GRID_MODE_REF_OBJECT)
+	else if (LLSelectMgr::getInstance()->getGridMode() == GRID_MODE_REF_OBJECT)
 	{
 		axis1 = axis1 * grid_rotation;
 	}
@@ -1651,7 +1650,7 @@ LLVector3 LLManipRotate::intersectRayWithSphere( const LLVector3& ray_pt, const 
 //static
 void LLManipRotate::mouseToRay( S32 x, S32 y, LLVector3* ray_pt, LLVector3* ray_dir )
 {
-	if (gSelectMgr->getSelection()->getSelectType() == SELECT_TYPE_HUD)
+	if (LLSelectMgr::getInstance()->getSelection()->getSelectType() == SELECT_TYPE_HUD)
 	{
 		F32 mouse_x = (((F32)x / gViewerWindow->getWindowWidth()) - 0.5f) / gAgent.getAvatarObject()->mHUDCurZoom;
 		F32 mouse_y = ((((F32)y) / gViewerWindow->getWindowHeight()) - 0.5f) / gAgent.getAvatarObject()->mHUDCurZoom;
@@ -1662,7 +1661,7 @@ void LLManipRotate::mouseToRay( S32 x, S32 y, LLVector3* ray_pt, LLVector3* ray_
 	else
 	{
 		*ray_pt = gAgent.getCameraPositionAgent();
-		gCamera->projectScreenToPosAgent(x, y, ray_dir);
+		LLViewerCamera::getInstance()->projectScreenToPosAgent(x, y, ray_dir);
 		*ray_dir -= *ray_pt;
 		ray_dir->normVec();
 	}
@@ -1672,7 +1671,7 @@ void LLManipRotate::highlightManipulators( S32 x, S32 y )
 {
 	mHighlightedPart = LL_NO_PART;
 
-	//LLBBox bbox = gSelectMgr->getBBoxOfSelection();
+	//LLBBox bbox = LLSelectMgr::getInstance()->getBBoxOfSelection();
 	LLViewerObject *first_object = mObjectSelection->getFirstMoveableObject(TRUE);
 	
 	if (!first_object)
@@ -1691,7 +1690,7 @@ void LLManipRotate::highlightManipulators( S32 x, S32 y )
 	LLVector3 grid_scale;
 	LLQuaternion grid_rotation;
 
-	gSelectMgr->getGrid(grid_origin, grid_rotation, grid_scale);
+	LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
 
 	LLVector3 rot_x_axis = LLVector3::x_axis * grid_rotation;
 	LLVector3 rot_y_axis = LLVector3::y_axis * grid_rotation;

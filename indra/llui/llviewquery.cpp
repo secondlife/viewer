@@ -66,11 +66,6 @@ filterResult_t LLCtrlFilter::operator() (const LLView* const view, const viewLis
 	return filterResult_t(view->isCtrl(),TRUE);
 }
 
-filterResult_t LLWidgetTypeFilter::operator() (const LLView* const view, const viewList_t & children) const
-{
-	return filterResult_t(view->getWidgetType() == mType, TRUE);
-} 
-
 //
 // LLViewQuery
 //
