@@ -113,9 +113,38 @@ const BOOL FLEXIBLE_OBJECT_DEFAULT_RENDERING_COLLISION_SPHERE = FALSE;
 
 const char *SCULPT_DEFAULT_TEXTURE = "be293869-d0d9-0a69-5989-ad27f1946fd4"; // old inverted texture: "7595d345-a24c-e7ef-f0bd-78793792133e";
 
+//static 
+// LEGACY: by default we use the LLVolumeMgr::gVolumeMgr global
+// TODO -- eliminate this global from the codebase!
+LLVolumeMgr* LLPrimitive::sVolumeManager = NULL;
+
+// static
+void LLPrimitive::setVolumeManager( LLVolumeMgr* volume_manager )
+{
+	if ( !volume_manager || sVolumeManager )
+	{
+		llerrs << "Unable to set LLPrimitive::sVolumeManager to NULL" << llendl;
+	}
+	sVolumeManager = volume_manager;
+}
+
+// static
+bool LLPrimitive::cleanupVolumeManager()
+{
+	BOOL res = FALSE;
+	if (sVolumeManager) 
+	{
+		res = sVolumeManager->cleanup();
+		delete sVolumeManager;
+		sVolumeManager = NULL;
+	}
+	return res;
+}
+
 
 //===============================================================
 LLPrimitive::LLPrimitive()
+:	mMiscFlags(0)
 {
 	mPrimitiveCode = 0;
 
@@ -149,7 +178,7 @@ LLPrimitive::~LLPrimitive()
 	// Cleanup handled by volume manager
 	if (mVolumep)
 	{
-		gVolumeMgr->cleanupVolume(mVolumep);
+		sVolumeManager->cleanupVolume(mVolumep);
 	}
 	mVolumep = NULL;
 }
@@ -162,7 +191,7 @@ LLPrimitive *LLPrimitive::createPrimitive(LLPCode p_code)
 	
 	if (retval)
 	{
-		retval->init(p_code);
+		retval->init_primitive(p_code);
 	}
 	else
 	{
@@ -173,7 +202,7 @@ LLPrimitive *LLPrimitive::createPrimitive(LLPCode p_code)
 }
 
 //===============================================================
-void LLPrimitive::init(LLPCode p_code)
+void LLPrimitive::init_primitive(LLPCode p_code)
 {
 	if (mNumTEs)
 	{
@@ -533,6 +562,8 @@ S32 LLPrimitive::setTEGlow(const U8 te, const F32 glow)
 
 LLPCode LLPrimitive::legacyToPCode(const U8 legacy)
 {
+	// TODO: Should this default to something valid?
+	// Maybe volume?
 	LLPCode pcode = 0;
 
 	switch (legacy)
@@ -621,7 +652,7 @@ LLPCode LLPrimitive::legacyToPCode(const U8 legacy)
 		pcode = LL_PCODE_TREE_NEW;
 		break;
 	default:
-		llwarns << "Unknown legacy code " << legacy << "!" << llendl;
+		llwarns << "Unknown legacy code " << legacy << " [" << (S32)legacy << "]!" << llendl;
 	}
 
 	return pcode;
@@ -904,10 +935,10 @@ BOOL LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detai
 			}
 		}
 
-		volumep = gVolumeMgr->getVolume(volume_params, detail);
+		volumep = sVolumeManager->getVolume(volume_params, detail);
 		if (volumep == mVolumep)
 		{
-			gVolumeMgr->cleanupVolume( volumep );  // gVolumeMgr->getVolume() creates a reference, but we don't need a second one.
+			sVolumeManager->cleanupVolume( volumep );  // LLVolumeMgr::getVolume() creates a reference, but we don't need a second one.
 			return TRUE;
 		}
 	}
@@ -950,7 +981,7 @@ BOOL LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detai
 
 
 	// build the new object
-	gVolumeMgr->cleanupVolume(mVolumep);
+	sVolumeManager->cleanupVolume(mVolumep);
 	mVolumep = volumep;
 	
 	U32 new_face_mask = mVolumep->mFaceMask;

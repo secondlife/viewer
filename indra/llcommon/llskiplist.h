@@ -32,6 +32,7 @@
 #define LL_LLSKIPLIST_H
 
 #include "llrand.h"
+#include "llrand.h"
 
 // NOTA BENE: Insert first needs to be < NOT <=
 // Binary depth must be >= 2

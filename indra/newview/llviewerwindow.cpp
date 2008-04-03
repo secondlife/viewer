@@ -131,7 +131,7 @@
 #include "llresmgr.h"
 #include "llrootview.h"
 #include "llselectmgr.h"
-#include "llsphere.h"
+#include "llrendersphere.h"
 #include "llstartup.h"
 #include "llstatusbar.h"
 #include "llstatview.h"

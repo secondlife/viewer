@@ -33,6 +33,9 @@
 #define LL_LLSTL_H
 
 #include <functional>
+#include <algorithm>
+#include <map>
+#include <vector>
 #include <set>
 #include <deque>
 

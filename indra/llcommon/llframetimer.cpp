@@ -140,3 +140,18 @@ F32 LLFrameTimer::getFrameDeltaTimeF32()
 {
 	return (F32)(U64_to_F64(sFrameDeltaTime) * USEC_TO_SEC_F64); 
 }
+
+
+//	static 
+// Return seconds since the current frame started
+F32  LLFrameTimer::getCurrentFrameTime()
+{
+	U64 frame_time = totalTime() - sTotalTime;
+	return (F32)(U64_to_F64(frame_time) * USEC_TO_SEC_F64); 
+}
+
+// Glue code to avoid full class .h file #includes
+F32  getCurrentFrameTime()
+{
+	return (F32)(LLFrameTimer::getCurrentFrameTime());
+}

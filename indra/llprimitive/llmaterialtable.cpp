@@ -36,8 +36,57 @@
 #include "material_codes.h"
 #include "sound_ids.h"
 #include "imageids.h"
+#include <llphysics/llphysicsversion.h>
 
 LLMaterialTable LLMaterialTable::basic(1);
+
+/* 
+	Old Havok 1 constants
+
+// these are the approximately correct friction values for various materials
+// however Havok1's friction dynamics are not very correct, so the effective
+// friction coefficients that result from these numbers are approximately
+// 25-50% too low, more incorrect for the lower values.
+F32 const LLMaterialTable::FRICTION_MIN 	= 0.2f; 	
+F32 const LLMaterialTable::FRICTION_GLASS 	= 0.2f; 	// borosilicate glass
+F32 const LLMaterialTable::FRICTION_LIGHT 	= 0.2f; 	//
+F32 const LLMaterialTable::FRICTION_METAL 	= 0.3f; 	// steel
+F32 const LLMaterialTable::FRICTION_PLASTIC	= 0.4f; 	// HDPE
+F32 const LLMaterialTable::FRICTION_WOOD 	= 0.6f; 	// southern pine
+F32 const LLMaterialTable::FRICTION_FLESH 	= 0.60f; 	// saltwater
+F32 const LLMaterialTable::FRICTION_LAND 	= 0.78f; 	// dirt
+F32 const LLMaterialTable::FRICTION_STONE 	= 0.8f; 	// concrete
+F32 const LLMaterialTable::FRICTION_RUBBER 	= 0.9f; 	//
+F32 const LLMaterialTable::FRICTION_MAX 	= 0.95f; 	//
+*/
+
+#if LL_CURRENT_HAVOK_VERSION == LL_HAVOK_VERSION_460
+// Havok4 has more correct friction dynamics, however here we have to use
+// the "incorrect" equivalents for the legacy Havok1 behavior
+F32 const LLMaterialTable::FRICTION_MIN 	= 0.15f; 	
+F32 const LLMaterialTable::FRICTION_GLASS 	= 0.13f; 	// borosilicate glass
+F32 const LLMaterialTable::FRICTION_LIGHT 	= 0.14f; 	//
+F32 const LLMaterialTable::FRICTION_METAL 	= 0.22f; 	// steel
+F32 const LLMaterialTable::FRICTION_PLASTIC	= 0.3f; 	// HDPE
+F32 const LLMaterialTable::FRICTION_WOOD 	= 0.44f; 	// southern pine
+F32 const LLMaterialTable::FRICTION_FLESH 	= 0.46f; 	// saltwater
+F32 const LLMaterialTable::FRICTION_LAND 	= 0.58f; 	// dirt
+F32 const LLMaterialTable::FRICTION_STONE 	= 0.6f; 	// concrete
+F32 const LLMaterialTable::FRICTION_RUBBER 	= 0.67f; 	//
+F32 const LLMaterialTable::FRICTION_MAX 	= 0.71f; 	//
+#endif
+
+F32 const LLMaterialTable::RESTITUTION_MIN 		= 0.02f; 	
+F32 const LLMaterialTable::RESTITUTION_LAND 	= LLMaterialTable::RESTITUTION_MIN;
+F32 const LLMaterialTable::RESTITUTION_FLESH 	= 0.2f; 	// saltwater
+F32 const LLMaterialTable::RESTITUTION_STONE 	= 0.4f; 	// concrete
+F32 const LLMaterialTable::RESTITUTION_METAL 	= 0.4f; 	// steel
+F32 const LLMaterialTable::RESTITUTION_WOOD 	= 0.5f; 	// southern pine
+F32 const LLMaterialTable::RESTITUTION_GLASS 	= 0.7f; 	// borosilicate glass
+F32 const LLMaterialTable::RESTITUTION_PLASTIC	= 0.7f; 	// HDPE
+F32 const LLMaterialTable::RESTITUTION_LIGHT 	= 0.7f; 	//
+F32 const LLMaterialTable::RESTITUTION_RUBBER 	= 0.9f; 	//
+F32 const LLMaterialTable::RESTITUTION_MAX		= 0.95f;
 
 F32 const LLMaterialTable::DEFAULT_FRICTION = 0.5f;
 F32 const LLMaterialTable::DEFAULT_RESTITUTION = 0.4f;

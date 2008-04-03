@@ -1666,15 +1666,8 @@ void LLPanelObject::sendPosition()
 				mObject->setPositionEdit(newpos);
 			}
 			LLSelectMgr::getInstance()->sendMultipleUpdate(UPD_POSITION);
-			//mRootObject->sendPositionUpdate();
 
 			LLSelectMgr::getInstance()->updateSelectionCenter();
-
-//			llinfos << "position sent" << llendl;
-		}
-		else
-		{
-//			llinfos << "position not changed" << llendl;
 		}
 	}
 	else

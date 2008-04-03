@@ -92,7 +92,7 @@
 #include "llquantize.h"
 #include "llselectmgr.h"
 #include "llsky.h"
-#include "llsphere.h"
+#include "llrendersphere.h"
 #include "llstatusbar.h"
 #include "llimview.h"
 #include "lltool.h"
@@ -1907,7 +1907,7 @@ void LLAgent::cameraOrbitIn(const F32 meters)
 
 		if( CAMERA_MODE_CUSTOMIZE_AVATAR == getCameraMode() )
 		{
-			llclamp( new_distance, APPEARANCE_MIN_ZOOM, APPEARANCE_MAX_ZOOM );
+			new_distance = llclamp( new_distance, APPEARANCE_MIN_ZOOM, APPEARANCE_MAX_ZOOM );
 		}
 
 		// Compute new camera offset
@@ -6891,7 +6891,7 @@ void LLAgent::sendAgentSetAppearance()
 	msg->addUUIDFast(_PREHASH_AgentID, getID());
 	msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
 
-	// correct for the collisiton tolerance (to make it look like the 
+	// correct for the collision tolerance (to make it look like the 
 	// agent is actually walking on the ground/object)
 	// NOTE -- when we start correcting all of the other Havok geometry 
 	// to compensate for the COLLISION_TOLERANCE ugliness we will have 

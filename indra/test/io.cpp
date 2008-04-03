@@ -1151,7 +1151,7 @@ namespace tut
 		chain.push_back(LLIOPipe::ptr_t(new LLPipeStringInjector("hi")));
 		chain.push_back(LLIOPipe::ptr_t(new LLIOSocketWriter(client)));
 		chain.push_back(LLIOPipe::ptr_t(new LLIONull));
-		mPump->addChain(chain, 0.2);
+		mPump->addChain(chain, 0.2f);
 		chain.clear();
 
 		// pump for a bit and make sure all 3 chains are running

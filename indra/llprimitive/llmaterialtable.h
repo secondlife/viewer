@@ -33,10 +33,35 @@
 #define LL_LLMATERIALTABLE_H
 
 #include "lluuid.h"
-#include "linked_lists.h"
 #include "llstring.h"
 
+#include <list>
+
 const U32 LLMATERIAL_INFO_NAME_LENGTH = 256;
+
+// We've moved toward more reasonable mass values for the Havok4 engine.
+// The LEGACY_DEFAULT_OBJECT_DENSITY is used to maintain support for
+// legacy scripts code (llGetMass()) and script energy consumption.
+const F32 DEFAULT_OBJECT_DENSITY = 1000.0f;			// per m^3
+const F32 LEGACY_DEFAULT_OBJECT_DENSITY = 10.0f;
+
+// Avatars density depends on the collision shape used.  The approximate
+// legacy volumes of avatars are:
+// Body_Length Body_Width Body_Fat Leg_Length  Volume(m^3)
+// -------------------------------------------------------
+//    min     |   min    |  min   |    min    |   0.123   |
+//    max     |   max    |  max   |    max    |   0.208   |
+//
+// Either the avatar shape must be tweaked to match those volumes
+// or the DEFAULT_AVATAR_DENSITY must be adjusted to achieve the 
+// legacy mass.
+//
+// The current density appears to be low because the mass and
+// inertia are computed as if the avatar were a cylinder which
+// has more volume than the actual collision shape of the avatar.
+// See the physics engine mass properties code for more info.
+const F32 DEFAULT_AVATAR_DENSITY = 445.3f;		// was 444.24f;
+
 
 class LLMaterialInfo
 {
@@ -84,9 +109,33 @@ public:
 class LLMaterialTable
 {
 public:
+	static const F32 FRICTION_MIN;
+	static const F32 FRICTION_GLASS;
+	static const F32 FRICTION_LIGHT;
+	static const F32 FRICTION_METAL;
+	static const F32 FRICTION_PLASTIC;
+	static const F32 FRICTION_WOOD;
+	static const F32 FRICTION_LAND;
+	static const F32 FRICTION_STONE;
+	static const F32 FRICTION_FLESH;
+	static const F32 FRICTION_RUBBER;
+	static const F32 FRICTION_MAX;
+
+	static const F32 RESTITUTION_MIN;
+	static const F32 RESTITUTION_LAND;
+	static const F32 RESTITUTION_FLESH;
+	static const F32 RESTITUTION_STONE;
+	static const F32 RESTITUTION_METAL;
+	static const F32 RESTITUTION_WOOD;
+	static const F32 RESTITUTION_GLASS;
+	static const F32 RESTITUTION_PLASTIC;
+	static const F32 RESTITUTION_LIGHT;
+	static const F32 RESTITUTION_RUBBER;
+	static const F32 RESTITUTION_MAX;
+
 	typedef std::list<LLMaterialInfo*> info_list_t;
 	info_list_t mMaterialInfoList;
-	
+
 	LLUUID *mCollisionSoundMatrix;
 	LLUUID *mSlidingSoundMatrix;
 	LLUUID *mRollingSoundMatrix;
@@ -117,8 +166,8 @@ public:
 	char*  getName(U8 mcode);
 
 	F32 getDensity(U8 mcode);						        // kg/m^3, 0 if not found
-	F32 getFriction(U8 mcode);						        // havok values
-	F32 getRestitution(U8 mcode);						    // havok values
+	F32 getFriction(U8 mcode);						        // physics values
+	F32 getRestitution(U8 mcode);						    // physics values
 	F32 getHPMod(U8 mcode);
 	F32 getDamageMod(U8 mcode);
 	F32 getEPMod(U8 mcode);

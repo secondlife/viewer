@@ -268,7 +268,6 @@ public:
 	void setPositionAgent(const LLVector3 &pos_agent, BOOL damped = FALSE);
 	void setPositionParent(const LLVector3 &pos_parent, BOOL damped = FALSE);
 	void setPositionAbsoluteGlobal( const LLVector3d &pos_global, BOOL damped = FALSE );
-	void sendPositionUpdate() const;
 
 	virtual const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const		{ return xform->getWorldMatrix(); }
 
@@ -303,7 +302,6 @@ public:
 	void sendTEUpdate() const;			// Sends packed representation of all texture entry information
 	
 	virtual void setScale(const LLVector3 &scale, BOOL damped = FALSE);
-	void sendScaleUpdate();
 
 	void sendShapeUpdate();
 

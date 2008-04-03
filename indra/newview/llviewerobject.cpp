@@ -67,7 +67,7 @@
 #include "llfollowcam.h"
 #include "llnetmap.h"
 #include "llselectmgr.h"
-#include "llsphere.h"
+#include "llrendersphere.h"
 #include "lltooldraganddrop.h"
 #include "llviewercamera.h"
 #include "llviewerimagelist.h"
@@ -202,7 +202,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 {
 	llassert(mRegionp);
 
-	LLPrimitive::init(pcode);
+	LLPrimitive::init_primitive(pcode);
 
 	// CP: added 12/2/2005 - this was being initialised to 0, not the current frame time
 	mLastInterpUpdateSecs = LLFrameTimer::getElapsedSeconds();
@@ -723,6 +723,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	LLVector3 new_vel;
 	LLVector3 new_acc;
 	LLVector3 new_angv;
+	LLVector3 old_angv = getAngularVelocity();
 	LLQuaternion new_rot;
 	LLVector3 new_scale = getScale();
 
@@ -1857,7 +1858,8 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		}
 	}
 
-	if (new_rot != mLastRot)
+	if (new_rot != mLastRot
+		|| new_angv != old_angv)
 	{
 		mLastRot = new_rot;
 		setChanged(ROTATED | SILHOUETTE);
@@ -1974,7 +1976,7 @@ BOOL LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		F32 dt_raw = (F32)(time - mLastInterpUpdateSecs);
 		F32 dt = mTimeDilation * dt_raw;
 
-		if (!mUserSelected && !mJointInfo)
+		if (!mJointInfo)
 		{
 			applyAngularVelocity(dt);
 		}
@@ -2060,9 +2062,9 @@ BOOL LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		else
 		{
 			// linear motion
-			// HAVOK_TIMESTEP is used below to correct for the fact that the velocity in object
+			// PHYSICS_TIMESTEP is used below to correct for the fact that the velocity in object
 			// updates represents the average velocity of the last timestep, rather than the final velocity.
-			// the time dilation above should guarrantee that dt is never less than HAVOK_TIMESTEP, theoretically
+			// the time dilation above should guarantee that dt is never less than PHYSICS_TIMESTEP, theoretically
 			// 
 			// There is a problem here if dt is negative. . .
 
@@ -2074,7 +2076,7 @@ BOOL LLViewerObject::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 			
 			if (!(accel.isExactlyZero() && vel.isExactlyZero()))
 			{
-				LLVector3 pos 	= (vel + (0.5f * (dt-HAVOK_TIMESTEP)) * accel) * dt;	
+				LLVector3 pos 	= (vel + (0.5f * (dt-PHYSICS_TIMESTEP)) * accel) * dt;	
 			
 				// region local  
 				setPositionRegion(pos + getPositionRegion());
@@ -3526,36 +3528,21 @@ void LLViewerObject::sendRotationUpdate() const
 	gMessageSystem->sendReliable( regionp->getHost() );
 }
 
-// formerly send_object_position_global
-void LLViewerObject::sendPositionUpdate() const
-{
-	gMessageSystem->newMessageFast(_PREHASH_ObjectPosition);
-	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-	gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID,	mLocalID );
-	gMessageSystem->addVector3Fast(_PREHASH_Position, getPositionRegion());
-	LLViewerRegion* regionp = getRegion();
-	gMessageSystem->sendReliable(regionp->getHost());
-}
-
-
-//formerly send_object_scale
-void LLViewerObject::sendScaleUpdate()
-{
-	gMessageSystem->newMessageFast(_PREHASH_ObjectScale);
-	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-	gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID,	mLocalID );
-	gMessageSystem->addVector3Fast(_PREHASH_Scale,	(getScale()));
-
-	LLViewerRegion *regionp = getRegion();
-	gMessageSystem->sendReliable(regionp->getHost() );
-}
-
+/* Obsolete, we use MultipleObjectUpdate instead
+//// formerly send_object_position_global
+//void LLViewerObject::sendPositionUpdate() const
+//{
+//	gMessageSystem->newMessageFast(_PREHASH_ObjectPosition);
+//	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+//	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
+//	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+//	gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
+//	gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID,	mLocalID );
+//	gMessageSystem->addVector3Fast(_PREHASH_Position, getPositionRegion());
+//	LLViewerRegion* regionp = getRegion();
+//	gMessageSystem->sendReliable(regionp->getHost());
+//}
+*/
 
 //formerly send_object_shape(LLViewerObject *object)
 void LLViewerObject::sendShapeUpdate()

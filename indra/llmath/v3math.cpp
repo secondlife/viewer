@@ -172,6 +172,22 @@ LLVector3			LLVector3::scaledVec(const LLVector3& vec) const
 	return ret;
 }
 
+const LLVector3&	LLVector3::set(const LLVector3d &vec)
+{
+	mV[0] = (F32)vec.mdV[0];
+	mV[1] = (F32)vec.mdV[1];
+	mV[2] = (F32)vec.mdV[2];
+	return (*this);
+}
+
+const LLVector3&	LLVector3::set(const LLVector4 &vec)
+{
+	mV[0] = vec.mV[0];
+	mV[1] = vec.mV[1];
+	mV[2] = vec.mV[2];
+	return (*this);
+}
+
 const LLVector3&	LLVector3::setVec(const LLVector3d &vec)
 {
 	mV[0] = (F32)vec.mdV[0];

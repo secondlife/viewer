@@ -527,6 +527,11 @@ F32 LLWorld::resolveStepHeightGlobal(const LLVOAvatar* avatarp, const LLVector3d
 			intersection.mdV[VZ] -= norm_dist_from_plane * segment_length;
 			intersection_normal = foot_plane_normal;
 		}
+		else
+		{
+			intersection = land_intersection;
+			intersection_normal = resolveLandNormalGlobal(land_intersection);
+		}
 	}
 
 	return normalized_land_distance;

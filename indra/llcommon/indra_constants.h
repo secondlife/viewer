@@ -38,9 +38,10 @@
 // At 45 Hz collisions seem stable and objects seem
 // to settle down at a reasonable rate.
 // JC 3/18/2003
-const F32 HAVOK_TIMESTEP = 1.f / 45.f;
+const F32 PHYSICS_TIMESTEP = 1.f / 45.f;
 
 const F32 COLLISION_TOLERANCE = 0.1f;
+const F32 HALF_COLLISION_TOLERANCE = COLLISION_TOLERANCE * 0.5f;
 
 // Time constants
 const U32 HOURS_PER_LINDEN_DAY		= 4;	
@@ -52,6 +53,8 @@ const U32 SEC_PER_LINDEN_YEAR		= DAYS_PER_LINDEN_YEAR * SEC_PER_LINDEN_DAY;
 const F32 REGION_WIDTH_METERS = 256.f;
 const S32 REGION_WIDTH_UNITS = 256;
 const U32 REGION_WIDTH_U32 = 256;
+
+const F32 REGION_HEIGHT_METERS = 4096.f;
 
 // Bits for simulator performance query flags
 enum LAND_STAT_FLAGS
@@ -87,7 +90,7 @@ const 	F32 	MAX_AGENT_HEIGHT		= 2.65f - 2.0f * COLLISION_TOLERANCE;
 
 // For linked sets
 const S32 MAX_CHILDREN_PER_TASK = 255;
-const S32 MAX_CHILDREN_PER_PHYSICAL_TASK = 31;
+const S32 MAX_CHILDREN_PER_PHYSICAL_TASK = 32;
 
 const S32 MAX_JOINTS_PER_OBJECT = 1;	// limiting to 1 until Havok 2.x
 

@@ -2510,12 +2510,19 @@ bool LLVolumeParams::validate(U8 prof_curve, F32 prof_begin, F32 prof_end, F32 h
 	return true;
 }
 
-#define MAX_INDEX 10000
 S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 {
-	S32 index[MAX_INDEX];
+	S32 expected_num_triangle_indices = getNumTriangleIndices();
+	if (expected_num_triangle_indices > MAX_VOLUME_TRIANGLE_INDICES)
+	{
+		// we don't allow LLVolumes with this many vertices
+		llwarns << "Couldn't allocate triangle indices" << llendl;
+		num_indices = 0;
+		return NULL;
+	}
+
+	S32* index = new S32[expected_num_triangle_indices];
 	S32 count = 0;
-	S32 *indices = NULL;
 
 	// Let's do this totally diffently, as we don't care about faces...
 	// Counter-clockwise triangles are forward facing...
@@ -2529,15 +2536,15 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 	size_s_out = getProfile().getTotalOut();
 	size_t = getPath().mPath.size();
 
+	// NOTE -- if the construction of the triangles below ever changes
+	// then getNumTriangleIndices() method may also have to be updated.
+
 	if (open)		/* Flawfinder: ignore */
 	{
 		if (hollow)
 		{
 			// Open hollow -- much like the closed solid, except we 
 			// we need to stitch up the gap between s=0 and s=size_s-1
-
-			if ( (size_t - 1) * (((size_s -1) * 6) + 6) >= MAX_INDEX)
-				goto noindices;
 
 			for (t = 0; t < size_t - 1; t++)
 			{
@@ -2652,8 +2659,6 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 
 					if (use_tri1a2)
 					{
-						if (count + 3 >= MAX_INDEX)
-							goto noindices;
 						index[count++] = pt1 + i;
 						index[count++] = pt1 + 1 + i;
 						index[count++] = pt2 + i;
@@ -2661,8 +2666,6 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 					}
 					else
 					{
-						if (count + 3 >= MAX_INDEX)
-							goto noindices;
 						index[count++] = pt1 + i;
 						index[count++] = pt2 - 1 + i;
 						index[count++] = pt2 + i;
@@ -2753,8 +2756,6 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 
 					if (use_tri1a2)
 					{
-						if (count + 3 >= MAX_INDEX)
-							goto noindices;
 						index[count++] = pt1;
 						index[count++] = pt2;
 						index[count++] = pt1 + 1;
@@ -2762,8 +2763,6 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 					}
 					else
 					{
-						if (count + 3 >= MAX_INDEX)
-							goto noindices;
 						index[count++] = pt1;
 						index[count++] = pt2;
 						index[count++] = pt2 - 1;
@@ -2775,9 +2774,6 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 		else
 		{
 			// Open solid
-
-			if ( (size_t - 1) * (((size_s -1) * 6) + 6) >= MAX_INDEX)
-				goto noindices;
 
 			for (t = 0; t < size_t - 1; t++)
 			{
@@ -2808,8 +2804,6 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 			// Do the top and bottom caps, if necessary
 			if (path_open)
 			{
-				if ( count + (size_s - 2) * 3 >= MAX_INDEX)
-					goto noindices;
 				for (s = 0; s < size_s - 2; s++)
 				{
 					index[count++] = s+1;
@@ -2819,8 +2813,6 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 
 				// We've got a top cap
 				S32 offset = (size_t - 1)*size_s;
-				if ( count + (size_s - 2) * 3 >= MAX_INDEX)
-					goto noindices;
 				for (s = 0; s < size_s - 2; s++)
 				{
 					// Inverted ordering from bottom cap.
@@ -2836,8 +2828,6 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 		// Closed hollow
 		// Outer face
 		
-		if ( (size_t - 1) * (size_s_out - 1) * 6 >= MAX_INDEX)
-			goto noindices;
 		for (t = 0; t < size_t - 1; t++)
 		{
 			for (s = 0; s < size_s_out - 1; s++)
@@ -2856,8 +2846,6 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 
 		// Inner face
 		// Invert facing from outer face
-		if ( count + (size_t - 1) * ((size_s - 1) - size_s_out) * 6 >= MAX_INDEX)
-			goto noindices;
 		for (t = 0; t < size_t - 1; t++)
 		{
 			for (s = size_s_out; s < size_s - 1; s++)
@@ -2962,8 +2950,6 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 
 				if (use_tri1a2)
 				{
-					if (count + 3 >= MAX_INDEX)
-						goto noindices;
 					index[count++] = pt1 + i;
 					index[count++] = pt1 + 1 + i;
 					index[count++] = pt2 + i;
@@ -2971,8 +2957,6 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 				}
 				else
 				{
-					if (count + 3 >= MAX_INDEX)
-						goto noindices;
 					index[count++] = pt1 + i;
 					index[count++] = pt2 - 1 + i;
 					index[count++] = pt2 + i;
@@ -3063,8 +3047,6 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 
 				if (use_tri1a2)
 				{
-					if (count + 3 >= MAX_INDEX)
-						goto noindices;
 					index[count++] = pt1;
 					index[count++] = pt2;
 					index[count++] = pt1 + 1;
@@ -3072,8 +3054,6 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 				}
 				else
 				{
-					if (count + 3 >= MAX_INDEX)
-						goto noindices;
 					index[count++] = pt1;
 					index[count++] = pt2;
 					index[count++] = pt2 - 1;
@@ -3085,8 +3065,6 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 	else
 	{
 		// Closed solid.  Easy case.
-		if ( (size_t - 1) * (size_s - 1) * 6 > MAX_INDEX)
-			goto noindices;
 		for (t = 0; t < size_t - 1; t++)
 		{
 			for (s = 0; s < size_s - 1; s++)
@@ -3108,8 +3086,6 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 		if (path_open)
 		{
 			// bottom cap
-			if ( count + (size_s - 2 - 1) * 3 >= MAX_INDEX)
-				goto noindices;
 			for (s = 1; s < size_s - 2; s++)
 			{
 				index[count++] = s+1;
@@ -3119,8 +3095,6 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 
 			// top cap
 			S32 offset = (size_t - 1)*size_s;
-			if ( count + (size_s - 2 - 1) * 3 >= MAX_INDEX)
-				goto noindices;
 			for (s = 1; s < size_s - 2; s++)
 			{
 				// Inverted ordering from bottom cap.
@@ -3131,7 +3105,18 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 		}
 	}
 
+#ifdef LL_DEBUG
+	// assert that we computed the correct number of indices
+	if (count != expected_num_triangle_indices )
+	{
+		llerrs << "bad index count prediciton:"
+			<< "  expected=" << expected_num_triangle_indices 
+			<< " actual=" << count << llendl;
+	}
+#endif
+
 #if 0
+	// verify that each index does not point beyond the size of the mesh
 	S32 num_vertices = mMesh.size();
 	for (i = 0; i < count; i+=3)
 	{
@@ -3142,17 +3127,65 @@ S32 *LLVolume::getTriangleIndices(U32 &num_indices) const
 	}
 #endif
 
-	indices = new S32[count];
-noindices:
-	if (!indices)
-	{
-		llwarns << "Couldn't allocate triangle indices" << llendl;
-		num_indices = 0;
-		return NULL;
-	}
 	num_indices = count;
-	memcpy(indices, index, count * sizeof(S32));		/* Flawfinder: ignore */
-	return indices;
+	return index;
+}
+
+S32 LLVolume::getNumTriangleIndices() const
+{
+	BOOL profile_open = getProfile().isOpen();
+	BOOL hollow = getProfile().isHollow();
+	BOOL path_open = getPath().isOpen();
+
+	S32 size_s, size_s_out, size_t;
+	size_s = getProfile().getTotal();
+	size_s_out = getProfile().getTotalOut();
+	size_t = getPath().mPath.size();
+
+	S32 count = 0;
+	if (profile_open)		/* Flawfinder: ignore */
+	{
+		if (hollow)
+		{
+			// Open hollow -- much like the closed solid, except we 
+			// we need to stitch up the gap between s=0 and s=size_s-1
+			count = (size_t - 1) * (((size_s -1) * 6) + 6);
+		}
+		else
+		{
+			count = (size_t - 1) * (((size_s -1) * 6) + 6); 
+		}
+	}
+	else if (hollow)
+	{
+		// Closed hollow
+		// Outer face
+		count = (size_t - 1) * (size_s_out - 1) * 6;
+
+		// Inner face
+		count += (size_t - 1) * ((size_s - 1) - size_s_out) * 6;
+	}
+	else
+	{
+		// Closed solid.  Easy case.
+		count = (size_t - 1) * (size_s - 1) * 6;
+	}
+
+	if (path_open)
+	{
+		S32 cap_triangle_count = size_s - 3;
+		if ( profile_open
+			|| hollow )
+		{
+			cap_triangle_count = size_s - 2;
+		}
+		if ( cap_triangle_count > 0 )
+		{
+			// top and bottom caps
+			count += cap_triangle_count * 2 * 3;
+		}
+	}
+	return count;
 }
 
 //-----------------------------------------------------------------------------
@@ -3483,7 +3516,7 @@ struct lessTriangle
 
 BOOL equalTriangle(const S32 *a, const S32 *b)
 {
-	if ((*a == *b) && (*(a+1) == *(b+1)) && ((*a+2) == (*b+2)))
+	if ((*a == *b) && (*(a+1) == *(b+1)) && (*(a+2) == *(b+2)))
 	{
 		return TRUE;
 	}
@@ -3499,6 +3532,21 @@ BOOL LLVolume::cleanupTriangleData( const S32 num_input_vertices,
 									S32 &num_output_triangles,
 									S32 **output_triangles)
 {
+	/* Testing: avoid any cleanup
+	num_output_vertices = num_input_vertices;
+	num_output_triangles = num_input_triangles;
+
+	*output_vertices = new LLVector3[num_input_vertices];
+	for (S32 i = 0; i < num_input_vertices; i++)
+	{
+		(*output_vertices)[i] = input_vertices[i].mPos;
+	}
+
+	*output_triangles = new S32[num_input_triangles*3];
+	memcpy(*output_triangles, input_triangles, 3*num_input_triangles*sizeof(S32));		// Flawfinder: ignore
+	return TRUE;
+	*/
+
 	// Here's how we do this:
 	// Create a structure which contains the original vertex index and the
 	// LLVector3 data.
@@ -3549,7 +3597,7 @@ BOOL LLVolume::cleanupTriangleData( const S32 num_input_vertices,
 		}
 		else
 		{
-			//llinfos << "Removed duplicate vertex " << pairp->mVertex << llendl;
+			//llinfos << "Removed duplicate vertex " << pairp->mVertex << ", distance magVecSquared() is " << (pairp->mVertex - prev_pairp->mVertex).magVecSquared() << llendl;
 		}
 		vertex_mapping[pairp->mIndex] = new_num_vertices - 1;
 	}
@@ -3561,50 +3609,54 @@ BOOL LLVolume::cleanupTriangleData( const S32 num_input_vertices,
 
 	for (i = 0; i < num_input_triangles; i++)
 	{
-		//llinfos << "Checking triangle " << input_triangles[i*3] << ":" << input_triangles[i*3+1] << ":" << input_triangles[i*3+2] << llendl;
-		input_triangles[i*3] = vertex_mapping[input_triangles[i*3]];
-		input_triangles[i*3+1] = vertex_mapping[input_triangles[i*3+1]];
-		input_triangles[i*3+2] = vertex_mapping[input_triangles[i*3+2]];
+		S32 v1 = i*3;
+		S32 v2 = i*3 + 1;
+		S32 v3 = i*3 + 2;
 
-		if ((input_triangles[i*3] == input_triangles[i*3+1])
-			|| (input_triangles[i*3] == input_triangles[i*3+2])
-			|| (input_triangles[i*3+1] == input_triangles[i*3+2]))
+		//llinfos << "Checking triangle " << input_triangles[v1] << ":" << input_triangles[v2] << ":" << input_triangles[v3] << llendl;
+		input_triangles[v1] = vertex_mapping[input_triangles[v1]];
+		input_triangles[v2] = vertex_mapping[input_triangles[v2]];
+		input_triangles[v3] = vertex_mapping[input_triangles[v3]];
+
+		if ((input_triangles[v1] == input_triangles[v2])
+			|| (input_triangles[v1] == input_triangles[v3])
+			|| (input_triangles[v2] == input_triangles[v3]))
 		{
-			//llinfos << "Removing degenerate triangle " << input_triangles[i*3] << ":" << input_triangles[i*3+1] << ":" << input_triangles[i*3+2] << llendl;
+			//llinfos << "Removing degenerate triangle " << input_triangles[v1] << ":" << input_triangles[v2] << ":" << input_triangles[v3] << llendl;
 			// Degenerate triangle, skip
 			continue;
 		}
 
-		if (input_triangles[i*3] < input_triangles[i*3+1])
+		if (input_triangles[v1] < input_triangles[v2])
 		{
-			if (input_triangles[i*3] < input_triangles[i*3+2])
+			if (input_triangles[v1] < input_triangles[v3])
 			{
 				// (0 < 1) && (0 < 2)
-				new_triangles[new_num_triangles*3] = input_triangles[i*3];
-				new_triangles[new_num_triangles*3+1] = input_triangles[i*3+1];
-				new_triangles[new_num_triangles*3+2] = input_triangles[i*3+2];
+				new_triangles[new_num_triangles*3] = input_triangles[v1];
+				new_triangles[new_num_triangles*3+1] = input_triangles[v2];
+				new_triangles[new_num_triangles*3+2] = input_triangles[v3];
 			}
 			else
 			{
 				// (0 < 1) && (2 < 0)
-				new_triangles[new_num_triangles*3] = input_triangles[i*3+2];
-				new_triangles[new_num_triangles*3+1] = input_triangles[i*3];
-				new_triangles[new_num_triangles*3+2] = input_triangles[i*3+1];
+				new_triangles[new_num_triangles*3] = input_triangles[v3];
+				new_triangles[new_num_triangles*3+1] = input_triangles[v1];
+				new_triangles[new_num_triangles*3+2] = input_triangles[v2];
 			}
 		}
-		else if (input_triangles[i*3+1] < input_triangles[i*3+2])
+		else if (input_triangles[v2] < input_triangles[v3])
 		{
 			// (1 < 0) && (1 < 2)
-			new_triangles[new_num_triangles*3] = input_triangles[i*3+1];
-			new_triangles[new_num_triangles*3+1] = input_triangles[i*3+2];
-			new_triangles[new_num_triangles*3+2] = input_triangles[i*3];
+			new_triangles[new_num_triangles*3] = input_triangles[v2];
+			new_triangles[new_num_triangles*3+1] = input_triangles[v3];
+			new_triangles[new_num_triangles*3+2] = input_triangles[v1];
 		}
 		else
 		{
 			// (1 < 0) && (2 < 1)
-			new_triangles[new_num_triangles*3] = input_triangles[i*3+2];
-			new_triangles[new_num_triangles*3+1] = input_triangles[i*3];
-			new_triangles[new_num_triangles*3+2] = input_triangles[i*3+1];
+			new_triangles[new_num_triangles*3] = input_triangles[v3];
+			new_triangles[new_num_triangles*3+1] = input_triangles[v1];
+			new_triangles[new_num_triangles*3+2] = input_triangles[v2];
 		}
 		new_num_triangles++;
 	}
@@ -3845,23 +3897,44 @@ void LLVolumeParams::reduceT(F32 begin, F32 end)
 	mPathParams.setEnd(a + end * (b - a));
 }
 
+const F32 MIN_CONCAVE_PROFILE_WEDGE = 0.125f;	// 1/8 unity
+const F32 MIN_CONCAVE_PATH_WEDGE = 0.111111f;	// 1/9 unity
+
+// returns TRUE if the shape can be approximated with a convex shape 
+// for collison purposes
 BOOL LLVolumeParams::isConvex() const
 {
-	// The logic for determining convexity is a little convoluted.
+	F32 path_length = mPathParams.getEnd() - mPathParams.getBegin();
 	 
-	// Do we need to take getTwistBegin into account?  DK 08/12/04
-	if (   mProfileParams.getHollow() != 0.0f 
-		|| mPathParams.getTwist() != mPathParams.getTwistBegin() )
+	if ( mPathParams.getTwist() != mPathParams.getTwistBegin()
+		&& path_length > MIN_CONCAVE_PATH_WEDGE )
 	{
-		// hollow or twist gaurantees concavity
+		// twist along a "not too short" path is concave
 		return FALSE;
 	}
 
 	F32 profile_length = mProfileParams.getEnd() - mProfileParams.getBegin();
-	BOOL concave_profile = (profile_length < 1.0f) && (profile_length > 0.5f);
-	if (concave_profile)
+	F32 hollow = mProfileParams.getHollow();
+	BOOL same_hole = hollow == 0.f 
+					 || (mProfileParams.getCurveType() & LL_PCODE_HOLE_MASK) == LL_PCODE_HOLE_SAME;
+
+	F32 min_profile_wedge = MIN_CONCAVE_PROFILE_WEDGE;
+	U8 profile_type = mProfileParams.getCurveType() & LL_PCODE_PROFILE_MASK;
+	if ( LL_PCODE_PROFILE_CIRCLE_HALF == profile_type )
 	{
-		// concave profile
+		// it is a sphere and spheres get twice the minimum profile wedge
+		min_profile_wedge = 2.f * MIN_CONCAVE_PROFILE_WEDGE;
+	}
+
+	BOOL convex_profile = ( ( profile_length == 1.f
+						     || profile_length <= 0.5f )
+						   && hollow == 0.f )						// trivially convex
+						  || ( profile_length <= min_profile_wedge
+							  && same_hole );						// effectvely convex (even when hollow)
+
+	if (!convex_profile)
+	{
+		// profile is concave
 		return FALSE;
 	}
 
@@ -3872,7 +3945,6 @@ BOOL LLVolumeParams::isConvex() const
 		return TRUE;
 	}
 
-	F32 path_length = mPathParams.getEnd() - mPathParams.getBegin();
 	BOOL concave_path = (path_length < 1.0f) && (path_length > 0.5f);
 	if (concave_path)
 	{
@@ -3880,15 +3952,41 @@ BOOL LLVolumeParams::isConvex() const
 	}
 
 	// we're left with spheres, toroids and tubes
-	// only the spheres can be convex
-	U8 profile_type = mProfileParams.getCurveType() & LL_PCODE_PROFILE_MASK;
 	if ( LL_PCODE_PROFILE_CIRCLE_HALF == profile_type )
 	{
+		// at this stage all spheres must be convex
 		return TRUE;
 	}
 
 	// it's a toroid or tube		
+	if ( path_length <= MIN_CONCAVE_PATH_WEDGE )
+	{
+		// effectively convex
+		return TRUE;
+	}
+
 	return FALSE;
+}
+
+// debug
+void LLVolumeParams::setCube()
+{
+	mProfileParams.setCurveType(LL_PCODE_PROFILE_SQUARE);
+	mProfileParams.setBegin(0.f);
+	mProfileParams.setEnd(1.f);
+	mProfileParams.setHollow(0.f);
+
+	mPathParams.setBegin(0.f);
+	mPathParams.setEnd(1.f);
+	mPathParams.setScale(1.f, 1.f);
+	mPathParams.setShear(0.f, 0.f);
+	mPathParams.setCurveType(LL_PCODE_PATH_LINE);
+	mPathParams.setTwistBegin(0.f);
+	mPathParams.setTwistEnd(0.f);
+	mPathParams.setRadiusOffset(0.f);
+	mPathParams.setTaper(0.f, 0.f);
+	mPathParams.setRevolutions(0.f);
+	mPathParams.setSkew(0.f);
 }
 
 LLFaceID LLVolume::generateFaceMask()

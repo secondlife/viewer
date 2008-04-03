@@ -54,7 +54,7 @@ class LLFSMTransition : public LLUniqueID
 {
 public:
 	LLFSMTransition() : LLUniqueID(){};
-	virtual std::string getName(){ return "unnamed"; }
+	virtual std::string getName()const { return "unnamed"; }
 };
 
 class LLFSMState : public LLUniqueID
@@ -64,7 +64,7 @@ public:
 	virtual void onEntry(void *){};
 	virtual void onExit(void *){};
 	virtual void execute(void *){};
-	virtual std::string getName(){ return "unnamed"; }
+	virtual std::string getName() const { return "unnamed"; }
 };
 
 class LLStateDiagram

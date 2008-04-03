@@ -168,7 +168,7 @@ void LLViewerCamera::calcProjection(const F32 far_distance) const
 
 	f = 1/tan(fov_y*0.5f);
 
-	mProjectionMatrix.zero();
+	mProjectionMatrix.setZero();
 	mProjectionMatrix.mMatrix[0][0] = f/aspect;
 	mProjectionMatrix.mMatrix[1][1] = f;
 	mProjectionMatrix.mMatrix[2][2] = (z_far + z_near)/(z_near - z_far);

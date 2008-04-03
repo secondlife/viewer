@@ -40,7 +40,7 @@
 #include "llvoavatar.h"
 #include "lldrawable.h"
 #include "llviewerobjectlist.h"
-#include "llsphere.h"
+#include "llrendersphere.h"
 #include "llselectmgr.h"
 #include "llglheaders.h"
 

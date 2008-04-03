@@ -68,17 +68,29 @@ class LLVector4
 
 		inline BOOL isFinite() const;									// checks to see if all values of LLVector3 are finite
 
-		inline void	clearVec();							// Clears LLVector4 to (0, 0, 0, 1)
-		inline void	zeroVec();							// zero LLVector4 to (0, 0, 0, 0)
-		inline void	setVec(F32 x, F32 y, F32 z);		// Sets LLVector4 to (x, y, z, 1)
-		inline void	setVec(F32 x, F32 y, F32 z, F32 w);	// Sets LLVector4 to (x, y, z, w)
-		inline void	setVec(const LLVector4 &vec);		// Sets LLVector4 to vec
-		inline void	setVec(const LLVector3 &vec, F32 w = 1.f); // Sets LLVector4 to LLVector3 vec
-		inline void	setVec(const F32 *vec);				// Sets LLVector4 to vec
+		inline void	clear();		// Clears LLVector4 to (0, 0, 0, 1)
+		inline void	clearVec();		// deprecated
+		inline void	zeroVec();		// deprecated
 
-		F32			magVec() const;				// Returns magnitude of LLVector4
-		F32			magVecSquared() const;		// Returns magnitude squared of LLVector4
-		F32			normVec();					// Normalizes and returns the magnitude of LLVector4
+		inline void	set(F32 x, F32 y, F32 z);			// Sets LLVector4 to (x, y, z, 1)
+		inline void	set(F32 x, F32 y, F32 z, F32 w);	// Sets LLVector4 to (x, y, z, w)
+		inline void	set(const LLVector4 &vec);			// Sets LLVector4 to vec
+		inline void	set(const LLVector3 &vec, F32 w = 1.f); // Sets LLVector4 to LLVector3 vec
+		inline void	set(const F32 *vec);				// Sets LLVector4 to vec
+
+		inline void	setVec(F32 x, F32 y, F32 z);		// deprecated
+		inline void	setVec(F32 x, F32 y, F32 z, F32 w);	// deprecated
+		inline void	setVec(const LLVector4 &vec);		// deprecated
+		inline void	setVec(const LLVector3 &vec, F32 w = 1.f); // deprecated
+		inline void	setVec(const F32 *vec);				// deprecated
+
+		F32	length() const;				// Returns magnitude of LLVector4
+		F32	lengthSquared() const;		// Returns magnitude squared of LLVector4
+		F32	normalize();				// Normalizes and returns the magnitude of LLVector4
+
+		F32			magVec() const;				// deprecated
+		F32			magVecSquared() const;		// deprecated
+		F32			normVec();					// deprecated
 
 		// Sets all values to absolute value of their original values
 		// Returns TRUE if data changed
@@ -192,6 +204,15 @@ inline BOOL LLVector4::isFinite() const
 
 // Clear and Assignment Functions
 
+inline void	LLVector4::clear(void)
+{
+	mV[VX] = 0.f;
+	mV[VY] = 0.f;
+	mV[VZ] = 0.f;
+	mV[VW] = 1.f;
+}
+
+// deprecated
 inline void	LLVector4::clearVec(void)
 {
 	mV[VX] = 0.f;
@@ -200,6 +221,7 @@ inline void	LLVector4::clearVec(void)
 	mV[VW] = 1.f;
 }
 
+// deprecated
 inline void	LLVector4::zeroVec(void)
 {
 	mV[VX] = 0.f;
@@ -208,6 +230,48 @@ inline void	LLVector4::zeroVec(void)
 	mV[VW] = 0.f;
 }
 
+inline void	LLVector4::set(F32 x, F32 y, F32 z)
+{
+	mV[VX] = x;
+	mV[VY] = y;
+	mV[VZ] = z;
+	mV[VW] = 1.f;
+}
+
+inline void	LLVector4::set(F32 x, F32 y, F32 z, F32 w)
+{
+	mV[VX] = x;
+	mV[VY] = y;
+	mV[VZ] = z;
+	mV[VW] = w;
+}
+
+inline void	LLVector4::set(const LLVector4 &vec)
+{
+	mV[VX] = vec.mV[VX];
+	mV[VY] = vec.mV[VY];
+	mV[VZ] = vec.mV[VZ];
+	mV[VW] = vec.mV[VW];
+}
+
+inline void	LLVector4::set(const LLVector3 &vec, F32 w)
+{
+	mV[VX] = vec.mV[VX];
+	mV[VY] = vec.mV[VY];
+	mV[VZ] = vec.mV[VZ];
+	mV[VW] = w;
+}
+
+inline void	LLVector4::set(const F32 *vec)
+{
+	mV[VX] = vec[VX];
+	mV[VY] = vec[VY];
+	mV[VZ] = vec[VZ];
+	mV[VW] = vec[VW];
+}
+
+
+// deprecated
 inline void	LLVector4::setVec(F32 x, F32 y, F32 z)
 {
 	mV[VX] = x;
@@ -216,6 +280,7 @@ inline void	LLVector4::setVec(F32 x, F32 y, F32 z)
 	mV[VW] = 1.f;
 }
 
+// deprecated
 inline void	LLVector4::setVec(F32 x, F32 y, F32 z, F32 w)
 {
 	mV[VX] = x;
@@ -224,6 +289,7 @@ inline void	LLVector4::setVec(F32 x, F32 y, F32 z, F32 w)
 	mV[VW] = w;
 }
 
+// deprecated
 inline void	LLVector4::setVec(const LLVector4 &vec)
 {
 	mV[VX] = vec.mV[VX];
@@ -232,6 +298,7 @@ inline void	LLVector4::setVec(const LLVector4 &vec)
 	mV[VW] = vec.mV[VW];
 }
 
+// deprecated
 inline void	LLVector4::setVec(const LLVector3 &vec, F32 w)
 {
 	mV[VX] = vec.mV[VX];
@@ -240,6 +307,7 @@ inline void	LLVector4::setVec(const LLVector3 &vec, F32 w)
 	mV[VW] = w;
 }
 
+// deprecated
 inline void	LLVector4::setVec(const F32 *vec)
 {
 	mV[VX] = vec[VX];
@@ -249,6 +317,16 @@ inline void	LLVector4::setVec(const F32 *vec)
 }
 
 // LLVector4 Magnitude and Normalization Functions
+
+inline F32		LLVector4::length(void) const
+{
+	return fsqrtf(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+}
+
+inline F32		LLVector4::lengthSquared(void) const
+{
+	return mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ];
+}
 
 inline F32		LLVector4::magVec(void) const
 {
@@ -364,13 +442,13 @@ inline LLVector4 operator-(const LLVector4 &a)
 inline F32	dist_vec(const LLVector4 &a, const LLVector4 &b)
 {
 	LLVector4 vec = a - b;
-	return (vec.magVec());
+	return (vec.length());
 }
 
 inline F32	dist_vec_squared(const LLVector4 &a, const LLVector4 &b)
 {
 	LLVector4 vec = a - b;
-	return (vec.magVecSquared());
+	return (vec.lengthSquared());
 }
 
 inline LLVector4 lerp(const LLVector4 &a, const LLVector4 &b, F32 u)
@@ -382,6 +460,29 @@ inline LLVector4 lerp(const LLVector4 &a, const LLVector4 &b, F32 u)
 		a.mV[VW] + (b.mV[VW] - a.mV[VW]) * u);
 }
 
+inline F32		LLVector4::normalize(void)
+{
+	F32 mag = fsqrtf(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+	F32 oomag;
+
+	if (mag > FP_MAG_THRESHOLD)
+	{
+		oomag = 1.f/mag;
+		mV[VX] *= oomag;
+		mV[VY] *= oomag;
+		mV[VZ] *= oomag;
+	}
+	else
+	{
+		mV[0] = 0.f;
+		mV[1] = 0.f;
+		mV[2] = 0.f;
+		mag = 0;
+	}
+	return (mag);
+}
+
+// deprecated
 inline F32		LLVector4::normVec(void)
 {
 	F32 mag = fsqrtf(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);

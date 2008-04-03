@@ -83,8 +83,9 @@ class LLVector3d
 		BOOL		clamp(const F64 min, const F64 max);		// Clamps all values to (min,max), returns TRUE if data changed
 		BOOL		abs();						// sets all values to absolute value of original value (first octant), returns TRUE if changed
 
-		inline const LLVector3d&	clearVec();						// Clears LLVector3d to (0, 0, 0, 1)
-		inline const LLVector3d&	zeroVec();						// Zero LLVector3d to (0, 0, 0, 0)
+		inline const LLVector3d&	clearVec();		// Clears LLVector3d to (0, 0, 0, 1)
+		inline const LLVector3d&	setZero();		// Zero LLVector3d to (0, 0, 0, 0)
+		inline const LLVector3d&	zeroVec();		// deprecated
 		inline const LLVector3d&	setVec(const F64 x, const F64 y, const F64 z);	// Sets LLVector3d to (x, y, z, 1)
 		inline const LLVector3d&	setVec(const LLVector3d &vec);	// Sets LLVector3d to vec
 		inline const LLVector3d&	setVec(const F64 *vec);			// Sets LLVector3d to vec
@@ -195,6 +196,14 @@ inline const LLVector3d&	LLVector3d::clearVec(void)
 	mdV[0] = 0.f;
 	mdV[1] = 0.f;
 	mdV[2]= 0.f;
+	return (*this);
+}
+
+inline const LLVector3d&	LLVector3d::setZero(void)
+{
+	mdV[0] = 0.f;
+	mdV[1] = 0.f;
+	mdV[2] = 0.f;
 	return (*this);
 }
 

@@ -136,7 +136,7 @@ void LLMatrix3::getEulerAngles(F32 *roll, F32 *pitch, F32 *yaw) const
 
 // Clear and Assignment Functions
 
-const LLMatrix3&	LLMatrix3::identity()
+const LLMatrix3&	LLMatrix3::setIdentity()
 {
 	mMatrix[0][0] = 1.f;
 	mMatrix[0][1] = 0.f;
@@ -152,7 +152,23 @@ const LLMatrix3&	LLMatrix3::identity()
 	return (*this);
 }
 
-const LLMatrix3&	LLMatrix3::zero()
+const LLMatrix3&	LLMatrix3::clear()
+{
+	mMatrix[0][0] = 0.f;
+	mMatrix[0][1] = 0.f;
+	mMatrix[0][2] = 0.f;
+
+	mMatrix[1][0] = 0.f;
+	mMatrix[1][1] = 0.f;
+	mMatrix[1][2] = 0.f;
+
+	mMatrix[2][0] = 0.f;
+	mMatrix[2][1] = 0.f;
+	mMatrix[2][2] = 0.f;
+	return (*this);
+}
+
+const LLMatrix3&	LLMatrix3::setZero()
 {
 	mMatrix[0][0] = 0.f;
 	mMatrix[0][1] = 0.f;
@@ -190,15 +206,26 @@ F32		LLMatrix3::determinant() const
 		  	mMatrix[0][2] * (mMatrix[1][0] * mMatrix[2][1] - mMatrix[1][1] * mMatrix[2][0]); 
 }
 
-// This is identical to the transMat3() method because we assume a rotation matrix
-const LLMatrix3&	LLMatrix3::invert()
+// inverts this matrix
+void LLMatrix3::invert()
 {
-	// transpose the matrix
-	F32 temp;
-	temp = mMatrix[VX][VY]; mMatrix[VX][VY] = mMatrix[VY][VX]; mMatrix[VY][VX] = temp;
-	temp = mMatrix[VX][VZ]; mMatrix[VX][VZ] = mMatrix[VZ][VX]; mMatrix[VZ][VX] = temp;
-	temp = mMatrix[VY][VZ]; mMatrix[VY][VZ] = mMatrix[VZ][VY]; mMatrix[VZ][VY] = temp;
-	return *this;
+	// fails silently if determinant is zero too small
+	F32 det = determinant();
+	const F32 VERY_SMALL_DETERMINANT = 0.000001f;
+	if (fabs(det) > VERY_SMALL_DETERMINANT)
+	{
+		// invertiable
+		LLMatrix3 t(*this);
+		mMatrix[VX][VX] = ( t.mMatrix[VY][VY] * t.mMatrix[VZ][VZ] - t.mMatrix[VY][VZ] * t.mMatrix[VZ][VY] ) / det;
+		mMatrix[VY][VX] = ( t.mMatrix[VY][VZ] * t.mMatrix[VZ][VX] - t.mMatrix[VY][VX] * t.mMatrix[VZ][VZ] ) / det;
+		mMatrix[VZ][VX] = ( t.mMatrix[VY][VX] * t.mMatrix[VZ][VY] - t.mMatrix[VY][VY] * t.mMatrix[VZ][VX] ) / det;
+		mMatrix[VX][VY] = ( t.mMatrix[VZ][VY] * t.mMatrix[VX][VZ] - t.mMatrix[VZ][VZ] * t.mMatrix[VX][VY] ) / det;
+		mMatrix[VY][VY] = ( t.mMatrix[VZ][VZ] * t.mMatrix[VX][VX] - t.mMatrix[VZ][VX] * t.mMatrix[VX][VZ] ) / det;
+		mMatrix[VZ][VY] = ( t.mMatrix[VZ][VX] * t.mMatrix[VX][VY] - t.mMatrix[VZ][VY] * t.mMatrix[VX][VX] ) / det;
+		mMatrix[VX][VZ] = ( t.mMatrix[VX][VY] * t.mMatrix[VY][VZ] - t.mMatrix[VX][VZ] * t.mMatrix[VY][VY] ) / det;
+		mMatrix[VY][VZ] = ( t.mMatrix[VX][VZ] * t.mMatrix[VY][VX] - t.mMatrix[VX][VX] * t.mMatrix[VY][VZ] ) / det;
+		mMatrix[VZ][VZ] = ( t.mMatrix[VX][VX] * t.mMatrix[VY][VY] - t.mMatrix[VX][VY] * t.mMatrix[VY][VX] ) / det;
+	}
 }
 
 // does not assume a rotation matrix, and does not divide by determinant, assuming results will be renormalized
@@ -351,6 +378,27 @@ const LLMatrix3&	LLMatrix3::setRows(const LLVector3 &fwd, const LLVector3 &left,
 	return *this;
 }
 
+const LLMatrix3& LLMatrix3::setRow( U32 rowIndex, const LLVector3& row )
+{
+	llassert( rowIndex >= 0 && rowIndex < NUM_VALUES_IN_MAT3 );
+
+	mMatrix[rowIndex][0] = row[0];
+	mMatrix[rowIndex][1] = row[1];
+	mMatrix[rowIndex][2] = row[2];
+
+	return *this;
+}
+
+const LLMatrix3& LLMatrix3::setCol( U32 colIndex, const LLVector3& col )
+{
+	llassert( colIndex >= 0 && colIndex < NUM_VALUES_IN_MAT3 );
+
+	mMatrix[0][colIndex] = col[0];
+	mMatrix[1][colIndex] = col[1];
+	mMatrix[2][colIndex] = col[2];
+
+	return *this;
+}
 		
 // Rotate exisitng mMatrix
 const LLMatrix3&	LLMatrix3::rotate(const F32 angle, const F32 x, const F32 y, const F32 z)
@@ -384,6 +432,16 @@ const LLMatrix3&	LLMatrix3::rotate(const LLQuaternion &q)
 	return *this;
 }
 
+void LLMatrix3::add(const LLMatrix3& other_matrix)
+{
+	for (S32 i = 0; i < 3; ++i)
+	{
+		for (S32 j = 0; j < 3; ++j)
+		{
+			mMatrix[i][j] += other_matrix.mMatrix[i][j];
+		}
+	}
+}
 
 LLVector3	LLMatrix3::getFwdRow() const
 {
@@ -533,6 +591,19 @@ const LLMatrix3& operator*=(LLMatrix3 &a, const LLMatrix3 &b)
 		}
 	}
 	a = mat;
+	return a;
+}
+
+const LLMatrix3& operator*=(LLMatrix3 &a, F32 scalar )
+{
+	for( U32 i = 0; i < NUM_VALUES_IN_MAT3; ++i )
+	{
+		for( U32 j = 0; j < NUM_VALUES_IN_MAT3; ++j )
+		{
+			a.mMatrix[i][j] *= scalar;
+		}
+	}
+
 	return a;
 }
 

@@ -48,6 +48,7 @@ class LLColor4;
 class LLColor3;
 class LLTextureEntry;
 class LLDataPacker;
+class LLVolumeMgr;
 
 enum LLGeomType // NOTE: same vals as GL Ids
 {
@@ -269,11 +270,32 @@ public:
 class LLPrimitive : public LLXform
 {
 public:
+
+	// HACK for removing LLPrimitive's dependency on gVolumeMgr global.
+	// If a different LLVolumeManager is instantiated and set early enough
+	// then the LLPrimitive class will use it instead of gVolumeMgr.
+	static LLVolumeMgr* getVolumeManager() { return sVolumeManager; }
+	static void setVolumeManager( LLVolumeMgr* volume_manager);
+	static bool cleanupVolumeManager();
+
+	// these flags influence how the RigidBody representation is built
+	static const U32 PRIM_FLAG_PHANTOM 				= 0x1 << 0;
+	static const U32 PRIM_FLAG_VOLUME_DETECT 		= 0x1 << 1;
+	static const U32 PRIM_FLAG_DYNAMIC 				= 0x1 << 2;
+	static const U32 PRIM_FLAG_AVATAR 				= 0x1 << 3;
+	static const U32 PRIM_FLAG_SCULPT 				= 0x1 << 4;
+	// not used yet, but soon
+	static const U32 PRIM_FLAG_COLLISION_CALLBACK 	= 0x1 << 5;
+	static const U32 PRIM_FLAG_CONVEX 				= 0x1 << 6;
+	static const U32 PRIM_FLAG_DEFAULT_VOLUME		= 0x1 << 7;
+	static const U32 PRIM_FLAG_SITTING				= 0x1 << 8;
+	static const U32 PRIM_FLAG_SITTING_ON_GROUND	= 0x1 << 9;		// Set along with PRIM_FLAG_SITTING
+
 	LLPrimitive();
 	virtual ~LLPrimitive();
 
 	static LLPrimitive *createPrimitive(LLPCode p_code);
-	void init(LLPCode p_code);
+	void init_primitive(LLPCode p_code);
 
 	void setPCode(const LLPCode pcode);
 	const LLVolume *getVolumeConst() const { return mVolumep; }		// HACK for Windoze confusion about ostream operator in LLVolume
@@ -369,8 +391,15 @@ public:
 
 	void setTextureList(LLTextureEntry *listp);
 
-	inline BOOL			isAvatar() const;
-	
+	inline BOOL	isAvatar() const;
+	inline BOOL	isSittingAvatar() const;
+	inline BOOL	isSittingAvatarOnGround() const;
+
+	void setFlags(U32 flags) { mMiscFlags = flags; }
+	void addFlags(U32 flags) { mMiscFlags |= flags; }
+	void removeFlags(U32 flags) { mMiscFlags &= ~flags; }
+	U32 getFlags() const { return mMiscFlags; }
+
 	static const char *pCodeToString(const LLPCode pcode);
 	static LLPCode legacyToPCode(const U8 legacy);
 	static U8 pCodeToLegacy(const LLPCode pcode);
@@ -388,11 +417,28 @@ protected:
 	LLTextureEntry		*mTextureList;		// list of texture GUIDs, scales, offsets
 	U8					mMaterial;			// Material code
 	U8					mNumTEs;			// # of faces on the primitve	
+	U32 				mMiscFlags;			// home for misc bools
+
+	static LLVolumeMgr* sVolumeManager;
 };
 
 inline BOOL LLPrimitive::isAvatar() const
 {
-	return mPrimitiveCode == LL_PCODE_LEGACY_AVATAR;
+	return ( LL_PCODE_LEGACY_AVATAR == mPrimitiveCode ) ? TRUE : FALSE;
+}
+
+inline BOOL LLPrimitive::isSittingAvatar() const
+{
+	// this is only used server-side
+	return ( LL_PCODE_LEGACY_AVATAR == mPrimitiveCode 
+			 &&	 ((getFlags() & (PRIM_FLAG_SITTING | PRIM_FLAG_SITTING_ON_GROUND)) != 0) ) ? TRUE : FALSE;
+}
+
+inline BOOL LLPrimitive::isSittingAvatarOnGround() const
+{
+	// this is only used server-side
+	return ( LL_PCODE_LEGACY_AVATAR == mPrimitiveCode 
+			 &&	 ((getFlags() & PRIM_FLAG_SITTING_ON_GROUND) != 0) ) ? TRUE : FALSE;
 }
 
 // static

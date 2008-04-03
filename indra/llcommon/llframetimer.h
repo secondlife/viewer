@@ -74,6 +74,9 @@ public:
 
 	static F32	getFrameDeltaTimeF32();
 
+	// Return seconds since the current frame started
+	static F32  getCurrentFrameTime();
+
 	// MANIPULATORS
 	void start();
 	void stop();
@@ -143,5 +146,8 @@ protected:
 	// not affect actual functionality
 	BOOL mStarted;
 };
+
+// Glue code for Havok (or anything else that doesn't want the full .h files)
+extern F32  getCurrentFrameTime();
 
 #endif  // LL_LLFRAMETIMER_H

@@ -51,19 +51,19 @@ const LLQuaternion LLQuaternion::DEFAULT;
 LLQuaternion::LLQuaternion(const LLMatrix4 &mat)
 {
 	*this = mat.quaternion();
-	normQuat();
+	normalize();
 }
 
 LLQuaternion::LLQuaternion(const LLMatrix3 &mat)
 {
 	*this = mat.quaternion();
-	normQuat();
+	normalize();
 }
 
 LLQuaternion::LLQuaternion(F32 angle, const LLVector4 &vec)
 {
 	LLVector3 v(vec.mV[VX], vec.mV[VY], vec.mV[VZ]);
-	v.normVec();
+	v.normalize();
 
 	F32 c, s;
 	c = cosf(angle*0.5f);
@@ -73,13 +73,13 @@ LLQuaternion::LLQuaternion(F32 angle, const LLVector4 &vec)
 	mQ[VY] = v.mV[VY] * s;
 	mQ[VZ] = v.mV[VZ] * s;
 	mQ[VW] = c;
-	normQuat();
+	normalize();
 }
 
 LLQuaternion::LLQuaternion(F32 angle, const LLVector3 &vec)
 {
 	LLVector3 v(vec);
-	v.normVec();
+	v.normalize();
 
 	F32 c, s;
 	c = cosf(angle*0.5f);
@@ -89,7 +89,7 @@ LLQuaternion::LLQuaternion(F32 angle, const LLVector3 &vec)
 	mQ[VY] = v.mV[VY] * s;
 	mQ[VZ] = v.mV[VZ] * s;
 	mQ[VW] = c;
-	normQuat();
+	normalize();
 }
 
 LLQuaternion::LLQuaternion(const LLVector3 &x_axis,
@@ -99,7 +99,7 @@ LLQuaternion::LLQuaternion(const LLVector3 &x_axis,
 	LLMatrix3 mat;
 	mat.setRows(x_axis, y_axis, z_axis);
 	*this = mat.quaternion();
-	normQuat();
+	normalize();
 }
 
 // Quatizations
@@ -138,10 +138,10 @@ void	LLQuaternion::quantize8(F32 lower, F32 upper)
 
 // Set LLQuaternion routines
 
-const LLQuaternion&	LLQuaternion::setQuat(F32 angle, F32 x, F32 y, F32 z)
+const LLQuaternion&	LLQuaternion::setAngleAxis(F32 angle, F32 x, F32 y, F32 z)
 {
 	LLVector3 vec(x, y, z);
-	vec.normVec();
+	vec.normalize();
 
 	angle *= 0.5f;
 	F32 c, s;
@@ -153,14 +153,14 @@ const LLQuaternion&	LLQuaternion::setQuat(F32 angle, F32 x, F32 y, F32 z)
 	mQ[VZ] = vec.mV[VZ]*s;
 	mQ[VW] = c;
 
-	normQuat();
+	normalize();
 	return (*this);
 }
 
-const LLQuaternion&	LLQuaternion::setQuat(F32 angle, const LLVector3 &vec)
+const LLQuaternion&	LLQuaternion::setAngleAxis(F32 angle, const LLVector3 &vec)
 {
 	LLVector3 v(vec);
-	v.normVec();
+	v.normalize();
 
 	angle *= 0.5f;
 	F32 c, s;
@@ -172,14 +172,14 @@ const LLQuaternion&	LLQuaternion::setQuat(F32 angle, const LLVector3 &vec)
 	mQ[VZ] = v.mV[VZ]*s;
 	mQ[VW] = c;
 
-	normQuat();
+	normalize();
 	return (*this);
 }
 
-const LLQuaternion&	LLQuaternion::setQuat(F32 angle, const LLVector4 &vec)
+const LLQuaternion&	LLQuaternion::setAngleAxis(F32 angle, const LLVector4 &vec)
 {
 	LLVector3 v(vec.mV[VX], vec.mV[VY], vec.mV[VZ]);
-	v.normVec();
+	v.normalize();
 
 	F32 c, s;
 	c = cosf(angle*0.5f);
@@ -190,7 +190,91 @@ const LLQuaternion&	LLQuaternion::setQuat(F32 angle, const LLVector4 &vec)
 	mQ[VZ] = v.mV[VZ]*s;
 	mQ[VW] = c;
 
-	normQuat();
+	normalize();
+	return (*this);
+}
+
+const LLQuaternion&	LLQuaternion::setEulerAngles(F32 roll, F32 pitch, F32 yaw)
+{
+	LLMatrix3 rot_mat(roll, pitch, yaw);
+	rot_mat.orthogonalize();
+	*this = rot_mat.quaternion();
+		
+	normalize();
+	return (*this);
+}
+
+// deprecated
+const LLQuaternion&	LLQuaternion::set(const LLMatrix3 &mat)
+{
+	*this = mat.quaternion();
+	normalize();
+	return (*this);
+}
+
+// deprecated
+const LLQuaternion&	LLQuaternion::set(const LLMatrix4 &mat)
+{
+	*this = mat.quaternion();
+	normalize();
+	return (*this);
+}
+
+// deprecated
+const LLQuaternion&	LLQuaternion::setQuat(F32 angle, F32 x, F32 y, F32 z)
+{
+	LLVector3 vec(x, y, z);
+	vec.normalize();
+
+	angle *= 0.5f;
+	F32 c, s;
+	c = cosf(angle);
+	s = sinf(angle);
+
+	mQ[VX] = vec.mV[VX]*s;
+	mQ[VY] = vec.mV[VY]*s;
+	mQ[VZ] = vec.mV[VZ]*s;
+	mQ[VW] = c;
+
+	normalize();
+	return (*this);
+}
+
+// deprecated
+const LLQuaternion&	LLQuaternion::setQuat(F32 angle, const LLVector3 &vec)
+{
+	LLVector3 v(vec);
+	v.normalize();
+
+	angle *= 0.5f;
+	F32 c, s;
+	c = cosf(angle);
+	s = sinf(angle);
+
+	mQ[VX] = v.mV[VX]*s;
+	mQ[VY] = v.mV[VY]*s;
+	mQ[VZ] = v.mV[VZ]*s;
+	mQ[VW] = c;
+
+	normalize();
+	return (*this);
+}
+
+const LLQuaternion&	LLQuaternion::setQuat(F32 angle, const LLVector4 &vec)
+{
+	LLVector3 v(vec.mV[VX], vec.mV[VY], vec.mV[VZ]);
+	v.normalize();
+
+	F32 c, s;
+	c = cosf(angle*0.5f);
+	s = sinf(angle*0.5f);
+
+	mQ[VX] = v.mV[VX]*s;
+	mQ[VY] = v.mV[VY]*s;
+	mQ[VZ] = v.mV[VZ]*s;
+	mQ[VW] = c;
+
+	normalize();
 	return (*this);
 }
 
@@ -200,7 +284,21 @@ const LLQuaternion&	LLQuaternion::setQuat(F32 roll, F32 pitch, F32 yaw)
 	rot_mat.orthogonalize();
 	*this = rot_mat.quaternion();
 		
-	normQuat();
+	normalize();
+	return (*this);
+}
+
+const LLQuaternion&	LLQuaternion::setQuat(const LLMatrix3 &mat)
+{
+	*this = mat.quaternion();
+	normalize();
+	return (*this);
+}
+
+const LLQuaternion&	LLQuaternion::setQuat(const LLMatrix4 &mat)
+{
+	*this = mat.quaternion();
+	normalize();
 	return (*this);
 //#if 1
 //	// NOTE: LLQuaternion's are actually inverted with respect to
@@ -337,8 +435,8 @@ void LLQuaternion::shortestArc(const LLVector3 &a, const LLVector3 &b)
 
 	// Make sure neither vector is zero length.  Also normalize
 	// the vectors while we are at it.
-	F32 vec_a_mag = vec_a.normVec();
-	F32 vec_b_mag = vec_b.normVec();
+	F32 vec_a_mag = vec_a.normalize();
+	F32 vec_b_mag = vec_b.normalize();
 	if (vec_a_mag < F_APPROXIMATELY_ZERO ||
 		vec_b_mag < F_APPROXIMATELY_ZERO)
 	{
@@ -370,7 +468,7 @@ void LLQuaternion::shortestArc(const LLVector3 &a, const LLVector3 &b)
 		ortho_axis -= proj;
 		
 		// Turn this into an orthonormal axis.
-		F32 ortho_length = ortho_axis.normVec();
+		F32 ortho_length = ortho_axis.normalize();
 		// If the axis' length is 0, then our guess at an orthogonal axis
 		// was wrong (a is parallel to the x-axis).
 		if (ortho_length < F_APPROXIMATELY_ZERO)
@@ -391,7 +489,7 @@ void LLQuaternion::shortestArc(const LLVector3 &a, const LLVector3 &b)
 		// Return the rotation between these vectors.
 		F32 theta = (F32)acos(cos_theta);
 
-		setQuat(theta, axis);
+		setAngleAxis(theta, axis);
 	}
 }
 
@@ -516,7 +614,7 @@ LLQuaternion lerp(F32 t, const LLQuaternion &p, const LLQuaternion &q)
 {
 	LLQuaternion r;
 	r = t * (q - p) + p;
-	r.normQuat();
+	r.normalize();
 	return r;
 }
 #endif
@@ -529,7 +627,7 @@ LLQuaternion lerp(F32 t, const LLQuaternion &q)
 	r.mQ[VY] = t * q.mQ[VY];
 	r.mQ[VZ] = t * q.mQ[VZ];
 	r.mQ[VW] = t * (q.mQ[VZ] - 1.f) + 1.f;
-	r.normQuat();
+	r.normalize();
 	return r;
 }
 
@@ -544,7 +642,7 @@ LLQuaternion lerp(F32 t, const LLQuaternion &p, const LLQuaternion &q)
 	r.mQ[VY] = t * q.mQ[VY] + (inv_t * p.mQ[VY]);
 	r.mQ[VZ] = t * q.mQ[VZ] + (inv_t * p.mQ[VZ]);
 	r.mQ[VW] = t * q.mQ[VW] + (inv_t * p.mQ[VW]);
-	r.normQuat();
+	r.normalize();
 	return r;
 }
 
@@ -640,8 +738,8 @@ LLQuaternion slerp(F32 t, const LLQuaternion &q)
         // when c < 0.0 then theta > PI/2 
         // since quat and -quat are the same rotation we invert one of  
         // p or q to reduce unecessary spins
-        // A equivalent way to do it is to convert acos(c) as if it had been negative,
-        // and to negate stp 
+        // A equivalent way to do it is to convert acos(c) as if it had 
+		// been negative, and to negate stp 
         angle   = (F32) acos(-c); 
         stp     = -(F32) sin(angle * (1.f - t));
         stq     = (F32) sin(angle * t);
@@ -742,20 +840,6 @@ LLQuaternion::Order StringToOrder( const char *str )
 	return LLQuaternion::XYZ;
 }
 
-const LLQuaternion&	LLQuaternion::setQuat(const LLMatrix3 &mat)
-{
-	*this = mat.quaternion();
-	normQuat();
-	return (*this);
-}
-
-const LLQuaternion&	LLQuaternion::setQuat(const LLMatrix4 &mat)
-{
-	*this = mat.quaternion();
-	normQuat();
-	return (*this);
-}
-
 void LLQuaternion::getAngleAxis(F32* angle, LLVector3 &vec) const
 {
 	F32 cos_a = mQ[VW];
@@ -769,10 +853,28 @@ void LLQuaternion::getAngleAxis(F32* angle, LLVector3 &vec) const
 	else
 		sin_a = 1.f/sin_a;
 
-    *angle = 2.0f * (F32) acos( cos_a );
-    vec.mV[VX] = mQ[VX] * sin_a;
-    vec.mV[VY] = mQ[VY] * sin_a;
-    vec.mV[VZ] = mQ[VZ] * sin_a;
+    F32 temp_angle = 2.0f * (F32) acos( cos_a );
+	if (temp_angle > F_PI)
+	{
+		// The (angle,axis) pair should never have angles outside [PI, -PI]
+		// since we want the _shortest_ (angle,axis) solution.
+		// Since acos is defined for [0, PI], and we multiply by 2.0, we
+		// can push the angle outside the acceptible range.
+		// When this happens we set the angle to the other portion of a 
+		// full 2PI rotation, and negate the axis, which reverses the 
+		// direction of the rotation (by the right-hand rule).
+		*angle = 2.f * F_PI - temp_angle;
+    	vec.mV[VX] = - mQ[VX] * sin_a;
+    	vec.mV[VY] = - mQ[VY] * sin_a;
+    	vec.mV[VZ] = - mQ[VZ] * sin_a;
+	}
+	else
+	{
+		*angle = temp_angle;
+    	vec.mV[VX] = mQ[VX] * sin_a;
+    	vec.mV[VY] = mQ[VY] * sin_a;
+    	vec.mV[VZ] = mQ[VZ] * sin_a;
+	}
 }
 
 
@@ -846,7 +948,7 @@ BOOL LLQuaternion::parseQuat(const char* buf, LLQuaternion* value)
 	S32 count = sscanf( buf, "%f %f %f %f", quat.mQ + 0, quat.mQ + 1, quat.mQ + 2, quat.mQ + 3 );
 	if( 4 == count )
 	{
-		value->setQuat( quat );
+		value->set( quat );
 		return TRUE;
 	}
 

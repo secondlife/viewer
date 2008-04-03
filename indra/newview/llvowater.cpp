@@ -67,7 +67,6 @@ const U32 N_RES_HALF	= (N_RES >> 1);
 const U32 WIDTH			= (N_RES * WAVE_STEP); //128.f //64		// width of wave tile, in meters
 const F32 WAVE_STEP_INV	= (1. / WAVE_STEP);
 
-const F32 g				= 9.81f;          // gravitational constant (m/s^2)
 
 LLVOWater::LLVOWater(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 :	LLStaticViewerObject(id, LL_VO_WATER, regionp)

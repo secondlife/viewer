@@ -34,6 +34,7 @@
 
 #include "llerror.h"
 //#include "vmath.h"
+#include "llrand.h"
 
 /////////////////////////////////////////////
 //

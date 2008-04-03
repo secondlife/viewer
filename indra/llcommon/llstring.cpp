@@ -804,16 +804,19 @@ std::string utf8str_removeCRLF(const std::string& utf8str)
 
 #if LL_WINDOWS
 // documentation moved to header. Phoenix 2007-11-27
-int safe_snprintf(char *str, size_t size, const char *format, ...)
+namespace snprintf_hack
 {
-	va_list args;
-	va_start(args, format);
+	int snprintf(char *str, size_t size, const char *format, ...)
+	{
+		va_list args;
+		va_start(args, format);
 
-	int num_written = _vsnprintf(str, size, format, args); /* Flawfinder: ignore */
-	va_end(args);
-	
-	str[size-1] = '\0'; // always null terminate
-	return num_written;
+		int num_written = _vsnprintf(str, size, format, args); /* Flawfinder: ignore */
+		va_end(args);
+		
+		str[size-1] = '\0'; // always null terminate
+		return num_written;
+	}
 }
 
 std::string ll_convert_wide_to_string(const wchar_t* in)

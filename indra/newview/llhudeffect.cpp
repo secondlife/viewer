@@ -36,7 +36,7 @@
 #include "message.h"
 #include "llgl.h"
 #include "llagent.h"
-#include "llsphere.h"
+#include "llrendersphere.h"
 #include "llimagegl.h"
 
 #include "llviewerobjectlist.h"

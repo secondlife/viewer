@@ -53,7 +53,7 @@
 #include "llhudrender.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
-#include "llsphere.h"
+#include "llrendersphere.h"
 #include "llstatusbar.h"
 #include "lltoolmgr.h"
 #include "llviewercamera.h"

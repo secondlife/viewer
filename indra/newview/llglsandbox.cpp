@@ -53,7 +53,7 @@
 #include "lltoolmgr.h"
 #include "llselectmgr.h"
 #include "llhudmanager.h"
-#include "llsphere.h"
+#include "llrendersphere.h"
 #include "llviewerobjectlist.h"
 #include "lltoolselectrect.h"
 #include "llviewerwindow.h"

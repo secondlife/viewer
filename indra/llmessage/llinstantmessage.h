@@ -177,7 +177,7 @@ enum EGodlikeRequest
 	GOD_WANTS_NOTHING,
 
 	// for requesting physics information about an object
-	GOD_WANTS_HAVOK_INFO,
+	GOD_WANTS_PHYSICS_INFO,
 	
 	// two unused requests that can be appropriated for debug 
 	// purposes (no viewer recompile necessary)

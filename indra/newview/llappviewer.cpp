@@ -32,6 +32,7 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llappviewer.h"
+#include "llprimitive.h"
 
 #include "llversionviewer.h"
 #include "llfeaturemanager.h"
@@ -1207,10 +1208,12 @@ bool LLAppViewer::cleanup()
 	gLcdScreen = NULL;
 #endif
 
-	if (!gVolumeMgr->cleanup())
+	LLVolumeMgr* volume_manager = LLPrimitive::getVolumeManager();
+	if (!volume_manager->cleanup())
 	{
 		llwarns << "Remaining references in the volume manager!" << llendflush;
 	}
+	LLPrimitive::cleanupVolumeManager();
 
 	LLViewerParcelMgr::cleanupGlobals();
 
@@ -1219,7 +1222,8 @@ bool LLAppViewer::cleanup()
  	//end_messaging_system();
 
 	LLFollowCamMgr::cleanupClass();
-	LLVolumeMgr::cleanupClass();
+	//LLVolumeMgr::cleanupClass();
+	LLPrimitive::cleanupVolumeManager();
 	LLWorldMapView::cleanupClass();
 	LLUI::cleanupClass();
 	
@@ -1766,7 +1770,10 @@ bool LLAppViewer::initConfiguration()
 	LLSplashScreen::show();
 	LLSplashScreen::update(splash_msg.str().c_str());
 
-	LLVolumeMgr::initClass();
+	//LLVolumeMgr::initClass();
+	LLVolumeMgr* volume_manager = new LLVolumeMgr();
+	volume_manager->useMutex();	// LLApp and LLMutex magic must be manually enabled
+	LLPrimitive::setVolumeManager(volume_manager);
 
 	// Note: this is where we used to initialize LLFeatureManager::getInstance()->.
 

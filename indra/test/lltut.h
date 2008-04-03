@@ -44,6 +44,16 @@ class LLSD;
 
 namespace tut
 {
+	inline void ensure_approximately_equals(const char* msg, F64 actual, F64 expected, U32 frac_bits)
+	{
+		if(!is_approx_equal_fraction(actual, expected, frac_bits))
+		{
+			std::stringstream ss;
+			ss << (msg?msg:"") << (msg?": ":"") << "not equal actual: " << actual << " expected: " << expected;
+			throw tut::failure(ss.str().c_str());
+		}
+	}
+
 	inline void ensure_approximately_equals(const char* msg, F32 actual, F32 expected, U32 frac_bits)
 	{
 		if(!is_approx_equal_fraction(actual, expected, frac_bits))

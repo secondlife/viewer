@@ -163,7 +163,7 @@ LLMatrix4::~LLMatrix4(void)
 
 // Clear and Assignment Functions
 
-const LLMatrix4& LLMatrix4::zero()
+const LLMatrix4& LLMatrix4::setZero()
 {
 	mMatrix[0][0] = 0.f;
 	mMatrix[0][1] = 0.f;

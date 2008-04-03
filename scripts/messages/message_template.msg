@@ -1955,10 +1955,19 @@ version 2.0
 }
 
 
-// ObjectPosition
-// viewer -> simulator
+// DEPRECATED: ObjectPosition
+// == Old Behavior ==
+// Set the position on objects
+//
+// == Reason for deprecation ==
+// Unused code path was removed in the move to Havok4
+// Object position, scale and rotation messages were already unified
+// to MultipleObjectUpdate and this message was unused cruft.
+//
+// == New Location ==
+// MultipleObjectUpdate can be used instead.
 {
-	ObjectPosition Medium 4 NotTrusted Zerocoded
+	ObjectPosition Medium 4 NotTrusted Zerocoded Deprecated
 	{
 		AgentData		Single
 		{	AgentID		LLUUID	}
@@ -1972,10 +1981,19 @@ version 2.0
 }
 
 
-// ObjectScale
-// viewer -> simulator
+// DEPRECATED: ObjectScale
+// == Old Behavior ==
+// Set the scale on objects
+//
+// == Reason for deprecation ==
+// Unused code path was removed in the move to Havok4
+// Object position, scale and rotation messages were already unified
+// to MultipleObjectUpdate and this message was unused cruft.
+//
+// == New Location ==
+// MultipleObjectUpdate can be used instead.
 {
-	ObjectScale Low 92 NotTrusted Zerocoded
+	ObjectScale Low 92 NotTrusted Zerocoded Deprecated
 	{
 		AgentData		Single
 		{	AgentID		LLUUID	}

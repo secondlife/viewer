@@ -3490,6 +3490,24 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 		case LL_SIM_STAT_TOTAL_UNACKED_BYTES:
 			LLViewerStats::getInstance()->mSimTotalUnackedBytes.addValue(stat_value / 1024.f);
 			break;
+		case LL_SIM_STAT_PHYSICS_PINNED_TASKS:
+			LLViewerStats::getInstance()->mPhysicsPinnedTasks.addValue(stat_value);
+			break;
+		case LL_SIM_STAT_PHYSICS_LOD_TASKS:
+			LLViewerStats::getInstance()->mPhysicsLODTasks.addValue(stat_value);
+			break;
+		case LL_SIM_STAT_SIMPHYSICSSTEPMS:
+			LLViewerStats::getInstance()->mSimSimPhysicsStepMsec.addValue(stat_value);
+			break;
+		case LL_SIM_STAT_SIMPHYSICSSHAPEMS:
+			LLViewerStats::getInstance()->mSimSimPhysicsShapeUpdateMsec.addValue(stat_value);
+			break;
+		case LL_SIM_STAT_SIMPHYSICSOTHERMS:
+			LLViewerStats::getInstance()->mSimSimPhysicsOtherMsec.addValue(stat_value);
+			break;
+		case LL_SIM_STAT_SIMPHYSICSMEMORY:
+			LLViewerStats::getInstance()->mPhysicsMemoryAllocated.addValue(stat_value);
+			break;
 		default:
 // 			llwarns << "Unknown stat id" << stat_id << llendl;
 		  break;

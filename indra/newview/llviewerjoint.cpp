@@ -40,7 +40,7 @@
 #include "llglimmediate.h"
 #include "llmath.h"
 #include "llglheaders.h"
-#include "llsphere.h"
+#include "llrendersphere.h"
 #include "llvoavatar.h"
 #include "pipeline.h"
 

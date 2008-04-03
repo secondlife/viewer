@@ -57,10 +57,10 @@ public:
 	LLQuaternion();									// Initializes Quaternion to (0,0,0,1)
 	explicit LLQuaternion(const LLMatrix4 &mat);				// Initializes Quaternion from Matrix4
 	explicit LLQuaternion(const LLMatrix3 &mat);				// Initializes Quaternion from Matrix3
-	LLQuaternion(F32 x, F32 y, F32 z, F32 w);		// Initializes Quaternion to normQuat(x, y, z, w)
+	LLQuaternion(F32 x, F32 y, F32 z, F32 w);		// Initializes Quaternion to normalize(x, y, z, w)
 	LLQuaternion(F32 angle, const LLVector4 &vec);	// Initializes Quaternion to axis_angle2quat(angle, vec)
 	LLQuaternion(F32 angle, const LLVector3 &vec);	// Initializes Quaternion to axis_angle2quat(angle, vec)
-	LLQuaternion(const F32 *q);						// Initializes Quaternion to normQuat(x, y, z, w)
+	LLQuaternion(const F32 *q);						// Initializes Quaternion to normalize(x, y, z, w)
 	LLQuaternion(const LLVector3 &x_axis,
 				 const LLVector3 &y_axis,
 				 const LLVector3 &z_axis);			// Initializes Quaternion from Matrix3 = [x_axis ; y_axis ; z_axis]
@@ -71,15 +71,27 @@ public:
 	void quantize16(F32 lower, F32 upper);					// changes the vector to reflect quatization
 	void quantize8(F32 lower, F32 upper);							// changes the vector to reflect quatization
 	void loadIdentity();											// Loads the quaternion that represents the identity rotation
-	const LLQuaternion&	setQuatInit(F32 x, F32 y, F32 z, F32 w);	// Sets Quaternion to normQuat(x, y, z, w)
-	const LLQuaternion&	setQuat(const LLQuaternion &quat);			// Copies Quaternion
-	const LLQuaternion&	setQuat(const F32 *q);						// Sets Quaternion to normQuat(quat[VX], quat[VY], quat[VZ], quat[VW])
-	const LLQuaternion&	setQuat(const LLMatrix3 &mat);				// Sets Quaternion to mat2quat(mat)
-	const LLQuaternion&	setQuat(const LLMatrix4 &mat);				// Sets Quaternion to mat2quat(mat)
-	const LLQuaternion&	setQuat(F32 angle, F32 x, F32 y, F32 z);	// Sets Quaternion to axis_angle2quat(angle, x, y, z)
-	const LLQuaternion&	setQuat(F32 angle, const LLVector3 &vec);	// Sets Quaternion to axis_angle2quat(angle, vec)
-	const LLQuaternion&	setQuat(F32 angle, const LLVector4 &vec);	// Sets Quaternion to axis_angle2quat(angle, vec)
-	const LLQuaternion&	setQuat(F32 roll, F32 pitch, F32 yaw);		// Sets Quaternion to euler2quat(pitch, yaw, roll)
+
+	const LLQuaternion&	set(F32 x, F32 y, F32 z, F32 w);		// Sets Quaternion to normalize(x, y, z, w)
+	const LLQuaternion&	set(const LLQuaternion &quat);			// Copies Quaternion
+	const LLQuaternion&	set(const F32 *q);						// Sets Quaternion to normalize(quat[VX], quat[VY], quat[VZ], quat[VW])
+	const LLQuaternion&	set(const LLMatrix3 &mat);				// Sets Quaternion to mat2quat(mat)
+	const LLQuaternion&	set(const LLMatrix4 &mat);				// Sets Quaternion to mat2quat(mat)
+
+	const LLQuaternion&	setAngleAxis(F32 angle, F32 x, F32 y, F32 z);	// Sets Quaternion to axis_angle2quat(angle, x, y, z)
+	const LLQuaternion&	setAngleAxis(F32 angle, const LLVector3 &vec);	// Sets Quaternion to axis_angle2quat(angle, vec)
+	const LLQuaternion&	setAngleAxis(F32 angle, const LLVector4 &vec);	// Sets Quaternion to axis_angle2quat(angle, vec)
+	const LLQuaternion&	setEulerAngles(F32 roll, F32 pitch, F32 yaw);	// Sets Quaternion to euler2quat(pitch, yaw, roll)
+
+	const LLQuaternion&	setQuatInit(F32 x, F32 y, F32 z, F32 w);	// deprecated
+	const LLQuaternion&	setQuat(const LLQuaternion &quat);			// deprecated
+	const LLQuaternion&	setQuat(const F32 *q);						// deprecated
+	const LLQuaternion&	setQuat(const LLMatrix3 &mat);				// deprecated
+	const LLQuaternion&	setQuat(const LLMatrix4 &mat);				// deprecated
+	const LLQuaternion&	setQuat(F32 angle, F32 x, F32 y, F32 z);	// deprecated
+	const LLQuaternion&	setQuat(F32 angle, const LLVector3 &vec);	// deprecated
+	const LLQuaternion&	setQuat(F32 angle, const LLVector4 &vec);	// deprecated
+	const LLQuaternion&	setQuat(F32 roll, F32 pitch, F32 yaw);		// deprecated
 
 	LLMatrix4	getMatrix4(void) const;							// Returns the Matrix4 equivalent of Quaternion
 	LLMatrix3	getMatrix3(void) const;							// Returns the Matrix3 equivalent of Quaternion
@@ -87,11 +99,16 @@ public:
 	void		getAngleAxis(F32* angle, LLVector3 &vec) const;
 	void		getEulerAngles(F32 *roll, F32* pitch, F32 *yaw) const;
 
-	F32				normQuat();					// Normalizes Quaternion and returns magnitude
-	const LLQuaternion&	conjQuat(void);				// Conjugates Quaternion and returns result
+	F32	normalize();	// Normalizes Quaternion and returns magnitude
+	F32	normQuat();		// deprecated
+
+	const LLQuaternion&	conjugate(void);	// Conjugates Quaternion and returns result
+	const LLQuaternion&	conjQuat(void);		// deprecated
 
 	// Other useful methods
-	const LLQuaternion&	transQuat();											// Transpose
+	const LLQuaternion&	transpose();		// transpose (same as conjugate)
+	const LLQuaternion&	transQuat();		// deprecated
+
 	void			shortestArc(const LLVector3 &a, const LLVector3 &b);	// shortest rotation from a to b
 	const LLQuaternion& constrain(F32 radians);						// constrains rotation to a cone angle specified in radians
 
@@ -189,7 +206,7 @@ inline LLQuaternion::LLQuaternion(F32 x, F32 y, F32 z, F32 w)
 	mQ[VS] = w;
 
 	//RN: don't normalize this case as its used mainly for temporaries during calculations
-	//normQuat();
+	//normalize();
 	/*
 	F32 mag = sqrtf(mQ[VX]*mQ[VX] + mQ[VY]*mQ[VY] + mQ[VZ]*mQ[VZ] + mQ[VS]*mQ[VS]);
 	mag -= 1.f;
@@ -205,7 +222,7 @@ inline LLQuaternion::LLQuaternion(const F32 *q)
 	mQ[VZ] = q[VZ];
 	mQ[VS] = q[VW];
 
-	normQuat();
+	normalize();
 	/*
 	F32 mag = sqrtf(mQ[VX]*mQ[VX] + mQ[VY]*mQ[VY] + mQ[VZ]*mQ[VZ] + mQ[VS]*mQ[VS]);
 	mag -= 1.f;
@@ -224,33 +241,67 @@ inline void LLQuaternion::loadIdentity()
 }
 
 
+inline const LLQuaternion&	LLQuaternion::set(F32 x, F32 y, F32 z, F32 w)
+{
+	mQ[VX] = x;
+	mQ[VY] = y;
+	mQ[VZ] = z;
+	mQ[VS] = w;
+	normalize();
+	return (*this);
+}
+
+inline const LLQuaternion&	LLQuaternion::set(const LLQuaternion &quat)
+{
+	mQ[VX] = quat.mQ[VX];
+	mQ[VY] = quat.mQ[VY];
+	mQ[VZ] = quat.mQ[VZ];
+	mQ[VW] = quat.mQ[VW];
+	normalize();
+	return (*this);
+}
+
+inline const LLQuaternion&	LLQuaternion::set(const F32 *q)
+{
+	mQ[VX] = q[VX];
+	mQ[VY] = q[VY];
+	mQ[VZ] = q[VZ];
+	mQ[VS] = q[VW];
+	normalize();
+	return (*this);
+}
+
+
+// deprecated
 inline const LLQuaternion&	LLQuaternion::setQuatInit(F32 x, F32 y, F32 z, F32 w)
 {
 	mQ[VX] = x;
 	mQ[VY] = y;
 	mQ[VZ] = z;
 	mQ[VS] = w;
-	normQuat();
+	normalize();
 	return (*this);
 }
 
+// deprecated
 inline const LLQuaternion&	LLQuaternion::setQuat(const LLQuaternion &quat)
 {
 	mQ[VX] = quat.mQ[VX];
 	mQ[VY] = quat.mQ[VY];
 	mQ[VZ] = quat.mQ[VZ];
 	mQ[VW] = quat.mQ[VW];
-	normQuat();
+	normalize();
 	return (*this);
 }
 
+// deprecated
 inline const LLQuaternion&	LLQuaternion::setQuat(const F32 *q)
 {
 	mQ[VX] = q[VX];
 	mQ[VY] = q[VY];
 	mQ[VZ] = q[VZ];
 	mQ[VS] = q[VW];
-	normQuat();
+	normalize();
 	return (*this);
 }
 
@@ -270,10 +321,36 @@ inline void LLQuaternion::getAngleAxis(F32* angle, F32* x, F32* y, F32* z) const
 	else
 		sin_a = 1.f/sin_a;
 
-    *angle = 2.0f * (F32) acos( cos_a );
-    *x = mQ[VX] * sin_a;
-    *y = mQ[VY] * sin_a;
-    *z = mQ[VZ] * sin_a;
+    F32 temp_angle = 2.0f * (F32) acos( cos_a );
+	if (temp_angle > F_PI)
+	{
+		// The (angle,axis) pair should never have angles outside [PI, -PI]
+		// since we want the _shortest_ (angle,axis) solution.
+		// Since acos is defined for [0, PI], and we multiply by 2.0, we
+		// can push the angle outside the acceptible range.
+		// When this happens we set the angle to the other portion of a 
+		// full 2PI rotation, and negate the axis, which reverses the 
+		// direction of the rotation (by the right-hand rule).
+		*angle = 2.f * F_PI - temp_angle;
+    	*x = - mQ[VX] * sin_a;
+    	*y = - mQ[VY] * sin_a;
+    	*z = - mQ[VZ] * sin_a;
+	}
+	else
+	{
+		*angle = temp_angle;
+    	*x = mQ[VX] * sin_a;
+    	*y = mQ[VY] * sin_a;
+    	*z = mQ[VZ] * sin_a;
+	}
+}
+
+inline const LLQuaternion& LLQuaternion::conjugate()
+{
+	mQ[VX] *= -1.f;
+	mQ[VY] *= -1.f;
+	mQ[VZ] *= -1.f;
+	return (*this);
 }
 
 inline const LLQuaternion& LLQuaternion::conjQuat()
@@ -285,12 +362,21 @@ inline const LLQuaternion& LLQuaternion::conjQuat()
 }
 
 // Transpose
+inline const LLQuaternion& LLQuaternion::transpose()
+{
+	mQ[VX] *= -1.f;
+	mQ[VY] *= -1.f;
+	mQ[VZ] *= -1.f;
+	return (*this);
+}
+
+// deprecated
 inline const LLQuaternion& LLQuaternion::transQuat()
 {
-	mQ[VX] = -mQ[VX];
-	mQ[VY] = -mQ[VY];
-	mQ[VZ] = -mQ[VZ];
-	return *this;
+	mQ[VX] *= -1.f;
+	mQ[VY] *= -1.f;
+	mQ[VZ] *= -1.f;
+	return (*this);
 }
 
 
@@ -382,6 +468,30 @@ inline const LLQuaternion&	operator*=(LLQuaternion &a, const LLQuaternion &b)
 	return a;
 }
 
+inline F32	LLQuaternion::normalize()
+{
+	F32 mag = sqrtf(mQ[VX]*mQ[VX] + mQ[VY]*mQ[VY] + mQ[VZ]*mQ[VZ] + mQ[VS]*mQ[VS]);
+
+	if (mag > FP_MAG_THRESHOLD)
+	{
+		F32 oomag = 1.f/mag;
+		mQ[VX] *= oomag;
+		mQ[VY] *= oomag;
+		mQ[VZ] *= oomag;
+		mQ[VS] *= oomag;
+	}
+	else
+	{
+		mQ[VX] = 0.f;
+		mQ[VY] = 0.f;
+		mQ[VZ] = 0.f;
+		mQ[VS] = 1.f;
+	}
+
+	return mag;
+}
+
+// deprecated
 inline F32	LLQuaternion::normQuat()
 {
 	F32 mag = sqrtf(mQ[VX]*mQ[VX] + mQ[VY]*mQ[VY] + mQ[VZ]*mQ[VZ] + mQ[VS]*mQ[VS]);

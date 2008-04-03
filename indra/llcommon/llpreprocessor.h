@@ -79,9 +79,16 @@
 
 #endif
 
+
 // Deal with the differeneces on Windows
 #if LL_MSVC
-#define snprintf safe_snprintf		/* Flawfinder: ignore */
+namespace snprintf_hack
+{
+	int snprintf(char *str, size_t size, const char *format, ...);
+}
+
+// #define snprintf safe_snprintf		/* Flawfinder: ignore */
+using snprintf_hack::snprintf;
 #endif	// LL_MSVC
 
 // Static linking with apr on windows needs to be declared.

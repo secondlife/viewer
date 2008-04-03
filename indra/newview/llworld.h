@@ -113,7 +113,7 @@ public:
 	// region X and Y size in meters
 	F32						getRegionWidthInMeters() const	{ return mWidthInMeters; }
 	F32						getRegionMinHeight() const		{ return -mWidthInMeters; }
-	F32						getRegionMaxHeight() const		{ return 3.f*mWidthInMeters; }
+	F32						getRegionMaxHeight() const		{ return MAX_OBJECT_Z; }
 
 	void					updateRegions(F32 max_update_time);
 	void					updateVisibilities();

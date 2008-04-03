@@ -1193,7 +1193,6 @@ void init_debug_ui_menu(LLMenuGL* menu)
 	menu->append(new LLMenuItemCallGL( "Dump SelectMgr", &dump_select_mgr));
 	menu->append(new LLMenuItemCallGL( "Dump Inventory", &dump_inventory));
 	menu->append(new LLMenuItemCallGL( "Dump Focus Holder", &handle_dump_focus, NULL, NULL, 'F', MASK_ALT | MASK_CONTROL));
-	menu->append(new LLMenuItemCallGL( "Dump VolumeMgr",	&dump_volume_mgr, NULL, NULL));
 	menu->append(new LLMenuItemCallGL( "Print Selected Object Info",	&print_object_info, NULL, NULL, 'P', MASK_CONTROL|MASK_SHIFT ));
 	menu->append(new LLMenuItemCallGL( "Print Agent Info",			&print_agent_nvpairs, NULL, NULL, 'P', MASK_SHIFT ));
 	menu->append(new LLMenuItemCallGL( "Texture Memory Stats",  &output_statistics, NULL, NULL, 'M', MASK_SHIFT | MASK_ALT | MASK_CONTROL));
@@ -5217,11 +5216,6 @@ void edit_ui(void*)
 void dump_select_mgr(void*)
 {
 	LLSelectMgr::getInstance()->dump();
-}
-
-void dump_volume_mgr(void*)
-{
-	gVolumeMgr->dump();
 }
 
 void dump_inventory(void*)

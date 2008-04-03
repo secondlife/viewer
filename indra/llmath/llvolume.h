@@ -72,6 +72,8 @@ const F32 TAPER_QUANTA  = 0.01f;
 const F32 REV_QUANTA    = 0.015f;
 const F32 HOLLOW_QUANTA = 0.00002f;
 
+const S32 MAX_VOLUME_TRIANGLE_INDICES = 10000;
+
 //============================================================================
 
 // useful masks
@@ -187,10 +189,10 @@ class LLProfileParams
 public:
 	LLProfileParams()
 	{
-		mBegin     = 0;
-		mEnd       = 1;
-		mHollow    = 0;
 		mCurveType = LL_PCODE_PROFILE_SQUARE;
+		mBegin     = 0.f;
+		mEnd       = 1.f;
+		mHollow    = 0.f;
 	}
 
 	LLProfileParams(U8 curve, F32 begin, F32 end, F32 hollow)
@@ -307,17 +309,17 @@ class LLPathParams
 public:
 	LLPathParams()
 	{
-		mBegin     = 0;
-		mEnd       = 1;
-		mScale.setVec(1,1);
-		mShear.setVec(0,0);
+		mBegin     = 0.f;
+		mEnd       = 1.f;
+		mScale.setVec(1.f,1.f);
+		mShear.setVec(0.f,0.f);
 		mCurveType = LL_PCODE_PATH_LINE;
-		mTwistBegin		= 0;
-		mTwistEnd     	= 0;
-		mRadiusOffset	= 0;
-		mTaper.setVec(0,0);
-		mRevolutions	= 1;
-		mSkew			= 0;
+		mTwistBegin		= 0.f;
+		mTwistEnd     	= 0.f;
+		mRadiusOffset	= 0.f;
+		mTaper.setVec(0.f,0.f);
+		mRevolutions	= 1.f;
+		mSkew			= 0.f;
 	}
 
 	LLPathParams(U8 curve, F32 begin, F32 end, F32 scx, F32 scy, F32 shx, F32 shy, F32 twistend, F32 twistbegin, F32 radiusoffset, F32 tx, F32 ty, F32 revolutions, F32 skew)
@@ -627,6 +629,9 @@ public:
 	
 	friend std::ostream& operator<<(std::ostream &s, const LLVolumeParams &volume_params);
 
+	// debug helper functions
+	void setCube();
+
 protected:
 	LLProfileParams mProfileParams;
 	LLPathParams	mPathParams;
@@ -869,6 +874,10 @@ public:
 	S32 getSculptLevel() const                              { return mSculptLevel; }
 	
 	S32 *getTriangleIndices(U32 &num_indices) const;
+
+	// returns number of triangle indeces required for path/profile mesh
+	S32 getNumTriangleIndices() const;
+
 	void generateSilhouetteVertices(std::vector<LLVector3> &vertices, std::vector<LLVector3> &normals, std::vector<S32> &segments, const LLVector3& view_vec,
 											  const LLMatrix4& mat,
 										  const LLMatrix3& norm_mat);

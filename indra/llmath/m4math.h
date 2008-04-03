@@ -132,8 +132,8 @@ public:
 				  const LLVector4 &row3);
 
 	// various useful matrix functions
-	const LLMatrix4& identity();					// Load identity matrix
-	const LLMatrix4& zero();						// Clears matrix to all zeros.
+	const LLMatrix4& setIdentity();					// Load identity matrix
+	const LLMatrix4& setZero();						// Clears matrix to all zeros.
 
 	const LLMatrix4& initRotation(const F32 angle, const F32 x, const F32 y, const F32 z);	// Calculate rotation matrix by rotating angle radians about (x, y, z)
 	const LLMatrix4& initRotation(const F32 angle, const LLVector4 &axis);	// Calculate rotation matrix for rotating angle radians about vec
@@ -243,10 +243,10 @@ public:
 
 inline LLMatrix4::LLMatrix4()
 {
-	identity();
+	setIdentity();
 }
 
-inline const LLMatrix4&	LLMatrix4::identity()
+inline const LLMatrix4&	LLMatrix4::setIdentity()
 {
 	mMatrix[0][0] = 1.f;
 	mMatrix[0][1] = 0.f;

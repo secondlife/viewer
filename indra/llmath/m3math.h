@@ -33,6 +33,7 @@
 #define LL_M3MATH_H
 
 #include "llerror.h"
+#include "stdtypes.h"
 
 class LLVector4;
 class LLVector3;
@@ -76,8 +77,9 @@ class LLMatrix3
 		//
 
 		// various useful matrix functions
-		const LLMatrix3& identity();				// Load identity matrix
-		const LLMatrix3& zero();					// Clears Matrix to zero
+		const LLMatrix3& setIdentity();				// Load identity matrix
+		const LLMatrix3& clear();					// Clears Matrix to zero
+		const LLMatrix3& setZero();					// Clears Matrix to zero
 
 		///////////////////////////
 		//
@@ -91,6 +93,9 @@ class LLMatrix3
 		const LLMatrix3& setRot(const LLQuaternion &q);			// Transform matrix by Euler angles and translating by pos
 
 		const LLMatrix3& setRows(const LLVector3 &x_axis, const LLVector3 &y_axis, const LLVector3 &z_axis);
+		const LLMatrix3& setRow( U32 rowIndex, const LLVector3& row );
+		const LLMatrix3& setCol( U32 colIndex, const LLVector3& col );
+
 		
 		///////////////////////////
 		//
@@ -103,28 +108,30 @@ class LLMatrix3
 		LLVector3 getFwdRow() const;
 		LLVector3 getLeftRow() const;
 		LLVector3 getUpRow() const;
-		F32	 determinant() const;						// Return determinant
+		F32	 determinant() const;			// Return determinant
 
 
 		///////////////////////////
 		//
 		// Operations on an existing matrix
 		//
-		const LLMatrix3& transpose();					// Transpose MAT4
-		const LLMatrix3& invert();					// Invert MAT4
-		const LLMatrix3& orthogonalize();						// Orthogonalizes X, then Y, then Z
-		const LLMatrix3& adjointTranspose();		// returns transpose of matrix adjoint, for multiplying normals
+		const LLMatrix3& transpose();		// Transpose MAT4
+		const LLMatrix3& orthogonalize();	// Orthogonalizes X, then Y, then Z
+		void invert();			// Invert MAT4
+		const LLMatrix3& adjointTranspose();// returns transpose of matrix adjoint, for multiplying normals
 
 		
 		// Rotate existing matrix  
 		// Note: the two lines below are equivalent:
 		//	foo.rotate(bar) 
 		//	foo = foo * bar
-		// That is, foo.rotMat3(bar) multiplies foo by bar FROM THE RIGHT
+		// That is, foo.rotate(bar) multiplies foo by bar FROM THE RIGHT
 		const LLMatrix3& rotate(const F32 angle, const F32 x, const F32 y, const F32 z); 	// Rotate matrix by rotating angle radians about (x, y, z)
 		const LLMatrix3& rotate(const F32 angle, const LLVector3 &vec);						// Rotate matrix by rotating angle radians about vec
 		const LLMatrix3& rotate(const F32 roll, const F32 pitch, const F32 yaw); 			// Rotate matrix by roll (about x), pitch (about y), and yaw (about z)
 		const LLMatrix3& rotate(const LLQuaternion &q);			// Transform matrix by Euler angles and translating by pos
+
+		void add(const LLMatrix3& other_matrix);	// add other_matrix to this one
 
 // This operator is misleading as to operation direction
 //		friend LLVector3 operator*(const LLMatrix3 &a, const LLVector3 &b);			// Apply rotation a to vector b
@@ -137,6 +144,7 @@ class LLMatrix3
 		friend bool operator!=(const LLMatrix3 &a, const LLMatrix3 &b);				// Return a != b
 
 		friend const LLMatrix3& operator*=(LLMatrix3 &a, const LLMatrix3 &b);				// Return a * b
+		friend const LLMatrix3& operator*=(LLMatrix3 &a, F32 scalar );						// Return a * scalar
 
 		friend std::ostream&	 operator<<(std::ostream& s, const LLMatrix3 &a);	// Stream a
 };

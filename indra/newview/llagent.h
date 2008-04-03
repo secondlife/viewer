@@ -181,7 +181,7 @@ public:
 	void			updateCamera();			// call once per frame to update camera location/orientation
 	void			resetCamera();						// slam camera into its default position
 	void			setupSitCamera();
-	void			setCameraCollidePlane(LLVector4 &plane) { mCameraCollidePlane = plane; }
+	void			setCameraCollidePlane(const LLVector4 &plane) { mCameraCollidePlane = plane; }
 
 	void			changeCameraToDefault();
 	void			changeCameraToMouselook(BOOL animate = TRUE);
@@ -428,7 +428,7 @@ public:
 
 	U32 			getControlFlags(); 
 	void 			setControlFlags(U32 mask); 			// performs bitwise mControlFlags |= mask
-	void 			clearControlFlags(U32 mask); 			// performs bitwise mControlFlags &= mask
+	void 			clearControlFlags(U32 mask); 			// performs bitwise mControlFlags &= ~mask
 	BOOL			controlFlagsDirty() const;
 	void			enableControlFlagReset();
 	void 			resetControlFlags();

@@ -116,8 +116,10 @@ void LLScopedLock::unlock()
 bool ll_apr_warn_status(apr_status_t status)
 {
 	if(APR_SUCCESS == status) return false;
+#ifndef LL_WINDOWS
 	char buf[MAX_STRING];	/* Flawfinder: ignore */
 	llwarns << "APR: " << apr_strerror(status, buf, MAX_STRING) << llendl;
+#endif
 	return true;
 }
 

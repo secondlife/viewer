@@ -32,8 +32,14 @@
 #ifndef LLMATH_H
 #define LLMATH_H
 
+#include <cmath>
+//#include <math.h>
+//#include <stdlib.h>
+#include "lldefs.h"
+
 // work around for Windows & older gcc non-standard function names.
 #if LL_WINDOWS
+#include <float.h>
 #define llisnan(val)	_isnan(val)
 #define llfinite(val)	_finite(val)
 #elif (LL_LINUX && __GNUC__ <= 2)
@@ -99,6 +105,12 @@ inline BOOL is_approx_equal(F32 x, F32 y)
 	return (abs((S32) ((U32&)x - (U32&)y) ) < COMPARE_MANTISSA_UP_TO_BIT);
 }
 
+inline BOOL is_approx_equal(F64 x, F64 y)
+{
+	const S64 COMPARE_MANTISSA_UP_TO_BIT = 0x02;
+	return (abs((S32) ((U64&)x - (U64&)y) ) < COMPARE_MANTISSA_UP_TO_BIT);
+}
+
 inline BOOL is_approx_equal_fraction(F32 x, F32 y, U32 frac_bits)
 {
 	BOOL ret = TRUE;
@@ -106,6 +118,27 @@ inline BOOL is_approx_equal_fraction(F32 x, F32 y, U32 frac_bits)
 
 	S32 diffInt = (S32) diff;
 	S32 diffFracTolerance = (S32) ((diff - (F32) diffInt) * (1 << frac_bits));
+	
+	// if integer portion is not equal, not enough bits were used for packing
+	// so error out since either the use case is not correct OR there is
+	// an issue with pack/unpack. should fail in either case.
+	// for decimal portion, make sure that the delta is no more than 1
+	// based on the number of bits used for packing decimal portion.
+	if (diffInt != 0 || diffFracTolerance > 1)
+	{
+		ret = FALSE;
+	}
+
+	return ret;
+}
+
+inline BOOL is_approx_equal_fraction(F64 x, F64 y, U32 frac_bits)
+{
+	BOOL ret = TRUE;
+	F64 diff = (F64) fabs(x - y);
+
+	S32 diffInt = (S32) diff;
+	S32 diffFracTolerance = (S32) ((diff - (F64) diffInt) * (1 << frac_bits));
 	
 	// if integer portion is not equal, not enough bits were used for packing
 	// so error out since either the use case is not correct OR there is

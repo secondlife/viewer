@@ -82,7 +82,7 @@
 #include "llmoveview.h"
 #include "llselectmgr.h"
 #include "llsky.h"
-#include "llsphere.h"
+#include "llrendersphere.h"
 #include "llstatusbar.h"
 #include "lltalkview.h"
 #include "lltool.h"

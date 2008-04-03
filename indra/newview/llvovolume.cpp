@@ -83,8 +83,8 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 	  mVolumeImpl(NULL)
 {
 	mTexAnimMode = 0;
-	mRelativeXform.identity();
-	mRelativeXformInvTrans.identity();
+	mRelativeXform.setIdentity();
+	mRelativeXformInvTrans.setIdentity();
 
 	mLOD = MIN_LOD;
 	mTextureAnimp = NULL;
@@ -326,7 +326,7 @@ void LLVOVolume::animateTextures()
 			}
 
 			LLMatrix4& tex_mat = *facep->mTextureMatrix;
-			tex_mat.identity();
+			tex_mat.setIdentity();
 			tex_mat.translate(LLVector3(-0.5f, -0.5f, 0.f));
 			tex_mat.rotate(quat);				
 

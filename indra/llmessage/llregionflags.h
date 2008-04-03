@@ -140,7 +140,7 @@ const U32 ESTATE_MAINLAND = 1;
 const U32 ESTATE_ORIENTATION = 2;
 const U32 ESTATE_INTERNAL = 3;
 const U32 ESTATE_SHOWCASE = 4;
-const U32 ESTATE_KIDGRID = 5;
+const U32 ESTATE_TEEN = 5;
 const U32 ESTATE_LAST_LINDEN = 5; // last linden owned/managed estate
 
 // for EstateOwnerRequest, setaccess message

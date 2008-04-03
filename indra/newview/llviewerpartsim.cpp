@@ -243,7 +243,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 	S32 i;
 	F32 dt;
 	
-	LLVector3 gravity(0.f, 0.f, -9.8f);
+	LLVector3 gravity(0.f, 0.f, GRAVITY);
 
 	LLViewerRegion *regionp = getRegion();
 	S32 end = (S32) mParticles.size();

@@ -203,7 +203,9 @@ LLIOPipe::EStatus LLHTTPPipe::process_impl(
 		}
 
 		// Log all HTTP transactions.
-		llinfos << verb << " " << context[CONTEXT_REQUEST]["path"].asString()
+		// TODO: Add a way to log these to their own file instead of indra.log
+		// It is just too spammy to be in indra.log.
+		lldebugs << verb << " " << context[CONTEXT_REQUEST]["path"].asString()
 			<< " " << mStatusCode << " " <<  mStatusMessage << " " << delta
 			<< "s" << llendl;
 
@@ -723,8 +725,8 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 		const LLHTTPNode* node = mRootNode.traverse(mPath, context);
 		if(node)
 		{
- 			lldebugs << "LLHTTPResponder::process_impl found node for "
-				<< mAbsPathAndQuery << llendl;
+ 			//llinfos << "LLHTTPResponder::process_impl found node for "
+			//	<< mAbsPathAndQuery << llendl;
 
   			// Copy everything after mLast read to the out.
 			LLBufferArray::segment_iterator_t seg_iter;

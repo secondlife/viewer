@@ -36,7 +36,7 @@
 #include "imageids.h"
 #include "llviewercontrol.h"
 #include "llprimitive.h"
-#include "llsphere.h"
+#include "llrendersphere.h"
 
 #include "llagent.h"
 #include "llbox.h"

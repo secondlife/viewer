@@ -36,7 +36,7 @@
 #include "llface.h"
 #include "llflexibleobject.h"
 #include "llglheaders.h"
-#include "llsphere.h"
+#include "llrendersphere.h"
 #include "llviewerobject.h"
 #include "llimagegl.h"
 #include "llagent.h"

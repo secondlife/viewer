@@ -54,18 +54,26 @@ class LLVector2
 		LLVector2(const F32 *vec);				// Initializes LLVector2 to (vec[0]. vec[1])
 		
 		// Clears LLVector2 to (0, 0).  DEPRECATED - prefer zeroVec.
-		void	clearVec();
+		void	clear();
+		void	setZero();
+		void	clearVec();	// deprecated
+		void	zeroVec();	// deprecated
 
-		// Zero LLVector2 to (0, 0)
-		void	zeroVec();
+		void	set(F32 x, F32 y);	        // Sets LLVector2 to (x, y)
+		void	set(const LLVector2 &vec);	// Sets LLVector2 to vec
+		void	set(const F32 *vec);			// Sets LLVector2 to vec
 
-		void	setVec(F32 x, F32 y);	        // Sets LLVector2 to (x, y)
-		void	setVec(const LLVector2 &vec);	// Sets LLVector2 to vec
-		void	setVec(const F32 *vec);			// Sets LLVector2 to vec
+		void	setVec(F32 x, F32 y);	        // deprecated
+		void	setVec(const LLVector2 &vec);	// deprecated
+		void	setVec(const F32 *vec);			// deprecated
 
-		F32		magVec() const;				// Returns magnitude of LLVector2
-		F32		magVecSquared() const;		// Returns magnitude squared of LLVector2
-		F32		normVec();					// Normalizes and returns the magnitude of LLVector2
+		F32		length() const;				// Returns magnitude of LLVector2
+		F32		lengthSquared() const;		// Returns magnitude squared of LLVector2
+		F32		normalize();					// Normalizes and returns the magnitude of LLVector2
+
+		F32		magVec() const;				// deprecated
+		F32		magVecSquared() const;		// deprecated
+		F32		normVec();					// deprecated
 
 		BOOL		abs();						// sets all values to absolute value of original value (first octant), returns TRUE if changed
 
@@ -132,30 +140,66 @@ inline LLVector2::LLVector2(const F32 *vec)
 
 // Clear and Assignment Functions
 
+inline void	LLVector2::clear(void)
+{
+	mV[VX] = 0.f;
+	mV[VY] = 0.f;
+}
+
+inline void	LLVector2::setZero(void)
+{
+	mV[VX] = 0.f;
+	mV[VY] = 0.f;
+}
+
+// deprecated
 inline void	LLVector2::clearVec(void)
 {
 	mV[VX] = 0.f;
 	mV[VY] = 0.f;
 }
 
+// deprecated
 inline void	LLVector2::zeroVec(void)
 {
 	mV[VX] = 0.f;
 	mV[VY] = 0.f;
 }
 
+inline void	LLVector2::set(F32 x, F32 y)
+{
+	mV[VX] = x;
+	mV[VY] = y;
+}
+
+inline void	LLVector2::set(const LLVector2 &vec)
+{
+	mV[VX] = vec.mV[VX];
+	mV[VY] = vec.mV[VY];
+}
+
+inline void	LLVector2::set(const F32 *vec)
+{
+	mV[VX] = vec[VX];
+	mV[VY] = vec[VY];
+}
+
+
+// deprecated
 inline void	LLVector2::setVec(F32 x, F32 y)
 {
 	mV[VX] = x;
 	mV[VY] = y;
 }
 
+// deprecated
 inline void	LLVector2::setVec(const LLVector2 &vec)
 {
 	mV[VX] = vec.mV[VX];
 	mV[VY] = vec.mV[VY];
 }
 
+// deprecated
 inline void	LLVector2::setVec(const F32 *vec)
 {
 	mV[VX] = vec[VX];
@@ -164,16 +208,49 @@ inline void	LLVector2::setVec(const F32 *vec)
 
 // LLVector2 Magnitude and Normalization Functions
 
+inline F32 LLVector2::length(void) const
+{
+	return fsqrtf(mV[0]*mV[0] + mV[1]*mV[1]);
+}
+
+inline F32 LLVector2::lengthSquared(void) const
+{
+	return mV[0]*mV[0] + mV[1]*mV[1];
+}
+
+inline F32		LLVector2::normalize(void)
+{
+	F32 mag = fsqrtf(mV[0]*mV[0] + mV[1]*mV[1]);
+	F32 oomag;
+
+	if (mag > FP_MAG_THRESHOLD)
+	{
+		oomag = 1.f/mag;
+		mV[0] *= oomag;
+		mV[1] *= oomag;
+	}
+	else
+	{
+		mV[0] = 0.f;
+		mV[1] = 0.f;
+		mag = 0;
+	}
+	return (mag);
+}
+
+// deprecated
 inline F32		LLVector2::magVec(void) const
 {
 	return fsqrtf(mV[0]*mV[0] + mV[1]*mV[1]);
 }
 
+// deprecated
 inline F32		LLVector2::magVecSquared(void) const
 {
 	return mV[0]*mV[0] + mV[1]*mV[1];
 }
 
+// deprecated
 inline F32		LLVector2::normVec(void)
 {
 	F32 mag = fsqrtf(mV[0]*mV[0] + mV[1]*mV[1]);
