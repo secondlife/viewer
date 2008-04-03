@@ -36,7 +36,6 @@
 #include "material_codes.h"
 #include "sound_ids.h"
 #include "imageids.h"
-#include <llphysics/llphysicsversion.h>
 
 LLMaterialTable LLMaterialTable::basic(1);
 
@@ -60,7 +59,7 @@ F32 const LLMaterialTable::FRICTION_RUBBER 	= 0.9f; 	//
 F32 const LLMaterialTable::FRICTION_MAX 	= 0.95f; 	//
 */
 
-#if LL_CURRENT_HAVOK_VERSION == LL_HAVOK_VERSION_460
+// #if LL_CURRENT_HAVOK_VERSION == LL_HAVOK_VERSION_460
 // Havok4 has more correct friction dynamics, however here we have to use
 // the "incorrect" equivalents for the legacy Havok1 behavior
 F32 const LLMaterialTable::FRICTION_MIN 	= 0.15f; 	
@@ -74,7 +73,7 @@ F32 const LLMaterialTable::FRICTION_LAND 	= 0.58f; 	// dirt
 F32 const LLMaterialTable::FRICTION_STONE 	= 0.6f; 	// concrete
 F32 const LLMaterialTable::FRICTION_RUBBER 	= 0.67f; 	//
 F32 const LLMaterialTable::FRICTION_MAX 	= 0.71f; 	//
-#endif
+// #endif
 
 F32 const LLMaterialTable::RESTITUTION_MIN 		= 0.02f; 	
 F32 const LLMaterialTable::RESTITUTION_LAND 	= LLMaterialTable::RESTITUTION_MIN;
