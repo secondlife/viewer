@@ -651,9 +651,10 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 	//-----------------------------------------------------------------------
 	// Create GL drawing context
 	//-----------------------------------------------------------------------
-	if (!switchContext(mFullscreen, LLCoordScreen(window_rect.right - window_rect.left,			// width
-												  window_rect.bottom - window_rect.top),			// height
-												  TRUE))
+	LLCoordScreen windowPos(x,y);
+	LLCoordScreen windowSize(window_rect.right - window_rect.left,
+							 window_rect.bottom - window_rect.top);
+	if (!switchContext(mFullscreen, windowSize, TRUE, &windowPos))
 	{
 		return;
 	}
@@ -928,7 +929,7 @@ BOOL LLWindowWin32::setSize(const LLCoordScreen size)
 }
 
 // changing fullscreen resolution
-BOOL LLWindowWin32::switchContext(BOOL fullscreen, LLCoordScreen size, BOOL disable_vsync)
+BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp)
 {
 	GLuint	pixel_format;
 	DEVMODE dev_mode;
@@ -1050,10 +1051,10 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, LLCoordScreen size, BOOL disa
 	else
 	{
 		mFullscreen = FALSE;
-		window_rect.left = (long) 0;
-		window_rect.right = (long) width;			// Windows GDI rects don't include rightmost pixel
-		window_rect.top = (long) 0;
-		window_rect.bottom = (long) height;
+		window_rect.left = (long) (posp ? posp->mX : 0);
+		window_rect.right = (long) width + window_rect.left;			// Windows GDI rects don't include rightmost pixel
+		window_rect.top = (long) (posp ? posp->mY : 0);
+		window_rect.bottom = (long) height + window_rect.top;
 		// Window with an edge
 		dw_ex_style = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 		dw_style = WS_OVERLAPPEDWINDOW;

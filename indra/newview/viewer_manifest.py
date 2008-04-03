@@ -127,26 +127,6 @@ class ViewerManifest(LLManifest):
                         
                 return " ".join((channel_flags, grid_flags)).strip()
 
-        def login_url(self):
-                """ Convenience function that returns the appropriate login url for the grid"""
-                if(self.args.get('login_url')):
-                        return self.args['login_url']
-                else:
-                        if(self.default_grid()):
-                                if(self.default_channel()):
-                                        # agni release
-                                        return 'http://secondlife.com/app/login/'
-                                else:
-                                        # first look (or other) on agni
-                                        return 'http://secondlife.com/app/login/%s/' % self.channel_lowerword()
-                        else:
-                                # beta grid
-                                return 'http://secondlife.com/app/login/beta/'
-
-        def replace_login_url(self):
-                # set the login page to point to a url appropriate for the type of client
-                self.replace_in("skins/xui/en-us/panel_login.xml", searchdict={'http://secondlife.com/app/login/':self.login_url()})
-
 
 class WindowsManifest(ViewerManifest):
         def final_exe(self):
@@ -229,7 +209,6 @@ class WindowsManifest(ViewerManifest):
                 # pull in the crash logger and updater from other projects
                 self.path(src="../win_crash_logger/win_crash_logger.exe", dst="win_crash_logger.exe")
                 self.path(src="../win_updater/updater.exe", dst="updater.exe")
-                self.replace_login_url()
 
         def nsi_file_commands(self, install=True):
                 def wpath(path):
@@ -387,9 +366,6 @@ class DarwinManifest(ViewerManifest):
                                 # command line arguments for connecting to the proper grid
                                 self.put_in_file(self.flags_list(), 'arguments.txt')
 
-                                # set the proper login url
-                                self.replace_login_url()
-
                                 self.end_prefix("Resources")
 
                         self.end_prefix("Contents")
@@ -471,8 +447,6 @@ class LinuxManifest(ViewerManifest):
 
                 # Create an appropriate gridargs.dat for this package, denoting required grid.
                 self.put_in_file(self.flags_list(), 'gridargs.dat')
-                # set proper login url
-                self.replace_login_url()
 
                 # stripping all the libs removes a few megabytes from the end-user package
                 for s,d in self.file_list:

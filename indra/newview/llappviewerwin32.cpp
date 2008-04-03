@@ -320,6 +320,10 @@ bool LLAppViewerWin32::initHardwareTest()
 	{
 		BOOL vram_only = !gSavedSettings.getBOOL("ProbeHardwareOnStartup");
 
+		// per DEV-11631 - disable hardware probing for everything
+		// but vram.
+		vram_only = TRUE;
+
 		LLSplashScreen::update("Detecting hardware...");
 
 		llinfos << "Attempting to poll DirectX for hardware info" << llendl;

@@ -76,7 +76,6 @@
 #include "llagent.h"
 #include "llalertdialog.h"
 #include "llbox.h"
-#include "llcameraview.h"
 #include "llchatbar.h"
 #include "llconsole.h"
 #include "llviewercontrol.h"
@@ -95,6 +94,7 @@
 #include "llfloateractivespeakers.h"
 #include "llfloaterbuildoptions.h"
 #include "llfloaterbuyland.h"
+#include "llfloatercamera.h"
 #include "llfloaterchat.h"
 #include "llfloaterchatterbox.h"
 #include "llfloatercustomize.h"
@@ -1750,6 +1750,19 @@ void adjust_rect_top_left(const LLString& control, const LLRect& window)
 	}
 }
 
+void adjust_rect_top_center(const LLString& control, const LLRect& window)
+{
+	LLRect r = gSavedSettings.getRect(control);
+	if (r.mLeft == 0 && r.mBottom == 0)
+	{
+		r.setLeftTopAndSize( window.getWidth()/2 - r.getWidth()/2,
+			window.getHeight(),
+			r.getWidth(),
+			r.getHeight() );
+		gSavedSettings.setRect(control, r);
+	}
+}
+
 void adjust_rect_top_right(const LLString& control, const LLRect& window)
 {
 	LLRect r = gSavedSettings.getRect(control);
@@ -1808,7 +1821,7 @@ void LLViewerWindow::adjustRectanglesForFirstUse(const LLRect& window)
 
 	adjust_rect_bottom_center("FloaterMoveRect2", window);
 
-	adjust_rect_bottom_center("FloaterCameraRect2", window);
+	adjust_rect_top_center("FloaterCameraRect3", window);
 
 	adjust_rect_top_left("FloaterCustomizeAppearanceRect", window);
 

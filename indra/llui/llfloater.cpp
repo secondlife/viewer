@@ -130,8 +130,9 @@ LLFloaterView* gFloaterView = NULL;
 LLFloater::LLFloater() :
 	//FIXME: we should initialize *all* member variables here
 	mResizable(FALSE),
-	mDragOnLeft(FALSE)
-
+	mDragOnLeft(FALSE),
+	mMinWidth(0),
+	mMinHeight(0)
 {
 	// automatically take focus when opened
 	mAutoFocus = TRUE;
@@ -2329,7 +2330,9 @@ void LLFloaterView::popVisibleAll(const skip_list_t& skip_list)
 LLMultiFloater::LLMultiFloater() :
 	mTabContainer(NULL),
 	mTabPos(LLTabContainer::TOP),
-	mAutoResize(TRUE)
+	mAutoResize(TRUE),
+	mOrigMinWidth(0),
+	mOrigMinHeight(0)
 {
 
 }
@@ -2337,7 +2340,9 @@ LLMultiFloater::LLMultiFloater() :
 LLMultiFloater::LLMultiFloater(LLTabContainer::TabPosition tab_pos) :
 	mTabContainer(NULL),
 	mTabPos(tab_pos),
-	mAutoResize(TRUE)
+	mAutoResize(TRUE),
+	mOrigMinWidth(0),
+	mOrigMinHeight(0)
 {
 
 }
@@ -2346,7 +2351,9 @@ LLMultiFloater::LLMultiFloater(const LLString &name) :
 	LLFloater(name),
 	mTabContainer(NULL),
 	mTabPos(LLTabContainer::TOP),
-	mAutoResize(FALSE)
+	mAutoResize(FALSE),
+	mOrigMinWidth(0),
+	mOrigMinHeight(0)
 {
 }
 
@@ -2358,7 +2365,9 @@ LLMultiFloater::LLMultiFloater(
 	LLFloater(name, rect, name),
 	mTabContainer(NULL),
 	mTabPos(LLTabContainer::TOP),
-	mAutoResize(auto_resize)
+	mAutoResize(auto_resize),
+	mOrigMinWidth(0),
+	mOrigMinHeight(0)
 {
 	mTabContainer = new LLTabContainer("Preview Tabs", 
 		LLRect(LLPANEL_BORDER_WIDTH, getRect().getHeight() - LLFLOATER_HEADER_SIZE, getRect().getWidth() - LLPANEL_BORDER_WIDTH, 0), 
@@ -2382,7 +2391,9 @@ LLMultiFloater::LLMultiFloater(
 	LLFloater(name, rect_control, name),
 	mTabContainer(NULL),
 	mTabPos(tab_pos),
-	mAutoResize(auto_resize)
+	mAutoResize(auto_resize),
+	mOrigMinWidth(0),
+	mOrigMinHeight(0)
 {
 	mTabContainer = new LLTabContainer("Preview Tabs", 
 		LLRect(LLPANEL_BORDER_WIDTH, getRect().getHeight() - LLFLOATER_HEADER_SIZE, getRect().getWidth() - LLPANEL_BORDER_WIDTH, 0), 
@@ -2756,6 +2767,9 @@ void LLMultiFloater::setCanResize(BOOL can_resize)
 
 BOOL LLMultiFloater::postBuild()
 {
+	// remember any original xml minimum size
+	getResizeLimits(&mOrigMinWidth, &mOrigMinHeight);
+
 	if (mTabContainer)
 	{
 		return TRUE;
@@ -2773,10 +2787,11 @@ BOOL LLMultiFloater::postBuild()
 
 void LLMultiFloater::updateResizeLimits()
 {
-	S32 new_min_width = 0;
-	S32 new_min_height = 0;
-	S32 tab_idx;
-	for (tab_idx = 0; tab_idx < mTabContainer->getTabCount(); ++tab_idx)
+	// initialize minimum size constraint to the original xml values.
+	S32 new_min_width = mOrigMinWidth;
+	S32 new_min_height = mOrigMinHeight;
+	// possibly increase minimum size constraint due to children's minimums.
+	for (S32 tab_idx = 0; tab_idx < mTabContainer->getTabCount(); ++tab_idx)
 	{
 		LLFloater* floaterp = (LLFloater*)mTabContainer->getPanelByIndex(tab_idx);
 		if (floaterp)

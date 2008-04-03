@@ -154,7 +154,7 @@ public:
 	virtual BOOL getSize(LLCoordWindow *size) = 0;
 	virtual BOOL setPosition(LLCoordScreen position) = 0;
 	virtual BOOL setSize(LLCoordScreen size) = 0;
-	virtual BOOL switchContext(BOOL fullscreen, LLCoordScreen size, BOOL disable_vsync) = 0;
+	virtual BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp = NULL) = 0;
 	virtual BOOL setCursorPosition(LLCoordWindow position) = 0;
 	virtual BOOL getCursorPosition(LLCoordWindow *position) = 0;
 	virtual void showCursor() = 0;

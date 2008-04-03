@@ -38,7 +38,6 @@
 
 // viewer includes
 #include "llnotify.h"
-#include "llfloatervoicewizard.h"
 #include "llviewercontrol.h"
 #include "llui.h"
 #include "llappviewer.h"
@@ -252,20 +251,6 @@ void LLFirstUse::useSculptedPrim()
 		LLNotifyBox::showXml("FirstSculptedPrim");
 		
 	}
-}
-
-// static 
-void LLFirstUse::useVoice()
-{
-	if (!gSavedSettings.getBOOL("CmdLineDisableVoice"))
-    {
-	    if (gSavedSettings.getWarning("FirstVoice"))
-	    {
-		    gSavedSettings.setWarning("FirstVoice", FALSE);
-
-		    LLFloaterVoiceWizard::showInstance();
-	    }
-    }
 }
 
 // static 

@@ -60,6 +60,8 @@
 #include "llviewerobjectlist.h"
 #include "llviewerwindow.h"
 #include "llvoavatar.h"
+#include "llimview.h"
+#include "llimpanel.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -671,7 +673,18 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 		}
 		if(notify)
 		{
+			// Popup a notify box with online status of this agent
 			LLNotifyBox::showXml(online ? "FriendOnline" : "FriendOffline", args);
+
+			// If there's an open IM session with this agent, send a notification there too.
+			LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, agent_id);
+			LLFloaterIMPanel *floater = gIMMgr->findFloaterBySession(session_id);
+			if (floater)
+			{
+				LLUIString notifyMsg = LLNotifyBox::getTemplateMessage((online ? "FriendOnline" : "FriendOffline"),args);
+				if (!notifyMsg.empty())
+					floater->addHistoryLine(notifyMsg,gSavedSettings.getColor4("SystemChatColor"));
+			}
 		}
 
 		mModifyMask |= LLFriendObserver::ONLINE;

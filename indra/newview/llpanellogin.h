@@ -112,6 +112,7 @@ private:
 	virtual void onNavigateComplete( const EventType& eventIn );
 	static void onClickForgotPassword(void*);
 	static void onPassKey(LLLineEditor* caller, void* user_data);
+	static void onSelectServer(LLUICtrl*, void*);
 	
 private:
 	LLPointer<LLUIImage> mLogoImage;

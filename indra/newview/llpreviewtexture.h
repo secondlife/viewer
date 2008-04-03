@@ -78,11 +78,11 @@ public:
 
 protected:
 	void				init();
-	void				updateAspectRatio();
 
 	virtual const char *getTitleName() const { return "Texture"; }
 	
-protected:
+private:
+	void				updateDimensions();
 	LLUUID						mImageID;
 	LLPointer<LLViewerImage>		mImage;
 	BOOL				mLoadingFullImage;

@@ -104,7 +104,6 @@ public:
 	static void useFlexible();
 	static void useDebugMenus();
 	static void useSculptedPrim();
-	static void useVoice();
 	static void useMedia();
 	
 protected:

@@ -411,6 +411,7 @@ protected:
 	
 	LLTabContainer::TabPosition mTabPos;
 	BOOL				mAutoResize;
+	S32					mOrigMinWidth, mOrigMinHeight;  // logically const but initialized late
 };
 
 // visibility policy specialized for floaters

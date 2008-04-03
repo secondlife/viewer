@@ -835,7 +835,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 
 
 // changing fullscreen resolution, or switching between windowed and fullscreen mode.
-BOOL LLWindowMacOSX::switchContext(BOOL fullscreen, LLCoordScreen size, BOOL disable_vsync)
+BOOL LLWindowMacOSX::switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp)
 {
 	BOOL needsRebuild = FALSE;
 	BOOL result = true;

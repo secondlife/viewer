@@ -48,7 +48,6 @@
 #include "audiosettings.h"
 #include "llares.h"
 #include "llcachename.h"
-#include "llcameraview.h"
 #include "llviewercontrol.h"
 #include "lldir.h"
 #include "llerrorcontrol.h"
@@ -91,6 +90,7 @@
 #include "llfeaturemanager.h"
 #include "llfirstuse.h"
 #include "llfloateractivespeakers.h"
+#include "llfloatercamera.h"
 #include "llfloaterchat.h"
 #include "llfloatergesture.h"
 #include "llfloaterhud.h"
@@ -1591,6 +1591,11 @@ BOOL idle_startup()
 			LLFloaterMove::show(NULL);
 		}
 
+		if (gSavedSettings.getBOOL("ShowActiveSpeakers"))
+		{
+			LLFloaterActiveSpeakers::showInstance();
+		}
+
 		if (!gNoRender)
 		{
 			// Move the progress view in front of the UI
@@ -2280,9 +2285,6 @@ BOOL idle_startup()
 		
 		// On first start, ask user for gender
 		dialog_choose_gender_first_start();
-
-		// setup voice
-		LLFirstUse::useVoice();
 
 		// Start automatic replay if the flag is set.
 		if (gSavedSettings.getBOOL("StatsAutoRun"))

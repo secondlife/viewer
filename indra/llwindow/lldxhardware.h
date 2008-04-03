@@ -85,6 +85,7 @@ class LLDXHardware
 {
 public:
 	LLDXHardware();
+
 	void setWriteDebugFunc(void (*func)(const char*));
 	void cleanup();
 
@@ -100,12 +101,12 @@ public:
 	// Empty strings indicate that you don't care.
 	// You can separate multiple devices with '|' chars to indicate you want
 	// ANY of them to match and return.
-	LLDXDevice *findDevice(const std::string &vendor, const std::string &devices);
+	// LLDXDevice *findDevice(const std::string &vendor, const std::string &devices);
 
-	LLString dumpDevices();
+	// LLString dumpDevices();
 public:
 	typedef std::map<std::string, LLDXDevice *> device_map_t;
-	device_map_t mDevices;
+	// device_map_t mDevices;
 protected:
 	S32 mVRAM;
 };

@@ -58,7 +58,6 @@
 
 #include "llbox.h"
 #include "llbutton.h"
-#include "llcameraview.h"
 #include "llconsole.h"
 #include "lldrawable.h"
 #include "llfirstuse.h"

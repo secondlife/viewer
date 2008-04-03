@@ -43,9 +43,10 @@
 #include "message.h"
 
 // Constants
-const char* CN_WAITING = "(waiting)";
-const char* CN_NOBODY = "(nobody)";
-const char* CN_NONE = "(none)";
+// probably need a setUIString() call in the interface
+const char* const CN_WAITING = "(Loading...)"; // *TODO: translate
+const char* const CN_NOBODY = "(nobody)"; // *TODO: translate
+const char* const CN_NONE = "(none)"; // *TODO: translate
 
 // llsd serialization constants
 static const std::string AGENTS("agents");

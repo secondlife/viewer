@@ -235,12 +235,16 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 	spinner4->setVisible(FALSE);
 	color_swatch->setVisible(FALSE);
 	childSetVisible("val_text", FALSE);
-	childSetVisible("boolean_combo", FALSE);
 	mComment->setText(LLString::null);
 
 	if (controlp)
 	{
 		eControlType type = controlp->type();
+
+		//hide combo box only for non booleans, otherwise this will result in the combo box closing every frame
+		childSetVisible("boolean_combo", type == TYPE_BOOLEAN);
+		
+
 		mComment->setText(controlp->getComment());
 		spinner1->setMaxValue(F32_MAX);
 		spinner2->setMaxValue(F32_MAX);
@@ -304,8 +308,6 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 			}
 			break;
 		  case TYPE_BOOLEAN:
-			childSetVisible("boolean_combo", TRUE);
-			
 			if (!childHasFocus("boolean_combo"))
 			{
 				if (sd.asBoolean())

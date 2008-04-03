@@ -194,8 +194,12 @@ BOOL LLToolPie::pickAndShowMenu(S32 x, S32 y, MASK mask, BOOL always_show)
 			// nothing
 			break;
 		case CLICK_ACTION_SIT:
-			handle_sit_or_stand();
-			return TRUE;
+			if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->mIsSitting)) // agent not already sitting
+			{
+				handle_sit_or_stand();
+				return TRUE;
+			} // else nothing (fall through to touch)
+			
 		case CLICK_ACTION_PAY:
 			if (object && object->flagTakesMoney()
 				|| parent && parent->flagTakesMoney())
@@ -436,7 +440,10 @@ ECursorType cursor_from_object(LLViewerObject* object)
 	switch(click_action)
 	{
 	case CLICK_ACTION_SIT:
-		cursor = UI_CURSOR_TOOLSIT;
+		if ((gAgent.getAvatarObject() != NULL) && (!gAgent.getAvatarObject()->mIsSitting)) // not already sitting?
+		{
+			cursor = UI_CURSOR_TOOLSIT;
+		}
 		break;
 	case CLICK_ACTION_BUY:
 		cursor = UI_CURSOR_TOOLBUY;

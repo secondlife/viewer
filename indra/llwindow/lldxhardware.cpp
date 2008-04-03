@@ -233,9 +233,10 @@ LLDXHardware::LLDXHardware()
 
 void LLDXHardware::cleanup()
 {
-	for_each(mDevices.begin(), mDevices.end(), DeletePairedPointer());
+  // for_each(mDevices.begin(), mDevices.end(), DeletePairedPointer());
 }
 
+/*
 LLString LLDXHardware::dumpDevices()
 {
 	if (gWriteDebug)
@@ -284,6 +285,7 @@ LLDXDevice *LLDXHardware::findDevice(const std::string &vendor, const std::strin
 
 	return NULL;
 }
+*/
 
 BOOL LLDXHardware::getInfo(BOOL vram_only)
 {
@@ -296,7 +298,7 @@ BOOL LLDXHardware::getInfo(BOOL vram_only)
     IDxDiagProvider *dx_diag_providerp = NULL;
     IDxDiagContainer *dx_diag_rootp = NULL;
 	IDxDiagContainer *devices_containerp = NULL;
-	IDxDiagContainer *system_device_containerp= NULL;
+	// IDxDiagContainer *system_device_containerp= NULL;
 	IDxDiagContainer *device_containerp = NULL;
 	IDxDiagContainer *file_containerp = NULL;
 	IDxDiagContainer *driver_containerp = NULL;
@@ -362,15 +364,18 @@ BOOL LLDXHardware::getInfo(BOOL vram_only)
 		}
 		
 		// Get the English VRAM string
-		std::string ram_str = get_string(device_containerp, L"szDisplayMemoryEnglish");
+		{
+		  std::string ram_str = get_string(device_containerp, L"szDisplayMemoryEnglish");
 
-		// We don't need the device any more
-		SAFE_RELEASE(device_containerp);
+		  // We don't need the device any more
+		  SAFE_RELEASE(device_containerp);
 
-		// Dump the string as an int into the structure
-		char *stopstring;
-		mVRAM = strtol(ram_str.c_str(), &stopstring, 10); 
-		llinfos << "VRAM Detected: " << mVRAM << " DX9 string: " << ram_str << llendl;
+		  // Dump the string as an int into the structure
+		  char *stopstring;
+		  mVRAM = strtol(ram_str.c_str(), &stopstring, 10); 
+		  llinfos << "VRAM Detected: " << mVRAM << " DX9 string: " << ram_str << llendl;
+		}
+
 		
 		if (vram_only)
 		{
@@ -378,6 +383,11 @@ BOOL LLDXHardware::getInfo(BOOL vram_only)
 			goto LCleanup;
 		}
 
+
+		/* for now, we ONLY do vram_only the rest of this
+		   is commented out, to ensure no-one is tempted
+		   to use it
+		
 		// Now let's get device and driver information
 		// Get the IDxDiagContainer object called "DxDiag_SystemDevices".
 		// This call may take some time while dxdiag gathers the info.
@@ -504,11 +514,12 @@ BOOL LLDXHardware::getInfo(BOOL vram_only)
 			}
 			SAFE_RELEASE(device_containerp);
 		}
+		*/
     }
 
-	dumpDevices();
-	ok = TRUE;
-
+    // dumpDevices();
+    ok = TRUE;
+	
 LCleanup:
 	if (!ok)
 	{
@@ -526,7 +537,7 @@ LCleanup:
     CoUninitialize();
     
     return ok;
-}
+    }
 
 LLSD LLDXHardware::getDisplayInfo()
 {

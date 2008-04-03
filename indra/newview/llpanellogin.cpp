@@ -404,6 +404,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	combo->setCommitCallback( &LLPanelGeneral::set_start_location );
 
+	childSetCommitCallback("server_combo", onSelectServer, this);
+
 	childSetAction("connect_btn", onClickConnect, this);
 
 	setDefaultBtn("connect_btn");
@@ -909,6 +911,7 @@ void LLPanelLogin::loadLoginPage()
 		first_query_delimiter = "?";
 	}
 
+	// Language
 	LLString language(gSavedSettings.getString("Language"));
 	if(language == "default")
 	{
@@ -916,11 +919,37 @@ void LLPanelLogin::loadLoginPage()
 	}
 	oStr << first_query_delimiter<<"lang=" << language;
 	
+	// First Login?
 	if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
 	{
 		oStr << "&firstlogin=TRUE";
 	}
 
+	// Channel and Version
+	LLString version = llformat("%d.%d.%d (%d)",
+						LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VIEWER_BUILD);
+
+	char* curl_channel = curl_escape(gSavedSettings.getString("VersionChannelName").c_str(), 0);
+	char* curl_version = curl_escape(version.c_str(), 0);
+
+	oStr << "&channel=" << curl_channel;
+	oStr << "&version=" << curl_version;
+
+	curl_free(curl_channel);
+	curl_free(curl_version);
+
+	// Grid
+	LLString grid;
+	S32 grid_index;
+	getServer( grid, grid_index );
+	if( grid_index != (S32)GRID_INFO_OTHER )
+	{
+		grid = gGridInfo[grid_index].mLabel;
+	}
+
+	char* curl_grid = curl_escape(grid.c_str(), 0);
+	oStr << "&grid=" << curl_grid;
+	curl_free(curl_grid);
 
 #if USE_VIEWER_AUTH
 	LLURLSimString::sInstance.parse();
@@ -970,22 +999,12 @@ void LLPanelLogin::loadLoginPage()
 		lastname = gSavedSettings.getString("LastName");
 	}
 	
-	LLString version = llformat("%d.%d.%d (%d)",
-						LL_VERSION_MAJOR, LL_VERSION_MINOR, LL_VERSION_PATCH, LL_VIEWER_BUILD);
-
 	char* curl_region = curl_escape(region.c_str(), 0);
-	char* curl_channel = curl_escape(gChannelName.c_str(), 0);
-	char* curl_version = curl_escape(version.c_str(), 0);
 
 	oStr <<"firstname=" << firstname <<
-		"&lastname=" << lastname << "&location=" << location <<	"&region=" << curl_region <<
-		"&grid=" << gGridInfo[gGridChoice].mLabel << "&channel=" << curl_channel <<
-		"&version=" << curl_version;
+		"&lastname=" << lastname << "&location=" << location <<	"&region=" << curl_region;
 	
 	curl_free(curl_region);
-	curl_free(curl_channel);
-	curl_free(curl_version);
-
 
 	if (!password.empty())
 	{
@@ -1146,4 +1165,11 @@ void LLPanelLogin::onPassKey(LLLineEditor* caller, void* user_data)
 		LLNotifyBox::showXml("CapsKeyOn");
 		sCapslockDidNotification = TRUE;
 	}
+}
+
+// static
+void LLPanelLogin::onSelectServer(LLUICtrl*, void*)
+{
+	// grid changed so show new splash screen (possibly)
+	loadLoginPage();
 }
