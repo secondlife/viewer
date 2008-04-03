@@ -101,9 +101,10 @@ public:
 	S8	getComponents() const	{ return mComponents; }
 	S32 getDataSize() const		{ return mDataSize; }
 
-	const U8 *getData() const	{ return mData; } // read only
-	U8 *getData()				{ return mData; }
-	
+	const U8 *getData() const	;
+	U8 *getData()				;
+	BOOL isBufferInvalid() ;
+
 	void setSize(S32 width, S32 height, S32 ncomponents);
 	U8* allocateDataSize(S32 width, S32 height, S32 ncomponents, S32 size = -1); // setSize() + allocateData()
 
@@ -134,6 +135,8 @@ private:
 	U16 mHeight;
 
 	S8 mComponents;
+
+	BOOL mBadBufferAllocation ;
 
 public:
 	S16 mMemType; // debug
@@ -270,11 +273,11 @@ public:
  	void appendData(U8 *data, S32 size);
 
 	// Loads first 4 channels.
-	virtual BOOL decode(LLImageRaw* raw_image, F32 decode_time=0.0) = 0;  
+	virtual BOOL decode(LLImageRaw* raw_image, F32 decode_time) = 0;  
 	// Subclasses that can handle more than 4 channels should override this function.
-	virtual BOOL decode(LLImageRaw* raw_image, F32 decode_time, S32 first_channel, S32 max_channel);
+	virtual BOOL decodeChannels(LLImageRaw* raw_image, F32 decode_time, S32 first_channel, S32 max_channel);
 
-	virtual BOOL encode(const LLImageRaw* raw_image, F32 encode_time=0.0) = 0;
+	virtual BOOL encode(const LLImageRaw* raw_image, F32 encode_time) = 0;
 
 	S8 getCodec() const;
 	BOOL isDecoding() const { return mDecoding ? TRUE : FALSE; }

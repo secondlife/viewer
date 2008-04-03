@@ -372,7 +372,7 @@ FunctionEnd
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function un.CheckIfAdministrator
-		DetailPrint $(CheckAdministratorUnInstDP)
+	DetailPrint $(CheckAdministratorUnInstDP)
          UserInfo::GetAccountType
          Pop $R0
          StrCmp $R0 "Admin" is_admin
@@ -575,6 +575,22 @@ Function un.CloseSecondLife
     Return
 FunctionEnd
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+;   Delete the stored password for the current Windows user
+;   DEV-10821 -- Unauthorised user can gain access to an SL account after a real user has uninstalled
+;
+Function un.RemovePassword
+
+DetailPrint "Removing Second Life password"
+
+SetShellVarContext current
+Delete "$APPDATA\SecondLife\user_settings\password.dat"
+SetShellVarContext all
+
+FunctionEnd
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Delete the installed files
 ;;; This deletes the uninstall executable, but it works 
@@ -673,6 +689,9 @@ Delete "$INSTDIR\Uninstall $INSTSHORTCUT.lnk"
 !ifdef UNINSTALL_SETTINGS
 Call un.DocumentsAndSettingsFolder
 !endif
+
+; remove stored password on uninstall
+Call un.RemovePassword
 
 Call un.ProgramFiles
 

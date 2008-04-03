@@ -823,7 +823,7 @@ LLVoiceClient::LLVoiceClient()
 
 	// Load initial state from prefs.
 	mVoiceEnabled = gSavedSettings.getBOOL("EnableVoiceChat");
-	mUsePTT = gSavedSettings.getBOOL("EnablePushToTalk");
+	mUsePTT = TRUE; //gSavedSettings.getBOOL("EnablePushToTalk");
 	std::string keyString = gSavedSettings.getString("PushToTalkButton");
 	setPTTKey(keyString);
 	mPTTIsToggle = gSavedSettings.getBOOL("PushToTalkToggle");

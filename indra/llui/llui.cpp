@@ -81,6 +81,7 @@ LLWindow*		LLUI::sWindow = NULL;
 LLHtmlHelp*		LLUI::sHtmlHelp = NULL;
 BOOL            LLUI::sShowXUINames = FALSE;
 std::stack<LLRect> LLScreenClipRect::sClipRectStack;
+BOOL            LLUI::sQAMode = FALSE;
 
 //
 // Functions
@@ -1745,6 +1746,12 @@ LLUIImage* LLUI::getUIImage(const LLString& name)
 void LLUI::setHtmlHelp(LLHtmlHelp* html_help)
 {
 	LLUI::sHtmlHelp = html_help;
+}
+
+//static 
+void LLUI::setQAMode(BOOL b)
+{
+	LLUI::sQAMode = b;
 }
 
 LLScreenClipRect::LLScreenClipRect(const LLRect& rect, BOOL enabled) : mScissorState(GL_SCISSOR_TEST), mEnabled(enabled)

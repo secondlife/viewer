@@ -1380,7 +1380,7 @@ BOOL LLTextureCtrl::handleUnicodeCharHere(llwchar uni_char)
 	return LLUICtrl::handleUnicodeCharHere(uni_char);
 }
 
-void LLTextureCtrl::setValue( LLSD value )
+void LLTextureCtrl::setValue( const LLSD& value )
 {
 	setImageAssetID(value.asUUID());
 }

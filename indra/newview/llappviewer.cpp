@@ -287,6 +287,7 @@ BOOL gRandomizeFramerate = FALSE;
 BOOL gPeriodicSlowFrame = FALSE;
 
 BOOL gLLErrorActivated = FALSE;
+BOOL gLogoutInProgress = FALSE;
 ////////////////////////////////////////////////////////////
 // Internal globals... that should be removed.
 static LLString gArgs;
@@ -294,6 +295,7 @@ static LLString gArgs;
 const char* MARKER_FILE_NAME = "SecondLife.exec_marker";
 const char* ERROR_MARKER_FILE_NAME = "SecondLife.error_marker";
 const char* LLERROR_MARKER_FILE_NAME = "SecondLife.llerror_marker";
+const char* LOGOUT_MARKER_FILE_NAME = "SecondLife.logout_marker";
 static BOOL gDoDisconnect = FALSE;
 static LLString gLaunchFileOnQuit;
 
@@ -441,7 +443,7 @@ static void settings_modify()
 #endif
 
 	// propagate push to talk preference to current status
-	gSavedSettings.setBOOL("PTTCurrentlyEnabled", gSavedSettings.getBOOL("EnablePushToTalk"));
+	gSavedSettings.setBOOL("PTTCurrentlyEnabled", TRUE); //gSavedSettings.getBOOL("EnablePushToTalk"));
 }
 
 void initGridChoice()
@@ -882,9 +884,10 @@ bool LLAppViewer::mainLoop()
 	while (!LLApp::isExiting())
 	{
 		LLFastTimer::reset(); // Should be outside of any timer instances
+		try
 		{
 			LLFastTimer t(LLFastTimer::FTM_FRAME);
-
+			
 			{
 				LLFastTimer t2(LLFastTimer::FTM_MESSAGES);
 			#if LL_WINDOWS
@@ -1040,12 +1043,23 @@ bool LLAppViewer::mainLoop()
 			}
 						
 		}
+		catch(std::bad_alloc)
+		{
+			llwarns << "Bad memory allocation in LLAppViewer::mainLoop()!" << llendl ;
+		}
 	}
 
 	// Save snapshot for next time, if we made it through initialization
 	if (STATE_STARTED == LLStartUp::getStartupState())
 	{
-		saveFinalSnapshot();
+		try
+		{
+			saveFinalSnapshot();
+		}
+		catch(std::bad_alloc)
+		{
+			llwarns << "Bad memory allocation when saveFinalSnapshot() is called!" << llendl ;
+		}
 	}
 	
 	delete gServicePump;
@@ -2073,6 +2087,7 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["ClientInfo"]["PatchVersion"] = LL_VERSION_PATCH;
 	gDebugInfo["ClientInfo"]["BuildVersion"] = LL_VERSION_BUILD;
 
+	gDebugInfo["CPUInfo"]["CPUString"] = gSysCPU.getCPUString();
 	gDebugInfo["CPUInfo"]["CPUFamily"] = gSysCPU.getFamily();
 	gDebugInfo["CPUInfo"]["CPUMhz"] = gSysCPU.getMhz();
 	gDebugInfo["CPUInfo"]["CPUAltivec"] = gSysCPU.hasAltivec();
@@ -2118,11 +2133,33 @@ void LLAppViewer::handleViewerCrash()
 	}
 	pApp->mReportedCrash = TRUE;
 
+	//We already do this in writeSystemInfo(), but we do it again here to make /sure/ we have a version
+	//to check against no matter what
+	gDebugInfo["ClientInfo"]["Name"] = gSavedSettings.getString("VersionChannelName");
+
+	gDebugInfo["ClientInfo"]["MajorVersion"] = LL_VERSION_MAJOR;
+	gDebugInfo["ClientInfo"]["MinorVersion"] = LL_VERSION_MINOR;
+	gDebugInfo["ClientInfo"]["PatchVersion"] = LL_VERSION_PATCH;
+	gDebugInfo["ClientInfo"]["BuildVersion"] = LL_VERSION_BUILD;
+	
 	gDebugInfo["SettingsFilename"] = gSavedSettings.getString("ClientSettingsFile");
 	gDebugInfo["CAFilename"] = gDirUtilp->getCAFile();
 	gDebugInfo["ViewerExePath"] = gDirUtilp->getExecutablePathAndName().c_str();
 	gDebugInfo["CurrentPath"] = gDirUtilp->getCurPath().c_str();
-	gDebugInfo["CurrentSimHost"] = gAgent.getRegionHost().getHostName();
+	if(gLogoutInProgress)
+	{
+		gDebugInfo["LastExecEvent"] = LAST_EXEC_LOGOUT_CRASH;
+	}
+	else
+	{
+		gDebugInfo["LastExecEvent"] = gLLErrorActivated ? LAST_EXEC_LLERROR_CRASH : LAST_EXEC_OTHER_CRASH;
+	}
+
+	if(gAgent.getRegion())
+	{
+		gDebugInfo["CurrentSimHost"] = gAgent.getRegionHost().getHostName();
+		gDebugInfo["CurrentRegion"] = gAgent.getRegion()->getName();
+	}
 
 	//Write out the crash status file
 	//Use marker file style setup, as that's the simplest, especially since
@@ -2170,7 +2207,14 @@ void LLAppViewer::handleViewerCrash()
 	LLError::logToFile("");
 
 	// Remove the marker file, since otherwise we'll spawn a process that'll keep it locked
-	pApp->removeMarkerFile();
+	if(gDebugInfo["LastExecEvent"].asInteger() == LAST_EXEC_LOGOUT_CRASH)
+	{
+		pApp->removeMarkerFile(true);
+	}
+	else
+	{
+		pApp->removeMarkerFile(false);
+	}
 	
 	// Call to pure virtual, handled by platform specifc llappviewer instance.
 	pApp->handleCrashReporting(); 
@@ -2235,24 +2279,35 @@ void LLAppViewer::initMarkerFile()
 	// These checks should also remove these files for the last 2 cases if they currently exist
 
 	//LLError/Error checks. Only one of these should ever happen at a time.
+	LLString logout_marker_file =  gDirUtilp->getExpandedFilename(LL_PATH_LOGS, LOGOUT_MARKER_FILE_NAME);
 	LLString llerror_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, LLERROR_MARKER_FILE_NAME);
 	LLString error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
-	apr_file_t* fMarker = ll_apr_file_open(llerror_marker_file, LL_APR_RB);
+
+	apr_file_t* fMarker = ll_apr_file_open(logout_marker_file, LL_APR_RB);
 	if(fMarker != NULL)
 	{
 		apr_file_close(fMarker);
 		llinfos << "Last exec LLError crashed, setting LastExecEvent to " << LAST_EXEC_LLERROR_CRASH << llendl;
-		gLastExecEvent = LAST_EXEC_LLERROR_CRASH;
+		gLastExecEvent = LAST_EXEC_LOGOUT_FROZE;
+	}	
+	fMarker = ll_apr_file_open(llerror_marker_file, LL_APR_RB);
+	if(fMarker != NULL)
+	{
+		apr_file_close(fMarker);
+		llinfos << "Last exec LLError crashed, setting LastExecEvent to " << LAST_EXEC_LLERROR_CRASH << llendl;
+		if(gLastExecEvent == LAST_EXEC_LOGOUT_FROZE) gLastExecEvent = LAST_EXEC_LOGOUT_CRASH;
+		else gLastExecEvent = LAST_EXEC_LLERROR_CRASH;
 	}
-
 	fMarker = ll_apr_file_open(error_marker_file, LL_APR_RB);
 	if(fMarker != NULL)
 	{
 		apr_file_close(fMarker);
 		llinfos << "Last exec crashed, setting LastExecEvent to " << LAST_EXEC_OTHER_CRASH << llendl;
-		gLastExecEvent = LAST_EXEC_OTHER_CRASH;
+		if(gLastExecEvent == LAST_EXEC_LOGOUT_FROZE) gLastExecEvent = LAST_EXEC_LOGOUT_CRASH;
+		else gLastExecEvent = LAST_EXEC_OTHER_CRASH;
 	}
 
+	ll_apr_file_remove(logout_marker_file);
 	ll_apr_file_remove(llerror_marker_file);
 	ll_apr_file_remove(error_marker_file);
 	
@@ -2279,6 +2334,7 @@ void LLAppViewer::initMarkerFile()
 	else
 	{
 		llinfos << "Failed to create marker file." << llendl;
+		return;
 	}
 	if (apr_file_lock(mMarkerFile, APR_FLOCK_NONBLOCK | APR_FLOCK_EXCLUSIVE) != APR_SUCCESS) 
 	{
@@ -2291,13 +2347,18 @@ void LLAppViewer::initMarkerFile()
 	llinfos << "Exiting initMarkerFile()." << llendl;
 }
 
-void LLAppViewer::removeMarkerFile()
+void LLAppViewer::removeMarkerFile(bool leave_logout_marker)
 {
 	llinfos << "removeMarkerFile()" << llendl;
 	if (mMarkerFile != NULL)
 	{
 		ll_apr_file_remove( mMarkerFileName );
 		mMarkerFile = NULL;
+	}
+	if (mLogoutMarkerFile != NULL && !leave_logout_marker)
+	{
+		ll_apr_file_remove( mLogoutMarkerFileName );
+		mLogoutMarkerFile = NULL;
 	}
 }
 
@@ -3277,6 +3338,20 @@ void LLAppViewer::sendLogoutRequest()
 		mLogoutRequestSent = TRUE;
 		
 		gVoiceClient->leaveChannel();
+
+		//Set internal status variables and marker files
+		gLogoutInProgress = TRUE;
+		mLogoutMarkerFileName = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,LOGOUT_MARKER_FILE_NAME);
+		mLogoutMarkerFile =  ll_apr_file_open(mLogoutMarkerFileName, LL_APR_W);
+		if (mLogoutMarkerFile)
+		{
+			llinfos << "Created logout marker file " << mLogoutMarkerFileName << llendl;
+		}
+		else
+		{
+			llwarns << "Cannot create logout marker file " << mLogoutMarkerFileName << llendl;
+		}
+		apr_file_close(mLogoutMarkerFile);
 	}
 }
 

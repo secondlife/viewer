@@ -73,7 +73,7 @@ const U32 VERTEX_MASK_SHINY = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_N
 const U32 VERTEX_MASK_BUMP = LLVertexBuffer::MAP_VERTEX |LLVertexBuffer::MAP_TEXCOORD | LLVertexBuffer::MAP_TEXCOORD2;
 
 U32 LLDrawPoolBump::sVertexMask = VERTEX_MASK_SHINY;
-static LLCubeMap* sCubeMap = NULL;
+static LLPointer<LLCubeMap> sCubeMap;
 
 static LLGLSLShader* shader = NULL;
 static S32 cube_channel = -1;
@@ -597,7 +597,7 @@ void LLDrawPoolBump::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL
 				{
 					sCubeMap->bind();
 				}
-				else
+				else if (gSky.mVOSkyp->getCubeMap())
 				{
 					gSky.mVOSkyp->getCubeMap()->bind();
 				}

@@ -901,6 +901,9 @@ BOOL LLScrollListCtrl::addItem( LLScrollListItem* item, EAddPosition pos, BOOL r
 	return not_too_big;
 }
 
+// NOTE: This is *very* expensive for large lists, especially when we are dirtying the list every frame
+//  while receiving a long list of names.
+// *TODO: Use bookkeeping to make this an incramental cost with item additions
 void LLScrollListCtrl::calcColumnWidths()
 {
 	const S32 HEADING_TEXT_PADDING = 30;

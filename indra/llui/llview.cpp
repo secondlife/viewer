@@ -644,13 +644,13 @@ void LLView::translate(S32 x, S32 y)
 }
 
 // virtual
-BOOL LLView::canSnapTo(const LLView* other_view) const
+BOOL LLView::canSnapTo(const LLView* other_view)
 {
 	return other_view != this && other_view->getVisible();
 }
 
 // virtual
-void LLView::snappedTo(LLView* snap_view)
+void LLView::snappedTo(const LLView* snap_view)
 {
 }
 

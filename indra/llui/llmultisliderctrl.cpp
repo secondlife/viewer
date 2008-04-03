@@ -185,7 +185,7 @@ void LLMultiSliderCtrl::setCurSlider(const LLString& name)
 	mCurValue = mMultiSlider->getCurSliderValue();
 }
 
-BOOL LLMultiSliderCtrl::setLabelArg( const LLString& key, const LLString& text )
+BOOL LLMultiSliderCtrl::setLabelArg( const LLString& key, const LLStringExplicit& text )
 {
 	BOOL res = FALSE;
 	if (mLabelBox)

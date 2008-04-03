@@ -112,7 +112,7 @@ public:
 	BOOL handleHover(S32 x, S32 y, MASK mask);
 	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
 
-	static void onMouseCaptureLost(LLMouseHandler*);
+	static void onMouseCaptureLostImagePreview(LLMouseHandler*);
 	static void setUploadAmount(S32 amount) { sUploadAmount = amount; }
 
 protected:

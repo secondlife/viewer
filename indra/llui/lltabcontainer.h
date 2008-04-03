@@ -63,7 +63,7 @@ public:
 	// from LLView
 	/*virtual*/ void setValue(const LLSD& value);
 
-	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
+	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	/*virtual*/ void draw();
 	/*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	/*virtual*/ BOOL handleHover( S32 x, S32 y, MASK mask );

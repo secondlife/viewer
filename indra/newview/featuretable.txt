@@ -1,4 +1,4 @@
-version 15
+version 16
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -45,6 +45,7 @@ RenderUseImpostors			1	1
 RenderVBOEnable				1	1
 RenderVolumeLODFactor		1	2.0
 RenderWaterReflections		1	1
+UseStartScreen				1	1
 UseOcclusion				1	1
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
@@ -319,7 +320,9 @@ list Intel_Springdale
 RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
 
-
+list ATI_FireGL_5200
+RenderVBOEnable				1	0
+WindLightUseAtmosShaders	0	0
 
 list ATI_Mobility_Radeon_9800
 RenderAvatarCloth			0	0
@@ -363,10 +366,12 @@ list ATI_Radeon_X700
 Disregard128DefaultDrawDistance	1	0
 list ATI_Radeon_X1300 
 Disregard128DefaultDrawDistance	1	0
+UseStartScreen					0	0
 list ATI_Radeon_X1400 
 Disregard128DefaultDrawDistance	1	0
 list ATI_Radeon_X1500 
 Disregard128DefaultDrawDistance	1	0
+UseStartScreen					0	0
 list ATI_Radeon_X1600 
 Disregard128DefaultDrawDistance	1	0
 list ATI_Radeon_X1700 

@@ -57,7 +57,6 @@ public:
 
 	virtual void	setTitle( const LLString& title ) = 0;
 	virtual const LLString&	getTitle() const = 0;
-	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE) = 0;
 
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);

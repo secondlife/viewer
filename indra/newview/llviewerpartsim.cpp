@@ -75,7 +75,11 @@ F32 calc_desired_size(LLVector3 pos, LLVector2 scale)
 	return llclamp(desired_size, scale.magVec()*0.5f, PART_SIM_BOX_SIDE*2);
 }
 
-LLViewerPart::LLViewerPart()
+LLViewerPart::LLViewerPart() :
+	mPartID(0),
+	mLastUpdateTime(0.f),
+	mVPCallback(NULL),
+	mImagep(NULL)
 {
 	LLMemType mt(LLMemType::MTYPE_PARTICLES);
 	mPartSourcep = NULL;

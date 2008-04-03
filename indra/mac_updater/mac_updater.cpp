@@ -734,7 +734,7 @@ void *updatethreadproc(void*)
 	FSRef targetRef;
 	FSRef targetParentRef;
 	FSVolumeRefNum targetVol;
-	FSRef trashFolderRef, tempFolderRef;
+	FSRef trashFolderRef;
 	Boolean replacingTarget = false;
 
 	memset(&tempDirRef, 0, sizeof(tempDirRef));
@@ -893,6 +893,10 @@ void *updatethreadproc(void*)
 		if(err != noErr)
 			throw 0;
 
+#if 0 // *HACK for DEV-11935 see below for details.
+
+		FSRef tempFolderRef;
+
 		err = FSFindFolder(
 			targetVol,
 			kTemporaryFolderType,
@@ -906,6 +910,17 @@ void *updatethreadproc(void*)
 
 		if(err != noErr)
 			throw 0;
+
+#else		
+
+		// *HACK for DEV-11935  the above kTemporaryFolderType query was giving
+		// back results with path names that seem to be too long to be used as
+		// mount points.  I suspect this incompatibility was introduced in the
+		// Leopard 10.5.2 update, but I have not verified this. 
+		char const HARDCODED_TMP[] = "/tmp";
+		strncpy(temp, HARDCODED_TMP, sizeof(HARDCODED_TMP));
+
+#endif // 0 *HACK for DEV-11935
 		
 		strncat(temp, "/SecondLifeUpdate_XXXXXX", (sizeof(temp) - strlen(temp)) - 1);
 		if(mkdtemp(temp) == NULL)

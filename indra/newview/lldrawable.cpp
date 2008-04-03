@@ -409,14 +409,14 @@ void LLDrawable::makeActive()
 }
 
 
-void LLDrawable::makeStatic()
+void LLDrawable::makeStatic(BOOL warning_enabled)
 {
 	if (isState(ACTIVE))
 	{
 		clearState(ACTIVE);
 		gPipeline.setActive(this, FALSE);
 
-		if (mParent.notNull() && mParent->isActive())
+		if (mParent.notNull() && mParent->isActive() && warning_enabled)
 		{
 			llwarns << "Drawable becamse static with active parent!" << llendl;
 		}
@@ -431,7 +431,7 @@ void LLDrawable::makeStatic()
 				{
 					llwarns << "Child drawable has unknown parent." << llendl;
 				}
-				child_drawable->makeStatic();
+				child_drawable->makeStatic(warning_enabled);
 			}
 		}
 		

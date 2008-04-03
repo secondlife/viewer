@@ -538,7 +538,7 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 		{
 			mask |= LLInventoryObserver::LABEL;
 		}
-		old_item->copy(item);
+		old_item->copyViewerItem(item);
 		mask |= LLInventoryObserver::INTERNAL;
 	}
 	else
@@ -654,14 +654,14 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat)
 		{
 			mask |= LLInventoryObserver::LABEL;
 		}
-		old_cat->copy(cat);
+		old_cat->copyViewerCategory(cat);
 		addChangedMask(mask, cat->getUUID());
 	}
 	else
 	{
 		// add this category
 		LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat->getParentUUID());
-		new_cat->copy(cat);
+		new_cat->copyViewerCategory(cat);
 		addCategory(new_cat);
 
 		// make sure this category is correctly referenced by it's parent.
@@ -1158,7 +1158,13 @@ void LLInventoryModel::fetchDescendentsResponder::onClickRetry(S32 option, void*
 {
 	if (option == 0)
 	{
-		std::string url = gAgent.getRegion()->getCapability("FetchInventoryDescendents");
+		std::string url;
+
+		LLViewerRegion * agent_region = gAgent.getRegion();
+		if (agent_region)
+		{
+			url = agent_region->getCapability("FetchInventoryDescendents");
+		}
 
 		if (!url.empty()) //Capability found.  Build up LLSD and use it.
 		{
@@ -1351,7 +1357,14 @@ void LLInventoryModel::backgroundFetch(void*)
 	if (sBackgroundFetchActive)
 	{
 		//If we'll be using the capability, we'll be sending batches and the background thing isn't as important.
-		std::string url = gAgent.getRegion()->getCapability("FetchInventoryDescendents");   
+		std::string url;
+
+		LLViewerRegion * agent_region = gAgent.getRegion();
+		if (agent_region)
+		{
+			url = agent_region->getCapability("FetchInventoryDescendents");
+		}
+
 		if (!url.empty()) 
 		{
 			bulkFetch(url);

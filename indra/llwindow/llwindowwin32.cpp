@@ -3038,10 +3038,29 @@ void spawn_web_browser(const char* escaped_url )
 
 	llinfos << "Opening URL " << escaped_url << llendl;
 
+	// replaced ShellExecute code with ShellExecuteEx since ShellExecute doesn't work
+	// reliablly on Vista.
+
+	// this is madness.. no, this is..
+	LLWString url_wstring = utf8str_to_wstring( escaped_url );
+	llutf16string url_utf16 = wstring_to_utf16str( url_wstring );
+
+	// let the OS decide what to use to open the URL
+	SHELLEXECUTEINFO sei = { sizeof( sei ) };
+	sei.fMask = SEE_MASK_FLAG_DDEWAIT;
+	sei.nShow = SW_SHOWNORMAL;
+	sei.lpVerb = L"open";
+	sei.lpFile = url_utf16.c_str();
+	ShellExecuteEx( &sei );
+
+	//// TODO: LEAVING OLD CODE HERE SO I DON'T BONE OTHER MERGES
+	//// DELETE THIS ONCE THE MERGES ARE DONE
+
 	// Figure out the user's default web browser
 	// HKEY_CLASSES_ROOT\http\shell\open\command
-	char reg_path_str[256];	/* Flawfinder: ignore */
-	snprintf(reg_path_str, sizeof(reg_path_str), "%s\\shell\\open\\command", gURLProtocolWhitelistHandler[i]);	/* Flawfinder: ignore */
+	/*
+	char reg_path_str[256];	// Flawfinder: ignore
+	snprintf(reg_path_str, sizeof(reg_path_str), "%s\\shell\\open\\command", gURLProtocolWhitelistHandler[i]);	// Flawfinder: ignore
 	WCHAR reg_path_wstr[256];
 	mbstowcs(reg_path_wstr, reg_path_str, sizeof(reg_path_wstr)/sizeof(reg_path_wstr[0]));
 
@@ -3092,7 +3111,7 @@ void spawn_web_browser(const char* escaped_url )
 	// MS docs say to cast to int and compare to 32.
 	HWND our_window = NULL;
 	LPCWSTR directory_wstr = NULL;
-	int retval = (int) ShellExecute(our_window, 	/* Flawfinder: ignore */
+	int retval = (int) ShellExecute(our_window, 	// Flawfinder: ignore
 									L"open", 
 									browser_exec_utf16.c_str(), 
 									url_utf16.c_str(), 
@@ -3106,6 +3125,7 @@ void spawn_web_browser(const char* escaped_url )
 	{
 		llinfos << "load_url failure with " << retval << llendl;
 	}
+	*/
 }
 
 

@@ -56,11 +56,11 @@ public:
 	virtual bool cleanup() { return true; }
 	void setUserText(LLString& text) { mCrashInfo["UserNotes"] = text; }
 	S32 getCrashBehavior() { return mCrashBehavior; }
+	bool runCrashLogPost(LLString host, LLSD data, LLString msg, int retries, int timeout);
 protected:
 	S32 mCrashBehavior;
 	BOOL mCrashInPreviousExec;
 	std::map<LLString, LLString> mFileMap;
-	static const int mMaxSendSize = 200000;
 	LLString mGridName;
 	LLControlGroup mCrashSettings;
 	LLString mProductName;

@@ -58,7 +58,7 @@ public:
 									 EAcceptance* accept,
 									 LLString& tooltip_msg);
 
-	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
+	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 	static void toggle(void*);
 	static BOOL visible(void*);

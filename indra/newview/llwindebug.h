@@ -41,7 +41,7 @@ public:
 	static BOOL setupExceptionHandler();
 
 	static LONG WINAPI handleException(struct _EXCEPTION_POINTERS *pExceptionInfo);
-	//static void writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMATION *ExInfop, const char *filename);
+	static void writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMATION *ExInfop, const char *filename);
 };
 
 #endif // LL_LLWINDEBUG_H

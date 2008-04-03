@@ -97,7 +97,9 @@ public:
 
 	static bool loadFaceFallback(LLFontList *fontp, const LLString& fontname, const F32 point_size);
 	static bool loadFace(LLFontGL *fontp, const LLString& fontname, const F32 point_size, LLFontList *fallback_fontp);
-	BOOL loadFace(const LLString& filename, const F32 point_size, const F32 vert_dpi, const F32 horz_dpi);
+	/* virtual*/ BOOL loadFace(const std::string& filename,
+							    const F32 point_size, const F32 vert_dpi, const F32 horz_dpi,
+							    const S32 components, BOOL is_fallback);
 
 
 	S32 renderUTF8(const LLString &text, const S32 begin_offset,

@@ -353,7 +353,7 @@ bool LLFloaterImagePreview::loadImage(const char *src_filename)
 				return false;
 			}
 			
-			if (!bmp_image->decode(raw_image))
+			if (!bmp_image->decode(raw_image, 0.0f))
 			{
 				return false;
 			}
@@ -390,7 +390,7 @@ bool LLFloaterImagePreview::loadImage(const char *src_filename)
 				return false;
 			}
 			
-			if (!jpeg_image->decode(raw_image))
+			if (!jpeg_image->decode(raw_image, 0.0f))
 			{
 				return false;
 			}
@@ -405,7 +405,7 @@ bool LLFloaterImagePreview::loadImage(const char *src_filename)
 				return false;
 			}
 			
-			if (!png_image->decode(raw_image))
+			if (!png_image->decode(raw_image, 0.0f))
 			{
 				return false;
 			}
@@ -589,7 +589,8 @@ BOOL LLFloaterImagePreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
 //-----------------------------------------------------------------------------
 // onMouseCaptureLost()
 //-----------------------------------------------------------------------------
-void LLFloaterImagePreview::onMouseCaptureLost(LLMouseHandler* handler)
+// static
+void LLFloaterImagePreview::onMouseCaptureLostImagePreview(LLMouseHandler* handler)
 {
 	gViewerWindow->showCursor();
 }

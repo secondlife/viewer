@@ -2,9 +2,6 @@
  * @file llblowfishcipher.cpp
  * @brief Wrapper around OpenSSL Blowfish encryption algorithm.
  *
- * We do not have OpenSSL headers or libraries on Windows, so this
- * class only works on Linux.
- *
  * $LicenseInfo:firstyear=2007&license=viewergpl$
  * 
  * Copyright (c) 2007, Linden Research, Inc.

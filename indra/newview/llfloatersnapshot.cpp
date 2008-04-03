@@ -770,10 +770,10 @@ void LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 				previewp->mJPEGImage = NULL; // deletes image
 				previewp->mJPEGImage = new LLImageJPEG();
 				previewp->mJPEGImage->setEncodeQuality(llclamp(previewp->mSnapshotQuality, 0, 100));
-				if (previewp->mJPEGImage->encode(previewp->mRawImage))
+				if (previewp->mJPEGImage->encode(previewp->mRawImage, 0.0f))
 				{
 					previewp->mDataSize = previewp->mJPEGImage->getDataSize();
-					previewp->mJPEGImage->decode(previewp->mRawImageEncoded);
+					previewp->mJPEGImage->decode(previewp->mRawImageEncoded, 0.0f);
 				}
 			}
 			else if (previewp->getSnapshotType() == SNAPSHOT_TEXTURE)
@@ -786,10 +786,10 @@ void LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 			
 				scaled->biasedScaleToPowerOfTwo(512);
 				previewp->mImageScaled[previewp->mCurImageIndex] = TRUE;
-				if (formatted->encode(scaled))
+				if (formatted->encode(scaled, 0.0f))
 				{
 					previewp->mDataSize = formatted->getDataSize();
-					formatted->decode(previewp->mRawImageEncoded);
+					formatted->decode(previewp->mRawImageEncoded, 0.0f);
 				}
 			}
 			else
@@ -885,7 +885,7 @@ void LLSnapshotLivePreview::saveTexture()
 	
 	scaled->biasedScaleToPowerOfTwo(512);
 			
-	if (formatted->encode(scaled))
+	if (formatted->encode(scaled, 0.0f))
 	{
 		LLVFile::writeFile(formatted->getData(), formatted->getDataSize(), gVFS, new_asset_id, LLAssetType::AT_TEXTURE);
 		std::string pos_string;

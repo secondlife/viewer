@@ -64,7 +64,7 @@ public:
 	virtual BOOL trigger(KEY key, MASK mask);
 
 	// Triggers if case-insensitive substring matches (assumes string is lowercase)
-	virtual BOOL trigger(const LLString &string);
+	virtual BOOL trigger(const std::string &string);
 
 	// non-endian-neutral serialization
 	U8 *serialize(U8 *buffer) const;

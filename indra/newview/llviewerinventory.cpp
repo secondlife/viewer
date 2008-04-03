@@ -97,7 +97,7 @@ LLViewerInventoryItem::LLViewerInventoryItem() :
 LLViewerInventoryItem::LLViewerInventoryItem(const LLViewerInventoryItem* other) :
 	LLInventoryItem()
 {
-	copy(other);
+	copyViewerItem(other);
 	if (!mIsComplete)
 	{
 		llwarns << "LLViewerInventoryItem copy constructor for incomplete item"
@@ -116,23 +116,22 @@ LLViewerInventoryItem::~LLViewerInventoryItem()
 {
 }
 
-// virtual
-void LLViewerInventoryItem::copy(const LLViewerInventoryItem* other)
+void LLViewerInventoryItem::copyViewerItem(const LLViewerInventoryItem* other)
 {
-	LLInventoryItem::copy(other);
+	LLInventoryItem::copyItem(other);
 	mIsComplete = other->mIsComplete;
 	mTransactionID = other->mTransactionID;
 }
 
-void LLViewerInventoryItem::copy(const LLInventoryItem *other)
+// virtual
+void LLViewerInventoryItem::copyItem(const LLInventoryItem *other)
 {
-	LLInventoryItem::copy(other);
+	LLInventoryItem::copyItem(other);
 	mIsComplete = true;
 	mTransactionID.setNull();
 }
 
-// virtual
-void LLViewerInventoryItem::clone(LLPointer<LLViewerInventoryItem>& newitem) const
+void LLViewerInventoryItem::cloneViewerItem(LLPointer<LLViewerInventoryItem>& newitem) const
 {
 	newitem = new LLViewerInventoryItem(this);
 	if(newitem.notNull())
@@ -348,17 +347,16 @@ LLViewerInventoryCategory::LLViewerInventoryCategory(const LLUUID& owner_id) :
 
 LLViewerInventoryCategory::LLViewerInventoryCategory(const LLViewerInventoryCategory* other)
 {
-	copy(other);
+	copyViewerCategory(other);
 }
 
 LLViewerInventoryCategory::~LLViewerInventoryCategory()
 {
 }
 
-// virtual
-void LLViewerInventoryCategory::copy(const LLViewerInventoryCategory* other)
+void LLViewerInventoryCategory::copyViewerCategory(const LLViewerInventoryCategory* other)
 {
-	LLInventoryCategory::copy(other);
+	copyCategory(other);
 	mOwnerID = other->mOwnerID;
 	mVersion = other->mVersion;
 	mDescendentCount = other->mDescendentCount;

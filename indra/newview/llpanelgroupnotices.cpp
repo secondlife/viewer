@@ -496,8 +496,10 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		row["columns"][4]["column"] = "sort";
 		row["columns"][4]["value"] = buffer;
 
-		mNoticesList->addElement(row, ADD_SORTED);
+		mNoticesList->addElement(row, ADD_BOTTOM);
 	}
+
+	mNoticesList->sortItems();
 }
 
 void LLPanelGroupNotices::onSelectNotice(LLUICtrl* ctrl, void* data)

@@ -197,7 +197,7 @@ void LLFloaterAuction::onClickSnapshot(void* data)
 		llinfos << "Writing J2C..." << llendl;
 
 		LLPointer<LLImageJ2C> j2c = new LLImageJ2C;
-		j2c->encode(raw);
+		j2c->encode(raw, 0.0f);
 		LLVFile::writeFile(j2c->getData(), j2c->getDataSize(), gVFS, self->mImageID, LLAssetType::AT_TEXTURE);
 
 		self->mImage = new LLImageGL((LLImageRaw*)raw, FALSE);

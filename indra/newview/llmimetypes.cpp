@@ -131,11 +131,15 @@ bool LLMIMETypes::parseMIMETypes(const LLString& xml_filename)
 				}
 				if (child->hasName("allow_resize"))
 				{
-					child->getBoolValue( 1, (BOOL*)&( info.mAllowResize ) );
+					BOOL allow_resize = FALSE;
+					child->getBoolValue( 1, &allow_resize );
+					info.mAllowResize = (bool)allow_resize;
 				}
 				if (child->hasName("allow_looping"))
 				{
-					child->getBoolValue( 1, (BOOL*)&( info.mAllowLooping ) );
+					BOOL allow_looping = FALSE;
+					child->getBoolValue( 1, &allow_looping );
+					info.mAllowLooping = (bool)allow_looping;
 				}
 			}
 			sWidgetMap[set_name] = info;

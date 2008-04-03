@@ -84,7 +84,8 @@ class LLPartData
 public:
 	LLPartData() :
 		mFlags(0),
-		mMaxAge(0)
+		mMaxAge(0.f),
+		mParameter(0.f)
 	{
 	}
 	BOOL unpack(LLDataPacker &dp);
@@ -108,7 +109,7 @@ public:
 		LL_PART_BEAM_MASK =				0x200,		// Particle is a "beam" connecting source and target
 
 		// Not implemented yet!
-		//LL_PART_RANDOM_ACCEL_MASK =		0x100,		// Patricles have random accelearation
+		//LL_PART_RANDOM_ACCEL_MASK =		0x100,		// Particles have random acceleration
 		//LL_PART_RANDOM_VEL_MASK =		0x200,		// Particles have random velocity shifts"
 		//LL_PART_TRAIL_MASK =			0x400,		// Particles have historical "trails"
 

@@ -48,7 +48,7 @@ public:
 	void refresh();
 	void setMediaType(const LLString& media_type);
 	void setMediaURL(const LLString& media_type);
-	const LLString& getMediaURL() { return mMediaURLEdit->getText(); }
+	LLString getMediaURL();
 
 private:
 	void populateMIMECombo();

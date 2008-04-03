@@ -119,7 +119,7 @@ public:
 
 	// Can be called multiple times to reset floater parameters.
 	// Deletes all children of the floater.
-	virtual void		init(const LLString& title, BOOL resizable, 
+	virtual void		initFloater(const LLString& title, BOOL resizable, 
 						S32 min_width, S32 min_height, BOOL drag_on_left,
 						BOOL minimizable, BOOL close_btn);
 
@@ -128,6 +128,8 @@ public:
 	// If allowed, close the floater cleanly, releasing focus.
 	// app_quitting is passed to onClose() below.
 	virtual void	close(bool app_quitting = false);
+
+	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	
 	// Release keyboard and mouse focus
 	void			releaseFocus();
@@ -300,8 +302,8 @@ class LLFloaterView : public LLUICtrl
 public:
 	LLFloaterView( const LLString& name, const LLRect& rect );
 
-	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
-	void reshape(S32 width, S32 height, BOOL called_from_parent, BOOL adjust_vertical);
+	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	void reshapeFloater(S32 width, S32 height, BOOL called_from_parent, BOOL adjust_vertical);
 
 	/*virtual*/ void draw();
 	/*virtual*/ LLRect getSnapRect() const;

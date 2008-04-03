@@ -181,11 +181,11 @@ LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput(const LLUUID& object_id)
 	addChild(mHistoryEditor);
 }
 
-void LLFloaterScriptDebugOutput::init(const LLString& title, BOOL resizable, 
+void LLFloaterScriptDebugOutput::initFloater(const LLString& title, BOOL resizable, 
 						S32 min_width, S32 min_height, BOOL drag_on_left,
 						BOOL minimizable, BOOL close_btn)
 {
-	LLFloater::init(title, resizable, min_width, min_height, drag_on_left, minimizable, close_btn);
+	LLFloater::initFloater(title, resizable, min_width, min_height, drag_on_left, minimizable, close_btn);
 	S32 y = getRect().getHeight() - LLFLOATER_HEADER_SIZE - LLFLOATER_VPAD;
 	S32 x = LLFLOATER_HPAD;
 	// History editor

@@ -2880,7 +2880,7 @@ void LLWindowMacOSX::setCursor(ECursorType cursor)
 	mCurrentCursor = cursor;
 }
 
-ECursorType LLWindowMacOSX::getCursor()
+ECursorType LLWindowMacOSX::getCursor() const
 {
 	return mCurrentCursor;
 }

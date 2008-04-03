@@ -308,7 +308,7 @@ BOOL LLImageDXT::getMipData(LLPointer<LLImageRaw>& raw, S32 discard)
 	return TRUE;
 }
 
-BOOL LLImageDXT::encode(const LLImageRaw* raw_image, F32 time, bool explicit_mips)
+BOOL LLImageDXT::encodeDXT(const LLImageRaw* raw_image, F32 time, bool explicit_mips)
 {
 	llassert_always(raw_image);
 	
@@ -396,7 +396,7 @@ BOOL LLImageDXT::encode(const LLImageRaw* raw_image, F32 time, bool explicit_mip
 // virtual
 BOOL LLImageDXT::encode(const LLImageRaw* raw_image, F32 time)
 {
-	return encode(raw_image, time, false);
+	return encodeDXT(raw_image, time, false);
 }
 
 // virtual

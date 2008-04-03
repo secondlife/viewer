@@ -49,7 +49,7 @@ public:
 
 	/*virtual*/ void	open();	/* Flawfinder: ignore */
 	
-	/*virtual*/ void 	reshape(S32 width, S32 height, BOOL called_from_parent = 1);
+	/*virtual*/ void 	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	
 	/*virtual*/ void	startModal();
 	/*virtual*/ void	stopModal();

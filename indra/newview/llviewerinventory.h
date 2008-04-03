@@ -83,13 +83,13 @@ public:
 	LLViewerInventoryItem(const LLViewerInventoryItem* other);
 	LLViewerInventoryItem(const LLInventoryItem* other);
 
-	virtual void copy(const LLViewerInventoryItem* other);
-	virtual void copy(const LLInventoryItem* other);
+	void copyViewerItem(const LLViewerInventoryItem* other);
+	/*virtual*/ void copyItem(const LLInventoryItem* other);
 
 	// construct a new clone of this item - it creates a new viewer
 	// inventory item using the copy constructor, and returns it.
 	// It is up to the caller to delete (unref) the item.
-	virtual void clone(LLPointer<LLViewerInventoryItem>& newitem) const;
+	void cloneViewerItem(LLPointer<LLViewerInventoryItem>& newitem) const;
 
 	// virtual methods
 	virtual void removeFromServer( void );
@@ -156,7 +156,7 @@ public:
 	// Note: Because InventoryCategorys are ref counted, reference copy (a = b)
 	// is prohibited
 	LLViewerInventoryCategory(const LLViewerInventoryCategory* other);
-	virtual void copy(const LLViewerInventoryCategory* other);
+	void copyViewerCategory(const LLViewerInventoryCategory* other);
 
 	virtual void removeFromServer();
 	virtual void updateParentOnServer(BOOL restamp_children) const;

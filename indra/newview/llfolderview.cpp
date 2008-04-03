@@ -4509,6 +4509,9 @@ LLInventoryFilter::LLInventoryFilter(const LLString& name) :
 
 	mLastLogoff = gSavedPerAccountSettings.getU32("LastLogoff");
 	mFilterBehavior = FILTER_NONE;
+
+	// copy mFilterOps into mDefaultFilterOps
+	markDefault();
 }
 
 LLInventoryFilter::~LLInventoryFilter()

@@ -64,7 +64,7 @@ public:
 
 protected:
 	~LLVOTextBubble();
-	BOOL setVolume(const LLVolumeParams &volume_params);
+	BOOL setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume = false);
 	LLFrameTimer mUpdateTimer;
 };
 

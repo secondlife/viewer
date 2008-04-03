@@ -235,10 +235,10 @@ bool LLFontGL::loadFaceFallback(LLFontList *fontlistp, const LLString& fontname,
 	{
 		LLFont *fontp = new LLFont();
 		LLString font_path = local_path + *token_iter;
-		if (!fontp->loadFace(font_path.c_str(), point_size, sVertDPI, sHorizDPI, 2, TRUE))
+		if (!fontp->loadFace(font_path, point_size, sVertDPI, sHorizDPI, 2, TRUE))
 		{
 			font_path = sys_path + *token_iter;
-			if (!fontp->loadFace(font_path.c_str(), point_size, sVertDPI, sHorizDPI, 2, TRUE))
+			if (!fontp->loadFace(font_path, point_size, sVertDPI, sHorizDPI, 2, TRUE))
 			{
 				llwarns << "Couldn't load font " << *token_iter << llendl;
 				delete fontp;
@@ -261,11 +261,11 @@ bool LLFontGL::loadFace(LLFontGL *fontp, const LLString& fontname, const F32 poi
 {
 	LLString local_path = getFontPathLocal();
 	LLString font_path = local_path + fontname;
-	if (!fontp->loadFace(font_path.c_str(), point_size, sVertDPI, sHorizDPI))
+	if (!fontp->loadFace(font_path, point_size, sVertDPI, sHorizDPI, 2, FALSE))
 	{
 		LLString sys_path = getFontPathSystem();
 		font_path = sys_path + fontname;
-		if (!fontp->loadFace(font_path.c_str(), point_size, sVertDPI, sHorizDPI))
+		if (!fontp->loadFace(font_path, point_size, sVertDPI, sHorizDPI, 2, FALSE))
 		{
 			llwarns << "Couldn't load font " << fontname << llendl;
 			return false;
@@ -506,9 +506,11 @@ LLFontGL &LLFontGL::operator=(const LLFontGL &source)
 	return *this;
 }
 
-BOOL LLFontGL::loadFace(const LLString& filename, const F32 point_size, const F32 vert_dpi, const F32 horz_dpi)
+BOOL LLFontGL::loadFace(const std::string& filename,
+						const F32 point_size, const F32 vert_dpi, const F32 horz_dpi,
+						const S32 components, BOOL is_fallback)
 {
-	if (!LLFont::loadFace(filename, point_size, vert_dpi, horz_dpi, 2, FALSE))
+	if (!LLFont::loadFace(filename, point_size, vert_dpi, horz_dpi, components, is_fallback))
 	{
 		return FALSE;
 	}

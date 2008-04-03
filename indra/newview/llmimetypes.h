@@ -68,7 +68,7 @@ public:
 	static bool findAllowResize(const LLString& mime_type);
 		// accessor for flag to enable/disable media size edit fields
 
-	static bool LLMIMETypes::findAllowLooping(const LLString& mime_type);
+	static bool findAllowLooping(const LLString& mime_type);
 		// accessor for flag to enable/disable media looping checkbox
 
 public:

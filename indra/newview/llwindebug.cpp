@@ -633,6 +633,44 @@ BOOL LLWinDebug::setupExceptionHandler()
 	// Internal builds don't mess with exception handling.
 	//return TRUE;
 }
+
+void LLWinDebug::writeDumpToFile(MINIDUMP_TYPE type, MINIDUMP_EXCEPTION_INFORMATION *ExInfop, const char *filename)
+{
+	if(f_mdwp == NULL || gDirUtilp == NULL) 
+	{
+		return;
+		//write_debug("No way to generate a minidump, no MiniDumpWriteDump function!\n");
+	}
+	else
+	{
+		std::string dump_path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
+															   filename);
+
+		HANDLE hFile = CreateFileA(dump_path.c_str(),
+									GENERIC_WRITE,
+									FILE_SHARE_WRITE,
+									NULL,
+									CREATE_ALWAYS,
+									FILE_ATTRIBUTE_NORMAL,
+									NULL);
+
+		if (hFile != INVALID_HANDLE_VALUE)
+		{
+			// Write the dump, ignoring the return value
+			f_mdwp(GetCurrentProcess(),
+					GetCurrentProcessId(),
+					hFile,
+					type,
+					ExInfop,
+					NULL,
+					NULL);
+
+			CloseHandle(hFile);
+		}
+
+	}
+}
+
 // static
 LONG LLWinDebug::handleException(struct _EXCEPTION_POINTERS *exception_infop)
 {
@@ -648,6 +686,18 @@ LONG LLWinDebug::handleException(struct _EXCEPTION_POINTERS *exception_infop)
 
 	if (exception_infop)
 	{
+		if(gSavedSettings.getControl("SaveMinidump") != NULL && gSavedSettings.getBOOL("SaveMinidump"))
+		{
+			_MINIDUMP_EXCEPTION_INFORMATION ExInfo;
+
+			ExInfo.ThreadId = ::GetCurrentThreadId();
+			ExInfo.ExceptionPointers = exception_infop;
+			ExInfo.ClientPointers = NULL;
+
+			writeDumpToFile(MiniDumpNormal, &ExInfo, "SecondLife.dmp");
+			writeDumpToFile((MINIDUMP_TYPE)(MiniDumpWithDataSegs | MiniDumpWithIndirectlyReferencedMemory), &ExInfo, "SecondLifePlus.dmp");
+		}
+
 
 		std::string dump_path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
 															   "SecondLifeException");

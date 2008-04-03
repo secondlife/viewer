@@ -58,7 +58,7 @@ public:
 	~LLOverlayBar();
 
 	/*virtual*/ void refresh();
-	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
+	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	/*virtual*/ BOOL postBuild();
 
 	void layoutButtons();

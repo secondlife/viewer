@@ -2075,6 +2075,14 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 	}
 
 	mSculptLevel = sculpt_level;
+
+	// Delete any existing faces so that they get regenerated
+	if (mVolumeFaces)
+	{
+		delete[] mVolumeFaces;
+		mVolumeFaces = NULL;
+	}
+	
 	createVolumeFaces();
 }
 
@@ -4817,29 +4825,33 @@ BOOL LLVolumeFace::createSide(BOOL partial_build)
 		}
 	}
 
-	//generate normals
-	for (U32 i = 0; i < mIndices.size()/3; i++) {	//for each triangle
-		const VertexData& v0 = mVertices[mIndices[i*3+0]];
-		const VertexData& v1 = mVertices[mIndices[i*3+1]];
-		const VertexData& v2 = mVertices[mIndices[i*3+2]];
+	//generate normals 
+	for (U32 i = 0; i < mIndices.size()/3; i++) //for each triangle
+	{
+		const S32 i0 = mIndices[i*3+0];
+		const S32 i1 = mIndices[i*3+1];
+		const S32 i2 = mIndices[i*3+2];
+		const VertexData& v0 = mVertices[i0];
+		const VertexData& v1 = mVertices[i1];
+		const VertexData& v2 = mVertices[i2];
 					
 		//calculate triangle normal
-		LLVector3 norm = (v0.mPosition-v1.mPosition)%
-						(v0.mPosition-v2.mPosition);
+		LLVector3 norm = (v0.mPosition-v1.mPosition) % (v0.mPosition-v2.mPosition);
 
 		for (U32 j = 0; j < 3; j++) 
 		{ //add triangle normal to vertices
-			mVertices[mIndices[i*3+j]].mNormal += norm; // * (weight_sum - d[j])/weight_sum;
+			const S32 idx = mIndices[i*3+j];
+			mVertices[idx].mNormal += norm; // * (weight_sum - d[j])/weight_sum;
 		}
 
 		//even out quad contributions
-		if (i % 2 == 0) 
+		if ((i & 1) == 0) 
 		{
-			mVertices[mIndices[i*3+2]].mNormal += norm;
+			mVertices[i2].mNormal += norm;
 		}
 		else 
 		{
-			mVertices[mIndices[i*3+1]].mNormal += norm;
+			mVertices[i1].mNormal += norm;
 		}
 	}
 	

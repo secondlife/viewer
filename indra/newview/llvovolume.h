@@ -141,6 +141,7 @@ public:
 
 	/*virtual*/ void	setTEImage(const U8 te, LLViewerImage *imagep);
 	/*virtual*/ S32		setTETexture(const U8 te, const LLUUID &uuid);
+	/*virtual*/ S32		setTEColor(const U8 te, const LLColor3 &color);
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor4 &color);
 	/*virtual*/ S32		setTEBumpmap(const U8 te, const U8 bump);
 	/*virtual*/ S32		setTEShiny(const U8 te, const U8 shiny);

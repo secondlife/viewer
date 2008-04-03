@@ -231,14 +231,14 @@ BOOL LLPanelClassified::postBuild()
     mNameEditor = getChild<LLLineEditor>("given_name_editor");
 	mNameEditor->setMaxTextLength(DB_PARCEL_NAME_LEN);
 	mNameEditor->setCommitOnFocusLost(TRUE);
-	mNameEditor->setFocusReceivedCallback(onFocusReceived, this);
+	mNameEditor->setFocusReceivedCallback(focusReceived, this);
 	mNameEditor->setCommitCallback(onCommitAny);
 	mNameEditor->setCallbackUserData(this);
 	mNameEditor->setPrevalidate( LLLineEditor::prevalidateASCII );
 
     mDescEditor = getChild<LLTextEditor>("desc_editor");
 	mDescEditor->setCommitOnFocusLost(TRUE);
-	mDescEditor->setFocusReceivedCallback(onFocusReceived, this);
+	mDescEditor->setFocusReceivedCallback(focusReceived, this);
 	mDescEditor->setCommitCallback(onCommitAny);
 	mDescEditor->setCallbackUserData(this);
 	mDescEditor->setTabsToNextField(TRUE);
@@ -965,7 +965,7 @@ void LLPanelClassified::onCommitAny(LLUICtrl* ctrl, void* data)
 }
 
 // static
-void LLPanelClassified::onFocusReceived(LLFocusableElement* ctrl, void* data)
+void LLPanelClassified::focusReceived(LLFocusableElement* ctrl, void* data)
 {
 	// allow the data to be saved
 	onCommitAny((LLUICtrl*)ctrl, data);

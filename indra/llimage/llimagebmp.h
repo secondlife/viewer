@@ -45,8 +45,8 @@ public:
 	LLImageBMP();
 
 	/*virtual*/ BOOL updateData();
-	/*virtual*/ BOOL decode(LLImageRaw* raw_image, F32 time=0.0);
-	/*virtual*/ BOOL encode(const LLImageRaw* raw_image, F32 time=0.0);
+	/*virtual*/ BOOL decode(LLImageRaw* raw_image, F32 decode_time);
+	/*virtual*/ BOOL encode(const LLImageRaw* raw_image, F32 encode_time);
 
 protected:
 	BOOL		decodeColorTable8( U8* dst, U8* src );

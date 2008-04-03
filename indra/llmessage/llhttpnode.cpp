@@ -169,15 +169,9 @@ void LLHTTPNode::del(LLHTTPNode::ResponsePtr response, const LLSD& context) cons
 }
 
 // virtual
-LLSD LLHTTPNode::del() const
-{
-	throw NotImplemented();
-}
-
-// virtual
 LLSD LLHTTPNode::del(const LLSD&) const
 {
-	return del();
+	throw NotImplemented();
 }
 
 

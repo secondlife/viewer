@@ -3280,7 +3280,7 @@ void rez_attachment(LLViewerInventoryItem* item, LLViewerJointAttachment* attach
 		{
 			if (iter->second == attachment)
 			{
-				rez_action->mAttachPt = iter->first;
+				attach_pt = iter->first;
 				break;
 			}
 		}

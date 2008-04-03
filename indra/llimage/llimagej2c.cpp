@@ -250,11 +250,11 @@ BOOL LLImageJ2C::updateData()
 
 BOOL LLImageJ2C::decode(LLImageRaw *raw_imagep, F32 decode_time)
 {
-	return decode(raw_imagep, decode_time, 0, 4);
+	return decodeChannels(raw_imagep, decode_time, 0, 4);
 }
 
 
-BOOL LLImageJ2C::decode(LLImageRaw *raw_imagep, F32 decode_time, S32 first_channel, S32 max_channel_count )
+BOOL LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 first_channel, S32 max_channel_count )
 {
 	LLMemType mt1((LLMemType::EMemType)mMemType);
 

@@ -55,6 +55,7 @@ class LLTextureFetchWorker : public LLWorkerClass
 friend class LLTextureFetch;
 
 private:
+#if 0
 	class URLResponder : public LLHTTPClient::Responder
 	{
 	public:
@@ -131,7 +132,8 @@ private:
 		LLTextureFetch* mFetcher;
 		LLUUID mID;
 	};
-
+#endif
+	
 	class CacheReadResponder : public LLTextureCache::ReadResponder
 	{
 	public:

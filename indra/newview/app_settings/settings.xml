@@ -2608,10 +2608,10 @@
             <string>Rect</string>
         <key>Value</key>
             <array>
-                <integer>0</integer>
-                <integer>400</integer>
-                <integer>400</integer>
-                <integer>0</integer>
+                <integer>16</integer>
+                <integer>650</integer>
+                <integer>600</integer>
+                <integer>128</integer>
             </array>
         </map>
     <key>FloaterMiniMapRect</key>
@@ -5859,6 +5859,17 @@
         <key>Value</key>
             <integer>0</integer>
         </map>
+    <key>SaveMinidump</key>
+        <map>
+        <key>Comment</key>
+            <string>Save minidump for developer debugging on crash</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map>
     <key>ScaleShowAxes</key>
         <map>
         <key>Comment</key>
@@ -8689,6 +8700,17 @@
         <key>Value</key>
             <string />
         </map>
+    <key>UseStartScreen</key>
+        <map>
+        <key>Comment</key>
+            <string>Whether to load a start screen image or not.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map>
     <key>VFSOldSize</key>
         <map>
         <key>Comment</key>
@@ -9669,7 +9691,7 @@
 		<key>Type</key>
 			<string>Boolean</string>
 		<key>Value</key>
-			<integer>1</integer>
+			<integer>0</integer>
 		</map>
     <key>RenderDeferred</key>
 		<map>

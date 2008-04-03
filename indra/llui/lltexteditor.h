@@ -92,7 +92,7 @@ public:
 	virtual void	onMouseCaptureLost();
 
 	// view overrides
-	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent);
+	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	virtual void	draw();
 	virtual void	onFocusReceived();
 	virtual void	onFocusLost();

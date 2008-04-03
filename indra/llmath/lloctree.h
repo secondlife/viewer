@@ -567,8 +567,6 @@ public:
 	{
 	}
 	
-	bool isLeaf()	{ return false; }
-
 	bool balance()
 	{	
 		if (this->getChildCount() == 1 && 

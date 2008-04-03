@@ -62,7 +62,7 @@ public:
 	LLFloaterScriptDebugOutput(const LLUUID& object_id);
 	~LLFloaterScriptDebugOutput();
 
-	virtual void		init(const LLString& title, BOOL resizable, 
+	virtual void		initFloater(const LLString& title, BOOL resizable, 
 						S32 min_width, S32 min_height, BOOL drag_on_left,
 						BOOL minimizable, BOOL close_btn);
 

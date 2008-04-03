@@ -286,7 +286,10 @@ class LLInventorySort
 {
 public:
 	LLInventorySort() 
-		: mSortOrder(0) { }
+		: mSortOrder(0),
+		  mByDate(false),
+		  mSystemToTop(false),
+		  mFoldersByName(false) { }
 	
 	// Returns true if order has changed
 	bool updateSort(U32 order);

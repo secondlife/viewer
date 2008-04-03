@@ -113,7 +113,7 @@ protected:
 	static void onClickProfile(void* data);
     static void onClickSet(void* data);
 
-	static void onFocusReceived(LLFocusableElement* ctrl, void* data);
+	static void focusReceived(LLFocusableElement* ctrl, void* data);
 	static void onCommitAny(LLUICtrl* ctrl, void* data);
 
 	BOOL checkDirty();		// Update and return mDirty

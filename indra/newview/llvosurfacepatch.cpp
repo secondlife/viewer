@@ -920,7 +920,7 @@ void LLVOSurfacePatch::updateSpatialExtents(LLVector3& newMin, LLVector3 &newMax
 {
 	LLVector3 posAgent = getPositionAgent();
 	LLVector3 scale = getScale();
-	newMin = posAgent-scale*0.5f;
+	newMin = posAgent-scale*0.5f; // Changing to 2.f makes the culling a -little- better, but still wrong
 	newMax = posAgent+scale*0.5f;
 	mDrawable->setPositionGroup((newMin+newMax)*0.5f);
 }
@@ -935,7 +935,7 @@ LLTerrainPartition::LLTerrainPartition()
 {
 	mOcclusionEnabled = FALSE;
 	mRenderByGroup = FALSE;
-	mInfiniteFarClip = FALSE;
+	mInfiniteFarClip = TRUE;
 	mBufferUsage = GL_DYNAMIC_DRAW_ARB;
 	mDrawableType = LLPipeline::RENDER_TYPE_TERRAIN;
 	mPartitionType = LLViewerRegion::PARTITION_TERRAIN;

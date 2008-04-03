@@ -150,13 +150,10 @@ public:
 	static std::vector<LLMutex*> sSSLMutex;
 
 	// OpenSSL callbacks
-	static void LLCurl::ssl_locking_callback(int mode, int type, const char *file, int line);
-	static unsigned long LLCurl::ssl_thread_id(void);
-	
-	
-	
-private:
+	static void ssl_locking_callback(int mode, int type, const char *file, int line);
+	static unsigned long ssl_thread_id(void);
 
+private:
 	static std::string sCAPath;
 	static std::string sCAFile;
 };

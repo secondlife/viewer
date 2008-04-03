@@ -100,7 +100,7 @@ public:
 	void setAuxItem( const LLInventoryItem* item )
 	{
 		if ( mAuxItem ) 
-			mAuxItem->copy(item);
+			mAuxItem->copyItem(item);
 	}
 
 	static void			onBtnCopyToInv(void* userdata);

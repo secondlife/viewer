@@ -155,6 +155,8 @@ void LLPartData::setEndAlpha(const F32 alpha)
 LLPartSysData::LLPartSysData()
 {
 	mCRC = 0;
+	mFlags = 0;
+
 	mPartData.mFlags = 0;
 	mPartData.mStartColor = LLColor4(1.f, 1.f, 1.f, 1.f);
 	mPartData.mEndColor = LLColor4(1.f, 1.f, 1.f, 1.f);
@@ -172,6 +174,8 @@ LLPartSysData::LLPartSysData()
 	mBurstSpeedMin = 1.f;						// Minimum particle velocity
 	mBurstSpeedMax = 1.f;						// Maximum particle velocity
 	mBurstRadius = 0.f;
+
+	mNumParticles = 0;
 }
 
 

@@ -68,7 +68,7 @@ LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
 
 	sCloudNoiseRawImage = new LLImageRaw();
 
-	cloudNoiseFile->decode(sCloudNoiseRawImage);
+	cloudNoiseFile->decode(sCloudNoiseRawImage, 0.0f);
 
 	LLImageGL::create(sCloudNoiseTexture, sCloudNoiseRawImage, TRUE);
 

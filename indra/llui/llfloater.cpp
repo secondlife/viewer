@@ -154,7 +154,7 @@ LLFloater::LLFloater(const LLString& name)
 		mButtons[i] = NULL;
 	}
 	LLString title; // null string
-	init(title, FALSE, DEFAULT_MIN_WIDTH, DEFAULT_MIN_HEIGHT, FALSE, TRUE, TRUE); // defaults
+	initFloater(title, FALSE, DEFAULT_MIN_WIDTH, DEFAULT_MIN_HEIGHT, FALSE, TRUE, TRUE); // defaults
 }
 
 
@@ -173,7 +173,7 @@ LLFloater::LLFloater(const LLString& name, const LLRect& rect, const LLString& t
 		mButtonsEnabled[i] = FALSE;
 		mButtons[i] = NULL;
 	}
-	init( title, resizable, min_width, min_height, drag_on_left, minimizable, close_btn);
+	initFloater( title, resizable, min_width, min_height, drag_on_left, minimizable, close_btn);
 }
 
 LLFloater::LLFloater(const LLString& name, const LLString& rect_control, const LLString& title, 
@@ -191,12 +191,12 @@ LLFloater::LLFloater(const LLString& name, const LLString& rect_control, const L
 		mButtonsEnabled[i] = FALSE;
 		mButtons[i] = NULL;
 	}
-	init( title, resizable, min_width, min_height, drag_on_left, minimizable, close_btn);
+	initFloater( title, resizable, min_width, min_height, drag_on_left, minimizable, close_btn);
 }
 
 
 // Note: Floaters constructed from XML call init() twice!
-void LLFloater::init(const LLString& title,
+void LLFloater::initFloater(const LLString& title,
 					 BOOL resizable, S32 min_width, S32 min_height,
 					 BOOL drag_on_left, BOOL minimizable, BOOL close_btn)
 {
@@ -576,6 +576,11 @@ void LLFloater::close(bool app_quitting)
 	}
 }
 
+/*virtual*/
+void LLFloater::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	LLPanel::reshape(width, height, called_from_parent);
+}
 
 void LLFloater::releaseFocus()
 {
@@ -777,8 +782,6 @@ void LLFloater::setMinimized(BOOL minimize)
 	{
 		mExpandedRect = getRect();
 
-		reshape( MINIMIZED_WIDTH, LLFLOATER_HEADER_SIZE, TRUE);
-
 		// If the floater has been dragged while minimized in the
 		// past, then locate it at its previous minimized location.
 		// Otherwise, ask the view for a minimize position.
@@ -833,6 +836,9 @@ void LLFloater::setMinimized(BOOL minimize)
 		}
 
 		mMinimized = TRUE;
+
+		// Reshape *after* setting mMinimized
+		reshape( MINIMIZED_WIDTH, LLFLOATER_HEADER_SIZE, TRUE);
 	}
 	else
 	{
@@ -845,7 +851,6 @@ void LLFloater::setMinimized(BOOL minimize)
 			mPreviousMinimizedBottom = currentRect.mBottom;
 		}
 
-		reshape( mExpandedRect.getWidth(), mExpandedRect.getHeight(), TRUE );
 		setOrigin( mExpandedRect.mLeft, mExpandedRect.mBottom );
 
 		if (mButtonsEnabled[BUTTON_RESTORE])
@@ -874,6 +879,9 @@ void LLFloater::setMinimized(BOOL minimize)
 		}
 
 		mMinimized = FALSE;
+
+		// Reshape *after* setting mMinimized
+		reshape( mExpandedRect.getWidth(), mExpandedRect.getHeight(), TRUE );
 	}
 	make_ui_sound("UISndWindowClose");
 	updateButtons();
@@ -1639,11 +1647,11 @@ LLFloaterView::LLFloaterView( const LLString& name, const LLRect& rect )
 // By default, adjust vertical.
 void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	reshape(width, height, called_from_parent, ADJUST_VERTICAL_YES);
+	reshapeFloater(width, height, called_from_parent, ADJUST_VERTICAL_YES);
 }
 
 // When reshaping this view, make the floaters follow their closest edge.
-void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent, BOOL adjust_vertical)
+void LLFloaterView::reshapeFloater(S32 width, S32 height, BOOL called_from_parent, BOOL adjust_vertical)
 {
 	S32 old_width = getRect().getWidth();
 	S32 old_height = getRect().getHeight();
@@ -2910,7 +2918,7 @@ void LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, LLUICtrlFactor
 	setRect(rect);
 	setName(name);
 	
-	init(title,
+	initFloater(title,
 			resizable,
 			min_width,
 			min_height,

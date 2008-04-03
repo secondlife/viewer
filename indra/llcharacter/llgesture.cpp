@@ -103,7 +103,7 @@ BOOL LLGesture::trigger(KEY key, MASK mask)
 }
 
 
-BOOL LLGesture::trigger(const LLString &trigger_string)
+BOOL LLGesture::trigger(const std::string& trigger_string)
 {
 	llwarns << "Parent class trigger called: you probably didn't mean this." << llendl;
 	return FALSE;

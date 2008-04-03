@@ -420,6 +420,8 @@ void LLIMMgr::addMessage(
 		other_participant_id = LLUUID::null;
 	}
 
+	
+
 	LLFloaterIMPanel* floater;
 	LLUUID new_session_id = session_id;
 	if (new_session_id.isNull())
@@ -875,19 +877,14 @@ public:
 
 			if ( floaterp )
 			{
-				std::string error_string;
-
 				if ( 404 == statusNum )
 				{
+					std::string error_string;
 					error_string = "does not exist";
-				}
-				else
-				{
-					error_string = "generic";
-				}
 
-				floaterp->showSessionStartError(
-					error_string);
+					floaterp->showSessionStartError(
+						error_string);
+				}
 			}
 		}
 	}

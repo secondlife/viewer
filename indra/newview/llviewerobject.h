@@ -280,6 +280,7 @@ public:
 	/*virtual*/	void	setTE(const U8 te, const LLTextureEntry &texture_entry);
 	/*virtual*/ S32		setTETexture(const U8 te, const LLUUID &uuid);
 	S32 setTETextureCore(const U8 te, const LLUUID& uuid, LLHost host);
+	/*virtual*/ S32		setTEColor(const U8 te, const LLColor3 &color);
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor4 &color);
 	/*virtual*/ S32		setTEScale(const U8 te, const F32 s, const F32 t);
 	/*virtual*/ S32		setTEScaleS(const U8 te, const F32 s);
@@ -453,7 +454,7 @@ public:
 	virtual S32 getLOD() const { return 3; } 
 	virtual U32 getPartitionType() const;
 	virtual void dirtySpatialGroup() const;
-	virtual void dirtyMesh() const;
+	virtual void dirtyMesh();
 
 	virtual LLNetworkData* getParameterEntry(U16 param_type) const;
 	virtual bool setParameterEntry(U16 param_type, const LLNetworkData& new_value, bool local_origin);

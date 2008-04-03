@@ -1348,7 +1348,6 @@ const char* LLFilePicker::getDirname()
 
 void LLFilePicker::reset()
 {
-	llinfos << "GTK LLFilePicker::reset()" << llendl;
 	mNextFileIndex = 0;
 	mStoreFilenames.win = NULL;
 	mStoreFilenames.fileVector.clear();

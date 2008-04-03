@@ -144,6 +144,9 @@ void LLViewerMediaImpl::play(const std::string& media_url,
 		return;
 	}
 
+	// Store the URL and Mime Type
+	mMediaURL = media_url;
+
 	if ((media_width != 0) && (media_height != 0))
 	{
 		mMediaSource->setRequestedMediaSize(media_width, media_height);
@@ -154,10 +157,6 @@ void LLViewerMediaImpl::play(const std::string& media_url,
 	mMediaSource->addObserver( this );
 	mMediaSource->navigateTo( media_url );
 	mMediaSource->addCommand(LLMediaBase::COMMAND_START);
-
-	// Store the URL and Mime Type
-	mMediaURL = media_url;
-
 }
 
 void LLViewerMediaImpl::stop()

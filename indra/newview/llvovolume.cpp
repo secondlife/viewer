@@ -1124,30 +1124,36 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	}
 	else if ((mLODChanged) || (mSculptChanged))
 	{
-		LLPointer<LLVolume> old_volumep, new_volumep;
+		LLVolume *old_volumep, *new_volumep;
 		F32 old_lod, new_lod;
+		S32 old_num_faces, new_num_faces ;
 
 		old_volumep = getVolume();
 		old_lod = old_volumep->getDetail();
+		old_num_faces = old_volumep->getNumFaces() ;
+		old_volumep = NULL ;
 
 		{
 			LLFastTimer ftm(LLFastTimer::FTM_GEN_VOLUME);
 			LLVolumeParams volume_params = getVolume()->getParams();
 			setVolume(volume_params, 0);
 		}
+
 		new_volumep = getVolume();
 		new_lod = new_volumep->getDetail();
+		new_num_faces = new_volumep->getNumFaces() ;
+		new_volumep = NULL ;
 
 		if ((new_lod != old_lod) || mSculptChanged)
 		{
 			compiled = TRUE;
-			sNumLODChanges += getVolume()->getNumFaces();
+			sNumLODChanges += new_num_faces ;
 	
 			drawable->setState(LLDrawable::REBUILD_VOLUME); // for face->genVolumeTriangles()
 
 			{
 				LLFastTimer t(LLFastTimer::FTM_GEN_TRIANGLES);
-				if (new_volumep->getNumFaces() != old_volumep->getNumFaces())
+				if (new_num_faces != old_num_faces)
 				{
 					regenFaces();
 				}
@@ -1225,7 +1231,12 @@ S32 LLVOVolume::setTETexture(const U8 te, const LLUUID &uuid)
 	return res;
 }
 
-S32 LLVOVolume::setTEColor(const U8 te, const LLColor4 &color)
+S32 LLVOVolume::setTEColor(const U8 te, const LLColor3& color)
+{
+	return setTEColor(te, LLColor4(color));
+}
+
+S32 LLVOVolume::setTEColor(const U8 te, const LLColor4& color)
 {
 	S32 res = LLViewerObject::setTEColor(te, color);
 	if (res)
@@ -2458,6 +2469,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			if (facep->mGeomCount + index_offset > 65535)
 			{ //cut off alpha nodes at 64k vertices
 				facep->mVertexBuffer = NULL ;
+				facep->mLastVertexBuffer = NULL ;
 				continue ;
 			}
 

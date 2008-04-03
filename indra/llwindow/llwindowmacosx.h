@@ -68,7 +68,7 @@ public:
 	/*virtual*/ void hideCursorUntilMouseMove();
 	/*virtual*/ BOOL isCursorHidden();
 	/*virtual*/ void setCursor(ECursorType cursor);
-	/*virtual*/ ECursorType getCursor();
+	/*virtual*/ ECursorType getCursor() const;
 	/*virtual*/ void captureMouse();
 	/*virtual*/ void releaseMouse();
 	/*virtual*/ void setMouseClipping( BOOL b );
@@ -114,7 +114,6 @@ public:
 	/*virtual*/ void bringToFront() {};
 	
 	/*virtual*/ void allowLanguageTextInput(LLPreeditor *preeditor, BOOL b);
-	/*virtual*/ void updateLanguageTextInputArea(const LLCoordGL& caret, const LLRect& bounds);
 	/*virtual*/ void interruptLanguageTextInput();
 
 protected:

@@ -69,7 +69,7 @@ protected:
 	LLVolumeParams mParams;
 
 	S32 mLODRefs[NUM_LODS];
-	LLVolume *mVolumeLODs[NUM_LODS];
+	LLPointer<LLVolume> mVolumeLODs[NUM_LODS];
 	static F32 mDetailThresholds[NUM_LODS];
 	static F32 mDetailScales[NUM_LODS];
 	S32		mAccessCount[NUM_LODS];

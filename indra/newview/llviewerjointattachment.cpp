@@ -197,7 +197,7 @@ BOOL LLViewerJointAttachment::addObject(LLViewerObject* object)
 		//if object is active, make it static
 		if(drawablep->isActive())
 		{
-			drawablep->makeStatic() ;
+			drawablep->makeStatic(FALSE) ;
 		}
 
 		setupDrawable(drawablep);
@@ -238,7 +238,7 @@ void LLViewerJointAttachment::removeObject(LLViewerObject *object)
 		//if object is active, make it static
 		if(object->mDrawable->isActive())
 		{
-			object->mDrawable->makeStatic() ;
+			object->mDrawable->makeStatic(FALSE) ;
 		}
 
 		LLVector3 cur_position = object->getRenderPosition();

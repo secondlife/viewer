@@ -112,7 +112,7 @@ public:
 
     bool isInProductionGrid();
 
-	void removeMarkerFile();
+	void removeMarkerFile(bool leave_logout_marker = false);
 	
     // LLAppViewer testing helpers.
     // *NOTE: These will potentially crash the viewer. Only for debugging.
@@ -167,6 +167,10 @@ private:
 	LLString mMarkerFileName;
 	apr_file_t* mMarkerFile; // A file created to indicate the app is running.
 
+	LLString mLogoutMarkerFileName;
+	apr_file_t* mLogoutMarkerFile; // A file created to indicate the app is running.
+
+	
 	LLOSInfo mSysOSInfo; 
 	S32 mCrashBehavior;
 	bool mReportedCrash;
@@ -217,7 +221,9 @@ typedef enum
 	LAST_EXEC_NORMAL = 0,
 	LAST_EXEC_FROZE,
 	LAST_EXEC_LLERROR_CRASH,
-	LAST_EXEC_OTHER_CRASH
+	LAST_EXEC_OTHER_CRASH,
+	LAST_EXEC_LOGOUT_FROZE,
+	LAST_EXEC_LOGOUT_CRASH
 } eLastExecEvent;
 
 extern eLastExecEvent gLastExecEvent; // llstartup

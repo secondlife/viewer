@@ -152,7 +152,7 @@ public:
 
 	virtual BOOL inheritScale() { return TRUE; }
 
-	void render();
+	void renderCollision();
 	LLVector3 getVolumePos(LLVector3 &offset);
 };
 

@@ -36,6 +36,8 @@
 #include <sys/time.h>
 #endif
 
+#include "stdtypes.h"
+
 // units conversions
 #ifndef USEC_PER_SEC
     const U32	USEC_PER_SEC	= 1000000;

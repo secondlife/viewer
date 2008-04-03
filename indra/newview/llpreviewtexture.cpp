@@ -288,7 +288,7 @@ void LLPreviewTexture::draw()
 
 
 // virtual
-BOOL LLPreviewTexture::canSaveAs()
+BOOL LLPreviewTexture::canSaveAs() const
 {
 	return mIsCopyable && !mLoadingFullImage && mImage.notNull() && !mImage->isMissingAsset();
 }
@@ -421,6 +421,9 @@ void LLPreviewTexture::updateDimensions()
 		view_height += 	BTN_HEIGHT + CLIENT_RECT_VPAD;
 		button_height = BTN_HEIGHT + PREVIEW_PAD;
 	}
+
+	view_width = llmax(view_width, getMinWidth());
+	view_height = llmax(view_height, getMinHeight());
 	
 	if (client_height != mLastHeight || client_width != mLastWidth)
 	{

@@ -1602,6 +1602,12 @@ public:
 	{
 		return mCamera->AABBInFrustumNoFarClip(group->mBounds[0], group->mBounds[1]);
 	}
+
+	virtual S32 frustumCheckObjects(const LLSpatialGroup* group)
+	{
+		S32 res = mCamera->AABBInFrustumNoFarClip(group->mObjectBounds[0], group->mObjectBounds[1]);
+		return res;
+	}
 };
 
 class LLOctreeSelect : public LLOctreeCull

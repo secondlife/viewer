@@ -229,12 +229,6 @@ LLVolumeLODGroup::LLVolumeLODGroup(const LLVolumeParams &params)
 
 LLVolumeLODGroup::~LLVolumeLODGroup()
 {
-	S32 i;
-	for (i = 0; i < NUM_LODS; i++)
-	{
-		delete mVolumeLODs[i];
-		mVolumeLODs[i] = NULL;
-	}
 }
 
 
@@ -242,11 +236,12 @@ LLVolume * LLVolumeLODGroup::getLOD(const S32 detail)
 {
 	llassert(detail >=0 && detail < NUM_LODS);
 	mAccessCount[detail]++;
-	mLODRefs[detail]++;
-	if (!mVolumeLODs[detail])
+	
+	if (!mLODRefs[detail])
 	{
 		mVolumeLODs[detail] = new LLVolume(mParams, mDetailScales[detail]);
 	}
+	mLODRefs[detail]++;
 	return mVolumeLODs[detail];
 }
 

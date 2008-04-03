@@ -115,7 +115,7 @@ bool LLImageWorker::doWork(S32 param)
 		else
 		{
 			// Decode aux channel
-			decoded = mFormattedImage->decode(mDecodedImage, .1f, param, param); // 1ms
+			decoded = mFormattedImage->decodeChannels(mDecodedImage, .1f, param, param); // 1ms
 		}
 	}
 	if (decoded)

@@ -61,7 +61,7 @@ LLVOTextBubble::LLVOTextBubble(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	volume_params.setBeginAndEndT(0.f, 1.f);
 	volume_params.setRatio(0.25f, 0.25f);
 	volume_params.setShear(0.f, 0.f);
-	setVolume(volume_params);
+	setVolume(volume_params, 0);
 	mColor = LLColor4(1.0f, 0.0f, 0.0f, 1.f);
 	S32 i;
 	for (i = 0; i < getNumTEs(); i++)
@@ -165,8 +165,8 @@ LLDrawable *LLVOTextBubble::createDrawable(LLPipeline *pipeline)
 	return mDrawable;
 }
 
-
-BOOL LLVOTextBubble::setVolume(const LLVolumeParams &volume_params)
+// virtual
+BOOL LLVOTextBubble::setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume)
 {
 	if (LLPrimitive::setVolume(volume_params, mLOD))
 	{
@@ -194,7 +194,7 @@ BOOL LLVOTextBubble::updateGeometry(LLDrawable *drawable)
 	if (mVolumeChanged)
 	{
 		LLVolumeParams volume_params = getVolume()->getParams();
-		setVolume(volume_params);
+		setVolume(volume_params, 0);
 
 		LLPipeline::sCompiles++;
 

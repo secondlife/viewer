@@ -43,8 +43,8 @@ public:
 	LLImagePNG();
 
 	BOOL updateData();
-	BOOL decode(LLImageRaw* raw_image, F32 decode_time = 0.0);
-	BOOL encode(const LLImageRaw* raw_image, F32 encode_time = 0.0);
+	BOOL decode(LLImageRaw* raw_image, F32 decode_time);
+	BOOL encode(const LLImageRaw* raw_image, F32 encode_time);
 
 private:
 	U8* mTmpWriteBuffer;

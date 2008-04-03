@@ -99,7 +99,7 @@ LLInventoryObject::~LLInventoryObject( void )
 {
 }
 
-void LLInventoryObject::copy(const LLInventoryObject* other)
+void LLInventoryObject::copyObject(const LLInventoryObject* other)
 {
 	mUUID = other->mUUID;
 	mParentUUID = other->mParentUUID;
@@ -309,7 +309,7 @@ LLInventoryItem::LLInventoryItem() :
 LLInventoryItem::LLInventoryItem(const LLInventoryItem* other) :
 	LLInventoryObject()
 {
-	copy(other);
+	copyItem(other);
 }
 
 LLInventoryItem::~LLInventoryItem()
@@ -317,9 +317,9 @@ LLInventoryItem::~LLInventoryItem()
 }
 
 // virtual
-void LLInventoryItem::copy(const LLInventoryItem* other)
+void LLInventoryItem::copyItem(const LLInventoryItem* other)
 {
-	LLInventoryObject::copy(other);
+	copyObject(other);
 	mPermissions = other->mPermissions;
 	mAssetUUID = other->mAssetUUID;
 	mDescription = other->mDescription;
@@ -331,10 +331,10 @@ void LLInventoryItem::copy(const LLInventoryItem* other)
 
 // As a constructor alternative, the clone() method works like a
 // copy constructor, but gens a new UUID.
-void LLInventoryItem::clone(LLPointer<LLInventoryItem>& newitem) const
+void LLInventoryItem::cloneItem(LLPointer<LLInventoryItem>& newitem) const
 {
 	newitem = new LLInventoryItem;
-	newitem->copy(this);
+	newitem->copyItem(this);
 	newitem->mUUID.generate();
 }
 
@@ -1335,7 +1335,7 @@ LLInventoryCategory::LLInventoryCategory() :
 LLInventoryCategory::LLInventoryCategory(const LLInventoryCategory* other) :
 	LLInventoryObject()
 {
-	copy(other);
+	copyCategory(other);
 }
 
 LLInventoryCategory::~LLInventoryCategory()
@@ -1343,9 +1343,9 @@ LLInventoryCategory::~LLInventoryCategory()
 }
 
 // virtual
-void LLInventoryCategory::copy(const LLInventoryCategory* other)
+void LLInventoryCategory::copyCategory(const LLInventoryCategory* other)
 {
-	LLInventoryObject::copy(other);
+	copyObject(other);
 	mPreferredType = other->mPreferredType;
 }
 

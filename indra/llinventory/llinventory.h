@@ -85,7 +85,7 @@ public:
 	LLInventoryObject(const LLUUID& uuid, const LLUUID& parent_uuid,
 					  LLAssetType::EType type, const LLString& name);
 	LLInventoryObject();
-	virtual void copy(const LLInventoryObject* other); // LLRefCount requires custom copy
+	void copyObject(const LLInventoryObject* other); // LLRefCount requires custom copy
 
 	// accessors
 	const LLUUID& getUUID() const;
@@ -222,12 +222,12 @@ public:
 	// Note: Because InventoryItems are ref counted, reference copy (a = b)
 	// is prohibited
 	LLInventoryItem(const LLInventoryItem* other);
-	virtual void copy(const LLInventoryItem* other); // LLRefCount requires custom copy
+	virtual void copyItem(const LLInventoryItem* other); // LLRefCount requires custom copy
 
 	// As a constructor alternative, the clone() method works like a
 	// copy constructor, but gens a new UUID.
 	// It is up to the caller to delete (unref) the item.
-	virtual void clone(LLPointer<LLInventoryItem>& newitem) const;
+	virtual void cloneItem(LLPointer<LLInventoryItem>& newitem) const;
 	
 	// accessors
 	const LLPermissions& getPermissions() const;
@@ -306,7 +306,7 @@ public:
 						const LLString& name);
 	LLInventoryCategory();
 	LLInventoryCategory(const LLInventoryCategory* other);
-	virtual void copy(const LLInventoryCategory* other); // LLRefCount requires custom copy
+	void copyCategory(const LLInventoryCategory* other); // LLRefCount requires custom copy
 
 	// accessors and mutators
 	LLAssetType::EType getPreferredType() const;

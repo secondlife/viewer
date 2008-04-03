@@ -106,9 +106,9 @@ virtual void	userSetShape(const LLRect& new_rect);
 virtual LLView*	findSnapRect(LLRect& new_rect, const LLCoordGL& mouse_dir, LLView::ESnapType snap_type, S32 threshold, S32 padding = 0);
 virtual LLView*	findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESnapEdge snap_edge, ESnapType snap_type, S32 threshold, S32 padding = 0);
 		LLScrollListCtrl
-virtual BOOL	canSnapTo(const LLView* other_view) const { return other_view != this && other_view->getVisible(); }
+virtual BOOL	canSnapTo(const LLView* other_view) { return other_view != this && other_view->getVisible(); }
 		LLFloater
-virtual void	snappedTo(LLView* snap_view) {}
+virtual void	snappedTo(const LLView* snap_view) {}
 		LLFloater
 virtual BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
 		*
@@ -393,9 +393,9 @@ public:
 	virtual LLView*	findSnapRect(LLRect& new_rect, const LLCoordGL& mouse_dir, LLView::ESnapType snap_type, S32 threshold, S32 padding = 0);
 	virtual LLView*	findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESnapEdge snap_edge, ESnapType snap_type, S32 threshold, S32 padding = 0);
 
-	virtual BOOL	canSnapTo(const LLView* other_view) const;
+	virtual BOOL	canSnapTo(const LLView* other_view);
 
-	virtual void	snappedTo(LLView* snap_view);
+	virtual void	snappedTo(const LLView* snap_view);
 
 	virtual BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
 	virtual BOOL	handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);

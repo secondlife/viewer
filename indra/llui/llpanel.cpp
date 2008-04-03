@@ -618,7 +618,17 @@ LLString LLPanel::getString(const LLString& name, const LLString::format_map_t& 
 		formatted_string.setArgList(args);
 		return formatted_string.getString();
 	}
-	llerrs << "Failed to find string " << name << " in panel " << getName() << llendl;
+	LLString err_str("Failed to find string " + name + " in panel " + getName());
+	// *TODO: once the QAR-369 ui-cleanup work on settings is in we need to change the following line to be
+	//if(LLUI::sConfigGroup->getBOOL("QAMode"))
+	if(LLUI::sQAMode)
+	{
+		llerrs << err_str << llendl;
+	}
+	else
+	{
+		llwarns << err_str << llendl;
+	}
 	return LLString::null;
 }
 

@@ -294,7 +294,7 @@ void update_texture_fetch()
 }
 
 static std::vector<std::string> sAuthUris;
-static int sAuthUriNum = -1;
+static S32 sAuthUriNum = -1;
 
 // Returns FALSE to skip other idle processing. Should only return
 // TRUE when all initialization done.
@@ -993,6 +993,7 @@ BOOL idle_startup()
 		hashed_mac.hex_digest(hashed_mac_string);
 
 		// TODO if statement here to use web_login_key
+		sAuthUriNum = llclamp(sAuthUriNum, 0, (S32)sAuthUris.size()-1);
 		LLUserAuth::getInstance()->authenticate(
 			sAuthUris[sAuthUriNum].c_str(),
 			auth_method.c_str(),
@@ -3601,7 +3602,15 @@ void init_start_screen(S32 location_id)
 	}
 
 	LLPointer<LLImageBMP> start_image_bmp = new LLImageBMP;
-	if( !start_image_bmp->load(temp_str) )
+	
+	// Turn off start screen to get around the occasional readback 
+	// driver bug
+	if(!gSavedSettings.getBOOL("UseStartScreen"))
+	{
+		llinfos << "Bitmap load disabled" << llendl;
+		return;
+	}
+	else if(!start_image_bmp->load(temp_str) )
 	{
 		llinfos << "Bitmap load failed" << llendl;
 		return;
@@ -3610,8 +3619,9 @@ void init_start_screen(S32 location_id)
 	gStartImageGL = new LLImageGL(FALSE);
 	gStartImageWidth = start_image_bmp->getWidth();
 	gStartImageHeight = start_image_bmp->getHeight();
+
 	LLPointer<LLImageRaw> raw = new LLImageRaw;
-	if (!start_image_bmp->decode(raw))
+	if (!start_image_bmp->decode(raw, 0.0f))
 	{
 		llinfos << "Bitmap decode failed" << llendl;
 		gStartImageGL = NULL;

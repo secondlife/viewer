@@ -58,6 +58,7 @@ LLImageBase::LLImageBase()
 	  mComponents(0),
 	  mMemType(LLMemType::MTYPE_IMAGEBASE)
 {
+	mBadBufferAllocation = FALSE ;
 }
 
 // virtual
@@ -142,10 +143,15 @@ U8* LLImageBase::allocateData(S32 size)
 	if (!mData || size != mDataSize)
 	{
 		deleteData(); // virtual
+		mBadBufferAllocation = FALSE ;
 		mData = new U8[size];
 		if (!mData)
 		{
-			llerrs << "allocate image data: " << size << llendl;
+			//llerrs << "allocate image data: " << size << llendl;
+			llwarns << "allocate image data: " << size << llendl;
+			size = 0 ;
+			mWidth = mHeight = 0 ;
+			mBadBufferAllocation = TRUE ;
 		}
 		mDataSize = size;
 	}
@@ -174,6 +180,30 @@ U8* LLImageBase::reallocateData(S32 size)
 	return mData;
 }
 
+const U8* LLImageBase::getData() const	
+{ 
+	if(mBadBufferAllocation)
+	{
+		llerrs << "Bad memory allocation for the image buffer!" << llendl ;
+	}
+
+	return mData; 
+} // read only
+
+U8* LLImageBase::getData()				
+{ 
+	if(mBadBufferAllocation)
+	{
+		llerrs << "Bad memory allocation for the image buffer!" << llendl ;
+	}
+
+	return mData; 
+}
+
+BOOL LLImageBase::isBufferInvalid()
+{
+	return mBadBufferAllocation || mData == NULL ;
+}
 
 void LLImageBase::setSize(S32 width, S32 height, S32 ncomponents)
 {
@@ -1339,7 +1369,7 @@ S32 LLImageFormatted::calcDiscardLevelBytes(S32 bytes)
 //----------------------------------------------------------------------------
 
 // Subclasses that can handle more than 4 channels should override this function.
-BOOL LLImageFormatted::decode(LLImageRaw* raw_image,F32  decode_time, S32 first_channel, S32 max_channel)
+BOOL LLImageFormatted::decodeChannels(LLImageRaw* raw_image,F32  decode_time, S32 first_channel, S32 max_channel)
 {
 	llassert( (first_channel == 0) && (max_channel == 4) );
 	return decode( raw_image, decode_time );  // Loads first 4 channels by default.

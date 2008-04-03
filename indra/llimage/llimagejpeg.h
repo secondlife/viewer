@@ -55,8 +55,8 @@ public:
 	LLImageJPEG();
 
 	/*virtual*/ BOOL updateData();
-	/*virtual*/ BOOL decode(LLImageRaw* raw_image, F32 time=0.0);
-	/*virtual*/ BOOL encode(const LLImageRaw* raw_image, F32 time=0.0);
+	/*virtual*/ BOOL decode(LLImageRaw* raw_image, F32 decode_time);
+	/*virtual*/ BOOL encode(const LLImageRaw* raw_image, F32 encode_time);
 
 	void			setEncodeQuality( S32 q )	{ mEncodeQuality = q; } // on a scale from 1 to 100
 	S32				getEncodeQuality()			{ return mEncodeQuality; }

@@ -130,7 +130,7 @@ void LLNameEditor::refreshAll(const LLUUID& id, const char* firstname,
 	}
 }
 
-void LLNameEditor::setValue( LLSD value )
+void LLNameEditor::setValue( const LLSD& value )
 {
 	setNameID(value.asUUID(), FALSE);
 }

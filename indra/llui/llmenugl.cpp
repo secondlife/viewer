@@ -2965,8 +2965,7 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 class LLPieMenuBranch : public LLMenuItemGL
 {
 public:
-	LLPieMenuBranch(const LLString& name, const LLString& label, LLPieMenu* branch,
-					enabled_callback ecb, void* user_data);
+	LLPieMenuBranch(const LLString& name, const LLString& label, LLPieMenu* branch);
 
 	// called to rebuild the draw label
 	virtual void buildDrawLabel( void );
@@ -2978,19 +2977,13 @@ public:
 
 protected:
 	LLPieMenu* mBranch;
-	enabled_callback mEnabledCallback;
-	void* mUserData;
 };
 
 LLPieMenuBranch::LLPieMenuBranch(const LLString& name,
 								 const LLString& label,
-								 LLPieMenu* branch,
-								 enabled_callback ecb,
-								 void* user_data) 
+								 LLPieMenu* branch) 
 :	LLMenuItemGL( name, label, KEY_NONE, MASK_NONE ),
-	mBranch( branch ),
-	mEnabledCallback( ecb ),
-	mUserData(user_data)
+	mBranch( branch )
 {
 	mBranch->hide(FALSE);
 	mBranch->setParentMenuItem(this);
@@ -2999,12 +2992,6 @@ LLPieMenuBranch::LLPieMenuBranch(const LLString& name,
 // called to rebuild the draw label
 void LLPieMenuBranch::buildDrawLabel( void )
 {
-	if(mEnabledCallback)
-	{
-		setEnabled(mEnabledCallback(mUserData));
-		setDrawTextDisabled(FALSE);
-	}
-	else
 	{
 		// default enablement is this -- if any of the subitems are
 		// enabled, this item is enabled. JC
@@ -3097,7 +3084,7 @@ void LLPieMenu::initXML(LLXMLNodePtr node, LLView *context, LLUICtrlFactory *fac
 			child->getAttributeString("label", label);
 
 			LLPieMenu *submenu = new LLPieMenu(name, label);
-			appendMenu(submenu);
+			appendPieMenu(submenu);
 			submenu->initXML(child, context, factory);
 		}
 		else
@@ -3479,17 +3466,14 @@ BOOL LLPieMenu::appendSeparator(const LLString &separator_name)
 }
 
 
-// virtual
-BOOL LLPieMenu::appendMenu(LLPieMenu *menu,
-						   enabled_callback enabled_cb,
-						   void* user_data)
+BOOL LLPieMenu::appendPieMenu(LLPieMenu *menu)
 {
 	if (menu == this)
 	{
 		llerrs << "Can't attach a pie menu to itself" << llendl;
 	}
 	LLPieMenuBranch *item;
-	item = new LLPieMenuBranch(menu->getName(), menu->getLabel(), menu, enabled_cb, user_data);
+	item = new LLPieMenuBranch(menu->getName(), menu->getLabel(), menu);
 	getParent()->addChild(item->getBranch());
 	item->setFont( LLFontGL::sSansSerifSmall );
 	return append( item );

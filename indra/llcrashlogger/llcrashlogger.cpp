@@ -85,7 +85,8 @@ void LLCrashLoggerText::updateApplication(LLString message)
 LLCrashLogger::LLCrashLogger() :
 	mCrashBehavior(CRASH_BEHAVIOR_ASK),
 	mCrashInPreviousExec(false),
-	mSentCrashLogs(false)
+	mSentCrashLogs(false),
+	mCrashHost("")
 {
 
 }
@@ -145,21 +146,14 @@ void LLCrashLogger::gatherFiles()
 	gatherPlatformSpecificFiles();
 
 	//Use the debug log to reconstruct the URL to send the crash report to
-	mCrashHost = "https://";
-	mCrashHost += mDebugLog["CurrentSimHost"].asString();
-	mCrashHost += ":12043/crash/report";
+	if(mDebugLog.has("CurrentSimHost"))
+	{
+		mCrashHost = "https://";
+		mCrashHost += mDebugLog["CurrentSimHost"].asString();
+		mCrashHost += ":12043/crash/report";
+	}
 	// Use login servers as the alternate, since they are already load balanced and have a known name
-	// First, check to see if we have a valid grid name. If not, use agni.
-	mAltCrashHost = "https://login.";
-	if(mDebugLog["GridName"].asString() != "")
-	{
-		mAltCrashHost += mDebugLog["GridName"].asString();
-	}
-	else
-	{
-		mAltCrashHost += "agni";
-	}
-	mAltCrashHost += ".lindenlab.com:12043/crash/report";
+	mAltCrashHost = "https://login.agni.lindenlab.com:12043/crash/report";
 
 	mCrashInfo["DebugLog"] = mDebugLog;
 	mFileMap["StatsLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stats.log");
@@ -218,6 +212,26 @@ bool LLCrashLogger::saveCrashBehaviorSetting(S32 crash_behavior)
 	return true;
 }
 
+bool LLCrashLogger::runCrashLogPost(LLString host, LLSD data, LLString msg, int retries, int timeout)
+{
+	gBreak = false;
+	LLString status_message;
+	for(int i = 0; i < retries; ++i)
+	{
+		status_message = llformat("%s, try %d...", msg.c_str(), i+1);
+		LLHTTPClient::post(host, data, new LLCrashLoggerResponder(), timeout);
+		while(!gBreak)
+		{
+			updateApplication(status_message);
+		}
+		if(gSent)
+		{
+			return gSent;
+		}
+	}
+	return gSent;
+}
+
 bool LLCrashLogger::sendCrashLogs()
 {
 	gatherFiles();
@@ -234,27 +248,20 @@ bool LLCrashLogger::sendCrashLogs()
 	std::ofstream out_file(report_file.c_str());
 	LLSDSerialize::toPrettyXML(post_data, out_file);
 	out_file.close();
-	LLHTTPClient::post(mCrashHost, post_data, new LLCrashLoggerResponder(), 5);
 
-	gBreak = false;
-	while(!gBreak)
+	bool sent = false;
+
+	if(mCrashHost != "")
 	{
-		updateApplication("Sending logs...");
+		sent = runCrashLogPost(mCrashHost, post_data, "Sending to server", 3, 5);
 	}
 
-	if(!gSent)
+	if(!sent)
 	{
-		gBreak = false;
-		LLHTTPClient::post(mAltCrashHost, post_data, new LLCrashLoggerResponder(), 5);
-
-		while(!gBreak)
-		{
-			updateApplication("Sending logs to Alternate Server...");
-		}
+		sent = runCrashLogPost(mAltCrashHost, post_data, "Sending to alternate server", 3, 5);
 	}
 	
-
-	mSentCrashLogs = gSent;
+	mSentCrashLogs = sent;
 
 	return true;
 }

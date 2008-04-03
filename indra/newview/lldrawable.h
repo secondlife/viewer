@@ -140,7 +140,7 @@ public:
 	F32 updateXform(BOOL undamped);
 
 	virtual void makeActive();
-	virtual void makeStatic();
+	/*virtual*/ void makeStatic(BOOL warning_enabled = TRUE);
 
 	BOOL isActive()	const							{ return isState(ACTIVE); }
 	BOOL isStatic() const							{ return !isActive(); }

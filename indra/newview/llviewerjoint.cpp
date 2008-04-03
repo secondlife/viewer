@@ -519,7 +519,7 @@ LLViewerJointCollisionVolume::LLViewerJointCollisionVolume(const std::string &na
 	
 }
 
-void LLViewerJointCollisionVolume::render()
+void LLViewerJointCollisionVolume::renderCollision()
 {
 	updateWorldMatrix();
 	glMatrixMode(GL_MODELVIEW);

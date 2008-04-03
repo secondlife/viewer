@@ -1139,7 +1139,7 @@ void render_disconnected_background()
 
 		gDisconnectedImagep = new LLImageGL( FALSE );
 		LLPointer<LLImageRaw> raw = new LLImageRaw;
-		if (!image_bmp->decode(raw))
+		if (!image_bmp->decode(raw, 0.0f))
 		{
 			llinfos << "Bitmap decode failed" << llendl;
 			gDisconnectedImagep = NULL;

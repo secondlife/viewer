@@ -46,9 +46,9 @@ public:
 
 	// Base class overrides
 	/*virtual*/ BOOL updateData();
-	/*virtual*/ BOOL decode(LLImageRaw *raw_imagep, F32 decode_time=0.0);
-	/*virtual*/ BOOL decode(LLImageRaw *raw_imagep, F32 decode_time, S32 first_channel, S32 max_channel_count);
-	/*virtual*/ BOOL encode(const LLImageRaw *raw_imagep, F32 encode_time=0.0);
+	/*virtual*/ BOOL decode(LLImageRaw *raw_imagep, F32 decode_time);
+	/*virtual*/ BOOL decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 first_channel, S32 max_channel_count);
+	/*virtual*/ BOOL encode(const LLImageRaw *raw_imagep, F32 encode_time);
 	/*virtual*/ S32 calcHeaderSize();
 	/*virtual*/ S32 calcDataSize(S32 discard_level = 0);
 	/*virtual*/ S32 calcDiscardLevelBytes(S32 bytes);

@@ -46,7 +46,8 @@
 
 LLViewerPartSource::LLViewerPartSource(const U32 type) :
 	mType(type),
-	mOwnerUUID(LLUUID::null)
+	mOwnerUUID(LLUUID::null),
+	mPartFlags(0)
 {
 	mLastUpdateTime = 0.f;
 	mLastPartTime = 0.f;
