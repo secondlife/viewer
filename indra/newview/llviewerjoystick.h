@@ -1,6 +1,6 @@
 /** 
  * @file llviewerjoystick.h
- * @brief Viewer joystick functionality.
+ * @brief Viewer joystick / NDOF device functionality.
  *
  * $LicenseInfo:firstyear=2001&license=viewergpl$
  * 
@@ -32,12 +32,69 @@
 #ifndef LL_LLVIEWERJOYSTICK_H
 #define LL_LLVIEWERJOYSTICK_H
 
-class LLViewerJoystick
+#include "stdtypes.h"
+
+#define LIB_NDOF (LL_WINDOWS || LL_DARWIN)
+
+#if LIB_NDOF
+#include "ndofdev_external.h"
+#else
+#define NDOF_Device	void
+#define NDOF_HotPlugResult S32
+#endif
+
+typedef enum e_joystick_driver_state
+{
+	JDS_UNINITIALIZED,
+	JDS_INITIALIZED,
+	JDS_INITIALIZING
+} EJoystickDriverState;
+
+class LLViewerJoystick : public LLSingleton<LLViewerJoystick>
 {
 public:
-	static BOOL sOverrideCamera;
-	static void scanJoystick();
-	static void updateCamera(BOOL reset = FALSE);
+	static bool sOverrideCamera;
+	
+	void init();
+	void updateStatus();
+	void scanJoystick();
+	void moveObjects(bool reset = false);
+	void moveAvatar(bool reset = false);
+	void moveFlycam(bool reset = false);
+	F32 getJoystickAxis(U32 axis) const;
+	U32 getJoystickButton(U32 button) const;
+	bool isJoystickInitialized() const {return (mDriverState==JDS_INITIALIZED);}
+	bool isLikeSpaceNavigator() const;
+	void setNeedsReset(bool reset = true) { mResetFlag = reset; }
+	void setCameraNeedsUpdate(bool b)     { mCameraUpdated = b; }
+	bool getCameraNeedsUpdate() const     { return mCameraUpdated; }
+	
+	LLViewerJoystick();
+	virtual ~LLViewerJoystick();
+	
+protected:
+	void terminate();
+	void agentSlide(F32 inc);
+	void agentPush(F32 inc);
+	void agentFly(F32 inc);
+	void agentRotate(F32 pitch_inc, F32 turn_inc);
+    void agentJump();
+	void resetDeltas(S32 axis[], bool flycam_and_build = false);
+#if LIB_NDOF
+	static NDOF_HotPlugResult HotPlugAddCallback(NDOF_Device *dev);
+	static void HotPlugRemovalCallback(NDOF_Device *dev);
+#endif
+	
+private:
+	F32						mAxes[6];
+	long					mBtn[16];
+	EJoystickDriverState	mDriverState;
+	NDOF_Device				*mNdofDev;
+	bool					mResetFlag;
+	F32						mPerfScale;
+	bool					mCameraUpdated;
+	static F32				sLastDelta[7];
+	static F32				sDelta[7];
 };
 
 #endif

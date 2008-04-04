@@ -342,6 +342,9 @@ class DarwinManifest(ViewerManifest):
                         #  <bundle>/Contents/MacOS/
                         self.contents_of_tar('mozilla-universal-darwin.tgz', 'MacOS')
 
+                        # copy additional libs in <bundle>/Contents/MacOS/
+                        self.path("../../libraries/universal-darwin/lib_release/libndofdev.dylib", dst="MacOS/libndofdev.dylib")
+
                         # replace the default theme with our custom theme (so scrollbars work).
                         if self.prefix(src="mozilla-theme", dst="MacOS/chrome"):
                                 self.path("classic.jar")

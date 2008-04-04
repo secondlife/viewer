@@ -51,6 +51,7 @@
 #include "llstartup.h"
 #include "llfocusmgr.h"
 #include "llviewerjoystick.h"
+#include "llfloaterjoystick.h"
 #include "llares.h" 
 #include "llcurl.h"
 #include "llfloatersnapshot.h"
@@ -709,7 +710,7 @@ bool LLAppViewer::init()
 
 
 	// Copy settings to globals. *TODO: Remove or move to appropriage class initializers
-    	settings_to_globals();
+	settings_to_globals();
 	// Setup settings listeners
 	settings_setup_listeners();
 	// Modify settings based on system configuration and compile options
@@ -858,6 +859,16 @@ bool LLAppViewer::init()
 	gSimLastTime = gRenderStartTime.getElapsedTimeF32();
 	gSimFrames = (F32)gFrameCount;
 
+	LLViewerJoystick::getInstance()->init();
+	if (LLViewerJoystick::getInstance()->isLikeSpaceNavigator())
+	{
+		if (gSavedSettings.getString("JoystickInitialized") != "SpaceNavigator")
+		{
+			LLFloaterJoystick::setSNDefaults();
+			gSavedSettings.setString("JoystickInitialized", "SpaceNavigator");
+		}
+	}
+	
 	return true;
 }
 
@@ -880,7 +891,9 @@ bool LLAppViewer::mainLoop()
 	LLMemType mt1(LLMemType::MTYPE_MAIN);
 	LLTimer frameTimer,idleTimer;
 	LLTimer debugTime;
-	
+	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
+	joystick->setNeedsReset(true);
+ 	
 	// Handle messages
 	while (!LLApp::isExiting())
 	{
@@ -921,8 +934,8 @@ bool LLAppViewer::mainLoop()
 					&& !gViewerWindow->getShowProgress()
 					&& !gFocusMgr.focusLocked())
 				{
+					joystick->scanJoystick();
 					gKeyboard->scanKeyboard();
-					LLViewerJoystick::scanJoystick();
 				}
 
 				// Update state based on messages, user input, object idle.
@@ -3217,13 +3230,18 @@ void LLAppViewer::idle()
 	}
 	stop_glerror();
 
-	if (!LLViewerJoystick::sOverrideCamera)
+	if (LLViewerJoystick::sOverrideCamera)
 	{
-		gAgent.updateCamera();
+		LLViewerJoystick::getInstance()->moveFlycam();
 	}
 	else
 	{
-		LLViewerJoystick::updateCamera();
+		if (LLToolMgr::getInstance()->inBuildMode())
+		{
+			LLViewerJoystick::getInstance()->moveObjects();
+		}
+
+		gAgent.updateCamera();
 	}
 
 	// objects and camera should be in sync, do LOD calculations now

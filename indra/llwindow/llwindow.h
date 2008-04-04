@@ -107,6 +107,7 @@ public:
 	virtual BOOL handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
 	virtual BOOL handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
 	virtual BOOL handleActivate(LLWindow *window, BOOL activated);
+	virtual BOOL handleActivateApp(LLWindow *window, BOOL activating);
 	virtual void handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask);
 	virtual void handleScrollWheel(LLWindow *window,  S32 clicks);
 	virtual void handleResize(LLWindow *window,  S32 width,  S32 height);
@@ -118,6 +119,8 @@ public:
 	virtual void handleWindowBlock(LLWindow *window);							// window is taking over CPU for a while
 	virtual void handleWindowUnblock(LLWindow *window);							// window coming back after taking over CPU for a while
 	virtual void handleDataCopy(LLWindow *window, S32 data_type, void *data);
+	virtual BOOL handleTimerEvent(LLWindow *window);
+	virtual BOOL handleDeviceChange(LLWindow *window);
 };
 
 // Refer to llwindow_test in test/common/llwindow for usage example
@@ -214,9 +217,6 @@ public:
 	virtual F32 getPixelAspectRatio() = 0;
 	virtual void setNativeAspectRatio(F32 aspect) = 0;
 	
-	F32 getJoystickAxis(U32 axis);
-	U8 getJoystickButton(U32 button);
-
 	void setCallbacks(LLWindowCallbacks *callbacks);
 
 	virtual void beforeDialog() {};	// prepare to put up an OS dialog (if special measures are required, such as in fullscreen mode)
@@ -260,8 +260,6 @@ protected:
 	ESwapMethod mSwapMethod;
 	BOOL		mHideCursorPermanent;
 	U32			mFlags;
-	F32			mJoyAxis[8]; 
-	U8			mJoyButtonState[16];
 	U16			mHighSurrogate;
 
  	// Handle a UTF-16 encoding unit received from keyboard.

@@ -67,7 +67,6 @@
 #include "llagentpilot.h"
 #include "llbox.h"
 #include "llcallingcard.h"
-#include "llcameraview.h"
 #include "llclipboard.h"
 #include "llcompilequeue.h"
 #include "llconsole.h"
@@ -466,8 +465,6 @@ void handle_dump_image_list(void*);
 
 void handle_crash(void*);
 void handle_dump_followcam(void*);
-void handle_toggle_flycam(void*);
-BOOL check_flycam(void*);
 void handle_viewer_enable_message_log(void*);
 void handle_viewer_disable_message_log(void*);
 void handle_send_postcard(void*);
@@ -1082,9 +1079,6 @@ void init_client_menu(LLMenuGL* menu)
 									   &menu_check_control,
 									   (void*)"DisableCameraConstraints"));
 
-	menu->append(new LLMenuItemCheckGL("Joystick Flycam", 
-		&handle_toggle_flycam,NULL,&check_flycam,NULL));
-		
 	menu->append(new LLMenuItemCheckGL("Mouse Smoothing",
 										&menu_toggle_control,
 										NULL,
@@ -1825,9 +1819,17 @@ bool toggle_build_mode()
 	{
 		// just reset the view, will pull us out of edit mode
 		handle_reset_view();
+
+		// avoid spurious avatar movements pulling out of edit mode
+		LLViewerJoystick::getInstance()->moveAvatar(true);
 	}
 	else
 	{
+		if (LLViewerJoystick::sOverrideCamera)
+		{
+			handle_toggle_flycam();
+		}
+			
 		if (gAgent.getFocusOnAvatar() && gSavedSettings.getBOOL("EditCameraMovement") )
 		{
 			// zoom in if we're looking at the avatar
@@ -1854,6 +1856,46 @@ class LLViewBuildMode : public view_listener_t
 	}
 };
 
+
+class LLViewJoystickFlycam : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		handle_toggle_flycam();
+		return true;
+	}
+};
+
+class LLViewCheckJoystickFlycam : public view_listener_t
+{
+	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
+	{
+		bool new_val = LLViewerJoystick::sOverrideCamera;
+		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_val);
+		return true;
+	}
+};
+
+void handle_toggle_flycam()
+{
+	LLViewerJoystick::sOverrideCamera = !LLViewerJoystick::sOverrideCamera;
+	if (LLViewerJoystick::sOverrideCamera)
+	{
+		LLViewerJoystick::getInstance()->moveFlycam(true);
+	}
+	else if (!LLToolMgr::getInstance()->inBuildMode())
+	{
+		LLViewerJoystick::getInstance()->moveAvatar(true);
+	}
+	else 
+	{
+		// we are in build mode, exiting from the flycam mode: since we are 
+		// going to keep the flycam POV for the main camera until the avatar
+		// moves, we need to track this situation.
+		LLViewerJoystick::getInstance()->setCameraNeedsUpdate(false);
+		LLViewerJoystick::getInstance()->setNeedsReset(true);
+	}
+}
 
 class LLObjectBuild : public view_listener_t
 {
@@ -1915,6 +1957,9 @@ class LLObjectEdit : public view_listener_t
 	
 		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
 		gFloaterTools->setEditTool( LLToolCompTranslate::getInstance() );
+
+		LLViewerJoystick::getInstance()->moveObjects(true);
+		LLViewerJoystick::getInstance()->setNeedsReset(true);
 
 		// Could be first use
 		LLFirstUse::useBuild();
@@ -3339,7 +3384,13 @@ void reset_view_final( BOOL proceed, void* )
 	
 	if (LLViewerJoystick::sOverrideCamera)
 	{
-		handle_toggle_flycam(NULL);
+		handle_toggle_flycam();
+	}
+
+	// reset avatar mode from eventual residual motion
+	if (LLToolMgr::getInstance()->inBuildMode())
+	{
+		LLViewerJoystick::getInstance()->moveAvatar(true);
 	}
 
 	gAgent.resetView(!gFloaterTools->getVisible());
@@ -5250,21 +5301,6 @@ void handle_force_unlock(void*)
 void handle_dump_followcam(void*)
 {
 	LLFollowCamMgr::dump();
-}
-
-BOOL check_flycam(void*)
-{
-	return LLViewerJoystick::sOverrideCamera;
-}
-
-void handle_toggle_flycam(void*)
-{
-	LLViewerJoystick::sOverrideCamera = !LLViewerJoystick::sOverrideCamera;
-	if (LLViewerJoystick::sOverrideCamera)
-	{
-		LLViewerJoystick::updateCamera(TRUE);
-		LLFloaterJoystick::show(NULL);
-	}
 }
 
 void handle_viewer_enable_message_log(void*)
@@ -7715,6 +7751,7 @@ void initialize_menus()
 	// View menu
 	addMenu(new LLViewMouselook(), "View.Mouselook");
 	addMenu(new LLViewBuildMode(), "View.BuildMode");
+	addMenu(new LLViewJoystickFlycam(), "View.JoystickFlycam");
 	addMenu(new LLViewResetView(), "View.ResetView");
 	addMenu(new LLViewLookAtLastChatter(), "View.LookAtLastChatter");
 	addMenu(new LLViewShowHoverTips(), "View.ShowHoverTips");
@@ -7733,6 +7770,7 @@ void initialize_menus()
 	addMenu(new LLViewEnableLastChatter(), "View.EnableLastChatter");
 
 	addMenu(new LLViewCheckBuildMode(), "View.CheckBuildMode");
+	addMenu(new LLViewCheckJoystickFlycam(), "View.CheckJoystickFlycam");
 	addMenu(new LLViewCheckShowHoverTips(), "View.CheckShowHoverTips");
 	addMenu(new LLViewCheckHighlightTransparent(), "View.CheckHighlightTransparent");
 	addMenu(new LLViewCheckBeaconEnabled(), "View.CheckBeaconEnabled");

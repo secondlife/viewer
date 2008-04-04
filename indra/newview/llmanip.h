@@ -146,7 +146,7 @@ protected:
 	void				renderTickValue(const LLVector3& pos, F32 value, const char* suffix, const LLColor4 &color);
 	void				renderTickText(const LLVector3& pos, const char* suffix, const LLColor4 &color);
 	void				updateGridSettings();
-	BOOL				getMousePointOnPlaneGlobal(LLVector3d& point, S32 x, S32 y, LLVector3d origin, LLVector3 normal);
+	BOOL				getMousePointOnPlaneGlobal(LLVector3d& point, S32 x, S32 y, LLVector3d origin, LLVector3 normal) const;
 	BOOL				getMousePointOnPlaneAgent(LLVector3& point, S32 x, S32 y, LLVector3 origin, LLVector3 normal);
 	BOOL				nearestPointOnLineFromMouse( S32 x, S32 y, const LLVector3& b1, const LLVector3& b2, F32 &a_param, F32 &b_param );
 	LLColor4			setupSnapGuideRenderPass(S32 pass);

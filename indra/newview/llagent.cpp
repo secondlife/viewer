@@ -581,7 +581,7 @@ void LLAgent::unlockView()
 //-----------------------------------------------------------------------------
 // moveAt()
 //-----------------------------------------------------------------------------
-void LLAgent::moveAt(S32 direction)
+void LLAgent::moveAt(S32 direction, bool reset)
 {
 	// age chat timer so it fades more quickly when you are intentionally moving
 	ageChat();
@@ -597,7 +597,10 @@ void LLAgent::moveAt(S32 direction)
 		setControlFlags(AGENT_CONTROL_AT_NEG | AGENT_CONTROL_FAST_AT);
 	}
 
-	resetView();
+	if (reset)
+	{
+		resetView();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -691,7 +694,7 @@ void LLAgent::moveUp(S32 direction)
 //-----------------------------------------------------------------------------
 // moveYaw()
 //-----------------------------------------------------------------------------
-void LLAgent::moveYaw(F32 mag)
+void LLAgent::moveYaw(F32 mag, bool reset_view)
 {
 	mYawKey = mag;
 
@@ -704,7 +707,10 @@ void LLAgent::moveYaw(F32 mag)
 		setControlFlags(AGENT_CONTROL_YAW_NEG);
 	}
 
-	resetView();
+    if (reset_view)
+	{
+        resetView();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1216,7 +1222,16 @@ LLVector3 LLAgent::getReferenceUpVector()
 void LLAgent::pitch(F32 angle)
 {
 	// don't let user pitch if pointed almost all the way down or up
-	
+	mFrameAgent.pitch(clampPitchToLimits(angle));
+}
+
+
+// Radians, positive is forward into ground
+//-----------------------------------------------------------------------------
+// clampPitchToLimits()
+//-----------------------------------------------------------------------------
+F32 LLAgent::clampPitchToLimits(F32 angle)
+{
 	// A dot B = mag(A) * mag(B) * cos(angle between A and B)
 	// so... cos(angle between A and B) = A dot B / mag(A) / mag(B)
 	//                                  = A dot B for unit vectors
@@ -1246,8 +1261,8 @@ void LLAgent::pitch(F32 angle)
 	{
 		angle = look_up_limit - angle_from_skyward;
 	}
-
-	mFrameAgent.pitch(angle);
+   
+    return angle;
 }
 
 
@@ -2576,15 +2591,18 @@ void LLAgent::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 		LLVector3 headLookAxis;
 		LLCoordFrame frameCamera = *((LLCoordFrame*)LLViewerCamera::getInstance());
 
-		F32 x_from_center = ((F32) mouse_x / (F32) gViewerWindow->getWindowWidth() ) - 0.5f;
-		F32 y_from_center = ((F32) mouse_y / (F32) gViewerWindow->getWindowHeight() ) - 0.5f;
-
 		if (cameraMouselook())
 		{
 			lookAtType = LOOKAT_TARGET_MOUSELOOK;
 		}
 		else if (cameraThirdPerson())
 		{
+			// range from -.5 to .5
+			F32 x_from_center = 
+				((F32) mouse_x / (F32) gViewerWindow->getWindowWidth() ) - 0.5f;
+			F32 y_from_center = 
+				((F32) mouse_y / (F32) gViewerWindow->getWindowHeight() ) - 0.5f;
+
 			frameCamera.yaw( - x_from_center * gSavedSettings.getF32("YawFromMousePosition") * DEG_TO_RAD);
 			frameCamera.pitch( - y_from_center * gSavedSettings.getF32("PitchFromMousePosition") * DEG_TO_RAD);
 			lookAtType = LOOKAT_TARGET_FREELOOK;

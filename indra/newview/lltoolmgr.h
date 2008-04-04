@@ -58,6 +58,9 @@ public:
 	LLTool*			getBaseTool(); // returns active tool when overrides are deactivated
 
 	BOOL			inEdit();
+	
+	/* Determines if we are in Build mode or not. */
+	bool			inBuildMode();
 
 	void			setTransientTool(LLTool* tool);
 	void			clearTransientTool();

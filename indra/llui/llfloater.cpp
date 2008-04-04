@@ -656,7 +656,8 @@ void LLFloater::setTitle( const LLString& title )
 	{
 		return;
 	}
-	mDragHandle->setTitle( title );
+	if (mDragHandle)
+		mDragHandle->setTitle( title );
 }
 
 const LLString& LLFloater::getTitle() const
@@ -934,7 +935,8 @@ void LLFloater::setIsChrome(BOOL is_chrome)
 	}
 	
 	// no titles displayed on "chrome" floaters
-	mDragHandle->setTitleVisible(!is_chrome);
+	if (mDragHandle)
+		mDragHandle->setTitleVisible(!is_chrome);
 	
 	LLPanel::setIsChrome(is_chrome);
 }
@@ -945,7 +947,8 @@ void LLFloater::setForeground(BOOL front)
 	if (front != mForeground)
 	{
 		mForeground = front;
-		mDragHandle->setForeground( front );
+		if (mDragHandle)
+			mDragHandle->setForeground( front );
 
 		if (!front)
 		{
@@ -1580,8 +1583,8 @@ void LLFloater::updateButtons()
 			mButtons[i]->setVisible(FALSE);
 		}
 	}
-
-	mDragHandle->setMaxTitleWidth(getRect().getWidth() - (button_count * (LLFLOATER_CLOSE_BOX_SIZE + 1)));
+	if (mDragHandle)
+		mDragHandle->setMaxTitleWidth(getRect().getWidth() - (button_count * (LLFLOATER_CLOSE_BOX_SIZE + 1)));
 }
 
 void LLFloater::buildButtons()

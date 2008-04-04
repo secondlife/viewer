@@ -6241,4 +6241,199 @@ LLViewerObject* LLObjectSelection::getFirstMoveableObject(BOOL get_parent)
 	return getFirstSelectedObject(&func, get_parent);
 }
 
+//-----------------------------------------------------------------------------
+// Position + Rotation update methods called from LLViewerJoystick
+//-----------------------------------------------------------------------------
+bool LLSelectMgr::selectionMove(const LLVector3& displ,
+                                  F32 roll, F32 pitch, F32 yaw, U32 update_type)
+{
+	if (update_type == UPD_NONE)
+	{
+		return false;
+	}
+	
+	LLVector3 displ_global;
+	bool update_success = true;
+	bool update_position = update_type & UPD_POSITION;
+	bool update_rotation = update_type & UPD_ROTATION;
+	const bool noedit_linked_parts = !gSavedSettings.getBOOL("EditLinkedParts");
+	
+	if (update_position)
+	{
+		// calculate the distance of the object closest to the camera origin
+		F32 min_dist = 1e+30f;
+		LLVector3 obj_pos;
+		for (LLObjectSelection::root_iterator it = getSelection()->root_begin();
+			 it != getSelection()->root_end(); ++it)
+		{
+			obj_pos = (*it)->getObject()->getPositionEdit();
+			
+			F32 obj_dist = dist_vec(obj_pos, LLViewerCamera::getInstance()->getOrigin());
+			if (obj_dist < min_dist)
+			{
+				min_dist = obj_dist;
+			}
+		}
+		
+		// factor the distance inside the displacement vector. This will get us
+		// equally visible movements for both close and far away selections.
+		min_dist = sqrt(min_dist) / 2;
+		displ_global.setVec(displ.mV[0]*min_dist, 
+							displ.mV[1]*min_dist, 
+							displ.mV[2]*min_dist);
 
+		// equates to: Displ_global = Displ * M_cam_axes_in_global_frame
+		displ_global = LLViewerCamera::getInstance()->rotateToAbsolute(displ_global);
+	}
+
+	LLQuaternion new_rot;
+	if (update_rotation)
+	{
+		// let's calculate the rotation around each camera axes 
+		LLQuaternion qx(roll, LLViewerCamera::getInstance()->getAtAxis());
+		LLQuaternion qy(pitch, LLViewerCamera::getInstance()->getLeftAxis());
+		LLQuaternion qz(yaw, LLViewerCamera::getInstance()->getUpAxis());
+		new_rot.setQuat(qx * qy * qz);
+	}
+	
+	LLViewerObject *obj;
+	S32 obj_count = getSelection()->getObjectCount();
+	for (LLObjectSelection::root_iterator it = getSelection()->root_begin();
+		 it != getSelection()->root_end(); ++it )
+	{
+		obj = (*it)->getObject();
+		bool enable_pos = false, enable_rot = false;
+		bool perm_move = obj->permMove();
+		bool perm_mod = obj->permModify();
+		
+		LLVector3d sel_center(getSelectionCenterGlobal());
+		
+		if (update_rotation)
+		{
+			enable_rot = perm_move 
+				&& ((perm_mod && !obj->isAttachment()) || noedit_linked_parts);
+
+			if (enable_rot)
+			{
+				int children_count = obj->getChildren().size();
+				if (obj_count > 1 && children_count > 0)
+				{
+					// for linked sets, rotate around the group center
+					const LLVector3 t(obj->getPositionGlobal() - sel_center);
+
+					// Ra = T x R x T^-1
+					LLMatrix4 mt;	mt.setTranslation(t);
+					const LLMatrix4 mnew_rot(new_rot);
+					LLMatrix4 mt_1;	mt_1.setTranslation(-t);
+					mt *= mnew_rot;
+					mt *= mt_1;
+					
+					// Rfin = Rcur * Ra
+					obj->setRotation(obj->getRotationEdit() * mt.quaternion());
+					displ_global += mt.getTranslation();
+				}
+				else
+				{
+					obj->setRotation(obj->getRotationEdit() * new_rot);
+				}
+			}
+			else
+			{
+				update_success = false;
+			}
+		}
+
+		if (update_position)
+		{
+			// establish if object can be moved or not
+			enable_pos = perm_move && !obj->isAttachment() 
+			&& (perm_mod || noedit_linked_parts);
+			
+			if (enable_pos)
+			{
+				obj->setPosition(obj->getPositionEdit() + displ_global);
+			}
+			else
+			{
+				update_success = false;
+			}
+		}
+		
+		if (enable_pos && enable_rot && obj->mDrawable.notNull())
+		{
+			gPipeline.markMoved(obj->mDrawable, TRUE);
+		}
+	}
+	
+	if (update_position && update_success && obj_count > 1)
+	{
+		updateSelectionCenter();
+	}
+	
+	return update_success;
+}
+
+void LLSelectMgr::sendSelectionMove()
+{
+	LLSelectNode *node = mSelectedObjects->getFirstRootNode();
+	if (node == NULL)
+	{
+		return;
+	}
+	
+	//saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
+	
+	U32 update_type = UPD_POSITION | UPD_ROTATION;
+	LLViewerRegion *last_region, *curr_region = node->getObject()->getRegion();
+	S32 objects_in_this_packet = 0;
+
+	// apply to linked objects if unable to select their individual parts 
+	if (!gSavedSettings.getBOOL("EditLinkedParts") && !getTEMode())
+	{
+		// tell simulator to apply to whole linked sets
+		update_type |= UPD_LINKED_SETS;
+	}
+
+	// prepare first bulk message
+	gMessageSystem->newMessage("MultipleObjectUpdate");
+	packAgentAndSessionID(&update_type);
+
+	LLViewerObject *obj = NULL;
+	for (LLObjectSelection::root_iterator it = getSelection()->root_begin();
+		 it != getSelection()->root_end(); ++it)
+	{
+		obj = (*it)->getObject();
+
+		// note: following code adapted from sendListToRegions() (@3924)
+		last_region = curr_region;
+		curr_region = obj->getRegion();
+
+		// if not simulator or message too big
+		if (curr_region != last_region
+			|| gMessageSystem->isSendFull(NULL)
+			|| objects_in_this_packet >= MAX_OBJECTS_PER_PACKET)
+		{
+			// send sim the current message and start new one
+			gMessageSystem->sendReliable(last_region->getHost());
+			objects_in_this_packet = 0;
+			gMessageSystem->newMessage("MultipleObjectUpdate");
+			packAgentAndSessionID(&update_type);
+		}
+
+		// add another instance of the body of data
+		packMultipleUpdate(*it, &update_type);
+		++objects_in_this_packet;
+	}
+
+	// flush remaining messages
+	if (gMessageSystem->getCurrentSendTotal() > 0)
+	{
+		gMessageSystem->sendReliable(curr_region->getHost());
+	}
+	else
+	{
+		gMessageSystem->clearMessage();
+	}
+
+	//saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
+}

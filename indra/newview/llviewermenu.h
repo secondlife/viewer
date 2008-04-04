@@ -102,6 +102,7 @@ void handle_sit_down(void*);
 bool toggle_build_mode();
 void handle_object_build(void*);
 void handle_save_snapshot(void *);
+void handle_toggle_flycam();
 
 bool handle_sit_or_stand();
 bool handle_give_money_dialog();

@@ -97,6 +97,7 @@ public:
 	/*virtual*/ void handleFocus(LLWindow *window);
 	/*virtual*/ void handleFocusLost(LLWindow *window);
 	/*virtual*/ BOOL handleActivate(LLWindow *window, BOOL activated);
+	/*virtual*/ BOOL handleActivateApp(LLWindow *window, BOOL activating);
 	/*virtual*/ void handleMenuSelect(LLWindow *window,  S32 menu_item);
 	/*virtual*/ BOOL handlePaint(LLWindow *window,  S32 x,  S32 y,  S32 width,  S32 height);
 	/*virtual*/ void handleScrollWheel(LLWindow *window,  S32 clicks);
@@ -104,6 +105,9 @@ public:
 	/*virtual*/ void handleWindowBlock(LLWindow *window);
 	/*virtual*/ void handleWindowUnblock(LLWindow *window);
 	/*virtual*/ void handleDataCopy(LLWindow *window, S32 data_type, void *data);
+	/*virtual*/ BOOL handleTimerEvent(LLWindow *window);
+	/*virtual*/ BOOL handleDeviceChange(LLWindow *window);
+
 
 
 	//

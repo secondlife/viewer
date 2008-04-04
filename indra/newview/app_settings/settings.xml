@@ -2791,7 +2791,7 @@
         <key>Value</key>
             <integer>0</integer>
         </map>
-    <key>FlycamAutoLeveling</key>
+    <key>AutoLeveling</key>
         <map>
         <key>Comment</key>
             <string>Keep Flycam level.</string>
@@ -2802,7 +2802,40 @@
         <key>Value</key>
             <integer>1</integer>
         </map>
-    <key>FlycamAxis0</key>
+    <key>Cursor3D</key>
+        <map>
+        <key>Comment</key>
+            <string>Tread Joystick values as absolute positions (not deltas).</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map>
+    <key>ZoomDirect</key>
+        <map>
+        <key>Comment</key>
+            <string>Map Joystick zoom axis directly to camera zoom.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>JoystickInitialized</key>
+        <map>
+        <key>Comment</key>
+            <string>Whether or not a joystick has been detected and initiailized.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string></string>
+        </map>
+    <key>JoystickAxis0</key>
         <map>
         <key>Comment</key>
             <string>Flycam hardware axis mapping for internal axis 0 ([0, 5]).</string>
@@ -2813,7 +2846,7 @@
         <key>Value</key>
             <integer>0</integer>
         </map>
-    <key>FlycamAxis1</key>
+    <key>JoystickAxis1</key>
         <map>
         <key>Comment</key>
             <string>Flycam hardware axis mapping for internal axis 1 ([0, 5]).</string>
@@ -2822,9 +2855,9 @@
         <key>Type</key>
             <string>S32</string>
         <key>Value</key>
-            <integer>1</integer>
+            <integer>2</integer>
         </map>
-    <key>FlycamAxis2</key>
+    <key>JoystickAxis2</key>
         <map>
         <key>Comment</key>
             <string>Flycam hardware axis mapping for internal axis 2 ([0, 5]).</string>
@@ -2833,9 +2866,9 @@
         <key>Type</key>
             <string>S32</string>
         <key>Value</key>
-            <integer>2</integer>
+            <integer>1</integer>
         </map>
-    <key>FlycamAxis3</key>
+    <key>JoystickAxis3</key>
         <map>
         <key>Comment</key>
             <string>Flycam hardware axis mapping for internal axis 3 ([0, 5]).</string>
@@ -2844,9 +2877,9 @@
         <key>Type</key>
             <string>S32</string>
         <key>Value</key>
-            <integer>3</integer>
+            <integer>5</integer>
         </map>
-    <key>FlycamAxis4</key>
+    <key>JoystickAxis4</key>
         <map>
         <key>Comment</key>
             <string>Flycam hardware axis mapping for internal axis 4 ([0, 5]).</string>
@@ -2857,7 +2890,7 @@
         <key>Value</key>
             <integer>4</integer>
         </map>
-    <key>FlycamAxis5</key>
+    <key>JoystickAxis5</key>
         <map>
         <key>Comment</key>
             <string>Flycam hardware axis mapping for internal axis 5 ([0, 5]).</string>
@@ -2866,9 +2899,9 @@
         <key>Type</key>
             <string>S32</string>
         <key>Value</key>
-            <integer>5</integer>
+            <integer>3</integer>
         </map>
-    <key>FlycamAxis6</key>
+    <key>JoystickAxis6</key>
         <map>
         <key>Comment</key>
             <string>Flycam hardware axis mapping for internal axis 6 ([0, 5]).</string>
@@ -2888,7 +2921,7 @@
         <key>Type</key>
             <string>F32</string>
         <key>Value</key>
-            <real>0.1000000014901161193847656</real>
+            <real>0.1</real>
         </map>
     <key>FlycamAxisDeadZone1</key>
         <map>
@@ -2899,7 +2932,7 @@
         <key>Type</key>
             <string>F32</string>
         <key>Value</key>
-            <real>0.1000000014901161193847656</real>
+            <real>0.1</real>
         </map>
     <key>FlycamAxisDeadZone2</key>
         <map>
@@ -2910,7 +2943,7 @@
         <key>Type</key>
             <string>F32</string>
         <key>Value</key>
-            <real>0.1000000014901161193847656</real>
+            <real>0.1</real>
         </map>
     <key>FlycamAxisDeadZone3</key>
         <map>
@@ -2921,7 +2954,7 @@
         <key>Type</key>
             <string>F32</string>
         <key>Value</key>
-            <real>0.1000000014901161193847656</real>
+            <real>0.1</real>
         </map>
     <key>FlycamAxisDeadZone4</key>
         <map>
@@ -2932,7 +2965,7 @@
         <key>Type</key>
             <string>F32</string>
         <key>Value</key>
-            <real>0.1000000014901161193847656</real>
+            <real>0.1</real>
         </map>
     <key>FlycamAxisDeadZone5</key>
         <map>
@@ -2943,7 +2976,7 @@
         <key>Type</key>
             <string>F32</string>
         <key>Value</key>
-            <real>0.1000000014901161193847656</real>
+            <real>0.1</real>
         </map>
     <key>FlycamAxisDeadZone6</key>
         <map>
@@ -2954,7 +2987,7 @@
         <key>Type</key>
             <string>F32</string>
         <key>Value</key>
-            <real>0.1000000014901161193847656</real>
+            <real>0.1</real>
         </map>
     <key>FlycamAxisScale0</key>
         <map>
@@ -6016,7 +6049,7 @@
         <key>Type</key>
             <string>F32</string>
         <key>Value</key>
-            <real>0.1000000014901161193847656</real>
+            <real>0.1</real>
         </map>
     <key>SelectionHighlightThickness</key>
         <map>
@@ -6049,7 +6082,7 @@
         <key>Type</key>
             <string>F32</string>
         <key>Value</key>
-            <real>0.1000000014901161193847656</real>
+            <real>0.1</real>
         </map>
     <key>SelectionHighlightVAnim</key>
         <map>
@@ -6606,7 +6639,7 @@
             <array>
                 <real>1</real>
                 <real>0</real>
-                <real>0.1000000014901161193847656</real>
+                <real>0.1</real>
             </array>
         </map>
 	<key>SkyUseClassicClouds</key>
@@ -9748,5 +9781,294 @@
 		<key>Value</key>
 			<real>1</real>
 		</map>
+
+    <key>AvatarAxisDeadZone0</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 0 dead zone.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.1</real>
+        </map>
+    <key>AvatarAxisDeadZone1</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 1 dead zone.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.1</real>
+        </map>
+    <key>AvatarAxisDeadZone2</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 2 dead zone.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.1</real>
+        </map>
+    <key>AvatarAxisDeadZone3</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 3 dead zone.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.1</real>
+        </map>
+    <key>AvatarAxisDeadZone4</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 4 dead zone.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.1</real>
+        </map>
+    <key>AvatarAxisDeadZone5</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 5 dead zone.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.1</real>
+        </map>
+    <key>AvatarAxisScale0</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 0 scaler.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
+    <key>AvatarAxisScale1</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 1 scaler.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
+    <key>AvatarAxisScale2</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 2 scaler.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
+    <key>AvatarAxisScale3</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 3 scaler.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
+    <key>AvatarAxisScale4</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 4 scaler.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
+    <key>AvatarAxisScale5</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar axis 5 scaler.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
+    <key>AvatarFeathering</key>
+        <map>
+        <key>Comment</key>
+            <string>Avatar feathering (less is softer)</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>16</real>
+        </map>
+
+    <key>BuildAxisDeadZone0</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 0 dead zone.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.1</real>
+        </map>
+    <key>BuildAxisDeadZone1</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 1 dead zone.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.1</real>
+        </map>
+    <key>BuildAxisDeadZone2</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 2 dead zone.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.1</real>
+        </map>
+    <key>BuildAxisDeadZone3</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 3 dead zone.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.1</real>
+        </map>
+    <key>BuildAxisDeadZone4</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 4 dead zone.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.1</real>
+        </map>
+    <key>BuildAxisDeadZone5</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 5 dead zone.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.1</real>
+        </map>
+    <key>BuildAxisScale0</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 0 scaler.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
+    <key>BuildAxisScale1</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 1 scaler.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
+    <key>BuildAxisScale2</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 2 scaler.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
+    <key>BuildAxisScale3</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 3 scaler.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
+    <key>BuildAxisScale4</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 4 scaler.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
+    <key>BuildAxisScale5</key>
+        <map>
+        <key>Comment</key>
+            <string>Build axis 5 scaler.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
+    <key>BuildFeathering</key>
+        <map>
+        <key>Comment</key>
+            <string>Build feathering (less is softer)</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>16</real>
+        </map>
+
     </map>
 </llsd>

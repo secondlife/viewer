@@ -356,6 +356,7 @@ public:
 	void			roll(F32 angle);
 	void			yaw(F32 angle);
 	LLVector3		getReferenceUpVector();
+    F32             clampPitchToLimits(F32 angle);
 
 	void			setThirdPersonHeadOffset(LLVector3 offset) { mThirdPersonHeadOffset = offset; }
 	// Flight management
@@ -404,12 +405,12 @@ public:
 	// Movement from user input.  All set the appropriate animation flags.
 	// All turn off autopilot and make sure the camera is behind the avatar.
 	// direction is either positive, zero, or negative
-	void			moveAt(S32 direction);
+	void			moveAt(S32 direction, bool reset_view = true);
 	void			moveAtNudge(S32 direction);
 	void			moveLeft(S32 direction);
 	void			moveLeftNudge(S32 direction);
 	void			moveUp(S32 direction);
-	void			moveYaw(F32 mag);
+	void			moveYaw(F32 mag, bool reset_view = true);
 	void			movePitch(S32 direction);
 
 	void			setOrbitLeftKey(F32 mag)				{ mOrbitLeftKey = mag; }

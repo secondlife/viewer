@@ -46,7 +46,7 @@
 #define DIRECTINPUT_VERSION 0x0800
 
 #include <dinput.h>
-
+#include <Dbt.h.>
 
 #include "llkeyboardwin32.h"
 #include "llerror.h"
@@ -359,14 +359,6 @@ LLWinImm::~LLWinImm()
 }
 
 
-LPDIRECTINPUT8       g_pDI              = NULL;         
-LPDIRECTINPUTDEVICE8 g_pJoystick        = NULL;     
-BOOL CALLBACK EnumJoysticksCallback( const DIDEVICEINSTANCE* pdidInstance,
-									VOID* pContext );
-BOOL CALLBACK EnumObjectsCallback( const DIDEVICEOBJECTINSTANCE* pdidoi,
-								  VOID* pContext );
-
-
 LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 							 S32 height, U32 flags, 
 							 BOOL fullscreen, BOOL clearBg,
@@ -666,38 +658,6 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 	// Initialize (boot strap) the Language text input management,
 	// based on the system's (or user's) default settings.
 	allowLanguageTextInput(NULL, FALSE);
-}
-
-void LLWindowWin32::initInputDevices()
-{
-	// Direct Input
-	HRESULT hr;
-
-	if( FAILED( hr = DirectInput8Create( GetModuleHandle(NULL), DIRECTINPUT_VERSION, 
-		IID_IDirectInput8, (VOID**)&g_pDI, NULL ) ) )
-	{
-		llwarns << "Direct8InputCreate failed!" << llendl;
-	}
-	else
-	{
-		while(1)
-		{
-			// Look for a simple joystick we can use for this sample program.
-			if (FAILED( hr = g_pDI->EnumDevices( DI8DEVCLASS_GAMECTRL, 
-				EnumJoysticksCallback,
-				NULL, DIEDFL_ATTACHEDONLY ) ) )
-				break;
-			if (!g_pJoystick)
-				break;
-			if( FAILED( hr = g_pJoystick->SetDataFormat( &c_dfDIJoystick ) ) )
-				break;
-			if( FAILED( hr = g_pJoystick->EnumObjects( EnumObjectsCallback, 
-				(VOID*)mWindowHandle, DIDFT_ALL ) ) )
-				break;
-			g_pJoystick->Acquire();
-			break;
-		}
-	}
 
 	SetTimer( mWindowHandle, 0, 1000 / 30, NULL ); // 30 fps timer
 }
@@ -1438,8 +1398,6 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 	SetWindowLong(mWindowHandle, GWL_USERDATA, (U32)this);
 	show();
 
-	initInputDevices();
-
 	// ok to post quit messages now
 	mPostQuit = TRUE;
 	return TRUE;
@@ -1730,7 +1688,22 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			S32		update_height;
 
 		case WM_TIMER:
-			window_imp->updateJoystick( );
+			window_imp->mCallbacks->handleTimerEvent(window_imp);
+			break;
+
+		case WM_DEVICECHANGE:
+			if (gDebugWindowProc)
+			{
+				llinfos << "  WM_DEVICECHANGE: wParam=" << w_param 
+						<< "; lParam=" << l_param << llendl;
+			}
+			if (w_param == DBT_DEVNODES_CHANGED || w_param == DBT_DEVICEARRIVAL)
+			{
+				if (window_imp->mCallbacks->handleDeviceChange(window_imp))
+				{
+					return 0;
+				}
+			}
 			break;
 
 		case WM_PAINT:
@@ -1795,6 +1768,9 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 						window_imp->resetDisplayResolution();
 					}
 				}
+
+				window_imp->mCallbacks->handleActivateApp(window_imp, activating);
+
 				break;
 			}
 
@@ -2828,81 +2804,6 @@ BOOL LLWindowWin32::resetDisplayResolution()
 void LLWindowWin32::swapBuffers()
 {
 	SwapBuffers(mhDC);
-}
-
-
-BOOL CALLBACK EnumJoysticksCallback( const DIDEVICEINSTANCE* pdidInstance,
-									VOID* pContext )
-{
-	HRESULT hr;
-
-	// Obtain an interface to the enumerated joystick.
-	hr = g_pDI->CreateDevice( pdidInstance->guidInstance, &g_pJoystick, NULL );
-
-	// If it failed, then we can't use this joystick. (Maybe the user unplugged
-	// it while we were in the middle of enumerating it.)
-	if( FAILED(hr) ) 
-		return DIENUM_CONTINUE;
-
-	// Stop enumeration. Note: we're just taking the first joystick we get. You
-	// could store all the enumerated joysticks and let the user pick.
-	return DIENUM_STOP;
-}
-
-BOOL CALLBACK EnumObjectsCallback( const DIDEVICEOBJECTINSTANCE* pdidoi,
-								  VOID* pContext )
-{
-	if( pdidoi->dwType & DIDFT_AXIS )
-	{
-		DIPROPRANGE diprg; 
-		diprg.diph.dwSize       = sizeof(DIPROPRANGE); 
-		diprg.diph.dwHeaderSize = sizeof(DIPROPHEADER); 
-		diprg.diph.dwHow        = DIPH_BYID; 
-		diprg.diph.dwObj        = pdidoi->dwType; // Specify the enumerated axis
-		diprg.lMin              = -1000; 
-		diprg.lMax              = +1000; 
-
-		// Set the range for the axis
-		if( FAILED( g_pJoystick->SetProperty( DIPROP_RANGE, &diprg.diph ) ) ) 
-			return DIENUM_STOP;
-
-	}
-	return DIENUM_CONTINUE;
-}
-
-void LLWindowWin32::updateJoystick( )
-{
-	HRESULT hr;
-	DIJOYSTATE js;           // DInput joystick state
-
-	if (!g_pJoystick)
-		return;
-	hr = g_pJoystick->Poll();
-	if ( hr == DIERR_INPUTLOST )
-	{
-		hr = g_pJoystick->Acquire();
-		return;
-	}
-	else if ( FAILED(hr) )
-		return;
-
-	// Get the input's device state
-	if( FAILED( hr = g_pJoystick->GetDeviceState( sizeof(DIJOYSTATE), &js ) ) )
-		return; // The device should have been acquired during the Poll()
-
-	mJoyAxis[0] = js.lX/1000.f;
-	mJoyAxis[1] = js.lY/1000.f;
-	mJoyAxis[2] = js.lZ/1000.f;
-	mJoyAxis[3] = js.lRx/1000.f;
-	mJoyAxis[4] = js.lRy/1000.f;
-	mJoyAxis[5] = js.lRz/1000.f;
-	mJoyAxis[6] = js.rglSlider[0]/1000.f;
-	mJoyAxis[7] = js.rglSlider[1]/1000.f;
-
-	for (U32 i = 0; i < 16; i++)
-	{
-		mJoyButtonState[i] = js.rgbButtons[i];
-	}
 }
 
 

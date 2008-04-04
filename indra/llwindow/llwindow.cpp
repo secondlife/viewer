@@ -143,6 +143,11 @@ BOOL LLWindowCallbacks::handleActivate(LLWindow *window, BOOL activated)
 	return FALSE;
 }
 
+BOOL LLWindowCallbacks::handleActivateApp(LLWindow *window, BOOL activating)
+{
+	return FALSE;
+}
+
 void LLWindowCallbacks::handleMouseMove(LLWindow *window, const LLCoordGL pos, MASK mask)
 {
 }
@@ -190,6 +195,15 @@ void LLWindowCallbacks::handleDataCopy(LLWindow *window, S32 data_type, void *da
 {
 }
 
+BOOL LLWindowCallbacks::handleTimerEvent(LLWindow *window)
+{
+	return FALSE;
+}
+
+BOOL LLWindowCallbacks::handleDeviceChange(LLWindow *window)
+{
+	return FALSE;
+}
 
 S32 OSMessageBox(const char* text, const char* caption, U32 type)
 {
@@ -247,15 +261,6 @@ LLWindow::LLWindow(BOOL fullscreen, U32 flags)
 	  mFlags(flags),
 	  mHighSurrogate(0)
 {
-	for (U32 i = 0; i < 8; i++)
-	{
-		mJoyAxis[i] = 0;
-	}
-
-	for (U32 i = 0; i < 16; i++)
-	{
-		mJoyButtonState[i] = 0;
-	}
 }
 	
 // virtual
@@ -271,24 +276,6 @@ void LLWindow::decBusyCount()
 	{
 		--mBusyCount;
 	}
-}
-
-F32 LLWindow::getJoystickAxis(U32 axis)
-{
-	if (axis < 8)
-	{
-		return mJoyAxis[axis];
-	}
-	return 0.f;
-}
-
-U8 LLWindow::getJoystickButton(U32 button)
-{
-	if (button < 16)
-	{
-		return mJoyButtonState[button];
-	}
-	return 0;
 }
 
 void LLWindow::setCallbacks(LLWindowCallbacks *callbacks)

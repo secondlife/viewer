@@ -255,7 +255,7 @@ BOOL LLManip::getMousePointOnPlaneAgent(LLVector3& point, S32 x, S32 y, LLVector
 	return result;
 }
 
-BOOL LLManip::getMousePointOnPlaneGlobal(LLVector3d& point, S32 x, S32 y, LLVector3d origin, LLVector3 normal)
+BOOL LLManip::getMousePointOnPlaneGlobal(LLVector3d& point, S32 x, S32 y, LLVector3d origin, LLVector3 normal) const
 {
 	if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)
 	{

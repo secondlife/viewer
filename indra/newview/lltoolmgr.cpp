@@ -49,6 +49,8 @@
 #include "lltoolselectland.h"
 #include "lltoolobjpicker.h"
 #include "lltoolpipette.h"
+#include "llagent.h"
+#include "llviewercontrol.h"
 
 
 // Used when app not active to avoid processing hover.
@@ -225,6 +227,19 @@ void LLToolMgr::updateToolStatus()
 BOOL LLToolMgr::inEdit()
 {
 	return mBaseTool != LLToolPie::getInstance() && mBaseTool != gToolNull;
+}
+
+bool LLToolMgr::inBuildMode()
+{
+	// when entering mouselook inEdit() immediately returns true before 
+	// cameraMouselook() actually starts returning true.  Also, appearance edit
+	// sets build mode to true, so let's exclude that.
+	bool b=(inEdit() 
+			&& gSavedSettings.getBOOL("BuildBtnState")
+			&& !gAgent.cameraMouselook()
+			&& mCurrentToolset != gFaceEditToolset);
+	
+	return b;
 }
 
 void LLToolMgr::setTransientTool(LLTool* tool)

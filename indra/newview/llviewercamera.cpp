@@ -47,6 +47,8 @@
 #include "llviewerwindow.h"
 #include "llvovolume.h"
 #include "llworld.h"
+#include "lltoolmgr.h"
+#include "llviewerjoystick.h"
 
 GLfloat gGLZFar;
 GLfloat gGLZNear;
@@ -97,6 +99,13 @@ void LLViewerCamera::updateCameraLocation(const LLVector3 &center,
 											const LLVector3 &up_direction,
 											const LLVector3 &point_of_interest)
 {
+	// do not update if we are in build mode AND avatar didn't move
+	if (LLToolMgr::getInstance()->inBuildMode() 
+		&& !LLViewerJoystick::getInstance()->getCameraNeedsUpdate())
+	{
+		return;
+	}
+
 	LLVector3 last_position;
 	LLVector3 last_axis;
 	last_position = getOrigin();

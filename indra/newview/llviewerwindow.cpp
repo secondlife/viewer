@@ -32,6 +32,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llpanellogin.h"
+#include "llviewerkeyboard.h"
 #include "llviewerwindow.h"
 
 // system library includes
@@ -180,6 +181,7 @@
 #include "llurlsimstring.h"
 #include "llviewerdisplay.h"
 #include "llspatialpartition.h"
+#include "llviewerjoystick.h"
 
 #if LL_WINDOWS
 #include "llwindebug.h"
@@ -514,6 +516,13 @@ public:
 			addText(xpos, ypos, llformat("FOV: %2.1f deg", RAD_TO_DEG * LLViewerCamera::getInstance()->getView()));
 			ypos += y_inc;
 		}
+		
+		if (LLViewerJoystick::sOverrideCamera)
+		{
+			addText(xpos + 200, ypos, llformat("Flycam"));
+			ypos += y_inc;
+		}
+		
 		if (gSavedSettings.getBOOL("DebugShowRenderInfo"))
 		{
 			if (gPipeline.getUseVertexShaders() == 0)
@@ -1302,6 +1311,7 @@ BOOL LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
 
 void LLViewerWindow::handleScanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level)
 {
+	LLViewerJoystick::getInstance()->setCameraNeedsUpdate(true);
 	return gViewerKeyboard.scanKey(key, key_down, key_up, key_level);
 }
 
@@ -1362,6 +1372,12 @@ BOOL LLViewerWindow::handleActivate(LLWindow *window, BOOL activated)
 		audio_update_volume();
 	}
 	return TRUE;
+}
+
+BOOL LLViewerWindow::handleActivateApp(LLWindow *window, BOOL activating)
+{
+	LLViewerJoystick::getInstance()->setNeedsReset(true);
+	return FALSE;
 }
 
 
@@ -1450,6 +1466,26 @@ void LLViewerWindow::handleDataCopy(LLWindow *window, S32 data_type, void *data)
 	}
 }
 
+BOOL LLViewerWindow::handleTimerEvent(LLWindow *window)
+{
+	if (LLViewerJoystick::sOverrideCamera)
+	{
+		LLViewerJoystick::getInstance()->updateStatus();
+		return TRUE;
+	}
+	return FALSE;
+}
+
+BOOL LLViewerWindow::handleDeviceChange(LLWindow *window)
+{
+	// give a chance to use a joystick after startup (hot-plugging)
+	if (!LLViewerJoystick::getInstance()->isJoystickInitialized() )
+	{
+		LLViewerJoystick::getInstance()->init();
+		return TRUE;
+	}
+	return FALSE;
+}
 
 //
 // Classes

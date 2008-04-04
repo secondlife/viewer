@@ -321,7 +321,7 @@ public:
 	bool applyToRootNodes(LLSelectedNodeFunctor* func, bool firstonly = false);
 	bool applyToNodes(LLSelectedNodeFunctor* func, bool firstonly = false);
 
-	ESelectType getSelectType() { return mSelectType; }
+	ESelectType getSelectType() const { return mSelectType; }
 
 private:
 	const LLObjectSelection &operator=(const LLObjectSelection &);
@@ -516,6 +516,10 @@ public:
 
 	void selectionResetRotation();				// sets rotation quat to identity
 	void selectionRotateAroundZ(F32 degrees);
+	bool selectionMove(const LLVector3& displ, F32 rx, F32 ry, F32 rz,
+					   U32 update_type);
+	void sendSelectionMove();
+
 	void sendGodlikeRequest(const LLString& request, const LLString& parameter);
 
 

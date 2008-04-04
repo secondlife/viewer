@@ -300,7 +300,7 @@ BOOL LLToolCompTranslate::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 void LLToolCompTranslate::render()
 {
-	mCur->render();
+	mCur->render(); // removing this will not draw the RGB arrows and guidelines
 
 	if( mCur != mManip )
 	{

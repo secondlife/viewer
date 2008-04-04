@@ -75,7 +75,7 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
-
+#include "llviewerjoystick.h"
 #include "lluictrlfactory.h"
 
 // Globals
@@ -769,6 +769,8 @@ void LLFloaterTools::onClose(bool app_quitting)
 	setMinimized(FALSE);
 	setVisible(FALSE);
 	mTab->setVisible(FALSE);
+
+	LLViewerJoystick::getInstance()->moveAvatar(true);
 
     // Different from handle_reset_view in that it doesn't actually 
 	//   move the camera if EditCameraMovement is not set.
