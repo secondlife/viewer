@@ -115,7 +115,7 @@ inline LLVector3d from_region_handle(const U64 &region_handle)
 
 // grid-based region handle encoding. pass in a grid position
 // (eg: 1000,1000) and this will return the region handle.
-inline U64 grid_to_region_handle(U32 grid_x, U32 grid_y)
+inline U64 grid_to_region_handle(const U32 grid_x, const U32 grid_y)
 {
 	return to_region_handle(grid_x * REGION_WIDTH_UNITS,
 							grid_y * REGION_WIDTH_UNITS);

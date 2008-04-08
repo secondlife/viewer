@@ -32,6 +32,8 @@
 #ifndef LL_LLLIVEFILE_H
 #define LL_LLLIVEFILE_H
 
+const F32 configFileRefreshRate = 5.0; // seconds
+
 
 class LLLiveFile
 {

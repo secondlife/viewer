@@ -34,7 +34,7 @@ from indra.base import llsd
 
 from eventlet import httpc
 
-suite = httpc.HttpSuite(llsd.format_xml, llsd.parse, 'application/xml+llsd')
+suite = httpc.HttpSuite(llsd.format_xml, llsd.parse, 'application/llsd+xml')
 delete = suite.delete
 delete_ = suite.delete_
 get = suite.get

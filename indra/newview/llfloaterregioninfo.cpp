@@ -80,6 +80,8 @@
 const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
 
+extern LLString gLastVersionChannel;
+
 
 ///----------------------------------------------------------------------------
 /// Local class declaration
@@ -317,6 +319,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	// GENERAL PANEL
 	panel = tab->getChild<LLPanel>("General");
 	panel->childSetValue("region_text", LLSD(sim_name));
+	panel->childSetValue("version_channel_text", gLastVersionChannel);
 
 	panel->childSetValue("block_terraform_check", (region_flags & REGION_FLAGS_BLOCK_TERRAFORM) ? TRUE : FALSE );
 	panel->childSetValue("block_fly_check", (region_flags & REGION_FLAGS_BLOCK_FLY) ? TRUE : FALSE );

@@ -2853,7 +2853,7 @@ version 2.0
 
 // Simulator statistics packet (goes out to viewer and dataserver/spaceserver)
 {
-	SimStats Low 140 Trusted Unencoded
+	SimStats Low 140 Trusted Unencoded UDPDeprecated
 	{
 		Region Single
 		{	RegionX				U32				}
