@@ -101,4 +101,16 @@ BOOL compare_llsd_with_template(
 	const LLSD& template_llsd,
 	LLSD& resultant_llsd);
 
+// Simple function to copy data out of input & output iterators if
+// there is no need for casting.
+template<typename Input> LLSD llsd_copy_array(Input iter, Input end)
+{
+	LLSD dest;
+	for (; iter != end; ++iter)
+	{
+		dest.append(*iter);
+	}
+	return dest;
+}
+
 #endif // LL_LLSDUTIL_H
