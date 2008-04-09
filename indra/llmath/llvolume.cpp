@@ -1857,7 +1857,6 @@ inline LLVector3 sculpt_rgb_to_vector(U8 r, U8 g, U8 b)
 inline U32 sculpt_xy_to_index(U32 x, U32 y, U16 sculpt_width, U16 sculpt_height, S8 sculpt_components)
 {
 	U32 index = (x + y * sculpt_width) * sculpt_components;
-
 	return index;
 }
 
@@ -3533,18 +3532,22 @@ BOOL LLVolume::cleanupTriangleData( const S32 num_input_vertices,
 									S32 **output_triangles)
 {
 	/* Testing: avoid any cleanup
-	num_output_vertices = num_input_vertices;
-	num_output_triangles = num_input_triangles;
-
-	*output_vertices = new LLVector3[num_input_vertices];
-	for (S32 i = 0; i < num_input_vertices; i++)
+	static BOOL skip_cleanup = TRUE;
+	if ( skip_cleanup )
 	{
-		(*output_vertices)[i] = input_vertices[i].mPos;
-	}
+		num_output_vertices = num_input_vertices;
+		num_output_triangles = num_input_triangles;
 
-	*output_triangles = new S32[num_input_triangles*3];
-	memcpy(*output_triangles, input_triangles, 3*num_input_triangles*sizeof(S32));		// Flawfinder: ignore
-	return TRUE;
+		*output_vertices = new LLVector3[num_input_vertices];
+		for (S32 index = 0; index < num_input_vertices; index++)
+		{
+			(*output_vertices)[index] = input_vertices[index].mPos;
+		}
+
+		*output_triangles = new S32[num_input_triangles*3];
+		memcpy(*output_triangles, input_triangles, 3*num_input_triangles*sizeof(S32));		// Flawfinder: ignore
+		return TRUE;
+	}
 	*/
 
 	// Here's how we do this:
@@ -3610,8 +3613,8 @@ BOOL LLVolume::cleanupTriangleData( const S32 num_input_vertices,
 	for (i = 0; i < num_input_triangles; i++)
 	{
 		S32 v1 = i*3;
-		S32 v2 = i*3 + 1;
-		S32 v3 = i*3 + 2;
+		S32 v2 = v1 + 1;
+		S32 v3 = v1 + 2;
 
 		//llinfos << "Checking triangle " << input_triangles[v1] << ":" << input_triangles[v2] << ":" << input_triangles[v3] << llendl;
 		input_triangles[v1] = vertex_mapping[input_triangles[v1]];
@@ -3905,16 +3908,17 @@ const F32 MIN_CONCAVE_PATH_WEDGE = 0.111111f;	// 1/9 unity
 BOOL LLVolumeParams::isConvex() const
 {
 	F32 path_length = mPathParams.getEnd() - mPathParams.getBegin();
+	F32 hollow = mProfileParams.getHollow();
 	 
-	if ( mPathParams.getTwist() != mPathParams.getTwistBegin()
-		&& path_length > MIN_CONCAVE_PATH_WEDGE )
+	if ( path_length > MIN_CONCAVE_PATH_WEDGE
+		&& ( mPathParams.getTwist() != mPathParams.getTwistBegin()
+		     || hollow > 0.f ) )
 	{
 		// twist along a "not too short" path is concave
 		return FALSE;
 	}
 
 	F32 profile_length = mProfileParams.getEnd() - mProfileParams.getBegin();
-	F32 hollow = mProfileParams.getHollow();
 	BOOL same_hole = hollow == 0.f 
 					 || (mProfileParams.getCurveType() & LL_PCODE_HOLE_MASK) == LL_PCODE_HOLE_SAME;
 
