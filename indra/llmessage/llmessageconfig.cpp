@@ -66,6 +66,7 @@ public:
 
 	/* virtual */ void loadFile();
 	void loadServerDefaults(const LLSD& data);
+	 void loadMaxQueuedEvents(const LLSD& data);
 	void loadMessages(const LLSD& data);
 	void loadCapBans(const LLSD& blacklist);
 	void loadMessageBans(const LLSD& blacklist);
@@ -73,6 +74,7 @@ public:
 
 public:
 	LLSD mCapBans;
+	 S32 mMaxQueuedEvents;
 };
 
 std::string LLMessageConfigFile::filename()
@@ -112,6 +114,7 @@ void LLMessageConfigFile::loadFile()
         }
     }
 	loadServerDefaults(data);
+	loadMaxQueuedEvents(data);
 	loadMessages(data);
 	loadCapBans(data);
 	loadMessageBans(data);
@@ -120,6 +123,19 @@ void LLMessageConfigFile::loadFile()
 void LLMessageConfigFile::loadServerDefaults(const LLSD& data)
 {
 	mServerDefault = data["serverDefaults"][sServerName].asString();
+}
+
+const S32 DEFAULT_MAX_QUEUED_EVENTS = 100;
+void LLMessageConfigFile::loadMaxQueuedEvents(const LLSD& data)
+{
+	 if (data.has("maxQueuedEvents"))
+	 {
+		  mMaxQueuedEvents = data["maxQueuedEvents"].asInteger();
+	 }
+	 else
+	 {
+		  mMaxQueuedEvents = DEFAULT_MAX_QUEUED_EVENTS;
+	 }
 }
 
 void LLMessageConfigFile::loadMessages(const LLSD& data)
@@ -191,10 +207,10 @@ void LLMessageConfig::useConfig(const LLSD& config)
 {
 	LLMessageConfigFile &the_file = LLMessageConfigFile::instance();
 	the_file.loadServerDefaults(config);
+	the_file.loadMaxQueuedEvents(config);
 	the_file.loadMessages(config);
 	the_file.loadCapBans(config);
 	the_file.loadMessageBans(config);
-
 }
 
 //static
@@ -210,6 +226,13 @@ LLMessageConfig::Flavor LLMessageConfig::getServerDefaultFlavor()
 		return TEMPLATE_FLAVOR;
 	}
 	return NO_FLAVOR;
+}
+
+//static
+S32 LLMessageConfig::getMaxQueuedEvents()
+{
+	LLMessageConfigFile& file = LLMessageConfigFile::instance();
+	return file.mMaxQueuedEvents;
 }
 
 //static

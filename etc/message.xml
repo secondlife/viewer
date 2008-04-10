@@ -562,5 +562,8 @@
 			<map>
 			</map>
 		</map>
+
+		<key>maxQueuedEvents</key>
+		<integer>100</integer>
     </map>
 </llsd>

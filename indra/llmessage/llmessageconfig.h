@@ -48,6 +48,7 @@ public:
 	static void useConfig(const LLSD& config);
 
 	static Flavor getServerDefaultFlavor();
+	 static S32 getMaxQueuedEvents();
 
 	// For individual messages
 	static Flavor getMessageFlavor(const std::string& msg_name);

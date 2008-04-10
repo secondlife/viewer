@@ -221,4 +221,21 @@ namespace tut
 					  LLMessageConfig::onlySendLatest("msg2"),
 					  false);
 	}
+
+	template<> template<>
+	void LLMessageConfigTestObject::test<9>()
+		 // tests that event queue max is reloaded
+	{
+		LLSD config;
+		config["maxQueuedEvents"] = 200;
+		LLMessageConfig::useConfig(config);
+		ensure_equals("Ensure setting maxQueuedEvents",
+					  LLMessageConfig::getMaxQueuedEvents(),
+					  200);
+
+		LLMessageConfig::useConfig(LLSD());
+		ensure_equals("Ensure default of event queue max 100",
+					  LLMessageConfig::getMaxQueuedEvents(),
+					  100);
+	}	 
 }
