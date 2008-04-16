@@ -77,12 +77,7 @@ public:
 	static void postFile(const std::string& url, const LLUUID& uuid,
 		LLAssetType::EType asset_type, ResponderPtr responder, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
 
-	/**
-	 * @brief Blocking HTTP get that returns an LLSD map of status and body.
-	 *
-	 * @param url the complete serialized (and escaped) url to get
-	 * @return An LLSD of { 'status':status, 'body':payload }
-	 */
+	// Blocking HTTP get that returns an LLSD map of status and body.
 	static LLSD blockingGet(const std::string& url);
 
 	static void del(const std::string& url, ResponderPtr, const F32 timeout=HTTP_REQUEST_EXPIRY_SECS);
