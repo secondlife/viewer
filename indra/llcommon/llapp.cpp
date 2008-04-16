@@ -49,11 +49,24 @@
 LONG WINAPI default_windows_exception_handler(struct _EXCEPTION_POINTERS *exception_infop);
 BOOL ConsoleCtrlHandler(DWORD fdwCtrlType);
 #else
-#include <unistd.h> // for fork()
+# include <signal.h>
+# include <unistd.h> // for fork()
 void setup_signals();
 void default_unix_signal_handler(int signum, siginfo_t *info, void *);
-const S32 LL_SMACKDOWN_SIGNAL = SIGUSR1;
-#endif
+# if LL_DARWIN
+/* OSX doesn't support SIGRT* */
+S32 LL_SMACKDOWN_SIGNAL = SIGUSR1;
+S32 LL_HEARTBEAT_SIGNAL = SIGUSR2;
+# else
+/* We want reliable delivery of our signals - SIGRT* is it. */
+/* Old LinuxThreads versions eat SIGRTMIN+0 to SIGRTMIN+2, avoid those. */
+/* Note that SIGRTMIN/SIGRTMAX may expand to a glibc function call with a
+   nonconstant result so these are not consts and cannot be used in constant-
+   expressions.  SIGRTMAX may return -1 on rare broken setups. */
+S32 LL_SMACKDOWN_SIGNAL = (SIGRTMAX >= 0) ? (SIGRTMAX-1) : SIGUSR1;
+S32 LL_HEARTBEAT_SIGNAL = (SIGRTMAX >= 0) ? (SIGRTMAX-0) : SIGUSR2;
+# endif // LL_DARWIN
+#endif // LL_WINDOWS
 
 // the static application instance
 LLApp* LLApp::sApplication = NULL;
@@ -501,6 +514,9 @@ void setup_signals()
 	sigaction(SIGSEGV, &act, NULL);
 	sigaction(SIGSYS, &act, NULL);
 
+	sigaction(LL_HEARTBEAT_SIGNAL, &act, NULL);
+	sigaction(LL_SMACKDOWN_SIGNAL, &act, NULL);
+
 	// Asynchronous signals that are normally ignored
 	sigaction(SIGCHLD, &act, NULL);
 	sigaction(SIGUSR2, &act, NULL);
@@ -511,7 +527,6 @@ void setup_signals()
 	sigaction(SIGINT, &act, NULL);
 
 	// Asynchronous signals that result in core
-	sigaction(LL_SMACKDOWN_SIGNAL, &act, NULL);
 	sigaction(SIGQUIT, &act, NULL);
 }
 
@@ -533,6 +548,9 @@ void clear_signals()
 	sigaction(SIGSEGV, &act, NULL);
 	sigaction(SIGSYS, &act, NULL);
 
+	sigaction(LL_HEARTBEAT_SIGNAL, &act, NULL);
+	sigaction(LL_SMACKDOWN_SIGNAL, &act, NULL);
+
 	// Asynchronous signals that are normally ignored
 	sigaction(SIGCHLD, &act, NULL);
 
@@ -543,7 +561,6 @@ void clear_signals()
 
 	// Asynchronous signals that result in core
 	sigaction(SIGUSR2, &act, NULL);
-	sigaction(LL_SMACKDOWN_SIGNAL, &act, NULL);
 	sigaction(SIGQUIT, &act, NULL);
 }
 
@@ -564,16 +581,7 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
 
 	switch (signum)
 	{
-	case SIGALRM:
-	case SIGPIPE:
-	case SIGUSR2:
-		// We don't care about these signals, ignore them
-		if (LLApp::sLogInSignal)
-		{
-			llinfos << "Signal handler - Ignoring this signal" << llendl;
-		}
-		return;
-    case SIGCHLD:
+	case SIGCHLD:
 		if (LLApp::sLogInSignal)
 		{
 			llinfos << "Signal handler - Got SIGCHLD from " << info->si_pid << llendl;
@@ -602,59 +610,6 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
 		clear_signals();
 		raise(signum);
 		return;
-	case LL_SMACKDOWN_SIGNAL: // Smackdown treated just like any other app termination, for now
-		if (LLApp::sLogInSignal)
-		{
-			llwarns << "Signal handler - Handling smackdown signal!" << llendl;
-		}
-		else
-		{
-			// Don't log anything, even errors - this is because this signal could happen anywhere.
-			LLError::setDefaultLevel(LLError::LEVEL_NONE);
-		}
-		
-		// Change the signal that we reraise to SIGABRT, so we generate a core dump.
-		signum = SIGABRT;
-	case SIGBUS:
-	case SIGSEGV:
-	case SIGQUIT:
-		if (LLApp::sLogInSignal)
-		{
-			llwarns << "Signal handler - Handling fatal signal!" << llendl;
-		}
-		if (LLApp::isError())
-		{
-			// Received second fatal signal while handling first, just die right now
-			// Set the signal handlers back to default before handling the signal - this makes the next signal wipe out the app.
-			clear_signals();
-
-			if (LLApp::sLogInSignal)
-			{
-				llwarns << "Signal handler - Got another fatal signal while in the error handler, die now!" << llendl;
-			}
-			raise(signum);
-			return;
-		}
-			
-		if (LLApp::sLogInSignal)
-		{
-			llwarns << "Signal handler - Flagging error status and waiting for shutdown" << llendl;
-		}
-		// Flag status to ERROR, so thread_error does its work.
-		LLApp::setError();
-		// Block in the signal handler until somebody says that we're done.
-		while (LLApp::sErrorThreadRunning && !LLApp::isStopped())
-		{
-			ms_sleep(10);
-		}
-
-		if (LLApp::sLogInSignal)
-		{
-			llwarns << "Signal handler - App is stopped, reraising signal" << llendl;
-		}
-		clear_signals();
-		raise(signum);
-		return;
 	case SIGINT:
 	case SIGHUP:
 	case SIGTERM:
@@ -675,10 +630,76 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
 		}
 		LLApp::setQuitting();
 		return;
+	case SIGALRM:
+	case SIGPIPE:
+	case SIGUSR2:
 	default:
-		if (LLApp::sLogInSignal)
-		{
-			llwarns << "Signal handler - Unhandled signal, ignoring!" << llendl;
+		if (signum == LL_SMACKDOWN_SIGNAL ||
+		    signum == SIGBUS ||
+		    signum == SIGILL ||
+		    signum == SIGFPE ||
+		    signum == SIGSEGV ||
+		    signum == SIGQUIT)
+		{ 
+			if (signum == LL_SMACKDOWN_SIGNAL)
+			{
+				// Smackdown treated just like any other app termination, for now
+				if (LLApp::sLogInSignal)
+				{
+					llwarns << "Signal handler - Handling smackdown signal!" << llendl;
+				}
+				else
+				{
+					// Don't log anything, even errors - this is because this signal could happen anywhere.
+					LLError::setDefaultLevel(LLError::LEVEL_NONE);
+				}
+				
+				// Change the signal that we reraise to SIGABRT, so we generate a core dump.
+				signum = SIGABRT;
+			}
+			
+			if (LLApp::sLogInSignal)
+			{
+				llwarns << "Signal handler - Handling fatal signal!" << llendl;
+			}
+			if (LLApp::isError())
+			{
+				// Received second fatal signal while handling first, just die right now
+				// Set the signal handlers back to default before handling the signal - this makes the next signal wipe out the app.
+				clear_signals();
+				
+				if (LLApp::sLogInSignal)
+				{
+					llwarns << "Signal handler - Got another fatal signal while in the error handler, die now!" << llendl;
+				}
+				raise(signum);
+				return;
+			}
+			
+			if (LLApp::sLogInSignal)
+			{
+				llwarns << "Signal handler - Flagging error status and waiting for shutdown" << llendl;
+			}
+			// Flag status to ERROR, so thread_error does its work.
+			LLApp::setError();
+			// Block in the signal handler until somebody says that we're done.
+			while (LLApp::sErrorThreadRunning && !LLApp::isStopped())
+			{
+				ms_sleep(10);
+			}
+			
+			if (LLApp::sLogInSignal)
+			{
+				llwarns << "Signal handler - App is stopped, reraising signal" << llendl;
+			}
+			clear_signals();
+			raise(signum);
+			return;
+		} else {
+			if (LLApp::sLogInSignal)
+			{
+				llinfos << "Signal handler - Unhandled signal " << signum << ", ignoring!" << llendl;
+			}
 		}
 	}
 }

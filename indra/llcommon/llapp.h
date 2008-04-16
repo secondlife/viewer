@@ -46,7 +46,8 @@ typedef void (*LLAppErrorHandler)();
 typedef void (*LLAppChildCallback)(int pid, bool exited, int status);
 
 #if !LL_WINDOWS
-extern const S32 LL_SMACKDOWN_SIGNAL;
+extern S32 LL_SMACKDOWN_SIGNAL;
+extern S32 LL_HEARTBEAT_SIGNAL;
 
 // Clear all of the signal handlers (which we want to do for the child process when we fork
 void clear_signals();

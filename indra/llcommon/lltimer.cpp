@@ -39,10 +39,8 @@
 #	define WIN32_LEAN_AND_MEAN
 #	include <winsock2.h>
 #	include <windows.h>
-#elif LL_LINUX || LL_SOLARIS
-#	include <sys/time.h>
-#	include <sched.h>
-#elif LL_DARWIN
+#elif LL_LINUX || LL_SOLARIS || LL_DARWIN
+#       include <errno.h>
 #	include <sys/time.h>
 #else 
 #	error "architecture not supported"
@@ -81,42 +79,55 @@ U64 gLastTotalTimeClockCount = 0;
 //---------------------------------------------------------------------------
 
 #if LL_WINDOWS
-void ms_sleep(long ms)
+void ms_sleep(U32 ms)
 {
-	Sleep((U32)ms);
+	Sleep(ms);
 }
+#elif LL_LINUX || LL_SOLARIS || LL_DARWIN
+void ms_sleep(U32 ms)
+{
+	long mslong = ms; // tv_nsec is a long
+	struct timespec thiswait, nextwait;
+	bool sleep_more = false;
 
-void llyield()
-{
-	SleepEx(0, TRUE); // Relinquishes time slice to any thread of equal priority, can be woken up by extended IO functions
-}
-#elif LL_LINUX || LL_SOLARIS
-void ms_sleep(long ms)
-{
-	struct timespec t;
-	t.tv_sec = ms / 1000;
-	t.tv_nsec = (ms % 1000) * 1000000l;
-	nanosleep(&t, NULL);
-}
+	thiswait.tv_sec = ms / 1000;
+	thiswait.tv_nsec = (mslong % 1000) * 1000000l;
+	do {
+		int result = nanosleep(&thiswait, &nextwait);
 
-void llyield()
-{
-	sched_yield();
-}
-#elif LL_DARWIN
-void ms_sleep(long ms)
-{
-	struct timespec t;
-	t.tv_sec = ms / 1000;
-	t.tv_nsec = (ms % 1000) * 1000000l;
-	nanosleep(&t, NULL);
-}
+		// check if sleep was interrupted by a signal; unslept
+		// remainder was written back into 't' and we just nanosleep
+		// again.
+		sleep_more = (result == -1 && EINTR == errno);
 
-void llyield()
-{
-//	sched_yield();
+		if (sleep_more)
+		{
+			if ( nextwait.tv_sec > thiswait.tv_sec ||
+			     (nextwait.tv_sec == thiswait.tv_sec &&
+			      nextwait.tv_nsec >= thiswait.tv_nsec) )
+			{
+				// if the remaining time isn't actually going
+				// down then we're being shafted by low clock
+				// resolution - manually massage the sleep time
+				// downward.
+				if (nextwait.tv_nsec > 1000000) {
+					// lose 1ms
+					nextwait.tv_nsec -= 1000000;
+				} else {
+					if (nextwait.tv_sec == 0) {
+						// already so close to finished
+						sleep_more = false;
+					} else {
+						// lose up to 1ms
+						nextwait.tv_nsec = 0;
+					}
+				}
+			}
+			thiswait = nextwait;
+		}
+	} while (sleep_more);
 }
-#else 
+#else
 # error "architecture not supported"
 #endif
 
