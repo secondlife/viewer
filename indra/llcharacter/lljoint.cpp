@@ -189,11 +189,12 @@ void LLJoint::removeChild(LLJoint* joint)
 	child_list_t::iterator iter = std::find(mChildren.begin(), mChildren.end(), joint);
 	if (iter != mChildren.end())
 	{
-		this->mChildren.erase(iter);
+		mChildren.erase(iter);
+	
+		joint->mXform.setParent(NULL);
+		joint->mParent = NULL;
+		joint->touch();
 	}
-	joint->mXform.setParent(NULL);
-	joint->mParent = NULL;
-	joint->touch();
 }
 
 

@@ -53,9 +53,10 @@ typedef enum e_joystick_driver_state
 class LLViewerJoystick : public LLSingleton<LLViewerJoystick>
 {
 public:
-	static bool sOverrideCamera;
+	LLViewerJoystick();
+	virtual ~LLViewerJoystick();
 	
-	void init();
+	void init(bool autoenable);
 	void updateStatus();
 	void scanJoystick();
 	void moveObjects(bool reset = false);
@@ -68,11 +69,14 @@ public:
 	void setNeedsReset(bool reset = true) { mResetFlag = reset; }
 	void setCameraNeedsUpdate(bool b)     { mCameraUpdated = b; }
 	bool getCameraNeedsUpdate() const     { return mCameraUpdated; }
-	
-	LLViewerJoystick();
-	virtual ~LLViewerJoystick();
+	bool getOverrideCamera() { return mOverrideCamera; }
+	void setOverrideCamera(bool val);
+	bool toggleFlycam();
+	void setSNDefaults();
+	std::string getDescription();
 	
 protected:
+	void updateEnabled(bool autoenable);
 	void terminate();
 	void agentSlide(F32 inc);
 	void agentPush(F32 inc);
@@ -93,6 +97,8 @@ private:
 	bool					mResetFlag;
 	F32						mPerfScale;
 	bool					mCameraUpdated;
+	bool 					mOverrideCamera;
+	
 	static F32				sLastDelta[7];
 	static F32				sDelta[7];
 };

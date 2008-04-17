@@ -58,7 +58,6 @@ LLHUDManager::LLHUDManager()
 
 LLHUDManager::~LLHUDManager()
 {
-	mHUDEffects.reset();
 }
 
 
@@ -106,6 +105,12 @@ void LLHUDManager::sendEffects()
 			gAgent.sendMessage();
 		}
 	}
+}
+
+//static
+void LLHUDManager::shutdownClass()
+{
+	getInstance()->mHUDEffects.reset();
 }
 
 void LLHUDManager::cleanupEffects()

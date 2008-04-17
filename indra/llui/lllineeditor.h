@@ -305,7 +305,7 @@ protected:
 private:
 	// Utility on top of LLUI::getUIImage, looks up a named image in a given XML node and returns it if possible
 	// or returns a given default image if anything in the process fails.
-	static LLPointer<LLUIImage> LLLineEditor::parseImage(LLString name, LLXMLNodePtr from, LLPointer<LLUIImage> def);
+	static LLPointer<LLUIImage> parseImage(LLString name, LLXMLNodePtr from, LLPointer<LLUIImage> def);
 	// Global instance used as default for member instance below.
 	static LLPointer<LLUIImage> sImage;
 	// Instances that by default point to the statics but can be overidden in XML.

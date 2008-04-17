@@ -58,7 +58,6 @@
 // flycam translations in build mode should be reduced
 const F32 BUILDMODE_FLYCAM_T_SCALE = 3.f;
 
-bool LLViewerJoystick::sOverrideCamera = false;
 F32  LLViewerJoystick::sLastDelta[] = {0,0,0,0,0,0,0};
 F32  LLViewerJoystick::sDelta[] = {0,0,0,0,0,0,0};
 
@@ -71,9 +70,42 @@ F32  LLViewerJoystick::sDelta[] = {0,0,0,0,0,0,0};
 #define MAX_JOYSTICK_INPUT_VALUE  MAX_SPACENAVIGATOR_INPUT
 
 // -----------------------------------------------------------------------------
+void LLViewerJoystick::updateEnabled(bool autoenable)
+{
+	if (mDriverState == JDS_UNINITIALIZED)
+	{
+		gSavedSettings.setBOOL("JoystickEnabled", FALSE );
+	}
+	else
+	{
+		if (isLikeSpaceNavigator() && autoenable)
+		{
+			gSavedSettings.setBOOL("JoystickEnabled", TRUE );
+		}
+	}
+	if (!gSavedSettings.getBOOL("JoystickEnabled"))
+	{
+		mOverrideCamera = FALSE;
+	}
+}
+
+void LLViewerJoystick::setOverrideCamera(bool val)
+{
+	if (!gSavedSettings.getBOOL("JoystickEnabled"))
+	{
+		mOverrideCamera = FALSE;
+	}
+	else
+	{
+		mOverrideCamera = val;
+	}
+}
+
+// -----------------------------------------------------------------------------
 #if LIB_NDOF
 NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
 {
+	NDOF_HotPlugResult res = NDOF_DISCARD_HOTPLUGGED;
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
 	if (joystick->mDriverState == JDS_UNINITIALIZED)
 	{
@@ -81,9 +113,10 @@ NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
 		ndof_dump(dev);
 		joystick->mNdofDev = dev;
         joystick->mDriverState = JDS_INITIALIZED;
-        return NDOF_KEEP_HOTPLUGGED;
+        res = NDOF_KEEP_HOTPLUGGED;
 	}
-    return NDOF_DISCARD_HOTPLUGGED;
+	joystick->updateEnabled(true);
+    return res;
 }
 #endif
 
@@ -99,6 +132,7 @@ void LLViewerJoystick::HotPlugRemovalCallback(NDOF_Device *dev)
 		ndof_dump(dev);
 		joystick->mDriverState = JDS_UNINITIALIZED;
 	}
+	joystick->updateEnabled(true);
 }
 #endif
 
@@ -107,7 +141,8 @@ LLViewerJoystick::LLViewerJoystick()
 :	mDriverState(JDS_UNINITIALIZED),
 	mNdofDev(NULL),
 	mResetFlag(false),
-	mCameraUpdated(true)
+	mCameraUpdated(true),
+	mOverrideCamera(false)
 {
 	for (int i = 0; i < 6; i++)
 	{
@@ -130,7 +165,7 @@ LLViewerJoystick::~LLViewerJoystick()
 }
 
 // -----------------------------------------------------------------------------
-void LLViewerJoystick::init()
+void LLViewerJoystick::init(bool autoenable)
 {
 #if LIB_NDOF
 	static bool libinit = false;
@@ -138,6 +173,7 @@ void LLViewerJoystick::init()
 
 	if (libinit == false)
 	{
+		// Note: The HotPlug callbacks are not actually getting called on Windows
 		if (ndof_libinit(HotPlugAddCallback, 
 						 HotPlugRemovalCallback, 
 						 NULL))
@@ -192,7 +228,8 @@ void LLViewerJoystick::init()
 			mDriverState = JDS_UNINITIALIZED;
 		}
 	}
-
+	updateEnabled(autoenable);
+	
 	llinfos << "ndof: mDriverState=" << mDriverState << "; mNdofDev=" 
 			<< mNdofDev << "; libinit=" << libinit << llendl;
 #endif
@@ -338,7 +375,8 @@ void LLViewerJoystick::moveObjects(bool reset)
 {
 	static bool toggle_send_to_sim = false;
 
-	if (!gFocusMgr.getAppHasFocus() || mDriverState != JDS_INITIALIZED)
+	if (!gFocusMgr.getAppHasFocus() || mDriverState != JDS_INITIALIZED
+		|| !gSavedSettings.getBOOL("JoystickEnabled") || !gSavedSettings.getBOOL("JoystickBuildEnabled"))
 	{
 		return;
 	}
@@ -453,7 +491,8 @@ void LLViewerJoystick::moveObjects(bool reset)
 // -----------------------------------------------------------------------------
 void LLViewerJoystick::moveAvatar(bool reset)
 {
-	if (!gFocusMgr.getAppHasFocus() || mDriverState != JDS_INITIALIZED)
+	if (!gFocusMgr.getAppHasFocus() || mDriverState != JDS_INITIALIZED
+		|| !gSavedSettings.getBOOL("JoystickEnabled") || !gSavedSettings.getBOOL("JoystickAvatarEnabled"))
 	{
 		return;
 	}
@@ -657,7 +696,8 @@ void LLViewerJoystick::moveFlycam(bool reset)
 	static LLVector3    		sFlycamPosition;
 	static F32          		sFlycamZoom;
 	
-	if (!gFocusMgr.getAppHasFocus() || mDriverState != JDS_INITIALIZED)
+	if (!gFocusMgr.getAppHasFocus() || mDriverState != JDS_INITIALIZED
+		|| !gSavedSettings.getBOOL("JoystickEnabled") || !gSavedSettings.getBOOL("JoystickFlycamEnabled"))
 	{
 		return;
 	}
@@ -799,9 +839,35 @@ void LLViewerJoystick::moveFlycam(bool reset)
 }
 
 // -----------------------------------------------------------------------------
+bool LLViewerJoystick::toggleFlycam()
+{
+	if (!gSavedSettings.getBOOL("JoystickEnabled") || !gSavedSettings.getBOOL("JoystickFlycamEnabled"))
+	{
+		return false;
+	}
+	mOverrideCamera = !mOverrideCamera;
+	if (mOverrideCamera)
+	{
+		moveFlycam(true);
+	}
+	else if (!LLToolMgr::getInstance()->inBuildMode())
+	{
+		moveAvatar(true);
+	}
+	else 
+	{
+		// we are in build mode, exiting from the flycam mode: since we are 
+		// going to keep the flycam POV for the main camera until the avatar
+		// moves, we need to track this situation.
+		setCameraNeedsUpdate(false);
+		setNeedsReset(true);
+	}
+	return true;
+}
+
 void LLViewerJoystick::scanJoystick()
 {
-	if (mDriverState != JDS_INITIALIZED)
+	if (mDriverState != JDS_INITIALIZED || !gSavedSettings.getBOOL("JoystickEnabled"))
 	{
 		return;
 	}
@@ -809,7 +875,7 @@ void LLViewerJoystick::scanJoystick()
 #if LL_WINDOWS
 	// On windows, the flycam is updated syncronously with a timer, so there is
 	// no need to update the status of the joystick here.
-	if (!sOverrideCamera)
+	if (!mOverrideCamera)
 #endif
 	updateStatus();
 
@@ -819,8 +885,7 @@ void LLViewerJoystick::scanJoystick()
     {
 		if (mBtn[0] != toggle_flycam)
 		{
-			handle_toggle_flycam();
-			toggle_flycam = 1;
+			toggle_flycam = toggleFlycam() ? 1 : 0;
 		}
 	}
 	else
@@ -828,13 +893,25 @@ void LLViewerJoystick::scanJoystick()
 		toggle_flycam = 0;
 	}
 	
-	if (!sOverrideCamera && !LLToolMgr::getInstance()->inBuildMode())
+	if (!mOverrideCamera && !LLToolMgr::getInstance()->inBuildMode())
 	{
 		moveAvatar();
 	}
 }
 
 // -----------------------------------------------------------------------------
+std::string LLViewerJoystick::getDescription()
+{
+	std::string res;
+#if LIB_NDOF
+	if (mDriverState == JDS_INITIALIZED && mNdofDev)
+	{
+		res = ll_safe_string(mNdofDev->product);
+	}
+#endif
+	return res;
+}
+
 bool LLViewerJoystick::isLikeSpaceNavigator() const
 {
 #if LIB_NDOF	
@@ -846,4 +923,78 @@ bool LLViewerJoystick::isLikeSpaceNavigator() const
 #else
 	return false;
 #endif
+}
+
+// -----------------------------------------------------------------------------
+void LLViewerJoystick::setSNDefaults()
+{
+#if LL_DARWIN 
+#define kPlatformScale	20.f
+#else
+#define kPlatformScale	1.f
+#endif
+	
+	//gViewerWindow->alertXml("CacheWillClear");
+	llinfos << "restoring SpaceNavigator defaults..." << llendl;
+	
+	gSavedSettings.setS32("JoystickAxis0", 1); // z (at)
+	gSavedSettings.setS32("JoystickAxis1", 0); // x (slide)
+	gSavedSettings.setS32("JoystickAxis2", 2); // y (up)
+	gSavedSettings.setS32("JoystickAxis3", 4); // pitch
+	gSavedSettings.setS32("JoystickAxis4", 3); // roll 
+	gSavedSettings.setS32("JoystickAxis5", 5); // yaw
+	gSavedSettings.setS32("JoystickAxis6", -1);
+	
+#if LL_DARWIN
+	// The SpaceNavigator doesn't act as a 3D cursor on OS X. 
+	gSavedSettings.setBOOL("Cursor3D", false);
+#else
+	gSavedSettings.setBOOL("Cursor3D", true);
+#endif
+	gSavedSettings.setBOOL("AutoLeveling", true);
+	gSavedSettings.setBOOL("ZoomDirect", false);
+	
+	gSavedSettings.setF32("AvatarAxisScale0", 1.f);
+	gSavedSettings.setF32("AvatarAxisScale1", 1.f);
+	gSavedSettings.setF32("AvatarAxisScale2", 1.f);
+	gSavedSettings.setF32("AvatarAxisScale4", .1f * kPlatformScale);
+	gSavedSettings.setF32("AvatarAxisScale5", .1f * kPlatformScale);
+	gSavedSettings.setF32("AvatarAxisScale3", 0.f * kPlatformScale);
+	gSavedSettings.setF32("BuildAxisScale1", .3f * kPlatformScale);
+	gSavedSettings.setF32("BuildAxisScale2", .3f * kPlatformScale);
+	gSavedSettings.setF32("BuildAxisScale0", .3f * kPlatformScale);
+	gSavedSettings.setF32("BuildAxisScale4", .3f * kPlatformScale);
+	gSavedSettings.setF32("BuildAxisScale5", .3f * kPlatformScale);
+	gSavedSettings.setF32("BuildAxisScale3", .3f * kPlatformScale);
+	gSavedSettings.setF32("FlycamAxisScale1", 2.f * kPlatformScale);
+	gSavedSettings.setF32("FlycamAxisScale2", 2.f * kPlatformScale);
+	gSavedSettings.setF32("FlycamAxisScale0", 2.1f * kPlatformScale);
+	gSavedSettings.setF32("FlycamAxisScale4", .1f * kPlatformScale);
+	gSavedSettings.setF32("FlycamAxisScale5", .15f * kPlatformScale);
+	gSavedSettings.setF32("FlycamAxisScale3", 0.f * kPlatformScale);
+	gSavedSettings.setF32("FlycamAxisScale6", 0.f * kPlatformScale);
+	
+	gSavedSettings.setF32("AvatarAxisDeadZone0", .1f);
+	gSavedSettings.setF32("AvatarAxisDeadZone1", .1f);
+	gSavedSettings.setF32("AvatarAxisDeadZone2", .1f);
+	gSavedSettings.setF32("AvatarAxisDeadZone3", 1.f);
+	gSavedSettings.setF32("AvatarAxisDeadZone4", .02f);
+	gSavedSettings.setF32("AvatarAxisDeadZone5", .01f);
+	gSavedSettings.setF32("BuildAxisDeadZone0", .01f);
+	gSavedSettings.setF32("BuildAxisDeadZone1", .01f);
+	gSavedSettings.setF32("BuildAxisDeadZone2", .01f);
+	gSavedSettings.setF32("BuildAxisDeadZone3", .01f);
+	gSavedSettings.setF32("BuildAxisDeadZone4", .01f);
+	gSavedSettings.setF32("BuildAxisDeadZone5", .01f);
+	gSavedSettings.setF32("FlycamAxisDeadZone0", .01f);
+	gSavedSettings.setF32("FlycamAxisDeadZone1", .01f);
+	gSavedSettings.setF32("FlycamAxisDeadZone2", .01f);
+	gSavedSettings.setF32("FlycamAxisDeadZone3", .01f);
+	gSavedSettings.setF32("FlycamAxisDeadZone4", .01f);
+	gSavedSettings.setF32("FlycamAxisDeadZone5", .01f);
+	gSavedSettings.setF32("FlycamAxisDeadZone6", 1.f);
+	
+	gSavedSettings.setF32("AvatarFeathering", 6.f);
+	gSavedSettings.setF32("BuildFeathering", 12.f);
+	gSavedSettings.setF32("FlycamFeathering", 5.f);
 }

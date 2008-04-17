@@ -284,7 +284,7 @@ BOOL LLVOAvatar::sShowFootPlane = FALSE;
 BOOL LLVOAvatar::sShowCollisionVolumes = FALSE;
 BOOL LLVOAvatar::sVisibleInFirstPerson = FALSE;
 F32 LLVOAvatar::sLODFactor = 1.f;
-BOOL LLVOAvatar::sUseImpostors = TRUE;
+BOOL LLVOAvatar::sUseImpostors = FALSE;
 BOOL LLVOAvatar::sJointDebug = FALSE;
 
 S32 LLVOAvatar::sCurJoint = 0;

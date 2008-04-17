@@ -517,7 +517,7 @@ public:
 			ypos += y_inc;
 		}
 		
-		if (LLViewerJoystick::sOverrideCamera)
+		if (LLViewerJoystick::getInstance()->getOverrideCamera())
 		{
 			addText(xpos + 200, ypos, llformat("Flycam"));
 			ypos += y_inc;
@@ -1468,7 +1468,7 @@ void LLViewerWindow::handleDataCopy(LLWindow *window, S32 data_type, void *data)
 
 BOOL LLViewerWindow::handleTimerEvent(LLWindow *window)
 {
-	if (LLViewerJoystick::sOverrideCamera)
+	if (LLViewerJoystick::getInstance()->getOverrideCamera())
 	{
 		LLViewerJoystick::getInstance()->updateStatus();
 		return TRUE;
@@ -1481,7 +1481,7 @@ BOOL LLViewerWindow::handleDeviceChange(LLWindow *window)
 	// give a chance to use a joystick after startup (hot-plugging)
 	if (!LLViewerJoystick::getInstance()->isJoystickInitialized() )
 	{
-		LLViewerJoystick::getInstance()->init();
+		LLViewerJoystick::getInstance()->init(true);
 		return TRUE;
 	}
 	return FALSE;

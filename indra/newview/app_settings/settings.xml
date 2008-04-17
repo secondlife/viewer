@@ -74,7 +74,7 @@
         <key>Type</key>
             <string>Boolean</string>
         <key>Value</key>
-            <integer>1</integer>
+            <integer>0</integer>
         </map>
     <key>AnimateTextures</key>
         <map>
@@ -2829,11 +2829,55 @@
         <key>Comment</key>
             <string>Whether or not a joystick has been detected and initiailized.</string>
         <key>Persist</key>
-            <integer>1</integer>
+            <integer>0</integer>
         <key>Type</key>
             <string>String</string>
         <key>Value</key>
             <string></string>
+        </map>
+    <key>JoystickEnabled</key>
+        <map>
+        <key>Comment</key>
+            <string>Enables Joystick Input.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <string>0</string>
+        </map>
+    <key>JoystickFlycamEnabled</key>
+        <map>
+        <key>Comment</key>
+            <string>Enables the Joystick to control the flycam.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <string>1</string>
+        </map>
+    <key>JoystickAvatarEnabled</key>
+        <map>
+        <key>Comment</key>
+            <string>Enables the Joystick to control Avatar movmement.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <string>1</string>
+        </map>
+    <key>JoystickBuildEnabled</key>
+        <map>
+        <key>Comment</key>
+            <string>Enables the Joystick to move edited objects.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <string>1</string>
         </map>
     <key>JoystickAxis0</key>
         <map>
@@ -2844,7 +2888,7 @@
         <key>Type</key>
             <string>S32</string>
         <key>Value</key>
-            <integer>0</integer>
+            <integer>1</integer>
         </map>
     <key>JoystickAxis1</key>
         <map>
@@ -2855,7 +2899,7 @@
         <key>Type</key>
             <string>S32</string>
         <key>Value</key>
-            <integer>2</integer>
+            <integer>0</integer>
         </map>
     <key>JoystickAxis2</key>
         <map>
@@ -2866,7 +2910,7 @@
         <key>Type</key>
             <string>S32</string>
         <key>Value</key>
-            <integer>1</integer>
+            <integer>2</integer>
         </map>
     <key>JoystickAxis3</key>
         <map>
@@ -2877,7 +2921,7 @@
         <key>Type</key>
             <string>S32</string>
         <key>Value</key>
-            <integer>5</integer>
+            <integer>4</integer>
         </map>
     <key>JoystickAxis4</key>
         <map>
@@ -2888,7 +2932,7 @@
         <key>Type</key>
             <string>S32</string>
         <key>Value</key>
-            <integer>4</integer>
+            <integer>3</integer>
         </map>
     <key>JoystickAxis5</key>
         <map>
@@ -2899,7 +2943,7 @@
         <key>Type</key>
             <string>S32</string>
         <key>Value</key>
-            <integer>3</integer>
+            <integer>5</integer>
         </map>
     <key>JoystickAxis6</key>
         <map>

@@ -54,6 +54,13 @@ LLFloaterJoystick::LLFloaterJoystick(const LLSD& data)
 
 void LLFloaterJoystick::draw()
 {
+	bool joystick_inited = LLViewerJoystick::getInstance()->isJoystickInitialized();
+	childSetEnabled("enable_joystick", joystick_inited);
+	childSetEnabled("joystick_type", joystick_inited);
+	std::string desc = LLViewerJoystick::getInstance()->getDescription();
+	if (desc.empty()) desc = getUIString("NoDevice");
+	childSetText("joystick_type", desc);
+
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
 	for (U32 i = 0; i < 6; i++)
 	{
@@ -261,73 +268,5 @@ void LLFloaterJoystick::onClickRestoreSNDefaults(void *joy_panel)
 
 void LLFloaterJoystick::setSNDefaults()
 {
-#if LL_DARWIN 
-#define kPlatformScale	20.f
-#else
-#define kPlatformScale	1.f
-#endif
-	
-	//gViewerWindow->alertXml("CacheWillClear");
-	llinfos << "restoring SpaceNavigator defaults..." << llendl;
-	
-	gSavedSettings.setS32("JoystickAxis1", 0); // x (slide)
-	gSavedSettings.setS32("JoystickAxis2", 2); // y (up)
-	gSavedSettings.setS32("JoystickAxis0", 1); // z (at)
-	gSavedSettings.setS32("JoystickAxis4", 3); // roll 
-	gSavedSettings.setS32("JoystickAxis5", 5); // yaw
-	gSavedSettings.setS32("JoystickAxis3", 4); // pitch
-	gSavedSettings.setS32("JoystickAxis6", -1);
-	
-#if LL_DARWIN
-	// The SpaceNavigator doesn't act as a 3D cursor on OS X. 
-	gSavedSettings.setBOOL("Cursor3D", false);
-#else
-	gSavedSettings.setBOOL("Cursor3D", true);
-#endif
-	gSavedSettings.setBOOL("AutoLeveling", true);
-	gSavedSettings.setBOOL("ZoomDirect", false);
-	
-	gSavedSettings.setF32("AvatarAxisScale0", 1.f);
-	gSavedSettings.setF32("AvatarAxisScale1", 1.f);
-	gSavedSettings.setF32("AvatarAxisScale2", 1.f);
-	gSavedSettings.setF32("AvatarAxisScale4", .1f * kPlatformScale);
-	gSavedSettings.setF32("AvatarAxisScale5", .1f * kPlatformScale);
-	gSavedSettings.setF32("AvatarAxisScale3", 0.f * kPlatformScale);
-	gSavedSettings.setF32("BuildAxisScale1", .3f * kPlatformScale);
-	gSavedSettings.setF32("BuildAxisScale2", .3f * kPlatformScale);
-	gSavedSettings.setF32("BuildAxisScale0", .3f * kPlatformScale);
-	gSavedSettings.setF32("BuildAxisScale4", .3f * kPlatformScale);
-	gSavedSettings.setF32("BuildAxisScale5", .3f * kPlatformScale);
-	gSavedSettings.setF32("BuildAxisScale3", .3f * kPlatformScale);
-	gSavedSettings.setF32("FlycamAxisScale1", 2.f * kPlatformScale);
-	gSavedSettings.setF32("FlycamAxisScale2", 2.f * kPlatformScale);
-	gSavedSettings.setF32("FlycamAxisScale0", 2.1f * kPlatformScale);
-	gSavedSettings.setF32("FlycamAxisScale4", .1f * kPlatformScale);
-	gSavedSettings.setF32("FlycamAxisScale5", .15f * kPlatformScale);
-	gSavedSettings.setF32("FlycamAxisScale3", 0.f * kPlatformScale);
-	gSavedSettings.setF32("FlycamAxisScale6", 0.f * kPlatformScale);
-	
-	gSavedSettings.setF32("AvatarAxisDeadZone0", .1f);
-	gSavedSettings.setF32("AvatarAxisDeadZone1", .1f);
-	gSavedSettings.setF32("AvatarAxisDeadZone2", .1f);
-	gSavedSettings.setF32("AvatarAxisDeadZone3", 1.f);
-	gSavedSettings.setF32("AvatarAxisDeadZone4", .02f);
-	gSavedSettings.setF32("AvatarAxisDeadZone5", .01f);
-	gSavedSettings.setF32("BuildAxisDeadZone0", .01f);
-	gSavedSettings.setF32("BuildAxisDeadZone1", .01f);
-	gSavedSettings.setF32("BuildAxisDeadZone2", .01f);
-	gSavedSettings.setF32("BuildAxisDeadZone3", .01f);
-	gSavedSettings.setF32("BuildAxisDeadZone4", .01f);
-	gSavedSettings.setF32("BuildAxisDeadZone5", .01f);
-	gSavedSettings.setF32("FlycamAxisDeadZone0", .01f);
-	gSavedSettings.setF32("FlycamAxisDeadZone1", .01f);
-	gSavedSettings.setF32("FlycamAxisDeadZone2", .01f);
-	gSavedSettings.setF32("FlycamAxisDeadZone3", .01f);
-	gSavedSettings.setF32("FlycamAxisDeadZone4", .01f);
-	gSavedSettings.setF32("FlycamAxisDeadZone5", .01f);
-	gSavedSettings.setF32("FlycamAxisDeadZone6", 1.f);
-	
-	gSavedSettings.setF32("AvatarFeathering", 6.f);
-	gSavedSettings.setF32("BuildFeathering", 12.f);
-	gSavedSettings.setF32("FlycamFeathering", 5.f);
+	LLViewerJoystick::getInstance()->setSNDefaults();
 }

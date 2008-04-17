@@ -115,10 +115,35 @@ bool LLAppViewerMacOSX::init()
 	return LLAppViewer::init();
 }
 
+// MacOSX may add and addition command line arguement for the process serial number.
+// The option takes a form like '-psn_0_12345'. The following method should be able to recognize
+// and either ignore or return a pair of values for the option.
+// look for this method to be added to the parser in parseAndStoreResults.
+std::pair<std::string, std::string> parse_psn(const std::string& s)
+{
+    if (s.find("-psn_") == 0) 
+	{
+		// *FIX:Mani Not sure that the value makes sense.
+		// fix it once the actual -psn_XXX syntax is known.
+		return std::make_pair("psn", s.substr(5));
+    }
+	else 
+	{
+        return std::make_pair(std::string(), std::string());
+    }
+}
+
 bool LLAppViewerMacOSX::initParseCommandLine(LLCommandLineParser& clp)
 {
+	// The next two lines add the support for parsing the mac -psn_XXX arg.
+	clp.addOptionDesc("psn", NULL, 1, "MacOSX process serial number");
+	clp.setCustomParser(parse_psn);
+	
 	// First parse the command line, not often used on the mac.
-	clp.parseCommandLine(gArgC, gArgV);
+	if(clp.parseCommandLine(gArgC, gArgV) == false)
+	{
+		return false;
+	}
     
     // Now read in the args from arguments txt.
     // Succesive calls to clp.parse... will NOT override earlier 
@@ -131,7 +156,10 @@ bool LLAppViewerMacOSX::initParseCommandLine(LLCommandLineParser& clp)
 		return false;
 	}
 	
-	clp.parseCommandLineFile(ifs);
+	if(clp.parseCommandLineFile(ifs) == false)
+	{
+		return false;
+	}
 	
 	// Get the user's preferred language string based on the Mac OS localization mechanism.
 	// To add a new localization:

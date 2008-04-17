@@ -119,11 +119,12 @@ inline S32 LLDynamicArray<Type,BlockSize>::removeObj(const Type& obj)
 	typename std::vector<Type>::iterator iter = std::find(this->begin(), this->end(), obj);
 	if (iter != this->end())
 	{
+		S32 res = iter - this->begin();
 		typename std::vector<Type>::iterator last = this->end(); 
 		--last;
 		*iter = *last;
 		this->pop_back();
-		return iter - this->begin();
+		return res;
 	}
 	return FAIL;
 }

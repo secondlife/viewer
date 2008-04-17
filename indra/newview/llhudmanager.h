@@ -56,6 +56,8 @@ public:
 	void sendEffects();
 	void cleanupEffects();
 
+	static void shutdownClass();
+
 	static void processViewerEffect(LLMessageSystem *mesgsys, void **user_data);
 
 	static LLColor4 sParentColor;

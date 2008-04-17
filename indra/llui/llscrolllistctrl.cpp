@@ -69,37 +69,26 @@ struct SortScrollListItem
 
 	bool operator()(const LLScrollListItem* i1, const LLScrollListItem* i2)
 	{
-		if ( mSortOrders.empty() ) return true;
-
-		const LLScrollListCell *cell1 = NULL;
-		const LLScrollListCell *cell2 = NULL;
-		
-		sort_order_t::const_reverse_iterator end_it = mSortOrders.rend();
-		sort_order_t::const_reverse_iterator it;
+		if ( mSortOrders.empty() )
+			return i1 < i2;
 
 		// sort over all columns in order specified by mSortOrders
 		S32 sort_result = 0;
-		for (it = mSortOrders.rbegin(); it != end_it; ++it)
+		for (sort_order_t::const_reverse_iterator it = mSortOrders.rbegin();
+			 it != mSortOrders.rend(); ++it)
 		{
 			S32 col_idx = it->first;
 			BOOL sort_ascending = it->second;
 
-			cell1 = i1->getColumn(col_idx);
-			cell2 = i2->getColumn(col_idx);
-			// ascending or descending sort for this column?
-			S32 order = 1;
-			if (!sort_ascending)
-			{
-				order = -1;
-			}
-
+			const LLScrollListCell *cell1 = i1->getColumn(col_idx);
+			const LLScrollListCell *cell2 = i2->getColumn(col_idx);
+			S32 order = sort_ascending ? 1 : -1; // ascending or descending sort for this column?
 			if (cell1 && cell2)
 			{
-				sort_result = (order * LLString::compareDict(cell1->getValue().asString(), cell2->getValue().asString()));
+				sort_result = order * LLString::compareDict(cell1->getValue().asString(), cell2->getValue().asString());
 				if (sort_result != 0)
 				{
-					// we have a sort order!
-					break;
+					break; // we have a sort order!
 				}
 			}
 		}

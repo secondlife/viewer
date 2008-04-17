@@ -383,8 +383,6 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 	allowLanguageTextInput(mPreeditor, FALSE);
 
 	WNDCLASS		wc;
-	DWORD			dw_ex_style;
-	DWORD			dw_style;
 	RECT			window_rect;
 
 	// Set the window title
@@ -578,49 +576,7 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 			OSMessageBox(error, "Error", OSMB_OK);
 		}
 	}
-
-	//-----------------------------------------------------------------------
-	// Resize window to account for borders
-	//-----------------------------------------------------------------------
-	if (mFullscreen)
-	{
-		dw_ex_style = WS_EX_APPWINDOW;
-		dw_style = WS_POPUP;
-
-		// Move window borders out not to cover window contents
-		AdjustWindowRectEx(&window_rect, dw_style, FALSE, dw_ex_style);
-	}
-	else
-	{
-		// Window with an edge
-		dw_ex_style = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
-		dw_style = WS_OVERLAPPEDWINDOW;
-	}
-
-	//-----------------------------------------------------------------------
-	// Create the window
-	// Microsoft help indicates that GL windows must be created with
-	// WS_CLIPSIBLINGS and WS_CLIPCHILDREN, but not CS_PARENTDC
-	//-----------------------------------------------------------------------
-	mWindowHandle = CreateWindowEx(dw_ex_style,
-		mWindowClassName,
-		mWindowTitle,
-		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dw_style,
-		x,												// x pos
-		y,												// y pos
-		window_rect.right - window_rect.left,			// width
-		window_rect.bottom - window_rect.top,			// height
-		NULL,
-		NULL,
-		mhInstance,
-		NULL);
-
-	if (!mWindowHandle)
-	{
-		OSMessageBox("Window creation error", "Error", OSMB_OK);
-		return;
-	}
-
+	
 	// TODO: add this after resolving _WIN32_WINNT issue
 	//	if (!fullscreen)
 	//	{
@@ -632,14 +588,7 @@ LLWindowWin32::LLWindowWin32(char *title, char *name, S32 x, S32 y, S32 width,
 	//		TrackMouseEvent( &track_mouse_event ); 
 	//	}
 
-
-
-	S32 pfdflags = PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER;
-	if (use_gl)
-	{
-		pfdflags |= PFD_SUPPORT_OPENGL;
-	}
-
+	
 	//-----------------------------------------------------------------------
 	// Create GL drawing context
 	//-----------------------------------------------------------------------
@@ -1397,6 +1346,10 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 
 	SetWindowLong(mWindowHandle, GWL_USERDATA, (U32)this);
 	show();
+
+	//make sure multi sampling is disabled by default
+	glDisable(GL_MULTISAMPLE_ARB);
+
 
 	// ok to post quit messages now
 	mPostQuit = TRUE;

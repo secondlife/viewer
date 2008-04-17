@@ -407,7 +407,7 @@ static void settings_to_globals()
 static void settings_modify()
 {
 	LLRenderTarget::sUseFBO				= gSavedSettings.getBOOL("RenderUseFBO");
-	LLVOAvatar::sUseImpostors			= gSavedSettings.getBOOL("RenderUseImpostors");
+	LLVOAvatar::sUseImpostors			= FALSE; //gSavedSettings.getBOOL("RenderUseImpostors");
 	LLVOSurfacePatch::sLODFactor		= gSavedSettings.getF32("RenderTerrainLODFactor");
 	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor; //sqaure lod factor to get exponential range of [1,4]
 
@@ -526,6 +526,7 @@ bool send_url_to_other_instance(const std::string& url)
 	window_class[255] = 0;
 	// Use the class instead of the window name.
 	HWND other_window = FindWindow(window_class, NULL);
+
 	if (other_window != NULL)
 	{
 		lldebugs << "Found other window with the name '" << gWindowTitle << "'" << llendl;
@@ -860,7 +861,7 @@ bool LLAppViewer::init()
 	gSimLastTime = gRenderStartTime.getElapsedTimeF32();
 	gSimFrames = (F32)gFrameCount;
 
-	LLViewerJoystick::getInstance()->init();
+	LLViewerJoystick::getInstance()->init(false);
 	if (LLViewerJoystick::getInstance()->isLikeSpaceNavigator())
 	{
 		if (gSavedSettings.getString("JoystickInitialized") != "SpaceNavigator")
@@ -1118,6 +1119,8 @@ bool LLAppViewer::cleanup()
 	// Note: this is where gWorldMap used to be deleted.
 
 	// Note: this is where gHUDManager used to be deleted.
+	LLHUDManager::getInstance()->shutdownClass();
+	
 
 	delete gAssetStorage;
 	gAssetStorage = NULL;
@@ -1482,6 +1485,7 @@ bool LLAppViewer::initConfiguration()
 
 #ifndef		LL_RELEASE_FOR_DOWNLOAD
         gSavedSettings.setBOOL("ShowConsoleWindow", TRUE);
+        gSavedSettings.setBOOL("AllowMultipleViewers", TRUE);
 #endif
 
 #if LL_WINDOWS
@@ -1562,6 +1566,18 @@ bool LLAppViewer::initConfiguration()
 			<< llendl;
 
 		llinfos	<< "Command	line usage:\n" << clp << llendl;
+
+		std::ostringstream msg;
+		msg << "Second Life found an error parsing the command line. \n" 
+			<< "Please see: http://wiki.secondlife.com/wiki/Client_parameters \n"
+			<< "Error: " << clp.getErrorMessage();
+
+		OSMessageBox(
+			msg.str().c_str(),
+			NULL,
+			OSMB_OK);
+
+		return false;
 	}
 
 	// If we have specified crash on startup, might as well do it now.
@@ -1600,7 +1616,15 @@ bool LLAppViewer::initConfiguration()
 
 	if(clp.hasOption("help"))
 	{
-		llinfos	<< "Command	line usage:\n" << clp << llendl;
+		std::ostringstream msg;
+		msg << "Command	line usage:\n" << clp;
+		llinfos	<< msg.str() << llendl;
+
+		OSMessageBox(
+			msg.str().c_str(),
+			NULL,
+			OSMB_OK);
+
 		return false;
 	}
 
@@ -1811,32 +1835,34 @@ bool LLAppViewer::initConfiguration()
 #endif
 	LLString::truncate(gWindowTitle, 255);
 
+	//RN: if we received a URL, hand it off to the existing instance
+	// don't call anotherInstanceRunning() when doing URL handoff, as
+	// it relies on checking a marker file which will not work when running
+	// out of different directories
+	std::string slurl;
+	if (!LLStartUp::sSLURLCommand.empty())
+	{
+		slurl = LLStartUp::sSLURLCommand;
+	}
+	else if (LLURLSimString::parse())
+	{
+		slurl = LLURLSimString::getURL();
+	}
+	if (!slurl.empty())
+	{
+		if (send_url_to_other_instance(slurl))
+		{
+			// successfully handed off URL to existing instance, exit
+			return false;
+		}
+	}
+
 	if (!gSavedSettings.getBOOL("AllowMultipleViewers"))
 	{
 	    //
 	    // Check for another instance of the app running
 	    //
-		//RN: if we received a URL, hand it off to the existing instance
-		// don't call anotherInstanceRunning() when doing URL handoff, as
-		// it relies on checking a marker file which will not work when running
-		// out of different directories
-		std::string slurl;
-		if (!LLStartUp::sSLURLCommand.empty())
-		{
-			slurl = LLStartUp::sSLURLCommand;
-		}
-		else if (LLURLSimString::parse())
-		{
-			slurl = LLURLSimString::getURL();
-		}
-		if (!slurl.empty())
-		{
-			if (send_url_to_other_instance(slurl))
-			{
-				// successfully handed off URL to existing instance, exit
-				return false;
-			}
-		}
+
 		
 		mSecondInstance = anotherInstanceRunning();
 		
@@ -2761,7 +2787,25 @@ const std::string& LLAppViewer::getHelperURI() const
 
 void LLAppViewer::addLoginURI(const std::string& uri)
 {
+	// *NOTE:Mani - login uri trumps the --grid (gGridChoice) setting.
+	// Update gGridChoice to reflect the loginURI setting.
     gLoginURIs.push_back(uri);
+	
+	const std::string& top_uri = getLoginURIs()[0];
+	int i = 0;
+	for(; i < GRID_INFO_COUNT; ++i)
+	{
+		if(top_uri == gGridInfo[i].mLoginURI)
+		{
+			gGridChoice = (EGridInfo)i;
+			break;
+		}
+	}
+
+	if(GRID_INFO_COUNT == i)
+	{
+		gGridChoice = GRID_INFO_OTHER;
+	}
 }
 
 void LLAppViewer::setHelperURI(const std::string& uri)
@@ -2908,7 +2952,10 @@ void LLAppViewer::saveNameCache()
 
 bool LLAppViewer::isInProductionGrid()
 {
-    return (GRID_INFO_AGNI == gGridChoice);
+	// *NOTE:Mani This used to compare GRID_INFO_AGNI to gGridChoice,
+	// but it seems that loginURI trumps that.
+	const std::string& loginURI = getLoginURIs()[0];
+	return (loginURI == gGridInfo[GRID_INFO_AGNI].mLoginURI);
 }
 
 
@@ -3257,7 +3304,7 @@ void LLAppViewer::idle()
 	}
 	stop_glerror();
 
-	if (LLViewerJoystick::sOverrideCamera)
+	if (LLViewerJoystick::getInstance()->getOverrideCamera())
 	{
 		LLViewerJoystick::getInstance()->moveFlycam();
 	}

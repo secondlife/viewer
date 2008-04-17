@@ -749,7 +749,7 @@ BOOL LLComboBox::handleToolTip(S32 x, S32 y, LLString& msg, LLRect* sticky_rect_
 		tool_tip = getToolTip();
 		if (tool_tip.empty())
 		{
-			tool_tip = getValue().asString();
+			tool_tip = getSelectedItemLabel();
 		}
 	}
 	

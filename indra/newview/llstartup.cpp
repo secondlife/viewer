@@ -2262,7 +2262,7 @@ BOOL idle_startup()
 		if(gFloaterWorldMap)
 		{
 			gFloaterWorldMap->observeInventory(&gInventory);
-			//gFloaterWorldMap->observeFriends();
+			gFloaterWorldMap->observeFriends();
 		}
 
 		gViewerWindow->showCursor();

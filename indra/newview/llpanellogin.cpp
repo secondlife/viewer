@@ -947,6 +947,15 @@ void LLPanelLogin::loadLoginPage()
 		grid = gGridInfo[grid_index].mLabel;
 	}
 
+	if(gGridChoice != (EGridInfo)grid_index)
+	{
+		LLAppViewer::instance()->resetURIs();
+		gGridChoice = (EGridInfo)grid_index;
+		gViewerWindow->setMenuBackgroundColor(false, 
+			!LLAppViewer::instance()->isInProductionGrid());
+		gLoginMenuBarView->setBackgroundColor(gMenuBarView->getBackgroundColor());
+	}
+    
 	char* curl_grid = curl_escape(grid.c_str(), 0);
 	oStr << "&grid=" << curl_grid;
 	curl_free(curl_grid);

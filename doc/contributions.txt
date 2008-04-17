@@ -41,6 +41,10 @@ Alissa Sabre
 	VWR-3290
 	VWR-4010
 	VWR-3410
+	VWR-6386
+        VWR-6384
+        VWR-6385
+        VWR-5929
 Angus Boyd
 	VWR-592
 Argent Stonecutter

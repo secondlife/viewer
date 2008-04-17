@@ -603,7 +603,7 @@ void LLTracker::stopTrackingAvatar(BOOL clear_ui)
 	}
 
 	purgeBeaconText();
-	//gFloaterWorldMap->clearAvatarSelection(clear_ui);
+	gFloaterWorldMap->clearAvatarSelection(clear_ui);
 	mTrackingStatus = TRACKING_NOTHING;
 }
 

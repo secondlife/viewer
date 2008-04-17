@@ -107,9 +107,10 @@ BOOL LLProgressView::handleMouseDown(S32 x, S32 y, MASK mask)
 	if ( mOutlineRect.pointInRect( x, y ) )
 	{
 		mMouseDownInActiveArea = TRUE;
+		return TRUE;
 	};
 
-	return TRUE;
+	return LLPanel::handleMouseDown(x, y, mask);
 }
 
 BOOL LLProgressView::handleMouseUp(S32 x, S32 y, MASK mask)
@@ -134,10 +135,11 @@ BOOL LLProgressView::handleMouseUp(S32 x, S32 y, MASK mask)
 					LLWeb::loadURLExternal( url_to_open );
 				};
 			};
+			return TRUE;
 		};
 	};
 
-	return TRUE;
+	return LLPanel::handleMouseUp(x, y, mask);
 }
 
 BOOL LLProgressView::handleHover(S32 x, S32 y, MASK mask)

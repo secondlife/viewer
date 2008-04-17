@@ -261,7 +261,7 @@ void LLCommandLineParser::addOptionDesc(const LLString& option_name,
     }
 }
 
-bool parseAndStoreResults(po::command_line_parser& clp)
+bool LLCommandLineParser::parseAndStoreResults(po::command_line_parser& clp)
 {
     try
     {
@@ -269,24 +269,32 @@ bool parseAndStoreResults(po::command_line_parser& clp)
         clp.positional(gPositionalOptions);
         clp.style(po::command_line_style::default_style 
                   | po::command_line_style::allow_long_disguise);
+		if(mExtraParser)
+		{
+			clp.extra_parser(mExtraParser);
+		}
+			
         po::basic_parsed_options<char> opts = clp.run();
         po::store(opts, gVariableMap);
     }
     catch(po::error& e)
     {
         llwarns << "Caught Error:" << e.what() << llendl;
+		mErrorMsg = e.what();
         return false;
     }
     catch(LLCLPError& e)
     {
         llwarns << "Caught Error:" << e.what() << llendl;
+		mErrorMsg = e.what();
         return false;
     }
     catch(LLCLPLastOption&) 
     {
         // Continue without parsing.
-        llwarns << "Found tokens past last option. Ignoring." << llendl;
-
+		std::string msg = "Found tokens past last option. Ignoring.";
+        llwarns << msg << llendl;
+		mErrorMsg = msg;
         // boost::po will have stored a mal-formed option. 
         // All such options will be removed below.
         for(po::variables_map::iterator i = gVariableMap.begin(); i != gVariableMap.end();)

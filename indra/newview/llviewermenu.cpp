@@ -1825,7 +1825,7 @@ bool toggle_build_mode()
 	}
 	else
 	{
-		if (LLViewerJoystick::sOverrideCamera)
+		if (LLViewerJoystick::getInstance()->getOverrideCamera())
 		{
 			handle_toggle_flycam();
 		}
@@ -1870,7 +1870,7 @@ class LLViewCheckJoystickFlycam : public view_listener_t
 {
 	bool handleEvent(LLPointer<LLEvent> event, const LLSD& userdata)
 	{
-		bool new_val = LLViewerJoystick::sOverrideCamera;
+		bool new_val = LLViewerJoystick::getInstance()->getOverrideCamera();
 		gMenuHolder->findControl(userdata["control"].asString())->setValue(new_val);
 		return true;
 	}
@@ -1878,23 +1878,7 @@ class LLViewCheckJoystickFlycam : public view_listener_t
 
 void handle_toggle_flycam()
 {
-	LLViewerJoystick::sOverrideCamera = !LLViewerJoystick::sOverrideCamera;
-	if (LLViewerJoystick::sOverrideCamera)
-	{
-		LLViewerJoystick::getInstance()->moveFlycam(true);
-	}
-	else if (!LLToolMgr::getInstance()->inBuildMode())
-	{
-		LLViewerJoystick::getInstance()->moveAvatar(true);
-	}
-	else 
-	{
-		// we are in build mode, exiting from the flycam mode: since we are 
-		// going to keep the flycam POV for the main camera until the avatar
-		// moves, we need to track this situation.
-		LLViewerJoystick::getInstance()->setCameraNeedsUpdate(false);
-		LLViewerJoystick::getInstance()->setNeedsReset(true);
-	}
+	LLViewerJoystick::getInstance()->toggleFlycam();
 }
 
 class LLObjectBuild : public view_listener_t
@@ -3382,7 +3366,7 @@ void reset_view_final( BOOL proceed, void* )
 
 	gAgent.changeCameraToDefault();
 	
-	if (LLViewerJoystick::sOverrideCamera)
+	if (LLViewerJoystick::getInstance()->getOverrideCamera())
 	{
 		handle_toggle_flycam();
 	}

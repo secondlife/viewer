@@ -1056,9 +1056,9 @@ struct lru_data
 		typedef const lru_data* lru_data_ptr;
 		bool operator()(const lru_data_ptr& a, const lru_data_ptr& b) const
 		{
-			if (!(a->time < b->time))
+			if (a->time > b->time)
 				return true;
-			else if (!(b->time < a->time))
+			else if (b->time > a->time)
 				return false;
 			else
 				return a->index < b->index;

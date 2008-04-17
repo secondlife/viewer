@@ -353,7 +353,7 @@ static bool handleRenderUseFBOChanged(const LLSD& newvalue)
 
 static bool handleRenderUseImpostorsChanged(const LLSD& newvalue)
 {
-	LLVOAvatar::sUseImpostors = newvalue.asBoolean();
+	LLVOAvatar::sUseImpostors = FALSE; //newvalue.asBoolean();
 	return true;
 }
 
