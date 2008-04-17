@@ -80,7 +80,9 @@ public:
 	S32 getCrashBehavior() const { return mCrashBehavior; } 
 	void setCrashBehavior(S32 cb);
 	virtual void handleCrashReporting() = 0; // What to do with crash report?
-	static void handleViewerCrash(); // Hey! The viewer crashed. Do this.
+	virtual void handleSyncCrashTrace() = 0; // any low-level crash-prep that has to happen in the context of the crashing thread before the crash report is delivered.
+	static void handleViewerCrash(); // Hey! The viewer crashed. Do this, soon.
+	static void handleSyncViewerCrash(); // Hey! The viewer crashed. Do this right NOW in the context of the crashing thread.
 
 	// Thread accessors
 	static LLTextureCache* getTextureCache() { return sTextureCache; }

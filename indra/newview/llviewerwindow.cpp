@@ -1992,7 +1992,6 @@ LLViewerWindow::~LLViewerWindow()
 	// Automatically deleted as children of mRootView.  Fix the globals.
 	gFloaterTools = NULL;
 	gStatusBar = NULL;
-	gFloaterCamera = NULL;
 	gIMMgr = NULL;
 	gHoverView = NULL;
 

@@ -39,24 +39,22 @@ class LLJoystickCameraZoom;
 class LLJoystickCameraTrack;
 
 class LLFloaterCamera
-	:	public LLFloater
+	:	public LLFloater,
+		public LLFloaterSingleton<LLFloaterCamera>
 {
-public:
-	LLFloaterCamera(const std::string& name);
-	~LLFloaterCamera();
+	friend class LLUISingleton<LLFloaterCamera, VisibilityPolicy<LLFloater> >;
 	
+private:
+	LLFloaterCamera(const LLSD& val);
+	~LLFloaterCamera() {};
+	
+	/*virtual*/ void onOpen();
 	/*virtual*/ void onClose(bool app_quitting);
-	
-	static void show(void*);
-	static void toggle(void*);
-	static BOOL visible(void*);
 	
 public:
 	LLJoystickCameraRotate* mRotate;
 	LLJoystickCameraZoom*	mZoom;
 	LLJoystickCameraTrack*	mTrack;
 };
-
-extern LLFloaterCamera *gFloaterCamera;
 
 #endif

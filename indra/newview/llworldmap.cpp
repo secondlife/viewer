@@ -343,6 +343,8 @@ void LLWorldMap::sendItemRequest(U32 type, U64 handle)
 // public
 void LLWorldMap::sendMapLayerRequest()
 {
+	if (!gAgent.getRegion()) return;
+
 	LLSD body;
 	body["Flags"] = mCurrentMap;
 	std::string url = gAgent.getRegion()->getCapability(

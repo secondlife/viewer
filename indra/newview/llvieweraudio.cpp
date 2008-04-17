@@ -32,7 +32,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "audioengine.h"
-#include "audiosettings.h"
 #include "llagent.h"
 #include "llappviewer.h"
 #include "llvieweraudio.h"

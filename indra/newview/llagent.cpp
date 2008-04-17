@@ -3040,24 +3040,21 @@ void LLAgent::updateCamera()
 	}
 
 	// Update UI with our camera inputs
-	if (gFloaterCamera)
-	{
-		gFloaterCamera->mRotate->setToggleState(
-			mOrbitRightKey > 0.f,	// left
-			mOrbitUpKey > 0.f,		// top
-			mOrbitLeftKey > 0.f,	// right
-			mOrbitDownKey > 0.f);	// bottom
+	LLFloaterCamera::getInstance()->mRotate->setToggleState(
+		mOrbitRightKey > 0.f,	// left
+		mOrbitUpKey > 0.f,		// top
+		mOrbitLeftKey > 0.f,	// right
+		mOrbitDownKey > 0.f);	// bottom
 
-		gFloaterCamera->mZoom->setToggleState( 
-			mOrbitInKey > 0.f,		// top
-			mOrbitOutKey > 0.f);	// bottom
+	LLFloaterCamera::getInstance()->mZoom->setToggleState( 
+		mOrbitInKey > 0.f,		// top
+		mOrbitOutKey > 0.f);	// bottom
 
-		gFloaterCamera->mTrack->setToggleState(
-			mPanLeftKey > 0.f,		// left
-			mPanUpKey > 0.f,		// top
-			mPanRightKey > 0.f,		// right
-			mPanDownKey > 0.f);		// bottom
-	}
+	LLFloaterCamera::getInstance()->mTrack->setToggleState(
+		mPanLeftKey > 0.f,		// left
+		mPanUpKey > 0.f,		// top
+		mPanRightKey > 0.f,		// right
+		mPanDownKey > 0.f);		// bottom
 
 	// Handle camera movement based on keyboard.
 	const F32 ORBIT_OVER_RATE = 90.f * DEG_TO_RAD;			// radians per second

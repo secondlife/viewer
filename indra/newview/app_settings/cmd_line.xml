@@ -319,5 +319,21 @@
       <string>LoginPage</string>
     </map>
 
+    <key>qa</key>
+    <map>
+      <key>desc</key>
+      <string>Activated debugging menu in Advanced Settings.</string>
+      <key>map-to</key>
+      <string>QAMode</string>
+    </map>
+
+    <key>crashonstartup</key>
+    <map>
+      <key>desc</key>
+      <string>Crashes on startup. For QA use.</string>
+      <key>map-to</key>
+      <string>CrashOnStartup</string>
+    </map>
+
   </map>
 </llsd>

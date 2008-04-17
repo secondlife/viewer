@@ -2650,6 +2650,10 @@ void LLCullResult::clear()
 
 	for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; i++)
 	{
+		for (U32 j = 0; j < mRenderMapSize[i]; j++)
+		{
+			mRenderMap[i][j] = 0;
+		}
 		mRenderMapSize[i] = 0;
 	}
 }

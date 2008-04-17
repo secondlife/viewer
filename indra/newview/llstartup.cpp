@@ -45,7 +45,6 @@
 #include "audioengine_fmod.h"
 #endif
 
-#include "audiosettings.h"
 #include "llares.h"
 #include "llcachename.h"
 #include "llviewercontrol.h"
@@ -1585,11 +1584,11 @@ BOOL idle_startup()
 
 		if (gSavedSettings.getBOOL("ShowCameraControls"))
 		{
-			LLFloaterCamera::show(NULL);
+			LLFloaterCamera::showInstance();
 		}
 		if (gSavedSettings.getBOOL("ShowMovementControls"))
 		{
-			LLFloaterMove::show(NULL);
+			LLFloaterMove::showInstance();
 		}
 
 		if (gSavedSettings.getBOOL("ShowActiveSpeakers"))

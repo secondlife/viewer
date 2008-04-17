@@ -192,7 +192,10 @@ LLPreferenceCore::LLPreferenceCore(LLTabContainer* tab_container, LLButton * def
 	mTabContainer->addTabPanel(mMsgPanel, mMsgPanel->getLabel(), FALSE, onTabChanged, mTabContainer);
 	mMsgPanel->setDefaultBtn(default_btn);
 
-	mTabContainer->selectTab(gSavedSettings.getS32("LastPrefTab"));
+	if (!mTabContainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
+	{
+		mTabContainer->selectFirstTab();
+	}
 }
 
 LLPreferenceCore::~LLPreferenceCore()

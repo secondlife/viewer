@@ -225,6 +225,8 @@ protected:
 	LLPointer<LLUIImage>	mExpanderButtonImage;
 	LLPointer<LLUIImage>	mActionButtonImageSelected;
 	LLPointer<LLUIImage>	mExpanderButtonImageSelected;
+	LLPointer<LLUIImage>	mActionButtonImageDisabled;
+	LLPointer<LLUIImage>	mExpanderButtonImageDisabled;
 	BOOL					mToggleState;
 };
 

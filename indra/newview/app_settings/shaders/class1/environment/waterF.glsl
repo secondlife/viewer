@@ -86,7 +86,7 @@ void main()
 	color.rgb = mix(mix(fogCol.rgb, fb.rgb, fogCol.a), refcol.rgb, df);
 	color.rgb += spec * specular;
 	
-	color.rgb = applyWaterFog(color);//atmosTransport(color.rgb);
+	//color.rgb = applyWaterFog(color);//atmosTransport(color.rgb);
 	color.rgb = scaleSoftClip(color.rgb);
 	color.a = spec * sunAngle2;
 

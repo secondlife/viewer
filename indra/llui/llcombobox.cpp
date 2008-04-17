@@ -1113,15 +1113,17 @@ LLFlyoutButton::LLFlyoutButton(
 	mExpanderButtonImage = LLUI::getUIImage("flyout_btn_right.tga");
 	mActionButtonImageSelected = LLUI::getUIImage("flyout_btn_left_selected.tga");
 	mExpanderButtonImageSelected = LLUI::getUIImage("flyout_btn_right_selected.tga");
+	mActionButtonImageDisabled = LLUI::getUIImage("flyout_btn_left_disabled.tga");
+	mExpanderButtonImageDisabled = LLUI::getUIImage("flyout_btn_right_disabled.tga");
 
 	mActionButton->setImageSelected(mActionButtonImageSelected);
 	mActionButton->setImageUnselected(mActionButtonImage);
-	mActionButton->setImageDisabled(LLPointer<LLUIImage>(NULL));
+	mActionButton->setImageDisabled(mActionButtonImageDisabled);
 	mActionButton->setImageDisabledSelected(LLPointer<LLUIImage>(NULL));
 
 	mButton->setImageSelected(mExpanderButtonImageSelected);
 	mButton->setImageUnselected(mExpanderButtonImage);
-	mButton->setImageDisabled(LLPointer<LLUIImage>(NULL));
+	mButton->setImageDisabled(mExpanderButtonImageDisabled);
 	mButton->setImageDisabledSelected(LLPointer<LLUIImage>(NULL));
 	mButton->setRightHPad(6);
 
