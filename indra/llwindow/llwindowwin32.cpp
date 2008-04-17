@@ -3606,5 +3606,13 @@ BOOL LLWindowWin32::handleImeRequests(U32 request, U32 param, LRESULT *result)
 	return FALSE;
 }
 
+//static
+std::string LLWindowWin32::getFontListSans()
+{
+	// Lists Japanese, Korean, and Chinese sanserif fonts available in
+	// Windows XP and Vista, as well as "Arial Unicode MS".
+	return "MSGOTHIC.TTC;gulim.ttc;simhei.ttf;ArialUni.ttf";
+}
+
 
 #endif // LL_WINDOWS

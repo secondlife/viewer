@@ -116,6 +116,8 @@ public:
 	/*virtual*/ void allowLanguageTextInput(LLPreeditor *preeditor, BOOL b);
 	/*virtual*/ void interruptLanguageTextInput();
 
+	static std::string getFontListSans();
+
 protected:
 	LLWindowMacOSX(
 		char *title, char *name, int x, int y, int width, int height, U32 flags,

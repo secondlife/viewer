@@ -37,7 +37,9 @@
 
 #include "llmemtype.h"
 #include "llviewernetwork.h"
+#include "llviewercontrol.h"
 #include "llmd5.h"
+#include "llfindlocale.h"
 
 #include <exception>
 
@@ -432,7 +434,27 @@ bool LLAppViewerLinux::initLogging()
 
 bool LLAppViewerLinux::initParseCommandLine(LLCommandLineParser& clp)
 {
-	clp.parseCommandLine(gArgC, gArgV);
+	if (!clp.parseCommandLine(gArgC, gArgV))
+	{
+		return false;
+	}
+
+	// Find the system language.
+	FL_Locale *locale = NULL;
+	FL_Success success = FL_FindLocale(&locale, FL_MESSAGES);
+	if (success != 0)
+	{
+		if (success >= 2 && locale->lang) // confident!
+		{
+			LLControlVariable* c = gSavedSettings.getControl("SystemLanguage");
+			if(c)
+			{
+				c->setValue(std::string(locale->lang), false);
+			}
+		}
+		FL_FreeLocale(&locale);
+	}
+
 	return true;
 }
 

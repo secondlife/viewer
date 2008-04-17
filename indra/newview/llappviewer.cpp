@@ -159,6 +159,13 @@
 
 #include "llcommandlineparser.h"
 
+// annoying detail to determine whether font prefs are over-ridden
+#if LL_LINUX
+# define LL_DYNAMIC_FONT_DISCOVERY 1
+#else
+# define LL_DYNAMIC_FONT_DISCOVERY 0
+#endif
+
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
 // this app, or another 'component' of the viewer. App globals should be 
@@ -1483,29 +1490,16 @@ bool LLAppViewer::initConfiguration()
 
 	gSavedSettings.setString("VersionChannelName", LL_CHANNEL);
 
-#ifndef		LL_RELEASE_FOR_DOWNLOAD
+#ifndef	LL_RELEASE_FOR_DOWNLOAD
         gSavedSettings.setBOOL("ShowConsoleWindow", TRUE);
         gSavedSettings.setBOOL("AllowMultipleViewers", TRUE);
 #endif
 
-#if LL_WINDOWS
-	// Lists Japanese, Korean, and Chinese sanserif fonts available in
-	// Windows XP and Vista, as well as "Arial Unicode MS".
+#if !LL_DYNAMIC_FONT_DISCOVERY
+	// static font discovery - user settings can override.
 	gSavedSettings.setString("FontSansSerifFallback",
-							 "MSGOTHIC.TTC;gulim.ttc;simhei.ttf;ArialUni.ttf");
-#elif LL_DARWIN
-	// This is a fairly complete Japanese font that ships with Mac OS X.
-	// The first filename is in UTF8, but it shows up in the font menu as "Hiragino Kaku Gothic Pro W3".
-	// The third filename is in UTF8, but it shows up in the font menu as "STHeiti Light"
-	gSavedSettings.setString("FontSansSerifFallback", 
-							 "\xE3\x83\x92\xE3\x83\xA9\xE3\x82\xAD\xE3\x82\x99\xE3\x83\x8E\xE8\xA7\x92\xE3\x82\xB3\xE3\x82\x99 Pro W3.otf;\xE3\x83\x92\xE3\x83\xA9\xE3\x82\xAD\xE3\x82\x99\xE3\x83\x8E\xE8\xA7\x92\xE3\x82\xB3\xE3\x82\x99 ProN W3.otf;AppleGothic.dfont;AppleGothic.ttf;\xe5\x8d\x8e\xe6\x96\x87\xe7\xbb\x86\xe9\xbb\x91.ttf");
-#else
-	// 'unicode.ttf' doesn't exist, but hopefully an international
-	// user can take the hint and drop in their favourite local font.
-	gSavedSettings.setString("FontSansSerifFallback",	
-							 "unicode.ttf");
+				 LLWindow::getFontListSans());
 #endif
-
 
 	// These are warnings that appear on the first experience of that condition.
 	// They are already set in the settings_default.xml file, but still need to be added to LLFirstUse
@@ -1552,6 +1546,15 @@ bool LLAppViewer::initConfiguration()
 
 	// Overwrite default user settings with	user settings
 	loadSettingsFromDirectory(LL_PATH_USER_SETTINGS);
+
+#if LL_DYNAMIC_FONT_DISCOVERY
+	// Linux does *dynamic* font discovery which is preferable to
+	// whatever got written-out into the config file last time.  This
+	// does remove the ability of the user to hand-define the fallbacks
+	// though, so from a config-management point of view this is hacky.
+	gSavedSettings.setString("FontSansSerifFallback",
+				 LLWindow::getFontListSans());
+#endif
 
 	// Parse command line settings.
 	LLControlGroupCLP clp;
@@ -1604,11 +1607,11 @@ bool LLAppViewer::initConfiguration()
 		gSavedSettings.setString("ClientSettingsFile", full_settings_path);
 	}
 
-	// Apply the command line params to	the	settings system.
-	// Anyway the following	call to	notify depends upon	the	settings being init'd.
+	// Apply the command line params to the settings system.
+	// Anyway the following	call to	notify depends upon the settings being init'd.
 	clp.notify(); 
 
-	// Start up	the	debugging console before handling other	options.
+	// Start up the debugging console before handling other options.
 	if (gSavedSettings.getBOOL("ShowConsoleWindow"))
 	{
 		initConsole();

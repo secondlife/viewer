@@ -12,7 +12,7 @@ Life itself - please see <http://www.secondlife.com/whatis/>.
 5. Troubleshooting
    5.1. 'Error creating window.'
    5.2. System hangs
-   5.3. 'Shiny' and client performance
+   5.3. Blank window after minimizing it
    5.4. Audio
    5.5. 'Alt' key for camera controls doesn't work
    5.6. In-world movie playback
@@ -98,16 +98,6 @@ you wish.
 These are the most commonly-encountered known issues which are specific to
 the Beta release of the Linux client.
 
-* VISUAL EFFECTS AND PERFORMANCE - many Linux graphics drivers are not as
-  robust as their counterparts for other operating systems, so some advanced
-  Second Life graphical features have been DISABLED by default to aid
-  stability.  See PROBLEM 3 in the TROUBLESHOOTING section if you wish to
-  turn these on to possibly enhance your experience.
-
-* MISC - The following features are not currently fully implemented on the
-  Linux client and are therefore known not to work properly:
-  * Full Unicode font rendering
-
 * UPLOAD / SAVE / COLOR-PICKER DIALOGS - These only appear when the client
   is in 'windowed' mode, not 'fullscreen' mode.
 
@@ -156,29 +146,21 @@ SOLUTION:- As a last resort, you can disable most of Second Life's advanced
    graphics features by editing the 'secondlife' script and removing the '#'
    from the line which reads '#export LL_GL_NOEXT=x'
 
-PROBLEM 3:- Performance or graphical quality are not as high as I expect.
-PROBLEM:- 'SHINY' doesn't work.
-PROBLEM:- I can't turn on Anisotropic Filtering, Ripple Water, or AGP.
-SOLUTION:- Some graphics performance features in Second Life are disabled
-   by default for the Linux version due to stability issues with some common
-   Linux graphic drivers.  You can re-enable these features at the slight
-   risk of decreasing system stability.  To do so:
-   * Edit the 'secondlife' script.  Comment-out these lines by putting a '#'
-     in front of them: 'export LL_GL_BASICEXT=x', 'export LL_GL_NOEXT=x',
-     'export LL_GL_BLACKLIST=abcdefghijklmno'.
-   * Now start Second Life.  Some advanced performance features will now be
-     automatically used, and some new options in Preferences will now be
-     available to you; there is no guarantee, however, that they will
-     positively affect performance!
-SOLUTION:- If you are not running an official Second Life client obtained from
-     secondlife.com, you should consider doing so as you may find its
-     performance to be superior to third-party versions.
+PROBLEM 3:- After I minimize the Second Life window, it's just blank when
+   it comes back.
+SOLUTION:- Some Linux desktop 'Visual Effects' features are incompatible
+   with Second Life.  One reported solution is to use your desktop
+   configuration program to disable such effects.  For example, on Ubuntu 7.10,
+   use the desktop toolbar menu to select System -> Preferences -> Appearance,
+   then change 'Visual Effects' to 'None'.
 
-PROBLEM 4:- Sound effects seem to 'lag' a fraction of a second behind
-   actions.
-SOLUTION:- You may uncomment the 'LL_BAD_ESD' line in the 'secondlife' script
-   to get more responsive audio.  However, if you do this then you may
-   encounter audio issues or a hang during login, so beware.
+PROBLEM 4:- Music and sound effects are silent or very stuttery.
+SOLUTION:- The most common solution is to ensure that you have the 'esd'
+   program (part of the 'esound' package) installed and running before you
+   start Second Life.  Users of Ubuntu (and some other) Linux systems can
+   simply run the following to install and configure 'esound':
+     sudo apt-get install esound
+  For others, simply running 'esd&' from a command-line should get it running.
 
 PROBLEM 5:- Using the 'Alt' key to control the camera doesn't work or just
    moves the Second Life window.

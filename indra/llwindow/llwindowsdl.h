@@ -120,6 +120,8 @@ public:
 	/*virtual*/ void *getPlatformWindow();
 	/*virtual*/ void bringToFront();
 
+	static std::string getFontListSans();
+
 	// Not great that these are public, but they have to be accessible
 	// by non-class code and it's better than making them global.
 #if LL_X11
@@ -153,7 +155,6 @@ protected:
 	void	restore();
 
 	BOOL	shouldPostQuit() { return mPostQuit; }
-
 
 protected:
 	//

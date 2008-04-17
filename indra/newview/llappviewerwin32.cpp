@@ -54,6 +54,7 @@
 
 #include "llviewernetwork.h"
 #include "llmd5.h"
+#include "llfindlocale.h"
 
 #include "llcommandlineparser.h"
 
@@ -385,7 +386,28 @@ bool LLAppViewerWin32::initHardwareTest()
 
 bool LLAppViewerWin32::initParseCommandLine(LLCommandLineParser& clp)
 {
-    return clp.parseCommandLineString(mCmdLine);
+	if (!clp.parseCommandLineString(mCmdLine))
+	{
+		return false;
+	}
+
+	// Find the system language.
+	FL_Locale *locale = NULL;
+	FL_Success success = FL_FindLocale(&locale, FL_MESSAGES);
+	if (success != 0)
+	{
+		if (success >= 2 && locale->lang) // confident!
+		{
+			LLControlVariable* c = gSavedSettings.getControl("SystemLanguage");
+			if(c)
+			{
+				c->setValue(std::string(locale->lang), false);
+			}
+		}
+		FL_FreeLocale(&locale);
+	}
+
+	return true;
 }
 
 void LLAppViewerWin32::handleSyncCrashTrace()

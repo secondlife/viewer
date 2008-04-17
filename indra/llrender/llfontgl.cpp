@@ -279,12 +279,12 @@ bool LLFontGL::loadFace(LLFontGL *fontp, const LLString& fontname, const F32 poi
 
 // static
 BOOL LLFontGL::initDefaultFonts(F32 screen_dpi, F32 x_scale, F32 y_scale,
-								const LLString& monospace_file, F32 monospace_size,
-								const LLString& sansserif_file,
-								const LLString& sanserif_fallback_file, F32 ss_fallback_scale,
-								F32 small_size, F32 medium_size, F32 big_size, F32 huge_size,
-								const LLString& sansserif_bold_file, F32 bold_size,
-								const LLString& app_dir)
+				const LLString& monospace_file, F32 monospace_size,
+				const LLString& sansserif_file,
+				const LLString& sanserif_fallback_file, F32 ss_fallback_scale,
+				F32 small_size, F32 medium_size, F32 big_size, F32 huge_size,
+				const LLString& sansserif_bold_file, F32 bold_size,
+				const LLString& app_dir)
 {
 	BOOL failed = FALSE;
 	sVertDPI = (F32)llfloor(screen_dpi * y_scale);

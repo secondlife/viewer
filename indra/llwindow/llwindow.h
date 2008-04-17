@@ -234,6 +234,8 @@ public:
 	virtual void updateLanguageTextInputArea() {}
 	virtual void interruptLanguageTextInput() {}
 
+	static std::string getFontListSans();
+
 protected:
 	LLWindow(BOOL fullscreen, U32 flags);
 	virtual ~LLWindow() {}

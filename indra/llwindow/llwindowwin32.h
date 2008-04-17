@@ -116,6 +116,8 @@ public:
 	/*virtual*/ void updateLanguageTextInputArea();
 	/*virtual*/ void interruptLanguageTextInput();
 
+	static std::string getFontListSans();
+
 protected:
 	LLWindowWin32(
 		char *title, char *name, int x, int y, int width, int height, U32 flags, 

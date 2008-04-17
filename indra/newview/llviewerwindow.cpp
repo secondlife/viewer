@@ -4951,21 +4951,21 @@ void LLViewerWindow::initFonts(F32 zoom_factor)
 {
 	LLFontGL::destroyGL();
 	LLFontGL::initDefaultFonts( gSavedSettings.getF32("FontScreenDPI"),
-								mDisplayScale.mV[VX] * zoom_factor,
-								mDisplayScale.mV[VY] * zoom_factor,
-								gSavedSettings.getString("FontMonospace"),
-								gSavedSettings.getF32("FontSizeMonospace"),
-								gSavedSettings.getString("FontSansSerif"), 
-								gSavedSettings.getString("FontSansSerifFallback"),
-								gSavedSettings.getF32("FontSansSerifFallbackScale"),
-								gSavedSettings.getF32("FontSizeSmall"),	
-								gSavedSettings.getF32("FontSizeMedium"), 
-								gSavedSettings.getF32("FontSizeLarge"),			 
-								gSavedSettings.getF32("FontSizeHuge"),			 
-								gSavedSettings.getString("FontSansSerifBold"),
-								gSavedSettings.getF32("FontSizeMedium"),
-								gDirUtilp->getAppRODataDir()
-							);
+				    mDisplayScale.mV[VX] * zoom_factor,
+				    mDisplayScale.mV[VY] * zoom_factor,
+				    gSavedSettings.getString("FontMonospace"),
+				    gSavedSettings.getF32("FontSizeMonospace"),
+				    gSavedSettings.getString("FontSansSerif"), 
+				    gSavedSettings.getString("FontSansSerifFallback"),
+				    gSavedSettings.getF32("FontSansSerifFallbackScale"),
+				    gSavedSettings.getF32("FontSizeSmall"),	
+				    gSavedSettings.getF32("FontSizeMedium"), 
+				    gSavedSettings.getF32("FontSizeLarge"),			 
+				    gSavedSettings.getF32("FontSizeHuge"),			 
+				    gSavedSettings.getString("FontSansSerifBold"),
+				    gSavedSettings.getF32("FontSizeMedium"),
+				    gDirUtilp->getAppRODataDir()
+				    );
 }
 void LLViewerWindow::toggleFullscreen(BOOL show_progress)
 {

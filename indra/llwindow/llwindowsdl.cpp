@@ -39,6 +39,7 @@
 #include "llgl.h"
 #include "llstring.h"
 #include "lldir.h"
+#include "llfindlocale.h"
 
 #include "llglheaders.h"
 
@@ -50,6 +51,10 @@ extern "C" {
 }
 #include <locale.h>
 #endif // LL_GTK
+
+extern "C" {
+# include "fontconfig/fontconfig.h"
+}
 
 #if LL_LINUX || LL_SOLARIS
 // not necessarily available on random SDL platforms, so #if LL_LINUX
@@ -2027,7 +2032,8 @@ void LLWindowSDL::gatherInput()
 	    // the locale to protect it, as exotic/non-C locales
 	    // causes our code lots of general critical weirdness
 	    // and crashness. (SL-35450)
-	    std::string saved_locale = setlocale(LC_ALL, NULL);
+	    static std::string saved_locale;
+	    saved_locale = ll_safe_string(setlocale(LC_ALL, NULL));
 
 	    // Pump until we've nothing left to do or passed 1/15th of a
 	    // second pumping for this frame.
@@ -2748,8 +2754,8 @@ void spawn_web_browser(const char* escaped_url)
 # endif // LL_X11
 
 	std::string cmd;
-	cmd  = gDirUtilp->getAppRODataDir().c_str();
-	cmd += gDirUtilp->getDirDelimiter().c_str();
+	cmd  = gDirUtilp->getAppRODataDir();
+	cmd += gDirUtilp->getDirDelimiter();
 	cmd += "launch_url.sh";
 	char* const argv[] = {(char*)cmd.c_str(), (char*)escaped_url, NULL};
 
@@ -2824,6 +2830,92 @@ void LLWindowSDL::bringToFront()
 		maybe_unlock_display();
 	}
 #endif // LL_X11
+}
+
+//static
+std::string LLWindowSDL::getFontListSans()
+{
+	// Use libfontconfig to find us a nice ordered list of fallback fonts
+	// specific to this system.
+	std::string final_fallback("/usr/share/fonts/truetype/kochi/kochi-gothic.ttf");
+	// Our 'ideal' font properties which define the sorting results.
+	// slant=0 means Roman, index=0 means the first face in a font file
+	// (the one we actually use), weight=80 means medium weight,
+	// spacing=0 means proportional spacing.
+	std::string sort_order("slant=0:index=0:weight=80:spacing=0");
+	// elide_unicode_coverage removes fonts from the list whose unicode
+	// range is covered by fonts earlier in the list.  This usually
+	// removes ~90% of the fonts as redundant (which is great because
+	// the font list can be huge), but might unnecessarily reduce the
+	// renderable range if for some reason our FreeType actually fails
+	// to use some of the fonts we want it to.
+	const bool elide_unicode_coverage = true;
+	std::string rtn;
+	FcFontSet *fs = NULL;
+	FcPattern *sortpat = NULL;
+	int font_count = 0;
+
+	llinfos << "Getting system font list from FontConfig..." << llendl;
+
+	// If the user has a system-wide language preference, then favor
+	// fonts from that language group.  This doesn't affect the types
+	// of languages that can be displayed, but ensures that their
+	// preferred language is rendered from a single consistent font where
+	// possible.
+	FL_Locale *locale = NULL;
+	FL_Success success = FL_FindLocale(&locale, FL_MESSAGES);
+	if (success != 0)
+	{
+		if (success >= 2 && locale->lang) // confident!
+		{
+			llinfos << "Preferring fonts of language: "
+				<< locale->lang
+				<< llendl;
+			sort_order = "lang=" + std::string(locale->lang) + ":"
+				+ sort_order;
+		}
+		FL_FreeLocale(&locale);
+	}
+
+	if (!FcInit())
+	{
+		llwarns << "FontConfig failed to initialize." << llendl;
+		return final_fallback;
+	}
+
+	sortpat = FcNameParse((FcChar8*) sort_order.c_str());
+	if (sortpat)
+	{
+		// Sort the list of system fonts from most-to-least-desirable.
+		fs = FcFontSort(NULL, sortpat, elide_unicode_coverage,
+				NULL, NULL);
+		FcPatternDestroy(sortpat);
+	}
+
+	if (fs)
+	{
+		// Get the full pathnames to the fonts, where available,
+		// which is what we really want.
+		int i;
+		for (i=0; i<fs->nfont; ++i)
+		{
+			FcChar8 *filename;
+			if (FcResultMatch == FcPatternGetString(fs->fonts[i],
+								FC_FILE, 0,
+								&filename)
+			    && filename)
+			{
+				rtn += std::string((const char*)filename)+";";
+				++font_count;
+			}
+		}
+		FcFontSetDestroy (fs);
+	}
+
+	lldebugs << "Using font list: " << rtn << llendl;
+	llinfos << "Using " << font_count << " system font(s)." << llendl;
+
+	return rtn + final_fallback;
 }
 
 #endif // LL_SDL

@@ -87,7 +87,6 @@ SetShellVarContext all			; install for all users (if you change this, change it 
 
 ; Start with some default values.
 StrCpy $INSTFLAGS "${INSTFLAGS}"
-StrCpy $INSTFLAGS "$INSTFLAGS $LANGFLAGS"
 StrCpy $INSTPROG "${INSTNAME}"
 StrCpy $INSTEXE "${INSTEXE}"
 StrCpy $INSTSHORTCUT "${SHORTCUT}"
@@ -933,26 +932,6 @@ Function .onInit
 
 	; save language in registry		
 	WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage" $LANGUAGE
-	
-	; generate language ID that will be used as a command line arg	
-	StrCmp $LANGUAGE "1042" 0 +3
-	StrCpy $LANGFLAGS " --set SystemLanguage ko"
-	Goto EndOfFunc
-
-	StrCmp $LANGUAGE "1041" 0 +3
-	StrCpy $LANGFLAGS " --set SystemLanguage ja"
-	Goto EndOfFunc
-
-	StrCmp $LANGUAGE "1031" 0 +3
-	StrCpy $LANGFLAGS " --set SystemLanguage de"
-	Goto EndOfFunc
-
-	StrCmp $LANGUAGE "1033" 0 +3
-	StrCpy $LANGFLAGS " --set SystemLanguage en-us"
-	Goto EndOfFunc
-	
-	EndOfFunc:
-
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

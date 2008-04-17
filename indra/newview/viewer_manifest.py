@@ -445,18 +445,20 @@ class LinuxManifest(ViewerManifest):
                         self.path("wrapper.sh","secondlife")
                         self.path("handle_secondlifeprotocol.sh")
                         self.path("register_secondlifeprotocol.sh")
-                        self.path("unicode.ttf","unicode.ttf")
                         self.end_prefix("linux_tools")
 
                 # Create an appropriate gridargs.dat for this package, denoting required grid.
                 self.put_in_file(self.flags_list(), 'gridargs.dat')
 
+
+        def package_finish(self):
                 # stripping all the libs removes a few megabytes from the end-user package
                 for s,d in self.file_list:
                         if re.search("lib/lib.+\.so.*", d):
                                 self.run_command('strip -S %s' % d)
+                        if re.search("app_settings/mozilla-runtime-.*/lib.+\.so.*", d):
+                                self.run_command('strip %s' % d)
 
-        def package_finish(self):
                 if(self.args.has_key('installer_name')):
                         installer_name = self.args['installer_name']
                 else:
