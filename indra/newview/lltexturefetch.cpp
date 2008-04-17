@@ -497,7 +497,7 @@ void LLTextureFetchWorker::setDesiredDiscard(S32 discard, S32 size)
 		mDesiredDiscard = discard;
 		mDesiredSize = size;
 	}
-	else if (size > mDesiredSize || size == 0)
+	else if (size > mDesiredSize)
 	{
 		mDesiredSize = size;
 		prioritize = true;
@@ -594,8 +594,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			U32 cache_priority = mWorkPriority;
 			S32 offset = mFormattedImage.notNull() ? mFormattedImage->getDataSize() : 0;
 			S32 size = mDesiredSize - offset;
-
-			if(mDesiredSize != 0 && size <= 0)
+			if (size <= 0)
 			{
 				mState = CACHE_POST;
 				return false;
@@ -640,12 +639,13 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 	if (mState == CACHE_POST)
 	{
+		mDesiredSize = llmax(mDesiredSize, FIRST_PACKET_SIZE);
 		mCachedSize = mFormattedImage.notNull() ? mFormattedImage->getDataSize() : 0;
 		// Successfully loaded
 		if ((mCachedSize >= mDesiredSize) || mHaveAllData)
 		{
 			// we have enough data, decode it
-			llassert_always(mFormattedImage.isNull() || mFormattedImage->getDataSize() > 0);
+			llassert_always(mFormattedImage->getDataSize() > 0);
 			mState = DECODE_IMAGE;
 			// fall through
 		}
@@ -859,7 +859,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	
 	if (mState == DECODE_IMAGE)
 	{
-		llassert_always(mFormattedImage.isNull() || mFormattedImage->getDataSize() > 0);
+		llassert_always(mFormattedImage->getDataSize() > 0);
 		setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
 		mRawImage = NULL;
 		mAuxImage = NULL;
@@ -1311,13 +1311,13 @@ LLTextureFetch::~LLTextureFetch()
 }
 
 bool LLTextureFetch::createRequest(const LLUUID& id, const LLHost& host, F32 priority,
-									S32 w, S32 h, S32 c, S32 discard, bool needs_aux)
+									S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux)
 {
-	return createRequest(LLString::null, id, host, priority, w, h, c, discard, needs_aux);
+	return createRequest(LLString::null, id, host, priority, w, h, c, desired_discard, needs_aux);
 }
 
 bool LLTextureFetch::createRequest(const LLString& filename, const LLUUID& id, const LLHost& host, F32 priority,
-								   S32 w, S32 h, S32 c, S32 discard, bool needs_aux)
+								   S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux)
 {
 	if (mDebugPause)
 	{
@@ -1341,7 +1341,7 @@ bool LLTextureFetch::createRequest(const LLString& filename, const LLUUID& id, c
 	}
 
 	S32 desired_size;
-	if ((discard == 0) && worker && worker->mFileSize)
+	if ((desired_discard == 0) && worker && worker->mFileSize)
 	{
 		// if we want the entire image, and we know its size, then get it all
 		// (calcDataSizeJ2C() below makes assumptions about how the image
@@ -1349,24 +1349,25 @@ bool LLTextureFetch::createRequest(const LLString& filename, const LLUUID& id, c
 		// we really do get it.)
 		desired_size = worker->mFileSize;
 	}
-	//else if ((discard == 0) && worker == NULL)
-	//{
-	//	// if we want the entire image, but we don't know its size, then send
-	//	// a sentinel value of zero to request the entire contents of the cache.
-	//	// patch supplied by resident Sheet Spotter for VWR-2404
-	//	desired_size = 0;
-	//}
 	else if (w*h*c > 0)
 	{
 		// If the requester knows the dimentions of the image,
 		// this will calculate how much data we need without having to parse the header
 
-		desired_size = LLImageJ2C::calcDataSizeJ2C(w, h, c, discard);
+		desired_size = LLImageJ2C::calcDataSizeJ2C(w, h, c, desired_discard);
 	}
 	else
 	{
-		desired_size = FIRST_PACKET_SIZE;
-		discard = MAX_DISCARD_LEVEL;
+		if (desired_discard == 0)
+		{
+			// If we want all of the image, request the maximum possible data
+			desired_size = MAX_IMAGE_DATA_SIZE;
+		}
+		else
+		{
+			desired_size = FIRST_PACKET_SIZE;
+			desired_discard = MAX_DISCARD_LEVEL;
+		}
 	}
 	if (worker)
 	{
@@ -1376,7 +1377,7 @@ bool LLTextureFetch::createRequest(const LLString& filename, const LLUUID& id, c
 		}
 		worker->lockWorkData();
 		worker->setImagePriority(priority);
-		worker->setDesiredDiscard(discard, desired_size);
+		worker->setDesiredDiscard(desired_discard, desired_size);
 		worker->unlockWorkData();
 		if (!worker->haveWork())
 		{
@@ -1389,18 +1390,18 @@ bool LLTextureFetch::createRequest(const LLString& filename, const LLUUID& id, c
 		if (filename.empty())
 		{
 			// do remote fetch
-			worker = new LLTextureFetchWorker(this, id, host, priority, discard, desired_size);
+			worker = new LLTextureFetchWorker(this, id, host, priority, desired_discard, desired_size);
 		}
 		else
 		{
 			// do local file fetch
-			worker = new LLTextureFetchLocalFileWorker(this, filename, id, host, priority, discard, desired_size);
+			worker = new LLTextureFetchLocalFileWorker(this, filename, id, host, priority, desired_discard, desired_size);
 		}
 		mRequestMap[id] = worker;
 	}
 	worker->mActiveCount++;
 	worker->mNeedsAux = needs_aux;
-// 	llinfos << "REQUESTED: " << id << " Discard: " << discard << llendl;
+// 	llinfos << "REQUESTED: " << id << " Discard: " << desired_discard << llendl;
 	return true;
 }
 

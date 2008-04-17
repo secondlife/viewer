@@ -118,7 +118,11 @@ LLWorld::LLWorld()
 void LLWorld::destroyClass()
 {
 	gObjectList.destroy();
-	for_each(mRegionList.begin(), mRegionList.end(), DeletePointer());
+	for(region_list_t::iterator region_it = mRegionList.begin(); region_it != mRegionList.end(); )
+	{
+		LLViewerRegion* region_to_delete = *region_it++;
+		removeRegion(region_to_delete->getHost());
+	}
 	LLViewerPartSim::getInstance()->destroyClass();
 }
 

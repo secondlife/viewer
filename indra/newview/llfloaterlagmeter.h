@@ -34,14 +34,15 @@
 
 #include "llfloater.h"
 
-class LLFloaterLagMeter : public LLFloater
+class LLFloaterLagMeter : public LLFloater, public LLFloaterSingleton<LLFloaterLagMeter>
 {
+	friend class LLUISingleton<LLFloaterLagMeter, VisibilityPolicy<LLFloater> >;
+	
 public:
 	/*virtual*/ void draw();
-	static void show(void*);
 
 private:
-	LLFloaterLagMeter();
+	LLFloaterLagMeter(const LLSD& key);
 	/*virtual*/ ~LLFloaterLagMeter();
 
 	void determineClient();
@@ -75,8 +76,6 @@ private:
 	LLTextBox * mServerCause;
 
 	LLString::format_map_t mStringArgs;
-
-	static LLFloaterLagMeter * sInstance;
 };
 
 #endif

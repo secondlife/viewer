@@ -741,7 +741,23 @@ void LLVOVolume::sculpt()
 
 		
 		S32 current_discard = getVolume()->getSculptLevel();
-		llassert_always(current_discard >= -2 && current_discard <= max_discard);
+		if(current_discard < -2)
+		{
+			llwarns << "WARNING!!: Current discard of sculpty at " << current_discard 
+				<< " is less than -2." << llendl;
+			
+			// corrupted volume... don't update the sculpty
+			return;
+		}
+		else if (current_discard > max_discard)
+		{
+			llwarns << "WARNING!!: Current discard of sculpty at " << current_discard 
+				<< " is more than than allowed max of " << max_discard << llendl;
+			
+			// corrupted volume... don't update the sculpty			
+			return;
+		}
+
 		if (current_discard == discard_level)  // no work to do here
 			return;
 		

@@ -108,9 +108,8 @@ LLDebugView::LLDebugView(const std::string& name, const LLRect &rect)
 
 	mFloaterStatsp->setFollowsTop();
 	mFloaterStatsp->setFollowsRight();
-	// Default to off
-	mFloaterStatsp->setVisible(FALSE);
-	addChild(mFloaterStatsp);
+	// since this is a floater, it belongs to LLFloaterView
+	//addChild(mFloaterStatsp);
 
 	const S32 VELOCITY_LEFT = 10; // 370;
 	const S32 VELOCITY_WIDTH = 500;

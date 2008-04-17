@@ -116,7 +116,7 @@ class ViewerManifest(LLManifest):
                         if self.default_channel():
                                 # beta grid viewer
                                 channel_flags = '--settings settings_beta.xml'
-                        grid_flags = "--helperuri http://preview-%(grid)s.secondlife.com/helpers/ --loginuri https://login.%(grid)s.lindenlab.com/cgi-bin/login.cgi" % {'grid':self.args['grid']}
+                        grid_flags = "--grid %(grid)s --helperuri http://preview-%(grid)s.secondlife.com/helpers/" % {'grid':self.args['grid']}
                         
                 if not self.default_channel():
                         # some channel on some grid
@@ -438,7 +438,7 @@ class LinuxManifest(ViewerManifest):
         def construct(self):
                 super(LinuxManifest, self).construct()
                 self.path("licenses-linux.txt","licenses.txt")
-                #self.path("res/ll_icon.ico","secondlife.ico")
+                self.path("res/ll_icon.png","secondlife_icon.png")
                 if self.prefix("linux_tools", ""):
                         self.path("client-readme.txt","README-linux.txt")
                         self.path("client-readme-voice.txt","README-linux-voice.txt")

@@ -22,12 +22,16 @@
 3Dfx							.*3Dfx.*							0		0
 3Dlabs							.*3Dlabs.*							0		0
 ATI 3D-Analyze					.*ATI.*3D-Analyze.*					0		0
-ATI All-in-Wonder PCI-E			.*ATI.*All-in-Wonder.*PCI-E.*		1		1
+ATI All-in-Wonder 7500			.*ATI.*All-in-Wonder 75.*			0		1
+ATI All-in-Wonder 8500			.*ATI.*All-in-Wonder 85.*			0		1
+ATI All-in-Wonder 9200			.*ATI.*All-in-Wonder 92.*			0		1
 ATI All-in-Wonder 9xxx			.*ATI.*All-in-Wonder 9.*			1		1
 ATI All-in-Wonder X600			.*ATI.*All-in-Wonder X6.*			1		1
 ATI All-in-Wonder X800			.*ATI.*All-in-Wonder X8.*			2		1
 ATI All-in-Wonder X1800			.*ATI.*All-in-Wonder X18.*			3		1
 ATI All-in-Wonder X1900			.*ATI.*All-in-Wonder X19.*			3		1
+ATI All-in-Wonder PCI-E			.*ATI.*All-in-Wonder.*PCI-E.*		1		1
+ATI All-in-Wonder Radeon 		.*ATI.*All-in-Wonder Radeon.*		0		1
 ATI ASUS A9xxx					.*ATI.*ASUS.*A9.*					1		1
 ATI ASUS AH24xx					.*ATI.*ASUS.*AH24.*					1		1
 ATI ASUS AH26xx					.*ATI.*ASUS.*AH26.*					3		1
@@ -52,6 +56,8 @@ ATI M52							.*ATI.*M52.*						1		1
 ATI M54							.*ATI.*M54.*						1		1
 ATI M56							.*ATI.*M56.*						1		1
 ATI M76							.*ATI.*M76.*						3		1
+ATI Mobility Radeon 7xxx		.*ATI.*Mobility.*Radeon 7.*			0		1
+ATI Mobility Radeon 8xxx		.*ATI.*Mobility.*Radeon 8.*			0		1
 ATI Mobility Radeon 9800		.*ATI.*Mobility.*98.*				1		1
 ATI Mobility Radeon 9700		.*ATI.*Mobility.*97.*				1		1
 ATI Mobility Radeon 9600		.*ATI.*Mobility.*96.*				0		1
@@ -70,8 +76,8 @@ ATI Radeon HD 3400				.*ATI.*Radeon HD 34.*				1		1
 ATI Radeon HD 3600				.*ATI.*Radeon HD 36.*				3		1
 ATI Radeon HD 3800				.*ATI.*Radeon HD 38.*				3		1
 ATI Radeon OpenGL				.*ATI.*Radeon OpenGL.* 				0		0
-ATI Radeon 7000					.*ATI.*Radeon 7.*					0		1
-ATI Radeon 8000					.*ATI.*Radeon 8.*					0		1
+ATI Radeon 7xxx					.*ATI.*Radeon 7.*					0		1
+ATI Radeon 8xxx					.*ATI.*Radeon 8.*					0		1
 ATI Radeon 9000					.*ATI.*Radeon 90.*					0		1
 ATI Radeon 9100					.*ATI.*Radeon 91.*					0		1
 ATI Radeon 9200					.*ATI.*Radeon 92.*					0		1
