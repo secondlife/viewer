@@ -152,7 +152,6 @@
 #include "llvieweraudio.h"
 #include "llimview.h"
 #include "llviewerthrottle.h"
-#include "llparcel.h"
 // 
 
 #include "llinventoryview.h"
@@ -1564,12 +1563,6 @@ bool LLAppViewer::initConfiguration()
 		llinfos	<< "Command	line usage:\n" << clp << llendl;
 	}
 
-	// If we have specified crash on startup, might as well do it now.
-	if(clp.hasOption("crashonstartup"))
-	{
-		LLAppViewer::instance()->forceErrorLLError();
-	}
-	
 	// If the user has specified a alternate settings file name.
 	// Load	it now.
 	if(clp.hasOption("settings"))
@@ -2143,13 +2136,6 @@ void LLAppViewer::writeSystemInfo()
 	llinfos << "OS info: " << getOSInfo() << llendl;
 }
 
-void LLAppViewer::handleSyncViewerCrash()
-{
-	LLAppViewer* pApp = LLAppViewer::instance();
-	// Call to pure virtual, handled by platform specific llappviewer instance.
-	pApp->handleSyncCrashTrace(); 
-}
-
 void LLAppViewer::handleViewerCrash()
 {
 	LLAppViewer* pApp = LLAppViewer::instance();
@@ -2175,17 +2161,6 @@ void LLAppViewer::handleViewerCrash()
 	gDebugInfo["ClientInfo"]["MinorVersion"] = LL_VERSION_MINOR;
 	gDebugInfo["ClientInfo"]["PatchVersion"] = LL_VERSION_PATCH;
 	gDebugInfo["ClientInfo"]["BuildVersion"] = LL_VERSION_BUILD;
-
-	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-	if ( parcel && parcel->getMusicURL()[0])
-	{
-		gDebugInfo["ParcelMusicURL"] = parcel->getMusicURL();
-	}	
-	if ( parcel && parcel->getMediaURL()[0])
-	{
-		gDebugInfo["ParcelMediaURL"] = parcel->getMediaURL();
-	}
-	
 	
 	gDebugInfo["SettingsFilename"] = gSavedSettings.getString("ClientSettingsFile");
 	gDebugInfo["CAFilename"] = gDirUtilp->getCAFile();
@@ -2261,7 +2236,7 @@ void LLAppViewer::handleViewerCrash()
 		pApp->removeMarkerFile(false);
 	}
 	
-	// Call to pure virtual, handled by platform specific llappviewer instance.
+	// Call to pure virtual, handled by platform specifc llappviewer instance.
 	pApp->handleCrashReporting(); 
 
 	return;
@@ -2831,7 +2806,6 @@ void LLAppViewer::badNetworkHandler()
 	// Generates the minidump.
 	LLWinDebug::handleException(NULL);
 #endif
-	LLAppViewer::handleSyncViewerCrash();
 	LLAppViewer::handleViewerCrash();
 
 	std::ostringstream message;
@@ -2865,8 +2839,7 @@ void LLAppViewer::saveFinalSnapshot()
 		LLString snap_filename = gDirUtilp->getLindenUserDir();
 		snap_filename += gDirUtilp->getDirDelimiter();
 		snap_filename += SCREEN_LAST_FILENAME;
-		// use full pixel dimensions of viewer window (not post-scale dimensions)
-		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowDisplayWidth(), gViewerWindow->getWindowDisplayHeight(), FALSE, TRUE);
+		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidth(), gViewerWindow->getWindowHeight(), FALSE, TRUE);
 		mSavedFinalSnapshot = TRUE;
 	}
 }

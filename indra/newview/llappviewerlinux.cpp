@@ -39,41 +39,27 @@
 #include "llviewernetwork.h"
 #include "llmd5.h"
 
-#include <exception>
-
-#if LL_LINUX
-# include <dlfcn.h>		// RTLD_LAZY
-# include <execinfo.h>            // backtrace - glibc only
-# ifndef LL_ELFBIN
-#  define LL_ELFBIN 1
-# endif // LL_ELFBIN
-# if LL_ELFBIN
-#  include <cxxabi.h>         // for symbol demangling
-#  include "ELFIO.h"          // for better backtraces
-# endif // LL_ELFBIN
-#elif LL_SOLARIS
-# include <sys/types.h>
-# include <unistd.h>
-# include <fcntl.h>
-# include <ucontext.h>
-#endif
+  #if LL_LINUX
+  #	include <dlfcn.h>		// RTLD_LAZY
+  #     include <execinfo.h>            // backtrace - glibc only
+  #     ifndef LL_ELFBIN
+  #define LL_ELFBIN 1
+  #     endif // LL_ELFBIN
+  #     if LL_ELFBIN
+  #          include <cxxabi.h>         // for symbol demangling
+  #          include "ELFIO.h"          // for better backtraces
+  #     endif // LL_ELFBIN
+  #elif LL_SOLARIS
+  #     include <sys/types.h>
+  #     include <unistd.h>
+  #     include <fcntl.h>
+  #     include <ucontext.h>
+  #endif
 
 namespace
 {
 	int gArgC = 0;
 	char **gArgV = NULL;
-	void (*gOldTerminateHandler)() = NULL;
-}
-
-static void exceptionTerminateHandler()
-{
-	// reinstall default terminate() handler in case we re-terminate.
-	if (gOldTerminateHandler) std::set_terminate(gOldTerminateHandler);
-	// treat this like a regular viewer crash, with nice stacktrace etc.
-	LLAppViewer::handleSyncViewerCrash();
-	LLAppViewer::handleViewerCrash();
-	// we've probably been killed-off before now, but...
-	gOldTerminateHandler(); // call old terminate() handler
 }
 
 int main( int argc, char **argv ) 
@@ -89,11 +75,7 @@ int main( int argc, char **argv )
 
 	LLAppViewer* viewer_app_ptr = new LLAppViewerLinux();
 
-	// install unexpected exception handler
-	gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
-	// install crash handlers
 	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
-	viewer_app_ptr->setSyncErrorHandler(LLAppViewer::handleSyncViewerCrash);
 
 	bool ok = viewer_app_ptr->init();
 	if(!ok)
@@ -319,22 +301,19 @@ bool LLAppViewerLinux::init()
 	return LLAppViewer::init();
 }
 
-void LLAppViewerLinux::handleSyncCrashTrace()
-{
-	// This backtrace writes into stack_trace.log
-#  if LL_ELFBIN
-	do_elfio_glibc_backtrace(); // more useful backtrace
-#  else
-	do_basic_glibc_backtrace(); // only slightly useful backtrace
-#  endif // LL_ELFBIN
-}
-
 void LLAppViewerLinux::handleCrashReporting()
 {
+
 	// Always generate the report, have the logger do the asking, and
 	// don't wait for the logger before exiting (-> total cleanup).
 	if (CRASH_BEHAVIOR_NEVER_SEND != LLAppViewer::instance()->getCrashBehavior())
 	{	
+		// This backtrace writes into stack_trace.log
+#  if LL_ELFBIN
+		do_elfio_glibc_backtrace(); // more useful backtrace
+#  else
+		do_basic_glibc_backtrace(); // only slightly useful backtrace
+#  endif // LL_ELFBIN
 		// launch the actual crash logger
 		char* ask_dialog = "-dialog";
 		if (CRASH_BEHAVIOR_ASK != LLAppViewer::instance()->getCrashBehavior())
@@ -350,7 +329,6 @@ void LLAppViewerLinux::handleCrashReporting()
 			 (char*)"-name",
 			 (char*)LLAppViewer::instance()->getSecondLifeTitle().c_str(),
 			 NULL};
-		fflush(NULL);
 		pid_t pid = fork();
 		if (pid == 0)
 		{ // child
@@ -374,10 +352,9 @@ void LLAppViewerLinux::handleCrashReporting()
 			}
 		}
 	}
-	// Sometimes signals don't seem to quit the viewer.  Also, we may
-	// have been called explicitly instead of from a signal handler.
+	// Sometimes signals don't seem to quit the viewer.  
 	// Make sure we exit so as to not totally confuse the user.
-	_exit(1); // avoid atexit(), else we may re-crash in dtors.
+	exit(1);
 }
 
 bool LLAppViewerLinux::beingDebugged()

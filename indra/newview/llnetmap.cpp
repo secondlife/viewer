@@ -436,12 +436,10 @@ void LLNetMap::draw()
 		}
 
 		// Draw dot for self avatar position
+		//drawTracking( gAgent.getPosGlobalFromAgent(gAgent.getFrameAgent().getCenter()), gSelfMapColor );
 		pos_global = gAgent.getPositionGlobal();
 		pos_map = globalPosToView(pos_global);
-		LLUIImagePtr you = LLWorldMapView::sAvatarYouSmallImage;
-		you->draw(
-			llround(pos_map.mV[VX]) - you->getWidth()/2, 
-			llround(pos_map.mV[VY]) - you->getHeight()/2);
+		LLWorldMapView::sAvatarYouSmallImage->draw(llround(pos_map.mV[VX]) - 4, llround(pos_map.mV[VY]) - 4);
 
 		// Draw frustum
 		F32 meters_to_pixels = gMiniMapScale/ LLWorld::getInstance()->getRegionWidthInMeters();

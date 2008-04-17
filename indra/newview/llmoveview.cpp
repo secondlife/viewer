@@ -53,17 +53,22 @@ const F32 YAW_NUDGE_RATE = 0.05f;	// fraction of normal speed
 const F32 NUDGE_TIME = 0.25f;		// in seconds
 
 //
+// Global statics
+//
+
+LLFloaterMove* LLFloaterMove::sInstance = NULL;
+
+
+//
 // Member functions
 //
 
 // protected
-LLFloaterMove::LLFloaterMove(const LLSD& key)
+LLFloaterMove::LLFloaterMove()
 :	LLFloater("move floater")
 {
 	setIsChrome(TRUE);
-
-	const BOOL DONT_OPEN = FALSE;
-	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_moveview.xml", NULL, DONT_OPEN); 
+	LLUICtrlFactory::getInstance()->buildFloater(this,"floater_moveview.xml"); 
 
 	mForwardButton = getChild<LLJoystickAgentTurn>("forward btn"); 
 	mForwardButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
@@ -94,6 +99,15 @@ LLFloaterMove::LLFloaterMove(const LLSD& key)
 	childSetAction("move down btn",moveDown,NULL);	
 	mMoveDownButton->setHeldDownDelay(MOVE_BUTTON_DELAY);
 	mMoveDownButton->setHeldDownCallback( moveDown );
+
+	sInstance = this;
+}
+
+// protected
+LLFloaterMove::~LLFloaterMove()
+{
+	// children all deleted by LLView destructor
+	sInstance = NULL;
 }
 
 // virtual
@@ -111,11 +125,41 @@ void LLFloaterMove::onClose(bool app_quitting)
 // Static member functions
 //
 
-void LLFloaterMove::onOpen()
+// static
+void LLFloaterMove::show(void*)
 {
-	LLFloater::onOpen();
+	if (sInstance)
+	{
+		sInstance->open();	/*Flawfinder: ignore*/
+	}
+	else
+	{
+		LLFloaterMove* f = new LLFloaterMove();
+		f->open();	/*Flawfinder: ignore*/
+	}
+	
 	gSavedSettings.setBOOL("ShowMovementControls", TRUE);
 }
+
+// static
+void LLFloaterMove::toggle(void*)
+{
+	if (sInstance)
+	{
+		sInstance->close();
+	}
+	else
+	{
+		show(NULL);
+	}
+}
+
+// static
+BOOL LLFloaterMove::visible(void*)
+{
+	return (sInstance != NULL);
+}
+
 
 // protected static 
 F32 LLFloaterMove::getYawRate( F32 time )
@@ -134,14 +178,14 @@ F32 LLFloaterMove::getYawRate( F32 time )
 // protected static 
 void LLFloaterMove::turnLeft(void *)
 {
-	F32 time = getInstance()->mTurnLeftButton->getHeldDownTime();
+	F32 time = sInstance->mTurnLeftButton->getHeldDownTime();
 	gAgent.moveYaw( getYawRate( time ) );
 }
 
 // protected static 
 void LLFloaterMove::turnRight(void *)
 {
-	F32 time = getInstance()->mTurnRightButton->getHeldDownTime();
+	F32 time = sInstance->mTurnRightButton->getHeldDownTime();
 	gAgent.moveYaw( -getYawRate( time ) );
 }
 

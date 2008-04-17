@@ -49,7 +49,9 @@ const LLString LAG_CRITICAL_IMAGE_NAME = "lag_status_critical.tga";
 const LLString LAG_WARNING_IMAGE_NAME  = "lag_status_warning.tga";
 const LLString LAG_GOOD_IMAGE_NAME     = "lag_status_good.tga";
 
-LLFloaterLagMeter::LLFloaterLagMeter(const LLSD& key)
+LLFloaterLagMeter * LLFloaterLagMeter::sInstance = NULL;
+
+LLFloaterLagMeter::LLFloaterLagMeter()
 	:	LLFloater("floater_lagmeter")
 {
 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_lagmeter.xml");
@@ -125,6 +127,8 @@ LLFloaterLagMeter::LLFloaterLagMeter(const LLSD& key)
 
 LLFloaterLagMeter::~LLFloaterLagMeter()
 {
+	sInstance = NULL;
+
 	// save shrunk status for next time
 	gSavedSettings.setBOOL("LagMeterShrunk", mShrunk);
 	// expand so we save the large window rectangle
@@ -141,6 +145,13 @@ void LLFloaterLagMeter::draw()
 	determineServer();
 
 	LLFloater::draw();
+}
+
+//static
+void LLFloaterLagMeter::show(void *data)
+{
+	if(!sInstance) sInstance = new LLFloaterLagMeter();
+	sInstance->open();
 }
 
 void LLFloaterLagMeter::determineClient()

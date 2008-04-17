@@ -54,7 +54,6 @@ protected:
 	virtual bool beingDebugged();
 
 	virtual void handleCrashReporting();
-	virtual void handleSyncCrashTrace();
 
 	virtual bool initLogging();
 	virtual bool initParseCommandLine(LLCommandLineParser& clp);

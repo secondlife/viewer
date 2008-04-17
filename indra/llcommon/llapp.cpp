@@ -78,7 +78,6 @@ BOOL LLApp::sLogInSignal = FALSE;
 // static
 LLApp::EAppStatus LLApp::sStatus = LLApp::APP_STATUS_STOPPED; // Keeps track of application status
 LLAppErrorHandler LLApp::sErrorHandler = NULL;
-LLAppErrorHandler LLApp::sSyncErrorHandler = NULL;
 BOOL LLApp::sErrorThreadRunning = FALSE;
 #if !LL_WINDOWS
 LLApp::child_map LLApp::sChildMap;
@@ -276,21 +275,6 @@ void LLApp::setErrorHandler(LLAppErrorHandler handler)
 	LLApp::sErrorHandler = handler;
 }
 
-
-void LLApp::setSyncErrorHandler(LLAppErrorHandler handler)
-{
-	LLApp::sSyncErrorHandler = handler;
-}
-
-// static
-void LLApp::runSyncErrorHandler()
-{
-	if (LLApp::sSyncErrorHandler)
-	{
-		LLApp::sSyncErrorHandler();
-	}
-}
-
 // static
 void LLApp::runErrorHandler()
 {
@@ -314,13 +298,7 @@ void LLApp::setStatus(EAppStatus status)
 // static
 void LLApp::setError()
 {
-	if (!isError())
-	{
-		// perform any needed synchronous error-handling
-		runSyncErrorHandler();
-		// set app status to ERROR so that the LLErrorThread notices
-		setStatus(APP_STATUS_ERROR);
-	}
+	setStatus(APP_STATUS_ERROR);
 }
 
 

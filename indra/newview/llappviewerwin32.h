@@ -51,10 +51,9 @@ public:
 protected:
 	virtual void initConsole(); // Initialize OS level debugging console.
 	virtual bool initHardwareTest(); // Win32 uses DX9 to test hardware.
-	virtual bool initParseCommandLine(LLCommandLineParser& clp);
+    virtual bool initParseCommandLine(LLCommandLineParser& clp);
 
-	virtual void handleCrashReporting(); 
-	virtual void handleSyncCrashTrace();
+    virtual void handleCrashReporting(); 
 
 	std::string generateSerialNumber();
 

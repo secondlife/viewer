@@ -50,10 +50,8 @@ public:
 
 protected:
 	virtual void handleCrashReporting(); 
-	virtual void handleSyncCrashTrace();
-
 	std::string generateSerialNumber();
-	virtual bool initParseCommandLine(LLCommandLineParser& clp);
+    virtual bool initParseCommandLine(LLCommandLineParser& clp);
 };
 
 #endif // LL_LLAPPVIEWERMACOSX_H

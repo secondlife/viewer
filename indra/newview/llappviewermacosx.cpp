@@ -160,11 +160,6 @@ bool LLAppViewerMacOSX::initParseCommandLine(LLCommandLineParser& clp)
     return true;
 }
 
-void LLAppViewerMacOSX::handleSyncCrashTrace()
-{
-	// do nothing
-}
-
 void LLAppViewerMacOSX::handleCrashReporting()
 {
 	// Macintosh

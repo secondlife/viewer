@@ -43,17 +43,21 @@
 // Constants
 const F32 CAMERA_BUTTON_DELAY = 0.0f;
 
+// Globals
+LLFloaterCamera* gFloaterCamera = NULL;
+
+
 //
 // Member functions
 //
 
-LLFloaterCamera::LLFloaterCamera(const LLSD& val)
-:	LLFloater("camera floater") // uses "FloaterCameraRect3"
+LLFloaterCamera::LLFloaterCamera(const std::string& name)
+:	LLFloater(name) // uses "FloaterCameraRect3"
 {
 	setIsChrome(TRUE);
 	
-	const BOOL DONT_OPEN = FALSE;
-	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_camera.xml", NULL, DONT_OPEN);
+	// For now, only used for size and tooltip strings
+	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_camera.xml");
 	
 	S32 top = getRect().getHeight();
 	S32 bottom = 0;
@@ -99,12 +103,11 @@ LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 	addChild(mTrack);
 }
 
-// virtual
-void LLFloaterCamera::onOpen()
+
+LLFloaterCamera::~LLFloaterCamera()
 {
-	LLFloater::onOpen();
-	
-	gSavedSettings.setBOOL("ShowCameraControls", TRUE);
+	// children all deleted by LLView destructor
+	gFloaterCamera = NULL;
 }
 
 // virtual
@@ -115,5 +118,46 @@ void LLFloaterCamera::onClose(bool app_quitting)
 	if (!app_quitting)
 	{
 		gSavedSettings.setBOOL("ShowCameraControls", FALSE);
+	}
+}
+
+//
+// Static member functions
+//
+
+// static
+void LLFloaterCamera::show(void*)
+{
+	if(!gFloaterCamera)
+	{
+		gFloaterCamera = new LLFloaterCamera("camera floater");
+	}
+	gFloaterCamera->open();	/* Flawfinder: ignore */
+	gSavedSettings.setBOOL("ShowCameraControls", TRUE);
+}
+
+// static
+void LLFloaterCamera::toggle(void*)
+{
+	if (gFloaterCamera)
+	{
+		gFloaterCamera->close();
+	}
+	else
+	{
+		show(NULL);
+	}
+}
+
+// static
+BOOL LLFloaterCamera::visible(void*)
+{
+	if (gFloaterCamera)
+	{
+		return gFloaterCamera->getVisible();
+	}
+	else
+	{
+		return FALSE;
 	}
 }

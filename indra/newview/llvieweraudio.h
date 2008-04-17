@@ -32,12 +32,6 @@
 #ifndef LL_VIEWERAUDIO_H
 #define LL_VIEWERAUDIO_H
 
-// comment out to turn off wind
-#define kAUDIO_ENABLE_WIND 
-//#define kAUDIO_ENABLE_WATER 1	// comment out to turn off water
-#define kAUDIO_NUM_BUFFERS 30
-#define kAUDIO_NUM_SOURCES 30 
-
 void init_audio();
 void audio_update_volume(bool force_update = true);
 void audio_update_listener();

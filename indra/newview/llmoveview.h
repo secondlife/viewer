@@ -43,20 +43,23 @@ class LLJoystickAgentSlide;
 // Classes
 //
 class LLFloaterMove
-:	public LLFloater, 
-	public LLFloaterSingleton<LLFloaterMove>
+:	public LLFloater
 {
-	friend class LLUISingleton<LLFloaterMove, VisibilityPolicy<LLFloater> >;
-	
 protected:
-	LLFloaterMove(const LLSD& key);
-	~LLFloaterMove() {}
+	LLFloaterMove();
+	~LLFloaterMove();
 
 public:
-	/*virtual*/ void onOpen();
 	/*virtual*/ void onClose(bool app_quitting);
 
 	static F32	getYawRate(F32 time);
+
+	static void show(void*);
+	static void toggle(void*);
+	static BOOL visible(void*);
+	
+	// This function is used for agent-driven button highlighting
+	static LLFloaterMove* getInstance()				{ return sInstance; }
 
 protected:
 	static void turnLeftNudge(void* userdata);
@@ -77,6 +80,9 @@ public:
 	LLButton*				mTurnRightButton;
 	LLButton*				mMoveUpButton;
 	LLButton*				mMoveDownButton;
+
+protected:
+	static LLFloaterMove*	sInstance;
 };
 
 

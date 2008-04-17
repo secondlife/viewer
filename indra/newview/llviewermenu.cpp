@@ -5360,11 +5360,11 @@ class LLShowFloater : public view_listener_t
 		}
 		else if (floater_name == "camera controls")
 		{
-			LLFloaterCamera::toggleInstance();
+			LLFloaterCamera::toggle(NULL);
 		}
 		else if (floater_name == "movement controls")
 		{
-			LLFloaterMove::toggleInstance();
+			LLFloaterMove::show(NULL);
 		}
 		else if (floater_name == "world map")
 		{
@@ -5435,7 +5435,7 @@ class LLShowFloater : public view_listener_t
 		}
 		else if (floater_name == "lag meter")
 		{
-			LLFloaterLagMeter::showInstance();
+			LLFloaterLagMeter::show(NULL);
 		}
 		else if (floater_name == "bug reporter")
 		{
@@ -5488,11 +5488,11 @@ class LLFloaterVisible : public view_listener_t
 		}
 		else if (floater_name == "camera controls")
 		{
-			new_value = LLFloaterCamera::instanceVisible();
+			new_value = LLFloaterCamera::visible(NULL);
 		}
 		else if (floater_name == "movement controls")
 		{
-			new_value = LLFloaterMove::instanceVisible();
+			new_value = LLFloaterMove::visible(NULL);
 		}
 		else if (floater_name == "stat bar")
 		{

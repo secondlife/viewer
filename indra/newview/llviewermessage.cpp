@@ -36,6 +36,7 @@
 #include <deque>
 
 #include "audioengine.h" 
+#include "audiosettings.h"
 #include "indra_constants.h"
 #include "lscript_byteformat.h"
 #include "mean_collision_data.h"
@@ -67,7 +68,6 @@
 #include "llagent.h"
 #include "llcallingcard.h"
 #include "llconsole.h"
-#include "llvieweraudio.h"
 #include "llviewercontrol.h"
 #include "lldrawpool.h"
 #include "llfirstuse.h"
@@ -4069,7 +4069,7 @@ void process_alert_core(const std::string& message, BOOL modal)
 		LLString snap_filename = gDirUtilp->getLindenUserDir();
 		snap_filename += gDirUtilp->getDirDelimiter();
 		snap_filename += SCREEN_HOME_FILENAME;
-		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowDisplayWidth(), gViewerWindow->getWindowDisplayHeight(), FALSE, FALSE);
+		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidth(), gViewerWindow->getWindowHeight(), FALSE, FALSE);
 	}
 
 	const std::string ALERT_PREFIX("ALERT: ");

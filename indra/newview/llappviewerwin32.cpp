@@ -388,11 +388,6 @@ bool LLAppViewerWin32::initParseCommandLine(LLCommandLineParser& clp)
     return clp.parseCommandLineString(mCmdLine);
 }
 
-void LLAppViewerWin32::handleSyncCrashTrace()
-{
-	// do nothing
-}
-
 void LLAppViewerWin32::handleCrashReporting()
 {
 	// Windows only behaivor. Spawn win crash reporter.
