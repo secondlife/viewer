@@ -759,6 +759,9 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 #if LL_X11
 	init_x11clipboard();
 #endif // LL_X11
+
+	//make sure multisampling is disabled by default
+	glDisable(GL_MULTISAMPLE_ARB);
 	
 	// We need to do this here, once video is init'd
 	if (-1 == SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
