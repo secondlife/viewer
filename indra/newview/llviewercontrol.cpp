@@ -426,6 +426,7 @@ bool handleVoiceClientPrefsChanged(const LLSD& newvalue)
 		gVoiceClient->setCaptureDevice(inputDevice);
 		std::string outputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
 		gVoiceClient->setRenderDevice(outputDevice);
+		gVoiceClient->setLipSyncEnabled(gSavedSettings.getU32("LipSyncEnabled"));
 	}
 	return true;
 }
@@ -555,5 +556,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("VivoxDebugServerName")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _1));
 	gSavedSettings.getControl("VoiceInputAudioDevice")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _1));
 	gSavedSettings.getControl("VoiceOutputAudioDevice")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _1));
+	gSavedSettings.getControl("LipSyncEnabled")->getSignal()->connect(boost::bind(&handleVoiceClientPrefsChanged, _1));	
 }
 

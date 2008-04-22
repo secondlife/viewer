@@ -90,7 +90,9 @@ class LLVoiceVisualizer : public LLHUDEffect
 		void					setStopSpeaking();										// tell me when the av stops speaking
 		bool					getCurrentlySpeaking();									// the get for the above set
 		VoiceGesticulationLevel	getCurrentGesticulationLevel();							// based on voice amplitude, I'll give you the current "energy level" of avatar speech
-
+		static void				setPreferences( );
+		static void				lipStringToF32s ( std::string& in_string, F32*& out_F32s, U32& count_F32s ); // convert a string of digits to an array of floats
+		void					lipSyncOohAah( F32& ooh, F32& aah );
 		void					render();												// inherited from HUD Effect
 		void 					packData(LLMessageSystem *mesgsys);						// inherited from HUD Effect
 		void 					unpackData(LLMessageSystem *mesgsys, S32 blocknum);		// inherited from HUD Effect
@@ -124,6 +126,7 @@ class LLVoiceVisualizer : public LLHUDEffect
 		};
 
 		LLFrameTimer			mTimer;							// so I can ask the current time in seconds
+		F64						mStartTime;						// time in seconds when speaking started
 		F64						mCurrentTime;					// current time in seconds, captured every step
 		F64						mPreviousTime;					// copy of "current time" from last frame
 		SoundSymbol				mSoundSymbol;					// the sound symbol that appears over the avatar's head
@@ -134,6 +137,24 @@ class LLVoiceVisualizer : public LLHUDEffect
 		F32						mMaxGesticulationAmplitude;		// this is the upper-limit of the envelope of detectable gesticulation leves
 		F32						mMinGesticulationAmplitude;		// this is the lower-limit of the envelope of detectable gesticulation leves
 		
+	//---------------------------------------------------
+	// private static members 
+	//---------------------------------------------------
+
+		static U32	  sLipSyncEnabled;		 // 0 disabled, 1 babble loop
+		static bool	  sPrefsInitialized;	 // the first instance will initialize the static members
+		static F32*	  sOoh;					 // the babble loop of amplitudes for the ooh morph
+		static F32*	  sAah;					 // the babble loop of amplitudes for the ooh morph
+		static U32	  sOohs;				 // the number of entries in the ooh loop
+		static U32	  sAahs;				 // the number of entries in the aah loop
+		static F32	  sOohAahRate;			 // frames per second for the babble loop
+		static F32*	  sOohPowerTransfer;	 // the power transfer characteristics for the ooh amplitude
+		static U32	  sOohPowerTransfers;	 // the number of entries in the ooh transfer characteristics
+		static F32	  sOohPowerTransfersf;	 // the number of entries in the ooh transfer characteristics as a float
+		static F32*	  sAahPowerTransfer;	 // the power transfer characteristics for the aah amplitude
+		static U32	  sAahPowerTransfers;	 // the number of entries in the aah transfer characteristics
+		static F32	  sAahPowerTransfersf;	 // the number of entries in the aah transfer characteristics as a float
+
 };//-----------------------------------------------------------------
  //   end of LLVoiceVisualizer class
 //------------------------------------------------------------------

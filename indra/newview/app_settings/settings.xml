@@ -3918,6 +3918,72 @@
         <key>Value</key>
             <integer>1</integer>
         </map>
+    <key>LipSyncAah</key>
+        <map>
+        <key>Comment</key>
+            <string>Aah (jaw opening) babble loop</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>257998776531013446642343</string>
+        </map>
+    <key>LipSyncAahPowerTransfer</key>
+        <map>
+        <key>Comment</key>
+            <string>Transfer curve for Voice Interface power to aah lip sync amplitude</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>0000123456789</string>
+        </map>
+    <key>LipSyncEnabled</key>
+        <map>
+        <key>Comment</key>
+            <string>0 disable lip-sync, 1 enable babble loop</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>U32</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map>
+    <key>LipSyncOoh</key>
+        <map>
+        <key>Comment</key>
+            <string>Ooh (mouth width) babble loop</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>1247898743223344444443200000</string>
+        </map>
+    <key>LipSyncOohAahRate</key>
+        <map>
+        <key>Comment</key>
+            <string>Rate to babble Ooh and Aah (/sec)</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>24.0</real>
+        </map>
+    <key>LipSyncOohPowerTransfer</key>
+        <map>
+        <key>Comment</key>
+            <string>Transfer curve for Voice Interface power to ooh lip sync amplitude</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>0012345566778899</string>
+        </map>
     <key>LocalCacheVersion</key>
         <map>
         <key>Comment</key>

@@ -79,6 +79,35 @@ const F32 DEFAULT_MAXIMUM_GESTICULATION_AMPLITUDE	= 1.0f;
 const F32 ONE_HALF = 1.0f; // to clarify intent and reduce magic numbers in the code. 
 const LLVector3 WORLD_UPWARD_DIRECTION = LLVector3( 0.0f, 0.0f, 1.0f ); // Z is up in SL
 
+
+//------------------------------------------------------------------
+// handles parameter updates
+//------------------------------------------------------------------
+static bool handleVoiceVisualizerPrefsChanged(const LLSD& newvalue)
+{
+	// Note: Ignore the specific event value, we look up the ones we want
+	LLVoiceVisualizer::setPreferences();
+	return true;
+}
+
+//------------------------------------------------------------------
+// Initialize the statics
+//------------------------------------------------------------------
+bool LLVoiceVisualizer::sPrefsInitialized	= false;
+U32	 LLVoiceVisualizer::sLipSyncEnabled		= 0;
+F32* LLVoiceVisualizer::sOoh				= NULL;
+F32* LLVoiceVisualizer::sAah				= NULL;
+U32	 LLVoiceVisualizer::sOohs				= 0;
+U32	 LLVoiceVisualizer::sAahs				= 0;
+F32	 LLVoiceVisualizer::sOohAahRate			= 0.0f;
+F32* LLVoiceVisualizer::sOohPowerTransfer	= NULL;
+U32	 LLVoiceVisualizer::sOohPowerTransfers	= 0;
+F32	 LLVoiceVisualizer::sOohPowerTransfersf = 0.0f;
+F32* LLVoiceVisualizer::sAahPowerTransfer	= NULL;
+U32	 LLVoiceVisualizer::sAahPowerTransfers	= 0;
+F32	 LLVoiceVisualizer::sAahPowerTransfersf = 0.0f;
+
+
 //-----------------------------------------------
 // constructor
 //-----------------------------------------------
@@ -87,6 +116,7 @@ LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
 {
 	mCurrentTime					= mTimer.getTotalSeconds();
 	mPreviousTime					= mCurrentTime;
+	mStartTime						= mCurrentTime;
 	mVoiceSourceWorldPosition		= LLVector3( 0.0f, 0.0f, 0.0f );
 	mSpeakingAmplitude				= 0.0f;
 	mCurrentlySpeaking				= false;
@@ -105,7 +135,7 @@ LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
 		"29de489d-0491-fb00-7dab-f9e686d31e83.j2c",
 		"29de489d-0491-fb00-7dab-f9e686d31e83.j2c",
 		"29de489d-0491-fb00-7dab-f9e686d31e83.j2c",
-		"29de489d-0491-fb00-7dab-f9e686d31e83.j2c",															
+		"29de489d-0491-fb00-7dab-f9e686d31e83.j2c",
 		"29de489d-0491-fb00-7dab-f9e686d31e83.j2c"
 	};
 
@@ -117,7 +147,23 @@ LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
 		mSoundSymbol.mWaveOpacity			[i] = 1.0f;
 		mSoundSymbol.mWaveExpansion			[i] = 1.0f;
 	}
-			
+
+	// The first instance loads the initial state from prefs.
+	if (!sPrefsInitialized)
+	{
+		setPreferences();
+       
+		// Set up our listener to get updates on all prefs values we care about.
+		gSavedSettings.getControl("LipSyncEnabled")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _1));
+		gSavedSettings.getControl("LipSyncOohAahRate")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _1));
+		gSavedSettings.getControl("LipSyncOoh")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _1));
+		gSavedSettings.getControl("LipSyncAah")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _1));
+		gSavedSettings.getControl("LipSyncOohPowerTransfer")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _1));
+		gSavedSettings.getControl("LipSyncAahPowerTransfer")->getSignal()->connect(boost::bind(&handleVoiceVisualizerPrefsChanged, _1));
+		
+		sPrefsInitialized = true;
+	}
+
 }//---------------------------------------------------
 
 //---------------------------------------------------
@@ -144,6 +190,7 @@ void LLVoiceVisualizer::setVoiceEnabled( bool v )
 //---------------------------------------------------
 void LLVoiceVisualizer::setStartSpeaking()
 {
+	mStartTime				= mTimer.getTotalSeconds();
 	mCurrentlySpeaking		= true;
 	mSoundSymbol.mActive	= true;
 		
@@ -171,6 +218,130 @@ void LLVoiceVisualizer::setStopSpeaking()
 void LLVoiceVisualizer::setSpeakingAmplitude( F32 a )
 {
 	mSpeakingAmplitude = a;
+	
+}//---------------------------------------------------
+
+
+//---------------------------------------------------
+void LLVoiceVisualizer::setPreferences( )
+{
+	sLipSyncEnabled = gSavedSettings.getU32("LipSyncEnabled");
+	sOohAahRate		= gSavedSettings.getF32("LipSyncOohAahRate");
+
+	std::string oohString = gSavedSettings.getString("LipSyncOoh");
+	lipStringToF32s (oohString, sOoh, sOohs);
+
+	std::string aahString = gSavedSettings.getString("LipSyncAah");
+	lipStringToF32s (aahString, sAah, sAahs);
+
+	std::string oohPowerString = gSavedSettings.getString("LipSyncOohPowerTransfer");
+	lipStringToF32s (oohPowerString, sOohPowerTransfer, sOohPowerTransfers);
+	sOohPowerTransfersf = (F32) sOohPowerTransfers;
+
+	std::string aahPowerString = gSavedSettings.getString("LipSyncAahPowerTransfer");
+	lipStringToF32s (aahPowerString, sAahPowerTransfer, sAahPowerTransfers);
+	sAahPowerTransfersf = (F32) sAahPowerTransfers;
+
+}//---------------------------------------------------
+
+
+//---------------------------------------------------
+// convert a string of digits to an array of floats.
+// the result for each digit is the value of the
+// digit multiplied by 0.11
+//---------------------------------------------------
+void LLVoiceVisualizer::lipStringToF32s ( std::string& in_string, F32*& out_F32s, U32& count_F32s )
+{
+	delete[] out_F32s;	// get rid of the current array
+
+	count_F32s = in_string.length();
+	if (count_F32s == 0)
+	{
+		// we don't like zero length arrays
+
+		count_F32s  = 1;
+		out_F32s	   = new F32[1];
+		out_F32s[0] = 0.0f;
+	}
+	else
+	{
+		out_F32s = new F32[count_F32s];
+
+		for (U32 i=0; i<count_F32s; i++)
+		{
+			// we convert the characters 0 to 9 to their numeric value
+			// anything else we take the low order four bits with a ceiling of 9
+
+		    U8 digit = in_string[i];
+			U8 four_bits = digit % 16;
+			if (four_bits > 9)
+			{
+				four_bits = 9;
+			}
+			out_F32s[i] = 0.11f * (F32) four_bits;
+		} 
+	}
+
+}//---------------------------------------------------
+
+
+//--------------------------------------------------------------------------
+// find the amount to blend the ooh and aah mouth morphs
+//--------------------------------------------------------------------------
+void LLVoiceVisualizer::lipSyncOohAah( F32& ooh, F32& aah )
+{
+	if( ( sLipSyncEnabled == 1 ) && mCurrentlySpeaking )
+	{
+		U32 transfer_index = (U32) (sOohPowerTransfersf * mSpeakingAmplitude);
+		if (transfer_index < 0)
+		{
+		   transfer_index = 0;
+		}
+		if (transfer_index >= sOohPowerTransfers)
+		{
+		   transfer_index = sOohPowerTransfers - 1;
+		}
+		F32 transfer_ooh = sOohPowerTransfer[transfer_index];
+
+		transfer_index = (U32) (sAahPowerTransfersf * mSpeakingAmplitude);
+		if (transfer_index < 0)
+		{
+		   transfer_index = 0;
+		}
+		if (transfer_index >= sAahPowerTransfers)
+		{
+		   transfer_index = sAahPowerTransfers - 1;
+		}
+		F32 transfer_aah = sAahPowerTransfer[transfer_index];
+
+		F64 current_time   = mTimer.getTotalSeconds();
+		F64 elapsed_time   = current_time - mStartTime;
+		U32 elapsed_frames = (U32) (elapsed_time * sOohAahRate);
+		U32 elapsed_oohs   = elapsed_frames % sOohs;
+		U32 elapsed_aahs   = elapsed_frames % sAahs;
+
+		ooh = transfer_ooh * sOoh[elapsed_oohs];
+		aah = transfer_aah * sAah[elapsed_aahs];
+
+		/*
+		llinfos << " elapsed frames " << elapsed_frames
+				<< " ooh "            << ooh
+				<< " aah "            << aah
+				<< " transfer ooh"    << transfer_ooh
+				<< " transfer aah"    << transfer_aah
+				<< " start time "     << mStartTime
+				<< " current time "   << current_time
+				<< " elapsed time "   << elapsed_time
+				<< " elapsed oohs "   << elapsed_oohs
+				<< " elapsed aahs "   << elapsed_aahs
+				<< llendl;
+		*/
+	}
+	else
+	{
+		ooh = 0.0f;
+		aah = 0.0f;
+	}
 	
 }//---------------------------------------------------
 

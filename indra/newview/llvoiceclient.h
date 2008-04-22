@@ -210,6 +210,8 @@ class LLVoiceClient: public LLSingleton<LLVoiceClient>
 		void setMicGain(F32 volume);
 		void setUserVolume(const LLUUID& id, F32 volume); // set's volume for specified agent, from 0-1 (where .5 is nominal)
 		void setVivoxDebugServerName(std::string &serverName);
+		void setLipSyncEnabled(U32 enabled);
+		U32 lipSyncEnabled();
 
 		// PTT key triggering
 		void keyDown(KEY key, MASK mask);
@@ -516,6 +518,8 @@ class LLVoiceClient: public LLSingleton<LLVoiceClient>
 		
 		LLTimer		mUpdateTimer;
 		
+		U32			mLipSyncEnabled;
+
 		typedef std::set<LLVoiceClientParticipantObserver*> observer_set_t;
 		observer_set_t mObservers;
 

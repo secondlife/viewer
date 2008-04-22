@@ -833,6 +833,7 @@ LLVoiceClient::LLVoiceClient()
 	setCaptureDevice(captureDevice);
 	std::string renderDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
 	setRenderDevice(renderDevice);
+	mLipSyncEnabled = gSavedSettings.getU32("LipSyncEnabled");
 	
 	mTuningMode = false;
 	mTuningEnergy = 0.0f;
@@ -3605,6 +3606,24 @@ void LLVoiceClient::setVoiceEnabled(bool enabled)
 bool LLVoiceClient::voiceEnabled()
 {
 	return gSavedSettings.getBOOL("EnableVoiceChat") && !gSavedSettings.getBOOL("CmdLineDisableVoice");
+}
+
+void LLVoiceClient::setLipSyncEnabled(U32 enabled)
+{
+	mLipSyncEnabled = enabled;
+}
+
+U32 LLVoiceClient::lipSyncEnabled()
+{
+	   
+	if ( mVoiceEnabled && stateDisabled != getState() )
+	{
+		return mLipSyncEnabled;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 void LLVoiceClient::setUsePTT(bool usePTT)
