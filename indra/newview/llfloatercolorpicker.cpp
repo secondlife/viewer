@@ -902,9 +902,7 @@ BOOL
 LLFloaterColorPicker::
 handleMouseDown ( S32 x, S32 y, MASK mask )
 {
-	BOOL ret = LLFloater::handleMouseDown ( x, y, mask );
-
-		// make it the frontmost
+	// make it the frontmost
 	gFloaterView->bringToFront(this);
 
 	// rect containing RGB area
@@ -998,7 +996,8 @@ handleMouseDown ( S32 x, S32 y, MASK mask )
 	}
 
 	// dispatch to base class for the rest of things
-	return ret;
+	
+	return LLFloater::handleMouseDown ( x, y, mask );
 }
 
 //////////////////////////////////////////////////////////////////////////////

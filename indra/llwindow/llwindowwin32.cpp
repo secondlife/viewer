@@ -1277,7 +1277,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		<< " Depth Bits " << S32(pfd.cDepthBits) 
 		<< llendl;
 
-	if (pfd.cColorBits < 32)
+	// make sure we have 32 bits per pixel
+	if (pfd.cColorBits < 32 || GetDeviceCaps(mhDC, BITSPIXEL) < 32)
 	{
 		close();
 		OSMessageBox(

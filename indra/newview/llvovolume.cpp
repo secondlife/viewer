@@ -2063,6 +2063,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	{
 		if (group->isState(LLSpatialGroup::MESH_DIRTY))
 		{
+			S32 num_mapped_veretx_buffer = LLVertexBuffer::sMappedCount ;
+
 			group->mBuilt = 1.f;
 			LLFastTimer ftm(LLFastTimer::FTM_REBUILD_VBO);	
 
@@ -2071,6 +2073,12 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
 			{
 				LLDrawable* drawablep = *drawable_iter;
+
+				if (drawablep->isDead() || drawablep->isState(LLDrawable::FORCE_INVISIBLE) )
+				{
+					continue;
+				}
+
 				if (drawablep->isState(LLDrawable::REBUILD_ALL))
 				{
 					LLVOVolume* vobj = drawablep->getVOVolume();
@@ -2110,6 +2118,24 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				group->mVertexBuffer->isLocked())
 			{
 				group->mVertexBuffer->setBuffer(0);
+			}
+
+			//if not all buffers are unmapped
+			if(num_mapped_veretx_buffer != LLVertexBuffer::sMappedCount) 
+			{
+				llwarns << "Not all mapped vertex buffers are unmapped!" << llendl ; 
+				for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
+				{
+					LLDrawable* drawablep = *drawable_iter;
+					for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
+					{
+						LLFace* face = drawablep->getFace(i);
+						if (face && face->mVertexBuffer.notNull() && face->mVertexBuffer->isLocked())
+						{
+							face->mVertexBuffer->setBuffer(0) ;
+						}
+					}
+				} 
 			}
 
 			group->clearState(LLSpatialGroup::MESH_DIRTY);

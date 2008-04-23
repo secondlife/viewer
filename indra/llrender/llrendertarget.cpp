@@ -80,15 +80,16 @@ void LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, BOOL depth, U32
 
 	stop_glerror();
 
-	if (depth)
+	if ((sUseFBO || use_fbo) && gGLManager.mHasFramebufferObject)
 	{
-		stop_glerror();
-		allocateDepth();
-		stop_glerror();
-	}
 
-	if ((sUseFBO && use_fbo) && gGLManager.mHasFramebufferObject)
-	{
+		if (depth)
+		{
+			stop_glerror();
+			allocateDepth();
+			stop_glerror();
+		}
+
 		glGenFramebuffersEXT(1, (GLuint *) &mFBO);
 
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFBO);

@@ -235,10 +235,10 @@ LLString gDisabledMessage; // Set in LLAppViewer::initConfiguration used in idle
 BOOL gHideLinks = FALSE; // Set in LLAppViewer::initConfiguration, used externally
 
 BOOL				gAllowIdleAFK = TRUE;
+BOOL				gAllowTapTapHoldRun = TRUE;
 BOOL				gShowObjectUpdates = FALSE;
 BOOL gUseQuickTime = TRUE;
 
-const char*			DEFAULT_SETTINGS_FILE = "settings.xml";
 BOOL gAcceptTOS = FALSE;
 BOOL gAcceptCriticalMessage = FALSE;
 
@@ -404,6 +404,7 @@ static void settings_to_globals()
 
 	gDebugWindowProc = gSavedSettings.getBOOL("DebugWindowProc");
 	gAllowIdleAFK = gSavedSettings.getBOOL("AllowIdleAFK");
+	gAllowTapTapHoldRun = gSavedSettings.getBOOL("AllowTapTapHoldRun");
 	gShowObjectUpdates = gSavedSettings.getBOOL("ShowObjectUpdates");
 	gMapScale = gSavedSettings.getF32("MapScale");
 	gMiniMapScale = gSavedSettings.getF32("MiniMapScale");
@@ -558,6 +559,10 @@ bool send_url_to_other_instance(const std::string& url)
 // Static members.
 // The single viewer app.
 LLAppViewer* LLAppViewer::sInstance = NULL;
+
+const std::string LLAppViewer::sGlobalSettingsName = "Global"; 
+const std::string LLAppViewer::sPerAccountSettingsName = "PerAccount"; 
+const std::string LLAppViewer::sCrashSettingsName = "CrashSettings"; 
 
 LLTextureCache* LLAppViewer::sTextureCache = NULL; 
 LLWorkerThread* LLAppViewer::sImageDecodeThread = NULL; 
@@ -1266,9 +1271,9 @@ bool LLAppViewer::cleanup()
 	// save their rects on delete.
 	gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);	
 
-	// UserSettingsFile should be empty if no use has been logged on.
+	// PerAccountSettingsFile should be empty if no use has been logged on.
 	// *FIX:Mani This should get really saved in a "logoff" mode. 
-	gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("UserSettingsFile"), TRUE);
+	gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), TRUE);
 	llinfos << "Saved settings" << llendflush;
 
 	std::string crash_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
@@ -1443,13 +1448,31 @@ void LLAppViewer::loadSettingsFromDirectory(ELLPath path_index)
 	{
 		LLString settings_name = (*itr).first;
 		LLString settings_file = mSettingsFileList[settings_name].asString();
+
 		LLString full_settings_path = gDirUtilp->getExpandedFilename(path_index, settings_file);
+
+		if(settings_name == sGlobalSettingsName)
+		{
+			// The non-persistent setting, ClientSettingsFile, specifies a 
+			// custom name to use for the global settings file.
+			std::string custom_path;
+			if(gSettings[sGlobalSettingsName]->controlExists("ClientSettingsFile"))
+			{
+				custom_path = 
+					gSettings[sGlobalSettingsName]->getString("ClientSettingsFile");
+			}
+			if(!custom_path.empty())
+			{
+				full_settings_path = custom_path;
+			}
+		}
+
 		if(gSettings.find(settings_name) == gSettings.end())
 		{
 			llwarns << "Cannot load " << settings_file << " - No matching settings group for name " << settings_name << llendl;
 			continue;
 		}
-		if(!gSettings[settings_name]->loadFromFile(gDirUtilp->getExpandedFilename(path_index, settings_file)))
+		if(!gSettings[settings_name]->loadFromFile(full_settings_path))
 		{
 			llwarns << "Cannot load " << full_settings_path << " - No settings found." << llendl;
 		}
@@ -1460,12 +1483,21 @@ void LLAppViewer::loadSettingsFromDirectory(ELLPath path_index)
 	}
 }
 
+std::string LLAppViewer::getSettingsFileName(const std::string& file)
+{
+	if(mSettingsFileList.has(file))
+	{
+		return mSettingsFileList[file].asString();
+	}
+	return std::string();
+}
+
 bool LLAppViewer::initConfiguration()
 {
 	//Set up internal pointers	
-	gSettings["Global"] = &gSavedSettings;
-	gSettings["PerAccount"] = &gSavedPerAccountSettings;
-	gSettings["CrashSettings"] = &gCrashSettings;
+	gSettings[sGlobalSettingsName] = &gSavedSettings;
+	gSettings[sPerAccountSettingsName] = &gSavedPerAccountSettings;
+	gSettings[sCrashSettingsName] = &gCrashSettings;
 
 	//Load settings files list
 	std::string settings_file_list = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "settings_files.xml");
@@ -1478,15 +1510,22 @@ bool LLAppViewer::initConfiguration()
 
 	mSettingsFileList = settings_control.getLLSD("Files");
 	
-	//Order of loading
-	// - App Settings (Defaults)
-	// - user_settings (Client Overrides)
-	// - user directory (user specific overrides, happens in llstartup)
+	// The settings and command line parsing have a fragile
+	// order-of-operation:
+	// - load defaults from app_settings
+	// - set procedural settings values
+	// - read command line settings
+	// - selectively apply settings needed to load user settings.
+    // - load overrides from user_settings 
+	// - apply command line settings (to override the overrides)
+	// - load per account settings (happens in llstartup
+	
+	// - load defaults
 	loadSettingsFromDirectory(LL_PATH_APP_SETTINGS);
 
-	//Fix settings that require compiled information
+	// - set procedural settings 
 	gSavedSettings.setString("ClientSettingsFile", 
-        gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, DEFAULT_SETTINGS_FILE));
+        gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFileName("Global")));
 
 	gSavedSettings.setString("VersionChannelName", LL_CHANNEL);
 
@@ -1544,9 +1583,6 @@ bool LLAppViewer::initConfiguration()
 	// Do this *before* loading the settings file
 	LLAlertDialog::parseAlerts("alerts.xml", &gSavedSettings, TRUE);
 
-	// Overwrite default user settings with	user settings
-	loadSettingsFromDirectory(LL_PATH_USER_SETTINGS);
-
 #if LL_DYNAMIC_FONT_DISCOVERY
 	// Linux does *dynamic* font discovery which is preferable to
 	// whatever got written-out into the config file last time.  This
@@ -1556,7 +1592,7 @@ bool LLAppViewer::initConfiguration()
 				 LLWindow::getFontListSans());
 #endif
 
-	// Parse command line settings.
+	// - read command line settings.
 	LLControlGroupCLP clp;
 	std::string	cmd_line_config	= gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,
 														  "cmd_line.xml");
@@ -1582,36 +1618,35 @@ bool LLAppViewer::initConfiguration()
 
 		return false;
 	}
+	
+	// - selectively apply settings 
 
 	// If we have specified crash on startup, might as well do it now.
 	if(clp.hasOption("crashonstartup"))
 	{
 		LLAppViewer::instance()->forceErrorLLError();
 	}
-	
+
 	// If the user has specified a alternate settings file name.
-	// Load	it now.
+	// Load	it now before loading the user_settings/settings.xml
 	if(clp.hasOption("settings"))
 	{
-		std::string	user_settings_filename = clp.getOption("settings")[0];
-		std::string	full_settings_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, 
-																		 user_settings_filename);
-
-		llinfos	<< "Loading	command	line specified settings	file: "	<< full_settings_path << llendl;
-
-		if(!gSavedSettings.loadFromFile(full_settings_path))		
-		{
-			llwarns	<< "File not found:	" << full_settings_path	<< llendl;
-		}
-
-		gSavedSettings.setString("ClientSettingsFile", full_settings_path);
+		std::string	user_settings_filename = 
+			gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, 
+										   clp.getOption("settings")[0]);		
+		gSavedSettings.setString("ClientSettingsFile", user_settings_filename);
+		llinfos	<< "Using command line specified settings filename: " 
+			<< user_settings_filename << llendl;
 	}
 
-	// Apply the command line params to the settings system.
-	// Anyway the following	call to	notify depends upon the settings being init'd.
+	// - load overrides from user_settings 
+	loadSettingsFromDirectory(LL_PATH_USER_SETTINGS);
+
+	// - apply command line settings 
 	clp.notify(); 
 
-	// Start up the debugging console before handling other options.
+	// Handle initialization from settings.
+	// Start up	the	debugging console before handling other	options.
 	if (gSavedSettings.getBOOL("ShowConsoleWindow"))
 	{
 		initConsole();
@@ -1647,7 +1682,7 @@ bool LLAppViewer::initConfiguration()
         //    {
         //        const std::string& name = *itr;
         //        const std::string& value = *(++itr);
-        //        LLControlVariable* c = gSettings["global"]->getControl(name);
+        //        LLControlVariable* c = gSettings[sGlobalSettingsName]->getControl(name);
         //        if(c)
         //        {
         //            c->setDefault(value);
@@ -1675,7 +1710,7 @@ bool LLAppViewer::initConfiguration()
             {
                 const std::string& name = *itr;
                 const std::string& value = *(++itr);
-                LLControlVariable* c = gSettings["Global"]->getControl(name);
+                LLControlVariable* c = gSettings[sGlobalSettingsName]->getControl(name);
                 if(c)
                 {
                     c->setValue(value, false);
@@ -1866,7 +1901,6 @@ bool LLAppViewer::initConfiguration()
 	    // Check for another instance of the app running
 	    //
 
-		
 		mSecondInstance = anotherInstanceRunning();
 		
 		if (mSecondInstance)
@@ -1966,15 +2000,14 @@ bool LLAppViewer::initConfiguration()
 		
 		if (mSecondInstance)
 		{
-			gSavedSettings.setBOOL("CmdLineDisableVoice", TRUE);
-			/* Don't start another instance if using -multiple
-			//RN: if we received a URL, hand it off to the existing instance
-			if (LLURLSimString::parse())
+			// This is the second instance of SL. Turn off voice support,
+			// but make sure the setting is *not* persisted.
+			LLControlVariable* disable_voice = gSavedSettings.getControl("CmdLineDisableVoice");
+			if(disable_voice)
 			{
-				LLURLSimString::send_to_other_instance();
-				return 1;
+				const BOOL DO_NOT_PERSIST = FALSE;
+				disable_voice->setValue(LLSD(TRUE), DO_NOT_PERSIST);
 			}
-			*/
 		}
 
 		initMarkerFile();
@@ -2084,6 +2117,7 @@ void LLAppViewer::cleanupSavedSettings()
 	gSavedSettings.setBOOL("DebugWindowProc", gDebugWindowProc);
 		
 	gSavedSettings.setBOOL("AllowIdleAFK", gAllowIdleAFK);
+	gSavedSettings.setBOOL("AllowTapTapHoldRun", gAllowTapTapHoldRun);
 	gSavedSettings.setBOOL("ShowObjectUpdates", gShowObjectUpdates);
 	
 	if (!gNoRender)

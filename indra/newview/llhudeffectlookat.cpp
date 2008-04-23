@@ -400,7 +400,11 @@ BOOL LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
 		return FALSE;
 	}
 	
-	llassert(target_type < LOOKAT_NUM_TARGETS);
+	if (target_type >= LOOKAT_NUM_TARGETS)
+	{
+		llwarns << "Bad target_type " << (int)target_type << " - ignoring." << llendl;
+		return FALSE;
+	}
 
 	// must be same or higher priority than existing effect
 	if ((*mAttentions)[target_type].mPriority < (*mAttentions)[mTargetType].mPriority)
@@ -557,12 +561,13 @@ void LLHUDEffectLookAt::update()
 
 	if (mTargetType != LOOKAT_TARGET_NONE)
 	{
-		calcTargetPosition();
-
-		LLMotion* head_motion = ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->findMotion(ANIM_AGENT_HEAD_ROT);
-		if (!head_motion || head_motion->isStopped())
+		if (calcTargetPosition())
 		{
-			((LLVOAvatar*)(LLViewerObject*)mSourceObject)->startMotion(ANIM_AGENT_HEAD_ROT);
+			LLMotion* head_motion = ((LLVOAvatar*)(LLViewerObject*)mSourceObject)->findMotion(ANIM_AGENT_HEAD_ROT);
+			if (!head_motion || head_motion->isStopped())
+			{
+				((LLVOAvatar*)(LLViewerObject*)mSourceObject)->startMotion(ANIM_AGENT_HEAD_ROT);
+			}
 		}
 	}
 
@@ -579,12 +584,14 @@ void LLHUDEffectLookAt::update()
  * 
  * Has the side-effect of also calling setAnimationData("LookAtPoint") with the new
  * mTargetPos on the source object which is assumed to be an avatar.
+ *
+ * Returns whether we successfully calculated a finite target position.
  */
-void LLHUDEffectLookAt::calcTargetPosition()
+bool LLHUDEffectLookAt::calcTargetPosition()
 {
 	if (gNoRender)
 	{
-		return;
+		return false;
 	}
 
 	LLViewerObject *target_obj = (LLViewerObject *)mTargetObject;
@@ -659,5 +666,11 @@ void LLHUDEffectLookAt::calcTargetPosition()
 	}
 
 	mTargetPos -= source_avatar->mHeadp->getWorldPosition();
+
+	if (!mTargetPos.isFinite())
+		return false;
+
 	source_avatar->setAnimationData("LookAtPoint", (void *)&mTargetPos);
+
+	return true;
 }

@@ -232,7 +232,11 @@ BOOL LLHUDEffectPointAt::setPointAt(EPointAtType target_type, LLViewerObject *ob
 		return FALSE;
 	}
 	
-	llassert(target_type < POINTAT_NUM_TARGETS);
+	if (target_type >= POINTAT_NUM_TARGETS)
+	{
+		llwarns << "Bad target_type " << (int)target_type << " - ignoring." << llendl;
+		return FALSE;
+	}
 
 	// must be same or higher priority than existing effect
 	if (POINTAT_PRIORITIES[target_type] < POINTAT_PRIORITIES[mTargetType])
@@ -379,17 +383,19 @@ void LLHUDEffectPointAt::update()
 		}
 		else
 		{
-			calcTargetPosition();
-		
-			((LLVOAvatar*)(LLViewerObject*)mSourceObject)->startMotion(ANIM_AGENT_EDITING);
+			if (calcTargetPosition())
+			{
+				((LLVOAvatar*)(LLViewerObject*)mSourceObject)->startMotion(ANIM_AGENT_EDITING);
+			}
 		}
 	}
 }
 
 //-----------------------------------------------------------------------------
 // calcTargetPosition()
+// returns whether we successfully calculated a finite target position.
 //-----------------------------------------------------------------------------
-void LLHUDEffectPointAt::calcTargetPosition()
+bool LLHUDEffectPointAt::calcTargetPosition()
 {
 	LLViewerObject *targetObject = (LLViewerObject *)mTargetObject;
 	LLVector3 local_offset;
@@ -435,10 +441,15 @@ void LLHUDEffectPointAt::calcTargetPosition()
 
 	mTargetPos -= mSourceObject->getRenderPosition();
 
+	if (!mTargetPos.isFinite())
+		return false;
+
 	if (mSourceObject->isAvatar())
 	{
 		((LLVOAvatar*)(LLViewerObject*)mSourceObject)->setAnimationData("PointAtPoint", (void *)&mTargetPos);
 	}
+
+	return true;
 }
 
 const LLVector3d LLHUDEffectPointAt::getPointAtPosGlobal()

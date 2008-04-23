@@ -71,7 +71,7 @@ protected:
 	// lookat behavior has either target position or target object with offset
 	void setTargetObjectAndOffset(LLViewerObject *objp, LLVector3d offset);
 	void setTargetPosGlobal(const LLVector3d &target_pos_global);
-	void calcTargetPosition();
+	bool calcTargetPosition();
 	void update();
 public:
 	static BOOL sDebugPointAt;

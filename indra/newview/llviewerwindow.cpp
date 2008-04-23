@@ -4419,19 +4419,11 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 
 	F32 scale_factor = 1.0f ;
 	if(!keep_window_aspect) //image cropping
-	{
-		//if(snapshot_width > image_width && snapshot_height > image_height) //crop
-		//{
-		//	snapshot_width = image_width ;
-		//	snapshot_height = image_height ;
-		//}
-		//else //crop and enlarge
-		{
-			F32 ratio = llmin( (F32)window_width / image_width , (F32)window_height / image_height) ;
-			snapshot_width = (S32)(ratio * image_width) ;
-			snapshot_height = (S32)(ratio * image_height) ;
-			scale_factor = llmax(1.0f, 1.0f / ratio) ;
-		}
+	{		
+		F32 ratio = llmin( (F32)window_width / image_width , (F32)window_height / image_height) ;
+		snapshot_width = (S32)(ratio * image_width) ;
+		snapshot_height = (S32)(ratio * image_height) ;
+		scale_factor = llmax(1.0f, 1.0f / ratio) ;	
 	}
 
 	LLRenderTarget target;
@@ -4456,6 +4448,13 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 			scale_factor = 1.f;
 			mWindowRect.set(0, 0, snapshot_width, snapshot_height);
 			target.bindTarget();			
+		}
+		else //tiling
+		{
+			F32 ratio = llmin( (F32)window_width / image_width , (F32)window_height / image_height) ;
+			snapshot_width = (S32)(ratio * image_width) ;
+			snapshot_height = (S32)(ratio * image_height) ;
+			scale_factor = llmax(1.0f, 1.0f / ratio) ;	
 		}
 	}
 	

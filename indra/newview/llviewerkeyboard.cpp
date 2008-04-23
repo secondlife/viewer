@@ -31,6 +31,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llappviewer.h"
 #include "llviewerkeyboard.h"
 #include "llmath.h"
 #include "llagent.h"
@@ -99,7 +100,8 @@ static void agent_handle_doubletap_run(EKeystate s, LLAgent::EDoubleTapRunMode m
 		}
 		gAgent.mDoubleTapRunMode = mode;
 	}
-	else if (KEYSTATE_DOWN == s &&
+	else if (gAllowTapTapHoldRun &&
+		 KEYSTATE_DOWN == s &&
 		 gAgent.mDoubleTapRunMode == mode &&
 		 gAgent.mDoubleTapRunTimer.getElapsedTimeF32() < NUDGE_TIME)
 	{

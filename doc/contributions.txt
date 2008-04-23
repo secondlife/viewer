@@ -45,6 +45,7 @@ Alissa Sabre
         VWR-6384
         VWR-6385
         VWR-5929
+        VWR-6430
 Angus Boyd
 	VWR-592
 Argent Stonecutter
@@ -332,6 +333,8 @@ Strife Onizuka
 	VWR-183
 	VWR-2265
 	VWR-4111
+Teardrops Fall
+	VWR-5366
 tenebrous pau
 	VWR-247
 TBBle Kurosawa

@@ -773,9 +773,12 @@ BOOL idle_startup()
 		gDirUtilp->setLindenUserDir(firstname.c_str(), lastname.c_str());
     	LLFile::mkdir(gDirUtilp->getLindenUserDir().c_str());
 
-        // Set UserSettingsFile to the default value.
-		gSavedSettings.setString("UserSettingsFile",
-			gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, DEFAULT_SETTINGS_FILE));
+        // Set PerAccountSettingsFile to the default value.
+		gSavedSettings.setString("PerAccountSettingsFile",
+			gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, 
+				LLAppViewer::instance()->getSettingsFileName("PerAccount")
+				)
+			);
 
 		// Overwrite default user settings with user settings								 
 		LLAppViewer::instance()->loadSettingsFromDirectory(LL_PATH_PER_SL_ACCOUNT);

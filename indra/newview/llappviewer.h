@@ -124,7 +124,20 @@ public:
     virtual void forceErrorInifiniteLoop();
     virtual void forceErrorSoftwareException();
 
+	// *NOTE: There are currently 3 settings files: 
+	// "Global", "PerAccount" and "CrashSettings"
+	// The list is found in app_settings/settings_files.xml
+	// but since they are used explicitly in code,
+	// the follow consts should also do the trick.
+	static const std::string sGlobalSettingsName; 
+	static const std::string sPerAccountSettingsName; 
+	static const std::string sCrashSettingsName; 
+
 	void loadSettingsFromDirectory(ELLPath path_index);
+
+	std::string getSettingsFileName(const std::string& file);
+
+
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
 	virtual bool initLogging(); // Initialize log files, logging system, return false on failure.
@@ -210,9 +223,8 @@ extern BOOL gHideLinks; // used by llpanellogin, lllfloaterbuycurrency, llstartu
 extern LLSD gDebugInfo;
 
 extern BOOL	gAllowIdleAFK;
+extern BOOL	gAllowTapTapHoldRun;
 extern BOOL	gShowObjectUpdates;
-
-extern const char* DEFAULT_SETTINGS_FILE; // llstartup
 
 extern BOOL gAcceptTOS;
 extern BOOL gAcceptCriticalMessage;

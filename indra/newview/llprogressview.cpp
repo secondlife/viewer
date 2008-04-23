@@ -255,10 +255,11 @@ void LLProgressView::draw()
 	const LLFontGL* font = LLFontGL::sSansSerif;
 
 	LLUIImagePtr shadow_imagep = LLUI::getUIImage("rounded_square_soft.tga");
+	LLUIImagePtr bar_fg_imagep = LLUI::getUIImage("progressbar_fill.tga");
+	LLUIImagePtr bar_bg_imagep = LLUI::getUIImage("progressbar_track.tga");
 	LLUIImagePtr bar_imagep = LLUI::getUIImage("rounded_square.tga");
-
-	//LLColor4 background_color = gColors.getColor("DefaultShadowLight");
-	LLColor4 background_color = LLColor4(0.3254f, 0.4f, 0.5058f, 1.0f);
+	
+	LLColor4 background_color = gColors.getColor("LoginProgressBarBgColor");
 
 	F32 alpha = 0.5f + 0.5f*0.5f*(1.f + (F32)sin(3.f*timer.getElapsedTimeF32()));
 	// background_color.mV[3] = background_color.mV[3]*alpha;
@@ -278,22 +279,22 @@ void LLProgressView::draw()
 	S32 background_box_width = background_box_right - background_box_left + 1;
 	S32 background_box_height = background_box_top - background_box_bottom + 1;
 
-	shadow_imagep->draw( background_box_left + 2, 
-									background_box_bottom - 2, 
-									background_box_width, 
-									background_box_height,
-									gColors.getColor( "ColorDropShadow" ) );
-	bar_imagep->draw( background_box_left, 
-									background_box_bottom, 
-									background_box_width, 
-									background_box_height,
-									LLColor4( 0.0f, 0.0f, 0.0f, 0.4f ) );
+//	shadow_imagep->draw( background_box_left + 2, 
+//									background_box_bottom - 2, 
+//									background_box_width, 
+//									background_box_height,
+//									gColors.getColor( "LoginProgressBoxShadowColor" ) );
+//	bar_outline_imagep->draw( background_box_left, 
+//									background_box_bottom, 
+//									background_box_width, 
+//									background_box_height,
+//									gColors.getColor("LoginProgressBoxBorderColor") );
 
 	bar_imagep->draw( background_box_left + 1,
 									background_box_bottom + 1, 
 									background_box_width - 2,
 									background_box_height - 2,
-									LLColor4( 0.4f, 0.4f, 0.4f, 0.3f ) );
+									gColors.getColor("LoginProgressBoxCenterColor") );
 
 	// we'll need this later for catching a click if it looks like it contains a link
 	if ( mMessage.find( "http://" ) != std::string::npos )
@@ -304,39 +305,41 @@ void LLProgressView::draw()
 	// draw loading bar
 	font->renderUTF8(top_line, 0,
 		line_x, line_one_y,
-		LLColor4::white,
+		//LLColor4::white,
+		gColors.getColor("LoginProgressBoxTextColor"),
 		LLFontGL::HCENTER, LLFontGL::BASELINE,
 		LLFontGL::DROP_SHADOW);
 	font->renderUTF8(mText, 0,
 		line_x, line_two_y,
-		LLColor4::white,
+		//LLColor4::white,
+		gColors.getColor("LoginProgressBoxTextColor"),
 		LLFontGL::HCENTER, LLFontGL::BASELINE,
 		LLFontGL::DROP_SHADOW);
+		
+//	shadow_imagep->draw(
+//		bar_left + 2, 
+//		bar_bottom - 2, 
+//		bar_width, 
+//		bar_height,
+//		gColors.getColor("LoginProgressBoxShadowColor"));
 
-	shadow_imagep->draw(
-		bar_left + 2, 
-		bar_bottom - 2, 
-		bar_width, 
-		bar_height,
-		gColors.getColor("ColorDropShadow"));
+//	bar_imagep->draw(
+//		bar_left, 
+//		bar_bottom, 
+//		bar_width, 
+//		bar_height,
+//		LLColor4(0.7f, 0.7f, 0.8f, 1.0f));
 
-	bar_imagep->draw(
-		bar_left, 
-		bar_bottom, 
-		bar_width, 
-		bar_height,
-		LLColor4(0.7f, 0.7f, 0.8f, 1.0f));
-
-	bar_imagep->draw(
+	bar_bg_imagep->draw(
 		bar_left + 2, 
 		bar_bottom + 2,
 		bar_width - 4, 
 		bar_height - 4,
 		background_color);
 
-	LLColor4 bar_color = LLColor4(0.5764f, 0.6627f, 0.8352f, 1.0f);
+	LLColor4 bar_color = gColors.getColor("LoginProgressBarFgColor");
 	bar_color.mV[3] = alpha;
-	bar_imagep->draw(
+	bar_fg_imagep->draw(
 		bar_left + 2, 
 		bar_bottom + 2,
 		llround((bar_width - 4) * (mPercentDone / 100.f)), 
@@ -348,6 +351,7 @@ void LLProgressView::draw()
 	// draw the message if there is one
 	if(!mMessage.empty())
 	{
+		LLColor4 text_message_color = gColors.getColor("LoginProgressBoxTextColor");
 		LLWString wmessage = utf8str_to_wstring(mMessage);
 		const F32 MAX_PIXELS = 640.0f;
 		S32 chars_left = wmessage.length();
@@ -362,7 +366,8 @@ void LLProgressView::draw()
 			LLWString wbuffer = wmessage.substr(msgidx, chars_this_time);
 			font->render(wbuffer, 0,
 						 (F32)line_x, (F32)line_three_y,
-						 LLColor4::white,
+						 //LLColor4::white,
+						 gColors.getColor("LoginProgressBoxTextColor"),
 						 LLFontGL::HCENTER, LLFontGL::BASELINE,
 						 LLFontGL::DROP_SHADOW);
 			msgidx += chars_this_time;
