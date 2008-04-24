@@ -56,6 +56,7 @@ LLFontGL* LLFontGL::sSansSerif = NULL;
 LLFontGL* LLFontGL::sSansSerifBig = NULL;
 LLFontGL* LLFontGL::sSansSerifHuge = NULL;
 LLFontGL* LLFontGL::sSansSerifBold = NULL;
+LLFontList*	LLFontGL::sMonospaceFallback = NULL;
 LLFontList*	LLFontGL::sSSFallback = NULL;
 LLFontList*	LLFontGL::sSSSmallFallback = NULL;
 LLFontList*	LLFontGL::sSSBigFallback = NULL;
@@ -306,7 +307,21 @@ BOOL LLFontGL::initDefaultFonts(F32 screen_dpi, F32 x_scale, F32 y_scale,
 		sMonospace->reset();
 	}
 
-	failed |= !loadFace(sMonospace, monospace_file, monospace_size, NULL);
+	if (sMonospaceFallback)
+	{
+		delete sMonospaceFallback;
+	}
+	sMonospaceFallback = new LLFontList();
+	if (!loadFaceFallback(
+			sMonospaceFallback,
+			sanserif_fallback_file,
+			monospace_size * ss_fallback_scale))
+	{
+		delete sMonospaceFallback;
+		sMonospaceFallback = NULL;
+	}
+
+	failed |= !loadFace(sMonospace, monospace_file, monospace_size, sMonospaceFallback);
 
 	//
 	// Sans-serif fonts
@@ -465,6 +480,9 @@ void LLFontGL::destroyDefaultFonts()
 
 	delete sSansSerifBold;
 	sSansSerifBold = NULL;
+
+	delete sMonospaceFallback;
+	sMonospaceFallback = NULL;
 
 	delete sSSHugeFallback;
 	sSSHugeFallback = NULL;

@@ -40,8 +40,6 @@
 #include "llwindowwin32.h"
 #elif LL_DARWIN
 #include "llwindowmacosx.h"
-#elif LL_LINUX
-#include "llwindowlinux.h" // currently just a dummy wrapper
 #endif
 
 #include "llerror.h"
@@ -464,10 +462,6 @@ LLWindow* LLWindowManager::createWindow(
 		new_window = new LLWindowMacOSX(
 			title, name, x, y, width, height, flags, 
 			fullscreen, clearBg, disable_vsync, use_gl, ignore_pixel_depth, fsaa_samples);
-#elif LL_LINUX
-		new_window = new LLWindowLinux(
-			title, name, x, y, width, height, flags, 
-			fullscreen, clearBg, disable_vsync, use_gl, ignore_pixel_depth);
 #endif
 	}
 	else

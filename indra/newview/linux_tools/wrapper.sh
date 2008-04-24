@@ -43,7 +43,7 @@
 ##   in the bin directory will be stripped: you should replace it with
 ##   an unstripped binary before you run.
 #export LL_WRAPPER='gdb --args'
-#export LL_WRAPPER='valgrind --smc-check=all --log-file=secondlife.vg --leak-check=full --suppressions=/usr/lib/valgrind/glibc-2.5.supp --suppressions=secondlife-i686.supp'
+#export LL_WRAPPER='valgrind --smc-check=all --error-limit=no --log-file=secondlife.vg --leak-check=full --suppressions=/usr/lib/valgrind/glibc-2.5.supp --suppressions=secondlife-i686.supp'
 
 ## - Avoids an often-buggy X feature that doesn't really benefit us anyway.
 export SDL_VIDEO_X11_DGAMOUSE=0
@@ -104,7 +104,7 @@ if [ -n "$LL_RUN_ERR" ]; then
 	if [ "$LL_RUN_ERR" = "runerr" ]; then
 		# generic error running the binary
 		echo '*** Unclean shutdown. ***'
-		if [ "`arch`" = "x86_64" ]; then
+		if [ "`uname -m`" = "x86_64" ]; then
 			echo
 			cat << EOFMARKER
 You are running the Second Life Viewer on a x86_64 platform.  The

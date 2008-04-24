@@ -228,6 +228,7 @@ public:
 	static LLString sAppDir;			// For loading fonts
 		
 	static LLFontGL*	sMonospace;		// medium
+	static LLFontList*	sMonospaceFallback;
 
 	static LLFontGL*	sSansSerifSmall;	// small
 	static LLFontList*	sSSSmallFallback;
