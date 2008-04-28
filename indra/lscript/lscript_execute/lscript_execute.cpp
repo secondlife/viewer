@@ -3027,7 +3027,14 @@ BOOL run_return(U8 *buffer, S32 &offset, BOOL b_print, const LLUUID &id)
 	if (b_print)
 		printf("[0x%X]\tRETURN\n", offset);
 	offset++;
-	S32 bp = lscript_pop_int(buffer);
+	
+	// SEC-53: babbage: broken instructions may allow inbalanced pushes and
+	// pops which can cause caller BP and return IP to be corrupted, so restore
+	// SP from BP before popping caller BP and IP.
+	S32 bp = get_register(buffer, LREG_BP);
+	set_sp(buffer, bp);
+	
+	bp = lscript_pop_int(buffer);
 	set_bp(buffer, bp);
 	offset = lscript_pop_int(buffer);
 	return FALSE;

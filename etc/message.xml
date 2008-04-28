@@ -425,15 +425,6 @@
 					<boolean>true</boolean>
 				</map>
 				
-				<!-- Server to dataserver and client -->
-				<key>SimStats</key>
-				<map>
-					<key>flavor</key>
-					<string>llsd</string>
-					<key>trusted-sender</key>
-					<boolean>true</boolean>
-				</map>
-
 				<!-- UDPDeprecated Messages -->
 				<key>ScriptRunningReply</key>
 				<map>

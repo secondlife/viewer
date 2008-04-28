@@ -3910,9 +3910,11 @@ BOOL LLVolumeParams::isConvex() const
 	F32 path_length = mPathParams.getEnd() - mPathParams.getBegin();
 	F32 hollow = mProfileParams.getHollow();
 	 
+	U8 path_type = mPathParams.getCurveType();
 	if ( path_length > MIN_CONCAVE_PATH_WEDGE
 		&& ( mPathParams.getTwist() != mPathParams.getTwistBegin()
-		     || hollow > 0.f ) )
+		     || (hollow > 0.f 
+				 && LL_PCODE_PATH_LINE != path_type) ) )
 	{
 		// twist along a "not too short" path is concave
 		return FALSE;
@@ -3942,7 +3944,6 @@ BOOL LLVolumeParams::isConvex() const
 		return FALSE;
 	}
 
-	U8 path_type = mPathParams.getCurveType();
 	if ( LL_PCODE_PATH_LINE == path_type )
 	{
 		// straight paths with convex profile

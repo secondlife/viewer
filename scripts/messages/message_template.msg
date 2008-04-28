@@ -2853,7 +2853,7 @@ version 2.0
 
 // Simulator statistics packet (goes out to viewer and dataserver/spaceserver)
 {
-	SimStats Low 140 Trusted Unencoded UDPDeprecated
+	SimStats Low 140 Trusted Unencoded
 	{
 		Region Single
 		{	RegionX				U32				}
@@ -2865,6 +2865,10 @@ version 2.0
 		Stat	Variable
 		{	StatID		U32	}
 		{	StatValue	F32	}
+	}
+	{
+		PidStat Single
+		{	PID					S32				}
 	}
 }
 
